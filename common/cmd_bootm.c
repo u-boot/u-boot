@@ -452,9 +452,7 @@ static int bootm_start_standalone(ulong iflag, int argc, char * const argv[])
 
 	/* Don't start if "autostart" is set to "no" */
 	if (((s = getenv("autostart")) != NULL) && (strcmp(s, "no") == 0)) {
-		char buf[32];
-		sprintf(buf, "%lX", images.os.image_len);
-		setenv("filesize", buf);
+		setenv_hex("filesize", images.os.image_len);
 		return 0;
 	}
 	appl = (int (*)(int, char * const []))(ulong)ntohl(images.ep);
@@ -529,17 +527,14 @@ static int do_bootm_subcommand(cmd_tbl_t *cmdtp, int flag, int argc,
 		case BOOTM_STATE_RAMDISK:
 		{
 			ulong rd_len = images.rd_end - images.rd_start;
-			char str[17];
 
 			ret = boot_ramdisk_high(&images.lmb, images.rd_start,
 				rd_len, &images.initrd_start, &images.initrd_end);
 			if (ret)
 				return ret;
 
-			sprintf(str, "%lx", images.initrd_start);
-			setenv("initrd_start", str);
-			sprintf(str, "%lx", images.initrd_end);
-			setenv("initrd_end", str);
+			setenv_hex("initrd_start", images.initrd_start);
+			setenv_hex("initrd_end", images.initrd_end);
 		}
 			break;
 #endif

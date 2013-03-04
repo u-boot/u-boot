@@ -39,3 +39,13 @@ static inline void unmap_physmem(void *vaddr, unsigned long flags)
 {
 
 }
+
+/* For sandbox, we want addresses to point into our RAM buffer */
+static inline void *map_sysmem(phys_addr_t paddr, unsigned long len)
+{
+	return map_physmem(paddr, len, MAP_WRBACK);
+}
+
+static inline void unmap_sysmem(const void *vaddr)
+{
+}

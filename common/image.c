@@ -74,6 +74,8 @@ static const image_header_t *image_get_ramdisk(ulong rd_addr, uint8_t arch,
 #include <image.h>
 #endif /* !USE_HOSTCC*/
 
+#include <u-boot/crc.h>
+
 static const table_entry_t uimage_arch[] = {
 	{	IH_ARCH_INVALID,	NULL,		"Invalid ARCH",	},
 	{	IH_ARCH_ALPHA,		"alpha",	"Alpha",	},
@@ -160,8 +162,6 @@ static const table_entry_t uimage_comp[] = {
 	{	-1,		"",		"",			},
 };
 
-uint32_t crc32(uint32_t, const unsigned char *, uint);
-uint32_t crc32_wd(uint32_t, const unsigned char *, uint, uint);
 #if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE) || defined(USE_HOSTCC)
 static void genimg_print_time(time_t timestamp);
 #endif

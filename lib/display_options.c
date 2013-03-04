@@ -98,7 +98,8 @@ void print_size(unsigned long long size, const char *s)
  */
 #define MAX_LINE_LENGTH_BYTES (64)
 #define DEFAULT_LINE_LENGTH_BYTES (16)
-int print_buffer (ulong addr, void* data, uint width, uint count, uint linelen)
+int print_buffer(ulong addr, const void *data, uint width, uint count,
+		 uint linelen)
 {
 	/* linebuf as a union causes proper alignment */
 	union linebuf {

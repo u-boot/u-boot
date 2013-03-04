@@ -32,10 +32,16 @@
 #ifdef CONFIG_HAS_DATAFLASH
 #include <dataflash.h>
 #endif
+#include <hash.h>
 #include <watchdog.h>
+#include <asm/io.h>
 #include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#ifndef CONFIG_SYS_MEMTEST_SCRATCH
+#define CONFIG_SYS_MEMTEST_SCRATCH 0
+#endif
 
 static int mod_mem(cmd_tbl_t *, int, int, int, char * const []);
 
@@ -138,9 +144,13 @@ static int do_mem_md(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 # endif
 
 	{
+		ulong bytes = size * length;
+		const void *buf = map_sysmem(addr, bytes);
+
 		/* Print the lines. */
-		print_buffer(addr, (void*)addr, size, length, DISP_LINE_LEN/size);
-		addr += size*length;
+		print_buffer(addr, buf, size, length, DISP_LINE_LEN / size);
+		addr += bytes;
+		unmap_sysmem(buf);
 	}
 #endif
 
@@ -163,6 +173,8 @@ static int do_mem_mw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong	addr, writeval, count;
 	int	size;
+	void *buf;
+	ulong bytes;
 
 	if ((argc < 3) || (argc > 4))
 		return CMD_RET_USAGE;
@@ -188,15 +200,18 @@ static int do_mem_mw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		count = 1;
 	}
 
+	bytes = size * count;
+	buf = map_sysmem(addr, bytes);
 	while (count-- > 0) {
 		if (size == 4)
-			*((ulong  *)addr) = (ulong )writeval;
+			*((ulong *)buf) = (ulong)writeval;
 		else if (size == 2)
-			*((ushort *)addr) = (ushort)writeval;
+			*((ushort *)buf) = (ushort)writeval;
 		else
-			*((u_char *)addr) = (u_char)writeval;
-		addr += size;
+			*((u_char *)buf) = (u_char)writeval;
+		buf += size;
 	}
+	unmap_sysmem(buf);
 	return 0;
 }
 
@@ -258,10 +273,11 @@ int do_mem_mwc ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 static int do_mem_cmp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	ulong	addr1, addr2, count, ngood;
+	ulong	addr1, addr2, count, ngood, bytes;
 	int	size;
 	int     rcode = 0;
 	const char *type;
+	const void *buf1, *buf2, *base;
 
 	if (argc != 4)
 		return CMD_RET_USAGE;
@@ -294,33 +310,40 @@ static int do_mem_cmp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 #endif
 
+	bytes = size * count;
+	base = buf1 = map_sysmem(addr1, bytes);
+	buf2 = map_sysmem(addr2, bytes);
 	for (ngood = 0; ngood < count; ++ngood) {
 		ulong word1, word2;
 		if (size == 4) {
-			word1 = *(ulong *)addr1;
-			word2 = *(ulong *)addr2;
+			word1 = *(ulong *)buf1;
+			word2 = *(ulong *)buf2;
 		} else if (size == 2) {
-			word1 = *(ushort *)addr1;
-			word2 = *(ushort *)addr2;
+			word1 = *(ushort *)buf1;
+			word2 = *(ushort *)buf2;
 		} else {
-			word1 = *(u_char *)addr1;
-			word2 = *(u_char *)addr2;
+			word1 = *(u_char *)buf1;
+			word2 = *(u_char *)buf2;
 		}
 		if (word1 != word2) {
+			ulong offset = buf1 - base;
+
 			printf("%s at 0x%08lx (%#0*lx) != %s at 0x%08lx (%#0*lx)\n",
-				type, addr1, size, word1,
-				type, addr2, size, word2);
+				type, (ulong)(addr1 + offset), size, word1,
+				type, (ulong)(addr2 + offset), size, word2);
 			rcode = 1;
 			break;
 		}
 
-		addr1 += size;
-		addr2 += size;
+		buf1 += size;
+		buf2 += size;
 
 		/* reset watchdog from time to time */
 		if ((ngood % (64 << 10)) == 0)
 			WATCHDOG_RESET();
 	}
+	unmap_sysmem(buf1);
+	unmap_sysmem(buf2);
 
 	printf("Total of %ld %s(s) were the same\n", ngood, type);
 	return rcode;
@@ -328,8 +351,10 @@ static int do_mem_cmp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 static int do_mem_cp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	ulong	addr, dest, count;
+	ulong	addr, dest, count, bytes;
 	int	size;
+	const void *src;
+	void *buf;
 
 	if (argc != 4)
 		return CMD_RET_USAGE;
@@ -419,15 +444,18 @@ static int do_mem_cp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 #endif
 
+	bytes = size * count;
+	buf = map_sysmem(addr, bytes);
+	src = map_sysmem(addr, bytes);
 	while (count-- > 0) {
 		if (size == 4)
-			*((ulong  *)dest) = *((ulong  *)addr);
+			*((ulong *)buf) = *((ulong  *)src);
 		else if (size == 2)
-			*((ushort *)dest) = *((ushort *)addr);
+			*((ushort *)buf) = *((ushort *)src);
 		else
-			*((u_char *)dest) = *((u_char *)addr);
-		addr += size;
-		dest += size;
+			*((u_char *)buf) = *((u_char *)src);
+		src += size;
+		buf += size;
 
 		/* reset watchdog from time to time */
 		if ((count % (64 << 10)) == 0)
@@ -453,11 +481,12 @@ static int do_mem_base(cmd_tbl_t *cmdtp, int flag, int argc,
 static int do_mem_loop(cmd_tbl_t *cmdtp, int flag, int argc,
 		       char * const argv[])
 {
-	ulong	addr, length, i;
+	ulong	addr, length, i, bytes;
 	int	size;
 	volatile uint	*longp;
 	volatile ushort *shortp;
 	volatile u_char	*cp;
+	const void *buf;
 
 	if (argc < 3)
 		return CMD_RET_USAGE;
@@ -477,28 +506,31 @@ static int do_mem_loop(cmd_tbl_t *cmdtp, int flag, int argc,
 	*/
 	length = simple_strtoul(argv[2], NULL, 16);
 
+	bytes = size * length;
+	buf = map_sysmem(addr, bytes);
+
 	/* We want to optimize the loops to run as fast as possible.
 	 * If we have only one object, just run infinite loops.
 	 */
 	if (length == 1) {
 		if (size == 4) {
-			longp = (uint *)addr;
+			longp = (uint *)buf;
 			for (;;)
 				i = *longp;
 		}
 		if (size == 2) {
-			shortp = (ushort *)addr;
+			shortp = (ushort *)buf;
 			for (;;)
 				i = *shortp;
 		}
-		cp = (u_char *)addr;
+		cp = (u_char *)buf;
 		for (;;)
 			i = *cp;
 	}
 
 	if (size == 4) {
 		for (;;) {
-			longp = (uint *)addr;
+			longp = (uint *)buf;
 			i = length;
 			while (i-- > 0)
 				*longp++;
@@ -506,28 +538,30 @@ static int do_mem_loop(cmd_tbl_t *cmdtp, int flag, int argc,
 	}
 	if (size == 2) {
 		for (;;) {
-			shortp = (ushort *)addr;
+			shortp = (ushort *)buf;
 			i = length;
 			while (i-- > 0)
 				*shortp++;
 		}
 	}
 	for (;;) {
-		cp = (u_char *)addr;
+		cp = (u_char *)buf;
 		i = length;
 		while (i-- > 0)
 			*cp++;
 	}
+	unmap_sysmem(buf);
 }
 
 #ifdef CONFIG_LOOPW
 int do_mem_loopw (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	ulong	addr, length, i, data;
+	ulong	addr, length, i, data, bytes;
 	int	size;
 	volatile uint	*longp;
 	volatile ushort *shortp;
 	volatile u_char	*cp;
+	void *buf;
 
 	if (argc < 4)
 		return CMD_RET_USAGE;
@@ -550,28 +584,31 @@ int do_mem_loopw (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	/* data to write */
 	data = simple_strtoul(argv[3], NULL, 16);
 
+	bytes = size * length;
+	buf = map_sysmem(addr, bytes);
+
 	/* We want to optimize the loops to run as fast as possible.
 	 * If we have only one object, just run infinite loops.
 	 */
 	if (length == 1) {
 		if (size == 4) {
-			longp = (uint *)addr;
+			longp = (uint *)buf;
 			for (;;)
 				*longp = data;
 					}
 		if (size == 2) {
-			shortp = (ushort *)addr;
+			shortp = (ushort *)buf;
 			for (;;)
 				*shortp = data;
 		}
-		cp = (u_char *)addr;
+		cp = (u_char *)buf;
 		for (;;)
 			*cp = data;
 	}
 
 	if (size == 4) {
 		for (;;) {
-			longp = (uint *)addr;
+			longp = (uint *)buf;
 			i = length;
 			while (i-- > 0)
 				*longp++ = data;
@@ -579,14 +616,14 @@ int do_mem_loopw (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 	if (size == 2) {
 		for (;;) {
-			shortp = (ushort *)addr;
+			shortp = (ushort *)buf;
 			i = length;
 			while (i-- > 0)
 				*shortp++ = data;
 		}
 	}
 	for (;;) {
-		cp = (u_char *)addr;
+		cp = (u_char *)buf;
 		i = length;
 		while (i-- > 0)
 			*cp++ = data;
@@ -594,36 +631,19 @@ int do_mem_loopw (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 #endif /* CONFIG_LOOPW */
 
-/*
- * Perform a memory test. A more complete alternative test can be
- * configured using CONFIG_SYS_ALT_MEMTEST. The complete test loops until
- * interrupted by ctrl-c or by a failure of one of the sub-tests.
- */
-static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
-			char * const argv[])
+static ulong mem_test_alt(vu_long *buf, ulong start_addr, ulong end_addr,
+			  vu_long *dummy)
 {
-	vu_long	*addr, *start, *end;
-	ulong	val;
-	ulong	readback;
-	ulong	errs = 0;
-	int iterations = 1;
-	int iteration_limit;
-
-#if defined(CONFIG_SYS_ALT_MEMTEST)
-	vu_long	len;
-	vu_long	offset;
-	vu_long	test_offset;
-	vu_long	pattern;
-	vu_long	temp;
-	vu_long	anti_pattern;
-	vu_long	num_words;
-#if defined(CONFIG_SYS_MEMTEST_SCRATCH)
-	vu_long *dummy = (vu_long*)CONFIG_SYS_MEMTEST_SCRATCH;
-#else
-	vu_long *dummy = NULL;	/* yes, this is address 0x0, not NULL */
-#endif
-	int	j;
-
+	vu_long *addr;
+	ulong errs = 0;
+	ulong val, readback;
+	int j;
+	vu_long offset;
+	vu_long test_offset;
+	vu_long pattern;
+	vu_long temp;
+	vu_long anti_pattern;
+	vu_long num_words;
 	static const ulong bitpattern[] = {
 		0x00000001,	/* single bit */
 		0x00000003,	/* two adjacent bits */
@@ -634,20 +654,292 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 		0x00000055,	/* four non-adjacent bits */
 		0xaaaaaaaa,	/* alternating 1/0 */
 	};
+
+	num_words = (end_addr - start_addr) / sizeof(vu_long);
+
+	/*
+	 * Data line test: write a pattern to the first
+	 * location, write the 1's complement to a 'parking'
+	 * address (changes the state of the data bus so a
+	 * floating bus doesn't give a false OK), and then
+	 * read the value back. Note that we read it back
+	 * into a variable because the next time we read it,
+	 * it might be right (been there, tough to explain to
+	 * the quality guys why it prints a failure when the
+	 * "is" and "should be" are obviously the same in the
+	 * error message).
+	 *
+	 * Rather than exhaustively testing, we test some
+	 * patterns by shifting '1' bits through a field of
+	 * '0's and '0' bits through a field of '1's (i.e.
+	 * pattern and ~pattern).
+	 */
+	addr = buf;
+	for (j = 0; j < sizeof(bitpattern) / sizeof(bitpattern[0]); j++) {
+		val = bitpattern[j];
+		for (; val != 0; val <<= 1) {
+			*addr = val;
+			*dummy  = ~val; /* clear the test data off the bus */
+			readback = *addr;
+			if (readback != val) {
+				printf("FAILURE (data line): "
+					"expected %08lx, actual %08lx\n",
+						val, readback);
+				errs++;
+				if (ctrlc())
+					return -1;
+			}
+			*addr  = ~val;
+			*dummy  = val;
+			readback = *addr;
+			if (readback != ~val) {
+				printf("FAILURE (data line): "
+					"Is %08lx, should be %08lx\n",
+						readback, ~val);
+				errs++;
+				if (ctrlc())
+					return -1;
+			}
+		}
+	}
+
+	/*
+	 * Based on code whose Original Author and Copyright
+	 * information follows: Copyright (c) 1998 by Michael
+	 * Barr. This software is placed into the public
+	 * domain and may be used for any purpose. However,
+	 * this notice must not be changed or removed and no
+	 * warranty is either expressed or implied by its
+	 * publication or distribution.
+	 */
+
+	/*
+	* Address line test
+
+	 * Description: Test the address bus wiring in a
+	 *              memory region by performing a walking
+	 *              1's test on the relevant bits of the
+	 *              address and checking for aliasing.
+	 *              This test will find single-bit
+	 *              address failures such as stuck-high,
+	 *              stuck-low, and shorted pins. The base
+	 *              address and size of the region are
+	 *              selected by the caller.
+
+	 * Notes:	For best results, the selected base
+	 *              address should have enough LSB 0's to
+	 *              guarantee single address bit changes.
+	 *              For example, to test a 64-Kbyte
+	 *              region, select a base address on a
+	 *              64-Kbyte boundary. Also, select the
+	 *              region size as a power-of-two if at
+	 *              all possible.
+	 *
+	 * Returns:     0 if the test succeeds, 1 if the test fails.
+	 */
+	pattern = (vu_long) 0xaaaaaaaa;
+	anti_pattern = (vu_long) 0x55555555;
+
+	debug("%s:%d: length = 0x%.8lx\n", __func__, __LINE__, num_words);
+	/*
+	 * Write the default pattern at each of the
+	 * power-of-two offsets.
+	 */
+	for (offset = 1; offset < num_words; offset <<= 1)
+		addr[offset] = pattern;
+
+	/*
+	 * Check for address bits stuck high.
+	 */
+	test_offset = 0;
+	addr[test_offset] = anti_pattern;
+
+	for (offset = 1; offset < num_words; offset <<= 1) {
+		temp = addr[offset];
+		if (temp != pattern) {
+			printf("\nFAILURE: Address bit stuck high @ 0x%.8lx:"
+				" expected 0x%.8lx, actual 0x%.8lx\n",
+				start_addr + offset, pattern, temp);
+			errs++;
+			if (ctrlc())
+				return -1;
+		}
+	}
+	addr[test_offset] = pattern;
+	WATCHDOG_RESET();
+
+	/*
+	 * Check for addr bits stuck low or shorted.
+	 */
+	for (test_offset = 1; test_offset < num_words; test_offset <<= 1) {
+		addr[test_offset] = anti_pattern;
+
+		for (offset = 1; offset < num_words; offset <<= 1) {
+			temp = addr[offset];
+			if ((temp != pattern) && (offset != test_offset)) {
+				printf("\nFAILURE: Address bit stuck low or"
+					" shorted @ 0x%.8lx: expected 0x%.8lx,"
+					" actual 0x%.8lx\n",
+					start_addr + offset, pattern, temp);
+				errs++;
+				if (ctrlc())
+					return -1;
+			}
+		}
+		addr[test_offset] = pattern;
+	}
+
+	/*
+	 * Description: Test the integrity of a physical
+	 *		memory device by performing an
+	 *		increment/decrement test over the
+	 *		entire region. In the process every
+	 *		storage bit in the device is tested
+	 *		as a zero and a one. The base address
+	 *		and the size of the region are
+	 *		selected by the caller.
+	 *
+	 * Returns:     0 if the test succeeds, 1 if the test fails.
+	 */
+	num_words++;
+
+	/*
+	 * Fill memory with a known pattern.
+	 */
+	for (pattern = 1, offset = 0; offset < num_words; pattern++, offset++) {
+		WATCHDOG_RESET();
+		addr[offset] = pattern;
+	}
+
+	/*
+	 * Check each location and invert it for the second pass.
+	 */
+	for (pattern = 1, offset = 0; offset < num_words; pattern++, offset++) {
+		WATCHDOG_RESET();
+		temp = addr[offset];
+		if (temp != pattern) {
+			printf("\nFAILURE (read/write) @ 0x%.8lx:"
+				" expected 0x%.8lx, actual 0x%.8lx)\n",
+				start_addr + offset, pattern, temp);
+			errs++;
+			if (ctrlc())
+				return -1;
+		}
+
+		anti_pattern = ~pattern;
+		addr[offset] = anti_pattern;
+	}
+
+	/*
+	 * Check each location for the inverted pattern and zero it.
+	 */
+	for (pattern = 1, offset = 0; offset < num_words; pattern++, offset++) {
+		WATCHDOG_RESET();
+		anti_pattern = ~pattern;
+		temp = addr[offset];
+		if (temp != anti_pattern) {
+			printf("\nFAILURE (read/write): @ 0x%.8lx:"
+				" expected 0x%.8lx, actual 0x%.8lx)\n",
+				start_addr + offset, anti_pattern, temp);
+			errs++;
+			if (ctrlc())
+				return -1;
+		}
+		addr[offset] = 0;
+	}
+
+	return 0;
+}
+
+static ulong mem_test_quick(vu_long *buf, ulong start_addr, ulong end_addr,
+			    vu_long pattern, int iteration)
+{
+	vu_long *end;
+	vu_long *addr;
+	ulong errs = 0;
+	ulong incr, length;
+	ulong val, readback;
+
+	/* Alternate the pattern */
+	incr = 1;
+	if (iteration & 1) {
+		incr = -incr;
+		/*
+		 * Flip the pattern each time to make lots of zeros and
+		 * then, the next time, lots of ones.  We decrement
+		 * the "negative" patterns and increment the "positive"
+		 * patterns to preserve this feature.
+		 */
+		if (pattern & 0x80000000)
+			pattern = -pattern;	/* complement & increment */
+		else
+			pattern = ~pattern;
+	}
+	length = (end_addr - start_addr) / sizeof(ulong);
+	end = buf + length;
+	printf("\rPattern %08lX  Writing..."
+		"%12s"
+		"\b\b\b\b\b\b\b\b\b\b",
+		pattern, "");
+
+	for (addr = buf, val = pattern; addr < end; addr++) {
+		WATCHDOG_RESET();
+		*addr = val;
+		val += incr;
+	}
+
+	puts("Reading...");
+
+	for (addr = buf, val = pattern; addr < end; addr++) {
+		WATCHDOG_RESET();
+		readback = *addr;
+		if (readback != val) {
+			ulong offset = addr - buf;
+
+			printf("\nMem error @ 0x%08X: "
+				"found %08lX, expected %08lX\n",
+				(uint)(uintptr_t)(start_addr + offset),
+				readback, val);
+			errs++;
+			if (ctrlc())
+				return -1;
+		}
+		val += incr;
+	}
+
+	return 0;
+}
+
+/*
+ * Perform a memory test. A more complete alternative test can be
+ * configured using CONFIG_SYS_ALT_MEMTEST. The complete test loops until
+ * interrupted by ctrl-c or by a failure of one of the sub-tests.
+ */
+static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
+			char * const argv[])
+{
+	ulong start, end;
+	vu_long *buf, *dummy;
+	int iteration_limit;
+	int ret;
+	ulong errs = 0;	/* number of errors, or -1 if interrupted */
+	ulong pattern;
+	int iteration;
+#if defined(CONFIG_SYS_ALT_MEMTEST)
+	const int alt_test = 1;
 #else
-	ulong	incr;
-	ulong	pattern;
+	const int alt_test = 0;
 #endif
 
 	if (argc > 1)
-		start = (ulong *)simple_strtoul(argv[1], NULL, 16);
+		start = simple_strtoul(argv[1], NULL, 16);
 	else
-		start = (ulong *)CONFIG_SYS_MEMTEST_START;
+		start = CONFIG_SYS_MEMTEST_START;
 
 	if (argc > 2)
-		end = (ulong *)simple_strtoul(argv[2], NULL, 16);
+		end = simple_strtoul(argv[2], NULL, 16);
 	else
-		end = (ulong *)(CONFIG_SYS_MEMTEST_END);
+		end = CONFIG_SYS_MEMTEST_END;
 
 	if (argc > 3)
 		pattern = (ulong)simple_strtoul(argv[3], NULL, 16);
@@ -659,295 +951,56 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 	else
 		iteration_limit = 0;
 
-#if defined(CONFIG_SYS_ALT_MEMTEST)
-	printf ("Testing %08x ... %08x:\n", (uint)start, (uint)end);
-	debug("%s:%d: start 0x%p end 0x%p\n",
-		__FUNCTION__, __LINE__, start, end);
+	printf("Testing %08x ... %08x:\n", (uint)start, (uint)end);
+	debug("%s:%d: start %#08lx end %#08lx\n", __func__, __LINE__,
+	      start, end);
 
-	for (;;) {
+	buf = map_sysmem(start, end - start);
+	dummy = map_sysmem(CONFIG_SYS_MEMTEST_SCRATCH, sizeof(vu_long));
+	for (iteration = 0;
+			!iteration_limit || iteration < iteration_limit;
+			iteration++) {
 		if (ctrlc()) {
-			putc ('\n');
-			return 1;
+			errs = -1UL;
+			break;
 		}
 
-
-		if (iteration_limit && iterations > iteration_limit) {
-			printf("Tested %d iteration(s) with %lu errors.\n",
-				iterations-1, errs);
-			return errs != 0;
-		}
-
-		printf("Iteration: %6d\r", iterations);
+		printf("Iteration: %6d\r", iteration + 1);
 		debug("\n");
-		iterations++;
-
-		/*
-		 * Data line test: write a pattern to the first
-		 * location, write the 1's complement to a 'parking'
-		 * address (changes the state of the data bus so a
-		 * floating bus doesn't give a false OK), and then
-		 * read the value back. Note that we read it back
-		 * into a variable because the next time we read it,
-		 * it might be right (been there, tough to explain to
-		 * the quality guys why it prints a failure when the
-		 * "is" and "should be" are obviously the same in the
-		 * error message).
-		 *
-		 * Rather than exhaustively testing, we test some
-		 * patterns by shifting '1' bits through a field of
-		 * '0's and '0' bits through a field of '1's (i.e.
-		 * pattern and ~pattern).
-		 */
-		addr = start;
-		for (j = 0; j < sizeof(bitpattern)/sizeof(bitpattern[0]); j++) {
-		    val = bitpattern[j];
-		    for(; val != 0; val <<= 1) {
-			*addr  = val;
-			*dummy  = ~val; /* clear the test data off of the bus */
-			readback = *addr;
-			if(readback != val) {
-			    printf ("FAILURE (data line): "
-				"expected %08lx, actual %08lx\n",
-					  val, readback);
-			    errs++;
-			    if (ctrlc()) {
-				putc ('\n');
-				return 1;
-			    }
-			}
-			*addr  = ~val;
-			*dummy  = val;
-			readback = *addr;
-			if(readback != ~val) {
-			    printf ("FAILURE (data line): "
-				"Is %08lx, should be %08lx\n",
-					readback, ~val);
-			    errs++;
-			    if (ctrlc()) {
-				putc ('\n');
-				return 1;
-			    }
-			}
-		    }
+		if (alt_test) {
+			errs = mem_test_alt(buf, start, end, dummy);
+		} else {
+			errs = mem_test_quick(buf, start, end, pattern,
+					      iteration);
 		}
-
-		/*
-		 * Based on code whose Original Author and Copyright
-		 * information follows: Copyright (c) 1998 by Michael
-		 * Barr. This software is placed into the public
-		 * domain and may be used for any purpose. However,
-		 * this notice must not be changed or removed and no
-		 * warranty is either expressed or implied by its
-		 * publication or distribution.
-		 */
-
-		/*
-		 * Address line test
-		 *
-		 * Description: Test the address bus wiring in a
-		 *              memory region by performing a walking
-		 *              1's test on the relevant bits of the
-		 *              address and checking for aliasing.
-		 *              This test will find single-bit
-		 *              address failures such as stuck-high,
-		 *              stuck-low, and shorted pins. The base
-		 *              address and size of the region are
-		 *              selected by the caller.
-		 *
-		 * Notes:	For best results, the selected base
-		 *              address should have enough LSB 0's to
-		 *              guarantee single address bit changes.
-		 *              For example, to test a 64-Kbyte
-		 *              region, select a base address on a
-		 *              64-Kbyte boundary. Also, select the
-		 *              region size as a power-of-two if at
-		 *              all possible.
-		 *
-		 * Returns:     0 if the test succeeds, 1 if the test fails.
-		 */
-		len = ((ulong)end - (ulong)start)/sizeof(vu_long);
-		pattern = (vu_long) 0xaaaaaaaa;
-		anti_pattern = (vu_long) 0x55555555;
-
-		debug("%s:%d: length = 0x%.8lx\n",
-			__FUNCTION__, __LINE__,
-			len);
-		/*
-		 * Write the default pattern at each of the
-		 * power-of-two offsets.
-		 */
-		for (offset = 1; offset < len; offset <<= 1) {
-			start[offset] = pattern;
-		}
-
-		/*
-		 * Check for address bits stuck high.
-		 */
-		test_offset = 0;
-		start[test_offset] = anti_pattern;
-
-		for (offset = 1; offset < len; offset <<= 1) {
-		    temp = start[offset];
-		    if (temp != pattern) {
-			printf ("\nFAILURE: Address bit stuck high @ 0x%.8lx:"
-				" expected 0x%.8lx, actual 0x%.8lx\n",
-				(ulong)&start[offset], pattern, temp);
-			errs++;
-			if (ctrlc()) {
-			    putc ('\n');
-			    return 1;
-			}
-		    }
-		}
-		start[test_offset] = pattern;
-		WATCHDOG_RESET();
-
-		/*
-		 * Check for addr bits stuck low or shorted.
-		 */
-		for (test_offset = 1; test_offset < len; test_offset <<= 1) {
-		    start[test_offset] = anti_pattern;
-
-		    for (offset = 1; offset < len; offset <<= 1) {
-			temp = start[offset];
-			if ((temp != pattern) && (offset != test_offset)) {
-			    printf ("\nFAILURE: Address bit stuck low or shorted @"
-				" 0x%.8lx: expected 0x%.8lx, actual 0x%.8lx\n",
-				(ulong)&start[offset], pattern, temp);
-			    errs++;
-			    if (ctrlc()) {
-				putc ('\n');
-				return 1;
-			    }
-			}
-		    }
-		    start[test_offset] = pattern;
-		}
-
-		/*
-		 * Description: Test the integrity of a physical
-		 *		memory device by performing an
-		 *		increment/decrement test over the
-		 *		entire region. In the process every
-		 *		storage bit in the device is tested
-		 *		as a zero and a one. The base address
-		 *		and the size of the region are
-		 *		selected by the caller.
-		 *
-		 * Returns:     0 if the test succeeds, 1 if the test fails.
-		 */
-		num_words = ((ulong)end - (ulong)start)/sizeof(vu_long) + 1;
-
-		/*
-		 * Fill memory with a known pattern.
-		 */
-		for (pattern = 1, offset = 0; offset < num_words; pattern++, offset++) {
-			WATCHDOG_RESET();
-			start[offset] = pattern;
-		}
-
-		/*
-		 * Check each location and invert it for the second pass.
-		 */
-		for (pattern = 1, offset = 0; offset < num_words; pattern++, offset++) {
-		    WATCHDOG_RESET();
-		    temp = start[offset];
-		    if (temp != pattern) {
-			printf ("\nFAILURE (read/write) @ 0x%.8lx:"
-				" expected 0x%.8lx, actual 0x%.8lx)\n",
-				(ulong)&start[offset], pattern, temp);
-			errs++;
-			if (ctrlc()) {
-			    putc ('\n');
-			    return 1;
-			}
-		    }
-
-		    anti_pattern = ~pattern;
-		    start[offset] = anti_pattern;
-		}
-
-		/*
-		 * Check each location for the inverted pattern and zero it.
-		 */
-		for (pattern = 1, offset = 0; offset < num_words; pattern++, offset++) {
-		    WATCHDOG_RESET();
-		    anti_pattern = ~pattern;
-		    temp = start[offset];
-		    if (temp != anti_pattern) {
-			printf ("\nFAILURE (read/write): @ 0x%.8lx:"
-				" expected 0x%.8lx, actual 0x%.8lx)\n",
-				(ulong)&start[offset], anti_pattern, temp);
-			errs++;
-			if (ctrlc()) {
-			    putc ('\n');
-			    return 1;
-			}
-		    }
-		    start[offset] = 0;
-		}
+		if (errs == -1UL)
+			break;
 	}
 
-#else /* The original, quickie test */
-	incr = 1;
-	for (;;) {
-		if (ctrlc()) {
-			putc ('\n');
-			return 1;
-		}
+	/*
+	 * Work-around for eldk-4.2 which gives this warning if we try to
+	 * case in the unmap_sysmem() call:
+	 * warning: initialization discards qualifiers from pointer target type
+	 */
+	{
+		void *vbuf = (void *)buf;
+		void *vdummy = (void *)dummy;
 
-		if (iteration_limit && iterations > iteration_limit) {
-			printf("Tested %d iteration(s) with %lu errors.\n",
-				iterations-1, errs);
-			return errs != 0;
-		}
-		++iterations;
-
-		printf ("\rPattern %08lX  Writing..."
-			"%12s"
-			"\b\b\b\b\b\b\b\b\b\b",
-			pattern, "");
-
-		for (addr=start,val=pattern; addr<end; addr++) {
-			WATCHDOG_RESET();
-			*addr = val;
-			val  += incr;
-		}
-
-		puts ("Reading...");
-
-		for (addr=start,val=pattern; addr<end; addr++) {
-			WATCHDOG_RESET();
-			readback = *addr;
-			if (readback != val) {
-				printf ("\nMem error @ 0x%08X: "
-					"found %08lX, expected %08lX\n",
-					(uint)(uintptr_t)addr, readback, val);
-				errs++;
-				if (ctrlc()) {
-					putc ('\n');
-					return 1;
-				}
-			}
-			val += incr;
-		}
-
-		/*
-		 * Flip the pattern each time to make lots of zeros and
-		 * then, the next time, lots of ones.  We decrement
-		 * the "negative" patterns and increment the "positive"
-		 * patterns to preserve this feature.
-		 */
-		if(pattern & 0x80000000) {
-			pattern = -pattern;	/* complement & increment */
-		}
-		else {
-			pattern = ~pattern;
-		}
-		incr = -incr;
+		unmap_sysmem(vbuf);
+		unmap_sysmem(vdummy);
 	}
-#endif
-	return 0;	/* not reached */
+
+	if (errs == -1UL) {
+		/* Memory test was aborted - write a newline to finish off */
+		putc('\n');
+		ret = 1;
+	} else {
+		printf("Tested %d iteration(s) with %lu errors.\n",
+			iteration, errs);
+		ret = errs != 0;
+	}
+
+	return ret;	/* not reached */
 }
 
 
@@ -962,6 +1015,7 @@ mod_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const argv[])
 {
 	ulong	addr, i;
 	int	nbytes, size;
+	void *ptr = NULL;
 
 	if (argc != 2)
 		return CMD_RET_USAGE;
@@ -1006,13 +1060,14 @@ mod_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const argv[])
 	 * the next value.  A non-converted value exits.
 	 */
 	do {
+		ptr = map_sysmem(addr, size);
 		printf("%08lx:", addr);
 		if (size == 4)
-			printf(" %08x", *((uint   *)addr));
+			printf(" %08x", *((uint *)ptr));
 		else if (size == 2)
-			printf(" %04x", *((ushort *)addr));
+			printf(" %04x", *((ushort *)ptr));
 		else
-			printf(" %02x", *((u_char *)addr));
+			printf(" %02x", *((u_char *)ptr));
 
 		nbytes = readline (" ? ");
 		if (nbytes == 0 || (nbytes == 1 && console_buffer[0] == '-')) {
@@ -1042,16 +1097,18 @@ mod_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const argv[])
 				reset_cmd_timeout();
 #endif
 				if (size == 4)
-					*((uint   *)addr) = i;
+					*((uint *)ptr) = i;
 				else if (size == 2)
-					*((ushort *)addr) = i;
+					*((ushort *)ptr) = i;
 				else
-					*((u_char *)addr) = i;
+					*((u_char *)ptr) = i;
 				if (incrflag)
 					addr += size;
 			}
 		}
 	} while (nbytes);
+	if (ptr)
+		unmap_sysmem(ptr);
 
 	mm_last_addr = addr;
 	mm_last_size = size;
@@ -1060,89 +1117,27 @@ mod_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const argv[])
 
 #ifdef CONFIG_CMD_CRC32
 
-#ifndef CONFIG_CRC32_VERIFY
-
 static int do_mem_crc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	ulong addr, length;
-	ulong crc;
-	ulong *ptr;
+	int flags = 0;
+	int ac;
+	char * const *av;
 
 	if (argc < 3)
 		return CMD_RET_USAGE;
 
-	addr = simple_strtoul (argv[1], NULL, 16);
-	addr += base_address;
-
-	length = simple_strtoul (argv[2], NULL, 16);
-
-	crc = crc32_wd (0, (const uchar *) addr, length, CHUNKSZ_CRC32);
-
-	printf ("CRC32 for %08lx ... %08lx ==> %08lx\n",
-			addr, addr + length - 1, crc);
-
-	if (argc > 3) {
-		ptr = (ulong *) simple_strtoul (argv[3], NULL, 16);
-		*ptr = crc;
-	}
-
-	return 0;
-}
-
-#else	/* CONFIG_CRC32_VERIFY */
-
-int do_mem_crc (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	ulong addr, length;
-	ulong crc;
-	ulong *ptr;
-	ulong vcrc;
-	int verify;
-	int ac;
-	char * const *av;
-
-	if (argc < 3) {
-usage:
-		return CMD_RET_USAGE;
-	}
-
 	av = argv + 1;
 	ac = argc - 1;
+#ifdef CONFIG_HASH_VERIFY
 	if (strcmp(*av, "-v") == 0) {
-		verify = 1;
+		flags |= HASH_FLAG_VERIFY;
 		av++;
 		ac--;
-		if (ac < 3)
-			goto usage;
-	} else
-		verify = 0;
-
-	addr = simple_strtoul(*av++, NULL, 16);
-	addr += base_address;
-	length = simple_strtoul(*av++, NULL, 16);
-
-	crc = crc32_wd (0, (const uchar *) addr, length, CHUNKSZ_CRC32);
-
-	if (!verify) {
-		printf ("CRC32 for %08lx ... %08lx ==> %08lx\n",
-				addr, addr + length - 1, crc);
-		if (ac > 2) {
-			ptr = (ulong *) simple_strtoul (*av++, NULL, 16);
-			*ptr = crc;
-		}
-	} else {
-		vcrc = simple_strtoul(*av++, NULL, 16);
-		if (vcrc != crc) {
-			printf ("CRC32 for %08lx ... %08lx ==> %08lx != %08lx ** ERROR **\n",
-					addr, addr + length - 1, crc, vcrc);
-			return 1;
-		}
 	}
+#endif
 
-	return 0;
-
+	return hash_command("crc32", flags, cmdtp, flag, ac, av);
 }
-#endif	/* CONFIG_CRC32_VERIFY */
 
 #endif
 

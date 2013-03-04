@@ -44,6 +44,14 @@ ssize_t os_read(int fd, void *buf, size_t count)
 	return read(fd, buf, count);
 }
 
+ssize_t os_read_no_block(int fd, void *buf, size_t count)
+{
+	const int flags = fcntl(fd, F_GETFL, 0);
+
+	fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+	return os_read(fd, buf, count);
+}
+
 ssize_t os_write(int fd, const void *buf, size_t count)
 {
 	return write(fd, buf, count);

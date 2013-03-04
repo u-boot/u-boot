@@ -256,7 +256,6 @@ int do_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	unsigned long bytes;
 	unsigned long pos;
 	int len_read;
-	char buf[12];
 	unsigned long time;
 
 	if (argc < 2)
@@ -308,8 +307,7 @@ int do_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	}
 	puts("\n");
 
-	sprintf(buf, "0x%x", len_read);
-	setenv("filesize", buf);
+	setenv_hex("filesize", len_read);
 
 	return 0;
 }

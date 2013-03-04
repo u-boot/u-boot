@@ -31,7 +31,7 @@
 
 int do_sha1sum(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	int verify = 0;
+	int flags = HASH_FLAG_ENV;
 	int ac;
 	char * const *av;
 
@@ -42,13 +42,13 @@ int do_sha1sum(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	ac = argc - 1;
 #ifdef CONFIG_SHA1SUM_VERIFY
 	if (strcmp(*av, "-v") == 0) {
-		verify = 1;
+		flags |= HASH_FLAG_VERIFY;
 		av++;
 		ac--;
 	}
 #endif
 
-	return hash_command("sha1", verify, cmdtp, flag, ac, av);
+	return hash_command("sha1", flags, cmdtp, flag, ac, av);
 }
 
 #ifdef CONFIG_SHA1SUM_VERIFY
