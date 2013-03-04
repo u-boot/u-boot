@@ -310,6 +310,12 @@ ENTRY(cpu_init_cp15)
 #endif
 	mcr	p15, 0, r0, c1, c0, 0
 
+#ifdef CONFIG_ARM_ERRATA_716044
+	mrc	p15, 0, r0, c1, c0, 0	@ read system control register
+	orr	r0, r0, #1 << 11	@ set bit #11
+	mcr	p15, 0, r0, c1, c0, 0	@ write system control register
+#endif
+
 #ifdef CONFIG_ARM_ERRATA_742230
 	mrc	p15, 0, r0, c15, c0, 1	@ read diagnostic register
 	orr	r0, r0, #1 << 4		@ set bit #4
