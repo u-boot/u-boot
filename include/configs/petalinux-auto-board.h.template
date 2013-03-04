@@ -503,12 +503,12 @@
 /* Don't define BOOTARGS, we get it from the DTB chosen fragment */
 #undef CONFIG_BOOTARGS
 #define	CONFIG_HOSTNAME		XILINX_BOARD_NAME
+
+/* set up default boot command */
 #ifdef FLASH
-#define	CONFIG_BOOTCOMMAND	"setenv var \"if test ${dtbsize} -le 0\\; then bootm ${kernstart}\\; else run dtbboot\\; fi\"; run var; setenv var" \
-
+# define	CONFIG_BOOTCOMMAND	"setenv var \"if test ${dtbsize} -le 0\\; then bootm ${kernstart}\\; else run dtbboot\\; fi\"; run var; setenv var"
 #elif defined(CONFIG_SPI_FLASH)
-#define CONFIG_BOOTCOMMAND	"setenv var \"if test ${dtbsize} -le 0\\; then run sfboot\\; else run dtbboot\\; fi\"; run var; setenv var" \
-
+# define CONFIG_BOOTCOMMAND	"setenv var \"if test ${dtbsize} -le 0\\; then run sfboot\\; else run dtbboot\\; fi\"; run var; setenv var"
 #elif defined(CONFIG_NAND_FLASH)
 # define CONFIG_BOOTCOMMAND	"setenv var \"if test ${dtbsize} -le 0\\; then run nandboot\\; else run dtbboot\\; fi\"; run var; setenv var"
 #endif
