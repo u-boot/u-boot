@@ -112,6 +112,23 @@ static void memac_set_interface_mode(struct fsl_enet_mac *mac,
 	/* Enable automatic speed selection */
 	if_mode |= IF_MODE_EN_AUTO;
 
+	if (type == PHY_INTERFACE_MODE_RGMII) {
+		if_mode &= ~IF_MODE_EN_AUTO;
+		if_mode &= ~IF_MODE_SETSP_MASK;
+		switch (speed) {
+		case SPEED_1000:
+			if_mode |= IF_MODE_SETSP_1000M;
+			break;
+		case SPEED_100:
+			if_mode |= IF_MODE_SETSP_100M;
+			break;
+		case SPEED_10:
+			if_mode |= IF_MODE_SETSP_10M;
+		default:
+			break;
+		}
+	}
+
 	debug(" %s, if_mode = %x\n", __func__,  if_mode);
 	debug(" %s, if_status = %x\n", __func__,  if_status);
 	out_be32(&regs->if_mode, if_mode);
