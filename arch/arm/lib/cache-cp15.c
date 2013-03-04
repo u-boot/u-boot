@@ -23,6 +23,8 @@
 
 #include <common.h>
 #include <asm/system.h>
+#include <asm/cache.h>
+#include <linux/compiler.h>
 
 #if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
 
@@ -77,7 +79,7 @@ void mmu_set_region_dcache_behaviour(u32 start, int size,
 	mmu_page_table_flush((u32)&page_table[start], (u32)&page_table[end]);
 }
 
-static inline void dram_bank_mmu_setup(int bank)
+__weak void dram_bank_mmu_setup(int bank)
 {
 	bd_t *bd = gd->bd;
 	int	i;
