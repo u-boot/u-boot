@@ -509,6 +509,8 @@
 #elif defined(CONFIG_SPI_FLASH)
 #define CONFIG_BOOTCOMMAND	"setenv var \"if test ${dtbsize} -le 0\\; then run sfboot\\; else run dtbboot\\; fi\"; run var; setenv var" \
 
+#elif defined(CONFIG_NAND_FLASH)
+# define CONFIG_BOOTCOMMAND	"setenv var \"if test ${dtbsize} -le 0\\; then run nandboot\\; else run dtbboot\\; fi\"; run var; setenv var"
 #endif
 
 #define CONFIG_ENV_OVERWRITE	/* Allow to overwrite the u-boot environment variables */
