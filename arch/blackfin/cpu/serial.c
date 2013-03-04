@@ -43,7 +43,6 @@
 #include <serial.h>
 #include <linux/compiler.h>
 #include <asm/blackfin.h>
-#include <asm/mach-common/bits/uart.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -52,8 +51,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #include "serial.h"
 
 #ifdef CONFIG_DEBUG_SERIAL
-static uint16_t cached_lsr[256];
-static uint16_t cached_rbr[256];
+static uart_lsr_t cached_lsr[256];
+static uart_lsr_t cached_rbr[256];
 static size_t cache_count;
 
 /* The LSR is read-to-clear on some parts, so we have to make sure status
@@ -61,10 +60,10 @@ static size_t cache_count;
  * works around anomaly 05000099 at the same time by keeping a cumulative
  * tally of all the status bits.
  */
-static uint16_t uart_lsr_save;
-static uint16_t uart_lsr_read(uint32_t uart_base)
+static uart_lsr_t uart_lsr_save;
+static uart_lsr_t uart_lsr_read(uint32_t uart_base)
 {
-	uint16_t lsr = bfin_read(&pUART->lsr);
+	uart_lsr_t lsr = _lsr_read(pUART);
 	uart_lsr_save |= (lsr & (OE|PE|FE|BI));
 	return lsr | uart_lsr_save;
 }
@@ -72,20 +71,20 @@ static uint16_t uart_lsr_read(uint32_t uart_base)
 static void uart_lsr_clear(uint32_t uart_base)
 {
 	uart_lsr_save = 0;
-	bfin_write(&pUART->lsr, bfin_read(&pUART->lsr) | -1);
+	_lsr_write(pUART, -1);
 }
 #else
 /* When debugging is disabled, we only care about the DR bit, so if other
  * bits get set/cleared, we don't really care since we don't read them
  * anyways (and thus anomaly 05000099 is irrelevant).
  */
-static inline uint16_t uart_lsr_read(uint32_t uart_base)
+static inline uart_lsr_t uart_lsr_read(uint32_t uart_base)
 {
-	return bfin_read(&pUART->lsr);
+	return _lsr_read(pUART);
 }
 static void uart_lsr_clear(uint32_t uart_base)
 {
-	bfin_write(&pUART->lsr, bfin_read(&pUART->lsr) | -1);
+	_lsr_write(pUART, -1);
 }
 #endif
 
@@ -127,20 +126,14 @@ static int uart_getc(uint32_t uart_base)
 
 #ifdef CONFIG_DEBUG_SERIAL
 	/* grab & clear the LSR */
-	uint16_t uart_lsr_val = uart_lsr_read(uart_base);
+	uart_lsr_t uart_lsr_val = uart_lsr_read(uart_base);
 
 	cached_lsr[cache_count] = uart_lsr_val;
 	cached_rbr[cache_count] = uart_rbr_val;
 	cache_count = (cache_count + 1) % ARRAY_SIZE(cached_lsr);
 
 	if (uart_lsr_val & (OE|PE|FE|BI)) {
-		uint16_t dll, dlh;
 		printf("\n[SERIAL ERROR]\n");
-		ACCESS_LATCH();
-		dll = bfin_read(&pUART->dll);
-		dlh = bfin_read(&pUART->dlh);
-		ACCESS_PORT_IER();
-		printf("\tDLL=0x%x DLH=0x%x\n", dll, dlh);
 		do {
 			--cache_count;
 			printf("\t%3zu: RBR=0x%02x LSR=0x%02x\n", cache_count,
@@ -160,6 +153,8 @@ static int uart_getc(uint32_t uart_base)
 # define LOOP(x)
 #endif
 
+#if BFIN_UART_HW_VER < 4
+
 LOOP(
 static void uart_loop(uint32_t uart_base, int state)
 {
@@ -177,6 +172,28 @@ static void uart_loop(uint32_t uart_base, int state)
 	bfin_write(&pUART->mcr, mcr);
 }
 )
+
+#else
+
+LOOP(
+static void uart_loop(uint32_t uart_base, int state)
+{
+	u32 control;
+
+	/* Drain the TX fifo first so bytes don't come back */
+	while (!(uart_lsr_read(uart_base) & TEMT))
+		continue;
+
+	control = bfin_read(&pUART->control);
+	if (state)
+		control |= LOOP_ENA | MRTS;
+	else
+		control &= ~(LOOP_ENA | MRTS);
+	bfin_write(&pUART->control, control);
+}
+)
+
+#endif
 
 #ifdef CONFIG_SYS_BFIN_UART
 
@@ -246,16 +263,16 @@ struct serial_device bfin_serial##n##_device = { \
 	LOOP(.loop = uart##n##_loop) \
 };
 
-#ifdef UART0_DLL
+#ifdef UART0_RBR
 DECL_BFIN_UART(0)
 #endif
-#ifdef UART1_DLL
+#ifdef UART1_RBR
 DECL_BFIN_UART(1)
 #endif
-#ifdef UART2_DLL
+#ifdef UART2_RBR
 DECL_BFIN_UART(2)
 #endif
-#ifdef UART3_DLL
+#ifdef UART3_RBR
 DECL_BFIN_UART(3)
 #endif
 
@@ -274,16 +291,16 @@ __weak struct serial_device *default_serial_console(void)
 
 void bfin_serial_initialize(void)
 {
-#ifdef UART0_DLL
+#ifdef UART0_RBR
 	serial_register(&bfin_serial0_device);
 #endif
-#ifdef UART1_DLL
+#ifdef UART1_RBR
 	serial_register(&bfin_serial1_device);
 #endif
-#ifdef UART2_DLL
+#ifdef UART2_RBR
 	serial_register(&bfin_serial2_device);
 #endif
-#ifdef UART3_DLL
+#ifdef UART3_RBR
 	serial_register(&bfin_serial3_device);
 #endif
 }
@@ -293,7 +310,7 @@ void bfin_serial_initialize(void)
 /* Symbol for our assembly to call. */
 void serial_set_baud(uint32_t baud)
 {
-	serial_early_set_baud(UART_DLL, baud);
+	serial_early_set_baud(UART_BASE, baud);
 }
 
 /* Symbol for common u-boot code to call.
@@ -307,7 +324,7 @@ void serial_setbrg(void)
 /* Symbol for our assembly to call. */
 void serial_initialize(void)
 {
-	serial_early_init(UART_DLL);
+	serial_early_init(UART_BASE);
 }
 
 /* Symbol for common u-boot code to call. */
@@ -315,23 +332,23 @@ int serial_init(void)
 {
 	serial_initialize();
 	serial_setbrg();
-	uart_lsr_clear(UART_DLL);
+	uart_lsr_clear(UART_BASE);
 	return 0;
 }
 
 int serial_tstc(void)
 {
-	return uart_tstc(UART_DLL);
+	return uart_tstc(UART_BASE);
 }
 
 int serial_getc(void)
 {
-	return uart_getc(UART_DLL);
+	return uart_getc(UART_BASE);
 }
 
 void serial_putc(const char c)
 {
-	uart_putc(UART_DLL, c);
+	uart_putc(UART_BASE, c);
 }
 
 void serial_puts(const char *s)
@@ -343,7 +360,7 @@ void serial_puts(const char *s)
 LOOP(
 void serial_loop(int state)
 {
-	uart_loop(UART_DLL, state);
+	uart_loop(UART_BASE, state);
 }
 )
 

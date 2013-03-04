@@ -66,6 +66,14 @@ static struct gpio_port_t * const gpio_array[] = {
 	(struct gpio_port_t *)PORTH_FER,
 	(struct gpio_port_t *)PORTI_FER,
 	(struct gpio_port_t *)PORTJ_FER,
+#elif defined(CONFIG_BF60x)
+	(struct gpio_port_t *)PORTA_FER,
+	(struct gpio_port_t *)PORTB_FER,
+	(struct gpio_port_t *)PORTC_FER,
+	(struct gpio_port_t *)PORTD_FER,
+	(struct gpio_port_t *)PORTE_FER,
+	(struct gpio_port_t *)PORTF_FER,
+	(struct gpio_port_t *)PORTG_FER,
 #else
 # error no gpio arrays defined
 #endif
@@ -216,6 +224,12 @@ static void port_setup(unsigned gpio, unsigned short usage)
 	else
 		gpio_array[gpio_bank(gpio)]->port_fer |= gpio_bit(gpio);
 	SSYNC();
+#elif defined(CONFIG_BF60x)
+	if (usage == GPIO_USAGE)
+		gpio_array[gpio_bank(gpio)]->port_fer_clear = gpio_bit(gpio);
+	else
+		gpio_array[gpio_bank(gpio)]->port_fer_set = gpio_bit(gpio);
+	SSYNC();
 #endif
 }
 
@@ -290,7 +304,7 @@ static void portmux_setup(unsigned short per)
 		}
 	}
 }
-#elif defined(CONFIG_BF54x)
+#elif defined(CONFIG_BF54x) || defined(CONFIG_BF60x)
 inline void portmux_setup(unsigned short per)
 {
 	u32 pmux;
@@ -330,7 +344,7 @@ inline void portmux_setup(unsigned short per)
 # define portmux_setup(...)  do { } while (0)
 #endif
 
-#ifndef CONFIG_BF54x
+#if !defined(CONFIG_BF54x) && !defined(CONFIG_BF60x)
 /***********************************************************
 *
 * FUNCTIONS: Blackfin General Purpose Ports Access Functions
@@ -534,7 +548,7 @@ int peripheral_request(unsigned short per, const char *label)
 		 * be requested and used by several drivers
 		 */
 
-#ifdef CONFIG_BF54x
+#if defined(CONFIG_BF54x) || defined(CONFIG_BF60x)
 		if (!((per & P_MAYSHARE) && get_portmux(per) == P_FUNCT2MUX(per))) {
 #else
 		if (!(per & P_MAYSHARE)) {
@@ -651,7 +665,7 @@ int bfin_gpio_request(unsigned gpio, const char *label)
 		       gpio, get_label(gpio));
 		return -EBUSY;
 	}
-#ifndef CONFIG_BF54x
+#if !defined(CONFIG_BF54x) && !defined(CONFIG_BF60x)
 	else {	/* Reset POLAR setting when acquiring a gpio for the first time */
 		set_gpio_polar(gpio, 0);
 	}
@@ -732,12 +746,16 @@ void bfin_special_gpio_free(unsigned gpio)
 
 static inline void __bfin_gpio_direction_input(unsigned gpio)
 {
-#ifdef CONFIG_BF54x
+#if defined(CONFIG_BF54x) || defined(CONFIG_BF60x)
 	gpio_array[gpio_bank(gpio)]->dir_clear = gpio_bit(gpio);
 #else
 	gpio_array[gpio_bank(gpio)]->dir &= ~gpio_bit(gpio);
 #endif
+#if defined(CONFIG_BF60x)
+	gpio_array[gpio_bank(gpio)]->inen_set = gpio_bit(gpio);
+#else
 	gpio_array[gpio_bank(gpio)]->inen |= gpio_bit(gpio);
+#endif
 }
 
 int bfin_gpio_direction_input(unsigned gpio)
@@ -785,9 +803,13 @@ int bfin_gpio_direction_output(unsigned gpio, int value)
 
 	local_irq_save(flags);
 
+#if defined(CONFIG_BF60x)
+	gpio_array[gpio_bank(gpio)]->inen_clear = gpio_bit(gpio);
+#else
 	gpio_array[gpio_bank(gpio)]->inen &= ~gpio_bit(gpio);
+#endif
 	gpio_set_value(gpio, value);
-#ifdef CONFIG_BF54x
+#if defined(CONFIG_BF54x) || defined(CONFIG_BF60x)
 	gpio_array[gpio_bank(gpio)]->dir_set = gpio_bit(gpio);
 #else
 	gpio_array[gpio_bank(gpio)]->dir |= gpio_bit(gpio);
@@ -801,7 +823,7 @@ int bfin_gpio_direction_output(unsigned gpio, int value)
 
 int bfin_gpio_get_value(unsigned gpio)
 {
-#ifdef CONFIG_BF54x
+#if defined(CONFIG_BF54x) || defined(CONFIG_BF60x)
 	return (1 & (gpio_array[gpio_bank(gpio)]->data >> gpio_sub_n(gpio)));
 #else
 	unsigned long flags;

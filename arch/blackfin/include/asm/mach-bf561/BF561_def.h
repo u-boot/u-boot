@@ -690,6 +690,7 @@
 #define PPI1_FRAME                     0xFFC01310
 #define UART_THR                       0xFFC00400
 #define UART_RBR                       0xFFC00400
+#define UART0_RBR                      UART_RBR
 #define UART_DLL                       0xFFC00400
 #define UART_DLH                       0xFFC00404
 #define UART_IER                       0xFFC00404
