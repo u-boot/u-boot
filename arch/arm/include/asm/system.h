@@ -81,6 +81,20 @@ static inline void set_cr(unsigned int val)
 	isb();
 }
 
+static inline unsigned int get_dacr(void)
+{
+	unsigned int val;
+	asm("mrc p15, 0, %0, c3, c0, 0	@ get DACR" : "=r" (val) : : "cc");
+	return val;
+}
+
+static inline void set_dacr(unsigned int val)
+{
+	asm volatile("mcr p15, 0, %0, c3, c0, 0	@ set DACR"
+	  : : "r" (val) : "cc");
+	isb();
+}
+
 /* options available for data cache on each page */
 enum dcache_option {
 	DCACHE_OFF = 0x12,
