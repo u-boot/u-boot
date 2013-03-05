@@ -28,6 +28,7 @@
 #include <asm/u-boot-x86.h>
 #include <asm/global_data.h>
 #include <asm/processor.h>
+#include <asm/sections.h>
 #include <asm/arch/sysinfo.h>
 #include <asm/arch/tables.h>
 

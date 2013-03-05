@@ -38,6 +38,7 @@
 #include <asm/u-boot-x86.h>
 #include <asm/relocate.h>
 #include <asm/processor.h>
+#include <asm/sections.h>
 
 #include <asm/init_helpers.h>
 #include <asm/init_wrappers.h>

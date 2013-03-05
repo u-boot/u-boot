@@ -53,6 +53,7 @@ SECTIONS
 
 	. = ALIGN(4);
 	__data_end = .;
+	__init_end = .;
 
 	. = ALIGN(4);
 	.dynsym : { *(.dynsym*) }
@@ -64,9 +65,6 @@ SECTIONS
 	. = ALIGN(4);
 	_end = .;
 
-	. = ALIGN(4);
-
-	__end = .;
 	.bss __rel_dyn_start (OVERLAY) : {
 		__bss_start = .;
 		*(.bss)

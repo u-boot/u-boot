@@ -32,6 +32,7 @@
 #include <spi.h>
 #include <status_led.h>
 #include <asm/processor.h>
+#include <asm/sections.h>
 #include <asm/u-boot-x86.h>
 #include <linux/compiler.h>
 
