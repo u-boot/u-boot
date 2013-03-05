@@ -23,7 +23,6 @@
 
 ulong bfin_poweron_retx;
 
-__attribute__ ((__noreturn__))
 void cpu_init_f(ulong bootflag, ulong loaded_from_ldr)
 {
 #ifndef CONFIG_BFIN_BOOTROM_USES_EVT1
