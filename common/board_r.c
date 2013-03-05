@@ -63,6 +63,9 @@
 #include <asm/mmu.h>
 #endif
 #include <asm/sections.h>
+#ifdef CONFIG_X86
+#include <asm/init_helpers.h>
+#endif
 #include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -717,6 +720,9 @@ init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_CLOCKS
 	set_cpu_clk_info, /* Setup clock information */
 #endif
+#ifdef CONFIG_X86
+	init_bd_struct_r,
+#endif
 	initr_reloc_global_data,
 	initr_serial,
 	initr_announce,
@@ -764,10 +770,15 @@ init_fnc_t init_sequence_r[] = {
 	initr_flash,
 #endif
 	INIT_FUNC_WATCHDOG_RESET
-#ifdef CONFIG_PPC
+#if defined(CONFIG_PPC) || defined(CONFIG_X86)
 	/* initialize higher level parts of CPU like time base and timers */
 	cpu_init_r,
+#endif
+#ifdef CONFIG_PPC
 	initr_spi,
+#endif
+#if defined(CONFIG_X86) && defined(CONFIG_SPI)
+	init_func_spi,
 #endif
 #ifdef CONFIG_CMD_NAND
 	initr_nand,
@@ -822,9 +833,15 @@ init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_CMD_KGDB
 	initr_kgdb,
 #endif
+#ifdef CONFIG_X86
+	board_early_init_r,
+#endif
 	interrupt_init,
-#ifdef CONFIG_ARM
+#if defined(CONFIG_ARM) || defined(CONFIG_x86)
 	initr_enable_interrupts,
+#endif
+#ifdef CONFIG_X86
+	timer_init,		/* initialize timer */
 #endif
 #if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
 	initr_status_led,
@@ -887,7 +904,9 @@ init_fnc_t init_sequence_r[] = {
 
 void board_init_r(gd_t *new_gd, ulong dest_addr)
 {
+#ifndef CONFIG_X86
 	gd = new_gd;
+#endif
 	if (initcall_run_list(init_sequence_r))
 		hang();
 
