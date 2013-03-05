@@ -322,7 +322,7 @@ static int xnandps_calculate_hwecc(struct mtd_info *mtd, const u8 *data,
 				ecc_code++;
 			}
 		} else {
-			printk(KERN_INFO "pl350: ecc status failed\n");
+			debug("xnandps_calculate_hwecc: ecc status failed\n");
 		}
 	}
 	return 0;
@@ -1001,7 +1001,6 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 {
 	struct xnandps_info *xnand;
 	struct mtd_info *mtd;
-	extern struct mtd_info nand_info[];
 	unsigned long ecc_page_size;
 	int err = -1;
 	u8 maf_id, dev_id, i;
@@ -1087,9 +1086,10 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 		nand_chip->read_buf(mtd, get_feature, 4);
 
 		if (get_feature[0] & 0x08) {
-			printf("OnDie ECC flash\n");
+			debug("zynq_nand_init: OnDie ECC flash\n");
 			ondie_ecc_enabled = 1;
-		}
+		} else
+			printf("zynq_nand_init: Unable to detect OnDie ECC\n");
 	}
 
 	if (ondie_ecc_enabled) {
