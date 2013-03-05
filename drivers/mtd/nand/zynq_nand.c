@@ -29,22 +29,6 @@
 #include <linux/mtd/nand_ecc.h>
 #include "zynq_nand.h"
 
-#define dmbp() __asm__ __volatile__ ("dmb" : : : "memory")
-
-static void XIo_Out32(u32 OutAddress, u32 Value)
-{
-    *(volatile u32 *) OutAddress = Value;
-    dmbp();
-}
-
-static u32 XIo_In32(u32 InAddress)
-{
-    volatile u32 temp = *(volatile u32 *)InAddress;
-    dmbp();
-    return temp;
-}
-
-
 /********** stubs - Make Linux code compile in this environment **************/
 #define EIO              5
 #define ENXIO            6
@@ -120,16 +104,6 @@ static u32 XIo_In32(u32 InAddress)
  */
 #define XNANDPSS_ECC_BUSY	(1 << 6)	/* ECC block is busy */
 #define XNANDPSS_ECC_MASK	0x00FFFFFF	/* ECC value mask */
-
-/*
- * Macros for the NAND controller register read/write
- */
-extern void XIo_Out32(u32 OutAddress, u32 Value);
-extern u32  XIo_In32(u32 InAddress);
-
-#define xnandps_read32(addr)       XIo_In32((u32)(addr))
-#define xnandps_write32(addr, val)	XIo_Out32((u32)(addr), (val))
-
 
 /**
  * struct xnandps_command_format - Defines NAND flash command format
@@ -266,28 +240,26 @@ static struct nand_bbt_descr bbt_mirror_descr = {
 static void xnandps_init_nand_flash(void __iomem *smc_regs, int option)
 {
 	/* disable interrupts */
-	xnandps_write32(smc_regs + XSMCPSS_MC_CLR_CONFIG, XNANDPSS_CLR_CONFIG);
+	writel(XNANDPSS_CLR_CONFIG, smc_regs + XSMCPSS_MC_CLR_CONFIG);
 	/* Initialize the NAND interface by setting cycles and operation mode */
-	xnandps_write32(smc_regs + XSMCPSS_MC_SET_CYCLES, XNANDPSS_SET_CYCLES);
+	writel(XNANDPSS_SET_CYCLES, smc_regs + XSMCPSS_MC_SET_CYCLES);
 	if (option & NAND_BUSWIDTH_16)
-		xnandps_write32(smc_regs + XSMCPSS_MC_SET_OPMODE,
-				(XNANDPSS_SET_OPMODE | 0x1));
+		writel((XNANDPSS_SET_OPMODE | 0x1),
+			smc_regs + XSMCPSS_MC_SET_OPMODE);
 	else
-		xnandps_write32(smc_regs + XSMCPSS_MC_SET_OPMODE,
-				XNANDPSS_SET_OPMODE);
-	xnandps_write32(smc_regs + XSMCPSS_MC_DIRECT_CMD, XNANDPSS_DIRECT_CMD);
+		writel(XNANDPSS_SET_OPMODE, smc_regs + XSMCPSS_MC_SET_OPMODE);
+
+	writel(XNANDPSS_DIRECT_CMD, smc_regs + XSMCPSS_MC_DIRECT_CMD);
 
 	/* Wait till the ECC operation is complete */
-	while ( (xnandps_read32(smc_regs + XSMCPSS_ECC_STATUS_OFFSET(
+	while ((readl(smc_regs + XSMCPSS_ECC_STATUS_OFFSET(
 			XSMCPSS_ECC_IF1_OFFSET))) & XNANDPSS_ECC_BUSY)
 			;
 	/* Set the command1 and command2 register */
-	xnandps_write32(smc_regs +
-		(XSMCPSS_ECC_MEMCMD1_OFFSET(XSMCPSS_ECC_IF1_OFFSET)),
-		XNANDPSS_ECC_CMD1);
-	xnandps_write32(smc_regs +
-		(XSMCPSS_ECC_MEMCMD2_OFFSET(XSMCPSS_ECC_IF1_OFFSET)),
-		XNANDPSS_ECC_CMD2);
+	writel(XNANDPSS_ECC_CMD1, smc_regs +
+		(XSMCPSS_ECC_MEMCMD1_OFFSET(XSMCPSS_ECC_IF1_OFFSET)));
+	writel(XNANDPSS_ECC_CMD2, smc_regs +
+		(XSMCPSS_ECC_MEMCMD2_OFFSET(XSMCPSS_ECC_IF1_OFFSET)));
 }
 
 /**
@@ -315,13 +287,13 @@ xnandps_calculate_hwecc(struct mtd_info *mtd, const u8 *data, u8 *ecc_code)
 
 	/* Wait till the ECC operation is complete */
 	do {
-		ecc_status = xnandps_read32(xnand->smc_regs +
+		ecc_status = readl(xnand->smc_regs +
 			XSMCPSS_ECC_STATUS_OFFSET(XSMCPSS_ECC_IF1_OFFSET));
 	} while (ecc_status & XNANDPSS_ECC_BUSY);
 
 	for (ecc_reg = 0; ecc_reg < 4; ecc_reg++) {
 		/* Read ECC value for each block */
-		ecc_value = (xnandps_read32(xnand->smc_regs +
+		ecc_value = (readl(xnand->smc_regs +
 			(XSMCPSS_ECC_VALUE0_OFFSET(XSMCPSS_ECC_IF1_OFFSET) +
 			(ecc_reg*4))));
 		ecc_status = (ecc_value >> 24) & 0xFF;
@@ -803,7 +775,7 @@ static void xnandps_cmd_function(struct mtd_info *mtd, unsigned int command,
 		return;
 
 	/* Clear interrupt */
-	xnandps_write32((xnand->smc_regs + XSMCPSS_MC_CLR_CONFIG), (1 << 4));
+	writel((1 << 4), (xnand->smc_regs + XSMCPSS_MC_CLR_CONFIG));
 
 	/* Get the command phase address */
 	if (curr_cmd->end_cmd_valid == XNANDPSS_CMD_PHASE)
@@ -847,7 +819,7 @@ static void xnandps_cmd_function(struct mtd_info *mtd, unsigned int command,
 			cmd_data |= page_addr << 16;
 			/* Another address cycle for devices > 128MiB */
 			if (chip->chipsize > (128 << 20)) {
-				xnandps_write32(cmd_addr, cmd_data);
+				writel(cmd_data, cmd_addr);
 				cmd_data = (page_addr >> 16);
 			}
 		} else
@@ -869,7 +841,7 @@ static void xnandps_cmd_function(struct mtd_info *mtd, unsigned int command,
 	} else
 		;
 
-	xnandps_write32(cmd_addr, cmd_data);
+	writel(cmd_data, cmd_addr);
 
 	if (curr_cmd->end_cmd_valid) {
 		xnand->end_cmd = curr_cmd->end_cmd;
@@ -1007,11 +979,10 @@ static int xnandps_device_ready(struct mtd_info *mtd)
 	xnand = (struct xnandps_info *)chip->priv;
 
 	/* Check the raw_int_status1 bit */
-	status = xnandps_read32(xnand->smc_regs + XSMCPSS_MC_STATUS) & 0x40;
+	status = readl(xnand->smc_regs + XSMCPSS_MC_STATUS) & 0x40;
 	/* Clear the interrupt condition */
 	if (status)
-		xnandps_write32((xnand->smc_regs + XSMCPSS_MC_CLR_CONFIG),
-					(1<<4));
+		writel((1<<4), (xnand->smc_regs + XSMCPSS_MC_CLR_CONFIG));
 	return status ? 1 : 0;
 }
 
@@ -1112,12 +1083,11 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 
 	if (ondie_ecc_enabled) {
 		/* bypass the controller ECC block */
-		ecc_cfg = xnandps_read32(xnand->smc_regs +
+		ecc_cfg = readl(xnand->smc_regs +
 			XSMCPSS_ECC_MEMCFG_OFFSET(XSMCPSS_ECC_IF1_OFFSET));
 		ecc_cfg &= ~0xc;
-		xnandps_write32(xnand->smc_regs +
-			(XSMCPSS_ECC_MEMCFG_OFFSET(XSMCPSS_ECC_IF1_OFFSET)),
-			ecc_cfg);
+		writel(ecc_cfg, xnand->smc_regs +
+			(XSMCPSS_ECC_MEMCFG_OFFSET(XSMCPSS_ECC_IF1_OFFSET)));
 
 		/* The software ECC routines won't work with the
 				SMC controller */
@@ -1161,23 +1131,26 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 		case 512:
 			ecc_page_size = 0x1;
 			/* Set the ECC memory config register */
-			xnandps_write32(xnand->smc_regs +
-				(XSMCPSS_ECC_MEMCFG_OFFSET(XSMCPSS_ECC_IF1_OFFSET)),
-				(XNANDPSS_ECC_CONFIG | ecc_page_size));
+			writel((XNANDPSS_ECC_CONFIG | ecc_page_size),
+				xnand->smc_regs +
+				(XSMCPSS_ECC_MEMCFG_OFFSET
+				(XSMCPSS_ECC_IF1_OFFSET)));
 			break;
 		case 1024:
 			ecc_page_size = 0x2;
 			/* Set the ECC memory config register */
-			xnandps_write32(xnand->smc_regs +
-				(XSMCPSS_ECC_MEMCFG_OFFSET(XSMCPSS_ECC_IF1_OFFSET)),
-				(XNANDPSS_ECC_CONFIG | ecc_page_size));
+			writel((XNANDPSS_ECC_CONFIG | ecc_page_size),
+				xnand->smc_regs +
+				(XSMCPSS_ECC_MEMCFG_OFFSET
+				(XSMCPSS_ECC_IF1_OFFSET)));
 			break;
 		case 2048:
 			ecc_page_size = 0x3;
 			/* Set the ECC memory config register */
-			xnandps_write32(xnand->smc_regs +
-				(XSMCPSS_ECC_MEMCFG_OFFSET(XSMCPSS_ECC_IF1_OFFSET)),
-				(XNANDPSS_ECC_CONFIG | ecc_page_size));
+			writel((XNANDPSS_ECC_CONFIG | ecc_page_size),
+				xnand->smc_regs +
+				(XSMCPSS_ECC_MEMCFG_OFFSET
+				(XSMCPSS_ECC_IF1_OFFSET)));
 			break;
 		default:
 			/* The software ECC routines won't work with the
