@@ -31,16 +31,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* Force cache miss each time a serial controller reg is read */
-#define CACHE_BYPASS 1
-
-#ifdef CACHE_BYPASS
-#define READ_BYTE(var)  SPARC_NOCACHE_READ_BYTE((unsigned int)&(var))
-#define READ_HWORD(var) SPARC_NOCACHE_READ_HWORD((unsigned int)&(var))
-#define READ_WORD(var)  SPARC_NOCACHE_READ((unsigned int)&(var))
-#define READ_DWORD(var) SPARC_NOCACHE_READ_DWORD((unsigned int)&(var))
-#endif
-
 static int leon2_serial_init(void)
 {
 	LEON2_regs *leon2 = (LEON2_regs *) LEON2_PREGS;

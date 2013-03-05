@@ -32,16 +32,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* Force cache miss each time a serial controller reg is read */
-#define CACHE_BYPASS 1
-
-#ifdef CACHE_BYPASS
-#define READ_BYTE(var)  SPARC_NOCACHE_READ_BYTE((unsigned int)&(var))
-#define READ_HWORD(var) SPARC_NOCACHE_READ_HWORD((unsigned int)&(var))
-#define READ_WORD(var)  SPARC_NOCACHE_READ((unsigned int)&(var))
-#define READ_DWORD(var) SPARC_NOCACHE_READ_DWORD((unsigned int)&(var))
-#endif
-
 ambapp_dev_apbuart *leon3_apbuart = NULL;
 
 static int leon3_serial_init(void)
