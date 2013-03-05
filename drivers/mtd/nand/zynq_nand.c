@@ -16,10 +16,8 @@
 /*
  * This driver is based on plat_nand.c and mxc_nand.c drivers
  */
-//#include "xbasic_types.h"
 #include <common.h>
 #include <malloc.h>
-
 #include <asm/arch/nand.h>
 #include <asm/io.h>
 //#include <linux/mtd/compat.h>
@@ -28,14 +26,6 @@
 #include <linux/mtd/partitions.h>
 #include <linux/mtd/nand_ecc.h>
 #include "zynq_nand.h"
-
-/********** stubs - Make Linux code compile in this environment **************/
-#define EIO              5
-#define ENXIO            6
-#define ENOMEM          12
-
-#define __devinitdata
-#define __force
 
 /*
  * The NAND flash driver defines
@@ -145,7 +135,7 @@ struct xnandps_info {
 /*
  * The NAND flash operations command format
  */
-static struct xnandps_command_format xnandps_commands[] __devinitdata = {
+static struct xnandps_command_format xnandps_commands[] = {
 	{NAND_CMD_READ0, NAND_CMD_READSTART, 5, XNANDPSS_CMD_PHASE},
 	{NAND_CMD_RNDOUT, NAND_CMD_RNDOUTSTART, 2, XNANDPSS_CMD_PHASE},
 	{NAND_CMD_READID, NAND_CMD_NONE, 1, NAND_CMD_NONE},
@@ -396,9 +386,9 @@ static int xnandps_read_oob(struct mtd_info *mtd, struct nand_chip *chip,
 	chip->read_buf(mtd, p, (mtd->oobsize - data_width));
 	p += (mtd->oobsize - data_width);
 
-	data_phase_addr = (unsigned long __force)chip->IO_ADDR_R;
+	data_phase_addr = (unsigned long)chip->IO_ADDR_R;
 	data_phase_addr |= XNANDPSS_CLEAR_CS;
-	chip->IO_ADDR_R = (void __iomem *__force)data_phase_addr;
+	chip->IO_ADDR_R = (void __iomem *)data_phase_addr;
 	chip->read_buf(mtd, p, data_width);
 
 	return sndcmd;
@@ -423,17 +413,19 @@ static int xnandps_write_oob(struct mtd_info *mtd, struct nand_chip *chip,
 	chip->write_buf(mtd, buf, (mtd->oobsize - data_width));
 	buf += (mtd->oobsize - data_width);
 
-	data_phase_addr = (unsigned long __force)chip->IO_ADDR_W;
+	data_phase_addr = (unsigned long) chip->IO_ADDR_W;
 	data_phase_addr |= XNANDPSS_CLEAR_CS;
 	data_phase_addr |= (1 << END_CMD_VALID_SHIFT);
-	chip->IO_ADDR_W = (void __iomem *__force)data_phase_addr;
+	chip->IO_ADDR_W = (void __iomem *) data_phase_addr;
 	chip->write_buf(mtd, buf, data_width);
 
 	/* Send command to program the OOB data */
 	chip->cmdfunc(mtd, NAND_CMD_PAGEPROG, -1, -1);
 	status = chip->waitfunc(mtd, chip);
+	if (status)
+		return NAND_STATUS_FAIL;
 
-	return status & NAND_STATUS_FAIL ? -EIO : 0;
+	return status;
 }
 
 /**
@@ -457,9 +449,9 @@ static int xnandps_read_page_raw(struct mtd_info *mtd, struct nand_chip *chip,
 	chip->read_buf(mtd, p, (mtd->oobsize - data_width));
 	p += (mtd->oobsize - data_width);
 
-	data_phase_addr = (unsigned long __force)chip->IO_ADDR_R;
+	data_phase_addr = (unsigned long) chip->IO_ADDR_R;
 	data_phase_addr |= XNANDPSS_CLEAR_CS;
-	chip->IO_ADDR_R = (void __iomem *__force)data_phase_addr;
+	chip->IO_ADDR_R = (void __iomem *) data_phase_addr;
 
 	chip->read_buf(mtd, p, data_width);
 	return 0;
@@ -504,10 +496,10 @@ static void xnandps_write_page_raw(struct mtd_info *mtd,
 	chip->write_buf(mtd, p, (mtd->oobsize - data_width));
 	p += (mtd->oobsize - data_width);
 
-	data_phase_addr = (unsigned long __force)chip->IO_ADDR_W;
+	data_phase_addr = (unsigned long) chip->IO_ADDR_W;
 	data_phase_addr |= XNANDPSS_CLEAR_CS;
 	data_phase_addr |= (1 << END_CMD_VALID_SHIFT);
-	chip->IO_ADDR_W = (void __iomem *__force)data_phase_addr;
+	chip->IO_ADDR_W = (void __iomem *) data_phase_addr;
 
 	chip->write_buf(mtd, p, data_width);
 }
@@ -540,9 +532,9 @@ void xnandps_write_page_hwecc(struct mtd_info *mtd,
 	p += (eccsize - data_width);
 
 	/* Set ECC Last bit to 1 */
-	data_phase_addr = (unsigned long __force)chip->IO_ADDR_W;
+	data_phase_addr = (unsigned long) chip->IO_ADDR_W;
 	data_phase_addr |= XNANDPSS_ECC_LAST;
-	chip->IO_ADDR_W = (void __iomem *__force)data_phase_addr;
+	chip->IO_ADDR_W = (void __iomem *) data_phase_addr;
 	chip->write_buf(mtd, p, data_width);
 
 	/* Wait for ECC to be calculated and read the error values */
@@ -553,18 +545,18 @@ void xnandps_write_page_hwecc(struct mtd_info *mtd,
 		chip->oob_poi[eccpos[i]] = ~(ecc_calc[i]);
 
 	/* Clear ECC last bit */
-	data_phase_addr = (unsigned long __force)chip->IO_ADDR_W;
+	data_phase_addr = (unsigned long)chip->IO_ADDR_W;
 	data_phase_addr &= ~XNANDPSS_ECC_LAST;
-	chip->IO_ADDR_W = (void __iomem *__force)data_phase_addr;
+	chip->IO_ADDR_W = (void __iomem *)data_phase_addr;
 
 	/* Write the spare area with ECC bytes */
 	oob_ptr = chip->oob_poi;
 	chip->write_buf(mtd, oob_ptr, (mtd->oobsize - data_width));
 
-	data_phase_addr = (unsigned long __force)chip->IO_ADDR_W;
+	data_phase_addr = (unsigned long)chip->IO_ADDR_W;
 	data_phase_addr |= XNANDPSS_CLEAR_CS;
 	data_phase_addr |= (1 << END_CMD_VALID_SHIFT);
-	chip->IO_ADDR_W = (void __iomem *__force)data_phase_addr;
+	chip->IO_ADDR_W = (void __iomem *)data_phase_addr;
 	oob_ptr += (mtd->oobsize - data_width);
 	chip->write_buf(mtd, oob_ptr, data_width);
 }
@@ -629,9 +621,9 @@ int xnandps_read_page_hwecc(struct mtd_info *mtd,
 	p += (eccsize - data_width);
 
 	/* Set ECC Last bit to 1 */
-	data_phase_addr = (unsigned long __force)chip->IO_ADDR_R;
+	data_phase_addr = (unsigned long)chip->IO_ADDR_R;
 	data_phase_addr |= XNANDPSS_ECC_LAST;
-	chip->IO_ADDR_R = (void __iomem *__force)data_phase_addr;
+	chip->IO_ADDR_R = (void __iomem *)data_phase_addr;
 	chip->read_buf(mtd, p, data_width);
 
 	/* Read the calculated ECC value */
@@ -639,18 +631,18 @@ int xnandps_read_page_hwecc(struct mtd_info *mtd,
 	chip->ecc.calculate(mtd, p, &ecc_calc[0]);
 
 	/* Clear ECC last bit */
-	data_phase_addr = (unsigned long __force)chip->IO_ADDR_R;
+	data_phase_addr = (unsigned long)chip->IO_ADDR_R;
 	data_phase_addr &= ~XNANDPSS_ECC_LAST;
-	chip->IO_ADDR_R = (void __iomem *__force)data_phase_addr;
+	chip->IO_ADDR_R = (void __iomem *)data_phase_addr;
 
 	/* Read the stored ECC value */
 	oob_ptr = chip->oob_poi;
 	chip->read_buf(mtd, oob_ptr, (mtd->oobsize - data_width));
 
 	/* de-assert chip select */
-	data_phase_addr = (unsigned long __force)chip->IO_ADDR_R;
+	data_phase_addr = (unsigned long)chip->IO_ADDR_R;
 	data_phase_addr |= XNANDPSS_CLEAR_CS;
-	chip->IO_ADDR_R = (void __iomem *__force)data_phase_addr;
+	chip->IO_ADDR_R = (void __iomem *)data_phase_addr;
 
 	oob_ptr += (mtd->oobsize - data_width);
 	chip->read_buf(mtd, oob_ptr, data_width);
@@ -786,26 +778,26 @@ static void xnandps_cmd_function(struct mtd_info *mtd, unsigned int command,
 	else
 		end_cmd = curr_cmd->end_cmd;
 
-	cmd_phase_addr = (unsigned long __force)xnand->nand_base	|
+	cmd_phase_addr = (unsigned long)xnand->nand_base	|
 			(curr_cmd->addr_cycles << ADDR_CYCLES_SHIFT)	|
 			(end_cmd_valid << END_CMD_VALID_SHIFT)		|
 			(COMMAND_PHASE)					|
 			(end_cmd << END_CMD_SHIFT)			|
 			(curr_cmd->start_cmd << START_CMD_SHIFT);
 
-	cmd_addr = (void __iomem * __force)cmd_phase_addr;
+	cmd_addr = (void __iomem *)cmd_phase_addr;
 
 	/* Get the data phase address */
 	end_cmd_valid = 0;
 
-	data_phase_addr = (unsigned long __force)xnand->nand_base	|
+	data_phase_addr = (unsigned long)xnand->nand_base	|
 			(0x0 << CLEAR_CS_SHIFT)				|
 			(end_cmd_valid << END_CMD_VALID_SHIFT)		|
 			(DATA_PHASE)					|
 			(end_cmd << END_CMD_SHIFT)			|
 			(0x0 << ECC_LAST_SHIFT);
 
-	chip->IO_ADDR_R = (void  __iomem * __force)data_phase_addr;
+	chip->IO_ADDR_R = (void  __iomem *)data_phase_addr;
 	chip->IO_ADDR_W = chip->IO_ADDR_R;
 
 	/* Command phase AXI write */
@@ -992,7 +984,7 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 	struct mtd_info *mtd;
 	extern struct mtd_info nand_info[];
 	unsigned long ecc_page_size;
-	int err = 0;
+	int err = -1;
 	u8 maf_id, dev_id, i;
 	u8 get_feature[4];
 	u8 set_feature[4] = {0x08, 0x00, 0x00, 0x00};
@@ -1002,8 +994,8 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 	xnand = malloc(sizeof(struct xnandps_info));
 	memset(xnand, 0, sizeof(struct xnandps_info));
 	if (!xnand) {
-		printf("failed to allocate device structure.\n");
-		return -ENOMEM;
+		printf("zynq_nand_init: failed to allocate\n");
+		goto free;
 	}
 
 	xnand->smc_regs = (void*)XPSS_CRTL_PARPORT_BASEADDR;
@@ -1042,9 +1034,8 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 
 	/* first scan to find the device and get the page size */
 	if (nand_scan_ident(mtd, 1, NULL)) {
-		err = -ENXIO;
-		printf("nand_scan_ident for NAND failed\n");
-		goto out_unmap_all_mem;
+		printf("zynq_nand_init: nand_scan_ident failed\n");
+		goto fail;
 	}
 
 	/* Send the command for reading device ID */
@@ -1180,18 +1171,14 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 
 	/* second phase scan */
 	if (nand_scan_tail(mtd)) {
-		err = -ENXIO;
-		printf("nand_scan_tail for NAND failed\n");
-		goto out_unmap_all_mem;
+		printf("zynq_nand_init: nand_scan_tailfailed\n");
+		goto fail;
 	}
 
-	if (!err)
-		return 0;
-
-	printf("%s: ERROR *********** %d\n", __func__, err);
+	return 0;
+fail:
 	nand_release(mtd);
-
-out_unmap_all_mem:
+free:
 	kfree(xnand);
 	return err;
 }
