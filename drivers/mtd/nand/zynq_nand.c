@@ -23,20 +23,6 @@
 #include <linux/mtd/partitions.h>
 #include <linux/mtd/nand_ecc.h>
 
-/* Memory controller configuration register offset */
-#define XSMCPSS_MC_STATUS		0x000	/* Controller status reg, RO */
-#define XSMCPSS_MC_CLR_CONFIG		0x00C	/* Clear config reg, WO */
-#define XSMCPSS_MC_DIRECT_CMD		0x010	/* Direct command reg, WO */
-#define XSMCPSS_MC_SET_CYCLES		0x014	/* Set cycles register, WO */
-#define XSMCPSS_MC_SET_OPMODE		0x018	/* Set opmode register, WO */
-
-/* ECC register offset */
-#define XSMCPSS_ECC_STATUS_OFFSET	0x400	/* ECC status register */
-#define XSMCPSS_ECC_MEMCFG_OFFSET	0x404	/* ECC mem config reg */
-#define XSMCPSS_ECC_MEMCMD1_OFFSET	0x408	/*ECC mem cmd1 reg*/
-#define XSMCPSS_ECC_MEMCMD2_OFFSET	0x40C	/*ECC mem cmd2 reg*/
-#define XSMCPSS_ECC_VALUE0_OFFSET	0x418	/* ECC value 0 reg */
-
 /* The NAND flash driver defines */
 #define XNANDPSS_CMD_PHASE	1	/* End command valid in command phase */
 #define XNANDPSS_DATA_PHASE	2	/* End command valid in data phase */
@@ -92,6 +78,31 @@
 #define XNANDPSS_ECC_BUSY	(1 << 6)	/* ECC block is busy */
 #define XNANDPSS_ECC_MASK	0x00FFFFFF	/* ECC value mask */
 
+/* Memory controller configuration register offset */
+struct xnandps_smc_mem_regs {
+	u32	csr;		/* 0x00 */
+	u32	reserved[2];
+	u32	cfr;		/* 0x0C */
+	u32	dcr;		/* 0x10 */
+	u32	scr;		/* 0x14 */
+	u32	sor;		/* 0x18 */
+};
+
+#define xnandps_smc_mem_base	\
+	((struct xnandps_smc_mem_regs *) XPSS_CRTL_PARPORT_BASEADDR)
+
+struct xnand_smc_ecc_regs {
+	u32	esr;		/* 0x400 */
+	u32	emcr;		/* 0x404 */
+	u32	emcmd1r;	/* 0x408 */
+	u32	emcmd2r;	/* 0x40C */
+	u32	reserved[2];
+	u32	eval0r;		/* 0x418 */
+};
+
+#define xnandps_smc_ecc_base	\
+	((struct xnand_smc_ecc_regs *) (XPSS_CRTL_PARPORT_BASEADDR + 0x400))
+
 /*
  * struct xnandps_command_format - Defines NAND flash command format
  * @start_cmd:		First cycle command (Start command)
@@ -110,7 +121,6 @@ struct xnandps_command_format {
  * struct xnandps_info - Defines the NAND flash driver instance
  * @parts:		Pointer	to the mtd_partition structure
  * @nand_base:		Virtual address of the NAND flash device
- * @smc_regs:		Virtual address of the NAND controller registers
  * @end_cmd_pending:	End command is pending
  * @end_cmd:		End command
  */
@@ -119,7 +129,6 @@ struct xnandps_info {
 	struct mtd_partition	*parts;
 #endif
 	void __iomem		*nand_base;
-	void __iomem		*smc_regs;
 	unsigned long		end_cmd_pending;
 	unsigned long		end_cmd;
 };
@@ -216,32 +225,29 @@ static struct nand_bbt_descr bbt_mirror_descr = {
 
 /*
  * xnandps_init_nand_flash - Initialize NAND controller
- * @smc_regs:	Virtual address of the NAND controller registers
  * @option:	Device property flags
  *
  * This function initializes the NAND flash interface on the NAND controller.
  */
-static void xnandps_init_nand_flash(void __iomem *smc_regs, int option)
+static void xnandps_init_nand_flash(int option)
 {
 	/* disable interrupts */
-	writel(XNANDPSS_CLR_CONFIG, smc_regs + XSMCPSS_MC_CLR_CONFIG);
+	writel(XNANDPSS_CLR_CONFIG, &xnandps_smc_mem_base->cfr);
 	/* Initialize the NAND interface by setting cycles and operation mode */
-	writel(XNANDPSS_SET_CYCLES, smc_regs + XSMCPSS_MC_SET_CYCLES);
+	writel(XNANDPSS_SET_CYCLES, &xnandps_smc_mem_base->scr);
 	if (option & NAND_BUSWIDTH_16)
-		writel((XNANDPSS_SET_OPMODE | 0x1),
-			smc_regs + XSMCPSS_MC_SET_OPMODE);
+		writel((XNANDPSS_SET_OPMODE | 0x1), &xnandps_smc_mem_base->sor);
 	else
-		writel(XNANDPSS_SET_OPMODE, smc_regs + XSMCPSS_MC_SET_OPMODE);
+		writel(XNANDPSS_SET_OPMODE, &xnandps_smc_mem_base->sor);
 
-	writel(XNANDPSS_DIRECT_CMD, smc_regs + XSMCPSS_MC_DIRECT_CMD);
+	writel(XNANDPSS_DIRECT_CMD, &xnandps_smc_mem_base->dcr);
 
 	/* Wait till the ECC operation is complete */
-	while ((readl(smc_regs + XSMCPSS_ECC_STATUS_OFFSET)) &
-			XNANDPSS_ECC_BUSY)
+	while ((readl(&xnandps_smc_ecc_base->esr)) & XNANDPSS_ECC_BUSY)
 		;
 	/* Set the command1 and command2 register */
-	writel(XNANDPSS_ECC_CMD1, smc_regs + XSMCPSS_ECC_MEMCMD1_OFFSET);
-	writel(XNANDPSS_ECC_CMD2, smc_regs + XSMCPSS_ECC_MEMCMD2_OFFSET);
+	writel(XNANDPSS_ECC_CMD1, &xnandps_smc_ecc_base->emcmd1r);
+	writel(XNANDPSS_ECC_CMD2, &xnandps_smc_ecc_base->emcmd2r);
 }
 
 /*
@@ -258,24 +264,18 @@ static void xnandps_init_nand_flash(void __iomem *smc_regs, int option)
 static int xnandps_calculate_hwecc(struct mtd_info *mtd, const u8 *data,
 		u8 *ecc_code)
 {
-	struct xnandps_info *xnand;
-	struct nand_chip *chip;
 	u32 ecc_value = 0;
 	u8 ecc_reg, ecc_byte;
 	u32 ecc_status;
 
-	chip = (struct nand_chip *)mtd->priv;
-	xnand = (struct xnandps_info *)chip->priv;
-
 	/* Wait till the ECC operation is complete */
 	do {
-		ecc_status = readl(xnand->smc_regs + XSMCPSS_ECC_STATUS_OFFSET);
+		ecc_status = readl(&xnandps_smc_ecc_base->esr);
 	} while (ecc_status & XNANDPSS_ECC_BUSY);
 
 	for (ecc_reg = 0; ecc_reg < 4; ecc_reg++) {
 		/* Read ECC value for each block */
-		ecc_value = readl(xnand->smc_regs +
-				XSMCPSS_ECC_VALUE0_OFFSET + (ecc_reg*4));
+		ecc_value = readl(&xnandps_smc_ecc_base->eval0r + ecc_reg);
 		ecc_status = (ecc_value >> 24) & 0xFF;
 		/* ECC value valid */
 		if (ecc_status & 0x40) {
@@ -759,7 +759,7 @@ static void xnandps_cmd_function(struct mtd_info *mtd, unsigned int command,
 		return;
 
 	/* Clear interrupt */
-	writel((1 << 4), (xnand->smc_regs + XSMCPSS_MC_CLR_CONFIG));
+	writel((1 << 4), &xnandps_smc_mem_base->cfr);
 
 	/* Get the command phase address */
 	if (curr_cmd->end_cmd_valid == XNANDPSS_CMD_PHASE)
@@ -952,18 +952,13 @@ static void xnandps_write_buf(struct mtd_info *mtd, const uint8_t *buf, int len)
  */
 static int xnandps_device_ready(struct mtd_info *mtd)
 {
-	struct xnandps_info *xnand;
-	struct nand_chip *chip;
 	unsigned long status;
 
-	chip = (struct nand_chip *)mtd->priv;
-	xnand = (struct xnandps_info *)chip->priv;
-
 	/* Check the raw_int_status1 bit */
-	status = readl(xnand->smc_regs + XSMCPSS_MC_STATUS) & 0x40;
+	status = readl(&xnandps_smc_mem_base->csr) & 0x40;
 	/* Clear the interrupt condition */
 	if (status)
-		writel((1<<4), (xnand->smc_regs + XSMCPSS_MC_CLR_CONFIG));
+		writel((1<<4), &xnandps_smc_mem_base->cfr);
 	return status ? 1 : 0;
 }
 
@@ -987,7 +982,6 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 		goto free;
 	}
 
-	xnand->smc_regs = (void *)XPSS_CRTL_PARPORT_BASEADDR;
 	xnand->nand_base = (void *)XPSS_NAND_BASEADDR;
 	mtd = &nand_info[0];
 
@@ -1017,7 +1011,7 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 #endif
 
 	/* Initialize the NAND flash interface on NAND controller */
-	xnandps_init_nand_flash(xnand->smc_regs, nand_chip->options);
+	xnandps_init_nand_flash(nand_chip->options);
 
 	/* first scan to find the device and get the page size */
 	if (nand_scan_ident(mtd, 1, NULL)) {
@@ -1062,9 +1056,9 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 
 	if (ondie_ecc_enabled) {
 		/* bypass the controller ECC block */
-		ecc_cfg = readl(xnand->smc_regs + XSMCPSS_ECC_MEMCFG_OFFSET);
+		ecc_cfg = readl(&xnandps_smc_ecc_base->emcr);
 		ecc_cfg &= ~0xc;
-		writel(ecc_cfg, xnand->smc_regs + XSMCPSS_ECC_MEMCFG_OFFSET);
+		writel(ecc_cfg, &xnandps_smc_ecc_base->emcr);
 
 		/* The software ECC routines won't work
 		 * with the SMC controller
@@ -1110,19 +1104,19 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 			ecc_page_size = 0x1;
 			/* Set the ECC memory config register */
 			writel((XNANDPSS_ECC_CONFIG | ecc_page_size),
-				xnand->smc_regs + XSMCPSS_ECC_MEMCFG_OFFSET);
+				&xnandps_smc_ecc_base->emcr);
 			break;
 		case 1024:
 			ecc_page_size = 0x2;
 			/* Set the ECC memory config register */
 			writel((XNANDPSS_ECC_CONFIG | ecc_page_size),
-				xnand->smc_regs + XSMCPSS_ECC_MEMCFG_OFFSET);
+				&xnandps_smc_ecc_base->emcr);
 			break;
 		case 2048:
 			ecc_page_size = 0x3;
 			/* Set the ECC memory config register */
 			writel((XNANDPSS_ECC_CONFIG | ecc_page_size),
-				xnand->smc_regs + XSMCPSS_ECC_MEMCFG_OFFSET);
+				&xnandps_smc_ecc_base->emcr);
 			break;
 		default:
 			/* The software ECC routines won't work with
