@@ -33,6 +33,7 @@
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 
+#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
