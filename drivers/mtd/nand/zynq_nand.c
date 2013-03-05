@@ -988,14 +988,13 @@ static void xnandps_write_buf(struct mtd_info *mtd, const uint8_t *buf, int len)
  */
 static int xnandps_device_ready(struct mtd_info *mtd)
 {
-	unsigned long status;
-
 	/* Check the raw_int_status1 bit */
-	status = readl(&xnandps_smc_mem_base->csr) & 0x40;
-	/* Clear the interrupt condition */
-	if (status)
+	if ((readl(&xnandps_smc_mem_base->csr)) & 0x40) {
+		/* Clear the interrupt condition */
 		writel((1<<4), &xnandps_smc_mem_base->cfr);
-	return status ? 1 : 0;
+		return 1;
+	}
+	return 0;
 }
 
 int zynq_nand_init(struct nand_chip *nand_chip)
