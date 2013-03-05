@@ -312,9 +312,10 @@ int board_eth_init(bd_t *bis)
 	u32 smc_bw_conf, smc_bc_conf;
 	struct fdt_sromc config;
 	fdt_addr_t base_addr;
-	int node;
 
 #ifdef CONFIG_OF_CONTROL
+	int node;
+
 	node = decode_sromc(gd->fdt_blob, &config);
 	if (node < 0) {
 		debug("%s: Could not find sromc configuration\n", __func__);
