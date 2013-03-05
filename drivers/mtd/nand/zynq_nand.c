@@ -300,7 +300,7 @@ static int xnandps_calculate_hwecc(struct mtd_info *mtd, const u8 *data,
  * onehot is if and only if onebit is set.
  *
  */
-int onehot(unsigned short value)
+static int onehot(unsigned short value)
 {
 	return ((value & (value-1)) == 0);
 }
@@ -318,7 +318,7 @@ int onehot(unsigned short value)
  *		1 if single bit error found and corrected.
  *		-1 if multiple ECC errors found.
  */
-int xnandps_correct_data(struct mtd_info *mtd, unsigned char *buf,
+static int xnandps_correct_data(struct mtd_info *mtd, unsigned char *buf,
 			unsigned char *read_ecc, unsigned char *calc_ecc)
 {
 	unsigned char bit_addr;
@@ -501,7 +501,7 @@ static void xnandps_write_page_raw(struct mtd_info *mtd,
  *
  * This functions writes data and hardware generated ECC values in to the page.
  */
-void xnandps_write_page_hwecc(struct mtd_info *mtd,
+static void xnandps_write_page_hwecc(struct mtd_info *mtd,
 				struct nand_chip *chip, const uint8_t *buf)
 {
 	int i, eccsize = chip->ecc.size;
@@ -589,7 +589,7 @@ static void xnandps_write_page_swecc(struct mtd_info *mtd,
  *
  * returns:	0 always and updates ECC operation status in to MTD structure
  */
-int xnandps_read_page_hwecc(struct mtd_info *mtd,
+static int xnandps_read_page_hwecc(struct mtd_info *mtd,
 				struct nand_chip *chip, uint8_t *buf, int page)
 {
 	int i, stat, eccsize = chip->ecc.size;
