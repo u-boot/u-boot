@@ -360,6 +360,7 @@ static inline struct exynos_spi *get_spi_base(int dev_index)
  * @param bus   SPI bus structure to fill with information
  * @return 0 if ok, or -FDT_ERR_NOTFOUND if something was missing
  */
+#ifdef CONFIG_OF_CONTROL
 static int spi_get_config(const void *blob, int node, struct spi_bus *bus)
 {
 	bus->node = node;
@@ -415,6 +416,7 @@ static int process_nodes(const void *blob, int node_list[], int count)
 
 	return 0;
 }
+#endif
 
 /* Sadly there is no error return from this function */
 void spi_init(void)
