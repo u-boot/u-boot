@@ -53,6 +53,7 @@
 #include <fdtdec.h>
 #include <post.h>
 #include <logbuff.h>
+#include <asm/sections.h>
 
 #ifdef CONFIG_BITBANGMII
 #include <miiphy.h>
