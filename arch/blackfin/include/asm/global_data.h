@@ -32,6 +32,7 @@
 
 /* Architecture-specific global data */
 struct arch_global_data {
+	unsigned long board_type;
 };
 
 #include <asm-generic/global_data.h>

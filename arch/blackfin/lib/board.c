@@ -77,7 +77,7 @@ static void display_global_data(void)
 	bd = gd->bd;
 	printf(" gd: %p\n", gd);
 	printf(" |-flags: %lx\n", gd->flags);
-	printf(" |-board_type: %lx\n", gd->board_type);
+	printf(" |-board_type: %lx\n", gd->arch.board_type);
 	printf(" |-baudrate: %u\n", gd->baudrate);
 	printf(" |-have_console: %lx\n", gd->have_console);
 	printf(" |-ram_size: %lx\n", gd->ram_size);
