@@ -57,6 +57,10 @@
 #include <asm/mp.h>
 #endif
 #include <asm/sections.h>
+#ifdef CONFIG_X86
+#include <asm/init_helpers.h>
+#include <asm/relocate.h>
+#endif
 #include <linux/compiler.h>
 
 /*
@@ -423,7 +427,7 @@ static int reserve_lcd(void)
 #endif /* CONFIG_LCD */
 
 #if defined(CONFIG_VIDEO) && (!defined(CONFIG_PPC) || defined(CONFIG_8xx)) \
-		&& !defined(CONFIG_ARM)
+		&& !defined(CONFIG_ARM) && !defined(CONFIG_X86)
 static int reserve_video(void)
 {
 	/* reserve memory for video display (always full pages) */
@@ -716,7 +720,25 @@ static int setup_reloc(void)
 
 static int jump_to_copy(void)
 {
+	/*
+	 * x86 is special, but in a nice way. It uses a trampoline which
+	 * enables the dcache if possible.
+	 *
+	 * For now, other archs use relocate_code(), which is implemented
+	 * similarly for all archs. When we do generic relocation, hopefully
+	 * we can make all archs enable the dcache prior to relocation.
+	 */
+#ifdef CONFIG_X86
+	/*
+	 * SDRAM and console are now initialised. The final stack can now
+	 * be setup in SDRAM. Code execution will continue in Flash, but
+	 * with the stack in SDRAM and Global Data in temporary memory
+	 * (CPU cache)
+	 */
+	board_init_f_r_trampoline(gd->start_addr_sp);
+#else
 	relocate_code(gd->dest_addr_sp, gd->new_gd, gd->dest_addr);
+#endif
 
 	return 0;
 }
@@ -743,6 +765,12 @@ static init_fnc_t init_sequence_f[] = {
 	probecpu,
 #endif
 	arch_cpu_init,		/* basic arch cpu dependent setup */
+#ifdef CONFIG_X86
+	cpu_init_f,		/* TODO(sjg@chromium.org): remove */
+# ifdef CONFIG_OF_CONTROL
+	find_fdt,		/* TODO(sjg@chromium.org): remove */
+# endif
+#endif
 	mark_bootstage,
 #ifdef CONFIG_OF_CONTROL
 	fdtdec_check_fdt,
@@ -791,6 +819,9 @@ static init_fnc_t init_sequence_f[] = {
 	init_baud_rate,		/* initialze baudrate settings */
 	serial_init,		/* serial communications setup */
 	console_init_f,		/* stage 1 init of console */
+#if defined(CONFIG_X86) && defined(CONFIG_OF_CONTROL)
+	prepare_fdt,		/* TODO(sjg@chromium.org): remove */
+#endif
 	display_options,	/* say that we are here */
 	display_text_info,	/* show debugging info if required */
 #if defined(CONFIG_8260)
@@ -828,6 +859,8 @@ static init_fnc_t init_sequence_f[] = {
 #endif
 #ifdef CONFIG_X86
 	dram_init_f,		/* configure available RAM banks */
+	/* x86 would prefer that this happens after relocation */
+	dram_init,
 #endif
 	announce_dram_init,
 	/* TODO: unify all these dram functions? */
@@ -879,7 +912,7 @@ static init_fnc_t init_sequence_f[] = {
 #endif
 	/* TODO: Why the dependency on CONFIG_8xx? */
 #if defined(CONFIG_VIDEO) && (!defined(CONFIG_PPC) || defined(CONFIG_8xx)) \
-		&& !defined(CONFIG_ARM)
+		&& !defined(CONFIG_ARM) && !defined(CONFIG_X86)
 	reserve_video,
 #endif
 	reserve_uboot,
@@ -914,9 +947,11 @@ static init_fnc_t init_sequence_f[] = {
 
 void board_init_f(ulong boot_flags)
 {
+#ifndef CONFIG_X86
 	gd_t data;
 
 	gd = &data;
+#endif
 
 	gd->flags = boot_flags;
 
@@ -928,6 +963,50 @@ void board_init_f(ulong boot_flags)
 	hang();
 #endif
 }
+
+#ifdef CONFIG_X86
+/*
+ * For now this code is only used on x86.
+ *
+ * init_sequence_f_r is the list of init functions which are run when
+ * U-Boot is executing from Flash with a semi-limited 'C' environment.
+ * The following limitations must be considered when implementing an
+ * '_f_r' function:
+ *  - 'static' variables are read-only
+ *  - Global Data (gd->xxx) is read/write
+ *
+ * The '_f_r' sequence must, as a minimum, copy U-Boot to RAM (if
+ * supported).  It _should_, if possible, copy global data to RAM and
+ * initialise the CPU caches (to speed up the relocation process)
+ *
+ * NOTE: At present only x86 uses this route, but it is intended that
+ * all archs will move to this when generic relocation is implemented.
+ */
+static init_fnc_t init_sequence_f_r[] = {
+	init_cache_f_r,
+	copy_uboot_to_ram,
+	clear_bss,
+	do_elf_reloc_fixups,
+
+	NULL,
+};
+
+void board_init_f_r(void)
+{
+	if (initcall_run_list(init_sequence_f_r))
+		hang();
+
+	/*
+	 * U-Boot has been copied into SDRAM, the BSS has been cleared etc.
+	 * Transfer execution from Flash to RAM by calculating the address
+	 * of the in-RAM copy of board_init_r() and calling it
+	 */
+	(board_init_r + gd->reloc_off)(gd, gd->relocaddr);
+
+	/* NOTREACHED - board_init_r() does not return */
+	hang();
+}
+#endif /* CONFIG_X86 */
 
 void hang(void)
 {
