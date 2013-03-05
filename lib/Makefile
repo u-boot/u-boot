@@ -44,6 +44,7 @@ COBJS-$(CONFIG_TEST_FDTDEC) += fdtdec_test.o
 COBJS-$(CONFIG_GZIP) += gunzip.o
 COBJS-$(CONFIG_GZIP_COMPRESSED) += gzip.o
 COBJS-y += hashtable.o
+COBJS-y += initcall.o
 COBJS-$(CONFIG_LMB) += lmb.o
 COBJS-y += ldiv.o
 COBJS-$(CONFIG_MD5) += md5.o
