@@ -224,13 +224,41 @@ static struct nand_bbt_descr bbt_mirror_descr = {
 };
 
 /*
+ * xnandps_waitfor_ecc_completion - Wait for ECC completion
+ *
+ * returns: status for command completion, -1 for Timeout
+ */
+static int xnandps_waitfor_ecc_completion(void)
+{
+	unsigned long timeout;
+	u32 status;
+
+	/* Wait max 10ms */
+	timeout = 10;
+	status = readl(&xnandps_smc_ecc_base->esr);
+	while (status & XNANDPSS_ECC_BUSY) {
+		status = readl(&xnandps_smc_ecc_base->esr);
+		if (timeout == 0)
+			return -1;
+		timeout--;
+		udelay(1);
+	}
+
+	return status;
+}
+
+/*
  * xnandps_init_nand_flash - Initialize NAND controller
  * @option:	Device property flags
  *
  * This function initializes the NAND flash interface on the NAND controller.
+ *
+ * returns:	0 on success or error value on failure
  */
-static void xnandps_init_nand_flash(int option)
+static int xnandps_init_nand_flash(int option)
 {
+	u32 status;
+
 	/* disable interrupts */
 	writel(XNANDPSS_CLR_CONFIG, &xnandps_smc_mem_base->cfr);
 	/* Initialize the NAND interface by setting cycles and operation mode */
@@ -243,11 +271,17 @@ static void xnandps_init_nand_flash(int option)
 	writel(XNANDPSS_DIRECT_CMD, &xnandps_smc_mem_base->dcr);
 
 	/* Wait till the ECC operation is complete */
-	while ((readl(&xnandps_smc_ecc_base->esr)) & XNANDPSS_ECC_BUSY)
-		;
+	status = xnandps_waitfor_ecc_completion();
+	if (status < 0) {
+		printf("xnandps_init_nand_flash: Timeout\n");
+		return status;
+	}
+
 	/* Set the command1 and command2 register */
 	writel(XNANDPSS_ECC_CMD1, &xnandps_smc_ecc_base->emcmd1r);
 	writel(XNANDPSS_ECC_CMD2, &xnandps_smc_ecc_base->emcmd2r);
+
+	return 0;
 }
 
 /*
@@ -269,9 +303,11 @@ static int xnandps_calculate_hwecc(struct mtd_info *mtd, const u8 *data,
 	u32 ecc_status;
 
 	/* Wait till the ECC operation is complete */
-	do {
-		ecc_status = readl(&xnandps_smc_ecc_base->esr);
-	} while (ecc_status & XNANDPSS_ECC_BUSY);
+	ecc_status = xnandps_waitfor_ecc_completion();
+	if (ecc_status < 0) {
+		printf("xnandps_calculate_hwecc: Timeout\n");
+		return ecc_status;
+	}
 
 	for (ecc_reg = 0; ecc_reg < 4; ecc_reg++) {
 		/* Read ECC value for each block */
@@ -1011,7 +1047,10 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 #endif
 
 	/* Initialize the NAND flash interface on NAND controller */
-	xnandps_init_nand_flash(nand_chip->options);
+	if (xnandps_init_nand_flash(nand_chip->options) < 0) {
+		printf("zynq_nand_init: nand flash init failed\n");
+		goto free;
+	}
 
 	/* first scan to find the device and get the page size */
 	if (nand_scan_ident(mtd, 1, NULL)) {
