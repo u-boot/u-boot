@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2006 Atmel Corporation
- *
+ * Copyright (c) 2012 The Chromium OS Authors.
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -19,14 +18,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-#ifndef __ASM_AVR32_SECTIONS_H
-#define __ASM_AVR32_SECTIONS_H
+
+#ifndef __ASM_ARM_SECTIONS_H
+#define __ASM_ARM_SECTIONS_H
 
 #include <asm-generic/sections.h>
 
-/* References to section boundaries */
-
-extern char __data_lma[], __edata_lma[];
-extern char __got_start[], __got_lma[], __got_end[];
-
-#endif /* __ASM_AVR32_SECTIONS_H */
+#endif

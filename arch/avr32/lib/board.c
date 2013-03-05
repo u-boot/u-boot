@@ -188,7 +188,7 @@ void board_init_f(ulong board_type)
 	 *  - stack
 	 */
 	addr = CONFIG_SYS_SDRAM_BASE + sdram_size;
-	monitor_len = __bss_end - _text;
+	monitor_len = (char *)__bss_end - _text;
 
 	/*
 	 * Reserve memory for u-boot code, data and bss.
