@@ -161,10 +161,7 @@ int board_nand_init(struct nand_chip *nand_chip)
 
 int dram_init(void)
 {
-	gd->ram_size = get_ram_size((void *)CONFIG_SYS_SDRAM_BASE,
-							CONFIG_SYS_SDRAM_SIZE);
-	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = CONFIG_SYS_SDRAM_SIZE;
+	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
 
 	return 0;
 }
