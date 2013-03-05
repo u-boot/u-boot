@@ -104,9 +104,9 @@ while true ; do
 	-s|--soc)
 		# echo "Option SoC: argument \`$2'"
 		if [ "$opt_s" ] ; then
-			opt_s="${opt_s%)} || \$6 == \"$2\")"
+			opt_s="${opt_s%)} || \$6 == \"$2\" || \$6 ~ /$2/)"
 		else
-			opt_s="(\$6 == \"$2\")"
+			opt_s="(\$6 == \"$2\" || \$6 ~ /$2/)"
 		fi
 		SELECTED='y'
 		shift 2 ;;
