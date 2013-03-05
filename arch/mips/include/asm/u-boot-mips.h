@@ -7,7 +7,7 @@
 
 static inline unsigned long bss_start(void)
 {
-	extern ulong __bss_start;
+	extern char __bss_start[];
 	return (unsigned long) &__bss_start;
 }
 
@@ -19,7 +19,7 @@ static inline unsigned long bss_end(void)
 
 static inline unsigned long image_copy_end(void)
 {
-	extern ulong __image_copy_end;
+	extern char __image_copy_end[];
 	return (unsigned long) &__image_copy_end;
 }
 
