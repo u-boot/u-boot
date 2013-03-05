@@ -237,25 +237,18 @@ static int init_func_spi(void)
 /***********************************************************************/
 
 #if defined(CONFIG_WATCHDOG)
-static int init_func_watchdog_init(void)
+int init_func_watchdog_init(void)
 {
 	puts("       Watchdog enabled\n");
 	WATCHDOG_RESET();
 	return 0;
 }
 
-#define INIT_FUNC_WATCHDOG_INIT	init_func_watchdog_init,
-
-static int init_func_watchdog_reset(void)
+int init_func_watchdog_reset(void)
 {
 	WATCHDOG_RESET();
 	return 0;
 }
-
-#define INIT_FUNC_WATCHDOG_RESET	init_func_watchdog_reset,
-#else
-#define INIT_FUNC_WATCHDOG_INIT		/* undef */
-#define INIT_FUNC_WATCHDOG_RESET	/* undef */
 #endif /* CONFIG_WATCHDOG */
 
 /*

@@ -80,6 +80,7 @@ extern ulong __init_end;
 extern ulong __bss_end;
 
 #if defined(CONFIG_WATCHDOG)
+# undef INIT_FUNC_WATCHDOG_INIT
 # define INIT_FUNC_WATCHDOG_INIT	watchdog_init,
 # define WATCHDOG_DISABLE		watchdog_disable
 

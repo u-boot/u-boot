@@ -27,6 +27,24 @@
 #ifndef _WATCHDOG_H_
 #define _WATCHDOG_H_
 
+#if !defined(__ASSEMBLY__)
+/*
+ * Reset the watchdog timer, always returns 0
+ *
+ * This function is here since it is shared between board_f() and board_r(),
+ * and the legacy arch/<arch>/board.c code.
+ */
+int init_func_watchdog_reset(void);
+#endif
+
+#ifdef CONFIG_WATCHDOG
+#define INIT_FUNC_WATCHDOG_INIT	init_func_watchdog_init,
+#define INIT_FUNC_WATCHDOG_RESET	init_func_watchdog_reset,
+#else
+#define INIT_FUNC_WATCHDOG_INIT
+#define INIT_FUNC_WATCHDOG_RESET
+#endif
+
 #if defined(CONFIG_HW_WATCHDOG) && defined(CONFIG_WATCHDOG)
 #  error "Configuration error: CONFIG_HW_WATCHDOG and CONFIG_WATCHDOG can't be used together."
 #endif
