@@ -46,7 +46,7 @@ void NS16550_init(NS16550_t com_port, int baud_divisor)
 					defined(CONFIG_AM33XX)
 	serial_out(0x7, &com_port->mdr1);	/* mode select reset TL16C750*/
 #endif
-	serial_out(UART_LCR_BKSE | UART_LCRVAL, (ulong)&com_port->lcr);
+	serial_out(UART_LCR_BKSE | UART_LCRVAL, &com_port->lcr);
 	serial_out(0, &com_port->dll);
 	serial_out(0, &com_port->dlm);
 	serial_out(UART_LCRVAL, &com_port->lcr);
