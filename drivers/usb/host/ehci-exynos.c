@@ -47,6 +47,7 @@ struct exynos_ehci {
 
 static struct exynos_ehci exynos;
 
+#ifdef CONFIG_OF_CONTROL
 static int exynos_usb_parse_dt(const void *blob, struct exynos_ehci *exynos)
 {
 	fdt_addr_t addr;
@@ -90,6 +91,7 @@ static int exynos_usb_parse_dt(const void *blob, struct exynos_ehci *exynos)
 
 	return 0;
 }
+#endif
 
 /* Setup the EHCI host controller. */
 static void setup_usb_phy(struct exynos_usb_phy *usb)
@@ -151,10 +153,15 @@ int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	struct exynos_ehci *ctx = &exynos;
 
+#ifdef CONFIG_OF_CONTROL
 	if (exynos_usb_parse_dt(gd->fdt_blob, ctx)) {
 		debug("Unable to parse device tree for ehci-exynos\n");
 		return -ENODEV;
 	}
+#else
+	ctx->usb = (struct exynos_usb_phy *)samsung_get_base_usb_phy();
+	ctx->hcd = (struct ehci_hccr *)samsung_get_base_usb_ehci();
+#endif
 
 	setup_usb_phy(ctx->usb);
 
