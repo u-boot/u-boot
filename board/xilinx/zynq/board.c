@@ -28,14 +28,15 @@
 #include <zynqpl.h>
 #include <asm/arch/sys_proto.h>
 
-#define BOOT_MODES_MASK    0x0000000F
-#define QSPI_MODE         (0x00000001)            /**< QSPI */
-#define NOR_FLASH_MODE    (0x00000002)            /**< NOR  */
-#define NAND_FLASH_MODE   (0x00000004)            /**< NAND */
-#define SD_MODE           (0x00000005)            /**< Secure Digital card */
-#define JTAG_MODE	  (0x00000000)            /**< JTAG */
-
 DECLARE_GLOBAL_DATA_PTR;
+
+/* Bootmode setting values */
+#define BOOT_MODES_MASK		0x0000000F
+#define QSPI_MODE		0x00000001
+#define NOR_FLASH_MODE		0x00000002
+#define NAND_FLASH_MODE		0x00000004
+#define SD_MODE			0x00000005
+#define JTAG_MODE		0x00000000
 
 #ifdef CONFIG_FPGA
 Xilinx_desc fpga = XILINX_XC7Z020_DESC(0);
@@ -44,13 +45,13 @@ Xilinx_desc fpga = XILINX_XC7Z020_DESC(0);
 int board_init(void)
 {
 	/* temporary hack to clear pending irqs before Linux as it
-	   will hang Linux */
-
+	 * will hang Linux
+	 */
 	writel(0x26d, 0xe0001014);
 
 	/* temporary hack to take USB out of reset til the is fixed
-	   in Linux */
-
+	 * in Linux
+	 */
 	writel(0x80, 0xe000a204);
 	writel(0x80, 0xe000a208);
 	writel(0x80, 0xe000a040);
@@ -67,7 +68,7 @@ int board_init(void)
 	return 0;
 }
 
-int board_late_init (void)
+int board_late_init(void)
 {
 	switch ((zynq_slcr_get_boot_mode()) & BOOT_MODES_MASK) {
 	case QSPI_MODE:
