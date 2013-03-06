@@ -247,7 +247,7 @@ struct QH {
 	 * aligned to 32 bytes
 	 */
 	union {
-		uint8_t fill[16];
+		uint32_t fill[4];
 		void *buffer;
 	};
 };
