@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2012, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2010-2013, NVIDIA CORPORATION.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -51,6 +51,18 @@
 		.lock		= PMUX_PIN_LOCK_##_lock,	\
 		.od		= PMUX_PIN_OD_DEFAULT,		\
 		.ioreset	= PMUX_PIN_IO_RESET_##_ioreset	\
+	}
+
+#define DEFAULT_PADCFG(_padgrp, _slwf, _slwr, _drvup, _drvdn, _lpmd, _schmt, _hsm) \
+	{							\
+		.padgrp		= PDRIVE_PINGROUP_##_padgrp,	\
+		.slwf		= _slwf,			\
+		.slwr		= _slwr,			\
+		.drvup		= _drvup,			\
+		.drvdn		= _drvdn,			\
+		.lpmd		= PGRP_LPMD_##_lpmd,		\
+		.schmt		= PGRP_SCHMT_##_schmt,		\
+		.hsm		= PGRP_HSM_##_hsm,		\
 	}
 
 static struct pingroup_config tegra3_pinmux_common[] = {
@@ -326,4 +338,9 @@ static struct pingroup_config unused_pins_lowpower[] = {
 	DEFAULT_PINMUX(GMI_DQS, NAND, NORMAL, TRISTATE, OUTPUT),
 };
 
-#endif /* _PINMUX_CONFIG_CARDHU_H_ */
+static struct padctrl_config cardhu_padctrl[] = {
+	/* (_padgrp, _slwf, _slwr, _drvup, _drvdn, _lpmd, _schmt, _hsm) */
+	DEFAULT_PADCFG(SDIO1, SDIOCFG_DRVUP_SLWF, SDIOCFG_DRVDN_SLWR, \
+		SDIOCFG_DRVUP, SDIOCFG_DRVDN, NONE, DISABLE, DISABLE),
+};
+#endif	/* _PINMUX_CONFIG_CARDHU_H_ */
