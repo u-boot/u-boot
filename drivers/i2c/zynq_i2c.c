@@ -29,6 +29,7 @@
 #include <i2c.h>
 #include <asm/errno.h>
 
+/* i2c register set */
 struct zynq_i2c_registers {
 	u32 control;
 	u32 status;
@@ -43,35 +44,26 @@ struct zynq_i2c_registers {
 	u32 interrupt_disable;
 };
 
-/*
- * Control register fields
- */
-
+/* Control register fields */
 #define	ZYNQ_I2C_CONTROL_RW		0x00000001
 #define	ZYNQ_I2C_CONTROL_MS		0x00000002
-#define	ZYNQ_I2C_CONTROL_NEA	0x00000004
-#define	ZYNQ_I2C_CONTROL_ACKEN	0x00000008
-#define	ZYNQ_I2C_CONTROL_HOLD	0x00000010
-#define	ZYNQ_I2C_CONTROL_SLVMON	0x00000020
-#define	ZYNQ_I2C_CONTROL_CLR_FIFO		0x00000040
+#define	ZYNQ_I2C_CONTROL_NEA		0x00000004
+#define	ZYNQ_I2C_CONTROL_ACKEN		0x00000008
+#define	ZYNQ_I2C_CONTROL_HOLD		0x00000010
+#define	ZYNQ_I2C_CONTROL_SLVMON		0x00000020
+#define	ZYNQ_I2C_CONTROL_CLR_FIFO	0x00000040
 #define	ZYNQ_I2C_CONTROL_DIV_B_SHIFT	8
-#define	ZYNQ_I2C_CONTROL_DIV_B_MASK		0x00003F00
+#define	ZYNQ_I2C_CONTROL_DIV_B_MASK	0x00003F00
 #define	ZYNQ_I2C_CONTROL_DIV_A_SHIFT	14
-#define	ZYNQ_I2C_CONTROL_DIV_A_MASK		0x0000C000
+#define	ZYNQ_I2C_CONTROL_DIV_A_MASK	0x0000C000
 
-/*
- * Status register values
- */
-
+/* Status register values */
 #define	ZYNQ_I2C_STATUS_RXDV	0x00000020
 #define	ZYNQ_I2C_STATUS_TXDV	0x00000040
 #define	ZYNQ_I2C_STATUS_RXOVF	0x00000080
-#define	ZYNQ_I2C_STATUS_BA		0x00000100
+#define	ZYNQ_I2C_STATUS_BA	0x00000100
 
-/*
- * Interrupt register fields
- */
-
+/* Interrupt register fields */
 #define	ZYNQ_I2C_INTERRUPT_COMP		0x00000001
 #define	ZYNQ_I2C_INTERRUPT_DATA		0x00000002
 #define	ZYNQ_I2C_INTERRUPT_NACK		0x00000004
@@ -99,9 +91,7 @@ struct zynq_i2c_registers {
 static struct zynq_i2c_registers *zynq_i2c =
 	(struct zynq_i2c_registers *) ZYNQ_I2C_BASE;
 
-/*
- * I2C init called by cmd_i2c when doing 'i2c reset'.
- */
+/* I2C init called by cmd_i2c when doing 'i2c reset'. */
 void i2c_init(int requested_speed, int slaveadd)
 {
 	/* 111MHz / ( (3 * 17) * 22 ) = ~100KHz */
@@ -122,28 +112,39 @@ static void zynq_i2c_debug_status(void)
 	status = readl(&zynq_i2c->status);
 	if (int_status || status) {
 		debug("Status: ");
-		if (int_status & ZYNQ_I2C_INTERRUPT_COMP) debug("COMP ");
-		if (int_status & ZYNQ_I2C_INTERRUPT_DATA) debug("DATA ");
-		if (int_status & ZYNQ_I2C_INTERRUPT_NACK) debug("NACK ");
-		if (int_status & ZYNQ_I2C_INTERRUPT_TO) debug("TO ");
-		if (int_status & ZYNQ_I2C_INTERRUPT_SLVRDY) debug("SLVRDY ");
-		if (int_status & ZYNQ_I2C_INTERRUPT_RXOVF) debug("RXOVF ");
-		if (int_status & ZYNQ_I2C_INTERRUPT_TXOVF) debug("TXOVF ");
-		if (int_status & ZYNQ_I2C_INTERRUPT_RXUNF) debug("RXUNF ");
-		if (int_status & ZYNQ_I2C_INTERRUPT_ARBLOST) debug("ARBLOST ");
-		if (status & ZYNQ_I2C_STATUS_RXDV) debug("RXDV ");
-		if (status & ZYNQ_I2C_STATUS_TXDV) debug("TXDV ");
-		if (status & ZYNQ_I2C_STATUS_RXOVF) debug("RXOVF ");
-		if (status & ZYNQ_I2C_STATUS_BA) debug("BA ");
+		if (int_status & ZYNQ_I2C_INTERRUPT_COMP)
+			debug("COMP ");
+		if (int_status & ZYNQ_I2C_INTERRUPT_DATA)
+			debug("DATA ");
+		if (int_status & ZYNQ_I2C_INTERRUPT_NACK)
+			debug("NACK ");
+		if (int_status & ZYNQ_I2C_INTERRUPT_TO)
+			debug("TO ");
+		if (int_status & ZYNQ_I2C_INTERRUPT_SLVRDY)
+			debug("SLVRDY ");
+		if (int_status & ZYNQ_I2C_INTERRUPT_RXOVF)
+			debug("RXOVF ");
+		if (int_status & ZYNQ_I2C_INTERRUPT_TXOVF)
+			debug("TXOVF ");
+		if (int_status & ZYNQ_I2C_INTERRUPT_RXUNF)
+			debug("RXUNF ");
+		if (int_status & ZYNQ_I2C_INTERRUPT_ARBLOST)
+			debug("ARBLOST ");
+		if (status & ZYNQ_I2C_STATUS_RXDV)
+			debug("RXDV ");
+		if (status & ZYNQ_I2C_STATUS_TXDV)
+			debug("TXDV ");
+		if (status & ZYNQ_I2C_STATUS_RXOVF)
+			debug("RXOVF ");
+		if (status & ZYNQ_I2C_STATUS_BA)
+			debug("BA ");
 		debug("TS%d ", readl(&zynq_i2c->transfer_size));
 		debug("\n");
 	}
 }
 #endif
 
-/*
- * Wait for an interrupt
- */
+/* Wait for an interrupt */
 static u32 zynq_i2c_wait(u32 mask)
 {
 	int timeout, int_status;
@@ -175,8 +176,9 @@ int i2c_probe(u8 dev)
 	writel(dev, &zynq_i2c->address);
 	writel(1, &zynq_i2c->transfer_size);
 
-	return (zynq_i2c_wait(ZYNQ_I2C_INTERRUPT_COMP | ZYNQ_I2C_INTERRUPT_NACK) &
-		ZYNQ_I2C_INTERRUPT_COMP) ? 0 : ETIMEDOUT;
+	return (zynq_i2c_wait(ZYNQ_I2C_INTERRUPT_COMP |
+		ZYNQ_I2C_INTERRUPT_NACK) &
+		ZYNQ_I2C_INTERRUPT_COMP) ? 0 : -ETIMEDOUT;
 }
 
 /*
@@ -186,7 +188,7 @@ int i2c_probe(u8 dev)
 int i2c_read(u8 dev, uint addr, int alen, u8 *data, int length)
 {
 	u32 status;
-	u32 i=0;
+	u32 i = 0;
 	u8 *cur_data = data;
 
 	/* check the hardware can handle the requested bytes */
@@ -209,7 +211,7 @@ int i2c_read(u8 dev, uint addr, int alen, u8 *data, int length)
 	if (!zynq_i2c_wait(ZYNQ_I2C_INTERRUPT_COMP)) {
 		/* Release the bus */
 		clrbits_le32(&zynq_i2c->control, ZYNQ_I2C_CONTROL_HOLD);
-		return ETIMEDOUT;
+		return -ETIMEDOUT;
 	}
 	debug("Device acked address\n");
 
@@ -226,7 +228,7 @@ int i2c_read(u8 dev, uint addr, int alen, u8 *data, int length)
 		if (!status) {
 			/* Release the bus */
 			clrbits_le32(&zynq_i2c->control, ZYNQ_I2C_CONTROL_HOLD);
-			return ETIMEDOUT;
+			return -ETIMEDOUT;
 		}
 		debug("Read %d bytes\n",
 			length - readl(&zynq_i2c->transfer_size));
@@ -262,7 +264,7 @@ int i2c_write(u8 dev, uint addr, int alen, u8 *data, int length)
 	if (!zynq_i2c_wait(ZYNQ_I2C_INTERRUPT_COMP)) {
 		/* Release the bus */
 		clrbits_le32(&zynq_i2c->control, ZYNQ_I2C_CONTROL_HOLD);
-		return ETIMEDOUT;
+		return -ETIMEDOUT;
 	}
 
 	debug("Device acked address\n");
@@ -273,7 +275,7 @@ int i2c_write(u8 dev, uint addr, int alen, u8 *data, int length)
 				/* Release the bus */
 				clrbits_le32(&zynq_i2c->control,
 						ZYNQ_I2C_CONTROL_HOLD);
-				return ETIMEDOUT;
+				return -ETIMEDOUT;
 			}
 		}
 	}
@@ -281,16 +283,16 @@ int i2c_write(u8 dev, uint addr, int alen, u8 *data, int length)
 	/* All done... release the bus */
 	clrbits_le32(&zynq_i2c->control, ZYNQ_I2C_CONTROL_HOLD);
 	/* wait for the address and data to be sent */
-	if (!zynq_i2c_wait(ZYNQ_I2C_INTERRUPT_COMP)) return ETIMEDOUT;
+	if (!zynq_i2c_wait(ZYNQ_I2C_INTERRUPT_COMP))
+		return -ETIMEDOUT;
 	return 0;
 }
 
 int i2c_set_bus_num(unsigned int bus)
 {
 	/* Only support bus 0 */
-	if (bus > 0) {
+	if (bus > 0)
 		return -1;
-	}
 	return 0;
 }
 
