@@ -61,20 +61,20 @@ char *get_cpu_name()
 	if (cpu_is_at91sam9x5()) {
 		switch (extension_id) {
 		case ARCH_EXID_AT91SAM9G15:
-			return CONFIG_SYS_AT91_G15_CPU_NAME;
+			return "AT91SAM9G15";
 		case ARCH_EXID_AT91SAM9G25:
-			return CONFIG_SYS_AT91_G25_CPU_NAME;
+			return "AT91SAM9G25";
 		case ARCH_EXID_AT91SAM9G35:
-			return CONFIG_SYS_AT91_G35_CPU_NAME;
+			return "AT91SAM9G35";
 		case ARCH_EXID_AT91SAM9X25:
-			return CONFIG_SYS_AT91_X25_CPU_NAME;
+			return "AT91SAM9X25";
 		case ARCH_EXID_AT91SAM9X35:
-			return CONFIG_SYS_AT91_X35_CPU_NAME;
+			return "AT91SAM9X35";
 		default:
-			return CONFIG_SYS_AT91_UNKNOWN_CPU;
+			return "Unknown CPU type";
 		}
 	} else {
-		return CONFIG_SYS_AT91_UNKNOWN_CPU;
+		return "Unknown CPU type";
 	}
 }
 
