@@ -212,11 +212,17 @@
 	"kernel_image=uImage\0"	\
 	"ramdisk_image=uramdisk.image.gz\0"	\
 	"devicetree_image=devicetree.dtb\0"	\
+	"bitstream_image=system.bit.bin\0"	\
+	"loadbit_addr=0x100000\0"	\
 	"kernel_size=0x500000\0"	\
 	"devicetree_size=0x20000\0"	\
 	"ramdisk_size=0x5E0000\0"	\
 	"fdt_high=0x20000000\0"	\
 	"initrd_high=0x20000000\0"	\
+	"mmc_loadbit_fat=echo Loading bitstream from SD/MMC/eMMC to RAM.. && " \
+		"mmcinfo && " \
+		"fatload mmc 0 ${loadbit_addr} ${bitstream_image} && " \
+		"fpga load 0 ${loadbit_addr} ${filesize}\0" \
 	"norboot=echo Copying Linux from NOR flash to RAM... && " \
 		"cp 0xE2100000 0x3000000 ${kernel_size} && " \
 		"cp 0xE2600000 0x2A00000 ${devicetree_size} && " \
