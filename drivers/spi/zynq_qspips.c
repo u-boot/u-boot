@@ -183,7 +183,7 @@ static struct xqspips_inst_format flash_inst[] = {
  *	- Set the little endian mode of TX FIFO and
  *	- Enable the QSPI controller
  */
-void xqspips_init_hw(void __iomem *regs_base, unsigned int is_dual)
+static void xqspips_init_hw(void __iomem *regs_base, unsigned int is_dual)
 {
 	u32 config_reg;
 
@@ -354,7 +354,7 @@ static void xqspips_chipselect(struct spi_device *qspi, int is_on)
  * controller the driver will set the highest or lowest frequency supported by
  * controller.
  */
-int xqspips_setup_transfer(struct spi_device *qspi,
+static int xqspips_setup_transfer(struct spi_device *qspi,
 		struct spi_transfer *transfer)
 {
 	struct xqspips *xqspi = &qspi->master;
@@ -671,7 +671,8 @@ xfer_data:
 	return (transfer->len) - (xqspi->bytes_to_transfer);
 }
 
-int xqspips_transfer(struct spi_device *qspi, struct spi_transfer *transfer)
+static int xqspips_transfer(struct spi_device *qspi,
+		struct spi_transfer *transfer)
 {
 	struct xqspips *xqspi = &qspi->master;
 	unsigned cs_change = 1;
@@ -740,7 +741,7 @@ int xqspips_transfer(struct spi_device *qspi, struct spi_transfer *transfer)
  * @regs_base:	base address of SLCR
  */
 
-int xqspips_check_is_dual_flash(void __iomem *regs_base)
+static int xqspips_check_is_dual_flash(void __iomem *regs_base)
 {
 	int is_dual = -1, lower_mio = 0, upper_mio = 0, val;
 	u16 mask = 3, type = 2;
@@ -779,7 +780,7 @@ int xqspips_check_is_dual_flash(void __iomem *regs_base)
  *
  * @regs_base:  base address of QSPI controller
  */
-void xqspips_write_quad_bit(void __iomem *regs_base)
+static void xqspips_write_quad_bit(void __iomem *regs_base)
 {
 	u32 config_reg, intr_status;
 
