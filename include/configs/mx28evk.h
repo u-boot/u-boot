@@ -62,6 +62,7 @@
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_BOOTZ
+#define CONFIG_CMD_NAND
 
 /* Memory configurations */
 #define CONFIG_NR_DRAM_BANKS		1		/* 1 bank of DRAM */
@@ -115,7 +116,6 @@
 #define CONFIG_APBH_DMA
 
 /* MMC Driver */
-#define CONFIG_ENV_IS_IN_MMC
 #ifdef CONFIG_ENV_IS_IN_MMC
  #define CONFIG_ENV_OFFSET	(256 * 1024)
  #define CONFIG_ENV_SIZE	(16 * 1024)
@@ -130,11 +130,40 @@
 #endif
 
 /* NAND Driver */
+#define CONFIG_ENV_SIZE			(16 * 1024)
 #ifdef CONFIG_CMD_NAND
 #define CONFIG_NAND_MXS
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		0x60000000
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
+
+/* Environment is in NAND */
+#define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
+#define CONFIG_ENV_SECT_SIZE		(128 * 1024)
+#define CONFIG_ENV_RANGE		(512 * 1024)
+#ifndef CONFIG_ENV_OFFSET
+#define CONFIG_ENV_OFFSET		0x300000
+#endif
+#define CONFIG_ENV_OFFSET_REDUND	\
+		(CONFIG_ENV_OFFSET + CONFIG_ENV_RANGE)
+
+#define CONFIG_CMD_UBI
+#define CONFIG_CMD_UBIFS
+#define CONFIG_CMD_MTDPARTS
+#define CONFIG_RBTREE
+#define CONFIG_LZO
+#define CONFIG_MTD_DEVICE
+#define CONFIG_MTD_PARTITIONS
+#define MTDIDS_DEFAULT			"nand0=gpmi-nand"
+#define MTDPARTS_DEFAULT			\
+	"mtdparts=gpmi-nand:"			\
+		"3m(bootloader)ro,"		\
+		"512k(environment),"		\
+		"512k(redundant-environment),"	\
+		"4m(kernel),"			\
+		"128k(fdt),"			\
+		"8m(ramdisk),"			\
+		"-(filesystem)"
 #endif
 
 /* Ethernet on SOC (FEC) */
