@@ -80,6 +80,7 @@
  */
 #define XQSPIPS_LCFG_TWO_MEM_MASK	0x40000000 /* QSPI Enable Bit Mask */
 #define XQSPIPS_LCFG_SEP_BUS_MASK	0x20000000 /* QSPI Enable Bit Mask */
+#define	XQSPIPS_LCFG_U_PAGE		0x8000000  /* QSPI Upper memory set */
 
 #define XQSPIPS_LCFG_DUMMY_SHIFT	8
 
@@ -98,11 +99,13 @@
 /* QSPI MIO's count for different connection topologies */
 #define XQSPIPS_MIO_SINGLE		6
 #define XQSPIPS_MIO_DUAL_PARALLEL	6
+#define XQSPIPS_MIO_DUAL_STACKED	7
 
 /* QSPI connections topology */
 enum xqspips_con_topology {
 	MODE_SINGLE = 0,
 	MODE_DUAL_PARALLEL = 1,
+	MODE_DUAL_STACKED = 2,
 };
 
 /* Definitions of the flash commands - Flash opcodes in ascending order */
@@ -176,6 +179,7 @@ static struct xqspips_inst_format flash_inst[] = {
  * xqspips_init_hw - Initialize the hardware
  * @regs_base:		Base address of QSPI controller
  * @is_dual:		Indicates whether dual memories are used
+ * @cs:			Indicates which chip select is used in dual stacked
  *
  * The default settings of the QSPI controller's configurable parameters on
  * reset are
@@ -193,7 +197,8 @@ static struct xqspips_inst_format flash_inst[] = {
  *	- Set the little endian mode of TX FIFO and
  *	- Enable the QSPI controller
  */
-static void xqspips_init_hw(void __iomem *regs_base, unsigned int is_dual)
+static void xqspips_init_hw(void __iomem *regs_base, int is_dual,
+	unsigned int cs)
 {
 	u32 config_reg;
 
@@ -222,6 +227,21 @@ static void xqspips_init_hw(void __iomem *regs_base, unsigned int is_dual)
 			 XQSPIPS_LCFG_SEP_BUS_MASK |
 			 (1 << XQSPIPS_LCFG_DUMMY_SHIFT) |
 			 XQSPIPS_FAST_READ_QOUT_CODE));
+	else if (is_dual == MODE_DUAL_STACKED) {
+		if (cs)
+			/* Enable two memories on shared buse with upper mem */
+			xqspips_write(regs_base + XQSPIPS_LINEAR_CFG_OFFSET,
+				(XQSPIPS_LCFG_TWO_MEM_MASK |
+				XQSPIPS_LCFG_U_PAGE |
+				(1 << XQSPIPS_LCFG_DUMMY_SHIFT) |
+				XQSPIPS_FAST_READ_QOUT_CODE));
+		else
+			/* Enable two memories on shared buse with lower mem */
+			xqspips_write(regs_base + XQSPIPS_LINEAR_CFG_OFFSET,
+				(XQSPIPS_LCFG_TWO_MEM_MASK |
+				(1 << XQSPIPS_LCFG_DUMMY_SHIFT) |
+				XQSPIPS_FAST_READ_QOUT_CODE));
+	}
 
 	xqspips_write(regs_base + XQSPIPS_ENABLE_OFFSET,
 			XQSPIPS_ENABLE_ENABLE_MASK);
@@ -774,6 +794,7 @@ static int xqspips_check_is_dual_flash(void __iomem *regs_base)
 	/* checking dual QSPI MIO's */
 	val = xqspips_read(mio_base + 4 * 0);
 	if ((val & mask) == type) {
+		lower_mio++;
 		upper_mio++;
 		for (mio_pin_index = 9; mio_pin_index < 14; mio_pin_index++) {
 			val = xqspips_read(mio_base + 4 * mio_pin_index);
@@ -782,9 +803,11 @@ static int xqspips_check_is_dual_flash(void __iomem *regs_base)
 		}
 	}
 
-	if ((lower_mio == XQSPIPS_MIO_SINGLE) &&
+	if ((lower_mio == XQSPIPS_MIO_DUAL_STACKED) &&
 			(upper_mio == XQSPIPS_MIO_DUAL_PARALLEL))
 		is_dual = MODE_DUAL_PARALLEL;
+	else if (lower_mio == XQSPIPS_MIO_DUAL_STACKED)
+		is_dual = MODE_DUAL_STACKED;
 	else if (lower_mio == XQSPIPS_MIO_SINGLE)
 		is_dual = MODE_SINGLE;
 
@@ -937,7 +960,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		return NULL;
 	}
 
-	xqspips_init_hw((void *)XPSS_QSPI_BASEADDR, is_dual);
+	xqspips_init_hw((void *)XPSS_QSPI_BASEADDR, is_dual, cs);
 
 	pspi = malloc(sizeof(struct zynq_spi_slave));
 	if (!pspi) {
