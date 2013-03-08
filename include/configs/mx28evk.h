@@ -62,7 +62,6 @@
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_BOOTZ
-#define CONFIG_CMD_I2C
 
 /* Memory configurations */
 #define CONFIG_NR_DRAM_BANKS		1		/* 1 bank of DRAM */
