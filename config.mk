@@ -221,6 +221,14 @@ ifeq ($(CONFIG_SPL_BUILD),y)
 CPPFLAGS += -DCONFIG_SPL_BUILD
 endif
 
+# Does this architecture support generic board init?
+ifeq ($(__HAVE_ARCH_GENERIC_BOARD),)
+ifneq ($(CONFIG_SYS_GENERIC_BOARD),)
+$(error Your architecture does not support generic board. Please undefined \
+CONFIG_SYS_GENERIC_BOARD in your board config file)
+endif
+endif
+
 ifneq ($(RESET_VECTOR_ADDRESS),)
 CPPFLAGS += -DRESET_VECTOR_ADDRESS=$(RESET_VECTOR_ADDRESS)
 endif

@@ -3212,6 +3212,16 @@ Configuration Settings:
 	If defined, don't allow the -f switch to env set override variable
 	access flags.
 
+- CONFIG_SYS_GENERIC_BOARD
+	This selects the architecture-generic board system instead of the
+	architecture-specific board files. It is intended to move boards
+	to this new framework over time. Defining this will disable the
+	arch/foo/lib/board.c file and use common/board_f.c and
+	common/board_r.c instead. To use this option your architecture
+	must support it (i.e. must define __HAVE_ARCH_GENERIC_BOARD in
+	its config.mk file). If you find problems enabling this option on
+	your board please report the problem and send patches!
+
 The following definitions that deal with the placement and management
 of environment data (variable area); in general, we support the
 following configurations:
