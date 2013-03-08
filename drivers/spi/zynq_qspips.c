@@ -751,22 +751,30 @@ static int xqspips_check_is_dual_flash(void __iomem *regs_base)
 	mio_base = regs_base + 0x700;
 
 	/* checking single QSPI MIO's */
-	for (mio_pin_index = 2; mio_pin_index < 7; mio_pin_index++) {
-		val = xqspips_read(mio_base + 4 * mio_pin_index);
-		if ((val & mask) == type)
-			lower_mio++;
+	val = xqspips_read(mio_base + 4 * 1);
+	if ((val & mask) == type) {
+		lower_mio++;
+		for (mio_pin_index = 2; mio_pin_index < 7; mio_pin_index++) {
+			val = xqspips_read(mio_base + 4 * mio_pin_index);
+			if ((val & mask) == type)
+				lower_mio++;
+		}
 	}
 
 	/* checking dual QSPI MIO's */
-	for (mio_pin_index = 8; mio_pin_index < 14; mio_pin_index++) {
-		val = xqspips_read(mio_base + 4 * mio_pin_index);
-		if ((val & mask) == type)
-			upper_mio++;
+	val = xqspips_read(mio_base + 4 * 0);
+	if ((val & mask) == type) {
+		upper_mio++;
+		for (mio_pin_index = 9; mio_pin_index < 14; mio_pin_index++) {
+			val = xqspips_read(mio_base + 4 * mio_pin_index);
+			if ((val & mask) == type)
+				upper_mio++;
+		}
 	}
 
-	if ((lower_mio == 5) && (upper_mio == 6))
+	if ((lower_mio == 6) && (upper_mio == 6))
 		is_dual = 1;
-	else if (lower_mio == 5)
+	else if (lower_mio == 6)
 		is_dual = 0;
 
 	return is_dual;
