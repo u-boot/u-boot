@@ -95,6 +95,16 @@
 #define XQSPIPS_QUEUE_STOPPED		0
 #define XQSPIPS_QUEUE_RUNNING		1
 
+/* QSPI MIO's count for different connection topologies */
+#define XQSPIPS_MIO_SINGLE		6
+#define XQSPIPS_MIO_DUAL_PARALLEL	6
+
+/* QSPI connections topology */
+enum xqspips_con_topology {
+	MODE_SINGLE = 0,
+	MODE_DUAL_PARALLEL = 1,
+};
+
 /* Definitions of the flash commands - Flash opcodes in ascending order */
 #define	XQSPIPS_FLASH_OPCODE_WRSR	0x01	/* Write status register */
 #define	XQSPIPS_FLASH_OPCODE_PP		0x02	/* Page program */
@@ -205,7 +215,7 @@ static void xqspips_init_hw(void __iomem *regs_base, unsigned int is_dual)
 	config_reg |= 0x8000FCC1;
 	xqspips_write(regs_base + XQSPIPS_CONFIG_OFFSET, config_reg);
 
-	if (is_dual == 1)
+	if (is_dual == MODE_DUAL_PARALLEL)
 		/* Enable two memories on seperate buses */
 		xqspips_write(regs_base + XQSPIPS_LINEAR_CFG_OFFSET,
 			(XQSPIPS_LCFG_TWO_MEM_MASK |
@@ -592,7 +602,7 @@ static int xqspips_start_transfer(struct spi_device *qspi,
 		 * In case of dual memories, convert 25 bit address to 24 bit
 		 * address before transmitting to the 2 memories
 		 */
-		if ((xqspi->is_dual == 1) &&
+		if ((xqspi->is_dual == MODE_DUAL_PARALLEL) &&
 		    ((instruction == XQSPIPS_FLASH_OPCODE_PP) ||
 		    (instruction == XQSPIPS_FLASH_OPCODE_SE) ||
 		    (instruction == XQSPIPS_FLASH_OPCODE_BE_32K) ||
@@ -772,10 +782,11 @@ static int xqspips_check_is_dual_flash(void __iomem *regs_base)
 		}
 	}
 
-	if ((lower_mio == 6) && (upper_mio == 6))
-		is_dual = 1;
-	else if (lower_mio == 6)
-		is_dual = 0;
+	if ((lower_mio == XQSPIPS_MIO_SINGLE) &&
+			(upper_mio == XQSPIPS_MIO_DUAL_PARALLEL))
+		is_dual = MODE_DUAL_PARALLEL;
+	else if (lower_mio == XQSPIPS_MIO_SINGLE)
+		is_dual = MODE_SINGLE;
 
 	return is_dual;
 }
