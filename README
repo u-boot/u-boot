@@ -860,7 +860,8 @@ The following options need to be configured:
 					  (requires CONFIG_CMD_MEMORY and CONFIG_MD5)
 		CONFIG_CMD_MEMINFO	* Display detailed memory information
 		CONFIG_CMD_MEMORY	  md, mm, nm, mw, cp, cmp, crc, base,
-					  loop, loopw, mtest
+					  loop, loopw
+		CONFIG_CMD_MEMTEST	  mtest
 		CONFIG_CMD_MISC		  Misc functions like sleep etc
 		CONFIG_CMD_MMC		* MMC memory mapped support
 		CONFIG_CMD_MII		* MII utility commands
