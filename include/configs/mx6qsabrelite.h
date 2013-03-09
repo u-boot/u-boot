@@ -228,8 +228,6 @@
 		   "fi; " \
 	   "else run netboot; fi"
 
-#define CONFIG_ARP_TIMEOUT     200UL
-
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_HUSH_PARSER
