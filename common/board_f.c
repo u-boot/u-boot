@@ -107,8 +107,13 @@ static int display_text_info(void)
 {
 	ulong bss_start, bss_end;
 
+#ifdef CONFIG_SYS_SYM_OFFSETS
 	bss_start = _bss_start_ofs + _TEXT_BASE;
 	bss_end = _bss_end_ofs + _TEXT_BASE;
+#else
+	bss_start = (ulong)&__bss_start;
+	bss_end = (ulong)&__bss_end;
+#endif
 	debug("U-Boot code: %08X -> %08lX  BSS: -> %08lX\n",
 	      CONFIG_SYS_TEXT_BASE, bss_start, bss_end);
 
@@ -174,7 +179,11 @@ static int zero_global_data(void)
 
 static int setup_mon_len(void)
 {
+#ifdef CONFIG_SYS_SYM_OFFSETS
 	gd->mon_len = _bss_end_ofs;
+#else
+	gd->mon_len = (ulong)&__bss_end - (ulong)&__text_start;
+#endif
 	return 0;
 }
 
@@ -190,7 +199,11 @@ static int setup_fdt(void)
 	gd->fdt_blob = _binary_dt_dtb_start;
 #elif defined CONFIG_OF_SEPARATE
 	/* FDT is at end of image */
+# ifdef CONFIG_SYS_SYM_OFFSETS
 	gd->fdt_blob = (void *)(_end_ofs + CONFIG_SYS_TEXT_BASE);
+# else
+	gd->fdt_blob = (ulong *)&_end;
+# endif
 #endif
 	/* Allow the early environment to override the fdt address */
 	gd->fdt_blob = (void *)getenv_ulong("fdtcontroladdr", 16,
@@ -483,6 +496,7 @@ static int mark_bootstage(void)
 }
 
 static init_fnc_t init_sequence_f[] = {
+	zero_global_data,
 	setup_fdt,
 	setup_mon_len,
 	arch_cpu_init,		/* basic arch cpu dependent setup */
