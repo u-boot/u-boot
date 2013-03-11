@@ -1227,7 +1227,7 @@ Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 #	Board		CPU						#
 #########################################################################
 
-Mike Frysinger <vapier@gentoo.org>
+Sonic Zhang <sonic.adi@gmail.com>
 Blackfin Team <u-boot-devel@blackfin.uclinux.org>
 
 	BF506F-EZKIT	BF506
@@ -1244,6 +1244,7 @@ Blackfin Team <u-boot-devel@blackfin.uclinux.org>
 	BF538F-EZKIT	BF538
 	BF548-EZKIT	BF548
 	BF561-EZKIT	BF561
+	BF609-EZKIT	BF609
 
 M.Hasewinkel (MHA) <info@ssv-embedded.de>
 

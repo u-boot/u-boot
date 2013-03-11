@@ -67,7 +67,10 @@ struct davinci_gpio_bank {
 
 #define gpio_status()		gpio_info()
 #define GPIO_NAME_SIZE		20
-#if defined(CONFIG_SOC_DA8XX) && !defined(CONFIG_SOC_DA850)
+#if defined(CONFIG_SOC_DM644X)
+/* GPIO0 to GPIO53, omit the V3.3 volts one */
+#define MAX_NUM_GPIOS		70
+#elif defined(CONFIG_SOC_DA8XX) && !defined(CONFIG_SOC_DA850)
 #define MAX_NUM_GPIOS		128
 #else
 #define MAX_NUM_GPIOS		144

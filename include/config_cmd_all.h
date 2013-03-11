@@ -76,6 +76,7 @@
 #define CONFIG_CMD_RARP		/* rarpboot support		*/
 #define CONFIG_CMD_READ		/* Read data from partition	*/
 #define CONFIG_CMD_RUN		/* run command in env variable	*/
+#define CONFIG_CMD_SANDBOX	/* sb command to access sandbox features */
 #define CONFIG_CMD_SAVEENV	/* saveenv			*/
 #define CONFIG_CMD_SAVES	/* save S record dump		*/
 #define CONFIG_CMD_SCSI		/* SCSI Support			*/

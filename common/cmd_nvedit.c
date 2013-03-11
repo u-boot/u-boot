@@ -295,17 +295,17 @@ int setenv_ulong(const char *varname, ulong value)
 }
 
 /**
- * Set an environment variable to an address in hex
+ * Set an environment variable to an value in hex
  *
  * @param varname	Environmet variable to set
- * @param addr		Value to set it to
+ * @param value		Value to set it to
  * @return 0 if ok, 1 on error
  */
-int setenv_addr(const char *varname, const void *addr)
+int setenv_hex(const char *varname, ulong value)
 {
 	char str[17];
 
-	sprintf(str, "%lx", (uintptr_t)addr);
+	sprintf(str, "%lx", value);
 	return setenv(varname, str);
 }
 
@@ -552,7 +552,8 @@ static int do_env_edit(cmd_tbl_t *cmdtp, int flag, int argc,
 	else
 		buffer[0] = '\0';
 
-	readline_into_buffer("edit: ", buffer, 0);
+	if (readline_into_buffer("edit: ", buffer, 0) < 0)
+		return 1;
 
 	return setenv(argv[1], buffer);
 }
@@ -891,8 +892,7 @@ NXTARG:		;
 		envp->flags = ACTIVE_FLAG;
 #endif
 	}
-	sprintf(buf, "%zX", (size_t)(len + offsetof(env_t, data)));
-	setenv("filesize", buf);
+	setenv_hex("filesize", len + offsetof(env_t, data));
 
 	return 0;
 

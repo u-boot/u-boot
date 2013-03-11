@@ -237,6 +237,14 @@ int nand_lock(struct mtd_info *mtd, int tight)
 	/* select the NAND device */
 	chip->select_chip(mtd, 0);
 
+	/* check the Lock Tight Status */
+	chip->cmdfunc(mtd, NAND_CMD_LOCK_STATUS, -1, 0);
+	if (chip->read_byte(mtd) & NAND_LOCK_STATUS_TIGHT) {
+		printf("nand_lock: Device is locked tight!\n");
+		ret = -1;
+		goto out;
+	}
+
 	chip->cmdfunc(mtd,
 		      (tight ? NAND_CMD_LOCK_TIGHT : NAND_CMD_LOCK),
 		      -1, -1);
@@ -249,6 +257,7 @@ int nand_lock(struct mtd_info *mtd, int tight)
 		ret = -1;
 	}
 
+ out:
 	/* de-select the NAND device */
 	chip->select_chip(mtd, -1);
 	return ret;
@@ -337,6 +346,15 @@ int nand_unlock(struct mtd_info *mtd, loff_t start, size_t length,
 		goto out;
 	}
 
+	/* check the Lock Tight Status */
+	page = (int)(start >> chip->page_shift);
+	chip->cmdfunc(mtd, NAND_CMD_LOCK_STATUS, -1, page & chip->pagemask);
+	if (chip->read_byte(mtd) & NAND_LOCK_STATUS_TIGHT) {
+		printf("nand_unlock: Device is locked tight!\n");
+		ret = -1;
+		goto out;
+	}
+
 	if ((start & (mtd->erasesize - 1)) != 0) {
 		printf("nand_unlock: Start address must be beginning of "
 			"nand block!\n");
@@ -358,7 +376,6 @@ int nand_unlock(struct mtd_info *mtd, loff_t start, size_t length,
 	length -= mtd->erasesize;
 
 	/* submit address of first page to unlock */
-	page = (int)(start >> chip->page_shift);
 	chip->cmdfunc(mtd, NAND_CMD_UNLOCK1, -1, page & chip->pagemask);
 
 	/* submit ADDRESS of LAST page to unlock */

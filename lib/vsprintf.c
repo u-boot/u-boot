@@ -126,6 +126,29 @@ unsigned long ustrtoul(const char *cp, char **endp, unsigned int base)
 	return result;
 }
 
+unsigned long long ustrtoull(const char *cp, char **endp, unsigned int base)
+{
+	unsigned long long result = simple_strtoull(cp, endp, base);
+	switch (**endp) {
+	case 'G':
+		result *= 1024;
+		/* fall through */
+	case 'M':
+		result *= 1024;
+		/* fall through */
+	case 'K':
+	case 'k':
+		result *= 1024;
+		if ((*endp)[1] == 'i') {
+			if ((*endp)[2] == 'B')
+				(*endp) += 3;
+			else
+				(*endp) += 2;
+		}
+	}
+	return result;
+}
+
 unsigned long long simple_strtoull(const char *cp, char **endp,
 					unsigned int base)
 {

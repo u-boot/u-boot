@@ -525,11 +525,9 @@ int do_jffs2_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		}
 
 		if (size > 0) {
-			char buf[10];
 			printf("### %s load complete: %d bytes loaded to 0x%lx\n",
 				fsname, size, offset);
-			sprintf(buf, "%x", size);
-			setenv("filesize", buf);
+			setenv_hex("filesize", size);
 		} else {
 			printf("### %s LOAD ERROR<%x> for %s!\n", fsname, size, filename);
 		}

@@ -38,9 +38,7 @@
 #include "post.h"
 #endif
 #include "common.h"
-#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
 #include <i2c.h>
-#endif
 
 #if !defined(CONFIG_MPC83xx)
 static void i2c_write_start_seq(void);
@@ -182,17 +180,6 @@ void i2c_init_board(void)
 {
 	/* Now run the AbortSequence() */
 	i2c_make_abort();
-}
-#endif
-
-
-#if !defined(MACH_TYPE_KM_KIRKWOOD)
-int ethernet_present(void)
-{
-	struct km_bec_fpga *base =
-		(struct km_bec_fpga *)CONFIG_SYS_KMBEC_FPGA_BASE;
-
-	return in_8(&base->bprth) & PIGGY_PRESENT;
 }
 #endif
 

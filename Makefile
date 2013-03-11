@@ -22,9 +22,9 @@
 #
 
 VERSION = 2013
-PATCHLEVEL = 01
+PATCHLEVEL = 04
 SUBLEVEL =
-EXTRAVERSION =
+EXTRAVERSION = -rc1
 ifneq "$(SUBLEVEL)" ""
 U_BOOT_VERSION = $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
 else
@@ -264,6 +264,7 @@ LIBS-y += fs/libfs.o \
 	fs/fdos/libfdos.o \
 	fs/jffs2/libjffs2.o \
 	fs/reiserfs/libreiserfs.o \
+	fs/sandbox/libsandboxfs.o \
 	fs/ubifs/libubifs.o \
 	fs/yaffs2/libyaffs2.o \
 	fs/zfs/libzfs.o

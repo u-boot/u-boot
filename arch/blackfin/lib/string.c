@@ -29,7 +29,7 @@
 #include <config.h>
 #include <asm/blackfin.h>
 #include <asm/io.h>
-#include <asm/mach-common/bits/dma.h>
+#include <asm/dma.h>
 
 char *strcpy(char *dest, const char *src)
 {
@@ -117,81 +117,88 @@ int strncmp(const char *cs, const char *ct, size_t count)
 	return __res1;
 }
 
-#ifdef bfin_write_MDMA1_D0_IRQ_STATUS
-# define bfin_write_MDMA_D0_IRQ_STATUS bfin_write_MDMA1_D0_IRQ_STATUS
-# define bfin_write_MDMA_D0_START_ADDR bfin_write_MDMA1_D0_START_ADDR
-# define bfin_write_MDMA_D0_X_COUNT    bfin_write_MDMA1_D0_X_COUNT
-# define bfin_write_MDMA_D0_X_MODIFY   bfin_write_MDMA1_D0_X_MODIFY
-# define bfin_write_MDMA_D0_CONFIG     bfin_write_MDMA1_D0_CONFIG
-# define bfin_write_MDMA_S0_START_ADDR bfin_write_MDMA1_S0_START_ADDR
-# define bfin_write_MDMA_S0_X_COUNT    bfin_write_MDMA1_S0_X_COUNT
-# define bfin_write_MDMA_S0_X_MODIFY   bfin_write_MDMA1_S0_X_MODIFY
-# define bfin_write_MDMA_S0_CONFIG     bfin_write_MDMA1_S0_CONFIG
-# define bfin_write_MDMA_D0_IRQ_STATUS bfin_write_MDMA1_D0_IRQ_STATUS
-# define bfin_read_MDMA_D0_IRQ_STATUS  bfin_read_MDMA1_D0_IRQ_STATUS
+#ifdef MDMA1_D0_NEXT_DESC_PTR
+# define MDMA_D0_NEXT_DESC_PTR MDMA1_D0_NEXT_DESC_PTR
+# define MDMA_S0_NEXT_DESC_PTR MDMA1_S0_NEXT_DESC_PTR
 #endif
+
+static void dma_calc_size(unsigned long ldst, unsigned long lsrc, size_t count,
+			unsigned long *dshift, unsigned long *bpos)
+{
+	unsigned long limit;
+
+#ifdef MSIZE
+	limit = 6;
+	*dshift = MSIZE_P;
+#else
+	limit = 3;
+	*dshift = WDSIZE_P;
+#endif
+
+	*bpos = min(limit, ffs(ldst | lsrc | count)) - 1;
+}
+
 /* This version misbehaves for count values of 0 and 2^16+.
  * Perhaps we should detect that ?  Nowhere do we actually
  * use dma memcpy for those types of lengths though ...
  */
 void dma_memcpy_nocache(void *dst, const void *src, size_t count)
 {
-	uint16_t wdsize, mod;
+	struct dma_register *mdma_d0 = (void *)MDMA_D0_NEXT_DESC_PTR;
+	struct dma_register *mdma_s0 = (void *)MDMA_S0_NEXT_DESC_PTR;
+	unsigned long ldst = (unsigned long)dst;
+	unsigned long lsrc = (unsigned long)src;
+	unsigned long dshift, bpos;
+	uint32_t dsize, mod;
 
 	/* Disable DMA in case it's still running (older u-boot's did not
 	 * always turn them off).  Do it before the if statement below so
 	 * we can be cheap and not do a SSYNC() due to the forced abort.
 	 */
-	bfin_write_MDMA_D0_CONFIG(0);
-	bfin_write_MDMA_S0_CONFIG(0);
-	bfin_write_MDMA_D0_IRQ_STATUS(DMA_RUN | DMA_DONE | DMA_ERR);
+	bfin_write(&mdma_d0->config, 0);
+	bfin_write(&mdma_s0->config, 0);
+	bfin_write(&mdma_d0->status, DMA_RUN | DMA_DONE | DMA_ERR);
 
 	/* Scratchpad cannot be a DMA source or destination */
-	if (((unsigned long)src >= L1_SRAM_SCRATCH &&
-	     (unsigned long)src < L1_SRAM_SCRATCH_END) ||
-	    ((unsigned long)dst >= L1_SRAM_SCRATCH &&
-	     (unsigned long)dst < L1_SRAM_SCRATCH_END))
+	if ((lsrc >= L1_SRAM_SCRATCH && lsrc < L1_SRAM_SCRATCH_END) ||
+	    (ldst >= L1_SRAM_SCRATCH && ldst < L1_SRAM_SCRATCH_END))
 		hang();
 
-	if (((unsigned long)dst | (unsigned long)src | count) & 0x1) {
-		wdsize = WDSIZE_8;
-		mod = 1;
-	} else if (((unsigned long)dst | (unsigned long)src | count) & 0x2) {
-		wdsize = WDSIZE_16;
-		count >>= 1;
-		mod = 2;
-	} else {
-		wdsize = WDSIZE_32;
-		count >>= 2;
-		mod = 4;
-	}
+	dma_calc_size(ldst, lsrc, count, &dshift, &bpos);
+	dsize = bpos << dshift;
+	count >>= bpos;
+	mod = 1 << bpos;
+
+#ifdef PSIZE
+	dsize |= min(3, bpos) << PSIZE_P;
+#endif
 
 	/* Copy sram functions from sdram to sram */
 	/* Setup destination start address */
-	bfin_write_MDMA_D0_START_ADDR(dst);
+	bfin_write(&mdma_d0->start_addr, ldst);
 	/* Setup destination xcount */
-	bfin_write_MDMA_D0_X_COUNT(count);
+	bfin_write(&mdma_d0->x_count, count);
 	/* Setup destination xmodify */
-	bfin_write_MDMA_D0_X_MODIFY(mod);
+	bfin_write(&mdma_d0->x_modify, mod);
 
 	/* Setup Source start address */
-	bfin_write_MDMA_S0_START_ADDR(src);
+	bfin_write(&mdma_s0->start_addr, lsrc);
 	/* Setup Source xcount */
-	bfin_write_MDMA_S0_X_COUNT(count);
+	bfin_write(&mdma_s0->x_count, count);
 	/* Setup Source xmodify */
-	bfin_write_MDMA_S0_X_MODIFY(mod);
+	bfin_write(&mdma_s0->x_modify, mod);
 
 	/* Enable source DMA */
-	bfin_write_MDMA_S0_CONFIG(wdsize | DMAEN);
-	bfin_write_MDMA_D0_CONFIG(wdsize | DMAEN | WNR | DI_EN);
+	bfin_write(&mdma_s0->config, dsize | DMAEN);
+	bfin_write(&mdma_d0->config, dsize | DMAEN | WNR | DI_EN);
 	SSYNC();
 
-	while (!(bfin_read_MDMA_D0_IRQ_STATUS() & DMA_DONE))
+	while (!(bfin_read(&mdma_d0->status) & DMA_DONE))
 		continue;
 
-	bfin_write_MDMA_D0_IRQ_STATUS(DMA_RUN | DMA_DONE | DMA_ERR);
-	bfin_write_MDMA_D0_CONFIG(0);
-	bfin_write_MDMA_S0_CONFIG(0);
+	bfin_write(&mdma_d0->status, DMA_RUN | DMA_DONE | DMA_ERR);
+	bfin_write(&mdma_d0->config, 0);
+	bfin_write(&mdma_s0->config, 0);
 }
 /* We should do a dcache invalidate on the destination after the dma, but since
  * we lack such hardware capability, we'll flush/invalidate the destination

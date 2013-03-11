@@ -286,7 +286,6 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	/* The malloc area is right below the monitor image in RAM */
 	mem_malloc_init(CONFIG_SYS_MONITOR_BASE + gd->reloc_off -
 			CONFIG_SYS_MALLOC_LEN, CONFIG_SYS_MALLOC_LEN);
-	malloc_bin_reloc();
 	dma_alloc_init();
 
 	enable_interrupts();

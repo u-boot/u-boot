@@ -32,6 +32,7 @@
  */
 
 #include <common.h>
+#include <fdtdec.h>
 #include <watchdog.h>
 #include <stdio_dev.h>
 #include <asm/u-boot-x86.h>
@@ -131,6 +132,7 @@ init_fnc_t *init_sequence_f[] = {
 init_fnc_t *init_sequence_f_r[] = {
 	init_cache_f_r,
 	copy_uboot_to_ram,
+	copy_fdt_to_ram,
 	clear_bss,
 	do_elf_reloc_fixups,
 
@@ -217,6 +219,7 @@ static void do_init_loop(init_fnc_t **init_fnc_ptr)
 
 void board_init_f(ulong boot_flags)
 {
+	gd->fdt_blob = gd->arch.new_fdt = NULL;
 	gd->flags = boot_flags;
 
 	do_init_loop(init_sequence_f);

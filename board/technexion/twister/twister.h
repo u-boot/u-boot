@@ -38,6 +38,8 @@ const omap3_sysinfo sysinfo = {
 #define XR16L2751_UART1_BASE	0x21000000
 #define XR16L2751_UART2_BASE	0x23000000
 
+/* GPIO used to select between U-Boot and kernel */
+#define SPL_OS_BOOT_KEY	55
 
 /*
  * IEN  - Input Enable

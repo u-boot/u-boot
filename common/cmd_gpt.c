@@ -27,6 +27,7 @@
 #include <part_efi.h>
 #include <exports.h>
 #include <linux/ctype.h>
+#include <div64.h>
 
 #ifndef CONFIG_PARTITION_UUIDS
 #error CONFIG_PARTITION_UUIDS must be enabled for CONFIG_CMD_GPT to be enabled
@@ -131,6 +132,7 @@ static int set_gpt_info(block_dev_desc_t *dev_desc,
 	int p_count;
 	disk_partition_t *parts;
 	int errno = 0;
+	uint64_t size_ll, start_ll;
 
 	debug("%s: MMC lba num: 0x%x %d\n", __func__,
 	      (unsigned int)dev_desc->lba, (unsigned int)dev_desc->lba);
@@ -217,8 +219,8 @@ static int set_gpt_info(block_dev_desc_t *dev_desc,
 		}
 		if (extract_env(val, &p))
 			p = val;
-		parts[i].size = ustrtoul(p, &p, 0);
-		parts[i].size /= dev_desc->blksz;
+		size_ll = ustrtoull(p, &p, 0);
+		parts[i].size = lldiv(size_ll, dev_desc->blksz);
 		free(val);
 
 		/* start address */
@@ -226,8 +228,8 @@ static int set_gpt_info(block_dev_desc_t *dev_desc,
 		if (val) { /* start address is optional */
 			if (extract_env(val, &p))
 				p = val;
-			parts[i].start = ustrtoul(p, &p, 0);
-			parts[i].start /= dev_desc->blksz;
+			start_ll = ustrtoull(p, &p, 0);
+			parts[i].start = lldiv(start_ll, dev_desc->blksz);
 			free(val);
 		}
 	}

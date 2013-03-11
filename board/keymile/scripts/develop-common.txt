@@ -1,8 +1,9 @@
 altbootcmd=run ${subbootcmds}
 bootcmd=run ${subbootcmds}
-configure=km_setboardid && saveenv && reset
+configure=run set_uimage; km_setboardid && saveenv && reset
 subbootcmds=tftpfdt tftpkernel nfsargs add_default boot
 nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${toolchain}/${arch}
-tftpkernel=tftpboot ${load_addr_r} ${hostname}/uImage
+tftpkernel=tftpboot ${load_addr_r} ${hostname}/${uimage}
 toolchain=/opt/eldk
 rootfssize=0
+set_uimage=printenv uimage || setenv uimage uImage

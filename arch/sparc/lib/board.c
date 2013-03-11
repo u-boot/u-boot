@@ -271,7 +271,6 @@ void board_init_f(ulong bootflag)
 	/* The Malloc area is immediately below the monitor copy in RAM */
 	mem_malloc_init(CONFIG_SYS_MALLOC_BASE,
 			CONFIG_SYS_MALLOC_END - CONFIG_SYS_MALLOC_BASE);
-	malloc_bin_reloc();
 
 #if !defined(CONFIG_SYS_NO_FLASH)
 	puts("Flash: ");

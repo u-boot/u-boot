@@ -32,6 +32,9 @@ const omap3_sysinfo sysinfo = {
 	"NAND",
 };
 
+/* GPIO used to select between U-Boot and kernel */
+#define SPL_OS_BOOT_KEY	26
+
 /*
  * IEN  - Input Enable
  * IDIS - Input Disable

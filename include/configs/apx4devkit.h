@@ -222,7 +222,7 @@
 		"root=ubi0:rootfs rootfstype=ubifs ${mtdparts} rw\0" \
 	"bootcmd_nand=" \
 		"run bootargs_nand && ubi part root 2048 && " \
-		"ubifsmount rootfs && ubifsload 41000000 boot/uImage && " \
+		"ubifsmount ubi:rootfs && ubifsload 41000000 boot/uImage && " \
 		"bootm 41000000\0" \
 	"bootargs_mmc=" \
 		"setenv bootargs ${kernelargs} " \

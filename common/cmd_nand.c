@@ -373,7 +373,6 @@ static void nand_print_and_set_info(int idx)
 {
 	nand_info_t *nand = &nand_info[idx];
 	struct nand_chip *chip = nand->priv;
-	char buf[32];
 
 	printf("Device %d: ", idx);
 	if (chip->numchips > 1)
@@ -385,14 +384,9 @@ static void nand_print_and_set_info(int idx)
 	printf("  Erase size %8d b\n", nand->erasesize);
 
 	/* Set geometry info */
-	sprintf(buf, "%x", nand->writesize);
-	setenv("nand_writesize", buf);
-
-	sprintf(buf, "%x", nand->oobsize);
-	setenv("nand_oobsize", buf);
-
-	sprintf(buf, "%x", nand->erasesize);
-	setenv("nand_erasesize", buf);
+	setenv_hex("nand_writesize", nand->writesize);
+	setenv_hex("nand_oobsize", nand->oobsize);
+	setenv_hex("nand_erasesize", nand->erasesize);
 }
 
 static int raw_access(nand_info_t *nand, ulong addr, loff_t off, ulong count,
@@ -608,7 +602,7 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		size_t rwsize;
 		ulong pagecount = 1;
 		int read;
-		int raw;
+		int raw = 0;
 
 		if (argc < 4)
 			goto usage;

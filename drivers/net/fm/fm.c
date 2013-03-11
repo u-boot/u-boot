@@ -362,7 +362,6 @@ static void fm_init_qmi(struct fm_qmi_common *qmi)
 int fm_init_common(int index, struct ccsr_fman *reg)
 {
 	int rc;
-	char env_addr[32];
 #if defined(CONFIG_SYS_QE_FMAN_FW_IN_NOR)
 	void *addr = (void *)CONFIG_SYS_QE_FMAN_FW_ADDR;
 #elif defined(CONFIG_SYS_QE_FMAN_FW_IN_NAND)
@@ -416,8 +415,7 @@ int fm_init_common(int index, struct ccsr_fman *reg)
 	rc = fman_upload_firmware(index, &reg->fm_imem, addr);
 	if (rc)
 		return rc;
-	sprintf(env_addr, "0x%lx", (long unsigned int)addr);
-	setenv("fman_ucode", env_addr);
+	setenv_addr("fman_ucode", addr);
 
 	fm_init_muram(index, &reg->muram);
 	fm_init_qmi(&reg->fm_qmi_common);

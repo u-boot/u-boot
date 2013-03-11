@@ -32,6 +32,13 @@
 #define CONFIG_OF_LIBFDT
 #define CONFIG_LMB
 
+#define CONFIG_FS_FAT
+#define CONFIG_FS_EXT4
+#define CONFIG_EXT4_WRITE
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_EXT4
+#define CONFIG_CMD_EXT4_WRITE
+
 #define CONFIG_SYS_VSNPRINTF
 
 #define CONFIG_CMD_GPIO
@@ -63,8 +70,8 @@
 #define CONFIG_SYS_HZ			1000
 
 /* Memory things - we don't really want a memory test */
-#define CONFIG_SYS_LOAD_ADDR		0x10000000
-#define CONFIG_SYS_MEMTEST_START	0x10000000
+#define CONFIG_SYS_LOAD_ADDR		0x00000000
+#define CONFIG_SYS_MEMTEST_START	0x00100000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x1000)
 #define CONFIG_PHYS_64BIT
 
@@ -84,6 +91,13 @@
 /* We don't have networking support yet */
 #undef CONFIG_CMD_NET
 #undef CONFIG_CMD_NFS
+
+#define CONFIG_CMD_HASH
+#define CONFIG_HASH_VERIFY
+#define CONFIG_SHA1
+#define CONFIG_SHA256
+
+#define CONFIG_CMD_SANDBOX
 
 #define CONFIG_BOOTARGS ""
 

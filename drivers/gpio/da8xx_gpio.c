@@ -31,6 +31,7 @@ static struct gpio_registry {
 	char name[GPIO_NAME_SIZE];
 } gpio_registry[MAX_NUM_GPIOS];
 
+#if defined(CONFIG_SOC_DA8XX)
 #define pinmux(x)       (&davinci_syscfg_regs->pinmux[x])
 
 #if defined(CONFIG_SOC_DA8XX) && !defined(CONFIG_SOC_DA850)
@@ -164,7 +165,7 @@ static const struct pinmux_config gpio_pinmux[] = {
 	{ pinmux(0), 1, 0 },
 	{ pinmux(0), 1, 1 },
 };
-#else
+#else /* CONFIG_SOC_DA8XX && CONFIG_SOC_DA850 */
 static const struct pinmux_config gpio_pinmux[] = {
 	{ pinmux(1), 8, 7 },	/* GP0[0] */
 	{ pinmux(1), 8, 6 },
@@ -311,7 +312,10 @@ static const struct pinmux_config gpio_pinmux[] = {
 	{ pinmux(18), 8, 3 },
 	{ pinmux(18), 8, 2 },
 };
-#endif
+#endif /* CONFIG_SOC_DA8XX && !CONFIG_SOC_DA850 */
+#else /* !CONFIG_SOC_DA8XX */
+#define davinci_configure_pin_mux(a, b)
+#endif /* CONFIG_SOC_DA8XX */
 
 int gpio_request(unsigned gpio, const char *label)
 {

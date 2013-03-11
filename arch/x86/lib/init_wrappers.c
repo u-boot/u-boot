@@ -22,6 +22,7 @@
  */
 #include <common.h>
 #include <environment.h>
+#include <fdtdec.h>
 #include <serial.h>
 #include <kgdb.h>
 #include <scsi.h>

@@ -626,13 +626,12 @@ asm(".globl irq_common_entry\n" \
  */
 u64 get_ticks(void)
 {
-	static u64 tick_base;
 	u64 now_tick = rdtsc();
 
-	if (!tick_base)
-		tick_base = now_tick;
+	if (!gd->arch.tsc_base)
+		gd->arch.tsc_base = now_tick;
 
-	return now_tick - tick_base;
+	return now_tick - gd->arch.tsc_base;
 }
 
 #define PLATFORM_INFO_MSR 0xce

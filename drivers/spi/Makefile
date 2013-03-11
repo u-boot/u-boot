@@ -31,6 +31,7 @@ COBJS-$(CONFIG_ARMADA100_SPI) += armada100_spi.o
 COBJS-$(CONFIG_ATMEL_DATAFLASH_SPI) += atmel_dataflash_spi.o
 COBJS-$(CONFIG_ATMEL_SPI) += atmel_spi.o
 COBJS-$(CONFIG_BFIN_SPI) += bfin_spi.o
+COBJS-$(CONFIG_BFIN_SPI6XX) += bfin_spi6xx.o
 COBJS-$(CONFIG_CF_SPI) += cf_spi.o
 COBJS-$(CONFIG_CF_QSPI) += cf_qspi.o
 COBJS-$(CONFIG_DAVINCI_SPI) += davinci_spi.o

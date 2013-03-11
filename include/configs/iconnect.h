@@ -87,7 +87,7 @@
 #define CONFIG_BOOTCOMMAND \
 	"setenv bootargs ${console} ${mtdparts} ${bootargs_root}; "	\
 	"ubi part rootfs; "						\
-	"ubifsmount rootfs; "						\
+	"ubifsmount ubi:rootfs; "					\
 	"ubifsload 0x800000 ${kernel}; "				\
 	"bootm 0x800000"
 

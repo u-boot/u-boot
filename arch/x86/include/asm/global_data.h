@@ -29,6 +29,10 @@
 /* Architecture-specific global data */
 struct arch_global_data {
 	struct global_data *gd_addr;		/* Location of Global Data */
+	uint64_t tsc_base;		/* Initial value returned by rdtsc() */
+	uint32_t tsc_base_kclocks;	/* Initial tsc as a kclocks value */
+	uint32_t tsc_prev;		/* For show_boot_progress() */
+	void *new_fdt;			/* Relocated FDT */
 };
 
 #endif

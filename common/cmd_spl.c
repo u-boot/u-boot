@@ -184,7 +184,11 @@ static int do_spl(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 U_BOOT_CMD(
 	spl, 6 , 1, do_spl, "SPL configuration",
-	"export <img=atags|fdt> [kernel_addr] [initrd_addr] "
-	"[fdt_addr if <img> = fdt] - export a kernel parameter image\n"
-	"\t initrd_img can be set to \"-\" if fdt_addr without initrd img is"
-	"used");
+	"export <img=atags|fdt> [kernel_addr] [initrd_addr] [fdt_addr]\n"
+	"\timg\t\t\"atags\" or \"fdt\"\n"
+	"\tkernel_addr\taddress where a kernel image is stored.\n"
+	"\t\t\tkernel is loaded as part of the boot process, but it is not started.\n"
+	"\tinitrd_addr\taddress of initial ramdisk\n"
+	"\t\t\tcan be set to \"-\" if fdt_addr without initrd_addr is used.\n"
+	"\tfdt_addr\tin case of fdt, the address of the device tree.\n"
+	);

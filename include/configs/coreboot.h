@@ -42,6 +42,12 @@
 #define CONFIG_ZBOOT_32
 #define CONFIG_PHYSMEM
 
+#define CONFIG_LMB
+#define CONFIG_OF_LIBFDT
+#define CONFIG_OF_CONTROL
+#define CONFIG_OF_SEPARATE
+#define CONFIG_DEFAULT_DEVICE_TREE	link
+
 /*-----------------------------------------------------------------------
  * Watchdog Configuration
  */

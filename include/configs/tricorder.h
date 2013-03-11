@@ -193,7 +193,7 @@
 		"bootm ${loadaddr}\0" \
 	"loaduimage_ubi=mtd default; " \
 		"ubi part fs; " \
-		"ubifsmount root; " \
+		"ubifsmount ubi:root; " \
 		"ubifsload ${loadaddr} /boot/uImage\0" \
 	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \

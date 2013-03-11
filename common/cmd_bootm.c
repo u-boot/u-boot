@@ -79,8 +79,14 @@ static int image_info(unsigned long addr);
 #include <flash.h>
 #include <mtd/cfi_flash.h>
 extern flash_info_t flash_info[]; /* info for FLASH chips */
+#endif
+
+#if defined(CONFIG_CMD_IMLS) || defined(CONFIG_CMD_IMLS_NAND)
 static int do_imls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 #endif
+
+#include <linux/err.h>
+#include <nand.h>
 
 #ifdef CONFIG_SILENT_CONSOLE
 static void fixup_silent_linux(void);
@@ -446,9 +452,7 @@ static int bootm_start_standalone(ulong iflag, int argc, char * const argv[])
 
 	/* Don't start if "autostart" is set to "no" */
 	if (((s = getenv("autostart")) != NULL) && (strcmp(s, "no") == 0)) {
-		char buf[32];
-		sprintf(buf, "%lX", images.os.image_len);
-		setenv("filesize", buf);
+		setenv_hex("filesize", images.os.image_len);
 		return 0;
 	}
 	appl = (int (*)(int, char * const []))(ulong)ntohl(images.ep);
@@ -523,17 +527,14 @@ static int do_bootm_subcommand(cmd_tbl_t *cmdtp, int flag, int argc,
 		case BOOTM_STATE_RAMDISK:
 		{
 			ulong rd_len = images.rd_end - images.rd_start;
-			char str[17];
 
 			ret = boot_ramdisk_high(&images.lmb, images.rd_start,
 				rd_len, &images.initrd_start, &images.initrd_end);
 			if (ret)
 				return ret;
 
-			sprintf(str, "%lx", images.initrd_start);
-			setenv("initrd_start", str);
-			sprintf(str, "%lx", images.initrd_end);
-			setenv("initrd_end", str);
+			setenv_hex("initrd_start", images.initrd_start);
+			setenv_hex("initrd_end", images.initrd_end);
 		}
 			break;
 #endif
@@ -1055,7 +1056,7 @@ static char bootm_help_text[] =
 	"issued in the order below (it's ok to not issue all sub-commands):\n"
 	"\tstart [addr [arg ...]]\n"
 	"\tloados  - load OS image\n"
-#if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_SPARC)
+#if defined(CONFIG_SYS_BOOT_RAMDISK_HIGH)
 	"\tramdisk - relocate initrd, set env initrd_start/initrd_end\n"
 #endif
 #if defined(CONFIG_OF_LIBFDT)
@@ -1192,7 +1193,7 @@ U_BOOT_CMD(
 /* imls - list all images found in flash */
 /*******************************************************************/
 #if defined(CONFIG_CMD_IMLS)
-static int do_imls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_imls_nor(void)
 {
 	flash_info_t *info;
 	int i, j;
@@ -1241,6 +1242,161 @@ next_sector:		;
 		}
 next_bank:	;
 	}
+	return 0;
+}
+#endif
+
+#if defined(CONFIG_CMD_IMLS_NAND)
+static int nand_imls_legacyimage(nand_info_t *nand, int nand_dev, loff_t off,
+		size_t len)
+{
+	void *imgdata;
+	int ret;
+
+	imgdata = malloc(len);
+	if (!imgdata) {
+		printf("May be a Legacy Image at NAND device %d offset %08llX:\n",
+				nand_dev, off);
+		printf("   Low memory(cannot allocate memory for image)\n");
+		return -ENOMEM;
+	}
+
+	ret = nand_read_skip_bad(nand, off, &len,
+			imgdata);
+	if (ret < 0 && ret != -EUCLEAN) {
+		free(imgdata);
+		return ret;
+	}
+
+	if (!image_check_hcrc(imgdata)) {
+		free(imgdata);
+		return 0;
+	}
+
+	printf("Legacy Image at NAND device %d offset %08llX:\n",
+			nand_dev, off);
+	image_print_contents(imgdata);
+
+	puts("   Verifying Checksum ... ");
+	if (!image_check_dcrc(imgdata))
+		puts("Bad Data CRC\n");
+	else
+		puts("OK\n");
+
+	free(imgdata);
+
+	return 0;
+}
+
+static int nand_imls_fitimage(nand_info_t *nand, int nand_dev, loff_t off,
+		size_t len)
+{
+	void *imgdata;
+	int ret;
+
+	imgdata = malloc(len);
+	if (!imgdata) {
+		printf("May be a FIT Image at NAND device %d offset %08llX:\n",
+				nand_dev, off);
+		printf("   Low memory(cannot allocate memory for image)\n");
+		return -ENOMEM;
+	}
+
+	ret = nand_read_skip_bad(nand, off, &len,
+			imgdata);
+	if (ret < 0 && ret != -EUCLEAN) {
+		free(imgdata);
+		return ret;
+	}
+
+	if (!fit_check_format(imgdata)) {
+		free(imgdata);
+		return 0;
+	}
+
+	printf("FIT Image at NAND device %d offset %08llX:\n", nand_dev, off);
+
+	fit_print_contents(imgdata);
+	free(imgdata);
+
+	return 0;
+}
+
+static int do_imls_nand(void)
+{
+	nand_info_t *nand;
+	int nand_dev = nand_curr_device;
+	size_t len;
+	loff_t off;
+	u32 buffer[16];
+
+	if (nand_dev < 0 || nand_dev >= CONFIG_SYS_MAX_NAND_DEVICE) {
+		puts("\nNo NAND devices available\n");
+		return -ENODEV;
+	}
+
+	printf("\n");
+
+	for (nand_dev = 0; nand_dev < CONFIG_SYS_MAX_NAND_DEVICE; nand_dev++) {
+		nand = &nand_info[nand_dev];
+		if (!nand->name || !nand->size)
+			continue;
+
+		for (off = 0; off < nand->size; off += nand->erasesize) {
+			const image_header_t *header;
+			int ret;
+
+			if (nand_block_isbad(nand, off))
+				continue;
+
+			len = sizeof(buffer);
+
+			ret = nand_read(nand, off, &len, (u8 *)buffer);
+			if (ret < 0 && ret != -EUCLEAN) {
+				printf("NAND read error %d at offset %08llX\n",
+						ret, off);
+				continue;
+			}
+
+			switch (genimg_get_format(buffer)) {
+			case IMAGE_FORMAT_LEGACY:
+				header = (const image_header_t *)buffer;
+
+				len = image_get_image_size(header);
+				nand_imls_legacyimage(nand, nand_dev, off, len);
+				break;
+#if defined(CONFIG_FIT)
+			case IMAGE_FORMAT_FIT:
+				len = fit_get_size(buffer);
+				nand_imls_fitimage(nand, nand_dev, off, len);
+				break;
+#endif
+			}
+		}
+	}
+
+	return 0;
+}
+#endif
+
+#if defined(CONFIG_CMD_IMLS) || defined(CONFIG_CMD_IMLS_NAND)
+static int do_imls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	int ret_nor = 0, ret_nand = 0;
+
+#if defined(CONFIG_CMD_IMLS)
+	ret_nor = do_imls_nor();
+#endif
+
+#if defined(CONFIG_CMD_IMLS_NAND)
+	ret_nand = do_imls_nand();
+#endif
+
+	if (ret_nor)
+		return ret_nor;
+
+	if (ret_nand)
+		return ret_nand;
 
 	return (0);
 }
@@ -1249,8 +1405,8 @@ U_BOOT_CMD(
 	imls,	1,		1,	do_imls,
 	"list all images found in flash",
 	"\n"
-	"    - Prints information about all images found at sector\n"
-	"      boundaries in flash."
+	"    - Prints information about all images found at sector/block\n"
+	"      boundaries in nor/nand flash."
 );
 #endif
 
