@@ -31,6 +31,9 @@ CONFIG_STANDALONE_LOAD_ADDR = 0xc100000
 endif
 endif
 
+# Support generic board on ARM
+__HAVE_ARCH_GENERIC_BOARD := y
+
 PLATFORM_CPPFLAGS += -DCONFIG_ARM -D__ARM__
 
 # Choose between ARM/Thumb instruction sets
