@@ -49,15 +49,15 @@ int copy_uboot_to_ram(void)
 
 int copy_fdt_to_ram(void)
 {
-	if (gd->arch.new_fdt) {
+	if (gd->new_fdt) {
 		ulong fdt_size;
 
 		fdt_size = ALIGN(fdt_totalsize(gd->fdt_blob) + 0x1000, 32);
 
-		memcpy(gd->arch.new_fdt, gd->fdt_blob, fdt_size);
+		memcpy(gd->new_fdt, gd->fdt_blob, fdt_size);
 		debug("Relocated fdt from %p to %p, size %lx\n",
-		       gd->fdt_blob, gd->arch.new_fdt, fdt_size);
-		gd->fdt_blob = gd->arch.new_fdt;
+		       gd->fdt_blob, gd->new_fdt, fdt_size);
+		gd->fdt_blob = gd->new_fdt;
 	}
 
 	return 0;

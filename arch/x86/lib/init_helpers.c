@@ -111,7 +111,7 @@ int calculate_relocation_address(void)
 	 */
 	if (gd->fdt_blob) {
 		dest_addr -= fdt_size;
-		gd->arch.new_fdt = (void *)dest_addr;
+		gd->new_fdt = (void *)dest_addr;
 		dest_addr &= ~15;
 	}
 #endif

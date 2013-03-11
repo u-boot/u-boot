@@ -219,7 +219,7 @@ static void do_init_loop(init_fnc_t **init_fnc_ptr)
 
 void board_init_f(ulong boot_flags)
 {
-	gd->fdt_blob = gd->arch.new_fdt = NULL;
+	gd->fdt_blob = gd->new_fdt = NULL;
 	gd->flags = boot_flags;
 
 	do_init_loop(init_sequence_f);

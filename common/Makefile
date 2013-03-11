@@ -36,6 +36,9 @@ COBJS-y += s_record.o
 COBJS-y += xyzModem.o
 COBJS-y += cmd_disk.o
 
+# boards
+COBJS-$(CONFIG_SYS_GENERIC_BOARD) += board_f.o
+
 # core command
 COBJS-y += cmd_boot.o
 COBJS-$(CONFIG_CMD_BOOTM) += cmd_bootm.o
