@@ -49,10 +49,13 @@
  *
  *   bus:	ID of the bus that the slave is attached to.
  *   cs:	ID of the chip select connected to the slave.
+ *   max_write_size:	If non-zero, the maximum number of bytes which can
+ *		be written at once, excluding command bytes.
  */
 struct spi_slave {
 	unsigned int	bus;
 	unsigned int	cs;
+	unsigned int max_write_size;
 };
 
 /*-----------------------------------------------------------------------
