@@ -38,6 +38,7 @@ COBJS-y += cmd_disk.o
 
 # boards
 COBJS-$(CONFIG_SYS_GENERIC_BOARD) += board_f.o
+COBJS-$(CONFIG_SYS_GENERIC_BOARD) += board_r.o
 
 # core command
 COBJS-y += cmd_boot.o

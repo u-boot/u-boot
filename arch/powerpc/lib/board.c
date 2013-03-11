@@ -319,7 +319,8 @@ static init_fnc_t *init_sequence[] = {
 #ifdef CONFIG_POST
 	post_init_f,
 #endif
-	INIT_FUNC_WATCHDOG_RESET init_func_ram,
+	INIT_FUNC_WATCHDOG_RESET
+	init_func_ram,
 #if defined(CONFIG_SYS_DRAM_TEST)
 	testdram,
 #endif /* CONFIG_SYS_DRAM_TEST */
