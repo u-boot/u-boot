@@ -59,7 +59,9 @@ SOBJS-y	+= reloc.o
 
 COBJS-$(CONFIG_BAT_RW) += bat_rw.o
 ifndef CONFIG_SPL_BUILD
+ifndef CONFIG_SYS_GENERIC_BOARD
 COBJS-y	+= board.o
+endif
 endif
 COBJS-y	+= bootm.o
 COBJS-y	+= cache.o
