@@ -25,6 +25,9 @@ include $(TOPDIR)/config.mk
 
 LIB	:= $(obj)libspi.o
 
+# There are many options which enable SPI, so make this library available
+COBJS-y += spi.o
+
 COBJS-$(CONFIG_ALTERA_SPI) += altera_spi.o
 COBJS-$(CONFIG_ANDES_SPI) += andes_spi.o
 COBJS-$(CONFIG_ARMADA100_SPI) += armada100_spi.o
