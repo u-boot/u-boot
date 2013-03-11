@@ -147,6 +147,11 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		return NULL;
 	}
 
+	/*
+	 * Yes this controller can only write a small number of bytes at
+	 * once! The limit is typically 64 bytes.
+	 */
+	ich->slave.max_write_size = ctlr.databytes;
 	ich->speed = max_hz;
 
 	return &ich->slave;
