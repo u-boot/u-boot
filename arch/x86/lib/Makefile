@@ -25,7 +25,10 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(ARCH).o
 
+ifeq ($(CONFIG_SYS_GENERIC_BOARD),)
 COBJS-y	+= board.o
+endif
+
 COBJS-y	+= bootm.o
 COBJS-y	+= cmd_boot.o
 COBJS-y	+= gcc.o

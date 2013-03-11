@@ -507,11 +507,13 @@ static int show_model_r(void)
 #endif
 
 /* enable exceptions */
+#ifdef CONFIG_ARM
 static int initr_enable_interrupts(void)
 {
 	enable_interrupts();
 	return 0;
 }
+#endif
 
 #ifdef CONFIG_CMD_NET
 static int initr_ethaddr(void)
