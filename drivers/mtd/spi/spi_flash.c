@@ -401,6 +401,31 @@ err_claim_bus:
 	return NULL;
 }
 
+void *spi_flash_do_alloc(int offset, int size, struct spi_slave *spi,
+			 const char *name)
+{
+	struct spi_flash *flash;
+	void *ptr;
+
+	ptr = malloc(size);
+	if (!ptr) {
+		debug("SF: Failed to allocate memory\n");
+		return NULL;
+	}
+	memset(ptr, '\0', size);
+	flash = (struct spi_flash *)(ptr + offset);
+
+	/* Set up some basic fields - caller will sort out sizes */
+	flash->spi = spi;
+	flash->name = name;
+
+	flash->read = spi_flash_cmd_read_fast;
+	flash->write = spi_flash_cmd_write_multi;
+	flash->erase = spi_flash_cmd_erase;
+
+	return flash;
+}
+
 void spi_flash_free(struct spi_flash *flash)
 {
 	spi_free_slave(flash->spi);
