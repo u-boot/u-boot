@@ -79,6 +79,18 @@
 
 #define USB_PINMUX CEC_PINMUX
 
+#define DEFAULT_PADCFG(_padgrp, _slwf, _slwr, _drvup, _drvdn, _lpmd, _schmt, _hsm) \
+	{						\
+		.padgrp = PDRIVE_PINGROUP_##_padgrp,	\
+		.slwf   = _slwf,			\
+		.slwr   = _slwr,			\
+		.drvup  = _drvup,			\
+		.drvdn  = _drvdn,			\
+		.lpmd   = PGRP_LPMD_##_lpmd,		\
+		.schmt  = PGRP_SCHMT_##_schmt,		\
+		.hsm    = PGRP_HSM_##_hsm,		\
+	}
+
 static struct pingroup_config tegra114_pinmux_common[] = {
 	/* EXTPERIPH1 pinmux */
 	DEFAULT_PINMUX(CLK1_OUT,      EXTPERIPH1,  NORMAL,    NORMAL,   OUTPUT),

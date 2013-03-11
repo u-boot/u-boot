@@ -215,34 +215,35 @@ enum pdrive_pingrp {
 	PDRIVE_PINGROUP_AT5,
 	PDRIVE_PINGROUP_CDEV1,
 	PDRIVE_PINGROUP_CDEV2,
-	PDRIVE_PINGROUP_CSUS,
-	PDRIVE_PINGROUP_DAP1,
+	PDRIVE_PINGROUP_DAP1 = 10,	/* offset 0x890 */
 	PDRIVE_PINGROUP_DAP2,
 	PDRIVE_PINGROUP_DAP3,
 	PDRIVE_PINGROUP_DAP4,
 	PDRIVE_PINGROUP_DBG,
-	PDRIVE_PINGROUP_SDIO3,
+	PDRIVE_PINGROUP_SDIO3 = 18,	/* offset 0x8B0 */
 	PDRIVE_PINGROUP_SPI,
 	PDRIVE_PINGROUP_UAA,
 	PDRIVE_PINGROUP_UAB,
 	PDRIVE_PINGROUP_UART2,
 	PDRIVE_PINGROUP_UART3,
-	PDRIVE_PINGROUP_SDIO1 = 33,     /* offset 0x8ec */
-	PDRIVE_PINGROUP_CRT = 36,       /* offset 0x8f8 */
-	PDRIVE_PINGROUP_DDC,
+	PDRIVE_PINGROUP_SDIO1 = 33,     /* offset 0x8EC */
+	PDRIVE_PINGROUP_DDC = 37,       /* offset 0x8FC */
 	PDRIVE_PINGROUP_GMA,
-	PDRIVE_PINGROUP_GME,
+	PDRIVE_PINGROUP_GME = 42,	/* offset 0x910 */
 	PDRIVE_PINGROUP_GMF,
 	PDRIVE_PINGROUP_GMG,
 	PDRIVE_PINGROUP_GMH,
 	PDRIVE_PINGROUP_OWR,
 	PDRIVE_PINGROUP_UAD,
-	PDRIVE_PINGROUP_GPV,
 	PDRIVE_PINGROUP_DEV3 = 49,      /* offset 0x92c */
 	PDRIVE_PINGROUP_CEC = 52,       /* offset 0x938 */
-	PDRIVE_PINGROUP_AT6,
+	PDRIVE_PINGROUP_AT6 = 75,	/* offset 0x994 */
 	PDRIVE_PINGROUP_DAP5,
 	PDRIVE_PINGROUP_VBUS,
+	PDRIVE_PINGROUP_AO3,
+	PDRIVE_PINGROUP_HVC,
+	PDRIVE_PINGROUP_SDIO4,
+	PDRIVE_PINGROUP_AO0,
 	PDRIVE_PINGROUP_COUNT,
 };
 
@@ -470,10 +471,73 @@ enum pmux_vddio {
 	PMUX_VDDIO_NONE
 };
 
-/* T114 pin drive group and pin mux registers */
-#define PDRIVE_PINGROUP_OFFSET  (0x868 >> 2)
-#define PMUX_OFFSET     ((0x3000 >> 2) - PDRIVE_PINGROUP_OFFSET - \
-			PDRIVE_PINGROUP_COUNT)
+#define PGRP_SLWF_NONE	-1
+#define PGRP_SLWF_MAX	3
+#define PGRP_SLWR_NONE	PGRP_SLWF_NONE
+#define PGRP_SLWR_MAX	PGRP_SLWF_MAX
+
+#define PGRP_DRVUP_NONE	-1
+#define PGRP_DRVUP_MAX	127
+#define PGRP_DRVDN_NONE	PGRP_DRVUP_NONE
+#define PGRP_DRVDN_MAX	PGRP_DRVUP_MAX
+
+#define PGRP_SCHMT_NONE	-1
+#define PGRP_HSM_NONE	PGRP_SCHMT_NONE
+
+/* return 1 if a padgrp is in range */
+#define pmux_padgrp_isvalid(pd) (((pd) >= 0) && ((pd) < PDRIVE_PINGROUP_COUNT))
+
+/* return 1 if a slew-rate rising/falling edge value is in range */
+#define pmux_pad_slw_isvalid(slw) (((slw) == PGRP_SLWF_NONE) || \
+				(((slw) >= 0) && ((slw) <= PGRP_SLWF_MAX)))
+
+/* return 1 if a driver output pull-up/down strength code value is in range */
+#define pmux_pad_drv_isvalid(drv) (((drv) == PGRP_DRVUP_NONE) || \
+				(((drv) >= 0) && ((drv) <= PGRP_DRVUP_MAX)))
+
+/* return 1 if a low-power mode value is in range */
+#define pmux_pad_lpmd_isvalid(lpm) (((lpm) == PGRP_LPMD_NONE) || \
+				(((lpm) >= 0) && ((lpm) <= PGRP_LPMD_X)))
+
+/* Defines a pin group cfg's low-power mode select */
+enum pgrp_lpmd {
+	PGRP_LPMD_X8 = 0,
+	PGRP_LPMD_X4,
+	PGRP_LPMD_X2,
+	PGRP_LPMD_X,
+	PGRP_LPMD_NONE = -1,
+};
+
+/* Defines whether a pin group cfg's schmidt is enabled or not */
+enum pgrp_schmt {
+	PGRP_SCHMT_DISABLE = 0,
+	PGRP_SCHMT_ENABLE = 1,
+};
+
+/* Defines whether a pin group cfg's high-speed mode is enabled or not */
+enum pgrp_hsm {
+	PGRP_HSM_DISABLE = 0,
+	PGRP_HSM_ENABLE = 1,
+};
+
+/*
+ * This defines the configuration for a pin group's pad control config
+ */
+struct padctrl_config {
+	enum pdrive_pingrp padgrp;	/* pin group PDRIVE_PINGRP_x */
+	int slwf;			/* falling edge slew         */
+	int slwr;			/* rising edge slew          */
+	int drvup;			/* pull-up drive strength    */
+	int drvdn;			/* pull-down drive strength  */
+	enum pgrp_lpmd lpmd;		/* low-power mode selection  */
+	enum pgrp_schmt schmt;		/* schmidt enable            */
+	enum pgrp_hsm hsm;		/* high-speed mode enable    */
+};
+
+/* t114 pin drive group and pin mux registers */
+#define PDRIVE_PINGROUP_OFFSET	(0x868 >> 2)
+#define PMUX_OFFSET	((0x3000 >> 2) - PDRIVE_PINGROUP_OFFSET - \
+				PDRIVE_PINGROUP_COUNT)
 struct pmux_tri_ctlr {
 	uint pmt_reserved0;		/* ABP_MISC_PP_ reserved offset 00 */
 	uint pmt_reserved1;		/* ABP_MISC_PP_ reserved offset 04 */
@@ -541,4 +605,12 @@ void pinmux_config_table(struct pingroup_config *config, int len);
 /* Set a group of pins from a table */
 void pinmux_init(void);
 
-#endif  /* _TEGRA114_PINMUX_H_ */
+/**
+ * Set the GP pad configs
+ *
+ * @param config	List of config items
+ * @param len		Number of config items in list
+ */
+void padgrp_config_table(struct padctrl_config *config, int len);
+
+#endif	/* _TEGRA114_PINMUX_H_ */
