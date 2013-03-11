@@ -3161,4 +3161,13 @@ struct ccsr_cluster_l2 {
 #define CONFIG_SYS_FSL_CLUSTER_1_L2 \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_CLUSTER_1_L2_OFFSET)
 #endif /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
+
+#define	CONFIG_SYS_DCSR_DCFG_OFFSET	0X20000
+struct dcsr_dcfg_regs {
+	u8  res_0[0x520];
+	u32 ecccr1;
+#define	DCSR_DCFG_ECC_DISABLE_USB1	0x00008000
+#define	DCSR_DCFG_ECC_DISABLE_USB2	0x00004000
+	u8  res_524[0x1000 - 0x524]; /* 0x524 - 0x1000 */
+};
 #endif /*__IMMAP_85xx__*/
