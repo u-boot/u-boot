@@ -8,12 +8,15 @@
  */
 
 #include <common.h>
+#include <fdtdec.h>
 #include <malloc.h>
 #include <spi.h>
 #include <spi_flash.h>
 #include <watchdog.h>
 
 #include "spi_flash_internal.h"
+
+DECLARE_GLOBAL_DATA_PTR;
 
 static void spi_flash_addr(u32 addr, u8 *cmd)
 {
@@ -146,6 +149,10 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 {
 	u8 cmd[5];
 
+	/* Handle memory-mapped SPI */
+	if (flash->memory_map)
+		memcpy(data, flash->memory_map + offset, len);
+
 	cmd[0] = CMD_READ_ARRAY_FAST;
 	spi_flash_addr(offset, cmd);
 	cmd[4] = 0x00;
@@ -275,6 +282,34 @@ int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr)
 	return 0;
 }
 
+#ifdef CONFIG_OF_CONTROL
+int spi_flash_decode_fdt(const void *blob, struct spi_flash *flash)
+{
+	fdt_addr_t addr;
+	fdt_size_t size;
+	int node;
+
+	/* If there is no node, do nothing */
+	node = fdtdec_next_compatible(blob, 0, COMPAT_GENERIC_SPI_FLASH);
+	if (node < 0)
+		return 0;
+
+	addr = fdtdec_get_addr_size(blob, node, "memory-map", &size);
+	if (addr == FDT_ADDR_T_NONE) {
+		debug("%s: Cannot decode address\n", __func__);
+		return 0;
+	}
+
+	if (flash->size != size) {
+		debug("%s: Memory map must cover entire device\n", __func__);
+		return -1;
+	}
+	flash->memory_map = (void *)addr;
+
+	return 0;
+}
+#endif /* CONFIG_OF_CONTROL */
+
 /*
  * The following table holds all device probe functions
  *
@@ -391,9 +426,18 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 		goto err_manufacturer_probe;
 	}
 
+#ifdef CONFIG_OF_CONTROL
+	if (spi_flash_decode_fdt(gd->fdt_blob, flash)) {
+		debug("SF: FDT decode error\n");
+		goto err_manufacturer_probe;
+	}
+#endif
 	printf("SF: Detected %s with page size ", flash->name);
 	print_size(flash->sector_size, ", total ");
-	print_size(flash->size, "\n");
+	print_size(flash->size, "");
+	if (flash->memory_map)
+		printf(", mapped at %p", flash->memory_map);
+	puts("\n");
 
 	spi_release_bus(spi);
 

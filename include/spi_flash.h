@@ -39,6 +39,7 @@ struct spi_flash {
 	/* Erase (sector) size */
 	u32		sector_size;
 
+	void *memory_map;	/* Address of read-only SPI flash access */
 	int		(*read)(struct spi_flash *flash, u32 offset,
 				size_t len, void *buf);
 	int		(*write)(struct spi_flash *flash, u32 offset,
