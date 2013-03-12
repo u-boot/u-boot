@@ -128,10 +128,6 @@ enum xqspips_con_topology {
 #define	XQSPIPS_FLASH_OPCODE_BE		0xC7	/* Erase whole flash block */
 #define	XQSPIPS_FLASH_OPCODE_SE		0xD8	/* Sector erase (usually 64KB)*/
 
-/* Macros for the QSPI controller read/write */
-#define xqspips_write(off, val)		__raw_writel(val, off)
-#define xqspips_read(off)		__raw_readl(off)
-
 /* Few mtd flash functions */
 extern int spi_flash_cmd(struct spi_slave *spi, u8 cmd,
 		void *response, size_t len);
@@ -239,49 +235,47 @@ static void xqspips_init_hw(void __iomem *regs_base, int is_dual,
 {
 	u32 config_reg;
 
-	xqspips_write(regs_base + XQSPIPS_ENABLE_OFFSET,
-		~XQSPIPS_ENABLE_ENABLE_MASK);
-	xqspips_write(regs_base + XQSPIPS_IDIS_OFFSET, 0x7F);
+	writel(~XQSPIPS_ENABLE_ENABLE_MASK, regs_base + XQSPIPS_ENABLE_OFFSET);
+	writel(0x7F, regs_base + XQSPIPS_IDIS_OFFSET);
 
 	/* Disable linear mode as the boot loader may have used it */
-	xqspips_write(regs_base + XQSPIPS_LINEAR_CFG_OFFSET, 0);
+	writel(0x00, regs_base + XQSPIPS_LINEAR_CFG_OFFSET);
 
 	/* Clear the RX FIFO */
-	while (xqspips_read(regs_base + XQSPIPS_STATUS_OFFSET) &
+	while (readl(regs_base + XQSPIPS_STATUS_OFFSET) &
 			XQSPIPS_IXR_RXNEMTY_MASK)
-		xqspips_read(regs_base + XQSPIPS_RXD_OFFSET);
+		readl(regs_base + XQSPIPS_RXD_OFFSET);
 
-	xqspips_write(regs_base + XQSPIPS_STATUS_OFFSET , 0x7F);
-	config_reg = xqspips_read(regs_base + XQSPIPS_CONFIG_OFFSET);
+	writel(0x7F, regs_base + XQSPIPS_STATUS_OFFSET);
+	config_reg = readl(regs_base + XQSPIPS_CONFIG_OFFSET);
 	config_reg &= 0xFBFFFFFF; /* Set little endian mode of TX FIFO */
 	config_reg |= 0x8000FCC1;
-	xqspips_write(regs_base + XQSPIPS_CONFIG_OFFSET, config_reg);
+	writel(config_reg, regs_base + XQSPIPS_CONFIG_OFFSET);
 
 	if (is_dual == MODE_DUAL_PARALLEL)
 		/* Enable two memories on seperate buses */
-		xqspips_write(regs_base + XQSPIPS_LINEAR_CFG_OFFSET,
-			(XQSPIPS_LCFG_TWO_MEM_MASK |
-			 XQSPIPS_LCFG_SEP_BUS_MASK |
-			 (1 << XQSPIPS_LCFG_DUMMY_SHIFT) |
-			 XQSPIPS_FAST_READ_QOUT_CODE));
+		writel((XQSPIPS_LCFG_TWO_MEM_MASK |
+			XQSPIPS_LCFG_SEP_BUS_MASK |
+			(1 << XQSPIPS_LCFG_DUMMY_SHIFT) |
+			XQSPIPS_FAST_READ_QOUT_CODE),
+			regs_base + XQSPIPS_LINEAR_CFG_OFFSET);
 	else if (is_dual == MODE_DUAL_STACKED) {
 		if (cs)
 			/* Enable two memories on shared buse with upper mem */
-			xqspips_write(regs_base + XQSPIPS_LINEAR_CFG_OFFSET,
-				(XQSPIPS_LCFG_TWO_MEM_MASK |
+			writel((XQSPIPS_LCFG_TWO_MEM_MASK |
 				XQSPIPS_LCFG_U_PAGE |
 				(1 << XQSPIPS_LCFG_DUMMY_SHIFT) |
-				XQSPIPS_FAST_READ_QOUT_CODE));
+				XQSPIPS_FAST_READ_QOUT_CODE),
+				regs_base + XQSPIPS_LINEAR_CFG_OFFSET);
 		else
 			/* Enable two memories on shared buse with lower mem */
-			xqspips_write(regs_base + XQSPIPS_LINEAR_CFG_OFFSET,
-				(XQSPIPS_LCFG_TWO_MEM_MASK |
+			writel((XQSPIPS_LCFG_TWO_MEM_MASK |
 				(1 << XQSPIPS_LCFG_DUMMY_SHIFT) |
-				XQSPIPS_FAST_READ_QOUT_CODE));
+				XQSPIPS_FAST_READ_QOUT_CODE),
+				regs_base + XQSPIPS_LINEAR_CFG_OFFSET);
 	}
 
-	xqspips_write(regs_base + XQSPIPS_ENABLE_OFFSET,
-			XQSPIPS_ENABLE_ENABLE_MASK);
+	writel(XQSPIPS_ENABLE_ENABLE_MASK, regs_base + XQSPIPS_ENABLE_OFFSET);
 }
 
 /*
@@ -389,7 +383,7 @@ static void xqspips_chipselect(struct spi_device *qspi, int is_on)
 
 	debug("xqspips_chipselect: is_on: %d\n", is_on);
 
-	config_reg = xqspips_read(xqspi->regs + XQSPIPS_CONFIG_OFFSET);
+	config_reg = readl(xqspi->regs + XQSPIPS_CONFIG_OFFSET);
 
 	if (is_on) {
 		/* Select the slave */
@@ -400,7 +394,7 @@ static void xqspips_chipselect(struct spi_device *qspi, int is_on)
 		/* Deselect the slave */
 		config_reg |= XQSPIPS_CONFIG_SSCTRL_MASK;
 
-	xqspips_write(xqspi->regs + XQSPIPS_CONFIG_OFFSET, config_reg);
+	writel(config_reg, xqspi->regs + XQSPIPS_CONFIG_OFFSET);
 }
 
 /*
@@ -446,7 +440,7 @@ static int xqspips_setup_transfer(struct spi_device *qspi,
 	if (bits_per_word != 32)
 		bits_per_word = 32;
 
-	config_reg = xqspips_read(xqspi->regs + XQSPIPS_CONFIG_OFFSET);
+	config_reg = readl(xqspi->regs + XQSPIPS_CONFIG_OFFSET);
 
 	/* Set the QSPI clock phase and clock polarity */
 	config_reg &= (~XQSPIPS_CONFIG_CPHA_MASK) &
@@ -468,7 +462,7 @@ static int xqspips_setup_transfer(struct spi_device *qspi,
 		xqspi->speed_hz = req_hz;
 	}
 
-	xqspips_write(xqspi->regs + XQSPIPS_CONFIG_OFFSET, config_reg);
+	writel(config_reg, xqspi->regs + XQSPIPS_CONFIG_OFFSET);
 
 	debug("xqspips_setup_transfer: mode %d, %u bits/w, %u clock speed\n",
 		qspi->mode & MODEBITS, qspi->bits_per_word, xqspi->speed_hz);
@@ -488,23 +482,22 @@ static void xqspips_fill_tx_fifo(struct xqspips *xqspi)
 		XQSPIPS_TXD_00_00_OFFSET, XQSPIPS_TXD_00_01_OFFSET,
 		XQSPIPS_TXD_00_10_OFFSET, XQSPIPS_TXD_00_11_OFFSET };
 
-	while ((!(xqspips_read(xqspi->regs + XQSPIPS_STATUS_OFFSET) &
+	while ((!(readl(xqspi->regs + XQSPIPS_STATUS_OFFSET) &
 			XQSPIPS_IXR_TXFULL_MASK)) &&
 			(xqspi->bytes_to_transfer > 0)) {
 		if (xqspi->bytes_to_transfer < 4) {
 			/* Write TXD1, TXD2, TXD3 only if TxFIFO is empty. */
-			if (!(xqspips_read(xqspi->regs+XQSPIPS_STATUS_OFFSET)
+			if (!(readl(xqspi->regs+XQSPIPS_STATUS_OFFSET)
 					& XQSPIPS_IXR_TXNFULL_MASK) &&
 					!xqspi->rxbuf)
 				return;
 			len = xqspi->bytes_to_transfer;
 			xqspips_copy_write_data(xqspi, &data, len);
 			offset = (xqspi->rxbuf) ? offsets[0] : offsets[len];
-			xqspips_write(xqspi->regs + offset, data);
+			writel(data, xqspi->regs + offset);
 		} else {
 			xqspips_copy_write_data(xqspi, &data, 4);
-			xqspips_write(xqspi->regs + XQSPIPS_TXD_00_00_OFFSET,
-					data);
+			writel(data, xqspi->regs + XQSPIPS_TXD_00_00_OFFSET);
 		}
 	}
 }
@@ -532,8 +525,7 @@ static int xqspips_irq_poll(struct xqspips *xqspi)
 	/* Poll until any of the interrupt status bits are set */
 	max_loop = 0;
 	do {
-		intr_status = xqspips_read(xqspi->regs +
-				XQSPIPS_STATUS_OFFSET);
+		intr_status = readl(xqspi->regs + XQSPIPS_STATUS_OFFSET);
 		max_loop++;
 	} while ((intr_status == 0) && (max_loop < 100000));
 
@@ -542,11 +534,10 @@ static int xqspips_irq_poll(struct xqspips *xqspi)
 		return 0;
 	}
 
-	xqspips_write(xqspi->regs + XQSPIPS_STATUS_OFFSET , intr_status);
+	writel(intr_status, xqspi->regs + XQSPIPS_STATUS_OFFSET);
 
 	/* Disable all interrupts */
-	xqspips_write(xqspi->regs + XQSPIPS_IDIS_OFFSET,
-			XQSPIPS_IXR_ALL_MASK);
+	writel(XQSPIPS_IXR_ALL_MASK, xqspi->regs + XQSPIPS_IDIS_OFFSET);
 	if ((intr_status & XQSPIPS_IXR_TXNFULL_MASK) ||
 			(intr_status & XQSPIPS_IXR_RXNEMTY_MASK)) {
 
@@ -558,11 +549,11 @@ static int xqspips_irq_poll(struct xqspips *xqspi)
 		u32 config_reg;
 
 		/* Read out the data from the RX FIFO */
-		while (xqspips_read(xqspi->regs + XQSPIPS_STATUS_OFFSET) &
+		while (readl(xqspi->regs + XQSPIPS_STATUS_OFFSET) &
 				XQSPIPS_IXR_RXNEMTY_MASK) {
 			u32 data;
 
-			data = xqspips_read(xqspi->regs + XQSPIPS_RXD_OFFSET);
+			data = readl(xqspi->regs + XQSPIPS_RXD_OFFSET);
 
 			if ((xqspi->inst_response) &&
 					(!((xqspi->curr_inst->opcode ==
@@ -583,15 +574,13 @@ static int xqspips_irq_poll(struct xqspips *xqspi)
 			/* There is more data to send */
 			xqspips_fill_tx_fifo(xqspi);
 
-			xqspips_write(xqspi->regs + XQSPIPS_IEN_OFFSET,
-					XQSPIPS_IXR_ALL_MASK);
+			writel(XQSPIPS_IXR_ALL_MASK, xqspi->regs +
+					XQSPIPS_IEN_OFFSET);
 
-			config_reg = xqspips_read(xqspi->regs +
-						XQSPIPS_CONFIG_OFFSET);
+			config_reg = readl(xqspi->regs + XQSPIPS_CONFIG_OFFSET);
 
 			config_reg |= XQSPIPS_CONFIG_MANSRT_MASK;
-			xqspips_write(xqspi->regs + XQSPIPS_CONFIG_OFFSET,
-					config_reg);
+			writel(config_reg, xqspi->regs + XQSPIPS_CONFIG_OFFSET);
 		} else {
 			/*
 			 * If transfer and receive is completed then only send
@@ -599,8 +588,8 @@ static int xqspips_irq_poll(struct xqspips *xqspi)
 			 */
 			if (!xqspi->bytes_to_receive) {
 				/* return operation complete */
-				xqspips_write(xqspi->regs + XQSPIPS_IDIS_OFFSET,
-						XQSPIPS_IXR_ALL_MASK);
+				writel(XQSPIPS_IXR_ALL_MASK, xqspi->regs +
+					XQSPIPS_IDIS_OFFSET);
 				return 1;
 			}
 		}
@@ -692,7 +681,7 @@ static int xqspips_start_transfer(struct spi_device *qspi,
 		 * write FIFO is full before writing. However, write would be
 		 * delayed if the user tries to write when write FIFO is full
 		 */
-		xqspips_write(xqspi->regs + xqspi->curr_inst->offset, data);
+		writel(data, xqspi->regs + xqspi->curr_inst->offset);
 
 		/*
 		 * Read status register and Read ID instructions don't require
@@ -723,12 +712,11 @@ xfer_data:
 			(instruction != XQSPIPS_FLASH_OPCODE_QUAD_READ)))
 		xqspips_fill_tx_fifo(xqspi);
 
-	xqspips_write(xqspi->regs + XQSPIPS_IEN_OFFSET,
-			XQSPIPS_IXR_ALL_MASK);
+	writel(XQSPIPS_IXR_ALL_MASK, xqspi->regs + XQSPIPS_IEN_OFFSET);
 	/* Start the transfer by enabling manual start bit */
-	config_reg = xqspips_read(xqspi->regs +
-			XQSPIPS_CONFIG_OFFSET) | XQSPIPS_CONFIG_MANSRT_MASK;
-	xqspips_write(xqspi->regs + XQSPIPS_CONFIG_OFFSET, config_reg);
+	config_reg = readl(xqspi->regs + XQSPIPS_CONFIG_OFFSET) |
+			XQSPIPS_CONFIG_MANSRT_MASK;
+	writel(config_reg, xqspi->regs + XQSPIPS_CONFIG_OFFSET);
 
 	/* wait for completion */
 	do {
@@ -818,23 +806,23 @@ static int xqspips_check_is_dual_flash(void __iomem *regs_base)
 	mio_base = regs_base + 0x700;
 
 	/* checking single QSPI MIO's */
-	val = xqspips_read(mio_base + 4 * 1);
+	val = (u32) readl(mio_base + 4 * 1);
 	if ((val & mask) == type) {
 		lower_mio++;
 		for (mio_pin_index = 2; mio_pin_index < 7; mio_pin_index++) {
-			val = xqspips_read(mio_base + 4 * mio_pin_index);
+			val = (u32) readl(mio_base + 4 * mio_pin_index);
 			if ((val & mask) == type)
 				lower_mio++;
 		}
 	}
 
 	/* checking dual QSPI MIO's */
-	val = xqspips_read(mio_base + 4 * 0);
+	val = (u32) readl(mio_base + 4 * 0);
 	if ((val & mask) == type) {
 		lower_mio++;
 		upper_mio++;
 		for (mio_pin_index = 9; mio_pin_index < 14; mio_pin_index++) {
-			val = xqspips_read(mio_base + 4 * mio_pin_index);
+			val = (u32) readl(mio_base + 4 * mio_pin_index);
 			if ((val & mask) == type)
 				upper_mio++;
 		}
@@ -864,25 +852,23 @@ static void xqspips_write_quad_bit(void __iomem *regs_base)
 	u32 config_reg, intr_status;
 
 	/* enable the QSPI controller */
-	xqspips_write(regs_base + XQSPIPS_ENABLE_OFFSET,
-			XQSPIPS_ENABLE_ENABLE_MASK);
+	writel(XQSPIPS_ENABLE_ENABLE_MASK, regs_base + XQSPIPS_ENABLE_OFFSET);
 
 	/* Write QUAD bit with 3-byte instruction */
-	xqspips_write(regs_base + XQSPIPS_TXD_00_11_OFFSET, 0x20001);
+	writel(0x20001, regs_base + XQSPIPS_TXD_00_11_OFFSET);
 
 	/* Enable manual start command */
-	config_reg = xqspips_read(regs_base +
-		XQSPIPS_CONFIG_OFFSET) | XQSPIPS_CONFIG_MANSRT_MASK;
-	xqspips_write(regs_base + XQSPIPS_CONFIG_OFFSET, config_reg);
+	config_reg = readl(regs_base + XQSPIPS_CONFIG_OFFSET) |
+			XQSPIPS_CONFIG_MANSRT_MASK;
+	writel(config_reg, regs_base + XQSPIPS_CONFIG_OFFSET);
 
 	/* Wait for the transfer to finish by polling Tx fifo status */
 	do {
-		intr_status = xqspips_read(regs_base +
-			XQSPIPS_STATUS_OFFSET);
+		intr_status = readl(regs_base + XQSPIPS_STATUS_OFFSET);
 	} while ((intr_status & 0x04) == 0);
 
 	/* Read data receive register */
-	config_reg = xqspips_read(regs_base + XQSPIPS_RXD_OFFSET);
+	config_reg = readl(regs_base + XQSPIPS_RXD_OFFSET);
 }
 
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
