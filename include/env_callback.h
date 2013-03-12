@@ -67,7 +67,6 @@ struct env_clbk_tbl {
 		int flags);
 };
 
-struct env_clbk_tbl *find_env_callback(const char *);
 void env_callback_init(ENTRY *var_entry);
 
 /*
