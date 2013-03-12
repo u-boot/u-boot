@@ -6,6 +6,14 @@
 	model = "NVIDIA Dalmore";
 	compatible = "nvidia,dalmore", "nvidia,tegra114";
 
+	aliases {
+		i2c0 = "/i2c@7000d000";
+		i2c1 = "/i2c@7000c000";
+		i2c2 = "/i2c@7000c400";
+		i2c3 = "/i2c@7000c500";
+		i2c4 = "/i2c@7000c700";
+	};
+
 	memory {
 		device_type = "memory";
 		reg = <0x80000000 0x80000000>;
