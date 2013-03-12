@@ -34,7 +34,7 @@ static struct pci_device_id ehci_pci_ids[] = {
 	{0, 0}
 };
 #else
-static pci_dev_t ehci_find_class(void)
+static pci_dev_t ehci_find_class(int index)
 {
 	int bus;
 	int devnum;
@@ -54,7 +54,8 @@ static pci_dev_t ehci_find_class(void)
 					bdf += PCI_BDF(0, 0, 1)) {
 				pci_read_config_dword(bdf, PCI_CLASS_REVISION,
 						      &class);
-				if (class >> 8 == PCI_CLASS_SERIAL_USB_EHCI)
+				if ((class >> 8 == PCI_CLASS_SERIAL_USB_EHCI)
+						&& !index--)
 					return bdf;
 			}
 		}
@@ -68,29 +69,35 @@ static pci_dev_t ehci_find_class(void)
  * Create the appropriate control structures to manage
  * a new EHCI host controller.
  */
-int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+int ehci_hcd_init(int index, struct ehci_hccr **ret_hccr,
+		struct ehci_hcor **ret_hcor)
 {
 	pci_dev_t pdev;
 	uint32_t cmd;
+	struct ehci_hccr *hccr;
+	struct ehci_hcor *hcor;
 
 #ifdef CONFIG_PCI_EHCI_DEVICE
 	pdev = pci_find_devices(ehci_pci_ids, CONFIG_PCI_EHCI_DEVICE);
 #else
-	pdev = ehci_find_class();
+	pdev = ehci_find_class(index);
 #endif
 	if (pdev < 0) {
 		printf("EHCI host controller not found\n");
 		return -1;
 	}
 
-	*hccr = (struct ehci_hccr *)pci_map_bar(pdev,
+	hccr = (struct ehci_hccr *)pci_map_bar(pdev,
 			PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
-	*hcor = (struct ehci_hcor *)((uint32_t) *hccr +
-			HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
+	hcor = (struct ehci_hcor *)((uint32_t) hccr +
+			HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
 
 	debug("EHCI-PCI init hccr 0x%x and hcor 0x%x hc_length %d\n",
-			(uint32_t)*hccr, (uint32_t)*hcor,
-			(uint32_t)HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
+			(uint32_t)hccr, (uint32_t)hcor,
+			(uint32_t)HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
+
+	*ret_hccr = hccr;
+	*ret_hcor = hcor;
 
 	/* enable busmaster */
 	pci_read_config_dword(pdev, PCI_COMMAND, &cmd);
