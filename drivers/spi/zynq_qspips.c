@@ -850,9 +850,8 @@ static void xqspips_write_quad_bit(void __iomem *regs_base)
 
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
-	debug("spi_cs_is_valid: bus: %d cs: %d\n",
-		bus, cs);
-	return 1;
+	/* 1 bus with 2 chipselect */
+	return bus == 0 && cs < 2;
 }
 
 void spi_cs_activate(struct spi_slave *slave)
@@ -951,6 +950,9 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 	debug("spi_setup_slave: bus: %d cs: %d max_hz: %d mode: %d\n",
 		bus, cs, max_hz, mode);
+
+	if (!spi_cs_is_valid(bus, cs))
+		return NULL;
 
 	is_dual = xqspips_check_is_dual_flash((void *)XPSS_SYS_CTRL_BASEADDR);
 
