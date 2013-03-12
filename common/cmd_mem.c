@@ -631,6 +631,7 @@ int do_mem_loopw (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 #endif /* CONFIG_LOOPW */
 
+#ifdef CONFIG_CMD_MEMTEST
 static ulong mem_test_alt(vu_long *buf, ulong start_addr, ulong end_addr,
 			  vu_long *dummy)
 {
@@ -910,7 +911,6 @@ static ulong mem_test_quick(vu_long *buf, ulong start_addr, ulong end_addr,
 	return 0;
 }
 
-#ifdef CONFIG_CMD_MEMTEST
 /*
  * Perform a memory test. A more complete alternative test can be
  * configured using CONFIG_SYS_ALT_MEMTEST. The complete test loops until
