@@ -226,7 +226,7 @@ const struct tegra_pingroup_desc tegra_soc_pingroups[PINGRP_COUNT] = {
 	PINI(SDMMC4_DAT6, SDMMC4,  SDMMC4,     SPI3,       GMI,     RSVD4),
 	PINI(SDMMC4_DAT7, SDMMC4,  SDMMC4,     RSVD2,      GMI,     RSVD4),
 	PIN_RESERVED,	/* Reserved by t114: 0x3280 */
-	PINI(CAM_MCLK,    CAM,     VI,         VI_ALT1,    VI_ALT2, RSVD4),
+	PINI(CAM_MCLK,    CAM,     VI,         VI_ALT1,    VI_ALT3, RSVD4),
 	PINI(GPIO_PCC1,   CAM,     I2S4,       RSVD2,      RSVD3,   RSVD4),
 	PINI(GPIO_PBB0,   CAM,     I2S4,       VI,         VI_ALT1, VI_ALT3),
 	PINI(CAM_I2C_SCL, CAM,     VGP1,       I2C3,       RSVD3,   RSVD4),
