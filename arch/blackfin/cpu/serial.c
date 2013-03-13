@@ -197,13 +197,16 @@ static void uart_loop(uint32_t uart_base, int state)
 
 static inline void __serial_set_baud(uint32_t uart_base, uint32_t baud)
 {
+#ifdef CONFIG_DEBUG_EARLY_SERIAL
+	serial_early_set_baud(uart_base, baud);
+#else
 	uint16_t divisor = (get_uart_clk() + (baud * 8)) / (baud * 16)
 			- ANOMALY_05000230;
 
 	/* Program the divisor to get the baud rate we want */
 	serial_set_divisor(uart_base, divisor);
+#endif
 }
-#ifdef CONFIG_SYS_BFIN_UART
 
 static void uart_puts(uint32_t uart_base, const char *s)
 {
@@ -313,65 +316,39 @@ void bfin_serial_initialize(void)
 #endif
 }
 
-#else
+#ifdef CONFIG_DEBUG_EARLY_SERIAL
+inline void uart_early_putc(uint32_t uart_base, const char c)
+{
+	/* send a \r for compatibility */
+	if (c == '\n')
+		uart_early_putc(uart_base, '\r');
+
+	/* wait for the hardware fifo to clear up */
+	while (!(_lsr_read(pUART) & THRE))
+		continue;
+
+	/* queue the character for transmission */
+	bfin_write(&pUART->thr, c);
+	SSYNC();
+}
+
+void uart_early_puts(const char *s)
+{
+	while (*s)
+		uart_early_putc(UART_BASE, *s++);
+}
 
 /* Symbol for our assembly to call. */
-void serial_set_baud(uint32_t baud)
+void _serial_early_set_baud(uint32_t baud)
 {
 	serial_early_set_baud(UART_BASE, baud);
 }
 
-/* Symbol for common u-boot code to call.
- * Setup the baudrate (brg: baudrate generator).
- */
-void serial_setbrg(void)
-{
-	serial_set_baud(gd->baudrate);
-}
-
 /* Symbol for our assembly to call. */
-void serial_initialize(void)
+void _serial_early_init(void)
 {
 	serial_early_init(UART_BASE);
 }
-
-/* Symbol for common u-boot code to call. */
-int serial_init(void)
-{
-	serial_initialize();
-	serial_setbrg();
-	uart_lsr_clear(UART_BASE);
-	return 0;
-}
-
-int serial_tstc(void)
-{
-	return uart_tstc(UART_BASE);
-}
-
-int serial_getc(void)
-{
-	return uart_getc(UART_BASE);
-}
-
-void serial_putc(const char c)
-{
-	uart_putc(UART_BASE, c);
-}
-
-void serial_puts(const char *s)
-{
-	while (*s)
-		serial_putc(*s++);
-}
-
-LOOP(
-void serial_loop(int state)
-{
-	uart_loop(UART_BASE, state);
-}
-)
-
 #endif
 
 #endif
