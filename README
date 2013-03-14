@@ -1344,6 +1344,19 @@ The following options need to be configured:
 			CONFIG_SH_MMCIF_CLK
 			Define the clock frequency for MMCIF
 
+- USB Device Firmware Update (DFU) class support:
+		CONFIG_DFU_FUNCTION
+		This enables the USB portion of the DFU USB class
+
+		CONFIG_CMD_DFU
+		This enables the command "dfu" which is used to have
+		U-Boot create a DFU class device via USB.  This command
+		requires that the "dfu_alt_info" environment variable be
+		set and define the alt settings to expose to the host.
+
+		CONFIG_DFU_MMC
+		This enables support for exposing (e)MMC devices via DFU.
+
 - Journaling Flash filesystem support:
 		CONFIG_JFFS2_NAND, CONFIG_JFFS2_NAND_OFF, CONFIG_JFFS2_NAND_SIZE,
 		CONFIG_JFFS2_NAND_DEV
