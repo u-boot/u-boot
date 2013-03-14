@@ -62,6 +62,8 @@
 	"fdtfile=\0" \
 	"console=ttyO0,115200n8\0" \
 	"optargs=\0" \
+	"mtdids=" MTDIDS_DEFAULT "\0" \
+	"mtdparts=" MTDPARTS_DEFAULT "\0" \
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 ro\0" \
 	"mmcrootfstype=ext4 rootwait\0" \
@@ -426,6 +428,13 @@
 /* NAND support */
 #ifdef CONFIG_NAND
 #define CONFIG_CMD_NAND
+#define CONFIG_CMD_MTDPARTS
+#define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
+#define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:128k(SPL)," \
+					"128k(SPL.backup1)," \
+					"128k(SPL.backup2)," \
+					"128k(SPL.backup3),1920k(u-boot)," \
+					"128k(u-boot-env),5m(kernel),-(rootfs)"
 #define CONFIG_NAND_OMAP_GPMC
 #define GPMC_NAND_ECC_LP_x16_LAYOUT	1
 #define CONFIG_SYS_NAND_BASE		(0x08000000)	/* physical address */
