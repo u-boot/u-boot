@@ -39,6 +39,8 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 
+#define CONFIG_SYS_CACHELINE_SIZE       64
+
 /* commands to include */
 #include <config_cmd_default.h>
 
