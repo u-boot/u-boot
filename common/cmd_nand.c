@@ -673,7 +673,7 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			}
 			ret = nand_write_skip_bad(nand, off, &rwsize, NULL,
 						maxsize, (u_char *)addr,
-						WITH_INLINE_OOB);
+						WITH_YAFFS_OOB);
 #endif
 		} else if (!strcmp(s, ".oob")) {
 			/* out-of-band data */
