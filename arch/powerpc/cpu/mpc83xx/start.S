@@ -76,7 +76,7 @@
 	START_GOT
 	GOT_ENTRY(_GOT2_TABLE_)
 	GOT_ENTRY(__bss_start)
-	GOT_ENTRY(__bss_end__)
+	GOT_ENTRY(__bss_end)
 
 #ifndef MINIMAL_SPL
 	GOT_ENTRY(_FIXUP_TABLE_)
@@ -980,7 +980,7 @@ clear_bss:
 	 */
 	lwz	r4,GOT(environment)
 #else
-	lwz	r4,GOT(__bss_end__)
+	lwz	r4,GOT(__bss_end)
 #endif
 
 	cmplw	0, r3, r4

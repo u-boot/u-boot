@@ -95,5 +95,5 @@ SECTIONS
 	}
 	PROVIDE (bss_end = .);
 
-	PROVIDE (__bss_end__ = .);
+	PROVIDE (__bss_end = .);
 }

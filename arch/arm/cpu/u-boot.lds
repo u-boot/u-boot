@@ -85,7 +85,7 @@ SECTIONS
 		__bss_start = .;
 		*(.bss*)
 		 . = ALIGN(4);
-		__bss_end__ = .;
+		__bss_end = .;
 	}
 
 	/DISCARD/ : { *(.dynstr*) }
@@ -96,5 +96,5 @@ SECTIONS
 }
 
 #if defined(CONFIG_SPL_TEXT_BASE) && defined(CONFIG_SPL_MAX_SIZE)
-ASSERT(__bss_end__ < (CONFIG_SPL_TEXT_BASE + CONFIG_SPL_MAX_SIZE), "SPL image too big");
+ASSERT(__bss_end < (CONFIG_SPL_TEXT_BASE + CONFIG_SPL_MAX_SIZE), "SPL image too big");
 #endif

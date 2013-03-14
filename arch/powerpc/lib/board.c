@@ -123,7 +123,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 extern ulong __init_end;
-extern ulong __bss_end__;
+extern ulong __bss_end;
 ulong monitor_flash_len;
 
 #if defined(CONFIG_CMD_BEDBUG)
@@ -419,7 +419,7 @@ void board_init_f(ulong bootflag)
 	 *  - monitor code
 	 *  - board info struct
 	 */
-	len = (ulong)&__bss_end__ - CONFIG_SYS_MONITOR_BASE;
+	len = (ulong)&__bss_end - CONFIG_SYS_MONITOR_BASE;
 
 	/*
 	 * Subtract specified amount of memory to hide so that it won't

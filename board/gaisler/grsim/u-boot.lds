@@ -134,7 +134,7 @@ SECTIONS
 	. = ALIGN(16); /* to speed clearing of bss up */
 	}
 	__bss_end = . ;
-	__bss_end__ = . ;
+	__bss_end = . ;
 	PROVIDE (end = .);
 
 /* Relocated into main memory */

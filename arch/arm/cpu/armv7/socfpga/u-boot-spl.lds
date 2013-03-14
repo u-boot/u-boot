@@ -46,7 +46,7 @@ SECTIONS
 		__bss_start = .;
 		*(.bss*)
 		. = ALIGN(4);
-		__bss_end__ = .;
+		__bss_end = .;
 	} >.sdram
 
 	. = ALIGN(8);

@@ -78,7 +78,7 @@ SECTIONS
 		 . = ALIGN(4);
 		_end = .;
 	}
-	__bss_end__ =.;
+	__bss_end =.;
 	/DISCARD/ : { *(.dynstr*) }
 	/DISCARD/ : { *(.dynamic*) }
 	/DISCARD/ : { *(.plt*) }

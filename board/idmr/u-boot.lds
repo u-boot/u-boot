@@ -93,6 +93,6 @@ SECTIONS
    . = ALIGN(4);
    _ebss = .;
   }
-  __bss_end__ = . ;
+  __bss_end = . ;
   PROVIDE (end = .);
 }

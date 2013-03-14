@@ -192,7 +192,7 @@ void board_init_f(ulong bootflag)
 
 	memset((void *)gd, 0, GENERATED_GBL_DATA_SIZE);
 
-	gd->mon_len = (unsigned int)(&__bss_end__) - (unsigned int)(&_start);
+	gd->mon_len = (unsigned int)(&__bss_end) - (unsigned int)(&_start);
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
 		if ((*init_fnc_ptr)() != 0)

@@ -142,7 +142,7 @@ _bss_start_ofs:
 
 .globl _bss_end_ofs
 _bss_end_ofs:
-	.word __bss_end__ - _start
+	.word __bss_end - _start
 
 .globl _end_ofs
 _end_ofs:
@@ -151,7 +151,7 @@ _end_ofs:
 #ifdef CONFIG_NAND_U_BOOT
 .globl _end
 _end:
-	.word __bss_end__
+	.word __bss_end
 #endif
 
 #ifdef CONFIG_USE_IRQ

@@ -97,7 +97,7 @@ SECTIONS
    . = ALIGN(4);
   }
 
-  __bss_end__ = . ;
+  __bss_end = . ;
   PROVIDE (end = .);
 
   .ppcenv:

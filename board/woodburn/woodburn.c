@@ -148,7 +148,7 @@ void board_init_f(ulong dummy)
 	woodburn_init();
 
 	/* Clear the BSS. */
-	memset(__bss_start, 0, __bss_end__ - __bss_start);
+	memset(__bss_start, 0, __bss_end - __bss_start);
 
 	/* Set global data pointer. */
 	gd = &gdata;

@@ -85,7 +85,7 @@
  */
 
 .globl __bss_start
-.globl __bss_end__
+.globl __bss_end
 
 /*
  * entry point of crt0 sequence
@@ -141,7 +141,7 @@ here:
 	bl	c_runtime_cpu_setup	/* we still call old routine here */
 
 	ldr	r0, =__bss_start	/* this is auto-relocated! */
-	ldr	r1, =__bss_end__	/* this is auto-relocated! */
+	ldr	r1, =__bss_end		/* this is auto-relocated! */
 
 	mov	r2, #0x00000000		/* prepare zero to clear BSS */
 

@@ -240,7 +240,7 @@ fix_got_loop:
 clear_bss:
 	la	$r0, __bss_start	/* r0 <- rel __bss_start in FLASH */
 	add	$r0, $r0, $r9		/* r0 <- rel __bss_start in FLASH */
-	la	$r1, __bss_end__	/* r1 <- rel __bss_end in RAM */
+	la	$r1, __bss_end		/* r1 <- rel __bss_end in RAM */
 	add	$r1, $r1, $r9		/* r0 <- rel __bss_end in RAM */
 	li	$r2, 0x00000000		/* clear */
 

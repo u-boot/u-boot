@@ -112,6 +112,6 @@ SECTIONS
     common/env_embedded.o (.ppcenv)
   }
   . = ALIGN(4);
-  __bss_end__ = . ;
+  __bss_end = . ;
   PROVIDE (end = .);
 }

@@ -31,7 +31,7 @@
 
 /* for the following variables, see start.S */
 extern ulong __bss_start;	/* BSS start relative to _start */
-extern ulong __bss_end__;	/* BSS end relative to _start */
+extern ulong __bss_end;	/* BSS end relative to _start */
 extern ulong _end;		/* end of image relative to _start */
 extern ulong _start;		/* start of image relative to _start */
 extern ulong _TEXT_BASE;	/* code start */

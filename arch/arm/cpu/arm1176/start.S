@@ -121,7 +121,7 @@ _bss_start_ofs:
 
 .globl _bss_end_ofs
 _bss_end_ofs:
-	.word __bss_end__ - _start
+	.word __bss_end - _start
 
 .globl _end_ofs
 _end_ofs:

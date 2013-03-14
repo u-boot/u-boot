@@ -80,6 +80,6 @@ SECTIONS
 		*(.sbss*)
 		*(.bss*)
 	}
-	__bss_end__ = .;
+	__bss_end = .;
 }
 ASSERT(__init_end <= (0xfff00000 + RESET_VECTOR_OFFSET), "NAND bootstrap too big");
