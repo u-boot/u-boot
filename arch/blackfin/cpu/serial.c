@@ -351,4 +351,62 @@ void _serial_early_init(void)
 }
 #endif
 
-#endif
+#elif defined(CONFIG_UART_MEM)
+
+char serial_logbuf[CONFIG_UART_MEM];
+char *serial_logbuf_head = serial_logbuf;
+
+int serial_mem_init(void)
+{
+	serial_logbuf_head = serial_logbuf;
+	return 0;
+}
+
+void serial_mem_setbrg(void)
+{
+}
+
+int serial_mem_tstc(void)
+{
+	return 0;
+}
+
+int serial_mem_getc(void)
+{
+	return 0;
+}
+
+void serial_mem_putc(const char c)
+{
+	*serial_logbuf_head = c;
+	if (++serial_logbuf_head == serial_logbuf + CONFIG_UART_MEM)
+		serial_logbuf_head = serial_logbuf;
+}
+
+void serial_mem_puts(const char *s)
+{
+	while (*s)
+		serial_putc(*s++);
+}
+
+struct serial_device bfin_serial_mem_device = {
+	.name   = "bfin_uart_mem",
+	.start  = serial_mem_init,
+	.setbrg = serial_mem_setbrg,
+	.getc   = serial_mem_getc,
+	.tstc   = serial_mem_tstc,
+	.putc   = serial_mem_putc,
+	.puts   = serial_mem_puts,
+};
+
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &bfin_serial_mem_device;
+}
+
+void bfin_serial_initialize(void)
+{
+	serial_register(&bfin_serial_mem_device);
+}
+#endif /* CONFIG_UART_MEM */
