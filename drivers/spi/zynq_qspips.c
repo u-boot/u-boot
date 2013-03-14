@@ -223,7 +223,6 @@ static struct xqspips_inst_format flash_inst[] = {
 
 /*
  * xqspips_init_hw - Initialize the hardware
- * @regs_base:		Base address of QSPI controller
  * @is_dual:		Indicates whether dual memories are used
  * @cs:			Indicates which chip select is used in dual stacked
  *
@@ -243,8 +242,7 @@ static struct xqspips_inst_format flash_inst[] = {
  *	- Set the little endian mode of TX FIFO and
  *	- Enable the QSPI controller
  */
-static void xqspips_init_hw(void __iomem *regs_base, int is_dual,
-	unsigned int cs)
+static void xqspips_init_hw(int is_dual, unsigned int cs)
 {
 	u32 config_reg;
 
@@ -514,7 +512,7 @@ static void xqspips_fill_tx_fifo(struct xqspips *xqspi)
 }
 
 /*
- * xqspips_irq - Interrupt service routine of the QSPI controller
+ * xqspips_irq_poll - Interrupt service routine of the QSPI controller
  * @xqspi:      Pointer to the xqspips structure
  *
  * This function handles TX empty and Mode Fault interrupts only.
@@ -524,7 +522,8 @@ static void xqspips_fill_tx_fifo(struct xqspips *xqspi)
  * the SPI subsystem will identify the error as the remaining bytes to be
  * transferred is non-zero.
  *
- * returns:	IRQ_HANDLED always
+ * returns:	0 for poll timeout
+ *		1 transfer operation complete
  */
 static int xqspips_irq_poll(struct xqspips *xqspi)
 {
@@ -802,10 +801,7 @@ static int xqspips_transfer(struct spi_device *qspi,
  *
  * function will return -1, if there is no MIO configuration for
  * qspi flash.
- *
- * @regs_base:	base address of SLCR
  */
-
 static int xqspips_check_is_dual_flash(void)
 {
 	int is_dual = MODE_UNKNOWN;
@@ -974,7 +970,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		return NULL;
 	}
 
-	xqspips_init_hw((void *)XPSS_QSPI_BASEADDR, is_dual, cs);
+	xqspips_init_hw(is_dual, cs);
 
 	pspi = malloc(sizeof(struct zynq_spi_slave));
 	if (!pspi) {
