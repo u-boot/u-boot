@@ -22,6 +22,7 @@
 #include <linux/mtd/nand.h>
 #include <linux/mtd/partitions.h>
 #include <linux/mtd/nand_ecc.h>
+#include <asm/arch/sys_proto.h>
 
 /* The NAND flash driver defines */
 #define XNANDPS_CMD_PHASE	1	/* End command valid in command phase */
@@ -77,6 +78,17 @@
 /* ECC block registers bit position and bit mask */
 #define XNANDPS_ECC_BUSY	(1 << 6)	/* ECC block is busy */
 #define XNANDPS_ECC_MASK	0x00FFFFFF	/* ECC value mask */
+
+/* NAND MIO buswidth count*/
+#define XNANDPS_MIO_NUM_NAND_8BIT	13
+#define XNANDPS_MIO_NUM_NAND_16BIT	8
+
+/* NAND buswidth */
+enum xnandps_bus_width {
+	NAND_BW_UNKNOWN = -1,
+	NAND_BW_8BIT,
+	NAND_BW_16BIT,
+};
 
 /* SMC register set */
 struct xnandps_smc_regs {
@@ -992,6 +1004,35 @@ static int xnandps_device_ready(struct mtd_info *mtd)
 	return 0;
 }
 
+/*
+ * xnandps_check_is_16bit_bw_flash - checking for 16 or 8 bit buswidth nand
+ *
+ * This function will check nand buswidth whether it supports 16 or 8 bit
+ * based on the MIO configuration done by FSBL.
+ *
+ * User needs to correctly configure the MIO's based on the
+ * buswidth supported by the nand flash which is present on the board.
+ *
+ * function will return -1, if there is no MIO configuration for
+ * nand flash.
+ */
+static int xnandps_check_is_16bit_bw_flash(void)
+{
+	int is_16bit_bw = NAND_BW_UNKNOWN;
+	int mio_num_8bit = 0, mio_num_16bit = 0;
+
+	mio_num_8bit = zynq_slcr_get_mio_pin_status("nand8");
+	if (mio_num_8bit == XNANDPS_MIO_NUM_NAND_8BIT)
+		is_16bit_bw = NAND_BW_8BIT;
+
+	mio_num_16bit = zynq_slcr_get_mio_pin_status("nand16");
+	if ((mio_num_8bit == XNANDPS_MIO_NUM_NAND_8BIT) &&
+			(mio_num_16bit == XNANDPS_MIO_NUM_NAND_16BIT))
+		is_16bit_bw = NAND_BW_16BIT;
+
+	return is_16bit_bw;
+}
+
 int zynq_nand_init(struct nand_chip *nand_chip)
 {
 	struct xnandps_info *xnand;
@@ -1003,6 +1044,7 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 	u8 set_feature[4] = {0x08, 0x00, 0x00, 0x00};
 	unsigned long ecc_cfg;
 	int ondie_ecc_enabled = 0;
+	int is_16bit_bw;
 
 	xnand = malloc(sizeof(struct xnandps_info));
 	memset(xnand, 0, sizeof(struct xnandps_info));
@@ -1033,11 +1075,16 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 	nand_chip->read_buf = xnandps_read_buf;
 	nand_chip->write_buf = xnandps_write_buf;
 
-#ifndef CONFIG_XILINX_ZYNQ_NAND_BUSWIDTH_16
-	nand_chip->options = NAND_NO_AUTOINCR | NAND_USE_FLASH_BBT;
-#else
-	nand_chip->options = NAND_BUSWIDTH_16;
-#endif
+	/* Check the NAND buswidth */
+	is_16bit_bw = xnandps_check_is_16bit_bw_flash();
+	if (is_16bit_bw == NAND_BW_UNKNOWN) {
+		printf("zynq_nand_init: Unable detect NAND based on"
+				" MIO settings\n");
+		goto free;
+	} else if (is_16bit_bw == NAND_BW_8BIT)
+		nand_chip->options = NAND_NO_AUTOINCR | NAND_USE_FLASH_BBT;
+	else if (is_16bit_bw == NAND_BW_16BIT)
+		nand_chip->options = NAND_BUSWIDTH_16;
 
 	/* Initialize the NAND flash interface on NAND controller */
 	if (xnandps_init_nand_flash(nand_chip->options) < 0) {

@@ -30,6 +30,8 @@
 
 #define SLCR_QSPI_ENABLE		0x02
 #define SLCR_QSPI_ENABLE_MASK		0x03
+#define SLCR_NAND_L2_SEL		0x10
+#define SLCR_NAND_L2_SEL_MASK		0x1F
 
 /*
  * zynq_slcr_mio_get_status - Get the status of MIO peripheral.
@@ -60,6 +62,14 @@ static const int qspi1_pins[] = {
 	9, 10, 11, 12, 13
 };
 
+static const int nand8_pins[] = {
+	0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
+};
+
+static const int nand16_pins[] = {
+	16, 17, 18, 19, 20, 21, 22, 23
+};
+
 static const struct zynq_slcr_mio_get_status mio_periphs[] = {
 	{
 		"qspi0",
@@ -81,6 +91,20 @@ static const struct zynq_slcr_mio_get_status mio_periphs[] = {
 		ARRAY_SIZE(qspi1_pins),
 		SLCR_QSPI_ENABLE_MASK,
 		SLCR_QSPI_ENABLE,
+	},
+	{
+		"nand8",
+		nand8_pins,
+		ARRAY_SIZE(nand8_pins),
+		SLCR_NAND_L2_SEL_MASK,
+		SLCR_NAND_L2_SEL,
+	},
+	{
+		"nand16",
+		nand16_pins,
+		ARRAY_SIZE(nand16_pins),
+		SLCR_NAND_L2_SEL_MASK,
+		SLCR_NAND_L2_SEL,
 	},
 };
 
