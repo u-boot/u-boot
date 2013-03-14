@@ -272,6 +272,7 @@ our $logFunctions = qr{(?x:
 	[a-z0-9]+_(?:printk|emerg|alert|crit|err|warning|warn|notice|info|debug|dbg|vdbg|devel|cont|WARN)(?:_ratelimited|_once|)|
 	WARN(?:_RATELIMIT|_ONCE|)|
 	panic|
+	debug|
 	MODULE_[A-Z_]+
 )};
 
