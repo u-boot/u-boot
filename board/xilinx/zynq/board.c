@@ -21,36 +21,22 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 #include <asm/arch/mmc.h>
 #include <asm/arch/nand.h>
 #include <netdev.h>
 #include <zynqpl.h>
-#include <asm/arch/hardware.h>
-
-#define BOOT_MODE_REG     (XPSS_SYS_CTRL_BASEADDR + 0x25C)
-#define BOOT_MODES_MASK    0x0000000F
-#define QSPI_MODE         (0x00000001)            /**< QSPI */
-#define NOR_FLASH_MODE    (0x00000002)            /**< NOR  */
-#define NAND_FLASH_MODE   (0x00000004)            /**< NAND */
-#define SD_MODE           (0x00000005)            /**< Secure Digital card */
-#define JTAG_MODE	  (0x00000000)            /**< JTAG */
+#include <asm/arch/sys_proto.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define dmbp() __asm__ __volatile__ ("dmb" : : : "memory")
-
-void XIo_Out32(u32 OutAddress, u32 Value)
-{
-    *(volatile u32 *) OutAddress = Value;
-    dmbp();
-}
-
-u32 XIo_In32(u32 InAddress)
-{
-    volatile u32 temp = *(volatile u32 *)InAddress;
-    dmbp();
-    return temp;
-}
+/* Bootmode setting values */
+#define BOOT_MODES_MASK		0x0000000F
+#define QSPI_MODE		0x00000001
+#define NOR_FLASH_MODE		0x00000002
+#define NAND_FLASH_MODE		0x00000004
+#define SD_MODE			0x00000005
+#define JTAG_MODE		0x00000000
 
 #ifdef CONFIG_FPGA
 Xilinx_desc fpga = XILINX_XC7Z020_DESC(0);
@@ -59,18 +45,18 @@ Xilinx_desc fpga = XILINX_XC7Z020_DESC(0);
 int board_init(void)
 {
 	/* temporary hack to clear pending irqs before Linux as it
-	   will hang Linux */
-
-	XIo_Out32(0xe0001014, 0x26d);
+	 * will hang Linux
+	 */
+	writel(0x26d, 0xe0001014);
 
 	/* temporary hack to take USB out of reset til the is fixed
-	   in Linux */
-
-	XIo_Out32(0xe000a204, 0x80);
-	XIo_Out32(0xe000a208, 0x80);
-	XIo_Out32(0xe000a040, 0x80);
-	XIo_Out32(0xe000a040, 0x00);
-	XIo_Out32(0xe000a040, 0x80);
+	 * in Linux
+	 */
+	writel(0x80, 0xe000a204);
+	writel(0x80, 0xe000a208);
+	writel(0x80, 0xe000a040);
+	writel(0x00, 0xe000a040);
+	writel(0x80, 0xe000a040);
 
 	icache_enable();
 
@@ -82,12 +68,9 @@ int board_init(void)
 	return 0;
 }
 
-int board_late_init (void)
+int board_late_init(void)
 {
-	u32 boot_mode;
-
-	boot_mode = (XIo_In32(BOOT_MODE_REG) & BOOT_MODES_MASK);
-	switch(boot_mode) {
+	switch ((zynq_slcr_get_boot_mode()) & BOOT_MODES_MASK) {
 	case QSPI_MODE:
 		setenv("modeboot", "qspiboot");
 		break;

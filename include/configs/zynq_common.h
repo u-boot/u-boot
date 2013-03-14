@@ -17,9 +17,7 @@
 #ifndef __CONFIG_ZYNQ_COMMON_H
 #define __CONFIG_ZYNQ_COMMON_H
 
-/*
- * High Level Configuration Options
- */
+/* High Level Configuration Options */
 #define CONFIG_ARMV7 /* CPU */
 #define CONFIG_ZYNQ /* SoC */
 
@@ -31,10 +29,13 @@
 #define CONFIG_SYS_SDRAM_SIZE	PHYS_SDRAM_1_SIZE
 
 /* Total Size of Environment Sector */
-#define CONFIG_ENV_SIZE		(128 << 10)
+#define CONFIG_ENV_SIZE			(128 << 10)
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
+
+/* Size of malloc() pool */
+#define CONFIG_SYS_MALLOC_LEN		0x400000
 
 /* Serial drivers */
 #define CONFIG_BAUDRATE			115200
@@ -77,17 +78,28 @@
 #endif
 
 /* SCU timer address is hardcoded */
-#define CONFIG_SCUTIMER_BASEADDR       0xF8F00600
+#define CONFIG_SCUTIMER_BASEADDR	0xF8F00600
 #ifndef CONFIG_CPU_FREQ_HZ
-#define CONFIG_CPU_FREQ_HZ     800000000
+#define CONFIG_CPU_FREQ_HZ		800000000
 #endif
-#define CONFIG_SYS_HZ          1000
+#define CONFIG_SYS_HZ			1000
 
-#define CONFIG_AUTO_COMPLETE
+/* Miscellaneous configurable options */
+#define CONFIG_SYS_PROMPT		"zynq-uboot> "
 #define CONFIG_SYS_HUSH_PARSER	/* use "hush" command parser */
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
+
 #define CONFIG_CMDLINE_EDITING
+#define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_LONGHELP
+#define CONFIG_BOARD_LATE_INIT
+#define CONFIG_SYS_MAXARGS		16
+#define CONFIG_SYS_CBSIZE		2048
+#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
+					sizeof(CONFIG_SYS_PROMPT) + 16)
+
+/* Open Firmware flat tree */
+#define CONFIG_OF_LIBFDT
 
 #include <config_cmd_default.h>
 
@@ -113,7 +125,8 @@
 # undef CONFIG_SYS_FLASH_EMPTY_INFO
 # define CONFIG_FLASH_CFI_DRIVER
 # undef CONFIG_SYS_FLASH_PROTECTION /* don't use hardware protection */
-# define CONFIG_SYS_FLASH_USE_BUFFER_WRITE /* use buffered writes (20x faster) */
+/* use buffered writes (20x faster) */
+# define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 #endif
 
 /* QSPI */
@@ -193,25 +206,24 @@
 # define CONFIG_PANIC_HANG
 #endif
 
-#define CONFIG_SYS_TEXT_BASE 0x04000000
-
-/*
- * Open Firmware flat tree
- */
-#define CONFIG_OF_LIBFDT
-
 /* Default environment */
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"ethaddr=00:0a:35:00:01:22\0"	\
 	"kernel_image=uImage\0"	\
 	"ramdisk_image=uramdisk.image.gz\0"	\
 	"devicetree_image=devicetree.dtb\0"	\
+	"bitstream_image=system.bit.bin\0"	\
+	"loadbit_addr=0x100000\0"	\
 	"kernel_size=0x500000\0"	\
 	"devicetree_size=0x20000\0"	\
 	"ramdisk_size=0x5E0000\0"	\
 	"fdt_high=0x20000000\0"	\
 	"initrd_high=0x20000000\0"	\
-	"norboot=echo Copying Linux from NOR flash to RAM...;" \
+	"mmc_loadbit_fat=echo Loading bitstream from SD/MMC/eMMC to RAM.. && " \
+		"mmcinfo && " \
+		"fatload mmc 0 ${loadbit_addr} ${bitstream_image} && " \
+		"fpga load 0 ${loadbit_addr} ${filesize}\0" \
+	"norboot=echo Copying Linux from NOR flash to RAM... && " \
 		"cp 0xE2100000 0x3000000 ${kernel_size} && " \
 		"cp 0xE2600000 0x2A00000 ${devicetree_size} && " \
 		"echo Copying ramdisk... && " \
@@ -243,40 +255,28 @@
 		"bootm 0x3000000 0x2000000 0x2A00000\0"
 
 /* default boot is according to the bootmode switch settings */
-#define CONFIG_BOOTCOMMAND	"run $modeboot"
-#define CONFIG_BOOTDELAY	3 /* -1 to Disable autoboot */
-
-#define CONFIG_SYS_PROMPT	"zynq-uboot> "
-
-/* CONFIG_SYS_MONITOR_BASE? */
-/* CONFIG_SYS_MONITOR_LEN? */
+#define CONFIG_BOOTCOMMAND		"run $modeboot"
+#define CONFIG_BOOTDELAY		3 /* -1 to Disable autoboot */
+#define CONFIG_SYS_LOAD_ADDR		0 /* default? */
 
 /* Keep L2 Cache Disabled */
 #define CONFIG_SYS_L2CACHE_OFF
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
 /* Physical Memory map */
-#define CONFIG_NR_DRAM_BANKS    	1
-#define PHYS_SDRAM_1            	0
+#define CONFIG_NR_DRAM_BANKS		1
+#define PHYS_SDRAM_1			0
+#define CONFIG_SYS_TEXT_BASE		0x04000000
 
-#define CONFIG_SYS_MEMTEST_START PHYS_SDRAM_1
-#define CONFIG_SYS_MEMTEST_END (CONFIG_SYS_MEMTEST_START + \
-				    PHYS_SDRAM_1_SIZE - (16 * 1024 * 1024))
+#define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM_1
+#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + \
+					PHYS_SDRAM_1_SIZE - (16 * 1024 * 1024))
 
-#define CONFIG_SYS_SDRAM_BASE		0
 #define CONFIG_SYS_INIT_RAM_ADDR	0xFFFF0000
 #define CONFIG_SYS_INIT_RAM_SIZE	0x1000
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
 					CONFIG_SYS_INIT_RAM_SIZE - \
 					GENERATED_GBL_DATA_SIZE)
-
-#define CONFIG_SYS_MALLOC_LEN 0x400000
-#define CONFIG_SYS_MAXARGS 16
-#define CONFIG_SYS_CBSIZE 2048
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
-
-
-#define CONFIG_SYS_LOAD_ADDR	0 /* default? */
 
 /* Enable the PL to be downloaded */
 #define CONFIG_FPGA
@@ -287,8 +287,6 @@
 /* FIT support */
 #define CONFIG_FIT		1
 #define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
-
-#define CONFIG_BOARD_LATE_INIT
 
 #undef CONFIG_BOOTM_NETBSD
 
