@@ -56,7 +56,8 @@
 	"fdtaddr=0x80F80000\0" \
 	"fdt_high=0xffffffff\0" \
 	"rdaddr=0x81000000\0" \
-	"bootfile=/boot/uImage\0" \
+	"bootdir=/boot\0" \
+	"bootfile=uImage\0" \
 	"fdtfile=\0" \
 	"console=ttyO0,115200n8\0" \
 	"optargs=\0" \
@@ -105,10 +106,11 @@
 		"root=${ramroot} " \
 		"rootfstype=${ramrootfstype}\0" \
 	"loadramdisk=load mmc ${mmcdev} ${rdaddr} ramdisk.gz\0" \
-	"loaduimage=load mmc ${bootpart} ${loadaddr} ${bootfile}\0" \
+	"loaduimage=load mmc ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
+	"loadfdt=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
-		"bootm ${loadaddr}\0" \
+		"bootm ${loadaddr} - ${fdtaddr}\0" \
 	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
 		"nand read ${loadaddr} ${nandsrcaddr} ${nandimgsize}; " \
@@ -122,11 +124,12 @@
 		"setenv autoload no; " \
 		"dhcp; " \
 		"tftp ${loadaddr} ${bootfile}; " \
+		"tftp ${fdtaddr} ${fdtfile}; " \
 		"run netargs; " \
-		"bootm ${loadaddr}\0" \
+		"bootm ${loadaddr} - ${fdtaddr}\0" \
 	"ramboot=echo Booting from ramdisk ...; " \
 		"run ramargs; " \
-		"bootm ${loadaddr}\0" \
+		"bootm ${loadaddr} ${rdaddr} ${fdtaddr}\0" \
 	"findfdt="\
 		"if test $board_name = A335BONE; then " \
 			"setenv fdtfile am335x-bone.dtb; fi; " \
@@ -140,6 +143,7 @@
 #endif
 
 #define CONFIG_BOOTCOMMAND \
+	"run findfdt; " \
 	"mmc dev ${mmcdev}; if mmc rescan; then " \
 		"echo SD/MMC found on device ${mmcdev};" \
 		"if run loadbootenv; then " \
@@ -151,6 +155,7 @@
 			"run uenvcmd;" \
 		"fi;" \
 		"if run loaduimage; then " \
+			"run loadfdt;" \
 			"run mmcboot;" \
 		"fi;" \
 	"else " \
