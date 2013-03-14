@@ -21,8 +21,7 @@
 
 #define CONFIG_AM33XX
 
-#include <asm/arch/cpu.h>
-#include <asm/arch/hardware.h>
+#include <asm/arch/omap.h>
 
 #define CONFIG_DMA_COHERENT
 #define CONFIG_DMA_COHERENT_SIZE	(1 << 20)
