@@ -19,7 +19,7 @@
 #include <ubi_uboot.h>
 #include <spi.h>
 #include <asm/io.h>
-#include <asm/arch/hardware.h>
+#include <asm/arch/sys_proto.h>
 
 /* QSPI Transmit Data Register */
 #define XQSPIPS_TXD_00_00_OFFSET	0x1C /* Transmit 4-byte inst, WO */
@@ -82,15 +82,16 @@
 #define XQSPIPS_QUEUE_RUNNING		1
 
 /* QSPI MIO's count for different connection topologies */
-#define XQSPIPS_MIO_SINGLE		6
-#define XQSPIPS_MIO_DUAL_PARALLEL	6
-#define XQSPIPS_MIO_DUAL_STACKED	7
+#define XQSPIPS_MIO_NUM_QSPI0		6
+#define XQSPIPS_MIO_NUM_QSPI1		5
+#define XQSPIPS_MIO_NUM_QSPI1_CS	1
 
 /* QSPI connections topology */
 enum xqspips_con_topology {
-	MODE_SINGLE = 0,
-	MODE_DUAL_PARALLEL = 1,
-	MODE_DUAL_STACKED = 2,
+	MODE_UNKNOWN = -1,
+	MODE_SINGLE,
+	MODE_DUAL_PARALLEL,
+	MODE_DUAL_STACKED,
 };
 
 /* Definitions of the flash commands - Flash opcodes in ascending order */
@@ -805,45 +806,25 @@ static int xqspips_transfer(struct spi_device *qspi,
  * @regs_base:	base address of SLCR
  */
 
-static int xqspips_check_is_dual_flash(void __iomem *regs_base)
+static int xqspips_check_is_dual_flash(void)
 {
-	int is_dual = -1, lower_mio = 0, upper_mio = 0, val;
-	u16 mask = 3, type = 2;
-	u32 mio_pin_index;
-	void *mio_base;
+	int is_dual = MODE_UNKNOWN;
+	int lower_mio = 0, upper_mio = 0, upper_mio_cs1 = 0;
 
-	mio_base = regs_base + 0x700;
-
-	/* checking single QSPI MIO's */
-	val = (u32) readl(mio_base + 4 * 1);
-	if ((val & mask) == type) {
-		lower_mio++;
-		for (mio_pin_index = 2; mio_pin_index < 7; mio_pin_index++) {
-			val = (u32) readl(mio_base + 4 * mio_pin_index);
-			if ((val & mask) == type)
-				lower_mio++;
-		}
-	}
-
-	/* checking dual QSPI MIO's */
-	val = (u32) readl(mio_base + 4 * 0);
-	if ((val & mask) == type) {
-		lower_mio++;
-		upper_mio++;
-		for (mio_pin_index = 9; mio_pin_index < 14; mio_pin_index++) {
-			val = (u32) readl(mio_base + 4 * mio_pin_index);
-			if ((val & mask) == type)
-				upper_mio++;
-		}
-	}
-
-	if ((lower_mio == XQSPIPS_MIO_DUAL_STACKED) &&
-			(upper_mio == XQSPIPS_MIO_DUAL_PARALLEL))
-		is_dual = MODE_DUAL_PARALLEL;
-	else if (lower_mio == XQSPIPS_MIO_DUAL_STACKED)
-		is_dual = MODE_DUAL_STACKED;
-	else if (lower_mio == XQSPIPS_MIO_SINGLE)
+	lower_mio =  zynq_slcr_get_mio_pin_status("qspi0");
+	if (lower_mio == XQSPIPS_MIO_NUM_QSPI0)
 		is_dual = MODE_SINGLE;
+
+	upper_mio_cs1 = zynq_slcr_get_mio_pin_status("qspi1_cs");
+	if ((lower_mio == XQSPIPS_MIO_NUM_QSPI0) &&
+			(upper_mio_cs1 == XQSPIPS_MIO_NUM_QSPI1_CS))
+		is_dual = MODE_DUAL_STACKED;
+
+	upper_mio =  zynq_slcr_get_mio_pin_status("qspi1");
+	if ((lower_mio == XQSPIPS_MIO_NUM_QSPI0) &&
+			(upper_mio_cs1 == XQSPIPS_MIO_NUM_QSPI1_CS) &&
+			(upper_mio == XQSPIPS_MIO_NUM_QSPI1))
+		is_dual = MODE_DUAL_PARALLEL;
 
 	return is_dual;
 }
@@ -985,9 +966,9 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	if (!spi_cs_is_valid(bus, cs))
 		return NULL;
 
-	is_dual = xqspips_check_is_dual_flash((void *)XPSS_SYS_CTRL_BASEADDR);
+	is_dual = xqspips_check_is_dual_flash();
 
-	if (is_dual == -1) {
+	if (is_dual == MODE_UNKNOWN) {
 		printf("SPI error: No QSPI device detected based"
 				" on MIO settings\n");
 		return NULL;

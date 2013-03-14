@@ -50,9 +50,11 @@ struct slcr_regs {
 	u32 ddr_urgent; /* 0x600 */
 	u32 reserved6[6];
 	u32 ddr_urgent_sel; /* 0x61c */
-	u32 reserved7[184];
+	u32 reserved7[56];
+	u32 mio_pin[54]; /* 0x700 - 0x7D4 */
+	u32 reserved8[74];
 	u32 lvl_shftr_en; /* 0x900 */
-	u32 reserved8[3];
+	u32 reserved9[3];
 	u32 ocm_cfg; /* 0x910 */
 };
 
