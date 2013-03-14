@@ -60,6 +60,9 @@ static inline unsigned int get_mmc_blk_size(int dev)
 #define DFU_NAME_SIZE 32
 #define DFU_CMD_BUF_SIZE 128
 #define DFU_DATA_BUF_SIZE (1024*1024*8) /* 8 MiB */
+#ifndef CONFIG_SYS_DFU_MAX_FILE_SIZE
+#define CONFIG_SYS_DFU_MAX_FILE_SIZE	(4 << 20)	/* 4 MiB */
+#endif
 
 struct dfu_entity {
 	char			name[DFU_NAME_SIZE];
@@ -73,10 +76,27 @@ struct dfu_entity {
 		struct mmc_internal_data mmc;
 	} data;
 
-	int (*read_medium)(struct dfu_entity *dfu, void *buf, long *len);
-	int (*write_medium)(struct dfu_entity *dfu, void *buf, long *len);
+	int (*read_medium)(struct dfu_entity *dfu,
+			u64 offset, void *buf, long *len);
+
+	int (*write_medium)(struct dfu_entity *dfu,
+			u64 offset, void *buf, long *len);
+
+	int (*flush_medium)(struct dfu_entity *dfu);
 
 	struct list_head list;
+
+	/* on the fly state */
+	u32 crc;
+	u64 offset;
+	int i_blk_seq_num;
+	u8 *i_buf;
+	u8 *i_buf_start;
+	u8 *i_buf_end;
+	long r_left;
+	long b_left;
+
+	unsigned int inited:1;
 };
 
 int dfu_config_entities(char *s, char *interface, int num);

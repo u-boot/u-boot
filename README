@@ -1357,6 +1357,13 @@ The following options need to be configured:
 		CONFIG_DFU_MMC
 		This enables support for exposing (e)MMC devices via DFU.
 
+		CONFIG_SYS_DFU_MAX_FILE_SIZE
+		When updating files rather than the raw storage device,
+		we use a static buffer to copy the file into and then write
+		the buffer once we've been given the whole file.  Define
+		this to the maximum filesize (in bytes) for the buffer.
+		Default is 4 MiB if undefined.
+
 - Journaling Flash filesystem support:
 		CONFIG_JFFS2_NAND, CONFIG_JFFS2_NAND_OFF, CONFIG_JFFS2_NAND_SIZE,
 		CONFIG_JFFS2_NAND_DEV
