@@ -85,4 +85,11 @@ void ide_output_data(int dev, const ulong *sect_buf, int words);
 void ide_input_data_shorts(int dev, ushort *sect_buf, int shorts);
 void ide_output_data_shorts(int dev, ushort *sect_buf, int shorts);
 
+/**
+ * board_start_ide() - Start up the board IDE interfac
+ *
+ * @return 0 if ok
+ */
+int board_start_ide(void);
+
 #endif /* _IDE_H */

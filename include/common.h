@@ -312,6 +312,7 @@ int mac_read_from_eeprom(void);
 extern u8 _binary_dt_dtb_start[];	/* embedded device tree blob */
 int set_cpu_clk_info(void);
 int print_cpuinfo(void);
+int update_flash_size(int flash_size);
 
 /**
  * Show the DRAM size in a board-specific way
