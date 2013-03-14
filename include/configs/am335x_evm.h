@@ -63,6 +63,7 @@
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 ro\0" \
 	"mmcrootfstype=ext4 rootwait\0" \
+	"bootpart=0:2\0" \
 	"nandroot=ubi0:rootfs rw ubi.mtd=7,2048\0" \
 	"nandrootfstype=ubifs rootwait=1\0" \
 	"nandsrcaddr=0x280000\0" \
@@ -96,16 +97,15 @@
 		"nfsroot=${serverip}:${rootpath},${nfsopts} rw " \
 		"ip=dhcp\0" \
 	"bootenv=uEnv.txt\0" \
-	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
+	"loadbootenv=load mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
 	"importbootenv=echo Importing environment from mmc ...; " \
 		"env import -t $loadaddr $filesize\0" \
 	"ramargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"root=${ramroot} " \
 		"rootfstype=${ramrootfstype}\0" \
-	"loadramdisk=fatload mmc ${mmcdev} ${rdaddr} ramdisk.gz\0" \
-	"loaduimagefat=fatload mmc ${mmcdev} ${loadaddr} ${bootfile}\0" \
-	"loaduimage=ext2load mmc ${mmcdev}:2 ${loadaddr} ${bootfile}\0" \
+	"loadramdisk=load mmc ${mmcdev} ${rdaddr} ramdisk.gz\0" \
+	"loaduimage=load mmc ${bootpart} ${loadaddr} ${bootfile}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"bootm ${loadaddr}\0" \
@@ -194,6 +194,8 @@
 #define CONFIG_DOS_PARTITION
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_EXT2
+#define CONFIG_CMD_EXT4
+#define CONFIG_CMD_FS_GENERIC
 
 #define CONFIG_SPI
 #define CONFIG_OMAP3_SPI
