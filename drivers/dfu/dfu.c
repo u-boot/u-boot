@@ -85,6 +85,7 @@ int dfu_write(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 		/* initial state */
 		dfu->crc = 0;
 		dfu->offset = 0;
+		dfu->bad_skip = 0;
 		dfu->i_blk_seq_num = 0;
 		dfu->i_buf_start = dfu_buf;
 		dfu->i_buf_end = dfu_buf + sizeof(dfu_buf);
@@ -233,6 +234,8 @@ int dfu_read(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 		dfu->i_buf = dfu->i_buf_start;
 		dfu->b_left = 0;
 
+		dfu->bad_skip = 0;
+
 		dfu->inited = 1;
 	}
 
@@ -262,6 +265,8 @@ int dfu_read(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 		dfu->i_buf = dfu->i_buf_start;
 		dfu->b_left = 0;
 
+		dfu->bad_skip = 0;
+
 		dfu->inited = 0;
 	}
 
@@ -283,6 +288,9 @@ static int dfu_fill_entity(struct dfu_entity *dfu, char *s, int alt,
 	/* Specific for mmc device */
 	if (strcmp(interface, "mmc") == 0) {
 		if (dfu_fill_entity_mmc(dfu, s))
+			return -1;
+	} else if (strcmp(interface, "nand") == 0) {
+		if (dfu_fill_entity_nand(dfu, s))
 			return -1;
 	} else {
 		printf("%s: Device %s not (yet) supported!\n",

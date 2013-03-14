@@ -52,6 +52,15 @@ struct mmc_internal_data {
 	unsigned int part;
 };
 
+struct nand_internal_data {
+	/* RAW programming */
+	u64 start;
+	u64 size;
+
+	unsigned int dev;
+	unsigned int part;
+};
+
 static inline unsigned int get_mmc_blk_size(int dev)
 {
 	return find_mmc_device(dev)->read_bl_len;
@@ -74,6 +83,7 @@ struct dfu_entity {
 
 	union {
 		struct mmc_internal_data mmc;
+		struct nand_internal_data nand;
 	} data;
 
 	int (*read_medium)(struct dfu_entity *dfu,
@@ -95,6 +105,8 @@ struct dfu_entity {
 	u8 *i_buf_end;
 	long r_left;
 	long b_left;
+
+	u32 bad_skip;	/* for nand use */
 
 	unsigned int inited:1;
 };
@@ -120,4 +132,15 @@ static inline int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *s)
 	return -1;
 }
 #endif
+
+#ifdef CONFIG_DFU_NAND
+extern int dfu_fill_entity_nand(struct dfu_entity *dfu, char *s);
+#else
+static inline int dfu_fill_entity_nand(struct dfu_entity *dfu, char *s)
+{
+	puts("NAND support not available!\n");
+	return -1;
+}
+#endif
+
 #endif /* __DFU_ENTITY_H_ */
