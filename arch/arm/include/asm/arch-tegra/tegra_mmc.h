@@ -22,10 +22,9 @@
 #ifndef __TEGRA_MMC_H_
 #define __TEGRA_MMC_H_
 
-#define TEGRA_SDMMC1_BASE	0xC8000000
-#define TEGRA_SDMMC2_BASE	0xC8000200
-#define TEGRA_SDMMC3_BASE	0xC8000400
-#define TEGRA_SDMMC4_BASE	0xC8000600
+#include <fdtdec.h>
+
+#define MAX_HOSTS		4	/* Max number of 'hosts'/controllers */
 
 #ifndef __ASSEMBLY__
 struct tegra_mmc {
@@ -62,11 +61,29 @@ struct tegra_mmc {
 	unsigned char	admaerr;	/* offset 54h */
 	unsigned char	res4[3];	/* RESERVED, offset 55h-57h */
 	unsigned long	admaaddr;	/* offset 58h-5Fh */
-	unsigned char	res5[0x9c];	/* RESERVED, offset 60h-FBh */
+	unsigned char	res5[0xa0];	/* RESERVED, offset 60h-FBh */
 	unsigned short	slotintstatus;	/* offset FCh */
 	unsigned short	hcver;		/* HOST Version */
-	unsigned char	res6[0x100];	/* RESERVED, offset 100h-1FFh */
+	unsigned int	venclkctl;	/* _VENDOR_CLOCK_CNTRL_0,    100h */
+	unsigned int	venspictl;	/* _VENDOR_SPI_CNTRL_0,      104h */
+	unsigned int	venspiintsts;	/* _VENDOR_SPI_INT_STATUS_0, 108h */
+	unsigned int	venceatactl;	/* _VENDOR_CEATA_CNTRL_0,    10Ch */
+	unsigned int	venbootctl;	/* _VENDOR_BOOT_CNTRL_0,     110h */
+	unsigned int	venbootacktout;	/* _VENDOR_BOOT_ACK_TIMEOUT, 114h */
+	unsigned int	venbootdattout;	/* _VENDOR_BOOT_DAT_TIMEOUT, 118h */
+	unsigned int	vendebouncecnt;	/* _VENDOR_DEBOUNCE_COUNT_0, 11Ch */
+	unsigned int	venmiscctl;	/* _VENDOR_MISC_CNTRL_0,     120h */
+	unsigned int	res6[47];	/* 0x124 ~ 0x1DC */
+	unsigned int	sdmemcmppadctl;	/* _SDMEMCOMPPADCTRL_0,      1E0h */
+	unsigned int	autocalcfg;	/* _AUTO_CAL_CONFIG_0,       1E4h */
+	unsigned int	autocalintval;	/* _AUTO_CAL_INTERVAL_0,     1E8h */
+	unsigned int	autocalsts;	/* _AUTO_CAL_STATUS_0,       1ECh */
 };
+
+#define TEGRA_MMC_PWRCTL_SD_BUS_POWER				(1 << 0)
+#define TEGRA_MMC_PWRCTL_SD_BUS_VOLTAGE_V1_8			(5 << 1)
+#define TEGRA_MMC_PWRCTL_SD_BUS_VOLTAGE_V3_0			(6 << 1)
+#define TEGRA_MMC_PWRCTL_SD_BUS_VOLTAGE_V3_3			(7 << 1)
 
 #define TEGRA_MMC_HOSTCTL_DMASEL_MASK				(3 << 3)
 #define TEGRA_MMC_HOSTCTL_DMASEL_SDMA				(0 << 3)
@@ -117,15 +134,26 @@ struct tegra_mmc {
 
 #define TEGRA_MMC_NORINTSIGEN_XFER_COMPLETE			(1 << 1)
 
+/* SDMMC1/3 settings from section 24.6 of T30 TRM */
+#define MEMCOMP_PADCTRL_VREF	7
+#define AUTO_CAL_ENABLED	(1 << 29)
+#define AUTO_CAL_PD_OFFSET	(0x70 << 8)
+#define AUTO_CAL_PU_OFFSET	(0x62 << 0)
+
 struct mmc_host {
 	struct tegra_mmc *reg;
+	int id;			/* device id/number, 0-3 */
+	int enabled;		/* 1 to enable, 0 to disable */
+	int width;		/* Bus Width, 1, 4 or 8 */
+	enum periph_id mmc_id;	/* Peripheral ID: PERIPH_ID_... */
+	struct fdt_gpio_state cd_gpio;		/* Change Detect GPIO */
+	struct fdt_gpio_state pwr_gpio;		/* Power GPIO */
+	struct fdt_gpio_state wp_gpio;		/* Write Protect GPIO */
 	unsigned int version;	/* SDHCI spec. version */
 	unsigned int clock;	/* Current clock (MHz) */
-	unsigned int base;	/* Base address, SDMMC1/2/3/4 */
-	enum periph_id mmc_id;	/* Peripheral ID: PERIPH_ID_... */
-	int pwr_gpio;		/* Power GPIO */
-	int cd_gpio;		/* Change Detect GPIO */
 };
+
+void pad_init_mmc(struct mmc_host *host);
 
 #endif	/* __ASSEMBLY__ */
 #endif	/* __TEGRA_MMC_H_ */

@@ -1,6 +1,6 @@
 /dts-v1/;
 
-/include/ ARCH_CPU_DTS
+#include "tegra20.dtsi"
 
 / {
 	model = "NVIDIA Tegra20 Ventana evaluation board";
@@ -8,6 +8,8 @@
 
 	aliases {
 		usb0 = "/usb@c5008000";
+		sdhci0 = "/sdhci@c8000600";
+		sdhci1 = "/sdhci@c8000400";
 	};
 
 	memory {
@@ -40,5 +42,18 @@
 
 	usb@c5004000 {
 		status = "disabled";
+	};
+
+	sdhci@c8000400 {
+		status = "okay";
+		cd-gpios = <&gpio 69 1>; /* gpio PI5 */
+		wp-gpios = <&gpio 57 0>; /* gpio PH1 */
+		power-gpios = <&gpio 70 0>; /* gpio PI6 */
+		bus-width = <4>;
+	};
+
+	sdhci@c8000600 {
+		status = "okay";
+		bus-width = <8>;
 	};
 };

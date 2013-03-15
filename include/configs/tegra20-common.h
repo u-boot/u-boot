@@ -114,13 +114,7 @@
 /* Total I2C ports on Tegra20 */
 #define TEGRA_I2C_NUM_CONTROLLERS	4
 
-#define CONFIG_PARTITION_UUIDS
-#define CONFIG_CMD_PART
-
 #define CONFIG_SYS_NAND_SELF_INIT
 #define CONFIG_SYS_NAND_ONFI_DETECTION
-
-/* Misc utility code */
-#define CONFIG_BOUNCE_BUFFER
 
 #endif /* _TEGRA20_COMMON_H_ */

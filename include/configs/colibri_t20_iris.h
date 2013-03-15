@@ -40,12 +40,6 @@
 #define CONFIG_TEGRA_MMC
 #define CONFIG_CMD_MMC
 
-/* File system support */
-#define CONFIG_DOS_PARTITION
-#define CONFIG_EFI_PARTITION
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
-
 /* USB host support */
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_TEGRA

@@ -27,31 +27,18 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/funcmux.h>
 #include <asm/arch/pinmux.h>
-#include <asm/arch-tegra/mmc.h>
 #include <asm/gpio.h>
 #include <i2c.h>
+
 #ifdef CONFIG_TEGRA_MMC
-#include <mmc.h>
-#endif
-
-
 /*
  * Routine: pin_mux_mmc
  * Description: setup the pin muxes/tristate values for the SDMMC(s)
  */
-static void pin_mux_mmc(void)
-{
-	funcmux_select(PERIPH_ID_SDMMC3, FUNCMUX_SDMMC3_SDB_SLXA_8BIT);
-	funcmux_select(PERIPH_ID_SDMMC4, FUNCMUX_SDMMC4_ATC_ATD_8BIT);
-}
-
-/* this is a weak define that we are overriding */
-int board_mmc_init(bd_t *bd)
+void pin_mux_mmc(void)
 {
 	uchar val;
 	int ret;
-
-	debug("board_mmc_init called\n");
 
 	/* Turn on MAX8907B LDO12 to 2.8V for J40 power */
 	ret = i2c_set_bus_num(0);
@@ -70,17 +57,10 @@ int board_mmc_init(bd_t *bd)
 	if (ret)
 		printf("i2c_write 0 0x3c 0x44 failed: %d\n", ret);
 
-	/* Enable muxes, etc. for SDMMC controllers */
-	pin_mux_mmc();
-
-	/* init dev 0 (SDMMC4), (J29 "HSMMC") with 8-bit bus */
-	tegra_mmc_init(0, 8, -1, -1);
-
-	/* init dev 1 (SDMMC3), (J40 "SDIO3") with 8-bit bus */
-	tegra_mmc_init(1, 8, -1, -1);
-
-	return 0;
+	funcmux_select(PERIPH_ID_SDMMC3, FUNCMUX_SDMMC3_SDB_SLXA_8BIT);
+	funcmux_select(PERIPH_ID_SDMMC4, FUNCMUX_SDMMC4_ATC_ATD_8BIT);
 }
+#endif
 
 /* this is a weak define that we are overriding */
 void pin_mux_usb(void)

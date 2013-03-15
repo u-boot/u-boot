@@ -76,4 +76,7 @@
 
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/tegra114/u-boot-spl.lds"
 
+/* Total I2C ports on Tegra114 */
+#define TEGRA_I2C_NUM_CONTROLLERS	5
+
 #endif /* _TEGRA114_COMMON_H_ */

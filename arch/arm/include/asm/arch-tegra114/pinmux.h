@@ -50,72 +50,12 @@ enum pmux_pingrp {
 	PINGRP_SDMMC1_DAT2,
 	PINGRP_SDMMC1_DAT1,
 	PINGRP_SDMMC1_DAT0,
-	PINGRP_GPIO_PV2,
-	PINGRP_GPIO_PV3,
-	PINGRP_CLK2_OUT,
+	PINGRP_CLK2_OUT = PINGRP_SDMMC1_DAT0 + 3,
 	PINGRP_CLK2_REQ,
-	PINGRP_LCD_PWR1,
-	PINGRP_LCD_PWR2,
-	PINGRP_LCD_SDIN,
-	PINGRP_LCD_SDOUT,
-	PINGRP_LCD_WR_N,
-	PINGRP_LCD_CS0_N,
-	PINGRP_LCD_DC0,
-	PINGRP_LCD_SCK,
-	PINGRP_LCD_PWR0,
-	PINGRP_LCD_PCLK,
-	PINGRP_LCD_DE,
-	PINGRP_LCD_HSYNC,
-	PINGRP_LCD_VSYNC,
-	PINGRP_LCD_D0,
-	PINGRP_LCD_D1,
-	PINGRP_LCD_D2,
-	PINGRP_LCD_D3,
-	PINGRP_LCD_D4,
-	PINGRP_LCD_D5,
-	PINGRP_LCD_D6,
-	PINGRP_LCD_D7,
-	PINGRP_LCD_D8,
-	PINGRP_LCD_D9,
-	PINGRP_LCD_D10,
-	PINGRP_LCD_D11,
-	PINGRP_LCD_D12,
-	PINGRP_LCD_D13,
-	PINGRP_LCD_D14,
-	PINGRP_LCD_D15,
-	PINGRP_LCD_D16,
-	PINGRP_LCD_D17,
-	PINGRP_LCD_D18,
-	PINGRP_LCD_D19,
-	PINGRP_LCD_D20,
-	PINGRP_LCD_D21,
-	PINGRP_LCD_D22,
-	PINGRP_LCD_D23,
-	PINGRP_LCD_CS1_N,
-	PINGRP_LCD_M1,
-	PINGRP_LCD_DC1,
-	PINGRP_HDMI_INT,
+	PINGRP_HDMI_INT = PINGRP_CLK2_REQ + 41,
 	PINGRP_DDC_SCL,
 	PINGRP_DDC_SDA,
-	PINGRP_CRT_HSYNC,
-	PINGRP_CRT_VSYNC,
-	PINGRP_VI_D0,
-	PINGRP_VI_D1,
-	PINGRP_VI_D2,
-	PINGRP_VI_D3,
-	PINGRP_VI_D4,
-	PINGRP_VI_D5,
-	PINGRP_VI_D6,
-	PINGRP_VI_D7,
-	PINGRP_VI_D8,
-	PINGRP_VI_D9,
-	PINGRP_VI_D10,
-	PINGRP_VI_D11,
-	PINGRP_VI_PCLK,
-	PINGRP_VI_MCLK,
-	PINGRP_VI_VSYNC,
-	PINGRP_VI_HSYNC,
-	PINGRP_UART2_RXD,
+	PINGRP_UART2_RXD = PINGRP_DDC_SDA + 19,
 	PINGRP_UART2_TXD,
 	PINGRP_UART2_RTS_N,
 	PINGRP_UART2_CTS_N,
@@ -186,8 +126,7 @@ enum pmux_pingrp {
 	PINGRP_SDMMC4_DAT5,
 	PINGRP_SDMMC4_DAT6,
 	PINGRP_SDMMC4_DAT7,
-	PINGRP_SDMMC4_RST_N,
-	PINGRP_CAM_MCLK,
+	PINGRP_CAM_MCLK = PINGRP_SDMMC4_DAT7 + 2,
 	PINGRP_GPIO_PCC1,
 	PINGRP_GPIO_PBB0,
 	PINGRP_CAM_I2C_SCL,
@@ -212,12 +151,7 @@ enum pmux_pingrp {
 	PINGRP_KB_ROW8,
 	PINGRP_KB_ROW9,
 	PINGRP_KB_ROW10,
-	PINGRP_KB_ROW11,
-	PINGRP_KB_ROW12,
-	PINGRP_KB_ROW13,
-	PINGRP_KB_ROW14,
-	PINGRP_KB_ROW15,
-	PINGRP_KB_COL0,
+	PINGRP_KB_COL0 = PINGRP_KB_ROW10 + 6,
 	PINGRP_KB_COL1,
 	PINGRP_KB_COL2,
 	PINGRP_KB_COL3,
@@ -244,47 +178,30 @@ enum pmux_pingrp {
 	PINGRP_DAP2_DIN,
 	PINGRP_DAP2_DOUT,
 	PINGRP_DAP2_SCLK,
-	PINGRP_SPI2_MOSI,
-	PINGRP_SPI2_MISO,
-	PINGRP_SPI2_CS0_N,
-	PINGRP_SPI2_SCK,
-	PINGRP_SPI1_MOSI,
-	PINGRP_SPI1_SCK,
-	PINGRP_SPI1_CS0_N,
-	PINGRP_SPI1_MISO,
-	PINGRP_SPI2_CS1_N,
-	PINGRP_SPI2_CS2_N,
-	PINGRP_SDMMC3_CLK,
+	PINGRP_DVFS_PWM,
+	PINGRP_GPIO_X1_AUD,
+	PINGRP_GPIO_X3_AUD,
+	PINGRP_DVFS_CLK,
+	PINGRP_GPIO_X4_AUD,
+	PINGRP_GPIO_X5_AUD,
+	PINGRP_GPIO_X6_AUD,
+	PINGRP_GPIO_X7_AUD,
+	PINGRP_SDMMC3_CLK = PINGRP_GPIO_X7_AUD + 3,
 	PINGRP_SDMMC3_CMD,
 	PINGRP_SDMMC3_DAT0,
 	PINGRP_SDMMC3_DAT1,
 	PINGRP_SDMMC3_DAT2,
 	PINGRP_SDMMC3_DAT3,
-	PINGRP_SDMMC3_DAT4,
-	PINGRP_SDMMC3_DAT5,
-	PINGRP_SDMMC3_DAT6,
-	PINGRP_SDMMC3_DAT7,
-	PINGRP_PEX_L0_PRSNT_N,
-	PINGRP_PEX_L0_RST_N,
-	PINGRP_PEX_L0_CLKREQ_N,
-	PINGRP_PEX_WAKE_N,
-	PINGRP_PEX_L1_PRSNT_N,
-	PINGRP_PEX_L1_RST_N,
-	PINGRP_PEX_L1_CLKREQ_N,
-	PINGRP_PEX_L2_PRSNT_N,
-	PINGRP_PEX_L2_RST_N,
-	PINGRP_PEX_L2_CLKREQ_N,
-	PINGRP_HDMI_CEC,	/* offset 0x33e0 */
+	PINGRP_HDMI_CEC = PINGRP_SDMMC3_DAT3 + 15, /* offset 0x33e0 */
 	PINGRP_SDMMC1_WP_N,
 	PINGRP_SDMMC3_CD_N,
-	PINGRP_SPI1_CS1_N,
-	PINGRP_SPI1_CS2_N,
-	PINGRP_USB_VBUS_EN0,    /* offset 0x33f4 */
+	PINGRP_GPIO_W2_AUD,
+	PINGRP_GPIO_W3_AUD,
+	PINGRP_USB_VBUS_EN0,	/* offset 0x33f4 */
 	PINGRP_USB_VBUS_EN1,
 	PINGRP_SDMMC3_CLK_LB_IN,
 	PINGRP_SDMMC3_CLK_LB_OUT,
-	PINGRP_NAND_GMI_CLK_LB,
-	PINGRP_RESET_OUT_N,
+	PINGRP_RESET_OUT_N = PINGRP_SDMMC3_CLK_LB_OUT + 2,
 	PINGRP_COUNT,
 };
 
@@ -298,41 +215,35 @@ enum pdrive_pingrp {
 	PDRIVE_PINGROUP_AT5,
 	PDRIVE_PINGROUP_CDEV1,
 	PDRIVE_PINGROUP_CDEV2,
-	PDRIVE_PINGROUP_CSUS,
-	PDRIVE_PINGROUP_DAP1,
+	PDRIVE_PINGROUP_DAP1 = 10,	/* offset 0x890 */
 	PDRIVE_PINGROUP_DAP2,
 	PDRIVE_PINGROUP_DAP3,
 	PDRIVE_PINGROUP_DAP4,
 	PDRIVE_PINGROUP_DBG,
-	PDRIVE_PINGROUP_LCD1,
-	PDRIVE_PINGROUP_LCD2,
-	PDRIVE_PINGROUP_SDIO2,
-	PDRIVE_PINGROUP_SDIO3,
+	PDRIVE_PINGROUP_SDIO3 = 18,	/* offset 0x8B0 */
 	PDRIVE_PINGROUP_SPI,
 	PDRIVE_PINGROUP_UAA,
 	PDRIVE_PINGROUP_UAB,
 	PDRIVE_PINGROUP_UART2,
 	PDRIVE_PINGROUP_UART3,
-	PDRIVE_PINGROUP_VI1 = 24,       /* offset 0x8c8 */
-	PDRIVE_PINGROUP_SDIO1 = 33,     /* offset 0x8ec */
-	PDRIVE_PINGROUP_CRT = 36,       /* offset 0x8f8 */
-	PDRIVE_PINGROUP_DDC,
+	PDRIVE_PINGROUP_SDIO1 = 33,     /* offset 0x8EC */
+	PDRIVE_PINGROUP_DDC = 37,       /* offset 0x8FC */
 	PDRIVE_PINGROUP_GMA,
-	PDRIVE_PINGROUP_GMB,
-	PDRIVE_PINGROUP_GMC,
-	PDRIVE_PINGROUP_GMD,
-	PDRIVE_PINGROUP_GME,
+	PDRIVE_PINGROUP_GME = 42,	/* offset 0x910 */
 	PDRIVE_PINGROUP_GMF,
 	PDRIVE_PINGROUP_GMG,
 	PDRIVE_PINGROUP_GMH,
 	PDRIVE_PINGROUP_OWR,
 	PDRIVE_PINGROUP_UAD,
-	PDRIVE_PINGROUP_GPV,
 	PDRIVE_PINGROUP_DEV3 = 49,      /* offset 0x92c */
 	PDRIVE_PINGROUP_CEC = 52,       /* offset 0x938 */
-	PDRIVE_PINGROUP_AT6,
+	PDRIVE_PINGROUP_AT6 = 75,	/* offset 0x994 */
 	PDRIVE_PINGROUP_DAP5,
 	PDRIVE_PINGROUP_VBUS,
+	PDRIVE_PINGROUP_AO3,
+	PDRIVE_PINGROUP_HVC,
+	PDRIVE_PINGROUP_SDIO4,
+	PDRIVE_PINGROUP_AO0,
 	PDRIVE_PINGROUP_COUNT,
 };
 
@@ -401,6 +312,7 @@ enum pmux_func {
 	PMUX_FUNC_VI,
 	PMUX_FUNC_VI_SENSOR_CLK,
 	PMUX_FUNC_XIO,
+	/* End of Tegra2 MUX selectors */
 	PMUX_FUNC_BLINK,
 	PMUX_FUNC_CEC,
 	PMUX_FUNC_CLK12,
@@ -444,7 +356,7 @@ enum pmux_func {
 	PMUX_FUNC_VGP4,
 	PMUX_FUNC_VGP5,
 	PMUX_FUNC_VGP6,
-
+	/* End of Tegra3 MUX selectors */
 	PMUX_FUNC_USB,
 	PMUX_FUNC_SOC,
 	PMUX_FUNC_CPU,
@@ -453,10 +365,12 @@ enum pmux_func {
 	PMUX_FUNC_PMI,
 	PMUX_FUNC_CLDVFS,
 	PMUX_FUNC_RESET_OUT_N,
+	/* End of Tegra114 MUX selectors */
 
 	PMUX_FUNC_SAFE,
 	PMUX_FUNC_MAX,
 
+	PMUX_FUNC_INVALID = 0x4000,
 	PMUX_FUNC_RSVD1 = 0x8000,
 	PMUX_FUNC_RSVD2 = 0x8001,
 	PMUX_FUNC_RSVD3 = 0x8002,
@@ -492,6 +406,7 @@ enum pmux_tristate {
 enum pmux_pin_io {
 	PMUX_PIN_OUTPUT = 0,
 	PMUX_PIN_INPUT = 1,
+	PMUX_PIN_NONE,
 };
 /* return 1 if a pin_io_is in range */
 #define pmux_pin_io_isvalid(io) (((io) >= PMUX_PIN_OUTPUT) && \
@@ -525,6 +440,16 @@ enum pmux_pin_ioreset {
 				(((ioreset) >= PMUX_PIN_IO_RESET_DEFAULT) && \
 				((ioreset) <= PMUX_PIN_IO_RESET_ENABLE))
 
+enum pmux_pin_rcv_sel {
+	PMUX_PIN_RCV_SEL_DEFAULT = 0,
+	PMUX_PIN_RCV_SEL_NORMAL,
+	PMUX_PIN_RCV_SEL_HIGH,
+};
+/* return 1 if a pin_rcv_sel_is in range */
+#define pmux_pin_rcv_sel_isvalid(rcv_sel) \
+				(((rcv_sel) >= PMUX_PIN_RCV_SEL_DEFAULT) && \
+				((rcv_sel) <= PMUX_PIN_RCV_SEL_HIGH))
+
 /* Available power domains used by pin groups */
 enum pmux_vddio {
 	PMUX_VDDIO_BB = 0,
@@ -546,10 +471,73 @@ enum pmux_vddio {
 	PMUX_VDDIO_NONE
 };
 
-/* T114 pin drive group and pin mux registers */
-#define PDRIVE_PINGROUP_OFFSET  (0x868 >> 2)
-#define PMUX_OFFSET     ((0x3000 >> 2) - PDRIVE_PINGROUP_OFFSET - \
-			PDRIVE_PINGROUP_COUNT)
+#define PGRP_SLWF_NONE	-1
+#define PGRP_SLWF_MAX	3
+#define PGRP_SLWR_NONE	PGRP_SLWF_NONE
+#define PGRP_SLWR_MAX	PGRP_SLWF_MAX
+
+#define PGRP_DRVUP_NONE	-1
+#define PGRP_DRVUP_MAX	127
+#define PGRP_DRVDN_NONE	PGRP_DRVUP_NONE
+#define PGRP_DRVDN_MAX	PGRP_DRVUP_MAX
+
+#define PGRP_SCHMT_NONE	-1
+#define PGRP_HSM_NONE	PGRP_SCHMT_NONE
+
+/* return 1 if a padgrp is in range */
+#define pmux_padgrp_isvalid(pd) (((pd) >= 0) && ((pd) < PDRIVE_PINGROUP_COUNT))
+
+/* return 1 if a slew-rate rising/falling edge value is in range */
+#define pmux_pad_slw_isvalid(slw) (((slw) == PGRP_SLWF_NONE) || \
+				(((slw) >= 0) && ((slw) <= PGRP_SLWF_MAX)))
+
+/* return 1 if a driver output pull-up/down strength code value is in range */
+#define pmux_pad_drv_isvalid(drv) (((drv) == PGRP_DRVUP_NONE) || \
+				(((drv) >= 0) && ((drv) <= PGRP_DRVUP_MAX)))
+
+/* return 1 if a low-power mode value is in range */
+#define pmux_pad_lpmd_isvalid(lpm) (((lpm) == PGRP_LPMD_NONE) || \
+				(((lpm) >= 0) && ((lpm) <= PGRP_LPMD_X)))
+
+/* Defines a pin group cfg's low-power mode select */
+enum pgrp_lpmd {
+	PGRP_LPMD_X8 = 0,
+	PGRP_LPMD_X4,
+	PGRP_LPMD_X2,
+	PGRP_LPMD_X,
+	PGRP_LPMD_NONE = -1,
+};
+
+/* Defines whether a pin group cfg's schmidt is enabled or not */
+enum pgrp_schmt {
+	PGRP_SCHMT_DISABLE = 0,
+	PGRP_SCHMT_ENABLE = 1,
+};
+
+/* Defines whether a pin group cfg's high-speed mode is enabled or not */
+enum pgrp_hsm {
+	PGRP_HSM_DISABLE = 0,
+	PGRP_HSM_ENABLE = 1,
+};
+
+/*
+ * This defines the configuration for a pin group's pad control config
+ */
+struct padctrl_config {
+	enum pdrive_pingrp padgrp;	/* pin group PDRIVE_PINGRP_x */
+	int slwf;			/* falling edge slew         */
+	int slwr;			/* rising edge slew          */
+	int drvup;			/* pull-up drive strength    */
+	int drvdn;			/* pull-down drive strength  */
+	enum pgrp_lpmd lpmd;		/* low-power mode selection  */
+	enum pgrp_schmt schmt;		/* schmidt enable            */
+	enum pgrp_hsm hsm;		/* high-speed mode enable    */
+};
+
+/* t114 pin drive group and pin mux registers */
+#define PDRIVE_PINGROUP_OFFSET	(0x868 >> 2)
+#define PMUX_OFFSET	((0x3000 >> 2) - PDRIVE_PINGROUP_OFFSET - \
+				PDRIVE_PINGROUP_COUNT)
 struct pmux_tri_ctlr {
 	uint pmt_reserved0;		/* ABP_MISC_PP_ reserved offset 00 */
 	uint pmt_reserved1;		/* ABP_MISC_PP_ reserved offset 04 */
@@ -581,6 +569,8 @@ struct pingroup_config {
 	enum pmux_pin_lock lock;	/* lock enable/disable PMUX_PIN...  */
 	enum pmux_pin_od od;		/* open-drain or push-pull driver  */
 	enum pmux_pin_ioreset ioreset;	/* input/output reset PMUX_PIN...  */
+	enum pmux_pin_rcv_sel rcv_sel;	/* select between High and Normal  */
+					/* VIL/VIH receivers */
 };
 
 /* Set a pin group to tristate */
@@ -615,4 +605,12 @@ void pinmux_config_table(struct pingroup_config *config, int len);
 /* Set a group of pins from a table */
 void pinmux_init(void);
 
-#endif  /* _TEGRA114_PINMUX_H_ */
+/**
+ * Set the GP pad configs
+ *
+ * @param config	List of config items
+ * @param len		Number of config items in list
+ */
+void padgrp_config_table(struct padctrl_config *config, int len);
+
+#endif	/* _TEGRA114_PINMUX_H_ */

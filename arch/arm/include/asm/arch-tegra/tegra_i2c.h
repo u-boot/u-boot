@@ -105,6 +105,7 @@ struct i2c_ctlr {
 	u32 sl_delay_count;		/* 3C: I2C_I2C_SL_DELAY_COUNT */
 	u32 reserved_2[4];		/* 40: */
 	struct i2c_control control;	/* 50 ~ 68 */
+	u32 clk_div;			/* 6C: I2C_I2C_CLOCK_DIVISOR */
 };
 
 /* bit fields definitions for IO Packet Header 1 format */
@@ -153,6 +154,11 @@ struct i2c_ctlr {
 #define I2C_INT_NO_ACK_MASK		(1 << I2C_INT_NO_ACK_SHIFT)
 #define I2C_INT_ARBITRATION_LOST_SHIFT	2
 #define I2C_INT_ARBITRATION_LOST_MASK	(1 << I2C_INT_ARBITRATION_LOST_SHIFT)
+
+/* I2C_CLK_DIVISOR_REGISTER */
+#define CLK_DIV_STD_FAST_MODE		0x19
+#define CLK_DIV_HS_MODE			1
+#define CLK_MULT_STD_FAST_MODE		8
 
 /**
  * Returns the bus number of the DVC controller

@@ -27,12 +27,8 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/funcmux.h>
 #include <asm/arch/pinmux.h>
-#include <asm/arch-tegra/mmc.h>
 #include <asm/gpio.h>
 #include <i2c.h>
-#ifdef CONFIG_TEGRA_MMC
-#include <mmc.h>
-#endif
 
 void pin_mux_usb(void)
 {
@@ -52,28 +48,11 @@ void pin_mux_spi(void)
  * Routine: pin_mux_mmc
  * Description: setup the pin muxes/tristate values for the SDMMC(s)
  */
-static void pin_mux_mmc(void)
+void pin_mux_mmc(void)
 {
 	funcmux_select(PERIPH_ID_SDMMC1, FUNCMUX_SDMMC1_SDIO1_4BIT);
 	funcmux_select(PERIPH_ID_SDMMC4, FUNCMUX_SDMMC4_ATB_GMA_4_BIT);
 
 	/* For CD GPIO PP1 */
 	pinmux_tristate_disable(PINGRP_DAP3);
-}
-
-/* this is a weak define that we are overriding */
-int board_mmc_init(bd_t *bd)
-{
-	debug("board_mmc_init called\n");
-
-	/* Enable muxes, etc. for SDMMC controllers */
-	pin_mux_mmc();
-
-	/* init dev 0 (SDMMC4), (micro-SD slot) with 4-bit bus */
-	tegra_mmc_init(0, 4, -1, GPIO_PP1);
-
-	/* init dev 3 (SDMMC1), (SD slot) with 4-bit bus */
-	tegra_mmc_init(3, 4, -1, -1);
-
-	return 0;
 }

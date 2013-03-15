@@ -29,7 +29,6 @@
 #include <asm/arch-tegra/tegra.h>
 
 #define TEGRA_USB1_BASE		0xC5000000
-#define TEGRA_USB3_BASE		0xC5008000
 
 #define BCT_ODMDATA_OFFSET	4068	/* 12 bytes from end of BCT */
 

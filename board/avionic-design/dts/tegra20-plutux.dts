@@ -1,6 +1,6 @@
 /dts-v1/;
 
-/include/ ARCH_CPU_DTS
+#include "tegra20-tamonten.dtsi"
 
 / {
 	model = "Avionic Design Plutux";
@@ -8,6 +8,7 @@
 
 	aliases {
 		usb0 = "/usb@c5008000";
+		sdhci0 = "/sdhci@c8000600";
 	};
 
 	memory {

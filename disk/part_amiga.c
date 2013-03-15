@@ -26,11 +26,7 @@
 #include <ide.h>
 #include "part_amiga.h"
 
-#if defined(CONFIG_CMD_IDE) || \
-    defined(CONFIG_CMD_SCSI) || \
-    defined(CONFIG_CMD_USB) || \
-    defined(CONFIG_MMC) || \
-    defined(CONFIG_SYSTEMACE)
+#ifdef HAVE_BLOCK_DEVICE
 
 #undef AMIGA_DEBUG
 

@@ -37,6 +37,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(UNKNOWN, "<none>"),
 	COMPAT(NVIDIA_TEGRA20_USB, "nvidia,tegra20-ehci"),
+	COMPAT(NVIDIA_TEGRA114_I2C, "nvidia,tegra114-i2c"),
 	COMPAT(NVIDIA_TEGRA20_I2C, "nvidia,tegra20-i2c"),
 	COMPAT(NVIDIA_TEGRA20_DVC, "nvidia,tegra20-i2c-dvc"),
 	COMPAT(NVIDIA_TEGRA20_EMC, "nvidia,tegra20-emc"),
@@ -45,6 +46,8 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(NVIDIA_TEGRA20_NAND, "nvidia,tegra20-nand"),
 	COMPAT(NVIDIA_TEGRA20_PWM, "nvidia,tegra20-pwm"),
 	COMPAT(NVIDIA_TEGRA20_DC, "nvidia,tegra20-dc"),
+	COMPAT(NVIDIA_TEGRA30_SDMMC, "nvidia,tegra30-sdhci"),
+	COMPAT(NVIDIA_TEGRA20_SDMMC, "nvidia,tegra20-sdhci"),
 	COMPAT(NVIDIA_TEGRA20_SFLASH, "nvidia,tegra20-sflash"),
 	COMPAT(NVIDIA_TEGRA20_SLINK, "nvidia,tegra20-slink"),
 	COMPAT(SMSC_LAN9215, "smsc,lan9215"),
