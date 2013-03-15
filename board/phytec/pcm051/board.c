@@ -159,7 +159,7 @@ void s_init(void)
 	enable_board_pin_mux();
 
 	config_ddr(DDR_CLK_MHZ, MT41J256M8HX15E_IOCTRL_VALUE, &ddr3_data,
-			&ddr3_cmd_ctrl_data, &ddr3_emif_reg_data);
+			&ddr3_cmd_ctrl_data, &ddr3_emif_reg_data, 0);
 #endif
 }
 

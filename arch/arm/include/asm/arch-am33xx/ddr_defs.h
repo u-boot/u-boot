@@ -103,17 +103,57 @@
 /**
  * Configure SDRAM
  */
-void config_sdram(const struct emif_regs *regs);
+void config_sdram(const struct emif_regs *regs, int nr);
 
 /**
  * Set SDRAM timings
  */
-void set_sdram_timings(const struct emif_regs *regs);
+void set_sdram_timings(const struct emif_regs *regs, int nr);
 
 /**
  * Configure DDR PHY
  */
-void config_ddr_phy(const struct emif_regs *regs);
+void config_ddr_phy(const struct emif_regs *regs, int nr);
+
+struct ddr_cmd_regs {
+	unsigned int resv0[7];
+	unsigned int cm0csratio;	/* offset 0x01C */
+	unsigned int resv1[2];
+	unsigned int cm0dldiff;		/* offset 0x028 */
+	unsigned int cm0iclkout;	/* offset 0x02C */
+	unsigned int resv2[8];
+	unsigned int cm1csratio;	/* offset 0x050 */
+	unsigned int resv3[2];
+	unsigned int cm1dldiff;		/* offset 0x05C */
+	unsigned int cm1iclkout;	/* offset 0x060 */
+	unsigned int resv4[8];
+	unsigned int cm2csratio;	/* offset 0x084 */
+	unsigned int resv5[2];
+	unsigned int cm2dldiff;		/* offset 0x090 */
+	unsigned int cm2iclkout;	/* offset 0x094 */
+	unsigned int resv6[3];
+};
+
+struct ddr_data_regs {
+	unsigned int dt0rdsratio0;	/* offset 0x0C8 */
+	unsigned int resv1[4];
+	unsigned int dt0wdsratio0;	/* offset 0x0DC */
+	unsigned int resv2[4];
+	unsigned int dt0wiratio0;	/* offset 0x0F0 */
+	unsigned int resv3;
+	unsigned int dt0wimode0;	/* offset 0x0F8 */
+	unsigned int dt0giratio0;	/* offset 0x0FC */
+	unsigned int resv4;
+	unsigned int dt0gimode0;	/* offset 0x104 */
+	unsigned int dt0fwsratio0;	/* offset 0x108 */
+	unsigned int resv5[4];
+	unsigned int dt0dqoffset;	/* offset 0x11C */
+	unsigned int dt0wrsratio0;	/* offset 0x120 */
+	unsigned int resv6[4];
+	unsigned int dt0rdelays0;	/* offset 0x134 */
+	unsigned int dt0dldiff0;	/* offset 0x138 */
+	unsigned int resv7[12];
+};
 
 /**
  * This structure represents the DDR registers on AM33XX devices.
@@ -194,12 +234,12 @@ struct ddr_data {
 /**
  * Configure DDR CMD control registers
  */
-void config_cmd_ctrl(const struct cmd_control *cmd);
+void config_cmd_ctrl(const struct cmd_control *cmd, int nr);
 
 /**
  * Configure DDR DATA registers
  */
-void config_ddr_data(int data_macrono, const struct ddr_data *data);
+void config_ddr_data(const struct ddr_data *data, int nr);
 
 /**
  * This structure represents the DDR io control on AM33XX devices.
@@ -227,6 +267,6 @@ struct ddr_ctrl {
 
 void config_ddr(unsigned int pll, unsigned int ioctrl,
 		const struct ddr_data *data, const struct cmd_control *ctrl,
-		const struct emif_regs *regs);
+		const struct emif_regs *regs, int nr);
 
 #endif  /* _DDR_DEFS_H */

@@ -3,7 +3,7 @@
  *
  * hardware specific header
  *
- * Copyright (C) 2011, Texas Instruments, Incorporated - http://www.ti.com/
+ * Copyright (C) 2013, Texas Instruments, Incorporated - http://www.ti.com/
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,6 +20,11 @@
 #define __AM33XX_HARDWARE_H
 
 #include <asm/arch/omap.h>
+#ifdef CONFIG_AM33XX
+#include <asm/arch/hardware_am33xx.h>
+#elif defined(CONFIG_TI814X)
+#include <asm/arch/hardware_ti814x.h>
+#endif
 
 /* Module base addresses */
 #define UART0_BASE			0x44E09000
@@ -66,13 +71,13 @@
 #define PRM_DEVICE			0x44E00F00
 
 /* VTP Base address */
-#define VTP0_CTRL_ADDR			0x44E10E0C
+#define VTP1_CTRL_ADDR			0x48140E10
 
 /* DDR Base address */
 #define DDR_CTRL_ADDR			0x44E10E04
 #define DDR_CONTROL_BASE_ADDR		0x44E11404
-#define DDR_PHY_BASE_ADDR		0x44E12000
-#define DDR_PHY_BASE_ADDR2		0x44E120A4
+#define DDR_PHY_CMD_ADDR2		0x47C0C800
+#define DDR_PHY_DATA_ADDR2		0x47C0C8C8
 
 /* UART */
 #define DEFAULT_UART_BASE		UART0_BASE

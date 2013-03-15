@@ -345,13 +345,13 @@ void s_init(void)
 
 	if (board_is_evm_sk() || board_is_bone_lt())
 		config_ddr(303, MT41J128MJT125_IOCTRL_VALUE, &ddr3_data,
-			   &ddr3_cmd_ctrl_data, &ddr3_emif_reg_data);
+			   &ddr3_cmd_ctrl_data, &ddr3_emif_reg_data, 0);
 	else if (board_is_evm_15_or_later())
 		config_ddr(303, MT41J512M8RH125_IOCTRL_VALUE, &ddr3_evm_data,
-			   &ddr3_evm_cmd_ctrl_data, &ddr3_evm_emif_reg_data);
+			   &ddr3_evm_cmd_ctrl_data, &ddr3_evm_emif_reg_data, 0);
 	else
 		config_ddr(266, MT47H128M16RT25E_IOCTRL_VALUE, &ddr2_data,
-			   &ddr2_cmd_ctrl_data, &ddr2_emif_reg_data);
+			   &ddr2_cmd_ctrl_data, &ddr2_emif_reg_data, 0);
 #endif
 }
 
