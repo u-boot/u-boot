@@ -19,6 +19,7 @@
 #ifndef __AM33XX_HARDWARE_H
 #define __AM33XX_HARDWARE_H
 
+#include <config.h>
 #include <asm/arch/omap.h>
 #ifdef CONFIG_AM33XX
 #include <asm/arch/hardware_am33xx.h>
@@ -26,8 +27,9 @@
 #include <asm/arch/hardware_ti814x.h>
 #endif
 
-/* Module base addresses */
-#define UART0_BASE			0x44E09000
+/*
+ * Common hardware definitions
+ */
 
 /* DM Timer base addresses */
 #define DM_TIMER0_BASE			0x4802C000
@@ -42,20 +44,9 @@
 /* GPIO Base address */
 #define GPIO0_BASE			0x48032000
 #define GPIO1_BASE			0x4804C000
-#define GPIO2_BASE			0x481AC000
 
 /* BCH Error Location Module */
 #define ELM_BASE			0x48080000
-
-/* Watchdog Timer */
-#define WDT_BASE			0x44E35000
-
-/* Control Module Base Address */
-#define CTRL_BASE			0x44E10000
-#define CTRL_DEVICE_BASE		0x44E10600
-
-/* PRCM Base Address */
-#define PRCM_BASE			0x44E00000
 
 /* EMIF Base address */
 #define EMIF4_0_CFG_BASE		0x4C000000
@@ -90,10 +81,6 @@
 
 /* CPSW Config space */
 #define CPSW_BASE			0x4A100000
-#define CPSW_MDIO_BASE			0x4A101000
-
-/* RTC base address */
-#define RTC_BASE			0x44E3E000
 
 /* OTG */
 #define USB0_OTG_BASE			0x47401000

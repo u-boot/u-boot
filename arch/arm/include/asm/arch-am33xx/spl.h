@@ -25,8 +25,13 @@
 
 #define BOOT_DEVICE_XIP       	2
 #define BOOT_DEVICE_NAND	5
+#ifdef CONFIG_AM33XX
 #define BOOT_DEVICE_MMC1	8
 #define BOOT_DEVICE_MMC2	9	/* eMMC or daughter card */
+#elif defined(CONFIG_TI814X)
+#define BOOT_DEVICE_MMC1	9
+#define BOOT_DEVICE_MMC2	8	/* ROM only supports 2nd instance */
+#endif
 #define BOOT_DEVICE_SPI		11
 #define BOOT_DEVICE_UART	65
 #define BOOT_DEVICE_USBETH	68

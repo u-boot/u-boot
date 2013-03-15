@@ -98,6 +98,9 @@ int print_cpuinfo(void)
 	case AM335X:
 		cpu_s = "AM335X";
 		break;
+	case TI81XX:
+		cpu_s = "TI81XX";
+		break;
 	default:
 		cpu_s = "Unknown cpu type";
 		break;
