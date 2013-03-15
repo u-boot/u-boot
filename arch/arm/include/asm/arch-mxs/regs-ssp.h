@@ -74,6 +74,32 @@ struct mxs_ssp_regs {
 };
 #endif
 
+static inline int mxs_ssp_bus_id_valid(int bus)
+{
+#if defined(CONFIG_MX23)
+	const unsigned int mxs_ssp_chan_count = 2;
+#elif defined(CONFIG_MX28)
+	const unsigned int mxs_ssp_chan_count = 4;
+#endif
+
+	if (bus >= mxs_ssp_chan_count)
+		return 0;
+
+	if (bus < 0)
+		return 0;
+
+	return 1;
+}
+
+static inline int mxs_ssp_clock_by_bus(unsigned int clock)
+{
+#if defined(CONFIG_MX23)
+	return 0;
+#elif defined(CONFIG_MX28)
+	return clock;
+#endif
+}
+
 static inline struct mxs_ssp_regs *mxs_ssp_regs_by_bus(unsigned int port)
 {
 	switch (port) {

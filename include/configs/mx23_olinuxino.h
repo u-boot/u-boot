@@ -19,6 +19,8 @@
 #ifndef __MX23_OLINUXINO_CONFIG_H__
 #define __MX23_OLINUXINO_CONFIG_H__
 
+#include <asm/arch/iomux-mx23.h>
+
 /*
  * SoC configurations
  */
@@ -53,10 +55,14 @@
 #define	CONFIG_DOS_PARTITION
 
 #define	CONFIG_CMD_CACHE
+#define	CONFIG_CMD_DHCP
 #define	CONFIG_CMD_EXT2
 #define	CONFIG_CMD_FAT
 #define	CONFIG_CMD_GPIO
+#define	CONFIG_CMD_LED
 #define	CONFIG_CMD_MMC
+#define	CONFIG_CMD_NET
+#define	CONFIG_CMD_USB
 
 /*
  * Memory configurations
@@ -112,6 +118,17 @@
 #define	CONFIG_BAUDRATE			115200	/* Default baud rate */
 
 /*
+ * Status LED
+ */
+#define	CONFIG_STATUS_LED
+#define	CONFIG_GPIO_LED
+#define	CONFIG_BOARD_SPECIFIC_LED
+#define	STATUS_LED_BOOT	0
+#define	STATUS_LED_BIT	MX23_PAD_SSP1_DETECT__GPIO_2_1
+#define	STATUS_LED_STATE	STATUS_LED_ON
+#define	STATUS_LED_PERIOD	(CONFIG_SYS_HZ / 2)
+
+/*
  * MMC Driver
  */
 #ifdef	CONFIG_CMD_MMC
@@ -125,6 +142,22 @@
  * APBH DMA
  */
 #define CONFIG_APBH_DMA
+
+/* USB */
+#ifdef	CONFIG_CMD_USB
+#define	CONFIG_USB_EHCI
+#define	CONFIG_USB_EHCI_MXS
+#define	CONFIG_EHCI_MXS_PORT0
+#define	CONFIG_USB_MAX_CONTROLLER_COUNT 1
+#define	CONFIG_EHCI_IS_TDI
+#define	CONFIG_USB_STORAGE
+#endif
+
+/* Ethernet */
+#ifdef	CONFIG_CMD_NET
+#define	CONFIG_USB_HOST_ETHER
+#define	CONFIG_USB_ETHER_SMSC95XX
+#endif
 
 /*
  * Boot Linux
@@ -167,6 +200,7 @@
 	"fdt_file=imx23-olinuxino.dtb\0" \
 	"fdt_addr=0x41000000\0" \
 	"boot_fdt=try\0" \
+	"ip_dyn=yes\0" \
 	"mmcdev=0\0" \
 	"mmcpart=2\0" \
 	"mmcroot=/dev/mmcblk0p3 rw rootwait\0" \
@@ -192,6 +226,31 @@
 			"fi; " \
 		"else " \
 			"bootm; " \
+		"fi;\0" \
+	"netargs=setenv bootargs console=${console_mainline},${baudrate} " \
+		"root=/dev/nfs " \
+		"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
+	"netboot=echo Booting from net ...; " \
+		"usb start; " \
+		"run netargs; "	\
+		"if test ${ip_dyn} = yes; then " \
+			"setenv get_cmd dhcp; " \
+		"else " \
+			"setenv get_cmd tftp; " \
+		"fi; " \
+		"${get_cmd} ${uimage}; " \
+		"if test ${boot_fdt} = yes; then " \
+			"if ${get_cmd} ${fdt_addr} ${fdt_file}; then " \
+				"bootm ${loadaddr} - ${fdt_addr}; " \
+			"else " \
+				"if test ${boot_fdt} = try; then " \
+					"bootm; " \
+				"else " \
+					"echo WARN: Cannot load the DT; " \
+				"fi;" \
+			"fi; " \
+		"else " \
+			"bootm; " \
 		"fi;\0"
 
 #define CONFIG_BOOTCOMMAND \
@@ -201,10 +260,9 @@
 		"else " \
 			"if run loaduimage; then " \
 				"run mmcboot; " \
-			"else " \
-				"echo ERR: Fail to boot from MMC; " \
+			"else run netboot; " \
 			"fi; " \
 		"fi; " \
-	"else exit; fi"
+	"else run netboot; fi"
 
 #endif /* __MX23_OLINUXINO_CONFIG_H__ */

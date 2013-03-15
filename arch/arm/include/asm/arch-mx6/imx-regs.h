@@ -601,5 +601,13 @@ struct iomuxc_base_regs {
 	u32     daisy[104];     /* 0x7b0..94c */
 };
 
+struct wdog_regs {
+	u16	wcr;	/* Control */
+	u16	wsr;	/* Service */
+	u16	wrsr;	/* Reset Status */
+	u16	wicr;	/* Interrupt Control */
+	u16	wmcr;	/* Miscellaneous Control */
+};
+
 #endif /* __ASSEMBLER__*/
 #endif /* __ASM_ARCH_MX6_IMX_REGS_H__ */

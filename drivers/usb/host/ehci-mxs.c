@@ -21,91 +21,107 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/regs-common.h>
-#include <asm/arch/regs-base.h>
-#include <asm/arch/regs-clkctrl-mx28.h>
-#include <asm/arch/regs-usb.h>
-#include <asm/arch/regs-usbphy.h>
+#include <asm/arch/imx-regs.h>
+#include <errno.h>
 
 #include "ehci.h"
-
-#if	(CONFIG_EHCI_MXS_PORT != 0) && (CONFIG_EHCI_MXS_PORT != 1)
-#error	"MXS EHCI: Invalid port selected!"
-#endif
-
-#ifndef	CONFIG_EHCI_MXS_PORT
-#error	"MXS EHCI: Please define correct port using CONFIG_EHCI_MXS_PORT!"
-#endif
-
-static struct ehci_mxs {
-	struct mxs_usb_regs	*usb_regs;
-	struct mxs_usbphy_regs	*phy_regs;
-} ehci_mxs;
-
-int mxs_ehci_get_port(struct ehci_mxs *mxs_usb, int port)
-{
-	uint32_t usb_base, phy_base;
-	switch (port) {
-	case 0:
-		usb_base = MXS_USBCTRL0_BASE;
-		phy_base = MXS_USBPHY0_BASE;
-		break;
-	case 1:
-		usb_base = MXS_USBCTRL1_BASE;
-		phy_base = MXS_USBPHY1_BASE;
-		break;
-	default:
-		printf("CONFIG_EHCI_MXS_PORT (port = %d)\n", port);
-		return -1;
-	}
-
-	mxs_usb->usb_regs = (struct mxs_usb_regs *)usb_base;
-	mxs_usb->phy_regs = (struct mxs_usbphy_regs *)phy_base;
-	return 0;
-}
 
 /* This DIGCTL register ungates clock to USB */
 #define	HW_DIGCTL_CTRL			0x8001c000
 #define	HW_DIGCTL_CTRL_USB0_CLKGATE	(1 << 2)
 #define	HW_DIGCTL_CTRL_USB1_CLKGATE	(1 << 16)
 
+struct ehci_mxs_port {
+	uint32_t		usb_regs;
+	struct mxs_usbphy_regs	*phy_regs;
+
+	struct mxs_register_32	*pll;
+	uint32_t		pll_en_bits;
+	uint32_t		pll_dis_bits;
+	uint32_t		gate_bits;
+};
+
+static const struct ehci_mxs_port mxs_port[] = {
+#ifdef CONFIG_EHCI_MXS_PORT0
+	{
+		MXS_USBCTRL0_BASE,
+		(struct mxs_usbphy_regs *)MXS_USBPHY0_BASE,
+		(struct mxs_register_32 *)(MXS_CLKCTRL_BASE +
+			offsetof(struct mxs_clkctrl_regs,
+			hw_clkctrl_pll0ctrl0_reg)),
+		CLKCTRL_PLL0CTRL0_EN_USB_CLKS | CLKCTRL_PLL0CTRL0_POWER,
+		CLKCTRL_PLL0CTRL0_EN_USB_CLKS,
+		HW_DIGCTL_CTRL_USB0_CLKGATE,
+	},
+#endif
+#ifdef CONFIG_EHCI_MXS_PORT1
+	{
+		MXS_USBCTRL1_BASE,
+		(struct mxs_usbphy_regs *)MXS_USBPHY1_BASE,
+		(struct mxs_register_32 *)(MXS_CLKCTRL_BASE +
+			offsetof(struct mxs_clkctrl_regs,
+			hw_clkctrl_pll1ctrl0_reg)),
+		CLKCTRL_PLL1CTRL0_EN_USB_CLKS | CLKCTRL_PLL1CTRL0_POWER,
+		CLKCTRL_PLL1CTRL0_EN_USB_CLKS,
+		HW_DIGCTL_CTRL_USB1_CLKGATE,
+	},
+#endif
+};
+
+static int ehci_mxs_toggle_clock(const struct ehci_mxs_port *port, int enable)
+{
+	struct mxs_register_32 *digctl_ctrl =
+		(struct mxs_register_32 *)HW_DIGCTL_CTRL;
+	int pll_offset, dig_offset;
+
+	if (enable) {
+		pll_offset = offsetof(struct mxs_register_32, reg_set);
+		dig_offset = offsetof(struct mxs_register_32, reg_clr);
+		writel(port->gate_bits, (u32)&digctl_ctrl->reg + dig_offset);
+		writel(port->pll_en_bits, (u32)port->pll + pll_offset);
+	} else {
+		pll_offset = offsetof(struct mxs_register_32, reg_clr);
+		dig_offset = offsetof(struct mxs_register_32, reg_set);
+		writel(port->pll_dis_bits, (u32)port->pll + pll_offset);
+		writel(port->gate_bits, (u32)&digctl_ctrl->reg + dig_offset);
+	}
+
+	return 0;
+}
+
 int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 
 	int ret;
 	uint32_t usb_base, cap_base;
-	struct mxs_register_32 *digctl_ctrl =
-		(struct mxs_register_32 *)HW_DIGCTL_CTRL;
-	struct mxs_clkctrl_regs *clkctrl_regs =
-		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
+	const struct ehci_mxs_port *port;
 
-	ret = mxs_ehci_get_port(&ehci_mxs, CONFIG_EHCI_MXS_PORT);
+	if ((index < 0) || (index >= ARRAY_SIZE(mxs_port))) {
+		printf("Invalid port index (index = %d)!\n", index);
+		return -EINVAL;
+	}
+
+	port = &mxs_port[index];
+
+	/* Reset the PHY block */
+	writel(USBPHY_CTRL_SFTRST, &port->phy_regs->hw_usbphy_ctrl_set);
+	udelay(10);
+	writel(USBPHY_CTRL_SFTRST | USBPHY_CTRL_CLKGATE,
+		&port->phy_regs->hw_usbphy_ctrl_clr);
+
+	/* Enable USB clock */
+	ret = ehci_mxs_toggle_clock(port, 1);
 	if (ret)
 		return ret;
 
-	/* Reset the PHY block */
-	writel(USBPHY_CTRL_SFTRST, &ehci_mxs.phy_regs->hw_usbphy_ctrl_set);
-	udelay(10);
-	writel(USBPHY_CTRL_SFTRST | USBPHY_CTRL_CLKGATE,
-		&ehci_mxs.phy_regs->hw_usbphy_ctrl_clr);
-
-	/* Enable USB clock */
-	writel(CLKCTRL_PLL0CTRL0_EN_USB_CLKS | CLKCTRL_PLL0CTRL0_POWER,
-			&clkctrl_regs->hw_clkctrl_pll0ctrl0_set);
-	writel(CLKCTRL_PLL1CTRL0_EN_USB_CLKS | CLKCTRL_PLL1CTRL0_POWER,
-			&clkctrl_regs->hw_clkctrl_pll1ctrl0_set);
-
-	writel(HW_DIGCTL_CTRL_USB0_CLKGATE | HW_DIGCTL_CTRL_USB1_CLKGATE,
-		&digctl_ctrl->reg_clr);
-
 	/* Start USB PHY */
-	writel(0, &ehci_mxs.phy_regs->hw_usbphy_pwd);
+	writel(0, &port->phy_regs->hw_usbphy_pwd);
 
 	/* Enable UTMI+ Level 2 and Level 3 compatibility */
 	writel(USBPHY_CTRL_ENUTMILEVEL3 | USBPHY_CTRL_ENUTMILEVEL2 | 1,
-		&ehci_mxs.phy_regs->hw_usbphy_ctrl_set);
+		&port->phy_regs->hw_usbphy_ctrl_set);
 
-	usb_base = ((uint32_t)ehci_mxs.usb_regs) + 0x100;
+	usb_base = port->usb_regs + 0x100;
 	*hccr = (struct ehci_hccr *)usb_base;
 
 	cap_base = ehci_readl(&(*hccr)->cr_capbase);
@@ -118,19 +134,19 @@ int ehci_hcd_stop(int index)
 {
 	int ret;
 	uint32_t usb_base, cap_base, tmp;
-	struct mxs_register_32 *digctl_ctrl =
-		(struct mxs_register_32 *)HW_DIGCTL_CTRL;
-	struct mxs_clkctrl_regs *clkctrl_regs =
-		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
 	struct ehci_hccr *hccr;
 	struct ehci_hcor *hcor;
+	const struct ehci_mxs_port *port;
 
-	ret = mxs_ehci_get_port(&ehci_mxs, CONFIG_EHCI_MXS_PORT);
-	if (ret)
-		return ret;
+	if ((index < 0) || (index >= ARRAY_SIZE(mxs_port))) {
+		printf("Invalid port index (index = %d)!\n", index);
+		return -EINVAL;
+	}
+
+	port = &mxs_port[index];
 
 	/* Stop the USB port */
-	usb_base = ((uint32_t)ehci_mxs.usb_regs) + 0x100;
+	usb_base = port->usb_regs + 0x100;
 	hccr = (struct ehci_hccr *)usb_base;
 	cap_base = ehci_readl(&hccr->cr_capbase);
 	hcor = (struct ehci_hcor *)(usb_base + HC_LENGTH(cap_base));
@@ -144,17 +160,10 @@ int ehci_hcd_stop(int index)
 		USBPHY_PWD_RXPWD1PT1 | USBPHY_PWD_RXPWDENV |
 		USBPHY_PWD_TXPWDV2I | USBPHY_PWD_TXPWDIBIAS |
 		USBPHY_PWD_TXPWDFS;
-	writel(tmp, &ehci_mxs.phy_regs->hw_usbphy_pwd);
+	writel(tmp, &port->phy_regs->hw_usbphy_pwd);
 
 	/* Disable USB clock */
-	writel(CLKCTRL_PLL0CTRL0_EN_USB_CLKS,
-			&clkctrl_regs->hw_clkctrl_pll0ctrl0_clr);
-	writel(CLKCTRL_PLL1CTRL0_EN_USB_CLKS,
-			&clkctrl_regs->hw_clkctrl_pll1ctrl0_clr);
+	ret = ehci_mxs_toggle_clock(port, 0);
 
-	/* Gate off the USB clock */
-	writel(HW_DIGCTL_CTRL_USB0_CLKGATE | HW_DIGCTL_CTRL_USB1_CLKGATE,
-		&digctl_ctrl->reg_set);
-
-	return 0;
+	return ret;
 }

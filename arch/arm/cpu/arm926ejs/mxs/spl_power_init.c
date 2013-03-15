@@ -921,7 +921,7 @@ void mxs_power_init(void)
 	early_delay(1000);
 }
 
-#ifdef	CONFIG_SPL_MX28_PSWITCH_WAIT
+#ifdef	CONFIG_SPL_MXS_PSWITCH_WAIT
 void mxs_power_wait_pswitch(void)
 {
 	struct mxs_power_regs *power_regs =
