@@ -1,9 +1,9 @@
 /*
- * clocks_am33xx.h
+ * hardware_ti814x.h
  *
- * AM33xx clock define
+ * TI814x hardware specific header
  *
- * Copyright (C) 2013 Texas Instruments Incorporated - http://www.ti.com/
+ * Copyright (C) 2013, Texas Instruments, Incorporated - http://www.ti.com/
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,16 +16,15 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _CLOCKS_AM33XX_H_
-#define _CLOCKS_AM33XX_H_
+#ifndef __AM33XX_HARDWARE_TI814X_H
+#define __AM33XX_HARDWARE_TI814X_H
 
-/* MAIN PLL Fdll = 550 MHz, by default */
-#ifndef CONFIG_SYS_MPUCLK
-#define CONFIG_SYS_MPUCLK	550
-#endif
+/* VTP Base address */
+#define VTP0_CTRL_ADDR			0x48140E0C
 
-extern void pll_init(void);
-extern void enable_emif_clocks(void);
-extern void enable_dmm_clocks(void);
+/* DDR Base address */
+#define DDR_PHY_CMD_ADDR		0x47C0C400
+#define DDR_PHY_DATA_ADDR		0x47C0C4C8
+#define DDR_DATA_REGS_NR		4
 
-#endif	/* endif _CLOCKS_AM33XX_H_ */
+#endif /* __AM33XX_HARDWARE_TI814X_H */
