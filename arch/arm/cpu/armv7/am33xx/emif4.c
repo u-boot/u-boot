@@ -44,12 +44,29 @@ void dram_init_banksize(void)
 
 
 #ifdef CONFIG_SPL_BUILD
+static struct dmm_lisa_map_regs *hw_lisa_map_regs =
+				(struct dmm_lisa_map_regs *)DMM_BASE;
 static struct vtp_reg *vtpreg[2] = {
 				(struct vtp_reg *)VTP0_CTRL_ADDR,
 				(struct vtp_reg *)VTP1_CTRL_ADDR};
 #ifdef CONFIG_AM33XX
 static struct ddr_ctrl *ddrctrl = (struct ddr_ctrl *)DDR_CTRL_ADDR;
 #endif
+
+void config_dmm(const struct dmm_lisa_map_regs *regs)
+{
+	enable_dmm_clocks();
+
+	writel(0, &hw_lisa_map_regs->dmm_lisa_map_3);
+	writel(0, &hw_lisa_map_regs->dmm_lisa_map_2);
+	writel(0, &hw_lisa_map_regs->dmm_lisa_map_1);
+	writel(0, &hw_lisa_map_regs->dmm_lisa_map_0);
+
+	writel(regs->dmm_lisa_map_3, &hw_lisa_map_regs->dmm_lisa_map_3);
+	writel(regs->dmm_lisa_map_2, &hw_lisa_map_regs->dmm_lisa_map_2);
+	writel(regs->dmm_lisa_map_1, &hw_lisa_map_regs->dmm_lisa_map_1);
+	writel(regs->dmm_lisa_map_0, &hw_lisa_map_regs->dmm_lisa_map_0);
+}
 
 static void config_vtp(int nr)
 {

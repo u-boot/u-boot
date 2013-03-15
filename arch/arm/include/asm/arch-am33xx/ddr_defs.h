@@ -101,6 +101,11 @@
 #define MT41J512M8RH125_IOCTRL_VALUE		0x18B
 
 /**
+ * Configure DMM
+ */
+void config_dmm(const struct dmm_lisa_map_regs *regs);
+
+/**
  * Configure SDRAM
  */
 void config_sdram(const struct emif_regs *regs, int nr);
