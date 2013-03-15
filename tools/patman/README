@@ -198,8 +198,9 @@ END
 	override the default signoff that patman automatically adds.
 
  Tested-by: Their Name <email>
+ Reviewed-by: Their Name <email>
  Acked-by: Their Name <email>
-	These indicate that someone has acked or tested your patch.
+	These indicate that someone has tested/reviewed/acked your patch.
 	When you get this reply on the mailing list, you can add this
 	tag to the relevant commit and the script will include it when
 	you send out the next version. If 'Tested-by:' is set to
@@ -231,7 +232,6 @@ TEST=...
 Change-Id:
 Review URL:
 Reviewed-on:
-Reviewed-by:
 
 
 Exercise for the reader: Try adding some tags to one of your current

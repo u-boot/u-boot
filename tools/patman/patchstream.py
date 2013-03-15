@@ -31,7 +31,7 @@ from series import Series
 
 # Tags that we detect and remove
 re_remove = re.compile('^BUG=|^TEST=|^BRANCH=|^Change-Id:|^Review URL:'
-    '|Reviewed-on:|Reviewed-by:|Commit-Ready:')
+    '|Reviewed-on:|Commit-Ready:')
 
 # Lines which are allowed after a TEST= line
 re_allowed_after_test = re.compile('^Signed-off-by:')
@@ -46,7 +46,7 @@ re_cover = re.compile('^Cover-letter:')
 re_series = re.compile('^Series-(\w*): *(.*)')
 
 # Commit tags that we want to collect and keep
-re_tag = re.compile('^(Tested-by|Acked-by|Cc): (.*)')
+re_tag = re.compile('^(Tested-by|Acked-by|Reviewed-by|Cc): (.*)')
 
 # The start of a new commit in the git log
 re_commit = re.compile('^commit (.*)')
