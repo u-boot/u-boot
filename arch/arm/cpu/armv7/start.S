@@ -254,7 +254,6 @@ ENTRY(c_runtime_cpu_setup)
 #if !defined(CONFIG_TEGRA)
 	/* Set vector address in CP15 VBAR register */
 	ldr     r0, =_start
-	add     r0, r0, r9
 	mcr     p15, 0, r0, c12, c0, 0  @Set VBAR
 #endif /* !Tegra */
 
