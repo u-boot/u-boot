@@ -31,7 +31,7 @@
 #include <asm/gpio.h>
 
 /* TODO: Remove this code when the SPI switch is working */
-#if !defined(CONFIG_SPI_UART_SWITCH) && (CONFIG_MACH_TYPE != MACH_TYPE_VENTANA)
+#if (CONFIG_MACH_TYPE != MACH_TYPE_VENTANA)
 void gpio_early_init_uart(void)
 {
 	/* Enable UART via GPIO_PI3 (port 8, bit 3) so serial console works */

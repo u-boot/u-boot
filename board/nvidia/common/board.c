@@ -132,9 +132,6 @@ int board_init(void)
 	clock_init();
 	clock_verify();
 
-#ifdef CONFIG_SPI_UART_SWITCH
-	gpio_config_uart();
-#endif
 #if defined(CONFIG_TEGRA_SPI) || defined(CONFIG_TEGRA_SLINK)
 	pin_mux_spi();
 	spi_init();
