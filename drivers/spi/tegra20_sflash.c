@@ -61,6 +61,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		unsigned int max_hz, unsigned int mode)
 {
 	struct tegra_spi_slave *spi;
+	int node;
 
 	if (!spi_cs_is_valid(bus, cs)) {
 		printf("SPI error: unsupported bus %d / chip select %d\n",
@@ -81,9 +82,9 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	}
 	spi->slave.bus = bus;
 	spi->slave.cs = cs;
-#ifdef CONFIG_OF_CONTROL
-	int node = fdtdec_next_compatible(gd->fdt_blob, 0,
-					  COMPAT_NVIDIA_TEGRA20_SFLASH);
+
+	node = fdtdec_next_compatible(gd->fdt_blob, 0,
+				      COMPAT_NVIDIA_TEGRA20_SFLASH);
 	if (node < 0) {
 		debug("%s: cannot locate sflash node\n", __func__);
 		return NULL;
@@ -108,11 +109,6 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		debug("%s: could not decode periph id\n", __func__);
 		return NULL;
 	}
-#else
-	spi->regs = (struct spi_tegra *)NV_PA_SPI_BASE;
-	spi->freq = TEGRA_SPI_MAX_FREQ;
-	spi->periph_id = PERIPH_ID_SPI1;
-#endif
 	if (max_hz < spi->freq) {
 		debug("%s: limiting frequency from %u to %u\n", __func__,
 		      spi->freq, max_hz);

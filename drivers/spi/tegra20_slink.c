@@ -116,7 +116,6 @@ void spi_init(void)
 {
 	struct tegra_spi_ctrl *ctrl;
 	int i;
-#ifdef CONFIG_OF_CONTROL
 	int node = 0;
 	int count;
 	int node_list[CONFIG_TEGRA_SLINK_CTRLS];
@@ -152,34 +151,6 @@ void spi_init(void)
 		debug("%s: found controller at %p, freq = %u, periph_id = %d\n",
 		      __func__, ctrl->regs, ctrl->freq, ctrl->periph_id);
 	}
-#else
-	for (i = 0; i < CONFIG_TEGRA_SLINK_CTRLS; i++) {
-		ctrl = &spi_ctrls[i];
-		u32 base_regs[] = {
-			NV_PA_SLINK1_BASE,
-			NV_PA_SLINK2_BASE,
-			NV_PA_SLINK3_BASE,
-			NV_PA_SLINK4_BASE,
-			NV_PA_SLINK5_BASE,
-			NV_PA_SLINK6_BASE,
-		};
-		int periph_ids[] = {
-			PERIPH_ID_SBC1,
-			PERIPH_ID_SBC2,
-			PERIPH_ID_SBC3,
-			PERIPH_ID_SBC4,
-			PERIPH_ID_SBC5,
-			PERIPH_ID_SBC6,
-		};
-		ctrl->regs = (struct slink_tegra *)base_regs[i];
-		ctrl->freq = TEGRA_SPI_MAX_FREQ;
-		ctrl->periph_id = periph_ids[i];
-		ctrl->valid = 1;
-
-		debug("%s: found controller at %p, freq = %u, periph_id = %d\n",
-		      __func__, ctrl->regs, ctrl->freq, ctrl->periph_id);
-	}
-#endif
 }
 
 int spi_claim_bus(struct spi_slave *slave)
