@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2012 NVIDIA Corporation
+ * Copyright (c) 2010-2013 NVIDIA Corporation
  * With help from the mpc8xxx SPI driver
  * With more help from omap3_spi SPI driver
  *
@@ -80,13 +80,21 @@ struct spi_regs {
 	u32 rx_fifo;	/* SPI_RX_FIFO_0 register */
 };
 
-struct tegra_spi_slave {
-	struct spi_slave slave;
+struct tegra_spi_ctrl {
 	struct spi_regs *regs;
 	unsigned int freq;
 	unsigned int mode;
 	int periph_id;
+	int valid;
 };
+
+struct tegra_spi_slave {
+	struct spi_slave slave;
+	struct tegra_spi_ctrl *ctrl;
+};
+
+/* tegra20 only supports one SFLASH controller */
+static struct tegra_spi_ctrl spi_ctrls[1];
 
 static inline struct tegra_spi_slave *to_tegra_spi(struct spi_slave *slave)
 {
@@ -106,7 +114,6 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		unsigned int max_hz, unsigned int mode)
 {
 	struct tegra_spi_slave *spi;
-	int node;
 
 	if (!spi_cs_is_valid(bus, cs)) {
 		printf("SPI error: unsupported bus %d / chip select %d\n",
@@ -127,41 +134,19 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	}
 	spi->slave.bus = bus;
 	spi->slave.cs = cs;
+	spi->ctrl = &spi_ctrls[bus];
+	if (!spi->ctrl) {
+		printf("SPI error: could not find controller for bus %d\n",
+		       bus);
+		return NULL;
+	}
 
-	node = fdtdec_next_compatible(gd->fdt_blob, 0,
-				      COMPAT_NVIDIA_TEGRA20_SFLASH);
-	if (node < 0) {
-		debug("%s: cannot locate sflash node\n", __func__);
-		return NULL;
-	}
-	if (!fdtdec_get_is_enabled(gd->fdt_blob, node)) {
-		debug("%s: sflash is disabled\n", __func__);
-		return NULL;
-	}
-	spi->regs = (struct spi_regs *)fdtdec_get_addr(gd->fdt_blob,
-							node, "reg");
-	if ((fdt_addr_t)spi->regs == FDT_ADDR_T_NONE) {
-		debug("%s: no sflash register found\n", __func__);
-		return NULL;
-	}
-	spi->freq = fdtdec_get_int(gd->fdt_blob, node, "spi-max-frequency", 0);
-	if (!spi->freq) {
-		debug("%s: no sflash max frequency found\n", __func__);
-		return NULL;
-	}
-	spi->periph_id = clock_decode_periph_id(gd->fdt_blob, node);
-	if (spi->periph_id == PERIPH_ID_NONE) {
-		debug("%s: could not decode periph id\n", __func__);
-		return NULL;
-	}
-	if (max_hz < spi->freq) {
+	if (max_hz < spi->ctrl->freq) {
 		debug("%s: limiting frequency from %u to %u\n", __func__,
-		      spi->freq, max_hz);
-		spi->freq = max_hz;
+		      spi->ctrl->freq, max_hz);
+		spi->ctrl->freq = max_hz;
 	}
-	debug("%s: controller initialized at %p, freq = %u, periph_id = %d\n",
-	      __func__, spi->regs, spi->freq, spi->periph_id);
-	spi->mode = mode;
+	spi->ctrl->mode = mode;
 
 	return &spi->slave;
 }
@@ -175,17 +160,54 @@ void spi_free_slave(struct spi_slave *slave)
 
 void spi_init(void)
 {
-	/* do nothing */
+	struct tegra_spi_ctrl *ctrl;
+	int i;
+	int node = 0;
+	int count;
+	int node_list[1];
+
+	count = fdtdec_find_aliases_for_id(gd->fdt_blob, "spi",
+					   COMPAT_NVIDIA_TEGRA20_SFLASH,
+					   node_list,
+					   1);
+	for (i = 0; i < count; i++) {
+		ctrl = &spi_ctrls[i];
+		node = node_list[i];
+
+		ctrl->regs = (struct spi_regs *)fdtdec_get_addr(gd->fdt_blob,
+								node, "reg");
+		if ((fdt_addr_t)ctrl->regs == FDT_ADDR_T_NONE) {
+			debug("%s: no slink register found\n", __func__);
+			continue;
+		}
+		ctrl->freq = fdtdec_get_int(gd->fdt_blob, node,
+					    "spi-max-frequency", 0);
+		if (!ctrl->freq) {
+			debug("%s: no slink max frequency found\n", __func__);
+			continue;
+		}
+
+		ctrl->periph_id = clock_decode_periph_id(gd->fdt_blob, node);
+		if (ctrl->periph_id == PERIPH_ID_NONE) {
+			debug("%s: could not decode periph id\n", __func__);
+			continue;
+		}
+		ctrl->valid = 1;
+
+		debug("%s: found controller at %p, freq = %u, periph_id = %d\n",
+		      __func__, ctrl->regs, ctrl->freq, ctrl->periph_id);
+	}
 }
 
 int spi_claim_bus(struct spi_slave *slave)
 {
 	struct tegra_spi_slave *spi = to_tegra_spi(slave);
-	struct spi_regs *regs = spi->regs;
+	struct spi_regs *regs = spi->ctrl->regs;
 	u32 reg;
 
 	/* Change SPI clock to correct frequency, PLLP_OUT0 source */
-	clock_start_periph_pll(spi->periph_id, CLOCK_ID_PERIPH, spi->freq);
+	clock_start_periph_pll(spi->ctrl->periph_id, CLOCK_ID_PERIPH,
+			       spi->ctrl->freq);
 
 	/* Clear stale status here */
 	reg = SPI_STAT_RDY | SPI_STAT_RXF_FLUSH | SPI_STAT_TXF_FLUSH | \
@@ -196,8 +218,8 @@ int spi_claim_bus(struct spi_slave *slave)
 	/*
 	 * Use sw-controlled CS, so we can clock in data after ReadID, etc.
 	 */
-	reg = (spi->mode & 1) << SPI_CMD_ACTIVE_SDA_SHIFT;
-	if (spi->mode & 2)
+	reg = (spi->ctrl->mode & 1) << SPI_CMD_ACTIVE_SDA_SHIFT;
+	if (spi->ctrl->mode & 2)
 		reg |= 1 << SPI_CMD_ACTIVE_SCLK_SHIFT;
 	clrsetbits_le32(&regs->command, SPI_CMD_ACTIVE_SCLK_MASK |
 		SPI_CMD_ACTIVE_SDA_MASK, SPI_CMD_CS_SOFT | reg);
@@ -227,24 +249,26 @@ void spi_release_bus(struct spi_slave *slave)
 void spi_cs_activate(struct spi_slave *slave)
 {
 	struct tegra_spi_slave *spi = to_tegra_spi(slave);
+	struct spi_regs *regs = spi->ctrl->regs;
 
 	/* CS is negated on Tegra, so drive a 1 to get a 0 */
-	setbits_le32(&spi->regs->command, SPI_CMD_CS_VAL);
+	setbits_le32(&regs->command, SPI_CMD_CS_VAL);
 }
 
 void spi_cs_deactivate(struct spi_slave *slave)
 {
 	struct tegra_spi_slave *spi = to_tegra_spi(slave);
+	struct spi_regs *regs = spi->ctrl->regs;
 
 	/* CS is negated on Tegra, so drive a 0 to get a 1 */
-	clrbits_le32(&spi->regs->command, SPI_CMD_CS_VAL);
+	clrbits_le32(&regs->command, SPI_CMD_CS_VAL);
 }
 
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 		const void *data_out, void *data_in, unsigned long flags)
 {
 	struct tegra_spi_slave *spi = to_tegra_spi(slave);
-	struct spi_regs *regs = spi->regs;
+	struct spi_regs *regs = spi->ctrl->regs;
 	u32 reg, tmpdout, tmpdin = 0;
 	const u8 *dout = data_out;
 	u8 *din = data_in;
