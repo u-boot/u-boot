@@ -27,7 +27,7 @@
 #include <asm/gpio.h>
 #include <asm/arch/clock.h>
 #include <asm/arch-tegra/clk_rst.h>
-#include <asm/arch-tegra/tegra_slink.h>
+#include <asm/arch-tegra20/tegra20_slink.h>
 #include <spi.h>
 #include <fdtdec.h>
 

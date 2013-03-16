@@ -22,8 +22,8 @@
  * MA 02111-1307 USA
  */
 
-#ifndef _TEGRA_SPI_H_
-#define _TEGRA_SPI_H_
+#ifndef _TEGRA20_SPI_H_
+#define _TEGRA20_SPI_H_
 
 #include <asm/types.h>
 
@@ -72,4 +72,4 @@ struct spi_tegra {
 #define SPI_TIMEOUT		1000
 #define TEGRA_SPI_MAX_FREQ	52000000
 
-#endif	/* _TEGRA_SPI_H_ */
+#endif	/* _TEGRA20_SPI_H_ */

@@ -46,8 +46,8 @@ COBJS-$(CONFIG_OMAP3_SPI) += omap3_spi.o
 COBJS-$(CONFIG_SOFT_SPI) += soft_spi.o
 COBJS-$(CONFIG_SH_SPI) += sh_spi.o
 COBJS-$(CONFIG_FSL_ESPI) += fsl_espi.o
-COBJS-$(CONFIG_TEGRA_SPI) += tegra_spi.o
-COBJS-$(CONFIG_TEGRA_SLINK) += tegra_slink.o
+COBJS-$(CONFIG_TEGRA20_SFLASH) += tegra20_sflash.o
+COBJS-$(CONFIG_TEGRA20_SLINK) += tegra20_slink.o
 COBJS-$(CONFIG_XILINX_SPI) += xilinx_spi.o
 
 COBJS	:= $(COBJS-y)
