@@ -43,4 +43,9 @@
 		status = "okay";
 		clock-frequency = <400000>;
 	};
+
+	spi@7000da00 {
+		status = "okay";
+		spi-max-frequency = <25000000>;
+	};
 };
