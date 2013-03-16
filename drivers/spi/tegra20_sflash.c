@@ -35,9 +35,54 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#define SPI_CMD_GO			(1 << 30)
+#define SPI_CMD_ACTIVE_SCLK_SHIFT	26
+#define SPI_CMD_ACTIVE_SCLK_MASK	(3 << SPI_CMD_ACTIVE_SCLK_SHIFT)
+#define SPI_CMD_CK_SDA			(1 << 21)
+#define SPI_CMD_ACTIVE_SDA_SHIFT	18
+#define SPI_CMD_ACTIVE_SDA_MASK		(3 << SPI_CMD_ACTIVE_SDA_SHIFT)
+#define SPI_CMD_CS_POL			(1 << 16)
+#define SPI_CMD_TXEN			(1 << 15)
+#define SPI_CMD_RXEN			(1 << 14)
+#define SPI_CMD_CS_VAL			(1 << 13)
+#define SPI_CMD_CS_SOFT			(1 << 12)
+#define SPI_CMD_CS_DELAY		(1 << 9)
+#define SPI_CMD_CS3_EN			(1 << 8)
+#define SPI_CMD_CS2_EN			(1 << 7)
+#define SPI_CMD_CS1_EN			(1 << 6)
+#define SPI_CMD_CS0_EN			(1 << 5)
+#define SPI_CMD_BIT_LENGTH		(1 << 4)
+#define SPI_CMD_BIT_LENGTH_MASK		0x0000001F
+
+#define SPI_STAT_BSY			(1 << 31)
+#define SPI_STAT_RDY			(1 << 30)
+#define SPI_STAT_RXF_FLUSH		(1 << 29)
+#define SPI_STAT_TXF_FLUSH		(1 << 28)
+#define SPI_STAT_RXF_UNR		(1 << 27)
+#define SPI_STAT_TXF_OVF		(1 << 26)
+#define SPI_STAT_RXF_EMPTY		(1 << 25)
+#define SPI_STAT_RXF_FULL		(1 << 24)
+#define SPI_STAT_TXF_EMPTY		(1 << 23)
+#define SPI_STAT_TXF_FULL		(1 << 22)
+#define SPI_STAT_SEL_TXRX_N		(1 << 16)
+#define SPI_STAT_CUR_BLKCNT		(1 << 15)
+
+#define SPI_TIMEOUT		1000
+#define TEGRA_SPI_MAX_FREQ	52000000
+
+struct spi_regs {
+	u32 command;	/* SPI_COMMAND_0 register  */
+	u32 status;	/* SPI_STATUS_0 register */
+	u32 rx_cmp;	/* SPI_RX_CMP_0 register  */
+	u32 dma_ctl;	/* SPI_DMA_CTL_0 register */
+	u32 tx_fifo;	/* SPI_TX_FIFO_0 register */
+	u32 rsvd[3];	/* offsets 0x14 to 0x1F reserved */
+	u32 rx_fifo;	/* SPI_RX_FIFO_0 register */
+};
+
 struct tegra_spi_slave {
 	struct spi_slave slave;
-	struct spi_tegra *regs;
+	struct spi_regs *regs;
 	unsigned int freq;
 	unsigned int mode;
 	int periph_id;
@@ -93,7 +138,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		debug("%s: sflash is disabled\n", __func__);
 		return NULL;
 	}
-	spi->regs = (struct spi_tegra *)fdtdec_get_addr(gd->fdt_blob,
+	spi->regs = (struct spi_regs *)fdtdec_get_addr(gd->fdt_blob,
 							node, "reg");
 	if ((fdt_addr_t)spi->regs == FDT_ADDR_T_NONE) {
 		debug("%s: no sflash register found\n", __func__);
@@ -136,7 +181,7 @@ void spi_init(void)
 int spi_claim_bus(struct spi_slave *slave)
 {
 	struct tegra_spi_slave *spi = to_tegra_spi(slave);
-	struct spi_tegra *regs = spi->regs;
+	struct spi_regs *regs = spi->regs;
 	u32 reg;
 
 	/* Change SPI clock to correct frequency, PLLP_OUT0 source */
@@ -199,7 +244,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 		const void *data_out, void *data_in, unsigned long flags)
 {
 	struct tegra_spi_slave *spi = to_tegra_spi(slave);
-	struct spi_tegra *regs = spi->regs;
+	struct spi_regs *regs = spi->regs;
 	u32 reg, tmpdout, tmpdin = 0;
 	const u8 *dout = data_out;
 	u8 *din = data_in;

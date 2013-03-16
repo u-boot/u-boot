@@ -33,8 +33,62 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/* COMMAND */
+#define SLINK_CMD_ENB			(1 << 31)
+#define SLINK_CMD_GO			(1 << 30)
+#define SLINK_CMD_M_S			(1 << 28)
+#define SLINK_CMD_CK_SDA		(1 << 21)
+#define SLINK_CMD_CS_POL		(1 << 13)
+#define SLINK_CMD_CS_VAL		(1 << 12)
+#define SLINK_CMD_CS_SOFT		(1 << 11)
+#define SLINK_CMD_BIT_LENGTH		(1 << 4)
+#define SLINK_CMD_BIT_LENGTH_MASK	0x0000001F
+/* COMMAND2 */
+#define SLINK_CMD2_TXEN			(1 << 30)
+#define SLINK_CMD2_RXEN			(1 << 31)
+#define SLINK_CMD2_SS_EN		(1 << 18)
+#define SLINK_CMD2_SS_EN_SHIFT		18
+#define SLINK_CMD2_SS_EN_MASK		0x000C0000
+#define SLINK_CMD2_CS_ACTIVE_BETWEEN	(1 << 17)
+/* STATUS */
+#define SLINK_STAT_BSY			(1 << 31)
+#define SLINK_STAT_RDY			(1 << 30)
+#define SLINK_STAT_ERR			(1 << 29)
+#define SLINK_STAT_RXF_FLUSH		(1 << 27)
+#define SLINK_STAT_TXF_FLUSH		(1 << 26)
+#define SLINK_STAT_RXF_OVF		(1 << 25)
+#define SLINK_STAT_TXF_UNR		(1 << 24)
+#define SLINK_STAT_RXF_EMPTY		(1 << 23)
+#define SLINK_STAT_RXF_FULL		(1 << 22)
+#define SLINK_STAT_TXF_EMPTY		(1 << 21)
+#define SLINK_STAT_TXF_FULL		(1 << 20)
+#define SLINK_STAT_TXF_OVF		(1 << 19)
+#define SLINK_STAT_RXF_UNR		(1 << 18)
+#define SLINK_STAT_CUR_BLKCNT		(1 << 15)
+/* STATUS2 */
+#define SLINK_STAT2_RXF_FULL_CNT	(1 << 16)
+#define SLINK_STAT2_TXF_FULL_CNT	(1 << 0)
+
+#define SPI_TIMEOUT		1000
+#define TEGRA_SPI_MAX_FREQ	52000000
+
+struct spi_regs {
+	u32 command;	/* SLINK_COMMAND_0 register  */
+	u32 command2;	/* SLINK_COMMAND2_0 reg */
+	u32 status;	/* SLINK_STATUS_0 register */
+	u32 reserved;	/* Reserved offset 0C */
+	u32 mas_data;	/* SLINK_MAS_DATA_0 reg */
+	u32 slav_data;	/* SLINK_SLAVE_DATA_0 reg */
+	u32 dma_ctl;	/* SLINK_DMA_CTL_0 register */
+	u32 status2;	/* SLINK_STATUS2_0 reg */
+	u32 rsvd[56];	/* 0x20 to 0xFF reserved */
+	u32 tx_fifo;	/* SLINK_TX_FIFO_0 reg off 100h */
+	u32 rsvd2[31];	/* 0x104 to 0x17F reserved */
+	u32 rx_fifo;	/* SLINK_RX_FIFO_0 reg off 180h */
+};
+
 struct tegra_spi_ctrl {
-	struct slink_tegra *regs;
+	struct spi_regs *regs;
 	unsigned int freq;
 	unsigned int mode;
 	int periph_id;
@@ -128,8 +182,8 @@ void spi_init(void)
 		ctrl = &spi_ctrls[i];
 		node = node_list[i];
 
-		ctrl->regs = (struct slink_tegra *)fdtdec_get_addr(gd->fdt_blob,
-								   node, "reg");
+		ctrl->regs = (struct spi_regs *)fdtdec_get_addr(gd->fdt_blob,
+								node, "reg");
 		if ((fdt_addr_t)ctrl->regs == FDT_ADDR_T_NONE) {
 			debug("%s: no slink register found\n", __func__);
 			continue;
@@ -156,7 +210,7 @@ void spi_init(void)
 int spi_claim_bus(struct spi_slave *slave)
 {
 	struct tegra_spi_slave *spi = to_tegra_spi(slave);
-	struct slink_tegra *regs = spi->ctrl->regs;
+	struct spi_regs *regs = spi->ctrl->regs;
 	u32 reg;
 
 	/* Change SPI clock to correct frequency, PLLP_OUT0 source */
@@ -185,7 +239,7 @@ void spi_release_bus(struct spi_slave *slave)
 void spi_cs_activate(struct spi_slave *slave)
 {
 	struct tegra_spi_slave *spi = to_tegra_spi(slave);
-	struct slink_tegra *regs = spi->ctrl->regs;
+	struct spi_regs *regs = spi->ctrl->regs;
 
 	/* CS is negated on Tegra, so drive a 1 to get a 0 */
 	setbits_le32(&regs->command, SLINK_CMD_CS_VAL);
@@ -194,7 +248,7 @@ void spi_cs_activate(struct spi_slave *slave)
 void spi_cs_deactivate(struct spi_slave *slave)
 {
 	struct tegra_spi_slave *spi = to_tegra_spi(slave);
-	struct slink_tegra *regs = spi->ctrl->regs;
+	struct spi_regs *regs = spi->ctrl->regs;
 
 	/* CS is negated on Tegra, so drive a 0 to get a 1 */
 	clrbits_le32(&regs->command, SLINK_CMD_CS_VAL);
@@ -204,7 +258,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 		const void *data_out, void *data_in, unsigned long flags)
 {
 	struct tegra_spi_slave *spi = to_tegra_spi(slave);
-	struct slink_tegra *regs = spi->ctrl->regs;
+	struct spi_regs *regs = spi->ctrl->regs;
 	u32 reg, tmpdout, tmpdin = 0;
 	const u8 *dout = data_out;
 	u8 *din = data_in;
