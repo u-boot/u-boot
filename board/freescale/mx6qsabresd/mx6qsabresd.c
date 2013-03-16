@@ -145,15 +145,21 @@ struct fsl_esdhc_cfg usdhc_cfg[3] = {
 int board_mmc_getcd(struct mmc *mmc)
 {
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
+	int ret = 0;
 
 	switch (cfg->esdhc_base) {
 	case USDHC2_BASE_ADDR:
-		return !gpio_get_value(USDHC2_CD_GPIO);
+		ret = !gpio_get_value(USDHC2_CD_GPIO);
+		break;
 	case USDHC3_BASE_ADDR:
-		return !gpio_get_value(USDHC3_CD_GPIO);
-	default:
-		return 1; /* eMMC/uSDHC4 is always present */
+		ret = !gpio_get_value(USDHC3_CD_GPIO);
+		break;
+	case USDHC4_BASE_ADDR:
+		ret = 1; /* eMMC/uSDHC4 is always present */
+		break;
 	}
+
+	return ret;
 }
 
 int board_mmc_init(bd_t *bis)
