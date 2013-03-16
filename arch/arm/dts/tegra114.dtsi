@@ -112,4 +112,76 @@
 		clocks = <&tegra_car 47>;
 		status = "disabled";
 	};
+
+	spi@7000d400 {
+		compatible = "nvidia,tegra114-spi";
+		reg = <0x7000d400 0x200>;
+		interrupts = <0 59 0x04>;
+		nvidia,dma-request-selector = <&apbdma 15>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+		/* PERIPH_ID_SBC1, PLLP_OUT0 */
+		clocks = <&tegra_car 41>;
+	};
+
+	spi@7000d600 {
+		compatible = "nvidia,tegra114-spi";
+		reg = <0x7000d600 0x200>;
+		interrupts = <0 82 0x04>;
+		nvidia,dma-request-selector = <&apbdma 16>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+		/* PERIPH_ID_SBC2, PLLP_OUT0 */
+		clocks = <&tegra_car 44>;
+	};
+
+	spi@7000d800 {
+		compatible = "nvidia,tegra114-spi";
+		reg = <0x7000d480 0x200>;
+		interrupts = <0 83 0x04>;
+		nvidia,dma-request-selector = <&apbdma 17>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+		/* PERIPH_ID_SBC3, PLLP_OUT0 */
+		clocks = <&tegra_car 46>;
+	};
+
+	spi@7000da00 {
+		compatible = "nvidia,tegra114-spi";
+		reg = <0x7000da00 0x200>;
+		interrupts = <0 93 0x04>;
+		nvidia,dma-request-selector = <&apbdma 18>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+		/* PERIPH_ID_SBC4, PLLP_OUT0 */
+		clocks = <&tegra_car 68>;
+	};
+
+	spi@7000dc00 {
+		compatible = "nvidia,tegra114-spi";
+		reg = <0x7000dc00 0x200>;
+		interrupts = <0 94 0x04>;
+		nvidia,dma-request-selector = <&apbdma 27>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+		/* PERIPH_ID_SBC5, PLLP_OUT0 */
+		clocks = <&tegra_car 104>;
+	};
+
+	spi@7000de00 {
+		compatible = "nvidia,tegra114-spi";
+		reg = <0x7000de00 0x200>;
+		interrupts = <0 79 0x04>;
+		nvidia,dma-request-selector = <&apbdma 28>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+		/* PERIPH_ID_SBC6, PLLP_OUT0 */
+		clocks = <&tegra_car 105>;
+	};
 };
