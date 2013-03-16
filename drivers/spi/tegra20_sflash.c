@@ -101,7 +101,7 @@ static inline struct tegra_spi_slave *to_tegra_spi(struct spi_slave *slave)
 	return container_of(slave, struct tegra_spi_slave, slave);
 }
 
-int spi_cs_is_valid(unsigned int bus, unsigned int cs)
+int tegra20_spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
 	/* Tegra20 SPI-Flash - only 1 device ('bus/cs') */
 	if (bus != 0 || cs != 0)
@@ -110,8 +110,8 @@ int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 		return 1;
 }
 
-struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
-		unsigned int max_hz, unsigned int mode)
+struct spi_slave *tegra20_spi_setup_slave(unsigned int bus, unsigned int cs,
+				  unsigned int max_hz, unsigned int mode)
 {
 	struct tegra_spi_slave *spi;
 
@@ -151,25 +151,20 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	return &spi->slave;
 }
 
-void spi_free_slave(struct spi_slave *slave)
+void tegra20_spi_free_slave(struct spi_slave *slave)
 {
 	struct tegra_spi_slave *spi = to_tegra_spi(slave);
 
 	free(spi);
 }
 
-void spi_init(void)
+int tegra20_spi_init(int *node_list, int count)
 {
 	struct tegra_spi_ctrl *ctrl;
 	int i;
 	int node = 0;
-	int count;
-	int node_list[1];
+	int found = 0;
 
-	count = fdtdec_find_aliases_for_id(gd->fdt_blob, "spi",
-					   COMPAT_NVIDIA_TEGRA20_SFLASH,
-					   node_list,
-					   1);
 	for (i = 0; i < count; i++) {
 		ctrl = &spi_ctrls[i];
 		node = node_list[i];
@@ -193,13 +188,15 @@ void spi_init(void)
 			continue;
 		}
 		ctrl->valid = 1;
+		found = 1;
 
 		debug("%s: found controller at %p, freq = %u, periph_id = %d\n",
 		      __func__, ctrl->regs, ctrl->freq, ctrl->periph_id);
 	}
+	return !found;
 }
 
-int spi_claim_bus(struct spi_slave *slave)
+int tegra20_spi_claim_bus(struct spi_slave *slave)
 {
 	struct tegra_spi_slave *spi = to_tegra_spi(slave);
 	struct spi_regs *regs = spi->ctrl->regs;
@@ -213,7 +210,7 @@ int spi_claim_bus(struct spi_slave *slave)
 	reg = SPI_STAT_RDY | SPI_STAT_RXF_FLUSH | SPI_STAT_TXF_FLUSH | \
 		SPI_STAT_RXF_UNR | SPI_STAT_TXF_OVF;
 	writel(reg, &regs->status);
-	debug("spi_init: STATUS = %08x\n", readl(&regs->status));
+	debug("%s: STATUS = %08x\n", __func__, readl(&regs->status));
 
 	/*
 	 * Use sw-controlled CS, so we can clock in data after ReadID, etc.
@@ -223,7 +220,7 @@ int spi_claim_bus(struct spi_slave *slave)
 		reg |= 1 << SPI_CMD_ACTIVE_SCLK_SHIFT;
 	clrsetbits_le32(&regs->command, SPI_CMD_ACTIVE_SCLK_MASK |
 		SPI_CMD_ACTIVE_SDA_MASK, SPI_CMD_CS_SOFT | reg);
-	debug("spi_init: COMMAND = %08x\n", readl(&regs->command));
+	debug("%s: COMMAND = %08x\n", __func__, readl(&regs->command));
 
 	/*
 	 * SPI pins on Tegra20 are muxed - change pinmux later due to UART
@@ -236,17 +233,7 @@ int spi_claim_bus(struct spi_slave *slave)
 	return 0;
 }
 
-void spi_release_bus(struct spi_slave *slave)
-{
-	/*
-	 * We can't release UART_DISABLE and set pinmux to UART4 here since
-	 * some code (e,g, spi_flash_probe) uses printf() while the SPI
-	 * bus is held. That is arguably bad, but it has the advantage of
-	 * already being in the source tree.
-	 */
-}
-
-void spi_cs_activate(struct spi_slave *slave)
+void tegra20_spi_cs_activate(struct spi_slave *slave)
 {
 	struct tegra_spi_slave *spi = to_tegra_spi(slave);
 	struct spi_regs *regs = spi->ctrl->regs;
@@ -255,7 +242,7 @@ void spi_cs_activate(struct spi_slave *slave)
 	setbits_le32(&regs->command, SPI_CMD_CS_VAL);
 }
 
-void spi_cs_deactivate(struct spi_slave *slave)
+void tegra20_spi_cs_deactivate(struct spi_slave *slave)
 {
 	struct tegra_spi_slave *spi = to_tegra_spi(slave);
 	struct spi_regs *regs = spi->ctrl->regs;
@@ -264,7 +251,7 @@ void spi_cs_deactivate(struct spi_slave *slave)
 	clrbits_le32(&regs->command, SPI_CMD_CS_VAL);
 }
 
-int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
+int tegra20_spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 		const void *data_out, void *data_in, unsigned long flags)
 {
 	struct tegra_spi_slave *spi = to_tegra_spi(slave);

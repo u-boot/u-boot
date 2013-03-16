@@ -27,4 +27,15 @@
 
 #include <asm/types.h>
 
+int tegra20_spi_cs_is_valid(unsigned int bus, unsigned int cs);
+struct spi_slave *tegra20_spi_setup_slave(unsigned int bus, unsigned int cs,
+				  unsigned int max_hz, unsigned int mode);
+void tegra20_spi_free_slave(struct spi_slave *slave);
+int tegra20_spi_init(int *node_list, int count);
+int tegra20_spi_claim_bus(struct spi_slave *slave);
+void tegra20_spi_cs_activate(struct spi_slave *slave);
+void tegra20_spi_cs_deactivate(struct spi_slave *slave);
+int tegra20_spi_xfer(struct spi_slave *slave, unsigned int bitlen,
+	     const void *data_out, void *data_in, unsigned long flags);
+
 #endif	/* _TEGRA20_SPI_H_ */

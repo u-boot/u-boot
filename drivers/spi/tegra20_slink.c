@@ -107,7 +107,7 @@ static inline struct tegra_spi_slave *to_tegra_spi(struct spi_slave *slave)
 	return container_of(slave, struct tegra_spi_slave, slave);
 }
 
-int spi_cs_is_valid(unsigned int bus, unsigned int cs)
+int tegra30_spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
 	if (bus >= CONFIG_TEGRA_SLINK_CTRLS || cs > 3 || !spi_ctrls[bus].valid)
 		return 0;
@@ -115,7 +115,7 @@ int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 		return 1;
 }
 
-struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
+struct spi_slave *tegra30_spi_setup_slave(unsigned int bus, unsigned int cs,
 		unsigned int max_hz, unsigned int mode)
 {
 	struct tegra_spi_slave *spi;
@@ -159,25 +159,20 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	return &spi->slave;
 }
 
-void spi_free_slave(struct spi_slave *slave)
+void tegra30_spi_free_slave(struct spi_slave *slave)
 {
 	struct tegra_spi_slave *spi = to_tegra_spi(slave);
 
 	free(spi);
 }
 
-void spi_init(void)
+int tegra30_spi_init(int *node_list, int count)
 {
 	struct tegra_spi_ctrl *ctrl;
 	int i;
 	int node = 0;
-	int count;
-	int node_list[CONFIG_TEGRA_SLINK_CTRLS];
+	int found = 0;
 
-	count = fdtdec_find_aliases_for_id(gd->fdt_blob, "spi",
-					   COMPAT_NVIDIA_TEGRA20_SLINK,
-					   node_list,
-					   CONFIG_TEGRA_SLINK_CTRLS);
 	for (i = 0; i < count; i++) {
 		ctrl = &spi_ctrls[i];
 		node = node_list[i];
@@ -201,13 +196,15 @@ void spi_init(void)
 			continue;
 		}
 		ctrl->valid = 1;
+		found = 1;
 
 		debug("%s: found controller at %p, freq = %u, periph_id = %d\n",
 		      __func__, ctrl->regs, ctrl->freq, ctrl->periph_id);
 	}
+	return !found;
 }
 
-int spi_claim_bus(struct spi_slave *slave)
+int tegra30_spi_claim_bus(struct spi_slave *slave)
 {
 	struct tegra_spi_slave *spi = to_tegra_spi(slave);
 	struct spi_regs *regs = spi->ctrl->regs;
@@ -232,11 +229,7 @@ int spi_claim_bus(struct spi_slave *slave)
 	return 0;
 }
 
-void spi_release_bus(struct spi_slave *slave)
-{
-}
-
-void spi_cs_activate(struct spi_slave *slave)
+void tegra30_spi_cs_activate(struct spi_slave *slave)
 {
 	struct tegra_spi_slave *spi = to_tegra_spi(slave);
 	struct spi_regs *regs = spi->ctrl->regs;
@@ -245,7 +238,7 @@ void spi_cs_activate(struct spi_slave *slave)
 	setbits_le32(&regs->command, SLINK_CMD_CS_VAL);
 }
 
-void spi_cs_deactivate(struct spi_slave *slave)
+void tegra30_spi_cs_deactivate(struct spi_slave *slave)
 {
 	struct tegra_spi_slave *spi = to_tegra_spi(slave);
 	struct spi_regs *regs = spi->ctrl->regs;
@@ -254,7 +247,7 @@ void spi_cs_deactivate(struct spi_slave *slave)
 	clrbits_le32(&regs->command, SLINK_CMD_CS_VAL);
 }
 
-int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
+int tegra30_spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 		const void *data_out, void *data_in, unsigned long flags)
 {
 	struct tegra_spi_slave *spi = to_tegra_spi(slave);

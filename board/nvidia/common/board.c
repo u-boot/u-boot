@@ -132,7 +132,7 @@ int board_init(void)
 	clock_init();
 	clock_verify();
 
-#if defined(CONFIG_TEGRA20_SFLASH) || defined(CONFIG_TEGRA20_SLINK)
+#ifdef CONFIG_FDT_SPI
 	pin_mux_spi();
 	spi_init();
 #endif
