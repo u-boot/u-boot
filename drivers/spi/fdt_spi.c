@@ -29,6 +29,7 @@
 #include <asm/arch-tegra/clk_rst.h>
 #include <asm/arch-tegra20/tegra20_sflash.h>
 #include <asm/arch-tegra20/tegra20_slink.h>
+#include <asm/arch-tegra114/tegra114_spi.h>
 #include <spi.h>
 #include <fdtdec.h>
 
@@ -77,6 +78,20 @@ static struct fdt_spi_driver fdt_spi_drivers[] = {
 		.cs_activate	= tegra30_spi_cs_activate,
 		.cs_deactivate	= tegra30_spi_cs_deactivate,
 		.xfer		= tegra30_spi_xfer,
+	},
+#endif
+#ifdef CONFIG_TEGRA114_SPI
+	{
+		.compat		= COMPAT_NVIDIA_TEGRA114_SPI,
+		.max_ctrls	= CONFIG_TEGRA114_SPI_CTRLS,
+		.init		= tegra114_spi_init,
+		.claim_bus	= tegra114_spi_claim_bus,
+		.cs_is_valid	= tegra114_spi_cs_is_valid,
+		.setup_slave	= tegra114_spi_setup_slave,
+		.free_slave	= tegra114_spi_free_slave,
+		.cs_activate	= tegra114_spi_cs_activate,
+		.cs_deactivate	= tegra114_spi_cs_deactivate,
+		.xfer		= tegra114_spi_xfer,
 	},
 #endif
 };

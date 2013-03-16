@@ -49,6 +49,7 @@ COBJS-$(CONFIG_FSL_ESPI) += fsl_espi.o
 COBJS-$(CONFIG_FDT_SPI) += fdt_spi.o
 COBJS-$(CONFIG_TEGRA20_SFLASH) += tegra20_sflash.o
 COBJS-$(CONFIG_TEGRA20_SLINK) += tegra20_slink.o
+COBJS-$(CONFIG_TEGRA114_SPI) += tegra114_spi.o
 COBJS-$(CONFIG_XILINX_SPI) += xilinx_spi.o
 
 COBJS	:= $(COBJS-y)
