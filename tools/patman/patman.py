@@ -53,6 +53,8 @@ parser.add_option('-n', '--dry-run', action='store_true', dest='dry_run',
 parser.add_option('-p', '--project', default=project.DetectProject(),
                   help="Project name; affects default option values and "
                   "aliases [default: %default]")
+parser.add_option('-r', '--in-reply-to', type='string', action='store',
+                  help="Message ID that this series is in reply to")
 parser.add_option('-s', '--start', dest='start', type='int',
        default=0, help='Commit to start creating patches from (0 = HEAD)')
 parser.add_option('-t', '--test', action='store_true', dest='test',
@@ -163,7 +165,7 @@ else:
     cmd = ''
     if ok or options.ignore_errors:
         cmd = gitutil.EmailPatches(series, cover_fname, args,
-                options.dry_run, cc_file)
+                options.dry_run, cc_file, in_reply_to=options.in_reply_to)
 
     # For a dry run, just show our actions as a sanity check
     if options.dry_run:

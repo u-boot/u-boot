@@ -317,7 +317,7 @@ def BuildEmailList(in_list, tag=None, alias=None):
     return result
 
 def EmailPatches(series, cover_fname, args, dry_run, cc_fname,
-        self_only=False, alias=None):
+        self_only=False, alias=None, in_reply_to=None):
     """Email a patch series.
 
     Args:
@@ -327,6 +327,8 @@ def EmailPatches(series, cover_fname, args, dry_run, cc_fname,
         dry_run: Just return the command that would be run
         cc_fname: Filename of Cc file for per-commit Cc
         self_only: True to just email to yourself as a test
+        in_reply_to: If set we'll pass this to git as --in-reply-to.
+            Should be a message ID that this is in reply to.
 
     Returns:
         Git command that was/would be run
@@ -376,6 +378,9 @@ def EmailPatches(series, cover_fname, args, dry_run, cc_fname,
         to = BuildEmailList([os.getenv('USER')], '--to', alias)
         cc = []
     cmd = ['git', 'send-email', '--annotate']
+    if in_reply_to:
+        cmd.append('--in-reply-to="%s"' % in_reply_to)
+
     cmd += to
     cmd += cc
     cmd += ['--cc-cmd', '"%s --cc-cmd %s"' % (sys.argv[0], cc_fname)]
