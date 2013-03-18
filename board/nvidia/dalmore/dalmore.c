@@ -16,6 +16,7 @@
 
 #include <common.h>
 #include <asm/arch/pinmux.h>
+#include <asm/arch/gp_padctrl.h>
 #include "pinmux-config-dalmore.h"
 
 /*
@@ -32,4 +33,7 @@ void pinmux_init(void)
 
 	pinmux_config_table(unused_pins_lowpower,
 		ARRAY_SIZE(unused_pins_lowpower));
+
+	/* Initialize any non-default pad configs (APB_MISC_GP regs) */
+	padgrp_config_table(dalmore_padctrl, ARRAY_SIZE(dalmore_padctrl));
 }
