@@ -18,6 +18,10 @@
 #include <asm/arch/pinmux.h>
 #include <asm/arch/gp_padctrl.h>
 #include "pinmux-config-dalmore.h"
+#include <i2c.h>
+
+#define BAT_I2C_ADDRESS		0x48	/* TPS65090 charger */
+#define PMU_I2C_ADDRESS		0x58	/* TPS65913 PMU */
 
 /*
  * Routine: pinmux_init
@@ -37,3 +41,61 @@ void pinmux_init(void)
 	/* Initialize any non-default pad configs (APB_MISC_GP regs) */
 	padgrp_config_table(dalmore_padctrl, ARRAY_SIZE(dalmore_padctrl));
 }
+
+#if defined(CONFIG_TEGRA_MMC)
+/*
+ * Do I2C/PMU writes to bring up SD card bus power
+ *
+ */
+void board_sdmmc_voltage_init(void)
+{
+	uchar reg, data_buffer[1];
+	int ret;
+
+	ret = i2c_set_bus_num(0);/* PMU is on bus 0 */
+	if (ret)
+		printf("%s: i2c_set_bus_num returned %d\n", __func__, ret);
+
+	/* TPS65913: LDO9_VOLTAGE = 3.3V */
+	data_buffer[0] = 0x31;
+	reg = 0x61;
+
+	ret = i2c_write(PMU_I2C_ADDRESS, reg, 1, data_buffer, 1);
+	if (ret)
+		printf("%s: PMU i2c_write %02X<-%02X returned %d\n",
+			__func__, reg, data_buffer[0], ret);
+
+	/* TPS65913: LDO9_CTRL = Active */
+	data_buffer[0] = 0x01;
+	reg = 0x60;
+
+	ret = i2c_write(PMU_I2C_ADDRESS, reg, 1, data_buffer, 1);
+	if (ret)
+		printf("%s: PMU i2c_write %02X<-%02X returned %d\n",
+			__func__, reg, data_buffer[0], ret);
+
+	/* TPS65090: FET6_CTRL = enable output auto discharge, enable FET6 */
+	data_buffer[0] = 0x03;
+	reg = 0x14;
+
+	ret = i2c_write(BAT_I2C_ADDRESS, reg, 1, data_buffer, 1);
+	if (ret)
+		printf("%s: BAT i2c_write %02X<-%02X returned %d\n",
+			__func__, reg, data_buffer[0], ret);
+}
+
+/*
+ * Routine: pin_mux_mmc
+ * Description: setup the MMC muxes, power rails, etc.
+ */
+void pin_mux_mmc(void)
+{
+	/*
+	 * NOTE: We don't do mmc-specific pin muxes here.
+	 * They were done globally in pinmux_init().
+	 */
+
+	/* Bring up the SDIO3 power rail */
+	board_sdmmc_voltage_init();
+}
+#endif /* MMC */
