@@ -81,13 +81,11 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		return NULL;
 	}
 
-	spi = malloc(sizeof(struct tegra_spi_slave));
+	spi = spi_alloc_slave(struct tegra_spi_slave, bus, cs);
 	if (!spi) {
 		printf("SPI error: malloc of SPI structure failed\n");
 		return NULL;
 	}
-	spi->slave.bus = bus;
-	spi->slave.cs = cs;
 #ifdef CONFIG_OF_CONTROL
 	int node = fdtdec_next_compatible(gd->fdt_blob, 0,
 					  COMPAT_NVIDIA_TEGRA20_SFLASH);

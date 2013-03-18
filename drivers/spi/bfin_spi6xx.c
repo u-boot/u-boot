@@ -178,12 +178,10 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		return NULL;
 	}
 
-	bss = malloc(sizeof(*bss));
+	bss = spi_alloc_slave(struct bfin_spi_slave, bus, cs);
 	if (!bss)
 		return NULL;
 
-	bss->slave.bus = bus;
-	bss->slave.cs = cs;
 	bss->regs = (struct bfin_spi_regs *)reg_base;
 	bss->control = SPI_CTL_EN | SPI_CTL_MSTR;
 	if (mode & SPI_CPHA)

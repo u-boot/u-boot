@@ -85,14 +85,12 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		return NULL;
 	}
 
-	xilspi = malloc(sizeof(*xilspi));
+	xilspi = spi_alloc_slave(struct xilinx_spi_slave, bus, cs);
 	if (!xilspi) {
 		printf("XILSPI error: %s: malloc of SPI structure failed\n",
 				__func__);
 		return NULL;
 	}
-	xilspi->slave.bus = bus;
-	xilspi->slave.cs = cs;
 	xilspi->regs = (struct xilinx_spi_reg *)xilinx_spi_base_list[bus];
 	xilspi->freq = max_hz;
 	xilspi->mode = mode;
