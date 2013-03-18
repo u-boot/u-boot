@@ -98,6 +98,16 @@ const iomux_cfg_t iomux_setup[] = {
 		(MXS_PAD_4MA | MXS_PAD_3V3 | MXS_PAD_NOPULL),
 };
 
+#define HW_DRAM_CTL14	(0x38 >> 2)
+#define CS_MAP		0x3
+#define INTAREF		0x2
+#define HW_DRAM_CTL14_CONFIG	(INTAREF << 8 | CS_MAP)
+
+void mxs_adjust_memory_params(uint32_t *dram_vals)
+{
+	dram_vals[HW_DRAM_CTL14] = HW_DRAM_CTL14_CONFIG;
+}
+
 void board_init_ll(void)
 {
 	mxs_common_spl_init(iomux_setup, ARRAY_SIZE(iomux_setup));

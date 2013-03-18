@@ -57,6 +57,10 @@ int board_early_init_f(void)
 	mxs_iomux_setup_pad(MX28_PAD_AUART3_TX__GPIO_3_13 |
 			MXS_PAD_12MA | MXS_PAD_3V3 | MXS_PAD_PULLUP);
 	gpio_direction_output(MX28_PAD_AUART3_TX__GPIO_3_13, 0);
+
+	mxs_iomux_setup_pad(MX28_PAD_AUART3_RX__GPIO_3_12 |
+			MXS_PAD_12MA | MXS_PAD_3V3 | MXS_PAD_PULLUP);
+	gpio_direction_output(MX28_PAD_AUART3_RX__GPIO_3_12, 0);
 #endif
 
 	return 0;

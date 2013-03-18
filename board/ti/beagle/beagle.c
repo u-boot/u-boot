@@ -72,6 +72,7 @@
 #define BBTOYS_LCD			0x03000B00
 #define BCT_BRETTL3			0x01000F00
 #define BCT_BRETTL4			0x02000F00
+#define LSR_COM6L_ADPT			0x01001300
 #define BEAGLE_NO_EEPROM		0xffffffff
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -226,6 +227,14 @@ static unsigned int get_expansion_id(void)
 	/* read configuration data */
 	i2c_read(EXPANSION_EEPROM_I2C_ADDRESS, 0, 1, (u8 *)&expansion_config,
 		 sizeof(expansion_config));
+
+	/* retry reading configuration data with 16bit addressing */
+	if ((expansion_config.device_vendor == 0xFFFFFF00) ||
+	    (expansion_config.device_vendor == 0xFFFFFFFF)) {
+		printf("EEPROM is blank or 8bit addressing failed: retrying with 16bit:\n");
+		i2c_read(EXPANSION_EEPROM_I2C_ADDRESS, 0, 2, (u8 *)&expansion_config,
+			 sizeof(expansion_config));
+	}
 
 	i2c_set_bus_num(TWL4030_I2C_BUS);
 
@@ -454,6 +463,11 @@ int misc_init_r(void)
 	case BCT_BRETTL4:
 		printf("Recognized bct electronic GmbH brettl4 board\n");
 		break;
+	case LSR_COM6L_ADPT:
+		printf("Recognized LSR COM6L Adapter Board\n");
+		MUX_BBTOYS_WIFI()
+		setenv("buddy", "lsr-com6l-adpt");
+		break;
 	case BEAGLE_NO_EEPROM:
 		printf("No EEPROM on expansion board\n");
 		setenv("buddy", "none");
@@ -518,8 +532,7 @@ void set_muxconf_regs(void)
 #if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
 int board_mmc_init(bd_t *bis)
 {
-	omap_mmc_init(0, 0, 0);
-	return 0;
+	return omap_mmc_init(0, 0, 0, -1, -1);
 }
 #endif
 

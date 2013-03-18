@@ -519,7 +519,7 @@ u32 spl_boot_device(void)
 		case RCSR_MEM_TYPE_NOR:
 			return BOOT_DEVICE_NOR;
 		case RCSR_MEM_TYPE_ONENAND:
-			return BOOT_DEVICE_ONE_NAND;
+			return BOOT_DEVICE_ONENAND;
 		default:
 			return BOOT_DEVICE_NONE;
 		}

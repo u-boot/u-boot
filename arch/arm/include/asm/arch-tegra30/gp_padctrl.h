@@ -56,4 +56,10 @@ struct apb_misc_gp_ctlr {
 	u32	sdio1cfg;	/* 0xEC: APB_MISC_GP_SDIO1CFGPADCTRL */
 };
 
+/* SDMMC1/3 settings from section 24.6 of T30 TRM */
+#define SDIOCFG_DRVUP_SLWF	1
+#define SDIOCFG_DRVDN_SLWR	1
+#define SDIOCFG_DRVUP		0x2E
+#define SDIOCFG_DRVDN		0x2A
+
 #endif	/* _TEGRA30_GP_PADCTRL_H_ */

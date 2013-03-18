@@ -259,6 +259,7 @@ struct mmc {
 	void (*set_ios)(struct mmc *mmc);
 	int (*init)(struct mmc *mmc);
 	int (*getcd)(struct mmc *mmc);
+	int (*getwp)(struct mmc *mmc);
 	uint b_max;
 };
 
@@ -274,6 +275,7 @@ int get_mmc_num(void);
 int board_mmc_getcd(struct mmc *mmc);
 int mmc_switch_part(int dev_num, unsigned int part_num);
 int mmc_getcd(struct mmc *mmc);
+int mmc_getwp(struct mmc *mmc);
 void spl_mmc_load(void) __noreturn;
 
 #ifdef CONFIG_GENERIC_MMC

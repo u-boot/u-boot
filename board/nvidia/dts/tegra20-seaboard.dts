@@ -1,7 +1,6 @@
 /dts-v1/;
 
-/memreserve/ 0x1c000000 0x04000000;
-/include/ ARCH_CPU_DTS
+#include "tegra20.dtsi"
 
 / {
 	model = "NVIDIA Seaboard";
@@ -12,14 +11,15 @@
 	};
 
 	aliases {
-		/* This defines the order of our USB ports */
+		/* This defines the order of our ports */
 		usb0 = "/usb@c5008000";
 		usb1 = "/usb@c5000000";
-
 		i2c0 = "/i2c@7000d000";
 		i2c1 = "/i2c@7000c000";
 		i2c2 = "/i2c@7000c400";
 		i2c3 = "/i2c@7000c500";
+		sdhci0 = "/sdhci@c8000600";
+		sdhci1 = "/sdhci@c8000400";
 	};
 
 	memory {
@@ -156,13 +156,16 @@
 	};
 
 	sdhci@c8000400 {
-		cd-gpios = <&gpio 69 0>; /* gpio PI5 */
+		status = "okay";
+		cd-gpios = <&gpio 69 1>; /* gpio PI5 */
 		wp-gpios = <&gpio 57 0>; /* gpio PH1 */
 		power-gpios = <&gpio 70 0>; /* gpio PI6 */
+		bus-width = <4>;
 	};
 
 	sdhci@c8000600 {
-		support-8bit;
+		status = "okay";
+		bus-width = <8>;
 	};
 
 	lcd_panel: panel {

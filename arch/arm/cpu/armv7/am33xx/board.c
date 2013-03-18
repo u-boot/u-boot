@@ -56,11 +56,11 @@ int cpu_mmc_init(bd_t *bis)
 {
 	int ret;
 
-	ret = omap_mmc_init(0, 0, 0);
+	ret = omap_mmc_init(0, 0, 0, -1, -1);
 	if (ret)
 		return ret;
 
-	return omap_mmc_init(1, 0, 0);
+	return omap_mmc_init(1, 0, 0, -1, -1);
 }
 #endif
 

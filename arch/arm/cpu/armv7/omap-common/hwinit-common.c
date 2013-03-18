@@ -32,6 +32,8 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/sizes.h>
 #include <asm/emif.h>
+#include <asm/omap_common.h>
+#include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -79,12 +81,17 @@ u32 cortex_rev(void)
 void omap_rev_string(void)
 {
 	u32 omap_rev = omap_revision();
+	u32 soc_variant	= (omap_rev & 0xF0000000) >> 28;
 	u32 omap_variant = (omap_rev & 0xFFFF0000) >> 16;
 	u32 major_rev = (omap_rev & 0x00000F00) >> 8;
 	u32 minor_rev = (omap_rev & 0x000000F0) >> 4;
 
-	printf("OMAP%x ES%x.%x\n", omap_variant, major_rev,
-		minor_rev);
+	if (soc_variant)
+		printf("OMAP");
+	else
+		printf("DRA");
+	printf("%x ES%x.%x\n", omap_variant, major_rev,
+	       minor_rev);
 }
 
 #ifdef CONFIG_SPL_BUILD
@@ -98,6 +105,10 @@ void spl_display_print(void)
 	omap_rev_string();
 }
 #endif
+
+void __weak srcomp_enable(void)
+{
+}
 
 /*
  * Routine: s_init
@@ -116,6 +127,8 @@ void spl_display_print(void)
 void s_init(void)
 {
 	init_omap_revision();
+	hw_data_init();
+
 #ifdef CONFIG_SPL_BUILD
 	if (warm_reset() && (omap_revision() <= OMAP5430_ES1_0))
 		force_emif_self_refresh();
@@ -123,6 +136,7 @@ void s_init(void)
 	watchdog_init();
 	set_mux_conf_regs();
 #ifdef CONFIG_SPL_BUILD
+	srcomp_enable();
 	setup_clocks_for_console();
 
 	gd = &gdata;
@@ -235,10 +249,7 @@ int checkboard(void)
  */
 u32 get_device_type(void)
 {
-	struct omap_sys_ctrl_regs *ctrl =
-		      (struct omap_sys_ctrl_regs *) SYSCTRL_GENERAL_CORE_BASE;
-
-	return (readl(&ctrl->control_status) &
+	return (readl((*ctrl)->control_status) &
 				      (DEVICE_TYPE_MASK)) >> DEVICE_TYPE_SHIFT;
 }
 

@@ -75,6 +75,9 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F
 
+#define CONFIG_CMD_BOOTZ
+#define CONFIG_OF_LIBFDT
+
 /*
  * Memory Configuration
  */

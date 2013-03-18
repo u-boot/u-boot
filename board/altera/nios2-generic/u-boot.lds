@@ -49,7 +49,7 @@ SECTIONS
 
 	. = ALIGN(4);
 	.u_boot_list : {
-	#include <u-boot.lst>
+		KEEP(*(SORT(.u_boot_list*)));
 	}
 
 	/* INIT DATA sections - "Small" data (see the gcc -G option)

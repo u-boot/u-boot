@@ -19,6 +19,9 @@
 
 #define CONFIG_MX6
 #define CONFIG_MX6Q
+
+#include "mx6_common.h"
+
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
@@ -171,6 +174,7 @@
 
 #define CONFIG_SYS_MEMTEST_START       0x10000000
 #define CONFIG_SYS_MEMTEST_END         0x10010000
+#define CONFIG_SYS_MEMTEST_SCRATCH     0x10800000
 
 #define CONFIG_SYS_LOAD_ADDR           CONFIG_LOADADDR
 #define CONFIG_SYS_HZ                  1000

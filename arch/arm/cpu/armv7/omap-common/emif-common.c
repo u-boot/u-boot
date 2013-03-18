@@ -66,6 +66,19 @@ inline u32 emif_num(u32 base)
 		return 0;
 }
 
+/*
+ * Get SDRAM type connected to EMIF.
+ * Assuming similar SDRAM parts are connected to both EMIF's
+ * which is typically the case. So it is sufficient to get
+ * SDRAM type from EMIF1.
+ */
+u32 emif_sdram_type()
+{
+	struct emif_reg_struct *emif = (struct emif_reg_struct *)EMIF1_BASE;
+
+	return (readl(&emif->emif_sdram_config) &
+		EMIF_REG_SDRAM_TYPE_MASK) >> EMIF_REG_SDRAM_TYPE_SHIFT;
+}
 
 static inline u32 get_mr(u32 base, u32 cs, u32 mr_addr)
 {
@@ -110,11 +123,13 @@ void emif_reset_phy(u32 base)
 static void do_lpddr2_init(u32 base, u32 cs)
 {
 	u32 mr_addr;
+	const struct lpddr2_mr_regs *mr_regs;
 
+	get_lpddr2_mr_regs(&mr_regs);
 	/* Wait till device auto initialization is complete */
 	while (get_mr(base, cs, LPDDR2_MR0) & LPDDR2_MR0_DAI_MASK)
 		;
-	set_mr(base, cs, LPDDR2_MR10, MR10_ZQ_ZQINIT);
+	set_mr(base, cs, LPDDR2_MR10, mr_regs->mr10);
 	/*
 	 * tZQINIT = 1 us
 	 * Enough loops assuming a maximum of 2GHz
@@ -122,22 +137,18 @@ static void do_lpddr2_init(u32 base, u32 cs)
 
 	sdelay(2000);
 
-	if (omap_revision() >= OMAP5430_ES1_0)
-		set_mr(base, cs, LPDDR2_MR1, MR1_BL_8_BT_SEQ_WRAP_EN_NWR_8);
-	else
-		set_mr(base, cs, LPDDR2_MR1, MR1_BL_8_BT_SEQ_WRAP_EN_NWR_3);
-
-	set_mr(base, cs, LPDDR2_MR16, MR16_REF_FULL_ARRAY);
+	set_mr(base, cs, LPDDR2_MR1, mr_regs->mr1);
+	set_mr(base, cs, LPDDR2_MR16, mr_regs->mr16);
 
 	/*
 	 * Enable refresh along with writing MR2
 	 * Encoding of RL in MR2 is (RL - 2)
 	 */
 	mr_addr = LPDDR2_MR2 | EMIF_REG_REFRESH_EN_MASK;
-	set_mr(base, cs, mr_addr, RL_FINAL - 2);
+	set_mr(base, cs, mr_addr, mr_regs->mr2);
 
-	if (omap_revision() >= OMAP5430_ES1_0)
-		set_mr(base, cs, LPDDR2_MR3, 0x1);
+	if (mr_regs->mr3 > 0)
+		set_mr(base, cs, LPDDR2_MR3, mr_regs->mr3);
 }
 
 static void lpddr2_init(u32 base, const struct emif_regs *regs)
@@ -255,9 +266,6 @@ static void ddr3_leveling(u32 base, const struct emif_regs *regs)
 static void ddr3_init(u32 base, const struct emif_regs *regs)
 {
 	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
-	u32 *ext_phy_ctrl_base = 0;
-	u32 *emif_ext_phy_ctrl_base = 0;
-	u32 i = 0;
 
 	/*
 	 * Set SDRAM_CONFIG and PHY control registers to locked frequency
@@ -277,27 +285,7 @@ static void ddr3_init(u32 base, const struct emif_regs *regs)
 	writel(regs->ref_ctrl, &emif->emif_sdram_ref_ctrl);
 	writel(regs->read_idle_ctrl, &emif->emif_read_idlectrl);
 
-	ext_phy_ctrl_base = (u32 *) &(regs->emif_ddr_ext_phy_ctrl_1);
-	emif_ext_phy_ctrl_base = (u32 *) &(emif->emif_ddr_ext_phy_ctrl_1);
-
-	/* Configure external phy control timing registers */
-	for (i = 0; i < EMIF_EXT_PHY_CTRL_TIMING_REG; i++) {
-		writel(*ext_phy_ctrl_base, emif_ext_phy_ctrl_base++);
-		/* Update shadow registers */
-		writel(*ext_phy_ctrl_base++, emif_ext_phy_ctrl_base++);
-	}
-
-	/*
-	 * external phy 6-24 registers do not change with
-	 * ddr frequency
-	 */
-	for (i = 0; i < EMIF_EXT_PHY_CTRL_CONST_REG; i++) {
-		writel(ddr3_ext_phy_ctrl_const_base[i],
-					emif_ext_phy_ctrl_base++);
-		/* Update shadow registers */
-		writel(ddr3_ext_phy_ctrl_const_base[i],
-					emif_ext_phy_ctrl_base++);
-	}
+	do_ext_phy_settings(base, regs);
 
 	/* enable leveling */
 	writel(regs->emif_rd_wr_lvl_rmp_ctl, &emif->emif_rd_wr_lvl_rmp_ctl);
@@ -1079,7 +1067,7 @@ static void do_sdram_init(u32 base)
 	 * OPP to another)
 	 */
 	if (!(in_sdram || warm_reset())) {
-		if (omap_revision() != OMAP5432_ES1_0)
+		if (emif_sdram_type() == EMIF_SDRAM_TYPE_LPDDR2)
 			lpddr2_init(base, regs);
 		else
 			ddr3_init(base, regs);
@@ -1095,9 +1083,6 @@ void emif_post_init_config(u32 base)
 {
 	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
 	u32 omap_rev = omap_revision();
-
-	if (omap_rev == OMAP5430_ES1_0)
-		return;
 
 	/* reset phy on ES2.0 */
 	if (omap_rev == OMAP4430_ES2_0)
@@ -1206,7 +1191,7 @@ void dmm_init(u32 base)
 	writel(lisa_map_regs->dmm_lisa_map_0,
 		&hw_lisa_map_regs->dmm_lisa_map_0);
 
-	if (omap_revision() >= OMAP4460_ES1_0) {
+	if (lisa_map_regs->is_ma_present) {
 		hw_lisa_map_regs =
 		    (struct dmm_lisa_map_regs *)MA_BASE;
 
@@ -1264,7 +1249,7 @@ void dmm_init(u32 base)
 void sdram_init(void)
 {
 	u32 in_sdram, size_prog, size_detect;
-	u32 omap_rev = omap_revision();
+	u32 sdram_type = emif_sdram_type();
 
 	debug(">>sdram_init()\n");
 
@@ -1275,10 +1260,10 @@ void sdram_init(void)
 	debug("in_sdram = %d\n", in_sdram);
 
 	if (!(in_sdram || warm_reset())) {
-		if (omap_rev != OMAP5432_ES1_0)
-			bypass_dpll(&prcm->cm_clkmode_dpll_core);
+		if (sdram_type == EMIF_SDRAM_TYPE_LPDDR2)
+			bypass_dpll((*prcm)->cm_clkmode_dpll_core);
 		else
-			writel(CM_DLL_CTRL_NO_OVERRIDE, &prcm->cm_dll_ctrl);
+			writel(CM_DLL_CTRL_NO_OVERRIDE, (*prcm)->cm_dll_ctrl);
 	}
 
 	if (!in_sdram)
@@ -1298,7 +1283,7 @@ void sdram_init(void)
 	}
 
 	/* for the shadow registers to take effect */
-	if (omap_rev != OMAP5432_ES1_0)
+	if (sdram_type == EMIF_SDRAM_TYPE_LPDDR2)
 		freq_update_core();
 
 	/* Do some testing after the init */

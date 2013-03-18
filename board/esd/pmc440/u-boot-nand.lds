@@ -104,7 +104,7 @@ SECTIONS
   . = .;
 
   .u_boot_list : {
-		#include <u-boot.lst>
+		KEEP(*(SORT(.u_boot_list*)));
   }
 
   . = .;

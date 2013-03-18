@@ -41,15 +41,15 @@ SECTIONS
 		*(.text*)
 	}
 
-	. = ALIGN (4);
+	. = ALIGN(4);
 	.rodata : {
 		*(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
 	}
-	. = ALIGN (4);
+	. = ALIGN(4);
 	.data : {
 		*(.data*)
 	}
-	. = ALIGN (4);
+	. = ALIGN(4);
 	.got : {
 		*(.got)
 	}
@@ -57,7 +57,7 @@ SECTIONS
 
 	. = ALIGN(4);
 	.u_boot_list : {
-	#include <u-boot.lst>
+		KEEP(*(SORT(.u_boot_list*)));
 	}
 
 	. = ALIGN (4);
@@ -72,13 +72,21 @@ SECTIONS
 		*(.dynsym)
 	}
 
-	.bss __rel_dyn_start (OVERLAY) : {
-		__bss_start = .;
+	_end = .;
+
+	.bss_start __rel_dyn_start (OVERLAY) : {
+		KEEP(*(.__bss_start));
+	}
+
+	.bss __bss_start (OVERLAY) : {
 		*(.bss*)
 		 . = ALIGN(4);
-		_end = .;
+		 __bss_end = .;
 	}
-	__bss_end =.;
+	.bss_end __bss_end (OVERLAY) : {
+		KEEP(*(__bss_end));
+	}
+
 	/DISCARD/ : { *(.dynstr*) }
 	/DISCARD/ : { *(.dynamic*) }
 	/DISCARD/ : { *(.plt*) }

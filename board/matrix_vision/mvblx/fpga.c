@@ -31,6 +31,7 @@
 #include <ACEX1K.h>
 #include <command.h>
 #include <asm/gpio.h>
+#include <linux/byteorder/generic.h>
 #include "fpga.h"
 
 #ifdef FPGA_DEBUG
@@ -209,9 +210,20 @@ int fpga_wr_fn(const void *buf, size_t len, int flush, int cookie)
 {
 	unsigned char *data = (unsigned char *) buf;
 	int i;
+	int headerlen = len - cyclone2.size;
+
+	if (headerlen < 0)
+		return FPGA_FAIL;
+	else if (headerlen == sizeof(uint32_t)) {
+		const unsigned int fpgavers_len = 11; /* '0x' + 8 hex digits + \0 */
+		char fpgavers_str[fpgavers_len];
+		snprintf(fpgavers_str, fpgavers_len, "0x%08x",
+				be32_to_cpup((uint32_t*)data));
+		setenv("fpgavers", fpgavers_str);
+	}
 
 	fpga_debug("fpga_wr: buf %p / size %d\n", buf, len);
-	for (i = 0; i < len; i++)
+	for (i = headerlen; i < len; i++)
 		_write_fpga(data[i]);
 	fpga_debug("-%s\n", __func__);
 

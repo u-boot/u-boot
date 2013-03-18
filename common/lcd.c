@@ -33,6 +33,8 @@
 #include <common.h>
 #include <command.h>
 #include <stdarg.h>
+#include <search.h>
+#include <env_callback.h>
 #include <linux/types.h>
 #include <stdio_dev.h>
 #if defined(CONFIG_POST)
@@ -1034,6 +1036,18 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 }
 #endif
 
+#ifdef CONFIG_SPLASH_SCREEN_PREPARE
+static inline int splash_screen_prepare(void)
+{
+	return board_splash_screen_prepare();
+}
+#else
+static inline int splash_screen_prepare(void)
+{
+	return 0;
+}
+#endif
+
 static void *lcd_logo(void)
 {
 #ifdef CONFIG_SPLASH_SCREEN
@@ -1044,6 +1058,9 @@ static void *lcd_logo(void)
 	if (do_splash && (s = getenv("splashimage")) != NULL) {
 		int x = 0, y = 0;
 		do_splash = 0;
+
+		if (splash_screen_prepare())
+			return (void *)gd->fb_base;
 
 		addr = simple_strtoul (s, NULL, 16);
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN
@@ -1083,6 +1100,30 @@ static void *lcd_logo(void)
 	return (void *)lcd_base;
 #endif /* CONFIG_LCD_LOGO && !CONFIG_LCD_INFO_BELOW_LOGO */
 }
+
+#ifdef CONFIG_SPLASHIMAGE_GUARD
+static int on_splashimage(const char *name, const char *value, enum env_op op,
+	int flags)
+{
+	ulong addr;
+	int aligned;
+
+	if (op == env_op_delete)
+		return 0;
+
+	addr = simple_strtoul(value, NULL, 16);
+	/* See README.displaying-bmps */
+	aligned = (addr % 4 == 2);
+	if (!aligned) {
+		printf("Invalid splashimage value. Value must be 16 bit aligned, but not 32 bit aligned\n");
+		return -1;
+	}
+
+	return 0;
+}
+
+U_BOOT_ENV_CALLBACK(splashimage, on_splashimage);
+#endif
 
 void lcd_position_cursor(unsigned col, unsigned row)
 {

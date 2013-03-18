@@ -86,7 +86,7 @@ III) Analysis of in-tree drivers
 
   7) ns9750_serial.c
   ------------------
-  No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
+  Unmaintained port. Code got removed.
 
   8) opencores_yanu.c
   -------------------

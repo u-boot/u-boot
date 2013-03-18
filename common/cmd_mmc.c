@@ -282,6 +282,13 @@ static int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 		mmc_init(mmc);
 
+		if ((state == MMC_WRITE || state == MMC_ERASE)) {
+			if (mmc_getwp(mmc) == 1) {
+				printf("Error: card is write protected!\n");
+				return 1;
+			}
+		}
+
 		switch (state) {
 		case MMC_READ:
 			n = mmc->block_dev.block_read(curr_device, blk,

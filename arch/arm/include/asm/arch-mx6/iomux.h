@@ -16,6 +16,11 @@
 
 #ifndef __ASM_ARCH_IOMUX_H__
 #define __ASM_ARCH_IOMUX_H__
+
+#define MX6_IOMUXC_GPR4		0x020e0010
+#define MX6_IOMUXC_GPR6		0x020e0018
+#define MX6_IOMUXC_GPR7		0x020e001c
+
 /*
  * IOMUXC_GPR13 bit fields
  */

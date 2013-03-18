@@ -33,6 +33,7 @@
 #include <net.h>
 #include <i2c.h>
 #include <usb.h>
+#include <mmc.h>
 #include <twl4030.h>
 #include <linux/compiler.h>
 
@@ -216,6 +217,9 @@ static void cm_t3x_set_common_muxconf(void)
 	/* SB-T35 Ethernet */
 	MUX_VAL(CP(GPMC_NCS4),		(IEN  | PTU | EN  | M0)); /*GPMC_nCS4*/
 
+	/* DVI enable */
+	MUX_VAL(CP(GPMC_NCS3),		(IDIS  | PTU | DIS  | M4));/*GPMC_nCS3*/
+
 	/* CM-T3x Ethernet */
 	MUX_VAL(CP(GPMC_NCS5),		(IDIS | PTU | DIS | M0)); /*GPMC_nCS5*/
 	MUX_VAL(CP(GPMC_CLK),		(IEN  | PTD | DIS | M4)); /*GPIO_59*/
@@ -377,9 +381,19 @@ void set_muxconf_regs(void)
 }
 
 #ifdef CONFIG_GENERIC_MMC
+int board_mmc_getcd(struct mmc *mmc)
+{
+	u8 val;
+
+	if (twl4030_i2c_read_u8(TWL4030_CHIP_GPIO, &val, TWL4030_BASEADD_GPIO))
+		return -1;
+
+	return !(val & 1);
+}
+
 int board_mmc_init(bd_t *bis)
 {
-	return omap_mmc_init(0, 0, 0);
+	return omap_mmc_init(0, 0, 0, -1, 59);
 }
 #endif
 

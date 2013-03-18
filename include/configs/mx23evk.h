@@ -33,8 +33,6 @@
 #define CONFIG_MACH_TYPE	MACH_TYPE_MX23EVK
 
 #define CONFIG_SYS_NO_FLASH
-#define CONFIG_SYS_ICACHE_OFF
-#define CONFIG_SYS_DCACHE_OFF
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_ARCH_MISC_INIT
 
@@ -60,6 +58,7 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_MMC
+#define CONFIG_CMD_USB
 #define CONFIG_CMD_BOOTZ
 
 /* Memory configurations */
@@ -112,7 +111,6 @@
 #define CONFIG_PL01x_PORTS		{ (void *)MXS_UARTDBG_BASE }
 #define CONFIG_CONS_INDEX		0
 #define CONFIG_BAUDRATE			115200	/* Default baud rate */
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /* DMA */
 #define CONFIG_APBH_DMA
@@ -123,6 +121,16 @@
 #define CONFIG_GENERIC_MMC
 #define CONFIG_BOUNCE_BUFFER
 #define CONFIG_MXS_MMC
+#endif
+
+/* USB */
+#ifdef	CONFIG_CMD_USB
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_MXS
+#define CONFIG_EHCI_MXS_PORT0
+#define CONFIG_USB_MAX_CONTROLLER_COUNT 1
+#define CONFIG_EHCI_IS_TDI
+#define CONFIG_USB_STORAGE
 #endif
 
 /* Boot Linux */

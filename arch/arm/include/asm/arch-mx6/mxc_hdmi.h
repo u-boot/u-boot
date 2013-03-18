@@ -24,542 +24,553 @@
 /*
  * Hdmi controller registers
  */
-
-/* Identification Registers */
-#define HDMI_DESIGN_ID                          0x0000
-#define HDMI_REVISION_ID                        0x0001
-#define HDMI_PRODUCT_ID0                        0x0002
-#define HDMI_PRODUCT_ID1                        0x0003
-#define HDMI_CONFIG0_ID                         0x0004
-#define HDMI_CONFIG1_ID                         0x0005
-#define HDMI_CONFIG2_ID                         0x0006
-#define HDMI_CONFIG3_ID                         0x0007
-
-/* Interrupt Registers */
-#define HDMI_IH_FC_STAT0                        0x0100
-#define HDMI_IH_FC_STAT1                        0x0101
-#define HDMI_IH_FC_STAT2                        0x0102
-#define HDMI_IH_AS_STAT0                        0x0103
-#define HDMI_IH_PHY_STAT0                       0x0104
-#define HDMI_IH_I2CM_STAT0                      0x0105
-#define HDMI_IH_CEC_STAT0                       0x0106
-#define HDMI_IH_VP_STAT0                        0x0107
-#define HDMI_IH_I2CMPHY_STAT0                   0x0108
-#define HDMI_IH_AHBDMAAUD_STAT0                 0x0109
-
-#define HDMI_IH_MUTE_FC_STAT0                   0x0180
-#define HDMI_IH_MUTE_FC_STAT1                   0x0181
-#define HDMI_IH_MUTE_FC_STAT2                   0x0182
-#define HDMI_IH_MUTE_AS_STAT0                   0x0183
-#define HDMI_IH_MUTE_PHY_STAT0                  0x0184
-#define HDMI_IH_MUTE_I2CM_STAT0                 0x0185
-#define HDMI_IH_MUTE_CEC_STAT0                  0x0186
-#define HDMI_IH_MUTE_VP_STAT0                   0x0187
-#define HDMI_IH_MUTE_I2CMPHY_STAT0              0x0188
-#define HDMI_IH_MUTE_AHBDMAAUD_STAT0            0x0189
-#define HDMI_IH_MUTE                            0x01FF
-
-/* Video Sample Registers */
-#define HDMI_TX_INVID0                          0x0200
-#define HDMI_TX_INSTUFFING                      0x0201
-#define HDMI_TX_GYDATA0                         0x0202
-#define HDMI_TX_GYDATA1                         0x0203
-#define HDMI_TX_RCRDATA0                        0x0204
-#define HDMI_TX_RCRDATA1                        0x0205
-#define HDMI_TX_BCBDATA0                        0x0206
-#define HDMI_TX_BCBDATA1                        0x0207
-
-/* Video Packetizer Registers */
-#define HDMI_VP_STATUS                          0x0800
-#define HDMI_VP_PR_CD                           0x0801
-#define HDMI_VP_STUFF                           0x0802
-#define HDMI_VP_REMAP                           0x0803
-#define HDMI_VP_CONF                            0x0804
-#define HDMI_VP_STAT                            0x0805
-#define HDMI_VP_INT                             0x0806
-#define HDMI_VP_MASK                            0x0807
-#define HDMI_VP_POL                             0x0808
-
-/* Frame Composer Registers */
-#define HDMI_FC_INVIDCONF                       0x1000
-#define HDMI_FC_INHACTV0                        0x1001
-#define HDMI_FC_INHACTV1                        0x1002
-#define HDMI_FC_INHBLANK0                       0x1003
-#define HDMI_FC_INHBLANK1                       0x1004
-#define HDMI_FC_INVACTV0                        0x1005
-#define HDMI_FC_INVACTV1                        0x1006
-#define HDMI_FC_INVBLANK                        0x1007
-#define HDMI_FC_HSYNCINDELAY0                   0x1008
-#define HDMI_FC_HSYNCINDELAY1                   0x1009
-#define HDMI_FC_HSYNCINWIDTH0                   0x100A
-#define HDMI_FC_HSYNCINWIDTH1                   0x100B
-#define HDMI_FC_VSYNCINDELAY                    0x100C
-#define HDMI_FC_VSYNCINWIDTH                    0x100D
-#define HDMI_FC_INFREQ0                         0x100E
-#define HDMI_FC_INFREQ1                         0x100F
-#define HDMI_FC_INFREQ2                         0x1010
-#define HDMI_FC_CTRLDUR                         0x1011
-#define HDMI_FC_EXCTRLDUR                       0x1012
-#define HDMI_FC_EXCTRLSPAC                      0x1013
-#define HDMI_FC_CH0PREAM                        0x1014
-#define HDMI_FC_CH1PREAM                        0x1015
-#define HDMI_FC_CH2PREAM                        0x1016
-#define HDMI_FC_AVICONF3                        0x1017
-#define HDMI_FC_GCP                             0x1018
-#define HDMI_FC_AVICONF0                        0x1019
-#define HDMI_FC_AVICONF1                        0x101A
-#define HDMI_FC_AVICONF2                        0x101B
-#define HDMI_FC_AVIVID                          0x101C
-#define HDMI_FC_AVIETB0                         0x101D
-#define HDMI_FC_AVIETB1                         0x101E
-#define HDMI_FC_AVISBB0                         0x101F
-#define HDMI_FC_AVISBB1                         0x1020
-#define HDMI_FC_AVIELB0                         0x1021
-#define HDMI_FC_AVIELB1                         0x1022
-#define HDMI_FC_AVISRB0                         0x1023
-#define HDMI_FC_AVISRB1                         0x1024
-#define HDMI_FC_AUDICONF0                       0x1025
-#define HDMI_FC_AUDICONF1                       0x1026
-#define HDMI_FC_AUDICONF2                       0x1027
-#define HDMI_FC_AUDICONF3                       0x1028
-#define HDMI_FC_VSDIEEEID0                      0x1029
-#define HDMI_FC_VSDSIZE                         0x102A
-#define HDMI_FC_VSDIEEEID1                      0x1030
-#define HDMI_FC_VSDIEEEID2                      0x1031
-#define HDMI_FC_VSDPAYLOAD0                     0x1032
-#define HDMI_FC_VSDPAYLOAD1                     0x1033
-#define HDMI_FC_VSDPAYLOAD2                     0x1034
-#define HDMI_FC_VSDPAYLOAD3                     0x1035
-#define HDMI_FC_VSDPAYLOAD4                     0x1036
-#define HDMI_FC_VSDPAYLOAD5                     0x1037
-#define HDMI_FC_VSDPAYLOAD6                     0x1038
-#define HDMI_FC_VSDPAYLOAD7                     0x1039
-#define HDMI_FC_VSDPAYLOAD8                     0x103A
-#define HDMI_FC_VSDPAYLOAD9                     0x103B
-#define HDMI_FC_VSDPAYLOAD10                    0x103C
-#define HDMI_FC_VSDPAYLOAD11                    0x103D
-#define HDMI_FC_VSDPAYLOAD12                    0x103E
-#define HDMI_FC_VSDPAYLOAD13                    0x103F
-#define HDMI_FC_VSDPAYLOAD14                    0x1040
-#define HDMI_FC_VSDPAYLOAD15                    0x1041
-#define HDMI_FC_VSDPAYLOAD16                    0x1042
-#define HDMI_FC_VSDPAYLOAD17                    0x1043
-#define HDMI_FC_VSDPAYLOAD18                    0x1044
-#define HDMI_FC_VSDPAYLOAD19                    0x1045
-#define HDMI_FC_VSDPAYLOAD20                    0x1046
-#define HDMI_FC_VSDPAYLOAD21                    0x1047
-#define HDMI_FC_VSDPAYLOAD22                    0x1048
-#define HDMI_FC_VSDPAYLOAD23                    0x1049
-#define HDMI_FC_SPDVENDORNAME0                  0x104A
-#define HDMI_FC_SPDVENDORNAME1                  0x104B
-#define HDMI_FC_SPDVENDORNAME2                  0x104C
-#define HDMI_FC_SPDVENDORNAME3                  0x104D
-#define HDMI_FC_SPDVENDORNAME4                  0x104E
-#define HDMI_FC_SPDVENDORNAME5                  0x104F
-#define HDMI_FC_SPDVENDORNAME6                  0x1050
-#define HDMI_FC_SPDVENDORNAME7                  0x1051
-#define HDMI_FC_SDPPRODUCTNAME0                 0x1052
-#define HDMI_FC_SDPPRODUCTNAME1                 0x1053
-#define HDMI_FC_SDPPRODUCTNAME2                 0x1054
-#define HDMI_FC_SDPPRODUCTNAME3                 0x1055
-#define HDMI_FC_SDPPRODUCTNAME4                 0x1056
-#define HDMI_FC_SDPPRODUCTNAME5                 0x1057
-#define HDMI_FC_SDPPRODUCTNAME6                 0x1058
-#define HDMI_FC_SDPPRODUCTNAME7                 0x1059
-#define HDMI_FC_SDPPRODUCTNAME8                 0x105A
-#define HDMI_FC_SDPPRODUCTNAME9                 0x105B
-#define HDMI_FC_SDPPRODUCTNAME10                0x105C
-#define HDMI_FC_SDPPRODUCTNAME11                0x105D
-#define HDMI_FC_SDPPRODUCTNAME12                0x105E
-#define HDMI_FC_SDPPRODUCTNAME13                0x105F
-#define HDMI_FC_SDPPRODUCTNAME14                0x1060
-#define HDMI_FC_SPDPRODUCTNAME15                0x1061
-#define HDMI_FC_SPDDEVICEINF                    0x1062
-#define HDMI_FC_AUDSCONF                        0x1063
-#define HDMI_FC_AUDSSTAT                        0x1064
-#define HDMI_FC_DATACH0FILL                     0x1070
-#define HDMI_FC_DATACH1FILL                     0x1071
-#define HDMI_FC_DATACH2FILL                     0x1072
-#define HDMI_FC_CTRLQHIGH                       0x1073
-#define HDMI_FC_CTRLQLOW                        0x1074
-#define HDMI_FC_ACP0                            0x1075
-#define HDMI_FC_ACP28                           0x1076
-#define HDMI_FC_ACP27                           0x1077
-#define HDMI_FC_ACP26                           0x1078
-#define HDMI_FC_ACP25                           0x1079
-#define HDMI_FC_ACP24                           0x107A
-#define HDMI_FC_ACP23                           0x107B
-#define HDMI_FC_ACP22                           0x107C
-#define HDMI_FC_ACP21                           0x107D
-#define HDMI_FC_ACP20                           0x107E
-#define HDMI_FC_ACP19                           0x107F
-#define HDMI_FC_ACP18                           0x1080
-#define HDMI_FC_ACP17                           0x1081
-#define HDMI_FC_ACP16                           0x1082
-#define HDMI_FC_ACP15                           0x1083
-#define HDMI_FC_ACP14                           0x1084
-#define HDMI_FC_ACP13                           0x1085
-#define HDMI_FC_ACP12                           0x1086
-#define HDMI_FC_ACP11                           0x1087
-#define HDMI_FC_ACP10                           0x1088
-#define HDMI_FC_ACP9                            0x1089
-#define HDMI_FC_ACP8                            0x108A
-#define HDMI_FC_ACP7                            0x108B
-#define HDMI_FC_ACP6                            0x108C
-#define HDMI_FC_ACP5                            0x108D
-#define HDMI_FC_ACP4                            0x108E
-#define HDMI_FC_ACP3                            0x108F
-#define HDMI_FC_ACP2                            0x1090
-#define HDMI_FC_ACP1                            0x1091
-#define HDMI_FC_ISCR1_0                         0x1092
-#define HDMI_FC_ISCR1_16                        0x1093
-#define HDMI_FC_ISCR1_15                        0x1094
-#define HDMI_FC_ISCR1_14                        0x1095
-#define HDMI_FC_ISCR1_13                        0x1096
-#define HDMI_FC_ISCR1_12                        0x1097
-#define HDMI_FC_ISCR1_11                        0x1098
-#define HDMI_FC_ISCR1_10                        0x1099
-#define HDMI_FC_ISCR1_9                         0x109A
-#define HDMI_FC_ISCR1_8                         0x109B
-#define HDMI_FC_ISCR1_7                         0x109C
-#define HDMI_FC_ISCR1_6                         0x109D
-#define HDMI_FC_ISCR1_5                         0x109E
-#define HDMI_FC_ISCR1_4                         0x109F
-#define HDMI_FC_ISCR1_3                         0x10A0
-#define HDMI_FC_ISCR1_2                         0x10A1
-#define HDMI_FC_ISCR1_1                         0x10A2
-#define HDMI_FC_ISCR2_15                        0x10A3
-#define HDMI_FC_ISCR2_14                        0x10A4
-#define HDMI_FC_ISCR2_13                        0x10A5
-#define HDMI_FC_ISCR2_12                        0x10A6
-#define HDMI_FC_ISCR2_11                        0x10A7
-#define HDMI_FC_ISCR2_10                        0x10A8
-#define HDMI_FC_ISCR2_9                         0x10A9
-#define HDMI_FC_ISCR2_8                         0x10AA
-#define HDMI_FC_ISCR2_7                         0x10AB
-#define HDMI_FC_ISCR2_6                         0x10AC
-#define HDMI_FC_ISCR2_5                         0x10AD
-#define HDMI_FC_ISCR2_4                         0x10AE
-#define HDMI_FC_ISCR2_3                         0x10AF
-#define HDMI_FC_ISCR2_2                         0x10B0
-#define HDMI_FC_ISCR2_1                         0x10B1
-#define HDMI_FC_ISCR2_0                         0x10B2
-#define HDMI_FC_DATAUTO0                        0x10B3
-#define HDMI_FC_DATAUTO1                        0x10B4
-#define HDMI_FC_DATAUTO2                        0x10B5
-#define HDMI_FC_DATMAN                          0x10B6
-#define HDMI_FC_DATAUTO3                        0x10B7
-#define HDMI_FC_RDRB0                           0x10B8
-#define HDMI_FC_RDRB1                           0x10B9
-#define HDMI_FC_RDRB2                           0x10BA
-#define HDMI_FC_RDRB3                           0x10BB
-#define HDMI_FC_RDRB4                           0x10BC
-#define HDMI_FC_RDRB5                           0x10BD
-#define HDMI_FC_RDRB6                           0x10BE
-#define HDMI_FC_RDRB7                           0x10BF
-#define HDMI_FC_STAT0                           0x10D0
-#define HDMI_FC_INT0                            0x10D1
-#define HDMI_FC_MASK0                           0x10D2
-#define HDMI_FC_POL0                            0x10D3
-#define HDMI_FC_STAT1                           0x10D4
-#define HDMI_FC_INT1                            0x10D5
-#define HDMI_FC_MASK1                           0x10D6
-#define HDMI_FC_POL1                            0x10D7
-#define HDMI_FC_STAT2                           0x10D8
-#define HDMI_FC_INT2                            0x10D9
-#define HDMI_FC_MASK2                           0x10DA
-#define HDMI_FC_POL2                            0x10DB
-#define HDMI_FC_PRCONF                          0x10E0
-
-#define HDMI_FC_GMD_STAT                        0x1100
-#define HDMI_FC_GMD_EN                          0x1101
-#define HDMI_FC_GMD_UP                          0x1102
-#define HDMI_FC_GMD_CONF                        0x1103
-#define HDMI_FC_GMD_HB                          0x1104
-#define HDMI_FC_GMD_PB0                         0x1105
-#define HDMI_FC_GMD_PB1                         0x1106
-#define HDMI_FC_GMD_PB2                         0x1107
-#define HDMI_FC_GMD_PB3                         0x1108
-#define HDMI_FC_GMD_PB4                         0x1109
-#define HDMI_FC_GMD_PB5                         0x110A
-#define HDMI_FC_GMD_PB6                         0x110B
-#define HDMI_FC_GMD_PB7                         0x110C
-#define HDMI_FC_GMD_PB8                         0x110D
-#define HDMI_FC_GMD_PB9                         0x110E
-#define HDMI_FC_GMD_PB10                        0x110F
-#define HDMI_FC_GMD_PB11                        0x1110
-#define HDMI_FC_GMD_PB12                        0x1111
-#define HDMI_FC_GMD_PB13                        0x1112
-#define HDMI_FC_GMD_PB14                        0x1113
-#define HDMI_FC_GMD_PB15                        0x1114
-#define HDMI_FC_GMD_PB16                        0x1115
-#define HDMI_FC_GMD_PB17                        0x1116
-#define HDMI_FC_GMD_PB18                        0x1117
-#define HDMI_FC_GMD_PB19                        0x1118
-#define HDMI_FC_GMD_PB20                        0x1119
-#define HDMI_FC_GMD_PB21                        0x111A
-#define HDMI_FC_GMD_PB22                        0x111B
-#define HDMI_FC_GMD_PB23                        0x111C
-#define HDMI_FC_GMD_PB24                        0x111D
-#define HDMI_FC_GMD_PB25                        0x111E
-#define HDMI_FC_GMD_PB26                        0x111F
-#define HDMI_FC_GMD_PB27                        0x1120
-
-#define HDMI_FC_DBGFORCE                        0x1200
-#define HDMI_FC_DBGAUD0CH0                      0x1201
-#define HDMI_FC_DBGAUD1CH0                      0x1202
-#define HDMI_FC_DBGAUD2CH0                      0x1203
-#define HDMI_FC_DBGAUD0CH1                      0x1204
-#define HDMI_FC_DBGAUD1CH1                      0x1205
-#define HDMI_FC_DBGAUD2CH1                      0x1206
-#define HDMI_FC_DBGAUD0CH2                      0x1207
-#define HDMI_FC_DBGAUD1CH2                      0x1208
-#define HDMI_FC_DBGAUD2CH2                      0x1209
-#define HDMI_FC_DBGAUD0CH3                      0x120A
-#define HDMI_FC_DBGAUD1CH3                      0x120B
-#define HDMI_FC_DBGAUD2CH3                      0x120C
-#define HDMI_FC_DBGAUD0CH4                      0x120D
-#define HDMI_FC_DBGAUD1CH4                      0x120E
-#define HDMI_FC_DBGAUD2CH4                      0x120F
-#define HDMI_FC_DBGAUD0CH5                      0x1210
-#define HDMI_FC_DBGAUD1CH5                      0x1211
-#define HDMI_FC_DBGAUD2CH5                      0x1212
-#define HDMI_FC_DBGAUD0CH6                      0x1213
-#define HDMI_FC_DBGAUD1CH6                      0x1214
-#define HDMI_FC_DBGAUD2CH6                      0x1215
-#define HDMI_FC_DBGAUD0CH7                      0x1216
-#define HDMI_FC_DBGAUD1CH7                      0x1217
-#define HDMI_FC_DBGAUD2CH7                      0x1218
-#define HDMI_FC_DBGTMDS0                        0x1219
-#define HDMI_FC_DBGTMDS1                        0x121A
-#define HDMI_FC_DBGTMDS2                        0x121B
-
-/* HDMI Source PHY Registers */
-#define HDMI_PHY_CONF0                          0x3000
-#define HDMI_PHY_TST0                           0x3001
-#define HDMI_PHY_TST1                           0x3002
-#define HDMI_PHY_TST2                           0x3003
-#define HDMI_PHY_STAT0                          0x3004
-#define HDMI_PHY_INT0                           0x3005
-#define HDMI_PHY_MASK0                          0x3006
-#define HDMI_PHY_POL0                           0x3007
-
-/* HDMI Master PHY Registers */
-#define HDMI_PHY_I2CM_SLAVE_ADDR                0x3020
-#define HDMI_PHY_I2CM_ADDRESS_ADDR              0x3021
-#define HDMI_PHY_I2CM_DATAO_1_ADDR              0x3022
-#define HDMI_PHY_I2CM_DATAO_0_ADDR              0x3023
-#define HDMI_PHY_I2CM_DATAI_1_ADDR              0x3024
-#define HDMI_PHY_I2CM_DATAI_0_ADDR              0x3025
-#define HDMI_PHY_I2CM_OPERATION_ADDR            0x3026
-#define HDMI_PHY_I2CM_INT_ADDR                  0x3027
-#define HDMI_PHY_I2CM_CTLINT_ADDR               0x3028
-#define HDMI_PHY_I2CM_DIV_ADDR                  0x3029
-#define HDMI_PHY_I2CM_SOFTRSTZ_ADDR             0x302a
-#define HDMI_PHY_I2CM_SS_SCL_HCNT_1_ADDR        0x302b
-#define HDMI_PHY_I2CM_SS_SCL_HCNT_0_ADDR        0x302c
-#define HDMI_PHY_I2CM_SS_SCL_LCNT_1_ADDR        0x302d
-#define HDMI_PHY_I2CM_SS_SCL_LCNT_0_ADDR        0x302e
-#define HDMI_PHY_I2CM_FS_SCL_HCNT_1_ADDR        0x302f
-#define HDMI_PHY_I2CM_FS_SCL_HCNT_0_ADDR        0x3030
-#define HDMI_PHY_I2CM_FS_SCL_LCNT_1_ADDR        0x3031
-#define HDMI_PHY_I2CM_FS_SCL_LCNT_0_ADDR        0x3032
-
-/* Audio Sampler Registers */
-#define HDMI_AUD_CONF0                          0x3100
-#define HDMI_AUD_CONF1                          0x3101
-#define HDMI_AUD_INT                            0x3102
-#define HDMI_AUD_CONF2                          0x3103
-#define HDMI_AUD_N1                             0x3200
-#define HDMI_AUD_N2                             0x3201
-#define HDMI_AUD_N3                             0x3202
-#define HDMI_AUD_CTS1                           0x3203
-#define HDMI_AUD_CTS2                           0x3204
-#define HDMI_AUD_CTS3                           0x3205
-#define HDMI_AUD_INPUTCLKFS                     0x3206
-#define HDMI_AUD_SPDIFINT			0x3302
-#define HDMI_AUD_CONF0_HBR                      0x3400
-#define HDMI_AUD_HBR_STATUS                     0x3401
-#define HDMI_AUD_HBR_INT                        0x3402
-#define HDMI_AUD_HBR_POL                        0x3403
-#define HDMI_AUD_HBR_MASK                       0x3404
-
-/* Generic Parallel Audio Interface Registers */
-/* Not used as GPAUD interface is not enabled in hw */
-#define HDMI_GP_CONF0                           0x3500
-#define HDMI_GP_CONF1                           0x3501
-#define HDMI_GP_CONF2                           0x3502
-#define HDMI_GP_STAT                            0x3503
-#define HDMI_GP_INT                             0x3504
-#define HDMI_GP_MASK                            0x3505
-#define HDMI_GP_POL                             0x3506
-
-/* Audio DMA Registers */
-#define HDMI_AHB_DMA_CONF0                      0x3600
-#define HDMI_AHB_DMA_START                      0x3601
-#define HDMI_AHB_DMA_STOP                       0x3602
-#define HDMI_AHB_DMA_THRSLD                     0x3603
-#define HDMI_AHB_DMA_STRADDR0                   0x3604
-#define HDMI_AHB_DMA_STRADDR1                   0x3605
-#define HDMI_AHB_DMA_STRADDR2                   0x3606
-#define HDMI_AHB_DMA_STRADDR3                   0x3607
-#define HDMI_AHB_DMA_STPADDR0                   0x3608
-#define HDMI_AHB_DMA_STPADDR1                   0x3609
-#define HDMI_AHB_DMA_STPADDR2                   0x360a
-#define HDMI_AHB_DMA_STPADDR3                   0x360b
-#define HDMI_AHB_DMA_BSTADDR0                   0x360c
-#define HDMI_AHB_DMA_BSTADDR1                   0x360d
-#define HDMI_AHB_DMA_BSTADDR2                   0x360e
-#define HDMI_AHB_DMA_BSTADDR3                   0x360f
-#define HDMI_AHB_DMA_MBLENGTH0                  0x3610
-#define HDMI_AHB_DMA_MBLENGTH1                  0x3611
-#define HDMI_AHB_DMA_STAT                       0x3612
-#define HDMI_AHB_DMA_INT                        0x3613
-#define HDMI_AHB_DMA_MASK                       0x3614
-#define HDMI_AHB_DMA_POL                        0x3615
-#define HDMI_AHB_DMA_CONF1                      0x3616
-#define HDMI_AHB_DMA_BUFFSTAT                   0x3617
-#define HDMI_AHB_DMA_BUFFINT                    0x3618
-#define HDMI_AHB_DMA_BUFFMASK                   0x3619
-#define HDMI_AHB_DMA_BUFFPOL                    0x361a
-
-/* Main Controller Registers */
-#define HDMI_MC_SFRDIV                          0x4000
-#define HDMI_MC_CLKDIS                          0x4001
-#define HDMI_MC_SWRSTZ                          0x4002
-#define HDMI_MC_OPCTRL                          0x4003
-#define HDMI_MC_FLOWCTRL                        0x4004
-#define HDMI_MC_PHYRSTZ                         0x4005
-#define HDMI_MC_LOCKONCLOCK                     0x4006
-#define HDMI_MC_HEACPHY_RST                     0x4007
-
-/* Color Space  Converter Registers */
-#define HDMI_CSC_CFG                            0x4100
-#define HDMI_CSC_SCALE                          0x4101
-#define HDMI_CSC_COEF_A1_MSB                    0x4102
-#define HDMI_CSC_COEF_A1_LSB                    0x4103
-#define HDMI_CSC_COEF_A2_MSB                    0x4104
-#define HDMI_CSC_COEF_A2_LSB                    0x4105
-#define HDMI_CSC_COEF_A3_MSB                    0x4106
-#define HDMI_CSC_COEF_A3_LSB                    0x4107
-#define HDMI_CSC_COEF_A4_MSB                    0x4108
-#define HDMI_CSC_COEF_A4_LSB                    0x4109
-#define HDMI_CSC_COEF_B1_MSB                    0x410A
-#define HDMI_CSC_COEF_B1_LSB                    0x410B
-#define HDMI_CSC_COEF_B2_MSB                    0x410C
-#define HDMI_CSC_COEF_B2_LSB                    0x410D
-#define HDMI_CSC_COEF_B3_MSB                    0x410E
-#define HDMI_CSC_COEF_B3_LSB                    0x410F
-#define HDMI_CSC_COEF_B4_MSB                    0x4110
-#define HDMI_CSC_COEF_B4_LSB                    0x4111
-#define HDMI_CSC_COEF_C1_MSB                    0x4112
-#define HDMI_CSC_COEF_C1_LSB                    0x4113
-#define HDMI_CSC_COEF_C2_MSB                    0x4114
-#define HDMI_CSC_COEF_C2_LSB                    0x4115
-#define HDMI_CSC_COEF_C3_MSB                    0x4116
-#define HDMI_CSC_COEF_C3_LSB                    0x4117
-#define HDMI_CSC_COEF_C4_MSB                    0x4118
-#define HDMI_CSC_COEF_C4_LSB                    0x4119
-
-/* HDCP Encryption Engine Registers */
-#define HDMI_A_HDCPCFG0                         0x5000
-#define HDMI_A_HDCPCFG1                         0x5001
-#define HDMI_A_HDCPOBS0                         0x5002
-#define HDMI_A_HDCPOBS1                         0x5003
-#define HDMI_A_HDCPOBS2                         0x5004
-#define HDMI_A_HDCPOBS3                         0x5005
-#define HDMI_A_APIINTCLR                        0x5006
-#define HDMI_A_APIINTSTAT                       0x5007
-#define HDMI_A_APIINTMSK                        0x5008
-#define HDMI_A_VIDPOLCFG                        0x5009
-#define HDMI_A_OESSWCFG                         0x500A
-#define HDMI_A_TIMER1SETUP0                     0x500B
-#define HDMI_A_TIMER1SETUP1                     0x500C
-#define HDMI_A_TIMER2SETUP0                     0x500D
-#define HDMI_A_TIMER2SETUP1                     0x500E
-#define HDMI_A_100MSCFG                         0x500F
-#define HDMI_A_2SCFG0                           0x5010
-#define HDMI_A_2SCFG1                           0x5011
-#define HDMI_A_5SCFG0                           0x5012
-#define HDMI_A_5SCFG1                           0x5013
-#define HDMI_A_SRMVERLSB                        0x5014
-#define HDMI_A_SRMVERMSB                        0x5015
-#define HDMI_A_SRMCTRL                          0x5016
-#define HDMI_A_SFRSETUP                         0x5017
-#define HDMI_A_I2CHSETUP                        0x5018
-#define HDMI_A_INTSETUP                         0x5019
-#define HDMI_A_PRESETUP                         0x501A
-#define HDMI_A_SRM_BASE                         0x5020
-
-/* CEC Engine Registers */
-#define HDMI_CEC_CTRL                           0x7D00
-#define HDMI_CEC_STAT                           0x7D01
-#define HDMI_CEC_MASK                           0x7D02
-#define HDMI_CEC_POLARITY                       0x7D03
-#define HDMI_CEC_INT                            0x7D04
-#define HDMI_CEC_ADDR_L                         0x7D05
-#define HDMI_CEC_ADDR_H                         0x7D06
-#define HDMI_CEC_TX_CNT                         0x7D07
-#define HDMI_CEC_RX_CNT                         0x7D08
-#define HDMI_CEC_TX_DATA0                       0x7D10
-#define HDMI_CEC_TX_DATA1                       0x7D11
-#define HDMI_CEC_TX_DATA2                       0x7D12
-#define HDMI_CEC_TX_DATA3                       0x7D13
-#define HDMI_CEC_TX_DATA4                       0x7D14
-#define HDMI_CEC_TX_DATA5                       0x7D15
-#define HDMI_CEC_TX_DATA6                       0x7D16
-#define HDMI_CEC_TX_DATA7                       0x7D17
-#define HDMI_CEC_TX_DATA8                       0x7D18
-#define HDMI_CEC_TX_DATA9                       0x7D19
-#define HDMI_CEC_TX_DATA10                      0x7D1a
-#define HDMI_CEC_TX_DATA11                      0x7D1b
-#define HDMI_CEC_TX_DATA12                      0x7D1c
-#define HDMI_CEC_TX_DATA13                      0x7D1d
-#define HDMI_CEC_TX_DATA14                      0x7D1e
-#define HDMI_CEC_TX_DATA15                      0x7D1f
-#define HDMI_CEC_RX_DATA0                       0x7D20
-#define HDMI_CEC_RX_DATA1                       0x7D21
-#define HDMI_CEC_RX_DATA2                       0x7D22
-#define HDMI_CEC_RX_DATA3                       0x7D23
-#define HDMI_CEC_RX_DATA4                       0x7D24
-#define HDMI_CEC_RX_DATA5                       0x7D25
-#define HDMI_CEC_RX_DATA6                       0x7D26
-#define HDMI_CEC_RX_DATA7                       0x7D27
-#define HDMI_CEC_RX_DATA8                       0x7D28
-#define HDMI_CEC_RX_DATA9                       0x7D29
-#define HDMI_CEC_RX_DATA10                      0x7D2a
-#define HDMI_CEC_RX_DATA11                      0x7D2b
-#define HDMI_CEC_RX_DATA12                      0x7D2c
-#define HDMI_CEC_RX_DATA13                      0x7D2d
-#define HDMI_CEC_RX_DATA14                      0x7D2e
-#define HDMI_CEC_RX_DATA15                      0x7D2f
-#define HDMI_CEC_LOCK                           0x7D30
-#define HDMI_CEC_WKUPCTRL                       0x7D31
-
-/* I2C Master Registers (E-DDC) */
-#define HDMI_I2CM_SLAVE                         0x7E00
-#define HDMI_I2CMESS                            0x7E01
-#define HDMI_I2CM_DATAO                         0x7E02
-#define HDMI_I2CM_DATAI                         0x7E03
-#define HDMI_I2CM_OPERATION                     0x7E04
-#define HDMI_I2CM_INT                           0x7E05
-#define HDMI_I2CM_CTLINT                        0x7E06
-#define HDMI_I2CM_DIV                           0x7E07
-#define HDMI_I2CM_SEGADDR                       0x7E08
-#define HDMI_I2CM_SOFTRSTZ                      0x7E09
-#define HDMI_I2CM_SEGPTR                        0x7E0A
-#define HDMI_I2CM_SS_SCL_HCNT_1_ADDR            0x7E0B
-#define HDMI_I2CM_SS_SCL_HCNT_0_ADDR            0x7E0C
-#define HDMI_I2CM_SS_SCL_LCNT_1_ADDR            0x7E0D
-#define HDMI_I2CM_SS_SCL_LCNT_0_ADDR            0x7E0E
-#define HDMI_I2CM_FS_SCL_HCNT_1_ADDR            0x7E0F
-#define HDMI_I2CM_FS_SCL_HCNT_0_ADDR            0x7E10
-#define HDMI_I2CM_FS_SCL_LCNT_1_ADDR            0x7E11
-#define HDMI_I2CM_FS_SCL_LCNT_0_ADDR            0x7E12
-
-/* Random Number Generator Registers (RNG) */
-#define HDMI_RNG_BASE                           0x8000
-
+struct hdmi_regs {
+	/*Identification Registers */
+	u8 design_id;			/* 0x000 */
+	u8 revision_id;			/* 0x001 */
+	u8 product_id0;			/* 0x002 */
+	u8 product_id1;			/* 0x003 */
+	u8 config0_id;			/* 0x004 */
+	u8 config1_id;			/* 0x005 */
+	u8 config2_id;			/* 0x006 */
+	u8 config3_id;			/* 0x007 */
+	u8 reserved1[0xf8];
+	/* Interrupt Registers */
+	u8 ih_fc_stat0;			/* 0x100 */
+	u8 ih_fc_stat1;			/* 0x101 */
+	u8 ih_fc_stat2;			/* 0x102 */
+	u8 ih_as_stat0;			/* 0x103 */
+	u8 ih_phy_stat0;		/* 0x104 */
+	u8 ih_i2cm_stat0;		/* 0x105 */
+	u8 ih_cec_stat0;		/* 0x106 */
+	u8 ih_vp_stat0;			/* 0x107 */
+	u8 ih_i2cmphy_stat0;		/* 0x108 */
+	u8 ih_ahbdmaaud_stat0;		/* 0x109 */
+	u8 reserved2[0x76];
+	u8 ih_mute_fc_stat0;		/* 0x180 */
+	u8 ih_mute_fc_stat1;		/* 0x181 */
+	u8 ih_mute_fc_stat2;		/* 0x182 */
+	u8 ih_mute_as_stat0;		/* 0x183 */
+	u8 ih_mute_phy_stat0;		/* 0x184 */
+	u8 ih_mute_i2cm_stat0;		/* 0x185 */
+	u8 ih_mute_cec_stat0;		/* 0x186 */
+	u8 ih_mute_vp_stat0;		/* 0x187 */
+	u8 ih_mute_i2cmphy_stat0;	/* 0x188 */
+	u8 ih_mute_ahbdmaaud_stat0;	/* 0x189 */
+	u8 reserved3[0x75];
+	u8 ih_mute;			/* 0x1ff */
+	/* Video Sample Registers */
+	u8 tx_invid0;			/* 0x200 */
+	u8 tx_instuffing;		/* 0x201 */
+	u8 tx_gydata0;			/* 0x202 */
+	u8 tx_gydata1;			/* 0x203 */
+	u8 tx_rcrdata0;			/* 0x204 */
+	u8 tx_rcrdata1;			/* 0x205 */
+	u8 tx_bcbdata0;			/* 0x206 */
+	u8 tx_bcbdata1;			/* 0x207 */
+	u8 reserved4[0x5f8];
+	/* Video Packetizer Registers */
+	u8 vp_status;			/* 0x800 */
+	u8 vp_pr_cd;			/* 0x801 */
+	u8 vp_stuff;			/* 0x802 */
+	u8 vp_remap;			/* 0x803 */
+	u8 vp_conf;			/* 0x804 */
+	u8 vp_stat;			/* 0x805 */
+	u8 vp_int;			/* 0x806 */
+	u8 vp_mask;			/* 0x807 */
+	u8 vp_pol;			/* 0x808 */
+	u8 reserved5[0x7f7];
+	/* Frame Composer Registers */
+	u8 fc_invidconf;		/* 0x1000 */
+	u8 fc_inhactv0;			/* 0x1001 */
+	u8 fc_inhactv1;			/* 0x1002 */
+	u8 fc_inhblank0;		/* 0x1003 */
+	u8 fc_inhblank1;		/* 0x1004 */
+	u8 fc_invactv0;			/* 0x1005 */
+	u8 fc_invactv1;			/* 0x1006 */
+	u8 fc_invblank;			/* 0x1007 */
+	u8 fc_hsyncindelay0;		/* 0x1008 */
+	u8 fc_hsyncindelay1;		/* 0x1009 */
+	u8 fc_hsyncinwidth0;		/* 0x100a */
+	u8 fc_hsyncinwidth1;		/* 0x100b */
+	u8 fc_vsyncindelay;		/* 0x100c */
+	u8 fc_vsyncinwidth;		/* 0x100d */
+	u8 fc_infreq0;			/* 0x100e */
+	u8 fc_infreq1;			/* 0x100f */
+	u8 fc_infreq2;			/* 0x1010 */
+	u8 fc_ctrldur;			/* 0x1011 */
+	u8 fc_exctrldur;		/* 0x1012 */
+	u8 fc_exctrlspac;		/* 0x1013 */
+	u8 fc_ch0pream;			/* 0x1014 */
+	u8 fc_ch1pream;			/* 0x1015 */
+	u8 fc_ch2pream;			/* 0x1016 */
+	u8 fc_aviconf3;			/* 0x1017 */
+	u8 fc_gcp;			/* 0x1018 */
+	u8 fc_aviconf0;			/* 0x1019 */
+	u8 fc_aviconf1;			/* 0x101a */
+	u8 fc_aviconf2;			/* 0x101b */
+	u8 fc_avivid;			/* 0x101c */
+	u8 fc_avietb0;			/* 0x101d */
+	u8 fc_avietb1;			/* 0x101e */
+	u8 fc_avisbb0;			/* 0x101f */
+	u8 fc_avisbb1;			/* 0x1020 */
+	u8 fc_avielb0;			/* 0x1021 */
+	u8 fc_avielb1;			/* 0x1022 */
+	u8 fc_avisrb0;			/* 0x1023 */
+	u8 fc_avisrb1;			/* 0x1024 */
+	u8 fc_audiconf0;		/* 0x1025 */
+	u8 fc_audiconf1;		/* 0x1026 */
+	u8 fc_audiconf2;		/* 0x1027 */
+	u8 fc_audiconf3;		/* 0x1028 */
+	u8 fc_vsdieeeid0;		/* 0x1029 */
+	u8 fc_vsdsize;			/* 0x102a */
+	u8 reserved6[5];
+	u8 fc_vsdieeeid1;		/* 0x1030 */
+	u8 fc_vsdieeeid2;		/* 0x1031 */
+	u8 fc_vsdpayload0;		/* 0x1032 */
+	u8 fc_vsdpayload1;		/* 0x1033 */
+	u8 fc_vsdpayload2;		/* 0x1034 */
+	u8 fc_vsdpayload3;		/* 0x1035 */
+	u8 fc_vsdpayload4;		/* 0x1036 */
+	u8 fc_vsdpayload5;		/* 0x1037 */
+	u8 fc_vsdpayload6;		/* 0x1038 */
+	u8 fc_vsdpayload7;		/* 0x1039 */
+	u8 fc_vsdpayload8;		/* 0x103a */
+	u8 fc_vsdpayload9;		/* 0x103b */
+	u8 fc_vsdpayload10;		/* 0x103c */
+	u8 fc_vsdpayload11;		/* 0x103d */
+	u8 fc_vsdpayload12;		/* 0x103e */
+	u8 fc_vsdpayload13;		/* 0x103f */
+	u8 fc_vsdpayload14;		/* 0x1040 */
+	u8 fc_vsdpayload15;		/* 0x1041 */
+	u8 fc_vsdpayload16;		/* 0x1042 */
+	u8 fc_vsdpayload17;		/* 0x1043 */
+	u8 fc_vsdpayload18;		/* 0x1044 */
+	u8 fc_vsdpayload19;		/* 0x1045 */
+	u8 fc_vsdpayload20;		/* 0x1046 */
+	u8 fc_vsdpayload21;		/* 0x1047 */
+	u8 fc_vsdpayload22;		/* 0x1048 */
+	u8 fc_vsdpayload23;		/* 0x1049 */
+	u8 fc_spdvendorname0;		/* 0x104a */
+	u8 fc_spdvendorname1;		/* 0x104b */
+	u8 fc_spdvendorname2;		/* 0x104c */
+	u8 fc_spdvendorname3;		/* 0x104d */
+	u8 fc_spdvendorname4;		/* 0x104e */
+	u8 fc_spdvendorname5;		/* 0x104f */
+	u8 fc_spdvendorname6;		/* 0x1050 */
+	u8 fc_spdvendorname7;		/* 0x1051 */
+	u8 fc_sdpproductname0;		/* 0x1052 */
+	u8 fc_sdpproductname1;		/* 0x1053 */
+	u8 fc_sdpproductname2;		/* 0x1054 */
+	u8 fc_sdpproductname3;		/* 0x1055 */
+	u8 fc_sdpproductname4;		/* 0x1056 */
+	u8 fc_sdpproductname5;		/* 0x1057 */
+	u8 fc_sdpproductname6;		/* 0x1058 */
+	u8 fc_sdpproductname7;		/* 0x1059 */
+	u8 fc_sdpproductname8;		/* 0x105a */
+	u8 fc_sdpproductname9;		/* 0x105b */
+	u8 fc_sdpproductname10;		/* 0x105c */
+	u8 fc_sdpproductname11;		/* 0x105d */
+	u8 fc_sdpproductname12;		/* 0x105e */
+	u8 fc_sdpproductname13;		/* 0x105f */
+	u8 fc_sdpproductname14;		/* 0x1060 */
+	u8 fc_spdproductname15;		/* 0x1061 */
+	u8 fc_spddeviceinf;		/* 0x1062 */
+	u8 fc_audsconf;			/* 0x1063 */
+	u8 fc_audsstat;			/* 0x1064 */
+	u8 reserved7[0xb];
+	u8 fc_datach0fill;		/* 0x1070 */
+	u8 fc_datach1fill;		/* 0x1071 */
+	u8 fc_datach2fill;		/* 0x1072 */
+	u8 fc_ctrlqhigh;		/* 0x1073 */
+	u8 fc_ctrlqlow;			/* 0x1074 */
+	u8 fc_acp0;			/* 0x1075 */
+	u8 fc_acp28;			/* 0x1076 */
+	u8 fc_acp27;			/* 0x1077 */
+	u8 fc_acp26;			/* 0x1078 */
+	u8 fc_acp25;			/* 0x1079 */
+	u8 fc_acp24;			/* 0x107a */
+	u8 fc_acp23;			/* 0x107b */
+	u8 fc_acp22;			/* 0x107c */
+	u8 fc_acp21;			/* 0x107d */
+	u8 fc_acp20;			/* 0x107e */
+	u8 fc_acp19;			/* 0x107f */
+	u8 fc_acp18;			/* 0x1080 */
+	u8 fc_acp17;			/* 0x1081 */
+	u8 fc_acp16;			/* 0x1082 */
+	u8 fc_acp15;			/* 0x1083 */
+	u8 fc_acp14;			/* 0x1084 */
+	u8 fc_acp13;			/* 0x1085 */
+	u8 fc_acp12;			/* 0x1086 */
+	u8 fc_acp11;			/* 0x1087 */
+	u8 fc_acp10;			/* 0x1088 */
+	u8 fc_acp9;			/* 0x1089 */
+	u8 fc_acp8;			/* 0x108a */
+	u8 fc_acp7;			/* 0x108b */
+	u8 fc_acp6;			/* 0x108c */
+	u8 fc_acp5;			/* 0x108d */
+	u8 fc_acp4;			/* 0x108e */
+	u8 fc_acp3;			/* 0x108f */
+	u8 fc_acp2;			/* 0x1090 */
+	u8 fc_acp1;			/* 0x1091 */
+	u8 fc_iscr1_0;			/* 0x1092 */
+	u8 fc_iscr1_16;			/* 0x1093 */
+	u8 fc_iscr1_15;			/* 0x1094 */
+	u8 fc_iscr1_14;			/* 0x1095 */
+	u8 fc_iscr1_13;			/* 0x1096 */
+	u8 fc_iscr1_12;			/* 0x1097 */
+	u8 fc_iscr1_11;			/* 0x1098 */
+	u8 fc_iscr1_10;			/* 0x1099 */
+	u8 fc_iscr1_9;			/* 0x109a */
+	u8 fc_iscr1_8;			/* 0x109b */
+	u8 fc_iscr1_7;			/* 0x109c */
+	u8 fc_iscr1_6;			/* 0x109d */
+	u8 fc_iscr1_5;			/* 0x109e */
+	u8 fc_iscr1_4;			/* 0x109f */
+	u8 fc_iscr1_3;			/* 0x10a0 */
+	u8 fc_iscr1_2;			/* 0x10a1 */
+	u8 fc_iscr1_1;			/* 0x10a2 */
+	u8 fc_iscr2_15;			/* 0x10a3 */
+	u8 fc_iscr2_14;			/* 0x10a4 */
+	u8 fc_iscr2_13;			/* 0x10a5 */
+	u8 fc_iscr2_12;			/* 0x10a6 */
+	u8 fc_iscr2_11;			/* 0x10a7 */
+	u8 fc_iscr2_10;			/* 0x10a8 */
+	u8 fc_iscr2_9;			/* 0x10a9 */
+	u8 fc_iscr2_8;			/* 0x10aa */
+	u8 fc_iscr2_7;			/* 0x10ab */
+	u8 fc_iscr2_6;			/* 0x10ac */
+	u8 fc_iscr2_5;			/* 0x10ad */
+	u8 fc_iscr2_4;			/* 0x10ae */
+	u8 fc_iscr2_3;			/* 0x10af */
+	u8 fc_iscr2_2;			/* 0x10b0 */
+	u8 fc_iscr2_1;			/* 0x10b1 */
+	u8 fc_iscr2_0;			/* 0x10b2 */
+	u8 fc_datauto0;			/* 0x10b3 */
+	u8 fc_datauto1;			/* 0x10b4 */
+	u8 fc_datauto2;			/* 0x10b5 */
+	u8 fc_datman;			/* 0x10b6 */
+	u8 fc_datauto3;			/* 0x10b7 */
+	u8 fc_rdrb0;			/* 0x10b8 */
+	u8 fc_rdrb1;			/* 0x10b9 */
+	u8 fc_rdrb2;			/* 0x10ba */
+	u8 fc_rdrb3;			/* 0x10bb */
+	u8 fc_rdrb4;			/* 0x10bc */
+	u8 fc_rdrb5;			/* 0x10bd */
+	u8 fc_rdrb6;			/* 0x10be */
+	u8 fc_rdrb7;			/* 0x10bf */
+	u8 reserved8[0x10];
+	u8 fc_stat0;			/* 0x10d0 */
+	u8 fc_int0;			/* 0x10d1 */
+	u8 fc_mask0;			/* 0x10d2 */
+	u8 fc_pol0;			/* 0x10d3 */
+	u8 fc_stat1;			/* 0x10d4 */
+	u8 fc_int1;			/* 0x10d5 */
+	u8 fc_mask1;			/* 0x10d6 */
+	u8 fc_pol1;			/* 0x10d7 */
+	u8 fc_stat2;			/* 0x10d8 */
+	u8 fc_int2;			/* 0x10d9 */
+	u8 fc_mask2;			/* 0x10da */
+	u8 fc_pol2;			/* 0x10db */
+	u8 reserved9[0x4];
+	u8 fc_prconf;			/* 0x10e0 */
+	u8 reserved10[0x1f];
+	u8 fc_gmd_stat;			/* 0x1100 */
+	u8 fc_gmd_en;			/* 0x1101 */
+	u8 fc_gmd_up;			/* 0x1102 */
+	u8 fc_gmd_conf;			/* 0x1103 */
+	u8 fc_gmd_hb;			/* 0x1104 */
+	u8 fc_gmd_pb0;			/* 0x1105 */
+	u8 fc_gmd_pb1;			/* 0x1106 */
+	u8 fc_gmd_pb2;			/* 0x1107 */
+	u8 fc_gmd_pb3;			/* 0x1108 */
+	u8 fc_gmd_pb4;			/* 0x1109 */
+	u8 fc_gmd_pb5;			/* 0x110a */
+	u8 fc_gmd_pb6;			/* 0x110b */
+	u8 fc_gmd_pb7;			/* 0x110c */
+	u8 fc_gmd_pb8;			/* 0x110d */
+	u8 fc_gmd_pb9;			/* 0x110e */
+	u8 fc_gmd_pb10;			/* 0x110f */
+	u8 fc_gmd_pb11;			/* 0x1110 */
+	u8 fc_gmd_pb12;			/* 0x1111 */
+	u8 fc_gmd_pb13;			/* 0x1112 */
+	u8 fc_gmd_pb14;			/* 0x1113 */
+	u8 fc_gmd_pb15;			/* 0x1114 */
+	u8 fc_gmd_pb16;			/* 0x1115 */
+	u8 fc_gmd_pb17;			/* 0x1116 */
+	u8 fc_gmd_pb18;			/* 0x1117 */
+	u8 fc_gmd_pb19;			/* 0x1118 */
+	u8 fc_gmd_pb20;			/* 0x1119 */
+	u8 fc_gmd_pb21;			/* 0x111a */
+	u8 fc_gmd_pb22;			/* 0x111b */
+	u8 fc_gmd_pb23;			/* 0x111c */
+	u8 fc_gmd_pb24;			/* 0x111d */
+	u8 fc_gmd_pb25;			/* 0x111e */
+	u8 fc_gmd_pb26;			/* 0x111f */
+	u8 fc_gmd_pb27;			/* 0x1120 */
+	u8 reserved11[0xdf];
+	u8 fc_dbgforce;			/* 0x1200 */
+	u8 fc_dbgaud0ch0;		/* 0x1201 */
+	u8 fc_dbgaud1ch0;		/* 0x1202 */
+	u8 fc_dbgaud2ch0;		/* 0x1203 */
+	u8 fc_dbgaud0ch1;		/* 0x1204 */
+	u8 fc_dbgaud1ch1;		/* 0x1205 */
+	u8 fc_dbgaud2ch1;		/* 0x1206 */
+	u8 fc_dbgaud0ch2;		/* 0x1207 */
+	u8 fc_dbgaud1ch2;		/* 0x1208 */
+	u8 fc_dbgaud2ch2;		/* 0x1209 */
+	u8 fc_dbgaud0ch3;		/* 0x120a */
+	u8 fc_dbgaud1ch3;		/* 0x120b */
+	u8 fc_dbgaud2ch3;		/* 0x120c */
+	u8 fc_dbgaud0ch4;		/* 0x120d */
+	u8 fc_dbgaud1ch4;		/* 0x120e */
+	u8 fc_dbgaud2ch4;		/* 0x120f */
+	u8 fc_dbgaud0ch5;		/* 0x1210 */
+	u8 fc_dbgaud1ch5;		/* 0x1211 */
+	u8 fc_dbgaud2ch5;		/* 0x1212 */
+	u8 fc_dbgaud0ch6;		/* 0x1213 */
+	u8 fc_dbgaud1ch6;		/* 0x1214 */
+	u8 fc_dbgaud2ch6;		/* 0x1215 */
+	u8 fc_dbgaud0ch7;		/* 0x1216 */
+	u8 fc_dbgaud1ch7;		/* 0x1217 */
+	u8 fc_dbgaud2ch7;		/* 0x1218 */
+	u8 fc_dbgtmds0;			/* 0x1219 */
+	u8 fc_dbgtmds1;			/* 0x121a */
+	u8 fc_dbgtmds2;			/* 0x121b */
+	u8 reserved12[0x1de4];
+	/* Hdmi Source Phy Registers */
+	u8 phy_conf0;			/* 0x3000 */
+	u8 phy_tst0;			/* 0x3001 */
+	u8 phy_tst1;			/* 0x3002 */
+	u8 phy_tst2;			/* 0x3003 */
+	u8 phy_stat0;			/* 0x3004 */
+	u8 phy_int0;			/* 0x3005 */
+	u8 phy_mask0;			/* 0x3006 */
+	u8 phy_pol0;			/* 0x3007 */
+	u8 reserved13[0x18];
+	/* Hdmi Master Phy Registers */
+	u8 phy_i2cm_slave_addr;		/* 0x3020 */
+	u8 phy_i2cm_address_addr;	/* 0x3021 */
+	u8 phy_i2cm_datao_1_addr;	/* 0x3022 */
+	u8 phy_i2cm_datao_0_addr;	/* 0x3023 */
+	u8 phy_i2cm_datai_1_addr;	/* 0x3024 */
+	u8 phy_i2cm_datai_0_addr;	/* 0x3025 */
+	u8 phy_i2cm_operation_addr;	/* 0x3026 */
+	u8 phy_i2cm_int_addr;		/* 0x3027 */
+	u8 phy_i2cm_ctlint_addr;	/* 0x3028 */
+	u8 phy_i2cm_div_addr;		/* 0x3029 */
+	u8 phy_i2cm_softrstz_addr;	/* 0x302a */
+	u8 phy_i2cm_ss_scl_hcnt_1_addr;	/* 0x302b */
+	u8 phy_i2cm_ss_scl_hcnt_0_addr;	/* 0x302c */
+	u8 phy_i2cm_ss_scl_lcnt_1_addr;	/* 0x302d */
+	u8 phy_i2cm_ss_scl_lcnt_0_addr;	/* 0x302e */
+	u8 phy_i2cm_fs_scl_hcnt_1_addr;	/* 0x302f */
+	u8 phy_i2cm_fs_scl_hcnt_0_addr;	/* 0x3030 */
+	u8 phy_i2cm_fs_scl_lcnt_1_addr;	/* 0x3031 */
+	u8 phy_i2cm_fs_scl_lcnt_0_addr;	/* 0x3032 */
+	u8 reserved14[0xcd];
+	/* Audio Sampler Registers */
+	u8 aud_conf0;			/* 0x3100 */
+	u8 aud_conf1;			/* 0x3101 */
+	u8 aud_int;			/* 0x3102 */
+	u8 aud_conf2;			/* 0x3103 */
+	u8 reserved15[0xfc];
+	u8 aud_n1;			/* 0x3200 */
+	u8 aud_n2;			/* 0x3201 */
+	u8 aud_n3;			/* 0x3202 */
+	u8 aud_cts1;			/* 0x3203 */
+	u8 aud_cts2;			/* 0x3204 */
+	u8 aud_cts3;			/* 0x3205 */
+	u8 aud_inputclkfs;		/* 0x3206 */
+	u8 reserved16[0xfb];
+	u8 aud_spdifint;		/* 0x3302 */
+	u8 reserved17[0xfd];
+	u8 aud_conf0_hbr;		/* 0x3400 */
+	u8 aud_hbr_status;		/* 0x3401 */
+	u8 aud_hbr_int;			/* 0x3402 */
+	u8 aud_hbr_pol;			/* 0x3403 */
+	u8 aud_hbr_mask;		/* 0x3404 */
+	u8 reserved18[0xfb];
+	/*
+	 * Generic Parallel Audio Interface Registers
+	 * Not used as GPAUD interface is not enabled in hw
+	 */
+	u8 gp_conf0;			/* 0x3500 */
+	u8 gp_conf1;			/* 0x3501 */
+	u8 gp_conf2;			/* 0x3502 */
+	u8 gp_stat;			/* 0x3503 */
+	u8 gp_int;			/* 0x3504 */
+	u8 gp_mask;			/* 0x3505 */
+	u8 gp_pol;			/* 0x3506 */
+	u8 reserved19[0xf9];
+	/* Audio DMA Registers */
+	u8 ahb_dma_conf0;		/* 0x3600 */
+	u8 ahb_dma_start;		/* 0x3601 */
+	u8 ahb_dma_stop;		/* 0x3602 */
+	u8 ahb_dma_thrsld;		/* 0x3603 */
+	u8 ahb_dma_straddr0;		/* 0x3604 */
+	u8 ahb_dma_straddr1;		/* 0x3605 */
+	u8 ahb_dma_straddr2;		/* 0x3606 */
+	u8 ahb_dma_straddr3;		/* 0x3607 */
+	u8 ahb_dma_stpaddr0;		/* 0x3608 */
+	u8 ahb_dma_stpaddr1;		/* 0x3609 */
+	u8 ahb_dma_stpaddr2;		/* 0x360a */
+	u8 ahb_dma_stpaddr3;		/* 0x360b */
+	u8 ahb_dma_bstaddr0;		/* 0x360c */
+	u8 ahb_dma_bstaddr1;		/* 0x360d */
+	u8 ahb_dma_bstaddr2;		/* 0x360e */
+	u8 ahb_dma_bstaddr3;		/* 0x360f */
+	u8 ahb_dma_mblength0;		/* 0x3610 */
+	u8 ahb_dma_mblength1;		/* 0x3611 */
+	u8 ahb_dma_stat;		/* 0x3612 */
+	u8 ahb_dma_int;			/* 0x3613 */
+	u8 ahb_dma_mask;		/* 0x3614 */
+	u8 ahb_dma_pol;			/* 0x3615 */
+	u8 ahb_dma_conf1;		/* 0x3616 */
+	u8 ahb_dma_buffstat;		/* 0x3617 */
+	u8 ahb_dma_buffint;		/* 0x3618 */
+	u8 ahb_dma_buffmask;		/* 0x3619 */
+	u8 ahb_dma_buffpol;		/* 0x361a */
+	u8 reserved20[0x9e5];
+	/* Main Controller Registers */
+	u8 mc_sfrdiv;			/* 0x4000 */
+	u8 mc_clkdis;			/* 0x4001 */
+	u8 mc_swrstz;			/* 0x4002 */
+	u8 mc_opctrl;			/* 0x4003 */
+	u8 mc_flowctrl;			/* 0x4004 */
+	u8 mc_phyrstz;			/* 0x4005 */
+	u8 mc_lockonclock;		/* 0x4006 */
+	u8 mc_heacphy_rst;		/* 0x4007 */
+	u8 reserved21[0xf8];
+	/* Colorspace Converter Registers */
+	u8 csc_cfg;			/* 0x4100 */
+	u8 csc_scale;			/* 0x4101 */
+	u8 csc_coef_a1_msb;		/* 0x4102 */
+	u8 csc_coef_a1_lsb;		/* 0x4103 */
+	u8 csc_coef_a2_msb;		/* 0x4104 */
+	u8 csc_coef_a2_lsb;		/* 0x4105 */
+	u8 csc_coef_a3_msb;		/* 0x4106 */
+	u8 csc_coef_a3_lsb;		/* 0x4107 */
+	u8 csc_coef_a4_msb;		/* 0x4108 */
+	u8 csc_coef_a4_lsb;		/* 0x4109 */
+	u8 csc_coef_b1_msb;		/* 0x410a */
+	u8 csc_coef_b1_lsb;		/* 0x410b */
+	u8 csc_coef_b2_msb;		/* 0x410c */
+	u8 csc_coef_b2_lsb;		/* 0x410d */
+	u8 csc_coef_b3_msb;		/* 0x410e */
+	u8 csc_coef_b3_lsb;		/* 0x410f */
+	u8 csc_coef_b4_msb;		/* 0x4110 */
+	u8 csc_coef_b4_lsb;		/* 0x4111 */
+	u8 csc_coef_c1_msb;		/* 0x4112 */
+	u8 csc_coef_c1_lsb;		/* 0x4113 */
+	u8 csc_coef_c2_msb;		/* 0x4114 */
+	u8 csc_coef_c2_lsb;		/* 0x4115 */
+	u8 csc_coef_c3_msb;		/* 0x4116 */
+	u8 csc_coef_c3_lsb;		/* 0x4117 */
+	u8 csc_coef_c4_msb;		/* 0x4118 */
+	u8 csc_coef_c4_lsb;		/* 0x4119 */
+	u8 reserved22[0xee6];
+	/* HDCP Encryption Engine Registers */
+	u8 a_hdcpcfg0;			/* 0x5000 */
+	u8 a_hdcpcfg1;			/* 0x5001 */
+	u8 a_hdcpobs0;			/* 0x5002 */
+	u8 a_hdcpobs1;			/* 0x5003 */
+	u8 a_hdcpobs2;			/* 0x5004 */
+	u8 a_hdcpobs3;			/* 0x5005 */
+	u8 a_apiintclr;			/* 0x5006 */
+	u8 a_apiintstat;		/* 0x5007 */
+	u8 a_apiintmsk;			/* 0x5008 */
+	u8 a_vidpolcfg;			/* 0x5009 */
+	u8 a_oesswcfg;			/* 0x500a */
+	u8 a_timer1setup0;		/* 0x500b */
+	u8 a_timer1setup1;		/* 0x500c */
+	u8 a_timer2setup0;		/* 0x500d */
+	u8 a_timer2setup1;		/* 0x500e */
+	u8 a_100mscfg;			/* 0x500f */
+	u8 a_2scfg0;			/* 0x5010 */
+	u8 a_2scfg1;			/* 0x5011 */
+	u8 a_5scfg0;			/* 0x5012 */
+	u8 a_5scfg1;			/* 0x5013 */
+	u8 a_srmverlsb;			/* 0x5014 */
+	u8 a_srmvermsb;			/* 0x5015 */
+	u8 a_srmctrl;			/* 0x5016 */
+	u8 a_sfrsetup;			/* 0x5017 */
+	u8 a_i2chsetup;			/* 0x5018 */
+	u8 a_intsetup;			/* 0x5019 */
+	u8 a_presetup;			/* 0x501a */
+	u8 reserved23[0x5];
+	u8 a_srm_base;			/* 0x5020 */
+	u8 reserved24[0x2cdf];
+	/* CEC Engine Registers */
+	u8 cec_ctrl;			/* 0x7d00 */
+	u8 cec_stat;			/* 0x7d01 */
+	u8 cec_mask;			/* 0x7d02 */
+	u8 cec_polarity;		/* 0x7d03 */
+	u8 cec_int;			/* 0x7d04 */
+	u8 cec_addr_l;			/* 0x7d05 */
+	u8 cec_addr_h;			/* 0x7d06 */
+	u8 cec_tx_cnt;			/* 0x7d07 */
+	u8 cec_rx_cnt;			/* 0x7d08 */
+	u8 reserved25[0x7];
+	u8 cec_tx_data0;		/* 0x7d10 */
+	u8 cec_tx_data1;		/* 0x7d11 */
+	u8 cec_tx_data2;		/* 0x7d12 */
+	u8 cec_tx_data3;		/* 0x7d13 */
+	u8 cec_tx_data4;		/* 0x7d14 */
+	u8 cec_tx_data5;		/* 0x7d15 */
+	u8 cec_tx_data6;		/* 0x7d16 */
+	u8 cec_tx_data7;		/* 0x7d17 */
+	u8 cec_tx_data8;		/* 0x7d18 */
+	u8 cec_tx_data9;		/* 0x7d19 */
+	u8 cec_tx_data10;		/* 0x7d1a */
+	u8 cec_tx_data11;		/* 0x7d1b */
+	u8 cec_tx_data12;		/* 0x7d1c */
+	u8 cec_tx_data13;		/* 0x7d1d */
+	u8 cec_tx_data14;		/* 0x7d1e */
+	u8 cec_tx_data15;		/* 0x7d1f */
+	u8 cec_rx_data0;		/* 0x7d20 */
+	u8 cec_rx_data1;		/* 0x7d21 */
+	u8 cec_rx_data2;		/* 0x7d22 */
+	u8 cec_rx_data3;		/* 0x7d23 */
+	u8 cec_rx_data4;		/* 0x7d24 */
+	u8 cec_rx_data5;		/* 0x7d25 */
+	u8 cec_rx_data6;		/* 0x7d26 */
+	u8 cec_rx_data7;		/* 0x7d27 */
+	u8 cec_rx_data8;		/* 0x7d28 */
+	u8 cec_rx_data9;		/* 0x7d29 */
+	u8 cec_rx_data10;		/* 0x7d2a */
+	u8 cec_rx_data11;		/* 0x7d2b */
+	u8 cec_rx_data12;		/* 0x7d2c */
+	u8 cec_rx_data13;		/* 0x7d2d */
+	u8 cec_rx_data14;		/* 0x7d2e */
+	u8 cec_rx_data15;		/* 0x7d2f */
+	u8 cec_lock;			/* 0x7d30 */
+	u8 cec_wkupctrl;		/* 0x7d31 */
+	u8 reserved26[0xce];
+	/* I2C Master Registers (E-DDC) */
+	u8 i2cm_slave;			/* 0x7e00 */
+	u8 i2cmess;			/* 0x7e01 */
+	u8 i2cm_datao;			/* 0x7e02 */
+	u8 i2cm_datai;			/* 0x7e03 */
+	u8 i2cm_operation;		/* 0x7e04 */
+	u8 i2cm_int;			/* 0x7e05 */
+	u8 i2cm_ctlint;			/* 0x7e06 */
+	u8 i2cm_div;			/* 0x7e07 */
+	u8 i2cm_segaddr;		/* 0x7e08 */
+	u8 i2cm_softrstz;		/* 0x7e09 */
+	u8 i2cm_segptr;			/* 0x7e0a */
+	u8 i2cm_ss_scl_hcnt_1_addr;	/* 0x7e0b */
+	u8 i2cm_ss_scl_hcnt_0_addr;	/* 0x7e0c */
+	u8 i2cm_ss_scl_lcnt_1_addr;	/* 0x7e0d */
+	u8 i2cm_ss_scl_lcnt_0_addr;	/* 0x7e0e */
+	u8 i2cm_fs_scl_hcnt_1_addr;	/* 0x7e0f */
+	u8 i2cm_fs_scl_hcnt_0_addr;	/* 0x7e10 */
+	u8 i2cm_fs_scl_lcnt_1_addr;	/* 0x7e11 */
+	u8 i2cm_fs_scl_lcnt_0_addr;	/* 0x7e12 */
+	u8 reserved27[0x1ed];
+	/* Random Number Generator Registers (RNG) */
+	u8 rng_base;			/* 0x8000 */
+};
 
 /*
  * Register field definitions

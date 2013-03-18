@@ -1,6 +1,6 @@
 /dts-v1/;
 
-/include/ ARCH_CPU_DTS
+#include "tegra20.dtsi"
 
 / {
 	model = "Toradex Colibri T20";
@@ -10,6 +10,7 @@
 		usb0 = "/usb@c5008000";
 		usb1 = "/usb@c5000000";
 		usb2 = "/usb@c5004000";
+		sdhci0 = "/sdhci@c8000600";
 	};
 
 	usb@c5000000 {
@@ -34,5 +35,11 @@
 			reg = <0>;
 			compatible = "nand-flash";
 		};
+	};
+
+	sdhci@c8000600 {
+		status = "okay";
+		cd-gpios = <&gpio 23 1>; /* gpio PC7 */
+		bus-width = <4>;
 	};
 };

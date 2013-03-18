@@ -1,4 +1,4 @@
-/include/ "skeleton.dtsi"
+#include "skeleton.dtsi"
 
 / {
 	compatible = "nvidia,tegra20";
@@ -318,24 +318,32 @@
 	sdhci@c8000000 {
 		compatible = "nvidia,tegra20-sdhci";
 		reg = <0xc8000000 0x200>;
-		interrupts = < 46 >;
+		interrupts = <0 14 0x04>;
+		clocks = <&tegra_car 14>;
+		status = "disabled";
 	};
 
 	sdhci@c8000200 {
 		compatible = "nvidia,tegra20-sdhci";
 		reg = <0xc8000200 0x200>;
-		interrupts = < 47 >;
+		interrupts = <0 15 0x04>;
+		clocks = <&tegra_car 9>;
+		status = "disabled";
 	};
 
 	sdhci@c8000400 {
 		compatible = "nvidia,tegra20-sdhci";
 		reg = <0xc8000400 0x200>;
-		interrupts = < 51 >;
+		interrupts = <0 19 0x04>;
+		clocks = <&tegra_car 69>;
+		status = "disabled";
 	};
 
 	sdhci@c8000600 {
 		compatible = "nvidia,tegra20-sdhci";
 		reg = <0xc8000600 0x200>;
-		interrupts = < 63 >;
+		interrupts = <0 31 0x04>;
+		clocks = <&tegra_car 15>;
+		status = "disabled";
 	};
 };

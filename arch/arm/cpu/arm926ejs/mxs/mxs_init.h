@@ -30,7 +30,7 @@ void early_delay(int delay);
 
 void mxs_power_init(void);
 
-#ifdef	CONFIG_SPL_MX28_PSWITCH_WAIT
+#ifdef	CONFIG_SPL_MXS_PSWITCH_WAIT
 void mxs_power_wait_pswitch(void);
 #else
 static inline void mxs_power_wait_pswitch(void) { }

@@ -309,6 +309,25 @@ ENTRY(cpu_init_cp15)
 	orr	r0, r0, #0x00001000	@ set bit 12 (I) I-cache
 #endif
 	mcr	p15, 0, r0, c1, c0, 0
+
+#ifdef CONFIG_ARM_ERRATA_742230
+	mrc	p15, 0, r0, c15, c0, 1	@ read diagnostic register
+	orr	r0, r0, #1 << 4		@ set bit #4
+	mcr	p15, 0, r0, c15, c0, 1	@ write diagnostic register
+#endif
+
+#ifdef CONFIG_ARM_ERRATA_743622
+	mrc	p15, 0, r0, c15, c0, 1	@ read diagnostic register
+	orr	r0, r0, #1 << 6		@ set bit #6
+	mcr	p15, 0, r0, c15, c0, 1	@ write diagnostic register
+#endif
+
+#ifdef CONFIG_ARM_ERRATA_751472
+	mrc	p15, 0, r0, c15, c0, 1	@ read diagnostic register
+	orr	r0, r0, #1 << 11	@ set bit #11
+	mcr	p15, 0, r0, c15, c0, 1	@ write diagnostic register
+#endif
+
 	mov	pc, lr			@ back to my caller
 ENDPROC(cpu_init_cp15)
 

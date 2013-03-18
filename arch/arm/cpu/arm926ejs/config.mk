@@ -34,6 +34,6 @@ PLATFORM_RELFLAGS += $(PF_RELFLAGS_SLB_AT)
 
 ifneq ($(CONFIG_IMX_CONFIG),)
 
-ALL-y	+= $(OBJTREE)/u-boot.imx
+ALL-y	+= $(obj)u-boot.imx
 
 endif

@@ -21,8 +21,8 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __TEGRA_COMMON_H
-#define __TEGRA_COMMON_H
+#ifndef _TEGRA_COMMON_H_
+#define _TEGRA_COMMON_H_
 #include <asm/sizes.h>
 #include <linux/stringify.h>
 
@@ -56,10 +56,8 @@
 #define CONFIG_SYS_MALLOC_LEN		(4 << 20)	/* 4MB  */
 
 /*
- * PllX Configuration
+ * NS16550 Configuration
  */
-#define CONFIG_SYS_CPU_OSC_FREQUENCY	1000000	/* Set CPU clock to 1GHz */
-
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
@@ -89,6 +87,18 @@
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_COMMAND_HISTORY
 #define CONFIG_AUTO_COMPLETE
+
+/* turn on commonly used storage-related commands */
+
+#define CONFIG_DOS_PARTITION
+#define CONFIG_EFI_PARTITION
+#define CONFIG_PARTITION_UUIDS
+#define CONFIG_FS_EXT4
+#define CONFIG_FS_FAT
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_FS_GENERIC
+#define CONFIG_CMD_PART
 
 #define CONFIG_SYS_NO_FLASH
 
@@ -158,5 +168,7 @@
 #define CONFIG_SPL_GPIO_SUPPORT
 
 #define CONFIG_SYS_GENERIC_BOARD
+/* Misc utility code */
+#define CONFIG_BOUNCE_BUFFER
 
 #endif /* _TEGRA_COMMON_H_ */

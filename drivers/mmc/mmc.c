@@ -40,6 +40,23 @@
 static struct list_head mmc_devices;
 static int cur_dev_num = -1;
 
+int __weak board_mmc_getwp(struct mmc *mmc)
+{
+	return -1;
+}
+
+int mmc_getwp(struct mmc *mmc)
+{
+	int wp;
+
+	wp = board_mmc_getwp(mmc);
+
+	if ((wp < 0) && mmc->getwp)
+		wp = mmc->getwp(mmc);
+
+	return wp;
+}
+
 int __board_mmc_getcd(struct mmc *mmc) {
 	return -1;
 }

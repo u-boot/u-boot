@@ -606,6 +606,7 @@ Enric Balletbo i Serra <eballetbo@iseebcn.com>
 
 	igep0020	ARM ARMV7 (OMAP3xx SoC)
 	igep0030	ARM ARMV7 (OMAP3xx SoC)
+	igep0032	ARM ARMV7 (OMAP3xx SoC)
 
 Eric Benard <eric@eukrea.com>
 
@@ -974,6 +975,8 @@ Tom Warren <twarren@nvidia.com>
 
 	harmony		Tegra20 (ARM7 & A9 Dual Core)
 	seaboard	Tegra20 (ARM7 & A9 Dual Core)
+	cardhu		Tegra30 (ARM7 & A9 Quad Core)
+	dalmore		Tegra114 (ARM7 & A15 Quad Core)
 
 Tom Warren <twarren@nvidia.com>
 Stephen Warren <swarren@nvidia.com>
@@ -1034,6 +1037,14 @@ Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
 Pali Rohár <pali.rohar@gmail.com>
 
 	nokia_rx51	ARM ARMV7 (OMAP34xx SoC)
+
+Eric Nelson <eric.nelson@boundarydevices.com>
+	nitrogen6dl		i.MX6DL		1GB
+	nitrogen6dl2g		i.MX6DL		2GB
+	nitrogen6q		i.MX6Q/6D	1GB
+	nitrogen6q2g    	i.MX6Q/6D	2GB
+	nitrogen6s		i.MX6S		512MB
+	nitrogen6s1g		i.MX6S		1GB
 
 -------------------------------------------------------------------------
 

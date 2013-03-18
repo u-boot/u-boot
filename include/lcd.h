@@ -47,6 +47,7 @@ extern struct vidinfo panel_info;
 
 extern void lcd_ctrl_init (void *lcdbase);
 extern void lcd_enable (void);
+extern int board_splash_screen_prepare(void);
 
 /* setcolreg used in 8bpp/16bpp; initcolregs used in monochrome */
 extern void lcd_setcolreg (ushort regno,

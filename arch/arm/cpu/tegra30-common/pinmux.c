@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2012, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2010-2013, NVIDIA CORPORATION.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -37,6 +37,19 @@ struct tegra_pingroup_desc {
 #define PMUX_OD_SHIFT		6
 #define PMUX_LOCK_SHIFT		7
 #define PMUX_IO_RESET_SHIFT	8
+
+#define PGRP_HSM_SHIFT		2
+#define PGRP_SCHMT_SHIFT	3
+#define PGRP_LPMD_SHIFT		4
+#define PGRP_LPMD_MASK		(3 << PGRP_LPMD_SHIFT)
+#define PGRP_DRVDN_SHIFT	12
+#define PGRP_DRVDN_MASK		(0x7F << PGRP_DRVDN_SHIFT)
+#define PGRP_DRVUP_SHIFT	20
+#define PGRP_DRVUP_MASK		(0x7F << PGRP_DRVUP_SHIFT)
+#define PGRP_SLWR_SHIFT		28
+#define PGRP_SLWR_MASK		(3 << PGRP_SLWR_SHIFT)
+#define PGRP_SLWF_SHIFT		30
+#define PGRP_SLWF_MASK		(3 << PGRP_SLWF_SHIFT)
 
 /* Convenient macro for defining pin group properties */
 #define PIN(pg_name, vdd, f0, f1, f2, f3, iod)	\
@@ -503,4 +516,179 @@ void pinmux_config_table(struct pingroup_config *config, int len)
 
 	for (i = 0; i < len; i++)
 		pinmux_config_pingroup(&config[i]);
+}
+
+static int padgrp_set_drvup_slwf(enum pdrive_pingrp pad,
+				int slwf)
+{
+	struct pmux_tri_ctlr *pmt =
+			(struct pmux_tri_ctlr *)NV_PA_APB_MISC_BASE;
+	u32 *pad_slwf = &pmt->pmt_drive[pad];
+	u32 reg;
+
+	/* Error check on pad and slwf */
+	assert(pmux_padgrp_isvalid(pad));
+	assert(pmux_pad_slw_isvalid(slwf));
+
+	/* NONE means unspecified/do not change/use POR value */
+	if (slwf == PGRP_SLWF_NONE)
+		return 0;
+
+	reg = readl(pad_slwf);
+	reg &= ~PGRP_SLWF_MASK;
+	reg |= (slwf << PGRP_SLWF_SHIFT);
+	writel(reg, pad_slwf);
+
+	return 0;
+}
+
+static int padgrp_set_drvdn_slwr(enum pdrive_pingrp pad, int slwr)
+{
+	struct pmux_tri_ctlr *pmt =
+			(struct pmux_tri_ctlr *)NV_PA_APB_MISC_BASE;
+	u32 *pad_slwr = &pmt->pmt_drive[pad];
+	u32 reg;
+
+	/* Error check on pad and slwr */
+	assert(pmux_padgrp_isvalid(pad));
+	assert(pmux_pad_slw_isvalid(slwr));
+
+	/* NONE means unspecified/do not change/use POR value */
+	if (slwr == PGRP_SLWR_NONE)
+		return 0;
+
+	reg = readl(pad_slwr);
+	reg &= ~PGRP_SLWR_MASK;
+	reg |= (slwr << PGRP_SLWR_SHIFT);
+	writel(reg, pad_slwr);
+
+	return 0;
+}
+
+static int padgrp_set_drvup(enum pdrive_pingrp pad, int drvup)
+{
+	struct pmux_tri_ctlr *pmt =
+			(struct pmux_tri_ctlr *)NV_PA_APB_MISC_BASE;
+	u32 *pad_drvup = &pmt->pmt_drive[pad];
+	u32 reg;
+
+	/* Error check on pad and drvup */
+	assert(pmux_padgrp_isvalid(pad));
+	assert(pmux_pad_drv_isvalid(drvup));
+
+	/* NONE means unspecified/do not change/use POR value */
+	if (drvup == PGRP_DRVUP_NONE)
+		return 0;
+
+	reg = readl(pad_drvup);
+	reg &= ~PGRP_DRVUP_MASK;
+	reg |= (drvup << PGRP_DRVUP_SHIFT);
+	writel(reg, pad_drvup);
+
+	return 0;
+}
+
+static int padgrp_set_drvdn(enum pdrive_pingrp pad, int drvdn)
+{
+	struct pmux_tri_ctlr *pmt =
+			(struct pmux_tri_ctlr *)NV_PA_APB_MISC_BASE;
+	u32 *pad_drvdn = &pmt->pmt_drive[pad];
+	u32 reg;
+
+	/* Error check on pad and drvdn */
+	assert(pmux_padgrp_isvalid(pad));
+	assert(pmux_pad_drv_isvalid(drvdn));
+
+	/* NONE means unspecified/do not change/use POR value */
+	if (drvdn == PGRP_DRVDN_NONE)
+		return 0;
+
+	reg = readl(pad_drvdn);
+	reg &= ~PGRP_DRVDN_MASK;
+	reg |= (drvdn << PGRP_DRVDN_SHIFT);
+	writel(reg, pad_drvdn);
+
+	return 0;
+}
+
+static int padgrp_set_lpmd(enum pdrive_pingrp pad, enum pgrp_lpmd lpmd)
+{
+	struct pmux_tri_ctlr *pmt =
+			(struct pmux_tri_ctlr *)NV_PA_APB_MISC_BASE;
+	u32 *pad_lpmd = &pmt->pmt_drive[pad];
+	u32 reg;
+
+	/* Error check pad and lpmd value */
+	assert(pmux_padgrp_isvalid(pad));
+	assert(pmux_pad_lpmd_isvalid(lpmd));
+
+	/* NONE means unspecified/do not change/use POR value */
+	if (lpmd == PGRP_LPMD_NONE)
+		return 0;
+
+	reg = readl(pad_lpmd);
+	reg &= ~PGRP_LPMD_MASK;
+	reg |= (lpmd << PGRP_LPMD_SHIFT);
+	writel(reg, pad_lpmd);
+
+	return 0;
+}
+
+static int padgrp_set_schmt(enum pdrive_pingrp pad, enum pgrp_schmt schmt)
+{
+	struct pmux_tri_ctlr *pmt =
+			(struct pmux_tri_ctlr *)NV_PA_APB_MISC_BASE;
+	u32 *pad_schmt = &pmt->pmt_drive[pad];
+	u32 reg;
+
+	/* Error check pad */
+	assert(pmux_padgrp_isvalid(pad));
+
+	reg = readl(pad_schmt);
+	reg &= ~(1 << PGRP_SCHMT_SHIFT);
+	if (schmt == PGRP_SCHMT_ENABLE)
+		reg |= (0x1 << PGRP_SCHMT_SHIFT);
+	writel(reg, pad_schmt);
+
+	return 0;
+}
+static int padgrp_set_hsm(enum pdrive_pingrp pad,
+			enum pgrp_hsm hsm)
+{
+	struct pmux_tri_ctlr *pmt =
+			(struct pmux_tri_ctlr *)NV_PA_APB_MISC_BASE;
+	u32 *pad_hsm = &pmt->pmt_drive[pad];
+	u32 reg;
+
+	/* Error check pad */
+	assert(pmux_padgrp_isvalid(pad));
+
+	reg = readl(pad_hsm);
+	reg &= ~(1 << PGRP_HSM_SHIFT);
+	if (hsm == PGRP_HSM_ENABLE)
+		reg |= (0x1 << PGRP_HSM_SHIFT);
+	writel(reg, pad_hsm);
+
+	return 0;
+}
+
+void padctrl_config_pingroup(struct padctrl_config *config)
+{
+	enum pdrive_pingrp pad = config->padgrp;
+
+	padgrp_set_drvup_slwf(pad, config->slwf);
+	padgrp_set_drvdn_slwr(pad, config->slwr);
+	padgrp_set_drvup(pad, config->drvup);
+	padgrp_set_drvdn(pad, config->drvdn);
+	padgrp_set_lpmd(pad, config->lpmd);
+	padgrp_set_schmt(pad, config->schmt);
+	padgrp_set_hsm(pad, config->hsm);
+}
+
+void padgrp_config_table(struct padctrl_config *config, int len)
+{
+	int i;
+
+	for (i = 0; i < len; i++)
+		padctrl_config_pingroup(&config[i]);
 }

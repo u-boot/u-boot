@@ -61,20 +61,20 @@ char *get_cpu_name()
 	if (cpu_is_at91sam9x5()) {
 		switch (extension_id) {
 		case ARCH_EXID_AT91SAM9G15:
-			return CONFIG_SYS_AT91_G15_CPU_NAME;
+			return "AT91SAM9G15";
 		case ARCH_EXID_AT91SAM9G25:
-			return CONFIG_SYS_AT91_G25_CPU_NAME;
+			return "AT91SAM9G25";
 		case ARCH_EXID_AT91SAM9G35:
-			return CONFIG_SYS_AT91_G35_CPU_NAME;
+			return "AT91SAM9G35";
 		case ARCH_EXID_AT91SAM9X25:
-			return CONFIG_SYS_AT91_X25_CPU_NAME;
+			return "AT91SAM9X25";
 		case ARCH_EXID_AT91SAM9X35:
-			return CONFIG_SYS_AT91_X35_CPU_NAME;
+			return "AT91SAM9X35";
 		default:
-			return CONFIG_SYS_AT91_UNKNOWN_CPU;
+			return "Unknown CPU type";
 		}
 	} else {
-		return CONFIG_SYS_AT91_UNKNOWN_CPU;
+		return "Unknown CPU type";
 	}
 }
 
@@ -246,14 +246,14 @@ void at91_macb_hw_init(void)
 #ifndef CONFIG_RMII
 	/* Only emac0 support MII */
 	if (has_emac0()) {
-		at91_set_b_periph(AT91_PIO_PORTB, 16, 0);	/* ECRS */
-		at91_set_b_periph(AT91_PIO_PORTB, 17, 0);	/* ECOL */
-		at91_set_b_periph(AT91_PIO_PORTB, 13, 0);	/* ERX2 */
-		at91_set_b_periph(AT91_PIO_PORTB, 14, 0);	/* ERX3 */
-		at91_set_b_periph(AT91_PIO_PORTB, 15, 0);	/* ERXCK */
-		at91_set_b_periph(AT91_PIO_PORTB, 11, 0);	/* ETX2 */
-		at91_set_b_periph(AT91_PIO_PORTB, 12, 0);	/* ETX3 */
-		at91_set_b_periph(AT91_PIO_PORTB, 8, 0);	/* ETXER */
+		at91_set_a_periph(AT91_PIO_PORTB, 16, 0);	/* ECRS */
+		at91_set_a_periph(AT91_PIO_PORTB, 17, 0);	/* ECOL */
+		at91_set_a_periph(AT91_PIO_PORTB, 13, 0);	/* ERX2 */
+		at91_set_a_periph(AT91_PIO_PORTB, 14, 0);	/* ERX3 */
+		at91_set_a_periph(AT91_PIO_PORTB, 15, 0);	/* ERXCK */
+		at91_set_a_periph(AT91_PIO_PORTB, 11, 0);	/* ETX2 */
+		at91_set_a_periph(AT91_PIO_PORTB, 12, 0);	/* ETX3 */
+		at91_set_a_periph(AT91_PIO_PORTB, 8, 0);	/* ETXER */
 	}
 #endif
 }

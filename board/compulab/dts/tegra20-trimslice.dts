@@ -1,6 +1,6 @@
 /dts-v1/;
 
-/include/ ARCH_CPU_DTS
+#include "tegra20.dtsi"
 
 / {
 	model = "Compulab TrimSlice board";
@@ -9,6 +9,8 @@
 	aliases {
 		usb0 = "/usb@c5008000";
 		usb1 = "/usb@c5000000";
+		sdhci0 = "/sdhci@c8000600";
+		sdhci1 = "/sdhci@c8000000";
 	};
 
 	memory {
@@ -46,5 +48,17 @@
 
 	usb@c5004000 {
 		status = "disabled";
+	};
+
+	sdhci@c8000000 {
+		status = "okay";
+		bus-width = <4>;
+	};
+
+	sdhci@c8000600 {
+		status = "okay";
+		cd-gpios = <&gpio 121 1>; /* gpio PP1 */
+		wp-gpios = <&gpio 122 0>; /* gpio PP2 */
+		bus-width = <4>;
 	};
 };

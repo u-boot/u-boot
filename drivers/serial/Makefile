@@ -33,7 +33,6 @@ COBJS-$(CONFIG_ARM_DCC) += arm_dcc.o
 COBJS-$(CONFIG_ATMEL_USART) += atmel_usart.o
 COBJS-$(CONFIG_LPC32XX_HSUART) += lpc32xx_hsuart.o
 COBJS-$(CONFIG_MCFUART) += mcfuart.o
-COBJS-$(CONFIG_NS9750_UART) += ns9750_serial.o
 COBJS-$(CONFIG_OPENCORES_YANU) += opencores_yanu.o
 COBJS-$(CONFIG_SYS_NS16550) += ns16550.o
 COBJS-$(CONFIG_S3C64XX) += s3c64xx.o

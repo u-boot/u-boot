@@ -57,10 +57,6 @@ const struct gpio_bank *const omap_gpio_bank = gpio_bank_44xx;
 void do_io_settings(void)
 {
 	u32 lpddr2io;
-	struct control_lpddr2io_regs *lpddr2io_regs =
-		(struct control_lpddr2io_regs *)LPDDR2_IO_REGS_BASE;
-	struct omap_sys_ctrl_regs *const ctrl =
-		(struct omap_sys_ctrl_regs *)SYSCTRL_GENERAL_CORE_BASE;
 
 	u32 omap4_rev = omap_revision();
 
@@ -72,20 +68,20 @@ void do_io_settings(void)
 		lpddr2io = CONTROL_LPDDR2IO_SLEW_315PS_DRV12_PULL_DOWN;
 
 	/* EMIF1 */
-	writel(lpddr2io, &lpddr2io_regs->control_lpddr2io1_0);
-	writel(lpddr2io, &lpddr2io_regs->control_lpddr2io1_1);
+	writel(lpddr2io, (*ctrl)->control_lpddr2io1_0);
+	writel(lpddr2io, (*ctrl)->control_lpddr2io1_1);
 	/* No pull for GR10 as per hw team's recommendation */
 	writel(lpddr2io & ~LPDDR2IO_GR10_WD_MASK,
-		&lpddr2io_regs->control_lpddr2io1_2);
-	writel(CONTROL_LPDDR2IO_3_VAL, &lpddr2io_regs->control_lpddr2io1_3);
+		(*ctrl)->control_lpddr2io1_2);
+	writel(CONTROL_LPDDR2IO_3_VAL, (*ctrl)->control_lpddr2io1_3);
 
 	/* EMIF2 */
-	writel(lpddr2io, &lpddr2io_regs->control_lpddr2io2_0);
-	writel(lpddr2io, &lpddr2io_regs->control_lpddr2io2_1);
+	writel(lpddr2io, (*ctrl)->control_lpddr2io2_0);
+	writel(lpddr2io, (*ctrl)->control_lpddr2io2_1);
 	/* No pull for GR10 as per hw team's recommendation */
 	writel(lpddr2io & ~LPDDR2IO_GR10_WD_MASK,
-		&lpddr2io_regs->control_lpddr2io2_2);
-	writel(CONTROL_LPDDR2IO_3_VAL, &lpddr2io_regs->control_lpddr2io2_3);
+		(*ctrl)->control_lpddr2io2_2);
+	writel(CONTROL_LPDDR2IO_3_VAL, (*ctrl)->control_lpddr2io2_3);
 
 	/*
 	 * Some of these settings (TRIM values) come from eFuse and are
@@ -93,16 +89,16 @@ void do_io_settings(void)
 	 * calibration of the device. Do the software over-ride only if
 	 * the device is not correctly trimmed
 	 */
-	if (!(readl(&ctrl->control_std_fuse_opp_bgap) & 0xFFFF)) {
+	if (!(readl((*ctrl)->control_std_fuse_opp_bgap) & 0xFFFF)) {
 
 		writel(LDOSRAM_VOLT_CTRL_OVERRIDE,
-			&ctrl->control_ldosram_iva_voltage_ctrl);
+			(*ctrl)->control_ldosram_iva_voltage_ctrl);
 
 		writel(LDOSRAM_VOLT_CTRL_OVERRIDE,
-			&ctrl->control_ldosram_mpu_voltage_ctrl);
+			(*ctrl)->control_ldosram_mpu_voltage_ctrl);
 
 		writel(LDOSRAM_VOLT_CTRL_OVERRIDE,
-			&ctrl->control_ldosram_core_voltage_ctrl);
+			(*ctrl)->control_ldosram_core_voltage_ctrl);
 	}
 
 	/*
@@ -110,11 +106,11 @@ void do_io_settings(void)
 	 *	i. unconditionally for all 4430
 	 *	ii. only if un-trimmed for 4460
 	 */
-	if (!readl(&ctrl->control_efuse_1))
-		writel(CONTROL_EFUSE_1_OVERRIDE, &ctrl->control_efuse_1);
+	if (!readl((*ctrl)->control_efuse_1))
+		writel(CONTROL_EFUSE_1_OVERRIDE, (*ctrl)->control_efuse_1);
 
-	if ((omap4_rev < OMAP4460_ES1_0) || !readl(&ctrl->control_efuse_2))
-		writel(CONTROL_EFUSE_2_OVERRIDE, &ctrl->control_efuse_2);
+	if ((omap4_rev < OMAP4460_ES1_0) || !readl((*ctrl)->control_efuse_2))
+		writel(CONTROL_EFUSE_2_OVERRIDE, (*ctrl)->control_efuse_2);
 }
 #endif /* CONFIG_SPL_BUILD */
 

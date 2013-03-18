@@ -201,6 +201,7 @@ void t114_init_clocks(void)
 	reset_set_enable(PERIPH_ID_MSELECT, 0);
 	reset_set_enable(PERIPH_ID_EMC1, 0);
 	reset_set_enable(PERIPH_ID_MC1, 0);
+	reset_set_enable(PERIPH_ID_DVFS, 0);
 
 	debug("t114_init_clocks exit\n");
 }
@@ -269,6 +270,8 @@ void powerup_cpus(void)
 
 void start_cpu(u32 reset_vector)
 {
+	u32 imme, inst;
+
 	debug("start_cpu entry, reset_vector = %x\n", reset_vector);
 
 	t114_init_clocks();
@@ -285,12 +288,38 @@ void start_cpu(u32 reset_vector)
 	/* Take CPU(s) out of reset */
 	remove_cpu_resets();
 
+	/* Set the entry point for CPU execution from reset */
+
 	/*
-	 * Set the entry point for CPU execution from reset,
-	 *  if it's a non-zero value.
+	 * A01P with patched boot ROM; vector hard-coded to 0x4003fffc.
+	 * See nvbug 1193357 for details.
 	 */
-	if (reset_vector)
-		writel(reset_vector, EXCEP_VECTOR_CPU_RESET_VECTOR);
+
+	/* mov r0, #lsb(reset_vector) */
+	imme = reset_vector & 0xffff;
+	inst = imme & 0xfff;
+	inst |= ((imme >> 12) << 16);
+	inst |= 0xe3000000;
+	writel(inst, 0x4003fff0);
+
+	/* movt r0, #msb(reset_vector) */
+	imme = (reset_vector >> 16) & 0xffff;
+	inst = imme & 0xfff;
+	inst |= ((imme >> 12) << 16);
+	inst |= 0xe3400000;
+	writel(inst, 0x4003fff4);
+
+	/* bx r0 */
+	writel(0xe12fff10, 0x4003fff8);
+
+	/* b -12 */
+	imme = (u32)-20;
+	inst = (imme >> 2) & 0xffffff;
+	inst |= 0xea000000;
+	writel(inst, 0x4003fffc);
+
+	/* Write to orignal location for compatibility */
+	writel(reset_vector, EXCEP_VECTOR_CPU_RESET_VECTOR);
 
 	/* If the CPU(s) don't already have power, power 'em up */
 	powerup_cpus();

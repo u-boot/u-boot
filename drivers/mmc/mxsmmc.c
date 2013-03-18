@@ -53,12 +53,6 @@ struct mxsmmc_priv {
 	struct mxs_dma_desc	*desc;
 };
 
-#if defined(CONFIG_MX23)
-static const unsigned int mxsmmc_id_offset = 1;
-#elif defined(CONFIG_MX28)
-static const unsigned int mxsmmc_id_offset = 0;
-#endif
-
 #define	MXSMMC_MAX_TIMEOUT	10000
 #define MXSMMC_SMALL_TRANSFER	512
 
@@ -137,7 +131,7 @@ static int mxsmmc_send_cmd_dma(struct mxsmmc_priv *priv, struct mmc_data *data)
 	priv->desc->cmd.data |= MXS_DMA_DESC_IRQ | MXS_DMA_DESC_DEC_SEM |
 				(data_count << MXS_DMA_DESC_BYTES_OFFSET);
 
-	dmach = MXS_DMA_CHANNEL_AHB_APBH_SSP0 + priv->id + mxsmmc_id_offset;
+	dmach = MXS_DMA_CHANNEL_AHB_APBH_SSP0 + priv->id;
 	mxs_dma_desc_append(dmach, priv->desc);
 	if (mxs_dma_go(dmach)) {
 		bounce_buffer_stop(&bbstate);
@@ -390,15 +384,9 @@ int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int), int (*cd)(int))
 	struct mmc *mmc = NULL;
 	struct mxsmmc_priv *priv = NULL;
 	int ret;
-#if defined(CONFIG_MX23)
-	const unsigned int mxsmmc_max_id = 2;
-	const unsigned int mxsmmc_clk_id = 0;
-#elif defined(CONFIG_MX28)
-	const unsigned int mxsmmc_max_id = 4;
-	const unsigned int mxsmmc_clk_id = id;
-#endif
+	const unsigned int mxsmmc_clk_id = mxs_ssp_clock_by_bus(id);
 
-	if (id >= mxsmmc_max_id)
+	if (!mxs_ssp_bus_id_valid(id))
 		return -ENODEV;
 
 	mmc = malloc(sizeof(struct mmc));
@@ -418,7 +406,7 @@ int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int), int (*cd)(int))
 		return -ENOMEM;
 	}
 
-	ret = mxs_dma_init_channel(id + mxsmmc_id_offset);
+	ret = mxs_dma_init_channel(MXS_DMA_CHANNEL_AHB_APBH_SSP0 + id);
 	if (ret)
 		return ret;
 
@@ -432,6 +420,7 @@ int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int), int (*cd)(int))
 	mmc->set_ios = mxsmmc_set_ios;
 	mmc->init = mxsmmc_init;
 	mmc->getcd = NULL;
+	mmc->getwp = NULL;
 	mmc->priv = priv;
 
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;

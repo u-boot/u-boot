@@ -24,6 +24,9 @@
  */
 void pinmux_init(void)
 {
+	pinmux_config_table(tegra114_pinmux_set_nontristate,
+		ARRAY_SIZE(tegra114_pinmux_set_nontristate));
+
 	pinmux_config_table(tegra114_pinmux_common,
 		ARRAY_SIZE(tegra114_pinmux_common));
 

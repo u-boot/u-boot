@@ -37,6 +37,20 @@ struct tegra_pingroup_desc {
 #define PMUX_OD_SHIFT		6
 #define PMUX_LOCK_SHIFT		7
 #define PMUX_IO_RESET_SHIFT	8
+#define PMUX_RCV_SEL_SHIFT	9
+
+#define PGRP_HSM_SHIFT		2
+#define PGRP_SCHMT_SHIFT	3
+#define PGRP_LPMD_SHIFT		4
+#define PGRP_LPMD_MASK		(3 << PGRP_LPMD_SHIFT)
+#define PGRP_DRVDN_SHIFT	12
+#define PGRP_DRVDN_MASK		(0x7F << PGRP_DRVDN_SHIFT)
+#define PGRP_DRVUP_SHIFT	20
+#define PGRP_DRVUP_MASK		(0x7F << PGRP_DRVUP_SHIFT)
+#define PGRP_SLWR_SHIFT		28
+#define PGRP_SLWR_MASK		(3 << PGRP_SLWR_SHIFT)
+#define PGRP_SLWF_SHIFT		30
+#define PGRP_SLWF_MASK		(3 << PGRP_SLWF_SHIFT)
 
 /* Convenient macro for defining pin group properties */
 #define PIN(pg_name, vdd, f0, f1, f2, f3, iod)	\
@@ -57,6 +71,10 @@ struct tegra_pingroup_desc {
 	PIN(pg_name, vdd, f0, f1, f2, f3, INPUT)
 #define PINO(pg_name, vdd, f0, f1, f2, f3) \
 	PIN(pg_name, vdd, f0, f1, f2, f3, OUTPUT)
+
+/* A pin group number which is not used */
+#define PIN_RESERVED \
+	PIN(NONE, NONE, INVALID, INVALID, INVALID, INVALID, NONE)
 
 const struct tegra_pingroup_desc tegra_soc_pingroups[PINGRP_COUNT] = {
 	/*	NAME	  VDD	   f0		f1	   f2	    f3  */
@@ -84,71 +102,71 @@ const struct tegra_pingroup_desc tegra_soc_pingroups[PINGRP_COUNT] = {
 	PINI(SDMMC1_DAT2, SDMMC1,  SDMMC1,     PWM0,       SPI4,    UARTA),
 	PINI(SDMMC1_DAT1, SDMMC1,  SDMMC1,     PWM1,       SPI4,    UARTA),
 	PINI(SDMMC1_DAT0, SDMMC1,  SDMMC1,     RSVD2,      SPI4,    UARTA),
-	PINI(GPIO_PV2,    BB,      RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINI(GPIO_PV3,    BB,      RSVD1,      RSVD2,      RSVD3,   RSVD4),
+	PIN_RESERVED,	/* Reserved by t114: 0x3060 - 0x3064 */
+	PIN_RESERVED,
 	PINI(CLK2_OUT,    SDMMC1,  EXTPERIPH2, RSVD2,      RSVD3,   RSVD4),
 	PINI(CLK2_REQ,    SDMMC1,  DAP,        RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_PWR1,    LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_PWR2,    LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_SDIN,    LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_SDOUT,   LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_WR_N,    LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_CS0_N,   LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_DC0,     LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_SCK,     LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_PWR0,    LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_PCLK,    LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_DE,      LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_HSYNC,   LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_VSYNC,   LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_D0,      LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_D1,      LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_D2,      LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_D3,      LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_D4,      LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_D5,      LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_D6,      LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_D7,      LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_D8,      LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_D9,      LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_D10,     LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_D11,     LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_D12,     LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_D13,     LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_D14,     LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_D15,     LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_D16,     LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_D17,     LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_D18,     LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_D19,     LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_D20,     LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_D21,     LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_D22,     LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_D23,     LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_CS1_N,   LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_M1,      LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINO(LCD_DC1,     LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
+	PIN_RESERVED,	/* Reserved by t114: 0x3070 - 0x310c */
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
 	PINI(HDMI_INT,    LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
 	PINI(DDC_SCL,     LCD,     I2C4,       RSVD2,      RSVD3,   RSVD4),
 	PINI(DDC_SDA,     LCD,     I2C4,       RSVD2,      RSVD3,   RSVD4),
-	PINI(CRT_HSYNC,   LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINI(CRT_VSYNC,   LCD,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINI(VI_D0,       VI,      RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINI(VI_D1,       VI,      RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINI(VI_D2,       VI,      RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINI(VI_D3,       VI,      RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINI(VI_D4,       VI,      RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINI(VI_D5,       VI,      RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINI(VI_D6,       VI,      RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINI(VI_D7,       VI,      RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINI(VI_D8,       VI,      RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINI(VI_D9,       VI,      RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINI(VI_D10,      VI,      RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINI(VI_D11,      VI,      RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINI(VI_PCLK,     VI,      RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINI(VI_MCLK,     VI,      RSVD1,      RSVD3,      RSVD3,   RSVD4),
-	PINI(VI_VSYNC,    VI,      RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINI(VI_HSYNC,    VI,      RSVD1,      RSVD2,      RSVD3,   RSVD4),
+	PIN_RESERVED,	/* Reserved by t114: 0x311c - 0x3160 */
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
 	PINI(UART2_RXD,   UART,    UARTB,      SPDIF,      UARTA,   SPI4),
 	PINI(UART2_TXD,   UART,    UARTB,      SPDIF,      UARTA,   SPI4),
 	PINI(UART2_RTS_N, UART,    UARTA,      UARTB,      RSVD3,   SPI4),
@@ -220,8 +238,8 @@ const struct tegra_pingroup_desc tegra_soc_pingroups[PINGRP_COUNT] = {
 	PINI(SDMMC4_DAT5, SDMMC4,  SDMMC4,     SPI3,       GMI,     RSVD4),
 	PINI(SDMMC4_DAT6, SDMMC4,  SDMMC4,     SPI3,       GMI,     RSVD4),
 	PINI(SDMMC4_DAT7, SDMMC4,  SDMMC4,     RSVD2,      GMI,     RSVD4),
-	PINI(SDMMC4_RST_N, SDMMC4, RSVD1,      RSVD2,      RSVD3,   SDMMC4),
-	PINI(CAM_MCLK,    CAM,     VI,         VI_ALT1,    VI_ALT2, RSVD4),
+	PIN_RESERVED,	/* Reserved by t114: 0x3280 */
+	PINI(CAM_MCLK,    CAM,     VI,         VI_ALT1,    VI_ALT3, RSVD4),
 	PINI(GPIO_PCC1,   CAM,     I2S4,       RSVD2,      RSVD3,   RSVD4),
 	PINI(GPIO_PBB0,   CAM,     I2S4,       VI,         VI_ALT1, VI_ALT3),
 	PINI(CAM_I2C_SCL, CAM,     VGP1,       I2C3,       RSVD3,   RSVD4),
@@ -246,11 +264,11 @@ const struct tegra_pingroup_desc tegra_soc_pingroups[PINGRP_COUNT] = {
 	PINI(KB_ROW8,     SYS,     KBC,        RSVD2,      RSVD3,   UARTA),
 	PINI(KB_ROW9,     SYS,     KBC,        RSVD2,      RSVD3,   UARTA),
 	PINI(KB_ROW10,    SYS,     KBC,        RSVD2,      RSVD3,   UARTA),
-	PINI(KB_ROW11,    SYS,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINI(KB_ROW12,    SYS,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINI(KB_ROW13,    SYS,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINI(KB_ROW14,    SYS,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINI(KB_ROW15,    SYS,     RSVD1,      RSVD2,      RSVD3,   RSVD4),
+	PIN_RESERVED,	/* Reserved by t114: 0x32e8 - 0x32f8 */
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
 	PINI(KB_COL0,     SYS,     KBC,        USB,        SPI2,    EMC_DLL),
 	PINI(KB_COL1,     SYS,     KBC,        RSVD2,      SPI2,    EMC_DLL),
 	PINI(KB_COL2,     SYS,     KBC,        RSVD2,      SPI2,    RSVD4),
@@ -278,36 +296,46 @@ const struct tegra_pingroup_desc tegra_soc_pingroups[PINGRP_COUNT] = {
 	PINI(DAP2_DIN,    AUDIO,   I2S1,       HDA,        RSVD3,   RSVD4),
 	PINI(DAP2_DOUT,   AUDIO,   I2S1,       HDA,        RSVD3,   RSVD4),
 	PINI(DAP2_SCLK,   AUDIO,   I2S1,       HDA,        RSVD3,   RSVD4),
-	PINI(SPI2_MOSI,   AUDIO,   SPI6,       CLDVFS,     RSVD3,   RSVD4),
-	PINI(SPI2_MISO,   AUDIO,   SPI6,       RSVD2,      RSVD3,   RSVD4),
-	PINI(SPI2_CS0_N,  AUDIO,   SPI6,       SPI1,       RSVD3,   RSVD4),
-	PINI(SPI2_SCK,    AUDIO,   SPI6,       CLDVFS,     RSVD3,   RSVD4),
-	PINI(SPI1_MOSI,   AUDIO,   RSVD1,      SPI1,       SPI2,    DAP2),
-	PINI(SPI1_SCK,    AUDIO,   RSVD1,      SPI1,       SPI2,    RSVD4),
-	PINI(SPI1_CS0_N,  AUDIO,   SPI6,       SPI1,       SPI2,    RSVD4),
-	PINI(SPI1_MISO,   AUDIO,   RSVD1,      SPI1,       SPI2,    RSVD4),
-	PINI(SPI2_CS1_N,  AUDIO,   RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINI(SPI2_CS2_N,  AUDIO,   RSVD1,      RSVD2,      RSVD3,   RSVD4),
+	PINI(DVFS_PWM,    AUDIO,   SPI6,       CLDVFS,     RSVD3,   RSVD4),
+	PINI(GPIO_X1_AUD, AUDIO,   SPI6,       RSVD2,      RSVD3,   RSVD4),
+	PINI(GPIO_X3_AUD, AUDIO,   SPI6,       SPI1,       RSVD3,   RSVD4),
+	PINI(DVFS_CLK,    AUDIO,   SPI6,       CLDVFS,     RSVD3,   RSVD4),
+	PINI(GPIO_X4_AUD, AUDIO,   RSVD1,      SPI1,       SPI2,    DAP2),
+	PINI(GPIO_X5_AUD, AUDIO,   RSVD1,      SPI1,       SPI2,    RSVD4),
+	PINI(GPIO_X6_AUD, AUDIO,   SPI6,       SPI1,       SPI2,    RSVD4),
+	PINI(GPIO_X7_AUD, AUDIO,   RSVD1,      SPI1,       SPI2,    RSVD4),
+	PIN_RESERVED,   /* Reserved by t114: 0x3388 - 0x338c */
+	PIN_RESERVED,
 	PINI(SDMMC3_CLK,  SDMMC3,  SDMMC3,     RSVD2,      RSVD3,   SPI3),
 	PINI(SDMMC3_CMD,  SDMMC3,  SDMMC3,     PWM3,       UARTA,   SPI3),
 	PINI(SDMMC3_DAT0, SDMMC3,  SDMMC3,     RSVD2,      RSVD3,   SPI3),
 	PINI(SDMMC3_DAT1, SDMMC3,  SDMMC3,     PWM2,       UARTA,   SPI3),
 	PINI(SDMMC3_DAT2, SDMMC3,  SDMMC3,     PWM1,       DISPA,   SPI3),
 	PINI(SDMMC3_DAT3, SDMMC3,  SDMMC3,     PWM0,       DISPB,   SPI3),
-	PINI(SDMMC3_DAT4, SDMMC3,  RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINI(SDMMC3_DAT5, SDMMC3,  RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINI(SDMMC3_DAT6, SDMMC3,  RSVD1,      RSVD2,      RSVD3,   RSVD4),
-	PINI(SDMMC3_DAT7, SDMMC3,  RSVD1,      RSVD2,      RSVD3,   RSVD4),
+	PIN_RESERVED,   /* Reserved by t114: 0x33a8 - 0x33dc */
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
+	PIN_RESERVED,
 	PINI(HDMI_CEC,    SYS,     CEC,        SDMMC3,     RSVD3,   SOC),
 	PINI(SDMMC1_WP_N, SDMMC1,  SDMMC1,     CLK12,      SPI4,    UARTA),
-	PINI(SDMMC3_CD_N, SDMMC3,  SDMMC3,     OWR,        RSVD3,   RSVD4),
-	PINI(SPI1_CS1_N,  AUDIO,   SPI6,       RSVD2,      SPI2,    I2C1),
-	PINI(SPI1_CS2_N,  AUDIO,   SPI6,       SPI1,       SPI2,    I2C1),
-	PINI(USB_VBUS_EN0, SYS,    USB,        RSVD2,      RSVD3,   RSVD4),
-	PINI(USB_VBUS_EN1, SYS,    USB,        RSVD2,      RSVD3,   RSVD4),
+	PINI(SDMMC3_CD_N, SYS,  SDMMC3,     OWR,        RSVD3,   RSVD4),
+	PINI(GPIO_W2_AUD, AUDIO,   SPI6,       RSVD2,      SPI2,    I2C1),
+	PINI(GPIO_W3_AUD, AUDIO,   SPI6,       SPI1,       SPI2,    I2C1),
+	PINI(USB_VBUS_EN0, LCD,    USB,        RSVD2,      RSVD3,   RSVD4),
+	PINI(USB_VBUS_EN1, LCD,    USB,        RSVD2,      RSVD3,   RSVD4),
 	PINI(SDMMC3_CLK_LB_IN,  SDMMC3, SDMMC3, RSVD2,     RSVD3,   RSVD4),
-	PINO(SDMMC3_CLK_LB_OUT, SDMMC3, SDMMC3, RSVD2,     RSVD3,   RSVD4),
-	PINO(NAND_GMI_CLK_LB,   GMI,    SDMMC2, NAND,      GMI,     RSVD4),
+	PINI(SDMMC3_CLK_LB_OUT, SDMMC3, SDMMC3, RSVD2,     RSVD3,   RSVD4),
+	PIN_RESERVED,	/* Reserved by t114: 0x3404 */
 	PINO(RESET_OUT_N, SYS,     RSVD1,      RSVD2,      RSVD3, RESET_OUT_N),
 };
 
@@ -484,6 +512,30 @@ static int pinmux_set_ioreset(enum pmux_pingrp pin,
 	return 0;
 }
 
+static int pinmux_set_rcv_sel(enum pmux_pingrp pin,
+				enum pmux_pin_rcv_sel rcv_sel)
+{
+	struct pmux_tri_ctlr *pmt =
+			(struct pmux_tri_ctlr *)NV_PA_APB_MISC_BASE;
+	u32 *pin_rcv_sel = &pmt->pmt_ctl[pin];
+	u32 reg;
+
+	/* Error check on pin and rcv_sel */
+	assert(pmux_pingrp_isvalid(pin));
+	assert(pmux_pin_rcv_sel_isvalid(rcv_sel));
+
+	if (rcv_sel == PMUX_PIN_RCV_SEL_DEFAULT)
+		return 0;
+
+	reg = readl(pin_rcv_sel);
+	reg &= ~(0x1 << PMUX_RCV_SEL_SHIFT);
+	if (rcv_sel == PMUX_PIN_RCV_SEL_HIGH)
+		reg |= (0x1 << PMUX_RCV_SEL_SHIFT);
+	writel(reg, pin_rcv_sel);
+
+	return 0;
+}
+
 void pinmux_config_pingroup(struct pingroup_config *config)
 {
 	enum pmux_pingrp pin = config->pingroup;
@@ -495,6 +547,7 @@ void pinmux_config_pingroup(struct pingroup_config *config)
 	pinmux_set_lock(pin, config->lock);
 	pinmux_set_od(pin, config->od);
 	pinmux_set_ioreset(pin, config->ioreset);
+	pinmux_set_rcv_sel(pin, config->rcv_sel);
 }
 
 void pinmux_config_table(struct pingroup_config *config, int len)
@@ -503,4 +556,185 @@ void pinmux_config_table(struct pingroup_config *config, int len)
 
 	for (i = 0; i < len; i++)
 		pinmux_config_pingroup(&config[i]);
+}
+
+static int padgrp_set_drvup_slwf(enum pdrive_pingrp pad, int slwf)
+{
+	struct pmux_tri_ctlr *pmt =
+			(struct pmux_tri_ctlr *)NV_PA_APB_MISC_BASE;
+	u32 *pad_slwf = &pmt->pmt_drive[pad];
+	u32 reg;
+
+	/* Error check on pad and slwf */
+	assert(pmux_padgrp_isvalid(pad));
+	assert(pmux_pad_slw_isvalid(slwf));
+
+	/* NONE means unspecified/do not change/use POR value */
+	if (slwf == PGRP_SLWF_NONE)
+		return 0;
+
+	reg = readl(pad_slwf);
+	reg &= ~PGRP_SLWF_MASK;
+	reg |= (slwf << PGRP_SLWF_SHIFT);
+	writel(reg, pad_slwf);
+
+	return 0;
+}
+
+static int padgrp_set_drvdn_slwr(enum pdrive_pingrp pad, int slwr)
+{
+	struct pmux_tri_ctlr *pmt =
+			(struct pmux_tri_ctlr *)NV_PA_APB_MISC_BASE;
+	u32 *pad_slwr = &pmt->pmt_drive[pad];
+	u32 reg;
+
+	/* Error check on pad and slwr */
+	assert(pmux_padgrp_isvalid(pad));
+	assert(pmux_pad_slw_isvalid(slwr));
+
+	/* NONE means unspecified/do not change/use POR value */
+	if (slwr == PGRP_SLWR_NONE)
+		return 0;
+
+	reg = readl(pad_slwr);
+	reg &= ~PGRP_SLWR_MASK;
+	reg |= (slwr << PGRP_SLWR_SHIFT);
+	writel(reg, pad_slwr);
+
+	return 0;
+}
+
+static int padgrp_set_drvup(enum pdrive_pingrp pad, int drvup)
+{
+	struct pmux_tri_ctlr *pmt =
+			(struct pmux_tri_ctlr *)NV_PA_APB_MISC_BASE;
+	u32 *pad_drvup = &pmt->pmt_drive[pad];
+	u32 reg;
+
+	/* Error check on pad and drvup */
+	assert(pmux_padgrp_isvalid(pad));
+	assert(pmux_pad_drv_isvalid(drvup));
+
+	/* NONE means unspecified/do not change/use POR value */
+	if (drvup == PGRP_DRVUP_NONE)
+		return 0;
+
+	reg = readl(pad_drvup);
+	reg &= ~PGRP_DRVUP_MASK;
+	reg |= (drvup << PGRP_DRVUP_SHIFT);
+	writel(reg, pad_drvup);
+
+	return 0;
+}
+
+static int padgrp_set_drvdn(enum pdrive_pingrp pad, int drvdn)
+{
+	struct pmux_tri_ctlr *pmt =
+			(struct pmux_tri_ctlr *)NV_PA_APB_MISC_BASE;
+	u32 *pad_drvdn = &pmt->pmt_drive[pad];
+	u32 reg;
+
+	/* Error check on pad and drvdn */
+	assert(pmux_padgrp_isvalid(pad));
+	assert(pmux_pad_drv_isvalid(drvdn));
+
+	/* NONE means unspecified/do not change/use POR value */
+	if (drvdn == PGRP_DRVDN_NONE)
+		return 0;
+
+	reg = readl(pad_drvdn);
+	reg &= ~PGRP_DRVDN_MASK;
+	reg |= (drvdn << PGRP_DRVDN_SHIFT);
+	writel(reg, pad_drvdn);
+
+	return 0;
+}
+
+static int padgrp_set_lpmd(enum pdrive_pingrp pad, enum pgrp_lpmd lpmd)
+{
+	struct pmux_tri_ctlr *pmt =
+			(struct pmux_tri_ctlr *)NV_PA_APB_MISC_BASE;
+	u32 *pad_lpmd = &pmt->pmt_drive[pad];
+	u32 reg;
+
+	/* Error check pad and lpmd value */
+	assert(pmux_padgrp_isvalid(pad));
+	assert(pmux_pad_lpmd_isvalid(lpmd));
+
+	/* NONE means unspecified/do not change/use POR value */
+	if (lpmd == PGRP_LPMD_NONE)
+		return 0;
+
+	reg = readl(pad_lpmd);
+	reg &= ~PGRP_LPMD_MASK;
+	reg |= (lpmd << PGRP_LPMD_SHIFT);
+	writel(reg, pad_lpmd);
+
+	return 0;
+}
+
+static int padgrp_set_schmt(enum pdrive_pingrp pad, enum pgrp_schmt schmt)
+{
+	struct pmux_tri_ctlr *pmt =
+			(struct pmux_tri_ctlr *)NV_PA_APB_MISC_BASE;
+	u32 *pad_schmt = &pmt->pmt_drive[pad];
+	u32 reg;
+
+	/* Error check pad */
+	assert(pmux_padgrp_isvalid(pad));
+
+	/* NONE means unspecified/do not change/use POR value */
+	if (schmt == PGRP_SCHMT_NONE)
+		return 0;
+
+	reg = readl(pad_schmt);
+	reg &= ~(1 << PGRP_SCHMT_SHIFT);
+	if (schmt == PGRP_SCHMT_ENABLE)
+		reg |= (0x1 << PGRP_SCHMT_SHIFT);
+	writel(reg, pad_schmt);
+
+	return 0;
+}
+static int padgrp_set_hsm(enum pdrive_pingrp pad, enum pgrp_hsm hsm)
+{
+	struct pmux_tri_ctlr *pmt =
+			(struct pmux_tri_ctlr *)NV_PA_APB_MISC_BASE;
+	u32 *pad_hsm = &pmt->pmt_drive[pad];
+	u32 reg;
+
+	/* Error check pad */
+	assert(pmux_padgrp_isvalid(pad));
+
+	/* NONE means unspecified/do not change/use POR value */
+	if (hsm == PGRP_HSM_NONE)
+		return 0;
+
+	reg = readl(pad_hsm);
+	reg &= ~(1 << PGRP_HSM_SHIFT);
+	if (hsm == PGRP_HSM_ENABLE)
+		reg |= (0x1 << PGRP_HSM_SHIFT);
+	writel(reg, pad_hsm);
+
+	return 0;
+}
+
+void padctrl_config_pingroup(struct padctrl_config *config)
+{
+	enum pdrive_pingrp pad = config->padgrp;
+
+	padgrp_set_drvup_slwf(pad, config->slwf);
+	padgrp_set_drvdn_slwr(pad, config->slwr);
+	padgrp_set_drvup(pad, config->drvup);
+	padgrp_set_drvdn(pad, config->drvdn);
+	padgrp_set_lpmd(pad, config->lpmd);
+	padgrp_set_schmt(pad, config->schmt);
+	padgrp_set_hsm(pad, config->hsm);
+}
+
+void padgrp_config_table(struct padctrl_config *config, int len)
+{
+	int i;
+
+	for (i = 0; i < len; i++)
+		padctrl_config_pingroup(&config[i]);
 }

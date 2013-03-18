@@ -73,7 +73,7 @@ static inline int board_is_idk(void)
 	return !strncmp(header.config, "SKU#02", 6);
 }
 
-static int board_is_gp_evm(void)
+static int __maybe_unused board_is_gp_evm(void)
 {
 	return !strncmp("A33515BB", header.name, 8);
 }
@@ -389,7 +389,8 @@ int board_late_init(void)
 }
 #endif
 
-#ifdef CONFIG_DRIVER_TI_CPSW
+#if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \
+	(defined(CONFIG_SPL_ETH_SUPPORT) && defined(CONFIG_SPL_BUILD))
 static void cpsw_control(int enabled)
 {
 	/* VTP can be added here */
@@ -434,26 +435,26 @@ static struct cpsw_platform_data cpsw_data = {
 int board_eth_init(bd_t *bis)
 {
 	int rv, n = 0;
-#ifdef CONFIG_DRIVER_TI_CPSW
 	uint8_t mac_addr[6];
 	uint32_t mac_hi, mac_lo;
 
-	if (!eth_getenv_enetaddr("ethaddr", mac_addr)) {
-		printf("<ethaddr> not set. Reading from E-fuse\n");
-		/* try reading mac address from efuse */
-		mac_lo = readl(&cdev->macid0l);
-		mac_hi = readl(&cdev->macid0h);
-		mac_addr[0] = mac_hi & 0xFF;
-		mac_addr[1] = (mac_hi & 0xFF00) >> 8;
-		mac_addr[2] = (mac_hi & 0xFF0000) >> 16;
-		mac_addr[3] = (mac_hi & 0xFF000000) >> 24;
-		mac_addr[4] = mac_lo & 0xFF;
-		mac_addr[5] = (mac_lo & 0xFF00) >> 8;
+	/* try reading mac address from efuse */
+	mac_lo = readl(&cdev->macid0l);
+	mac_hi = readl(&cdev->macid0h);
+	mac_addr[0] = mac_hi & 0xFF;
+	mac_addr[1] = (mac_hi & 0xFF00) >> 8;
+	mac_addr[2] = (mac_hi & 0xFF0000) >> 16;
+	mac_addr[3] = (mac_hi & 0xFF000000) >> 24;
+	mac_addr[4] = mac_lo & 0xFF;
+	mac_addr[5] = (mac_lo & 0xFF00) >> 8;
+
+#if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) || \
+	(defined(CONFIG_SPL_ETH_SUPPORT) && defined(CONFIG_SPL_BUILD))
+	if (!getenv("ethaddr")) {
+		printf("<ethaddr> not set. Validating first E-fuse MAC\n");
 
 		if (is_valid_ether_addr(mac_addr))
 			eth_setenv_enetaddr("ethaddr", mac_addr);
-		else
-			goto try_usbether;
 	}
 
 	if (board_is_bone() || board_is_bone_lt() || board_is_idk()) {
@@ -494,8 +495,11 @@ int board_eth_init(bd_t *bis)
 				AR8051_RGMII_TX_CLK_DLY);
 	}
 #endif
-try_usbether:
-#if defined(CONFIG_USB_ETHER) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_USB_ETHER) && \
+	(!defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_USBETH_SUPPORT))
+	if (is_valid_ether_addr(mac_addr))
+		eth_setenv_enetaddr("usbnet_devaddr", mac_addr);
+
 	rv = usb_eth_initialize(bis);
 	if (rv < 0)
 		printf("Error %d registering USB_ETHER\n", rv);

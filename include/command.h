@@ -175,7 +175,7 @@ int cmd_process(int flag, int argc, char * const argv[],
 					_usage, _help, NULL)
 
 #define U_BOOT_CMD_COMPLETE(_name, _maxargs, _rep, _cmd, _usage, _help, _comp) \
-	ll_entry_declare(cmd_tbl_t, _name, cmd, cmd) =			\
+	ll_entry_declare(cmd_tbl_t, _name, cmd) =			\
 		U_BOOT_CMD_MKENT_COMPLETE(_name, _maxargs, _rep, _cmd,	\
 						_usage, _help, _comp);
 
