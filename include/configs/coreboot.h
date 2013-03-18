@@ -273,6 +273,23 @@
  */
 #define CONFIG_PCI
 
+/*-----------------------------------------------------------------------
+ * USB configuration
+ */
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_PCI
+#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS     12
+#define CONFIG_USB_MAX_CONTROLLER_COUNT        2
+#define CONFIG_USB_STORAGE
+#define CONFIG_USB_KEYBOARD
+#define CONFIG_SYS_USB_EVENT_POLL
+
+#define CONFIG_USB_HOST_ETHER
+#define CONFIG_USB_ETHER_ASIX
+#define CONFIG_USB_ETHER_SMSC95XX
+
+#define CONFIG_CMD_USB
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_STD_DEVICES_SETTINGS
 

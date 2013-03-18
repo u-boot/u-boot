@@ -42,11 +42,15 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 struct exynos_ehci {
 	struct exynos_usb_phy *usb;
-	unsigned int *hcd;
+	struct ehci_hccr *hcd;
 };
 
+static struct exynos_ehci exynos;
+
+#ifdef CONFIG_OF_CONTROL
 static int exynos_usb_parse_dt(const void *blob, struct exynos_ehci *exynos)
 {
+	fdt_addr_t addr;
 	unsigned int node;
 	int depth;
 
@@ -59,11 +63,13 @@ static int exynos_usb_parse_dt(const void *blob, struct exynos_ehci *exynos)
 	/*
 	 * Get the base address for EHCI controller from the device node
 	 */
-	exynos->hcd = (unsigned int *)fdtdec_get_addr(blob, node, "reg");
-	if (exynos->hcd == NULL) {
+	addr = fdtdec_get_addr(blob, node, "reg");
+	if (addr == FDT_ADDR_T_NONE) {
 		debug("Can't get the EHCI register address\n");
 		return -ENXIO;
 	}
+
+	exynos->hcd = (struct ehci_hccr *)addr;
 
 	depth = 0;
 	node = fdtdec_next_compatible_subnode(blob, node,
@@ -85,6 +91,7 @@ static int exynos_usb_parse_dt(const void *blob, struct exynos_ehci *exynos)
 
 	return 0;
 }
+#endif
 
 /* Setup the EHCI host controller. */
 static void setup_usb_phy(struct exynos_usb_phy *usb)
@@ -144,28 +151,27 @@ static void reset_usb_phy(struct exynos_usb_phy *usb)
  */
 int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
-	struct exynos_ehci *exynos = NULL;
+	struct exynos_ehci *ctx = &exynos;
 
-	exynos = (struct exynos_ehci *)
-			kzalloc(sizeof(struct exynos_ehci), GFP_KERNEL);
-	if (!exynos) {
-		debug("failed to allocate exynos ehci context\n");
-		return -ENOMEM;
+#ifdef CONFIG_OF_CONTROL
+	if (exynos_usb_parse_dt(gd->fdt_blob, ctx)) {
+		debug("Unable to parse device tree for ehci-exynos\n");
+		return -ENODEV;
 	}
+#else
+	ctx->usb = (struct exynos_usb_phy *)samsung_get_base_usb_phy();
+	ctx->hcd = (struct ehci_hccr *)samsung_get_base_usb_ehci();
+#endif
 
-	exynos_usb_parse_dt(gd->fdt_blob, exynos);
+	setup_usb_phy(ctx->usb);
 
-	setup_usb_phy(exynos->usb);
-
-	*hccr = (struct ehci_hccr *)(exynos->hcd);
+	*hccr = ctx->hcd;
 	*hcor = (struct ehci_hcor *)((uint32_t) *hccr
 				+ HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
 
 	debug("Exynos5-ehci: init hccr %x and hcor %x hc_length %d\n",
 		(uint32_t)*hccr, (uint32_t)*hcor,
 		(uint32_t)HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
-
-	kfree(exynos);
 
 	return 0;
 }
@@ -176,20 +182,9 @@ int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
  */
 int ehci_hcd_stop(int index)
 {
-	struct exynos_ehci *exynos = NULL;
+	struct exynos_ehci *ctx = &exynos;
 
-	exynos = (struct exynos_ehci *)
-			kzalloc(sizeof(struct exynos_ehci), GFP_KERNEL);
-	if (!exynos) {
-		debug("failed to allocate exynos ehci context\n");
-		return -ENOMEM;
-	}
-
-	exynos_usb_parse_dt(gd->fdt_blob, exynos);
-
-	reset_usb_phy(exynos->usb);
-
-	kfree(exynos);
+	reset_usb_phy(ctx->usb);
 
 	return 0;
 }

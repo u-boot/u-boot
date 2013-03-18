@@ -475,7 +475,9 @@ typedef struct urb_link {
  * function driver to inform it that data has arrived.
  */
 
-#define URB_BUF_SIZE 128 /* in linux we'd malloc this, but in u-boot we prefer static data */
+/* in linux we'd malloc this, but in u-boot we prefer static data */
+#define URB_BUF_SIZE 512
+
 struct urb {
 
 	struct usb_endpoint_instance *endpoint;

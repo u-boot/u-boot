@@ -31,6 +31,7 @@
 
 #include "gadget_chips.h"
 #include "composite.c"
+#include "f_mass_storage.c"
 
 /*
  * One needs to define the following:
@@ -104,6 +105,8 @@ static int g_dnl_do_config(struct usb_configuration *c)
 	printf("GADGET DRIVER: %s\n", s);
 	if (!strcmp(s, "usb_dnl_dfu"))
 		ret = dfu_add(c);
+	else if (!strcmp(s, "usb_dnl_ums"))
+		ret = fsg_add(c);
 
 	return ret;
 }
@@ -186,6 +189,9 @@ int g_dnl_register(const char *type)
 	int ret;
 
 	if (!strcmp(type, "dfu")) {
+		strcpy(name, shortname);
+		strcat(name, type);
+	} else if (!strcmp(type, "ums")) {
 		strcpy(name, shortname);
 		strcat(name, type);
 	} else {

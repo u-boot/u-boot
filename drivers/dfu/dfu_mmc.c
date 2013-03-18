@@ -21,6 +21,7 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <errno.h>
 #include <dfu.h>
 
 enum dfu_mmc_op {
@@ -153,6 +154,10 @@ int dfu_read_medium_mmc(struct dfu_entity *dfu, void *buf, long *len)
 
 int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *s)
 {
+	int dev, part;
+	struct mmc *mmc;
+	block_dev_desc_t *blk_dev;
+	disk_partition_t partinfo;
 	char *st;
 
 	dfu->dev_type = DFU_DEV_MMC;
@@ -166,8 +171,34 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *s)
 		dfu->layout = DFU_FS_FAT;
 	} else if (!strcmp(st, "ext4")) {
 		dfu->layout = DFU_FS_EXT4;
+	} else if (!strcmp(st, "part")) {
+
+		dfu->layout = DFU_RAW_ADDR;
+
+		dev = simple_strtoul(s, &s, 10);
+		s++;
+		part = simple_strtoul(s, &s, 10);
+
+		mmc = find_mmc_device(dev);
+		if (mmc == NULL || mmc_init(mmc)) {
+			printf("%s: could not find mmc device #%d!\n", __func__, dev);
+			return -ENODEV;
+		}
+
+		blk_dev = &mmc->block_dev;
+		if (get_partition_info(blk_dev, part, &partinfo) != 0) {
+			printf("%s: could not find partition #%d on mmc device #%d!\n",
+					__func__, part, dev);
+			return -ENODEV;
+		}
+
+		dfu->data.mmc.lba_start = partinfo.start;
+		dfu->data.mmc.lba_size = partinfo.size;
+		dfu->data.mmc.lba_blk_size = partinfo.blksz;
+
 	} else {
 		printf("%s: Memory layout (%s) not supported!\n", __func__, st);
+		return -ENODEV;
 	}
 
 	if (dfu->layout == DFU_FS_EXT4 || dfu->layout == DFU_FS_FAT) {
