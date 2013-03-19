@@ -38,11 +38,13 @@
  */
 #ifdef CONFIG_PHYS_64BIT
 typedef u64 fdt_addr_t;
+typedef u64 fdt_size_t;
 #define FDT_ADDR_T_NONE (-1ULL)
 #define fdt_addr_to_cpu(reg) be64_to_cpu(reg)
 #define fdt_size_to_cpu(reg) be64_to_cpu(reg)
 #else
 typedef u32 fdt_addr_t;
+typedef u32 fdt_size_t;
 #define FDT_ADDR_T_NONE (-1U)
 #define fdt_addr_to_cpu(reg) be32_to_cpu(reg)
 #define fdt_size_to_cpu(reg) be32_to_cpu(reg)
@@ -198,6 +200,19 @@ int fdtdec_next_compatible_subnode(const void *blob, int node,
  */
 fdt_addr_t fdtdec_get_addr(const void *blob, int node,
 		const char *prop_name);
+
+/**
+ * Look up an address property in a node and return it as an address.
+ * The property must hold one address with a length. This is only tested
+ * on 32-bit machines.
+ *
+ * @param blob	FDT blob
+ * @param node	node to examine
+ * @param prop_name	name of property to find
+ * @return address, if found, or FDT_ADDR_T_NONE if not
+ */
+fdt_addr_t fdtdec_get_addr_size(const void *blob, int node,
+		const char *prop_name, fdt_size_t *sizep);
 
 /**
  * Look up a 32-bit integer property in a node and return it. The property
