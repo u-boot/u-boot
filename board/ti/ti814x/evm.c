@@ -151,6 +151,9 @@ void s_init(void)
 	 */
 	wdt_disable();
 
+	/* Enable timer */
+	timer_init();
+
 	/* Setup the PLLs and the clocks for the peripherals */
 	pll_init();
 
