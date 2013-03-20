@@ -63,7 +63,7 @@ https://wiki.linaro.org/Boards/MX6QSabreLite
 To build U-Boot for the SabreLite board:
 
  make mx6qsabrelite_config
- make u-boot.imx
+ make
 
 To copy the resulting u-boot.imx to the SD card:
 
