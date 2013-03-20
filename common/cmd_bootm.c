@@ -128,6 +128,9 @@ static boot_os_fn do_bootm_rtems;
 #if defined(CONFIG_BOOTM_OSE)
 static boot_os_fn do_bootm_ose;
 #endif
+#if defined(CONFIG_BOOTM_PLAN9)
+static boot_os_fn do_bootm_plan9;
+#endif
 #if defined(CONFIG_CMD_ELF)
 static boot_os_fn do_bootm_vxworks;
 static boot_os_fn do_bootm_qnxelf;
@@ -153,6 +156,9 @@ static boot_os_fn *boot_os[] = {
 #endif
 #if defined(CONFIG_BOOTM_OSE)
 	[IH_OS_OSE] = do_bootm_ose,
+#endif
+#if defined(CONFIG_BOOTM_PLAN9)
+	[IH_OS_PLAN9] = do_bootm_plan9,
 #endif
 #if defined(CONFIG_CMD_ELF)
 	[IH_OS_VXWORKS] = do_bootm_vxworks,
@@ -1627,6 +1633,39 @@ static int do_bootm_ose(int flag, int argc, char * const argv[],
 	return 1;
 }
 #endif /* CONFIG_BOOTM_OSE */
+
+#if defined(CONFIG_BOOTM_PLAN9)
+static int do_bootm_plan9(int flag, int argc, char * const argv[],
+			   bootm_headers_t *images)
+{
+	void (*entry_point)(void);
+
+	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
+		return 1;
+
+#if defined(CONFIG_FIT)
+	if (!images->legacy_hdr_valid) {
+		fit_unsupported_reset("Plan 9");
+		return 1;
+	}
+#endif
+
+	entry_point = (void (*)(void))images->ep;
+
+	printf("## Transferring control to Plan 9 (at address %08lx) ...\n",
+		(ulong)entry_point);
+
+	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
+
+	/*
+	 * Plan 9 Parameters:
+	 *   None
+	 */
+	(*entry_point)();
+
+	return 1;
+}
+#endif /* CONFIG_BOOTM_PLAN9 */
 
 #if defined(CONFIG_CMD_ELF)
 static int do_bootm_vxworks(int flag, int argc, char * const argv[],

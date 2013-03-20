@@ -84,6 +84,7 @@
 #define IH_OS_UNITY		20	/* Unity OS	*/
 #define IH_OS_INTEGRITY		21	/* INTEGRITY	*/
 #define IH_OS_OSE		22	/* OSE		*/
+#define IH_OS_PLAN9		23	/* Plan 9	*/
 
 /*
  * CPU Architecture Codes (supported by Linux)
