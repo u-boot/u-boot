@@ -42,6 +42,9 @@ re_signoff = re.compile('^Signed-off-by:')
 # The start of the cover letter
 re_cover = re.compile('^Cover-letter:')
 
+# A cover letter Cc
+re_cover_cc = re.compile('^Cover-letter-cc: *(.*)')
+
 # Patch series tag
 re_series = re.compile('^Series-(\w*): *(.*)')
 
@@ -153,6 +156,7 @@ class PatchStream:
         # Handle state transition and skipping blank lines
         series_match = re_series.match(line)
         commit_match = re_commit.match(line) if self.is_log else None
+        cover_cc_match = re_cover_cc.match(line)
         tag_match = None
         if self.state == STATE_PATCH_HEADER:
             tag_match = re_tag.match(line)
@@ -204,6 +208,10 @@ class PatchStream:
         elif re_cover.match(line):
             self.in_section = 'cover'
             self.skip_blank = False
+
+        elif cover_cc_match:
+            value = cover_cc_match.group(1)
+            self.AddToSeries(line, 'cover-cc', value)
 
         # If we are in a change list, key collected lines until a blank one
         elif self.in_change:

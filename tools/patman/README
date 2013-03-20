@@ -182,6 +182,10 @@ END
 	Sets the cover letter contents for the series. The first line
 	will become the subject of the cover letter
 
+Cover-letter-cc: email / alias
+	Additional email addresses / aliases to send cover letter to (you
+	can add this multiple times)
+
 Series-notes:
 blah blah
 blah blah
@@ -263,7 +267,13 @@ will create a patch which is copied to x86, arm, sandbox, mikef, ag and
 afleming.
 
 If you have a cover letter it will get sent to the union of the CC lists of
-all of the other patches.
+all of the other patches. If you want to sent it to additional people you
+can add a tag:
+
+Cover-letter-cc: <list of addresses>
+
+These people will get the cover letter even if they are not on the To/Cc
+list for any of the patches.
 
 
 Example Work Flow
