@@ -17,6 +17,7 @@
  */
 
 #include <common.h>
+#include <cpsw.h>
 #include <errno.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>
@@ -38,6 +39,8 @@ DECLARE_GLOBAL_DATA_PTR;
 static struct wd_timer *wdtimer = (struct wd_timer *)WDT_BASE;
 static struct uart_sys *uart_base = (struct uart_sys *)DEFAULT_UART_BASE;
 #endif
+
+static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
 /* UART Defines */
 #ifdef CONFIG_SPL_BUILD
@@ -166,6 +169,9 @@ void s_init(void)
 	/* Set MMC pins */
 	enable_mmc1_pin_mux();
 
+	/* Set Ethernet pins */
+	enable_enet_pin_mux();
+
 	/* Enable UART */
 	uart_enable();
 
@@ -199,3 +205,69 @@ int board_mmc_init(bd_t *bis)
 	return 0;
 }
 #endif
+
+#ifdef CONFIG_DRIVER_TI_CPSW
+static void cpsw_control(int enabled)
+{
+	/* VTP can be added here */
+
+	return;
+}
+
+static struct cpsw_slave_data cpsw_slaves[] = {
+	{
+		.slave_reg_ofs	= 0x50,
+		.sliver_reg_ofs	= 0x700,
+		.phy_id		= 1,
+	},
+	{
+		.slave_reg_ofs	= 0x90,
+		.sliver_reg_ofs	= 0x740,
+		.phy_id		= 0,
+	},
+};
+
+static struct cpsw_platform_data cpsw_data = {
+	.mdio_base		= CPSW_MDIO_BASE,
+	.cpsw_base		= CPSW_BASE,
+	.mdio_div		= 0xff,
+	.channels		= 8,
+	.cpdma_reg_ofs		= 0x100,
+	.slaves			= 1,
+	.slave_data		= cpsw_slaves,
+	.ale_reg_ofs		= 0x600,
+	.ale_entries		= 1024,
+	.host_port_reg_ofs	= 0x28,
+	.hw_stats_reg_ofs	= 0x400,
+	.mac_control		= (1 << 5),
+	.control		= cpsw_control,
+	.host_port_num		= 0,
+	.version		= CPSW_CTRL_VERSION_1,
+};
+#endif
+
+int board_eth_init(bd_t *bis)
+{
+	uint8_t mac_addr[6];
+	uint32_t mac_hi, mac_lo;
+
+	if (!eth_getenv_enetaddr("ethaddr", mac_addr)) {
+		printf("<ethaddr> not set. Reading from E-fuse\n");
+		/* try reading mac address from efuse */
+		mac_lo = readl(&cdev->macid0l);
+		mac_hi = readl(&cdev->macid0h);
+		mac_addr[0] = mac_hi & 0xFF;
+		mac_addr[1] = (mac_hi & 0xFF00) >> 8;
+		mac_addr[2] = (mac_hi & 0xFF0000) >> 16;
+		mac_addr[3] = (mac_hi & 0xFF000000) >> 24;
+		mac_addr[4] = mac_lo & 0xFF;
+		mac_addr[5] = (mac_lo & 0xFF00) >> 8;
+
+		if (is_valid_ether_addr(mac_addr))
+			eth_setenv_enetaddr("ethaddr", mac_addr);
+		else
+			printf("Unable to read MAC address. Set <ethaddr>\n");
+	}
+
+	return cpsw_register(&cpsw_data);
+}
