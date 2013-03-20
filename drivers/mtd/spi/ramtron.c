@@ -284,15 +284,13 @@ struct spi_flash *spi_fram_probe_ramtron(struct spi_slave *spi, u8 *idcode)
 	return NULL;
 
 found:
-	sn = malloc(sizeof(*sn));
+	sn = spi_flash_alloc(struct ramtron_spi_fram, spi, params->name);
 	if (!sn) {
 		debug("SF: Failed to allocate memory\n");
 		return NULL;
 	}
 
 	sn->params = params;
-	sn->flash.spi = spi;
-	sn->flash.name = params->name;
 
 	sn->flash.write = ramtron_write;
 	sn->flash.read = ramtron_read;

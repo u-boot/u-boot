@@ -103,12 +103,10 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	if (!spi_cs_is_valid(bus, cs))
 		return NULL;
 
-	ss = malloc(sizeof(struct spi_slave));
+	ss = spi_alloc_slave(struct sh_spi, bus, cs);
 	if (!ss)
 		return NULL;
 
-	ss->slave.bus = bus;
-	ss->slave.cs = cs;
 	ss->regs = (struct sh_spi_regs *)CONFIG_SH_SPI_BASE;
 
 	/* SPI sycle stop */

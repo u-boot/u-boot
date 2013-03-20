@@ -77,15 +77,13 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		return NULL;
 	}
 
-	mxs_slave = calloc(sizeof(struct mxs_spi_slave), 1);
+	mxs_slave = spi_alloc_slave(struct mxs_spi_slave, bus, cs);
 	if (!mxs_slave)
 		return NULL;
 
 	if (mxs_dma_init_channel(MXS_DMA_CHANNEL_AHB_APBH_SSP0 + bus))
 		goto err_init;
 
-	mxs_slave->slave.bus = bus;
-	mxs_slave->slave.cs = cs;
 	mxs_slave->max_khz = max_hz / 1000;
 	mxs_slave->mode = mode;
 	mxs_slave->regs = mxs_ssp_regs_by_bus(bus);

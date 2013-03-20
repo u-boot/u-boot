@@ -59,6 +59,7 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(SAMSUNG_EXYNOS_EHCI, "samsung,exynos-ehci"),
 	COMPAT(SAMSUNG_EXYNOS_USB_PHY, "samsung,exynos-usb-phy"),
 	COMPAT(MAXIM_MAX77686_PMIC, "maxim,max77686_pmic"),
+	COMPAT(GENERIC_SPI_FLASH, "spi-flash"),
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)
@@ -68,23 +69,38 @@ const char *fdtdec_get_compatible(enum fdt_compat_id id)
 	return compat_names[id];
 }
 
-fdt_addr_t fdtdec_get_addr(const void *blob, int node,
-		const char *prop_name)
+fdt_addr_t fdtdec_get_addr_size(const void *blob, int node,
+		const char *prop_name, fdt_size_t *sizep)
 {
 	const fdt_addr_t *cell;
 	int len;
 
 	debug("%s: %s: ", __func__, prop_name);
 	cell = fdt_getprop(blob, node, prop_name, &len);
-	if (cell && (len == sizeof(fdt_addr_t) ||
-			len == sizeof(fdt_addr_t) * 2)) {
+	if (cell && ((!sizep && len == sizeof(fdt_addr_t)) ||
+		     len == sizeof(fdt_addr_t) * 2)) {
 		fdt_addr_t addr = fdt_addr_to_cpu(*cell);
+		if (sizep) {
+			const fdt_size_t *size;
 
-		debug("%p\n", (void *)addr);
+			size = (fdt_size_t *)((char *)cell +
+					sizeof(fdt_addr_t));
+			*sizep = fdt_size_to_cpu(*size);
+			debug("addr=%p, size=%p\n", (void *)addr,
+			      (void *)*sizep);
+		} else {
+			debug("%p\n", (void *)addr);
+		}
 		return addr;
 	}
 	debug("(not found)\n");
 	return FDT_ADDR_T_NONE;
+}
+
+fdt_addr_t fdtdec_get_addr(const void *blob, int node,
+		const char *prop_name)
+{
+	return fdtdec_get_addr_size(blob, node, prop_name, NULL);
 }
 
 s32 fdtdec_get_int(const void *blob, int node, const char *prop_name,

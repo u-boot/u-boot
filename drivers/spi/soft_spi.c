@@ -73,12 +73,10 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	if (!spi_cs_is_valid(bus, cs))
 		return NULL;
 
-	ss = malloc(sizeof(struct soft_spi_slave));
+	ss = spi_alloc_slave(struct soft_spi_slave, bus, cs);
 	if (!ss)
 		return NULL;
 
-	ss->slave.bus = bus;
-	ss->slave.cs = cs;
 	ss->mode = mode;
 
 	/* TODO: Use max_hz to limit the SCK rate */

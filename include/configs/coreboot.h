@@ -179,6 +179,8 @@
 #define CONFIG_CMD_SAVEENV
 #define CONFIG_CMD_SETGETDCR
 #define CONFIG_CMD_SOURCE
+#define CONFIG_CMD_TIME
+#define CONFIG_CMD_GETTIME
 #define CONFIG_CMD_XIMG
 #define CONFIG_CMD_SCSI
 
@@ -257,10 +259,16 @@
 /*-----------------------------------------------------------------------
  * FLASH configuration
  */
+#define CONFIG_ICH_SPI
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_MACRONIX
+#define CONFIG_SPI_FLASH_WINBOND
+#define CONFIG_SPI_FLASH_GIGADEVICE
 #define CONFIG_SYS_NO_FLASH
-#undef CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_MAX_FLASH_SECT		1
-#define CONFIG_SYS_MAX_FLASH_BANKS		1
+#define CONFIG_CMD_SF
+#define CONFIG_CMD_SF_TEST
+#define CONFIG_CMD_SPI
+#define CONFIG_SPI
 
 /*-----------------------------------------------------------------------
  * Environment configuration

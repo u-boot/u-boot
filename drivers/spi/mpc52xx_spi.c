@@ -48,12 +48,9 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 {
 	struct spi_slave *slave;
 
-	slave = malloc(sizeof(struct spi_slave));
+	slave = spi_alloc_slave_base(bus, cs);
 	if (!slave)
 		return NULL;
-
-	slave->bus = bus;
-	slave->cs = cs;
 
 	return slave;
 }

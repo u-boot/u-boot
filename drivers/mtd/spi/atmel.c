@@ -480,15 +480,13 @@ struct spi_flash *spi_flash_probe_atmel(struct spi_slave *spi, u8 *idcode)
 		return NULL;
 	}
 
-	asf = malloc(sizeof(struct atmel_spi_flash));
+	asf = spi_flash_alloc(struct atmel_spi_flash, spi, params->name);
 	if (!asf) {
 		debug("SF: Failed to allocate memory\n");
 		return NULL;
 	}
 
 	asf->params = params;
-	asf->flash.spi = spi;
-	asf->flash.name = params->name;
 
 	/* Assuming power-of-two page size initially. */
 	page_size = 1 << params->l2_page_size;
@@ -513,7 +511,6 @@ struct spi_flash *spi_flash_probe_atmel(struct spi_slave *spi, u8 *idcode)
 			asf->flash.erase = dataflash_erase_at45;
 			page_size += 1 << (params->l2_page_size - 5);
 		} else {
-			asf->flash.read = spi_flash_cmd_read_fast;
 			asf->flash.write = dataflash_write_p2;
 			asf->flash.erase = dataflash_erase_p2;
 		}
@@ -524,9 +521,6 @@ struct spi_flash *spi_flash_probe_atmel(struct spi_slave *spi, u8 *idcode)
 
 	case DF_FAMILY_AT26F:
 	case DF_FAMILY_AT26DF:
-		asf->flash.read = spi_flash_cmd_read_fast;
-		asf->flash.write = spi_flash_cmd_write_multi;
-		asf->flash.erase = spi_flash_cmd_erase;
 		asf->flash.page_size = page_size;
 		asf->flash.sector_size = 4096;
 		/* clear SPRL# bit for locked flash */
