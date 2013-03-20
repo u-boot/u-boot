@@ -688,6 +688,10 @@ Stefan Herbrechtsmeier <stefan@code.herbrechtsmeier.net>
 
 	dns325		ARM926EJS (Kirkwood SoC)
 
+Lauri Hintsala <lauri.hintsala@bluegiga.com>
+
+	apx4devkit	i.MX28
+
 Vaibhav Hiremath <hvaibhav@ti.com>
 
 	am3517_evm	ARM ARMV7 (AM35x SoC)
@@ -805,10 +809,6 @@ Helmut Raiger <helmut.raiger@hale.at>
 Linus Walleij <linus.walleij@linaro.org>
 	integratorap	various
 	integratorcp	various
-
-Veli-Pekka Peltola <veli-pekka.peltola@bluegiga.com>
-
-	apx4devkit	i.MX28
 
 Luka Perkov <luka@openwrt.org>
 
