@@ -1421,6 +1421,7 @@ static int __devinit musb_core_init(u16 musb_type, struct musb *musb)
 		strcat(aInfo, ", dyn FIFOs");
 		musb->dyn_fifo = true;
 	}
+#ifndef CONFIG_MUSB_DISABLE_BULK_COMBINE_SPLIT
 	if (reg & MUSB_CONFIGDATA_MPRXE) {
 		strcat(aInfo, ", bulk combine");
 		musb->bulk_combine = true;
@@ -1429,6 +1430,10 @@ static int __devinit musb_core_init(u16 musb_type, struct musb *musb)
 		strcat(aInfo, ", bulk split");
 		musb->bulk_split = true;
 	}
+#else
+	musb->bulk_combine = false;
+	musb->bulk_split = false;
+#endif
 	if (reg & MUSB_CONFIGDATA_HBRXE) {
 		strcat(aInfo, ", HB-ISO Rx");
 		musb->hb_iso_rx = true;
