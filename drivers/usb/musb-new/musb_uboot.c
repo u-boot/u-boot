@@ -174,7 +174,7 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 {
 	int ret;
 
-	if (!driver || driver->speed < USB_SPEED_HIGH || !driver->bind ||
+	if (!driver || driver->speed < USB_SPEED_FULL || !driver->bind ||
 	    !driver->setup) {
 		printf("bad parameter.\n");
 		return -EINVAL;
