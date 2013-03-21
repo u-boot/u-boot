@@ -434,10 +434,10 @@ void system_clock_init()
 		val = readl(&clk->mux_stat_core1);
 	} while ((val | MUX_MPLL_SEL_MASK) != val);
 
-	clrbits_le32(&clk->src_core1, MUX_CPLL_SEL_MASK);
-	clrbits_le32(&clk->src_core1, MUX_EPLL_SEL_MASK);
-	clrbits_le32(&clk->src_core1, MUX_VPLL_SEL_MASK);
-	clrbits_le32(&clk->src_core1, MUX_GPLL_SEL_MASK);
+	clrbits_le32(&clk->src_top2, MUX_CPLL_SEL_MASK);
+	clrbits_le32(&clk->src_top2, MUX_EPLL_SEL_MASK);
+	clrbits_le32(&clk->src_top2, MUX_VPLL_SEL_MASK);
+	clrbits_le32(&clk->src_top2, MUX_GPLL_SEL_MASK);
 	tmp = MUX_CPLL_SEL_MASK | MUX_EPLL_SEL_MASK | MUX_VPLL_SEL_MASK
 		| MUX_GPLL_SEL_MASK;
 	do {
