@@ -34,8 +34,9 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static void mmc_load_image_raw(struct mmc *mmc)
 {
-	u32 image_size_sectors, err;
-	const struct image_header *header;
+	unsigned long err;
+	u32 image_size_sectors;
+	struct image_header *header;
 
 	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE -
 						sizeof(struct image_header));
@@ -43,9 +44,9 @@ static void mmc_load_image_raw(struct mmc *mmc)
 	/* read image header to find the image size & load address */
 	err = mmc->block_dev.block_read(0,
 			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR, 1,
-			(void *)header);
+			header);
 
-	if (err <= 0)
+	if (err == 0)
 		goto end;
 
 	spl_parse_image_header(header);
@@ -60,8 +61,8 @@ static void mmc_load_image_raw(struct mmc *mmc)
 			image_size_sectors, (void *)spl_image.load_addr);
 
 end:
-	if (err <= 0) {
-		printf("spl: mmc blk read err - %d\n", err);
+	if (err == 0) {
+		printf("spl: mmc blk read err - %lu\n", err);
 		hang();
 	}
 }
@@ -69,7 +70,7 @@ end:
 #ifdef CONFIG_SPL_FAT_SUPPORT
 static void mmc_load_image_fat(struct mmc *mmc)
 {
-	s32 err;
+	int err;
 	struct image_header *header;
 
 	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE -
@@ -83,7 +84,7 @@ static void mmc_load_image_fat(struct mmc *mmc)
 	}
 
 	err = file_fat_read(CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME,
-				(u8 *)header, sizeof(struct image_header));
+				header, sizeof(struct image_header));
 	if (err <= 0)
 		goto end;
 
