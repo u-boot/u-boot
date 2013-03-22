@@ -64,6 +64,8 @@ env_t *env_ptr = (env_t *)CONFIG_NAND_ENV_DST;
 env_t *env_ptr;
 #endif /* ENV_IS_EMBEDDED */
 
+DEFINE_CACHE_ALIGN_BUFFER(char, env_buf, CONFIG_ENV_SIZE);
+
 DECLARE_GLOBAL_DATA_PTR;
 
 /*
@@ -173,7 +175,7 @@ static unsigned char env_flags;
 
 int saveenv(void)
 {
-	env_t	env_new;
+	env_t	*env_new = (env_t *)env_buf;
 	ssize_t	len;
 	char	*res;
 	int	ret = 0;
@@ -185,14 +187,14 @@ int saveenv(void)
 	if (CONFIG_ENV_RANGE < CONFIG_ENV_SIZE)
 		return 1;
 
-	res = (char *)&env_new.data;
+	res = (char *)env_new->data;
 	len = hexport_r(&env_htab, '\0', 0, &res, ENV_SIZE, 0, NULL);
 	if (len < 0) {
 		error("Cannot export environment: errno = %d\n", errno);
 		return 1;
 	}
-	env_new.crc	= crc32(0, env_new.data, ENV_SIZE);
-	env_new.flags	= ++env_flags; /* increase the serial */
+	env_new->crc	= crc32(0, env_new->data, ENV_SIZE);
+	env_new->flags	= ++env_flags; /* increase the serial */
 
 	if (gd->env_valid == 1) {
 		puts("Erasing redundant NAND...\n");
@@ -201,7 +203,7 @@ int saveenv(void)
 			return 1;
 
 		puts("Writing to redundant NAND... ");
-		ret = writeenv(CONFIG_ENV_OFFSET_REDUND, (u_char *)&env_new);
+		ret = writeenv(CONFIG_ENV_OFFSET_REDUND, (u_char *)env_new);
 	} else {
 		puts("Erasing NAND...\n");
 		nand_erase_options.offset = CONFIG_ENV_OFFSET;
@@ -209,7 +211,7 @@ int saveenv(void)
 			return 1;
 
 		puts("Writing to NAND... ");
-		ret = writeenv(CONFIG_ENV_OFFSET, (u_char *)&env_new);
+		ret = writeenv(CONFIG_ENV_OFFSET, (u_char *)env_new);
 	}
 	if (ret) {
 		puts("FAILED!\n");
@@ -226,7 +228,7 @@ int saveenv(void)
 int saveenv(void)
 {
 	int	ret = 0;
-	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
+	env_t	*env_new = (env_t *)env_buf;
 	ssize_t	len;
 	char	*res;
 	nand_erase_options_t nand_erase_options;
@@ -238,7 +240,7 @@ int saveenv(void)
 	if (CONFIG_ENV_RANGE < CONFIG_ENV_SIZE)
 		return 1;
 
-	res = (char *)&env_new->data;
+	res = (char *)env_new->data;
 	len = hexport_r(&env_htab, '\0', 0, &res, ENV_SIZE, 0, NULL);
 	if (len < 0) {
 		error("Cannot export environment: errno = %d\n", errno);
@@ -404,7 +406,6 @@ void env_relocate_spec(void)
 {
 #if !defined(ENV_IS_EMBEDDED)
 	int ret;
-	ALLOC_CACHE_ALIGN_BUFFER(char, buf, CONFIG_ENV_SIZE);
 
 #if defined(CONFIG_ENV_OFFSET_OOB)
 	ret = get_nand_env_oob(&nand_info[0], &nand_env_oob_offset);
@@ -420,13 +421,13 @@ void env_relocate_spec(void)
 	}
 #endif
 
-	ret = readenv(CONFIG_ENV_OFFSET, (u_char *)buf);
+	ret = readenv(CONFIG_ENV_OFFSET, (u_char *)env_buf);
 	if (ret) {
 		set_default_env("!readenv() failed");
 		return;
 	}
 
-	env_import(buf, 1);
+	env_import(env_buf, 1);
 #endif /* ! ENV_IS_EMBEDDED */
 }
 #endif /* CONFIG_ENV_OFFSET_REDUND */
