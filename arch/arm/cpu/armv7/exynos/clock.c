@@ -116,10 +116,8 @@ static int exynos_get_pll_clk(int pllreg, unsigned int r, unsigned int k)
 		/* FOUT = (MDIV + K / 1024) * FIN / (PDIV * 2^SDIV) */
 		fout = (m + k / 1024) * (freq / (p * (1 << s)));
 	} else {
-		if (s < 1)
-			s = 1;
-		/* FOUT = MDIV * FIN / (PDIV * 2^(SDIV - 1)) */
-		fout = m * (freq / (p * (1 << (s - 1))));
+		/* FOUT = MDIV * FIN / (PDIV * 2^SDIV) */
+		fout = m * (freq / (p * (1 << s)));
 	}
 
 	return fout;
