@@ -56,21 +56,25 @@ static int do_setexpr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	ulong value;
 	int w;
 
-	/* Validate arguments */
-	if (argc != 5 && argc != 3)
-		return CMD_RET_USAGE;
-	if (argc == 5 && strlen(argv[3]) != 1)
+	if (argc < 3)
 		return CMD_RET_USAGE;
 
 	w = cmd_get_data_size(argv[0], 4);
 
 	a = get_arg(argv[2], w);
 
+	/* plain assignment: "setexpr name value" */
 	if (argc == 3) {
 		setenv_hex(argv[1], a);
-
 		return 0;
 	}
+
+	/* standard operators: "setexpr name val1 op val2" */
+	if (argc != 5)
+		return CMD_RET_USAGE;
+
+	if (strlen(argv[3]) != 1)
+		return CMD_RET_USAGE;
 
 	b = get_arg(argv[4], w);
 
@@ -117,6 +121,6 @@ U_BOOT_CMD(
 	"      express specified by <op>.  <op> can be &, |, ^, +, -, *, /, %\n"
 	"      size argument is only meaningful if value1 and/or value2 are\n"
 	"      memory addresses (*)\n"
-	"setexpr[.b, .w, .l] name *value\n"
-	"    - load a memory address into a variable"
+	"setexpr[.b, .w, .l] name [*]value\n"
+	"    - load a value into a variable"
 );
