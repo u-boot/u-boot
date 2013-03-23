@@ -165,12 +165,13 @@ static int do_env_grep(cmd_tbl_t *cmdtp, int flag,
 		       int argc, char * const argv[])
 {
 	char *res = NULL;
-	int len, grep_flags;
+	int len, grep_how, grep_what;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	grep_flags = H_MATCH_BOTH;
+	grep_how  = H_MATCH_SUBSTR;	/* default: substring search	*/
+	grep_what = H_MATCH_BOTH;	/* default: grep names and values */
 
 	while (argc > 1 && **(argv + 1) == '-') {
 		char *arg = *++argv;
@@ -178,14 +179,19 @@ static int do_env_grep(cmd_tbl_t *cmdtp, int flag,
 		--argc;
 		while (*++arg) {
 			switch (*arg) {
+#ifdef CONFIG_REGEX
+			case 'e':		/* use regex matching */
+				grep_how  = H_MATCH_REGEX;
+				break;
+#endif
 			case 'n':		/* grep for name */
-				grep_flags = H_MATCH_KEY;
+				grep_what = H_MATCH_KEY;
 				break;
 			case 'v':		/* grep for value */
-				grep_flags = H_MATCH_DATA;
+				grep_what = H_MATCH_DATA;
 				break;
 			case 'b':		/* grep for both */
-				grep_flags = H_MATCH_BOTH;
+				grep_what = H_MATCH_BOTH;
 				break;
 			case '-':
 				goto DONE;
@@ -197,7 +203,7 @@ static int do_env_grep(cmd_tbl_t *cmdtp, int flag,
 
 DONE:
 	len = hexport_r(&env_htab, '\n',
-			flag | grep_flags | H_MATCH_SUBSTR,
+			flag | grep_what | grep_how,
 			&res, 0, argc, argv);
 
 	if (len > 0) {
@@ -1153,7 +1159,11 @@ static char env_help_text[] =
 	"env flags - print variables that have non-default flags\n"
 #endif
 #if defined(CONFIG_CMD_GREPENV)
+#ifdef CONFIG_REGEX
+	"env grep [-e] [-n | -v | -b] string [...] - search environment\n"
+#else
 	"env grep [-n | -v | -b] string [...] - search environment\n"
+#endif
 #endif
 #if defined(CONFIG_CMD_IMPORTENV)
 	"env import [-d] [-t | -b | -c] addr [size] - import environment\n"
@@ -1200,8 +1210,15 @@ U_BOOT_CMD_COMPLETE(
 U_BOOT_CMD_COMPLETE(
 	grepenv, CONFIG_SYS_MAXARGS, 0,  do_env_grep,
 	"search environment variables",
+#ifdef CONFIG_REGEX
+	"[-e] [-n | -v | -b] string ...\n"
+#else
 	"[-n | -v | -b] string ...\n"
+#endif
 	"    - list environment name=value pairs matching 'string'\n"
+#ifdef CONFIG_REGEX
+	"      \"-e\": enable regular expressions;\n"
+#endif
 	"      \"-n\": search variable names; \"-v\": search values;\n"
 	"      \"-b\": search both names and values (default)",
 	var_complete

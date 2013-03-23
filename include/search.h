@@ -129,7 +129,8 @@ extern int hwalk_r(struct hsearch_data *__htab, int (*callback)(ENTRY *));
 #define H_MATCH_DATA	(1 << 5) /* search/grep data = variable values	     */
 #define H_MATCH_BOTH	(H_MATCH_KEY | H_MATCH_DATA) /* search/grep both     */
 #define H_MATCH_IDENT	(1 << 6) /* search for indentical strings	     */
-#define H_MATCH_SUBSTR  (1 << 7) /* search for substring matches	     */
-#define H_MATCH_METHOD	(H_MATCH_IDENT | H_MATCH_SUBSTR)
+#define H_MATCH_SUBSTR	(1 << 7) /* search for substring matches	     */
+#define H_MATCH_REGEX	(1 << 8) /* search for regular expression matches    */
+#define H_MATCH_METHOD	(H_MATCH_IDENT | H_MATCH_SUBSTR | H_MATCH_REGEX)
 
 #endif /* search.h */

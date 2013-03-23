@@ -57,6 +57,7 @@
 #include <env_callback.h>
 #include <env_flags.h>
 #include <search.h>
+#include <slre.h>
 
 /*
  * [Aho,Sethi,Ullman] Compilers: Principles, Techniques and Tools, 1986
@@ -540,7 +541,7 @@ static int cmpkey(const void *p1, const void *p2)
 	return (strcmp(e1->key, e2->key));
 }
 
-static int match_string(int flag, const char *str, const char *pat)
+static int match_string(int flag, const char *str, const char *pat, void *priv)
 {
 	switch (flag & H_MATCH_METHOD) {
 	case H_MATCH_IDENT:
@@ -551,6 +552,17 @@ static int match_string(int flag, const char *str, const char *pat)
 		if (strstr(str, pat))
 			return 1;
 		break;
+#ifdef CONFIG_REGEX
+	case H_MATCH_REGEX:
+		{
+			struct slre *slrep = (struct slre *)priv;
+			struct cap caps[slrep->num_caps + 2];
+
+			if (slre_match(slrep, str, strlen(str), caps))
+				return 1;
+		}
+		break;
+#endif
 	default:
 		printf("## ERROR: unsupported match method: 0x%02x\n",
 			flag & H_MATCH_METHOD);
@@ -563,14 +575,25 @@ static int match_entry(ENTRY *ep, int flag,
 		 int argc, char * const argv[])
 {
 	int arg;
+	void *priv = NULL;
 
 	for (arg = 1; arg < argc; ++arg) {
+#ifdef CONFIG_REGEX
+		struct slre slre;
+
+		if (slre_compile(&slre, argv[arg]) == 0) {
+			printf("Error compiling regex: %s\n", slre.err_str);
+			return 0;
+		}
+
+		priv = (void *)&slre;
+#endif
 		if (flag & H_MATCH_KEY) {
-			if (match_string(flag, ep->key, argv[arg]))
+			if (match_string(flag, ep->key, argv[arg], priv))
 				return 1;
 		}
 		if (flag & H_MATCH_DATA) {
-			if (match_string(flag, ep->data, argv[arg]))
+			if (match_string(flag, ep->data, argv[arg], priv))
 				return 1;
 		}
 	}
