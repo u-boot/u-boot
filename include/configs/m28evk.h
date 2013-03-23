@@ -65,6 +65,7 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_GPIO
+#define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MMC
@@ -76,6 +77,8 @@
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_USB
+
+#define CONFIG_REGEX			/* Enable regular expression support */
 
 /*
  * Memory configurations
