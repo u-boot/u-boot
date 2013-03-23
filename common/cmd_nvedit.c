@@ -164,31 +164,25 @@ static int do_env_print(cmd_tbl_t *cmdtp, int flag, int argc,
 static int do_env_grep(cmd_tbl_t *cmdtp, int flag,
 		       int argc, char * const argv[])
 {
-	ENTRY *match;
-	unsigned char matched[env_htab.size / 8];
-	int rcode = 1, arg = 1, idx;
+	char *res = NULL;
+	int len;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
-	memset(matched, 0, env_htab.size / 8);
+	len = hexport_r(&env_htab, '\n',
+			flag | H_MATCH_BOTH | H_MATCH_SUBSTR,
+			&res, 0, argc, argv);
 
-	while (arg <= argc) {
-		idx = 0;
-		while ((idx = hstrstr_r(argv[arg], idx, &match, &env_htab))) {
-			if (!(matched[idx / 8] & (1 << (idx & 7)))) {
-				puts(match->key);
-				puts("=");
-				puts(match->data);
-				puts("\n");
-			}
-			matched[idx / 8] |= 1 << (idx & 7);
-			rcode = 0;
-		}
-		arg++;
+	if (len > 0) {
+		puts(res);
+		free(res);
 	}
 
-	return rcode;
+	if (len < 2)
+		return 1;
+
+	return 0;
 }
 #endif
 #endif /* CONFIG_SPL_BUILD */

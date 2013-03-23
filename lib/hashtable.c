@@ -210,29 +210,6 @@ void hdestroy_r(struct hsearch_data *htab)
  *   example for functions like hdelete().
  */
 
-/*
- * hstrstr_r - return index to entry whose key and/or data contains match
- */
-int hstrstr_r(const char *match, int last_idx, ENTRY ** retval,
-	      struct hsearch_data *htab)
-{
-	unsigned int idx;
-
-	for (idx = last_idx + 1; idx < htab->size; ++idx) {
-		if (htab->table[idx].used <= 0)
-			continue;
-		if (strstr(htab->table[idx].entry.key, match) ||
-		    strstr(htab->table[idx].entry.data, match)) {
-			*retval = &htab->table[idx].entry;
-			return idx;
-		}
-	}
-
-	__set_errno(ESRCH);
-	*retval = NULL;
-	return 0;
-}
-
 int hmatch_r(const char *match, int last_idx, ENTRY ** retval,
 	     struct hsearch_data *htab)
 {
@@ -563,23 +540,38 @@ static int cmpkey(const void *p1, const void *p2)
 	return (strcmp(e1->key, e2->key));
 }
 
-static int match_strings(ENTRY *ep, int flag,
+static int match_string(int flag, const char *str, const char *pat)
+{
+	switch (flag & H_MATCH_METHOD) {
+	case H_MATCH_IDENT:
+		if (strcmp(str, pat) == 0)
+			return 1;
+		break;
+	case H_MATCH_SUBSTR:
+		if (strstr(str, pat))
+			return 1;
+		break;
+	default:
+		printf("## ERROR: unsupported match method: 0x%02x\n",
+			flag & H_MATCH_METHOD);
+		break;
+	}
+	return 0;
+}
+
+static int match_entry(ENTRY *ep, int flag,
 		 int argc, char * const argv[])
 {
 	int arg;
 
-	for (arg = 0; arg < argc; ++arg) {
+	for (arg = 1; arg < argc; ++arg) {
 		if (flag & H_MATCH_KEY) {
-			switch (flag & H_MATCH_METHOD) {
-			case H_MATCH_IDENT:
-				if (strcmp(argv[arg], ep->key) == 0)
-					return 1;
-				break;
-			default:
-				printf("## ERROR: unsupported match method: 0x%02x\n",
-					flag & H_MATCH_METHOD);
-				break;
-			}
+			if (match_string(flag, ep->key, argv[arg]))
+				return 1;
+		}
+		if (flag & H_MATCH_DATA) {
+			if (match_string(flag, ep->data, argv[arg]))
+				return 1;
 		}
 	}
 	return 0;
@@ -611,7 +603,7 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep, int flag,
 
 		if (htab->table[i].used > 0) {
 			ENTRY *ep = &htab->table[i].entry;
-			int found = match_strings(ep, flag, argc, argv);
+			int found = match_entry(ep, flag, argc, argv);
 
 			if ((argc > 0) && (found == 0))
 				continue;
