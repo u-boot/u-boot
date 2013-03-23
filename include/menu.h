@@ -29,6 +29,7 @@ int menu_get_choice(struct menu *m, void **choice);
 int menu_item_add(struct menu *m, char *item_key, void *item_data);
 int menu_destroy(struct menu *m);
 void menu_display_statusline(struct menu *m);
+int menu_default_choice(struct menu *m, void **choice);
 
 #if defined(CONFIG_MENU_SHOW)
 int menu_show(int bootdelay);

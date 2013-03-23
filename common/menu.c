@@ -176,7 +176,7 @@ static inline struct menu_item *menu_item_by_key(struct menu *m,
  * Set *choice to point to the default item's data, if any default item was
  * set, and returns 1. If no default item was set, returns -ENOENT.
  */
-static inline int menu_default_choice(struct menu *m, void **choice)
+int menu_default_choice(struct menu *m, void **choice)
 {
 	if (m->default_item) {
 		*choice = m->default_item->data;

@@ -66,6 +66,11 @@ int menu_item_add(struct menu *m, char *item_key, void *item_data);
 int menu_default_set(struct menu *m, char *item_key);
 
 /*
+ * menu_default_choice() - Set *choice to point to the default item's data
+ */
+int menu_default_choice(struct menu *m, void **choice);
+
+/*
  * menu_get_choice() - Returns the user's selected menu entry, or the
  * default if the menu is set to not prompt or the timeout expires.
  */
