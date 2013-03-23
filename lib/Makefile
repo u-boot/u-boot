@@ -72,6 +72,7 @@ COBJS-y += crc32.o
 COBJS-y += ctype.o
 COBJS-y += div64.o
 COBJS-y += linux_string.o
+COBJS-$(CONFIG_REGEX) += slre.o
 COBJS-y += string.o
 COBJS-y += time.o
 COBJS-$(CONFIG_BOOTP_PXE) += uuid.o

@@ -930,6 +930,13 @@ The following options need to be configured:
 
 		XXX - this list needs to get updated!
 
+- Regular expression support:
+		CONFIG_REGEX
+                If this variable is defined, U-Boot is linked against
+                the SLRE (Super Light Regular Expression) library,
+                which adds regex support to some commands, as for
+                example "env grep" and "setexpr".
+
 - Device tree:
 		CONFIG_OF_CONTROL
 		If this variable is defined, U-Boot will use a device tree
