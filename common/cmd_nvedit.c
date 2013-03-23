@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2010
+ * (C) Copyright 2000-2013
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * (C) Copyright 2001 Sysgo Real-Time Solutions, GmbH <www.elinos.com>
@@ -892,7 +892,9 @@ NXTARG:		;
 	argv++;
 
 	if (sep) {		/* export as text file */
-		len = hexport_r(&env_htab, sep, 0, &addr, size, argc, argv);
+		len = hexport_r(&env_htab, sep,
+				H_MATCH_KEY | H_MATCH_IDENT,
+				&addr, size, argc, argv);
 		if (len < 0) {
 			error("Cannot export environment: errno = %d\n", errno);
 			return 1;
@@ -910,7 +912,9 @@ NXTARG:		;
 	else			/* export as raw binary data */
 		res = addr;
 
-	len = hexport_r(&env_htab, '\0', 0, &res, ENV_SIZE, argc, argv);
+	len = hexport_r(&env_htab, '\0',
+			H_MATCH_KEY | H_MATCH_IDENT,
+			&res, ENV_SIZE, argc, argv);
 	if (len < 0) {
 		error("Cannot export environment: errno = %d\n", errno);
 		return 1;

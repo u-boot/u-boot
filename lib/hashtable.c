@@ -2,7 +2,7 @@
  * This implementation is based on code from uClibc-0.9.30.3 but was
  * modified and extended for use within U-Boot.
  *
- * Copyright (C) 2010 Wolfgang Denk <wd@denx.de>
+ * Copyright (C) 2010-2013 Wolfgang Denk <wd@denx.de>
  *
  * Original license header:
  *
@@ -563,6 +563,28 @@ static int cmpkey(const void *p1, const void *p2)
 	return (strcmp(e1->key, e2->key));
 }
 
+static int match_strings(ENTRY *ep, int flag,
+		 int argc, char * const argv[])
+{
+	int arg;
+
+	for (arg = 0; arg < argc; ++arg) {
+		if (flag & H_MATCH_KEY) {
+			switch (flag & H_MATCH_METHOD) {
+			case H_MATCH_IDENT:
+				if (strcmp(argv[arg], ep->key) == 0)
+					return 1;
+				break;
+			default:
+				printf("## ERROR: unsupported match method: 0x%02x\n",
+					flag & H_MATCH_METHOD);
+				break;
+			}
+		}
+	}
+	return 0;
+}
+
 ssize_t hexport_r(struct hsearch_data *htab, const char sep, int flag,
 		 char **resp, size_t size,
 		 int argc, char * const argv[])
@@ -589,14 +611,8 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep, int flag,
 
 		if (htab->table[i].used > 0) {
 			ENTRY *ep = &htab->table[i].entry;
-			int arg, found = 0;
+			int found = match_strings(ep, flag, argc, argv);
 
-			for (arg = 0; arg < argc; ++arg) {
-				if (strcmp(argv[arg], ep->key) == 0) {
-					found = 1;
-					break;
-				}
-			}
 			if ((argc > 0) && (found == 0))
 				continue;
 

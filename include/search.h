@@ -22,7 +22,7 @@
 /*
  * Based on code from uClibc-0.9.30.3
  * Extensions for use within U-Boot
- * Copyright (C) 2010 Wolfgang Denk <wd@denx.de>
+ * Copyright (C) 2010-2013 Wolfgang Denk <wd@denx.de>
  */
 
 #ifndef _SEARCH_H
@@ -131,5 +131,11 @@ extern int hwalk_r(struct hsearch_data *__htab, int (*callback)(ENTRY *));
 #define H_FORCE		(1 << 1) /* overwrite read-only/write-once variables */
 #define H_INTERACTIVE	(1 << 2) /* indicate that an import is user directed */
 #define H_HIDE_DOT	(1 << 3) /* don't print env vars that begin with '.' */
+#define H_MATCH_KEY	(1 << 4) /* search/grep key  = variable names	     */
+#define H_MATCH_DATA	(1 << 5) /* search/grep data = variable values	     */
+#define H_MATCH_BOTH	(H_MATCH_KEY | H_MATCH_DATA) /* search/grep both     */
+#define H_MATCH_IDENT	(1 << 6) /* search for indentical strings	     */
+#define H_MATCH_SUBSTR  (1 << 7) /* search for substring matches	     */
+#define H_MATCH_METHOD	(H_MATCH_IDENT | H_MATCH_SUBSTR)
 
 #endif /* search.h */
