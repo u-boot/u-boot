@@ -51,7 +51,9 @@ struct menu;
  * menu_create() - Creates a menu handle with default settings
  */
 struct menu *menu_create(char *title, int timeout, int prompt,
-				void (*item_data_print)(void *));
+				void (*item_data_print)(void *),
+				char *(*item_choice)(void *),
+				void *item_choice_data);
 
 /*
  * menu_item_add() - Adds or replaces a menu item
