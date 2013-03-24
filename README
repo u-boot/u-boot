@@ -3879,6 +3879,10 @@ Low Level (hardware related) configuration options:
 		If defined, the x86 reset vector code is included. This is not
 		needed when U-Boot is running from Coreboot.
 
+- CONFIG_SYS_MPUCLK
+		Defines the MPU clock speed (in MHz).
+
+		NOTE : currently only supported on AM335x platforms.
 
 Freescale QE/FMAN Firmware Support:
 -----------------------------------

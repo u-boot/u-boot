@@ -51,8 +51,12 @@ int mmc_getwp(struct mmc *mmc)
 
 	wp = board_mmc_getwp(mmc);
 
-	if ((wp < 0) && mmc->getwp)
-		wp = mmc->getwp(mmc);
+	if (wp < 0) {
+		if (mmc->getwp)
+			wp = mmc->getwp(mmc);
+		else
+			wp = 0;
+	}
 
 	return wp;
 }
@@ -692,8 +696,12 @@ int mmc_getcd(struct mmc *mmc)
 
 	cd = board_mmc_getcd(mmc);
 
-	if ((cd < 0) && mmc->getcd)
-		cd = mmc->getcd(mmc);
+	if (cd < 0) {
+		if (mmc->getcd)
+			cd = mmc->getcd(mmc);
+		else
+			cd = 1;
+	}
 
 	return cd;
 }

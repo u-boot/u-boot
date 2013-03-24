@@ -24,6 +24,7 @@
 #include <asm/errno.h>
 #include <asm/io.h>
 #include <phy.h>
+#include <asm/arch/cpu.h>
 
 #define BITMASK(bits)		(BIT(bits) - 1)
 #define PHY_REG_MASK		0x1f

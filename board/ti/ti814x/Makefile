@@ -1,5 +1,7 @@
 #
-# Copyright (C) 2011, Texas Instruments, Incorporated - http://www.ti.com/
+# Makefile
+#
+# Copyright (C) 2013 Texas Instruments Incorporated - http://www.ti.com/
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -8,37 +10,31 @@
 #
 # This program is distributed "as is" WITHOUT ANY WARRANTY of any
 # kind, whether express or implied; without even the implied warranty
-# of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(SOC).o
+LIB	= $(obj)lib$(BOARD).o
 
-COBJS-$(CONFIG_AM33XX)	+= clock_am33xx.o
-COBJS-$(CONFIG_TI814X)	+= clock_ti814x.o
-COBJS	+= sys_info.o
-COBJS	+= mem.o
-COBJS	+= ddr.o
-COBJS	+= emif4.o
-COBJS	+= board.o
-COBJS	+= mux.o
-COBJS-$(CONFIG_NAND_OMAP_GPMC)	+= elm.o
+ifdef CONFIG_SPL_BUILD
+COBJS	:= mux.o
+endif
 
+COBJS	+= evm.o
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS) $(COBJS-y) $(SOBJS))
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-all:	$(obj).depend $(LIB)
-
-$(LIB):	$(OBJS)
-	$(call cmd_link_o_target, $(OBJS))
+$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
+	$(call cmd_link_o_target, $(OBJS) $(SOBJS))
 
 clean:
 	rm -f $(SOBJS) $(OBJS)
 
 distclean:	clean
-	rm -f $(LIB) core *.bak .depend
+	rm -f $(LIB) core *.bak $(obj).depend
 
 #########################################################################
 

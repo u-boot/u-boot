@@ -593,8 +593,6 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 	mmc->send_cmd = mmc_send_cmd;
 	mmc->set_ios = mmc_set_ios;
 	mmc->init = mmc_init_setup;
-	mmc->getcd = omap_mmc_getcd;
-	mmc->getwp = omap_mmc_getwp;
 	mmc->priv = priv_data;
 
 	switch (dev_index) {
@@ -616,7 +614,13 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 		return 1;
 	}
 	priv_data->cd_gpio = omap_mmc_setup_gpio_in(cd_gpio, "mmc_cd");
+	if (priv_data->cd_gpio != -1)
+		mmc->getcd = omap_mmc_getcd;
+
 	priv_data->wp_gpio = omap_mmc_setup_gpio_in(wp_gpio, "mmc_wp");
+	if (priv_data->wp_gpio != -1)
+		mmc->getwp = omap_mmc_getwp;
+
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
 	mmc->host_caps = (MMC_MODE_4BIT | MMC_MODE_HS_52MHz | MMC_MODE_HS |
 				MMC_MODE_HC) & ~host_caps_mask;

@@ -1,9 +1,9 @@
 /*
- * clock.c
+ * clock_am33xx.c
  *
  * clocks for AM33XX based boards
  *
- * Copyright (C) 2011, Texas Instruments, Incorporated - http://www.ti.com/
+ * Copyright (C) 2013, Texas Instruments, Incorporated - http://www.ti.com/
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,6 +41,35 @@
 #define CLK_DIV_SEL		0xFFFFFFE0
 #define CPGMAC0_IDLE		0x30000
 #define DPLL_CLKDCOLDO_GATE_CTRL        0x300
+
+#define OSC	(V_OSCK/1000000)
+
+#define MPUPLL_M	CONFIG_SYS_MPUCLK
+#define MPUPLL_N	(OSC-1)
+#define MPUPLL_M2	1
+
+/* Core PLL Fdll = 1 GHZ, */
+#define COREPLL_M	1000
+#define COREPLL_N	(OSC-1)
+
+#define COREPLL_M4	10	/* CORE_CLKOUTM4 = 200 MHZ */
+#define COREPLL_M5	8	/* CORE_CLKOUTM5 = 250 MHZ */
+#define COREPLL_M6	4	/* CORE_CLKOUTM6 = 500 MHZ */
+
+/*
+ * USB PHY clock is 960 MHZ. Since, this comes directly from Fdll, Fdll
+ * frequency needs to be set to 960 MHZ. Hence,
+ * For clkout = 192 MHZ, Fdll = 960 MHZ, divider values are given below
+ */
+#define PERPLL_M	960
+#define PERPLL_N	(OSC-1)
+#define PERPLL_M2	5
+
+/* DDR Freq is 266 MHZ for now */
+/* Set Fdll = 400 MHZ , Fdll = M * 2 * CLKINP/ N + 1; clkout = Fdll /(2 * M2) */
+#define DDRPLL_M	266
+#define DDRPLL_N	(OSC-1)
+#define DDRPLL_M2	1
 
 const struct cm_perpll *cmper = (struct cm_perpll *)CM_PER;
 const struct cm_wkuppll *cmwkup = (struct cm_wkuppll *)CM_WKUP;

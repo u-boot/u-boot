@@ -141,11 +141,11 @@ int arch_misc_init(void)
 {
 #ifdef CONFIG_AM335X_USB0
 	musb_register(&otg0_plat, &otg0_board_data,
-		(void *)AM335X_USB0_OTG_BASE);
+		(void *)USB0_OTG_BASE);
 #endif
 #ifdef CONFIG_AM335X_USB1
 	musb_register(&otg1_plat, &otg1_board_data,
-		(void *)AM335X_USB1_OTG_BASE);
+		(void *)USB1_OTG_BASE);
 #endif
 	return 0;
 }

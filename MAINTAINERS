@@ -833,6 +833,10 @@ Stelian Pop <stelian@popies.net>
 	at91sam9263ek	ARM926EJS (AT91SAM9263 SoC)
 	at91sam9rlek	ARM926EJS (AT91SAM9RL SoC)
 
+Matt Porter <mporter@ti.com>
+
+	ti814x_evm	ARM ARMV7 (TI814x Soc)
+
 Dave Purdy <david.c.purdy@gmail.com>
 
 	pogo_e02	ARM926EJS (Kirkwood SoC)
