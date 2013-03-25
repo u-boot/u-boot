@@ -91,7 +91,6 @@ enum srds {
 
 int is_serdes_configured(enum srds_prtcl device);
 void fsl_serdes_init(void);
-enum srds_prtcl serdes_get_prtcl(int serdes, int cfg, int lane);
 
 #ifdef CONFIG_FSL_CORENET
 #ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
