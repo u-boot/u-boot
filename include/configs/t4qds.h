@@ -791,8 +791,21 @@ unsigned long get_board_ddr_clk(void);
 
 #define __USB_PHY_TYPE	utmi
 
+/*
+ * T4240 has 3 DDR controllers. Default to 3way_4KB interleaving. It can be
+ * 3way_1KB, 3way_4KB, 3way_8KB. T4160 has 2 DDR controllers. Default to
+ * cacheline interleaving. It can be cacheline, page, bank, superbank.
+ * See doc/README.fsl-ddr for details.
+ */
+#ifdef CONFIG_PPC_T4240
+#define CTRL_INTLV_PREFERED 3way_4KB
+#else
+#define CTRL_INTLV_PREFERED cacheline
+#endif
+
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
-	"hwconfig=fsl_ddr:ctlr_intlv=3way_4KB,"		\
+	"hwconfig=fsl_ddr:"					\
+	"ctlr_intlv=" __stringify(CTRL_INTLV_PREFERED) ","	\
 	"bank_intlv=auto;"					\
 	"usb1:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) "\0"\
 	"netdev=eth0\0"						\
