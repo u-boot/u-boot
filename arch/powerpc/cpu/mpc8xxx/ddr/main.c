@@ -186,7 +186,7 @@ const char * step_to_string(unsigned int step) {
 	return step_string_tbl[s];
 }
 
-unsigned long long step_assign_addresses(fsl_ddr_info_t *pinfo,
+static unsigned long long __step_assign_addresses(fsl_ddr_info_t *pinfo,
 			  unsigned int dbw_cap_adj[])
 {
 	int i, j;
@@ -353,6 +353,11 @@ unsigned long long step_assign_addresses(fsl_ddr_info_t *pinfo,
 
 	return total_mem;
 }
+
+/* Use weak function to allow board file to override the address assignment */
+__attribute__((weak, alias("__step_assign_addresses")))
+unsigned long long step_assign_addresses(fsl_ddr_info_t *pinfo,
+			  unsigned int dbw_cap_adj[]);
 
 unsigned long long
 fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step,
