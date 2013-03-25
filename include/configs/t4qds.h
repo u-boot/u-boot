@@ -646,10 +646,10 @@ unsigned long get_board_ddr_clk(void);
 #define XFI_CARD_PORT3_PHY_ADDR	0x3
 #define XFI_CARD_PORT4_PHY_ADDR	0x4
 #define QSGMII_CARD_PHY_ADDR	0x5
-#define FM1_10GEC1_PHY_ADDR	0x6
-#define FM1_10GEC2_PHY_ADDR	0x7
-#define FM2_10GEC1_PHY_ADDR	0x8
-#define FM2_10GEC2_PHY_ADDR	0x9
+#define FM1_10GEC1_PHY_ADDR	0x0
+#define FM1_10GEC2_PHY_ADDR	0x1
+#define FM2_10GEC1_PHY_ADDR	0x2
+#define FM2_10GEC2_PHY_ADDR	0x3
 #endif
 
 #ifdef CONFIG_PCI
