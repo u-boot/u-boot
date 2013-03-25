@@ -74,8 +74,14 @@ struct fm_eth_info fm_info[] = {
 #if (CONFIG_SYS_NUM_FM1_10GEC >= 1)
 	FM_TGEC_INFO_INITIALIZER(1, 1),
 #endif
+#if (CONFIG_SYS_NUM_FM1_10GEC >= 2)
+	FM_TGEC_INFO_INITIALIZER(1, 2),
+#endif
 #if (CONFIG_SYS_NUM_FM2_10GEC >= 1)
 	FM_TGEC_INFO_INITIALIZER(2, 1),
+#endif
+#if (CONFIG_SYS_NUM_FM2_10GEC >= 2)
+	FM_TGEC_INFO_INITIALIZER(2, 2),
 #endif
 };
 
