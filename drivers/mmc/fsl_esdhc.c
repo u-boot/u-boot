@@ -580,6 +580,13 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 
 	mmc->host_caps = MMC_MODE_4BIT | MMC_MODE_8BIT | MMC_MODE_HC;
 
+	if (cfg->max_bus_width > 0) {
+		if (cfg->max_bus_width < 8)
+			mmc->host_caps &= ~MMC_MODE_8BIT;
+		if (cfg->max_bus_width < 4)
+			mmc->host_caps &= ~MMC_MODE_4BIT;
+	}
+
 	if (caps & ESDHC_HOSTCAPBLT_HSS)
 		mmc->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
 

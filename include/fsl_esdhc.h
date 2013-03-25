@@ -168,6 +168,7 @@
 struct fsl_esdhc_cfg {
 	u32	esdhc_base;
 	u32	sdhc_clk;
+	u8	max_bus_width;
 };
 
 /* Select the correct accessors depending on endianess */
