@@ -1676,18 +1676,17 @@ typedef struct cpc_corenet {
 /* Global Utilities Block */
 #ifdef CONFIG_FSL_CORENET
 typedef struct ccsr_gur {
-	u32	porsr1;		/* POR status */
-	u8	res1[28];
+	u32	porsr1;		/* POR status 1 */
+	u32	porsr2;		/* POR status 2 */
+	u8	res_008[0x20-0x8];
 	u32	gpporcr1;	/* General-purpose POR configuration */
-	u8	res2[12];
-	u32	gpiocr;		/* GPIO control */
-	u8	res3[12];
-	u32	gpoutdr;	/* General-purpose output data */
-	u8	res4[12];
-	u32	gpindr;		/* General-purpose input data */
-	u8	res5[12];
-	u32	alt_pmuxcr;	/* Alt function signal multiplex control */
-	u8	res6[12];
+	u32	gpporcr2;	/* General-purpose POR configuration 2 */
+	u32	dcfg_fusesr;	/* Fuse status register */
+#define FSL_CORENET_DCFG_FUSESR_VID_SHIFT	25
+#define FSL_CORENET_DCFG_FUSESR_VID_MASK	0x1F
+#define FSL_CORENET_DCFG_FUSESR_ALTVID_SHIFT	20
+#define FSL_CORENET_DCFG_FUSESR_ALTVID_MASK	0x1F
+	u8	res_02c[0x70-0x2c];
 	u32	devdisr;	/* Device disable control */
 	u32	devdisr2;	/* Device disable control 2 */
 	u32	devdisr3;	/* Device disable control 3 */
