@@ -444,11 +444,19 @@ unsigned long get_board_ddr_clk(void);
 #define I2C_MUX_PCA_ADDR_PRI		0x77 /* I2C bus multiplexer,primary */
 #define I2C_MUX_PCA_ADDR_SEC		0x76 /* I2C bus multiplexer,secondary */
 
-/* VSC Crossbar switches */
-#define CONFIG_VSC_CROSSBAR
 #define I2C_MUX_CH_DEFAULT	0x8
+#define I2C_MUX_CH_VOL_MONITOR	0xa
 #define I2C_MUX_CH_VSC3316_FS	0xc
 #define I2C_MUX_CH_VSC3316_BS	0xd
+
+/* Voltage monitor on channel 2*/
+#define I2C_VOL_MONITOR_ADDR		0x40
+#define I2C_VOL_MONITOR_BUS_V_OFFSET	0x2
+#define I2C_VOL_MONITOR_BUS_V_OVF	0x1
+#define I2C_VOL_MONITOR_BUS_V_SHIFT	3
+
+/* VSC Crossbar switches */
+#define CONFIG_VSC_CROSSBAR
 #define VSC3316_FSM_TX_ADDR	0x70
 #define VSC3316_FSM_RX_ADDR	0x71
 
