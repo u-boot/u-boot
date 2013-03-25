@@ -649,7 +649,6 @@ unsigned long get_board_ddr_clk(void);
 #define SGMII_CARD_PORT2_PHY_ADDR 0x1D
 #define SGMII_CARD_PORT3_PHY_ADDR 0x1E
 #define SGMII_CARD_PORT4_PHY_ADDR 0x1F
-#define QSGMII_CARD_PHY_ADDR	0x5
 #define FM1_10GEC1_PHY_ADDR	0x0
 #define FM1_10GEC2_PHY_ADDR	0x1
 #define FM2_10GEC1_PHY_ADDR	0x2

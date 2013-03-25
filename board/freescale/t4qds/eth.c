@@ -71,6 +71,13 @@ static const char *mdio_names[] = {
 
 static u8 lane_to_slot_fsm1[] = {1, 1, 1, 1, 2, 2, 2, 2};
 static u8 lane_to_slot_fsm2[] = {3, 3, 3, 3, 4, 4, 4, 4};
+static u8 slot_qsgmii_phyaddr[5][4] = {
+	{0, 0, 0, 0},/* not used, to make index match slot No. */
+	{0, 1, 2, 3},
+	{4, 5, 6, 7},
+	{8, 9, 0xa, 0xb},
+	{0xc, 0xd, 0xe, 0xf},
+};
 
 static const char *t4240qds_mdio_name_for_muxval(u8 muxval)
 {
@@ -313,44 +320,48 @@ int board_eth_init(bd_t *bis)
 	case 28:
 	case 36:
 		/* SGMII in Slot1 and Slot2 */
-		fm_info_set_phy_address(FM1_DTSEC1, SGMII_CARD_PORT1_PHY_ADDR);
-		fm_info_set_phy_address(FM1_DTSEC2, SGMII_CARD_PORT2_PHY_ADDR);
-		fm_info_set_phy_address(FM1_DTSEC3, SGMII_CARD_PORT3_PHY_ADDR);
-		fm_info_set_phy_address(FM1_DTSEC4, SGMII_CARD_PORT4_PHY_ADDR);
-		fm_info_set_phy_address(FM1_DTSEC5, SGMII_CARD_PORT1_PHY_ADDR);
-		fm_info_set_phy_address(FM1_DTSEC6, SGMII_CARD_PORT2_PHY_ADDR);
+		fm_info_set_phy_address(FM1_DTSEC1, slot_qsgmii_phyaddr[2][0]);
+		fm_info_set_phy_address(FM1_DTSEC2, slot_qsgmii_phyaddr[2][1]);
+		fm_info_set_phy_address(FM1_DTSEC3, slot_qsgmii_phyaddr[2][2]);
+		fm_info_set_phy_address(FM1_DTSEC4, slot_qsgmii_phyaddr[2][3]);
+		fm_info_set_phy_address(FM1_DTSEC5, slot_qsgmii_phyaddr[1][0]);
+		fm_info_set_phy_address(FM1_DTSEC6, slot_qsgmii_phyaddr[1][1]);
 		if ((srds_prtcl_s2 != 56) && (srds_prtcl_s2 != 57)) {
 			fm_info_set_phy_address(FM1_DTSEC9,
-						SGMII_CARD_PORT4_PHY_ADDR);
+						slot_qsgmii_phyaddr[1][3]);
 			fm_info_set_phy_address(FM1_DTSEC10,
-						SGMII_CARD_PORT3_PHY_ADDR);
+						slot_qsgmii_phyaddr[1][2]);
 		}
 		break;
 	case 38:
-		fm_info_set_phy_address(FM1_DTSEC5, QSGMII_CARD_PHY_ADDR);
-		fm_info_set_phy_address(FM1_DTSEC6, QSGMII_CARD_PHY_ADDR);
+		fm_info_set_phy_address(FM1_DTSEC1, slot_qsgmii_phyaddr[2][0]);
+		fm_info_set_phy_address(FM1_DTSEC2, slot_qsgmii_phyaddr[2][1]);
+		fm_info_set_phy_address(FM1_DTSEC3, slot_qsgmii_phyaddr[2][2]);
+		fm_info_set_phy_address(FM1_DTSEC4, slot_qsgmii_phyaddr[2][3]);
+		fm_info_set_phy_address(FM1_DTSEC5, slot_qsgmii_phyaddr[1][0]);
+		fm_info_set_phy_address(FM1_DTSEC6, slot_qsgmii_phyaddr[1][1]);
 		if ((srds_prtcl_s2 != 56) && (srds_prtcl_s2 != 57)) {
 			fm_info_set_phy_address(FM1_DTSEC9,
-						QSGMII_CARD_PHY_ADDR);
+						slot_qsgmii_phyaddr[1][3]);
 			fm_info_set_phy_address(FM1_DTSEC10,
-						QSGMII_CARD_PHY_ADDR);
+						slot_qsgmii_phyaddr[1][2]);
 		}
 		break;
 	case 40:
 	case 46:
 	case 48:
-		fm_info_set_phy_address(FM1_DTSEC5, SGMII_CARD_PORT1_PHY_ADDR);
-		fm_info_set_phy_address(FM1_DTSEC6, SGMII_CARD_PORT2_PHY_ADDR);
+		fm_info_set_phy_address(FM1_DTSEC5, slot_qsgmii_phyaddr[1][0]);
+		fm_info_set_phy_address(FM1_DTSEC6, slot_qsgmii_phyaddr[1][1]);
 		if ((srds_prtcl_s2 != 56) && (srds_prtcl_s2 != 57)) {
 			fm_info_set_phy_address(FM1_DTSEC10,
-						SGMII_CARD_PORT3_PHY_ADDR);
+						slot_qsgmii_phyaddr[1][3]);
 			fm_info_set_phy_address(FM1_DTSEC9,
-						SGMII_CARD_PORT4_PHY_ADDR);
+						slot_qsgmii_phyaddr[1][2]);
 		}
-		fm_info_set_phy_address(FM1_DTSEC1, QSGMII_CARD_PHY_ADDR);
-		fm_info_set_phy_address(FM1_DTSEC2, QSGMII_CARD_PHY_ADDR);
-		fm_info_set_phy_address(FM1_DTSEC3, QSGMII_CARD_PHY_ADDR);
-		fm_info_set_phy_address(FM1_DTSEC4, QSGMII_CARD_PHY_ADDR);
+		fm_info_set_phy_address(FM1_DTSEC1, slot_qsgmii_phyaddr[2][0]);
+		fm_info_set_phy_address(FM1_DTSEC2, slot_qsgmii_phyaddr[2][1]);
+		fm_info_set_phy_address(FM1_DTSEC3, slot_qsgmii_phyaddr[2][2]);
+		fm_info_set_phy_address(FM1_DTSEC4, slot_qsgmii_phyaddr[2][3]);
 		break;
 	default:
 		puts("Invalid SerDes1 protocol for T4240QDS\n");
@@ -436,64 +447,64 @@ int board_eth_init(bd_t *bis)
 	case 26:
 		/* XAUI/HiGig in Slot3, SGMII in Slot4 */
 		fm_info_set_phy_address(FM2_10GEC1, FM2_10GEC1_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC1, SGMII_CARD_PORT1_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC2, SGMII_CARD_PORT2_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC3, SGMII_CARD_PORT3_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC4, SGMII_CARD_PORT4_PHY_ADDR);
+		fm_info_set_phy_address(FM2_DTSEC1, slot_qsgmii_phyaddr[4][0]);
+		fm_info_set_phy_address(FM2_DTSEC2, slot_qsgmii_phyaddr[4][1]);
+		fm_info_set_phy_address(FM2_DTSEC3, slot_qsgmii_phyaddr[4][2]);
+		fm_info_set_phy_address(FM2_DTSEC4, slot_qsgmii_phyaddr[4][3]);
 		break;
 	case 28:
 	case 36:
 		/* SGMII in Slot3 and Slot4 */
-		fm_info_set_phy_address(FM2_DTSEC1, SGMII_CARD_PORT1_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC2, SGMII_CARD_PORT2_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC3, SGMII_CARD_PORT3_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC4, SGMII_CARD_PORT4_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC5, SGMII_CARD_PORT1_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC6, SGMII_CARD_PORT2_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC9, SGMII_CARD_PORT4_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC10, SGMII_CARD_PORT3_PHY_ADDR);
+		fm_info_set_phy_address(FM2_DTSEC1, slot_qsgmii_phyaddr[4][0]);
+		fm_info_set_phy_address(FM2_DTSEC2, slot_qsgmii_phyaddr[4][1]);
+		fm_info_set_phy_address(FM2_DTSEC3, slot_qsgmii_phyaddr[4][2]);
+		fm_info_set_phy_address(FM2_DTSEC4, slot_qsgmii_phyaddr[4][3]);
+		fm_info_set_phy_address(FM2_DTSEC5, slot_qsgmii_phyaddr[3][0]);
+		fm_info_set_phy_address(FM2_DTSEC6, slot_qsgmii_phyaddr[3][1]);
+		fm_info_set_phy_address(FM2_DTSEC9, slot_qsgmii_phyaddr[3][3]);
+		fm_info_set_phy_address(FM2_DTSEC10, slot_qsgmii_phyaddr[3][2]);
 		break;
 	case 38:
 		/* QSGMII in Slot3 and Slot4 */
-		fm_info_set_phy_address(FM2_DTSEC1, QSGMII_CARD_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC2, QSGMII_CARD_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC3, QSGMII_CARD_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC4, QSGMII_CARD_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC5, QSGMII_CARD_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC6, QSGMII_CARD_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC9, QSGMII_CARD_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC10, QSGMII_CARD_PHY_ADDR);
+		fm_info_set_phy_address(FM2_DTSEC1, slot_qsgmii_phyaddr[4][0]);
+		fm_info_set_phy_address(FM2_DTSEC2, slot_qsgmii_phyaddr[4][1]);
+		fm_info_set_phy_address(FM2_DTSEC3, slot_qsgmii_phyaddr[4][2]);
+		fm_info_set_phy_address(FM2_DTSEC4, slot_qsgmii_phyaddr[4][3]);
+		fm_info_set_phy_address(FM2_DTSEC5, slot_qsgmii_phyaddr[3][0]);
+		fm_info_set_phy_address(FM2_DTSEC6, slot_qsgmii_phyaddr[3][1]);
+		fm_info_set_phy_address(FM2_DTSEC9, slot_qsgmii_phyaddr[3][3]);
+		fm_info_set_phy_address(FM2_DTSEC10, slot_qsgmii_phyaddr[3][2]);
 		break;
 	case 40:
 	case 46:
 	case 48:
 		/* SGMII in Slot3 */
-		fm_info_set_phy_address(FM2_DTSEC5, SGMII_CARD_PORT1_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC6, SGMII_CARD_PORT2_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC9, SGMII_CARD_PORT4_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC10, SGMII_CARD_PORT3_PHY_ADDR);
+		fm_info_set_phy_address(FM2_DTSEC5, slot_qsgmii_phyaddr[3][0]);
+		fm_info_set_phy_address(FM2_DTSEC6, slot_qsgmii_phyaddr[3][1]);
+		fm_info_set_phy_address(FM2_DTSEC9, slot_qsgmii_phyaddr[3][3]);
+		fm_info_set_phy_address(FM2_DTSEC10, slot_qsgmii_phyaddr[3][2]);
 		/* QSGMII in Slot4 */
-		fm_info_set_phy_address(FM2_DTSEC1, QSGMII_CARD_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC2, QSGMII_CARD_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC3, QSGMII_CARD_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC4, QSGMII_CARD_PHY_ADDR);
+		fm_info_set_phy_address(FM2_DTSEC1, slot_qsgmii_phyaddr[4][0]);
+		fm_info_set_phy_address(FM2_DTSEC2, slot_qsgmii_phyaddr[4][1]);
+		fm_info_set_phy_address(FM2_DTSEC3, slot_qsgmii_phyaddr[4][2]);
+		fm_info_set_phy_address(FM2_DTSEC4, slot_qsgmii_phyaddr[4][3]);
 		break;
 	case 50:
 	case 52:
 	case 54:
 		fm_info_set_phy_address(FM2_10GEC1, FM2_10GEC1_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC1, QSGMII_CARD_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC2, QSGMII_CARD_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC3, QSGMII_CARD_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC4, QSGMII_CARD_PHY_ADDR);
+		fm_info_set_phy_address(FM2_DTSEC1, slot_qsgmii_phyaddr[4][0]);
+		fm_info_set_phy_address(FM2_DTSEC2, slot_qsgmii_phyaddr[4][1]);
+		fm_info_set_phy_address(FM2_DTSEC3, slot_qsgmii_phyaddr[4][2]);
+		fm_info_set_phy_address(FM2_DTSEC4, slot_qsgmii_phyaddr[4][3]);
 		break;
 	case 56:
 	case 57:
 		/* XFI in Slot3, SGMII in Slot4 */
-		fm_info_set_phy_address(FM2_DTSEC1, SGMII_CARD_PORT1_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC2, SGMII_CARD_PORT2_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC3, SGMII_CARD_PORT3_PHY_ADDR);
-		fm_info_set_phy_address(FM2_DTSEC4, SGMII_CARD_PORT4_PHY_ADDR);
+		fm_info_set_phy_address(FM2_DTSEC1, slot_qsgmii_phyaddr[4][0]);
+		fm_info_set_phy_address(FM2_DTSEC2, slot_qsgmii_phyaddr[4][1]);
+		fm_info_set_phy_address(FM2_DTSEC3, slot_qsgmii_phyaddr[4][2]);
+		fm_info_set_phy_address(FM2_DTSEC4, slot_qsgmii_phyaddr[4][3]);
 		break;
 	default:
 		puts("Invalid SerDes2 protocol for T4240QDS\n");
