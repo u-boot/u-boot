@@ -217,7 +217,7 @@ void fdt_del_flexcan(void *blob)
 	int nodeoff = 0;
 
 	while ((nodeoff = fdt_node_offset_by_compatible(blob, 0,
-				"fsl,flexcan-v1.0")) >= 0) {
+				"fsl,p1010-flexcan")) >= 0) {
 		fdt_del_node(blob, nodeoff);
 	}
 }
