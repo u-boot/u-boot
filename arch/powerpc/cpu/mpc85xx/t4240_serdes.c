@@ -31,7 +31,7 @@ struct serdes_config {
 	u8 lanes[SRDS_MAX_LANES];
 };
 
-static struct serdes_config serdes1_cfg_tbl[] = {
+static const struct serdes_config serdes1_cfg_tbl[] = {
 	/* SerDes 1 */
 	{1, {XAUI_FM1_MAC9, XAUI_FM1_MAC9,
 		XAUI_FM1_MAC9, XAUI_FM1_MAC9,
@@ -66,7 +66,7 @@ static struct serdes_config serdes1_cfg_tbl[] = {
 		NONE, NONE, QSGMII_FM1_A, NONE}},
 	{}
 };
-static struct serdes_config serdes2_cfg_tbl[] = {
+static const struct serdes_config serdes2_cfg_tbl[] = {
 	/* SerDes 2 */
 	{1, {XAUI_FM2_MAC9, XAUI_FM2_MAC9,
 		XAUI_FM2_MAC9, XAUI_FM2_MAC9,
@@ -150,7 +150,7 @@ static struct serdes_config serdes2_cfg_tbl[] = {
 		SGMII_FM2_DTSEC3, SGMII_FM2_DTSEC4}},
 	{}
 };
-static struct serdes_config serdes3_cfg_tbl[] = {
+static const struct serdes_config serdes3_cfg_tbl[] = {
 	/* SerDes 3 */
 	{2, {PCIE1, PCIE1, PCIE1, PCIE1, PCIE1, PCIE1, PCIE1, PCIE1}},
 	{4, {PCIE1, PCIE1, PCIE1, PCIE1, PCIE2, PCIE2, PCIE2, PCIE2}},
@@ -174,7 +174,7 @@ static struct serdes_config serdes3_cfg_tbl[] = {
 		SRIO1, SRIO1, SRIO1, SRIO1}},
 	{}
 };
-static struct serdes_config serdes4_cfg_tbl[] = {
+static const struct serdes_config serdes4_cfg_tbl[] = {
 	/* SerDes 4 */
 	{2, {PCIE3, PCIE3, PCIE3, PCIE3, PCIE3, PCIE3, PCIE3, PCIE3}},
 	{4, {PCIE3, PCIE3, PCIE3, PCIE3, PCIE4, PCIE4, PCIE4, PCIE4}},
@@ -187,7 +187,7 @@ static struct serdes_config serdes4_cfg_tbl[] = {
 	{18, {PCIE3, PCIE3, PCIE3, PCIE3, AURORA, AURORA, AURORA, AURORA}},
 	{}
 };
-static struct serdes_config *serdes_cfg_tbl[] = {
+static const struct serdes_config *serdes_cfg_tbl[] = {
 	serdes1_cfg_tbl,
 	serdes2_cfg_tbl,
 	serdes3_cfg_tbl,
@@ -196,7 +196,7 @@ static struct serdes_config *serdes_cfg_tbl[] = {
 
 enum srds_prtcl serdes_get_prtcl(int serdes, int cfg, int lane)
 {
-	struct serdes_config *ptr;
+	const struct serdes_config *ptr;
 
 	if (serdes >= ARRAY_SIZE(serdes_cfg_tbl))
 		return 0;
@@ -213,7 +213,7 @@ enum srds_prtcl serdes_get_prtcl(int serdes, int cfg, int lane)
 int is_serdes_prtcl_valid(int serdes, u32 prtcl)
 {
 	int i;
-	struct serdes_config *ptr;
+	const struct serdes_config *ptr;
 
 	if (serdes >= ARRAY_SIZE(serdes_cfg_tbl))
 		return 0;
