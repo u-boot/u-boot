@@ -293,6 +293,10 @@ void get_sys_info (sys_info_t * sysInfo)
 #endif
 #endif
 
+#ifdef CONFIG_SYS_DPAA_QBMAN
+	sysInfo->freqQMAN = sysInfo->freqSystemBus / 2;
+#endif
+
 #endif /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
 
 #else /* CONFIG_FSL_CORENET */
