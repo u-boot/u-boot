@@ -115,7 +115,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 #ifdef CONFIG_SYS_DCSRBAR_PHYS
 	SET_TLB_ENTRY(1, CONFIG_SYS_DCSRBAR, CONFIG_SYS_DCSRBAR_PHYS,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
-		      0, 13, BOOKE_PAGESZ_4M, 1),
+		      0, 13, BOOKE_PAGESZ_32M, 1),
 #endif
 #ifdef CONFIG_SYS_NAND_BASE
 	/*
