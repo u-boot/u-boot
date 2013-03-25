@@ -365,24 +365,40 @@ static void initialize_qsgmiiphy_fix(void)
 			qsgmiiphy_fix[FM1_DTSEC6] = 1;
 			qsgmiiphy_fix[FM1_DTSEC9] = 1;
 			qsgmiiphy_fix[FM1_DTSEC10] = 1;
+			slot_qsgmii_phyaddr[1][0] =  SGMII_CARD_PORT1_PHY_ADDR;
+			slot_qsgmii_phyaddr[1][1] =  SGMII_CARD_PORT2_PHY_ADDR;
+			slot_qsgmii_phyaddr[1][2] =  SGMII_CARD_PORT3_PHY_ADDR;
+			slot_qsgmii_phyaddr[1][3] =  SGMII_CARD_PORT4_PHY_ADDR;
 			break;
 		case 2:
 			qsgmiiphy_fix[FM1_DTSEC1] = 1;
 			qsgmiiphy_fix[FM1_DTSEC2] = 1;
 			qsgmiiphy_fix[FM1_DTSEC3] = 1;
 			qsgmiiphy_fix[FM1_DTSEC4] = 1;
+			slot_qsgmii_phyaddr[2][0] =  SGMII_CARD_PORT1_PHY_ADDR;
+			slot_qsgmii_phyaddr[2][1] =  SGMII_CARD_PORT2_PHY_ADDR;
+			slot_qsgmii_phyaddr[2][2] =  SGMII_CARD_PORT3_PHY_ADDR;
+			slot_qsgmii_phyaddr[2][3] =  SGMII_CARD_PORT4_PHY_ADDR;
 			break;
 		case 3:
 			qsgmiiphy_fix[FM2_DTSEC5] = 1;
 			qsgmiiphy_fix[FM2_DTSEC6] = 1;
 			qsgmiiphy_fix[FM2_DTSEC9] = 1;
 			qsgmiiphy_fix[FM2_DTSEC10] = 1;
+			slot_qsgmii_phyaddr[3][0] =  SGMII_CARD_PORT1_PHY_ADDR;
+			slot_qsgmii_phyaddr[3][1] =  SGMII_CARD_PORT2_PHY_ADDR;
+			slot_qsgmii_phyaddr[3][2] =  SGMII_CARD_PORT3_PHY_ADDR;
+			slot_qsgmii_phyaddr[3][3] =  SGMII_CARD_PORT4_PHY_ADDR;
 			break;
 		case 4:
 			qsgmiiphy_fix[FM2_DTSEC1] = 1;
 			qsgmiiphy_fix[FM2_DTSEC2] = 1;
 			qsgmiiphy_fix[FM2_DTSEC3] = 1;
 			qsgmiiphy_fix[FM2_DTSEC4] = 1;
+			slot_qsgmii_phyaddr[4][0] =  SGMII_CARD_PORT1_PHY_ADDR;
+			slot_qsgmii_phyaddr[4][1] =  SGMII_CARD_PORT2_PHY_ADDR;
+			slot_qsgmii_phyaddr[4][2] =  SGMII_CARD_PORT3_PHY_ADDR;
+			slot_qsgmii_phyaddr[4][3] =  SGMII_CARD_PORT4_PHY_ADDR;
 			break;
 		default:
 			break;
@@ -435,6 +451,7 @@ int board_eth_init(bd_t *bis)
 	t4240qds_mdio_init(DEFAULT_FM_MDIO_NAME, EMI1_SLOT7);
 	t4240qds_mdio_init(DEFAULT_FM_TGEC_MDIO_NAME, EMI2);
 
+	initialize_qsgmiiphy_fix();
 
 	switch (srds_prtcl_s1) {
 	case 1:
@@ -701,8 +718,6 @@ int board_eth_init(bd_t *bis)
 		}
 	}
 #endif /* CONFIG_SYS_NUM_FMAN */
-
-	initialize_qsgmiiphy_fix();
 
 	cpu_eth_init(bis);
 #endif /* CONFIG_FMAN_ENET */
