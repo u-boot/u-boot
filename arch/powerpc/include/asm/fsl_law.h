@@ -70,6 +70,8 @@ enum law_trgt_if {
 	LAW_TRGT_IF_DCSR = 0x1d,
 	LAW_TRGT_IF_LBC = 0x1f,
 	LAW_TRGT_IF_QMAN = 0x3c,
+
+	LAW_TRGT_IF_MAPLE = 0x50,
 };
 #define LAW_TRGT_IF_DDR		LAW_TRGT_IF_DDR_1
 #define LAW_TRGT_IF_IFC		LAW_TRGT_IF_LBC

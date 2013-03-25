@@ -527,6 +527,15 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SF_DEFAULT_MODE          0
 
 /*
+ * MAPLE
+ */
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_MAPLE_MEM_PHYS      0xFA0000000ull
+#else
+#define CONFIG_SYS_MAPLE_MEM_PHYS      0xA0000000
+#endif
+
+/*
  * General PCI
  * Memory space is mapped 1-1, but I/O space must start from 0.
  */
