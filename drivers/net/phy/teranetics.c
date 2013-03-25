@@ -34,9 +34,21 @@ int tn2020_config(struct phy_device *phydev)
 		unsigned short restart_an = (MDIO_AN_CTRL1_RESTART |
 						MDIO_AN_CTRL1_ENABLE |
 						MDIO_AN_CTRL1_XNP);
+		u8 phy_hwversion;
 
-		phy_write(phydev, 30, 93, 2);
-		phy_write(phydev, MDIO_MMD_AN, MDIO_CTRL1, restart_an);
+		/*
+		 * bit 15:12 of register 30.32 indicates PHY hardware
+		 * version. It can be used to distinguish TN80xx from
+		 * TN2020. TN2020 needs write 0x2 to 30.93, but TN80xx
+		 * needs 0x1.
+		 */
+		phy_hwversion = (phy_read(phydev, 30, 32) >> 12) & 0xf;
+		if (phy_hwversion <= 3) {
+			phy_write(phydev, 30, 93, 2);
+			phy_write(phydev, MDIO_MMD_AN, MDIO_CTRL1, restart_an);
+		} else {
+			phy_write(phydev, 30, 93, 1);
+		}
 	}
 
 	return 0;
