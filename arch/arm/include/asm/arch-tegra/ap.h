@@ -64,3 +64,4 @@ extern void _start(void);
  * @return	SOC type - see TEGRA_SOC...
  */
 int tegra_get_chip_type(void);
+void config_cache(void);

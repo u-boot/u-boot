@@ -139,11 +139,6 @@ void s_init(void)
 
 	enable_scu();
 
-	/* enable SMP mode and FW for CPU0, by writing to Auxiliary Ctl reg */
-	asm volatile(
-		"mrc	p15, 0, r0, c1, c0, 1\n"
-		"orr	r0, r0, #0x41\n"
-		"mcr	p15, 0, r0, c1, c0, 1\n");
-
-	/* FIXME: should have SoC's L2 disabled too? */
+	/* init the cache */
+	config_cache();
 }
