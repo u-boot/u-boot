@@ -89,27 +89,6 @@ int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 
 	if (!strcmp(phy_type, "utmi")) {
 #if defined(CONFIG_SYS_FSL_USB_INTERNAL_UTMI_PHY)
-#if defined(CONFIG_SYS_FSL_USB_DUAL_PHY_ENABLE)
-		ccsr_usb_phy_t *usb_phy =
-			(void *)CONFIG_SYS_MPC85xx_USB1_PHY_ADDR;
-		setbits_be32(&usb_phy->pllprg[1],
-			     CONFIG_SYS_FSL_USB_PLLPRG2_PHY2_CLK_EN	|
-			     CONFIG_SYS_FSL_USB_PLLPRG2_PHY1_CLK_EN	|
-			     CONFIG_SYS_FSL_USB_PLLPRG2_MFI		|
-			     CONFIG_SYS_FSL_USB_PLLPRG2_PLL_EN);
-		setbits_be32(&usb_phy->port1.ctrl,
-			     CONFIG_SYS_FSL_USB_CTRL_PHY_EN);
-		setbits_be32(&usb_phy->port1.drvvbuscfg,
-			     CONFIG_SYS_FSL_USB_DRVVBUS_CR_EN);
-		setbits_be32(&usb_phy->port1.pwrfltcfg,
-			     CONFIG_SYS_FSL_USB_PWRFLT_CR_EN);
-		setbits_be32(&usb_phy->port2.ctrl,
-			     CONFIG_SYS_FSL_USB_CTRL_PHY_EN);
-		setbits_be32(&usb_phy->port2.drvvbuscfg,
-			     CONFIG_SYS_FSL_USB_DRVVBUS_CR_EN);
-		setbits_be32(&usb_phy->port2.pwrfltcfg,
-			     CONFIG_SYS_FSL_USB_PWRFLT_CR_EN);
-#endif
 		setbits_be32(&ehci->control, PHY_CLK_SEL_UTMI);
 		setbits_be32(&ehci->control, UTMI_PHY_EN);
 		udelay(1000); /* delay required for PHY Clk to appear */
