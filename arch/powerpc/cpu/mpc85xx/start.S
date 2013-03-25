@@ -734,7 +734,7 @@ enable_l2_cluster_l2:
 	isync
 	and.	r1, r0, r4
 	bne	1b
-	lis	r4, L2CSR0_L2E@h
+	lis	r4, (L2CSR0_L2E|L2CSR0_L2PE)@h
 	sync
 	stw	r4, 0(r3)	/* enable L2 */
 delete_ccsr_l2_tlb:
