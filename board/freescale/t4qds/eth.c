@@ -78,6 +78,7 @@ static u8 slot_qsgmii_phyaddr[5][4] = {
 	{8, 9, 0xa, 0xb},
 	{0xc, 0xd, 0xe, 0xf},
 };
+static u8 qsgmiiphy_fix[NUM_FM_PORTS] = {0};
 
 static const char *t4240qds_mdio_name_for_muxval(u8 muxval)
 {
@@ -189,17 +190,87 @@ void board_ft_fman_fixup_port(void *blob, char * prop, phys_addr_t pa,
 {
 	if (fm_info_get_enet_if(port) == PHY_INTERFACE_MODE_SGMII) {
 		switch (port) {
+		case FM1_DTSEC1:
+			if (qsgmiiphy_fix[port])
+				fdt_set_phy_handle(blob, prop, pa,
+						   "sgmii_phy21");
+			break;
+		case FM1_DTSEC2:
+			if (qsgmiiphy_fix[port])
+				fdt_set_phy_handle(blob, prop, pa,
+						   "sgmii_phy22");
+			break;
+		case FM1_DTSEC3:
+			if (qsgmiiphy_fix[port])
+				fdt_set_phy_handle(blob, prop, pa,
+						   "sgmii_phy23");
+			break;
+		case FM1_DTSEC4:
+			if (qsgmiiphy_fix[port])
+				fdt_set_phy_handle(blob, prop, pa,
+						   "sgmii_phy24");
+			break;
+		case FM1_DTSEC6:
+			if (qsgmiiphy_fix[port])
+				fdt_set_phy_handle(blob, prop, pa,
+						   "sgmii_phy12");
+			break;
 		case FM1_DTSEC9:
-			fdt_set_phy_handle(blob, prop, pa, "phy_sgmii4");
+			if (qsgmiiphy_fix[port])
+				fdt_set_phy_handle(blob, prop, pa,
+						   "sgmii_phy14");
+			else
+				fdt_set_phy_handle(blob, prop, pa,
+						   "phy_sgmii4");
 			break;
 		case FM1_DTSEC10:
-			fdt_set_phy_handle(blob, prop, pa, "phy_sgmii3");
+			if (qsgmiiphy_fix[port])
+				fdt_set_phy_handle(blob, prop, pa,
+						   "sgmii_phy13");
+			else
+				fdt_set_phy_handle(blob, prop, pa,
+						   "phy_sgmii3");
+			break;
+		case FM2_DTSEC1:
+			if (qsgmiiphy_fix[port])
+				fdt_set_phy_handle(blob, prop, pa,
+						   "sgmii_phy41");
+			break;
+		case FM2_DTSEC2:
+			if (qsgmiiphy_fix[port])
+				fdt_set_phy_handle(blob, prop, pa,
+						   "sgmii_phy42");
+			break;
+		case FM2_DTSEC3:
+			if (qsgmiiphy_fix[port])
+				fdt_set_phy_handle(blob, prop, pa,
+						   "sgmii_phy43");
+			break;
+		case FM2_DTSEC4:
+			if (qsgmiiphy_fix[port])
+				fdt_set_phy_handle(blob, prop, pa,
+						   "sgmii_phy44");
+			break;
+		case FM2_DTSEC6:
+			if (qsgmiiphy_fix[port])
+				fdt_set_phy_handle(blob, prop, pa,
+						   "sgmii_phy32");
 			break;
 		case FM2_DTSEC9:
-			fdt_set_phy_handle(blob, prop, pa, "phy_sgmii12");
+			if (qsgmiiphy_fix[port])
+				fdt_set_phy_handle(blob, prop, pa,
+						   "sgmii_phy34");
+			else
+				fdt_set_phy_handle(blob, prop, pa,
+						   "phy_sgmii12");
 			break;
 		case FM2_DTSEC10:
-			fdt_set_phy_handle(blob, prop, pa, "phy_sgmii11");
+			if (qsgmiiphy_fix[port])
+				fdt_set_phy_handle(blob, prop, pa,
+						   "sgmii_phy33");
+			else
+				fdt_set_phy_handle(blob, prop, pa,
+						   "phy_sgmii11");
 			break;
 		default:
 			break;
@@ -256,6 +327,62 @@ void fdt_fixup_board_enet(void *fdt)
 			default:
 				break;
 			}
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+static void initialize_qsgmiiphy_fix(void)
+{
+	int i;
+	unsigned short reg;
+
+	for (i = 1; i <= 4; i++) {
+		/*
+		 * Try to read if a SGMII card is used, we do it slot by slot.
+		 * if a SGMII PHY address is valid on a slot, then we mark
+		 * all ports on the slot, then fix the PHY address for the
+		 * marked port when doing dtb fixup.
+		 */
+		if (miiphy_read(mdio_names[i],
+				SGMII_CARD_PORT1_PHY_ADDR, MII_PHYSID2, &reg) != 0) {
+			debug("Slot%d PHY ID register 2 read failed\n", i);
+			continue;
+		}
+
+		debug("Slot%d MII_PHYSID2 @ 0x1c= 0x%04x\n", i, reg);
+
+		if (reg == 0xFFFF) {
+			/* No physical device present at this address */
+			continue;
+		}
+
+		switch (i) {
+		case 1:
+			qsgmiiphy_fix[FM1_DTSEC5] = 1;
+			qsgmiiphy_fix[FM1_DTSEC6] = 1;
+			qsgmiiphy_fix[FM1_DTSEC9] = 1;
+			qsgmiiphy_fix[FM1_DTSEC10] = 1;
+			break;
+		case 2:
+			qsgmiiphy_fix[FM1_DTSEC1] = 1;
+			qsgmiiphy_fix[FM1_DTSEC2] = 1;
+			qsgmiiphy_fix[FM1_DTSEC3] = 1;
+			qsgmiiphy_fix[FM1_DTSEC4] = 1;
+			break;
+		case 3:
+			qsgmiiphy_fix[FM2_DTSEC5] = 1;
+			qsgmiiphy_fix[FM2_DTSEC6] = 1;
+			qsgmiiphy_fix[FM2_DTSEC9] = 1;
+			qsgmiiphy_fix[FM2_DTSEC10] = 1;
+			break;
+		case 4:
+			qsgmiiphy_fix[FM2_DTSEC1] = 1;
+			qsgmiiphy_fix[FM2_DTSEC2] = 1;
+			qsgmiiphy_fix[FM2_DTSEC3] = 1;
+			qsgmiiphy_fix[FM2_DTSEC4] = 1;
 			break;
 		default:
 			break;
@@ -574,6 +701,8 @@ int board_eth_init(bd_t *bis)
 		}
 	}
 #endif /* CONFIG_SYS_NUM_FMAN */
+
+	initialize_qsgmiiphy_fix();
 
 	cpu_eth_init(bis);
 #endif /* CONFIG_FMAN_ENET */
