@@ -80,6 +80,8 @@ int cpu_status(int nr)
 	if (nr == id) {
 		table = (u32 *)&__spin_table;
 		printf("table base @ 0x%p\n", table);
+	} else if (is_core_disabled(nr)) {
+		puts("Disabled\n");
 	} else {
 		table = (u32 *)&__spin_table + nr * NUM_BOOT_ENTRY;
 		printf("Running on cpu %d\n", id);
