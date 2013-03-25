@@ -507,6 +507,15 @@
 #define   L2CSR0_L2IO		0x00100000	/* L2 Cache Instruction Only */
 #define   L2CSR0_L2DO		0x00010000	/* L2 Cache Data Only */
 #define   L2CSR0_L2REP		0x00003000	/* L2 Line Replacement Algo */
+
+/* e6500 */
+#define   L2CSR0_L2REP_SPLRUAGE	0x00000000	/* L2REP Streaming PLRU with Aging */
+#define   L2CSR0_L2REP_FIFO	0x00001000	/* L2REP FIFO */
+#define   L2CSR0_L2REP_SPLRU	0x00002000	/* L2REP Streaming PLRU */
+#define   L2CSR0_L2REP_PLRU	0x00003000	/* L2REP PLRU */
+
+#define   L2CSR0_L2REP_MODE	L2CSR0_L2REP_SPLRUAGE
+
 #define   L2CSR0_L2FL		0x00000800	/* L2 Cache Flush */
 #define   L2CSR0_L2LFC		0x00000400	/* L2 Cache Lock Flash Clear */
 #define   L2CSR0_L2LOA		0x00000080	/* L2 Cache Lock Overflow Allocate */

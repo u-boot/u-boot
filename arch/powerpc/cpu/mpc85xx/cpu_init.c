@@ -337,7 +337,7 @@ int enable_cluster_l2(void)
 			while ((in_be32(&l2cache->l2csr0)
 				& (L2CSR0_L2FI|L2CSR0_L2LFC)) != 0)
 					;
-			out_be32(&l2cache->l2csr0, L2CSR0_L2E|L2CSR0_L2PE);
+			out_be32(&l2cache->l2csr0, L2CSR0_L2E|L2CSR0_L2PE|L2CSR0_L2REP_MODE);
 		}
 		i++;
 	} while (!(cluster & TP_CLUSTER_EOC));
