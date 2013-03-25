@@ -69,9 +69,9 @@ __secondary_start_page:
 #endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_CPU_A003999
-	mfspr	r3,977
+	mfspr	r3,SPRN_HDBCR1
 	oris	r3,r3,0x0100
-	mtspr	977,r3
+	mtspr	SPRN_HDBCR1,r3
 #endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A004510
@@ -93,10 +93,10 @@ __secondary_start_page:
 1:	/* Erratum says set bits 55:60 to 001001 */
 	msync
 	isync
-	mfspr	r3,976
+	mfspr	r3,SPRN_HDBCR0
 	li	r4,0x48
 	rlwimi	r3,r4,0,0x1f8
-	mtspr	976,r3
+	mtspr	SPRN_HDBCR0,r3
 	isync
 2:
 #endif

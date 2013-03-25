@@ -575,6 +575,16 @@
 #define SPRN_MSSSR0	0x3f7
 #endif
 
+#define SPRN_HDBCR0	0x3d0
+#define SPRN_HDBCR1	0x3d1
+#define SPRN_HDBCR2	0x3d2
+#define SPRN_HDBCR3	0x3d3
+#define SPRN_HDBCR4	0x3d4
+#define SPRN_HDBCR5	0x3d5
+#define SPRN_HDBCR6	0x3d6
+#define SPRN_HDBCR7	0x277
+#define SPRN_HDBCR8	0x278
+
 /* Short-hand versions for a number of the above SPRNs */
 
 #define CTR	SPRN_CTR	/* Counter Register */
