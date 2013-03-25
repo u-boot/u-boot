@@ -103,35 +103,70 @@ static struct cpu_type cpu_type_list[] = {
 };
 
 #ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+static inline u32 init_type(u32 cluster, int init_id)
+{
+	ccsr_gur_t *gur = (void __iomem *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	u32 idx = (cluster >> (init_id * 8)) & TP_CLUSTER_INIT_MASK;
+	u32 type = in_be32(&gur->tp_ityp[idx]);
+
+	if (type & TP_ITYP_AV)
+		return type;
+
+	return 0;
+}
+
 u32 compute_ppc_cpumask(void)
 {
-	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccsr_gur_t *gur = (void __iomem *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	int i = 0, count = 0;
-	u32 cluster, mask = 0;
+	u32 cluster, type, mask = 0;
 
 	do {
 		int j;
-		cluster = in_be32(&gur->tp_cluster[i++].lower);
-		for (j = 0; j < 4; j++) {
-			u32 idx = (cluster >> (j*8)) & TP_CLUSTER_INIT_MASK;
-			u32 type = in_be32(&gur->tp_ityp[idx]);
-
-			if (type & TP_ITYP_AV) {
+		cluster = in_be32(&gur->tp_cluster[i].lower);
+		for (j = 0; j < TP_INIT_PER_CLUSTER; j++) {
+			type = init_type(cluster, j);
+			if (type) {
 				if (TP_ITYP_TYPE(type) == TP_ITYP_TYPE_PPC)
 					mask |= 1 << count;
+				count++;
 			}
-			count++;
 		}
+		i++;
 	} while ((cluster & TP_CLUSTER_EOC) != TP_CLUSTER_EOC);
 
 	return mask;
 }
+
+int fsl_qoriq_core_to_cluster(unsigned int core)
+{
+	ccsr_gur_t *gur = (void __iomem *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	int i = 0, count = 0;
+	u32 cluster;
+
+	do {
+		int j;
+		cluster = in_be32(&gur->tp_cluster[i].lower);
+		for (j = 0; j < TP_INIT_PER_CLUSTER; j++) {
+			if (init_type(cluster, j)) {
+				if (count == core)
+					return i;
+				count++;
+			}
+		}
+		i++;
+	} while ((cluster & TP_CLUSTER_EOC) != TP_CLUSTER_EOC);
+
+	return -1;	/* cannot identify the cluster */
+}
+
 #else /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
 /*
  * Before chassis genenration 2, the cpumask should be hard-coded.
  * In case of cpu type unknown or cpumask unset, use 1 as fail save.
  */
 #define compute_ppc_cpumask()	1
+#define fsl_qoriq_core_to_cluster(x) x
 #endif /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
 
 static struct cpu_type cpu_type_unknown = CPU_TYPE_ENTRY(Unknown, Unknown, 0);

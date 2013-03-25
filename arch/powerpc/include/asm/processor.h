@@ -1200,6 +1200,8 @@ struct cpu_type {
 struct cpu_type *identify_cpu(u32 ver);
 int fixup_cpu(void);
 
+int fsl_qoriq_core_to_cluster(unsigned int core);
+
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
 #define CPU_TYPE_ENTRY(n, v, nc) \
 	{ .name = #n, .soc_ver = SVR_##v, .num_cores = (nc), \

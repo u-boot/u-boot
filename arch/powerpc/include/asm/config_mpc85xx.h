@@ -517,6 +517,7 @@
 #define CONFIG_SYS_PPC64		/* 64-bit core */
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_QORIQ_CHASSIS2	/* Freescale Chassis generation 2 */
+#define CONFIG_SYS_FSL_CORES_PER_CLUSTER 4
 #define CONFIG_SYS_FSL_QMAN_V3		/* QMAN version 3 */
 #ifdef CONFIG_PPC_T4240
 #define CONFIG_MAX_CPUS			12
@@ -559,6 +560,7 @@
 #define CONFIG_SYS_PPC64		/* 64-bit core */
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_QORIQ_CHASSIS2	/* Freescale Chassis generation 2 */
+#define CONFIG_SYS_FSL_CORES_PER_CLUSTER 4
 #define CONFIG_SYS_FSL_QMAN_V3		/* QMAN version 3 */
 #define CONFIG_MAX_CPUS			2
 #define CONFIG_SYS_FSL_NUM_CC_PLLS	4
@@ -581,6 +583,7 @@
 #define CONFIG_SYS_PPC64		/* 64-bit core */
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_QORIQ_CHASSIS2	/* Freescale Chassis generation 2 */
+#define CONFIG_SYS_FSL_CORES_PER_CLUSTER 4
 #define CONFIG_SYS_FSL_QMAN_V3		/* QMAN version 3 */
 #define CONFIG_MAX_CPUS			4
 #define CONFIG_SYS_FSL_NUM_CC_PLLS	4
@@ -607,6 +610,7 @@
 #define CONFIG_E5500
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_QORIQ_CHASSIS2	/* Freescale Chassis generation 2 */
+#define CONFIG_SYS_FSL_CORES_PER_CLUSTER 1
 #define CONFIG_SYS_FSL_QMAN_V3		/* QMAN version 3 */
 #define CONFIG_MAX_CPUS			4
 #define CONFIG_SYS_FSL_NUM_CC_PLLS	5
@@ -635,6 +639,12 @@
 
 #ifndef CONFIG_SYS_CCSRBAR_DEFAULT
 #error "CONFIG_SYS_CCSRBAR_DEFAULT is not defined for this platform."
+#endif
+
+#ifdef CONFIG_E6500
+#define CONFIG_SYS_FSL_THREADS_PER_CORE 2
+#else
+#define CONFIG_SYS_FSL_THREADS_PER_CORE 1
 #endif
 
 #endif /* _ASM_MPC85xx_CONFIG_H_ */

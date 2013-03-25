@@ -112,23 +112,20 @@ void get_sys_info (sys_info_t * sysInfo)
 #ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
 	/*
 	 * Each cluster has up to 4 cores, sharing the same PLL selection.
-	 * The cluster assignment is fixed per SoC. There is no way identify the
-	 * assignment so far, presuming the "first configuration" which is to
-	 * fill the lower cluster group first before moving up to next group.
-	 * PLL1, PLL2, PLL3 are cluster group A, feeding core 0~3 on cluster 1
-	 * and core 4~7 on cluster 2
-	 * PLL4, PLL5, PLL6 are cluster group B, feeding core 8~11 on cluster 3
-	 * and core 12~15 on cluster 4 if existing
+	 * The cluster assignment is fixed per SoC. PLL1, PLL2, PLL3 are
+	 * cluster group A, feeding cores on cluster 1 and cluster 2.
+	 * PLL4, PLL5, PLL6 are cluster group B, feeding cores on cluster 3
+	 * and cluster 4 if existing.
 	 */
 	for_each_cpu(i, cpu, cpu_numcores(), cpu_mask()) {
-		u32 c_pll_sel = (in_be32(&clk->clkc0csr + (cpu / 4) * 8) >> 27)
+		int cluster = fsl_qoriq_core_to_cluster(cpu);
+		u32 c_pll_sel = (in_be32(&clk->clkcsr[cluster].clkcncsr) >> 27)
 				& 0xf;
 		u32 cplx_pll = core_cplx_PLL[c_pll_sel];
 		if (cplx_pll > 3)
 			printf("Unsupported architecture configuration"
 				" in function %s\n", __func__);
-		cplx_pll += (cpu / 8) * 3;
-
+		cplx_pll += (cluster / 2) * 3;
 		sysInfo->freqProcessor[cpu] =
 			 freqCC_PLL[cplx_pll] / core_cplx_PLL_div[c_pll_sel];
 	}
@@ -240,7 +237,8 @@ void get_sys_info (sys_info_t * sysInfo)
 #else /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
 
 	for_each_cpu(i, cpu, cpu_numcores(), cpu_mask()) {
-		u32 c_pll_sel = (in_be32(&clk->clkc0csr + cpu*8) >> 27) & 0xf;
+		u32 c_pll_sel = (in_be32(&clk->clkcsr[cpu].clkcncsr) >> 27)
+				& 0xf;
 		u32 cplx_pll = core_cplx_PLL[c_pll_sel];
 
 		sysInfo->freqProcessor[cpu] =

@@ -1996,6 +1996,7 @@ typedef struct ccsr_gur {
 
 #define TP_CLUSTER_EOC		0x80000000	/* end of clusters */
 #define TP_CLUSTER_INIT_MASK	0x0000003f	/* initiator mask */
+#define TP_INIT_PER_CLUSTER	4
 
 #define FSL_CORENET_DCSR_SZ_MASK	0x00000003
 #define FSL_CORENET_DCSR_SZ_4M		0x0
@@ -2008,22 +2009,13 @@ typedef struct ccsr_gur {
 #define rmuliodnr rio1maintliodnr
 
 typedef struct ccsr_clk {
-	u32	clkc0csr;	/* 0x000 Core 0 Clock control/status */
-	u8	res1[0x1c];
-	u32	clkc1csr;	/* 0x020 Core 1 Clock control/status */
-	u8	res2[0x1c];
-	u32	clkc2csr;	/* 0x040 Core 2 Clock control/status */
-	u8	res3[0x1c];
-	u32	clkc3csr;	/* 0x060 Core 3 Clock control/status */
-	u8	res4[0x1c];
-	u32	clkc4csr;	/* 0x080 Core 4 Clock control/status */
-	u8	res5[0x1c];
-	u32	clkc5csr;	/* 0x0a0 Core 5 Clock control/status */
-	u8	res6[0x1c];
-	u32	clkc6csr;	/* 0x0c0 Core 6 Clock control/status */
-	u8	res7[0x1c];
-	u32	clkc7csr;	/* 0x0e0 Core 7 Clock control/status */
-	u8	res8[0x71c];
+	struct {
+		u32 clkcncsr;	/* core cluster n clock control status */
+		u8  res_004[0x0c];
+		u32 clkcgnhwacsr;/* clock generator n hardware accelerator */
+		u8  res_014[0x0c];
+	} clkcsr[8];
+	u8	res_100[0x700]; /* 0x100 */
 	u32	pllc1gsr;	/* 0x800 Cluster PLL 1 General Status */
 	u8	res10[0x1c];
 	u32	pllc2gsr;	/* 0x820 Cluster PLL 2 General Status */
