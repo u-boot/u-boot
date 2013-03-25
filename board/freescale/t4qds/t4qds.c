@@ -234,7 +234,7 @@ static inline int set_voltage(u8 vid)
 }
 
 
-static int adjust_vdd(void)
+static int adjust_vdd(ulong vdd_override)
 {
 	int re_enable = disable_interrupts();
 	ccsr_gur_t __iomem *gur =
@@ -243,6 +243,8 @@ static int adjust_vdd(void)
 	u8 vid, vid_current;
 	int vdd_target, vdd_current, vdd_last;
 	int ret;
+	unsigned long vdd_string_override;
+	char *vdd_string;
 	static const uint16_t vdd[32] = {
 		0,	/* unused */
 		9875,	/* 0.9875V */
@@ -292,6 +294,19 @@ static int adjust_vdd(void)
 			FSL_CORENET_DCFG_FUSESR_ALTVID_MASK;
 	}
 	vdd_target = vdd[vid];
+
+	/* check override variable for overriding VDD */
+	vdd_string = getenv("t4240qds_vdd_mv");
+	if (vdd_override == 0 && vdd_string &&
+	    !strict_strtoul(vdd_string, 10, &vdd_string_override))
+		vdd_override = vdd_string_override;
+	if (vdd_override >= 819 && vdd_override <= 1212) {
+		vdd_target = vdd_override * 10; /* convert to 1/10 mV */
+		debug("VDD override is %lu\n", vdd_override);
+	} else if (vdd_override != 0) {
+		printf("Invalid value.\n");
+	}
+
 	if (vdd_target == 0) {
 		debug("VID: VID not used\n");
 		ret = 0;
@@ -511,7 +526,7 @@ int board_early_init_r(void)
 	 * Adjust core voltage according to voltage ID
 	 * This function changes I2C mux to channel 2.
 	 */
-	if (adjust_vdd())
+	if (adjust_vdd(0))
 		printf("Warning: Adjusting core voltage failed.\n");
 
 	/* Configure board SERDES ports crossbar */
@@ -801,3 +816,23 @@ void qixis_dump_switch(void)
 			i + 1, byte_to_binary_mask(sw[i], mask[i], buf), sw[i]);
 	}
 }
+
+static int do_vdd_adjust(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	ulong override;
+
+	if (argc < 2)
+		return CMD_RET_USAGE;
+	if (!strict_strtoul(argv[1], 10, &override))
+		adjust_vdd(override);	/* the value is checked by callee */
+	else
+		return CMD_RET_USAGE;
+
+	return 0;
+}
+
+U_BOOT_CMD(
+	vdd_override, 2, 0, do_vdd_adjust,
+	"Override VDD",
+	"- override with the voltage specified in mV, eg. 1050"
+);
