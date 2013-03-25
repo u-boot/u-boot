@@ -643,6 +643,106 @@ void ft_board_setup(void *blob, bd_t *bd)
 }
 
 /*
+ * This function is called by bdinfo to print detail board information.
+ * As an exmaple for future board, we organize the messages into
+ * several sections. If applicable, the message is in the format of
+ * <name>      = <value>
+ * It should aligned with normal output of bdinfo command.
+ *
+ * Voltage: Core, DDR and another configurable voltages
+ * Clock  : Critical clocks which are not printed already
+ * RCW    : RCW source if not printed already
+ * Misc   : Other important information not in above catagories
+ */
+void board_detail(void)
+{
+	int i;
+	u8 brdcfg[16], dutcfg[16], rst_ctl;
+	int vdd, rcwsrc;
+	static const char * const clk[] = {"66.67", "100", "125", "133.33"};
+
+	for (i = 0; i < 16; i++) {
+		brdcfg[i] = qixis_read(offsetof(struct qixis, brdcfg[0]) + i);
+		dutcfg[i] = qixis_read(offsetof(struct qixis, dutcfg[0]) + i);
+	}
+
+	/* Voltage secion */
+	if (!select_i2c_ch_pca9547(I2C_MUX_CH_VOL_MONITOR)) {
+		vdd = read_voltage();
+		if (vdd > 0)
+			printf("Core voltage= %d mV\n", vdd);
+		select_i2c_ch_pca9547(I2C_MUX_CH_DEFAULT);
+	}
+
+	printf("XVDD        = 1.%d V\n", ((brdcfg[8] & 0xf) - 4) * 5 + 25);
+
+	/* clock section */
+	printf("SYSCLK      = %s MHz\nDDRCLK      = %s MHz\n",
+	       clk[(brdcfg[11] >> 2) & 0x3], clk[brdcfg[11] & 3]);
+
+	/* RCW section */
+	rcwsrc = (dutcfg[0] << 1) + (dutcfg[1] & 1);
+	puts("RCW source  = ");
+	switch (rcwsrc) {
+	case 0x017:
+	case 0x01f:
+		puts("8-bit NOR\n");
+		break;
+	case 0x027:
+	case 0x02F:
+		puts("16-bit NOR\n");
+		break;
+	case 0x040:
+		puts("SDHC/eMMC\n");
+		break;
+	case 0x044:
+		puts("SPI 16-bit addressing\n");
+		break;
+	case 0x045:
+		puts("SPI 24-bit addressing\n");
+		break;
+	case 0x048:
+		puts("I2C normal addressing\n");
+		break;
+	case 0x049:
+		puts("I2C extended addressing\n");
+		break;
+	case 0x108:
+	case 0x109:
+	case 0x10a:
+	case 0x10b:
+		puts("8-bit NAND, 2KB\n");
+		break;
+	default:
+		if ((rcwsrc >= 0x080) && (rcwsrc <= 0x09f))
+			puts("Hard-coded RCW\n");
+		else if ((rcwsrc >= 0x110) && (rcwsrc <= 0x11f))
+			puts("8-bit NAND, 4KB\n");
+		else
+			puts("unknown\n");
+		break;
+	}
+
+	/* Misc section */
+	rst_ctl = QIXIS_READ(rst_ctl);
+	puts("HRESET_REQ  = ");
+	switch (rst_ctl & 0x30) {
+	case 0x00:
+		puts("Ignored\n");
+		break;
+	case 0x10:
+		puts("Assert HRESET\n");
+		break;
+	case 0x30:
+		puts("Reset system\n");
+		break;
+	default:
+		puts("N/A\n");
+		break;
+	}
+}
+
+/*
  * Reverse engineering switch settings.
  * Some bits cannot be figured out. They will be displayed as
  * underscore in binary format. mask[] has those bits.
