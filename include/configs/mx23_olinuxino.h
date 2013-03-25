@@ -227,7 +227,7 @@
 		"else " \
 			"bootm; " \
 		"fi;\0" \
-	"netargs=setenv bootargs console=${console_mainline},${baudrate} " \
+	"netargs=setenv bootargs console=${console},${baudrate} " \
 		"root=/dev/nfs " \
 		"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
 	"netboot=echo Booting from net ...; " \
