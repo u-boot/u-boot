@@ -504,8 +504,8 @@ int board_early_init_r(void)
 	setup_portals();
 #endif
 
-	/* Disable remote I2C connectoin */
-	QIXIS_WRITE(brdcfg[5], BRDCFG5_RESET);
+	/* Disable remote I2C connection to qixis fpga */
+	QIXIS_WRITE(brdcfg[5], QIXIS_READ(brdcfg[5]) & ~BRDCFG5_IRE);
 
 	/*
 	 * Adjust core voltage according to voltage ID
