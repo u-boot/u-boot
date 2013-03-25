@@ -541,14 +541,17 @@ phys_size_t fsl_ddr_sdram(void)
 		total_memory = fsl_ddr_compute(&info, STEP_GET_SPD, 0);
 
 	/* setup 3-way interleaving before enabling DDRC */
-	switch (info.memctl_opts[0].memctl_interleaving_mode) {
-	case FSL_DDR_3WAY_1KB_INTERLEAVING:
-	case FSL_DDR_3WAY_4KB_INTERLEAVING:
-	case FSL_DDR_3WAY_8KB_INTERLEAVING:
-		fsl_ddr_set_intl3r(info.memctl_opts[0].memctl_interleaving_mode);
-		break;
-	default:
-		break;
+	if (info.memctl_opts[0].memctl_interleaving) {
+		switch (info.memctl_opts[0].memctl_interleaving_mode) {
+		case FSL_DDR_3WAY_1KB_INTERLEAVING:
+		case FSL_DDR_3WAY_4KB_INTERLEAVING:
+		case FSL_DDR_3WAY_8KB_INTERLEAVING:
+			fsl_ddr_set_intl3r(
+				info.memctl_opts[0].memctl_interleaving_mode);
+			break;
+		default:
+			break;
+		}
 	}
 
 	/* Program configuration registers. */
