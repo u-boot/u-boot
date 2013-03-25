@@ -421,6 +421,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 {
 	phys_addr_t base;
 	phys_size_t size;
+	const char *soc_usb_compat = "fsl-usb2-dr";
+	int err, usb1_off, usb2_off;
 
 	ft_cpu_setup(blob, bd);
 
@@ -442,5 +444,50 @@ void ft_board_setup(void *blob, bd_t *bd)
 #if defined(CONFIG_HAS_FSL_DR_USB)
 	fdt_fixup_dr_usb(blob, bd);
 #endif
+
+#if defined(CONFIG_SDCARD) || defined(CONFIG_SPIFLASH)
+	/* Delete eLBC node as it is muxed with USB2 controller */
+	if (hwconfig("usb2")) {
+		const char *soc_elbc_compat = "fsl,p1020-elbc";
+		int off = fdt_node_offset_by_compatible(blob, -1,
+				soc_elbc_compat);
+		if (off < 0) {
+			printf("WARNING: could not find compatible node %s: %s.\n",
+			       soc_elbc_compat,
+			       fdt_strerror(off));
+				return;
+		}
+		err = fdt_del_node(blob, off);
+		if (err < 0) {
+			printf("WARNING: could not remove %s: %s.\n",
+			       soc_elbc_compat, fdt_strerror(err));
+		}
+		return;
+	}
+#endif
+
+/* Delete USB2 node as it is muxed with eLBC */
+	usb1_off = fdt_node_offset_by_compatible(blob, -1,
+		soc_usb_compat);
+	if (usb1_off < 0) {
+		printf("WARNING: could not find compatible node %s: %s.\n",
+		       soc_usb_compat,
+		       fdt_strerror(usb1_off));
+		return;
+	}
+	usb2_off = fdt_node_offset_by_compatible(blob, usb1_off,
+			soc_usb_compat);
+	if (usb2_off < 0) {
+		printf("WARNING: could not find compatible node %s: %s.\n",
+		       soc_usb_compat,
+		       fdt_strerror(usb2_off));
+		return;
+	}
+	err = fdt_del_node(blob, usb2_off);
+	if (err < 0) {
+		printf("WARNING: could not remove %s: %s.\n",
+		       soc_usb_compat, fdt_strerror(err));
+	}
+
 }
 #endif
