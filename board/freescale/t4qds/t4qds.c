@@ -540,6 +540,20 @@ int board_early_init_r(void)
 unsigned long get_board_sys_clk(void)
 {
 	u8 sysclk_conf = QIXIS_READ(brdcfg[1]);
+#ifdef CONFIG_FSL_QIXIS_CLOCK_MEASUREMENT
+	/* use accurate clock measurement */
+	int freq = QIXIS_READ(clk_freq[0]) << 8 | QIXIS_READ(clk_freq[1]);
+	int base = QIXIS_READ(clk_base[0]) << 8 | QIXIS_READ(clk_base[1]);
+	u32 val;
+
+	val =  freq * base;
+	if (val) {
+		debug("SYS Clock measurement is: %d\n", val);
+		return val;
+	} else {
+		printf("Warning: SYS clock measurement is invalid, using value from brdcfg1.\n");
+	}
+#endif
 
 	switch (sysclk_conf & 0x0F) {
 	case QIXIS_SYSCLK_83:
@@ -563,6 +577,20 @@ unsigned long get_board_sys_clk(void)
 unsigned long get_board_ddr_clk(void)
 {
 	u8 ddrclk_conf = QIXIS_READ(brdcfg[1]);
+#ifdef CONFIG_FSL_QIXIS_CLOCK_MEASUREMENT
+	/* use accurate clock measurement */
+	int freq = QIXIS_READ(clk_freq[2]) << 8 | QIXIS_READ(clk_freq[3]);
+	int base = QIXIS_READ(clk_base[0]) << 8 | QIXIS_READ(clk_base[1]);
+	u32 val;
+
+	val =  freq * base;
+	if (val) {
+		debug("DDR Clock measurement is: %d\n", val);
+		return val;
+	} else {
+		printf("Warning: DDR clock measurement is invalid, using value from brdcfg1.\n");
+	}
+#endif
 
 	switch ((ddrclk_conf & 0x30) >> 4) {
 	case QIXIS_DDRCLK_100:
