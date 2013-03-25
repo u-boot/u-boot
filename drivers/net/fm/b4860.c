@@ -55,8 +55,10 @@ phy_interface_t fman_port_enet_if(enum fm_port port)
 	if (is_device_disabled(port))
 		return PHY_INTERFACE_MODE_NONE;
 
-	if ((port == FM1_10GEC1 || port == FM1_10GEC2)
-			&& (is_serdes_configured(XAUI_FM1)))
+	/*B4860 has two 10Gig Mac*/
+	if ((port == FM1_10GEC1 || port == FM1_10GEC2)	&&
+	    ((is_serdes_configured(XAUI_FM1_MAC9))	||
+	    (is_serdes_configured(XAUI_FM1_MAC10))))
 		return PHY_INTERFACE_MODE_XGMII;
 
 	/* Fix me need to handle RGMII here first */
