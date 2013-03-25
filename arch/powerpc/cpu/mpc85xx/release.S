@@ -159,9 +159,9 @@ __secondary_start_page:
 	 * we cannot access it yet before setting up a new TLB
 	 */
 	mfspr	r0,SPRN_PIR
-#if	defined(CONFIG_E6500)
+#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
 /*
- * PIR definition for E6500
+ * PIR definition for Chassis 2
  * 0-17 Reserved (logic 0s)
  * 8-19 CHIP_ID,    2'b00      - SoC 1
  *                  all others - reserved
@@ -187,7 +187,7 @@ __secondary_start_page:
 	slwi	r8,r4,6	/* spin table is padded to 64 byte */
 	add	r10,r3,r8
 
-#ifdef CONFIG_E6500
+#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
 	mfspr	r0,SPRN_PIR
 	/*
 	 * core 0 thread 0: pir reset value 0x00, new pir 0
