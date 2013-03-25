@@ -78,7 +78,11 @@ struct qixis {
 	u8 trig_stat;
 	u8 res12[3];
 	u8 trig_ctr[4];
-	u8 res13[48];
+	u8 res13[16];
+	u8 clk_freq[6];	/* Clock Measurement Registers */
+	u8 res_c6[8];
+	u8 clk_base[2];	/* Clock Frequency Base Reg */
+	u8 res_d0[16];
 	u8 aux2[4];	/* Auxiliary Registers,0xE0 */
 	u8 res14[10];
 	u8 aux_ad;
