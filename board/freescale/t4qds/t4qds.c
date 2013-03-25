@@ -801,7 +801,7 @@ void qixis_dump_switch(void)
 	 * Any bit with 1 means that bit cannot be reverse engineered.
 	 * It will be displayed as _ in binary format.
 	 */
-	static const u8 mask[] = {0, 0, 0, 0, 0, 0x1, 0xdf, 0x3f, 0x1f};
+	static const u8 mask[] = {0, 0, 0, 0, 0, 0x1, 0xcf, 0x3f, 0x1f};
 	char buf[10];
 	u8 brdcfg[16], dutcfg[16];
 
@@ -832,7 +832,8 @@ void qixis_dump_switch(void)
 	sw[5] = ((brdcfg[0] & 0x0f) << 4)	| \
 		((QIXIS_READ(rst_ctl) & 0x30) >> 2) | \
 		((brdcfg[0] & 0x40) >> 5);
-	sw[6] = (brdcfg[11] & 0x20);
+	sw[6] = (brdcfg[11] & 0x20)		|
+		((brdcfg[5] & 0x02) << 3);
 	sw[7] = (((~QIXIS_READ(rst_ctl)) & 0x40) << 1) | \
 		((brdcfg[5] & 0x10) << 2);
 	sw[8] = ((brdcfg[12] & 0x08) << 4)	| \
