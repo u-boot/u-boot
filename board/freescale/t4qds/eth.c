@@ -52,7 +52,7 @@
 #define EMI1_SLOT4	4
 #define EMI1_SLOT5	5
 #define EMI1_SLOT7	7
-#define EMI2		8 /* tmp, FIXME */
+#define EMI2		8
 /* Slot6 and Slot8 do not have EMI connections */
 
 static int mdio_mux[NUM_FM_PORTS];
@@ -180,21 +180,86 @@ static int t4240qds_mdio_init(char *realbusname, u8 muxval)
 void board_ft_fman_fixup_port(void *blob, char * prop, phys_addr_t pa,
 				enum fm_port port, int offset)
 {
-	if (mdio_mux[port] == EMI1_RGMII)
-		fdt_set_phy_handle(blob, prop, pa, "phy_rgmii");
-
-	/* TODO: will do with dts */
+	if (fm_info_get_enet_if(port) == PHY_INTERFACE_MODE_SGMII) {
+		switch (port) {
+		case FM1_DTSEC9:
+			fdt_set_phy_handle(blob, prop, pa, "phy_sgmii4");
+			break;
+		case FM1_DTSEC10:
+			fdt_set_phy_handle(blob, prop, pa, "phy_sgmii3");
+			break;
+		case FM2_DTSEC9:
+			fdt_set_phy_handle(blob, prop, pa, "phy_sgmii12");
+			break;
+		case FM2_DTSEC10:
+			fdt_set_phy_handle(blob, prop, pa, "phy_sgmii11");
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 void fdt_fixup_board_enet(void *fdt)
 {
-	/* TODO: will do with dts */
+	int i;
+	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	u32 prtcl2 = in_be32(&gur->rcwsr[4]) & FSL_CORENET2_RCWSR4_SRDS2_PRTCL;
+
+	prtcl2 >>= FSL_CORENET2_RCWSR4_SRDS2_PRTCL_SHIFT;
+	for (i = FM1_DTSEC1; i < NUM_FM_PORTS; i++) {
+		switch (fm_info_get_enet_if(i)) {
+		case PHY_INTERFACE_MODE_SGMII:
+			switch (mdio_mux[i]) {
+			case EMI1_SLOT1:
+				fdt_status_okay_by_alias(fdt, "emi1_slot1");
+				break;
+			case EMI1_SLOT2:
+				fdt_status_okay_by_alias(fdt, "emi1_slot2");
+				break;
+			case EMI1_SLOT3:
+				fdt_status_okay_by_alias(fdt, "emi1_slot3");
+				break;
+			case EMI1_SLOT4:
+				fdt_status_okay_by_alias(fdt, "emi1_slot4");
+				break;
+			default:
+				break;
+			}
+			break;
+		case PHY_INTERFACE_MODE_XGMII:
+			/* check if it's XFI interface for 10g */
+			if ((prtcl2 == 56) || (prtcl2 == 57)) {
+				fdt_status_okay_by_alias(fdt, "emi2_xfislot3");
+				break;
+			}
+			switch (i) {
+			case FM1_10GEC1:
+				fdt_status_okay_by_alias(fdt, "emi2_xauislot1");
+				break;
+			case FM1_10GEC2:
+				fdt_status_okay_by_alias(fdt, "emi2_xauislot2");
+				break;
+			case FM2_10GEC1:
+				fdt_status_okay_by_alias(fdt, "emi2_xauislot3");
+				break;
+			case FM2_10GEC2:
+				fdt_status_okay_by_alias(fdt, "emi2_xauislot4");
+				break;
+			default:
+				break;
+			}
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 int board_eth_init(bd_t *bis)
 {
 #if defined(CONFIG_FMAN_ENET)
-	int i;
+	int i, idx, lane, slot;
 	struct memac_mdio_info dtsec_mdio_info;
 	struct memac_mdio_info tgec_mdio_info;
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
@@ -293,7 +358,7 @@ int board_eth_init(bd_t *bis)
 	}
 
 	for (i = FM1_DTSEC1; i < FM1_DTSEC1 + CONFIG_SYS_NUM_FM1_DTSEC; i++) {
-		int idx = i - FM1_DTSEC1, lane, slot;
+		idx = i - FM1_DTSEC1;
 		switch (fm_info_get_enet_if(i)) {
 		case PHY_INTERFACE_MODE_SGMII:
 			lane = serdes_get_first_lane(FSL_SRDS_1,
@@ -334,8 +399,16 @@ int board_eth_init(bd_t *bis)
 	}
 
 	for (i = FM1_10GEC1; i < FM1_10GEC1 + CONFIG_SYS_NUM_FM1_10GEC; i++) {
+		idx = i - FM1_10GEC1;
 		switch (fm_info_get_enet_if(i)) {
 		case PHY_INTERFACE_MODE_XGMII:
+			lane = serdes_get_first_lane(FSL_SRDS_1,
+						XAUI_FM1_MAC9 + idx);
+			if (lane < 0)
+				break;
+			slot = lane_to_slot_fsm1[lane];
+			if (QIXIS_READ(present2) & (1 << (slot - 1)))
+				fm_disable_port(i);
 			mdio_mux[i] = EMI2;
 			fm_info_set_mdio(i, mii_dev_for_muxval(mdio_mux[i]));
 			break;
@@ -343,7 +416,6 @@ int board_eth_init(bd_t *bis)
 			break;
 		}
 	}
-
 
 #if (CONFIG_SYS_NUM_FMAN == 2)
 	switch (srds_prtcl_s2) {
@@ -418,10 +490,6 @@ int board_eth_init(bd_t *bis)
 	case 56:
 	case 57:
 		/* XFI in Slot3, SGMII in Slot4 */
-		fm_info_set_phy_address(FM1_10GEC1, XFI_CARD_PORT1_PHY_ADDR);
-		fm_info_set_phy_address(FM1_10GEC2, XFI_CARD_PORT2_PHY_ADDR);
-		fm_info_set_phy_address(FM2_10GEC2, XFI_CARD_PORT3_PHY_ADDR);
-		fm_info_set_phy_address(FM2_10GEC1, XFI_CARD_PORT4_PHY_ADDR);
 		fm_info_set_phy_address(FM2_DTSEC1, SGMII_CARD_PORT1_PHY_ADDR);
 		fm_info_set_phy_address(FM2_DTSEC2, SGMII_CARD_PORT2_PHY_ADDR);
 		fm_info_set_phy_address(FM2_DTSEC3, SGMII_CARD_PORT3_PHY_ADDR);
@@ -433,7 +501,7 @@ int board_eth_init(bd_t *bis)
 	}
 
 	for (i = FM2_DTSEC1; i < FM2_DTSEC1 + CONFIG_SYS_NUM_FM2_DTSEC; i++) {
-		int idx = i - FM2_DTSEC1, lane, slot;
+		idx = i - FM2_DTSEC1;
 		switch (fm_info_get_enet_if(i)) {
 		case PHY_INTERFACE_MODE_SGMII:
 			lane = serdes_get_first_lane(FSL_SRDS_2,
@@ -477,8 +545,16 @@ int board_eth_init(bd_t *bis)
 	}
 
 	for (i = FM2_10GEC1; i < FM2_10GEC1 + CONFIG_SYS_NUM_FM2_10GEC; i++) {
+		idx = i - FM2_10GEC1;
 		switch (fm_info_get_enet_if(i)) {
 		case PHY_INTERFACE_MODE_XGMII:
+			lane = serdes_get_first_lane(FSL_SRDS_2,
+						XAUI_FM2_MAC9 + idx);
+			if (lane < 0)
+				break;
+			slot = lane_to_slot_fsm2[lane];
+			if (QIXIS_READ(present2) & (1 << (slot - 1)))
+				fm_disable_port(i);
 			mdio_mux[i] = EMI2;
 			fm_info_set_mdio(i, mii_dev_for_muxval(mdio_mux[i]));
 			break;
