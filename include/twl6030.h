@@ -21,6 +21,9 @@
  * MA 02111-1307 USA
  */
 
+#ifndef TWL6030_H
+#define TWL6030_H
+
 #include <common.h>
 #include <i2c.h>
 
@@ -144,3 +147,5 @@ void twl6030_stop_usb_charging(void);
 int twl6030_get_battery_voltage(void);
 int twl6030_get_battery_current(void);
 void twl6030_power_mmc_init(void);
+
+#endif /* TWL6030_H */
