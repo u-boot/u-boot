@@ -126,6 +126,17 @@
 #define GPCH0_LSB	0x57
 #define GPCH0_MSB	0x58
 
+/* Functions to read and write from TWL6030 */
+static inline int twl6030_i2c_write_u8(u8 chip_no, u8 reg, u8 val)
+{
+	return i2c_write(chip_no, reg, 1, &val, 1);
+}
+
+static inline int twl6030_i2c_read_u8(u8 chip_no, u8 reg, u8 *val)
+{
+	return i2c_read(chip_no, reg, 1, val, 1);
+}
+
 void twl6030_init_battery_charging(void);
 void twl6030_usb_device_settings(void);
 void twl6030_start_usb_charging(void);

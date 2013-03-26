@@ -25,17 +25,6 @@
 
 #include <twl6030.h>
 
-/* Functions to read and write from TWL6030 */
-static inline int twl6030_i2c_write_u8(u8 chip_no, u8 reg, u8 val)
-{
-	return i2c_write(chip_no, reg, 1, &val, 1);
-}
-
-static inline int twl6030_i2c_read_u8(u8 chip_no, u8 reg, u8 *val)
-{
-	return i2c_read(chip_no, reg, 1, val, 1);
-}
-
 static int twl6030_gpadc_read_channel(u8 channel_no)
 {
 	u8 lsb = 0;
