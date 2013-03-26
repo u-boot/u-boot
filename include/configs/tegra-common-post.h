@@ -150,6 +150,10 @@
 	MEM_LAYOUT_ENV_SETTINGS \
 	BOOTCMDS_COMMON
 
+#if defined(CONFIG_TEGRA20_SFLASH) || defined(CONFIG_TEGRA20_SLINK) || defined(CONFIG_TEGRA114_SPI)
+#define CONFIG_FDT_SPI
+#endif
+
 /* overrides for SPL build here */
 #ifdef CONFIG_SPL_BUILD
 

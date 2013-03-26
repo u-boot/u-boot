@@ -25,8 +25,7 @@
 #define _TEGRA_BOARD_H_
 
 /* Set up pinmux to make UART usable */
-void gpio_config_uart(void);      /* CONFIG_SPI_UART_SWITCH */
-void gpio_early_init_uart(void);  /*!CONFIG_SPI_UART_SWITCH */
+void gpio_early_init_uart(void);
 
 /* Set up early UART output */
 void board_init_uart_f(void);
