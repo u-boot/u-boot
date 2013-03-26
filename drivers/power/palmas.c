@@ -50,7 +50,7 @@ void palmas_init_settings(void)
 	return;
 }
 
-int twl6035_mmc1_poweron_ldo(void)
+int palmas_mmc1_poweron_ldo(void)
 {
 	u8 val = 0;
 

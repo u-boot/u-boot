@@ -117,7 +117,7 @@ static void omap5_pbias_config(struct mmc *mmc)
 	value |= SDCARD_BIAS_HIZ_MODE;
 	writel(value, (*ctrl)->control_pbias);
 
-	twl6035_mmc1_poweron_ldo();
+	palmas_mmc1_poweron_ldo();
 
 	value = readl((*ctrl)->control_pbias);
 	value &= ~SDCARD_BIAS_HIZ_MODE;
