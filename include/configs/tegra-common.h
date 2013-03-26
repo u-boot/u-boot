@@ -168,7 +168,9 @@
 #define CONFIG_SPL_GPIO_SUPPORT
 
 #define CONFIG_SYS_GENERIC_BOARD
+
 /* Misc utility code */
 #define CONFIG_BOUNCE_BUFFER
+#define CONFIG_CRC32_VERIFY
 
 #endif /* _TEGRA_COMMON_H_ */
