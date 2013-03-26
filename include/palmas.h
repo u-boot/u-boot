@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2012
+ * (C) Copyright 2012-2013
  * Texas Instruments, <www.ti.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -25,7 +25,7 @@
 #include <i2c.h>
 
 /* I2C chip addresses */
-#define TWL6035_CHIP_ADDR	0x48
+#define PALMAS_CHIP_ADDR	0x48
 
 /* 0x1XY translates to page 1, register address 0xXY */
 #define LDO9_CTRL		0x60

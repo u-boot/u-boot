@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2012
+ * (C) Copyright 2012-2013
  * Texas Instruments, <www.ti.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -21,7 +21,7 @@
  * MA 02111-1307 USA
  */
 #include <config.h>
-#include <twl6035.h>
+#include <palmas.h>
 
 /* Functions to read and write from TWL6030 */
 int twl6035_i2c_write_u8(u8 chip_no, u8 val, u8 reg)

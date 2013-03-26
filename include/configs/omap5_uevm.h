@@ -37,7 +37,7 @@
 
 /* TWL6035 */
 #ifndef CONFIG_SPL_BUILD
-#define CONFIG_TWL6035_POWER
+#define CONFIG_PALMAS_POWER
 #endif
 
 /* MMC ENV related defines */
