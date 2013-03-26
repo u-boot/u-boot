@@ -46,7 +46,7 @@ re_cover = re.compile('^Cover-letter:')
 re_cover_cc = re.compile('^Cover-letter-cc: *(.*)')
 
 # Patch series tag
-re_series = re.compile('^Series-(\w*): *(.*)')
+re_series = re.compile('^Series-([a-z-]*): *(.*)')
 
 # Commit tags that we want to collect and keep
 re_tag = re.compile('^(Tested-by|Acked-by|Reviewed-by|Cc): (.*)')

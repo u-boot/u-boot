@@ -28,7 +28,7 @@ import terminal
 
 # Series-xxx tags that we understand
 valid_series = ['to', 'cc', 'version', 'changes', 'prefix', 'notes', 'name',
-                'cover-cc']
+                'cover-cc', 'process_log']
 
 class Series(dict):
     """Holds information about a patch series, including all tags.
@@ -167,15 +167,20 @@ class Series(dict):
             etc.
         """
         final = []
+        process_it = self.get('process_log', '').split(',')
+        process_it = [item.strip() for item in process_it]
         need_blank = False
         for change in sorted(self.changes, reverse=True):
             out = []
             for this_commit, text in self.changes[change]:
                 if commit and this_commit != commit:
                     continue
-                out.append(text)
+                if 'uniq' not in process_it or text not in out:
+                    out.append(text)
             line = 'Changes in v%d:' % change
             have_changes = len(out) > 0
+            if 'sort' in process_it:
+                out = sorted(out)
             if have_changes:
                 out.insert(0, line)
             else:

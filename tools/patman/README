@@ -225,8 +225,15 @@ Series-changes: n
 	to update the log there and then, knowing that the script will
 	do the rest.
 
-Cc: Their Name <email>
+ Cc: Their Name <email>
 	This copies a single patch to another email address.
+
+Series-process-log: sort, uniq
+	This tells patman to sort and/or uniq the change logs. It is
+	assumed that each change log entry is only a single line long.
+	Use 'sort' to sort the entries, and 'uniq' to include only
+	unique entries. If omitted, no change log processing is done.
+	Separate each tag with a comma.
 
 Various other tags are silently removed, like these Chrome OS and
 Gerrit tags:
