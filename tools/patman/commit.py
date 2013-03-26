@@ -61,9 +61,10 @@ class Commit:
 
         Subject tags look like this:
 
-            propounder: Change the widget to propound correctly
+            propounder: fort: Change the widget to propound correctly
 
-        Multiple tags are supported. The list is updated in self.tag
+        Here the tags are propounder and fort. Multiple tags are supported.
+        The list is updated in self.tag.
 
         Returns:
             None if ok, else the name of a tag with no email alias
