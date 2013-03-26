@@ -31,6 +31,7 @@
 #include <sound.h>
 #include <asm/arch/sound.h>
 #include "wm8994.h"
+#include "max98095.h"
 
 /* defines */
 #define SOUND_400_HZ 400
@@ -149,11 +150,15 @@ static int codec_init(const void *blob, struct i2stx_info *pi2s_tx)
 			pi2s_tx->samplingrate,
 			(pi2s_tx->samplingrate * (pi2s_tx->rfs)),
 			pi2s_tx->bitspersample, pi2s_tx->channels);
+	} else if (!strcmp(codectype, "max98095")) {
+		ret = max98095_init(blob, pi2s_tx->samplingrate,
+				(pi2s_tx->samplingrate * (pi2s_tx->rfs)),
+				pi2s_tx->bitspersample);
 	} else {
-		debug("%s: Unknown code type %s\n", __func__,
-		      codectype);
+		debug("%s: Unknown codec type %s\n", __func__, codectype);
 		return -1;
 	}
+
 	if (ret) {
 		debug("%s: Codec init failed\n", __func__);
 		return -1;

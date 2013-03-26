@@ -1,5 +1,5 @@
 /*
- * SAMSUNG SMDK5250 board device tree source
+ * SAMSUNG Snow board device tree source
  *
  * Copyright (c) 2012 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
@@ -13,8 +13,8 @@
 /include/ ARCH_CPU_DTS
 
 / {
-	model = "SAMSUNG SMDK5250 board based on EXYNOS5250";
-	compatible = "samsung,smdk5250", "samsung,exynos5250";
+	model = "Google Snow";
+	compatible = "google,snow", "samsung,exynos5250";
 
 	aliases {
 		i2c0 = "/i2c@12c60000";
@@ -32,17 +32,6 @@
 		spi4 = "/spi@131b0000";
 	};
 
-	sromc@12250000 {
-		bank = <1>;
-		srom-timing = <1 9 12 1 6 1 1>;
-		width = <2>;
-		lan@5000000 {
-			compatible = "smsc,lan9215", "smsc,lan";
-			reg = <0x5000000 0x100>;
-			phy-mode = "mii";
-		};
-	};
-
 	sound@12d60000 {
 		samsung,i2s-epll-clock-frequency = <192000000>;
 		samsung,i2s-sampling-rate = <48000>;
@@ -50,13 +39,13 @@
 		samsung,i2s-channels = <2>;
 		samsung,i2s-lr-clk-framesize = <256>;
 		samsung,i2s-bit-clk-framesize = <32>;
-		samsung,codec-type = "wm8994";
+		samsung,codec-type = "max98095";
 	};
 
-	i2c@12c70000 {
-		soundcodec@1a {
-			reg = <0x1a>;
-			compatible = "wolfson,wm8994-codec";
+	i2c@12cd0000 {
+		soundcodec@22 {
+			reg = <0x22>;
+			compatible = "maxim,max98095-codec";
 		};
 	};
 
@@ -65,18 +54,5 @@
 			reg = <0x9>;
 			compatible = "maxim,max77686_pmic";
 		};
-	};
-
-	tmu@10060000 {
-		samsung,min-temp	= <25>;
-		samsung,max-temp	= <125>;
-		samsung,start-warning	= <95>;
-		samsung,start-tripping	= <105>;
-		samsung,hw-tripping	= <110>;
-		samsung,efuse-min-value	= <40>;
-		samsung,efuse-value	= <55>;
-		samsung,efuse-max-value	= <100>;
-		samsung,slope		= <274761730>;
-		samsung,dc-value	= <25>;
 	};
 };
