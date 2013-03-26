@@ -45,8 +45,8 @@
 void twl4030_power_reset_init(void)
 {
 	u8 val = 0;
-	if (twl4030_i2c_read_u8(TWL4030_CHIP_PM_MASTER, &val,
-				TWL4030_PM_MASTER_P1_SW_EVENTS)) {
+	if (twl4030_i2c_read_u8(TWL4030_CHIP_PM_MASTER,
+				TWL4030_PM_MASTER_P1_SW_EVENTS, &val)) {
 		printf("Error:TWL4030: failed to read the power register\n");
 		printf("Could not initialize hardware reset\n");
 	} else {

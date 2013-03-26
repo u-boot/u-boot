@@ -643,7 +643,7 @@ static inline int twl4030_i2c_write_u8(u8 chip_no, u8 reg, u8 val)
 	return i2c_write(chip_no, reg, 1, &val, 1);
 }
 
-static inline int twl4030_i2c_read_u8(u8 chip_no, u8 *val, u8 reg)
+static inline int twl4030_i2c_read_u8(u8 chip_no, u8 reg, u8 *val)
 {
 	return i2c_read(chip_no, reg, 1, val, 1);
 }

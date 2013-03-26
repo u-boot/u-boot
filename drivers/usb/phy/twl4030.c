@@ -66,7 +66,7 @@ static int twl4030_usb_read(u8 address)
 	u8 data;
 	int ret;
 
-	ret = twl4030_i2c_read_u8(TWL4030_CHIP_USB, &data, address);
+	ret = twl4030_i2c_read_u8(TWL4030_CHIP_USB, address, &data);
 	if (ret == 0)
 		ret = data;
 	else

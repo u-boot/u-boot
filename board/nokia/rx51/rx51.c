@@ -406,8 +406,8 @@ int misc_init_r(void)
 				TWL4030_PM_RECEIVER_DEV_GRP_P1);
 
 	/* store I2C access state */
-	twl4030_i2c_read_u8(TWL4030_CHIP_PM_MASTER, &state,
-			TWL4030_PM_MASTER_PB_CFG);
+	twl4030_i2c_read_u8(TWL4030_CHIP_PM_MASTER, TWL4030_PM_MASTER_PB_CFG,
+			    &state);
 
 	/* enable I2C access to powerbus (needed for twl4030 regulator) */
 	twl4030_i2c_write_u8(TWL4030_CHIP_PM_MASTER, TWL4030_PM_MASTER_PB_CFG,
@@ -475,8 +475,8 @@ void hw_watchdog_reset(void)
 		return;
 
 	/* read actual watchdog timeout */
-	twl4030_i2c_read_u8(TWL4030_CHIP_PM_RECEIVER, &timeout,
-			TWL4030_PM_RECEIVER_WATCHDOG_CFG);
+	twl4030_i2c_read_u8(TWL4030_CHIP_PM_RECEIVER,
+			    TWL4030_PM_RECEIVER_WATCHDOG_CFG, &timeout);
 
 	/* timeout 0 means watchdog is disabled */
 	/* reset watchdog timeout to 31s (maximum) */
@@ -531,8 +531,8 @@ int rx51_kp_init(void)
 {
 	int ret = 0;
 	u8 ctrl;
-	ret = twl4030_i2c_read_u8(TWL4030_CHIP_KEYPAD, &ctrl,
-		TWL4030_KEYPAD_KEYP_CTRL_REG);
+	ret = twl4030_i2c_read_u8(TWL4030_CHIP_KEYPAD,
+				  TWL4030_KEYPAD_KEYP_CTRL_REG, &ctrl);
 
 	if (ret)
 		return ret;
@@ -615,8 +615,8 @@ int rx51_kp_tstc(void)
 	for (i = 0; i < 2; i++) {
 
 		/* check interrupt register for events */
-		twl4030_i2c_read_u8(TWL4030_CHIP_KEYPAD, &intr,
-				TWL4030_KEYPAD_KEYP_ISR1+(2*i));
+		twl4030_i2c_read_u8(TWL4030_CHIP_KEYPAD,
+				    TWL4030_KEYPAD_KEYP_ISR1 + (2 * i), &intr);
 
 		/* no event */
 		if (!(intr&1))
