@@ -20,6 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
+#ifndef PALMAS_H
+#define PALMAS_H
 
 #include <common.h>
 #include <i2c.h>
@@ -52,3 +54,5 @@ static inline int palmas_i2c_read_u8(u8 chip_no, u8 reg, u8 *val)
 
 void palmas_init_settings(void);
 int palmas_mmc1_poweron_ldo(void);
+
+#endif /* PALMAS_H */
