@@ -23,28 +23,6 @@
 #include <config.h>
 #include <palmas.h>
 
-/* Functions to read and write from TWL6030 */
-int twl6035_i2c_write_u8(u8 chip_no, u8 val, u8 reg)
-{
-	return i2c_write(chip_no, reg, 1, &val, 1);
-}
-
-int twl6035_i2c_read_u8(u8 chip_no, u8 *val, u8 reg)
-{
-	return i2c_read(chip_no, reg, 1, val, 1);
-}
-
-/* To align with i2c mw/mr address, reg, val command syntax */
-static inline int palmas_write_u8(u8 chip_no, u8 reg, u8 val)
-{
-	return i2c_write(chip_no, reg, 1, &val, 1);
-}
-
-static inline int palmas_read_u8(u8 chip_no, u8 reg, u8 *val)
-{
-	return i2c_read(chip_no, reg, 1, val, 1);
-}
-
 void palmas_init_settings(void)
 {
 	return;
@@ -57,7 +35,7 @@ int palmas_mmc1_poweron_ldo(void)
 	/* set LDO9 TWL6035 to 3V */
 	val = 0x2b; /* (3 -.9)*28 +1 */
 
-	if (palmas_write_u8(0x48, LDO9_VOLTAGE, val)) {
+	if (palmas_i2c_write_u8(0x48, LDO9_VOLTAGE, val)) {
 		printf("twl6035: could not set LDO9 voltage.\n");
 		return 1;
 	}
@@ -65,7 +43,7 @@ int palmas_mmc1_poweron_ldo(void)
 	/* TURN ON LDO9 */
 	val = LDO_ON | LDO_MODE_SLEEP | LDO_MODE_ACTIVE;
 
-	if (palmas_write_u8(0x48, LDO9_CTRL, val)) {
+	if (palmas_i2c_write_u8(0x48, LDO9_CTRL, val)) {
 		printf("twl6035: could not turn on LDO9.\n");
 		return 1;
 	}

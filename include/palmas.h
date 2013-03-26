@@ -36,7 +36,19 @@
 #define LDO_MODE_SLEEP		(1 << 2)
 #define LDO_MODE_ACTIVE		(1 << 0)
 
-int twl6035_i2c_write_u8(u8 chip_no, u8 val, u8 reg);
-int twl6035_i2c_read_u8(u8 chip_no, u8 *val, u8 reg);
+/*
+ * Functions to read and write from TPS659038/TWL6035/TWL6037
+ * or other Palmas family of TI PMICs
+ */
+static inline int palmas_i2c_write_u8(u8 chip_no, u8 reg, u8 val)
+{
+	return i2c_write(chip_no, reg, 1, &val, 1);
+}
+
+static inline int palmas_i2c_read_u8(u8 chip_no, u8 reg, u8 *val)
+{
+	return i2c_read(chip_no, reg, 1, val, 1);
+}
+
 void palmas_init_settings(void);
 int palmas_mmc1_poweron_ldo(void);
