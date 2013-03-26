@@ -45,7 +45,7 @@ static inline int palmas_read_u8(u8 chip_no, u8 reg, u8 *val)
 	return i2c_read(chip_no, reg, 1, val, 1);
 }
 
-void twl6035_init_settings(void)
+void palmas_init_settings(void)
 {
 	return;
 }

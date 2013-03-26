@@ -38,5 +38,5 @@
 
 int twl6035_i2c_write_u8(u8 chip_no, u8 val, u8 reg);
 int twl6035_i2c_read_u8(u8 chip_no, u8 *val, u8 reg);
-void twl6035_init_settings(void);
+void palmas_init_settings(void);
 int twl6035_mmc1_poweron_ldo(void);

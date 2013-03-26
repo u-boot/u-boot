@@ -64,7 +64,7 @@ int board_eth_init(bd_t *bis)
 int misc_init_r(void)
 {
 #ifdef CONFIG_PALMAS_POWER
-	twl6035_init_settings();
+	palmas_init_settings();
 #endif
 	return 0;
 }
