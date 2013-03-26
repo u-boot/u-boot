@@ -68,7 +68,7 @@ will get a consistent result each time.
 How to configure it
 ===================
 
-For most cases of using patman for U-Boot developement patman will
+For most cases of using patman for U-Boot development, patman will
 locate and use the file 'doc/git-mailrc' in your U-Boot directory.
 This contains most of the aliases you will need.
 
