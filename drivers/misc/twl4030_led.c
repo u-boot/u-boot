@@ -42,7 +42,7 @@ void twl4030_led_init(unsigned char ledon_mask)
 	if (ledon_mask & TWL4030_LED_LEDEN_LEDBON)
 		ledon_mask |= TWL4030_LED_LEDEN_LEDBPWM;
 
-	twl4030_i2c_write_u8(TWL4030_CHIP_LED, ledon_mask,
-			     TWL4030_LED_LEDEN);
+	twl4030_i2c_write_u8(TWL4030_CHIP_LED, TWL4030_LED_LEDEN,
+			     ledon_mask);
 
 }

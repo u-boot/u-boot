@@ -493,17 +493,17 @@ static void setup_net_chip_gmpc(void)
 static void reset_net_chip(void)
 {
 	/* Set GPIO1 of TPS65930 as output */
-	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, 0x02,
-				TWL4030_BASEADD_GPIO + 0x03);
+	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, TWL4030_BASEADD_GPIO + 0x03,
+			     0x02);
 	/* Send a pulse on the GPIO pin */
-	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, 0x02,
-				TWL4030_BASEADD_GPIO + 0x0C);
+	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, TWL4030_BASEADD_GPIO + 0x0C,
+			     0x02);
 	udelay(1);
-	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, 0x02,
-				TWL4030_BASEADD_GPIO + 0x09);
+	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, TWL4030_BASEADD_GPIO + 0x09,
+			     0x02);
 	mdelay(40);
-	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, 0x02,
-				TWL4030_BASEADD_GPIO + 0x0C);
+	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, TWL4030_BASEADD_GPIO + 0x0C,
+			     0x02);
 	mdelay(1);
 }
 #else
@@ -600,10 +600,10 @@ int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 	twl4030_i2c_read_u8(TWL4030_CHIP_GPIO, &val, offset);
 	/* Set GPIO6 and GPIO7 of TPS65930 as output */
 	val |= 0xC0;
-	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, val, offset);
+	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, offset, val);
 	offset = TWL4030_BASEADD_GPIO + TWL4030_GPIO_SETGPIODATAOUT1;
 	/* Take both PHYs out of reset */
-	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, 0xC0, offset);
+	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, offset, 0xC0);
 	udelay(1);
 
 	return omap_ehci_hcd_init(&usbhs_bdata, hccr, hcor);
