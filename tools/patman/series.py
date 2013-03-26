@@ -210,7 +210,7 @@ class Series(dict):
             str = 'Change log exists, but no version is set'
             print col.Color(col.RED, str)
 
-    def MakeCcFile(self, process_tags, cover_fname):
+    def MakeCcFile(self, process_tags, cover_fname, raise_on_error):
         """Make a cc file for us to use for per-commit Cc automation
 
         Also stores in self._generated_cc to make ShowActions() faster.
@@ -218,6 +218,8 @@ class Series(dict):
         Args:
             process_tags: Process tags as if they were aliases
             cover_fname: If non-None the name of the cover letter.
+            raise_on_error: True to raise an error when an alias fails to match,
+                False to just print a message.
         Return:
             Filename of temp file created
         """
@@ -228,8 +230,10 @@ class Series(dict):
         for commit in self.commits:
             list = []
             if process_tags:
-                list += gitutil.BuildEmailList(commit.tags)
-            list += gitutil.BuildEmailList(commit.cc_list)
+                list += gitutil.BuildEmailList(commit.tags,
+                                               raise_on_error=raise_on_error)
+            list += gitutil.BuildEmailList(commit.cc_list,
+                                           raise_on_error=raise_on_error)
             list += get_maintainer.GetMaintainer(commit.patch)
             all_ccs += list
             print >>fd, commit.patch, ', '.join(list)

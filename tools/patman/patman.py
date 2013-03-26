@@ -57,7 +57,9 @@ parser.add_option('-r', '--in-reply-to', type='string', action='store',
                   help="Message ID that this series is in reply to")
 parser.add_option('-s', '--start', dest='start', type='int',
        default=0, help='Commit to start creating patches from (0 = HEAD)')
-parser.add_option('-t', '--test', action='store_true', dest='test',
+parser.add_option('-t', '--ignore-bad-tags', action='store_true',
+                  default=False, help='Ignore bad tags / aliases')
+parser.add_option('--test', action='store_true', dest='test',
                   default=False, help='run tests')
 parser.add_option('-v', '--verbose', action='store_true', dest='verbose',
        default=False, help='Verbose output of errors and warnings')
@@ -159,13 +161,15 @@ else:
             options.count + options.start):
         ok = False
 
-    cc_file = series.MakeCcFile(options.process_tags, cover_fname)
+    cc_file = series.MakeCcFile(options.process_tags, cover_fname,
+                                not options.ignore_bad_tags)
 
     # Email the patches out (giving the user time to check / cancel)
     cmd = ''
     if ok or options.ignore_errors:
         cmd = gitutil.EmailPatches(series, cover_fname, args,
-                options.dry_run, cc_file, in_reply_to=options.in_reply_to)
+                options.dry_run, not options.ignore_bad_tags, cc_file,
+                in_reply_to=options.in_reply_to)
 
     # For a dry run, just show our actions as a sanity check
     if options.dry_run:
