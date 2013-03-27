@@ -65,6 +65,7 @@ int tegra_get_chip_type(void)
 		break;
 	case CHIPID_TEGRA30:
 		switch (tegra_sku_id) {
+		case SKU_ID_T33:
 		case SKU_ID_T30:
 			return TEGRA_SOC_T30;
 		}
