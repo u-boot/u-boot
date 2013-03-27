@@ -23,12 +23,20 @@ int timer_init(void)
 	return 0;
 }
 
-ulong get_timer(ulong base)
+ulong get_timer_us(ulong base)
 {
 	struct bcm2835_timer_regs *regs =
 		(struct bcm2835_timer_regs *)BCM2835_TIMER_PHYSADDR;
 
 	return readl(&regs->clo) - base;
+}
+
+ulong get_timer(ulong base)
+{
+	ulong us = get_timer_us(0);
+	us /= (1000000 / CONFIG_SYS_HZ);
+	us -= base;
+	return us;
 }
 
 unsigned long long get_ticks(void)
@@ -46,10 +54,10 @@ void __udelay(unsigned long usec)
 	ulong endtime;
 	signed long diff;
 
-	endtime = get_timer(0) + usec;
+	endtime = get_timer_us(0) + usec;
 
 	do {
-		ulong now = get_timer(0);
+		ulong now = get_timer_us(0);
 		diff = endtime - now;
 	} while (diff >= 0);
 }
