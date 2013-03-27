@@ -254,11 +254,6 @@ int board_eth_init(bd_t *bis)
 	return 0;
 }
 
-u32 get_board_rev(void)
-{
-	return 0x63000;
-}
-
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
