@@ -122,6 +122,31 @@ static struct descriptor {
 #define ehci_is_TDI()	(0)
 #endif
 
+int __ehci_get_port_speed(struct ehci_hcor *hcor, uint32_t reg)
+{
+	return PORTSC_PSPD(reg);
+}
+
+int ehci_get_port_speed(struct ehci_hcor *hcor, uint32_t reg)
+	__attribute__((weak, alias("__ehci_get_port_speed")));
+
+void __ehci_set_usbmode(int index)
+{
+	uint32_t tmp;
+	uint32_t *reg_ptr;
+
+	reg_ptr = (uint32_t *)((u8 *)&ehcic[index].hcor->or_usbcmd + USBMODE);
+	tmp = ehci_readl(reg_ptr);
+	tmp |= USBMODE_CM_HC;
+#if defined(CONFIG_EHCI_MMIO_BIG_ENDIAN)
+	tmp |= USBMODE_BE;
+#endif
+	ehci_writel(reg_ptr, tmp);
+}
+
+void ehci_set_usbmode(int index)
+	__attribute__((weak, alias("__ehci_set_usbmode")));
+
 void __ehci_powerup_fixup(uint32_t *status_reg, uint32_t *reg)
 {
 	mdelay(50);
@@ -149,8 +174,6 @@ static int handshake(uint32_t *ptr, uint32_t mask, uint32_t done, int usec)
 static int ehci_reset(int index)
 {
 	uint32_t cmd;
-	uint32_t tmp;
-	uint32_t *reg_ptr;
 	int ret = 0;
 
 	cmd = ehci_readl(&ehcic[index].hcor->or_usbcmd);
@@ -163,15 +186,8 @@ static int ehci_reset(int index)
 		goto out;
 	}
 
-	if (ehci_is_TDI()) {
-		reg_ptr = (uint32_t *)((u8 *)ehcic[index].hcor + USBMODE);
-		tmp = ehci_readl(reg_ptr);
-		tmp |= USBMODE_CM_HC;
-#if defined(CONFIG_EHCI_MMIO_BIG_ENDIAN)
-		tmp |= USBMODE_BE;
-#endif
-		ehci_writel(reg_ptr, tmp);
-	}
+	if (ehci_is_TDI())
+		ehci_set_usbmode(index);
 
 #ifdef CONFIG_USB_EHCI_TXFIFO_THRESH
 	cmd = ehci_readl(&ehcic[index].hcor->or_txfilltuning);
@@ -711,7 +727,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 			tmpbuf[1] |= USB_PORT_STAT_POWER >> 8;
 
 		if (ehci_is_TDI()) {
-			switch (PORTSC_PSPD(reg)) {
+			switch (ehci_get_port_speed(ctrl->hcor, reg)) {
 			case PORTSC_PSPD_FS:
 				break;
 			case PORTSC_PSPD_LS:
