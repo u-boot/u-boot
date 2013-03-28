@@ -468,27 +468,6 @@ static unsigned long exynos4x12_get_pwm_clk(void)
 	return pclk;
 }
 
-/* exynos5: return pwm clock frequency */
-static unsigned long exynos5_get_pwm_clk(void)
-{
-	struct exynos5_clock *clk =
-		(struct exynos5_clock *)samsung_get_base_clock();
-	unsigned long pclk, sclk;
-	unsigned int ratio;
-
-	/*
-	 * CLK_DIV_PERIC3
-	 * PWM_RATIO [3:0]
-	 */
-	ratio = readl(&clk->div_peric3);
-	ratio = ratio & 0xf;
-	sclk = get_pll_clk(MPLL);
-
-	pclk = sclk / (ratio + 1);
-
-	return pclk;
-}
-
 /* exynos4: return uart clock frequency */
 static unsigned long exynos4_get_uart_clk(int dev_index)
 {
