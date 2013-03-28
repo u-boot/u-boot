@@ -90,6 +90,21 @@ unsigned long get_timer(unsigned long base)
 	return gd->arch.timer_reset_value / 1000 - base;
 }
 
+unsigned long timer_get_us(void)
+{
+	static unsigned long base_time_us;
+
+	struct s5p_timer *const timer =
+		(struct s5p_timer *)samsung_get_base_timer();
+	unsigned long now_downward_us = readl(&timer->tcnto4);
+
+	if (!base_time_us)
+		base_time_us = now_downward_us;
+
+	/* Note that this timer counts downward. */
+	return base_time_us - now_downward_us;
+}
+
 /* delay x useconds */
 void __udelay(unsigned long usec)
 {
