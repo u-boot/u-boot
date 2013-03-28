@@ -58,7 +58,7 @@ int timer_init(void)
 {
 	/* PWM Timer 4 */
 	pwm_init(4, MUX_DIV_4, 0);
-	pwm_config(4, 0, 0);
+	pwm_config(4, 100000, 100000);
 	pwm_enable(4);
 
 	/* Use this as the current monotonic time in us */
