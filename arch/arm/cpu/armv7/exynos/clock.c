@@ -1354,7 +1354,7 @@ unsigned long get_i2c_clk(void)
 unsigned long get_pwm_clk(void)
 {
 	if (cpu_is_exynos5())
-		return exynos5_get_pwm_clk();
+		return clock_get_periph_rate(PERIPH_ID_PWM0);
 	else {
 		if (proid_is_exynos4412())
 			return exynos4x12_get_pwm_clk();
