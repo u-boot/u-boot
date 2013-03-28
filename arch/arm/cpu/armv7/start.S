@@ -253,11 +253,9 @@ ENTRY(c_runtime_cpu_setup)
 /*
  * Move vector table
  */
-#if !defined(CONFIG_TEGRA)
 	/* Set vector address in CP15 VBAR register */
 	ldr     r0, =_start
 	mcr     p15, 0, r0, c12, c0, 0  @Set VBAR
-#endif /* !Tegra */
 
 	bx	lr
 
