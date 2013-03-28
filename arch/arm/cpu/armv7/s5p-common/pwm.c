@@ -70,7 +70,7 @@ static unsigned long pwm_calc_tin(int pwm_id, unsigned long freq)
 	return tin_parent_rate / 16;
 }
 
-#define NS_IN_HZ (1000000000UL)
+#define NS_IN_SEC 1000000000UL
 
 int pwm_config(int pwm_id, int duty_ns, int period_ns)
 {
@@ -79,7 +79,7 @@ int pwm_config(int pwm_id, int duty_ns, int period_ns)
 	unsigned int offset;
 	unsigned long tin_rate;
 	unsigned long tin_ns;
-	unsigned long period;
+	unsigned long frequency;
 	unsigned long tcon;
 	unsigned long tcnt;
 	unsigned long tcmp;
@@ -89,33 +89,23 @@ int pwm_config(int pwm_id, int duty_ns, int period_ns)
 	 * fact that anything faster than 1GHz is easily representable
 	 * by 32bits.
 	 */
-	if (period_ns > NS_IN_HZ || duty_ns > NS_IN_HZ)
+	if (period_ns > NS_IN_SEC || duty_ns > NS_IN_SEC || period_ns == 0)
 		return -ERANGE;
 
 	if (duty_ns > period_ns)
 		return -EINVAL;
 
-	period = NS_IN_HZ / period_ns;
+	frequency = NS_IN_SEC / period_ns;
 
 	/* Check to see if we are changing the clock rate of the PWM */
-	tin_rate = pwm_calc_tin(pwm_id, period);
+	tin_rate = pwm_calc_tin(pwm_id, frequency);
 
-	tin_ns = NS_IN_HZ / tin_rate;
+	tin_ns = NS_IN_SEC / tin_rate;
 	tcnt = period_ns / tin_ns;
 
 	/* Note, counters count down */
 	tcmp = duty_ns / tin_ns;
 	tcmp = tcnt - tcmp;
-
-	/*
-	 * the pwm hw only checks the compare register after a decrement,
-	 * so the pin never toggles if tcmp = tcnt
-	 */
-	if (tcmp == tcnt)
-		tcmp--;
-
-	if (tcmp < 0)
-		tcmp = 0;
 
 	/* Update the PWM register block. */
 	offset = pwm_id * 3;
