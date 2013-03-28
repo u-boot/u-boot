@@ -30,6 +30,7 @@
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/gpio.h>
+#include <atmel_mci.h>
 
 #if defined(CONFIG_RESET_PHY_R) && defined(CONFIG_MACB)
 # include <net.h>
@@ -140,6 +141,15 @@ static void at91sam9260ek_macb_hw_init(void)
 
 	/* Initialize EMAC=MACB hardware */
 	at91_macb_hw_init();
+}
+#endif
+
+#ifdef CONFIG_GENERIC_ATMEL_MCI
+int board_mmc_init(bd_t *bd)
+{
+	at91_mci_hw_init();
+
+	return atmel_mci_init((void *)ATMEL_BASE_MCI);
 }
 #endif
 
