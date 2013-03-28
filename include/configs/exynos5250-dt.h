@@ -118,6 +118,11 @@
 #define CONFIG_BOOTDELAY		3
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 
+/* Thermal Management Unit */
+#define CONFIG_EXYNOS_TMU
+#define CONFIG_CMD_DTT
+#define CONFIG_TMU_CMD_DTT
+
 /* USB */
 #define CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
@@ -297,6 +302,7 @@
 #ifdef CONFIG_CMD_SOUND
 #define CONFIG_SOUND
 #define CONFIG_I2S
+#define CONFIG_SOUND_MAX98095
 #define CONFIG_SOUND_WM8994
 #endif
 

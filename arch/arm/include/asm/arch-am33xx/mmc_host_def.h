@@ -24,4 +24,9 @@
 #define OMAP_HSMMC1_BASE		0x48060100
 #define OMAP_HSMMC2_BASE		0x481D8100
 
+#if defined(CONFIG_TI814X)
+#undef MMC_CLOCK_REFERENCE
+#define MMC_CLOCK_REFERENCE	192 /* MHz */
+#endif
+
 #endif /* MMC_HOST_DEF_H */

@@ -25,6 +25,7 @@
 #include <asm/io.h>
 #include <asm/errno.h>
 #include <asm/arch/mem.h>
+#include <asm/arch/cpu.h>
 #include <asm/arch/omap_gpmc.h>
 #include <linux/mtd/nand_ecc.h>
 #include <linux/compiler.h>

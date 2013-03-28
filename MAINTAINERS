@@ -833,6 +833,10 @@ Stelian Pop <stelian@popies.net>
 	at91sam9263ek	ARM926EJS (AT91SAM9263 SoC)
 	at91sam9rlek	ARM926EJS (AT91SAM9RL SoC)
 
+Matt Porter <mporter@ti.com>
+
+	ti814x_evm	ARM ARMV7 (TI814x Soc)
+
 Dave Purdy <david.c.purdy@gmail.com>
 
 	pogo_e02	ARM926EJS (Kirkwood SoC)
@@ -909,6 +913,10 @@ Matt Sealey <matt@genesi-usa.com>
 
 Bo Shen <voice.shen@atmel.com>
 	at91sam9x5ek		ARM926EJS (AT91SAM9G15,G25,G35,X25,X35 SoC)
+
+Rajeshwari Shinde <rajeshwari.s@samsung.com>
+
+	snow			ARM ARMV7 (EXYNOS5250 SoC)
 
 Michal Simek <monstr@monstr.eu>
 

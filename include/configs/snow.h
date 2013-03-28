@@ -1,5 +1,8 @@
 /*
- * Copyright (c) 2011 The Chromium OS Authors.
+ * Copyright (C) 2013 Samsung Electronics
+ *
+ * Configuration settings for the SAMSUNG EXYNOS5 Snow board.
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -10,7 +13,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -19,28 +22,12 @@
  * MA 02111-1307 USA
  */
 
-#ifndef _UART_SPI_SWITCH_H
-#define _UART_SPI_SWITCH_H
+#ifndef __CONFIG_SNOW_H
+#define __CONFIG_SNOW_H
 
-#if defined(CONFIG_SPI_UART_SWITCH)
-/*
- * Signal that we are about to use the UART. This unfortunate hack is
- * required by Seaboard, which cannot use its console and SPI at the same
- * time! If the board file provides this, the board config will declare it.
- * Let this be a lesson for others.
- */
-void pinmux_select_uart(void);
+#include <configs/exynos5250-dt.h>
 
-/*
- * Signal that we are about the use the SPI bus.
- */
-void pinmux_select_spi(void);
+#undef CONFIG_DEFAULT_DEVICE_TREE
+#define CONFIG_DEFAULT_DEVICE_TREE	exynos5250-snow
 
-#else /* not CONFIG_SPI_UART_SWITCH */
-
-static inline void pinmux_select_uart(void) {}
-static inline void pinmux_select_spi(void) {}
-
-#endif
-
-#endif
+#endif	/* __CONFIG_SNOW_H */

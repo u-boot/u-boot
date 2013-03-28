@@ -83,7 +83,7 @@ void gpmc_init(void)
 	/* global settings */
 	writel(0x00000008, &gpmc_cfg->sysconfig);
 	writel(0x00000100, &gpmc_cfg->irqstatus);
-	writel(0x00000200, &gpmc_cfg->irqenable);
+	writel(0x00000100, &gpmc_cfg->irqenable);
 	writel(0x00000012, &gpmc_cfg->config);
 	/*
 	 * Disable the GPMC0 config set by ROM code

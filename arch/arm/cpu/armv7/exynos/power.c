@@ -95,3 +95,48 @@ void set_dp_phy_ctrl(unsigned int enable)
 	if (cpu_is_exynos5())
 		exynos5_dp_phy_control(enable);
 }
+
+static void exynos5_set_ps_hold_ctrl(void)
+{
+	struct exynos5_power *power =
+		(struct exynos5_power *)samsung_get_base_power();
+
+	/* Set PS-Hold high */
+	setbits_le32(&power->ps_hold_control,
+			EXYNOS_PS_HOLD_CONTROL_DATA_HIGH);
+}
+
+void set_ps_hold_ctrl(void)
+{
+	if (cpu_is_exynos5())
+		exynos5_set_ps_hold_ctrl();
+}
+
+
+static void exynos5_set_xclkout(void)
+{
+	struct exynos5_power *power =
+		(struct exynos5_power *)samsung_get_base_power();
+
+	/* use xxti for xclk out */
+	clrsetbits_le32(&power->pmu_debug, PMU_DEBUG_CLKOUT_SEL_MASK,
+				PMU_DEBUG_XXTI);
+}
+
+void set_xclkout(void)
+{
+	if (cpu_is_exynos5())
+		exynos5_set_xclkout();
+}
+
+/* Enables hardware tripping to power off the system when TMU fails */
+void set_hw_thermal_trip(void)
+{
+	if (cpu_is_exynos5()) {
+		struct exynos5_power *power =
+			(struct exynos5_power *)samsung_get_base_power();
+
+		/* PS_HOLD_CONTROL register ENABLE_HW_TRIP bit*/
+		setbits_le32(&power->ps_hold_control, POWER_ENABLE_HW_TRIP);
+	}
+}

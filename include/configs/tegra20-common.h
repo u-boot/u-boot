@@ -28,6 +28,7 @@
 /*
  * Errata configuration
  */
+#define CONFIG_ARM_ERRATA_716044
 #define CONFIG_ARM_ERRATA_742230
 #define CONFIG_ARM_ERRATA_751472
 

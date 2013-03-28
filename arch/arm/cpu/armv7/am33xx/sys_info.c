@@ -98,6 +98,9 @@ int print_cpuinfo(void)
 	case AM335X:
 		cpu_s = "AM335X";
 		break;
+	case TI81XX:
+		cpu_s = "TI81XX";
+		break;
 	default:
 		cpu_s = "Unknown cpu type";
 		break;
@@ -120,7 +123,7 @@ int print_cpuinfo(void)
 		sec_s = "?";
 	}
 
-	printf("AM%s-%s rev %d\n",
+	printf("%s-%s rev %d\n",
 			cpu_s, sec_s, get_cpu_rev());
 
 	/* TODO: Print ARM and DDR frequencies  */

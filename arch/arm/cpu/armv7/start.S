@@ -254,7 +254,6 @@ ENTRY(c_runtime_cpu_setup)
 #if !defined(CONFIG_TEGRA)
 	/* Set vector address in CP15 VBAR register */
 	ldr     r0, =_start
-	add     r0, r0, r9
 	mcr     p15, 0, r0, c12, c0, 0  @Set VBAR
 #endif /* !Tegra */
 
@@ -309,6 +308,12 @@ ENTRY(cpu_init_cp15)
 	orr	r0, r0, #0x00001000	@ set bit 12 (I) I-cache
 #endif
 	mcr	p15, 0, r0, c1, c0, 0
+
+#ifdef CONFIG_ARM_ERRATA_716044
+	mrc	p15, 0, r0, c1, c0, 0	@ read system control register
+	orr	r0, r0, #1 << 11	@ set bit #11
+	mcr	p15, 0, r0, c1, c0, 0	@ write system control register
+#endif
 
 #ifdef CONFIG_ARM_ERRATA_742230
 	mrc	p15, 0, r0, c15, c0, 1	@ read diagnostic register

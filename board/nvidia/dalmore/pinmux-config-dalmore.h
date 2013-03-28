@@ -361,4 +361,10 @@ static struct pingroup_config tegra114_pinmux_set_nontristate[] = {
 
 	DEFAULT_PINMUX(SDMMC3_CD_N,     SDMMC3, UP,       NORMAL,   INPUT),
 };
+
+static struct padctrl_config dalmore_padctrl[] = {
+	/* (_padgrp, _slwf, _slwr, _drvup, _drvdn, _lpmd, _schmt, _hsm) */
+	DEFAULT_PADCFG(SDIO3, SDIOCFG_DRVUP_SLWF, SDIOCFG_DRVDN_SLWR, \
+		SDIOCFG_DRVUP, SDIOCFG_DRVDN, NONE, NONE, NONE),
+};
 #endif /* PINMUX_CONFIG_COMMON_H */

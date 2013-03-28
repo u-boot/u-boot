@@ -74,4 +74,10 @@ struct apb_misc_gp_ctlr {
 	u32	aocfg0;		/* 0x1AC: APB_MISC_GP_AOCFG0PADCTRL */
 };
 
+/* SDMMC1/3 settings from section 27.5 of T114 TRM */
+#define SDIOCFG_DRVUP_SLWF	0
+#define SDIOCFG_DRVDN_SLWR	0
+#define SDIOCFG_DRVUP		0x24
+#define SDIOCFG_DRVDN		0x14
+
 #endif	/* _TEGRA114_GP_PADCTRL_H_ */
