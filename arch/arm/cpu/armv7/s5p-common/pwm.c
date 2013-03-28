@@ -143,7 +143,7 @@ int pwm_init(int pwm_id, int div, int invert)
 	u32 val;
 	const struct s5p_timer *pwm =
 			(struct s5p_timer *)samsung_get_base_timer();
-	unsigned long timer_rate_hz;
+	unsigned long ticks_per_period;
 	unsigned int offset, prescaler;
 
 	/*
@@ -167,20 +167,24 @@ int pwm_init(int pwm_id, int div, int invert)
 	val |= (div & 0xf) << MUX_DIV_SHIFT(pwm_id);
 	writel(val, &pwm->tcfg1);
 
-	timer_rate_hz = get_pwm_clk() / ((prescaler + 1) *
-			(div + 1));
+	if (pwm_id == 4) {
+		/*
+		 * TODO(sjg): Use this as a countdown timer for now. We count
+		 * down from the maximum value to 0, then reset.
+		 */
+		ticks_per_period = -1UL;
+	} else {
+		const unsigned long pwm_hz = 1000;
+		unsigned long timer_rate_hz = get_pwm_clk() /
+			((prescaler + 1) * (1 << div));
 
-	timer_rate_hz = timer_rate_hz / CONFIG_SYS_HZ;
+		ticks_per_period = timer_rate_hz / pwm_hz;
+	}
 
 	/* set count value */
 	offset = pwm_id * 3;
 
-	/*
-	 * TODO(sjg): Use this as a countdown timer for now. We count down
-	 * from the maximum value to 0, then reset.
-	 */
-	timer_rate_hz = -1;
-	writel(timer_rate_hz, &pwm->tcntb0 + offset);
+	writel(ticks_per_period, &pwm->tcntb0 + offset);
 
 	val = readl(&pwm->tcon) & ~(0xf << TCON_OFFSET(pwm_id));
 	if (invert && (pwm_id < 4))
