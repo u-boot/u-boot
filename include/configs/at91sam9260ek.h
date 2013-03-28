@@ -223,7 +223,7 @@
 				"mtdparts=atmel_nand:-(root) "		\
 				"rw rootfstype=jffs2"
 
-#else /* CONFIG_SYS_USE_NANDFLASH */
+#elif defined(CONFIG_SYS_USE_NANDFLASH)
 
 /* bootstrap + u-boot + env + linux in nandflash */
 #define CONFIG_ENV_IS_IN_NAND	1
@@ -238,6 +238,22 @@
 	"512k(dtb),6M(kernel)ro,-(rootfs) "				\
 	"root=/dev/mtdblock7 rw rootfstype=jffs2"
 
+#else	/* CONFIG_SYS_USE_MMC */
+/* bootstrap + u-boot + env + linux in mmc */
+#define CONFIG_ENV_IS_IN_MMC
+/* For FAT system, most cases it should be in the reserved sector */
+#define CONFIG_ENV_OFFSET		0x2000
+#define CONFIG_ENV_SIZE			0x1000
+#define CONFIG_SYS_MMC_ENV_DEV		0
+
+#define CONFIG_BOOTCOMMAND						\
+	"fatload mmc 0:1 0x22000000 uImage; bootm"
+#define CONFIG_BOOTARGS							\
+	"console=ttyS0,115200 earlyprintk "				\
+	"mtdparts=atmel_nand:256k(bootstrap)ro,512k(uboot)ro,"		\
+	"256k(env),256k(env_redundant),256k(spare),"			\
+	"512k(dtb),6M(kernel)ro,-(rootfs) "				\
+	"root=/dev/mmcblk0p2 rw rootfstype=ext4 rootwait"
 #endif
 
 #define CONFIG_SYS_PROMPT		"U-Boot> "
