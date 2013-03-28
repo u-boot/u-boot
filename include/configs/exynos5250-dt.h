@@ -330,4 +330,7 @@
 #define LCD_BPP			LCD_COLOR16
 #endif
 
+/* Enable Time Command */
+#define CONFIG_CMD_TIME
+
 #endif	/* __CONFIG_H */
