@@ -23,17 +23,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* Global variables that lcd.c expects to exist */
-int lcd_line_length;
-int lcd_color_fg;
-int lcd_color_bg;
-void *lcd_base;
-void *lcd_console_address;
-short console_col;
-short console_row;
 vidinfo_t panel_info;
-char lcd_cursor_enabled;
-ushort lcd_cursor_width;
-ushort lcd_cursor_height;
 
 struct msg_query {
 	struct bcm2835_mbox_hdr hdr;
@@ -119,7 +109,6 @@ void lcd_ctrl_init(void *lcdbase)
 	panel_info.vl_bpix = LCD_COLOR16;
 
 	gd->fb_base = msg_setup->allocate_buffer.body.resp.fb_address;
-	lcd_base = (void *)gd->fb_base;
 }
 
 void lcd_enable(void)

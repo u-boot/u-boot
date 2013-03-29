@@ -493,6 +493,18 @@ static int lcd_init(void *lcdbase)
 	debug("[LCD] Initializing LCD frambuffer at %p\n", lcdbase);
 
 	lcd_ctrl_init(lcdbase);
+
+	/*
+	 * lcd_ctrl_init() of some drivers (i.e. bcm2835 on rpi_b) ignores
+	 * the 'lcdbase' argument and uses custom lcd base address
+	 * by setting up gd->fb_base. Check for this condition and fixup
+	 * 'lcd_base' address.
+	 */
+	if ((unsigned long)lcdbase != gd->fb_base)
+		lcd_base = (void *)gd->fb_base;
+
+	debug("[LCD] Using LCD frambuffer at %p\n", lcd_base);
+
 	lcd_get_size(&lcd_line_length);
 	lcd_line_length = (panel_info.vl_col * NBITS(panel_info.vl_bpix)) / 8;
 	lcd_is_enabled = 1;
