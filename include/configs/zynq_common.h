@@ -288,6 +288,7 @@
 #define CONFIG_FIT		1
 #define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
 
+#define CONFIG_CMD_BOOTZ
 #undef CONFIG_BOOTM_NETBSD
 
 /* FIXME this should be removed pretty soon */
