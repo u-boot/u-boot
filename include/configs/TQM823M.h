@@ -39,6 +39,7 @@
 #define	CONFIG_SYS_TEXT_BASE	0x40000000
 
 #ifdef	CONFIG_LCD			/* with LCD controller ?	*/
+#define CONFIG_MPC8XX_LCD
 /* #define CONFIG_NEC_NL6448BC20 1 / * use NEC NL6448BC20 display	*/
 #endif
 

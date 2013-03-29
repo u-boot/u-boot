@@ -38,6 +38,7 @@
 /* SC85T,SC860T, FEL8xx-AT(855T/860T) */
 /*#define CONFIG_FEL8xx_AT */
 /*#define CONFIG_LCD */
+/*#define CONFIG_MPC8XX_LCD*/
 /* if core > 50MHz , un-comment CONFIG_BUS_DIV2 */
 /* #define CONFIG_50MHz */
 /* #define CONFIG_66MHz */

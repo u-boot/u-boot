@@ -29,16 +29,6 @@
 #include <lcd.h>
 #include <atmel_hlcdc.h>
 
-int lcd_line_length;
-int lcd_color_fg;
-int lcd_color_bg;
-
-void *lcd_base;				/* Start of framebuffer memory	*/
-void *lcd_console_address;		/* Start of console buffer	*/
-
-short console_col;
-short console_row;
-
 /* configurable parameters */
 #define ATMEL_LCDC_CVAL_DEFAULT		0xc8
 #define ATMEL_LCDC_DMA_BURST_LEN	8

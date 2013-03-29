@@ -381,14 +381,6 @@ static enum display_type env_parse_displaytype(char *displaytype)
 	return NONE;
 }
 
-int lcd_line_length;
-int lcd_color_fg;
-int lcd_color_bg;
-void *lcd_base;
-short console_col;
-short console_row;
-void *lcd_console_address;
-
 void lcd_ctrl_init(void *lcdbase)
 {
 	struct prcm *prcm = (struct prcm *)PRCM_BASE;
