@@ -51,7 +51,9 @@ struct menu;
  * menu_create() - Creates a menu handle with default settings
  */
 struct menu *menu_create(char *title, int timeout, int prompt,
-				void (*item_data_print)(void *));
+				void (*item_data_print)(void *),
+				char *(*item_choice)(void *),
+				void *item_choice_data);
 
 /*
  * menu_item_add() - Adds or replaces a menu item
@@ -62,6 +64,11 @@ int menu_item_add(struct menu *m, char *item_key, void *item_data);
  * menu_default_set() - Sets the default choice for the menu
  */
 int menu_default_set(struct menu *m, char *item_key);
+
+/*
+ * menu_default_choice() - Set *choice to point to the default item's data
+ */
+int menu_default_choice(struct menu *m, void **choice);
 
 /*
  * menu_get_choice() - Returns the user's selected menu entry, or the
