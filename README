@@ -1938,15 +1938,15 @@ CBFS (Coreboot Filesystem) support
 
 		I2C_READ
 
-		Code that returns TRUE if the I2C data line is high,
-		FALSE if it is low.
+		Code that returns true if the I2C data line is high,
+		false if it is low.
 
 		eg: #define I2C_READ ((immr->im_cpm.cp_pbdat & PB_SDA) != 0)
 
 		I2C_SDA(bit)
 
-		If <bit> is TRUE, sets the I2C data line high. If it
-		is FALSE, it clears it (low).
+		If <bit> is true, sets the I2C data line high. If it
+		is false, it clears it (low).
 
 		eg: #define I2C_SDA(bit) \
 			if(bit) immr->im_cpm.cp_pbdat |=  PB_SDA; \
@@ -1954,8 +1954,8 @@ CBFS (Coreboot Filesystem) support
 
 		I2C_SCL(bit)
 
-		If <bit> is TRUE, sets the I2C clock line high. If it
-		is FALSE, it clears it (low).
+		If <bit> is true, sets the I2C clock line high. If it
+		is false, it clears it (low).
 
 		eg: #define I2C_SCL(bit) \
 			if(bit) immr->im_cpm.cp_pbdat |=  PB_SCL; \

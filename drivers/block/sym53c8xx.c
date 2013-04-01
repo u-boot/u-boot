@@ -764,9 +764,9 @@ int scsi_exec(ccb *pccb)
 retry:
 	scsi_issue(pccb);
 	if(pccb->contr_stat!=SIR_COMPLETE)
-		return FALSE;
+		return false;
 	if(pccb->status==S_GOOD)
-		return TRUE;
+		return true;
 	if(pccb->status==S_CHECK_COND) { /* check condition */
 		for(i=0;i<16;i++)
 			tmpcmd[i]=pccb->cmd[i];
@@ -797,12 +797,12 @@ retry:
 			case SENSE_NO_SENSE:
 			case SENSE_RECOVERED_ERROR:
 				/* seems to be ok */
-				return TRUE;
+				return true;
 				break;
 			case SENSE_NOT_READY:
 				if((pccb->sense_buf[12]!=0x04)||(pccb->sense_buf[13]!=0x01)) {
 					/* if device is not in process of becoming ready */
-					return FALSE;
+					return false;
 					break;
 				} /* else fall through */
 			case SENSE_UNIT_ATTENTION:
@@ -814,13 +814,13 @@ retry:
 					goto retry;
 				}
 				PRINTF("Target %d not ready, %d retried\n",pccb->target,retrycnt);
-				return FALSE;
+				return false;
 			default:
-				return FALSE;
+				return false;
 		}
 	}
 	PRINTF("Status = %X\n",pccb->status);
-	return FALSE;
+	return false;
 }
 
 

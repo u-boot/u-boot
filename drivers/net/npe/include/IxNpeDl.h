@@ -637,7 +637,7 @@ ixNpeDlMicrocodeImageLibraryOverride (UINT32 *clientImageLibrary);
  * @param imageIdPtr @ref IxNpeDlImageId* [in] - Pointer to Id of the microcode
  *                                              image to download.
  * @param verify BOOL [in]     - ON/OFF option to verify the download. If ON
- *                               (verify == TRUE), the Downloader will read back
+ *                               (verify == true), the Downloader will read back
  *                               each word written to the NPE registers to
  *                               ensure the download operation was successful.
  *

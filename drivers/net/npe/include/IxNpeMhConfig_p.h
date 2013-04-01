@@ -110,7 +110,7 @@ typedef struct
     UINT32 inFifoRegister;      /**< inFIFO register virutal address */
     UINT32 outFifoRegister;     /**< outFIFO register virtual address */
     IxNpeMhConfigIsr isr;   /**< isr routine for handling interrupt */
-    BOOL oldInterruptState; /**< old interrupt state (TRUE => enabled) */
+    BOOL oldInterruptState; /**< old interrupt state (true => enabled) */
 } IxNpeMhConfigNpeInfo;
 
 
@@ -250,7 +250,7 @@ void ixNpeMhConfigIsrRegister (
  * @param IxNpeMhNpeId npeId (in) - the ID of the NPE whose interrupt will
  * be enabled.
  *
- * @return Returns the previous state of the interrupt (TRUE => enabled).
+ * @return Returns the previous state of the interrupt (true => enabled).
  */
 
 BOOL ixNpeMhConfigNpeInterruptEnable (
@@ -265,7 +265,7 @@ BOOL ixNpeMhConfigNpeInterruptEnable (
  * @param IxNpeMhNpeId npeId (in) - the ID of the NPE whose interrupt will
  * be disabled.
  *
- * @return Returns the previous state of the interrupt (TRUE => enabled).
+ * @return Returns the previous state of the interrupt (true => enabled).
  */
 
 BOOL ixNpeMhConfigNpeInterruptDisable (
@@ -293,7 +293,7 @@ IxNpeMhMessageId ixNpeMhConfigMessageIdGet (
  *
  * @param IxNpeMhNpeId npeId (in) - the NPE ID to validate.
  *
- * @return True if the NPE ID is valid, otherwise False.
+ * @return true if the NPE ID is valid, otherwise false.
  */
 
 BOOL ixNpeMhConfigNpeIdIsValid (
@@ -340,7 +340,7 @@ void ixNpeMhConfigLockRelease (
  * @param IxNpeMhNpeId npeId (in) - The ID of the NPE for which the inFIFO
  * will be checked.
  *
- * @return True if the inFIFO is empty, otherwise False.
+ * @return true if the inFIFO is empty, otherwise false.
  */
 
 IXNPEMHCONFIG_INLINE BOOL ixNpeMhConfigInFifoIsEmpty (
@@ -355,7 +355,7 @@ IXNPEMHCONFIG_INLINE BOOL ixNpeMhConfigInFifoIsEmpty (
  * @param IxNpeMhNpeId npeId (in) - The ID of the NPE for which the inFIFO
  * will be checked.
  *
- * @return True if the inFIFO is full, otherwise False.
+ * @return true if the inFIFO is full, otherwise false.
  */
 
 IXNPEMHCONFIG_INLINE BOOL ixNpeMhConfigInFifoIsFull (
@@ -370,7 +370,7 @@ IXNPEMHCONFIG_INLINE BOOL ixNpeMhConfigInFifoIsFull (
  * @param IxNpeMhNpeId npeId (in) - The ID of the NPE for which the outFIFO
  * will be checked.
  *
- * @return True if the outFIFO is empty, otherwise False.
+ * @return true if the outFIFO is empty, otherwise false.
  */
 
 IXNPEMHCONFIG_INLINE BOOL ixNpeMhConfigOutFifoIsEmpty (
@@ -385,7 +385,7 @@ IXNPEMHCONFIG_INLINE BOOL ixNpeMhConfigOutFifoIsEmpty (
  * @param IxNpeMhNpeId npeId (in) - The ID of the NPE for which the outFIFO
  * will be checked.
  *
- * @return True if the outFIFO is full, otherwise False.
+ * @return true if the outFIFO is full, otherwise false.
  */
 
 IXNPEMHCONFIG_INLINE BOOL ixNpeMhConfigOutFifoIsFull (

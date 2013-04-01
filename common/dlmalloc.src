@@ -198,7 +198,7 @@
   MORECORE_FAILURE          (default: -1)
      The value returned upon failure of MORECORE.
   MORECORE_CLEARS           (default 1)
-     True (1) if the routine mapped to MORECORE zeroes out memory (which
+     true (1) if the routine mapped to MORECORE zeroes out memory (which
      holds for sbrk).
   DEFAULT_TRIM_THRESHOLD
   DEFAULT_TOP_PAD

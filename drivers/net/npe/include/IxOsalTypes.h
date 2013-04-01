@@ -107,22 +107,6 @@ typedef volatile INT32 VINT32;
  */
 #define IX_OSAL_BILLION (1000000000)
 
-#ifndef TRUE
-#define TRUE       1L
-#endif
-
-#if TRUE != 1
-#error TRUE is not defined to 1
-#endif
-
-#ifndef FALSE
-#define FALSE      0L
-#endif
-
-#if FALSE != 0
-#error FALSE is not defined to 0
-#endif
-
 #ifndef NULL
 #define NULL       0L
 #endif

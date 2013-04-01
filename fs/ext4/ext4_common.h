@@ -44,8 +44,6 @@
 
 #define YES		1
 #define NO		0
-#define TRUE		1
-#define FALSE		0
 #define RECOVER	1
 #define SCAN		0
 

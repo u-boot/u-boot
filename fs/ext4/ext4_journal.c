@@ -37,7 +37,7 @@
 
 static struct revoke_blk_list *revk_blk_list;
 static struct revoke_blk_list *prev_node;
-static int first_node = TRUE;
+static int first_node = true;
 
 int gindex;
 int gd_index;
@@ -268,10 +268,10 @@ void ext4fs_push_revoke_blk(char *buffer)
 		return;
 	memcpy(node->content, buffer, fs->blksz);
 
-	if (first_node == TRUE) {
+	if (first_node == true) {
 		revk_blk_list = node;
 		prev_node = node;
-		 first_node = FALSE;
+		 first_node = false;
 	} else {
 		prev_node->next = node;
 		prev_node = node;
@@ -298,7 +298,7 @@ void ext4fs_free_revoke_blks(void)
 
 	revk_blk_list = NULL;
 	prev_node = NULL;
-	first_node = TRUE;
+	first_node = true;
 }
 
 int check_blknr_for_revoke(long int blknr, int sequence_no)

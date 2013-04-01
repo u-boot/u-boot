@@ -898,7 +898,7 @@ ixSspAccTxFIFOIntDisable (
  *
  * @brief Enables/disables the loopback mode
  *
- * @param "BOOL [in] loopbackEnable" - True to enable and false to disable.
+ * @param "BOOL [in] loopbackEnable" - true to enable and false to disable.
  *
  * Global Data	:
  *		- None.

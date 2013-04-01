@@ -105,8 +105,8 @@ UINT32 ixEthDBKeyXORHash(void *key)
  * collisions, i.e. descriptors with different mac addresses and the same
  * hash value, where this function is used to differentiate entries.
  *
- * @retval TRUE if the entry matches the reference key (equal addresses)
- * @retval FALSE if the entry does not match the reference key
+ * @retval true if the entry matches the reference key (equal addresses)
+ * @retval false if the entry does not match the reference key
  *
  * @internal
  */

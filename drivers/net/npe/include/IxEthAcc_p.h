@@ -92,7 +92,7 @@
 #define IX_ETH_ACC_PUBLIC
 
 
-#define IX_ETH_ACC_IS_PORT_VALID(port) ((port) <  IX_ETH_ACC_NUMBER_OF_PORTS  ? TRUE : FALSE )
+#define IX_ETH_ACC_IS_PORT_VALID(port) ((port) <  IX_ETH_ACC_NUMBER_OF_PORTS  ? true : false )
 
 
 
@@ -286,7 +286,7 @@ extern IxEthAccPortDataInfo  ixEthAccPortData[];
 #define IX_ETH_IS_PORT_INITIALIZED(port) (ixEthAccPortData[port].portInitialized)
 
 extern BOOL ixEthAccServiceInit;
-#define IX_ETH_ACC_IS_SERVICE_INITIALIZED() (ixEthAccServiceInit == TRUE )
+#define IX_ETH_ACC_IS_SERVICE_INITIALIZED() (ixEthAccServiceInit == true )
 
 /* 
  * Maximum number of frames to consume from the Rx Frame Q.

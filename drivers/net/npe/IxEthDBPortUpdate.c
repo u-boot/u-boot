@@ -60,7 +60,7 @@ extern HashTable dbHashtable;
  *
  * @param typeArray array indexed on record types, each
  * element indicating whether the record type requires an
- * automatic update (TRUE) or not (FALSE)
+ * automatic update (true) or not (false)
  * 
  * Automatic updates are done for registered record types
  * upon adding, updating (that is, updating the record portID) 
@@ -70,7 +70,7 @@ extern HashTable dbHashtable;
  *
  * It is assumed that the typeArray parameter is allocated large
  * enough to hold all the user defined types. Also, the type
- * array should be initialized to FALSE as this function only
+ * array should be initialized to false as this function only
  * caters for types which do require automatic updates.
  *
  * Note that this function should be called by the component
@@ -84,8 +84,8 @@ extern HashTable dbHashtable;
 IX_ETH_DB_PUBLIC
 UINT32 ixEthDBUpdateTypeRegister(BOOL *typeArray)
 {
-    typeArray[IX_ETH_DB_FILTERING_RECORD]      = TRUE;
-    typeArray[IX_ETH_DB_FILTERING_VLAN_RECORD] = TRUE;
+    typeArray[IX_ETH_DB_FILTERING_RECORD]      = true;
+    typeArray[IX_ETH_DB_FILTERING_VLAN_RECORD] = true;
 
     return 2;
 }
@@ -174,7 +174,7 @@ void ixEthDBCreateTrees(IxEthDBPortMap updatePorts)
 {
     UINT32 portIndex;
     BOOL result;
-    BOOL portsLeft = TRUE;
+    BOOL portsLeft = true;
 
     while (portsLeft)
     {
@@ -305,11 +305,11 @@ void ixEthDBCreateTrees(IxEthDBPortMap updatePorts)
             }
 
             /* mark tree as valid */
-            port->updateMethod.searchTreePendingWrite = TRUE;
+            port->updateMethod.searchTreePendingWrite = true;
         }
         else
         {
-            portsLeft = FALSE;
+            portsLeft = false;
 
             IX_ETH_DB_UPDATE_TRACE("DB: (Update) No trees to create this round\n");            
         }
@@ -374,7 +374,7 @@ IxEthDBStatus ixEthDBNPEUpdateHandler(IxEthDBPortId portID, IxEthDBRecordType ty
 
     /* forget last used search tree */
     port->updateMethod.searchTree             = NULL;
-    port->updateMethod.searchTreePendingWrite = FALSE;
+    port->updateMethod.searchTreePendingWrite = false;
 
     /* dependending on the update type we do different things */
     if (type == IX_ETH_DB_FILTERING_RECORD || type == IX_ETH_DB_WIFI_RECORD)
@@ -393,9 +393,9 @@ IxEthDBStatus ixEthDBNPEUpdateHandler(IxEthDBPortId portID, IxEthDBRecordType ty
         }
         else
         {
-            ixEthDBPortInfo[portID].agingEnabled                = FALSE;
-            ixEthDBPortInfo[portID].updateMethod.updateEnabled  = FALSE;
-            ixEthDBPortInfo[portID].updateMethod.userControlled = TRUE;
+            ixEthDBPortInfo[portID].agingEnabled                = false;
+            ixEthDBPortInfo[portID].updateMethod.updateEnabled  = false;
+            ixEthDBPortInfo[portID].updateMethod.userControlled = true;
 
             ERROR_LOG("EthDB: (PortUpdate) disabling aging and updates on port %d (assumed dead)\n", portID);
 

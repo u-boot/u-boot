@@ -1281,8 +1281,8 @@ ixPerfProfAccXcycleResultsGet (
  * Check if Xcycle measuring task is running. 
  *
  * @return 
- *      - TRUE - Xcycle is running  
- *      - FALSE - Xcycle is not running  
+ *      - true - Xcycle is running
+ *      - false - Xcycle is not running
  *              
  * @li   Reentrant    : no
  * @li   ISR Callable : no

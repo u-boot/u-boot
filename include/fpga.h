@@ -31,14 +31,6 @@
 #define CONFIG_MAX_FPGA_DEVICES		5
 #endif
 
-/* these probably belong somewhere else */
-#ifndef FALSE
-#define FALSE			(0)
-#endif
-#ifndef TRUE
-#define TRUE			(!FALSE)
-#endif
-
 /* CONFIG_FPGA bit assignments */
 #define CONFIG_SYS_FPGA_MAN(x)		(x)
 #define CONFIG_SYS_FPGA_DEV(x)		((x) << 8 )

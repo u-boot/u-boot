@@ -60,7 +60,7 @@ IxEthDBStatus ixEthDBFilteringStaticEntryProvision(IxEthDBPortId portID, IxEthDB
     
     IX_ETH_DB_CHECK_FEATURE(portID, IX_ETH_DB_LEARNING);
 
-    return ixEthDBTriggerAddPortUpdate(macAddr, portID, TRUE);
+    return ixEthDBTriggerAddPortUpdate(macAddr, portID, true);
 }
     
 IX_ETH_DB_PUBLIC
@@ -74,7 +74,7 @@ IxEthDBStatus ixEthDBFilteringDynamicEntryProvision(IxEthDBPortId portID, IxEthD
 
     IX_ETH_DB_CHECK_FEATURE(portID, IX_ETH_DB_LEARNING);
 
-    return ixEthDBTriggerAddPortUpdate(macAddr, portID, FALSE);
+    return ixEthDBTriggerAddPortUpdate(macAddr, portID, false);
 }
 
 IX_ETH_DB_PUBLIC
@@ -102,7 +102,7 @@ void ixEthDBDatabaseMaintenance()
 {
     HashIterator iterator;
     UINT32 portIndex;
-    BOOL agingRequired = FALSE;
+    BOOL agingRequired = false;
 
     /* ports who will have deleted records and therefore will need updating */
     IxEthDBPortMap triggerPorts;
@@ -120,7 +120,7 @@ void ixEthDBDatabaseMaintenance()
     {
         if (ixEthDBPortInfo[portIndex].agingEnabled && ixEthDBPortInfo[portIndex].enabled)
         {
-            agingRequired = TRUE;
+            agingRequired = true;
         }
     }
 
@@ -152,9 +152,9 @@ void ixEthDBDatabaseMaintenance()
                 }
                 else
                 {
-                    ixEthDBPortInfo[portIndex].agingEnabled                = FALSE;
-                    ixEthDBPortInfo[portIndex].updateMethod.updateEnabled  = FALSE;
-                    ixEthDBPortInfo[portIndex].updateMethod.userControlled = TRUE;
+                    ixEthDBPortInfo[portIndex].agingEnabled                = false;
+                    ixEthDBPortInfo[portIndex].updateMethod.updateEnabled  = false;
+                    ixEthDBPortInfo[portIndex].updateMethod.userControlled = true;
 
                     ixOsalLog(IX_OSAL_LOG_LVL_FATAL,
                         IX_OSAL_LOG_DEV_STDOUT, 
@@ -173,7 +173,7 @@ void ixEthDBDatabaseMaintenance()
         {
             MacDescriptor *descriptor = (MacDescriptor *) iterator.node->data;
             UINT32 *age               = NULL;
-            BOOL staticEntry          = TRUE;
+            BOOL staticEntry          = true;
 
             if (descriptor->type == IX_ETH_DB_FILTERING_RECORD)
             {
@@ -187,10 +187,10 @@ void ixEthDBDatabaseMaintenance()
             }
             else
             {
-                staticEntry = TRUE;
+                staticEntry = true;
             }
 
-            if (ixEthDBPortInfo[descriptor->portID].agingEnabled && (staticEntry == FALSE))
+            if (ixEthDBPortInfo[descriptor->portID].agingEnabled && (staticEntry == false))
             {
                 /* manually increment the age if the port has no such capability */
                 if ((ixEthDBPortDefinitions[descriptor->portID].capabilities & IX_ETH_ENTRY_AGING) == 0)
@@ -341,7 +341,7 @@ IxEthDBStatus ixEthDBPortAgingDisable(IxEthDBPortId portID)
 
     IX_ETH_DB_CHECK_FEATURE(portID, IX_ETH_DB_LEARNING);
 
-    ixEthDBPortInfo[portID].agingEnabled = FALSE;
+    ixEthDBPortInfo[portID].agingEnabled = false;
 
     return IX_ETH_DB_SUCCESS;
 }
@@ -355,7 +355,7 @@ IxEthDBStatus ixEthDBPortAgingEnable(IxEthDBPortId portID)
 
     IX_ETH_DB_CHECK_FEATURE(portID, IX_ETH_DB_LEARNING);
 
-    ixEthDBPortInfo[portID].agingEnabled = TRUE;
+    ixEthDBPortInfo[portID].agingEnabled = true;
 
     return IX_ETH_DB_SUCCESS;
 }
@@ -442,7 +442,7 @@ IxEthDBStatus ixEthDBPortUpdateEnableSet(IxEthDBPortId portID, BOOL enableUpdate
     IX_ETH_DB_CHECK_FEATURE(portID, IX_ETH_DB_FILTERING);
 
     ixEthDBPortInfo[portID].updateMethod.updateEnabled  = enableUpdate;
-    ixEthDBPortInfo[portID].updateMethod.userControlled = TRUE;
+    ixEthDBPortInfo[portID].updateMethod.userControlled = true;
 
     return IX_ETH_DB_SUCCESS;
 }

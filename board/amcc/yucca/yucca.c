@@ -47,9 +47,6 @@ void fpga_init (void);
 #define DEBUGF(fmt,args...)
 #endif
 
-#define FALSE	0
-#define TRUE	1
-
 int board_early_init_f (void)
 {
 /*----------------------------------------------------------------------------+

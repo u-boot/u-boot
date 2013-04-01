@@ -77,8 +77,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #undef SDRAM_DEBUG
 #define ENABLE_ECC /* for ecc boards */
-#define FALSE           0
-#define TRUE            1
 
 /* stdlib.h causes some compatibility problems; should fixe these! -- wd */
 #ifndef __ldiv_t_defined
@@ -771,7 +769,8 @@ int last_stage_init (void)
 
 int overwrite_console (void)
 {
-	return ((in8 (PLD_EXT_CONF_REG) & 0x1)==0);	/* return TRUE if console should be overwritten */
+	/* return true if console should be overwritten */
+	return ((in8(PLD_EXT_CONF_REG) & 0x1) == 0);
 }
 
 

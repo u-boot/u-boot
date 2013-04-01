@@ -50,7 +50,7 @@ extern HashTable dbHashtable;
  * @param untypedReference record to match against
  * @param untypedEntry record to match
  *
- * @return TRUE if the match is successful or FALSE otherwise
+ * @return true if the match is successful or false otherwise
  *
  * @internal
  */
@@ -61,7 +61,7 @@ BOOL ixEthDBAddressRecordMatch(void *untypedReference, void *untypedEntry)
     MacDescriptor *reference = (MacDescriptor *) untypedReference;
     
     /* check accepted record types */
-    if ((entry->type & reference->type) == 0) return FALSE;
+    if ((entry->type & reference->type) == 0) return false;
        
     return (ixEthDBAddressCompare((UINT8 *) entry->macAddress, (UINT8 *) reference->macAddress) == 0);
 }
@@ -73,7 +73,7 @@ BOOL ixEthDBAddressRecordMatch(void *untypedReference, void *untypedEntry)
  * @param untypedReference record to match against
  * @param untypedEntry record to match
  *
- * @return TRUE if the match is successful or FALSE otherwise
+ * @return true if the match is successful or false otherwise
  *
  * @internal
  */
@@ -84,7 +84,7 @@ BOOL ixEthDBVlanRecordMatch(void *untypedReference, void *untypedEntry)
     MacDescriptor *reference = (MacDescriptor *) untypedReference;
     
     /* check accepted record types */
-    if ((entry->type & reference->type) == 0) return FALSE;
+    if ((entry->type & reference->type) == 0) return false;
     
     return (IX_ETH_DB_GET_VLAN_ID(entry->recordData.filteringVlanData.ieee802_1qTag) ==
         IX_ETH_DB_GET_VLAN_ID(reference->recordData.filteringVlanData.ieee802_1qTag)) &&
@@ -98,7 +98,7 @@ BOOL ixEthDBVlanRecordMatch(void *untypedReference, void *untypedEntry)
  * @param untypedReference record to match against
  * @param untypedEntry record to match
  *
- * @return TRUE if the match is successful or FALSE otherwise
+ * @return true if the match is successful or false otherwise
  *
  * @internal
  */
@@ -109,7 +109,7 @@ BOOL ixEthDBPortRecordMatch(void *untypedReference, void *untypedEntry)
     MacDescriptor *reference = (MacDescriptor *) untypedReference;
     
     /* check accepted record types */
-    if ((entry->type & reference->type) == 0) return FALSE;
+    if ((entry->type & reference->type) == 0) return false;
     
     return (entry->portID == reference->portID) &&
         (ixEthDBAddressCompare(entry->macAddress, reference->macAddress) == 0);
@@ -125,7 +125,7 @@ BOOL ixEthDBPortRecordMatch(void *untypedReference, void *untypedEntry)
  * array on invalid types. Calling it will display an 
  * error message, indicating an error in the component logic.
  *
- * @return FALSE
+ * @return false
  *
  * @internal
  */
@@ -137,7 +137,7 @@ BOOL ixEthDBNullMatch(void *reference, void *entry)
     ixOsalLog(IX_OSAL_LOG_LVL_WARNING, IX_OSAL_LOG_DEV_STDOUT, "DB: (Search) The NullMatch function was called, wrong key type?\n", 0, 0, 0, 0, 0, 0);
 
 
-    return FALSE;
+    return false;
 }
 
 /**

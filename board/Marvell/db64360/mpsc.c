@@ -966,7 +966,7 @@ static int galmpsc_set_snoop (int mpsc, int value)
 *       None.
 *
 * RETURN:
-*       True for success, false otherwise.
+*       true for success, false otherwise.
 *
 *******************************************************************************/
 

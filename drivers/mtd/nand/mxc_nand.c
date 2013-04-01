@@ -29,8 +29,6 @@
 
 #define DRIVER_NAME "mxc_nand"
 
-typedef enum {false, true} bool;
-
 struct mxc_nand_host {
 	struct mtd_info			mtd;
 	struct nand_chip		*nand;

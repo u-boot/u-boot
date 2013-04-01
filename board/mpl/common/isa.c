@@ -41,13 +41,6 @@
 #define PRINTF(fmt,args...)
 #endif
 
-#ifndef	TRUE
-#define TRUE            1
-#endif
-#ifndef FALSE
-#define FALSE           0
-#endif
-
 #if defined(CONFIG_PIP405)
 
 extern int drv_isa_kbd_init (void);
@@ -116,9 +109,9 @@ unsigned char open_cfg_super_IO(int address)
 	out8(CONFIG_SYS_ISA_IO_BASE_ADDRESS | address,0x55); /* open config */
 	out8(CONFIG_SYS_ISA_IO_BASE_ADDRESS | address,0x20); /* set address to DEV ID */
 	if(in8(CONFIG_SYS_ISA_IO_BASE_ADDRESS | address | 0x1)==0x40) /* ok Device ID is correct */
-		return TRUE;
+		return true;
 	else
-		return FALSE;
+		return false;
 }
 
 void close_cfg_super_IO(int address)
@@ -179,7 +172,7 @@ void isa_sio_loadtable(void)
 
 void isa_sio_setup(void)
 {
-	if(open_cfg_super_IO(SIO_CFG_PORT)==TRUE)
+	if (open_cfg_super_IO(SIO_CFG_PORT) == true)
 	{
 		isa_sio_loadtable();
 		close_cfg_super_IO(0x3F0);

@@ -204,12 +204,4 @@ int scsi_get_disk_count(void);
 
 #define SCSI_INT_STATE				 0x00010000  /* unknown Interrupt number is stored in 16 LSB */
 
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-#ifndef FALSE
-#define FALSE 0
-#endif
-
 #endif /* _SCSI_H */

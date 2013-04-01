@@ -182,7 +182,7 @@ void fpga_selectmap_init (void)
 {
 	PRINTF ("%s:%d: Initialize SelectMap interface\n", __FUNCTION__,
 		__LINE__);
-	fpga_pgm_fn (FALSE, FALSE, 0);	/* make sure program pin is inactive */
+	fpga_pgm_fn(false, false, 0);	/* make sure program pin is inactive */
 }
 
 
@@ -314,7 +314,7 @@ int fpga_abort_fn (int cookie)
 int fpga_pre_config_fn (int cookie)
 {
 	PRINTF ("%s:%d: FPGA pre-configuration\n", __FUNCTION__, __LINE__);
-	fpga_reset (TRUE);
+	fpga_reset(true);
 	return 0;
 }
 
@@ -328,9 +328,9 @@ int fpga_post_config_fn (int cookie)
 	int rc;
 
 	PRINTF ("%s:%d: FPGA post configuration\n", __FUNCTION__, __LINE__);
-	fpga_reset (TRUE);
+	fpga_reset(true);
 	udelay (1000);
-	fpga_reset (FALSE);
+	fpga_reset(false);
 	udelay (1000);
 
 	/*

@@ -52,10 +52,6 @@
 /* Length of the BIOS image */
 #define MAX_BIOSLEN	    (128 * 1024L)
 
-/* Define some useful types and macros */
-#define true		    1
-#define false		    0
-
 /* Place to save PCI BAR's that we change and later restore */
 static u32 saveROMBaseAddress;
 static u32 saveBaseAddress10;
@@ -242,7 +238,7 @@ pcidev	- PCI device info for the video card on the bus to boot
 VGAInfo - BIOS emulator VGA info structure
 
 RETURNS:
-True if successfully initialised, false if not.
+true if successfully initialised, false if not.
 
 REMARKS:
 Loads and POST's the display controllers BIOS, directly from the BIOS
@@ -295,7 +291,7 @@ static int PCI_postController(pci_dev_t pcidev, BE_VGAInfo * VGAInfo)
 PARAMETERS:
 pcidev	    - PCI device info for the video card on the bus to boot
 pVGAInfo    - Place to return VGA info structure is requested
-cleanUp	    - True to clean up on exit, false to leave emulator active
+cleanUp	    - true to clean up on exit, false to leave emulator active
 
 REMARKS:
 Boots the PCI/AGP video card on the bus using the Video ROM BIOS image
