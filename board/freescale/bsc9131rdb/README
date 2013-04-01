@@ -89,10 +89,14 @@ NAND boot
 Building U-boot
 --------------
 To build the u-boot for BSC9131RDB:
-1. NAND Flash
+1. NAND Flash with sysclk 66MHz(J16 on RDB closed, default)
 	make BSC9131RDB_NAND
-2. SPI Flash
+2. NAND Flash with sysclk 100MHz(J16 on RDB open)
+	make BSC9131RDB_NAND_SYSCLK100
+3. SPI Flash with sysclk 66MHz(J16 on RDB closed, default)
 	make BSC9131RDB_SPIFLASH
+4. SPI Flash with sysclk 100MHz(J16 on RDB open)
+	make BSC9131RDB_SPIFLASH_SYSCLK100
 
 Memory map
 -----------
