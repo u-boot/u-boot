@@ -143,6 +143,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
 	"console=ttyO2,115200n8\0" \
+	"fdt_high=0xffffffff\0" \
 	"usbtty=cdc_acm\0" \
 	"vram=16M\0" \
 	"mmcdev=0\0" \
