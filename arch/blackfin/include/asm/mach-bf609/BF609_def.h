@@ -128,6 +128,9 @@
 #define EMAC0_MACCFG      0xFFC20000 /* EMAC0 MAC Configuration Register */
 #define EMAC1_MACCFG      0xFFC22000 /* EMAC1 MAC Configuration Register */
 
+#define SPI0_REGBASE      0xFFC40400 /* SPI0 Base Address */
+#define SPI1_REGBASE      0xFFC40500 /* SPI1 Base Address */
+
 #define DMA10_DSCPTR_NXT  0xFFC05000 /* DMA10 Pointer to Next Initial Desc */
 #define DMA10_ADDRSTART   0xFFC05004 /* DMA10 Start Address of Current Buf */
 #define DMA10_CFG         0xFFC05008 /* DMA10 Configuration Register */
