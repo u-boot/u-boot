@@ -557,4 +557,7 @@ void clock_init(void)
 	debug("PLLP = %d\n", pll_rate[CLOCK_ID_PERIPH]);
 	debug("PLLC = %d\n", pll_rate[CLOCK_ID_CGENERAL]);
 	debug("PLLX = %d\n", pll_rate[CLOCK_ID_XCPU]);
+
+	/* Do any special system timer/TSC setup */
+	arch_timer_init();
 }

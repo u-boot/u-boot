@@ -19,6 +19,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/sysctr.h>
 #include <asm/arch/tegra.h>
 #include <asm/arch-tegra/clk_rst.h>
 #include <asm/arch-tegra/timer.h>
@@ -652,4 +653,25 @@ void clock_early_init(void)
 	/* PLLD_MISC: Set CLKENABLE, CPCON 12, LFCON 1 */
 	writel(0x40000C10, &clkrst->crc_pll[CLOCK_ID_DISPLAY].pll_misc);
 	udelay(2);
+}
+
+void arch_timer_init(void)
+{
+	struct sysctr_ctlr *sysctr = (struct sysctr_ctlr *)NV_PA_TSC_BASE;
+	u32 freq, val;
+
+	freq = clock_get_rate(CLOCK_ID_OSC);
+	debug("%s: osc freq is %dHz [0x%08X]\n", __func__, freq, freq);
+
+	/* ARM CNTFRQ */
+	asm("mcr p15, 0, %0, c14, c0, 0\n" : : "r" (freq));
+
+	/* Only T114 has the System Counter regs */
+	debug("%s: setting CNTFID0 to 0x%08X\n", __func__, freq);
+	writel(freq, &sysctr->cntfid0);
+
+	val = readl(&sysctr->cntcr);
+	val |= TSC_CNTCR_ENABLE | TSC_CNTCR_HDBG;
+	writel(val, &sysctr->cntcr);
+	debug("%s: TSC CNTCR = 0x%08X\n", __func__, val);
 }
