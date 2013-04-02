@@ -130,11 +130,15 @@ IRQ_STACK_START_IN:
 reset:
 	bl	save_boot_params
 	/*
-	 * set the cpu to SVC32 mode
+	 * disable interrupts (FIQ and IRQ), also set the cpu to SVC32 mode,
+	 * except if in HYP mode already
 	 */
 	mrs	r0, cpsr
-	bic	r0, r0, #0x1f
-	orr	r0, r0, #0xd3
+	and	r1, r0, #0x1f		@ mask mode bits
+	teq	r1, #0x1a		@ test for HYP mode
+	bicne	r0, r0, #0x1f		@ clear all mode bits
+	orrne	r0, r0, #0x13		@ set SVC mode
+	orr	r0, r0, #0xc0		@ disable FIQ and IRQ
 	msr	cpsr,r0
 
 /*
