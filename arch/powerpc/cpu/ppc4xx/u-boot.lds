@@ -96,6 +96,7 @@ SECTIONS
   . = ALIGN(256);
   __init_end = .;
 
+#ifndef CONFIG_SPL
 #ifdef CONFIG_440
   .bootpg RESET_VECTOR_ADDRESS - 0xffc :
   {
@@ -132,6 +133,7 @@ SECTIONS
 #if (RESET_VECTOR_ADDRESS == 0xfffffffc)
   . |= 0x10;
 #endif
+#endif /* CONFIG_SPL */
 
   __bss_start = .;
   .bss (NOLOAD)       :
