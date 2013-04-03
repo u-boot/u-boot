@@ -31,13 +31,16 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 #include <asm/arch/bits.h>
 #include <asm/arch/omap2420.h>
 
+#define TIMER_CLOCK	(CONFIG_SYS_CLK_FREQ / (2 << CONFIG_SYS_PTV))
 #define TIMER_LOAD_VAL 0
 
 /* macro to read the 32 bit timer */
-#define READ_TIMER (*((volatile ulong *)(CONFIG_SYS_TIMERBASE+TCRR)))
+#define READ_TIMER	readl(CONFIG_SYS_TIMERBASE+TCRR) \
+			/ (TIMER_CLOCK / CONFIG_SYS_HZ)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -99,7 +102,8 @@ ulong get_timer_masked (void)
 		gd->arch.tbl += (now - gd->arch.lastinc);
 	} else {
 		/* we have rollover of incrementer */
-		gd->arch.tbl += (0xFFFFFFFF - gd->arch.lastinc) + now;
+		gd->arch.tbl += ((0xFFFFFFFF / (TIMER_CLOCK / CONFIG_SYS_HZ))
+				 - gd->arch.lastinc) + now;
 	}
 	gd->arch.lastinc = now;
 	return gd->arch.tbl;

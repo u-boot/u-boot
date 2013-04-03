@@ -190,7 +190,7 @@
 
 #define CONFIG_SYS_TIMERBASE		OMAP2420_GPT2
 #define CONFIG_SYS_PTV			V_PTV	/* 2^(PTV+1) */
-#define CONFIG_SYS_HZ			((CONFIG_SYS_CLK_FREQ)/(2 << CONFIG_SYS_PTV))
+#define CONFIG_SYS_HZ			1000
 
 /*-----------------------------------------------------------------------
  * Physical Memory Map
