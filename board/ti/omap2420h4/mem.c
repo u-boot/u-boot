@@ -200,19 +200,6 @@ void do_sdrc_init(u32 offset, u32 early)
 
 	__asm__ __volatile__("": : :"memory");  /* limit compiler scope */
 
-	/* u-boot is compiled to run in DDR or SRAM at 8xxxxxxx or 4xxxxxxx.
-	 * If we are running in flash prior to relocation and we use data
-	 * here which is not pc relative we need to get the address correct.
-	 * We need to find the current flash mapping to dress up the initial
-	 * pointer load.  As long as this is const data we should be ok.
-	 */
-	if((early) && running_in_flash()){
-		sdata = (sdrc_data_t *)(((u32)sdata & 0x0003FFFF) | get_gpmc0_base());
-		/* NOR internal boot offset is 0x4000 from xloader signature */
-		if(running_from_internal_boot())
-			sdata = (sdrc_data_t *)((u32)sdata + 0x4000);
-	}
-
 	if (!early && (((mtype = get_mem_type()) == DDR_COMBO)||(mtype == DDR_STACKED))) {
 		if(mtype == DDR_COMBO){
 			pmask = BIT2;/* combo part has a shared CKE signal, can't use feature */

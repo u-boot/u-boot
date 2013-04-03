@@ -212,9 +212,9 @@
 # define H4_CS1_BASE           0x04000000  /* debug board */
 # define H4_CS2_BASE           0x0A000000  /* wifi board */
 #else
-# define H4_CS0_BASE           0x04000000  /* flash (64 Meg aligned) */
-# define H4_CS1_BASE           0x08000000  /* debug board */
-# define H4_CS2_BASE           0x0A000000  /* wifi board */
+# define H4_CS0_BASE           0x08000000  /* flash (64 Meg aligned) */
+# define H4_CS1_BASE           0x04000000  /* debug board */
+# define H4_CS2_BASE           0x0C000000  /* wifi board */
 #endif
 
 /* base address for indirect vectors (internal boot mode) */

@@ -220,7 +220,7 @@
 #define CONFIG_ENV_IS_IN_NAND	1
 #define CONFIG_ENV_OFFSET	0x80000	/* environment starts here  */
 #else
-#define CONFIG_ENV_ADDR             (CONFIG_SYS_FLASH_BASE + SZ_128K)
+#define CONFIG_ENV_ADDR             (CONFIG_SYS_FLASH_BASE + SZ_256K)
 #define	CONFIG_ENV_IS_IN_FLASH      1
 #define CONFIG_ENV_SECT_SIZE	PHYS_FLASH_SECT_SIZE
 #define CONFIG_ENV_OFFSET	( CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN ) /* Environment after Monitor */

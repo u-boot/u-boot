@@ -14,7 +14,7 @@
 # (mem base + reserved)
 
 # For use with external or internal boots.
-CONFIG_SYS_TEXT_BASE = 0x80e80000
+#CONFIG_SYS_TEXT_BASE = 0x80e80000
 
 # Used with full SRAM boot.
 # This is either with a GP system or a signed boot image.
@@ -24,5 +24,5 @@ CONFIG_SYS_TEXT_BASE = 0x80e80000
 
 # Handy to get symbols to debug ROM version.
 #CONFIG_SYS_TEXT_BASE = 0x0
-#CONFIG_SYS_TEXT_BASE = 0x08000000
+CONFIG_SYS_TEXT_BASE = 0x08000000
 #CONFIG_SYS_TEXT_BASE = 0x04000000
