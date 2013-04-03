@@ -54,14 +54,46 @@ int zynq_info(Xilinx_desc *desc)
 	return FPGA_SUCCESS;
 }
 
+/* Xilinx binary format header */
+const u32 bin_format[] = {
+	0xffffffff, /* Dummy words */
+	0xffffffff,
+	0xffffffff,
+	0xffffffff,
+	0xffffffff,
+	0xffffffff,
+	0xffffffff,
+	0xffffffff,
+	0x000000bb, /* Sync word */
+	0x11220044, /* Sync word */
+	0xffffffff,
+	0xffffffff,
+	0xaa995566, /* Sync word */
+};
+
 int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	unsigned long ts; /* Timestamp */
 	u32 control;
 	u32 isr_status;
 	u32 status;
+	const u32 *test = buf;
+	int i;
 
-	/* FIXME Add checking that passing bin is not a bitstream */
+	/* Check bitstream size */
+	if (bsize != desc->size) {
+		printf("Error: File size is wrong - should be %x.\n",
+								desc->size);
+		return FPGA_FAIL;
+	}
+
+	/* Checking that passing bin is not a bitstream */
+	for (i = 0; i < ARRAY_SIZE(bin_format); i++) {
+		if (test[i] != bin_format[i]) {
+			puts("Error: File not in binary format.\n");
+			return FPGA_FAIL;
+		}
+	}
 
 	zynq_slcr_devcfg_disable();
 
