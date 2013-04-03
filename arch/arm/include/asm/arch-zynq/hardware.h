@@ -46,7 +46,9 @@ struct slcr_regs {
 	u32 boot_mode; /* 0x25c */
 	u32 reserved4[116];
 	u32 trust_zone; /* 0x430 */ /* FIXME */
-	u32 reserved5[115];
+	u32 reserved5_1[63];
+	u32 pss_idcode; /* 0x530 */
+	u32 reserved5_2[51];
 	u32 ddr_urgent; /* 0x600 */
 	u32 reserved6[6];
 	u32 ddr_urgent_sel; /* 0x61c */

@@ -30,6 +30,7 @@ extern void zynq_slcr_gem_clk_setup(u32 gem_id, u32 rclk, u32 clk);
 extern void zynq_slcr_devcfg_disable(void);
 extern void zynq_slcr_devcfg_enable(void);
 extern u32 zynq_slcr_get_boot_mode(void);
+extern u32 zynq_slcr_get_idcode(void);
 extern int zynq_slcr_get_mio_pin_status(const char *periph);
 
 #endif /* _SYS_PROTO_H_ */

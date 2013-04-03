@@ -33,6 +33,9 @@
 #define SLCR_NAND_L2_SEL		0x10
 #define SLCR_NAND_L2_SEL_MASK		0x1F
 
+#define SLCR_IDCODE_MASK	0x1F000
+#define SLCR_IDCODE_SHIFT	12
+
 /*
  * zynq_slcr_mio_get_status - Get the status of MIO peripheral.
  *
@@ -198,6 +201,12 @@ u32 zynq_slcr_get_boot_mode(void)
 {
 	/* Get the bootmode register value */
 	return readl(&slcr_base->boot_mode);
+}
+
+u32 zynq_slcr_get_idcode(void)
+{
+	return (readl(&slcr_base->pss_idcode) & SLCR_IDCODE_MASK) >>
+							SLCR_IDCODE_SHIFT;
 }
 
 /*
