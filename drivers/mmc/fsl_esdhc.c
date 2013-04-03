@@ -327,9 +327,6 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	while (!(esdhc_read32(&regs->irqstat) & (IRQSTAT_CC | IRQSTAT_CTOE)))
 		;
 
-	if (data && (data->flags & MMC_DATA_READ))
-		check_and_invalidate_dcache_range(cmd, data);
-
 	irqstat = esdhc_read32(&regs->irqstat);
 	esdhc_write32(&regs->irqstat, irqstat);
 
@@ -403,6 +400,8 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 		} while (!(irqstat & IRQSTAT_TC) &&
 				(esdhc_read32(&regs->prsstat) & PRSSTAT_DLA));
 #endif
+		if (data->flags & MMC_DATA_READ)
+			check_and_invalidate_dcache_range(cmd, data);
 	}
 
 	esdhc_write32(&regs->irqstat, -1);
