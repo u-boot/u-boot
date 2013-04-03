@@ -170,15 +170,13 @@ void t114_init_clocks(void)
 	clock_set_enable(PERIPH_ID_MC1, 1);
 	clock_set_enable(PERIPH_ID_DVFS, 1);
 
-	/* Switch MSELECT clock to PLLP (00) */
-	clock_ll_set_source(PERIPH_ID_MSELECT, 0);
-
 	/*
-	 * Clock divider request for 102MHz would setup MSELECT clock as
-	 * 102MHz for PLLP base 408MHz
+	 * Set MSELECT clock source as PLLP (00), and ask for a clock
+	 * divider that would set the MSELECT clock at 102MHz for a
+	 * PLLP base of 408MHz.
 	 */
 	clock_ll_set_source_divisor(PERIPH_ID_MSELECT, 0,
-		(NVBL_PLLP_KHZ/102000));
+		CLK_DIVIDER(NVBL_PLLP_KHZ, 102000));
 
 	/* I2C5 (DVC) gets CLK_M and a divisor of 17 */
 	clock_ll_set_source_divisor(PERIPH_ID_I2C5, 3, 16);

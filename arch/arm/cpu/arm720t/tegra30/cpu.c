@@ -110,8 +110,8 @@ void t30_init_clocks(void)
 	reset_set_enable(PERIPH_ID_MSELECT, 1);
 	clock_set_enable(PERIPH_ID_MSELECT, 1);
 
-	/* Switch MSELECT clock to PLLP (00) */
-	clock_ll_set_source(PERIPH_ID_MSELECT, 0);
+	/* Switch MSELECT clock to PLLP (00) and use a divisor of 2 */
+	clock_ll_set_source_divisor(PERIPH_ID_MSELECT, 0, 2);
 
 	/*
 	 * Our high-level clock routines are not available prior to
