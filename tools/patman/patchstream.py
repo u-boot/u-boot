@@ -31,7 +31,7 @@ from series import Series
 
 # Tags that we detect and remove
 re_remove = re.compile('^BUG=|^TEST=|^BRANCH=|^Change-Id:|^Review URL:'
-    '|Reviewed-on:|Commit-Ready:')
+    '|Reviewed-on:|Commit-\w*:')
 
 # Lines which are allowed after a TEST= line
 re_allowed_after_test = re.compile('^Signed-off-by:')
