@@ -214,7 +214,7 @@ flash_map (flash_info_t * info, flash_sect_t sect, uint offset)
 	unsigned int addr = (info->start[sect] + byte_offset);
 	unsigned int mask = 0xffffffff << (info->portwidth - 1);
 
-	return (void *)(addr & mask);
+	return (void *)(uintptr_t)(addr & mask);
 }
 
 static inline void flash_unmap(flash_info_t *info, flash_sect_t sect,
