@@ -607,6 +607,7 @@ Enric Balletbo i Serra <eballetbo@iseebcn.com>
 	igep0020	ARM ARMV7 (OMAP3xx SoC)
 	igep0030	ARM ARMV7 (OMAP3xx SoC)
 	igep0032	ARM ARMV7 (OMAP3xx SoC)
+	igep0033	ARM ARMV7 (AM33xx Soc)
 
 Eric Benard <eric@eukrea.com>
 
