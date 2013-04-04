@@ -343,7 +343,7 @@
 #define TOP2_VAL		0x0110000
 
 /* CLK_SRC_PERIC0 */
-#define PWM_SEL		0
+#define PWM_SEL		6
 #define UART3_SEL	6
 #define UART2_SEL	6
 #define UART1_SEL	6

@@ -70,7 +70,7 @@ static unsigned long pwm_calc_tin(int pwm_id, unsigned long freq)
 	return tin_parent_rate / 16;
 }
 
-#define NS_IN_HZ (1000000000UL)
+#define NS_IN_SEC 1000000000UL
 
 int pwm_config(int pwm_id, int duty_ns, int period_ns)
 {
@@ -79,7 +79,7 @@ int pwm_config(int pwm_id, int duty_ns, int period_ns)
 	unsigned int offset;
 	unsigned long tin_rate;
 	unsigned long tin_ns;
-	unsigned long period;
+	unsigned long frequency;
 	unsigned long tcon;
 	unsigned long tcnt;
 	unsigned long tcmp;
@@ -89,33 +89,23 @@ int pwm_config(int pwm_id, int duty_ns, int period_ns)
 	 * fact that anything faster than 1GHz is easily representable
 	 * by 32bits.
 	 */
-	if (period_ns > NS_IN_HZ || duty_ns > NS_IN_HZ)
+	if (period_ns > NS_IN_SEC || duty_ns > NS_IN_SEC || period_ns == 0)
 		return -ERANGE;
 
 	if (duty_ns > period_ns)
 		return -EINVAL;
 
-	period = NS_IN_HZ / period_ns;
+	frequency = NS_IN_SEC / period_ns;
 
 	/* Check to see if we are changing the clock rate of the PWM */
-	tin_rate = pwm_calc_tin(pwm_id, period);
+	tin_rate = pwm_calc_tin(pwm_id, frequency);
 
-	tin_ns = NS_IN_HZ / tin_rate;
+	tin_ns = NS_IN_SEC / tin_rate;
 	tcnt = period_ns / tin_ns;
 
 	/* Note, counters count down */
 	tcmp = duty_ns / tin_ns;
 	tcmp = tcnt - tcmp;
-
-	/*
-	 * the pwm hw only checks the compare register after a decrement,
-	 * so the pin never toggles if tcmp = tcnt
-	 */
-	if (tcmp == tcnt)
-		tcmp--;
-
-	if (tcmp < 0)
-		tcmp = 0;
 
 	/* Update the PWM register block. */
 	offset = pwm_id * 3;
@@ -143,7 +133,7 @@ int pwm_init(int pwm_id, int div, int invert)
 	u32 val;
 	const struct s5p_timer *pwm =
 			(struct s5p_timer *)samsung_get_base_timer();
-	unsigned long timer_rate_hz;
+	unsigned long ticks_per_period;
 	unsigned int offset, prescaler;
 
 	/*
@@ -167,14 +157,24 @@ int pwm_init(int pwm_id, int div, int invert)
 	val |= (div & 0xf) << MUX_DIV_SHIFT(pwm_id);
 	writel(val, &pwm->tcfg1);
 
-	timer_rate_hz = get_pwm_clk() / ((prescaler + 1) *
-			(div + 1));
+	if (pwm_id == 4) {
+		/*
+		 * TODO(sjg): Use this as a countdown timer for now. We count
+		 * down from the maximum value to 0, then reset.
+		 */
+		ticks_per_period = -1UL;
+	} else {
+		const unsigned long pwm_hz = 1000;
+		unsigned long timer_rate_hz = get_pwm_clk() /
+			((prescaler + 1) * (1 << div));
 
-	timer_rate_hz = timer_rate_hz / CONFIG_SYS_HZ;
+		ticks_per_period = timer_rate_hz / pwm_hz;
+	}
 
 	/* set count value */
 	offset = pwm_id * 3;
-	writel(timer_rate_hz, &pwm->tcntb0 + offset);
+
+	writel(ticks_per_period, &pwm->tcntb0 + offset);
 
 	val = readl(&pwm->tcon) & ~(0xf << TCON_OFFSET(pwm_id));
 	if (invert && (pwm_id < 4))

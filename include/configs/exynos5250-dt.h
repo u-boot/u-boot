@@ -46,6 +46,10 @@
 /* Keep L2 Cache Disabled */
 #define CONFIG_SYS_DCACHE_OFF
 
+/* Enable ACE acceleration for SHA1 and SHA256 */
+#define CONFIG_EXYNOS_ACE_SHA
+#define CONFIG_SHA_HW_ACCEL
+
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 #define CONFIG_SYS_TEXT_BASE		0x43E00000
 
@@ -114,6 +118,7 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_NET
+#define CONFIG_CMD_HASH
 
 #define CONFIG_BOOTDELAY		3
 #define CONFIG_ZERO_BOOTDELAY_CHECK
@@ -324,5 +329,8 @@
 #define LCD_YRES			1600
 #define LCD_BPP			LCD_COLOR16
 #endif
+
+/* Enable Time Command */
+#define CONFIG_CMD_TIME
 
 #endif	/* __CONFIG_H */

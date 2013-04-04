@@ -199,7 +199,6 @@ enum {
 
 struct exynos_dp_platform_data {
 	struct edp_device_info *edp_dev_info;
-	void (*phy_enable)(unsigned int);
 };
 
 #ifdef CONFIG_EXYNOS_DP

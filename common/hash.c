@@ -25,6 +25,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <hw_sha.h>
 #include <hash.h>
 #include <sha1.h>
 #include <sha256.h>
@@ -36,6 +37,23 @@
  * algorithm names must be in lower case.
  */
 static struct hash_algo hash_algo[] = {
+	/*
+	 * CONFIG_SHA_HW_ACCEL is defined if hardware acceleration is
+	 * available.
+	 */
+#ifdef CONFIG_SHA_HW_ACCEL
+	{
+		"sha1",
+		SHA1_SUM_LEN,
+		hw_sha1,
+		CHUNKSZ_SHA1,
+	}, {
+		"sha256",
+		SHA256_SUM_LEN,
+		hw_sha256,
+		CHUNKSZ_SHA256,
+	},
+#endif
 	/*
 	 * This is CONFIG_CMD_SHA1SUM instead of CONFIG_SHA1 since otherwise
 	 * it bloats the code for boards which use SHA1 but not the 'hash'

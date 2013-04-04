@@ -312,9 +312,10 @@ int board_eth_init(bd_t *bis)
 	u32 smc_bw_conf, smc_bc_conf;
 	struct fdt_sromc config;
 	fdt_addr_t base_addr;
-	int node;
 
 #ifdef CONFIG_OF_CONTROL
+	int node;
+
 	node = decode_sromc(gd->fdt_blob, &config);
 	if (node < 0) {
 		debug("%s: Could not find sromc configuration\n", __func__);
@@ -454,7 +455,7 @@ int board_early_init_f(void)
 #endif
 
 #ifdef CONFIG_LCD
-void cfg_lcd_gpio(void)
+void exynos_cfg_lcd_gpio(void)
 {
 	struct exynos5_gpio_part1 *gpio1 =
 		(struct exynos5_gpio_part1 *) samsung_get_base_gpio_part1();
@@ -471,6 +472,12 @@ void cfg_lcd_gpio(void)
 	s5p_gpio_cfg_pin(&gpio1->x0, 7, GPIO_FUNC(0x3));
 }
 
+void exynos_set_dp_phy(unsigned int onoff)
+{
+	set_dp_phy_ctrl(onoff);
+}
+
+#ifndef CONFIG_OF_CONTROL
 vidinfo_t panel_info = {
 	.vl_freq	= 60,
 	.vl_col		= 2560,
@@ -494,10 +501,6 @@ vidinfo_t panel_info = {
 	.vl_cmd_allow_len = 0xf,
 
 	.win_id		= 3,
-	.cfg_gpio	= cfg_lcd_gpio,
-	.backlight_on	= NULL,
-	.lcd_power_on	= NULL,
-	.reset_lcd	= NULL,
 	.dual_lcd_enabled = 0,
 
 	.init_delay	= 0,
@@ -537,14 +540,16 @@ static struct edp_device_info edp_info = {
 };
 
 static struct exynos_dp_platform_data dp_platform_data = {
-	.phy_enable	= set_dp_phy_ctrl,
 	.edp_dev_info	= &edp_info,
 };
 
+#endif
 void init_panel_info(vidinfo_t *vid)
 {
+#ifndef CONFIG_OF_CONTROL
 	vid->rgb_mode   = MODE_RGB_P,
 
 	exynos_set_dp_platform_data(&dp_platform_data);
+#endif
 }
 #endif
