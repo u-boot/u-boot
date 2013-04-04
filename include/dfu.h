@@ -59,7 +59,7 @@ static inline unsigned int get_mmc_blk_size(int dev)
 
 #define DFU_NAME_SIZE 32
 #define DFU_CMD_BUF_SIZE 128
-#define DFU_DATA_BUF_SIZE (1024*1024*4) /* 4 MiB */
+#define DFU_DATA_BUF_SIZE (1024*1024*8) /* 8 MiB */
 
 struct dfu_entity {
 	char			name[DFU_NAME_SIZE];
