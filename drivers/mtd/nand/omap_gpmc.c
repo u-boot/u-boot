@@ -604,13 +604,14 @@ static int omap_read_page_bch(struct mtd_info *mtd, struct nand_chip *chip,
 
 #ifndef CONFIG_SPL_BUILD
 /*
- * omap_nand_switch_ecc - switch the ECC operation b/w h/w ecc and s/w ecc.
- * The default is to come up on s/w ecc
+ * omap_nand_switch_ecc - switch the ECC operation between different engines
+ * (h/w and s/w) and different algorithms (hamming and BCHx)
  *
- * @hardware - 1 -switch to h/w ecc, 0 - s/w ecc
- *
+ * @hardware		- true if one of the HW engines should be used
+ * @eccstrength		- the number of bits that could be corrected
+ *			  (1 - hamming, 4 - BCH4, 8 - BCH8, 16 - BCH16)
  */
-void omap_nand_switch_ecc(int32_t hardware)
+void omap_nand_switch_ecc(uint32_t hardware, uint32_t eccstrength)
 {
 	struct nand_chip *nand;
 	struct mtd_info *mtd;
@@ -628,6 +629,7 @@ void omap_nand_switch_ecc(int32_t hardware)
 	nand->options |= NAND_OWN_BUFFERS;
 
 	/* Reset ecc interface */
+	nand->ecc.mode = NAND_ECC_NONE;
 	nand->ecc.read_page = NULL;
 	nand->ecc.write_page = NULL;
 	nand->ecc.read_oob = NULL;
@@ -637,28 +639,31 @@ void omap_nand_switch_ecc(int32_t hardware)
 	nand->ecc.calculate = NULL;
 
 	/* Setup the ecc configurations again */
-	if (hardware == 1) {
-		nand->ecc.mode = NAND_ECC_HW;
-		nand->ecc.layout = &hw_nand_oob;
-		nand->ecc.size = 512;
-		nand->ecc.bytes = 3;
-		nand->ecc.hwctl = omap_enable_hwecc;
-		nand->ecc.correct = omap_correct_data;
-		nand->ecc.calculate = omap_calculate_ecc;
-		omap_hwecc_init(nand);
-		printf("HW ECC selected\n");
+	if (hardware) {
+		if (eccstrength == 1) {
+			nand->ecc.mode = NAND_ECC_HW;
+			nand->ecc.layout = &hw_nand_oob;
+			nand->ecc.size = 512;
+			nand->ecc.bytes = 3;
+			nand->ecc.hwctl = omap_enable_hwecc;
+			nand->ecc.correct = omap_correct_data;
+			nand->ecc.calculate = omap_calculate_ecc;
+			omap_hwecc_init(nand);
+			printf("1-bit hamming HW ECC selected\n");
+		}
 #ifdef CONFIG_AM33XX
-	} else if (hardware == 2) {
-		nand->ecc.mode = NAND_ECC_HW;
-		nand->ecc.layout = &hw_bch8_nand_oob;
-		nand->ecc.size = 512;
-		nand->ecc.bytes = 14;
-		nand->ecc.read_page = omap_read_page_bch;
-		nand->ecc.hwctl = omap_enable_ecc_bch;
-		nand->ecc.correct = omap_correct_data_bch;
-		nand->ecc.calculate = omap_calculate_ecc_bch;
-		omap_hwecc_init_bch(nand, NAND_ECC_READ);
-		printf("HW BCH8 selected\n");
+		else if (eccstrength == 8) {
+			nand->ecc.mode = NAND_ECC_HW;
+			nand->ecc.layout = &hw_bch8_nand_oob;
+			nand->ecc.size = 512;
+			nand->ecc.bytes = 14;
+			nand->ecc.read_page = omap_read_page_bch;
+			nand->ecc.hwctl = omap_enable_ecc_bch;
+			nand->ecc.correct = omap_correct_data_bch;
+			nand->ecc.calculate = omap_calculate_ecc_bch;
+			omap_hwecc_init_bch(nand, NAND_ECC_READ);
+			printf("8-bit BCH HW ECC selected\n");
+		}
 #endif
 	} else {
 		nand->ecc.mode = NAND_ECC_SOFT;
