@@ -72,10 +72,10 @@ static int mmc_file_op(enum dfu_mmc_op op, struct dfu_entity *dfu,
 			(unsigned int) buf, dfu->name, *len);
 		break;
 	case DFU_FS_EXT4:
-		sprintf(cmd_buf, "ext4%s mmc %d:%d /%s 0x%x %ld",
+		sprintf(cmd_buf, "ext4%s mmc %d:%d 0x%x /%s %ld",
 			op == DFU_OP_READ ? "load" : "write",
 			dfu->data.mmc.dev, dfu->data.mmc.part,
-			dfu->name, (unsigned int) buf, *len);
+			(unsigned int) buf, dfu->name, *len);
 		break;
 	default:
 		printf("%s: Layout (%s) not (yet) supported!\n", __func__,
