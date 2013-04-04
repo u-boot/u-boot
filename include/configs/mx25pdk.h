@@ -124,6 +124,10 @@
 #define CONFIG_SYS_I2C_BASE		IMX_I2C_BASE
 #define CONFIG_SYS_I2C_SPEED		100000
 
+/* RTC */
+#define CONFIG_RTC_IMXDI
+#define CONFIG_CMD_DATE
+
 /* Ethernet Configs */
 
 #define CONFIG_CMD_PING

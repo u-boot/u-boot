@@ -61,6 +61,18 @@ u32 get_cpu_rev(void)
 	return (type << 12) | (reg + 0x10);
 }
 
+#ifdef CONFIG_REVISION_TAG
+u32 __weak get_board_rev(void)
+{
+	u32 cpurev = get_cpu_rev();
+	u32 type = ((cpurev >> 12) & 0xff);
+	if (type == MXC_CPU_MX6SOLO)
+		cpurev = (MXC_CPU_MX6DL) << 12 | (cpurev & 0xFFF);
+
+	return cpurev;
+}
+#endif
+
 void init_aips(void)
 {
 	struct aipstz_regs *aips1, *aips2;
