@@ -101,6 +101,7 @@
 #define CONFIG_SYS_FLASH_CFI
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
+#define CONFIG_FLASH_VERIFY
 
 /*
  * Environment settings
