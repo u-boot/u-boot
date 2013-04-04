@@ -85,12 +85,14 @@ lowlevel_init:
 1:
 	/* for UART */
 	bl uart_asm_init
+	bl arch_cpu_init
 	bl tzpc_init
 	pop	{pc}
 
 wakeup_reset:
 	bl system_clock_init
 	bl mem_ctrl_asm_init
+	bl arch_cpu_init
 	bl tzpc_init
 
 exit_wakeup:
@@ -410,61 +412,3 @@ uart_asm_init:
 	nop
 	nop
 	nop
-
-/* Setting TZPC[TrustZone Protection Controller] */
-tzpc_init:
-	ldr	r0, =0x10110000
-	mov	r1, #0x0
-	str	r1, [r0]
-	mov	r1, #0xff
-	str	r1, [r0, #0x0804]
-	str	r1, [r0, #0x0810]
-	str	r1, [r0, #0x081C]
-	str	r1, [r0, #0x0828]
-
-	ldr	r0, =0x10120000
-	mov	r1, #0x0
-	str	r1, [r0]
-	mov	r1, #0xff
-	str	r1, [r0, #0x0804]
-	str	r1, [r0, #0x0810]
-	str	r1, [r0, #0x081C]
-	str	r1, [r0, #0x0828]
-
-	ldr	r0, =0x10130000
-	mov	r1, #0x0
-	str	r1, [r0]
-	mov	r1, #0xff
-	str	r1, [r0, #0x0804]
-	str	r1, [r0, #0x0810]
-	str	r1, [r0, #0x081C]
-	str	r1, [r0, #0x0828]
-
-	ldr	r0, =0x10140000
-	mov	r1, #0x0
-	str	r1, [r0]
-	mov	r1, #0xff
-	str	r1, [r0, #0x0804]
-	str	r1, [r0, #0x0810]
-	str	r1, [r0, #0x081C]
-	str	r1, [r0, #0x0828]
-
-	ldr	r0, =0x10150000
-	mov	r1, #0x0
-	str	r1, [r0]
-	mov	r1, #0xff
-	str	r1, [r0, #0x0804]
-	str	r1, [r0, #0x0810]
-	str	r1, [r0, #0x081C]
-	str	r1, [r0, #0x0828]
-
-	ldr	r0, =0x10160000
-	mov	r1, #0x0
-	str	r1, [r0]
-	mov	r1, #0xff
-	str	r1, [r0, #0x0804]
-	str	r1, [r0, #0x0810]
-	str	r1, [r0, #0x081C]
-	str	r1, [r0, #0x0828]
-
-	mov	pc, lr
