@@ -3248,6 +3248,15 @@ Configuration Settings:
 		digits and dots.  Recommended value: 45 (9..1) for 80
 		column displays, 15 (3..1) for 40 column displays.
 
+- CONFIG_FLASH_VERIFY
+		If defined, the content of the flash (destination) is compared
+		against the source after the write operation. An error message
+		will be printed when the contents are not identical.
+		Please note that this option is useless in nearly all cases,
+		since such flash programming errors usually are detected earlier
+		while unprotecting/erasing/programming. Please only enable
+		this option if you really know what you are doing.
+
 - CONFIG_SYS_RX_ETH_BUFFER:
 		Defines the number of Ethernet receive buffers. On some
 		Ethernet controllers it is recommended to set this value
