@@ -111,6 +111,16 @@ Memory map
  0xFF70_0000	0xFF7F_FFFF	PA CCSR			1M
  0xFF80_0000	0xFFFF_FFFF	Boot Page & NAND Buffer 8M
 
+DDR Memory map
+---------------
+ 0x0000_0000	0x36FF_FFFF	Memory passed onto Linux
+ 0x3700_0000	0x37FF_FFFF	PowerPC-DSP shared control area
+ 0x3800_0000	0x4FFF_FFFF	DSP Private area
+
+ Out of 880M, passed onto Linux, 1hugetlb page of 256M is reserved for
+ data communcation between PowerPC and DSP core.
+ Rest is PowerPC private area.
+
 Flashing Images
 ---------------
 To place a new u-boot image in the NAND flash and then boot

@@ -442,7 +442,9 @@ extern unsigned long get_sdram_size(void);
 	"fdtfile=bsc9131rdb.dtb\0"		\
 	"bdev=sda1\0"	\
 	"hwconfig=usb1:dr_mode=host,phy_type=ulpi\0"	\
-	"othbootargs=ramdisk_size=600000 \0" \
+	"bootm_size=0x37000000\0"	\
+	"othbootargs=ramdisk_size=600000 " \
+	"default_hugepagesz=256m hugepagesz=256m hugepages=1\0" \
 	"usbext2boot=setenv bootargs root=/dev/ram rw "	\
 	"console=$consoledev,$baudrate $othbootargs; "	\
 	"usb start;"			\
