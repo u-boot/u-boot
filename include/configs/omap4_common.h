@@ -152,7 +152,7 @@
 	"fdtaddr=0x80f80000\0" \
 	"bootpart=0:2\0" \
 	"bootdir=/boot\0" \
-	"bootfile=uImage\0" \
+	"bootfile=zImage\0" \
 	"usbtty=cdc_acm\0" \
 	"vram=16M\0" \
 	"mmcdev=0\0" \
@@ -171,7 +171,7 @@
 	"loadimage=load mmc ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
 	"mmcboot=echo Booting from mmc${mmcdev} ...; " \
 		"run mmcargs; " \
-		"bootm ${loadaddr} - ${fdtaddr}\0" \
+		"bootz ${loadaddr} - ${fdtaddr}\0" \
 	"findfdt="\
 		"if test $board_name = sdp4430; then " \
 			"setenv fdtfile omap4-sdp.dtb; fi; " \
