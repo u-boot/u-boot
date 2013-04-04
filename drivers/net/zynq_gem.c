@@ -427,7 +427,7 @@ static int zynq_gem_miiphy_write(const char *devname, uchar addr,
 	return phywrite(dev, addr, reg, val);
 }
 
-int zynq_gem_initialize(bd_t *bis, int base_addr)
+int zynq_gem_initialize(bd_t *bis, int base_addr, int phy_addr)
 {
 	struct eth_device *dev;
 	struct zynq_gem_priv *priv;
@@ -443,11 +443,7 @@ int zynq_gem_initialize(bd_t *bis, int base_addr)
 	}
 	priv = dev->priv;
 
-#ifdef CONFIG_PHY_ADDR
-	priv->phyaddr = CONFIG_PHY_ADDR;
-#else
-	priv->phyaddr = -1;
-#endif
+	priv->phyaddr = phy_addr;
 
 	sprintf(dev->name, "Gem.%x", base_addr);
 
