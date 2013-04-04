@@ -82,11 +82,16 @@ enum law_trgt_if {
 #ifndef CONFIG_MPC8641
 	LAW_TRGT_IF_PCIE_1 = 0x02,
 #endif
+#if defined(CONFIG_BSC9131)
+	LAW_TRGT_IF_OCN_DSP = 0x03,
+#else
 #if !defined(CONFIG_MPC8572) && !defined(CONFIG_P2020)
 	LAW_TRGT_IF_PCIE_3 = 0x03,
 #endif
+#endif
 	LAW_TRGT_IF_LBC = 0x04,
 	LAW_TRGT_IF_CCSR = 0x08,
+	LAW_TRGT_IF_DSP_CCSR = 0x09,
 	LAW_TRGT_IF_DDR_INTRLV = 0x0b,
 	LAW_TRGT_IF_RIO = 0x0c,
 	LAW_TRGT_IF_RIO_2 = 0x0d,
