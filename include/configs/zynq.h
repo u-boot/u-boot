@@ -54,6 +54,7 @@
 #define CONFIG_NET_MULTI
 #define CONFIG_ZYNQ_GEM
 #define CONFIG_ZYNQ_GEM0
+#define CONFIG_ZYNQ_GEM_PHY_ADDR0	7
 
 #if defined(CONFIG_ZYNQ_DCC)
 # define CONFIG_ARM_DCC

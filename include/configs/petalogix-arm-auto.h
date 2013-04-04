@@ -22,8 +22,10 @@
 #if defined(XILINX_PS7_GEM_BASEADDR)
 # if (XILINX_PS7_GEM_BASEADDR == ZYNQ_GEM_BASEADDR0)
 #  define CONFIG_ZYNQ_GEM0
+#  define CONFIG_ZYNQ_GEM_PHY_ADDR	-1
 # else
 #  define CONFIG_ZYNQ_GEM1
+#  define CONFIG_ZYNQ_GEM_PHY_ADDR1	-1
 # endif
 #endif
 
