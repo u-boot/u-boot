@@ -48,18 +48,10 @@ struct exynos_tzpc {
 	unsigned int pcellid3;
 };
 
-/* TZPC : Register Offsets */
-#define TZPC0_BASE		0x10100000
-#define TZPC1_BASE		0x10110000
-#define TZPC2_BASE		0x10120000
-#define TZPC3_BASE		0x10130000
-#define TZPC4_BASE		0x10140000
-#define TZPC5_BASE		0x10150000
-#define TZPC6_BASE		0x10160000
-#define TZPC7_BASE		0x10170000
-#define TZPC8_BASE		0x10180000
-#define TZPC9_BASE		0x10190000
+#define EXYNOS4_NR_TZPC_BANKS		6
+#define EXYNOS5_NR_TZPC_BANKS		10
 
+/* TZPC : Register Offsets */
 #define TZPC_BASE_OFFSET		0x10000
 
 /*
