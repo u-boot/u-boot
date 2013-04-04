@@ -21,6 +21,7 @@
 
 #include <common.h>
 #include <malloc.h>
+#include <nand.h>
 
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand.h>
@@ -41,7 +42,6 @@ struct fsl_ifc_ctrl;
 
 /* mtd information per set */
 struct fsl_ifc_mtd {
-	struct mtd_info mtd;
 	struct nand_chip chip;
 	struct fsl_ifc_ctrl *ctrl;
 
@@ -794,11 +794,14 @@ static void fsl_ifc_sram_init(void)
 	out_be32(&ifc_ctrl->regs->csor_cs[cs].csor_ext, csor_ext);
 }
 
-int board_nand_init(struct nand_chip *nand)
+static int fsl_ifc_chip_init(int devnum, u8 *addr)
 {
+	struct mtd_info *mtd = &nand_info[devnum];
+	struct nand_chip *nand;
 	struct fsl_ifc_mtd *priv;
 	struct nand_ecclayout *layout;
 	uint32_t cspr = 0, csor = 0, ver = 0;
+	int ret;
 
 	if (!ifc_ctrl) {
 		fsl_ifc_ctrl_init();
@@ -811,18 +814,18 @@ int board_nand_init(struct nand_chip *nand)
 		return -ENOMEM;
 
 	priv->ctrl = ifc_ctrl;
-	priv->vbase = nand->IO_ADDR_R;
+	priv->vbase = addr;
 
 	/* Find which chip select it is connected to.
 	 */
 	for (priv->bank = 0; priv->bank < MAX_BANKS; priv->bank++) {
-		phys_addr_t base_addr = virt_to_phys(nand->IO_ADDR_R);
+		phys_addr_t phys_addr = virt_to_phys(addr);
 
 		cspr = in_be32(&ifc_ctrl->regs->cspr_cs[priv->bank].cspr);
 		csor = in_be32(&ifc_ctrl->regs->csor_cs[priv->bank].csor);
 
 		if ((cspr & CSPR_V) && (cspr & CSPR_MSEL) == CSPR_MSEL_NAND &&
-		    (cspr & CSPR_BA) == CSPR_PHYS_ADDR(base_addr)) {
+		    (cspr & CSPR_BA) == CSPR_PHYS_ADDR(phys_addr)) {
 			ifc_ctrl->cs_nand = priv->bank << IFC_NAND_CSEL_SHIFT;
 			break;
 		}
@@ -834,6 +837,9 @@ int board_nand_init(struct nand_chip *nand)
 		kfree(priv);
 		return -ENODEV;
 	}
+
+	nand = &priv->chip;
+	mtd->priv = nand;
 
 	ifc_ctrl->chips[priv->bank] = priv;
 
@@ -921,5 +927,31 @@ int board_nand_init(struct nand_chip *nand)
 	if (ver == FSL_IFC_V1_1_0)
 		fsl_ifc_sram_init();
 
+	ret = nand_scan_ident(mtd, 1, NULL);
+	if (ret)
+		return ret;
+
+	ret = nand_scan_tail(mtd);
+	if (ret)
+		return ret;
+
+	ret = nand_register(devnum);
+	if (ret)
+		return ret;
 	return 0;
+}
+
+#ifndef CONFIG_SYS_NAND_BASE_LIST
+#define CONFIG_SYS_NAND_BASE_LIST { CONFIG_SYS_NAND_BASE }
+#endif
+
+static unsigned long base_address[CONFIG_SYS_MAX_NAND_DEVICE] =
+	CONFIG_SYS_NAND_BASE_LIST;
+
+void board_nand_init(void)
+{
+	int i;
+
+	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
+		fsl_ifc_chip_init(i, (u8 *)base_address[i]);
 }
