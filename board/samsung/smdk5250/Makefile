@@ -28,7 +28,6 @@ SOBJS	:= lowlevel_init.o
 
 COBJS	:= clock_init.o
 COBJS	+= dmc_common.o dmc_init_ddr3.o
-COBJS	+= tzpc_init.o
 COBJS	+= smdk5250_spl.o
 
 ifndef CONFIG_SPL_BUILD

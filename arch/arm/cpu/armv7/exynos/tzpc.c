@@ -23,7 +23,7 @@
  */
 
 #include <asm/arch/tzpc.h>
-#include"setup.h"
+#include <asm/io.h>
 
 /* Setting TZPC[TrustZone Protection Controller] */
 void tzpc_init(void)

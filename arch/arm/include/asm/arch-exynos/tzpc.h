@@ -47,6 +47,34 @@ struct exynos_tzpc {
 	unsigned int pcellid2;
 	unsigned int pcellid3;
 };
+
+/* TZPC : Register Offsets */
+#define TZPC0_BASE		0x10100000
+#define TZPC1_BASE		0x10110000
+#define TZPC2_BASE		0x10120000
+#define TZPC3_BASE		0x10130000
+#define TZPC4_BASE		0x10140000
+#define TZPC5_BASE		0x10150000
+#define TZPC6_BASE		0x10160000
+#define TZPC7_BASE		0x10170000
+#define TZPC8_BASE		0x10180000
+#define TZPC9_BASE		0x10190000
+
+#define TZPC_BASE_OFFSET		0x10000
+
+/*
+ * TZPC Register Value :
+ * R0SIZE: 0x0 : Size of secured ram
+ */
+#define R0SIZE			0x0
+
+/*
+ * TZPC Decode Protection Register Value :
+ * DECPROTXSET: 0xFF : Set Decode region to non-secure
+ */
+#define DECPROTXSET		0xFF
+void tzpc_init(void);
+
 #endif
 
 #endif
