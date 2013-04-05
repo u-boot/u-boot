@@ -145,11 +145,11 @@ int board_eth_init(bd_t *bis)
 #if defined(CONFIG_ZYNQ_GEM)
 # if defined(CONFIG_ZYNQ_GEM0)
 	ret |= zynq_gem_initialize(bis, ZYNQ_GEM_BASEADDR0,
-						CONFIG_ZYNQ_GEM_PHY_ADDR0);
+						CONFIG_ZYNQ_GEM_PHY_ADDR0, 0);
 # endif
 # if defined(CONFIG_ZYNQ_GEM1)
 	ret |= zynq_gem_initialize(bis, ZYNQ_GEM_BASEADDR1,
-						CONFIG_ZYNQ_GEM_PHY_ADDR1);
+						CONFIG_ZYNQ_GEM_PHY_ADDR1, 0);
 # endif
 #endif
 
