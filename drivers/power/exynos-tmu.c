@@ -79,6 +79,8 @@ struct tmu_data {
 struct tmu_info {
 	/* base Address for the TMU */
 	struct exynos5_tmu_reg *tmu_base;
+	/* mux Address for the TMU */
+	int tmu_mux;
 	/* pre-defined values for calibration and thresholds */
 	struct tmu_data data;
 	/* value required for triminfo_25 calibration */
@@ -204,6 +206,13 @@ static int get_tmu_fdt_values(struct tmu_info *info, const void *blob)
 	}
 	info->tmu_base = (struct exynos5_tmu_reg *)addr;
 
+	/* Optional field. */
+	info->tmu_mux = fdtdec_get_int(blob,
+				node, "samsung,mux", -1);
+	/* Take default value as per the user manual b(110) */
+	if (info->tmu_mux == -1)
+		info->tmu_mux = 0x6;
+
 	info->data.ts.min_val = fdtdec_get_int(blob,
 				node, "samsung,min-temp", -1);
 	error |= (info->data.ts.min_val == -1);
@@ -307,7 +316,7 @@ static void tmu_setup_parameters(struct tmu_info *info)
 
 	/* TMU core enable */
 	con = readl(&reg->tmu_control);
-	con |= THERM_TRIP_EN | CORE_EN;
+	con |= THERM_TRIP_EN | CORE_EN | (info->tmu_mux << 20);
 
 	writel(con, &reg->tmu_control);
 
