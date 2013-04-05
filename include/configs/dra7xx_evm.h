@@ -28,6 +28,8 @@
 #ifndef __CONFIG_DRA7XX_EVM_H
 #define __CONFIG_DRA7XX_EVM_H
 
+#define CONFIG_ENV_IS_NOWHERE		/* For now. */
+
 #include <configs/omap5_common.h>
 
 #define CONFIG_DRA7XX		/* in a TI DRA7XX core */

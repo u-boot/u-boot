@@ -94,18 +94,11 @@
 #define CONFIG_DRIVER_OMAP34XX_I2C
 #define CONFIG_I2C_MULTI_BUS
 
-
 /* MMC */
 #define CONFIG_GENERIC_MMC
 #define CONFIG_MMC
 #define CONFIG_OMAP_HSMMC
 #define CONFIG_DOS_PARTITION
-
-/* MMC ENV related defines */
-#define CONFIG_ENV_IS_IN_MMC
-#define CONFIG_SYS_MMC_ENV_DEV		1	/* SLOT2: eMMC(1) */
-#define CONFIG_ENV_OFFSET		0xE0000
-#define CONFIG_CMD_SAVEENV
 
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
@@ -124,7 +117,6 @@
 #define CONFIG_CMD_FAT		/* FAT support                  */
 #define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MMC		/* MMC support                  */
-#define CONFIG_CMD_SAVEENV
 
 /* Disabled commands */
 #undef CONFIG_CMD_NET
@@ -144,6 +136,10 @@
 
 #define CONFIG_ENV_OVERWRITE
 
+#ifndef PARTS_DEFAULT
+#define PARTS_DEFAULT
+#endif
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
 	"console=ttyO2,115200n8\0" \
@@ -154,6 +150,7 @@
 	"bootfile=zImage\0" \
 	"usbtty=cdc_acm\0" \
 	"vram=16M\0" \
+	"partitions=" PARTS_DEFAULT "\0" \
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \
 	"mmcrootfstype=ext3 rootwait\0" \
