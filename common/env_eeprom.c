@@ -38,7 +38,6 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 env_t *env_ptr;
-static char env_buf[CONFIG_ENV_SIZE];
 
 char *env_name_spec = "EEPROM";
 int env_eeprom_bus = -1;
@@ -112,7 +111,7 @@ uchar env_get_char_spec(int index)
 
 void env_relocate_spec(void)
 {
-	char *buf = env_buf;
+	char buf[CONFIG_ENV_SIZE];
 	unsigned int off = CONFIG_ENV_OFFSET;
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
@@ -127,7 +126,7 @@ void env_relocate_spec(void)
 
 int saveenv(void)
 {
-	env_t	*env_new = (env_t *)env_buf;
+	env_t	env_new;
 	ssize_t	len;
 	char	*res;
 	int	rc;
@@ -139,13 +138,13 @@ int saveenv(void)
 
 	BUG_ON(env_ptr != NULL);
 
-	res = (char *)env_new->data;
+	res = (char *)&env_new.data;
 	len = hexport_r(&env_htab, '\0', 0, &res, ENV_SIZE, 0, NULL);
 	if (len < 0) {
 		error("Cannot export environment: errno = %d\n", errno);
 		return 1;
 	}
-	env_new->crc = crc32(0, env_new->data, ENV_SIZE);
+	env_new.crc = crc32(0, env_new.data, ENV_SIZE);
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
 	if (gd->env_valid == 1) {
@@ -153,11 +152,11 @@ int saveenv(void)
 		off_red	= CONFIG_ENV_OFFSET;
 	}
 
-	env_new->flags = ACTIVE_FLAG;
+	env_new.flags = ACTIVE_FLAG;
 #endif
 
 	rc = eeprom_bus_write(CONFIG_SYS_DEF_EEPROM_ADDR,
-			      off, (uchar *)env_new, CONFIG_ENV_SIZE);
+			      off, (uchar *)&env_new, CONFIG_ENV_SIZE);
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
 	if (rc == 0) {

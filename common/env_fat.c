@@ -37,7 +37,6 @@
 char *env_name_spec = "FAT";
 
 env_t *env_ptr;
-static char env_buf[CONFIG_ENV_SIZE];
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -53,7 +52,7 @@ int env_init(void)
 #ifdef CONFIG_CMD_SAVEENV
 int saveenv(void)
 {
-	env_t	*env_new = env_buf;
+	env_t	env_new;
 	ssize_t	len;
 	char	*res;
 	block_dev_desc_t *dev_desc = NULL;
@@ -61,7 +60,7 @@ int saveenv(void)
 	int part = FAT_ENV_PART;
 	int err;
 
-	res = (char *)env_new->data;
+	res = (char *)&env_new.data;
 	len = hexport_r(&env_htab, '\0', 0, &res, ENV_SIZE, 0, NULL);
 	if (len < 0) {
 		error("Cannot export environment: errno = %d\n", errno);
@@ -96,8 +95,8 @@ int saveenv(void)
 		return 1;
 	}
 
-	env_new->crc = crc32(0, env_new->data, ENV_SIZE);
-	err = file_fat_write(FAT_ENV_FILE, (void *)env_new, sizeof(env_t));
+	env_new.crc = crc32(0, env_new.data, ENV_SIZE);
+	err = file_fat_write(FAT_ENV_FILE, (void *)&env_new, sizeof(env_t));
 	if (err == -1) {
 		printf("\n** Unable to write \"%s\" from %s%d:%d **\n",
 			FAT_ENV_FILE, FAT_ENV_INTERFACE, dev, part);
@@ -111,7 +110,7 @@ int saveenv(void)
 
 void env_relocate_spec(void)
 {
-	char *buf = env_buf;
+	char buf[CONFIG_ENV_SIZE];
 	block_dev_desc_t *dev_desc = NULL;
 	int dev = FAT_ENV_DEVICE;
 	int part = FAT_ENV_PART;

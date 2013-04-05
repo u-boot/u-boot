@@ -58,12 +58,11 @@ DECLARE_GLOBAL_DATA_PTR;
 char *env_name_spec = "SPI Flash";
 
 static struct spi_flash *env_flash;
-static char env_buf[CONFIG_ENV_SIZE];
 
 #if defined(CONFIG_ENV_OFFSET_REDUND)
 int saveenv(void)
 {
-	env_t	*env_new = (env_t *)env_buf;
+	env_t	env_new;
 	ssize_t	len;
 	char	*res, *saved_buffer = NULL, flag = OBSOLETE_FLAG;
 	u32	saved_size, saved_offset, sector = 1;
@@ -79,14 +78,14 @@ int saveenv(void)
 		}
 	}
 
-	res = (char *)env_new->data;
+	res = (char *)&env_new.data;
 	len = hexport_r(&env_htab, '\0', 0, &res, ENV_SIZE, 0, NULL);
 	if (len < 0) {
 		error("Cannot export environment: errno = %d\n", errno);
 		return 1;
 	}
-	env_new->crc	= crc32(0, env_new->data, ENV_SIZE);
-	env_new->flags	= ACTIVE_FLAG;
+	env_new.crc	= crc32(0, env_new.data, ENV_SIZE);
+	env_new.flags	= ACTIVE_FLAG;
 
 	if (gd->env_valid == 1) {
 		env_new_offset = CONFIG_ENV_OFFSET_REDUND;
@@ -126,7 +125,7 @@ int saveenv(void)
 	puts("Writing to SPI flash...");
 
 	ret = spi_flash_write(env_flash, env_new_offset,
-		CONFIG_ENV_SIZE, env_new);
+		CONFIG_ENV_SIZE, &env_new);
 	if (ret)
 		goto done;
 
@@ -138,7 +137,7 @@ int saveenv(void)
 	}
 
 	ret = spi_flash_write(env_flash, env_offset + offsetof(env_t, flags),
-				sizeof(env_new->flags), &flag);
+				sizeof(env_new.flags), &flag);
 	if (ret)
 		goto done;
 
@@ -244,7 +243,7 @@ int saveenv(void)
 	u32	saved_size, saved_offset, sector = 1;
 	char	*res, *saved_buffer = NULL;
 	int	ret = 1;
-	env_t	*env_new = (env_t *)env_buf;
+	env_t	env_new;
 	ssize_t	len;
 
 	if (!env_flash) {
@@ -277,13 +276,13 @@ int saveenv(void)
 			sector++;
 	}
 
-	res = (char *)env_new->data;
+	res = (char *)&env_new.data;
 	len = hexport_r(&env_htab, '\0', 0, &res, ENV_SIZE, 0, NULL);
 	if (len < 0) {
 		error("Cannot export environment: errno = %d\n", errno);
 		goto done;
 	}
-	env_new->crc = crc32(0, env_new->data, ENV_SIZE);
+	env_new.crc = crc32(0, env_new.data, ENV_SIZE);
 
 	puts("Erasing SPI flash...");
 	ret = spi_flash_erase(env_flash, CONFIG_ENV_OFFSET,
@@ -293,7 +292,7 @@ int saveenv(void)
 
 	puts("Writing to SPI flash...");
 	ret = spi_flash_write(env_flash, CONFIG_ENV_OFFSET,
-		CONFIG_ENV_SIZE, env_new);
+		CONFIG_ENV_SIZE, &env_new);
 	if (ret)
 		goto done;
 
@@ -316,7 +315,7 @@ int saveenv(void)
 
 void env_relocate_spec(void)
 {
-	char *buf = env_buf;
+	char buf[CONFIG_ENV_SIZE];
 	int ret;
 
 	env_flash = spi_flash_probe(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,

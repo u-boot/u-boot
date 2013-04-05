@@ -42,8 +42,6 @@ char *env_name_spec = "OneNAND";
 #define ONENAND_MAX_ENV_SIZE	CONFIG_ENV_SIZE
 #define ONENAND_ENV_SIZE(mtd)	(ONENAND_MAX_ENV_SIZE - ENV_HEADER_SIZE)
 
-static char env_buf[CONFIG_ENV_SIZE];
-
 DECLARE_GLOBAL_DATA_PTR;
 
 void env_relocate_spec(void)
@@ -58,7 +56,8 @@ void env_relocate_spec(void)
 	char *buf = (char *)&environment;
 #else
 	loff_t env_addr = CONFIG_ENV_ADDR;
-	char *buf = env_buf;
+	char onenand_env[ONENAND_MAX_ENV_SIZE];
+	char *buf = (char *)&onenand_env[0];
 #endif /* ENV_IS_EMBEDDED */
 
 #ifndef ENV_IS_EMBEDDED
@@ -82,7 +81,7 @@ void env_relocate_spec(void)
 
 int saveenv(void)
 {
-	env_t	*env_new = env_buf;
+	env_t	env_new;
 	ssize_t	len;
 	char	*res;
 	struct mtd_info *mtd = &onenand_mtd;
@@ -95,13 +94,13 @@ int saveenv(void)
 		.callback	= NULL,
 	};
 
-	res = (char *)env_new->data;
+	res = (char *)&env_new.data;
 	len = hexport_r(&env_htab, '\0', 0, &res, ENV_SIZE, 0, NULL);
 	if (len < 0) {
 		error("Cannot export environment: errno = %d\n", errno);
 		return 1;
 	}
-	env_new->crc = crc32(0, env_new->data, ENV_SIZE);
+	env_new.crc = crc32(0, env_new.data, ENV_SIZE);
 
 	instr.len = CONFIG_ENV_SIZE;
 #ifdef CONFIG_ENV_ADDR_FLEX
@@ -120,7 +119,7 @@ int saveenv(void)
 	}
 
 	if (mtd->write(mtd, env_addr, ONENAND_MAX_ENV_SIZE, &retlen,
-			(u_char *)env_new)) {
+			(u_char *)&env_new)) {
 		printf("OneNAND: write failed at 0x%llx\n", instr.addr);
 		return 2;
 	}
