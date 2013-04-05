@@ -27,7 +27,6 @@ LIB	= $(obj)libgeneric.o
 
 ifndef CONFIG_SPL_BUILD
 COBJS-$(CONFIG_ADDR_MAP) += addr_map.o
-COBJS-$(CONFIG_BCH) += bch.o
 COBJS-$(CONFIG_AES) += aes.o
 COBJS-$(CONFIG_BZIP2) += bzlib.o
 COBJS-$(CONFIG_BZIP2) += bzlib_crctable.o
@@ -67,6 +66,7 @@ COBJS-$(CONFIG_SPL_NET_SUPPORT) += errno.o
 COBJS-$(CONFIG_SPL_NET_SUPPORT) += hashtable.o
 COBJS-$(CONFIG_SPL_NET_SUPPORT) += net_utils.o
 endif
+COBJS-$(CONFIG_BCH) += bch.o
 COBJS-y += crc32.o
 COBJS-y += ctype.o
 COBJS-y += div64.o
