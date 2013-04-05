@@ -393,9 +393,11 @@ c_runtime_cpu_setup:
 	/* save caller lr in position 0 of saved stack */
 	str	lr, [r0]
 	/* get the spsr */
-	mrs	r0, spsr
+	mrs	lr, spsr
 	/* save spsr in position 1 of saved stack */
 	str	lr, [r0, #4]
+	/* restore lr */
+	ldr	lr, [r0]
 	/* restore r0 */
 	ldr	r0, [r13]
 	/* pop stack entry */

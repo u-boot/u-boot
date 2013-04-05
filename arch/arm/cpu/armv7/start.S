@@ -463,9 +463,10 @@ ENDPROC(cpu_init_crit)
 						@ spots for abort stack
 	str	lr, [r0]			@ save caller lr in position 0
 						@ of saved stack
-	mrs	r0, spsr			@ get the spsr
+	mrs	lr, spsr			@ get the spsr
 	str	lr, [r0, #4]			@ save spsr in position 1 of
 						@ saved stack
+	ldr	lr, [r0]			@ restore lr
 	ldr	r0, [r13]			@ restore r0
 	add	r13, r13, #4			@ pop stack entry
 	.endm
