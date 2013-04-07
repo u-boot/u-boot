@@ -111,6 +111,9 @@
 #ifndef CONFIG_BAUDRATE
 # define CONFIG_BAUDRATE	57600
 #endif
+#ifdef CONFIG_UART_CONSOLE
+# define CONFIG_BFIN_SERIAL
+#endif
 
 /*
  * Debug Settings

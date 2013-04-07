@@ -16,10 +16,9 @@
 #include <asm/mach-common/bits/watchdog.h>
 #include <asm/mach-common/bits/bootrom.h>
 #include <asm/mach-common/bits/core.h>
+#include <asm/serial.h>
 
-#define BUG() while (1) { asm volatile("emuexcpt;"); }
-
-#include "serial.h"
+#define BUG() while (1) asm volatile("emuexcpt;");
 
 #ifndef __ADSPBF60x__
 #include <asm/mach-common/bits/ebiu.h>

@@ -23,7 +23,6 @@ COBJS-y  += interrupts.o
 COBJS-$(CONFIG_JTAG_CONSOLE) += jtag-console.o
 COBJS-y  += os_log.o
 COBJS-y  += reset.o
-COBJS-y  += serial.o
 COBJS-y  += traps.o
 
 SRCS     := $(SEXTRA:.o=.S) $(SOBJS:.o=.S) $(COBJS-y:.o=.c)

@@ -43,12 +43,11 @@
 #include <serial.h>
 #include <linux/compiler.h>
 #include <asm/blackfin.h>
+#include <asm/serial.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_UART_CONSOLE
-
-#include "serial.h"
 
 #ifdef CONFIG_DEBUG_SERIAL
 static uart_lsr_t cached_lsr[256];

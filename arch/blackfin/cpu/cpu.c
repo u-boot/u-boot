@@ -16,9 +16,9 @@
 #include <asm/mach-common/bits/core.h>
 #include <asm/mach-common/bits/ebiu.h>
 #include <asm/mach-common/bits/trace.h>
+#include <asm/serial.h>
 
 #include "cpu.h"
-#include "serial.h"
 #include "initcode.h"
 
 ulong bfin_poweron_retx;
