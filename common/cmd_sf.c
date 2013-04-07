@@ -5,8 +5,8 @@
  * Licensed under the GPL-2 or later.
  */
 
-#include <div64.h>
 #include <common.h>
+#include <div64.h>
 #include <malloc.h>
 #include <spi_flash.h>
 
