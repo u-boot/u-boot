@@ -33,6 +33,7 @@ endif
 COBJS-$(CONFIG_TNETV107X_WATCHDOG) += tnetv107x_wdt.o
 COBJS-$(CONFIG_S5P)               += s5p_wdt.o
 COBJS-$(CONFIG_XILINX_TB_WATCHDOG) += xilinx_tb_wdt.o
+COBJS-$(CONFIG_BFIN_WATCHDOG)  += bfin_wdt.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)

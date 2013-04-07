@@ -314,5 +314,11 @@
 #define CONFIG_BFIN_SPI_GPIO_CS /* Only matters if BFIN_SPI is enabled */
 #define CONFIG_LZMA
 #define CONFIG_MONITOR_IS_IN_RAM
+#ifdef CONFIG_HW_WATCHDOG
+# define CONFIG_BFIN_WATCHDOG
+# ifndef CONFIG_WATCHDOG_TIMEOUT_MSECS
+#  define CONFIG_WATCHDOG_TIMEOUT_MSECS 5000
+# endif
+#endif
 
 #endif

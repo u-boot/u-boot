@@ -279,9 +279,9 @@ void board_init_f(ulong bootflag)
 	dcache_enable();
 #endif
 
-#ifdef CONFIG_WATCHDOG
+#ifdef CONFIG_HW_WATCHDOG
 	serial_early_puts("Setting up external watchdog\n");
-	watchdog_init();
+	hw_watchdog_init();
 #endif
 
 #ifdef DEBUG

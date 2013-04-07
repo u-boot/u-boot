@@ -25,7 +25,6 @@ COBJS-y  += os_log.o
 COBJS-y  += reset.o
 COBJS-y  += serial.o
 COBJS-y  += traps.o
-COBJS-$(CONFIG_HW_WATCHDOG)  += watchdog.o
 
 SRCS     := $(SEXTRA:.o=.S) $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
 OBJS     := $(addprefix $(obj),$(COBJS-y) $(SOBJS))

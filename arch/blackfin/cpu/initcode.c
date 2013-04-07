@@ -13,6 +13,7 @@
 
 #include <config.h>
 #include <asm/blackfin.h>
+#include <asm/mach-common/bits/watchdog.h>
 #include <asm/mach-common/bits/bootrom.h>
 #include <asm/mach-common/bits/core.h>
 
@@ -468,9 +469,11 @@ program_early_devices(ADI_BOOT_DATA *bs, uint *sdivB, uint *divB, uint *vcoB)
 		bfin_write_SEC_GCTL(0x1);
 		bfin_write_SEC_CCTL(0x1);
 #endif
+		bfin_write_WDOG_CTL(WDDIS);
+		SSYNC();
 		bfin_write_WDOG_CNT(MSEC_TO_SCLK(CONFIG_HW_WATCHDOG_TIMEOUT_INITCODE));
 #if CONFIG_BFIN_BOOT_MODE != BFIN_BOOT_UART
-		bfin_write_WDOG_CTL(0);
+		bfin_write_WDOG_CTL(WDEN);
 #endif
 		serial_putc('f');
 	}
