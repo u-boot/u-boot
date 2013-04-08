@@ -106,6 +106,8 @@
 #include <onenand_uboot.h>
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* special size referring to all the remaining space in a partition */
 #define SIZE_REMAINING		0xFFFFFFFF
 
@@ -1537,6 +1539,7 @@ static int parse_mtdparts(const char *const mtdparts)
 	const char *p = mtdparts;
 	struct mtd_device *dev;
 	int err = 1;
+	char tmp_parts[MTDPARTS_MAXLEN];
 
 	debug("\n---parse_mtdparts---\nmtdparts = %s\n\n", p);
 
@@ -1547,7 +1550,12 @@ static int parse_mtdparts(const char *const mtdparts)
 	}
 
 	/* re-read 'mtdparts' variable, mtd_devices_init may be updating env */
-	p = getenv("mtdparts");
+	if (gd->flags & GD_FLG_ENV_READY) {
+		p = getenv("mtdparts");
+	} else {
+		p = tmp_parts;
+		getenv_f("mtdparts", tmp_parts, MTDPARTS_MAXLEN);
+	}
 
 	if (strncmp(p, "mtdparts=", 9) != 0) {
 		printf("mtdparts variable doesn't start with 'mtdparts='\n");
@@ -1705,6 +1713,7 @@ int mtdparts_init(void)
 	const char *current_partition;
 	int ids_changed;
 	char tmp_ep[PARTITION_MAXLEN];
+	char tmp_parts[MTDPARTS_MAXLEN];
 
 	debug("\n---mtdparts_init---\n");
 	if (!initialized) {
@@ -1718,7 +1727,17 @@ int mtdparts_init(void)
 
 	/* get variables */
 	ids = getenv("mtdids");
-	parts = getenv("mtdparts");
+	/*
+	 * The mtdparts variable tends to be long. If we need to access it
+	 * before the env is relocated, then we need to use our own stack
+	 * buffer.  gd->env_buf will be too small.
+	 */
+	if (gd->flags & GD_FLG_ENV_READY) {
+		parts = getenv("mtdparts");
+	} else {
+		parts = tmp_parts;
+		getenv_f("mtdparts", tmp_parts, MTDPARTS_MAXLEN);
+	}
 	current_partition = getenv("partition");
 
 	/* save it for later parsing, cannot rely on current partition pointer

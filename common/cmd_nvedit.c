@@ -273,6 +273,10 @@ int setenv(const char *varname, const char *varvalue)
 {
 	const char * const argv[4] = { "setenv", varname, varvalue, NULL };
 
+	/* before import into hashtable */
+	if (!(gd->flags & GD_FLG_ENV_READY))
+		return 1;
+
 	if (varvalue == NULL || varvalue[0] == '\0')
 		return _do_env_set(0, 2, (char * const *)argv);
 	else
