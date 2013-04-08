@@ -3548,6 +3548,27 @@ but it can not erase, write this NOR flash by SRIO or PCIE interface.
 	environment. If redundant environment is used, it will be copied to
 	CONFIG_NAND_ENV_DST + CONFIG_ENV_SIZE.
 
+- CONFIG_ENV_IS_IN_UBI:
+
+	Define this if you have an UBI volume that you want to use for the
+	environment.  This has the benefit of wear-leveling the environment
+	accesses, which is important on NAND.
+
+	- CONFIG_ENV_UBI_PART:
+
+	  Define this to a string that is the mtd partition containing the UBI.
+
+	- CONFIG_ENV_UBI_VOLUME:
+
+	  Define this to the name of the volume that you want to store the
+	  environment in.
+
+	- CONFIG_UBI_SILENCE_MSG
+	- CONFIG_UBIFS_SILENCE_MSG
+
+	  You will probably want to define these to avoid a really noisy system
+	  when storing the env in UBI.
+
 - CONFIG_SYS_SPI_INIT_OFFSET
 
 	Defines offset to the initial SPI buffer area in DPRAM. The
