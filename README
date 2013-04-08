@@ -3563,6 +3563,12 @@ but it can not erase, write this NOR flash by SRIO or PCIE interface.
 	  Define this to the name of the volume that you want to store the
 	  environment in.
 
+	- CONFIG_ENV_UBI_VOLUME_REDUND:
+
+	  Define this to the name of another volume to store a second copy of
+	  the environment in.  This will enable redundant environments in UBI.
+	  It is assumed that both volumes are in the same MTD partition.
+
 	- CONFIG_UBI_SILENCE_MSG
 	- CONFIG_UBIFS_SILENCE_MSG
 

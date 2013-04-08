@@ -103,6 +103,9 @@ extern unsigned long nand_env_oob_offset;
 # ifndef CONFIG_ENV_UBI_VOLUME
 #  error "Need to define CONFIG_ENV_UBI_VOLUME when using CONFIG_ENV_IS_IN_UBI"
 # endif
+# if defined(CONFIG_ENV_UBI_VOLUME_REDUND)
+#  define CONFIG_SYS_REDUNDAND_ENVIRONMENT
+# endif
 # ifndef CONFIG_ENV_SIZE
 #  error "Need to define CONFIG_ENV_SIZE when using CONFIG_ENV_IS_IN_UBI"
 # endif
