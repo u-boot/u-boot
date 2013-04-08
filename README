@@ -2814,6 +2814,11 @@ FIT uImage format:
 
 		Requires also defining CONFIG_RBTREE
 
+		CONFIG_UBI_SILENCE_MSG
+
+		Make the verbose messages from UBI stop printing.  This leaves
+		warnings and errors enabled.
+
 - UBIFS support
 		CONFIG_CMD_UBIFS
 
@@ -2821,6 +2826,11 @@ FIT uImage format:
 		UBIFS.  UBIFS is read-only in u-boot.
 
 		Requires UBI support as well as CONFIG_LZO
+
+		CONFIG_UBIFS_SILENCE_MSG
+
+		Make the verbose messages from UBIFS stop printing.  This leaves
+		warnings and errors enabled.
 
 - SPL framework
 		CONFIG_SPL
