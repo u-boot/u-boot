@@ -2806,6 +2806,22 @@ FIT uImage format:
 		Adds the MTD partitioning infrastructure from the Linux
 		kernel. Needed for UBI support.
 
+- UBI support
+		CONFIG_CMD_UBI
+
+		Adds commands for interacting with MTD partitions formatted
+		with the UBI flash translation layer
+
+		Requires also defining CONFIG_RBTREE
+
+- UBIFS support
+		CONFIG_CMD_UBIFS
+
+		Adds commands for interacting with UBI volumes formatted as
+		UBIFS.  UBIFS is read-only in u-boot.
+
+		Requires UBI support as well as CONFIG_LZO
+
 - SPL framework
 		CONFIG_SPL
 		Enable building of SPL globally.
