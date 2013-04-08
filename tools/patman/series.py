@@ -27,7 +27,8 @@ import gitutil
 import terminal
 
 # Series-xxx tags that we understand
-valid_series = ['to', 'cc', 'version', 'changes', 'prefix', 'notes', 'name'];
+valid_series = ['to', 'cc', 'version', 'changes', 'prefix', 'notes', 'name',
+                'cover-cc']
 
 class Series(dict):
     """Holds information about a patch series, including all tags.
@@ -43,6 +44,7 @@ class Series(dict):
     def __init__(self):
         self.cc = []
         self.to = []
+        self.cover_cc = []
         self.commits = []
         self.cover = None
         self.notes = []
@@ -69,6 +71,7 @@ class Series(dict):
             value: Tag value (part after 'Series-xxx: ')
         """
         # If we already have it, then add to our list
+        name = name.replace('-', '_')
         if name in self:
             values = value.split(',')
             values = [str.strip() for str in values]
@@ -140,7 +143,8 @@ class Series(dict):
         print 'Prefix:\t ', self.get('prefix')
         if self.cover:
             print 'Cover: %d lines' % len(self.cover)
-            all_ccs = itertools.chain(*self._generated_cc.values())
+            cover_cc = gitutil.BuildEmailList(self.get('cover_cc', ''))
+            all_ccs = itertools.chain(cover_cc, *self._generated_cc.values())
             for email in set(all_ccs):
                     print '      Cc: ',email
         if cmd:
@@ -232,7 +236,8 @@ class Series(dict):
             self._generated_cc[commit.patch] = list
 
         if cover_fname:
-            print >>fd, cover_fname, ', '.join(set(all_ccs))
+            cover_cc = gitutil.BuildEmailList(self.get('cover_cc', ''))
+            print >>fd, cover_fname, ', '.join(set(cover_cc + all_ccs))
 
         fd.close()
         return fname

@@ -20,53 +20,98 @@
 #
 
 import os
-import subprocess
+import cros_subprocess
 
 """Shell command ease-ups for Python."""
 
-def RunPipe(pipeline, infile=None, outfile=None,
-            capture=False, oneline=False, hide_stderr=False):
+class CommandResult:
+    """A class which captures the result of executing a command.
+
+    Members:
+        stdout: stdout obtained from command, as a string
+        stderr: stderr obtained from command, as a string
+        return_code: Return code from command
+        exception: Exception received, or None if all ok
+    """
+    def __init__(self):
+        self.stdout = None
+        self.stderr = None
+        self.return_code = None
+        self.exception = None
+
+
+def RunPipe(pipe_list, infile=None, outfile=None,
+            capture=False, capture_stderr=False, oneline=False,
+            raise_on_error=True, cwd=None, **kwargs):
     """
     Perform a command pipeline, with optional input/output filenames.
 
-    hide_stderr     Don't allow output of stderr (default False)
+    Args:
+        pipe_list: List of command lines to execute. Each command line is
+            piped into the next, and is itself a list of strings. For
+            example [ ['ls', '.git'] ['wc'] ] will pipe the output of
+            'ls .git' into 'wc'.
+        infile: File to provide stdin to the pipeline
+        outfile: File to store stdout
+        capture: True to capture output
+        capture_stderr: True to capture stderr
+        oneline: True to strip newline chars from output
+        kwargs: Additional keyword arguments to cros_subprocess.Popen()
+    Returns:
+        CommandResult object
     """
+    result = CommandResult()
     last_pipe = None
+    pipeline = list(pipe_list)
+    user_pipestr =  '|'.join([' '.join(pipe) for pipe in pipe_list])
     while pipeline:
         cmd = pipeline.pop(0)
-        kwargs = {}
         if last_pipe is not None:
             kwargs['stdin'] = last_pipe.stdout
         elif infile:
             kwargs['stdin'] = open(infile, 'rb')
         if pipeline or capture:
-            kwargs['stdout'] = subprocess.PIPE
+            kwargs['stdout'] = cros_subprocess.PIPE
         elif outfile:
             kwargs['stdout'] = open(outfile, 'wb')
-        if hide_stderr:
-            kwargs['stderr'] = open('/dev/null', 'wb')
+        if capture_stderr:
+            kwargs['stderr'] = cros_subprocess.PIPE
 
-        last_pipe = subprocess.Popen(cmd, **kwargs)
+        try:
+            last_pipe = cros_subprocess.Popen(cmd, cwd=cwd, **kwargs)
+        except Exception, err:
+            result.exception = err
+            if raise_on_error:
+                raise Exception("Error running '%s': %s" % (user_pipestr, str))
+            result.return_code = 255
+            return result
 
     if capture:
-        ret = last_pipe.communicate()[0]
-        if not ret:
-            return None
-        elif oneline:
-            return ret.rstrip('\r\n')
-        else:
-            return ret
+        result.stdout, result.stderr, result.combined = (
+                last_pipe.CommunicateFilter(None))
+        if result.stdout and oneline:
+            result.output = result.stdout.rstrip('\r\n')
+        result.return_code = last_pipe.wait()
     else:
-        return os.waitpid(last_pipe.pid, 0)[1] == 0
+        result.return_code = os.waitpid(last_pipe.pid, 0)[1]
+    if raise_on_error and result.return_code:
+        raise Exception("Error running '%s'" % user_pipestr)
+    return result
 
 def Output(*cmd):
-    return RunPipe([cmd], capture=True)
+    return RunPipe([cmd], capture=True, raise_on_error=False).stdout
 
-def OutputOneLine(*cmd):
-    return RunPipe([cmd], capture=True, oneline=True)
+def OutputOneLine(*cmd, **kwargs):
+    raise_on_error = kwargs.pop('raise_on_error', True)
+    return (RunPipe([cmd], capture=True, oneline=True,
+            raise_on_error=raise_on_error,
+            **kwargs).stdout.strip())
 
 def Run(*cmd, **kwargs):
-    return RunPipe([cmd], **kwargs)
+    return RunPipe([cmd], **kwargs).stdout
 
 def RunList(cmd):
-    return RunPipe([cmd], capture=True)
+    return RunPipe([cmd], capture=True).stdout
+
+def StopAll():
+    cros_subprocess.stay_alive = False

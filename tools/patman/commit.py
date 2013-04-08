@@ -22,7 +22,7 @@
 import re
 
 # Separates a tag: at the beginning of the subject from the rest of it
-re_subject_tag = re.compile('([^:]*):\s*(.*)')
+re_subject_tag = re.compile('([^:\s]*):\s*(.*)')
 
 class Commit:
     """Holds information about a single commit/patch in the series.
@@ -61,9 +61,10 @@ class Commit:
 
         Subject tags look like this:
 
-            propounder: Change the widget to propound correctly
+            propounder: fort: Change the widget to propound correctly
 
-        Multiple tags are supported. The list is updated in self.tag
+        Here the tags are propounder and fort. Multiple tags are supported.
+        The list is updated in self.tag.
 
         Returns:
             None if ok, else the name of a tag with no email alias
