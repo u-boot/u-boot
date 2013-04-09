@@ -183,7 +183,10 @@
 #define CONFIG_ENV_SIZE	0x20000	/* Total Size of Environment Sector */
 #define CONFIG_ENV_OFFSET	0x20000	/* environment starts here  */
 
-#define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM_1
-#define CONFIG_SYS_INIT_SP_ADDR PHYS_SRAM
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CONFIG_SYS_INIT_RAM_ADDR        PHYS_SRAM
+#define CONFIG_SYS_INIT_RAM_SIZE        (250 * 1024)
+#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_INIT_RAM_ADDR + \
+					 CONFIG_SYS_INIT_RAM_SIZE)
 
 #endif							/* __CONFIG_H */

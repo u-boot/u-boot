@@ -66,6 +66,14 @@ int board_init (void)
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x10000100;
 
+	flash__init();
+	ether__init();
+
+	return 0;
+}
+
+void s_init(void)
+{
 	/* Configure MUX settings */
 	set_muxconf_regs ();
 	peripheral_power_enable ();
@@ -75,10 +83,6 @@ int board_init (void)
  *  ... rkw ...
  */
 	icache_enable ();
-
-	flash__init ();
-	ether__init ();
-	return 0;
 }
 
 /******************************
