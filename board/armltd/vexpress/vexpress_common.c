@@ -166,8 +166,8 @@ static void vexpress_timer_init(void)
 	 */
 	writel(SYSTIMER_RELOAD, &systimer_base->timer0load);
 	writel(SYSTIMER_RELOAD, &systimer_base->timer0value);
-	writel(SYSTIMER_EN | SYSTIMER_32BIT | \
-	       readl(&systimer_base->timer0control), \
+	writel(SYSTIMER_EN | SYSTIMER_32BIT |
+	       readl(&systimer_base->timer0control),
 	       &systimer_base->timer0control);
 
 	reset_timer_masked();
@@ -251,7 +251,7 @@ unsigned long long get_ticks(void)
 	return get_timer(0);
 }
 
-ulong get_tbclk (void)
+ulong get_tbclk(void)
 {
 	return (ulong)CONFIG_SYS_HZ;
 }

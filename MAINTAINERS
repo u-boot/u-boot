@@ -967,7 +967,7 @@ Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
 
 Matt Waddel <matt.waddel@linaro.org>
 
-	ca9x4_ct_vxp	ARM ARMV7 (Quad Core)
+	vexpress_ca9x4	ARM ARMV7 (Quad Core)
 
 Otavio Salvador <otavio@ossystems.com.br>
 
