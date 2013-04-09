@@ -34,8 +34,8 @@ enum iomux_reg_addr {
 	IOMUXSW_MUX_CTL = IOMUXC_BASE_ADDR + 4,		/* MUX control */
 	IOMUXSW_MUX_END = IOMUXC_BASE_ADDR + 0x324,	/* last MUX control */
 	IOMUXSW_PAD_CTL = IOMUXC_BASE_ADDR + 0x328,	/* Pad control */
-	IOMUXSW_PAD_END = IOMUXC_BASE_ADDR + 0x794,	/* last Pad control */
-	IOMUXSW_INPUT_CTL = IOMUXC_BASE_ADDR + 0x7AC,	/* input select */
+	IOMUXSW_PAD_END = IOMUXC_BASE_ADDR + 0x7A4,	/* last Pad control */
+	IOMUXSW_INPUT_CTL = IOMUXC_BASE_ADDR + 0x7A8,	/* input select */
 	IOMUXSW_INPUT_END = IOMUXC_BASE_ADDR + 0x9F4,	/* last input select */
 };
 
