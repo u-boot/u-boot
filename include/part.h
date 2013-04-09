@@ -55,6 +55,10 @@ typedef struct block_dev_desc {
 	void		*priv;		/* driver private struct pointer */
 }block_dev_desc_t;
 
+#define BLOCK_CNT(size, block_dev_desc) (PAD_COUNT(size, block_dev_desc->blksz))
+#define PAD_TO_BLOCKSIZE(size, block_dev_desc) \
+	(PAD_SIZE(size, block_dev_desc->blksz))
+
 /* Interface types: */
 #define IF_TYPE_UNKNOWN		0
 #define IF_TYPE_IDE		1
