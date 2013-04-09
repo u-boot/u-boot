@@ -36,11 +36,14 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 
-#define TIMER_LOAD_VAL 0xffffffff
+#define TIMER_CLOCK	(CONFIG_SYS_CLK_FREQ / (2 << CONFIG_SYS_PTV))
+#define TIMER_LOAD_VAL	0xffffffff
 
 /* macro to read the 32 bit timer */
-#define READ_TIMER (*(volatile ulong *)(CONFIG_SYS_TIMERBASE+8))
+#define READ_TIMER	readl(CONFIG_SYS_TIMERBASE+8) \
+			/ (TIMER_CLOCK / CONFIG_SYS_HZ)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -114,7 +117,8 @@ ulong get_timer_masked (void)
 		 * (TLV-now) amount of time after passing though -1
 		 * nts = new "advancing time stamp"...it could also roll and cause problems.
 		 */
-		timestamp += lastdec + TIMER_LOAD_VAL - now;
+		timestamp += lastdec + (TIMER_LOAD_VAL / (TIMER_CLOCK /
+					CONFIG_SYS_HZ)) - now;
 	}
 	lastdec = now;
 
@@ -160,8 +164,5 @@ unsigned long long get_ticks(void)
  */
 ulong get_tbclk (void)
 {
-	ulong tbclk;
-
-	tbclk = CONFIG_SYS_HZ;
-	return tbclk;
+	return CONFIG_SYS_HZ;
 }
