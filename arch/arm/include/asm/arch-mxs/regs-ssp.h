@@ -25,7 +25,7 @@
 #ifndef __MX28_REGS_SSP_H__
 #define __MX28_REGS_SSP_H__
 
-#include <asm/arch/regs-common.h>
+#include <asm/imx-common/regs-common.h>
 
 #ifndef	__ASSEMBLY__
 #if defined(CONFIG_MX23)

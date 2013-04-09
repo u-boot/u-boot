@@ -26,7 +26,7 @@
 #ifndef __MX28_REGS_LRADC_H__
 #define __MX28_REGS_LRADC_H__
 
-#include <asm/arch/regs-common.h>
+#include <asm/imx-common/regs-common.h>
 
 #ifndef	__ASSEMBLY__
 struct mxs_lradc_regs {

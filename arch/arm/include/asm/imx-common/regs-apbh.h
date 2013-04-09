@@ -26,7 +26,7 @@
 #ifndef __REGS_APBH_H__
 #define __REGS_APBH_H__
 
-#include <asm/arch/regs-common.h>
+#include <asm/imx-common/regs-common.h>
 
 #ifndef	__ASSEMBLY__
 

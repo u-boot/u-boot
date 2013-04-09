@@ -34,8 +34,10 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
+#include <asm/imx-common/regs-bch.h>
+#include <asm/imx-common/regs-gpmi.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/arch/dma.h>
+#include <asm/imx-common/dma.h>
 
 #define	MXS_NAND_DMA_DESCRIPTOR_COUNT		4
 
