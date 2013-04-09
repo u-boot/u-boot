@@ -26,7 +26,7 @@
 
 #define CONFIG_SYS_NO_FLASH
 
-#define CONFIG_MMC
+#define CONFIG_ZYNQ_SDHCI0
 #define CONFIG_ZYNQ_SPI
 
 #include <configs/zynq_common.h>

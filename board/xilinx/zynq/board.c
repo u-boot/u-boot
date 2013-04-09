@@ -160,8 +160,10 @@ int board_mmc_init(bd_t *bd)
 {
 	int ret = 0;
 
-#if defined(CONFIG_SDHCI) && defined(CONFIG_ZYNQ_SDHCI)
-	ret = zynq_sdhci_init(SD_BASEADDR);
+#if defined(CONFIG_ZYNQ_SDHCI)
+# if defined(CONFIG_ZYNQ_SDHCI_BASEADDR0)
+	ret = zynq_sdhci_init(CONFIG_ZYNQ_SDHCI_BASEADDR0);
+# endif
 #endif
 	return ret;
 }
