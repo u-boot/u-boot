@@ -788,9 +788,6 @@ static init_fnc_t init_sequence_f[] = {
 	/* TODO: can we rename this to timer_init()? */
 	init_timebase,
 #endif
-#if defined(CONFIG_BOARD_EARLY_INIT_F)
-	board_early_init_f,
-#endif
 #ifdef CONFIG_ARM
 	timer_init,		/* initialize timer */
 #endif
