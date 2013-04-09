@@ -158,7 +158,12 @@ int board_eth_init(bd_t *bis)
 #ifdef CONFIG_CMD_MMC
 int board_mmc_init(bd_t *bd)
 {
-	return zynq_mmc_init(bd);
+	int ret = 0;
+
+#if defined(CONFIG_SDHCI) && defined(CONFIG_ZYNQ_SDHCI)
+	ret = zynq_sdhci_init(SD_BASEADDR);
+#endif
+	return ret;
 }
 #endif
 

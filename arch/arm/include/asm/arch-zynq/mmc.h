@@ -23,15 +23,6 @@
 #ifndef __ASM_ARCH_MMC_H_
 #define __ASM_ARCH_MMC_H_
 
-#include <config.h>
-
 int zynq_sdhci_init(u32 regbase);
-
-static inline int zynq_mmc_init(bd_t *bd)
-{
-	u32 regbase = (u32) SD_BASEADDR;
-
-	return zynq_sdhci_init(regbase);
-}
 
 #endif /* __ASM_ARCH_MMC_H_ */
