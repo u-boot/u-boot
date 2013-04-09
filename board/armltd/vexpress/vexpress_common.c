@@ -45,8 +45,7 @@
 static ulong timestamp;
 static ulong lastdec;
 
-static struct wdt *wdt_base = (struct wdt *)WDT_BASE;
-static struct systimer *systimer_base = (struct systimer *)SYSTIMER_BASE;
+static struct systimer *systimer_base = (struct systimer *)V2M_TIMER01;
 static struct sysctrl *sysctrl_base = (struct sysctrl *)SCTL_BASE;
 
 static void flash__init(void);
@@ -173,13 +172,31 @@ static void vexpress_timer_init(void)
 	reset_timer_masked();
 }
 
+int v2m_cfg_write(u32 devfn, u32 data)
+{
+	/* Configuration interface broken? */
+	u32 val;
+
+	devfn |= SYS_CFG_START | SYS_CFG_WRITE;
+
+	val = readl(V2M_SYS_CFGSTAT);
+	writel(val & ~SYS_CFG_COMPLETE, V2M_SYS_CFGSTAT);
+
+	writel(data, V2M_SYS_CFGDATA);
+	writel(devfn, V2M_SYS_CFGCTRL);
+
+	do {
+		val = readl(V2M_SYS_CFGSTAT);
+	} while (val == 0);
+
+	return !!(val & SYS_CFG_ERR);
+}
+
 /* Use the ARM Watchdog System to cause reset */
 void reset_cpu(ulong addr)
 {
-	writeb(WDT_EN, &wdt_base->wdogcontrol);
-	writel(WDT_RESET_LOAD, &wdt_base->wdogload);
-	while (1)
-		;
+	if (v2m_cfg_write(SYS_CFG_REBOOT | SYS_CFG_SITE_MB, 0))
+		printf("Unable to reboot\n");
 }
 
 /*
