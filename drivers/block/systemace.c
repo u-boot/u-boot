@@ -127,6 +127,7 @@ block_dev_desc_t *systemace_get_dev(int dev)
 		systemace_dev.part_type = PART_TYPE_UNKNOWN;
 		systemace_dev.type = DEV_TYPE_HARDDISK;
 		systemace_dev.blksz = 512;
+		systemace_dev.log2blksz = LOG2(systemace_dev.blksz);
 		systemace_dev.removable = 1;
 		systemace_dev.block_read = systemace_read;
 

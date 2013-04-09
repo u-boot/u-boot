@@ -106,6 +106,8 @@ void scsi_scan(int mode)
 		scsi_dev_desc[i].lun=0xff;
 		scsi_dev_desc[i].lba=0;
 		scsi_dev_desc[i].blksz=0;
+		scsi_dev_desc[i].log2blksz =
+			LOG2_INVALID(typeof(scsi_dev_desc[i].log2blksz));
 		scsi_dev_desc[i].type=DEV_TYPE_UNKNOWN;
 		scsi_dev_desc[i].vendor[0]=0;
 		scsi_dev_desc[i].product[0]=0;
@@ -166,6 +168,8 @@ void scsi_scan(int mode)
 			}
 			scsi_dev_desc[scsi_max_devs].lba=capacity;
 			scsi_dev_desc[scsi_max_devs].blksz=blksz;
+			scsi_dev_desc[scsi_max_devs].log2blksz =
+				LOG2(scsi_dev_desc[scsi_max_devs].blksz);
 			scsi_dev_desc[scsi_max_devs].type=perq;
 			init_part(&scsi_dev_desc[scsi_max_devs]);
 removable:

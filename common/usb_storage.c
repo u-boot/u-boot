@@ -1430,6 +1430,7 @@ int usb_stor_get_info(struct usb_device *dev, struct us_data *ss,
 			*capacity, *blksz);
 	dev_desc->lba = *capacity;
 	dev_desc->blksz = *blksz;
+	dev_desc->log2blksz = LOG2(dev_desc->blksz);
 	dev_desc->type = perq;
 	USB_STOR_PRINTF(" address %d\n", dev_desc->target);
 	USB_STOR_PRINTF("partype: %d\n", dev_desc->part_type);
