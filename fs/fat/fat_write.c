@@ -120,7 +120,6 @@ static int flush_fat_buffer(fsdata *mydata)
 	__u8 *bufptr = mydata->fatbuf;
 	__u32 startblock = mydata->fatbufnum * FATBUFBLOCKS;
 
-	fatlength *= mydata->sect_size;
 	startblock += mydata->fat_sect;
 
 	if (getsize > fatlength)
