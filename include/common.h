@@ -1032,7 +1032,7 @@ static inline phys_addr_t map_to_sysmem(void *ptr)
  */
 #define DEFINE_ALIGN_BUFFER(type, name, size, align)			\
 	static char __##name[roundup(size * sizeof(type), align)]	\
-			__attribute__((aligned(align)));				\
+			__aligned(align);				\
 									\
 	static type *name = (type *)__##name
 #define DEFINE_CACHE_ALIGN_BUFFER(type, name, size)			\
