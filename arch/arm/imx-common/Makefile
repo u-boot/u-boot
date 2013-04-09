@@ -31,6 +31,9 @@ ifeq ($(SOC),$(filter $(SOC),mx5 mx6))
 COBJS-y	= iomux-v3.o timer.o cpu.o speed.o
 COBJS-$(CONFIG_I2C_MXC) += i2c-mxv7.o
 endif
+ifeq ($(SOC),$(filter $(SOC),mx6 mxs))
+COBJS-y	+= misc.o
+endif
 COBJS-$(CONFIG_CMD_BMODE) += cmd_bmode.o
 COBJS-$(CONFIG_CMD_HDMIDETECT) += cmd_hdmidet.o
 COBJS	:= $(sort $(COBJS-y))

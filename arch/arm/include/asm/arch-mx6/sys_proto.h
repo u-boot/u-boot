@@ -24,6 +24,8 @@
 #ifndef _SYS_PROTO_H_
 #define _SYS_PROTO_H_
 
+#include <asm/imx-common/regs-common.h>
+
 #define MXC_CPU_MX51		0x51
 #define MXC_CPU_MX53		0x53
 #define MXC_CPU_MX6SL		0x60
@@ -46,4 +48,12 @@ void set_vddsoc(u32 mv);
 int fecmxc_initialize(bd_t *bis);
 u32 get_ahb_clk(void);
 u32 get_periph_clk(void);
+
+int mxs_reset_block(struct mxs_register_32 *reg);
+int mxs_wait_mask_set(struct mxs_register_32 *reg,
+		       uint32_t mask,
+		       unsigned int timeout);
+int mxs_wait_mask_clr(struct mxs_register_32 *reg,
+		       uint32_t mask,
+		       unsigned int timeout);
 #endif

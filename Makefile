@@ -331,7 +331,7 @@ ifneq ($(CONFIG_AM33XX)$(CONFIG_OMAP34XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX)$(C
 LIBS-y += $(CPUDIR)/omap-common/libomap-common.o
 endif
 
-ifneq (,$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35))
+ifneq (,$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35 mxs))
 LIBS-y += arch/$(ARCH)/imx-common/libimx-common.o
 endif
 
