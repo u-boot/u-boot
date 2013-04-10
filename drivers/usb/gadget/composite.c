@@ -997,7 +997,8 @@ static int composite_bind(struct usb_gadget *gadget)
 	if (status < 0)
 		goto fail;
 
-	cdev->desc = *composite->dev;
+	memcpy(&cdev->desc, composite->dev,
+	       sizeof(struct usb_device_descriptor));
 	cdev->desc.bMaxPacketSize0 = gadget->ep0->maxpacket;
 
 	debug("%s: ready\n", composite->name);
