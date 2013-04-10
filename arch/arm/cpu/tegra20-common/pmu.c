@@ -44,7 +44,7 @@ int pmu_set_nominal(void)
 	int core, cpu, bus;
 
 	/* by default, the table has been filled with T25 settings */
-	switch (tegra_get_chip_type()) {
+	switch (tegra_get_chip_sku()) {
 	case TEGRA_SOC_T20:
 		core = VDD_CORE_NOMINAL_T20;
 		cpu = VDD_CPU_NOMINAL_T20;
@@ -54,7 +54,7 @@ int pmu_set_nominal(void)
 		cpu = VDD_CPU_NOMINAL_T25;
 		break;
 	default:
-		debug("%s: Unknown chip type\n", __func__);
+		debug("%s: Unknown SKU id\n", __func__);
 		return -1;
 	}
 
