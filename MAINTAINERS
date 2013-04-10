@@ -664,6 +664,7 @@ Fabio Estevam <fabio.estevam@freescale.com>
 	mx6qsabresd	i.MX6Q
 	mx6qsabreauto	i.MX6Q
 	wandboard	i.MX6DL/S
+	mx6slevk	i.MX6SL
 
 Daniel Gorsulowski <daniel.gorsulowski@esd.eu>
 
