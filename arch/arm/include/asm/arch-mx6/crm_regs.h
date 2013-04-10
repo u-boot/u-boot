@@ -244,7 +244,12 @@ struct mxc_ccm_reg {
 #define MXC_CCM_CSCDR1_USBOH3_CLK_PRED_MASK		(0x7 << 8)
 #define MXC_CCM_CSCDR1_USBOH3_CLK_PODF_OFFSET		6
 #define MXC_CCM_CSCDR1_USBOH3_CLK_PODF_MASK		(0x3 << 6)
+#ifdef CONFIG_MX6SL
+#define MXC_CCM_CSCDR1_UART_CLK_PODF_MASK		0x1F
+#define MXC_CCM_CSCDR1_UART_CLK_SEL			(1 << 6)
+#else
 #define MXC_CCM_CSCDR1_UART_CLK_PODF_MASK		0x3F
+#endif
 #define MXC_CCM_CSCDR1_UART_CLK_PODF_OFFSET		0
 
 /* Define the bits in register CS1CDR */

@@ -24,7 +24,11 @@
 #if defined(CONFIG_MX6DL) || defined(CONFIG_MX6S)
 #include "mx6dl_pins.h"
 #else
+#if defined(CONFIG_MX6SL)
+#include "mx6sl_pins.h"
+#else
 #error "Please select cpu"
+#endif	/* CONFIG_MX6SL */
 #endif	/* CONFIG_MX6DL or CONFIG_MX6S */
 #endif	/* CONFIG_MX6Q */
 
