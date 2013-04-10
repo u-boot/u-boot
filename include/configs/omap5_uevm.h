@@ -31,8 +31,7 @@
 /* Define the default GPT table for eMMC */
 #define PARTS_DEFAULT \
 	"uuid_disk=${uuid_gpt_disk};" \
-	"name=u-boot,size=1792KiB,uuid=${uuid_gpt_u-boot};" \
-	"name=rootfs,size=-,uuid=${uuid_gpt_rootfs}"
+	"name=rootfs,start=2MiB,size=-,uuid=${uuid_gpt_rootfs}"
 
 #include <configs/omap5_common.h>
 
