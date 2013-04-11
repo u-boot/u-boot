@@ -64,7 +64,7 @@
  *    have some work left to do at this point regarding memory, so
  *    call c_runtime_cpu_setup.
  *
- * 6. Branch to either nand_boot() or board_init_r().
+ * 6. Branch to board_init_r().
  */
 
 /*
@@ -77,10 +77,7 @@ ENTRY(_main)
  * Set up initial C runtime environment and call board_init_f(0).
  */
 
-#if defined(CONFIG_NAND_SPL)
-	/* deprecated, use instead CONFIG_SPL_BUILD */
-	ldr	sp, =(CONFIG_SYS_INIT_SP_ADDR)
-#elif defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_STACK)
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_STACK)
 	ldr	sp, =(CONFIG_SPL_STACK)
 #else
 	ldr	sp, =(CONFIG_SYS_INIT_SP_ADDR)
@@ -129,20 +126,11 @@ clbss_l:cmp	r0, r1			/* while not at end of BSS */
 	bl coloured_LED_init
 	bl red_led_on
 
-#if defined(CONFIG_NAND_SPL)
-
-	/* call _nand_boot() */
-	ldr     pc, =nand_boot
-
-#else
-
 	/* call board_init_r(gd_t *id, ulong dest_addr) */
 	mov	r0, r8			/* gd_t */
 	ldr	r1, [r8, #GD_RELOCADDR]	/* dest_addr */
 	/* call board_init_r */
 	ldr	pc, =board_init_r	/* this is auto-relocated! */
-
-#endif
 
 	/* we should not return here. */
 
