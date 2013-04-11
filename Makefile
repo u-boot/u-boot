@@ -46,12 +46,7 @@ HOSTARCH := $(shell uname -m | \
 HOSTOS := $(shell uname -s | tr '[:upper:]' '[:lower:]' | \
 	    sed -e 's/\(cygwin\).*/cygwin/')
 
-# Set shell to bash if possible, otherwise fall back to sh
-SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
-	else if [ -x /bin/bash ]; then echo /bin/bash; \
-	else echo sh; fi; fi)
-
-export	HOSTARCH HOSTOS SHELL
+export	HOSTARCH HOSTOS
 
 # Deal with colliding definitions from tcsh etc.
 VENDOR=
