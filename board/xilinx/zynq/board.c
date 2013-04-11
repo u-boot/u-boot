@@ -22,7 +22,6 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/nand.h>
 #include <netdev.h>
 #include <zynqpl.h>
 #include <asm/arch/sys_proto.h>
