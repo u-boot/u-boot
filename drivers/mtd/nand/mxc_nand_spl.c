@@ -28,13 +28,13 @@
 #include <nand.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/io.h>
-#include <fsl_nfc.h>
+#include "mxc_nand.h"
 
 #if defined(MXC_NFC_V1) || defined(MXC_NFC_V2_1)
-static struct fsl_nfc_regs *const nfc = (void *)NFC_BASE_ADDR;
+static struct mxc_nand_regs *const nfc = (void *)NFC_BASE_ADDR;
 #elif defined(MXC_NFC_V3_2)
-static struct fsl_nfc_regs *const nfc = (void *)NFC_BASE_ADDR_AXI;
-static struct fsl_nfc_ip_regs *const nfc_ip = (void *)NFC_BASE_ADDR;
+static struct mxc_nand_regs *const nfc = (void *)NFC_BASE_ADDR_AXI;
+static struct mxc_nand_ip_regs *const nfc_ip = (void *)NFC_BASE_ADDR;
 #endif
 
 static void nfc_wait_ready(void)
@@ -68,7 +68,7 @@ static void nfc_nand_init(void)
 
 	tmp = (readnfc(&nfc_ip->config2) & ~(NFC_V3_CONFIG2_SPAS_MASK |
 			NFC_V3_CONFIG2_EDC_MASK | NFC_V3_CONFIG2_PS_MASK)) |
-		NFC_V3_CONFIG2_SPAS(CONFIG_SYS_NAND_SPARE_SIZE / 2) |
+		NFC_V3_CONFIG2_SPAS(CONFIG_SYS_NAND_OOBSIZE / 2) |
 		NFC_V3_CONFIG2_INT_MSK | NFC_V3_CONFIG2_ECC_EN |
 		NFC_V3_CONFIG2_ONE_CYCLE;
 	if (CONFIG_SYS_NAND_PAGE_SIZE == 4096)
@@ -81,7 +81,7 @@ static void nfc_nand_init(void)
 	 * if spare size is larger that 16 bytes per 512 byte hunk
 	 * then use 8 symbol correction instead of 4
 	 */
-	if (CONFIG_SYS_NAND_SPARE_SIZE / ecc_per_page > 16)
+	if (CONFIG_SYS_NAND_OOBSIZE / ecc_per_page > 16)
 		tmp |= NFC_V3_CONFIG2_ECC_MODE_8;
 	else
 		tmp &= ~NFC_V3_CONFIG2_ECC_MODE_8;
@@ -102,7 +102,7 @@ static void nfc_nand_init(void)
 	int ecc_per_page = CONFIG_SYS_NAND_PAGE_SIZE / 512;
 	int config1;
 
-	writenfc(CONFIG_SYS_NAND_SPARE_SIZE / 2, &nfc->spare_area_size);
+	writenfc(CONFIG_SYS_NAND_OOBSIZE / 2, &nfc->spare_area_size);
 
 	/* unlocking RAM Buff */
 	writenfc(0x2, &nfc->config);
@@ -115,7 +115,7 @@ static void nfc_nand_init(void)
 	 * if spare size is larger that 16 bytes per 512 byte hunk
 	 * then use 8 symbol correction instead of 4
 	 */
-	if (CONFIG_SYS_NAND_SPARE_SIZE / ecc_per_page > 16)
+	if (CONFIG_SYS_NAND_OOBSIZE / ecc_per_page > 16)
 		config1 &= ~NFC_V2_CONFIG1_ECC_MODE_4;
 	else
 		config1 |= NFC_V2_CONFIG1_ECC_MODE_4;
@@ -204,7 +204,7 @@ static int nfc_nand_check_ecc(void)
 #elif defined(MXC_NFC_V2_1) || defined(MXC_NFC_V3_2)
 	u32 ecc_status = readl(&nfc->ecc_status_result);
 	int ecc_per_page = CONFIG_SYS_NAND_PAGE_SIZE / 512;
-	int err_limit = CONFIG_SYS_NAND_SPARE_SIZE / ecc_per_page > 16 ? 8 : 4;
+	int err_limit = CONFIG_SYS_NAND_OOBSIZE / ecc_per_page > 16 ? 8 : 4;
 	int subpages = CONFIG_SYS_NAND_PAGE_SIZE / 512;
 
 	do {
@@ -331,14 +331,6 @@ static int nand_load(unsigned int from, unsigned int size, unsigned char *buf)
 
 	return 0;
 }
-
-#if defined(CONFIG_ARM)
-void board_init_f (ulong bootflag)
-{
-	relocate_code (CONFIG_SYS_TEXT_BASE - TOTAL_MALLOC_LEN, NULL,
-		       CONFIG_SYS_TEXT_BASE);
-}
-#endif
 
 /*
  * The main entry for NAND booting. It's necessary that SDRAM is already

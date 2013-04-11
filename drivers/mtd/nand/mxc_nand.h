@@ -20,8 +20,8 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __FSL_NFC_H
-#define __FSL_NFC_H
+#ifndef __MXC_NAND_H
+#define __MXC_NAND_H
 
 /*
  * Register map and bit definitions for the Freescale NAND Flash Controller
@@ -73,7 +73,7 @@
 #define NAND_MXC_REG_OFFSET		0x1e00
 #endif
 
-struct fsl_nfc_regs {
+struct mxc_nand_regs {
 	u8 main_area[NAND_MXC_NR_BUFS][0x200];
 	u8 spare_area[NAND_MXC_NR_BUFS][NAND_MXC_SPARE_BUF_SIZE];
 	/*
@@ -131,7 +131,7 @@ struct fsl_nfc_regs {
 };
 
 #ifdef MXC_NFC_V3_2
-struct fsl_nfc_ip_regs {
+struct mxc_nand_ip_regs {
 	u32 wrprot;
 	u32 wrprot_unlock_blkaddr[8];
 	u32 config2;
@@ -222,4 +222,4 @@ struct fsl_nfc_ip_regs {
 #define writenfc	writel
 #endif
 
-#endif /* __FSL_NFC_H */
+#endif /* __MXC_NAND_H */

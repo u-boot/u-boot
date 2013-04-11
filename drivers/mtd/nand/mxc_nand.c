@@ -26,7 +26,7 @@
 	defined(CONFIG_MX51) || defined(CONFIG_MX53)
 #include <asm/arch/imx-regs.h>
 #endif
-#include <fsl_nfc.h>
+#include "mxc_nand.h"
 
 #define DRIVER_NAME "mxc_nand"
 
@@ -36,9 +36,9 @@ struct mxc_nand_host {
 	struct mtd_info			mtd;
 	struct nand_chip		*nand;
 
-	struct fsl_nfc_regs __iomem	*regs;
+	struct mxc_nand_regs __iomem	*regs;
 #ifdef MXC_NFC_V3_2
-	struct fsl_nfc_ip_regs __iomem	*ip_regs;
+	struct mxc_nand_ip_regs __iomem	*ip_regs;
 #endif
 	int				spare_only;
 	int				status_request;
@@ -1213,10 +1213,10 @@ int board_nand_init(struct nand_chip *this)
 	this->read_buf = mxc_nand_read_buf;
 	this->verify_buf = mxc_nand_verify_buf;
 
-	host->regs = (struct fsl_nfc_regs __iomem *)CONFIG_MXC_NAND_REGS_BASE;
+	host->regs = (struct mxc_nand_regs __iomem *)CONFIG_MXC_NAND_REGS_BASE;
 #ifdef MXC_NFC_V3_2
 	host->ip_regs =
-		(struct fsl_nfc_ip_regs __iomem *)CONFIG_MXC_NAND_IP_REGS_BASE;
+		(struct mxc_nand_ip_regs __iomem *)CONFIG_MXC_NAND_IP_REGS_BASE;
 #endif
 	host->clk_act = 1;
 

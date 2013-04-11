@@ -200,7 +200,6 @@ reset:
 
 /*------------------------------------------------------------------------------*/
 
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_NAND_SPL)
 /*
  * void relocate_code (addr_sp, gd, addr_moni)
  *
@@ -268,6 +267,8 @@ fixnext:
 relocate_done:
 
 	bx	lr
+
+#ifndef CONFIG_SPL_BUILD
 
 _rel_dyn_start_ofs:
 	.word __rel_dyn_start - _start
