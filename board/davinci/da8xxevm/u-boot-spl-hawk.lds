@@ -58,6 +58,7 @@ SECTIONS
 	}
 
 	. = ALIGN(4);
+	__image_copy_end = .;
 	__rel_dyn_start = .;
 	__rel_dyn_end = .;
 	__dynsym_start = .;

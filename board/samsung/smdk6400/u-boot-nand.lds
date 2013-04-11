@@ -53,6 +53,10 @@ SECTIONS
 		KEEP(*(SORT(.u_boot_list*)));
 	}
 
+	. = ALIGN(4);
+
+	__image_copy_end = .;
+
 	. = align(4);
 	.mmudata : { *(.mmudata) }
 

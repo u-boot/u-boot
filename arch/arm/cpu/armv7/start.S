@@ -94,9 +94,9 @@ _TEXT_BASE:
 _bss_start_ofs:
 	.word __bss_start - _start
 
-.global	_image_copy_end_ofs
+.globl _image_copy_end_ofs
 _image_copy_end_ofs:
-	.word 	__image_copy_end - _start
+	.word __image_copy_end - _start
 
 .globl _bss_end_ofs
 _bss_end_ofs:
