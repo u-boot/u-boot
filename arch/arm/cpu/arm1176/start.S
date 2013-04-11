@@ -98,7 +98,15 @@ _end_vect:
 
 .globl _TEXT_BASE
 _TEXT_BASE:
+#ifdef CONFIG_NAND_SPL /* deprecated, use instead CONFIG_SPL_BUILD */
 	.word	CONFIG_SYS_TEXT_BASE
+#else
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_TEXT_BASE)
+	.word	CONFIG_SPL_TEXT_BASE
+#else
+	.word	CONFIG_SYS_TEXT_BASE
+#endif
+#endif
 
 /*
  * Below variable is very important because we use MMU in U-Boot.

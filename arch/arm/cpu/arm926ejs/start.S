@@ -123,7 +123,7 @@ _TEXT_BASE:
 #ifdef CONFIG_NAND_SPL /* deprecated, use instead CONFIG_SPL_BUILD */
 	.word	CONFIG_SYS_TEXT_BASE
 #else
-#ifdef CONFIG_SPL_BUILD
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_TEXT_BASE)
 	.word	CONFIG_SPL_TEXT_BASE
 #else
 	.word	CONFIG_SYS_TEXT_BASE

@@ -85,7 +85,7 @@ _pad:			.word 0x12345678 /* now 16*4=64 */
 
 .globl _TEXT_BASE
 _TEXT_BASE:
-#ifdef CONFIG_SPL_BUILD
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_TEXT_BASE)
 	.word	CONFIG_SPL_TEXT_BASE
 #else
 	.word	CONFIG_SYS_TEXT_BASE

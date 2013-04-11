@@ -74,7 +74,11 @@ _fiq:			.word fiq
 
 .globl _TEXT_BASE
 _TEXT_BASE:
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_TEXT_BASE)
+	.word	CONFIG_SPL_TEXT_BASE
+#else
 	.word	CONFIG_SYS_TEXT_BASE
+#endif
 
 /*
  * These are defined in the board-specific linker script.
