@@ -120,14 +120,10 @@ _fiq:
 
 .globl _TEXT_BASE
 _TEXT_BASE:
-#ifdef CONFIG_NAND_SPL /* deprecated, use instead CONFIG_SPL_BUILD */
-	.word	CONFIG_SYS_TEXT_BASE
-#else
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_TEXT_BASE)
 	.word	CONFIG_SPL_TEXT_BASE
 #else
 	.word	CONFIG_SYS_TEXT_BASE
-#endif
 #endif
 
 /*
@@ -151,12 +147,6 @@ _bss_end_ofs:
 .globl _end_ofs
 _end_ofs:
 	.word _end - _start
-
-#ifdef CONFIG_NAND_U_BOOT
-.globl _end
-_end:
-	.word __bss_end
-#endif
 
 #ifdef CONFIG_USE_IRQ
 /* IRQ stack memory (calculated at run-time) */
