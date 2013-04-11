@@ -409,7 +409,7 @@ static int mxc_nand_read_oob_syndrome(struct mtd_info *mtd,
 
 	MTDDEBUG(MTD_DEBUG_LEVEL0,
 			"%s: Reading OOB area of page %u to oob %p\n",
-			 __FUNCTION__, host->page_addr, buf);
+			 __func__, page, buf);
 
 	chip->cmdfunc(mtd, NAND_CMD_READOOB, mtd->writesize, page);
 	for (i = 0; i < chip->ecc.steps; i++) {
