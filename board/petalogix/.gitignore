@@ -1,0 +1,8 @@
+microblaze-auto/config.mk
+microblaze-auto/flash-partition.h
+microblaze-auto/xparameters.h
+ppc440-auto/config.mk
+ppc440-auto/flash-partition.h
+ppc440-auto/xparameters.h
+petalinux-auto-board.h
+

@@ -82,7 +82,8 @@
 
 #define DMAALIGN	128
 
-static u8 rxframe[PKTSIZE_ALIGN] __attribute((aligned(DMAALIGN)));
+#define RX_BUF 2
+static u8 rxframe[PKTSIZE_ALIGN * RX_BUF] __attribute((aligned(DMAALIGN)));
 
 /* Reflect dma offsets */
 struct axidma_reg {
@@ -98,6 +99,7 @@ struct axidma_priv {
 	struct axidma_reg *dmatx;
 	struct axidma_reg *dmarx;
 	int phyaddr;
+	u32 rxbd_current;
 
 	struct phy_device *phydev;
 	struct mii_dev *bus;
@@ -492,7 +494,7 @@ static int axiemac_init(struct eth_device *dev, bd_t * bis)
 {
 	struct axidma_priv *priv = dev->priv;
 	struct axi_regs *regs = (struct axi_regs *)dev->iobase;
-	u32 temp;
+	u32 frame_addr, temp;
 
 	debug("axiemac: Init started\n");
 	/*
@@ -515,17 +517,23 @@ static int axiemac_init(struct eth_device *dev, bd_t * bis)
 	/* Start DMA RX channel. Now it's ready to receive data.*/
 	out_be32(&priv->dmarx->current, (u32)&rx_bd);
 
+	/* Create the RxBD ring */
+	memset(&rxframe, 0, sizeof(rxframe));
+
+	/* Identify the rx buffer address */
+	frame_addr = rxframe + priv->rxbd_current * PKTSIZE_ALIGN;
+
 	/* Setup the BD. */
 	memset(&rx_bd, 0, sizeof(rx_bd));
 	rx_bd.next = (u32)&rx_bd;
-	rx_bd.phys = (u32)&rxframe;
-	rx_bd.cntrl = sizeof(rxframe);
+	rx_bd.phys = frame_addr;
+	rx_bd.cntrl = PKTSIZE_ALIGN;
 	/* Flush the last BD so DMA core could see the updates */
 	flush_cache((u32)&rx_bd, sizeof(rx_bd));
 
 	/* It is necessary to flush rxframe because if you don't do it
 	 * then cache can contain uninitialized data */
-	flush_cache((u32)&rxframe, sizeof(rxframe));
+	flush_cache(frame_addr, PKTSIZE_ALIGN);
 
 	/* Start the hardware */
 	temp = in_be32(&priv->dmarx->control);
@@ -627,7 +635,7 @@ static int axiemac_recv(struct eth_device *dev)
 {
 	u32 length;
 	struct axidma_priv *priv = dev->priv;
-	u32 temp;
+	u32 frame_addr, nextframe_addr, temp;
 
 	/* Wait for an incoming packet */
 	if (!isrxready(dev))
@@ -641,35 +649,45 @@ static int axiemac_recv(struct eth_device *dev)
 	out_be32(&priv->dmarx->control, temp);
 
 	length = rx_bd.app4 & 0xFFFF; /* max length mask */
-#ifdef DEBUG
-	print_buffer(&rxframe, &rxframe[0], 1, length, 16);
-#endif
-	/* Pass the received frame up for processing */
-	if (length)
-		NetReceive(rxframe, length);
+
+	frame_addr = rxframe + priv->rxbd_current * PKTSIZE_ALIGN;
 
 #ifdef DEBUG
-	/* It is useful to clear buffer to be sure that it is consistent */
-	memset(rxframe, 0, sizeof(rxframe));
+	print_buffer(frame_addr, frame_addr[0], 1, length, 16);
 #endif
+
+	if ((++priv->rxbd_current) >= RX_BUF)
+		priv->rxbd_current = 0;
+	/* Get next frame address */
+	nextframe_addr = rxframe + priv->rxbd_current * PKTSIZE_ALIGN;
+
 	/* Setup RxBD */
 	/* Clear the whole buffer and setup it again - all flags are cleared */
 	memset(&rx_bd, 0, sizeof(rx_bd));
 	rx_bd.next = (u32)&rx_bd;
-	rx_bd.phys = (u32)&rxframe;
-	rx_bd.cntrl = sizeof(rxframe);
+	rx_bd.phys = nextframe_addr;
+	rx_bd.cntrl = PKTSIZE_ALIGN;
 
 	/* Write bd to HW */
 	flush_cache((u32)&rx_bd, sizeof(rx_bd));
 
 	/* It is necessary to flush rxframe because if you don't do it
 	 * then cache will contain previous packet */
-	flush_cache((u32)&rxframe, sizeof(rxframe));
+	flush_cache(nextframe_addr, PKTSIZE_ALIGN);
 
 	/* Rx BD is ready - start again */
 	out_be32(&priv->dmarx->tail, (u32)&rx_bd);
 
 	debug("axiemac: RX completed, framelength = %d\n", length);
+
+	/* Pass the received frame up for processing */
+	if (length)
+		NetReceive((u8 *)(frame_addr), length);
+
+#ifdef DEBUG
+	/* It is useful to clear buffer to be sure that it is consistent */
+	memset((u8 *)(frame_addr), 0, PKTSIZE_ALIGN);
+#endif
 
 	return length;
 }
