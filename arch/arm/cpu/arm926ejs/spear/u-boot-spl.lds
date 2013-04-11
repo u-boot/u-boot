@@ -37,8 +37,8 @@ SECTIONS
 	. = ALIGN(4);
 	.text	:
 	{
-		arch/arm/cpu/arm926ejs/spear/start.o	(.text)
-		*(.text)
+		arch/arm/cpu/arm926ejs/spear/start.o	(.text*)
+		*(.text*)
 	}
 
 	. = ALIGN(4);
@@ -46,7 +46,7 @@ SECTIONS
 
 	. = ALIGN(4);
 	.data : {
-		*(.data)
+		*(.data*)
 	}
 
 	. = ALIGN(4);

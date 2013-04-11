@@ -38,7 +38,7 @@ SECTIONS
 	.text      :
 	{
 		__start = .;
-		arch/arm/cpu/armv7/start.o	(.text)
+		arch/arm/cpu/armv7/start.o	(.text*)
 		*(.text*)
 	} >.sram
 
