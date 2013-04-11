@@ -24,6 +24,8 @@
 	s/="\([0-9][0-9]*\)"/=\1/;
 	# ... and from hex numbers
 	s/="\(0[Xx][0-9a-fA-F][0-9a-fA-F]*\)"/=\1/;
+	# ... and from configs defined from other configs
+	s/="\(CONFIG_[A-Za-z0-9_][A-Za-z0-9_]*\)"/=$(\1)/;
 	# Change '1' and empty values to "y" (not perfect, but
 	# supports conditional compilation in the makefiles
 	s/=$/=y/;
