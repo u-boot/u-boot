@@ -239,9 +239,7 @@ skip_tcmdisable:
 /*
  * void relocate_code (addr_sp, gd, addr_moni)
  *
- * This "function" does not return, instead it continues in RAM
- * after relocating the monitor code.
- *
+ * This function relocates the monitor code.
  */
 	.globl	relocate_code
 relocate_code:
