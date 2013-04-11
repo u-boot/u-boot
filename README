@@ -2908,8 +2908,11 @@ FIT uImage format:
 		Support for lib/libgeneric.o in SPL binary
 
 		CONFIG_SPL_PAD_TO
-		Linker address to which the SPL should be padded before
-		appending the SPL payload.
+		Image offset to which the SPL should be padded before appending
+		the SPL payload. By default, this is defined as
+		CONFIG_SPL_MAX_SIZE, or 0 if CONFIG_SPL_MAX_SIZE is undefined.
+		CONFIG_SPL_PAD_TO must be either 0, meaning to append the SPL
+		payload without any padding, or >= CONFIG_SPL_MAX_SIZE.
 
 		CONFIG_SPL_TARGET
 		Final target image containing SPL and payload.  Some SPLs

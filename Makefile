@@ -486,9 +486,8 @@ $(obj)u-boot.dis:	$(obj)u-boot
 
 
 $(obj)u-boot-with-spl.bin: $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
-		$(OBJCOPY) ${OBJCFLAGS} --pad-to=$(or $(CONFIG_SPL_PAD_TO),0) \
-			-O binary $(obj)spl/u-boot-spl \
-			$(obj)spl/u-boot-spl-pad.bin
+		$(OBJCOPY) ${OBJCFLAGS} --pad-to=$(CONFIG_SPL_PAD_TO) \
+			-I binary -O binary $< $(obj)spl/u-boot-spl-pad.bin
 		cat $(obj)spl/u-boot-spl-pad.bin $(obj)u-boot.bin > $@
 		rm $(obj)spl/u-boot-spl-pad.bin
 
