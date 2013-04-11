@@ -36,13 +36,13 @@ static void nfc_wait_ready(void)
 {
 	uint32_t tmp;
 
-	while (!(readw(&nfc->config2) & NFC_INT))
+	while (!(readnfc(&nfc->config2) & NFC_V1_V2_CONFIG2_INT))
 		;
 
 	/* Reset interrupt flag */
-	tmp = readw(&nfc->config2);
-	tmp &= ~NFC_INT;
-	writew(tmp, &nfc->config2);
+	tmp = readnfc(&nfc->config2);
+	tmp &= ~NFC_V1_V2_CONFIG2_INT;
+	writenfc(tmp, &nfc->config2);
 }
 
 static void nfc_nand_init(void)
@@ -51,43 +51,45 @@ static void nfc_nand_init(void)
 	int ecc_per_page = CONFIG_SYS_NAND_PAGE_SIZE / 512;
 	int config1;
 
-	writew(CONFIG_SYS_NAND_SPARE_SIZE / 2, &nfc->spare_area_size);
+	writenfc(CONFIG_SYS_NAND_SPARE_SIZE / 2, &nfc->spare_area_size);
 
 	/* unlocking RAM Buff */
-	writew(0x2, &nfc->config);
+	writenfc(0x2, &nfc->config);
 
 	/* hardware ECC checking and correct */
-	config1 = readw(&nfc->config1) | NFC_ECC_EN | NFC_INT_MSK |
-			NFC_ONE_CYCLE | NFC_FP_INT;
+	config1 = readnfc(&nfc->config1) | NFC_V1_V2_CONFIG1_ECC_EN |
+			NFC_V1_V2_CONFIG1_INT_MSK | NFC_V2_CONFIG1_ONE_CYCLE |
+			NFC_V2_CONFIG1_FP_INT;
 	/*
 	 * if spare size is larger that 16 bytes per 512 byte hunk
 	 * then use 8 symbol correction instead of 4
 	 */
 	if (CONFIG_SYS_NAND_SPARE_SIZE / ecc_per_page > 16)
-		config1 &= ~NFC_4_8N_ECC;
+		config1 &= ~NFC_V2_CONFIG1_ECC_MODE_4;
 	else
-		config1 |= NFC_4_8N_ECC;
-	writew(config1, &nfc->config1);
+		config1 |= NFC_V2_CONFIG1_ECC_MODE_4;
+	writenfc(config1, &nfc->config1);
 #elif defined(MXC_NFC_V1)
 	/* unlocking RAM Buff */
-	writew(0x2, &nfc->config);
+	writenfc(0x2, &nfc->config);
 
 	/* hardware ECC checking and correct */
-	writew(NFC_ECC_EN | NFC_INT_MSK, &nfc->config1);
+	writenfc(NFC_V1_V2_CONFIG1_ECC_EN | NFC_V1_V2_CONFIG1_INT_MSK,
+			&nfc->config1);
 #endif
 }
 
 static void nfc_nand_command(unsigned short command)
 {
-	writew(command, &nfc->flash_cmd);
-	writew(NFC_CMD, &nfc->config2);
+	writenfc(command, &nfc->flash_cmd);
+	writenfc(NFC_CMD, &nfc->operation);
 	nfc_wait_ready();
 }
 
 static void nfc_nand_address(unsigned short address)
 {
-	writew(address, &nfc->flash_addr);
-	writew(NFC_ADDR, &nfc->config2);
+	writenfc(address, &nfc->flash_addr);
+	writenfc(NFC_ADDR, &nfc->operation);
 	nfc_wait_ready();
 }
 
@@ -121,8 +123,8 @@ static void nfc_nand_data_output(void)
 	int i;
 #endif
 
-	writew(0, &nfc->buf_addr);
-	writew(NFC_OUTPUT, &nfc->config2);
+	writenfc(0, &nfc->buf_addr);
+	writenfc(NFC_OUTPUT, &nfc->operation);
 	nfc_wait_ready();
 #ifdef NAND_MXC_2K_MULTI_CYCLE
 	/*
@@ -130,8 +132,8 @@ static void nfc_nand_data_output(void)
 	 * for pages larger than 512 bytes.
 	 */
 	for (i = 1; i < CONFIG_SYS_NAND_PAGE_SIZE / 512; i++) {
-		writew(i, &nfc->buf_addr);
-		writew(NFC_OUTPUT, &nfc->config2);
+		writenfc(i, &nfc->buf_addr);
+		writenfc(NFC_OUTPUT, &nfc->operation);
 		nfc_wait_ready();
 	}
 #endif
@@ -160,7 +162,8 @@ static int nfc_nand_check_ecc(void)
 
 static void nfc_nand_read_page(unsigned int page_address)
 {
-	writew(0, &nfc->buf_addr); /* read in first 0 buffer */
+	/* read in first 0 buffer */
+	writenfc(0, &nfc->buf_addr);
 	nfc_nand_command(NAND_CMD_READ0);
 	nfc_nand_page_address(page_address);
 

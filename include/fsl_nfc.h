@@ -113,58 +113,38 @@ struct fsl_nfc_regs {
 #endif
 };
 
-/*
- * Set INT to 0, FCMD to 1, rest to 0 in NFC_CONFIG2 Register for Command
- * operation
- */
-#define NFC_CMD		0x1
+/* Set FCMD to 1, rest to 0 for Command operation */
+#define NFC_CMD				0x1
 
-/*
- * Set INT to 0, FADD to 1, rest to 0 in NFC_CONFIG2 Register for Address
- * operation
- */
-#define NFC_ADDR	0x2
+/* Set FADD to 1, rest to 0 for Address operation */
+#define NFC_ADDR			0x2
 
-/*
- * Set INT to 0, FDI to 1, rest to 0 in NFC_CONFIG2 Register for Input
- * operation
- */
-#define NFC_INPUT	0x4
+/* Set FDI to 1, rest to 0 for Input operation */
+#define NFC_INPUT			0x4
 
-/*
- * Set INT to 0, FDO to 001, rest to 0 in NFC_CONFIG2 Register for Data
- * Output operation
- */
-#define NFC_OUTPUT	0x8
+/* Set FDO to 001, rest to 0 for Data Output operation */
+#define NFC_OUTPUT			0x8
 
-/*
- * Set INT to 0, FD0 to 010, rest to 0 in NFC_CONFIG2 Register for Read ID
- * operation
- */
-#define NFC_ID		0x10
+/* Set FDO to 010, rest to 0 for Read ID operation */
+#define NFC_ID				0x10
 
-/*
- * Set INT to 0, FDO to 100, rest to 0 in NFC_CONFIG2 Register for Read
- * Status operation
- */
-#define NFC_STATUS	0x20
+/* Set FDO to 100, rest to 0 for Read Status operation */
+#define NFC_STATUS			0x20
 
-/*
- * Set INT to 1, rest to 0 in NFC_CONFIG2 Register for Read Status
- * operation
- */
-#define NFC_INT		0x8000
+#define NFC_CONFIG1_SP_EN		(1 << 2)
+#define NFC_CONFIG1_RST			(1 << 6)
+#define NFC_CONFIG1_CE			(1 << 7)
+#define NFC_V1_V2_CONFIG1_ECC_EN	(1 << 3)
+#define NFC_V1_V2_CONFIG1_INT_MSK	(1 << 4)
+#define NFC_V1_V2_CONFIG1_BIG		(1 << 5)
+#define NFC_V2_CONFIG1_ECC_MODE_4	(1 << 0)
+#define NFC_V2_CONFIG1_ONE_CYCLE	(1 << 8)
+#define NFC_V2_CONFIG1_FP_INT		(1 << 11)
 
-#ifdef MXC_NFC_V2_1
-#define NFC_4_8N_ECC	(1 << 0)
-#endif
-#define NFC_SP_EN	(1 << 2)
-#define NFC_ECC_EN	(1 << 3)
-#define NFC_INT_MSK	(1 << 4)
-#define NFC_BIG		(1 << 5)
-#define NFC_RST		(1 << 6)
-#define NFC_CE		(1 << 7)
-#define NFC_ONE_CYCLE	(1 << 8)
-#define NFC_FP_INT	(1 << 11)
+#define NFC_V1_V2_CONFIG2_INT		(1 << 15)
+
+#define operation	config2
+#define readnfc		readw
+#define writenfc	writew
 
 #endif /* __FSL_NFC_H */
