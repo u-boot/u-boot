@@ -850,6 +850,10 @@ Sricharan R <r.sricharan@ti.com>
 	omap4_sdp4430	ARM ARMV7 (OMAP4xx SoC)
 	omap5_evm	ARM ARMV7 (OMAP5xx Soc)
 
+Suriyan Ramasami <suriyan.r@gmail.com>
+
+	goflexhome	ARM926EJS (Kirkwood SoC)
+
 Thierry Reding <thierry.reding@avionic-design.de>
 
 	plutux		Tegra20 (ARM7 & A9 Dual Core)
