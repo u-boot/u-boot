@@ -173,15 +173,13 @@ reset:
 /*------------------------------------------------------------------------------*/
 #ifndef CONFIG_SPL_BUILD
 /*
- * void relocate_code (addr_sp, gd, addr_moni)
+ * void relocate_code(addr_moni)
  *
  * This function relocates the monitor code.
  */
 	.globl	relocate_code
 relocate_code:
-	mov	r4, r0	/* save addr_sp */
-	mov	r5, r1	/* save addr of gd */
-	mov	r6, r2	/* save addr of destination */
+	mov	r6, r0	/* save addr of destination */
 
 /* Disable the Dcache RAM lock for stack now */
 #ifdef	CONFIG_CPU_PXA25X

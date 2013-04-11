@@ -96,8 +96,8 @@ ENTRY(_main)
 
 /*
  * Set up intermediate environment (new sp and gd) and call
- * relocate_code(addr_sp, gd, addr_moni). Trick here is that
- * we'll return 'here' but relocated.
+ * relocate_code(addr_moni). Trick here is that we'll return
+ * 'here' but relocated.
  */
 
 	ldr	sp, [r8, #GD_START_ADDR_SP]	/* r8 = gd->start_addr_sp */
@@ -108,9 +108,7 @@ ENTRY(_main)
 	adr	lr, here
 	ldr	r0, [r8, #GD_RELOC_OFF]		/* lr = gd->start_addr_sp */
 	add	lr, lr, r0
-	ldr	r0, [r8, #GD_START_ADDR_SP]	/* r0 = gd->start_addr_sp */
-	mov	r1, r8				/* r1 = gd */
-	ldr	r2, [r8, #GD_RELOCADDR]		/* r2 = gd->relocaddr */
+	ldr	r0, [r8, #GD_RELOCADDR]		/* r0 = gd->relocaddr */
 	b	relocate_code
 here:
 

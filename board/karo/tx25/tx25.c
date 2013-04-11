@@ -36,7 +36,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #ifdef CONFIG_SPL_BUILD
 void board_init_f(ulong bootflag)
 {
-	relocate_code(0, NULL, CONFIG_SPL_TEXT_BASE);
+	relocate_code(CONFIG_SPL_TEXT_BASE);
 	asm volatile("ldr pc, =nand_boot");
 }
 #endif
