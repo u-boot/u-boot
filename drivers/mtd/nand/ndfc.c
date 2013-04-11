@@ -156,7 +156,7 @@ static uint8_t ndfc_read_byte(struct mtd_info *mtd)
 
 	struct nand_chip *chip = mtd->priv;
 
-#ifdef CONFIG_SYS_NDFC_16BIT
+#ifdef CONFIG_SYS_NAND_BUSWIDTH_16BIT
 	return (uint8_t) readw(chip->IO_ADDR_R);
 #else
 	return readb(chip->IO_ADDR_R);
@@ -218,7 +218,7 @@ int board_nand_init(struct nand_chip *nand)
 	nand->ecc.bytes = 3;
 	nand->select_chip = ndfc_select_chip;
 
-#ifdef CONFIG_SYS_NDFC_16BIT
+#ifdef CONFIG_SYS_NAND_BUSWIDTH_16BIT
 	nand->options |= NAND_BUSWIDTH_16;
 #endif
 
