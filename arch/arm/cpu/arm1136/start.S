@@ -237,8 +237,6 @@ fixnext:
 	add	r2, r2, #8		/* each rel.dyn entry is 8 bytes */
 	cmp	r2, r3
 	blo	fixloop
-	bx	lr
-
 #endif
 
 relocate_done:
