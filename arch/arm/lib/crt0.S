@@ -24,6 +24,7 @@
 
 #include <config.h>
 #include <asm-offsets.h>
+#include <linux/linkage.h>
 
 /*
  * This file handles the target-independent stages of the U-Boot
@@ -67,33 +68,10 @@
  */
 
 /*
- * declare nand_boot() or board_init_r() to jump to at end of crt0
- */
-
-#if defined(CONFIG_NAND_SPL)
-
-.globl nand_boot
-
-#elif ! defined(CONFIG_SPL_BUILD)
-
-.globl board_init_r
-
-#endif
-
-/*
- * start and end of BSS
- */
-
-.globl __bss_start
-.globl __bss_end
-
-/*
  * entry point of crt0 sequence
  */
 
-.global _main
-
-_main:
+ENTRY(_main)
 
 /*
  * Set up initial C runtime environment and call board_init_f(0).
@@ -171,3 +149,5 @@ clbss_l:cmp	r0, r1			/* while not at end of BSS */
 	/* we should not return here. */
 
 #endif
+
+ENDPROC(_main)
