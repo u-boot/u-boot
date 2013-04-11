@@ -309,8 +309,7 @@ setup_pll_func:
         ldr r0, =CCM_BASE_ADDR
         ldr r1, =0x00015154
         str r1, [r0, #CLKCTL_CBCMR]
-        ldr r1, =0x02888945
-        orr r1, r1, #(1 << 16)
+        ldr r1, =0x02898945
         str r1, [r0, #CLKCTL_CBCDR]
         /* make sure change is effective */
 1:      ldr r1, [r0, #CLKCTL_CDHIPR]
@@ -321,10 +320,7 @@ setup_pll_func:
 
 	/* Switch peripheral to PLL2 */
 	ldr r0, =CCM_BASE_ADDR
-	ldr r1, =0x00808145
-	orr r1, r1, #(2 << 10)
-	orr r1, r1, #(0 << 16)
-	orr r1, r1, #(1 << 19)
+	ldr r1, =0x00888945
 	str r1, [r0, #CLKCTL_CBCDR]
 
 	ldr r1, =0x00016154
