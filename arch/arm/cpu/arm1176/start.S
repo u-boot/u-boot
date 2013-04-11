@@ -33,11 +33,8 @@
 #include <asm-offsets.h>
 #include <config.h>
 #include <version.h>
-#ifdef CONFIG_ENABLE_MMU
-#include <asm/proc/domain.h>
-#endif
 
-#if !defined(CONFIG_ENABLE_MMU) && !defined(CONFIG_SYS_PHY_UBOOT_BASE)
+#ifndef CONFIG_SYS_PHY_UBOOT_BASE
 #define CONFIG_SYS_PHY_UBOOT_BASE	CONFIG_SYS_UBOOT_BASE
 #endif
 
@@ -103,14 +100,6 @@ _TEXT_BASE:
 #else
 	.word	CONFIG_SYS_TEXT_BASE
 #endif
-
-/*
- * Below variable is very important because we use MMU in U-Boot.
- * Without it, we cannot run code correctly before MMU is ON.
- * by scsuh.
- */
-_TEXT_PHY_BASE:
-	.word	CONFIG_SYS_PHY_UBOOT_BASE
 
 /*
  * These are defined in the board-specific linker script.
@@ -298,44 +287,6 @@ fixnext:
 	blo	fixloop
 #endif
 
-#ifdef CONFIG_ENABLE_MMU
-enable_mmu:
-	/* enable domain access */
-	ldr	r5, =0x0000ffff
-	mcr	p15, 0, r5, c3, c0, 0	/* load domain access register */
-
-	/* Set the TTB register */
-	ldr	r0, _mmu_table_base
-	ldr	r1, =CONFIG_SYS_PHY_UBOOT_BASE
-	ldr	r2, =0xfff00000
-	bic	r0, r0, r2
-	orr	r1, r0, r1
-	mcr	p15, 0, r1, c2, c0, 0
-
-	/* Enable the MMU */
-	mrc	p15, 0, r0, c1, c0, 0
-	orr	r0, r0, #1		/* Set CR_M to enable MMU */
-
-	/* Prepare to enable the MMU */
-	adr	r1, skip_hw_init
-	and	r1, r1, #0x3fc
-	ldr	r2, _TEXT_BASE
-	ldr	r3, =0xfff00000
-	and	r2, r2, r3
-	orr	r2, r2, r1
-	b	mmu_enable
-
-	.align 5
-	/* Run in a single cache-line */
-mmu_enable:
-
-	mcr	p15, 0, r0, c1, c0, 0
-	nop
-	nop
-	mov	pc, r2
-skip_hw_init:
-#endif
-
 relocate_done:
 
 	bx	lr
@@ -347,52 +298,12 @@ _rel_dyn_end_ofs:
 _dynsym_start_ofs:
 	.word __dynsym_start - _start
 
-#ifdef CONFIG_ENABLE_MMU
-_mmu_table_base:
-	.word mmu_table
-#endif
-
 	.globl	c_runtime_cpu_setup
 c_runtime_cpu_setup:
 
 	mov	pc, lr
 
 #ifndef CONFIG_SPL_BUILD
-/*
- * we assume that cache operation is done before. (eg. cleanup_before_linux())
- * actually, we don't need to do anything about cache if not use d-cache in
- * U-Boot. So, in this function we clean only MMU. by scsuh
- *
- * void	theLastJump(void *kernel, int arch_num, uint boot_params);
- */
-#ifdef CONFIG_ENABLE_MMU
-	.globl theLastJump
-theLastJump:
-	mov	r9, r0
-	ldr	r3, =0xfff00000
-	ldr	r4, _TEXT_PHY_BASE
-	adr	r5, phy_last_jump
-	bic	r5, r5, r3
-	orr	r5, r5, r4
-	mov	pc, r5
-phy_last_jump:
-	/*
-	 * disable MMU stuff
-	 */
-	mrc	p15, 0, r0, c1, c0, 0
-	bic	r0, r0, #0x00002300	/* clear bits 13, 9:8 (--V- --RS) */
-	bic	r0, r0, #0x00000087	/* clear bits 7, 2:0 (B--- -CAM) */
-	orr	r0, r0, #0x00000002	/* set bit 2 (A) Align */
-	orr	r0, r0, #0x00001000	/* set bit 12 (I) I-Cache */
-	mcr	p15, 0, r0, c1, c0, 0
-
-	mcr	p15, 0, r0, c8, c7, 0	/* flush v4 TLB */
-
-	mov	r0, #0
-	mov	pc, r9
-#endif
-
-
 /*
  *************************************************************************
  *
