@@ -61,6 +61,17 @@ $(OBJTREE)/u-boot-with-spl.imx: $(OBJTREE)/SPL $(OBJTREE)/u-boot.bin
 	cat $(OBJTREE)/spl/u-boot-spl-pad.imx $(OBJTREE)/u-boot.bin > $@
 	rm $(OBJTREE)/spl/u-boot-spl-pad.imx
 
+$(OBJTREE)/u-boot-with-nand-spl.imx: $(OBJTREE)/SPL $(OBJTREE)/u-boot.bin
+	(echo -ne '\x00\x00\x00\x00\x46\x43\x42\x20\x01' && \
+			dd bs=1015 count=1 if=/dev/zero 2>/dev/null) | \
+		cat - $< > $(OBJTREE)/spl/u-boot-nand-spl.imx
+	$(OBJCOPY) ${OBJCFLAGS} --pad-to=$(CONFIG_SPL_PAD_TO) \
+		-I binary -O binary $(OBJTREE)/spl/u-boot-nand-spl.imx \
+		$(OBJTREE)/spl/u-boot-nand-spl-pad.imx
+	rm $(OBJTREE)/spl/u-boot-nand-spl.imx
+	cat $(OBJTREE)/spl/u-boot-nand-spl-pad.imx $(OBJTREE)/u-boot.bin > $@
+	rm $(OBJTREE)/spl/u-boot-nand-spl-pad.imx
+
 
 #########################################################################
 
