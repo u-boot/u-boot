@@ -486,6 +486,10 @@ $(obj)u-boot-with-spl.bin: $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
 		cat $(obj)spl/u-boot-spl-pad.bin $(obj)u-boot.bin > $@
 		rm $(obj)spl/u-boot-spl-pad.bin
 
+$(obj)u-boot-with-spl.imx: $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
+		$(MAKE) -C $(SRCTREE)/arch/arm/imx-common \
+			$(OBJTREE)/u-boot-with-spl.imx
+
 $(obj)u-boot.ubl:       $(obj)u-boot-with-spl.bin
 		$(obj)tools/mkimage -n $(UBL_CONFIG) -T ublimage \
 		-e $(CONFIG_SYS_TEXT_BASE) -d $< $(obj)u-boot.ubl
@@ -850,6 +854,7 @@ clobber:	tidy
 	@rm -f $(obj)u-boot.kwb
 	@rm -f $(obj)u-boot.pbl
 	@rm -f $(obj)u-boot.imx
+	@rm -f $(obj)u-boot-with-spl.imx
 	@rm -f $(obj)u-boot.ubl
 	@rm -f $(obj)u-boot.ais
 	@rm -f $(obj)u-boot.dtb

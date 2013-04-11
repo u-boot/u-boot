@@ -55,6 +55,12 @@ $(OBJTREE)/SPL: $(OBJTREE)/spl/u-boot-spl.bin $(OBJTREE)/$(patsubst "%",%,$(CONF
 	$(OBJTREE)/tools/mkimage -n $(filter-out %.bin,$^) -T imximage \
 	-e $(CONFIG_SPL_TEXT_BASE) -d $< $@
 
+$(OBJTREE)/u-boot-with-spl.imx: $(OBJTREE)/SPL $(OBJTREE)/u-boot.bin
+	$(OBJCOPY) ${OBJCFLAGS} --pad-to=$(CONFIG_SPL_PAD_TO) \
+		-I binary -O binary $< $(OBJTREE)/spl/u-boot-spl-pad.imx
+	cat $(OBJTREE)/spl/u-boot-spl-pad.imx $(OBJTREE)/u-boot.bin > $@
+	rm $(OBJTREE)/spl/u-boot-spl-pad.imx
+
 
 #########################################################################
 
