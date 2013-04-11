@@ -458,15 +458,23 @@ program_early_devices(ADI_BOOT_DATA *bs, uint *sdivB, uint *divB, uint *vcoB)
 	if (CONFIG_BFIN_BOOT_MODE != BFIN_BOOT_BYPASS) {
 		serial_putc('e');
 #ifdef __ADSPBF60x__
+		/* Reset system event controller */
 		bfin_write_SEC_GCTL(0x2);
-		SSYNC();
-		bfin_write_SEC_FCTL(0xc1);
-		bfin_write_SEC_SCTL(2, bfin_read_SEC_SCTL(2) | 0x6);
-
 		bfin_write_SEC_CCTL(0x2);
 		SSYNC();
+
+		/* Enable fault event input and system reset action in fault
+		 * controller. Route watchdog timeout event to fault interface.
+		 */
+		bfin_write_SEC_FCTL(0xc1);
+		/* Enable watchdog interrupt source */
+		bfin_write_SEC_SCTL(2, bfin_read_SEC_SCTL(2) | 0x6);
+		SSYNC();
+
+		/* Enable system event controller */
 		bfin_write_SEC_GCTL(0x1);
 		bfin_write_SEC_CCTL(0x1);
+		SSYNC();
 #endif
 		bfin_write_WDOG_CTL(WDDIS);
 		SSYNC();
