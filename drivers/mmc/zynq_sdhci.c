@@ -16,7 +16,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <sdhci.h>
-#include <asm/arch/mmc.h>
+#include <asm/arch/sys_proto.h>
 
 int zynq_sdhci_init(u32 regbase)
 {
