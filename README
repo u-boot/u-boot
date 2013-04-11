@@ -3759,8 +3759,9 @@ Low Level (hardware related) configuration options:
 		Defined to tell the NAND controller that the NAND chip is using
 		a 16 bit bus.
 		Not all NAND drivers use this symbol.
-		Example of driver that uses it:
+		Example of drivers that use it:
 		- drivers/mtd/nand/ndfc.c
+		- drivers/mtd/nand/mxc_nand.c
 
 - CONFIG_SYS_NDFC_EBC0_CFG
 		Sets the EBC0_CFG register for the NDFC. If not defined

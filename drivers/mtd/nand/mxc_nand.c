@@ -98,45 +98,14 @@ static struct nand_ecclayout nand_hw_eccoob2k = {
 #endif
 #endif
 
-#ifdef CONFIG_MX27
 static int is_16bit_nand(void)
 {
-	struct system_control_regs *sc_regs =
-		(struct system_control_regs *)IMX_SYSTEM_CTL_BASE;
-
-	if (readl(&sc_regs->fmcr) & NF_16BIT_SEL)
-		return 1;
-	else
-		return 0;
-}
-#elif defined(CONFIG_MX31)
-static int is_16bit_nand(void)
-{
-	struct clock_control_regs *sc_regs =
-		(struct clock_control_regs *)CCM_BASE;
-
-	if (readl(&sc_regs->rcsr) & CCM_RCSR_NF16B)
-		return 1;
-	else
-		return 0;
-}
-#elif defined(CONFIG_MX25) || defined(CONFIG_MX35)
-static int is_16bit_nand(void)
-{
-	struct ccm_regs *ccm = (struct ccm_regs *)IMX_CCM_BASE;
-
-	if (readl(&ccm->rcsr) & CCM_RCSR_NF_16BIT_SEL)
-		return 1;
-	else
-		return 0;
-}
+#if defined(CONFIG_SYS_NAND_BUSWIDTH_16BIT)
+	return 1;
 #else
-#warning "8/16 bit NAND autodetection not supported"
-static int is_16bit_nand(void)
-{
 	return 0;
-}
 #endif
+}
 
 static uint32_t *mxc_nand_memcpy32(uint32_t *dest, uint32_t *source, size_t size)
 {
