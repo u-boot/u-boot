@@ -463,7 +463,7 @@ static int mxc_nand_read_page_raw_syndrome(struct mtd_info *mtd,
 	int n;
 
 	_mxc_nand_enable_hwecc(mtd, 0);
-	chip->cmdfunc(mtd, NAND_CMD_READ0, 0x00, host->page_addr);
+	chip->cmdfunc(mtd, NAND_CMD_READ0, 0x00, page);
 
 	for (n = 0, steps = chip->ecc.steps; steps > 0; n++, steps--) {
 		host->col_addr = n * eccsize;
@@ -507,7 +507,7 @@ static int mxc_nand_read_page_syndrome(struct mtd_info *mtd,
 	uint8_t *oob = chip->oob_poi;
 
 	MTDDEBUG(MTD_DEBUG_LEVEL1, "Reading page %u to buf %p oob %p\n",
-	      host->page_addr, buf, oob);
+	      page, buf, oob);
 
 	/* first read the data area and the available portion of OOB */
 	for (n = 0; eccsteps; n++, eccsteps--, p += eccsize) {
@@ -545,7 +545,7 @@ static int mxc_nand_read_page_syndrome(struct mtd_info *mtd,
 
 	/* Then switch ECC off and read the OOB area to get the ECC code */
 	_mxc_nand_enable_hwecc(mtd, 0);
-	chip->cmdfunc(mtd, NAND_CMD_READOOB, mtd->writesize, host->page_addr);
+	chip->cmdfunc(mtd, NAND_CMD_READOOB, mtd->writesize, page);
 	eccsteps = chip->ecc.steps;
 	oob = chip->oob_poi + chip->ecc.prepad;
 	for (n = 0; eccsteps; n++, eccsteps--, p += eccsize) {
