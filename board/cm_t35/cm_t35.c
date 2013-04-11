@@ -91,6 +91,7 @@ static int splash_load_from_nand(u32 bmp_load_addr)
 
 	res = nand_read_skip_bad(&nand_info[nand_curr_device],
 			splash_screen_nand_offset, &bmp_header_size,
+			NULL, nand_info[nand_curr_device].size,
 			(u_char *)bmp_load_addr);
 	if (res < 0)
 		return res;
@@ -103,6 +104,7 @@ static int splash_load_from_nand(u32 bmp_load_addr)
 
 	return nand_read_skip_bad(&nand_info[nand_curr_device],
 			splash_screen_nand_offset, &bmp_size,
+			NULL, nand_info[nand_curr_device].size,
 			(u_char *)bmp_load_addr);
 
 splash_address_too_high:
