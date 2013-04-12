@@ -612,7 +612,7 @@
 	"update_jffs2=setenv img JFFS2; setenv psize ${jffs2size}; setenv installcmd install_jffs2; run load_jffs2 test_img; setenv img; setenv psize; setenv installcmd\0" \
 	"update_dtb=setenv img DTB; setenv psize ${dtbsize}; setenv installcmd install_dtb; run load_dtb test_img; setenv img\0" \
 	"test_crc=if imi ${clobstart}; then run test_img; else echo $img Bad CRC - $img is NOT UPDATED; fi\0" \
-	"test_img=setenv var \"if test 0x${filesize} -gt ${psize}\\; then run fault\\; else run ${installcmd}\\; fi\"; run var; setenv var\0" \
+	"test_img=setenv var \"if test ${filesize} -gt ${psize}\\; then run fault\\; else run ${installcmd}\\; fi\"; run var; setenv var\0" \
 	"netboot=tftp ${netstart} image.ub && bootm\0" \
 	"dtbnetboot=tftp ${netstart} image.ub; tftp ${dtbnetstart} system.dtb; bootm ${netstart} - ${dtbnetstart}\0" \
 	"get_dtb=run cp_dtb2ram; fdt addr ${clobstart}\0"
@@ -641,13 +641,13 @@
 	"eraseconf=sf probe 0; sf erase ${confstart} ${confsize}\0" \
 	"cp_dtb2ram=sf probe 0; sf read ${clobstart} ${dtbstart} ${dtbsize}\0" \
 	"install_kernel=sf probe 0; sf erase ${kernstart} ${kernsize};" \
-		"sf write ${fileaddr} ${kernstart} 0x${filesize}\0" \
+		"sf write ${fileaddr} ${kernstart} ${filesize}\0" \
 	"install_uboot=sf probe 0; sf erase ${bootstart} ${bootsize};" \
-		"sf write ${clobstart} ${bootstart} 0x${filesize}\0" \
+		"sf write ${clobstart} ${bootstart} ${filesize}\0" \
 	"install_jffs2=sf probe 0; sf erase ${jffs2start} ${jffs2size};" \
-		"sf write ${clobstart} ${jffs2start} 0x${filesize}\0" \
+		"sf write ${clobstart} ${jffs2start} ${filesize}\0" \
 	"install_dtb=sf probe 0; sf erase ${dtbstart} ${dtbsize};" \
-		"sf write ${clobstart} ${dtbstart} 0x${filesize}\0" \
+		"sf write ${clobstart} ${dtbstart} ${filesize}\0" \
 	"sfboot=sf probe 0; sf read ${netstart} ${kernstart} ${kernsize}; bootm ${netstart}\0" \
 	"dtbboot=sf probe 0; sf read ${netstart} ${kernstart} ${kernsize}; sf read ${dtbnetstart} ${dtbstart} ${dtbsize}; bootm ${netstart} - ${dtbnetstart}\0" \
 	""
