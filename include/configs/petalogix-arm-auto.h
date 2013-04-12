@@ -11,9 +11,6 @@
 
 #include "../board/petalogix/arm-auto/xparameters.h"
 
-#define XPSS_QSPI_LIN_BASEADDR		0xFC000000
-#define XPSS_DDR_CTRL_BASEADDR		0xF8006000
-
 #define CONFIG_CPU_FREQ_HZ	XPAR_CPU_CORTEXA9_CORE_CLOCK_FREQ_HZ
 
 /* Must be removed */
