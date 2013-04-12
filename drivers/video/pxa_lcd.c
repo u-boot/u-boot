@@ -410,7 +410,7 @@ void lcd_initcolregs (void)
 #endif /* LCD_MONOCHROME */
 
 /*----------------------------------------------------------------------*/
-void lcd_enable (void)
+__weak void lcd_enable(void)
 {
 }
 
