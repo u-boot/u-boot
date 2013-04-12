@@ -165,7 +165,9 @@ static struct usb_hub_device *usb_hub_allocate(void)
 
 static inline char *portspeed(int portstatus)
 {
-	if (portstatus & (1 << USB_PORT_FEAT_HIGHSPEED))
+	if (portstatus & (1 << USB_PORT_FEAT_SUPERSPEED))
+		return "5 Gb/s";
+	else if (portstatus & (1 << USB_PORT_FEAT_HIGHSPEED))
 		return "480 Mb/s";
 	else if (portstatus & (1 << USB_PORT_FEAT_LOWSPEED))
 		return "1.5 Mb/s";
@@ -268,7 +270,9 @@ void usb_hub_port_connect_change(struct usb_device *dev, int port)
 	/* Allocate a new device struct for it */
 	usb = usb_alloc_new_device(dev->controller);
 
-	if (portstatus & USB_PORT_STAT_HIGH_SPEED)
+	if (portstatus & USB_PORT_STAT_SUPER_SPEED)
+		usb->speed = USB_SPEED_SUPER;
+	else if (portstatus & USB_PORT_STAT_HIGH_SPEED)
 		usb->speed = USB_SPEED_HIGH;
 	else if (portstatus & USB_PORT_STAT_LOW_SPEED)
 		usb->speed = USB_SPEED_LOW;

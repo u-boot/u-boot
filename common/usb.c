@@ -409,6 +409,11 @@ static int usb_parse_config(struct usb_device *dev,
 					wMaxPacketSize);
 			debug("if %d, ep %d\n", ifno, epno);
 			break;
+		case USB_DT_SS_ENDPOINT_COMP:
+			if_desc = &dev->config.if_desc[ifno];
+			memcpy(&if_desc->ss_ep_comp_desc[epno],
+				&buffer[index], buffer[index]);
+			break;
 		default:
 			if (head->bLength == 0)
 				return 1;
