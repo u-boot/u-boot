@@ -443,7 +443,6 @@ static int usb_hub_configure(struct usb_device *dev)
 				(portstatus & USB_PORT_STAT_CONNECTION))
 				break;
 
-			mdelay(100);
 		} while (get_timer(start) < CONFIG_SYS_HZ * 10);
 
 		if (ret < 0)
