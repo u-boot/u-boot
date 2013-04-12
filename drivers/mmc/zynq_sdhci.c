@@ -18,7 +18,7 @@
 #include <sdhci.h>
 #include <asm/arch/mmc.h>
 
-int zynq_sdhci_init(u32 regbase, u32 max_clk, u32 min_clk)
+int zynq_sdhci_init(u32 regbase)
 {
 	struct sdhci_host *host = NULL;
 
@@ -35,6 +35,6 @@ int zynq_sdhci_init(u32 regbase, u32 max_clk, u32 min_clk)
 
 	host->host_caps = MMC_MODE_HC;
 
-	add_sdhci(host, max_clk, min_clk);
+	add_sdhci(host, 52000000, 52000000 >> 9);
 	return 0;
 }

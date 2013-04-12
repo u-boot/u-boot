@@ -25,13 +25,13 @@
 
 #include <config.h>
 
-int zynq_sdhci_init(u32 regbase, u32 max_clk, u32 min_clk);
+int zynq_sdhci_init(u32 regbase);
 
 static inline int zynq_mmc_init(bd_t *bd)
 {
 	u32 regbase = (u32) SD_BASEADDR;
 
-	return zynq_sdhci_init(regbase, 52000000, 52000000 >> 9);
+	return zynq_sdhci_init(regbase);
 }
 
 #endif /* __ASM_ARCH_MMC_H_ */
