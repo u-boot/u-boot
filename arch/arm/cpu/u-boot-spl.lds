@@ -65,15 +65,6 @@ SECTIONS
 
 	_end = .;
 
-	/*
-	 * Deprecated: this MMU section is used by pxa at present but
-	 * should not be used by new boards/CPUs.
-	 */
-	. = ALIGN(4096);
-	.mmutable : {
-		*(.mmutable)
-	}
-
 	.bss __rel_dyn_start (OVERLAY) : {
 		__bss_start = .;
 		*(.bss*)
@@ -88,6 +79,17 @@ SECTIONS
 	/DISCARD/ : { *(.gnu*) }
 }
 
-#if defined(CONFIG_SPL_TEXT_BASE) && defined(CONFIG_SPL_MAX_SIZE)
-ASSERT(__bss_end < (CONFIG_SPL_TEXT_BASE + CONFIG_SPL_MAX_SIZE), "SPL image too big");
+#if defined(CONFIG_SPL_MAX_SIZE)
+ASSERT(__image_copy_end - __image_copy_start < (CONFIG_SPL_MAX_SIZE), \
+	"SPL image too big");
+#endif
+
+#if defined(CONFIG_SPL_BSS_MAX_SIZE)
+ASSERT(__bss_end - __bss_start < (CONFIG_SPL_BSS_MAX_SIZE), \
+	"SPL image BSS too big");
+#endif
+
+#if defined(CONFIG_SPL_MAX_FOOTPRINT)
+ASSERT(__bss_end - _start < (CONFIG_SPL_MAX_FOOTPRINT), \
+	"SPL image plus BSS too big");
 #endif
