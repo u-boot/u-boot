@@ -44,6 +44,7 @@
 #include <common.h>
 #include <div64.h>
 #include <asm/io.h>
+#include <asm/arch/hardware.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -54,7 +55,7 @@ struct scu_timer {
 };
 
 static struct scu_timer *timer_base =
-			      (struct scu_timer *) CONFIG_SCUTIMER_BASEADDR;
+			      (struct scu_timer *)ZYNQ_SCUTIMER_BASEADDR;
 
 #define SCUTIMER_CONTROL_PRESCALER_MASK	0x0000FF00 /* Prescaler */
 #define SCUTIMER_CONTROL_PRESCALER_SHIFT	8
