@@ -38,16 +38,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int lcd_line_length;
-int lcd_color_fg;
-int lcd_color_bg;
-
-void *lcd_base;
-void *lcd_console_address;
-
-short console_col;
-short console_row;
-
 static unsigned int panel_width, panel_height;
 
 /*
@@ -71,11 +61,9 @@ static void exynos_lcd_init_mem(void *lcdbase, vidinfo_t *vid)
 
 	fb_size = vid->vl_row * vid->vl_col * (NBITS(vid->vl_bpix) >> 3);
 
-	lcd_base = lcdbase;
-
 	palette_size = NBITS(vid->vl_bpix) == 8 ? 256 : 16;
 
-	exynos_fimd_lcd_init_mem((unsigned long)lcd_base,
+	exynos_fimd_lcd_init_mem((unsigned long)lcdbase,
 			(unsigned long)fb_size, palette_size);
 }
 
@@ -346,7 +334,7 @@ void lcd_ctrl_init(void *lcdbase)
 void lcd_enable(void)
 {
 	if (panel_info.logo_on) {
-		memset(lcd_base, 0, panel_width * panel_height *
+		memset((void *) gd->fb_base, 0, panel_width * panel_height *
 				(NBITS(panel_info.vl_bpix) >> 3));
 #ifdef CONFIG_CMD_BMP
 		draw_logo();

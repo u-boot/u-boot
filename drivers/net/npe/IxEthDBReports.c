@@ -62,7 +62,7 @@ IX_ETH_DB_PUBLIC
 IxEthDBStatus ixEthDBDependencyPortMapShow(IxEthDBPortId portID, IxEthDBPortMap map)
 {
     UINT32 portIndex;
-    BOOL mapSelf = TRUE, mapNone = TRUE, firstPort = TRUE;
+    BOOL mapSelf = true, mapNone = true, firstPort = true;
     
     /* dependency port maps */
     printf("Dependency port map: ");
@@ -72,22 +72,22 @@ IxEthDBStatus ixEthDBDependencyPortMapShow(IxEthDBPortId portID, IxEthDBPortMap 
     {
         if (IS_PORT_INCLUDED(portIndex, map))
         {
-            mapNone   = FALSE;
+            mapNone   = false;
             
             if (portIndex != portID)
             {
-                mapSelf = FALSE;
+                mapSelf = false;
             }
             
             printf("%s%d", firstPort ? "{" : ", ", portIndex);
             
-            firstPort = FALSE;
+            firstPort = false;
         }
     }
     
     if (mapNone)
     {
-        mapSelf = FALSE;
+        mapSelf = false;
     }
     
     printf("%s (%s)\n", firstPort ? "" : "}", mapSelf ? "self" : mapNone ? "none" : "group");

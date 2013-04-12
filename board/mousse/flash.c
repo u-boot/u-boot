@@ -450,7 +450,7 @@ STATUS flashWrite (flash_dev_t * dev, int pos, char *buf, int len)
 }
 
 /*
- * flashWritable returns TRUE if a range contains all F's.
+ * flashWritable returns true if a range contains all F's.
  */
 
 STATUS flashWritable (flash_dev_t * dev, int pos, int len)

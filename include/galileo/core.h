@@ -14,6 +14,7 @@ space). The macros take care of Big/Little endian conversions.
 
 /* includes */
 #include "gt64260R.h"
+#include <stdbool.h>
 
 extern unsigned int INTERNAL_REG_BASE_ADDR;
 
@@ -109,11 +110,6 @@ extern unsigned int INTERNAL_REG_BASE_ADDR;
 
 #define _1G             0x40000000
 #define _2G             0x80000000
-
-#ifndef	BOOL_WAS_DEFINED
-#define BOOL_WAS_DEFINED
-typedef enum _bool{false,true} bool;
-#endif
 
 /* Little to Big endian conversion macros */
 

@@ -54,6 +54,7 @@
 #define CONFIG_MISC_INIT_R	1	/* Call misc_init_r()		*/
 
 #define CONFIG_LCD		1	/* use LCD controller ...	*/
+#define CONFIG_MPC8XX_LCD
 #define CONFIG_HLD1045		1	/* ... with a HLD1045 display	*/
 
 #define CONFIG_LCD_LOGO		1	/* print our logo on the LCD	*/

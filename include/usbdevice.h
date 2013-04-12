@@ -676,8 +676,8 @@ struct usb_device_descriptor *usbd_device_device_descriptor(struct
 #if defined(CONFIG_USBD_HS)
 /*
  * is_usbd_high_speed routine needs to be defined by specific gadget driver
- * It returns TRUE if device enumerates at High speed
- * Retuns FALSE otherwise
+ * It returns true if device enumerates at High speed
+ * Retuns false otherwise
  */
 int is_usbd_high_speed(void);
 #endif

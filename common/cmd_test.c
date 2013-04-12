@@ -21,6 +21,15 @@
  * MA 02111-1307 USA
  */
 
+/*
+ * Define _STDBOOL_H here to avoid macro expansion of true and false.
+ * If the future code requires macro true or false, remove this define
+ * and undef true and false before U_BOOT_CMD. This define and comment
+ * shall be removed if change to U_BOOT_CMD is made to take string
+ * instead of stringifying it.
+ */
+#define _STDBOOL_H
+
 #include <common.h>
 #include <command.h>
 

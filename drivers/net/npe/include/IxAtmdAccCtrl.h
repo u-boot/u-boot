@@ -1933,12 +1933,12 @@ PUBLIC IX_STATUS ixAtmdAccPortDisable (IxAtmLogicalPort port);
 * @brief disable a PHY logical port
 *
 * This function indicates if the port disable for a port has completed. This
-* function will return TRUE if the port has never been enabled.
+* function will return true if the port has never been enabled.
 *
 * @param port @ref IxAtmLogicalPort [in] - logical PHY port [@a IX_UTOPIA_PORT_0 .. @a IX_UTOPIA_MAX_PORTS - 1]
 *
-* @return @li TRUE disable is complete
-* @return @li FALSE disable failed, wrong parameter .
+* @return @li true disable is complete
+* @return @li false disable failed, wrong parameter .
 *
 * @note - This function needs internal locks and should not be called
 *         from an interrupt context

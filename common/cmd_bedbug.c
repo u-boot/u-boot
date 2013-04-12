@@ -292,7 +292,7 @@ int do_bedbug_step (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		return 1;
 	}
 
-	if (!find_next_address ((unsigned char *) &addr, FALSE, bug_ctx.regs))
+	if (!find_next_address((unsigned char *) &addr, false, bug_ctx.regs))
 		return 1;
 
 	if (bug_ctx.set)
@@ -323,7 +323,7 @@ int do_bedbug_next (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		return 1;
 	}
 
-	if (!find_next_address ((unsigned char *) &addr, TRUE, bug_ctx.regs))
+	if (!find_next_address((unsigned char *) &addr, true, bug_ctx.regs))
 		return 1;
 
 	if (bug_ctx.set)

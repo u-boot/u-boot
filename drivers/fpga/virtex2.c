@@ -221,7 +221,7 @@ static int Virtex2_ssm_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 		 * There is no maximum value for the pulse width.  Check to make
 		 * sure that INIT_B goes low after assertion of PROG_B
 		 */
-		(*fn->pgm) (TRUE, TRUE, cookie);
+		(*fn->pgm) (true, true, cookie);
 		udelay (10);
 		ts = get_timer (0);
 		do {
@@ -234,9 +234,9 @@ static int Virtex2_ssm_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 			}
 		} while (!(*fn->init) (cookie));
 
-		(*fn->pgm) (FALSE, TRUE, cookie);
+		(*fn->pgm) (false, true, cookie);
 		CONFIG_FPGA_DELAY ();
-		(*fn->clk) (TRUE, TRUE, cookie);
+		(*fn->clk) (true, true, cookie);
 
 		/*
 		 * Start a timer and wait for INIT_B to go high
@@ -253,8 +253,8 @@ static int Virtex2_ssm_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 			}
 		} while ((*fn->init) (cookie) && (*fn->busy) (cookie));
 
-		(*fn->wr) (TRUE, TRUE, cookie);
-		(*fn->cs) (TRUE, TRUE, cookie);
+		(*fn->wr) (true, true, cookie);
+		(*fn->cs) (true, true, cookie);
 
 		udelay (10000);
 
@@ -286,15 +286,15 @@ static int Virtex2_ssm_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 			}
 #endif
 
-			(*fn->wdata) (data[bytecount++], TRUE, cookie);
+			(*fn->wdata) (data[bytecount++], true, cookie);
 			CONFIG_FPGA_DELAY ();
 
 			/*
 			 * Cycle the clock pin
 			 */
-			(*fn->clk) (FALSE, TRUE, cookie);
+			(*fn->clk) (false, true, cookie);
 			CONFIG_FPGA_DELAY ();
-			(*fn->clk) (TRUE, TRUE, cookie);
+			(*fn->clk) (true, true, cookie);
 
 #ifdef CONFIG_SYS_FPGA_CHECK_BUSY
 			ts = get_timer (0);
@@ -319,8 +319,8 @@ static int Virtex2_ssm_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 		 * Finished writing the data; deassert FPGA CS_B and WRITE_B signals.
 		 */
 		CONFIG_FPGA_DELAY ();
-		(*fn->cs) (FALSE, TRUE, cookie);
-		(*fn->wr) (FALSE, TRUE, cookie);
+		(*fn->cs) (false, true, cookie);
+		(*fn->wr) (false, true, cookie);
 
 #ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 		putc ('\n');
@@ -381,8 +381,8 @@ static int Virtex2_ssm_dump(Xilinx_desc *desc, const void *buf, size_t bsize)
 
 		printf ("Starting Dump of FPGA Device %d...\n", cookie);
 
-		(*fn->cs) (TRUE, TRUE, cookie);
-		(*fn->clk) (TRUE, TRUE, cookie);
+		(*fn->cs) (true, true, cookie);
+		(*fn->clk) (true, true, cookie);
 
 		while (bytecount < bsize) {
 #ifdef CONFIG_SYS_FPGA_CHECK_CTRLC
@@ -394,8 +394,8 @@ static int Virtex2_ssm_dump(Xilinx_desc *desc, const void *buf, size_t bsize)
 			/*
 			 * Cycle the clock and read the data
 			 */
-			(*fn->clk) (FALSE, TRUE, cookie);
-			(*fn->clk) (TRUE, TRUE, cookie);
+			(*fn->clk) (false, true, cookie);
+			(*fn->clk) (true, true, cookie);
 			(*fn->rdata) (&(data[bytecount++]), cookie);
 #ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 			if (bytecount % (bsize / 40) == 0)
@@ -406,9 +406,9 @@ static int Virtex2_ssm_dump(Xilinx_desc *desc, const void *buf, size_t bsize)
 		/*
 		 * Deassert CS_B and cycle the clock to deselect the device.
 		 */
-		(*fn->cs) (FALSE, FALSE, cookie);
-		(*fn->clk) (FALSE, TRUE, cookie);
-		(*fn->clk) (TRUE, TRUE, cookie);
+		(*fn->cs) (false, false, cookie);
+		(*fn->clk) (false, true, cookie);
+		(*fn->clk) (true, true, cookie);
 
 #ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
 		putc ('\n');

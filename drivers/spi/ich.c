@@ -455,7 +455,7 @@ static int spi_setup_offset(struct spi_trans *trans)
 
 /*
  * Wait for up to 6s til status register bit(s) turn 1 (in case wait_til_set
- * below is True) or 0. In case the wait was for the bit(s) to set - write
+ * below is true) or 0. In case the wait was for the bit(s) to set - write
  * those bits back, which would cause resetting them.
  *
  * Return the last read status value on success or -1 on failure.

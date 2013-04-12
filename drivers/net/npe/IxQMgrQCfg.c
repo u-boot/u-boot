@@ -94,7 +94,7 @@ typedef struct
     char qName[IX_QMGR_MAX_QNAME_LEN+1];       /* Textual description of a queue*/
     IxQMgrQSizeInWords qSizeInWords;           /* The number of words in the queue */
     IxQMgrQEntrySizeInWords qEntrySizeInWords; /* Number of words per queue entry*/
-    BOOL isConfigured;                         /* This flag is TRUE if the queue has
+    BOOL isConfigured;                         /* This flag is true if the queue has
                                                 *   been configured
                                                 */
 } IxQMgrCfgQ;
@@ -120,7 +120,7 @@ static UINT32 freeSramAddress=0;
 /* 4 words of zeroed memory for inline access */
 static UINT32 zeroedPlaceHolder[4] = { 0, 0, 0, 0 };
 
-static BOOL cfgInitialized = FALSE;
+static BOOL cfgInitialized = false;
 
 static IxOsalMutex ixQMgrQCfgMutex;
 
@@ -177,10 +177,10 @@ ixQMgrQCfgInit (void)
 	strcpy (cfgQueueInfo[loopIndex].qName, "");
 	cfgQueueInfo[loopIndex].qSizeInWords = 0;
 	cfgQueueInfo[loopIndex].qEntrySizeInWords = 0;
-	cfgQueueInfo[loopIndex].isConfigured = FALSE;
+	cfgQueueInfo[loopIndex].isConfigured = false;
 
 	/* Statistics */
-	stats.qStats[loopIndex].isConfigured = FALSE;
+	stats.qStats[loopIndex].isConfigured = false;
 	stats.qStats[loopIndex].qName = cfgQueueInfo[loopIndex].qName;
     }
 
@@ -191,13 +191,13 @@ ixQMgrQCfgInit (void)
     
     ixOsalMutexInit(&ixQMgrQCfgMutex);
 
-    cfgInitialized = TRUE;
+    cfgInitialized = true;
 }
 
 void
 ixQMgrQCfgUninit (void)
 {
-    cfgInitialized = FALSE;
+    cfgInitialized = false;
 
     /* Uninitialise the AqmIf component */
     ixQMgrAqmIfUninit ();
@@ -281,13 +281,13 @@ ixQMgrQConfig (char *qName,
 	      IX_QMGR_QUE_BUFFER_SPACE_SIZE);
 
     /* The queue is now configured */
-    cfgQueueInfo[qId].isConfigured = TRUE;
+    cfgQueueInfo[qId].isConfigured = true;
 
     ixOsalMutexUnlock(&ixQMgrQCfgMutex);
 
 #ifndef NDEBUG
     /* Update statistics */
-    stats.qStats[qId].isConfigured = TRUE;
+    stats.qStats[qId].isConfigured = true;
     stats.qStats[qId].qName = cfgQueueInfo[qId].qName;
 #endif
     return IX_SUCCESS;
@@ -417,7 +417,7 @@ ixQMgrQIsConfigured (IxQMgrQId qId)
 {
     if (!IX_QMGR_QID_IS_VALID(qId))
     {
-	return FALSE;
+	return false;
     }
 
     return cfgQueueInfo[qId].isConfigured;
@@ -487,7 +487,7 @@ watermarkLevelIsOk (IxQMgrQId qId, IxQMgrWMLevel level)
 	case IX_QMGR_Q_WM_LEVEL64:
 	    break;
 	default:
-	    return FALSE;
+	    return false;
     }
 
     /* Check watermark is not bigger than the qSizeInEntries */
@@ -495,10 +495,10 @@ watermarkLevelIsOk (IxQMgrQId qId, IxQMgrWMLevel level)
 
     if ((unsigned)level > qSizeInEntries)
     {
-	return FALSE;
+	return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 PRIVATE BOOL
@@ -512,10 +512,10 @@ qSizeInWordsIsOk (IxQMgrQSizeInWords qSize)
 	case IX_QMGR_Q_SIZE32:
 	case IX_QMGR_Q_SIZE64:
 	case IX_QMGR_Q_SIZE128:
-	    status = TRUE;
+	    status = true;
 	    break;
 	default:
-	    status = FALSE;
+	    status = false;
 	    break;
     }
 
@@ -532,10 +532,10 @@ qEntrySizeInWordsIsOk (IxQMgrQEntrySizeInWords entrySize)
 	case IX_QMGR_Q_ENTRY_SIZE1:
 	case IX_QMGR_Q_ENTRY_SIZE2:
 	case IX_QMGR_Q_ENTRY_SIZE4:
-	    status = TRUE;
+	    status = true;
 	    break;
 	default:
-	    status = FALSE;
+	    status = false;
 	    break;
     }
 

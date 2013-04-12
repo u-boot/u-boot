@@ -59,6 +59,7 @@
 
 #undef CONFIG_LCD
 #ifdef CONFIG_LCD
+#define CONFIG_PXA_LCD
 #define CONFIG_SHARP_LM8V31
 #endif
 

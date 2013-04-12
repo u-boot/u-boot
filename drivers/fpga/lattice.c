@@ -275,7 +275,7 @@ signed char ispVM(void)
 
 static int lattice_validate(Lattice_desc *desc, const char *fn)
 {
-	int ret_val = FALSE;
+	int ret_val = false;
 
 	if (desc) {
 		if ((desc->family > min_lattice_type) &&
@@ -283,7 +283,7 @@ static int lattice_validate(Lattice_desc *desc, const char *fn)
 			if ((desc->iface > min_lattice_iface_type) &&
 				(desc->iface < max_lattice_iface_type)) {
 				if (desc->size) {
-					ret_val = TRUE;
+					ret_val = true;
 				} else {
 					printf("%s: NULL part size\n", fn);
 				}

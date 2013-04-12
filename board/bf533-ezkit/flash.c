@@ -309,7 +309,7 @@ int read_flash(long nOffset, int *pnValue)
 	nValue = *(volatile unsigned short *)addr;
 	SSYNC();
 	*pnValue = nValue;
-	return TRUE;
+	return true;
 }
 
 int poll_toggle_bit(long lOffset)
@@ -398,7 +398,7 @@ int erase_block_flash(int nBlock, unsigned long address)
 	long ulSectorOff = 0x0;
 
 	if ((nBlock < 0) || (nBlock > AFP_NumSectors))
-		return FALSE;
+		return false;
 
 	ulSectorOff = (address - CONFIG_SYS_FLASH_BASE);
 

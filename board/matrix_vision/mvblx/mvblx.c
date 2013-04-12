@@ -162,7 +162,7 @@ int board_eth_init(bd_t *bis)
 
 int overwrite_console(void)
 {
-	/* return TRUE if console should be overwritten */
+	/* return true if console should be overwritten */
 	return 0;
 }
 

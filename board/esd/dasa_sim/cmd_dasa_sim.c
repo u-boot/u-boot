@@ -30,10 +30,6 @@
 #define OK 0
 #define ERROR (-1)
 
-#define TRUE 1
-#define FALSE 0
-
-
 extern u_long pci9054_iobase;
 
 
@@ -97,7 +93,7 @@ static int PciEepromWriteLongVPD (int offs, unsigned int value)
 		}
 	}
 
-	return TRUE;
+	return true;
 }
 
 

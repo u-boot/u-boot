@@ -39,6 +39,8 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 
+#define CONFIG_SYS_CACHELINE_SIZE       64
+
 /* commands to include */
 #include <config_cmd_default.h>
 
@@ -60,6 +62,11 @@
 	"fdtfile=\0" \
 	"console=ttyO0,115200n8\0" \
 	"optargs=\0" \
+	"mtdids=" MTDIDS_DEFAULT "\0" \
+	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"dfu_alt_info_mmc=" DFU_ALT_INFO_MMC "\0" \
+	"dfu_alt_info_emmc=rawemmc mmc 0 3751936\0" \
+	"dfu_alt_info_nand=" DFU_ALT_INFO_NAND "\0" \
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 ro\0" \
 	"mmcrootfstype=ext4 rootwait\0" \
@@ -167,8 +174,8 @@
 
 #define CONFIG_CMD_ECHO
 
-/* max number of command args */
-#define CONFIG_SYS_MAXARGS		16
+/* We set the max number of command args high to avoid HUSH bugs. */
+#define CONFIG_SYS_MAXARGS		64
 
 /* Console I/O Buffer Size */
 #define CONFIG_SYS_CBSIZE		512
@@ -197,6 +204,7 @@
 #define CONFIG_CMD_MMC
 #define CONFIG_DOS_PARTITION
 #define CONFIG_CMD_FAT
+#define CONFIG_FAT_WRITE
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_FS_GENERIC
@@ -208,6 +216,38 @@
 #define CONFIG_SPI_FLASH_WINBOND
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		(24000000)
+
+/* USB Composite download gadget - g_dnl */
+#define CONFIG_USB_GADGET
+#define CONFIG_USBDOWNLOAD_GADGET
+
+/* USB TI's IDs */
+#define CONFIG_USBD_HS
+#define CONFIG_G_DNL_VENDOR_NUM 0x0403
+#define CONFIG_G_DNL_PRODUCT_NUM 0xBD00
+#define CONFIG_G_DNL_MANUFACTURER "Texas Instruments"
+
+/* USB Device Firmware Update support */
+#define CONFIG_DFU_FUNCTION
+#define CONFIG_DFU_MMC
+#define CONFIG_DFU_NAND
+#define CONFIG_CMD_DFU
+#define DFU_ALT_INFO_MMC \
+	"boot part 0 1;" \
+	"rootfs part 0 2;" \
+	"MLO fat 0 1;" \
+	"MLO.raw mmc 100 100;" \
+	"u-boot.img.raw mmc 300 3C0;" \
+	"u-boot.img fat 0 1;" \
+	"uEnv.txt fat 0 1"
+#define DFU_ALT_INFO_NAND \
+	"SPL part 0 1;" \
+	"SPL.backup1 part 0 2;" \
+	"SPL.backup2 part 0 3;" \
+	"SPL.backup3 part 0 4;" \
+	"u-boot part 0 5;" \
+	"kernel part 0 7;" \
+	"rootfs part 0 8"
 
  /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1		/*  1 bank of DRAM */
@@ -354,6 +394,7 @@
 #define CONFIG_MUSB_PIO_ONLY
 #define CONFIG_MUSB_DISABLE_BULK_COMBINE_SPLIT
 #define CONFIG_USB_GADGET_DUALSPEED
+#define CONFIG_USB_GADGET_VBUS_DRAW	2
 #define CONFIG_MUSB_HOST
 #define CONFIG_AM335X_USB0
 #define CONFIG_AM335X_USB0_MODE	MUSB_PERIPHERAL
@@ -425,6 +466,13 @@
 /* NAND support */
 #ifdef CONFIG_NAND
 #define CONFIG_CMD_NAND
+#define CONFIG_CMD_MTDPARTS
+#define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
+#define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:128k(SPL)," \
+					"128k(SPL.backup1)," \
+					"128k(SPL.backup2)," \
+					"128k(SPL.backup3),1920k(u-boot)," \
+					"128k(u-boot-env),5m(kernel),-(rootfs)"
 #define CONFIG_NAND_OMAP_GPMC
 #define GPMC_NAND_ECC_LP_x16_LAYOUT	1
 #define CONFIG_SYS_NAND_BASE		(0x08000000)	/* physical address */

@@ -68,7 +68,7 @@ will get a consistent result each time.
 How to configure it
 ===================
 
-For most cases of using patman for U-Boot developement patman will
+For most cases of using patman for U-Boot development, patman will
 locate and use the file 'doc/git-mailrc' in your U-Boot directory.
 This contains most of the aliases you will need.
 
@@ -182,6 +182,10 @@ END
 	Sets the cover letter contents for the series. The first line
 	will become the subject of the cover letter
 
+Cover-letter-cc: email / alias
+	Additional email addresses / aliases to send cover letter to (you
+	can add this multiple times)
+
 Series-notes:
 blah blah
 blah blah
@@ -198,8 +202,9 @@ END
 	override the default signoff that patman automatically adds.
 
  Tested-by: Their Name <email>
+ Reviewed-by: Their Name <email>
  Acked-by: Their Name <email>
-	These indicate that someone has acked or tested your patch.
+	These indicate that someone has tested/reviewed/acked your patch.
 	When you get this reply on the mailing list, you can add this
 	tag to the relevant commit and the script will include it when
 	you send out the next version. If 'Tested-by:' is set to
@@ -220,8 +225,15 @@ Series-changes: n
 	to update the log there and then, knowing that the script will
 	do the rest.
 
-Cc: Their Name <email>
+ Cc: Their Name <email>
 	This copies a single patch to another email address.
+
+Series-process-log: sort, uniq
+	This tells patman to sort and/or uniq the change logs. It is
+	assumed that each change log entry is only a single line long.
+	Use 'sort' to sort the entries, and 'uniq' to include only
+	unique entries. If omitted, no change log processing is done.
+	Separate each tag with a comma.
 
 Various other tags are silently removed, like these Chrome OS and
 Gerrit tags:
@@ -231,7 +243,6 @@ TEST=...
 Change-Id:
 Review URL:
 Reviewed-on:
-Reviewed-by:
 
 
 Exercise for the reader: Try adding some tags to one of your current
@@ -263,7 +274,13 @@ will create a patch which is copied to x86, arm, sandbox, mikef, ag and
 afleming.
 
 If you have a cover letter it will get sent to the union of the CC lists of
-all of the other patches.
+all of the other patches. If you want to sent it to additional people you
+can add a tag:
+
+Cover-letter-cc: <list of addresses>
+
+These people will get the cover letter even if they are not on the To/Cc
+list for any of the patches.
 
 
 Example Work Flow

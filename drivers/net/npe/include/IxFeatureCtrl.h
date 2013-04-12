@@ -706,14 +706,14 @@ ixFeatureCtrlSwConfigurationCheck (IxFeatureCtrlSwConfig swConfigType);
  * @brief This function enable/disable the specified software configuration.  
  *
  *        Usage Example:<br> 
- *        - ixFeatureCtrlSwConfigurationWrite(IX_FEATURECTRL_ETH_LEARNING, TRUE) is used
+ *        - ixFeatureCtrlSwConfigurationWrite(IX_FEATURECTRL_ETH_LEARNING, true) is used
  *          to enable Ethernet Learning Feature <br>
- *        - ixFeatureCtrlSwConfigurationWrite(IX_FEATURECTRL_ETH_LEARNING, FALSE) is used
+ *        - ixFeatureCtrlSwConfigurationWrite(IX_FEATURECTRL_ETH_LEARNING, false) is used
  *          to disable Ethernet Learning Feature <br> 
  *
  * @param swConfigType IxFeatureCtrlSwConfig [in] - the type of a software configuration
  *        defined in IxFeatureCtrlSwConfig enumeration. 
- * @param enabled BOOL [in] - To enable(TRUE) / disable (FALSE) the specified software
+ * @param enabled BOOL [in] - To enable(true) / disable (false) the specified software
  *                           configuration.            
  *
  * @return none

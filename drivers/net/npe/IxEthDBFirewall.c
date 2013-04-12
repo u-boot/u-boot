@@ -72,7 +72,7 @@ IxEthDBStatus ixEthDBFirewallUpdate(IxEthDBPortId portID, void *address, UINT32 
     UINT32 mode        = 0;    
     PortInfo *portInfo = &ixEthDBPortInfo[portID];
 
-    mode = (portInfo->srcAddressFilterEnabled != FALSE) << 1 | (portInfo->firewallMode == IX_ETH_DB_FIREWALL_WHITE_LIST);
+    mode = (portInfo->srcAddressFilterEnabled != false) << 1 | (portInfo->firewallMode == IX_ETH_DB_FIREWALL_WHITE_LIST);
 
     FILL_SETFIREWALLMODE_MSG(message, 
         IX_ETH_DB_PORT_ID_TO_NPE_LOGICAL_ID(portID), 
@@ -123,8 +123,8 @@ IxEthDBStatus ixEthDBFirewallModeSet(IxEthDBPortId portID, IxEthDBFirewallMode m
  * @brief enables or disables the invalid source MAC address filter
  *
  * @param portID ID of the port
- * @param enable TRUE to enable invalid source MAC address filtering
- * or FALSE to disable it
+ * @param enable true to enable invalid source MAC address filtering
+ * or false to disable it
  *
  * The invalid source MAC address filter will discard, when enabled,
  * frames whose source MAC address is a multicast or the broadcast MAC

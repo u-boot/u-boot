@@ -1538,6 +1538,7 @@ int ubi_wl_init_scan(struct ubi_device *ubi, struct ubi_scan_info *si)
 	if (ubi->avail_pebs < WL_RESERVED_PEBS) {
 		ubi_err("no enough physical eraseblocks (%d, need %d)",
 			ubi->avail_pebs, WL_RESERVED_PEBS);
+		err = -ENOSPC;
 		goto out_free;
 	}
 	ubi->avail_pebs -= WL_RESERVED_PEBS;

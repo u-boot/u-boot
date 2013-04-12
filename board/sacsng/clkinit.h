@@ -22,11 +22,6 @@
  * MA 02111-1307 USA
  */
 
-#ifndef FALSE
-#define FALSE 0
-#define TRUE (!FALSE)
-#endif
-
 #define SLRCLK_EN_MASK  0x00040000 /* PA13 - SLRCLK_EN*     */
 
 #define MIN_SAMPLE_RATE       4000 /* Minimum sample rate */

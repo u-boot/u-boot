@@ -253,40 +253,6 @@ vidinfo_t panel_info = {
     LCD_BPP,  0, 0, 0, 0, 33, 0, 0, 0
 };
 #endif
-/*----------------------------------------------------------------------*/
-
-
-int lcd_line_length;
-
-int lcd_color_fg;
-int lcd_color_bg;
-
-/*
- * Frame buffer memory information
- */
-void *lcd_base;			/* Start of framebuffer memory	*/
-void *lcd_console_address;	/* Start of console buffer	*/
-
-short console_col;
-short console_row;
-
-/************************************************************************/
-
-void lcd_ctrl_init (void *lcdbase);
-void lcd_enable (void);
-#if LCD_BPP == LCD_COLOR8
-void lcd_setcolreg (ushort regno,
-				ushort red, ushort green, ushort blue);
-#endif
-#if LCD_BPP == LCD_MONOCHROME
-void lcd_initcolregs (void);
-#endif
-
-#if defined(CONFIG_RBC823)
-void lcd_disable (void);
-#endif
-
-/************************************************************************/
 
 /************************************************************************/
 /* ----------------- chipset specific functions ----------------------- */
@@ -401,8 +367,8 @@ void lcd_ctrl_init (void *lcdbase)
 	 * BIG NOTE:  This has to be modified to load A and B depending
 	 * upon the split mode of the LCD.
 	 */
-	lcdp->lcd_lcfaa = (ulong)lcd_base;
-	lcdp->lcd_lcfba = (ulong)lcd_base;
+	lcdp->lcd_lcfaa = (ulong)lcdbase;
+	lcdp->lcd_lcfba = (ulong)lcdbase;
 
 	/* MORE HACKS...This must be updated according to 823 manual
 	 * for different panels.
@@ -429,29 +395,6 @@ void lcd_ctrl_init (void *lcdbase)
 			  panel_info.vl_wbf;
 
 }
-
-/*----------------------------------------------------------------------*/
-
-#ifdef	NOT_USED_SO_FAR
-static void
-lcd_getcolreg (ushort regno, ushort *red, ushort *green, ushort *blue)
-{
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
-	volatile cpm8xx_t *cp = &(immr->im_cpm);
-	unsigned short colreg, *cmap_ptr;
-
-	cmap_ptr = (unsigned short *)&cp->lcd_cmap[regno * 2];
-
-	colreg = *cmap_ptr;
-#ifdef	CONFIG_SYS_INVERT_COLORS
-	colreg ^= 0x0FFF;
-#endif
-
-	*red   = (colreg >> 8) & 0x0F;
-	*green = (colreg >> 4) & 0x0F;
-	*blue  =  colreg       & 0x0F;
-}
-#endif	/* NOT_USED_SO_FAR */
 
 /*----------------------------------------------------------------------*/
 

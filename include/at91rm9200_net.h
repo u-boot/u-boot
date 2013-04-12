@@ -23,10 +23,6 @@
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 
-#define FALSE 0
-#define TRUE 1
-
-
 #define ETHERNET_ADDRESS_SIZE           6
 
 typedef unsigned char UCHAR;

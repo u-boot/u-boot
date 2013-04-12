@@ -51,7 +51,7 @@ IX_ETH_DB_PUBLIC BOOL ixEthDBPortUpdateRequired[IX_ETH_DB_MAX_RECORD_TYPE_INDEX 
 IX_ETH_DB_PUBLIC UINT32 ixEthDBKeyType[IX_ETH_DB_MAX_RECORD_TYPE_INDEX + 1];
 
 /* private initialization flag */
-IX_ETH_DB_PRIVATE BOOL ethDBInitializationComplete = FALSE;
+IX_ETH_DB_PRIVATE BOOL ethDBInitializationComplete = false;
 
 /**
  * @brief initializes EthDB
@@ -124,7 +124,7 @@ IxEthDBStatus ixEthDBInit(void)
         ixEthDBFeatureCapabilityScan();
     }
 
-    ethDBInitializationComplete = TRUE;
+    ethDBInitializationComplete = true;
 
     return result;
 }
@@ -179,7 +179,7 @@ IxEthDBStatus ixEthDBUnload(void)
             ixOsalMutexDestroy(&ixEthDBPortInfo[portIndex].npeAckLock);
         }
 
-        ixEthDBPortInfo[portIndex].initialized = FALSE;
+        ixEthDBPortInfo[portIndex].initialized = false;
     }
 
     /* shutdown event processor */
@@ -188,7 +188,7 @@ IxEthDBStatus ixEthDBUnload(void)
     /* deallocate NPE update zones */
     ixEthDBNPEUpdateAreasUnload();
 
-    ethDBInitializationComplete = FALSE;
+    ethDBInitializationComplete = false;
 
     return IX_ETH_DB_SUCCESS;
 }

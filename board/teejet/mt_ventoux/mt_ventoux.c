@@ -179,9 +179,9 @@ int fpga_post_config_fn(int cookie)
 {
 	debug("%s:%d: FPGA post-configuration\n", __func__, __LINE__);
 
-	fpga_reset(TRUE);
+	fpga_reset(true);
 	udelay(100);
-	fpga_reset(FALSE);
+	fpga_reset(false);
 
 	return 0;
 }

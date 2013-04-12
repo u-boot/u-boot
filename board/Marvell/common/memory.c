@@ -383,7 +383,7 @@ unsigned int memoryGetDeviceWidth (DEVICE device)
 * OUTPUT:
 *       None.
 * RETURN:
-*       False for invalid size, true otherwise.
+*       false for invalid size, true otherwise.
 *
 * CAUTION: PCI_functions must be implemented later To_do !!!!!!!!!!!!!!!!!
 *
@@ -509,7 +509,7 @@ bool memoryMapBank (MEMORY_BANK bank, unsigned int bankBase,
 *       None.
 *
 * RETURN:
-*       False for invalid size, true otherwise.
+*       false for invalid size, true otherwise.
 *
 * CAUTION: PCI_functions must be implemented later To_do !!!!!!!!!!!!!!!!!
 *
@@ -624,7 +624,7 @@ bool memoryMapDeviceSpace (DEVICE device, unsigned int deviceBase,
 *       None.
 *
 * RETURN:
-*       False for invalid size, true otherwise.
+*       false for invalid size, true otherwise.
 *
 *******************************************************************************/
 bool memorySetPciWindow (PCI_MEM_WINDOW pciWindow, unsigned int pciWindowBase,
@@ -885,7 +885,7 @@ void gtMemorySetInternalSramBaseAddr (unsigned int sramBaseAddress)
 *       None.
 *
 * RETURN:
-*       False for invalid size, true otherwise.
+*       false for invalid size, true otherwise.
 *
 *******************************************************************************/
 bool memorySetProtectRegion (MEMORY_PROTECT_WINDOW window,
@@ -1380,7 +1380,7 @@ void MemoryEnableWindow (MEMORY_WINDOW window)
 * OUTPUT:
 *       None.
 * RETURN:
-*       True for a closed window, false otherwise .
+*       true for a closed window, false otherwise .
 *******************************************************************************/
 MEMORY_WINDOW_STATUS MemoryGetMemWindowStatus (MEMORY_WINDOW window)
 {

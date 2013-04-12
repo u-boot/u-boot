@@ -124,7 +124,7 @@ BOOL ixNpeMhSendInFifoIsFull(
     IxNpeMhNpeId npeId,
     UINT32 maxSendRetries)
 {
-    BOOL isFull = FALSE;
+    BOOL isFull = false;
     UINT32 numRetries = 0;
 
     /* check the NPE's inFIFO */

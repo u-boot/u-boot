@@ -27,9 +27,11 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)libdts.o
 
+ifeq ($(DEVICE_TREE),)
 $(if $(CONFIG_DEFAULT_DEVICE_TREE),,\
 $(error Please define CONFIG_DEFAULT_DEVICE_TREE in your board header file))
 DEVICE_TREE = $(subst ",,$(CONFIG_DEFAULT_DEVICE_TREE))
+endif
 
 $(if $(CONFIG_ARCH_DEVICE_TREE),,\
 $(error Your architecture does not have device tree support enabled. \

@@ -496,6 +496,13 @@ The following options need to be configured:
 		exists, unlike the similar options in the Linux kernel. Do not
 		set these options unless they apply!
 
+- CPU timer options:
+		CONFIG_SYS_HZ
+
+		The frequency of the timer returned by get_timer().
+		get_timer() must operate in milliseconds and this CONFIG
+		option must be set to 1000.
+
 - Linux Kernel Interface:
 		CONFIG_CLOCKS_IN_MHZ
 
@@ -1329,6 +1336,29 @@ The following options need to be configured:
 			CONFIG_SH_MMCIF_CLK
 			Define the clock frequency for MMCIF
 
+- USB Device Firmware Update (DFU) class support:
+		CONFIG_DFU_FUNCTION
+		This enables the USB portion of the DFU USB class
+
+		CONFIG_CMD_DFU
+		This enables the command "dfu" which is used to have
+		U-Boot create a DFU class device via USB.  This command
+		requires that the "dfu_alt_info" environment variable be
+		set and define the alt settings to expose to the host.
+
+		CONFIG_DFU_MMC
+		This enables support for exposing (e)MMC devices via DFU.
+
+		CONFIG_DFU_NAND
+		This enables support for exposing NAND devices via DFU.
+
+		CONFIG_SYS_DFU_MAX_FILE_SIZE
+		When updating files rather than the raw storage device,
+		we use a static buffer to copy the file into and then write
+		the buffer once we've been given the whole file.  Define
+		this to the maximum filesize (in bytes) for the buffer.
+		Default is 4 MiB if undefined.
+
 - Journaling Flash filesystem support:
 		CONFIG_JFFS2_NAND, CONFIG_JFFS2_NAND_OFF, CONFIG_JFFS2_NAND_SIZE,
 		CONFIG_JFFS2_NAND_DEV
@@ -1930,15 +1960,15 @@ CBFS (Coreboot Filesystem) support
 
 		I2C_READ
 
-		Code that returns TRUE if the I2C data line is high,
-		FALSE if it is low.
+		Code that returns true if the I2C data line is high,
+		false if it is low.
 
 		eg: #define I2C_READ ((immr->im_cpm.cp_pbdat & PB_SDA) != 0)
 
 		I2C_SDA(bit)
 
-		If <bit> is TRUE, sets the I2C data line high. If it
-		is FALSE, it clears it (low).
+		If <bit> is true, sets the I2C data line high. If it
+		is false, it clears it (low).
 
 		eg: #define I2C_SDA(bit) \
 			if(bit) immr->im_cpm.cp_pbdat |=  PB_SDA; \
@@ -1946,8 +1976,8 @@ CBFS (Coreboot Filesystem) support
 
 		I2C_SCL(bit)
 
-		If <bit> is TRUE, sets the I2C clock line high. If it
-		is FALSE, it clears it (low).
+		If <bit> is true, sets the I2C clock line high. If it
+		is false, it clears it (low).
 
 		eg: #define I2C_SCL(bit) \
 			if(bit) immr->im_cpm.cp_pbdat |=  PB_SCL; \
@@ -2768,6 +2798,32 @@ FIT uImage format:
 		Adds the MTD partitioning infrastructure from the Linux
 		kernel. Needed for UBI support.
 
+- UBI support
+		CONFIG_CMD_UBI
+
+		Adds commands for interacting with MTD partitions formatted
+		with the UBI flash translation layer
+
+		Requires also defining CONFIG_RBTREE
+
+		CONFIG_UBI_SILENCE_MSG
+
+		Make the verbose messages from UBI stop printing.  This leaves
+		warnings and errors enabled.
+
+- UBIFS support
+		CONFIG_CMD_UBIFS
+
+		Adds commands for interacting with UBI volumes formatted as
+		UBIFS.  UBIFS is read-only in u-boot.
+
+		Requires UBI support as well as CONFIG_LZO
+
+		CONFIG_UBIFS_SILENCE_MSG
+
+		Make the verbose messages from UBIFS stop printing.  This leaves
+		warnings and errors enabled.
+
 - SPL framework
 		CONFIG_SPL
 		Enable building of SPL globally.
@@ -3486,6 +3542,33 @@ but it can not erase, write this NOR flash by SRIO or PCIE interface.
 	Defines address in RAM to which the nand_spl code should copy the
 	environment. If redundant environment is used, it will be copied to
 	CONFIG_NAND_ENV_DST + CONFIG_ENV_SIZE.
+
+- CONFIG_ENV_IS_IN_UBI:
+
+	Define this if you have an UBI volume that you want to use for the
+	environment.  This has the benefit of wear-leveling the environment
+	accesses, which is important on NAND.
+
+	- CONFIG_ENV_UBI_PART:
+
+	  Define this to a string that is the mtd partition containing the UBI.
+
+	- CONFIG_ENV_UBI_VOLUME:
+
+	  Define this to the name of the volume that you want to store the
+	  environment in.
+
+	- CONFIG_ENV_UBI_VOLUME_REDUND:
+
+	  Define this to the name of another volume to store a second copy of
+	  the environment in.  This will enable redundant environments in UBI.
+	  It is assumed that both volumes are in the same MTD partition.
+
+	- CONFIG_UBI_SILENCE_MSG
+	- CONFIG_UBIFS_SILENCE_MSG
+
+	  You will probably want to define these to avoid a really noisy system
+	  when storing the env in UBI.
 
 - CONFIG_SYS_SPI_INIT_OFFSET
 

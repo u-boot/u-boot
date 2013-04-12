@@ -135,10 +135,10 @@ static void drv_mutex_destroy(IxOsalMutex *mutex)
 
 static int drv_mutex_trylock(IxOsalMutex *mutex)
 {
-	int result = TRUE;
+	int result = true;
 
 	if (*mutex == 1)
-		result = FALSE;
+		result = false;
 
 	return result;
 }

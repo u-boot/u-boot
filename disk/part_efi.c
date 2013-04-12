@@ -30,6 +30,7 @@
  *
  * This limits the maximum size of addressable storage to < 2 Terra Bytes
  */
+#include <asm/unaligned.h>
 #include <common.h>
 #include <command.h>
 #include <ide.h>
@@ -505,7 +506,7 @@ err:
 static int pmbr_part_valid(struct partition *part)
 {
 	if (part->sys_ind == EFI_PMBR_OSTYPE_EFI_GPT &&
-		le32_to_cpu(part->start_sect) == 1UL) {
+		get_unaligned_le32(&part->start_sect) == 1UL) {
 		return 1;
 	}
 

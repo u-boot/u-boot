@@ -41,6 +41,9 @@ import test
 
 
 parser = OptionParser()
+parser.add_option('-a', '--no-apply', action='store_false',
+                  dest='apply_patches', default=True,
+                  help="Don't test-apply patches with git am")
 parser.add_option('-H', '--full-help', action='store_true', dest='full_help',
        default=False, help='Display the README file')
 parser.add_option('-c', '--count', dest='count', type='int',
@@ -49,13 +52,17 @@ parser.add_option('-i', '--ignore-errors', action='store_true',
        dest='ignore_errors', default=False,
        help='Send patches email even if patch errors are found')
 parser.add_option('-n', '--dry-run', action='store_true', dest='dry_run',
-       default=False, help="Do a try run (create but don't email patches)")
+       default=False, help="Do a dry run (create but don't email patches)")
 parser.add_option('-p', '--project', default=project.DetectProject(),
                   help="Project name; affects default option values and "
                   "aliases [default: %default]")
+parser.add_option('-r', '--in-reply-to', type='string', action='store',
+                  help="Message ID that this series is in reply to")
 parser.add_option('-s', '--start', dest='start', type='int',
        default=0, help='Commit to start creating patches from (0 = HEAD)')
-parser.add_option('-t', '--test', action='store_true', dest='test',
+parser.add_option('-t', '--ignore-bad-tags', action='store_true',
+                  default=False, help='Ignore bad tags / aliases')
+parser.add_option('--test', action='store_true', dest='test',
                   default=False, help='run tests')
 parser.add_option('-v', '--verbose', action='store_true', dest='verbose',
        default=False, help='Verbose output of errors and warnings')
@@ -70,7 +77,7 @@ parser.add_option('--no-tags', action='store_false', dest='process_tags',
 parser.usage = """patman [options]
 
 Create patches from commits in a branch, check them and email them as
-specified by tags you place in the commits. Use -n to """
+specified by tags you place in the commits. Use -n to do a dry run first."""
 
 
 # Parse options twice: first to get the project and second to handle
@@ -153,17 +160,20 @@ else:
         ok = checkpatch.CheckPatches(options.verbose, args)
     else:
         ok = True
-    if not gitutil.ApplyPatches(options.verbose, args,
-            options.count + options.start):
-        ok = False
+    if options.apply_patches:
+        if not gitutil.ApplyPatches(options.verbose, args,
+                                    options.count + options.start):
+            ok = False
 
-    cc_file = series.MakeCcFile(options.process_tags, cover_fname)
+    cc_file = series.MakeCcFile(options.process_tags, cover_fname,
+                                not options.ignore_bad_tags)
 
     # Email the patches out (giving the user time to check / cancel)
     cmd = ''
     if ok or options.ignore_errors:
         cmd = gitutil.EmailPatches(series, cover_fname, args,
-                options.dry_run, cc_file)
+                options.dry_run, not options.ignore_bad_tags, cc_file,
+                in_reply_to=options.in_reply_to)
 
     # For a dry run, just show our actions as a sanity check
     if options.dry_run:
