@@ -269,9 +269,9 @@ int usb_stor_scan(int mode)
 			     lun++) {
 				usb_dev_desc[usb_max_devs].lun = lun;
 				if (usb_stor_get_info(dev, &usb_stor[start],
-						      &usb_dev_desc[usb_max_devs]) == 1) {
-				usb_max_devs++;
-		}
+				    &usb_dev_desc[usb_max_devs]) == 1) {
+					usb_max_devs++;
+				}
 			}
 		}
 		/* if storage device */
@@ -504,7 +504,7 @@ static int usb_stor_BBB_comdat(ccb *srb, struct us_data *us)
 	dir_in = US_DIRECTION(srb->cmd[0]);
 
 #ifdef BBB_COMDAT_TRACE
-	printf("dir %d lun %d cmdlen %d cmd %p datalen %d pdata %p\n",
+	printf("dir %d lun %d cmdlen %d cmd %p datalen %lu pdata %p\n",
 		dir_in, srb->lun, srb->cmdlen, srb->cmd, srb->datalen,
 		srb->pdata);
 	if (srb->cmdlen) {
@@ -1209,6 +1209,7 @@ int usb_storage_probe(struct usb_device *dev, unsigned int ifnum,
 {
 	struct usb_interface *iface;
 	int i;
+	struct usb_endpoint_descriptor *ep_desc;
 	unsigned int flags = 0;
 
 	int protocol = 0;
@@ -1291,24 +1292,25 @@ int usb_storage_probe(struct usb_device *dev, unsigned int ifnum,
 	 * We will ignore any others.
 	 */
 	for (i = 0; i < iface->desc.bNumEndpoints; i++) {
+		ep_desc = &iface->ep_desc[i];
 		/* is it an BULK endpoint? */
-		if ((iface->ep_desc[i].bmAttributes &
+		if ((ep_desc->bmAttributes &
 		     USB_ENDPOINT_XFERTYPE_MASK) == USB_ENDPOINT_XFER_BULK) {
-			if (iface->ep_desc[i].bEndpointAddress & USB_DIR_IN)
-				ss->ep_in = iface->ep_desc[i].bEndpointAddress &
-					USB_ENDPOINT_NUMBER_MASK;
+			if (ep_desc->bEndpointAddress & USB_DIR_IN)
+				ss->ep_in = ep_desc->bEndpointAddress &
+						USB_ENDPOINT_NUMBER_MASK;
 			else
 				ss->ep_out =
-					iface->ep_desc[i].bEndpointAddress &
+					ep_desc->bEndpointAddress &
 					USB_ENDPOINT_NUMBER_MASK;
 		}
 
 		/* is it an interrupt endpoint? */
-		if ((iface->ep_desc[i].bmAttributes &
-		    USB_ENDPOINT_XFERTYPE_MASK) == USB_ENDPOINT_XFER_INT) {
-			ss->ep_int = iface->ep_desc[i].bEndpointAddress &
-				USB_ENDPOINT_NUMBER_MASK;
-			ss->irqinterval = iface->ep_desc[i].bInterval;
+		if ((ep_desc->bmAttributes &
+		     USB_ENDPOINT_XFERTYPE_MASK) == USB_ENDPOINT_XFER_INT) {
+			ss->ep_int = ep_desc->bEndpointAddress &
+						USB_ENDPOINT_NUMBER_MASK;
+			ss->irqinterval = ep_desc->bInterval;
 		}
 	}
 	debug("Endpoints In %d Out %d Int %d\n",

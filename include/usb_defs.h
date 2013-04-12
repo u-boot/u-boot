@@ -247,7 +247,7 @@
 #define HUB_CHAR_OCPM               0x0018
 
 /*
- *Hub Status & Hub Change bit masks
+ * Hub Status & Hub Change bit masks
  */
 #define HUB_STATUS_LOCAL_POWER	0x0001
 #define HUB_STATUS_OVERCURRENT	0x0002
