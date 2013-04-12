@@ -994,6 +994,7 @@ Stephen Warren <swarren@nvidia.com>
 	paz00		Tegra20 (ARM7 & A9 Dual Core)
 	trimslice	Tegra20 (ARM7 & A9 Dual Core)
 	whistler	Tegra20 (ARM7 & A9 Dual Core)
+	beaver		Tegra30 (ARM7 & A9 Quad Core)
 
 Stephen Warren <swarren@wwwdotorg.org>
 
