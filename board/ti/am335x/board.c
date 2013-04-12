@@ -379,7 +379,7 @@ void s_init(void)
 		config_ddr(303, MT41J128MJT125_IOCTRL_VALUE, &ddr3_data,
 			   &ddr3_cmd_ctrl_data, &ddr3_emif_reg_data, 0);
 	else if (board_is_bone_lt())
-		config_ddr(303, MT41K256M16HA125E_IOCTRL_VALUE,
+		config_ddr(400, MT41K256M16HA125E_IOCTRL_VALUE,
 			   &ddr3_beagleblack_data,
 			   &ddr3_beagleblack_cmd_ctrl_data,
 			   &ddr3_beagleblack_emif_reg_data, 0);

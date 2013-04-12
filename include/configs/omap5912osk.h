@@ -134,7 +134,7 @@
  */
 #define CONFIG_SYS_TIMERBASE	0xFFFEC500	/* use timer 1 */
 #define CONFIG_SYS_PTV		7	/* 2^(PTV+1), divide by 256 */
-#define CONFIG_SYS_HZ		((CONFIG_SYS_CLK_FREQ)/(2 << CONFIG_SYS_PTV))
+#define CONFIG_SYS_HZ		1000
 
 /*-----------------------------------------------------------------------
  * Physical Memory Map
@@ -178,12 +178,15 @@
  */
 #define CONFIG_ENV_IS_IN_FLASH	1
 /* addr of environment */
-#define CONFIG_ENV_ADDR	(CONFIG_SYS_FLASH_BASE + 0x020000)
+#define CONFIG_ENV_ADDR	(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)
 
-#define CONFIG_ENV_SIZE	0x20000	/* Total Size of Environment Sector */
-#define CONFIG_ENV_OFFSET	0x20000	/* environment starts here  */
+#define CONFIG_ENV_SIZE		0x20000	/* Total Size of Environment Sector */
+#define CONFIG_ENV_OFFSET	0x40000	/* environment starts here  */
 
-#define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM_1
-#define CONFIG_SYS_INIT_SP_ADDR PHYS_SRAM
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CONFIG_SYS_INIT_RAM_ADDR        PHYS_SRAM
+#define CONFIG_SYS_INIT_RAM_SIZE        (250 * 1024)
+#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_INIT_RAM_ADDR + \
+					 CONFIG_SYS_INIT_RAM_SIZE)
 
 #endif							/* __CONFIG_H */

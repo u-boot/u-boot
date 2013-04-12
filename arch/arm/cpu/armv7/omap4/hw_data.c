@@ -216,14 +216,14 @@ struct dplls omap4460_dplls = {
 
 struct pmic_data twl6030_4430es1 = {
 	.base_offset = PHOENIX_SMPS_BASE_VOLT_STD_MODE_UV,
-	.step = 12660, /* 10 mV represented in uV */
+	.step = 12660, /* 12.66 mV represented in uV */
 	/* The code starts at 1 not 0 */
 	.start_code = 1,
 };
 
 struct pmic_data twl6030 = {
 	.base_offset = PHOENIX_SMPS_BASE_VOLT_STD_MODE_WITH_OFFSET_UV,
-	.step = 12660, /* 10 mV represented in uV */
+	.step = 12660, /* 12.66 mV represented in uV */
 	/* The code starts at 1 not 0 */
 	.start_code = 1,
 };
@@ -271,11 +271,11 @@ struct vcores_data omap4460_volts = {
 
 	.core.value = 1200,
 	.core.addr = SMPS_REG_ADDR_VCORE1,
-	.core.pmic = &tps62361,
+	.core.pmic = &twl6030,
 
 	.mm.value = 1200,
 	.mm.addr = SMPS_REG_ADDR_VCORE2,
-	.mm.pmic = &tps62361,
+	.mm.pmic = &twl6030,
 };
 
 /*
