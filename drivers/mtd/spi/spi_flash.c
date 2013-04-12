@@ -380,8 +380,25 @@ int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 ear)
 int spi_flash_cmd_bankaddr_read(struct spi_flash *flash, void *data)
 {
 	u8 cmd;
+	u8 idcode0;
+	int ret;
 
-	cmd = CMD_BANKADDR_BRRD;
+	ret = spi_flash_cmd(flash->spi, CMD_READ_ID, &idcode0, 1);
+	if (ret) {
+		debug("SF: fail to read read id\n");
+		return ret;
+	}
+
+	if (idcode0 == 0x01) {
+		cmd = CMD_BANKADDR_BRRD;
+	} else if ((idcode0 == 0xef) || (idcode0 == 0x20)) {
+		cmd = CMD_EXT_RDEAR;
+	} else {
+		printf("SF: unable to support extended addr reg read"
+			" for %s flash\n", flash->name);
+		return -1;
+	}
+
 	return spi_flash_read_common(flash, &cmd, 1, data, 1);
 }
 
