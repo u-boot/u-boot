@@ -112,6 +112,8 @@ enum xqspips_con_topology {
 #define	XQSPIPS_FLASH_OPCODE_ERASE_SUS	0x75	/* Erase suspend */
 #define	XQSPIPS_FLASH_OPCODE_ERASE_RES	0x7A	/* Erase resume */
 #define	XQSPIPS_FLASH_OPCODE_RDID	0x9F	/* Read JEDEC ID */
+#define	XQSPIPS_FLASH_OPCODE_WREAR	0xC5	/* Extended address reg write */
+#define	XQSPIPS_FLASH_OPCODE_RDEAR	0xC8	/* Extended address reg read */
 #define	XQSPIPS_FLASH_OPCODE_BE		0xC7	/* Erase whole flash block */
 #define	XQSPIPS_FLASH_OPCODE_SE		0xD8	/* Sector erase (usually 64KB)*/
 
@@ -218,6 +220,8 @@ static struct xqspips_inst_format flash_inst[] = {
 	{ XQSPIPS_FLASH_OPCODE_QUAD_READ, 1, XQSPIPS_TXD_00_01_OFFSET },
 	{ XQSPIPS_FLASH_OPCODE_BRWR, 1, XQSPIPS_TXD_00_01_OFFSET },
 	{ XQSPIPS_FLASH_OPCODE_BRRD, 1, XQSPIPS_TXD_00_01_OFFSET },
+	{ XQSPIPS_FLASH_OPCODE_WREAR, 1, XQSPIPS_TXD_00_01_OFFSET },
+	{ XQSPIPS_FLASH_OPCODE_RDEAR, 1, XQSPIPS_TXD_00_01_OFFSET },
 	/* Add all the instructions supported by the flash device */
 };
 
@@ -699,9 +703,10 @@ static int xqspips_start_transfer(struct spi_device *qspi,
 		 * response contains the value
 		 */
 		if ((instruction == XQSPIPS_FLASH_OPCODE_RDSR1) ||
-				(instruction == XQSPIPS_FLASH_OPCODE_RDSR2) ||
-				(instruction == XQSPIPS_FLASH_OPCODE_RDID) ||
-				(instruction == XQSPIPS_FLASH_OPCODE_BRRD)) {
+			(instruction == XQSPIPS_FLASH_OPCODE_RDSR2) ||
+			(instruction == XQSPIPS_FLASH_OPCODE_RDID) ||
+			(instruction == XQSPIPS_FLASH_OPCODE_BRRD) ||
+			(instruction == XQSPIPS_FLASH_OPCODE_RDEAR)) {
 			if (xqspi->bytes_to_transfer < 4)
 				xqspi->bytes_to_transfer = 0;
 			else
