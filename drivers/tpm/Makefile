@@ -23,7 +23,11 @@ include $(TOPDIR)/config.mk
 
 LIB := $(obj)libtpm.o
 
+$(shell mkdir -p $(obj)slb9635_i2c)
+
 COBJS-$(CONFIG_GENERIC_LPC_TPM) = generic_lpc_tpm.o
+COBJS-$(CONFIG_INFINEON_TPM_I2C) += tis_i2c.o slb9635_i2c/tpm.o
+COBJS-$(CONFIG_INFINEON_TPM_I2C) += slb9635_i2c/tpm_tis_i2c.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
