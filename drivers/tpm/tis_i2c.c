@@ -68,6 +68,10 @@ static int tpm_decode_config(struct tpm *dev)
 
 	node = fdtdec_next_compatible(blob, 0, COMPAT_INFINEON_SLB9635_TPM);
 	if (node < 0) {
+		node = fdtdec_next_compatible(blob, 0,
+					      COMPAT_INFINEON_SLB9645_TPM);
+	}
+	if (node < 0) {
 		debug("%s: Node not found\n", __func__);
 		return -1;
 	}

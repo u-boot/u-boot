@@ -37,11 +37,14 @@
  */
 
 #include <common.h>
+#include <fdtdec.h>
 #include <i2c.h>
 #include <linux/types.h>
 
 #include "compatibility.h"
 #include "tpm.h"
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /* max. buffer size supported by our tpm */
 #ifdef TPM_BUFSIZE
@@ -65,12 +68,26 @@
 #define SLEEP_DURATION_LONG 210 /* in usec */
 
 /* expected value for DIDVID register */
-#define TPM_TIS_I2C_DID_VID 0x000b15d1L
+#define TPM_TIS_I2C_DID_VID_9635 0x000b15d1L
+#define TPM_TIS_I2C_DID_VID_9645 0x001a15d1L
+
+enum i2c_chip_type {
+	SLB9635,
+	SLB9645,
+	UNKNOWN,
+};
+
+static const char * const chip_name[] = {
+	[SLB9635] = "slb9635tt",
+	[SLB9645] = "slb9645tt",
+	[UNKNOWN] = "unknown/fallback to slb9635",
+};
 
 /* Structure to store I2C TPM specific stuff */
 struct tpm_inf_dev {
 	uint addr;
 	u8 buf[TPM_BUFSIZE + sizeof(u8)];	/* max. buffer size + addr */
+	enum i2c_chip_type chip_type;
 };
 
 static struct tpm_inf_dev tpm_dev = {
@@ -98,27 +115,47 @@ int iic_tpm_read(u8 addr, u8 *buffer, size_t len)
 	uint myaddr = addr;
 	/* we have to use uint here, uchar hangs the board */
 
-	for (count = 0; count < MAX_COUNT; count++) {
-		rc = i2c_write(tpm_dev.addr, 0, 0, (uchar *)&myaddr, 1);
-		if (rc == 0)
-			break; /*success, break to skip sleep*/
+	if ((tpm_dev.chip_type == SLB9635) || (tpm_dev.chip_type == UNKNOWN)) {
+		/* slb9635 protocol should work in both cases */
+		for (count = 0; count < MAX_COUNT; count++) {
+			rc = i2c_write(tpm_dev.addr, 0, 0,
+				       (uchar *)&myaddr, 1);
+			if (rc == 0)
+				break;  /* success, break to skip sleep */
 
-		udelay(SLEEP_DURATION);
+			udelay(SLEEP_DURATION);
+		}
+
+		if (rc)
+			return -rc;
+
+		/* After the TPM has successfully received the register address
+		 * it needs some time, thus we're sleeping here again, before
+		 * retrieving the data
+		 */
+		for (count = 0; count < MAX_COUNT; count++) {
+			udelay(SLEEP_DURATION);
+			rc = i2c_read(tpm_dev.addr, 0, 0, buffer, len);
+			if (rc == 0)
+				break;  /* success, break to skip sleep */
+		}
+	} else {
+		/* use a combined read for newer chips
+		 * unfortunately the smbus functions are not suitable due to
+		 * the 32 byte limit of the smbus.
+		 * retries should usually not be needed, but are kept just to
+		 * be safe on the safe side.
+		 */
+		for (count = 0; count < MAX_COUNT; count++) {
+			rc = i2c_read(tpm_dev.addr, addr, 1, buffer, len);
+			if (rc == 0)
+				break;  /* break here to skip sleep */
+			udelay(SLEEP_DURATION);
+		}
 	}
 
-	if (rc)
-		return -rc;
-
-	/* After the TPM has successfully received the register address it needs
-	 * some time, thus we're sleeping here again, before retrieving the data
-	 */
-	for (count = 0; count < MAX_COUNT; count++) {
-		udelay(SLEEP_DURATION);
-		rc = i2c_read(tpm_dev.addr, 0, 0, buffer, len);
-		if (rc == 0)
-			break; /*success, break to skip sleep*/
-	}
-
+	/* take care of 'guard time' */
+	udelay(SLEEP_DURATION);
 	if (rc)
 		return -rc;
 
@@ -139,11 +176,13 @@ static int iic_tpm_write_generic(u8 addr, u8 *buffer, size_t len,
 	for (count = 0; count < max_count; count++) {
 		rc = i2c_write(tpm_dev.addr, 0, 0, tpm_dev.buf, len + 1);
 		if (rc == 0)
-			break; /*success, break to skip sleep*/
+			break;  /* success, break to skip sleep */
 
 		udelay(sleep_time);
 	}
 
+	/* take care of 'guard time' */
+	udelay(SLEEP_DURATION);
 	if (rc)
 		return -rc;
 
@@ -490,12 +529,27 @@ static struct tpm_vendor_specific tpm_tis_i2c = {
 	.req_canceled = TPM_STS_COMMAND_READY,
 };
 
+static enum i2c_chip_type tpm_vendor_chip_type(void)
+{
+#ifdef CONFIG_OF_CONTROL
+	const void *blob = gd->fdt_blob;
+
+	if (fdtdec_next_compatible(blob, 0, COMPAT_INFINEON_SLB9645_TPM) >= 0)
+		return SLB9645;
+
+	if (fdtdec_next_compatible(blob, 0, COMPAT_INFINEON_SLB9635_TPM) >= 0)
+		return SLB9635;
+#endif
+	return UNKNOWN;
+}
+
 /* initialisation of i2c tpm */
 
 
 int tpm_vendor_init(uint32_t dev_addr)
 {
 	u32 vendor;
+	u32 expected_did_vid;
 	uint old_addr;
 	int rc = 0;
 	struct tpm_chip *chip;
@@ -503,6 +557,8 @@ int tpm_vendor_init(uint32_t dev_addr)
 	old_addr = tpm_dev.addr;
 	if (dev_addr != 0)
 		tpm_dev.addr = dev_addr;
+
+	tpm_dev.chip_type = tpm_vendor_chip_type();
 
 	chip = tpm_register_hardware(&tpm_tis_i2c);
 	if (chip < 0) {
@@ -530,15 +586,22 @@ int tpm_vendor_init(uint32_t dev_addr)
 		goto out_release;
 	}
 
-	/* create DID_VID register value, after swapping to little-endian */
-	vendor = be32_to_cpu(vendor);
+	if (tpm_dev.chip_type == SLB9635) {
+		vendor = be32_to_cpu(vendor);
+		expected_did_vid = TPM_TIS_I2C_DID_VID_9635;
+	} else {
+		/* device id and byte order has changed for newer i2c tpms */
+		expected_did_vid = TPM_TIS_I2C_DID_VID_9645;
+	}
 
-	if (vendor != TPM_TIS_I2C_DID_VID) {
+	if (tpm_dev.chip_type != UNKNOWN && vendor != expected_did_vid) {
+		dev_err(dev, "vendor id did not match! ID was %08x\n", vendor);
 		rc = -ENODEV;
 		goto out_release;
 	}
 
-	dev_info(dev, "1.2 TPM (device-id 0x%X)\n", vendor >> 16);
+	dev_info(dev, "1.2 TPM (chip type %s device-id 0x%X)\n",
+		 chip_name[tpm_dev.chip_type], vendor >> 16);
 
 	/*
 	 * A timeout query to TPM can be placed here.

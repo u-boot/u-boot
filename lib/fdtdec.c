@@ -66,6 +66,7 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(GENERIC_SPI_FLASH, "spi-flash"),
 	COMPAT(MAXIM_98095_CODEC, "maxim,max98095-codec"),
 	COMPAT(INFINEON_SLB9635_TPM, "infineon,slb9635-tpm"),
+	COMPAT(INFINEON_SLB9645_TPM, "infineon,slb9645-tpm"),
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)
