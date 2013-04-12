@@ -610,7 +610,9 @@ void udc_connect(void)
 
 #ifdef CONFIG_USB_DEV_PULLUP_GPIO
 	/* Turn on the USB connection by enabling the pullup resistor */
-	set_GPIO_mode(CONFIG_USB_DEV_PULLUP_GPIO | GPIO_OUT);
+	writel(readl(GPDR(CONFIG_USB_DEV_PULLUP_GPIO))
+		     | GPIO_bit(CONFIG_USB_DEV_PULLUP_GPIO),
+	       GPDR(CONFIG_USB_DEV_PULLUP_GPIO));
 	writel(GPIO_bit(CONFIG_USB_DEV_PULLUP_GPIO), GPSR(CONFIG_USB_DEV_PULLUP_GPIO));
 #else
 	/* Host port 2 transceiver D+ pull up enable */
