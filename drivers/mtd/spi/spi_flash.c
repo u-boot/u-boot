@@ -337,7 +337,24 @@ int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr)
 int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 ear)
 {
 	u8 cmd;
+	u8 idcode0;
 	int ret;
+
+	ret = spi_flash_cmd(flash->spi, CMD_READ_ID, &idcode0, 1);
+	if (ret) {
+		debug("SF: fail to read read id\n");
+		return ret;
+	}
+
+	if (idcode0 == 0x01) {
+		cmd = CMD_BANKADDR_BRWR;
+	} else if ((idcode0 == 0xef) || (idcode0 == 0x20)) {
+		cmd = CMD_EXT_WREAR;
+	} else {
+		printf("SF: unable to support extended addr reg write"
+						" for %s flash\n", flash->name);
+		return -1;
+	}
 
 	ret = spi_flash_cmd_write_enable(flash);
 	if (ret < 0) {
@@ -345,7 +362,6 @@ int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 ear)
 		return ret;
 	}
 
-	cmd = CMD_BANKADDR_BRWR;
 	ret = spi_flash_cmd_write(flash->spi, &cmd, 1, &ear, 1);
 	if (ret) {
 		debug("SF: fail to write bank addr register\n");

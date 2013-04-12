@@ -31,6 +31,7 @@
 /* Bank addr acess commands */
 #define CMD_BANKADDR_BRWR		0x17
 #define CMD_BANKADDR_BRRD		0x16
+#define CMD_EXT_WREAR			0xC5
 
 /* Common status */
 #define STATUS_WIP			0x01
