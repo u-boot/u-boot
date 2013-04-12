@@ -24,6 +24,7 @@
 #include <asm/io.h>
 #include <netdev.h>
 #include <zynqpl.h>
+#include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -142,13 +143,14 @@ int board_eth_init(bd_t *bis)
 #endif
 
 #if defined(CONFIG_ZYNQ_GEM)
-# if defined(CONFIG_ZYNQ_GEM_BASEADDR0)
-	ret |= zynq_gem_initialize(bis, CONFIG_ZYNQ_GEM_BASEADDR0);
+# if defined(CONFIG_ZYNQ_GEM0)
+	ret |= zynq_gem_initialize(bis, ZYNQ_GEM_BASEADDR0);
 # endif
-# if defined(CONFIG_ZYNQ_GEM_BASEADDR1)
-	ret |= zynq_gem_initialize(bis, CONFIG_ZYNQ_GEM_BASEADDR1);
+# if defined(CONFIG_ZYNQ_GEM1)
+	ret |= zynq_gem_initialize(bis, ZYNQ_GEM_BASEADDR1);
 # endif
 #endif
+
 	return ret;
 }
 #endif

@@ -59,14 +59,6 @@
 #endif
 
 /* Ethernet driver */
-#ifdef CONFIG_ZYNQ_GEM0
-# define CONFIG_ZYNQ_GEM_BASEADDR0	0xE000B000
-#endif
-
-#ifdef CONFIG_ZYNQ_GEM1
-# define CONFIG_ZYNQ_GEM_BASEADDR1	0xE000C000
-#endif
-
 #if defined(CONFIG_ZYNQ_GEM0) || defined(CONFIG_ZYNQ_GEM1)
 # define CONFIG_NET_MULTI
 # define CONFIG_ZYNQ_GEM
