@@ -55,6 +55,7 @@ COBJS-$(CONFIG_SHA256) += sha256.o
 COBJS-y	+= strmhz.o
 COBJS-$(CONFIG_TPM) += tpm.o
 COBJS-$(CONFIG_RBTREE)	+= rbtree.o
+COBJS-$(CONFIG_BITREVERSE) += bitrev.o
 endif
 
 ifdef CONFIG_SPL_BUILD
