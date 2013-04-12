@@ -879,6 +879,11 @@ int usb_new_device(struct usb_device *dev)
 	}
 
 	dev->descriptor.bMaxPacketSize0 = desc->bMaxPacketSize0;
+	/*
+	 * Fetch the device class, driver can use this info
+	 * to differentiate between HUB and DEVICE.
+	 */
+	dev->descriptor.bDeviceClass = desc->bDeviceClass;
 
 	/* find the port number we're at */
 	if (parent) {
