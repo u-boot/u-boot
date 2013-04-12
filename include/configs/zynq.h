@@ -53,7 +53,7 @@
 /* Ethernet driver */
 #define CONFIG_NET_MULTI
 #define CONFIG_ZYNQ_GEM
-#define CONFIG_ZYNQ_GEM_BASEADDR0	0xE000B000
+#define CONFIG_ZYNQ_GEM0
 
 #if defined(CONFIG_ZYNQ_DCC)
 # define CONFIG_ARM_DCC
