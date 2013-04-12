@@ -50,9 +50,6 @@
 #define CONFIG_ZYNQ_SERIAL_BAUDRATE0	CONFIG_BAUDRATE
 #define CONFIG_ZYNQ_SERIAL_CLOCK0	50000000
 
-/* SCU timer address is hardcoded */
-#define CONFIG_SCUTIMER_BASEADDR	0xF8F00600
-
 /* Ethernet driver */
 #define CONFIG_NET_MULTI
 #define CONFIG_ZYNQ_GEM

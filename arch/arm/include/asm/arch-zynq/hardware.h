@@ -26,6 +26,7 @@
 #define ZYNQ_SYS_CTRL_BASEADDR		0xF8000000
 #define ZYNQ_DEV_CFG_APB_BASEADDR	0xF8007000
 #define ZYNQ_SCU_BASEADDR		0xF8F00000
+#define ZYNQ_SCUTIMER_BASEADDR		0xF8F00600
 
 /* Reflect slcr offsets */
 struct slcr_regs {

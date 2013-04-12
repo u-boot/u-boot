@@ -77,8 +77,6 @@
 # define CONFIG_SYS_ENET
 #endif
 
-/* SCU timer address is hardcoded */
-#define CONFIG_SCUTIMER_BASEADDR	0xF8F00600
 #ifndef CONFIG_CPU_FREQ_HZ
 #define CONFIG_CPU_FREQ_HZ		800000000
 #endif
