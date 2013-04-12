@@ -141,7 +141,7 @@
 /* specific .lds file */
 #define CONFIG_SPL_LDSCRIPT	"board/samsung/smdk5250/smdk5250-uboot-spl.lds"
 #define CONFIG_SPL_TEXT_BASE	0x02023400
-#define CONFIG_SPL_MAX_SIZE	(14 * 1024)
+#define CONFIG_SPL_MAX_FOOTPRINT	(14 * 1024)
 
 #define CONFIG_BOOTCOMMAND	"mmc read 40007000 451 2000; bootm 40007000"
 
