@@ -55,4 +55,18 @@
 			compatible = "maxim,max77686_pmic";
 		};
 	};
+
+	tmu@10060000 {
+		samsung,min-temp	= <25>;
+		samsung,max-temp	= <125>;
+		samsung,start-warning	= <95>;
+		samsung,start-tripping	= <105>;
+		samsung,hw-tripping	= <110>;
+		samsung,efuse-min-value	= <40>;
+		samsung,efuse-value	= <55>;
+		samsung,efuse-max-value	= <100>;
+		samsung,slope		= <274761730>;
+		samsung,dc-value	= <25>;
+	};
+
 };
