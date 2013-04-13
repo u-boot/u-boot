@@ -24,6 +24,7 @@
  */
 
 #include <common.h>
+#include <div64.h>
 #include <asm/io.h>
 #include <asm/arch/pwm.h>
 #include <asm/arch/clk.h>
@@ -76,6 +77,8 @@ int timer_init(void)
  */
 unsigned long get_timer(unsigned long base)
 {
+	unsigned long long time_ms;
+
 	ulong now = timer_get_us_down();
 
 	/*
@@ -87,7 +90,9 @@ unsigned long get_timer(unsigned long base)
 	gd->arch.lastinc = now;
 
 	/* Divide by 1000 to convert from us to ms */
-	return gd->arch.timer_reset_value / 1000 - base;
+	time_ms = gd->arch.timer_reset_value;
+	do_div(time_ms, 1000);
+	return time_ms - base;
 }
 
 unsigned long timer_get_us(void)
