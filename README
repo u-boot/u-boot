@@ -2835,7 +2835,7 @@ FIT uImage format:
 		Maximum size in memory allocated to the SPL, BSS included.
 		When defined, the linker checks that the actual memory
 		used by SPL from _start to __bss_end does not exceed it.
-		CONFIG_SPL_MAX_FOOTPRINT and CONFIG_SPL_MAX_BSS_SIZE
+		CONFIG_SPL_MAX_FOOTPRINT and CONFIG_SPL_BSS_MAX_SIZE
 		must not be both defined at the same time.
 
 		CONFIG_SPL_MAX_SIZE
@@ -2858,7 +2858,7 @@ FIT uImage format:
 		Maximum size in memory allocated to the SPL BSS.
 		When defined, the linker checks that the actual memory used
 		by SPL from __bss_start to __bss_end does not exceed it.
-		CONFIG_SPL_MAX_FOOTPRINT and CONFIG_SPL_MAX_BSS_SIZE
+		CONFIG_SPL_MAX_FOOTPRINT and CONFIG_SPL_BSS_MAX_SIZE
 		must not be both defined at the same time.
 
 		CONFIG_SPL_STACK
