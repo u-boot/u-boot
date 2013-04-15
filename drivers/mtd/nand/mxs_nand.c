@@ -42,6 +42,11 @@
 #define	MXS_NAND_DMA_DESCRIPTOR_COUNT		4
 
 #define	MXS_NAND_CHUNK_DATA_CHUNK_SIZE		512
+#if defined(CONFIG_MX6)
+#define	MXS_NAND_CHUNK_DATA_CHUNK_SIZE_SHIFT	2
+#else
+#define	MXS_NAND_CHUNK_DATA_CHUNK_SIZE_SHIFT	0
+#endif
 #define	MXS_NAND_METADATA_SIZE			10
 
 #define	MXS_NAND_COMMAND_BUFFER_SIZE		32
@@ -982,14 +987,16 @@ static int mxs_nand_scan_bbt(struct mtd_info *mtd)
 	tmp |= MXS_NAND_METADATA_SIZE << BCH_FLASHLAYOUT0_META_SIZE_OFFSET;
 	tmp |= (mxs_nand_get_ecc_strength(mtd->writesize, mtd->oobsize) >> 1)
 		<< BCH_FLASHLAYOUT0_ECC0_OFFSET;
-	tmp |= MXS_NAND_CHUNK_DATA_CHUNK_SIZE;
+	tmp |= MXS_NAND_CHUNK_DATA_CHUNK_SIZE
+		>> MXS_NAND_CHUNK_DATA_CHUNK_SIZE_SHIFT;
 	writel(tmp, &bch_regs->hw_bch_flash0layout0);
 
 	tmp = (mtd->writesize + mtd->oobsize)
 		<< BCH_FLASHLAYOUT1_PAGE_SIZE_OFFSET;
 	tmp |= (mxs_nand_get_ecc_strength(mtd->writesize, mtd->oobsize) >> 1)
 		<< BCH_FLASHLAYOUT1_ECCN_OFFSET;
-	tmp |= MXS_NAND_CHUNK_DATA_CHUNK_SIZE;
+	tmp |= MXS_NAND_CHUNK_DATA_CHUNK_SIZE
+		>> MXS_NAND_CHUNK_DATA_CHUNK_SIZE_SHIFT;
 	writel(tmp, &bch_regs->hw_bch_flash0layout1);
 
 	/* Set *all* chip selects to use layout 0 */
