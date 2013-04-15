@@ -144,7 +144,7 @@ int power_init_board(void)
 
 	/* VDD_MIF */
 	if (pmic_reg_write(p, MAX77686_REG_PMIC_BUCK1OUT,
-						MAX77686_BUCK1OUT_1V)) {
+						MAX77686_BUCK1OUT_1_05V)) {
 		debug("%s: PMIC %d register write failed\n", __func__,
 						MAX77686_REG_PMIC_BUCK1OUT);
 		return -1;

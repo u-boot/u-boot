@@ -157,6 +157,8 @@ enum {
 
 /* Buck1 1 volt value */
 #define MAX77686_BUCK1OUT_1V	0x5
+/* Buck1 1.05 volt value */
+#define MAX77686_BUCK1OUT_1_05V    0x6
 #define MAX77686_BUCK1CTRL_EN	(3 << 0)
 /* Buck2 1.3 volt value */
 #define MAX77686_BUCK2DVS1_1_3V	0x38
