@@ -100,6 +100,8 @@ int i2c_post_test (int flags)
 	for (i = 0; i < sizeof(i2c_addr_list); ++i) {
 		if (i2c_addr_list[i] == 0xff)
 			continue;
+		if (i2c_ignore_device(i2c_addr_list[i]))
+			continue;
 		post_log("I2C: addr %02x did not respond\n", i2c_addr_list[i]);
 		ret = -1;
 	}
