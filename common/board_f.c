@@ -755,7 +755,7 @@ static int mark_bootstage(void)
 static init_fnc_t init_sequence_f[] = {
 #if !defined(CONFIG_CPM2) && !defined(CONFIG_MPC512X) && \
 		!defined(CONFIG_MPC83xx) && !defined(CONFIG_MPC85xx) && \
-		!defined(CONFIG_MPC86xx)
+		!defined(CONFIG_MPC86xx) && !defined(CONFIG_X86)
 	zero_global_data,
 #endif
 	setup_fdt,
