@@ -359,7 +359,8 @@ def GetMetaDataForList(commit_range, git_dir=None, count=None,
     Returns:
         A Series object containing information about the commits.
     """
-    params = ['git', 'log', '--no-color', '--reverse', commit_range]
+    params = ['git', 'log', '--no-color', '--reverse', '--no-decorate',
+                    commit_range]
     if count is not None:
         params[2:2] = ['-n%d' % count]
     if git_dir:

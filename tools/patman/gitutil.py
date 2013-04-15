@@ -39,7 +39,8 @@ def CountCommitsToBranch():
     Return:
         Number of patches that exist on top of the branch
     """
-    pipe = [['git', 'log', '--no-color', '--oneline', '@{upstream}..'],
+    pipe = [['git', 'log', '--no-color', '--oneline', '--no-decorate',
+             '@{upstream}..'],
             ['wc', '-l']]
     stdout = command.RunPipe(pipe, capture=True, oneline=True).stdout
     patch_count = int(stdout)
@@ -92,7 +93,8 @@ def CountCommitsInBranch(git_dir, branch, include_upstream=False):
         Number of patches that exist on top of the branch
     """
     range_expr = GetRangeInBranch(git_dir, branch, include_upstream)
-    pipe = [['git', '--git-dir', git_dir, 'log', '--oneline', range_expr],
+    pipe = [['git', '--git-dir', git_dir, 'log', '--oneline', '--no-decorate',
+             range_expr],
             ['wc', '-l']]
     result = command.RunPipe(pipe, capture=True, oneline=True)
     patch_count = int(result.stdout)
@@ -106,7 +108,7 @@ def CountCommits(commit_range):
     Return:
         Number of patches that exist on top of the branch
     """
-    pipe = [['git', 'log', '--oneline', commit_range],
+    pipe = [['git', 'log', '--oneline', '--no-decorate', commit_range],
             ['wc', '-l']]
     stdout = command.RunPipe(pipe, capture=True, oneline=True).stdout
     patch_count = int(stdout)
