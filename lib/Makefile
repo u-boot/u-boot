@@ -54,6 +54,7 @@ COBJS-y += qsort.o
 COBJS-$(CONFIG_SHA1) += sha1.o
 COBJS-$(CONFIG_SHA256) += sha256.o
 COBJS-y	+= strmhz.o
+COBJS-$(CONFIG_TPM) += tpm.o
 COBJS-$(CONFIG_RBTREE)	+= rbtree.o
 endif
 

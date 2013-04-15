@@ -135,7 +135,7 @@ static u8 tpm_read_byte(const u8 *ptr)
 {
 	u8  ret = readb(ptr);
 	debug(PREFIX "Read reg 0x%4.4x returns 0x%2.2x\n",
-	      (u32)ptr - (u32)lpc_tpm_dev, ret);
+	      (u32)(uintptr_t)ptr - (u32)(uintptr_t)lpc_tpm_dev, ret);
 	return ret;
 }
 
@@ -143,21 +143,21 @@ static u32 tpm_read_word(const u32 *ptr)
 {
 	u32  ret = readl(ptr);
 	debug(PREFIX "Read reg 0x%4.4x returns 0x%8.8x\n",
-	      (u32)ptr - (u32)lpc_tpm_dev, ret);
+	      (u32)(uintptr_t)ptr - (u32)(uintptr_t)lpc_tpm_dev, ret);
 	return ret;
 }
 
 static void tpm_write_byte(u8 value, u8 *ptr)
 {
 	debug(PREFIX "Write reg 0x%4.4x with 0x%2.2x\n",
-	      (u32)ptr - (u32)lpc_tpm_dev, value);
+	      (u32)(uintptr_t)ptr - (u32)(uintptr_t)lpc_tpm_dev, value);
 	writeb(value, ptr);
 }
 
 static void tpm_write_word(u32 value, u32 *ptr)
 {
 	debug(PREFIX "Write reg 0x%4.4x with 0x%8.8x\n",
-	      (u32)ptr - (u32)lpc_tpm_dev, value);
+	      (u32)(uintptr_t)ptr - (u32)(uintptr_t)lpc_tpm_dev, value);
 	writel(value, ptr);
 }
 
@@ -491,5 +491,5 @@ int tis_sendrecv(const u8 *sendbuf, size_t send_size,
 		return TPM_DRIVER_ERR;
 	}
 
-	return tis_readresponse(recvbuf, recv_len);
+	return tis_readresponse(recvbuf, (u32 *)recv_len);
 }
