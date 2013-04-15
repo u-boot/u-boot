@@ -81,18 +81,24 @@ SECTIONS
 		*(.mmutable)
 	}
 
+/*
+ * Compiler-generated __bss_start and __bss_end, see arch/arm/lib/bss.c
+ * __bss_base and __bss_limit are for linker only (overlay ordering)
+ */
+
 	.bss_start __rel_dyn_start (OVERLAY) : {
 		KEEP(*(.__bss_start));
+		__bss_base = .;
 	}
 
-	.bss __bss_start (OVERLAY) : {
+	.bss __bss_base (OVERLAY) : {
 		*(.bss*)
 		 . = ALIGN(4);
-		 __bss_end = .;
+		 __bss_limit = .;
 	}
 
-	.bss_end __bss_end (OVERLAY) : {
-		KEEP(*(__bss_end));
+	.bss_end __bss_limit (OVERLAY) : {
+		KEEP(*(.__bss_end));
 	}
 
 	/DISCARD/ : { *(.dynstr*) }
@@ -101,7 +107,3 @@ SECTIONS
 	/DISCARD/ : { *(.interp*) }
 	/DISCARD/ : { *(.gnu*) }
 }
-
-#if defined(CONFIG_SPL_TEXT_BASE) && defined(CONFIG_SPL_MAX_SIZE)
-ASSERT(__bss_end < (CONFIG_SPL_TEXT_BASE + CONFIG_SPL_MAX_SIZE), "SPL image too big");
-#endif

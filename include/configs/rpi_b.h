@@ -31,7 +31,7 @@
 #define CONFIG_MACH_TYPE		MACH_TYPE_BCM2708
 
 /* Timer */
-#define CONFIG_SYS_HZ			1000000
+#define CONFIG_SYS_HZ			1000
 
 /* Memory layout */
 #define CONFIG_NR_DRAM_BANKS		1

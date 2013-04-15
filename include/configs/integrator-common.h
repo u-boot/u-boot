@@ -41,6 +41,7 @@
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs  */
 #define CONFIG_SETUP_MEMORY_TAGS
+#define CONFIG_OF_LIBFDT		/* enable passing a Device Tree */
 #define CONFIG_MISC_INIT_R		/* call misc_init_r during start up */
 
 /*

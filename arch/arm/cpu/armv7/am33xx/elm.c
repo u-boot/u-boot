@@ -33,7 +33,7 @@
 #include <asm/io.h>
 #include <asm/errno.h>
 #include <asm/arch/cpu.h>
-#include <asm/arch/omap_gpmc.h>
+#include <asm/omap_gpmc.h>
 #include <asm/arch/elm.h>
 
 #define ELM_DEFAULT_POLY (0)

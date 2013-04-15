@@ -40,15 +40,15 @@ Boards which are not fixed to support relocation will be REMOVED!
 
 -----------------------------------------------------------------------------
 
-For boards which boot from nand_spl, it is possible to save one copy
+For boards which boot from spl, it is possible to save one copy
 if CONFIG_SYS_TEXT_BASE == relocation address! This prevents that uboot code
 is copied again in relocate_code().
 
-example for the tx25 board:
+example for the tx25 board booting from NAND Flash:
 
 a) cpu starts
 b) it copies the first page in nand to internal ram
-   (nand_spl_code)
+   (spl code)
 c) end executes this code
 d) this initialize CPU, RAM, ... and copy itself to RAM
    (this bin must fit in one page, so board_init_f()
@@ -79,20 +79,20 @@ TODO
 
 -----------------------------------------------------------------------------
 
-Relocation with NAND_SPL (example for the tx25):
+Relocation with SPL (example for the tx25 booting from NAND Flash):
 
 - cpu copies the first page from NAND to 0xbb000000 (IMX_NFC_BASE)
   and start with code execution on this address.
 
-- The First page contains u-boot code from u-boot:nand_spl/nand_boot_fsl_nfc.c
-  which inits the dram, cpu registers, reloacte itself to CONFIG_SYS_TEXT_BASE	and loads
+- The First page contains u-boot code from drivers/mtd/nand/mxc_nand_spl.c
+  which inits the dram, cpu registers, reloacte itself to CONFIG_SPL_TEXT_BASE	and loads
   the "real" u-boot to CONFIG_SYS_NAND_U_BOOT_DST and starts execution
   @CONFIG_SYS_NAND_U_BOOT_START
 
 - This u-boot does no RAM init, nor CPU register setup. Just look
   where it has to copy and relocate itself to this address. If
   relocate address = CONFIG_SYS_TEXT_BASE (not the same, as the
-  CONFIG_SYS_TEXT_BASE from the nand_spl code), then there is no need
+  CONFIG_SPL_TEXT_BASE from the spl code), then there is no need
   to copy, just go on with bss clear and jump to board_init_r.
 
 -----------------------------------------------------------------------------

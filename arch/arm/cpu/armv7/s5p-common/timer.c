@@ -39,13 +39,33 @@ static inline struct s5p_timer *s5p_get_base_timer(void)
 	return (struct s5p_timer *)samsung_get_base_timer();
 }
 
+/**
+ * Read the countdown timer.
+ *
+ * This operates at 1MHz and counts downwards. It will wrap about every
+ * hour (2^32 microseconds).
+ *
+ * @return current value of timer
+ */
+static unsigned long timer_get_us_down(void)
+{
+	struct s5p_timer *const timer = s5p_get_base_timer();
+
+	return readl(&timer->tcnto4);
+}
+
 int timer_init(void)
 {
 	/* PWM Timer 4 */
-	pwm_init(4, MUX_DIV_2, 0);
-	pwm_config(4, 0, 0);
+	pwm_init(4, MUX_DIV_4, 0);
+	pwm_config(4, 100000, 100000);
 	pwm_enable(4);
 
+	/* Use this as the current monotonic time in us */
+	gd->arch.timer_reset_value = 0;
+
+	/* Use this as the last timer value we saw */
+	gd->arch.lastinc = timer_get_us_down();
 	reset_timer_masked();
 
 	return 0;
@@ -56,48 +76,43 @@ int timer_init(void)
  */
 unsigned long get_timer(unsigned long base)
 {
-	return get_timer_masked() - base;
+	ulong now = timer_get_us_down();
+
+	/*
+	 * Increment the time by the amount elapsed since the last read.
+	 * The timer may have wrapped around, but it makes no difference to
+	 * our arithmetic here.
+	 */
+	gd->arch.timer_reset_value += gd->arch.lastinc - now;
+	gd->arch.lastinc = now;
+
+	/* Divide by 1000 to convert from us to ms */
+	return gd->arch.timer_reset_value / 1000 - base;
+}
+
+unsigned long timer_get_us(void)
+{
+	static unsigned long base_time_us;
+
+	struct s5p_timer *const timer =
+		(struct s5p_timer *)samsung_get_base_timer();
+	unsigned long now_downward_us = readl(&timer->tcnto4);
+
+	if (!base_time_us)
+		base_time_us = now_downward_us;
+
+	/* Note that this timer counts downward. */
+	return base_time_us - now_downward_us;
 }
 
 /* delay x useconds */
 void __udelay(unsigned long usec)
 {
-	struct s5p_timer *const timer = s5p_get_base_timer();
-	unsigned long tmo, tmp, count_value;
+	unsigned long count_value;
 
-	count_value = readl(&timer->tcntb4);
-
-	if (usec >= 1000) {
-		/*
-		 * if "big" number, spread normalization
-		 * to seconds
-		 * 1. start to normalize for usec to ticks per sec
-		 * 2. find number of "ticks" to wait to achieve target
-		 * 3. finish normalize.
-		 */
-		tmo = usec / 1000;
-		tmo *= (CONFIG_SYS_HZ * count_value);
-		tmo /= 1000;
-	} else {
-		/* else small number, don't kill it prior to HZ multiply */
-		tmo = usec * CONFIG_SYS_HZ * count_value;
-		tmo /= (1000 * 1000);
-	}
-
-	/* get current timestamp */
-	tmp = get_current_tick();
-
-	/* if setting this fordward will roll time stamp */
-	/* reset "advancing" timestamp to 0, set lastinc value */
-	/* else, set advancing stamp wake up time */
-	if ((tmo + tmp + 1) < tmp)
-		reset_timer_masked();
-	else
-		tmo += tmp;
-
-	/* loop till event */
-	while (get_current_tick() < tmo)
-		;	/* nop */
+	count_value = timer_get_us_down();
+	while ((int)(count_value - timer_get_us_down()) < (int)usec)
+		;
 }
 
 void reset_timer_masked(void)
@@ -107,30 +122,6 @@ void reset_timer_masked(void)
 	/* reset time */
 	gd->arch.lastinc = readl(&timer->tcnto4);
 	gd->arch.tbl = 0;
-}
-
-unsigned long get_timer_masked(void)
-{
-	struct s5p_timer *const timer = s5p_get_base_timer();
-	unsigned long count_value = readl(&timer->tcntb4);
-
-	return get_current_tick() / count_value;
-}
-
-unsigned long get_current_tick(void)
-{
-	struct s5p_timer *const timer = s5p_get_base_timer();
-	unsigned long now = readl(&timer->tcnto4);
-	unsigned long count_value = readl(&timer->tcntb4);
-
-	if (gd->arch.lastinc >= now)
-		gd->arch.tbl += gd->arch.lastinc - now;
-	else
-		gd->arch.tbl += gd->arch.lastinc + count_value - now;
-
-	gd->arch.lastinc = now;
-
-	return gd->arch.tbl;
 }
 
 /*

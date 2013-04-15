@@ -98,6 +98,14 @@
 #define KM_IVM_BUS			"pca9544a:70:9" /* I2C2 (Mux-Port 1)*/
 #define CONFIG_KM_PIGGY4_88E6061
 
+/* KM_SUV31 */
+#elif defined(CONFIG_KM_SUV31)
+#define KM_IVM_BUS			"pca9547:70:9"	/* I2C2 (Mux-Port 1)*/
+#define CONFIG_IDENT_STRING		"\nKeymile SUV31"
+#define CONFIG_HOSTNAME			kmsuv31
+#define CONFIG_KM_ENV_IS_IN_SPI_NOR
+#define CONFIG_KM_FPGA_CONFIG
+
 #else
 #error ("Board unsupported")
 #endif

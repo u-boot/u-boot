@@ -35,7 +35,6 @@ COBJS-$(CONFIG_LPC32XX_HSUART) += lpc32xx_hsuart.o
 COBJS-$(CONFIG_MCFUART) += mcfuart.o
 COBJS-$(CONFIG_OPENCORES_YANU) += opencores_yanu.o
 COBJS-$(CONFIG_SYS_NS16550) += ns16550.o
-COBJS-$(CONFIG_S3C64XX) += s3c64xx.o
 COBJS-$(CONFIG_S5P) += serial_s5p.o
 COBJS-$(CONFIG_SYS_NS16550_SERIAL) += serial_ns16550.o
 COBJS-$(CONFIG_IMX_SERIAL) += serial_imx.o

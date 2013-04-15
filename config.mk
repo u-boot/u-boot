@@ -23,6 +23,13 @@
 
 #########################################################################
 
+# Set shell to bash if possible, otherwise fall back to sh
+SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
+	else if [ -x /bin/bash ]; then echo /bin/bash; \
+	else echo sh; fi; fi)
+
+export	SHELL
+
 ifeq ($(CURDIR),$(SRCTREE))
 dir :=
 else

@@ -26,10 +26,12 @@
 #include <asm/errno.h>
 #include <asm/gpio.h>
 #include <asm/imx-common/iomux-v3.h>
+#include <asm/imx-common/boot_mode.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <miiphy.h>
 #include <netdev.h>
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #define UART_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE |            \
@@ -145,21 +147,34 @@ struct fsl_esdhc_cfg usdhc_cfg[3] = {
 int board_mmc_getcd(struct mmc *mmc)
 {
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
+	int ret = 0;
 
 	switch (cfg->esdhc_base) {
 	case USDHC2_BASE_ADDR:
-		return !gpio_get_value(USDHC2_CD_GPIO);
+		ret = !gpio_get_value(USDHC2_CD_GPIO);
+		break;
 	case USDHC3_BASE_ADDR:
-		return !gpio_get_value(USDHC3_CD_GPIO);
-	default:
-		return 1; /* eMMC/uSDHC4 is always present */
+		ret = !gpio_get_value(USDHC3_CD_GPIO);
+		break;
+	case USDHC4_BASE_ADDR:
+		ret = 1; /* eMMC/uSDHC4 is always present */
+		break;
 	}
+
+	return ret;
 }
 
 int board_mmc_init(bd_t *bis)
 {
 	int i;
 
+	/*
+	 * According to the board_mmc_init() the following map is done:
+	 * (U-boot device node)    (Physical Port)
+	 * mmc0                    SD2
+	 * mmc1                    SD3
+	 * mmc2                    eMMC
+	 */
 	for (i = 0; i < CONFIG_SYS_FSL_USDHC_NUM; i++) {
 		switch (i) {
 		case 0:
@@ -239,11 +254,6 @@ int board_eth_init(bd_t *bis)
 	return 0;
 }
 
-u32 get_board_rev(void)
-{
-	return 0x63000;
-}
-
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
@@ -255,6 +265,26 @@ int board_init(void)
 {
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
+
+	return 0;
+}
+
+#ifdef CONFIG_CMD_BMODE
+static const struct boot_mode board_boot_modes[] = {
+	/* 4 bit bus width */
+	{"sd2",	 MAKE_CFGVAL(0x40, 0x28, 0x00, 0x00)},
+	{"sd3",	 MAKE_CFGVAL(0x40, 0x30, 0x00, 0x00)},
+	/* 8 bit bus width */
+	{"emmc", MAKE_CFGVAL(0x40, 0x38, 0x00, 0x00)},
+	{NULL,	 0},
+};
+#endif
+
+int board_late_init(void)
+{
+#ifdef CONFIG_CMD_BMODE
+	add_board_boot_modes(board_boot_modes);
+#endif
 
 	return 0;
 }

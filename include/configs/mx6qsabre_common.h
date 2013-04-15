@@ -36,6 +36,7 @@
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2 * 1024 * 1024)
 
 #define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_BOARD_LATE_INIT
 #define CONFIG_MXC_GPIO
 
 #define CONFIG_MXC_UART
@@ -75,6 +76,7 @@
 /* Command definition */
 #include <config_cmd_default.h>
 
+#define CONFIG_CMD_BMODE
 #define CONFIG_CMD_BOOTZ
 #undef CONFIG_CMD_IMLS
 
@@ -146,7 +148,7 @@
 
 #define CONFIG_BOOTCOMMAND \
 	"mmc dev ${mmcdev};" \
-	"if mmc rescan ${mmcdev}; then " \
+	"if mmc rescan; then " \
 		"if run loadbootscript; then " \
 		"run bootscript; " \
 		"else " \

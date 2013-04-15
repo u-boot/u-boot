@@ -306,6 +306,23 @@ common_tc:
 	ldr	r1,	VAL_MPU_CNTL_TIMER
 	str	r1,	[r0]
 
+	/*
+	 * Setup a temporary stack
+	 */
+	ldr	sp,	SRAM_STACK
+	bic	sp, sp, #7 /* 8-byte alignment for ABI compliance */
+
+	/*
+	 * Save the old lr(passed in ip) and the current lr to stack
+	 */
+	push	{ip, lr}
+
+	/*
+	 * go setup pll, mux, memory
+	 */
+	bl	s_init
+	pop	{ip, pc}
+
 	/* back to arch calling code */
 	mov	pc,	lr
 
@@ -469,6 +486,9 @@ VAL_ARM_IDLECT2:
 	.word 0x00000886
 VAL_ARM_IDLECT3:
 	.word 0x00000015
+
+SRAM_STACK:
+	.word CONFIG_SYS_INIT_SP_ADDR
 
 /* command values */
 .equ CMD_SDRAM_NOP,             0x00000000

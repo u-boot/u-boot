@@ -37,23 +37,23 @@ SECTIONS
 	  /* WARNING - the following is hand-optimized to fit within	*/
 	  /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
-	  arch/arm/cpu/arm1136/start.o			(.text)
-	  board/freescale/mx31ads/libmx31ads.o	(.text)
-	  arch/arm/lib/libarm.o			(.text)
-	  net/libnet.o				(.text)
-	  drivers/mtd/libmtd.o			(.text)
+	  arch/arm/cpu/arm1136/start.o			(.text*)
+	  board/freescale/mx31ads/libmx31ads.o	(.text*)
+	  arch/arm/lib/libarm.o			(.text*)
+	  net/libnet.o				(.text*)
+	  drivers/mtd/libmtd.o			(.text*)
 
 	  . = DEFINED(env_offset) ? env_offset : .;
-	  common/env_embedded.o(.text)
+	  common/env_embedded.o(.text*)
 
-	  *(.text)
+	  *(.text*)
 	}
 	. = ALIGN(4);
-	.rodata : { *(.rodata) }
+	.rodata : { *(.rodata*) }
 
 	. = ALIGN(4);
 	.data : {
-		*(.data)
+		*(.data*)
 	}
 
 	. = ALIGN(4);
@@ -80,17 +80,23 @@ SECTIONS
 
 	_end = .;
 
+/*
+ * Compiler-generated __bss_start and __bss_end, see arch/arm/lib/bss.c
+ * __bss_base and __bss_limit are for linker only (overlay ordering)
+ */
+
 	.bss_start __rel_dyn_start (OVERLAY) : {
 		KEEP(*(.__bss_start));
+		__bss_base = .;
 	}
 
-	.bss __bss_start (OVERLAY) : {
+	.bss __bss_base (OVERLAY) : {
 		*(.bss*)
 		 . = ALIGN(4);
-		 __bss_end = .;
+		 __bss_limit = .;
 	}
-	.bss_end __bss_end (OVERLAY) : {
-		KEEP(*(__bss_end));
+	.bss_end __bss_limit (OVERLAY) : {
+		KEEP(*(.__bss_end));
 	}
 
 	/DISCARD/ : { *(.bss*) }

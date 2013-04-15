@@ -67,6 +67,7 @@
 #define CONFIG_SETUP_MEMORY_TAGS 1
 #define CONFIG_INITRD_TAG        1
 #define CONFIG_REVISION_TAG      1
+#define CONFIG_OF_LIBFDT
 
 /*
  * Size of malloc() pool
@@ -189,7 +190,7 @@
 
 #define CONFIG_SYS_TIMERBASE		OMAP2420_GPT2
 #define CONFIG_SYS_PTV			V_PTV	/* 2^(PTV+1) */
-#define CONFIG_SYS_HZ			((CONFIG_SYS_CLK_FREQ)/(2 << CONFIG_SYS_PTV))
+#define CONFIG_SYS_HZ			1000
 
 /*-----------------------------------------------------------------------
  * Physical Memory Map
@@ -220,7 +221,7 @@
 #define CONFIG_ENV_IS_IN_NAND	1
 #define CONFIG_ENV_OFFSET	0x80000	/* environment starts here  */
 #else
-#define CONFIG_ENV_ADDR             (CONFIG_SYS_FLASH_BASE + SZ_128K)
+#define CONFIG_ENV_ADDR             (CONFIG_SYS_FLASH_BASE + SZ_256K)
 #define	CONFIG_ENV_IS_IN_FLASH      1
 #define CONFIG_ENV_SECT_SIZE	PHYS_FLASH_SECT_SIZE
 #define CONFIG_ENV_OFFSET	( CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN ) /* Environment after Monitor */

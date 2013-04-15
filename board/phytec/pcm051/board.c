@@ -104,7 +104,8 @@ static struct emif_regs ddr3_emif_reg_data = {
 	.sdram_tim2 = MT41J256M8HX15E_EMIF_TIM2,
 	.sdram_tim3 = MT41J256M8HX15E_EMIF_TIM3,
 	.zq_config = MT41J256M8HX15E_ZQ_CFG,
-	.emif_ddr_phy_ctlr_1 = MT41J256M8HX15E_EMIF_READ_LATENCY,
+	.emif_ddr_phy_ctlr_1 = MT41J256M8HX15E_EMIF_READ_LATENCY |
+				PHY_EN_DYN_PWRDN,
 };
 #endif
 

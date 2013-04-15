@@ -25,8 +25,10 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).o
 
-COBJS	:= tx25.o
+ifdef CONFIG_SPL_BUILD
 SOBJS	:= lowlevel_init.o
+endif
+COBJS	:= tx25.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))

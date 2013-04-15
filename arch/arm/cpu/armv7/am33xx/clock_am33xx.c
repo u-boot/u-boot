@@ -195,6 +195,11 @@ static void enable_per_clocks(void)
 	while (readl(&cmper->mmc0clkctrl) != PRCM_MOD_EN)
 		;
 
+	/* MMC1 */
+	writel(PRCM_MOD_EN, &cmper->mmc1clkctrl);
+	while (readl(&cmper->mmc1clkctrl) != PRCM_MOD_EN)
+		;
+
 	/* i2c0 */
 	writel(PRCM_MOD_EN, &cmwkup->wkup_i2c0ctrl);
 	while (readl(&cmwkup->wkup_i2c0ctrl) != PRCM_MOD_EN)

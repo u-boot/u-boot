@@ -1,13 +1,5 @@
 /*
- * (C) Copyright 2002
- * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
- * Marius Groeger <mgroeger@sysgo.de>
- *
- * (C) Copyright 2002
- * David Mueller, ELSOFT AG, <d.mueller@elsoft.ch>
- *
- * (C) Copyright 2008
- * Guennadi Liakhovetki, DENX Software Engineering, <lg@denx.de>
+ * Copyright (C) 2012 Boundary Devices Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -27,11 +19,19 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-
 #include <common.h>
+#include <asm/arch/imx-regs.h>
+#include <asm/arch/mxc_hdmi.h>
+#include <asm/io.h>
 
-void board_init_f(unsigned long bootflag)
+static int do_hdmidet(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	relocate_code(CONFIG_SYS_TEXT_BASE - TOTAL_MALLOC_LEN, NULL,
-			CONFIG_SYS_TEXT_BASE);
+	struct hdmi_regs *hdmi	= (struct hdmi_regs *)HDMI_ARB_BASE_ADDR;
+	u8 reg = readb(&hdmi->phy_stat0) & HDMI_PHY_HPD;
+	return (reg&HDMI_PHY_HPD) ? 0 : 1;
 }
+
+U_BOOT_CMD(hdmidet, 1, 1, do_hdmidet,
+	"detect HDMI monitor",
+	""
+);

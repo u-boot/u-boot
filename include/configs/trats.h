@@ -199,6 +199,7 @@
 	"splfile=falcon.bin\0" \
 	"spl_export=" \
 		   "setexpr spl_imgsize ${splsize} + 8 ;" \
+		   "setenv spl_imgsize 0x${spl_imgsize};" \
 		   "setexpr spl_imgaddr ${spladdr} - 8 ;" \
 		   "setexpr spl_addr_tmp ${spladdr} - 4 ;" \
 		   "mw.b ${spl_imgaddr} 0x00 ${spl_imgsize};run loaduimage;" \

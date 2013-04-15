@@ -1165,7 +1165,6 @@ void get_lpddr2_mr_regs(const struct lpddr2_mr_regs **regs);
 #ifndef CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS
 extern u32 *const T_num;
 extern u32 *const T_den;
-extern u32 *const emif_sizes;
 #endif
 
 void config_data_eye_leveling_samples(u32 emif_base);

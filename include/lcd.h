@@ -225,15 +225,6 @@ typedef struct vidinfo {
 	u_char	vl_vbpd;	/* Wait end of frame */
 	u_char  vl_cmd_allow_len; /* Wait end of frame */
 
-	void (*cfg_gpio)(void);
-	void (*backlight_on)(unsigned int onoff);
-	void (*reset_lcd)(void);
-	void (*lcd_power_on)(void);
-	void (*cfg_ldo)(void);
-	void (*enable_ldo)(unsigned int onoff);
-	void (*mipi_power)(void);
-	void (*backlight_reset)(void);
-
 	unsigned int win_id;
 	unsigned int init_delay;
 	unsigned int power_on_delay;

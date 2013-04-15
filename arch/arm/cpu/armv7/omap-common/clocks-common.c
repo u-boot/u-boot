@@ -612,7 +612,7 @@ void freq_update_core(void)
 
 	/*
 	 * Putting EMIF in HW_AUTO is seen to be causing issues with
-	 * EMIF clocks and the master DLL. Put EMIF in SW_WKUP
+	 * EMIF clocks and the master DLL. Keep EMIF in SW_WKUP
 	 * in OMAP5430 ES1.0 silicon
 	 */
 	if (omap_rev != OMAP5430_ES1_0) {
@@ -659,7 +659,7 @@ void setup_clocks_for_console(void)
 			MODULE_CLKCTRL_MODULEMODE_SW_EXPLICIT_EN <<
 			MODULE_CLKCTRL_MODULEMODE_SHIFT);
 
-	clrsetbits_le32((*prcm)->cm_l4per_uart3_clkctrl,
+	clrsetbits_le32((*prcm)->cm_l4per_uart4_clkctrl,
 			MODULE_CLKCTRL_MODULEMODE_MASK,
 			MODULE_CLKCTRL_MODULEMODE_SW_EXPLICIT_EN <<
 			MODULE_CLKCTRL_MODULEMODE_SHIFT);

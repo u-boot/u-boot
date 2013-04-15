@@ -85,8 +85,7 @@
 #define CONFIG_SYS_NS16550_COM3		UART3_BASE
 
 #define CONFIG_BAUDRATE			115200
-#define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
-					115200}
+
 /* I2C  */
 #define CONFIG_HARD_I2C
 #define CONFIG_SYS_I2C_SPEED		100000
@@ -94,18 +93,11 @@
 #define CONFIG_DRIVER_OMAP34XX_I2C
 #define CONFIG_I2C_MULTI_BUS
 
-
 /* MMC */
 #define CONFIG_GENERIC_MMC
 #define CONFIG_MMC
 #define CONFIG_OMAP_HSMMC
 #define CONFIG_DOS_PARTITION
-
-/* MMC ENV related defines */
-#define CONFIG_ENV_IS_IN_MMC
-#define CONFIG_SYS_MMC_ENV_DEV		1	/* SLOT2: eMMC(1) */
-#define CONFIG_ENV_OFFSET		0xE0000
-#define CONFIG_CMD_SAVEENV
 
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
@@ -124,7 +116,6 @@
 #define CONFIG_CMD_FAT		/* FAT support                  */
 #define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MMC		/* MMC support                  */
-#define CONFIG_CMD_SAVEENV
 
 /* Disabled commands */
 #undef CONFIG_CMD_NET
@@ -137,17 +128,31 @@
  */
 
 #define CONFIG_BOOTDELAY	3
+#define CONFIG_ENV_VARS_UBOOT_CONFIG
+#define CONFIG_CMD_FS_GENERIC
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_EXT4
 
 #define CONFIG_ENV_OVERWRITE
+
+#ifndef PARTS_DEFAULT
+#define PARTS_DEFAULT
+#endif
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
 	"console=ttyO2,115200n8\0" \
+	"fdt_high=0xffffffff\0" \
+	"fdtaddr=0x80f80000\0" \
+	"bootpart=0:2\0" \
+	"bootdir=/boot\0" \
+	"bootfile=zImage\0" \
 	"usbtty=cdc_acm\0" \
 	"vram=16M\0" \
+	"partitions=" PARTS_DEFAULT "\0" \
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \
-	"mmcrootfstype=ext3 rootwait\0" \
+	"mmcrootfstype=ext4 rootwait\0" \
 	"mmcargs=setenv bootargs console=${console} " \
 		"vram=${vram} " \
 		"root=${mmcroot} " \
@@ -155,19 +160,35 @@
 	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
 	"bootscript=echo Running bootscript from mmc${mmcdev} ...; " \
 		"source ${loadaddr}\0" \
-	"loaduimage=fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
+	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} uEnv.txt\0" \
+	"importbootenv=echo Importing environment from mmc${mmcdev} ...; " \
+		"env import -t ${loadaddr} ${filesize}\0" \
+	"loadimage=load mmc ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
 	"mmcboot=echo Booting from mmc${mmcdev} ...; " \
 		"run mmcargs; " \
-		"bootm ${loadaddr}\0" \
+		"bootz ${loadaddr} - ${fdtaddr}\0" \
+	"findfdt="\
+		"if test $board_name = omap5_uevm; then " \
+			"setenv fdtfile omap5-uevm.dtb; fi;\0 " \
+	"loadfdt=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile};\0" \
 
 #define CONFIG_BOOTCOMMAND \
+	"run findfdt; " \
 	"mmc dev ${mmcdev}; if mmc rescan; then " \
 		"if run loadbootscript; then " \
 			"run bootscript; " \
 		"else " \
-			"if run loaduimage; then " \
-				"run mmcboot; " \
-			"fi; " \
+			"if run loadbootenv; then " \
+				"run importbootenv; " \
+			"fi;" \
+			"if test -n ${uenvcmd}; then " \
+				"echo Running uenvcmd ...;" \
+				"run uenvcmd;" \
+			"fi;" \
+		"fi;" \
+		"if run loadimage; then " \
+			"run loadfdt; " \
+			"run mmcboot; " \
 		"fi; " \
 	"fi"
 

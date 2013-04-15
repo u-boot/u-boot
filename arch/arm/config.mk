@@ -87,9 +87,7 @@ endif
 endif
 
 # needed for relocation
-ifndef CONFIG_NAND_SPL
 LDFLAGS_u-boot += -pie
-endif
 
 #
 # FIXME: binutils versions < 2.22 have a bug in the assembler where

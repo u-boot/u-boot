@@ -25,11 +25,34 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/dp_info.h>
 #include <asm/arch/dp.h>
+#include <fdtdec.h>
+#include <libfdt.h>
+
+/* Declare global data pointer */
+DECLARE_GLOBAL_DATA_PTR;
+
+struct exynos_dp *dp_regs;
+
+void exynos_dp_set_base_addr(void)
+{
+#ifdef CONFIG_OF_CONTROL
+	unsigned int node = fdtdec_next_compatible(gd->fdt_blob,
+					0, COMPAT_SAMSUNG_EXYNOS5_DP);
+	if (node <= 0)
+		debug("exynos_dp: Can't get device node for dp\n");
+
+	dp_regs = (struct exynos_dp *)fdtdec_get_addr(gd->fdt_blob,
+								node, "reg");
+	if (dp_regs == NULL)
+		debug("Can't get the DP base address\n");
+#else
+	dp_regs = (struct exynos_dp *)samsung_get_base_dp();
+#endif
+}
 
 static void exynos_dp_enable_video_input(unsigned int enable)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	reg = readl(&dp_regs->video_ctl1);
 	reg &= ~VIDEO_EN_MASK;
@@ -47,7 +70,6 @@ void exynos_dp_enable_video_bist(unsigned int enable)
 {
 	/*enable video bist*/
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	reg = readl(&dp_regs->video_ctl4);
 	reg &= ~VIDEO_BIST_MASK;
@@ -64,7 +86,6 @@ void exynos_dp_enable_video_bist(unsigned int enable)
 void exynos_dp_enable_video_mute(unsigned int enable)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	reg = readl(&dp_regs->video_ctl1);
 	reg &= ~(VIDEO_MUTE_MASK);
@@ -80,7 +101,6 @@ void exynos_dp_enable_video_mute(unsigned int enable)
 static void exynos_dp_init_analog_param(void)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	/*
 	 * Set termination
@@ -129,7 +149,6 @@ static void exynos_dp_init_analog_param(void)
 
 static void exynos_dp_init_interrupt(void)
 {
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 	/* Set interrupt registers to initial states */
 
 	/*
@@ -158,7 +177,6 @@ static void exynos_dp_init_interrupt(void)
 void exynos_dp_reset(void)
 {
 	unsigned int reg_func_1;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	/*dp tx sw reset*/
 	writel(RESET_DP_TX, &dp_regs->tx_sw_reset);
@@ -186,7 +204,6 @@ void exynos_dp_reset(void)
 void exynos_dp_enable_sw_func(unsigned int enable)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	reg = readl(&dp_regs->func_en1);
 	reg &= ~(SW_FUNC_EN_N);
@@ -202,7 +219,6 @@ void exynos_dp_enable_sw_func(unsigned int enable)
 unsigned int exynos_dp_set_analog_power_down(unsigned int block, u32 enable)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	reg = readl(&dp_regs->phy_pd);
 	switch (block) {
@@ -256,7 +272,6 @@ unsigned int exynos_dp_set_analog_power_down(unsigned int block, u32 enable)
 unsigned int exynos_dp_get_pll_lock_status(void)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	reg = readl(&dp_regs->debug_ctl);
 
@@ -269,7 +284,6 @@ unsigned int exynos_dp_get_pll_lock_status(void)
 static void exynos_dp_set_pll_power(unsigned int enable)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	reg = readl(&dp_regs->pll_ctl);
 	reg &= ~(DP_PLL_PD);
@@ -285,7 +299,6 @@ int exynos_dp_init_analog_func(void)
 	int ret = EXYNOS_DP_SUCCESS;
 	unsigned int retry_cnt = 10;
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	/*Power On All Analog block */
 	exynos_dp_set_analog_power_down(POWER_ALL, DP_DISABLE);
@@ -335,7 +348,6 @@ int exynos_dp_init_analog_func(void)
 void exynos_dp_init_hpd(void)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	/* Clear interrupts releated to Hot Plug Dectect */
 	reg = HOTPLUG_CHG | HPD_LOST | PLUG;
@@ -354,7 +366,6 @@ void exynos_dp_init_hpd(void)
 static inline void exynos_dp_reset_aux(void)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	/* Disable AUX channel module */
 	reg = readl(&dp_regs->func_en2);
@@ -367,7 +378,6 @@ static inline void exynos_dp_reset_aux(void)
 void exynos_dp_init_aux(void)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	/* Clear inerrupts related to AUX channel */
 	reg = RPLY_RECEIV | AUX_ERR;
@@ -395,7 +405,6 @@ void exynos_dp_init_aux(void)
 void exynos_dp_config_interrupt(void)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	/* 0: mask, 1: unmask */
 	reg = COMMON_INT_MASK_1;
@@ -419,7 +428,6 @@ void exynos_dp_config_interrupt(void)
 unsigned int exynos_dp_get_plug_in_status(void)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	reg = readl(&dp_regs->sys_ctl3);
 	if (reg & HPD_STATUS)
@@ -449,7 +457,6 @@ unsigned int exynos_dp_start_aux_transaction(void)
 	unsigned int reg;
 	unsigned int ret = 0;
 	unsigned int retry_cnt;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	/* Enable AUX CH operation */
 	reg = readl(&dp_regs->aux_ch_ctl2);
@@ -498,7 +505,6 @@ unsigned int exynos_dp_write_byte_to_dpcd(unsigned int reg_addr,
 				unsigned char data)
 {
 	unsigned int reg, ret;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	/* Clear AUX CH data buffer */
 	reg = BUF_CLR;
@@ -539,7 +545,6 @@ unsigned int exynos_dp_read_byte_from_dpcd(unsigned int reg_addr,
 {
 	unsigned int reg;
 	int retval;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	/* Clear AUX CH data buffer */
 	reg = BUF_CLR;
@@ -583,7 +588,6 @@ unsigned int exynos_dp_write_bytes_to_dpcd(unsigned int reg_addr,
 	unsigned int cur_data_idx;
 	unsigned int retry_cnt;
 	unsigned int ret = 0;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	/* Clear AUX CH data buffer */
 	reg = BUF_CLR;
@@ -649,7 +653,6 @@ unsigned int exynos_dp_read_bytes_from_dpcd(unsigned int reg_addr,
 	unsigned int cur_data_idx;
 	unsigned int retry_cnt;
 	unsigned int ret = 0;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	/* Clear AUX CH data buffer */
 	reg = BUF_CLR;
@@ -711,7 +714,6 @@ int exynos_dp_select_i2c_device(unsigned int device_addr,
 {
 	unsigned int reg;
 	int retval;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	/* Set EDID device address */
 	reg = device_addr;
@@ -746,7 +748,6 @@ int exynos_dp_read_byte_from_i2c(unsigned int device_addr,
 	unsigned int reg;
 	int i;
 	int retval;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	for (i = 0; i < 10; i++) {
 		/* Clear AUX CH data buffer */
@@ -790,7 +791,6 @@ int exynos_dp_read_bytes_from_i2c(unsigned int device_addr,
 	unsigned int cur_data_idx;
 	unsigned int defer = 0;
 	int retval = 0;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	for (i = 0; i < count; i += 16) { /* use 16 burst */
 		for (j = 0; j < 100; j++) {
@@ -854,7 +854,6 @@ int exynos_dp_read_bytes_from_i2c(unsigned int device_addr,
 void exynos_dp_reset_macro(void)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	reg = readl(&dp_regs->phy_test);
 	reg |= MACRO_RST;
@@ -870,7 +869,6 @@ void exynos_dp_reset_macro(void)
 void exynos_dp_set_link_bandwidth(unsigned char bwtype)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	reg = (unsigned int)bwtype;
 
@@ -883,7 +881,6 @@ unsigned char exynos_dp_get_link_bandwidth(void)
 {
 	unsigned char ret;
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	reg = readl(&dp_regs->link_bw_set);
 	ret = (unsigned char)reg;
@@ -894,7 +891,6 @@ unsigned char exynos_dp_get_link_bandwidth(void)
 void exynos_dp_set_lane_count(unsigned char count)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	reg = (unsigned int)count;
 
@@ -906,7 +902,6 @@ void exynos_dp_set_lane_count(unsigned char count)
 unsigned int exynos_dp_get_lane_count(void)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	reg = readl(&dp_regs->lane_count_set);
 
@@ -915,7 +910,6 @@ unsigned int exynos_dp_get_lane_count(void)
 
 unsigned char exynos_dp_get_lanex_pre_emphasis(unsigned char lanecnt)
 {
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 	unsigned int reg_list[DP_LANE_CNT_4] = {
 		(unsigned int)&dp_regs->ln0_link_training_ctl,
 		(unsigned int)&dp_regs->ln1_link_training_ctl,
@@ -929,7 +923,6 @@ unsigned char exynos_dp_get_lanex_pre_emphasis(unsigned char lanecnt)
 void exynos_dp_set_lanex_pre_emphasis(unsigned char request_val,
 		unsigned char lanecnt)
 {
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 	unsigned int reg_list[DP_LANE_CNT_4] = {
 		(unsigned int)&dp_regs->ln0_link_training_ctl,
 		(unsigned int)&dp_regs->ln1_link_training_ctl,
@@ -944,7 +937,6 @@ void exynos_dp_set_lane_pre_emphasis(unsigned int level, unsigned char lanecnt)
 {
 	unsigned char i;
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 	unsigned int reg_list[DP_LANE_CNT_4] = {
 		(unsigned int)&dp_regs->ln0_link_training_ctl,
 		(unsigned int)&dp_regs->ln1_link_training_ctl,
@@ -967,7 +959,6 @@ void exynos_dp_set_lane_pre_emphasis(unsigned int level, unsigned char lanecnt)
 void exynos_dp_set_training_pattern(unsigned int pattern)
 {
 	unsigned int reg = 0;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	switch (pattern) {
 	case PRBS7:
@@ -996,7 +987,6 @@ void exynos_dp_set_training_pattern(unsigned int pattern)
 void exynos_dp_enable_enhanced_mode(unsigned char enable)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	reg = readl(&dp_regs->sys_ctl4);
 	reg &= ~ENHANCED;
@@ -1010,7 +1000,6 @@ void exynos_dp_enable_enhanced_mode(unsigned char enable)
 void exynos_dp_enable_scrambling(unsigned int enable)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	reg = readl(&dp_regs->training_ptn_set);
 	reg &= ~(SCRAMBLING_DISABLE);
@@ -1024,7 +1013,6 @@ void exynos_dp_enable_scrambling(unsigned int enable)
 int exynos_dp_init_video(void)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	/* Clear VID_CLK_CHG[1] and VID_FORMAT_CHG[3] and VSYNC_DET[7] */
 	reg = VSYNC_DET | VID_FORMAT_CHG | VID_CLK_CHG;
@@ -1040,7 +1028,6 @@ int exynos_dp_init_video(void)
 void exynos_dp_config_video_slave_mode(struct edp_video_info *video_info)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	/* Video Slave mode setting */
 	reg = readl(&dp_regs->func_en1);
@@ -1074,7 +1061,6 @@ void exynos_dp_config_video_slave_mode(struct edp_video_info *video_info)
 void exynos_dp_set_video_color_format(struct edp_video_info *video_info)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	/* Configure the input color depth, color space, dynamic range */
 	reg = (video_info->dynamic_range << IN_D_RANGE_SHIFT) |
@@ -1097,7 +1083,6 @@ int exynos_dp_config_video_bist(struct edp_device_info *edp_info)
 	unsigned int reg;
 	unsigned int bist_type = 0;
 	struct edp_video_info video_info = edp_info->video_info;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	/* For master mode, you don't need to set the video format */
 	if (video_info.master_mode == 0) {
@@ -1186,7 +1171,6 @@ int exynos_dp_config_video_bist(struct edp_device_info *edp_info)
 unsigned int exynos_dp_is_slave_video_stream_clock_on(void)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	/* Update Video stream clk detect status */
 	reg = readl(&dp_regs->sys_ctl1);
@@ -1206,7 +1190,6 @@ void exynos_dp_set_video_cr_mn(unsigned int type, unsigned int m_value,
 		unsigned int n_value)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	if (type == REGISTER_M) {
 		reg = readl(&dp_regs->sys_ctl4);
@@ -1235,7 +1218,6 @@ void exynos_dp_set_video_cr_mn(unsigned int type, unsigned int m_value,
 void exynos_dp_set_video_timing_mode(unsigned int type)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	reg = readl(&dp_regs->video_ctl10);
 	reg &= ~FORMAT_SEL;
@@ -1249,7 +1231,6 @@ void exynos_dp_set_video_timing_mode(unsigned int type)
 void exynos_dp_enable_video_master(unsigned int enable)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	reg = readl(&dp_regs->soc_general_ctl);
 	if (enable) {
@@ -1266,7 +1247,6 @@ void exynos_dp_enable_video_master(unsigned int enable)
 void exynos_dp_start_video(void)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	/* Enable Video input and disable Mute */
 	reg = readl(&dp_regs->video_ctl1);
@@ -1277,7 +1257,6 @@ void exynos_dp_start_video(void)
 unsigned int exynos_dp_is_video_stream_on(void)
 {
 	unsigned int reg;
-	struct exynos_dp *dp_regs = (struct exynos_dp *)samsung_get_base_dp();
 
 	/* Update STRM_VALID */
 	reg = readl(&dp_regs->sys_ctl3);

@@ -25,7 +25,7 @@
  */
 
 MEMORY { .sram : ORIGIN = CONFIG_SPL_TEXT_BASE,\
-		LENGTH = CONFIG_SPL_MAX_SIZE }
+		LENGTH = CONFIG_SPL_MAX_FOOTPRINT }
 
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
@@ -38,7 +38,7 @@ SECTIONS
 	.text      :
 	{
 	__start = .;
-	  arch/arm/cpu/arm926ejs/start.o	(.text)
+	  arch/arm/cpu/arm926ejs/start.o	(.text*)
 	  *(.text*)
 	} >.sram
 

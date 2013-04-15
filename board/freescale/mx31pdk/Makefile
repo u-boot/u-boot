@@ -27,6 +27,9 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).o
 
+ifdef CONFIG_SPL_BUILD
+SOBJS	:= lowlevel_init.o
+endif
 COBJS	:= mx31pdk.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)

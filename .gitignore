@@ -25,10 +25,13 @@
 #
 
 /MLO
+/SPL
 /System.map
 /u-boot
 /u-boot.hex
 /u-boot.imx
+/u-boot-with-spl.imx
+/u-boot-with-nand-spl.imx
 /u-boot.map
 /u-boot.srec
 /u-boot.ldr

@@ -109,6 +109,10 @@ struct gpmc_cs {
 	u8 res[8];		/* blow up to 0x30 byte */
 };
 
+struct bch_res_0_3 {
+	u32 bch_result_x[4];
+};
+
 struct gpmc {
 	u8 res1[0x10];
 	u32 sysconfig;		/* 0x10 */
@@ -135,6 +139,8 @@ struct gpmc {
 	u32 ecc7_result;	/* 0x218 */
 	u32 ecc8_result;	/* 0x21C */
 	u32 ecc9_result;	/* 0x220 */
+	u8 res7[0x1C];		/* fill up to 0x240 */
+	struct bch_res_0_3 bch_result_0_3[7];	/* 0x240 */
 };
 
 /* Used for board specific gpmc initialization */

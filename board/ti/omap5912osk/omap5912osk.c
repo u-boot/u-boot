@@ -66,6 +66,14 @@ int board_init (void)
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x10000100;
 
+	flash__init();
+	ether__init();
+
+	return 0;
+}
+
+void s_init(void)
+{
 	/* Configure MUX settings */
 	set_muxconf_regs ();
 	peripheral_power_enable ();
@@ -75,10 +83,6 @@ int board_init (void)
  *  ... rkw ...
  */
 	icache_enable ();
-
-	flash__init ();
-	ether__init ();
-	return 0;
 }
 
 /******************************
@@ -128,12 +132,17 @@ void ether__init (void)
  Routine:
  Description:
 ******************************/
-int dram_init (void)
+int dram_init(void)
+{
+	gd->ram_size = get_ram_size((long *)PHYS_SDRAM_1, PHYS_SDRAM_1_SIZE);
+
+	return 0;
+}
+
+void dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-
-	return 0;
 }
 
 /******************************************************

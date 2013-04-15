@@ -274,6 +274,9 @@ int board_mmc_init(bd_t *bis)
 	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
 	usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC4_CLK);
 
+	usdhc_cfg[0].max_bus_width = 4;
+	usdhc_cfg[1].max_bus_width = 4;
+
 	for (index = 0; index < CONFIG_SYS_FSL_USDHC_NUM; ++index) {
 		switch (index) {
 		case 0:
@@ -297,11 +300,6 @@ int board_mmc_init(bd_t *bis)
 	return status;
 }
 #endif
-
-u32 get_board_rev(void)
-{
-	return 0x63000 ;
-}
 
 #ifdef CONFIG_MXC_SPI
 iomux_v3_cfg_t const ecspi1_pads[] = {
