@@ -856,8 +856,7 @@ static init_fnc_t init_sequence_f[] = {
 #endif
 #ifdef CONFIG_X86
 	dram_init_f,		/* configure available RAM banks */
-	/* x86 would prefer that this happens after relocation */
-	dram_init,
+	calculate_relocation_address,
 #endif
 	announce_dram_init,
 	/* TODO: unify all these dram functions? */
