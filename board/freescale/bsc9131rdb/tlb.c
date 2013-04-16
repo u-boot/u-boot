@@ -43,16 +43,16 @@ struct fsl_e_tlb_entry tlb_table[] = {
 
 	/* TLB 1 */
 	/* *I*** - Covers boot page */
-	SET_TLB_ENTRY(1, 0xfffff000, 0xfffff000,
-			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
-			0, 0, BOOKE_PAGESZ_4K, 1),
+		SET_TLB_ENTRY(1, 0xffffe000, 0xffffe000,
+			      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
+			      0, 0, BOOKE_PAGESZ_8K, 1),
 
 	/* *I*G* - CCSRBAR (PA) */
 	SET_TLB_ENTRY(1, CONFIG_SYS_CCSRBAR, CONFIG_SYS_CCSRBAR_PHYS,
 			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 			0, 1, BOOKE_PAGESZ_1M, 1),
 
-#if defined(CONFIG_SYS_RAMBOOT)
+#if  defined(CONFIG_SYS_RAMBOOT) || defined(CONFIG_SPL)
 	SET_TLB_ENTRY(1, CONFIG_SYS_DDR_SDRAM_BASE, CONFIG_SYS_DDR_SDRAM_BASE,
 			MAS3_SX|MAS3_SW|MAS3_SR, 0,
 			0, 8, BOOKE_PAGESZ_1G, 1),

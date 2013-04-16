@@ -40,9 +40,33 @@
 #define CONFIG_RESET_VECTOR_ADDRESS	0x1107fffc
 #endif
 
-#ifndef CONFIG_SYS_MONITOR_BASE
-#define CONFIG_SYS_MONITOR_BASE CONFIG_SYS_TEXT_BASE    /* start of monitor */
+#ifdef CONFIG_NAND
+#define CONFIG_SPL
+#define CONFIG_SPL_INIT_MINIMAL
+#define CONFIG_SPL_SERIAL_SUPPORT
+#define CONFIG_SPL_NAND_SUPPORT
+#define CONFIG_SPL_NAND_MINIMAL
+#define CONFIG_SPL_FLUSH_IMAGE
+#define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
+
+#define CONFIG_SYS_TEXT_BASE		0x00201000
+#define CONFIG_SPL_TEXT_BASE		0xFFFFE000
+#define CONFIG_SPL_MAX_SIZE		8192
+#define CONFIG_SPL_RELOC_TEXT_BASE	0x00100000
+#define CONFIG_SPL_RELOC_STACK		0x00100000
+#define CONFIG_SYS_NAND_U_BOOT_SIZE	((512 << 10) - 0x2000)
+#define CONFIG_SYS_NAND_U_BOOT_DST	(0x00200000 - CONFIG_SPL_MAX_SIZE)
+#define CONFIG_SYS_NAND_U_BOOT_START	0x00200000
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	0
+#define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot-nand.lds"
 #endif
+
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SPL_TEXT_BASE
+#else
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
+#endif
+
 
 /* High Level Configuration Options */
 #define CONFIG_BOOKE			/* BOOKE */
@@ -214,6 +238,9 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		get_bus_freq(0)
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_NS16550_MIN_FUNCTIONS
+#endif
 
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV	/* determine from environment */
 
@@ -295,7 +322,6 @@ extern unsigned long get_sdram_size(void);
 /*
  * Environment
  */
-#if defined(CONFIG_SYS_RAMBOOT)
 #if defined(CONFIG_RAMBOOT_SPIFLASH)
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SPI_BUS	0
@@ -305,15 +331,16 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_ENV_OFFSET	0x100000	/* 1MB */
 #define CONFIG_ENV_SECT_SIZE	0x10000
 #define CONFIG_ENV_SIZE		0x2000
-#else
-#define CONFIG_ENV_IS_NOWHERE		/* Store ENV in memory only */
-#define CONFIG_ENV_ADDR			(CONFIG_SYS_MONITOR_BASE - 0x1000)
-#define CONFIG_ENV_SIZE			0x2000
-#endif
-#else
-#define CONFIG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
+#elif defined(CONFIG_NAND)
+#define CONFIG_ENV_IS_IN_NAND
+#define CONFIG_SYS_EXTRA_ENV_RELOC
+#define CONFIG_ENV_SIZE		CONFIG_SYS_NAND_BLOCK_SIZE
+#define CONFIG_ENV_OFFSET	((512 * 1024) + CONFIG_SYS_NAND_BLOCK_SIZE)
+#define CONFIG_ENV_RANGE	(3 * CONFIG_ENV_SIZE)
+#elif defined(CONFIG_SYS_RAMBOOT)
+#define CONFIG_ENV_IS_NOWHERE	/* Store ENV in memory only */
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
-#define CONFIG_ENV_SIZE		0x400
+#define CONFIG_ENV_SIZE		0x2000
 #endif
 
 #define CONFIG_LOADS_ECHO		/* echo on for serial download */
