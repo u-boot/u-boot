@@ -31,11 +31,18 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-unsigned long ddr_freq_mhz;
 
 void sdram_init(void)
 {
 	ccsr_ddr_t *ddr = (ccsr_ddr_t *)CONFIG_SYS_MPC8xxx_DDR_ADDR;
+	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
+	u32 ddr_ratio;
+	unsigned long ddr_freq_mhz;
+
+	ddr_ratio = in_be32(&gur->porpllsr) & MPC85xx_PORPLLSR_DDR_RATIO;
+	ddr_ratio = ddr_ratio >> MPC85xx_PORPLLSR_DDR_RATIO_SHIFT;
+	ddr_freq_mhz = (CONFIG_SYS_CLK_FREQ * ddr_ratio) / 0x1000000;
+
 	/* mask off E bit */
 	u32 svr = SVR_SOC_VER(mfspr(SPRN_SVR));
 
@@ -81,6 +88,7 @@ void sdram_init(void)
 		__raw_writel((CONFIG_SYS_DDR_CS0_BNDS >> 1) & 0x0fff0fff, &ddr->cs0_bnds);
 	}
 
+	asm volatile("sync;isync");
 	udelay(500);
 
 	/* Let the controller go */
@@ -91,17 +99,13 @@ void sdram_init(void)
 
 void board_init_f(ulong bootflag)
 {
-	u32 plat_ratio, ddr_ratio;
+	u32 plat_ratio;
 	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
 
 	/* initialize selected port with appropriate baud rate */
 	plat_ratio = in_be32(&gur->porpllsr) & MPC85xx_PORPLLSR_PLAT_RATIO;
 	plat_ratio >>= 1;
 	gd->bus_clk = CONFIG_SYS_CLK_FREQ * plat_ratio;
-
-	ddr_ratio = in_be32(&gur->porpllsr) & MPC85xx_PORPLLSR_DDR_RATIO;
-	ddr_ratio = ddr_ratio >> MPC85xx_PORPLLSR_DDR_RATIO_SHIFT;
-	ddr_freq_mhz = (CONFIG_SYS_CLK_FREQ * ddr_ratio) / 0x1000000;
 
 	NS16550_init((NS16550_t)CONFIG_SYS_NS16550_COM1,
 			gd->bus_clk / 16 / CONFIG_BAUDRATE);
@@ -115,8 +119,8 @@ void board_init_f(ulong bootflag)
 	/* NOTE - code has to be copied out of NAND buffer before
 	 * other blocks can be read.
 	 */
-	relocate_code(CONFIG_SYS_NAND_U_BOOT_RELOC_SP, 0,
-			CONFIG_SYS_NAND_U_BOOT_RELOC);
+
+	relocate_code(CONFIG_SPL_RELOC_STACK, 0, CONFIG_SPL_RELOC_TEXT_BASE);
 }
 
 void board_init_r(gd_t *gd, ulong dest_addr)
