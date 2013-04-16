@@ -83,6 +83,7 @@ COBJS-$(CONFIG_NAND_DOCG4) += docg4.o
 else  # minimal SPL drivers
 
 COBJS-$(CONFIG_NAND_FSL_ELBC) += fsl_elbc_spl.o
+COBJS-$(CONFIG_NAND_FSL_IFC) += fsl_ifc_spl.o
 COBJS-$(CONFIG_NAND_MXC) += mxc_nand_spl.o
 
 endif # drivers

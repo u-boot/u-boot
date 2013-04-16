@@ -29,6 +29,15 @@ endif
 
 LIB	= $(obj)libfreescale.o
 
+MINIMAL=
+
+ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_SPL_INIT_MINIMAL
+MINIMAL=y
+endif
+endif
+
+ifndef MINIMAL
 COBJS-$(CONFIG_FSL_CADMUS)	+= cadmus.o
 COBJS-$(CONFIG_FSL_VIA)		+= cds_via.o
 COBJS-$(CONFIG_FMAN_ENET)	+= fman.o
@@ -68,6 +77,7 @@ SUBLIB-$(CONFIG_P3041DS)	+= p_corenet/libp_corenet.o
 SUBLIB-$(CONFIG_P4080DS)	+= p_corenet/libp_corenet.o
 SUBLIB-$(CONFIG_P5020DS)	+= p_corenet/libp_corenet.o
 SUBLIB-$(CONFIG_P5040DS)	+= p_corenet/libp_corenet.o
+endif
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS-y))

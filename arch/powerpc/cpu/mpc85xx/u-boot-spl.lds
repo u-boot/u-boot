@@ -60,7 +60,7 @@ SECTIONS
 #if defined(CONFIG_FSL_IFC) /* Restrict bootpg at 4K boundry for IFC */
 	.bootpg ADDR(.text) + 0x1000 :
 	{
-		start.o	(.bootpg)
+		arch/powerpc/cpu/mpc85xx/start.o (.bootpg)
 	}
 #define RESET_VECTOR_OFFSET 0x1ffc /* IFC has 8K sram */
 #elif defined(CONFIG_FSL_ELBC)
