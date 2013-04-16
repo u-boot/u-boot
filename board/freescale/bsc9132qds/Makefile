@@ -24,10 +24,27 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).o
 
+MINIMAL=
+
+ifdef CONFIG_SPL_BUILD
+ifdef CONFIG_SPL_INIT_MINIMAL
+MINIMAL=y
+endif
+endif
+
+ifdef MINIMAL
+
+COBJS-y	+= spl_minimal.o tlb.o law.o
+
+else
+
+
 COBJS-y	+= $(BOARD).o
 COBJS-y	+= ddr.o
 COBJS-y	+= law.o
 COBJS-y	+= tlb.o
+
+endif
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS-y))
