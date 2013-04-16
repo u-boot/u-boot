@@ -41,6 +41,7 @@
 #define CONFIG_INTEL_CORE_ARCH	/* Sandy bridge and ivy bridge chipsets. */
 #define CONFIG_ZBOOT_32
 #define CONFIG_PHYSMEM
+#define CONFIG_SYS_EARLY_PCI_INIT
 
 #define CONFIG_LMB
 #define CONFIG_OF_LIBFDT
