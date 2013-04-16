@@ -413,6 +413,10 @@ The following options need to be configured:
 		See Freescale App Note 4493 for more information about
 		this erratum.
 
+		CONFIG_A003399_NOR_WORKAROUND
+		Enables a workaround for IFC erratum A003399. It is only
+		requred during NOR boot.
+
 		CONFIG_SYS_FSL_CORENET_SNOOPVEC_COREONLY
 
 		This is the value to write into CCSR offset 0x18600

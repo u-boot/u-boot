@@ -31,10 +31,10 @@
 #define CONFIG_PHYS_64BIT
 #endif
 
-#ifdef CONFIG_P1010RDB
 #define CONFIG_P1010
+#define CONFIG_E500			/* BOOKE e500 family */
+#include <asm/config_mpc85xx.h>
 #define CONFIG_NAND_FSL_IFC
-#endif
 
 #ifdef CONFIG_SDCARD
 #define CONFIG_RAMBOOT_SDCARD
@@ -427,6 +427,13 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_EXTRA_ENV_RELOC
 #else
 #undef CONFIG_SYS_RAMBOOT
+#endif
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_IFC_A003399
+#if !defined(CONFIG_SPL) && !defined(CONFIG_SYS_RAMBOOT)\
+	&& !defined(CONFIG_SECURE_BOOT)
+#define CONFIG_A003399_NOR_WORKAROUND
+#endif
 #endif
 
 #define CONFIG_BOARD_EARLY_INIT_F	/* Call board_pre_init */
