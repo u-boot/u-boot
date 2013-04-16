@@ -140,6 +140,12 @@ static const struct stmicro_spi_flash_params stmicro_spi_flash_table[] = {
 		.nr_sectors = 512,
 		.name = "N25Q256A",
 	},
+	{
+		.id = 0xba20,
+		.pages_per_sector = 256,
+		.nr_sectors = 1024,
+		.name = "N25Q512",
+	},
 };
 
 struct spi_flash *spi_flash_probe_stmicro(struct spi_slave *spi, u8 * idcode)
