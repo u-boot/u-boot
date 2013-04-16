@@ -35,5 +35,6 @@ void at91_seriald_hw_init(void);
 void at91_spi0_hw_init(unsigned long cs_mask);
 void at91_spi1_hw_init(unsigned long cs_mask);
 void at91_uhp_hw_init(void);
+void at91_lcd_hw_init(void);
 
 #endif /* AT91_COMMON_H */

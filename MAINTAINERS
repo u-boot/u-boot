@@ -1023,6 +1023,9 @@ Richard Woodruff <r-woodruff2@ti.com>
 
 	omap2420h4	ARM1136EJS
 
+Josh Wu <josh.wu@atmel.com>
+	at91sam9n12ek	ARM926EJS (AT91SAM9N12 SoC)
+
 Ilya Yanok <yanok@emcraft.com>
 
 	mcx		ARM ARMV7 (AM35x SoC)
