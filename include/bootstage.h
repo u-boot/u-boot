@@ -315,6 +315,12 @@ int bootstage_stash(void *base, int size);
 int bootstage_unstash(void *base, int size);
 
 #else
+static inline ulong bootstage_add_record(enum bootstage_id id,
+		const char *name, int flags, ulong mark)
+{
+	return 0;
+}
+
 /*
  * This is a dummy implementation which just calls show_boot_progress(),
  * and won't even do that unless CONFIG_SHOW_BOOT_PROGRESS is defined
@@ -333,6 +339,16 @@ static inline ulong bootstage_error(enum bootstage_id id)
 }
 
 static inline ulong bootstage_mark_name(enum bootstage_id id, const char *name)
+{
+	return 0;
+}
+
+static inline uint32_t bootstage_start(enum bootstage_id id, const char *name)
+{
+	return 0;
+}
+
+static inline uint32_t bootstage_accum(enum bootstage_id id)
 {
 	return 0;
 }
