@@ -48,6 +48,15 @@
 #define CONFIG_OF_SEPARATE
 #define CONFIG_DEFAULT_DEVICE_TREE	link
 
+#define CONFIG_BOOTSTAGE
+#define CONFIG_BOOTSTAGE_REPORT
+#define CONFIG_BOOTSTAGE_FDT
+#define CONFIG_CMD_BOOTSTAGE
+/* Place to stash bootstage data from first-stage U-Boot */
+#define CONFIG_BOOTSTAGE_STASH		0x0110f000
+#define CONFIG_BOOTSTAGE_STASH_SIZE	0x7fc
+#define CONFIG_BOOTSTAGE_USER_COUNT	60
+
 /*-----------------------------------------------------------------------
  * Watchdog Configuration
  */
