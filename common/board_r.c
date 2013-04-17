@@ -765,6 +765,7 @@ init_fnc_t init_sequence_r[] = {
 #endif
 	initr_barrier,
 	initr_malloc,
+	bootstage_relocate,
 #ifdef CONFIG_ARCH_EARLY_INIT_R
 	arch_early_init_r,
 #endif
