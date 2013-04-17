@@ -30,6 +30,8 @@
 #include <asm/i8254.h>
 #include <asm/ibmpc.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 struct timer_isr_function {
 	struct timer_isr_function *next;
 	timer_fnc_t *isr_func;
