@@ -898,6 +898,7 @@ void spi_enable_quad_bit(struct spi_slave *spi)
 	u8 rcr_cmd = 0x35;	/* RCR */
 	u8 rdsr_cmd = 0x05;	/* RDSR */
 	u8 wren_cmd = 0x06;	/* WREN */
+	int count = 0;
 
 	ret = spi_flash_cmd(spi, rdid_cmd, &idcode, sizeof(idcode));
 	if (ret) {
@@ -930,11 +931,12 @@ void spi_enable_quad_bit(struct spi_slave *spi)
 			xqspips_write_quad_bit((void *)XPSS_QSPI_BASEADDR);
 
 			/* Read RDSR */
+			count = 0;
 			do {
 				ret = spi_flash_cmd_read(spi, &rdsr_cmd,
 						sizeof(rdsr_cmd), &rcr_data,
 						sizeof(rcr_data));
-			} while ((ret == 0) && (rcr_data != 0));
+			} while ((ret == 0) && (rcr_data != 0) && (count++<1000));
 
 			/* Read config register */
 			ret = spi_flash_cmd_read(spi, &rcr_cmd, sizeof(rcr_cmd),
