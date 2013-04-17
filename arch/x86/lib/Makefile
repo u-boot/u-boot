@@ -25,15 +25,10 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(ARCH).o
 
-ifeq ($(CONFIG_SYS_GENERIC_BOARD),)
-COBJS-y	+= board.o
-endif
-
 COBJS-y	+= bootm.o
 COBJS-y	+= cmd_boot.o
 COBJS-y	+= gcc.o
 COBJS-y	+= init_helpers.o
-COBJS-y	+= init_wrappers.o
 COBJS-y	+= interrupts.o
 COBJS-$(CONFIG_SYS_PCAT_INTERRUPTS) += pcat_interrupts.o
 COBJS-$(CONFIG_SYS_GENERIC_TIMER) += pcat_timer.o
