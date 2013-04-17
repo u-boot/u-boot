@@ -56,6 +56,21 @@ struct bootstage_hdr {
 	uint32_t magic;		/* Unused */
 };
 
+int bootstage_relocate(void)
+{
+	int i;
+
+	/*
+	 * Duplicate all strings.  They may point to an old location in the
+	 * program .text section that can eventually get trashed.
+	 */
+	for (i = 0; i < BOOTSTAGE_ID_COUNT; i++)
+		if (record[i].name)
+			record[i].name = strdup(record[i].name);
+
+	return 0;
+}
+
 ulong bootstage_add_record(enum bootstage_id id, const char *name,
 			   int flags, ulong mark)
 {
