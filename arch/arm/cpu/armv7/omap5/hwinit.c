@@ -363,3 +363,22 @@ u32 warm_reset(void)
 {
 	return readl((*prcm)->prm_rstst) & PRM_RSTST_WARM_RESET_MASK;
 }
+
+void setup_warmreset_time(void)
+{
+	u32 rst_time, rst_val;
+
+#ifndef CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC
+	rst_time = CONFIG_DEFAULT_OMAP_RESET_TIME_MAX_USEC;
+#else
+	rst_time = CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC;
+#endif
+	rst_time = usec_to_32k(rst_time) << RSTTIME1_SHIFT;
+
+	if (rst_time > RSTTIME1_MASK)
+		rst_time = RSTTIME1_MASK;
+
+	rst_val = readl((*prcm)->prm_rsttime) & ~RSTTIME1_MASK;
+	rst_val |= rst_time;
+	writel(rst_val, (*prcm)->prm_rsttime);
+}

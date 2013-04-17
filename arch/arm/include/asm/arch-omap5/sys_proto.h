@@ -64,6 +64,7 @@ u32 warm_reset(void);
 void force_emif_self_refresh(void);
 void get_ioregs(const struct ctrl_ioregs **regs);
 void srcomp_enable(void);
+void setup_warmreset_time(void);
 
 /*
  * This is used to verify if the configuration header
@@ -122,4 +123,13 @@ static inline u32 omap_hw_init_context(void)
 #endif
 }
 
+static inline u32 div_round_up(u32 num, u32 den)
+{
+	return (num + den - 1)/den;
+}
+
+static inline u32 usec_to_32k(u32 usec)
+{
+	return div_round_up(32768 * usec, 1000000);
+}
 #endif

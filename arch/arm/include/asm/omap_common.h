@@ -316,6 +316,7 @@ struct prcm_regs {
 	u32 cm_wkupaon_io_srcomp_clkctrl;
 	u32 prm_rstctrl;
 	u32 prm_rstst;
+	u32 prm_rsttime;
 	u32 prm_vc_val_bypass;
 	u32 prm_vc_cfg_i2c_mode;
 	u32 prm_vc_cfg_i2c_clk;
