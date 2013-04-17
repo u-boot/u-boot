@@ -26,6 +26,7 @@
 #include <asm/u-boot-x86.h>
 #include <flash.h>
 #include <netdev.h>
+#include <ns16550.h>
 #include <asm/msr.h>
 #include <asm/cache.h>
 #include <asm/io.h>
@@ -134,4 +135,13 @@ int board_final_cleanup(void)
 	outb(0xcb, 0xb2);
 
 	return 0;
+}
+
+void panic_puts(const char *str)
+{
+	NS16550_t port = (NS16550_t)0x3f8;
+
+	NS16550_init(port, 1);
+	while (*str)
+		NS16550_putc(port, *str++);
 }
