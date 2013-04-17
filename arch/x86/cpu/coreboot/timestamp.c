@@ -61,3 +61,41 @@ void timestamp_add_now(enum timestamp_id id)
 {
 	timestamp_add(id, rdtsc());
 }
+
+int timestamp_add_to_bootstage(void)
+{
+	uint i;
+
+	if (!ts_table)
+		return -1;
+
+	for (i = 0; i < ts_table->num_entries; i++) {
+		struct timestamp_entry *tse = &ts_table->entries[i];
+		const char *name = NULL;
+
+		switch (tse->entry_id) {
+		case TS_START_ROMSTAGE:
+			name = "start-romstage";
+			break;
+		case TS_BEFORE_INITRAM:
+			name = "before-initram";
+			break;
+		case TS_DEVICE_INITIALIZE:
+			name = "device-initialize";
+			break;
+		case TS_DEVICE_DONE:
+			name = "device-done";
+			break;
+		case TS_SELFBOOT_JUMP:
+			name = "selfboot-jump";
+			break;
+		}
+		if (name) {
+			bootstage_add_record(0, name, BOOTSTAGEF_ALLOC,
+					     tse->entry_stamp /
+							get_tbclk_mhz());
+		}
+	}
+
+	return 0;
+}
