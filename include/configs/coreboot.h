@@ -38,7 +38,6 @@
 #define CONFIG_SHOW_BOOT_PROGRESS
 #define CONFIG_LAST_STAGE_INIT
 #define CONFIG_SYS_VSNPRINTF
-#define CONFIG_INTEL_CORE_ARCH	/* Sandy bridge and ivy bridge chipsets. */
 #define CONFIG_ZBOOT_32
 #define CONFIG_PHYSMEM
 #define CONFIG_SYS_EARLY_PCI_INIT
@@ -218,7 +217,6 @@
 #define CONFIG_SYS_MEMTEST_END			0x01000000
 #define CONFIG_SYS_LOAD_ADDR			0x100000
 #define CONFIG_SYS_HZ				1000
-#define CONFIG_SYS_X86_ISR_TIMER
 
 /*-----------------------------------------------------------------------
  * SDRAM Configuration
@@ -235,7 +233,7 @@
  * CPU Features
  */
 
-#define CONFIG_SYS_GENERIC_TIMER
+#define CONFIG_SYS_X86_TSC_TIMER
 #define CONFIG_SYS_PCAT_INTERRUPTS
 #define CONFIG_SYS_NUM_IRQS			16
 

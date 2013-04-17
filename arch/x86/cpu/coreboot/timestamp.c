@@ -39,7 +39,9 @@ static struct timestamp_table *ts_table  __attribute__((section(".data")));
 void timestamp_init(void)
 {
 	ts_table = lib_sysinfo.tstamp_table;
-	timer_set_tsc_base(ts_table->base_time);
+#ifdef CONFIG_SYS_X86_TSC_TIMER
+	timer_set_base(ts_table->base_time);
+#endif
 	timestamp_add_now(TS_U_BOOT_INITTED);
 }
 

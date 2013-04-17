@@ -10,8 +10,11 @@
 
 #include <common.h>
 
+/* Temporary patch to maintain bisectability, removed in next commit */
+#ifndef CONFIG_SYS_X86_TSC_TIMER
 unsigned long timer_get_us(void)
 {
 	printf("timer_get_us used but not implemented.\n");
 	return 0;
 }
+#endif
