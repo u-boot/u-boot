@@ -88,8 +88,6 @@
 #define CONFIG_SYS_SPL_MALLOC_START	0x00090000
 #define CONFIG_SPL_STACK		0x000ffffc
 
-#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/tegra20/u-boot-spl.lds"
-
 /* Align LCD to 1MB boundary */
 #define CONFIG_LCD_ALIGNMENT	MMU_SECTION_SIZE
 
