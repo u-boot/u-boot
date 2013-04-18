@@ -8,7 +8,9 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
-#ifndef USE_HOSTCC
+#ifdef USE_HOSTCC
+#include <arpa/inet.h>
+#else
 #include <common.h>
 #endif
 #include <compiler.h>
@@ -256,5 +258,6 @@ void crc32_wd_buf(const unsigned char *input, unsigned int ilen,
 	uint32_t crc;
 
 	crc = crc32_wd(0, input, ilen, chunk_sz);
+	crc = htonl(crc);
 	memcpy(output, &crc, sizeof(crc));
 }
