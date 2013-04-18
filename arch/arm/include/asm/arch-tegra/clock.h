@@ -317,4 +317,7 @@ int clock_set_rate(enum clock_id clkid, u32 n, u32 m, u32 p, u32 cpcon);
 #define periphc_internal_id_isvalid(id) ((id) >= 0 && \
 		(id) < PERIPHC_COUNT)
 
+/* SoC-specific TSC init */
+void arch_timer_init(void);
+
 #endif  /* _TEGRA_CLOCK_H_ */

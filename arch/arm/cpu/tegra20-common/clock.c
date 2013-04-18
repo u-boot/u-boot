@@ -559,3 +559,7 @@ void clock_early_init(void)
 		break;
 	}
 }
+
+void arch_timer_init(void)
+{
+}

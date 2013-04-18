@@ -40,7 +40,7 @@ int board_emc_init(void)
 {
 	unsigned rate;
 
-	switch (tegra_get_chip_type()) {
+	switch (tegra_get_chip_sku()) {
 	default:
 	case TEGRA_SOC_T20:
 		rate  = EMC_SDRAM_RATE_T20;
