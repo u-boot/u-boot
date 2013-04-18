@@ -66,4 +66,6 @@
 
 #define CONFIG_SYS_PROMPT		"Panda # "
 
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+
 #endif /* __CONFIG_PANDA_H */
