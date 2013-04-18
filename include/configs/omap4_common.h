@@ -176,7 +176,9 @@
 		"if test $board_name = sdp4430; then " \
 			"setenv fdtfile omap4-sdp.dtb; fi; " \
 		"if test $board_name = panda; then " \
-			"setenv fdtfile omap4-panda-es.dtb; fi\0" \
+			"setenv fdtfile omap4-panda.dtb; fi;" \
+		"if test $board_name = panda-es; then " \
+			"setenv fdtfile omap4-panda-es.dtb; fi; \0" \
 	"loadfdt=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
 
 #define CONFIG_BOOTCOMMAND \

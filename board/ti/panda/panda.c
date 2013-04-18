@@ -82,6 +82,12 @@ int misc_init_r(void)
 	if (omap_revision() == OMAP4430_ES1_0)
 		return 0;
 
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	if (omap_revision() >= OMAP4460_ES1_0 ||
+		omap_revision() <= OMAP4460_ES1_1)
+		setenv("board_name", strcat(CONFIG_SYS_BOARD, "-es"));
+#endif
+
 	gpio_direction_input(PANDA_ULPI_PHY_TYPE_GPIO);
 	phy_type = gpio_get_value(PANDA_ULPI_PHY_TYPE_GPIO);
 
