@@ -432,17 +432,3 @@ void board_init_r(gd_t * id, ulong dest_addr)
 	for (;;)
 		main_loop();
 }
-
-void hang(void)
-{
-#ifdef CONFIG_STATUS_LED
-	status_led_set(STATUS_LED_BOOT, STATUS_LED_OFF);
-	status_led_set(STATUS_LED_CRASH, STATUS_LED_BLINKING);
-#endif
-	puts("### ERROR ### Please RESET the board ###\n");
-	while (1)
-		/* If a JTAG emulator is hooked up, we'll automatically trigger
-		 * a breakpoint in it.  If one isn't, this is just a NOP.
-		 */
-		asm("emuexcpt;");
-}

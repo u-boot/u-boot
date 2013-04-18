@@ -1050,15 +1050,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	/* NOTREACHED - no way out of command loop except booting */
 }
 
-void hang(void)
-{
-	puts("### ERROR ### Please RESET the board ###\n");
-	bootstage_error(BOOTSTAGE_ID_NEED_RESET);
-	for (;;)
-		;
-}
-
-
 #if 0	/* We could use plain global data, but the resulting code is bigger */
 /*
  * Pointer to initial global data area

@@ -706,9 +706,3 @@ void board_init_r(gd_t *id, ulong dest_addr)
 
 	/* NOTREACHED - no way out of command loop except booting */
 }
-
-void hang(void)
-{
-	puts("### ERROR ### Please RESET the board ###\n");
-	for (;;);
-}

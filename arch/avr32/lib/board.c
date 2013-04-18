@@ -120,11 +120,6 @@ static int display_banner (void)
 	return 0;
 }
 
-void hang(void)
-{
-	for (;;) ;
-}
-
 static int display_dram_config (void)
 {
 	int i;

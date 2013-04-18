@@ -71,6 +71,7 @@ COBJS-$(CONFIG_BCH) += bch.o
 COBJS-y += crc32.o
 COBJS-y += ctype.o
 COBJS-y += div64.o
+COBJS-y += hang.o
 COBJS-y += linux_string.o
 COBJS-$(CONFIG_REGEX) += slre.o
 COBJS-y += string.o

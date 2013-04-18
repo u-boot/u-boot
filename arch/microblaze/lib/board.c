@@ -195,10 +195,3 @@ void board_init_f(ulong not_used)
 		main_loop();
 	}
 }
-
-void hang(void)
-{
-	puts("### ERROR ### Please RESET the board ###\n");
-	for (;;)
-		;
-}

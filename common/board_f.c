@@ -1087,13 +1087,3 @@ void board_init_f_r(void)
 	hang();
 }
 #endif /* CONFIG_X86 */
-
-void hang(void)
-{
-	puts("### ERROR ### Please RESET the board ###\n");
-#ifdef CONFIG_SANDBOX
-	os_exit(0);
-#else
-	for (;;);
-#endif
-}

@@ -411,13 +411,4 @@ void board_init_f(ulong bootflag)
 
 }
 
-void hang(void)
-{
-	puts("### ERROR ### Please RESET the board ###\n");
-#ifdef CONFIG_SHOW_BOOT_PROGRESS
-	bootstage_error(BOOTSTAGE_ID_NEED_RESET);
-#endif
-	for (;;) ;
-}
-
 /************************************************************************/

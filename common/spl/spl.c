@@ -48,13 +48,6 @@ struct spl_image_info spl_image;
 /* Define board data structure */
 static bd_t bdata __attribute__ ((section(".data")));
 
-inline void hang(void)
-{
-	puts("### ERROR ### Please RESET the board ###\n");
-	for (;;)
-		;
-}
-
 /*
  * Default function to determine if u-boot or the OS should
  * be started. This implementation always returns 1.
