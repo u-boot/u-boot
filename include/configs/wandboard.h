@@ -47,6 +47,8 @@
 
 #undef CONFIG_CMD_IMLS
 
+#define CONFIG_CMD_SETEXPR
+
 #define CONFIG_BOOTDELAY		5
 
 #define CONFIG_SYS_MEMTEST_START	0x10000000
@@ -100,6 +102,20 @@
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
 	"mmcpart=" __stringify(CONFIG_SYS_MMC_ENV_PART) "\0" \
 	"mmcroot=/dev/mmcblk0p3 rootwait rw\0" \
+	"update_sd_firmware_filename=u-boot.imx\0" \
+	"update_sd_firmware=" \
+		"if test ${ip_dyn} = yes; then " \
+			"setenv get_cmd dhcp; " \
+		"else " \
+			"setenv get_cmd tftp; " \
+		"fi; " \
+		"if mmc dev ${mmcdev}; then "	\
+			"if ${get_cmd} ${update_sd_firmware_filename}; then " \
+				"setexpr fw_sz ${filesize} / 0x200; " \
+				"setexpr fw_sz ${fw_sz} + 1; "	\
+				"mmc write ${loadaddr} 0x2 ${fw_sz}; " \
+			"fi; "	\
+		"fi\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=${mmcroot}\0" \
 	"loadbootscript=" \
