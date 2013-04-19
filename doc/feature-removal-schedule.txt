@@ -7,23 +7,6 @@ file.
 
 ---------------------------
 
-What:	Remove CONFIG_CMD_MEMTEST from default list
-When:	Release v2013.07
-
-Why:	The "mtest" command is of little practical use (if any), and
-	experience has shown that a large number of board configu-
-	rations define useless or even dangerous start and end
-	addresses.  If not even the board maintainers are able to
-	figure out which memory range can be reliably tested, how can
-	we expect such from the end users?  As this problem comes up
-	repeatedly, we rather do not enable this command by default,
-	so only people who know what they are doing will be confronted
-	with it.
-
-Who:	Wolfgang Denk <wd@denx.de>
-
----------------------------
-
 What:	Remove CONFIG_SYS_ENABLE_PADS_ALL and CONFIG_SYS_CLOCKS_ENABLE_ALL
 When:	Release v2013.07
 
