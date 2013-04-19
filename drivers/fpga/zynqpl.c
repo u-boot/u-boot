@@ -55,7 +55,7 @@ int zynq_info(Xilinx_desc *desc)
 }
 
 /* Xilinx binary format header */
-const u32 bin_format[] = {
+static const u32 bin_format[] = {
 	0xffffffff, /* Dummy words */
 	0xffffffff,
 	0xffffffff,
@@ -79,6 +79,11 @@ int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 	u32 status;
 	const u32 *test = buf;
 	int i;
+
+	if ((u32)buf & 0x3) {
+		printf("Error: Buffer is not aligned %x\n", (u32)buf);
+		return FPGA_FAIL;
+	}
 
 	/* Check bitstream size */
 	if (bsize != desc->size) {
