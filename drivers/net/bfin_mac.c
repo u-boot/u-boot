@@ -122,8 +122,6 @@ static int bfin_EMAC_send(struct eth_device *dev, void *packet, int length)
 {
 	int i;
 	int result = 0;
-	unsigned int *buf;
-	buf = (unsigned int *)packet;
 
 	if (length <= 0) {
 		printf("Ethernet: bad packet size: %d\n", length);
