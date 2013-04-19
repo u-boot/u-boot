@@ -38,6 +38,7 @@ DECLARE_GLOBAL_DATA_PTR;
 	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED   |		\
 	PAD_CTL_DSE_40ohm   | PAD_CTL_HYS)
 
+#define USDHC1_CD_GPIO		IMX_GPIO_NR(1, 2)
 #define USDHC3_CD_GPIO		IMX_GPIO_NR(3, 9)
 #define ETH_PHY_RESET		IMX_GPIO_NR(3, 29)
 
@@ -51,6 +52,17 @@ int dram_init(void)
 static iomux_v3_cfg_t const uart1_pads[] = {
 	MX6_PAD_CSI0_DAT10__UART1_TXD | MUX_PAD_CTRL(UART_PAD_CTRL),
 	MX6_PAD_CSI0_DAT11__UART1_RXD | MUX_PAD_CTRL(UART_PAD_CTRL),
+};
+
+iomux_v3_cfg_t const usdhc1_pads[] = {
+	MX6_PAD_SD1_CLK__USDHC1_CLK   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD1_CMD__USDHC1_CMD   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD1_DAT0__USDHC1_DAT0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD1_DAT1__USDHC1_DAT1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD1_DAT2__USDHC1_DAT2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD1_DAT3__USDHC1_DAT3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	/* Carrier MicroSD Card Detect */
+	MX6_PAD_GPIO_2__GPIO_1_2      | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
 static iomux_v3_cfg_t const usdhc3_pads[] = {
@@ -99,8 +111,9 @@ static void setup_iomux_enet(void)
 	gpio_set_value(ETH_PHY_RESET, 1);
 }
 
-static struct fsl_esdhc_cfg usdhc_cfg[1] = {
+static struct fsl_esdhc_cfg usdhc_cfg[2] = {
 	{USDHC3_BASE_ADDR},
+	{USDHC1_BASE_ADDR},
 };
 
 int board_mmc_getcd(struct mmc *mmc)
@@ -109,6 +122,9 @@ int board_mmc_getcd(struct mmc *mmc)
 	int ret = 0;
 
 	switch (cfg->esdhc_base) {
+	case USDHC1_BASE_ADDR:
+		ret = !gpio_get_value(USDHC1_CD_GPIO);
+		break;
 	case USDHC3_BASE_ADDR:
 		ret = !gpio_get_value(USDHC3_CD_GPIO);
 		break;
@@ -119,13 +135,42 @@ int board_mmc_getcd(struct mmc *mmc)
 
 int board_mmc_init(bd_t *bis)
 {
-	imx_iomux_v3_setup_multiple_pads(usdhc3_pads, ARRAY_SIZE(usdhc3_pads));
+	s32 status = 0;
+	u32 index = 0;
 
-	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
-	usdhc_cfg[0].max_bus_width = 4;
-	gpio_direction_input(USDHC3_CD_GPIO);
+	/*
+	 * Following map is done:
+	 * (U-boot device node)    (Physical Port)
+	 * mmc0                    SOM MicroSD
+	 * mmc1                    Carrier board MicroSD
+	 */
+	for (index = 0; index < CONFIG_SYS_FSL_USDHC_NUM; ++index) {
+		switch (index) {
+		case 0:
+			imx_iomux_v3_setup_multiple_pads(
+				usdhc3_pads, ARRAY_SIZE(usdhc3_pads));
+			usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
+			usdhc_cfg[0].max_bus_width = 4;
+			gpio_direction_input(USDHC3_CD_GPIO);
+			break;
+		case 1:
+			imx_iomux_v3_setup_multiple_pads(
+				usdhc1_pads, ARRAY_SIZE(usdhc1_pads));
+			usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
+			usdhc_cfg[1].max_bus_width = 4;
+			gpio_direction_input(USDHC1_CD_GPIO);
+			break;
+		default:
+			printf("Warning: you configured more USDHC controllers"
+			       "(%d) then supported by the board (%d)\n",
+			       index + 1, CONFIG_SYS_FSL_USDHC_NUM);
+			return status;
+		}
 
-	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
+		status |= fsl_esdhc_initialize(bis, &usdhc_cfg[index]);
+	}
+
+	return status;
 }
 
 static int mx6_rgmii_rework(struct phy_device *phydev)
