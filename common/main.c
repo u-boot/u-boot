@@ -45,10 +45,6 @@
 #include <fdtdec.h>
 #endif
 
-#ifdef CONFIG_OF_LIBFDT
-#include <fdt_support.h>
-#endif /* CONFIG_OF_LIBFDT */
-
 #include <post.h>
 #include <linux/ctype.h>
 #include <menu.h>
@@ -375,10 +371,6 @@ void main_loop (void)
 #endif /* CONFIG_BOOTCOUNT_LIMIT */
 
 	bootstage_mark_name(BOOTSTAGE_ID_MAIN_LOOP, "main_loop");
-
-#if defined CONFIG_OF_CONTROL
-       set_working_fdt_addr((void *)gd->fdt_blob);
-#endif /* CONFIG_OF_CONTROL */
 
 #ifdef CONFIG_BOOTCOUNT_LIMIT
 	bootcount = bootcount_load();
