@@ -43,7 +43,7 @@
  */
 DECLARE_GLOBAL_DATA_PTR;
 
-static int fdt_valid(void);
+static int fdt_valid(struct fdt_header **blobp);
 static int fdt_parse_prop(char *const*newval, int count, char *data, int *len);
 static int fdt_print(const char *pathp, char *prop, int depth);
 static int is_printable_string(const void *data, int len);
@@ -104,9 +104,8 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		 * Set the address [and length] of the fdt.
 		 */
 		if (argc == 2) {
-			if (!fdt_valid()) {
+			if (!fdt_valid(&working_fdt))
 				return 1;
-			}
 			printf("The address of the fdt is %p\n", working_fdt);
 			return 0;
 		}
@@ -114,9 +113,8 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		addr = simple_strtoul(argv[2], NULL, 16);
 		set_working_fdt_addr((void *)addr);
 
-		if (!fdt_valid()) {
+		if (!fdt_valid(&working_fdt))
 			return 1;
-		}
 
 		if (argc >= 4) {
 			int  len;
@@ -167,9 +165,8 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		 * Set the address and length of the fdt.
 		 */
 		working_fdt = (struct fdt_header *)simple_strtoul(argv[2], NULL, 16);
-		if (!fdt_valid()) {
+		if (!fdt_valid(&working_fdt))
 			return 1;
-		}
 
 		newaddr = (struct fdt_header *)simple_strtoul(argv[3],NULL,16);
 
@@ -592,16 +589,23 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 /****************************************************************************/
 
-static int fdt_valid(void)
+/**
+ * fdt_valid() - Check if an FDT is valid. If not, change it to NULL
+ *
+ * @blobp: Pointer to FDT pointer
+ * @return 1 if OK, 0 if bad (in which case *blobp is set to NULL)
+ */
+static int fdt_valid(struct fdt_header **blobp)
 {
-	int  err;
+	const void *blob = *blobp;
+	int err;
 
-	if (working_fdt == NULL) {
+	if (blob == NULL) {
 		printf ("The address of the fdt is invalid (NULL).\n");
 		return 0;
 	}
 
-	err = fdt_check_header(working_fdt);
+	err = fdt_check_header(blob);
 	if (err == 0)
 		return 1;	/* valid */
 
@@ -611,23 +615,21 @@ static int fdt_valid(void)
 		 * Be more informative on bad version.
 		 */
 		if (err == -FDT_ERR_BADVERSION) {
-			if (fdt_version(working_fdt) <
+			if (fdt_version(blob) <
 			    FDT_FIRST_SUPPORTED_VERSION) {
 				printf (" - too old, fdt %d < %d",
-					fdt_version(working_fdt),
+					fdt_version(blob),
 					FDT_FIRST_SUPPORTED_VERSION);
-				working_fdt = NULL;
 			}
-			if (fdt_last_comp_version(working_fdt) >
+			if (fdt_last_comp_version(blob) >
 			    FDT_LAST_SUPPORTED_VERSION) {
 				printf (" - too new, fdt %d > %d",
-					fdt_version(working_fdt),
+					fdt_version(blob),
 					FDT_LAST_SUPPORTED_VERSION);
-				working_fdt = NULL;
 			}
-			return 0;
 		}
 		printf("\n");
+		*blobp = NULL;
 		return 0;
 	}
 	return 1;
