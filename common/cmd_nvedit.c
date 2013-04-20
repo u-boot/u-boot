@@ -315,6 +315,21 @@ int setenv_hex(const char *varname, ulong value)
 	return setenv(varname, str);
 }
 
+ulong getenv_hex(const char *varname, ulong default_val)
+{
+	const char *s;
+	ulong value;
+	char *endp;
+
+	s = getenv(varname);
+	if (s)
+		value = simple_strtoul(s, &endp, 16);
+	if (!s || endp == s)
+		return default_val;
+
+	return value;
+}
+
 #ifndef CONFIG_SPL_BUILD
 static int do_env_set(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
