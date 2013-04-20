@@ -104,6 +104,13 @@ static int sb_cmdline_cb_command(struct sandbox_state *state, const char *arg)
 }
 SB_CMDLINE_OPT_SHORT(command, 'c', 1, "Execute U-Boot command");
 
+static int sb_cmdline_cb_fdt(struct sandbox_state *state, const char *arg)
+{
+	state->fdt_fname = arg;
+	return 0;
+}
+SB_CMDLINE_OPT_SHORT(fdt, 'd', 1, "Specify U-Boot's control FDT");
+
 int main(int argc, char *argv[])
 {
 	struct sandbox_state *state;

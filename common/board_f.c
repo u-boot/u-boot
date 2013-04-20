@@ -31,6 +31,7 @@
 #include <version.h>
 #include <environment.h>
 #include <fdtdec.h>
+#include <fs.h>
 #if defined(CONFIG_CMD_IDE)
 #include <ide.h>
 #endif
@@ -305,6 +306,55 @@ __weak int arch_cpu_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_OF_HOSTFILE
+
+#define CHECK(x)		err = (x); if (err) goto failed;
+
+/* Create an empty device tree blob */
+static int make_empty_fdt(void *fdt)
+{
+	int err;
+
+	CHECK(fdt_create(fdt, 256));
+	CHECK(fdt_finish_reservemap(fdt));
+	CHECK(fdt_begin_node(fdt, ""));
+	CHECK(fdt_end_node(fdt));
+	CHECK(fdt_finish(fdt));
+
+	return 0;
+failed:
+	printf("Unable to create empty FDT: %s\n", fdt_strerror(err));
+	return -EACCES;
+}
+
+static int read_fdt_from_file(void)
+{
+	struct sandbox_state *state = state_get_current();
+	void *blob;
+	int size;
+	int err;
+
+	blob = map_sysmem(CONFIG_SYS_FDT_LOAD_ADDR, 0);
+	if (!state->fdt_fname) {
+		err = make_empty_fdt(blob);
+		if (!err)
+			goto done;
+		return err;
+	}
+	err = fs_set_blk_dev("host", NULL, FS_TYPE_SANDBOX);
+	if (err)
+		return err;
+	size = fs_read(state->fdt_fname, CONFIG_SYS_FDT_LOAD_ADDR, 0, 0);
+	if (size < 0)
+		return -EIO;
+
+done:
+	gd->fdt_blob = blob;
+
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_SANDBOX
 static int setup_ram_buf(void)
 {
@@ -328,6 +378,11 @@ static int setup_fdt(void)
 # else
 	gd->fdt_blob = (ulong *)&_end;
 # endif
+#elif defined(CONFIG_OF_HOSTFILE)
+	if (read_fdt_from_file()) {
+		puts("Failed to read control FDT\n");
+		return -1;
+	}
 #endif
 	/* Allow the early environment to override the fdt address */
 	gd->fdt_blob = (void *)getenv_ulong("fdtcontroladdr", 16,
