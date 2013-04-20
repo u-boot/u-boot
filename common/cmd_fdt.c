@@ -100,38 +100,59 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 */
 	if (argv[1][0] == 'a') {
 		unsigned long addr;
+		int control = 0;
+		struct fdt_header *blob;
 		/*
 		 * Set the address [and length] of the fdt.
 		 */
-		if (argc == 2) {
-			if (!fdt_valid(&working_fdt))
+		argc -= 2;
+		argv += 2;
+/* Temporary #ifdef - some archs don't have fdt_blob yet */
+#ifdef CONFIG_OF_CONTROL
+		if (argc && !strcmp(*argv, "-c")) {
+			control = 1;
+			argc--;
+			argv++;
+		}
+#endif
+		if (argc == 0) {
+			if (control)
+				blob = (struct fdt_header *)gd->fdt_blob;
+			else
+				blob = working_fdt;
+			if (!blob || !fdt_valid(&blob))
 				return 1;
-			printf("The address of the fdt is %p\n", working_fdt);
+			printf("The address of the fdt is %#08lx\n",
+			       control ? (ulong)blob :
+					getenv_hex("fdtaddr", 0));
 			return 0;
 		}
 
-		addr = simple_strtoul(argv[2], NULL, 16);
-		set_working_fdt_addr((void *)addr);
-
-		if (!fdt_valid(&working_fdt))
+		addr = simple_strtoul(argv[0], NULL, 16);
+		blob = (struct fdt_header *)addr;
+		if (!fdt_valid(&blob))
 			return 1;
+		if (control)
+			gd->fdt_blob = blob;
+		else
+			set_working_fdt_addr((void *)addr);
 
-		if (argc >= 4) {
+		if (argc >= 2) {
 			int  len;
 			int  err;
 			/*
 			 * Optional new length
 			 */
-			len = simple_strtoul(argv[3], NULL, 16);
-			if (len < fdt_totalsize(working_fdt)) {
+			len = simple_strtoul(argv[1], NULL, 16);
+			if (len < fdt_totalsize(blob)) {
 				printf ("New length %d < existing length %d, "
 					"ignoring.\n",
-					len, fdt_totalsize(working_fdt));
+					len, fdt_totalsize(blob));
 			} else {
 				/*
 				 * Open in place with a new length.
 				 */
-				err = fdt_open_into(working_fdt, working_fdt, len);
+				err = fdt_open_into(blob, blob, len);
 				if (err != 0) {
 					printf ("libfdt fdt_open_into(): %s\n",
 						fdt_strerror(err));
@@ -960,7 +981,7 @@ static int fdt_print(const char *pathp, char *prop, int depth)
 /********************************************************************/
 #ifdef CONFIG_SYS_LONGHELP
 static char fdt_help_text[] =
-	"addr   <addr> [<length>]        - Set the fdt location to <addr>\n"
+	"addr [-c]  <addr> [<length>]   - Set the [control] fdt location to <addr>\n"
 #ifdef CONFIG_OF_BOARD_SETUP
 	"fdt boardsetup                      - Do board-specific set up\n"
 #endif
