@@ -897,6 +897,11 @@ static inline void *map_sysmem(phys_addr_t paddr, unsigned long len)
 static inline void unmap_sysmem(const void *vaddr)
 {
 }
+
+static inline phys_addr_t map_to_sysmem(void *ptr)
+{
+	return (phys_addr_t)(uintptr_t)ptr;
+}
 # endif
 
 #endif /* __ASSEMBLY__ */
