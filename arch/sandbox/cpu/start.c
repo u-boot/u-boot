@@ -90,7 +90,7 @@ int sandbox_main_loop_init(void)
 
 	/* Execute command if required */
 	if (state->cmd) {
-		run_command(state->cmd, 0);
+		run_command_list(state->cmd, -1, 0);
 		os_exit(state->exit_type);
 	}
 
