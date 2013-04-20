@@ -93,6 +93,7 @@ static struct fstype_info fstypes[] = {
 		.close = sandbox_fs_close,
 		.ls = sandbox_fs_ls,
 		.read = fs_read_sandbox,
+		.write = fs_write_sandbox,
 	},
 #endif
 	{
