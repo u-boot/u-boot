@@ -524,11 +524,14 @@ static void imximage_set_header(void *ptr, struct stat *sbuf, int ifd,
 
 	/*
 	 * ROM bug alert
-	 * mx53 only loads 512 byte multiples.
-	 * The remaining fraction of a block bytes would
-	 * not be loaded.
+	 *
+	 * MX53 only loads 512 byte multiples in case of SD boot.
+	 * MX53 only loads NAND page multiples in case of NAND boot and
+	 * supports up to 4096 byte large pages, thus align to 4096.
+	 *
+	 * The remaining fraction of a block bytes would not be loaded!
 	 */
-	*header_size_ptr = ROUND(sbuf->st_size + imxhdr->flash_offset, 512);
+	*header_size_ptr = ROUND(sbuf->st_size + imxhdr->flash_offset, 4096);
 }
 
 int imximage_check_params(struct mkimage_params *params)

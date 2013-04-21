@@ -157,13 +157,14 @@ typedef struct {
 	dcd_v2_t dcd_table;
 } imx_header_v2_t;
 
+/* The header must be aligned to 4k on MX53 for NAND boot */
 struct imx_header {
 	union {
 		imx_header_v1_t hdr_v1;
 		imx_header_v2_t hdr_v2;
 	} header;
 	uint32_t flash_offset;
-};
+} __attribute__((aligned(4096)));
 
 typedef void (*set_dcd_val_t)(struct imx_header *imxhdr,
 					char *name, int lineno,
