@@ -97,8 +97,8 @@ typedef u64 iomux_v3_cfg_t;
 
 #define MUX_CONFIG_SION		(0x1 << 4)
 
-int imx_iomux_v3_setup_pad(iomux_v3_cfg_t pad);
-int imx_iomux_v3_setup_multiple_pads(iomux_v3_cfg_t const *pad_list,
+void imx_iomux_v3_setup_pad(iomux_v3_cfg_t pad);
+void imx_iomux_v3_setup_multiple_pads(iomux_v3_cfg_t const *pad_list,
 				     unsigned count);
 
 #endif	/* __MACH_IOMUX_V3_H__*/

@@ -30,7 +30,7 @@ static void *base = (void *)IOMUXC_BASE_ADDR;
 /*
  * configures a single pad in the iomuxer
  */
-int imx_iomux_v3_setup_pad(iomux_v3_cfg_t pad)
+void imx_iomux_v3_setup_pad(iomux_v3_cfg_t pad)
 {
 	u32 mux_ctrl_ofs = (pad & MUX_CTRL_OFS_MASK) >> MUX_CTRL_OFS_SHIFT;
 	u32 mux_mode = (pad & MUX_MODE_MASK) >> MUX_MODE_SHIFT;
@@ -50,22 +50,14 @@ int imx_iomux_v3_setup_pad(iomux_v3_cfg_t pad)
 
 	if (!(pad_ctrl & NO_PAD_CTRL) && pad_ctrl_ofs)
 		__raw_writel(pad_ctrl, base + pad_ctrl_ofs);
-
-	return 0;
 }
 
-int imx_iomux_v3_setup_multiple_pads(iomux_v3_cfg_t const *pad_list,
-				     unsigned count)
+void imx_iomux_v3_setup_multiple_pads(iomux_v3_cfg_t const *pad_list,
+				      unsigned count)
 {
 	iomux_v3_cfg_t const *p = pad_list;
 	int i;
-	int ret;
 
-	for (i = 0; i < count; i++) {
-		ret = imx_iomux_v3_setup_pad(*p);
-		if (ret)
-			return ret;
-		p++;
-	}
-	return 0;
+	for (i = 0; i < count; i++)
+		imx_iomux_v3_setup_pad(*p++);
 }
