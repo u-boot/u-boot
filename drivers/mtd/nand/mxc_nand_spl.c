@@ -290,7 +290,7 @@ static int is_badblock(int pagenumber)
 	return 0;
 }
 
-static int nand_load(unsigned int from, unsigned int size, unsigned char *buf)
+int nand_spl_load_image(uint32_t from, unsigned int size, void *buf)
 {
 	int i;
 	unsigned int page;
@@ -303,6 +303,7 @@ static int nand_load(unsigned int from, unsigned int size, unsigned char *buf)
 	page = from / CONFIG_SYS_NAND_PAGE_SIZE;
 	i = 0;
 
+	size = roundup(size, CONFIG_SYS_NAND_PAGE_SIZE);
 	while (i < size / CONFIG_SYS_NAND_PAGE_SIZE) {
 		if (nfc_read_page(page, buf) < 0)
 			return -1;
@@ -332,6 +333,7 @@ static int nand_load(unsigned int from, unsigned int size, unsigned char *buf)
 	return 0;
 }
 
+#ifndef CONFIG_SPL_FRAMEWORK
 /*
  * The main entry for NAND booting. It's necessary that SDRAM is already
  * configured and available since this code loads the main U-Boot image
@@ -345,8 +347,9 @@ void nand_boot(void)
 	 * CONFIG_SYS_NAND_U_BOOT_OFFS and CONFIG_SYS_NAND_U_BOOT_SIZE must
 	 * be aligned to full pages
 	 */
-	if (!nand_load(CONFIG_SYS_NAND_U_BOOT_OFFS, CONFIG_SYS_NAND_U_BOOT_SIZE,
-		       (uchar *)CONFIG_SYS_NAND_U_BOOT_DST)) {
+	if (!nand_spl_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
+			CONFIG_SYS_NAND_U_BOOT_SIZE,
+			(uchar *)CONFIG_SYS_NAND_U_BOOT_DST)) {
 		/* Copy from NAND successful, start U-boot */
 		uboot = (void *)CONFIG_SYS_NAND_U_BOOT_START;
 		uboot();
@@ -364,3 +367,7 @@ void hang(void)
 	/* Loop forever */
 	while (1) ;
 }
+#endif
+
+void nand_init(void) {}
+void nand_deselect(void) {}
