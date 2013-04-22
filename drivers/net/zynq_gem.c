@@ -95,6 +95,17 @@
 					ZYNQ_GEM_DMACR_TXSIZE | \
 					ZYNQ_GEM_DMACR_RXBUF)
 
+/* Use MII register 1 (MII status register) to detect PHY */
+#define PHY_DETECT_REG  1
+
+/* Mask used to verify certain PHY features (or register contents)
+ * in the register above:
+ *  0x1000: 10Mbps full duplex support
+ *  0x0800: 10Mbps half duplex support
+ *  0x0008: Auto-negotiation support
+ */
+#define PHY_DETECT_MASK 0x1808
+
 /* Device registers */
 struct zynq_gem_regs {
 	u32 nwctrl; /* Network Control reg */
@@ -201,6 +212,44 @@ static u32 phywrite(struct eth_device *dev, u32 phy_addr, u32 regnum, u16 data)
 				ZYNQ_GEM_PHYMNTNC_OP_W_MASK, &data);
 }
 
+static void phy_detection(struct eth_device *dev)
+{
+	int i;
+	u16 phyreg;
+	struct zynq_gem_priv *priv = dev->priv;
+
+	if (priv->phyaddr != -1) {
+		phyread(dev, priv->phyaddr, PHY_DETECT_REG, &phyreg);
+		if ((phyreg != 0xFFFF) &&
+		    ((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
+			/* Found a valid PHY address */
+			debug("Default phy address %d is valid\n",
+			      priv->phyaddr);
+			return;
+		} else {
+			debug("PHY address is not setup correctly %d\n",
+			      priv->phyaddr);
+			priv->phyaddr = -1;
+		}
+	}
+
+	debug("detecting phy address\n");
+	if (priv->phyaddr == -1) {
+		/* detect the PHY address */
+		for (i = 31; i >= 0; i--) {
+			phyread(dev, i, PHY_DETECT_REG, &phyreg);
+			if ((phyreg != 0xFFFF) &&
+			    ((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
+				/* Found a valid PHY address */
+				priv->phyaddr = i;
+				debug("Found valid phy address, %d\n", i);
+				return;
+			}
+		}
+	}
+	printf("PHY is not detected\n");
+}
+
 static int zynq_gem_setup_mac(struct eth_device *dev)
 {
 	u32 i, macaddrlow, macaddrhigh;
@@ -289,6 +338,8 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 
 		priv->init++;
 	}
+
+	phy_detection(dev);
 
 	/* interface - look at tsec */
 	phydev = phy_connect(priv->bus, priv->phyaddr, dev, 0);
