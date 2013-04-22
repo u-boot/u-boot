@@ -28,4 +28,7 @@ extern void zynq_slcr_unlock(void);
 extern void zynq_slcr_cpu_reset(void);
 extern void zynq_slcr_gem_clk_setup(u32 gem_id, u32 rclk, u32 clk);
 
+/* Driver extern functions */
+extern int zynq_sdhci_init(u32 regbase);
+
 #endif /* _SYS_PROTO_H_ */

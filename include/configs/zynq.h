@@ -56,6 +56,22 @@
 #define CONFIG_ZYNQ_GEM0
 #define CONFIG_ZYNQ_GEM_PHY_ADDR0	7
 
+#define CONFIG_ZYNQ_SDHCI
+#define CONFIG_ZYNQ_SDHCI0
+
+/* MMC */
+#if defined(CONFIG_ZYNQ_SDHCI0) || defined(CONFIG_ZYNQ_SDHCI1)
+# define CONFIG_MMC
+# define CONFIG_GENERIC_MMC
+# define CONFIG_SDHCI
+# define CONFIG_ZYNQ_SDHCI
+# define CONFIG_CMD_MMC
+# define CONFIG_CMD_FAT
+# define CONFIG_SUPPORT_VFAT
+# define CONFIG_CMD_EXT2
+# define CONFIG_DOS_PARTITION
+#endif
+
 #if defined(CONFIG_ZYNQ_DCC)
 # define CONFIG_ARM_DCC
 # define CONFIG_CPU_V6 /* Required by CONFIG_ARM_DCC */
