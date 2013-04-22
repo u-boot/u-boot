@@ -1,4 +1,6 @@
 /*
+ * (C) Copyright 2012-2013, Xilinx, Michal Simek
+ *
  * (C) Copyright 2002
  * Rich Ireland, Enterasys Networks, rireland@enterasys.com.
  * Keith Outwater, keith_outwater@mvis.com
@@ -87,14 +89,14 @@ int xilinx_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 					__FUNCTION__);
 #endif
 			break;
-		case Xilinx_Zynq:
+		case xilinx_zynq:
 #if defined(CONFIG_FPGA_ZYNQPL)
 			PRINTF("%s: Launching the Zynq PL Loader...\n",
-					__func__);
+			       __func__);
 			ret_val = zynq_load(desc, buf, bsize);
 #else
 			printf("%s: No support for Zynq devices.\n",
-					__func__);
+			       __func__);
 #endif
 			break;
 
@@ -144,14 +146,14 @@ int xilinx_dump(Xilinx_desc *desc, const void *buf, size_t bsize)
 					__FUNCTION__);
 #endif
 			break;
-		case Xilinx_Zynq:
+		case xilinx_zynq:
 #if defined(CONFIG_FPGA_ZYNQPL)
 			PRINTF("%s: Launching the Zynq PL Reader...\n",
-					__func__);
+			       __func__);
 			ret_val = zynq_dump(desc, buf, bsize);
 #else
 			printf("%s: No support for Zynq devices.\n",
-					__func__);
+			       __func__);
 #endif
 			break;
 
@@ -179,7 +181,7 @@ int xilinx_info (Xilinx_desc * desc)
 		case Xilinx_Virtex2:
 			printf ("Virtex-II\n");
 			break;
-		case Xilinx_Zynq:
+		case xilinx_zynq:
 			printf("Zynq PL\n");
 			break;
 			/* Add new family types here */
@@ -249,13 +251,13 @@ int xilinx_info (Xilinx_desc * desc)
 						__FUNCTION__);
 #endif
 				break;
-			case Xilinx_Zynq:
+			case xilinx_zynq:
 #if defined(CONFIG_FPGA_ZYNQPL)
 				zynq_info(desc);
 #else
 				/* just in case */
 				printf("%s: No support for Zynq devices.\n",
-						__func__);
+				       __func__);
 #endif
 				/* Add new family types here */
 			default:

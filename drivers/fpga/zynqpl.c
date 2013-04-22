@@ -1,4 +1,6 @@
 /*
+ * (C) Copyright 2012-2013, Xilinx, Michal Simek
+ *
  * (C) Copyright 2012
  * Joe Hershberger <joe.hershberger@ni.com>
  *
@@ -19,7 +21,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
- *
  */
 
 #include <common.h>
@@ -88,7 +89,7 @@ int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 	/* Check bitstream size */
 	if (bsize != desc->size) {
 		printf("Error: File size is wrong - should be %x.\n",
-								desc->size);
+		       desc->size);
 		return FPGA_FAIL;
 	}
 
@@ -189,9 +190,9 @@ int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 		if (isr_status & DEVCFG_ISR_ERROR_FLAGS_MASK) {
 			debug("Error: isr = 0x%08X\n", isr_status);
 			debug("Write count = 0x%08X\n",
-				readl(&devcfg_base->write_count));
+			      readl(&devcfg_base->write_count));
 			debug("Read count = 0x%08X\n",
-				readl(&devcfg_base->read_count));
+			      readl(&devcfg_base->read_count));
 
 			return FPGA_FAIL;
 		}

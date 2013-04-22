@@ -88,6 +88,12 @@
 # define CONFIG_CPU_V6 /* Required by CONFIG_ARM_DCC */
 #endif
 
+/* Enable the PL to be downloaded */
+#define CONFIG_FPGA
+#define CONFIG_FPGA_XILINX
+#define CONFIG_FPGA_ZYNQPL
+#define CONFIG_CMD_FPGA
+
 #define CONFIG_BOOTP_SERVERIP
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
