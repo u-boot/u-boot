@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2012 CompuLab, Ltd. <www.compulab.co.il>
+ * (C) Copyright 2012 - 2013 CompuLab, Ltd. <www.compulab.co.il>
  *
  * Authors: Nikita Kiryanov <nikita@compulab.co.il>
  *
