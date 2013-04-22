@@ -684,7 +684,7 @@ Simon Guinot <simon.guinot@sequanux.org>
 
 Igor Grinberg <grinberg@compulab.co.il>
 
-	cm-t35		ARM ARMV7 (OMAP3xx Soc)
+	cm_t35		ARM ARMV7 (OMAP3xx Soc)
 
 Stefan Herbrechtsmeier <stefan@code.herbrechtsmeier.net>
 
