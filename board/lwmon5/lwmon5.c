@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010
+ * (C) Copyright 2007-2013
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * This program is free software; you can redistribute it and/or
@@ -200,9 +200,11 @@ int misc_init_r(void)
 	u32 pbcr;
 	int size_val = 0;
 	u32 reg;
+#ifndef CONFIG_LCD4_LWMON5
 	unsigned long usb2d0cr = 0;
 	unsigned long usb2phy0cr, usb2h0cr = 0;
 	unsigned long sdr0_pfc1, sdr0_srst;
+#endif
 
 	/*
 	 * FLASH stuff...
@@ -233,6 +235,7 @@ int misc_init_r(void)
 		      CONFIG_ENV_ADDR_REDUND + 2 * CONFIG_ENV_SECT_SIZE - 1,
 		      &flash_info[cfi_flash_num_flash_banks - 1]);
 
+#ifndef CONFIG_LCD4_LWMON5
 	/*
 	 * USB suff...
 	 */
@@ -306,6 +309,7 @@ int misc_init_r(void)
 	/* 7. Reassert internal PHY reset: */
 	mtsdr(SDR0_SRST1, SDR0_SRST1_USB20PHY);
 	udelay(1000);
+#endif
 
 	/*
 	 * Clear resets
@@ -313,7 +317,9 @@ int misc_init_r(void)
 	mtsdr(SDR0_SRST1, 0x00000000);
 	mtsdr(SDR0_SRST0, 0x00000000);
 
+#ifndef CONFIG_LCD4_LWMON5
 	printf("USB:   Host(int phy) Device(ext phy)\n");
+#endif
 
 	/*
 	 * Clear PLB4A0_ACR[WRP]
@@ -323,10 +329,12 @@ int misc_init_r(void)
 	reg = mfdcr(PLB4A0_ACR) & ~PLB4Ax_ACR_WRP_MASK;
 	mtdcr(PLB4A0_ACR, reg);
 
+#ifndef CONFIG_LCD4_LWMON5
 	/*
 	 * Init matrix keyboard
 	 */
 	misc_init_r_kbd();
+#endif
 
 	return 0;
 }
@@ -336,7 +344,7 @@ int checkboard(void)
 	char buf[64];
 	int i = getenv_f("serial#", buf, sizeof(buf));
 
-	puts("Board: lwmon5");
+	printf("Board: %s", __stringify(CONFIG_HOSTNAME));
 
 	if (i > 0) {
 		puts(", serial# ");
@@ -495,3 +503,66 @@ void board_reset(void)
 {
 	gpio_write_bit(CONFIG_SYS_GPIO_BOARD_RESET, 1);
 }
+
+#ifdef CONFIG_SPL_OS_BOOT
+/*
+ * lwmon5 specific implementation of spl_start_uboot()
+ *
+ * RETURN
+ * 0 if booting into OS is selected (default)
+ * 1 if booting into U-Boot is selected
+ */
+int spl_start_uboot(void)
+{
+	char s[8];
+
+	env_init();
+	getenv_f("boot_os", s, sizeof(s));
+	if ((s != NULL) && (strcmp(s, "yes") == 0))
+		return 0;
+
+	return 1;
+}
+
+/*
+ * This function is called from the SPL U-Boot version for
+ * early init stuff, that needs to be done for OS (e.g. Linux)
+ * booting. Doing it later in the real U-Boot would not work
+ * in case that the SPL U-Boot boots Linux directly.
+ */
+void spl_board_init(void)
+{
+	const gdc_regs *regs = board_get_regs();
+
+	/*
+	 * Setup PFC registers, mainly for ethernet support
+	 * later on in Linux
+	 */
+	board_early_init_f();
+
+	/*
+	 * Clear resets
+	 */
+	mtsdr(SDR0_SRST1, 0x00000000);
+	mtsdr(SDR0_SRST0, 0x00000000);
+
+	/*
+	 * Reset Lime controller
+	 */
+	gpio_write_bit(CONFIG_SYS_GPIO_LIME_S, 1);
+	udelay(500);
+	gpio_write_bit(CONFIG_SYS_GPIO_LIME_RST, 1);
+
+	out_be32((void *)CONFIG_SYS_LIME_SDRAM_CLOCK, CONFIG_SYS_MB862xx_CCF);
+	udelay(300);
+	out_be32((void *)CONFIG_SYS_LIME_MMR, CONFIG_SYS_MB862xx_MMR);
+
+	while (regs->index) {
+		out_be32((void *)(CONFIG_SYS_LIME_BASE_0 + GC_DISP_BASE) +
+			 regs->index, regs->value);
+		regs++;
+	}
+
+	board_backlight_brightness(DEFAULT_BRIGHTNESS);
+}
+#endif
