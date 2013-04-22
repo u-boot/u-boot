@@ -32,6 +32,14 @@
 #include <asm/arch/emif_defs.h>
 #include <asm/arch/pll_defs.h>
 
+void davinci_enable_uart0(void)
+{
+	lpsc_on(DAVINCI_LPSC_UART0);
+
+	/* Bringup UART0 out of reset */
+	REG(UART0_PWREMU_MGMT) = 0x00006001;
+}
+
 #if defined(CONFIG_SYS_DA850_PLL_INIT)
 void da850_waitloop(unsigned long loopcnt)
 {
