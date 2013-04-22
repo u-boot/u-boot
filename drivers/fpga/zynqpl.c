@@ -256,7 +256,7 @@ int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 	writel(0xFFFFFFFF, &devcfg_base->int_sts);
 
 	if (isr_status & DEVCFG_ISR_FATAL_ERROR_MASK) {
-		debug("Fatal errors in PCAP 0x%X\n", isr_status);
+		debug("%s: Fatal errors in PCAP 0x%X\n", __func__, isr_status);
 
 		/* If RX FIFO overflow, need to flush RX FIFO first */
 		if (isr_status & DEVCFG_ISR_RX_FIFO_OV) {
@@ -268,19 +268,19 @@ int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 
 	status = readl(&devcfg_base->status);
 
-	debug("status = 0x%08X\n", status);
+	debug("%s: Status = 0x%08X\n", __func__, status);
 
 	if (status & DEVCFG_STATUS_DMA_CMD_Q_F) {
-		debug("Error: device busy\n");
+		debug("%s: Error: device busy\n", __func__);
 		return FPGA_FAIL;
 	}
 
-	debug("device ready\n");
+	debug("%s: Device ready\n", __func__);
 
 	if (!(status & DEVCFG_STATUS_DMA_CMD_Q_E)) {
 		if (!(readl(&devcfg_base->int_sts) & DEVCFG_ISR_DMA_DONE)) {
 			/* Error state, transfer cannot occur */
-			debug("isr indicates error\n");
+			debug("%s: ISR indicates error\n", __func__);
 			return FPGA_FAIL;
 		} else {
 			/* Clear out the status */
@@ -293,8 +293,8 @@ int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 		writel(DEVCFG_STATUS_DMA_DONE_CNT_MASK, &devcfg_base->status);
 	}
 
-	debug("Source = 0x%08X\n", (u32)buf);
-	debug("Size = %zu\n", bsize);
+	debug("%s: Source = 0x%08X\n", __func__, (u32)buf);
+	debug("%s: Size = %zu\n", __func__, bsize);
 
 	/* Set up the transfer */
 	writel((u32)buf | 1, &devcfg_base->dma_src_addr);
@@ -308,34 +308,37 @@ int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 	ts = get_timer(0);
 	while (!(isr_status & DEVCFG_ISR_DMA_DONE)) {
 		if (isr_status & DEVCFG_ISR_ERROR_FLAGS_MASK) {
-			debug("Error: isr = 0x%08X\n", isr_status);
-			debug("Write count = 0x%08X\n",
+			debug("%s: Error: isr = 0x%08X\n", __func__,
+			      isr_status);
+			debug("%s: Write count = 0x%08X\n", __func__,
 			      readl(&devcfg_base->write_count));
-			debug("Read count = 0x%08X\n",
+			debug("%s: Read count = 0x%08X\n", __func__,
 			      readl(&devcfg_base->read_count));
 
 			return FPGA_FAIL;
 		}
 		if (get_timer(ts) > CONFIG_SYS_FPGA_PROG_TIME) {
-			puts("Error: Timeout waiting for DMA to complete.\n");
+			printf("%s: Timeout wait for DMA to complete\n",
+			       __func__);
 			return FPGA_FAIL;
 		}
 		isr_status = readl(&devcfg_base->int_sts);
 	}
 
-	debug("DMA transfer is done\n");
+	debug("%s: DMA transfer is done\n", __func__);
 
 	/* Check FPGA configuration completion */
 	ts = get_timer(0);
 	while (!(isr_status & DEVCFG_ISR_PCFG_DONE)) {
 		if (get_timer(ts) > CONFIG_SYS_FPGA_WAIT) {
-			puts("Error: Timeout waiting for FPGA to config.\n");
+			printf("%s: Timeout wait for FPGA to config\n",
+			       __func__);
 			return FPGA_FAIL;
 		}
 		isr_status = readl(&devcfg_base->int_sts);
 	}
 
-	debug("FPGA config done\n");
+	debug("%s: FPGA config done\n", __func__);
 
 	/* Clear out the DMA status */
 	writel(DEVCFG_ISR_DMA_DONE, &devcfg_base->int_sts);
