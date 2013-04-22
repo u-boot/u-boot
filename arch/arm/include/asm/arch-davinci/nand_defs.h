@@ -36,6 +36,15 @@
 #define	MASK_ALE	0x08
 #endif
 
+#ifdef CONFIG_SYS_NAND_MASK_CLE
+#undef MASK_CLE
+#define MASK_CLE CONFIG_SYS_NAND_MASK_CLE
+#endif
+#ifdef CONFIG_SYS_NAND_MASK_ALE
+#undef MASK_ALE
+#define MASK_ALE CONFIG_SYS_NAND_MASK_ALE
+#endif
+
 #define NAND_READ_START		0x00
 #define NAND_READ_END		0x30
 #define NAND_STATUS		0x70
