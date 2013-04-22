@@ -31,12 +31,6 @@
 
 #include "spi_flash_internal.h"
 
-/* S25FLxx-specific commands */
-#define CMD_S25FLXX_SE		0xd8	/* Sector Erase */
-#define CMD_S25FLXX_BE		0xc7	/* Bulk Erase */
-#define CMD_S25FLXX_DP		0xb9	/* Deep Power-down */
-#define CMD_S25FLXX_RES		0xab	/* Release from DP, and Read Signature */
-
 struct spansion_spi_flash_params {
 	u16 idcode1;
 	u16 idcode2;
