@@ -29,7 +29,7 @@ int zynq_sdhci_init(u32 regbase)
 	}
 
 	host->name = "zynq_sdhci";
-	host->ioaddr = (void *) regbase;
+	host->ioaddr = (void *)regbase;
 	host->quirks = SDHCI_QUIRK_NO_CD | SDHCI_QUIRK_WAIT_SEND_CMD;
 	host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
 

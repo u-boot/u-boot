@@ -39,4 +39,7 @@ extern int zynq_slcr_get_mio_pin_status(const char *periph);
 extern int zynq_nand_init(struct nand_chip *nand_chip);
 extern int zynq_sdhci_init(u32 regbase);
 
+/* Driver extern functions */
+extern int zynq_sdhci_init(u32 regbase);
+
 #endif /* _SYS_PROTO_H_ */
