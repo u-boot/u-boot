@@ -72,6 +72,17 @@
 # define CONFIG_DOS_PARTITION
 #endif
 
+#define CONFIG_ZYNQ_I2C0
+
+/* I2C */
+#if defined(CONFIG_ZYNQ_I2C0) || defined(CONFIG_ZYNQ_I2C1)
+# define CONFIG_CMD_I2C
+# define CONFIG_ZYNQ_I2C
+# define CONFIG_HARD_I2C
+# define CONFIG_SYS_I2C_SPEED		100000
+# define CONFIG_SYS_I2C_SLAVE		1
+#endif
+
 #if defined(CONFIG_ZYNQ_DCC)
 # define CONFIG_ARM_DCC
 # define CONFIG_CPU_V6 /* Required by CONFIG_ARM_DCC */
