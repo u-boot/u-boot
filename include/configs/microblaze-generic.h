@@ -120,6 +120,14 @@
 #  define CONFIG_SYS_TIMER_0_IRQ	XILINX_TIMER_IRQ
 #endif
 
+/* watchdog */
+#if defined(XILINX_WATCHDOG_BASEADDR) && defined(XILINX_WATCHDOG_IRQ)
+# define CONFIG_WATCHDOG_BASEADDR	XILINX_WATCHDOG_BASEADDR
+# define CONFIG_WATCHDOG_IRQ		XILINX_WATCHDOG_IRQ
+# define CONFIG_HW_WATCHDOG
+# define CONFIG_XILINX_TB_WATCHDOG
+#endif
+
 /*
  * memory layout - Example
  * CONFIG_SYS_TEXT_BASE = 0x1200_0000;	defined in config.mk

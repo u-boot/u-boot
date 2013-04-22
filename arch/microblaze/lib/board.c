@@ -61,6 +61,9 @@ init_fnc_t *init_sequence[] = {
 	serial_init,
 	console_init_f,
 	interrupts_init,
+#ifdef CONFIG_XILINX_TB_WATCHDOG
+	hw_watchdog_init,
+#endif
 	timer_init,
 	NULL,
 };
