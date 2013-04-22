@@ -30,6 +30,7 @@
 #include <asm/io.h>
 #include <i2c.h>
 #include <asm/errno.h>
+#include <asm/arch/hardware.h>
 
 /* i2c register set */
 struct zynq_i2c_registers {
@@ -76,19 +77,14 @@ struct zynq_i2c_registers {
 #define ZYNQ_I2C_INTERRUPT_RXUNF	0x00000080
 #define ZYNQ_I2C_INTERRUPT_ARBLOST	0x00000200
 
-#if defined(CONFIG_ZYNQ_I2C_CTLR_0)
-#define ZYNQ_I2C_BASE 0xE0004000
-#if defined(CONFIG_ZYNQ_I2C_CTLR_1)
-#warning Only CONFIG_ZYNQ_I2C_CTLR_0 will be accessible
-#endif
-#elif defined(CONFIG_ZYNQ_I2C_CTLR_1)
-#define ZYNQ_I2C_BASE 0xE0005000
-#else
-#error You must select CONFIG_ZYNQ_I2C_CTLR_0 or CONFIG_ZYNQ_I2C_CTLR_1
-#endif
-
 #define ZYNQ_I2C_FIFO_DEPTH		16
 #define ZYNQ_I2C_TRANSFERT_SIZE_MAX	255 /* Controller transfer limit */
+
+#if defined(CONFIG_ZYNQ_I2C0)
+# define ZYNQ_I2C_BASE	ZYNQ_I2C_BASEADDR0
+#else
+# define ZYNQ_I2C_BASE	ZYNQ_I2C_BASEADDR1
+#endif
 
 static struct zynq_i2c_registers *zynq_i2c =
 	(struct zynq_i2c_registers *)ZYNQ_I2C_BASE;

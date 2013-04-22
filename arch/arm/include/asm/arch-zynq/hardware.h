@@ -31,6 +31,8 @@
 #define ZYNQ_GEM_BASEADDR1		0xE000C000
 #define ZYNQ_SDHCI_BASEADDR0		0xE0100000
 #define ZYNQ_SDHCI_BASEADDR1		0xE0101000
+#define ZYNQ_I2C_BASEADDR0		0xE0004000
+#define ZYNQ_I2C_BASEADDR1		0xE0005000
 
 /* Reflect slcr offsets */
 struct slcr_regs {
