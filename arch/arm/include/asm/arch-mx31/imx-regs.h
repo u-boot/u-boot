@@ -574,6 +574,7 @@ struct esdc_regs {
 #define CCMR_CKIH	(2 << 1)
 
 #define MX31_IIM_BASE_ADDR	0x5001C000
+#define IIM_BASE_ADDR		MX31_IIM_BASE_ADDR
 
 #define PDR0_CSI_PODF(x)	(((x) & 0x3f) << 26)
 #define PDR0_CSI_PRDF(x)	(((x) & 0x7) << 23)

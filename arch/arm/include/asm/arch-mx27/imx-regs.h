@@ -222,6 +222,7 @@ struct fuse_bank0_regs {
 #define IMX_PLL_BASE		(0x27000 + IMX_IO_BASE)
 #define IMX_SYSTEM_CTL_BASE	(0x27800 + IMX_IO_BASE)
 #define IMX_IIM_BASE		(0x28000 + IMX_IO_BASE)
+#define IIM_BASE_ADDR		IMX_IIM_BASE
 #define IMX_FEC_BASE		(0x2b000 + IMX_IO_BASE)
 
 #define IMX_ESD_BASE		(0xD8001000)
