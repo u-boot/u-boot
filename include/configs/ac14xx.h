@@ -368,6 +368,11 @@
 #define CONFIG_SYS_I2C_SLAVE		0x7F
 
 /*
+ * IIM - IC Identification Module
+ */
+#undef CONFIG_FSL_IIM
+
+/*
  * EEPROM configuration for Atmel AT24C01:
  * 8-bit addresses, 30ms write delay, 32-Byte Page Write Mode
  */

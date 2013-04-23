@@ -370,7 +370,7 @@
 /*
  * IIM - IC Identification Module
  */
-#undef CONFIG_IIM
+#undef CONFIG_FSL_IIM
 
 /*
  * EEPROM configuration
