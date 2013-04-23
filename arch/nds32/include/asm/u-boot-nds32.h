@@ -30,11 +30,6 @@
 #define _U_BOOT_NDS32_H_	1
 
 /* for the following variables, see start.S */
-extern char __bss_start[];	/* BSS start relative to _start */
-extern ulong __bss_end;		/* BSS end relative to _start */
-extern char _end[];		/* end of image relative to _start */
-extern void _start(void);	/* start of image relative to _start */
-extern ulong _TEXT_BASE;	/* code start */
 extern ulong IRQ_STACK_START;	/* top of IRQ stack */
 extern ulong FIQ_STACK_START;	/* top of FIQ stack */
 
