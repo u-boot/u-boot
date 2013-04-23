@@ -172,8 +172,8 @@ void enable_caches(void)
 #if defined(CONFIG_FEC_MXC)
 void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 {
-	struct iim_regs *iim = (struct iim_regs *)IMX_IIM_BASE;
-	struct fuse_bank *bank = &iim->bank[4];
+	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
+	struct fuse_bank *bank = &ocotp->bank[4];
 	struct fuse_bank4_regs *fuse =
 			(struct fuse_bank4_regs *)bank->fuse_regs;
 

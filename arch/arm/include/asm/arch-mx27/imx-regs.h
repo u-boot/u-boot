@@ -176,7 +176,7 @@ struct iim_regs {
 	u32 iim_sdat;
 	u32 iim_prev;
 	u32 iim_srev;
-	u32 iim_prog_p;
+	u32 iim_prg_p;
 	u32 iim_scs0;
 	u32 iim_scs1;
 	u32 iim_scs2;

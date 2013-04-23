@@ -113,8 +113,12 @@ struct iim_regs {
 	u32 iim_sdat;
 	u32 iim_prev;
 	u32 iim_srev;
-	u32 iim_prog_p;
-	u32 res1[0x1f5];
+	u32 iim_prg_p;
+	u32 iim_scs0;
+	u32 iim_scs1;
+	u32 iim_scs2;
+	u32 iim_scs3;
+	u32 res1[0x1f1];
 	struct fuse_bank {
 		u32 fuse_regs[0x20];
 		u32 fuse_rsvd[0xe0];

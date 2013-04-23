@@ -501,7 +501,7 @@ struct iim_regs {
 	u32	sdat;
 	u32	prev;
 	u32	srev;
-	u32	preg_p;
+	u32	prg_p;
 	u32	scs0;
 	u32	scs1;
 	u32	scs2;
@@ -510,7 +510,11 @@ struct iim_regs {
 	struct fuse_bank {
 		u32	fuse_regs[0x20];
 		u32	fuse_rsvd[0xe0];
+#if defined(CONFIG_MX51)
 	} bank[4];
+#elif defined(CONFIG_MX53)
+	} bank[5];
+#endif
 };
 
 struct fuse_bank0_regs {

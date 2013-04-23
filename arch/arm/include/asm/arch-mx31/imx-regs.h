@@ -68,7 +68,7 @@ struct cspi_regs {
 	u32 test;
 };
 
-/* IIM Control Registers */
+/* IIM control registers */
 struct iim_regs {
 	u32 iim_stat;
 	u32 iim_statm;
@@ -80,11 +80,16 @@ struct iim_regs {
 	u32 iim_sdat;
 	u32 iim_prev;
 	u32 iim_srev;
-	u32 iim_prog_p;
+	u32 iim_prg_p;
 	u32 iim_scs0;
 	u32 iim_scs1;
 	u32 iim_scs2;
 	u32 iim_scs3;
+	u32 res[0x1f1];
+	struct fuse_bank {
+		u32 fuse_regs[0x20];
+		u32 fuse_rsvd[0xe0];
+	} bank[3];
 };
 
 struct iomuxc_regs {

@@ -179,7 +179,10 @@ static int mx6sabre_rev(void)
 	 * i.MX6Q ARD RevB: 0x02
 	 */
 	struct ocotp_regs *ocotp = (struct ocotp_regs *)OCOTP_BASE_ADDR;
-	int reg = readl(&ocotp->gp1);
+	struct fuse_bank *bank = &ocotp->bank[4];
+	struct fuse_bank4_regs *fuse =
+			(struct fuse_bank4_regs *)bank->fuse_regs;
+	int reg = readl(&fuse->gp1);
 	int ret;
 
 	switch (reg >> 8 & 0x0F) {
