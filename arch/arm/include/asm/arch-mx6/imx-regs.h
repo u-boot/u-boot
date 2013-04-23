@@ -462,6 +462,15 @@ struct ocotp_regs {
 	} bank[16];
 };
 
+struct fuse_bank0_regs {
+	u32	lock;
+	u32	rsvd0[3];
+	u32	uid_low;
+	u32	rsvd1[3];
+	u32	uid_high;
+	u32	rsvd2[0x17];
+};
+
 struct fuse_bank4_regs {
 	u32	sjc_resp_low;
 	u32     rsvd0[3];
@@ -472,7 +481,9 @@ struct fuse_bank4_regs {
 	u32     mac_addr_high;
 	u32	rsvd3[0xb];
 	u32	gp1;
-	u32	rsvd4[7];
+	u32	rsvd4[3];
+	u32	gp2;
+	u32	rsvd5[3];
 };
 
 struct aipstz_regs {

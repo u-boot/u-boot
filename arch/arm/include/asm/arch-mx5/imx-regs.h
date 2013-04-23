@@ -518,8 +518,14 @@ struct iim_regs {
 };
 
 struct fuse_bank0_regs {
-	u32	fuse0_23[24];
+	u32	fuse0_7[8];
+	u32	uid[8];
+	u32	fuse16_23[8];
+#if defined(CONFIG_MX51)
+	u32	imei[8];
+#elif defined(CONFIG_MX53)
 	u32	gp[8];
+#endif
 };
 
 struct fuse_bank1_regs {
@@ -527,6 +533,14 @@ struct fuse_bank1_regs {
 	u32	mac_addr[6];
 	u32	fuse15_31[0x11];
 };
+
+#if defined(CONFIG_MX53)
+struct fuse_bank4_regs {
+	u32	fuse0_4[5];
+	u32	gp[3];
+	u32	fuse8_31[0x18];
+};
+#endif
 
 #endif /* __ASSEMBLER__*/
 

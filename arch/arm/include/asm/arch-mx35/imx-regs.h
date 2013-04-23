@@ -274,6 +274,18 @@ struct iim_regs {
 	} bank[3];
 };
 
+struct fuse_bank0_regs {
+	u32 fuse0_7[8];
+	u32 uid[8];
+	u32 fuse16_31[0x10];
+};
+
+struct fuse_bank1_regs {
+	u32 fuse0_21[0x16];
+	u32 usr;
+	u32 fuse23_31[9];
+};
+
 /* General Purpose Timer (GPT) registers */
 struct gpt_regs {
 	u32 ctrl;	/* control */

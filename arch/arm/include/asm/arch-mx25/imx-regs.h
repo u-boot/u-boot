@@ -126,8 +126,17 @@ struct iim_regs {
 };
 
 struct fuse_bank0_regs {
-	u32 fuse0_25[0x1a];
+	u32 fuse0_7[8];
+	u32 uid[8];
+	u32 fuse16_25[0xa];
 	u32 mac_addr[6];
+};
+
+struct fuse_bank1_regs {
+	u32 fuse0_21[0x16];
+	u32 usr5;
+	u32 fuse23_29[7];
+	u32 usr6[2];
 };
 
 /* Multi-Layer AHB Crossbar Switch (MAX) registers */

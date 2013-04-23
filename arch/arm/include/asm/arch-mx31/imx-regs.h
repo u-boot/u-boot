@@ -92,6 +92,18 @@ struct iim_regs {
 	} bank[3];
 };
 
+struct fuse_bank0_regs {
+	u32 fuse0_5[6];
+	u32 usr;
+	u32 fuse7_15[9];
+};
+
+struct fuse_bank2_regs {
+	u32 fuse0;
+	u32 uid[8];
+	u32 fuse9_15[7];
+};
+
 struct iomuxc_regs {
 	u32 unused1;
 	u32 unused2;
