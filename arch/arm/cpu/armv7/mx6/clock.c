@@ -37,6 +37,20 @@ enum pll_clocks {
 
 struct mxc_ccm_reg *imx_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
 
+#ifdef CONFIG_MXC_OCOTP
+void enable_ocotp_clk(unsigned char enable)
+{
+	u32 reg;
+
+	reg = __raw_readl(&imx_ccm->CCGR2);
+	if (enable)
+		reg |= MXC_CCM_CCGR2_OCOTP_CTRL_MASK;
+	else
+		reg &= ~MXC_CCM_CCGR2_OCOTP_CTRL_MASK;
+	__raw_writel(reg, &imx_ccm->CCGR2);
+}
+#endif
+
 void enable_usboh3_clk(unsigned char enable)
 {
 	u32 reg;
