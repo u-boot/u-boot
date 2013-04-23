@@ -844,6 +844,7 @@ The following options need to be configured:
 		CONFIG_CMD_FDOS		* Dos diskette Support
 		CONFIG_CMD_FLASH	  flinfo, erase, protect
 		CONFIG_CMD_FPGA		  FPGA device initialization support
+		CONFIG_CMD_FUSE		  Device fuse support
 		CONFIG_CMD_GETTIME	* Get time since boot
 		CONFIG_CMD_GO		* the 'go' command (exec code)
 		CONFIG_CMD_GREPENV	* search environment

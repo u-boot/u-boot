@@ -111,6 +111,7 @@ ifdef CONFIG_FPGA
 COBJS-$(CONFIG_CMD_FPGA) += cmd_fpga.o
 endif
 COBJS-$(CONFIG_CMD_FS_GENERIC) += cmd_fs.o
+COBJS-$(CONFIG_CMD_FUSE) += cmd_fuse.o
 COBJS-$(CONFIG_CMD_GETTIME) += cmd_gettime.o
 COBJS-$(CONFIG_CMD_GPIO) += cmd_gpio.o
 COBJS-$(CONFIG_CMD_I2C) += cmd_i2c.o
