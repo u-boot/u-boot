@@ -23,9 +23,9 @@
 #ifndef _ASM_ARCH_HARDWARE_H
 #define _ASM_ARCH_HARDWARE_H
 
-#define XPSS_SYS_CTRL_BASEADDR		0xF8000000
-#define XPSS_DEV_CFG_APB_BASEADDR	0xF8007000
-#define XPSS_SCU_BASEADDR		0xF8F00000
+#define ZYNQ_SYS_CTRL_BASEADDR		0xF8000000
+#define ZYNQ_DEV_CFG_APB_BASEADDR	0xF8007000
+#define ZYNQ_SCU_BASEADDR		0xF8F00000
 
 /* Reflect slcr offsets */
 struct slcr_regs {
@@ -60,7 +60,7 @@ struct slcr_regs {
 	u32 ocm_cfg; /* 0x910 */
 };
 
-#define slcr_base ((struct slcr_regs *) XPSS_SYS_CTRL_BASEADDR)
+#define slcr_base ((struct slcr_regs *)ZYNQ_SYS_CTRL_BASEADDR)
 
 struct devcfg_regs {
 	u32 ctrl; /* 0x0 */
@@ -83,7 +83,7 @@ struct devcfg_regs {
 	u32 read_count; /* 0x8c */
 };
 
-#define devcfg_base ((struct devcfg_regs *) XPSS_DEV_CFG_APB_BASEADDR)
+#define devcfg_base ((struct devcfg_regs *)ZYNQ_DEV_CFG_APB_BASEADDR)
 
 struct scu_regs {
 	u32 reserved1[16];
@@ -91,6 +91,6 @@ struct scu_regs {
 	u32 filter_end; /* 0x44 */
 };
 
-#define scu_base ((struct scu_regs *) XPSS_SCU_BASEADDR)
+#define scu_base ((struct scu_regs *)ZYNQ_SCU_BASEADDR)
 
 #endif /* _ASM_ARCH_HARDWARE_H */
