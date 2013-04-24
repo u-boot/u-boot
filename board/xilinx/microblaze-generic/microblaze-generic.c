@@ -31,12 +31,17 @@
 #include <asm/processor.h>
 #include <asm/microblaze_intc.h>
 #include <asm/asm.h>
+#include <asm/gpio.h>
+
+#ifdef CONFIG_XILINX_GPIO
+static int reset_pin = -1;
+#endif
 
 int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-#ifdef CONFIG_SYS_GPIO_0
-	*((unsigned long *)(CONFIG_SYS_GPIO_0_ADDR)) =
-	    ++(*((unsigned long *)(CONFIG_SYS_GPIO_0_ADDR)));
+#ifdef CONFIG_XILINX_GPIO
+	if (reset_pin != -1)
+		gpio_direction_output(reset_pin, 1);
 #endif
 
 #ifdef CONFIG_XILINX_TB_WATCHDOG
@@ -52,8 +57,10 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 int gpio_init (void)
 {
-#ifdef CONFIG_SYS_GPIO_0
-	*((unsigned long *)(CONFIG_SYS_GPIO_0_ADDR)) = 0xFFFFFFFF;
+#ifdef CONFIG_XILINX_GPIO
+	reset_pin = gpio_alloc(CONFIG_SYS_GPIO_0_ADDR, "reset", 1);
+	if (reset_pin != -1)
+		gpio_request(reset_pin, "reset_pin");
 #endif
 	return 0;
 }
