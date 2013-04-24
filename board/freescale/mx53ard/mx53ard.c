@@ -62,8 +62,6 @@ void dram_init_banksize(void)
 static void setup_iomux_nand(void)
 {
 	u32 i, reg;
-	#define M4IF_GENP_WEIM_MM_MASK		0x00000001
-	#define WEIM_GCR2_MUX16_BYP_GRANT_MASK	0x00001000
 
 	reg = __raw_readl(M4IF_BASE_ADDR + 0xc);
 	reg &= ~M4IF_GENP_WEIM_MM_MASK;

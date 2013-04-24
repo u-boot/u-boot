@@ -267,6 +267,8 @@
 /* M4IF */
 #define M4IF_FBPM0	0x40
 #define M4IF_FIDBP	0x48
+#define M4IF_GENP_WEIM_MM_MASK		0x00000001
+#define WEIM_GCR2_MUX16_BYP_GRANT_MASK	0x00001000
 
 /* Assuming 24MHz input clock with doubler ON */
 /*                            MFI         PDF */
