@@ -37,7 +37,13 @@ ENTRY(lowlevel_init)
 	 */
 	ldr	sp, =CONFIG_SYS_INIT_SP_ADDR
 	bic	sp, sp, #7 /* 8-byte alignment for ABI compliance */
-
+#ifdef CONFIG_SPL_BUILD
+	ldr	r8, =gdata
+#else
+	sub	sp, #GD_SIZE
+	bic	sp, sp, #7
+	mov	r8, sp
+#endif
 	/*
 	 * Save the old lr(passed in ip) and the current lr to stack
 	 */

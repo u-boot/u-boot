@@ -25,6 +25,8 @@
 #ifndef	_OMAP_COMMON_H_
 #define	_OMAP_COMMON_H_
 
+#ifndef __ASSEMBLY__
+
 #include <common.h>
 
 #define NUM_SYS_CLKS	8
@@ -558,6 +560,7 @@ static inline u32 omap_revision(void)
 	extern u32 *const omap_si_rev;
 	return *omap_si_rev;
 }
+#endif
 
 /*
  * silicon revisions.

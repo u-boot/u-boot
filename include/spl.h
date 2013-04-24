@@ -44,7 +44,6 @@ struct spl_image_info {
 #define SPL_COPY_PAYLOAD_ONLY	1
 
 extern struct spl_image_info spl_image;
-extern u32 *boot_params_ptr;
 
 /* SPL common functions */
 void preloader_console_init(void);

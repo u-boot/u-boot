@@ -17,6 +17,7 @@
 #define __CONFIG_AM335X_EVM_H
 
 #define CONFIG_AM33XX
+#define CONFIG_OMAP
 
 #include <asm/arch/omap.h>
 

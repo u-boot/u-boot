@@ -20,6 +20,7 @@
 #define __CONFIG_PCM051_H
 
 #define CONFIG_AM33XX
+#define CONFIG_OMAP
 
 #include <asm/arch/omap.h>
 
