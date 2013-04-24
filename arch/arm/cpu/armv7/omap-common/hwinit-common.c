@@ -147,6 +147,17 @@ static void save_omap_boot_params(void)
 	}
 }
 
+#ifdef CONFIG_ARCH_CPU_INIT
+/*
+ * SOC specific cpu init
+ */
+int arch_cpu_init(void)
+{
+	save_omap_boot_params();
+	return 0;
+}
+#endif /* CONFIG_ARCH_CPU_INIT */
+
 /*
  * Routine: s_init
  * Description: Does early system init of watchdog, muxing,  andclocks

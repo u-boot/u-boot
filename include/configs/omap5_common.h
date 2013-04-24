@@ -86,6 +86,9 @@
 
 #define CONFIG_BAUDRATE			115200
 
+/* CPU */
+#define CONFIG_ARCH_CPU_INIT
+
 /* I2C  */
 #define CONFIG_HARD_I2C
 #define CONFIG_SYS_I2C_SPEED		100000
