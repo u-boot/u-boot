@@ -32,8 +32,8 @@
 
 #ifndef CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS
 #define print_timing_reg(reg) debug(#reg" - 0x%08x\n", (reg))
-static u32 *const T_num = (u32 *)OMAP5_SRAM_SCRATCH_EMIF_T_NUM;
-static u32 *const T_den = (u32 *)OMAP5_SRAM_SCRATCH_EMIF_T_DEN;
+static u32 *const T_num = (u32 *)OMAP_SRAM_SCRATCH_EMIF_T_NUM;
+static u32 *const T_den = (u32 *)OMAP_SRAM_SCRATCH_EMIF_T_DEN;
 #endif
 
 #ifdef CONFIG_SYS_DEFAULT_LPDDR2_TIMINGS

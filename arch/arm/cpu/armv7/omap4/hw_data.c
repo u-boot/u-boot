@@ -40,7 +40,7 @@ struct dplls const **dplls_data =
 struct vcores_data const **omap_vcores =
 		(struct vcores_data const **) OMAP_SRAM_SCRATCH_VCORES_PTR;
 struct omap_sys_ctrl_regs const **ctrl =
-	(struct omap_sys_ctrl_regs const **)OMAP4_SRAM_SCRATCH_SYS_CTRL;
+	(struct omap_sys_ctrl_regs const **)OMAP_SRAM_SCRATCH_SYS_CTRL;
 
 /*
  * The M & N values in the following tables are created using the

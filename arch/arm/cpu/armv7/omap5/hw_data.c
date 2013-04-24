@@ -41,7 +41,7 @@ struct dplls const **dplls_data =
 struct vcores_data const **omap_vcores =
 		(struct vcores_data const **) OMAP_SRAM_SCRATCH_VCORES_PTR;
 struct omap_sys_ctrl_regs const **ctrl =
-	(struct omap_sys_ctrl_regs const **)OMAP5_SRAM_SCRATCH_SYS_CTRL;
+	(struct omap_sys_ctrl_regs const **)OMAP_SRAM_SCRATCH_SYS_CTRL;
 
 /* OPP HIGH FREQUENCY for ES2.0 */
 static const struct dpll_params mpu_dpll_params_1_5ghz[NUM_SYS_CLKS] = {
