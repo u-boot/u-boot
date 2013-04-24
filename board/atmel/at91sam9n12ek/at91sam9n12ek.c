@@ -33,6 +33,7 @@
 #include <lcd.h>
 #include <atmel_hlcdc.h>
 #include <atmel_mci.h>
+#include <netdev.h>
 
 #ifdef CONFIG_LCD_INFO
 #include <nand.h>
@@ -190,6 +191,30 @@ int board_mmc_init(bd_t *bd)
 }
 #endif
 
+#ifdef CONFIG_KS8851_MLL
+void at91sam9n12ek_ks8851_hw_init(void)
+{
+	struct at91_smc *smc = (struct at91_smc *)ATMEL_BASE_SMC;
+
+	writel(AT91_SMC_SETUP_NWE(2) | AT91_SMC_SETUP_NCS_WR(0) |
+	       AT91_SMC_SETUP_NRD(1) | AT91_SMC_SETUP_NCS_RD(0),
+	       &smc->cs[2].setup);
+	writel(AT91_SMC_PULSE_NWE(7) | AT91_SMC_PULSE_NCS_WR(7) |
+	       AT91_SMC_PULSE_NRD(7) | AT91_SMC_PULSE_NCS_RD(7),
+	       &smc->cs[2].pulse);
+	writel(AT91_SMC_CYCLE_NWE(9) | AT91_SMC_CYCLE_NRD(9),
+	       &smc->cs[2].cycle);
+	writel(AT91_SMC_MODE_RM_NRD | AT91_SMC_MODE_WM_NWE |
+	       AT91_SMC_MODE_EXNW_DISABLE |
+	       AT91_SMC_MODE_BAT | AT91_SMC_MODE_DBW_16 |
+	       AT91_SMC_MODE_TDF_CYCLE(1),
+	       &smc->cs[2].mode);
+
+	/* Configure NCS2 PIN */
+	at91_set_b_periph(AT91_PIO_PORTD, 19, 0);
+}
+#endif
+
 int board_early_init_f(void)
 {
 	/* Enable clocks for all PIOs */
@@ -217,8 +242,19 @@ int board_init(void)
 	at91_lcd_hw_init();
 #endif
 
+#ifdef CONFIG_KS8851_MLL
+	at91sam9n12ek_ks8851_hw_init();
+#endif
+
 	return 0;
 }
+
+#ifdef CONFIG_KS8851_MLL
+int board_eth_init(bd_t *bis)
+{
+	return ks8851_mll_initialize(0, CONFIG_KS8851_MLL_BASEADDR);
+}
+#endif
 
 int dram_init(void)
 {
