@@ -119,6 +119,11 @@
 
 #undef ET_DEBUG
 
+/* gpio */
+#ifdef XILINX_GPIO_BASEADDR
+# define CONFIG_XILINX_GPIO
+# define CONFIG_SYS_GPIO_0_ADDR		XILINX_GPIO_BASEADDR
+#endif
 
 /* interrupt controller */
 #ifdef XILINX_INTC_BASEADDR
@@ -242,6 +247,7 @@
 /* FIXME: hack for zynq */
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_ECHO
+#define CONFIG_CMD_GPIO
 
 #undef CONFIG_CMD_NFS
 #undef CONFIG_CMD_JFFS2
