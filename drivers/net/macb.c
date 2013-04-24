@@ -103,6 +103,7 @@ struct macb_device {
 	const struct device	*dev;
 	struct eth_device	netdev;
 	unsigned short		phy_addr;
+	struct mii_dev		*bus;
 };
 #define to_macb(_nd) container_of(_nd, struct macb_device, netdev)
 
@@ -168,7 +169,7 @@ void __weak arch_get_mdio_control(const char *name)
 	return;
 }
 
-#if defined(CONFIG_CMD_MII)
+#if defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
 
 int macb_miiphy_read(const char *devname, u8 phy_adr, u8 reg, u16 *value)
 {
@@ -379,6 +380,9 @@ static int macb_phy_find(struct macb_device *macb)
 static int macb_phy_init(struct macb_device *macb)
 {
 	struct eth_device *netdev = &macb->netdev;
+#ifdef CONFIG_PHYLIB
+	struct phy_device *phydev;
+#endif
 	u32 ncfgr;
 	u16 phy_id, status, adv, lpa;
 	int media, speed, duplex;
@@ -398,6 +402,13 @@ static int macb_phy_init(struct macb_device *macb)
 		printf("%s: No PHY present\n", netdev->name);
 		return 0;
 	}
+
+#ifdef CONFIG_PHYLIB
+	phydev->bus = macb->bus;
+	phydev->dev = netdev;
+	phydev->addr = macb->phy_addr;
+	phy_config(phydev);
+#endif
 
 	status = macb_mdio_read(macb, MII_BMSR);
 	if (!(status & BMSR_LSTATUS)) {
@@ -582,8 +593,9 @@ int macb_eth_initialize(int id, void *regs, unsigned int phy_addr)
 
 	eth_register(netdev);
 
-#if defined(CONFIG_CMD_MII)
+#if defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
 	miiphy_register(netdev->name, macb_miiphy_read, macb_miiphy_write);
+	macb->bus = miiphy_get_dev_by_name(netdev->name);
 #endif
 	return 0;
 }
