@@ -34,30 +34,6 @@ static void spi_flash_addr(struct spi_flash *flash,
 	}
 }
 
-static int spi_flash_check_bankaddr_access(struct spi_flash *flash, u32 *offset)
-{
-	int ret;
-
-	if (*offset >= 0x1000000) {
-		ret = spi_flash_bankaddr_access(flash, STATUS_BANKADDR_ENABLE);
-		if (ret) {
-			debug("SF: fail to %s bank addr bit\n",
-				STATUS_BANKADDR_ENABLE ? "set" : "reset");
-			return ret;
-		}
-		*offset -= 0x1000000;
-	} else {
-		ret = spi_flash_bankaddr_access(flash, STATUS_BANKADDR_DISABLE);
-		if (ret) {
-			debug("SF: fail to %s bank addr bit\n",
-				STATUS_BANKADDR_DISABLE ? "set" : "reset");
-			return ret;
-		}
-	}
-
-	return ret;
-}
-
 static int spi_flash_read_write(struct spi_slave *spi,
 				const u8 *cmd, size_t cmd_len,
 				const u8 *data_out, u8 *data_in,
@@ -107,18 +83,11 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 	size_t chunk_len, actual;
 	int ret;
 	u8 cmd[flash->addr_width+1];
+	u32 start;
+	u8 bank_sel;
 
-	if ((flash->size > 0x1000000) && (flash->addr_width == 3)) {
-		ret = spi_flash_check_bankaddr_access(flash, &offset);
-		if (ret) {
-			debug("SF: fail to acess bank_addr\n");
-			return ret;
-		}
-	}
-
+	start = offset;
 	page_size = flash->page_size;
-	page_addr = offset / page_size;
-	byte_addr = offset % page_size;
 
 	ret = spi_claim_bus(flash->spi);
 	if (ret) {
@@ -128,6 +97,18 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 
 	cmd[0] = CMD_PAGE_PROGRAM;
 	for (actual = 0; actual < len; actual += chunk_len) {
+		bank_sel = offset / SPI_FLASH_16MB_BOUN;
+
+		ret = spi_flash_cmd_bankaddr_write(flash,
+					bank_sel, flash->idcode0);
+		if (ret) {
+			debug("SF: fail to set bank%d\n", bank_sel);
+			return ret;
+		}
+
+		page_addr = (offset & SPI_FLASH_16MB_MASK) / page_size;
+		byte_addr = (offset & SPI_FLASH_16MB_MASK) % page_size;
+
 		chunk_len = min(len - actual, page_size - byte_addr);
 
 		if (flash->spi->max_write_size)
@@ -156,15 +137,11 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 		if (ret)
 			break;
 
-		byte_addr += chunk_len;
-		if (byte_addr == page_size) {
-			page_addr++;
-			byte_addr = 0;
-		}
+		offset += chunk_len;
 	}
 
 	printf("SF: program %s %zu bytes @ %#x\n",
-	      ret ? "failure" : "success", len, offset);
+	      ret ? "failure" : "success", len, start);
 
 	spi_release_bus(flash->spi);
 	return ret;
@@ -186,33 +163,54 @@ int spi_flash_read_common(struct spi_flash *flash, const u8 *cmd,
 int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 		size_t len, void *data)
 {
-	unsigned long page_addr;
-	unsigned long page_size;
-	unsigned long byte_addr;
+	unsigned long page_addr, page_size, byte_addr;
 	u8 cmd[flash->addr_width+2];
-	int ret;
-
-	if ((flash->size > 0x1000000) && (flash->addr_width == 3)) {
-		ret = spi_flash_check_bankaddr_access(flash, &offset);
-		if (ret) {
-			debug("SF: fail to acess bank_addr\n");
-			return ret;
-		}
-	}
-
-	page_size = flash->page_size;
-	page_addr = offset / page_size;
-	byte_addr = offset % page_size;
+	u8 bank_sel;
+	u32 remain_len, read_len;
+	int ret = -1;
 
 	/* Handle memory-mapped SPI */
 	if (flash->memory_map)
 		memcpy(data, flash->memory_map + offset, len);
 
+	page_size = flash->page_size;
 	cmd[0] = CMD_READ_ARRAY_FAST;
-	spi_flash_addr(flash, page_addr, byte_addr, cmd);
 	cmd[sizeof(cmd)-1] = 0x00;
 
-	return spi_flash_read_common(flash, cmd, sizeof(cmd), data, len);
+	while (len) {
+		bank_sel = offset / SPI_FLASH_16MB_BOUN;
+		remain_len = (SPI_FLASH_16MB_BOUN * (bank_sel + 1) - offset);
+
+		ret = spi_flash_cmd_bankaddr_write(flash,
+					bank_sel, flash->idcode0);
+		if (ret) {
+			debug("SF: fail to set bank%d\n", bank_sel);
+			return ret;
+		}
+
+		if (len < remain_len)
+			read_len = len;
+		else
+			read_len = remain_len;
+
+		page_addr = (offset & SPI_FLASH_16MB_MASK) / page_size;
+		byte_addr = (offset & SPI_FLASH_16MB_MASK) % page_size;
+
+		spi_flash_addr(flash, page_addr, byte_addr, cmd);
+
+		ret = spi_flash_read_common(flash, cmd, sizeof(cmd),
+							data, read_len);
+		if (ret < 0) {
+			debug("SF: read failed\n");
+			break;
+		}
+
+		offset += read_len;
+		len -= read_len;
+		data += read_len;
+	}
+
+	return ret;
 }
 
 int spi_flash_cmd_poll_bit(struct spi_flash *flash, unsigned long timeout,
@@ -264,14 +262,7 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 	int ret;
 	unsigned long page_addr;
 	u8 cmd[flash->addr_width+1];
-
-	if ((flash->size > 0x1000000) && (flash->addr_width == 3)) {
-		ret = spi_flash_check_bankaddr_access(flash, &offset);
-		if (ret) {
-			debug("SF: fail to acess bank_addr\n");
-			return ret;
-		}
-	}
+	u8 bank_sel;
 
 	erase_size = flash->sector_size;
 	if (offset % erase_size || len % erase_size) {
@@ -293,9 +284,17 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 	end = start + len;
 
 	while (offset < end) {
-		page_addr = offset / flash->page_size;
+		bank_sel = offset / SPI_FLASH_16MB_BOUN;
+
+		ret = spi_flash_cmd_bankaddr_write(flash,
+					bank_sel, flash->idcode0);
+		if (ret) {
+			debug("SF: fail to set bank%d\n", bank_sel);
+			return ret;
+		}
+
+		page_addr = (offset & SPI_FLASH_16MB_MASK) / flash->page_size;
 		spi_flash_addr(flash, page_addr, 0, cmd);
-		offset += erase_size;
 
 		debug("SF: erase %2x %2x %2x %2x %2x (%x)\n", cmd[0], cmd[1],
 			cmd[2], cmd[3], cmd[4], offset);
@@ -311,6 +310,8 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 		ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PAGE_ERASE_TIMEOUT);
 		if (ret)
 			goto out;
+
+		offset += erase_size;
 	}
 
 	printf("SF: Successfully erased %zu bytes @ %#x\n", len, start);
@@ -347,22 +348,21 @@ int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr)
 	return 0;
 }
 
-int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 ear)
+int spi_flash_cmd_bankaddr_write(struct spi_flash *flash,
+			u8 bank_sel, u8 idcode0)
 {
 	u8 cmd;
-	u8 idcode0;
 	int ret;
 
-	ret = spi_flash_cmd(flash->spi, CMD_READ_ID, &idcode0, 1);
-	if (ret) {
-		debug("SF: fail to read read id\n");
-		return ret;
+	if (flash->bank_curr == bank_sel) {
+		debug("SF: not require to enable bank%d\n", bank_sel);
+		return 0;
 	}
 
 	if (idcode0 == 0x01) {
 		cmd = CMD_BANKADDR_BRWR;
 	} else if ((idcode0 == 0xef) || (idcode0 == 0x20)) {
-		cmd = CMD_EXT_WREAR;
+		cmd = CMD_EXTNADDR_WREAR;
 	} else {
 		printf("SF: unable to support extended addr reg write"
 						" for %s flash\n", flash->name);
@@ -375,11 +375,12 @@ int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 ear)
 		return ret;
 	}
 
-	ret = spi_flash_cmd_write(flash->spi, &cmd, 1, &ear, 1);
+	ret = spi_flash_cmd_write(flash->spi, &cmd, 1, &bank_sel, 1);
 	if (ret) {
 		debug("SF: fail to write bank addr register\n");
 		return ret;
 	}
+	flash->bank_curr = bank_sel;
 
 	ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
 	if (ret < 0) {
@@ -390,22 +391,14 @@ int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 ear)
 	return 0;
 }
 
-int spi_flash_cmd_bankaddr_read(struct spi_flash *flash, void *data)
+int spi_flash_cmd_bankaddr_read(struct spi_flash *flash, void *data, u8 idcode0)
 {
 	u8 cmd;
-	u8 idcode0;
-	int ret;
-
-	ret = spi_flash_cmd(flash->spi, CMD_READ_ID, &idcode0, 1);
-	if (ret) {
-		debug("SF: fail to read read id\n");
-		return ret;
-	}
 
 	if (idcode0 == 0x01) {
 		cmd = CMD_BANKADDR_BRRD;
 	} else if ((idcode0 == 0xef) || (idcode0 == 0x20)) {
-		cmd = CMD_EXT_RDEAR;
+		cmd = CMD_EXTNADDR_RDEAR;
 	} else {
 		printf("SF: unable to support extended addr reg read"
 			" for %s flash\n", flash->name);
@@ -413,38 +406,6 @@ int spi_flash_cmd_bankaddr_read(struct spi_flash *flash, void *data)
 	}
 
 	return spi_flash_read_common(flash, &cmd, 1, data, 1);
-}
-
-int spi_flash_bankaddr_access(struct spi_flash *flash, u8 status)
-{
-	int ret, pass;
-	u8 data = 0, write_done = 0;
-
-	for (pass = 0; pass < 2; pass++) {
-		ret = spi_flash_cmd_bankaddr_read(flash, (void *)&data);
-		if (ret < 0) {
-			debug("SF: fail to read bank addr register\n");
-			return ret;
-		}
-
-		if ((data != status) & !write_done) {
-			debug("SF: need to %s bank addr bit\n",
-						status ? "set" : "reset");
-
-			write_done = 1;
-			ret = spi_flash_cmd_bankaddr_write(flash, status);
-			if (ret < 0) {
-				debug("SF: fail to write bank addr bit\n");
-				return ret;
-			}
-		} else {
-			debug("SF: bank addr bit is %s.\n",
-						status ? "set" : "reset");
-			return ret;
-		}
-	}
-
-	return -1;
 }
 
 #ifdef CONFIG_OF_CONTROL
@@ -548,6 +509,7 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 	struct spi_flash *flash = NULL;
 	int ret, i, shift;
 	u8 idcode[IDCODE_LEN], *idp;
+	u8 curr_bank = 0;
 
 	spi = spi_setup_slave(bus, cs, max_hz, spi_mode);
 	if (!spi) {
@@ -603,6 +565,19 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 	if (flash->memory_map)
 		printf(", mapped at %p", flash->memory_map);
 	puts("\n");
+
+	flash->idcode0 = *idp;
+	if ((flash->spi->is_dual == 0) &&
+	    (flash->size > SPI_FLASH_16MB_BOUN)) {
+		if (spi_flash_cmd_bankaddr_read(flash, &curr_bank,
+						flash->idcode0)) {
+			debug("SF: fail to read bank addr register\n");
+			goto err_manufacturer_probe;
+		}
+		flash->bank_curr = curr_bank;
+	} else {
+		flash->bank_curr = curr_bank;
+	}
 
 	spi_release_bus(spi);
 

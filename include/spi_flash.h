@@ -40,6 +40,10 @@ struct spi_flash {
 	u32		sector_size;
 	/* To find whether single/dual spi device */
 	u8		addr_width;
+	/* ID code0 */
+	u8              idcode0;
+	/* Current bank */
+	u8              bank_curr;
 
 	void *memory_map;	/* Address of read-only SPI flash access */
 	int		(*read)(struct spi_flash *flash, u32 offset,

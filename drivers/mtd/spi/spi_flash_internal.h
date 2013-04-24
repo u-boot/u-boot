@@ -12,6 +12,9 @@
 #define SPI_FLASH_PAGE_ERASE_TIMEOUT	(5 * CONFIG_SYS_HZ)
 #define SPI_FLASH_SECTOR_ERASE_TIMEOUT	(10 * CONFIG_SYS_HZ)
 
+#define SPI_FLASH_16MB_BOUN		0x1000000
+#define SPI_FLASH_16MB_MASK		0xFFFFFF
+
 /* Common commands */
 #define CMD_READ_ID			0x9f
 
@@ -31,13 +34,11 @@
 /* Bank addr acess commands */
 #define CMD_BANKADDR_BRWR		0x17
 #define CMD_BANKADDR_BRRD		0x16
-#define CMD_EXT_WREAR			0xC5
-#define CMD_EXT_RDEAR			0xC8
+#define CMD_EXTNADDR_WREAR		0xC5
+#define CMD_EXTNADDR_RDEAR		0xC8
 
 /* Common status */
 #define STATUS_WIP			0x01
-#define STATUS_BANKADDR_ENABLE		0x01
-#define STATUS_BANKADDR_DISABLE	0x00
 
 /* Send a single-byte command to the device and read the response */
 int spi_flash_cmd(struct spi_slave *spi, u8 cmd, void *response, size_t len);
@@ -86,17 +87,12 @@ static inline int spi_flash_cmd_write_disable(struct spi_flash *flash)
 int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr);
 
 /* Program the bank address register */
-int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 ear);
+int spi_flash_cmd_bankaddr_write(struct spi_flash *flash,
+					u8 bank_sel, u8 idcode0);
 
 /* Read the bank address register */
-int spi_flash_cmd_bankaddr_read(struct spi_flash *flash, void *data);
-
-/*
- * Bank address access
- * access 4th byte address in 3-byte addessing mode for flashes
- * which has an actual size of > 16MB.
- */
-int spi_flash_bankaddr_access(struct spi_flash *flash, u8 status);
+int spi_flash_cmd_bankaddr_read(struct spi_flash *flash,
+					void *data, u8 idcode0);
 
 /*
  * Same as spi_flash_cmd_read() except it also claims/releases the SPI
