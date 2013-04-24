@@ -105,19 +105,22 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
 	int ret;
 
 	dev = hub->pusb_dev;
-	/* Enable power to the ports */
+
+	/*
+	 * Enable power to the ports:
+	 * Here we Power-cycle the ports: aka,
+	 * turning them off and turning on again.
+	 */
 	debug("enabling power on all ports\n");
 	for (i = 0; i < dev->maxchild; i++) {
-		/*
-		 * Power-cycle the ports here: aka,
-		 * turning them off and turning on again.
-		 */
 		usb_clear_port_feature(dev, i + 1, USB_PORT_FEAT_POWER);
 		debug("port %d returns %lX\n", i + 1, dev->status);
+	}
 
-		/* Wait at least 2*bPwrOn2PwrGood for PP to change */
-		mdelay(pgood_delay);
+	/* Wait at least 2*bPwrOn2PwrGood for PP to change */
+	mdelay(pgood_delay);
 
+	for (i = 0; i < dev->maxchild; i++) {
 		ret = usb_get_port_status(dev, i + 1, portsts);
 		if (ret < 0) {
 			debug("port %d: get_port_status failed\n", i + 1);
@@ -138,7 +141,9 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
 			debug("port %d: Port power change failed\n", i + 1);
 			return;
 		}
+	}
 
+	for (i = 0; i < dev->maxchild; i++) {
 		usb_set_port_feature(dev, i + 1, USB_PORT_FEAT_POWER);
 		debug("port %d returns %lX\n", i + 1, dev->status);
 	}
