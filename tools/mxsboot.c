@@ -551,7 +551,7 @@ static int mx28_create_sd_image(int infd, int outfd)
 
 	fsize = lseek(infd, 0, SEEK_END);
 	lseek(infd, 0, SEEK_SET);
-	size = fsize + 512;
+	size = fsize + 4 * 512;
 
 	buf = malloc(size);
 	if (!buf) {
@@ -559,7 +559,7 @@ static int mx28_create_sd_image(int infd, int outfd)
 		goto err0;
 	}
 
-	ret = read(infd, (uint8_t *)buf + 512, fsize);
+	ret = read(infd, (uint8_t *)buf + 4 * 512, fsize);
 	if (ret != fsize) {
 		ret = -1;
 		goto err1;
@@ -574,8 +574,8 @@ static int mx28_create_sd_image(int infd, int outfd)
 	cb->drv_info[0].chip_num = 0x0;
 	cb->drv_info[0].drive_type = 0x0;
 	cb->drv_info[0].tag = 0x1;
-	cb->drv_info[0].first_sector_number = sd_sector + 1;
-	cb->drv_info[0].sector_count = (size - 1) / 512;
+	cb->drv_info[0].first_sector_number = sd_sector + 4;
+	cb->drv_info[0].sector_count = (size - 4) / 512;
 
 	wr_size = write(outfd, buf, size);
 	if (wr_size != size) {
