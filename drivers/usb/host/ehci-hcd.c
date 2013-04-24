@@ -603,16 +603,6 @@ fail:
 	return -1;
 }
 
-static inline int min3(int a, int b, int c)
-{
-
-	if (b < a)
-		a = b;
-	if (c < a)
-		a = c;
-	return a;
-}
-
 int
 ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 		 int length, struct devrequest *req)
