@@ -107,6 +107,11 @@ struct macb_device {
 };
 #define to_macb(_nd) container_of(_nd, struct macb_device, netdev)
 
+static int macb_is_gem(struct macb_device *macb)
+{
+	return MACB_BFEXT(IDNUM, macb_readl(macb, MID)) == 0x2;
+}
+
 static void macb_mdio_write(struct macb_device *macb, u8 reg, u16 value)
 {
 	unsigned long netctl;
@@ -427,28 +432,64 @@ static int macb_phy_init(struct macb_device *macb)
 		printf("%s: link down (status: 0x%04x)\n",
 		       netdev->name, status);
 		return 0;
-	} else {
-		adv = macb_mdio_read(macb, MII_ADVERTISE);
-		lpa = macb_mdio_read(macb, MII_LPA);
-		media = mii_nway_result(lpa & adv);
-		speed = (media & (ADVERTISE_100FULL | ADVERTISE_100HALF)
-			 ? 1 : 0);
-		duplex = (media & ADVERTISE_FULL) ? 1 : 0;
-		printf("%s: link up, %sMbps %s-duplex (lpa: 0x%04x)\n",
-		       netdev->name,
-		       speed ? "100" : "10",
-		       duplex ? "full" : "half",
-		       lpa);
-
-		ncfgr = macb_readl(macb, NCFGR);
-		ncfgr &= ~(MACB_BIT(SPD) | MACB_BIT(FD));
-		if (speed)
-			ncfgr |= MACB_BIT(SPD);
-		if (duplex)
-			ncfgr |= MACB_BIT(FD);
-		macb_writel(macb, NCFGR, ncfgr);
-		return 1;
 	}
+
+	/* First check for GMAC */
+	if (macb_is_gem(macb)) {
+		lpa = macb_mdio_read(macb, MII_STAT1000);
+		if (lpa & (1 << 11)) {
+			speed = 1000;
+			duplex = 1;
+		} else {
+		       if (lpa & (1 << 10)) {
+				speed = 1000;
+				duplex = 1;
+			} else {
+				speed = 0;
+			}
+		}
+
+		if (speed == 1000) {
+			printf("%s: link up, %dMbps %s-duplex (lpa: 0x%04x)\n",
+			       netdev->name,
+			       speed,
+			       duplex ? "full" : "half",
+			       lpa);
+
+			ncfgr = macb_readl(macb, NCFGR);
+			ncfgr &= ~(GEM_BIT(GBE) | MACB_BIT(SPD) | MACB_BIT(FD));
+			if (speed)
+				ncfgr |= GEM_BIT(GBE);
+			if (duplex)
+				ncfgr |= MACB_BIT(FD);
+			macb_writel(macb, NCFGR, ncfgr);
+
+			return 1;
+		}
+	}
+
+	/* fall back for EMAC checking */
+	adv = macb_mdio_read(macb, MII_ADVERTISE);
+	lpa = macb_mdio_read(macb, MII_LPA);
+	media = mii_nway_result(lpa & adv);
+	speed = (media & (ADVERTISE_100FULL | ADVERTISE_100HALF)
+		 ? 1 : 0);
+	duplex = (media & ADVERTISE_FULL) ? 1 : 0;
+	printf("%s: link up, %sMbps %s-duplex (lpa: 0x%04x)\n",
+	       netdev->name,
+	       speed ? "100" : "10",
+	       duplex ? "full" : "half",
+	       lpa);
+
+	ncfgr = macb_readl(macb, NCFGR);
+	ncfgr &= ~(MACB_BIT(SPD) | MACB_BIT(FD));
+	if (speed)
+		ncfgr |= MACB_BIT(SPD);
+	if (duplex)
+		ncfgr |= MACB_BIT(FD);
+	macb_writel(macb, NCFGR, ncfgr);
+
+	return 1;
 }
 
 static int macb_init(struct eth_device *netdev, bd_t *bd)
@@ -483,6 +524,13 @@ static int macb_init(struct eth_device *netdev, bd_t *bd)
 	macb_writel(macb, RBQP, macb->rx_ring_dma);
 	macb_writel(macb, TBQP, macb->tx_ring_dma);
 
+	if (macb_is_gem(macb)) {
+#ifdef CONFIG_RGMII
+		gem_writel(macb, UR, GEM_BIT(RGMII));
+#else
+		gem_writel(macb, UR, 0);
+#endif
+	} else {
 	/* choose RMII or MII mode. This depends on the board */
 #ifdef CONFIG_RMII
 #ifdef CONFIG_AT91FAMILY
@@ -497,6 +545,7 @@ static int macb_init(struct eth_device *netdev, bd_t *bd)
 	macb_writel(macb, USRIO, MACB_BIT(MII));
 #endif
 #endif /* CONFIG_RMII */
+	}
 
 	if (!macb_phy_init(macb))
 		return -1;
@@ -540,11 +589,48 @@ static int macb_write_hwaddr(struct eth_device *dev)
 	return 0;
 }
 
+static u32 macb_mdc_clk_div(int id, struct macb_device *macb)
+{
+	u32 config;
+	unsigned long macb_hz = get_macb_pclk_rate(id);
+
+	if (macb_hz < 20000000)
+		config = MACB_BF(CLK, MACB_CLK_DIV8);
+	else if (macb_hz < 40000000)
+		config = MACB_BF(CLK, MACB_CLK_DIV16);
+	else if (macb_hz < 80000000)
+		config = MACB_BF(CLK, MACB_CLK_DIV32);
+	else
+		config = MACB_BF(CLK, MACB_CLK_DIV64);
+
+	return config;
+}
+
+static u32 gem_mdc_clk_div(int id, struct macb_device *macb)
+{
+	u32 config;
+	unsigned long macb_hz = get_macb_pclk_rate(id);
+
+	if (macb_hz < 20000000)
+		config = GEM_BF(CLK, GEM_CLK_DIV8);
+	else if (macb_hz < 40000000)
+		config = GEM_BF(CLK, GEM_CLK_DIV16);
+	else if (macb_hz < 80000000)
+		config = GEM_BF(CLK, GEM_CLK_DIV32);
+	else if (macb_hz < 120000000)
+		config = GEM_BF(CLK, GEM_CLK_DIV48);
+	else if (macb_hz < 160000000)
+		config = GEM_BF(CLK, GEM_CLK_DIV64);
+	else
+		config = GEM_BF(CLK, GEM_CLK_DIV96);
+
+	return config;
+}
+
 int macb_eth_initialize(int id, void *regs, unsigned int phy_addr)
 {
 	struct macb_device *macb;
 	struct eth_device *netdev;
-	unsigned long macb_hz;
 	u32 ncfgr;
 
 	macb = malloc(sizeof(struct macb_device));
@@ -568,7 +654,11 @@ int macb_eth_initialize(int id, void *regs, unsigned int phy_addr)
 	macb->regs = regs;
 	macb->phy_addr = phy_addr;
 
-	sprintf(netdev->name, "macb%d", id);
+	if (macb_is_gem(macb))
+		sprintf(netdev->name, "gmac%d", id);
+	else
+		sprintf(netdev->name, "macb%d", id);
+
 	netdev->init = macb_init;
 	netdev->halt = macb_halt;
 	netdev->send = macb_send;
@@ -579,15 +669,12 @@ int macb_eth_initialize(int id, void *regs, unsigned int phy_addr)
 	 * Do some basic initialization so that we at least can talk
 	 * to the PHY
 	 */
-	macb_hz = get_macb_pclk_rate(id);
-	if (macb_hz < 20000000)
-		ncfgr = MACB_BF(CLK, MACB_CLK_DIV8);
-	else if (macb_hz < 40000000)
-		ncfgr = MACB_BF(CLK, MACB_CLK_DIV16);
-	else if (macb_hz < 80000000)
-		ncfgr = MACB_BF(CLK, MACB_CLK_DIV32);
-	else
-		ncfgr = MACB_BF(CLK, MACB_CLK_DIV64);
+	if (macb_is_gem(macb)) {
+		ncfgr = gem_mdc_clk_div(id, macb);
+		ncfgr |= GEM_BF(DBW, 1);
+	} else {
+		ncfgr = macb_mdc_clk_div(id, macb);
+	}
 
 	macb_writel(macb, NCFGR, ncfgr);
 
