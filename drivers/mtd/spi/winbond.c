@@ -106,14 +106,12 @@ struct spi_flash *spi_flash_probe_winbond(struct spi_slave *spi, u8 *idcode)
 	flash->page_size = 256;
 	flash->sector_size = 4096;
 
-	/* address width is 4 for dual and 3 for single qspi */
+	/* page_size and nr_blocks are double for dual parallel qspi */
 	if (flash->spi->is_dual == 1) {
-		flash->addr_width = 4;
+		flash->page_size *= 2;
 		flash->size = 4096 * 16 * (2 * params->nr_blocks);
-	} else {
-		flash->addr_width = 3;
+	} else
 		flash->size = 4096 * 16 * params->nr_blocks;
-	}
 
 	return flash;
 }
