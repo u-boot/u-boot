@@ -31,6 +31,9 @@ CONFIG_STANDALONE_LOAD_ADDR = 0xc100000
 endif
 endif
 
+LDFLAGS_FINAL += --gc-sections
+PLATFORM_RELFLAGS += -ffunction-sections -fdata-sections
+
 # Support generic board on ARM
 __HAVE_ARCH_GENERIC_BOARD := y
 
