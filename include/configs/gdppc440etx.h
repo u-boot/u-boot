@@ -145,7 +145,7 @@
 /*
  * I2C
  */
-#define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed+slave address*/
+#define CONFIG_SYS_I2C_PPC4XX_SPEED_0		400000
 
 /*
  * Default environment variables

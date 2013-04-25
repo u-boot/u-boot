@@ -209,7 +209,7 @@ int board_early_init_f (void)
 #endif
 
 	/* Read Serial Presence Detect Information */
-	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+	i2c_set_bus_num(0);
 	for (i = 0; i < 128; i++)
 		datain[i] = 127;
 	i2c_read(SPD_EEPROM_ADDRESS,0,1,datain,128);

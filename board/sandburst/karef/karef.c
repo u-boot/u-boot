@@ -337,11 +337,6 @@ int checkboard (void)
  ************************************************************************/
 int misc_init_f (void)
 {
-	/* Turn on i2c bus 1 */
-	puts ("I2C1:  ");
-	i2c1_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-	puts ("ready\n");
-
 	/* Turn on fans 3 & 4 */
 	sbcommon_fans();
 

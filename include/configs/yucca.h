@@ -120,13 +120,13 @@
 /*-----------------------------------------------------------------------
  * I2C
  *----------------------------------------------------------------------*/
-#define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed and slave address	*/
+#define CONFIG_SYS_I2C_PPC4XX_SPEED_0		400000
 
 #define IIC0_BOOTPROM_ADDR	0x50
 #define IIC0_ALT_BOOTPROM_ADDR	0x54
 
 /* Don't probe these addrs */
-#define CONFIG_SYS_I2C_NOPROBES	{0x50, 0x52, 0x53, 0x54}
+#define CONFIG_SYS_I2C_NOPROBES	{ {0, 0x50}, {0, 0x52}, {0, 0x53}, {0, 0x54} }
 
 /* #if defined(CONFIG_CMD_EEPROM) */
 /* #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50 */	/* I2C boot EEPROM		*/

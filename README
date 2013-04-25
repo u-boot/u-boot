@@ -1985,6 +1985,11 @@ CBFS (Coreboot Filesystem) support
 		 - This driver adds 4 i2c buses with a fix speed from
 		   100000 and the slave addr 0!
 
+		- drivers/i2c/ppc4xx_i2c.c
+		  - activate this driver with CONFIG_SYS_I2C_PPC4XX
+		  - CONFIG_SYS_I2C_PPC4XX_CH0 activate hardware channel 0
+		  - CONFIG_SYS_I2C_PPC4XX_CH1 activate hardware channel 1
+
 		additional defines:
 
 		CONFIG_SYS_NUM_I2C_BUSES

@@ -114,7 +114,7 @@
 /*
  * I2C stuff
  */
-#define CONFIG_SYS_I2C_SPEED		100000
+#define CONFIG_SYS_I2C_PPC4XX_SPEED_0		100000
 
 /* Temp sensor/hwmon/dtt */
 #define CONFIG_DTT_LM63		1	/* National LM63	*/

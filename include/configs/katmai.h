@@ -119,9 +119,8 @@
 /*-----------------------------------------------------------------------
  * I2C
  *----------------------------------------------------------------------*/
-#define CONFIG_SYS_I2C_SPEED		100000	/* I2C speed and slave address	*/
+#define CONFIG_SYS_I2C_PPC4XX_SPEED_0		100000
 
-#define CONFIG_I2C_MULTI_BUS
 #define CONFIG_SYS_SPD_BUS_NUM		0	/* The I2C bus for SPD		*/
 
 #define IIC0_BOOTPROM_ADDR	0x50

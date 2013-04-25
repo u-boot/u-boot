@@ -40,8 +40,7 @@ CFLAGS += -DBUILDUSER='"$(BUILDUSER)"'
 
 LIB	= $(obj)lib$(BOARD).o
 
-COBJS	= $(BOARD).o ../common/flash.o ../common/ppc440gx_i2c.o \
-	../common/sb_common.o
+COBJS	= $(BOARD).o ../common/flash.o ../common/sb_common.o
 
 SOBJS	= init.o
 

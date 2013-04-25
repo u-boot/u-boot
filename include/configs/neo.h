@@ -117,7 +117,7 @@
 /*
  * I2C stuff
  */
-#define CONFIG_SYS_I2C_SPEED		100000	/* I2C speed and slave address	*/
+#define CONFIG_SYS_I2C_PPC4XX_SPEED_0		100000
 
 /* RTC */
 #define CONFIG_RTC_DS1337

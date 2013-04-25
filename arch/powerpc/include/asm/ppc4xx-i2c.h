@@ -34,24 +34,6 @@
 
 #define IIC_TIMEOUT	1		/* 1 second */
 
-#if defined(CONFIG_I2C_MULTI_BUS)
-#define I2C_BUS_OFFS	(i2c_bus_num * 0x100)
-#else
-#define I2C_BUS_OFFS	(0x000)
-#endif /* CONFIG_I2C_MULTI_BUS */
-
-#if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
-    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
-    defined(CONFIG_460EX) || defined(CONFIG_460GT)
-#define I2C_BASE_ADDR	(CONFIG_SYS_PERIPHERAL_BASE + 0x00000700 + I2C_BUS_OFFS)
-#elif defined(CONFIG_440) || defined(CONFIG_405EX)
-/* all remaining 440 variants */
-#define I2C_BASE_ADDR	(CONFIG_SYS_PERIPHERAL_BASE + 0x00000400 + I2C_BUS_OFFS)
-#else
-/* all 405 variants */
-#define I2C_BASE_ADDR	(0xEF600500 + I2C_BUS_OFFS)
-#endif
-
 struct ppc4xx_i2c {
 	u8 mdbuf;
 	u8 res1;

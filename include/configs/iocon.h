@@ -110,11 +110,11 @@
 /*
  * I2C stuff
  */
-#undef CONFIG_HARD_I2C
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
-#define CONFIG_SYS_I2C_SOFT_SPEED	400000
-#define CONFIG_SYS_I2C_SOFT_SLAVE	0xFE
+#define CONFIG_SYS_I2C_PPC4XX
+#define CONFIG_SYS_I2C_PPC4XX_CH0
+#define CONFIG_SYS_I2C_PPC4XX_SPEED_0		400000
+#define CONFIG_SYS_I2C_PPC4XX_SLAVE_0		0x7F
 
 /*
  * Software (bit-bang) I2C driver configuration

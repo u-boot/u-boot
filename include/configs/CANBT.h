@@ -180,14 +180,14 @@
 /*-----------------------------------------------------------------------
  * I2C EEPROM (CAT24WC08) for environment
  */
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1	/* Bytes of address	*/
-#define CONFIG_HARD_I2C			/* I2C with hardware support */
-#define CONFIG_PPC4XX_I2C		/* use PPC4xx driver		*/
-#define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed and slave address */
-#define CONFIG_SYS_I2C_SLAVE		0x7F
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_PPC4XX
+#define CONFIG_SYS_I2C_PPC4XX_CH0
+#define CONFIG_SYS_I2C_PPC4XX_SPEED_0		400000
+#define CONFIG_SYS_I2C_PPC4XX_SLAVE_0		0x7F
 
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* EEPROM CAT28WC08		*/
-#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1	/* bytes of address		*/
+#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* EEPROM CAT28WC08	*/
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1	/* bytes of address	*/
 /* mask of address bits that overflow into the "EEPROM chip address"	*/
 #define CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW	0x07
 
