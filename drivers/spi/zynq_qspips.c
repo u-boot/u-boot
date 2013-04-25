@@ -65,7 +65,7 @@
  */
 #define XQSPIPS_LCFG_TWO_MEM_MASK	0x40000000 /* QSPI Enable Bit Mask */
 #define XQSPIPS_LCFG_SEP_BUS_MASK	0x20000000 /* QSPI Enable Bit Mask */
-#define	XQSPIPS_LCFG_U_PAGE		0x8000000  /* QSPI Upper memory set */
+#define	XQSPIPS_LCFG_U_PAGE		0x10000000 /* QSPI Upper memory set */
 
 #define XQSPIPS_LCFG_DUMMY_SHIFT	8
 
