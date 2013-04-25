@@ -31,6 +31,11 @@
 
 #define HEADER_OFFSET	0x400
 
+/*
+ * NOTE: This file must be kept in sync with arch/arm/include/asm/\
+ *       imx-common/imximage.cfg because tools/imximage.c can not
+ *       cross-include headers from arch/arm/ and vice-versa.
+ */
 #define CMD_DATA_STR	"DATA"
 #define FLASH_OFFSET_UNDEFINED	0xFFFFFFFF
 #define FLASH_OFFSET_STANDARD	0x400
@@ -52,6 +57,7 @@ enum imximage_cmd {
 	CMD_INVALID,
 	CMD_IMAGE_VERSION,
 	CMD_BOOT_FROM,
+	CMD_BOOT_OFFSET,
 	CMD_DATA
 };
 

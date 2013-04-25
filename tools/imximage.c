@@ -37,6 +37,7 @@
  */
 static table_entry_t imximage_cmds[] = {
 	{CMD_BOOT_FROM,         "BOOT_FROM",            "boot command",	  },
+	{CMD_BOOT_OFFSET,       "BOOT_OFFSET",          "Boot offset",	  },
 	{CMD_DATA,              "DATA",                 "Reg Write Data", },
 	{CMD_IMAGE_VERSION,     "IMAGE_VERSION",        "image version",  },
 	{-1,                    "",                     "",	          },
@@ -349,6 +350,11 @@ static void parse_cfg_cmd(struct imx_header *imxhdr, int32_t cmd, char *token,
 				"(%s)\n", name, lineno, token);
 			exit(EXIT_FAILURE);
 		}
+		if (unlikely(cmd_ver_first != 1))
+			cmd_ver_first = 0;
+		break;
+	case CMD_BOOT_OFFSET:
+		imxhdr->flash_offset = get_cfg_value(token, name, lineno);
 		if (unlikely(cmd_ver_first != 1))
 			cmd_ver_first = 0;
 		break;
