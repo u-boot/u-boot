@@ -40,6 +40,27 @@
 static struct list_head mmc_devices;
 static int cur_dev_num = -1;
 
+int __weak board_mmc_getwp(struct mmc *mmc)
+{
+	return -1;
+}
+
+int mmc_getwp(struct mmc *mmc)
+{
+	int wp;
+
+	wp = board_mmc_getwp(mmc);
+
+	if (wp < 0) {
+		if (mmc->getwp)
+			wp = mmc->getwp(mmc);
+		else
+			wp = 0;
+	}
+
+	return wp;
+}
+
 int __board_mmc_getcd(struct mmc *mmc) {
 	return -1;
 }
@@ -675,8 +696,12 @@ int mmc_getcd(struct mmc *mmc)
 
 	cd = board_mmc_getcd(mmc);
 
-	if ((cd < 0) && mmc->getcd)
-		cd = mmc->getcd(mmc);
+	if (cd < 0) {
+		if (mmc->getcd)
+			cd = mmc->getcd(mmc);
+		else
+			cd = 1;
+	}
 
 	return cd;
 }
@@ -759,6 +784,8 @@ retry_scr:
 			break;
 		case 2:
 			mmc->version = SD_VERSION_2;
+			if ((mmc->scr[0] >> 15) & 0x1)
+				mmc->version = SD_VERSION_3;
 			break;
 		default:
 			mmc->version = SD_VERSION_1_0;
@@ -1027,6 +1054,24 @@ static int mmc_startup(struct mmc *mmc)
 			capacity *= 512;
 			if ((capacity >> 20) > 2 * 1024)
 				mmc->capacity = capacity;
+		}
+
+		switch (ext_csd[EXT_CSD_REV]) {
+		case 1:
+			mmc->version = MMC_VERSION_4_1;
+			break;
+		case 2:
+			mmc->version = MMC_VERSION_4_2;
+			break;
+		case 3:
+			mmc->version = MMC_VERSION_4_3;
+			break;
+		case 5:
+			mmc->version = MMC_VERSION_4_41;
+			break;
+		case 6:
+			mmc->version = MMC_VERSION_4_5;
+			break;
 		}
 
 		/*

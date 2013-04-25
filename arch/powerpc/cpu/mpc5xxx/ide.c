@@ -75,7 +75,7 @@ int ide_preinit (void)
 	psdma->PtdCntrl |= 1;
 
 	/* Init timings : we use PIO mode 0 timings */
-	period = 1000000000 / gd->ipb_clk;	/* period in ns */
+	period = 1000000000 / gd->arch.ipb_clk;	/* period in ns */
 
 	t0 = CALC_TIMING (600);
 	t2_8 = CALC_TIMING (290);

@@ -29,7 +29,6 @@
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 #include <libfdt.h>
-#include <libfdt_env.h>
 #include <fdt_support.h>
 #include <asm/4xx_pcie.h>
 
@@ -141,7 +140,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 
 	/*
 	 * Fixup all UART clocks for CPU internal UARTs
-	 * (only these UARTs are definitely clocked by gd->uart_clk)
+	 * (only these UARTs are definitely clocked by gd->arch.uart_clk)
 	 *
 	 * These UARTs are direct childs of /plb/opb. This code
 	 * does not touch any UARTs that are connected to the ebc.
@@ -160,7 +159,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 		    (fdt_node_check_compatible(blob, off, "ns16550") == 0))
 			fdt_setprop(blob, off,
 				    "clock-frequency",
-				    (void*)&(gd->uart_clk), 4);
+				    (void *)&gd->arch.uart_clk, 4);
 	}
 
 	/*

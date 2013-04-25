@@ -113,7 +113,7 @@ static void kbd_init (void)
 
 	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 
-	gd->kbd_status = 0;
+	gd->arch.kbd_status = 0;
 
 	/* Forced by PIC. Delays <= 175us loose */
 	udelay(1000);
@@ -127,7 +127,7 @@ static void kbd_init (void)
 	/* clear "irrelevant" bits. Recommended by Martin Rajek, LWN */
 	errcd &= ~(KEYBD_STATUS_H_RESET|KEYBD_STATUS_BROWNOUT);
 	if (errcd) {
-		gd->kbd_status |= errcd << 8;
+		gd->arch.kbd_status |= errcd << 8;
 	}
 	/* Reset error code and verify */
 	val = KEYBD_CMD_RESET_ERRORS;
@@ -140,7 +140,7 @@ static void kbd_init (void)
 
 	val &= KEYBD_STATUS_MASK;	/* clear unused bits */
 	if (val) {			/* permanent error, report it */
-		gd->kbd_status |= val;
+		gd->arch.kbd_status |= val;
 		return;
 	}
 
@@ -216,8 +216,8 @@ int misc_init_r_kbd (void)
 {
 	uchar kbd_data[KEYBD_DATALEN];
 	char keybd_env[2 * KEYBD_DATALEN + 1];
-	uchar kbd_init_status = gd->kbd_status >> 8;
-	uchar kbd_status = gd->kbd_status;
+	uchar kbd_init_status = gd->arch.kbd_status >> 8;
+	uchar kbd_status = gd->arch.kbd_status;
 	uchar val;
 	ushort data, inv_data;
 	char *str;

@@ -49,10 +49,12 @@ SECTIONS
 
 	. = ALIGN(4);
 	.u_boot_list : {
-	#include <u-boot.lst>
+		KEEP(*(SORT(.u_boot_list*)));
 	}
 
 	. = ALIGN(4);
+
+	__image_copy_end = .;
 
 	.rel.dyn : {
 		__rel_dyn_start = .;
@@ -67,11 +69,23 @@ SECTIONS
 
 	_end = .;
 
-	.bss __rel_dyn_start (OVERLAY) : {
-		__bss_start = .;
+/*
+ * Compiler-generated __bss_start and __bss_end, see arch/arm/lib/bss.c
+ * __bss_base and __bss_limit are for linker only (overlay ordering)
+ */
+
+	.bss_start __rel_dyn_start (OVERLAY) : {
+		KEEP(*(.__bss_start));
+		__bss_base = .;
+	}
+
+	.bss __bss_base (OVERLAY) : {
 		*(.bss*)
 		 . = ALIGN(4);
-		__bss_end__ = .;
+		 __bss_limit = .;
+	}
+	.bss_end __bss_limit (OVERLAY) : {
+		KEEP(*(.__bss_end));
 	}
 
 	/DISCARD/ : { *(.dynstr*) }

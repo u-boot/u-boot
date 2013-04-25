@@ -21,6 +21,10 @@
 #ifndef __MACH_MXS_IOMUX_H__
 #define __MACH_MXS_IOMUX_H__
 
+#ifndef __ASSEMBLY__
+
+#include <asm/types.h>
+
 /*
  * IOMUX/PAD Bit field definitions
  *
@@ -165,4 +169,5 @@ int mxs_iomux_setup_pad(iomux_cfg_t pad);
  */
 int mxs_iomux_setup_multiple_pads(const iomux_cfg_t *pad_list, unsigned count);
 
+#endif /* __ASSEMBLY__ */
 #endif /* __MACH_MXS_IOMUX_H__*/

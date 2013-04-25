@@ -191,7 +191,7 @@ static int do_reginfo(cmd_tbl_t *cmdtp, int flag, int argc,
 
 #elif defined(CONFIG_BLACKFIN)
 	puts("\nSystem Configuration registers\n");
-
+#ifndef __ADSPBF60x__
 	puts("\nPLL Registers\n");
 	printf("\tPLL_DIV:   0x%04x   PLL_CTL:      0x%04x\n",
 		bfin_read_PLL_DIV(), bfin_read_PLL_CTL());
@@ -227,7 +227,24 @@ static int do_reginfo(cmd_tbl_t *cmdtp, int flag, int argc,
 	printf("\tEBIU_SDSTAT:  0x%04x   EBIU_SDGCTL:  0x%08x\n",
 		bfin_read_EBIU_SDSTAT(), bfin_read_EBIU_SDGCTL());
 # endif
+#else
+	puts("\nCGU Registers\n");
+	printf("\tCGU_DIV:   0x%08x   CGU_CTL:      0x%08x\n",
+		bfin_read_CGU_DIV(), bfin_read_CGU_CTL());
+	printf("\tCGU_STAT:  0x%08x   CGU_LOCKCNT:  0x%08x\n",
+		bfin_read_CGU_STAT(), bfin_read_CGU_CLKOUTSEL());
 
+	puts("\nSMC DDR Registers\n");
+	printf("\tDDR_CFG:   0x%08x   DDR_TR0:      0x%08x\n",
+		bfin_read_DMC0_CFG(), bfin_read_DMC0_TR0());
+	printf("\tDDR_TR1:   0x%08x   DDR_TR2:      0x%08x\n",
+		bfin_read_DMC0_TR1(), bfin_read_DMC0_TR2());
+	printf("\tDDR_MR:    0x%08x   DDR_EMR1:     0x%08x\n",
+		bfin_read_DMC0_MR(), bfin_read_DMC0_EMR1());
+	printf("\tDDR_CTL:   0x%08x   DDR_STAT:     0x%08x\n",
+		bfin_read_DMC0_CTL(), bfin_read_DMC0_STAT());
+	printf("\tDDR_DLLCTL:0x%08x\n", bfin_read_DMC0_DLLCTL());
+#endif
 #endif /* CONFIG_BLACKFIN */
 
 	return 0;

@@ -66,7 +66,6 @@
 
 #if defined(CONFIG_ARM920T) || \
     defined(CONFIG_S3C24X0) || \
-    defined(CONFIG_S3C6400) || \
     defined(CONFIG_440EP) || \
     defined(CONFIG_PCI_OHCI) || \
     defined(CONFIG_MPC5200) || \

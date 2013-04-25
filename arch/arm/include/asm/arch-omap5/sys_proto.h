@@ -25,8 +25,12 @@
 #include <asm/io.h>
 #include <asm/arch/clocks.h>
 #include <asm/omap_common.h>
-#include <asm/arch/mux_omap5.h>
 #include <asm/arch/clocks.h>
+
+struct pad_conf_entry {
+	u32 offset;
+	u32 val;
+};
 
 struct omap_sysinfo {
 	char *board_string;
@@ -44,7 +48,7 @@ u32 wait_on_value(u32, u32, void *, u32);
 void sdelay(unsigned long);
 void setup_clocks_for_console(void);
 void prcm_init(void);
-void bypass_dpll(u32 *const base);
+void bypass_dpll(u32 const base);
 void freq_update_core(void);
 u32 get_sys_clk_freq(void);
 u32 omap5_ddr_clk(void);
@@ -58,6 +62,8 @@ void omap_vc_init(u16 speed_khz);
 int omap_vc_bypass_send_value(u8 sa, u8 reg_addr, u8 reg_data);
 u32 warm_reset(void);
 void force_emif_self_refresh(void);
+void get_ioregs(const struct ctrl_ioregs **regs);
+void srcomp_enable(void);
 
 /*
  * This is used to verify if the configuration header

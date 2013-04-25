@@ -92,8 +92,8 @@ static inline ulong read_timer(void)
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define timestamp gd->tbl
-#define lastdec gd->lastinc
+#define timestamp gd->arch.tbl
+#define lastdec gd->arch.lastinc
 
 ulong get_timer_masked(void)
 {

@@ -948,7 +948,7 @@ IxEthAccStatus ixEthAccPortRxCallbackRegister(IxEthAccPortId portId,
 	for (port = 0; port < IX_ETH_ACC_NUMBER_OF_PORTS; port++)
 	{
 	    if ((ixEthAccMacState[port].portDisableState == ACTIVE)
-		&& (ixEthAccPortData[port].ixEthAccRxData.rxMultiBufferCallbackInUse == TRUE))
+		&& (ixEthAccPortData[port].ixEthAccRxData.rxMultiBufferCallbackInUse == true))
 	    {
 		/* one of the active ports has a different rx callback type.
 		 * Changing the callback type when the port is enabled
@@ -977,7 +977,7 @@ IxEthAccStatus ixEthAccPortRxCallbackRegister(IxEthAccPortId portId,
 	return (IX_ETH_ACC_INVALID_ARG);
     }
 
-    ixEthAccPortData[portId].ixEthAccRxData.rxMultiBufferCallbackInUse = FALSE;
+    ixEthAccPortData[portId].ixEthAccRxData.rxMultiBufferCallbackInUse = false;
 
     return (IX_ETH_ACC_SUCCESS);
 }
@@ -1025,7 +1025,7 @@ IxEthAccStatus ixEthAccPortMultiBufferRxCallbackRegister(
 	for (port = 0; port < IX_ETH_ACC_NUMBER_OF_PORTS; port++)
 	{
 	    if ((ixEthAccMacState[port].portDisableState == ACTIVE)
-		&& (ixEthAccPortData[port].ixEthAccRxData.rxMultiBufferCallbackInUse == FALSE))
+		&& (ixEthAccPortData[port].ixEthAccRxData.rxMultiBufferCallbackInUse == false))
 	    {
 		/* one of the active ports has a different rx callback type.
 		 * Changing the callback type when the port is enabled
@@ -1055,7 +1055,7 @@ IxEthAccStatus ixEthAccPortMultiBufferRxCallbackRegister(
 	return (IX_ETH_ACC_INVALID_ARG);
     }
 
-    ixEthAccPortData[portId].ixEthAccRxData.rxMultiBufferCallbackInUse = TRUE;
+    ixEthAccPortData[portId].ixEthAccRxData.rxMultiBufferCallbackInUse = true;
 
     return (IX_ETH_ACC_SUCCESS);
 }
@@ -1456,7 +1456,7 @@ ixEthRxFrameProcess(IxEthAccPortId portId, IX_OSAL_MBUF *mbufPtr)
 	IX_ETH_ACC_FATAL_LOG(
 	     "ixEthRxFrameProcess: Illegal port: %u\n",
 	     (UINT32)portId, 0, 0, 0, 0, 0);
-	return FALSE;
+	return false;
     }
 #endif
 
@@ -1468,7 +1468,7 @@ ixEthRxFrameProcess(IxEthAccPortId portId, IX_OSAL_MBUF *mbufPtr)
     if ((flags & (IX_ETHACC_NE_FILTERMASK | IX_ETHACC_NE_NEWSRCMASK)) == 0)
     {
 	/* "best case" scenario : nothing special to do for this frame */
-	return TRUE;
+	return true;
     }
 
 #ifdef CONFIG_IXP425_COMPONENT_ETHDB
@@ -1540,10 +1540,10 @@ ixEthRxFrameProcess(IxEthAccPortId portId, IX_OSAL_MBUF *mbufPtr)
         RX_STATS_INC(portId, rxFiltered);
 
         /* indicate that frame should not be subjected to further processing */
-        return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 

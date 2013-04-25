@@ -12,18 +12,35 @@
 #define                 CMD_INT_E  0x100      /* Command Interrupt */
 #define                CMD_PEND_E  0x200      /* Command Pending */
 #define                     CMD_E  0x400      /* Command Enable */
+#ifdef RSI_BLKSZ
+#define           CMD_CRC_CHECK_D  0x800      /* CRC Check is disabled */
+#define            CMD_DATA0_BUSY  0x1000     /* Check Busy State on DATA0 */
+#endif
 
 /* Bit masks for SDH_PWR_CTL */
+#ifndef RSI_BLKSZ
 #define                    PWR_ON  0x3        /* Power On */
 #define                 SD_CMD_OD  0x40       /* Open Drain Output */
 #define                   ROD_CTL  0x80       /* Rod Control */
+#endif
 
 /* Bit masks for SDH_CLK_CTL */
 #define                    CLKDIV  0xff       /* MC_CLK Divisor */
 #define                     CLK_E  0x100      /* MC_CLK Bus Clock Enable */
 #define                  PWR_SV_E  0x200      /* Power Save Enable */
 #define             CLKDIV_BYPASS  0x400      /* Bypass Divisor */
-#define                  WIDE_BUS  0x800      /* Wide Bus Mode Enable */
+#define             BUS_MODE_MASK  0x1800     /* Bus Mode Mask */
+#define                 STD_BUS_1  0x000      /* Standard Bus 1 bit mode */
+#define                WIDE_BUS_4  0x800      /* Wide Bus 4 bit mode */
+#define                BYTE_BUS_8  0x1000     /* Byte Bus 8 bit mode */
+#ifdef RSI_BLKSZ
+#define            CARD_TYPE_MASK  0xe000     /* Card type mask */
+#define          CARD_TYPE_OFFSET  13         /* Card type offset */
+#define            CARD_TYPE_SDIO  0
+#define            CARD_TYPE_eMMC  1
+#define              CARD_TYPE_SD  2
+#define           CARD_TYPE_CEATA  3
+#endif
 
 /* Bit masks for SDH_RESP_CMD */
 #define                  RESP_CMD  0x3f       /* Response Command */
@@ -33,7 +50,13 @@
 #define                   DTX_DIR  0x2        /* Data Transfer Direction */
 #define                  DTX_MODE  0x4        /* Data Transfer Mode */
 #define                 DTX_DMA_E  0x8        /* Data Transfer DMA Enable */
+#ifndef RSI_BLKSZ
 #define              DTX_BLK_LGTH  0xf0       /* Data Transfer Block Length */
+#else
+
+/* Bit masks for SDH_BLK_SIZE */
+#define              DTX_BLK_LGTH  0x1fff     /* Data Transfer Block Length */
+#endif
 
 /* Bit masks for SDH_STATUS */
 #define              CMD_CRC_FAIL  0x1        /* CMD CRC Fail */
@@ -102,10 +125,13 @@
 /* Bit masks for SDH_E_STATUS */
 #define              SDIO_INT_DET  0x2        /* SDIO Int Detected */
 #define               SD_CARD_DET  0x10       /* SD Card Detect */
+#define          SD_CARD_BUSYMODE  0x80000000 /* Card is in Busy mode */
+#define           SD_CARD_SLPMODE  0x40000000 /* Card in Sleep Mode */
+#define             SD_CARD_READY  0x00020000 /* Card Ready */
 
 /* Bit masks for SDH_E_MASK */
 #define                  SDIO_MSK  0x2        /* Mask SDIO Int Detected */
-#define                   SCD_MSK  0x40       /* Mask Card Detect */
+#define                   SCD_MSK  0x10       /* Mask Card Detect */
 
 /* Bit masks for SDH_CFG */
 #define                   CLKS_EN  0x1        /* Clocks Enable */
@@ -114,7 +140,15 @@
 #define                    SD_RST  0x10       /* SDMMC Reset */
 #define                 PUP_SDDAT  0x20       /* Pull-up SD_DAT */
 #define                PUP_SDDAT3  0x40       /* Pull-up SD_DAT3 */
+#ifndef RSI_BLKSZ
 #define                 PD_SDDAT3  0x80       /* Pull-down SD_DAT3 */
+#else
+#define                    PWR_ON  0x600      /* Power On */
+#define                 SD_CMD_OD  0x800      /* Open Drain Output */
+#define                   BOOT_EN  0x1000     /* Boot Enable */
+#define                 BOOT_MODE  0x2000     /* Alternate Boot Mode */
+#define               BOOT_ACK_EN  0x4000     /* Boot ACK is expected */
+#endif
 
 /* Bit masks for SDH_RD_WAIT_EN */
 #define                       RWR  0x1        /* Read Wait Request */

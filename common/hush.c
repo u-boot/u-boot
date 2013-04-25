@@ -1665,7 +1665,7 @@ static int run_pipe_real(struct pipe *pi)
 		}
 		/* Process the command */
 		return cmd_process(flag, child->argc, child->argv,
-				   &flag_repeat);
+				   &flag_repeat, NULL);
 #endif
 	}
 #ifndef __U_BOOT__

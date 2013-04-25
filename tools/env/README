@@ -8,7 +8,7 @@ In order to cross-compile fw_printenv, run
 in the root directory of the U-Boot distribution. For example,
     make HOSTCC=arm-linux-gcc env
 
-For the run-time utiltity configuration uncomment the line
+For the run-time utility configuration uncomment the line
 #define CONFIG_FILE  "/etc/fw_env.config"
 in fw_env.h.
 
@@ -34,7 +34,7 @@ following lines are relevant:
 #define DEVICE2_ESIZE     0x4000
 #define DEVICE2_ENVSECTORS     2
 
-Un-define HAVE_REDUND, if you want to use the utlities on a system
+Un-define HAVE_REDUND, if you want to use the utilities on a system
 that does not have support for redundant environment enabled.
 If HAVE_REDUND is undefined, DEVICE2_NAME is ignored,
 as is ENV2_SIZE and DEVICE2_ESIZE.

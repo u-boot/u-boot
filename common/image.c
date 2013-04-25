@@ -47,7 +47,6 @@
 #include <image.h>
 
 #if defined(CONFIG_FIT) || defined(CONFIG_OF_LIBFDT)
-#include <fdt.h>
 #include <libfdt.h>
 #include <fdt_support.h>
 #endif
@@ -74,6 +73,8 @@ static const image_header_t *image_get_ramdisk(ulong rd_addr, uint8_t arch,
 #include <time.h>
 #include <image.h>
 #endif /* !USE_HOSTCC*/
+
+#include <u-boot/crc.h>
 
 static const table_entry_t uimage_arch[] = {
 	{	IH_ARCH_INVALID,	NULL,		"Invalid ARCH",	},
@@ -107,6 +108,7 @@ static const table_entry_t uimage_os[] = {
 #endif
 	{	IH_OS_NETBSD,	"netbsd",	"NetBSD",		},
 	{	IH_OS_OSE,	"ose",		"Enea OSE",		},
+	{	IH_OS_PLAN9,	"plan9",	"Plan 9",		},
 	{	IH_OS_RTEMS,	"rtems",	"RTEMS",		},
 	{	IH_OS_U_BOOT,	"u-boot",	"U-Boot",		},
 #if defined(CONFIG_CMD_ELF) || defined(USE_HOSTCC)
@@ -161,8 +163,6 @@ static const table_entry_t uimage_comp[] = {
 	{	-1,		"",		"",			},
 };
 
-uint32_t crc32(uint32_t, const unsigned char *, uint);
-uint32_t crc32_wd(uint32_t, const unsigned char *, uint, uint);
 #if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE) || defined(USE_HOSTCC)
 static void genimg_print_time(time_t timestamp);
 #endif

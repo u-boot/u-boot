@@ -9,9 +9,6 @@
 #define YELLOW  (0xD292D210)	/* yellow pixel pattern  */
 #define WHITE   (0xFE80FE80)	/* white pixel pattern   */
 
-#define true	1
-#define false	0
-
 typedef struct {
 	unsigned int sav;
 	unsigned int eav;

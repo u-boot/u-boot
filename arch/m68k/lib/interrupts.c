@@ -96,7 +96,7 @@ int disable_interrupts (void)
 	sr = get_sr ();
 	set_sr (sr | 0x0700);
 
-	return ((sr & 0x0700) == 0);	/* return TRUE, if interrupts were enabled before */
+	return ((sr & 0x0700) == 0);	/* return true, if interrupts were enabled before */
 }
 
 void int_handler (struct pt_regs *fp)

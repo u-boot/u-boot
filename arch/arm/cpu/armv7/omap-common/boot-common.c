@@ -55,17 +55,20 @@ void spl_board_init(void)
 #ifdef CONFIG_SPL_NAND_SUPPORT
 	gpmc_init();
 #endif
+#if defined(CONFIG_AM33XX) && defined(CONFIG_SPL_MUSB_NEW_SUPPORT)
+	arch_misc_init();
+#endif
 }
 
 int board_mmc_init(bd_t *bis)
 {
 	switch (spl_boot_device()) {
 	case BOOT_DEVICE_MMC1:
-		omap_mmc_init(0, 0, 0);
+		omap_mmc_init(0, 0, 0, -1, -1);
 		break;
 	case BOOT_DEVICE_MMC2:
 	case BOOT_DEVICE_MMC2_2:
-		omap_mmc_init(1, 0, 0);
+		omap_mmc_init(1, 0, 0, -1, -1);
 		break;
 	}
 	return 0;

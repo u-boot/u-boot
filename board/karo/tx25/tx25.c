@@ -33,6 +33,14 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef CONFIG_SPL_BUILD
+void board_init_f(ulong bootflag)
+{
+	relocate_code(CONFIG_SPL_TEXT_BASE);
+	asm volatile("ldr pc, =nand_boot");
+}
+#endif
+
 #ifdef CONFIG_FEC_MXC
 #define GPIO_FEC_RESET_B	IMX_GPIO_NR(4, 7)
 #define GPIO_FEC_ENABLE_B	IMX_GPIO_NR(4, 9)

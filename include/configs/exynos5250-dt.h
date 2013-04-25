@@ -33,6 +33,7 @@
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 
+#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
@@ -44,6 +45,10 @@
 
 /* Keep L2 Cache Disabled */
 #define CONFIG_SYS_DCACHE_OFF
+
+/* Enable ACE acceleration for SHA1 and SHA256 */
+#define CONFIG_EXYNOS_ACE_SHA
+#define CONFIG_SHA_HW_ACCEL
 
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 #define CONFIG_SYS_TEXT_BASE		0x43E00000
@@ -113,15 +118,33 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_NET
+#define CONFIG_CMD_HASH
 
 #define CONFIG_BOOTDELAY		3
 #define CONFIG_ZERO_BOOTDELAY_CHECK
+
+/* Thermal Management Unit */
+#define CONFIG_EXYNOS_TMU
+#define CONFIG_CMD_DTT
+#define CONFIG_TMU_CMD_DTT
 
 /* USB */
 #define CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_EXYNOS
 #define CONFIG_USB_STORAGE
+
+/* USB boot mode */
+#define EXYNOS_COPY_USB_FNPTR_ADDR	0x02020070
+#define EXYNOS_USB_SECONDARY_BOOT	0xfeed0002
+#define EXYNOS_IRAM_SECONDARY_BASE	0x02020018
+
+/* TPM */
+#define CONFIG_TPM
+#define CONFIG_CMD_TPM
+#define CONFIG_INFINEON_TPM_I2C
+#define CONFIG_INFINEON_TPM_I2C_BUS 3
+#define CONFIG_INFINEON_TPM_I2C_ADDR 0x20
 
 /* MMC SPL */
 #define CONFIG_SPL
@@ -130,7 +153,7 @@
 /* specific .lds file */
 #define CONFIG_SPL_LDSCRIPT	"board/samsung/smdk5250/smdk5250-uboot-spl.lds"
 #define CONFIG_SPL_TEXT_BASE	0x02023400
-#define CONFIG_SPL_MAX_SIZE	(14 * 1024)
+#define CONFIG_SPL_MAX_FOOTPRINT	(14 * 1024)
 
 #define CONFIG_BOOTCOMMAND	"mmc read 40007000 451 2000; bootm 40007000"
 
@@ -296,6 +319,7 @@
 #ifdef CONFIG_CMD_SOUND
 #define CONFIG_SOUND
 #define CONFIG_I2S
+#define CONFIG_SOUND_MAX98095
 #define CONFIG_SOUND_WM8994
 #endif
 
@@ -317,5 +341,8 @@
 #define LCD_YRES			1600
 #define LCD_BPP			LCD_COLOR16
 #endif
+
+/* Enable Time Command */
+#define CONFIG_CMD_TIME
 
 #endif	/* __CONFIG_H */

@@ -69,6 +69,7 @@ struct ehci_hcor {
 #define CMD_RUN		(1 << 0)		/* start/stop HC */
 	uint32_t or_usbsts;
 #define STS_ASS		(1 << 15)
+#define	STS_PSS		(1 << 14)
 #define STS_HALT	(1 << 12)
 	uint32_t or_usbintr;
 #define INTR_UE         (1 << 0)                /* USB interrupt enable */
@@ -245,7 +246,10 @@ struct QH {
 	 * Add dummy fill value to make the size of this struct
 	 * aligned to 32 bytes
 	 */
-	uint8_t fill[16];
+	union {
+		uint32_t fill[4];
+		void *buffer;
+	};
 };
 
 /* Low level init functions */

@@ -384,7 +384,7 @@ static void init_pmic_lcd(void)
 		puts("LCD pmic initialisation error!\n");
 }
 
-static void lcd_cfg_gpio(void)
+void exynos_cfg_lcd_gpio(void)
 {
 	unsigned int i, f3_end = 4;
 
@@ -423,7 +423,7 @@ static void lcd_cfg_gpio(void)
 	spi_init();
 }
 
-static void reset_lcd(void)
+void exynos_reset_lcd(void)
 {
 	s5p_gpio_set_value(&gpio2->y4, 5, 1);
 	udelay(10000);
@@ -433,7 +433,7 @@ static void reset_lcd(void)
 	udelay(100);
 }
 
-static void lcd_power_on(void)
+void exynos_lcd_power_on(void)
 {
 	struct pmic *p = pmic_get("MAX8998_PMIC");
 
@@ -471,10 +471,6 @@ vidinfo_t panel_info = {
 	.vl_cmd_allow_len = 0xf,
 
 	.win_id		= 0,
-	.cfg_gpio	= lcd_cfg_gpio,
-	.backlight_on	= NULL,
-	.lcd_power_on	= lcd_power_on,
-	.reset_lcd	= reset_lcd,
 	.dual_lcd_enabled = 0,
 
 	.init_delay	= 0,
@@ -483,6 +479,16 @@ vidinfo_t panel_info = {
 	.interface_mode = FIMD_RGB_INTERFACE,
 	.mipi_enabled	= 0,
 };
+
+void exynos_cfg_ldo(void)
+{
+	ld9040_cfg_ldo();
+}
+
+void exynos_enable_ldo(unsigned int onoff)
+{
+	ld9040_enable_ldo(onoff);
+}
 
 void init_panel_info(vidinfo_t *vid)
 {
@@ -497,9 +503,6 @@ void init_panel_info(vidinfo_t *vid)
 	/* for LD9040. */
 	vid->pclk_name = 1;	/* MPLL */
 	vid->sclk_div = 1;
-
-	vid->cfg_ldo = ld9040_cfg_ldo;
-	vid->enable_ldo = ld9040_enable_ldo;
 
 	setenv("lcdinfo", "lcd=ld9040");
 }

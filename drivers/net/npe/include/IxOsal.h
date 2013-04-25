@@ -1204,8 +1204,8 @@ PUBLIC void ixOsalTicksToTimeval (UINT32 ticks, IxOsalTimeval * pTv);
  * @li Reentrant: yes
  * @li IRQ safe:  yes
  *
- * @return - TRUE if the structures are equal
- *         - FALSE otherwise
+ * @return - true if the structures are equal
+ *         - false otherwise
  * Note: This function is OS-independant
  */
 #define IX_OSAL_TIME_EQ(tvA, tvB)        \
@@ -1225,8 +1225,8 @@ PUBLIC void ixOsalTicksToTimeval (UINT32 ticks, IxOsalTimeval * pTv);
  * @li Reentrant: yes
  * @li IRQ safe:  yes
  *
- * @return - TRUE if tvA < tvB
- *         - FALSE otherwise
+ * @return - true if tvA < tvB
+ *         - false otherwise
  * Note: This function is OS-independent. Implemented by core.
  */
 #define IX_OSAL_TIME_LT(tvA,tvB) \
@@ -1247,8 +1247,8 @@ PUBLIC void ixOsalTicksToTimeval (UINT32 ticks, IxOsalTimeval * pTv);
  * @li Reentrant: yes
  * @li IRQ safe:  yes
  *
- * @return - TRUE if tvA > tvB
- *         - FALSE  otherwise
+ * @return - true if tvA > tvB
+ *         - false  otherwise
  * Note: This function is OS-independent.
  */
 #define IX_OSAL_TIME_GT(tvA, tvB)  \

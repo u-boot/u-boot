@@ -74,6 +74,7 @@
 #define	CONFIG_CMD_ENV
 #define	CONFIG_CMD_MMC
 #define	CONFIG_LCD
+#define	CONFIG_PXA_LCD
 
 /*
  * MMC Card Configuration

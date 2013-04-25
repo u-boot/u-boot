@@ -230,7 +230,7 @@
 #define CONFIG_SPL_STACK		(0x00010000 + 0x7f00)
 
 #define CONFIG_SPL_TEXT_BASE		0x00000020 /*CONFIG_SYS_SRAM_START*/
-#define CONFIG_SPL_MAX_SIZE		12320
+#define CONFIG_SPL_MAX_FOOTPRINT	12288
 
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_SYS_TEXT_BASE		0x81080000
@@ -451,7 +451,7 @@
 	"bootfile=" __stringify(CONFIG_HOSTNAME) "/uImage \0"		\
 	"kernel_addr_r=80600000\0"					\
 	"load_kernel=tftp ${kernel_addr_r} ${bootfile}\0"		\
-	"ubi_load_kernel=ubi part ubi 2048;ubifsmount ${img_volume};"	\
+	"ubi_load_kernel=ubi part ubi 2048;ubifsmount ubi:${img_volume};" \
 		"ubifsload ${kernel_addr_r} boot/uImage\0"		\
 	"fit_addr_r=" __stringify(CONFIG_BOARD_IMG_ADDR_R) "\0"		\
 	"img_addr_r=" __stringify(CONFIG_BOARD_IMG_ADDR_R) "\0"		\

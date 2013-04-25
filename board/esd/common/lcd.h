@@ -35,11 +35,6 @@
 #define LOAD_LONG(data)   SWAP_LONG(data)
 #define LOAD_SHORT(data)  SWAP_SHORT(data)
 
-#ifndef FALSE
-#define FALSE 0
-#define TRUE (!FALSE)
-#endif
-
 #define S1D_WRITE_PALETTE(p,i,r,g,b)					\
 	{								\
 		out_8(&((uchar*)(p))[palette_index], (uchar)(i));	\

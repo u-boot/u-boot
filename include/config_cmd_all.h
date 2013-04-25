@@ -57,7 +57,8 @@
 #define CONFIG_CMD_LOADB	/* loadb			*/
 #define CONFIG_CMD_LOADS	/* loads			*/
 #define CONFIG_CMD_MEMINFO	/* meminfo			*/
-#define CONFIG_CMD_MEMORY	/* md mm nm mw cp cmp crc base loop mtest */
+#define CONFIG_CMD_MEMORY	/* md mm nm mw cp cmp crc base loop */
+#define CONFIG_CMD_MEMTEST	/* mtest			*/
 #define CONFIG_CMD_MFSL		/* FSL support for Microblaze	*/
 #define CONFIG_CMD_MII		/* MII support			*/
 #define CONFIG_CMD_MISC		/* Misc functions like sleep etc*/
@@ -76,6 +77,7 @@
 #define CONFIG_CMD_RARP		/* rarpboot support		*/
 #define CONFIG_CMD_READ		/* Read data from partition	*/
 #define CONFIG_CMD_RUN		/* run command in env variable	*/
+#define CONFIG_CMD_SANDBOX	/* sb command to access sandbox features */
 #define CONFIG_CMD_SAVEENV	/* saveenv			*/
 #define CONFIG_CMD_SAVES	/* save S record dump		*/
 #define CONFIG_CMD_SCSI		/* SCSI Support			*/

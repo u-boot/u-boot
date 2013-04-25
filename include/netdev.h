@@ -215,9 +215,16 @@ struct mv88e61xx_config {
 int mv88e61xx_switch_initialize(struct mv88e61xx_config *swconfig);
 #endif /* CONFIG_MV88E61XX_SWITCH */
 
+struct mii_dev *fec_get_miibus(uint32_t base_addr, int dev_id);
+#ifdef CONFIG_PHYLIB
+struct phy_device;
+int fec_probe(bd_t *bd, int dev_id, uint32_t base_addr,
+		struct mii_dev *bus, struct phy_device *phydev);
+#else
 /*
  * Allow FEC to fine-tune MII configuration on boards which require this.
  */
 int fecmxc_register_mii_postcall(struct eth_device *dev, int (*cb)(int));
+#endif
 
 #endif /* _NETDEV_H_ */

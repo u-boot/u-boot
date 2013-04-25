@@ -21,7 +21,6 @@
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
-#include <asm/arch/mx6x_pins.h>
 #include <asm/imx-common/iomux-v3.h>
 
 #include "ehci.h"

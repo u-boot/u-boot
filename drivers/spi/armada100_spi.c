@@ -120,12 +120,10 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 {
 	struct armd_spi_slave *pss;
 
-	pss = malloc(sizeof(*pss));
+	pss = spi_alloc_slave(struct armd_spi_slave, bus, cs);
 	if (!pss)
 		return NULL;
 
-	pss->slave.bus = bus;
-	pss->slave.cs = cs;
 	pss->spi_reg = (struct ssp_reg *)SSP_REG_BASE(CONFIG_SYS_SSP_PORT);
 
 	pss->cr0 = SSCR0_MOTO | SSCR0_DATASIZE(DEFAULT_WORD_LEN) | SSCR0_SSE;

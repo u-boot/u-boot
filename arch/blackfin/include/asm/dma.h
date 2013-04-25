@@ -8,7 +8,12 @@
 #ifndef _BLACKFIN_DMA_H_
 #define _BLACKFIN_DMA_H_
 
+#include <linux/types.h>
+#ifdef __ADSPBF60x__
+#include <asm/mach-common/bits/dde.h>
+#else
 #include <asm/mach-common/bits/dma.h>
+#endif
 
 struct dmasg_large {
 	void *next_desc_addr;
@@ -30,46 +35,70 @@ struct dmasg {
 } __attribute__((packed));
 
 struct dma_register {
+#ifdef __ADSPBF60x__
 	void *next_desc_ptr;	/* DMA Next Descriptor Pointer register */
-	unsigned long start_addr;	/* DMA Start address  register */
+	u32 start_addr;		/* DMA Start address  register */
+	u32 config;		/* DMA Configuration register */
 
-	unsigned short cfg;	/* DMA Configuration register */
-	unsigned short dummy1;	/* DMA Configuration register */
+	u32 x_count;		/* DMA x_count register */
+	s32 x_modify;		/* DMA x_modify register */
+	u32 y_count;		/* DMA y_count register */
+	s32 y_modify;		/* DMA y_modify register */
+	u32 __pad0[2];
 
-	unsigned long reserved;
+	void *curr_desc_ptr;	/* DMA Curr Descriptor Pointer register */
+	void *prev_desc_ptr;	/* DMA Prev Descriptor Pointer register */
+	void *curr_addr;	/* DMA Current Address Pointer register */
+	u32 status;		/* DMA irq status register */
+	u32 curr_x_count;	/* DMA Current x-count register */
+	u32 curr_y_count;	/* DMA Current y-count register */
+	u32 __pad1[2];
 
-	unsigned short x_count;	/* DMA x_count register */
-	unsigned short dummy2;
+	u32 bw_limit;		/* DMA Bandwidth Limit Count */
+	u32 curr_bw_limit;	/* DMA curr Bandwidth Limit Count */
+	u32 bw_monitor;		/* DMA Bandwidth Monitor Count */
+	u32 curr_bw_monitor;	/* DMA curr Bandwidth Monitor Count */
+#else
+	void *next_desc_ptr;	/* DMA Next Descriptor Pointer register */
+	u32 start_addr;		/* DMA Start address  register */
 
-	short x_modify;	/* DMA x_modify register */
-	unsigned short dummy3;
+	u16 config;		/* DMA Configuration register */
+	u16 dummy1;		/* DMA Configuration register */
 
-	unsigned short y_count;	/* DMA y_count register */
-	unsigned short dummy4;
+	u32 reserved;
 
-	short y_modify;	/* DMA y_modify register */
-	unsigned short dummy5;
+	u16 x_count;		/* DMA x_count register */
+	u16 dummy2;
 
-	void *curr_desc_ptr;	/* DMA Current Descriptor Pointer
-					   register */
-	unsigned long curr_addr_ptr;	/* DMA Current Address Pointer
-						   register */
-	unsigned short irq_status;	/* DMA irq status register */
-	unsigned short dummy6;
+	s16 x_modify;		/* DMA x_modify register */
+	u16 dummy3;
 
-	unsigned short peripheral_map;	/* DMA peripheral map register */
-	unsigned short dummy7;
+	u16 y_count;		/* DMA y_count register */
+	u16 dummy4;
 
-	unsigned short curr_x_count;	/* DMA Current x-count register */
-	unsigned short dummy8;
+	s16 y_modify;		/* DMA y_modify register */
+	u16 dummy5;
 
-	unsigned long reserved2;
+	void *curr_desc_ptr;	/* DMA Current Descriptor Pointer register */
 
-	unsigned short curr_y_count;	/* DMA Current y-count register */
-	unsigned short dummy9;
+	u32 curr_addr_ptr;	/* DMA Current Address Pointer register */
 
-	unsigned long reserved3;
+	u16 status;		/* DMA irq status register */
+	u16 dummy6;
 
+	u16 peripheral_map;	/* DMA peripheral map register */
+	u16 dummy7;
+
+	u16 curr_x_count;	/* DMA Current x-count register */
+	u16 dummy8;
+
+	u32 reserved2;
+
+	u16 curr_y_count;	/* DMA Current y-count register */
+	u16 dummy9;
+
+	u32 reserved3;
+#endif
 };
 
 #endif

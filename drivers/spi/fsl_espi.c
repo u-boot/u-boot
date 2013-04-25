@@ -79,12 +79,10 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	if (!spi_cs_is_valid(bus, cs))
 		return NULL;
 
-	fsl = malloc(sizeof(struct fsl_spi_slave));
+	fsl = spi_alloc_slave(struct fsl_spi_slave, bus, cs);
 	if (!fsl)
 		return NULL;
 
-	fsl->slave.bus = bus;
-	fsl->slave.cs = cs;
 	fsl->mode = mode;
 	fsl->max_transfer_length = ESPI_MAX_DATA_TRANSFER_LEN;
 

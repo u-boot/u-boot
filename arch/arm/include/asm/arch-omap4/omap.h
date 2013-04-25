@@ -132,34 +132,6 @@ struct s32ktimer {
 #define DEVICE_TYPE_MASK (0x7 << DEVICE_TYPE_SHIFT)
 #define DEVICE_GP 0x3
 
-struct omap_sys_ctrl_regs {
-	unsigned int pad1[129];
-	unsigned int control_id_code;			/* 0x4A002204 */
-	unsigned int pad11[22];
-	unsigned int control_std_fuse_opp_bgap;		/* 0x4a002260 */
-	unsigned int pad2[24];				/* 0x4a002264 */
-	unsigned int control_status;			/* 0x4a0022c4 */
-	unsigned int pad3[22];				/* 0x4a0022c8 */
-	unsigned int control_ldosram_iva_voltage_ctrl;	/* 0x4A002320 */
-	unsigned int control_ldosram_mpu_voltage_ctrl;	/* 0x4A002324 */
-	unsigned int control_ldosram_core_voltage_ctrl;	/* 0x4A002328 */
-	unsigned int pad4[260277];
-	unsigned int control_pbiaslite;                 /* 0x4A100600 */
-	unsigned int pad5[63];
-	unsigned int control_efuse_1;			/* 0x4A100700 */
-	unsigned int control_efuse_2;			/* 0x4A100704 */
-};
-
-struct control_lpddr2io_regs {
-	unsigned int control_lpddr2io1_0;
-	unsigned int control_lpddr2io1_1;
-	unsigned int control_lpddr2io1_2;
-	unsigned int control_lpddr2io1_3;
-	unsigned int control_lpddr2io2_0;
-	unsigned int control_lpddr2io2_1;
-	unsigned int control_lpddr2io2_2;
-	unsigned int control_lpddr2io2_3;
-};
 #endif /* __ASSEMBLY__ */
 
 /*
@@ -175,10 +147,13 @@ struct control_lpddr2io_regs {
 #define SRAM_SCRATCH_SPACE_ADDR		NON_SECURE_SRAM_START
 /* SRAM scratch space entries */
 #define OMAP4_SRAM_SCRATCH_OMAP4_REV	SRAM_SCRATCH_SPACE_ADDR
-#define OMAP4_SRAM_SCRATCH_EMIF_SIZE	(SRAM_SCRATCH_SPACE_ADDR + 0x4)
 #define OMAP4_SRAM_SCRATCH_EMIF_T_NUM	(SRAM_SCRATCH_SPACE_ADDR + 0xC)
 #define OMAP4_SRAM_SCRATCH_EMIF_T_DEN	(SRAM_SCRATCH_SPACE_ADDR + 0x10)
-#define OMAP4_SRAM_SCRATCH_SPACE_END	(SRAM_SCRATCH_SPACE_ADDR + 0x14)
+#define OMAP_SRAM_SCRATCH_PRCM_PTR      (SRAM_SCRATCH_SPACE_ADDR + 0x14)
+#define OMAP_SRAM_SCRATCH_DPLLS_PTR     (SRAM_SCRATCH_SPACE_ADDR + 0x18)
+#define OMAP_SRAM_SCRATCH_VCORES_PTR	(SRAM_SCRATCH_SPACE_ADDR + 0x1C)
+#define OMAP4_SRAM_SCRATCH_SYS_CTRL	(SRAM_SCRATCH_SPACE_ADDR + 0x20)
+#define OMAP4_SRAM_SCRATCH_SPACE_END	(SRAM_SCRATCH_SPACE_ADDR + 0x24)
 
 /* ROM code defines */
 /* Boot device */

@@ -79,10 +79,6 @@ are GPL, so this is, of course, GPL.
 #ifndef __NE2000_BASE_H__
 #define __NE2000_BASE_H__
 
-#define bool int
-#define false 0
-#define true 1
-
 /*
  * Debugging details
  *

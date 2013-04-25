@@ -19,7 +19,6 @@
 #include <asm/arch/funcmux.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch-tegra/board.h>
-#include <asm/arch-tegra/mmc.h>
 
 #include "../colibri_t20-common/colibri_t20-common.h"
 
@@ -34,13 +33,13 @@ void pin_mux_usb(void)
 #endif
 
 #ifdef CONFIG_TEGRA_MMC
-int board_mmc_init(bd_t *bd)
+/*
+ * Routine: pin_mux_mmc
+ * Description: setup the pin muxes/tristate values for the SDMMC(s)
+ */
+void pin_mux_mmc(void)
 {
 	funcmux_select(PERIPH_ID_SDMMC4, FUNCMUX_SDMMC4_ATB_GMA_4_BIT);
 	pinmux_tristate_disable(PINGRP_GMB);
-
-	tegra_mmc_init(0, 4, -1, GPIO_PC7);
-
-	return 0;
 }
 #endif

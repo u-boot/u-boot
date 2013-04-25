@@ -140,7 +140,7 @@ static int ACEX1K_ps_load(Altera_desc *desc, const void *buf, size_t bsize)
 		}
 
 		/* Establish the initial state */
-		(*fn->config) (TRUE, TRUE, cookie);	/* Assert nCONFIG */
+		(*fn->config) (true, true, cookie);	/* Assert nCONFIG */
 
 		udelay(2);		/* T_cfg > 2us	*/
 
@@ -152,7 +152,7 @@ static int ACEX1K_ps_load(Altera_desc *desc, const void *buf, size_t bsize)
 			return FPGA_FAIL;
 		}
 
-		(*fn->config) (FALSE, TRUE, cookie);	/* Deassert nCONFIG */
+		(*fn->config) (false, true, cookie);	/* Deassert nCONFIG */
 		udelay(2);		/* T_cf2st1 < 4us	*/
 
 		/* Wait for nSTATUS to be released (i.e. deasserted) */
@@ -192,13 +192,13 @@ static int ACEX1K_ps_load(Altera_desc *desc, const void *buf, size_t bsize)
 			i = 8;
 			do {
 				/* Deassert the clock */
-				(*fn->clk) (FALSE, TRUE, cookie);
+				(*fn->clk) (false, true, cookie);
 				CONFIG_FPGA_DELAY ();
 				/* Write data */
-				(*fn->data) ( (val & 0x01), TRUE, cookie);
+				(*fn->data) ((val & 0x01), true, cookie);
 				CONFIG_FPGA_DELAY ();
 				/* Assert the clock */
-				(*fn->clk) (TRUE, TRUE, cookie);
+				(*fn->clk) (true, true, cookie);
 				CONFIG_FPGA_DELAY ();
 				val >>= 1;
 				i --;
@@ -232,9 +232,9 @@ static int ACEX1K_ps_load(Altera_desc *desc, const void *buf, size_t bsize)
 
 	for (i = 0; i < 12; i++) {
 		CONFIG_FPGA_DELAY ();
-		(*fn->clk) (TRUE, TRUE, cookie);	/* Assert the clock pin */
+		(*fn->clk) (true, true, cookie);	/* Assert the clock pin */
 		CONFIG_FPGA_DELAY ();
-		(*fn->clk) (FALSE, TRUE, cookie);	/* Deassert the clock pin */
+		(*fn->clk) (false, true, cookie);	/* Deassert the clock pin */
 	}
 
 	ret_val = FPGA_SUCCESS;

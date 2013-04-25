@@ -39,6 +39,7 @@
 #define	CONFIG_SYS_TEXT_BASE	0x40000000
 
 #ifdef	CONFIG_LCD			/* with LCD controller ?	*/
+#define CONFIG_MPC8XX_LCD
 #define CONFIG_LCD_LOGO		1	/* print our logo on the LCD	*/
 #define CONFIG_LCD_INFO		1	/* ... and some board info	*/
 #define	CONFIG_SPLASH_SCREEN		/* ... with splashscreen support*/

@@ -47,6 +47,7 @@
 #endif
 #define CONFIG_KEYBOARD		1	/* This board has a custom keybpard */
 #define CONFIG_LCD		1	/* use LCD controller ...	*/
+#define CONFIG_MPC8XX_LCD
 #define CONFIG_HITACHI_SP19X001_Z1A	/* The LCD type we use */
 
 #define	CONFIG_8xx_CONS_SMC2	1	/* Console is on SMC2		*/

@@ -519,6 +519,7 @@
 
 #define SDRAM_CONFIG_EXT_RD_LVL_11_SAMPLES	0x0000C1A7
 #define SDRAM_CONFIG_EXT_RD_LVL_4_SAMPLES	0x000001A7
+#define SDRAM_CONFIG_EXT_RD_LVL_11_SAMPLES_ES2 0x0000C1C7
 
 /* DMM */
 #define DMM_BASE			0x4E000040
@@ -696,10 +697,8 @@ struct dmm_lisa_map_regs {
 	u32 dmm_lisa_map_1;
 	u32 dmm_lisa_map_2;
 	u32 dmm_lisa_map_3;
+	u8 is_ma_present;
 };
-
-extern const u32 ext_phy_ctrl_const_base[EMIF_EXT_PHY_CTRL_CONST_REG];
-extern const u32 ddr3_ext_phy_ctrl_const_base[EMIF_EXT_PHY_CTRL_CONST_REG];
 
 #define CS0	0
 #define CS1	1
@@ -1027,6 +1026,11 @@ extern const u32 ddr3_ext_phy_ctrl_const_base[EMIF_EXT_PHY_CTRL_CONST_REG];
 #define MR8_IO_WIDTH_SHIFT	0x6
 #define MR8_IO_WIDTH_MASK	(0x3 << 0x6)
 
+/* SDRAM TYPE */
+#define EMIF_SDRAM_TYPE_DDR2	0x2
+#define EMIF_SDRAM_TYPE_DDR3	0x3
+#define EMIF_SDRAM_TYPE_LPDDR2	0x4
+
 struct lpddr2_addressing {
 	u8	num_banks;
 	u8	t_REFI_us_x10;
@@ -1129,6 +1133,14 @@ struct emif_regs {
 	u32 emif_rd_wr_exec_thresh;
 };
 
+struct lpddr2_mr_regs {
+	s8 mr1;
+	s8 mr2;
+	s8 mr3;
+	s8 mr10;
+	s8 mr16;
+};
+
 /* assert macros */
 #if defined(DEBUG)
 #define emif_assert(c)	({ if (!(c)) for (;;); })
@@ -1148,12 +1160,13 @@ void emif_get_device_timings(u32 emif_nr,
 #endif
 
 void do_ext_phy_settings(u32 base, const struct emif_regs *regs);
+void get_lpddr2_mr_regs(const struct lpddr2_mr_regs **regs);
 
 #ifndef CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS
 extern u32 *const T_num;
 extern u32 *const T_den;
-extern u32 *const emif_sizes;
 #endif
 
 void config_data_eye_leveling_samples(u32 emif_base);
+u32 emif_sdram_type(void);
 #endif

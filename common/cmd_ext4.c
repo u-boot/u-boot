@@ -88,10 +88,10 @@ int do_ext4_write(cmd_tbl_t *cmdtp, int flag, int argc,
 	dev = dev_desc->dev;
 
 	/* get the filename */
-	filename = argv[3];
+	filename = argv[4];
 
 	/* get the address in hexadecimal format (string to int) */
-	ram_address = simple_strtoul(argv[4], NULL, 16);
+	ram_address = simple_strtoul(argv[3], NULL, 16);
 
 	/* get the filesize in base 10 format */
 	file_size = simple_strtoul(argv[5], NULL, 10);
@@ -122,7 +122,7 @@ fail:
 
 U_BOOT_CMD(ext4write, 6, 1, do_ext4_write,
 	"create a file in the root directory",
-	"<interface> <dev[:part]> [Absolute filename path] [Address] [sizebytes]\n"
+	"<interface> <dev[:part]> <addr> <absolute filename path> [sizebytes]\n"
 	"    - create a file in / directory");
 
 #endif

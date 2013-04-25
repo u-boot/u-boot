@@ -18,8 +18,7 @@
 
 #define CONFIG_AM33XX
 
-#include <asm/arch/cpu.h>
-#include <asm/arch/hardware.h>
+#include <asm/arch/omap.h>
 
 #define CONFIG_DMA_COHERENT
 #define CONFIG_DMA_COHERENT_SIZE	(1 << 20)
@@ -35,9 +34,12 @@
 #define CONFIG_MACH_TYPE		MACH_TYPE_TIAM335EVM
 
 #define CONFIG_OF_LIBFDT
+#define CONFIG_CMD_BOOTZ
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
+
+#define CONFIG_SYS_CACHELINE_SIZE       64
 
 /* commands to include */
 #include <config_cmd_default.h>
@@ -49,49 +51,105 @@
 #define CONFIG_BOOTDELAY		1
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+#ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x80200000\0" \
 	"fdtaddr=0x80F80000\0" \
+	"fdt_high=0xffffffff\0" \
 	"rdaddr=0x81000000\0" \
-	"bootfile=/boot/uImage\0" \
+	"bootdir=/boot\0" \
+	"bootfile=uImage\0" \
 	"fdtfile=\0" \
 	"console=ttyO0,115200n8\0" \
 	"optargs=\0" \
+	"mtdids=" MTDIDS_DEFAULT "\0" \
+	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"dfu_alt_info_mmc=" DFU_ALT_INFO_MMC "\0" \
+	"dfu_alt_info_emmc=rawemmc mmc 0 3751936\0" \
+	"dfu_alt_info_nand=" DFU_ALT_INFO_NAND "\0" \
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 ro\0" \
 	"mmcrootfstype=ext4 rootwait\0" \
+	"bootpart=0:2\0" \
+	"nandroot=ubi0:rootfs rw ubi.mtd=7,2048\0" \
+	"nandrootfstype=ubifs rootwait=1\0" \
+	"nandsrcaddr=0x280000\0" \
+	"nandimgsize=0x500000\0" \
+	"rootpath=/export/rootfs\0" \
+	"nfsopts=nolock\0" \
+	"static_ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}" \
+		"::off\0" \
 	"ramroot=/dev/ram0 rw ramdisk_size=65536 initrd=${rdaddr},64M\0" \
 	"ramrootfstype=ext2\0" \
 	"mmcargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"root=${mmcroot} " \
 		"rootfstype=${mmcrootfstype}\0" \
+	"nandargs=setenv bootargs console=${console} " \
+		"${optargs} " \
+		"root=${nandroot} " \
+		"rootfstype=${nandrootfstype}\0" \
+	"spiroot=/dev/mtdblock4 rw\0" \
+	"spirootfstype=jffs2\0" \
+	"spisrcaddr=0xe0000\0" \
+	"spiimgsize=0x362000\0" \
+	"spibusno=0\0" \
+	"spiargs=setenv bootargs console=${console} " \
+		"${optargs} " \
+		"root=${spiroot} " \
+		"rootfstype=${spirootfstype}\0" \
+	"netargs=setenv bootargs console=${console} " \
+		"${optargs} " \
+		"root=/dev/nfs " \
+		"nfsroot=${serverip}:${rootpath},${nfsopts} rw " \
+		"ip=dhcp\0" \
 	"bootenv=uEnv.txt\0" \
-	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
+	"loadbootenv=load mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
 	"importbootenv=echo Importing environment from mmc ...; " \
 		"env import -t $loadaddr $filesize\0" \
 	"ramargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"root=${ramroot} " \
 		"rootfstype=${ramrootfstype}\0" \
-	"loadramdisk=fatload mmc ${mmcdev} ${rdaddr} ramdisk.gz\0" \
-	"loaduimagefat=fatload mmc ${mmcdev} ${loadaddr} ${bootfile}\0" \
-	"loaduimage=ext2load mmc ${mmcdev}:2 ${loadaddr} ${bootfile}\0" \
+	"loadramdisk=load mmc ${mmcdev} ${rdaddr} ramdisk.gz\0" \
+	"loaduimage=load mmc ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
+	"loadfdt=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
+		"bootm ${loadaddr} - ${fdtaddr}\0" \
+	"nandboot=echo Booting from nand ...; " \
+		"run nandargs; " \
+		"nand read ${loadaddr} ${nandsrcaddr} ${nandimgsize}; " \
 		"bootm ${loadaddr}\0" \
+	"spiboot=echo Booting from spi ...; " \
+		"run spiargs; " \
+		"sf probe ${spibusno}:0; " \
+		"sf read ${loadaddr} ${spisrcaddr} ${spiimgsize}; " \
+		"bootm ${loadaddr}\0" \
+	"netboot=echo Booting from network ...; " \
+		"setenv autoload no; " \
+		"dhcp; " \
+		"tftp ${loadaddr} ${bootfile}; " \
+		"tftp ${fdtaddr} ${fdtfile}; " \
+		"run netargs; " \
+		"bootm ${loadaddr} - ${fdtaddr}\0" \
 	"ramboot=echo Booting from ramdisk ...; " \
 		"run ramargs; " \
-		"bootm ${loadaddr}\0" \
+		"bootm ${loadaddr} ${rdaddr} ${fdtaddr}\0" \
 	"findfdt="\
 		"if test $board_name = A335BONE; then " \
 			"setenv fdtfile am335x-bone.dtb; fi; " \
+		"if test $board_name = A335BNLT; then " \
+			"setenv fdtfile am335x-boneblack.dtb; fi; " \
 		"if test $board_name = A33515BB; then " \
 			"setenv fdtfile am335x-evm.dtb; fi; " \
 		"if test $board_name = A335X_SK; then " \
 			"setenv fdtfile am335x-evmsk.dtb; fi\0" \
 
+#endif
+
 #define CONFIG_BOOTCOMMAND \
+	"run findfdt; " \
 	"mmc dev ${mmcdev}; if mmc rescan; then " \
 		"echo SD/MMC found on device ${mmcdev};" \
 		"if run loadbootenv; then " \
@@ -103,8 +161,11 @@
 			"run uenvcmd;" \
 		"fi;" \
 		"if run loaduimage; then " \
+			"run loadfdt;" \
 			"run mmcboot;" \
 		"fi;" \
+	"else " \
+		"run nandboot;" \
 	"fi;" \
 
 /* Clock Defines */
@@ -113,8 +174,8 @@
 
 #define CONFIG_CMD_ECHO
 
-/* max number of command args */
-#define CONFIG_SYS_MAXARGS		16
+/* We set the max number of command args high to avoid HUSH bugs. */
+#define CONFIG_SYS_MAXARGS		64
 
 /* Console I/O Buffer Size */
 #define CONFIG_SYS_CBSIZE		512
@@ -143,7 +204,10 @@
 #define CONFIG_CMD_MMC
 #define CONFIG_DOS_PARTITION
 #define CONFIG_CMD_FAT
+#define CONFIG_FAT_WRITE
 #define CONFIG_CMD_EXT2
+#define CONFIG_CMD_EXT4
+#define CONFIG_CMD_FS_GENERIC
 
 #define CONFIG_SPI
 #define CONFIG_OMAP3_SPI
@@ -152,6 +216,38 @@
 #define CONFIG_SPI_FLASH_WINBOND
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		(24000000)
+
+/* USB Composite download gadget - g_dnl */
+#define CONFIG_USB_GADGET
+#define CONFIG_USBDOWNLOAD_GADGET
+
+/* USB TI's IDs */
+#define CONFIG_USBD_HS
+#define CONFIG_G_DNL_VENDOR_NUM 0x0403
+#define CONFIG_G_DNL_PRODUCT_NUM 0xBD00
+#define CONFIG_G_DNL_MANUFACTURER "Texas Instruments"
+
+/* USB Device Firmware Update support */
+#define CONFIG_DFU_FUNCTION
+#define CONFIG_DFU_MMC
+#define CONFIG_DFU_NAND
+#define CONFIG_CMD_DFU
+#define DFU_ALT_INFO_MMC \
+	"boot part 0 1;" \
+	"rootfs part 0 2;" \
+	"MLO fat 0 1;" \
+	"MLO.raw mmc 100 100;" \
+	"u-boot.img.raw mmc 300 3C0;" \
+	"u-boot.img fat 0 1;" \
+	"uEnv.txt fat 0 1"
+#define DFU_ALT_INFO_NAND \
+	"SPL part 0 1;" \
+	"SPL.backup1 part 0 2;" \
+	"SPL.backup2 part 0 3;" \
+	"SPL.backup3 part 0 4;" \
+	"u-boot part 0 5;" \
+	"kernel part 0 7;" \
+	"rootfs part 0 8"
 
  /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1		/*  1 bank of DRAM */
@@ -236,9 +332,9 @@
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SPL_SPI_BUS		0
 #define CONFIG_SPL_SPI_CS		0
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
-#define CONFIG_SYS_SPI_U_BOOT_SIZE	0x40000
-#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
+#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x80000
+#define CONFIG_SPL_MUSB_NEW_SUPPORT
+#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/am33xx/u-boot-spl.lds"
 
 #define CONFIG_SPL_BOARD_INIT
 #define CONFIG_SPL_NAND_AM33XX_BCH
@@ -296,7 +392,9 @@
 #define CONFIG_ARCH_MISC_INIT
 #define CONFIG_MUSB_GADGET
 #define CONFIG_MUSB_PIO_ONLY
+#define CONFIG_MUSB_DISABLE_BULK_COMBINE_SPLIT
 #define CONFIG_USB_GADGET_DUALSPEED
+#define CONFIG_USB_GADGET_VBUS_DRAW	2
 #define CONFIG_MUSB_HOST
 #define CONFIG_AM335X_USB0
 #define CONFIG_AM335X_USB0_MODE	MUSB_PERIPHERAL
@@ -311,7 +409,37 @@
 #ifdef CONFIG_MUSB_GADGET
 #define CONFIG_USB_ETHER
 #define CONFIG_USB_ETH_RNDIS
+#define CONFIG_USBNET_HOST_ADDR	"de:ad:be:af:00:00"
 #endif /* CONFIG_MUSB_GADGET */
+
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USBETH_SUPPORT)
+/* disable host part of MUSB in SPL */
+#undef CONFIG_MUSB_HOST
+/*
+ * Disable CPSW SPL support so we fit within the 101KiB limit.
+ */
+#undef CONFIG_SPL_ETH_SUPPORT
+#endif
+
+/*
+ * Default to using SPI for environment, etc.  We have multiple copies
+ * of SPL as the ROM will check these locations.
+ * 0x0 - 0x20000 : First copy of SPL
+ * 0x20000 - 0x40000 : Second copy of SPL
+ * 0x40000 - 0x60000 : Third copy of SPL
+ * 0x60000 - 0x80000 : Fourth copy of SPL
+ * 0x80000 - 0xDF000 : U-Boot
+ * 0xDF000 - 0xE0000 : U-Boot Environment
+ * 0xE0000 - 0x442000 : Linux Kernel
+ * 0x442000 - 0x800000 : Userland
+ */
+#if defined(CONFIG_SPI_BOOT)
+# undef CONFIG_ENV_IS_NOWHERE
+# define CONFIG_ENV_IS_IN_SPI_FLASH
+# define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
+# define CONFIG_ENV_OFFSET		(892 << 10) /* 892 KiB in */
+# define CONFIG_ENV_SECT_SIZE		(4 << 10) /* 4 KB sectors */
+#endif /* SPI support */
 
 /* Unsupported features */
 #undef CONFIG_USE_IRQ
@@ -338,6 +466,13 @@
 /* NAND support */
 #ifdef CONFIG_NAND
 #define CONFIG_CMD_NAND
+#define CONFIG_CMD_MTDPARTS
+#define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
+#define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:128k(SPL)," \
+					"128k(SPL.backup1)," \
+					"128k(SPL.backup2)," \
+					"128k(SPL.backup3),1920k(u-boot)," \
+					"128k(u-boot-env),5m(kernel),-(rootfs)"
 #define CONFIG_NAND_OMAP_GPMC
 #define GPMC_NAND_ECC_LP_x16_LAYOUT	1
 #define CONFIG_SYS_NAND_BASE		(0x08000000)	/* physical address */
@@ -345,10 +480,12 @@
 							/* CS0 */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of NAND
 							   devices */
+#if !defined(CONFIG_SPI_BOOT)
 #undef CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		0x260000 /* environment starts here */
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
+#endif
 #endif
 
 #endif	/* ! __CONFIG_AM335X_EVM_H */

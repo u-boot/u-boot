@@ -121,7 +121,7 @@ void omap3_dss_panel_config(const struct panel_config *panel_cfg)
 	if (!panel_cfg->frame_buffer)
 		return;
 
-	writel(8 << GFX_FORMAT_SHIFT | GFX_ENABLE, &dispc->gfx_attributes);
+	writel(panel_cfg->gfx_format | GFX_ENABLE, &dispc->gfx_attributes);
 	writel(1, &dispc->gfx_row_inc);
 	writel(1, &dispc->gfx_pixel_inc);
 	writel(panel_cfg->lcd_size, &dispc->gfx_size);

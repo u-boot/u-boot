@@ -59,7 +59,7 @@ int checkboard(void)
 {
 	struct cpu_type *cpu;
 
-	cpu = gd->cpu;
+	cpu = gd->arch.cpu;
 	printf("Board: %sRDB\n", cpu->name);
 
 	return 0;

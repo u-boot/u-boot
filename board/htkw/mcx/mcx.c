@@ -114,7 +114,7 @@ void set_muxconf_regs(void)
 #if defined(CONFIG_OMAP_HSMMC) && !defined(CONFIG_SPL_BUILD)
 int board_mmc_init(bd_t *bis)
 {
-	return omap_mmc_init(0, 0, 0);
+	return omap_mmc_init(0, 0, 0, -1, -1);
 }
 #endif
 
@@ -130,6 +130,7 @@ static struct panel_config lcd_cfg = {
 	.load_mode      = 0x02, /* Frame Mode */
 	.panel_color	= 0,
 	.lcd_size	= PANEL_LCD_SIZE(800, 480),
+	.gfx_format	= GFXFORMAT_RGB24_UNPACKED,
 };
 
 int board_video_init(void)

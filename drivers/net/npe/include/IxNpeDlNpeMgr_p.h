@@ -126,7 +126,7 @@ IX_STATUS ixNpeDlNpeMgrUninit (void);
  * @param IxNpeDlNpeId [in] npeId     - Id of target NPE
  * @param UINT32* [in] imageCodePtr - pointer to image code in image to be
  *                                      downloaded
- * @param BOOL [in] verify            - if TRUE, verify each word written to
+ * @param BOOL [in] verify            - if true, verify each word written to
  *                                      NPE memory.
  * 
  * This function loads a image containing blocks of microcode onto a

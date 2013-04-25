@@ -632,10 +632,6 @@ static int onenand_check_bufferram(struct mtd_info *mtd, loff_t addr)
 	int blockpage, found = 0;
 	unsigned int i;
 
-#ifdef CONFIG_S3C64XX
-	return 0;
-#endif
-
 	if (ONENAND_IS_2PLANE(this))
 		blockpage = onenand_get_2x_blockpage(mtd, addr);
 	else

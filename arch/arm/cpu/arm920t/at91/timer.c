@@ -63,8 +63,8 @@ int timer_init(void)
 	writel(TIMER_LOAD_VAL, &tc->tc[0].rc);
 
 	writel(AT91_TC_CCR_SWTRG | AT91_TC_CCR_CLKEN, &tc->tc[0].ccr);
-	gd->lastinc = 0;
-	gd->tbl = 0;
+	gd->arch.lastinc = 0;
+	gd->arch.tbl = 0;
 
 	return 0;
 }
@@ -89,16 +89,16 @@ ulong get_timer_raw(void)
 
 	now = readl(&tc->tc[0].cv) & 0x0000ffff;
 
-	if (now >= gd->lastinc) {
+	if (now >= gd->arch.lastinc) {
 		/* normal mode */
-		gd->tbl += now - gd->lastinc;
+		gd->arch.tbl += now - gd->arch.lastinc;
 	} else {
 		/* we have an overflow ... */
-		gd->tbl += now + TIMER_LOAD_VAL - gd->lastinc;
+		gd->arch.tbl += now + TIMER_LOAD_VAL - gd->arch.lastinc;
 	}
-	gd->lastinc = now;
+	gd->arch.lastinc = now;
 
-	return gd->tbl;
+	return gd->arch.tbl;
 }
 
 ulong get_timer_masked(void)

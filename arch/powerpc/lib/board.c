@@ -123,7 +123,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 extern ulong __init_end;
-extern ulong __bss_end__;
+extern ulong __bss_end;
 ulong monitor_flash_len;
 
 #if defined(CONFIG_CMD_BEDBUG)
@@ -237,25 +237,18 @@ static int init_func_spi(void)
 /***********************************************************************/
 
 #if defined(CONFIG_WATCHDOG)
-static int init_func_watchdog_init(void)
+int init_func_watchdog_init(void)
 {
 	puts("       Watchdog enabled\n");
 	WATCHDOG_RESET();
 	return 0;
 }
 
-#define INIT_FUNC_WATCHDOG_INIT	init_func_watchdog_init,
-
-static int init_func_watchdog_reset(void)
+int init_func_watchdog_reset(void)
 {
 	WATCHDOG_RESET();
 	return 0;
 }
-
-#define INIT_FUNC_WATCHDOG_RESET	init_func_watchdog_reset,
-#else
-#define INIT_FUNC_WATCHDOG_INIT		/* undef */
-#define INIT_FUNC_WATCHDOG_RESET	/* undef */
 #endif /* CONFIG_WATCHDOG */
 
 /*
@@ -326,7 +319,8 @@ static init_fnc_t *init_sequence[] = {
 #ifdef CONFIG_POST
 	post_init_f,
 #endif
-	INIT_FUNC_WATCHDOG_RESET init_func_ram,
+	INIT_FUNC_WATCHDOG_RESET
+	init_func_ram,
 #if defined(CONFIG_SYS_DRAM_TEST)
 	testdram,
 #endif /* CONFIG_SYS_DRAM_TEST */
@@ -419,7 +413,7 @@ void board_init_f(ulong bootflag)
 	 *  - monitor code
 	 *  - board info struct
 	 */
-	len = (ulong)&__bss_end__ - CONFIG_SYS_MONITOR_BASE;
+	len = (ulong)&__bss_end - CONFIG_SYS_MONITOR_BASE;
 
 	/*
 	 * Subtract specified amount of memory to hide so that it won't
@@ -556,11 +550,11 @@ void board_init_f(ulong bootflag)
 #endif
 #if defined(CONFIG_MPC8220)
 	bd->bi_mbar_base = CONFIG_SYS_MBAR;	/* base of internal registers */
-	bd->bi_inpfreq = gd->inp_clk;
+	bd->bi_inpfreq = gd->arch.inp_clk;
 	bd->bi_pcifreq = gd->pci_clk;
-	bd->bi_vcofreq = gd->vco_clk;
-	bd->bi_pevfreq = gd->pev_clk;
-	bd->bi_flbfreq = gd->flb_clk;
+	bd->bi_vcofreq = gd->arch.vco_clk;
+	bd->bi_pevfreq = gd->arch.pev_clk;
+	bd->bi_flbfreq = gd->arch.flb_clk;
 
 	/* store bootparam to sram (backward compatible), here? */
 	{
@@ -568,10 +562,10 @@ void board_init_f(ulong bootflag)
 
 		*sram++ = gd->ram_size;
 		*sram++ = gd->bus_clk;
-		*sram++ = gd->inp_clk;
+		*sram++ = gd->arch.inp_clk;
 		*sram++ = gd->cpu_clk;
-		*sram++ = gd->vco_clk;
-		*sram++ = gd->flb_clk;
+		*sram++ = gd->arch.vco_clk;
+		*sram++ = gd->arch.flb_clk;
 		*sram++ = 0xb8c3ba11;	/* boot signature */
 	}
 #endif
@@ -580,16 +574,16 @@ void board_init_f(ulong bootflag)
 	bd->bi_intfreq = gd->cpu_clk;	/* Internal Freq, in Hz */
 	bd->bi_busfreq = gd->bus_clk;	/* Bus Freq,      in Hz */
 #if defined(CONFIG_CPM2)
-	bd->bi_cpmfreq = gd->cpm_clk;
-	bd->bi_brgfreq = gd->brg_clk;
-	bd->bi_sccfreq = gd->scc_clk;
-	bd->bi_vco = gd->vco_out;
+	bd->bi_cpmfreq = gd->arch.cpm_clk;
+	bd->bi_brgfreq = gd->arch.brg_clk;
+	bd->bi_sccfreq = gd->arch.scc_clk;
+	bd->bi_vco = gd->arch.vco_out;
 #endif /* CONFIG_CPM2 */
 #if defined(CONFIG_MPC512X)
-	bd->bi_ipsfreq = gd->ips_clk;
+	bd->bi_ipsfreq = gd->arch.ips_clk;
 #endif /* CONFIG_MPC512X */
 #if defined(CONFIG_MPC5xxx)
-	bd->bi_ipbfreq = gd->ipb_clk;
+	bd->bi_ipbfreq = gd->arch.ipb_clk;
 	bd->bi_pcifreq = gd->pci_clk;
 #endif /* CONFIG_MPC5xxx */
 	bd->bi_baudrate = gd->baudrate;	/* Console Baudrate     */
@@ -649,10 +643,11 @@ void board_init_r(gd_t *id, ulong dest_addr)
 
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
 	/*
-	 * The gd->cpu pointer is set to an address in flash before relocation.
-	 * We need to update it to point to the same CPU entry in RAM.
+	 * The gd->arch.cpu pointer is set to an address in flash before
+	 * relocation.  We need to update it to point to the same CPU entry
+	 * in RAM.
 	 */
-	gd->cpu += dest_addr - CONFIG_SYS_MONITOR_BASE;
+	gd->arch.cpu += dest_addr - CONFIG_SYS_MONITOR_BASE;
 
 	/*
 	 * If we didn't know the cpu mask & # cores, we can save them of

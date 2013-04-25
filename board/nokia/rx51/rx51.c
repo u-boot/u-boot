@@ -671,7 +671,7 @@ int rx51_kp_getc(void)
  */
 int board_mmc_init(bd_t *bis)
 {
-	omap_mmc_init(0, 0, 0);
-	omap_mmc_init(1, 0, 0);
+	omap_mmc_init(0, 0, 0, -1, -1);
+	omap_mmc_init(1, 0, 0, -1, -1);
 	return 0;
 }

@@ -414,11 +414,11 @@ ixNpeDlImageMgrSignatureCheck (UINT32 *microCodeImageLibrary)
 {
     IxNpeDlImageMgrImageLibraryHeader *header =
 	(IxNpeDlImageMgrImageLibraryHeader *) microCodeImageLibrary;
-    BOOL result = TRUE;
+    BOOL result = true;
 
     if (!header || header->signature != IX_NPEDL_IMAGEMGR_SIGNATURE)
     {
-	result = FALSE;
+	result = false;
 	ixNpeDlImageMgrStats.invalidSignature++;
     }
 
@@ -469,11 +469,11 @@ ixNpeDlImageMgrImageIdCompare (
 	(imageIdA->major   == imageIdB->major)   &&
 	(imageIdA->minor   == imageIdB->minor))
     {
-	return TRUE;
+	return true;
     }
     else
     {
-	return FALSE;
+	return false;
     }
 }
 
@@ -491,11 +491,11 @@ ixNpeDlImageMgrNpeFunctionIdCompare (
     if ((imageIdA->npeId   == imageIdB->npeId)   &&
 	(imageIdA->functionalityId == imageIdB->functionalityId))
     {
-	return TRUE;
+	return true;
     }
     else
     {
-	return FALSE;
+	return false;
     }
 }
 
@@ -550,7 +550,7 @@ ixNpeDlImageMgrImageFind_legacy (
     UINT32 imageCount = 0;   
     IX_STATUS status = IX_FAIL;
     IxNpeDlImageMgrImageLibraryHeader *header;
-    BOOL imageFound = FALSE;
+    BOOL imageFound = false;
 
     IX_NPEDL_TRACE0 (IX_NPEDL_FN_ENTRY_EXIT,
 		     "Entering ixNpeDlImageMgrImageFind\n");
@@ -584,7 +584,7 @@ ixNpeDlImageMgrImageFind_legacy (
 		/* get the image size */
 		*imageSize = header->entry[imageCount].image.size;
 		status = IX_SUCCESS;
-		imageFound = TRUE;
+		imageFound = true;
 	    }
 	    imageCount++;
 	}

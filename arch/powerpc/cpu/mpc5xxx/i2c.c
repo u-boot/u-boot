@@ -310,7 +310,7 @@ static int mpc_get_fdr(int speed)
 			{126, 128}
 		};
 
-		ipb = gd->ipb_clk;
+		ipb = gd->arch.ipb_clk;
 		for (i = 7; i >= 0; i--) {
 			for (j = 7; j >= 0; j--) {
 				scl = 2 * (scltap[j].scl2tap +

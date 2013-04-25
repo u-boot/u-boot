@@ -23,6 +23,7 @@
 __attribute__ ((__l1_text__, __noreturn__))
 static void bfin_reset(void)
 {
+#ifdef SWRST
 	/* Wait for completion of "system" events such as cache line
 	 * line fills so that we avoid infinite stalls later on as
 	 * much as possible.  This code is in L1, so it won't trigger
@@ -66,10 +67,15 @@ static void bfin_reset(void)
 		: "a" (15 * 1)
 		: "LC1", "LB1", "LT1"
 	);
+#endif
 
 	while (1)
+#if defined(__ADSPBF60x__)
+		bfin_write_RCU0_CTL(0x1);
+#else
 		/* Issue core reset */
 		asm("raise 1");
+#endif
 }
 
 /* We need to trampoline ourselves up into L1 since our linker

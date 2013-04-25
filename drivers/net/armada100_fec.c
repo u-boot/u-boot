@@ -100,7 +100,7 @@ static int smi_reg_read(const char *devname, u8 phy_addr, u8 phy_reg,
 	}
 
 	/* wait for the SMI register to become available */
-	if (armdfec_phy_timeout(&regs->smi, SMI_BUSY, FALSE)) {
+	if (armdfec_phy_timeout(&regs->smi, SMI_BUSY, false)) {
 		printf("ARMD100 FEC: (%s) PHY busy timeout\n",	__func__);
 		return -1;
 	}
@@ -108,7 +108,7 @@ static int smi_reg_read(const char *devname, u8 phy_addr, u8 phy_reg,
 	writel((phy_addr << 16) | (phy_reg << 21) | SMI_OP_R, &regs->smi);
 
 	/* now wait for the data to be valid */
-	if (armdfec_phy_timeout(&regs->smi, SMI_R_VALID, TRUE)) {
+	if (armdfec_phy_timeout(&regs->smi, SMI_R_VALID, true)) {
 		val = readl(&regs->smi);
 		printf("ARMD100 FEC: (%s) PHY Read timeout, val=0x%x\n",
 				__func__, val);
@@ -143,7 +143,7 @@ static int smi_reg_write(const char *devname,
 	}
 
 	/* wait for the SMI register to become available */
-	if (armdfec_phy_timeout(&regs->smi, SMI_BUSY, FALSE)) {
+	if (armdfec_phy_timeout(&regs->smi, SMI_BUSY, false)) {
 		printf("ARMD100 FEC: (%s) PHY busy timeout\n",	__func__);
 		return -1;
 	}

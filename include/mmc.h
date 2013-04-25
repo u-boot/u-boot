@@ -30,16 +30,22 @@
 #include <linux/compiler.h>
 
 #define SD_VERSION_SD	0x20000
-#define SD_VERSION_2	(SD_VERSION_SD | 0x20)
-#define SD_VERSION_1_0	(SD_VERSION_SD | 0x10)
-#define SD_VERSION_1_10	(SD_VERSION_SD | 0x1a)
+#define SD_VERSION_3	(SD_VERSION_SD | 0x300)
+#define SD_VERSION_2	(SD_VERSION_SD | 0x200)
+#define SD_VERSION_1_0	(SD_VERSION_SD | 0x100)
+#define SD_VERSION_1_10	(SD_VERSION_SD | 0x10a)
 #define MMC_VERSION_MMC		0x10000
 #define MMC_VERSION_UNKNOWN	(MMC_VERSION_MMC)
-#define MMC_VERSION_1_2		(MMC_VERSION_MMC | 0x12)
-#define MMC_VERSION_1_4		(MMC_VERSION_MMC | 0x14)
-#define MMC_VERSION_2_2		(MMC_VERSION_MMC | 0x22)
-#define MMC_VERSION_3		(MMC_VERSION_MMC | 0x30)
-#define MMC_VERSION_4		(MMC_VERSION_MMC | 0x40)
+#define MMC_VERSION_1_2		(MMC_VERSION_MMC | 0x102)
+#define MMC_VERSION_1_4		(MMC_VERSION_MMC | 0x104)
+#define MMC_VERSION_2_2		(MMC_VERSION_MMC | 0x202)
+#define MMC_VERSION_3		(MMC_VERSION_MMC | 0x300)
+#define MMC_VERSION_4		(MMC_VERSION_MMC | 0x400)
+#define MMC_VERSION_4_1		(MMC_VERSION_MMC | 0x401)
+#define MMC_VERSION_4_2		(MMC_VERSION_MMC | 0x402)
+#define MMC_VERSION_4_3		(MMC_VERSION_MMC | 0x403)
+#define MMC_VERSION_4_41	(MMC_VERSION_MMC | 0x429)
+#define MMC_VERSION_4_5		(MMC_VERSION_MMC | 0x405)
 
 #define MMC_MODE_HS		0x001
 #define MMC_MODE_HS_52MHz	0x010
@@ -259,6 +265,7 @@ struct mmc {
 	void (*set_ios)(struct mmc *mmc);
 	int (*init)(struct mmc *mmc);
 	int (*getcd)(struct mmc *mmc);
+	int (*getwp)(struct mmc *mmc);
 	uint b_max;
 };
 
@@ -274,6 +281,7 @@ int get_mmc_num(void);
 int board_mmc_getcd(struct mmc *mmc);
 int mmc_switch_part(int dev_num, unsigned int part_num);
 int mmc_getcd(struct mmc *mmc);
+int mmc_getwp(struct mmc *mmc);
 void spl_mmc_load(void) __noreturn;
 
 #ifdef CONFIG_GENERIC_MMC

@@ -91,9 +91,9 @@ int get_clocks (void)
 #endif
 
 #ifdef CONFIG_FSL_I2C
-	gd->i2c1_clk = gd->bus_clk;
+	gd->arch.i2c1_clk = gd->bus_clk;
 #ifdef CONFIG_SYS_I2C2_OFFSET
-	gd->i2c2_clk = gd->bus_clk;
+	gd->arch.i2c2_clk = gd->bus_clk;
 #endif
 #endif
 

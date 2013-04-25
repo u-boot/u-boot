@@ -836,9 +836,9 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 
 		erase.start = blockstart;
 		ioctl (fd, MEMUNLOCK, &erase);
-
-		/* Dataflash does not need an explicit erase cycle */
-		if (mtd_type != MTD_DATAFLASH)
+		/* These do not need an explicit erase cycle */
+		if (mtd_type != MTD_ABSENT &&
+		    mtd_type != MTD_DATAFLASH)
 			if (ioctl (fd, MEMERASE, &erase) != 0) {
 				fprintf (stderr, "MTD erase error on %s: %s\n",
 					 DEVNAME (dev),
@@ -949,19 +949,34 @@ static int flash_write (int fd_current, int fd_target, int dev_target)
 static int flash_read (int fd)
 {
 	struct mtd_info_user mtdinfo;
+	struct stat st;
 	int rc;
 
-	rc = ioctl (fd, MEMGETINFO, &mtdinfo);
+	rc = fstat(fd, &st);
 	if (rc < 0) {
-		perror ("Cannot get MTD information");
+		fprintf(stderr, "Cannot stat the file %s\n",
+			DEVNAME(dev_current));
 		return -1;
 	}
 
-	if (mtdinfo.type != MTD_NORFLASH &&
-	    mtdinfo.type != MTD_NANDFLASH &&
-	    mtdinfo.type != MTD_DATAFLASH) {
-		fprintf (stderr, "Unsupported flash type %u\n", mtdinfo.type);
-		return -1;
+	if (S_ISCHR(st.st_mode)) {
+		rc = ioctl(fd, MEMGETINFO, &mtdinfo);
+		if (rc < 0) {
+			fprintf(stderr, "Cannot get MTD information for %s\n",
+				DEVNAME(dev_current));
+			return -1;
+		}
+		if (mtdinfo.type != MTD_NORFLASH &&
+		    mtdinfo.type != MTD_NANDFLASH &&
+		    mtdinfo.type != MTD_DATAFLASH &&
+		    mtdinfo.type != MTD_UBIVOLUME) {
+			fprintf (stderr, "Unsupported flash type %u on %s\n",
+				 mtdinfo.type, DEVNAME(dev_current));
+			return -1;
+		}
+	} else {
+		memset(&mtdinfo, 0, sizeof(mtdinfo));
+		mtdinfo.type = MTD_ABSENT;
 	}
 
 	DEVTYPE(dev_current) = mtdinfo.type;
@@ -1134,6 +1149,9 @@ int fw_env_open(void)
 		} else if (DEVTYPE(dev_current) == MTD_DATAFLASH &&
 			   DEVTYPE(!dev_current) == MTD_DATAFLASH) {
 			environment.flag_scheme = FLAG_BOOLEAN;
+		} else if (DEVTYPE(dev_current) == MTD_UBIVOLUME &&
+			   DEVTYPE(!dev_current) == MTD_UBIVOLUME) {
+			environment.flag_scheme = FLAG_INCREMENTAL;
 		} else {
 			fprintf (stderr, "Incompatible flash types!\n");
 			return -1;

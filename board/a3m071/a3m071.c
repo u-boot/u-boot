@@ -24,10 +24,15 @@
 #include <mpc5xxx.h>
 #include <pci.h>
 #include <miiphy.h>
+#include <linux/compiler.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 
+#ifdef CONFIG_A4M2K
+#include "is46r16320d.h"
+#else
 #include "mt46v16m16-75.h"
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -63,6 +68,12 @@ static void sdram_start(int hi_addr)
 
 	/* normal operation */
 	out_be32((void *)MPC5XXX_SDRAM_CTRL, control);
+
+	/*
+	 * Wait a short while for the DLL to lock before accessing
+	 * the SDRAM
+	 */
+	udelay(100);
 }
 #endif
 
@@ -157,18 +168,23 @@ static void get_revisions(int *failsavelevel, int *digiboardversion,
 	struct mpc5xxx_gpt_0_7 *gpt = (struct mpc5xxx_gpt_0_7 *)MPC5XXX_GPT;
 	u8 val;
 
-	/*
-	 * Figure out failsavelevel
-	 * see ticket dsvk#59
-	 */
-	*failsavelevel = 0;	/* 0=failsave, 1=board ok, 2=fpga ok */
-
 	/* read digitalboard-version from TMR[2..4] */
 	val = 0;
 	val |= (gpt->gpt2.sr & (1 << (31 - 23))) ? (1) : 0;
 	val |= (gpt->gpt3.sr & (1 << (31 - 23))) ? (1 << 1) : 0;
 	val |= (gpt->gpt4.sr & (1 << (31 - 23))) ? (1 << 2) : 0;
 	*digiboardversion = val;
+
+	/*
+	 * A4M2K only supports digiboardversion. No failsavelevel and
+	 * fpgaversion here.
+	 */
+#if !defined(CONFIG_A4M2K)
+	/*
+	 * Figure out failsavelevel
+	 * see ticket dsvk#59
+	 */
+	*failsavelevel = 0;	/* 0=failsave, 1=board ok, 2=fpga ok */
 
 	if (*digiboardversion == 0) {
 		*failsavelevel = 1;	/* digiboard-version ok */
@@ -183,6 +199,7 @@ static void get_revisions(int *failsavelevel, int *digiboardversion,
 		if (*fpgaversion == 1)
 			*failsavelevel = 2;	/* fpga-version ok */
 	}
+#endif
 }
 
 /*
@@ -196,6 +213,11 @@ void spl_board_init(void)
 	struct mpc5xxx_gpio *gpio = (struct mpc5xxx_gpio *)MPC5XXX_GPIO;
 	struct mpc5xxx_mmap_ctl *mm =
 		(struct mpc5xxx_mmap_ctl *)CONFIG_SYS_MBAR;
+
+#if defined(CONFIG_A4M2K)
+	/* enable CS3 and CS5 (FPGA) */
+	setbits_be32(&mm->ipbi_ws_ctrl, (1 << 19) | (1 << 21));
+#else
 	int digiboardversion;
 	int failsavelevel;
 	int fpgaversion;
@@ -219,6 +241,7 @@ void spl_board_init(void)
 
 	/* And write new value back to register */
 	out_be32(&mm->ipbi_ws_ctrl, val);
+#endif
 
 	/*
 	 * No need to change the pin multiplexing (MPC5XXX_GPS_PORT_CONFIG)
@@ -232,8 +255,57 @@ void spl_board_init(void)
 	 * MPC5XXX_WU_GPIO_DIR direction is already 0 (INPUT)
 	 * set bit 0(msb) to 1
 	 */
-	setbits_be32((void *)MPC5XXX_WU_GPIO_ENABLE, 1 << (31 - 0));
+	setbits_be32((void *)MPC5XXX_WU_GPIO_ENABLE, CONFIG_WDOG_GPIO_PIN);
 
+#if defined(CONFIG_A4M2K)
+	/* Setup USB[x] as MPCDiag[0..3] GPIO outputs */
+
+	/* set USB0,6,7,8 (MPCDiag[0..3]) direction to output */
+	gpio->simple_ddr |= 1 << (31 - 15);
+	gpio->simple_ddr |= 1 << (31 - 14);
+	gpio->simple_ddr |= 1 << (31 - 13);
+	gpio->simple_ddr |= 1 << (31 - 12);
+
+	/* enable USB0,6,7,8 (MPCDiag[0..3]) as GPIO */
+	gpio->simple_gpioe |= 1 << (31 - 15);
+	gpio->simple_gpioe |= 1 << (31 - 14);
+	gpio->simple_gpioe |= 1 << (31 - 13);
+	gpio->simple_gpioe |= 1 << (31 - 12);
+
+	/* Setup PSC2[0..2] as STSLED[0..2] GPIO outputs */
+
+	/* set PSC2[0..2] (STSLED[0..2]) direction to output */
+	gpio->simple_ddr |= 1 << (31 - 27);
+	gpio->simple_ddr |= 1 << (31 - 26);
+	gpio->simple_ddr |= 1 << (31 - 25);
+
+	/* enable PSC2[0..2] (STSLED[0..2]) as GPIO */
+	gpio->simple_gpioe |= 1 << (31 - 27);
+	gpio->simple_gpioe |= 1 << (31 - 26);
+	gpio->simple_gpioe |= 1 << (31 - 25);
+
+	/* Setup PSC6[2] as MRST2 self reset GPIO output */
+
+	/* set PSC6[2]/IRDA_TX (MRST2) direction to output */
+	gpio->simple_ddr |= 1 << (31 - 3);
+
+	/* set PSC6[2]/IRDA_TX (MRST2) output as open drain */
+	gpio->simple_ode |= 1 << (31 - 3);
+
+	/* set PSC6[2]/IRDA_TX (MRST2) output as default high */
+	gpio->simple_dvo |= 1 << (31 - 3);
+
+	/* enable PSC6[2]/IRDA_TX (MRST2) as GPIO */
+	gpio->simple_gpioe |= 1 << (31 - 3);
+
+	/* Setup PSC6[3] as HARNSSCD harness code GPIO input */
+
+	/* set PSC6[3]/IR_USB_CLK (HARNSSCD) direction to input */
+	gpio->simple_ddr |= 0 << (31 - 2);
+
+	/* enable PSC6[3]/IR_USB_CLK (HARNSSCD) as GPIO */
+	gpio->simple_gpioe |= 1 << (31 - 2);
+#else
 	/* setup GPIOs for status-leds if needed - see ticket #57 */
 	if (failsavelevel > 0) {
 		/* digiboard-version is OK */
@@ -267,7 +339,7 @@ void spl_board_init(void)
 		 * already cleared (intr_ctrl) MBAR+0x0510 ECLR[0] bit above
 		 */
 	}
-
+#endif
 }
 
 int checkboard(void)
@@ -278,11 +350,16 @@ int checkboard(void)
 
 	get_revisions(&failsavelevel, &digiboardversion, &fpgaversion);
 
+#ifdef CONFIG_A4M2K
+	puts("Board: A4M2K\n");
+	printf("       digiboard IO version %u\n", digiboardversion);
+#else
 	puts("Board: A3M071\n");
 	printf("Rev:   failsave level       %u\n", failsavelevel);
 	printf("       digiboard IO version %u\n", digiboardversion);
 	if (failsavelevel > 0)	/* only if fpga-version red */
 		printf("       fpga IO version      %u\n", fpgaversion);
+#endif
 
 	return 0;
 }
@@ -332,4 +409,58 @@ int spl_start_uboot(void)
 
 	return 1;
 }
+#endif
+
+#if defined(CONFIG_HW_WATCHDOG)
+static int watchdog_toggle;
+
+void hw_watchdog_reset(void)
+{
+	int val;
+
+	/*
+	 * Check if watchdog is enabled via user command
+	 */
+	if ((gd->flags & GD_FLG_RELOC) && watchdog_toggle) {
+		/* Set direction to output */
+		setbits_be32((void *)MPC5XXX_WU_GPIO_DIR, CONFIG_WDOG_GPIO_PIN);
+
+		/*
+		 * Toggle watchdog output
+		 */
+		val = (in_be32((void *)MPC5XXX_WU_GPIO_DATA_O) &
+		       CONFIG_WDOG_GPIO_PIN);
+		if (val) {
+			clrbits_be32((void *)MPC5XXX_WU_GPIO_DATA_O,
+				     CONFIG_WDOG_GPIO_PIN);
+		} else {
+			setbits_be32((void *)MPC5XXX_WU_GPIO_DATA_O,
+				     CONFIG_WDOG_GPIO_PIN);
+		}
+	}
+}
+
+int do_wdog_toggle(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	if (argc != 2)
+		goto usage;
+
+	if (strncmp(argv[1], "on", 2) == 0)
+		watchdog_toggle = 1;
+	else if (strncmp(argv[1], "off", 3) == 0)
+		watchdog_toggle = 0;
+	else
+		goto usage;
+
+	return 0;
+usage:
+	printf("Usage: wdogtoggle %s\n", cmdtp->usage);
+	return 1;
+}
+
+U_BOOT_CMD(
+	wdogtoggle, CONFIG_SYS_MAXARGS, 2, do_wdog_toggle,
+	"toggle GPIO pin to service watchdog",
+	"[on/off] - Switch watchdog toggling via GPIO pin on/off"
+);
 #endif

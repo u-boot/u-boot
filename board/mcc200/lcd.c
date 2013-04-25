@@ -68,31 +68,11 @@ vidinfo_t panel_info = {
 	LCD_WIDTH, LCD_HEIGHT, LCD_BPP
 };
 
-int lcd_line_length;
-
-int lcd_color_fg;
-int lcd_color_bg;
-
-/*
- * Frame buffer memory information
- */
-void *lcd_base;			/* Start of framebuffer memory  */
-void *lcd_console_address;	/* Start of console buffer      */
-
-short console_col = 0;
-short console_row = 0;
 
 /*
  *  The device we use to communicate with PSoC
  */
 int serial_inited = 0;
-
-/*
- * Exported functions
- */
-void lcd_initcolregs (void);
-void lcd_ctrl_init (void *lcdbase);
-void lcd_enable (void);
 
 /*
  *  Imported functions to support the PSoC protocol
@@ -156,12 +136,12 @@ void lcd_enable (void)
 
 #if !defined(SWAPPED_LCD)
 	for (i=0; i<fb_size; i++) {
-		serial_putc_raw_dev (PSOC_PSC, ((char *)lcd_base)[i]);
+		serial_putc_raw_dev(PSOC_PSC, ((char *)gd->fb_base)[i]);
 	}
 #else
     {
 	int x, y, pwidth;
-	char *p = (char *)lcd_base;
+	char *p = (char *)gd->fb_base;
 
 	pwidth = ((panel_info.vl_col+7) >> 3);
 	for (y=0; y<panel_info.vl_row; y++) {

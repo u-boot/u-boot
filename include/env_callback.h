@@ -41,6 +41,12 @@
 #define SILENT_CALLBACK
 #endif
 
+#ifdef CONFIG_SPLASHIMAGE_GUARD
+#define SPLASHIMAGE_CALLBACK "splashimage:splashimage,"
+#else
+#define SPLASHIMAGE_CALLBACK
+#endif
+
 /*
  * This list of callback bindings is static, but may be overridden by defining
  * a new association in the ".callbacks" environment variable.
@@ -51,6 +57,7 @@
 	"bootfile:bootfile," \
 	"loadaddr:loadaddr," \
 	SILENT_CALLBACK \
+	SPLASHIMAGE_CALLBACK \
 	"stdin:console,stdout:console,stderr:console," \
 	CONFIG_ENV_CALLBACK_LIST_STATIC
 
@@ -60,7 +67,6 @@ struct env_clbk_tbl {
 		int flags);
 };
 
-struct env_clbk_tbl *find_env_callback(const char *);
 void env_callback_init(ENTRY *var_entry);
 
 /*
@@ -76,7 +82,7 @@ void env_callback_init(ENTRY *var_entry);
 	}
 #else
 #define U_BOOT_ENV_CALLBACK(name, callback) \
-	ll_entry_declare(struct env_clbk_tbl, name, env_clbk, env_clbk) = \
+	ll_entry_declare(struct env_clbk_tbl, name, env_clbk) = \
 	{#name, callback}
 #endif
 

@@ -412,9 +412,11 @@ int sdhci_init(struct mmc *mmc)
 			status = sdhci_readl(host, SDHCI_PRESENT_STATE);
 	}
 
-	/* Eable all state */
-	sdhci_writel(host, SDHCI_INT_ALL_MASK, SDHCI_INT_ENABLE);
-	sdhci_writel(host, SDHCI_INT_ALL_MASK, SDHCI_SIGNAL_ENABLE);
+	/* Enable only interrupts served by the SD controller */
+	sdhci_writel(host, SDHCI_INT_DATA_MASK | SDHCI_INT_CMD_MASK
+		     , SDHCI_INT_ENABLE);
+	/* Mask all sdhci interrupt sources */
+	sdhci_writel(host, 0x0, SDHCI_SIGNAL_ENABLE);
 
 	return 0;
 }
@@ -438,6 +440,7 @@ int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 	mmc->set_ios = sdhci_set_ios;
 	mmc->init = sdhci_init;
 	mmc->getcd = NULL;
+	mmc->getwp = NULL;
 
 	caps = sdhci_readl(host, SDHCI_CAPABILITIES);
 #ifdef CONFIG_MMC_SDMA

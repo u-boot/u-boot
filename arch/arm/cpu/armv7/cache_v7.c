@@ -340,6 +340,9 @@ void mmu_page_table_flush(unsigned long start, unsigned long stop)
 {
 }
 
+void arm_init_domains(void)
+{
+}
 #endif /* #ifndef CONFIG_SYS_DCACHE_OFF */
 
 #ifndef CONFIG_SYS_ICACHE_OFF

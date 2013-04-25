@@ -42,14 +42,22 @@
 #define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTD_BASE
 
 #define CONFIG_BOARD_EARLY_INIT_F
-
-#define CONFIG_ENV_IS_NOWHERE
+#define CONFIG_BOARD_LATE_INIT
 
 /* SD/MMC */
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_TEGRA_MMC
 #define CONFIG_CMD_MMC
+
+/* NAND support */
+#define CONFIG_CMD_NAND
+#define CONFIG_TEGRA_NAND
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+
+/* Environment in NAND, aligned to start of last sector */
+#define CONFIG_ENV_IS_IN_NAND
+#define CONFIG_ENV_OFFSET		(SZ_512M - SZ_128K) /* 128K sectors */
 
 /* USB host support */
 #define CONFIG_USB_EHCI
@@ -65,17 +73,8 @@
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_DHCP
 
-#define CONFIG_DOS_PARTITION
-#define CONFIG_EFI_PARTITION
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
-
+/* support the new (FDT-based) image format */
 #define CONFIG_FIT
-
-#define CONFIG_BOOTCOMMAND				\
-	"mmc rescan;"					\
-	"ext2load mmc 0 0x17000000 /boot/uImage;"	\
-	"bootm"
 
 #include "tegra-common-post.h"
 

@@ -32,6 +32,14 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/sizes.h>
 #include <asm/emif.h>
+#include <asm/omap_common.h>
+#include <linux/compiler.h>
+#include <asm/cache.h>
+#include <asm/system.h>
+
+#define ARMV7_DCACHE_WRITEBACK  0xe
+#define	ARMV7_DOMAIN_CLIENT	1
+#define ARMV7_DOMAIN_MASK	(0x3 << 0)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -79,12 +87,17 @@ u32 cortex_rev(void)
 void omap_rev_string(void)
 {
 	u32 omap_rev = omap_revision();
+	u32 soc_variant	= (omap_rev & 0xF0000000) >> 28;
 	u32 omap_variant = (omap_rev & 0xFFFF0000) >> 16;
 	u32 major_rev = (omap_rev & 0x00000F00) >> 8;
 	u32 minor_rev = (omap_rev & 0x000000F0) >> 4;
 
-	printf("OMAP%x ES%x.%x\n", omap_variant, major_rev,
-		minor_rev);
+	if (soc_variant)
+		printf("OMAP");
+	else
+		printf("DRA");
+	printf("%x ES%x.%x\n", omap_variant, major_rev,
+	       minor_rev);
 }
 
 #ifdef CONFIG_SPL_BUILD
@@ -98,6 +111,10 @@ void spl_display_print(void)
 	omap_rev_string();
 }
 #endif
+
+void __weak srcomp_enable(void)
+{
+}
 
 /*
  * Routine: s_init
@@ -116,6 +133,8 @@ void spl_display_print(void)
 void s_init(void)
 {
 	init_omap_revision();
+	hw_data_init();
+
 #ifdef CONFIG_SPL_BUILD
 	if (warm_reset() && (omap_revision() <= OMAP5430_ES1_0))
 		force_emif_self_refresh();
@@ -123,6 +142,7 @@ void s_init(void)
 	watchdog_init();
 	set_mux_conf_regs();
 #ifdef CONFIG_SPL_BUILD
+	srcomp_enable();
 	setup_clocks_for_console();
 
 	gd = &gdata;
@@ -235,10 +255,7 @@ int checkboard(void)
  */
 u32 get_device_type(void)
 {
-	struct omap_sys_ctrl_regs *ctrl =
-		      (struct omap_sys_ctrl_regs *) SYSCTRL_GENERAL_CORE_BASE;
-
-	return (readl(&ctrl->control_status) &
+	return (readl((*ctrl)->control_status) &
 				      (DEVICE_TYPE_MASK)) >> DEVICE_TYPE_SHIFT;
 }
 
@@ -257,5 +274,34 @@ void enable_caches(void)
 {
 	/* Enable D-cache. I-cache is already enabled in start.S */
 	dcache_enable();
+}
+
+void dram_bank_mmu_setup(int bank)
+{
+	bd_t *bd = gd->bd;
+	int	i;
+
+	u32 start = bd->bi_dram[bank].start >> 20;
+	u32 size = bd->bi_dram[bank].size >> 20;
+	u32 end = start + size;
+
+	debug("%s: bank: %d\n", __func__, bank);
+	for (i = start; i < end; i++)
+		set_section_dcache(i, ARMV7_DCACHE_WRITEBACK);
+
+}
+
+void arm_init_domains(void)
+{
+	u32 reg;
+
+	reg = get_dacr();
+	/*
+	* Set DOMAIN to client access so that all permissions
+	* set in pagetables are validated by the mmu.
+	*/
+	reg &= ~ARMV7_DOMAIN_MASK;
+	reg |= ARMV7_DOMAIN_CLIENT;
+	set_dacr(reg);
 }
 #endif

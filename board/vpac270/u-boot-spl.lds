@@ -54,14 +54,12 @@ SECTIONS
 
 	. = ALIGN(4);
 	.data : {
-		*(.data)
-	}
-
-	.u_boot_list : {
-		#include <u-boot.lst>
+		*(.data*)
 	}
 
 	. = ALIGN(4);
+
+	__image_copy_end = .;
 
 	.rel.dyn : {
 		__rel_dyn_start = .;
@@ -80,9 +78,9 @@ SECTIONS
 
 	.bss __rel_dyn_start (OVERLAY) : {
 		__bss_start = .;
-		*(.bss)
+		*(.bss*)
 		 . = ALIGN(4);
-		__bss_end__ = .;
+		__bss_end = .;
 	}
 
 	/DISCARD/ : { *(.bss*) }

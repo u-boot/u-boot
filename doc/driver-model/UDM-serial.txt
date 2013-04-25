@@ -86,7 +86,7 @@ III) Analysis of in-tree drivers
 
   7) ns9750_serial.c
   ------------------
-  No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
+  Unmaintained port. Code got removed.
 
   8) opencores_yanu.c
   -------------------
@@ -96,88 +96,84 @@ III) Analysis of in-tree drivers
   ------------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
-  10) s3c64xx.c
+  10) sandbox.c
   -------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
-  11) sandbox.c
-  -------------
-  No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
-
-  12) serial.c
+  11) serial.c
   ------------
   This is a complementary part of NS16550 UART driver, see above.
 
-  13) serial_clps7111.c
+  12) serial_clps7111.c
   ---------------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
-  14) serial_imx.c
+  13) serial_imx.c
   ----------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible. This driver
   might be removed in favor of serial_mxc.c .
 
-  15) serial_ixp.c
+  14) serial_ixp.c
   ----------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
-  16) serial_ks8695.c
+  15) serial_ks8695.c
   -------------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
-  17) serial_max3100.c
+  16) serial_max3100.c
   --------------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
-  18) serial_mxc.c
+  17) serial_mxc.c
   ----------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
-  19) serial_netarm.c
+  18) serial_netarm.c
   -------------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
-  20) serial_pl01x.c
+  19) serial_pl01x.c
   ------------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible, though this
   driver in fact contains two drivers in total.
 
-  21) serial_pxa.c
+  20) serial_pxa.c
   ----------------
   This driver is a bit complicated, but due to clean support for
   CONFIG_SERIAL_MULTI, there are no expected obstructions throughout the
   conversion process.
 
-  22) serial_s3c24x0.c
+  21) serial_s3c24x0.c
   --------------------
   This driver, being quite ad-hoc might need some work to bring back to shape.
 
-  23) serial_s3c44b0.c
+  22) serial_s3c44b0.c
   --------------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
-  24) serial_s5p.c
+  23) serial_s5p.c
   ----------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
-  25) serial_sa1100.c
+  24) serial_sa1100.c
   -------------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
-  26) serial_sh.c
+  25) serial_sh.c
   ---------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
-  27) serial_xuartlite.c
+  26) serial_xuartlite.c
   ----------------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
-  28) usbtty.c
+  27) usbtty.c
   ------------
   This driver seems very complicated and entangled with USB framework. The
   conversion might be complicated here.
 
-  29) arch/powerpc/cpu/mpc512x/serial.c
+  28) arch/powerpc/cpu/mpc512x/serial.c
   -------------------------------------
   This driver supports CONFIG_SERIAL_MULTI. This driver will need to be moved to
   proper place.

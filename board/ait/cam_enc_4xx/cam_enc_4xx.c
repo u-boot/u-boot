@@ -561,7 +561,8 @@ static char *menu_handle(struct menu_display *display)
 	char *s;
 	char temp[6][200];
 
-	m = menu_create(display->title, display->timeout, 1, ait_menu_print);
+	m = menu_create(display->title, display->timeout, 1, ait_menu_print,
+			NULL, NULL);
 
 	for (i = 0; display->menulist[i]; i++) {
 		sprintf(key, "%d", i + 1);

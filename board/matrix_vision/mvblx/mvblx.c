@@ -106,8 +106,8 @@ void set_muxconf_regs(void)
 #ifdef CONFIG_GENERIC_MMC
 int board_mmc_init(bd_t *bis)
 {
-	omap_mmc_init(0, 0, 0);
-	omap_mmc_init(1, 0, 0);
+	omap_mmc_init(0, 0, 0, -1, -1);
+	omap_mmc_init(1, 0, 0, -1, -1);
 	return 0;
 }
 #endif
@@ -162,7 +162,7 @@ int board_eth_init(bd_t *bis)
 
 int overwrite_console(void)
 {
-	/* return TRUE if console should be overwritten */
+	/* return true if console should be overwritten */
 	return 0;
 }
 

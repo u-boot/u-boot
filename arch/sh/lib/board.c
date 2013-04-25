@@ -65,6 +65,7 @@ static int sh_flash_init(void)
 #if defined(CONFIG_WATCHDOG)
 extern int watchdog_init(void);
 extern int watchdog_disable(void);
+# undef INIT_FUNC_WATCHDOG_INIT
 # define INIT_FUNC_WATCHDOG_INIT	watchdog_init,
 # define WATCHDOG_DISABLE       	watchdog_disable
 #else

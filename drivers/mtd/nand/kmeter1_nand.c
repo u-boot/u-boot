@@ -119,7 +119,11 @@ static int kpn_nand_dev_ready(struct mtd_info *mtd)
 
 int board_nand_init(struct nand_chip *nand)
 {
+#if defined(CONFIG_NAND_ECC_BCH)
+	nand->ecc.mode = NAND_ECC_SOFT_BCH;
+#else
 	nand->ecc.mode = NAND_ECC_SOFT;
+#endif
 
 	/* Reference hardware control function */
 	nand->cmd_ctrl  = kpn_nand_hwcontrol;

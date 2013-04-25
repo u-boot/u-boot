@@ -144,9 +144,9 @@ static int CYC2_ps_load(Altera_desc *desc, const void *buf, size_t bsize)
 		}
 
 		/* Establish the initial state */
-		(*fn->config) (FALSE, TRUE, cookie);	/* De-assert nCONFIG */
+		(*fn->config) (false, true, cookie);	/* De-assert nCONFIG */
 		udelay(100);
-		(*fn->config) (TRUE, TRUE, cookie);	/* Assert nCONFIG */
+		(*fn->config) (true, true, cookie);	/* Assert nCONFIG */
 
 		udelay(2);		/* T_cfg > 2us	*/
 
@@ -164,7 +164,7 @@ static int CYC2_ps_load(Altera_desc *desc, const void *buf, size_t bsize)
 		/* Get ready for the burn */
 		CONFIG_FPGA_DELAY ();
 
-		ret = (*fn->write) (buf, bsize, TRUE, cookie);
+		ret = (*fn->write) (buf, bsize, true, cookie);
 		if (ret) {
 			puts ("** Write failed.\n");
 			(*fn->abort) (cookie);

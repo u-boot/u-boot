@@ -90,9 +90,9 @@
 /*
  * select serial console configuration
  */
-#define CONFIG_CONS_INDEX		3
-#define CONFIG_SYS_NS16550_COM3		OMAP34XX_UART3
-#define CONFIG_SERIAL3			3	/* UART3 */
+#define CONFIG_CONS_INDEX		1
+#define CONFIG_SYS_NS16550_COM1		OMAP34XX_UART1
+#define CONFIG_SERIAL1			1	/* UART1 */
 
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
@@ -101,6 +101,10 @@
 #define CONFIG_MMC			1
 #define CONFIG_OMAP_HSMMC		1
 #define CONFIG_DOS_PARTITION		1
+
+/* silent console by default */
+#define CONFIG_SYS_DEVICE_NULLDEV	1
+#define CONFIG_SILENT_CONSOLE		1
 
 /* USB */
 #define CONFIG_MUSB_UDC			1
@@ -142,8 +146,6 @@
 #define CONFIG_HARD_I2C			1
 #define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_SYS_I2C_SLAVE		0
-#define CONFIG_SYS_I2C_BUS		0 /* This isn't used anywhere ?? */
-#define CONFIG_SYS_I2C_BUS_SELECT	1 /* This isn't used anywhere ?? */
 #define CONFIG_DRIVER_OMAP34XX_I2C	1
 #define CONFIG_I2C_MULTI_BUS		1
 
@@ -154,19 +156,23 @@
 
 /* Environment information */
 #undef CONFIG_ENV_OVERWRITE	/* disallow overwriting serial# and ethaddr */
-#define CONFIG_BOOTDELAY		3
+#define CONFIG_BOOTDELAY		0
+#define CONFIG_ZERO_BOOTDELAY_CHECK
+#define CONFIG_AUTOBOOT_KEYED
+#define CONFIG_AUTOBOOT_STOP_STR "S"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"silent=true\0" \
 	"loadaddr=0x82000000\0" \
 	"usbtty=cdc_acm\0" \
-	"console=ttyO2,115200n8\0" \
+	"console=ttyO0,115200n8\0" \
 	"mpurate=600\0" \
 	"vram=12M\0" \
 	"dvimode=1024x768-24@60\0" \
 	"defaultdisplay=dvi\0" \
-	"fpgafilename=mvbluelynx_x.rbf\0" \
-	"loadfpga=if fatload mmc ${mmcdev} ${loadaddr} ${fpgafilename}; then " \
-		"fpga load 0 ${loadaddr} ${filesize}; " \
+	"loadfpga=if ext2load mmc ${mmcdev}:2 ${loadaddr} "\
+		"/lib/firmware/mvblx/${fpgafilename}; then " \
+			"fpga load 0 ${loadaddr} ${filesize}; " \
 		"fi;\0" \
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \
@@ -179,6 +185,7 @@
 		"omapdss.def_disp=${defaultdisplay} " \
 		"root=${mmcroot} " \
 		"rootfstype=${mmcrootfstype} " \
+		"mvfw.fpgavers=${fpgavers} " \
 		"${cmdline_suffix}\0" \
 	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} uEnv.txt\0" \
 	"importbootenv=echo Importing environment from mmc ...; " \

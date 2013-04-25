@@ -23,6 +23,9 @@
 #include <asm/errno.h>
 #include <jffs2/load_kernel.h>
 
+#undef ubi_msg
+#define ubi_msg(fmt, ...) printf("UBI: " fmt "\n", ##__VA_ARGS__)
+
 #define DEV_TYPE_NONE		0
 #define DEV_TYPE_NAND		1
 #define DEV_TYPE_ONENAND	2
@@ -263,7 +266,7 @@ out_err:
 	return err;
 }
 
-static int ubi_volume_write(char *volume, void *buf, size_t size)
+int ubi_volume_write(char *volume, void *buf, size_t size)
 {
 	int err = 1;
 	int rsvd_bytes = 0;
@@ -308,12 +311,10 @@ static int ubi_volume_write(char *volume, void *buf, size_t size)
 		ubi_gluebi_updated(vol);
 	}
 
-	printf("%d bytes written to volume %s\n", size, volume);
-
 	return 0;
 }
 
-static int ubi_volume_read(char *volume, char *buf, size_t size)
+int ubi_volume_read(char *volume, char *buf, size_t size)
 {
 	int err, lnum, off, len, tbuf_size;
 	void *tbuf;
@@ -324,8 +325,6 @@ static int ubi_volume_read(char *volume, char *buf, size_t size)
 	vol = ubi_find_volume(volume);
 	if (vol == NULL)
 		return ENODEV;
-
-	printf("Read %d bytes from volume %s to %p\n", size, volume, buf);
 
 	if (vol->updating) {
 		printf("updating");
@@ -431,26 +430,82 @@ static int ubi_dev_scan(struct mtd_info *info, char *ubidev,
 	return 0;
 }
 
-static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+int ubi_part(char *part_name, const char *vid_header_offset)
 {
-	size_t size = 0;
-	ulong addr = 0;
 	int err = 0;
-
-	if (argc < 2)
-		return CMD_RET_USAGE;
+	char mtd_dev[16];
+	struct mtd_device *dev;
+	struct part_info *part;
+	u8 pnum;
 
 	if (mtdparts_init() != 0) {
 		printf("Error initializing mtdparts!\n");
 		return 1;
 	}
 
+#ifdef CONFIG_CMD_UBIFS
+	/*
+	 * Automatically unmount UBIFS partition when user
+	 * changes the UBI device. Otherwise the following
+	 * UBIFS commands will crash.
+	 */
+	if (ubifs_is_mounted())
+		cmd_ubifs_umount();
+#endif
+
+	/* todo: get dev number for NAND... */
+	ubi_dev.nr = 0;
+
+	/*
+	 * Call ubi_exit() before re-initializing the UBI subsystem
+	 */
+	if (ubi_initialized) {
+		ubi_exit();
+		del_mtd_partitions(ubi_dev.mtd_info);
+	}
+
+	/*
+	 * Search the mtd device number where this partition
+	 * is located
+	 */
+	if (find_dev_and_part(part_name, &dev, &pnum, &part)) {
+		printf("Partition %s not found!\n", part_name);
+		return 1;
+	}
+	sprintf(mtd_dev, "%s%d", MTD_DEV_TYPE(dev->id->type), dev->id->num);
+	ubi_dev.mtd_info = get_mtd_device_nm(mtd_dev);
+	if (IS_ERR(ubi_dev.mtd_info)) {
+		printf("Partition %s not found on device %s!\n", part_name,
+		       mtd_dev);
+		return 1;
+	}
+
+	ubi_dev.selected = 1;
+
+	strcpy(ubi_dev.part_name, part_name);
+	err = ubi_dev_scan(ubi_dev.mtd_info, ubi_dev.part_name,
+			vid_header_offset);
+	if (err) {
+		printf("UBI init error %d\n", err);
+		ubi_dev.selected = 0;
+		return err;
+	}
+
+	ubi = ubi_devices[0];
+
+	return 0;
+}
+
+static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	size_t size = 0;
+	ulong addr = 0;
+
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
 	if (strcmp(argv[1], "part") == 0) {
-		char mtd_dev[16];
-		struct mtd_device *dev;
-		struct part_info *part;
 		const char *vid_header_offset = NULL;
-		u8 pnum;
 
 		/* Print current partition */
 		if (argc == 2) {
@@ -467,58 +522,10 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		if (argc < 3)
 			return CMD_RET_USAGE;
 
-#ifdef CONFIG_CMD_UBIFS
-		/*
-		 * Automatically unmount UBIFS partition when user
-		 * changes the UBI device. Otherwise the following
-		 * UBIFS commands will crash.
-		 */
-		if (ubifs_is_mounted())
-			cmd_ubifs_umount();
-#endif
-
-		/* todo: get dev number for NAND... */
-		ubi_dev.nr = 0;
-
-		/*
-		 * Call ubi_exit() before re-initializing the UBI subsystem
-		 */
-		if (ubi_initialized) {
-			ubi_exit();
-			del_mtd_partitions(ubi_dev.mtd_info);
-		}
-
-		/*
-		 * Search the mtd device number where this partition
-		 * is located
-		 */
-		if (find_dev_and_part(argv[2], &dev, &pnum, &part)) {
-			printf("Partition %s not found!\n", argv[2]);
-			return 1;
-		}
-		sprintf(mtd_dev, "%s%d", MTD_DEV_TYPE(dev->id->type), dev->id->num);
-		ubi_dev.mtd_info = get_mtd_device_nm(mtd_dev);
-		if (IS_ERR(ubi_dev.mtd_info)) {
-			printf("Partition %s not found on device %s!\n", argv[2], mtd_dev);
-			return 1;
-		}
-
-		ubi_dev.selected = 1;
-
 		if (argc > 3)
 			vid_header_offset = argv[3];
-		strcpy(ubi_dev.part_name, argv[2]);
-		err = ubi_dev_scan(ubi_dev.mtd_info, ubi_dev.part_name,
-				vid_header_offset);
-		if (err) {
-			printf("UBI init error %d\n", err);
-			ubi_dev.selected = 0;
-			return err;
-		}
 
-		ubi = ubi_devices[0];
-
-		return 0;
+		return ubi_part(argv[2], vid_header_offset);
 	}
 
 	if ((strcmp(argv[1], "part") != 0) && (!ubi_dev.selected)) {
@@ -571,6 +578,8 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	if (strncmp(argv[1], "write", 5) == 0) {
+		int ret;
+
 		if (argc < 5) {
 			printf("Please see usage\n");
 			return 1;
@@ -579,7 +588,13 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		addr = simple_strtoul(argv[2], NULL, 16);
 		size = simple_strtoul(argv[4], NULL, 16);
 
-		return ubi_volume_write(argv[3], (void *)addr, size);
+		ret = ubi_volume_write(argv[3], (void *)addr, size);
+		if (!ret) {
+			printf("%d bytes written to volume %s\n", size,
+			       argv[3]);
+		}
+
+		return ret;
 	}
 
 	if (strncmp(argv[1], "read", 4) == 0) {
@@ -597,8 +612,12 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 			argc--;
 		}
 
-		if (argc == 3)
+		if (argc == 3) {
+			printf("Read %d bytes from volume %s to %lx\n", size,
+			       argv[3], addr);
+
 			return ubi_volume_read(argv[3], (char *)addr, size);
+		}
 	}
 
 	printf("Please see usage\n");

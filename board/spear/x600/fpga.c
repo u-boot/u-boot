@@ -113,7 +113,7 @@ static int fpga_done_fn(int cookie)
 static int fpga_pre_config_fn(int cookie)
 {
 	debug("%s:%d: FPGA pre-configuration\n", __func__, __LINE__);
-	fpga_reset(TRUE);
+	fpga_reset(true);
 
 	return 0;
 }
@@ -128,9 +128,9 @@ static int fpga_post_config_fn(int cookie)
 
 	debug("%s:%d: FPGA post configuration\n", __func__, __LINE__);
 
-	fpga_reset(TRUE);
+	fpga_reset(true);
 	udelay(100);
-	fpga_reset(FALSE);
+	fpga_reset(false);
 	udelay(100);
 
 	return rc;
@@ -200,7 +200,7 @@ static Xilinx_desc fpga[CONFIG_FPGA_COUNT] = {
 static void fpga_serialslave_init(void)
 {
 	debug("%s:%d: Initialize serial slave interface\n", __func__, __LINE__);
-	fpga_pgm_fn(FALSE, FALSE, 0);	/* make sure program pin is inactive */
+	fpga_pgm_fn(false, false, 0);	/* make sure program pin is inactive */
 }
 
 static int expi_setup(int freq)

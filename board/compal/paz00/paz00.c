@@ -18,19 +18,14 @@
 #include <asm/io.h>
 #include <asm/arch/tegra.h>
 #include <asm/arch/pinmux.h>
-#include <asm/arch-tegra/mmc.h>
 #include <asm/gpio.h>
-#ifdef CONFIG_TEGRA_MMC
-#include <mmc.h>
-#endif
-
 
 #ifdef CONFIG_TEGRA_MMC
 /*
  * Routine: pin_mux_mmc
  * Description: setup the pin muxes/tristate values for the SDMMC(s)
  */
-static void pin_mux_mmc(void)
+void pin_mux_mmc(void)
 {
 	/* SDMMC4: config 3, x8 on 2nd set of pins */
 	pinmux_set_func(PINGRP_ATB, PMUX_FUNC_SDIO4);
@@ -51,23 +46,15 @@ static void pin_mux_mmc(void)
 	/* For CD GPIO PV5 */
 	pinmux_tristate_disable(PINGRP_GPV);
 }
+#endif
 
+#ifdef CONFIG_LCD
 /* this is a weak define that we are overriding */
-int board_mmc_init(bd_t *bd)
+void pin_mux_display(void)
 {
-	debug("board_mmc_init called\n");
+	debug("init display pinmux\n");
 
-	/* Enable muxes, etc. for SDMMC controllers */
-	pin_mux_mmc();
-
-	debug("board_mmc_init: init eMMC\n");
-	/* init dev 0, eMMC chip, with 8-bit bus */
-	tegra_mmc_init(0, 8, -1, -1);
-
-	debug("board_mmc_init: init SD slot\n");
-	/* init dev 3, SD slot, with 4-bit bus */
-	tegra_mmc_init(3, 4, GPIO_PV1, GPIO_PV5);
-
-	return 0;
+	/* EN_VDD_PANEL GPIO A4 */
+	pinmux_tristate_disable(PINGRP_DAP2);
 }
 #endif

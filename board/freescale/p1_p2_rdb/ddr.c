@@ -202,7 +202,7 @@ phys_size_t fixed_sdram (void)
 	struct cpu_type *cpu;
 	ulong ddr_freq, ddr_freq_mhz;
 
-	cpu = gd->cpu;
+	cpu = gd->arch.cpu;
 	/* P1020 and it's derivatives support max 32bit DDR width */
 	if (cpu->soc_ver == SVR_P1020 || cpu->soc_ver == SVR_P1011) {
 		ddr_size = (CONFIG_SYS_SDRAM_SIZE * 1024 * 1024 / 2);

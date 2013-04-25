@@ -22,6 +22,7 @@
  */
 #include <common.h>
 #include <command.h>
+#include <fdtdec.h>
 #include <stdio_dev.h>
 #include <version.h>
 #include <malloc.h>
@@ -31,6 +32,7 @@
 #include <spi.h>
 #include <status_led.h>
 #include <asm/processor.h>
+#include <asm/sections.h>
 #include <asm/u-boot-x86.h>
 #include <linux/compiler.h>
 
@@ -73,26 +75,52 @@ int init_baudrate_f(void)
 	return 0;
 }
 
-__weak int calculate_relocation_address(void)
+/* Get the top of usable RAM */
+__weak ulong board_get_usable_ram_top(ulong total_size)
 {
-	ulong text_start = (ulong)&__text_start;
-	ulong bss_end = (ulong)&__bss_end;
-	ulong dest_addr;
+	return gd->ram_size;
+}
 
+int calculate_relocation_address(void)
+{
+	const ulong uboot_size = (uintptr_t)&__bss_end -
+			(uintptr_t)&__text_start;
+	ulong total_size;
+	ulong dest_addr;
+	ulong fdt_size = 0;
+
+#if defined(CONFIG_OF_SEPARATE) && defined(CONFIG_OF_CONTROL)
+	if (gd->fdt_blob)
+		fdt_size = ALIGN(fdt_totalsize(gd->fdt_blob) + 0x1000, 32);
+#endif
+	total_size = ALIGN(uboot_size, 1 << 12) + CONFIG_SYS_MALLOC_LEN +
+		CONFIG_SYS_STACK_SIZE + fdt_size;
+
+	dest_addr = board_get_usable_ram_top(total_size);
 	/*
 	 * NOTE: All destination address are rounded down to 16-byte
 	 *       boundary to satisfy various worst-case alignment
 	 *       requirements
 	 */
-
-	/* Stack is at top of available memory */
-	dest_addr = gd->ram_size;
-
-	/* U-Boot is at the top */
-	dest_addr -= (bss_end - text_start);
 	dest_addr &= ~15;
+
+#if defined(CONFIG_OF_SEPARATE) && defined(CONFIG_OF_CONTROL)
+	/*
+	 * If the device tree is sitting immediate above our image then we
+	 * must relocate it. If it is embedded in the data section, then it
+	 * will be relocated with other data.
+	 */
+	if (gd->fdt_blob) {
+		dest_addr -= fdt_size;
+		gd->new_fdt = (void *)dest_addr;
+		dest_addr &= ~15;
+	}
+#endif
+	/* U-Boot is below the FDT */
+	dest_addr -= uboot_size;
+	dest_addr &= ~((1 << 12) - 1);
 	gd->relocaddr = dest_addr;
-	gd->reloc_off = (dest_addr - text_start);
+	gd->reloc_off = dest_addr - (uintptr_t)&__text_start;
 
 	/* Stack is at the bottom, so it can grow down */
 	gd->start_addr_sp = dest_addr - CONFIG_SYS_MALLOC_LEN;
@@ -180,7 +208,7 @@ int find_fdt(void)
 	gd->fdt_blob = _binary_dt_dtb_start;
 #elif defined CONFIG_OF_SEPARATE
 	/* FDT is at end of image */
-	gd->fdt_blob = (void *)(_end_ofs + _TEXT_BASE);
+	gd->fdt_blob = (ulong *)&_end;
 #endif
 	/* Allow the early environment to override the fdt address */
 	gd->fdt_blob = (void *)getenv_ulong("fdtcontroladdr", 16,

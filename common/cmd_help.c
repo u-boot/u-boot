@@ -41,7 +41,7 @@ U_BOOT_CMD(
 );
 
 /* This does not use the U_BOOT_CMD macro as ? can't be used in symbol names */
-ll_entry_declare(cmd_tbl_t, question_mark, cmd, cmd) = {
+ll_entry_declare(cmd_tbl_t, question_mark, cmd) = {
 	"?",	CONFIG_SYS_MAXARGS,	1,	do_help,
 	"alias for 'help'",
 #ifdef  CONFIG_SYS_LONGHELP

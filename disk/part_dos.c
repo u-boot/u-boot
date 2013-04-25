@@ -35,12 +35,7 @@
 #include <ide.h>
 #include "part_dos.h"
 
-#if defined(CONFIG_CMD_IDE) || \
-    defined(CONFIG_CMD_SATA) || \
-    defined(CONFIG_CMD_SCSI) || \
-    defined(CONFIG_CMD_USB) || \
-    defined(CONFIG_MMC) || \
-    defined(CONFIG_SYSTEMACE)
+#ifdef HAVE_BLOCK_DEVICE
 
 /* Convert char[4] in little endian format to the host format integer
  */

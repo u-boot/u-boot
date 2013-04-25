@@ -1,6 +1,6 @@
 /dts-v1/;
 
-/include/ ARCH_CPU_DTS
+#include "tegra20.dtsi"
 
 / {
 	model = "Compulab TrimSlice board";
@@ -9,23 +9,12 @@
 	aliases {
 		usb0 = "/usb@c5008000";
 		usb1 = "/usb@c5000000";
+		sdhci0 = "/sdhci@c8000600";
+		sdhci1 = "/sdhci@c8000000";
 	};
 
 	memory {
 		reg = <0x00000000 0x40000000>;
-	};
-
-	clocks {
-		clk_32k: clk_32k {
-			clock-frequency = <32000>;
-		};
-		osc {
-			clock-frequency = <12000000>;
-		};
-	};
-
-	clock@60006000 {
-		clocks = <&clk_32k &osc>;
 	};
 
 	serial@70006000 {
@@ -34,6 +23,11 @@
 
 	i2c@7000c000 {
 		status = "disabled";
+	};
+
+	spi@7000c380 {
+		status = "okay";
+		spi-max-frequency = <25000000>;
 	};
 
 	i2c@7000c400 {
@@ -54,5 +48,17 @@
 
 	usb@c5004000 {
 		status = "disabled";
+	};
+
+	sdhci@c8000000 {
+		status = "okay";
+		bus-width = <4>;
+	};
+
+	sdhci@c8000600 {
+		status = "okay";
+		cd-gpios = <&gpio 121 1>; /* gpio PP1 */
+		wp-gpios = <&gpio 122 0>; /* gpio PP2 */
+		bus-width = <4>;
 	};
 };

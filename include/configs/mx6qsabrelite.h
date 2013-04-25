@@ -24,6 +24,9 @@
 
 #define CONFIG_MX6
 #define CONFIG_MX6Q
+
+#include "mx6_common.h"
+
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
@@ -213,7 +216,6 @@
 		"fi;\0"
 
 #define CONFIG_BOOTCOMMAND \
-	   "mmc dev ${mmcdev};" \
 	   "mmc dev ${mmcdev}; if mmc rescan; then " \
 		   "if run loadbootscript; then " \
 			   "run bootscript; " \
@@ -224,8 +226,6 @@
 			   "fi; " \
 		   "fi; " \
 	   "else run netboot; fi"
-
-#define CONFIG_ARP_TIMEOUT     200UL
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP
@@ -241,6 +241,7 @@
 
 #define CONFIG_SYS_MEMTEST_START       0x10000000
 #define CONFIG_SYS_MEMTEST_END	       0x10010000
+#define CONFIG_SYS_MEMTEST_SCRATCH     0x10800000
 
 #define CONFIG_SYS_LOAD_ADDR	       CONFIG_LOADADDR
 #define CONFIG_SYS_HZ		       1000

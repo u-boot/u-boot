@@ -322,7 +322,7 @@ static int npe_csr_load(void)
 	}
 
 	/* don't need this for U-Boot */
-	ixFeatureCtrlSwConfigurationWrite(IX_FEATURECTRL_ETH_LEARNING, FALSE);
+	ixFeatureCtrlSwConfigurationWrite(IX_FEATURECTRL_ETH_LEARNING, false);
 
 	if (ixEthAccInit() != IX_ETH_ACC_SUCCESS) {
 		printf("Error initialising Ethernet access driver!\n");
@@ -647,29 +647,29 @@ int npe_initialize(bd_t * bis)
 					 */
 					if (ixFeatureCtrlComponentCheck(IX_FEATURECTRL_ETH0) ==
 					    IX_FEATURE_CTRL_COMPONENT_ENABLED)
-						npe_exists[IX_ETH_PORT_1] = TRUE;
+						npe_exists[IX_ETH_PORT_1] = true;
 
 					if (ixFeatureCtrlComponentCheck(IX_FEATURECTRL_ETH1) ==
 					    IX_FEATURE_CTRL_COMPONENT_ENABLED)
-						npe_exists[IX_ETH_PORT_2] = TRUE;
+						npe_exists[IX_ETH_PORT_2] = true;
 					break;
 				case IX_FEATURE_CTRL_SILICON_TYPE_A0:
 					/*
 					 * If it is A0 Silicon, we enable both as both Eth Coprocessors
 					 * are available.
 					 */
-					npe_exists[IX_ETH_PORT_1] = TRUE;
-					npe_exists[IX_ETH_PORT_2] = TRUE;
+					npe_exists[IX_ETH_PORT_1] = true;
+					npe_exists[IX_ETH_PORT_2] = true;
 					break;
 				}
 			} else if (ixFeatureCtrlDeviceRead() == IX_FEATURE_CTRL_DEVICE_TYPE_IXP46X) {
 				if (ixFeatureCtrlComponentCheck(IX_FEATURECTRL_ETH0) ==
 				    IX_FEATURE_CTRL_COMPONENT_ENABLED)
-					npe_exists[IX_ETH_PORT_1] = TRUE;
+					npe_exists[IX_ETH_PORT_1] = true;
 
 				if (ixFeatureCtrlComponentCheck(IX_FEATURECTRL_ETH1) ==
 				    IX_FEATURE_CTRL_COMPONENT_ENABLED)
-					npe_exists[IX_ETH_PORT_2] = TRUE;
+					npe_exists[IX_ETH_PORT_2] = true;
 			}
 
 			npe_used[IX_ETH_PORT_1] = 1;

@@ -28,14 +28,6 @@
 
 #include <asm/types.h>
 
-struct pad_conf_entry {
-
-	u16 offset;
-
-	u16 val;
-
-};
-
 #ifdef CONFIG_OFF_PADCONF
 #define OFF_PD          (1 << 12)
 #define OFF_PU          (3 << 12)

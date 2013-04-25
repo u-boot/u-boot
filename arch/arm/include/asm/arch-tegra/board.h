@@ -25,8 +25,7 @@
 #define _TEGRA_BOARD_H_
 
 /* Set up pinmux to make UART usable */
-void gpio_config_uart(void);      /* CONFIG_SPI_UART_SWITCH */
-void gpio_early_init_uart(void);  /*!CONFIG_SPI_UART_SWITCH */
+void gpio_early_init_uart(void);
 
 /* Set up early UART output */
 void board_init_uart_f(void);
@@ -41,8 +40,9 @@ void gpio_early_init(void);  /* overrideable GPIO config        */
  * an empty stub function will be called.
  */
 
-void pin_mux_usb(void);      /* overrideable USB pinmux setup   */
-void pin_mux_spi(void);      /* overrideable SPI pinmux setup   */
-void pin_mux_nand(void);     /* overrideable NAND pinmux setup  */
+void pin_mux_usb(void);      /* overrideable USB pinmux setup     */
+void pin_mux_spi(void);      /* overrideable SPI pinmux setup     */
+void pin_mux_nand(void);     /* overrideable NAND pinmux setup    */
+void pin_mux_display(void);  /* overrideable DISPLAY pinmux setup */
 
 #endif

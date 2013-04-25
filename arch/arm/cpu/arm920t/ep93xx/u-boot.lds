@@ -31,18 +31,18 @@ SECTIONS
 	. = ALIGN(4);
 	.text      :
 	{
-	  arch/arm/cpu/arm920t/start.o	(.text)
+	  arch/arm/cpu/arm920t/start.o	(.text*)
 		/* the EP93xx expects to find the pattern 'CRUS' at 0x1000 */
 	  . = 0x1000;
 	  LONG(0x53555243)
-	  *(.text)
+	  *(.text*)
 	}
 
 	. = ALIGN(4);
-	.rodata : { *(.rodata) }
+	.rodata : { *(.rodata*) }
 
 	. = ALIGN(4);
-	.data : { *(.data) }
+	.data : { *(.data*) }
 
 	. = ALIGN(4);
 	.got : { *(.got) }
@@ -51,13 +51,16 @@ SECTIONS
 
 	. = ALIGN(4);
 	.u_boot_list : {
-	#include <u-boot.lst>
+		KEEP(*(SORT(.u_boot_list*)));
 	}
 
 	. = ALIGN(4);
+
+	__image_copy_end = .;
+
 	__bss_start = .;
-	.bss : { *(.bss) }
-	__bss_end__ = .;
+	.bss : { *(.bss*) }
+	__bss_end = .;
 
 	_end = .;
 }

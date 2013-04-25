@@ -262,7 +262,7 @@
 	"nand_ubifs=run ubifs_mount ubifs_load ubifsargs addip"		\
 		" addcon addmisc addmtd;"				\
 		"bootm ${kernel_addr} - ${dtb_addr}\0"			\
-	"ubifs_mount=ubi part ubi${boot_part};ubifsmount rootfs\0"	\
+	"ubifs_mount=ubi part ubi${boot_part};ubifsmount ubi:rootfs\0"	\
 	"ubifs_load=ubifsload ${kernel_addr} ${kernel_fs};"		\
 		"ubifsload ${dtb_addr} ${dtb_fs};\0"			\
 	"nand_ubifs=run ubifs_mount ubifs_load ubifsargs addip addcon "	\

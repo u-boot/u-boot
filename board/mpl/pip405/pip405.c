@@ -36,9 +36,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #undef SDRAM_DEBUG
 
-#define FALSE           0
-#define TRUE            1
-
 /* stdlib.h causes some compatibility problems; should fixe these! -- wd */
 #ifndef __ldiv_t_defined
 typedef struct {
@@ -700,7 +697,8 @@ int misc_init_r (void)
 
 int overwrite_console (void)
 {
-	return (in8 (CONFIG_PORT_ADDR) & 0x1);	/* return TRUE if console should be overwritten */
+	/* return true if console should be overwritten */
+	return in8(CONFIG_PORT_ADDR) & 0x1;
 }
 
 
@@ -945,7 +943,7 @@ void print_pip405_info (void)
 
 void user_led0 (unsigned char on)
 {
-	if (on == TRUE)
+	if (on == true)
 		out8 (PLD_LED_USER_REG, (in8 (PLD_LED_USER_REG) | 0x1));
 	else
 		out8 (PLD_LED_USER_REG, (in8 (PLD_LED_USER_REG) & 0xfe));
@@ -953,7 +951,7 @@ void user_led0 (unsigned char on)
 
 void user_led1 (unsigned char on)
 {
-	if (on == TRUE)
+	if (on == true)
 		out8 (PLD_LED_USER_REG, (in8 (PLD_LED_USER_REG) | 0x2));
 	else
 		out8 (PLD_LED_USER_REG, (in8 (PLD_LED_USER_REG) & 0xfd));

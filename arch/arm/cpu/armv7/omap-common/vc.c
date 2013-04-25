@@ -81,13 +81,13 @@ void omap_vc_init(u16 speed_khz)
 	cycles_low -= 7;
 	val = (cycles_hi << PRM_VC_CFG_I2C_CLK_SCLH_SHIFT) |
 	       (cycles_low << PRM_VC_CFG_I2C_CLK_SCLL_SHIFT);
-	writel(val, &prcm->prm_vc_cfg_i2c_clk);
+	writel(val, (*prcm)->prm_vc_cfg_i2c_clk);
 
 	val = CONFIG_OMAP_VC_I2C_HS_MCODE <<
 		PRM_VC_CFG_I2C_MODE_HSMCODE_SHIFT;
 	/* No HS mode for now */
 	val &= ~PRM_VC_CFG_I2C_MODE_HSMODEEN_BIT;
-	writel(val, &prcm->prm_vc_cfg_i2c_mode);
+	writel(val, (*prcm)->prm_vc_cfg_i2c_mode);
 }
 
 /**
@@ -113,14 +113,15 @@ int omap_vc_bypass_send_value(u8 sa, u8 reg_addr, u8 reg_data)
 	reg_val = sa << PRM_VC_VAL_BYPASS_SLAVEADDR_SHIFT |
 	    reg_addr << PRM_VC_VAL_BYPASS_REGADDR_SHIFT |
 	    reg_data << PRM_VC_VAL_BYPASS_DATA_SHIFT;
-	writel(reg_val, &prcm->prm_vc_val_bypass);
+	writel(reg_val, (*prcm)->prm_vc_val_bypass);
 
 	/* Signal VC to send data */
-	writel(reg_val | PRM_VC_VAL_BYPASS_VALID_BIT, &prcm->prm_vc_val_bypass);
+	writel(reg_val | PRM_VC_VAL_BYPASS_VALID_BIT,
+				(*prcm)->prm_vc_val_bypass);
 
 	/* Wait on VC to complete transmission */
 	do {
-		reg_val = readl(&prcm->prm_vc_val_bypass) &
+		reg_val = readl((*prcm)->prm_vc_val_bypass) &
 				PRM_VC_VAL_BYPASS_VALID_BIT;
 		if (!reg_val)
 			break;

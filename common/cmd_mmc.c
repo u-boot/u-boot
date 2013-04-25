@@ -106,7 +106,7 @@ static void print_mmcinfo(struct mmc *mmc)
 	printf("Rd Block Len: %d\n", mmc->read_bl_len);
 
 	printf("%s version %d.%d\n", IS_SD(mmc) ? "SD" : "MMC",
-			(mmc->version >> 4) & 0xf, mmc->version & 0xf);
+			(mmc->version >> 8) & 0xf, mmc->version & 0xff);
 
 	printf("High Capacity: %s\n", mmc->high_capacity ? "Yes" : "No");
 	puts("Capacity: ");
@@ -164,8 +164,12 @@ static int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	if (strcmp(argv[1], "rescan") == 0) {
-		struct mmc *mmc = find_mmc_device(curr_device);
+		struct mmc *mmc;
 
+		if (argc != 2)
+			return CMD_RET_USAGE;
+
+		mmc = find_mmc_device(curr_device);
 		if (!mmc) {
 			printf("no mmc device at slot %x\n", curr_device);
 			return 1;
@@ -179,8 +183,12 @@ static int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			return 0;
 	} else if (strncmp(argv[1], "part", 4) == 0) {
 		block_dev_desc_t *mmc_dev;
-		struct mmc *mmc = find_mmc_device(curr_device);
+		struct mmc *mmc;
 
+		if (argc != 2)
+			return CMD_RET_USAGE;
+
+		mmc = find_mmc_device(curr_device);
 		if (!mmc) {
 			printf("no mmc device at slot %x\n", curr_device);
 			return 1;
@@ -196,6 +204,8 @@ static int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		puts("get mmc type error!\n");
 		return 1;
 	} else if (strcmp(argv[1], "list") == 0) {
+		if (argc != 2)
+			return CMD_RET_USAGE;
 		print_mmc_devices('\n');
 		return 0;
 	} else if (strcmp(argv[1], "dev") == 0) {
@@ -281,6 +291,13 @@ static int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				argv[1], curr_device, blk, cnt);
 
 		mmc_init(mmc);
+
+		if ((state == MMC_WRITE || state == MMC_ERASE)) {
+			if (mmc_getwp(mmc) == 1) {
+				printf("Error: card is write protected!\n");
+				return 1;
+			}
+		}
 
 		switch (state) {
 		case MMC_READ:

@@ -102,7 +102,7 @@ IxEthAccQregInfo ixEthAccQmgrRxDefaultTemplate =
     (IxQMgrCallbackId) 0,	     /**< Callback tag	      */
     IX_QMGR_Q_SIZE128,		     /**< Allocate Max Size Q */
     IX_QMGR_Q_ENTRY_SIZE1,	     /**< Queue Entry Sizes - all Q entries are single word entries   */
-    TRUE,			     /**< Enable Q notification at startup */
+    true,			     /**< Enable Q notification at startup */
     IX_ETH_ACC_RX_FRAME_ETH_Q_SOURCE,/**< Q Condition to drive callback   */
     IX_QMGR_Q_WM_LEVEL0,	     /**< Q Low water mark */
     IX_QMGR_Q_WM_LEVEL1,	     /**< Q High water mark - needed by NPE */
@@ -122,7 +122,7 @@ IxEthAccQregInfo ixEthAccQmgrRxSmallTemplate =
     (IxQMgrCallbackId) 0,	     /**< Callback tag	      */
     IX_QMGR_Q_SIZE64,		     /**< Allocate Smaller Q */
     IX_QMGR_Q_ENTRY_SIZE1,	     /**< Queue Entry Sizes - all Q entries are single word entries   */
-    TRUE,			     /**< Enable Q notification at startup */
+    true,			     /**< Enable Q notification at startup */
     IX_ETH_ACC_RX_FRAME_ETH_Q_SOURCE,/**< Q Condition to drive callback   */
     IX_QMGR_Q_WM_LEVEL0,	     /**< Q Low water mark */
     IX_QMGR_Q_WM_LEVEL1,	     /**< Q High water mark - needed by NPE */
@@ -144,7 +144,7 @@ IxEthAccQregInfo ixEthAccQmgrStaticInfo[]=
     (IxQMgrCallbackId) IX_ETH_PORT_1,
     IX_QMGR_Q_SIZE128,		     /**< Allocate Max Size Q */
     IX_QMGR_Q_ENTRY_SIZE1,	     /**< Queue Entry Sizes - all Q entries are single word entries   */
-    FALSE,			     /**< Disable Q notification at startup */
+    false,			     /**< Disable Q notification at startup */
     IX_ETH_ACC_RX_FREE_BUFF_ENET0_Q_SOURCE, /**< Q Condition to drive callback  */
     IX_QMGR_Q_WM_LEVEL0,	     /***< Q Low water mark */
     IX_QMGR_Q_WM_LEVEL64,	     /**< Q High water mark */
@@ -157,7 +157,7 @@ IxEthAccQregInfo ixEthAccQmgrStaticInfo[]=
     (IxQMgrCallbackId) IX_ETH_PORT_2,
     IX_QMGR_Q_SIZE128,		     /**< Allocate Max Size Q */
     IX_QMGR_Q_ENTRY_SIZE1,	     /**< Queue Entry Sizes - all Q entries are single word entries   */
-    FALSE,			     /**< Disable Q notification at startup */
+    false,			     /**< Disable Q notification at startup */
     IX_ETH_ACC_RX_FREE_BUFF_ENET1_Q_SOURCE,  /**< Q Condition to drive callback  */
     IX_QMGR_Q_WM_LEVEL0,	     /**< Q Low water mark */
     IX_QMGR_Q_WM_LEVEL64,	     /**< Q High water mark */
@@ -170,7 +170,7 @@ IxEthAccQregInfo ixEthAccQmgrStaticInfo[]=
     (IxQMgrCallbackId) IX_ETH_PORT_3,
     IX_QMGR_Q_SIZE128,		     /**< Allocate Max Size Q */
     IX_QMGR_Q_ENTRY_SIZE1,	     /**< Queue Entry Sizes - all Q entries are single word entries   */
-    FALSE,			     /**< Disable Q notification at startup */
+    false,			     /**< Disable Q notification at startup */
     IX_ETH_ACC_RX_FREE_BUFF_ENET2_Q_SOURCE,  /**< Q Condition to drive callback  */
     IX_QMGR_Q_WM_LEVEL0,	     /**< Q Low water mark */
     IX_QMGR_Q_WM_LEVEL64,	     /**< Q High water mark */
@@ -183,7 +183,7 @@ IxEthAccQregInfo ixEthAccQmgrStaticInfo[]=
      (IxQMgrCallbackId) IX_ETH_PORT_1,
     IX_QMGR_Q_SIZE128,		     /**< Allocate Max Size Q */
     IX_QMGR_Q_ENTRY_SIZE1,	     /**< Queue Entry Sizes - all Q entries are single word entries   */
-    FALSE,			     /**< Disable Q notification at startup */
+    false,			     /**< Disable Q notification at startup */
     IX_ETH_ACC_TX_FRAME_ENET0_Q_SOURCE,	 /**< Q Condition to drive callback  */
     IX_QMGR_Q_WM_LEVEL0,	     /**< Q Low water mark */
     IX_QMGR_Q_WM_LEVEL64,	     /**< Q High water mark */
@@ -196,7 +196,7 @@ IxEthAccQregInfo ixEthAccQmgrStaticInfo[]=
      (IxQMgrCallbackId) IX_ETH_PORT_2,
     IX_QMGR_Q_SIZE128,		     /**< Allocate Max Size Q */
     IX_QMGR_Q_ENTRY_SIZE1,	     /**< Queue Entry Sizes - all Q entries are single word entries   */
-    FALSE,			     /**< Disable Q notification at startup */
+    false,			     /**< Disable Q notification at startup */
     IX_ETH_ACC_TX_FRAME_ENET1_Q_SOURCE,	     /**< Q Condition to drive callback  */
     IX_QMGR_Q_WM_LEVEL0,	     /**< Q Low water mark */
     IX_QMGR_Q_WM_LEVEL64,	     /**< Q High water mark */
@@ -209,7 +209,7 @@ IxEthAccQregInfo ixEthAccQmgrStaticInfo[]=
      (IxQMgrCallbackId) IX_ETH_PORT_3,
     IX_QMGR_Q_SIZE128,		     /**< Allocate Max Size Q */
     IX_QMGR_Q_ENTRY_SIZE1,	     /** Queue Entry Sizes - all Q entries are single ord entries   */
-    FALSE,			     /** Disable Q notification at startup */
+    false,			     /** Disable Q notification at startup */
     IX_ETH_ACC_TX_FRAME_ENET2_Q_SOURCE,	     /** Q Condition to drive callback  */
     IX_QMGR_Q_WM_LEVEL0,	     /* No queues use almost empty */
     IX_QMGR_Q_WM_LEVEL64,	      /** Q High water mark - needed used  */
@@ -222,7 +222,7 @@ IxEthAccQregInfo ixEthAccQmgrStaticInfo[]=
      (IxQMgrCallbackId) 0,
     IX_QMGR_Q_SIZE128,		     /**< Allocate Max Size Q */
     IX_QMGR_Q_ENTRY_SIZE1,	     /**< Queue Entry Sizes - all Q entries are single word entries   */
-    TRUE,			     /**< Enable Q notification at startup */
+    true,			     /**< Enable Q notification at startup */
     IX_ETH_ACC_TX_FRAME_DONE_ETH_Q_SOURCE, /**< Q Condition to drive callback  */
     IX_QMGR_Q_WM_LEVEL0,	     /**< Q Low water mark */
     IX_QMGR_Q_WM_LEVEL2,	     /**< Q High water mark - needed by NPE */
@@ -449,7 +449,7 @@ ixEthAccQMgrQueueSetup(IxEthAccQregInfo *qInfoDes)
     /*
      * Set notification condition for Q
      */
-    if ( qInfoDes->qNotificationEnableAtStartup == TRUE )
+    if (qInfoDes->qNotificationEnableAtStartup == true)
     {
 	if (   ixQMgrNotificationEnable(qInfoDes->qId,
 					qInfoDes->qConditionSource)
@@ -513,7 +513,7 @@ IxEthAccStatus ixEthAccQMgrQueuesConfig(void)
     IxEthDBProperty ixEthDBTrafficClass = IX_ETH_DB_QOS_TRAFFIC_CLASS_0_RX_QUEUE_PROPERTY;
     IxEthDBPropertyType ixEthDBPropertyType = IX_ETH_DB_INTEGER_PROPERTY;
     UINT32 ixEthDBParameter = 0;
-    BOOL completelySorted = FALSE;
+    BOOL completelySorted = false;
 
     /* Fill the corspondance between ports and queues
      * This defines the mapping from port to queue Ids.
@@ -706,7 +706,7 @@ IxEthAccStatus ixEthAccQMgrQueuesConfig(void)
     do
     {
 	sortIterations++;
-	completelySorted = TRUE;
+	completelySorted = true;
 	for (rxQueue = 0;
 	     rxQueue < rxQueueCount - sortIterations;
 	     rxQueue++)
@@ -732,7 +732,7 @@ IxEthAccStatus ixEthAccQMgrQueuesConfig(void)
 		rxQueues[rxQueue+1].npeId = npeId;
 		rxQueues[rxQueue+1].qId = qId;
 		rxQueues[rxQueue+1].trafficClass = trafficClass;
-		completelySorted = FALSE;
+		completelySorted = false;
 	    }
 	}
     }

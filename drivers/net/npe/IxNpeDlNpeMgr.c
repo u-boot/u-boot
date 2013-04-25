@@ -229,7 +229,7 @@ static IxNpeDlEcsRegResetValue ixNpeDlEcsRegResetValues[] =
 static IxNpeDlNpeMgrStats ixNpeDlNpeMgrStats;
 
 /* Set when NPE register memory has been mapped */
-static BOOL ixNpeDlMemInitialised = FALSE;
+static BOOL ixNpeDlMemInitialised = false;
 
 
 /*
@@ -290,7 +290,7 @@ ixNpeDlNpeMgrInit (void)
 	IX_OSAL_ASSERT(virtAddr);
 	ixNpeDlNpeInfo[IX_NPEDL_NPEID_NPEC].baseAddress = virtAddr;
 
-	ixNpeDlMemInitialised = TRUE;
+	ixNpeDlMemInitialised = true;
     }
 }
 
@@ -314,7 +314,7 @@ ixNpeDlNpeMgrUninit (void)
     ixNpeDlNpeInfo[IX_NPEDL_NPEID_NPEB].baseAddress = 0;
     ixNpeDlNpeInfo[IX_NPEDL_NPEID_NPEC].baseAddress = 0;
 
-    ixNpeDlMemInitialised = FALSE;
+    ixNpeDlMemInitialised = false;
 
     return IX_SUCCESS;
 }
@@ -662,7 +662,7 @@ ixNpeDlNpeMgrNpeReset (
     {
 	/* for each physical register in the NPE reg file, write 0 : */
 	status = ixNpeDlNpeMgrPhysicalRegWrite (npeBaseAddress, regAddr,
-						0, TRUE);
+						0, true);
 	if (status != IX_SUCCESS)
 	{
 	    return status;  /* abort reset */
@@ -684,7 +684,7 @@ ixNpeDlNpeMgrNpeReset (
 	    { 
 		regVal = ixNpeDlCtxtRegResetValues[ctxtReg];
 		status = ixNpeDlNpeMgrCtxtRegWrite (npeBaseAddress, ctxtNum,
-						    ctxtReg, regVal, TRUE);
+						    ctxtReg, regVal, true);
 		if (status != IX_SUCCESS)
 		{
 		    return status;  /* abort reset */

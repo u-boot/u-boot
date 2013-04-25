@@ -169,9 +169,9 @@ extern int overflowEvent;
 #define TREE_POOL_SIZE (4000) /**< number of MacTreeNode objects; each entry has 16 bytes */
 
 /* retry policies */
-#define BUSY_RETRY_ENABLED (TRUE)  /**< if set to TRUE the API will retry automatically calls returning BUSY */
-#define FOREVER_RETRY      (TRUE)  /**< if set to TRUE the API will retry forever BUSY calls */
-#define MAX_RETRIES        (400)   /**< upper retry limit - used only when FOREVER_RETRY is FALSE */
+#define BUSY_RETRY_ENABLED (true)  /**< if set to true the API will retry automatically calls returning BUSY */
+#define FOREVER_RETRY      (true)  /**< if set to true the API will retry forever BUSY calls */
+#define MAX_RETRIES        (400)   /**< upper retry limit - used only when FOREVER_RETRY is false */
 #define BUSY_RETRY_YIELD   (5)     /**< ticks to yield for every failed retry */
 
 /* event management */
@@ -179,8 +179,8 @@ extern int overflowEvent;
 #define EVENT_PROCESSING_LIMIT (100)  /**< batch processing control size (how many events are extracted from the queue at once) */
 
 /* MAC descriptors */
-#define STATIC_ENTRY  (TRUE)
-#define DYNAMIC_ENTRY (FALSE)
+#define STATIC_ENTRY  (true)
+#define DYNAMIC_ENTRY (false)
 
 /* age reset on next maintenance - incrementing by 1 will reset to 0 */
 #define AGE_RESET (0xFFFFFFFF)
@@ -270,7 +270,7 @@ extern int overflowEvent;
 /* gives an empty dependency map */
 #define SET_EMPTY_DEPENDENCY_MAP(map)      { int i = 0; for (; i < 32 ; i++) map[i] = 0; }
 
-#define IS_EMPTY_DEPENDENCY_MAP(result, map)       { int i = 0 ; result = TRUE; for (; i < 32 ; i++) if (map[i] != 0) { result = FALSE; break; }}
+#define IS_EMPTY_DEPENDENCY_MAP(result, map)       { int i = 0 ; result = true; for (; i < 32 ; i++) if (map[i] != 0) { result = false; break; }}
 
 /**
  * gives a map consisting only of 'portID'
@@ -293,12 +293,12 @@ extern int overflowEvent;
 #define EXCLUDE_PORT_FROM_MAP(map, portID) { map[portID >> 3] &= ~(1 << (portID & 0x7); }
 
 /**
- * returns TRUE if map1 is a subset of map2 and FALSE otherwise
+ * returns true if map1 is a subset of map2 and false otherwise
  */
-#define IS_MAP_SUBSET(result, map1, map2)  { int i = 0; result = TRUE; for (; i < 32 ; i++) if ((map1[i] | map2[i]) != map2[i]) result = FALSE; }
+#define IS_MAP_SUBSET(result, map1, map2)  { int i = 0; result = true; for (; i < 32 ; i++) if ((map1[i] | map2[i]) != map2[i]) result = false; }
 
 /**
- * returns TRUE is portID is part of map and FALSE otherwise
+ * returns true is portID is part of map and false otherwise
  */
 #define IS_PORT_INCLUDED(portID, map)      ((map[portID >> 3] & (1 << (portID & 0x7))) != 0)
 
@@ -308,9 +308,9 @@ extern int overflowEvent;
 #define DIFF_MAPS(map, map1, map2)         { int i = 0; for (; i < 32 ; i++) map[i] = map1[i] ^ (map1[i] & map2[i]); }
 
 /**
- * returns TRUE if the maps collide (have at least one port in common) and FALSE otherwise
+ * returns true if the maps collide (have at least one port in common) and false otherwise
  */
-#define MAPS_COLLIDE(result, map1, map2)   { int i = 0; result = FALSE; for (; i < 32 ; i++) if ((map1[i] & map2[i]) != 0) result = TRUE; }
+#define MAPS_COLLIDE(result, map1, map2)   { int i = 0; result = false; for (; i < 32 ; i++) if ((map1[i] & map2[i]) != 0) result = true; }
 
 /* size (number of ports) of a dependency map */
 #define GET_MAP_SIZE(map, size)            { int i = 0, b = 0; size = 0; for (; i < 32 ; i++) { char y = map[i]; for (; b < 8 && (y >>= 1); b++) size += (y & 1); }}
@@ -415,7 +415,7 @@ typedef union
     struct
     {
         UINT32 age;
-        BOOL staticEntry; /**< TRUE if this address is static (doesn't age) */
+        BOOL staticEntry; /**< true if this address is static (doesn't age) */
     } filteringData;
 
     struct
@@ -492,26 +492,26 @@ typedef void (*IxEthDBNoteWriteFn)(void *address, MacTreeNode *node);
 
 typedef struct
 {
-    BOOL updateEnabled;                         /**< TRUE if updates are enabled for port */
-    BOOL userControlled;                        /**< TRUE if the user has manually used ixEthDBPortUpdateEnableSet */
-    BOOL treeInitialized;                       /**< TRUE if the NPE has received an initial tree */
+    BOOL updateEnabled;                         /**< true if updates are enabled for port */
+    BOOL userControlled;                        /**< true if the user has manually used ixEthDBPortUpdateEnableSet */
+    BOOL treeInitialized;                       /**< true if the NPE has received an initial tree */
     IxEthDBPortUpdateHandler updateHandler;     /**< port update handler routine */
     void *npeUpdateZone;                        /**< port update memory zone */
     void *npeGwUpdateZone;                      /**< port update memory zone for gateways */
     void *vlanUpdateZone;                       /**< port update memory zone for VLAN tables */
     MacTreeNode *searchTree;                    /**< internal search tree, in MacTreeNode representation */
-    BOOL searchTreePendingWrite;                /**< TRUE if searchTree holds a tree pending write to the port */
+    BOOL searchTreePendingWrite;                /**< true if searchTree holds a tree pending write to the port */
 } PortUpdateMethod;
 
 typedef struct
 {
     IxEthDBPortId portID;                   /**< port ID */
-    BOOL enabled;                           /**< TRUE if the port is enabled */
-    BOOL agingEnabled;                      /**< TRUE if aging on this port is enabled */
+    BOOL enabled;                           /**< true if the port is enabled */
+    BOOL agingEnabled;                      /**< true if aging on this port is enabled */
     BOOL initialized;
     IxEthDBPortMap dependencyPortMap;       /**< dependency port map for this port */
     PortUpdateMethod updateMethod;          /**< update method structure */
-    BOOL macAddressUploaded;                /**< TRUE if the MAC address was uploaded into the port */
+    BOOL macAddressUploaded;                /**< true if the MAC address was uploaded into the port */
     UINT32 maxRxFrameSize;                  /**< maximum Rx frame size for this port */
     UINT32 maxTxFrameSize;                  /**< maximum Rx frame size for this port */
 

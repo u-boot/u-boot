@@ -265,10 +265,6 @@ static int smsc95xx_eeprom_confirm_not_busy(struct ueth_data *dev)
 
 	do {
 		smsc95xx_read_reg(dev, E2P_CMD, &val);
-		if (!(val & E2P_CMD_LOADED_)) {
-			debug("No EEPROM present\n");
-			return -1;
-		}
 		if (!(val & E2P_CMD_BUSY_))
 			return 0;
 		udelay(40);

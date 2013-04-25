@@ -37,7 +37,7 @@
 #include <asm/arch/mux.h>
 #include <asm/arch/mem.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/arch/omap_gpmc.h>
+#include <asm/omap_gpmc.h>
 #include <asm/gpio.h>
 #include <asm/mach-types.h>
 #include "overo.h"
@@ -392,7 +392,6 @@ int board_eth_init(bd_t *bis)
 #if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
 int board_mmc_init(bd_t *bis)
 {
-	omap_mmc_init(0, 0, 0);
-	return 0;
+	return omap_mmc_init(0, 0, 0, -1, -1);
 }
 #endif

@@ -215,7 +215,7 @@ int altera_info( Altera_desc *desc )
 
 static int altera_validate (Altera_desc * desc, const char *fn)
 {
-	int ret_val = FALSE;
+	int ret_val = false;
 
 	if (desc) {
 		if ((desc->family > min_altera_type) &&
@@ -223,7 +223,7 @@ static int altera_validate (Altera_desc * desc, const char *fn)
 			if ((desc->iface > min_altera_iface_type) &&
 				(desc->iface < max_altera_iface_type)) {
 				if (desc->size) {
-					ret_val = TRUE;
+					ret_val = true;
 				} else {
 					printf ("%s: NULL part size\n", fn);
 				}

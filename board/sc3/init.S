@@ -71,7 +71,8 @@ ext_bus_cntlr_init:
  * This is need for the external flash access
  */
 		lis r25,0x0800
-		ori r25,r25,0x0280			/* 0000 1000 0xxx 0000 0000 0010 100x xxxx = 0x03800280
+		/* 0000 1000 0xxx 0000 0000 0010 100x xxxx = 0x03800280 */
+		ori r25,r25,0x0280
 /*
  * Second, create a fast timing:
  * 90ns first cycle - 3 clock access
@@ -79,7 +80,8 @@ ext_bus_cntlr_init:
  * This is used for the internal access
  */
 		lis r26,0x8900
-		ori r26,r26,0x0280			/* 1000 1001 0xxx 0000 0000 0010 100x xxxx
+		/* 1000 1001 0xxx 0000 0000 0010 100x xxxx */
+		ori r26,r26,0x0280
 /*
  * We can't change settings on CS# if we currently use them.
  * -> load a few instructions into cache and run this code from cache

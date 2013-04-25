@@ -401,8 +401,8 @@ extern void print_bats(void);
 #define MAS1_IPROT	0x40000000
 #define MAS1_TID(x)	(((x) << 16) & 0x3FFF0000)
 #define MAS1_TS		0x00001000
-#define MAS1_TSIZE(x)	(((x) << 8) & 0x00000F00)
-#define TSIZE_TO_BYTES(x) (1ULL << (((x) * 2) + 10))
+#define MAS1_TSIZE(x)	(((x) << 7) & 0x00000F80)
+#define TSIZE_TO_BYTES(x) (1ULL << ((x) + 10))
 
 #define MAS2_EPN	0xFFFFF000
 #define MAS2_X0		0x00000040
@@ -458,22 +458,38 @@ extern void print_bats(void);
 #define FSL_BOOKE_MAS7(rpn) \
 		(((u64)(rpn)) >> 32)
 
-#define BOOKE_PAGESZ_1K         0
-#define BOOKE_PAGESZ_4K         1
-#define BOOKE_PAGESZ_16K        2
-#define BOOKE_PAGESZ_64K        3
-#define BOOKE_PAGESZ_256K       4
-#define BOOKE_PAGESZ_1M         5
-#define BOOKE_PAGESZ_4M         6
-#define BOOKE_PAGESZ_16M        7
-#define BOOKE_PAGESZ_64M        8
-#define BOOKE_PAGESZ_256M       9
-#define BOOKE_PAGESZ_1G		10
-#define BOOKE_PAGESZ_4G		11
-#define BOOKE_PAGESZ_16GB	12
-#define BOOKE_PAGESZ_64GB	13
-#define BOOKE_PAGESZ_256GB	14
-#define BOOKE_PAGESZ_1TB	15
+#define BOOKE_PAGESZ_1K		0
+#define BOOKE_PAGESZ_2K		1
+#define BOOKE_PAGESZ_4K		2
+#define BOOKE_PAGESZ_8K		3
+#define BOOKE_PAGESZ_16K	4
+#define BOOKE_PAGESZ_32K	5
+#define BOOKE_PAGESZ_64K	6
+#define BOOKE_PAGESZ_128K	7
+#define BOOKE_PAGESZ_256K	8
+#define BOOKE_PAGESZ_512K	9
+#define BOOKE_PAGESZ_1M		10
+#define BOOKE_PAGESZ_2M		11
+#define BOOKE_PAGESZ_4M		12
+#define BOOKE_PAGESZ_8M		13
+#define BOOKE_PAGESZ_16M	14
+#define BOOKE_PAGESZ_32M	15
+#define BOOKE_PAGESZ_64M	16
+#define BOOKE_PAGESZ_128M	17
+#define BOOKE_PAGESZ_256M	18
+#define BOOKE_PAGESZ_512M	19
+#define BOOKE_PAGESZ_1G		20
+#define BOOKE_PAGESZ_2G		21
+#define BOOKE_PAGESZ_4G		22
+#define BOOKE_PAGESZ_8G		23
+#define BOOKE_PAGESZ_16GB	24
+#define BOOKE_PAGESZ_32GB	25
+#define BOOKE_PAGESZ_64GB	26
+#define BOOKE_PAGESZ_128GB	27
+#define BOOKE_PAGESZ_256GB	28
+#define BOOKE_PAGESZ_512GB	29
+#define BOOKE_PAGESZ_1TB	30
+#define BOOKE_PAGESZ_2TB	31
 
 #define TLBIVAX_ALL		4
 #define TLBIVAX_TLB0		0

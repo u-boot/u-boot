@@ -52,7 +52,6 @@
 #endif /* USE_HOSTCC */
 
 #if defined(CONFIG_FIT)
-#include <fdt.h>
 #include <libfdt.h>
 #include <fdt_support.h>
 #define CONFIG_MD5		/* FIT images need MD5 support */
@@ -85,6 +84,7 @@
 #define IH_OS_UNITY		20	/* Unity OS	*/
 #define IH_OS_INTEGRITY		21	/* INTEGRITY	*/
 #define IH_OS_OSE		22	/* OSE		*/
+#define IH_OS_PLAN9		23	/* Plan 9	*/
 
 /*
  * CPU Architecture Codes (supported by Linux)

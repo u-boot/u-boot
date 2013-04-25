@@ -33,7 +33,10 @@
 #include <net.h>
 #include <i2c.h>
 #include <usb.h>
+#include <mmc.h>
+#include <nand.h>
 #include <twl4030.h>
+#include <bmp_layout.h>
 #include <linux/compiler.h>
 
 #include <asm/io.h>
@@ -74,6 +77,67 @@ static u32 gpmc_nand_config[GPMC_MAX_REG] = {
 	SMNAND_GPMC_CONFIG6,
 	0,
 };
+
+#ifdef CONFIG_LCD
+#ifdef CONFIG_CMD_NAND
+static int splash_load_from_nand(u32 bmp_load_addr)
+{
+	struct bmp_header *bmp_hdr;
+	int res, splash_screen_nand_offset = 0x100000;
+	size_t bmp_size, bmp_header_size = sizeof(struct bmp_header);
+
+	if (bmp_load_addr + bmp_header_size >= gd->start_addr_sp)
+		goto splash_address_too_high;
+
+	res = nand_read_skip_bad(&nand_info[nand_curr_device],
+			splash_screen_nand_offset, &bmp_header_size,
+			NULL, nand_info[nand_curr_device].size,
+			(u_char *)bmp_load_addr);
+	if (res < 0)
+		return res;
+
+	bmp_hdr = (struct bmp_header *)bmp_load_addr;
+	bmp_size = le32_to_cpu(bmp_hdr->file_size);
+
+	if (bmp_load_addr + bmp_size >= gd->start_addr_sp)
+		goto splash_address_too_high;
+
+	return nand_read_skip_bad(&nand_info[nand_curr_device],
+			splash_screen_nand_offset, &bmp_size,
+			NULL, nand_info[nand_curr_device].size,
+			(u_char *)bmp_load_addr);
+
+splash_address_too_high:
+	printf("Error: splashimage address too high. Data overwrites U-Boot "
+		"and/or placed beyond DRAM boundaries.\n");
+
+	return -1;
+}
+#else
+static inline int splash_load_from_nand(void)
+{
+	return -1;
+}
+#endif /* CONFIG_CMD_NAND */
+
+int board_splash_screen_prepare(void)
+{
+	char *env_splashimage_value;
+	u32 bmp_load_addr;
+
+	env_splashimage_value = getenv("splashimage");
+	if (env_splashimage_value == NULL)
+		return -1;
+
+	bmp_load_addr = simple_strtoul(env_splashimage_value, 0, 16);
+	if (bmp_load_addr == 0) {
+		printf("Error: bad splashimage address specified\n");
+		return -1;
+	}
+
+	return splash_load_from_nand(bmp_load_addr);
+}
+#endif /* CONFIG_LCD */
 
 /*
  * Routine: board_init
@@ -215,6 +279,9 @@ static void cm_t3x_set_common_muxconf(void)
 
 	/* SB-T35 Ethernet */
 	MUX_VAL(CP(GPMC_NCS4),		(IEN  | PTU | EN  | M0)); /*GPMC_nCS4*/
+
+	/* DVI enable */
+	MUX_VAL(CP(GPMC_NCS3),		(IDIS  | PTU | DIS  | M4));/*GPMC_nCS3*/
 
 	/* CM-T3x Ethernet */
 	MUX_VAL(CP(GPMC_NCS5),		(IDIS | PTU | DIS | M0)); /*GPMC_nCS5*/
@@ -377,9 +444,19 @@ void set_muxconf_regs(void)
 }
 
 #ifdef CONFIG_GENERIC_MMC
+int board_mmc_getcd(struct mmc *mmc)
+{
+	u8 val;
+
+	if (twl4030_i2c_read_u8(TWL4030_CHIP_GPIO, &val, TWL4030_BASEADD_GPIO))
+		return -1;
+
+	return !(val & 1);
+}
+
 int board_mmc_init(bd_t *bis)
 {
-	return omap_mmc_init(0, 0, 0);
+	return omap_mmc_init(0, 0, 0, -1, 59);
 }
 #endif
 

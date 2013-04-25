@@ -56,11 +56,11 @@ int cpu_mmc_init(bd_t *bis)
 {
 	int ret;
 
-	ret = omap_mmc_init(0, 0, 0);
+	ret = omap_mmc_init(0, 0, 0, -1, -1);
 	if (ret)
 		return ret;
 
-	return omap_mmc_init(1, 0, 0);
+	return omap_mmc_init(1, 0, 0, -1, -1);
 }
 #endif
 
@@ -141,11 +141,11 @@ int arch_misc_init(void)
 {
 #ifdef CONFIG_AM335X_USB0
 	musb_register(&otg0_plat, &otg0_board_data,
-		(void *)AM335X_USB0_OTG_BASE);
+		(void *)USB0_OTG_BASE);
 #endif
 #ifdef CONFIG_AM335X_USB1
 	musb_register(&otg1_plat, &otg1_board_data,
-		(void *)AM335X_USB1_OTG_BASE);
+		(void *)USB1_OTG_BASE);
 #endif
 	return 0;
 }

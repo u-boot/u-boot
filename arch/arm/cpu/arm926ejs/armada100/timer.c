@@ -61,7 +61,7 @@ struct armd1tmr_registers {
 #define	COUNT_RD_REQ		0x1
 
 DECLARE_GLOBAL_DATA_PTR;
-/* Using gd->tbu from timestamp and gd->tbl for lastdec */
+/* Using gd->arch.tbu from timestamp and gd->arch.tbl for lastdec */
 
 /* For preventing risk of instability in reading counter value,
  * first set read request to register cvwr and then read same
@@ -82,16 +82,16 @@ ulong get_timer_masked(void)
 {
 	ulong now = read_timer();
 
-	if (now >= gd->tbl) {
+	if (now >= gd->arch.tbl) {
 		/* normal mode */
-		gd->tbu += now - gd->tbl;
+		gd->arch.tbu += now - gd->arch.tbl;
 	} else {
 		/* we have an overflow ... */
-		gd->tbu += now + TIMER_LOAD_VAL - gd->tbl;
+		gd->arch.tbu += now + TIMER_LOAD_VAL - gd->arch.tbl;
 	}
-	gd->tbl = now;
+	gd->arch.tbl = now;
 
-	return gd->tbu;
+	return gd->arch.tbu;
 }
 
 ulong get_timer(ulong base)
@@ -135,9 +135,9 @@ int timer_init(void)
 
 	/* Enable timer 0 */
 	writel(0x1, &armd1timers->cer);
-	/* init the gd->tbu and gd->tbl value */
-	gd->tbl = read_timer();
-	gd->tbu = 0;
+	/* init the gd->arch.tbu and gd->arch.tbl value */
+	gd->arch.tbl = read_timer();
+	gd->arch.tbu = 0;
 
 	return 0;
 }

@@ -63,7 +63,7 @@
 /*
  * Buffers to hold input and output data
  */
-#define USBTTY_BUFFER_SIZE 256
+#define USBTTY_BUFFER_SIZE 2048
 static circbuf_t usbtty_input;
 static circbuf_t usbtty_output;
 
@@ -971,8 +971,8 @@ static void usbtty_event_handler (struct usb_device_instance *device,
 		/*
 		 * is_usbd_high_speed routine needs to be defined by
 		 * specific gadget driver
-		 * It returns TRUE if device enumerates at High speed
-		 * Retuns FALSE otherwise
+		 * It returns true if device enumerates at High speed
+		 * Retuns false otherwise
 		 */
 		for (i = 0; i < NUM_ENDPOINTS; i++) {
 			if (((ep_descriptor_ptrs[i]->bmAttributes &

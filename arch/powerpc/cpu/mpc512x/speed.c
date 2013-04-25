@@ -113,9 +113,9 @@ int get_clocks (void)
 		pci_clk = 333333;
 	}
 
-	gd->ips_clk = ips_clk;
+	gd->arch.ips_clk = ips_clk;
 	gd->pci_clk = pci_clk;
-	gd->csb_clk = csb_clk;
+	gd->arch.csb_clk = csb_clk;
 	gd->cpu_clk = core_clk;
 	gd->bus_clk = csb_clk;
 	return 0;
@@ -128,7 +128,7 @@ int get_clocks (void)
  *********************************************/
 ulong get_bus_freq (ulong dummy)
 {
-	return gd->csb_clk;
+	return gd->arch.csb_clk;
 }
 
 int do_clocks (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
@@ -137,10 +137,13 @@ int do_clocks (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 	printf("Clock configuration:\n");
 	printf("  CPU:                 %-4s MHz\n", strmhz(buf, gd->cpu_clk));
-	printf("  Coherent System Bus: %-4s MHz\n", strmhz(buf, gd->csb_clk));
-	printf("  IPS Bus:             %-4s MHz\n", strmhz(buf, gd->ips_clk));
+	printf("  Coherent System Bus: %-4s MHz\n",
+	       strmhz(buf, gd->arch.csb_clk));
+	printf("  IPS Bus:             %-4s MHz\n",
+	       strmhz(buf, gd->arch.ips_clk));
 	printf("  PCI:                 %-4s MHz\n", strmhz(buf, gd->pci_clk));
-	printf("  DDR:                 %-4s MHz\n", strmhz(buf, 2*gd->csb_clk));
+	printf("  DDR:                 %-4s MHz\n",
+	       strmhz(buf, 2 * gd->arch.csb_clk));
 	return 0;
 }
 

@@ -100,7 +100,6 @@ int do_reiserload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	ulong addr = 0, filelen;
 	disk_partition_t info;
 	block_dev_desc_t *dev_desc = NULL;
-	char buf [12];
 	unsigned long count;
 	char *addr_str;
 
@@ -175,8 +174,7 @@ int do_reiserload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	load_addr = addr;
 
 	printf ("\n%ld bytes read\n", filelen);
-	sprintf(buf, "%lX", filelen);
-	setenv("filesize", buf);
+	setenv_hex("filesize", filelen);
 
 	return filelen;
 }

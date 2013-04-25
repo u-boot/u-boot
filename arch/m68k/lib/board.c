@@ -77,9 +77,10 @@ static char *failed = "*** failed ***\n";
 #include <environment.h>
 
 extern ulong __init_end;
-extern ulong __bss_end__;
+extern ulong __bss_end;
 
 #if defined(CONFIG_WATCHDOG)
+# undef INIT_FUNC_WATCHDOG_INIT
 # define INIT_FUNC_WATCHDOG_INIT	watchdog_init,
 # define WATCHDOG_DISABLE		watchdog_disable
 
@@ -244,7 +245,7 @@ board_init_f (ulong bootflag)
 	 *	- monitor code
 	 *	- board info struct
 	 */
-	len = (ulong)&__bss_end__ - CONFIG_SYS_MONITOR_BASE;
+	len = (ulong)&__bss_end - CONFIG_SYS_MONITOR_BASE;
 
 	addr = CONFIG_SYS_SDRAM_BASE + gd->ram_size;
 
@@ -349,9 +350,9 @@ board_init_f (ulong bootflag)
 	bd->bi_pcifreq = gd->pci_clk;		/* PCI Freq in Hz */
 #endif
 #ifdef CONFIG_EXTRA_CLOCK
-	bd->bi_inpfreq = gd->inp_clk;		/* input Freq in Hz */
-	bd->bi_vcofreq = gd->vco_clk;		/* vco Freq in Hz */
-	bd->bi_flbfreq = gd->flb_clk;		/* flexbus Freq in Hz */
+	bd->bi_inpfreq = gd->arch.inp_clk;		/* input Freq in Hz */
+	bd->bi_vcofreq = gd->arch.vco_clk;		/* vco Freq in Hz */
+	bd->bi_flbfreq = gd->arch.flb_clk;		/* flexbus Freq in Hz */
 #endif
 	bd->bi_baudrate = gd->baudrate;	/* Console Baudrate     */
 
@@ -449,7 +450,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	/* The Malloc area is immediately below the monitor copy in DRAM */
 	mem_malloc_init (CONFIG_SYS_MONITOR_BASE + gd->reloc_off -
 			TOTAL_MALLOC_LEN, TOTAL_MALLOC_LEN);
-	malloc_bin_reloc ();
 
 #if !defined(CONFIG_SYS_NO_FLASH)
 	puts ("Flash: ");

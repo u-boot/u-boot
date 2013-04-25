@@ -40,7 +40,7 @@ enter the following commands:
 
  MX6Q SABRELITE U-Boot > mmc dev 0
  MX6Q SABRELITE U-Boot > mmc read 0x10800000 0 200
- MX6Q SABRELITE U-Boot > sf probe 1
+ MX6Q SABRELITE U-Boot > sf probe
  MX6Q SABRELITE U-Boot > sf erase 0 0x40000
  MX6Q SABRELITE U-Boot > sf write 0x10800000 0 0x40000
 
@@ -63,7 +63,7 @@ https://wiki.linaro.org/Boards/MX6QSabreLite
 To build U-Boot for the SabreLite board:
 
  make mx6qsabrelite_config
- make u-boot.imx
+ make
 
 To copy the resulting u-boot.imx to the SD card:
 

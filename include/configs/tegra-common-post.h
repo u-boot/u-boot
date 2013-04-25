@@ -119,33 +119,6 @@
 
 #endif
 
-/*
- * Memory layout for where various images get loaded by boot scripts:
- *
- * scriptaddr can be pretty much anywhere that doesn't conflict with something
- *   else. Put it above BOOTMAPSZ to eliminate conflicts.
- *
- * kernel_addr_r must be within the first 128M of RAM in order for the
- *   kernel's CONFIG_AUTO_ZRELADDR option to work. Since the kernel will
- *   decompress itself to 0x8000 after the start of RAM, kernel_addr_r
- *   should not overlap that area, or the kernel will have to copy itself
- *   somewhere else before decompression. Similarly, the address of any other
- *   data passed to the kernel shouldn't overlap the start of RAM. Pushing
- *   this up to 16M allows for a sizable kernel to be decompressed below the
- *   compressed load address.
- *
- * fdt_addr_r simply shouldn't overlap anything else. Choosing 32M allows for
- *   the compressed kernel to be up to 16M too.
- *
- * ramdisk_addr_r simply shouldn't overlap anything else. Choosing 33M allows
- *   for the FDT/DTB to be up to 1M, which is hopefully plenty.
- */
-#define MEM_LAYOUT_ENV_SETTINGS \
-	"scriptaddr=0x10000000\0" \
-	"kernel_addr_r=0x01000000\0" \
-	"fdt_addr_r=0x02000000\0" \
-	"ramdisk_addr_r=0x02100000\0" \
-
 #ifdef CONFIG_TEGRA_KEYBOARD
 #define STDIN_KBD_KBC ",tegra-kbc"
 #else
@@ -160,15 +133,26 @@
 #define STDIN_KBD_USB ""
 #endif
 
+#ifdef CONFIG_VIDEO_TEGRA
+#define STDOUT_LCD ",lcd"
+#else
+#define STDOUT_LCD ""
+#endif
+
 #define TEGRA_DEVICE_SETTINGS \
 	"stdin=serial" STDIN_KBD_KBC STDIN_KBD_USB "\0" \
-	"stdout=serial,lcd\0" \
-	"stderr=serial,lcd\0" \
+	"stdout=serial" STDOUT_LCD "\0" \
+	"stderr=serial" STDOUT_LCD "\0" \
+	""
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	TEGRA_DEVICE_SETTINGS \
 	MEM_LAYOUT_ENV_SETTINGS \
 	BOOTCMDS_COMMON
+
+#if defined(CONFIG_TEGRA20_SFLASH) || defined(CONFIG_TEGRA20_SLINK) || defined(CONFIG_TEGRA114_SPI)
+#define CONFIG_FDT_SPI
+#endif
 
 /* overrides for SPL build here */
 #ifdef CONFIG_SPL_BUILD

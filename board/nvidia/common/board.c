@@ -26,22 +26,34 @@
 #include <linux/compiler.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
+#ifdef CONFIG_LCD
 #include <asm/arch/display.h>
-#include <asm/arch/emc.h>
+#endif
 #include <asm/arch/funcmux.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/pmu.h>
+#ifdef CONFIG_PWM_TEGRA
 #include <asm/arch/pwm.h>
+#endif
 #include <asm/arch/tegra.h>
-#include <asm/arch/usb.h>
 #include <asm/arch-tegra/board.h>
 #include <asm/arch-tegra/clk_rst.h>
 #include <asm/arch-tegra/pmc.h>
 #include <asm/arch-tegra/sys_proto.h>
 #include <asm/arch-tegra/uart.h>
 #include <asm/arch-tegra/warmboot.h>
-#include <spi.h>
+#ifdef CONFIG_TEGRA_CLOCK_SCALING
+#include <asm/arch/emc.h>
+#endif
+#ifdef CONFIG_USB_EHCI_TEGRA
+#include <asm/arch-tegra/usb.h>
+#endif
+#ifdef CONFIG_TEGRA_MMC
+#include <asm/arch-tegra/tegra_mmc.h>
+#include <asm/arch-tegra/mmc.h>
+#endif
 #include <i2c.h>
+#include <spi.h>
 #include "emc.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -87,6 +99,12 @@ void __pin_mux_nand(void)
 
 void pin_mux_nand(void) __attribute__((weak, alias("__pin_mux_nand")));
 
+void __pin_mux_display(void)
+{
+}
+
+void pin_mux_display(void) __attribute__((weak, alias("__pin_mux_display")));
+
 /*
  * Routine: power_det_init
  * Description: turn off power detects
@@ -114,18 +132,17 @@ int board_init(void)
 	clock_init();
 	clock_verify();
 
-#ifdef CONFIG_SPI_UART_SWITCH
-	gpio_config_uart();
-#endif
-#ifdef CONFIG_TEGRA_SPI
+#ifdef CONFIG_FDT_SPI
 	pin_mux_spi();
 	spi_init();
 #endif
+
 #ifdef CONFIG_PWM_TEGRA
 	if (pwm_init(gd->fdt_blob))
 		debug("%s: Failed to init pwm\n", __func__);
 #endif
 #ifdef CONFIG_LCD
+	pin_mux_display();
 	tegra_lcd_check_next_stage(gd->fdt_blob, 0);
 #endif
 	/* boot param addr */
@@ -181,6 +198,9 @@ void gpio_early_init(void) __attribute__((weak, alias("__gpio_early_init")));
 
 int board_early_init_f(void)
 {
+#if !defined(CONFIG_TEGRA20)
+	pinmux_init();
+#endif
 	board_init_uart_f();
 
 	/* Initialize periph GPIOs */
@@ -202,3 +222,53 @@ int board_late_init(void)
 #endif
 	return 0;
 }
+
+#if defined(CONFIG_TEGRA_MMC)
+void __pin_mux_mmc(void)
+{
+}
+
+void pin_mux_mmc(void) __attribute__((weak, alias("__pin_mux_mmc")));
+
+/* this is a weak define that we are overriding */
+int board_mmc_init(bd_t *bd)
+{
+	debug("%s called\n", __func__);
+
+	/* Enable muxes, etc. for SDMMC controllers */
+	pin_mux_mmc();
+
+	debug("%s: init MMC\n", __func__);
+	tegra_mmc_init();
+
+	return 0;
+}
+
+void pad_init_mmc(struct mmc_host *host)
+{
+#if defined(CONFIG_TEGRA30)
+	enum periph_id id = host->mmc_id;
+	u32 val;
+
+	debug("%s: sdmmc address = %08x, id = %d\n", __func__,
+		(unsigned int)host->reg, id);
+
+	/* Set the pad drive strength for SDMMC1 or 3 only */
+	if (id != PERIPH_ID_SDMMC1 && id != PERIPH_ID_SDMMC3) {
+		debug("%s: settings are only valid for SDMMC1/SDMMC3!\n",
+			__func__);
+		return;
+	}
+
+	val = readl(&host->reg->sdmemcmppadctl);
+	val &= 0xFFFFFFF0;
+	val |= MEMCOMP_PADCTRL_VREF;
+	writel(val, &host->reg->sdmemcmppadctl);
+
+	val = readl(&host->reg->autocalcfg);
+	val &= 0xFFFF0000;
+	val |= AUTO_CAL_PU_OFFSET | AUTO_CAL_PD_OFFSET | AUTO_CAL_ENABLED;
+	writel(val, &host->reg->autocalcfg);
+#endif	/* T30 */
+}
+#endif	/* MMC */

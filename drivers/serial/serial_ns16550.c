@@ -247,24 +247,36 @@ serial_setbrg_dev(unsigned int dev_index)
 	_serial_setbrg(dev_index);
 }
 
+#if defined(CONFIG_SYS_NS16550_COM1)
 DECLARE_ESERIAL_FUNCTIONS(1);
 struct serial_device eserial1_device =
 	INIT_ESERIAL_STRUCTURE(1, "eserial0");
+#endif
+#if defined(CONFIG_SYS_NS16550_COM2)
 DECLARE_ESERIAL_FUNCTIONS(2);
 struct serial_device eserial2_device =
 	INIT_ESERIAL_STRUCTURE(2, "eserial1");
+#endif
+#if defined(CONFIG_SYS_NS16550_COM3)
 DECLARE_ESERIAL_FUNCTIONS(3);
 struct serial_device eserial3_device =
 	INIT_ESERIAL_STRUCTURE(3, "eserial2");
+#endif
+#if defined(CONFIG_SYS_NS16550_COM4)
 DECLARE_ESERIAL_FUNCTIONS(4);
 struct serial_device eserial4_device =
 	INIT_ESERIAL_STRUCTURE(4, "eserial3");
+#endif
+#if defined(CONFIG_SYS_NS16550_COM5)
 DECLARE_ESERIAL_FUNCTIONS(5);
 struct serial_device eserial5_device =
 	INIT_ESERIAL_STRUCTURE(5, "eserial4");
+#endif
+#if defined(CONFIG_SYS_NS16550_COM6)
 DECLARE_ESERIAL_FUNCTIONS(6);
 struct serial_device eserial6_device =
 	INIT_ESERIAL_STRUCTURE(6, "eserial5");
+#endif
 
 __weak struct serial_device *default_serial_console(void)
 {

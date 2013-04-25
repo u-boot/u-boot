@@ -89,15 +89,13 @@ struct spi_slave *spi_setup_slave(unsigned int busnum, unsigned int cs,
 		return NULL;
 	}
 
-	spi_slave = malloc(sizeof(*spi_slave));
+	spi_slave = spi_alloc_slave(struct exynos_spi_slave, busnum, cs);
 	if (!spi_slave) {
 		debug("%s: Could not allocate spi_slave\n", __func__);
 		return NULL;
 	}
 
 	bus = &spi_bus[busnum];
-	spi_slave->slave.bus = busnum;
-	spi_slave->slave.cs = cs;
 	spi_slave->regs = bus->regs;
 	spi_slave->mode = mode;
 	spi_slave->periph_id = bus->periph_id;
@@ -360,6 +358,7 @@ static inline struct exynos_spi *get_spi_base(int dev_index)
  * @param bus   SPI bus structure to fill with information
  * @return 0 if ok, or -FDT_ERR_NOTFOUND if something was missing
  */
+#ifdef CONFIG_OF_CONTROL
 static int spi_get_config(const void *blob, int node, struct spi_bus *bus)
 {
 	bus->node = node;
@@ -415,6 +414,7 @@ static int process_nodes(const void *blob, int node_list[], int count)
 
 	return 0;
 }
+#endif
 
 /* Sadly there is no error return from this function */
 void spi_init(void)

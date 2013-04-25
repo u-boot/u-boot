@@ -21,8 +21,8 @@
 
 /* Tegra clock control functions */
 
-#ifndef _CLOCK_H
-#define _CLOCK_H
+#ifndef _TEGRA_CLOCK_H_
+#define _TEGRA_CLOCK_H_
 
 /* Set of oscillator frequencies supported in the internal API. */
 enum clock_osc_freq {
@@ -82,7 +82,7 @@ int clock_set_pllout(enum clock_id clkid, enum pll_out_id pllout,
  * @returns 0 if ok, -1 on error (invalid clock id)
  */
 int clock_ll_read_pll(enum clock_id clkid, u32 *divm, u32 *divn,
-		      u32 *divp, u32 *cpcon, u32 *lfcon);
+		u32 *divp, u32 *cpcon, u32 *lfcon);
 
 /*
  * Enable a clock
@@ -136,7 +136,7 @@ enum crc_reset_id {
 /**
  * Put parts of the CPU complex into or out of reset.\
  *
- * @param cpu		cpu number (0 or 1 on Tegra2)
+ * @param cpu		cpu number (0 or 1 on Tegra2, 0-3 on Tegra3)
  * @param which		which parts of the complex to affect (OR of crc_reset_id)
  * @param reset		1 to assert reset, 0 to de-assert
  */
@@ -262,4 +262,62 @@ void clock_init(void);
 /* Initialize the PLLs */
 void clock_early_init(void);
 
-#endif	/* _CLOCK_H_ */
+/* Returns a pointer to the clock source register for a peripheral */
+u32 *get_periph_source_reg(enum periph_id periph_id);
+
+/**
+ * Given a peripheral ID and the required source clock, this returns which
+ * value should be programmed into the source mux for that peripheral.
+ *
+ * There is special code here to handle the one source type with 5 sources.
+ *
+ * @param periph_id     peripheral to start
+ * @param source        PLL id of required parent clock
+ * @param mux_bits      Set to number of bits in mux register: 2 or 4
+ * @param divider_bits  Set to number of divider bits (8 or 16)
+ * @return mux value (0-4, or -1 if not found)
+ */
+int get_periph_clock_source(enum periph_id periph_id,
+		enum clock_id parent, int *mux_bits, int *divider_bits);
+
+/*
+ * Convert a device tree clock ID to our peripheral ID. They are mostly
+ * the same but we are very cautious so we check that a valid clock ID is
+ * provided.
+ *
+ * @param clk_id        Clock ID according to tegra30 device tree binding
+ * @return peripheral ID, or PERIPH_ID_NONE if the clock ID is invalid
+ */
+enum periph_id clk_id_to_periph_id(int clk_id);
+
+/**
+ * Set the output frequency you want for each PLL clock.
+ * PLL output frequencies are programmed by setting their N, M and P values.
+ * The governing equations are:
+ *     VCO = (Fi / m) * n, Fo = VCO / (2^p)
+ *     where Fo is the output frequency from the PLL.
+ * Example: Set the output frequency to 216Mhz(Fo) with 12Mhz OSC(Fi)
+ *     216Mhz = ((12Mhz / m) * n) / (2^p) so n=432,m=12,p=1
+ * Please see Tegra TRM section 5.3 to get the detail for PLL Programming
+ *
+ * @param n PLL feedback divider(DIVN)
+ * @param m PLL input divider(DIVN)
+ * @param p post divider(DIVP)
+ * @param cpcon base PLL charge pump(CPCON)
+ * @return 0 if ok, -1 on error (the requested PLL is incorrect and cannot
+ *              be overriden), 1 if PLL is already correct
+ */
+int clock_set_rate(enum clock_id clkid, u32 n, u32 m, u32 p, u32 cpcon);
+
+/* return 1 if a peripheral ID is in range */
+#define clock_type_id_isvalid(id) ((id) >= 0 && \
+		(id) < CLOCK_TYPE_COUNT)
+
+/* return 1 if a periphc_internal_id is in range */
+#define periphc_internal_id_isvalid(id) ((id) >= 0 && \
+		(id) < PERIPHC_COUNT)
+
+/* SoC-specific TSC init */
+void arch_timer_init(void);
+
+#endif  /* _TEGRA_CLOCK_H_ */

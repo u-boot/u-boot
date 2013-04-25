@@ -25,7 +25,7 @@
  */
 
 MEMORY { .sram : ORIGIN = CONFIG_SPL_TEXT_BASE,\
-		LENGTH = CONFIG_SPL_MAX_SIZE }
+		LENGTH = CONFIG_SPL_MAX_FOOTPRINT }
 
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
@@ -38,7 +38,7 @@ SECTIONS
 	.text      :
 	{
 	__start = .;
-	  arch/arm/cpu/arm926ejs/start.o	(.text)
+	  arch/arm/cpu/arm926ejs/start.o	(.text*)
 	  *(.text*)
 	} >.sram
 
@@ -47,10 +47,6 @@ SECTIONS
 
 	. = ALIGN(4);
 	.data : { *(SORT_BY_ALIGNMENT(.data*)) } >.sram
-	. = ALIGN(4);
-	.u_boot_list : {
-		#include <u-boot.lst>
-	} >.sram
 	. = ALIGN(4);
 	.rel.dyn : {
 		__rel_dyn_start = .;
@@ -69,7 +65,7 @@ SECTIONS
 		__bss_start = .;
 		*(.bss*)
 		. = ALIGN(4);
-		__bss_end__ = .;
+		__bss_end = .;
 	} >.sram
 
 	__image_copy_end = .;

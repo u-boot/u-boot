@@ -110,7 +110,7 @@ void scsi_scan(int mode)
 		scsi_dev_desc[i].vendor[0]=0;
 		scsi_dev_desc[i].product[0]=0;
 		scsi_dev_desc[i].revision[0]=0;
-		scsi_dev_desc[i].removable=FALSE;
+		scsi_dev_desc[i].removable = false;
 		scsi_dev_desc[i].if_type=IF_TYPE_SCSI;
 		scsi_dev_desc[i].dev=i;
 		scsi_dev_desc[i].part_type=PART_TYPE_UNKNOWN;
@@ -125,7 +125,7 @@ void scsi_scan(int mode)
 			pccb->pdata=(unsigned char *)&tempbuff;
 			pccb->datalen=512;
 			scsi_setup_inquiry(pccb);
-			if(scsi_exec(pccb)!=TRUE) {
+			if (scsi_exec(pccb) != true) {
 				if(pccb->contr_stat==SCSI_SEL_TIME_OUT) {
 					debug ("Selection timeout ID %d\n",pccb->target);
 					continue; /* selection timeout => assuming no device present */
@@ -139,7 +139,7 @@ void scsi_scan(int mode)
 				continue; /* skip unknown devices */
 			}
 			if((modi&0x80)==0x80) /* drive is removable */
-				scsi_dev_desc[scsi_max_devs].removable=TRUE;
+				scsi_dev_desc[scsi_max_devs].removable=true;
 			/* get info for this device */
 			scsi_ident_cpy((unsigned char *)&scsi_dev_desc[scsi_max_devs].vendor[0],
 				       &tempbuff[8], 8);
@@ -152,8 +152,8 @@ void scsi_scan(int mode)
 
 			pccb->datalen=0;
 			scsi_setup_test_unit_ready(pccb);
-			if(scsi_exec(pccb)!=TRUE) {
-				if(scsi_dev_desc[scsi_max_devs].removable==TRUE) {
+			if (scsi_exec(pccb) != true) {
+				if (scsi_dev_desc[scsi_max_devs].removable == true) {
 					scsi_dev_desc[scsi_max_devs].type=perq;
 					goto removable;
 				}
@@ -404,7 +404,7 @@ static ulong scsi_read(int device, ulong blknr, lbaint_t blkcnt, void *buffer)
 		debug("scsi_read_ext: startblk " LBAF
 		      ", blccnt %x buffer %lx\n",
 		      start, smallblks, buf_addr);
-		if(scsi_exec(pccb)!=TRUE) {
+		if (scsi_exec(pccb) != true) {
 			scsi_print_error(pccb);
 			blkcnt-=blks;
 			break;
@@ -458,7 +458,7 @@ static ulong scsi_write(int device, ulong blknr,
 		}
 		debug("%s: startblk " LBAF ", blccnt %x buffer %lx\n",
 		      __func__, start, smallblks, buf_addr);
-		if (scsi_exec(pccb) != TRUE) {
+		if (scsi_exec(pccb) != true) {
 			scsi_print_error(pccb);
 			blkcnt -= blks;
 			break;
@@ -521,7 +521,7 @@ int scsi_read_capacity(ccb *pccb, lbaint_t *capacity, unsigned long *blksz)
 	pccb->msgout[0] = SCSI_IDENTIFY; /* NOT USED */
 
 	pccb->datalen = 8;
-	if (scsi_exec(pccb) != TRUE)
+	if (scsi_exec(pccb) != true)
 		return 1;
 
 	*capacity = ((lbaint_t)pccb->pdata[0] << 24) |
@@ -547,7 +547,7 @@ int scsi_read_capacity(ccb *pccb, lbaint_t *capacity, unsigned long *blksz)
 	pccb->msgout[0] = SCSI_IDENTIFY; /* NOT USED */
 
 	pccb->datalen = 16;
-	if (scsi_exec(pccb) != TRUE)
+	if (scsi_exec(pccb) != true)
 		return 1;
 
 	*capacity = ((uint64_t)pccb->pdata[0] << 56) |

@@ -39,6 +39,7 @@ COBJS-$(CONFIG_SANDBOX_GPIO)	+= sandbox.o
 COBJS-$(CONFIG_SPEAR_GPIO)	+= spear_gpio.o
 COBJS-$(CONFIG_TEGRA_GPIO)	+= tegra_gpio.o
 COBJS-$(CONFIG_DA8XX_GPIO)	+= da8xx_gpio.o
+COBJS-$(CONFIG_DM644X_GPIO)	+= da8xx_gpio.o
 COBJS-$(CONFIG_ALTERA_PIO)	+= altera_pio.o
 COBJS-$(CONFIG_MPC83XX_GPIO)	+= mpc83xx_gpio.o
 COBJS-$(CONFIG_SH_GPIO_PFC)	+= sh_pfc.o

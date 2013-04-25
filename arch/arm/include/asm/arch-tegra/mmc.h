@@ -22,6 +22,6 @@
 #ifndef _TEGRA_MMC_H_
 #define _TEGRA_MMC_H_
 
-int tegra_mmc_init(int dev_index, int bus_width, int pwr_gpio, int cd_gpio);
+void tegra_mmc_init(void);
 
 #endif /* _TEGRA_MMC_H_ */

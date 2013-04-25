@@ -35,16 +35,6 @@
 #define PRINTF(fmt,args...)
 #endif
 
-/* Rather than repeat this expression each time, add a define for it */
-#if (defined(CONFIG_CMD_IDE) || \
-     defined(CONFIG_CMD_SATA) || \
-     defined(CONFIG_CMD_SCSI) || \
-     defined(CONFIG_CMD_USB) || \
-     defined(CONFIG_MMC) || \
-     defined(CONFIG_SYSTEMACE) )
-#define HAVE_BLOCK_DEVICE
-#endif
-
 struct block_drvr {
 	char *name;
 	block_dev_desc_t* (*get_dev)(int dev);
@@ -471,6 +461,23 @@ int get_device_and_partition(const char *ifname, const char *dev_part_str,
 	int p;
 	int part;
 	disk_partition_t tmpinfo;
+
+	/*
+	 * For now, we have a special case for sandbox, since there is no
+	 * real block device support.
+	 */
+	if (0 == strcmp(ifname, "host")) {
+		*dev_desc = NULL;
+		info->start = info->size =  info->blksz = 0;
+		info->bootable = 0;
+		strcpy((char *)info->type, BOOT_PART_TYPE);
+		strcpy((char *)info->name, "Sandbox host");
+#ifdef CONFIG_PARTITION_UUIDS
+		info->uuid[0] = 0;
+#endif
+
+		return 0;
+	}
 
 	/* If no dev_part_str, use bootdevice environment variable */
 	if (!dev_part_str || !strlen(dev_part_str) ||

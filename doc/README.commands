@@ -15,24 +15,22 @@ help:	 Long description. This is a string
 
 **** Behind the scene ******
 
-The structure created is named with a special prefix (__u_boot_list_cmd_)
-and placed by the linker in a special section.
+The structure created is named with a special prefix and placed by
+the linker in a special section using the linker lists mechanism
+(see include/linker_lists.h)
 
 This makes it possible for the final link to extract all commands
 compiled into any object code and construct a static array so the
-command can be found in an array starting at _u_boot_list_cmd__start.
+command array can be iterated over using the linker lists macros.
 
-To ensure that the linker does not discard these symbols when linking
-full U-Boot we generate a list of all the commands we have built (based
-on the sections mentioned above) and use that to force the linker to
-first enter the symbol as undefined in the output object so that there
-is then a need for the symbol to be kept (this is the UNDEF_SYM logic in
-the Makefile).
+The linker lists feature ensures that the linker does not discard
+these symbols when linking full U-Boot even though they are not
+referenced in the source code as such.
 
 If a new board is defined do not forget to define the command section
 by writing in u-boot.lds ($(TOPDIR)/board/boardname/u-boot.lds) these
 3 lines:
 
 	.u_boot_list : {
-	#include "u-boot.lst";
+		KEEP(*(SORT(.u_boot_list*)));
 	}

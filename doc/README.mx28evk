@@ -23,6 +23,24 @@ To boot MX28EVK from an SD card, set the boot mode DIP switches as:
    * VDD 5V: To the left (off)
    * Hold Button: Down (off)
 
+
+Environment Storage
+-------------------
+
+There are two targets for mx28evk:
+
+"make mx28evk_config"		- store enviroment variables into MMC
+
+or
+
+"make mx28evk_nand_config"	- store enviroment variables into NAND flash
+
+Choose the target accordingly.
+
+Note: The mx28evk board does not come with a NAND flash populated from the
+factory. It comes with an empty slot (U23), which allows the insertion of a
+48-pin TSOP flash device.
+
 Follow the instructions from doc/README.mx28_common to generate a bootable SD
 card.
 

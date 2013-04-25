@@ -299,9 +299,9 @@ int print_cpuinfo (void)
 		}
 		if ((get_cpu_rev() >= CPU_3XX_ES31) &&
 		    (get_sku_id() == SKUID_CLK_720MHZ))
-			max_clk = "720 mHz";
+			max_clk = "720 MHz";
 		else
-			max_clk = "600 mHz";
+			max_clk = "600 MHz";
 
 		break;
 	case CPU_AM35XX:

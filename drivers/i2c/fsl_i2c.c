@@ -217,9 +217,9 @@ static unsigned int set_i2c_bus_speed(const struct fsl_i2c *dev,
 static unsigned int get_i2c_clock(int bus)
 {
 	if (bus)
-		return gd->i2c2_clk;	/* I2C2 clock */
+		return gd->arch.i2c2_clk;	/* I2C2 clock */
 	else
-		return gd->i2c1_clk;	/* I2C1 clock */
+		return gd->arch.i2c1_clk;	/* I2C1 clock */
 }
 
 void
@@ -468,7 +468,8 @@ int i2c_set_bus_num(unsigned int bus)
 
 int i2c_set_bus_speed(unsigned int speed)
 {
-	unsigned int i2c_clk = (i2c_bus_num == 1) ? gd->i2c2_clk : gd->i2c1_clk;
+	unsigned int i2c_clk = (i2c_bus_num == 1)
+			? gd->arch.i2c2_clk : gd->arch.i2c1_clk;
 
 	writeb(0, &i2c_dev[i2c_bus_num]->cr);		/* stop controller */
 	i2c_bus_speed[i2c_bus_num] =

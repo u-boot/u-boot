@@ -31,7 +31,7 @@ LIB	= $(obj)libext4fs.o
 
 AOBJS	=
 COBJS-$(CONFIG_FS_EXT4) := ext4fs.o ext4_common.o dev.o
-COBJS-$(CONFIG_EXT4_WRITE) += ext4_journal.o crc16.o
+COBJS-$(CONFIG_EXT4_WRITE) += ext4_write.o ext4_journal.o crc16.o
 
 SRCS	:= $(AOBJS:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(AOBJS) $(COBJS-y))

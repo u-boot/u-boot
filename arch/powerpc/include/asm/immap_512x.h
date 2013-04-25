@@ -227,7 +227,9 @@ typedef struct clk512x {
 #define CLOCK_SCCR2_IIM_EN		0x00080000
 
 /* SCFR1 System Clock Frequency Register 1 */
+#ifndef SCFR1_IPS_DIV
 #define SCFR1_IPS_DIV		0x3
+#endif
 #define SCFR1_IPS_DIV_MASK	0x03800000
 #define SCFR1_IPS_DIV_SHIFT	23
 
@@ -237,6 +239,12 @@ typedef struct clk512x {
 
 #define SCFR1_LPC_DIV_MASK	0x00003800
 #define SCFR1_LPC_DIV_SHIFT	11
+
+#define SCFR1_NFC_DIV_MASK	0x00000700
+#define SCFR1_NFC_DIV_SHIFT	8
+
+#define SCFR1_DIU_DIV_MASK	0x000000FF
+#define SCFR1_DIU_DIV_SHIFT	0
 
 /* SCFR2 System Clock Frequency Register 2 */
 #define SCFR2_SYS_DIV		0xFC000000
@@ -343,6 +351,7 @@ typedef struct ddr512x {
 
 /* MDDRC SYS CFG and Timing CFG0 Registers */
 #define MDDRC_SYS_CFG_EN	0xF0000000
+#define MDDRC_SYS_CFG_CKE_MASK	0x40000000
 #define MDDRC_SYS_CFG_CMD_MASK	0x10000000
 #define MDDRC_REFRESH_ZERO_MASK	0x0000FFFF
 
@@ -869,6 +878,19 @@ typedef struct iopin_t {
 }iopin_t;
 
 void iopin_initialize(iopin_t *,int);
+
+/*
+ * support to adjust individual parts of the IO pin setup
+ */
+
+#define IO_PIN_OVER_EACH	(1 << 0) /* for compatibility */
+#define IO_PIN_OVER_FMUX	(1 << 1)
+#define IO_PIN_OVER_HOLD	(1 << 2)
+#define IO_PIN_OVER_PULL	(1 << 3)
+#define IO_PIN_OVER_STRIG	(1 << 4)
+#define IO_PIN_OVER_DRVSTR	(1 << 5)
+
+void iopin_initialize_bits(iopin_t *, int);
 
 /*
  * IIM

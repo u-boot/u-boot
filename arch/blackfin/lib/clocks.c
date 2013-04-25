@@ -9,69 +9,139 @@
 #include <common.h>
 #include <asm/blackfin.h>
 
+#ifdef PLL_CTL
+# include <asm/mach-common/bits/pll.h>
+# define pll_is_bypassed() (bfin_read_PLL_STAT() & DF)
+#else
+# include <asm/mach-common/bits/cgu.h>
+# define pll_is_bypassed() (bfin_read_CGU_STAT() & PLLBP)
+# define bfin_read_PLL_CTL() bfin_read_CGU_CTL()
+# define bfin_read_PLL_DIV() bfin_read_CGU_DIV()
+#endif
+
 /* Get the voltage input multiplier */
-static u_long cached_vco_pll_ctl, cached_vco;
 u_long get_vco(void)
 {
-	u_long msel;
+	static u_long cached_vco_pll_ctl, cached_vco;
 
-	u_long pll_ctl = bfin_read_PLL_CTL();
+	u_long msel, pll_ctl;
+
+	pll_ctl = bfin_read_PLL_CTL();
 	if (pll_ctl == cached_vco_pll_ctl)
 		return cached_vco;
 	else
 		cached_vco_pll_ctl = pll_ctl;
 
-	msel = (pll_ctl >> 9) & 0x3F;
+	msel = (pll_ctl & MSEL) >> MSEL_P;
 	if (0 == msel)
-		msel = 64;
+		msel = (MSEL >> MSEL_P) + 1;
 
 	cached_vco = CONFIG_CLKIN_HZ;
-	cached_vco >>= (1 & pll_ctl);	/* DF bit */
+	cached_vco >>= (pll_ctl & DF);
 	cached_vco *= msel;
 	return cached_vco;
 }
 
 /* Get the Core clock */
-static u_long cached_cclk_pll_div, cached_cclk;
 u_long get_cclk(void)
 {
-	u_long csel, ssel;
+	static u_long cached_cclk_pll_div, cached_cclk;
+	u_long div, csel, ssel;
 
-	if (bfin_read_PLL_STAT() & 0x1)
+	if (pll_is_bypassed())
 		return CONFIG_CLKIN_HZ;
 
-	ssel = bfin_read_PLL_DIV();
-	if (ssel == cached_cclk_pll_div)
+	div = bfin_read_PLL_DIV();
+	if (div == cached_cclk_pll_div)
 		return cached_cclk;
 	else
-		cached_cclk_pll_div = ssel;
+		cached_cclk_pll_div = div;
 
-	csel = ((ssel >> 4) & 0x03);
-	ssel &= 0xf;
+	csel = (div & CSEL) >> CSEL_P;
+#ifndef CGU_DIV
+	ssel = (div & SSEL) >> SSEL_P;
 	if (ssel && ssel < (1 << csel))	/* SCLK > CCLK */
 		cached_cclk = get_vco() / ssel;
 	else
 		cached_cclk = get_vco() >> csel;
+#else
+	cached_cclk = get_vco() / csel;
+#endif
 	return cached_cclk;
 }
 
 /* Get the System clock */
-static u_long cached_sclk_pll_div, cached_sclk;
-u_long get_sclk(void)
-{
-	u_long ssel;
+#ifdef CGU_DIV
 
-	if (bfin_read_PLL_STAT() & 0x1)
+static u_long cached_sclk_pll_div, cached_sclk;
+static u_long cached_sclk0, cached_sclk1, cached_dclk;
+static u_long _get_sclk(u_long *cache)
+{
+	u_long div, ssel;
+
+	if (pll_is_bypassed())
 		return CONFIG_CLKIN_HZ;
 
-	ssel = bfin_read_PLL_DIV();
-	if (ssel == cached_sclk_pll_div)
+	div = bfin_read_PLL_DIV();
+	if (div == cached_sclk_pll_div)
+		return *cache;
+	else
+		cached_sclk_pll_div = div;
+
+	ssel = (div & SYSSEL) >> SYSSEL_P;
+	cached_sclk = get_vco() / ssel;
+
+	ssel = (div & S0SEL) >> S0SEL_P;
+	cached_sclk0 = cached_sclk / ssel;
+
+	ssel = (div & S1SEL) >> S1SEL_P;
+	cached_sclk1 = cached_sclk / ssel;
+
+	ssel = (div & DSEL) >> DSEL_P;
+	cached_dclk = get_vco() / ssel;
+
+	return *cache;
+}
+
+u_long get_sclk(void)
+{
+	return _get_sclk(&cached_sclk);
+}
+
+u_long get_sclk0(void)
+{
+	return _get_sclk(&cached_sclk0);
+}
+
+u_long get_sclk1(void)
+{
+	return _get_sclk(&cached_sclk1);
+}
+
+u_long get_dclk(void)
+{
+	return _get_sclk(&cached_dclk);
+}
+#else
+
+u_long get_sclk(void)
+{
+	static u_long cached_sclk_pll_div, cached_sclk;
+	u_long div, ssel;
+
+	if (pll_is_bypassed())
+		return CONFIG_CLKIN_HZ;
+
+	div = bfin_read_PLL_DIV();
+	if (div == cached_sclk_pll_div)
 		return cached_sclk;
 	else
-		cached_sclk_pll_div = ssel;
+		cached_sclk_pll_div = div;
 
-	ssel &= 0xf;
-
+	ssel = (div & SSEL) >> SSEL_P;
 	cached_sclk = get_vco() / ssel;
+
 	return cached_sclk;
 }
+
+#endif

@@ -36,7 +36,7 @@ AFLAGS	+= -DCONFIG_NAND_SPL
 CFLAGS	+= -DCONFIG_NAND_SPL
 
 SOBJS	= start.o ticks.o
-COBJS	= nand_boot_fsl_elbc.o $(BOARD).o sdram.o ns16550.o nand_init.o \
+COBJS	= nand_boot_fsl_elbc.o $(BOARD).o sdram.o ns16550.o spl_minimal.o \
 	  time.o cache.o
 
 SRCS	:= $(addprefix $(obj),$(SOBJS:.o=.S) $(COBJS:.o=.c))
@@ -80,8 +80,8 @@ $(obj)$(BOARD).c:
 $(obj)ns16550.c:
 	ln -sf $(SRCTREE)/drivers/serial/ns16550.c $(obj)ns16550.c
 
-$(obj)nand_init.c:
-	ln -sf $(SRCTREE)/arch/powerpc/cpu/mpc83xx/nand_init.c $(obj)nand_init.c
+$(obj)spl_minimal.c:
+	ln -sf $(SRCTREE)/arch/powerpc/cpu/mpc83xx/spl_minimal.c $(obj)spl_minimal.c
 
 $(obj)cache.c:
 	ln -sf $(SRCTREE)/arch/powerpc/lib/cache.c $(obj)cache.c

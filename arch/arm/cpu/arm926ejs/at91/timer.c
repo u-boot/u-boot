@@ -52,14 +52,14 @@ DECLARE_GLOBAL_DATA_PTR;
 static inline unsigned long long tick_to_time(unsigned long long tick)
 {
 	tick *= CONFIG_SYS_HZ;
-	do_div(tick, gd->timer_rate_hz);
+	do_div(tick, gd->arch.timer_rate_hz);
 
 	return tick;
 }
 
 static inline unsigned long long usec_to_tick(unsigned long long usec)
 {
-	usec *= gd->timer_rate_hz;
+	usec *= gd->arch.timer_rate_hz;
 	do_div(usec, 1000000);
 
 	return usec;
@@ -79,8 +79,8 @@ int timer_init(void)
 	/* Enable PITC */
 	writel(TIMER_LOAD_VAL | AT91_PIT_MR_EN , &pit->mr);
 
-	gd->timer_rate_hz = gd->mck_rate_hz / 16;
-	gd->tbu = gd->tbl = 0;
+	gd->arch.timer_rate_hz = gd->arch.mck_rate_hz / 16;
+	gd->arch.tbu = gd->arch.tbl = 0;
 
 	return 0;
 }
@@ -95,10 +95,10 @@ unsigned long long get_ticks(void)
 	ulong now = readl(&pit->piir);
 
 	/* increment tbu if tbl has rolled over */
-	if (now < gd->tbl)
-		gd->tbu++;
-	gd->tbl = now;
-	return (((unsigned long long)gd->tbu) << 32) | gd->tbl;
+	if (now < gd->arch.tbl)
+		gd->arch.tbu++;
+	gd->arch.tbl = now;
+	return (((unsigned long long)gd->arch.tbu) << 32) | gd->arch.tbl;
 }
 
 void __udelay(unsigned long usec)
@@ -132,5 +132,5 @@ ulong get_timer(ulong base)
  */
 ulong get_tbclk(void)
 {
-	return gd->timer_rate_hz;
+	return gd->arch.timer_rate_hz;
 }

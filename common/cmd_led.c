@@ -110,13 +110,15 @@ int do_led (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				if (led_commands[i].on)
 					led_commands[i].on();
 				else
-					__led_set(led_commands[i].mask, 1);
+					__led_set(led_commands[i].mask,
+							  STATUS_LED_ON);
 				break;
 			case LED_OFF:
 				if (led_commands[i].off)
 					led_commands[i].off();
 				else
-					__led_set(led_commands[i].mask, 0);
+					__led_set(led_commands[i].mask,
+							  STATUS_LED_OFF);
 				break;
 			case LED_TOGGLE:
 				if (led_commands[i].toggle)

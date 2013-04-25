@@ -606,10 +606,10 @@ ixQMgrAqmIfQStatusCheck (UINT32 *oldQStatusWords,
 	 (newQStatusWords[statusWordOffset] & mask)) &&
 	((newQStatusWords[statusWordOffset] & mask) == checkValue))
     {
-	return TRUE;
+	return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 /*
@@ -665,7 +665,7 @@ ixQMgrAqmIfQInterruptEnableRegRead (IxQMgrDispatchGroup group,
 
 /*
  * This inline function will read the status bit of a queue
- * specified by qId. If reset is TRUE the bit is cleared.
+ * specified by qId. If reset is true the bit is cleared.
  */
 IX_QMGR_AQMIF_INLINE BOOL
 ixQMgrAqmIfRegisterBitCheck (IxQMgrQId qId, 
@@ -707,11 +707,11 @@ ixQMgrAqmIfRegisterBitCheck (IxQMgrQId qId,
 	{
 	    ixQMgrAqmIfWordWrite (registerAddress, registerWord & (~actualBitOffset));
 	}
-	return TRUE;
+	return true;
     }
 
     /* Bit not set */
-    return FALSE;
+    return false;
 }
 
 
@@ -733,12 +733,12 @@ ixQMgrAqmIfUnderflowCheck (IxQMgrQId qId)
 					     IX_QMGR_QUEUOSTAT0_OFFSET,
 					     IX_QMGR_QUEUOSTAT_NUM_QUE_PER_WORD,
 					     IX_QMGR_UNDERFLOW_BIT_OFFSET,
-					     TRUE/*reset*/));
+					     true/*reset*/));
     }
     else
     {
 	/* Qs 32-63 have no underflow status */
-	return FALSE;
+	return false;
     }
 }
 
@@ -755,12 +755,12 @@ ixQMgrAqmIfOverflowCheck (IxQMgrQId qId)
 					     IX_QMGR_QUEUOSTAT0_OFFSET,
 					     IX_QMGR_QUEUOSTAT_NUM_QUE_PER_WORD,
 					     IX_QMGR_OVERFLOW_BIT_OFFSET,
-					     TRUE/*reset*/));
+					     true/*reset*/));
     }
     else
     {
 	/* Qs 32-63 have no overflow status */
-	return FALSE;
+	return false;
     }
 }
 
@@ -870,7 +870,7 @@ ixQMgrAqmIfQueUppStatRead (IxQMgrQId qId,
 				     IX_QMGR_QUEUPPSTAT0_OFFSET,
 				     IX_QMGR_QUEUPPSTAT_NUM_QUE_PER_WORD,
 				     0/*relativeBitOffset*/,
-				     FALSE/*!reset*/))
+				     false/*!reset*/))
     {
 	*status |= IX_QMGR_Q_STATUS_NE_BIT_MASK;
     }
@@ -884,7 +884,7 @@ ixQMgrAqmIfQueUppStatRead (IxQMgrQId qId,
 				     IX_QMGR_QUEUPPSTAT1_OFFSET,
 				     IX_QMGR_QUEUPPSTAT_NUM_QUE_PER_WORD,
 				     0/*relativeBitOffset*/,
-				     FALSE/*!reset*/))
+				     false/*!reset*/))
     {
 	*status |= IX_QMGR_Q_STATUS_F_BIT_MASK;
     }

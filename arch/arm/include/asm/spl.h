@@ -27,7 +27,7 @@
 #include <asm/arch/spl.h>
 
 /* Linker symbols. */
-extern char __bss_start[], __bss_end__[];
+extern char __bss_start[], __bss_end[];
 
 extern gd_t gdata;
 

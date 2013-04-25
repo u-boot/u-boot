@@ -40,6 +40,12 @@
 #define NV_PA_APB_UARTE_BASE	(NV_PA_APB_MISC_BASE + 0x6400)
 #define NV_PA_NAND_BASE		(NV_PA_APB_MISC_BASE + 0x8000)
 #define NV_PA_SPI_BASE		(NV_PA_APB_MISC_BASE + 0xC380)
+#define NV_PA_SLINK1_BASE	(NV_PA_APB_MISC_BASE + 0xD400)
+#define NV_PA_SLINK2_BASE	(NV_PA_APB_MISC_BASE + 0xD600)
+#define NV_PA_SLINK3_BASE	(NV_PA_APB_MISC_BASE + 0xD800)
+#define NV_PA_SLINK4_BASE	(NV_PA_APB_MISC_BASE + 0xDA00)
+#define NV_PA_SLINK5_BASE	(NV_PA_APB_MISC_BASE + 0xDC00)
+#define NV_PA_SLINK6_BASE	(NV_PA_APB_MISC_BASE + 0xDE00)
 #define TEGRA_DVC_BASE		(NV_PA_APB_MISC_BASE + 0xD000)
 #define NV_PA_PMC_BASE		(NV_PA_APB_MISC_BASE + 0xE400)
 #define NV_PA_EMC_BASE		(NV_PA_APB_MISC_BASE + 0xF400)
@@ -72,14 +78,24 @@ enum {
 	SKU_ID_T25		= 0x18,
 	SKU_ID_AP25E		= 0x1b,
 	SKU_ID_T25E		= 0x1c,
+	SKU_ID_T33		= 0x80,
+	SKU_ID_T30		= 0x81, /* Cardhu value */
+	SKU_ID_T114_ENG		= 0x00, /* Dalmore value, unfused */
 };
 
-/* These are the SOC categories that affect clocking */
+/*
+ * These are used to distinguish SOC types for setting up clocks. Mostly
+ * we can tell the clocking required by looking at the SOC sku_id, but
+ * for T30 it is a user option as to whether to run PLLP in fast or slow
+ * mode, so we have two options there.
+ */
 enum {
 	TEGRA_SOC_T20,
 	TEGRA_SOC_T25,
+	TEGRA_SOC_T30,
+	TEGRA_SOC_T114,
 
-	TEGRA_SOC_COUNT,
+	TEGRA_SOC_CNT,
 	TEGRA_SOC_UNKNOWN	= -1,
 };
 

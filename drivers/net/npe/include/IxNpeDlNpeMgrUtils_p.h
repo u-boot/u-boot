@@ -81,7 +81,7 @@
  * @param UINT32 [in] npeBaseAddress - Base Address of NPE
  * @param UINT32 [in] insMemAddress  - NPE instruction memory address to write
  * @param UINT32 [in] insMemData     - data to write to instruction memory
- * @param BOOL   [in] verify         - if TRUE, verify the memory location is
+ * @param BOOL   [in] verify         - if true, verify the memory location is
  *                                     written successfully.
  * 
  * This function is used to write a single word of data to a location in NPE 
@@ -93,7 +93,7 @@
  * @post
  *
  * @return
- *    - IX_FAIL if verify is TRUE and the memory location was not written
+ *    - IX_FAIL if verify is true and the memory location was not written
  *      successfully
  *    - IX_SUCCESS otherwise
  */ 
@@ -113,7 +113,7 @@ ixNpeDlNpeMgrInsMemWrite (UINT32 npeBaseAddress, UINT32 insMemAddress,
  * @param UINT32 [in] npeBaseAddress - Base Address of NPE
  * @param UINT32 [in] dataMemAddress - NPE data memory address to write
  * @param UINT32 [in] dataMemData    - data to write to NPE data memory
- * @param BOOL   [in] verify         - if TRUE, verify the memory location is
+ * @param BOOL   [in] verify         - if true, verify the memory location is
  *                                     written successfully.
  * 
  * This function is used to write a single word of data to a location in NPE 
@@ -125,7 +125,7 @@ ixNpeDlNpeMgrInsMemWrite (UINT32 npeBaseAddress, UINT32 insMemAddress,
  * @post
  *
  * @return
- *    - IX_FAIL if verify is TRUE and the memory location was not written
+ *    - IX_FAIL if verify is true and the memory location was not written
  *      successfully
  *    - IX_SUCCESS otherwise
  */ 
@@ -304,7 +304,7 @@ ixNpeDlNpeMgrDebugInstructionPostExec (UINT32 npeBaseAddress);
  * @param UINT32 [in] npeBaseAddress - Base Address of NPE
  * @param UINT32 [in] regAddr        - number of the physical register (0-31)*
  * @param UINT32 [in] regValue       - value to write to the physical register
- * @param BOOL   [in] verify         - if TRUE, verify the register is written
+ * @param BOOL   [in] verify         - if true, verify the register is written
  *                                     successfully.
  * 
  * This function writes a physical register in the NPE data register file.
@@ -324,7 +324,7 @@ ixNpeDlNpeMgrDebugInstructionPostExec (UINT32 npeBaseAddress);
  *      a sequence of calls to this function
  *
  * @return
- *    - IX_FAIL if verify is TRUE and the Context Register was not written
+ *    - IX_FAIL if verify is true and the Context Register was not written
  *      successfully
  *    - IX_SUCCESS if Context Register was written successfully
  *    - IX_NPEDL_CRITICAL_NPE_ERR if Context Register was not written 
@@ -349,7 +349,7 @@ ixNpeDlNpeMgrPhysicalRegWrite (UINT32 npeBaseAddress, UINT32 regAddr,
  * @param IxNpeDlCtxtRegNum [in] ctxtReg - which Context Store reg to write
  * @param UINT32 [in] ctxtRegVal         - value to write to the Context Store
  *                                         register
- * @param BOOL   [in] verify             - if TRUE, verify the register is
+ * @param BOOL   [in] verify             - if true, verify the register is
  *                                         written successfully.
  * 
  * This function writes the contents of a Context Store register in the NPE 
@@ -366,7 +366,7 @@ ixNpeDlNpeMgrPhysicalRegWrite (UINT32 npeBaseAddress, UINT32 regAddr,
  *      a sequence of calls to this function
  *
  * @return
- *    - IX_FAIL if verify is TRUE and the Context Register was not written
+ *    - IX_FAIL if verify is true and the Context Register was not written
  *      successfully
  *    - IX_SUCCESS if Context Register was written successfully
  *    - IX_NPEDL_CRITICAL_NPE_ERR if Context Register was not written 

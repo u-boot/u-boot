@@ -29,6 +29,7 @@
 
 #include <common.h>
 #include <linux/byteorder/swab.h>
+#include <asm/sections.h>
 
 
 flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];	/* info for FLASH chips */

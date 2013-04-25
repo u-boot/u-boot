@@ -865,14 +865,14 @@ int scsi_exec(ccb *pccb)
 		break;
 	default:
 		printf("Unsupport SCSI command 0x%02x\n", pccb->cmd[0]);
-		return FALSE;
+		return false;
 	}
 
 	if (ret) {
 		debug("SCSI command 0x%02x ret errno %d\n", pccb->cmd[0], ret);
-		return FALSE;
+		return false;
 	}
-	return TRUE;
+	return true;
 
 }
 

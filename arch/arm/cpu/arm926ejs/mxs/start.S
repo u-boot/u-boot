@@ -119,7 +119,11 @@ fiq:
 
 .globl _TEXT_BASE
 _TEXT_BASE:
+#ifdef CONFIG_SPL_TEXT_BASE
+	.word	CONFIG_SPL_TEXT_BASE
+#else
 	.word	CONFIG_SYS_TEXT_BASE
+#endif
 
 /*
  * These are defined in the board-specific linker script.
@@ -133,7 +137,7 @@ _bss_start_ofs:
 
 .globl _bss_end_ofs
 _bss_end_ofs:
-	.word __bss_end__ - _start
+	.word __bss_end - _start
 
 .globl _end_ofs
 _end_ofs:

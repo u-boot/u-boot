@@ -223,7 +223,6 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_MIOA701              1257
 #define MACH_TYPE_ARMADILLO5X0         1260
 #define MACH_TYPE_CC9P9360JS           1264
-#define MACH_TYPE_SMDK6400             1270
 #define MACH_TYPE_NOKIA_N800           1271
 #define MACH_TYPE_EP80219              1281
 #define MACH_TYPE_GORAMO_MLR           1292
@@ -3638,18 +3637,6 @@ extern unsigned int __machine_arch_type;
 # define machine_is_cc9p9360js()	(machine_arch_type == MACH_TYPE_CC9P9360JS)
 #else
 # define machine_is_cc9p9360js()	(0)
-#endif
-
-#ifdef CONFIG_MACH_SMDK6400
-# ifdef machine_arch_type
-#  undef machine_arch_type
-#  define machine_arch_type	__machine_arch_type
-# else
-#  define machine_arch_type	MACH_TYPE_SMDK6400
-# endif
-# define machine_is_smdk6400()	(machine_arch_type == MACH_TYPE_SMDK6400)
-#else
-# define machine_is_smdk6400()	(0)
 #endif
 
 #ifdef CONFIG_MACH_NOKIA_N800

@@ -260,7 +260,7 @@ int lcd_init(uchar *lcd_reg, uchar *lcd_mem, S1D_REGS *regs, int reg_count,
 		/*
 		 * Big epson detected
 		 */
-		reg_byte_swap = FALSE;
+		reg_byte_swap = false;
 		palette_index = 0x1e2;
 		palette_value = 0x1e4;
 		lcd_depth = 16;
@@ -269,7 +269,7 @@ int lcd_init(uchar *lcd_reg, uchar *lcd_mem, S1D_REGS *regs, int reg_count,
 		/*
 		 * Big epson detected (with register swap bug)
 		 */
-		reg_byte_swap = TRUE;
+		reg_byte_swap = true;
 		palette_index = 0x1e3;
 		palette_value = 0x1e5;
 		lcd_depth = 16;
@@ -278,7 +278,7 @@ int lcd_init(uchar *lcd_reg, uchar *lcd_mem, S1D_REGS *regs, int reg_count,
 		/*
 		 * Small epson detected (704)
 		 */
-		reg_byte_swap = FALSE;
+		reg_byte_swap = false;
 		palette_index = 0x15;
 		palette_value = 0x17;
 		lcd_depth = 8;
@@ -287,7 +287,7 @@ int lcd_init(uchar *lcd_reg, uchar *lcd_mem, S1D_REGS *regs, int reg_count,
 		/*
 		 * Small epson detected (705)
 		 */
-		reg_byte_swap = FALSE;
+		reg_byte_swap = false;
 		palette_index = 0x15;
 		palette_value = 0x17;
 		lcd_depth = 8;
@@ -300,7 +300,7 @@ int lcd_init(uchar *lcd_reg, uchar *lcd_mem, S1D_REGS *regs, int reg_count,
 			/*
 			 * S1D13505 detected
 			 */
-			reg_byte_swap = TRUE;
+			reg_byte_swap = true;
 			palette_index = 0x25;
 			palette_value = 0x27;
 			lcd_depth = 16;

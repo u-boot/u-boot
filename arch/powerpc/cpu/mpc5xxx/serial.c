@@ -89,7 +89,7 @@ int serial_init_dev (unsigned long dev_base)
 
 	/* select clock sources */
 	psc->psc_clock_select = 0;
-	baseclk = (gd->ipb_clk + 16) / 32;
+	baseclk = (gd->arch.ipb_clk + 16) / 32;
 
 	/* switch to UART mode */
 	psc->sicr = 0;
@@ -169,7 +169,7 @@ void serial_setbrg_dev (unsigned long dev_base)
 	volatile struct mpc5xxx_psc *psc = (struct mpc5xxx_psc *)dev_base;
 	unsigned long baseclk, div;
 
-	baseclk = (gd->ipb_clk + 16) / 32;
+	baseclk = (gd->arch.ipb_clk + 16) / 32;
 
 	/* set up UART divisor */
 	div = (baseclk + (gd->baudrate/2)) / gd->baudrate;

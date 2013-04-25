@@ -1,5 +1,5 @@
 /*
- * S3C64XX/S5PC100 OneNAND driver at U-Boot
+ * S5PC100 OneNAND driver at U-Boot
  *
  * Copyright (C) 2008-2009 Samsung Electronics
  * Kyungmin Park <kyungmin.park@samsung.com>
@@ -62,12 +62,7 @@ do {									\
 #define ONENAND_MAIN_SPARE_ACCESS	0x16
 #define ONENAND_PIPELINE_READ		0x4000
 
-#if defined(CONFIG_S3C64XX)
-#define MAP_00				(0x0 << 24)
-#define MAP_01				(0x1 << 24)
-#define MAP_10				(0x2 << 24)
-#define MAP_11				(0x3 << 24)
-#elif defined(CONFIG_S5P)
+#if defined(CONFIG_S5P)
 #define MAP_00				(0x0 << 26)
 #define MAP_01				(0x1 << 26)
 #define MAP_10				(0x2 << 26)
@@ -116,12 +111,7 @@ static void s3c_write_cmd(int value, unsigned int cmd)
  * return the buffer address on the memory device
  * It will be combined with CMD_MAP_XX
  */
-#if defined(CONFIG_S3C64XX)
-static unsigned int s3c_mem_addr(int fba, int fpa, int fsa)
-{
-	return (fba << 12) | (fpa << 6) | (fsa << 4);
-}
-#elif defined(CONFIG_S5P)
+#if defined(CONFIG_S5P)
 static unsigned int s3c_mem_addr(int fba, int fpa, int fsa)
 {
 	return (fba << 13) | (fpa << 7) | (fsa << 5);
@@ -550,45 +540,6 @@ static void s3c_onenand_unlock_all(struct mtd_info *mtd)
 	s3c_onenand_check_lock_status(mtd);
 }
 
-#ifdef CONFIG_S3C64XX
-static void s3c_set_width_regs(struct onenand_chip *this)
-{
-	int dev_id, density;
-	int fba, fpa, fsa;
-	int dbs_dfs;
-
-	dev_id = DEVICE_ID0_REG;
-
-	density = (dev_id >> ONENAND_DEVICE_DENSITY_SHIFT) & 0xf;
-	dbs_dfs = !!(dev_id & ONENAND_DEVICE_IS_DDP);
-
-	fba = density + 7;
-	if (dbs_dfs)
-		fba--;		/* Decrease the fba */
-	fpa = 6;
-	if (density >= ONENAND_DEVICE_DENSITY_512Mb)
-		fsa = 2;
-	else
-		fsa = 1;
-
-	DPRINTK("FBA %lu, FPA %lu, FSA %lu, DDP %lu",
-		FBA_WIDTH0_REG, FPA_WIDTH0_REG, FSA_WIDTH0_REG,
-		DDP_DEVICE_REG);
-
-	DPRINTK("mem_cfg0 0x%lx, sync mode %lu, "
-		"dev_page_size %lu, BURST LEN %lu",
-		MEM_CFG0_REG, SYNC_MODE_REG,
-		DEV_PAGE_SIZE_REG, BURST_LEN0_REG);
-
-	DEV_PAGE_SIZE_REG = 0x1;
-
-	FBA_WIDTH0_REG = fba;
-	FPA_WIDTH0_REG = fpa;
-	FSA_WIDTH0_REG = fsa;
-	DBS_DFS_WIDTH0_REG = dbs_dfs;
-}
-#endif
-
 int s5pc110_chip_probe(struct mtd_info *mtd)
 {
 	return 0;
@@ -620,10 +571,7 @@ void s3c_onenand_init(struct mtd_info *mtd)
 
 	onenand->mtd = mtd;
 
-#if defined(CONFIG_S3C64XX)
-	onenand->base = (void *)0x70100000;
-	onenand->ahb_addr = (void *)0x20000000;
-#elif defined(CONFIG_S5P)
+#if defined(CONFIG_S5P)
 	onenand->base = (void *)0xE7100000;
 	onenand->ahb_addr = (void *)0xB0000000;
 #endif

@@ -36,20 +36,13 @@
 #define CONFIG_MACH_TYPE		MACH_TYPE_PAZ00
 
 #define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_BOARD_LATE_INIT
 
 /* SD/MMC */
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_TEGRA_MMC
 #define CONFIG_CMD_MMC
-
-#define CONFIG_DOS_PARTITION
-#define CONFIG_EFI_PARTITION
-#define CONFIG_FS_EXT4
-#define CONFIG_FS_FAT
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_FS_GENERIC
 
 /* Environment in eMMC, at the end of 2nd "boot sector" */
 #define CONFIG_ENV_IS_IN_MMC
@@ -70,6 +63,14 @@
 /* General networking support */
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_DHCP
+
+/* LCD support */
+#define CONFIG_LCD
+#define CONFIG_PWM_TEGRA
+#define CONFIG_VIDEO_TEGRA
+#define LCD_BPP				LCD_COLOR16
+#define CONFIG_SYS_WHITE_ON_BLACK
+#define CONFIG_CONSOLE_SCROLL_LINES	10
 
 #include "tegra-common-post.h"
 

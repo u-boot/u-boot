@@ -143,7 +143,7 @@ void board_init_f(ulong bootflag)
 	gd_t gd_data, *id;
 	bd_t *bd;
 	init_fnc_t **init_fnc_ptr;
-	ulong addr, addr_sp, len = (ulong)&uboot_end - CONFIG_SYS_MONITOR_BASE;
+	ulong addr, addr_sp, len;
 	ulong *s;
 
 	/* Pointer is writable since we allocated a register for it.
@@ -176,6 +176,7 @@ void board_init_f(ulong bootflag)
 	/* Reserve memory for U-Boot code, data & bss
 	 * round down to next 16 kB limit
 	 */
+	len = bss_end() - CONFIG_SYS_MONITOR_BASE;
 	addr -= len;
 	addr &= ~(16 * 1024 - 1);
 
@@ -249,9 +250,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #ifndef CONFIG_SYS_NO_FLASH
 	ulong size;
 #endif
-#ifndef CONFIG_ENV_IS_NOWHERE
-	extern char *env_name_spec;
-#endif
 	bd_t *bd;
 
 	gd = id;
@@ -261,29 +259,15 @@ void board_init_r(gd_t *id, ulong dest_addr)
 
 	gd->reloc_off = dest_addr - CONFIG_SYS_MONITOR_BASE;
 
-	monitor_flash_len = (ulong)&uboot_end_data - dest_addr;
+	monitor_flash_len = image_copy_end() - dest_addr;
 
 	serial_initialize();
-
-#if defined(CONFIG_NEEDS_MANUAL_RELOC)
-	/*
-	 * We have to relocate the command table manually
-	 */
-	fixup_cmdtable(ll_entry_start(cmd_tbl_t, cmd),
-			ll_entry_count(cmd_tbl_t, cmd));
-#endif /* defined(CONFIG_NEEDS_MANUAL_RELOC) */
-
-	/* there are some other pointer constants we must deal with */
-#ifndef CONFIG_ENV_IS_NOWHERE
-	env_name_spec += gd->reloc_off;
-#endif
 
 	bd = gd->bd;
 
 	/* The Malloc area is immediately below the monitor copy in DRAM */
 	mem_malloc_init(CONFIG_SYS_MONITOR_BASE + gd->reloc_off -
 			TOTAL_MALLOC_LEN, TOTAL_MALLOC_LEN);
-	malloc_bin_reloc();
 
 #ifndef CONFIG_SYS_NO_FLASH
 	/* configure available FLASH banks */

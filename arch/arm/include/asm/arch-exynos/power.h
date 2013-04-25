@@ -857,6 +857,9 @@ void set_mipi_phy_ctrl(unsigned int dev_index, unsigned int enable);
 
 void set_usbhost_phy_ctrl(unsigned int enable);
 
+/* Enables hardware tripping to power off the system when TMU fails */
+void set_hw_thermal_trip(void);
+
 #define POWER_USB_HOST_PHY_CTRL_EN		(1 << 0)
 #define POWER_USB_HOST_PHY_CTRL_DISABLE		(0 << 0)
 
@@ -864,4 +867,25 @@ void set_dp_phy_ctrl(unsigned int enable);
 
 #define EXYNOS_DP_PHY_ENABLE		(1 << 0)
 
+#define EXYNOS_PS_HOLD_CONTROL_DATA_HIGH	(1 << 8)
+#define POWER_ENABLE_HW_TRIP			(1UL << 31)
+
+/*
+ * Set ps_hold data driving value high
+ * This enables the machine to stay powered on
+ * after the initial power-on condition goes away
+ * (e.g. power button).
+ */
+void set_ps_hold_ctrl(void);
+
+/* PMU_DEBUG bits [12:8] = 0x1000 selects XXTI clock source */
+#define PMU_DEBUG_XXTI                          0x1000
+/* Mask bit[12:8] for xxti clock selection */
+#define PMU_DEBUG_CLKOUT_SEL_MASK               0x1f00
+
+/*
+ * Pmu debug is used for xclkout, enable xclkout with
+ * source as XXTI
+ */
+void set_xclkout(void);
 #endif

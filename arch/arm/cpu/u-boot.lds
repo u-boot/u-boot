@@ -52,7 +52,7 @@ SECTIONS
 
 	. = ALIGN(4);
 	.u_boot_list : {
-	#include <u-boot.lst>
+		KEEP(*(SORT(.u_boot_list*)));
 	}
 
 	. = ALIGN(4);
@@ -81,11 +81,24 @@ SECTIONS
 		*(.mmutable)
 	}
 
-	.bss __rel_dyn_start (OVERLAY) : {
-		__bss_start = .;
+/*
+ * Compiler-generated __bss_start and __bss_end, see arch/arm/lib/bss.c
+ * __bss_base and __bss_limit are for linker only (overlay ordering)
+ */
+
+	.bss_start __rel_dyn_start (OVERLAY) : {
+		KEEP(*(.__bss_start));
+		__bss_base = .;
+	}
+
+	.bss __bss_base (OVERLAY) : {
 		*(.bss*)
 		 . = ALIGN(4);
-		__bss_end__ = .;
+		 __bss_limit = .;
+	}
+
+	.bss_end __bss_limit (OVERLAY) : {
+		KEEP(*(.__bss_end));
 	}
 
 	/DISCARD/ : { *(.dynstr*) }
@@ -94,7 +107,3 @@ SECTIONS
 	/DISCARD/ : { *(.interp*) }
 	/DISCARD/ : { *(.gnu*) }
 }
-
-#if defined(CONFIG_SPL_TEXT_BASE) && defined(CONFIG_SPL_MAX_SIZE)
-ASSERT(__bss_end__ < (CONFIG_SPL_TEXT_BASE + CONFIG_SPL_MAX_SIZE), "SPL image too big");
-#endif

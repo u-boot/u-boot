@@ -32,6 +32,7 @@ alias sbabic         Stefano Babic <sbabic@denx.de>
 alias scottwood      Scott Wood <scottwood@freescale.com>
 alias sjg            Simon Glass <sjg@chromium.org>
 alias smcnutt        Scott McNutt <smcnutt@psyent.com>
+alias sonic          Sonic Zhang <sonic.adi@gmail.com>
 alias stroese        Stefan Roese <sr@denx.de>
 alias vapier         Mike Frysinger <vapier@gentoo.org>
 alias wd             Wolfgang Denk <wd@denx.de>
@@ -57,7 +58,7 @@ alias ti             uboot, Tom Rini <trini@ti.com>
 
 alias avr32          uboot, abiessmann
 
-alias bfin           uboot, vapier
+alias bfin           uboot, vapier, sonic
 alias blackfin       bfin
 
 alias m68k           uboot, jasonjin

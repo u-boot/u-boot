@@ -544,7 +544,8 @@ static const struct panel_config dvid_cfg = {
 	.panel_type	= 0x01, /* TFT */
 	.data_lines	= 0x03, /* 24 Bit RGB */
 	.load_mode	= 0x02, /* Frame Mode */
-	.panel_color	= DVI_BEAGLE_ORANGE_COL /* ORANGE */
+	.panel_color	= DVI_BEAGLE_ORANGE_COL, /* ORANGE */
+	.gfx_format	= GFXFORMAT_RGB24_UNPACKED,
 };
 
 static const struct panel_config dvid_cfg_xm = {
@@ -556,6 +557,7 @@ static const struct panel_config dvid_cfg_xm = {
 	.panel_type	= 0x01, /* TFT */
 	.data_lines	= 0x03, /* 24 Bit RGB */
 	.load_mode	= 0x02, /* Frame Mode */
-	.panel_color	= DVI_BEAGLE_ORANGE_COL /* ORANGE */
+	.panel_color	= DVI_BEAGLE_ORANGE_COL, /* ORANGE */
+	.gfx_format	= GFXFORMAT_RGB24_UNPACKED,
 };
 #endif

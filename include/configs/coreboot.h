@@ -37,11 +37,17 @@
 #define CONFIG_SYS_COREBOOT
 #define CONFIG_SHOW_BOOT_PROGRESS
 #define CONFIG_LAST_STAGE_INIT
-#define CONFIG_X86_NO_RESET_VECTOR
 #define CONFIG_SYS_VSNPRINTF
 #define CONFIG_INTEL_CORE_ARCH	/* Sandy bridge and ivy bridge chipsets. */
 #define CONFIG_ZBOOT_32
 #define CONFIG_PHYSMEM
+#define CONFIG_SYS_EARLY_PCI_INIT
+
+#define CONFIG_LMB
+#define CONFIG_OF_LIBFDT
+#define CONFIG_OF_CONTROL
+#define CONFIG_OF_SEPARATE
+#define CONFIG_DEFAULT_DEVICE_TREE	link
 
 /*-----------------------------------------------------------------------
  * Watchdog Configuration
@@ -174,6 +180,8 @@
 #define CONFIG_CMD_SAVEENV
 #define CONFIG_CMD_SETGETDCR
 #define CONFIG_CMD_SOURCE
+#define CONFIG_CMD_TIME
+#define CONFIG_CMD_GETTIME
 #define CONFIG_CMD_XIMG
 #define CONFIG_CMD_SCSI
 
@@ -252,10 +260,16 @@
 /*-----------------------------------------------------------------------
  * FLASH configuration
  */
+#define CONFIG_ICH_SPI
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_MACRONIX
+#define CONFIG_SPI_FLASH_WINBOND
+#define CONFIG_SPI_FLASH_GIGADEVICE
 #define CONFIG_SYS_NO_FLASH
-#undef CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_MAX_FLASH_SECT		1
-#define CONFIG_SYS_MAX_FLASH_BANKS		1
+#define CONFIG_CMD_SF
+#define CONFIG_CMD_SF_TEST
+#define CONFIG_CMD_SPI
+#define CONFIG_SPI
 
 /*-----------------------------------------------------------------------
  * Environment configuration
@@ -267,6 +281,23 @@
  * PCI configuration
  */
 #define CONFIG_PCI
+
+/*-----------------------------------------------------------------------
+ * USB configuration
+ */
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_PCI
+#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS     12
+#define CONFIG_USB_MAX_CONTROLLER_COUNT        2
+#define CONFIG_USB_STORAGE
+#define CONFIG_USB_KEYBOARD
+#define CONFIG_SYS_USB_EVENT_POLL
+
+#define CONFIG_USB_HOST_ETHER
+#define CONFIG_USB_ETHER_ASIX
+#define CONFIG_USB_ETHER_SMSC95XX
+
+#define CONFIG_CMD_USB
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_STD_DEVICES_SETTINGS

@@ -513,7 +513,7 @@ static int cmd_call(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 enum command_ret_t cmd_process(int flag, int argc, char * const argv[],
-			       int *repeatable)
+			       int *repeatable, ulong *ticks)
 {
 	enum command_ret_t rc = CMD_RET_SUCCESS;
 	cmd_tbl_t *cmdtp;
@@ -543,7 +543,11 @@ enum command_ret_t cmd_process(int flag, int argc, char * const argv[],
 
 	/* If OK so far, then do the command */
 	if (!rc) {
+		if (ticks)
+			*ticks = get_timer(0);
 		rc = cmd_call(cmdtp, flag, argc, argv);
+		if (ticks)
+			*ticks = get_timer(*ticks);
 		*repeatable &= cmdtp->repeatable;
 	}
 	if (rc == CMD_RET_USAGE)

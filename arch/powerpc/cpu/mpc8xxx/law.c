@@ -69,7 +69,7 @@ static inline void set_law_base_addr(int idx, phys_addr_t addr)
 
 void set_law(u8 idx, phys_addr_t addr, enum law_size sz, enum law_trgt_if id)
 {
-	gd->used_laws |= (1 << idx);
+	gd->arch.used_laws |= (1 << idx);
 
 	out_be32(LAWAR_ADDR(idx), 0);
 	set_law_base_addr(idx, addr);
@@ -81,7 +81,7 @@ void set_law(u8 idx, phys_addr_t addr, enum law_size sz, enum law_trgt_if id)
 
 void disable_law(u8 idx)
 {
-	gd->used_laws &= ~(1 << idx);
+	gd->arch.used_laws &= ~(1 << idx);
 
 	out_be32(LAWAR_ADDR(idx), 0);
 	set_law_base_addr(idx, 0);
@@ -112,7 +112,7 @@ static int get_law_entry(u8 i, struct law_entry *e)
 
 int set_next_law(phys_addr_t addr, enum law_size sz, enum law_trgt_if id)
 {
-	u32 idx = ffz(gd->used_laws);
+	u32 idx = ffz(gd->arch.used_laws);
 
 	if (idx >= FSL_HW_NUM_LAWS)
 		return -1;
@@ -128,11 +128,11 @@ int set_last_law(phys_addr_t addr, enum law_size sz, enum law_trgt_if id)
 	u32 idx;
 
 	/* we have no LAWs free */
-	if (gd->used_laws == -1)
+	if (gd->arch.used_laws == -1)
 		return -1;
 
 	/* grab the last free law */
-	idx = __ilog2(~(gd->used_laws));
+	idx = __ilog2(~(gd->arch.used_laws));
 
 	if (idx >= FSL_HW_NUM_LAWS)
 		return -1;
@@ -240,9 +240,9 @@ void init_laws(void)
 	int i;
 
 #if FSL_HW_NUM_LAWS < 32
-	gd->used_laws = ~((1 << FSL_HW_NUM_LAWS) - 1);
+	gd->arch.used_laws = ~((1 << FSL_HW_NUM_LAWS) - 1);
 #elif FSL_HW_NUM_LAWS == 32
-	gd->used_laws = 0;
+	gd->arch.used_laws = 0;
 #else
 #error FSL_HW_NUM_LAWS can not be greater than 32 w/o code changes
 #endif
@@ -255,7 +255,7 @@ void init_laws(void)
 		u32 lawar = in_be32(LAWAR_ADDR(i));
 
 		if (lawar & LAW_EN)
-			gd->used_laws |= (1 << i);
+			gd->arch.used_laws |= (1 << i);
 	}
 
 #if (defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)) || \

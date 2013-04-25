@@ -49,7 +49,7 @@
  * @brief sets the STP blocking state of a port
  *
  * @param portID ID of the port
- * @param blocked TRUE to block the port or FALSE to unblock it
+ * @param blocked true to block the port or false to unblock it
  * 
  * Note that this function is documented in the main component
  * header file, IxEthDB.h.

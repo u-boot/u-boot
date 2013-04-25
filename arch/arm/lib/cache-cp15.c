@@ -23,6 +23,8 @@
 
 #include <common.h>
 #include <asm/system.h>
+#include <asm/cache.h>
+#include <linux/compiler.h>
 
 #if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
 
@@ -33,6 +35,10 @@ void __arm_init_before_mmu(void)
 }
 void arm_init_before_mmu(void)
 	__attribute__((weak, alias("__arm_init_before_mmu")));
+
+__weak void arm_init_domains(void)
+{
+}
 
 static void cp_delay (void)
 {
@@ -46,7 +52,7 @@ static void cp_delay (void)
 
 void set_section_dcache(int section, enum dcache_option option)
 {
-	u32 *page_table = (u32 *)gd->tlb_addr;
+	u32 *page_table = (u32 *)gd->arch.tlb_addr;
 	u32 value;
 
 	value = (section << MMU_SECTION_SHIFT) | (3 << 10);
@@ -65,7 +71,7 @@ void mmu_page_table_flush(unsigned long start, unsigned long stop)
 void mmu_set_region_dcache_behaviour(u32 start, int size,
 				     enum dcache_option option)
 {
-	u32 *page_table = (u32 *)gd->tlb_addr;
+	u32 *page_table = (u32 *)gd->arch.tlb_addr;
 	u32 upto, end;
 
 	end = ALIGN(start + size, MMU_SECTION_SIZE) >> MMU_SECTION_SHIFT;
@@ -77,7 +83,7 @@ void mmu_set_region_dcache_behaviour(u32 start, int size,
 	mmu_page_table_flush((u32)&page_table[start], (u32)&page_table[end]);
 }
 
-static inline void dram_bank_mmu_setup(int bank)
+__weak void dram_bank_mmu_setup(int bank)
 {
 	bd_t *bd = gd->bd;
 	int	i;
@@ -111,10 +117,13 @@ static inline void mmu_setup(void)
 
 	/* Copy the page table address to cp15 */
 	asm volatile("mcr p15, 0, %0, c2, c0, 0"
-		     : : "r" (gd->tlb_addr) : "memory");
+		     : : "r" (gd->arch.tlb_addr) : "memory");
 	/* Set the access control to all-supervisor */
 	asm volatile("mcr p15, 0, %0, c3, c0, 0"
 		     : : "r" (~0));
+
+	arm_init_domains();
+
 	/* and enable the mmu */
 	reg = get_cr();	/* get control reg. */
 	cp_delay();

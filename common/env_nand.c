@@ -281,7 +281,8 @@ int readenv(size_t offset, u_char *buf)
 		} else {
 			char_ptr = &buf[amount_loaded];
 			if (nand_read_skip_bad(&nand_info[0], offset,
-					       &len, char_ptr))
+					       &len, NULL,
+					       nand_info[0].size, char_ptr))
 				return 1;
 
 			offset += blocksize;
@@ -331,6 +332,7 @@ int get_nand_env_oob(nand_info_t *nand, unsigned long *result)
 void env_relocate_spec(void)
 {
 #if !defined(ENV_IS_EMBEDDED)
+	int read1_fail = 0, read2_fail = 0;
 	int crc1_ok = 0, crc2_ok = 0;
 	env_t *ep, *tmp_env1, *tmp_env2;
 
@@ -342,14 +344,19 @@ void env_relocate_spec(void)
 		goto done;
 	}
 
-	if (readenv(CONFIG_ENV_OFFSET, (u_char *) tmp_env1))
-		puts("No Valid Environment Area found\n");
+	read1_fail = readenv(CONFIG_ENV_OFFSET, (u_char *) tmp_env1);
+	read2_fail = readenv(CONFIG_ENV_OFFSET_REDUND, (u_char *) tmp_env2);
 
-	if (readenv(CONFIG_ENV_OFFSET_REDUND, (u_char *) tmp_env2))
-		puts("No Valid Redundant Environment Area found\n");
+	if (read1_fail && read2_fail)
+		puts("*** Error - No Valid Environment Area found\n");
+	else if (read1_fail || read2_fail)
+		puts("*** Warning - some problems detected "
+		     "reading environment; recovered successfully\n");
 
-	crc1_ok = crc32(0, tmp_env1->data, ENV_SIZE) == tmp_env1->crc;
-	crc2_ok = crc32(0, tmp_env2->data, ENV_SIZE) == tmp_env2->crc;
+	crc1_ok = !read1_fail &&
+		(crc32(0, tmp_env1->data, ENV_SIZE) == tmp_env1->crc);
+	crc2_ok = !read2_fail &&
+		(crc32(0, tmp_env2->data, ENV_SIZE) == tmp_env2->crc);
 
 	if (!crc1_ok && !crc2_ok) {
 		set_default_env("!bad CRC");

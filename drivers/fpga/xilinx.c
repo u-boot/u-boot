@@ -277,7 +277,7 @@ int xilinx_info (Xilinx_desc * desc)
 
 static int xilinx_validate (Xilinx_desc * desc, char *fn)
 {
-	int ret_val = FALSE;
+	int ret_val = false;
 
 	if (desc) {
 		if ((desc->family > min_xilinx_type) &&
@@ -285,7 +285,7 @@ static int xilinx_validate (Xilinx_desc * desc, char *fn)
 			if ((desc->iface > min_xilinx_iface_type) &&
 				(desc->iface < max_xilinx_iface_type)) {
 				if (desc->size) {
-					ret_val = TRUE;
+					ret_val = true;
 				} else
 					printf ("%s: NULL part size\n", fn);
 			} else

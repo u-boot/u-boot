@@ -37,8 +37,8 @@ SECTIONS
 	. = ALIGN(4);
 	.text	:
 	{
-		arch/arm/cpu/arm926ejs/spear/start.o	(.text)
-		*(.text)
+		arch/arm/cpu/arm926ejs/spear/start.o	(.text*)
+		*(.text*)
 	}
 
 	. = ALIGN(4);
@@ -46,13 +46,7 @@ SECTIONS
 
 	. = ALIGN(4);
 	.data : {
-		*(.data)
-	}
-
-	. = ALIGN(4);
-
-	.u_boot_list : {
-		#include <u-boot.lst>
+		*(.data*)
 	}
 
 	. = ALIGN(4);
@@ -73,7 +67,7 @@ SECTIONS
 		__bss_start = .;
 		*(.bss*)
 		. = ALIGN(4);
-		__bss_end__ = .;
+		__bss_end = .;
 	}
 
 	_end = .;

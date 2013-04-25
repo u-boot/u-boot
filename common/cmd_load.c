@@ -149,7 +149,6 @@ static ulong load_serial(long offset)
 	int	type;				/* return code for record type	*/
 	ulong	addr;				/* load address from S-Record	*/
 	ulong	size;				/* number of bytes transferred	*/
-	char	buf[32];
 	ulong	store_addr;
 	ulong	start_addr = ~0;
 	ulong	end_addr   =  0;
@@ -198,8 +197,7 @@ static ulong load_serial(long offset)
 			    start_addr, end_addr, size, size
 		    );
 		    flush_cache(start_addr, size);
-		    sprintf(buf, "%lX", size);
-		    setenv("filesize", buf);
+		    setenv_hex("filesize", size);
 		    return (addr);
 		case SREC_START:
 		    break;
@@ -519,7 +517,6 @@ static int do_load_serial_bin(cmd_tbl_t *cmdtp, int flag, int argc,
 static ulong load_serial_bin(ulong offset)
 {
 	int size, i;
-	char buf[32];
 
 	set_kerm_bin_mode((ulong *) offset);
 	size = k_recv();
@@ -539,8 +536,7 @@ static ulong load_serial_bin(ulong offset)
 	flush_cache(offset, size);
 
 	printf("## Total Size      = 0x%08x = %d Bytes\n", size, size);
-	sprintf(buf, "%X", size);
-	setenv("filesize", buf);
+	setenv_hex("filesize", size);
 
 	return offset;
 }
@@ -965,7 +961,6 @@ static int getcxmodem(void) {
 static ulong load_serial_ymodem(ulong offset)
 {
 	int size;
-	char buf[32];
 	int err;
 	int res;
 	connection_info_t info;
@@ -1012,8 +1007,7 @@ static ulong load_serial_ymodem(ulong offset)
 	flush_cache(offset, size);
 
 	printf("## Total Size      = 0x%08x = %d Bytes\n", size, size);
-	sprintf(buf, "%X", size);
-	setenv("filesize", buf);
+	setenv_hex("filesize", size);
 
 	return offset;
 }
@@ -1064,8 +1058,8 @@ U_BOOT_CMD(
 	"    - save S-Record file over serial line with offset 'off' and size 'size'"
 );
 #endif	/* CONFIG_SYS_LOADS_BAUD_CHANGE */
-#endif
-#endif
+#endif	/* CONFIG_CMD_SAVES */
+#endif	/* CONFIG_CMD_LOADS */
 
 
 #if defined(CONFIG_CMD_LOADB)
@@ -1085,7 +1079,7 @@ U_BOOT_CMD(
 	" with offset 'off' and baudrate 'baud'"
 );
 
-#endif
+#endif	/* CONFIG_CMD_LOADB */
 
 /* -------------------------------------------------------------------- */
 
@@ -1115,4 +1109,4 @@ U_BOOT_CMD(
 	"[on|off]"
 );
 
-#endif
+#endif	/* CONFIG_CMD_HWFLOW */
