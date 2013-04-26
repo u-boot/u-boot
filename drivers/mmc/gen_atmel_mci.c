@@ -211,7 +211,10 @@ mci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	/* Wait for the command to complete */
 	while (!((status = readl(&mci->sr)) & MMCI_BIT(CMDRDY)));
 
-	if (status & error_flags) {
+	if ((status & error_flags) & MMCI_BIT(RTOE)) {
+		dump_cmd(cmdr, cmd->cmdarg, status, "Command Time Out");
+		return TIMEOUT;
+	} else if (status & error_flags) {
 		dump_cmd(cmdr, cmd->cmdarg, status, "Command Failed");
 		return COMM_ERR;
 	}
