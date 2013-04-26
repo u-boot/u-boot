@@ -30,6 +30,7 @@
  */
 
 #include <common.h>
+#include <fpga.h>
 #include <virtex2.h>
 #include <spartan2.h>
 #include <spartan3.h>
@@ -58,8 +59,14 @@ int fpga_loadbitstream(int devnum, char *fpgadata, size_t size)
 	char buffer[80];
 	unsigned char *dataptr;
 	unsigned int i;
+	const fpga_desc *desc;
+	Xilinx_desc *xdesc;
 
 	dataptr = (unsigned char *)fpgadata;
+	/* Find out fpga_description */
+	desc = fpga_validate(devnum, dataptr, 0, (char *)__func__);
+	/* Assign xilinx device description */
+	xdesc = desc->devdesc;
 
 	/* skip the first bytes of the bitsteam, their meaning is unknown */
 	length = (*dataptr << 8) + *(dataptr + 1);
@@ -93,6 +100,20 @@ int fpga_loadbitstream(int devnum, char *fpgadata, size_t size)
 	dataptr += 2;
 	for (i = 0; i < length; i++)
 		buffer[i] = *dataptr++;
+
+	if (xdesc->name) {
+		i = strncmp(buffer, xdesc->name, strlen(xdesc->name));
+		if (i) {
+			printf("%s: Wrong bitstream ID for this device\n",
+			       __func__);
+			printf("%s: Bitstream ID %s, current device ID %d/%s\n",
+			       __func__, buffer, devnum, xdesc->name);
+			return FPGA_FAIL;
+		}
+	} else {
+		printf("%s: Please fill correct device ID to Xilinx_desc\n",
+		       __func__);
+	}
 	printf("  part number = \"%s\"\n", buffer);
 
 	/* get date (identifier, length, string) */
@@ -306,6 +327,8 @@ int xilinx_info (Xilinx_desc * desc)
 		printf ("Device Size:   \t%d bytes\n"
 				"Cookie:        \t0x%x (%d)\n",
 				desc->size, desc->cookie, desc->cookie);
+		if (desc->name)
+			printf("Device name:   \t%s\n", desc->name);
 
 		if (desc->iface_fns) {
 			printf ("Device Function Table @ 0x%p\n", desc->iface_fns);

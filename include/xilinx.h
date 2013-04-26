@@ -81,6 +81,7 @@ typedef struct {		/* typedef Xilinx_desc */
 	size_t size;		/* bytes of data part can accept */
 	void *iface_fns;	/* interface function table */
 	int cookie;		/* implementation specific cookie */
+	char *name;		/* device name in bitstream */
 } Xilinx_desc;			/* end, typedef Xilinx_desc */
 
 /* Generic Xilinx Functions
