@@ -21,27 +21,6 @@
 
 #include <asm/imx-common/iomux-v3.h>
 
-#define PAD_CTL_DVS			(1 << 13)
-#define PAD_CTL_INPUT_DDR		(1 << 9)
-#define PAD_CTL_HYS			(1 << 8)
-
-#define PAD_CTL_PKE			(1 << 7)
-#define PAD_CTL_PUE			(1 << 6 | PAD_CTL_PKE)
-#define PAD_CTL_PUS_100K_DOWN		(0 << 4 | PAD_CTL_PUE)
-#define PAD_CTL_PUS_47K_UP		(1 << 4 | PAD_CTL_PUE)
-#define PAD_CTL_PUS_100K_UP		(2 << 4 | PAD_CTL_PUE)
-#define PAD_CTL_PUS_22K_UP		(3 << 4 | PAD_CTL_PUE)
-
-#define PAD_CTL_ODE			(1 << 3)
-
-#define PAD_CTL_DSE_LOW			(0 << 1)
-#define PAD_CTL_DSE_MED			(1 << 1)
-#define PAD_CTL_DSE_HIGH		(2 << 1)
-#define PAD_CTL_DSE_MAX			(3 << 1)
-
-#define PAD_CTL_SRE_FAST		(1 << 0)
-#define PAD_CTL_SRE_SLOW		(0 << 0)
-
 /* Pad control groupings */
 #define MX51_UART_PAD_CTRL	(PAD_CTL_PKE | PAD_CTL_PUE | PAD_CTL_DSE_HIGH | \
 				PAD_CTL_HYS | PAD_CTL_SRE_FAST)
@@ -60,8 +39,6 @@
 				PAD_CTL_PUS_47K_UP | PAD_CTL_PUE | \
 				PAD_CTL_SRE_FAST | PAD_CTL_DVS)
 #define MX51_GPIO_PAD_CTRL	(PAD_CTL_DSE_HIGH | PAD_CTL_PKE | PAD_CTL_SRE_FAST)
-
-#define __NA_ 0x000
 
 /*
  * The naming convention for the pad modes is MX51_PAD_<padname>__<padmode>
