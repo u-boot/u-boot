@@ -950,14 +950,12 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 	xqspips_init_hw(is_dual, cs);
 
-	pspi = malloc(sizeof(struct zynq_spi_slave));
+	pspi = spi_alloc_slave(struct zynq_spi_slave, bus, cs);
 	if (!pspi) {
 		printf("%s: Fail to allocate zynq_spi_slave\n", __func__);
 		return NULL;
 	}
 
-	pspi->slave.bus = bus;
-	pspi->slave.cs = cs;
 	pspi->slave.is_dual = is_dual;
 	pspi->slave.max_write_size = 0;
 	pspi->qspi.master.input_clk_hz = 100000000;
