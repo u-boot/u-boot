@@ -188,6 +188,15 @@ int fpga_add(fpga_type devtype, void *desc)
 }
 
 /*
+ * Convert bitstream data and load into the fpga
+ */
+int __weak fpga_loadbitstream(unsigned long dev, char *fpgadata, size_t size)
+{
+	printf("Bitstream support not implemented for this FPGA device\n");
+	return FPGA_FAIL;
+}
+
+/*
  * Generic multiplexing code
  */
 int fpga_load(int devnum, const void *buf, size_t bsize)

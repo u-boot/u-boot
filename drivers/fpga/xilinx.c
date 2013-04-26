@@ -48,6 +48,92 @@ static int xilinx_validate (Xilinx_desc * desc, char *fn);
 
 /* ------------------------------------------------------------------------- */
 
+int fpga_loadbitstream(unsigned long dev, char *fpgadata, size_t size)
+{
+	unsigned int length;
+	unsigned int swapsize;
+	char buffer[80];
+	unsigned char *dataptr;
+	unsigned int i;
+
+	dataptr = (unsigned char *)fpgadata;
+
+	/* skip the first bytes of the bitsteam, their meaning is unknown */
+	length = (*dataptr << 8) + *(dataptr + 1);
+	dataptr += 2;
+	dataptr += length;
+
+	/* get design name (identifier, length, string) */
+	length = (*dataptr << 8) + *(dataptr + 1);
+	dataptr += 2;
+	if (*dataptr++ != 0x61) {
+		debug("%s: Design name id not recognized in bitstream\n",
+		      __func__);
+		return FPGA_FAIL;
+	}
+
+	length = (*dataptr << 8) + *(dataptr + 1);
+	dataptr += 2;
+	for (i = 0; i < length; i++)
+		buffer[i] = *dataptr++;
+
+	printf("  design filename = \"%s\"\n", buffer);
+
+	/* get part number (identifier, length, string) */
+	if (*dataptr++ != 0x62) {
+		printf("%s: Part number id not recognized in bitstream\n",
+		       __func__);
+		return FPGA_FAIL;
+	}
+
+	length = (*dataptr << 8) + *(dataptr + 1);
+	dataptr += 2;
+	for (i = 0; i < length; i++)
+		buffer[i] = *dataptr++;
+	printf("  part number = \"%s\"\n", buffer);
+
+	/* get date (identifier, length, string) */
+	if (*dataptr++ != 0x63) {
+		printf("%s: Date identifier not recognized in bitstream\n",
+		       __func__);
+		return FPGA_FAIL;
+	}
+
+	length = (*dataptr << 8) + *(dataptr+1);
+	dataptr += 2;
+	for (i = 0; i < length; i++)
+		buffer[i] = *dataptr++;
+	printf("  date = \"%s\"\n", buffer);
+
+	/* get time (identifier, length, string) */
+	if (*dataptr++ != 0x64) {
+		printf("%s: Time identifier not recognized in bitstream\n",
+		       __func__);
+		return FPGA_FAIL;
+	}
+
+	length = (*dataptr << 8) + *(dataptr+1);
+	dataptr += 2;
+	for (i = 0; i < length; i++)
+		buffer[i] = *dataptr++;
+	printf("  time = \"%s\"\n", buffer);
+
+	/* get fpga data length (identifier, length) */
+	if (*dataptr++ != 0x65) {
+		printf("%s: Data length id not recognized in bitstream\n",
+		       __func__);
+		return FPGA_FAIL;
+	}
+	swapsize = ((unsigned int) *dataptr << 24) +
+		   ((unsigned int) *(dataptr + 1) << 16) +
+		   ((unsigned int) *(dataptr + 2) << 8) +
+		   ((unsigned int) *(dataptr + 3));
+	dataptr += 4;
+	printf("  bytes in bitstream = %d\n", swapsize);
+
+	return fpga_load(dev, dataptr, swapsize);
+}
+
 int xilinx_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;	/* assume a failure */
