@@ -86,6 +86,9 @@ typedef u64 iomux_v3_cfg_t;
 	((iomux_v3_cfg_t)(sel_input_ofs) << MUX_SEL_INPUT_OFS_SHIFT)|	\
 	((iomux_v3_cfg_t)(sel_input)     << MUX_SEL_INPUT_SHIFT))
 
+#define NEW_PAD_CTRL(cfg, pad)	(((cfg) & ~MUX_PAD_CTRL_MASK) | \
+					MUX_PAD_CTRL(pad))
+
 #define __NA_			0x000
 #define NO_MUX_I		0
 #define NO_PAD_I		0
