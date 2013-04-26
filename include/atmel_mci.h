@@ -52,6 +52,8 @@ typedef struct atmel_mci {
 	u32	ier;	/* 0x44 */
 	u32	idr;	/* 0x48 */
 	u32	imr;	/* 0x4c */
+	u32	reserved[43];
+	u32	version;
 } atmel_mci_t;
 
 #endif /* __ASSEMBLY__ */
