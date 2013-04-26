@@ -27,9 +27,6 @@
  */
 #include <common.h>
 #include <command.h>
-#if defined(CONFIG_CMD_NET)
-#include <net.h>
-#endif
 #include <fpga.h>
 #include <malloc.h>
 
