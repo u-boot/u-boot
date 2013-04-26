@@ -234,7 +234,7 @@ static void mx23_mem_setup_vddmem(void)
 	struct mxs_power_regs *power_regs =
 		(struct mxs_power_regs *)MXS_POWER_BASE;
 
-	writel((0x10 << POWER_VDDMEMCTRL_TRG_OFFSET) |
+	writel((0x12 << POWER_VDDMEMCTRL_TRG_OFFSET) |
 		POWER_VDDMEMCTRL_ENABLE_ILIMIT |
 		POWER_VDDMEMCTRL_ENABLE_LINREG |
 		POWER_VDDMEMCTRL_PULLDOWN_ACTIVE,
@@ -242,7 +242,7 @@ static void mx23_mem_setup_vddmem(void)
 
 	early_delay(10000);
 
-	writel((0x10 << POWER_VDDMEMCTRL_TRG_OFFSET) |
+	writel((0x12 << POWER_VDDMEMCTRL_TRG_OFFSET) |
 		POWER_VDDMEMCTRL_ENABLE_LINREG,
 		&power_regs->hw_power_vddmemctrl);
 }
