@@ -22,9 +22,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_NR_DRAM_BANKS	1
-#define CONFIG_DRAM_SIZE	(128 << 20)
-
 /* Number of bits in a C 'long' on this architecture */
 #define CONFIG_SANDBOX_BITS_PER_LONG	64
 
@@ -76,7 +73,11 @@
 #define CONFIG_PHYS_64BIT
 
 /* Size of our emulated memory */
+#define CONFIG_SYS_SDRAM_BASE		0
 #define CONFIG_SYS_SDRAM_SIZE		(128 << 20)
+#define CONFIG_SYS_TEXT_BASE		0
+#define CONFIG_SYS_MONITOR_BASE	0
+#define CONFIG_NR_DRAM_BANKS		1
 
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
