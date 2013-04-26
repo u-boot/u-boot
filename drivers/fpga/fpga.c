@@ -145,7 +145,7 @@ void fpga_init(void)
 	next_desc = 0;
 	memset(desc_table, 0, sizeof(desc_table));
 
-	debug("%s: CONFIG_FPGA = 0x%x\n", __func__, CONFIG_FPGA);
+	debug("%s\n", __func__);
 }
 
 /*
