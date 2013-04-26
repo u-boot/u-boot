@@ -71,5 +71,7 @@ extern int fpga_load(int devnum, const void *buf, size_t bsize);
 extern int fpga_loadbitstream(int devnum, char *fpgadata, size_t size);
 extern int fpga_dump(int devnum, const void *buf, size_t bsize);
 extern int fpga_info(int devnum);
+extern const fpga_desc *const fpga_validate(int devnum, const void *buf,
+					    size_t bsize, char *fn);
 
 #endif	/* _FPGA_H_ */

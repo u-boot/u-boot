@@ -45,15 +45,15 @@ extern int zynq_info(Xilinx_desc *desc);
 
 /* Descriptor Macros */
 #define XILINX_XC7Z010_DESC(cookie) \
-{ xilinx_zynq, devcfg, XILINX_XC7Z010_SIZE, NULL, cookie }
+{ xilinx_zynq, devcfg, XILINX_XC7Z010_SIZE, NULL, cookie, "7z010" }
 
 #define XILINX_XC7Z020_DESC(cookie) \
-{ xilinx_zynq, devcfg, XILINX_XC7Z020_SIZE, NULL, cookie }
+{ xilinx_zynq, devcfg, XILINX_XC7Z020_SIZE, NULL, cookie, "7z020" }
 
 #define XILINX_XC7Z030_DESC(cookie) \
-{ xilinx_zynq, devcfg, XILINX_XC7Z030_SIZE, NULL, cookie }
+{ xilinx_zynq, devcfg, XILINX_XC7Z030_SIZE, NULL, cookie, "7z030" }
 
 #define XILINX_XC7Z045_DESC(cookie) \
-{ xilinx_zynq, devcfg, XILINX_XC7Z045_SIZE, NULL, cookie }
+{ xilinx_zynq, devcfg, XILINX_XC7Z045_SIZE, NULL, cookie, "7z045" }
 
 #endif /* _ZYNQPL_H_ */

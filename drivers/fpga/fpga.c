@@ -72,8 +72,8 @@ static const fpga_desc *const fpga_get_desc(int devnum)
  * fpga_validate
  *	generic parameter checking code
  */
-static const fpga_desc *const fpga_validate(int devnum, const void *buf,
-					 size_t bsize, char *fn)
+const fpga_desc *const fpga_validate(int devnum, const void *buf,
+				     size_t bsize, char *fn)
 {
 	const fpga_desc *desc = fpga_get_desc(devnum);
 
