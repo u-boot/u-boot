@@ -99,11 +99,11 @@ typedef u64 iomux_v3_cfg_t;
 
 #define PAD_CTL_HYS		(1 << 16)
 
-#define PAD_CTL_PUS_100K_DOWN	(0 << 14)
-#define PAD_CTL_PUS_47K_UP	(1 << 14)
-#define PAD_CTL_PUS_100K_UP	(2 << 14)
-#define PAD_CTL_PUS_22K_UP	(3 << 14)
-#define PAD_CTL_PUE		(1 << 13)
+#define PAD_CTL_PUS_100K_DOWN	(0 << 14 | PAD_CTL_PUE)
+#define PAD_CTL_PUS_47K_UP	(1 << 14 | PAD_CTL_PUE)
+#define PAD_CTL_PUS_100K_UP	(2 << 14 | PAD_CTL_PUE)
+#define PAD_CTL_PUS_22K_UP	(3 << 14 | PAD_CTL_PUE)
+#define PAD_CTL_PUE		(1 << 13 | PAD_CTL_PKE)
 #define PAD_CTL_PKE		(1 << 12)
 
 #define PAD_CTL_ODE		(1 << 11)
