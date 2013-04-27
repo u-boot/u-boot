@@ -28,9 +28,13 @@
 #include <asm/arch/clk.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/spl.h>
+#include <asm/arch/dwmmc.h>
 
 #include "clock_init.h"
 #include "setup.h"
+
+#define FSYS1_MMC0_DIV_MASK	0xff0f
+#define FSYS1_MMC0_DIV_VAL	0x0701
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -663,4 +667,18 @@ void clock_init_dp_clock(void)
 
 	/* We run DP at 267 Mhz */
 	setbits_le32(&clk->div_disp1_0, CLK_DIV_DISP1_0_FIMD1);
+}
+
+/*
+ * Set clock divisor value for booting from EMMC.
+ * Set DWMMC channel-0 clk div to operate mmc0 device at 50MHz.
+ */
+void emmc_boot_clk_div_set(void)
+{
+	struct exynos5_clock *clk = (struct exynos5_clock *)EXYNOS5_CLOCK_BASE;
+	unsigned int div_mmc;
+
+	div_mmc = readl((unsigned int) &clk->div_fsys1) & ~FSYS1_MMC0_DIV_MASK;
+	div_mmc |= FSYS1_MMC0_DIV_VAL;
+	writel(div_mmc, (unsigned int) &clk->div_fsys1);
 }
