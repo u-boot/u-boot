@@ -27,10 +27,7 @@
 #define DWMCI_SET_DRV_CLK(x)	((x) << 16)
 #define DWMCI_SET_DIV_RATIO(x)	((x) << 24)
 
-int exynos_dwmci_init(u32 regbase, int bus_width, int index);
-
-static inline unsigned int exynos_dwmmc_init(int index, int bus_width)
-{
-	unsigned int base = samsung_get_base_mmc() + (0x10000 * index);
-	return exynos_dwmci_init(base, bus_width, index);
-}
+#ifdef CONFIG_OF_CONTROL
+int exynos_dwmmc_init(const void *blob);
+#endif
+int exynos_dwmci_add_port(int index, u32 regbase, int bus_width, u32 clksel);
