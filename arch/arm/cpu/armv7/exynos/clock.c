@@ -611,7 +611,7 @@ static unsigned long exynos4_get_mmc_clk(int dev_index)
 		(struct exynos4_clock *)samsung_get_base_clock();
 	unsigned long uclk, sclk;
 	unsigned int sel, ratio, pre_ratio;
-	int shift;
+	int shift = 0;
 
 	sel = readl(&clk->src_fsys);
 	sel = (sel >> (dev_index << 2)) & 0xf;
@@ -660,7 +660,7 @@ static unsigned long exynos5_get_mmc_clk(int dev_index)
 		(struct exynos5_clock *)samsung_get_base_clock();
 	unsigned long uclk, sclk;
 	unsigned int sel, ratio, pre_ratio;
-	int shift;
+	int shift = 0;
 
 	sel = readl(&clk->src_fsys);
 	sel = (sel >> (dev_index << 2)) & 0xf;
