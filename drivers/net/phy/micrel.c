@@ -148,9 +148,43 @@ static struct phy_driver ksz9021_driver = {
 };
 #endif
 
-/*
+/**
  * KSZ9031
  */
+/* PHY Registers */
+#define MII_KSZ9031_MMD_ACCES_CTRL	0x0d
+#define MII_KSZ9031_MMD_REG_DATA	0x0e
+
+/* Accessors to extended registers*/
+int ksz9031_phy_extended_write(struct phy_device *phydev,
+			       int devaddr, int regnum, u16 mode, u16 val)
+{
+	/*select register addr for mmd*/
+	phy_write(phydev, MDIO_DEVAD_NONE,
+		  MII_KSZ9031_MMD_ACCES_CTRL, devaddr);
+	/*select register for mmd*/
+	phy_write(phydev, MDIO_DEVAD_NONE,
+		  MII_KSZ9031_MMD_REG_DATA, regnum);
+	/*setup mode*/
+	phy_write(phydev, MDIO_DEVAD_NONE,
+		  MII_KSZ9031_MMD_ACCES_CTRL, (mode | devaddr));
+	/*write the value*/
+	return	phy_write(phydev, MDIO_DEVAD_NONE,
+		MII_KSZ9031_MMD_REG_DATA, val);
+}
+
+int ksz9031_phy_extended_read(struct phy_device *phydev, int devaddr,
+			      int regnum, u16 mode)
+{
+	phy_write(phydev, MDIO_DEVAD_NONE,
+		  MII_KSZ9031_MMD_ACCES_CTRL, devaddr);
+	phy_write(phydev, MDIO_DEVAD_NONE,
+		  MII_KSZ9031_MMD_REG_DATA, regnum);
+	phy_write(phydev, MDIO_DEVAD_NONE,
+		  MII_KSZ9031_MMD_ACCES_CTRL, (devaddr | mode));
+	return phy_read(phydev, MDIO_DEVAD_NONE, MII_KSZ9031_MMD_REG_DATA);
+}
+
 static struct phy_driver ksz9031_driver = {
 	.name = "Micrel ksz9031",
 	.uid  = 0x221620,
