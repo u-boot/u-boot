@@ -302,8 +302,8 @@ static void xqspips_copy_read_data(struct xqspips *xqspi, u32 data, u8 size)
 {
 	u8 byte3;
 
-	debug("xqspips_copy_read_data: data 0x%04x rxbuf addr: 0x%08x"
-		" size %d\n", data, (unsigned)(xqspi->rxbuf), size);
+	debug("%s: data 0x%04x rxbuf addr: 0x%08x size %d\n", __func__ ,
+	      data, (unsigned)(xqspi->rxbuf), size);
 
 	if (xqspi->rxbuf) {
 		switch (size) {
@@ -377,8 +377,8 @@ static void xqspips_copy_write_data(struct xqspips *xqspi, u32 *data, u8 size)
 	} else
 		*data = 0;
 
-	debug("xqspips_copy_write_data: data 0x%08x txbuf addr: 0x%08x"
-		" size %d\n", *data, (u32)xqspi->txbuf, size);
+	debug("%s: data 0x%08x txbuf addr: 0x%08x size %d\n", __func__,
+	      *data, (u32)xqspi->txbuf, size);
 
 	xqspi->bytes_to_transfer -= size;
 	if (xqspi->bytes_to_transfer < 0)
@@ -394,7 +394,7 @@ static void xqspips_chipselect(struct spi_device *qspi, int is_on)
 {
 	u32 config_reg;
 
-	debug("xqspips_chipselect: is_on: %d\n", is_on);
+	debug("%s: is_on: %d\n", __func__, is_on);
 
 	config_reg = readl(&xqspips_base->confr);
 
@@ -437,16 +437,16 @@ static int xqspips_setup_transfer(struct spi_device *qspi,
 	u32 req_hz;
 	u32 baud_rate_val = 0;
 
-	debug("xqspips_setup_transfer: qspi: 0x%08x transfer: 0x%08x\n",
-		(u32)qspi, (u32)transfer);
+	debug("%s: qspi: 0x%08x transfer: 0x%08x\n", __func__,
+	      (u32)qspi, (u32)transfer);
 
 	bits_per_word = (transfer) ?
 			transfer->bits_per_word : qspi->bits_per_word;
 	req_hz = (transfer) ? transfer->speed_hz : qspi->max_speed_hz;
 
 	if (qspi->mode & ~MODEBITS) {
-		printf("%s, unsupported mode bits %x\n",
-			__func__, qspi->mode & ~MODEBITS);
+		printf("%s: Unsupported mode bits %x\n",
+		       __func__, qspi->mode & ~MODEBITS);
 		return -1;
 	}
 
@@ -477,8 +477,8 @@ static int xqspips_setup_transfer(struct spi_device *qspi,
 
 	writel(config_reg, &xqspips_base->confr);
 
-	debug("xqspips_setup_transfer: mode %d, %u bits/w, %u clock speed\n",
-		qspi->mode & MODEBITS, qspi->bits_per_word, xqspi->speed_hz);
+	debug("%s: mode %d, %u bits/w, %u clock speed\n", __func__,
+	      qspi->mode & MODEBITS, qspi->bits_per_word, xqspi->speed_hz);
 
 	return 0;
 }
@@ -534,7 +534,7 @@ static int xqspips_irq_poll(struct xqspips *xqspi)
 	int max_loop;
 	u32 intr_status;
 
-	debug("xqspips_irq_poll: xqspi: 0x%08x\n", (u32)xqspi);
+	debug("%s: xqspi: 0x%08x\n", __func__, (u32)xqspi);
 
 	/* Poll until any of the interrupt status bits are set */
 	max_loop = 0;
@@ -544,7 +544,7 @@ static int xqspips_irq_poll(struct xqspips *xqspi)
 	} while ((intr_status == 0) && (max_loop < 100000));
 
 	if (intr_status == 0) {
-		printf("xqspips_irq_poll: timeout\n");
+		printf("%s: Timeout\n", __func__);
 		return 0;
 	}
 
@@ -631,8 +631,8 @@ static int xqspips_start_transfer(struct spi_device *qspi,
 	u8 instruction = 0;
 	u8 index;
 
-	debug("xqspips_start_transfer: qspi: 0x%08x transfer: 0x%08x len: %d\n",
-		(u32)qspi, (u32)transfer, transfer->len);
+	debug("%s: qspi: 0x%08x transfer: 0x%08x len: %d\n", __func__,
+	      (u32)qspi, (u32)transfer, transfer->len);
 
 	xqspi->txbuf = transfer->tx_buf;
 	xqspi->rxbuf = transfer->rx_buf;
@@ -721,7 +721,7 @@ static int xqspips_transfer(struct spi_device *qspi,
 	unsigned cs_change = 1;
 	int status = 0;
 
-	debug("xqspips_transfer\n");
+	debug("%s\n", __func__);
 
 	while (1) {
 		if (transfer->bits_per_word || transfer->speed_hz) {
@@ -843,17 +843,17 @@ int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 
 void spi_cs_activate(struct spi_slave *slave)
 {
-	debug("spi_cs_activate: slave 0x%08x\n", (unsigned)slave);
+	debug("%s: slave 0x%08x\n", __func__, (unsigned)slave);
 }
 
 void spi_cs_deactivate(struct spi_slave *slave)
 {
-	debug("spi_cs_deactivate: slave 0x%08x\n", (unsigned)slave);
+	debug("%s: slave 0x%08x\n", __func__, (unsigned)slave);
 }
 
 void spi_init()
 {
-	debug("spi_init\n");
+	debug("%s\n", __func__);
 }
 
 /*
@@ -876,7 +876,7 @@ void spi_enable_quad_bit(struct spi_slave *spi)
 
 	ret = spi_flash_cmd(spi, rdid_cmd, &idcode, sizeof(idcode));
 	if (ret) {
-		debug("SF error: Failed read RDID\n");
+		debug("%s: Failed read RDID\n", __func__);
 		return;
 	}
 
@@ -885,19 +885,19 @@ void spi_enable_quad_bit(struct spi_slave *spi)
 		ret = spi_flash_cmd_read(spi, &rcr_cmd, sizeof(rcr_cmd),
 					&rcr_data, sizeof(rcr_data));
 		if (ret) {
-			debug("SF error: Failed read RCR\n");
+			debug("%s: Failed read RCR\n", __func__);
 			return;
 		}
 
 		if (rcr_data & 0x2)
-			debug("QUAD bit is already set..\n");
+			debug("%s: QUAD bit is already set\n", __func__);
 		else {
-			debug("QUAD bit needs to be set ..\n");
+			debug("%s: QUAD bit needs to be set\n", __func__);
 
 			/* Write enable */
 			ret = spi_flash_cmd(spi, wren_cmd, NULL, 0);
 			if (ret) {
-				debug("SF error: Failed write WREN\n");
+				debug("%s: Failed write WREN\n", __func__);
 				return;
 			}
 
@@ -915,16 +915,16 @@ void spi_enable_quad_bit(struct spi_slave *spi)
 			ret = spi_flash_cmd_read(spi, &rcr_cmd, sizeof(rcr_cmd),
 						&rcr_data, sizeof(rcr_data));
 			if (!(rcr_data & 0x2)) {
-				printf("SF error: Fail to set QUAD enable bit"
-					" 0x%x\n", rcr_data);
+				printf("%s: Fail to set QUAD enable bit 0x%x\n",
+				       __func__, rcr_data);
 				return;
 			} else
-				debug("SF: QUAD enable bit is set 0x%x\n",
-						rcr_data);
+				debug("%s: QUAD enable bit is set 0x%x\n",
+				      __func__, rcr_data);
 		}
 	} else
-		debug("SF: QUAD bit not enabled for 0x%x SPI flash\n",
-					idcode[0]);
+		debug("%s: QUAD bit not enabled for 0x%x SPI flash\n",
+		      __func__, idcode[0]);
 
 	return;
 }
@@ -935,8 +935,8 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	int is_dual;
 	struct zynq_spi_slave *pspi;
 
-	debug("spi_setup_slave: bus: %d cs: %d max_hz: %d mode: %d\n",
-		bus, cs, max_hz, mode);
+	debug("%s: bus: %d cs: %d max_hz: %d mode: %d\n",
+	      __func__, bus, cs, max_hz, mode);
 
 	if (!spi_cs_is_valid(bus, cs))
 		return NULL;
@@ -944,8 +944,8 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	is_dual = xqspips_check_is_dual_flash();
 
 	if (is_dual == MODE_UNKNOWN) {
-		printf("SPI error: No QSPI device detected based"
-				" on MIO settings\n");
+		printf("%s: No QSPI device detected based on MIO settings\n",
+		       __func__);
 		return NULL;
 	}
 
@@ -953,7 +953,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 	pspi = malloc(sizeof(struct zynq_spi_slave));
 	if (!pspi) {
-		printf("SPI error: fail to allocate zynq_spi_slave\n");
+		printf("%s: Fail to allocate zynq_spi_slave\n", __func__);
 		return NULL;
 	}
 
@@ -979,7 +979,7 @@ void spi_free_slave(struct spi_slave *slave)
 {
 	struct zynq_spi_slave *pspi;
 
-	debug("spi_free_slave: slave: 0x%08x\n", (u32)slave);
+	debug("%s: slave: 0x%08x\n", __func__, (u32)slave);
 
 	pspi = to_zynq_spi_slave(slave);
 	free(pspi);
@@ -987,13 +987,13 @@ void spi_free_slave(struct spi_slave *slave)
 
 int spi_claim_bus(struct spi_slave *slave)
 {
-	debug("spi_claim_bus: slave: 0x%08x\n", (u32)slave);
+	debug("%s: slave: 0x%08x\n", __func__, (u32)slave);
 	return 0;
 }
 
 void spi_release_bus(struct spi_slave *slave)
 {
-	debug("spi_release_bus: slave: 0x%08x\n", (u32)slave);
+	debug("%s: slave: 0x%08x\n", __func__, (u32)slave);
 }
 
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
@@ -1002,9 +1002,9 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	struct zynq_spi_slave *pspi;
 	struct spi_transfer transfer;
 
-	debug("spi_xfer: slave: 0x%08x bitlen: %d dout: 0x%08x din:"
-		" 0x%08x flags: 0x%lx\n",
-		(u32)slave, bitlen, (u32)dout, (u32)din, flags);
+	debug("%s: slave: 0x%08x bitlen: %d dout: 0x%08x ", __func__,
+	      (u32)slave, bitlen, (u32)dout);
+	debug("din: 0x%08x flags: 0x%lx\n", (u32)din, flags);
 
 	pspi = (struct zynq_spi_slave *)slave;
 	transfer.tx_buf = dout;
