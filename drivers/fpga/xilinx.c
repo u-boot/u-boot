@@ -51,7 +51,7 @@ static int xilinx_validate (Xilinx_desc * desc, char *fn);
 
 /* ------------------------------------------------------------------------- */
 
-int fpga_loadbitstream(unsigned long dev, char *fpgadata, size_t size)
+int fpga_loadbitstream(int devnum, char *fpgadata, size_t size)
 {
 	unsigned int length;
 	unsigned int swapsize;
@@ -134,7 +134,7 @@ int fpga_loadbitstream(unsigned long dev, char *fpgadata, size_t size)
 	dataptr += 4;
 	printf("  bytes in bitstream = %d\n", swapsize);
 
-	return fpga_load(dev, dataptr, swapsize);
+	return fpga_load(devnum, dataptr, swapsize);
 }
 
 int xilinx_load(Xilinx_desc *desc, const void *buf, size_t bsize)
