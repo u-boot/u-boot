@@ -11,7 +11,7 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place, Suite 330, Boston, MA  02111-1307  USA
+ * Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
 #include <common.h>
@@ -65,7 +65,7 @@
  */
 #define XQSPIPS_LCFG_TWO_MEM_MASK	0x40000000 /* QSPI Enable Bit Mask */
 #define XQSPIPS_LCFG_SEP_BUS_MASK	0x20000000 /* QSPI Enable Bit Mask */
-#define	XQSPIPS_LCFG_U_PAGE		0x10000000 /* QSPI Upper memory set */
+#define XQSPIPS_LCFG_U_PAGE		0x10000000 /* QSPI Upper memory set */
 
 #define XQSPIPS_LCFG_DUMMY_SHIFT	8
 
@@ -95,27 +95,27 @@ enum xqspips_con_topology {
 };
 
 /* Definitions of the flash commands - Flash opcodes in ascending order */
-#define	XQSPIPS_FLASH_OPCODE_WRSR	0x01	/* Write status register */
-#define	XQSPIPS_FLASH_OPCODE_PP		0x02	/* Page program */
-#define	XQSPIPS_FLASH_OPCODE_NORM_READ	0x03	/* Normal read data bytes */
-#define	XQSPIPS_FLASH_OPCODE_WRDS	0x04	/* Write disable */
-#define	XQSPIPS_FLASH_OPCODE_RDSR1	0x05	/* Read status register 1 */
-#define	XQSPIPS_FLASH_OPCODE_WREN	0x06	/* Write enable */
-#define	XQSPIPS_FLASH_OPCODE_FAST_READ	0x0B	/* Fast read data bytes */
-#define	XQSPIPS_FLASH_OPCODE_BRRD	0x16	/* Bank address reg read */
-#define	XQSPIPS_FLASH_OPCODE_BRWR	0x17	/* Bank address reg write */
-#define	XQSPIPS_FLASH_OPCODE_BE_4K	0x20	/* Erase 4KiB block */
-#define	XQSPIPS_FLASH_OPCODE_RDSR2	0x35	/* Read status register 2 */
-#define	XQSPIPS_FLASH_OPCODE_DUAL_READ	0x3B	/* Dual read data bytes */
-#define	XQSPIPS_FLASH_OPCODE_BE_32K	0x52	/* Erase 32KiB block */
-#define	XQSPIPS_FLASH_OPCODE_QUAD_READ	0x6B	/* Quad read data bytes */
-#define	XQSPIPS_FLASH_OPCODE_ERASE_SUS	0x75	/* Erase suspend */
-#define	XQSPIPS_FLASH_OPCODE_ERASE_RES	0x7A	/* Erase resume */
-#define	XQSPIPS_FLASH_OPCODE_RDID	0x9F	/* Read JEDEC ID */
-#define	XQSPIPS_FLASH_OPCODE_WREAR	0xC5	/* Extended address reg write */
-#define	XQSPIPS_FLASH_OPCODE_RDEAR	0xC8	/* Extended address reg read */
-#define	XQSPIPS_FLASH_OPCODE_BE		0xC7	/* Erase whole flash block */
-#define	XQSPIPS_FLASH_OPCODE_SE		0xD8	/* Sector erase (usually 64KB)*/
+#define XQSPIPS_FLASH_OPCODE_WRSR	0x01	/* Write status register */
+#define XQSPIPS_FLASH_OPCODE_PP		0x02	/* Page program */
+#define XQSPIPS_FLASH_OPCODE_NORM_READ	0x03	/* Normal read data bytes */
+#define XQSPIPS_FLASH_OPCODE_WRDS	0x04	/* Write disable */
+#define XQSPIPS_FLASH_OPCODE_RDSR1	0x05	/* Read status register 1 */
+#define XQSPIPS_FLASH_OPCODE_WREN	0x06	/* Write enable */
+#define XQSPIPS_FLASH_OPCODE_FAST_READ	0x0B	/* Fast read data bytes */
+#define XQSPIPS_FLASH_OPCODE_BRRD	0x16	/* Bank address reg read */
+#define XQSPIPS_FLASH_OPCODE_BRWR	0x17	/* Bank address reg write */
+#define XQSPIPS_FLASH_OPCODE_BE_4K	0x20	/* Erase 4KiB block */
+#define XQSPIPS_FLASH_OPCODE_RDSR2	0x35	/* Read status register 2 */
+#define XQSPIPS_FLASH_OPCODE_DUAL_READ	0x3B	/* Dual read data bytes */
+#define XQSPIPS_FLASH_OPCODE_BE_32K	0x52	/* Erase 32KiB block */
+#define XQSPIPS_FLASH_OPCODE_QUAD_READ	0x6B	/* Quad read data bytes */
+#define XQSPIPS_FLASH_OPCODE_ERASE_SUS	0x75	/* Erase suspend */
+#define XQSPIPS_FLASH_OPCODE_ERASE_RES	0x7A	/* Erase resume */
+#define XQSPIPS_FLASH_OPCODE_RDID	0x9F	/* Read JEDEC ID */
+#define XQSPIPS_FLASH_OPCODE_WREAR	0xC5	/* Extended address reg write */
+#define XQSPIPS_FLASH_OPCODE_RDEAR	0xC8	/* Extended address reg read */
+#define XQSPIPS_FLASH_OPCODE_BE		0xC7	/* Erase whole flash block */
+#define XQSPIPS_FLASH_OPCODE_SE		0xD8	/* Sector erase (usually 64KB)*/
 
 /* Few mtd flash functions */
 extern int spi_flash_cmd(struct spi_slave *spi, u8 cmd,
@@ -125,30 +125,30 @@ extern int spi_flash_cmd_read(struct spi_slave *spi, const u8 *cmd,
 
 /* QSPI register offsets */
 struct xqspips_regs {
-	u32  confr;	/* 0x00 */
-	u32  isr;	/* 0x04 */
-	u32  ier;	/* 0x08 */
-	u32  idisr;	/* 0x0C */
-	u32  imaskr;	/* 0x10 */
-	u32  enbr;	/* 0x14 */
-	u32  dr;	/* 0x18 */
-	u32  txd0r;	/* 0x1C */
-	u32  drxr;	/* 0x20 */
-	u32  sicr;	/* 0x24 */
-	u32  txftr;	/* 0x28 */
-	u32  rxftr;	/* 0x2C */
-	u32  gpior;	/* 0x30 */
-	u32  reserved0[19];
-	u32  txd1r;	/* 0x80 */
-	u32  txd2r;	/* 0x84 */
-	u32  txd3r;	/* 0x88 */
-	u32  reserved1[5];
-	u32  lcr;	/* 0xA0 */
-	u32  reserved2[22];
-	u32  midr;	/* 0xFC */
+	u32 confr;	/* 0x00 */
+	u32 isr;	/* 0x04 */
+	u32 ier;	/* 0x08 */
+	u32 idisr;	/* 0x0C */
+	u32 imaskr;	/* 0x10 */
+	u32 enbr;	/* 0x14 */
+	u32 dr;		/* 0x18 */
+	u32 txd0r;	/* 0x1C */
+	u32 drxr;	/* 0x20 */
+	u32 sicr;	/* 0x24 */
+	u32 txftr;	/* 0x28 */
+	u32 rxftr;	/* 0x2C */
+	u32 gpior;	/* 0x30 */
+	u32 reserved0[19];
+	u32 txd1r;	/* 0x80 */
+	u32 txd2r;	/* 0x84 */
+	u32 txd3r;	/* 0x88 */
+	u32 reserved1[5];
+	u32 lcr;	/* 0xA0 */
+	u32 reserved2[22];
+	u32 midr;	/* 0xFC */
 };
 
-#define xqspips_base ((struct xqspips_regs *) XPSS_QSPI_BASEADDR)
+#define xqspips_base ((struct xqspips_regs *)XPSS_QSPI_BASEADDR)
 
 struct xqspips {
 	u32 input_clk_hz;
@@ -164,25 +164,25 @@ struct xqspips {
 };
 
 struct spi_device {
-	struct xqspips	master;
-	u32		max_speed_hz;
-	u8		chip_select;
-	u8		mode;
-	u8		bits_per_word;
+	struct xqspips master;
+	u32 max_speed_hz;
+	u8 chip_select;
+	u8 mode;
+	u8 bits_per_word;
 };
 
 struct spi_transfer {
-	const void	*tx_buf;
-	void		*rx_buf;
-	unsigned	len;
-	unsigned	cs_change:1;
-	u8		bits_per_word;
-	u16		delay_usecs;
-	u32		speed_hz;
+	const void *tx_buf;
+	void *rx_buf;
+	unsigned len;
+	unsigned cs_change:1;
+	u8 bits_per_word;
+	u16 delay_usecs;
+	u32 speed_hz;
 };
 
 struct zynq_spi_slave {
-	struct spi_slave  slave;
+	struct spi_slave slave;
 	struct spi_device qspi;
 };
 #define to_zynq_spi_slave(s) container_of(s, struct zynq_spi_slave, slave)
@@ -324,7 +324,7 @@ static void xqspips_copy_read_data(struct xqspips *xqspi, u32 data, u8 size)
 			break;
 		case 4:
 			/* Can not assume word aligned buffer */
-			memcpy(xqspi->rxbuf, &data,  size);
+			memcpy(xqspi->rxbuf, &data, size);
 			xqspi->rxbuf += 4;
 			break;
 		default:
@@ -345,7 +345,6 @@ static void xqspips_copy_read_data(struct xqspips *xqspi, u32 data, u8 size)
  */
 static void xqspips_copy_write_data(struct xqspips *xqspi, u32 *data, u8 size)
 {
-
 	if (xqspi->txbuf) {
 		switch (size) {
 		case 1:
@@ -367,15 +366,16 @@ static void xqspips_copy_write_data(struct xqspips *xqspi, u32 *data, u8 size)
 			break;
 		case 4:
 			/* Can not assume word aligned buffer */
-			memcpy(data, xqspi->txbuf,  size);
+			memcpy(data, xqspi->txbuf, size);
 			xqspi->txbuf += 4;
 			break;
 		default:
 			/* This will never execute */
 			break;
 		}
-	} else
+	} else {
 		*data = 0;
+	}
 
 	debug("%s: data 0x%08x txbuf addr: 0x%08x size %d\n", __func__,
 	      *data, (u32)xqspi->txbuf, size);
@@ -466,7 +466,7 @@ static int xqspips_setup_transfer(struct spi_device *qspi,
 	/* Set the clock frequency */
 	if (xqspi->speed_hz != req_hz) {
 		baud_rate_val = 0;
-		while ((baud_rate_val < 8)  &&
+		while ((baud_rate_val < 8) &&
 			(xqspi->input_clk_hz / (2 << baud_rate_val)) > req_hz) {
 				baud_rate_val++;
 		}
@@ -517,7 +517,7 @@ static void xqspips_fill_tx_fifo(struct xqspips *xqspi)
 
 /*
  * xqspips_irq_poll - Interrupt service routine of the QSPI controller
- * @xqspi:      Pointer to the xqspips structure
+ * @xqspi:	Pointer to the xqspips structure
  *
  * This function handles TX empty and Mode Fault interrupts only.
  * On TX empty interrupt this function reads the received data from RX FIFO and
@@ -553,8 +553,7 @@ static int xqspips_irq_poll(struct xqspips *xqspi)
 	/* Disable all interrupts */
 	writel(XQSPIPS_IXR_ALL_MASK, &xqspips_base->idisr);
 	if ((intr_status & XQSPIPS_IXR_TXNFULL_MASK) ||
-			(intr_status & XQSPIPS_IXR_RXNEMTY_MASK)) {
-
+	    (intr_status & XQSPIPS_IXR_RXNEMTY_MASK)) {
 		/*
 		 * This bit is set when Tx FIFO has < THRESHOLD entries. We have
 		 * the THRESHOLD value set to 1, so this bit indicates Tx FIFO
@@ -570,18 +569,19 @@ static int xqspips_irq_poll(struct xqspips *xqspi)
 			data = readl(&xqspips_base->drxr);
 
 			if ((xqspi->inst_response) &&
-					(!((xqspi->curr_inst->opcode ==
-					XQSPIPS_FLASH_OPCODE_RDSR1) ||
-					(xqspi->curr_inst->opcode ==
-					XQSPIPS_FLASH_OPCODE_RDSR2)))) {
+			    (!((xqspi->curr_inst->opcode ==
+				XQSPIPS_FLASH_OPCODE_RDSR1) ||
+			       (xqspi->curr_inst->opcode ==
+				XQSPIPS_FLASH_OPCODE_RDSR2)))) {
 				xqspi->inst_response = 0;
 				xqspips_copy_read_data(xqspi, data,
-					xqspi->curr_inst->inst_size);
-			} else if (xqspi->bytes_to_receive < 4)
+						xqspi->curr_inst->inst_size);
+			} else if (xqspi->bytes_to_receive < 4) {
 				xqspips_copy_read_data(xqspi, data,
-					xqspi->bytes_to_receive);
-			else
+						       xqspi->bytes_to_receive);
+			} else {
 				xqspips_copy_read_data(xqspi, data, 4);
+			}
 		}
 
 		if (xqspi->bytes_to_transfer) {
@@ -602,7 +602,7 @@ static int xqspips_irq_poll(struct xqspips *xqspi)
 			if (!xqspi->bytes_to_receive) {
 				/* return operation complete */
 				writel(XQSPIPS_IXR_ALL_MASK,
-						&xqspips_base->idisr);
+				       &xqspips_base->idisr);
 				return 1;
 			}
 		}
@@ -643,7 +643,7 @@ static int xqspips_start_transfer(struct spi_device *qspi,
 		instruction = *(u8 *)xqspi->txbuf;
 
 	if (instruction && xqspi->is_inst) {
-		for (index = 0 ; index < ARRAY_SIZE(flash_inst); index++)
+		for (index = 0; index < ARRAY_SIZE(flash_inst); index++)
 			if (instruction == flash_inst[index].opcode)
 				break;
 
@@ -660,7 +660,7 @@ static int xqspips_start_transfer(struct spi_device *qspi,
 		/* Get the instruction */
 		data = 0;
 		xqspips_copy_write_data(xqspi, &data,
-			xqspi->curr_inst->inst_size);
+					xqspi->curr_inst->inst_size);
 
 		/*
 		 * Write the instruction to LSB of the FIFO. The core is
@@ -677,10 +677,10 @@ static int xqspips_start_transfer(struct spi_device *qspi,
 		 * response contains the value
 		 */
 		if ((instruction == XQSPIPS_FLASH_OPCODE_RDSR1) ||
-			(instruction == XQSPIPS_FLASH_OPCODE_RDSR2) ||
-			(instruction == XQSPIPS_FLASH_OPCODE_RDID) ||
-			(instruction == XQSPIPS_FLASH_OPCODE_BRRD) ||
-			(instruction == XQSPIPS_FLASH_OPCODE_RDEAR)) {
+		    (instruction == XQSPIPS_FLASH_OPCODE_RDSR2) ||
+		    (instruction == XQSPIPS_FLASH_OPCODE_RDID) ||
+		    (instruction == XQSPIPS_FLASH_OPCODE_BRRD) ||
+		    (instruction == XQSPIPS_FLASH_OPCODE_RDEAR)) {
 			if (xqspi->bytes_to_transfer < 4)
 				xqspi->bytes_to_transfer = 0;
 			else
@@ -695,10 +695,10 @@ xfer_data:
 	 * is transmitted
 	 */
 	if (((xqspi->is_inst == 0) && (xqspi->bytes_to_transfer)) ||
-			((xqspi->bytes_to_transfer) &&
-			(instruction != XQSPIPS_FLASH_OPCODE_FAST_READ) &&
-			(instruction != XQSPIPS_FLASH_OPCODE_DUAL_READ) &&
-			(instruction != XQSPIPS_FLASH_OPCODE_QUAD_READ)))
+	    ((xqspi->bytes_to_transfer) &&
+	     (instruction != XQSPIPS_FLASH_OPCODE_FAST_READ) &&
+	     (instruction != XQSPIPS_FLASH_OPCODE_DUAL_READ) &&
+	     (instruction != XQSPIPS_FLASH_OPCODE_QUAD_READ)))
 		xqspips_fill_tx_fifo(xqspi);
 
 	writel(XQSPIPS_IXR_ALL_MASK, &xqspips_base->ier);
@@ -786,19 +786,19 @@ static int xqspips_check_is_dual_flash(void)
 	int is_dual = MODE_UNKNOWN;
 	int lower_mio = 0, upper_mio = 0, upper_mio_cs1 = 0;
 
-	lower_mio =  zynq_slcr_get_mio_pin_status("qspi0");
+	lower_mio = zynq_slcr_get_mio_pin_status("qspi0");
 	if (lower_mio == XQSPIPS_MIO_NUM_QSPI0)
 		is_dual = MODE_SINGLE;
 
 	upper_mio_cs1 = zynq_slcr_get_mio_pin_status("qspi1_cs");
 	if ((lower_mio == XQSPIPS_MIO_NUM_QSPI0) &&
-			(upper_mio_cs1 == XQSPIPS_MIO_NUM_QSPI1_CS))
+	    (upper_mio_cs1 == XQSPIPS_MIO_NUM_QSPI1_CS))
 		is_dual = MODE_DUAL_STACKED;
 
-	upper_mio =  zynq_slcr_get_mio_pin_status("qspi1");
+	upper_mio = zynq_slcr_get_mio_pin_status("qspi1");
 	if ((lower_mio == XQSPIPS_MIO_NUM_QSPI0) &&
-			(upper_mio_cs1 == XQSPIPS_MIO_NUM_QSPI1_CS) &&
-			(upper_mio == XQSPIPS_MIO_NUM_QSPI1))
+	    (upper_mio_cs1 == XQSPIPS_MIO_NUM_QSPI1_CS) &&
+	    (upper_mio == XQSPIPS_MIO_NUM_QSPI1))
 		is_dual = MODE_DUAL_PARALLEL;
 
 	return is_dual;
@@ -810,7 +810,7 @@ static int xqspips_check_is_dual_flash(void)
  * This function will write a 1 to quad bit in flash
  * using QSPI controller and supports only spansion flash.
  *
- * @regs_base:  base address of QSPI controller
+ * @regs_base: base address of QSPI controller
  */
 static void xqspips_write_quad_bit(void __iomem *regs_base)
 {
@@ -889,9 +889,9 @@ void spi_enable_quad_bit(struct spi_slave *spi)
 			return;
 		}
 
-		if (rcr_data & 0x2)
+		if (rcr_data & 0x2) {
 			debug("%s: QUAD bit is already set\n", __func__);
-		else {
+		} else {
 			debug("%s: QUAD bit needs to be set\n", __func__);
 
 			/* Write enable */
