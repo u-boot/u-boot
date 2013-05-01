@@ -49,7 +49,7 @@
 
 #define S_IFLNK		0120000		/* symbolic link */
 #define BLOCK_NO_ONE		1
-#define SUPERBLOCK_SECTOR	2
+#define SUPERBLOCK_START	(2 * 512)
 #define SUPERBLOCK_SIZE	1024
 #define F_FILE			1
 

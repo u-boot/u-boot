@@ -534,16 +534,14 @@ end:
 		jsb->s_start = cpu_to_be32(1);
 		jsb->s_sequence = cpu_to_be32(be32_to_cpu(jsb->s_sequence) + 1);
 		/* get the superblock */
-		ext4fs_devread(SUPERBLOCK_SECTOR, 0, SUPERBLOCK_SIZE,
-			       (char *)fs->sb);
+		ext4_read_superblock((char *)fs->sb);
 		fs->sb->feature_incompat |= EXT3_FEATURE_INCOMPAT_RECOVER;
 
 		/* Update the super block */
 		put_ext4((uint64_t) (SUPERBLOCK_SIZE),
 			 (struct ext2_sblock *)fs->sb,
 			 (uint32_t) SUPERBLOCK_SIZE);
-		ext4fs_devread(SUPERBLOCK_SECTOR, 0, SUPERBLOCK_SIZE,
-			       (char *)fs->sb);
+		ext4_read_superblock((char *)fs->sb);
 
 		blknr = read_allocated_block(&inode_journal,
 					 EXT2_JOURNAL_SUPERBLOCK);
