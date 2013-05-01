@@ -283,7 +283,6 @@
 #undef CONFIG_BOOTM_NETBSD
 
 /* FIXME this should be removed pretty soon */
-#define XPSS_QSPI_BASEADDR		0xE000D000
 #define XPSS_NAND_BASEADDR		0xE1000000
 #define XPSS_CRTL_PARPORT_BASEADDR	0xE000E000
 

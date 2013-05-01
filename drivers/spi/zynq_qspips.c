@@ -18,6 +18,7 @@
 #include <ubi_uboot.h>
 #include <spi.h>
 #include <asm/io.h>
+#include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 
 /* QSPI Transmit Data Register */
@@ -147,7 +148,7 @@ struct xqspips_regs {
 	u32 midr;	/* 0xFC */
 };
 
-#define xqspips_base ((struct xqspips_regs *)XPSS_QSPI_BASEADDR)
+#define xqspips_base ((struct xqspips_regs *)ZYNQ_QSPI_BASEADDR)
 
 struct xqspips {
 	u32 input_clk_hz;
@@ -927,7 +928,7 @@ void spi_enable_quad_bit(struct spi_slave *spi)
 			}
 
 			/* Write QUAD bit */
-			xqspips_write_quad_bit((void *)XPSS_QSPI_BASEADDR);
+			xqspips_write_quad_bit((void *)ZYNQ_QSPI_BASEADDR);
 
 			/* Read RDSR */
 			do {
