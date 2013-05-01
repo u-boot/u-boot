@@ -21,6 +21,7 @@
 #include <linux/mtd/nand.h>
 #include <linux/mtd/partitions.h>
 #include <linux/mtd/nand_ecc.h>
+#include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 
 /* The NAND flash driver defines */
@@ -106,8 +107,7 @@ struct xnandps_smc_regs {
 	u32	eval0r;		/* 0x418 */
 };
 
-#define xnandps_smc_base	\
-	((struct xnandps_smc_regs *) XPSS_CRTL_PARPORT_BASEADDR)
+#define xnandps_smc_base	((struct xnandps_smc_regs *)ZYNQ_SMC_BASEADDR)
 
 /*
  * struct xnandps_command_format - Defines NAND flash command format
@@ -1032,7 +1032,7 @@ static int xnandps_check_is_16bit_bw_flash(void)
 	return is_16bit_bw;
 }
 
-int zynq_nand_init(struct nand_chip *nand_chip)
+static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 {
 	struct xnandps_info *xnand;
 	struct mtd_info *mtd;
@@ -1052,7 +1052,7 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 		goto free;
 	}
 
-	xnand->nand_base = (void *)XPSS_NAND_BASEADDR;
+	xnand->nand_base = (void *)ZYNQ_NAND_BASEADDR;
 	mtd = &nand_info[0];
 
 	nand_chip->priv = xnand;
@@ -1230,10 +1230,23 @@ int zynq_nand_init(struct nand_chip *nand_chip)
 		goto fail;
 	}
 
+	if (nand_register(devnum))
+		goto fail;
+
 	return 0;
 fail:
 	nand_release(mtd);
 free:
 	kfree(xnand);
 	return err;
+}
+
+static struct nand_chip nand_chip[CONFIG_SYS_MAX_NAND_DEVICE];
+
+void board_nand_init(void)
+{
+	struct nand_chip *nand = &nand_chip[0];
+
+	if (zynq_nand_init(nand, 0))
+		puts("ZYNQ NAND init failed\n");
 }

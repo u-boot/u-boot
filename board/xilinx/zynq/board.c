@@ -174,13 +174,6 @@ int board_mmc_init(bd_t *bd)
 }
 #endif
 
-#ifdef CONFIG_CMD_NAND
-int board_nand_init(struct nand_chip *nand_chip)
-{
-	return zynq_nand_init(nand_chip);
-}
-#endif
-
 int dram_init(void)
 {
 	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
