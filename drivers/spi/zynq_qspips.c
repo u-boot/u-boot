@@ -1,8 +1,7 @@
 /*
- * (C) Copyright 2011 Xilinx
+ * (C) Copyright 2011 - 2013 Xilinx
  *
  * Xilinx PS Quad-SPI (QSPI) controller driver (master mode only)
- * based on Xilinx PS SPI Driver (xspips.c)
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License version 2 as published by the
