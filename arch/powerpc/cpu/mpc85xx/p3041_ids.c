@@ -27,16 +27,16 @@
 #ifdef CONFIG_SYS_DPAA_QBMAN
 struct qportal_info qp_info[CONFIG_SYS_QMAN_NUM_PORTALS] = {
 	/* dqrr liodn, frame data liodn, liodn off, sdest */
-	SET_QP_INFO(1, 2, 1, 0),
-	SET_QP_INFO(3, 4, 2, 1),
-	SET_QP_INFO(5, 6, 3, 2),
-	SET_QP_INFO(7, 8, 4, 3),
-	SET_QP_INFO(9, 10, 5, 0),
-	SET_QP_INFO(11, 12, 1, 1),
-	SET_QP_INFO(13, 14, 2, 2),
-	SET_QP_INFO(15, 16, 3, 3),
-	SET_QP_INFO(17, 18, 4, 0), /* for now sdest to 0 */
-	SET_QP_INFO(19, 20, 5, 0), /* for now sdest to 0 */
+	SET_QP_INFO(1,  2,  1, 0),
+	SET_QP_INFO(3,  4,  2, 1),
+	SET_QP_INFO(5,  6,  3, 2),
+	SET_QP_INFO(7,  8,  4, 3),
+	SET_QP_INFO(9, 10,  5, 0),
+	SET_QP_INFO(1, 12,  6, 1),
+	SET_QP_INFO(13, 14,  7, 2),
+	SET_QP_INFO(15, 16,  8, 3),
+	SET_QP_INFO(17, 18,  9, 0), /* for now sdest to 0 */
+	SET_QP_INFO(19, 20, 10, 0), /* for now sdest to 0 */
 };
 #endif
 

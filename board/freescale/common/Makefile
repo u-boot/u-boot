@@ -33,10 +33,14 @@ COBJS-$(CONFIG_FSL_CADMUS)	+= cadmus.o
 COBJS-$(CONFIG_FSL_VIA)		+= cds_via.o
 COBJS-$(CONFIG_FMAN_ENET)	+= fman.o
 COBJS-$(CONFIG_FSL_PIXIS)	+= pixis.o
+ifndef CONFIG_SPL_BUILD
 COBJS-$(CONFIG_FSL_NGPIXIS)	+= ngpixis.o
+endif
 COBJS-$(CONFIG_FSL_QIXIS)	+= qixis.o
 COBJS-$(CONFIG_PQ_MDS_PIB)	+= pq-mds-pib.o
+ifndef CONFIG_SPL_BUILD
 COBJS-$(CONFIG_ID_EEPROM)	+= sys_eeprom.o
+endif
 COBJS-$(CONFIG_FSL_SGMII_RISER)	+= sgmii_riser.o
 ifndef CONFIG_RAMBOOT_PBL
 COBJS-$(CONFIG_FSL_FIXED_MMC_LOCATION)	+= sdhc_boot.o
@@ -48,7 +52,9 @@ COBJS-$(CONFIG_MPC8555CDS)	+= cds_pci_ft.o
 
 COBJS-$(CONFIG_MPC8536DS)	+= ics307_clk.o
 COBJS-$(CONFIG_MPC8572DS)	+= ics307_clk.o
+ifndef CONFIG_SPL_BUILD
 COBJS-$(CONFIG_P1022DS)		+= ics307_clk.o
+endif
 COBJS-$(CONFIG_P2020DS)		+= ics307_clk.o
 COBJS-$(CONFIG_P3041DS)		+= ics307_clk.o
 COBJS-$(CONFIG_P4080DS)		+= ics307_clk.o
