@@ -182,6 +182,8 @@
 #define CONFIG_UART_CONSOLE	1
 #define CONFIG_BFIN_SPI_IMG_SIZE 0x50000
 
+#define CONFIG_ADI_GPIO2
+
 #undef CONFIG_VIDEO
 #ifdef CONFIG_VIDEO
 #define EASYLOGO_HEADER < asm/bfin_logo_230x230_gzip.h >

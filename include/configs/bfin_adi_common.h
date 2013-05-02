@@ -323,5 +323,7 @@
 #  define CONFIG_WATCHDOG_TIMEOUT_MSECS 5000
 # endif
 #endif
-
+#ifndef CONFIG_ADI_GPIO2
+# define CONFIG_ADI_GPIO1
+#endif
 #endif

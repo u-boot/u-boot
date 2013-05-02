@@ -1,5 +1,6 @@
 /*
- * GPIO Abstraction Layer
+ * ADI GPIO1 Abstraction Layer
+ * Support BF50x, BF51x, BF52x, BF53x and BF561 only.
  *
  * Copyright 2006-2010 Analog Devices Inc.
  *
@@ -55,25 +56,6 @@ static struct gpio_port_t * const gpio_array[] = {
 	(struct gpio_port_t *) FIO0_FLAG_D,
 	(struct gpio_port_t *) FIO1_FLAG_D,
 	(struct gpio_port_t *) FIO2_FLAG_D,
-#elif defined(CONFIG_BF54x)
-	(struct gpio_port_t *)PORTA_FER,
-	(struct gpio_port_t *)PORTB_FER,
-	(struct gpio_port_t *)PORTC_FER,
-	(struct gpio_port_t *)PORTD_FER,
-	(struct gpio_port_t *)PORTE_FER,
-	(struct gpio_port_t *)PORTF_FER,
-	(struct gpio_port_t *)PORTG_FER,
-	(struct gpio_port_t *)PORTH_FER,
-	(struct gpio_port_t *)PORTI_FER,
-	(struct gpio_port_t *)PORTJ_FER,
-#elif defined(CONFIG_BF60x)
-	(struct gpio_port_t *)PORTA_FER,
-	(struct gpio_port_t *)PORTB_FER,
-	(struct gpio_port_t *)PORTC_FER,
-	(struct gpio_port_t *)PORTD_FER,
-	(struct gpio_port_t *)PORTE_FER,
-	(struct gpio_port_t *)PORTF_FER,
-	(struct gpio_port_t *)PORTG_FER,
 #else
 # error no gpio arrays defined
 #endif
@@ -174,12 +156,6 @@ DECLARE_RESERVED_MAP(peri, gpio_bank(MAX_RESOURCES));
 
 inline int check_gpio(unsigned gpio)
 {
-#if defined(CONFIG_BF54x)
-	if (gpio == GPIO_PB15 || gpio == GPIO_PC14 || gpio == GPIO_PC15
-	    || gpio == GPIO_PH14 || gpio == GPIO_PH15
-	    || gpio == GPIO_PJ14 || gpio == GPIO_PJ15)
-		return -EINVAL;
-#endif
 	if (gpio >= MAX_BLACKFIN_GPIOS)
 		return -EINVAL;
 	return 0;
@@ -217,18 +193,6 @@ static void port_setup(unsigned gpio, unsigned short usage)
 		*port_fer[gpio_bank(gpio)] &= ~gpio_bit(gpio);
 	else
 		*port_fer[gpio_bank(gpio)] |= gpio_bit(gpio);
-	SSYNC();
-#elif defined(CONFIG_BF54x)
-	if (usage == GPIO_USAGE)
-		gpio_array[gpio_bank(gpio)]->port_fer &= ~gpio_bit(gpio);
-	else
-		gpio_array[gpio_bank(gpio)]->port_fer |= gpio_bit(gpio);
-	SSYNC();
-#elif defined(CONFIG_BF60x)
-	if (usage == GPIO_USAGE)
-		gpio_array[gpio_bank(gpio)]->port_fer_clear = gpio_bit(gpio);
-	else
-		gpio_array[gpio_bank(gpio)]->port_fer_set = gpio_bit(gpio);
 	SSYNC();
 #endif
 }
@@ -304,30 +268,6 @@ static void portmux_setup(unsigned short per)
 		}
 	}
 }
-#elif defined(CONFIG_BF54x) || defined(CONFIG_BF60x)
-inline void portmux_setup(unsigned short per)
-{
-	u32 pmux;
-	u16 ident = P_IDENT(per);
-	u16 function = P_FUNCT2MUX(per);
-
-	pmux = gpio_array[gpio_bank(ident)]->port_mux;
-
-	pmux &= ~(0x3 << (2 * gpio_sub_n(ident)));
-	pmux |= (function & 0x3) << (2 * gpio_sub_n(ident));
-
-	gpio_array[gpio_bank(ident)]->port_mux = pmux;
-}
-
-inline u16 get_portmux(unsigned short per)
-{
-	u32 pmux;
-	u16 ident = P_IDENT(per);
-
-	pmux = gpio_array[gpio_bank(ident)]->port_mux;
-
-	return (pmux >> (2 * gpio_sub_n(ident)) & 0x3);
-}
 #elif defined(CONFIG_BF52x) || defined(CONFIG_BF51x)
 inline void portmux_setup(unsigned short per)
 {
@@ -344,7 +284,6 @@ inline void portmux_setup(unsigned short per)
 # define portmux_setup(...)  do { } while (0)
 #endif
 
-#if !defined(CONFIG_BF54x) && !defined(CONFIG_BF60x)
 /***********************************************************
 *
 * FUNCTIONS: Blackfin General Purpose Ports Access Functions
@@ -491,15 +430,6 @@ GET_GPIO_P(both)
 GET_GPIO_P(maska)
 GET_GPIO_P(maskb)
 
-#else /* CONFIG_BF54x */
-
-unsigned short get_gpio_dir(unsigned gpio)
-{
-	return (0x01 & (gpio_array[gpio_bank(gpio)]->dir_clear >> gpio_sub_n(gpio)));
-}
-
-#endif /* CONFIG_BF54x */
-
 /***********************************************************
 *
 * FUNCTIONS:	Blackfin Peripheral Resource Allocation
@@ -548,11 +478,7 @@ int peripheral_request(unsigned short per, const char *label)
 		 * be requested and used by several drivers
 		 */
 
-#if defined(CONFIG_BF54x) || defined(CONFIG_BF60x)
-		if (!((per & P_MAYSHARE) && get_portmux(per) == P_FUNCT2MUX(per))) {
-#else
 		if (!(per & P_MAYSHARE)) {
-#endif
 			/*
 			 * Allow that the identical pin function can
 			 * be requested from the same driver twice
@@ -641,7 +567,7 @@ void peripheral_free_list(const unsigned short per[])
 * MODIFICATION HISTORY :
 **************************************************************/
 
-int bfin_gpio_request(unsigned gpio, const char *label)
+int gpio_request(unsigned gpio, const char *label)
 {
 	if (check_gpio(gpio) < 0)
 		return -EINVAL;
@@ -665,11 +591,9 @@ int bfin_gpio_request(unsigned gpio, const char *label)
 		       gpio, get_label(gpio));
 		return -EBUSY;
 	}
-#if !defined(CONFIG_BF54x) && !defined(CONFIG_BF60x)
 	else {	/* Reset POLAR setting when acquiring a gpio for the first time */
 		set_gpio_polar(gpio, 0);
 	}
-#endif
 
 	reserve(gpio, gpio);
 	set_label(gpio, label);
@@ -679,27 +603,27 @@ int bfin_gpio_request(unsigned gpio, const char *label)
 	return 0;
 }
 
-#ifdef CONFIG_BFIN_GPIO_TRACK
-void bfin_gpio_free(unsigned gpio)
+int gpio_free(unsigned gpio)
 {
 	if (check_gpio(gpio) < 0)
-		return;
+		return -1;
 
 	if (unlikely(!is_reserved(gpio, gpio, 0))) {
 		gpio_error(gpio);
-		return;
+		return -1;
 	}
 
 	unreserve(gpio, gpio);
 
 	set_label(gpio, "free");
-}
-#endif
 
-#ifdef BFIN_SPECIAL_GPIO_BANKS
+	return 0;
+}
+
+#ifdef ADI_SPECIAL_GPIO_BANKS
 DECLARE_RESERVED_MAP(special_gpio, gpio_bank(MAX_RESOURCES));
 
-int bfin_special_gpio_request(unsigned gpio, const char *label)
+int special_gpio_request(unsigned gpio, const char *label)
 {
 	/*
 	 * Allow that the identical GPIO can
@@ -731,7 +655,7 @@ int bfin_special_gpio_request(unsigned gpio, const char *label)
 	return 0;
 }
 
-void bfin_special_gpio_free(unsigned gpio)
+void special_gpio_free(unsigned gpio)
 {
 	if (unlikely(!is_reserved(special_gpio, gpio, 0))) {
 		gpio_error(gpio);
@@ -744,21 +668,13 @@ void bfin_special_gpio_free(unsigned gpio)
 }
 #endif
 
-static inline void __bfin_gpio_direction_input(unsigned gpio)
+static inline void __gpio_direction_input(unsigned gpio)
 {
-#if defined(CONFIG_BF54x) || defined(CONFIG_BF60x)
-	gpio_array[gpio_bank(gpio)]->dir_clear = gpio_bit(gpio);
-#else
 	gpio_array[gpio_bank(gpio)]->dir &= ~gpio_bit(gpio);
-#endif
-#if defined(CONFIG_BF60x)
-	gpio_array[gpio_bank(gpio)]->inen_set = gpio_bit(gpio);
-#else
 	gpio_array[gpio_bank(gpio)]->inen |= gpio_bit(gpio);
-#endif
 }
 
-int bfin_gpio_direction_input(unsigned gpio)
+int gpio_direction_input(unsigned gpio)
 {
 	unsigned long flags;
 
@@ -768,31 +684,24 @@ int bfin_gpio_direction_input(unsigned gpio)
 	}
 
 	local_irq_save(flags);
-	__bfin_gpio_direction_input(gpio);
+	__gpio_direction_input(gpio);
 	AWA_DUMMY_READ(inen);
 	local_irq_restore(flags);
 
 	return 0;
 }
 
-void bfin_gpio_toggle_value(unsigned gpio)
-{
-#ifdef CONFIG_BF54x
-	gpio_set_value(gpio, !gpio_get_value(gpio));
-#else
-	gpio_array[gpio_bank(gpio)]->toggle = gpio_bit(gpio);
-#endif
-}
-
-void bfin_gpio_set_value(unsigned gpio, int arg)
+int gpio_set_value(unsigned gpio, int arg)
 {
 	if (arg)
 		gpio_array[gpio_bank(gpio)]->data_set = gpio_bit(gpio);
 	else
 		gpio_array[gpio_bank(gpio)]->data_clear = gpio_bit(gpio);
+
+	return 0;
 }
 
-int bfin_gpio_direction_output(unsigned gpio, int value)
+int gpio_direction_output(unsigned gpio, int value)
 {
 	unsigned long flags;
 
@@ -803,17 +712,9 @@ int bfin_gpio_direction_output(unsigned gpio, int value)
 
 	local_irq_save(flags);
 
-#if defined(CONFIG_BF60x)
-	gpio_array[gpio_bank(gpio)]->inen_clear = gpio_bit(gpio);
-#else
 	gpio_array[gpio_bank(gpio)]->inen &= ~gpio_bit(gpio);
-#endif
 	gpio_set_value(gpio, value);
-#if defined(CONFIG_BF54x) || defined(CONFIG_BF60x)
-	gpio_array[gpio_bank(gpio)]->dir_set = gpio_bit(gpio);
-#else
 	gpio_array[gpio_bank(gpio)]->dir |= gpio_bit(gpio);
-#endif
 
 	AWA_DUMMY_READ(dir);
 	local_irq_restore(flags);
@@ -821,11 +722,8 @@ int bfin_gpio_direction_output(unsigned gpio, int value)
 	return 0;
 }
 
-int bfin_gpio_get_value(unsigned gpio)
+int gpio_get_value(unsigned gpio)
 {
-#if defined(CONFIG_BF54x) || defined(CONFIG_BF60x)
-	return (1 & (gpio_array[gpio_bank(gpio)]->data >> gpio_sub_n(gpio)));
-#else
 	unsigned long flags;
 
 	if (unlikely(get_gpio_edge(gpio))) {
@@ -838,7 +736,6 @@ int bfin_gpio_get_value(unsigned gpio)
 		return ret;
 	} else
 		return get_gpio_data(gpio);
-#endif
 }
 
 /* If we are booting from SPI and our board lacks a strong enough pull up,
@@ -860,8 +757,7 @@ void bfin_reset_boot_spi_cs(unsigned short pin)
 	udelay(1);
 }
 
-#ifdef CONFIG_BFIN_GPIO_TRACK
-void bfin_gpio_labels(void)
+void gpio_labels(void)
 {
 	int c, gpio;
 
@@ -877,4 +773,3 @@ void bfin_gpio_labels(void)
 			continue;
 	}
 }
-#endif

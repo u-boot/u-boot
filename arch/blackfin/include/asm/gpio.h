@@ -7,6 +7,8 @@
 #ifndef __ARCH_BLACKFIN_GPIO_H__
 #define __ARCH_BLACKFIN_GPIO_H__
 
+#include <asm-generic/gpio.h>
+
 #define gpio_bank(x)	((x) >> 4)
 #define gpio_bit(x)	(1<<((x) & 0xF))
 #define gpio_sub_n(x)	((x) & 0xF)
@@ -65,10 +67,11 @@
 
 #define PERIPHERAL_USAGE 1
 #define GPIO_USAGE 0
+#define MAX_GPIOS MAX_BLACKFIN_GPIOS
 
 #ifndef __ASSEMBLY__
 
-#if !defined(CONFIG_BF54x) && !defined(CONFIG_BF60x)
+#ifdef CONFIG_ADI_GPIO1
 void set_gpio_dir(unsigned, unsigned short);
 void set_gpio_inen(unsigned, unsigned short);
 void set_gpio_polar(unsigned, unsigned short);
@@ -140,61 +143,16 @@ struct gpio_port_t {
 };
 #endif
 
-#ifdef CONFIG_BFIN_GPIO_TRACK
-void bfin_gpio_labels(void);
-void bfin_gpio_free(unsigned gpio);
-#else
-#define bfin_gpio_labels()
-#define bfin_gpio_free(gpio)
-#define bfin_gpio_request(gpio, label) bfin_gpio_request(gpio)
-#define bfin_special_gpio_request(gpio, label) bfin_special_gpio_request(gpio)
+#ifdef ADI_SPECIAL_GPIO_BANKS
+void special_gpio_free(unsigned gpio);
+int special_gpio_request(unsigned gpio, const char *label);
 #endif
 
-#ifdef BFIN_SPECIAL_GPIO_BANKS
-void bfin_special_gpio_free(unsigned gpio);
-int bfin_special_gpio_request(unsigned gpio, const char *label);
-#endif
-
-int bfin_gpio_request(unsigned gpio, const char *label);
-int bfin_gpio_direction_input(unsigned gpio);
-int bfin_gpio_direction_output(unsigned gpio, int value);
-int bfin_gpio_get_value(unsigned gpio);
-void bfin_gpio_set_value(unsigned gpio, int value);
-void bfin_gpio_toggle_value(unsigned gpio);
-
-static inline int gpio_request(unsigned gpio, const char *label)
-{
-	return bfin_gpio_request(gpio, label);
-}
-
-static inline void gpio_free(unsigned gpio)
-{
-	return bfin_gpio_free(gpio);
-}
-
-static inline int gpio_direction_input(unsigned gpio)
-{
-	return bfin_gpio_direction_input(gpio);
-}
-
-static inline int gpio_direction_output(unsigned gpio, int value)
-{
-	return bfin_gpio_direction_output(gpio, value);
-}
-
-static inline int gpio_get_value(unsigned gpio)
-{
-	return bfin_gpio_get_value(gpio);
-}
-
-static inline void gpio_set_value(unsigned gpio, int value)
-{
-	return bfin_gpio_set_value(gpio, value);
-}
+void gpio_labels(void);
 
 static inline int gpio_is_valid(int number)
 {
-	return number >= 0 && number < MAX_BLACKFIN_GPIOS;
+	return number >= 0 && number < MAX_GPIOS;
 }
 
 #include <linux/ctype.h>
@@ -248,7 +206,7 @@ static inline int name_to_gpio(const char *name)
 }
 #define name_to_gpio(n) name_to_gpio(n)
 
-#define gpio_status() bfin_gpio_labels()
+#define gpio_status() gpio_labels()
 
 #endif /* __ASSEMBLY__ */
 
