@@ -8,7 +8,7 @@
  * (C) Copyright 2006
  * MicroSys GmbH
  *
- * Copyright 2012 Stefan Roese <sr@denx.de>
+ * Copyright 2012-2013 Stefan Roese <sr@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -241,12 +241,26 @@ void spl_board_init(void)
 
 	/* And write new value back to register */
 	out_be32(&mm->ipbi_ws_ctrl, val);
-#endif
 
-	/*
-	 * No need to change the pin multiplexing (MPC5XXX_GPS_PORT_CONFIG)
-	 * as all 3 config versions (failsave level) have the same setup.
-	 */
+
+	/* Setup pin multiplexing */
+	if (failsavelevel == 2) {
+		/* fpga-version ok */
+#if defined(CONFIG_SYS_GPS_PORT_CONFIG_2)
+		out_be32(&gpio->port_config, CONFIG_SYS_GPS_PORT_CONFIG_2);
+#endif
+	} else if (failsavelevel == 1) {
+		/* digiboard-version ok - fpga not */
+#if defined(CONFIG_SYS_GPS_PORT_CONFIG_1)
+		out_be32(&gpio->port_config, CONFIG_SYS_GPS_PORT_CONFIG_1);
+#endif
+	} else {
+		/* full failsave-mode */
+#if defined(CONFIG_SYS_GPS_PORT_CONFIG)
+		out_be32(&gpio->port_config, CONFIG_SYS_GPS_PORT_CONFIG);
+#endif
+	}
+#endif
 
 	/*
 	 * Setup gpio_wkup_7 as watchdog AS INPUT to disable it - see
