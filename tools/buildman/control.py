@@ -137,6 +137,11 @@ def DoBuildman(options, args):
     upstream_commit = gitutil.GetUpstream(options.git_dir, options.branch)
     series = patchstream.GetMetaDataForList(upstream_commit, options.git_dir,
             1)
+    # Conflicting tags are not a problem for buildman, since it does not use
+    # them. For example, Series-version is not useful for buildman. On the
+    # other hand conflicting tags will cause an error. So allow later tags
+    # to overwrite earlier ones.
+    series.allow_overwrite = True
     series = patchstream.GetMetaDataForList(range_expr, options.git_dir, None,
             series)
 
