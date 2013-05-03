@@ -92,19 +92,19 @@ enum xnandps_bus_width {
 
 /* SMC register set */
 struct xnandps_smc_regs {
-	u32	csr;		/* 0x00 */
-	u32	reserved0[2];
-	u32	cfr;		/* 0x0C */
-	u32	dcr;		/* 0x10 */
-	u32	scr;		/* 0x14 */
-	u32	sor;		/* 0x18 */
-	u32	reserved1[249];
-	u32	esr;		/* 0x400 */
-	u32	emcr;		/* 0x404 */
-	u32	emcmd1r;	/* 0x408 */
-	u32	emcmd2r;	/* 0x40C */
-	u32	reserved2[2];
-	u32	eval0r;		/* 0x418 */
+	u32 csr;		/* 0x00 */
+	u32 reserved0[2];
+	u32 cfr;		/* 0x0C */
+	u32 dcr;		/* 0x10 */
+	u32 scr;		/* 0x14 */
+	u32 sor;		/* 0x18 */
+	u32 reserved1[249];
+	u32 esr;		/* 0x400 */
+	u32 emcr;		/* 0x404 */
+	u32 emcmd1r;	/* 0x408 */
+	u32 emcmd2r;	/* 0x40C */
+	u32 reserved2[2];
+	u32 eval0r;		/* 0x418 */
 };
 
 #define xnandps_smc_base	((struct xnandps_smc_regs *)ZYNQ_SMC_BASEADDR)
@@ -125,7 +125,7 @@ struct xnandps_command_format {
 
 /*
  * struct xnandps_info - Defines the NAND flash driver instance
- * @parts:		Pointer	to the mtd_partition structure
+ * @parts:		Pointer to the mtd_partition structure
  * @nand_base:		Virtual address of the NAND flash device
  * @end_cmd_pending:	End command is pending
  * @end_cmd:		End command
@@ -173,8 +173,8 @@ static struct nand_ecclayout nand_oob_16 = {
 	.eccbytes = 3,
 	.eccpos = {13, 14, 15},
 	.oobfree = {
-		{.offset = 0,
-		 . length = 12} }
+		{ .offset = 0, .length = 12 }
+	}
 };
 
 static struct nand_ecclayout nand_oob_64 = {
@@ -183,8 +183,8 @@ static struct nand_ecclayout nand_oob_64 = {
 		   52, 53, 54, 55, 56, 57,
 		   58, 59, 60, 61, 62, 63},
 	.oobfree = {
-		{.offset = 2,
-		 .length = 50} }
+		{ .offset = 2, .length = 50 }
+	}
 };
 
 static struct nand_ecclayout ondie_nand_oob_64 = {
@@ -206,8 +206,8 @@ static struct nand_ecclayout ondie_nand_oob_64 = {
 };
 
 /* Generic flash bbt decriptors */
-static uint8_t bbt_pattern[] = {'B', 'b', 't', '0' };
-static uint8_t mirror_pattern[] = {'1', 't', 'b', 'B' };
+static u8 bbt_pattern[] = {'B', 'b', 't', '0' };
+static u8 mirror_pattern[] = {'1', 't', 'b', 'B' };
 
 static struct nand_bbt_descr bbt_main_descr = {
 	.options = NAND_BBT_LASTBLOCK | NAND_BBT_CREATE | NAND_BBT_WRITE |
@@ -279,7 +279,7 @@ static int xnandps_init_nand_flash(int option)
 	/* Wait till the ECC operation is complete */
 	status = xnandps_waitfor_ecc_completion();
 	if (status < 0) {
-		printf("xnandps_init_nand_flash: Timeout\n");
+		printf("%s: Timeout\n", __func__);
 		return status;
 	}
 
@@ -311,7 +311,7 @@ static int xnandps_calculate_hwecc(struct mtd_info *mtd, const u8 *data,
 	/* Wait till the ECC operation is complete */
 	ecc_status = xnandps_waitfor_ecc_completion();
 	if (ecc_status < 0) {
-		printf("xnandps_calculate_hwecc: Timeout\n");
+		printf("%s: Timeout\n", __func__);
 		return ecc_status;
 	}
 
@@ -328,7 +328,7 @@ static int xnandps_calculate_hwecc(struct mtd_info *mtd, const u8 *data,
 				ecc_code++;
 			}
 		} else {
-			debug("xnandps_calculate_hwecc: ecc status failed\n");
+			debug("%s: ecc status failed\n", __func__);
 		}
 	}
 	return 0;
@@ -407,7 +407,7 @@ static int xnandps_read_oob(struct mtd_info *mtd, struct nand_chip *chip,
 {
 	unsigned long data_width = 4;
 	unsigned long data_phase_addr = 0;
-	uint8_t *p;
+	u8 *p;
 
 	if (sndcmd) {
 		chip->cmdfunc(mtd, NAND_CMD_READOOB, 0, page);
@@ -433,10 +433,10 @@ static int xnandps_read_oob(struct mtd_info *mtd, struct nand_chip *chip,
  * @page:	page number to write
  */
 static int xnandps_write_oob(struct mtd_info *mtd, struct nand_chip *chip,
-			int page)
+			     int page)
 {
 	int status = 0;
-	const uint8_t *buf = chip->oob_poi;
+	const u8 *buf = chip->oob_poi;
 	unsigned long data_width = 4;
 	unsigned long data_phase_addr = 0;
 
@@ -445,10 +445,10 @@ static int xnandps_write_oob(struct mtd_info *mtd, struct nand_chip *chip,
 	chip->write_buf(mtd, buf, (mtd->oobsize - data_width));
 	buf += (mtd->oobsize - data_width);
 
-	data_phase_addr = (unsigned long) chip->IO_ADDR_W;
+	data_phase_addr = (unsigned long)chip->IO_ADDR_W;
 	data_phase_addr |= XNANDPS_CLEAR_CS;
 	data_phase_addr |= (1 << END_CMD_VALID_SHIFT);
-	chip->IO_ADDR_W = (void __iomem *) data_phase_addr;
+	chip->IO_ADDR_W = (void __iomem *)data_phase_addr;
 	chip->write_buf(mtd, buf, data_width);
 
 	/* Send command to program the OOB data */
@@ -468,11 +468,11 @@ static int xnandps_write_oob(struct mtd_info *mtd, struct nand_chip *chip,
  * @page:       page number to read
  */
 static int xnandps_read_page_raw(struct mtd_info *mtd, struct nand_chip *chip,
-			      uint8_t *buf, int page)
+				 u8 *buf, int page)
 {
 	unsigned long data_width = 4;
 	unsigned long data_phase_addr = 0;
-	uint8_t *p;
+	u8 *p;
 
 	chip->read_buf(mtd, buf, mtd->writesize);
 
@@ -480,24 +480,24 @@ static int xnandps_read_page_raw(struct mtd_info *mtd, struct nand_chip *chip,
 	chip->read_buf(mtd, p, (mtd->oobsize - data_width));
 	p += (mtd->oobsize - data_width);
 
-	data_phase_addr = (unsigned long) chip->IO_ADDR_R;
+	data_phase_addr = (unsigned long)chip->IO_ADDR_R;
 	data_phase_addr |= XNANDPS_CLEAR_CS;
-	chip->IO_ADDR_R = (void __iomem *) data_phase_addr;
+	chip->IO_ADDR_R = (void __iomem *)data_phase_addr;
 
 	chip->read_buf(mtd, p, data_width);
 	return 0;
 }
 
 static int xnandps_read_page_raw_nooob(struct mtd_info *mtd,
-		struct nand_chip *chip, uint8_t *buf, int page)
+		struct nand_chip *chip, u8 *buf, int page)
 {
 	chip->read_buf(mtd, buf, mtd->writesize);
 	return 0;
 }
 
 static int xnandps_read_subpage_raw(struct mtd_info *mtd,
-		struct nand_chip *chip, uint32_t data_offs,
-		uint32_t readlen, uint8_t *buf)
+				    struct nand_chip *chip, u32 data_offs,
+				    u32 readlen, u8 *buf)
 {
 	if (data_offs != 0) {
 		chip->cmdfunc(mtd, NAND_CMD_RNDOUT, data_offs, -1);
@@ -515,11 +515,11 @@ static int xnandps_read_subpage_raw(struct mtd_info *mtd,
  * @buf:        data buffer
  */
 static void xnandps_write_page_raw(struct mtd_info *mtd,
-			struct nand_chip *chip, const uint8_t *buf)
+				   struct nand_chip *chip, const u8 *buf)
 {
 	unsigned long data_width = 4;
 	unsigned long data_phase_addr = 0;
-	uint8_t *p;
+	u8 *p;
 
 	chip->write_buf(mtd, buf, mtd->writesize);
 
@@ -527,10 +527,10 @@ static void xnandps_write_page_raw(struct mtd_info *mtd,
 	chip->write_buf(mtd, p, (mtd->oobsize - data_width));
 	p += (mtd->oobsize - data_width);
 
-	data_phase_addr = (unsigned long) chip->IO_ADDR_W;
+	data_phase_addr = (unsigned long)chip->IO_ADDR_W;
 	data_phase_addr |= XNANDPS_CLEAR_CS;
 	data_phase_addr |= (1 << END_CMD_VALID_SHIFT);
-	chip->IO_ADDR_W = (void __iomem *) data_phase_addr;
+	chip->IO_ADDR_W = (void __iomem *)data_phase_addr;
 
 	chip->write_buf(mtd, p, data_width);
 }
@@ -544,18 +544,18 @@ static void xnandps_write_page_raw(struct mtd_info *mtd,
  * This functions writes data and hardware generated ECC values in to the page.
  */
 static void xnandps_write_page_hwecc(struct mtd_info *mtd,
-				struct nand_chip *chip, const uint8_t *buf)
+				     struct nand_chip *chip, const u8 *buf)
 {
 	int i, eccsize = chip->ecc.size;
 	int eccsteps = chip->ecc.steps;
-	uint8_t *ecc_calc = chip->buffers->ecccalc;
-	const uint8_t *p = buf;
-	uint32_t *eccpos = chip->ecc.layout->eccpos;
+	u8 *ecc_calc = chip->buffers->ecccalc;
+	const u8 *p = buf;
+	u32 *eccpos = chip->ecc.layout->eccpos;
 	unsigned long data_phase_addr = 0;
 	unsigned long data_width = 4;
-	uint8_t *oob_ptr;
+	u8 *oob_ptr;
 
-	for ( ; (eccsteps - 1); eccsteps--) {
+	for (; (eccsteps - 1); eccsteps--) {
 		chip->write_buf(mtd, p, eccsize);
 		p += eccsize;
 	}
@@ -565,7 +565,7 @@ static void xnandps_write_page_hwecc(struct mtd_info *mtd,
 	/* Set ECC Last bit to 1 */
 	data_phase_addr = (unsigned long) chip->IO_ADDR_W;
 	data_phase_addr |= XNANDPS_ECC_LAST;
-	chip->IO_ADDR_W = (void __iomem *) data_phase_addr;
+	chip->IO_ADDR_W = (void __iomem *)data_phase_addr;
 	chip->write_buf(mtd, p, data_width);
 
 	/* Wait for ECC to be calculated and read the error values */
@@ -600,14 +600,14 @@ static void xnandps_write_page_hwecc(struct mtd_info *mtd,
  * @buf:	data buffer
  */
 static void xnandps_write_page_swecc(struct mtd_info *mtd,
-		struct nand_chip *chip, const uint8_t *buf)
+				     struct nand_chip *chip, const u8 *buf)
 {
 	int i, eccsize = chip->ecc.size;
 	int eccbytes = chip->ecc.bytes;
 	int eccsteps = chip->ecc.steps;
-	uint8_t *ecc_calc = chip->buffers->ecccalc;
-	const uint8_t *p = buf;
-	uint32_t *eccpos = chip->ecc.layout->eccpos;
+	u8 *ecc_calc = chip->buffers->ecccalc;
+	const u8 *p = buf;
+	u32 *eccpos = chip->ecc.layout->eccpos;
 
 	/* Software ecc calculation */
 	for (i = 0; eccsteps; eccsteps--, i += eccbytes, p += eccsize)
@@ -632,20 +632,20 @@ static void xnandps_write_page_swecc(struct mtd_info *mtd,
  * returns:	0 always and updates ECC operation status in to MTD structure
  */
 static int xnandps_read_page_hwecc(struct mtd_info *mtd,
-				struct nand_chip *chip, uint8_t *buf, int page)
+				   struct nand_chip *chip, u8 *buf, int page)
 {
 	int i, stat, eccsize = chip->ecc.size;
 	int eccbytes = chip->ecc.bytes;
 	int eccsteps = chip->ecc.steps;
-	uint8_t *p = buf;
-	uint8_t *ecc_calc = chip->buffers->ecccalc;
-	uint8_t *ecc_code = chip->buffers->ecccode;
-	uint32_t *eccpos = chip->ecc.layout->eccpos;
+	u8 *p = buf;
+	u8 *ecc_calc = chip->buffers->ecccalc;
+	u8 *ecc_code = chip->buffers->ecccode;
+	u32 *eccpos = chip->ecc.layout->eccpos;
 	unsigned long data_phase_addr = 0;
 	unsigned long data_width = 4;
-	uint8_t *oob_ptr;
+	u8 *oob_ptr;
 
-	for ( ; (eccsteps - 1); eccsteps--) {
+	for (; (eccsteps - 1); eccsteps--) {
 		chip->read_buf(mtd, p, eccsize);
 		p += eccsize;
 	}
@@ -686,7 +686,7 @@ static int xnandps_read_page_hwecc(struct mtd_info *mtd,
 	p = buf;
 
 	/* Check ECC error for all blocks and correct if it is correctable */
-	for (i = 0 ; eccsteps; eccsteps--, i += eccbytes, p += eccsize) {
+	for (i = 0; eccsteps; eccsteps--, i += eccbytes, p += eccsize) {
 		stat = chip->ecc.correct(mtd, p, &ecc_code[i], &ecc_calc[i]);
 		if (stat < 0)
 			mtd->ecc_stats.failed++;
@@ -705,15 +705,15 @@ static int xnandps_read_page_hwecc(struct mtd_info *mtd,
  * @page:	page number to read
  */
 static int xnandps_read_page_swecc(struct mtd_info *mtd,
-				struct nand_chip *chip, uint8_t *buf, int page)
+				   struct nand_chip *chip, u8 *buf, int page)
 {
 	int i, eccsize = chip->ecc.size;
 	int eccbytes = chip->ecc.bytes;
 	int eccsteps = chip->ecc.steps;
-	uint8_t *p = buf;
-	uint8_t *ecc_calc = chip->buffers->ecccalc;
-	uint8_t *ecc_code = chip->buffers->ecccode;
-	uint32_t *eccpos = chip->ecc.layout->eccpos;
+	u8 *p = buf;
+	u8 *ecc_calc = chip->buffers->ecccalc;
+	u8 *ecc_code = chip->buffers->ecccode;
+	u32 *eccpos = chip->ecc.layout->eccpos;
 
 	chip->ecc.read_page_raw(mtd, chip, buf, page);
 
@@ -726,7 +726,7 @@ static int xnandps_read_page_swecc(struct mtd_info *mtd,
 	eccsteps = chip->ecc.steps;
 	p = buf;
 
-	for (i = 0 ; eccsteps; eccsteps--, i += eccbytes, p += eccsize) {
+	for (i = 0; eccsteps; eccsteps--, i += eccbytes, p += eccsize) {
 		int stat;
 
 		stat = chip->ecc.correct(mtd, p, &ecc_code[i], &ecc_calc[i]);
@@ -759,7 +759,7 @@ static void xnandps_select_chip(struct mtd_info *mtd, int chip)
  * @page_addr:	The page address for this command, -1 if none
  */
 static void xnandps_cmd_function(struct mtd_info *mtd, unsigned int command,
-			    int column, int page_addr)
+				 int column, int page_addr)
 {
 	struct nand_chip *chip = mtd->priv;
 	const struct xnandps_command_format *curr_cmd = NULL;
@@ -786,7 +786,7 @@ static void xnandps_cmd_function(struct mtd_info *mtd, unsigned int command,
 
 	/* Emulate NAND_CMD_READOOB for large page device */
 	if ((mtd->writesize > XNANDPS_ECC_SIZE) &&
-		(command == NAND_CMD_READOOB)) {
+	    (command == NAND_CMD_READOOB)) {
 		column += mtd->writesize;
 		command = NAND_CMD_READ0;
 	}
@@ -847,8 +847,9 @@ static void xnandps_cmd_function(struct mtd_info *mtd, unsigned int command,
 				writel(cmd_data, cmd_addr);
 				cmd_data = (page_addr >> 16);
 			}
-		} else
+		} else {
 			cmd_data |= page_addr << 8;
+		}
 	}
 	/* Erase */
 	else if (page_addr != -1)
@@ -857,10 +858,10 @@ static void xnandps_cmd_function(struct mtd_info *mtd, unsigned int command,
 	else if (column != -1) {
 		/* Adjust columns for 16 bit bus width */
 		if ((chip->options & NAND_BUSWIDTH_16) &&
-			((command == NAND_CMD_READ0) ||
-			(command == NAND_CMD_SEQIN) ||
-			(command == NAND_CMD_RNDOUT) ||
-			(command == NAND_CMD_RNDIN)))
+		    ((command == NAND_CMD_READ0) ||
+		     (command == NAND_CMD_SEQIN) ||
+		     (command == NAND_CMD_RNDOUT) ||
+		     (command == NAND_CMD_RNDIN)))
 			column >>= 1;
 		cmd_data = column;
 	} else
@@ -876,10 +877,10 @@ static void xnandps_cmd_function(struct mtd_info *mtd, unsigned int command,
 	ndelay(100);
 
 	if ((command == NAND_CMD_READ0) ||
-		(command == NAND_CMD_ERASE1) ||
-		(command == NAND_CMD_RESET) ||
-		(command == NAND_CMD_PARAM) ||
-		(command == NAND_CMD_GET_FEATURES)) {
+	    (command == NAND_CMD_ERASE1) ||
+	    (command == NAND_CMD_RESET) ||
+	    (command == NAND_CMD_PARAM) ||
+	    (command == NAND_CMD_GET_FEATURES)) {
 		while (!chip->dev_ready(mtd))
 				;
 		return;
@@ -892,7 +893,7 @@ static void xnandps_cmd_function(struct mtd_info *mtd, unsigned int command,
  * @buf:        buffer to store date
  * @len:        number of bytes to read
  */
-static void xnandps_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
+static void xnandps_read_buf(struct mtd_info *mtd, u8 *buf, int len)
 {
 	struct nand_chip *chip = mtd->priv;
 	const u32 *nand = chip->IO_ADDR_R;
@@ -942,7 +943,7 @@ static void xnandps_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
  * @buf:        data buffer
  * @len:        number of bytes to write
  */
-static void xnandps_write_buf(struct mtd_info *mtd, const uint8_t *buf, int len)
+static void xnandps_write_buf(struct mtd_info *mtd, const u8 *buf, int len)
 {
 	struct nand_chip *chip = mtd->priv;
 	const u32 *nand = chip->IO_ADDR_W;
@@ -997,7 +998,7 @@ static int xnandps_device_ready(struct mtd_info *mtd)
 	/* Check the raw_int_status1 bit */
 	if ((readl(&xnandps_smc_base->csr)) & 0x40) {
 		/* Clear the interrupt condition */
-		writel((1<<4), &xnandps_smc_base->cfr);
+		writel((1 << 4), &xnandps_smc_base->cfr);
 		return 1;
 	}
 	return 0;
@@ -1026,7 +1027,7 @@ static int xnandps_check_is_16bit_bw_flash(void)
 
 	mio_num_16bit = zynq_slcr_get_mio_pin_status("nand16");
 	if ((mio_num_8bit == XNANDPS_MIO_NUM_NAND_8BIT) &&
-			(mio_num_16bit == XNANDPS_MIO_NUM_NAND_16BIT))
+	    (mio_num_16bit == XNANDPS_MIO_NUM_NAND_16BIT))
 		is_16bit_bw = NAND_BW_16BIT;
 
 	return is_16bit_bw;
@@ -1048,7 +1049,7 @@ static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 	xnand = malloc(sizeof(struct xnandps_info));
 	memset(xnand, 0, sizeof(struct xnandps_info));
 	if (!xnand) {
-		printf("zynq_nand_init: failed to allocate\n");
+		printf("%s: failed to allocate\n", __func__);
 		goto free;
 	}
 
@@ -1077,23 +1078,24 @@ static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 	/* Check the NAND buswidth */
 	is_16bit_bw = xnandps_check_is_16bit_bw_flash();
 	if (is_16bit_bw == NAND_BW_UNKNOWN) {
-		printf("zynq_nand_init: Unable detect NAND based on"
-				" MIO settings\n");
+		printf("%s: Unable detect NAND based on MIO settings\n",
+		       __func__);
 		goto free;
-	} else if (is_16bit_bw == NAND_BW_8BIT)
+	} else if (is_16bit_bw == NAND_BW_8BIT) {
 		nand_chip->options = NAND_NO_AUTOINCR | NAND_USE_FLASH_BBT;
-	else if (is_16bit_bw == NAND_BW_16BIT)
+	} else if (is_16bit_bw == NAND_BW_16BIT) {
 		nand_chip->options = NAND_BUSWIDTH_16;
+	}
 
 	/* Initialize the NAND flash interface on NAND controller */
 	if (xnandps_init_nand_flash(nand_chip->options) < 0) {
-		printf("zynq_nand_init: nand flash init failed\n");
+		printf("%s: nand flash init failed\n", __func__);
 		goto free;
 	}
 
 	/* first scan to find the device and get the page size */
 	if (nand_scan_ident(mtd, 1, NULL)) {
-		printf("zynq_nand_init: nand_scan_ident failed\n");
+		printf("%s: nand_scan_ident failed\n", __func__);
 		goto fail;
 	}
 
@@ -1106,13 +1108,13 @@ static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 	dev_id = nand_chip->read_byte(mtd);
 
 	if ((maf_id == 0x2c) && ((dev_id == 0xf1) ||
-			(dev_id == 0xa1) || (dev_id == 0xb1) ||
-			(dev_id == 0xaa) || (dev_id == 0xba) ||
-			(dev_id == 0xda) || (dev_id == 0xca) ||
-			(dev_id == 0xac) || (dev_id == 0xbc) ||
-			(dev_id == 0xdc) || (dev_id == 0xcc) ||
-			(dev_id == 0xa3) || (dev_id == 0xb3) ||
-			(dev_id == 0xd3) || (dev_id == 0xc3))) {
+				 (dev_id == 0xa1) || (dev_id == 0xb1) ||
+				 (dev_id == 0xaa) || (dev_id == 0xba) ||
+				 (dev_id == 0xda) || (dev_id == 0xca) ||
+				 (dev_id == 0xac) || (dev_id == 0xbc) ||
+				 (dev_id == 0xdc) || (dev_id == 0xcc) ||
+				 (dev_id == 0xa3) || (dev_id == 0xb3) ||
+				 (dev_id == 0xd3) || (dev_id == 0xc3))) {
 		nand_chip->cmdfunc(mtd, NAND_CMD_SET_FEATURES,
 						ONDIE_ECC_FEATURE_ADDR, -1);
 
@@ -1127,10 +1129,11 @@ static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 		nand_chip->read_buf(mtd, get_feature, 4);
 
 		if (get_feature[0] & 0x08) {
-			debug("zynq_nand_init: OnDie ECC flash\n");
+			debug("%s: OnDie ECC flash\n", __func__);
 			ondie_ecc_enabled = 1;
-		} else
-			printf("zynq_nand_init: Unable to detect OnDie ECC\n");
+		} else {
+			printf("%s: Unable to detect OnDie ECC\n", __func__);
+		}
 	}
 
 	if (ondie_ecc_enabled) {
@@ -1183,19 +1186,19 @@ static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 			ecc_page_size = 0x1;
 			/* Set the ECC memory config register */
 			writel((XNANDPS_ECC_CONFIG | ecc_page_size),
-				&xnandps_smc_base->emcr);
+			       &xnandps_smc_base->emcr);
 			break;
 		case 1024:
 			ecc_page_size = 0x2;
 			/* Set the ECC memory config register */
 			writel((XNANDPS_ECC_CONFIG | ecc_page_size),
-				&xnandps_smc_base->emcr);
+			       &xnandps_smc_base->emcr);
 			break;
 		case 2048:
 			ecc_page_size = 0x3;
 			/* Set the ECC memory config register */
 			writel((XNANDPS_ECC_CONFIG | ecc_page_size),
-				&xnandps_smc_base->emcr);
+			       &xnandps_smc_base->emcr);
 			break;
 		default:
 			/* The software ECC routines won't work with
@@ -1226,7 +1229,7 @@ static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 
 	/* second phase scan */
 	if (nand_scan_tail(mtd)) {
-		printf("zynq_nand_init: nand_scan_tailfailed\n");
+		printf("%s: nand_scan_tailfailed\n", __func__);
 		goto fail;
 	}
 
