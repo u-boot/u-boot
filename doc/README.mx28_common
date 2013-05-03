@@ -63,9 +63,9 @@ means "/usr/local/bin/" has to be in your $PATH.
 2) Compiling U-Boot for a MX28 based board
 -------------------------------------------
 
-Compiling the U-Boot for a MX28 board is straightforward and done as compiling U-Boot
-for any other ARM device. For cross-compiler setup, please refer to ELDK5.0
-documentation. First, clean up the source code:
+Compiling the U-Boot for a MX28 board is straightforward and done as compiling
+U-Boot for any other ARM device. For cross-compiler setup, please refer to
+ELDK5.0 documentation. First, clean up the source code:
 
 	$ make mrproper
 
@@ -150,8 +150,8 @@ NOTE: If the user needs to adjust the start sector, the "mxsboot" tool contains
 4) Installation of U-Boot into NAND flash
 -----------------------------------------
 
-To boot a MX28 based board from NAND, set the boot mode DIP switches according to i.MX28
-manual chapter 12.2.1 (Table 12-2), PORT=GPMI, NAND 1.8 V.
+To boot a MX28 based board from NAND, set the boot mode DIP switches according
+to i.MX28 manual chapter 12.2.1 (Table 12-2), PORT=GPMI, NAND 1.8 V.
 
 There are two possibilities when preparing an image writable to NAND flash.
 
