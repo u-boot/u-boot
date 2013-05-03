@@ -29,8 +29,7 @@
 #include <asm/errno.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/crm_regs.h>
-#include <asm/arch/mx35_pins.h>
-#include <asm/arch/iomux.h>
+#include <asm/arch/iomux-mx35.h>
 #include <i2c.h>
 #include <linux/types.h>
 #include <asm/gpio.h>
@@ -165,62 +164,68 @@ static void board_setup_sdram(void)
 
 static void setup_iomux_uart3(void)
 {
-	mxc_request_iomux(MX35_PIN_RTS2, MUX_CONFIG_ALT7);
-	mxc_request_iomux(MX35_PIN_CTS2, MUX_CONFIG_ALT7);
+	static const iomux_v3_cfg_t uart3_pads[] = {
+		MX35_PAD_RTS2__UART3_RXD_MUX,
+		MX35_PAD_CTS2__UART3_TXD_MUX,
+	};
+
+	imx_iomux_v3_setup_multiple_pads(uart3_pads, ARRAY_SIZE(uart3_pads));
 }
+
+#define I2C_PAD_CTRL	(PAD_CTL_HYS | PAD_CTL_PUS_100K_DOWN | PAD_CTL_ODE)
 
 static void setup_iomux_i2c(void)
 {
-	int pad;
+	static const iomux_v3_cfg_t i2c_pads[] = {
+		NEW_PAD_CTRL(MX35_PAD_I2C1_CLK__I2C1_SCL, I2C_PAD_CTRL),
+		NEW_PAD_CTRL(MX35_PAD_I2C1_DAT__I2C1_SDA, I2C_PAD_CTRL),
 
-	mxc_request_iomux(MX35_PIN_I2C1_CLK, MUX_CONFIG_SION);
-	mxc_request_iomux(MX35_PIN_I2C1_DAT, MUX_CONFIG_SION);
+		NEW_PAD_CTRL(MX35_PAD_TX3_RX2__I2C3_SCL, I2C_PAD_CTRL),
+		NEW_PAD_CTRL(MX35_PAD_TX2_RX3__I2C3_SDA, I2C_PAD_CTRL),
+	};
 
-	pad = (PAD_CTL_HYS_SCHMITZ | PAD_CTL_PKE_ENABLE \
-			| PAD_CTL_PUE_PUD | PAD_CTL_ODE_OpenDrain);
-
-	mxc_iomux_set_pad(MX35_PIN_I2C1_CLK, pad);
-	mxc_iomux_set_pad(MX35_PIN_I2C1_DAT, pad);
-
-	mxc_request_iomux(MX35_PIN_TX3_RX2, MUX_CONFIG_ALT1);
-	mxc_request_iomux(MX35_PIN_TX2_RX3, MUX_CONFIG_ALT1);
-
-	mxc_iomux_set_pad(MX35_PIN_TX3_RX2, pad);
-	mxc_iomux_set_pad(MX35_PIN_TX2_RX3, pad);
+	imx_iomux_v3_setup_multiple_pads(i2c_pads, ARRAY_SIZE(i2c_pads));
 }
 
 
 static void setup_iomux_spi(void)
 {
-	mxc_request_iomux(MX35_PIN_CSPI1_MOSI, MUX_CONFIG_SION);
-	mxc_request_iomux(MX35_PIN_CSPI1_MISO, MUX_CONFIG_SION);
-	mxc_request_iomux(MX35_PIN_CSPI1_SS0, MUX_CONFIG_SION);
-	mxc_request_iomux(MX35_PIN_CSPI1_SS1, MUX_CONFIG_SION);
-	mxc_request_iomux(MX35_PIN_CSPI1_SCLK, MUX_CONFIG_SION);
+	static const iomux_v3_cfg_t spi_pads[] = {
+		MX35_PAD_CSPI1_MOSI__CSPI1_MOSI,
+		MX35_PAD_CSPI1_MISO__CSPI1_MISO,
+		MX35_PAD_CSPI1_SS0__CSPI1_SS0,
+		MX35_PAD_CSPI1_SS1__CSPI1_SS1,
+		MX35_PAD_CSPI1_SCLK__CSPI1_SCLK,
+	};
+
+	imx_iomux_v3_setup_multiple_pads(spi_pads, ARRAY_SIZE(spi_pads));
 }
 
 static void setup_iomux_fec(void)
 {
-	/* setup pins for FEC */
-	mxc_request_iomux(MX35_PIN_FEC_TX_CLK, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_RX_CLK, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_RX_DV, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_COL, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_RDATA0, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_TDATA0, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_TX_EN, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_MDC, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_MDIO, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_TX_ERR, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_RX_ERR, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_CRS, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_RDATA1, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_TDATA1, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_RDATA2, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_TDATA2, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_RDATA3, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_TDATA3, MUX_CONFIG_FUNC);
+	static const iomux_v3_cfg_t fec_pads[] = {
+		MX35_PAD_FEC_TX_CLK__FEC_TX_CLK,
+		MX35_PAD_FEC_RX_CLK__FEC_RX_CLK,
+		MX35_PAD_FEC_RX_DV__FEC_RX_DV,
+		MX35_PAD_FEC_COL__FEC_COL,
+		MX35_PAD_FEC_RDATA0__FEC_RDATA_0,
+		MX35_PAD_FEC_TDATA0__FEC_TDATA_0,
+		MX35_PAD_FEC_TX_EN__FEC_TX_EN,
+		MX35_PAD_FEC_MDC__FEC_MDC,
+		MX35_PAD_FEC_MDIO__FEC_MDIO,
+		MX35_PAD_FEC_TX_ERR__FEC_TX_ERR,
+		MX35_PAD_FEC_RX_ERR__FEC_RX_ERR,
+		MX35_PAD_FEC_CRS__FEC_CRS,
+		MX35_PAD_FEC_RDATA1__FEC_RDATA_1,
+		MX35_PAD_FEC_TDATA1__FEC_TDATA_1,
+		MX35_PAD_FEC_RDATA2__FEC_RDATA_2,
+		MX35_PAD_FEC_TDATA2__FEC_TDATA_2,
+		MX35_PAD_FEC_RDATA3__FEC_RDATA_3,
+		MX35_PAD_FEC_TDATA3__FEC_TDATA_3,
+	};
 
+	/* setup pins for FEC */
+	imx_iomux_v3_setup_multiple_pads(fec_pads, ARRAY_SIZE(fec_pads));
 }
 
 int board_early_init_f(void)
@@ -229,7 +234,7 @@ int board_early_init_f(void)
 		(struct ccm_regs *)IMX_CCM_BASE;
 
 	/* setup GPIO3_1 to set HighVCore signal */
-	mxc_request_iomux(MX35_PIN_ATA_DA1, MUX_CONFIG_ALT5);
+	imx_iomux_v3_setup_pad(MX35_PAD_ATA_DA1__GPIO3_1);
 	gpio_direction_output(65, 1);
 
 	/* initialize PLL and clock configuration */
