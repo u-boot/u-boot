@@ -957,7 +957,6 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	}
 
 	pspi->slave.is_dual = is_dual;
-	pspi->slave.max_write_size = 0;
 	pspi->qspi.master.input_clk_hz = 100000000;
 	pspi->qspi.master.speed_hz = pspi->qspi.master.input_clk_hz / 2;
 	pspi->qspi.max_speed_hz = pspi->qspi.master.speed_hz;
