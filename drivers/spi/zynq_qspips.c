@@ -90,8 +90,8 @@
 enum xqspips_con_topology {
 	MODE_UNKNOWN = -1,
 	MODE_SINGLE,
-	MODE_DUAL_PARALLEL,
 	MODE_DUAL_STACKED,
+	MODE_DUAL_PARALLEL,
 };
 
 /* Definitions of the flash commands - Flash opcodes in ascending order */
