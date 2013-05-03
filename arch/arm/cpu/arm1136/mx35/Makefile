@@ -29,7 +29,6 @@ LIB	= $(obj)lib$(SOC).o
 
 COBJS	+= generic.o
 COBJS	+= timer.o
-COBJS	+= iomux.o
 COBJS	+= mx35_sdram.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
