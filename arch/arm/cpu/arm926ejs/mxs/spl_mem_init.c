@@ -267,7 +267,7 @@ static void mx23_mem_init(void)
 
 	initialize_dram_values();
 
-	/* Set START bit in DRAM_CTL16 */
+	/* Set START bit in DRAM_CTL8 */
 	setbits_le32(MXS_DRAM_BASE + 0x20, 1 << 16);
 
 	clrbits_le32(MXS_DRAM_BASE + 0x40, 1 << 17);
