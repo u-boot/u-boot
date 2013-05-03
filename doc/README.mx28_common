@@ -100,9 +100,7 @@ discussed in the following chapters.
 -----------------------------------------------------------
 
 To boot a MX28 based board from SD, set the boot mode DIP switches according
-to i.MX28 manual chapter 12.2.1 (Table 12-2), PORT=SSP0, SD/MMC master on
-SSP0, 3.3V.
-
+to i.MX28 manual chapter 12.2.1 (Table 12-2).
 
 An SD card the i.MX28 CPU can use to boot U-Boot must contain a DOS partition
 table, which in turn carries a partition of special type and which contains a
