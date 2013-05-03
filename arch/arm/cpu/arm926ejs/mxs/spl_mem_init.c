@@ -287,7 +287,7 @@ static void mx23_mem_init(void)
 	early_delay(20000);
 
 	/* Adjust EMI port priority. */
-	clrsetbits_le32(0x80020000, 0x1f << 16, 0x8);
+	clrsetbits_le32(0x80020000, 0x1f << 16, 0x2);
 	early_delay(20000);
 
 	setbits_le32(MXS_DRAM_BASE + 0x40, 1 << 19);
