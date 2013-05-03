@@ -98,7 +98,7 @@ LIBS-y += arch/$(ARCH)/cpu/tegra-common/libcputegra-common.o
 LIBS-y += $(CPUDIR)/tegra-common/libtegra-common.o
 endif
 
-ifneq ($(CONFIG_MX23),)
+ifneq ($(CONFIG_MX23)$(CONFIG_MX35),)
 LIBS-y += arch/$(ARCH)/imx-common/libimx-common.o
 endif
 
