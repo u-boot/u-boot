@@ -263,7 +263,7 @@ int board_late_init(void)
 	if (pmic_detect()) {
 		p = pmic_get("FSL_PMIC");
 		mxc_request_iomux(MX35_PIN_WATCHDOG_RST, MUX_CONFIG_SION |
-					MUX_CONFIG_ALT1);
+					MUX_CONFIG_FUNC);
 
 		pmic_reg_read(p, REG_SETTING_0, &pmic_val);
 		pmic_reg_write(p, REG_SETTING_0,
