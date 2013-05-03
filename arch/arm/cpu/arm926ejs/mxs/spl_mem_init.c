@@ -110,6 +110,7 @@ __weak void mxs_adjust_memory_params(uint32_t *dram_vals)
 {
 }
 
+#ifdef CONFIG_MX28
 static void initialize_dram_values(void)
 {
 	int i;
@@ -118,15 +119,27 @@ static void initialize_dram_values(void)
 
 	for (i = 0; i < ARRAY_SIZE(dram_vals); i++)
 		writel(dram_vals[i], MXS_DRAM_BASE + (4 * i));
+}
+#else
+static void initialize_dram_values(void)
+{
+	int i;
 
-#ifdef CONFIG_MX23
+	mxs_adjust_memory_params(dram_vals);
+
+	for (i = 0; i < ARRAY_SIZE(dram_vals); i++) {
+		if (i == 8 || i == 27 || i == 28 || i == 35)
+			continue;
+		writel(dram_vals[i], MXS_DRAM_BASE + (4 * i));
+	}
+
 	/*
 	 * Enable tRAS lockout in HW_DRAM_CTL08 ; it must be the last
 	 * element to be set
 	 */
 	writel((1 << 24), MXS_DRAM_BASE + (4 * 8));
-#endif
 }
+#endif
 
 static void mxs_mem_init_clock(void)
 {
