@@ -9,5 +9,5 @@ arch/arm/include/asm/arch-mxs/	- Header files for the Freescale i.MX28
 board/denx/m28evk/		- M28EVK board specific files
 include/configs/m28evk.h	- M28EVK configuration file
 
-Follow the instructions from doc/README.mx28_common to generate a bootable SD
-card or to boot from NAND flash.
+Follow the instructions from doc/README.mxs to generate a bootable SD card or to
+boot from NAND flash.

@@ -41,7 +41,6 @@ Note: The mx28evk board does not come with a NAND flash populated from the
 factory. It comes with an empty slot (U23), which allows the insertion of a
 48-pin TSOP flash device.
 
-Follow the instructions from doc/README.mx28_common to generate a bootable SD
-card.
+Follow the instructions from doc/README.mxs to generate a bootable SD card.
 
 Insert the SD card in slot 0, power up the board and U-boot will boot.
