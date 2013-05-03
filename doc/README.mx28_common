@@ -102,10 +102,9 @@ discussed in the following chapters.
 To boot a MX28 based board from SD, set the boot mode DIP switches according
 to i.MX28 manual chapter 12.2.1 (Table 12-2).
 
-An SD card the i.MX28 CPU can use to boot U-Boot must contain a DOS partition
-table, which in turn carries a partition of special type and which contains a
-special header. The rest of partitions in the DOS partition table can be used
-by the user.
+The SD card used to boot U-Boot must contain a DOS partition table, which in
+turn carries a partition of special type and which contains a special header.
+The rest of partitions in the DOS partition table can be used by the user.
 
 To prepare such partition, use your favourite partitioning tool. The partition
 must have the following parameters:
