@@ -265,6 +265,8 @@ static void xqspips_init_hw(int is_dual, unsigned int cs)
 	config_reg = readl(&xqspips_base->confr);
 	config_reg &= 0xFBFFFFFF; /* Set little endian mode of TX FIFO */
 	config_reg |= 0x8000FCC1;
+	if (is_dual == MODE_DUAL_STACKED)
+		config_reg |= 0x10;
 	writel(config_reg, &xqspips_base->confr);
 
 	if (is_dual == MODE_DUAL_PARALLEL)
