@@ -279,10 +279,6 @@ static void mx23_mem_init(void)
 
 	setbits_le32(MXS_DRAM_BASE + 0x40, 1 << 19);
 	setbits_le32(MXS_DRAM_BASE + 0x40, 1 << 11);
-
-	/* Wait for bit 10 (DRAM init complete) in DRAM_CTL18 */
-	while (!(readl(MXS_DRAM_BASE + 0x48) & (1 << 10)))
-		;
 }
 #endif
 
