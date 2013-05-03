@@ -26,7 +26,7 @@
 #include <asm/arch/sys_proto.h>
 
 #define	MUX_CONFIG_SSP1	(MXS_PAD_3V3 | MXS_PAD_8MA | MXS_PAD_PULLUP)
-#define	MUX_CONFIG_EMI	(MXS_PAD_3V3 | MXS_PAD_16MA | MXS_PAD_PULLUP)
+#define	MUX_CONFIG_EMI	(MXS_PAD_3V3 | MXS_PAD_12MA | MXS_PAD_PULLUP)
 
 const iomux_cfg_t iomux_setup[] = {
 	/* DUART */
