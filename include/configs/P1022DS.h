@@ -47,7 +47,7 @@
 
 #define CONFIG_SYS_TEXT_BASE           0x00201000
 #define CONFIG_SPL_TEXT_BASE           0xfffff000
-#define CONFIG_SPL_MAX_SIZE            (4 * 1024)
+#define CONFIG_SPL_MAX_SIZE            4096
 #define CONFIG_SPL_RELOC_TEXT_BASE     0x00100000
 #define CONFIG_SPL_RELOC_STACK         0x00100000
 #define CONFIG_SYS_NAND_U_BOOT_SIZE    ((512 << 10) + CONFIG_SPL_MAX_SIZE)
