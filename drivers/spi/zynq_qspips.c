@@ -656,6 +656,32 @@ static int xqspips_start_transfer(struct spi_device *qspi,
 		xqspi->curr_inst = &flash_inst[index];
 		xqspi->inst_response = 1;
 
+		/*
+		 * In case of dual memories, convert 25 bit address to 24 bit
+		 * address before transmitting to the 2 memories
+		 */
+		if ((xqspi->is_dual == MODE_DUAL_PARALLEL) &&
+		    ((instruction == XQSPIPS_FLASH_OPCODE_PP) ||
+		    (instruction == XQSPIPS_FLASH_OPCODE_SE) ||
+		    (instruction == XQSPIPS_FLASH_OPCODE_BE_32K) ||
+		    (instruction == XQSPIPS_FLASH_OPCODE_BE_4K) ||
+		    (instruction == XQSPIPS_FLASH_OPCODE_BE) ||
+		    (instruction == XQSPIPS_FLASH_OPCODE_NORM_READ) ||
+		    (instruction == XQSPIPS_FLASH_OPCODE_FAST_READ) ||
+		    (instruction == XQSPIPS_FLASH_OPCODE_DUAL_READ) ||
+		    (instruction == XQSPIPS_FLASH_OPCODE_QUAD_READ))) {
+
+			u8 *ptr = (u8 *) (xqspi->txbuf);
+			data = ((u32) ptr[1] << 24) | ((u32) ptr[2] << 16) |
+				((u32) ptr[3] << 8) | ((u32) ptr[4]);
+			data = data/2;
+			ptr[1] = (u8) (data >> 16);
+			ptr[2] = (u8) (data >> 8);
+			ptr[3] = (u8) (data);
+			xqspi->bytes_to_transfer -= 1;
+			xqspi->bytes_to_receive -= 1;
+		}
+
 		/* Get the instruction */
 		data = 0;
 		xqspips_copy_write_data(xqspi, &data,

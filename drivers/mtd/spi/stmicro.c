@@ -209,12 +209,14 @@ struct spi_flash *spi_flash_probe_stmicro(struct spi_slave *spi, u8 * idcode)
 	flash->page_size = 256;
 	flash->sector_size = 256 * params->pages_per_sector;
 
-	/* page_size and nr_sectors are double for dual parallel qspi */
+	/* address width is 4 for dual and 3 for single qspi */
 	if (flash->spi->is_dual == 1) {
-		flash->page_size *= 2;
+		flash->addr_width = 4;
 		flash->size = flash->sector_size * (2 * params->nr_sectors);
-	} else
+	} else {
+		flash->addr_width = 3;
 		flash->size = flash->sector_size * params->nr_sectors;
+	}
 
 	return flash;
 }
