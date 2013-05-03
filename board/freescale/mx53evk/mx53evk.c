@@ -23,11 +23,10 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/arch/mx5x_pins.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/clock.h>
-#include <asm/arch/iomux.h>
+#include <asm/arch/iomux-mx53.h>
 #include <asm/errno.h>
 #include <asm/imx-common/boot_mode.h>
 #include <netdev.h>
@@ -49,69 +48,42 @@ int dram_init(void)
 	return 0;
 }
 
+#define UART_PAD_CTRL	(PAD_CTL_HYS | PAD_CTL_DSE_HIGH | \
+			 PAD_CTL_PUS_100K_UP | PAD_CTL_ODE)
+
 static void setup_iomux_uart(void)
 {
-	/* UART1 RXD */
-	mxc_request_iomux(MX53_PIN_CSI0_D11, IOMUX_CONFIG_ALT2);
-	mxc_iomux_set_pad(MX53_PIN_CSI0_D11,
-				PAD_CTL_HYS_ENABLE | PAD_CTL_DRV_HIGH |
-				PAD_CTL_PUE_PULL | PAD_CTL_PKE_ENABLE |
-				PAD_CTL_HYS_ENABLE | PAD_CTL_100K_PU |
-				PAD_CTL_ODE_OPENDRAIN_ENABLE);
-	mxc_iomux_set_input(MX53_UART1_IPP_UART_RXD_MUX_SELECT_INPUT, 0x1);
+	static const iomux_v3_cfg_t uart_pads[] = {
+		NEW_PAD_CTRL(MX53_PAD_CSI0_DAT11__UART1_RXD_MUX, UART_PAD_CTRL),
+		NEW_PAD_CTRL(MX53_PAD_CSI0_DAT10__UART1_TXD_MUX, UART_PAD_CTRL),
+	};
 
-	/* UART1 TXD */
-	mxc_request_iomux(MX53_PIN_CSI0_D10, IOMUX_CONFIG_ALT2);
-	mxc_iomux_set_pad(MX53_PIN_CSI0_D10,
-				PAD_CTL_HYS_ENABLE | PAD_CTL_DRV_HIGH |
-				PAD_CTL_PUE_PULL | PAD_CTL_PKE_ENABLE |
-				PAD_CTL_HYS_ENABLE | PAD_CTL_100K_PU |
-				PAD_CTL_ODE_OPENDRAIN_ENABLE);
+	imx_iomux_v3_setup_multiple_pads(uart_pads, ARRAY_SIZE(uart_pads));
 }
+
+#define I2C_PAD_CTRL	(PAD_CTL_SRE_FAST | PAD_CTL_DSE_HIGH | \
+			 PAD_CTL_HYS | PAD_CTL_ODE)
 
 static void setup_i2c(unsigned int port_number)
 {
+	static const iomux_v3_cfg_t i2c1_pads[] = {
+		NEW_PAD_CTRL(MX53_PAD_CSI0_DAT8__I2C1_SDA, I2C_PAD_CTRL),
+		NEW_PAD_CTRL(MX53_PAD_CSI0_DAT9__I2C1_SCL, I2C_PAD_CTRL),
+	};
+
+	static const iomux_v3_cfg_t i2c2_pads[] = {
+		NEW_PAD_CTRL(MX53_PAD_KEY_ROW3__I2C2_SDA, I2C_PAD_CTRL),
+		NEW_PAD_CTRL(MX53_PAD_KEY_COL3__I2C2_SCL, I2C_PAD_CTRL),
+	};
+
 	switch (port_number) {
 	case 0:
-		/* i2c1 SDA */
-		mxc_request_iomux(MX53_PIN_CSI0_D8,
-				IOMUX_CONFIG_ALT5 | IOMUX_CONFIG_SION);
-		mxc_iomux_set_input(MX53_I2C1_IPP_SDA_IN_SELECT_INPUT,
-				INPUT_CTL_PATH0);
-		mxc_iomux_set_pad(MX53_PIN_CSI0_D8,
-				PAD_CTL_SRE_FAST | PAD_CTL_DRV_HIGH |
-				PAD_CTL_100K_PU | PAD_CTL_HYS_ENABLE |
-				PAD_CTL_ODE_OPENDRAIN_ENABLE);
-		/* i2c1 SCL */
-		mxc_request_iomux(MX53_PIN_CSI0_D9,
-				IOMUX_CONFIG_ALT5 | IOMUX_CONFIG_SION);
-		mxc_iomux_set_input(MX53_I2C1_IPP_SCL_IN_SELECT_INPUT,
-				INPUT_CTL_PATH0);
-		mxc_iomux_set_pad(MX53_PIN_CSI0_D9,
-				PAD_CTL_SRE_FAST | PAD_CTL_DRV_HIGH |
-				PAD_CTL_100K_PU | PAD_CTL_HYS_ENABLE |
-				PAD_CTL_ODE_OPENDRAIN_ENABLE);
+		imx_iomux_v3_setup_multiple_pads(i2c1_pads,
+							ARRAY_SIZE(i2c1_pads));
 		break;
 	case 1:
-		/* i2c2 SDA */
-		mxc_request_iomux(MX53_PIN_KEY_ROW3,
-				IOMUX_CONFIG_ALT4 | IOMUX_CONFIG_SION);
-		mxc_iomux_set_input(MX53_I2C2_IPP_SDA_IN_SELECT_INPUT,
-				INPUT_CTL_PATH0);
-		mxc_iomux_set_pad(MX53_PIN_KEY_ROW3,
-				PAD_CTL_SRE_FAST | PAD_CTL_DRV_HIGH |
-				PAD_CTL_100K_PU | PAD_CTL_HYS_ENABLE |
-				PAD_CTL_ODE_OPENDRAIN_ENABLE);
-
-		/* i2c2 SCL */
-		mxc_request_iomux(MX53_PIN_KEY_COL3,
-				IOMUX_CONFIG_ALT4 | IOMUX_CONFIG_SION);
-		mxc_iomux_set_input(MX53_I2C2_IPP_SCL_IN_SELECT_INPUT,
-				INPUT_CTL_PATH0);
-		mxc_iomux_set_pad(MX53_PIN_KEY_COL3,
-				PAD_CTL_SRE_FAST | PAD_CTL_DRV_HIGH |
-				PAD_CTL_100K_PU | PAD_CTL_HYS_ENABLE |
-				PAD_CTL_ODE_OPENDRAIN_ENABLE);
+		imx_iomux_v3_setup_multiple_pads(i2c2_pads,
+							ARRAY_SIZE(i2c2_pads));
 		break;
 	default:
 		printf("Warning: Wrong I2C port number\n");
@@ -160,54 +132,26 @@ void power_init(void)
 
 static void setup_iomux_fec(void)
 {
-	/*FEC_MDIO*/
-	mxc_request_iomux(MX53_PIN_FEC_MDIO, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX53_PIN_FEC_MDIO,
-				PAD_CTL_HYS_ENABLE | PAD_CTL_DRV_HIGH |
-				PAD_CTL_PUE_PULL | PAD_CTL_PKE_ENABLE |
-				PAD_CTL_22K_PU | PAD_CTL_ODE_OPENDRAIN_ENABLE);
-	mxc_iomux_set_input(MX53_FEC_FEC_MDI_SELECT_INPUT, 0x1);
+	static const iomux_v3_cfg_t fec_pads[] = {
+		NEW_PAD_CTRL(MX53_PAD_FEC_MDIO__FEC_MDIO, PAD_CTL_HYS |
+			PAD_CTL_DSE_HIGH | PAD_CTL_PUS_22K_UP | PAD_CTL_ODE),
+		NEW_PAD_CTRL(MX53_PAD_FEC_MDC__FEC_MDC, PAD_CTL_DSE_HIGH),
+		NEW_PAD_CTRL(MX53_PAD_FEC_RXD1__FEC_RDATA_1,
+				PAD_CTL_HYS | PAD_CTL_PKE),
+		NEW_PAD_CTRL(MX53_PAD_FEC_RXD0__FEC_RDATA_0,
+				PAD_CTL_HYS | PAD_CTL_PKE),
+		NEW_PAD_CTRL(MX53_PAD_FEC_TXD1__FEC_TDATA_1, PAD_CTL_DSE_HIGH),
+		NEW_PAD_CTRL(MX53_PAD_FEC_TXD0__FEC_TDATA_0, PAD_CTL_DSE_HIGH),
+		NEW_PAD_CTRL(MX53_PAD_FEC_TX_EN__FEC_TX_EN, PAD_CTL_DSE_HIGH),
+		NEW_PAD_CTRL(MX53_PAD_FEC_REF_CLK__FEC_TX_CLK,
+				PAD_CTL_HYS | PAD_CTL_PKE),
+		NEW_PAD_CTRL(MX53_PAD_FEC_RX_ER__FEC_RX_ER,
+				PAD_CTL_HYS | PAD_CTL_PKE),
+		NEW_PAD_CTRL(MX53_PAD_FEC_CRS_DV__FEC_RX_DV,
+				PAD_CTL_HYS | PAD_CTL_PKE),
+	};
 
-	/*FEC_MDC*/
-	mxc_request_iomux(MX53_PIN_FEC_MDC, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX53_PIN_FEC_MDC, PAD_CTL_DRV_HIGH);
-
-	/* FEC RXD1 */
-	mxc_request_iomux(MX53_PIN_FEC_RXD1, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX53_PIN_FEC_RXD1,
-			PAD_CTL_HYS_ENABLE | PAD_CTL_PKE_ENABLE);
-
-	/* FEC RXD0 */
-	mxc_request_iomux(MX53_PIN_FEC_RXD0, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX53_PIN_FEC_RXD0,
-			PAD_CTL_HYS_ENABLE | PAD_CTL_PKE_ENABLE);
-
-	 /* FEC TXD1 */
-	mxc_request_iomux(MX53_PIN_FEC_TXD1, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX53_PIN_FEC_TXD1, PAD_CTL_DRV_HIGH);
-
-	/* FEC TXD0 */
-	mxc_request_iomux(MX53_PIN_FEC_TXD0, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX53_PIN_FEC_TXD0, PAD_CTL_DRV_HIGH);
-
-	/* FEC TX_EN */
-	mxc_request_iomux(MX53_PIN_FEC_TX_EN, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX53_PIN_FEC_TX_EN, PAD_CTL_DRV_HIGH);
-
-	/* FEC TX_CLK */
-	mxc_request_iomux(MX53_PIN_FEC_REF_CLK, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX53_PIN_FEC_REF_CLK,
-			PAD_CTL_HYS_ENABLE | PAD_CTL_PKE_ENABLE);
-
-	/* FEC RX_ER */
-	mxc_request_iomux(MX53_PIN_FEC_RX_ER, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX53_PIN_FEC_RX_ER,
-			PAD_CTL_HYS_ENABLE | PAD_CTL_PKE_ENABLE);
-
-	/* FEC CRS */
-	mxc_request_iomux(MX53_PIN_FEC_CRS_DV, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX53_PIN_FEC_CRS_DV,
-			PAD_CTL_HYS_ENABLE | PAD_CTL_PKE_ENABLE);
+	imx_iomux_v3_setup_multiple_pads(fec_pads, ARRAY_SIZE(fec_pads));
 }
 
 #ifdef CONFIG_FSL_ESDHC
@@ -221,9 +165,9 @@ int board_mmc_getcd(struct mmc *mmc)
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
 	int ret;
 
-	mxc_request_iomux(MX53_PIN_EIM_DA11, IOMUX_CONFIG_ALT1);
+	imx_iomux_v3_setup_pad(MX53_PAD_EIM_DA11__GPIO3_11);
 	gpio_direction_input(IMX_GPIO_NR(3, 11));
-	mxc_request_iomux(MX53_PIN_EIM_DA13, IOMUX_CONFIG_ALT1);
+	imx_iomux_v3_setup_pad(MX53_PAD_EIM_DA13__GPIO3_13);
 	gpio_direction_input(IMX_GPIO_NR(3, 13));
 
 	if (cfg->esdhc_base == MMC_SDHC1_BASE_ADDR)
@@ -234,8 +178,38 @@ int board_mmc_getcd(struct mmc *mmc)
 	return ret;
 }
 
+#define SD_CMD_PAD_CTRL		(PAD_CTL_HYS | PAD_CTL_DSE_HIGH | \
+				 PAD_CTL_PUS_100K_UP)
+#define SD_PAD_CTRL		(PAD_CTL_HYS | PAD_CTL_PUS_47K_UP | \
+				 PAD_CTL_DSE_HIGH)
+
 int board_mmc_init(bd_t *bis)
 {
+	static const iomux_v3_cfg_t sd1_pads[] = {
+		NEW_PAD_CTRL(MX53_PAD_SD1_CMD__ESDHC1_CMD, SD_CMD_PAD_CTRL),
+		NEW_PAD_CTRL(MX53_PAD_SD1_CLK__ESDHC1_CLK, SD_PAD_CTRL),
+		NEW_PAD_CTRL(MX53_PAD_SD1_DATA0__ESDHC1_DAT0, SD_PAD_CTRL),
+		NEW_PAD_CTRL(MX53_PAD_SD1_DATA1__ESDHC1_DAT1, SD_PAD_CTRL),
+		NEW_PAD_CTRL(MX53_PAD_SD1_DATA2__ESDHC1_DAT2, SD_PAD_CTRL),
+		NEW_PAD_CTRL(MX53_PAD_SD1_DATA3__ESDHC1_DAT3, SD_PAD_CTRL),
+		MX53_PAD_EIM_DA13__GPIO3_13,
+	};
+
+	static const iomux_v3_cfg_t sd2_pads[] = {
+		NEW_PAD_CTRL(MX53_PAD_PATA_RESET_B__ESDHC3_CMD,
+				SD_CMD_PAD_CTRL),
+		NEW_PAD_CTRL(MX53_PAD_PATA_IORDY__ESDHC3_CLK, SD_PAD_CTRL),
+		NEW_PAD_CTRL(MX53_PAD_PATA_DATA8__ESDHC3_DAT0, SD_PAD_CTRL),
+		NEW_PAD_CTRL(MX53_PAD_PATA_DATA9__ESDHC3_DAT1, SD_PAD_CTRL),
+		NEW_PAD_CTRL(MX53_PAD_PATA_DATA10__ESDHC3_DAT2, SD_PAD_CTRL),
+		NEW_PAD_CTRL(MX53_PAD_PATA_DATA11__ESDHC3_DAT3, SD_PAD_CTRL),
+		NEW_PAD_CTRL(MX53_PAD_PATA_DATA0__ESDHC3_DAT4, SD_PAD_CTRL),
+		NEW_PAD_CTRL(MX53_PAD_PATA_DATA1__ESDHC3_DAT5, SD_PAD_CTRL),
+		NEW_PAD_CTRL(MX53_PAD_PATA_DATA2__ESDHC3_DAT6, SD_PAD_CTRL),
+		NEW_PAD_CTRL(MX53_PAD_PATA_DATA3__ESDHC3_DAT7, SD_PAD_CTRL),
+		MX53_PAD_EIM_DA11__GPIO3_11,
+	};
+
 	u32 index;
 	s32 status = 0;
 
@@ -245,109 +219,12 @@ int board_mmc_init(bd_t *bis)
 	for (index = 0; index < CONFIG_SYS_FSL_ESDHC_NUM; index++) {
 		switch (index) {
 		case 0:
-			mxc_request_iomux(MX53_PIN_SD1_CMD, IOMUX_CONFIG_ALT0);
-			mxc_request_iomux(MX53_PIN_SD1_CLK, IOMUX_CONFIG_ALT0);
-			mxc_request_iomux(MX53_PIN_SD1_DATA0,
-						IOMUX_CONFIG_ALT0);
-			mxc_request_iomux(MX53_PIN_SD1_DATA1,
-						IOMUX_CONFIG_ALT0);
-			mxc_request_iomux(MX53_PIN_SD1_DATA2,
-						IOMUX_CONFIG_ALT0);
-			mxc_request_iomux(MX53_PIN_SD1_DATA3,
-						IOMUX_CONFIG_ALT0);
-			mxc_request_iomux(MX53_PIN_EIM_DA13,
-						IOMUX_CONFIG_ALT1);
-
-			mxc_iomux_set_pad(MX53_PIN_SD1_CMD,
-				PAD_CTL_HYS_ENABLE | PAD_CTL_DRV_HIGH |
-				PAD_CTL_PUE_PULL | PAD_CTL_PKE_ENABLE |
-				PAD_CTL_HYS_ENABLE | PAD_CTL_100K_PU);
-			mxc_iomux_set_pad(MX53_PIN_SD1_CLK,
-				PAD_CTL_PUE_PULL | PAD_CTL_PKE_ENABLE |
-				PAD_CTL_HYS_ENABLE | PAD_CTL_47K_PU |
-				PAD_CTL_DRV_HIGH);
-			mxc_iomux_set_pad(MX53_PIN_SD1_DATA0,
-				PAD_CTL_HYS_ENABLE | PAD_CTL_DRV_HIGH |
-				PAD_CTL_PUE_PULL | PAD_CTL_PKE_ENABLE |
-				PAD_CTL_HYS_ENABLE | PAD_CTL_47K_PU);
-			mxc_iomux_set_pad(MX53_PIN_SD1_DATA1,
-				PAD_CTL_HYS_ENABLE | PAD_CTL_DRV_HIGH |
-				PAD_CTL_PUE_PULL | PAD_CTL_PKE_ENABLE |
-				PAD_CTL_HYS_ENABLE | PAD_CTL_47K_PU);
-			mxc_iomux_set_pad(MX53_PIN_SD1_DATA2,
-				PAD_CTL_HYS_ENABLE | PAD_CTL_DRV_HIGH |
-				PAD_CTL_PUE_PULL | PAD_CTL_PKE_ENABLE |
-				PAD_CTL_HYS_ENABLE | PAD_CTL_47K_PU);
-			mxc_iomux_set_pad(MX53_PIN_SD1_DATA3,
-				PAD_CTL_HYS_ENABLE | PAD_CTL_DRV_HIGH |
-				PAD_CTL_PUE_PULL | PAD_CTL_PKE_ENABLE |
-				PAD_CTL_HYS_ENABLE | PAD_CTL_47K_PU);
+			imx_iomux_v3_setup_multiple_pads(sd1_pads,
+							 ARRAY_SIZE(sd1_pads));
 			break;
 		case 1:
-			mxc_request_iomux(MX53_PIN_ATA_RESET_B,
-						IOMUX_CONFIG_ALT2);
-			mxc_request_iomux(MX53_PIN_ATA_IORDY,
-						IOMUX_CONFIG_ALT2);
-			mxc_request_iomux(MX53_PIN_ATA_DATA8,
-						IOMUX_CONFIG_ALT4);
-			mxc_request_iomux(MX53_PIN_ATA_DATA9,
-						IOMUX_CONFIG_ALT4);
-			mxc_request_iomux(MX53_PIN_ATA_DATA10,
-						IOMUX_CONFIG_ALT4);
-			mxc_request_iomux(MX53_PIN_ATA_DATA11,
-						IOMUX_CONFIG_ALT4);
-			mxc_request_iomux(MX53_PIN_ATA_DATA0,
-						IOMUX_CONFIG_ALT4);
-			mxc_request_iomux(MX53_PIN_ATA_DATA1,
-						IOMUX_CONFIG_ALT4);
-			mxc_request_iomux(MX53_PIN_ATA_DATA2,
-						IOMUX_CONFIG_ALT4);
-			mxc_request_iomux(MX53_PIN_ATA_DATA3,
-						IOMUX_CONFIG_ALT4);
-			mxc_request_iomux(MX53_PIN_EIM_DA11,
-						IOMUX_CONFIG_ALT1);
-
-			mxc_iomux_set_pad(MX53_PIN_ATA_RESET_B,
-				PAD_CTL_HYS_ENABLE | PAD_CTL_DRV_HIGH |
-				PAD_CTL_PUE_PULL | PAD_CTL_PKE_ENABLE |
-				PAD_CTL_HYS_ENABLE | PAD_CTL_100K_PU);
-			mxc_iomux_set_pad(MX53_PIN_ATA_IORDY,
-				PAD_CTL_PUE_PULL | PAD_CTL_PKE_ENABLE |
-				PAD_CTL_HYS_ENABLE | PAD_CTL_47K_PU |
-				PAD_CTL_DRV_HIGH);
-			mxc_iomux_set_pad(MX53_PIN_ATA_DATA8,
-				PAD_CTL_HYS_ENABLE | PAD_CTL_DRV_HIGH |
-				PAD_CTL_PUE_PULL | PAD_CTL_PKE_ENABLE |
-				PAD_CTL_HYS_ENABLE | PAD_CTL_47K_PU);
-			mxc_iomux_set_pad(MX53_PIN_ATA_DATA9,
-				PAD_CTL_HYS_ENABLE | PAD_CTL_DRV_HIGH |
-				PAD_CTL_PUE_PULL | PAD_CTL_PKE_ENABLE |
-				PAD_CTL_HYS_ENABLE | PAD_CTL_47K_PU);
-			mxc_iomux_set_pad(MX53_PIN_ATA_DATA10,
-				PAD_CTL_HYS_ENABLE | PAD_CTL_DRV_HIGH |
-				PAD_CTL_PUE_PULL | PAD_CTL_PKE_ENABLE |
-				PAD_CTL_HYS_ENABLE | PAD_CTL_47K_PU);
-			mxc_iomux_set_pad(MX53_PIN_ATA_DATA11,
-				PAD_CTL_HYS_ENABLE | PAD_CTL_DRV_HIGH |
-				PAD_CTL_PUE_PULL | PAD_CTL_PKE_ENABLE |
-				PAD_CTL_HYS_ENABLE | PAD_CTL_47K_PU);
-			mxc_iomux_set_pad(MX53_PIN_ATA_DATA0,
-				PAD_CTL_HYS_ENABLE | PAD_CTL_DRV_HIGH |
-				PAD_CTL_PUE_PULL | PAD_CTL_PKE_ENABLE |
-				PAD_CTL_HYS_ENABLE | PAD_CTL_47K_PU);
-			mxc_iomux_set_pad(MX53_PIN_ATA_DATA1,
-				PAD_CTL_HYS_ENABLE | PAD_CTL_DRV_HIGH |
-				PAD_CTL_PUE_PULL | PAD_CTL_PKE_ENABLE |
-				PAD_CTL_HYS_ENABLE | PAD_CTL_47K_PU);
-			mxc_iomux_set_pad(MX53_PIN_ATA_DATA2,
-				PAD_CTL_HYS_ENABLE | PAD_CTL_DRV_HIGH |
-				PAD_CTL_PUE_PULL | PAD_CTL_PKE_ENABLE |
-				PAD_CTL_HYS_ENABLE | PAD_CTL_47K_PU);
-			mxc_iomux_set_pad(MX53_PIN_ATA_DATA3,
-				PAD_CTL_HYS_ENABLE | PAD_CTL_DRV_HIGH |
-				PAD_CTL_PUE_PULL | PAD_CTL_PKE_ENABLE |
-				PAD_CTL_HYS_ENABLE | PAD_CTL_47K_PU);
-
+			imx_iomux_v3_setup_multiple_pads(sd2_pads,
+							 ARRAY_SIZE(sd2_pads));
 			break;
 		default:
 			printf("Warning: you configured more ESDHC controller"
