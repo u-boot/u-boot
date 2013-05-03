@@ -30,8 +30,8 @@
 #include <fsl_pmic.h>
 #include <mc34704.h>
 
-#define FEC_RESET_B		IMX_GPIO_NR(2, 3)
-#define FEC_ENABLE_B		IMX_GPIO_NR(4, 8)
+#define FEC_RESET_B		IMX_GPIO_NR(4, 8)
+#define FEC_ENABLE_B		IMX_GPIO_NR(2, 3)
 #define CARD_DETECT		IMX_GPIO_NR(2, 1)
 
 DECLARE_GLOBAL_DATA_PTR;
