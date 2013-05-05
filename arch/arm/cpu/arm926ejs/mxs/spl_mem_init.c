@@ -127,6 +127,15 @@ static void initialize_dram_values(void)
 
 	mxs_adjust_memory_params(dram_vals);
 
+	/*
+	 * HW_DRAM_CTL27, HW_DRAM_CTL28 and HW_DRAM_CTL35 are not initialized as
+	 * per FSL bootlets code.
+	 *
+	 * mx23 Reference Manual marks HW_DRAM_CTL27 and HW_DRAM_CTL28 as
+	 * "reserved".
+	 * HW_DRAM_CTL8 is setup as the last element.
+	 * So skip the initialization of these HW_DRAM_CTL registers.
+	 */
 	for (i = 0; i < ARRAY_SIZE(dram_vals); i++) {
 		if (i == 8 || i == 27 || i == 28 || i == 35)
 			continue;
