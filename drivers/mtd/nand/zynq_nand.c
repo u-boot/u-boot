@@ -1046,8 +1046,7 @@ static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 	int ondie_ecc_enabled = 0;
 	int is_16bit_bw;
 
-	xnand = malloc(sizeof(struct xnandps_info));
-	memset(xnand, 0, sizeof(struct xnandps_info));
+	xnand = calloc(1, sizeof(struct xnandps_info));
 	if (!xnand) {
 		printf("%s: failed to allocate\n", __func__);
 		goto free;
