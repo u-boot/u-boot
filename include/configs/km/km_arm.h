@@ -295,7 +295,8 @@ int get_scl(void);
 #else
 #define CONFIG_KM_NEW_ENV						\
 	"newenv=setenv addr 0x100000 && "				\
-		"i2c dev 1; mw.b ${addr} 0 4 && "			\
+		"i2c dev " __stringify(CONFIG_I2C_ENV_EEPROM_BUS) "; "  \
+		"mw.b ${addr} 0 4 && "					\
 		"eeprom write " __stringify(CONFIG_SYS_DEF_EEPROM_ADDR)	\
 		" ${addr} " __stringify(CONFIG_ENV_OFFSET) " 4 && "	\
 		"eeprom write " __stringify(CONFIG_SYS_DEF_EEPROM_ADDR)	\
