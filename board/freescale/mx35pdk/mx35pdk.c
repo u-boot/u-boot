@@ -245,7 +245,7 @@ int board_late_init(void)
 
 		imx_iomux_v3_setup_pad(MX35_PAD_COMPARE__GPIO1_5);
 
-		gpio_direction_output(IMX_GPIO_NR(2, 5), 1);
+		gpio_direction_output(IMX_GPIO_NR(1, 5), 1);
 	}
 
 	val = mc9sdz60_reg_read(MC9SDZ60_REG_GPIO_1) | 0x04;
