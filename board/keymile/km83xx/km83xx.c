@@ -243,6 +243,11 @@ static struct mv88e_sw_reg extsw_conf[] = {
 	{ PORT(5), 0x1A, 0xADB1 },
 	/* port 6, unused, this port has no phy */
 	{ PORT(6), PORT_CTRL, PORT_DIS },
+	/*
+	 * Errata Fix: 1.9V Output from Internal 1.8V Regulator,
+	 * acc . MV-S300889-00D.pdf , clause 4.5
+	 */
+	{ PORT(5), 0x1A, 0xADB1 },
 };
 #endif
 
