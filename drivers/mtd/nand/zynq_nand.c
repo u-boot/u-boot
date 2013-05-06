@@ -1,8 +1,8 @@
 /*
- * Xilinx PS NAND Flash Controller Driver
+ * Xilinx Zynq NAND Flash Controller Driver
  * This driver is based on plat_nand.c and mxc_nand.c drivers
  *
- * Copyright (C) 2009 Xilinx, Inc.
+ * Copyright (C) 2009 - 2013 Xilinx, Inc.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License version 2 as published by the
