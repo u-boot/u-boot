@@ -31,7 +31,7 @@
 
 #include "../common/common.h"
 
-const qe_iop_conf_t qe_iop_conf_tab[] = {
+static const qe_iop_conf_t qe_iop_conf_tab[] = {
 	/* port pin dir open_drain assign */
 #if defined(CONFIG_MPC8360)
 	/* MDIO */
@@ -300,7 +300,7 @@ int last_stage_init(void)
 	return 0;
 }
 
-int fixed_sdram(void)
+static int fixed_sdram(void)
 {
 	immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	u32 msize = 0;
