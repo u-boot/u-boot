@@ -786,18 +786,13 @@ static int nand_wait(struct mtd_info *mtd, struct nand_chip *chip)
 			return 0x01;
 		}
 
-/* HACK FIXME BHILL */
-#ifndef CONFIG_ZYNQ
 		if (chip->dev_ready) {
 			if (chip->dev_ready(mtd))
 				break;
 		} else {
-#endif
 			if (chip->read_byte(mtd) & NAND_STATUS_READY)
 				break;
-#ifndef CONFIG_ZYNQ
 		}
-#endif
 	}
 #ifdef PPCHAMELON_NAND_TIMER_HACK
 	time_start = get_timer(0);
