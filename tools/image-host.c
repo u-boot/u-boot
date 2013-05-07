@@ -79,6 +79,56 @@ int fit_set_hashes(void *fit)
 }
 
 /**
+ * fit_image_process_hash - Process a single subnode of the images/ node
+ *
+ * Check each subnode and process accordingly. For hash nodes we generate
+ * a hash of the supplised data and store it in the node.
+ *
+ * @fit:	pointer to the FIT format image header
+ * @image_name:	name of image being processes (used to display errors)
+ * @noffset:	subnode offset
+ * @data:	data to process
+ * @size:	size of data in bytes
+ * @return 0 if ok, -1 on error
+ */
+static int fit_image_process_hash(void *fit, const char *image_name,
+		int noffset, const void *data, size_t size)
+{
+	uint8_t value[FIT_MAX_HASH_LEN];
+	int value_len;
+	char *algo;
+
+	/*
+	 * Check subnode name, must be equal to "hash".
+	 * Multiple hash nodes require unique unit node
+	 * names, e.g. hash@1, hash@2, etc.
+	 */
+	if (strncmp(fit_get_name(fit, noffset, NULL),
+		    FIT_HASH_NODENAME, strlen(FIT_HASH_NODENAME)) != 0)
+		return 0;
+
+	if (fit_image_hash_get_algo(fit, noffset, &algo)) {
+		printf("Can't get hash algo property for '%s' hash node in '%s' image node\n",
+		       fit_get_name(fit, noffset, NULL), image_name);
+		return -1;
+	}
+
+	if (calculate_hash(data, size, algo, value, &value_len)) {
+		printf("Unsupported hash algorithm (%s) for '%s' hash node in '%s' image node\n",
+		       algo, fit_get_name(fit, noffset, NULL), image_name);
+		return -1;
+	}
+
+	if (fit_image_hash_set_value(fit, noffset, value, value_len)) {
+		printf("Can't set hash value for '%s' hash node in '%s' image node\n",
+		       fit_get_name(fit, noffset, NULL), image_name);
+		return -1;
+	}
+
+	return 0;
+}
+
+/**
  * fit_image_set_hashes - calculate/set hashes for given component image node
  * @fit: pointer to the FIT format image header
  * @image_noffset: requested component image node
@@ -111,11 +161,9 @@ int fit_image_set_hashes(void *fit, int image_noffset)
 {
 	const void *data;
 	size_t size;
-	char *algo;
-	uint8_t value[FIT_MAX_HASH_LEN];
-	int value_len;
 	int noffset;
 	int ndepth;
+	const char *image_name;
 
 	/* Get image data and data length */
 	if (fit_image_get_data(fit, image_noffset, &data, &size)) {
@@ -123,47 +171,17 @@ int fit_image_set_hashes(void *fit, int image_noffset)
 		return -1;
 	}
 
+	image_name = fit_get_name(fit, image_noffset, NULL);
+
 	/* Process all hash subnodes of the component image node */
 	for (ndepth = 0, noffset = fdt_next_node(fit, image_noffset, &ndepth);
-	     (noffset >= 0) && (ndepth > 0);
-	     noffset = fdt_next_node(fit, noffset, &ndepth)) {
+			(noffset >= 0) && (ndepth > 0);
+			noffset = fdt_next_node(fit, noffset, &ndepth)) {
 		if (ndepth == 1) {
 			/* Direct child node of the component image node */
-
-			/*
-			 * Check subnode name, must be equal to "hash".
-			 * Multiple hash nodes require unique unit node
-			 * names, e.g. hash@1, hash@2, etc.
-			 */
-			if (strncmp(fit_get_name(fit, noffset, NULL),
-				    FIT_HASH_NODENAME,
-				    strlen(FIT_HASH_NODENAME)) != 0) {
-				/* Not a hash subnode, skip it */
-				continue;
-			}
-
-			if (fit_image_hash_get_algo(fit, noffset, &algo)) {
-				printf("Can't get hash algo property for '%s' hash node in '%s' image node\n",
-				       fit_get_name(fit, noffset, NULL),
-				       fit_get_name(fit, image_noffset, NULL));
+			if (fit_image_process_hash(fit, image_name, noffset,
+						   data, size))
 				return -1;
-			}
-
-			if (calculate_hash(data, size, algo, value,
-					   &value_len)) {
-				printf("Unsupported hash algorithm (%s) for '%s' hash node in '%s' image node\n",
-				       algo, fit_get_name(fit, noffset, NULL),
-				       fit_get_name(fit, image_noffset, NULL));
-				return -1;
-			}
-
-			if (fit_image_hash_set_value(fit, noffset, value,
-						     value_len)) {
-				printf("Can't set hash value for '%s' hash node in '%s' image node\n",
-				       fit_get_name(fit, noffset, NULL),
-				       fit_get_name(fit, image_noffset, NULL));
-				return -1;
-			}
 		}
 	}
 
