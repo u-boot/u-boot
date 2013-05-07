@@ -79,6 +79,36 @@ int fit_set_hashes(void *fit)
 }
 
 /**
+ * fit_set_hash_value - set hash value in requested has node
+ * @fit: pointer to the FIT format image header
+ * @noffset: hash node offset
+ * @value: hash value to be set
+ * @value_len: hash value length
+ *
+ * fit_set_hash_value() attempts to set hash value in a node at offset
+ * given and returns operation status to the caller.
+ *
+ * returns
+ *     0, on success
+ *     -1, on failure
+ */
+static int fit_set_hash_value(void *fit, int noffset, uint8_t *value,
+				int value_len)
+{
+	int ret;
+
+	ret = fdt_setprop(fit, noffset, FIT_VALUE_PROP, value, value_len);
+	if (ret) {
+		printf("Can't set hash '%s' property for '%s' node(%s)\n",
+		       FIT_VALUE_PROP, fit_get_name(fit, noffset, NULL),
+		       fdt_strerror(ret));
+		return -1;
+	}
+
+	return 0;
+}
+
+/**
  * fit_image_process_hash - Process a single subnode of the images/ node
  *
  * Check each subnode and process accordingly. For hash nodes we generate
@@ -119,7 +149,7 @@ static int fit_image_process_hash(void *fit, const char *image_name,
 		return -1;
 	}
 
-	if (fit_image_hash_set_value(fit, noffset, value, value_len)) {
+	if (fit_set_hash_value(fit, noffset, value, value_len)) {
 		printf("Can't set hash value for '%s' hash node in '%s' image node\n",
 		       fit_get_name(fit, noffset, NULL), image_name);
 		return -1;
@@ -183,36 +213,6 @@ int fit_image_set_hashes(void *fit, int image_noffset)
 						   data, size))
 				return -1;
 		}
-	}
-
-	return 0;
-}
-
-/**
- * fit_image_hash_set_value - set hash value in requested has node
- * @fit: pointer to the FIT format image header
- * @noffset: hash node offset
- * @value: hash value to be set
- * @value_len: hash value length
- *
- * fit_image_hash_set_value() attempts to set hash value in a node at offset
- * given and returns operation status to the caller.
- *
- * returns
- *     0, on success
- *     -1, on failure
- */
-int fit_image_hash_set_value(void *fit, int noffset, uint8_t *value,
-				int value_len)
-{
-	int ret;
-
-	ret = fdt_setprop(fit, noffset, FIT_VALUE_PROP, value, value_len);
-	if (ret) {
-		printf("Can't set hash '%s' property for '%s' node(%s)\n",
-		       FIT_VALUE_PROP, fit_get_name(fit, noffset, NULL),
-		       fdt_strerror(ret));
-		return -1;
 	}
 
 	return 0;
