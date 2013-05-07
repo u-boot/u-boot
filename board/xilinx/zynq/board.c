@@ -84,8 +84,6 @@ int board_init(void)
 	writel(0x00, 0xe000a040);
 	writel(0x80, 0xe000a040);
 
-	icache_enable();
-
 #ifdef CONFIG_FPGA
 	fpga_init();
 	fpga_add(fpga_xilinx, &fpga);

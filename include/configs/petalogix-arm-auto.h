@@ -23,7 +23,16 @@
 # endif
 #endif
 
+#define CONFIG_SYS_DCACHE_OFF
 #define CONFIG_SYS_CACHELINE_SIZE	32 /* Assuming bytes? */
+
+/* Keep L2 Cache Disabled */
+#define CONFIG_SYS_L2CACHE_OFF
+
+#ifndef CONFIG_SYS_L2CACHE_OFF
+# define CONFIG_SYS_L2_PL310
+# define CONFIG_SYS_PL310_BASE  0xf8f02000
+#endif
 
 #define CONFIG_NR_DRAM_BANKS		1
 

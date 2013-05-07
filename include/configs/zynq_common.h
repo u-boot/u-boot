@@ -250,9 +250,17 @@
 #define CONFIG_BOOTDELAY		3 /* -1 to Disable autoboot */
 #define CONFIG_SYS_LOAD_ADDR		0 /* default? */
 
+#define CONFIG_SYS_DCACHE_OFF
+#define CONFIG_CMD_CACHE
+
 /* Keep L2 Cache Disabled */
 #define CONFIG_SYS_L2CACHE_OFF
 #define CONFIG_SYS_CACHELINE_SIZE	32
+
+#ifndef CONFIG_SYS_L2CACHE_OFF
+#define CONFIG_SYS_L2_PL310
+#define CONFIG_SYS_PL310_BASE	0xf8f02000
+#endif
 
 /* Physical Memory map */
 #define CONFIG_NR_DRAM_BANKS		1
