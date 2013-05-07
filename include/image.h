@@ -633,6 +633,9 @@ int fit_conf_get_fdt_node(const void *fit, int noffset);
 
 void fit_conf_print(const void *fit, int noffset, const char *p);
 
+int fit_check_ramdisk(const void *fit, int os_noffset,
+		uint8_t arch, int verify);
+
 #ifndef USE_HOSTCC
 static inline int fit_image_check_target_arch(const void *fdt, int node)
 {

@@ -49,13 +49,8 @@
 #include <fdt_support.h>
 #endif
 
-#if defined(CONFIG_FIT)
 #include <u-boot/md5.h>
 #include <sha1.h>
-
-static int fit_check_ramdisk(const void *fit, int os_noffset,
-		uint8_t arch, int verify);
-#endif
 
 #ifdef CONFIG_CMD_BDI
 extern int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
@@ -3364,8 +3359,8 @@ void fit_conf_print(const void *fit, int noffset, const char *p)
  *     0, on failure
  */
 #ifndef USE_HOSTCC
-static int fit_check_ramdisk(const void *fit, int rd_noffset, uint8_t arch,
-				int verify)
+int fit_check_ramdisk(const void *fit, int rd_noffset, uint8_t arch,
+			int verify)
 {
 	fit_image_print(fit, rd_noffset, "   ");
 
