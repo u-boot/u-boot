@@ -178,7 +178,7 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 	int timeout;
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
 	struct fsl_esdhc *regs = (struct fsl_esdhc *)cfg->esdhc_base;
-#ifndef CONFIG_SYS_FSL_ESDHC_USE_PIO
+#ifdef CONFIG_SYS_FSL_ESDHC_USE_PIO
 	uint wml_value;
 
 	wml_value = data->blocksize/4;
