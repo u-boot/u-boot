@@ -748,7 +748,6 @@ int fit_image_hash_get_value(const void *fit, int noffset, uint8_t **value,
 	return 0;
 }
 
-#ifndef USE_HOSTCC
 /**
  * fit_image_hash_get_ignore - get hash ignore flag
  * @fit: pointer to the FIT format image header
@@ -763,7 +762,7 @@ int fit_image_hash_get_value(const void *fit, int noffset, uint8_t **value,
  *     0, on ignore not found
  *     value, on ignore found
  */
-int fit_image_hash_get_ignore(const void *fit, int noffset, int *ignore)
+static int fit_image_hash_get_ignore(const void *fit, int noffset, int *ignore)
 {
 	int len;
 	int *value;
@@ -776,7 +775,6 @@ int fit_image_hash_get_ignore(const void *fit, int noffset, int *ignore)
 
 	return 0;
 }
-#endif
 
 /**
  * fit_set_timestamp - set node timestamp property
@@ -849,6 +847,57 @@ int calculate_hash(const void *data, int data_len, const char *algo,
 	return 0;
 }
 
+static int fit_image_check_hash(const void *fit, int noffset, const void *data,
+				size_t size, char **err_msgp)
+{
+	uint8_t value[FIT_MAX_HASH_LEN];
+	int value_len;
+	char *algo;
+	uint8_t *fit_value;
+	int fit_value_len;
+	int ignore;
+
+	*err_msgp = NULL;
+
+	if (fit_image_hash_get_algo(fit, noffset, &algo)) {
+		*err_msgp = " error!\nCan't get hash algo "
+				"property";
+		return -1;
+	}
+	printf("%s", algo);
+
+	if (IMAGE_ENABLE_IGNORE) {
+		fit_image_hash_get_ignore(fit, noffset, &ignore);
+		if (ignore) {
+			printf("-skipped ");
+			return 0;
+		}
+	}
+
+	if (fit_image_hash_get_value(fit, noffset, &fit_value,
+				     &fit_value_len)) {
+		*err_msgp = " error!\nCan't get hash value "
+				"property";
+		return -1;
+	}
+
+	if (calculate_hash(data, size, algo, value, &value_len)) {
+		*err_msgp = " error!\n"
+				"Unsupported hash algorithm";
+		return -1;
+	}
+
+	if (value_len != fit_value_len) {
+		*err_msgp = " error !\nBad hash value len";
+		return -1;
+	} else if (memcmp(value, fit_value, value_len) != 0) {
+		*err_msgp = " error!\nBad hash value";
+		return -1;
+	}
+
+	return 0;
+}
+
 /**
  * fit_image_verify - verify data intergity
  * @fit: pointer to the FIT format image header
@@ -866,16 +915,7 @@ int fit_image_verify(const void *fit, int image_noffset)
 {
 	const void	*data;
 	size_t		size;
-	char		*algo;
-	uint8_t		*fit_value;
-	int		fit_value_len;
-#ifndef USE_HOSTCC
-	int		ignore;
-#endif
-	uint8_t		value[FIT_MAX_HASH_LEN];
-	int		value_len;
 	int		noffset;
-	int		ndepth;
 	char		*err_msg = "";
 
 	/* Get image data and data length */
@@ -885,58 +925,22 @@ int fit_image_verify(const void *fit, int image_noffset)
 	}
 
 	/* Process all hash subnodes of the component image node */
-	for (ndepth = 0, noffset = fdt_next_node(fit, image_noffset, &ndepth);
-	     (noffset >= 0) && (ndepth > 0);
-	     noffset = fdt_next_node(fit, noffset, &ndepth)) {
-		if (ndepth == 1) {
-			/* Direct child node of the component image node */
+	for (noffset = fdt_first_subnode(fit, image_noffset);
+	     noffset >= 0;
+	     noffset = fdt_next_subnode(fit, noffset)) {
+		const char *name = fit_get_name(fit, noffset, NULL);
 
-			/*
-			 * Check subnode name, must be equal to "hash".
-			 * Multiple hash nodes require unique unit node
-			 * names, e.g. hash@1, hash@2, etc.
-			 */
-			if (strncmp(fit_get_name(fit, noffset, NULL),
-				    FIT_HASH_NODENAME,
-				    strlen(FIT_HASH_NODENAME)) != 0)
-				continue;
-
-			if (fit_image_hash_get_algo(fit, noffset, &algo)) {
-				err_msg = " error!\nCan't get hash algo property";
+		/*
+		 * Check subnode name, must be equal to "hash".
+		 * Multiple hash nodes require unique unit node
+		 * names, e.g. hash@1, hash@2, etc.
+		 */
+		if (!strncmp(name, FIT_HASH_NODENAME,
+			     strlen(FIT_HASH_NODENAME))) {
+			if (fit_image_check_hash(fit, noffset, data, size,
+						 &err_msg))
 				goto error;
-			}
-			printf("%s", algo);
-
-#ifndef USE_HOSTCC
-			fit_image_hash_get_ignore(fit, noffset, &ignore);
-			if (ignore) {
-				printf("-skipped ");
-				continue;
-			}
-#endif
-
-			if (fit_image_hash_get_value(fit, noffset, &fit_value,
-						     &fit_value_len)) {
-				err_msg = " error!\nCan't get hash value "
-						"property";
-				goto error;
-			}
-
-			if (calculate_hash(data, size, algo, value,
-					   &value_len)) {
-				err_msg = " error!\n"
-						"Unsupported hash algorithm";
-				goto error;
-			}
-
-			if (value_len != fit_value_len) {
-				err_msg = " error !\nBad hash value len";
-				goto error;
-			} else if (memcmp(value, fit_value, value_len) != 0) {
-				err_msg = " error!\nBad hash value";
-				goto error;
-			}
-			printf("+ ");
+			puts("+ ");
 		}
 	}
 

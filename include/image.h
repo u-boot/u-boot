@@ -43,11 +43,16 @@
 #define CONFIG_OF_LIBFDT	1
 #define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
 
+#define IMAGE_ENABLE_IGNORE	0
+
 #else
 
 #include <lmb.h>
 #include <asm/u-boot.h>
 #include <command.h>
+
+/* Take notice of the 'ignore' property for hashes */
+#define IMAGE_ENABLE_IGNORE	1
 
 #endif /* USE_HOSTCC */
 
@@ -607,9 +612,6 @@ int fit_image_get_data(const void *fit, int noffset,
 int fit_image_hash_get_algo(const void *fit, int noffset, char **algo);
 int fit_image_hash_get_value(const void *fit, int noffset, uint8_t **value,
 				int *value_len);
-#ifndef USE_HOSTCC
-int fit_image_hash_get_ignore(const void *fit, int noffset, int *ignore);
-#endif
 
 int fit_set_timestamp(void *fit, int noffset, time_t timestamp);
 int fit_set_hashes(void *fit);
