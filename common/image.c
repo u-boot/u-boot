@@ -51,6 +51,7 @@
 
 #include <u-boot/md5.h>
 #include <sha1.h>
+#include <asm/io.h>
 
 #ifdef CONFIG_CMD_BDI
 extern int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
@@ -90,6 +91,7 @@ static const table_entry_t uimage_arch[] = {
 	{	IH_ARCH_AVR32,		"avr32",	"AVR32",	},
 	{	IH_ARCH_NDS32,		"nds32",	"NDS32",	},
 	{	IH_ARCH_OPENRISC,	"or1k",		"OpenRISC 1000",},
+	{	IH_ARCH_SANDBOX,	"sandbox",	"Sandbox",	},
 	{	-1,			"",		"",		},
 };
 
@@ -661,7 +663,7 @@ int genimg_get_comp_id(const char *name)
  * returns:
  *     image format type or IMAGE_FORMAT_INVALID if no image is present
  */
-int genimg_get_format(void *img_addr)
+int genimg_get_format(const void *img_addr)
 {
 	ulong format = IMAGE_FORMAT_INVALID;
 	const image_header_t *hdr;
@@ -701,6 +703,8 @@ ulong genimg_get_image(ulong img_addr)
 	ulong h_size, d_size;
 
 	if (addr_dataflash(img_addr)) {
+		void *buf;
+
 		/* ger RAM address */
 		ram_addr = CONFIG_SYS_LOAD_ADDR;
 
@@ -715,20 +719,20 @@ ulong genimg_get_image(ulong img_addr)
 		debug("   Reading image header from dataflash address "
 			"%08lx to RAM address %08lx\n", img_addr, ram_addr);
 
-		read_dataflash(img_addr, h_size, (char *)ram_addr);
+		buf = map_sysmem(ram_addr, 0);
+		read_dataflash(img_addr, h_size, buf);
 
 		/* get data size */
-		switch (genimg_get_format((void *)ram_addr)) {
+		switch (genimg_get_format(buf)) {
 		case IMAGE_FORMAT_LEGACY:
-			d_size = image_get_data_size(
-					(const image_header_t *)ram_addr);
+			d_size = image_get_data_size(buf);
 			debug("   Legacy format image found at 0x%08lx, "
 					"size 0x%08lx\n",
 					ram_addr, d_size);
 			break;
 #if defined(CONFIG_FIT)
 		case IMAGE_FORMAT_FIT:
-			d_size = fit_get_size((const void *)ram_addr) - h_size;
+			d_size = fit_get_size(buf) - h_size;
 			debug("   FIT/FDT format image found at 0x%08lx, "
 					"size 0x%08lx\n",
 					ram_addr, d_size);
@@ -746,7 +750,7 @@ ulong genimg_get_image(ulong img_addr)
 			ram_addr + h_size);
 
 		read_dataflash(img_addr + h_size, d_size,
-				(char *)(ram_addr + h_size));
+				(char *)(buf + h_size));
 
 	}
 #endif /* CONFIG_HAS_DATAFLASH */
@@ -802,6 +806,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 	ulong rd_addr, rd_load;
 	ulong rd_data, rd_len;
 	const image_header_t *rd_hdr;
+	void *buf;
 #ifdef CONFIG_SUPPORT_RAW_INITRD
 	char *end;
 #endif
@@ -863,7 +868,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 			/* use FIT configuration provided in first bootm
 			 * command argument
 			 */
-			rd_addr = (ulong)images->fit_hdr_os;
+			rd_addr = map_to_sysmem(images->fit_hdr_os);
 			fit_uname_config = images->fit_uname_cfg;
 			debug("*  ramdisk: using config '%s' from image "
 					"at 0x%08lx\n",
@@ -873,7 +878,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 			 * Check whether configuration has ramdisk defined,
 			 * if not, don't try to use it, quit silently.
 			 */
-			fit_hdr = (void *)rd_addr;
+			fit_hdr = images->fit_hdr_os;
 			cfg_noffset = fit_conf_get_node(fit_hdr,
 							fit_uname_config);
 			if (cfg_noffset < 0) {
@@ -898,7 +903,8 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 		 * address provided in the second bootm argument
 		 * check image type, for FIT images get FIT node.
 		 */
-		switch (genimg_get_format((void *)rd_addr)) {
+		buf = map_sysmem(rd_addr, 0);
+		switch (genimg_get_format(buf)) {
 		case IMAGE_FORMAT_LEGACY:
 			printf("## Loading init Ramdisk from Legacy "
 					"Image at %08lx ...\n", rd_addr);
@@ -916,7 +922,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 			break;
 #if defined(CONFIG_FIT)
 		case IMAGE_FORMAT_FIT:
-			fit_hdr = (void *)rd_addr;
+			fit_hdr = buf;
 			printf("## Loading init Ramdisk from FIT "
 					"Image at %08lx ...\n", rd_addr);
 
@@ -1159,7 +1165,7 @@ static void fdt_error(const char *msg)
 
 static const image_header_t *image_get_fdt(ulong fdt_addr)
 {
-	const image_header_t *fdt_hdr = (const image_header_t *)fdt_addr;
+	const image_header_t *fdt_hdr = map_sysmem(fdt_addr, 0);
 
 	image_print_contents(fdt_hdr);
 
@@ -1396,6 +1402,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[],
 	char		*fdt_blob = NULL;
 	ulong		image_start, image_data, image_end;
 	ulong		load_start, load_end;
+	void		*buf;
 #if defined(CONFIG_FIT)
 	void		*fit_hdr;
 	const char	*fit_uname_config = NULL;
@@ -1449,7 +1456,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[],
 			/* use FIT configuration provided in first bootm
 			 * command argument
 			 */
-			fdt_addr = (ulong)images->fit_hdr_os;
+			fdt_addr = map_to_sysmem(images->fit_hdr_os);
 			fit_uname_config = images->fit_uname_cfg;
 			debug("*  fdt: using config '%s' from image "
 					"at 0x%08lx\n",
@@ -1459,7 +1466,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[],
 			 * Check whether configuration has FDT blob defined,
 			 * if not quit silently.
 			 */
-			fit_hdr = (void *)fdt_addr;
+			fit_hdr = images->fit_hdr_os;
 			cfg_noffset = fit_conf_get_node(fit_hdr,
 					fit_uname_config);
 			if (cfg_noffset < 0) {
@@ -1487,7 +1494,8 @@ int boot_get_fdt(int flag, int argc, char * const argv[],
 		 * address provided in the second bootm argument
 		 * check image type, for FIT images get a FIT node.
 		 */
-		switch (genimg_get_format((void *)fdt_addr)) {
+		buf = map_sysmem(fdt_addr, 0);
+		switch (genimg_get_format(buf)) {
 		case IMAGE_FORMAT_LEGACY:
 			/* verify fdt_addr points to a valid image header */
 			printf("## Flattened Device Tree from Legacy Image "
@@ -1536,11 +1544,11 @@ int boot_get_fdt(int flag, int argc, char * const argv[],
 			 */
 #if defined(CONFIG_FIT)
 			/* check FDT blob vs FIT blob */
-			if (fit_check_format((const void *)fdt_addr)) {
+			if (fit_check_format(buf)) {
 				/*
 				 * FIT image
 				 */
-				fit_hdr = (void *)fdt_addr;
+				fit_hdr = buf;
 				printf("## Flattened Device Tree from FIT "
 						"Image at %08lx\n",
 						fdt_addr);
@@ -1646,10 +1654,10 @@ int boot_get_fdt(int flag, int argc, char * const argv[],
 				/*
 				 * FDT blob
 				 */
-				fdt_blob = (char *)fdt_addr;
+				fdt_blob = buf;
 				debug("*  fdt: raw FDT blob\n");
-				printf("## Flattened Device Tree blob at "
-					"%08lx\n", (long)fdt_blob);
+				printf("## Flattened Device Tree blob at %08lx\n",
+				       (long)fdt_addr);
 			}
 			break;
 		default:

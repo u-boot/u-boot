@@ -36,6 +36,7 @@
 #include <lmb.h>
 #include <linux/ctype.h>
 #include <asm/byteorder.h>
+#include <asm/io.h>
 #include <linux/compiler.h>
 
 #if defined(CONFIG_CMD_USB)
@@ -97,7 +98,7 @@ static image_header_t *image_get_kernel(ulong img_addr, int verify);
 static int fit_check_kernel(const void *fit, int os_noffset, int verify);
 #endif
 
-static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
+static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 				char * const argv[], bootm_headers_t *images,
 				ulong *os_data, ulong *os_len);
 
@@ -203,8 +204,8 @@ static inline void boot_start_lmb(bootm_headers_t *images) { }
 
 static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	void		*os_hdr;
-	int		ret;
+	const void *os_hdr;
+	int ret;
 
 	memset((void *)&images, 0, sizeof(images));
 	images.verify = getenv_yesno("verify");
@@ -855,14 +856,15 @@ static int fit_check_kernel(const void *fit, int os_noffset, int verify)
  *     pointer to image header if valid image was found, plus kernel start
  *     address and length, otherwise NULL
  */
-static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
+static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 		char * const argv[], bootm_headers_t *images, ulong *os_data,
 		ulong *os_len)
 {
 	image_header_t	*hdr;
 	ulong		img_addr;
+	const void *buf;
 #if defined(CONFIG_FIT)
-	void		*fit_hdr;
+	const void	*fit_hdr;
 	const char	*fit_uname_config = NULL;
 	const char	*fit_uname_kernel = NULL;
 	const void	*data;
@@ -898,7 +900,8 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	/* check image type, for FIT images get FIT kernel node */
 	*os_data = *os_len = 0;
-	switch (genimg_get_format((void *)img_addr)) {
+	buf = map_sysmem(img_addr, 0);
+	switch (genimg_get_format(buf)) {
 	case IMAGE_FORMAT_LEGACY:
 		printf("## Booting kernel from Legacy Image at %08lx ...\n",
 				img_addr);
@@ -943,7 +946,7 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 		break;
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
-		fit_hdr = (void *)img_addr;
+		fit_hdr = buf;
 		printf("## Booting kernel from FIT Image at %08lx ...\n",
 				img_addr);
 
@@ -1020,7 +1023,7 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 
 		*os_len = len;
 		*os_data = (ulong)data;
-		images->fit_hdr_os = fit_hdr;
+		images->fit_hdr_os = (void *)fit_hdr;
 		images->fit_uname_os = fit_uname_kernel;
 		images->fit_noffset_os = os_noffset;
 		break;
@@ -1034,7 +1037,7 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 	debug("   kernel data at 0x%08lx, len = 0x%08lx (%ld)\n",
 			*os_data, *os_len, *os_len);
 
-	return (void *)img_addr;
+	return buf;
 }
 
 #ifdef CONFIG_SYS_LONGHELP
