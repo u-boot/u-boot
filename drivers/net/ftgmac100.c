@@ -27,11 +27,13 @@
 #include <malloc.h>
 #include <net.h>
 #include <asm/io.h>
+#include <asm/dma-mapping.h>
 #include <linux/mii.h>
 
 #include "ftgmac100.h"
 
 #define ETH_ZLEN	60
+#define CFG_XBUF_SIZE	1536
 
 /* RBSR - hw default init value is also 0x640 */
 #define RBSR_DEFAULT_VALUE	0x640
@@ -40,8 +42,10 @@
 #define PKTBUFSTX	4	/* must be power of 2 */
 
 struct ftgmac100_data {
-	struct ftgmac100_txdes txdes[PKTBUFSTX];
-	struct ftgmac100_rxdes rxdes[PKTBUFSRX];
+	ulong txdes_dma;
+	struct ftgmac100_txdes *txdes;
+	ulong rxdes_dma;
+	struct ftgmac100_rxdes *rxdes;
 	int tx_index;
 	int rx_index;
 	int phy_addr;
@@ -375,12 +379,33 @@ static int ftgmac100_init(struct eth_device *dev, bd_t *bd)
 {
 	struct ftgmac100 *ftgmac100 = (struct ftgmac100 *)dev->iobase;
 	struct ftgmac100_data *priv = dev->priv;
-	struct ftgmac100_txdes *txdes = priv->txdes;
-	struct ftgmac100_rxdes *rxdes = priv->rxdes;
+	struct ftgmac100_txdes *txdes;
+	struct ftgmac100_rxdes *rxdes;
 	unsigned int maccr;
+	void *buf;
 	int i;
 
 	debug("%s()\n", __func__);
+
+	if (!priv->txdes) {
+		txdes = dma_alloc_coherent(
+			sizeof(*txdes) * PKTBUFSTX, &priv->txdes_dma);
+		if (!txdes)
+			panic("ftgmac100: out of memory\n");
+		memset(txdes, 0, sizeof(*txdes) * PKTBUFSTX);
+		priv->txdes = txdes;
+	}
+	txdes = priv->txdes;
+
+	if (!priv->rxdes) {
+		rxdes = dma_alloc_coherent(
+			sizeof(*rxdes) * PKTBUFSRX, &priv->rxdes_dma);
+		if (!rxdes)
+			panic("ftgmac100: out of memory\n");
+		memset(rxdes, 0, sizeof(*rxdes) * PKTBUFSRX);
+		priv->rxdes = rxdes;
+	}
+	rxdes = priv->rxdes;
 
 	/* set the ethernet address */
 	ftgmac100_set_mac_from_env(dev);
@@ -397,21 +422,31 @@ static int ftgmac100_init(struct eth_device *dev, bd_t *bd)
 
 	for (i = 0; i < PKTBUFSTX; i++) {
 		/* TXBUF_BADR */
-		txdes[i].txdes3 = 0;
+		if (!txdes[i].txdes2) {
+			buf = memalign(ARCH_DMA_MINALIGN, CFG_XBUF_SIZE);
+			if (!buf)
+				panic("ftgmac100: out of memory\n");
+			txdes[i].txdes3 = virt_to_phys(buf);
+			txdes[i].txdes2 = (uint)buf;
+		}
 		txdes[i].txdes1 = 0;
 	}
 
 	for (i = 0; i < PKTBUFSRX; i++) {
 		/* RXBUF_BADR */
-		rxdes[i].rxdes3 = (unsigned int)NetRxPackets[i];
+		if (!rxdes[i].rxdes2) {
+			buf = NetRxPackets[i];
+			rxdes[i].rxdes3 = virt_to_phys(buf);
+			rxdes[i].rxdes2 = (uint)buf;
+		}
 		rxdes[i].rxdes0 &= ~FTGMAC100_RXDES0_RXPKT_RDY;
 	}
 
 	/* transmit ring */
-	writel((unsigned int)txdes, &ftgmac100->txr_badr);
+	writel(priv->txdes_dma, &ftgmac100->txr_badr);
 
 	/* receive ring */
-	writel((unsigned int)rxdes, &ftgmac100->rxr_badr);
+	writel(priv->rxdes_dma, &ftgmac100->rxr_badr);
 
 	/* poll receive descriptor automatically */
 	writel(FTGMAC100_APTC_RXPOLL_CNT(1), &ftgmac100->aptc);
@@ -466,8 +501,11 @@ static int ftgmac100_recv(struct eth_device *dev)
 	debug("%s(): RX buffer %d, %x received\n",
 	       __func__, priv->rx_index, rxlen);
 
+	/* invalidate d-cache */
+	dma_map_single((void *)curr_des->rxdes2, rxlen, DMA_FROM_DEVICE);
+
 	/* pass the packet up to the protocol layers. */
-	NetReceive((void *)curr_des->rxdes3, rxlen);
+	NetReceive((void *)curr_des->rxdes2, rxlen);
 
 	/* release buffer to DMA */
 	curr_des->rxdes0 &= ~FTGMAC100_RXDES0_RXPKT_RDY;
@@ -485,7 +523,6 @@ static int ftgmac100_send(struct eth_device *dev, void *packet, int length)
 	struct ftgmac100 *ftgmac100 = (struct ftgmac100 *)dev->iobase;
 	struct ftgmac100_data *priv = dev->priv;
 	struct ftgmac100_txdes *curr_des = &priv->txdes[priv->tx_index];
-	int start;
 
 	if (curr_des->txdes0 & FTGMAC100_TXDES0_TXDMA_OWN) {
 		debug("%s(): no TX descriptor available\n", __func__);
@@ -496,8 +533,8 @@ static int ftgmac100_send(struct eth_device *dev, void *packet, int length)
 
 	length = (length < ETH_ZLEN) ? ETH_ZLEN : length;
 
-	/* initiate a transmit sequence */
-	curr_des->txdes3 = (unsigned int)packet;	/* TXBUF_BADR */
+	memcpy((void *)curr_des->txdes2, (void *)packet, length);
+	dma_map_single((void *)curr_des->txdes2, length, DMA_TO_DEVICE);
 
 	/* only one descriptor on TXBUF */
 	curr_des->txdes0 &= FTGMAC100_TXDES0_EDOTR;
@@ -508,15 +545,6 @@ static int ftgmac100_send(struct eth_device *dev, void *packet, int length)
 
 	/* start transmit */
 	writel(1, &ftgmac100->txpd);
-
-	/* wait for transfer to succeed */
-	start = get_timer(0);
-	while (curr_des->txdes0 & FTGMAC100_TXDES0_TXDMA_OWN) {
-		if (get_timer(0) >= 5) {
-			debug("%s(): timed out\n", __func__);
-			return -1;
-		}
-	}
 
 	debug("%s(): packet sent\n", __func__);
 
