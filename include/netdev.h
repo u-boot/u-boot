@@ -67,6 +67,7 @@ int fecmxc_initialize(bd_t *bis);
 int fecmxc_initialize_multi(bd_t *bis, int dev_id, int phy_id, uint32_t addr);
 int ftgmac100_initialize(bd_t *bits);
 int ftmac100_initialize(bd_t *bits);
+int ftmac110_initialize(bd_t *bits);
 int greth_initialize(bd_t *bis);
 void gt6426x_eth_initialize(bd_t *bis);
 int inca_switch_initialize(bd_t *bis);
