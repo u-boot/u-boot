@@ -34,51 +34,6 @@
 #include <u-boot/md5.h>
 
 /**
- * fit_set_hashes - process FIT component image nodes and calculate hashes
- * @fit: pointer to the FIT format image header
- *
- * fit_set_hashes() adds hash values for all component images in the FIT blob.
- * Hashes are calculated for all component images which have hash subnodes
- * with algorithm property set to one of the supported hash algorithms.
- *
- * returns
- *     0, on success
- *     libfdt error code, on failure
- */
-int fit_set_hashes(void *fit)
-{
-	int images_noffset;
-	int noffset;
-	int ndepth;
-	int ret;
-
-	/* Find images parent node offset */
-	images_noffset = fdt_path_offset(fit, FIT_IMAGES_PATH);
-	if (images_noffset < 0) {
-		printf("Can't find images parent node '%s' (%s)\n",
-		       FIT_IMAGES_PATH, fdt_strerror(images_noffset));
-		return images_noffset;
-	}
-
-	/* Process its subnodes, print out component images details */
-	for (ndepth = 0, noffset = fdt_next_node(fit, images_noffset, &ndepth);
-	     (noffset >= 0) && (ndepth > 0);
-	     noffset = fdt_next_node(fit, noffset, &ndepth)) {
-		if (ndepth == 1) {
-			/*
-			 * Direct child node of the images parent node,
-			 * i.e. component image node.
-			 */
-			ret = fit_image_set_hashes(fit, noffset);
-			if (ret)
-				return ret;
-		}
-	}
-
-	return 0;
-}
-
-/**
  * fit_set_hash_value - set hash value in requested has node
  * @fit: pointer to the FIT format image header
  * @noffset: hash node offset
@@ -125,33 +80,27 @@ static int fit_image_process_hash(void *fit, const char *image_name,
 		int noffset, const void *data, size_t size)
 {
 	uint8_t value[FIT_MAX_HASH_LEN];
+	const char *node_name;
 	int value_len;
 	char *algo;
 
-	/*
-	 * Check subnode name, must be equal to "hash".
-	 * Multiple hash nodes require unique unit node
-	 * names, e.g. hash@1, hash@2, etc.
-	 */
-	if (strncmp(fit_get_name(fit, noffset, NULL),
-		    FIT_HASH_NODENAME, strlen(FIT_HASH_NODENAME)) != 0)
-		return 0;
+	node_name = fit_get_name(fit, noffset, NULL);
 
 	if (fit_image_hash_get_algo(fit, noffset, &algo)) {
 		printf("Can't get hash algo property for '%s' hash node in '%s' image node\n",
-		       fit_get_name(fit, noffset, NULL), image_name);
+		       node_name, image_name);
 		return -1;
 	}
 
 	if (calculate_hash(data, size, algo, value, &value_len)) {
 		printf("Unsupported hash algorithm (%s) for '%s' hash node in '%s' image node\n",
-		       algo, fit_get_name(fit, noffset, NULL), image_name);
+		       algo, node_name, image_name);
 		return -1;
 	}
 
 	if (fit_set_hash_value(fit, noffset, value, value_len)) {
 		printf("Can't set hash value for '%s' hash node in '%s' image node\n",
-		       fit_get_name(fit, noffset, NULL), image_name);
+		       node_name, image_name);
 		return -1;
 	}
 
@@ -159,14 +108,13 @@ static int fit_image_process_hash(void *fit, const char *image_name,
 }
 
 /**
- * fit_image_set_hashes - calculate/set hashes for given component image node
- * @fit: pointer to the FIT format image header
- * @image_noffset: requested component image node
+ * fit_image_add_verification_data() - calculate/set hash data for image node
  *
- * fit_image_set_hashes() adds hash values for an component image node. All
- * existing hash subnodes are checked, if algorithm property is set to one of
- * the supported hash algorithms, hash value is computed and corresponding
- * hash node property is set, for example:
+ * This adds hash values for a component image node.
+ *
+ * All existing hash subnodes are checked, if algorithm property is set to
+ * one of the supported hash algorithms, hash value is computed and
+ * corresponding hash node property is set, for example:
  *
  * Input component image node structure:
  *
@@ -183,17 +131,18 @@ static int fit_image_process_hash(void *fit, const char *image_name,
  *     |- algo = "sha1"
  *     |- value = sha1(data)
  *
- * returns:
- *     0 on sucess
- *    <0 on failure
+ * For signature details, please see doc/uImage.FIT/signature.txt
+ *
+ * @fit:	Pointer to the FIT format image header
+ * @image_noffset: Requested component image node
+ * @return: 0 on success, <0 on failure
  */
-int fit_image_set_hashes(void *fit, int image_noffset)
+int fit_image_add_verification_data(void *fit, int image_noffset)
 {
+	const char *image_name;
 	const void *data;
 	size_t size;
 	int noffset;
-	int ndepth;
-	const char *image_name;
 
 	/* Get image data and data length */
 	if (fit_image_get_data(fit, image_noffset, &data, &size)) {
@@ -204,15 +153,55 @@ int fit_image_set_hashes(void *fit, int image_noffset)
 	image_name = fit_get_name(fit, image_noffset, NULL);
 
 	/* Process all hash subnodes of the component image node */
-	for (ndepth = 0, noffset = fdt_next_node(fit, image_noffset, &ndepth);
-			(noffset >= 0) && (ndepth > 0);
-			noffset = fdt_next_node(fit, noffset, &ndepth)) {
-		if (ndepth == 1) {
-			/* Direct child node of the component image node */
-			if (fit_image_process_hash(fit, image_name, noffset,
-						   data, size))
-				return -1;
+	for (noffset = fdt_first_subnode(fit, image_noffset);
+	     noffset >= 0;
+	     noffset = fdt_next_subnode(fit, noffset)) {
+		const char *node_name;
+		int ret = 0;
+
+		/*
+		 * Check subnode name, must be equal to "hash" or "signature".
+		 * Multiple hash nodes require unique unit node
+		 * names, e.g. hash@1, hash@2, signature@1, etc.
+		 */
+		node_name = fit_get_name(fit, noffset, NULL);
+		if (!strncmp(node_name, FIT_HASH_NODENAME,
+			     strlen(FIT_HASH_NODENAME))) {
+			ret = fit_image_process_hash(fit, image_name, noffset,
+						data, size);
 		}
+		if (ret)
+			return -1;
+	}
+
+	return 0;
+}
+
+int fit_add_verification_data(void *fit)
+{
+	int images_noffset;
+	int noffset;
+	int ret;
+
+	/* Find images parent node offset */
+	images_noffset = fdt_path_offset(fit, FIT_IMAGES_PATH);
+	if (images_noffset < 0) {
+		printf("Can't find images parent node '%s' (%s)\n",
+		       FIT_IMAGES_PATH, fdt_strerror(images_noffset));
+		return images_noffset;
+	}
+
+	/* Process its subnodes, print out component images details */
+	for (noffset = fdt_first_subnode(fit, images_noffset);
+	     noffset >= 0;
+	     noffset = fdt_next_subnode(fit, noffset)) {
+		/*
+		 * Direct child node of the images parent node,
+		 * i.e. component image node.
+		 */
+		ret = fit_image_add_verification_data(fit, noffset);
+		if (ret)
+			return ret;
 	}
 
 	return 0;

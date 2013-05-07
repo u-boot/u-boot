@@ -614,8 +614,14 @@ int fit_image_hash_get_value(const void *fit, int noffset, uint8_t **value,
 				int *value_len);
 
 int fit_set_timestamp(void *fit, int noffset, time_t timestamp);
-int fit_set_hashes(void *fit);
-int fit_image_set_hashes(void *fit, int image_noffset);
+
+/**
+ * fit_add_verification_data() - Calculate and add hashes to FIT
+ *
+ * @fit:	Fit image to process
+ * @return 0 if ok, <0 for error
+ */
+int fit_add_verification_data(void *fit);
 
 int fit_image_verify(const void *fit, int noffset);
 int fit_all_image_verify(const void *fit);
