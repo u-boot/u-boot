@@ -1210,7 +1210,7 @@ static int fit_check_fdt(const void *fit, int fdt_noffset, int verify)
 
 	if (verify) {
 		puts("   Verifying Hash Integrity ... ");
-		if (!fit_image_check_hashes(fit, fdt_noffset)) {
+		if (!fit_image_verify(fit, fdt_noffset)) {
 			fdt_error("Bad Data Hash");
 			return 0;
 		}

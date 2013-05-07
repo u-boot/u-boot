@@ -615,8 +615,8 @@ int fit_set_timestamp(void *fit, int noffset, time_t timestamp);
 int fit_set_hashes(void *fit);
 int fit_image_set_hashes(void *fit, int image_noffset);
 
-int fit_image_check_hashes(const void *fit, int noffset);
-int fit_all_image_check_hashes(const void *fit);
+int fit_image_verify(const void *fit, int noffset);
+int fit_all_image_verify(const void *fit);
 int fit_image_check_os(const void *fit, int noffset, uint8_t os);
 int fit_image_check_arch(const void *fit, int noffset, uint8_t arch);
 int fit_image_check_type(const void *fit, int noffset, uint8_t type);

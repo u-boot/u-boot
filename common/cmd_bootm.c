@@ -815,7 +815,7 @@ static int fit_check_kernel(const void *fit, int os_noffset, int verify)
 
 	if (verify) {
 		puts("   Verifying Hash Integrity ... ");
-		if (!fit_image_check_hashes(fit, os_noffset)) {
+		if (!fit_image_verify(fit, os_noffset)) {
 			puts("Bad Data Hash\n");
 			bootstage_error(BOOTSTAGE_ID_FIT_CHECK_HASH);
 			return 0;
@@ -1169,7 +1169,7 @@ static int image_info(ulong addr)
 
 		fit_print_contents(hdr);
 
-		if (!fit_all_image_check_hashes(hdr)) {
+		if (!fit_all_image_verify(hdr)) {
 			puts("Bad hash in FIT image!\n");
 			return 1;
 		}
