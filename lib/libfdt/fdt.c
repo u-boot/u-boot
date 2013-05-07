@@ -202,6 +202,34 @@ int fdt_next_node(const void *fdt, int offset, int *depth)
 	return offset;
 }
 
+int fdt_first_subnode(const void *fdt, int offset)
+{
+	int depth = 0;
+
+	offset = fdt_next_node(fdt, offset, &depth);
+	if (offset < 0 || depth != 1)
+		return -FDT_ERR_NOTFOUND;
+
+	return offset;
+}
+
+int fdt_next_subnode(const void *fdt, int offset)
+{
+	int depth = 1;
+
+	/*
+	 * With respect to the parent, the depth of the next subnode will be
+	 * the same as the last.
+	 */
+	do {
+		offset = fdt_next_node(fdt, offset, &depth);
+		if (offset < 0 || depth < 1)
+			return -FDT_ERR_NOTFOUND;
+	} while (depth > 1);
+
+	return offset;
+}
+
 const char *_fdt_find_string(const char *strtab, int tabsize, const char *s)
 {
 	int len = strlen(s) + 1;
