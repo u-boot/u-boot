@@ -65,6 +65,7 @@
 #define CONFIG_SYS_SRIO
 #define CONFIG_SRIO1			/* SRIO port 1 */
 #define CONFIG_SRIO2			/* SRIO port 2 */
+#define CONFIG_SRIO_PCIE_BOOT_MASTER
 
 #define CONFIG_FSL_LAW			/* Use common FSL init code */
 
