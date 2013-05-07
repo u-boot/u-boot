@@ -564,7 +564,7 @@ skip_l2:
 
 #ifdef CONFIG_SYS_SRIO
 	srio_init();
-#ifdef CONFIG_SYS_FSL_SRIO_PCIE_BOOT_MASTER 
+#ifdef CONFIG_SRIO_PCIE_BOOT_MASTER
 	char *s = getenv("bootmaster");
 	if (s) {
 		if (!strcmp(s, "SRIO1")) {

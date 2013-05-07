@@ -211,7 +211,7 @@ static int fsl_pci_setup_inbound_windows(struct pci_controller *hose,
 	return 1;
 }
 
-#ifdef CONFIG_SYS_FSL_SRIO_PCIE_BOOT_MASTER
+#ifdef CONFIG_SRIO_PCIE_BOOT_MASTER
 static void fsl_pcie_boot_master(pit_t *pi)
 {
 	/* configure inbound window for slave's u-boot image */
@@ -388,7 +388,7 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 	/* see if we are a PCIe or PCI controller */
 	pci_hose_read_config_byte(hose, dev, FSL_PCIE_CAP_ID, &pcie_cap);
 
-#ifdef CONFIG_SYS_FSL_SRIO_PCIE_BOOT_MASTER
+#ifdef CONFIG_SRIO_PCIE_BOOT_MASTER
 	/* boot from PCIE --master */
 	char *s = getenv("bootmaster");
 	char pcie[6];
@@ -624,7 +624,7 @@ int fsl_pci_init_port(struct fsl_pci_info *pci_info,
 	if (fsl_is_pci_agent(hose)) {
 		fsl_pci_config_unlock(hose);
 		hose->last_busno = hose->first_busno;
-#ifdef CONFIG_SYS_FSL_SRIO_PCIE_BOOT_MASTER
+#ifdef CONFIG_SRIO_PCIE_BOOT_MASTER
 	} else {
 		/* boot from PCIE --master releases slave's core 0 */
 		char *s = getenv("bootmaster");
