@@ -1308,7 +1308,7 @@ int fit_conf_get_node(const void *fit, const char *conf_uname)
 	return noffset;
 }
 
-static int __fit_conf_get_prop_node(const void *fit, int noffset,
+int fit_conf_get_prop_node(const void *fit, int noffset,
 		const char *prop_name)
 {
 	char *uname;
@@ -1338,7 +1338,7 @@ static int __fit_conf_get_prop_node(const void *fit, int noffset,
  */
 int fit_conf_get_kernel_node(const void *fit, int noffset)
 {
-	return __fit_conf_get_prop_node(fit, noffset, FIT_KERNEL_PROP);
+	return fit_conf_get_prop_node(fit, noffset, FIT_KERNEL_PROP);
 }
 
 /**
@@ -1357,7 +1357,7 @@ int fit_conf_get_kernel_node(const void *fit, int noffset)
  */
 int fit_conf_get_ramdisk_node(const void *fit, int noffset)
 {
-	return __fit_conf_get_prop_node(fit, noffset, FIT_RAMDISK_PROP);
+	return fit_conf_get_prop_node(fit, noffset, FIT_RAMDISK_PROP);
 }
 
 /**
@@ -1376,7 +1376,7 @@ int fit_conf_get_ramdisk_node(const void *fit, int noffset)
  */
 int fit_conf_get_fdt_node(const void *fit, int noffset)
 {
-	return __fit_conf_get_prop_node(fit, noffset, FIT_FDT_PROP);
+	return fit_conf_get_prop_node(fit, noffset, FIT_FDT_PROP);
 }
 
 /**

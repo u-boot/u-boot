@@ -631,6 +631,20 @@ int fit_conf_get_kernel_node(const void *fit, int noffset);
 int fit_conf_get_ramdisk_node(const void *fit, int noffset);
 int fit_conf_get_fdt_node(const void *fit, int noffset);
 
+/**
+ * fit_conf_get_prop_node() - Get node refered to by a configuration
+ * @fit:	FIT to check
+ * @noffset:	Offset of conf@xxx node to check
+ * @prop_name:	Property to read from the conf node
+ *
+ * The conf@ nodes contain references to other nodes, using properties
+ * like 'kernel = "kernel@1"'. Given such a property name (e.g. "kernel"),
+ * return the offset of the node referred to (e.g. offset of node
+ * "/images/kernel@1".
+ */
+int fit_conf_get_prop_node(const void *fit, int noffset,
+		const char *prop_name);
+
 void fit_conf_print(const void *fit, int noffset, const char *p);
 
 int fit_check_ramdisk(const void *fit, int os_noffset,
