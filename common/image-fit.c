@@ -229,6 +229,84 @@ void fit_print_contents(const void *fit)
 }
 
 /**
+ * fit_image_print_data() - prints out the hash node details
+ * @fit: pointer to the FIT format image header
+ * @noffset: offset of the hash node
+ * @p: pointer to prefix string
+ *
+ * fit_image_print_data() lists properies for the processed hash node
+ *
+ * returns:
+ *     no returned results
+ */
+static void fit_image_print_data(const void *fit, int noffset, const char *p)
+{
+	char *algo;
+	uint8_t *value;
+	int value_len;
+	int i, ret;
+
+	/*
+	 * Check subnode name, must be equal to "hash".
+	 * Multiple hash nodes require unique unit node
+	 * names, e.g. hash@1, hash@2, etc.
+	 */
+	if (strncmp(fit_get_name(fit, noffset, NULL),
+		    FIT_HASH_NODENAME,
+		    strlen(FIT_HASH_NODENAME)) != 0)
+		return;
+
+	debug("%s  Hash node:    '%s'\n", p,
+	      fit_get_name(fit, noffset, NULL));
+
+	printf("%s  Hash algo:    ", p);
+	if (fit_image_hash_get_algo(fit, noffset, &algo)) {
+		printf("invalid/unsupported\n");
+		return;
+	}
+	printf("%s\n", algo);
+
+	ret = fit_image_hash_get_value(fit, noffset, &value,
+					&value_len);
+	printf("%s  Hash value:   ", p);
+	if (ret) {
+		printf("unavailable\n");
+	} else {
+		for (i = 0; i < value_len; i++)
+			printf("%02x", value[i]);
+		printf("\n");
+	}
+
+	debug("%s  Hash len:     %d\n", p, value_len);
+}
+
+/**
+ * fit_image_print_verification_data() - prints out the hash/signature details
+ * @fit: pointer to the FIT format image header
+ * @noffset: offset of the hash or signature node
+ * @p: pointer to prefix string
+ *
+ * This lists properies for the processed hash node
+ *
+ * returns:
+ *     no returned results
+ */
+static void fit_image_print_verification_data(const void *fit, int noffset,
+				       const char *p)
+{
+	const char *name;
+
+	/*
+	 * Check subnode name, must be equal to "hash" or "signature".
+	 * Multiple hash/signature nodes require unique unit node
+	 * names, e.g. hash@1, hash@2, signature@1, signature@2, etc.
+	 */
+	name = fit_get_name(fit, noffset, NULL);
+	if (!strncmp(name, FIT_HASH_NODENAME, strlen(FIT_HASH_NODENAME)))
+		fit_image_print_data(fit, noffset, p);
+}
+
+/**
  * fit_image_print - prints out the FIT component image details
  * @fit: pointer to the FIT format image header
  * @image_noffset: offset of the component image node
@@ -323,60 +401,9 @@ void fit_image_print(const void *fit, int image_noffset, const char *p)
 	     noffset = fdt_next_node(fit, noffset, &ndepth)) {
 		if (ndepth == 1) {
 			/* Direct child node of the component image node */
-			fit_image_print_hash(fit, noffset, p);
+			fit_image_print_verification_data(fit, noffset, p);
 		}
 	}
-}
-
-/**
- * fit_image_print_hash - prints out the hash node details
- * @fit: pointer to the FIT format image header
- * @noffset: offset of the hash node
- * @p: pointer to prefix string
- *
- * fit_image_print_hash() lists properies for the processed hash node
- *
- * returns:
- *     no returned results
- */
-void fit_image_print_hash(const void *fit, int noffset, const char *p)
-{
-	char *algo;
-	uint8_t *value;
-	int value_len;
-	int i, ret;
-
-	/*
-	 * Check subnode name, must be equal to "hash".
-	 * Multiple hash nodes require unique unit node
-	 * names, e.g. hash@1, hash@2, etc.
-	 */
-	if (strncmp(fit_get_name(fit, noffset, NULL),
-		    FIT_HASH_NODENAME, strlen(FIT_HASH_NODENAME)) != 0)
-		return;
-
-	debug("%s  Hash node:    '%s'\n", p,
-	      fit_get_name(fit, noffset, NULL));
-
-	printf("%s  Hash algo:    ", p);
-	if (fit_image_hash_get_algo(fit, noffset, &algo)) {
-		printf("invalid/unsupported\n");
-		return;
-	}
-	printf("%s\n", algo);
-
-	ret = fit_image_hash_get_value(fit, noffset, &value,
-					&value_len);
-	printf("%s  Hash value:   ", p);
-	if (ret) {
-		printf("unavailable\n");
-	} else {
-		for (i = 0; i < value_len; i++)
-			printf("%02x", value[i]);
-		printf("\n");
-	}
-
-	debug("%s  Hash len:     %d\n", p, value_len);
 }
 
 /**

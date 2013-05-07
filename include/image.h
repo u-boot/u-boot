@@ -556,7 +556,6 @@ int fit_parse_subimage(const char *spec, ulong addr_curr,
 
 void fit_print_contents(const void *fit);
 void fit_image_print(const void *fit, int noffset, const char *p);
-void fit_image_print_hash(const void *fit, int noffset, const char *p);
 
 /**
  * fit_get_end - get FIT image size
