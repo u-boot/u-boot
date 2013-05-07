@@ -860,8 +860,7 @@ static int fit_image_check_hash(const void *fit, int noffset, const void *data,
 	*err_msgp = NULL;
 
 	if (fit_image_hash_get_algo(fit, noffset, &algo)) {
-		*err_msgp = " error!\nCan't get hash algo "
-				"property";
+		*err_msgp = "Can't get hash algo property";
 		return -1;
 	}
 	printf("%s", algo);
@@ -876,22 +875,20 @@ static int fit_image_check_hash(const void *fit, int noffset, const void *data,
 
 	if (fit_image_hash_get_value(fit, noffset, &fit_value,
 				     &fit_value_len)) {
-		*err_msgp = " error!\nCan't get hash value "
-				"property";
+		*err_msgp = "Can't get hash value property";
 		return -1;
 	}
 
 	if (calculate_hash(data, size, algo, value, &value_len)) {
-		*err_msgp = " error!\n"
-				"Unsupported hash algorithm";
+		*err_msgp = "Unsupported hash algorithm";
 		return -1;
 	}
 
 	if (value_len != fit_value_len) {
-		*err_msgp = " error !\nBad hash value len";
+		*err_msgp = "Bad hash value len";
 		return -1;
 	} else if (memcmp(value, fit_value, value_len) != 0) {
-		*err_msgp = " error!\nBad hash value";
+		*err_msgp = "Bad hash value";
 		return -1;
 	}
 
@@ -920,7 +917,7 @@ int fit_image_verify(const void *fit, int image_noffset)
 
 	/* Get image data and data length */
 	if (fit_image_get_data(fit, image_noffset, &data, &size)) {
-		printf("Can't get image data/size\n");
+		err_msg = "Can't get image data/size";
 		return 0;
 	}
 
@@ -945,14 +942,14 @@ int fit_image_verify(const void *fit, int image_noffset)
 	}
 
 	if (noffset == -FDT_ERR_TRUNCATED || noffset == -FDT_ERR_BADSTRUCTURE) {
-		err_msg = " error!\nCorrupted or truncated tree";
+		err_msg = "Corrupted or truncated tree";
 		goto error;
 	}
 
 	return 1;
 
 error:
-	printf("%s for '%s' hash node in '%s' image node\n",
+	printf(" error!\n%s for '%s' hash node in '%s' image node\n",
 	       err_msg, fit_get_name(fit, noffset, NULL),
 	       fit_get_name(fit, image_noffset, NULL));
 	return 0;
