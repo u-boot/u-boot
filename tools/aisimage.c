@@ -32,7 +32,6 @@
 #define WORD_ALIGN0	4
 #define WORD_ALIGN(len) (((len)+WORD_ALIGN0-1) & ~(WORD_ALIGN0-1))
 #define MAX_CMD_BUFFER	4096
-#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
 static uint32_t ais_img_size;
 
