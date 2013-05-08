@@ -340,6 +340,16 @@ int update_flash_size(int flash_size);
  */
 void board_show_dram(ulong size);
 
+/**
+ * arch_fixup_memory_node() - Write arch-specific memory information to fdt
+ *
+ * Defined in arch/$(ARCH)/lib/bootm.c
+ *
+ * @blob:	FDT blob to write to
+ * @return 0 if ok, or -ve FDT_ERR_... on failure
+ */
+int arch_fixup_memory_node(void *blob);
+
 /* common/flash.c */
 void flash_perror (int);
 

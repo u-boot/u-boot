@@ -589,3 +589,65 @@ error:
 	*of_size = 0;
 	return 1;
 }
+
+/*
+ * Verify the device tree.
+ *
+ * This function is called after all device tree fix-ups have been enacted,
+ * so that the final device tree can be verified.  The definition of "verified"
+ * is up to the specific implementation.  However, it generally means that the
+ * addresses of some of the devices in the device tree are compared with the
+ * actual addresses at which U-Boot has placed them.
+ *
+ * Returns 1 on success, 0 on failure.  If 0 is returned, U-boot will halt the
+ * boot process.
+ */
+__weak int ft_verify_fdt(void *fdt)
+{
+	return 1;
+}
+
+__weak int arch_fixup_memory_node(void *blob)
+{
+	return 0;
+}
+
+int image_setup_libfdt(bootm_headers_t *images, void *blob,
+		       int of_size, struct lmb *lmb)
+{
+	ulong *initrd_start = &images->initrd_start;
+	ulong *initrd_end = &images->initrd_end;
+	int ret;
+
+	if (fdt_chosen(blob, 1) < 0) {
+		puts("ERROR: /chosen node create failed");
+		puts(" - must RESET the board to recover.\n");
+		return -1;
+	}
+	arch_fixup_memory_node(blob);
+	if (IMAAGE_OF_BOARD_SETUP)
+		ft_board_setup(blob, gd->bd);
+	fdt_fixup_ethernet(blob);
+
+	/* Delete the old LMB reservation */
+	lmb_free(lmb, (phys_addr_t)(u32)(uintptr_t)blob,
+		 (phys_size_t)fdt_totalsize(blob));
+
+	ret = fdt_resize(blob);
+	if (ret < 0)
+		return ret;
+	of_size = ret;
+
+	if (*initrd_start && *initrd_end) {
+		of_size += FDT_RAMDISK_OVERHEAD;
+		fdt_set_totalsize(blob, of_size);
+	}
+	/* Create a new LMB reservation */
+	lmb_reserve(lmb, (ulong)blob, of_size);
+
+	fdt_initrd(blob, *initrd_start, *initrd_end, 1);
+	if (!ft_verify_fdt(blob))
+		return -1;
+
+	return 0;
+}

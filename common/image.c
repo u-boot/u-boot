@@ -70,6 +70,10 @@ static const image_header_t *image_get_ramdisk(ulong rd_addr, uint8_t arch,
 
 #include <u-boot/crc.h>
 
+#ifndef CONFIG_SYS_BARGSIZE
+#define CONFIG_SYS_BARGSIZE 512
+#endif
+
 static const table_entry_t uimage_arch[] = {
 	{	IH_ARCH_INVALID,	NULL,		"Invalid ARCH",	},
 	{	IH_ARCH_ALPHA,		"alpha",	"Alpha",	},
@@ -1223,4 +1227,50 @@ int boot_get_kbd(struct lmb *lmb, bd_t **kbd)
 	return 0;
 }
 #endif /* CONFIG_SYS_BOOT_GET_KBD */
+
+#ifdef CONFIG_LMB
+int image_setup_linux(bootm_headers_t *images)
+{
+	ulong of_size = images->ft_len;
+	char **of_flat_tree = &images->ft_addr;
+	ulong *initrd_start = &images->initrd_start;
+	ulong *initrd_end = &images->initrd_end;
+	struct lmb *lmb = &images->lmb;
+	ulong rd_len;
+	int ret;
+
+	if (IMAGE_ENABLE_OF_LIBFDT)
+		boot_fdt_add_mem_rsv_regions(lmb, *of_flat_tree);
+
+	if (IMAGE_BOOT_GET_CMDLINE) {
+		ret = boot_get_cmdline(lmb, &images->cmdline_start,
+				&images->cmdline_end);
+		if (ret) {
+			puts("ERROR with allocation of cmdline\n");
+			return ret;
+		}
+	}
+	if (IMAGE_ENABLE_RAMDISK_HIGH) {
+		rd_len = images->rd_end - images->rd_start;
+		ret = boot_ramdisk_high(lmb, images->rd_start, rd_len,
+				initrd_start, initrd_end);
+		if (ret)
+			return ret;
+	}
+
+	if (IMAGE_ENABLE_OF_LIBFDT) {
+		ret = boot_relocate_fdt(lmb, of_flat_tree, &of_size);
+		if (ret)
+			return ret;
+	}
+
+	if (IMAGE_ENABLE_OF_LIBFDT && of_size) {
+		ret = image_setup_libfdt(images, *of_flat_tree, of_size, lmb);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
+}
+#endif /* CONFIG_LMB */
 #endif /* !USE_HOSTCC */

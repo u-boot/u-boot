@@ -36,6 +36,9 @@
 #include "compiler.h"
 #include <asm/byteorder.h>
 
+/* Define this to avoid #ifdefs later on */
+struct lmb;
+
 #ifdef USE_HOSTCC
 
 /* new uImage format support enabled on host */
@@ -92,6 +95,30 @@
 #define IMAGE_ENABLE_SHA1	0
 #endif
 
+#endif /* CONFIG_FIT */
+
+#ifdef CONFIG_SYS_BOOT_RAMDISK_HIGH
+# define IMAGE_ENABLE_RAMDISK_HIGH	1
+#else
+# define IMAGE_ENABLE_RAMDISK_HIGH	0
+#endif
+
+#ifdef CONFIG_OF_LIBFDT
+# define IMAGE_ENABLE_OF_LIBFDT	1
+#else
+# define IMAGE_ENABLE_OF_LIBFDT	0
+#endif
+
+#ifdef CONFIG_SYS_BOOT_GET_CMDLINE
+# define IMAGE_BOOT_GET_CMDLINE		1
+#else
+# define IMAGE_BOOT_GET_CMDLINE		0
+#endif
+
+#ifdef CONFIG_OF_BOARD_SETUP
+# define IMAAGE_OF_BOARD_SETUP		1
+#else
+# define IMAAGE_OF_BOARD_SETUP		0
 #endif
 
 /*
@@ -280,9 +307,7 @@ typedef struct bootm_headers {
 
 	ulong		rd_start, rd_end;/* ramdisk start/end */
 
-#ifdef CONFIG_OF_LIBFDT
 	char		*ft_addr;	/* flat dev tree address */
-#endif
 	ulong		ft_len;		/* length of flat device tree */
 
 	ulong		initrd_start;
@@ -390,21 +415,14 @@ ulong genimg_get_image(ulong img_addr);
 int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 		uint8_t arch, ulong *rd_start, ulong *rd_end);
 
-
-#ifdef CONFIG_OF_LIBFDT
 int boot_get_fdt(int flag, int argc, char * const argv[],
 		bootm_headers_t *images, char **of_flat_tree, ulong *of_size);
 void boot_fdt_add_mem_rsv_regions(struct lmb *lmb, void *fdt_blob);
 int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size);
-#endif
 
-#ifdef CONFIG_SYS_BOOT_RAMDISK_HIGH
 int boot_ramdisk_high(struct lmb *lmb, ulong rd_data, ulong rd_len,
 		  ulong *initrd_start, ulong *initrd_end);
-#endif /* CONFIG_SYS_BOOT_RAMDISK_HIGH */
-#ifdef CONFIG_SYS_BOOT_GET_CMDLINE
 int boot_get_cmdline(struct lmb *lmb, ulong *cmd_start, ulong *cmd_end);
-#endif /* CONFIG_SYS_BOOT_GET_CMDLINE */
 #ifdef CONFIG_SYS_BOOT_GET_KBD
 int boot_get_kbd(struct lmb *lmb, bd_t **kbd);
 #endif /* CONFIG_SYS_BOOT_GET_KBD */
@@ -545,6 +563,31 @@ static inline int image_check_target_arch(const image_header_t *hdr)
 	return image_check_arch(hdr, IH_ARCH_DEFAULT);
 }
 #endif /* USE_HOSTCC */
+
+/**
+ * Set up properties in the FDT
+ *
+ * This sets up properties in the FDT that is to be passed to linux.
+ *
+ * @images:	Images information
+ * @blob:	FDT to update
+ * @of_size:	Size of the FDT
+ * @lmb:	Points to logical memory block structure
+ * @return 0 if ok, <0 on failure
+ */
+int image_setup_libfdt(bootm_headers_t *images, void *blob,
+		       int of_size, struct lmb *lmb);
+
+/**
+ * Set up the FDT to use for booting a kernel
+ *
+ * This performs ramdisk setup, sets up the FDT if required, and adds
+ * paramters to the FDT if libfdt is available.
+ *
+ * @param images	Images information
+ * @return 0 if ok, <0 on failure
+ */
+int image_setup_linux(bootm_headers_t *images);
 
 /*******************************************************************/
 /* New uImage format specific code (prefixed with fit_) */
