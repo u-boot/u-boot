@@ -276,7 +276,7 @@ static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 #if defined(CONFIG_FIT)
 	} else if (images.fit_uname_os) {
 		ret = fit_image_get_entry(images.fit_hdr_os,
-				images.fit_noffset_os, &images.ep);
+					  images.fit_noffset_os, &images.ep);
 		if (ret) {
 			puts("Can't get entry point property!\n");
 			return 1;
