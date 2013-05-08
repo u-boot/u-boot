@@ -22,7 +22,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307	 USA
- *
  */
 
 #include <common.h>
@@ -68,23 +67,6 @@ void arch_lmb_reserve(struct lmb *lmb)
 	lmb_reserve(lmb, sp,
 		    gd->bd->bi_dram[0].start + gd->bd->bi_dram[0].size - sp);
 }
-
-#ifdef CONFIG_OF_LIBFDT
-static int fixup_memory_node(void *blob)
-{
-	bd_t	*bd = gd->bd;
-	int bank;
-	u64 start[CONFIG_NR_DRAM_BANKS];
-	u64 size[CONFIG_NR_DRAM_BANKS];
-
-	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
-		start[bank] = bd->bi_dram[bank].start;
-		size[bank] = bd->bi_dram[bank].size;
-	}
-
-	return fdt_fixup_memory_banks(blob, start, size, CONFIG_NR_DRAM_BANKS);
-}
-#endif
 
 static void announce_and_cleanup(void)
 {
@@ -202,43 +184,6 @@ static void setup_end_tag(bd_t *bd)
 	params->hdr.size = 0;
 }
 
-#ifdef CONFIG_OF_LIBFDT
-static int create_fdt(bootm_headers_t *images)
-{
-	ulong of_size = images->ft_len;
-	char **of_flat_tree = &images->ft_addr;
-	ulong *initrd_start = &images->initrd_start;
-	ulong *initrd_end = &images->initrd_end;
-	struct lmb *lmb = &images->lmb;
-	ulong rd_len;
-	int ret;
-
-	debug("using: FDT\n");
-
-	boot_fdt_add_mem_rsv_regions(lmb, *of_flat_tree);
-
-	rd_len = images->rd_end - images->rd_start;
-	ret = boot_ramdisk_high(lmb, images->rd_start, rd_len,
-			initrd_start, initrd_end);
-	if (ret)
-		return ret;
-
-	ret = boot_relocate_fdt(lmb, of_flat_tree, &of_size);
-	if (ret)
-		return ret;
-
-	fdt_chosen(*of_flat_tree, 1);
-	fixup_memory_node(*of_flat_tree);
-	fdt_fixup_ethernet(*of_flat_tree);
-	fdt_initrd(*of_flat_tree, *initrd_start, *initrd_end, 1);
-#ifdef CONFIG_OF_BOARD_SETUP
-	ft_board_setup(*of_flat_tree, gd->bd);
-#endif
-
-	return 0;
-}
-#endif
-
 __weak void setup_board_tags(struct tag **in_params) {}
 
 /* Subcommand: PREP */
@@ -249,7 +194,7 @@ static void boot_prep_linux(bootm_headers_t *images)
 	if (IMAGE_ENABLE_OF_LIBFDT && images->ft_len) {
 #ifdef CONFIG_OF_LIBFDT
 		debug("using: FDT\n");
-		if (create_fdt(images)) {
+		if (image_setup_linux(images)) {
 			printf("FDT creation failed! hanging...");
 			hang();
 		}
