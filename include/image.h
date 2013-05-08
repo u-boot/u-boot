@@ -61,8 +61,37 @@
 #if defined(CONFIG_FIT)
 #include <libfdt.h>
 #include <fdt_support.h>
-#define CONFIG_MD5		/* FIT images need MD5 support */
-#define CONFIG_SHA1		/* and SHA1 */
+# ifdef CONFIG_SPL_BUILD
+#  ifdef CONFIG_SPL_CRC32_SUPPORT
+#   define IMAGE_ENABLE_CRC32	1
+#  endif
+#  ifdef CONFIG_SPL_MD5_SUPPORT
+#   define IMAGE_ENABLE_MD5	1
+#  endif
+#  ifdef CONFIG_SPL_SHA1_SUPPORT
+#   define IMAGE_ENABLE_SHA1	1
+#  endif
+# else
+#  define CONFIG_CRC32		/* FIT images need CRC32 support */
+#  define CONFIG_MD5		/* and MD5 */
+#  define CONFIG_SHA1		/* and SHA1 */
+#  define IMAGE_ENABLE_CRC32	1
+#  define IMAGE_ENABLE_MD5	1
+#  define IMAGE_ENABLE_SHA1	1
+# endif
+
+#ifndef IMAGE_ENABLE_CRC32
+#define IMAGE_ENABLE_CRC32	0
+#endif
+
+#ifndef IMAGE_ENABLE_MD5
+#define IMAGE_ENABLE_MD5	0
+#endif
+
+#ifndef IMAGE_ENABLE_SHA1
+#define IMAGE_ENABLE_SHA1	0
+#endif
+
 #endif
 
 /*
