@@ -296,12 +296,7 @@ void image_print_contents(const void *ptr)
 	const image_header_t *hdr = (const image_header_t *)ptr;
 	const char *p;
 
-#ifdef USE_HOSTCC
-	p = "";
-#else
-	p = "   ";
-#endif
-
+	p = IMAGE_INDENT_STRING;
 	printf("%sImage Name:   %.*s\n", p, IH_NMLEN, image_get_name(hdr));
 	if (IMAGE_ENABLE_TIMESTAMP) {
 		printf("%sCreated:      ", p);
