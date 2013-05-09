@@ -106,4 +106,6 @@ SECTIONS
 	/DISCARD/ : { *(.plt*) }
 	/DISCARD/ : { *(.interp*) }
 	/DISCARD/ : { *(.gnu*) }
+	/DISCARD/ : { *(.ARM.exidx*) }
+	/DISCARD/ : { *(.gnu.linkonce.armexidx.*) }
 }
