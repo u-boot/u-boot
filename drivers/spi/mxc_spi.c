@@ -128,7 +128,7 @@ static s32 spi_cfg_mxc(struct mxc_spi_slave *mxcs, unsigned int cs,
 		unsigned int max_hz, unsigned int mode)
 {
 	u32 clk_src = mxc_get_clock(MXC_CSPI_CLK);
-	s32 pre_div = 0, post_div = 0, i, reg_ctrl, reg_config;
+	s32 pre_div = 1, post_div = 0, i, reg_ctrl, reg_config;
 	u32 ss_pol = 0, sclkpol = 0, sclkpha = 0;
 	struct cspi_regs *regs = (struct cspi_regs *)mxcs->base;
 
@@ -154,7 +154,7 @@ static s32 spi_cfg_mxc(struct mxc_spi_slave *mxcs, unsigned int cs,
 		pre_div = DIV_ROUND_UP(clk_src, max_hz);
 		if (pre_div > 16) {
 			post_div = pre_div / 16;
-			pre_div = 15;
+			pre_div = 16;
 		}
 		if (post_div != 0) {
 			for (i = 0; i < 16; i++) {
@@ -174,7 +174,7 @@ static s32 spi_cfg_mxc(struct mxc_spi_slave *mxcs, unsigned int cs,
 	reg_ctrl = (reg_ctrl & ~MXC_CSPICTRL_SELCHAN(3)) |
 		MXC_CSPICTRL_SELCHAN(cs);
 	reg_ctrl = (reg_ctrl & ~MXC_CSPICTRL_PREDIV(0x0F)) |
-		MXC_CSPICTRL_PREDIV(pre_div);
+		MXC_CSPICTRL_PREDIV(pre_div - 1);
 	reg_ctrl = (reg_ctrl & ~MXC_CSPICTRL_POSTDIV(0x0F)) |
 		MXC_CSPICTRL_POSTDIV(post_div);
 
