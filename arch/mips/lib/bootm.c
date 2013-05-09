@@ -69,20 +69,17 @@ static void boot_prep_linux(bootm_headers_t *images)
 
 static void boot_jump_linux(bootm_headers_t *images)
 {
-	void (*theKernel) (int, char **, char **, int *);
+	typedef void __noreturn (*kernel_entry_t)(int, ulong, ulong, ulong);
+	kernel_entry_t kernel = (kernel_entry_t) images->ep;
 
-	/* find kernel entry point */
-	theKernel = (void (*)(int, char **, char **, int *))images->ep;
-
-	debug("## Transferring control to Linux (at address %08lx) ...\n",
-		(ulong) theKernel);
+	debug("## Transferring control to Linux (at address %p) ...\n", kernel);
 
 	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 
 	/* we assume that the kernel is in place */
 	printf("\nStarting kernel ...\n\n");
 
-	theKernel(linux_argc, linux_argv, linux_env, 0);
+	kernel(linux_argc, (ulong)linux_argv, (ulong)linux_env, 0);
 }
 
 int do_bootm_linux(int flag, int argc, char * const argv[],
