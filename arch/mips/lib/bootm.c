@@ -41,7 +41,7 @@ static void boot_prep_linux(bootm_headers_t *images)
 #else
 	sprintf(env_buf, "%lu", (ulong)(gd->ram_size >> 20));
 	debug("## Giving linux memsize in MB, %lu\n",
-		(ulong)(gd->ram_size >> 20));
+	      (ulong)(gd->ram_size >> 20));
 #endif /* CONFIG_MEMSIZE_IN_BYTES */
 
 	linux_env_set("memsize", env_buf);
@@ -114,9 +114,9 @@ static void linux_params_init(ulong start, char *line)
 	char *next, *quote, *argp;
 
 	linux_argc = 1;
-	linux_argv = (char **) start;
+	linux_argv = (char **)start;
 	linux_argv[0] = 0;
-	argp = (char *) (linux_argv + LINUX_MAX_ARGS);
+	argp = (char *)(linux_argv + LINUX_MAX_ARGS);
 
 	next = line;
 
@@ -125,7 +125,8 @@ static void linux_params_init(ulong start, char *line)
 		next = strchr(line, ' ');
 
 		while (next && quote && quote < next) {
-			/* we found a left quote before the next blank
+			/*
+			 * we found a left quote before the next blank
 			 * now we have to find the matching right quote
 			 */
 			next = strchr(quote + 1, '"');
@@ -151,9 +152,9 @@ static void linux_params_init(ulong start, char *line)
 		line = next;
 	}
 
-	linux_env = (char **) (((ulong) argp + 15) & ~15);
+	linux_env = (char **)(((ulong) argp + 15) & ~15);
 	linux_env[0] = 0;
-	linux_env_p = (char *) (linux_env + LINUX_MAX_ENVS);
+	linux_env_p = (char *)(linux_env + LINUX_MAX_ENVS);
 	linux_env_idx = 0;
 }
 
