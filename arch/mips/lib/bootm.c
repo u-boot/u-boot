@@ -147,6 +147,7 @@ static void boot_prep_linux(bootm_headers_t *images)
 {
 	char env_buf[12];
 	const char *cp;
+	ulong rd_start, rd_size;
 
 #ifdef CONFIG_MEMSIZE_IN_BYTES
 	sprintf(env_buf, "%lu", (ulong)gd->ram_size);
@@ -157,14 +158,17 @@ static void boot_prep_linux(bootm_headers_t *images)
 	      (ulong)(gd->ram_size >> 20));
 #endif /* CONFIG_MEMSIZE_IN_BYTES */
 
+	rd_start = UNCACHED_SDRAM(images->initrd_start);
+	rd_size = images->initrd_end - images->initrd_start;
+
 	linux_env_init();
 
 	linux_env_set("memsize", env_buf);
 
-	sprintf(env_buf, "0x%08X", (uint) UNCACHED_SDRAM(images->rd_start));
+	sprintf(env_buf, "0x%08lX", rd_start);
 	linux_env_set("initrd_start", env_buf);
 
-	sprintf(env_buf, "0x%X", (uint) (images->rd_end - images->rd_start));
+	sprintf(env_buf, "0x%lX", rd_size);
 	linux_env_set("initrd_size", env_buf);
 
 	sprintf(env_buf, "0x%08X", (uint) (gd->bd->bi_flashstart));
