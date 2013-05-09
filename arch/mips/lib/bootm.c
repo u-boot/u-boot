@@ -27,6 +27,27 @@ static int linux_env_idx;
 static void linux_params_init(ulong start, char *commandline);
 static void linux_env_set(char *env_name, char *env_val);
 
+static ulong arch_get_sp(void)
+{
+	ulong ret;
+
+	__asm__ __volatile__("move %0, $sp" : "=r"(ret) : );
+
+	return ret;
+}
+
+void arch_lmb_reserve(struct lmb *lmb)
+{
+	ulong sp;
+
+	sp = arch_get_sp();
+	debug("## Current stack ends at 0x%08lx\n", sp);
+
+	/* adjust sp by 4K to be safe */
+	sp -= 4096;
+	lmb_reserve(lmb, sp, CONFIG_SYS_SDRAM_BASE + gd->ram_size - sp);
+}
+
 static void boot_prep_linux(bootm_headers_t *images)
 {
 	char *commandline = getenv("bootargs");
