@@ -25,9 +25,6 @@ static char **linux_env;
 static char *linux_env_p;
 static int linux_env_idx;
 
-static void linux_params_init(void);
-static void linux_env_set(char *env_name, char *env_val);
-
 static ulong arch_get_sp(void)
 {
 	ulong ret;
@@ -120,12 +117,36 @@ static void boot_cmdline_linux(bootm_headers_t *images)
 	linux_cmdline_dump();
 }
 
+static void linux_env_init(void)
+{
+	linux_env = (char **)(((ulong) linux_argp + 15) & ~15);
+	linux_env[0] = 0;
+	linux_env_p = (char *)(linux_env + LINUX_MAX_ENVS);
+	linux_env_idx = 0;
+}
+
+static void linux_env_set(const char *env_name, const char *env_val)
+{
+	if (linux_env_idx < LINUX_MAX_ENVS - 1) {
+		linux_env[linux_env_idx] = linux_env_p;
+
+		strcpy(linux_env_p, env_name);
+		linux_env_p += strlen(env_name);
+
+		*linux_env_p++ = '=';
+
+		strcpy(linux_env_p, env_val);
+		linux_env_p += strlen(env_val);
+
+		linux_env_p++;
+		linux_env[++linux_env_idx] = 0;
+	}
+}
+
 static void boot_prep_linux(bootm_headers_t *images)
 {
 	char env_buf[12];
-	char *cp;
-
-	linux_params_init();
+	const char *cp;
 
 #ifdef CONFIG_MEMSIZE_IN_BYTES
 	sprintf(env_buf, "%lu", (ulong)gd->ram_size);
@@ -135,6 +156,8 @@ static void boot_prep_linux(bootm_headers_t *images)
 	debug("## Giving linux memsize in MB, %lu\n",
 	      (ulong)(gd->ram_size >> 20));
 #endif /* CONFIG_MEMSIZE_IN_BYTES */
+
+	linux_env_init();
 
 	linux_env_set("memsize", env_buf);
 
@@ -202,31 +225,4 @@ int do_bootm_linux(int flag, int argc, char * const argv[],
 
 	/* does not return */
 	return 1;
-}
-
-static void linux_params_init(void)
-{
-	linux_env = (char **)(((ulong) linux_argp + 15) & ~15);
-	linux_env[0] = 0;
-	linux_env_p = (char *)(linux_env + LINUX_MAX_ENVS);
-	linux_env_idx = 0;
-}
-
-static void linux_env_set(char *env_name, char *env_val)
-{
-	if (linux_env_idx < LINUX_MAX_ENVS - 1) {
-		linux_env[linux_env_idx] = linux_env_p;
-
-		strcpy(linux_env_p, env_name);
-		linux_env_p += strlen(env_name);
-
-		strcpy(linux_env_p, "=");
-		linux_env_p += 1;
-
-		strcpy(linux_env_p, env_val);
-		linux_env_p += strlen(env_val);
-
-		linux_env_p++;
-		linux_env[++linux_env_idx] = 0;
-	}
 }
