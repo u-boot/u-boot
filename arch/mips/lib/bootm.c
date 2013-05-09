@@ -19,12 +19,13 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static int linux_argc;
 static char **linux_argv;
+static char *linux_argp;
 
 static char **linux_env;
 static char *linux_env_p;
 static int linux_env_idx;
 
-static void linux_params_init(ulong start, char *commandline);
+static void linux_params_init(void);
 static void linux_env_set(char *env_name, char *env_val);
 
 static ulong arch_get_sp(void)
@@ -48,13 +49,83 @@ void arch_lmb_reserve(struct lmb *lmb)
 	lmb_reserve(lmb, sp, CONFIG_SYS_SDRAM_BASE + gd->ram_size - sp);
 }
 
+static void linux_cmdline_init(void)
+{
+	linux_argc = 1;
+	linux_argv = (char **)UNCACHED_SDRAM(gd->bd->bi_boot_params);
+	linux_argv[0] = 0;
+	linux_argp = (char *)(linux_argv + LINUX_MAX_ARGS);
+}
+
+static void linux_cmdline_set(const char *value, size_t len)
+{
+	linux_argv[linux_argc] = linux_argp;
+	memcpy(linux_argp, value, len);
+	linux_argp[len] = 0;
+
+	linux_argp += len + 1;
+	linux_argc++;
+}
+
+static void linux_cmdline_dump(void)
+{
+	int i;
+
+	debug("## cmdline argv at 0x%p, argp at 0x%p\n",
+	      linux_argv, linux_argp);
+
+	for (i = 1; i < linux_argc; i++)
+		debug("   arg %03d: %s\n", i, linux_argv[i]);
+}
+
+static void boot_cmdline_linux(bootm_headers_t *images)
+{
+	const char *bootargs, *next, *quote;
+
+	linux_cmdline_init();
+
+	bootargs = getenv("bootargs");
+	if (!bootargs)
+		return;
+
+	next = bootargs;
+
+	while (bootargs && *bootargs && linux_argc < LINUX_MAX_ARGS) {
+		quote = strchr(bootargs, '"');
+		next = strchr(bootargs, ' ');
+
+		while (next && quote && quote < next) {
+			/*
+			 * we found a left quote before the next blank
+			 * now we have to find the matching right quote
+			 */
+			next = strchr(quote + 1, '"');
+			if (next) {
+				quote = strchr(next + 1, '"');
+				next = strchr(next + 1, ' ');
+			}
+		}
+
+		if (!next)
+			next = bootargs + strlen(bootargs);
+
+		linux_cmdline_set(bootargs, next - bootargs);
+
+		if (*next)
+			next++;
+
+		bootargs = next;
+	}
+
+	linux_cmdline_dump();
+}
+
 static void boot_prep_linux(bootm_headers_t *images)
 {
-	char *commandline = getenv("bootargs");
 	char env_buf[12];
 	char *cp;
 
-	linux_params_init(UNCACHED_SDRAM(gd->bd->bi_boot_params), commandline);
+	linux_params_init();
 
 #ifdef CONFIG_MEMSIZE_IN_BYTES
 	sprintf(env_buf, "%lu", (ulong)gd->ram_size);
@@ -107,8 +178,13 @@ int do_bootm_linux(int flag, int argc, char * const argv[],
 			bootm_headers_t *images)
 {
 	/* No need for those on MIPS */
-	if (flag & BOOTM_STATE_OS_BD_T || flag & BOOTM_STATE_OS_CMDLINE)
+	if (flag & BOOTM_STATE_OS_BD_T)
 		return -1;
+
+	if (flag & BOOTM_STATE_OS_CMDLINE) {
+		boot_cmdline_linux(images);
+		return 0;
+	}
 
 	if (flag & BOOTM_STATE_OS_PREP) {
 		boot_prep_linux(images);
@@ -120,6 +196,7 @@ int do_bootm_linux(int flag, int argc, char * const argv[],
 		return 0;
 	}
 
+	boot_cmdline_linux(images);
 	boot_prep_linux(images);
 	boot_jump_linux(images);
 
@@ -127,50 +204,9 @@ int do_bootm_linux(int flag, int argc, char * const argv[],
 	return 1;
 }
 
-static void linux_params_init(ulong start, char *line)
+static void linux_params_init(void)
 {
-	char *next, *quote, *argp;
-
-	linux_argc = 1;
-	linux_argv = (char **)start;
-	linux_argv[0] = 0;
-	argp = (char *)(linux_argv + LINUX_MAX_ARGS);
-
-	next = line;
-
-	while (line && *line && linux_argc < LINUX_MAX_ARGS) {
-		quote = strchr(line, '"');
-		next = strchr(line, ' ');
-
-		while (next && quote && quote < next) {
-			/*
-			 * we found a left quote before the next blank
-			 * now we have to find the matching right quote
-			 */
-			next = strchr(quote + 1, '"');
-			if (next) {
-				quote = strchr(next + 1, '"');
-				next = strchr(next + 1, ' ');
-			}
-		}
-
-		if (!next)
-			next = line + strlen(line);
-
-		linux_argv[linux_argc] = argp;
-		memcpy(argp, line, next - line);
-		argp[next - line] = 0;
-
-		argp += next - line + 1;
-		linux_argc++;
-
-		if (*next)
-			next++;
-
-		line = next;
-	}
-
-	linux_env = (char **)(((ulong) argp + 15) & ~15);
+	linux_env = (char **)(((ulong) linux_argp + 15) & ~15);
 	linux_env[0] = 0;
 	linux_env_p = (char *)(linux_env + LINUX_MAX_ENVS);
 	linux_env_idx = 0;
