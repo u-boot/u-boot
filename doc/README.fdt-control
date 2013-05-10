@@ -142,7 +142,11 @@ join the two:
 
 and then flash image.bin onto your board.
 
-You cannot use both of these options at the same time.
+If CONFIG_OF_HOSTFILE is defined, then it will be read from a file on
+startup. This is only useful for sandbox. Use the -d flag to U-Boot to
+specify the file to read.
+
+You cannot use more than one of these options at the same time.
 
 If you wish to put the fdt at a different address in memory, you can
 define the "fdtcontroladdr" environment variable. This is the hex

@@ -20,6 +20,9 @@
  * MA 02111-1307 USA
  */
 
+#ifndef __SANDBOX_ASM_IO_H
+#define __SANDBOX_ASM_IO_H
+
 /*
  * Given a physical address and a length, return a virtual address
  * that can be used to access the memory range with the caching
@@ -49,3 +52,8 @@ static inline void *map_sysmem(phys_addr_t paddr, unsigned long len)
 static inline void unmap_sysmem(const void *vaddr)
 {
 }
+
+/* Map from a pointer to our RAM buffer */
+phys_addr_t map_to_sysmem(void *ptr);
+
+#endif

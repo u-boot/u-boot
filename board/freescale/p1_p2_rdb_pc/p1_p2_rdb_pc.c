@@ -55,6 +55,13 @@
 #define GPIO_SLIC_PIN		30
 #define GPIO_SLIC_DATA		(1 << (31 - GPIO_SLIC_PIN))
 
+#if defined(CONFIG_P1021RDB) && !defined(CONFIG_SYS_RAMBOOT)
+#define GPIO_DDR_RST_PORT	1
+#define GPIO_DDR_RST_PIN	8
+#define GPIO_DDR_RST_DATA	(1 << (31 - GPIO_DDR_RST_PIN))
+
+#define GPIO_2BIT_MASK		(0x3 << (32 - (GPIO_DDR_RST_PIN + 1) * 2))
+#endif
 
 #if defined(CONFIG_P1025RDB) || defined(CONFIG_P1021RDB)
 #define PCA_IOPORT_I2C_ADDR		0x23
@@ -67,7 +74,7 @@
 const qe_iop_conf_t qe_iop_conf_tab[] = {
 	/* GPIO */
 	{1,   1, 2, 0, 0}, /* GPIO7/PB1   - LOAD_DEFAULT_N */
-#if 0
+#if defined(CONFIG_P1021RDB) && !defined(CONFIG_SYS_RAMBOOT)
 	{1,   8, 1, 1, 0}, /* GPIO10/PB8  - DDR_RST */
 #endif
 	{0,  15, 1, 0, 0}, /* GPIO11/A15  - WDI */
@@ -159,6 +166,16 @@ void board_gpio_init(void)
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	par_io_t *par_io = (par_io_t *) &(gur->qe_par_io);
 
+#if defined(CONFIG_P1021RDB) && !defined(CONFIG_SYS_RAMBOOT)
+	/* reset DDR3 */
+	setbits_be32(&par_io[GPIO_DDR_RST_PORT].cpdat, GPIO_DDR_RST_DATA);
+	udelay(1000);
+	clrbits_be32(&par_io[GPIO_DDR_RST_PORT].cpdat, GPIO_DDR_RST_DATA);
+	udelay(1000);
+	setbits_be32(&par_io[GPIO_DDR_RST_PORT].cpdat, GPIO_DDR_RST_DATA);
+	/* disable CE_PB8 */
+	clrbits_be32(&par_io[GPIO_DDR_RST_PORT].cpdir1, GPIO_2BIT_MASK);
+#endif
 	/* Enable VSC7385 switch */
 	setbits_be32(&par_io[GPIO_GETH_SW_PORT].cpdat, GPIO_GETH_SW_DATA);
 
@@ -421,6 +438,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 {
 	phys_addr_t base;
 	phys_size_t size;
+	const char *soc_usb_compat = "fsl-usb2-dr";
+	int err, usb1_off, usb2_off;
 
 	ft_cpu_setup(blob, bd);
 
@@ -442,5 +461,50 @@ void ft_board_setup(void *blob, bd_t *bd)
 #if defined(CONFIG_HAS_FSL_DR_USB)
 	fdt_fixup_dr_usb(blob, bd);
 #endif
+
+#if defined(CONFIG_SDCARD) || defined(CONFIG_SPIFLASH)
+	/* Delete eLBC node as it is muxed with USB2 controller */
+	if (hwconfig("usb2")) {
+		const char *soc_elbc_compat = "fsl,p1020-elbc";
+		int off = fdt_node_offset_by_compatible(blob, -1,
+				soc_elbc_compat);
+		if (off < 0) {
+			printf("WARNING: could not find compatible node %s: %s.\n",
+			       soc_elbc_compat,
+			       fdt_strerror(off));
+				return;
+		}
+		err = fdt_del_node(blob, off);
+		if (err < 0) {
+			printf("WARNING: could not remove %s: %s.\n",
+			       soc_elbc_compat, fdt_strerror(err));
+		}
+		return;
+	}
+#endif
+
+/* Delete USB2 node as it is muxed with eLBC */
+	usb1_off = fdt_node_offset_by_compatible(blob, -1,
+		soc_usb_compat);
+	if (usb1_off < 0) {
+		printf("WARNING: could not find compatible node %s: %s.\n",
+		       soc_usb_compat,
+		       fdt_strerror(usb1_off));
+		return;
+	}
+	usb2_off = fdt_node_offset_by_compatible(blob, usb1_off,
+			soc_usb_compat);
+	if (usb2_off < 0) {
+		printf("WARNING: could not find compatible node %s: %s.\n",
+		       soc_usb_compat,
+		       fdt_strerror(usb2_off));
+		return;
+	}
+	err = fdt_del_node(blob, usb2_off);
+	if (err < 0) {
+		printf("WARNING: could not remove %s: %s.\n",
+		       soc_usb_compat, fdt_strerror(err));
+	}
+
 }
 #endif

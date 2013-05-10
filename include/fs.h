@@ -62,5 +62,7 @@ int do_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		int fstype, int cmdline_base);
 int do_ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		int fstype);
+int do_save(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
+		int fstype, int cmdline_base);
 
 #endif /* _FS_H */

@@ -73,6 +73,9 @@ int get_partition_info_iso_verb(block_dev_desc_t * dev_desc, int part_num, disk_
 	iso_val_entry_t *pve = (iso_val_entry_t *)tmpbuf;
 	iso_init_def_entry_t *pide;
 
+	if (dev_desc->blksz != CD_SECTSIZE)
+		return -1;
+
 	/* the first sector (sector 0x10) must be a primary volume desc */
 	blkaddr=PVD_OFFSET;
 	if (dev_desc->block_read (dev_desc->dev, PVD_OFFSET, 1, (ulong *) tmpbuf) != 1)

@@ -222,6 +222,10 @@ ifneq ($(CONFIG_SPL_PAD_TO),)
 CPPFLAGS += -DCONFIG_SPL_PAD_TO=$(CONFIG_SPL_PAD_TO)
 endif
 
+ifneq ($(CONFIG_UBOOT_PAD_TO),)
+CPPFLAGS += -DCONFIG_UBOOT_PAD_TO=$(CONFIG_UBOOT_PAD_TO)
+endif
+
 ifeq ($(CONFIG_SPL_BUILD),y)
 CPPFLAGS += -DCONFIG_SPL_BUILD
 endif
@@ -229,8 +233,8 @@ endif
 # Does this architecture support generic board init?
 ifeq ($(__HAVE_ARCH_GENERIC_BOARD),)
 ifneq ($(CONFIG_SYS_GENERIC_BOARD),)
-$(error Your architecture does not support generic board. Please undefined \
-CONFIG_SYS_GENERIC_BOARD in your board config file)
+CHECK_GENERIC_BOARD = $(error Your architecture does not support generic board. \
+Please undefined CONFIG_SYS_GENERIC_BOARD in your board config file)
 endif
 endif
 

@@ -355,12 +355,3 @@ void nand_boot(void)
 		hang();
 	}
 }
-
-/*
- * Called in case of an exception.
- */
-void hang(void)
-{
-	/* Loop forever */
-	while (1) ;
-}

@@ -34,6 +34,7 @@ enum exit_type_id {
 /* The complete state of the test system */
 struct sandbox_state {
 	const char *cmd;		/* Command to execute */
+	const char *fdt_fname;		/* Filename of FDT binary */
 	enum exit_type_id exit_type;	/* How we exited U-Boot */
 	const char *parse_err;		/* Error to report from parsing */
 	int argc;			/* Program arguments */

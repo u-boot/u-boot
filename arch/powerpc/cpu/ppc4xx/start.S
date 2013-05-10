@@ -232,7 +232,7 @@
  *
  * Use r12 to access the GOT
  */
-#if !defined(CONFIG_NAND_SPL)
+#if !defined(CONFIG_NAND_SPL) && !defined(CONFIG_SPL_BUILD)
 	START_GOT
 	GOT_ENTRY(_GOT2_TABLE_)
 	GOT_ENTRY(_FIXUP_TABLE_)
@@ -248,7 +248,8 @@
 	END_GOT
 #endif /* CONFIG_NAND_SPL */
 
-#if defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
+#if defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL) && \
+	!defined(CONFIG_SPL_BUILD)
 	/*
 	 * NAND U-Boot image is started from offset 0
 	 */
@@ -268,6 +269,18 @@
 	 */
 	.text
 	bl	_start_440
+#endif
+
+#if defined(CONFIG_SPL) && !defined(CONFIG_SPL_BUILD)
+	/*
+	 * This is the entry of the real U-Boot from a board port
+	 * that supports SPL booting on the PPC4xx. We only need
+	 * to call board_init_f() here. Everything else has already
+	 * been done in the SPL u-boot version.
+	 */
+	GET_GOT			/* initialize GOT access		*/
+	bl	board_init_f	/* run 1st part of board init code (in Flash)*/
+	/* NOTREACHED - board_init_f() does not return */
 #endif
 
 /*
@@ -539,7 +552,7 @@ tlbnx2:	addi	r4,r4,1		/* Next TLB */
  * r3 - 1st arg to board_init(): IMMP pointer
  * r4 - 2nd arg to board_init(): boot flag
  */
-#ifndef CONFIG_NAND_SPL
+#if !defined(CONFIG_NAND_SPL) && !defined(CONFIG_SPL_BUILD)
 	.text
 	.long	0x27051956		/* U-Boot Magic Number			*/
 	.globl	version_string
@@ -611,6 +624,18 @@ _end_of_vectors:
 #endif
 	.globl	_start
 _start:
+
+#if defined(CONFIG_SPL) && !defined(CONFIG_SPL_BUILD)
+	/*
+	 * This is the entry of the real U-Boot from a board port
+	 * that supports SPL booting on the PPC4xx. We only need
+	 * to call board_init_f() here. Everything else has already
+	 * been done in the SPL u-boot version.
+	 */
+	GET_GOT			/* initialize GOT access		*/
+	bl	board_init_f	/* run 1st part of board init code (in Flash)*/
+	/* NOTREACHED - board_init_f() does not return */
+#endif
 
 /*****************************************************************************/
 #if defined(CONFIG_440)
@@ -796,7 +821,9 @@ _start:
 #ifdef CONFIG_NAND_SPL
 	bl	nand_boot_common	/* will not return */
 #else
+#ifndef CONFIG_SPL_BUILD
 	GET_GOT
+#endif
 
 	bl	cpu_init_f	/* run low-level CPU init code	   (from Flash) */
 	bl	board_init_f
@@ -1080,7 +1107,7 @@ _start:
 	/*----------------------------------------------------------------------- */
 
 
-#ifndef CONFIG_NAND_SPL
+#if !defined(CONFIG_NAND_SPL) && !defined(CONFIG_SPL_BUILD)
 /*
  * This code finishes saving the registers to the exception frame
  * and jumps to the appropriate handler for the exception.
@@ -1262,6 +1289,7 @@ in32r:
 	lwbrx	r3,r0,r3
 	blr
 
+#if !defined(CONFIG_SPL_BUILD)
 /*
  * void relocate_code (addr_sp, gd, addr_moni)
  *
@@ -1626,6 +1654,7 @@ __440_msr_continue:
 
 	mtlr	r4			/* restore link register	*/
 	blr
+#endif /* CONFIG_SPL_BUILD */
 
 #if defined(CONFIG_440)
 /*----------------------------------------------------------------------------+

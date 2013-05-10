@@ -31,6 +31,7 @@
 #include <version.h>
 #include <environment.h>
 #include <fdtdec.h>
+#include <fs.h>
 #if defined(CONFIG_CMD_IDE)
 #include <ide.h>
 #endif
@@ -49,9 +50,11 @@
 #include <mpc5xxx.h>
 #endif
 
+#include <os.h>
 #include <post.h>
 #include <spi.h>
 #include <watchdog.h>
+#include <asm/errno.h>
 #include <asm/io.h>
 #ifdef CONFIG_MP
 #include <asm/mp.h>
@@ -60,6 +63,9 @@
 #ifdef CONFIG_X86
 #include <asm/init_helpers.h>
 #include <asm/relocate.h>
+#endif
+#ifdef CONFIG_SANDBOX
+#include <asm/state.h>
 #endif
 #include <linux/compiler.h>
 
@@ -155,6 +161,7 @@ static int init_baud_rate(void)
 
 static int display_text_info(void)
 {
+#ifndef CONFIG_SANDBOX
 	ulong bss_start, bss_end;
 
 #ifdef CONFIG_SYS_SYM_OFFSETS
@@ -166,6 +173,7 @@ static int display_text_info(void)
 #endif
 	debug("U-Boot code: %08X -> %08lX  BSS: -> %08lX\n",
 	      CONFIG_SYS_TEXT_BASE, bss_start, bss_end);
+#endif
 
 #ifdef CONFIG_MODEM_SUPPORT
 	debug("Modem Support enabled\n");
@@ -284,6 +292,8 @@ static int setup_mon_len(void)
 {
 #ifdef CONFIG_SYS_SYM_OFFSETS
 	gd->mon_len = _bss_end_ofs;
+#elif defined(CONFIG_SANDBOX)
+	gd->mon_len = (ulong)&_end - (ulong)_init;
 #else
 	/* TODO: use (ulong)&__bss_end - (ulong)&__text_start; ? */
 	gd->mon_len = (ulong)&__bss_end - CONFIG_SYS_MONITOR_BASE;
@@ -295,6 +305,66 @@ __weak int arch_cpu_init(void)
 {
 	return 0;
 }
+
+#ifdef CONFIG_OF_HOSTFILE
+
+#define CHECK(x)		err = (x); if (err) goto failed;
+
+/* Create an empty device tree blob */
+static int make_empty_fdt(void *fdt)
+{
+	int err;
+
+	CHECK(fdt_create(fdt, 256));
+	CHECK(fdt_finish_reservemap(fdt));
+	CHECK(fdt_begin_node(fdt, ""));
+	CHECK(fdt_end_node(fdt));
+	CHECK(fdt_finish(fdt));
+
+	return 0;
+failed:
+	printf("Unable to create empty FDT: %s\n", fdt_strerror(err));
+	return -EACCES;
+}
+
+static int read_fdt_from_file(void)
+{
+	struct sandbox_state *state = state_get_current();
+	void *blob;
+	int size;
+	int err;
+
+	blob = map_sysmem(CONFIG_SYS_FDT_LOAD_ADDR, 0);
+	if (!state->fdt_fname) {
+		err = make_empty_fdt(blob);
+		if (!err)
+			goto done;
+		return err;
+	}
+	err = fs_set_blk_dev("host", NULL, FS_TYPE_SANDBOX);
+	if (err)
+		return err;
+	size = fs_read(state->fdt_fname, CONFIG_SYS_FDT_LOAD_ADDR, 0, 0);
+	if (size < 0)
+		return -EIO;
+
+done:
+	gd->fdt_blob = blob;
+
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_SANDBOX
+static int setup_ram_buf(void)
+{
+	gd->arch.ram_buf = os_malloc(CONFIG_SYS_SDRAM_SIZE);
+	assert(gd->arch.ram_buf);
+	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+
+	return 0;
+}
+#endif
 
 static int setup_fdt(void)
 {
@@ -308,6 +378,11 @@ static int setup_fdt(void)
 # else
 	gd->fdt_blob = (ulong *)&_end;
 # endif
+#elif defined(CONFIG_OF_HOSTFILE)
+	if (read_fdt_from_file()) {
+		puts("Failed to read control FDT\n");
+		return -1;
+	}
 #endif
 	/* Allow the early environment to override the fdt address */
 	gd->fdt_blob = (void *)getenv_ulong("fdtcontroladdr", 16,
@@ -470,7 +545,7 @@ static int reserve_malloc(void)
 static int reserve_board(void)
 {
 	gd->dest_addr_sp -= sizeof(bd_t);
-	gd->bd = (bd_t *)gd->dest_addr_sp;
+	gd->bd = (bd_t *)map_sysmem(gd->dest_addr_sp, sizeof(bd_t));
 	memset(gd->bd, '\0', sizeof(bd_t));
 	debug("Reserving %zu Bytes for Board Info at: %08lx\n",
 			sizeof(bd_t), gd->dest_addr_sp);
@@ -489,7 +564,7 @@ static int setup_machine(void)
 static int reserve_global_data(void)
 {
 	gd->dest_addr_sp -= sizeof(gd_t);
-	gd->new_gd = (gd_t *)gd->dest_addr_sp;
+	gd->new_gd = (gd_t *)map_sysmem(gd->dest_addr_sp, sizeof(gd_t));
 	debug("Reserving %zu Bytes for Global Data at: %08lx\n",
 			sizeof(gd_t), gd->dest_addr_sp);
 	return 0;
@@ -506,9 +581,9 @@ static int reserve_fdt(void)
 		gd->fdt_size = ALIGN(fdt_totalsize(gd->fdt_blob) + 0x1000, 32);
 
 		gd->dest_addr_sp -= gd->fdt_size;
-		gd->new_fdt = (void *)gd->dest_addr_sp;
-		debug("Reserving %lu Bytes for FDT at: %p\n",
-		      gd->fdt_size, gd->new_fdt);
+		gd->new_fdt = map_sysmem(gd->dest_addr_sp, gd->fdt_size);
+		debug("Reserving %lu Bytes for FDT at: %08lx\n",
+		      gd->fdt_size, gd->dest_addr_sp);
 	}
 
 	return 0;
@@ -709,8 +784,9 @@ static int setup_reloc(void)
 	memcpy(gd->new_gd, (char *)gd, sizeof(gd_t));
 
 	debug("Relocation Offset is: %08lx\n", gd->reloc_off);
-	debug("Relocating to %08lx, new gd at %p, sp at %08lx\n",
-	      gd->dest_addr, gd->new_gd, gd->dest_addr_sp);
+	debug("Relocating to %08lx, new gd at %08lx, sp at %08lx\n",
+	      gd->dest_addr, (ulong)map_to_sysmem(gd->new_gd),
+	      gd->dest_addr_sp);
 
 	return 0;
 }
@@ -736,6 +812,8 @@ static int jump_to_copy(void)
 	 * (CPU cache)
 	 */
 	board_init_f_r_trampoline(gd->start_addr_sp);
+#elif defined(CONFIG_SANDBOX)
+	board_init_r(gd->new_gd, 0);
 #else
 	relocate_code(gd->dest_addr_sp, gd->new_gd, gd->dest_addr);
 #endif
@@ -757,6 +835,9 @@ static init_fnc_t init_sequence_f[] = {
 		!defined(CONFIG_MPC83xx) && !defined(CONFIG_MPC85xx) && \
 		!defined(CONFIG_MPC86xx) && !defined(CONFIG_X86)
 	zero_global_data,
+#endif
+#ifdef CONFIG_SANDBOX
+	setup_ram_buf,
 #endif
 	setup_fdt,
 	setup_mon_len,
@@ -816,8 +897,11 @@ static init_fnc_t init_sequence_f[] = {
 	init_baud_rate,		/* initialze baudrate settings */
 	serial_init,		/* serial communications setup */
 	console_init_f,		/* stage 1 init of console */
-#if defined(CONFIG_X86) && defined(CONFIG_OF_CONTROL)
-	prepare_fdt,		/* TODO(sjg@chromium.org): remove */
+#ifdef CONFIG_SANDBOX
+	sandbox_early_getopt_check,
+#endif
+#ifdef CONFIG_OF_CONTROL
+	fdtdec_prepare_fdt,
 #endif
 	display_options,	/* say that we are here */
 	display_text_info,	/* show debugging info if required */
@@ -1003,9 +1087,3 @@ void board_init_f_r(void)
 	hang();
 }
 #endif /* CONFIG_X86 */
-
-void hang(void)
-{
-	puts("### ERROR ### Please RESET the board ###\n");
-	for (;;);
-}

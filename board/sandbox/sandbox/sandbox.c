@@ -56,6 +56,6 @@ int timer_init(void)
 
 int dram_init(void)
 {
-	gd->ram_size = CONFIG_DRAM_SIZE;
+	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
 	return 0;
 }

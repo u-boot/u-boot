@@ -27,7 +27,6 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(ARCH).o
 
-COBJS-y	+= board.o
 COBJS-y	+= interrupts.o
 
 SRCS	:= $(COBJS-y:.o=.c)

@@ -352,6 +352,19 @@ int	envmatch     (uchar *, int);
 char	*getenv	     (const char *);
 int	getenv_f     (const char *name, char *buf, unsigned len);
 ulong getenv_ulong(const char *name, int base, ulong default_val);
+
+/**
+ * getenv_hex() - Return an environment variable as a hex value
+ *
+ * Decode an environment as a hex number (it may or may not have a 0x
+ * prefix). If the environment variable cannot be found, or does not start
+ * with hex digits, the default value is returned.
+ *
+ * @varname:		Variable to decode
+ * @default_val:	Value to return on error
+ */
+ulong getenv_hex(const char *varname, ulong default_val);
+
 /*
  * Read an environment variable as a boolean
  * Return -1 if variable does not exist (default to true)
@@ -635,9 +648,6 @@ int	prt_8260_clks (void);
 #elif defined(CONFIG_MPC5xxx)
 int	prt_mpc5xxx_clks (void);
 #endif
-#if defined(CONFIG_MPC512X)
-int	prt_mpc512xxx_clks (void);
-#endif
 #if defined(CONFIG_MPC8220)
 int	prt_mpc8220_clks (void);
 #endif
@@ -897,6 +907,11 @@ static inline void *map_sysmem(phys_addr_t paddr, unsigned long len)
 static inline void unmap_sysmem(const void *vaddr)
 {
 }
+
+static inline phys_addr_t map_to_sysmem(void *ptr)
+{
+	return (phys_addr_t)(uintptr_t)ptr;
+}
 # endif
 
 #endif /* __ASSEMBLY__ */
@@ -993,10 +1008,17 @@ static inline void unmap_sysmem(const void *vaddr)
  * of a function scoped static buffer.  It can not be used to create a cache
  * line aligned global buffer.
  */
-#define ALLOC_ALIGN_BUFFER(type, name, size, align)			\
-	char __##name[ROUND(size * sizeof(type), align) + (align - 1)];	\
+#define PAD_COUNT(s, pad) ((s - 1) / pad + 1)
+#define PAD_SIZE(s, pad) (PAD_COUNT(s, pad) * pad)
+#define ALLOC_ALIGN_BUFFER_PAD(type, name, size, align, pad)		\
+	char __##name[ROUND(PAD_SIZE(size * sizeof(type), pad), align)  \
+		      + (align - 1)];					\
 									\
 	type *name = (type *) ALIGN((uintptr_t)__##name, align)
+#define ALLOC_ALIGN_BUFFER(type, name, size, align)		\
+	ALLOC_ALIGN_BUFFER_PAD(type, name, size, align, 1)
+#define ALLOC_CACHE_ALIGN_BUFFER_PAD(type, name, size, pad)		\
+	ALLOC_ALIGN_BUFFER_PAD(type, name, size, ARCH_DMA_MINALIGN, pad)
 #define ALLOC_CACHE_ALIGN_BUFFER(type, name, size)			\
 	ALLOC_ALIGN_BUFFER(type, name, size, ARCH_DMA_MINALIGN)
 
@@ -1007,7 +1029,7 @@ static inline void unmap_sysmem(const void *vaddr)
  */
 #define DEFINE_ALIGN_BUFFER(type, name, size, align)			\
 	static char __##name[roundup(size * sizeof(type), align)]	\
-			__attribute__((aligned(align)));				\
+			__aligned(align);				\
 									\
 	static type *name = (type *)__##name
 #define DEFINE_CACHE_ALIGN_BUFFER(type, name, size)			\

@@ -48,6 +48,26 @@ long sandbox_fs_read_at(const char *filename, unsigned long pos,
 	return size;
 }
 
+long sandbox_fs_write_at(const char *filename, unsigned long pos,
+			 void *buffer, unsigned long towrite)
+{
+	ssize_t size;
+	int fd, ret;
+
+	fd = os_open(filename, OS_O_RDWR | OS_O_CREAT);
+	if (fd < 0)
+		return fd;
+	ret = os_lseek(fd, pos, OS_SEEK_SET);
+	if (ret == -1) {
+		os_close(fd);
+		return ret;
+	}
+	size = os_write(fd, buffer, towrite);
+	os_close(fd);
+
+	return size;
+}
+
 int sandbox_fs_ls(const char *dirname)
 {
 	struct os_dirent_node *head, *node;
@@ -80,4 +100,17 @@ int fs_read_sandbox(const char *filename, void *buf, int offset, int len)
 	}
 
 	return len_read;
+}
+
+int fs_write_sandbox(const char *filename, void *buf, int offset, int len)
+{
+	int len_written;
+
+	len_written = sandbox_fs_write_at(filename, offset, buf, len);
+	if (len_written == -1) {
+		printf("** Unable to write file %s **\n", filename);
+		return -1;
+	}
+
+	return len_written;
 }

@@ -90,7 +90,7 @@ int sandbox_main_loop_init(void)
 
 	/* Execute command if required */
 	if (state->cmd) {
-		run_command(state->cmd, 0);
+		run_command_list(state->cmd, -1, 0);
 		os_exit(state->exit_type);
 	}
 
@@ -103,6 +103,13 @@ static int sb_cmdline_cb_command(struct sandbox_state *state, const char *arg)
 	return 0;
 }
 SB_CMDLINE_OPT_SHORT(command, 'c', 1, "Execute U-Boot command");
+
+static int sb_cmdline_cb_fdt(struct sandbox_state *state, const char *arg)
+{
+	state->fdt_fname = arg;
+	return 0;
+}
+SB_CMDLINE_OPT_SHORT(fdt, 'd', 1, "Specify U-Boot's control FDT");
 
 int main(int argc, char *argv[])
 {

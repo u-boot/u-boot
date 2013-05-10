@@ -623,6 +623,20 @@ skip_l2:
 	}
 #endif
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_USB14
+	/* On P204x/P304x/P50x0 Rev1.0, USB transmit will result internal
+	 * multi-bit ECC errors which has impact on performance, so software
+	 * should disable all ECC reporting from USB1 and USB2.
+	 */
+	if (IS_SVR_REV(get_svr(), 1, 0)) {
+		struct dcsr_dcfg_regs *dcfg = (struct dcsr_dcfg_regs *)
+			(CONFIG_SYS_DCSRBAR + CONFIG_SYS_DCSR_DCFG_OFFSET);
+		setbits_be32(&dcfg->ecccr1,
+				(DCSR_DCFG_ECC_DISABLE_USB1 |
+				 DCSR_DCFG_ECC_DISABLE_USB2));
+	}
+#endif
+
 #ifdef CONFIG_FMAN_ENET
 	fman_enet_init();
 #endif

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010
+ * (C) Copyright 2007-2013
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * This program is free software; you can redistribute it and/or
@@ -37,8 +37,12 @@
 #define CONFIG_440		1		/* ... PPC440 family	*/
 #define CONFIG_4xx		1		/* ... PPC4xx family	*/
 
-#ifndef CONFIG_SYS_TEXT_BASE
+#ifdef CONFIG_LCD4_LWMON5
+#define	CONFIG_SYS_TEXT_BASE	0x01000000 /* SPL U-Boot TEXT_BASE */
+#define CONFIG_HOSTNAME		lcd4_lwmon5
+#else
 #define CONFIG_SYS_TEXT_BASE	0xFFF80000
+#define CONFIG_HOSTNAME		lwmon5
 #endif
 
 #define CONFIG_SYS_CLK_FREQ	33300000	/* external freq to pll	*/
@@ -56,7 +60,7 @@
  * actual resources get mapped (not physical addresses)
  */
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE	/* Start of U-Boot	*/
-#define CONFIG_SYS_MONITOR_LEN		(0xFFFFFFFF - CONFIG_SYS_MONITOR_BASE + 1)
+#define CONFIG_SYS_MONITOR_LEN		0x80000
 #define CONFIG_SYS_MALLOC_LEN		(1 << 20)	/* Reserved for malloc	*/
 
 #define CONFIG_SYS_BOOT_BASE_ADDR	0xf0000000
@@ -75,9 +79,11 @@
 #define CONFIG_SYS_PCI_MEMBASE2		(CONFIG_SYS_PCI_MEMBASE1 + 0x10000000)
 #define CONFIG_SYS_PCI_MEMBASE3		(CONFIG_SYS_PCI_MEMBASE2 + 0x10000000)
 
+#ifndef CONFIG_LCD4_LWMON5
 #define CONFIG_SYS_USB2D0_BASE		0xe0000100
 #define CONFIG_SYS_USB_DEVICE		0xe0000000
 #define CONFIG_SYS_USB_HOST		0xe0000400
+#endif
 
 /*
  * Initial RAM & stack pointer
@@ -87,12 +93,20 @@
  * content during reset (GPT0_COMP6). This way we reserve the OCM (16k)
  * for logbuffer only. (GPT0_COMP1-COMP5 are reserved for logbuffer header.)
  */
+#ifndef CONFIG_LCD4_LWMON5
 #define CONFIG_SYS_INIT_RAM_DCACHE	1		/* d-cache as init ram	*/
 #define CONFIG_SYS_INIT_RAM_ADDR	0x70000000		/* DCache       */
 #define CONFIG_SYS_INIT_RAM_SIZE		(4 << 10)
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - \
 					 GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
+#else
+#define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_OCM_BASE
+#define CONFIG_SYS_INIT_RAM_SIZE	(4 << 10)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - \
+					 GENERATED_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
+#endif
 /* unused GPT0 COMP reg	*/
 #define CONFIG_SYS_POST_WORD_ADDR	(CONFIG_SYS_PERIPHERAL_BASE + GPT0_COMP6)
 #define CONFIG_SYS_OCM_SIZE		(16 << 10)
@@ -166,8 +180,11 @@
 #define CONFIG_SYS_MBYTES_SDRAM		256
 #define CONFIG_SYS_DDR_CACHED_ADDR	0x40000000	/* setup 2nd TLB cached here	*/
 #define CONFIG_DDR_DATA_EYE			/* use DDR2 optimization	*/
+#ifndef CONFIG_LCD4_LWMON5
 #define CONFIG_DDR_ECC				/* enable ECC			*/
+#endif
 
+#ifndef CONFIG_LCD4_LWMON5
 /* POST support */
 #define CONFIG_POST		(CONFIG_SYS_POST_CACHE		| \
 				 CONFIG_SYS_POST_CPU		| \
@@ -276,6 +293,7 @@
 #define CONFIG_ALT_LH_ADDR	(CONFIG_SYS_PERIPHERAL_BASE + GPT0_COMP1)
 #define CONFIG_ALT_LB_ADDR	(CONFIG_SYS_OCM_BASE)
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV /* Otherwise it catches logbuffer as output */
+#endif
 
 /*
  * I2C
@@ -395,6 +413,7 @@
 #define CONFIG_VIDEO_SW_CURSOR
 #define CONFIG_SPLASH_SCREEN
 
+#ifndef CONFIG_LCD4_LWMON5
 /*
  * USB/EHCI
  */
@@ -410,6 +429,7 @@
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
 #define CONFIG_ISO_PARTITION
+#endif
 
 /*
  * BOOTP options
@@ -444,8 +464,10 @@
 #define CONFIG_CMD_BMP
 #endif
 
+#ifndef CONFIG_LCD4_LWMON5
 #ifdef CONFIG_440EPX
 #define CONFIG_CMD_USB
+#endif
 #endif
 
 /*
@@ -480,11 +502,15 @@
 #define CONFIG_MX_CYCLIC        1       /* enable mdc/mwc commands      */
 #define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
 
+#define CONFIG_SYS_CONSOLE_INFO_QUIET	/* don't print console @ startup*/
+
+#ifndef CONFIG_LCD4_LWMON5
 #ifndef DEBUG
 #define CONFIG_HW_WATCHDOG	1	/* Use external HW-Watchdog	*/
 #endif
 #define CONFIG_WD_PERIOD	40000	/* in usec */
 #define CONFIG_WD_MAX_RATE	66600	/* in ticks */
+#endif
 
 /*
  * For booting Linux, the board info and command line data
@@ -644,4 +670,40 @@
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	    /* which serial port to use */
 #endif
+
+/*
+ * SPL related defines
+ */
+#ifdef CONFIG_LCD4_LWMON5
+#define CONFIG_SPL
+#define CONFIG_SPL_FRAMEWORK
+#define CONFIG_SPL_BOARD_INIT
+#define CONFIG_SPL_NOR_SUPPORT
+#define CONFIG_SPL_TEXT_BASE		0xffff0000 /* last 64 KiB for SPL */
+#define CONFIG_SYS_SPL_MAX_LEN		(64 << 10)
+#define CONFIG_UBOOT_PAD_TO		458752	/* decimal for 'dd' */
+#define	CONFIG_SPL_START_S_PATH	"arch/powerpc/cpu/ppc4xx"
+#define CONFIG_SPL_LDSCRIPT	"arch/powerpc/cpu/ppc4xx/u-boot-spl.lds"
+#define CONFIG_SPL_LIBCOMMON_SUPPORT	/* image.c */
+#define CONFIG_SPL_LIBGENERIC_SUPPORT	/* string.c */
+#define CONFIG_SPL_SERIAL_SUPPORT
+
+/* Place BSS for SPL near end of SDRAM */
+#define CONFIG_SPL_BSS_START_ADDR	((256 - 1) << 20)
+#define CONFIG_SPL_BSS_MAX_SIZE		(64 << 10)
+
+#define CONFIG_SPL_OS_BOOT
+/* Place patched DT blob (fdt) at this address */
+#define CONFIG_SYS_SPL_ARGS_ADDR	0x01800000
+
+#define CONFIG_SPL_TARGET		"u-boot-img-spl-at-end.bin"
+
+/* Settings for real U-Boot to be loaded from NOR flash */
+#define CONFIG_SYS_UBOOT_BASE		(-CONFIG_SYS_MONITOR_LEN)
+#define CONFIG_SYS_UBOOT_START		0x01002100
+
+#define CONFIG_SYS_OS_BASE		0xf8000000
+#define CONFIG_SYS_FDT_BASE		0xf87c0000
+#endif
+
 #endif	/* __CONFIG_H */

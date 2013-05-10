@@ -406,6 +406,7 @@ void sata_identify(int num, int dev)
 	/* assuming HD */
 	sata_dev_desc[devno].type = DEV_TYPE_HARDDISK;
 	sata_dev_desc[devno].blksz = ATA_BLOCKSIZE;
+	sata_dev_desc[devno].log2blksz = LOG2(sata_dev_desc[devno].blksz);
 	sata_dev_desc[devno].lun = 0;	/* just to fill something in... */
 }
 

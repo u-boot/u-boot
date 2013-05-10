@@ -183,6 +183,16 @@ endif
 # load other configuration
 include $(TOPDIR)/config.mk
 
+# Targets which don't build the source code
+NON_BUILD_TARGETS = backup clean clobber distclean mkproper tidy unconfig
+
+# Only do the generic board check when actually building, not configuring
+ifeq ($(filter $(NON_BUILD_TARGETS),$(MAKECMDGOALS)),)
+ifeq ($(findstring _config,$(MAKECMDGOALS)),)
+$(CHECK_GENERIC_BOARD)
+endif
+endif
+
 # If board code explicitly specified LDSCRIPT or CONFIG_SYS_LDSCRIPT, use
 # that (or fail if absent).  Otherwise, search for a linker script in a
 # standard location.
@@ -553,6 +563,18 @@ endif
 
 $(obj)u-boot-img.bin: $(obj)spl/u-boot-spl.bin $(obj)u-boot.img
 		cat $(obj)spl/u-boot-spl.bin $(obj)u-boot.img > $@
+
+# PPC4xx needs the SPL at the end of the image, since the reset vector
+# is located at 0xfffffffc. So we can't use the "u-boot-img.bin" target
+# and need to introduce a new build target with the full blown U-Boot
+# at the start padded up to the start of the SPL image. And then concat
+# the SPL image to the end.
+$(obj)u-boot-img-spl-at-end.bin: $(obj)spl/u-boot-spl.bin $(obj)u-boot.img
+		tr "\000" "\377" < /dev/zero | dd ibs=1 count=$(CONFIG_UBOOT_PAD_TO) \
+			of=$(obj)u-boot-pad.img 2>/dev/null
+		dd if=$(obj)u-boot.img of=$(obj)u-boot-pad.img \
+			conv=notrunc 2>/dev/null
+		cat $(obj)u-boot-pad.img $(obj)spl/u-boot-spl.bin > $@
 
 ifeq ($(CONFIG_SANDBOX),y)
 GEN_UBOOT = \

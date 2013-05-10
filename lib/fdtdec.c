@@ -354,10 +354,11 @@ int fdtdec_check_fdt(void)
  */
 int fdtdec_prepare_fdt(void)
 {
-	if (((uintptr_t)gd->fdt_blob & 3) || fdt_check_header(gd->fdt_blob)) {
+	if (!gd->fdt_blob || ((uintptr_t)gd->fdt_blob & 3) ||
+	    fdt_check_header(gd->fdt_blob)) {
 		printf("No valid FDT found - please append one to U-Boot "
 			"binary, use u-boot-dtb.bin or define "
-			"CONFIG_OF_EMBED\n");
+			"CONFIG_OF_EMBED. For sandbox, use -d <file.dtb>\n");
 		return -1;
 	}
 	return 0;

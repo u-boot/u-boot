@@ -55,6 +55,7 @@ COBJS-$(CONFIG_SHA256) += sha256.o
 COBJS-y	+= strmhz.o
 COBJS-$(CONFIG_TPM) += tpm.o
 COBJS-$(CONFIG_RBTREE)	+= rbtree.o
+COBJS-$(CONFIG_BITREVERSE) += bitrev.o
 endif
 
 ifdef CONFIG_SPL_BUILD
@@ -71,7 +72,9 @@ COBJS-$(CONFIG_BCH) += bch.o
 COBJS-y += crc32.o
 COBJS-y += ctype.o
 COBJS-y += div64.o
+COBJS-y += hang.o
 COBJS-y += linux_string.o
+COBJS-$(CONFIG_REGEX) += slre.o
 COBJS-y += string.o
 COBJS-y += time.o
 COBJS-$(CONFIG_BOOTP_PXE) += uuid.o

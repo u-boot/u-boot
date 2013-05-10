@@ -207,6 +207,9 @@
 #define PART_ACCESS_MASK	(0x7)
 #define PART_SUPPORT		(0x1)
 
+/* Maximum block size for MMC */
+#define MMC_MAX_BLOCK_LEN	512
+
 struct mmc_cid {
 	unsigned long psn;
 	unsigned short oid;

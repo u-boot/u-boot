@@ -38,6 +38,7 @@ typedef struct block_dev_desc {
 #endif
 	lbaint_t	lba;		/* number of blocks */
 	unsigned long	blksz;		/* block size */
+	int		log2blksz;	/* for convenience: log2(blksz) */
 	char		vendor [40+1];	/* IDE model, SCSI Vendor */
 	char		product[20+1];	/* IDE Serial no, SCSI product */
 	char		revision[8+1];	/* firmware revision */
@@ -54,6 +55,14 @@ typedef struct block_dev_desc {
 				       lbaint_t blkcnt);
 	void		*priv;		/* driver private struct pointer */
 }block_dev_desc_t;
+
+#define BLOCK_CNT(size, block_dev_desc) (PAD_COUNT(size, block_dev_desc->blksz))
+#define PAD_TO_BLOCKSIZE(size, block_dev_desc) \
+	(PAD_SIZE(size, block_dev_desc->blksz))
+#define LOG2(x) (((x & 0xaaaaaaaa) ? 1 : 0) + ((x & 0xcccccccc) ? 2 : 0) + \
+		 ((x & 0xf0f0f0f0) ? 4 : 0) + ((x & 0xff00ff00) ? 8 : 0) + \
+		 ((x & 0xffff0000) ? 16 : 0))
+#define LOG2_INVALID(type) ((type)((sizeof(type)<<3)-1))
 
 /* Interface types: */
 #define IF_TYPE_UNKNOWN		0

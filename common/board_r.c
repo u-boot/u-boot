@@ -136,7 +136,7 @@ static int initr_reloc_global_data(void)
 {
 #ifdef CONFIG_SYS_SYM_OFFSETS
 	monitor_flash_len = _end_ofs;
-#else
+#elif !defined(CONFIG_SANDBOX)
 	monitor_flash_len = (ulong)&__init_end - gd->dest_addr;
 #endif
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
@@ -264,7 +264,8 @@ static int initr_malloc(void)
 
 	/* The malloc area is immediately below the monitor copy in DRAM */
 	malloc_start = gd->dest_addr - TOTAL_MALLOC_LEN;
-	mem_malloc_init(malloc_start, TOTAL_MALLOC_LEN);
+	mem_malloc_init((ulong)map_sysmem(malloc_start, TOTAL_MALLOC_LEN),
+			TOTAL_MALLOC_LEN);
 	return 0;
 }
 
@@ -691,6 +692,9 @@ static int initr_modem(void)
 
 static int run_main_loop(void)
 {
+#ifdef CONFIG_SANDBOX
+	sandbox_main_loop_init();
+#endif
 	/* main_loop() can return to retry autoboot, if so just run it again */
 	for (;;)
 		main_loop();
