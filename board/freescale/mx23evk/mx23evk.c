@@ -43,6 +43,12 @@ int board_early_init_f(void)
 	/* SSP0 clock at 96MHz */
 	mxs_set_sspclk(MXC_SSPCLK0, 96000, 0);
 
+	/* Power on LCD */
+	gpio_direction_output(MX23_PAD_LCD_RESET__GPIO_1_18, 1);
+
+	/* Set contrast to maximum */
+	gpio_direction_output(MX23_PAD_PWM2__GPIO_1_28, 1);
+
 	return 0;
 }
 
