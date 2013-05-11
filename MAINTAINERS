@@ -664,6 +664,7 @@ Fabio Estevam <fabio.estevam@freescale.com>
 	mx6qsabresd	i.MX6Q
 	mx6qsabreauto	i.MX6Q
 	wandboard	i.MX6DL/S
+	mx6slevk	i.MX6SL
 
 Daniel Gorsulowski <daniel.gorsulowski@esd.eu>
 
@@ -877,6 +878,8 @@ Stefan Roese <sr@denx.de>
 
 	x600		ARM926EJS (spear600 Soc)
 
+	titanium	i.MX6Q
+
 	pdnb3		xscale/ixp
 	scpu		xscale/ixp
 
@@ -954,6 +957,7 @@ Marek Vasut <marek.vasut@gmail.com>
 	mx23_olinuxino	i.MX23
 	m28evk		i.MX28
 	sc_sps_1	i.MX28
+	m53evk		i.MX53
 
 Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
 

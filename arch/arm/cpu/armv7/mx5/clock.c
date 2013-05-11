@@ -739,10 +739,11 @@ static int config_core_clk(u32 ref, u32 freq)
 static int config_nfc_clk(u32 nfc_clk)
 {
 	u32 parent_rate = get_emi_slow_clk();
-	u32 div = parent_rate / nfc_clk;
+	u32 div;
 
-	if (nfc_clk <= 0)
+	if (nfc_clk == 0)
 		return -EINVAL;
+	div = parent_rate / nfc_clk;
 	if (div == 0)
 		div++;
 	if (parent_rate / div > NFC_CLK_MAX)
@@ -753,6 +754,15 @@ static int config_nfc_clk(u32 nfc_clk)
 	while (readl(&mxc_ccm->cdhipr) != 0)
 		;
 	return 0;
+}
+
+void enable_nfc_clk(unsigned char enable)
+{
+	unsigned int cg = enable ? MXC_CCM_CCGR_CG_ON : MXC_CCM_CCGR_CG_OFF;
+
+	clrsetbits_le32(&mxc_ccm->CCGR5,
+		MXC_CCM_CCGR5_EMI_ENFC(MXC_CCM_CCGR_CG_MASK),
+		MXC_CCM_CCGR5_EMI_ENFC(cg));
 }
 
 /* Config main_bus_clock for periphs */

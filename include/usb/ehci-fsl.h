@@ -277,10 +277,4 @@ struct usb_ehci {
 /* Board-specific initialization */
 int board_ehci_hcd_init(int port);
 
-/* CPU-specific abstracted-out IOMUX init */
-#ifdef CONFIG_MX51
-void setup_iomux_usb_h1(void);
-void setup_iomux_usb_h2(void);
-#endif
-
 #endif /* _EHCI_FSL_H */

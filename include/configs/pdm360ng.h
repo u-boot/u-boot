@@ -341,6 +341,11 @@
 #define CONFIG_SYS_I2C_SLAVE		0x7F
 
 /*
+ * IIM - IC Identification Module
+ */
+#undef CONFIG_FSL_IIM
+
+/*
  * EEPROM configuration
  */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		2	/* 16-bit EEPROM addr */
@@ -401,6 +406,8 @@
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
+
+#undef CONFIG_CMD_FUSE
 
 #ifdef CONFIG_VIDEO
 #define CONFIG_CMD_BMP

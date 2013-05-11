@@ -21,8 +21,7 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/arch/imx25-pinmux.h>
-#include <asm/arch/sys_proto.h>
+#include <asm/arch/iomux-mx25.h>
 #include <asm/arch/clock.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
@@ -31,8 +30,8 @@
 #include <fsl_pmic.h>
 #include <mc34704.h>
 
-#define FEC_RESET_B		IMX_GPIO_NR(2, 3)
-#define FEC_ENABLE_B		IMX_GPIO_NR(4, 8)
+#define FEC_RESET_B		IMX_GPIO_NR(4, 8)
+#define FEC_ENABLE_B		IMX_GPIO_NR(2, 3)
 #define CARD_DETECT		IMX_GPIO_NR(2, 1)
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -43,29 +42,42 @@ struct fsl_esdhc_cfg esdhc_cfg[1] = {
 };
 #endif
 
+/*
+ * FIXME: need to revisit this
+ * The original code enabled PUE and 100-k pull-down without PKE, so the right
+ * value here is likely:
+ *	0 for no pull
+ * or:
+ *	PAD_CTL_PUS_100K_DOWN for 100-k pull-down
+ */
+#define FEC_OUT_PAD_CTRL	0
+
+#define I2C_PAD_CTRL		(PAD_CTL_HYS | PAD_CTL_PUS_100K_UP | \
+				 PAD_CTL_ODE)
+
 static void mx25pdk_fec_init(void)
 {
-	struct iomuxc_mux_ctl *muxctl;
-	struct iomuxc_pad_ctl *padctl;
-	u32 gpio_mux_mode = MX25_PIN_MUX_MODE(5);
-	u32 gpio_mux_mode0_sion = MX25_PIN_MUX_MODE(0) | MX25_PIN_MUX_SION;
+	static const iomux_v3_cfg_t fec_pads[] = {
+		MX25_PAD_FEC_TX_CLK__FEC_TX_CLK,
+		MX25_PAD_FEC_RX_DV__FEC_RX_DV,
+		MX25_PAD_FEC_RDATA0__FEC_RDATA0,
+		NEW_PAD_CTRL(MX25_PAD_FEC_TDATA0__FEC_TDATA0, FEC_OUT_PAD_CTRL),
+		NEW_PAD_CTRL(MX25_PAD_FEC_TX_EN__FEC_TX_EN, FEC_OUT_PAD_CTRL),
+		NEW_PAD_CTRL(MX25_PAD_FEC_MDC__FEC_MDC, FEC_OUT_PAD_CTRL),
+		MX25_PAD_FEC_MDIO__FEC_MDIO,
+		MX25_PAD_FEC_RDATA1__FEC_RDATA1,
+		NEW_PAD_CTRL(MX25_PAD_FEC_TDATA1__FEC_TDATA1, FEC_OUT_PAD_CTRL),
 
-	/* FEC pin init is generic */
-	mx25_fec_init_pins();
+		NEW_PAD_CTRL(MX25_PAD_D12__GPIO_4_8, 0), /* FEC_RESET_B */
+		NEW_PAD_CTRL(MX25_PAD_A17__GPIO_2_3, 0), /* FEC_ENABLE_B */
+	};
 
-	muxctl = (struct iomuxc_mux_ctl *)IMX_IOPADMUX_BASE;
-	padctl = (struct iomuxc_pad_ctl *)IMX_IOPADCTL_BASE;
-	/*
-	 * Set up FEC_RESET_B and FEC_ENABLE_B
-	 *
-	 * FEC_RESET_B: gpio2_3 is ALT 5 mode of pin D12
-	 * FEC_ENABLE_B: gpio4_8 is ALT 5 mode of pin A17
-	 */
-	writel(gpio_mux_mode, &muxctl->pad_d12);
-	writel(gpio_mux_mode, &muxctl->pad_a17);
+	static const iomux_v3_cfg_t i2c_pads[] = {
+		NEW_PAD_CTRL(MX25_PAD_I2C1_CLK__I2C1_CLK, I2C_PAD_CTRL),
+		NEW_PAD_CTRL(MX25_PAD_I2C1_DAT__I2C1_DAT, I2C_PAD_CTRL),
+	};
 
-	writel(0x0, &padctl->pad_d12);
-	writel(0x0, &padctl->pad_a17);
+	imx_iomux_v3_setup_multiple_pads(fec_pads, ARRAY_SIZE(fec_pads));
 
 	/* Assert RESET and ENABLE low */
 	gpio_direction_output(FEC_RESET_B, 0);
@@ -78,10 +90,7 @@ static void mx25pdk_fec_init(void)
 	gpio_set_value(FEC_ENABLE_B, 1);
 
 	/* Setup I2C pins so that PMIC can turn on PHY supply */
-	writel(gpio_mux_mode0_sion, &muxctl->pad_i2c1_clk);
-	writel(gpio_mux_mode0_sion, &muxctl->pad_i2c1_dat);
-	writel(0x1E8, &padctl->pad_i2c1_clk);
-	writel(0x1E8, &padctl->pad_i2c1_dat);
+	imx_iomux_v3_setup_multiple_pads(i2c_pads, ARRAY_SIZE(i2c_pads));
 }
 
 int dram_init(void)
@@ -92,9 +101,35 @@ int dram_init(void)
 	return 0;
 }
 
+/*
+ * Set up input pins with hysteresis and 100-k pull-ups
+ */
+#define UART1_IN_PAD_CTRL	(PAD_CTL_HYS | PAD_CTL_PUS_100K_UP)
+/*
+ * FIXME: need to revisit this
+ * The original code enabled PUE and 100-k pull-down without PKE, so the right
+ * value here is likely:
+ *	0 for no pull
+ * or:
+ *	PAD_CTL_PUS_100K_DOWN for 100-k pull-down
+ */
+#define UART1_OUT_PAD_CTRL	0
+
+static void mx25pdk_uart1_init(void)
+{
+	static const iomux_v3_cfg_t uart1_pads[] = {
+		NEW_PAD_CTRL(MX25_PAD_UART1_RXD__UART1_RXD, UART1_IN_PAD_CTRL),
+		NEW_PAD_CTRL(MX25_PAD_UART1_TXD__UART1_TXD, UART1_OUT_PAD_CTRL),
+		NEW_PAD_CTRL(MX25_PAD_UART1_RTS__UART1_RTS, UART1_OUT_PAD_CTRL),
+		NEW_PAD_CTRL(MX25_PAD_UART1_CTS__UART1_CTS, UART1_IN_PAD_CTRL),
+	};
+
+	imx_iomux_v3_setup_multiple_pads(uart1_pads, ARRAY_SIZE(uart1_pads));
+}
+
 int board_early_init_f(void)
 {
-	mx25_uart1_init_pins();
+	mx25pdk_uart1_init();
 
 	return 0;
 }
@@ -131,21 +166,8 @@ int board_late_init(void)
 #ifdef CONFIG_FSL_ESDHC
 int board_mmc_getcd(struct mmc *mmc)
 {
-	struct iomuxc_mux_ctl *muxctl;
-	struct iomuxc_pad_ctl *padctl;
-	u32 gpio_mux_mode = MX25_PIN_MUX_MODE(5);
-
-	/*
-	 * Set up the Card Detect pin.
-	 *
-	 * SD1_GPIO_CD: gpio2_1 is ALT 5 mode of pin A15
-	 *
-	 */
-	muxctl = (struct iomuxc_mux_ctl *)IMX_IOPADMUX_BASE;
-	padctl = (struct iomuxc_pad_ctl *)IMX_IOPADCTL_BASE;
-
-	writel(gpio_mux_mode, &muxctl->pad_a15);
-	writel(0x0, &padctl->pad_a15);
+	/* Set up the Card Detect pin. */
+	imx_iomux_v3_setup_pad(NEW_PAD_CTRL(MX25_PAD_A15__GPIO_2_1, 0));
 
 	gpio_direction_input(CARD_DETECT);
 	return !gpio_get_value(CARD_DETECT);
@@ -153,16 +175,16 @@ int board_mmc_getcd(struct mmc *mmc)
 
 int board_mmc_init(bd_t *bis)
 {
-	struct iomuxc_mux_ctl *muxctl;
-	u32 sdhc1_mux_mode = MX25_PIN_MUX_MODE(0) | MX25_PIN_MUX_SION;
+	static const iomux_v3_cfg_t sdhc1_pads[] = {
+		NEW_PAD_CTRL(MX25_PAD_SD1_CMD__SD1_CMD, NO_PAD_CTRL),
+		NEW_PAD_CTRL(MX25_PAD_SD1_CLK__SD1_CLK, NO_PAD_CTRL),
+		NEW_PAD_CTRL(MX25_PAD_SD1_DATA0__SD1_DATA0, NO_PAD_CTRL),
+		NEW_PAD_CTRL(MX25_PAD_SD1_DATA1__SD1_DATA1, NO_PAD_CTRL),
+		NEW_PAD_CTRL(MX25_PAD_SD1_DATA2__SD1_DATA2, NO_PAD_CTRL),
+		NEW_PAD_CTRL(MX25_PAD_SD1_DATA3__SD1_DATA3, NO_PAD_CTRL),
+	};
 
-	muxctl = (struct iomuxc_mux_ctl *)IMX_IOPADMUX_BASE;
-	writel(sdhc1_mux_mode, &muxctl->pad_sd1_cmd);
-	writel(sdhc1_mux_mode, &muxctl->pad_sd1_clk);
-	writel(sdhc1_mux_mode, &muxctl->pad_sd1_data0);
-	writel(sdhc1_mux_mode, &muxctl->pad_sd1_data1);
-	writel(sdhc1_mux_mode, &muxctl->pad_sd1_data2);
-	writel(sdhc1_mux_mode, &muxctl->pad_sd1_data3);
+	imx_iomux_v3_setup_multiple_pads(sdhc1_pads, ARRAY_SIZE(sdhc1_pads));
 
 	esdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC1_CLK);
 	return fsl_esdhc_initialize(bis, &esdhc_cfg[0]);

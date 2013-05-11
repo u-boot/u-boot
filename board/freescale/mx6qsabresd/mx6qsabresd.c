@@ -34,17 +34,16 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define UART_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE |            \
-	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED |               \
-	PAD_CTL_DSE_40ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
+#define UART_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
+	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm |			\
+	PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
 
-#define USDHC_PAD_CTRL (PAD_CTL_PKE | PAD_CTL_PUE |            \
-	PAD_CTL_PUS_47K_UP  | PAD_CTL_SPEED_LOW |               \
-	PAD_CTL_DSE_80ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
+#define USDHC_PAD_CTRL (PAD_CTL_PUS_47K_UP |			\
+	PAD_CTL_SPEED_LOW | PAD_CTL_DSE_80ohm |			\
+	PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
 
-#define ENET_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE |		\
-	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED   |		\
-	PAD_CTL_DSE_40ohm   | PAD_CTL_HYS)
+#define ENET_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
+	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
 
 int dram_init(void)
 {
@@ -166,6 +165,7 @@ int board_mmc_getcd(struct mmc *mmc)
 
 int board_mmc_init(bd_t *bis)
 {
+	s32 status = 0;
 	int i;
 
 	/*
@@ -196,15 +196,15 @@ int board_mmc_init(bd_t *bis)
 			break;
 		default:
 			printf("Warning: you configured more USDHC controllers"
-				"(%d) than supported by the board\n", i + 1);
-			return 0;
-	       }
+			       "(%d) then supported by the board (%d)\n",
+			       i + 1, CONFIG_SYS_FSL_USDHC_NUM);
+			return status;
+		}
 
-	       if (fsl_esdhc_initialize(bis, &usdhc_cfg[i]))
-			printf("Warning: failed to initialize mmc dev %d\n", i);
+		status |= fsl_esdhc_initialize(bis, &usdhc_cfg[i]);
 	}
 
-	return 0;
+	return status;
 }
 #endif
 

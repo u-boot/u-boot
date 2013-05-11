@@ -1,6 +1,10 @@
 /*
- * (C) Copyright 2009
- * Stefano Babic, DENX Software Engineering, sbabic@denx.de.
+ * (C) Copyright 2009-2013 ADVANSEE
+ * Benoît Thébaudeau <benoit.thebaudeau@advansee.com>
+ *
+ * Based on the mpc512x iim code:
+ * Copyright 2008 Silicon Turnkey Express, Inc.
+ * Martha Marx <mmarx@silicontkx.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,12 +25,20 @@
  * MA 02111-1307 USA
  */
 
-#ifndef _SYS_PROTO_H_
-#define _SYS_PROTO_H_
+#ifndef _FUSE_H_
+#define _FUSE_H_
 
-void mx25_uart1_init_pins(void);
-#if defined CONFIG_FEC_MXC
-extern void mx25_fec_init_pins(void);
-#endif
+/*
+ * Read/Sense/Program/Override interface:
+ *   bank:    Fuse bank
+ *   word:    Fuse word within the bank
+ *   val:     Value to read/write
+ *
+ *   Returns: 0 on success, not 0 on failure
+ */
+int fuse_read(u32 bank, u32 word, u32 *val);
+int fuse_sense(u32 bank, u32 word, u32 *val);
+int fuse_prog(u32 bank, u32 word, u32 val);
+int fuse_override(u32 bank, u32 word, u32 val);
 
-#endif
+#endif	/* _FUSE_H_ */

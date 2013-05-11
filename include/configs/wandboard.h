@@ -32,6 +32,7 @@
 #define CONFIG_SYS_MALLOC_LEN		(3 * SZ_1M)
 
 #define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_BOARD_LATE_INIT
 #define CONFIG_MXC_GPIO
 
 #define CONFIG_MXC_UART
@@ -47,6 +48,9 @@
 
 #undef CONFIG_CMD_IMLS
 
+#define CONFIG_CMD_BMODE
+#define CONFIG_CMD_SETEXPR
+
 #define CONFIG_BOOTDELAY		5
 
 #define CONFIG_SYS_MEMTEST_START	0x10000000
@@ -57,6 +61,7 @@
 /* MMC Configuration */
 #define CONFIG_FSL_ESDHC
 #define CONFIG_FSL_USDHC
+#define CONFIG_SYS_FSL_USDHC_NUM	2
 #define CONFIG_SYS_FSL_ESDHC_ADDR	0
 
 #define CONFIG_MMC
@@ -97,9 +102,23 @@
 	"fdt_addr=0x11000000\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
-	"mmcdev=0\0" \
-	"mmcpart=2\0" \
+	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
+	"mmcpart=" __stringify(CONFIG_SYS_MMC_ENV_PART) "\0" \
 	"mmcroot=/dev/mmcblk0p3 rootwait rw\0" \
+	"update_sd_firmware_filename=u-boot.imx\0" \
+	"update_sd_firmware=" \
+		"if test ${ip_dyn} = yes; then " \
+			"setenv get_cmd dhcp; " \
+		"else " \
+			"setenv get_cmd tftp; " \
+		"fi; " \
+		"if mmc dev ${mmcdev}; then "	\
+			"if ${get_cmd} ${update_sd_firmware_filename}; then " \
+				"setexpr fw_sz ${filesize} / 0x200; " \
+				"setexpr fw_sz ${fw_sz} + 1; "	\
+				"mmc write ${loadaddr} 0x2 ${fw_sz}; " \
+			"fi; "	\
+		"fi\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=${mmcroot}\0" \
 	"loadbootscript=" \
@@ -198,6 +217,7 @@
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_ENV_OFFSET		(6 * 64 * 1024)
 #define CONFIG_SYS_MMC_ENV_DEV		0
+#define CONFIG_SYS_MMC_ENV_PART		2
 
 #define CONFIG_OF_LIBFDT
 #define CONFIG_CMD_BOOTZ

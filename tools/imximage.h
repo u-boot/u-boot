@@ -31,6 +31,11 @@
 
 #define HEADER_OFFSET	0x400
 
+/*
+ * NOTE: This file must be kept in sync with arch/arm/include/asm/\
+ *       imx-common/imximage.cfg because tools/imximage.c can not
+ *       cross-include headers from arch/arm/ and vice-versa.
+ */
 #define CMD_DATA_STR	"DATA"
 #define FLASH_OFFSET_UNDEFINED	0xFFFFFFFF
 #define FLASH_OFFSET_STANDARD	0x400
@@ -52,6 +57,7 @@ enum imximage_cmd {
 	CMD_INVALID,
 	CMD_IMAGE_VERSION,
 	CMD_BOOT_FROM,
+	CMD_BOOT_OFFSET,
 	CMD_DATA
 };
 
@@ -151,13 +157,14 @@ typedef struct {
 	dcd_v2_t dcd_table;
 } imx_header_v2_t;
 
+/* The header must be aligned to 4k on MX53 for NAND boot */
 struct imx_header {
 	union {
 		imx_header_v1_t hdr_v1;
 		imx_header_v2_t hdr_v2;
 	} header;
 	uint32_t flash_offset;
-};
+} __attribute__((aligned(4096)));
 
 typedef void (*set_dcd_val_t)(struct imx_header *imxhdr,
 					char *name, int lineno,

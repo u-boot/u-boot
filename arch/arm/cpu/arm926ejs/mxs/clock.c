@@ -325,6 +325,99 @@ void mxs_set_ssp_busclock(unsigned int bus, uint32_t freq)
 		bus, tgtclk, freq);
 }
 
+void mxs_set_lcdclk(uint32_t freq)
+{
+	struct mxs_clkctrl_regs *clkctrl_regs =
+		(struct mxs_clkctrl_regs *)MXS_CLKCTRL_BASE;
+	uint32_t fp, x, k_rest, k_best, x_best, tk;
+	int32_t k_best_l = 999, k_best_t = 0, x_best_l = 0xff, x_best_t = 0xff;
+
+	if (freq == 0)
+		return;
+
+#if defined(CONFIG_MX23)
+	writel(CLKCTRL_CLKSEQ_BYPASS_PIX, &clkctrl_regs->hw_clkctrl_clkseq_clr);
+#elif defined(CONFIG_MX28)
+	writel(CLKCTRL_CLKSEQ_BYPASS_DIS_LCDIF, &clkctrl_regs->hw_clkctrl_clkseq_clr);
+#endif
+
+	/*
+	 *             /               18 \     1       1
+	 * freq kHz = | 480000000 Hz * --  | * --- * ------
+	 *             \                x /     k     1000
+	 *
+	 *      480000000 Hz   18
+	 *      ------------ * --
+	 *        freq kHz      x
+	 * k = -------------------
+	 *             1000
+	 */
+
+	fp = ((PLL_FREQ_KHZ * 1000) / freq) * 18;
+
+	for (x = 18; x <= 35; x++) {
+		tk = fp / x;
+		if ((tk / 1000 == 0) || (tk / 1000 > 255))
+			continue;
+
+		k_rest = tk % 1000;
+
+		if (k_rest < (k_best_l % 1000)) {
+			k_best_l = tk;
+			x_best_l = x;
+		}
+
+		if (k_rest > (k_best_t % 1000)) {
+			k_best_t = tk;
+			x_best_t = x;
+		}
+	}
+
+	if (1000 - (k_best_t % 1000) > (k_best_l % 1000)) {
+		k_best = k_best_l;
+		x_best = x_best_l;
+	} else {
+		k_best = k_best_t;
+		x_best = x_best_t;
+	}
+
+	k_best /= 1000;
+
+#if defined(CONFIG_MX23)
+	writeb(CLKCTRL_FRAC_CLKGATE,
+		&clkctrl_regs->hw_clkctrl_frac0_set[CLKCTRL_FRAC0_PIX]);
+	writeb(CLKCTRL_FRAC_CLKGATE | (x_best & CLKCTRL_FRAC_FRAC_MASK),
+		&clkctrl_regs->hw_clkctrl_frac0[CLKCTRL_FRAC0_PIX]);
+	writeb(CLKCTRL_FRAC_CLKGATE,
+		&clkctrl_regs->hw_clkctrl_frac0_clr[CLKCTRL_FRAC0_PIX]);
+
+	writel(CLKCTRL_PIX_CLKGATE,
+		&clkctrl_regs->hw_clkctrl_pix_set);
+	clrsetbits_le32(&clkctrl_regs->hw_clkctrl_pix,
+			CLKCTRL_PIX_DIV_MASK | CLKCTRL_PIX_CLKGATE,
+			k_best << CLKCTRL_PIX_DIV_OFFSET);
+
+	while (readl(&clkctrl_regs->hw_clkctrl_pix) & CLKCTRL_PIX_BUSY)
+		;
+#elif defined(CONFIG_MX28)
+	writeb(CLKCTRL_FRAC_CLKGATE,
+		&clkctrl_regs->hw_clkctrl_frac1_set[CLKCTRL_FRAC1_PIX]);
+	writeb(CLKCTRL_FRAC_CLKGATE | (x_best & CLKCTRL_FRAC_FRAC_MASK),
+		&clkctrl_regs->hw_clkctrl_frac1[CLKCTRL_FRAC1_PIX]);
+	writeb(CLKCTRL_FRAC_CLKGATE,
+		&clkctrl_regs->hw_clkctrl_frac1_clr[CLKCTRL_FRAC1_PIX]);
+
+	writel(CLKCTRL_DIS_LCDIF_CLKGATE,
+		&clkctrl_regs->hw_clkctrl_lcdif_set);
+	clrsetbits_le32(&clkctrl_regs->hw_clkctrl_lcdif,
+			CLKCTRL_DIS_LCDIF_DIV_MASK | CLKCTRL_DIS_LCDIF_CLKGATE,
+			k_best << CLKCTRL_DIS_LCDIF_DIV_OFFSET);
+
+	while (readl(&clkctrl_regs->hw_clkctrl_lcdif) & CLKCTRL_DIS_LCDIF_BUSY)
+		;
+#endif
+}
+
 uint32_t mxc_get_clock(enum mxc_clock clk)
 {
 	switch (clk) {

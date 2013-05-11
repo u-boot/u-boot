@@ -63,6 +63,7 @@
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_NAND
+#define CONFIG_CMD_NAND_TRIMFFS
 
 /* Memory configurations */
 #define CONFIG_NR_DRAM_BANKS		1		/* 1 bank of DRAM */

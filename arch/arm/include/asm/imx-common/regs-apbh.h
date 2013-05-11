@@ -26,7 +26,7 @@
 #ifndef __REGS_APBH_H__
 #define __REGS_APBH_H__
 
-#include <asm/arch/regs-common.h>
+#include <asm/imx-common/regs-common.h>
 
 #ifndef	__ASSEMBLY__
 
@@ -109,7 +109,7 @@ struct mxs_apbh_regs {
 	mxs_reg_32(hw_apbh_version)
 };
 
-#elif defined(CONFIG_MX28)
+#elif (defined(CONFIG_MX28) || defined(CONFIG_MX6))
 struct mxs_apbh_regs {
 	mxs_reg_32(hw_apbh_ctrl0)
 	mxs_reg_32(hw_apbh_ctrl1)
@@ -288,6 +288,17 @@ struct mxs_apbh_regs {
 #define	APBH_CTRL0_CLKGATE_CHANNEL_NAND7		0x0800
 #define	APBH_CTRL0_CLKGATE_CHANNEL_HSADC		0x1000
 #define	APBH_CTRL0_CLKGATE_CHANNEL_LCDIF		0x2000
+#elif defined(CONFIG_MX6)
+#define	APBH_CTRL0_CLKGATE_CHANNEL_OFFSET		0
+#define	APBH_CTRL0_CLKGATE_CHANNEL_NAND0		0x0001
+#define	APBH_CTRL0_CLKGATE_CHANNEL_NAND1		0x0002
+#define	APBH_CTRL0_CLKGATE_CHANNEL_NAND2		0x0004
+#define	APBH_CTRL0_CLKGATE_CHANNEL_NAND3		0x0008
+#define	APBH_CTRL0_CLKGATE_CHANNEL_NAND4		0x0010
+#define	APBH_CTRL0_CLKGATE_CHANNEL_NAND5		0x0020
+#define	APBH_CTRL0_CLKGATE_CHANNEL_NAND6		0x0040
+#define	APBH_CTRL0_CLKGATE_CHANNEL_NAND7		0x0080
+#define	APBH_CTRL0_CLKGATE_CHANNEL_SSP			0x0100
 #endif
 
 #define	APBH_CTRL1_CH15_CMDCMPLT_IRQ_EN			(1 << 31)
@@ -391,6 +402,10 @@ struct mxs_apbh_regs {
 #define	APBH_CHANNEL_CTRL_FREEZE_CHANNEL_NAND7		0x0800
 #define	APBH_CHANNEL_CTRL_FREEZE_CHANNEL_HSADC		0x1000
 #define	APBH_CHANNEL_CTRL_FREEZE_CHANNEL_LCDIF		0x2000
+#endif
+
+#if defined(CONFIG_MX6)
+#define	APBH_CHANNEL_CTRL_RESET_CHANNEL_OFFSET		16
 #endif
 
 #if defined(CONFIG_MX23)

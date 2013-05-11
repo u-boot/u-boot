@@ -24,8 +24,7 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/arch/mx5x_pins.h>
-#include <asm/arch/iomux.h>
+#include <asm/arch/iomux-mx51.h>
 #include <asm/errno.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/crm_regs.h>
@@ -64,160 +63,103 @@ u32 get_board_rev(void)
 	return rev;
 }
 
+#define UART_PAD_CTRL	(PAD_CTL_HYS | PAD_CTL_PUS_100K_DOWN | PAD_CTL_DSE_HIGH)
+
 static void setup_iomux_uart(void)
 {
-	unsigned int pad = PAD_CTL_HYS_ENABLE | PAD_CTL_PKE_ENABLE |
-			PAD_CTL_PUE_PULL | PAD_CTL_DRV_HIGH;
+	static const iomux_v3_cfg_t uart_pads[] = {
+		MX51_PAD_UART1_RXD__UART1_RXD,
+		MX51_PAD_UART1_TXD__UART1_TXD,
+		NEW_PAD_CTRL(MX51_PAD_UART1_RTS__UART1_RTS, UART_PAD_CTRL),
+		NEW_PAD_CTRL(MX51_PAD_UART1_CTS__UART1_CTS, UART_PAD_CTRL),
+	};
 
-	mxc_request_iomux(MX51_PIN_UART1_RXD, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX51_PIN_UART1_RXD, pad | PAD_CTL_SRE_FAST);
-	mxc_request_iomux(MX51_PIN_UART1_TXD, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX51_PIN_UART1_TXD, pad | PAD_CTL_SRE_FAST);
-	mxc_request_iomux(MX51_PIN_UART1_RTS, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX51_PIN_UART1_RTS, pad);
-	mxc_request_iomux(MX51_PIN_UART1_CTS, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX51_PIN_UART1_CTS, pad);
+	imx_iomux_v3_setup_multiple_pads(uart_pads, ARRAY_SIZE(uart_pads));
 }
 
 static void setup_iomux_fec(void)
 {
-	/*FEC_MDIO*/
-	mxc_request_iomux(MX51_PIN_EIM_EB2 , IOMUX_CONFIG_ALT3);
-	mxc_iomux_set_pad(MX51_PIN_EIM_EB2 , 0x1FD);
+	static const iomux_v3_cfg_t fec_pads[] = {
+		NEW_PAD_CTRL(MX51_PAD_EIM_EB2__FEC_MDIO, PAD_CTL_HYS |
+				PAD_CTL_PUS_22K_UP | PAD_CTL_ODE |
+				PAD_CTL_DSE_HIGH | PAD_CTL_SRE_FAST),
+		MX51_PAD_NANDF_CS3__FEC_MDC,
+		NEW_PAD_CTRL(MX51_PAD_EIM_CS3__FEC_RDATA3, MX51_PAD_CTRL_2),
+		NEW_PAD_CTRL(MX51_PAD_EIM_CS2__FEC_RDATA2, MX51_PAD_CTRL_2),
+		NEW_PAD_CTRL(MX51_PAD_EIM_EB3__FEC_RDATA1, MX51_PAD_CTRL_2),
+		MX51_PAD_NANDF_D9__FEC_RDATA0,
+		MX51_PAD_NANDF_CS6__FEC_TDATA3,
+		MX51_PAD_NANDF_CS5__FEC_TDATA2,
+		MX51_PAD_NANDF_CS4__FEC_TDATA1,
+		MX51_PAD_NANDF_D8__FEC_TDATA0,
+		MX51_PAD_NANDF_CS7__FEC_TX_EN,
+		MX51_PAD_NANDF_CS2__FEC_TX_ER,
+		MX51_PAD_NANDF_RDY_INT__FEC_TX_CLK,
+		NEW_PAD_CTRL(MX51_PAD_NANDF_RB2__FEC_COL, MX51_PAD_CTRL_4),
+		NEW_PAD_CTRL(MX51_PAD_NANDF_RB3__FEC_RX_CLK, MX51_PAD_CTRL_4),
+		MX51_PAD_EIM_CS5__FEC_CRS,
+		MX51_PAD_EIM_CS4__FEC_RX_ER,
+		NEW_PAD_CTRL(MX51_PAD_NANDF_D11__FEC_RX_DV, MX51_PAD_CTRL_4),
+	};
 
-	/*FEC_MDC*/
-	mxc_request_iomux(MX51_PIN_NANDF_CS3, IOMUX_CONFIG_ALT2);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_CS3, 0x2004);
-
-	/* FEC RDATA[3] */
-	mxc_request_iomux(MX51_PIN_EIM_CS3, IOMUX_CONFIG_ALT3);
-	mxc_iomux_set_pad(MX51_PIN_EIM_CS3, 0x180);
-
-	/* FEC RDATA[2] */
-	mxc_request_iomux(MX51_PIN_EIM_CS2, IOMUX_CONFIG_ALT3);
-	mxc_iomux_set_pad(MX51_PIN_EIM_CS2, 0x180);
-
-	/* FEC RDATA[1] */
-	mxc_request_iomux(MX51_PIN_EIM_EB3, IOMUX_CONFIG_ALT3);
-	mxc_iomux_set_pad(MX51_PIN_EIM_EB3, 0x180);
-
-	/* FEC RDATA[0] */
-	mxc_request_iomux(MX51_PIN_NANDF_D9, IOMUX_CONFIG_ALT2);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_D9, 0x2180);
-
-	/* FEC TDATA[3] */
-	mxc_request_iomux(MX51_PIN_NANDF_CS6, IOMUX_CONFIG_ALT2);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_CS6, 0x2004);
-
-	/* FEC TDATA[2] */
-	mxc_request_iomux(MX51_PIN_NANDF_CS5, IOMUX_CONFIG_ALT2);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_CS5, 0x2004);
-
-	/* FEC TDATA[1] */
-	mxc_request_iomux(MX51_PIN_NANDF_CS4, IOMUX_CONFIG_ALT2);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_CS4, 0x2004);
-
-	/* FEC TDATA[0] */
-	mxc_request_iomux(MX51_PIN_NANDF_D8, IOMUX_CONFIG_ALT2);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_D8, 0x2004);
-
-	/* FEC TX_EN */
-	mxc_request_iomux(MX51_PIN_NANDF_CS7, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_CS7, 0x2004);
-
-	/* FEC TX_ER */
-	mxc_request_iomux(MX51_PIN_NANDF_CS2, IOMUX_CONFIG_ALT2);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_CS2, 0x2004);
-
-	/* FEC TX_CLK */
-	mxc_request_iomux(MX51_PIN_NANDF_RDY_INT, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_RDY_INT, 0x2180);
-
-	/* FEC TX_COL */
-	mxc_request_iomux(MX51_PIN_NANDF_RB2, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_RB2, 0x2180);
-
-	/* FEC RX_CLK */
-	mxc_request_iomux(MX51_PIN_NANDF_RB3, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_RB3, 0x2180);
-
-	/* FEC RX_CRS */
-	mxc_request_iomux(MX51_PIN_EIM_CS5, IOMUX_CONFIG_ALT3);
-	mxc_iomux_set_pad(MX51_PIN_EIM_CS5, 0x180);
-
-	/* FEC RX_ER */
-	mxc_request_iomux(MX51_PIN_EIM_CS4, IOMUX_CONFIG_ALT3);
-	mxc_iomux_set_pad(MX51_PIN_EIM_CS4, 0x180);
-
-	/* FEC RX_DV */
-	mxc_request_iomux(MX51_PIN_NANDF_D11, IOMUX_CONFIG_ALT2);
-	mxc_iomux_set_pad(MX51_PIN_NANDF_D11, 0x2180);
+	imx_iomux_v3_setup_multiple_pads(fec_pads, ARRAY_SIZE(fec_pads));
 }
 
 #ifdef CONFIG_MXC_SPI
 static void setup_iomux_spi(void)
 {
-	/* 000: Select mux mode: ALT0 mux port: MOSI of instance: ecspi1 */
-	mxc_request_iomux(MX51_PIN_CSPI1_MOSI, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX51_PIN_CSPI1_MOSI, 0x105);
+	static const iomux_v3_cfg_t spi_pads[] = {
+		NEW_PAD_CTRL(MX51_PAD_CSPI1_MOSI__ECSPI1_MOSI, PAD_CTL_HYS |
+				PAD_CTL_DSE_HIGH | PAD_CTL_SRE_FAST),
+		NEW_PAD_CTRL(MX51_PAD_CSPI1_MISO__ECSPI1_MISO, PAD_CTL_HYS |
+				PAD_CTL_DSE_HIGH | PAD_CTL_SRE_FAST),
+		NEW_PAD_CTRL(MX51_PAD_CSPI1_SS1__ECSPI1_SS1,
+				MX51_GPIO_PAD_CTRL),
+		MX51_PAD_CSPI1_SS0__ECSPI1_SS0,
+		NEW_PAD_CTRL(MX51_PAD_CSPI1_RDY__ECSPI1_RDY, MX51_PAD_CTRL_2),
+		NEW_PAD_CTRL(MX51_PAD_CSPI1_SCLK__ECSPI1_SCLK, PAD_CTL_HYS |
+				PAD_CTL_DSE_HIGH | PAD_CTL_SRE_FAST),
+	};
 
-	/* 000: Select mux mode: ALT0 mux port: MISO of instance: ecspi1. */
-	mxc_request_iomux(MX51_PIN_CSPI1_MISO, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX51_PIN_CSPI1_MISO, 0x105);
-
-	/* de-select SS1 of instance: ecspi1. */
-	mxc_request_iomux(MX51_PIN_CSPI1_SS1, IOMUX_CONFIG_ALT3);
-	mxc_iomux_set_pad(MX51_PIN_CSPI1_SS1, 0x85);
-
-	/* 000: Select mux mode: ALT0 mux port: SS0 ecspi1 */
-	mxc_request_iomux(MX51_PIN_CSPI1_SS0, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX51_PIN_CSPI1_SS0, 0x185);
-
-	/* 000: Select mux mode: ALT0 mux port: RDY of instance: ecspi1. */
-	mxc_request_iomux(MX51_PIN_CSPI1_RDY, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX51_PIN_CSPI1_RDY, 0x180);
-
-	/* 000: Select mux mode: ALT0 mux port: SCLK of instance: ecspi1. */
-	mxc_request_iomux(MX51_PIN_CSPI1_SCLK, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX51_PIN_CSPI1_SCLK, 0x105);
+	imx_iomux_v3_setup_multiple_pads(spi_pads, ARRAY_SIZE(spi_pads));
 }
 #endif
 
 #ifdef CONFIG_USB_EHCI_MX5
-#define MX51EVK_USBH1_HUB_RST	IOMUX_TO_GPIO(MX51_PIN_GPIO1_7) /* GPIO1_7 */
-#define MX51EVK_USBH1_STP	IOMUX_TO_GPIO(MX51_PIN_USBH1_STP) /* GPIO1_27 */
-#define MX51EVK_USB_CLK_EN_B	IOMUX_TO_GPIO(MX51_PIN_EIM_D18) /* GPIO2_1 */
-#define MX51EVK_USB_PHY_RESET	IOMUX_TO_GPIO(MX51_PIN_EIM_D21) /* GPIO2_5 */
-
-#define USBH1_PAD	(PAD_CTL_SRE_FAST | PAD_CTL_DRV_HIGH |		\
-			 PAD_CTL_100K_PU | PAD_CTL_PUE_PULL |		\
-			 PAD_CTL_PKE_ENABLE | PAD_CTL_HYS_ENABLE)
-#define GPIO_PAD	(PAD_CTL_DRV_HIGH | PAD_CTL_PKE_ENABLE |	\
-			 PAD_CTL_SRE_FAST)
-#define NO_PAD		(1 << 16)
+#define MX51EVK_USBH1_HUB_RST	IMX_GPIO_NR(1, 7)
+#define MX51EVK_USBH1_STP	IMX_GPIO_NR(1, 27)
+#define MX51EVK_USB_CLK_EN_B	IMX_GPIO_NR(2, 2)
+#define MX51EVK_USB_PHY_RESET	IMX_GPIO_NR(2, 5)
 
 static void setup_usb_h1(void)
 {
-	setup_iomux_usb_h1();
+	static const iomux_v3_cfg_t usb_h1_pads[] = {
+		MX51_PAD_USBH1_CLK__USBH1_CLK,
+		MX51_PAD_USBH1_DIR__USBH1_DIR,
+		MX51_PAD_USBH1_STP__USBH1_STP,
+		MX51_PAD_USBH1_NXT__USBH1_NXT,
+		MX51_PAD_USBH1_DATA0__USBH1_DATA0,
+		MX51_PAD_USBH1_DATA1__USBH1_DATA1,
+		MX51_PAD_USBH1_DATA2__USBH1_DATA2,
+		MX51_PAD_USBH1_DATA3__USBH1_DATA3,
+		MX51_PAD_USBH1_DATA4__USBH1_DATA4,
+		MX51_PAD_USBH1_DATA5__USBH1_DATA5,
+		MX51_PAD_USBH1_DATA6__USBH1_DATA6,
+		MX51_PAD_USBH1_DATA7__USBH1_DATA7,
 
-	/* GPIO_1_7 for USBH1 hub reset */
-	mxc_request_iomux(MX51_PIN_GPIO1_7, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX51_PIN_GPIO1_7, NO_PAD);
+		NEW_PAD_CTRL(MX51_PAD_GPIO1_7__GPIO1_7, 0), /* H1 hub reset */
+		MX51_PAD_EIM_D17__GPIO2_1,
+		MX51_PAD_EIM_D21__GPIO2_5, /* PHY reset */
+	};
 
-	/* GPIO_2_1 */
-	mxc_request_iomux(MX51_PIN_EIM_D17, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_EIM_D17, GPIO_PAD);
-
-	/* GPIO_2_5 for USB PHY reset */
-	mxc_request_iomux(MX51_PIN_EIM_D21, IOMUX_CONFIG_ALT1);
-	mxc_iomux_set_pad(MX51_PIN_EIM_D21, GPIO_PAD);
+	imx_iomux_v3_setup_multiple_pads(usb_h1_pads, ARRAY_SIZE(usb_h1_pads));
 }
 
 int board_ehci_hcd_init(int port)
 {
 	/* Set USBH1_STP to GPIO and toggle it */
-	mxc_request_iomux(MX51_PIN_USBH1_STP, IOMUX_CONFIG_GPIO);
-	mxc_iomux_set_pad(MX51_PIN_USBH1_STP, USBH1_PAD);
+	imx_iomux_v3_setup_pad(NEW_PAD_CTRL(MX51_PAD_USBH1_STP__GPIO1_27,
+						MX51_USBH_PAD_CTRL));
 
 	gpio_direction_output(MX51EVK_USBH1_STP, 0);
 	gpio_direction_output(MX51EVK_USB_PHY_RESET, 0);
@@ -225,8 +167,7 @@ int board_ehci_hcd_init(int port)
 	gpio_set_value(MX51EVK_USBH1_STP, 1);
 
 	/* Set back USBH1_STP to be function */
-	mxc_request_iomux(MX51_PIN_USBH1_STP, IOMUX_CONFIG_ALT0);
-	mxc_iomux_set_pad(MX51_PIN_USBH1_STP, USBH1_PAD);
+	imx_iomux_v3_setup_pad(MX51_PAD_USBH1_STP__USBH1_STP);
 
 	/* De-assert USB PHY RESETB */
 	gpio_set_value(MX51EVK_USB_PHY_RESET, 1);
@@ -328,7 +269,8 @@ static void power_init(void)
 		VVIDEOEN | VAUDIOEN  | VSDEN;
 	pmic_reg_write(p, REG_MODE_1, val);
 
-	mxc_request_iomux(MX51_PIN_EIM_A20, IOMUX_CONFIG_ALT1);
+	imx_iomux_v3_setup_pad(NEW_PAD_CTRL(MX51_PAD_EIM_A20__GPIO2_14,
+						NO_PAD_CTRL));
 	gpio_direction_output(IMX_GPIO_NR(2, 14), 0);
 
 	udelay(500);
@@ -342,9 +284,11 @@ int board_mmc_getcd(struct mmc *mmc)
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
 	int ret;
 
-	mxc_request_iomux(MX51_PIN_GPIO1_0, IOMUX_CONFIG_ALT1);
+	imx_iomux_v3_setup_pad(NEW_PAD_CTRL(MX51_PAD_GPIO1_0__GPIO1_0,
+						NO_PAD_CTRL));
 	gpio_direction_input(IMX_GPIO_NR(1, 0));
-	mxc_request_iomux(MX51_PIN_GPIO1_6, IOMUX_CONFIG_ALT0);
+	imx_iomux_v3_setup_pad(NEW_PAD_CTRL(MX51_PAD_GPIO1_6__GPIO1_6,
+						NO_PAD_CTRL));
 	gpio_direction_input(IMX_GPIO_NR(1, 6));
 
 	if (cfg->esdhc_base == MMC_SDHC1_BASE_ADDR)
@@ -357,6 +301,40 @@ int board_mmc_getcd(struct mmc *mmc)
 
 int board_mmc_init(bd_t *bis)
 {
+	static const iomux_v3_cfg_t sd1_pads[] = {
+		NEW_PAD_CTRL(MX51_PAD_SD1_CMD__SD1_CMD, PAD_CTL_DSE_MAX |
+			PAD_CTL_HYS | PAD_CTL_PUS_47K_UP | PAD_CTL_SRE_FAST),
+		NEW_PAD_CTRL(MX51_PAD_SD1_CLK__SD1_CLK, PAD_CTL_DSE_MAX |
+			PAD_CTL_PUS_47K_UP | PAD_CTL_SRE_FAST),
+		NEW_PAD_CTRL(MX51_PAD_SD1_DATA0__SD1_DATA0, PAD_CTL_DSE_MAX |
+			PAD_CTL_HYS | PAD_CTL_PUS_47K_UP | PAD_CTL_SRE_FAST),
+		NEW_PAD_CTRL(MX51_PAD_SD1_DATA1__SD1_DATA1, PAD_CTL_DSE_MAX |
+			PAD_CTL_HYS | PAD_CTL_PUS_47K_UP | PAD_CTL_SRE_FAST),
+		NEW_PAD_CTRL(MX51_PAD_SD1_DATA2__SD1_DATA2, PAD_CTL_DSE_MAX |
+			PAD_CTL_HYS | PAD_CTL_PUS_47K_UP | PAD_CTL_SRE_FAST),
+		NEW_PAD_CTRL(MX51_PAD_SD1_DATA3__SD1_DATA3, PAD_CTL_DSE_MAX |
+			PAD_CTL_HYS | PAD_CTL_PUS_100K_DOWN | PAD_CTL_SRE_FAST),
+		NEW_PAD_CTRL(MX51_PAD_GPIO1_0__SD1_CD, PAD_CTL_HYS),
+		NEW_PAD_CTRL(MX51_PAD_GPIO1_1__SD1_WP, PAD_CTL_HYS),
+	};
+
+	static const iomux_v3_cfg_t sd2_pads[] = {
+		NEW_PAD_CTRL(MX51_PAD_SD2_CMD__SD2_CMD,
+				PAD_CTL_DSE_MAX | PAD_CTL_SRE_FAST),
+		NEW_PAD_CTRL(MX51_PAD_SD2_CLK__SD2_CLK,
+				PAD_CTL_DSE_MAX | PAD_CTL_SRE_FAST),
+		NEW_PAD_CTRL(MX51_PAD_SD2_DATA0__SD2_DATA0,
+				PAD_CTL_DSE_MAX | PAD_CTL_SRE_FAST),
+		NEW_PAD_CTRL(MX51_PAD_SD2_DATA1__SD2_DATA1,
+				PAD_CTL_DSE_MAX | PAD_CTL_SRE_FAST),
+		NEW_PAD_CTRL(MX51_PAD_SD2_DATA2__SD2_DATA2,
+				PAD_CTL_DSE_MAX | PAD_CTL_SRE_FAST),
+		NEW_PAD_CTRL(MX51_PAD_SD2_DATA3__SD2_DATA3,
+				PAD_CTL_DSE_MAX | PAD_CTL_SRE_FAST),
+		NEW_PAD_CTRL(MX51_PAD_GPIO1_6__GPIO1_6, PAD_CTL_HYS),
+		NEW_PAD_CTRL(MX51_PAD_GPIO1_5__GPIO1_5, PAD_CTL_HYS),
+	};
+
 	u32 index;
 	s32 status = 0;
 
@@ -367,98 +345,12 @@ int board_mmc_init(bd_t *bis)
 			index++) {
 		switch (index) {
 		case 0:
-			mxc_request_iomux(MX51_PIN_SD1_CMD,
-				IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
-			mxc_request_iomux(MX51_PIN_SD1_CLK,
-				IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
-			mxc_request_iomux(MX51_PIN_SD1_DATA0,
-				IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
-			mxc_request_iomux(MX51_PIN_SD1_DATA1,
-				IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
-			mxc_request_iomux(MX51_PIN_SD1_DATA2,
-				IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
-			mxc_request_iomux(MX51_PIN_SD1_DATA3,
-				IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
-			mxc_iomux_set_pad(MX51_PIN_SD1_CMD,
-				PAD_CTL_DRV_MAX | PAD_CTL_DRV_VOT_HIGH |
-				PAD_CTL_HYS_ENABLE | PAD_CTL_47K_PU |
-				PAD_CTL_PUE_PULL |
-				PAD_CTL_PKE_ENABLE | PAD_CTL_SRE_FAST);
-			mxc_iomux_set_pad(MX51_PIN_SD1_CLK,
-				PAD_CTL_DRV_MAX | PAD_CTL_DRV_VOT_HIGH |
-				PAD_CTL_HYS_NONE | PAD_CTL_47K_PU |
-				PAD_CTL_PUE_PULL |
-				PAD_CTL_PKE_ENABLE | PAD_CTL_SRE_FAST);
-			mxc_iomux_set_pad(MX51_PIN_SD1_DATA0,
-				PAD_CTL_DRV_MAX | PAD_CTL_DRV_VOT_HIGH |
-				PAD_CTL_HYS_ENABLE | PAD_CTL_47K_PU |
-				PAD_CTL_PUE_PULL |
-				PAD_CTL_PKE_ENABLE | PAD_CTL_SRE_FAST);
-			mxc_iomux_set_pad(MX51_PIN_SD1_DATA1,
-				PAD_CTL_DRV_MAX | PAD_CTL_DRV_VOT_HIGH |
-				PAD_CTL_HYS_ENABLE | PAD_CTL_47K_PU |
-				PAD_CTL_PUE_PULL |
-				PAD_CTL_PKE_ENABLE | PAD_CTL_SRE_FAST);
-			mxc_iomux_set_pad(MX51_PIN_SD1_DATA2,
-				PAD_CTL_DRV_MAX | PAD_CTL_DRV_VOT_HIGH |
-				PAD_CTL_HYS_ENABLE | PAD_CTL_47K_PU |
-				PAD_CTL_PUE_PULL |
-				PAD_CTL_PKE_ENABLE | PAD_CTL_SRE_FAST);
-			mxc_iomux_set_pad(MX51_PIN_SD1_DATA3,
-				PAD_CTL_DRV_MAX | PAD_CTL_DRV_VOT_HIGH |
-				PAD_CTL_HYS_ENABLE | PAD_CTL_100K_PD |
-				PAD_CTL_PUE_PULL |
-				PAD_CTL_PKE_ENABLE | PAD_CTL_SRE_FAST);
-			mxc_request_iomux(MX51_PIN_GPIO1_0,
-				IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
-			mxc_iomux_set_pad(MX51_PIN_GPIO1_0,
-				PAD_CTL_HYS_ENABLE);
-			mxc_request_iomux(MX51_PIN_GPIO1_1,
-				IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
-			mxc_iomux_set_pad(MX51_PIN_GPIO1_1,
-				PAD_CTL_HYS_ENABLE);
+			imx_iomux_v3_setup_multiple_pads(sd1_pads,
+							 ARRAY_SIZE(sd1_pads));
 			break;
 		case 1:
-			mxc_request_iomux(MX51_PIN_SD2_CMD,
-				IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
-			mxc_request_iomux(MX51_PIN_SD2_CLK,
-				IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
-			mxc_request_iomux(MX51_PIN_SD2_DATA0,
-				IOMUX_CONFIG_ALT0);
-			mxc_request_iomux(MX51_PIN_SD2_DATA1,
-				IOMUX_CONFIG_ALT0);
-			mxc_request_iomux(MX51_PIN_SD2_DATA2,
-				IOMUX_CONFIG_ALT0);
-			mxc_request_iomux(MX51_PIN_SD2_DATA3,
-				IOMUX_CONFIG_ALT0);
-			mxc_iomux_set_pad(MX51_PIN_SD2_CMD,
-				PAD_CTL_DRV_MAX | PAD_CTL_22K_PU |
-				PAD_CTL_SRE_FAST);
-			mxc_iomux_set_pad(MX51_PIN_SD2_CLK,
-				PAD_CTL_DRV_MAX | PAD_CTL_22K_PU |
-				PAD_CTL_SRE_FAST);
-			mxc_iomux_set_pad(MX51_PIN_SD2_DATA0,
-				PAD_CTL_DRV_MAX | PAD_CTL_22K_PU |
-				PAD_CTL_SRE_FAST);
-			mxc_iomux_set_pad(MX51_PIN_SD2_DATA1,
-				PAD_CTL_DRV_MAX | PAD_CTL_22K_PU |
-				PAD_CTL_SRE_FAST);
-			mxc_iomux_set_pad(MX51_PIN_SD2_DATA2,
-				PAD_CTL_DRV_MAX | PAD_CTL_22K_PU |
-				PAD_CTL_SRE_FAST);
-			mxc_iomux_set_pad(MX51_PIN_SD2_DATA3,
-				PAD_CTL_DRV_MAX | PAD_CTL_22K_PU |
-				PAD_CTL_SRE_FAST);
-			mxc_request_iomux(MX51_PIN_SD2_CMD,
-				IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
-			mxc_request_iomux(MX51_PIN_GPIO1_6,
-				IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
-			mxc_iomux_set_pad(MX51_PIN_GPIO1_6,
-				PAD_CTL_HYS_ENABLE);
-			mxc_request_iomux(MX51_PIN_GPIO1_5,
-				IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
-			mxc_iomux_set_pad(MX51_PIN_GPIO1_5,
-				PAD_CTL_HYS_ENABLE);
+			imx_iomux_v3_setup_multiple_pads(sd2_pads,
+							 ARRAY_SIZE(sd2_pads));
 			break;
 		default:
 			printf("Warning: you configured more ESDHC controller"

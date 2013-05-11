@@ -26,7 +26,7 @@
 #ifndef __MX28_REGS_BCH_H__
 #define __MX28_REGS_BCH_H__
 
-#include <asm/arch/regs-common.h>
+#include <asm/imx-common/regs-common.h>
 
 #ifndef	__ASSEMBLY__
 struct mxs_bch_regs {
@@ -136,8 +136,13 @@ struct mxs_bch_regs {
 #define	BCH_FLASHLAYOUT0_NBLOCKS_OFFSET			24
 #define	BCH_FLASHLAYOUT0_META_SIZE_MASK			(0xff << 16)
 #define	BCH_FLASHLAYOUT0_META_SIZE_OFFSET		16
+#if defined(CONFIG_MX6)
+#define	BCH_FLASHLAYOUT0_ECC0_MASK			(0x1f << 11)
+#define	BCH_FLASHLAYOUT0_ECC0_OFFSET			11
+#else
 #define	BCH_FLASHLAYOUT0_ECC0_MASK			(0xf << 12)
 #define	BCH_FLASHLAYOUT0_ECC0_OFFSET			12
+#endif
 #define	BCH_FLASHLAYOUT0_ECC0_NONE			(0x0 << 12)
 #define	BCH_FLASHLAYOUT0_ECC0_ECC2			(0x1 << 12)
 #define	BCH_FLASHLAYOUT0_ECC0_ECC4			(0x2 << 12)
@@ -161,8 +166,13 @@ struct mxs_bch_regs {
 
 #define	BCH_FLASHLAYOUT1_PAGE_SIZE_MASK			(0xffff << 16)
 #define	BCH_FLASHLAYOUT1_PAGE_SIZE_OFFSET		16
+#if defined(CONFIG_MX6)
+#define	BCH_FLASHLAYOUT1_ECCN_MASK			(0x1f << 11)
+#define	BCH_FLASHLAYOUT1_ECCN_OFFSET			11
+#else
 #define	BCH_FLASHLAYOUT1_ECCN_MASK			(0xf << 12)
 #define	BCH_FLASHLAYOUT1_ECCN_OFFSET			12
+#endif
 #define	BCH_FLASHLAYOUT1_ECCN_NONE			(0x0 << 12)
 #define	BCH_FLASHLAYOUT1_ECCN_ECC2			(0x1 << 12)
 #define	BCH_FLASHLAYOUT1_ECCN_ECC4			(0x2 << 12)

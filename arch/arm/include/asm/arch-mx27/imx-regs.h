@@ -176,7 +176,7 @@ struct iim_regs {
 	u32 iim_sdat;
 	u32 iim_prev;
 	u32 iim_srev;
-	u32 iim_prog_p;
+	u32 iim_prg_p;
 	u32 iim_scs0;
 	u32 iim_scs1;
 	u32 iim_scs2;
@@ -222,6 +222,7 @@ struct fuse_bank0_regs {
 #define IMX_PLL_BASE		(0x27000 + IMX_IO_BASE)
 #define IMX_SYSTEM_CTL_BASE	(0x27800 + IMX_IO_BASE)
 #define IMX_IIM_BASE		(0x28000 + IMX_IO_BASE)
+#define IIM_BASE_ADDR		IMX_IIM_BASE
 #define IMX_FEC_BASE		(0x2b000 + IMX_IO_BASE)
 
 #define IMX_ESD_BASE		(0xD8001000)

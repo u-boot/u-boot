@@ -68,7 +68,7 @@ struct cspi_regs {
 	u32 test;
 };
 
-/* IIM Control Registers */
+/* IIM control registers */
 struct iim_regs {
 	u32 iim_stat;
 	u32 iim_statm;
@@ -80,11 +80,28 @@ struct iim_regs {
 	u32 iim_sdat;
 	u32 iim_prev;
 	u32 iim_srev;
-	u32 iim_prog_p;
+	u32 iim_prg_p;
 	u32 iim_scs0;
 	u32 iim_scs1;
 	u32 iim_scs2;
 	u32 iim_scs3;
+	u32 res[0x1f1];
+	struct fuse_bank {
+		u32 fuse_regs[0x20];
+		u32 fuse_rsvd[0xe0];
+	} bank[3];
+};
+
+struct fuse_bank0_regs {
+	u32 fuse0_5[6];
+	u32 usr;
+	u32 fuse7_15[9];
+};
+
+struct fuse_bank2_regs {
+	u32 fuse0;
+	u32 uid[8];
+	u32 fuse9_15[7];
 };
 
 struct iomuxc_regs {
@@ -557,6 +574,7 @@ struct esdc_regs {
 #define CCMR_CKIH	(2 << 1)
 
 #define MX31_IIM_BASE_ADDR	0x5001C000
+#define IIM_BASE_ADDR		MX31_IIM_BASE_ADDR
 
 #define PDR0_CSI_PODF(x)	(((x) & 0x3f) << 26)
 #define PDR0_CSI_PRDF(x)	(((x) & 0x7) << 23)

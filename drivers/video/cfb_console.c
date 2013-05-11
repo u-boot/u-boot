@@ -151,6 +151,10 @@
 #endif
 #endif
 
+#ifdef CONFIG_VIDEO_MXS
+#define VIDEO_FB_16BPP_WORD_SWAP
+#endif
+
 /*
  * Defines for the MB862xx driver
  */

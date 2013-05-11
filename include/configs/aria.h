@@ -383,7 +383,7 @@
 /*
  * IIM - IC Identification Module
  */
-#undef CONFIG_IIM
+#undef CONFIG_FSL_IIM
 
 /*
  * EEPROM configuration for Atmel AT24C32A-10TQ-2.7:

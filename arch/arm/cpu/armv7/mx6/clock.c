@@ -37,6 +37,20 @@ enum pll_clocks {
 
 struct mxc_ccm_reg *imx_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
 
+#ifdef CONFIG_MXC_OCOTP
+void enable_ocotp_clk(unsigned char enable)
+{
+	u32 reg;
+
+	reg = __raw_readl(&imx_ccm->CCGR2);
+	if (enable)
+		reg |= MXC_CCM_CCGR2_OCOTP_CTRL_MASK;
+	else
+		reg &= ~MXC_CCM_CCGR2_OCOTP_CTRL_MASK;
+	__raw_writel(reg, &imx_ccm->CCGR2);
+}
+#endif
+
 void enable_usboh3_clk(unsigned char enable)
 {
 	u32 reg;
@@ -186,12 +200,16 @@ static u32 get_ipg_per_clk(void)
 static u32 get_uart_clk(void)
 {
 	u32 reg, uart_podf;
-
+	u32 freq = PLL3_80M;
 	reg = __raw_readl(&imx_ccm->cscdr1);
+#ifdef CONFIG_MX6SL
+	if (reg & MXC_CCM_CSCDR1_UART_CLK_SEL)
+		freq = MXC_HCLK;
+#endif
 	reg &= MXC_CCM_CSCDR1_UART_CLK_PODF_MASK;
 	uart_podf = reg >> MXC_CCM_CSCDR1_UART_CLK_PODF_OFFSET;
 
-	return PLL3_80M / (uart_podf + 1);
+	return freq / (uart_podf + 1);
 }
 
 static u32 get_cspi_clk(void)
@@ -252,6 +270,35 @@ static u32 get_emi_slow_clk(void)
 	return root_freq / (emi_slow_pof + 1);
 }
 
+#ifdef CONFIG_MX6SL
+static u32 get_mmdc_ch0_clk(void)
+{
+	u32 cbcmr = __raw_readl(&imx_ccm->cbcmr);
+	u32 cbcdr = __raw_readl(&imx_ccm->cbcdr);
+	u32 freq, podf;
+
+	podf = (cbcdr & MXC_CCM_CBCDR_MMDC_CH1_PODF_MASK) \
+			>> MXC_CCM_CBCDR_MMDC_CH1_PODF_OFFSET;
+
+	switch ((cbcmr & MXC_CCM_CBCMR_PRE_PERIPH2_CLK_SEL_MASK) >>
+		MXC_CCM_CBCMR_PRE_PERIPH2_CLK_SEL_OFFSET) {
+	case 0:
+		freq = decode_pll(PLL_BUS, MXC_HCLK);
+		break;
+	case 1:
+		freq = PLL2_PFD2_FREQ;
+		break;
+	case 2:
+		freq = PLL2_PFD0_FREQ;
+		break;
+	case 3:
+		freq = PLL2_PFD2_DIV_FREQ;
+	}
+
+	return freq / (podf + 1);
+
+}
+#else
 static u32 get_mmdc_ch0_clk(void)
 {
 	u32 cbcdr = __raw_readl(&imx_ccm->cbcdr);
@@ -260,6 +307,7 @@ static u32 get_mmdc_ch0_clk(void)
 
 	return get_periph_clk() / (mmdc_ch0_podf + 1);
 }
+#endif
 
 static u32 get_usdhc_clk(u32 port)
 {

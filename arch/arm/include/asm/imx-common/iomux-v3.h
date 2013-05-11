@@ -23,6 +23,8 @@
 #ifndef __MACH_IOMUX_V3_H__
 #define __MACH_IOMUX_V3_H__
 
+#include <common.h>
+
 /*
  *	build IOMUX_PAD structure
  *
@@ -84,7 +86,68 @@ typedef u64 iomux_v3_cfg_t;
 	((iomux_v3_cfg_t)(sel_input_ofs) << MUX_SEL_INPUT_OFS_SHIFT)|	\
 	((iomux_v3_cfg_t)(sel_input)     << MUX_SEL_INPUT_SHIFT))
 
+#define NEW_PAD_CTRL(cfg, pad)	(((cfg) & ~MUX_PAD_CTRL_MASK) | \
+					MUX_PAD_CTRL(pad))
+
+#define __NA_			0x000
+#define NO_MUX_I		0
+#define NO_PAD_I		0
+
 #define NO_PAD_CTRL		(1 << 17)
+
+#ifdef CONFIG_MX6
+
+#define PAD_CTL_HYS		(1 << 16)
+
+#define PAD_CTL_PUS_100K_DOWN	(0 << 14 | PAD_CTL_PUE)
+#define PAD_CTL_PUS_47K_UP	(1 << 14 | PAD_CTL_PUE)
+#define PAD_CTL_PUS_100K_UP	(2 << 14 | PAD_CTL_PUE)
+#define PAD_CTL_PUS_22K_UP	(3 << 14 | PAD_CTL_PUE)
+#define PAD_CTL_PUE		(1 << 13 | PAD_CTL_PKE)
+#define PAD_CTL_PKE		(1 << 12)
+
+#define PAD_CTL_ODE		(1 << 11)
+
+#define PAD_CTL_SPEED_LOW	(1 << 6)
+#define PAD_CTL_SPEED_MED	(2 << 6)
+#define PAD_CTL_SPEED_HIGH	(3 << 6)
+
+#define PAD_CTL_DSE_DISABLE	(0 << 3)
+#define PAD_CTL_DSE_240ohm	(1 << 3)
+#define PAD_CTL_DSE_120ohm	(2 << 3)
+#define PAD_CTL_DSE_80ohm	(3 << 3)
+#define PAD_CTL_DSE_60ohm	(4 << 3)
+#define PAD_CTL_DSE_48ohm	(5 << 3)
+#define PAD_CTL_DSE_40ohm	(6 << 3)
+#define PAD_CTL_DSE_34ohm	(7 << 3)
+
+#else
+
+#define PAD_CTL_DVS		(1 << 13)
+#define PAD_CTL_INPUT_DDR	(1 << 9)
+#define PAD_CTL_HYS		(1 << 8)
+
+#define PAD_CTL_PKE		(1 << 7)
+#define PAD_CTL_PUE		(1 << 6 | PAD_CTL_PKE)
+#define PAD_CTL_PUS_100K_DOWN	(0 << 4 | PAD_CTL_PUE)
+#define PAD_CTL_PUS_47K_UP	(1 << 4 | PAD_CTL_PUE)
+#define PAD_CTL_PUS_100K_UP	(2 << 4 | PAD_CTL_PUE)
+#define PAD_CTL_PUS_22K_UP	(3 << 4 | PAD_CTL_PUE)
+
+#define PAD_CTL_ODE		(1 << 3)
+
+#define PAD_CTL_DSE_LOW		(0 << 1)
+#define PAD_CTL_DSE_MED		(1 << 1)
+#define PAD_CTL_DSE_HIGH	(2 << 1)
+#define PAD_CTL_DSE_MAX		(3 << 1)
+
+#endif
+
+#define PAD_CTL_SRE_SLOW	(0 << 0)
+#define PAD_CTL_SRE_FAST	(1 << 0)
+
+#define IOMUX_CONFIG_SION	0x10
+
 #define GPIO_PIN_MASK		0x1f
 #define GPIO_PORT_SHIFT		5
 #define GPIO_PORT_MASK		(0x7 << GPIO_PORT_SHIFT)
@@ -95,10 +158,8 @@ typedef u64 iomux_v3_cfg_t;
 #define GPIO_PORTE		(4 << GPIO_PORT_SHIFT)
 #define GPIO_PORTF		(5 << GPIO_PORT_SHIFT)
 
-#define MUX_CONFIG_SION		(0x1 << 4)
-
-int imx_iomux_v3_setup_pad(iomux_v3_cfg_t pad);
-int imx_iomux_v3_setup_multiple_pads(iomux_v3_cfg_t const *pad_list,
+void imx_iomux_v3_setup_pad(iomux_v3_cfg_t pad);
+void imx_iomux_v3_setup_multiple_pads(iomux_v3_cfg_t const *pad_list,
 				     unsigned count);
 
 #endif	/* __MACH_IOMUX_V3_H__*/

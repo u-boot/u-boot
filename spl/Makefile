@@ -88,10 +88,18 @@ ifneq ($(CONFIG_AM33XX)$(CONFIG_OMAP34XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX)$(C
 LIBS-y += $(CPUDIR)/omap-common/libomap-common.o
 endif
 
+ifneq (,$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35))
+LIBS-y += arch/$(ARCH)/imx-common/libimx-common.o
+endif
+
 ifneq ($(CONFIG_TEGRA),)
 LIBS-y += arch/$(ARCH)/cpu/$(SOC)-common/lib$(SOC)-common.o
 LIBS-y += arch/$(ARCH)/cpu/tegra-common/libcputegra-common.o
 LIBS-y += $(CPUDIR)/tegra-common/libtegra-common.o
+endif
+
+ifneq ($(CONFIG_MX23)$(CONFIG_MX35),)
+LIBS-y += arch/$(ARCH)/imx-common/libimx-common.o
 endif
 
 # Add GCC lib

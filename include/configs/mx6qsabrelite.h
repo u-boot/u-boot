@@ -47,6 +47,11 @@
 #define CONFIG_MISC_INIT_R
 #define CONFIG_MXC_GPIO
 
+#define CONFIG_CMD_FUSE
+#ifdef CONFIG_CMD_FUSE
+#define CONFIG_MXC_OCOTP
+#endif
+
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	       UART2_BASE
 
