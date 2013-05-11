@@ -359,3 +359,6 @@ void nand_boot(void)
 	}
 }
 #endif
+
+void nand_init(void) {}
+void nand_deselect(void) {}
