@@ -286,13 +286,6 @@ static void set_clocks_in_mhz (bd_t *kbd)
 		/* convert all clock information to MHz */
 		kbd->bi_intfreq /= 1000000L;
 		kbd->bi_busfreq /= 1000000L;
-#if defined(CONFIG_MPC8220)
-		kbd->bi_inpfreq /= 1000000L;
-		kbd->bi_pcifreq /= 1000000L;
-		kbd->bi_pevfreq /= 1000000L;
-		kbd->bi_flbfreq /= 1000000L;
-		kbd->bi_vcofreq /= 1000000L;
-#endif
 #if defined(CONFIG_CPM2)
 		kbd->bi_cpmfreq /= 1000000L;
 		kbd->bi_brgfreq /= 1000000L;

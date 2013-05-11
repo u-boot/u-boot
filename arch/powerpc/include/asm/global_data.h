@@ -104,12 +104,6 @@ struct arch_global_data {
 	u32 ips_clk;
 	u32 csb_clk;
 #endif /* CONFIG_MPC512X */
-#if defined(CONFIG_MPC8220)
-	unsigned long inp_clk;
-	unsigned long vco_clk;
-	unsigned long pev_clk;
-	unsigned long flb_clk;
-#endif
 	unsigned long reset_status;	/* reset status register at boot */
 #if defined(CONFIG_MPC83xx)
 	unsigned long arbiter_event_attributes;

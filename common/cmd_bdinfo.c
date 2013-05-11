@@ -130,13 +130,6 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 	print_mhz("busfreq",		bd->bi_busfreq);
 #endif /* CONFIG_405GP, CONFIG_405CR, CONFIG_405EP, CONFIG_XILINX_405, CONFIG_440EP CONFIG_440GR */
-#if defined(CONFIG_MPC8220)
-	print_mhz("inpfreq",		bd->bi_inpfreq);
-	print_mhz("flbfreq",		bd->bi_flbfreq);
-	print_mhz("pcifreq",		bd->bi_pcifreq);
-	print_mhz("vcofreq",		bd->bi_vcofreq);
-	print_mhz("pevfreq",		bd->bi_pevfreq);
-#endif
 
 #ifdef CONFIG_ENABLE_36BIT_PHYS
 #ifdef CONFIG_PHYS_64BIT

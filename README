@@ -201,7 +201,6 @@ Directory Hierarchy:
       /mpc5xx		Files specific to Freescale MPC5xx CPUs
       /mpc5xxx		Files specific to Freescale MPC5xxx CPUs
       /mpc8xx		Files specific to Freescale MPC8xx CPUs
-      /mpc8220		Files specific to Freescale MPC8220 CPUs
       /mpc824x		Files specific to Freescale MPC824x CPUs
       /mpc8260		Files specific to Freescale MPC8260 CPUs
       /mpc85xx		Files specific to Freescale MPC85xx CPUs
