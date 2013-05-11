@@ -496,6 +496,7 @@ int drv_usb_kbd_init(void)
 		if (old_dev) {
 			/* Already registered, just return ok. */
 			debug("USB KBD: is already registered.\n");
+			usb_kbd_deregister();
 			return 1;
 		}
 
