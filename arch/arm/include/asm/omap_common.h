@@ -25,6 +25,8 @@
 #ifndef	_OMAP_COMMON_H_
 #define	_OMAP_COMMON_H_
 
+#ifndef __ASSEMBLY__
+
 #include <common.h>
 
 #define NUM_SYS_CLKS	8
@@ -316,6 +318,7 @@ struct prcm_regs {
 	u32 cm_wkupaon_io_srcomp_clkctrl;
 	u32 prm_rstctrl;
 	u32 prm_rstst;
+	u32 prm_rsttime;
 	u32 prm_vc_val_bypass;
 	u32 prm_vc_cfg_i2c_mode;
 	u32 prm_vc_cfg_i2c_clk;
@@ -557,6 +560,7 @@ static inline u32 omap_revision(void)
 	extern u32 *const omap_si_rev;
 	return *omap_si_rev;
 }
+#endif
 
 /*
  * silicon revisions.
@@ -583,4 +587,20 @@ static inline u32 omap_revision(void)
 
 /* DRA7XX */
 #define DRA752_ES1_0	0x07520100
+
+/*
+ * SRAM scratch space entries
+ */
+#define SRAM_SCRATCH_SPACE_ADDR		NON_SECURE_SRAM_START
+#define OMAP_SRAM_SCRATCH_OMAP_REV	SRAM_SCRATCH_SPACE_ADDR
+#define OMAP_SRAM_SCRATCH_EMIF_SIZE	(SRAM_SCRATCH_SPACE_ADDR + 0x4)
+#define OMAP_SRAM_SCRATCH_EMIF_T_NUM	(SRAM_SCRATCH_SPACE_ADDR + 0xC)
+#define OMAP_SRAM_SCRATCH_EMIF_T_DEN	(SRAM_SCRATCH_SPACE_ADDR + 0x10)
+#define OMAP_SRAM_SCRATCH_PRCM_PTR      (SRAM_SCRATCH_SPACE_ADDR + 0x14)
+#define OMAP_SRAM_SCRATCH_DPLLS_PTR     (SRAM_SCRATCH_SPACE_ADDR + 0x18)
+#define OMAP_SRAM_SCRATCH_VCORES_PTR    (SRAM_SCRATCH_SPACE_ADDR + 0x1C)
+#define OMAP_SRAM_SCRATCH_SYS_CTRL	(SRAM_SCRATCH_SPACE_ADDR + 0x20)
+#define OMAP_SRAM_SCRATCH_BOOT_PARAMS	(SRAM_SCRATCH_SPACE_ADDR + 0x24)
+#define OMAP5_SRAM_SCRATCH_SPACE_END	(SRAM_SCRATCH_SPACE_ADDR + 0x28)
+
 #endif /* _OMAP_COMMON_H_ */

@@ -143,40 +143,4 @@ struct s32ktimer {
 #define NON_SECURE_SRAM_END	0x4030E000	/* Not inclusive */
 /* base address for indirect vectors (internal boot mode) */
 #define SRAM_ROM_VECT_BASE	0x4030D000
-/* Temporary SRAM stack used while low level init is done */
-#define SRAM_SCRATCH_SPACE_ADDR		NON_SECURE_SRAM_START
-/* SRAM scratch space entries */
-#define OMAP4_SRAM_SCRATCH_OMAP4_REV	SRAM_SCRATCH_SPACE_ADDR
-#define OMAP4_SRAM_SCRATCH_EMIF_T_NUM	(SRAM_SCRATCH_SPACE_ADDR + 0xC)
-#define OMAP4_SRAM_SCRATCH_EMIF_T_DEN	(SRAM_SCRATCH_SPACE_ADDR + 0x10)
-#define OMAP_SRAM_SCRATCH_PRCM_PTR      (SRAM_SCRATCH_SPACE_ADDR + 0x14)
-#define OMAP_SRAM_SCRATCH_DPLLS_PTR     (SRAM_SCRATCH_SPACE_ADDR + 0x18)
-#define OMAP_SRAM_SCRATCH_VCORES_PTR	(SRAM_SCRATCH_SPACE_ADDR + 0x1C)
-#define OMAP4_SRAM_SCRATCH_SYS_CTRL	(SRAM_SCRATCH_SPACE_ADDR + 0x20)
-#define OMAP4_SRAM_SCRATCH_SPACE_END	(SRAM_SCRATCH_SPACE_ADDR + 0x24)
-
-/* ROM code defines */
-/* Boot device */
-#define BOOT_DEVICE_MASK	0xFF
-#define BOOT_DEVICE_OFFSET	0x8
-#define DEV_DESC_PTR_OFFSET	0x4
-#define DEV_DATA_PTR_OFFSET	0x18
-#define BOOT_MODE_OFFSET	0x8
-#define RESET_REASON_OFFSET	0x9
-#define CH_FLAGS_OFFSET		0xA
-
-#define CH_FLAGS_CHSETTINGS	(0x1 << 0)
-#define CH_FLAGS_CHRAM		(0x1 << 1)
-#define CH_FLAGS_CHFLASH	(0x1 << 2)
-#define CH_FLAGS_CHMMCSD	(0x1 << 3)
-
-#ifndef __ASSEMBLY__
-struct omap_boot_parameters {
-	char *boot_message;
-	unsigned int mem_boot_descriptor;
-	unsigned char omap_bootdevice;
-	unsigned char reset_reason;
-	unsigned char ch_flags;
-};
-#endif
 #endif

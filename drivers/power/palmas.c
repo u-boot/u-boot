@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2012
+ * (C) Copyright 2012-2013
  * Texas Instruments, <www.ti.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -20,23 +20,33 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
+#include <config.h>
+#include <palmas.h>
 
-#include <common.h>
-#include <i2c.h>
+void palmas_init_settings(void)
+{
+	return;
+}
 
-/* I2C chip addresses */
-#define TWL6035_CHIP_ADDR	0x48
+int palmas_mmc1_poweron_ldo(void)
+{
+	u8 val = 0;
 
-/* 0x1XY translates to page 1, register address 0xXY */
-#define LDO9_CTRL		0x60
-#define LDO9_VOLTAGE		0x61
+	/* set LDO9 TWL6035 to 3V */
+	val = 0x2b; /* (3 -.9)*28 +1 */
 
-/* Bit field definitions for LDOx_CTRL */
-#define LDO_ON			(1 << 4)
-#define LDO_MODE_SLEEP		(1 << 2)
-#define LDO_MODE_ACTIVE		(1 << 0)
+	if (palmas_i2c_write_u8(0x48, LDO9_VOLTAGE, val)) {
+		printf("twl6035: could not set LDO9 voltage.\n");
+		return 1;
+	}
 
-int twl6035_i2c_write_u8(u8 chip_no, u8 val, u8 reg);
-int twl6035_i2c_read_u8(u8 chip_no, u8 *val, u8 reg);
-void twl6035_init_settings(void);
-int twl6035_mmc1_poweron_ldo(void);
+	/* TURN ON LDO9 */
+	val = LDO_ON | LDO_MODE_SLEEP | LDO_MODE_ACTIVE;
+
+	if (palmas_i2c_write_u8(0x48, LDO9_CTRL, val)) {
+		printf("twl6035: could not turn on LDO9.\n");
+		return 1;
+	}
+
+	return 0;
+}

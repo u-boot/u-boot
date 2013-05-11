@@ -34,10 +34,11 @@
 #include <asm/sizes.h>
 #include <asm/emif.h>
 #include <asm/arch/gpio.h>
+#include <asm/omap_common.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-u32 *const omap_si_rev = (u32 *)OMAP4_SRAM_SCRATCH_OMAP4_REV;
+u32 *const omap_si_rev = (u32 *)OMAP_SRAM_SCRATCH_OMAP_REV;
 
 static const struct gpio_bank gpio_bank_44xx[6] = {
 	{ (void *)OMAP44XX_GPIO1_BASE, METHOD_GPIO_24XX },

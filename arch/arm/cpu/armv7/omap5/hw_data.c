@@ -41,7 +41,7 @@ struct dplls const **dplls_data =
 struct vcores_data const **omap_vcores =
 		(struct vcores_data const **) OMAP_SRAM_SCRATCH_VCORES_PTR;
 struct omap_sys_ctrl_regs const **ctrl =
-	(struct omap_sys_ctrl_regs const **)OMAP5_SRAM_SCRATCH_SYS_CTRL;
+	(struct omap_sys_ctrl_regs const **)OMAP_SRAM_SCRATCH_SYS_CTRL;
 
 /* OPP HIGH FREQUENCY for ES2.0 */
 static const struct dpll_params mpu_dpll_params_1_5ghz[NUM_SYS_CLKS] = {
@@ -403,6 +403,7 @@ void enable_basic_uboot_clocks(void)
 	};
 
 	u32 const clk_modules_hw_auto_essential[] = {
+		(*prcm)->cm_l3init_hsusbtll_clkctrl,
 		0
 	};
 
@@ -411,7 +412,7 @@ void enable_basic_uboot_clocks(void)
 		(*prcm)->cm_l4per_i2c2_clkctrl,
 		(*prcm)->cm_l4per_i2c3_clkctrl,
 		(*prcm)->cm_l4per_i2c4_clkctrl,
-		(*prcm)->cm_l3init_hsusbtll_clkctrl,
+		(*prcm)->cm_l4per_i2c5_clkctrl,
 		(*prcm)->cm_l3init_hsusbhost_clkctrl,
 		(*prcm)->cm_l3init_fsusb_clkctrl,
 		0

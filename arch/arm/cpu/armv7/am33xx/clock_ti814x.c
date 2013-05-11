@@ -109,6 +109,8 @@ struct ad_pll {
 #define OSC_SRC_CTRL			(PLL_SUBSYS_BASE + 0x2C0)
 
 /* PRCM */
+#define ENET_CLKCTRL_CMPL		0x30000
+
 #define CM_DEFAULT_BASE			(PRCM_BASE + 0x0500)
 
 struct cm_def {
@@ -183,7 +185,7 @@ struct cm_alwon {
 	unsigned int resv5[2];
 	unsigned int gpmcclkctrl;
 	unsigned int ethernet0clkctrl;
-	unsigned int resv6[1];
+	unsigned int ethernet1clkctrl;
 	unsigned int mpuclkctrl;
 	unsigned int debugssclkctrl;
 	unsigned int l3clkctrl;
@@ -203,9 +205,67 @@ struct cm_alwon {
 	unsigned int custefuseclkctrl;
 };
 
+#define SATA_PLL_BASE			(CTRL_BASE + 0x0720)
+
+struct sata_pll {
+	unsigned int pllcfg0;
+	unsigned int pllcfg1;
+	unsigned int pllcfg2;
+	unsigned int pllcfg3;
+	unsigned int pllcfg4;
+	unsigned int pllstatus;
+	unsigned int rxstatus;
+	unsigned int txstatus;
+	unsigned int testcfg;
+};
+
+#define SEL_IN_FREQ		(0x1 << 31)
+#define DIGCLRZ			(0x1 << 30)
+#define ENDIGLDO		(0x1 << 4)
+#define APLL_CP_CURR		(0x1 << 3)
+#define ENBGSC_REF		(0x1 << 2)
+#define ENPLLLDO		(0x1 << 1)
+#define ENPLL			(0x1 << 0)
+
+#define SATA_PLLCFG0_1 (SEL_IN_FREQ | ENBGSC_REF)
+#define SATA_PLLCFG0_2 (SEL_IN_FREQ | ENDIGLDO | ENBGSC_REF)
+#define SATA_PLLCFG0_3 (SEL_IN_FREQ | ENDIGLDO | ENBGSC_REF | ENPLLLDO)
+#define SATA_PLLCFG0_4 (SEL_IN_FREQ | DIGCLRZ | ENDIGLDO | ENBGSC_REF | \
+			ENPLLLDO | ENPLL)
+
+#define PLL_LOCK		(0x1 << 0)
+
+#define ENSATAMODE		(0x1 << 31)
+#define PLLREFSEL		(0x1 << 30)
+#define MDIVINT			(0x4b << 18)
+#define EN_CLKAUX		(0x1 << 5)
+#define EN_CLK125M		(0x1 << 4)
+#define EN_CLK100M		(0x1 << 3)
+#define EN_CLK50M		(0x1 << 2)
+
+#define SATA_PLLCFG1 (ENSATAMODE |	\
+		      PLLREFSEL |	\
+		      MDIVINT |		\
+		      EN_CLKAUX |	\
+		      EN_CLK125M |	\
+		      EN_CLK100M |	\
+		      EN_CLK50M)
+
+#define DIGLDO_EN_CAPLESSMODE	(0x1 << 22)
+#define PLLDO_EN_LDO_STABLE	(0x1 << 11)
+#define PLLDO_EN_BUF_CUR	(0x1 << 7)
+#define PLLDO_EN_LP		(0x1 << 6)
+#define PLLDO_CTRL_TRIM_1_4V	(0x10 << 1)
+
+#define SATA_PLLCFG3 (DIGLDO_EN_CAPLESSMODE |	\
+		      PLLDO_EN_LDO_STABLE |	\
+		      PLLDO_EN_BUF_CUR |	\
+		      PLLDO_EN_LP |		\
+		      PLLDO_CTRL_TRIM_1_4V)
 
 const struct cm_alwon *cmalwon = (struct cm_alwon *)CM_ALWON_BASE;
 const struct cm_def *cmdef = (struct cm_def *)CM_DEFAULT_BASE;
+const struct sata_pll *spll = (struct sata_pll *)SATA_PLL_BASE;
 
 /*
  * Enable the peripheral clock for required peripherals
@@ -220,6 +280,15 @@ static void enable_per_clocks(void)
 	/* HSMMC1 */
 	writel(PRCM_MOD_EN, &cmalwon->mmchs1clkctrl);
 	while (readl(&cmalwon->mmchs1clkctrl) != PRCM_MOD_EN)
+		;
+
+	/* Ethernet */
+	writel(PRCM_MOD_EN, &cmalwon->ethclkstctrl);
+	writel(PRCM_MOD_EN, &cmalwon->ethernet0clkctrl);
+	while ((readl(&cmalwon->ethernet0clkctrl) & ENET_CLKCTRL_CMPL) != 0)
+		;
+	writel(PRCM_MOD_EN, &cmalwon->ethernet1clkctrl);
+	while ((readl(&cmalwon->ethernet1clkctrl) & ENET_CLKCTRL_CMPL) != 0)
 		;
 }
 
@@ -365,6 +434,35 @@ void ddr_pll_config(unsigned int ddrpll_m)
 	pll_config(DDR_PLL_BASE, DDR_N, DDR_M, DDR_M2, DDR_CLKCTRL, 1);
 }
 
+void sata_pll_config(void)
+{
+	/*
+	 * This sequence for configuring the SATA PLL
+	 * resident in the control module is documented
+	 * in TI8148 TRM section 21.3.1
+	 */
+	writel(SATA_PLLCFG1, &spll->pllcfg1);
+	udelay(50);
+
+	writel(SATA_PLLCFG3, &spll->pllcfg3);
+	udelay(50);
+
+	writel(SATA_PLLCFG0_1, &spll->pllcfg0);
+	udelay(50);
+
+	writel(SATA_PLLCFG0_2, &spll->pllcfg0);
+	udelay(50);
+
+	writel(SATA_PLLCFG0_3, &spll->pllcfg0);
+	udelay(50);
+
+	writel(SATA_PLLCFG0_4, &spll->pllcfg0);
+	udelay(50);
+
+	while (((readl(&spll->pllstatus) & PLL_LOCK) == 0))
+		;
+}
+
 void enable_emif_clocks(void) {};
 
 void enable_dmm_clocks(void)
@@ -397,9 +495,10 @@ void pll_init()
 	/* Enable the control module */
 	writel(PRCM_MOD_EN, &cmalwon->controlclkctrl);
 
+	/* Configure PLLs */
 	mpu_pll_config();
-
 	l3_pll_config();
+	sata_pll_config();
 
 	/* Enable the required peripherals */
 	enable_per_clocks();

@@ -1,6 +1,8 @@
 #
-# (C) Copyright 2000, 2001, 2002
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# (C) Copyright 2011 - 2013 CompuLab, Ltd. <www.compulab.co.il>
+#
+# Authors: Nikita Kiryanov <nikita@compulab.co.il>
+#	   Igor Grinberg <grinberg@compulab.co.il>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -17,9 +19,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA 02111-1307 USA
-#
+# Foundation, Inc.
 
 include $(TOPDIR)/config.mk
 
@@ -42,3 +42,5 @@ $(LIB):	$(obj).depend $(OBJS)
 include $(SRCTREE)/rules.mk
 
 sinclude $(obj).depend
+
+#########################################################################

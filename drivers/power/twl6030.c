@@ -25,30 +25,19 @@
 
 #include <twl6030.h>
 
-/* Functions to read and write from TWL6030 */
-static inline int twl6030_i2c_write_u8(u8 chip_no, u8 val, u8 reg)
-{
-	return i2c_write(chip_no, reg, 1, &val, 1);
-}
-
-static inline int twl6030_i2c_read_u8(u8 chip_no, u8 *val, u8 reg)
-{
-	return i2c_read(chip_no, reg, 1, val, 1);
-}
-
 static int twl6030_gpadc_read_channel(u8 channel_no)
 {
 	u8 lsb = 0;
 	u8 msb = 0;
 	int ret = 0;
 
-	ret = twl6030_i2c_read_u8(TWL6030_CHIP_ADC, &lsb,
-				GPCH0_LSB + channel_no * 2);
+	ret = twl6030_i2c_read_u8(TWL6030_CHIP_ADC,
+				  GPCH0_LSB + channel_no * 2, &lsb);
 	if (ret)
 		return ret;
 
-	ret = twl6030_i2c_read_u8(TWL6030_CHIP_ADC, &msb,
-				GPCH0_MSB + channel_no * 2);
+	ret = twl6030_i2c_read_u8(TWL6030_CHIP_ADC,
+				  GPCH0_MSB + channel_no * 2, &msb);
 	if (ret)
 		return ret;
 
@@ -60,7 +49,7 @@ static int twl6030_gpadc_sw2_trigger(void)
 	u8 val;
 	int ret = 0;
 
-	ret = twl6030_i2c_write_u8(TWL6030_CHIP_ADC, CTRL_P2_SP2, CTRL_P2);
+	ret = twl6030_i2c_write_u8(TWL6030_CHIP_ADC, CTRL_P2, CTRL_P2_SP2);
 	if (ret)
 		return ret;
 
@@ -68,7 +57,7 @@ static int twl6030_gpadc_sw2_trigger(void)
 	val =  CTRL_P2_BUSY;
 
 	while (!((val & CTRL_P2_EOCP2) && (!(val & CTRL_P2_BUSY)))) {
-		ret = twl6030_i2c_read_u8(TWL6030_CHIP_ADC, &val, CTRL_P2);
+		ret = twl6030_i2c_read_u8(TWL6030_CHIP_ADC, CTRL_P2, &val);
 		if (ret)
 			return ret;
 		udelay(1000);
@@ -79,29 +68,29 @@ static int twl6030_gpadc_sw2_trigger(void)
 
 void twl6030_stop_usb_charging(void)
 {
-	twl6030_i2c_write_u8(TWL6030_CHIP_CHARGER, 0, CONTROLLER_CTRL1);
+	twl6030_i2c_write_u8(TWL6030_CHIP_CHARGER, CONTROLLER_CTRL1, 0);
 
 	return;
 }
 
 void twl6030_start_usb_charging(void)
 {
-	twl6030_i2c_write_u8(TWL6030_CHIP_CHARGER, CHARGERUSB_VICHRG_1500,
-							CHARGERUSB_VICHRG);
-	twl6030_i2c_write_u8(TWL6030_CHIP_CHARGER, CHARGERUSB_CIN_LIMIT_NONE,
-							CHARGERUSB_CINLIMIT);
-	twl6030_i2c_write_u8(TWL6030_CHIP_CHARGER, MBAT_TEMP,
-							CONTROLLER_INT_MASK);
-	twl6030_i2c_write_u8(TWL6030_CHIP_CHARGER, MASK_MCHARGERUSB_THMREG,
-							CHARGERUSB_INT_MASK);
-	twl6030_i2c_write_u8(TWL6030_CHIP_CHARGER, CHARGERUSB_VOREG_4P0,
-							CHARGERUSB_VOREG);
-	twl6030_i2c_write_u8(TWL6030_CHIP_CHARGER, CHARGERUSB_CTRL2_VITERM_400,
-							CHARGERUSB_CTRL2);
-	twl6030_i2c_write_u8(TWL6030_CHIP_CHARGER, TERM, CHARGERUSB_CTRL1);
+	twl6030_i2c_write_u8(TWL6030_CHIP_CHARGER,
+			     CHARGERUSB_VICHRG, CHARGERUSB_VICHRG_1500);
+	twl6030_i2c_write_u8(TWL6030_CHIP_CHARGER,
+			     CHARGERUSB_CINLIMIT, CHARGERUSB_CIN_LIMIT_NONE);
+	twl6030_i2c_write_u8(TWL6030_CHIP_CHARGER,
+			     CONTROLLER_INT_MASK, MBAT_TEMP);
+	twl6030_i2c_write_u8(TWL6030_CHIP_CHARGER,
+			     CHARGERUSB_INT_MASK, MASK_MCHARGERUSB_THMREG);
+	twl6030_i2c_write_u8(TWL6030_CHIP_CHARGER,
+			     CHARGERUSB_VOREG, CHARGERUSB_VOREG_4P0);
+	twl6030_i2c_write_u8(TWL6030_CHIP_CHARGER,
+			     CHARGERUSB_CTRL2, CHARGERUSB_CTRL2_VITERM_400);
+	twl6030_i2c_write_u8(TWL6030_CHIP_CHARGER, CHARGERUSB_CTRL1, TERM);
 	/* Enable USB charging */
-	twl6030_i2c_write_u8(TWL6030_CHIP_CHARGER, CONTROLLER_CTRL1_EN_CHARGER,
-							CONTROLLER_CTRL1);
+	twl6030_i2c_write_u8(TWL6030_CHIP_CHARGER,
+			     CONTROLLER_CTRL1, CONTROLLER_CTRL1_EN_CHARGER);
 	return;
 }
 
@@ -111,8 +100,8 @@ int twl6030_get_battery_current(void)
 	u8 msb = 0;
 	u8 lsb = 0;
 
-	twl6030_i2c_read_u8(TWL6030_CHIP_CHARGER, &msb, FG_REG_11);
-	twl6030_i2c_read_u8(TWL6030_CHIP_CHARGER, &lsb, FG_REG_10);
+	twl6030_i2c_read_u8(TWL6030_CHIP_CHARGER, FG_REG_11, &msb);
+	twl6030_i2c_read_u8(TWL6030_CHIP_CHARGER, FG_REG_10, &lsb);
 	battery_current = ((msb << 8) | lsb);
 
 	/* convert 10 bit signed number to 16 bit signed number */
@@ -156,10 +145,10 @@ void twl6030_init_battery_charging(void)
 	int ret = 0;
 
 	/* Enable VBAT measurement */
-	twl6030_i2c_write_u8(TWL6030_CHIP_PM, VBAT_MEAS, MISC1);
+	twl6030_i2c_write_u8(TWL6030_CHIP_PM, MISC1, VBAT_MEAS);
 
 	/* Enable GPADC module */
-	ret = twl6030_i2c_write_u8(TWL6030_CHIP_CHARGER, FGS | GPADCS, TOGGLE1);
+	ret = twl6030_i2c_write_u8(TWL6030_CHIP_CHARGER, TOGGLE1, FGS | GPADCS);
 	if (ret) {
 		printf("Failed to enable GPADC\n");
 		return;
@@ -173,7 +162,7 @@ void twl6030_init_battery_charging(void)
 		printf("Main battery voltage too low!\n");
 
 	/* Check for the presence of USB charger */
-	twl6030_i2c_read_u8(TWL6030_CHIP_CHARGER, &stat1, CONTROLLER_STAT1);
+	twl6030_i2c_read_u8(TWL6030_CHIP_CHARGER, CONTROLLER_STAT1, &stat1);
 
 	/* check for battery presence indirectly via Fuel gauge */
 	if ((stat1 & VBUS_DET) && (battery_volt < 3300))
@@ -185,8 +174,8 @@ void twl6030_init_battery_charging(void)
 void twl6030_power_mmc_init()
 {
 	/* set voltage to 3.0 and turnon for APP */
-	twl6030_i2c_write_u8(TWL6030_CHIP_PM, 0x15, VMMC_CFG_VOLTATE);
-	twl6030_i2c_write_u8(TWL6030_CHIP_PM, 0x21, VMMC_CFG_STATE);
+	twl6030_i2c_write_u8(TWL6030_CHIP_PM, VMMC_CFG_VOLTATE, 0x15);
+	twl6030_i2c_write_u8(TWL6030_CHIP_PM, VMMC_CFG_STATE, 0x21);
 }
 
 void twl6030_usb_device_settings()
@@ -194,12 +183,12 @@ void twl6030_usb_device_settings()
 	u8 data = 0;
 
 	/* Select APP Group and set state to ON */
-	twl6030_i2c_write_u8(TWL6030_CHIP_PM, 0x21, VUSB_CFG_STATE);
+	twl6030_i2c_write_u8(TWL6030_CHIP_PM, VUSB_CFG_STATE, 0x21);
 
-	twl6030_i2c_read_u8(TWL6030_CHIP_PM, &data, MISC2);
+	twl6030_i2c_read_u8(TWL6030_CHIP_PM, MISC2, &data);
 	data |= 0x10;
 
 	/* Select the input supply for VBUS regulator */
-	twl6030_i2c_write_u8(TWL6030_CHIP_PM, data, MISC2);
+	twl6030_i2c_write_u8(TWL6030_CHIP_PM, MISC2, data);
 }
 #endif

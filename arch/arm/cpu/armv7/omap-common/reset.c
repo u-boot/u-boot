@@ -39,3 +39,7 @@ u32 __weak warm_reset(void)
 {
 	return (readl(PRM_RSTST) & PRM_RSTST_WARM_RESET_MASK);
 }
+
+void __weak setup_warmreset_time(void)
+{
+}

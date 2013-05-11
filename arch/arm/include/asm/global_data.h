@@ -24,6 +24,10 @@
 #ifndef	__ASM_GBL_DATA_H
 #define __ASM_GBL_DATA_H
 
+#ifdef CONFIG_OMAP
+#include <asm/omap_boot.h>
+#endif
+
 /* Architecture-specific global data */
 struct arch_global_data {
 #if defined(CONFIG_FSL_ESDHC)
@@ -50,6 +54,10 @@ struct arch_global_data {
 #if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
 	unsigned long tlb_addr;
 	unsigned long tlb_size;
+#endif
+
+#ifdef CONFIG_OMAP
+	struct omap_boot_parameters omap_boot_params;
 #endif
 };
 

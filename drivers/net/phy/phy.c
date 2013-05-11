@@ -430,6 +430,9 @@ int phy_init(void)
 #ifdef CONFIG_PHY_DAVICOM
 	phy_davicom_init();
 #endif
+#ifdef CONFIG_PHY_ET1011C
+	phy_et1011c_init();
+#endif
 #ifdef CONFIG_PHY_LXT
 	phy_lxt_init();
 #endif

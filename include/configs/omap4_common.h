@@ -87,6 +87,10 @@
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
 					115200}
+
+/* CPU */
+#define CONFIG_ARCH_CPU_INIT
+
 /* I2C  */
 #define CONFIG_HARD_I2C			1
 #define CONFIG_SYS_I2C_SPEED		100000
@@ -176,7 +180,9 @@
 		"if test $board_name = sdp4430; then " \
 			"setenv fdtfile omap4-sdp.dtb; fi; " \
 		"if test $board_name = panda; then " \
-			"setenv fdtfile omap4-panda-es.dtb; fi\0" \
+			"setenv fdtfile omap4-panda.dtb; fi;" \
+		"if test $board_name = panda-es; then " \
+			"setenv fdtfile omap4-panda-es.dtb; fi; \0" \
 	"loadfdt=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
 
 #define CONFIG_BOOTCOMMAND \

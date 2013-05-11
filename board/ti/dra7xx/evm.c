@@ -27,7 +27,7 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
-#include <twl6035.h>
+#include <palmas.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mmc_host_def.h>
 

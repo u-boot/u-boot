@@ -1,12 +1,8 @@
 /*
- * A lowlevel_init function that sets up the stack to call a C function to
- * perform further init.
- *
- * (C) Copyright 2010
+ * (C) Copyright 2013
  * Texas Instruments, <www.ti.com>
  *
- * Author :
- *	Aneesh V	<aneesh@ti.com>
+ * Sricharan R <r.sricharan@ti.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -27,31 +23,28 @@
  * MA 02111-1307 USA
  */
 
-#include <asm-offsets.h>
-#include <config.h>
-#include <linux/linkage.h>
+/* ROM code defines */
+/* Boot device */
+#define BOOT_DEVICE_MASK	0xFF
+#define BOOT_DEVICE_OFFSET	0x8
+#define DEV_DESC_PTR_OFFSET	0x4
+#define DEV_DATA_PTR_OFFSET	0x18
+#define BOOT_MODE_OFFSET	0x8
+#define RESET_REASON_OFFSET	0x9
+#define CH_FLAGS_OFFSET		0xA
 
-ENTRY(lowlevel_init)
-	/*
-	 * Setup a temporary stack
-	 */
-	ldr	sp, =CONFIG_SYS_INIT_SP_ADDR
-	bic	sp, sp, #7 /* 8-byte alignment for ABI compliance */
-#ifdef CONFIG_SPL_BUILD
-	ldr	r8, =gdata
-#else
-	sub	sp, #GD_SIZE
-	bic	sp, sp, #7
-	mov	r8, sp
+#define CH_FLAGS_CHSETTINGS	(0x1 << 0)
+#define CH_FLAGS_CHRAM		(0x1 << 1)
+#define CH_FLAGS_CHFLASH	(0x1 << 2)
+#define CH_FLAGS_CHMMCSD	(0x1 << 3)
+
+#ifndef __ASSEMBLY__
+struct omap_boot_parameters {
+	char *boot_message;
+	unsigned int mem_boot_descriptor;
+	unsigned char omap_bootdevice;
+	unsigned char reset_reason;
+	unsigned char ch_flags;
+	unsigned long omap_bootmode;
+};
 #endif
-	/*
-	 * Save the old lr(passed in ip) and the current lr to stack
-	 */
-	push	{ip, lr}
-
-	/*
-	 * go setup pll, mux, memory
-	 */
-	bl	s_init
-	pop	{ip, pc}
-ENDPROC(lowlevel_init)

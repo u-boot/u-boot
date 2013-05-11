@@ -101,11 +101,6 @@ void omap_rev_string(void)
 }
 
 #ifdef CONFIG_SPL_BUILD
-static void init_boot_params(void)
-{
-	boot_params_ptr = (u32 *) &boot_params;
-}
-
 void spl_display_print(void)
 {
 	omap_rev_string();
@@ -115,6 +110,53 @@ void spl_display_print(void)
 void __weak srcomp_enable(void)
 {
 }
+
+static void save_omap_boot_params(void)
+{
+	u32 rom_params = *((u32 *)OMAP_SRAM_SCRATCH_BOOT_PARAMS);
+	u8 boot_device;
+	u32 dev_desc, dev_data;
+
+	if ((rom_params <  NON_SECURE_SRAM_START) ||
+	    (rom_params > NON_SECURE_SRAM_END))
+		return;
+
+	/*
+	 * rom_params can be type casted to omap_boot_parameters and
+	 * used. But it not correct to assume that romcode structure
+	 * encoding would be same as u-boot. So use the defined offsets.
+	 */
+	gd->arch.omap_boot_params.omap_bootdevice = boot_device =
+				   *((u8 *)(rom_params + BOOT_DEVICE_OFFSET));
+
+	gd->arch.omap_boot_params.ch_flags =
+				*((u8 *)(rom_params + CH_FLAGS_OFFSET));
+
+	if ((boot_device >= MMC_BOOT_DEVICES_START) &&
+	    (boot_device <= MMC_BOOT_DEVICES_END)) {
+		if ((omap_hw_init_context() ==
+				      OMAP_INIT_CONTEXT_UBOOT_AFTER_SPL)) {
+			gd->arch.omap_boot_params.omap_bootmode =
+			*((u8 *)(rom_params + BOOT_MODE_OFFSET));
+		} else {
+			dev_desc = *((u32 *)(rom_params + DEV_DESC_PTR_OFFSET));
+			dev_data = *((u32 *)(dev_desc + DEV_DATA_PTR_OFFSET));
+			gd->arch.omap_boot_params.omap_bootmode =
+					*((u32 *)(dev_data + BOOT_MODE_OFFSET));
+		}
+	}
+}
+
+#ifdef CONFIG_ARCH_CPU_INIT
+/*
+ * SOC specific cpu init
+ */
+int arch_cpu_init(void)
+{
+	save_omap_boot_params();
+	return 0;
+}
+#endif /* CONFIG_ARCH_CPU_INIT */
 
 /*
  * Routine: s_init
@@ -132,6 +174,14 @@ void __weak srcomp_enable(void)
  */
 void s_init(void)
 {
+	/*
+	 * Save the boot parameters passed from romcode.
+	 * We cannot delay the saving further than this,
+	 * to prevent overwrites.
+	 */
+#ifdef CONFIG_SPL_BUILD
+	save_omap_boot_params();
+#endif
 	init_omap_revision();
 	hw_data_init();
 
@@ -156,7 +206,6 @@ void s_init(void)
 
 	/* For regular u-boot sdram_init() is called from dram_init() */
 	sdram_init();
-	init_boot_params();
 #endif
 }
 

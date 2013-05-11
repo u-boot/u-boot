@@ -37,10 +37,11 @@
 #include <asm/utils.h>
 #include <asm/arch/gpio.h>
 #include <asm/emif.h>
+#include <asm/omap_common.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-u32 *const omap_si_rev = (u32 *)OMAP5_SRAM_SCRATCH_OMAP5_REV;
+u32 *const omap_si_rev = (u32 *)OMAP_SRAM_SCRATCH_OMAP_REV;
 
 static struct gpio_bank gpio_bank_54xx[6] = {
 	{ (void *)OMAP54XX_GPIO1_BASE, METHOD_GPIO_24XX },
@@ -362,4 +363,23 @@ void reset_cpu(ulong ignored)
 u32 warm_reset(void)
 {
 	return readl((*prcm)->prm_rstst) & PRM_RSTST_WARM_RESET_MASK;
+}
+
+void setup_warmreset_time(void)
+{
+	u32 rst_time, rst_val;
+
+#ifndef CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC
+	rst_time = CONFIG_DEFAULT_OMAP_RESET_TIME_MAX_USEC;
+#else
+	rst_time = CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC;
+#endif
+	rst_time = usec_to_32k(rst_time) << RSTTIME1_SHIFT;
+
+	if (rst_time > RSTTIME1_MASK)
+		rst_time = RSTTIME1_MASK;
+
+	rst_val = readl((*prcm)->prm_rsttime) & ~RSTTIME1_MASK;
+	rst_val |= rst_time;
+	writel(rst_val, (*prcm)->prm_rsttime);
 }

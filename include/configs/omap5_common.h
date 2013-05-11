@@ -86,6 +86,9 @@
 
 #define CONFIG_BAUDRATE			115200
 
+/* CPU */
+#define CONFIG_ARCH_CPU_INIT
+
 /* I2C  */
 #define CONFIG_HARD_I2C
 #define CONFIG_SYS_I2C_SPEED		100000
@@ -150,10 +153,12 @@
 	"usbtty=cdc_acm\0" \
 	"vram=16M\0" \
 	"partitions=" PARTS_DEFAULT "\0" \
+	"optargs=\0" \
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \
 	"mmcrootfstype=ext4 rootwait\0" \
 	"mmcargs=setenv bootargs console=${console} " \
+		"${optargs} " \
 		"vram=${vram} " \
 		"root=${mmcroot} " \
 		"rootfstype=${mmcrootfstype}\0" \

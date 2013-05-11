@@ -716,6 +716,7 @@ void prcm_init(void)
 		setup_non_essential_dplls();
 		enable_non_essential_clocks();
 #endif
+		setup_warmreset_time();
 		break;
 	default:
 		break;

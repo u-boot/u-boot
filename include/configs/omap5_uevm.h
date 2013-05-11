@@ -37,7 +37,7 @@
 
 /* TWL6035 */
 #ifndef CONFIG_SPL_BUILD
-#define CONFIG_TWL6035_POWER
+#define CONFIG_PALMAS_POWER
 #endif
 
 /* MMC ENV related defines */
@@ -56,4 +56,5 @@
 
 #define CONFIG_SYS_PROMPT		"OMAP5430 EVM # "
 
+#define CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC	16296
 #endif /* __CONFIG_OMAP5_EVM_H */

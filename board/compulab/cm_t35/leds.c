@@ -1,6 +1,5 @@
 /*
- * (C) Copyright 2011
- * CompuLab, Ltd. <www.compulab.co.il>
+ * (C) Copyright 2011 - 2013 CompuLab, Ltd. <www.compulab.co.il>
  *
  * Author: Igor Grinberg <grinberg@compulab.co.il>
  *

@@ -3340,6 +3340,10 @@ Configuration Settings:
 	offset _bss_start_ofs from CONFIG_SYS_TEXT_BASE, rather than
 	directly. You should not need to touch this setting.
 
+- CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC (OMAP only)
+	This is set by OMAP boards for the max time that reset should
+	be asserted. See doc/README.omap-reset-time for details on how
+	the value can be calulated on a given board.
 
 The following definitions that deal with the placement and management
 of environment data (variable area); in general, we support the

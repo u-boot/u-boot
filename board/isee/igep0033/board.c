@@ -1,9 +1,7 @@
 /*
- * evm.c
+ * Board functions for IGEP COM AQUILA/CYGNUS based boards
  *
- * Board functions for TI814x EVM
- *
- * Copyright (C) 2011, Texas Instruments, Incorporated - http://www.ti.com/
+ * Copyright (C) 2013, ISEE 2007 SL - http://www.isee.biz/
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,7 +15,6 @@
  */
 
 #include <common.h>
-#include <cpsw.h>
 #include <errno.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>
@@ -31,14 +28,20 @@
 #include <asm/io.h>
 #include <asm/emif.h>
 #include <asm/gpio.h>
-#include "evm.h"
+#include <i2c.h>
+#include <miiphy.h>
+#include <cpsw.h>
+#include "board.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_SPL_BUILD
 static struct wd_timer *wdtimer = (struct wd_timer *)WDT_BASE;
+#ifdef CONFIG_SPL_BUILD
 static struct uart_sys *uart_base = (struct uart_sys *)DEFAULT_UART_BASE;
 #endif
+
+/* MII mode defines */
+#define RMII_MODE_ENABLE	0x4D
 
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
@@ -64,127 +67,87 @@ static void rtc32k_enable(void)
 	writel((1 << 3) | (1 << 6), &rtc->osc);
 }
 
-static void uart_enable(void)
+static const struct ddr_data ddr3_data = {
+	.datardsratio0 = K4B2G1646EBIH9_RD_DQS,
+	.datawdsratio0 = K4B2G1646EBIH9_WR_DQS,
+	.datafwsratio0 = K4B2G1646EBIH9_PHY_FIFO_WE,
+	.datawrsratio0 = K4B2G1646EBIH9_PHY_WR_DATA,
+	.datadldiff0 = PHY_DLL_LOCK_DIFF,
+};
+
+static const struct cmd_control ddr3_cmd_ctrl_data = {
+	.cmd0csratio = K4B2G1646EBIH9_RATIO,
+	.cmd0dldiff = K4B2G1646EBIH9_DLL_LOCK_DIFF,
+	.cmd0iclkout = K4B2G1646EBIH9_INVERT_CLKOUT,
+
+	.cmd1csratio = K4B2G1646EBIH9_RATIO,
+	.cmd1dldiff = K4B2G1646EBIH9_DLL_LOCK_DIFF,
+	.cmd1iclkout = K4B2G1646EBIH9_INVERT_CLKOUT,
+
+	.cmd2csratio = K4B2G1646EBIH9_RATIO,
+	.cmd2dldiff = K4B2G1646EBIH9_DLL_LOCK_DIFF,
+	.cmd2iclkout = K4B2G1646EBIH9_INVERT_CLKOUT,
+};
+
+static struct emif_regs ddr3_emif_reg_data = {
+	.sdram_config = K4B2G1646EBIH9_EMIF_SDCFG,
+	.ref_ctrl = K4B2G1646EBIH9_EMIF_SDREF,
+	.sdram_tim1 = K4B2G1646EBIH9_EMIF_TIM1,
+	.sdram_tim2 = K4B2G1646EBIH9_EMIF_TIM2,
+	.sdram_tim3 = K4B2G1646EBIH9_EMIF_TIM3,
+	.zq_config = K4B2G1646EBIH9_ZQ_CFG,
+	.emif_ddr_phy_ctlr_1 = K4B2G1646EBIH9_EMIF_READ_LATENCY,
+};
+#endif
+
+/*
+ * Early system init of muxing and clocks.
+ */
+void s_init(void)
 {
-	u32 regVal;
-
-	/* UART softreset */
-	regVal = readl(&uart_base->uartsyscfg);
-	regVal |= UART_RESET;
-	writel(regVal, &uart_base->uartsyscfg);
-	while ((readl(&uart_base->uartsyssts) &
-		UART_CLK_RUNNING_MASK) != UART_CLK_RUNNING_MASK)
-		;
-
-	/* Disable smart idle */
-	regVal = readl(&uart_base->uartsyscfg);
-	regVal |= UART_SMART_IDLE_EN;
-	writel(regVal, &uart_base->uartsyscfg);
-}
-
-static void wdt_disable(void)
-{
+	/* WDT1 is already running when the bootloader gets control
+	 * Disable it to avoid "random" resets
+	 */
 	writel(0xAAAA, &wdtimer->wdtwspr);
 	while (readl(&wdtimer->wdtwwps) != 0x0)
 		;
 	writel(0x5555, &wdtimer->wdtwspr);
 	while (readl(&wdtimer->wdtwwps) != 0x0)
 		;
-}
 
-static const struct cmd_control evm_ddr2_cctrl_data = {
-	.cmd0csratio	= 0x80,
-	.cmd0dldiff	= 0x04,
-	.cmd0iclkout	= 0x00,
-
-	.cmd1csratio	= 0x80,
-	.cmd1dldiff	= 0x04,
-	.cmd1iclkout	= 0x00,
-
-	.cmd2csratio	= 0x80,
-	.cmd2dldiff	= 0x04,
-	.cmd2iclkout	= 0x00,
-};
-
-static const struct emif_regs evm_ddr2_emif0_regs = {
-	.sdram_config			= 0x40801ab2,
-	.ref_ctrl			= 0x10000c30,
-	.sdram_tim1			= 0x0aaaf552,
-	.sdram_tim2			= 0x043631d2,
-	.sdram_tim3			= 0x00000327,
-	.emif_ddr_phy_ctlr_1		= 0x00000007
-};
-
-static const struct emif_regs evm_ddr2_emif1_regs = {
-	.sdram_config			= 0x40801ab2,
-	.ref_ctrl			= 0x10000c30,
-	.sdram_tim1			= 0x0aaaf552,
-	.sdram_tim2			= 0x043631d2,
-	.sdram_tim3			= 0x00000327,
-	.emif_ddr_phy_ctlr_1		= 0x00000007
-};
-
-const struct dmm_lisa_map_regs evm_lisa_map_regs = {
-	.dmm_lisa_map_0			= 0x00000000,
-	.dmm_lisa_map_1			= 0x00000000,
-	.dmm_lisa_map_2			= 0x806c0300,
-	.dmm_lisa_map_3			= 0x806c0300,
-};
-
-static const struct ddr_data evm_ddr2_data = {
-	.datardsratio0		= ((0x35<<10) | (0x35<<0)),
-	.datawdsratio0		= ((0x20<<10) | (0x20<<0)),
-	.datawiratio0		= ((0<<10) | (0<<0)),
-	.datagiratio0		= ((0<<10) | (0<<0)),
-	.datafwsratio0		= ((0x90<<10) | (0x90<<0)),
-	.datawrsratio0		= ((0x50<<10) | (0x50<<0)),
-	.datauserank0delay	= 1,
-	.datadldiff0		= 0x4,
-};
-#endif
-
-/*
- * early system init of muxing and clocks.
- */
-void s_init(void)
-{
 #ifdef CONFIG_SPL_BUILD
-	/* WDT1 is already running when the bootloader gets control
-	 * Disable it to avoid "random" resets
-	 */
-	wdt_disable();
-
-	/* Enable timer */
-	timer_init();
-
 	/* Setup the PLLs and the clocks for the peripherals */
 	pll_init();
 
 	/* Enable RTC32K clock */
 	rtc32k_enable();
 
-	/* Set UART pins */
+	/* UART softreset */
+	u32 regval;
+
 	enable_uart0_pin_mux();
 
-	/* Set MMC pins */
-	enable_mmc1_pin_mux();
+	regval = readl(&uart_base->uartsyscfg);
+	regval |= UART_RESET;
+	writel(regval, &uart_base->uartsyscfg);
+	while ((readl(&uart_base->uartsyssts) &
+		UART_CLK_RUNNING_MASK) != UART_CLK_RUNNING_MASK)
+		;
 
-	/* Set Ethernet pins */
-	enable_enet_pin_mux();
-
-	/* Enable UART */
-	uart_enable();
+	/* Disable smart idle */
+	regval = readl(&uart_base->uartsyscfg);
+	regval |= UART_SMART_IDLE_EN;
+	writel(regval, &uart_base->uartsyscfg);
 
 	gd = &gdata;
 
 	preloader_console_init();
 
-	config_dmm(&evm_lisa_map_regs);
+	/* Configure board pin mux */
+	enable_board_pin_mux();
 
-	config_ddr(0, 0, &evm_ddr2_data, &evm_ddr2_cctrl_data,
-		   &evm_ddr2_emif0_regs, 0);
-	config_ddr(0, 0, &evm_ddr2_data, &evm_ddr2_cctrl_data,
-		   &evm_ddr2_emif1_regs, 1);
+	config_ddr(303, K4B2G1646EBIH9_IOCTRL_VALUE, &ddr3_data,
+		   &ddr3_cmd_ctrl_data, &ddr3_emif_reg_data, 0);
 #endif
 }
 
@@ -194,19 +157,13 @@ void s_init(void)
 int board_init(void)
 {
 	gd->bd->bi_boot_params = PHYS_DRAM_1 + 0x100;
-	return 0;
-}
 
-#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_GENERIC_MMC)
-int board_mmc_init(bd_t *bis)
-{
-	omap_mmc_init(1, 0, 0, -1, -1);
+	gpmc_init();
 
 	return 0;
 }
-#endif
 
-#ifdef CONFIG_DRIVER_TI_CPSW
+#if defined(CONFIG_DRIVER_TI_CPSW)
 static void cpsw_control(int enabled)
 {
 	/* VTP can be added here */
@@ -216,14 +173,10 @@ static void cpsw_control(int enabled)
 
 static struct cpsw_slave_data cpsw_slaves[] = {
 	{
-		.slave_reg_ofs	= 0x50,
-		.sliver_reg_ofs	= 0x700,
-		.phy_id		= 1,
-	},
-	{
-		.slave_reg_ofs	= 0x90,
-		.sliver_reg_ofs	= 0x740,
+		.slave_reg_ofs	= 0x208,
+		.sliver_reg_ofs	= 0xd80,
 		.phy_id		= 0,
+		.phy_if		= PHY_INTERFACE_MODE_RMII,
 	},
 };
 
@@ -232,27 +185,26 @@ static struct cpsw_platform_data cpsw_data = {
 	.cpsw_base		= CPSW_BASE,
 	.mdio_div		= 0xff,
 	.channels		= 8,
-	.cpdma_reg_ofs		= 0x100,
+	.cpdma_reg_ofs		= 0x800,
 	.slaves			= 1,
 	.slave_data		= cpsw_slaves,
-	.ale_reg_ofs		= 0x600,
+	.ale_reg_ofs		= 0xd00,
 	.ale_entries		= 1024,
-	.host_port_reg_ofs	= 0x28,
-	.hw_stats_reg_ofs	= 0x400,
+	.host_port_reg_ofs	= 0x108,
+	.hw_stats_reg_ofs	= 0x900,
 	.mac_control		= (1 << 5),
 	.control		= cpsw_control,
 	.host_port_num		= 0,
-	.version		= CPSW_CTRL_VERSION_1,
+	.version		= CPSW_CTRL_VERSION_2,
 };
-#endif
 
 int board_eth_init(bd_t *bis)
 {
+	int rv, ret = 0;
 	uint8_t mac_addr[6];
 	uint32_t mac_hi, mac_lo;
 
 	if (!eth_getenv_enetaddr("ethaddr", mac_addr)) {
-		printf("<ethaddr> not set. Reading from E-fuse\n");
 		/* try reading mac address from efuse */
 		mac_lo = readl(&cdev->macid0l);
 		mac_hi = readl(&cdev->macid0h);
@@ -262,12 +214,19 @@ int board_eth_init(bd_t *bis)
 		mac_addr[3] = (mac_hi & 0xFF000000) >> 24;
 		mac_addr[4] = mac_lo & 0xFF;
 		mac_addr[5] = (mac_lo & 0xFF00) >> 8;
-
 		if (is_valid_ether_addr(mac_addr))
 			eth_setenv_enetaddr("ethaddr", mac_addr);
-		else
-			printf("Unable to read MAC address. Set <ethaddr>\n");
 	}
 
-	return cpsw_register(&cpsw_data);
+	writel(RMII_MODE_ENABLE, &cdev->miisel);
+
+	rv = cpsw_register(&cpsw_data);
+	if (rv < 0)
+		printf("Error %d registering CPSW switch\n", rv);
+	else
+		ret += rv;
+
+	return ret;
 }
+#endif
+

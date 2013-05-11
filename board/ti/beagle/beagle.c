@@ -108,13 +108,14 @@ int board_init(void)
 /*
  * Routine: get_board_revision
  * Description: Detect if we are running on a Beagle revision Ax/Bx,
- *		C1/2/3, C4 or xM. This can be done by reading
+ *		C1/2/3, C4, xM Ax/Bx or xM Cx. This can be done by reading
  *		the level of GPIO173, GPIO172 and GPIO171. This should
  *		result in
  *		GPIO173, GPIO172, GPIO171: 1 1 1 => Ax/Bx
  *		GPIO173, GPIO172, GPIO171: 1 1 0 => C1/2/3
  *		GPIO173, GPIO172, GPIO171: 1 0 1 => C4
- *		GPIO173, GPIO172, GPIO171: 0 0 0 => xM
+ *		GPIO173, GPIO172, GPIO171: 0 1 0 => xM Cx
+ *		GPIO173, GPIO172, GPIO171: 0 0 0 => xM Ax/Bx
  */
 static int get_board_revision(void)
 {

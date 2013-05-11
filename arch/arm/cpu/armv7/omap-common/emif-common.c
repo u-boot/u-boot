@@ -1075,6 +1075,11 @@ static void do_sdram_init(u32 base)
 		else
 			ddr3_init(base, regs);
 	}
+	if (warm_reset() && (emif_sdram_type() == EMIF_SDRAM_TYPE_DDR3)) {
+		set_lpmode_selfrefresh(base);
+		emif_reset_phy(base);
+		ddr3_leveling(base, regs);
+	}
 
 	/* Write to the shadow registers */
 	emif_update_timings(base, regs);
@@ -1262,10 +1267,10 @@ void sdram_init(void)
 	in_sdram = running_from_sdram();
 	debug("in_sdram = %d\n", in_sdram);
 
-	if (!(in_sdram || warm_reset())) {
-		if (sdram_type == EMIF_SDRAM_TYPE_LPDDR2)
+	if (!in_sdram) {
+		if ((sdram_type == EMIF_SDRAM_TYPE_LPDDR2) && !warm_reset())
 			bypass_dpll((*prcm)->cm_clkmode_dpll_core);
-		else
+		else if (sdram_type == EMIF_SDRAM_TYPE_DDR3)
 			writel(CM_DLL_CTRL_NO_OVERRIDE, (*prcm)->cm_dll_ctrl);
 	}
 
