@@ -461,8 +461,13 @@ static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum)
 	usb_set_idle(dev, iface->desc.bInterfaceNumber, REPEAT_RATE, 0);
 
 	debug("USB KBD: enable interrupt pipe...\n");
-	usb_submit_int_msg(dev, pipe, data->new, maxp > 8 ? 8 : maxp,
-				ep->bInterval);
+	if (usb_submit_int_msg(dev, pipe, data->new, maxp > 8 ? 8 : maxp,
+			       ep->bInterval) < 0) {
+		printf("Failed to get keyboard state from device %04x:%04x\n",
+		       dev->descriptor.idVendor, dev->descriptor.idProduct);
+		/* Abort, we don't want to use that non-functional keyboard. */
+		return 0;
+	}
 
 	/* Success. */
 	return 1;
