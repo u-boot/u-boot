@@ -918,6 +918,7 @@ Matt Sealey <matt@genesi-usa.com>
 
 Bo Shen <voice.shen@atmel.com>
 	at91sam9x5ek		ARM926EJS (AT91SAM9G15,G25,G35,X25,X35 SoC)
+	sama5d3xek		ARMV7 (SAMA5D31, D33, D34, D35 SoC)
 
 Rajeshwari Shinde <rajeshwari.s@samsung.com>
 

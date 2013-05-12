@@ -95,4 +95,5 @@ static inline unsigned long get_mci_clk_rate(void)
 }
 
 int at91_clock_init(unsigned long main_clock);
+void at91_periph_clk_enable(int id);
 #endif /* __ASM_ARM_ARCH_CLK_H__ */
