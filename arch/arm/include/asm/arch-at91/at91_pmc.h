@@ -55,7 +55,16 @@ typedef struct at91_pmc {
 	u32	reserved5[21];
 	u32	wpmr;		/* 0xE4 Write Protect Mode Register (CAP0) */
 	u32	wpsr;		/* 0xE8 Write Protect Status Register (CAP0) */
+#ifdef CONFIG_SAMA5D3
+	u32	reserved6[8];
+	u32	pcer1;		/* 0x100 Periperial Clock Enable Register 1 */
+	u32	pcdr1;		/* 0x104 Periperial Clock Disable Register 1 */
+	u32	pcsr1;		/* 0x108 Periperial Clock Status Register 1 */
+	u32	pcr;		/* 0x10c Periperial Control Register */
+	u32	ocr;		/* 0x110 Oscillator Calibration Register */
+#else
 	u32	reserved8[5];
+#endif
 } at91_pmc_t;
 
 #endif	/* end not assembly */
@@ -82,6 +91,16 @@ typedef struct at91_pmc {
 #define AT91_PMC_MCKR_CSS_PLLB		0x00000003
 #define AT91_PMC_MCKR_CSS_MASK		0x00000003
 
+#ifdef CONFIG_SAMA5D3
+#define AT91_PMC_MCKR_PRES_1		0x00000000
+#define AT91_PMC_MCKR_PRES_2		0x00000010
+#define AT91_PMC_MCKR_PRES_4		0x00000020
+#define AT91_PMC_MCKR_PRES_8		0x00000030
+#define AT91_PMC_MCKR_PRES_16		0x00000040
+#define AT91_PMC_MCKR_PRES_32		0x00000050
+#define AT91_PMC_MCKR_PRES_64		0x00000060
+#define AT91_PMC_MCKR_PRES_MASK		0x00000070
+#else
 #define AT91_PMC_MCKR_PRES_1		0x00000000
 #define AT91_PMC_MCKR_PRES_2		0x00000004
 #define AT91_PMC_MCKR_PRES_4		0x00000008
@@ -90,6 +109,7 @@ typedef struct at91_pmc {
 #define AT91_PMC_MCKR_PRES_32		0x00000014
 #define AT91_PMC_MCKR_PRES_64		0x00000018
 #define AT91_PMC_MCKR_PRES_MASK		0x0000001C
+#endif
 
 #ifdef CONFIG_AT91RM9200
 #define AT91_PMC_MCKR_MDIV_1		0x00000000
@@ -100,6 +120,9 @@ typedef struct at91_pmc {
 #else
 #define AT91_PMC_MCKR_MDIV_1		0x00000000
 #define AT91_PMC_MCKR_MDIV_2		0x00000100
+#ifdef CONFIG_SAMA5D3
+#define AT91_PMC_MCKR_MDIV_3		0x00000300
+#endif
 #define AT91_PMC_MCKR_MDIV_4		0x00000200
 #define AT91_PMC_MCKR_MDIV_MASK		0x00000300
 #endif
