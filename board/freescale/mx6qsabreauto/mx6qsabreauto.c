@@ -119,6 +119,10 @@ iomux_v3_cfg_t const i2c3_pads[] = {
 	MX6_PAD_EIM_A24__GPIO_5_4		| MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
+iomux_v3_cfg_t const port_exp[] = {
+	MX6_PAD_SD2_DAT0__GPIO_1_15		| MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
 static void setup_iomux_enet(void)
 {
 	imx_iomux_v3_setup_multiple_pads(enet_pads, ARRAY_SIZE(enet_pads));
@@ -265,6 +269,9 @@ int board_init(void)
 	gpio_direction_output(IMX_GPIO_NR(5, 4), 1);
 	imx_iomux_v3_setup_multiple_pads(i2c3_pads, ARRAY_SIZE(i2c3_pads));
 	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info2);
+
+	gpio_direction_output(IMX_GPIO_NR(1, 15), 1);
+	imx_iomux_v3_setup_multiple_pads(port_exp, ARRAY_SIZE(port_exp));
 
 	return 0;
 }
