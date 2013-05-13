@@ -32,7 +32,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static void mmc_load_image_raw(struct mmc *mmc)
+static int mmc_load_image_raw(struct mmc *mmc)
 {
 	unsigned long err;
 	u32 image_size_sectors;
@@ -61,14 +61,14 @@ static void mmc_load_image_raw(struct mmc *mmc)
 			image_size_sectors, (void *)spl_image.load_addr);
 
 end:
-	if (err == 0) {
+	if (err == 0)
 		printf("spl: mmc blk read err - %lu\n", err);
-		hang();
-	}
+
+	return (err == 0);
 }
 
 #ifdef CONFIG_SPL_FAT_SUPPORT
-static void mmc_load_image_fat(struct mmc *mmc)
+static int mmc_load_image_fat(struct mmc *mmc)
 {
 	int err;
 	struct image_header *header;
@@ -94,11 +94,11 @@ static void mmc_load_image_fat(struct mmc *mmc)
 				(u8 *)spl_image.load_addr, 0);
 
 end:
-	if (err <= 0) {
+	if (err <= 0)
 		printf("spl: error reading image %s, err - %d\n",
 			CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME, err);
-		hang();
-	}
+
+	return (err <= 0);
 }
 #endif
 
@@ -121,17 +121,21 @@ void spl_mmc_load_image(void)
 		printf("spl: mmc init failed: err - %d\n", err);
 		hang();
 	}
+
 	boot_mode = spl_boot_mode();
 	if (boot_mode == MMCSD_MODE_RAW) {
 		debug("boot mode - RAW\n");
-		mmc_load_image_raw(mmc);
+		err = mmc_load_image_raw(mmc);
 #ifdef CONFIG_SPL_FAT_SUPPORT
 	} else if (boot_mode == MMCSD_MODE_FAT) {
 		debug("boot mode - FAT\n");
-		mmc_load_image_fat(mmc);
+		err = mmc_load_image_fat(mmc);
 #endif
 	} else {
 		puts("spl: wrong MMC boot mode\n");
 		hang();
 	}
+
+	if (err)
+		hang();
 }
