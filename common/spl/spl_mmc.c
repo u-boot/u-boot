@@ -63,6 +63,21 @@ end:
 	return (err == 0);
 }
 
+#ifdef CONFIG_SPL_OS_BOOT
+static int mmc_load_image_raw_os(struct mmc *mmc)
+{
+	if (!mmc->block_dev.block_read(0,
+				       CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR,
+				       CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS,
+				       (void *)CONFIG_SYS_SPL_ARGS_ADDR)) {
+		printf("mmc args blk read error\n");
+		return -1;
+	}
+
+	return mmc_load_image_raw(mmc, CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR);
+}
+#endif
+
 #ifdef CONFIG_SPL_FAT_SUPPORT
 static int mmc_load_image_fat(struct mmc *mmc, const char *filename)
 {
@@ -130,6 +145,9 @@ void spl_mmc_load_image(void)
 	boot_mode = spl_boot_mode();
 	if (boot_mode == MMCSD_MODE_RAW) {
 		debug("boot mode - RAW\n");
+#ifdef CONFIG_SPL_OS_BOOT
+		if (spl_start_uboot() || mmc_load_image_raw_os(mmc))
+#endif
 		err = mmc_load_image_raw(mmc,
 					 CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
 #ifdef CONFIG_SPL_FAT_SUPPORT

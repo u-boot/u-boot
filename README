@@ -2932,6 +2932,16 @@ FIT uImage format:
 		Address, size and partition on the MMC to load U-Boot from
 		when the MMC is being used in raw mode.
 
+		CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR
+		Sector to load kernel uImage from when MMC is being
+		used in raw mode (for Falcon mode)
+
+		CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR,
+		CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS
+		Sector and number of sectors to load kernel argument
+		parameters from when MMC is being used in raw mode
+		(for falcon mode)
+
 		CONFIG_SPL_FAT_SUPPORT
 		Support for fs/fat/libfat.o in SPL binary
 
