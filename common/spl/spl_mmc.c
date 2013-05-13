@@ -32,7 +32,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static int mmc_load_image_raw(struct mmc *mmc)
+static int mmc_load_image_raw(struct mmc *mmc, unsigned long sector)
 {
 	unsigned long err;
 	u32 image_size_sectors;
@@ -42,10 +42,7 @@ static int mmc_load_image_raw(struct mmc *mmc)
 						sizeof(struct image_header));
 
 	/* read image header to find the image size & load address */
-	err = mmc->block_dev.block_read(0,
-			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR, 1,
-			header);
-
+	err = mmc->block_dev.block_read(0, sector, 1, header);
 	if (err == 0)
 		goto end;
 
@@ -56,9 +53,8 @@ static int mmc_load_image_raw(struct mmc *mmc)
 				mmc->read_bl_len;
 
 	/* Read the header too to avoid extra memcpy */
-	err = mmc->block_dev.block_read(0,
-			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR,
-			image_size_sectors, (void *)spl_image.load_addr);
+	err = mmc->block_dev.block_read(0, sector, image_size_sectors,
+					(void *)spl_image.load_addr);
 
 end:
 	if (err == 0)
@@ -134,7 +130,8 @@ void spl_mmc_load_image(void)
 	boot_mode = spl_boot_mode();
 	if (boot_mode == MMCSD_MODE_RAW) {
 		debug("boot mode - RAW\n");
-		err = mmc_load_image_raw(mmc);
+		err = mmc_load_image_raw(mmc,
+					 CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
 #ifdef CONFIG_SPL_FAT_SUPPORT
 	} else if (boot_mode == MMCSD_MODE_FAT) {
 		debug("boot mode - FAT\n");
