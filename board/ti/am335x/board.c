@@ -297,6 +297,15 @@ static struct emif_regs ddr3_evm_emif_reg_data = {
 	.emif_ddr_phy_ctlr_1 = MT41J512M8RH125_EMIF_READ_LATENCY |
 				PHY_EN_DYN_PWRDN,
 };
+
+#ifdef CONFIG_SPL_OS_BOOT
+int spl_start_uboot(void)
+{
+	/* break into full u-boot on 'c' */
+	return (serial_tstc() && serial_getc() == 'c');
+}
+#endif
+
 #endif
 
 /*
