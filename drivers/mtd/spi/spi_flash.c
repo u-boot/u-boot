@@ -386,8 +386,7 @@ int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 bank_sel)
 	} else if ((idcode0 == 0xef) || (idcode0 == 0x20)) {
 		cmd = CMD_EXTNADDR_WREAR;
 	} else {
-		printf("SF: unable to support extended addr reg write"
-						" for %s flash\n", flash->name);
+		printf("SF: Unsupported bank addr write %02x\n", idcode0);
 		return -1;
 	}
 
@@ -423,8 +422,7 @@ int spi_flash_cmd_bankaddr_read(struct spi_flash *flash, void *data)
 	} else if ((idcode0 == 0xef) || (idcode0 == 0x20)) {
 		cmd = CMD_EXTNADDR_RDEAR;
 	} else {
-		printf("SF: unable to support extended addr reg read"
-			" for %s flash\n", flash->name);
+		printf("SF: Unsupported bank addr read %02x\n", idcode0);
 		return -1;
 	}
 
