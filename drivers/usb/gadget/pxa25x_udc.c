@@ -314,7 +314,8 @@ static int pxa25x_ep_enable(struct usb_ep *_ep,
 	if (!_ep || !desc || ep->desc || _ep->name == ep0name
 			|| desc->bDescriptorType != USB_DT_ENDPOINT
 			|| ep->bEndpointAddress != desc->bEndpointAddress
-			|| ep->fifo_size < le16_to_cpu(desc->wMaxPacketSize)) {
+			|| ep->fifo_size <
+			   le16_to_cpu(get_unaligned(&desc->wMaxPacketSize))) {
 		printf("%s, bad ep or descriptor\n", __func__);
 		return -EINVAL;
 	}
@@ -329,9 +330,9 @@ static int pxa25x_ep_enable(struct usb_ep *_ep,
 
 	/* hardware _could_ do smaller, but driver doesn't */
 	if ((desc->bmAttributes == USB_ENDPOINT_XFER_BULK
-				&& le16_to_cpu(desc->wMaxPacketSize)
+			&& le16_to_cpu(get_unaligned(&desc->wMaxPacketSize))
 						!= BULK_FIFO_SIZE)
-			|| !desc->wMaxPacketSize) {
+			|| !get_unaligned(&desc->wMaxPacketSize)) {
 		printf("%s, bad %s maxpacket\n", __func__, _ep->name);
 		return -ERANGE;
 	}
@@ -345,7 +346,7 @@ static int pxa25x_ep_enable(struct usb_ep *_ep,
 	ep->desc = desc;
 	ep->stopped = 0;
 	ep->pio_irqs = 0;
-	ep->ep.maxpacket = le16_to_cpu(desc->wMaxPacketSize);
+	ep->ep.maxpacket = le16_to_cpu(get_unaligned(&desc->wMaxPacketSize));
 
 	/* flush fifo (mostly for OUT buffers) */
 	pxa25x_ep_fifo_flush(_ep);
@@ -485,7 +486,7 @@ write_fifo(struct pxa25x_ep *ep, struct pxa25x_request *req)
 {
 	unsigned max;
 
-	max = le16_to_cpu(ep->desc->wMaxPacketSize);
+	max = le16_to_cpu(get_unaligned(&ep->desc->wMaxPacketSize));
 	do {
 		unsigned count;
 		int is_last, is_short;
@@ -766,7 +767,7 @@ pxa25x_ep_queue(struct usb_ep *_ep, struct usb_request *_req, gfp_t gfp_flags)
 	 */
 	if (unlikely(ep->bmAttributes == USB_ENDPOINT_XFER_ISOC
 			&& req->req.length >
-			le16_to_cpu(ep->desc->wMaxPacketSize)))
+			le16_to_cpu(get_unaligned(&ep->desc->wMaxPacketSize))))
 		return -EMSGSIZE;
 
 	debug_cond(NOISY, "%s queue req %p, len %d buf %p\n",

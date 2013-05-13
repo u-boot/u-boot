@@ -2261,7 +2261,8 @@ reset:
 	if (rc)
 		goto reset;
 	fsg->bulk_out_enabled = 1;
-	common->bulk_out_maxpacket = le16_to_cpu(d->wMaxPacketSize);
+	common->bulk_out_maxpacket =
+				le16_to_cpu(get_unaligned(&d->wMaxPacketSize));
 	clear_bit(IGNORE_BULK_OUT, &fsg->atomic_bitflags);
 
 	/* Allocate the requests */
