@@ -91,6 +91,24 @@ end:
 
 	return (err <= 0);
 }
+
+#ifdef CONFIG_SPL_OS_BOOT
+static int mmc_load_image_fat_os(struct mmc *mmc)
+{
+	int err;
+
+	err = file_fat_read(CONFIG_SPL_FAT_LOAD_ARGS_NAME,
+			    (void *)CONFIG_SYS_SPL_ARGS_ADDR, 0);
+	if (err <= 0) {
+		printf("spl: error reading image %s, err - %d\n",
+		       CONFIG_SPL_FAT_LOAD_ARGS_NAME, err);
+		return -1;
+	}
+
+	return mmc_load_image_fat(mmc, CONFIG_SPL_FAT_LOAD_KERNEL_NAME);
+}
+#endif
+
 #endif
 
 void spl_mmc_load_image(void)
@@ -128,6 +146,9 @@ void spl_mmc_load_image(void)
 			hang();
 		}
 
+#ifdef CONFIG_SPL_OS_BOOT
+		if (spl_start_uboot() || mmc_load_image_fat_os(mmc))
+#endif
 		err = mmc_load_image_fat(mmc, CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME);
 #endif
 	} else {
