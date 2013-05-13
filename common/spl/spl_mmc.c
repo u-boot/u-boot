@@ -68,7 +68,7 @@ end:
 }
 
 #ifdef CONFIG_SPL_FAT_SUPPORT
-static int mmc_load_image_fat(struct mmc *mmc)
+static int mmc_load_image_fat(struct mmc *mmc, const char *filename)
 {
 	int err;
 	struct image_header *header;
@@ -76,27 +76,18 @@ static int mmc_load_image_fat(struct mmc *mmc)
 	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE -
 						sizeof(struct image_header));
 
-	err = fat_register_device(&mmc->block_dev,
-				CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION);
-	if (err) {
-		printf("spl: fat register err - %d\n", err);
-		hang();
-	}
-
-	err = file_fat_read(CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME,
-				header, sizeof(struct image_header));
+	err = file_fat_read(filename, header, sizeof(struct image_header));
 	if (err <= 0)
 		goto end;
 
 	spl_parse_image_header(header);
 
-	err = file_fat_read(CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME,
-				(u8 *)spl_image.load_addr, 0);
+	err = file_fat_read(filename, (u8 *)spl_image.load_addr, 0);
 
 end:
 	if (err <= 0)
 		printf("spl: error reading image %s, err - %d\n",
-			CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME, err);
+		       filename, err);
 
 	return (err <= 0);
 }
@@ -129,7 +120,15 @@ void spl_mmc_load_image(void)
 #ifdef CONFIG_SPL_FAT_SUPPORT
 	} else if (boot_mode == MMCSD_MODE_FAT) {
 		debug("boot mode - FAT\n");
-		err = mmc_load_image_fat(mmc);
+
+		err = fat_register_device(&mmc->block_dev,
+					  CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION);
+		if (err) {
+			printf("spl: fat register err - %d\n", err);
+			hang();
+		}
+
+		err = mmc_load_image_fat(mmc, CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME);
 #endif
 	} else {
 		puts("spl: wrong MMC boot mode\n");
