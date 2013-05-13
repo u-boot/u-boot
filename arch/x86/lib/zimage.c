@@ -283,6 +283,13 @@ __weak void board_final_cleanup(void)
 
 void boot_zimage(void *setup_base, void *load_address)
 {
+	debug("## Transferring control to Linux (at address %08x) ...\n",
+	      (u32)setup_base);
+
+	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_HANDOFF, "start_kernel");
+#ifdef CONFIG_BOOTSTAGE_REPORT
+	bootstage_report();
+#endif
 	board_final_cleanup();
 
 	printf("\nStarting kernel ...\n\n");
@@ -362,10 +369,6 @@ int do_zboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		printf("Setting up boot parameters failed ...\n");
 		return -1;
 	}
-
-	printf("## Transferring control to Linux "
-	       "(at address %08x) ...\n",
-	       (u32)base_ptr);
 
 	/* we assume that the kernel is in place */
 	boot_zimage(base_ptr, load_address);

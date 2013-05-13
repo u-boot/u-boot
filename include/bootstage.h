@@ -237,6 +237,16 @@ void show_boot_progress(int val);
 /* This is the full bootstage implementation */
 
 /**
+ * Relocate existing bootstage records
+ *
+ * Call this after relocation has happened and after malloc has been initted.
+ * We need to copy any pointers in bootstage records that were added pre-
+ * relocation, since memory can be overritten later.
+ * @return Always returns 0, to indicate success
+ */
+int bootstage_relocate(void);
+
+/**
  * Add a new bootstage record
  *
  * @param id	Bootstage ID to use (ignored if flags & BOOTSTAGEF_ALLOC)
@@ -255,6 +265,19 @@ ulong bootstage_mark(enum bootstage_id id);
 ulong bootstage_error(enum bootstage_id id);
 
 ulong bootstage_mark_name(enum bootstage_id id, const char *name);
+
+/**
+ * Mark a time stamp in the given function and line number
+ *
+ * See BOOTSTAGE_MARKER() for a convenient macro.
+ *
+ * @param file		Filename to record (NULL if none)
+ * @param func		Function name to record
+ * @param linenum	Line number to record
+ * @return recorded time stamp
+ */
+ulong bootstage_mark_code(const char *file, const char *func,
+			  int linenum);
 
 /**
  * Mark the start of a bootstage activity. The end will be marked later with
@@ -315,10 +338,21 @@ int bootstage_stash(void *base, int size);
 int bootstage_unstash(void *base, int size);
 
 #else
+static inline ulong bootstage_add_record(enum bootstage_id id,
+		const char *name, int flags, ulong mark)
+{
+	return 0;
+}
+
 /*
  * This is a dummy implementation which just calls show_boot_progress(),
  * and won't even do that unless CONFIG_SHOW_BOOT_PROGRESS is defined
  */
+
+static inline int bootstage_relocate(void)
+{
+	return 0;
+}
 
 static inline ulong bootstage_mark(enum bootstage_id id)
 {
@@ -337,6 +371,22 @@ static inline ulong bootstage_mark_name(enum bootstage_id id, const char *name)
 	return 0;
 }
 
+static inline ulong bootstage_mark_code(const char *file, const char *func,
+					int linenum)
+{
+	return 0;
+}
+
+static inline uint32_t bootstage_start(enum bootstage_id id, const char *name)
+{
+	return 0;
+}
+
+static inline uint32_t bootstage_accum(enum bootstage_id id)
+{
+	return 0;
+}
+
 static inline int bootstage_stash(void *base, int size)
 {
 	return 0;	/* Pretend to succeed */
@@ -347,5 +397,9 @@ static inline int bootstage_unstash(void *base, int size)
 	return 0;	/* Pretend to succeed */
 }
 #endif /* CONFIG_BOOTSTAGE */
+
+/* Helper macro for adding a bootstage to a line of code */
+#define BOOTSTAGE_MARKER()	\
+		bootstage_mark_code(__FILE__, __func__, __LINE__)
 
 #endif

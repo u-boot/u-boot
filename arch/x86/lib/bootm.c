@@ -93,14 +93,6 @@ int do_bootm_linux(int flag, int argc, char * const argv[],
 		goto error;
 	}
 
-#ifdef DEBUG
-	printf("## Transferring control to Linux (at address %08x) ...\n",
-		(u32)base_ptr);
-#endif
-
-	/* we assume that the kernel is in place */
-	printf("\nStarting kernel ...\n\n");
-
 	boot_zimage(base_ptr, load_address);
 	/* does not return */
 

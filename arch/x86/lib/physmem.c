@@ -12,6 +12,8 @@
 #include <physmem.h>
 #include <linux/compiler.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* Large pages are 2MB. */
 #define LARGE_PAGE_SIZE ((1 << 20) * 2)
 
