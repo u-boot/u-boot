@@ -358,6 +358,11 @@ static void process_boot_delay(void)
 	s = getenv ("bootdelay");
 	bootdelay = s ? (int)simple_strtol(s, NULL, 10) : CONFIG_BOOTDELAY;
 
+#ifdef CONFIG_OF_CONTROL
+	bootdelay = fdtdec_get_config_int(gd->fdt_blob, "bootdelay",
+			bootdelay);
+#endif
+
 	debug ("### main_loop entered: bootdelay=%d\n\n", bootdelay);
 
 #if defined(CONFIG_MENU_SHOW)
