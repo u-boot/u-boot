@@ -164,6 +164,7 @@ COBJS-$(CONFIG_CMD_SF) += cmd_sf.o
 COBJS-$(CONFIG_CMD_SCSI) += cmd_scsi.o
 COBJS-$(CONFIG_CMD_SHA1SUM) += cmd_sha1sum.o
 COBJS-$(CONFIG_CMD_SETEXPR) += cmd_setexpr.o
+COBJS-$(CONFIG_CMD_SOFTSWITCH) += cmd_softswitch.o
 COBJS-$(CONFIG_CMD_SPI) += cmd_spi.o
 COBJS-$(CONFIG_CMD_SPIBOOTLDR) += cmd_spibootldr.o
 COBJS-$(CONFIG_CMD_STRINGS) += cmd_strings.o

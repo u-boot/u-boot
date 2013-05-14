@@ -17,11 +17,6 @@
 #define P_MAYSHARE	0x2000
 #define P_DONTCARE	0x1000
 
-#ifndef CONFIG_BFIN_GPIO_TRACK
-#define peripheral_request(per, label) peripheral_request(per)
-#define peripheral_request_list(per, label) peripheral_request_list(per)
-#endif
-
 #ifndef __ASSEMBLY__
 
 int peripheral_request(unsigned short per, const char *label);

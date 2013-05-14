@@ -7,17 +7,7 @@
  */
 
 #include <common.h>
-#include <asm/blackfin.h>
-
-#ifdef PLL_CTL
-# include <asm/mach-common/bits/pll.h>
-# define pll_is_bypassed() (bfin_read_PLL_STAT() & DF)
-#else
-# include <asm/mach-common/bits/cgu.h>
-# define pll_is_bypassed() (bfin_read_CGU_STAT() & PLLBP)
-# define bfin_read_PLL_CTL() bfin_read_CGU_CTL()
-# define bfin_read_PLL_DIV() bfin_read_CGU_DIV()
-#endif
+#include <asm/clock.h>
 
 /* Get the voltage input multiplier */
 u_long get_vco(void)

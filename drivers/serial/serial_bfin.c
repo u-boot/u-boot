@@ -43,12 +43,11 @@
 #include <serial.h>
 #include <linux/compiler.h>
 #include <asm/blackfin.h>
+#include <asm/serial.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_UART_CONSOLE
-
-#include "serial.h"
 
 #ifdef CONFIG_DEBUG_SERIAL
 static uart_lsr_t cached_lsr[256];
@@ -195,7 +194,18 @@ static void uart_loop(uint32_t uart_base, int state)
 
 #endif
 
-#ifdef CONFIG_SYS_BFIN_UART
+static inline void __serial_set_baud(uint32_t uart_base, uint32_t baud)
+{
+#ifdef CONFIG_DEBUG_EARLY_SERIAL
+	serial_early_set_baud(uart_base, baud);
+#else
+	uint16_t divisor = (get_uart_clk() + (baud * 8)) / (baud * 16)
+			- ANOMALY_05000230;
+
+	/* Program the divisor to get the baud rate we want */
+	serial_set_divisor(uart_base, divisor);
+#endif
+}
 
 static void uart_puts(uint32_t uart_base, const char *s)
 {
@@ -209,7 +219,7 @@ static int uart##n##_init(void) \
 	const unsigned short pins[] = { _P_UART(n, RX), _P_UART(n, TX), 0, }; \
 	peripheral_request_list(pins, "bfin-uart"); \
 	uart_init(MMR_UART(n)); \
-	serial_early_set_baud(MMR_UART(n), gd->baudrate); \
+	__serial_set_baud(MMR_UART(n), gd->baudrate); \
 	uart_lsr_clear(MMR_UART(n)); \
 	return 0; \
 } \
@@ -221,7 +231,7 @@ static int uart##n##_uninit(void) \
 \
 static void uart##n##_setbrg(void) \
 { \
-	serial_early_set_baud(MMR_UART(n), gd->baudrate); \
+	__serial_set_baud(MMR_UART(n), gd->baudrate); \
 } \
 \
 static int uart##n##_getc(void) \
@@ -305,65 +315,97 @@ void bfin_serial_initialize(void)
 #endif
 }
 
-#else
+#ifdef CONFIG_DEBUG_EARLY_SERIAL
+inline void uart_early_putc(uint32_t uart_base, const char c)
+{
+	/* send a \r for compatibility */
+	if (c == '\n')
+		uart_early_putc(uart_base, '\r');
+
+	/* wait for the hardware fifo to clear up */
+	while (!(_lsr_read(pUART) & THRE))
+		continue;
+
+	/* queue the character for transmission */
+	bfin_write(&pUART->thr, c);
+	SSYNC();
+}
+
+void uart_early_puts(const char *s)
+{
+	while (*s)
+		uart_early_putc(UART_BASE, *s++);
+}
 
 /* Symbol for our assembly to call. */
-void serial_set_baud(uint32_t baud)
+void _serial_early_set_baud(uint32_t baud)
 {
 	serial_early_set_baud(UART_BASE, baud);
 }
 
-/* Symbol for common u-boot code to call.
- * Setup the baudrate (brg: baudrate generator).
- */
-void serial_setbrg(void)
-{
-	serial_set_baud(gd->baudrate);
-}
-
 /* Symbol for our assembly to call. */
-void serial_initialize(void)
+void _serial_early_init(void)
 {
 	serial_early_init(UART_BASE);
 }
+#endif
 
-/* Symbol for common u-boot code to call. */
-int serial_init(void)
+#elif defined(CONFIG_UART_MEM)
+
+char serial_logbuf[CONFIG_UART_MEM];
+char *serial_logbuf_head = serial_logbuf;
+
+int serial_mem_init(void)
 {
-	serial_initialize();
-	serial_setbrg();
-	uart_lsr_clear(UART_BASE);
+	serial_logbuf_head = serial_logbuf;
 	return 0;
 }
 
-int serial_tstc(void)
+void serial_mem_setbrg(void)
 {
-	return uart_tstc(UART_BASE);
 }
 
-int serial_getc(void)
+int serial_mem_tstc(void)
 {
-	return uart_getc(UART_BASE);
+	return 0;
 }
 
-void serial_putc(const char c)
+int serial_mem_getc(void)
 {
-	uart_putc(UART_BASE, c);
+	return 0;
 }
 
-void serial_puts(const char *s)
+void serial_mem_putc(const char c)
+{
+	*serial_logbuf_head = c;
+	if (++serial_logbuf_head == serial_logbuf + CONFIG_UART_MEM)
+		serial_logbuf_head = serial_logbuf;
+}
+
+void serial_mem_puts(const char *s)
 {
 	while (*s)
 		serial_putc(*s++);
 }
 
-LOOP(
-void serial_loop(int state)
+struct serial_device bfin_serial_mem_device = {
+	.name   = "bfin_uart_mem",
+	.start  = serial_mem_init,
+	.setbrg = serial_mem_setbrg,
+	.getc   = serial_mem_getc,
+	.tstc   = serial_mem_tstc,
+	.putc   = serial_mem_putc,
+	.puts   = serial_mem_puts,
+};
+
+
+__weak struct serial_device *default_serial_console(void)
 {
-	uart_loop(UART_BASE, state);
+	return &bfin_serial_mem_device;
 }
-)
 
-#endif
-
-#endif
+void bfin_serial_initialize(void)
+{
+	serial_register(&bfin_serial_mem_device);
+}
+#endif /* CONFIG_UART_MEM */

@@ -9,6 +9,7 @@
 #include <common.h>
 #include <watchdog.h>
 #include <asm/blackfin.h>
+#include <asm/mach-common/bits/watchdog.h>
 
 void hw_watchdog_reset(void)
 {
@@ -17,7 +18,9 @@ void hw_watchdog_reset(void)
 
 void hw_watchdog_init(void)
 {
-	bfin_write_WDOG_CNT(5 * get_sclk());	/* 5 second timeout */
+	bfin_write_WDOG_CTL(WDDIS);
+	SSYNC();
+	bfin_write_WDOG_CNT(CONFIG_WATCHDOG_TIMEOUT_MSECS / 1000 * get_sclk());
 	hw_watchdog_reset();
-	bfin_write_WDOG_CTL(0x0);
+	bfin_write_WDOG_CTL(WDEN);
 }

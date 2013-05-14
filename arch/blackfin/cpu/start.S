@@ -32,10 +32,10 @@
 
 #include <config.h>
 #include <asm/blackfin.h>
+#include <asm/mach-common/bits/watchdog.h>
 #include <asm/mach-common/bits/core.h>
 #include <asm/mach-common/bits/pll.h>
-
-#include "serial.h"
+#include <asm/serial.h>
 
 /* It may seem odd that we make calls to functions even though we haven't
  * relocated ourselves yet out of {flash,ram,wherever}.  This is OK because
@@ -65,20 +65,29 @@ ENTRY(_start)
 	p5.h = HI(COREMMR_BASE);
 
 #ifdef CONFIG_HW_WATCHDOG
-#ifndef __ADSPBF60x__
-# ifndef CONFIG_HW_WATCHDOG_TIMEOUT_START
-#  define CONFIG_HW_WATCHDOG_TIMEOUT_START 5000
-# endif
-	/* Program the watchdog with an initial timeout of ~5 seconds.
+	/* Program the watchdog with default timeout of ~5 seconds.
 	 * That should be long enough to bootstrap ourselves up and
 	 * then the common u-boot code can take over.
 	 */
+	r1 = WDDIS;
+# ifdef __ADSPBF60x__
+	[p4 + (WDOG_CTL - SYSMMR_BASE)] = r1;
+# else
+	W[p4 + (WDOG_CTL - SYSMMR_BASE)] = r1;
+# endif
+	SSYNC;
 	r0 = 0;
-	r0.h = HI(MSEC_TO_SCLK(CONFIG_HW_WATCHDOG_TIMEOUT_START));
+	r0.h = HI(MSEC_TO_SCLK(CONFIG_WATCHDOG_TIMEOUT_MSECS));
 	[p4 + (WDOG_CNT - SYSMMR_BASE)] = r0;
+	SSYNC;
+	r1 = WDEN;
 	/* fire up the watchdog - R0.L above needs to be 0x0000 */
-	W[p4 + (WDOG_CTL - SYSMMR_BASE)] = r0;
-#endif
+# ifdef __ADSPBF60x__
+	[p4 + (WDOG_CTL - SYSMMR_BASE)] = r1;
+# else
+	W[p4 + (WDOG_CTL - SYSMMR_BASE)] = r1;
+# endif
+	SSYNC;
 #endif
 
 	/* Turn on the serial for debugging the init process */

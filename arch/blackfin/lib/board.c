@@ -231,6 +231,8 @@ static int global_board_data_init(void)
 	bd->bi_sclk = get_sclk();
 	bd->bi_memstart = CONFIG_SYS_SDRAM_BASE;
 	bd->bi_memsize = CONFIG_SYS_MAX_RAM_SIZE;
+	bd->bi_baudrate = (gd->baudrate > 0)
+		? simple_strtoul(gd->baudrate, NULL, 10) : CONFIG_BAUDRATE;
 
 	return 0;
 }
@@ -277,9 +279,9 @@ void board_init_f(ulong bootflag)
 	dcache_enable();
 #endif
 
-#ifdef CONFIG_WATCHDOG
+#ifdef CONFIG_HW_WATCHDOG
 	serial_early_puts("Setting up external watchdog\n");
-	watchdog_init();
+	hw_watchdog_init();
 #endif
 
 #ifdef DEBUG

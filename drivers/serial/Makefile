@@ -52,6 +52,7 @@ COBJS-$(CONFIG_XILINX_UARTLITE) += serial_xuartlite.o
 COBJS-$(CONFIG_SANDBOX_SERIAL) += sandbox.o
 COBJS-$(CONFIG_SCIF_CONSOLE) += serial_sh.o
 COBJS-$(CONFIG_ZYNQ_SERIAL) += serial_zynq.o
+COBJS-$(CONFIG_BFIN_SERIAL) += serial_bfin.o
 
 ifndef CONFIG_SPL_BUILD
 COBJS-$(CONFIG_USB_TTY) += usbtty.o
