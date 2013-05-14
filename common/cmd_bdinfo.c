@@ -84,6 +84,10 @@ static void print_mhz(const char *name, unsigned long hz)
 }
 
 #if defined(CONFIG_PPC)
+void __weak board_detail(void)
+{
+	/* Please define boot_detail() for your platform */
+}
 
 int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -162,6 +166,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	printf("IP addr     = %s\n", getenv("ipaddr"));
 	printf("baudrate    = %6u bps\n", bd->bi_baudrate);
 	print_num("relocaddr", gd->relocaddr);
+	board_detail();
 	return 0;
 }
 
