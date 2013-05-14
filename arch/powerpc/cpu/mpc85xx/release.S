@@ -69,9 +69,9 @@ __secondary_start_page:
 #endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_CPU_A003999
-	mfspr	r3,977
+	mfspr	r3,SPRN_HDBCR1
 	oris	r3,r3,0x0100
-	mtspr	977,r3
+	mtspr	SPRN_HDBCR1,r3
 #endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A004510
@@ -93,10 +93,10 @@ __secondary_start_page:
 1:	/* Erratum says set bits 55:60 to 001001 */
 	msync
 	isync
-	mfspr	r3,976
+	mfspr	r3,SPRN_HDBCR0
 	li	r4,0x48
 	rlwimi	r3,r4,0,0x1f8
-	mtspr	976,r3
+	mtspr	SPRN_HDBCR0,r3
 	isync
 2:
 #endif
@@ -159,9 +159,9 @@ __secondary_start_page:
 	 * we cannot access it yet before setting up a new TLB
 	 */
 	mfspr	r0,SPRN_PIR
-#if	defined(CONFIG_E6500)
+#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
 /*
- * PIR definition for E6500
+ * PIR definition for Chassis 2
  * 0-17 Reserved (logic 0s)
  * 8-19 CHIP_ID,    2'b00      - SoC 1
  *                  all others - reserved
@@ -187,7 +187,7 @@ __secondary_start_page:
 	slwi	r8,r4,6	/* spin table is padded to 64 byte */
 	add	r10,r3,r8
 
-#ifdef CONFIG_E6500
+#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
 	mfspr	r0,SPRN_PIR
 	/*
 	 * core 0 thread 0: pir reset value 0x00, new pir 0

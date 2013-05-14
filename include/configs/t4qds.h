@@ -444,11 +444,19 @@ unsigned long get_board_ddr_clk(void);
 #define I2C_MUX_PCA_ADDR_PRI		0x77 /* I2C bus multiplexer,primary */
 #define I2C_MUX_PCA_ADDR_SEC		0x76 /* I2C bus multiplexer,secondary */
 
-/* VSC Crossbar switches */
-#define CONFIG_VSC_CROSSBAR
 #define I2C_MUX_CH_DEFAULT	0x8
+#define I2C_MUX_CH_VOL_MONITOR	0xa
 #define I2C_MUX_CH_VSC3316_FS	0xc
 #define I2C_MUX_CH_VSC3316_BS	0xd
+
+/* Voltage monitor on channel 2*/
+#define I2C_VOL_MONITOR_ADDR		0x40
+#define I2C_VOL_MONITOR_BUS_V_OFFSET	0x2
+#define I2C_VOL_MONITOR_BUS_V_OVF	0x1
+#define I2C_VOL_MONITOR_BUS_V_SHIFT	3
+
+/* VSC Crossbar switches */
+#define CONFIG_VSC_CROSSBAR
 #define VSC3316_FSM_TX_ADDR	0x70
 #define VSC3316_FSM_RX_ADDR	0x71
 
@@ -504,7 +512,7 @@ unsigned long get_board_ddr_clk(void);
  */
 #define CONFIG_FSL_ESPI
 #define CONFIG_SPI_FLASH
-#define CONFIG_SPI_FLASH_SPANSION
+#define CONFIG_SPI_FLASH_SST
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED         10000000
 #define CONFIG_SF_DEFAULT_MODE          0
@@ -641,15 +649,10 @@ unsigned long get_board_ddr_clk(void);
 #define SGMII_CARD_PORT2_PHY_ADDR 0x1D
 #define SGMII_CARD_PORT3_PHY_ADDR 0x1E
 #define SGMII_CARD_PORT4_PHY_ADDR 0x1F
-#define XFI_CARD_PORT1_PHY_ADDR	0x1 /* tmp, FIXME below addr */
-#define XFI_CARD_PORT2_PHY_ADDR	0x2
-#define XFI_CARD_PORT3_PHY_ADDR	0x3
-#define XFI_CARD_PORT4_PHY_ADDR	0x4
-#define QSGMII_CARD_PHY_ADDR	0x5
-#define FM1_10GEC1_PHY_ADDR	0x6
-#define FM1_10GEC2_PHY_ADDR	0x7
-#define FM2_10GEC1_PHY_ADDR	0x8
-#define FM2_10GEC2_PHY_ADDR	0x9
+#define FM1_10GEC1_PHY_ADDR	0x0
+#define FM1_10GEC2_PHY_ADDR	0x1
+#define FM2_10GEC1_PHY_ADDR	0x2
+#define FM2_10GEC2_PHY_ADDR	0x3
 #endif
 
 #ifdef CONFIG_PCI
@@ -783,8 +786,21 @@ unsigned long get_board_ddr_clk(void);
 
 #define __USB_PHY_TYPE	utmi
 
+/*
+ * T4240 has 3 DDR controllers. Default to 3way_4KB interleaving. It can be
+ * 3way_1KB, 3way_4KB, 3way_8KB. T4160 has 2 DDR controllers. Default to
+ * cacheline interleaving. It can be cacheline, page, bank, superbank.
+ * See doc/README.fsl-ddr for details.
+ */
+#ifdef CONFIG_PPC_T4240
+#define CTRL_INTLV_PREFERED 3way_4KB
+#else
+#define CTRL_INTLV_PREFERED cacheline
+#endif
+
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
-	"hwconfig=fsl_ddr:ctlr_intlv=3way_4KB,"		\
+	"hwconfig=fsl_ddr:"					\
+	"ctlr_intlv=" __stringify(CTRL_INTLV_PREFERED) ","	\
 	"bank_intlv=auto;"					\
 	"usb1:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) "\0"\
 	"netdev=eth0\0"						\

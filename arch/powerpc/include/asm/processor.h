@@ -575,6 +575,16 @@
 #define SPRN_MSSSR0	0x3f7
 #endif
 
+#define SPRN_HDBCR0	0x3d0
+#define SPRN_HDBCR1	0x3d1
+#define SPRN_HDBCR2	0x3d2
+#define SPRN_HDBCR3	0x3d3
+#define SPRN_HDBCR4	0x3d4
+#define SPRN_HDBCR5	0x3d5
+#define SPRN_HDBCR6	0x3d6
+#define SPRN_HDBCR7	0x277
+#define SPRN_HDBCR8	0x278
+
 /* Short-hand versions for a number of the above SPRNs */
 
 #define CTR	SPRN_CTR	/* Counter Register */
@@ -1099,6 +1109,7 @@
 #define SVR_P5040	0x820400
 #define SVR_T4240	0x824000
 #define SVR_T4120	0x824001
+#define SVR_T4160	0x824100
 #define SVR_B4860	0X868000
 #define SVR_G4860	0x868001
 #define SVR_G4060	0x868003

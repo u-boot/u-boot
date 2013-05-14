@@ -42,7 +42,7 @@
 #define QIXIS_DDRCLK_125		0x2
 #define QIXIS_DDRCLK_133		0x3
 
-#define BRDCFG5_RESET			0x00
+#define BRDCFG5_IRE			0x20	/* i2c Remote i2c1 enable */
 
 #define BRDCFG12_SD3EN_MASK		0x20
 #define BRDCFG12_SD3MX_MASK		0x08

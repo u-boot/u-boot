@@ -132,10 +132,15 @@ void get_sys_info (sys_info_t * sysInfo)
 		sysInfo->freqProcessor[cpu] =
 			 freqCC_PLL[cplx_pll] / core_cplx_PLL_div[c_pll_sel];
 	}
+#ifdef CONFIG_PPC_B4860
+#define FM1_CLK_SEL	0xe0000000
+#define FM1_CLK_SHIFT	29
+#else
 #define PME_CLK_SEL	0xe0000000
 #define PME_CLK_SHIFT	29
 #define FM1_CLK_SEL	0x1c000000
 #define FM1_CLK_SHIFT	26
+#endif
 	rcw_tmp = in_be32(&gur->rcwsr[7]);
 
 #ifdef CONFIG_SYS_DPAA_PME
@@ -184,6 +189,9 @@ void get_sys_info (sys_info_t * sysInfo)
 		break;
 	case 4:
 		sysInfo->freqFMan[0] = freqCC_PLL[3] / 4;
+		break;
+	case 5:
+		sysInfo->freqFMan[0] = sysInfo->freqSystemBus;
 		break;
 	case 6:
 		sysInfo->freqFMan[0] = freqCC_PLL[4] / 2;
@@ -283,6 +291,10 @@ void get_sys_info (sys_info_t * sysInfo)
 		sysInfo->freqFMan[1] = sysInfo->freqSystemBus / 2;
 	}
 #endif
+#endif
+
+#ifdef CONFIG_SYS_DPAA_QBMAN
+	sysInfo->freqQMAN = sysInfo->freqSystemBus / 2;
 #endif
 
 #endif /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */

@@ -48,6 +48,19 @@
 #define MIIM_VSC8601_SKEW_CTRL		0x1c
 
 #define PHY_EXT_PAGE_ACCESS    0x1f
+#define PHY_EXT_PAGE_ACCESS_GENERAL	0x10
+#define PHY_EXT_PAGE_ACCESS_EXTENDED3	0x3
+
+/* Vitesse VSC8574 control register */
+#define MIIM_VSC8574_MAC_SERDES_CON	0x10
+#define MIIM_VSC8574_MAC_SERDES_ANEG	0x80
+#define MIIM_VSC8574_GENERAL18		0x12
+#define MIIM_VSC8574_GENERAL19		0x13
+
+/* Vitesse VSC8574 gerenal purpose register 18 */
+#define MIIM_VSC8574_18G_SGMII		0x80f0
+#define MIIM_VSC8574_18G_QSGMII		0x80e0
+#define MIIM_VSC8574_18G_CMDSTAT	0x8000
 
 /* CIS8201 */
 static int vitesse_config(struct phy_device *phydev)
@@ -145,6 +158,49 @@ static int vsc8601_config(struct phy_device *phydev)
 	return 0;
 }
 
+static int vsc8574_config(struct phy_device *phydev)
+{
+	u32 val;
+	/* configure regiser 19G for MAC */
+	phy_write(phydev, MDIO_DEVAD_NONE, PHY_EXT_PAGE_ACCESS,
+		  PHY_EXT_PAGE_ACCESS_GENERAL);
+
+	val = phy_read(phydev, MDIO_DEVAD_NONE, MIIM_VSC8574_GENERAL19);
+	if (phydev->interface == PHY_INTERFACE_MODE_QSGMII) {
+		/* set bit 15:14 to '01' for QSGMII mode */
+		val = (val & 0x3fff) | (1 << 14);
+		phy_write(phydev, MDIO_DEVAD_NONE,
+			  MIIM_VSC8574_GENERAL19, val);
+		/* Enable 4 ports MAC QSGMII */
+		phy_write(phydev, MDIO_DEVAD_NONE, MIIM_VSC8574_GENERAL18,
+			  MIIM_VSC8574_18G_QSGMII);
+	} else {
+		/* set bit 15:14 to '00' for SGMII mode */
+		val = val & 0x3fff;
+		phy_write(phydev, MDIO_DEVAD_NONE, MIIM_VSC8574_GENERAL19, val);
+		/* Enable 4 ports MAC SGMII */
+		phy_write(phydev, MDIO_DEVAD_NONE, MIIM_VSC8574_GENERAL18,
+			  MIIM_VSC8574_18G_SGMII);
+	}
+	val = phy_read(phydev, MDIO_DEVAD_NONE, MIIM_VSC8574_GENERAL18);
+	/* When bit 15 is cleared the command has completed */
+	while (val & MIIM_VSC8574_18G_CMDSTAT)
+		val = phy_read(phydev, MDIO_DEVAD_NONE, MIIM_VSC8574_GENERAL18);
+
+	/* Enable Serdes Auto-negotiation */
+	phy_write(phydev, MDIO_DEVAD_NONE, PHY_EXT_PAGE_ACCESS,
+		  PHY_EXT_PAGE_ACCESS_EXTENDED3);
+	val = phy_read(phydev, MDIO_DEVAD_NONE, MIIM_VSC8574_MAC_SERDES_CON);
+	val = val | MIIM_VSC8574_MAC_SERDES_ANEG;
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_VSC8574_MAC_SERDES_CON, val);
+
+	phy_write(phydev, MDIO_DEVAD_NONE, PHY_EXT_PAGE_ACCESS, 0);
+
+	genphy_config_aneg(phydev);
+
+	return 0;
+}
+
 static struct phy_driver VSC8211_driver = {
 	.name	= "Vitesse VSC8211",
 	.uid	= 0xfc4b0,
@@ -181,6 +237,16 @@ static struct phy_driver VSC8234_driver = {
 	.mask = 0xffff0,
 	.features = PHY_GBIT_FEATURES,
 	.config = &genphy_config_aneg,
+	.startup = &vitesse_startup,
+	.shutdown = &genphy_shutdown,
+};
+
+static struct phy_driver VSC8574_driver = {
+	.name = "Vitesse VSC8574",
+	.uid = 0x704a0,
+	.mask = 0xffff0,
+	.features = PHY_GBIT_FEATURES,
+	.config = &vsc8574_config,
 	.startup = &vitesse_startup,
 	.shutdown = &genphy_shutdown,
 };
@@ -244,6 +310,7 @@ int phy_vitesse_init(void)
 	phy_register(&VSC8244_driver);
 	phy_register(&VSC8211_driver);
 	phy_register(&VSC8221_driver);
+	phy_register(&VSC8574_driver);
 	phy_register(&VSC8662_driver);
 	phy_register(&cis8201_driver);
 	phy_register(&cis8204_driver);

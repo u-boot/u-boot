@@ -128,24 +128,32 @@ static int fdt_qportal(void *blob, int off, int id, char *name,
 
 	childoff = fdt_subnode_offset(blob, off, name);
 	if (create) {
+		char handle[64], *p;
+
+		strncpy(handle, name, sizeof(handle));
+		p = strchr(handle, '@');
+		if (!strncmp(name, "fman", 4)) {
+			*p = *(p + 1);
+			p++;
+		}
+		*p = '\0';
+
+		dev_off = fdt_path_offset(blob, handle);
+		/* skip this node if alias is not found */
+		if (dev_off == -FDT_ERR_BADPATH)
+			return 0;
+		if (dev_off < 0)
+			return dev_off;
+
 		if (childoff <= 0)
 			childoff = fdt_add_subnode(blob, off, name);
 
+		/* need to update the dev_off after adding a subnode */
+		dev_off = fdt_path_offset(blob, handle);
+		if (dev_off < 0)
+			return dev_off;
+
 		if (childoff > 0) {
-			char handle[64], *p;
-
-			strncpy(handle, name, sizeof(handle));
-			p = strchr(handle, '@');
-			if (!strncmp(name, "fman", 4)) {
-				*p = *(p + 1);
-				p++;
-			}
-			*p = '\0';
-
-			dev_off = fdt_path_offset(blob, handle);
-			if (dev_off < 0)
-				return dev_off;
-
 			dev_handle = fdt_get_phandle(blob, dev_off);
 			if (dev_handle <= 0) {
 				dev_handle = fdt_alloc_phandle(blob);

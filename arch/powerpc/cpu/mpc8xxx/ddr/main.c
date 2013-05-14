@@ -186,7 +186,7 @@ const char * step_to_string(unsigned int step) {
 	return step_string_tbl[s];
 }
 
-unsigned long long step_assign_addresses(fsl_ddr_info_t *pinfo,
+static unsigned long long __step_assign_addresses(fsl_ddr_info_t *pinfo,
 			  unsigned int dbw_cap_adj[])
 {
 	int i, j;
@@ -353,6 +353,11 @@ unsigned long long step_assign_addresses(fsl_ddr_info_t *pinfo,
 
 	return total_mem;
 }
+
+/* Use weak function to allow board file to override the address assignment */
+__attribute__((weak, alias("__step_assign_addresses")))
+unsigned long long step_assign_addresses(fsl_ddr_info_t *pinfo,
+			  unsigned int dbw_cap_adj[]);
 
 unsigned long long
 fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step,
@@ -541,14 +546,17 @@ phys_size_t fsl_ddr_sdram(void)
 		total_memory = fsl_ddr_compute(&info, STEP_GET_SPD, 0);
 
 	/* setup 3-way interleaving before enabling DDRC */
-	switch (info.memctl_opts[0].memctl_interleaving_mode) {
-	case FSL_DDR_3WAY_1KB_INTERLEAVING:
-	case FSL_DDR_3WAY_4KB_INTERLEAVING:
-	case FSL_DDR_3WAY_8KB_INTERLEAVING:
-		fsl_ddr_set_intl3r(info.memctl_opts[0].memctl_interleaving_mode);
-		break;
-	default:
-		break;
+	if (info.memctl_opts[0].memctl_interleaving) {
+		switch (info.memctl_opts[0].memctl_interleaving_mode) {
+		case FSL_DDR_3WAY_1KB_INTERLEAVING:
+		case FSL_DDR_3WAY_4KB_INTERLEAVING:
+		case FSL_DDR_3WAY_8KB_INTERLEAVING:
+			fsl_ddr_set_intl3r(
+				info.memctl_opts[0].memctl_interleaving_mode);
+			break;
+		default:
+			break;
+		}
 	}
 
 	/* Program configuration registers. */
