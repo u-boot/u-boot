@@ -129,12 +129,16 @@ typedef union {
 } cfiword_t;
 
 /* CFI standard query structure */
+/* The offsets and sizes of this packed structure members correspond
+ * to the actual layout in CFI Flash chips. Some 16- and 32-bit members
+ * are unaligned and must be accessed with explicit unaligned access macros.
+ */
 struct cfi_qry {
 	u8	qry[3];
-	u16	p_id;
-	u16	p_adr;
-	u16	a_id;
-	u16	a_adr;
+	u16	p_id;			/* unaligned */
+	u16	p_adr;			/* unaligned */
+	u16	a_id;			/* unaligned */
+	u16	a_adr;			/* unaligned */
 	u8	vcc_min;
 	u8	vcc_max;
 	u8	vpp_min;
@@ -148,10 +152,10 @@ struct cfi_qry {
 	u8	block_erase_timeout_max;
 	u8	chip_erase_timeout_max;
 	u8	dev_size;
-	u16	interface_desc;
-	u16	max_buf_write_size;
+	u16	interface_desc;		/* aligned */
+	u16	max_buf_write_size;	/* aligned */
 	u8	num_erase_regions;
-	u32	erase_region_info[NUM_ERASE_REGIONS];
+	u32	erase_region_info[NUM_ERASE_REGIONS];	/* unaligned */
 } __attribute__((packed));
 
 struct cfi_pri_hdr {

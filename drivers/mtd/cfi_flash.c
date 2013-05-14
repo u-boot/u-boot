@@ -38,6 +38,7 @@
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/byteorder.h>
+#include <asm/unaligned.h>
 #include <environment.h>
 #include <mtd/cfi_flash.h>
 #include <watchdog.h>
@@ -1640,9 +1641,10 @@ static void cfi_reverse_geometry(struct cfi_qry *qry)
 	u32 tmp;
 
 	for (i = 0, j = qry->num_erase_regions - 1; i < j; i++, j--) {
-		tmp = qry->erase_region_info[i];
-		qry->erase_region_info[i] = qry->erase_region_info[j];
-		qry->erase_region_info[j] = tmp;
+		tmp = get_unaligned(&(qry->erase_region_info[i]));
+		put_unaligned(get_unaligned(&(qry->erase_region_info[j])),
+			      &(qry->erase_region_info[i]));
+		put_unaligned(tmp, &(qry->erase_region_info[j]));
 	}
 }
 
@@ -2073,8 +2075,8 @@ ulong flash_get_size (phys_addr_t base, int banknum)
 	info->start[0] = (ulong)map_physmem(base, info->portwidth, MAP_NOCACHE);
 
 	if (flash_detect_cfi (info, &qry)) {
-		info->vendor = le16_to_cpu(qry.p_id);
-		info->ext_addr = le16_to_cpu(qry.p_adr);
+		info->vendor = le16_to_cpu(get_unaligned(&(qry.p_id)));
+		info->ext_addr = le16_to_cpu(get_unaligned(&(qry.p_adr)));
 		num_erase_regions = qry.num_erase_regions;
 
 		if (info->ext_addr) {
@@ -2163,7 +2165,8 @@ ulong flash_get_size (phys_addr_t base, int banknum)
 				break;
 			}
 
-			tmp = le32_to_cpu(qry.erase_region_info[i]);
+			tmp = le32_to_cpu(get_unaligned(
+						&(qry.erase_region_info[i])));
 			debug("erase region %u: 0x%08lx\n", i, tmp);
 
 			erase_region_count = (tmp & 0xffff) + 1;
