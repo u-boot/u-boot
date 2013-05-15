@@ -695,6 +695,9 @@ extern void copy_filename(char *dst, const char *src, int size);
 /* get a random source port */
 extern unsigned int random_port(void);
 
+/* Update U-Boot over TFTP */
+extern int update_tftp(ulong addr);
+
 /**********************************************************************/
 
 #endif /* __NET_H__ */

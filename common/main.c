@@ -57,10 +57,6 @@ DECLARE_GLOBAL_DATA_PTR;
 void inline __show_boot_progress (int val) {}
 void show_boot_progress (int val) __attribute__((weak, alias("__show_boot_progress")));
 
-#if defined(CONFIG_UPDATE_TFTP)
-int update_tftp (ulong addr);
-#endif /* CONFIG_UPDATE_TFTP */
-
 #define MAX_DELAY_STOP_STR 32
 
 #undef DEBUG_PARSER
