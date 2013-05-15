@@ -144,13 +144,17 @@ struct spi_flash *spi_flash_probe_spansion(struct spi_slave *spi, u8 *idcode)
 	flash->page_size = 256;
 	flash->sector_size = 256 * params->pages_per_sector;
 
-	/* page_size and nr_sectors are double for dual parallel qspi */
+	/*
+	 * page_size and nr_sectors are double for dual parallel qspi
+	 * and double the nr_sectors for dual stacked qspi
+	 */
 	if (flash->spi->is_dual == 2) {
 		flash->page_size *= 2;
 		flash->size = flash->sector_size * (2 * params->nr_sectors);
-	} else {
+	} else if (flash->spi->is_dual == 1)
+		flash->size = flash->sector_size * (2 * params->nr_sectors);
+	else
 		flash->size = flash->sector_size * params->nr_sectors;
-	}
 
 	return flash;
 }

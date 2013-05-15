@@ -41,6 +41,7 @@
 /* SPI transfer flags */
 #define SPI_XFER_BEGIN	0x01			/* Assert CS before transfer */
 #define SPI_XFER_END	0x02			/* Deassert CS after transfer */
+#define SPI_FLASH_U_PAGE	0x04		/* Enable Upper memory page */
 
 /*-----------------------------------------------------------------------
  * Representation of a SPI slave, i.e. what we're communicating with.
@@ -50,6 +51,7 @@
  *   bus:	ID of the bus that the slave is attached to.
  *   cs:	ID of the chip select connected to the slave.
  *   is_dual:	Indicates whether dual memories are used
+ *   u_page:	Indicates the upper memory page, in dual stacked connection.
  *   max_write_size:	If non-zero, the maximum number of bytes which can
  *		be written at once, excluding command bytes.
  */
@@ -57,6 +59,7 @@ struct spi_slave {
 	unsigned int	bus;
 	unsigned int	cs;
 	unsigned int	is_dual;
+	unsigned int	u_page;
 	unsigned int max_write_size;
 };
 

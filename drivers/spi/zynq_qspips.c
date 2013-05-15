@@ -161,6 +161,7 @@ struct xqspips {
 	u8 inst_response;
 	unsigned int is_inst;
 	unsigned int is_dual;
+	unsigned int u_page;
 };
 
 struct spi_device {
@@ -273,21 +274,12 @@ static void xqspips_init_hw(int is_dual, unsigned int cs)
 			(1 << XQSPIPS_LCFG_DUMMY_SHIFT) |
 			XQSPIPS_FAST_READ_QOUT_CODE),
 			&xqspips_base->lcr);
-	else if (is_dual == MODE_DUAL_STACKED) {
-		if (cs)
-			/* Enable two memories on shared buse with upper mem */
-			writel((XQSPIPS_LCFG_TWO_MEM_MASK |
-				XQSPIPS_LCFG_U_PAGE |
-				(1 << XQSPIPS_LCFG_DUMMY_SHIFT) |
-				XQSPIPS_FAST_READ_QOUT_CODE),
-				&xqspips_base->lcr);
-		else
-			/* Enable two memories on shared buse with lower mem */
-			writel((XQSPIPS_LCFG_TWO_MEM_MASK |
-				(1 << XQSPIPS_LCFG_DUMMY_SHIFT) |
-				XQSPIPS_FAST_READ_QOUT_CODE),
-				&xqspips_base->lcr);
-	}
+	else if (is_dual == MODE_DUAL_STACKED)
+		/* Configure two memories on shared bus by enabling lower mem */
+		writel((XQSPIPS_LCFG_TWO_MEM_MASK |
+			(1 << XQSPIPS_LCFG_DUMMY_SHIFT) |
+			XQSPIPS_FAST_READ_QOUT_CODE),
+			&xqspips_base->lcr);
 
 	writel(XQSPIPS_ENABLE_ENABLE_MASK, &xqspips_base->enbr);
 }
@@ -626,6 +618,7 @@ static int xqspips_start_transfer(struct spi_device *qspi,
 			struct spi_transfer *transfer)
 {
 	struct xqspips *xqspi = &qspi->master;
+	static u8 current_u_page;
 	u32 config_reg;
 	u32 data = 0;
 	u8 instruction = 0;
@@ -656,6 +649,30 @@ static int xqspips_start_transfer(struct spi_device *qspi,
 
 		xqspi->curr_inst = &flash_inst[index];
 		xqspi->inst_response = 1;
+
+		if ((xqspi->is_dual == MODE_DUAL_STACKED) &&
+				(current_u_page != xqspi->u_page)) {
+			if (xqspi->u_page) {
+				/* Configure two memories on shared bus
+				 * by enabling upper mem
+				 */
+				writel((XQSPIPS_LCFG_TWO_MEM_MASK |
+					XQSPIPS_LCFG_U_PAGE |
+					(1 << XQSPIPS_LCFG_DUMMY_SHIFT) |
+					XQSPIPS_FAST_READ_QOUT_CODE),
+					&xqspips_base->lcr);
+			} else {
+				/* Configure two memories on shared bus
+				 * by enabling lower mem
+				 */
+				writel((XQSPIPS_LCFG_TWO_MEM_MASK |
+					(1 << XQSPIPS_LCFG_DUMMY_SHIFT) |
+					XQSPIPS_FAST_READ_QOUT_CODE),
+					&xqspips_base->lcr);
+			}
+
+			current_u_page = xqspi->u_page;
+		}
 
 		/* Get the instruction */
 		data = 0;
@@ -1025,6 +1042,11 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		transfer.cs_change = 1;
 	else
 		transfer.cs_change = 0;
+
+	if (flags & SPI_FLASH_U_PAGE)
+		pspi->qspi.master.u_page = 1;
+	else
+		pspi->qspi.master.u_page = 0;
 
 	transfer.delay_usecs = 0;
 	transfer.bits_per_word = 32;
