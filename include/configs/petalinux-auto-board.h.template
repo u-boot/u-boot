@@ -161,7 +161,7 @@
 	#define CONFIG_XILINX_AXIEMAC   1
 	#define CONFIG_SYS_ENET
 #endif
-#if defined(CONFIG_ZYNQ_GEM_BASEADDR0)
+#if defined(XILINX_PS7_GEM_BASEADDR)
 	#define CONFIG_ZYNQ_GEM
 	#define CONFIG_SYS_ENET
 #endif
