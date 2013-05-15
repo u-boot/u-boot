@@ -616,11 +616,6 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 	int port = le16_to_cpu(req->index) & 0xff;
 	struct ehci_ctrl *ctrl = dev->controller;
 
-	if (port > CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS) {
-		printf("The request port(%d) is not configured\n", port - 1);
-		return -1;
-	}
-	status_reg = (uint32_t *)&ctrl->hcor->or_portsc[port - 1];
 	srclen = 0;
 
 	debug("req=%u (%#x), type=%u (%#x), value=%u, index=%u\n",
@@ -629,6 +624,21 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 	      le16_to_cpu(req->value), le16_to_cpu(req->index));
 
 	typeReq = req->request | req->requesttype << 8;
+
+	switch (typeReq) {
+	case USB_REQ_GET_STATUS | ((USB_RT_PORT | USB_DIR_IN) << 8):
+	case USB_REQ_SET_FEATURE | ((USB_DIR_OUT | USB_RT_PORT) << 8):
+	case USB_REQ_CLEAR_FEATURE | ((USB_DIR_OUT | USB_RT_PORT) << 8):
+		if (!port || port > CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS) {
+			printf("The request port(%d) is not configured\n", port - 1);
+			return -1;
+		}
+		status_reg = (uint32_t *)&ctrl->hcor->or_portsc[port - 1];
+		break;
+	default:
+		status_reg = NULL;
+		break;
+	}
 
 	switch (typeReq) {
 	case DeviceRequest | USB_REQ_GET_DESCRIPTOR:
