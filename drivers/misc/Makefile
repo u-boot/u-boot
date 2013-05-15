@@ -28,6 +28,7 @@ LIB	:= $(obj)libmisc.o
 COBJS-$(CONFIG_ALI152X) += ali512x.o
 COBJS-$(CONFIG_DS4510)  += ds4510.o
 COBJS-$(CONFIG_CBMEM_CONSOLE) += cbmem_console.o
+COBJS-$(CONFIG_CROS_EC) += cros_ec.o
 COBJS-$(CONFIG_FSL_IIM) += fsl_iim.o
 COBJS-$(CONFIG_GPIO_LED) += gpio_led.o
 COBJS-$(CONFIG_FSL_MC9SDZ60) += mc9sdz60.o
