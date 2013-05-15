@@ -235,35 +235,24 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 int spi_flash_cmd_poll_bit(struct spi_flash *flash, unsigned long timeout,
 			   u8 cmd, u8 poll_bit)
 {
-	struct spi_slave *spi = flash->spi;
-	unsigned long flags = SPI_XFER_BEGIN;
 	unsigned long timebase;
 	int ret;
 	u8 status;
-
-	if ((spi->is_dual == 1) && (spi->u_page == 1))
-		flags |= SPI_FLASH_U_PAGE;
-
-	ret = spi_xfer(spi, 8, &cmd, NULL, flags);
-	if (ret) {
-		debug("SF: Failed to send command %02x: %d\n", cmd, ret);
-		return ret;
-	}
 
 	timebase = get_timer(0);
 	do {
 		WATCHDOG_RESET();
 
-		ret = spi_xfer(spi, 8, NULL, &status, 0);
-		if (ret)
-			return -1;
+		ret = spi_flash_read_common(flash, &cmd, 1, &status, 1);
+		if (ret < 0) {
+			debug("SF: fail to read read status register\n");
+			return ret;
+		}
 
 		if ((status & poll_bit) == 0)
 			break;
 
 	} while (get_timer(timebase) < timeout);
-
-	spi_xfer(spi, 0, NULL, NULL, SPI_XFER_END);
 
 	if ((status & poll_bit) == 0)
 		return 0;
