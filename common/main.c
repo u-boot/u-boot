@@ -53,6 +53,11 @@ void show_boot_progress (int val) __attribute__((weak, alias("__show_boot_progre
 #define debug_parser(fmt, args...)		\
 	debug_cond(DEBUG_PARSER, fmt, ##args)
 
+#ifndef DEBUG_BOOTKEYS
+#define DEBUG_BOOTKEYS 0
+#endif
+#define debug_bootkeys(fmt, args...)		\
+	debug_cond(DEBUG_BOOTKEYS, fmt, ##args)
 
 char        console_buffer[CONFIG_SYS_CBSIZE + 1];	/* console I/O buffer	*/
 
@@ -138,11 +143,9 @@ static int abortboot_keyed(int bootdelay)
 		presskey_max = presskey_max > delaykey[i].len ?
 				    presskey_max : delaykey[i].len;
 
-#  if DEBUG_BOOTKEYS
-		printf("%s key:<%s>\n",
-		       delaykey[i].retry ? "delay" : "stop",
-		       delaykey[i].str ? delaykey[i].str : "NULL");
-#  endif
+		debug_bootkeys("%s key:<%s>\n",
+			       delaykey[i].retry ? "delay" : "stop",
+			       delaykey[i].str ? delaykey[i].str : "NULL");
 	}
 
 	/* In order to keep up with incoming data, check timeout only
@@ -167,10 +170,9 @@ static int abortboot_keyed(int bootdelay)
 			    memcmp (presskey + presskey_len - delaykey[i].len,
 				    delaykey[i].str,
 				    delaykey[i].len) == 0) {
-#  if DEBUG_BOOTKEYS
-				printf("got %skey\n",
-				       delaykey[i].retry ? "delay" : "stop");
-#  endif
+				debug_bootkeys("got %skey\n",
+					       delaykey[i].retry ? "delay" :
+					       "stop");
 
 #  ifdef CONFIG_BOOT_RETRY_TIME
 				/* don't retry auto boot */
@@ -182,10 +184,8 @@ static int abortboot_keyed(int bootdelay)
 		}
 	} while (!abort && get_ticks() <= etime);
 
-#  if DEBUG_BOOTKEYS
 	if (!abort)
-		puts("key timeout\n");
-#  endif
+		debug_bootkeys("key timeout\n");
 
 #ifdef CONFIG_SILENT_CONSOLE
 	if (abort)
