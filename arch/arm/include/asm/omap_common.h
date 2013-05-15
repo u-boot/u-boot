@@ -351,6 +351,10 @@ struct prcm_regs {
 	u32 cm_l3init_usbphy_clkctrl;
 	u32 cm_l4per_mcbsp4_clkctrl;
 	u32 prm_vc_cfg_channel;
+
+	/* SCRM stuff, used by some boards */
+	u32 scrm_auxclk0;
+	u32 scrm_auxclk1;
 };
 
 struct omap_sys_ctrl_regs {

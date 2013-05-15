@@ -308,6 +308,10 @@ struct prcm_regs const omap5_es1_prcm = {
 	.prm_sldo_mpu_ctrl = 0x4ae07bd0,
 	.prm_sldo_mm_setup = 0x4ae07bd4,
 	.prm_sldo_mm_ctrl = 0x4ae07bd8,
+
+	/* SCRM stuff, used by some boards */
+	.scrm_auxclk0 = 0x4ae0a310,
+	.scrm_auxclk1 = 0x4ae0a314,
 };
 
 struct omap_sys_ctrl_regs const omap5_ctrl = {
@@ -751,6 +755,10 @@ struct prcm_regs const omap5_es2_prcm = {
 	.prm_sldo_mm_ctrl = 0x4ae07cd8,
 	.prm_abbldo_mpu_setup = 0x4ae07cdc,
 	.prm_abbldo_mpu_ctrl = 0x4ae07ce0,
+
+	/* SCRM stuff, used by some boards */
+	.scrm_auxclk0 = 0x4ae0a310,
+	.scrm_auxclk1 = 0x4ae0a314,
 };
 
 struct prcm_regs const dra7xx_prcm = {
