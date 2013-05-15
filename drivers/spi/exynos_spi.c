@@ -465,6 +465,28 @@ static int process_nodes(const void *blob, int node_list[], int count)
 }
 #endif
 
+/**
+ * Set up a new SPI slave for an fdt node
+ *
+ * @param blob		Device tree blob
+ * @param node		SPI peripheral node to use
+ * @return 0 if ok, -1 on error
+ */
+struct spi_slave *spi_setup_slave_fdt(const void *blob, int node,
+		unsigned int cs, unsigned int max_hz, unsigned int mode)
+{
+	struct spi_bus *bus;
+	unsigned int i;
+
+	for (i = 0, bus = spi_bus; i < bus_count; i++, bus++) {
+		if (bus->node == node)
+			return spi_setup_slave(i, cs, max_hz, mode);
+	}
+
+	debug("%s: Failed to find bus node %d\n", __func__, node);
+	return NULL;
+}
+
 /* Sadly there is no error return from this function */
 void spi_init(void)
 {
