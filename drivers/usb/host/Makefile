@@ -43,6 +43,7 @@ COBJS-$(CONFIG_USB_EHCI_FSL) += ehci-mpc512x.o
 else
 COBJS-$(CONFIG_USB_EHCI_FSL) += ehci-fsl.o
 endif
+COBJS-$(CONFIG_USB_EHCI_FARADAY) += ehci-faraday.o
 COBJS-$(CONFIG_USB_EHCI_EXYNOS) += ehci-exynos.o
 COBJS-$(CONFIG_USB_EHCI_MXC) += ehci-mxc.o
 COBJS-$(CONFIG_USB_EHCI_MXS) += ehci-mxs.o

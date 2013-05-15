@@ -589,10 +589,12 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 		dev->act_len = length - QT_TOKEN_GET_TOTALBYTES(token);
 	} else {
 		dev->act_len = 0;
+#ifndef CONFIG_USB_EHCI_FARADAY
 		debug("dev=%u, usbsts=%#x, p[1]=%#x, p[2]=%#x\n",
 		      dev->devnum, ehci_readl(&ctrl->hcor->or_usbsts),
 		      ehci_readl(&ctrl->hcor->or_portsc[0]),
 		      ehci_readl(&ctrl->hcor->or_portsc[1]));
+#endif
 	}
 
 	free(qtd);
@@ -980,10 +982,13 @@ int usb_lowlevel_init(int index, void **controller)
 	cmd |= CMD_RUN;
 	ehci_writel(&ehcic[index].hcor->or_usbcmd, cmd);
 
+#ifndef CONFIG_USB_EHCI_FARADAY
 	/* take control over the ports */
 	cmd = ehci_readl(&ehcic[index].hcor->or_configflag);
 	cmd |= FLAG_CF;
 	ehci_writel(&ehcic[index].hcor->or_configflag, cmd);
+#endif
+
 	/* unblock posted write */
 	cmd = ehci_readl(&ehcic[index].hcor->or_usbcmd);
 	mdelay(5);
