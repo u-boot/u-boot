@@ -150,6 +150,12 @@
 #define gadget_is_mv(g)        0
 #endif
 
+#ifdef CONFIG_USB_GADGET_FOTG210
+#define gadget_is_fotg210(g)        (!strcmp("fotg210_udc", (g)->name))
+#else
+#define gadget_is_fotg210(g)        0
+#endif
+
 /*
  * CONFIG_USB_GADGET_SX2
  * CONFIG_USB_GADGET_AU1X00
@@ -215,5 +221,7 @@ static inline int usb_gadget_controller_number(struct usb_gadget *gadget)
 		return 0x20;
 	else if (gadget_is_mv(gadget))
 		return 0x21;
+	else if (gadget_is_fotg210(gadget))
+		return 0x22;
 	return -ENOENT;
 }
