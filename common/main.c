@@ -1078,20 +1078,20 @@ int readline_into_buffer(const char *const prompt, char *buffer, int timeout)
 		 * Special character handling
 		 */
 		switch (c) {
-		case '\r':				/* Enter		*/
+		case '\r':			/* Enter		*/
 		case '\n':
 			*p = '\0';
 			puts ("\r\n");
-			return (p - p_buf);
+			return p - p_buf;
 
-		case '\0':				/* nul			*/
+		case '\0':			/* nul			*/
 			continue;
 
-		case 0x03:				/* ^C - break		*/
+		case 0x03:			/* ^C - break		*/
 			p_buf[0] = '\0';	/* discard input */
-			return (-1);
+			return -1;
 
-		case 0x15:				/* ^U - erase line	*/
+		case 0x15:			/* ^U - erase line	*/
 			while (col > plen) {
 				puts (erase_seq);
 				--col;
@@ -1100,15 +1100,15 @@ int readline_into_buffer(const char *const prompt, char *buffer, int timeout)
 			n = 0;
 			continue;
 
-		case 0x17:				/* ^W - erase word	*/
+		case 0x17:			/* ^W - erase word	*/
 			p=delete_char(p_buf, p, &col, &n, plen);
 			while ((n > 0) && (*p != ' ')) {
 				p=delete_char(p_buf, p, &col, &n, plen);
 			}
 			continue;
 
-		case 0x08:				/* ^H  - backspace	*/
-		case 0x7F:				/* DEL - backspace	*/
+		case 0x08:			/* ^H  - backspace	*/
+		case 0x7F:			/* DEL - backspace	*/
 			p=delete_char(p_buf, p, &col, &n, plen);
 			continue;
 
@@ -1117,7 +1117,7 @@ int readline_into_buffer(const char *const prompt, char *buffer, int timeout)
 			 * Must be a normal character then
 			 */
 			if (n < CONFIG_SYS_CBSIZE-2) {
-				if (c == '\t') {	/* expand TABs		*/
+				if (c == '\t') {	/* expand TABs */
 #ifdef CONFIG_AUTO_COMPLETE
 					/* if auto completion triggered just continue */
 					*p = '\0';
@@ -1132,7 +1132,7 @@ int readline_into_buffer(const char *const prompt, char *buffer, int timeout)
 					char buf[2];
 
 					/*
-					 * Echo input using puts() to force am
+					 * Echo input using puts() to force an
 					 * LCD flush if we are using an LCD
 					 */
 					++col;
