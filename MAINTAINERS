@@ -1072,9 +1072,19 @@ Unknown / orphaned boards:
 #	Board		CPU						#
 #########################################################################
 
-Graeme Russ <graeme.russ@gmail.com>
+Simon Glass <sjg@chromium.org>
 
-	eNET		AMD SC520
+	chromebook-x86	Coreboot runs first, then U-Boot
+			Supports Intel Sandy Bridge / Ivy Bridge so far
+
+			Chromebooks for x86, including:
+				Samsung Series 5 Chromebook
+				Acer AC700 Chromebook
+				Acer C7 Chromebook
+				Samsung Chromebook 550
+				HP Pavillion Chromebook
+				Acer C710 Chromebook
+				Chromebook Pixel
 
 #########################################################################
 # MIPS Systems:								#
