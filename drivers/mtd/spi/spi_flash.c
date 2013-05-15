@@ -237,8 +237,16 @@ int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
 	unsigned long timebase;
 	int ret;
 	u8 status;
+	u8 check_status = 0x0;
 	u8 poll_bit = STATUS_WIP;
 	u8 cmd = CMD_READ_STATUS;
+
+	if ((flash->idcode0 == 0x20) &&
+			(flash->size >= SPI_FLASH_512MB_MIC)) {
+		poll_bit = STATUS_PEC;
+		check_status = poll_bit;
+		cmd = CMD_FLAG_STATUS;
+	}
 
 	timebase = get_timer(0);
 	do {
@@ -246,16 +254,17 @@ int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
 
 		ret = spi_flash_read_common(flash, &cmd, 1, &status, 1);
 		if (ret < 0) {
-			debug("SF: fail to read read status register\n");
+			debug("SF: fail to read %s status register\n",
+				cmd == CMD_READ_STATUS ? "read" : "flag");
 			return ret;
 		}
 
-		if ((status & poll_bit) == 0)
+		if ((status & poll_bit) == check_status)
 			break;
 
 	} while (get_timer(timebase) < timeout);
 
-	if ((status & poll_bit) == 0)
+	if ((status & poll_bit) == check_status)
 		return 0;
 
 	/* Timed out */
