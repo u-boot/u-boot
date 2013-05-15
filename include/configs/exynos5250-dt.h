@@ -82,11 +82,19 @@
 #define CONFIG_BAUDRATE			115200
 #define EXYNOS5_DEFAULT_UART_OFFSET	0x010000
 
+/* Enable keyboard */
+#define CONFIG_CROS_EC		/* CROS_EC protocol */
+#define CONFIG_CROS_EC_SPI		/* Support CROS_EC over SPI */
+#define CONFIG_CROS_EC_I2C		/* Support CROS_EC over I2C */
+#define CONFIG_CROS_EC_KEYB	/* CROS_EC keyboard input */
+#define CONFIG_CMD_CROS_EC
+#define CONFIG_KEYBOARD
+
 /* Console configuration */
 #define CONFIG_CONSOLE_MUX
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define EXYNOS_DEVICE_SETTINGS \
-		"stdin=serial\0" \
+		"stdin=serial,cros-ec-keyb\0" \
 		"stdout=serial,lcd\0" \
 		"stderr=serial,lcd\0"
 
