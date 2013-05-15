@@ -172,6 +172,9 @@ static void enable_cpc(void)
 #ifdef CONFIG_SYS_FSL_ERRATUM_CPC_A003
 		setbits_be32(&cpc->cpchdbcr0, CPC_HDBCR0_DATA_ECC_SCRUB_DIS);
 #endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A006593
+		setbits_be32(&cpc->cpchdbcr0, 1 << (31 - 21));
+#endif
 
 		out_be32(&cpc->cpccsr0, CPC_CSR0_CE | CPC_CSR0_PE);
 		/* Read back to sync write */
