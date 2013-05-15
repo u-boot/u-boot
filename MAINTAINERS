@@ -1350,5 +1350,16 @@ Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
 	openrisc-generic	OpenRISC
 
 #########################################################################
+# Sandbox:								#
+#									#
+# Maintainer Name, Email Address					#
+#	Board		CPU						#
+#########################################################################
+
+Simon Glass <sjg@chromium.org>
+
+	sandbox		sandbox
+
+#########################################################################
 # End of MAINTAINERS list						#
 #########################################################################
