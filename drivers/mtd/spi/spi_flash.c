@@ -90,6 +90,7 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 	u8 cmd[4];
 	u32 start;
 	u8 bank_sel;
+	int is_dual = flash->spi->is_dual;
 
 	start = offset;
 	page_size = flash->page_size;
@@ -103,10 +104,10 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 	cmd[0] = CMD_PAGE_PROGRAM;
 	for (actual = 0; actual < len; actual += chunk_len) {
 		write_addr = offset;
-		if (flash->spi->is_dual == MODE_DUAL_PARALLEL)
+		if (is_dual == MODE_DUAL_PARALLEL)
 			write_addr /= 2;
 
-		if (flash->spi->is_dual == MODE_DUAL_STACKED) {
+		if (is_dual == MODE_DUAL_STACKED) {
 			if (offset >= (flash->size / 2))
 				flash->spi->u_page = 1;
 			else
@@ -179,13 +180,14 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 	u32 remain_len, read_len, read_addr;
 	u32 bank_boun;
 	int ret = -1;
+	int is_dual = flash->spi->is_dual;
 
 	/* Handle memory-mapped SPI */
 	if (flash->memory_map)
 		memcpy(data, flash->memory_map + offset, len);
 
 	bank_boun = SPI_FLASH_16MB_BOUN;
-	if (flash->spi->is_dual == MODE_DUAL_PARALLEL)
+	if (is_dual == MODE_DUAL_PARALLEL)
 		bank_boun = SPI_FLASH_16MB_BOUN >> 1;
 
 	cmd[0] = CMD_READ_ARRAY_FAST;
@@ -193,10 +195,10 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 
 	while (len) {
 		read_addr = offset;
-		if (flash->spi->is_dual == MODE_DUAL_PARALLEL)
+		if (is_dual == MODE_DUAL_PARALLEL)
 			read_addr /= 2;
 
-		if (flash->spi->is_dual == MODE_DUAL_STACKED) {
+		if (is_dual == MODE_DUAL_STACKED) {
 			if (read_addr >= (flash->size / 2))
 				flash->spi->u_page = 1;
 			else
@@ -278,6 +280,7 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 	int ret;
 	u8 cmd[4];
 	u8 bank_sel;
+	int is_dual = flash->spi->is_dual;
 
 	erase_size = flash->sector_size;
 	if (offset % erase_size || len % erase_size) {
@@ -300,10 +303,10 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 
 	while (len) {
 		erase_addr = offset;
-		if (flash->spi->is_dual == MODE_DUAL_PARALLEL)
+		if (is_dual == MODE_DUAL_PARALLEL)
 			erase_addr /= 2;
 
-		if (flash->spi->is_dual == MODE_DUAL_STACKED) {
+		if (is_dual == MODE_DUAL_STACKED) {
 			if (offset >= (flash->size / 2))
 				flash->spi->u_page = 1;
 			else
