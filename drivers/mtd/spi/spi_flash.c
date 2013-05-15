@@ -83,7 +83,7 @@ int spi_flash_cmd_write(struct spi_slave *spi, const u8 *cmd, size_t cmd_len,
 int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 		size_t len, const void *buf)
 {
-	unsigned long byte_addr, page_size;
+	unsigned long write_addr, byte_addr, page_size;
 	size_t chunk_len, actual;
 	int ret;
 	u8 cmd[4];
@@ -101,6 +101,10 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 
 	cmd[0] = CMD_PAGE_PROGRAM;
 	for (actual = 0; actual < len; actual += chunk_len) {
+		write_addr = offset;
+		if (flash->spi->is_dual == 2)
+			write_addr /= 2;
+
 		if (flash->spi->is_dual == 1) {
 			if (offset >= (flash->size / 2))
 				flash->spi->u_page = 1;
@@ -108,10 +112,7 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 				flash->spi->u_page = 0;
 		}
 
-		if (flash->spi->is_dual == 2)
-			offset /= 2;
-
-		ret = spi_flash_bank(flash, offset, &bank_sel);
+		ret = spi_flash_bank(flash, write_addr, &bank_sel);
 		if (ret) {
 			debug("SF: fail to set bank%d\n", bank_sel);
 			return ret;
@@ -124,7 +125,7 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 		if (flash->spi->max_write_size)
 			chunk_len = min(chunk_len, flash->spi->max_write_size);
 
-		spi_flash_addr(offset, cmd);
+		spi_flash_addr(write_addr, cmd);
 
 		debug("PP: 0x%p => cmd = { 0x%02x 0x%02x%02x%02x } chunk_len = %zu\n",
 		      buf + actual, cmd[0], cmd[1], cmd[2], cmd[3], chunk_len);
@@ -174,7 +175,7 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 {
 	u8 cmd[5];
 	u8 bank_sel;
-	u32 remain_len, read_len;
+	u32 remain_len, read_len, read_addr;
 	int ret = -1;
 
 	/* Handle memory-mapped SPI */
@@ -185,17 +186,18 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 	cmd[sizeof(cmd)-1] = 0x00;
 
 	while (len) {
+		read_addr = offset;
+		if (flash->spi->is_dual == 2)
+			read_addr /= 2;
+
 		if (flash->spi->is_dual == 1) {
-			if (offset >= (flash->size / 2))
+			if (read_addr >= (flash->size / 2))
 				flash->spi->u_page = 1;
 			else
 				flash->spi->u_page = 0;
 		}
 
-		if (flash->spi->is_dual == 2)
-			offset /= 2;
-
-		ret = spi_flash_bank(flash, offset, &bank_sel);
+		ret = spi_flash_bank(flash, read_addr, &bank_sel);
 		if (ret) {
 			debug("SF: fail to set bank%d\n", bank_sel);
 			return ret;
@@ -207,7 +209,7 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 		else
 			read_len = remain_len;
 
-		spi_flash_addr(offset, cmd);
+		spi_flash_addr(read_addr, cmd);
 
 		ret = spi_flash_read_common(flash, cmd, sizeof(cmd),
 							data, read_len);
@@ -266,7 +268,7 @@ int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
 
 int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
-	u32 start, end, erase_size;
+	u32 start, end, erase_size, erase_addr;
 	int ret;
 	u8 cmd[4];
 	u8 bank_sel;
@@ -291,6 +293,10 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 	end = start + len;
 
 	while (len) {
+		erase_addr = offset;
+		if (flash->spi->is_dual == 2)
+			erase_addr /= 2;
+
 		if (flash->spi->is_dual == 1) {
 			if (offset >= (flash->size / 2))
 				flash->spi->u_page = 1;
@@ -298,13 +304,13 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 				flash->spi->u_page = 0;
 		}
 
-		ret = spi_flash_bank(flash, offset, &bank_sel);
+		ret = spi_flash_bank(flash, erase_addr, &bank_sel);
 		if (ret) {
 			debug("SF: fail to set bank%d\n", bank_sel);
 			return ret;
 		}
 
-		spi_flash_addr(offset, cmd);
+		spi_flash_addr(erase_addr, cmd);
 
 		debug("SF: erase %2x %2x %2x %2x (%x)\n", cmd[0], cmd[1],
 		      cmd[2], cmd[3], offset);
