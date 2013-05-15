@@ -341,35 +341,20 @@ static void process_fdt_options(const void *blob)
 }
 #endif /* CONFIG_OF_CONTROL */
 
-
-/****************************************************************************/
-
-void main_loop (void)
+#ifdef CONFIG_BOOTDELAY
+static void process_boot_delay(void)
 {
-#ifndef CONFIG_SYS_HUSH_PARSER
-	static char lastcommand[CONFIG_SYS_CBSIZE] = { 0, };
-	int len;
-	int rc = 1;
-	int flag;
-#endif
-#if defined(CONFIG_BOOTDELAY) && defined(CONFIG_OF_CONTROL)
+#ifdef CONFIG_OF_CONTROL
 	char *env;
 #endif
-#if defined(CONFIG_BOOTDELAY)
 	char *s;
 	int bootdelay;
-#endif
-#ifdef CONFIG_PREBOOT
-	char *p;
-#endif
 #ifdef CONFIG_BOOTCOUNT_LIMIT
 	unsigned long bootcount = 0;
 	unsigned long bootlimit = 0;
 	char *bcs;
 	char bcs_set[16];
 #endif /* CONFIG_BOOTCOUNT_LIMIT */
-
-	bootstage_mark_name(BOOTSTAGE_ID_MAIN_LOOP, "main_loop");
 
 #ifdef CONFIG_BOOTCOUNT_LIMIT
 	bootcount = bootcount_load();
@@ -381,50 +366,6 @@ void main_loop (void)
 	bootlimit = bcs ? simple_strtoul (bcs, NULL, 10) : 0;
 #endif /* CONFIG_BOOTCOUNT_LIMIT */
 
-#ifdef CONFIG_MODEM_SUPPORT
-	debug ("DEBUG: main_loop:   do_mdm_init=%d\n", do_mdm_init);
-	if (do_mdm_init) {
-		char *str = strdup(getenv("mdm_cmd"));
-		setenv ("preboot", str);  /* set or delete definition */
-		if (str != NULL)
-			free (str);
-		mdm_init(); /* wait for modem connection */
-	}
-#endif  /* CONFIG_MODEM_SUPPORT */
-
-#ifdef CONFIG_VERSION_VARIABLE
-	{
-		setenv ("ver", version_string);  /* set version variable */
-	}
-#endif /* CONFIG_VERSION_VARIABLE */
-
-#ifdef CONFIG_SYS_HUSH_PARSER
-	u_boot_hush_start ();
-#endif
-
-#if defined(CONFIG_HUSH_INIT_VAR)
-	hush_init_var ();
-#endif
-
-#ifdef CONFIG_PREBOOT
-	if ((p = getenv ("preboot")) != NULL) {
-# ifdef CONFIG_AUTOBOOT_KEYED
-		int prev = disable_ctrlc(1);	/* disable Control C checking */
-# endif
-
-		run_command_list(p, -1, 0);
-
-# ifdef CONFIG_AUTOBOOT_KEYED
-		disable_ctrlc(prev);	/* restore Control C checking */
-# endif
-	}
-#endif /* CONFIG_PREBOOT */
-
-#if defined(CONFIG_UPDATE_TFTP)
-	update_tftp (0UL);
-#endif /* CONFIG_UPDATE_TFTP */
-
-#if defined(CONFIG_BOOTDELAY)
 	s = getenv ("bootdelay");
 	bootdelay = s ? (int)simple_strtol(s, NULL, 10) : CONFIG_BOOTDELAY;
 
@@ -473,26 +414,88 @@ void main_loop (void)
 	debug ("### main_loop: bootcmd=\"%s\"\n", s ? s : "<UNDEFINED>");
 
 	if (bootdelay != -1 && s && !abortboot(bootdelay)) {
-# ifdef CONFIG_AUTOBOOT_KEYED
+#ifdef CONFIG_AUTOBOOT_KEYED
 		int prev = disable_ctrlc(1);	/* disable Control C checking */
-# endif
+#endif
 
 		run_command_list(s, -1, 0);
 
-# ifdef CONFIG_AUTOBOOT_KEYED
+#ifdef CONFIG_AUTOBOOT_KEYED
 		disable_ctrlc(prev);	/* restore Control C checking */
-# endif
+#endif
 	}
 
-# ifdef CONFIG_MENUKEY
+#ifdef CONFIG_MENUKEY
 	if (menukey == CONFIG_MENUKEY) {
 		s = getenv("menucmd");
 		if (s)
 			run_command_list(s, -1, 0);
 	}
 #endif /* CONFIG_MENUKEY */
+}
 #endif /* CONFIG_BOOTDELAY */
 
+void main_loop(void)
+{
+#ifndef CONFIG_SYS_HUSH_PARSER
+	static char lastcommand[CONFIG_SYS_CBSIZE] = { 0, };
+	int len;
+	int rc = 1;
+	int flag;
+#endif
+#ifdef CONFIG_PREBOOT
+	char *p;
+#endif
+
+	bootstage_mark_name(BOOTSTAGE_ID_MAIN_LOOP, "main_loop");
+
+#ifdef CONFIG_MODEM_SUPPORT
+	debug("DEBUG: main_loop:   do_mdm_init=%d\n", do_mdm_init);
+	if (do_mdm_init) {
+		char *str = strdup(getenv("mdm_cmd"));
+		setenv("preboot", str);  /* set or delete definition */
+		if (str != NULL)
+			free(str);
+		mdm_init(); /* wait for modem connection */
+	}
+#endif  /* CONFIG_MODEM_SUPPORT */
+
+#ifdef CONFIG_VERSION_VARIABLE
+	{
+		setenv("ver", version_string);  /* set version variable */
+	}
+#endif /* CONFIG_VERSION_VARIABLE */
+
+#ifdef CONFIG_SYS_HUSH_PARSER
+	u_boot_hush_start();
+#endif
+
+#if defined(CONFIG_HUSH_INIT_VAR)
+	hush_init_var();
+#endif
+
+#ifdef CONFIG_PREBOOT
+	p = getenv("preboot");
+	if (p != NULL) {
+# ifdef CONFIG_AUTOBOOT_KEYED
+		int prev = disable_ctrlc(1);	/* disable Control C checking */
+# endif
+
+		run_command_list(p, -1, 0);
+
+# ifdef CONFIG_AUTOBOOT_KEYED
+		disable_ctrlc(prev);	/* restore Control C checking */
+# endif
+	}
+#endif /* CONFIG_PREBOOT */
+
+#if defined(CONFIG_UPDATE_TFTP)
+	update_tftp(0UL);
+#endif /* CONFIG_UPDATE_TFTP */
+
+#ifdef CONFIG_BOOTDELAY
+	process_boot_delay();
+#endif
 	/*
 	 * Main Loop for Monitor Command Processing
 	 */
