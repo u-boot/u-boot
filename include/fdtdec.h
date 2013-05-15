@@ -85,6 +85,7 @@ enum fdt_compat_id {
 	COMPAT_WOLFSON_WM8994_CODEC,	/* Wolfson WM8994 Sound Codec */
 	COMPAT_SAMSUNG_EXYNOS_SPI,	/* Exynos SPI */
 	COMPAT_GOOGLE_CROS_EC,		/* Google CROS_EC Protocol */
+	COMPAT_GOOGLE_CROS_EC_KEYB,	/* Google CROS_EC Keyboard */
 	COMPAT_SAMSUNG_EXYNOS_EHCI,	/* Exynos EHCI controller */
 	COMPAT_SAMSUNG_EXYNOS_USB_PHY,	/* Exynos phy controller for usb2.0 */
 	COMPAT_SAMSUNG_EXYNOS_TMU,	/* Exynos TMU */
