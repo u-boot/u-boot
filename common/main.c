@@ -89,10 +89,7 @@ extern void mdm_init(void); /* defined in board.c */
  */
 #if defined(CONFIG_BOOTDELAY)
 # if defined(CONFIG_AUTOBOOT_KEYED)
-#ifndef CONFIG_MENU
-static inline
-#endif
-int abortboot(int bootdelay)
+static int abortboot_keyed(int bootdelay)
 {
 	int abort = 0;
 	uint64_t etime = endtick(bootdelay);
@@ -211,10 +208,7 @@ int abortboot(int bootdelay)
 static int menukey = 0;
 #endif
 
-#ifndef CONFIG_MENU
-static inline
-#endif
-int abortboot(int bootdelay)
+static int abortboot_normal(int bootdelay)
 {
 	int abort = 0;
 	unsigned long ts;
@@ -271,6 +265,15 @@ int abortboot(int bootdelay)
 	return abort;
 }
 # endif	/* CONFIG_AUTOBOOT_KEYED */
+
+static int abortboot(int bootdelay)
+{
+#ifdef CONFIG_AUTOBOOT_KEYED
+	return abortboot_keyed(bootdelay);
+#else
+	return abortboot_normal(bootdelay);
+#endif
+}
 #endif	/* CONFIG_BOOTDELAY */
 
 /*
