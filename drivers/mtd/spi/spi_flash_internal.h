@@ -89,12 +89,10 @@ static inline int spi_flash_cmd_write_disable(struct spi_flash *flash)
 int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr);
 
 /* Program the bank address register */
-int spi_flash_cmd_bankaddr_write(struct spi_flash *flash,
-					u8 bank_sel, u8 idcode0);
+int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 bank_sel);
 
 /* Read the bank address register */
-int spi_flash_cmd_bankaddr_read(struct spi_flash *flash,
-					void *data, u8 idcode0);
+int spi_flash_cmd_bankaddr_read(struct spi_flash *flash, void *data);
 
 /*
  * Same as spi_flash_cmd_read() except it also claims/releases the SPI

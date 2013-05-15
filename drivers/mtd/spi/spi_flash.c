@@ -32,7 +32,7 @@ static int spi_flash_bank(struct spi_flash *flash, u32 addr, u8 *bank_sel)
 	if ((flash->spi->is_dual == 1) && (flash->spi->u_page == 1))
 		*bank_sel -= ((flash->size / 2) / SPI_FLASH_16MB_BOUN);
 
-	return spi_flash_cmd_bankaddr_write(flash, *bank_sel, flash->idcode0);
+	return spi_flash_cmd_bankaddr_write(flash, *bank_sel);
 }
 
 static int spi_flash_read_write(struct spi_slave *spi,
@@ -370,10 +370,9 @@ int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr)
 	return 0;
 }
 
-int spi_flash_cmd_bankaddr_write(struct spi_flash *flash,
-			u8 bank_sel, u8 idcode0)
+int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 bank_sel)
 {
-	u8 cmd;
+	u8 cmd, idcode0;
 	int ret;
 
 	if (flash->bank_curr == bank_sel) {
@@ -381,6 +380,7 @@ int spi_flash_cmd_bankaddr_write(struct spi_flash *flash,
 		return 0;
 	}
 
+	idcode0 = flash->idcode0;
 	if (idcode0 == 0x01) {
 		cmd = CMD_BANKADDR_BRWR;
 	} else if ((idcode0 == 0xef) || (idcode0 == 0x20)) {
@@ -413,9 +413,10 @@ int spi_flash_cmd_bankaddr_write(struct spi_flash *flash,
 	return 0;
 }
 
-int spi_flash_cmd_bankaddr_read(struct spi_flash *flash, void *data, u8 idcode0)
+int spi_flash_cmd_bankaddr_read(struct spi_flash *flash, void *data)
 {
 	u8 cmd;
+	u8 idcode0 = flash->idcode0;
 
 	if (idcode0 == 0x01) {
 		cmd = CMD_BANKADDR_BRRD;
@@ -594,8 +595,7 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 			(((flash->spi->is_dual == 1) ||
 			(flash->spi->is_dual == 2)) &&
 			((flash->size / 2) > SPI_FLASH_16MB_BOUN))) {
-		if (spi_flash_cmd_bankaddr_read(flash, &curr_bank,
-						flash->idcode0)) {
+		if (spi_flash_cmd_bankaddr_read(flash, &curr_bank)) {
 			debug("SF: fail to read bank addr register\n");
 			goto err_manufacturer_probe;
 		}
