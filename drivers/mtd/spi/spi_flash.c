@@ -176,11 +176,16 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 	u8 cmd[5];
 	u8 bank_sel;
 	u32 remain_len, read_len, read_addr;
+	u32 bank_boun;
 	int ret = -1;
 
 	/* Handle memory-mapped SPI */
 	if (flash->memory_map)
 		memcpy(data, flash->memory_map + offset, len);
+
+	bank_boun = SPI_FLASH_16MB_BOUN;
+	if (flash->spi->is_dual == 2)
+		bank_boun = SPI_FLASH_16MB_BOUN >> 1;
 
 	cmd[0] = CMD_READ_ARRAY_FAST;
 	cmd[sizeof(cmd)-1] = 0x00;
@@ -203,7 +208,7 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 			return ret;
 		}
 
-		remain_len = (SPI_FLASH_16MB_BOUN * (bank_sel + 1) - offset);
+		remain_len = (bank_boun * (bank_sel + 1) - offset);
 		if (len < remain_len)
 			read_len = len;
 		else
