@@ -28,26 +28,15 @@
 /* #define	DEBUG	*/
 
 #include <common.h>
-#include <watchdog.h>
 #include <command.h>
 #include <fdtdec.h>
-#include <malloc.h>
-#include <version.h>
-#ifdef CONFIG_MODEM_SUPPORT
-#include <malloc.h>		/* for free() prototype */
-#endif
-
-#ifdef CONFIG_SYS_HUSH_PARSER
 #include <hush.h>
-#endif
-
-#ifdef CONFIG_OF_CONTROL
-#include <fdtdec.h>
-#endif
-
-#include <post.h>
-#include <linux/ctype.h>
+#include <malloc.h>
 #include <menu.h>
+#include <post.h>
+#include <version.h>
+#include <watchdog.h>
+#include <linux/ctype.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
