@@ -352,18 +352,14 @@ static void process_boot_delay(void)
 #ifdef CONFIG_BOOTCOUNT_LIMIT
 	unsigned long bootcount = 0;
 	unsigned long bootlimit = 0;
-	char *bcs;
-	char bcs_set[16];
 #endif /* CONFIG_BOOTCOUNT_LIMIT */
 
 #ifdef CONFIG_BOOTCOUNT_LIMIT
 	bootcount = bootcount_load();
 	bootcount++;
 	bootcount_store (bootcount);
-	sprintf (bcs_set, "%lu", bootcount);
-	setenv ("bootcount", bcs_set);
-	bcs = getenv ("bootlimit");
-	bootlimit = bcs ? simple_strtoul (bcs, NULL, 10) : 0;
+	setenv_ulong("bootcount", bootcount);
+	bootlimit = getenv_ulong("bootlimit", 10, 0);
 #endif /* CONFIG_BOOTCOUNT_LIMIT */
 
 	s = getenv ("bootdelay");
