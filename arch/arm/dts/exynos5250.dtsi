@@ -202,4 +202,6 @@
 		interrupts = <0 78 0>;
 	};
 
+	gpio: gpio {
+	};
 };
