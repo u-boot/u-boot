@@ -232,12 +232,13 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 	return ret;
 }
 
-int spi_flash_cmd_poll_bit(struct spi_flash *flash, unsigned long timeout,
-			   u8 cmd, u8 poll_bit)
+int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
 {
 	unsigned long timebase;
 	int ret;
 	u8 status;
+	u8 poll_bit = STATUS_WIP;
+	u8 cmd = CMD_READ_STATUS;
 
 	timebase = get_timer(0);
 	do {
@@ -260,12 +261,6 @@ int spi_flash_cmd_poll_bit(struct spi_flash *flash, unsigned long timeout,
 	/* Timed out */
 	debug("SF: time out!\n");
 	return -1;
-}
-
-int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
-{
-	return spi_flash_cmd_poll_bit(flash, timeout,
-		CMD_READ_STATUS, STATUS_WIP);
 }
 
 int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
