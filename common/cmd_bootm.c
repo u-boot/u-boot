@@ -336,12 +336,15 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 	ulong image_len = os.image_len;
 	__maybe_unused uint unc_len = CONFIG_SYS_BOOTM_LEN;
 	int no_overlap = 0;
+	void *load_buf, *image_buf;
 #if defined(CONFIG_LZMA) || defined(CONFIG_LZO)
 	int ret;
 #endif /* defined(CONFIG_LZMA) || defined(CONFIG_LZO) */
 
 	const char *type_name = genimg_get_type_name(os.type);
 
+	load_buf = map_sysmem(load, image_len);
+	image_buf = map_sysmem(image_start, image_len);
 	switch (comp) {
 	case IH_COMP_NONE:
 		if (load == blob_start || load == image_start) {
@@ -349,8 +352,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 			no_overlap = 1;
 		} else {
 			printf("   Loading %s ... ", type_name);
-			memmove_wd((void *)load, (void *)image_start,
-					image_len, CHUNKSZ);
+			memmove_wd(load_buf, image_buf, image_len, CHUNKSZ);
 		}
 		*load_end = load + image_len;
 		puts("OK\n");
@@ -358,8 +360,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 #ifdef CONFIG_GZIP
 	case IH_COMP_GZIP:
 		printf("   Uncompressing %s ... ", type_name);
-		if (gunzip((void *)load, unc_len,
-				(uchar *)image_start, &image_len) != 0) {
+		if (gunzip(load_buf, unc_len, image_buf, &image_len) != 0) {
 			puts("GUNZIP: uncompress, out-of-mem or overwrite "
 				"error - must RESET board to recover\n");
 			if (boot_progress)
@@ -378,9 +379,9 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 		 * use slower decompression algorithm which requires
 		 * at most 2300 KB of memory.
 		 */
-		int i = BZ2_bzBuffToBuffDecompress((char *)load,
-					&unc_len, (char *)image_start, image_len,
-					CONFIG_SYS_MALLOC_LEN < (4096 * 1024), 0);
+		int i = BZ2_bzBuffToBuffDecompress(load_buf, &unc_len,
+			image_buf, image_len,
+			CONFIG_SYS_MALLOC_LEN < (4096 * 1024), 0);
 		if (i != BZ_OK) {
 			printf("BUNZIP2: uncompress or overwrite error %d "
 				"- must RESET board to recover\n", i);
@@ -397,9 +398,8 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 		SizeT lzma_len = unc_len;
 		printf("   Uncompressing %s ... ", type_name);
 
-		ret = lzmaBuffToBuffDecompress(
-			(unsigned char *)load, &lzma_len,
-			(unsigned char *)image_start, image_len);
+		ret = lzmaBuffToBuffDecompress(load_buf, &lzma_len,
+					       image_buf, image_len);
 		unc_len = lzma_len;
 		if (ret != SZ_OK) {
 			printf("LZMA: uncompress or overwrite error %d "
@@ -415,9 +415,8 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 	case IH_COMP_LZO:
 		printf("   Uncompressing %s ... ", type_name);
 
-		ret = lzop_decompress((const unsigned char *)image_start,
-					  image_len, (unsigned char *)load,
-					  &unc_len);
+		ret = lzop_decompress(image_buf, image_len, load_buf,
+				      &unc_len);
 		if (ret != LZO_E_OK) {
 			printf("LZO: uncompress or overwrite error %d "
 			      "- must RESET board to recover\n", ret);
