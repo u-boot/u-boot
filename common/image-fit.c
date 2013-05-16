@@ -351,10 +351,13 @@ void fit_image_print(const void *fit, int image_noffset, const char *p)
 
 #ifndef USE_HOSTCC
 	printf("%s  Data Start:   ", p);
-	if (ret)
+	if (ret) {
 		printf("unavailable\n");
-	else
-		printf("0x%08lx\n", (ulong)data);
+	} else {
+		void *vdata = (void *)data;
+
+		printf("0x%08lx\n", (ulong)map_to_sysmem(vdata));
+	}
 #endif
 
 	printf("%s  Data Size:    ", p);
