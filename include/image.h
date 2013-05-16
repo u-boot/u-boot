@@ -402,6 +402,13 @@ void genimg_print_size(uint32_t size);
 #endif
 void genimg_print_time(time_t timestamp);
 
+/* What to do with a image load address ('load = <> 'in the FIT) */
+enum fit_load_op {
+	FIT_LOAD_IGNORED,	/* Ignore load address */
+	FIT_LOAD_OPTIONAL,	/* Can be provided, but optional */
+	FIT_LOAD_REQUIRED,	/* Must be provided */
+};
+
 #ifndef USE_HOSTCC
 /* Image format types, returned by _get_format() routine */
 #define IMAGE_FORMAT_INVALID	0x00
@@ -414,6 +421,68 @@ ulong genimg_get_image(ulong img_addr);
 
 int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 		uint8_t arch, ulong *rd_start, ulong *rd_end);
+
+/**
+ * fit_image_load() - load an image from a FIT
+ *
+ * This deals with all aspects of loading an image from a FIT, including
+ * selecting the right image based on configuration, verifying it, printing
+ * out progress messages, checking the type/arch/os and optionally copying it
+ * to the right load address.
+ *
+ * @param images	Boot images structure
+ * @param prop_name	Property name to look up (FIT_..._PROP)
+ * @param addr		Address of FIT in memory
+ * @param fit_unamep	On entry this is the requested image name
+ *			(e.g. "kernel@1") or NULL to use the default. On exit
+ *			points to the selected image name
+ * @param fit_uname_config	Requested configuration name, or NULL for the
+ *			default
+ * @param arch		Expected architecture (IH_ARCH_...)
+ * @param image_type	Required image type (IH_TYPE_...). If this is
+ *			IH_TYPE_KERNEL then we allow IH_TYPE_KERNEL_NOLOAD
+ *			also.
+ * @param bootstage_id	ID of starting bootstage to use for progress updates.
+ *			This will be added to the BOOTSTAGE_SUB values when
+ *			calling bootstage_mark()
+ * @param load_op	Decribes what to do with the load address
+ * @param datap		Returns address of loaded image
+ * @param lenp		Returns length of loaded image
+ */
+int fit_image_load(bootm_headers_t *images, const char *prop_name, ulong addr,
+		   const char **fit_unamep, const char *fit_uname_config,
+		   int arch, int image_type, int bootstage_id,
+		   enum fit_load_op load_op, ulong *datap, ulong *lenp);
+
+/**
+ * fit_get_node_from_config() - Look up an image a FIT by type
+ *
+ * This looks in the selected conf@ node (images->fit_uname_cfg) for a
+ * particular image type (e.g. "kernel") and then finds the image that is
+ * referred to.
+ *
+ * For example, for something like:
+ *
+ * images {
+ *	kernel@1 {
+ *		...
+ *	};
+ * };
+ * configurations {
+ *	conf@1 {
+ *		kernel = "kernel@1";
+ *	};
+ * };
+ *
+ * the function will return the node offset of the kernel@1 node, assuming
+ * that conf@1 is the chosen configuration.
+ *
+ * @param images	Boot images structure
+ * @param prop_name	Property name to look up (FIT_..._PROP)
+ * @param addr		Address of FIT in memory
+ */
+int fit_get_node_from_config(bootm_headers_t *images, const char *prop_name,
+			ulong addr);
 
 int boot_get_fdt(int flag, int argc, char * const argv[],
 		bootm_headers_t *images, char **of_flat_tree, ulong *of_size);
@@ -697,6 +766,7 @@ int fit_set_timestamp(void *fit, int noffset, time_t timestamp);
 int fit_add_verification_data(void *fit);
 
 int fit_image_verify(const void *fit, int noffset);
+int fit_config_verify(const void *fit, int conf_noffset);
 int fit_all_image_verify(const void *fit);
 int fit_image_check_os(const void *fit, int noffset, uint8_t os);
 int fit_image_check_arch(const void *fit, int noffset, uint8_t arch);
@@ -732,12 +802,35 @@ int fit_check_ramdisk(const void *fit, int os_noffset,
 int calculate_hash(const void *data, int data_len, const char *algo,
 			uint8_t *value, int *value_len);
 
-#ifndef USE_HOSTCC
+/*
+ * At present we only support verification on the device
+ */
+#if defined(CONFIG_FIT_SIGNATURE)
+# ifdef USE_HOSTCC
+#  define IMAGE_ENABLE_VERIFY	0
+#else
+#  define IMAGE_ENABLE_VERIFY	1
+# endif
+#else
+# define IMAGE_ENABLE_VERIFY	0
+#endif
+
+#ifdef USE_HOSTCC
+# define gd_fdt_blob()		NULL
+#else
+# define gd_fdt_blob()		(gd->fdt_blob)
+#endif
+
+#ifdef CONFIG_FIT_BEST_MATCH
+#define IMAGE_ENABLE_BEST_MATCH	1
+#else
+#define IMAGE_ENABLE_BEST_MATCH	0
+#endif
+
 static inline int fit_image_check_target_arch(const void *fdt, int node)
 {
 	return fit_image_check_arch(fdt, node, IH_ARCH_DEFAULT);
 }
-#endif /* USE_HOSTCC */
 
 #ifdef CONFIG_FIT_VERBOSE
 #define fit_unsupported(msg)	printf("! %s:%d " \
