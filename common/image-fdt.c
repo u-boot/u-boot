@@ -211,51 +211,11 @@ error:
 	return 1;
 }
 
-#if defined(CONFIG_FIT)
-/**
- * fit_check_fdt - verify FIT format FDT subimage
- * @fit_hdr: pointer to the FIT  header
- * fdt_noffset: FDT subimage node offset within FIT image
- * @verify: data CRC verification flag
- *
- * fit_check_fdt() verifies integrity of the FDT subimage and from
- * specified FIT image.
- *
- * returns:
- *     1, on success
- *     0, on failure
- */
-static int fit_check_fdt(const void *fit, int fdt_noffset, int verify)
-{
-	fit_image_print(fit, fdt_noffset, "   ");
-
-	if (verify) {
-		puts("   Verifying Hash Integrity ... ");
-		if (!fit_image_verify(fit, fdt_noffset)) {
-			fdt_error("Bad Data Hash");
-			return 0;
-		}
-		puts("OK\n");
-	}
-
-	if (!fit_image_check_type(fit, fdt_noffset, IH_TYPE_FLATDT)) {
-		fdt_error("Not a FDT image");
-		return 0;
-	}
-
-	if (!fit_image_check_comp(fit, fdt_noffset, IH_COMP_NONE)) {
-		fdt_error("FDT image is compressed");
-		return 0;
-	}
-
-	return 1;
-}
-#endif
-
 /**
  * boot_get_fdt - main fdt handling routine
  * @argc: command argument count
  * @argv: command argument list
+ * @arch: architecture (IH_ARCH_...)
  * @images: pointer to the bootm images structure
  * @of_flat_tree: pointer to a char* variable, will hold fdt start address
  * @of_size: pointer to a ulong variable, will hold fdt length
@@ -273,24 +233,20 @@ static int fit_check_fdt(const void *fit, int fdt_noffset, int verify)
  *     1, if fdt image is found but corrupted
  *     of_flat_tree and of_size are set to 0 if no fdt exists
  */
-int boot_get_fdt(int flag, int argc, char * const argv[],
+int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 		bootm_headers_t *images, char **of_flat_tree, ulong *of_size)
 {
 	const image_header_t *fdt_hdr;
 	ulong		fdt_addr;
 	char		*fdt_blob = NULL;
 	ulong		image_start, image_data, image_end;
-	ulong		load_start, load_end;
+	ulong		load, load_end;
 	void		*buf;
 #if defined(CONFIG_FIT)
-	void		*fit_hdr;
 	const char	*fit_uname_config = NULL;
 	const char	*fit_uname_fdt = NULL;
 	ulong		default_addr;
-	int		cfg_noffset;
 	int		fdt_noffset;
-	const void	*data;
-	size_t		size;
 #endif
 
 	*of_flat_tree = NULL;
@@ -333,31 +289,15 @@ int boot_get_fdt(int flag, int argc, char * const argv[],
 			 * command argument
 			 */
 			fdt_addr = map_to_sysmem(images->fit_hdr_os);
-			fit_uname_config = images->fit_uname_cfg;
-			debug("*  fdt: using config '%s' from image at 0x%08lx\n",
-			      fit_uname_config, fdt_addr);
-
-			/*
-			 * Check whether configuration has FDT blob defined,
-			 * if not quit silently.
-			 */
-			fit_hdr = images->fit_hdr_os;
-			cfg_noffset = fit_conf_get_node(fit_hdr,
-					fit_uname_config);
-			if (cfg_noffset < 0) {
-				debug("*  fdt: no such config\n");
+			fdt_noffset = fit_get_node_from_config(images,
+							       FIT_FDT_PROP,
+							       fdt_addr);
+			if (fdt_noffset == -ENOLINK)
 				return 0;
-			}
-
-			fdt_noffset = fit_conf_get_fdt_node(fit_hdr,
-					cfg_noffset);
-			if (fdt_noffset < 0) {
-				debug("*  fdt: no fdt in config\n");
-				return 0;
-			}
+			else if (fdt_noffset < 0)
+				return 1;
 		}
 #endif
-
 		debug("## Checking for 'FDT'/'FDT Image' at %08lx\n",
 		      fdt_addr);
 
@@ -387,29 +327,28 @@ int boot_get_fdt(int flag, int argc, char * const argv[],
 			image_data = (ulong)image_get_data(fdt_hdr);
 			image_end = image_get_image_end(fdt_hdr);
 
-			load_start = image_get_load(fdt_hdr);
-			load_end = load_start + image_get_data_size(fdt_hdr);
+			load = image_get_load(fdt_hdr);
+			load_end = load + image_get_data_size(fdt_hdr);
 
-			if (load_start == image_start ||
-			    load_start == image_data) {
+			if (load == image_start ||
+			    load == image_data) {
 				fdt_blob = (char *)image_data;
 				break;
 			}
 
-			if ((load_start < image_end) &&
-			    (load_end > image_start)) {
+			if ((load < image_end) && (load_end > image_start)) {
 				fdt_error("fdt overwritten");
 				goto error;
 			}
 
 			debug("   Loading FDT from 0x%08lx to 0x%08lx\n",
-			      image_data, load_start);
+			      image_data, load);
 
-			memmove((void *)load_start,
+			memmove((void *)load,
 				(void *)image_data,
 				image_get_data_size(fdt_hdr));
 
-			fdt_blob = (char *)load_start;
+			fdt_addr = load;
 			break;
 		case IMAGE_FORMAT_FIT:
 			/*
@@ -420,107 +359,20 @@ int boot_get_fdt(int flag, int argc, char * const argv[],
 #if defined(CONFIG_FIT)
 			/* check FDT blob vs FIT blob */
 			if (fit_check_format(buf)) {
-				/*
-				 * FIT image
-				 */
-				fit_hdr = buf;
-				printf("## Flattened Device Tree from FIT Image at %08lx\n",
-				       fdt_addr);
+				ulong load, len;
 
-				if (!fit_uname_fdt) {
-					/*
-					 * no FDT blob image node unit name,
-					 * try to get config node first. If
-					 * config unit node name is NULL
-					 * fit_conf_get_node() will try to
-					 * find default config node
-					 */
-					cfg_noffset = fit_conf_get_node(fit_hdr,
-							fit_uname_config);
+				fdt_noffset = fit_image_load(images,
+					FIT_FDT_PROP,
+					fdt_addr, &fit_uname_fdt,
+					fit_uname_config,
+					arch, IH_TYPE_FLATDT,
+					BOOTSTAGE_ID_FIT_FDT_START,
+					FIT_LOAD_OPTIONAL, &load, &len);
 
-					if (cfg_noffset < 0) {
-						fdt_error("Could not find configuration node\n");
-						goto error;
-					}
-
-					fit_uname_config = fdt_get_name(fit_hdr,
-							cfg_noffset, NULL);
-					printf("   Using '%s' configuration\n",
-					       fit_uname_config);
-
-					fdt_noffset = fit_conf_get_fdt_node(
-							fit_hdr,
-							cfg_noffset);
-					fit_uname_fdt = fit_get_name(fit_hdr,
-							fdt_noffset, NULL);
-				} else {
-					/*
-					 * get FDT component image node
-					 * offset
-					 */
-					fdt_noffset = fit_image_get_node(
-								fit_hdr,
-								fit_uname_fdt);
-				}
-				if (fdt_noffset < 0) {
-					fdt_error("Could not find subimage node\n");
-					goto error;
-				}
-
-				printf("   Trying '%s' FDT blob subimage\n",
-				       fit_uname_fdt);
-
-				if (!fit_check_fdt(fit_hdr, fdt_noffset,
-						   images->verify))
-					goto error;
-
-				/* get ramdisk image data address and length */
-				if (fit_image_get_data(fit_hdr, fdt_noffset,
-						       &data, &size)) {
-					fdt_error("Could not find FDT subimage data");
-					goto error;
-				}
-
-				/*
-				 * verify that image data is a proper FDT
-				 * blob
-				 */
-				if (fdt_check_header((char *)data) != 0) {
-					fdt_error("Subimage data is not a FTD");
-					goto error;
-				}
-
-				/*
-				 * move image data to the load address,
-				 * make sure we don't overwrite initial image
-				 */
-				image_start = (ulong)fit_hdr;
-				image_end = fit_get_end(fit_hdr);
-
-				if (fit_image_get_load(fit_hdr, fdt_noffset,
-						       &load_start) == 0) {
-					load_end = load_start + size;
-
-					if ((load_start < image_end) &&
-					    (load_end > image_start)) {
-						fdt_error("FDT overwritten");
-						goto error;
-					}
-
-					printf("   Loading FDT from 0x%08lx to 0x%08lx\n",
-					       (ulong)data, load_start);
-
-					memmove((void *)load_start,
-						(void *)data, size);
-
-					fdt_blob = (char *)load_start;
-				} else {
-					fdt_blob = (char *)data;
-				}
-
-				images->fit_hdr_fdt = fit_hdr;
+				images->fit_hdr_fdt = map_sysmem(fdt_addr, 0);
 				images->fit_uname_fdt = fit_uname_fdt;
 				images->fit_noffset_fdt = fdt_noffset;
+				fdt_addr = load;
 				break;
 			} else
 #endif
@@ -528,7 +380,6 @@ int boot_get_fdt(int flag, int argc, char * const argv[],
 				/*
 				 * FDT blob
 				 */
-				fdt_blob = buf;
 				debug("*  fdt: raw FDT blob\n");
 				printf("## Flattened Device Tree blob at %08lx\n",
 				       (long)fdt_addr);
@@ -539,8 +390,8 @@ int boot_get_fdt(int flag, int argc, char * const argv[],
 			goto error;
 		}
 
-		printf("   Booting using the fdt blob at 0x%p\n", fdt_blob);
-
+		printf("   Booting using the fdt blob at %#08lx\n", fdt_addr);
+		fdt_blob = map_sysmem(fdt_addr, 0);
 	} else if (images->legacy_hdr_valid &&
 			image_check_type(&images->legacy_hdr_os_copy,
 					 IH_TYPE_MULTI)) {

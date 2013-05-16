@@ -1371,25 +1371,6 @@ int fit_conf_get_kernel_node(const void *fit, int noffset)
 }
 
 /**
- * fit_conf_get_fdt_node - get fdt image node offset that corresponds to
- * a given configuration
- * @fit: pointer to the FIT format image header
- * @noffset: configuration node offset
- *
- * fit_conf_get_fdt_node() retrives fdt image node unit name from
- * configuration FIT_KERNEL_PROP property and translates it to the node
- * offset.
- *
- * returns:
- *     image node offset when found (>=0)
- *     negative number on failure (FDT_ERR_* code)
- */
-int fit_conf_get_fdt_node(const void *fit, int noffset)
-{
-	return fit_conf_get_prop_node(fit, noffset, FIT_FDT_PROP);
-}
-
-/**
  * fit_conf_print - prints out the FIT configuration details
  * @fit: pointer to the FIT format image header
  * @noffset: offset of the configuration node

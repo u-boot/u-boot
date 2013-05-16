@@ -484,8 +484,9 @@ int fit_image_load(bootm_headers_t *images, const char *prop_name, ulong addr,
 int fit_get_node_from_config(bootm_headers_t *images, const char *prop_name,
 			ulong addr);
 
-int boot_get_fdt(int flag, int argc, char * const argv[],
-		bootm_headers_t *images, char **of_flat_tree, ulong *of_size);
+int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
+		 bootm_headers_t *images,
+		 char **of_flat_tree, ulong *of_size);
 void boot_fdt_add_mem_rsv_regions(struct lmb *lmb, void *fdt_blob);
 int boot_relocate_fdt(struct lmb *lmb, char **of_flat_tree, ulong *of_size);
 
@@ -777,7 +778,6 @@ int fit_check_format(const void *fit);
 int fit_conf_find_compat(const void *fit, const void *fdt);
 int fit_conf_get_node(const void *fit, const char *conf_uname);
 int fit_conf_get_kernel_node(const void *fit, int noffset);
-int fit_conf_get_fdt_node(const void *fit, int noffset);
 
 /**
  * fit_conf_get_prop_node() - Get node refered to by a configuration
