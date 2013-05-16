@@ -51,6 +51,7 @@
 
 #include <u-boot/md5.h>
 #include <sha1.h>
+#include <asm/errno.h>
 #include <asm/io.h>
 
 #ifdef CONFIG_CMD_BDI
@@ -810,14 +811,10 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 	char *end;
 #endif
 #if defined(CONFIG_FIT)
-	void		*fit_hdr;
 	const char	*fit_uname_config = NULL;
 	const char	*fit_uname_ramdisk = NULL;
 	ulong		default_addr;
 	int		rd_noffset;
-	int		cfg_noffset;
-	const void	*data;
-	size_t		size;
 #endif
 
 	*rd_start = 0;
@@ -865,32 +862,16 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 #if defined(CONFIG_FIT)
 		} else {
 			/* use FIT configuration provided in first bootm
-			 * command argument
+			 * command argument. If the property is not defined,
+			 * quit silently.
 			 */
 			rd_addr = map_to_sysmem(images->fit_hdr_os);
-			fit_uname_config = images->fit_uname_cfg;
-			debug("*  ramdisk: using config '%s' from image "
-					"at 0x%08lx\n",
-					fit_uname_config, rd_addr);
-
-			/*
-			 * Check whether configuration has ramdisk defined,
-			 * if not, don't try to use it, quit silently.
-			 */
-			fit_hdr = images->fit_hdr_os;
-			cfg_noffset = fit_conf_get_node(fit_hdr,
-							fit_uname_config);
-			if (cfg_noffset < 0) {
-				debug("*  ramdisk: no such config\n");
-				return 1;
-			}
-
-			rd_noffset = fit_conf_get_ramdisk_node(fit_hdr,
-								cfg_noffset);
-			if (rd_noffset < 0) {
-				debug("*  ramdisk: no ramdisk in config\n");
+			rd_noffset = fit_get_node_from_config(images,
+					FIT_RAMDISK_PROP, rd_addr);
+			if (rd_noffset == -ENOLINK)
 				return 0;
-			}
+			else if (rd_noffset < 0)
+				return 1;
 		}
 #endif
 
@@ -921,87 +902,16 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 			break;
 #if defined(CONFIG_FIT)
 		case IMAGE_FORMAT_FIT:
-			fit_hdr = buf;
-			printf("## Loading init Ramdisk from FIT "
-					"Image at %08lx ...\n", rd_addr);
-
-			bootstage_mark(BOOTSTAGE_ID_FIT_RD_FORMAT);
-			if (!fit_check_format(fit_hdr)) {
-				puts("Bad FIT ramdisk image format!\n");
-				bootstage_error(
-					BOOTSTAGE_ID_FIT_RD_FORMAT);
-				return 1;
-			}
-			bootstage_mark(BOOTSTAGE_ID_FIT_RD_FORMAT_OK);
-
-			if (!fit_uname_ramdisk) {
-				/*
-				 * no ramdisk image node unit name, try to get config
-				 * node first. If config unit node name is NULL
-				 * fit_conf_get_node() will try to find default config node
-				 */
-				bootstage_mark(
-					BOOTSTAGE_ID_FIT_RD_NO_UNIT_NAME);
-				cfg_noffset = fit_conf_get_node(fit_hdr,
-							fit_uname_config);
-				if (cfg_noffset < 0) {
-					puts("Could not find configuration "
-						"node\n");
-					bootstage_error(
-					BOOTSTAGE_ID_FIT_RD_NO_UNIT_NAME);
-					return 1;
-				}
-				fit_uname_config = fdt_get_name(fit_hdr,
-							cfg_noffset, NULL);
-				printf("   Using '%s' configuration\n",
-					fit_uname_config);
-
-				rd_noffset = fit_conf_get_ramdisk_node(fit_hdr,
-							cfg_noffset);
-				fit_uname_ramdisk = fit_get_name(fit_hdr,
-							rd_noffset, NULL);
-			} else {
-				/* get ramdisk component image node offset */
-				bootstage_mark(
-					BOOTSTAGE_ID_FIT_RD_UNIT_NAME);
-				rd_noffset = fit_image_get_node(fit_hdr,
-						fit_uname_ramdisk);
-			}
-			if (rd_noffset < 0) {
-				puts("Could not find subimage node\n");
-				bootstage_error(BOOTSTAGE_ID_FIT_RD_SUBNODE);
-				return 1;
-			}
-
-			printf("   Trying '%s' ramdisk subimage\n",
-				fit_uname_ramdisk);
-
-			bootstage_mark(BOOTSTAGE_ID_FIT_RD_CHECK);
-			if (!fit_check_ramdisk(fit_hdr, rd_noffset, arch,
-						images->verify))
+			rd_noffset = fit_image_load(images, FIT_RAMDISK_PROP,
+					rd_addr, &fit_uname_ramdisk,
+					fit_uname_config, arch,
+					IH_TYPE_RAMDISK,
+					BOOTSTAGE_ID_FIT_RD_START,
+					FIT_LOAD_REQUIRED, &rd_data, &rd_len);
+			if (rd_noffset < 0)
 				return 1;
 
-			/* get ramdisk image data address and length */
-			if (fit_image_get_data(fit_hdr, rd_noffset, &data,
-						&size)) {
-				puts("Could not find ramdisk subimage data!\n");
-				bootstage_error(BOOTSTAGE_ID_FIT_RD_GET_DATA);
-				return 1;
-			}
-			bootstage_mark(BOOTSTAGE_ID_FIT_RD_GET_DATA_OK);
-
-			rd_data = (ulong)data;
-			rd_len = size;
-
-			if (fit_image_get_load(fit_hdr, rd_noffset, &rd_load)) {
-				puts("Can't get ramdisk subimage load "
-					"address!\n");
-				bootstage_error(BOOTSTAGE_ID_FIT_RD_LOAD);
-				return 1;
-			}
-			bootstage_mark(BOOTSTAGE_ID_FIT_RD_LOAD);
-
-			images->fit_hdr_rd = fit_hdr;
+			images->fit_hdr_rd = map_sysmem(rd_addr, 0);
 			images->fit_uname_rd = fit_uname_ramdisk;
 			images->fit_noffset_rd = rd_noffset;
 			break;

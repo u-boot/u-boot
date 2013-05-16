@@ -1371,25 +1371,6 @@ int fit_conf_get_kernel_node(const void *fit, int noffset)
 }
 
 /**
- * fit_conf_get_ramdisk_node - get ramdisk image node offset that corresponds to
- * a given configuration
- * @fit: pointer to the FIT format image header
- * @noffset: configuration node offset
- *
- * fit_conf_get_ramdisk_node() retrives ramdisk image node unit name from
- * configuration FIT_KERNEL_PROP property and translates it to the node
- * offset.
- *
- * returns:
- *     image node offset when found (>=0)
- *     negative number on failure (FDT_ERR_* code)
- */
-int fit_conf_get_ramdisk_node(const void *fit, int noffset)
-{
-	return fit_conf_get_prop_node(fit, noffset, FIT_RAMDISK_PROP);
-}
-
-/**
  * fit_conf_get_fdt_node - get fdt image node offset that corresponds to
  * a given configuration
  * @fit: pointer to the FIT format image header
@@ -1465,49 +1446,6 @@ int fit_image_select(const void *fit, int rd_noffset, int verify)
 	}
 
 	return 0;
-}
-
-/**
- * fit_check_ramdisk - verify FIT format ramdisk subimage
- * @fit_hdr: pointer to the FIT ramdisk header
- * @rd_noffset: ramdisk subimage node offset within FIT image
- * @arch: requested ramdisk image architecture type
- * @verify: data CRC verification flag
- *
- * fit_check_ramdisk() verifies integrity of the ramdisk subimage and from
- * specified FIT image.
- *
- * returns:
- *     1, on success
- *     0, on failure
- */
-int fit_check_ramdisk(const void *fit, int rd_noffset, uint8_t arch,
-			int verify)
-{
-	fit_image_print(fit, rd_noffset, "   ");
-
-	if (verify) {
-		puts("   Verifying Hash Integrity ... ");
-		if (!fit_image_verify(fit, rd_noffset)) {
-			puts("Bad Data Hash\n");
-			bootstage_error(BOOTSTAGE_ID_FIT_RD_HASH);
-			return 0;
-		}
-		puts("OK\n");
-	}
-
-	bootstage_mark(BOOTSTAGE_ID_FIT_RD_CHECK_ALL);
-	if (!fit_image_check_os(fit, rd_noffset, IH_OS_LINUX) ||
-	    !fit_image_check_arch(fit, rd_noffset, arch) ||
-	    !fit_image_check_type(fit, rd_noffset, IH_TYPE_RAMDISK)) {
-		printf("No Linux %s Ramdisk Image\n",
-		       genimg_get_arch_name(arch));
-		bootstage_error(BOOTSTAGE_ID_FIT_RD_CHECK_ALL);
-		return 0;
-	}
-
-	bootstage_mark(BOOTSTAGE_ID_FIT_RD_CHECK_ALL_OK);
-	return 1;
 }
 
 int fit_get_node_from_config(bootm_headers_t *images, const char *prop_name,

@@ -777,7 +777,6 @@ int fit_check_format(const void *fit);
 int fit_conf_find_compat(const void *fit, const void *fdt);
 int fit_conf_get_node(const void *fit, const char *conf_uname);
 int fit_conf_get_kernel_node(const void *fit, int noffset);
-int fit_conf_get_ramdisk_node(const void *fit, int noffset);
 int fit_conf_get_fdt_node(const void *fit, int noffset);
 
 /**
