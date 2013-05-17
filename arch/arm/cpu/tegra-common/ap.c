@@ -92,6 +92,7 @@ int tegra_get_chip_sku(void)
 	case CHIPID_TEGRA114:
 		switch (sku_id) {
 		case SKU_ID_T114_ENG:
+		case SKU_ID_T114_1:
 			return TEGRA_SOC_T114;
 		}
 		break;
