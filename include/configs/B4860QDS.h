@@ -236,7 +236,7 @@ unsigned long get_board_ddr_clk(void);
 /* NOR Flash Timing Params */
 #define CONFIG_SYS_NOR_CSOR	CSOR_NOR_ADM_SHIFT(4)
 #define CONFIG_SYS_NOR_FTIM0	(FTIM0_NOR_TACSE(0x01) | \
-				FTIM0_NOR_TEADC(0x01) | \
+				FTIM0_NOR_TEADC(0x04) | \
 				FTIM0_NOR_TEAHC(0x20))
 #define CONFIG_SYS_NOR_FTIM1	(FTIM1_NOR_TACO(0x35) | \
 				FTIM1_NOR_TRAD_NOR(0x1A) |\
