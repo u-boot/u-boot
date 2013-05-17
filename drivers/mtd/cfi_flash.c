@@ -187,7 +187,7 @@ flash_info_t *flash_get_info(ulong base)
 	flash_info_t *info = NULL;
 
 	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
-		info = & flash_info[i];
+		info = &flash_info[i];
 		if (info->size && info->start[0] <= base &&
 		    base <= info->start[0] + info->size - 1)
 			break;
