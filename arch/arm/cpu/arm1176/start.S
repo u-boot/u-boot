@@ -112,10 +112,6 @@ _TEXT_BASE:
 _bss_start_ofs:
 	.word __bss_start - _start
 
-.globl _image_copy_end_ofs
-_image_copy_end_ofs:
-	.word __image_copy_end - _start
-
 .globl _bss_end_ofs
 _bss_end_ofs:
 	.word __bss_end - _start
@@ -225,6 +221,7 @@ skip_tcmdisable:
 
 /*------------------------------------------------------------------------------*/
 
+#ifndef CONFIG_SPL_BUILD
 /*
  * void relocate_code(addr_moni)
  *
@@ -247,7 +244,6 @@ copy_loop:
 	cmp	r0, r2			/* until source end address [r2]    */
 	blo	copy_loop
 
-#ifndef CONFIG_SPL_BUILD
 	/*
 	 * fix .rel.dyn relocations
 	 */
@@ -285,18 +281,21 @@ fixnext:
 	add	r2, r2, #8		/* each rel.dyn entry is 8 bytes */
 	cmp	r2, r3
 	blo	fixloop
-#endif
 
 relocate_done:
 
 	bx	lr
 
+_image_copy_end_ofs:
+	.word __image_copy_end - _start
 _rel_dyn_start_ofs:
 	.word __rel_dyn_start - _start
 _rel_dyn_end_ofs:
 	.word __rel_dyn_end - _start
 _dynsym_start_ofs:
 	.word __dynsym_start - _start
+
+#endif
 
 	.globl	c_runtime_cpu_setup
 c_runtime_cpu_setup:

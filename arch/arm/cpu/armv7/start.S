@@ -94,10 +94,6 @@ _TEXT_BASE:
 _bss_start_ofs:
 	.word __bss_start - _start
 
-.globl _image_copy_end_ofs
-_image_copy_end_ofs:
-	.word __image_copy_end - _start
-
 .globl _bss_end_ofs
 _bss_end_ofs:
 	.word __bss_end - _start
@@ -231,6 +227,8 @@ relocate_done:
 
 	bx	lr
 
+_image_copy_end_ofs:
+	.word __image_copy_end - _start
 _rel_dyn_start_ofs:
 	.word __rel_dyn_start - _start
 _rel_dyn_end_ofs:
