@@ -39,6 +39,7 @@ GLCOBJS	+= div0.o
 SOBJS-y += crt0.o
 
 ifndef CONFIG_SPL_BUILD
+SOBJS-y += relocate.o
 ifndef CONFIG_SYS_GENERIC_BOARD
 COBJS-y	+= board.o
 endif
