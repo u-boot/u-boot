@@ -39,7 +39,21 @@ DECLARE_GLOBAL_DATA_PTR;
 #ifdef CONFIG_SPL_BUILD
 void board_init_f(ulong bootflag)
 {
-	relocate_code(CONFIG_SPL_TEXT_BASE);
+	/*
+	 * copy ourselves from where we are running to where we were
+	 * linked at. Use ulong pointers as all addresses involved
+	 * are 4-byte-aligned.
+	 */
+	ulong *start_ptr, *end_ptr, *link_ptr, *run_ptr, *dst;
+	asm volatile ("ldr %0, =_start" : "=r"(start_ptr));
+	asm volatile ("ldr %0, =_end" : "=r"(end_ptr));
+	asm volatile ("ldr %0, =board_init_f" : "=r"(link_ptr));
+	asm volatile ("adr %0, board_init_f" : "=r"(run_ptr));
+	for (dst = start_ptr; dst < end_ptr; dst++)
+		*dst = *(dst+(run_ptr-link_ptr));
+	/*
+	 * branch to nand_boot's link-time address.
+	 */
 	asm volatile("ldr pc, =nand_boot");
 }
 #endif
