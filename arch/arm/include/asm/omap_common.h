@@ -242,6 +242,8 @@ struct prcm_regs {
 	u32 cm_l3init_fsusb_clkctrl;
 	u32 cm_l3init_ocp2scp1_clkctrl;
 
+	u32 prm_irqstatus_mpu_2;
+
 	/* cm2.l4per */
 	u32 cm_l4per_clkstctrl;
 	u32 cm_l4per_dynamicdep;
@@ -328,6 +330,8 @@ struct prcm_regs {
 	u32 prm_sldo_mpu_ctrl;
 	u32 prm_sldo_mm_setup;
 	u32 prm_sldo_mm_ctrl;
+	u32 prm_abbldo_mpu_setup;
+	u32 prm_abbldo_mpu_ctrl;
 
 	u32 cm_div_m4_dpll_core;
 	u32 cm_div_m5_dpll_core;
@@ -350,6 +354,7 @@ struct prcm_regs {
 
 struct omap_sys_ctrl_regs {
 	u32 control_status;
+	u32 control_std_fuse_opp_vdd_mpu_2;
 	u32 control_core_mmr_lock1;
 	u32 control_core_mmr_lock2;
 	u32 control_core_mmr_lock3;
@@ -419,6 +424,7 @@ struct omap_sys_ctrl_regs {
 	u32 control_port_emif2_sdram_config;
 	u32 control_emif1_sdram_config_ext;
 	u32 control_emif2_sdram_config_ext;
+	u32 control_wkup_ldovbb_mpu_voltage_ctrl;
 	u32 control_smart1nopmio_padconf_0;
 	u32 control_smart1nopmio_padconf_1;
 	u32 control_padconf_mode;
@@ -545,6 +551,9 @@ void enable_non_essential_clocks(void);
 void scale_vcores(struct vcores_data const *);
 u32 get_offset_code(u32 volt_offset, struct pmic_data *pmic);
 void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic);
+void abb_setup(u32 fuse, u32 ldovbb, u32 setup, u32 control,
+	       u32 txdone, u32 txdone_mask, u32 opp);
+s8 abb_setup_ldovbb(u32 fuse, u32 ldovbb);
 
 /* Max value for DPLL multiplier M */
 #define OMAP_DPLL_MAX_N	127
@@ -554,6 +563,19 @@ void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic);
 #define OMAP_INIT_CONTEXT_UBOOT_FROM_NOR	1
 #define OMAP_INIT_CONTEXT_UBOOT_AFTER_SPL	2
 #define OMAP_INIT_CONTEXT_UBOOT_AFTER_CH	3
+
+/* ABB */
+#define OMAP_ABB_NOMINAL_OPP		0
+#define OMAP_ABB_FAST_OPP		1
+#define OMAP_ABB_SLOW_OPP		3
+#define OMAP_ABB_CONTROL_FAST_OPP_SEL_MASK		(0x1 << 0)
+#define OMAP_ABB_CONTROL_SLOW_OPP_SEL_MASK		(0x1 << 1)
+#define OMAP_ABB_CONTROL_OPP_CHANGE_MASK		(0x1 << 2)
+#define OMAP_ABB_CONTROL_SR2_IN_TRANSITION_MASK		(0x1 << 6)
+#define OMAP_ABB_SETUP_SR2EN_MASK			(0x1 << 0)
+#define OMAP_ABB_SETUP_ACTIVE_FBB_SEL_MASK		(0x1 << 2)
+#define OMAP_ABB_SETUP_ACTIVE_RBB_SEL_MASK		(0x1 << 1)
+#define OMAP_ABB_SETUP_SR2_WTCNT_VALUE_MASK		(0xff << 8)
 
 static inline u32 omap_revision(void)
 {

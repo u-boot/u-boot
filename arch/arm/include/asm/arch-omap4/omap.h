@@ -143,4 +143,12 @@ struct s32ktimer {
 #define NON_SECURE_SRAM_END	0x4030E000	/* Not inclusive */
 /* base address for indirect vectors (internal boot mode) */
 #define SRAM_ROM_VECT_BASE	0x4030D000
+
+/* ABB settings */
+#define OMAP_ABB_SETTLING_TIME		50
+#define OMAP_ABB_CLOCK_CYCLES		16
+
+/* ABB tranxdone mask */
+#define OMAP_ABB_MPU_TXDONE_MASK	(0x1 << 7)
+
 #endif

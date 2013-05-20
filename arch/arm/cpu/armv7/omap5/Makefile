@@ -30,6 +30,7 @@ COBJS	+= emif.o
 COBJS	+= sdram.o
 COBJS	+= prcm-regs.o
 COBJS	+= hw_data.o
+COBJS	+= abb.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS) $(SOBJS))
