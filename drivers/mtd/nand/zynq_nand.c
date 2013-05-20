@@ -1083,7 +1083,7 @@ static int zynq_nand_init(struct nand_chip *nand_chip, int devnum)
 	} else if (is_16bit_bw == NAND_BW_8BIT) {
 		nand_chip->options = NAND_NO_AUTOINCR | NAND_USE_FLASH_BBT;
 	} else if (is_16bit_bw == NAND_BW_16BIT) {
-		nand_chip->options = NAND_BUSWIDTH_16;
+		nand_chip->options = NAND_BUSWIDTH_16 | NAND_USE_FLASH_BBT;
 	}
 
 	/* Initialize the NAND flash interface on NAND controller */
