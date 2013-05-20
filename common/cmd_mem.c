@@ -445,7 +445,7 @@ static int do_mem_cp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 
 	bytes = size * count;
-	buf = map_sysmem(addr, bytes);
+	buf = map_sysmem(dest, bytes);
 	src = map_sysmem(addr, bytes);
 	while (count-- > 0) {
 		if (size == 4)
