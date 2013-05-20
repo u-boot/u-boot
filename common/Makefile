@@ -189,14 +189,6 @@ COBJS-$(CONFIG_CMD_ZIP) += cmd_zip.o
 COBJS-$(CONFIG_CMD_ZFS) += cmd_zfs.o
 
 # others
-ifdef CONFIG_DDR_SPD
-SPD := y
-endif
-ifdef CONFIG_SPD_EEPROM
-SPD := y
-endif
-COBJS-$(SPD) += ddr_spd.o
-COBJS-$(CONFIG_HWCONFIG) += hwconfig.o
 COBJS-$(CONFIG_BOOTSTAGE) += bootstage.o
 COBJS-$(CONFIG_CONSOLE_MUX) += iomux.o
 COBJS-y += flash.o
@@ -235,6 +227,15 @@ endif
 COBJS-y += cmd_nvedit.o
 #environment
 COBJS-y += env_common.o
+#others
+ifdef CONFIG_DDR_SPD
+SPD := y
+endif
+ifdef CONFIG_SPD_EEPROM
+SPD := y
+endif
+COBJS-$(SPD) += ddr_spd.o
+COBJS-$(CONFIG_HWCONFIG) += hwconfig.o
 COBJS-$(CONFIG_BOUNCE_BUFFER) += bouncebuf.o
 COBJS-y += console.o
 COBJS-y += dlmalloc.o
