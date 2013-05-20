@@ -95,6 +95,13 @@ SECTIONS
   . = ALIGN(256);
   __init_end = .;
 
+#ifdef CONFIG_SYS_MPC85XX_NO_RESETVEC
+  .bootpg ADDR(.text) - 0x1000 :
+  {
+    KEEP(arch/powerpc/cpu/mpc85xx/start.o (.bootpg))
+  } :text = 0xffff
+  . = ADDR(.text) + 0x80000;
+#else
   .bootpg RESET_VECTOR_ADDRESS - 0xffc :
   {
     arch/powerpc/cpu/mpc85xx/start.o	(.bootpg)
@@ -116,6 +123,7 @@ SECTIONS
    */
 #if (RESET_VECTOR_ADDRESS == 0xfffffffc)
   . |= 0x10;
+#endif
 #endif
 
   __bss_start = .;

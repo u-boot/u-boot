@@ -26,6 +26,13 @@
 #include "config.h"	/* CONFIG_BOARDDIR */
 
 OUTPUT_ARCH(powerpc)
+#ifdef CONFIG_SYS_MPC85XX_NO_RESETVEC
+PHDRS
+{
+	text PT_LOAD;
+	bss PT_LOAD;
+}
+#endif
 SECTIONS
 {
 	. = CONFIG_SPL_TEXT_BASE;
@@ -68,9 +75,16 @@ SECTIONS
 #else
 #error unknown NAND controller
 #endif
+#ifdef CONFIG_SYS_MPC85XX_NO_RESETVEC
+	.bootpg ADDR(.text) - 0x1000 :
+	{
+		KEEP(*(.bootpg))
+	} :text = 0xffff
+#else
 	.resetvec ADDR(.text) + RESET_VECTOR_OFFSET : {
 		KEEP(*(.resetvec))
 	} = 0xffff
+#endif
 
 	/*
 	 * Make sure that the bss segment isn't linked at 0x0, otherwise its
