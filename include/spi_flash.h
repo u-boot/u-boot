@@ -27,6 +27,14 @@
 #include <linux/types.h>
 #include <linux/compiler.h>
 
+/* SPI connection modes */
+enum spi_con_topology {
+	MODE_UNKNOWN = -1,
+	MODE_SINGLE,
+	MODE_DUAL_STACKED,
+	MODE_DUAL_PARALLEL,
+};
+
 struct spi_flash {
 	struct spi_slave *spi;
 

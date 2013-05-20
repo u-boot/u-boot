@@ -209,14 +209,14 @@ struct spi_flash *spi_flash_probe_stmicro(struct spi_slave *spi, u8 * idcode)
 	flash->page_size = 256;
 	flash->sector_size = 256 * params->pages_per_sector;
 
-	if (flash->spi->is_dual == 2) {
+	if (flash->spi->is_dual == MODE_DUAL_PARALLEL) {
 		flash->page_size *= 2;
 		flash->sector_size *= 2;
 	}
 
 	flash->size = flash->sector_size * params->nr_sectors;
 
-	if (flash->spi->is_dual == 1)
+	if (flash->spi->is_dual == MODE_DUAL_STACKED)
 		flash->size *= 2;
 
 	return flash;

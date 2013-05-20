@@ -29,7 +29,8 @@ static void spi_flash_addr(u32 addr, u8 *cmd)
 static int spi_flash_bank(struct spi_flash *flash, u32 addr, u8 *bank_sel)
 {
 	*bank_sel = addr / SPI_FLASH_16MB_BOUN;
-	if ((flash->spi->is_dual == 1) && (flash->spi->u_page == 1))
+	if ((flash->spi->is_dual == MODE_DUAL_STACKED) &&
+			(flash->spi->u_page == 1))
 		*bank_sel -= ((flash->size / 2) / SPI_FLASH_16MB_BOUN);
 
 	return spi_flash_cmd_bankaddr_write(flash, *bank_sel);
@@ -43,7 +44,7 @@ static int spi_flash_read_write(struct spi_slave *spi,
 	unsigned long flags = SPI_XFER_BEGIN;
 	int ret;
 
-	if ((spi->is_dual == 1) && (spi->u_page == 1))
+	if ((spi->is_dual == MODE_DUAL_STACKED) && (spi->u_page == 1))
 		flags |= SPI_FLASH_U_PAGE;
 
 	if (data_len == 0)
@@ -102,10 +103,10 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 	cmd[0] = CMD_PAGE_PROGRAM;
 	for (actual = 0; actual < len; actual += chunk_len) {
 		write_addr = offset;
-		if (flash->spi->is_dual == 2)
+		if (flash->spi->is_dual == MODE_DUAL_PARALLEL)
 			write_addr /= 2;
 
-		if (flash->spi->is_dual == 1) {
+		if (flash->spi->is_dual == MODE_DUAL_STACKED) {
 			if (offset >= (flash->size / 2))
 				flash->spi->u_page = 1;
 			else
@@ -184,7 +185,7 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 		memcpy(data, flash->memory_map + offset, len);
 
 	bank_boun = SPI_FLASH_16MB_BOUN;
-	if (flash->spi->is_dual == 2)
+	if (flash->spi->is_dual == MODE_DUAL_PARALLEL)
 		bank_boun = SPI_FLASH_16MB_BOUN >> 1;
 
 	cmd[0] = CMD_READ_ARRAY_FAST;
@@ -192,10 +193,10 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 
 	while (len) {
 		read_addr = offset;
-		if (flash->spi->is_dual == 2)
+		if (flash->spi->is_dual == MODE_DUAL_PARALLEL)
 			read_addr /= 2;
 
-		if (flash->spi->is_dual == 1) {
+		if (flash->spi->is_dual == MODE_DUAL_STACKED) {
 			if (read_addr >= (flash->size / 2))
 				flash->spi->u_page = 1;
 			else
@@ -299,10 +300,10 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 
 	while (len) {
 		erase_addr = offset;
-		if (flash->spi->is_dual == 2)
+		if (flash->spi->is_dual == MODE_DUAL_PARALLEL)
 			erase_addr /= 2;
 
-		if (flash->spi->is_dual == 1) {
+		if (flash->spi->is_dual == MODE_DUAL_STACKED) {
 			if (offset >= (flash->size / 2))
 				flash->spi->u_page = 1;
 			else
@@ -588,10 +589,10 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 	puts("\n");
 
 	flash->idcode0 = *idp;
-	if (((flash->spi->is_dual == 0) &&
+	if (((flash->spi->is_dual == MODE_SINGLE) &&
 			(flash->size > SPI_FLASH_16MB_BOUN)) ||
-			(((flash->spi->is_dual == 1) ||
-			(flash->spi->is_dual == 2)) &&
+			(((flash->spi->is_dual == MODE_DUAL_STACKED) ||
+			(flash->spi->is_dual == MODE_DUAL_PARALLEL)) &&
 			((flash->size / 2) > SPI_FLASH_16MB_BOUN))) {
 		if (spi_flash_cmd_bankaddr_read(flash, &curr_bank)) {
 			debug("SF: fail to read bank addr register\n");

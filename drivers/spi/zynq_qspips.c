@@ -17,6 +17,7 @@
 #include <malloc.h>
 #include <ubi_uboot.h>
 #include <spi.h>
+#include <spi_flash.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
@@ -85,14 +86,6 @@
 #define XQSPIPS_MIO_NUM_QSPI0		6
 #define XQSPIPS_MIO_NUM_QSPI1		5
 #define XQSPIPS_MIO_NUM_QSPI1_CS	1
-
-/* QSPI connections topology */
-enum xqspips_con_topology {
-	MODE_UNKNOWN = -1,
-	MODE_SINGLE,
-	MODE_DUAL_STACKED,
-	MODE_DUAL_PARALLEL,
-};
 
 /* Definitions of the flash commands - Flash opcodes in ascending order */
 #define XQSPIPS_FLASH_OPCODE_WRSR	0x01	/* Write status register */
