@@ -1088,7 +1088,19 @@ static int flash_io (int mode)
 
 		rc = flash_write (fd_current, fd_target, dev_target);
 
+		if (fsync (fd_current)) {
+			fprintf (stderr,
+				 "fsync failed on %s: %s\n",
+				 DEVNAME (dev_current), strerror (errno));
+		}
+
 		if (HaveRedundEnv) {
+			if (fsync (fd_target)) {
+				fprintf (stderr,
+					 "fsync failed on %s: %s\n",
+					 DEVNAME (dev_current), strerror (errno));
+			}
+
 			if (close (fd_target)) {
 				fprintf (stderr,
 					"I/O error on %s: %s\n",
