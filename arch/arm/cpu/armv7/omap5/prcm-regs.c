@@ -311,6 +311,7 @@ struct prcm_regs const omap5_es1_prcm = {
 
 struct omap_sys_ctrl_regs const omap5_ctrl = {
 	.control_status				= 0x4A002134,
+	.control_std_fuse_opp_vdd_mpu_2		= 0x4A0021B4,
 	.control_paconf_global			= 0x4A002DA0,
 	.control_paconf_mode			= 0x4A002DA4,
 	.control_smart1io_padconf_0		= 0x4A002DA8,
@@ -358,6 +359,7 @@ struct omap_sys_ctrl_regs const omap5_ctrl = {
 	.control_port_emif2_sdram_config	= 0x4AE0C118,
 	.control_emif1_sdram_config_ext		= 0x4AE0C144,
 	.control_emif2_sdram_config_ext		= 0x4AE0C148,
+	.control_wkup_ldovbb_mpu_voltage_ctrl	= 0x4AE0C318,
 	.control_smart1nopmio_padconf_0		= 0x4AE0CDA0,
 	.control_smart1nopmio_padconf_1		= 0x4AE0CDA4,
 	.control_padconf_mode			= 0x4AE0CDA8,
@@ -709,6 +711,9 @@ struct prcm_regs const omap5_es2_prcm = {
 	.cm_l3init_fsusb_clkctrl = 0x4a0096d0,
 	.cm_l3init_ocp2scp1_clkctrl = 0x4a0096e0,
 
+	/* prm irqstatus regs */
+	.prm_irqstatus_mpu_2 = 0x4ae06014,
+
 	/* l4 wkup regs */
 	.cm_abe_pll_ref_clksel = 0x4ae0610c,
 	.cm_sys_clksel = 0x4ae06110,
@@ -740,6 +745,8 @@ struct prcm_regs const omap5_es2_prcm = {
 	.prm_sldo_mpu_ctrl = 0x4ae07cd0,
 	.prm_sldo_mm_setup = 0x4ae07cd4,
 	.prm_sldo_mm_ctrl = 0x4ae07cd8,
+	.prm_abbldo_mpu_setup = 0x4ae07cdc,
+	.prm_abbldo_mpu_ctrl = 0x4ae07ce0,
 };
 
 struct prcm_regs const dra7xx_prcm = {
