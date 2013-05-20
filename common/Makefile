@@ -44,13 +44,11 @@ COBJS-$(CONFIG_SYS_GENERIC_BOARD) += board_r.o
 COBJS-y += cmd_boot.o
 COBJS-$(CONFIG_CMD_BOOTM) += cmd_bootm.o
 COBJS-y += cmd_help.o
-COBJS-y += cmd_nvedit.o
 COBJS-y += cmd_version.o
 
 # environment
 COBJS-y += env_attr.o
 COBJS-y += env_callback.o
-COBJS-y += env_common.o
 COBJS-y += env_flags.o
 COBJS-$(CONFIG_ENV_IS_IN_DATAFLASH) += env_dataflash.o
 COBJS-$(CONFIG_ENV_IS_IN_EEPROM) += env_eeprom.o
@@ -216,18 +214,27 @@ COBJS-$(CONFIG_CMD_GPT) += cmd_gpt.o
 endif
 
 ifdef CONFIG_SPL_BUILD
-COBJS-y += cmd_nvedit.o
-COBJS-y += env_common.o
 COBJS-$(CONFIG_ENV_IS_IN_FLASH) += env_flash.o
 COBJS-$(CONFIG_SPL_YMODEM_SUPPORT) += xyzModem.o
-COBJS-$(CONFIG_SPL_NET_SUPPORT) += cmd_nvedit.o
-COBJS-$(CONFIG_SPL_NET_SUPPORT) += env_attr.o
-COBJS-$(CONFIG_SPL_NET_SUPPORT) += env_callback.o
-COBJS-$(CONFIG_SPL_NET_SUPPORT) += env_common.o
-COBJS-$(CONFIG_SPL_NET_SUPPORT) += env_flags.o
-COBJS-$(CONFIG_SPL_NET_SUPPORT) += env_nowhere.o
 COBJS-$(CONFIG_SPL_NET_SUPPORT) += miiphyutil.o
+# environment
+COBJS-$(CONFIG_SPL_ENV_SUPPORT) += env_attr.o
+COBJS-$(CONFIG_SPL_ENV_SUPPORT) += env_flags.o
+COBJS-$(CONFIG_SPL_ENV_SUPPORT) += env_callback.o
+ifneq ($(CONFIG_SPL_NET_SUPPORT),y)
+COBJS-$(CONFIG_ENV_IS_NOWHERE) += env_nowhere.o
+COBJS-$(CONFIG_ENV_IS_IN_MMC) += env_mmc.o
+COBJS-$(CONFIG_ENV_IS_IN_NAND) += env_nand.o
+COBJS-$(CONFIG_ENV_IS_IN_SPI_FLASH) += env_sf.o
+COBJS-$(CONFIG_ENV_IS_IN_FLASH) += env_flash.o
+else
+COBJS-y += env_nowhere.o
 endif
+endif
+# core command
+COBJS-y += cmd_nvedit.o
+#environment
+COBJS-y += env_common.o
 COBJS-$(CONFIG_BOUNCE_BUFFER) += bouncebuf.o
 COBJS-y += console.o
 COBJS-y += dlmalloc.o
