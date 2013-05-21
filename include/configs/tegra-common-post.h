@@ -157,6 +157,8 @@
 /* overrides for SPL build here */
 #ifdef CONFIG_SPL_BUILD
 
+#define CONFIG_SKIP_LOWLEVEL_INIT
+
 /* remove devicetree support */
 #ifdef CONFIG_OF_CONTROL
 #undef CONFIG_OF_CONTROL

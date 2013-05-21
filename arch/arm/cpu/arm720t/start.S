@@ -247,7 +247,6 @@ c_runtime_cpu_setup:
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
 cpu_init_crit:
 
-#if !defined(CONFIG_TEGRA)
 	mov	ip, lr
 	/*
 	 * before relocating, we have to setup RAM timing
@@ -256,7 +255,6 @@ cpu_init_crit:
 	 */
 	bl	lowlevel_init
 	mov	lr, ip
-#endif
 
 	mov	pc, lr
 #endif /* CONFIG_SKIP_LOWLEVEL_INIT */
