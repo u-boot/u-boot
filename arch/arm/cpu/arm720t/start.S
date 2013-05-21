@@ -244,6 +244,7 @@ c_runtime_cpu_setup:
  *************************************************************************
  */
 
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
 cpu_init_crit:
 
 #if !defined(CONFIG_TEGRA)
@@ -258,6 +259,7 @@ cpu_init_crit:
 #endif
 
 	mov	pc, lr
+#endif /* CONFIG_SKIP_LOWLEVEL_INIT */
 
 
 #ifndef CONFIG_SPL_BUILD
