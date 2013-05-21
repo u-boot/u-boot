@@ -244,7 +244,7 @@ void pxa_clock_setup(void)
 {
 	writel(CONFIG_SYS_CKEN, CKEN);
 	writel(CONFIG_SYS_CCCR, CCCR);
-	asm volatile("mcr	p14, 0, %0, c6, c0, 0" : : "r"(2));
+	asm volatile("mcr	p14, 0, %0, c6, c0, 0" : : "r"(0x0b));
 
 	/* enable the 32Khz oscillator for RTC and PowerManager */
 	writel(OSCC_OON, OSCC);
