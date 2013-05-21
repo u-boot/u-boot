@@ -851,12 +851,6 @@ static init_fnc_t init_sequence_f[] = {
 #ifdef CONFIG_ARM
 	timer_init,		/* initialize timer */
 #endif
-#ifdef CONFIG_BOARD_POSTCLK_INIT
-	board_postclk_init,
-#endif
-#ifdef CONFIG_FSL_ESDHC
-	get_clocks,
-#endif
 #ifdef CONFIG_SYS_ALLOC_DPRAM
 #if !defined(CONFIG_CPM2)
 	dpram_init,
@@ -864,6 +858,9 @@ static init_fnc_t init_sequence_f[] = {
 #endif
 #if defined(CONFIG_BOARD_POSTCLK_INIT)
 	board_postclk_init,
+#endif
+#ifdef CONFIG_FSL_ESDHC
+	get_clocks,
 #endif
 	env_init,		/* initialize environment */
 #if defined(CONFIG_8xx_CPUCLK_DEFAULT)
