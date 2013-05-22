@@ -20,6 +20,7 @@
 #define CONFIG_PCI
 #define CONFIG_PCI_GT64120
 #define CONFIG_PCI_PNP
+#define CONFIG_PCNET
 
 /*
  * CPU Configuration
@@ -105,10 +106,10 @@
 #undef CONFIG_CMD_FPGA
 #undef CONFIG_CMD_LOADB
 #undef CONFIG_CMD_LOADS
-#undef CONFIG_CMD_NET
 #undef CONFIG_CMD_NFS
 
 #define CONFIG_CMD_PCI
+#define CONFIG_CMD_PING
 
 #define CONFIG_SYS_LONGHELP		/* verbose help, undef to save memory */
 

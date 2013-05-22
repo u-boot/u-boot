@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 
 #include <asm/addrspace.h>
 #include <asm/io.h>
@@ -22,6 +23,11 @@ int checkboard(void)
 {
 	puts("Board: MIPS Malta CoreLV (Qemu)\n");
 	return 0;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }
 
 void _machine_restart(void)
