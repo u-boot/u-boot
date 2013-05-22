@@ -41,7 +41,7 @@ _start:
 	 nop
 
 	.org 0x10
-#ifdef CONFIG_SYS_XWAY_EBU_BOOTCFG
+#if defined(CONFIG_SYS_XWAY_EBU_BOOTCFG)
 	/*
 	 * Almost all Lantiq XWAY SoC devices have an external bus unit (EBU) to
 	 * access external NOR flashes. If the board boots from NOR flash the
@@ -51,6 +51,12 @@ _start:
 	 */
 	.word CONFIG_SYS_XWAY_EBU_BOOTCFG
 	.word 0x0
+#elif defined(CONFIG_QEMU_MALTA)
+	/*
+	 * Linux expects the Board ID here.
+	 */
+	.word 0x00000420	# 0x420 (Malta Board with CoreLV)
+	.word 0x00000000
 #endif
 
 	.org 0x200
