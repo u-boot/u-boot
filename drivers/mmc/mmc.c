@@ -301,10 +301,12 @@ mmc_write_blocks(struct mmc *mmc, ulong start, lbaint_t blkcnt, const void*src)
 		return 0;
 	}
 
-	if (blkcnt > 1)
-		cmd.cmdidx = MMC_CMD_WRITE_MULTIPLE_BLOCK;
-	else
+	if (blkcnt == 0)
+		return 0;
+	else if (blkcnt == 1)
 		cmd.cmdidx = MMC_CMD_WRITE_SINGLE_BLOCK;
+	else
+		cmd.cmdidx = MMC_CMD_WRITE_MULTIPLE_BLOCK;
 
 	if (mmc->high_capacity)
 		cmd.cmdarg = start;
