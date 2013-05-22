@@ -158,7 +158,7 @@ int key_matrix_decode_fdt(struct key_matrix *config, const void *blob,
 			  int node)
 {
 	const struct fdt_property *prop;
-	const char prefix[] = "linux,";
+	static const char prefix[] = "linux,";
 	int plen = sizeof(prefix) - 1;
 	int offset;
 
