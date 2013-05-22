@@ -13,4 +13,7 @@
 
 #define MALTA_UART_BASE		(MALTA_IO_PORT_BASE + 0x3f8)
 
+#define MALTA_RESET_BASE	0x1f000500
+#define GORESET			0x42
+
 #endif /* _MIPS_ASM_MALTA_H */
