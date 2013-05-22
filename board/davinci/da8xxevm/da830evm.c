@@ -44,6 +44,11 @@
 #include <asm/arch/nand_defs.h>
 #include <asm/arch/davinci_misc.h>
 
+#ifdef CONFIG_DAVINCI_MMC
+#include <mmc.h>
+#include <asm/arch/sdmmc_defs.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 /* SPI0 pin muxer settings */
@@ -153,6 +158,23 @@ static const struct pinmux_config usb_pins[] = {
 	{ pinmux(9), 1, 1 }
 };
 
+#ifdef CONFIG_DAVINCI_MMC
+/* MMC0 pin muxer settings */
+const struct pinmux_config mmc0_pins[] = {
+	{ pinmux(15), 2, 7 },	/* MMCSD0_CLK */
+	{ pinmux(16), 2, 0 },	/* MMCSD0_CMD */
+	{ pinmux(13), 2, 6 },	/* MMCSD0_DAT_0 */
+	{ pinmux(13), 2, 7 },	/* MMCSD0_DAT_1 */
+	{ pinmux(14), 2, 0 },	/* MMCSD0_DAT_2 */
+	{ pinmux(14), 2, 1 },	/* MMCSD0_DAT_3 */
+	{ pinmux(14), 2, 2 },	/* MMCSD0_DAT_4 */
+	{ pinmux(14), 2, 3 },	/* MMCSD0_DAT_5 */
+	{ pinmux(14), 2, 4 },	/* MMCSD0_DAT_6 */
+	{ pinmux(14), 2, 5 },	/* MMCSD0_DAT_7 */
+	/* DA830 supports 8-bit mode */
+};
+#endif
+
 static const struct pinmux_resource pinmuxes[] = {
 #ifdef CONFIG_SPI_FLASH
 	PINMUX_ITEM(spi0_pins),
@@ -169,6 +191,9 @@ static const struct pinmux_resource pinmuxes[] = {
 #if defined(CONFIG_DRIVER_TI_EMAC)
 	PINMUX_ITEM(emac_pins),
 #endif
+#ifdef CONFIG_DAVINCI_MMC
+	PINMUX_ITEM(mmc0_pins),
+#endif
 };
 
 static const struct lpsc_resource lpsc[] = {
@@ -177,7 +202,30 @@ static const struct lpsc_resource lpsc[] = {
 	{ DAVINCI_LPSC_EMAC },	/* image download */
 	{ DAVINCI_LPSC_UART2 },	/* console */
 	{ DAVINCI_LPSC_GPIO },
+#ifdef CONFIG_DAVINCI_MMC
+	{ DAVINCI_LPSC_MMC_SD },
+#endif
+
 };
+
+#ifdef CONFIG_DAVINCI_MMC
+static struct davinci_mmc mmc_sd0 = {
+	.reg_base = (struct davinci_mmc_regs *)DAVINCI_MMC_SD0_BASE,
+	.host_caps = MMC_MODE_8BIT,
+	.voltages = MMC_VDD_32_33 | MMC_VDD_33_34,
+	.version = MMC_CTLR_VERSION_2,
+};
+
+int board_mmc_init(bd_t *bis)
+{
+	mmc_sd0.input_clk = clk_get(DAVINCI_MMCSD_CLKID);
+
+	printf("%x\n", mmc_sd0.input_clk);
+
+	/* Add slot-0 to mmc subsystem */
+	return davinci_mmc_init(bis, &mmc_sd0);
+}
+#endif
 
 int board_init(void)
 {

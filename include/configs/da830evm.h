@@ -226,6 +226,28 @@
 #define CONFIG_CMD_SAVEENV
 #endif
 
+/* SD/MMC configuration */
+#ifndef CONFIG_USE_NAND
+#define CONFIG_MMC
+#define CONFIG_DAVINCI_MMC_SD1
+#define CONFIG_GENERIC_MMC
+#define CONFIG_DAVINCI_MMC
+#endif
+
+/*
+ * Enable MMC commands only when
+ * MMC support is present
+ */
+#if defined(CONFIG_MMC) || defined(CONFIG_USB_DA8XX)
+#define CONFIG_DOS_PARTITION	/* include support for FAT/storage */
+#define CONFIG_CMD_FAT		/* include support for FAT cmd */
+#endif
+
+#ifdef CONFIG_MMC
+#define CONFIG_CMD_MMC
+#define CONFIG_CMD_EXT2
+#endif
+
 #if !defined(CONFIG_USE_NAND) && \
 	!defined(CONFIG_USE_NOR) && \
 	!defined(CONFIG_USE_SPIFLASH)
@@ -244,8 +266,6 @@
 
 #define CONFIG_USB_STORAGE	/* MSC class support */
 #define CONFIG_CMD_STORAGE	/* inclue support for usb-storage cmd */
-#define CONFIG_CMD_FAT		/* inclue support for FAT/storage */
-#define CONFIG_DOS_PARTITION	/* inclue support for FAT/storage */
 
 #ifdef CONFIG_USB_KEYBOARD	/* HID class support */
 #define CONFIG_SYS_USB_EVENT_POLL
