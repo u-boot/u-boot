@@ -16,4 +16,6 @@
 #define MALTA_RESET_BASE	0x1f000500
 #define GORESET			0x42
 
+#define MALTA_FLASH_BASE	0x1fc00000
+
 #endif /* _MIPS_ASM_MALTA_H */
