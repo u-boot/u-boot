@@ -130,7 +130,7 @@ static int pcnet_recv (struct eth_device *dev);
 static void pcnet_halt (struct eth_device *dev);
 static int pcnet_probe (struct eth_device *dev, bd_t * bis, int dev_num);
 
-#define PCI_TO_MEM(d,a) pci_phys_to_mem((pci_dev_t)d->priv, (u_long)(a))
+#define PCI_TO_MEM(d, a) pci_virt_to_mem((pci_dev_t)d->priv, (a))
 #define PCI_TO_MEM_LE(d,a) (u32)(cpu_to_le32(PCI_TO_MEM(d,a)))
 
 static struct pci_device_id supported[] = {
