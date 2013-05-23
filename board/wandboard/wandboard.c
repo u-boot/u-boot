@@ -10,9 +10,11 @@
  */
 
 #include <asm/arch/clock.h>
+#include <asm/arch/crm_regs.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/mx6-pins.h>
+#include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/imx-common/iomux-v3.h>
@@ -21,9 +23,11 @@
 #include <asm/sizes.h>
 #include <common.h>
 #include <fsl_esdhc.h>
+#include <ipu_pixfmt.h>
 #include <mmc.h>
 #include <miiphy.h>
 #include <netdev.h>
+#include <linux/fb.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -206,6 +210,88 @@ int board_phy_config(struct phy_device *phydev)
 	return 0;
 }
 
+#if defined(CONFIG_VIDEO_IPUV3)
+static void enable_hdmi(void)
+{
+	struct hdmi_regs *hdmi	= (struct hdmi_regs *)HDMI_ARB_BASE_ADDR;
+	u8 reg;
+	reg = readb(&hdmi->phy_conf0);
+	reg |= HDMI_PHY_CONF0_PDZ_MASK;
+	writeb(reg, &hdmi->phy_conf0);
+
+	udelay(3000);
+	reg |= HDMI_PHY_CONF0_ENTMDS_MASK;
+	writeb(reg, &hdmi->phy_conf0);
+	udelay(3000);
+	reg |= HDMI_PHY_CONF0_GEN2_TXPWRON_MASK;
+	writeb(reg, &hdmi->phy_conf0);
+	writeb(HDMI_MC_PHYRSTZ_ASSERT, &hdmi->mc_phyrstz);
+}
+
+static struct fb_videomode const hdmi = {
+	.name           = "HDMI",
+	.refresh        = 60,
+	.xres           = 1024,
+	.yres           = 768,
+	.pixclock       = 15385,
+	.left_margin    = 220,
+	.right_margin   = 40,
+	.upper_margin   = 21,
+	.lower_margin   = 7,
+	.hsync_len      = 60,
+	.vsync_len      = 10,
+	.sync           = FB_SYNC_EXT,
+	.vmode          = FB_VMODE_NONINTERLACED
+};
+
+int board_video_skip(void)
+{
+	int ret;
+
+	ret = ipuv3_fb_init(&hdmi, 0, IPU_PIX_FMT_RGB24);
+
+	if (ret)
+		printf("HDMI cannot be configured: %d\n", ret);
+
+	enable_hdmi();
+
+	return ret;
+}
+
+static void setup_display(void)
+{
+	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	struct hdmi_regs *hdmi	= (struct hdmi_regs *)HDMI_ARB_BASE_ADDR;
+	int reg;
+
+	/* Turn on IPU clock */
+	reg = readl(&mxc_ccm->CCGR3);
+	reg |= MXC_CCM_CCGR3_IPU1_IPU_DI0_OFFSET;
+	writel(reg, &mxc_ccm->CCGR3);
+
+	/* Turn on HDMI PHY clock */
+	reg = readl(&mxc_ccm->CCGR2);
+	reg |=  MXC_CCM_CCGR2_HDMI_TX_IAHBCLK_MASK
+		| MXC_CCM_CCGR2_HDMI_TX_ISFRCLK_MASK;
+	writel(reg, &mxc_ccm->CCGR2);
+
+	/* clear HDMI PHY reset */
+	writeb(HDMI_MC_PHYRSTZ_DEASSERT, &hdmi->mc_phyrstz);
+
+	reg = readl(&mxc_ccm->chsccdr);
+	reg &= ~(MXC_CCM_CHSCCDR_IPU1_DI0_PRE_CLK_SEL_MASK
+		| MXC_CCM_CHSCCDR_IPU1_DI0_PODF_MASK
+		| MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_MASK);
+	reg |= (CHSCCDR_CLK_SEL_LDB_DI0
+		<< MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_OFFSET)
+	      | (CHSCCDR_PODF_DIVIDE_BY_3
+		<< MXC_CCM_CHSCCDR_IPU1_DI0_PODF_OFFSET)
+	      | (CHSCCDR_IPU_PRE_CLK_540M_PFD
+		<< MXC_CCM_CHSCCDR_IPU1_DI0_PRE_CLK_SEL_OFFSET);
+	writel(reg, &mxc_ccm->chsccdr);
+}
+#endif /* CONFIG_VIDEO_IPUV3 */
+
 int board_eth_init(bd_t *bis)
 {
 	int ret;
@@ -222,7 +308,19 @@ int board_eth_init(bd_t *bis)
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
+#if defined(CONFIG_VIDEO_IPUV3)
+	setup_display();
+#endif
 	return 0;
+}
+
+/*
+ * Do not overwrite the console
+ * Use always serial for U-Boot console
+ */
+int overwrite_console(void)
+{
+	return 1;
 }
 
 #ifdef CONFIG_CMD_BMODE
