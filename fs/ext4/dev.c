@@ -51,11 +51,11 @@ void ext4fs_set_blk_dev(block_dev_desc_t *rbdd, disk_partition_t *info)
 {
 	assert(rbdd->blksz == (1 << rbdd->log2blksz));
 	ext4fs_block_dev_desc = rbdd;
+	get_fs()->dev_desc = rbdd;
 	part_info = info;
 	part_offset = info->start;
 	get_fs()->total_sect = (info->size * info->blksz) >>
 		get_fs()->dev_desc->log2blksz;
-	get_fs()->dev_desc = rbdd;
 }
 
 int ext4fs_devread(int sector, int byte_offset, int byte_len, char *buf)
