@@ -17,6 +17,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <asm/io.h>
+#include <asm/errno.h>
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand.h>
 #include <linux/mtd/partitions.h>
@@ -454,10 +455,8 @@ static int zynq_nand_write_oob(struct mtd_info *mtd, struct nand_chip *chip,
 	/* Send command to program the OOB data */
 	chip->cmdfunc(mtd, NAND_CMD_PAGEPROG, -1, -1);
 	status = chip->waitfunc(mtd, chip);
-	if (status)
-		return NAND_STATUS_FAIL;
 
-	return status;
+	return status & NAND_STATUS_FAIL ? -EIO : 0;
 }
 
 /*
