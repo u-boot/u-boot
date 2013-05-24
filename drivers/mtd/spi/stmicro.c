@@ -18,7 +18,7 @@
 #include "spi_flash_internal.h"
 
 /* M25Pxx-specific commands */
-#define CMD_M25PXX_RES		0xab	/* Release from DP, and Read Signature */
+#define CMD_M25PXX_RES	0xab	/* Release from DP, and Read Signature */
 
 struct stmicro_spi_flash_params {
 	u16 id;
@@ -150,7 +150,7 @@ static const struct stmicro_spi_flash_params stmicro_spi_flash_table[] = {
 	},
 };
 
-struct spi_flash *spi_flash_probe_stmicro(struct spi_slave *spi, u8 * idcode)
+struct spi_flash *spi_flash_probe_stmicro(struct spi_slave *spi, u8 *idcode)
 {
 	const struct stmicro_spi_flash_params *params;
 	struct spi_flash *flash;
@@ -174,9 +174,8 @@ struct spi_flash *spi_flash_probe_stmicro(struct spi_slave *spi, u8 * idcode)
 
 	for (i = 0; i < ARRAY_SIZE(stmicro_spi_flash_table); i++) {
 		params = &stmicro_spi_flash_table[i];
-		if (params->id == id) {
+		if (params->id == id)
 			break;
-		}
 	}
 
 	if (i == ARRAY_SIZE(stmicro_spi_flash_table)) {
