@@ -122,7 +122,8 @@ struct spi_flash *spi_flash_probe_spansion(struct spi_slave *spi, u8 *idcode)
 	}
 
 	if (i == ARRAY_SIZE(spansion_spi_flash_table)) {
-		debug("SF: Unsupported SPANSION ID %04x %04x\n", jedec, ext_jedec);
+		debug("SF: Unsupported SPANSION ID %04x %04x\n",
+		      jedec, ext_jedec);
 		return NULL;
 	}
 

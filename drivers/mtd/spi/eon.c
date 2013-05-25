@@ -54,8 +54,7 @@ struct spi_flash *spi_flash_probe_eon(struct spi_slave *spi, u8 *idcode)
 
 	flash->page_size = 256;
 	flash->sector_size = 256 * 16 * 16;
-	flash->size = 256 * 16
-	    * params->nr_sectors;
+	flash->size = 256 * 16 * params->nr_sectors;
 
 	return flash;
 }
