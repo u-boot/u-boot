@@ -305,12 +305,10 @@ static int do_spi_flash_erase(int argc, char * const argv[])
 	}
 
 	ret = spi_flash_erase(flash, offset, len);
-	if (ret) {
-		printf("SPI flash %s failed\n", argv[0]);
-		return 1;
-	}
+	printf("SF: %zu bytes @ %#x Erased: %s\n", (size_t)len, (u32)offset,
+			ret ? "ERROR" : "OK");
 
-	return 0;
+	return ret == 0 ? 0 : 1;
 }
 
 #ifdef CONFIG_CMD_SF_TEST
