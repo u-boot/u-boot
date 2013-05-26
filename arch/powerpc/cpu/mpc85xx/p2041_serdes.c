@@ -90,7 +90,7 @@ int is_serdes_prtcl_valid(u32 prtcl)
 	u32 svr = get_svr();
 	u32 ver = SVR_SOC_VER(svr);
 
-	if (prtcl > ARRAY_SIZE(serdes_cfg_tbl))
+	if (prtcl >= ARRAY_SIZE(serdes_cfg_tbl))
 		return 0;
 
 	/* P2040[e] does not support XAUI */

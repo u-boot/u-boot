@@ -228,7 +228,7 @@ void fsl_serdes_init(void)
 		break;
 	}
 
-	if (srds1_io_sel > ARRAY_SIZE(serdes1_cfg_tbl)) {
+	if (srds1_io_sel >= ARRAY_SIZE(serdes1_cfg_tbl)) {
 		printf("Invalid PORDEVSR[SRDS1_IO_SEL] = %d\n", srds1_io_sel);
 		return;
 	}
@@ -237,7 +237,7 @@ void fsl_serdes_init(void)
 		serdes1_prtcl_map |= (1 << lane_prtcl);
 	}
 
-	if (srds2_io_sel > ARRAY_SIZE(serdes2_cfg_tbl)) {
+	if (srds2_io_sel >= ARRAY_SIZE(serdes2_cfg_tbl)) {
 		printf("Invalid PORDEVSR[SRDS2_IO_SEL] = %d\n", srds2_io_sel);
 		return;
 	}

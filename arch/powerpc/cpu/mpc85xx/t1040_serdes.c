@@ -81,7 +81,7 @@ int is_serdes_prtcl_valid(int serdes, u32 prtcl)
 {
 	int i;
 
-	if (prtcl > (ARRAY_SIZE(serdes_cfg_tbl[serdes])))
+	if (prtcl >= ARRAY_SIZE(serdes_cfg_tbl[serdes]))
 		return 0;
 
 	for (i = 0; i < SRDS_MAX_LANES; i++) {
