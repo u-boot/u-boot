@@ -81,7 +81,7 @@ void ide_write_register(int dev, unsigned int port, unsigned char val)
 		IDE_REG_DA_WRITE(port) | val);
 }
 
-void ide_write_data(int dev, ulong *sect_buf, int words)
+void ide_write_data(int dev, const ulong *sect_buf, int words)
 {
 	static struct ftide020_s *ftide020 = (struct ftide020_s *) FTIDE_BASE;
 

@@ -76,7 +76,7 @@ int ide_device_present(int dev);
 unsigned char ide_read_register(int dev, unsigned int port);
 void ide_write_register(int dev, unsigned int port, unsigned char val);
 void ide_read_data(int dev, ulong *sect_buf, int words);
-void ide_write_data(int dev, ulong *sect_buf, int words);
+void ide_write_data(int dev, const ulong *sect_buf, int words);
 #endif
 
 /*
