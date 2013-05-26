@@ -298,6 +298,7 @@ struct prcm_regs const omap5_es1_prcm = {
 	.cm_wkupaon_io_srcomp_clkctrl = 0x4ae07898,
 	.prm_rstctrl = 0x4ae07b00,
 	.prm_rstst = 0x4ae07b04,
+	.prm_rsttime = 0x4ae07b08,
 	.prm_vc_val_bypass = 0x4ae07ba0,
 	.prm_vc_cfg_i2c_mode = 0x4ae07bb4,
 	.prm_vc_cfg_i2c_clk = 0x4ae07bb8,
