@@ -124,9 +124,6 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 		}
 	}
 
-	debug("SF: program %s %zu bytes @ %#x\n",
-	      ret ? "failure" : "success", len, offset);
-
 	spi_release_bus(flash->spi);
 	return ret;
 }
