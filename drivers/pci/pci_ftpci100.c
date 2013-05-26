@@ -23,10 +23,10 @@
 #include <malloc.h>
 #include <pci.h>
 
+#include <faraday/ftpci100.h>
+
 #include <asm/io.h>
 #include <asm/types.h> /* u32, u16.... used by pci.h */
-
-#include "pci_ftpci100.h"
 
 struct ftpci100_data {
 	unsigned int reg_base;
