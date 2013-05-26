@@ -76,6 +76,8 @@ struct ftpci100_ahbc {
 #define FTPCI100_BRIDGE_VENDORID		0x159b
 #define FTPCI100_BRIDGE_DEVICEID		0x4321
 
+void pci_ftpci_init(void);
+
 struct pcibar {
 	unsigned int size;
 	unsigned int addr;
