@@ -128,27 +128,20 @@ LOGO-$(CONFIG_LCD_LOGO) += $(LOGO_DATA_H)
 LOGO-$(CONFIG_VIDEO_LOGO) += $(LOGO_H)
 LOGO-$(CONFIG_VIDEO_LOGO) += $(LOGO_DATA_H)
 
+# Generic logo
 ifeq ($(LOGO_BMP),)
 LOGO_BMP= logos/denx.bmp
+
+# Use board logo and fallback to vendor
+ifneq ($(wildcard logos/$(BOARD).bmp),)
+LOGO_BMP= logos/$(BOARD).bmp
+else
+ifneq ($(wildcard logos/$(VENDOR).bmp),)
+LOGO_BMP= logos/$(VENDOR).bmp
 endif
-ifeq ($(VENDOR),atmel)
-LOGO_BMP= logos/atmel.bmp
 endif
-ifeq ($(VENDOR),esd)
-LOGO_BMP= logos/esd.bmp
-endif
-ifeq ($(VENDOR),freescale)
-LOGO_BMP= logos/freescale.bmp
-endif
-ifeq ($(VENDOR),ronetix)
-LOGO_BMP= logos/ronetix.bmp
-endif
-ifeq ($(VENDOR),syteco)
-LOGO_BMP= logos/syteco.bmp
-endif
-ifeq ($(VENDOR),intercontrol)
-LOGO_BMP= logos/intercontrol.bmp
-endif
+
+endif # !LOGO_BMP
 
 # now $(obj) is defined
 HOSTSRCS += $(addprefix $(SRCTREE)/,$(EXT_OBJ_FILES-y:.o=.c))
