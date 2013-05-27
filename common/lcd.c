@@ -57,6 +57,10 @@
 #include <atmel_lcdc.h>
 #endif
 
+#if defined(CONFIG_LCD_DT_SIMPLEFB)
+#include <libfdt.h>
+#endif
+
 /************************************************************************/
 /* ** FONT DATA								*/
 /************************************************************************/
@@ -1182,3 +1186,86 @@ int lcd_get_screen_columns(void)
 {
 	return CONSOLE_COLS;
 }
+
+#if defined(CONFIG_LCD_DT_SIMPLEFB)
+static int lcd_dt_simplefb_configure_node(void *blob, int off)
+{
+	u32 stride;
+	fdt32_t cells[2];
+	int ret;
+	const char format[] =
+#if LCD_BPP == LCD_COLOR16
+		"r5g6b5";
+#else
+		"";
+#endif
+
+	if (!format[0])
+		return -1;
+
+	stride = panel_info.vl_col * 2;
+
+	cells[0] = cpu_to_fdt32(gd->fb_base);
+	cells[1] = cpu_to_fdt32(stride * panel_info.vl_row);
+	ret = fdt_setprop(blob, off, "reg", cells, sizeof(cells[0]) * 2);
+	if (ret < 0)
+		return -1;
+
+	cells[0] = cpu_to_fdt32(panel_info.vl_col);
+	ret = fdt_setprop(blob, off, "width", cells, sizeof(cells[0]));
+	if (ret < 0)
+		return -1;
+
+	cells[0] = cpu_to_fdt32(panel_info.vl_row);
+	ret = fdt_setprop(blob, off, "height", cells, sizeof(cells[0]));
+	if (ret < 0)
+		return -1;
+
+	cells[0] = cpu_to_fdt32(stride);
+	ret = fdt_setprop(blob, off, "stride", cells, sizeof(cells[0]));
+	if (ret < 0)
+		return -1;
+
+	ret = fdt_setprop(blob, off, "format", format, strlen(format) + 1);
+	if (ret < 0)
+		return -1;
+
+	ret = fdt_delprop(blob, off, "status");
+	if (ret < 0)
+		return -1;
+
+	return 0;
+}
+
+int lcd_dt_simplefb_add_node(void *blob)
+{
+	const char compat[] = "simple-framebuffer";
+	const char disabled[] = "disabled";
+	int off, ret;
+
+	off = fdt_add_subnode(blob, 0, "framebuffer");
+	if (off < 0)
+		return -1;
+
+	ret = fdt_setprop(blob, off, "status", disabled, sizeof(disabled));
+	if (ret < 0)
+		return -1;
+
+	ret = fdt_setprop(blob, off, "compatible", compat, sizeof(compat));
+	if (ret < 0)
+		return -1;
+
+	return lcd_dt_simplefb_configure_node(blob, off);
+}
+
+int lcd_dt_simplefb_enable_existing_node(void *blob)
+{
+	int off;
+
+	off = fdt_node_offset_by_compatible(blob, -1, "simple-framebuffer");
+	if (off < 0)
+		return -1;
+
+	return lcd_dt_simplefb_configure_node(blob, off);
+}
+#endif
