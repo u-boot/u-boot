@@ -150,8 +150,10 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 	u8 cmd[5];
 
 	/* Handle memory-mapped SPI */
-	if (flash->memory_map)
+	if (flash->memory_map) {
 		memcpy(data, flash->memory_map + offset, len);
+		return 0;
+	}
 
 	cmd[0] = CMD_READ_ARRAY_FAST;
 	spi_flash_addr(offset, cmd);
