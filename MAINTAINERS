@@ -1057,6 +1057,10 @@ Eric Nelson <eric.nelson@boundarydevices.com>
 	nitrogen6s		i.MX6S		512MB
 	nitrogen6s1g		i.MX6S		1GB
 
+Alison Wang <b18965@freescale.com>
+
+	vf610twr	VF610
+
 -------------------------------------------------------------------------
 
 Unknown / orphaned boards:
