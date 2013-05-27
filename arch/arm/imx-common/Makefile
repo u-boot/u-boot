@@ -27,7 +27,7 @@ include $(TOPDIR)/config.mk
 
 LIB     = $(obj)libimx-common.o
 
-ifeq ($(SOC),$(filter $(SOC),mx25 mx35 mx5 mx6))
+ifeq ($(SOC),$(filter $(SOC),mx25 mx35 mx5 mx6 vf610))
 COBJS-y	= iomux-v3.o
 endif
 ifeq ($(SOC),$(filter $(SOC),mx5 mx6))
