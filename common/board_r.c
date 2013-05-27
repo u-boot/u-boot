@@ -137,7 +137,7 @@ static int initr_reloc_global_data(void)
 #ifdef CONFIG_SYS_SYM_OFFSETS
 	monitor_flash_len = _end_ofs;
 #elif !defined(CONFIG_SANDBOX)
-	monitor_flash_len = (ulong)&__init_end - gd->dest_addr;
+	monitor_flash_len = (ulong)&__init_end - gd->relocaddr;
 #endif
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
 	/*
@@ -145,7 +145,7 @@ static int initr_reloc_global_data(void)
 	 * We need to update it to point to the same CPU entry in RAM.
 	 * TODO: why not just add gd->reloc_ofs?
 	 */
-	gd->arch.cpu += gd->dest_addr - CONFIG_SYS_MONITOR_BASE;
+	gd->arch.cpu += gd->relocaddr - CONFIG_SYS_MONITOR_BASE;
 
 	/*
 	 * If we didn't know the cpu mask & # cores, we can save them of
@@ -161,7 +161,7 @@ static int initr_reloc_global_data(void)
 	 * in SRAM mode and initialize that cache from SRAM mode back to being
 	 * a cache in cpu_init_r.
 	 */
-	gd->env_addr += gd->dest_addr - CONFIG_SYS_MONITOR_BASE;
+	gd->env_addr += gd->relocaddr - CONFIG_SYS_MONITOR_BASE;
 #endif
 	return 0;
 }
@@ -178,7 +178,7 @@ static int initr_trap(void)
 	/*
 	 * Setup trap handlers
 	 */
-	trap_init(gd->dest_addr);
+	trap_init(gd->relocaddr);
 
 	return 0;
 }
@@ -263,7 +263,7 @@ static int initr_malloc(void)
 	ulong malloc_start;
 
 	/* The malloc area is immediately below the monitor copy in DRAM */
-	malloc_start = gd->dest_addr - TOTAL_MALLOC_LEN;
+	malloc_start = gd->relocaddr - TOTAL_MALLOC_LEN;
 	mem_malloc_init((ulong)map_sysmem(malloc_start, TOTAL_MALLOC_LEN),
 			TOTAL_MALLOC_LEN);
 	return 0;
@@ -276,7 +276,7 @@ __weak int power_init_board(void)
 
 static int initr_announce(void)
 {
-	debug("Now running in RAM - U-Boot at: %08lx\n", gd->dest_addr);
+	debug("Now running in RAM - U-Boot at: %08lx\n", gd->relocaddr);
 	return 0;
 }
 

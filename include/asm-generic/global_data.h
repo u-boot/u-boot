@@ -68,9 +68,6 @@ typedef struct global_data {
 	unsigned long env_addr;	/* Address  of Environment struct */
 	unsigned long env_valid;	/* Checksum of Environment valid? */
 
-	/* TODO: is this the same as relocaddr, or something else? */
-	unsigned long dest_addr;	/* Post-relocation address of U-Boot */
-	unsigned long dest_addr_sp;
 	unsigned long ram_top;	/* Top address of RAM used by U-Boot */
 
 	unsigned long relocaddr;	/* Start address of U-Boot in RAM */

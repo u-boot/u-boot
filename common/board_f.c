@@ -421,19 +421,18 @@ static int setup_dest_addr(void)
 #endif
 	gd->ram_top += get_effective_memsize();
 	gd->ram_top = board_get_usable_ram_top(gd->mon_len);
-	gd->dest_addr = gd->ram_top;
+	gd->relocaddr = gd->ram_top;
 	debug("Ram top: %08lX\n", (ulong)gd->ram_top);
 #if defined(CONFIG_MP) && (defined(CONFIG_MPC86xx) || defined(CONFIG_E500))
 	/*
 	 * We need to make sure the location we intend to put secondary core
 	 * boot code is reserved and not used by any part of u-boot
 	 */
-	if (gd->dest_addr > determine_mp_bootpg(NULL)) {
-		gd->dest_addr = determine_mp_bootpg(NULL);
-		debug("Reserving MP boot page to %08lx\n", gd->dest_addr);
+	if (gd->relocaddr > determine_mp_bootpg(NULL)) {
+		gd->relocaddr = determine_mp_bootpg(NULL);
+		debug("Reserving MP boot page to %08lx\n", gd->relocaddr);
 	}
 #endif
-	gd->dest_addr_sp = gd->dest_addr;
 	return 0;
 }
 
@@ -441,9 +440,9 @@ static int setup_dest_addr(void)
 static int reserve_logbuffer(void)
 {
 	/* reserve kernel log buffer */
-	gd->dest_addr -= LOGBUFF_RESERVE;
+	gd->relocaddr -= LOGBUFF_RESERVE;
 	debug("Reserving %dk for kernel logbuffer at %08lx\n", LOGBUFF_LEN,
-		gd->dest_addr);
+		gd->relocaddr);
 	return 0;
 }
 #endif
@@ -455,9 +454,9 @@ static int reserve_pram(void)
 	ulong reg;
 
 	reg = getenv_ulong("pram", 10, CONFIG_PRAM);
-	gd->dest_addr -= (reg << 10);		/* size is in kB */
+	gd->relocaddr -= (reg << 10);		/* size is in kB */
 	debug("Reserving %ldk for protected RAM at %08lx\n", reg,
-	      gd->dest_addr);
+	      gd->relocaddr);
 	return 0;
 }
 #endif /* CONFIG_PRAM */
@@ -465,7 +464,7 @@ static int reserve_pram(void)
 /* Round memory pointer down to next 4 kB limit */
 static int reserve_round_4k(void)
 {
-	gd->dest_addr &= ~(4096 - 1);
+	gd->relocaddr &= ~(4096 - 1);
 	return 0;
 }
 
@@ -475,12 +474,12 @@ static int reserve_mmu(void)
 {
 	/* reserve TLB table */
 	gd->arch.tlb_size = 4096 * 4;
-	gd->dest_addr -= gd->arch.tlb_size;
+	gd->relocaddr -= gd->arch.tlb_size;
 
 	/* round down to next 64 kB limit */
-	gd->dest_addr &= ~(0x10000 - 1);
+	gd->relocaddr &= ~(0x10000 - 1);
 
-	gd->arch.tlb_addr = gd->dest_addr;
+	gd->arch.tlb_addr = gd->relocaddr;
 	debug("TLB table from %08lx to %08lx\n", gd->arch.tlb_addr,
 	      gd->arch.tlb_addr + gd->arch.tlb_size);
 	return 0;
@@ -494,8 +493,8 @@ static int reserve_lcd(void)
 	gd->fb_base = CONFIG_FB_ADDR;
 #else
 	/* reserve memory for LCD display (always full pages) */
-	gd->dest_addr = lcd_setmem(gd->dest_addr);
-	gd->fb_base = gd->dest_addr;
+	gd->relocaddr = lcd_setmem(gd->relocaddr);
+	gd->fb_base = gd->relocaddr;
 #endif /* CONFIG_FB_ADDR */
 	return 0;
 }
@@ -506,8 +505,8 @@ static int reserve_lcd(void)
 static int reserve_video(void)
 {
 	/* reserve memory for video display (always full pages) */
-	gd->dest_addr = video_setmem(gd->dest_addr);
-	gd->fb_base = gd->dest_addr;
+	gd->relocaddr = video_setmem(gd->relocaddr);
+	gd->fb_base = gd->relocaddr;
 
 	return 0;
 }
@@ -519,15 +518,18 @@ static int reserve_uboot(void)
 	 * reserve memory for U-Boot code, data & bss
 	 * round down to next 4 kB limit
 	 */
-	gd->dest_addr -= gd->mon_len;
-	gd->dest_addr &= ~(4096 - 1);
+	gd->relocaddr -= gd->mon_len;
+	gd->relocaddr &= ~(4096 - 1);
 #ifdef CONFIG_E500
 	/* round down to next 64 kB limit so that IVPR stays aligned */
-	gd->dest_addr &= ~(65536 - 1);
+	gd->relocaddr &= ~(65536 - 1);
 #endif
 
 	debug("Reserving %ldk for U-Boot at: %08lx\n", gd->mon_len >> 10,
-	      gd->dest_addr);
+	      gd->relocaddr);
+
+	gd->start_addr_sp = gd->relocaddr;
+
 	return 0;
 }
 
@@ -535,20 +537,20 @@ static int reserve_uboot(void)
 /* reserve memory for malloc() area */
 static int reserve_malloc(void)
 {
-	gd->dest_addr_sp = gd->dest_addr - TOTAL_MALLOC_LEN;
+	gd->start_addr_sp = gd->start_addr_sp - TOTAL_MALLOC_LEN;
 	debug("Reserving %dk for malloc() at: %08lx\n",
-			TOTAL_MALLOC_LEN >> 10, gd->dest_addr_sp);
+			TOTAL_MALLOC_LEN >> 10, gd->start_addr_sp);
 	return 0;
 }
 
 /* (permanently) allocate a Board Info struct */
 static int reserve_board(void)
 {
-	gd->dest_addr_sp -= sizeof(bd_t);
-	gd->bd = (bd_t *)map_sysmem(gd->dest_addr_sp, sizeof(bd_t));
+	gd->start_addr_sp -= sizeof(bd_t);
+	gd->bd = (bd_t *)map_sysmem(gd->start_addr_sp, sizeof(bd_t));
 	memset(gd->bd, '\0', sizeof(bd_t));
 	debug("Reserving %zu Bytes for Board Info at: %08lx\n",
-			sizeof(bd_t), gd->dest_addr_sp);
+			sizeof(bd_t), gd->start_addr_sp);
 	return 0;
 }
 #endif
@@ -563,10 +565,10 @@ static int setup_machine(void)
 
 static int reserve_global_data(void)
 {
-	gd->dest_addr_sp -= sizeof(gd_t);
-	gd->new_gd = (gd_t *)map_sysmem(gd->dest_addr_sp, sizeof(gd_t));
+	gd->start_addr_sp -= sizeof(gd_t);
+	gd->new_gd = (gd_t *)map_sysmem(gd->start_addr_sp, sizeof(gd_t));
 	debug("Reserving %zu Bytes for Global Data at: %08lx\n",
-			sizeof(gd_t), gd->dest_addr_sp);
+			sizeof(gd_t), gd->start_addr_sp);
 	return 0;
 }
 
@@ -580,10 +582,10 @@ static int reserve_fdt(void)
 	if (gd->fdt_blob) {
 		gd->fdt_size = ALIGN(fdt_totalsize(gd->fdt_blob) + 0x1000, 32);
 
-		gd->dest_addr_sp -= gd->fdt_size;
-		gd->new_fdt = map_sysmem(gd->dest_addr_sp, gd->fdt_size);
+		gd->start_addr_sp -= gd->fdt_size;
+		gd->new_fdt = map_sysmem(gd->start_addr_sp, gd->fdt_size);
 		debug("Reserving %lu Bytes for FDT at: %08lx\n",
-		      gd->fdt_size, gd->dest_addr_sp);
+		      gd->fdt_size, gd->start_addr_sp);
 	}
 
 	return 0;
@@ -593,8 +595,8 @@ static int reserve_stacks(void)
 {
 #ifdef CONFIG_SPL_BUILD
 # ifdef CONFIG_ARM
-	gd->dest_addr_sp -= 128;	/* leave 32 words for abort-stack */
-	gd->irq_sp = gd->dest_addr_sp;
+	gd->start_addr_sp -= 128;	/* leave 32 words for abort-stack */
+	gd->irq_sp = gd->start_addr_sp;
 # endif
 #else
 # ifdef CONFIG_PPC
@@ -602,9 +604,9 @@ static int reserve_stacks(void)
 # endif
 
 	/* setup stack pointer for exceptions */
-	gd->dest_addr_sp -= 16;
-	gd->dest_addr_sp &= ~0xf;
-	gd->irq_sp = gd->dest_addr_sp;
+	gd->start_addr_sp -= 16;
+	gd->start_addr_sp &= ~0xf;
+	gd->irq_sp = gd->start_addr_sp;
 
 	/*
 	 * Handle architecture-specific things here
@@ -613,18 +615,18 @@ static int reserve_stacks(void)
 	 */
 # ifdef CONFIG_ARM
 #  ifdef CONFIG_USE_IRQ
-	gd->dest_addr_sp -= (CONFIG_STACKSIZE_IRQ + CONFIG_STACKSIZE_FIQ);
+	gd->start_addr_sp -= (CONFIG_STACKSIZE_IRQ + CONFIG_STACKSIZE_FIQ);
 	debug("Reserving %zu Bytes for IRQ stack at: %08lx\n",
-		CONFIG_STACKSIZE_IRQ + CONFIG_STACKSIZE_FIQ, gd->dest_addr_sp);
+		CONFIG_STACKSIZE_IRQ + CONFIG_STACKSIZE_FIQ, gd->start_addr_sp);
 
 	/* 8-byte alignment for ARM ABI compliance */
-	gd->dest_addr_sp &= ~0x07;
+	gd->start_addr_sp &= ~0x07;
 #  endif
 	/* leave 3 words for abort-stack, plus 1 for alignment */
-	gd->dest_addr_sp -= 16;
+	gd->start_addr_sp -= 16;
 # elif defined(CONFIG_PPC)
 	/* Clear initial stack frame */
-	s = (ulong *) gd->dest_addr_sp;
+	s = (ulong *) gd->start_addr_sp;
 	*s = 0; /* Terminate back chain */
 	*++s = 0; /* NULL return address */
 # endif /* Architecture specific code */
@@ -635,7 +637,7 @@ static int reserve_stacks(void)
 
 static int display_new_sp(void)
 {
-	debug("New Stack Pointer is: %08lx\n", gd->dest_addr_sp);
+	debug("New Stack Pointer is: %08lx\n", gd->start_addr_sp);
 
 	return 0;
 }
@@ -757,15 +759,13 @@ static int reloc_fdt(void)
 
 static int setup_reloc(void)
 {
-	gd->relocaddr = gd->dest_addr;
-	gd->start_addr_sp = gd->dest_addr_sp;
-	gd->reloc_off = gd->dest_addr - CONFIG_SYS_TEXT_BASE;
+	gd->reloc_off = gd->relocaddr - CONFIG_SYS_TEXT_BASE;
 	memcpy(gd->new_gd, (char *)gd, sizeof(gd_t));
 
 	debug("Relocation Offset is: %08lx\n", gd->reloc_off);
 	debug("Relocating to %08lx, new gd at %08lx, sp at %08lx\n",
-	      gd->dest_addr, (ulong)map_to_sysmem(gd->new_gd),
-	      gd->dest_addr_sp);
+	      gd->relocaddr, (ulong)map_to_sysmem(gd->new_gd),
+	      gd->start_addr_sp);
 
 	return 0;
 }
@@ -794,7 +794,7 @@ static int jump_to_copy(void)
 #elif defined(CONFIG_SANDBOX)
 	board_init_r(gd->new_gd, 0);
 #else
-	relocate_code(gd->dest_addr_sp, gd->new_gd, gd->dest_addr);
+	relocate_code(gd->start_addr_sp, gd->new_gd, gd->relocaddr);
 #endif
 
 	return 0;
