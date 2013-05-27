@@ -937,7 +937,8 @@ void spi_enable_quad_bit(struct spi_slave *spi)
 				ret = spi_flash_cmd_read(spi, &rdsr_cmd,
 						sizeof(rdsr_cmd), &rcr_data,
 						sizeof(rcr_data));
-			} while ((ret == 0) && (rcr_data != 0) && (count++<1000));
+			} while ((ret == 0) && (rcr_data != 0) &&
+				 (count++ < 1000));
 
 			/* Read config register */
 			ret = spi_flash_cmd_read(spi, &rcr_cmd, sizeof(rcr_cmd),
