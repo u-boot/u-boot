@@ -55,27 +55,27 @@ static const struct winbond_spi_flash_params winbond_spi_flash_table[] = {
 	{
 		.id			= 0x4014,
 		.nr_blocks		= 16,
-		.name			= "W25Q80BL",
+		.name			= "W25Q80BL/W25Q80BV",
 	},
 	{
 		.id			= 0x4015,
 		.nr_blocks		= 32,
-		.name			= "W25Q16",
+		.name			= "W25Q16CL/W25Q16DV",
 	},
 	{
 		.id			= 0x4016,
 		.nr_blocks		= 64,
-		.name			= "W25Q32",
+		.name			= "W25Q32BV",
 	},
 	{
 		.id			= 0x4017,
 		.nr_blocks		= 128,
-		.name			= "W25Q64",
+		.name			= "W25Q64CV",
 	},
 	{
 		.id			= 0x4018,
 		.nr_blocks		= 256,
-		.name			= "W25Q128",
+		.name			= "W25Q128BV",
 	},
 	{
 		.id			= 0x4019,
