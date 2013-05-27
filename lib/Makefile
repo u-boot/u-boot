@@ -27,7 +27,6 @@ LIB	= $(obj)libgeneric.o
 
 ifndef CONFIG_SPL_BUILD
 COBJS-$(CONFIG_ADDR_MAP) += addr_map.o
-COBJS-$(CONFIG_BCH) += bch.o
 COBJS-$(CONFIG_AES) += aes.o
 COBJS-$(CONFIG_BZIP2) += bzlib.o
 COBJS-$(CONFIG_BZIP2) += bzlib_crctable.o
@@ -44,6 +43,7 @@ COBJS-$(CONFIG_TEST_FDTDEC) += fdtdec_test.o
 COBJS-$(CONFIG_GZIP) += gunzip.o
 COBJS-$(CONFIG_GZIP_COMPRESSED) += gzip.o
 COBJS-y += hashtable.o
+COBJS-y += initcall.o
 COBJS-$(CONFIG_LMB) += lmb.o
 COBJS-y += ldiv.o
 COBJS-$(CONFIG_MD5) += md5.o
@@ -53,6 +53,7 @@ COBJS-y += qsort.o
 COBJS-$(CONFIG_SHA1) += sha1.o
 COBJS-$(CONFIG_SHA256) += sha256.o
 COBJS-y	+= strmhz.o
+COBJS-$(CONFIG_TPM) += tpm.o
 COBJS-$(CONFIG_RBTREE)	+= rbtree.o
 endif
 
@@ -66,6 +67,7 @@ COBJS-$(CONFIG_SPL_NET_SUPPORT) += errno.o
 COBJS-$(CONFIG_SPL_NET_SUPPORT) += hashtable.o
 COBJS-$(CONFIG_SPL_NET_SUPPORT) += net_utils.o
 endif
+COBJS-$(CONFIG_BCH) += bch.o
 COBJS-y += crc32.o
 COBJS-y += ctype.o
 COBJS-y += div64.o

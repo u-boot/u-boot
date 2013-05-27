@@ -191,6 +191,10 @@
 #define CONFIG_SYS_SRAM_BASE		0x30000000
 #define CONFIG_SYS_SRAM_SIZE		0x00020000	/* 128 KB */
 
+/* Initialize Local Window for NOR FLASH access */
+#define CONFIG_SYS_CS0_START		CONFIG_SYS_FLASH_BASE
+#define CONFIG_SYS_CS0_SIZE		CONFIG_SYS_FLASH_SIZE
+
 /* ALE active low, data size 4bytes */
 #define CONFIG_SYS_CS0_CFG		0x05051150
 
@@ -201,6 +205,9 @@
 #define CONFIG_SYS_CS1_CFG		0x1f1f3090
 #define CONFIG_SYS_VPC3_BASE		0x82000000	/* start of VPC3 space */
 #define CONFIG_SYS_VPC3_SIZE		0x00010000	/* max VPC3 size */
+/* Initialize Local Window for VPC3 access */
+#define CONFIG_SYS_CS1_START		CONFIG_SYS_VPC3_BASE
+#define CONFIG_SYS_CS1_SIZE		CONFIG_SYS_VPC3_SIZE
 
 /* Use SRAM for initial stack */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_SRAM_BASE /* Init RAM addr */
@@ -234,6 +241,23 @@
 #define CONSOLE_FIFO_TX_ADDR	FIFOC_PSC3_TX_ADDR
 #define CONSOLE_FIFO_RX_SIZE	FIFOC_PSC3_RX_SIZE
 #define CONSOLE_FIFO_RX_ADDR	FIFOC_PSC3_RX_ADDR
+
+/*
+ * Clocks in use
+ */
+#define SCCR1_CLOCKS_EN	(CLOCK_SCCR1_CFG_EN |				\
+			 CLOCK_SCCR1_LPC_EN |				\
+			 CLOCK_SCCR1_PSC_EN(CONFIG_PSC_CONSOLE) |	\
+			 CLOCK_SCCR1_PSCFIFO_EN |			\
+			 CLOCK_SCCR1_DDR_EN |				\
+			 CLOCK_SCCR1_FEC_EN |				\
+			 CLOCK_SCCR1_NFC_EN |				\
+			 CLOCK_SCCR1_PCI_EN |				\
+			 CLOCK_SCCR1_TPR_EN)
+
+#define SCCR2_CLOCKS_EN	(CLOCK_SCCR2_MEM_EN |	\
+			 CLOCK_SCCR2_I2C_EN)
+
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 /* Use the HUSH parser */

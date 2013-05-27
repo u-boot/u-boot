@@ -359,7 +359,7 @@ void gd405ex_init(void)
 
 	if (i2c_probe(0x22)) { /* i2c_probe returns 0 on success */
 		for (k = 0; k < CONFIG_SYS_FPGA_COUNT; ++k)
-			gd->fpga_state[k] |= FPGA_STATE_PLATFORM;
+			gd->arch.fpga_state[k] |= FPGA_STATE_PLATFORM;
 	} else {
 		pca9698_direction_output(0x22, 39, 1);
 	}

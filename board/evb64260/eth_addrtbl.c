@@ -6,9 +6,6 @@
 #include "eth.h"
 #include "eth_addrtbl.h"
 
-#define TRUE 1
-#define FALSE 0
-
 #define PRINTF printf
 
 #ifdef CONFIG_GT_USE_MAC_HASH_TABLE
@@ -160,8 +157,8 @@ u32 hashTableFunction (u32 macH, u32 macL, u32 HashSize, u32 hash_mode)
  * rd   - the RD field in the address table.
  * Outputs
  * address table entry is added.
- * TRUE if success.
- * FALSE if table full
+ * true if success.
+ * false if table full
  */
 int addAddressTableEntry (u32 port, u32 macH, u32 macL, u32 rd, u32 skip)
 {
@@ -206,7 +203,7 @@ int addAddressTableEntry (u32 port, u32 macH, u32 macL, u32 rd, u32 skip)
 
 	if (i == HOP_NUMBER) {
 		PRINTF ("addGT64260addressTableEntry: table section is full\n");
-		return (FALSE);
+		return false;
 	}
 
 	/*
@@ -215,7 +212,7 @@ int addAddressTableEntry (u32 port, u32 macH, u32 macL, u32 rd, u32 skip)
 	entry->hi = newHi;
 	entry->lo = newLo;
 	DCACHE_FLUSH_N_SYNC ((u32) entry, MAC_ENTRY_SIZE);
-	return (TRUE);
+	return true;
 }
 
 #endif /* CONFIG_GT_USE_MAC_HASH_TABLE */

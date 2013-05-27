@@ -16,9 +16,9 @@
 #include <common.h>
 #include <malloc.h>
 #include <sdhci.h>
-#include <asm/arch/mmc.h>
+#include <asm/arch/sys_proto.h>
 
-int zynq_sdhci_init(u32 regbase, u32 max_clk, u32 min_clk)
+int zynq_sdhci_init(u32 regbase)
 {
 	struct sdhci_host *host = NULL;
 
@@ -29,12 +29,12 @@ int zynq_sdhci_init(u32 regbase, u32 max_clk, u32 min_clk)
 	}
 
 	host->name = "zynq_sdhci";
-	host->ioaddr = (void *) regbase;
+	host->ioaddr = (void *)regbase;
 	host->quirks = SDHCI_QUIRK_NO_CD | SDHCI_QUIRK_WAIT_SEND_CMD;
 	host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
 
 	host->host_caps = MMC_MODE_HC;
 
-	add_sdhci(host, max_clk, min_clk);
+	add_sdhci(host, 52000000, 52000000 >> 9);
 	return 0;
 }

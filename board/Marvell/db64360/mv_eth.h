@@ -46,13 +46,6 @@
 **************************************************************************
 **************************************************************************
 *************************************************************************/
-#ifndef TRUE
-#define TRUE 1
-#endif
-#ifndef FALSE
-#define FALSE 0
-#endif
-
 /* In case not using SG on Tx, define MAX_SKB_FRAGS as 0 */
 #ifndef MAX_SKB_FRAGS
 #define MAX_SKB_FRAGS 0

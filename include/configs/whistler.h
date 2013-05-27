@@ -59,14 +59,6 @@
 #define CONFIG_TEGRA_MMC
 #define CONFIG_CMD_MMC
 
-#define CONFIG_DOS_PARTITION
-#define CONFIG_EFI_PARTITION
-#define CONFIG_FS_EXT4
-#define CONFIG_FS_FAT
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_FS_GENERIC
-
 /*
  * Environment in eMMC, at the end of 2nd "boot sector". Note: This assumes
  * the user plugged the standard 8MB MoviNAND card into J29/HSMMC/POP. If

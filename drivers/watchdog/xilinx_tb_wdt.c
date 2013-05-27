@@ -37,7 +37,7 @@ struct watchdog_regs {
 	u32 tbr; /* 0x8 */
 };
 
-#define watchdog_base ((struct watchdog_regs *) CONFIG_WATCHDOG_BASEADDR)
+#define watchdog_base ((struct watchdog_regs *)CONFIG_WATCHDOG_BASEADDR)
 
 void hw_watchdog_reset(void)
 {
@@ -47,9 +47,8 @@ void hw_watchdog_reset(void)
 	reg = readl(&watchdog_base->twcsr0);
 
 	/* Clear the watchdog WDS bit */
-	if (reg & (XWT_CSR0_EWDT1_MASK | XWT_CSRX_EWDT2_MASK)) {
+	if (reg & (XWT_CSR0_EWDT1_MASK | XWT_CSRX_EWDT2_MASK))
 		writel(reg | XWT_CSR0_WDS_MASK, &watchdog_base->twcsr0);
-	}
 }
 
 void hw_watchdog_disable(void)
@@ -75,7 +74,7 @@ int hw_watchdog_init(void)
 	int ret;
 
 	writel((XWT_CSR0_WRS_MASK | XWT_CSR0_WDS_MASK | XWT_CSR0_EWDT1_MASK),
-		&watchdog_base->twcsr0);
+	       &watchdog_base->twcsr0);
 	writel(XWT_CSRX_EWDT2_MASK, &watchdog_base->twcsr1);
 
 	ret = install_interrupt_handler(CONFIG_WATCHDOG_IRQ,

@@ -199,6 +199,7 @@
 	"splfile=falcon.bin\0" \
 	"spl_export=" \
 		   "setexpr spl_imgsize ${splsize} + 8 ;" \
+		   "setenv spl_imgsize 0x${spl_imgsize};" \
 		   "setexpr spl_imgaddr ${spladdr} - 8 ;" \
 		   "setexpr spl_addr_tmp ${spladdr} - 4 ;" \
 		   "mw.b ${spl_imgaddr} 0x00 ${spl_imgsize};run loaduimage;" \
@@ -315,5 +316,10 @@
 #define CONFIG_EXYNOS_MIPI_DSIM
 #define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE ((500 * 120 * 4) + (1 << 12))
+
+#define CONFIG_CMD_USB_MASS_STORAGE
+#if defined(CONFIG_CMD_USB_MASS_STORAGE)
+#define CONFIG_USB_GADGET_MASS_STORAGE
+#endif
 
 #endif	/* __CONFIG_H */

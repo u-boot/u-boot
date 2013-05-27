@@ -859,6 +859,25 @@ unknown:
 			if (&f->list == &cdev->config->functions)
 				f = NULL;
 			break;
+		/*
+		 * dfu-util (version 0.5) sets bmRequestType.Receipent = Device
+		 * for non-standard request (w_value = 0x21,
+		 * bRequest = GET_DESCRIPTOR in this case).
+		 * When only one interface is registered (as it is done now),
+		 * then this request shall be handled as it was requested for
+		 * interface.
+		 *
+		 * In the below code it is checked if only one interface is
+		 * present and proper function for it is extracted. Due to that
+		 * function's setup (f->setup) is called to handle this
+		 * special non-standard request.
+		 */
+		case USB_RECIP_DEVICE:
+			debug("cdev->config->next_interface_id: %d intf: %d\n",
+			       cdev->config->next_interface_id, intf);
+			if (cdev->config->next_interface_id == 1)
+				f = cdev->config->interface[intf];
+			break;
 		}
 
 		if (f && f->setup)

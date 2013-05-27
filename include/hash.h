@@ -22,7 +22,7 @@
 #ifndef _HASH_H
 #define _HASH_H
 
-#ifdef CONFIG_SHA1SUM_VERIFY
+#if defined(CONFIG_SHA1SUM_VERIFY) || defined(CONFIG_CRC32_VERIFY)
 #define CONFIG_HASH_VERIFY
 #endif
 
@@ -51,19 +51,24 @@ struct hash_algo {
  */
 #define HASH_MAX_DIGEST_SIZE	32
 
+enum {
+	HASH_FLAG_VERIFY	= 1 << 0,	/* Enable verify mode */
+	HASH_FLAG_ENV		= 1 << 1,	/* Allow env vars */
+};
+
 /**
  * hash_command: Process a hash command for a particular algorithm
  *
  * This common function is used to implement specific hash commands.
  *
- * @algo_name:		Hash algorithm being used
- * @verify:		Non-zero to enable verify mode
+ * @algo_name:		Hash algorithm being used (lower case!)
+ * @flags:		Flags value (HASH_FLAG_...)
  * @cmdtp:		Pointer to command table entry
  * @flag:		Some flags normally 0 (see CMD_FLAG_.. above)
  * @argc:		Number of arguments (arg 0 must be the command text)
  * @argv:		Arguments
  */
-int hash_command(const char *algo_name, int verify, cmd_tbl_t *cmdtp, int flag,
+int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
 		 int argc, char * const argv[]);
 
 #endif

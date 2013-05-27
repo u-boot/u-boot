@@ -63,7 +63,9 @@
 #define IRQSTAT_CC		(0x00000001)
 
 #define CMD_ERR		(IRQSTAT_CIE | IRQSTAT_CEBE | IRQSTAT_CCE)
-#define DATA_ERR	(IRQSTAT_DEBE | IRQSTAT_DCE | IRQSTAT_DTOE)
+#define DATA_ERR	(IRQSTAT_DEBE | IRQSTAT_DCE | IRQSTAT_DTOE | \
+				IRQSTAT_DMAE)
+#define DATA_COMPLETE	(IRQSTAT_TC | IRQSTAT_DINT)
 
 #define IRQSTATEN		0x0002e034
 #define IRQSTATEN_DMAE		(0x10000000)
@@ -168,6 +170,7 @@
 struct fsl_esdhc_cfg {
 	u32	esdhc_base;
 	u32	sdhc_clk;
+	u8	max_bus_width;
 };
 
 /* Select the correct accessors depending on endianess */

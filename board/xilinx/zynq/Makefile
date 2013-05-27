@@ -22,13 +22,10 @@
 #
 
 include $(TOPDIR)/config.mk
-ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)../common)
-endif
 
 LIB	= $(obj)lib$(BOARD).o
 
-COBJS-y	:= board.o ../../xilinx/common/xbasic_types.o
+COBJS-y	:= board.o
 
 COBJS	:= $(sort $(COBJS-y))
 

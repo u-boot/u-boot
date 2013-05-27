@@ -50,13 +50,49 @@
 #define CONFIG_ZYNQ_SERIAL_BAUDRATE0	CONFIG_BAUDRATE
 #define CONFIG_ZYNQ_SERIAL_CLOCK0	50000000
 
-/* SCU timer address is hardcoded */
-#define CONFIG_SCUTIMER_BASEADDR	0xF8F00600
-
 /* Ethernet driver */
 #define CONFIG_NET_MULTI
 #define CONFIG_ZYNQ_GEM
-#define CONFIG_ZYNQ_GEM_BASEADDR0	0xE000B000
+#define CONFIG_ZYNQ_GEM0
+#define CONFIG_ZYNQ_GEM_PHY_ADDR0	7
+
+#define CONFIG_ZYNQ_SDHCI
+#define CONFIG_ZYNQ_SDHCI0
+
+/* MMC */
+#if defined(CONFIG_ZYNQ_SDHCI0) || defined(CONFIG_ZYNQ_SDHCI1)
+# define CONFIG_MMC
+# define CONFIG_GENERIC_MMC
+# define CONFIG_SDHCI
+# define CONFIG_ZYNQ_SDHCI
+# define CONFIG_CMD_MMC
+# define CONFIG_CMD_FAT
+# define CONFIG_SUPPORT_VFAT
+# define CONFIG_CMD_EXT2
+# define CONFIG_DOS_PARTITION
+#endif
+
+#define CONFIG_ZYNQ_I2C0
+
+/* I2C */
+#if defined(CONFIG_ZYNQ_I2C0) || defined(CONFIG_ZYNQ_I2C1)
+# define CONFIG_CMD_I2C
+# define CONFIG_ZYNQ_I2C
+# define CONFIG_HARD_I2C
+# define CONFIG_SYS_I2C_SPEED		100000
+# define CONFIG_SYS_I2C_SLAVE		1
+#endif
+
+#if defined(CONFIG_ZYNQ_DCC)
+# define CONFIG_ARM_DCC
+# define CONFIG_CPU_V6 /* Required by CONFIG_ARM_DCC */
+#endif
+
+/* Enable the PL to be downloaded */
+#define CONFIG_FPGA
+#define CONFIG_FPGA_XILINX
+#define CONFIG_FPGA_ZYNQPL
+#define CONFIG_CMD_FPGA
 
 #define CONFIG_BOOTP_SERVERIP
 #define CONFIG_BOOTP_BOOTPATH

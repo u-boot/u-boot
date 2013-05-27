@@ -27,23 +27,6 @@
 #ifndef _ALTERA_H_
 #define _ALTERA_H_
 
-/* Altera Model definitions
- *********************************************************************/
-#define CONFIG_SYS_ACEX1K		CONFIG_SYS_FPGA_DEV( 0x1 )
-#define CONFIG_SYS_CYCLON2		CONFIG_SYS_FPGA_DEV( 0x2 )
-#define CONFIG_SYS_STRATIX_II		CONFIG_SYS_FPGA_DEV( 0x4 )
-
-#define CONFIG_SYS_ALTERA_ACEX1K	(CONFIG_SYS_FPGA_ALTERA | CONFIG_SYS_ACEX1K)
-#define CONFIG_SYS_ALTERA_CYCLON2	(CONFIG_SYS_FPGA_ALTERA | CONFIG_SYS_CYCLON2)
-#define CONFIG_SYS_ALTERA_STRATIX_II	(CONFIG_SYS_FPGA_ALTERA | CONFIG_SYS_STRATIX_II)
-/* Add new models here */
-
-/* Altera Interface definitions
- *********************************************************************/
-#define CONFIG_SYS_ALTERA_IF_PS	CONFIG_SYS_FPGA_IF( 0x1 )	/* passive serial */
-#define CONFIG_SYS_ALTERA_IF_FPP	CONFIG_SYS_FPGA_IF( 0x2 )	/* fast passive parallel */
-/* Add new interfaces here */
-
 typedef enum {				/* typedef Altera_iface */
 	min_altera_iface_type,		/* insert all new types after this */
 	passive_serial,			/* serial data and external clock */

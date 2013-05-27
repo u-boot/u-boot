@@ -109,7 +109,7 @@ static struct tag *setup_clock_tags(struct tag *params)
 	params->hdr.size = tag_size(tag_clock);
 	params->u.clock.clock_id = ACLOCK_BOOTCPU;
 	params->u.clock.clock_flags = 0;
-	params->u.clock.clock_hz = gd->cpu_hz;
+	params->u.clock.clock_hz = gd->arch.cpu_hz;
 
 #ifdef CONFIG_AT32AP7000
 	/*

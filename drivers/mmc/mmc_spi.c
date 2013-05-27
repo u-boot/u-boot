@@ -273,6 +273,7 @@ struct mmc *mmc_spi_init(uint bus, uint cs, uint speed, uint mode)
 	mmc->set_ios = mmc_spi_set_ios;
 	mmc->init = mmc_spi_init_p;
 	mmc->getcd = NULL;
+	mmc->getwp = NULL;
 	mmc->host_caps = MMC_MODE_SPI;
 
 	mmc->voltages = MMC_SPI_VOLTAGE;

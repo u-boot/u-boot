@@ -46,18 +46,12 @@ struct spi_flash *spi_flash_probe_eon(struct spi_slave *spi, u8 *idcode)
 		return NULL;
 	}
 
-	flash = malloc(sizeof(*flash));
+	flash = spi_flash_alloc_base(spi, params->name);
 	if (!flash) {
 		debug("SF: Failed to allocate memory\n");
 		return NULL;
 	}
 
-	flash->spi = spi;
-	flash->name = params->name;
-
-	flash->write = spi_flash_cmd_write_multi;
-	flash->erase = spi_flash_cmd_erase;
-	flash->read = spi_flash_cmd_read_fast;
 	flash->page_size = 256;
 	flash->sector_size = 256 * 16 * 16;
 	flash->size = 256 * 16

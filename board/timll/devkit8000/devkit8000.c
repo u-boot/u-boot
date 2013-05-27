@@ -136,8 +136,7 @@ void set_muxconf_regs(void)
 #if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
 int board_mmc_init(bd_t *bis)
 {
-	omap_mmc_init(0, 0, 0);
-	return 0;
+	return omap_mmc_init(0, 0, 0, -1, -1);
 }
 #endif
 
@@ -172,10 +171,10 @@ void spl_board_prepare_for_linux(void)
 int spl_start_uboot(void)
 {
 	int val = 0;
-	if (!gpio_request(CONFIG_SPL_OS_BOOT_KEY, "U-Boot key")) {
-		gpio_direction_input(CONFIG_SPL_OS_BOOT_KEY);
-		val = gpio_get_value(CONFIG_SPL_OS_BOOT_KEY);
-		gpio_free(CONFIG_SPL_OS_BOOT_KEY);
+	if (!gpio_request(SPL_OS_BOOT_KEY, "U-Boot key")) {
+		gpio_direction_input(SPL_OS_BOOT_KEY);
+		val = gpio_get_value(SPL_OS_BOOT_KEY);
+		gpio_free(SPL_OS_BOOT_KEY);
 	}
 	return !val;
 }

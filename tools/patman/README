@@ -43,6 +43,9 @@ Series-to: fred.blogs@napier.co.nz
 
 in one of your commits, the series will be sent there.
 
+In Linux this will also call get_maintainer.pl on each of your
+patches automatically.
+
 
 How to use this tool
 ====================
@@ -65,8 +68,12 @@ will get a consistent result each time.
 How to configure it
 ===================
 
-For most cases patman will locate and use the file 'doc/git-mailrc' in
-your U-Boot directory. This contains most of the aliases you will need.
+For most cases of using patman for U-Boot development, patman will
+locate and use the file 'doc/git-mailrc' in your U-Boot directory.
+This contains most of the aliases you will need.
+
+For Linux the 'scripts/get_maintainer.pl' handles figuring out where
+to send patches pretty well.
 
 During the first run patman creates a config file for you by taking the default
 user name and email address from the global .gitconfig file.
@@ -89,6 +96,35 @@ Aliases are recursive.
 
 The checkpatch.pl in the U-Boot tools/ subdirectory will be located and
 used. Failing that you can put it into your path or ~/bin/checkpatch.pl
+
+
+If you want to change the defaults for patman's command-line arguments,
+you can add a [settings] section to your .patman file.  This can be used
+for any command line option by referring to the "dest" for the option in
+patman.py.  For reference, the useful ones (at the moment) shown below
+(all with the non-default setting):
+
+>>>
+
+[settings]
+ignore_errors: True
+process_tags: False
+verbose: True
+
+<<<
+
+
+If you want to adjust settings (or aliases) that affect just a single
+project you can add a section that looks like [project_settings] or
+[project_alias].  If you want to use tags for your linux work, you could
+do:
+
+>>>
+
+[linux_settings]
+process_tags: True
+
+<<<
 
 
 How to run it
@@ -146,6 +182,10 @@ END
 	Sets the cover letter contents for the series. The first line
 	will become the subject of the cover letter
 
+Cover-letter-cc: email / alias
+	Additional email addresses / aliases to send cover letter to (you
+	can add this multiple times)
+
 Series-notes:
 blah blah
 blah blah
@@ -162,8 +202,9 @@ END
 	override the default signoff that patman automatically adds.
 
  Tested-by: Their Name <email>
+ Reviewed-by: Their Name <email>
  Acked-by: Their Name <email>
-	These indicate that someone has acked or tested your patch.
+	These indicate that someone has tested/reviewed/acked your patch.
 	When you get this reply on the mailing list, you can add this
 	tag to the relevant commit and the script will include it when
 	you send out the next version. If 'Tested-by:' is set to
@@ -184,8 +225,15 @@ Series-changes: n
 	to update the log there and then, knowing that the script will
 	do the rest.
 
-Cc: Their Name <email>
+ Cc: Their Name <email>
 	This copies a single patch to another email address.
+
+Series-process-log: sort, uniq
+	This tells patman to sort and/or uniq the change logs. It is
+	assumed that each change log entry is only a single line long.
+	Use 'sort' to sort the entries, and 'uniq' to include only
+	unique entries. If omitted, no change log processing is done.
+	Separate each tag with a comma.
 
 Various other tags are silently removed, like these Chrome OS and
 Gerrit tags:
@@ -195,7 +243,6 @@ TEST=...
 Change-Id:
 Review URL:
 Reviewed-on:
-Reviewed-by:
 
 
 Exercise for the reader: Try adding some tags to one of your current
@@ -225,6 +272,15 @@ Date:	Mon Nov 7 23:18:44 2011 -0500
 
 will create a patch which is copied to x86, arm, sandbox, mikef, ag and
 afleming.
+
+If you have a cover letter it will get sent to the union of the CC lists of
+all of the other patches. If you want to sent it to additional people you
+can add a tag:
+
+Cover-letter-cc: <list of addresses>
+
+These people will get the cover letter even if they are not on the To/Cc
+list for any of the patches.
 
 
 Example Work Flow

@@ -100,7 +100,7 @@ int ide_preinit (void)
 	ide_set_reset(0);
 
 	/* Init timings : we use PIO mode 0 timings */
-	t = 1000000000 / gd->ips_clk;	/* period in ns */
+	t = 1000000000 / gd->arch.ips_clk;	/* period in ns */
 	cfg.bytes.field1 = 3;
 	cfg.bytes.field2 = 3;
 	cfg.bytes.field3 = (pio_specs.t1 + t) / t;

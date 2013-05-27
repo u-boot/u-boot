@@ -1,6 +1,6 @@
 /dts-v1/;
 
-/include/ ARCH_CPU_DTS
+#include "tegra20.dtsi"
 
 / {
 	model = "NVIDIA Tegra20 Harmony evaluation board";
@@ -9,27 +9,26 @@
 	aliases {
 		usb0 = "/usb@c5008000";
 		usb1 = "/usb@c5004000";
+		sdhci0 = "/sdhci@c8000600";
+		sdhci1 = "/sdhci@c8000200";
 	};
 
 	memory {
 		reg = <0x00000000 0x40000000>;
 	};
 
-	clocks {
-		clk_32k: clk_32k {
-			clock-frequency = <32000>;
-		};
-		osc {
-			clock-frequency = <12000000>;
-		};
-	};
-
-	clock@60006000 {
-		clocks = <&clk_32k &osc>;
-	};
-
 	serial@70006300 {
 		clock-frequency = < 216000000 >;
+	};
+
+	nand-controller@70008000 {
+		nvidia,wp-gpios = <&gpio 23 0>;		/* PC7 */
+		nvidia,width = <8>;
+		nvidia,timing = <26 100 20 80 20 10 12 10 70>;
+		nand@0 {
+			reg = <0>;
+			compatible = "hynix,hy27uf4g2b", "nand-flash";
+		};
 	};
 
 	i2c@7000c000 {
@@ -56,13 +55,19 @@
 		nvidia,phy-reset-gpio = <&gpio 169 0>; /* gpio PV1 */
 	};
 
-	nand-controller@70008000 {
-		nvidia,wp-gpios = <&gpio 23 0>;		/* PC7 */
-		nvidia,width = <8>;
-		nvidia,timing = <26 100 20 80 20 10 12 10 70>;
-		nand@0 {
-			reg = <0>;
-			compatible = "hynix,hy27uf4g2b", "nand-flash";
-		};
+	sdhci@c8000200 {
+		status = "okay";
+		cd-gpios = <&gpio 69 1>; /* gpio PI5 */
+		wp-gpios = <&gpio 57 0>; /* gpio PH1 */
+		power-gpios = <&gpio 155 0>; /* gpio PT3 */
+		bus-width = <4>;
+	};
+
+	sdhci@c8000600 {
+		status = "okay";
+		cd-gpios = <&gpio 58 1>; /* gpio PH2 */
+		wp-gpios = <&gpio 59 0>; /* gpio PH3 */
+		power-gpios = <&gpio 70 0>; /* gpio PI6 */
+		bus-width = <8>;
 	};
 };

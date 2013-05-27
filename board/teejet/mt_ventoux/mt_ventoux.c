@@ -81,6 +81,7 @@ static struct panel_config lcd_cfg[] = {
 	.data_lines     = 0x03, /* 24 Bit RGB */
 	.load_mode      = 0x02, /* Frame Mode */
 	.panel_color	= 0,
+	.gfx_format	= GFXFORMAT_RGB24_UNPACKED,
 	},
 	{
 	.timing_h       = PANEL_TIMING_H(20, 192, 4),
@@ -91,6 +92,7 @@ static struct panel_config lcd_cfg[] = {
 	.data_lines     = 0x03, /* 24 Bit RGB */
 	.load_mode      = 0x02, /* Frame Mode */
 	.panel_color	= 0,
+	.gfx_format	= GFXFORMAT_RGB24_UNPACKED,
 	}
 };
 #endif
@@ -177,9 +179,9 @@ int fpga_post_config_fn(int cookie)
 {
 	debug("%s:%d: FPGA post-configuration\n", __func__, __LINE__);
 
-	fpga_reset(TRUE);
+	fpga_reset(true);
 	udelay(100);
-	fpga_reset(FALSE);
+	fpga_reset(false);
 
 	return 0;
 }
@@ -304,7 +306,7 @@ int board_eth_init(bd_t *bis)
 	!defined(CONFIG_SPL_BUILD)
 int board_mmc_init(bd_t *bis)
 {
-	return omap_mmc_init(0, 0, 0);
+	return omap_mmc_init(0, 0, 0, -1, -1);
 }
 #endif
 

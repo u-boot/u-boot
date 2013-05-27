@@ -28,7 +28,6 @@ static int do_zip(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned long src, dst;
 	unsigned long src_len, dst_len = ~0UL;
-	char buf[32];
 
 	switch (argc) {
 		case 5:
@@ -47,8 +46,7 @@ static int do_zip(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 1;
 
 	printf("Compressed size: %ld = 0x%lX\n", dst_len, dst_len);
-	sprintf(buf, "%lX", dst_len);
-	setenv("filesize", buf);
+	setenv_hex("filesize", dst_len);
 
 	return 0;
 }

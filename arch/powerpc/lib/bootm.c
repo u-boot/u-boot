@@ -36,10 +36,8 @@
 #include <asm/mp.h>
 
 #if defined(CONFIG_OF_LIBFDT)
-#include <fdt.h>
 #include <libfdt.h>
 #include <fdt_support.h>
-
 #endif
 
 #ifdef CONFIG_SYS_INIT_RAM_LOCK

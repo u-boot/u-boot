@@ -61,8 +61,8 @@ IX_ETH_DB_PRIVATE PortEventQueue eventQueue;
 IX_ETH_DB_PRIVATE IxOsalMutex eventQueueLock;
 IX_ETH_DB_PRIVATE IxOsalMutex portUpdateLock;
 
-IX_ETH_DB_PRIVATE BOOL ixEthDBLearningShutdown      = FALSE;
-IX_ETH_DB_PRIVATE BOOL ixEthDBEventProcessorRunning = FALSE;
+IX_ETH_DB_PRIVATE BOOL ixEthDBLearningShutdown      = false;
+IX_ETH_DB_PRIVATE BOOL ixEthDBEventProcessorRunning = false;
 
 /* imported data */
 extern HashTable dbHashtable;
@@ -143,7 +143,7 @@ IxEthDBStatus ixEthDBStartLearningFunction(void)
         return IX_ETH_DB_FAIL;
     }
 
-    ixEthDBLearningShutdown = FALSE;
+    ixEthDBLearningShutdown = false;
 
     /* create processor loop thread */
     if (ixOsalThreadCreate(&eventProcessorThread, &threadAttr, ixEthDBEventProcessorLoop, NULL) != IX_SUCCESS)
@@ -173,7 +173,7 @@ IxEthDBStatus ixEthDBStartLearningFunction(void)
 IX_ETH_DB_PUBLIC
 IxEthDBStatus ixEthDBStopLearningFunction(void)
 {
-    ixEthDBLearningShutdown = TRUE;
+    ixEthDBLearningShutdown = true;
 
     /* wake up event processing loop to actually process the shutdown event */
     ixOsalSemaphorePost(&eventQueueSemaphore);
@@ -253,13 +253,13 @@ void ixEthDBEventProcessorLoop(void *unused1)
     IxEthDBPortMap triggerPorts;
     IxEthDBPortId portIndex;
 
-    ixEthDBEventProcessorRunning = TRUE;
+    ixEthDBEventProcessorRunning = true;
 
     IX_ETH_DB_EVENTS_TRACE("DB: (Events) Event processor loop was started\n");
 
     while (!ixEthDBLearningShutdown)
     {
-        BOOL keepProcessing    = TRUE;
+        BOOL keepProcessing    = true;
         UINT32 processedEvents = 0;
 
         IX_ETH_DB_EVENTS_VERBOSE_TRACE("DB: (Events) Waiting for new learning event...\n");
@@ -302,7 +302,7 @@ void ixEthDBEventProcessorLoop(void *unused1)
                 if (processedEvents > EVENT_PROCESSING_LIMIT /* maximum burst reached? */
                     || ixOsalSemaphoreTryWait(&eventQueueSemaphore) != IX_SUCCESS) /* or empty queue? */
                 {
-                    keepProcessing = FALSE;
+                    keepProcessing = false;
                 }
             }
 
@@ -313,10 +313,10 @@ void ixEthDBEventProcessorLoop(void *unused1)
     /* turn off automatic updates */
     for (portIndex = 0 ; portIndex < IX_ETH_DB_NUMBER_OF_PORTS ; portIndex++)
     {
-        ixEthDBPortInfo[portIndex].updateMethod.updateEnabled = FALSE;
+        ixEthDBPortInfo[portIndex].updateMethod.updateEnabled = false;
     }
 
-    ixEthDBEventProcessorRunning = FALSE;
+    ixEthDBEventProcessorRunning = false;
 }
 
 /**
@@ -381,7 +381,7 @@ void ixEthDBProcessEvent(PortEvent *local_event, IxEthDBPortMap triggerPorts)
  *
  * @param macAddr MAC address of the new record
  * @param portID port ID of the new record
- * @param staticEntry TRUE if record is static, FALSE if dynamic
+ * @param staticEntry true if record is static, false if dynamic
  *
  * @return IX_ETH_DB_SUCCESS if the event creation was
  * successfull or IX_ETH_DB_BUSY if the event queue is full
@@ -430,7 +430,7 @@ IxEthDBStatus ixEthDBTriggerRemovePortUpdate(IxEthDBMacAddr *macAddr, IxEthDBPor
 {
     if (ixEthDBPeek(macAddr, IX_ETH_DB_ALL_FILTERING_RECORDS) != IX_ETH_DB_NO_SUCH_ADDR)
     {
-        return ixEthDBTriggerPortUpdate(IX_ETH_DB_REMOVE_FILTERING_RECORD, macAddr, portID, FALSE);
+        return ixEthDBTriggerPortUpdate(IX_ETH_DB_REMOVE_FILTERING_RECORD, macAddr, portID, false);
     }
     else
     {

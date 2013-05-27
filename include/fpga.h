@@ -31,24 +31,6 @@
 #define CONFIG_MAX_FPGA_DEVICES		5
 #endif
 
-/* these probably belong somewhere else */
-#ifndef FALSE
-#define FALSE			(0)
-#endif
-#ifndef TRUE
-#define TRUE			(!FALSE)
-#endif
-
-/* CONFIG_FPGA bit assignments */
-#define CONFIG_SYS_FPGA_MAN(x)		(x)
-#define CONFIG_SYS_FPGA_DEV(x)		((x) << 8 )
-#define CONFIG_SYS_FPGA_IF(x)		((x) << 16 )
-
-/* FPGA Manufacturer bits in CONFIG_FPGA */
-#define CONFIG_SYS_FPGA_XILINX		CONFIG_SYS_FPGA_MAN( 0x1 )
-#define CONFIG_SYS_FPGA_ALTERA		CONFIG_SYS_FPGA_MAN( 0x2 )
-
-
 /* fpga_xxxx function return value definitions */
 #define FPGA_SUCCESS		0
 #define FPGA_FAIL		-1
@@ -76,7 +58,10 @@ extern void fpga_init(void);
 extern int fpga_add(fpga_type devtype, void *desc);
 extern int fpga_count(void);
 extern int fpga_load(int devnum, const void *buf, size_t bsize);
+extern int fpga_loadbitstream(int devnum, char *fpgadata, size_t size);
 extern int fpga_dump(int devnum, const void *buf, size_t bsize);
 extern int fpga_info(int devnum);
+extern const fpga_desc *const fpga_validate(int devnum, const void *buf,
+					    size_t bsize, char *fn);
 
 #endif	/* _FPGA_H_ */

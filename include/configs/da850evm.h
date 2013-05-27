@@ -399,7 +399,7 @@
 #define CONFIG_SPL_LDSCRIPT	"board/$(BOARDDIR)/u-boot-spl-da850evm.lds"
 #define CONFIG_SPL_STACK	0x8001ff00
 #define CONFIG_SPL_TEXT_BASE	0x80000000
-#define CONFIG_SPL_MAX_SIZE	32768
+#define CONFIG_SPL_MAX_FOOTPRINT	32768
 #endif
 
 /* Load U-Boot Image From MMC */

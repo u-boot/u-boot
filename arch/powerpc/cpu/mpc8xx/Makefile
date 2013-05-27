@@ -37,7 +37,6 @@ COBJS-y	+= fec.o
 COBJS-$(CONFIG_OF_LIBFDT) += fdt.o
 COBJS-y	+= i2c.o
 COBJS-y	+= interrupts.o
-COBJS-y	+= lcd.o
 COBJS-y	+= scc.o
 COBJS-y	+= serial.o
 COBJS-y	+= speed.o

@@ -1,6 +1,6 @@
 /dts-v1/;
 
-/include/ ARCH_CPU_DTS
+#include "tegra20-tamonten.dtsi"
 
 / {
 	model = "Avionic Design Medcom-Wide";
@@ -8,24 +8,24 @@
 
 	aliases {
 		usb0 = "/usb@c5008000";
+		sdhci0 = "/sdhci@c8000600";
 	};
 
 	memory {
 		reg = <0x00000000 0x20000000>;
 	};
 
-	clocks {
-		clk_32k: clk_32k {
-			clock-frequency = <32000>;
-		};
+	host1x {
+		status = "okay";
 
-		osc {
-			clock-frequency = <12000000>;
-		};
-	};
+		dc@54200000 {
+			status = "okay";
 
-	clock@60006000 {
-		clocks = <&clk_32k &osc>;
+			rgb {
+				nvidia,panel = <&lcd_panel>;
+				status = "okay";
+			};
+		};
 	};
 
 	serial@70006300 {
@@ -54,5 +54,24 @@
 
 	usb@c5004000 {
 		status = "disabled";
+	};
+
+	lcd_panel: panel {
+		clock = <61715000>;
+		xres = <1366>;
+		yres = <768>;
+		left-margin = <2>;
+		right-margin = <47>;
+		hsync-len = <136>;
+		lower-margin = <21>;
+		upper-margin = <11>;
+		vsync-len = <4>;
+
+		nvidia,bits-per-pixel = <16>;
+		nvidia,pwm = <&pwm 0 500000>;
+		nvidia,backlight-enable-gpios = <&gpio 13 0>; /* PB5 */
+		nvidia,backlight-vdd-gpios = <&gpio 176 0>; /* PW0 */
+		nvidia,lvds-shutdown-gpios = <&gpio 10 0>; /* PB2 */
+		nvidia,panel-timings = <0 0 0 0>;
 	};
 };

@@ -74,7 +74,7 @@ SECTIONS
 
 
 	.u_boot_list : {
-		#include <u-boot.lst>
+		KEEP(*(SORT(.u_boot_list*)));
 	}
 
 	PROVIDE (reloc_dst_end = .);
@@ -88,5 +88,5 @@ SECTIONS
 	}
 	PROVIDE (bss_end = .);
 
-	PROVIDE (__bss_end__ = .);
+	PROVIDE (__bss_end = .);
 }

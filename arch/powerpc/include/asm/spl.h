@@ -26,6 +26,6 @@
 #define BOOT_DEVICE_NOR		1
 
 /* Linker symbols */
-extern char __bss_start[], __bss_end__[];
+extern char __bss_start[], __bss_end[];
 
 #endif

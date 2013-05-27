@@ -292,11 +292,6 @@ III) Analysis of in-tree drivers
   Only function proxy call. Code cleanup needed.
 
 
-  45) board/pcippc2/pcippc2.c
-  ---------------------------
-  The driver is standard HW watchdog. Simple conversion is possible.
-
-
   46) board/pcs440ep/pcs440ep.c
   -----------------------------
   The driver is standard HW watchdog. Simple conversion is possible.

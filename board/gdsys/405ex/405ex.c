@@ -15,14 +15,14 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int get_fpga_state(unsigned dev)
 {
-	return gd->fpga_state[dev];
+	return gd->arch.fpga_state[dev];
 }
 
 void print_fpga_state(unsigned dev)
 {
-	if (gd->fpga_state[dev] & FPGA_STATE_DONE_FAILED)
+	if (gd->arch.fpga_state[dev] & FPGA_STATE_DONE_FAILED)
 		puts("       Waiting for FPGA-DONE timed out.\n");
-	if (gd->fpga_state[dev] & FPGA_STATE_REFLECTION_FAILED)
+	if (gd->arch.fpga_state[dev] & FPGA_STATE_REFLECTION_FAILED)
 		puts("       FPGA reflection test failed.\n");
 }
 
@@ -192,7 +192,7 @@ int board_early_init_r(void)
 	unsigned ctr;
 
 	for (k = 0; k < CONFIG_SYS_FPGA_COUNT; ++k)
-		gd->fpga_state[k] = 0;
+		gd->arch.fpga_state[k] = 0;
 
 	/*
 	 * reset FPGA
@@ -208,7 +208,8 @@ int board_early_init_r(void)
 		while (!gd405ex_get_fpga_done(k)) {
 			udelay(100000);
 			if (ctr++ > 5) {
-				gd->fpga_state[k] |= FPGA_STATE_DONE_FAILED;
+				gd->arch.fpga_state[k] |=
+					FPGA_STATE_DONE_FAILED;
 				break;
 			}
 		}
@@ -240,7 +241,7 @@ int board_early_init_r(void)
 
 			udelay(100000);
 			if (ctr++ > 5) {
-				gd->fpga_state[k] |=
+				gd->arch.fpga_state[k] |=
 					FPGA_STATE_REFLECTION_FAILED;
 				break;
 			}

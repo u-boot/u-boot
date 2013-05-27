@@ -31,8 +31,141 @@ static struct gpio_registry {
 	char name[GPIO_NAME_SIZE];
 } gpio_registry[MAX_NUM_GPIOS];
 
+#if defined(CONFIG_SOC_DA8XX)
 #define pinmux(x)       (&davinci_syscfg_regs->pinmux[x])
 
+#if defined(CONFIG_SOC_DA8XX) && !defined(CONFIG_SOC_DA850)
+static const struct pinmux_config gpio_pinmux[] = {
+	{ pinmux(13), 8, 6 },	/* GP0[0] */
+	{ pinmux(13), 8, 7 },
+	{ pinmux(14), 8, 0 },
+	{ pinmux(14), 8, 1 },
+	{ pinmux(14), 8, 2 },
+	{ pinmux(14), 8, 3 },
+	{ pinmux(14), 8, 4 },
+	{ pinmux(14), 8, 5 },
+	{ pinmux(14), 8, 6 },
+	{ pinmux(14), 8, 7 },
+	{ pinmux(15), 8, 0 },
+	{ pinmux(15), 8, 1 },
+	{ pinmux(15), 8, 2 },
+	{ pinmux(15), 8, 3 },
+	{ pinmux(15), 8, 4 },
+	{ pinmux(15), 8, 5 },
+	{ pinmux(15), 8, 6 },	/* GP1[0] */
+	{ pinmux(15), 8, 7 },
+	{ pinmux(16), 8, 0 },
+	{ pinmux(16), 8, 1 },
+	{ pinmux(16), 8, 2 },
+	{ pinmux(16), 8, 3 },
+	{ pinmux(16), 8, 4 },
+	{ pinmux(16), 8, 5 },
+	{ pinmux(16), 8, 6 },
+	{ pinmux(16), 8, 7 },
+	{ pinmux(17), 8, 0 },
+	{ pinmux(17), 8, 1 },
+	{ pinmux(17), 8, 2 },
+	{ pinmux(17), 8, 3 },
+	{ pinmux(17), 8, 4 },
+	{ pinmux(17), 8, 5 },
+	{ pinmux(17), 8, 6 },	/* GP2[0] */
+	{ pinmux(17), 8, 7 },
+	{ pinmux(18), 8, 0 },
+	{ pinmux(18), 8, 1 },
+	{ pinmux(18), 8, 2 },
+	{ pinmux(18), 8, 3 },
+	{ pinmux(18), 8, 4 },
+	{ pinmux(18), 8, 5 },
+	{ pinmux(18), 8, 6 },
+	{ pinmux(18), 8, 7 },
+	{ pinmux(19), 8, 0 },
+	{ pinmux(9), 8, 2 },
+	{ pinmux(9), 8, 3 },
+	{ pinmux(9), 8, 4 },
+	{ pinmux(9), 8, 5 },
+	{ pinmux(9), 8, 6 },
+	{ pinmux(10), 8, 1 },	/* GP3[0] */
+	{ pinmux(10), 8, 2 },
+	{ pinmux(10), 8, 3 },
+	{ pinmux(10), 8, 4 },
+	{ pinmux(10), 8, 5 },
+	{ pinmux(10), 8, 6 },
+	{ pinmux(10), 8, 7 },
+	{ pinmux(11), 8, 0 },
+	{ pinmux(11), 8, 1 },
+	{ pinmux(11), 8, 2 },
+	{ pinmux(11), 8, 3 },
+	{ pinmux(11), 8, 4 },
+	{ pinmux(9), 8, 7 },
+	{ pinmux(2), 8, 6 },
+	{ pinmux(11), 8, 5 },
+	{ pinmux(11), 8, 6 },
+	{ pinmux(12), 8, 4 },	/* GP4[0] */
+	{ pinmux(12), 8, 5 },
+	{ pinmux(12), 8, 6 },
+	{ pinmux(12), 8, 7 },
+	{ pinmux(13), 8, 0 },
+	{ pinmux(13), 8, 1 },
+	{ pinmux(13), 8, 2 },
+	{ pinmux(13), 8, 3 },
+	{ pinmux(13), 8, 4 },
+	{ pinmux(13), 8, 5 },
+	{ pinmux(11), 8, 7 },
+	{ pinmux(12), 8, 0 },
+	{ pinmux(12), 8, 1 },
+	{ pinmux(12), 8, 2 },
+	{ pinmux(12), 8, 3 },
+	{ pinmux(9), 8, 1 },
+	{ pinmux(7), 8, 3 },	/* GP5[0] */
+	{ pinmux(7), 8, 4 },
+	{ pinmux(7), 8, 5 },
+	{ pinmux(7), 8, 6 },
+	{ pinmux(7), 8, 7 },
+	{ pinmux(8), 8, 0 },
+	{ pinmux(8), 8, 1 },
+	{ pinmux(8), 8, 2 },
+	{ pinmux(8), 8, 3 },
+	{ pinmux(8), 8, 4 },
+	{ pinmux(8), 8, 5 },
+	{ pinmux(8), 8, 6 },
+	{ pinmux(8), 8, 7 },
+	{ pinmux(9), 8, 0 },
+	{ pinmux(7), 8, 1 },
+	{ pinmux(7), 8, 2 },
+	{ pinmux(5), 8, 1 },	/* GP6[0] */
+	{ pinmux(5), 8, 2 },
+	{ pinmux(5), 8, 3 },
+	{ pinmux(5), 8, 4 },
+	{ pinmux(5), 8, 5 },
+	{ pinmux(5), 8, 6 },
+	{ pinmux(5), 8, 7 },
+	{ pinmux(6), 8, 0 },
+	{ pinmux(6), 8, 1 },
+	{ pinmux(6), 8, 2 },
+	{ pinmux(6), 8, 3 },
+	{ pinmux(6), 8, 4 },
+	{ pinmux(6), 8, 5 },
+	{ pinmux(6), 8, 6 },
+	{ pinmux(6), 8, 7 },
+	{ pinmux(7), 8, 0 },
+	{ pinmux(1), 8, 0 },	/* GP7[0] */
+	{ pinmux(1), 8, 1 },
+	{ pinmux(1), 8, 2 },
+	{ pinmux(1), 8, 3 },
+	{ pinmux(1), 8, 4 },
+	{ pinmux(1), 8, 5 },
+	{ pinmux(1), 8, 6 },
+	{ pinmux(1), 8, 7 },
+	{ pinmux(2), 8, 0 },
+	{ pinmux(2), 8, 1 },
+	{ pinmux(2), 8, 2 },
+	{ pinmux(2), 8, 3 },
+	{ pinmux(2), 8, 4 },
+	{ pinmux(2), 8, 5 },
+	{ pinmux(0), 1, 0 },
+	{ pinmux(0), 1, 1 },
+};
+#else /* CONFIG_SOC_DA8XX && CONFIG_SOC_DA850 */
 static const struct pinmux_config gpio_pinmux[] = {
 	{ pinmux(1), 8, 7 },	/* GP0[0] */
 	{ pinmux(1), 8, 6 },
@@ -179,6 +312,10 @@ static const struct pinmux_config gpio_pinmux[] = {
 	{ pinmux(18), 8, 3 },
 	{ pinmux(18), 8, 2 },
 };
+#endif /* CONFIG_SOC_DA8XX && !CONFIG_SOC_DA850 */
+#else /* !CONFIG_SOC_DA8XX */
+#define davinci_configure_pin_mux(a, b)
+#endif /* CONFIG_SOC_DA8XX */
 
 int gpio_request(unsigned gpio, const char *label)
 {

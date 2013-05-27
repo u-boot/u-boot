@@ -22,8 +22,8 @@
 #define CONFIG_ZYNQ /* SoC */
 
 /* Default environment */
-#define CONFIG_IPADDR   192.168.0.99
-#define CONFIG_SERVERIP 192.168.0.101
+#define CONFIG_IPADDR	10.10.70.102
+#define CONFIG_SERVERIP	10.10.70.101
 
 #define CONFIG_SYS_SDRAM_BASE	0
 #define CONFIG_SYS_SDRAM_SIZE	PHYS_SDRAM_1_SIZE
@@ -59,14 +59,6 @@
 #endif
 
 /* Ethernet driver */
-#ifdef CONFIG_ZYNQ_GEM0
-# define CONFIG_ZYNQ_GEM_BASEADDR0	0xE000B000
-#endif
-
-#ifdef CONFIG_ZYNQ_GEM1
-# define CONFIG_ZYNQ_GEM_BASEADDR1	0xE000C000
-#endif
-
 #if defined(CONFIG_ZYNQ_GEM0) || defined(CONFIG_ZYNQ_GEM1)
 # define CONFIG_NET_MULTI
 # define CONFIG_ZYNQ_GEM
@@ -77,8 +69,6 @@
 # define CONFIG_SYS_ENET
 #endif
 
-/* SCU timer address is hardcoded */
-#define CONFIG_SCUTIMER_BASEADDR	0xF8F00600
 #ifndef CONFIG_CPU_FREQ_HZ
 #define CONFIG_CPU_FREQ_HZ		800000000
 #endif
@@ -141,7 +131,8 @@
 #endif
 
 /* MMC */
-#ifdef CONFIG_MMC
+#if defined(CONFIG_ZYNQ_SDHCI0) || defined(CONFIG_ZYNQ_SDHCI1)
+# define CONFIG_MMC
 # define CONFIG_GENERIC_MMC
 # define CONFIG_SDHCI
 # define CONFIG_ZYNQ_SDHCI
@@ -157,7 +148,7 @@
 # define CONFIG_CMD_NAND
 # define CONFIG_CMD_NAND_LOCK_UNLOCK
 # define CONFIG_SYS_MAX_NAND_DEVICE 1
-# define CONFIG_SYS_NAND_BASE XPSS_NAND_BASEADDR
+# define CONFIG_SYS_NAND_SELF_INIT
 # define CONFIG_SYS_NAND_ONFI_DETECTION
 # define CONFIG_MTD_DEVICE
 #endif
@@ -165,7 +156,7 @@
 /* I2C */
 #ifdef CONFIG_ZYNQ_I2C
 # define CONFIG_CMD_I2C
-# define CONFIG_ZYNQ_I2C_CTLR_0
+# define CONFIG_ZYNQ_I2C0
 # define CONFIG_HARD_I2C		1
 # define CONFIG_SYS_I2C_SPEED		100000
 # define CONFIG_SYS_I2C_SLAVE		1
@@ -259,9 +250,17 @@
 #define CONFIG_BOOTDELAY		3 /* -1 to Disable autoboot */
 #define CONFIG_SYS_LOAD_ADDR		0 /* default? */
 
+#define CONFIG_SYS_DCACHE_OFF
+#define CONFIG_CMD_CACHE
+
 /* Keep L2 Cache Disabled */
 #define CONFIG_SYS_L2CACHE_OFF
 #define CONFIG_SYS_CACHELINE_SIZE	32
+
+#ifndef CONFIG_SYS_L2CACHE_OFF
+#define CONFIG_SYS_L2_PL310
+#define CONFIG_SYS_PL310_BASE	0xf8f02000
+#endif
 
 /* Physical Memory map */
 #define CONFIG_NR_DRAM_BANKS		1
@@ -288,13 +287,7 @@
 #define CONFIG_FIT		1
 #define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
 
+#define CONFIG_CMD_BOOTZ
 #undef CONFIG_BOOTM_NETBSD
-
-/* FIXME this should be removed pretty soon */
-#define XPSS_QSPI_BASEADDR		0xE000D000
-#define XPSS_NAND_BASEADDR		0xE1000000
-#define XPSS_CRTL_PARPORT_BASEADDR	0xE000E000
-#define SD_BASEADDR			0xE0100000
-#define XPSS_QSPI_LIN_BASEADDR		0xFC000000
 
 #endif /* __CONFIG_ZYNQ_COMMON_H */

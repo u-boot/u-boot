@@ -196,7 +196,7 @@
   MORECORE_FAILURE          (default: -1)
      The value returned upon failure of MORECORE.
   MORECORE_CLEARS           (default 1)
-     True (1) if the routine mapped to MORECORE zeroes out memory (which
+     true (1) if the routine mapped to MORECORE zeroes out memory (which
      holds for sbrk).
   DEFAULT_TRIM_THRESHOLD
   DEFAULT_TOP_PAD
@@ -937,7 +937,6 @@ extern ulong mem_malloc_end;
 extern ulong mem_malloc_brk;
 
 void mem_malloc_init(ulong start, ulong size);
-void malloc_bin_reloc(void);
 
 #ifdef __cplusplus
 };  /* end of extern "C" */

@@ -36,7 +36,7 @@ SECTIONS
 
 	. = ALIGN(4);
 	.u_boot_list : {
-	#include <u-boot.lst>
+		KEEP(*(SORT(.u_boot_list*)));
 	}
 
 	. = ALIGN(4);
@@ -46,9 +46,6 @@ SECTIONS
 	.data : { *(.data*) }
 
 	. = ALIGN(4);
-	.dynsym : { *(.dynsym*) }
-
-	. = ALIGN(4);
 	.hash : { *(.hash*) }
 
 	. = ALIGN(4);
@@ -56,17 +53,25 @@ SECTIONS
 
 	. = ALIGN(4);
 	__data_end = .;
+	__init_end = .;
 
 	. = ALIGN(4);
-	__bss_start = ABSOLUTE(.);
-	.bss (NOLOAD) : { *(.bss) }
-	. = ALIGN(4);
-	__bss_end = ABSOLUTE(.);
+	.dynsym : { *(.dynsym*) }
 
 	. = ALIGN(4);
 	__rel_dyn_start = .;
 	.rel.dyn : { *(.rel.dyn) }
 	__rel_dyn_end = .;
+	. = ALIGN(4);
+	_end = .;
+
+	.bss __rel_dyn_start (OVERLAY) : {
+		__bss_start = .;
+		*(.bss)
+		*(COM*)
+		. = ALIGN(4);
+		__bss_end = .;
+	}
 
 	/DISCARD/ : { *(.dynstr*) }
 	/DISCARD/ : { *(.dynamic*) }
@@ -86,7 +91,7 @@ SECTIONS
 	__bios_start = LOADADDR(.bios);
 	__bios_size = SIZEOF(.bios);
 
-#ifndef CONFIG_X86_NO_RESET_VECTOR
+#ifdef CONFIG_X86_RESET_VECTOR
 
 	/*
 	 * The following expressions place the 16-bit Real-Mode code and

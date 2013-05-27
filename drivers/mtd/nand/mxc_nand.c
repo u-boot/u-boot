@@ -22,20 +22,22 @@
 #include <nand.h>
 #include <linux/err.h>
 #include <asm/io.h>
-#if defined(CONFIG_MX25) || defined(CONFIG_MX27) || defined(CONFIG_MX35)
+#if defined(CONFIG_MX25) || defined(CONFIG_MX27) || defined(CONFIG_MX35) || \
+	defined(CONFIG_MX51) || defined(CONFIG_MX53)
 #include <asm/arch/imx-regs.h>
 #endif
-#include <fsl_nfc.h>
+#include "mxc_nand.h"
 
 #define DRIVER_NAME "mxc_nand"
-
-typedef enum {false, true} bool;
 
 struct mxc_nand_host {
 	struct mtd_info			mtd;
 	struct nand_chip		*nand;
 
-	struct fsl_nfc_regs __iomem	*regs;
+	struct mxc_nand_regs __iomem	*regs;
+#ifdef MXC_NFC_V3_2
+	struct mxc_nand_ip_regs __iomem	*ip_regs;
+#endif
 	int				spare_only;
 	int				status_request;
 	int				pagesize_2k;
@@ -77,7 +79,7 @@ static struct nand_ecclayout nand_hw_eccoob2k = {
 	.oobfree = { {2, 4}, {11, 11}, {27, 11}, {43, 11}, {59, 5} },
 };
 #endif
-#elif defined(MXC_NFC_V2_1)
+#elif defined(MXC_NFC_V2_1) || defined(MXC_NFC_V3_2)
 #ifndef CONFIG_SYS_NAND_LARGEPAGE
 static struct nand_ecclayout nand_hw_eccoob = {
 	.eccbytes = 9,
@@ -98,45 +100,14 @@ static struct nand_ecclayout nand_hw_eccoob2k = {
 #endif
 #endif
 
-#ifdef CONFIG_MX27
 static int is_16bit_nand(void)
 {
-	struct system_control_regs *sc_regs =
-		(struct system_control_regs *)IMX_SYSTEM_CTL_BASE;
-
-	if (readl(&sc_regs->fmcr) & NF_16BIT_SEL)
-		return 1;
-	else
-		return 0;
-}
-#elif defined(CONFIG_MX31)
-static int is_16bit_nand(void)
-{
-	struct clock_control_regs *sc_regs =
-		(struct clock_control_regs *)CCM_BASE;
-
-	if (readl(&sc_regs->rcsr) & CCM_RCSR_NF16B)
-		return 1;
-	else
-		return 0;
-}
-#elif defined(CONFIG_MX25) || defined(CONFIG_MX35)
-static int is_16bit_nand(void)
-{
-	struct ccm_regs *ccm = (struct ccm_regs *)IMX_CCM_BASE;
-
-	if (readl(&ccm->rcsr) & CCM_RCSR_NF_16BIT_SEL)
-		return 1;
-	else
-		return 0;
-}
+#if defined(CONFIG_SYS_NAND_BUSWIDTH_16BIT)
+	return 1;
 #else
-#warning "8/16 bit NAND autodetection not supported"
-static int is_16bit_nand(void)
-{
 	return 0;
-}
 #endif
+}
 
 static uint32_t *mxc_nand_memcpy32(uint32_t *dest, uint32_t *source, size_t size)
 {
@@ -150,7 +121,7 @@ static uint32_t *mxc_nand_memcpy32(uint32_t *dest, uint32_t *source, size_t size
 
 /*
  * This function polls the NANDFC to wait for the basic operation to
- * complete by checking the INT bit of config2 register.
+ * complete by checking the INT bit.
  */
 static void wait_op_done(struct mxc_nand_host *host, int max_retries,
 				uint16_t param)
@@ -158,10 +129,17 @@ static void wait_op_done(struct mxc_nand_host *host, int max_retries,
 	uint32_t tmp;
 
 	while (max_retries-- > 0) {
-		if (readw(&host->regs->config2) & NFC_INT) {
-			tmp = readw(&host->regs->config2);
-			tmp  &= ~NFC_INT;
-			writew(tmp, &host->regs->config2);
+#if defined(MXC_NFC_V1) || defined(MXC_NFC_V2_1)
+		tmp = readnfc(&host->regs->config2);
+		if (tmp & NFC_V1_V2_CONFIG2_INT) {
+			tmp &= ~NFC_V1_V2_CONFIG2_INT;
+			writenfc(tmp, &host->regs->config2);
+#elif defined(MXC_NFC_V3_2)
+		tmp = readnfc(&host->ip_regs->ipc);
+		if (tmp & NFC_V3_IPC_INT) {
+			tmp &= ~NFC_V3_IPC_INT;
+			writenfc(tmp, &host->ip_regs->ipc);
+#endif
 			break;
 		}
 		udelay(1);
@@ -180,8 +158,8 @@ static void send_cmd(struct mxc_nand_host *host, uint16_t cmd)
 {
 	MTDDEBUG(MTD_DEBUG_LEVEL3, "send_cmd(host, 0x%x)\n", cmd);
 
-	writew(cmd, &host->regs->flash_cmd);
-	writew(NFC_CMD, &host->regs->config2);
+	writenfc(cmd, &host->regs->flash_cmd);
+	writenfc(NFC_CMD, &host->regs->operation);
 
 	/* Wait for operation to complete */
 	wait_op_done(host, TROP_US_DELAY, cmd);
@@ -196,8 +174,8 @@ static void send_addr(struct mxc_nand_host *host, uint16_t addr)
 {
 	MTDDEBUG(MTD_DEBUG_LEVEL3, "send_addr(host, 0x%x)\n", addr);
 
-	writew(addr, &host->regs->flash_addr);
-	writew(NFC_ADDR, &host->regs->config2);
+	writenfc(addr, &host->regs->flash_addr);
+	writenfc(NFC_ADDR, &host->regs->operation);
 
 	/* Wait for operation to complete */
 	wait_op_done(host, TROP_US_DELAY, addr);
@@ -213,7 +191,7 @@ static void send_prog_page(struct mxc_nand_host *host, uint8_t buf_id,
 	if (spare_only)
 		MTDDEBUG(MTD_DEBUG_LEVEL1, "send_prog_page (%d)\n", spare_only);
 
-	if (is_mxc_nfc_21()) {
+	if (is_mxc_nfc_21() || is_mxc_nfc_32()) {
 		int i;
 		/*
 		 *  The controller copies the 64 bytes of spare data from
@@ -229,19 +207,26 @@ static void send_prog_page(struct mxc_nand_host *host, uint8_t buf_id,
 		}
 	}
 
-	writew(buf_id, &host->regs->buf_addr);
+#if defined(MXC_NFC_V1) || defined(MXC_NFC_V2_1)
+	writenfc(buf_id, &host->regs->buf_addr);
+#elif defined(MXC_NFC_V3_2)
+	uint32_t tmp = readnfc(&host->regs->config1);
+	tmp &= ~NFC_V3_CONFIG1_RBA_MASK;
+	tmp |= NFC_V3_CONFIG1_RBA(buf_id);
+	writenfc(tmp, &host->regs->config1);
+#endif
 
 	/* Configure spare or page+spare access */
 	if (!host->pagesize_2k) {
-		uint16_t config1 = readw(&host->regs->config1);
+		uint32_t config1 = readnfc(&host->regs->config1);
 		if (spare_only)
-			config1 |= NFC_SP_EN;
+			config1 |= NFC_CONFIG1_SP_EN;
 		else
-			config1 &= ~NFC_SP_EN;
-		writew(config1, &host->regs->config1);
+			config1 &= ~NFC_CONFIG1_SP_EN;
+		writenfc(config1, &host->regs->config1);
 	}
 
-	writew(NFC_INPUT, &host->regs->config2);
+	writenfc(NFC_INPUT, &host->regs->operation);
 
 	/* Wait for operation to complete */
 	wait_op_done(host, TROP_US_DELAY, spare_only);
@@ -256,24 +241,31 @@ static void send_read_page(struct mxc_nand_host *host, uint8_t buf_id,
 {
 	MTDDEBUG(MTD_DEBUG_LEVEL3, "send_read_page (%d)\n", spare_only);
 
-	writew(buf_id, &host->regs->buf_addr);
+#if defined(MXC_NFC_V1) || defined(MXC_NFC_V2_1)
+	writenfc(buf_id, &host->regs->buf_addr);
+#elif defined(MXC_NFC_V3_2)
+	uint32_t tmp = readnfc(&host->regs->config1);
+	tmp &= ~NFC_V3_CONFIG1_RBA_MASK;
+	tmp |= NFC_V3_CONFIG1_RBA(buf_id);
+	writenfc(tmp, &host->regs->config1);
+#endif
 
 	/* Configure spare or page+spare access */
 	if (!host->pagesize_2k) {
-		uint32_t config1 = readw(&host->regs->config1);
+		uint32_t config1 = readnfc(&host->regs->config1);
 		if (spare_only)
-			config1 |= NFC_SP_EN;
+			config1 |= NFC_CONFIG1_SP_EN;
 		else
-			config1 &= ~NFC_SP_EN;
-		writew(config1, &host->regs->config1);
+			config1 &= ~NFC_CONFIG1_SP_EN;
+		writenfc(config1, &host->regs->config1);
 	}
 
-	writew(NFC_OUTPUT, &host->regs->config2);
+	writenfc(NFC_OUTPUT, &host->regs->operation);
 
 	/* Wait for operation to complete */
 	wait_op_done(host, TROP_US_DELAY, spare_only);
 
-	if (is_mxc_nfc_21()) {
+	if (is_mxc_nfc_21() || is_mxc_nfc_32()) {
 		int i;
 
 		/*
@@ -293,17 +285,23 @@ static void send_read_page(struct mxc_nand_host *host, uint8_t buf_id,
 /* Request the NANDFC to perform a read of the NAND device ID. */
 static void send_read_id(struct mxc_nand_host *host)
 {
-	uint16_t tmp;
+	uint32_t tmp;
 
+#if defined(MXC_NFC_V1) || defined(MXC_NFC_V2_1)
 	/* NANDFC buffer 0 is used for device ID output */
-	writew(0x0, &host->regs->buf_addr);
+	writenfc(0x0, &host->regs->buf_addr);
+#elif defined(MXC_NFC_V3_2)
+	tmp = readnfc(&host->regs->config1);
+	tmp &= ~NFC_V3_CONFIG1_RBA_MASK;
+	writenfc(tmp, &host->regs->config1);
+#endif
 
 	/* Read ID into main buffer */
-	tmp = readw(&host->regs->config1);
-	tmp &= ~NFC_SP_EN;
-	writew(tmp, &host->regs->config1);
+	tmp = readnfc(&host->regs->config1);
+	tmp &= ~NFC_CONFIG1_SP_EN;
+	writenfc(tmp, &host->regs->config1);
 
-	writew(NFC_ID, &host->regs->config2);
+	writenfc(NFC_ID, &host->regs->operation);
 
 	/* Wait for operation to complete */
 	wait_op_done(host, TROP_US_DELAY, 0);
@@ -315,32 +313,40 @@ static void send_read_id(struct mxc_nand_host *host)
  */
 static uint16_t get_dev_status(struct mxc_nand_host *host)
 {
+#if defined(MXC_NFC_V1) || defined(MXC_NFC_V2_1)
 	void __iomem *main_buf = host->regs->main_area[1];
 	uint32_t store;
-	uint16_t ret, tmp;
+#endif
+	uint32_t ret, tmp;
 	/* Issue status request to NAND device */
 
+#if defined(MXC_NFC_V1) || defined(MXC_NFC_V2_1)
 	/* store the main area1 first word, later do recovery */
 	store = readl(main_buf);
 	/* NANDFC buffer 1 is used for device status */
-	writew(1, &host->regs->buf_addr);
+	writenfc(1, &host->regs->buf_addr);
+#endif
 
 	/* Read status into main buffer */
-	tmp = readw(&host->regs->config1);
-	tmp &= ~NFC_SP_EN;
-	writew(tmp, &host->regs->config1);
+	tmp = readnfc(&host->regs->config1);
+	tmp &= ~NFC_CONFIG1_SP_EN;
+	writenfc(tmp, &host->regs->config1);
 
-	writew(NFC_STATUS, &host->regs->config2);
+	writenfc(NFC_STATUS, &host->regs->operation);
 
 	/* Wait for operation to complete */
 	wait_op_done(host, TROP_US_DELAY, 0);
 
+#if defined(MXC_NFC_V1) || defined(MXC_NFC_V2_1)
 	/*
 	 *  Status is placed in first word of main buffer
 	 * get status, then recovery area 1 data
 	 */
 	ret = readw(main_buf);
 	writel(store, main_buf);
+#elif defined(MXC_NFC_V3_2)
+	ret = readnfc(&host->regs->config1) >> 16;
+#endif
 
 	return ret;
 }
@@ -359,13 +365,23 @@ static void _mxc_nand_enable_hwecc(struct mtd_info *mtd, int on)
 {
 	struct nand_chip *nand_chip = mtd->priv;
 	struct mxc_nand_host *host = nand_chip->priv;
-	uint16_t tmp = readw(&host->regs->config1);
+#if defined(MXC_NFC_V1) || defined(MXC_NFC_V2_1)
+	uint16_t tmp = readnfc(&host->regs->config1);
 
 	if (on)
-		tmp |= NFC_ECC_EN;
+		tmp |= NFC_V1_V2_CONFIG1_ECC_EN;
 	else
-		tmp &= ~NFC_ECC_EN;
-	writew(tmp, &host->regs->config1);
+		tmp &= ~NFC_V1_V2_CONFIG1_ECC_EN;
+	writenfc(tmp, &host->regs->config1);
+#elif defined(MXC_NFC_V3_2)
+	uint32_t tmp = readnfc(&host->ip_regs->config2);
+
+	if (on)
+		tmp |= NFC_V3_CONFIG2_ECC_EN;
+	else
+		tmp &= ~NFC_V3_CONFIG2_ECC_EN;
+	writenfc(tmp, &host->ip_regs->config2);
+#endif
 }
 
 #ifdef CONFIG_MXC_NAND_HWECC
@@ -377,7 +393,7 @@ static void mxc_nand_enable_hwecc(struct mtd_info *mtd, int mode)
 	 */
 }
 
-#ifdef MXC_NFC_V2_1
+#if defined(MXC_NFC_V2_1) || defined(MXC_NFC_V3_2)
 static int mxc_nand_read_oob_syndrome(struct mtd_info *mtd,
 				      struct nand_chip *chip,
 				      int page, int sndcmd)
@@ -391,7 +407,7 @@ static int mxc_nand_read_oob_syndrome(struct mtd_info *mtd,
 
 	MTDDEBUG(MTD_DEBUG_LEVEL0,
 			"%s: Reading OOB area of page %u to oob %p\n",
-			 __FUNCTION__, host->page_addr, buf);
+			 __func__, page, buf);
 
 	chip->cmdfunc(mtd, NAND_CMD_READOOB, mtd->writesize, page);
 	for (i = 0; i < chip->ecc.steps; i++) {
@@ -445,7 +461,7 @@ static int mxc_nand_read_page_raw_syndrome(struct mtd_info *mtd,
 	int n;
 
 	_mxc_nand_enable_hwecc(mtd, 0);
-	chip->cmdfunc(mtd, NAND_CMD_READ0, 0x00, host->page_addr);
+	chip->cmdfunc(mtd, NAND_CMD_READ0, 0x00, page);
 
 	for (n = 0, steps = chip->ecc.steps; steps > 0; n++, steps--) {
 		host->col_addr = n * eccsize;
@@ -489,7 +505,7 @@ static int mxc_nand_read_page_syndrome(struct mtd_info *mtd,
 	uint8_t *oob = chip->oob_poi;
 
 	MTDDEBUG(MTD_DEBUG_LEVEL1, "Reading page %u to buf %p oob %p\n",
-	      host->page_addr, buf, oob);
+	      page, buf, oob);
 
 	/* first read the data area and the available portion of OOB */
 	for (n = 0; eccsteps; n++, eccsteps--, p += eccsize) {
@@ -527,7 +543,7 @@ static int mxc_nand_read_page_syndrome(struct mtd_info *mtd,
 
 	/* Then switch ECC off and read the OOB area to get the ECC code */
 	_mxc_nand_enable_hwecc(mtd, 0);
-	chip->cmdfunc(mtd, NAND_CMD_READOOB, mtd->writesize, host->page_addr);
+	chip->cmdfunc(mtd, NAND_CMD_READOOB, mtd->writesize, page);
 	eccsteps = chip->ecc.steps;
 	oob = chip->oob_poi + chip->ecc.prepad;
 	for (n = 0; eccsteps; n++, eccsteps--, p += eccsize) {
@@ -698,7 +714,7 @@ static int mxc_nand_correct_data(struct mtd_info *mtd, u_char *dat,
 	 * additional correction.  2-Bit errors cannot be corrected by
 	 * HW ECC, so we need to return failure
 	 */
-	uint16_t ecc_status = readw(&host->regs->ecc_status_result);
+	uint16_t ecc_status = readnfc(&host->regs->ecc_status_result);
 
 	if (((ecc_status & 0x3) == 2) || ((ecc_status >> 2) == 2)) {
 		MTDDEBUG(MTD_DEBUG_LEVEL0,
@@ -1167,8 +1183,8 @@ static struct nand_bbt_descr bbt_mirror_descr = {
 int board_nand_init(struct nand_chip *this)
 {
 	struct mtd_info *mtd;
-#ifdef MXC_NFC_V2_1
-	uint16_t tmp;
+#if defined(MXC_NFC_V2_1) || defined(MXC_NFC_V3_2)
+	uint32_t tmp;
 #endif
 
 #ifdef CONFIG_SYS_NAND_USE_FLASH_BBT
@@ -1195,14 +1211,18 @@ int board_nand_init(struct nand_chip *this)
 	this->read_buf = mxc_nand_read_buf;
 	this->verify_buf = mxc_nand_verify_buf;
 
-	host->regs = (struct fsl_nfc_regs __iomem *)CONFIG_MXC_NAND_REGS_BASE;
+	host->regs = (struct mxc_nand_regs __iomem *)CONFIG_MXC_NAND_REGS_BASE;
+#ifdef MXC_NFC_V3_2
+	host->ip_regs =
+		(struct mxc_nand_ip_regs __iomem *)CONFIG_MXC_NAND_IP_REGS_BASE;
+#endif
 	host->clk_act = 1;
 
 #ifdef CONFIG_MXC_NAND_HWECC
 	this->ecc.calculate = mxc_nand_calculate_ecc;
 	this->ecc.hwctl = mxc_nand_enable_hwecc;
 	this->ecc.correct = mxc_nand_correct_data;
-	if (is_mxc_nfc_21()) {
+	if (is_mxc_nfc_21() || is_mxc_nfc_32()) {
 		this->ecc.mode = NAND_ECC_HW_SYNDROME;
 		this->ecc.read_page = mxc_nand_read_page_syndrome;
 		this->ecc.read_page_raw = mxc_nand_read_page_raw_syndrome;
@@ -1240,25 +1260,26 @@ int board_nand_init(struct nand_chip *this)
 	this->ecc.layout = &nand_hw_eccoob;
 #endif
 
+#if defined(MXC_NFC_V1) || defined(MXC_NFC_V2_1)
 #ifdef MXC_NFC_V2_1
-	tmp = readw(&host->regs->config1);
-	tmp |= NFC_ONE_CYCLE;
-	tmp |= NFC_4_8N_ECC;
-	writew(tmp, &host->regs->config1);
+	tmp = readnfc(&host->regs->config1);
+	tmp |= NFC_V2_CONFIG1_ONE_CYCLE;
+	tmp |= NFC_V2_CONFIG1_ECC_MODE_4;
+	writenfc(tmp, &host->regs->config1);
 	if (host->pagesize_2k)
-		writew(64/2, &host->regs->spare_area_size);
+		writenfc(64/2, &host->regs->spare_area_size);
 	else
-		writew(16/2, &host->regs->spare_area_size);
+		writenfc(16/2, &host->regs->spare_area_size);
 #endif
 
 	/*
 	 * preset operation
 	 * Unlock the internal RAM Buffer
 	 */
-	writew(0x2, &host->regs->config);
+	writenfc(0x2, &host->regs->config);
 
 	/* Blocks to be unlocked */
-	writew(0x0, &host->regs->unlockstart_blkaddr);
+	writenfc(0x0, &host->regs->unlockstart_blkaddr);
 	/* Originally (Freescale LTIB 2.6.21) 0x4000 was written to the
 	 * unlockend_blkaddr, but the magic 0x4000 does not always work
 	 * when writing more than some 32 megabytes (on 2k page nands)
@@ -1270,10 +1291,53 @@ int board_nand_init(struct nand_chip *this)
 	 * This might be NAND chip specific and the i.MX31 datasheet is
 	 * extremely vague about the semantics of this register.
 	 */
-	writew(0xFFFF, &host->regs->unlockend_blkaddr);
+	writenfc(0xFFFF, &host->regs->unlockend_blkaddr);
 
 	/* Unlock Block Command for given address range */
-	writew(0x4, &host->regs->wrprot);
+	writenfc(0x4, &host->regs->wrprot);
+#elif defined(MXC_NFC_V3_2)
+	writenfc(NFC_V3_CONFIG1_RBA(0), &host->regs->config1);
+	writenfc(NFC_V3_IPC_CREQ, &host->ip_regs->ipc);
+
+	/* Unlock the internal RAM Buffer */
+	writenfc(NFC_V3_WRPROT_BLS_UNLOCK | NFC_V3_WRPROT_UNLOCK,
+			&host->ip_regs->wrprot);
+
+	/* Blocks to be unlocked */
+	for (tmp = 0; tmp < CONFIG_SYS_NAND_MAX_CHIPS; tmp++)
+		writenfc(0x0 | 0xFFFF << 16,
+				&host->ip_regs->wrprot_unlock_blkaddr[tmp]);
+
+	writenfc(0, &host->ip_regs->ipc);
+
+	tmp = readnfc(&host->ip_regs->config2);
+	tmp &= ~(NFC_V3_CONFIG2_SPAS_MASK | NFC_V3_CONFIG2_EDC_MASK |
+			NFC_V3_CONFIG2_ECC_MODE_8 | NFC_V3_CONFIG2_PS_MASK);
+	tmp |= NFC_V3_CONFIG2_ONE_CYCLE;
+
+	if (host->pagesize_2k) {
+		tmp |= NFC_V3_CONFIG2_SPAS(64/2);
+		tmp |= NFC_V3_CONFIG2_PS_2048;
+	} else {
+		tmp |= NFC_V3_CONFIG2_SPAS(16/2);
+		tmp |= NFC_V3_CONFIG2_PS_512;
+	}
+
+	writenfc(tmp, &host->ip_regs->config2);
+
+	tmp = NFC_V3_CONFIG3_NUM_OF_DEVS(0) |
+			NFC_V3_CONFIG3_NO_SDMA |
+			NFC_V3_CONFIG3_RBB_MODE |
+			NFC_V3_CONFIG3_SBB(6) | /* Reset default */
+			NFC_V3_CONFIG3_ADD_OP(0);
+
+	if (!(this->options & NAND_BUSWIDTH_16))
+		tmp |= NFC_V3_CONFIG3_FW8;
+
+	writenfc(tmp, &host->ip_regs->config3);
+
+	writenfc(0, &host->ip_regs->delay_line);
+#endif
 
 	return 0;
 }

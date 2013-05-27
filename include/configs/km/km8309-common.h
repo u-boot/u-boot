@@ -22,7 +22,7 @@
 #define CONFIG_MPC830x		1	/* MPC830x family */
 #define CONFIG_MPC8309		1	/* MPC8309 CPU specific */
 
-#define CONFIG_KM_DEF_ARCH	"arch=ppc_8xx\0"
+#define CONFIG_KM_DEF_ARCH	"arch=ppc_82xx\0"
 #define CONFIG_CMD_DIAG		1
 
 /* include common defines/options for all 83xx Keymile boards */
@@ -32,8 +32,6 @@
 #define CONFIG_SYS_QE_FMAN_FW_IN_NOR
 /* at end of uboot partition, before env */
 #define CONFIG_SYS_QE_FMAN_FW_ADDR   0xF00B0000
-
-#define CONFIG_MISC_INIT_R
 
 /*
  * System IO Config

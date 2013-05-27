@@ -1,4 +1,6 @@
 /*
+ * (C) Copyright 2012-2013, Xilinx, Michal Simek
+ *
  * (C) Copyright 2002
  * Rich Ireland, Enterasys Networks, rireland@enterasys.com.
  * Keith Outwater, keith_outwater@mvis.com
@@ -28,6 +30,7 @@
  */
 
 #include <common.h>
+#include <fpga.h>
 #include <virtex2.h>
 #include <spartan2.h>
 #include <spartan3.h>
@@ -48,6 +51,112 @@
 static int xilinx_validate (Xilinx_desc * desc, char *fn);
 
 /* ------------------------------------------------------------------------- */
+
+int fpga_loadbitstream(int devnum, char *fpgadata, size_t size)
+{
+	unsigned int length;
+	unsigned int swapsize;
+	char buffer[80];
+	unsigned char *dataptr;
+	unsigned int i;
+	const fpga_desc *desc;
+	Xilinx_desc *xdesc;
+
+	dataptr = (unsigned char *)fpgadata;
+	/* Find out fpga_description */
+	desc = fpga_validate(devnum, dataptr, 0, (char *)__func__);
+	/* Assign xilinx device description */
+	xdesc = desc->devdesc;
+
+	/* skip the first bytes of the bitsteam, their meaning is unknown */
+	length = (*dataptr << 8) + *(dataptr + 1);
+	dataptr += 2;
+	dataptr += length;
+
+	/* get design name (identifier, length, string) */
+	length = (*dataptr << 8) + *(dataptr + 1);
+	dataptr += 2;
+	if (*dataptr++ != 0x61) {
+		debug("%s: Design name id not recognized in bitstream\n",
+		      __func__);
+		return FPGA_FAIL;
+	}
+
+	length = (*dataptr << 8) + *(dataptr + 1);
+	dataptr += 2;
+	for (i = 0; i < length; i++)
+		buffer[i] = *dataptr++;
+
+	printf("  design filename = \"%s\"\n", buffer);
+
+	/* get part number (identifier, length, string) */
+	if (*dataptr++ != 0x62) {
+		printf("%s: Part number id not recognized in bitstream\n",
+		       __func__);
+		return FPGA_FAIL;
+	}
+
+	length = (*dataptr << 8) + *(dataptr + 1);
+	dataptr += 2;
+	for (i = 0; i < length; i++)
+		buffer[i] = *dataptr++;
+
+	if (xdesc->name) {
+		i = strncmp(buffer, xdesc->name, strlen(xdesc->name));
+		if (i) {
+			printf("%s: Wrong bitstream ID for this device\n",
+			       __func__);
+			printf("%s: Bitstream ID %s, current device ID %d/%s\n",
+			       __func__, buffer, devnum, xdesc->name);
+			return FPGA_FAIL;
+		}
+	} else {
+		printf("%s: Please fill correct device ID to Xilinx_desc\n",
+		       __func__);
+	}
+	printf("  part number = \"%s\"\n", buffer);
+
+	/* get date (identifier, length, string) */
+	if (*dataptr++ != 0x63) {
+		printf("%s: Date identifier not recognized in bitstream\n",
+		       __func__);
+		return FPGA_FAIL;
+	}
+
+	length = (*dataptr << 8) + *(dataptr+1);
+	dataptr += 2;
+	for (i = 0; i < length; i++)
+		buffer[i] = *dataptr++;
+	printf("  date = \"%s\"\n", buffer);
+
+	/* get time (identifier, length, string) */
+	if (*dataptr++ != 0x64) {
+		printf("%s: Time identifier not recognized in bitstream\n",
+		       __func__);
+		return FPGA_FAIL;
+	}
+
+	length = (*dataptr << 8) + *(dataptr+1);
+	dataptr += 2;
+	for (i = 0; i < length; i++)
+		buffer[i] = *dataptr++;
+	printf("  time = \"%s\"\n", buffer);
+
+	/* get fpga data length (identifier, length) */
+	if (*dataptr++ != 0x65) {
+		printf("%s: Data length id not recognized in bitstream\n",
+		       __func__);
+		return FPGA_FAIL;
+	}
+	swapsize = ((unsigned int) *dataptr << 24) +
+		   ((unsigned int) *(dataptr + 1) << 16) +
+		   ((unsigned int) *(dataptr + 2) << 8) +
+		   ((unsigned int) *(dataptr + 3));
+	dataptr += 4;
+	printf("  bytes in bitstream = %d\n", swapsize);
+
+	return fpga_load(devnum, dataptr, swapsize);
+}
 
 int xilinx_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 {
@@ -87,14 +196,14 @@ int xilinx_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 					__FUNCTION__);
 #endif
 			break;
-		case Xilinx_Zynq:
+		case xilinx_zynq:
 #if defined(CONFIG_FPGA_ZYNQPL)
 			PRINTF("%s: Launching the Zynq PL Loader...\n",
-					__func__);
+			       __func__);
 			ret_val = zynq_load(desc, buf, bsize);
 #else
 			printf("%s: No support for Zynq devices.\n",
-					__func__);
+			       __func__);
 #endif
 			break;
 
@@ -144,14 +253,14 @@ int xilinx_dump(Xilinx_desc *desc, const void *buf, size_t bsize)
 					__FUNCTION__);
 #endif
 			break;
-		case Xilinx_Zynq:
+		case xilinx_zynq:
 #if defined(CONFIG_FPGA_ZYNQPL)
 			PRINTF("%s: Launching the Zynq PL Reader...\n",
-					__func__);
+			       __func__);
 			ret_val = zynq_dump(desc, buf, bsize);
 #else
 			printf("%s: No support for Zynq devices.\n",
-					__func__);
+			       __func__);
 #endif
 			break;
 
@@ -179,7 +288,7 @@ int xilinx_info (Xilinx_desc * desc)
 		case Xilinx_Virtex2:
 			printf ("Virtex-II\n");
 			break;
-		case Xilinx_Zynq:
+		case xilinx_zynq:
 			printf("Zynq PL\n");
 			break;
 			/* Add new family types here */
@@ -218,6 +327,8 @@ int xilinx_info (Xilinx_desc * desc)
 		printf ("Device Size:   \t%d bytes\n"
 				"Cookie:        \t0x%x (%d)\n",
 				desc->size, desc->cookie, desc->cookie);
+		if (desc->name)
+			printf("Device name:   \t%s\n", desc->name);
 
 		if (desc->iface_fns) {
 			printf ("Device Function Table @ 0x%p\n", desc->iface_fns);
@@ -249,13 +360,13 @@ int xilinx_info (Xilinx_desc * desc)
 						__FUNCTION__);
 #endif
 				break;
-			case Xilinx_Zynq:
+			case xilinx_zynq:
 #if defined(CONFIG_FPGA_ZYNQPL)
 				zynq_info(desc);
 #else
 				/* just in case */
 				printf("%s: No support for Zynq devices.\n",
-						__func__);
+				       __func__);
 #endif
 				/* Add new family types here */
 			default:
@@ -277,7 +388,7 @@ int xilinx_info (Xilinx_desc * desc)
 
 static int xilinx_validate (Xilinx_desc * desc, char *fn)
 {
-	int ret_val = FALSE;
+	int ret_val = false;
 
 	if (desc) {
 		if ((desc->family > min_xilinx_type) &&
@@ -285,7 +396,7 @@ static int xilinx_validate (Xilinx_desc * desc, char *fn)
 			if ((desc->iface > min_xilinx_iface_type) &&
 				(desc->iface < max_xilinx_iface_type)) {
 				if (desc->size) {
-					ret_val = TRUE;
+					ret_val = true;
 				} else
 					printf ("%s: NULL part size\n", fn);
 			} else

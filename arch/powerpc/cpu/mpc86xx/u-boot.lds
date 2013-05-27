@@ -67,7 +67,7 @@ SECTIONS
 
   . = ALIGN(4);
   .u_boot_list : {
-	#include <u-boot.lst>
+	KEEP(*(SORT(.u_boot_list*)));
   }
 
   . = .;
@@ -90,6 +90,6 @@ SECTIONS
    *(COMMON)
    . = ALIGN(4);
   }
-  __bss_end__ = . ;
+  __bss_end = . ;
   PROVIDE (end = .);
 }

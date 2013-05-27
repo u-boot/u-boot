@@ -23,4 +23,6 @@ The following actions are taken if "silent" is set at boot time:
 
  - When booting a linux kernel, the "bootargs" are fixed up so that
    the argument "console=" will be in the command line, no matter how
-   it was set in "bootargs" before.
+   it was set in "bootargs" before. If you don't want the linux command
+   line to be affected, define CONFIG_SILENT_U_BOOT_ONLY in your board
+   config file as well, and this part of the feature will be disabled.

@@ -38,8 +38,6 @@
 /* include common defines/options for all 83xx Keymile boards */
 #include "km83xx-common.h"
 
-#define CONFIG_MISC_INIT_R
-
 /*
  * System IO Config
  */

@@ -99,7 +99,19 @@ long int fixed_sdram(ddr512x_config_t *mddrc_config,
 	sync_law(&im->sysconf.ddrlaw.ar);
 
 	/* DDR Enable */
-	out_be32(&im->mddrc.ddr_sys_config, MDDRC_SYS_CFG_EN);
+	/*
+	 * the "enable" combination: DRAM controller out of reset,
+	 * clock enabled, command mode -- BUT leave CKE low for now
+	 */
+	i = MDDRC_SYS_CFG_EN & ~MDDRC_SYS_CFG_CKE_MASK;
+	out_be32(&im->mddrc.ddr_sys_config, i);
+	/* maintain 200 microseconds of stable power and clock */
+	udelay(200);
+	/* apply a NOP, it shouldn't harm */
+	out_be32(&im->mddrc.ddr_command, CONFIG_SYS_DDRCMD_NOP);
+	/* now assert CKE (high) */
+	i |= MDDRC_SYS_CFG_CKE_MASK;
+	out_be32(&im->mddrc.ddr_sys_config, i);
 
 	/* Initialize DDR Priority Manager */
 	out_be32(&im->mddrc.prioman_config1, CONFIG_SYS_MDDRCGRP_PM_CFG1);
@@ -147,6 +159,9 @@ long int fixed_sdram(ddr512x_config_t *mddrc_config,
 	/* Start MDDRC */
 	out_be32(&im->mddrc.ddr_time_config0, mddrc_config->ddr_time_config0);
 	out_be32(&im->mddrc.ddr_sys_config, mddrc_config->ddr_sys_config);
+
+	/* Allow for the DLL to startup before accessing data */
+	udelay(10);
 
 	msize = get_ram_size(CONFIG_SYS_DDR_BASE, CONFIG_SYS_MAX_RAM_SIZE);
 	/* Fix DDR Local Window for new size */

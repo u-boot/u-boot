@@ -17,7 +17,7 @@
  * never return an error.
  */
 static int e1000_spi_xfer(struct e1000_hw *hw, unsigned int bitlen,
-		const void *dout_mem, void *din_mem, boolean_t intr)
+		const void *dout_mem, void *din_mem, bool intr)
 {
 	const uint8_t *dout = dout_mem;
 	uint8_t *din = din_mem;
@@ -145,7 +145,7 @@ int spi_xfer(struct spi_slave *spi, unsigned int bitlen,
 	if (flags & SPI_XFER_BEGIN)
 		e1000_standby_eeprom(hw);
 
-	ret = e1000_spi_xfer(hw, bitlen, dout_mem, din_mem, TRUE);
+	ret = e1000_spi_xfer(hw, bitlen, dout_mem, din_mem, true);
 
 	if (flags & SPI_XFER_END)
 		e1000_standby_eeprom(hw);
@@ -169,7 +169,7 @@ int spi_xfer(struct spi_slave *spi, unsigned int bitlen,
 #define SPI_EEPROM_STATUS_BUSY	0x01
 #define SPI_EEPROM_STATUS_WREN	0x02
 
-static int e1000_spi_eeprom_enable_wr(struct e1000_hw *hw, boolean_t intr)
+static int e1000_spi_eeprom_enable_wr(struct e1000_hw *hw, bool intr)
 {
 	u8 op[] = { SPI_EEPROM_ENABLE_WR };
 	e1000_standby_eeprom(hw);
@@ -181,7 +181,7 @@ static int e1000_spi_eeprom_enable_wr(struct e1000_hw *hw, boolean_t intr)
  * of the EEPROM commands at this time.
  */
 #if 0
-static int e1000_spi_eeprom_disable_wr(struct e1000_hw *hw, boolean_t intr)
+static int e1000_spi_eeprom_disable_wr(struct e1000_hw *hw, bool intr)
 {
 	u8 op[] = { SPI_EEPROM_DISABLE_WR };
 	e1000_standby_eeprom(hw);
@@ -189,7 +189,7 @@ static int e1000_spi_eeprom_disable_wr(struct e1000_hw *hw, boolean_t intr)
 }
 
 static int e1000_spi_eeprom_write_status(struct e1000_hw *hw,
-		u8 status, boolean_t intr)
+		u8 status, bool intr)
 {
 	u8 op[] = { SPI_EEPROM_WRITE_STATUS, status };
 	e1000_standby_eeprom(hw);
@@ -197,7 +197,7 @@ static int e1000_spi_eeprom_write_status(struct e1000_hw *hw,
 }
 #endif
 
-static int e1000_spi_eeprom_read_status(struct e1000_hw *hw, boolean_t intr)
+static int e1000_spi_eeprom_read_status(struct e1000_hw *hw, bool intr)
 {
 	u8 op[] = { SPI_EEPROM_READ_STATUS, 0 };
 	e1000_standby_eeprom(hw);
@@ -207,7 +207,7 @@ static int e1000_spi_eeprom_read_status(struct e1000_hw *hw, boolean_t intr)
 }
 
 static int e1000_spi_eeprom_write_page(struct e1000_hw *hw,
-		const void *data, u16 off, u16 len, boolean_t intr)
+		const void *data, u16 off, u16 len, bool intr)
 {
 	u8 op[] = {
 		SPI_EEPROM_WRITE_PAGE,
@@ -225,7 +225,7 @@ static int e1000_spi_eeprom_write_page(struct e1000_hw *hw,
 }
 
 static int e1000_spi_eeprom_read_page(struct e1000_hw *hw,
-		void *data, u16 off, u16 len, boolean_t intr)
+		void *data, u16 off, u16 len, bool intr)
 {
 	u8 op[] = {
 		SPI_EEPROM_READ_PAGE,
@@ -242,7 +242,7 @@ static int e1000_spi_eeprom_read_page(struct e1000_hw *hw,
 	return 0;
 }
 
-static int e1000_spi_eeprom_poll_ready(struct e1000_hw *hw, boolean_t intr)
+static int e1000_spi_eeprom_poll_ready(struct e1000_hw *hw, bool intr)
 {
 	int status;
 	while ((status = e1000_spi_eeprom_read_status(hw, intr)) >= 0) {
@@ -253,7 +253,7 @@ static int e1000_spi_eeprom_poll_ready(struct e1000_hw *hw, boolean_t intr)
 }
 
 static int e1000_spi_eeprom_dump(struct e1000_hw *hw,
-		void *data, u16 off, unsigned int len, boolean_t intr)
+		void *data, u16 off, unsigned int len, bool intr)
 {
 	/* Interruptibly wait for the EEPROM to be ready */
 	if (e1000_spi_eeprom_poll_ready(hw, intr))
@@ -282,7 +282,7 @@ static int e1000_spi_eeprom_dump(struct e1000_hw *hw,
 }
 
 static int e1000_spi_eeprom_program(struct e1000_hw *hw,
-		const void *data, u16 off, u16 len, boolean_t intr)
+		const void *data, u16 off, u16 len, bool intr)
 {
 	/* Program each page in sequence */
 	while (len) {
@@ -362,7 +362,7 @@ static int do_e1000_spi_show(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
 		free(buffer);
 		return 1;
 	}
-	err = e1000_spi_eeprom_dump(hw, buffer, offset, length, TRUE);
+	err = e1000_spi_eeprom_dump(hw, buffer, offset, length, true);
 	e1000_release_eeprom(hw);
 	if (err) {
 		E1000_ERR(hw->nic, "Interrupted!\n");
@@ -421,7 +421,7 @@ static int do_e1000_spi_dump(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
 	}
 
 	/* Perform the programming operation */
-	if (e1000_spi_eeprom_dump(hw, dest, offset, length, TRUE) < 0) {
+	if (e1000_spi_eeprom_dump(hw, dest, offset, length, true) < 0) {
 		E1000_ERR(hw->nic, "Interrupted!\n");
 		e1000_release_eeprom(hw);
 		return 1;
@@ -456,7 +456,7 @@ static int do_e1000_spi_program(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
 	}
 
 	/* Perform the programming operation */
-	if (e1000_spi_eeprom_program(hw, source, offset, length, TRUE) < 0) {
+	if (e1000_spi_eeprom_program(hw, source, offset, length, true) < 0) {
 		E1000_ERR(hw->nic, "Interrupted!\n");
 		e1000_release_eeprom(hw);
 		return 1;
@@ -472,7 +472,7 @@ static int do_e1000_spi_checksum(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
 {
 	uint16_t i, length, checksum = 0, checksum_reg;
 	uint16_t *buffer;
-	boolean_t upd;
+	bool upd;
 
 	if (argc == 0)
 		upd = 0;
@@ -498,7 +498,7 @@ static int do_e1000_spi_checksum(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
 	}
 
 	/* Read the EEPROM */
-	if (e1000_spi_eeprom_dump(hw, buffer, 0, length, TRUE) < 0) {
+	if (e1000_spi_eeprom_dump(hw, buffer, 0, length, true) < 0) {
 		E1000_ERR(hw->nic, "Interrupted!\n");
 		e1000_release_eeprom(hw);
 		return 1;
@@ -533,7 +533,7 @@ static int do_e1000_spi_checksum(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
 	printf("%s: Reprogramming the EEPROM checksum...\n", hw->nic->name);
 	buffer[i] = cpu_to_le16(checksum);
 	if (e1000_spi_eeprom_program(hw, &buffer[i], i * sizeof(uint16_t),
-			sizeof(uint16_t), TRUE)) {
+			sizeof(uint16_t), true)) {
 		E1000_ERR(hw->nic, "Interrupted!\n");
 		e1000_release_eeprom(hw);
 		return 1;

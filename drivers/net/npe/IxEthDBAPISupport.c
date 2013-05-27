@@ -128,18 +128,18 @@ void ixEthDBPortInit(IxEthDBPortId portID)
     SET_DEPENDENCY_MAP(portInfo->dependencyPortMap, portID);
 
     /* default values */
-    portInfo->agingEnabled       = FALSE;
-    portInfo->enabled            = FALSE;
-    portInfo->macAddressUploaded = FALSE;
+    portInfo->agingEnabled       = false;
+    portInfo->enabled            = false;
+    portInfo->macAddressUploaded = false;
     portInfo->maxRxFrameSize     = IX_ETHDB_DEFAULT_FRAME_SIZE;
     portInfo->maxTxFrameSize     = IX_ETHDB_DEFAULT_FRAME_SIZE;
 
     /* default update control values */
     portInfo->updateMethod.searchTree              = NULL;
-    portInfo->updateMethod.searchTreePendingWrite  = FALSE;
-    portInfo->updateMethod.treeInitialized         = FALSE;
-    portInfo->updateMethod.updateEnabled           = FALSE;
-    portInfo->updateMethod.userControlled          = FALSE;
+    portInfo->updateMethod.searchTreePendingWrite  = false;
+    portInfo->updateMethod.treeInitialized         = false;
+    portInfo->updateMethod.updateEnabled           = false;
+    portInfo->updateMethod.userControlled          = false;
 
     /* default WiFi parameters */
     memset(portInfo->bbsid, 0, sizeof (portInfo->bbsid));
@@ -153,9 +153,9 @@ void ixEthDBPortInit(IxEthDBPortId portID)
     }
 
     /* initialize state save */
-    ixEthDBPortState[portID].saved = FALSE;
+    ixEthDBPortState[portID].saved = false;
 
-    portInfo->initialized = TRUE;
+    portInfo->initialized = true;
 }
 
 /**
@@ -190,7 +190,7 @@ IxEthDBStatus ixEthDBPortEnable(IxEthDBPortId portID)
     SET_DEPENDENCY_MAP(triggerPorts, portID);
 
     /* mark as enabled */
-    portInfo->enabled = TRUE;
+    portInfo->enabled = true;
 
     /* Operation stops here when Ethernet Learning is not enabled */
     if(IX_FEATURE_CTRL_SWCONFIG_DISABLED ==
@@ -214,7 +214,7 @@ IxEthDBStatus ixEthDBPortEnable(IxEthDBPortId portID)
         if (!portInfo->updateMethod.userControlled
                 && ((portInfo->featureCapability & IX_ETH_DB_FILTERING) != 0))
         {
-            portInfo->updateMethod.updateEnabled = TRUE;
+            portInfo->updateMethod.updateEnabled = true;
         }
 
         /* if this is first time initialization then we already have
@@ -227,7 +227,7 @@ IxEthDBStatus ixEthDBPortEnable(IxEthDBPortId portID)
             ixEthDBUpdatePortLearningTrees(triggerPorts);
 
             /* mark tree as being initialized */
-            portInfo->updateMethod.treeInitialized = TRUE;
+            portInfo->updateMethod.treeInitialized = true;
         }
     }
 
@@ -262,7 +262,7 @@ IxEthDBStatus ixEthDBPortEnable(IxEthDBPortId portID)
         ixEthDBFilteringPortMaximumTxFrameSizeSet(portID, ixEthDBPortState[portID].maxTxFrameSize);
 
         /* discard previous save */
-        ixEthDBPortState[portID].saved = FALSE;
+        ixEthDBPortState[portID].saved = false;
     }
 
     IX_ETH_DB_SUPPORT_TRACE("DB: (Support) Enabling succeeded for port %d\n", portID);
@@ -321,7 +321,7 @@ IxEthDBStatus ixEthDBPortDisable(IxEthDBPortId portID)
         memcpy(ixEthDBPortState[portID].transmitTaggingInfo, portInfo->transmitTaggingInfo, sizeof (IxEthDBVlanSet));
         memcpy(ixEthDBPortState[portID].priorityTable, portInfo->priorityTable, sizeof (IxEthDBPriorityTable));
 
-        ixEthDBPortState[portID].saved = TRUE;
+        ixEthDBPortState[portID].saved = true;
 
         /* now turn off all EthDB filtering features on the port */
 
@@ -330,7 +330,7 @@ IxEthDBStatus ixEthDBPortDisable(IxEthDBPortId portID)
         if ((portInfo->featureCapability & IX_ETH_DB_VLAN_QOS) != 0)
         {
             ixEthDBPortVlanMembershipRangeAdd((IxEthDBPortId) portID, 0, IX_ETH_DB_802_1Q_MAX_VLAN_ID);
-            ixEthDBEgressVlanRangeTaggingEnabledSet((IxEthDBPortId) portID, 0, IX_ETH_DB_802_1Q_MAX_VLAN_ID, FALSE);
+            ixEthDBEgressVlanRangeTaggingEnabledSet((IxEthDBPortId) portID, 0, IX_ETH_DB_802_1Q_MAX_VLAN_ID, false);
             ixEthDBAcceptableFrameTypeSet((IxEthDBPortId) portID, IX_ETH_DB_ACCEPT_ALL_FRAMES);
             ixEthDBIngressVlanTaggingEnabledSet((IxEthDBPortId) portID, IX_ETH_DB_PASS_THROUGH);
 
@@ -342,7 +342,7 @@ IxEthDBStatus ixEthDBPortDisable(IxEthDBPortId portID)
         /* STP */
         if ((portInfo->featureCapability & IX_ETH_DB_SPANNING_TREE_PROTOCOL) != 0)
         {
-            ixEthDBSpanningTreeBlockingStateSet((IxEthDBPortId) portID, FALSE);
+            ixEthDBSpanningTreeBlockingStateSet((IxEthDBPortId) portID, false);
         }
 
         /* Firewall */
@@ -350,7 +350,7 @@ IxEthDBStatus ixEthDBPortDisable(IxEthDBPortId portID)
         {
             ixEthDBFirewallModeSet((IxEthDBPortId) portID, IX_ETH_DB_FIREWALL_BLACK_LIST);
             ixEthDBFirewallTableDownload((IxEthDBPortId) portID);
-            ixEthDBFirewallInvalidAddressFilterEnable((IxEthDBPortId) portID, FALSE);
+            ixEthDBFirewallInvalidAddressFilterEnable((IxEthDBPortId) portID, false);
         }
 
         /* Frame size filter */
@@ -413,18 +413,18 @@ IxEthDBStatus ixEthDBPortDisable(IxEthDBPortId portID)
     }
 
     /* mark as disabled */
-    portInfo->enabled = FALSE;
+    portInfo->enabled = false;
 
     /* disable updates unless the user has specifically altered the default behavior */
     if (ixEthDBPortDefinitions[portID].type == IX_ETH_NPE)
     {
         if (!portInfo->updateMethod.userControlled)
         {
-            portInfo->updateMethod.updateEnabled = FALSE;
+            portInfo->updateMethod.updateEnabled = false;
         }
 
         /* make sure we re-initialize the NPE learning tree when the port is re-enabled */
-        portInfo->updateMethod.treeInitialized = FALSE;
+        portInfo->updateMethod.treeInitialized = false;
     }
 
     ixEthDBUpdateUnlock();
@@ -668,7 +668,7 @@ IxEthDBStatus ixEthDBPortAddressSet(IxEthDBPortId portID, IxEthDBMacAddr *macAdd
 
     if (result == IX_SUCCESS)
     {
-        ixEthDBPortInfo[portID].macAddressUploaded = TRUE;
+        ixEthDBPortInfo[portID].macAddressUploaded = true;
     }
 
     return result;

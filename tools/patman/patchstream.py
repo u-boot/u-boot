@@ -31,7 +31,7 @@ from series import Series
 
 # Tags that we detect and remove
 re_remove = re.compile('^BUG=|^TEST=|^BRANCH=|^Change-Id:|^Review URL:'
-    '|Reviewed-on:|Reviewed-by:|Commit-Ready:')
+    '|Reviewed-on:|Commit-\w*:')
 
 # Lines which are allowed after a TEST= line
 re_allowed_after_test = re.compile('^Signed-off-by:')
@@ -42,14 +42,17 @@ re_signoff = re.compile('^Signed-off-by:')
 # The start of the cover letter
 re_cover = re.compile('^Cover-letter:')
 
+# A cover letter Cc
+re_cover_cc = re.compile('^Cover-letter-cc: *(.*)')
+
 # Patch series tag
-re_series = re.compile('^Series-(\w*): *(.*)')
+re_series = re.compile('^Series-([a-z-]*): *(.*)')
 
 # Commit tags that we want to collect and keep
-re_tag = re.compile('^(Tested-by|Acked-by|Cc): (.*)')
+re_tag = re.compile('^(Tested-by|Acked-by|Reviewed-by|Cc): (.*)')
 
 # The start of a new commit in the git log
-re_commit = re.compile('^commit (.*)')
+re_commit = re.compile('^commit ([0-9a-f]*)$')
 
 # We detect these since checkpatch doesn't always do it
 re_space_before_tab = re.compile('^[+].* \t')
@@ -153,6 +156,7 @@ class PatchStream:
         # Handle state transition and skipping blank lines
         series_match = re_series.match(line)
         commit_match = re_commit.match(line) if self.is_log else None
+        cover_cc_match = re_cover_cc.match(line)
         tag_match = None
         if self.state == STATE_PATCH_HEADER:
             tag_match = re_tag.match(line)
@@ -205,6 +209,10 @@ class PatchStream:
             self.in_section = 'cover'
             self.skip_blank = False
 
+        elif cover_cc_match:
+            value = cover_cc_match.group(1)
+            self.AddToSeries(line, 'cover-cc', value)
+
         # If we are in a change list, key collected lines until a blank one
         elif self.in_change:
             if is_blank:
@@ -237,7 +245,8 @@ class PatchStream:
         # Detect the start of a new commit
         elif commit_match:
             self.CloseCommit()
-            self.commit = commit.Commit(commit_match.group(1)[:7])
+            # TODO: We should store the whole hash, and just display a subset
+            self.commit = commit.Commit(commit_match.group(1)[:8])
 
         # Detect tags in the commit message
         elif tag_match:
@@ -334,6 +343,36 @@ class PatchStream:
         self.Finalize()
 
 
+def GetMetaDataForList(commit_range, git_dir=None, count=None,
+                       series = Series()):
+    """Reads out patch series metadata from the commits
+
+    This does a 'git log' on the relevant commits and pulls out the tags we
+    are interested in.
+
+    Args:
+        commit_range: Range of commits to count (e.g. 'HEAD..base')
+        git_dir: Path to git repositiory (None to use default)
+        count: Number of commits to list, or None for no limit
+        series: Series object to add information into. By default a new series
+            is started.
+    Returns:
+        A Series object containing information about the commits.
+    """
+    params = ['git', 'log', '--no-color', '--reverse', '--no-decorate',
+                    commit_range]
+    if count is not None:
+        params[2:2] = ['-n%d' % count]
+    if git_dir:
+        params[1:1] = ['--git-dir', git_dir]
+    pipe = [params]
+    stdout = command.RunPipe(pipe, capture=True).stdout
+    ps = PatchStream(series, is_log=True)
+    for line in stdout.splitlines():
+        ps.ProcessLine(line)
+    ps.Finalize()
+    return series
+
 def GetMetaData(start, count):
     """Reads out patch series metadata from the commits
 
@@ -344,15 +383,7 @@ def GetMetaData(start, count):
         start: Commit to start from: 0=HEAD, 1=next one, etc.
         count: Number of commits to list
     """
-    pipe = [['git', 'log', '--no-color', '--reverse', 'HEAD~%d' % start,
-	'-n%d' % count]]
-    stdout = command.RunPipe(pipe, capture=True)
-    series = Series()
-    ps = PatchStream(series, is_log=True)
-    for line in stdout.splitlines():
-        ps.ProcessLine(line)
-    ps.Finalize()
-    return series
+    return GetMetaDataForList('HEAD~%d' % start, None, count)
 
 def FixPatch(backup_dir, fname, series, commit):
     """Fix up a patch file, by adding/removing as required.

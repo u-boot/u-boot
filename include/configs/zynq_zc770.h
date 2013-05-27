@@ -25,8 +25,8 @@
 #if defined(CONFIG_ZC770_XM010)
 # define CONFIG_ZYNQ_SERIAL_UART1
 # define CONFIG_ZYNQ_GEM0
-# define CONFIG_PHY_ADDR	7
-# define CONFIG_MMC
+# define CONFIG_ZYNQ_GEM_PHY_ADDR0	7
+# define CONFIG_ZYNQ_SDHCI0
 # define CONFIG_ZYNQ_SPI
 
 #elif defined(CONFIG_ZC770_XM011)
@@ -40,7 +40,7 @@
 #elif defined(CONFIG_ZC770_XM013)
 # define CONFIG_ZYNQ_SERIAL_UART0
 # define CONFIG_ZYNQ_GEM1
-# define CONFIG_PHY_ADDR	7
+# define CONFIG_ZYNQ_GEM_PHY_ADDR1	7
 # define CONFIG_ZYNQ_SPI
 
 #else

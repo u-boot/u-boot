@@ -85,14 +85,12 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		return NULL;
 	}
 
-	xilspi = malloc(sizeof(*xilspi));
+	xilspi = spi_alloc_slave(struct xilinx_spi_slave, bus, cs);
 	if (!xilspi) {
 		printf("XILSPI error: %s: malloc of SPI structure failed\n",
 				__func__);
 		return NULL;
 	}
-	xilspi->slave.bus = bus;
-	xilspi->slave.cs = cs;
 	xilspi->regs = (struct xilinx_spi_reg *)xilinx_spi_base_list[bus];
 	xilspi->freq = max_hz;
 	xilspi->mode = mode;
@@ -151,6 +149,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	const unsigned char *txp = dout;
 	unsigned char *rxp = din;
 	unsigned rxecount = 17;	/* max. 16 elements in FIFO, leftover 1 */
+	unsigned global_timeout;
 
 	debug("%s: bus:%i cs:%i bitlen:%i bytes:%i flags:%lx\n", __func__,
 		slave->bus, slave->cs, bitlen, bytes, flags);
@@ -178,11 +177,12 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	if (flags & SPI_XFER_BEGIN)
 		spi_cs_activate(slave);
 
-	while (bytes--) {
-		unsigned timeout = /* at least 1usec or greater, leftover 1 */
-			xilspi->freq > XILSPI_MAX_XFER_BITS * 1000000 ? 2 :
+	/* at least 1usec or greater, leftover 1 */
+	global_timeout = xilspi->freq > XILSPI_MAX_XFER_BITS * 1000000 ? 2 :
 			(XILSPI_MAX_XFER_BITS * 1000000 / xilspi->freq) + 1;
 
+	while (bytes--) {
+		unsigned timeout = global_timeout;
 		/* get Tx element from data out buffer and count up */
 		unsigned char d = txp ? *txp++ : CONFIG_XILINX_SPI_IDLE_VAL;
 		debug("%s: tx:%x ", __func__, d);

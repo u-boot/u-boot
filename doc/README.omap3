@@ -145,6 +145,34 @@ int omap3_dma_wait_for_transfer(uint32_t chan)
 int omap3_dma_get_revision(uint32_t *minor, uint32_t *major)
 	Read silicon Revision of the DMA module
 
+NAND
+====
+
+There are some OMAP3 devices out there with NAND attached. Due to the fact that
+OMAP3 ROM code can only handle 1-bit hamming ECC for accessing first page
+(place where SPL lives) we require this setup for u-boot at least when reading
+the second progam within SPL.  A lot of newer NAND chips however require more
+than 1-bit ECC for the pages, some can live with 1-bit for the first page. To
+handle this we can switch to another ECC algorithm after reading the payload
+within SPL.
+
+BCH8
+----
+
+To enable hardware assisted BCH8 (8-bit BCH [Bose, Chaudhuri, Hocquenghem]) on
+OMAP3 devices we can use the BCH library in lib/bch.c. To do so add CONFIG_BCH
+to enable the library and CONFIG_NAND_OMAP_BCH8 to to enable hardware assisted
+syndrom generation to your board config.
+The NAND OOB layout is the same as in linux kernel, if the linux kernel BCH8
+implementation for OMAP3 works for you so the u-boot version should also.
+When you require the SPL to read with BCH8 there are two more configs to
+change:
+
+ * CONFIG_SYS_NAND_ECCPOS (must be the same as .eccpos in
+   GPMC_NAND_HW_BCH8_ECC_LAYOUT defined in
+   arch/arm/include/asm/arch-omap3/omap_gpmc.h)
+ * CONFIG_SYS_NAND_ECCSIZE must be 512
+ * CONFIG_SYS_NAND_ECCBYTES must be 13 for this BCH8 setup
 
 Acknowledgements
 ================

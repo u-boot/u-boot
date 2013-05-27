@@ -513,7 +513,7 @@ void fsl_serdes_init(void)
 	size_t arglen;
 #endif
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES_A001
-	int need_serdes_a001;	/* TRUE == need work-around for SERDES A001 */
+	int need_serdes_a001;	/* true == need work-around for SERDES A001 */
 #endif
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES8
 	char buffer[HWCONFIG_BUFFER_SIZE];

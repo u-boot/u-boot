@@ -288,9 +288,11 @@ static int mpc8220_fec_init (struct eth_device *dev, bd_t * bis)
 		 * Set MII_SPEED = (1/(mii_speed * 2)) * System Clock
 		 * and do not drop the Preamble.
 		 */
-		/* tbd - rtm */
-		/*fec->eth->mii_speed = (((gd->ipb_clk >> 20) / 5) << 1); */
-		/* No MII for 7-wire mode */
+		/*
+		 * tbd - rtm
+		 * fec->eth->mii_speed = (((gd->arch.ipb_clk >> 20) / 5) << 1);
+		 * No MII for 7-wire mode
+		 */
 		fec->eth->mii_speed = 0x00000030;
 	}
 

@@ -45,25 +45,25 @@ int timer_init(void)
 	/* use PWM Timer 4 because it has no output */
 	/* prescaler for Timer 4 is 16 */
 	writel(0x0f00, &timers->tcfg0);
-	if (gd->tbu == 0) {
+	if (gd->arch.tbu == 0) {
 		/*
 		 * for 10 ms clock period @ PCLK with 4 bit divider = 1/2
 		 * (default) and prescaler = 16. Should be 10390
 		 * @33.25MHz and 15625 @ 50 MHz
 		 */
-		gd->tbu = get_PCLK() / (2 * 16 * 100);
-		gd->timer_rate_hz = get_PCLK() / (2 * 16);
+		gd->arch.tbu = get_PCLK() / (2 * 16 * 100);
+		gd->arch.timer_rate_hz = get_PCLK() / (2 * 16);
 	}
 	/* load value for 10 ms timeout */
-	writel(gd->tbu, &timers->tcntb4);
+	writel(gd->arch.tbu, &timers->tcntb4);
 	/* auto load, manual update of timer 4 */
 	tmr = (readl(&timers->tcon) & ~0x0700000) | 0x0600000;
 	writel(tmr, &timers->tcon);
 	/* auto load, start timer 4 */
 	tmr = (tmr & ~0x0700000) | 0x0500000;
 	writel(tmr, &timers->tcon);
-	gd->lastinc = 0;
-	gd->tbl = 0;
+	gd->arch.lastinc = 0;
+	gd->arch.tbl = 0;
 
 	return 0;
 }
@@ -82,7 +82,7 @@ void __udelay (unsigned long usec)
 	ulong start = get_ticks();
 
 	tmo = usec / 1000;
-	tmo *= (gd->tbu * 100);
+	tmo *= (gd->arch.tbu * 100);
 	tmo /= 1000;
 
 	while ((ulong) (get_ticks() - start) < tmo)
@@ -93,7 +93,7 @@ ulong get_timer_masked(void)
 {
 	ulong tmr = get_ticks();
 
-	return tmr / (gd->timer_rate_hz / CONFIG_SYS_HZ);
+	return tmr / (gd->arch.timer_rate_hz / CONFIG_SYS_HZ);
 }
 
 void udelay_masked(unsigned long usec)
@@ -104,10 +104,10 @@ void udelay_masked(unsigned long usec)
 
 	if (usec >= 1000) {
 		tmo = usec / 1000;
-		tmo *= (gd->tbu * 100);
+		tmo *= (gd->arch.tbu * 100);
 		tmo /= 1000;
 	} else {
-		tmo = usec * (gd->tbu * 100);
+		tmo = usec * (gd->arch.tbu * 100);
 		tmo /= (1000 * 1000);
 	}
 
@@ -128,16 +128,16 @@ unsigned long long get_ticks(void)
 	struct s3c24x0_timers *timers = s3c24x0_get_base_timers();
 	ulong now = readl(&timers->tcnto4) & 0xffff;
 
-	if (gd->lastinc >= now) {
+	if (gd->arch.lastinc >= now) {
 		/* normal mode */
-		gd->tbl += gd->lastinc - now;
+		gd->arch.tbl += gd->arch.lastinc - now;
 	} else {
 		/* we have an overflow ... */
-		gd->tbl += gd->lastinc + gd->tbu - now;
+		gd->arch.tbl += gd->arch.lastinc + gd->arch.tbu - now;
 	}
-	gd->lastinc = now;
+	gd->arch.lastinc = now;
 
-	return gd->tbl;
+	return gd->arch.tbl;
 }
 
 /*

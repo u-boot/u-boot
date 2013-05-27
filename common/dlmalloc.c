@@ -201,7 +201,7 @@
   MORECORE_FAILURE          (default: -1)
      The value returned upon failure of MORECORE.
   MORECORE_CLEARS           (default 1)
-     True (1) if the routine mapped to MORECORE zeroes out memory (which
+     true (1) if the routine mapped to MORECORE zeroes out memory (which
      holds for sbrk).
   DEFAULT_TRIM_THRESHOLD
   DEFAULT_TOP_PAD
@@ -1485,7 +1485,7 @@ static mbinptr av_[NAV * 2 + 2] = {
 };
 
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
-void malloc_bin_reloc (void)
+static void malloc_bin_reloc(void)
 {
 	mbinptr *p = &av_[2];
 	size_t i;
@@ -1493,6 +1493,8 @@ void malloc_bin_reloc (void)
 	for (i = 2; i < ARRAY_SIZE(av_); ++i, ++p)
 		*p = (mbinptr)((ulong)*p + gd->reloc_off);
 }
+#else
+static inline void malloc_bin_reloc(void) {}
 #endif
 
 ulong mem_malloc_start = 0;
@@ -1526,6 +1528,8 @@ void mem_malloc_init(ulong start, ulong size)
 	mem_malloc_brk = start;
 
 	memset((void *)mem_malloc_start, 0, size);
+
+	malloc_bin_reloc();
 }
 
 /* field-extraction macros */

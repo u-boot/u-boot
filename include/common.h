@@ -270,7 +270,8 @@ int	cpu_init(void);
 phys_size_t initdram (int);
 int	display_options (void);
 void	print_size(unsigned long long, const char *);
-int	print_buffer (ulong addr, void* data, uint width, uint count, uint linelen);
+int print_buffer(ulong addr, const void *data, uint width, uint count,
+		 uint linelen);
 
 /* common/main.c */
 void	main_loop	(void);
@@ -310,6 +311,8 @@ extern ulong monitor_flash_len;
 int mac_read_from_eeprom(void);
 extern u8 _binary_dt_dtb_start[];	/* embedded device tree blob */
 int set_cpu_clk_info(void);
+int print_cpuinfo(void);
+int update_flash_size(int flash_size);
 
 /**
  * Show the DRAM size in a board-specific way
@@ -357,7 +360,19 @@ int getenv_yesno(const char *var);
 int	saveenv	     (void);
 int	setenv	     (const char *, const char *);
 int setenv_ulong(const char *varname, ulong value);
-int setenv_addr(const char *varname, const void *addr);
+int setenv_hex(const char *varname, ulong value);
+/**
+ * setenv_addr - Set an environment variable to an address in hex
+ *
+ * @varname:	Environmet variable to set
+ * @addr:	Value to set it to
+ * @return 0 if ok, 1 on error
+ */
+static inline int setenv_addr(const char *varname, const void *addr)
+{
+	return setenv_hex(varname, (ulong)addr);
+}
+
 #ifdef CONFIG_ARM
 # include <asm/mach-types.h>
 # include <asm/setup.h>
@@ -515,7 +530,11 @@ int	dcache_status (void);
 void	dcache_enable (void);
 void	dcache_disable(void);
 void	mmu_disable(void);
-void	relocate_code (ulong, gd_t *, ulong) __attribute__ ((noreturn));
+#if defined(CONFIG_ARM)
+void	relocate_code(ulong);
+#else
+void	relocate_code(ulong, gd_t *, ulong) __attribute__ ((noreturn));
+#endif
 ulong	get_endaddr   (void);
 void	trap_init     (ulong);
 #if defined (CONFIG_4xx)	|| \
@@ -628,7 +647,6 @@ ulong	get_PCI_freq (void);
 #endif
 #if defined(CONFIG_S3C24X0) || \
     defined(CONFIG_LH7A40X) || \
-    defined(CONFIG_S3C6400) || \
     defined(CONFIG_EP93XX)
 ulong	get_FCLK (void);
 ulong	get_HCLK (void);
@@ -868,6 +886,18 @@ int cpu_reset(int nr);
 int cpu_disable(int nr);
 int cpu_release(int nr, int argc, char * const argv[]);
 #endif
+
+/* Define a null map_sysmem() if the architecture doesn't use it */
+# ifndef CONFIG_ARCH_MAP_SYSMEM
+static inline void *map_sysmem(phys_addr_t paddr, unsigned long len)
+{
+	return (void *)(uintptr_t)paddr;
+}
+
+static inline void unmap_sysmem(const void *vaddr)
+{
+}
+# endif
 
 #endif /* __ASSEMBLY__ */
 

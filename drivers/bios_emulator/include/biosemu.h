@@ -127,9 +127,9 @@ biosmem_limit   - Limit of the BIOS image
 busmem_base     - Base of the VGA bus memory
 timer           - Timer used to emulate PC timer ports
 timer0          - Latched value for timer 0
-timer0Latched   - True if timer 0 value was just latched
+timer0Latched   - true if timer 0 value was just latched
 timer2          - Current value for timer 2
-emulateVGA      - True to emulate VGA I/O and memory accesses
+emulateVGA      - true to emulate VGA I/O and memory accesses
 ****************************************************************************/
 
 typedef struct {

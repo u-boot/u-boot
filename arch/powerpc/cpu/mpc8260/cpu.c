@@ -50,7 +50,6 @@
 
 #if defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
-#include <libfdt_env.h>
 #include <fdt_support.h>
 #endif
 

@@ -1515,13 +1515,6 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 
 	padded_line = (((width * bpp + 7) / 8) + 3) & ~0x3;
 
-	/*
-	 * Just ignore elements which are completely beyond screen
-	 * dimensions.
-	 */
-	if ((x >= VIDEO_VISIBLE_COLS) || (y >= VIDEO_VISIBLE_ROWS))
-		return 0;
-
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN
 	if (x == BMP_ALIGN_CENTER)
 		x = max(0, (VIDEO_VISIBLE_COLS - width) / 2);
@@ -1533,6 +1526,13 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 	else if (y < 0)
 		y = max(0, VIDEO_VISIBLE_ROWS - height + y + 1);
 #endif /* CONFIG_SPLASH_SCREEN_ALIGN */
+
+	/*
+	 * Just ignore elements which are completely beyond screen
+	 * dimensions.
+	 */
+	if ((x >= VIDEO_VISIBLE_COLS) || (y >= VIDEO_VISIBLE_ROWS))
+		return 0;
 
 	if ((x + width) > VIDEO_VISIBLE_COLS)
 		width = VIDEO_VISIBLE_COLS - x;

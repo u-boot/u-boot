@@ -33,6 +33,7 @@
 #include <phy.h>
 #include <miiphy.h>
 #include <watchdog.h>
+#include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 
 /* Bit/mask specification */
@@ -143,6 +144,7 @@ struct zynq_gem_priv {
 	u32 rxbd_current;
 	u32 rx_first_buf;
 	int phyaddr;
+	u32 emio;
 	int init;
 	struct phy_device *phydev;
 	struct mii_dev *bus;
@@ -388,8 +390,11 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 		clk = (5 << 20) | (8 << 8) | (0 << 4) | (1 << 0);
 		break;
 	}
-	/* FIXME maybe better to define gem address in hardware.h */
-	zynq_slcr_gem_clk_setup(dev->iobase != 0xE000B000, rclk, clk);
+
+	/* Change the rclk and clk only not using EMIO interface */
+	if (!priv->emio)
+		zynq_slcr_gem_clk_setup(dev->iobase !=
+					ZYNQ_GEM_BASEADDR0, rclk, clk);
 
 #else
 	/* PHY Setup */
@@ -538,7 +543,7 @@ static int zynq_gem_miiphy_write(const char *devname, uchar addr,
 	return phywrite(dev, addr, reg, val);
 }
 
-int zynq_gem_initialize(bd_t *bis, int base_addr)
+int zynq_gem_initialize(bd_t *bis, int base_addr, int phy_addr, u32 emio)
 {
 	struct eth_device *dev;
 	struct zynq_gem_priv *priv;
@@ -554,11 +559,8 @@ int zynq_gem_initialize(bd_t *bis, int base_addr)
 	}
 	priv = dev->priv;
 
-#ifdef CONFIG_PHY_ADDR
-	priv->phyaddr = CONFIG_PHY_ADDR;
-#else
-	priv->phyaddr = -1;
-#endif
+	priv->phyaddr = phy_addr;
+	priv->emio = emio;
 
 	sprintf(dev->name, "Gem.%x", base_addr);
 

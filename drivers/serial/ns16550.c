@@ -36,17 +36,31 @@
 
 void NS16550_init(NS16550_t com_port, int baud_divisor)
 {
-#if (!defined(CONFIG_SYS_NS16550_BROKEN_TEMT))
+#if (defined(CONFIG_SPL_BUILD) && defined(CONFIG_OMAP34XX))
+	/*
+	 * On some OMAP3 devices when UART3 is configured for boot mode before
+	 * SPL starts only THRE bit is set. We have to empty the transmitter
+	 * before initialization starts.
+	 */
+	if ((serial_in(&com_port->lsr) & (UART_LSR_TEMT | UART_LSR_THRE))
+	     == UART_LSR_THRE) {
+		serial_out(UART_LCR_DLAB, &com_port->lcr);
+		serial_out(baud_divisor & 0xff, &com_port->dll);
+		serial_out((baud_divisor >> 8) & 0xff, &com_port->dlm);
+		serial_out(UART_LCRVAL, &com_port->lcr);
+		serial_out(0, &com_port->mdr1);
+	}
+#endif
+
 	while (!(serial_in(&com_port->lsr) & UART_LSR_TEMT))
 		;
-#endif
 
 	serial_out(CONFIG_SYS_NS16550_IER, &com_port->ier);
 #if (defined(CONFIG_OMAP) && !defined(CONFIG_OMAP3_ZOOM2)) || \
-					defined(CONFIG_AM33XX)
+			defined(CONFIG_AM33XX) || defined(CONFIG_TI814X)
 	serial_out(0x7, &com_port->mdr1);	/* mode select reset TL16C750*/
 #endif
-	serial_out(UART_LCR_BKSE | UART_LCRVAL, (ulong)&com_port->lcr);
+	serial_out(UART_LCR_BKSE | UART_LCRVAL, &com_port->lcr);
 	serial_out(0, &com_port->dll);
 	serial_out(0, &com_port->dlm);
 	serial_out(UART_LCRVAL, &com_port->lcr);
@@ -57,7 +71,8 @@ void NS16550_init(NS16550_t com_port, int baud_divisor)
 	serial_out((baud_divisor >> 8) & 0xff, &com_port->dlm);
 	serial_out(UART_LCRVAL, &com_port->lcr);
 #if (defined(CONFIG_OMAP) && !defined(CONFIG_OMAP3_ZOOM2)) || \
-	defined(CONFIG_AM33XX) || defined(CONFIG_SOC_DA8XX)
+	defined(CONFIG_AM33XX) || defined(CONFIG_SOC_DA8XX) || \
+	defined(CONFIG_TI814X)
 
 #if defined(CONFIG_APTIX)
 	/* /13 mode so Aptix 6MHz can hit 115200 */

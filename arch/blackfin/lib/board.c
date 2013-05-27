@@ -77,7 +77,7 @@ static void display_global_data(void)
 	bd = gd->bd;
 	printf(" gd: %p\n", gd);
 	printf(" |-flags: %lx\n", gd->flags);
-	printf(" |-board_type: %lx\n", gd->board_type);
+	printf(" |-board_type: %lx\n", gd->arch.board_type);
 	printf(" |-baudrate: %u\n", gd->baudrate);
 	printf(" |-have_console: %lx\n", gd->have_console);
 	printf(" |-ram_size: %lx\n", gd->ram_size);
@@ -96,6 +96,13 @@ static void display_global_data(void)
 
 #define CPLB_PAGE_SIZE (4 * 1024 * 1024)
 #define CPLB_PAGE_MASK (~(CPLB_PAGE_SIZE - 1))
+#if defined(__ADSPBF60x__)
+#define CPLB_EX_PAGE_SIZE (16 * 1024 * 1024)
+#define CPLB_EX_PAGE_MASK (~(CPLB_EX_PAGE_SIZE - 1))
+#else
+#define CPLB_EX_PAGE_SIZE CPLB_PAGE_SIZE
+#define CPLB_EX_PAGE_MASK CPLB_PAGE_MASK
+#endif
 void init_cplbtables(void)
 {
 	volatile uint32_t *ICPLB_ADDR, *ICPLB_DATA;
@@ -127,6 +134,11 @@ void init_cplbtables(void)
 	icplb_add(0xFFA00000, L1_IMEMORY);
 	dcplb_add(0xFF800000, L1_DMEMORY);
 	++i;
+#if defined(__ADSPBF60x__)
+	icplb_add(0x0, 0x0);
+	dcplb_add(CONFIG_SYS_FLASH_BASE, SDRAM_EBIU);
+	++i;
+#endif
 
 	if (CONFIG_MEM_SIZE) {
 		uint32_t mbase = CONFIG_SYS_MONITOR_BASE;
@@ -150,9 +162,11 @@ void init_cplbtables(void)
 		}
 	}
 
+#ifndef __ADSPBF60x__
 	icplb_add(0x20000000, SDRAM_INON_CHBL);
 	dcplb_add(0x20000000, SDRAM_EBIU);
 	++i;
+#endif
 
 	/* Add entries for the rest of external RAM up to the bootrom */
 	extern_memory = 0;
@@ -167,10 +181,11 @@ void init_cplbtables(void)
 	++i;
 #endif
 
-	while (i < 16 && extern_memory < (CONFIG_SYS_MONITOR_BASE & CPLB_PAGE_MASK)) {
+	while (i < 16 && extern_memory <
+		(CONFIG_SYS_MONITOR_BASE & CPLB_EX_PAGE_MASK)) {
 		icplb_add(extern_memory, SDRAM_IGENERIC);
 		dcplb_add(extern_memory, SDRAM_DGENERIC);
-		extern_memory += CPLB_PAGE_SIZE;
+		extern_memory += CPLB_EX_PAGE_SIZE;
 		++i;
 	}
 	while (i < 16) {
@@ -295,7 +310,13 @@ void board_init_f(ulong bootflag)
 
 	printf("Clock: VCO: %s MHz, ", strmhz(buf, get_vco()));
 	printf("Core: %s MHz, ", strmhz(buf, get_cclk()));
+#if defined(__ADSPBF60x__)
+	printf("System0: %s MHz, ", strmhz(buf, get_sclk0()));
+	printf("System1: %s MHz, ", strmhz(buf, get_sclk1()));
+	printf("Dclk: %s MHz\n", strmhz(buf, get_dclk()));
+#else
 	printf("System: %s MHz\n", strmhz(buf, get_sclk()));
+#endif
 
 	if (CONFIG_MEM_SIZE) {
 		printf("RAM:   ");

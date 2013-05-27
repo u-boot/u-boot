@@ -24,12 +24,15 @@
 CROSS_COMPILE ?= arm-linux-
 
 ifndef CONFIG_STANDALONE_LOAD_ADDR
-ifeq ($(SOC),omap3)
+ifneq ($(CONFIG_AM33XX)$(CONFIG_OMAP34XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX)$(CONFIG_TI814X),)
 CONFIG_STANDALONE_LOAD_ADDR = 0x80300000
 else
 CONFIG_STANDALONE_LOAD_ADDR = 0xc100000
 endif
 endif
+
+# Support generic board on ARM
+__HAVE_ARCH_GENERIC_BOARD := y
 
 PLATFORM_CPPFLAGS += -DCONFIG_ARM -D__ARM__
 
@@ -84,9 +87,7 @@ endif
 endif
 
 # needed for relocation
-ifndef CONFIG_NAND_SPL
 LDFLAGS_u-boot += -pie
-endif
 
 #
 # FIXME: binutils versions < 2.22 have a bug in the assembler where

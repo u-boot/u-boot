@@ -192,7 +192,7 @@ void get_brgclk(uint sccr)
 			divider = 64;
 			break;
 	}
-	gd->brg_clk = gd->cpu_clk/divider;
+	gd->arch.brg_clk = gd->cpu_clk/divider;
 }
 
 #if !defined(CONFIG_8xx_CPUCLK_DEFAULT)

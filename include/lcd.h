@@ -32,30 +32,22 @@
 extern char lcd_is_enabled;
 
 extern int lcd_line_length;
-extern int lcd_color_fg;
-extern int lcd_color_bg;
 
-/*
- * Frame buffer memory information
- */
-extern void *lcd_base;		/* Start of framebuffer memory	*/
-extern void *lcd_console_address;	/* Start of console buffer	*/
-
-extern short console_col;
-extern short console_row;
 extern struct vidinfo panel_info;
 
-extern void lcd_ctrl_init (void *lcdbase);
-extern void lcd_enable (void);
+void lcd_ctrl_init(void *lcdbase);
+void lcd_enable(void);
+int board_splash_screen_prepare(void);
 
 /* setcolreg used in 8bpp/16bpp; initcolregs used in monochrome */
-extern void lcd_setcolreg (ushort regno,
-				ushort red, ushort green, ushort blue);
-extern void lcd_initcolregs (void);
+void lcd_setcolreg(ushort regno, ushort red, ushort green, ushort blue);
+void lcd_initcolregs(void);
+
+int lcd_getfgcolor(void);
 
 /* gunzip_bmp used if CONFIG_VIDEO_BMP_GZIP */
-extern struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp);
-extern int bmp_display(ulong addr, int x, int y);
+struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp);
+int bmp_display(ulong addr, int x, int y);
 
 /**
  * Set whether we need to flush the dcache when changing the LCD image. This
@@ -233,15 +225,6 @@ typedef struct vidinfo {
 	u_char	vl_vbpd;	/* Wait end of frame */
 	u_char  vl_cmd_allow_len; /* Wait end of frame */
 
-	void (*cfg_gpio)(void);
-	void (*backlight_on)(unsigned int onoff);
-	void (*reset_lcd)(void);
-	void (*lcd_power_on)(void);
-	void (*cfg_ldo)(void);
-	void (*enable_ldo)(unsigned int onoff);
-	void (*mipi_power)(void);
-	void (*backlight_reset)(void);
-
 	unsigned int win_id;
 	unsigned int init_delay;
 	unsigned int power_on_delay;
@@ -266,7 +249,6 @@ typedef struct vidinfo {
 	unsigned int sclk_div;
 
 	unsigned int dual_lcd_enabled;
-
 } vidinfo_t;
 
 void init_panel_info(vidinfo_t *vid);
@@ -291,14 +273,12 @@ extern vidinfo_t panel_info;
 /* Video functions */
 
 #if defined(CONFIG_RBC823)
-void	lcd_disable	(void);
+void	lcd_disable(void);
 #endif
 
-
-/* int	lcd_init	(void *lcdbase); */
-void	lcd_putc	(const char c);
-void	lcd_puts	(const char *s);
-void	lcd_printf	(const char *fmt, ...);
+void	lcd_putc(const char c);
+void	lcd_puts(const char *s);
+void	lcd_printf(const char *fmt, ...);
 void	lcd_clear(void);
 int	lcd_display_bitmap(ulong bmp_image, int x, int y);
 
@@ -358,7 +338,7 @@ int lcd_get_size(int *line_length);
  *  is connected, as we can't autodetect anything.
  */
 #define CONFIG_SYS_HIGH	0	/* Pins are active high			*/
-#define CONFIG_SYS_LOW		1	/* Pins are active low			*/
+#define CONFIG_SYS_LOW	1	/* Pins are active low			*/
 
 #define LCD_MONOCHROME	0
 #define LCD_COLOR2	1
@@ -372,10 +352,10 @@ int lcd_get_size(int *line_length);
 # define LCD_INFO_Y		(BMP_LOGO_HEIGHT + VIDEO_FONT_HEIGHT)
 #elif defined(CONFIG_LCD_LOGO)
 # define LCD_INFO_X		(BMP_LOGO_WIDTH + 4 * VIDEO_FONT_WIDTH)
-# define LCD_INFO_Y		(VIDEO_FONT_HEIGHT)
+# define LCD_INFO_Y		VIDEO_FONT_HEIGHT
 #else
-# define LCD_INFO_X		(VIDEO_FONT_WIDTH)
-# define LCD_INFO_Y		(VIDEO_FONT_HEIGHT)
+# define LCD_INFO_X		VIDEO_FONT_WIDTH
+# define LCD_INFO_Y		VIDEO_FONT_HEIGHT
 #endif
 
 /* Default to 8bpp if bit depth not specified */
@@ -429,34 +409,6 @@ int lcd_get_size(int *line_length);
 /************************************************************************/
 #ifndef PAGE_SIZE
 # define PAGE_SIZE	4096
-#endif
-
-/************************************************************************/
-/* ** CONSOLE DEFINITIONS & FUNCTIONS					*/
-/************************************************************************/
-#if defined(CONFIG_LCD_LOGO) && !defined(CONFIG_LCD_INFO_BELOW_LOGO)
-# define CONSOLE_ROWS		((panel_info.vl_row-BMP_LOGO_HEIGHT) \
-					/ VIDEO_FONT_HEIGHT)
-#else
-# define CONSOLE_ROWS		(panel_info.vl_row / VIDEO_FONT_HEIGHT)
-#endif
-
-#define CONSOLE_COLS		(panel_info.vl_col / VIDEO_FONT_WIDTH)
-#define CONSOLE_ROW_SIZE	(VIDEO_FONT_HEIGHT * lcd_line_length)
-#define CONSOLE_ROW_FIRST	(lcd_console_address)
-#define CONSOLE_ROW_SECOND	(lcd_console_address + CONSOLE_ROW_SIZE)
-#define CONSOLE_ROW_LAST	(lcd_console_address + CONSOLE_SIZE \
-					- CONSOLE_ROW_SIZE)
-#define CONSOLE_SIZE		(CONSOLE_ROW_SIZE * CONSOLE_ROWS)
-#define CONSOLE_SCROLL_SIZE	(CONSOLE_SIZE - CONSOLE_ROW_SIZE)
-
-#if LCD_BPP == LCD_MONOCHROME
-# define COLOR_MASK(c)		((c)	  | (c) << 1 | (c) << 2 | (c) << 3 | \
-				 (c) << 4 | (c) << 5 | (c) << 6 | (c) << 7)
-#elif (LCD_BPP == LCD_COLOR8) || (LCD_BPP == LCD_COLOR16)
-# define COLOR_MASK(c)		(c)
-#else
-# error Unsupported LCD BPP.
 #endif
 
 /************************************************************************/

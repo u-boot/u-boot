@@ -37,23 +37,23 @@ int get_clocks(void)
 #ifdef CONFIG_FSL_ESDHC
 #ifdef CONFIG_FSL_USDHC
 #if CONFIG_SYS_FSL_ESDHC_ADDR == USDHC2_BASE_ADDR
-	gd->sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
+	gd->arch.sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
 #elif CONFIG_SYS_FSL_ESDHC_ADDR == USDHC3_BASE_ADDR
-	gd->sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
+	gd->arch.sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
 #elif CONFIG_SYS_FSL_ESDHC_ADDR == USDHC4_BASE_ADDR
-	gd->sdhc_clk = mxc_get_clock(MXC_ESDHC4_CLK);
+	gd->arch.sdhc_clk = mxc_get_clock(MXC_ESDHC4_CLK);
 #else
-	gd->sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
+	gd->arch.sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
 #endif
 #else
 #if CONFIG_SYS_FSL_ESDHC_ADDR == MMC_SDHC2_BASE_ADDR
-	gd->sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
+	gd->arch.sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
 #elif CONFIG_SYS_FSL_ESDHC_ADDR == MMC_SDHC3_BASE_ADDR
-	gd->sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
+	gd->arch.sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
 #elif CONFIG_SYS_FSL_ESDHC_ADDR == MMC_SDHC4_BASE_ADDR
-	gd->sdhc_clk = mxc_get_clock(MXC_ESDHC4_CLK);
+	gd->arch.sdhc_clk = mxc_get_clock(MXC_ESDHC4_CLK);
 #else
-	gd->sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
+	gd->arch.sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
 #endif
 #endif
 #endif

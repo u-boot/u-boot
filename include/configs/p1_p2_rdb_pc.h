@@ -164,7 +164,7 @@
 #define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
 
 #define CONFIG_SPL_TEXT_BASE		0xfffff000
-#define CONFIG_SPL_MAX_SIZE		(4 * 1024)
+#define CONFIG_SPL_MAX_SIZE		4096
 
 #ifdef CONFIG_SYS_INIT_L2_ADDR
 /* We multiply CONFIG_SPL_MAX_SIZE by two to leave some room for BSS. */

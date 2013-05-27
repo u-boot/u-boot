@@ -66,7 +66,7 @@
  * Set to true if initialized
  * N.B. global so integration/unit tests can reinitialize
  */
-BOOL qMgrIsInitialized = FALSE;
+BOOL qMgrIsInitialized = false;
 
 /*
  * Function definitions.
@@ -90,7 +90,7 @@ ixQMgrInit (void)
     ixQMgrQAccessInit ();
 
     /* Initialization complete */
-    qMgrIsInitialized = TRUE;
+    qMgrIsInitialized = true;
 
     return IX_SUCCESS;
 }
@@ -107,7 +107,7 @@ ixQMgrUnload (void)
     ixQMgrQCfgUninit ();
 
     /* Uninitialization complete */
-    qMgrIsInitialized = FALSE;
+    qMgrIsInitialized = false;
 
     return IX_SUCCESS;
 }

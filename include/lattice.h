@@ -278,9 +278,6 @@ typedef struct {
 	char		*desc;	/* description string */
 } Lattice_desc;			/* end, typedef Altera_desc */
 
-/* Lattice Model Type */
-#define CONFIG_SYS_XP2		CONFIG_SYS_FPGA_DEV(0x1)
-
 /* Board specific implementation specific function types */
 typedef void (*Lattice_jtag_init)(void);
 typedef void (*Lattice_jtag_set_tdi)(int v);

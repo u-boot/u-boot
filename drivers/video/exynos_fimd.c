@@ -25,13 +25,18 @@
 #include <asm/io.h>
 #include <lcd.h>
 #include <div64.h>
+#include <fdtdec.h>
+#include <libfdt.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/cpu.h>
 #include "exynos_fb.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static unsigned long *lcd_base_addr;
 static vidinfo_t *pvid;
+static struct exynos_fb *fimd_ctrl;
 
 void exynos_fimd_lcd_init_mem(u_long screen_base, u_long fb_size,
 		u_long palette_size)
@@ -41,8 +46,6 @@ void exynos_fimd_lcd_init_mem(u_long screen_base, u_long fb_size,
 
 static void exynos_fimd_set_dualrgb(unsigned int enabled)
 {
-	struct exynos_fb *fimd_ctrl =
-		(struct exynos_fb *)samsung_get_base_fimd();
 	unsigned int cfg = 0;
 
 	if (enabled) {
@@ -59,9 +62,6 @@ static void exynos_fimd_set_dualrgb(unsigned int enabled)
 
 static void exynos_fimd_set_dp_clkcon(unsigned int enabled)
 {
-
-	struct exynos_fb *fimd_ctrl =
-		(struct exynos_fb *)samsung_get_base_fimd();
 	unsigned int cfg = 0;
 
 	if (enabled)
@@ -73,8 +73,6 @@ static void exynos_fimd_set_dp_clkcon(unsigned int enabled)
 static void exynos_fimd_set_par(unsigned int win_id)
 {
 	unsigned int cfg = 0;
-	struct exynos_fb *fimd_ctrl =
-		(struct exynos_fb *)samsung_get_base_fimd();
 
 	/* set window control */
 	cfg = readl((unsigned int)&fimd_ctrl->wincon0 +
@@ -126,8 +124,6 @@ static void exynos_fimd_set_par(unsigned int win_id)
 static void exynos_fimd_set_buffer_address(unsigned int win_id)
 {
 	unsigned long start_addr, end_addr;
-	struct exynos_fb *fimd_ctrl =
-		(struct exynos_fb *)samsung_get_base_fimd();
 
 	start_addr = (unsigned long)lcd_base_addr;
 	end_addr = start_addr + ((pvid->vl_col * (NBITS(pvid->vl_bpix) / 8)) *
@@ -144,8 +140,6 @@ static void exynos_fimd_set_clock(vidinfo_t *pvid)
 	unsigned int cfg = 0, div = 0, remainder, remainder_div;
 	unsigned long pixel_clock;
 	unsigned long long src_clock;
-	struct exynos_fb *fimd_ctrl =
-		(struct exynos_fb *)samsung_get_base_fimd();
 
 	if (pvid->dual_lcd_enabled) {
 		pixel_clock = pvid->vl_freq *
@@ -197,8 +191,6 @@ static void exynos_fimd_set_clock(vidinfo_t *pvid)
 void exynos_set_trigger(void)
 {
 	unsigned int cfg = 0;
-	struct exynos_fb *fimd_ctrl =
-		(struct exynos_fb *)samsung_get_base_fimd();
 
 	cfg = readl(&fimd_ctrl->trigcon);
 
@@ -211,8 +203,6 @@ int exynos_is_i80_frame_done(void)
 {
 	unsigned int cfg = 0;
 	int status;
-	struct exynos_fb *fimd_ctrl =
-		(struct exynos_fb *)samsung_get_base_fimd();
 
 	cfg = readl(&fimd_ctrl->trigcon);
 
@@ -226,8 +216,6 @@ int exynos_is_i80_frame_done(void)
 static void exynos_fimd_lcd_on(void)
 {
 	unsigned int cfg = 0;
-	struct exynos_fb *fimd_ctrl =
-		(struct exynos_fb *)samsung_get_base_fimd();
 
 	/* display on */
 	cfg = readl(&fimd_ctrl->vidcon0);
@@ -238,8 +226,6 @@ static void exynos_fimd_lcd_on(void)
 static void exynos_fimd_window_on(unsigned int win_id)
 {
 	unsigned int cfg = 0;
-	struct exynos_fb *fimd_ctrl =
-		(struct exynos_fb *)samsung_get_base_fimd();
 
 	/* enable window */
 	cfg = readl((unsigned int)&fimd_ctrl->wincon0 +
@@ -256,8 +242,6 @@ static void exynos_fimd_window_on(unsigned int win_id)
 void exynos_fimd_lcd_off(void)
 {
 	unsigned int cfg = 0;
-	struct exynos_fb *fimd_ctrl =
-		(struct exynos_fb *)samsung_get_base_fimd();
 
 	cfg = readl(&fimd_ctrl->vidcon0);
 	cfg &= (EXYNOS_VIDCON0_ENVID_DISABLE | EXYNOS_VIDCON0_ENVID_F_DISABLE);
@@ -267,8 +251,6 @@ void exynos_fimd_lcd_off(void)
 void exynos_fimd_window_off(unsigned int win_id)
 {
 	unsigned int cfg = 0;
-	struct exynos_fb *fimd_ctrl =
-		(struct exynos_fb *)samsung_get_base_fimd();
 
 	cfg = readl((unsigned int)&fimd_ctrl->wincon0 +
 			EXYNOS_WINCON(win_id));
@@ -286,8 +268,20 @@ void exynos_fimd_lcd_init(vidinfo_t *vid)
 {
 	unsigned int cfg = 0, rgb_mode;
 	unsigned int offset;
-	struct exynos_fb *fimd_ctrl =
-		(struct exynos_fb *)samsung_get_base_fimd();
+#ifdef CONFIG_OF_CONTROL
+	unsigned int node;
+
+	node = fdtdec_next_compatible(gd->fdt_blob,
+					0, COMPAT_SAMSUNG_EXYNOS_FIMD);
+	if (node <= 0)
+		debug("exynos_fb: Can't get device node for fimd\n");
+
+	fimd_ctrl = (struct exynos_fb *)fdtdec_get_addr(gd->fdt_blob,
+								node, "reg");
+	if (fimd_ctrl == NULL)
+		debug("Can't get the FIMD base address\n");
+#endif
+	fimd_ctrl = (struct exynos_fb *)samsung_get_base_fimd();
 
 	offset = exynos_fimd_get_base_offset();
 

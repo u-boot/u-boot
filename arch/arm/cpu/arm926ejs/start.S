@@ -120,14 +120,10 @@ _fiq:
 
 .globl _TEXT_BASE
 _TEXT_BASE:
-#ifdef CONFIG_NAND_SPL /* deprecated, use instead CONFIG_SPL_BUILD */
-	.word	CONFIG_SYS_TEXT_BASE
-#else
-#ifdef CONFIG_SPL_BUILD
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_TEXT_BASE)
 	.word	CONFIG_SPL_TEXT_BASE
 #else
 	.word	CONFIG_SYS_TEXT_BASE
-#endif
 #endif
 
 /*
@@ -140,19 +136,17 @@ _TEXT_BASE:
 _bss_start_ofs:
 	.word __bss_start - _start
 
+.globl _image_copy_end_ofs
+_image_copy_end_ofs:
+	.word __image_copy_end - _start
+
 .globl _bss_end_ofs
 _bss_end_ofs:
-	.word __bss_end__ - _start
+	.word __bss_end - _start
 
 .globl _end_ofs
 _end_ofs:
 	.word _end - _start
-
-#ifdef CONFIG_NAND_U_BOOT
-.globl _end
-_end:
-	.word __bss_end__
-#endif
 
 #ifdef CONFIG_USE_IRQ
 /* IRQ stack memory (calculated at run-time) */
@@ -196,32 +190,25 @@ reset:
 
 /*------------------------------------------------------------------------------*/
 
-#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_NAND_SPL)
 /*
- * void relocate_code (addr_sp, gd, addr_moni)
+ * void relocate_code(addr_moni)
  *
- * This "function" does not return, instead it continues in RAM
- * after relocating the monitor code.
- *
+ * This function relocates the monitor code.
  */
 	.globl	relocate_code
 relocate_code:
-	mov	r4, r0	/* save addr_sp */
-	mov	r5, r1	/* save addr of gd */
-	mov	r6, r2	/* save addr of destination */
+	mov	r6, r0	/* save addr of destination */
 
 	adr	r0, _start
-	sub	r9, r6, r0		/* r9 <- relocation offset */
-	cmp	r0, r6
-	moveq	r9, #0			/* no relocation. offset(r9) = 0 */
+	subs	r9, r6, r0		/* r9 <- relocation offset */
 	beq	relocate_done		/* skip relocation */
 	mov	r1, r6			/* r1 <- scratch for copy loop */
-	ldr	r3, _bss_start_ofs
+	ldr	r3, _image_copy_end_ofs
 	add	r2, r0, r3		/* r2 <- source end address	    */
 
 copy_loop:
-	ldmia	r0!, {r9-r10}		/* copy from source address [r0]    */
-	stmia	r1!, {r9-r10}		/* copy to   target address [r1]    */
+	ldmia	r0!, {r10-r11}		/* copy from source address [r0]    */
+	stmia	r1!, {r10-r11}		/* copy to   target address [r1]    */
 	cmp	r0, r2			/* until source end address [r2]    */
 	blo	copy_loop
 
@@ -230,7 +217,6 @@ copy_loop:
 	 * fix .rel.dyn relocations
 	 */
 	ldr	r0, _TEXT_BASE		/* r0 <- Text base */
-	sub	r9, r6, r0		/* r9 <- relocation offset */
 	ldr	r10, _dynsym_start_ofs	/* r10 <- sym table ofs */
 	add	r10, r10, r0		/* r10 <- sym table in FLASH */
 	ldr	r2, _rel_dyn_start_ofs	/* r2 <- rel dyn start ofs */
@@ -269,6 +255,8 @@ fixnext:
 relocate_done:
 
 	bx	lr
+
+#ifndef CONFIG_SPL_BUILD
 
 _rel_dyn_start_ofs:
 	.word __rel_dyn_start - _start

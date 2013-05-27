@@ -23,7 +23,12 @@
 
 #########################################################################
 
-include $(TOPDIR)/helper.mk
+# Set shell to bash if possible, otherwise fall back to sh
+SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
+	else if [ -x /bin/bash ]; then echo /bin/bash; \
+	else echo sh; fi; fi)
+
+export	SHELL
 
 ifeq ($(CURDIR),$(SRCTREE))
 dir :=
@@ -219,6 +224,14 @@ endif
 
 ifeq ($(CONFIG_SPL_BUILD),y)
 CPPFLAGS += -DCONFIG_SPL_BUILD
+endif
+
+# Does this architecture support generic board init?
+ifeq ($(__HAVE_ARCH_GENERIC_BOARD),)
+ifneq ($(CONFIG_SYS_GENERIC_BOARD),)
+$(error Your architecture does not support generic board. Please undefined \
+CONFIG_SYS_GENERIC_BOARD in your board config file)
+endif
 endif
 
 ifneq ($(RESET_VECTOR_ADDRESS),)

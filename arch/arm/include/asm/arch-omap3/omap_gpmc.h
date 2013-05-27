@@ -23,62 +23,22 @@
 #ifndef __ASM_ARCH_OMAP_GPMC_H
 #define __ASM_ARCH_OMAP_GPMC_H
 
-#define GPMC_BUF_EMPTY	0
-#define GPMC_BUF_FULL	1
-
-#define ECCCLEAR	(0x1 << 8)
-#define ECCRESULTREG1	(0x1 << 0)
-#define ECCSIZE512BYTE	0xFF
-#define ECCSIZE1	(ECCSIZE512BYTE << 22)
-#define ECCSIZE0	(ECCSIZE512BYTE << 12)
-#define ECCSIZE0SEL	(0x000 << 0)
-
-/* Generic ECC Layouts */
-/* Large Page x8 NAND device Layout */
-#ifdef GPMC_NAND_ECC_LP_x8_LAYOUT
-#define GPMC_NAND_HW_ECC_LAYOUT {\
-	.eccbytes = 12,\
-	.eccpos = {1, 2, 3, 4, 5, 6, 7, 8,\
-		9, 10, 11, 12},\
+/*
+ * These GPMC_NAND_HW_BCHx_ECC_LAYOUT defines using the BCH library.
+ * The OOB layout was first defined by linx kernel in commit
+ * 0e618ef0a6a33cf7ef96c2c824402088dd8ef48c, we have to reuse it here cause
+ * we want to be compatible.
+ */
+#define GPMC_NAND_HW_BCH8_ECC_LAYOUT {\
+	.eccbytes = 56,\
+	.eccpos = {12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22,\
+			23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36,\
+			37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50,\
+			51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63},\
 	.oobfree = {\
-		{.offset = 13,\
-		 .length = 51 } } \
+		{.offset = 2,\
+		 .length = 10 } } \
 }
-#endif
-
-/* Large Page x16 NAND device Layout */
-#ifdef GPMC_NAND_ECC_LP_x16_LAYOUT
-#define GPMC_NAND_HW_ECC_LAYOUT {\
-	.eccbytes = 12,\
-	.eccpos = {2, 3, 4, 5, 6, 7, 8, 9,\
-		10, 11, 12, 13},\
-	.oobfree = {\
-		{.offset = 14,\
-		 .length = 50 } } \
-}
-#endif
-
-/* Small Page x8 NAND device Layout */
-#ifdef GPMC_NAND_ECC_SP_x8_LAYOUT
-#define GPMC_NAND_HW_ECC_LAYOUT {\
-	.eccbytes = 3,\
-	.eccpos = {1, 2, 3},\
-	.oobfree = {\
-		{.offset = 4,\
-		 .length = 12 } } \
-}
-#endif
-
-/* Small Page x16 NAND device Layout */
-#ifdef GPMC_NAND_ECC_SP_x16_LAYOUT
-#define GPMC_NAND_HW_ECC_LAYOUT {\
-	.eccbytes = 3,\
-	.eccpos = {2, 3, 4},\
-	.oobfree = {\
-		{.offset = 5,\
-		 .length = 11 } } \
-}
-#endif
 
 /* GPMC CS configuration for an SMSC LAN9221 ethernet controller */
 #define NET_LAN9221_GPMC_CONFIG1    0x00001000

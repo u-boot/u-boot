@@ -34,4 +34,6 @@ struct bcm2835_timer_regs {
 #define BCM2835_TIMER_CS_M1	(1 << 1)
 #define BCM2835_TIMER_CS_M0	(1 << 0)
 
+extern ulong get_timer_us(ulong base);
+
 #endif

@@ -23,7 +23,6 @@
 
 ulong bfin_poweron_retx;
 
-__attribute__ ((__noreturn__))
 void cpu_init_f(ulong bootflag, ulong loaded_from_ldr)
 {
 #ifndef CONFIG_BFIN_BOOTROM_USES_EVT1
@@ -68,7 +67,9 @@ void cpu_init_f(ulong bootflag, ulong loaded_from_ldr)
 	/* Reset upon a double exception rather than just hanging.
 	 * Do not do bfin_read on SWRST as that will reset status bits.
 	 */
+# ifdef SWRST
 	bfin_write_SWRST(DOUBLE_FAULT);
+# endif
 #endif
 
 	serial_early_puts("Board init flash\n");
@@ -92,7 +93,7 @@ int irq_init(void)
 #elif defined(SICA_IMASK0)
 	bfin_write_SICA_IMASK0(0);
 	bfin_write_SICA_IMASK1(0);
-#else
+#elif defined(SIC_IMASK)
 	bfin_write_SIC_IMASK(0);
 #endif
 	/* Set up a dummy NMI handler if needed.  */

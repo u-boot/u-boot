@@ -5,8 +5,8 @@
  * Licensed under the GPL-2 or later.
  */
 
-#include <div64.h>
 #include <common.h>
+#include <div64.h>
 #include <malloc.h>
 #include <spi_flash.h>
 
@@ -369,8 +369,8 @@ static void spi_test_next_stage(struct test_info *test)
  * @param vbuf		Verification buffer
  * @return 0 if ok, -1 on error
  */
-static int spi_flash_test(struct spi_flash *flash, char *buf, ulong len,
-			   ulong offset, char *vbuf)
+static int spi_flash_test(struct spi_flash *flash, uint8_t *buf, ulong len,
+			   ulong offset, uint8_t *vbuf)
 {
 	struct test_info test;
 	int i;
@@ -431,9 +431,9 @@ static int do_spi_flash_test(int argc, char * const argv[])
 {
 	unsigned long offset;
 	unsigned long len;
-	char *buf = (char *)CONFIG_SYS_TEXT_BASE;
+	uint8_t *buf = (uint8_t *)CONFIG_SYS_TEXT_BASE;
 	char *endp;
-	char *vbuf;
+	uint8_t *vbuf;
 	int ret;
 
 	offset = simple_strtoul(argv[1], &endp, 16);

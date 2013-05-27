@@ -83,12 +83,10 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	if (!spi_cs_is_valid(bus, cs))
 		return NULL;
 
-	altspi = malloc(sizeof(*altspi));
+	altspi = spi_alloc_slave(struct altera_spi_slave, bus, cs);
 	if (!altspi)
 		return NULL;
 
-	altspi->slave.bus = bus;
-	altspi->slave.cs = cs;
 	altspi->base = altera_spi_base_list[bus];
 	debug("%s: bus:%i cs:%i base:%lx\n", __func__,
 		bus, cs, altspi->base);

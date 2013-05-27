@@ -182,12 +182,10 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		default: return NULL;
 	}
 
-	bss = malloc(sizeof(*bss));
+	bss = spi_alloc_slave(struct bfin_spi_slave, bus, cs);
 	if (!bss)
 		return NULL;
 
-	bss->slave.bus = bus;
-	bss->slave.cs = cs;
 	bss->mmr_base = (void *)mmr_base;
 	bss->ctl = SPE | MSTR | TDBR_CORE;
 	if (mode & SPI_CPHA) bss->ctl |= CPHA;

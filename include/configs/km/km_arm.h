@@ -50,6 +50,9 @@
 
 #define CONFIG_MACH_TYPE	MACH_TYPE_KM_KIRKWOOD
 
+#define CONFIG_NAND_ECC_BCH
+#define CONFIG_BCH
+
 /* include common defines/options for all Keymile boards */
 #include "keymile-common.h"
 
@@ -320,6 +323,6 @@ int get_scl(void);
 #define CONFIG_CMD_DIAG
 
 /* we do the whole PCIe FPGA config stuff here */
-#define	BOARD_LATE_INIT
+#define	CONFIG_BOARD_LATE_INIT
 
 #endif /* _CONFIG_KM_ARM_H */

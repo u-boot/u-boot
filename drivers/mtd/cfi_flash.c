@@ -2024,6 +2024,26 @@ static void flash_fixup_sst(flash_info_t *info, struct cfi_qry *qry)
 	}
 }
 
+static void flash_fixup_num(flash_info_t *info, struct cfi_qry *qry)
+{
+	/*
+	 * The M29EW devices seem to report the CFI information wrong
+	 * when it's in 8 bit mode.
+	 * There's an app note from Numonyx on this issue.
+	 * So adjust the buffer size for M29EW while operating in 8-bit mode
+	 */
+	if (((qry->max_buf_write_size) > 0x8) &&
+			(info->device_id == 0x7E) &&
+			(info->device_id2 == 0x2201 ||
+			info->device_id2 == 0x2301 ||
+			info->device_id2 == 0x2801 ||
+			info->device_id2 == 0x4801)) {
+		debug("Adjusted buffer size on Numonyx flash"
+			" M29EW family in 8 bit mode\n");
+		qry->max_buf_write_size = 0x8;
+	}
+}
+
 /*
  * The following code cannot be run from FLASH!
  *
@@ -2104,6 +2124,9 @@ ulong flash_get_size (phys_addr_t base, int banknum)
 			break;
 		case 0x00bf: /* SST */
 			flash_fixup_sst(info, &qry);
+			break;
+		case 0x0089: /* Numonyx */
+			flash_fixup_num(info, &qry);
 			break;
 		}
 

@@ -34,15 +34,15 @@ SECTIONS
 	. = ALIGN(4);
 	.text      :
 	{
-	  arch/arm/cpu/arm926ejs/start.o		(.text)
-	  arch/arm/cpu/arm926ejs/davinci/libdavinci.o	(.text)
-	  drivers/mtd/nand/libnand.o			(.text)
+	  arch/arm/cpu/arm926ejs/start.o		(.text*)
+	  arch/arm/cpu/arm926ejs/davinci/libdavinci.o	(.text*)
+	  drivers/mtd/nand/libnand.o			(.text*)
 
 	  *(.text*)
 	}
 
 	. = ALIGN(4);
-	.rodata : { *(.rodata) }
+	.rodata : { *(.rodata*) }
 
 	. = ALIGN(4);
 	.data : {
@@ -58,11 +58,7 @@ SECTIONS
 	}
 
 	. = ALIGN(4);
-	.u_boot_list : {
-		#include <u-boot.lst>
-	}
-
-	. = ALIGN(4);
+	__image_copy_end = .;
 	__rel_dyn_start = .;
 	__rel_dyn_end = .;
 	__dynsym_start = .;
@@ -79,7 +75,7 @@ SECTIONS
 		__bss_start = .;
 		*(.bss*)
 		. = ALIGN(4);
-		__bss_end__ = .;
+		__bss_end = .;
 	}
 
 	_end = .;

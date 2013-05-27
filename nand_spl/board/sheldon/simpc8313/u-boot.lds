@@ -48,7 +48,7 @@ SECTIONS
 	. = ALIGN(8);
 	__bss_start = .;
 	.bss (NOLOAD) : { *(.*bss) }
-	__bss_end__ = .;
+	__bss_end = .;
 }
 ENTRY(_start)
-ASSERT(__bss_end__ <= 0xfff01000, "NAND bootstrap too big");
+ASSERT(__bss_end <= 0xfff01000, "NAND bootstrap too big");

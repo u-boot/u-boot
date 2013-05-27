@@ -37,8 +37,10 @@ enum {
 	/* UARTs which we can enable */
 	UARTA	= 1 << 0,
 	UARTB	= 1 << 1,
+	UARTC	= 1 << 2,
 	UARTD	= 1 << 3,
-	UART_COUNT = 4,
+	UARTE	= 1 << 4,
+	UART_COUNT = 5,
 };
 
 /*
@@ -54,16 +56,37 @@ unsigned int query_sdram_size(void)
 	reg = readl(&pmc->pmc_scratch20);
 	debug("pmc->pmc_scratch20 (ODMData) = 0x%08x\n", reg);
 
-	/* bits 31:28 in OdmData are used for RAM size  */
+#if defined(CONFIG_TEGRA20)
+	/* bits 30:28 in OdmData are used for RAM size on T20  */
+	reg &= 0x70000000;
+
 	switch ((reg) >> 28) {
 	case 1:
 		return 0x10000000;	/* 256 MB */
+	case 0:
 	case 2:
 	default:
 		return 0x20000000;	/* 512 MB */
 	case 3:
 		return 0x40000000;	/* 1GB */
 	}
+#else	/* Tegra30/Tegra114 */
+	/* bits 31:28 in OdmData are used for RAM size on T30  */
+	switch ((reg) >> 28) {
+	case 0:
+	case 1:
+	default:
+		return 0x10000000;	/* 256 MB */
+	case 2:
+		return 0x20000000;	/* 512 MB */
+	case 3:
+		return 0x30000000;	/* 768 MB */
+	case 4:
+		return 0x40000000;	/* 1GB */
+	case 8:
+		return 0x7ff00000;	/* 2GB - 1MB */
+	}
+#endif
 }
 
 int dram_init(void)
@@ -82,19 +105,33 @@ int checkboard(void)
 #endif	/* CONFIG_DISPLAY_BOARDINFO */
 
 static int uart_configs[] = {
-#if defined(CONFIG_TEGRA_UARTA_UAA_UAB)
+#if defined(CONFIG_TEGRA20)
+ #if defined(CONFIG_TEGRA_UARTA_UAA_UAB)
 	FUNCMUX_UART1_UAA_UAB,
-#elif defined(CONFIG_TEGRA_UARTA_GPU)
+ #elif defined(CONFIG_TEGRA_UARTA_GPU)
 	FUNCMUX_UART1_GPU,
-#elif defined(CONFIG_TEGRA_UARTA_SDIO1)
+ #elif defined(CONFIG_TEGRA_UARTA_SDIO1)
 	FUNCMUX_UART1_SDIO1,
-#else
+ #else
 	FUNCMUX_UART1_IRRX_IRTX,
 #endif
-	FUNCMUX_UART2_IRDA,
+	FUNCMUX_UART2_UAD,
 	-1,
 	FUNCMUX_UART4_GMC,
 	-1,
+#elif defined(CONFIG_TEGRA30)
+	FUNCMUX_UART1_ULPI,	/* UARTA */
+	-1,
+	-1,
+	-1,
+	-1,
+#else	/* Tegra114 */
+	-1,
+	-1,
+	-1,
+	FUNCMUX_UART4_GMI,	/* UARTD */
+	-1,
+#endif
 };
 
 /**
@@ -109,6 +146,7 @@ static void setup_uarts(int uart_ids)
 		PERIPH_ID_UART2,
 		PERIPH_ID_UART3,
 		PERIPH_ID_UART4,
+		PERIPH_ID_UART5,
 	};
 	size_t i;
 
@@ -132,8 +170,14 @@ void board_init_uart_f(void)
 #ifdef CONFIG_TEGRA_ENABLE_UARTB
 	uart_ids |= UARTB;
 #endif
+#ifdef CONFIG_TEGRA_ENABLE_UARTC
+	uart_ids |= UARTC;
+#endif
 #ifdef CONFIG_TEGRA_ENABLE_UARTD
 	uart_ids |= UARTD;
+#endif
+#ifdef CONFIG_TEGRA_ENABLE_UARTE
+	uart_ids |= UARTE;
 #endif
 	setup_uarts(uart_ids);
 }

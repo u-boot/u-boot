@@ -61,9 +61,6 @@ typedef unsigned int __kernel_gid32_t;
 typedef unsigned short __kernel_old_uid_t;
 typedef unsigned short __kernel_old_gid_t;
 
-#define BOOL_WAS_DEFINED
-typedef enum { false = 0, true = 1 } bool;
-
 #ifdef __GNUC__
 typedef long long __kernel_loff_t;
 #endif

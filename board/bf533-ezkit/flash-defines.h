@@ -32,8 +32,6 @@
 
 #define V_ULONG(a)		(*(volatile unsigned long *)( a ))
 #define V_BYTE(a)		(*(volatile unsigned char *)( a ))
-#define TRUE			0x1
-#define FALSE			0x0
 #define BUFFER_SIZE		0x80000
 #define NO_COMMAND		0
 #define GET_CODES		1

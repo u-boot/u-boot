@@ -377,6 +377,7 @@ int arm_pl180_mmci_init(struct pl180_mmc_host *host)
 	dev->set_ios = host_set_ios;
 	dev->init = mmc_host_reset;
 	dev->getcd = NULL;
+	dev->getwp = NULL;
 	dev->host_caps = host->caps;
 	dev->voltages = host->voltages;
 	dev->f_min = host->clock_min;

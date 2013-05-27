@@ -81,12 +81,14 @@ LIBS-$(CONFIG_SPL_POST_MEM_SUPPORT) += post/drivers/memory.o
 LIBS-$(CONFIG_SPL_NET_SUPPORT) += net/libnet.o
 LIBS-$(CONFIG_SPL_ETH_SUPPORT) += drivers/net/libnet.o
 LIBS-$(CONFIG_SPL_ETH_SUPPORT) += drivers/net/phy/libphy.o
+LIBS-$(CONFIG_SPL_MUSB_NEW_SUPPORT) += drivers/usb/musb-new/libusb_musb-new.o
+LIBS-$(CONFIG_SPL_USBETH_SUPPORT) += drivers/usb/gadget/libusb_gadget.o
 
-ifneq ($(CONFIG_AM33XX)$(CONFIG_OMAP34XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX),)
+ifneq ($(CONFIG_AM33XX)$(CONFIG_OMAP34XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX)$(CONFIG_TI814X),)
 LIBS-y += $(CPUDIR)/omap-common/libomap-common.o
 endif
 
-ifeq ($(SOC),tegra20)
+ifneq ($(CONFIG_TEGRA),)
 LIBS-y += arch/$(ARCH)/cpu/$(SOC)-common/lib$(SOC)-common.o
 LIBS-y += arch/$(ARCH)/cpu/tegra-common/libcputegra-common.o
 LIBS-y += $(CPUDIR)/tegra-common/libtegra-common.o
@@ -117,7 +119,7 @@ ifeq ($(wildcard $(LDSCRIPT)),)
 	LDSCRIPT := $(TOPDIR)/$(CPUDIR)/u-boot-spl.lds
 endif
 ifeq ($(wildcard $(LDSCRIPT)),)
-	LDSCRIPT := $(TOPDIR)/arch/$(ARCH)/cpu/u-boot.lds
+	LDSCRIPT := $(TOPDIR)/arch/$(ARCH)/cpu/u-boot-spl.lds
 endif
 ifeq ($(wildcard $(LDSCRIPT)),)
 $(error could not find linker script)
@@ -141,11 +143,8 @@ $(OBJTREE)/MLO.byteswap: $(obj)u-boot-spl.bin
 	$(OBJTREE)/tools/mkimage -T omapimage -n byteswap \
 		-a $(CONFIG_SPL_TEXT_BASE) -d $< $@
 
-ifneq ($(CONFIG_IMX_CONFIG),)
-$(OBJTREE)/SPL:	$(obj)u-boot-spl.bin
-	$(OBJTREE)/tools/mkimage -n  $(SRCTREE)/$(CONFIG_IMX_CONFIG) -T imximage \
-		-e $(CONFIG_SPL_TEXT_BASE) -d $< $@
-endif
+$(OBJTREE)/SPL : $(obj)u-boot-spl.bin depend
+		$(MAKE) -C $(SRCTREE)/arch/arm/imx-common $@
 
 ALL-y	+= $(obj)u-boot-spl.bin
 
@@ -178,11 +177,7 @@ $(START):	depend
 $(LIBS):	depend
 	$(MAKE) -C $(SRCTREE)$(dir $(subst $(SPLTREE),,$@))
 
-# The following line expands into whole rule which generates u-boot.lst,
-# the file containing u-boots LG-array linker section. This is included into
-# $(LDSCRIPT). The function make_u_boot_list is defined in helper.mk file.
-$(eval $(call make_u_boot_list, $(obj)u-boot.lst, $(LIBS)))
-$(obj)u-boot-spl.lds: $(LDSCRIPT) $(obj)u-boot.lst depend
+$(obj)u-boot-spl.lds: $(LDSCRIPT) depend
 	$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -I$(obj). -ansi -D__ASSEMBLY__ -P - < $< > $@
 
 depend:	$(obj).depend

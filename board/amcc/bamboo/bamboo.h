@@ -250,9 +250,6 @@
 #define	 PVR_POWERPC_440EP_PASS1    0x42221850
 #define	 PVR_POWERPC_440EP_PASS2    0x422218D3
 
-#define TRUE 1
-#define FALSE 0
-
 #define GPIO0		0
 #define GPIO1		1
 

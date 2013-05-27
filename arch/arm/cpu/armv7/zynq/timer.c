@@ -44,6 +44,7 @@
 #include <common.h>
 #include <div64.h>
 #include <asm/io.h>
+#include <asm/arch/hardware.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -54,7 +55,7 @@ struct scu_timer {
 };
 
 static struct scu_timer *timer_base =
-			      (struct scu_timer *) CONFIG_SCUTIMER_BASEADDR;
+			      (struct scu_timer *)ZYNQ_SCUTIMER_BASEADDR;
 
 #define SCUTIMER_CONTROL_PRESCALER_MASK	0x0000FF00 /* Prescaler */
 #define SCUTIMER_CONTROL_PRESCALER_SHIFT	8
@@ -83,9 +84,9 @@ int timer_init(void)
 								emask);
 
 	/* Reset time */
-	gd->lastinc = readl(&timer_base->counter) /
+	gd->arch.lastinc = readl(&timer_base->counter) /
 					(TIMER_TICK_HZ / CONFIG_SYS_HZ);
-	gd->tbl = 0;
+	gd->arch.tbl = 0;
 
 	return 0;
 }
@@ -100,29 +101,57 @@ ulong get_timer_masked(void)
 
 	now = readl(&timer_base->counter) / (TIMER_TICK_HZ / CONFIG_SYS_HZ);
 
-	if (gd->lastinc >= now) {
+	if (gd->arch.lastinc >= now) {
 		/* Normal mode */
-		gd->tbl += gd->lastinc - now;
+		gd->arch.tbl += gd->arch.lastinc - now;
 	} else {
 		/* We have an overflow ... */
-		gd->tbl += gd->lastinc + TIMER_LOAD_VAL - now;
+		gd->arch.tbl += gd->arch.lastinc + TIMER_LOAD_VAL - now;
 	}
-	gd->lastinc = now;
+	gd->arch.lastinc = now;
 
-	return gd->tbl;
+	return gd->arch.tbl;
 }
 
 void __udelay(unsigned long usec)
 {
-	unsigned long long tmp;
-	ulong tmo;
+	u32 countticks;
+	u32 timeend;
+	u32 timediff;
+	u32 timenow;
 
-	tmo = usec / (1000000 / CONFIG_SYS_HZ);
-	tmp = get_ticks() + tmo; /* Get current timestamp */
+	if (usec == 0)
+		return;
 
-	while (get_ticks() < tmp) { /* Loop till event */
-		 /* NOP */;
-	}
+	countticks = (u32) (((unsigned long long) TIMER_TICK_HZ * usec) /
+								1000000);
+
+	/* decrementing timer */
+	timeend = readl(&timer_base->counter) - countticks;
+
+#if TIMER_LOAD_VAL != 0xFFFFFFFF
+	/* do not manage multiple overflow */
+	if (countticks >= TIMER_LOAD_VAL)
+		countticks = TIMER_LOAD_VAL - 1;
+#endif
+
+	do {
+		timenow = readl(&timer_base->counter);
+
+		if (timenow >= timeend) {
+			/* normal case */
+			timediff = timenow - timeend;
+		} else {
+			if ((TIMER_LOAD_VAL - timeend + timenow) <=
+								countticks) {
+				/* overflow */
+				timediff = TIMER_LOAD_VAL - timeend + timenow;
+			} else {
+				/* missed the exact match */
+				break;
+			}
+		}
+	} while (timediff > 0);
 }
 
 /* Timer without interrupts */

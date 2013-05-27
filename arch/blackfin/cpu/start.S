@@ -65,6 +65,7 @@ ENTRY(_start)
 	p5.h = HI(COREMMR_BASE);
 
 #ifdef CONFIG_HW_WATCHDOG
+#ifndef __ADSPBF60x__
 # ifndef CONFIG_HW_WATCHDOG_TIMEOUT_START
 #  define CONFIG_HW_WATCHDOG_TIMEOUT_START 5000
 # endif
@@ -77,6 +78,7 @@ ENTRY(_start)
 	[p4 + (WDOG_CNT - SYSMMR_BASE)] = r0;
 	/* fire up the watchdog - R0.L above needs to be 0x0000 */
 	W[p4 + (WDOG_CTL - SYSMMR_BASE)] = r0;
+#endif
 #endif
 
 	/* Turn on the serial for debugging the init process */

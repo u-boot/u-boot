@@ -12,8 +12,6 @@
 #define __iomem
 #define __deprecated
 
-typedef enum { false = 0, true = 1 } bool;
-
 struct unused {};
 typedef struct unused unused_t;
 

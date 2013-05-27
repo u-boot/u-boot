@@ -48,9 +48,6 @@ static struct mxc_gpt *cur_gpt = (struct mxc_gpt *)GPT1_BASE_ADDR;
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define timestamp (gd->tbl)
-#define lastinc (gd->lastinc)
-
 static inline unsigned long long tick_to_time(unsigned long long tick)
 {
 	tick *= CONFIG_SYS_HZ;
@@ -70,7 +67,6 @@ static inline unsigned long long us_to_tick(unsigned long long usec)
 int timer_init(void)
 {
 	int i;
-	ulong val;
 
 	/* setup GP Timer 1 */
 	__raw_writel(GPTCR_SWR, &cur_gpt->control);
@@ -85,9 +81,8 @@ int timer_init(void)
 	i = __raw_readl(&cur_gpt->control);
 	__raw_writel(i | GPTCR_CLKSOURCE_32 | GPTCR_TEN, &cur_gpt->control);
 
-	val = __raw_readl(&cur_gpt->counter);
-	lastinc = val / (MXC_CLK32 / CONFIG_SYS_HZ);
-	timestamp = 0;
+	gd->arch.tbl = __raw_readl(&cur_gpt->counter);
+	gd->arch.tbu = 0;
 
 	return 0;
 }
@@ -96,18 +91,11 @@ unsigned long long get_ticks(void)
 {
 	ulong now = __raw_readl(&cur_gpt->counter); /* current tick value */
 
-	if (now >= lastinc) {
-		/*
-		 * normal mode (non roll)
-		 * move stamp forward with absolut diff ticks
-		 */
-		timestamp += (now - lastinc);
-	} else {
-		/* we have rollover of incrementer */
-		timestamp += (0xFFFFFFFF - lastinc) + now;
-	}
-	lastinc = now;
-	return timestamp;
+	/* increment tbu if tbl has rolled over */
+	if (now < gd->arch.tbl)
+		gd->arch.tbu++;
+	gd->arch.tbl = now;
+	return (((unsigned long long)gd->arch.tbu) << 32) | gd->arch.tbl;
 }
 
 ulong get_timer_masked(void)

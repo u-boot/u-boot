@@ -160,7 +160,7 @@ static IxQMgrQId priorityTable[IX_QMGR_MAX_NUM_QUEUES];
 /*
  * This flag indicates to the dispatcher that the priority table needs to be rebuilt.
  */
-static BOOL rebuildTable = FALSE;
+static BOOL rebuildTable = false;
 
 /* Dispatcher statistics */
 static IxQMgrDispatcherStats dispatcherStats;
@@ -197,7 +197,7 @@ ixQMgrDispatcherInit (void)
     int i;
     IxFeatureCtrlProductId productId = 0;
     IxFeatureCtrlDeviceId deviceId = 0;
-    BOOL stickyIntSilicon = TRUE; 
+    BOOL stickyIntSilicon = true;
 
     /* Set default priorities */
     for (i=0; i< IX_QMGR_MAX_NUM_QUEUES; i++)
@@ -226,7 +226,7 @@ ixQMgrDispatcherInit (void)
 	dispatcherStats.queueStats[i].priorityChangeCnt = 0;
 	dispatcherStats.queueStats[i].intNoCallbackCnt = 0;
 	dispatcherStats.queueStats[i].intLostCallbackCnt = 0;
-        dispatcherStats.queueStats[i].notificationEnabled = FALSE;
+        dispatcherStats.queueStats[i].notificationEnabled = false;
         dispatcherStats.queueStats[i].srcSel = 0;
 
     }
@@ -258,7 +258,7 @@ ixQMgrDispatcherInit (void)
         (IX_FEATURE_CTRL_SILICON_TYPE_A0 == 
         (IX_FEATURE_CTRL_SILICON_STEPPING_MASK & productId))) 
     {
-       stickyIntSilicon = FALSE;
+       stickyIntSilicon = false;
     }
 
     /*
@@ -293,7 +293,7 @@ ixQMgrDispatcherPrioritySet (IxQMgrQId qId,
     /* Change priority */
     dispatchQInfo[qId].priority = priority;
     /* Set flag */
-    rebuildTable = TRUE;
+    rebuildTable = true;
 
     ixOsalIrqUnlock(ixQMgrLockKey);
 
@@ -364,7 +364,7 @@ ixQMgrNotificationEnable (IxQMgrQId qId,
 #endif
 
 #ifndef NDEBUG
-    dispatcherStats.queueStats[qId].notificationEnabled = TRUE;
+    dispatcherStats.queueStats[qId].notificationEnabled = true;
     dispatcherStats.queueStats[qId].srcSel = srcSel;
 #endif
 
@@ -428,7 +428,7 @@ ixQMgrNotificationDisable (IxQMgrQId qId)
      * so need critical section
      */
 #ifndef NDEBUG
-    dispatcherStats.queueStats[qId].notificationEnabled = FALSE;
+    dispatcherStats.queueStats[qId].notificationEnabled = false;
 #endif
 
     ixQMgrLockKey = ixOsalIrqLock();
@@ -593,7 +593,7 @@ ixQMgrDispatcherLoopRunA0 (IxQMgrDispatchGroup group)
 	qIndex += IX_QMGR_MIN_QUEUPP_QID;
     }
 
-    if (statusChangeFlag == FALSE)
+    if (statusChangeFlag == false)
     {
 	/* check if the interrupt register contains 
 	 * only 1 bit set (happy day scenario)
@@ -800,7 +800,7 @@ ixQMgrDispatcherLoopRunB0 (IxQMgrDispatchGroup group)
              * For example:
              *                                        intRegVal = 0x0010
              *               currDispatchQInfo->intRegCheckMask = 0x0010
-             *    intRegVal == currDispatchQInfo->intRegCheckMask is TRUE.
+             *    intRegVal == currDispatchQInfo->intRegCheckMask is true.
              */
              currDispatchQInfo = &dispatchQInfo[qIndex];
              if (intRegVal == currDispatchQInfo->intRegCheckMask)
@@ -955,7 +955,7 @@ ixQMgrDispatcherLoopRunB0LLP (IxQMgrDispatchGroup group)
         * For example:
         *                                        intRegVal = 0x0010
         *               currDispatchQInfo->intRegCheckMask = 0x0010
-        *    intRegVal == currDispatchQInfo->intRegCheckMask is TRUE.
+        *    intRegVal == currDispatchQInfo->intRegCheckMask is true.
         */
         currDispatchQInfo = &dispatchQInfo[qIndex];
         if (intRegVal == currDispatchQInfo->intRegCheckMask)
@@ -1118,7 +1118,7 @@ ixQMgrDispatcherReBuildPriorityTable (void)
     int uppQuePriorityTableIndex = IX_QMGR_MIN_UPP_QUE_PRIORITY_TABLE_INDEX;
 
     /* Reset the rebuild flag */
-    rebuildTable = FALSE;
+    rebuildTable = false;
 
     /* initialize the mak used to identify the queues in the first half
      * of the priority table
@@ -1266,7 +1266,7 @@ ixQMgrPeriodicDone (void)
               * Update statistics 
               */
              dispatcherStats.queueStats[i].enableCount++;
-             dispatcherStats.queueStats[i].notificationEnabled = TRUE;
+             dispatcherStats.queueStats[i].notificationEnabled = true;
 #endif
         }
     }

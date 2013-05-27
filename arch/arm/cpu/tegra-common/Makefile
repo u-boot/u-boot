@@ -28,7 +28,7 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)libcputegra-common.o
 
 SOBJS += lowlevel_init.o
-COBJS-y	+= ap.o board.o sys_info.o timer.o
+COBJS-y	+= ap.o board.o sys_info.o timer.o clock.o cache.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS-y))

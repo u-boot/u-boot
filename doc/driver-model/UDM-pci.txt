@@ -240,10 +240,6 @@ III) Analysis of in-tree drivers
     ----------------
       Standard driver, uses indirect functions.
 
-    8) pcippc2/cpc710_pci.c
-    -----------------------
-      Standard driver, uses indirect functions, has two busses.
-
     9) Marvell/db64360/pci.c
     ------------------------
       Standard driver, uses dword for read/write ops, has two busses.

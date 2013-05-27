@@ -105,7 +105,7 @@ IxNpeMhConfigNpeInfo ixNpeMhConfigNpeInfo[IX_NPEMH_NUM_NPES] =
         0,
         0,
         NULL,
-        FALSE
+        false
     },
     {
         0,
@@ -116,7 +116,7 @@ IxNpeMhConfigNpeInfo ixNpeMhConfigNpeInfo[IX_NPEMH_NUM_NPES] =
         0,
         0,
         NULL,
-        FALSE
+        false
     },
     {
         0,
@@ -127,7 +127,7 @@ IxNpeMhConfigNpeInfo ixNpeMhConfigNpeInfo[IX_NPEMH_NUM_NPES] =
         0,
         0,
         NULL,
-        FALSE
+        false
     }
 };
 

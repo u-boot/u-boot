@@ -79,7 +79,7 @@
  * static variables.
  */
 
-PRIVATE BOOL ixNpeMhInitialized = FALSE;
+PRIVATE BOOL ixNpeMhInitialized = false;
 
 /*
  * Extern function prototypes.
@@ -128,7 +128,7 @@ PUBLIC IX_STATUS ixNpeMhInitialize (
      */
     ixNpeMhConfigInitialize (npeInterrupts);
 
-    ixNpeMhInitialized = TRUE;
+    ixNpeMhInitialized = true;
 
     IX_NPEMH_TRACE0 (IX_NPEMH_FN_ENTRY_EXIT, "Exiting "
                      "ixNpeMhInitialize\n");
@@ -153,7 +153,7 @@ PUBLIC IX_STATUS ixNpeMhUnload (void)
     /* Uninitialize the Configuration module */
     ixNpeMhConfigUninit ();
 
-    ixNpeMhInitialized = FALSE;
+    ixNpeMhInitialized = false;
 
     IX_NPEMH_TRACE0 (IX_NPEMH_FN_ENTRY_EXIT, "Exiting "
                      "ixNpeMhUnload\n");

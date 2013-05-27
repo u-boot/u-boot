@@ -346,6 +346,7 @@ struct cspi_regs {
 #define MXC_CSPICTRL_EN		(1 << 0)
 #define MXC_CSPICTRL_MODE	(1 << 1)
 #define MXC_CSPICTRL_XCH	(1 << 2)
+#define MXC_CSPICTRL_MODE_MASK (0xf << 4)
 #define MXC_CSPICTRL_CHIPSELECT(x)	(((x) & 0x3) << 12)
 #define MXC_CSPICTRL_BITCOUNT(x)	(((x) & 0xfff) << 20)
 #define MXC_CSPICTRL_PREDIV(x)	(((x) & 0xF) << 12)
@@ -599,6 +600,14 @@ struct iomuxc_base_regs {
 	u32     swpad_ctl[250]; /* 0x360 */
 	u32     swgrp[26];      /* 0x748 */
 	u32     daisy[104];     /* 0x7b0..94c */
+};
+
+struct wdog_regs {
+	u16	wcr;	/* Control */
+	u16	wsr;	/* Service */
+	u16	wrsr;	/* Reset Status */
+	u16	wicr;	/* Interrupt Control */
+	u16	wmcr;	/* Miscellaneous Control */
 };
 
 #endif /* __ASSEMBLER__*/

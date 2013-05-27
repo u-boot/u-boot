@@ -390,7 +390,7 @@ const struct tegra_pingroup_desc tegra_soc_pingroups[PINGRP_COUNT] = {
 	PIN(UAA,  BB,    SPI3,   MIPI_HS, UARTA,    ULPI,        MIPI_HS),
 	PIN(UAB,  BB,    SPI2,   MIPI_HS, UARTA,    ULPI,        MIPI_HS),
 	PIN(UAC,  BB,    OWR,    RSVD,   RSVD,      RSVD,        RSVD4),
-	PIN(UAD,  UART,  IRDA,   SPDIF,  UARTA,     SPI4,        SPDIF),
+	PIN(UAD,  UART,  UARTB,  SPDIF,  UARTA,     SPI4,        SPDIF),
 	PIN(UCA,  UART,  UARTC,  RSVD,   GMI,       RSVD,        RSVD4),
 	PIN(UCB,  UART,  UARTC,  PWM,    GMI,       RSVD,        RSVD4),
 

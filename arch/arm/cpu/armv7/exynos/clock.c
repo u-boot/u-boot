@@ -27,6 +27,49 @@
 #include <asm/arch/clk.h>
 #include <asm/arch/periph.h>
 
+/* *
+ * This structure is to store the src bit, div bit and prediv bit
+ * positions of the peripheral clocks of the src and div registers
+ */
+struct clk_bit_info {
+	int8_t src_bit;
+	int8_t div_bit;
+	int8_t prediv_bit;
+};
+
+/* src_bit div_bit prediv_bit */
+static struct clk_bit_info clk_bit_info[PERIPH_ID_COUNT] = {
+	{0,	0,	-1},
+	{4,	4,	-1},
+	{8,	8,	-1},
+	{12,	12,	-1},
+	{0,	0,	8},
+	{4,	16,	24},
+	{8,	0,	8},
+	{12,	16,	24},
+	{-1,	-1,	-1},
+	{16,	0,	8},
+	{20,	16,	24},
+	{24,	0,	8},
+	{0,	0,	4},
+	{4,	12,	16},
+	{-1,	-1,	-1},
+	{-1,	-1,	-1},
+	{-1,	24,	0},
+	{-1,	24,	0},
+	{-1,	24,	0},
+	{-1,	24,	0},
+	{-1,	24,	0},
+	{-1,	24,	0},
+	{-1,	24,	0},
+	{-1,	24,	0},
+	{24,	0,	-1},
+	{24,	0,	-1},
+	{24,	0,	-1},
+	{24,	0,	-1},
+	{24,	0,	-1},
+};
+
 /* Epll Clock division values to achive different frequency output */
 static struct set_epll_con_val exynos5_epll_div[] = {
 	{ 192000000, 0, 48, 3, 1, 0 },
@@ -201,6 +244,107 @@ static unsigned long exynos5_get_pll_clk(int pllreg)
 	return fout;
 }
 
+static unsigned long exynos5_get_periph_rate(int peripheral)
+{
+	struct clk_bit_info *bit_info = &clk_bit_info[peripheral];
+	unsigned long sclk, sub_clk;
+	unsigned int src, div, sub_div;
+	struct exynos5_clock *clk =
+			(struct exynos5_clock *)samsung_get_base_clock();
+
+	switch (peripheral) {
+	case PERIPH_ID_UART0:
+	case PERIPH_ID_UART1:
+	case PERIPH_ID_UART2:
+	case PERIPH_ID_UART3:
+		src = readl(&clk->src_peric0);
+		div = readl(&clk->div_peric0);
+		break;
+	case PERIPH_ID_PWM0:
+	case PERIPH_ID_PWM1:
+	case PERIPH_ID_PWM2:
+	case PERIPH_ID_PWM3:
+	case PERIPH_ID_PWM4:
+		src = readl(&clk->src_peric0);
+		div = readl(&clk->div_peric3);
+		break;
+	case PERIPH_ID_SPI0:
+	case PERIPH_ID_SPI1:
+		src = readl(&clk->src_peric1);
+		div = readl(&clk->div_peric1);
+		break;
+	case PERIPH_ID_SPI2:
+		src = readl(&clk->src_peric1);
+		div = readl(&clk->div_peric2);
+		break;
+	case PERIPH_ID_SPI3:
+	case PERIPH_ID_SPI4:
+		src = readl(&clk->sclk_src_isp);
+		div = readl(&clk->sclk_div_isp);
+		break;
+	case PERIPH_ID_SDMMC0:
+	case PERIPH_ID_SDMMC1:
+	case PERIPH_ID_SDMMC2:
+	case PERIPH_ID_SDMMC3:
+		src = readl(&clk->src_fsys);
+		div = readl(&clk->div_fsys1);
+		break;
+	case PERIPH_ID_I2C0:
+	case PERIPH_ID_I2C1:
+	case PERIPH_ID_I2C2:
+	case PERIPH_ID_I2C3:
+	case PERIPH_ID_I2C4:
+	case PERIPH_ID_I2C5:
+	case PERIPH_ID_I2C6:
+	case PERIPH_ID_I2C7:
+		sclk = exynos5_get_pll_clk(MPLL);
+		sub_div = ((readl(&clk->div_top1) >> bit_info->div_bit)
+								& 0x7) + 1;
+		div = ((readl(&clk->div_top0) >> bit_info->prediv_bit)
+								& 0x7) + 1;
+		return (sclk / sub_div) / div;
+	default:
+		debug("%s: invalid peripheral %d", __func__, peripheral);
+		return -1;
+	};
+
+	src = (src >> bit_info->src_bit) & 0xf;
+
+	switch (src) {
+	case EXYNOS_SRC_MPLL:
+		sclk = exynos5_get_pll_clk(MPLL);
+		break;
+	case EXYNOS_SRC_EPLL:
+		sclk = exynos5_get_pll_clk(EPLL);
+		break;
+	case EXYNOS_SRC_VPLL:
+		sclk = exynos5_get_pll_clk(VPLL);
+		break;
+	default:
+		return 0;
+	}
+
+	/* Ratio clock division for this peripheral */
+	sub_div = (div >> bit_info->div_bit) & 0xf;
+	sub_clk = sclk / (sub_div + 1);
+
+	/* Pre-ratio clock division for SDMMC0 and 2 */
+	if (peripheral == PERIPH_ID_SDMMC0 || peripheral == PERIPH_ID_SDMMC2) {
+		div = (div >> bit_info->prediv_bit) & 0xff;
+		return sub_clk / (div + 1);
+	}
+
+	return sub_clk;
+}
+
+unsigned long clock_get_periph_rate(int peripheral)
+{
+	if (cpu_is_exynos5())
+		return exynos5_get_periph_rate(peripheral);
+	else
+		return 0;
+}
+
 /* exynos4: return ARM clock frequency */
 static unsigned long exynos4_get_arm_clk(void)
 {
@@ -318,27 +462,6 @@ static unsigned long exynos4x12_get_pwm_clk(void)
 
 	sclk = get_pll_clk(MPLL);
 	ratio = 8;
-
-	pclk = sclk / (ratio + 1);
-
-	return pclk;
-}
-
-/* exynos5: return pwm clock frequency */
-static unsigned long exynos5_get_pwm_clk(void)
-{
-	struct exynos5_clock *clk =
-		(struct exynos5_clock *)samsung_get_base_clock();
-	unsigned long pclk, sclk;
-	unsigned int ratio;
-
-	/*
-	 * CLK_DIV_PERIC3
-	 * PWM_RATIO [3:0]
-	 */
-	ratio = readl(&clk->div_peric3);
-	ratio = ratio & 0xf;
-	sclk = get_pll_clk(MPLL);
 
 	pclk = sclk / (ratio + 1);
 
@@ -1210,7 +1333,7 @@ unsigned long get_i2c_clk(void)
 unsigned long get_pwm_clk(void)
 {
 	if (cpu_is_exynos5())
-		return exynos5_get_pwm_clk();
+		return clock_get_periph_rate(PERIPH_ID_PWM0);
 	else {
 		if (proid_is_exynos4412())
 			return exynos4x12_get_pwm_clk();

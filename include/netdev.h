@@ -104,7 +104,7 @@ int xilinx_emaclite_initialize(bd_t *bis, unsigned long base_addr,
 							int txpp, int rxpp);
 int xilinx_ll_temac_initialize(bd_t *bis, unsigned long base_addr,
 						int mode, unsigned long ctrl);
-int zynq_gem_initialize(bd_t *bis, int base_addr);
+int zynq_gem_initialize(bd_t *bis, int base_addr, int phy_addr, u32 emio);
 /*
  * As long as the Xilinx xps_ll_temac ethernet driver has not its own interface
  * exported by a public hader file, we need a global definition at this point.
@@ -215,9 +215,16 @@ struct mv88e61xx_config {
 int mv88e61xx_switch_initialize(struct mv88e61xx_config *swconfig);
 #endif /* CONFIG_MV88E61XX_SWITCH */
 
+struct mii_dev *fec_get_miibus(uint32_t base_addr, int dev_id);
+#ifdef CONFIG_PHYLIB
+struct phy_device;
+int fec_probe(bd_t *bd, int dev_id, uint32_t base_addr,
+		struct mii_dev *bus, struct phy_device *phydev);
+#else
 /*
  * Allow FEC to fine-tune MII configuration on boards which require this.
  */
 int fecmxc_register_mii_postcall(struct eth_device *dev, int (*cb)(int));
+#endif
 
 #endif /* _NETDEV_H_ */

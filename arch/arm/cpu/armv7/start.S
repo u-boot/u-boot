@@ -81,7 +81,11 @@ _end_vect:
 
 .globl _TEXT_BASE
 _TEXT_BASE:
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_TEXT_BASE)
+	.word	CONFIG_SPL_TEXT_BASE
+#else
 	.word	CONFIG_SYS_TEXT_BASE
+#endif
 
 /*
  * These are defined in the board-specific linker script.
@@ -90,13 +94,13 @@ _TEXT_BASE:
 _bss_start_ofs:
 	.word __bss_start - _start
 
-.global	_image_copy_end_ofs
+.globl _image_copy_end_ofs
 _image_copy_end_ofs:
-	.word 	__image_copy_end - _start
+	.word __image_copy_end - _start
 
 .globl _bss_end_ofs
 _bss_end_ofs:
-	.word __bss_end__ - _start
+	.word __bss_end - _start
 
 .globl _end_ofs
 _end_ofs:
@@ -126,11 +130,15 @@ IRQ_STACK_START_IN:
 reset:
 	bl	save_boot_params
 	/*
-	 * set the cpu to SVC32 mode
+	 * disable interrupts (FIQ and IRQ), also set the cpu to SVC32 mode,
+	 * except if in HYP mode already
 	 */
 	mrs	r0, cpsr
-	bic	r0, r0, #0x1f
-	orr	r0, r0, #0xd3
+	and	r1, r0, #0x1f		@ mask mode bits
+	teq	r1, #0x1a		@ test for HYP mode
+	bicne	r0, r0, #0x1f		@ clear all mode bits
+	orrne	r0, r0, #0x13		@ set SVC mode
+	orr	r0, r0, #0xc0		@ disable FIQ and IRQ
 	msr	cpsr,r0
 
 /*
@@ -161,28 +169,23 @@ reset:
 
 #ifndef CONFIG_SPL_BUILD
 /*
- * void relocate_code (addr_sp, gd, addr_moni)
+ * void relocate_code(addr_moni)
  *
- * This "function" does not return, instead it continues in RAM
- * after relocating the monitor code.
- *
+ * This function relocates the monitor code.
  */
 ENTRY(relocate_code)
-	mov	r4, r0	/* save addr_sp */
-	mov	r5, r1	/* save addr of gd */
-	mov	r6, r2	/* save addr of destination */
+	mov	r6, r0	/* save addr of destination */
 
 	adr	r0, _start
-	cmp	r0, r6
-	moveq	r9, #0		/* no relocation. relocation offset(r9) = 0 */
+	subs	r9, r6, r0		/* r9 <- relocation offset */
 	beq	relocate_done		/* skip relocation */
 	mov	r1, r6			/* r1 <- scratch for copy_loop */
 	ldr	r3, _image_copy_end_ofs
 	add	r2, r0, r3		/* r2 <- source end address	    */
 
 copy_loop:
-	ldmia	r0!, {r9-r10}		/* copy from source address [r0]    */
-	stmia	r1!, {r9-r10}		/* copy to   target address [r1]    */
+	ldmia	r0!, {r10-r11}		/* copy from source address [r0]    */
+	stmia	r1!, {r10-r11}		/* copy to   target address [r1]    */
 	cmp	r0, r2			/* until source end address [r2]    */
 	blo	copy_loop
 
@@ -190,7 +193,6 @@ copy_loop:
 	 * fix .rel.dyn relocations
 	 */
 	ldr	r0, _TEXT_BASE		/* r0 <- Text base */
-	sub	r9, r6, r0		/* r9 <- relocation offset */
 	ldr	r10, _dynsym_start_ofs	/* r10 <- sym table ofs */
 	add	r10, r10, r0		/* r10 <- sym table in FLASH */
 	ldr	r2, _rel_dyn_start_ofs	/* r2 <- rel dyn start ofs */
@@ -251,12 +253,9 @@ ENTRY(c_runtime_cpu_setup)
 /*
  * Move vector table
  */
-#if !defined(CONFIG_TEGRA20)
 	/* Set vector address in CP15 VBAR register */
 	ldr     r0, =_start
-	add     r0, r0, r9
 	mcr     p15, 0, r0, c12, c0, 0  @Set VBAR
-#endif /* !Tegra20 */
 
 	bx	lr
 
@@ -309,6 +308,31 @@ ENTRY(cpu_init_cp15)
 	orr	r0, r0, #0x00001000	@ set bit 12 (I) I-cache
 #endif
 	mcr	p15, 0, r0, c1, c0, 0
+
+#ifdef CONFIG_ARM_ERRATA_716044
+	mrc	p15, 0, r0, c1, c0, 0	@ read system control register
+	orr	r0, r0, #1 << 11	@ set bit #11
+	mcr	p15, 0, r0, c1, c0, 0	@ write system control register
+#endif
+
+#ifdef CONFIG_ARM_ERRATA_742230
+	mrc	p15, 0, r0, c15, c0, 1	@ read diagnostic register
+	orr	r0, r0, #1 << 4		@ set bit #4
+	mcr	p15, 0, r0, c15, c0, 1	@ write diagnostic register
+#endif
+
+#ifdef CONFIG_ARM_ERRATA_743622
+	mrc	p15, 0, r0, c15, c0, 1	@ read diagnostic register
+	orr	r0, r0, #1 << 6		@ set bit #6
+	mcr	p15, 0, r0, c15, c0, 1	@ write diagnostic register
+#endif
+
+#ifdef CONFIG_ARM_ERRATA_751472
+	mrc	p15, 0, r0, c15, c0, 1	@ read diagnostic register
+	orr	r0, r0, #1 << 11	@ set bit #11
+	mcr	p15, 0, r0, c15, c0, 1	@ write diagnostic register
+#endif
+
 	mov	pc, lr			@ back to my caller
 ENDPROC(cpu_init_cp15)
 
@@ -441,9 +465,10 @@ ENDPROC(cpu_init_crit)
 						@ spots for abort stack
 	str	lr, [r0]			@ save caller lr in position 0
 						@ of saved stack
-	mrs	r0, spsr			@ get the spsr
+	mrs	lr, spsr			@ get the spsr
 	str	lr, [r0, #4]			@ save spsr in position 1 of
 						@ saved stack
+	ldr	lr, [r0]			@ restore lr
 	ldr	r0, [r13]			@ restore r0
 	add	r13, r13, #4			@ pop stack entry
 	.endm

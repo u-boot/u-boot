@@ -203,22 +203,16 @@ spi_flash_probe_sst(struct spi_slave *spi, u8 *idcode)
 		return NULL;
 	}
 
-	stm = malloc(sizeof(*stm));
+	stm = spi_flash_alloc(struct sst_spi_flash, spi, params->name);
 	if (!stm) {
 		debug("SF: Failed to allocate memory\n");
 		return NULL;
 	}
 
 	stm->params = params;
-	stm->flash.spi = spi;
-	stm->flash.name = params->name;
 
 	if (stm->params->flags & SST_FEAT_WP)
 		stm->flash.write = sst_write_wp;
-	else
-		stm->flash.write = spi_flash_cmd_write_multi;
-	stm->flash.erase = spi_flash_cmd_erase;
-	stm->flash.read = spi_flash_cmd_read_fast;
 	stm->flash.page_size = 256;
 	stm->flash.sector_size = 4096;
 	stm->flash.size = stm->flash.sector_size * params->nr_sectors;

@@ -89,9 +89,9 @@ typedef struct
  */
 static IxNpeDlNpeState ixNpeDlNpeState[IX_NPEDL_NPEID_MAX] =
 {
-    {FALSE, {IX_NPEDL_NPEID_MAX, 0, 0, 0}},
-    {FALSE, {IX_NPEDL_NPEID_MAX, 0, 0, 0}},
-    {FALSE, {IX_NPEDL_NPEID_MAX, 0, 0, 0}}
+    {false, {IX_NPEDL_NPEID_MAX, 0, 0, 0}},
+    {false, {IX_NPEDL_NPEID_MAX, 0, 0, 0}},
+    {false, {IX_NPEDL_NPEID_MAX, 0, 0, 0}}
 };
 
 static IxNpeDlStats ixNpeDlStats;
@@ -99,7 +99,7 @@ static IxNpeDlStats ixNpeDlStats;
 /*
  * Software guard to prevent NPE from being started multiple times.
  */
-static BOOL ixNpeDlNpeStarted[IX_NPEDL_NPEID_MAX] ={FALSE, FALSE, FALSE} ;
+static BOOL ixNpeDlNpeStarted[IX_NPEDL_NPEID_MAX] ={false, false, false} ;
 
 
 /*
@@ -195,7 +195,7 @@ ixNpeDlImageDownload (IxNpeDlImageId *imageIdPtr,
             if (IX_SUCCESS == status)
             {
                 ixNpeDlNpeState[npeId].imageId = *imageIdPtr;
-                ixNpeDlNpeState[npeId].validImage = TRUE;
+                ixNpeDlNpeState[npeId].validImage = true;
                 ixNpeDlStats.successfulDownloads++;
 
                 status =  ixNpeDlNpeExecutionStart (npeId);
@@ -204,7 +204,7 @@ ixNpeDlImageDownload (IxNpeDlImageId *imageIdPtr,
                      (status == IX_NPEDL_CRITICAL_MICROCODE_ERR))
             {
                 ixNpeDlNpeState[npeId].imageId = *imageIdPtr;
-                ixNpeDlNpeState[npeId].validImage = FALSE;
+                ixNpeDlNpeState[npeId].validImage = false;
                 ixNpeDlStats.criticalFailDownloads++;
             }
         } /* end of if(IX_SUCCESS) */ /* condition: image located successfully in microcode image */
@@ -507,7 +507,7 @@ ixNpeDlNpeStopAndReset (IxNpeDlNpeId npeId)
     if (IX_SUCCESS == status)
     {
         /* Indicate NPE has been stopped */
-        ixNpeDlNpeStarted[npeId] = FALSE ;
+        ixNpeDlNpeStarted[npeId] = false ;
     }
 
     return status;
@@ -573,7 +573,7 @@ ixNpeDlNpeExecutionStart (IxNpeDlNpeId npeId)
         } /* end of if-else(IX_NPEDL_NPEID_NPEC) */
     } /* end of if not IXP42x-A0 Silicon */
 
-    if (TRUE == ixNpeDlNpeStarted[npeId])
+    if (true == ixNpeDlNpeStarted[npeId])
     {
         /* NPE has been started. */
         return IX_SUCCESS ;
@@ -588,7 +588,7 @@ ixNpeDlNpeExecutionStart (IxNpeDlNpeId npeId)
     if (IX_SUCCESS == status)
     {
         /* Indicate NPE has started */
-        ixNpeDlNpeStarted[npeId] = TRUE ;
+        ixNpeDlNpeStarted[npeId] = true ;
     }
 
     IX_NPEDL_TRACE1 (IX_NPEDL_FN_ENTRY_EXIT,
@@ -674,7 +674,7 @@ ixNpeDlNpeExecutionStop (IxNpeDlNpeId npeId)
     if (IX_SUCCESS == status)
     {
         /* Indicate NPE has been stopped */
-        ixNpeDlNpeStarted[npeId] = FALSE ;
+        ixNpeDlNpeStarted[npeId] = false ;
     }
 
     return status;
@@ -840,10 +840,10 @@ ixNpeDlNpeInitAndStartInternal (UINT32 *imageLibrary,
              * currently loaded images. If a critical error occured
              * during download, record that the NPE has an invalid image
              */
-            status = ixNpeDlNpeMgrImageLoad (npeId, imageCodePtr, TRUE);
+            status = ixNpeDlNpeMgrImageLoad (npeId, imageCodePtr, true);
             if (IX_SUCCESS == status)
             {
-                ixNpeDlNpeState[npeId].validImage = TRUE;
+                ixNpeDlNpeState[npeId].validImage = true;
                 ixNpeDlStats.successfulDownloads++;
 
                 status = ixNpeDlNpeExecutionStart (npeId);
@@ -851,7 +851,7 @@ ixNpeDlNpeInitAndStartInternal (UINT32 *imageLibrary,
             else if ((status == IX_NPEDL_CRITICAL_NPE_ERR) ||
                      (status == IX_NPEDL_CRITICAL_MICROCODE_ERR))
             {
-                ixNpeDlNpeState[npeId].validImage = FALSE;
+                ixNpeDlNpeState[npeId].validImage = false;
                 ixNpeDlStats.criticalFailDownloads++;
             }
 

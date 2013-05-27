@@ -31,8 +31,8 @@ DECLARE_GLOBAL_DATA_PTR;
 int dpram_init (void)
 {
 	/* Reclaim the DP memory for our use. */
-	gd->dp_alloc_base = CPM_DATAONLY_BASE;
-	gd->dp_alloc_top  = CPM_DATAONLY_BASE + CPM_DATAONLY_SIZE;
+	gd->arch.dp_alloc_base = CPM_DATAONLY_BASE;
+	gd->arch.dp_alloc_top  = CPM_DATAONLY_BASE + CPM_DATAONLY_SIZE;
 
 	return (0);
 }
@@ -43,19 +43,19 @@ int dpram_init (void)
  */
 uint dpram_alloc (uint size)
 {
-	uint addr = gd->dp_alloc_base;
+	uint addr = gd->arch.dp_alloc_base;
 
-	if ((gd->dp_alloc_base + size) >= gd->dp_alloc_top)
+	if ((gd->arch.dp_alloc_base + size) >= gd->arch.dp_alloc_top)
 		return (CPM_DP_NOSPACE);
 
-	gd->dp_alloc_base += size;
+	gd->arch.dp_alloc_base += size;
 
 	return addr;
 }
 
 uint dpram_base (void)
 {
-	return gd->dp_alloc_base;
+	return gd->arch.dp_alloc_base;
 }
 
 /* Allocate some memory from the dual ported ram.  We may want to
@@ -66,12 +66,12 @@ uint dpram_alloc_align (uint size, uint align)
 {
 	uint addr, mask = align - 1;
 
-	addr = (gd->dp_alloc_base + mask) & ~mask;
+	addr = (gd->arch.dp_alloc_base + mask) & ~mask;
 
-	if ((addr + size) >= gd->dp_alloc_top)
+	if ((addr + size) >= gd->arch.dp_alloc_top)
 		return (CPM_DP_NOSPACE);
 
-	gd->dp_alloc_base = addr + size;
+	gd->arch.dp_alloc_base = addr + size;
 
 	return addr;
 }
@@ -80,6 +80,6 @@ uint dpram_base_align (uint align)
 {
 	uint mask = align - 1;
 
-	return (gd->dp_alloc_base + mask) & ~mask;
+	return (gd->arch.dp_alloc_base + mask) & ~mask;
 }
 #endif	/* CONFIG_SYS_ALLOC_DPRAM */

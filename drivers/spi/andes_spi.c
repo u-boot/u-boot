@@ -53,12 +53,10 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	if (!spi_cs_is_valid(bus, cs))
 		return NULL;
 
-	ds = malloc(sizeof(*ds));
+	ds = spi_alloc_slave(struct andes_spi_slave, bus, cs);
 	if (!ds)
 		return NULL;
 
-	ds->slave.bus = bus;
-	ds->slave.cs = cs;
 	ds->regs = (struct andes_spi_regs *)CONFIG_SYS_SPI_BASE;
 
 	/*

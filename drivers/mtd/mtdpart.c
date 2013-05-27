@@ -347,16 +347,18 @@ static struct mtd_part *add_one_partition(struct mtd_info *master,
 		if (mtd_mod_by_eb(cur_offset, master) != 0) {
 			/* Round up to next erasesize */
 			slave->offset = (mtd_div_by_eb(cur_offset, master) + 1) * master->erasesize;
-			printk(KERN_NOTICE "Moving partition %d: "
-			       "0x%012llx -> 0x%012llx\n", partno,
-			       (unsigned long long)cur_offset, (unsigned long long)slave->offset);
+			debug("Moving partition %d: 0x%012llx -> 0x%012llx\n",
+			      partno, (unsigned long long)cur_offset,
+			      (unsigned long long)slave->offset);
 		}
 	}
 	if (slave->mtd.size == MTDPART_SIZ_FULL)
 		slave->mtd.size = master->size - slave->offset;
 
-	printk(KERN_NOTICE "0x%012llx-0x%012llx : \"%s\"\n", (unsigned long long)slave->offset,
-		(unsigned long long)(slave->offset + slave->mtd.size), slave->mtd.name);
+	debug("0x%012llx-0x%012llx : \"%s\"\n",
+	      (unsigned long long)slave->offset,
+	      (unsigned long long)(slave->offset + slave->mtd.size),
+	      slave->mtd.name);
 
 	/* let's do some sanity checks */
 	if (slave->offset >= master->size) {
@@ -463,7 +465,7 @@ int add_mtd_partitions(struct mtd_info *master,
 	if (mtd_partitions.next == NULL)
 		INIT_LIST_HEAD(&mtd_partitions);
 
-	printk(KERN_NOTICE "Creating %d MTD partitions on \"%s\":\n", nbparts, master->name);
+	debug("Creating %d MTD partitions on \"%s\":\n", nbparts, master->name);
 
 	for (i = 0; i < nbparts; i++) {
 		slave = add_one_partition(master, parts + i, i, cur_offset);

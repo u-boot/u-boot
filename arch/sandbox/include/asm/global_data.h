@@ -25,30 +25,13 @@
 
 #ifndef	__ASM_GBL_DATA_H
 #define __ASM_GBL_DATA_H
-/*
- * The following data structure is placed in some memory wich is
- * available very early after boot (like DPRAM on MPC8xx/MPC82xx, or
- * some locked parts of the data cache) to allow for a minimum set of
- * global variables during system initialization (until we have set
- * up the memory controller so that we can use RAM).
- */
 
-typedef	struct global_data {
-	bd_t		*bd;
-	unsigned long	flags;
-	unsigned int	baudrate;
-	unsigned long	have_console;	/* serial_init() was called */
-	unsigned long	env_addr;	/* Address  of Environment struct */
-	unsigned long	env_valid;	/* Checksum of Environment valid? */
-	unsigned long	fb_base;	/* base address of frame buffer */
+/* Architecture-specific global data */
+struct arch_global_data {
 	u8		*ram_buf;	/* emulated RAM buffer */
-	phys_size_t	ram_size;	/* RAM size */
-	const void	*fdt_blob;	/* Our device tree, NULL if none */
-	void		**jt;		/* jump table */
-	char		env_buf[32];	/* buffer for getenv() before reloc. */
-} gd_t;
+};
 
-#include <asm-generic/global_data_flags.h>
+#include <asm-generic/global_data.h>
 
 #define DECLARE_GLOBAL_DATA_PTR     extern gd_t *gd
 

@@ -499,6 +499,7 @@ static int mxcmci_initialize(bd_t *bis)
 	mmc->set_ios = mxcmci_set_ios;
 	mmc->init = mxcmci_init;
 	mmc->getcd = NULL;
+	mmc->getwp = NULL;
 	mmc->host_caps = MMC_MODE_4BIT;
 
 	host->base = (struct mxcmci_regs *)CONFIG_MXC_MCI_REGS_BASE;

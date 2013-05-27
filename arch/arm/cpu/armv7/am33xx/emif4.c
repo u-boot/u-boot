@@ -44,44 +44,65 @@ void dram_init_banksize(void)
 
 
 #ifdef CONFIG_SPL_BUILD
-static struct vtp_reg *vtpreg = (struct vtp_reg *)VTP0_CTRL_ADDR;
+static struct dmm_lisa_map_regs *hw_lisa_map_regs =
+				(struct dmm_lisa_map_regs *)DMM_BASE;
+static struct vtp_reg *vtpreg[2] = {
+				(struct vtp_reg *)VTP0_CTRL_ADDR,
+				(struct vtp_reg *)VTP1_CTRL_ADDR};
+#ifdef CONFIG_AM33XX
 static struct ddr_ctrl *ddrctrl = (struct ddr_ctrl *)DDR_CTRL_ADDR;
+#endif
 
-static void config_vtp(void)
+void config_dmm(const struct dmm_lisa_map_regs *regs)
 {
-	writel(readl(&vtpreg->vtp0ctrlreg) | VTP_CTRL_ENABLE,
-			&vtpreg->vtp0ctrlreg);
-	writel(readl(&vtpreg->vtp0ctrlreg) & (~VTP_CTRL_START_EN),
-			&vtpreg->vtp0ctrlreg);
-	writel(readl(&vtpreg->vtp0ctrlreg) | VTP_CTRL_START_EN,
-			&vtpreg->vtp0ctrlreg);
+	enable_dmm_clocks();
+
+	writel(0, &hw_lisa_map_regs->dmm_lisa_map_3);
+	writel(0, &hw_lisa_map_regs->dmm_lisa_map_2);
+	writel(0, &hw_lisa_map_regs->dmm_lisa_map_1);
+	writel(0, &hw_lisa_map_regs->dmm_lisa_map_0);
+
+	writel(regs->dmm_lisa_map_3, &hw_lisa_map_regs->dmm_lisa_map_3);
+	writel(regs->dmm_lisa_map_2, &hw_lisa_map_regs->dmm_lisa_map_2);
+	writel(regs->dmm_lisa_map_1, &hw_lisa_map_regs->dmm_lisa_map_1);
+	writel(regs->dmm_lisa_map_0, &hw_lisa_map_regs->dmm_lisa_map_0);
+}
+
+static void config_vtp(int nr)
+{
+	writel(readl(&vtpreg[nr]->vtp0ctrlreg) | VTP_CTRL_ENABLE,
+			&vtpreg[nr]->vtp0ctrlreg);
+	writel(readl(&vtpreg[nr]->vtp0ctrlreg) & (~VTP_CTRL_START_EN),
+			&vtpreg[nr]->vtp0ctrlreg);
+	writel(readl(&vtpreg[nr]->vtp0ctrlreg) | VTP_CTRL_START_EN,
+			&vtpreg[nr]->vtp0ctrlreg);
 
 	/* Poll for READY */
-	while ((readl(&vtpreg->vtp0ctrlreg) & VTP_CTRL_READY) !=
+	while ((readl(&vtpreg[nr]->vtp0ctrlreg) & VTP_CTRL_READY) !=
 			VTP_CTRL_READY)
 		;
 }
 
 void config_ddr(unsigned int pll, unsigned int ioctrl,
 		const struct ddr_data *data, const struct cmd_control *ctrl,
-		const struct emif_regs *regs)
+		const struct emif_regs *regs, int nr)
 {
 	enable_emif_clocks();
 	ddr_pll_config(pll);
-	config_vtp();
-	config_cmd_ctrl(ctrl);
+	config_vtp(nr);
+	config_cmd_ctrl(ctrl, nr);
 
-	config_ddr_data(0, data);
-	config_ddr_data(1, data);
-
+	config_ddr_data(data, nr);
+#ifdef CONFIG_AM33XX
 	config_io_ctrl(ioctrl);
 
 	/* Set CKE to be controlled by EMIF/DDR PHY */
 	writel(DDR_CKE_CTRL_NORMAL, &ddrctrl->ddrckectrl);
+#endif
 
 	/* Program EMIF instance */
-	config_ddr_phy(regs);
-	set_sdram_timings(regs);
-	config_sdram(regs);
+	config_ddr_phy(regs, nr);
+	set_sdram_timings(regs, nr);
+	config_sdram(regs, nr);
 }
 #endif

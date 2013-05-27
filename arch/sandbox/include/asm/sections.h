@@ -9,6 +9,8 @@
 #ifndef __SANDBOX_SECTIONS_H
 #define __SANDBOX_SECTIONS_H
 
+#include <asm-generic/sections.h>
+
 struct sb_cmdline_option;
 
 extern struct sb_cmdline_option *__u_boot_sandbox_option_start[],

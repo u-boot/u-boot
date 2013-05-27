@@ -217,16 +217,15 @@ void __attribute__((unused)) dummy(void)
 #include <_exports.h>
 }
 
-extern unsigned long __bss_start, _end;
+#include <asm/sections.h>
 
 void app_startup(char * const *argv)
 {
-	unsigned char * cp = (unsigned char *) &__bss_start;
+	char *cp = __bss_start;
 
 	/* Zero out BSS */
-	while (cp < (unsigned char *)&_end) {
+	while (cp < _end)
 		*cp++ = 0;
-	}
 
 #if defined(CONFIG_X86)
 	/* x86 does not have a dedicated register for passing global_data */

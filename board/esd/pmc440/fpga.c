@@ -113,7 +113,7 @@ void fpga_serialslave_init(void)
 {
 	debug("%s:%d: Initialize serial slave interface\n", __FUNCTION__,
 	      __LINE__);
-	fpga_pgm_fn(FALSE, FALSE, 0);	/* make sure program pin is inactive */
+	fpga_pgm_fn(false, false, 0);	/* make sure program pin is inactive */
 }
 
 
@@ -188,7 +188,7 @@ int fpga_done_fn(int cookie)
 int fpga_pre_config_fn(int cookie)
 {
 	debug("%s:%d: FPGA pre-configuration\n", __FUNCTION__, __LINE__);
-	fpga_reset(TRUE);
+	fpga_reset(true);
 
 	/* release init# */
 	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | GPIO0_FPGA_FORCEINIT);
@@ -213,9 +213,9 @@ int fpga_post_config_fn(int cookie)
 	/* enable PLD0..7 pins */
 	out_be32((void*)GPIO1_OR, in_be32((void*)GPIO1_OR) & ~GPIO1_IOEN_N);
 
-	fpga_reset(TRUE);
+	fpga_reset(true);
 	udelay (100);
-	fpga_reset(FALSE);
+	fpga_reset(false);
 	udelay (100);
 
 	FPGA_OUT32(&fpga->status, (gd->board_type << STATUS_HWREV_SHIFT) & STATUS_HWREV_MASK);
@@ -296,7 +296,7 @@ void ngcc_fpga_serialslave_init(void)
 	      __FUNCTION__, __LINE__);
 
 	/* make sure program pin is inactive */
-	ngcc_fpga_pgm_fn (FALSE, FALSE, 0);
+	ngcc_fpga_pgm_fn(false, false, 0);
 }
 
 /*
@@ -382,10 +382,10 @@ int ngcc_fpga_pre_config_fn(int cookie)
 	pmc440_fpga_t *fpga = (pmc440_fpga_t *)FPGA_BA;
 	debug("%s:%d: FPGA pre-configuration\n", __FUNCTION__, __LINE__);
 
-	ngcc_fpga_reset(TRUE);
+	ngcc_fpga_reset(true);
 	FPGA_CLRBITS(&fpga->ctrla, 0xfffffe00);
 
-	ngcc_fpga_reset(TRUE);
+	ngcc_fpga_reset(true);
 	return 0;
 }
 
@@ -401,7 +401,7 @@ int ngcc_fpga_post_config_fn(int cookie)
 	debug("%s:%d: NGCC FPGA post configuration\n", __FUNCTION__, __LINE__);
 
 	udelay (100);
-	ngcc_fpga_reset(FALSE);
+	ngcc_fpga_reset(false);
 
 	FPGA_SETBITS(&fpga->ctrla, 0x29f8c000);
 

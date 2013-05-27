@@ -66,4 +66,57 @@
 			compatible = "maxim,max77686_pmic";
 		};
 	};
+
+	tmu@10060000 {
+		samsung,min-temp	= <25>;
+		samsung,max-temp	= <125>;
+		samsung,start-warning	= <95>;
+		samsung,start-tripping	= <105>;
+		samsung,hw-tripping	= <110>;
+		samsung,efuse-min-value	= <40>;
+		samsung,efuse-value	= <55>;
+		samsung,efuse-max-value	= <100>;
+		samsung,slope		= <274761730>;
+		samsung,dc-value	= <25>;
+	};
+
+	fimd@14400000 {
+		samsung,vl-freq = <60>;
+		samsung,vl-col = <2560>;
+		samsung,vl-row = <1600>;
+		samsung,vl-width = <2560>;
+		samsung,vl-height = <1600>;
+
+		samsung,vl-clkp;
+		samsung,vl-dp;
+		samsung,vl-bpix = <4>;
+
+		samsung,vl-hspw = <32>;
+		samsung,vl-hbpd = <80>;
+		samsung,vl-hfpd = <48>;
+		samsung,vl-vspw = <6>;
+		samsung,vl-vbpd = <37>;
+		samsung,vl-vfpd = <3>;
+		samsung,vl-cmd-allow-len = <0xf>;
+
+		samsung,winid = <3>;
+		samsung,interface-mode = <1>;
+		samsung,dp-enabled = <1>;
+		samsung,dual-lcd-enabled = <0>;
+	};
+
+	dp@145b0000 {
+		samsung,lt-status = <0>;
+
+		samsung,master-mode = <0>;
+		samsung,bist-mode = <0>;
+		samsung,bist-pattern = <0>;
+		samsung,h-sync-polarity = <0>;
+		samsung,v-sync-polarity = <0>;
+		samsung,interlaced = <0>;
+		samsung,color-space = <0>;
+		samsung,dynamic-range = <0>;
+		samsung,ycbcr-coeff = <0>;
+		samsung,color-depth = <1>;
+	};
 };

@@ -66,14 +66,20 @@ int get_clocks (void)
 
 	val = *(vu_long *)MPC5XXX_CDM_CFG;
 	if (val & (1 << 8)) {
-		gd->ipb_clk = gd->bus_clk / 2;
+		gd->arch.ipb_clk = gd->bus_clk / 2;
 	} else {
-		gd->ipb_clk = gd->bus_clk;
+		gd->arch.ipb_clk = gd->bus_clk;
 	}
 	switch (val & 3) {
-		case 0: gd->pci_clk = gd->ipb_clk; break;
-		case 1: gd->pci_clk = gd->ipb_clk / 2; break;
-		default: gd->pci_clk = gd->bus_clk / 4; break;
+	case 0:
+		gd->pci_clk = gd->arch.ipb_clk;
+		break;
+	case 1:
+		gd->pci_clk = gd->arch.ipb_clk / 2;
+		break;
+	default:
+		gd->pci_clk = gd->bus_clk / 4;
+		break;
 	}
 
 	return (0);
@@ -85,7 +91,7 @@ int prt_mpc5xxx_clks (void)
 
 	printf ("       Bus %s MHz, IPB %s MHz, PCI %s MHz\n",
 		strmhz(buf1, gd->bus_clk),
-		strmhz(buf2, gd->ipb_clk),
+		strmhz(buf2, gd->arch.ipb_clk),
 		strmhz(buf3, gd->pci_clk)
 	);
 	return (0);

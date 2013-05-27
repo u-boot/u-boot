@@ -94,11 +94,11 @@ uint Daq_BRG_Get_Div16(uint brg)
 
      if (*brg_ptr & CPM_BRG_DIV16) {
 	 /* DIV16 active */
-	 return (TRUE);
+	 return true;
      }
      else {
 	 /* DIV16 inactive */
-	 return (FALSE);
+	 return false;
      }
 }
 

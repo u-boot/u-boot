@@ -98,11 +98,11 @@ int board_mmc_init(bd_t *bis)
 {
 	switch (spl_boot_device()) {
 	case BOOT_DEVICE_MMC1:
-		omap_mmc_init(0, 0, 0);
+		omap_mmc_init(0, 0, 0, -1, -1);
 		break;
 	case BOOT_DEVICE_MMC2:
 	case BOOT_DEVICE_MMC2_2:
-		omap_mmc_init(1, 0, 0);
+		omap_mmc_init(1, 0, 0, -1, -1);
 		break;
 	}
 	return 0;
@@ -110,7 +110,7 @@ int board_mmc_init(bd_t *bis)
 
 void spl_board_init(void)
 {
-#ifdef CONFIG_SPL_NAND_SUPPORT
+#if defined(CONFIG_SPL_NAND_SUPPORT) || defined(CONFIG_SPL_ONENAND_SUPPORT)
 	gpmc_init();
 #endif
 #ifdef CONFIG_SPL_I2C_SUPPORT
@@ -328,14 +328,25 @@ void abort(void)
  *****************************************************************************/
 static int do_switch_ecc(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
-	if (argc != 2)
+	if (argc < 2 || argc > 3)
 		goto usage;
-	if (strncmp(argv[1], "hw", 2) == 0)
-		omap_nand_switch_ecc(1);
-	else if (strncmp(argv[1], "sw", 2) == 0)
-		omap_nand_switch_ecc(0);
-	else
+
+	if (strncmp(argv[1], "hw", 2) == 0) {
+		if (argc == 2) {
+			omap_nand_switch_ecc(1, 1);
+		} else {
+			if (strncmp(argv[2], "hamming", 7) == 0)
+				omap_nand_switch_ecc(1, 1);
+			else if (strncmp(argv[2], "bch8", 4) == 0)
+				omap_nand_switch_ecc(1, 8);
+			else
+				goto usage;
+		}
+	} else if (strncmp(argv[1], "sw", 2) == 0) {
+		omap_nand_switch_ecc(0, 0);
+	} else {
 		goto usage;
+	}
 
 	return 0;
 
@@ -345,9 +356,13 @@ usage:
 }
 
 U_BOOT_CMD(
-	nandecc, 2, 1,	do_switch_ecc,
+	nandecc, 3, 1,	do_switch_ecc,
 	"switch OMAP3 NAND ECC calculation algorithm",
-	"[hw/sw] - Switch between NAND hardware (hw) or software (sw) ecc algorithm"
+	"hw [hamming|bch8] - Switch between NAND hardware 1-bit hamming and"
+	" 8-bit BCH\n"
+	"                           ecc calculation (second parameter may"
+	" be omitted).\n"
+	"nandecc sw               - Switch to NAND software ecc algorithm."
 );
 
 #endif /* CONFIG_NAND_OMAP_GPMC & !CONFIG_SPL_BUILD */

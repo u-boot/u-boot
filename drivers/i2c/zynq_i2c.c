@@ -1,9 +1,11 @@
 /*
- * Driver for the Zynq-7000 PSS I2C controller
+ * Driver for the Zynq-7000 PS I2C controller
  * IP from Cadence (ID T-CS-PE-0007-100, Version R1p10f2)
  *
  * Author: Joe Hershberger <joe.hershberger@ni.com>
  * Copyright (c) 2012 Joe Hershberger.
+ *
+ * Copyright (c) 2012-2013 Xilinx, Michal Simek
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -28,6 +30,7 @@
 #include <asm/io.h>
 #include <i2c.h>
 #include <asm/errno.h>
+#include <asm/arch/hardware.h>
 
 /* i2c register set */
 struct zynq_i2c_registers {
@@ -45,51 +48,46 @@ struct zynq_i2c_registers {
 };
 
 /* Control register fields */
-#define	ZYNQ_I2C_CONTROL_RW		0x00000001
-#define	ZYNQ_I2C_CONTROL_MS		0x00000002
-#define	ZYNQ_I2C_CONTROL_NEA		0x00000004
-#define	ZYNQ_I2C_CONTROL_ACKEN		0x00000008
-#define	ZYNQ_I2C_CONTROL_HOLD		0x00000010
-#define	ZYNQ_I2C_CONTROL_SLVMON		0x00000020
-#define	ZYNQ_I2C_CONTROL_CLR_FIFO	0x00000040
-#define	ZYNQ_I2C_CONTROL_DIV_B_SHIFT	8
-#define	ZYNQ_I2C_CONTROL_DIV_B_MASK	0x00003F00
-#define	ZYNQ_I2C_CONTROL_DIV_A_SHIFT	14
-#define	ZYNQ_I2C_CONTROL_DIV_A_MASK	0x0000C000
+#define ZYNQ_I2C_CONTROL_RW		0x00000001
+#define ZYNQ_I2C_CONTROL_MS		0x00000002
+#define ZYNQ_I2C_CONTROL_NEA		0x00000004
+#define ZYNQ_I2C_CONTROL_ACKEN		0x00000008
+#define ZYNQ_I2C_CONTROL_HOLD		0x00000010
+#define ZYNQ_I2C_CONTROL_SLVMON		0x00000020
+#define ZYNQ_I2C_CONTROL_CLR_FIFO	0x00000040
+#define ZYNQ_I2C_CONTROL_DIV_B_SHIFT	8
+#define ZYNQ_I2C_CONTROL_DIV_B_MASK	0x00003F00
+#define ZYNQ_I2C_CONTROL_DIV_A_SHIFT	14
+#define ZYNQ_I2C_CONTROL_DIV_A_MASK	0x0000C000
 
 /* Status register values */
-#define	ZYNQ_I2C_STATUS_RXDV	0x00000020
-#define	ZYNQ_I2C_STATUS_TXDV	0x00000040
-#define	ZYNQ_I2C_STATUS_RXOVF	0x00000080
-#define	ZYNQ_I2C_STATUS_BA	0x00000100
+#define ZYNQ_I2C_STATUS_RXDV	0x00000020
+#define ZYNQ_I2C_STATUS_TXDV	0x00000040
+#define ZYNQ_I2C_STATUS_RXOVF	0x00000080
+#define ZYNQ_I2C_STATUS_BA	0x00000100
 
 /* Interrupt register fields */
-#define	ZYNQ_I2C_INTERRUPT_COMP		0x00000001
-#define	ZYNQ_I2C_INTERRUPT_DATA		0x00000002
-#define	ZYNQ_I2C_INTERRUPT_NACK		0x00000004
-#define	ZYNQ_I2C_INTERRUPT_TO		0x00000008
-#define	ZYNQ_I2C_INTERRUPT_SLVRDY	0x00000010
-#define	ZYNQ_I2C_INTERRUPT_RXOVF	0x00000020
-#define	ZYNQ_I2C_INTERRUPT_TXOVF	0x00000040
-#define	ZYNQ_I2C_INTERRUPT_RXUNF	0x00000080
-#define	ZYNQ_I2C_INTERRUPT_ARBLOST	0x00000200
-
-#if defined(CONFIG_ZYNQ_I2C_CTLR_0)
-#define ZYNQ_I2C_BASE 0xE0004000
-#if defined(CONFIG_ZYNQ_I2C_CTLR_1)
-#warning Only CONFIG_ZYNQ_I2C_CTLR_0 will be accessible
-#endif
-#elif defined(CONFIG_ZYNQ_I2C_CTLR_1)
-#define ZYNQ_I2C_BASE 0xE0005000
-#else
-#error You must select CONFIG_ZYNQ_I2C_CTLR_0 or CONFIG_ZYNQ_I2C_CTLR_1
-#endif
+#define ZYNQ_I2C_INTERRUPT_COMP		0x00000001
+#define ZYNQ_I2C_INTERRUPT_DATA		0x00000002
+#define ZYNQ_I2C_INTERRUPT_NACK		0x00000004
+#define ZYNQ_I2C_INTERRUPT_TO		0x00000008
+#define ZYNQ_I2C_INTERRUPT_SLVRDY	0x00000010
+#define ZYNQ_I2C_INTERRUPT_RXOVF	0x00000020
+#define ZYNQ_I2C_INTERRUPT_TXOVF	0x00000040
+#define ZYNQ_I2C_INTERRUPT_RXUNF	0x00000080
+#define ZYNQ_I2C_INTERRUPT_ARBLOST	0x00000200
 
 #define ZYNQ_I2C_FIFO_DEPTH		16
 #define ZYNQ_I2C_TRANSFERT_SIZE_MAX	255 /* Controller transfer limit */
 
+#if defined(CONFIG_ZYNQ_I2C0)
+# define ZYNQ_I2C_BASE	ZYNQ_I2C_BASEADDR0
+#else
+# define ZYNQ_I2C_BASE	ZYNQ_I2C_BASEADDR1
+#endif
+
 static struct zynq_i2c_registers *zynq_i2c =
-	(struct zynq_i2c_registers *) ZYNQ_I2C_BASE;
+	(struct zynq_i2c_registers *)ZYNQ_I2C_BASE;
 
 /* I2C init called by cmd_i2c when doing 'i2c reset'. */
 void i2c_init(int requested_speed, int slaveadd)
@@ -109,6 +107,7 @@ static void zynq_i2c_debug_status(void)
 	int int_status;
 	int status;
 	int_status = readl(&zynq_i2c->interrupt_status);
+
 	status = readl(&zynq_i2c->status);
 	if (int_status || status) {
 		debug("Status: ");
@@ -148,6 +147,7 @@ static void zynq_i2c_debug_status(void)
 static u32 zynq_i2c_wait(u32 mask)
 {
 	int timeout, int_status;
+
 	for (timeout = 0; timeout < 100; timeout++) {
 		udelay(100);
 		int_status = readl(&zynq_i2c->interrupt_status);
@@ -159,6 +159,7 @@ static u32 zynq_i2c_wait(u32 mask)
 #endif
 	/* Clear interrupt status flags */
 	writel(int_status & mask, &zynq_i2c->interrupt_status);
+
 	return int_status & mask;
 }
 
@@ -191,15 +192,17 @@ int i2c_read(u8 dev, uint addr, int alen, u8 *data, int length)
 	u32 i = 0;
 	u8 *cur_data = data;
 
-	/* check the hardware can handle the requested bytes */
+	/* Check the hardware can handle the requested bytes */
 	if ((length < 0) || (length > ZYNQ_I2C_TRANSFERT_SIZE_MAX))
 		return -EINVAL;
 
 	/* Write the register address */
 	setbits_le32(&zynq_i2c->control, ZYNQ_I2C_CONTROL_CLR_FIFO |
 		ZYNQ_I2C_CONTROL_HOLD);
-	/* Temporarily disable restart (by clearing hold)... */
-	/* It doesn't seem to work. */
+	/*
+	 * Temporarily disable restart (by clearing hold)
+	 * It doesn't seem to work.
+	 */
 	clrbits_le32(&zynq_i2c->control, ZYNQ_I2C_CONTROL_RW |
 		ZYNQ_I2C_CONTROL_HOLD);
 	writel(0xFF, &zynq_i2c->interrupt_status);
@@ -207,7 +210,7 @@ int i2c_read(u8 dev, uint addr, int alen, u8 *data, int length)
 		writel(addr >> (8*alen), &zynq_i2c->data);
 	writel(dev, &zynq_i2c->address);
 
-	/* wait for the address to be sent */
+	/* Wait for the address to be sent */
 	if (!zynq_i2c_wait(ZYNQ_I2C_INTERRUPT_COMP)) {
 		/* Release the bus */
 		clrbits_le32(&zynq_i2c->control, ZYNQ_I2C_CONTROL_HOLD);
@@ -221,7 +224,7 @@ int i2c_read(u8 dev, uint addr, int alen, u8 *data, int length)
 	writel(dev, &zynq_i2c->address);
 	writel(length, &zynq_i2c->transfer_size);
 
-	/* wait for data */
+	/* Wait for data */
 	do {
 		status = zynq_i2c_wait(ZYNQ_I2C_INTERRUPT_COMP |
 			ZYNQ_I2C_INTERRUPT_DATA);
@@ -231,7 +234,7 @@ int i2c_read(u8 dev, uint addr, int alen, u8 *data, int length)
 			return -ETIMEDOUT;
 		}
 		debug("Read %d bytes\n",
-			length - readl(&zynq_i2c->transfer_size));
+		      length - readl(&zynq_i2c->transfer_size));
 		for (; i < length - readl(&zynq_i2c->transfer_size); i++)
 			*(cur_data++) = readl(&zynq_i2c->data);
 	} while (readl(&zynq_i2c->transfer_size) != 0);
@@ -274,7 +277,7 @@ int i2c_write(u8 dev, uint addr, int alen, u8 *data, int length)
 			if (!zynq_i2c_wait(ZYNQ_I2C_INTERRUPT_COMP)) {
 				/* Release the bus */
 				clrbits_le32(&zynq_i2c->control,
-						ZYNQ_I2C_CONTROL_HOLD);
+					     ZYNQ_I2C_CONTROL_HOLD);
 				return -ETIMEDOUT;
 			}
 		}
@@ -282,7 +285,7 @@ int i2c_write(u8 dev, uint addr, int alen, u8 *data, int length)
 
 	/* All done... release the bus */
 	clrbits_le32(&zynq_i2c->control, ZYNQ_I2C_CONTROL_HOLD);
-	/* wait for the address and data to be sent */
+	/* Wait for the address and data to be sent */
 	if (!zynq_i2c_wait(ZYNQ_I2C_INTERRUPT_COMP))
 		return -ETIMEDOUT;
 	return 0;

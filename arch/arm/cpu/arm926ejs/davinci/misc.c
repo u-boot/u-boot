@@ -104,7 +104,7 @@ void davinci_sync_env_enetaddr(uint8_t *rom_enetaddr)
 	int ret;
 
 	ret = eth_getenv_enetaddr_by_index("eth", 0, env_enetaddr);
-	if (ret) {
+	if (!ret) {
 		/*
 		 * There is no MAC address in the environment, so we
 		 * initialize it from the value in the EEPROM.
@@ -115,7 +115,7 @@ void davinci_sync_env_enetaddr(uint8_t *rom_enetaddr)
 		ret = !eth_setenv_enetaddr("ethaddr", rom_enetaddr);
 	}
 	if (!ret)
-		printf("Failed to set mac address from EEPROM\n");
+		printf("Failed to set mac address from EEPROM: %d\n", ret);
 }
 #endif	/* CONFIG_DRIVER_TI_EMAC */
 

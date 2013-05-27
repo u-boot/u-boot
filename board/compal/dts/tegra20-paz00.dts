@@ -1,30 +1,30 @@
 /dts-v1/;
 
-/include/ ARCH_CPU_DTS
+#include "tegra20.dtsi"
 
 / {
-        model = "Toshiba AC100 / Dynabook AZ";
-        compatible = "compal,paz00", "nvidia,tegra20";
+	model = "Toshiba AC100 / Dynabook AZ";
+	compatible = "compal,paz00", "nvidia,tegra20";
 
 	aliases {
 		usb0 = "/usb@c5008000";
+		sdhci0 = "/sdhci@c8000600";
+		sdhci1 = "/sdhci@c8000000";
 	};
 
 	memory {
 		reg = <0x00000000 0x20000000>;
 	};
 
-	clocks {
-		clk_32k: clk_32k {
-			clock-frequency = <32000>;
+	host1x {
+		status = "okay";
+		dc@54200000 {
+			status = "okay";
+			rgb {
+				status = "okay";
+				nvidia,panel = <&lcd_panel>;
+			};
 		};
-		osc {
-			clock-frequency = <12000000>;
-		};
-	};
-
-	clock@60006000 {
-		clocks = <&clk_32k &osc>;
 	};
 
 	serial@70006000 {
@@ -53,5 +53,39 @@
 
 	usb@c5004000 {
 		status = "disabled";
+	};
+
+	sdhci@c8000000 {
+		status = "okay";
+		cd-gpios = <&gpio 173 1>; /* gpio PV5 */
+		wp-gpios = <&gpio 57 0>; /* gpio PH1 */
+		power-gpios = <&gpio 169 0>; /* gpio PV1 */
+		bus-width = <4>;
+	};
+
+	sdhci@c8000600 {
+		status = "okay";
+		bus-width = <8>;
+	};
+
+	lcd_panel: panel {
+		/* PAZ00 has 1024x600 */
+		clock = <54030000>;
+		xres = <1024>;
+		yres = <600>;
+		right-margin = <160>;
+		left-margin = <24>;
+		hsync-len = <136>;
+		upper-margin = <3>;
+		lower-margin = <61>;
+		vsync-len = <6>;
+		hsync-active-high;
+		nvidia,bits-per-pixel = <16>;
+		nvidia,pwm = <&pwm 0 0>;
+		nvidia,backlight-enable-gpios = <&gpio 164 0>;	/* PU4 */
+		nvidia,lvds-shutdown-gpios = <&gpio 102 0>;	/* PM6 */
+		nvidia,backlight-vdd-gpios = <&gpio 176 0>;	/* PW0 */
+		nvidia,panel-vdd-gpios = <&gpio 4 0>;		/* PA4 */
+		nvidia,panel-timings = <400 4 203 17 15>;
 	};
 };

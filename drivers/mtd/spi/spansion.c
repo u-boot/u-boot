@@ -31,12 +31,6 @@
 
 #include "spi_flash_internal.h"
 
-/* S25FLxx-specific commands */
-#define CMD_S25FLXX_SE		0xd8	/* Sector Erase */
-#define CMD_S25FLXX_BE		0xc7	/* Bulk Erase */
-#define CMD_S25FLXX_DP		0xb9	/* Deep Power-down */
-#define CMD_S25FLXX_RES		0xab	/* Release from DP, and Read Signature */
-
 struct spansion_spi_flash_params {
 	u16 idcode1;
 	u16 idcode2;
@@ -107,7 +101,14 @@ static const struct spansion_spi_flash_params spansion_spi_flash_table[] = {
 		.idcode2 = 0x4d01,
 		.pages_per_sector = 256,
 		.nr_sectors = 512,
-		.name = "S25FL256S",
+		.name = "S25FL256S_64K",
+	},
+	{
+		.idcode1 = 0x0220,
+		.idcode2 = 0x4d00,
+		.pages_per_sector = 256,
+		.nr_sectors = 1024,
+		.name = "S25FL512S_256K",
 	},
 };
 
@@ -134,18 +135,12 @@ struct spi_flash *spi_flash_probe_spansion(struct spi_slave *spi, u8 *idcode)
 		return NULL;
 	}
 
-	flash = malloc(sizeof(*flash));
+	flash = spi_flash_alloc_base(spi, params->name);
 	if (!flash) {
 		debug("SF: Failed to allocate memory\n");
 		return NULL;
 	}
 
-	flash->spi = spi;
-	flash->name = params->name;
-
-	flash->write = spi_flash_cmd_write_multi;
-	flash->erase = spi_flash_cmd_erase;
-	flash->read = spi_flash_cmd_read_fast;
 	flash->page_size = 256;
 	flash->sector_size = 256 * params->pages_per_sector;
 

@@ -62,7 +62,7 @@ the following command:
 
 All this can be integrated into an environment command:
 => setenv upd_fdt 'tftp 1800000 a3m071/a3m071.dtb;run mtdargs addip2 addtty; \
-	fdt addr 1800000;fdt boardsetup;erase fc060000 fc07ffff; \
+	fdt addr 1800000;fdt boardsetup;fdt chosen;erase fc060000 fc07ffff; \
 	cp.b 1800000 fc060000 10000'
 => saveenv
 

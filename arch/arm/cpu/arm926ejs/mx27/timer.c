@@ -45,8 +45,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define timestamp	(gd->tbl)
-#define lastinc		(gd->lastinc)
+#define timestamp	(gd->arch.tbl)
+#define lastinc		(gd->arch.lastinc)
 
 /*
  * "time" is measured in 1 / CONFIG_SYS_HZ seconds,

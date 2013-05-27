@@ -192,7 +192,7 @@ void board_init_f(ulong bootflag)
 
 	memset((void *)gd, 0, GENERATED_GBL_DATA_SIZE);
 
-	gd->mon_len = (unsigned int)(&__bss_end__) - (unsigned int)(&_start);
+	gd->mon_len = (unsigned int)(&__bss_end) - (unsigned int)(&_start);
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
 		if ((*init_fnc_ptr)() != 0)
@@ -206,17 +206,6 @@ void board_init_f(ulong bootflag)
 	debug("ramsize: %08lX\n", gd->ram_size);
 
 	addr = CONFIG_SYS_SDRAM_BASE + gd->ram_size;
-
-#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
-	/* reserve TLB table */
-	addr -= (4096 * 4);
-
-	/* round down to next 64 kB limit */
-	addr &= ~(0x10000 - 1);
-
-	gd->tlb_addr = addr;
-	debug("TLB table at: %08lx\n", addr);
-#endif
 
 	/* round down to next 4 kB limit */
 	addr &= ~(4096 - 1);
@@ -331,7 +320,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	/* The Malloc area is immediately below the monitor copy in DRAM */
 	malloc_start = dest_addr - TOTAL_MALLOC_LEN;
 	mem_malloc_init(malloc_start, TOTAL_MALLOC_LEN);
-	malloc_bin_reloc();
 
 #ifndef CONFIG_SYS_NO_FLASH
 	/* configure available FLASH banks */

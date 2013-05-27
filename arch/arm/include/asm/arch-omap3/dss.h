@@ -167,6 +167,36 @@ struct venc_regs {
 #define VENC_OUT_SEL				(1 << 6)
 #define DIG_LPP_SHIFT				16
 
+/* LCD display type */
+#define PASSIVE_DISPLAY			0
+#define ACTIVE_DISPLAY			1
+
+/* TFTDATALINES */
+#define LCD_INTERFACE_12_BIT	0
+#define LCD_INTERFACE_16_BIT	1
+#define LCD_INTERFACE_18_BIT	2
+#define LCD_INTERFACE_24_BIT	3
+
+/* Polarity */
+#define DSS_IVS	(1 << 12)
+#define DSS_IHS	(1 << 13)
+#define DSS_IPC	(1 << 14)
+#define DSS_IEO	(1 << 15)
+
+/* GFX format */
+#define GFXFORMAT_BITMAP1		(0x0 << 1)
+#define GFXFORMAT_BITMAP2		(0x1 << 1)
+#define GFXFORMAT_BITMAP4		(0x2 << 1)
+#define GFXFORMAT_BITMAP8		(0x3 << 1)
+#define GFXFORMAT_RGB12			(0x4 << 1)
+#define GFXFORMAT_ARGB16		(0x5 << 1)
+#define GFXFORMAT_RGB16			(0x6 << 1)
+#define GFXFORMAT_RGB24_UNPACKED	(0x8 << 1)
+#define GFXFORMAT_RGB24_PACKED		(0x9 << 1)
+#define GFXFORMAT_ARGB32		(0xC << 1)
+#define GFXFORMAT_RGBA32		(0xD << 1)
+#define GFXFORMAT_RGBx32		(0xE << 1)
+
 /* Panel Configuration */
 struct panel_config {
 	u32 timing_h;
@@ -178,6 +208,7 @@ struct panel_config {
 	u32 data_lines;
 	u32 load_mode;
 	u32 panel_color;
+	u32 gfx_format;
 	void *frame_buffer;
 };
 

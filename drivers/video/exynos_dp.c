@@ -27,10 +27,20 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/dp_info.h>
 #include <asm/arch/dp.h>
+#include <fdtdec.h>
+#include <libfdt.h>
 
 #include "exynos_dp_lowlevel.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 static struct exynos_dp_platform_data *dp_pd;
+
+void __exynos_set_dp_phy(unsigned int onoff)
+{
+}
+void exynos_set_dp_phy(unsigned int onoff)
+	__attribute__((weak, alias("__exynos_set_dp_phy")));
 
 static void exynos_dp_disp_info(struct edp_disp_info *disp_info)
 {
@@ -853,6 +863,62 @@ static unsigned int exynos_dp_config_video(struct edp_device_info *edp_info)
 	return ret;
 }
 
+#ifdef CONFIG_OF_CONTROL
+int exynos_dp_parse_dt(const void *blob, struct edp_device_info *edp_info)
+{
+	unsigned int node = fdtdec_next_compatible(blob, 0,
+						COMPAT_SAMSUNG_EXYNOS5_DP);
+	if (node <= 0) {
+		debug("exynos_dp: Can't get device node for dp\n");
+		return -ENODEV;
+	}
+
+	edp_info->disp_info.h_res = fdtdec_get_int(blob, node,
+							"samsung,h-res", 0);
+	edp_info->disp_info.h_sync_width = fdtdec_get_int(blob, node,
+						"samsung,h-sync-width", 0);
+	edp_info->disp_info.h_back_porch = fdtdec_get_int(blob, node,
+						"samsung,h-back-porch", 0);
+	edp_info->disp_info.h_front_porch = fdtdec_get_int(blob, node,
+						"samsung,h-front-porch", 0);
+	edp_info->disp_info.v_res = fdtdec_get_int(blob, node,
+						"samsung,v-res", 0);
+	edp_info->disp_info.v_sync_width = fdtdec_get_int(blob, node,
+						"samsung,v-sync-width", 0);
+	edp_info->disp_info.v_back_porch = fdtdec_get_int(blob, node,
+						"samsung,v-back-porch", 0);
+	edp_info->disp_info.v_front_porch = fdtdec_get_int(blob, node,
+						"samsung,v-front-porch", 0);
+	edp_info->disp_info.v_sync_rate = fdtdec_get_int(blob, node,
+						"samsung,v-sync-rate", 0);
+
+	edp_info->lt_info.lt_status = fdtdec_get_int(blob, node,
+						"samsung,lt-status", 0);
+
+	edp_info->video_info.master_mode = fdtdec_get_int(blob, node,
+						"samsung,master-mode", 0);
+	edp_info->video_info.bist_mode = fdtdec_get_int(blob, node,
+						"samsung,bist-mode", 0);
+	edp_info->video_info.bist_pattern = fdtdec_get_int(blob, node,
+						"samsung,bist-pattern", 0);
+	edp_info->video_info.h_sync_polarity = fdtdec_get_int(blob, node,
+						"samsung,h-sync-polarity", 0);
+	edp_info->video_info.v_sync_polarity = fdtdec_get_int(blob, node,
+						"samsung,v-sync-polarity", 0);
+	edp_info->video_info.interlaced = fdtdec_get_int(blob, node,
+						"samsung,interlaced", 0);
+	edp_info->video_info.color_space = fdtdec_get_int(blob, node,
+						"samsung,color-space", 0);
+	edp_info->video_info.dynamic_range = fdtdec_get_int(blob, node,
+						"samsung,dynamic-range", 0);
+	edp_info->video_info.ycbcr_coeff = fdtdec_get_int(blob, node,
+						"samsung,ycbcr-coeff", 0);
+	edp_info->video_info.color_depth = fdtdec_get_int(blob, node,
+						"samsung,color-depth", 0);
+	return 0;
+}
+#endif
+
 unsigned int exynos_init_dp(void)
 {
 	unsigned int ret;
@@ -864,16 +930,22 @@ unsigned int exynos_init_dp(void)
 		return -EFAULT;
 	}
 
+#ifdef CONFIG_OF_CONTROL
+	if (exynos_dp_parse_dt(gd->fdt_blob, edp_info))
+		debug("unable to parse DP DT node\n");
+#else
 	edp_info = dp_pd->edp_dev_info;
 	if (edp_info == NULL) {
 		debug("failed to get edp_info data.\n");
 		return -EFAULT;
 	}
+#endif
+
+	exynos_dp_set_base_addr();
 
 	exynos_dp_disp_info(&edp_info->disp_info);
 
-	if (dp_pd->phy_enable)
-		dp_pd->phy_enable(1);
+	exynos_set_dp_phy(1);
 
 	ret = exynos_dp_init_dp();
 	if (ret != EXYNOS_DP_SUCCESS) {

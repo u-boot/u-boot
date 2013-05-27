@@ -34,6 +34,10 @@ void setup_clocks_for_console(void);
 void ddr_pll_config(unsigned int ddrpll_M);
 
 void sdelay(unsigned long);
+
+struct gpmc_cs;
 void gpmc_init(void);
-void omap_nand_switch_ecc(int);
+void enable_gpmc_cs_config(const u32 *gpmc_config, struct gpmc_cs *cs, u32 base,
+			u32 size);
+void omap_nand_switch_ecc(uint32_t, uint32_t);
 #endif

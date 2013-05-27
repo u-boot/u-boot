@@ -31,7 +31,7 @@ DECLARE_GLOBAL_DATA_PTR;
 /*
  * Look up a callback function pointer by name
  */
-struct env_clbk_tbl *find_env_callback(const char *name)
+static struct env_clbk_tbl *find_env_callback(const char *name)
 {
 	struct env_clbk_tbl *clbkp;
 	int i;

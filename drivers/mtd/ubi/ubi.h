@@ -59,7 +59,11 @@
 #define UBI_NAME_STR "ubi"
 
 /* Normal UBI messages */
+#ifdef CONFIG_UBI_SILENCE_MSG
+#define ubi_msg(fmt, ...)
+#else
 #define ubi_msg(fmt, ...) printk(KERN_NOTICE "UBI: " fmt "\n", ##__VA_ARGS__)
+#endif
 /* UBI warning messages */
 #define ubi_warn(fmt, ...) printk(KERN_WARNING "UBI warning: %s: " fmt "\n", \
 				  __func__, ##__VA_ARGS__)

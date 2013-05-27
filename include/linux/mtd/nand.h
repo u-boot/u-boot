@@ -180,7 +180,7 @@ typedef enum {
  */
 #define BBT_AUTO_REFRESH	0x00000080
 /*
- * Chip does not require ready check on read. True
+ * Chip does not require ready check on read. true
  * for all large page devices, as they do not support
  * autoincrement.
  */

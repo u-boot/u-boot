@@ -203,7 +203,7 @@ void ixEthDBNPESyncScan(IxEthDBPortId portID, void *eltBaseAddress, UINT32 eltSi
         /* debug */
         IX_ETH_DB_NPE_VERBOSE_TRACE("DB: (NPEAdaptor) checking node at offset %d...\n", eltEntryOffset / ELT_ENTRY_SIZE);
 
-        if (IX_EDB_NPE_NODE_VALID(eltNodeAddress) != TRUE)
+        if (IX_EDB_NPE_NODE_VALID(eltNodeAddress) != true)
         {
             IX_ETH_DB_NPE_VERBOSE_TRACE("\t... node is empty\n");
         }

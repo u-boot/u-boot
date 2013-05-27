@@ -27,6 +27,7 @@ LIB	= $(obj)libdfu.o
 
 COBJS-$(CONFIG_DFU_FUNCTION) += dfu.o
 COBJS-$(CONFIG_DFU_MMC) += dfu_mmc.o
+COBJS-$(CONFIG_DFU_NAND) += dfu_nand.o
 
 SRCS    := $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS-y))

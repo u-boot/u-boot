@@ -120,7 +120,7 @@ u32 spl_boot(void)
 	/*
 	 * All the supported booting devices are listed here. Each of
 	 * the booting type supported by the platform would define the
-	 * macro xxx_BOOT_SUPPORTED to TRUE.
+	 * macro xxx_BOOT_SUPPORTED to true.
 	 */
 
 	if (SNOR_BOOT_SUPPORTED && snor_boot_selected()) {

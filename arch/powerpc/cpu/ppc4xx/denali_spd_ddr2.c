@@ -53,13 +53,6 @@
 /*-----------------------------------------------------------------------------+
  * Defines
  *-----------------------------------------------------------------------------*/
-#ifndef	TRUE
-#define TRUE		1
-#endif
-#ifndef FALSE
-#define FALSE		0
-#endif
-
 #define MAXDIMMS	2
 #define MAXRANKS	2
 
@@ -279,7 +272,7 @@ static void get_spd_info(unsigned long dimm_ranks[],
 			 unsigned long num_dimm_banks)
 {
 	unsigned long dimm_num;
-	unsigned long dimm_found = FALSE;
+	unsigned long dimm_found = false;
 	unsigned long const max_ranks_per_dimm = (1 == num_dimm_banks) ? 2 : 1;
 	unsigned char num_of_bytes;
 	unsigned char total_size;
@@ -334,7 +327,7 @@ static void get_spd_info(unsigned long dimm_ranks[],
 				       "\n\n");
 				spd_ddr_init_hang();
 			}
-			dimm_found = TRUE;
+			dimm_found = true;
 			debug("DIMM slot %lu: populated with %lu-rank DDR2 DIMM"
 			      "\n", dimm_num, ranks_on_dimm);
 			if (ranks_on_dimm > max_ranks_per_dimm) {
@@ -355,7 +348,7 @@ static void get_spd_info(unsigned long dimm_ranks[],
 			debug("DIMM slot %lu: Not populated\n", dimm_num);
 		}
 	}
-	if (dimm_found == FALSE) {
+	if (dimm_found == false) {
 		printf("ERROR: No memory installed.\n");
 		printf("Install at least one DDR2 DIMM.\n\n");
 		spd_ddr_init_hang();
@@ -882,7 +875,7 @@ static void program_ddr0_22(unsigned long dimm_ranks[],
 			/* Check for ECC */
 			if (0 == (spd_read(iic0_dimm_addr[dimm_num], 11) &
 				  0x02)) {
-				ecc_available = FALSE;
+				ecc_available = false;
 			}
 		}
 	}

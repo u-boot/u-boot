@@ -31,10 +31,7 @@
 #include <libfdt.h>
 #endif
 
-#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
 #include <i2c.h>
-#endif
-
 #include "../common/common.h"
 
 /*
@@ -370,7 +367,7 @@ static void set_pin(int state, unsigned long mask);
  * will toggle once what forces the mgocge3un part to restart
  * immediately.
  */
-void handle_mgcoge3un_reset(void)
+static void handle_mgcoge3un_reset(void)
 {
 	char *bobcatreset = getenv("bobcatreset");
 	if (bobcatreset) {
@@ -384,6 +381,14 @@ void handle_mgcoge3un_reset(void)
 	}
 }
 #endif
+
+int ethernet_present(void)
+{
+	struct km_bec_fpga *base =
+		(struct km_bec_fpga *)CONFIG_SYS_KMBEC_FPGA_BASE;
+
+	return in_8(&base->bprth) & PIGGY_PRESENT;
+}
 
 /*
  * Early board initalization.

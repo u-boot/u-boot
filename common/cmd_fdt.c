@@ -29,7 +29,6 @@
 #include <linux/ctype.h>
 #include <linux/types.h>
 #include <asm/global_data.h>
-#include <fdt.h>
 #include <libfdt.h>
 #include <fdt_support.h>
 
@@ -56,12 +55,8 @@ struct fdt_header *working_fdt;
 
 void set_working_fdt_addr(void *addr)
 {
-	char buf[17];
-
 	working_fdt = addr;
-
-	sprintf(buf, "%lx", (unsigned long)addr);
-	setenv("fdtaddr", buf);
+	setenv_addr("fdtaddr", addr);
 }
 
 /*
@@ -348,10 +343,7 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			}
 			if (subcmd[0] == 's') {
 				/* get the num nodes at this level */
-				char buf[11];
-
-				sprintf(buf, "%d", curIndex + 1);
-				setenv(var, buf);
+				setenv_ulong(var, curIndex + 1);
 			} else {
 				/* node index not found */
 				printf("libfdt node not found\n");

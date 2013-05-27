@@ -82,7 +82,7 @@ extern PUBLIC IxOsalMutex ixEthAccControlInterfaceMutex;
  * @ingroup IxEthAccPri
  *
  */
-BOOL ixEthAccServiceInit = FALSE;
+BOOL ixEthAccServiceInit = false;
 
 /* global filtering bit mask */
 PUBLIC UINT32 ixEthAccNewSrcMask;
@@ -168,7 +168,7 @@ PUBLIC IxEthAccStatus ixEthAccInit()
    }
 
    /* initialiasation is complete */
-   ixEthAccServiceInit = TRUE;
+   ixEthAccServiceInit = true;
 
    return IX_ETH_ACC_SUCCESS;
 
@@ -200,11 +200,11 @@ PUBLIC void ixEthAccUnload(void)
        /* set all ports as uninitialized */
        for (portId = 0; portId < IX_ETH_ACC_NUMBER_OF_PORTS; portId++)
        {
-	       ixEthAccPortData[portId].portInitialized = FALSE;
+	       ixEthAccPortData[portId].portInitialized = false;
        }
 
        /* uninitialize the service */
-       ixEthAccServiceInit = FALSE;
+       ixEthAccServiceInit = false;
    }
 }
 
@@ -248,7 +248,7 @@ PUBLIC IxEthAccStatus ixEthAccPortInit( IxEthAccPortId portId)
      * Set the port init flag.
      */
 
-    ixEthAccPortData[portId].portInitialized = TRUE;
+    ixEthAccPortData[portId].portInitialized = true;
 
 #ifdef CONFIG_IXP425_COMPONENT_ETHDB
     /* init learning/filtering database structures for this port */

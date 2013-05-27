@@ -169,7 +169,7 @@ void ixEthDBFeatureCapabilityScan(void)
                 /* enable port, VLAN and Firewall feature bits to initialize QoS/VLAN/Firewall configuration */
                 portInfo->featureStatus |= IX_ETH_DB_VLAN_QOS;
                 portInfo->featureStatus |= IX_ETH_DB_FIREWALL;
-                portInfo->enabled        = TRUE;
+                portInfo->enabled        = true;
 
 #define CONFIG_WITH_VLAN  /* test-only: VLAN support not included to save space!!! */
 #ifdef CONFIG_WITH_VLAN /* test-only: VLAN support not included to save space!!! */
@@ -195,7 +195,7 @@ void ixEthDBFeatureCapabilityScan(void)
                     ixEthDBPortVlanMembershipRangeRemove(portIndex, 0, IX_ETH_DB_802_1Q_MAX_VLAN_ID);
 
                     /* clear TTI table - no VLAN tagged frames will be transmitted */
-                    ixEthDBEgressVlanRangeTaggingEnabledSet(portIndex, 0, 4094, FALSE);
+                    ixEthDBEgressVlanRangeTaggingEnabledSet(portIndex, 0, 4094, false);
 
                     /* set membership on 0, otherwise no Tx or Rx is working */
                     ixEthDBPortVlanMembershipAdd(portIndex, 0);
@@ -221,12 +221,12 @@ void ixEthDBFeatureCapabilityScan(void)
 #endif
 
                 /* by default we turn off invalid source MAC address filtering */
-                ixEthDBFirewallInvalidAddressFilterEnable(portIndex, FALSE);
+                ixEthDBFirewallInvalidAddressFilterEnable(portIndex, false);
 
                 /* disable port, VLAN, Firewall feature bits */
                 portInfo->featureStatus &= ~IX_ETH_DB_VLAN_QOS;
                 portInfo->featureStatus &= ~IX_ETH_DB_FIREWALL;
-                portInfo->enabled        = FALSE;
+                portInfo->enabled        = false;
 
                 /* enable filtering by default if present */
                 if ((portInfo->featureCapability & IX_ETH_DB_FILTERING) != 0)
@@ -271,7 +271,7 @@ IxEthDBStatus ixEthDBFeatureCapabilityGet(IxEthDBPortId portID, IxEthDBFeature *
  *
  * @param portID ID of the port
  * @param feature feature to enable or disable
- * @param enabled TRUE to enable the selected feature or FALSE to disable it
+ * @param enabled true to enable the selected feature or false to disable it
  *
  * Note that this function is documented in the main component
  * header file, IxEthDB.h.
@@ -333,7 +333,7 @@ IxEthDBStatus ixEthDBFeatureEnable(IxEthDBPortId portID, IxEthDBFeature feature,
     }
 
     /* force port enabled */
-    portInfo->enabled = TRUE;
+    portInfo->enabled = true;
 
     if (enable)
     {
@@ -399,7 +399,7 @@ IxEthDBStatus ixEthDBFeatureEnable(IxEthDBPortId portID, IxEthDBFeature feature,
             /* enable TPID port extraction */
             if (status == IX_ETH_DB_SUCCESS)
             {
-                status = ixEthDBVlanPortExtractionEnable(portID, TRUE);
+                status = ixEthDBVlanPortExtractionEnable(portID, true);
             }
         }
         else if (feature == IX_ETH_DB_FIREWALL)
@@ -414,7 +414,7 @@ IxEthDBStatus ixEthDBFeatureEnable(IxEthDBPortId portID, IxEthDBFeature feature,
 
                 if (status == IX_ETH_DB_SUCCESS)
                 {
-                    status = ixEthDBFirewallInvalidAddressFilterEnable(portID, FALSE);
+                    status = ixEthDBFirewallInvalidAddressFilterEnable(portID, false);
                 }
             }
         }
@@ -445,7 +445,7 @@ IxEthDBStatus ixEthDBFeatureEnable(IxEthDBPortId portID, IxEthDBFeature feature,
 
             if (status == IX_ETH_DB_SUCCESS)
             {
-                status = ixEthDBFirewallInvalidAddressFilterEnable(portID, FALSE);
+                status = ixEthDBFirewallInvalidAddressFilterEnable(portID, false);
             }
 
             if (status == IX_ETH_DB_SUCCESS)
@@ -515,7 +515,7 @@ IxEthDBStatus ixEthDBFeatureEnable(IxEthDBPortId portID, IxEthDBFeature feature,
             /* disable TPID port extraction */
             if (status == IX_ETH_DB_SUCCESS)
             {
-                status = ixEthDBVlanPortExtractionEnable(portID, FALSE);
+                status = ixEthDBVlanPortExtractionEnable(portID, false);
             }
         }
 #endif
@@ -538,9 +538,9 @@ IxEthDBStatus ixEthDBFeatureEnable(IxEthDBPortId portID, IxEthDBFeature feature,
  *
  * @param portID port ID
  * @param present location to store a boolean value indicating
- * if the feature is present (TRUE) or not (FALSE)
+ * if the feature is present (true) or not (false)
  * @param enabled location to store a booleam value indicating
- * if the feature is present (TRUE) or not (FALSE)
+ * if the feature is present (true) or not (false)
  *
  * Note that this function is documented in the main component
  * header file, IxEthDB.h.

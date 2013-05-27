@@ -497,8 +497,8 @@ ixTimeSyncAccTargetTimeInterruptDisable(void);
  * the Target Time in the IEEE 1588 hardware assist block. If the condition is
  * true an event flag is set in the hardware.
  *
- * @param ttmPollFlag [out] - TRUE  if the target time reached/hit condition event set
- *                            FALSE if the target time reached/hit condition event is 
+ * @param ttmPollFlag [out] - true  if the target time reached/hit condition event set
+ *                            false if the target time reached/hit condition event is
                                     not set
  * @param targetTime [out] - Capture current targetTime into client provided buffer
  *
@@ -656,9 +656,9 @@ ixTimeSyncAccAuxTimeInterruptDisable(IxTimeSyncAccAuxMode auxMode);
  * (Master or Slave)
  *
  * @param auxMode [in] - Auxiliary Snapshot Register (Slave or Master) to be checked
- * @param auxPollFlag [out] - TRUE if the time stamp captured in auxiliary 
+ * @param auxPollFlag [out] - true if the time stamp captured in auxiliary
                                    snapshot register
- *                            FALSE if the time stamp not captured in 
+ *                            false if the time stamp not captured in
                                    auxiliary snapshot register
  * @param auxTime [out] - Copy the current Auxiliary Snapshot Register value into the
  * client provided buffer

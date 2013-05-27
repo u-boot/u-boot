@@ -156,6 +156,14 @@ To use this, put something like this in your board header file:
 
 #define CONFIG_EXTRA_ENV_SETTINGS	"fdtcontroladdr=10000\0"
 
+Build:
+
+After board configuration is done, fdt supported u-boot can be build in two ways:
+1)  build the default dts which is defined from CONFIG_DEFAULT_DEVICE_TREE
+    $ make
+2)  build the user specified dts file
+    $ make DEVICE_TREE=<dts-file-name>
+
 
 Limitations
 -----------

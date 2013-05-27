@@ -45,7 +45,16 @@
 
 #define CONFIG_MACH_TYPE	MACH_TYPE_MX31_3DS
 
-#if defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
+#define CONFIG_SPL
+#define CONFIG_SPL_TARGET	"u-boot-with-spl.bin"
+#define CONFIG_SPL_LDSCRIPT	"arch/$(ARCH)/cpu/u-boot-spl.lds"
+#define CONFIG_SPL_MAX_SIZE	2048
+#define CONFIG_SPL_NAND_SUPPORT
+
+#define CONFIG_SPL_TEXT_BASE	0x87dc0000
+#define CONFIG_SYS_TEXT_BASE	0x87e00000
+
+#ifndef CONFIG_SPL_BUILD
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #endif
 
@@ -60,8 +69,6 @@
 
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART1_BASE
-#define CONFIG_HW_WATCHDOG
-#define CONFIG_IMX_WATCHDOG
 #define CONFIG_MXC_GPIO
 
 #define CONFIG_HARD_SPI
@@ -116,7 +123,7 @@
 	"bootcmd=run bootcmd_net\0"					\
 	"bootcmd_net=run bootargs_base bootargs_mtd bootargs_nfs; "	\
 		"tftpboot 0x81000000 uImage-mx31; bootm\0"		\
-	"prg_uboot=tftpboot 0x81000000 u-boot-nand.bin; "		\
+	"prg_uboot=tftpboot 0x81000000 u-boot-with-spl.bin; "		\
 		"nand erase 0x0 0x40000; "				\
 		"nand write 0x81000000 0x0 0x40000\0"
 
@@ -163,7 +170,7 @@
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - \
 						GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_INIT_RAM_ADDR + \
-						CONFIG_SYS_GBL_DATA_OFFSET)
+						CONFIG_SYS_INIT_RAM_SIZE)
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
@@ -189,10 +196,10 @@
 /* NAND configuration for the NAND_SPL */
 
 /* Start copying real U-boot from the second page */
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x800
-#define CONFIG_SYS_NAND_U_BOOT_SIZE	0x30000
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	CONFIG_SPL_PAD_TO
+#define CONFIG_SYS_NAND_U_BOOT_SIZE	0x3f800
 /* Load U-Boot to this address */
-#define CONFIG_SYS_NAND_U_BOOT_DST	0x87f00000
+#define CONFIG_SYS_NAND_U_BOOT_DST	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_NAND_U_BOOT_DST
 
 #define CONFIG_SYS_NAND_PAGE_SIZE	0x800

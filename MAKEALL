@@ -35,6 +35,9 @@ usage()
 	Environment variables:
 	  BUILD_NCPUS      number of parallel make jobs (default: auto)
 	  CROSS_COMPILE    cross-compiler toolchain prefix (default: "")
+	  CROSS_COMPILE_<ARCH> cross-compiler toolchain prefix for
+	                   architecture "ARCH".  Substitute "ARCH" for any
+	                   supported architecture (default: "")
 	  MAKEALL_LOGDIR   output all logs to here (default: ./LOG/)
 	  BUILD_DIR        output build directory (default: ./)
 	  BUILD_NBUILDS	   number of parallel targets (default: 1)
@@ -101,9 +104,9 @@ while true ; do
 	-s|--soc)
 		# echo "Option SoC: argument \`$2'"
 		if [ "$opt_s" ] ; then
-			opt_s="${opt_s%)} || \$6 == \"$2\")"
+			opt_s="${opt_s%)} || \$6 == \"$2\" || \$6 ~ /$2/)"
 		else
-			opt_s="(\$6 == \"$2\")"
+			opt_s="(\$6 == \"$2\" || \$6 ~ /$2/)"
 		fi
 		SELECTED='y'
 		shift 2 ;;
@@ -178,13 +181,6 @@ then
 	JOBS="-j $((BUILD_NCPUS + 1))"
 else
 	JOBS=""
-fi
-
-
-if [ "${CROSS_COMPILE}" ] ; then
-	MAKE="make CROSS_COMPILE=${CROSS_COMPILE}"
-else
-	MAKE=make
 fi
 
 if [ "${MAKEALL_LOGDIR}" ] ; then
@@ -585,6 +581,18 @@ get_target_maintainers() {
 	echo "$mail"
 }
 
+get_target_arch() {
+	local target=$1
+
+	# Automatic mode
+	local line=`egrep -i "^[[:space:]]*${target}[[:space:]]" boards.cfg`
+
+	if [ -z "${line}" ] ; then echo "" ; return ; fi
+
+	set ${line}
+	echo "$2"
+}
+
 list_target() {
 	if [ "$PRINT_MAINTS" != 'y' ] ; then
 		echo "$1"
@@ -654,6 +662,16 @@ build_target() {
 	fi
 
 	export BUILD_DIR="${output_dir}"
+
+	target_arch=$(get_target_arch ${target})
+	eval cross_toolchain=\$CROSS_COMPILE_`echo $target_arch | tr '[:lower:]' '[:upper:]'`
+	if [ "${cross_toolchain}" ] ; then
+	    MAKE="make CROSS_COMPILE=${cross_toolchain}"
+	elif [ "${CROSS_COMPILE}" ] ; then
+	    MAKE="make CROSS_COMPILE=${CROSS_COMPILE}"
+	else
+	    MAKE=make
+	fi
 
 	${MAKE} distclean >/dev/null
 	${MAKE} -s ${target}_config
@@ -784,8 +802,20 @@ build_targets() {
 #-----------------------------------------------------------------------
 
 kill_children() {
-	local pgid=`ps -p $$ --no-headers -o "%r" | tr -d ' '`
-	local children=`pgrep -g $pgid | grep -v $$ | grep -v $pgid`
+	local OS=$(uname -s)
+	local children=""
+	case "${OS}" in
+		"Darwin")
+			# Mac OS X is known to have BSD style ps
+			local pgid=$(ps -p $$ -o pgid | sed -e "/PGID/d")
+			children=$(ps -g $pgid -o pid | sed -e "/PID\|$$\|$pgid/d")
+			;;
+		*)
+			# everything else tries the GNU style
+			local pgid=$(ps -p $$ --no-headers -o "%r" | tr -d ' ')
+			children=$(pgrep -g $pgid | sed -e "/$$\|$pgid/d")
+			;;
+	esac
 
 	kill $children 2> /dev/null
 	wait $children 2> /dev/null

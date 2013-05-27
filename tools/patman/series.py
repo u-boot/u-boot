@@ -19,13 +19,16 @@
 # MA 02111-1307 USA
 #
 
+import itertools
 import os
 
+import get_maintainer
 import gitutil
 import terminal
 
 # Series-xxx tags that we understand
-valid_series = ['to', 'cc', 'version', 'changes', 'prefix', 'notes', 'name'];
+valid_series = ['to', 'cc', 'version', 'changes', 'prefix', 'notes', 'name',
+                'cover-cc', 'process_log']
 
 class Series(dict):
     """Holds information about a patch series, including all tags.
@@ -41,10 +44,16 @@ class Series(dict):
     def __init__(self):
         self.cc = []
         self.to = []
+        self.cover_cc = []
         self.commits = []
         self.cover = None
         self.notes = []
         self.changes = {}
+
+        # Written in MakeCcFile()
+        #  key: name of patch file
+        #  value: list of email addresses
+        self._generated_cc = {}
 
     # These make us more like a dictionary
     def __setattr__(self, name, value):
@@ -62,6 +71,7 @@ class Series(dict):
             value: Tag value (part after 'Series-xxx: ')
         """
         # If we already have it, then add to our list
+        name = name.replace('-', '_')
         if name in self:
             values = value.split(',')
             values = [str.strip() for str in values]
@@ -109,10 +119,7 @@ class Series(dict):
         for upto in range(len(args)):
             commit = self.commits[upto]
             print col.Color(col.GREEN, '   %s' % args[upto])
-            cc_list = []
-            if process_tags:
-                cc_list += gitutil.BuildEmailList(commit.tags)
-            cc_list += gitutil.BuildEmailList(commit.cc_list)
+            cc_list = list(self._generated_cc[commit.patch])
 
             # Skip items in To list
             if 'to' in self:
@@ -136,6 +143,10 @@ class Series(dict):
         print 'Prefix:\t ', self.get('prefix')
         if self.cover:
             print 'Cover: %d lines' % len(self.cover)
+            cover_cc = gitutil.BuildEmailList(self.get('cover_cc', ''))
+            all_ccs = itertools.chain(cover_cc, *self._generated_cc.values())
+            for email in set(all_ccs):
+                    print '      Cc: ',email
         if cmd:
             print 'Git command: %s' % cmd
 
@@ -156,15 +167,20 @@ class Series(dict):
             etc.
         """
         final = []
+        process_it = self.get('process_log', '').split(',')
+        process_it = [item.strip() for item in process_it]
         need_blank = False
         for change in sorted(self.changes, reverse=True):
             out = []
             for this_commit, text in self.changes[change]:
                 if commit and this_commit != commit:
                     continue
-                out.append(text)
+                if 'uniq' not in process_it or text not in out:
+                    out.append(text)
             line = 'Changes in v%d:' % change
             have_changes = len(out) > 0
+            if 'sort' in process_it:
+                out = sorted(out)
             if have_changes:
                 out.insert(0, line)
             else:
@@ -199,23 +215,38 @@ class Series(dict):
             str = 'Change log exists, but no version is set'
             print col.Color(col.RED, str)
 
-    def MakeCcFile(self, process_tags):
+    def MakeCcFile(self, process_tags, cover_fname, raise_on_error):
         """Make a cc file for us to use for per-commit Cc automation
+
+        Also stores in self._generated_cc to make ShowActions() faster.
 
         Args:
             process_tags: Process tags as if they were aliases
+            cover_fname: If non-None the name of the cover letter.
+            raise_on_error: True to raise an error when an alias fails to match,
+                False to just print a message.
         Return:
             Filename of temp file created
         """
         # Look for commit tags (of the form 'xxx:' at the start of the subject)
         fname = '/tmp/patman.%d' % os.getpid()
         fd = open(fname, 'w')
+        all_ccs = []
         for commit in self.commits:
             list = []
             if process_tags:
-                list += gitutil.BuildEmailList(commit.tags)
-            list += gitutil.BuildEmailList(commit.cc_list)
+                list += gitutil.BuildEmailList(commit.tags,
+                                               raise_on_error=raise_on_error)
+            list += gitutil.BuildEmailList(commit.cc_list,
+                                           raise_on_error=raise_on_error)
+            list += get_maintainer.GetMaintainer(commit.patch)
+            all_ccs += list
             print >>fd, commit.patch, ', '.join(list)
+            self._generated_cc[commit.patch] = list
+
+        if cover_fname:
+            cover_cc = gitutil.BuildEmailList(self.get('cover_cc', ''))
+            print >>fd, cover_fname, ', '.join(set(cover_cc + all_ccs))
 
         fd.close()
         return fname

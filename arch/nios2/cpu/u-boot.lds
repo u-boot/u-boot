@@ -48,7 +48,7 @@ SECTIONS
 
 	. = ALIGN(4);
 	.u_boot_list : {
-	#include <u-boot.lst>
+		KEEP(*(SORT(.u_boot_list*)));
 	}
 
 	/* INIT DATA sections - "Small" data (see the gcc -G option)
@@ -101,7 +101,7 @@ SECTIONS
 	  *(.scommon)
 	}
 	. = ALIGN(4);
-	__bss_end__ = .;
+	__bss_end = .;
 	PROVIDE (end = .);
 
 	/* DEBUG -- symbol table, string table, etc. etc.

@@ -49,6 +49,9 @@ U_BOOT_CMD(
 	"      If 'pos' is omitted, 0 is used. 'pos' requires 'bytes'.\n"
 	"      'bytes' gives the size to load. If 'bytes' is 0 or omitted,\n"
 	"      the load stops on end of file.\n"
+	"      If either 'pos' or 'bytes' are not aligned to\n"
+	"      ARCH_DMA_MINALIGN then a misaligned buffer warning will\n"
+	"      be printed and performance will suffer for the load.\n"
 	"      All numeric parameters are assumed to be hex."
 );
 

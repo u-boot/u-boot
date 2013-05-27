@@ -27,6 +27,10 @@ Poonam Aggrwal <poonam.aggrwal@freescale.com>
 
 	BSC9131RDB	BSC9131
 
+Naveen Burmi <NaveenBurmi@freescale.com>
+
+	BSC9132QDS	BSC9132
+
 Greg Allen <gallen@arlut.utexas.edu>
 
 	UTX8245		MPC8245
@@ -146,9 +150,6 @@ Wolfgang Denk <wd@denx.de>
 
 	P3G4		MPC7410
 
-	PCIPPC2		MPC750
-	PCIPPC6		MPC750
-
 Phil Edworthy <phil.edworthy@renesas.com>
 
 	rsk7264		SH7264
@@ -230,6 +231,7 @@ Wolfgang Grandegger <wg@denx.de>
 
 Anatolij Gustschin <agust@denx.de>
 
+	ac14xx		MPC5121e
 	O2D		MPC5200
 	O2D300		MPC5200
 	O2DNT2		MPC5200
@@ -393,6 +395,7 @@ Ricardo Ribalda <ricardo.ribalda@uam.es>
 Stefan Roese <sr@denx.de>
 
 	a3m071		MPC5200
+	a4m2k		MPC5200
 
 	P3M7448		MPC7448
 
@@ -603,6 +606,7 @@ Enric Balletbo i Serra <eballetbo@iseebcn.com>
 
 	igep0020	ARM ARMV7 (OMAP3xx SoC)
 	igep0030	ARM ARMV7 (OMAP3xx SoC)
+	igep0032	ARM ARMV7 (OMAP3xx SoC)
 
 Eric Benard <eric@eukrea.com>
 
@@ -659,6 +663,7 @@ Fabio Estevam <fabio.estevam@freescale.com>
 	mx53smd		i.MX53
 	mx6qsabresd	i.MX6Q
 	mx6qsabreauto	i.MX6Q
+	wandboard	i.MX6DL/S
 
 Daniel Gorsulowski <daniel.gorsulowski@esd.eu>
 
@@ -683,6 +688,10 @@ Igor Grinberg <grinberg@compulab.co.il>
 Stefan Herbrechtsmeier <stefan@code.herbrechtsmeier.net>
 
 	dns325		ARM926EJS (Kirkwood SoC)
+
+Lauri Hintsala <lauri.hintsala@bluegiga.com>
+
+	apx4devkit	i.MX28
 
 Vaibhav Hiremath <hvaibhav@ti.com>
 
@@ -802,10 +811,6 @@ Linus Walleij <linus.walleij@linaro.org>
 	integratorap	various
 	integratorcp	various
 
-Veli-Pekka Peltola <veli-pekka.peltola@bluegiga.com>
-
-	apx4devkit	i.MX28
-
 Luka Perkov <luka@openwrt.org>
 
 	ib62x0		ARM926EJS
@@ -814,6 +819,9 @@ Luka Perkov <luka@openwrt.org>
 Dave Peverley <dpeverley@mpc-data.co.uk>
 
 	omap730p2	ARM926EJS
+
+Lars Poeschel <poeschel@lemonage.de>
+	pcm051  	ARM ARMV7 (AM33xx Soc)
 
 Mathieu Poirier <mathieu.poirier@linaro.org>
 
@@ -825,6 +833,10 @@ Stelian Pop <stelian@popies.net>
 	at91sam9261ek	ARM926EJS (AT91SAM9261 SoC)
 	at91sam9263ek	ARM926EJS (AT91SAM9263 SoC)
 	at91sam9rlek	ARM926EJS (AT91SAM9RL SoC)
+
+Matt Porter <mporter@ti.com>
+
+	ti814x_evm	ARM ARMV7 (TI814x Soc)
 
 Dave Purdy <david.c.purdy@gmail.com>
 
@@ -903,6 +915,10 @@ Matt Sealey <matt@genesi-usa.com>
 Bo Shen <voice.shen@atmel.com>
 	at91sam9x5ek		ARM926EJS (AT91SAM9G15,G25,G35,X25,X35 SoC)
 
+Rajeshwari Shinde <rajeshwari.s@samsung.com>
+
+	snow			ARM ARMV7 (EXYNOS5250 SoC)
+
 Michal Simek <monstr@monstr.eu>
 
 	zynq		ARM ARMV7 (Zynq SoC)
@@ -935,6 +951,7 @@ Marek Vasut <marek.vasut@gmail.com>
 	palmtc		xscale/pxa
 	vpac270		xscale/pxa
 	zipitz2		xscale/pxa
+	mx23_olinuxino	i.MX23
 	m28evk		i.MX28
 	sc_sps_1	i.MX28
 
@@ -945,6 +962,10 @@ Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
 Matt Waddel <matt.waddel@linaro.org>
 
 	ca9x4_ct_vxp	ARM ARMV7 (Quad Core)
+
+Otavio Salvador <otavio@ossystems.com.br>
+
+	mx23evk		i.MX23
 
 Prafulla Wadaskar <prafulla@marvell.com>
 
@@ -963,6 +984,8 @@ Tom Warren <twarren@nvidia.com>
 
 	harmony		Tegra20 (ARM7 & A9 Dual Core)
 	seaboard	Tegra20 (ARM7 & A9 Dual Core)
+	cardhu		Tegra30 (ARM7 & A9 Quad Core)
+	dalmore		Tegra114 (ARM7 & A15 Quad Core)
 
 Tom Warren <twarren@nvidia.com>
 Stephen Warren <swarren@nvidia.com>
@@ -971,6 +994,7 @@ Stephen Warren <swarren@nvidia.com>
 	paz00		Tegra20 (ARM7 & A9 Dual Core)
 	trimslice	Tegra20 (ARM7 & A9 Dual Core)
 	whistler	Tegra20 (ARM7 & A9 Dual Core)
+	beaver		Tegra30 (ARM7 & A9 Quad Core)
 
 Stephen Warren <swarren@wwwdotorg.org>
 
@@ -1007,10 +1031,6 @@ Vladimir Zapolskiy <vz@mleia.com>
 
 	devkit3250	lpc32xx
 
-Zhong Hongbo <bocui107@gmail.com>
-
-	SMDK6400	ARM1176 (S3C6400 SoC)
-
 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
 Tetsuyuki Kobayashi <koba@kmckk.co.jp>
 
@@ -1023,6 +1043,14 @@ Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
 Pali Rohár <pali.rohar@gmail.com>
 
 	nokia_rx51	ARM ARMV7 (OMAP34xx SoC)
+
+Eric Nelson <eric.nelson@boundarydevices.com>
+	nitrogen6dl		i.MX6DL		1GB
+	nitrogen6dl2g		i.MX6DL		2GB
+	nitrogen6q		i.MX6Q/6D	1GB
+	nitrogen6q2g    	i.MX6Q/6D	2GB
+	nitrogen6s		i.MX6S		512MB
+	nitrogen6s1g		i.MX6S		1GB
 
 -------------------------------------------------------------------------
 
@@ -1214,7 +1242,7 @@ Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 #	Board		CPU						#
 #########################################################################
 
-Mike Frysinger <vapier@gentoo.org>
+Sonic Zhang <sonic.adi@gmail.com>
 Blackfin Team <u-boot-devel@blackfin.uclinux.org>
 
 	BF506F-EZKIT	BF506
@@ -1231,6 +1259,7 @@ Blackfin Team <u-boot-devel@blackfin.uclinux.org>
 	BF538F-EZKIT	BF538
 	BF548-EZKIT	BF548
 	BF561-EZKIT	BF561
+	BF609-EZKIT	BF609
 
 M.Hasewinkel (MHA) <info@ssv-embedded.de>
 

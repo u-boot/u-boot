@@ -1369,14 +1369,15 @@ struct data_strings {
 
 #define DATA_OPTIONS(name, step, dimm) {#name, step, dimm}
 
-unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo)
-{
-	unsigned long long ddrsize;
-	const char *prompt = "FSL DDR>";
-	char buffer[CONFIG_SYS_CBSIZE];
-	char *argv[CONFIG_SYS_MAXARGS + 1];	/* NULL terminated */
-	int argc;
-	unsigned int next_step = STEP_GET_SPD;
+static unsigned int fsl_ddr_parse_interactive_cmd(
+	char **argv,
+	int argc,
+	unsigned int *pstep_mask,
+	unsigned int *pctlr_mask,
+	unsigned int *pdimm_mask,
+	unsigned int *pdimm_number_required
+	 ) {
+
 	static const struct data_strings options[] = {
 		DATA_OPTIONS(spd, STEP_GET_SPD, 1),
 		DATA_OPTIONS(dimmparms, STEP_COMPUTE_DIMM_PARMS, 1),
@@ -1386,6 +1387,69 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo)
 		DATA_OPTIONS(regs, STEP_COMPUTE_REGS, 0),
 	};
 	static const unsigned int n_opts = ARRAY_SIZE(options);
+
+	unsigned int i, j;
+	unsigned int error = 0;
+
+	for (i = 1; i < argc; i++) {
+		unsigned int matched = 0;
+
+		for (j = 0; j < n_opts; j++) {
+			if (strcmp(options[j].data_name, argv[i]) != 0)
+				continue;
+			*pstep_mask |= options[j].step_mask;
+			*pdimm_number_required =
+				options[j].dimm_number_required;
+			matched = 1;
+			break;
+		}
+
+		if (matched)
+			continue;
+
+		if (argv[i][0] == 'c') {
+			char c = argv[i][1];
+			if (isdigit(c))
+				*pctlr_mask |= 1 << (c - '0');
+			continue;
+		}
+
+		if (argv[i][0] == 'd') {
+			char c = argv[i][1];
+			if (isdigit(c))
+				*pdimm_mask |= 1 << (c - '0');
+			continue;
+		}
+
+		printf("unknown arg %s\n", argv[i]);
+		*pstep_mask = 0;
+		error = 1;
+		break;
+	}
+
+	return error;
+}
+
+int fsl_ddr_interactive_env_var_exists(void)
+{
+	char buffer[CONFIG_SYS_CBSIZE];
+
+	if (getenv_f("ddr_interactive", buffer, CONFIG_SYS_CBSIZE) >= 0)
+		return 1;
+
+	return 0;
+}
+
+unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo, int var_is_set)
+{
+	unsigned long long ddrsize;
+	const char *prompt = "FSL DDR>";
+	char buffer[CONFIG_SYS_CBSIZE];
+	char buffer2[CONFIG_SYS_CBSIZE];
+	char *p = NULL;
+	char *argv[CONFIG_SYS_MAXARGS + 1];	/* NULL terminated */
+	int argc;
+	unsigned int next_step = STEP_GET_SPD;
 	const char *usage = {
 		"commands:\n"
 		"print      print SPD and intermediate computed data\n"
@@ -1393,21 +1457,45 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo)
 		"recompute  reload SPD and options to default and recompute regs\n"
 		"edit       modify spd, parameter, or option\n"
 		"compute    recompute registers from current next_step to end\n"
+		"copy       copy parameters\n"
 		"next_step  shows current next_step\n"
 		"help       this message\n"
 		"go         program the memory controller and continue with u-boot\n"
 	};
+
+	if (var_is_set) {
+		if (getenv_f("ddr_interactive", buffer2, CONFIG_SYS_CBSIZE) > 0) {
+			p = buffer2;
+		} else {
+			var_is_set = 0;
+		}
+	}
 
 	/*
 	 * The strategy for next_step is that it points to the next
 	 * step in the computation process that needs to be done.
 	 */
 	while (1) {
-		/*
-		 * No need to worry for buffer overflow here in
-		 * this function;  readline() maxes out at CFG_CBSIZE
-		 */
-		readline_into_buffer(prompt, buffer, 0);
+		if (var_is_set) {
+			char *pend = strchr(p, ';');
+			if (pend) {
+				/* found command separator, copy sub-command */
+				*pend = '\0';
+				strcpy(buffer, p);
+				p = pend + 1;
+			} else {
+				/* separator not found, copy whole string */
+				strcpy(buffer, p);
+				p = NULL;
+				var_is_set = 0;
+			}
+		} else {
+			/*
+			 * No need to worry for buffer overflow here in
+			 * this function;  readline() maxes out at CFG_CBSIZE
+			 */
+			readline_into_buffer(prompt, buffer, 0);
+		}
 		argc = parse_line(buffer, argv);
 		if (argc == 0)
 			continue;
@@ -1425,8 +1513,133 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo)
 			continue;
 		}
 
+		if (strcmp(argv[0], "copy") == 0) {
+			unsigned int error = 0;
+			unsigned int step_mask = 0;
+			unsigned int src_ctlr_mask = 0;
+			unsigned int src_dimm_mask = 0;
+			unsigned int dimm_number_required = 0;
+			unsigned int src_ctlr_num = 0;
+			unsigned int src_dimm_num = 0;
+			unsigned int dst_ctlr_num = -1;
+			unsigned int dst_dimm_num = -1;
+			unsigned int i, num_dest_parms;
+
+			if (argc == 1) {
+				printf("copy <src c#> <src d#> <spd|dimmparms|commonparms|opts|addresses|regs> <dst c#> <dst d#>\n");
+				continue;
+			}
+
+			error = fsl_ddr_parse_interactive_cmd(
+				argv, argc,
+				&step_mask,
+				&src_ctlr_mask,
+				&src_dimm_mask,
+				&dimm_number_required
+			);
+
+			/* XXX: only dimm_number_required and step_mask will
+			   be used by this function.  Parse the controller and
+			   DIMM number separately because it is easier.  */
+
+			if (error)
+				continue;
+
+			/* parse source destination controller / DIMM */
+
+			num_dest_parms = dimm_number_required ? 2 : 1;
+
+			for (i = 0; i < argc; i++) {
+				if (argv[i][0] == 'c') {
+					char c = argv[i][1];
+					if (isdigit(c)) {
+						src_ctlr_num = (c - '0');
+						break;
+					}
+				}
+			}
+
+			for (i = 0; i < argc; i++) {
+				if (argv[i][0] == 'd') {
+					char c = argv[i][1];
+					if (isdigit(c)) {
+						src_dimm_num = (c - '0');
+						break;
+					}
+				}
+			}
+
+			/* parse destination controller / DIMM */
+
+			for (i = argc - 1; i >= argc - num_dest_parms; i--) {
+				if (argv[i][0] == 'c') {
+					char c = argv[i][1];
+					if (isdigit(c)) {
+						dst_ctlr_num = (c - '0');
+						break;
+					}
+				}
+			}
+
+			for (i = argc - 1; i >= argc - num_dest_parms; i--) {
+				if (argv[i][0] == 'd') {
+					char c = argv[i][1];
+					if (isdigit(c)) {
+						dst_dimm_num = (c - '0');
+						break;
+					}
+				}
+			}
+
+			/* TODO: validate inputs */
+
+			debug("src_ctlr_num = %u, src_dimm_num = %u, dst_ctlr_num = %u, dst_dimm_num = %u, step_mask = %x\n",
+				src_ctlr_num, src_dimm_num, dst_ctlr_num, dst_dimm_num, step_mask);
+
+
+			switch (step_mask) {
+
+			case STEP_GET_SPD:
+				memcpy(&(pinfo->spd_installed_dimms[dst_ctlr_num][dst_dimm_num]),
+					&(pinfo->spd_installed_dimms[src_ctlr_num][src_dimm_num]),
+					sizeof(pinfo->spd_installed_dimms[0][0]));
+				break;
+
+			case STEP_COMPUTE_DIMM_PARMS:
+				memcpy(&(pinfo->dimm_params[dst_ctlr_num][dst_dimm_num]),
+					&(pinfo->dimm_params[src_ctlr_num][src_dimm_num]),
+					sizeof(pinfo->dimm_params[0][0]));
+				break;
+
+			case STEP_COMPUTE_COMMON_PARMS:
+				memcpy(&(pinfo->common_timing_params[dst_ctlr_num]),
+					&(pinfo->common_timing_params[src_ctlr_num]),
+					sizeof(pinfo->common_timing_params[0]));
+				break;
+
+			case STEP_GATHER_OPTS:
+				memcpy(&(pinfo->memctl_opts[dst_ctlr_num]),
+					&(pinfo->memctl_opts[src_ctlr_num]),
+					sizeof(pinfo->memctl_opts[0]));
+				break;
+
+			/* someday be able to have addresses to copy addresses... */
+
+			case STEP_COMPUTE_REGS:
+				memcpy(&(pinfo->fsl_ddr_config_reg[dst_ctlr_num]),
+					&(pinfo->fsl_ddr_config_reg[src_ctlr_num]),
+					sizeof(pinfo->memctl_opts[0]));
+				break;
+
+			default:
+				printf("unexpected step_mask value\n");
+			}
+
+			continue;
+
+		}
+
 		if (strcmp(argv[0], "edit") == 0) {
-			unsigned int i, j;
 			unsigned int error = 0;
 			unsigned int step_mask = 0;
 			unsigned int ctlr_mask = 0;
@@ -1436,7 +1649,6 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo)
 			unsigned int dimm_number_required = 0;
 			unsigned int ctrl_num;
 			unsigned int dimm_num;
-			unsigned int matched = 0;
 
 			if (argc == 1) {
 				/* Only the element and value must be last */
@@ -1448,41 +1660,13 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo)
 				continue;
 			}
 
-			for (i = 1; i < argc - 2; i++) {
-				for (j = 0; j < n_opts; j++) {
-					if (strcmp(options[j].data_name,
-						argv[i]) != 0)
-						continue;
-					step_mask |= options[j].step_mask;
-					dimm_number_required =
-						options[j].dimm_number_required;
-					matched = 1;
-					break;
-				}
-
-				if (matched)
-					continue;
-
-				if (argv[i][0] == 'c') {
-					char c = argv[i][1];
-					if (isdigit(c))
-						ctlr_mask |= 1 << (c - '0');
-					continue;
-				}
-
-				if (argv[i][0] == 'd') {
-					char c = argv[i][1];
-					if (isdigit(c))
-						dimm_mask |= 1 << (c - '0');
-					continue;
-				}
-
-				printf("unknown arg %s\n", argv[i]);
-				step_mask = 0;
-				error = 1;
-				break;
-			}
-
+			error = fsl_ddr_parse_interactive_cmd(
+				argv, argc - 2,
+				&step_mask,
+				&ctlr_mask,
+				&dimm_mask,
+				&dimm_number_required
+			);
 
 			if (error)
 				continue;
@@ -1629,12 +1813,11 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo)
 		}
 
 		if (strcmp(argv[0], "print") == 0) {
-			unsigned int i, j;
 			unsigned int error = 0;
 			unsigned int step_mask = 0;
 			unsigned int ctlr_mask = 0;
 			unsigned int dimm_mask = 0;
-			unsigned int matched = 0;
+			unsigned int dimm_number_required = 0;
 
 			if (argc == 1) {
 				printf("print [c<n>] [d<n>] [spd] [dimmparms] "
@@ -1642,38 +1825,13 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo)
 				continue;
 			}
 
-			for (i = 1; i < argc; i++) {
-				for (j = 0; j < n_opts; j++) {
-					if (strcmp(options[j].data_name,
-						argv[i]) != 0)
-						continue;
-					step_mask |= options[j].step_mask;
-					matched = 1;
-					break;
-				}
-
-				if (matched)
-					continue;
-
-				if (argv[i][0] == 'c') {
-					char c = argv[i][1];
-					if (isdigit(c))
-						ctlr_mask |= 1 << (c - '0');
-					continue;
-				}
-
-				if (argv[i][0] == 'd') {
-					char c = argv[i][1];
-					if (isdigit(c))
-						dimm_mask |= 1 << (c - '0');
-					continue;
-				}
-
-				printf("unknown arg %s\n", argv[i]);
-				step_mask = 0;
-				error = 1;
-				break;
-			}
+			error = fsl_ddr_parse_interactive_cmd(
+				argv, argc,
+				&step_mask,
+				&ctlr_mask,
+				&dimm_mask,
+				&dimm_number_required
+			);
 
 			if (error)
 				continue;

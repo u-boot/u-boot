@@ -38,7 +38,6 @@
 #endif
 
 #include <sha1.h>
-#include <fdt.h>
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <image.h>

@@ -22,10 +22,9 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/mmc.h>
-#include <asm/arch/nand.h>
 #include <netdev.h>
 #include <zynqpl.h>
+#include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -39,11 +38,38 @@ DECLARE_GLOBAL_DATA_PTR;
 #define JTAG_MODE		0x00000000
 
 #ifdef CONFIG_FPGA
-Xilinx_desc fpga = XILINX_XC7Z020_DESC(0);
+Xilinx_desc fpga;
+
+/* It can be done differently */
+Xilinx_desc fpga010 = XILINX_XC7Z010_DESC(0x10);
+Xilinx_desc fpga020 = XILINX_XC7Z020_DESC(0x20);
+Xilinx_desc fpga030 = XILINX_XC7Z030_DESC(0x30);
+Xilinx_desc fpga045 = XILINX_XC7Z045_DESC(0x45);
 #endif
 
 int board_init(void)
 {
+#ifdef CONFIG_FPGA
+	u32 idcode;
+
+	idcode = zynq_slcr_get_idcode();
+
+	switch (idcode) {
+	case XILINX_ZYNQ_7010:
+		fpga = fpga010;
+		break;
+	case XILINX_ZYNQ_7020:
+		fpga = fpga020;
+		break;
+	case XILINX_ZYNQ_7030:
+		fpga = fpga030;
+		break;
+	case XILINX_ZYNQ_7045:
+		fpga = fpga045;
+		break;
+	}
+#endif
+
 	/* temporary hack to clear pending irqs before Linux as it
 	 * will hang Linux
 	 */
@@ -57,8 +83,6 @@ int board_init(void)
 	writel(0x80, 0xe000a040);
 	writel(0x00, 0xe000a040);
 	writel(0x80, 0xe000a040);
-
-	icache_enable();
 
 #ifdef CONFIG_FPGA
 	fpga_init();
@@ -117,13 +141,16 @@ int board_eth_init(bd_t *bis)
 #endif
 
 #if defined(CONFIG_ZYNQ_GEM)
-# if defined(CONFIG_ZYNQ_GEM_BASEADDR0)
-	ret |= zynq_gem_initialize(bis, CONFIG_ZYNQ_GEM_BASEADDR0);
+# if defined(CONFIG_ZYNQ_GEM0)
+	ret |= zynq_gem_initialize(bis, ZYNQ_GEM_BASEADDR0,
+						CONFIG_ZYNQ_GEM_PHY_ADDR0, 0);
 # endif
-# if defined(CONFIG_ZYNQ_GEM_BASEADDR1)
-	ret |= zynq_gem_initialize(bis, CONFIG_ZYNQ_GEM_BASEADDR1);
+# if defined(CONFIG_ZYNQ_GEM1)
+	ret |= zynq_gem_initialize(bis, ZYNQ_GEM_BASEADDR1,
+						CONFIG_ZYNQ_GEM_PHY_ADDR1, 0);
 # endif
 #endif
+
 	return ret;
 }
 #endif
@@ -131,14 +158,17 @@ int board_eth_init(bd_t *bis)
 #ifdef CONFIG_CMD_MMC
 int board_mmc_init(bd_t *bd)
 {
-	return zynq_mmc_init(bd);
-}
-#endif
+	int ret = 0;
 
-#ifdef CONFIG_CMD_NAND
-int board_nand_init(struct nand_chip *nand_chip)
-{
-	return zynq_nand_init(nand_chip);
+#if defined(CONFIG_ZYNQ_SDHCI)
+# if defined(CONFIG_ZYNQ_SDHCI0)
+	ret = zynq_sdhci_init(ZYNQ_SDHCI_BASEADDR0);
+# endif
+# if defined(CONFIG_ZYNQ_SDHCI1)
+	ret |= zynq_sdhci_init(ZYNQ_SDHCI_BASEADDR1);
+# endif
+#endif
+	return ret;
 }
 #endif
 

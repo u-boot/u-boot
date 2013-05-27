@@ -26,6 +26,7 @@
  * MA 02111-1307 USA
  */
 
+#include <config.h>
 #include <asm/arch/omap.h>
 #include <asm/arch/spl.h>
 #include <linux/linkage.h>
@@ -59,10 +60,14 @@ ENTRY(save_boot_params)
 	ldr	r3, =boot_params
 	strb	r2, [r3, #BOOT_DEVICE_OFFSET]	@ spl_boot_device <- r1
 
-	/* boot mode is passed only for devices that can raw/fat mode */
-	cmp	r2, #BOOT_DEVICE_XIP
+	/*
+	 * boot mode is only valid for device that can be raw or FAT booted.
+	 * in other cases it may be fatal to look.  While platforms differ
+	 * in the values used for each MMC slot, they are contiguous.
+	 */
+	cmp	r2, #MMC_BOOT_DEVICES_START
 	blt	2f
-	cmp	r2, #BOOT_DEVICE_MMC2
+	cmp	r2, #MMC_BOOT_DEVICES_END
 	bgt	2f
 	/* Store the boot mode (raw/FAT) in omap_bootmode */
 	ldr	r2, [r0, #DEV_DESC_PTR_OFFSET]	@ get the device descriptor ptr

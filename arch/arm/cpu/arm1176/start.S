@@ -33,11 +33,8 @@
 #include <asm-offsets.h>
 #include <config.h>
 #include <version.h>
-#ifdef CONFIG_ENABLE_MMU
-#include <asm/proc/domain.h>
-#endif
 
-#if !defined(CONFIG_ENABLE_MMU) && !defined(CONFIG_SYS_PHY_UBOOT_BASE)
+#ifndef CONFIG_SYS_PHY_UBOOT_BASE
 #define CONFIG_SYS_PHY_UBOOT_BASE	CONFIG_SYS_UBOOT_BASE
 #endif
 
@@ -51,7 +48,7 @@
 
 .globl _start
 _start: b	reset
-#ifndef CONFIG_NAND_SPL
+#ifndef CONFIG_SPL_BUILD
 	ldr	pc, _undefined_instruction
 	ldr	pc, _software_interrupt
 	ldr	pc, _prefetch_abort
@@ -98,15 +95,11 @@ _end_vect:
 
 .globl _TEXT_BASE
 _TEXT_BASE:
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_TEXT_BASE)
+	.word	CONFIG_SPL_TEXT_BASE
+#else
 	.word	CONFIG_SYS_TEXT_BASE
-
-/*
- * Below variable is very important because we use MMU in U-Boot.
- * Without it, we cannot run code correctly before MMU is ON.
- * by scsuh.
- */
-_TEXT_PHY_BASE:
-	.word	CONFIG_SYS_PHY_UBOOT_BASE
+#endif
 
 /*
  * These are defined in the board-specific linker script.
@@ -119,9 +112,13 @@ _TEXT_PHY_BASE:
 _bss_start_ofs:
 	.word __bss_start - _start
 
+.globl _image_copy_end_ofs
+_image_copy_end_ofs:
+	.word __image_copy_end - _start
+
 .globl _bss_end_ofs
 _bss_end_ofs:
-	.word __bss_end__ - _start
+	.word __bss_end - _start
 
 .globl _end_ofs
 _end_ofs:
@@ -164,7 +161,7 @@ cpu_init_crit:
 	 * When booting from NAND - it has definitely been a reset, so, no need
 	 * to flush caches and disable the MMU
 	 */
-#ifndef CONFIG_NAND_SPL
+#ifndef CONFIG_SPL_BUILD
 	/*
 	 * flush v4 I/D caches
 	 */
@@ -229,29 +226,24 @@ skip_tcmdisable:
 /*------------------------------------------------------------------------------*/
 
 /*
- * void relocate_code (addr_sp, gd, addr_moni)
+ * void relocate_code(addr_moni)
  *
- * This "function" does not return, instead it continues in RAM
- * after relocating the monitor code.
- *
+ * This function relocates the monitor code.
  */
 	.globl	relocate_code
 relocate_code:
-	mov	r4, r0	/* save addr_sp */
-	mov	r5, r1	/* save addr of gd */
-	mov	r6, r2	/* save addr of destination */
+	mov	r6, r0	/* save addr of destination */
 
 	adr	r0, _start
-	cmp	r0, r6
-	moveq	r9, #0		/* no relocation. relocation offset(r9) = 0 */
+	subs	r9, r6, r0		/* r9 <- relocation offset */
 	beq	relocate_done		/* skip relocation */
 	mov	r1, r6			/* r1 <- scratch for copy_loop */
-	ldr	r3, _bss_start_ofs
+	ldr	r3, _image_copy_end_ofs
 	add	r2, r0, r3		/* r2 <- source end address	    */
 
 copy_loop:
-	ldmia	r0!, {r9-r10}		/* copy from source address [r0]    */
-	stmia	r1!, {r9-r10}		/* copy to   target address [r1]    */
+	ldmia	r0!, {r10-r11}		/* copy from source address [r0]    */
+	stmia	r1!, {r10-r11}		/* copy to   target address [r1]    */
 	cmp	r0, r2			/* until source end address [r2]    */
 	blo	copy_loop
 
@@ -260,7 +252,6 @@ copy_loop:
 	 * fix .rel.dyn relocations
 	 */
 	ldr	r0, _TEXT_BASE		/* r0 <- Text base */
-	sub	r9, r6, r0		/* r9 <- relocation offset */
 	ldr	r10, _dynsym_start_ofs	/* r10 <- sym table ofs */
 	add	r10, r10, r0		/* r10 <- sym table in FLASH */
 	ldr	r2, _rel_dyn_start_ofs	/* r2 <- rel dyn start ofs */
@@ -296,44 +287,6 @@ fixnext:
 	blo	fixloop
 #endif
 
-#ifdef CONFIG_ENABLE_MMU
-enable_mmu:
-	/* enable domain access */
-	ldr	r5, =0x0000ffff
-	mcr	p15, 0, r5, c3, c0, 0	/* load domain access register */
-
-	/* Set the TTB register */
-	ldr	r0, _mmu_table_base
-	ldr	r1, =CONFIG_SYS_PHY_UBOOT_BASE
-	ldr	r2, =0xfff00000
-	bic	r0, r0, r2
-	orr	r1, r0, r1
-	mcr	p15, 0, r1, c2, c0, 0
-
-	/* Enable the MMU */
-	mrc	p15, 0, r0, c1, c0, 0
-	orr	r0, r0, #1		/* Set CR_M to enable MMU */
-
-	/* Prepare to enable the MMU */
-	adr	r1, skip_hw_init
-	and	r1, r1, #0x3fc
-	ldr	r2, _TEXT_BASE
-	ldr	r3, =0xfff00000
-	and	r2, r2, r3
-	orr	r2, r2, r1
-	b	mmu_enable
-
-	.align 5
-	/* Run in a single cache-line */
-mmu_enable:
-
-	mcr	p15, 0, r0, c1, c0, 0
-	nop
-	nop
-	mov	pc, r2
-skip_hw_init:
-#endif
-
 relocate_done:
 
 	bx	lr
@@ -345,52 +298,12 @@ _rel_dyn_end_ofs:
 _dynsym_start_ofs:
 	.word __dynsym_start - _start
 
-#ifdef CONFIG_ENABLE_MMU
-_mmu_table_base:
-	.word mmu_table
-#endif
-
 	.globl	c_runtime_cpu_setup
 c_runtime_cpu_setup:
 
 	mov	pc, lr
 
-#ifndef CONFIG_NAND_SPL
-/*
- * we assume that cache operation is done before. (eg. cleanup_before_linux())
- * actually, we don't need to do anything about cache if not use d-cache in
- * U-Boot. So, in this function we clean only MMU. by scsuh
- *
- * void	theLastJump(void *kernel, int arch_num, uint boot_params);
- */
-#ifdef CONFIG_ENABLE_MMU
-	.globl theLastJump
-theLastJump:
-	mov	r9, r0
-	ldr	r3, =0xfff00000
-	ldr	r4, _TEXT_PHY_BASE
-	adr	r5, phy_last_jump
-	bic	r5, r5, r3
-	orr	r5, r5, r4
-	mov	pc, r5
-phy_last_jump:
-	/*
-	 * disable MMU stuff
-	 */
-	mrc	p15, 0, r0, c1, c0, 0
-	bic	r0, r0, #0x00002300	/* clear bits 13, 9:8 (--V- --RS) */
-	bic	r0, r0, #0x00000087	/* clear bits 7, 2:0 (B--- -CAM) */
-	orr	r0, r0, #0x00000002	/* set bit 2 (A) Align */
-	orr	r0, r0, #0x00001000	/* set bit 12 (I) I-Cache */
-	mcr	p15, 0, r0, c1, c0, 0
-
-	mcr	p15, 0, r0, c8, c7, 0	/* flush v4 TLB */
-
-	mov	r0, #0
-	mov	pc, r9
-#endif
-
-
+#ifndef CONFIG_SPL_BUILD
 /*
  *************************************************************************
  *
@@ -480,9 +393,11 @@ phy_last_jump:
 	/* save caller lr in position 0 of saved stack */
 	str	lr, [r0]
 	/* get the spsr */
-	mrs	r0, spsr
+	mrs	lr, spsr
 	/* save spsr in position 1 of saved stack */
 	str	lr, [r0, #4]
+	/* restore lr */
+	ldr	lr, [r0]
 	/* restore r0 */
 	ldr	r0, [r13]
 	/* pop stack entry */
@@ -533,4 +448,4 @@ fiq:
 	get_bad_stack
 	bad_save_user_regs
 	bl	do_fiq
-#endif /* CONFIG_NAND_SPL */
+#endif /* CONFIG_SPL_BUILD */

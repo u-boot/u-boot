@@ -434,10 +434,10 @@ void system_clock_init()
 		val = readl(&clk->mux_stat_core1);
 	} while ((val | MUX_MPLL_SEL_MASK) != val);
 
-	clrbits_le32(&clk->src_core1, MUX_CPLL_SEL_MASK);
-	clrbits_le32(&clk->src_core1, MUX_EPLL_SEL_MASK);
-	clrbits_le32(&clk->src_core1, MUX_VPLL_SEL_MASK);
-	clrbits_le32(&clk->src_core1, MUX_GPLL_SEL_MASK);
+	clrbits_le32(&clk->src_top2, MUX_CPLL_SEL_MASK);
+	clrbits_le32(&clk->src_top2, MUX_EPLL_SEL_MASK);
+	clrbits_le32(&clk->src_top2, MUX_VPLL_SEL_MASK);
+	clrbits_le32(&clk->src_top2, MUX_GPLL_SEL_MASK);
 	tmp = MUX_CPLL_SEL_MASK | MUX_EPLL_SEL_MASK | MUX_VPLL_SEL_MASK
 		| MUX_GPLL_SEL_MASK;
 	do {
@@ -494,35 +494,35 @@ void system_clock_init()
 	val = set_pll(arm_clk_ratio->apll_mdiv, arm_clk_ratio->apll_pdiv,
 			arm_clk_ratio->apll_sdiv);
 	writel(val, &clk->apll_con0);
-	while (readl(&clk->apll_con0) & APLL_CON0_LOCKED)
+	while ((readl(&clk->apll_con0) & APLL_CON0_LOCKED) == 0)
 		;
 
 	/* Set MPLL */
 	writel(MPLL_CON1_VAL, &clk->mpll_con1);
 	val = set_pll(mem->mpll_mdiv, mem->mpll_pdiv, mem->mpll_sdiv);
 	writel(val, &clk->mpll_con0);
-	while (readl(&clk->mpll_con0) & MPLL_CON0_LOCKED)
+	while ((readl(&clk->mpll_con0) & MPLL_CON0_LOCKED) == 0)
 		;
 
 	/* Set BPLL */
 	writel(BPLL_CON1_VAL, &clk->bpll_con1);
 	val = set_pll(mem->bpll_mdiv, mem->bpll_pdiv, mem->bpll_sdiv);
 	writel(val, &clk->bpll_con0);
-	while (readl(&clk->bpll_con0) & BPLL_CON0_LOCKED)
+	while ((readl(&clk->bpll_con0) & BPLL_CON0_LOCKED) == 0)
 		;
 
 	/* Set CPLL */
 	writel(CPLL_CON1_VAL, &clk->cpll_con1);
 	val = set_pll(mem->cpll_mdiv, mem->cpll_pdiv, mem->cpll_sdiv);
 	writel(val, &clk->cpll_con0);
-	while (readl(&clk->cpll_con0) & CPLL_CON0_LOCKED)
+	while ((readl(&clk->cpll_con0) & CPLL_CON0_LOCKED) == 0)
 		;
 
 	/* Set GPLL */
 	writel(GPLL_CON1_VAL, &clk->gpll_con1);
 	val = set_pll(mem->gpll_mdiv, mem->gpll_pdiv, mem->gpll_sdiv);
 	writel(val, &clk->gpll_con0);
-	while (readl(&clk->gpll_con0) & GPLL_CON0_LOCKED)
+	while ((readl(&clk->gpll_con0) & GPLL_CON0_LOCKED) == 0)
 		;
 
 	/* Set EPLL */
@@ -530,7 +530,7 @@ void system_clock_init()
 	writel(EPLL_CON1_VAL, &clk->epll_con1);
 	val = set_pll(mem->epll_mdiv, mem->epll_pdiv, mem->epll_sdiv);
 	writel(val, &clk->epll_con0);
-	while (readl(&clk->epll_con0) & EPLL_CON0_LOCKED)
+	while ((readl(&clk->epll_con0) & EPLL_CON0_LOCKED) == 0)
 		;
 
 	/* Set VPLL */
@@ -538,7 +538,7 @@ void system_clock_init()
 	writel(VPLL_CON1_VAL, &clk->vpll_con1);
 	val = set_pll(mem->vpll_mdiv, mem->vpll_pdiv, mem->vpll_sdiv);
 	writel(val, &clk->vpll_con0);
-	while (readl(&clk->vpll_con0) & VPLL_CON0_LOCKED)
+	while ((readl(&clk->vpll_con0) & VPLL_CON0_LOCKED) == 0)
 		;
 
 	writel(CLK_SRC_CORE0_VAL, &clk->src_core0);

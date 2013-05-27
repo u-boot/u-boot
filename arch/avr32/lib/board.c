@@ -116,7 +116,7 @@ static int display_banner (void)
 	printf ("\n\n%s\n\n", version_string);
 	printf ("U-Boot code: %08lx -> %08lx  data: %08lx -> %08lx\n",
 		(unsigned long)_text, (unsigned long)_etext,
-		(unsigned long)_data, (unsigned long)__bss_end__);
+		(unsigned long)_data, (unsigned long)__bss_end);
 	return 0;
 }
 
@@ -188,7 +188,7 @@ void board_init_f(ulong board_type)
 	 *  - stack
 	 */
 	addr = CONFIG_SYS_SDRAM_BASE + sdram_size;
-	monitor_len = __bss_end__ - _text;
+	monitor_len = (char *)__bss_end - _text;
 
 	/*
 	 * Reserve memory for u-boot code, data and bss.
@@ -211,11 +211,11 @@ void board_init_f(ulong board_type)
 #ifdef CONFIG_FB_ADDR
 	printf("LCD: Frame buffer allocated at preset 0x%08x\n",
 	       CONFIG_FB_ADDR);
-	gd->fb_base = (void *)CONFIG_FB_ADDR;
+	gd->fb_base = CONFIG_FB_ADDR;
 #else
 	addr = lcd_setmem(addr);
 	printf("LCD: Frame buffer allocated at 0x%08lx\n", addr);
-	gd->fb_base = (void *)addr;
+	gd->fb_base = addr;
 #endif /* CONFIG_FB_ADDR */
 #endif /* CONFIG_LCD */
 
@@ -231,7 +231,7 @@ void board_init_f(ulong board_type)
 
 	/* And finally, a new, bigger stack. */
 	new_sp = (unsigned long *)addr;
-	gd->stack_end = addr;
+	gd->arch.stack_end = addr;
 	*(--new_sp) = 0;
 	*(--new_sp) = 0;
 
@@ -286,7 +286,6 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	/* The malloc area is right below the monitor image in RAM */
 	mem_malloc_init(CONFIG_SYS_MONITOR_BASE + gd->reloc_off -
 			CONFIG_SYS_MALLOC_LEN, CONFIG_SYS_MALLOC_LEN);
-	malloc_bin_reloc();
 	dma_alloc_init();
 
 	enable_interrupts();

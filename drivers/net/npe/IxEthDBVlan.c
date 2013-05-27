@@ -642,7 +642,7 @@ IxEthDBStatus ixEthDBPortVlanMembershipGet(IxEthDBPortId portID, IxEthDBVlanSet 
  *
  * @param portID ID of the port
  * @param vlanID VLAN ID to enable or disable Egress tagging on
- * @param enabled TRUE to enable and FALSE to disable tagging
+ * @param enabled true to enable and false to disable tagging
  *
  * Note that this function is documented in the main component
  * header file, IxEthDB.h.
@@ -670,7 +670,7 @@ IxEthDBStatus ixEthDBEgressVlanEntryTaggingEnabledSet(IxEthDBPortId portID, IxEt
  * @param portID ID of the port
  * @param vlanID VLAN ID to retrieve the tagging status for
  * @param enabled location to store the tagging status
- * (TRUE - tagging enabled, FALSE - tagging disabled)
+ * (true - tagging enabled, false - tagging disabled)
  *
  * Note that this function is documented in the main component
  * header file, IxEthDB.h.
@@ -702,7 +702,7 @@ IxEthDBStatus ixEthDBEgressVlanEntryTaggingEnabledGet(IxEthDBPortId portID, IxEt
  * @param portID ID of the port
  * @param vlanIDMin start of VLAN range
  * @param vlanIDMax end of VLAN range
- * @param enabled TRUE to enable or FALSE to disable VLAN tagging
+ * @param enabled true to enable or false to disable VLAN tagging
  *
  * Note that this function is documented in the main component
  * header file, IxEthDB.h.
@@ -1151,7 +1151,7 @@ IxEthDBStatus ixEthDBPriorityMappingClassGet(IxEthDBPortId portID, IxEthDBPriori
  * from the VLAN TPID field
  *
  * @param portID ID of the port
- * @param enable TRUE to enable or FALSE to disable
+ * @param enable true to enable or false to disable
  *
  * Note that this function is documented in the main component
  * header file, IxEthDB.h.

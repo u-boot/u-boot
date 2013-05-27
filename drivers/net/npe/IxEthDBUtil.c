@@ -94,13 +94,13 @@ BOOL ixEthDBCheckSingleBitValue(UINT32 value)
 	
     while (value != 0)
     {
-        if (value == 1) return TRUE;
-        else if ((value & 1) == 1) return FALSE;
+        if (value == 1) return true;
+        else if ((value & 1) == 1) return false;
 
         value >>= 1;
     }
     
-    return FALSE;
+    return false;
 
 #endif
 }

@@ -115,13 +115,13 @@ unsigned long long get_ticks(void)
 {
 	ulong now = GPTCNT; /* current tick value */
 
-	if (now >= gd->lastinc)	/* normal mode (non roll) */
+	if (now >= gd->arch.lastinc)	/* normal mode (non roll) */
 		/* move stamp forward with absolut diff ticks */
-		gd->tbl += (now - gd->lastinc);
+		gd->arch.tbl += (now - gd->arch.lastinc);
 	else			/* we have rollover of incrementer */
-		gd->tbl += (0xFFFFFFFF - gd->lastinc) + now;
-	gd->lastinc = now;
-	return gd->tbl;
+		gd->arch.tbl += (0xFFFFFFFF - gd->arch.lastinc) + now;
+	gd->arch.lastinc = now;
+	return gd->arch.tbl;
 }
 
 ulong get_timer_masked(void)

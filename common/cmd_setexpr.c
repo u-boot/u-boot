@@ -53,7 +53,7 @@ static ulong get_arg(char *s, int w)
 static int do_setexpr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong a, b;
-	char buf[16];
+	ulong value;
 	int w;
 
 	/* Validate arguments */
@@ -67,8 +67,7 @@ static int do_setexpr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	a = get_arg(argv[2], w);
 
 	if (argc == 3) {
-		sprintf(buf, "%lx", a);
-		setenv(argv[1], buf);
+		setenv_hex(argv[1], a);
 
 		return 0;
 	}
@@ -76,20 +75,36 @@ static int do_setexpr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	b = get_arg(argv[4], w);
 
 	switch (argv[3][0]) {
-	case '|': sprintf(buf, "%lx", (a | b)); break;
-	case '&': sprintf(buf, "%lx", (a & b)); break;
-	case '+': sprintf(buf, "%lx", (a + b)); break;
-	case '^': sprintf(buf, "%lx", (a ^ b)); break;
-	case '-': sprintf(buf, "%lx", (a - b)); break;
-	case '*': sprintf(buf, "%lx", (a * b)); break;
-	case '/': sprintf(buf, "%lx", (a / b)); break;
-	case '%': sprintf(buf, "%lx", (a % b)); break;
+	case '|':
+		value = a | b;
+		break;
+	case '&':
+		value = a & b;
+		break;
+	case '+':
+		value = a + b;
+		break;
+	case '^':
+		value = a ^ b;
+		break;
+	case '-':
+		value = a - b;
+		break;
+	case '*':
+		value = a * b;
+		break;
+	case '/':
+		value = a / b;
+		break;
+	case '%':
+		value = a % b;
+		break;
 	default:
 		printf("invalid op\n");
 		return 1;
 	}
 
-	setenv(argv[1], buf);
+	setenv_hex(argv[1], value);
 
 	return 0;
 }

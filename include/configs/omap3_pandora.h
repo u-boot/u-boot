@@ -126,8 +126,6 @@
 #define CONFIG_HARD_I2C			1
 #define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_SYS_I2C_SLAVE		1
-#define CONFIG_SYS_I2C_BUS		0
-#define CONFIG_SYS_I2C_BUS_SELECT	1
 #define CONFIG_DRIVER_OMAP34XX_I2C	1
 
 /*
@@ -182,7 +180,8 @@
 			"ext2load mmc1 0 ${loadaddr} autoboot.scr; then " \
 		"source ${loadaddr}; " \
 	"fi; " \
-	"ubi part boot && ubifsmount boot && ubifsload ${loadaddr} uImage && bootm ${loadaddr}"
+	"ubi part boot && ubifsmount ubi:boot && " \
+		"ubifsload ${loadaddr} uImage && bootm ${loadaddr}"
 
 #define CONFIG_AUTO_COMPLETE	1
 /*

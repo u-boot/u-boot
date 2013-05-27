@@ -24,6 +24,7 @@
 
 #include <config.h>
 #include <asm-offsets.h>
+#include <linux/linkage.h>
 
 /*
  * This file handles the target-independent stages of the U-Boot
@@ -63,46 +64,20 @@
  *    have some work left to do at this point regarding memory, so
  *    call c_runtime_cpu_setup.
  *
- * 6. Branch to either nand_boot() or board_init_r().
+ * 6. Branch to board_init_r().
  */
-
-/*
- * declare nand_boot() or board_init_r() to jump to at end of crt0
- */
-
-#if defined(CONFIG_NAND_SPL)
-
-.globl nand_boot
-
-#elif ! defined(CONFIG_SPL_BUILD)
-
-.globl board_init_r
-
-#endif
-
-/*
- * start and end of BSS
- */
-
-.globl __bss_start
-.globl __bss_end__
 
 /*
  * entry point of crt0 sequence
  */
 
-.global _main
-
-_main:
+ENTRY(_main)
 
 /*
  * Set up initial C runtime environment and call board_init_f(0).
  */
 
-#if defined(CONFIG_NAND_SPL)
-	/* deprecated, use instead CONFIG_SPL_BUILD */
-	ldr	sp, =(CONFIG_SYS_INIT_SP_ADDR)
-#elif defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_STACK)
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_STACK)
 	ldr	sp, =(CONFIG_SPL_STACK)
 #else
 	ldr	sp, =(CONFIG_SYS_INIT_SP_ADDR)
@@ -118,8 +93,8 @@ _main:
 
 /*
  * Set up intermediate environment (new sp and gd) and call
- * relocate_code(addr_sp, gd, addr_moni). Trick here is that
- * we'll return 'here' but relocated.
+ * relocate_code(addr_moni). Trick here is that we'll return
+ * 'here' but relocated.
  */
 
 	ldr	sp, [r8, #GD_START_ADDR_SP]	/* r8 = gd->start_addr_sp */
@@ -130,9 +105,7 @@ _main:
 	adr	lr, here
 	ldr	r0, [r8, #GD_RELOC_OFF]		/* lr = gd->start_addr_sp */
 	add	lr, lr, r0
-	ldr	r0, [r8, #GD_START_ADDR_SP]	/* r0 = gd->start_addr_sp */
-	mov	r1, r8				/* r1 = gd */
-	ldr	r2, [r8, #GD_RELOCADDR]		/* r2 = gd->relocaddr */
+	ldr	r0, [r8, #GD_RELOCADDR]		/* r0 = gd->relocaddr */
 	b	relocate_code
 here:
 
@@ -141,7 +114,7 @@ here:
 	bl	c_runtime_cpu_setup	/* we still call old routine here */
 
 	ldr	r0, =__bss_start	/* this is auto-relocated! */
-	ldr	r1, =__bss_end__	/* this is auto-relocated! */
+	ldr	r1, =__bss_end		/* this is auto-relocated! */
 
 	mov	r2, #0x00000000		/* prepare zero to clear BSS */
 
@@ -153,21 +126,14 @@ clbss_l:cmp	r0, r1			/* while not at end of BSS */
 	bl coloured_LED_init
 	bl red_led_on
 
-#if defined(CONFIG_NAND_SPL)
-
-	/* call _nand_boot() */
-	ldr     pc, =nand_boot
-
-#else
-
 	/* call board_init_r(gd_t *id, ulong dest_addr) */
 	mov	r0, r8			/* gd_t */
 	ldr	r1, [r8, #GD_RELOCADDR]	/* dest_addr */
 	/* call board_init_r */
 	ldr	pc, =board_init_r	/* this is auto-relocated! */
 
-#endif
-
 	/* we should not return here. */
 
 #endif
+
+ENDPROC(_main)

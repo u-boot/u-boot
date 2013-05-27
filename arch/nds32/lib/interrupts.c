@@ -59,7 +59,7 @@ void enable_interrupts(void)
 
 /*
  * disable interrupts
- * Return TRUE if GIE is enabled before we disable it.
+ * Return true if GIE is enabled before we disable it.
  */
 int disable_interrupts(void)
 {
