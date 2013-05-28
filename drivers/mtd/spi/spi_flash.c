@@ -26,16 +26,6 @@ static void spi_flash_addr(u32 addr, u8 *cmd)
 	cmd[3] = addr >> 0;
 }
 
-static int spi_flash_bank(struct spi_flash *flash, u32 addr, u8 *bank_sel)
-{
-	*bank_sel = addr / SPI_FLASH_16MB_BOUN;
-	if ((flash->spi->is_dual == MODE_DUAL_STACKED) &&
-			(flash->spi->u_page == 1))
-		*bank_sel -= ((flash->size / 2) / SPI_FLASH_16MB_BOUN);
-
-	return spi_flash_cmd_bankaddr_write(flash, *bank_sel);
-}
-
 static int spi_flash_read_write(struct spi_slave *spi,
 				const u8 *cmd, size_t cmd_len,
 				const u8 *data_out, u8 *data_in,
@@ -114,7 +104,11 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 				flash->spi->u_page = 0;
 		}
 
-		ret = spi_flash_bank(flash, write_addr, &bank_sel);
+		bank_sel = write_addr / SPI_FLASH_16MB_BOUN;
+		if ((is_dual == MODE_DUAL_STACKED) && (flash->spi->u_page == 1))
+			bank_sel -= ((flash->size / 2) / SPI_FLASH_16MB_BOUN);
+
+		ret = spi_flash_cmd_bankaddr_write(flash, bank_sel);
 		if (ret) {
 			debug("SF: fail to set bank%d\n", bank_sel);
 			return ret;
@@ -205,7 +199,11 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 				flash->spi->u_page = 0;
 		}
 
-		ret = spi_flash_bank(flash, read_addr, &bank_sel);
+		bank_sel = read_addr / SPI_FLASH_16MB_BOUN;
+		if ((is_dual == MODE_DUAL_STACKED) && (flash->spi->u_page == 1))
+			bank_sel -= ((flash->size / 2) / bank_boun);
+
+		ret = spi_flash_cmd_bankaddr_write(flash, bank_sel);
 		if (ret) {
 			debug("SF: fail to set bank%d\n", bank_sel);
 			return ret;
@@ -313,7 +311,11 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 				flash->spi->u_page = 0;
 		}
 
-		ret = spi_flash_bank(flash, erase_addr, &bank_sel);
+		bank_sel = erase_addr / SPI_FLASH_16MB_BOUN;
+		if ((is_dual == MODE_DUAL_STACKED) && (flash->spi->u_page == 1))
+			bank_sel -= ((flash->size / 2) / SPI_FLASH_16MB_BOUN);
+
+		ret = spi_flash_cmd_bankaddr_write(flash, bank_sel);
 		if (ret) {
 			debug("SF: fail to set bank%d\n", bank_sel);
 			return ret;
