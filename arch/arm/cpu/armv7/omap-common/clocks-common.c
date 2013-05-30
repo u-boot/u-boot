@@ -730,6 +730,7 @@ void prcm_init(void)
 	case OMAP_INIT_CONTEXT_UBOOT_FROM_NOR:
 	case OMAP_INIT_CONTEXT_UBOOT_AFTER_CH:
 		enable_basic_clocks();
+		timer_init();
 		scale_vcores(*omap_vcores);
 		setup_dplls();
 #ifdef CONFIG_SYS_CLOCKS_ENABLE_ALL
