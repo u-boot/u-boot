@@ -201,6 +201,9 @@ void srcomp_enable(void)
 	u32 sysclk_ind	= get_sys_clk_index();
 	u32 omap_rev	= omap_revision();
 
+	if (!is_omap54xx())
+		return;
+
 	mul_factor = srcomp_parameters[sysclk_ind].multiply_factor;
 	div_factor = srcomp_parameters[sysclk_ind].divide_factor;
 

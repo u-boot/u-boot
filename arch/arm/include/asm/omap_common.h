@@ -597,6 +597,14 @@ static inline u32 omap_revision(void)
 	extern u32 *const omap_si_rev;
 	return *omap_si_rev;
 }
+
+#define OMAP54xx	0x54000000
+
+static inline u8 is_omap54xx(void)
+{
+	extern u32 *const omap_si_rev;
+	return ((*omap_si_rev & 0xFF000000) == OMAP54xx);
+}
 #endif
 
 /*
