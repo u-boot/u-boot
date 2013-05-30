@@ -35,6 +35,10 @@
 
 #include <configs/omap5_common.h>
 
+#define CONFIG_CONS_INDEX		3
+#define CONFIG_SYS_NS16550_COM3		UART3_BASE
+#define CONFIG_BAUDRATE			115200
+
 /* TWL6035 */
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_PALMAS_POWER
