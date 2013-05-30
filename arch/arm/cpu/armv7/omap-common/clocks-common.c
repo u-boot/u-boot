@@ -521,6 +521,38 @@ void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic)
 		gpio_direction_output(pmic->gpio, 1);
 }
 
+static u32 optimize_vcore_voltage(struct volts const *v)
+{
+	u32 val;
+	if (!v->value)
+		return 0;
+	if (!v->efuse.reg)
+		return v->value;
+
+	switch (v->efuse.reg_bits) {
+	case 16:
+		val = readw(v->efuse.reg);
+		break;
+	case 32:
+		val = readl(v->efuse.reg);
+		break;
+	default:
+		printf("Error: efuse 0x%08x bits=%d unknown\n",
+		       v->efuse.reg, v->efuse.reg_bits);
+		return v->value;
+	}
+
+	if (!val) {
+		printf("Error: efuse 0x%08x bits=%d val=0, using %d\n",
+		       v->efuse.reg, v->efuse.reg_bits, v->value);
+		return v->value;
+	}
+
+	debug("%s:efuse 0x%08x bits=%d Vnom=%d, using efuse value %d\n",
+	      __func__, v->efuse.reg, v->efuse.reg_bits, v->value, val);
+	return val;
+}
+
 /*
  * Setup the voltages for vdd_mpu, vdd_core, and vdd_iva
  * We set the maximum voltages allowed here because Smart-Reflex is not
@@ -529,11 +561,13 @@ void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic)
  */
 void scale_vcores(struct vcores_data const *vcores)
 {
-	do_scale_vcore(vcores->core.addr, vcores->core.value,
-					  vcores->core.pmic);
+	u32 val;
 
-	do_scale_vcore(vcores->mpu.addr, vcores->mpu.value,
-					  vcores->mpu.pmic);
+	val = optimize_vcore_voltage(&vcores->core);
+	do_scale_vcore(vcores->core.addr, val, vcores->core.pmic);
+
+	val = optimize_vcore_voltage(&vcores->mpu);
+	do_scale_vcore(vcores->mpu.addr, val, vcores->mpu.pmic);
 
 	/* Configure MPU ABB LDO after scale */
 	abb_setup((*ctrl)->control_std_fuse_opp_vdd_mpu_2,
@@ -544,17 +578,17 @@ void scale_vcores(struct vcores_data const *vcores)
 		  OMAP_ABB_MPU_TXDONE_MASK,
 		  OMAP_ABB_FAST_OPP);
 
-	do_scale_vcore(vcores->mm.addr, vcores->mm.value,
-					  vcores->mm.pmic);
+	val = optimize_vcore_voltage(&vcores->mm);
+	do_scale_vcore(vcores->mm.addr, val, vcores->mm.pmic);
 
-	do_scale_vcore(vcores->gpu.addr, vcores->gpu.value,
-		       vcores->gpu.pmic);
+	val = optimize_vcore_voltage(&vcores->gpu);
+	do_scale_vcore(vcores->gpu.addr, val, vcores->gpu.pmic);
 
-	do_scale_vcore(vcores->eve.addr, vcores->eve.value,
-		       vcores->eve.pmic);
+	val = optimize_vcore_voltage(&vcores->eve);
+	do_scale_vcore(vcores->eve.addr, val, vcores->eve.pmic);
 
-	do_scale_vcore(vcores->iva.addr, vcores->iva.value,
-		       vcores->iva.pmic);
+	val = optimize_vcore_voltage(&vcores->iva);
+	do_scale_vcore(vcores->iva.addr, val, vcores->iva.pmic);
 
 	 if (emif_sdram_type() == EMIF_SDRAM_TYPE_DDR3) {
 		/* Configure LDO SRAM "magic" bits */

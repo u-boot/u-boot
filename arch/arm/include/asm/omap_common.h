@@ -506,9 +506,20 @@ struct pmic_data {
 	int (*pmic_write)(u8 sa, u8 reg_addr, u8 reg_data);
 };
 
+/**
+ * struct volts_efuse_data - efuse definition for voltage
+ * @reg:	register address for efuse
+ * @reg_bits:	Number of bits in a register address, mandatory.
+ */
+struct volts_efuse_data {
+	u32 reg;
+	u8 reg_bits;
+};
+
 struct volts {
 	u32 value;
 	u32 addr;
+	struct volts_efuse_data efuse;
 	struct pmic_data *pmic;
 };
 
