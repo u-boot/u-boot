@@ -487,6 +487,7 @@ void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic)
 	u32 offset = volt_mv;
 	int ret = 0;
 
+	pmic->pmic_bus_init();
 	/* See if we can first get the GPIO if needed */
 	if (pmic->gpio_en)
 		ret = gpio_request(pmic->gpio, "PMIC_GPIO");
@@ -509,8 +510,7 @@ void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic)
 	debug("do_scale_vcore: volt - %d offset_code - 0x%x\n", volt_mv,
 		offset_code);
 
-	if (omap_vc_bypass_send_value(SMPS_I2C_SLAVE_ADDR,
-				vcore_reg, offset_code))
+	if (pmic->pmic_write(pmic->i2c_slave_addr, vcore_reg, offset_code))
 		printf("Scaling voltage failed for 0x%x\n", vcore_reg);
 
 	if (pmic->gpio_en)
@@ -525,8 +525,6 @@ void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic)
  */
 void scale_vcores(struct vcores_data const *vcores)
 {
-	omap_vc_init(PRM_VC_I2C_CHANNEL_FREQ_KHZ);
-
 	do_scale_vcore(vcores->core.addr, vcores->core.value,
 					  vcores->core.pmic);
 

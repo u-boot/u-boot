@@ -289,6 +289,9 @@ struct pmic_data palmas = {
 	 * Offset code 0 switches OFF the SMPS
 	 */
 	.start_code = 6,
+	.i2c_slave_addr	= SMPS_I2C_SLAVE_ADDR,
+	.pmic_bus_init	= sri2c_init,
+	.pmic_write	= omap_vc_bypass_send_value,
 };
 
 struct vcores_data omap5430_volts = {

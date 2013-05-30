@@ -219,6 +219,9 @@ struct pmic_data twl6030_4430es1 = {
 	.step = 12660, /* 12.66 mV represented in uV */
 	/* The code starts at 1 not 0 */
 	.start_code = 1,
+	.i2c_slave_addr	= SMPS_I2C_SLAVE_ADDR,
+	.pmic_bus_init	= sri2c_init,
+	.pmic_write	= omap_vc_bypass_send_value,
 };
 
 struct pmic_data twl6030 = {
@@ -226,6 +229,9 @@ struct pmic_data twl6030 = {
 	.step = 12660, /* 12.66 mV represented in uV */
 	/* The code starts at 1 not 0 */
 	.start_code = 1,
+	.i2c_slave_addr	= SMPS_I2C_SLAVE_ADDR,
+	.pmic_bus_init	= sri2c_init,
+	.pmic_write	= omap_vc_bypass_send_value,
 };
 
 struct pmic_data tps62361 = {
@@ -233,7 +239,10 @@ struct pmic_data tps62361 = {
 	.step = 10000, /* 10 mV represented in uV */
 	.start_code = 0,
 	.gpio = TPS62361_VSEL0_GPIO,
-	.gpio_en = 1
+	.gpio_en = 1,
+	.i2c_slave_addr	= SMPS_I2C_SLAVE_ADDR,
+	.pmic_bus_init	= sri2c_init,
+	.pmic_write	= omap_vc_bypass_send_value,
 };
 
 struct vcores_data omap4430_volts_es1 = {

@@ -501,6 +501,9 @@ struct pmic_data {
 	u32 start_code;
 	unsigned gpio;
 	int gpio_en;
+	u32 i2c_slave_addr;
+	void (*pmic_bus_init)(void);
+	int (*pmic_write)(u8 sa, u8 reg_addr, u8 reg_data);
 };
 
 struct volts {
