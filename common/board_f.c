@@ -667,27 +667,6 @@ static int setup_board_part1(void)
 #if defined(CONFIG_MPC83xx)
 	bd->bi_immrbar = CONFIG_SYS_IMMR;
 #endif
-#if defined(CONFIG_MPC8220)
-	bd->bi_mbar_base = CONFIG_SYS_MBAR;	/* base of internal registers */
-	bd->bi_inpfreq = gd->arch.inp_clk;
-	bd->bi_pcifreq = gd->pci_clk;
-	bd->bi_vcofreq = gd->arch.vco_clk;
-	bd->bi_pevfreq = gd->arch.pev_clk;
-	bd->bi_flbfreq = gd->arch.flb_clk;
-
-	/* store bootparam to sram (backward compatible), here? */
-	{
-		u32 *sram = (u32 *) CONFIG_SYS_SRAM_BASE;
-
-		*sram++ = gd->ram_size;
-		*sram++ = gd->bus_clk;
-		*sram++ = gd->arch.inp_clk;
-		*sram++ = gd->cpu_clk;
-		*sram++ = gd->arch.vco_clk;
-		*sram++ = gd->arch.flb_clk;
-		*sram++ = 0xb8c3ba11;	/* boot signature */
-	}
-#endif
 
 	return 0;
 }
@@ -921,9 +900,6 @@ static init_fnc_t init_sequence_f[] = {
 #if defined(CONFIG_MPC5xxx)
 	prt_mpc5xxx_clks,
 #endif /* CONFIG_MPC5xxx */
-#if defined(CONFIG_MPC8220)
-	prt_mpc8220_clks,
-#endif
 #if defined(CONFIG_DISPLAY_BOARDINFO)
 	checkboard,		/* display board info */
 #endif

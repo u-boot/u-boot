@@ -71,18 +71,18 @@ void put_ext4(uint64_t off, void *buf, uint32_t size)
 	uint64_t startblock;
 	uint64_t remainder;
 	unsigned char *temp_ptr = NULL;
-	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, sec_buf, SECTOR_SIZE);
 	struct ext_filesystem *fs = get_fs();
+	int log2blksz = fs->dev_desc->log2blksz;
+	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, sec_buf, fs->dev_desc->blksz);
 
-	startblock = off / (uint64_t)SECTOR_SIZE;
+	startblock = off >> log2blksz;
 	startblock += part_offset;
-	remainder = off % (uint64_t)SECTOR_SIZE;
-	remainder &= SECTOR_SIZE - 1;
+	remainder = off & (uint64_t)(fs->dev_desc->blksz - 1);
 
 	if (fs->dev_desc == NULL)
 		return;
 
-	if ((startblock + (size / SECTOR_SIZE)) >
+	if ((startblock + (size >> log2blksz)) >
 	    (part_offset + fs->total_sect)) {
 		printf("part_offset is %lu\n", part_offset);
 		printf("total_sector is %llu\n", fs->total_sect);
@@ -101,10 +101,10 @@ void put_ext4(uint64_t off, void *buf, uint32_t size)
 						  startblock, 1, sec_buf);
 		}
 	} else {
-		if (size / SECTOR_SIZE != 0) {
+		if (size >> log2blksz != 0) {
 			fs->dev_desc->block_write(fs->dev_desc->dev,
 						  startblock,
-						  size / SECTOR_SIZE,
+						  size >> log2blksz,
 						  (unsigned long *)buf);
 		} else {
 			fs->dev_desc->block_read(fs->dev_desc->dev,
@@ -1459,6 +1459,7 @@ static int ext4fs_blockgroup
 {
 	long int blkno;
 	unsigned int blkoff, desc_per_blk;
+	int log2blksz = get_fs()->dev_desc->log2blksz;
 
 	desc_per_blk = EXT2_BLOCK_SIZE(data) / sizeof(struct ext2_block_group);
 
@@ -1469,7 +1470,7 @@ static int ext4fs_blockgroup
 	debug("ext4fs read %d group descriptor (blkno %ld blkoff %u)\n",
 	      group, blkno, blkoff);
 
-	return ext4fs_devread(blkno << LOG2_EXT2_BLOCK_SIZE(data),
+	return ext4fs_devread(blkno << (LOG2_BLOCK_SIZE(data) - log2blksz),
 			      blkoff, sizeof(struct ext2_block_group),
 			      (char *)blkgrp);
 }
@@ -1479,6 +1480,7 @@ int ext4fs_read_inode(struct ext2_data *data, int ino, struct ext2_inode *inode)
 	struct ext2_block_group blkgrp;
 	struct ext2_sblock *sblock = &data->sblock;
 	struct ext_filesystem *fs = get_fs();
+	int log2blksz = get_fs()->dev_desc->log2blksz;
 	int inodes_per_block, status;
 	long int blkno;
 	unsigned int blkoff;
@@ -1495,7 +1497,8 @@ int ext4fs_read_inode(struct ext2_data *data, int ino, struct ext2_inode *inode)
 	    (ino % __le32_to_cpu(sblock->inodes_per_group)) / inodes_per_block;
 	blkoff = (ino % inodes_per_block) * fs->inodesz;
 	/* Read the inode. */
-	status = ext4fs_devread(blkno << LOG2_EXT2_BLOCK_SIZE(data), blkoff,
+	status = ext4fs_devread(blkno << (LOG2_BLOCK_SIZE(data) - log2blksz),
+				blkoff,
 				sizeof(struct ext2_inode), (char *)inode);
 	if (status == 0)
 		return 0;
@@ -1515,7 +1518,9 @@ long int read_allocated_block(struct ext2_inode *inode, int fileblock)
 	unsigned long long start;
 	/* get the blocksize of the filesystem */
 	blksz = EXT2_BLOCK_SIZE(ext4fs_root);
-	log2_blksz = LOG2_EXT2_BLOCK_SIZE(ext4fs_root);
+	log2_blksz = LOG2_BLOCK_SIZE(ext4fs_root)
+		- get_fs()->dev_desc->log2blksz;
+
 	if (le32_to_cpu(inode->flags) & EXT4_EXTENTS_FL) {
 		char *buf = zalloc(blksz);
 		if (!buf)
@@ -1523,11 +1528,11 @@ long int read_allocated_block(struct ext2_inode *inode, int fileblock)
 		struct ext4_extent_header *ext_block;
 		struct ext4_extent *extent;
 		int i = -1;
-		ext_block = ext4fs_get_extent_block(ext4fs_root, buf,
-						    (struct ext4_extent_header
-						     *)inode->b.
-						    blocks.dir_blocks,
-						    fileblock, log2_blksz);
+		ext_block =
+			ext4fs_get_extent_block(ext4fs_root, buf,
+						(struct ext4_extent_header *)
+						inode->b.blocks.dir_blocks,
+						fileblock, log2_blksz);
 		if (!ext_block) {
 			printf("invalid extent block\n");
 			free(buf);
@@ -1839,7 +1844,7 @@ long int read_allocated_block(struct ext2_inode *inode, int fileblock)
 		blknr = __le32_to_cpu(ext4fs_indir3_block
 				      [rblock % perblock_child]);
 	}
-	debug("ext4fs_read_block %ld\n", blknr);
+	debug("read_allocated_block %ld\n", blknr);
 
 	return blknr;
 }
@@ -2193,13 +2198,12 @@ int ext4fs_mount(unsigned part_length)
 	struct ext2_data *data;
 	int status;
 	struct ext_filesystem *fs = get_fs();
-	data = zalloc(sizeof(struct ext2_data));
+	data = zalloc(SUPERBLOCK_SIZE);
 	if (!data)
 		return 0;
 
 	/* Read the superblock. */
-	status = ext4fs_devread(1 * 2, 0, sizeof(struct ext2_sblock),
-				(char *)&data->sblock);
+	status = ext4_read_superblock((char *)&data->sblock);
 
 	if (status == 0)
 		goto fail;

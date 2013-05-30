@@ -36,7 +36,6 @@
 
 /* High Level Configuration Options */
 #define CONFIG_BOOKE
-#define CONFIG_E6500
 #define CONFIG_E500			/* BOOKE e500 family */
 #define CONFIG_E500MC			/* BOOKE e500mc family */
 #define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
@@ -528,6 +527,15 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SF_DEFAULT_MODE          0
 
 /*
+ * MAPLE
+ */
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_MAPLE_MEM_PHYS      0xFA0000000ull
+#else
+#define CONFIG_SYS_MAPLE_MEM_PHYS      0xA0000000
+#endif
+
+/*
  * General PCI
  * Memory space is mapped 1-1, but I/O space must start from 0.
  */
@@ -623,7 +631,11 @@ unsigned long get_board_ddr_clk(void);
 #ifdef CONFIG_FMAN_ENET
 #define CONFIG_SYS_FM1_DTSEC5_PHY_ADDR	0x10
 #define CONFIG_SYS_FM1_DTSEC6_PHY_ADDR	0x11
-#define CONFIG_SYS_FM1_10GEC1_PHY_ADDR	4
+
+/*B4860 QDS AMC2PEX-2S default PHY_ADDR */
+#define CONFIG_SYS_FM1_10GEC1_PHY_ADDR 0x7	 /*SLOT 1*/
+#define CONFIG_SYS_FM1_10GEC2_PHY_ADDR 0x6	 /*SLOT 2*/
+
 
 #define CONFIG_SYS_FM1_DTSEC1_RISER_PHY_ADDR    0x1c
 #define CONFIG_SYS_FM1_DTSEC2_RISER_PHY_ADDR    0x1d

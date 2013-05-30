@@ -36,6 +36,7 @@
 #include <lmb.h>
 #include <linux/ctype.h>
 #include <asm/byteorder.h>
+#include <asm/io.h>
 #include <linux/compiler.h>
 
 #if defined(CONFIG_CMD_USB)
@@ -97,7 +98,7 @@ static image_header_t *image_get_kernel(ulong img_addr, int verify);
 static int fit_check_kernel(const void *fit, int os_noffset, int verify);
 #endif
 
-static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
+static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 				char * const argv[], bootm_headers_t *images,
 				ulong *os_data, ulong *os_len);
 
@@ -203,8 +204,8 @@ static inline void boot_start_lmb(bootm_headers_t *images) { }
 
 static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	void		*os_hdr;
-	int		ret;
+	const void *os_hdr;
+	int ret;
 
 	memset((void *)&images, 0, sizeof(images));
 	images.verify = getenv_yesno("verify");
@@ -275,7 +276,7 @@ static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 #if defined(CONFIG_FIT)
 	} else if (images.fit_uname_os) {
 		ret = fit_image_get_entry(images.fit_hdr_os,
-				images.fit_noffset_os, &images.ep);
+					  images.fit_noffset_os, &images.ep);
 		if (ret) {
 			puts("Can't get entry point property!\n");
 			return 1;
@@ -815,7 +816,7 @@ static int fit_check_kernel(const void *fit, int os_noffset, int verify)
 
 	if (verify) {
 		puts("   Verifying Hash Integrity ... ");
-		if (!fit_image_check_hashes(fit, os_noffset)) {
+		if (!fit_image_verify(fit, os_noffset)) {
 			puts("Bad Data Hash\n");
 			bootstage_error(BOOTSTAGE_ID_FIT_CHECK_HASH);
 			return 0;
@@ -855,14 +856,15 @@ static int fit_check_kernel(const void *fit, int os_noffset, int verify)
  *     pointer to image header if valid image was found, plus kernel start
  *     address and length, otherwise NULL
  */
-static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
+static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 		char * const argv[], bootm_headers_t *images, ulong *os_data,
 		ulong *os_len)
 {
 	image_header_t	*hdr;
 	ulong		img_addr;
+	const void *buf;
 #if defined(CONFIG_FIT)
-	void		*fit_hdr;
+	const void	*fit_hdr;
 	const char	*fit_uname_config = NULL;
 	const char	*fit_uname_kernel = NULL;
 	const void	*data;
@@ -898,7 +900,8 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	/* check image type, for FIT images get FIT kernel node */
 	*os_data = *os_len = 0;
-	switch (genimg_get_format((void *)img_addr)) {
+	buf = map_sysmem(img_addr, 0);
+	switch (genimg_get_format(buf)) {
 	case IMAGE_FORMAT_LEGACY:
 		printf("## Booting kernel from Legacy Image at %08lx ...\n",
 				img_addr);
@@ -943,7 +946,7 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 		break;
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
-		fit_hdr = (void *)img_addr;
+		fit_hdr = buf;
 		printf("## Booting kernel from FIT Image at %08lx ...\n",
 				img_addr);
 
@@ -1020,7 +1023,7 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 
 		*os_len = len;
 		*os_data = (ulong)data;
-		images->fit_hdr_os = fit_hdr;
+		images->fit_hdr_os = (void *)fit_hdr;
 		images->fit_uname_os = fit_uname_kernel;
 		images->fit_noffset_os = os_noffset;
 		break;
@@ -1034,7 +1037,7 @@ static void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 	debug("   kernel data at 0x%08lx, len = 0x%08lx (%ld)\n",
 			*os_data, *os_len, *os_len);
 
-	return (void *)img_addr;
+	return buf;
 }
 
 #ifdef CONFIG_SYS_LONGHELP
@@ -1169,7 +1172,7 @@ static int image_info(ulong addr)
 
 		fit_print_contents(hdr);
 
-		if (!fit_all_image_check_hashes(hdr)) {
+		if (!fit_all_image_verify(hdr)) {
 			puts("Bad hash in FIT image!\n");
 			return 1;
 		}
@@ -1420,9 +1423,14 @@ U_BOOT_CMD(
 /* helper routines */
 /*******************************************************************/
 #if defined(CONFIG_SILENT_CONSOLE) && !defined(CONFIG_SILENT_U_BOOT_ONLY)
+
+#define CONSOLE_ARG     "console="
+#define CONSOLE_ARG_LEN (sizeof(CONSOLE_ARG) - 1)
+
 static void fixup_silent_linux(void)
 {
-	char buf[256], *start, *end;
+	char *buf;
+	const char *env_val;
 	char *cmdline = getenv("bootargs");
 
 	/* Only fix cmdline when requested */
@@ -1430,25 +1438,37 @@ static void fixup_silent_linux(void)
 		return;
 
 	debug("before silent fix-up: %s\n", cmdline);
-	if (cmdline) {
-		start = strstr(cmdline, "console=");
-		if (start) {
-			end = strchr(start, ' ');
-			strncpy(buf, cmdline, (start - cmdline + 8));
-			if (end)
-				strcpy(buf + (start - cmdline + 8), end);
-			else
-				buf[start - cmdline + 8] = '\0';
-		} else {
-			strcpy(buf, cmdline);
-			strcat(buf, " console=");
+	if (cmdline && (cmdline[0] != '\0')) {
+		char *start = strstr(cmdline, CONSOLE_ARG);
+
+		/* Allocate space for maximum possible new command line */
+		buf = malloc(strlen(cmdline) + 1 + CONSOLE_ARG_LEN + 1);
+		if (!buf) {
+			debug("%s: out of memory\n", __func__);
+			return;
 		}
+
+		if (start) {
+			char *end = strchr(start, ' ');
+			int num_start_bytes = start - cmdline + CONSOLE_ARG_LEN;
+
+			strncpy(buf, cmdline, num_start_bytes);
+			if (end)
+				strcpy(buf + num_start_bytes, end);
+			else
+				buf[num_start_bytes] = '\0';
+		} else {
+			sprintf(buf, "%s %s", cmdline, CONSOLE_ARG);
+		}
+		env_val = buf;
 	} else {
-		strcpy(buf, "console=");
+		buf = NULL;
+		env_val = CONSOLE_ARG;
 	}
 
-	setenv("bootargs", buf);
-	debug("after silent fix-up: %s\n", buf);
+	setenv("bootargs", env_val);
+	debug("after silent fix-up: %s\n", env_val);
+	free(buf);
 }
 #endif /* CONFIG_SILENT_CONSOLE */
 

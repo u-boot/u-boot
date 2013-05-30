@@ -80,5 +80,11 @@ cscope.*
 /ctags
 /etags
 
+# gnu global files
+GPATH
+GRTAGS
+GSYMS
+GTAGS
+
 # spl ais files
 /spl/*.ais

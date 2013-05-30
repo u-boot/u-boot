@@ -58,7 +58,9 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	const void	*fit_data;
 	size_t		fit_len;
 #endif
+#ifdef CONFIG_GZIP
 	uint		unc_len = CONFIG_SYS_XIMG_LEN;
+#endif
 	uint8_t		comp;
 
 	verify = getenv_yesno("verify");
@@ -160,7 +162,7 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 		/* verify integrity */
 		if (verify) {
-			if (!fit_image_check_hashes(fit_hdr, noffset)) {
+			if (!fit_image_verify(fit_hdr, noffset)) {
 				puts("Bad Data Hash\n");
 				return 1;
 			}

@@ -314,7 +314,7 @@ int setenv(const char *varname, const char *varvalue)
 /**
  * Set an environment variable to an integer value
  *
- * @param varname	Environmet variable to set
+ * @param varname	Environment variable to set
  * @param value		Value to set it to
  * @return 0 if ok, 1 on error
  */
@@ -329,7 +329,7 @@ int setenv_ulong(const char *varname, ulong value)
 /**
  * Set an environment variable to an value in hex
  *
- * @param varname	Environmet variable to set
+ * @param varname	Environment variable to set
  * @param value		Value to set it to
  * @return 0 if ok, 1 on error
  */

@@ -250,11 +250,10 @@ CPPFLAGS += -I$(TOPDIR)/include
 CPPFLAGS += -fno-builtin -ffreestanding -nostdinc	\
 	-isystem $(gccincdir) -pipe $(PLATFORM_CPPFLAGS)
 
-ifdef BUILD_TAG
-CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes \
-	-DBUILD_TAG='"$(BUILD_TAG)"'
-else
 CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes
+
+ifdef BUILD_TAG
+CFLAGS += -DBUILD_TAG='"$(BUILD_TAG)"'
 endif
 
 CFLAGS_SSP := $(call cc-option,-fno-stack-protector)

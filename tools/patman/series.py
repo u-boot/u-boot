@@ -40,6 +40,7 @@ class Series(dict):
         notes: List of lines in the notes
         changes: (dict) List of changes for each version, The key is
             the integer version number
+        allow_overwrite: Allow tags to overwrite an existing tag
     """
     def __init__(self):
         self.cc = []
@@ -49,6 +50,7 @@ class Series(dict):
         self.cover = None
         self.notes = []
         self.changes = {}
+        self.allow_overwrite = False
 
         # Written in MakeCcFile()
         #  key: name of patch file
@@ -72,7 +74,7 @@ class Series(dict):
         """
         # If we already have it, then add to our list
         name = name.replace('-', '_')
-        if name in self:
+        if name in self and not self.allow_overwrite:
             values = value.split(',')
             values = [str.strip() for str in values]
             if type(self[name]) != type([]):

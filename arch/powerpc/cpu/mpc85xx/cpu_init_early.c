@@ -180,12 +180,5 @@ void cpu_init_early_f(void)
 
 	invalidate_tlb(1);
 
-#if defined(CONFIG_SECURE_BOOT)
-	/* Disable the TLBs created by ISBC */
-	for (i = CONFIG_SYS_ISBC_START_TLB;
-	     i < CONFIG_SYS_ISBC_START_TLB + CONFIG_SYS_ISBC_NUM_TLBS; i++)
-			disable_tlb(i);
-#endif
-
 	init_tlbs();
 }

@@ -149,10 +149,15 @@
 #define CONFIG_MUSB_TIMEOUT 100000
 #endif
 
+/* Don't waste time transferring a logo over the UART */
+#if (CONFIG_BFIN_BOOT_MODE != BFIN_BOOT_UART)
+/*# define CONFIG_VIDEO*/
+#endif
 
 /*
  * Video Settings
  */
+#ifdef CONFIG_VIDEO
 #ifdef CONFIG_BF527_EZKIT_REV_2_1
 # define CONFIG_LQ035Q1_SPI_BUS	0
 # define CONFIG_LQ035Q1_SPI_CS	7
@@ -166,7 +171,7 @@
 #else
 # define EASYLOGO_HEADER <asm/bfin_logo_230x230_lzma.h>
 #endif
-
+#endif /* CONFIG_VIDEO */
 
 /*
  * Misc Settings
@@ -174,11 +179,6 @@
 #define CONFIG_MISC_INIT_R
 #define CONFIG_RTC_BFIN
 #define CONFIG_UART_CONSOLE	1
-
-/* Don't waste time transferring a logo over the UART */
-#if (CONFIG_BFIN_BOOT_MODE != BFIN_BOOT_UART)
-# define CONFIG_VIDEO
-#endif
 
 
 /*

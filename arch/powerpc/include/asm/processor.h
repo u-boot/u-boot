@@ -507,6 +507,15 @@
 #define   L2CSR0_L2IO		0x00100000	/* L2 Cache Instruction Only */
 #define   L2CSR0_L2DO		0x00010000	/* L2 Cache Data Only */
 #define   L2CSR0_L2REP		0x00003000	/* L2 Line Replacement Algo */
+
+/* e6500 */
+#define   L2CSR0_L2REP_SPLRUAGE	0x00000000	/* L2REP Streaming PLRU with Aging */
+#define   L2CSR0_L2REP_FIFO	0x00001000	/* L2REP FIFO */
+#define   L2CSR0_L2REP_SPLRU	0x00002000	/* L2REP Streaming PLRU */
+#define   L2CSR0_L2REP_PLRU	0x00003000	/* L2REP PLRU */
+
+#define   L2CSR0_L2REP_MODE	L2CSR0_L2REP_SPLRUAGE
+
 #define   L2CSR0_L2FL		0x00000800	/* L2 Cache Flush */
 #define   L2CSR0_L2LFC		0x00000400	/* L2 Cache Lock Flash Clear */
 #define   L2CSR0_L2LOA		0x00000080	/* L2 Cache Lock Overflow Allocate */
@@ -574,6 +583,16 @@
 #define SPRN_MSSCR0	0x3f6
 #define SPRN_MSSSR0	0x3f7
 #endif
+
+#define SPRN_HDBCR0	0x3d0
+#define SPRN_HDBCR1	0x3d1
+#define SPRN_HDBCR2	0x3d2
+#define SPRN_HDBCR3	0x3d3
+#define SPRN_HDBCR4	0x3d4
+#define SPRN_HDBCR5	0x3d5
+#define SPRN_HDBCR6	0x3d6
+#define SPRN_HDBCR7	0x277
+#define SPRN_HDBCR8	0x278
 
 /* Short-hand versions for a number of the above SPRNs */
 
@@ -1099,6 +1118,7 @@
 #define SVR_P5040	0x820400
 #define SVR_T4240	0x824000
 #define SVR_T4120	0x824001
+#define SVR_T4160	0x824100
 #define SVR_B4860	0X868000
 #define SVR_G4860	0x868001
 #define SVR_G4060	0x868003
@@ -1106,6 +1126,12 @@
 #define SVR_G4440	0x868101
 #define SVR_B4420	0x868102
 #define SVR_B4220	0x868103
+#define SVR_T1040	0x852000
+#define SVR_T1041	0x852001
+#define SVR_T1042	0x852002
+#define SVR_T1020	0x852100
+#define SVR_T1021	0x852101
+#define SVR_T1022	0x852102
 
 #define SVR_8610	0x80A000
 #define SVR_8641	0x809000
@@ -1173,6 +1199,8 @@ struct cpu_type {
 
 struct cpu_type *identify_cpu(u32 ver);
 int fixup_cpu(void);
+
+int fsl_qoriq_core_to_cluster(unsigned int core);
 
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
 #define CPU_TYPE_ENTRY(n, v, nc) \

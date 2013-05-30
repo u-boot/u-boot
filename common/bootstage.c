@@ -30,6 +30,8 @@
 
 #include <common.h>
 #include <libfdt.h>
+#include <malloc.h>
+#include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -55,6 +57,21 @@ struct bootstage_hdr {
 	uint32_t size;		/* Total data size (non-zero if valid) */
 	uint32_t magic;		/* Unused */
 };
+
+int bootstage_relocate(void)
+{
+	int i;
+
+	/*
+	 * Duplicate all strings.  They may point to an old location in the
+	 * program .text section that can eventually get trashed.
+	 */
+	for (i = 0; i < BOOTSTAGE_ID_COUNT; i++)
+		if (record[i].name)
+			record[i].name = strdup(record[i].name);
+
+	return 0;
+}
 
 ulong bootstage_add_record(enum bootstage_id id, const char *name,
 			   int flags, ulong mark)
@@ -100,6 +117,33 @@ ulong bootstage_mark_name(enum bootstage_id id, const char *name)
 	if (id == BOOTSTAGE_ID_ALLOC)
 		flags = BOOTSTAGEF_ALLOC;
 	return bootstage_add_record(id, name, flags, timer_get_boot_us());
+}
+
+ulong bootstage_mark_code(const char *file, const char *func, int linenum)
+{
+	char *str, *p;
+	__maybe_unused char *end;
+	int len = 0;
+
+	/* First work out the length we need to allocate */
+	if (linenum != -1)
+		len = 11;
+	if (func)
+		len += strlen(func);
+	if (file)
+		len += strlen(file);
+
+	str = malloc(len + 1);
+	p = str;
+	end = p + len;
+	if (file)
+		p += snprintf(p, end - p, "%s,", file);
+	if (linenum != -1)
+		p += snprintf(p, end - p, "%d", linenum);
+	if (func)
+		p += snprintf(p, end - p, ": %s", func);
+
+	return bootstage_mark_name(BOOTSTAGE_ID_ALLOC, str);
 }
 
 uint32_t bootstage_start(enum bootstage_id id, const char *name)

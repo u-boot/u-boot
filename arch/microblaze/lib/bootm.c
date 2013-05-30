@@ -32,11 +32,12 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *images)
+int do_bootm_linux(int flag, int argc, char * const argv[],
+		   bootm_headers_t *images)
 {
 	/* First parameter is mapped to $r5 for kernel boot args */
-	void	(*theKernel) (char *, ulong, ulong);
-	char	*commandline = getenv ("bootargs");
+	void	(*thekernel) (char *, ulong, ulong);
+	char	*commandline = getenv("bootargs");
 	ulong	rd_data_start, rd_data_end;
 
 	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
@@ -51,10 +52,10 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 		of_flat_tree = images->ft_addr;
 #endif
 
-	theKernel = (void (*)(char *, ulong, ulong))images->ep;
+	thekernel = (void (*)(char *, ulong, ulong))images->ep;
 
 	/* find ramdisk */
-	ret = boot_get_ramdisk (argc, argv, images, IH_ARCH_MICROBLAZE,
+	ret = boot_get_ramdisk(argc, argv, images, IH_ARCH_MICROBLAZE,
 			&rd_data_start, &rd_data_end);
 	if (ret)
 		return 1;
@@ -63,10 +64,19 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 
 	if (!of_flat_tree && argc > 3)
 		of_flat_tree = (char *)simple_strtoul(argv[3], NULL, 16);
+
+	/* fixup the initrd now that we know where it should be */
+	if (images->rd_start && images->rd_end && of_flat_tree)
+		ret = fdt_initrd(of_flat_tree, images->rd_start,
+				 images->rd_end, 1);
+		if (ret)
+			return 1;
+
 #ifdef DEBUG
-	printf ("## Transferring control to Linux (at address 0x%08lx) " \
-				"ramdisk 0x%08lx, FDT 0x%08lx...\n",
-		(ulong) theKernel, rd_data_start, (ulong) of_flat_tree);
+	printf("## Transferring control to Linux (at address 0x%08lx) ",
+	       (ulong)thekernel);
+	printf("ramdisk 0x%08lx, FDT 0x%08lx...\n",
+	       rd_data_start, (ulong) of_flat_tree);
 #endif
 
 #ifdef XILINX_USE_DCACHE
@@ -78,7 +88,7 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 	 * r6: pointer to ramdisk
 	 * r7: pointer to the fdt, followed by the board info data
 	 */
-	theKernel (commandline, rd_data_start, (ulong) of_flat_tree);
+	thekernel(commandline, rd_data_start, (ulong)of_flat_tree);
 	/* does not return */
 
 	return 1;

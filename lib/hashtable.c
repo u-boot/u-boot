@@ -901,6 +901,12 @@ int himport_r(struct hsearch_data *htab,
 		*sp++ = '\0';	/* terminate value */
 		++dp;
 
+		if (*name == 0) {
+			debug("INSERT: unable to use an empty key\n");
+			__set_errno(EINVAL);
+			return 0;
+		}
+
 		/* Skip variables which are not supposed to be processed */
 		if (!drop_var_from_set(name, nvars, localvars))
 			continue;

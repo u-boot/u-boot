@@ -38,6 +38,8 @@
 #define CONFIG_PBLRCW_CONFIG $(SRCTREE)/board/freescale/corenet_ds/rcw_p4080ds.cfg
 #elif defined(CONFIG_P5020DS)
 #define CONFIG_PBLRCW_CONFIG $(SRCTREE)/board/freescale/corenet_ds/rcw_p5020ds.cfg
+#elif defined(CONFIG_P5040DS)
+#define CONFIG_PBLRCW_CONFIG $(SRCTREE)/board/freescale/corenet_ds/rcw_p5040ds.cfg
 #endif
 #endif
 

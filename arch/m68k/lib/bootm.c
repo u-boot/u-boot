@@ -78,13 +78,6 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
 		return 1;
 
-	/* allocate space and init command line */
-	ret = boot_get_cmdline (lmb, &cmd_start, &cmd_end);
-	if (ret) {
-		puts("ERROR with allocation of cmdline\n");
-		goto error;
-	}
-
 	/* allocate space for kernel copy of board info */
 	ret = boot_get_kbd (lmb, &kbd);
 	if (ret) {
@@ -93,13 +86,11 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 	}
 	set_clocks_in_mhz(kbd);
 
-	kernel = (void (*)(bd_t *, ulong, ulong, ulong, ulong))images->ep;
-
-	rd_len = images->rd_end - images->rd_start;
-	ret = boot_ramdisk_high (lmb, images->rd_start, rd_len,
-			&initrd_start, &initrd_end);
+	ret = image_setup_linux(images);
 	if (ret)
 		goto error;
+
+	kernel = (void (*)(bd_t *, ulong, ulong, ulong, ulong))images->ep;
 
 	debug("## Transferring control to Linux (at address %08lx) ...\n",
 	      (ulong) kernel);

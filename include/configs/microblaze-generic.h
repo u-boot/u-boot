@@ -104,7 +104,7 @@
 
 /* gpio */
 #ifdef XILINX_GPIO_BASEADDR
-# define CONFIG_SYS_GPIO_0		1
+# define CONFIG_XILINX_GPIO
 # define CONFIG_SYS_GPIO_0_ADDR		XILINX_GPIO_BASEADDR
 #endif
 
@@ -312,6 +312,7 @@
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MFSL
 #define CONFIG_CMD_ECHO
+#define CONFIG_CMD_GPIO
 
 #if defined(CONFIG_DCACHE) || defined(CONFIG_ICACHE)
 # define CONFIG_CMD_CACHE

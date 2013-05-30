@@ -201,11 +201,7 @@ III) Analysis of in-tree drivers
     -----------------------------
       Standard driver, uses indirect functions.
 
-    12) powerpc/cpu/mpc8220/pci.c
-    -----------------------------
-      Standard driver, specifies all read/write functions separately.
-
-    13) powerpc/cpu/mpc85xx/pci.c
+    12) powerpc/cpu/mpc85xx/pci.c
     -----------------------------
       Standard driver, uses indirect functions, has two busses.
 

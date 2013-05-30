@@ -13,6 +13,7 @@
 #include <asm/fsl_ddr_sdram.h>
 #include <asm/fsl_ddr_dimm_params.h>
 #include <asm/fsl_law.h>
+#include <../arch/powerpc/cpu/mpc8xxx/ddr/ddr.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -187,4 +188,75 @@ phys_size_t initdram(int board_type)
 
 	puts("    DDR: ");
 	return dram_size;
+}
+
+unsigned long long step_assign_addresses(fsl_ddr_info_t *pinfo,
+			  unsigned int dbw_cap_adj[])
+{
+	int i, j;
+	unsigned long long total_mem, current_mem_base, total_ctlr_mem;
+	unsigned long long rank_density, ctlr_density = 0;
+
+	current_mem_base = 0ull;
+	total_mem = 0;
+	/*
+	 * This board has soldered DDR chips. DDRC1 has two rank.
+	 * DDRC2 has only one rank.
+	 * Assigning DDRC2 to lower address and DDRC1 to higher address.
+	 */
+	if (pinfo->memctl_opts[0].memctl_interleaving) {
+		rank_density = pinfo->dimm_params[0][0].rank_density >>
+					dbw_cap_adj[0];
+		ctlr_density = rank_density;
+
+		debug("rank density is 0x%llx, ctlr density is 0x%llx\n",
+		      rank_density, ctlr_density);
+		for (i = CONFIG_NUM_DDR_CONTROLLERS - 1; i >= 0; i--) {
+			switch (pinfo->memctl_opts[i].memctl_interleaving_mode) {
+			case FSL_DDR_CACHE_LINE_INTERLEAVING:
+			case FSL_DDR_PAGE_INTERLEAVING:
+			case FSL_DDR_BANK_INTERLEAVING:
+			case FSL_DDR_SUPERBANK_INTERLEAVING:
+				total_ctlr_mem = 2 * ctlr_density;
+				break;
+			default:
+				panic("Unknown interleaving mode");
+			}
+			pinfo->common_timing_params[i].base_address =
+						current_mem_base;
+			pinfo->common_timing_params[i].total_mem =
+						total_ctlr_mem;
+			total_mem = current_mem_base + total_ctlr_mem;
+			debug("ctrl %d base 0x%llx\n", i, current_mem_base);
+			debug("ctrl %d total 0x%llx\n", i, total_ctlr_mem);
+		}
+	} else {
+		/*
+		 * Simple linear assignment if memory
+		 * controllers are not interleaved.
+		 */
+		for (i = CONFIG_NUM_DDR_CONTROLLERS - 1; i >= 0; i--) {
+			total_ctlr_mem = 0;
+			pinfo->common_timing_params[i].base_address =
+						current_mem_base;
+			for (j = 0; j < CONFIG_DIMM_SLOTS_PER_CTLR; j++) {
+				/* Compute DIMM base addresses. */
+				unsigned long long cap =
+					pinfo->dimm_params[i][j].capacity;
+				pinfo->dimm_params[i][j].base_address =
+					current_mem_base;
+				debug("ctrl %d dimm %d base 0x%llx\n",
+				      i, j, current_mem_base);
+				current_mem_base += cap;
+				total_ctlr_mem += cap;
+			}
+			debug("ctrl %d total 0x%llx\n", i, total_ctlr_mem);
+			pinfo->common_timing_params[i].total_mem =
+							total_ctlr_mem;
+			total_mem += total_ctlr_mem;
+		}
+	}
+	debug("Total mem by %s is 0x%llx\n", __func__, total_mem);
+
+	return total_mem;
 }

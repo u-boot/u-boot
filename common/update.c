@@ -297,7 +297,7 @@ got_update_file:
 		printf("Processing update '%s' :",
 			fit_get_name(fit, noffset, NULL));
 
-		if (!fit_image_check_hashes(fit, noffset)) {
+		if (!fit_image_verify(fit, noffset)) {
 			printf("Error: invalid update hash, aborting\n");
 			ret = 1;
 			goto next_node;

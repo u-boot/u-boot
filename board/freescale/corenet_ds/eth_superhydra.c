@@ -605,8 +605,8 @@ int board_eth_init(bd_t *bis)
 	lane = serdes_get_first_lane(XAUI_FM1);
 	if (lane >= 0) {
 		debug("FM1@TGEC1 expects XAUI in slot %u\n", lane_to_slot[lane]);
-		mdio_mux[FM1_10GEC1].mask = BRDCFG1_EMI2_SEL_MASK;
-		mdio_mux[FM1_10GEC1].val = BRDCFG1_EMI2_SEL_SLOT2;
+		mdio_mux[i].mask = BRDCFG1_EMI2_SEL_MASK;
+		mdio_mux[i].val = BRDCFG1_EMI2_SEL_SLOT2;
 		super_hydra_mdio_set_mux("SUPER_HYDRA_FM1_TGEC_MDIO",
 					mdio_mux[i].mask, mdio_mux[i].val);
 	}
@@ -704,8 +704,8 @@ int board_eth_init(bd_t *bis)
 	lane = serdes_get_first_lane(XAUI_FM2);
 	if (lane >= 0) {
 		debug("FM2@TGEC1 expects XAUI in slot %u\n", lane_to_slot[lane]);
-		mdio_mux[FM2_10GEC1].mask = BRDCFG1_EMI2_SEL_MASK;
-		mdio_mux[FM2_10GEC1].val = BRDCFG1_EMI2_SEL_SLOT1;
+		mdio_mux[i].mask = BRDCFG1_EMI2_SEL_MASK;
+		mdio_mux[i].val = BRDCFG1_EMI2_SEL_SLOT1;
 		super_hydra_mdio_set_mux("SUPER_HYDRA_FM2_TGEC_MDIO",
 					mdio_mux[i].mask, mdio_mux[i].val);
 	}

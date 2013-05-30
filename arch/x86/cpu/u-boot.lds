@@ -79,18 +79,6 @@ SECTIONS
 	/DISCARD/ : { *(.interp*) }
 	/DISCARD/ : { *(.gnu*) }
 
-	/* 16bit realmode trampoline code */
-	.realmode REALMODE_BASE : AT ( LOADADDR(.rel.dyn) + SIZEOF(.rel.dyn) ) { KEEP(*(.realmode)) }
-
-	__realmode_start = LOADADDR(.realmode);
-	__realmode_size = SIZEOF(.realmode);
-
-	/* 16bit BIOS emulation code (just enough to boot Linux) */
-	.bios 0 : AT ( LOADADDR(.realmode) + SIZEOF(.realmode) ) { KEEP(*(.bios)) }
-
-	__bios_start = LOADADDR(.bios);
-	__bios_size = SIZEOF(.bios);
-
 #ifdef CONFIG_X86_RESET_VECTOR
 
 	/*

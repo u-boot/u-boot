@@ -17,21 +17,21 @@
 
 struct dmasg_large {
 	void *next_desc_addr;
-	unsigned long start_addr;
-	unsigned short cfg;
-	unsigned short x_count;
-	short x_modify;
-	unsigned short y_count;
-	short y_modify;
+	u32 start_addr;
+	u16 cfg;
+	u16 x_count;
+	s16 x_modify;
+	u16 y_count;
+	s16 y_modify;
 } __attribute__((packed));
 
 struct dmasg {
-	unsigned long start_addr;
-	unsigned short cfg;
-	unsigned short x_count;
-	short x_modify;
-	unsigned short y_count;
-	short y_modify;
+	u32 start_addr;
+	u16 cfg;
+	u16 x_count;
+	s16 x_modify;
+	u16 y_count;
+	s16 y_modify;
 } __attribute__((packed));
 
 struct dma_register {

@@ -33,11 +33,15 @@ void init_gd(gd_t *id, u64 *gdt_addr);
 void setup_gdt(gd_t *id, u64 *gdt_addr);
 int init_cache(void);
 int cleanup_before_linux(void);
+void panic_puts(const char *str);
 
 /* cpu/.../timer.c */
 void timer_isr(void *);
 typedef void (timer_fnc_t) (void);
 int register_timer_isr (timer_fnc_t *isr_func);
+unsigned long get_tbclk_mhz(void);
+void timer_set_base(uint64_t base);
+int pcat_timer_init(void);
 
 /* Architecture specific - can be in arch/x86/cpu/, arch/x86/lib/, or $(BOARD)/ */
 int dram_init_f(void);

@@ -227,6 +227,17 @@ int misc_init_r(void)
 				"'00' is unsupported\n");
 		else
 			actual[i] = freq[i][clock];
+
+		/*
+		 * PC board uses a different CPLD with PB board, this CPLD
+		 * has cpld_ver_sub = 1, and pcba_ver = 5. But CPLD on PB
+		 * board has cpld_ver_sub = 0, and pcba_ver = 4.
+		 */
+		if ((i == 1) && (CPLD_READ(cpld_ver_sub) == 1) &&
+		    (CPLD_READ(pcba_ver) == 5)) {
+			/* PC board bank2 frequency */
+			actual[i] = freq[i-1][clock];
+		}
 	}
 
 	for (i = 0; i < NUM_SRDS_BANKS; i++) {

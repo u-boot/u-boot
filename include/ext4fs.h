@@ -141,4 +141,5 @@ long int read_allocated_block(struct ext2_inode *inode, int fileblock);
 int ext4fs_probe(block_dev_desc_t *fs_dev_desc,
 		 disk_partition_t *fs_partition);
 int ext4_read_file(const char *filename, void *buf, int offset, int len);
+int ext4_read_superblock(char *buffer);
 #endif

@@ -13,12 +13,12 @@
 
 #include <config.h>
 #include <asm/blackfin.h>
+#include <asm/mach-common/bits/watchdog.h>
 #include <asm/mach-common/bits/bootrom.h>
 #include <asm/mach-common/bits/core.h>
+#include <asm/serial.h>
 
-#define BUG() while (1) { asm volatile("emuexcpt;"); }
-
-#include "serial.h"
+#define BUG() while (1) asm volatile("emuexcpt;");
 
 #ifndef __ADSPBF60x__
 #include <asm/mach-common/bits/ebiu.h>
@@ -193,17 +193,12 @@ static inline void serial_init(void)
 	}
 #endif
 
+#if CONFIG_BFIN_BOOT_MODE != BFIN_BOOT_BYPASS
 	if (BFIN_DEBUG_EARLY_SERIAL) {
-		int enabled = serial_early_enabled(uart_base);
-
 		serial_early_init(uart_base);
-
-		/* If the UART is off, that means we need to program
-		 * the baud rate ourselves initially.
-		 */
-		if (!enabled)
-			serial_early_set_baud(uart_base, CONFIG_BAUDRATE);
+		serial_early_set_baud(uart_base, CONFIG_BAUDRATE);
 	}
+#endif
 }
 
 __attribute__((always_inline))
@@ -262,7 +257,8 @@ program_nmi_handler(void)
 		"%1 = RETS;" /* Load addr of NMI handler */
 		"RETS = %0;" /* Restore RETS */
 		"[%2] = %1;" /* Write NMI handler */
-		: "=r"(tmp1), "=r"(tmp2) : "ab"(EVT2)
+		: "=d"(tmp1), "=d"(tmp2)
+		: "ab"(EVT2)
 	);
 }
 
@@ -462,19 +458,29 @@ program_early_devices(ADI_BOOT_DATA *bs, uint *sdivB, uint *divB, uint *vcoB)
 	if (CONFIG_BFIN_BOOT_MODE != BFIN_BOOT_BYPASS) {
 		serial_putc('e');
 #ifdef __ADSPBF60x__
+		/* Reset system event controller */
 		bfin_write_SEC_GCTL(0x2);
-		SSYNC();
-		bfin_write_SEC_FCTL(0xc1);
-		bfin_write_SEC_SCTL(2, bfin_read_SEC_SCTL(2) | 0x6);
-
 		bfin_write_SEC_CCTL(0x2);
 		SSYNC();
+
+		/* Enable fault event input and system reset action in fault
+		 * controller. Route watchdog timeout event to fault interface.
+		 */
+		bfin_write_SEC_FCTL(0xc1);
+		/* Enable watchdog interrupt source */
+		bfin_write_SEC_SCTL(2, bfin_read_SEC_SCTL(2) | 0x6);
+		SSYNC();
+
+		/* Enable system event controller */
 		bfin_write_SEC_GCTL(0x1);
 		bfin_write_SEC_CCTL(0x1);
+		SSYNC();
 #endif
+		bfin_write_WDOG_CTL(WDDIS);
+		SSYNC();
 		bfin_write_WDOG_CNT(MSEC_TO_SCLK(CONFIG_HW_WATCHDOG_TIMEOUT_INITCODE));
 #if CONFIG_BFIN_BOOT_MODE != BFIN_BOOT_UART
-		bfin_write_WDOG_CTL(0);
+		bfin_write_WDOG_CTL(WDEN);
 #endif
 		serial_putc('f');
 	}
@@ -713,37 +719,32 @@ program_clocks(ADI_BOOT_DATA *bs, bool put_into_srfs)
 __attribute__((always_inline)) static inline void
 update_serial_clocks(ADI_BOOT_DATA *bs, uint sdivB, uint divB, uint vcoB)
 {
-	serial_putc('a');
-
 	/* Since we've changed the SCLK above, we may need to update
 	 * the UART divisors (UART baud rates are based on SCLK).
 	 * Do the division by hand as there are no native instructions
 	 * for dividing which means we'd generate a libgcc reference.
 	 */
-	if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_UART) {
-		unsigned int sdivR, vcoR;
-		int dividend = sdivB * divB * vcoR;
-		int divisor = vcoB * sdivR;
-		unsigned int quotient;
+	unsigned int sdivR, vcoR;
+	unsigned int dividend;
+	unsigned int divisor;
+	unsigned int quotient;
 
-		serial_putc('b');
+	serial_putc('a');
 
 #ifdef __ADSPBF60x__
-		sdivR = bfin_read_CGU_DIV();
-		sdivR = ((sdivR >> 8) & 0x1f) * ((sdivR >> 5) & 0x7);
-		vcoR = (bfin_read_CGU_CTL() >> 8) & 0x7f;
+	sdivR = bfin_read_CGU_DIV();
+	sdivR = ((sdivR >> 8) & 0x1f) * ((sdivR >> 5) & 0x7);
+	vcoR = (bfin_read_CGU_CTL() >> 8) & 0x7f;
 #else
-		sdivR = bfin_read_PLL_DIV() & 0xf;
-		vcoR = (bfin_read_PLL_CTL() >> 9) & 0x3f;
+	sdivR = bfin_read_PLL_DIV() & 0xf;
+	vcoR = (bfin_read_PLL_CTL() >> 9) & 0x3f;
 #endif
 
-		for (quotient = 0; dividend > 0; ++quotient)
-			dividend -= divisor;
-		serial_early_put_div(quotient - ANOMALY_05000230);
-		serial_putc('c');
-	}
-
-	serial_putc('d');
+	dividend = sdivB * divB * vcoR;
+	divisor = vcoB * sdivR;
+	quotient = early_division(dividend, divisor);
+	serial_early_put_div(quotient - ANOMALY_05000230);
+	serial_putc('c');
 }
 
 __attribute__((always_inline)) static inline void

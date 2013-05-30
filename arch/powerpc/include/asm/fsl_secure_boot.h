@@ -23,16 +23,6 @@
 #ifndef __FSL_SECURE_BOOT_H
 #define __FSL_SECURE_BOOT_H
 
-/* Starting TLB number for the TLB entried for 3.5 G space created by ISBC */
-#if defined(CONFIG_FSL_CORENET)
-#define CONFIG_SYS_ISBC_START_TLB		3
-#else
-#define CONFIG_SYS_ISBC_START_TLB		0
-#endif
-
-/* Number fo TLB's created by ISBC */
-#define CONFIG_SYS_ISBC_NUM_TLBS		5
-
 #if defined(CONFIG_FSL_CORENET)
 #define CONFIG_SYS_PBI_FLASH_BASE		0xc0000000
 #else

@@ -60,7 +60,7 @@ int usb_cpu_init(void)
 	writel(1 << ATMEL_ID_UHP, &pmc->pcer);
 #endif
 
-#ifdef CONFIG_AT91SAM9261
+#if defined(CONFIG_AT91SAM9261) || defined(CONFIG_AT91SAM9G10)
 	writel(ATMEL_PMC_UHP | AT91_PMC_HCK0, &pmc->scer);
 #else
 	writel(ATMEL_PMC_UHP, &pmc->scer);
@@ -80,7 +80,7 @@ int usb_cpu_stop(void)
 	writel(1 << ATMEL_ID_UHP, &pmc->pcdr);
 #endif
 
-#ifdef CONFIG_AT91SAM9261
+#if defined(CONFIG_AT91SAM9261) || defined(CONFIG_AT91SAM9G10)
 	writel(ATMEL_PMC_UHP | AT91_PMC_HCK0, &pmc->scdr);
 #else
 	writel(ATMEL_PMC_UHP, &pmc->scdr);

@@ -614,14 +614,13 @@ int ext4fs_init(void)
 	/* populate fs */
 	fs->blksz = EXT2_BLOCK_SIZE(ext4fs_root);
 	fs->inodesz = INODE_SIZE_FILESYSTEM(ext4fs_root);
-	fs->sect_perblk = fs->blksz / SECTOR_SIZE;
+	fs->sect_perblk = fs->blksz >> fs->dev_desc->log2blksz;
 
 	/* get the superblock */
 	fs->sb = zalloc(SUPERBLOCK_SIZE);
 	if (!fs->sb)
 		return -ENOMEM;
-	if (!ext4fs_devread(SUPERBLOCK_SECTOR, 0, SUPERBLOCK_SIZE,
-			(char *)fs->sb))
+	if (!ext4_read_superblock((char *)fs->sb))
 		goto fail;
 
 	/* init journal */
@@ -722,7 +721,7 @@ void ext4fs_deinit(void)
 	ext4fs_free_journal();
 
 	/* get the superblock */
-	ext4fs_devread(SUPERBLOCK_SECTOR, 0, SUPERBLOCK_SIZE, (char *)fs->sb);
+	ext4_read_superblock((char *)fs->sb);
 	fs->sb->feature_incompat &= ~EXT3_FEATURE_INCOMPAT_RECOVER;
 	put_ext4((uint64_t)(SUPERBLOCK_SIZE),
 		 (struct ext2_sblock *)fs->sb, (uint32_t)SUPERBLOCK_SIZE);
@@ -766,9 +765,10 @@ static int ext4fs_write_file(struct ext2_inode *file_inode,
 {
 	int i;
 	int blockcnt;
-	int log2blocksize = LOG2_EXT2_BLOCK_SIZE(ext4fs_root);
 	unsigned int filesize = __le32_to_cpu(file_inode->size);
 	struct ext_filesystem *fs = get_fs();
+	int log2blksz = fs->dev_desc->log2blksz;
+	int log2_fs_blocksize = LOG2_BLOCK_SIZE(ext4fs_root) - log2blksz;
 	int previous_block_number = -1;
 	int delayed_start = 0;
 	int delayed_extent = 0;
@@ -789,16 +789,16 @@ static int ext4fs_write_file(struct ext2_inode *file_inode,
 		if (blknr < 0)
 			return -1;
 
-		blknr = blknr << log2blocksize;
+		blknr = blknr << log2_fs_blocksize;
 
 		if (blknr) {
 			if (previous_block_number != -1) {
 				if (delayed_next == blknr) {
 					delayed_extent += blockend;
-					delayed_next += blockend >> SECTOR_BITS;
+					delayed_next += blockend >> log2blksz;
 				} else {	/* spill */
-					put_ext4((uint64_t) (delayed_start *
-							     SECTOR_SIZE),
+					put_ext4((uint64_t)
+						 (delayed_start << log2blksz),
 						 delayed_buf,
 						 (uint32_t) delayed_extent);
 					previous_block_number = blknr;
@@ -806,7 +806,7 @@ static int ext4fs_write_file(struct ext2_inode *file_inode,
 					delayed_extent = blockend;
 					delayed_buf = buf;
 					delayed_next = blknr +
-					    (blockend >> SECTOR_BITS);
+					    (blockend >> log2blksz);
 				}
 			} else {
 				previous_block_number = blknr;
@@ -814,13 +814,14 @@ static int ext4fs_write_file(struct ext2_inode *file_inode,
 				delayed_extent = blockend;
 				delayed_buf = buf;
 				delayed_next = blknr +
-				    (blockend >> SECTOR_BITS);
+				    (blockend >> log2blksz);
 			}
 		} else {
 			if (previous_block_number != -1) {
 				/* spill */
-				put_ext4((uint64_t) (delayed_start *
-						     SECTOR_SIZE), delayed_buf,
+				put_ext4((uint64_t) (delayed_start <<
+						     log2blksz),
+					 delayed_buf,
 					 (uint32_t) delayed_extent);
 				previous_block_number = -1;
 			}
@@ -830,7 +831,7 @@ static int ext4fs_write_file(struct ext2_inode *file_inode,
 	}
 	if (previous_block_number != -1) {
 		/* spill */
-		put_ext4((uint64_t) (delayed_start * SECTOR_SIZE),
+		put_ext4((uint64_t) (delayed_start << log2blksz),
 			 delayed_buf, (uint32_t) delayed_extent);
 		previous_block_number = -1;
 	}
@@ -921,7 +922,8 @@ int ext4fs_write(const char *fname, unsigned char *buffer,
 	/* Allocate data blocks */
 	ext4fs_allocate_blocks(file_inode, blocks_remaining,
 			       &blks_reqd_for_file);
-	file_inode->blockcnt = (blks_reqd_for_file * fs->blksz) / SECTOR_SIZE;
+	file_inode->blockcnt = (blks_reqd_for_file * fs->blksz) >>
+		fs->dev_desc->log2blksz;
 
 	temp_ptr = zalloc(fs->blksz);
 	if (!temp_ptr)

@@ -86,7 +86,7 @@ The addresses in brackets are physical addresses.
 
 0x0_0000_0000 (0x0_0000_0000) - 0x0_7fff_ffff   2GB DDR (more than 2GB is initialized but not mapped under with TLB)
 0x0_8000_0000 (0xc_0000_0000) - 0x0_dfff_ffff 1.5GB PCIE memory
-0x0_f000_0000 (0xf_0000_0000) - 0x0_f03f_ffff  4MB  DCSR
+0x0_f000_0000 (0xf_0000_0000) - 0x0_f1ff_ffff  32MB DCSR (includes trace buffers)
 0x0_f400_0000 (0xf_f400_0000) - 0x0_f5ff_ffff  32MB BMan
 0x0_f600_0000 (0xf_f600_0000) - 0x0_f7ff_ffff  32MB QMan
 0x0_f800_0000 (0xf_f800_0000) - 0x0_f803_ffff 256KB PCIE IO
@@ -96,3 +96,27 @@ The addresses in brackets are physical addresses.
 0x0_ffff_f000 (0x0_7fff_fff0) - 0x0_ffff_ffff   4KB Boot page translation for secondary cores
 
 The physical address of the last (boot page translation) varies with the actual DDR size.
+
+Voltage ID and VDD override
+--------------------
+T4240 has a VID feature. U-boot reads the VID efuses and adjust the voltage
+accordingly. The voltage can also be override by command vdd_override. The
+syntax is
+
+vdd_override <voltage in mV>, eg. 1050 is for 1.050v.
+
+Upon success, the actual voltage will be read back. The value is checked
+for safety and any invalid value will not adjust the voltage.
+
+Another way to override VDD is to use environmental variable, in case of using
+command is too late for some debugging. The syntax is
+
+setenv t4240qds_vdd_mv <voltage in mV>
+saveenv
+reset
+
+The override voltage takes effect when booting.
+
+Note: voltage adjustment needs to be done step by step. Changing voltage too
+rapidly may cause current surge. The voltage stepping is done by software.
+Users can set the final voltage directly.

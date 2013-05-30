@@ -42,6 +42,8 @@
 #define debug(fmt,args...)
 #endif /* MKIMAGE_DEBUG */
 
+#define ARRAY_SIZE(x)		(sizeof(x) / sizeof((x)[0]))
+
 #define MKIMAGE_TMPFILE_SUFFIX		".tmp"
 #define MKIMAGE_MAX_TMPFILE_LEN		256
 #define MKIMAGE_DEFAULT_DTC_OPTIONS	"-I dts -O dtb -p 500"
