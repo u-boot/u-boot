@@ -169,13 +169,14 @@ struct s32ktimer {
 #define EFUSE_4 0x45145100
 #endif /* __ASSEMBLY__ */
 
-/*
- * Non-secure SRAM Addresses
- * Non-secure RAM starts at 0x40300000 for GP devices. But we keep SRAM_BASE
- * at 0x40304000(EMU base) so that our code works for both EMU and GP
- */
+#ifdef CONFIG_DRA7XX
+#define NON_SECURE_SRAM_START	0x40300000
+#define NON_SECURE_SRAM_END	0x40380000	/* Not inclusive */
+#else
 #define NON_SECURE_SRAM_START	0x40300000
 #define NON_SECURE_SRAM_END	0x40320000	/* Not inclusive */
+#endif
+
 /* base address for indirect vectors (internal boot mode) */
 #define SRAM_ROM_VECT_BASE	0x4031F000
 
