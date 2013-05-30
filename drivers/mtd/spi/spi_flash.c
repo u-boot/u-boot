@@ -74,11 +74,9 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 	unsigned long page_addr, byte_addr, page_size;
 	size_t chunk_len, actual;
 	int ret;
-	u8 cmd[4];
+	u8 cmd[4], bank_sel;
 
 	page_size = flash->page_size;
-	page_addr = offset / page_size;
-	byte_addr = offset % page_size;
 
 	ret = spi_claim_bus(flash->spi);
 	if (ret) {
@@ -88,6 +86,16 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 
 	cmd[0] = CMD_PAGE_PROGRAM;
 	for (actual = 0; actual < len; actual += chunk_len) {
+		bank_sel = offset / SPI_FLASH_16MB_BOUN;
+
+		ret = spi_flash_cmd_bankaddr_write(flash, bank_sel);
+		if (ret) {
+			debug("SF: fail to set bank%d\n", bank_sel);
+			return ret;
+		}
+
+		page_addr = offset / page_size;
+		byte_addr = offset % page_size;
 		chunk_len = min(len - actual, page_size - byte_addr);
 
 		if (flash->spi->max_write_size)
@@ -117,11 +125,7 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 		if (ret)
 			break;
 
-		byte_addr += chunk_len;
-		if (byte_addr == page_size) {
-			page_addr++;
-			byte_addr = 0;
-		}
+		offset += chunk_len;
 	}
 
 	spi_release_bus(flash->spi);
@@ -204,9 +208,9 @@ int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
 
 int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
-	u32 end, erase_size;
+	u32 erase_size;
 	int ret;
-	u8 cmd[4];
+	u8 cmd[4], bank_sel;
 
 	erase_size = flash->sector_size;
 	if (offset % erase_size || len % erase_size) {
@@ -224,11 +228,17 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 		cmd[0] = CMD_ERASE_4K;
 	else
 		cmd[0] = CMD_ERASE_64K;
-	end = offset + len;
 
-	while (offset < end) {
+	while (len) {
+		bank_sel = offset / SPI_FLASH_16MB_BOUN;
+
+		ret = spi_flash_cmd_bankaddr_write(flash, bank_sel);
+		if (ret) {
+			debug("SF: fail to set bank%d\n", bank_sel);
+			return ret;
+		}
+
 		spi_flash_addr(offset, cmd);
-		offset += erase_size;
 
 		debug("SF: erase %2x %2x %2x %2x (%x)\n", cmd[0], cmd[1],
 		      cmd[2], cmd[3], offset);
@@ -244,6 +254,9 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 		ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PAGE_ERASE_TIMEOUT);
 		if (ret)
 			goto out;
+
+		offset += erase_size;
+		len -= erase_size;
 	}
 
  out:
