@@ -401,6 +401,7 @@ struct omap_sys_ctrl_regs {
 	u32 control_ddrio_0;
 	u32 control_ddrio_1;
 	u32 control_ddrio_2;
+	u32 control_ddr_control_ext_0;
 	u32 control_lpddr2io1_0;
 	u32 control_lpddr2io1_1;
 	u32 control_lpddr2io1_2;

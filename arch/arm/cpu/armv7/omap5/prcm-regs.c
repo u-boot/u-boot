@@ -439,6 +439,7 @@ struct omap_sys_ctrl_regs const dra7xx_ctrl = {
 	.control_srcomp_east_side		= 0x4A002E7C,
 	.control_srcomp_west_side		= 0x4A002E80,
 	.control_srcomp_code_latch		= 0x4A002E84,
+	.control_ddr_control_ext_0		= 0x4A002E88,
 	.control_padconf_core_base		= 0x4A003400,
 	.control_port_emif1_sdram_config	= 0x4AE0C110,
 	.control_port_emif1_lpddr2_nvm_config	= 0x4AE0C114,

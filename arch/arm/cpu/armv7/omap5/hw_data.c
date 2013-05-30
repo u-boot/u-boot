@@ -602,6 +602,17 @@ const struct ctrl_ioregs ioregs_omap5432_es2 = {
 	.ctrl_emif_sdram_config_ext = SDRAM_CONFIG_EXT_RD_LVL_11_SAMPLES,
 };
 
+const struct ctrl_ioregs ioregs_dra7xx_es1 = {
+	.ctrl_ddrch = 0x40404040,
+	.ctrl_lpddr2ch = 0x40404040,
+	.ctrl_ddr3ch = 0x80808080,
+	.ctrl_ddrio_0 = 0xbae8c631,
+	.ctrl_ddrio_1 = 0xb46318d8,
+	.ctrl_ddrio_2 = 0x84210000,
+	.ctrl_emif_sdram_config_ext = 0xb2c00000,
+	.ctrl_ddr_ctrl_ext_0 = 0xA2000000,
+};
+
 void hw_data_init(void)
 {
 	u32 omap_rev = omap_revision();
@@ -644,14 +655,16 @@ void get_ioregs(const struct ctrl_ioregs **regs)
 	case OMAP5430_ES1_0:
 	case OMAP5430_ES2_0:
 		*regs = &ioregs_omap5430;
-	break;
+		break;
 	case OMAP5432_ES1_0:
 		*regs = &ioregs_omap5432_es1;
-	break;
+		break;
 	case OMAP5432_ES2_0:
-	case DRA752_ES1_0:
 		*regs = &ioregs_omap5432_es2;
-	break;
+		break;
+	case DRA752_ES1_0:
+		*regs = &ioregs_dra7xx_es1;
+		break;
 
 	default:
 		printf("\n INVALID OMAP REVISION ");

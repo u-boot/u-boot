@@ -221,6 +221,7 @@ struct ctrl_ioregs {
 	u32 ctrl_ddrio_1;
 	u32 ctrl_ddrio_2;
 	u32 ctrl_emif_sdram_config_ext;
+	u32 ctrl_ddr_ctrl_ext_0;
 };
 #endif /* __ASSEMBLY__ */
 #endif
