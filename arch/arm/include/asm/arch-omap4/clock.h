@@ -214,6 +214,10 @@
 #define DPLL_NO_LOCK	0
 #define DPLL_LOCK	1
 
+/* Clock Defines */
+#define V_OSCK			38400000	/* Clock output from T2 */
+#define V_SCLK                   V_OSCK
+
 struct omap4_scrm_regs {
 	u32 revision;           /* 0x0000 */
 	u32 pad00[63];
