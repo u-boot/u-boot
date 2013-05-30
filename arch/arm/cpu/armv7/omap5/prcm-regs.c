@@ -951,6 +951,7 @@ struct prcm_regs const dra7xx_prcm = {
 	/* l4 wkup regs */
 	.cm_abe_pll_ref_clksel			= 0x4ae0610c,
 	.cm_sys_clksel				= 0x4ae06110,
+	.cm_abe_pll_sys_clksel			= 0x4ae06118,
 	.cm_wkup_clkstctrl			= 0x4ae07800,
 	.cm_wkup_l4wkup_clkctrl			= 0x4ae07820,
 	.cm_wkup_wdtimer1_clkctrl		= 0x4ae07828,

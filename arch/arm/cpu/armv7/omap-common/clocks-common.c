@@ -50,13 +50,12 @@
 
 const u32 sys_clk_array[8] = {
 	12000000,	       /* 12 MHz */
-	13000000,	       /* 13 MHz */
+	20000000,		/* 20 MHz */
 	16800000,	       /* 16.8 MHz */
 	19200000,	       /* 19.2 MHz */
 	26000000,	       /* 26 MHz */
 	27000000,	       /* 27 MHz */
 	38400000,	       /* 38.4 MHz */
-	20000000,		/* 20 MHz */
 };
 
 static inline u32 __get_sys_clk_index(void)
@@ -75,13 +74,6 @@ static inline u32 __get_sys_clk_index(void)
 		/* SYS_CLKSEL - 1 to match the dpll param array indices */
 		ind = (readl((*prcm)->cm_sys_clksel) &
 			CM_SYS_CLKSEL_SYS_CLKSEL_MASK) - 1;
-		/*
-		 * SYS_CLKSEL value for 20MHz is 0. This is introduced newly
-		 * in DRA7XX socs. SYS_CLKSEL -1 will be greater than
-		 * NUM_SYS_CLK. So considering the last 3 bits as the index
-		 * for the dpll param array.
-		 */
-		ind &= CM_SYS_CLKSEL_SYS_CLKSEL_MASK;
 	}
 	return ind;
 }
@@ -441,6 +433,12 @@ static void setup_non_essential_dplls(void)
 	params = get_abe_dpll_params(*dplls_data);
 #ifdef CONFIG_SYS_OMAP_ABE_SYSCK
 	abe_ref_clk = CM_ABE_PLL_REF_CLKSEL_CLKSEL_SYSCLK;
+
+	if (omap_revision() == DRA752_ES1_0)
+		/* Select the sys clk for dpll_abe */
+		clrsetbits_le32((*prcm)->cm_abe_pll_sys_clksel,
+				CM_CLKSEL_ABE_PLL_SYS_CLKSEL_MASK,
+				CM_ABE_PLL_SYS_CLKSEL_SYSCLK2);
 #else
 	abe_ref_clk = CM_ABE_PLL_REF_CLKSEL_CLKSEL_32KCLK;
 	/*

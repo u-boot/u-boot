@@ -29,7 +29,7 @@
 
 #include <common.h>
 
-#define NUM_SYS_CLKS	8
+#define NUM_SYS_CLKS	7
 
 struct prcm_regs {
 	/* cm1.ckgen */
@@ -303,6 +303,7 @@ struct prcm_regs {
 	/* l4 wkup regs */
 	u32 cm_abe_pll_ref_clksel;
 	u32 cm_sys_clksel;
+	u32 cm_abe_pll_sys_clksel;
 	u32 cm_wkup_clkstctrl;
 	u32 cm_wkup_l4wkup_clkctrl;
 	u32 cm_wkup_wdtimer1_clkctrl;
