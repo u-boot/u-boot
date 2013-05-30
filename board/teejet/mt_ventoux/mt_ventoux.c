@@ -31,7 +31,7 @@
 #include <asm/omap_gpio.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/dss.h>
-#include <asm/arch/clocks.h>
+#include <asm/arch/clock.h>
 #include <i2c.h>
 #include <spartan3.h>
 #include <asm/gpio.h>

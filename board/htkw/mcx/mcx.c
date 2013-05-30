@@ -28,7 +28,7 @@
 #include <asm/gpio.h>
 #include <asm/omap_gpio.h>
 #include <asm/arch/dss.h>
-#include <asm/arch/clocks.h>
+#include <asm/arch/clock.h>
 #include "errno.h"
 #include <i2c.h>
 #ifdef CONFIG_USB_EHCI

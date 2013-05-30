@@ -28,7 +28,7 @@
 #include <version.h>
 #include <asm/arch/omap2420.h>
 #include <asm/arch/mem.h>
-#include <asm/arch/clocks.h>
+#include <asm/arch/clock.h>
 
 _TEXT_BASE:
 	.word	CONFIG_SYS_TEXT_BASE	/* sdram load addr from config.mk */

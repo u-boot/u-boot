@@ -24,7 +24,7 @@
 #include <common.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mmc_host_def.h>
-#include <asm/arch/clocks.h>
+#include <asm/arch/clock.h>
 #include <asm/arch/gpio.h>
 #include <asm/gpio.h>
 

@@ -23,9 +23,9 @@
 
 #include <asm/arch/omap.h>
 #include <asm/io.h>
-#include <asm/arch/clocks.h>
+#include <asm/arch/clock.h>
 #include <asm/omap_common.h>
-#include <asm/arch/clocks.h>
+#include <asm/arch/clock.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

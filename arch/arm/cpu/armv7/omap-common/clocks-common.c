@@ -32,7 +32,7 @@
 #include <common.h>
 #include <asm/omap_common.h>
 #include <asm/gpio.h>
-#include <asm/arch/clocks.h>
+#include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/utils.h>
 #include <asm/omap_gpio.h>
