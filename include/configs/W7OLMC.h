@@ -154,6 +154,7 @@
 
 
 #define CONFIG_PCI				/* include pci support		*/
+#define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
 #define CONFIG_PCI_HOST		PCI_HOST_AUTO	/* select pci host function	*/
 #define CONFIG_PCI_PNP				/* pci plug-and-play		*/
 /* resource configuration	*/

@@ -353,6 +353,7 @@
 #define CONFIG_SYS_SCCR_PCIEXP1CM	1
 
 #define CONFIG_PCI
+#define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_PCIE
 
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */

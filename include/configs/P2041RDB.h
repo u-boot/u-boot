@@ -560,6 +560,7 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #endif
 
 #ifdef CONFIG_PCI
+#define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 #define CONFIG_E1000
 

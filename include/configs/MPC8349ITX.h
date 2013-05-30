@@ -393,6 +393,7 @@ boards, we say we have two, but don't display a message if we find only one. */
  * PCI
  */
 #ifdef CONFIG_PCI
+#define CONFIG_PCI_INDIRECT_BRIDGE
 
 #define CONFIG_MPC83XX_PCI2
 

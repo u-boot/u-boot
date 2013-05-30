@@ -242,6 +242,7 @@
  * PCI stuff
  */
 #define CONFIG_PCI                                /* include pci support */
+#define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
 #define CONFIG_PCI_PNP                            /* pci plug-and-play */
 #define CONFIG_PCI_HOST         PCI_HOST_AUTO
 #undef  CONFIG_PCI_SCAN_SHOW

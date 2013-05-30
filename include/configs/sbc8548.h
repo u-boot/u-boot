@@ -33,6 +33,7 @@
  * Top level Makefile configuration choices
  */
 #ifdef CONFIG_PCI
+#define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_PCI1
 #endif
 

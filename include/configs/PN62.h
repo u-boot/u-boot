@@ -122,6 +122,7 @@
  * PCI stuff
  */
 #define CONFIG_PCI				/* include pci support		*/
+#define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
 #define CONFIG_PCI_PNP				/* we need Plug 'n Play		*/
 #if 0
 #define CONFIG_PCI_SCAN_SHOW			/* show PCI auto-scan at boot	*/

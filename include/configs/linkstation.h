@@ -185,6 +185,7 @@
  * PCI stuff
  */
 #define CONFIG_PCI
+#define CONFIG_PCI_INDIRECT_BRIDGE
 /* Verified: CONFIG_PCI_PNP doesn't work */
 #undef CONFIG_PCI_PNP
 #define CONFIG_PCI_SCAN_SHOW

@@ -569,7 +569,9 @@ extern __inline__ void pci_set_ops(struct pci_controller *hose,
 	hose->write_dword = write_dword;
 }
 
+#ifdef CONFIG_PCI_INDIRECT_BRIDGE
 extern void pci_setup_indirect(struct pci_controller* hose, u32 cfg_addr, u32 cfg_data);
+#endif
 
 extern phys_addr_t pci_hose_bus_to_phys(struct pci_controller* hose,
 					pci_addr_t addr, unsigned long flags);

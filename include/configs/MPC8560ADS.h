@@ -49,6 +49,7 @@
 #define	CONFIG_SYS_TEXT_BASE	0xfff80000
 
 #define CONFIG_PCI
+#define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #undef CONFIG_ETHER_ON_FCC             /* cpm FCC ethernet support */

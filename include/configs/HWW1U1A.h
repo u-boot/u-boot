@@ -188,6 +188,7 @@
 #define CONFIG_PCI_PNP		/* Scan PCI busses			*/
 #define CONFIG_CMD_PCI		/* Enable the "pci" command		*/
 #define CONFIG_FSL_PCI_INIT	/* Common FreeScale PCI initialization	*/
+#define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
 #define CONFIG_FSL_PCIE_RESET	/* We have PCI-E reset errata		*/
 #define CONFIG_SYS_PCI_64BIT	/* PCI resources are 64-bit		*/
 #define CONFIG_PCI_SCAN_SHOW	/* Display PCI scan during boot		*/

@@ -336,6 +336,7 @@
  * PCI
  */
 #ifdef CONFIG_PCI
+#define CONFIG_PCI_INDIRECT_BRIDGE
 
 /*
  * General PCI

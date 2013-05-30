@@ -3898,6 +3898,9 @@ Low Level (hardware related) configuration options:
 		a second time.	Useful for platforms that are pre-booted
 		by coreboot or similar.
 
+- CONFIG_PCI_INDIRECT_BRIDGE:
+		Enable support for indirect PCI bridges.
+
 - CONFIG_SYS_SRIO:
 		Chip has SRIO or not
 

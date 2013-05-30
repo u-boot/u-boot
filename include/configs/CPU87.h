@@ -192,6 +192,7 @@
 #define CONFIG_CMD_I2C
 
 #ifdef CONFIG_PCI
+#define CONFIG_PCI_INDIRECT_BRIDGE
     #define CONFIG_CMD_PCI
 #endif
 

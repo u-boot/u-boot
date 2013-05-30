@@ -314,6 +314,7 @@
 #define CONFIG_SYS_PCI1_IO_SIZE		0x100000 /* 1M */
 
 #ifdef CONFIG_PCI
+#define CONFIG_PCI_INDIRECT_BRIDGE
 
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */
 

@@ -139,6 +139,7 @@ protect on ${u-boot_startaddr} ${u-boot_endaddr}"
  *-----------------------------------------------------------------------
  */
 #define CONFIG_PCI				/* include pci support		*/
+#define	CONFIG_PCI_INDIRECT_BRIDGE 1	/* indirect PCI bridge support */
 #undef CONFIG_PCI_PNP
 #define CONFIG_PCI_SCAN_SHOW
 #define CONFIG_EEPRO100
