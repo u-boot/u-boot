@@ -17,6 +17,12 @@ DECLARE_GLOBAL_DATA_PTR;
 #define	LINUX_MAX_ENVS		256
 #define	LINUX_MAX_ARGS		256
 
+#if defined(CONFIG_QEMU_MALTA)
+#define mips_boot_qemu_malta	1
+#else
+#define mips_boot_qemu_malta	0
+#endif
+
 static int linux_argc;
 static char **linux_argv;
 static char *linux_argp;
@@ -133,7 +139,12 @@ static void linux_env_set(const char *env_name, const char *env_val)
 		strcpy(linux_env_p, env_name);
 		linux_env_p += strlen(env_name);
 
-		*linux_env_p++ = '=';
+		if (mips_boot_qemu_malta) {
+			linux_env_p++;
+			linux_env[++linux_env_idx] = linux_env_p;
+		} else {
+			*linux_env_p++ = '=';
+		}
 
 		strcpy(linux_env_p, env_val);
 		linux_env_p += strlen(env_val);
@@ -184,21 +195,28 @@ static void boot_prep_linux(bootm_headers_t *images)
 	cp = getenv("eth1addr");
 	if (cp)
 		linux_env_set("eth1addr", cp);
+
+	if (mips_boot_qemu_malta)
+		linux_env_set("modetty0", "38400n8r");
 }
 
 static void boot_jump_linux(bootm_headers_t *images)
 {
 	typedef void __noreturn (*kernel_entry_t)(int, ulong, ulong, ulong);
 	kernel_entry_t kernel = (kernel_entry_t) images->ep;
+	ulong linux_extra = 0;
 
 	debug("## Transferring control to Linux (at address %p) ...\n", kernel);
 
 	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 
+	if (mips_boot_qemu_malta)
+		linux_extra = gd->ram_size;
+
 	/* we assume that the kernel is in place */
 	printf("\nStarting kernel ...\n\n");
 
-	kernel(linux_argc, (ulong)linux_argv, (ulong)linux_env, 0);
+	kernel(linux_argc, (ulong)linux_argv, (ulong)linux_env, linux_extra);
 }
 
 int do_bootm_linux(int flag, int argc, char * const argv[],
