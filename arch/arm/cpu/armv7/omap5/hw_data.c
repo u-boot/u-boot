@@ -26,6 +26,7 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#include <palmas.h>
 #include <asm/arch/omap.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/omap_common.h>
@@ -294,6 +295,19 @@ struct pmic_data palmas = {
 	.pmic_write	= omap_vc_bypass_send_value,
 };
 
+struct pmic_data tps659038 = {
+	.base_offset = PALMAS_SMPS_BASE_VOLT_UV,
+	.step = 10000, /* 10 mV represented in uV */
+	/*
+	 * Offset codes 1-6 all give the base voltage in Palmas
+	 * Offset code 0 switches OFF the SMPS
+	 */
+	.start_code = 6,
+	.i2c_slave_addr	= TPS659038_I2C_SLAVE_ADDR,
+	.pmic_bus_init	= gpi2c_init,
+	.pmic_write	= palmas_i2c_write_u8,
+};
+
 struct vcores_data omap5430_volts = {
 	.mpu.value = VDD_MPU,
 	.mpu.addr = SMPS_REG_ADDR_12_MPU,
@@ -320,6 +334,28 @@ struct vcores_data omap5430_volts_es2 = {
 	.mm.value = VDD_MM_ES2,
 	.mm.addr = SMPS_REG_ADDR_45_IVA,
 	.mm.pmic = &palmas,
+};
+
+struct vcores_data dra752_volts = {
+	.mpu.value	= VDD_MPU_DRA752,
+	.mpu.addr	= TPS659038_REG_ADDR_SMPS12_MPU,
+	.mpu.pmic	= &tps659038,
+
+	.eve.value	= VDD_EVE_DRA752,
+	.eve.addr	= TPS659038_REG_ADDR_SMPS45_EVE,
+	.eve.pmic	= &tps659038,
+
+	.gpu.value	= VDD_GPU_DRA752,
+	.gpu.addr	= TPS659038_REG_ADDR_SMPS6_GPU,
+	.gpu.pmic	= &tps659038,
+
+	.core.value	= VDD_CORE_DRA752,
+	.core.addr	= TPS659038_REG_ADDR_SMPS7_CORE,
+	.core.pmic	= &tps659038,
+
+	.iva.value	= VDD_IVA_DRA752,
+	.iva.addr	= TPS659038_REG_ADDR_SMPS8_IVA,
+	.iva.pmic	= &tps659038,
 };
 
 /*
@@ -562,7 +598,7 @@ void hw_data_init(void)
 	case DRA752_ES1_0:
 	*prcm = &dra7xx_prcm;
 	*dplls_data = &dra7xx_dplls;
-	*omap_vcores = &omap5430_volts_es2;
+	*omap_vcores = &dra752_volts;
 	*ctrl = &dra7xx_ctrl;
 	break;
 

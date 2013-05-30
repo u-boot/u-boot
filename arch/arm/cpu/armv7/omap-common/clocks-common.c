@@ -30,6 +30,7 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#include <i2c.h>
 #include <asm/omap_common.h>
 #include <asm/gpio.h>
 #include <asm/arch/clock.h>
@@ -487,6 +488,9 @@ void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic)
 	u32 offset = volt_mv;
 	int ret = 0;
 
+	if (!volt_mv)
+		return;
+
 	pmic->pmic_bus_init();
 	/* See if we can first get the GPIO if needed */
 	if (pmic->gpio_en)
@@ -542,6 +546,15 @@ void scale_vcores(struct vcores_data const *vcores)
 
 	do_scale_vcore(vcores->mm.addr, vcores->mm.value,
 					  vcores->mm.pmic);
+
+	do_scale_vcore(vcores->gpu.addr, vcores->gpu.value,
+		       vcores->gpu.pmic);
+
+	do_scale_vcore(vcores->eve.addr, vcores->eve.value,
+		       vcores->eve.pmic);
+
+	do_scale_vcore(vcores->iva.addr, vcores->iva.value,
+		       vcores->iva.pmic);
 
 	 if (emif_sdram_type() == EMIF_SDRAM_TYPE_DDR3) {
 		/* Configure LDO SRAM "magic" bits */
@@ -731,4 +744,14 @@ void prcm_init(void)
 
 	if (OMAP_INIT_CONTEXT_SPL != omap_hw_init_context())
 		enable_basic_uboot_clocks();
+}
+
+void gpi2c_init(void)
+{
+	static int gpi2c = 1;
+
+	if (gpi2c) {
+		i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+		gpi2c = 0;
+	}
 }

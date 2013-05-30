@@ -516,6 +516,9 @@ struct vcores_data {
 	struct volts mpu;
 	struct volts core;
 	struct volts mm;
+	struct volts gpu;
+	struct volts eve;
+	struct volts iva;
 };
 
 extern struct prcm_regs const **prcm;
