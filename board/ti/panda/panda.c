@@ -139,16 +139,18 @@ int misc_init_r(void)
 
 void set_muxconf_regs_essential(void)
 {
-	do_set_mux(CONTROL_PADCONF_CORE, core_padconf_array_essential,
+	do_set_mux((*ctrl)->control_padconf_core_base,
+		   core_padconf_array_essential,
 		   sizeof(core_padconf_array_essential) /
 		   sizeof(struct pad_conf_entry));
 
-	do_set_mux(CONTROL_PADCONF_WKUP, wkup_padconf_array_essential,
+	do_set_mux((*ctrl)->control_padconf_wkup_base,
+		   wkup_padconf_array_essential,
 		   sizeof(wkup_padconf_array_essential) /
 		   sizeof(struct pad_conf_entry));
 
 	if (omap_revision() >= OMAP4460_ES1_0)
-		do_set_mux(CONTROL_PADCONF_WKUP,
+		do_set_mux((*ctrl)->control_padconf_wkup_base,
 				 wkup_padconf_array_essential_4460,
 				 sizeof(wkup_padconf_array_essential_4460) /
 				 sizeof(struct pad_conf_entry));
@@ -156,27 +158,29 @@ void set_muxconf_regs_essential(void)
 
 void set_muxconf_regs_non_essential(void)
 {
-	do_set_mux(CONTROL_PADCONF_CORE, core_padconf_array_non_essential,
+	do_set_mux((*ctrl)->control_padconf_core_base,
+		   core_padconf_array_non_essential,
 		   sizeof(core_padconf_array_non_essential) /
 		   sizeof(struct pad_conf_entry));
 
 	if (omap_revision() < OMAP4460_ES1_0)
-		do_set_mux(CONTROL_PADCONF_CORE,
+		do_set_mux((*ctrl)->control_padconf_core_base,
 				core_padconf_array_non_essential_4430,
 				sizeof(core_padconf_array_non_essential_4430) /
 				sizeof(struct pad_conf_entry));
 	else
-		do_set_mux(CONTROL_PADCONF_CORE,
+		do_set_mux((*ctrl)->control_padconf_core_base,
 				core_padconf_array_non_essential_4460,
 				sizeof(core_padconf_array_non_essential_4460) /
 				sizeof(struct pad_conf_entry));
 
-	do_set_mux(CONTROL_PADCONF_WKUP, wkup_padconf_array_non_essential,
+	do_set_mux((*ctrl)->control_padconf_wkup_base,
+		   wkup_padconf_array_non_essential,
 		   sizeof(wkup_padconf_array_non_essential) /
 		   sizeof(struct pad_conf_entry));
 
 	if (omap_revision() < OMAP4460_ES1_0)
-		do_set_mux(CONTROL_PADCONF_WKUP,
+		do_set_mux((*ctrl)->control_padconf_wkup_base,
 				wkup_padconf_array_non_essential_4430,
 				sizeof(wkup_padconf_array_non_essential_4430) /
 				sizeof(struct pad_conf_entry));

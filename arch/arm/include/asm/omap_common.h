@@ -367,6 +367,7 @@ struct omap_sys_ctrl_regs {
 	u32 control_ldosram_iva_voltage_ctrl;
 	u32 control_ldosram_mpu_voltage_ctrl;
 	u32 control_ldosram_core_voltage_ctrl;
+	u32 control_usbotghs_ctrl;
 	u32 control_padconf_core_base;
 	u32 control_paconf_global;
 	u32 control_paconf_mode;
@@ -554,9 +555,6 @@ void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic);
 void abb_setup(u32 fuse, u32 ldovbb, u32 setup, u32 control,
 	       u32 txdone, u32 txdone_mask, u32 opp);
 s8 abb_setup_ldovbb(u32 fuse, u32 ldovbb);
-
-/* Max value for DPLL multiplier M */
-#define OMAP_DPLL_MAX_N	127
 
 /* HW Init Context */
 #define OMAP_INIT_CONTEXT_SPL			0
