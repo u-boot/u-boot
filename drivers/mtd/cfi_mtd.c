@@ -244,12 +244,12 @@ int cfi_mtd_init(void)
 		mtd->size		= fi->size;
 		mtd->writesize		= 1;
 
-		mtd->erase		= cfi_mtd_erase;
-		mtd->read		= cfi_mtd_read;
-		mtd->write		= cfi_mtd_write;
-		mtd->sync		= cfi_mtd_sync;
-		mtd->lock		= cfi_mtd_lock;
-		mtd->unlock		= cfi_mtd_unlock;
+		mtd->_erase		= cfi_mtd_erase;
+		mtd->_read		= cfi_mtd_read;
+		mtd->_write		= cfi_mtd_write;
+		mtd->_sync		= cfi_mtd_sync;
+		mtd->_lock		= cfi_mtd_lock;
+		mtd->_unlock		= cfi_mtd_unlock;
 		mtd->priv		= fi;
 
 		if (add_mtd_device(mtd))

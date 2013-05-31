@@ -539,7 +539,7 @@ static int io_init(struct ubi_device *ubi)
 	ubi->peb_count  = mtd_div_by_eb(ubi->mtd->size, ubi->mtd);
 	ubi->flash_size = ubi->mtd->size;
 
-	if (ubi->mtd->block_isbad && ubi->mtd->block_markbad)
+	if (mtd_can_have_bb(ubi->mtd))
 		ubi->bad_allowed = 1;
 
 	ubi->min_io_size = ubi->mtd->writesize;

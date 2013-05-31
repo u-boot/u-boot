@@ -707,7 +707,7 @@ static int nand_rw_page(struct mtd_info *mtd, struct nand_chip *chip,
  *		-EIO when command timeout
  */
 static int nand_read_page_hwecc(struct mtd_info *mtd,
-	struct nand_chip *chip, uint8_t *buf, int page)
+	struct nand_chip *chip, uint8_t *buf, int oob_required, int page)
 {
 	return nand_rw_page(mtd, chip, buf, page, 1, 0);
 }
@@ -719,8 +719,8 @@ static int nand_read_page_hwecc(struct mtd_info *mtd,
  * @param chip	nand chip info structure
  * @param buf	data buffer
  */
-static void nand_write_page_hwecc(struct mtd_info *mtd,
-	struct nand_chip *chip, const uint8_t *buf)
+static int nand_write_page_hwecc(struct mtd_info *mtd,
+	struct nand_chip *chip, const uint8_t *buf, int oob_required)
 {
 	int page;
 	struct nand_drv *info;
@@ -731,6 +731,7 @@ static void nand_write_page_hwecc(struct mtd_info *mtd,
 		(readl(&info->reg->addr_reg2) << 16);
 
 	nand_rw_page(mtd, chip, (uint8_t *)buf, page, 1, 1);
+	return 0;
 }
 
 
@@ -746,7 +747,7 @@ static void nand_write_page_hwecc(struct mtd_info *mtd,
  *		-EIO when command timeout
  */
 static int nand_read_page_raw(struct mtd_info *mtd,
-	struct nand_chip *chip, uint8_t *buf, int page)
+	struct nand_chip *chip, uint8_t *buf, int oob_required, int page)
 {
 	return nand_rw_page(mtd, chip, buf, page, 0, 0);
 }
@@ -758,8 +759,8 @@ static int nand_read_page_raw(struct mtd_info *mtd,
  * @param chip	nand chip info structure
  * @param buf	data buffer
  */
-static void nand_write_page_raw(struct mtd_info *mtd,
-		struct nand_chip *chip,	const uint8_t *buf)
+static int nand_write_page_raw(struct mtd_info *mtd,
+		struct nand_chip *chip,	const uint8_t *buf, int oob_required)
 {
 	int page;
 	struct nand_drv *info;
@@ -769,6 +770,7 @@ static void nand_write_page_raw(struct mtd_info *mtd,
 		(readl(&info->reg->addr_reg2) << 16);
 
 	nand_rw_page(mtd, chip, (uint8_t *)buf, page, 0, 1);
+	return 0;
 }
 
 /**
@@ -873,19 +875,13 @@ static int nand_rw_oob(struct mtd_info *mtd, struct nand_chip *chip,
  * @param mtd		mtd info structure
  * @param chip		nand chip info structure
  * @param page		page number to read
- * @param sndcmd	flag whether to issue read command or not
- * @return	1 - issue read command next time
- *		0 - not to issue
  */
 static int nand_read_oob(struct mtd_info *mtd, struct nand_chip *chip,
-	int page, int sndcmd)
+	int page)
 {
-	if (sndcmd) {
-		chip->cmdfunc(mtd, NAND_CMD_READOOB, 0, page);
-		sndcmd = 0;
-	}
+	chip->cmdfunc(mtd, NAND_CMD_READOOB, 0, page);
 	nand_rw_oob(mtd, chip, page, 0, 0);
-	return sndcmd;
+	return 0;
 }
 
 /**
@@ -1018,6 +1014,7 @@ int tegra_nand_init(struct nand_chip *nand, int devnum)
 	nand->ecc.write_page_raw = nand_write_page_raw;
 	nand->ecc.read_oob = nand_read_oob;
 	nand->ecc.write_oob = nand_write_oob;
+	nand->ecc.strength = 1;
 	nand->select_chip = nand_select_chip;
 	nand->dev_ready  = nand_dev_ready;
 	nand->priv = &nand_ctrl;

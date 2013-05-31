@@ -553,7 +553,8 @@ static uint8_t mxs_nand_read_byte(struct mtd_info *mtd)
  * Read a page from NAND.
  */
 static int mxs_nand_ecc_read_page(struct mtd_info *mtd, struct nand_chip *nand,
-					uint8_t *buf, int page)
+					uint8_t *buf, int oob_required,
+					int page)
 {
 	struct mxs_nand_info *nand_info = nand->priv;
 	struct mxs_dma_desc *d;
@@ -698,8 +699,9 @@ rtn:
 /*
  * Write a page to NAND.
  */
-static void mxs_nand_ecc_write_page(struct mtd_info *mtd,
-				struct nand_chip *nand, const uint8_t *buf)
+static int mxs_nand_ecc_write_page(struct mtd_info *mtd,
+				struct nand_chip *nand, const uint8_t *buf,
+				int oob_required)
 {
 	struct mxs_nand_info *nand_info = nand->priv;
 	struct mxs_dma_desc *d;
@@ -755,6 +757,7 @@ static void mxs_nand_ecc_write_page(struct mtd_info *mtd,
 
 rtn:
 	mxs_nand_return_dma_descs(nand_info);
+	return 0;
 }
 
 /*
@@ -770,7 +773,7 @@ static int mxs_nand_hook_read_oob(struct mtd_info *mtd, loff_t from,
 	struct mxs_nand_info *nand_info = chip->priv;
 	int ret;
 
-	if (ops->mode == MTD_OOB_RAW)
+	if (ops->mode == MTD_OPS_RAW)
 		nand_info->raw_oob_mode = 1;
 	else
 		nand_info->raw_oob_mode = 0;
@@ -795,7 +798,7 @@ static int mxs_nand_hook_write_oob(struct mtd_info *mtd, loff_t to,
 	struct mxs_nand_info *nand_info = chip->priv;
 	int ret;
 
-	if (ops->mode == MTD_OOB_RAW)
+	if (ops->mode == MTD_OPS_RAW)
 		nand_info->raw_oob_mode = 1;
 	else
 		nand_info->raw_oob_mode = 0;
@@ -873,7 +876,7 @@ static int mxs_nand_hook_block_markbad(struct mtd_info *mtd, loff_t ofs)
  * what to do.
  */
 static int mxs_nand_ecc_read_oob(struct mtd_info *mtd, struct nand_chip *nand,
-				int page, int cmd)
+				int page)
 {
 	struct mxs_nand_info *nand_info = nand->priv;
 
@@ -1006,19 +1009,19 @@ static int mxs_nand_scan_bbt(struct mtd_info *mtd)
 	writel(BCH_CTRL_COMPLETE_IRQ_EN, &bch_regs->hw_bch_ctrl_set);
 
 	/* Hook some operations at the MTD level. */
-	if (mtd->read_oob != mxs_nand_hook_read_oob) {
-		nand_info->hooked_read_oob = mtd->read_oob;
-		mtd->read_oob = mxs_nand_hook_read_oob;
+	if (mtd->_read_oob != mxs_nand_hook_read_oob) {
+		nand_info->hooked_read_oob = mtd->_read_oob;
+		mtd->_read_oob = mxs_nand_hook_read_oob;
 	}
 
-	if (mtd->write_oob != mxs_nand_hook_write_oob) {
-		nand_info->hooked_write_oob = mtd->write_oob;
-		mtd->write_oob = mxs_nand_hook_write_oob;
+	if (mtd->_write_oob != mxs_nand_hook_write_oob) {
+		nand_info->hooked_write_oob = mtd->_write_oob;
+		mtd->_write_oob = mxs_nand_hook_write_oob;
 	}
 
-	if (mtd->block_markbad != mxs_nand_hook_block_markbad) {
-		nand_info->hooked_block_markbad = mtd->block_markbad;
-		mtd->block_markbad = mxs_nand_hook_block_markbad;
+	if (mtd->_block_markbad != mxs_nand_hook_block_markbad) {
+		nand_info->hooked_block_markbad = mtd->_block_markbad;
+		mtd->_block_markbad = mxs_nand_hook_block_markbad;
 	}
 
 	/* We use the reference implementation for bad block management. */
@@ -1172,6 +1175,7 @@ int board_nand_init(struct nand_chip *nand)
 	nand->ecc.mode		= NAND_ECC_HW;
 	nand->ecc.bytes		= 9;
 	nand->ecc.size		= 512;
+	nand->ecc.strength	= 8;
 
 	return 0;
 

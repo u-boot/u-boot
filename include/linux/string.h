@@ -85,6 +85,9 @@ extern int memcmp(const void *,const void *,__kernel_size_t);
 #ifndef __HAVE_ARCH_MEMCHR
 extern void * memchr(const void *,int,__kernel_size_t);
 #endif
+#ifndef __HAVE_ARCH_MEMCHR_INV
+void *memchr_inv(const void *, int, size_t);
+#endif
 
 #ifdef __cplusplus
 }
