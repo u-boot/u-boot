@@ -25,6 +25,45 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+void save_omap_boot_params(void)
+{
+	u32 rom_params = *((u32 *)OMAP_SRAM_SCRATCH_BOOT_PARAMS);
+	u8 boot_device;
+	u32 dev_desc, dev_data;
+
+	if ((rom_params <  NON_SECURE_SRAM_START) ||
+	    (rom_params > NON_SECURE_SRAM_END))
+		return;
+
+	/*
+	 * rom_params can be type casted to omap_boot_parameters and
+	 * used. But it not correct to assume that romcode structure
+	 * encoding would be same as u-boot. So use the defined offsets.
+	 */
+	gd->arch.omap_boot_params.omap_bootdevice = boot_device =
+				   *((u8 *)(rom_params + BOOT_DEVICE_OFFSET));
+
+	gd->arch.omap_boot_params.ch_flags =
+				*((u8 *)(rom_params + CH_FLAGS_OFFSET));
+
+	if ((boot_device >= MMC_BOOT_DEVICES_START) &&
+	    (boot_device <= MMC_BOOT_DEVICES_END)) {
+#if !defined(CONFIG_AM33XX) && !defined(CONFIG_TI81XX)
+		if ((omap_hw_init_context() ==
+				      OMAP_INIT_CONTEXT_UBOOT_AFTER_SPL)) {
+			gd->arch.omap_boot_params.omap_bootmode =
+			*((u8 *)(rom_params + BOOT_MODE_OFFSET));
+		} else
+#endif
+		{
+			dev_desc = *((u32 *)(rom_params + DEV_DESC_PTR_OFFSET));
+			dev_data = *((u32 *)(dev_desc + DEV_DATA_PTR_OFFSET));
+			gd->arch.omap_boot_params.omap_bootmode =
+					*((u32 *)(dev_data + BOOT_MODE_OFFSET));
+		}
+	}
+}
+
 #ifdef CONFIG_SPL_BUILD
 u32 spl_boot_device(void)
 {
