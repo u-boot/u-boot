@@ -84,7 +84,7 @@ u32 cortex_rev(void)
 	return rev;
 }
 
-void omap_rev_string(void)
+static void omap_rev_string(void)
 {
 	u32 omap_rev = omap_revision();
 	u32 soc_variant	= (omap_rev & 0xF0000000) >> 28;
