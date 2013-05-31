@@ -148,7 +148,9 @@ int spi_flash_read_common(struct spi_flash *flash, const u8 *cmd,
 int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 		size_t len, void *data)
 {
-	u8 cmd[5];
+	u8 cmd[5], bank_sel;
+	u32 remain_len, read_len;
+	int ret = -1;
 
 	/* Handle memory-mapped SPI */
 	if (flash->memory_map) {
@@ -157,10 +159,38 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 	}
 
 	cmd[0] = CMD_READ_ARRAY_FAST;
-	spi_flash_addr(offset, cmd);
 	cmd[4] = 0x00;
 
-	return spi_flash_read_common(flash, cmd, sizeof(cmd), data, len);
+	while (len) {
+		bank_sel = offset / SPI_FLASH_16MB_BOUN;
+
+		ret = spi_flash_cmd_bankaddr_write(flash, bank_sel);
+		if (ret) {
+			debug("SF: fail to set bank%d\n", bank_sel);
+			return ret;
+		}
+
+		remain_len = (SPI_FLASH_16MB_BOUN * (bank_sel + 1) - offset);
+		if (len < remain_len)
+			read_len = len;
+		else
+			read_len = remain_len;
+
+		spi_flash_addr(offset, cmd);
+
+		ret = spi_flash_read_common(flash, cmd, sizeof(cmd),
+							data, read_len);
+		if (ret < 0) {
+			debug("SF: read failed\n");
+			break;
+		}
+
+		offset += read_len;
+		len -= read_len;
+		data += read_len;
+	}
+
+	return ret;
 }
 
 int spi_flash_cmd_poll_bit(struct spi_flash *flash, unsigned long timeout,
