@@ -1,0 +1,29 @@
+U-Boot for the Congatec Conga-QEVAl Evaluation Carrier board with
+qmx6 quad module.
+
+This file contains information for the port of U-Boot to the Congatec
+Conga-QEVAl Evaluation Carrier board with qmx6 quad module.
+
+1. Boot source, boot from SD card
+---------------------------------
+
+This version of u-boot works only on the SD card. By default, the
+Congatec board can boot only from the SPI-NOR.
+But, with the u-boot version provided with the board you can write boot
+registers to force the board to reboot and boot from the SD slot. If
+"bmode" command is not available from your pre-installed u-boot, these
+instruction will produce the same effect:
+
+conga-QMX6 U-Boot > mw.l 0x20d8040 0x3850
+conga-QMX6 U-Boot > mw.l 0x020d8044 0x10000000
+conga-QMX6 U-Boot > reset
+resetting ...
+
+The the board will reboot and, if you have written your SD correctly
+the board will use u-boot that live into the SD
+
+To copy the resulting u-boot.imx to the SD card:
+
+ dd if=u-boot.imx of=/dev/xxx bs=512 seek=2
+
+Note: Replace xxx with the device representing the SD card in your system.

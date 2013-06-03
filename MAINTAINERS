@@ -893,6 +893,10 @@ Steve Sakoman <sakoman@gmail.com>
 
 	omap3_overo	ARM ARMV7 (OMAP3xx SoC)
 
+Leo Sartre <lsartre@adeneo-embedded.com>
+
+	cgtqmx6qeval		i.MX6Q
+
 Jens Scharsig <esw@bus-elektronik.de>
 
 	eb_cpux9k2	ARM920T (AT91RM9200 SoC)
