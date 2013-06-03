@@ -325,10 +325,10 @@ static void set_timing_cfg_0(fsl_ddr_cfg_regs_t *ddr,
 		| ((twrt_mclk & 0x3) << 28)	/* WRT */
 		| ((trrt_mclk & 0x3) << 26)	/* RRT */
 		| ((twwt_mclk & 0x3) << 24)	/* WWT */
-		| ((act_pd_exit_mclk & 0x7) << 20)  /* ACT_PD_EXIT */
+		| ((act_pd_exit_mclk & 0xf) << 20)  /* ACT_PD_EXIT */
 		| ((pre_pd_exit_mclk & 0xF) << 16)  /* PRE_PD_EXIT */
 		| ((taxpd_mclk & 0xf) << 8)	/* ODT_PD_EXIT */
-		| ((tmrd_mclk & 0xf) << 0)	/* MRS_CYC */
+		| ((tmrd_mclk & 0x1f) << 0)	/* MRS_CYC */
 		);
 	debug("FSLDDR: timing_cfg_0 = 0x%08x\n", ddr->timing_cfg_0);
 }
@@ -338,7 +338,8 @@ static void set_timing_cfg_0(fsl_ddr_cfg_regs_t *ddr,
 static void set_timing_cfg_3(fsl_ddr_cfg_regs_t *ddr,
 			       const memctl_options_t *popts,
 			       const common_timing_params_t *common_dimm,
-			       unsigned int cas_latency)
+			       unsigned int cas_latency,
+			       unsigned int additive_latency)
 {
 	/* Extended precharge to activate interval (tRP) */
 	unsigned int ext_pretoact = 0;
@@ -350,6 +351,8 @@ static void set_timing_cfg_3(fsl_ddr_cfg_regs_t *ddr,
 	unsigned int ext_refrec;
 	/* Extended MCAS latency from READ cmd */
 	unsigned int ext_caslat = 0;
+	/* Extended additive latency */
+	unsigned int ext_add_lat = 0;
 	/* Extended last data to precharge interval (tWR) */
 	unsigned int ext_wrrec = 0;
 	/* Control Adjust */
@@ -359,6 +362,7 @@ static void set_timing_cfg_3(fsl_ddr_cfg_regs_t *ddr,
 	ext_acttopre = picos_to_mclk(common_dimm->tras_ps) >> 4;
 	ext_acttorw = picos_to_mclk(common_dimm->trcd_ps) >> 4;
 	ext_caslat = (2 * cas_latency - 1) >> 4;
+	ext_add_lat = additive_latency >> 4;
 	ext_refrec = (picos_to_mclk(common_dimm->trfc_ps) - 8) >> 4;
 	/* ext_wrrec only deals with 16 clock and above, or 14 with OTF */
 	ext_wrrec = (picos_to_mclk(common_dimm->twr_ps) +
@@ -370,6 +374,7 @@ static void set_timing_cfg_3(fsl_ddr_cfg_regs_t *ddr,
 		| ((ext_acttorw & 0x1) << 22)
 		| ((ext_refrec & 0x1F) << 16)
 		| ((ext_caslat & 0x3) << 12)
+		| ((ext_add_lat & 0x1) << 10)
 		| ((ext_wrrec & 0x1) << 8)
 		| ((cntl_adj & 0x7) << 0)
 		);
@@ -531,8 +536,6 @@ static void set_timing_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 	if (rd_to_pre < 4)
 		rd_to_pre = 4;
 #endif
-	if (additive_latency)
-		rd_to_pre += additive_latency;
 	if (popts->otf_burst_chop_en)
 		rd_to_pre += 2; /* according to UM */
 
@@ -1592,8 +1595,8 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 
 		if (cs_en) {
 			ddr->cs[i].bnds = (0
-				| ((sa & 0xFFF) << 16)/* starting address MSB */
-				| ((ea & 0xFFF) << 0)	/* ending address MSB */
+				| ((sa & 0xffff) << 16) /* starting address */
+				| ((ea & 0xffff) << 0)	/* ending address */
 				);
 		} else {
 			/* setting bnds to 0xffffffff for inactive CS */
@@ -1618,7 +1621,8 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 	set_timing_cfg_0(ddr, popts, dimm_params);
 #endif
 
-	set_timing_cfg_3(ddr, popts, common_dimm, cas_latency);
+	set_timing_cfg_3(ddr, popts, common_dimm, cas_latency,
+			 additive_latency);
 	set_timing_cfg_1(ddr, popts, common_dimm, cas_latency);
 	set_timing_cfg_2(ddr, popts, common_dimm,
 				cas_latency, additive_latency);
