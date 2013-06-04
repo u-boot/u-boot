@@ -166,4 +166,26 @@ void rtc32k_enable(void)
 	/* Enable the RTC 32K OSC by setting bits 3 and 6. */
 	writel((1 << 3) | (1 << 6), &rtc->osc);
 }
+
+#define UART_RESET		(0x1 << 1)
+#define UART_CLK_RUNNING_MASK	0x1
+#define UART_SMART_IDLE_EN	(0x1 << 0x3)
+
+void uart_soft_reset(void)
+{
+	struct uart_sys *uart_base = (struct uart_sys *)DEFAULT_UART_BASE;
+	u32 regval;
+
+	regval = readl(&uart_base->uartsyscfg);
+	regval |= UART_RESET;
+	writel(regval, &uart_base->uartsyscfg);
+	while ((readl(&uart_base->uartsyssts) &
+		UART_CLK_RUNNING_MASK) != UART_CLK_RUNNING_MASK)
+		;
+
+	/* Disable smart idle */
+	regval = readl(&uart_base->uartsyscfg);
+	regval |= UART_SMART_IDLE_EN;
+	writel(regval, &uart_base->uartsyscfg);
+}
 #endif

@@ -38,9 +38,6 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 static struct wd_timer *wdtimer = (struct wd_timer *)WDT_BASE;
-#ifdef CONFIG_SPL_BUILD
-static struct uart_sys *uart_base = (struct uart_sys *)DEFAULT_UART_BASE;
-#endif
 
 /* MII mode defines */
 #define MII_MODE_ENABLE		0x0
@@ -126,12 +123,7 @@ static int read_eeprom(void)
 	return 0;
 }
 
-/* UART Defines */
 #ifdef CONFIG_SPL_BUILD
-#define UART_RESET		(0x1 << 1)
-#define UART_CLK_RUNNING_MASK	0x1
-#define UART_SMART_IDLE_EN	(0x1 << 0x3)
-
 static const struct ddr_data ddr2_data = {
 	.datardsratio0 = ((MT47H128M16RT25E_RD_DQS<<30) |
 			  (MT47H128M16RT25E_RD_DQS<<20) |
@@ -314,9 +306,6 @@ void s_init(void)
 	/* Enable RTC32K clock */
 	rtc32k_enable();
 
-	/* UART softreset */
-	u32 regVal;
-
 #ifdef CONFIG_SERIAL1
 	enable_uart0_pin_mux();
 #endif /* CONFIG_SERIAL1 */
@@ -336,17 +325,7 @@ void s_init(void)
 	enable_uart5_pin_mux();
 #endif /* CONFIG_SERIAL6 */
 
-	regVal = readl(&uart_base->uartsyscfg);
-	regVal |= UART_RESET;
-	writel(regVal, &uart_base->uartsyscfg);
-	while ((readl(&uart_base->uartsyssts) &
-		UART_CLK_RUNNING_MASK) != UART_CLK_RUNNING_MASK)
-		;
-
-	/* Disable smart idle */
-	regVal = readl(&uart_base->uartsyscfg);
-	regVal |= UART_SMART_IDLE_EN;
-	writel(regVal, &uart_base->uartsyscfg);
+	uart_soft_reset();
 
 	gd = &gdata;
 
