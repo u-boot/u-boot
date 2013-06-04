@@ -32,6 +32,7 @@ extern struct ctrl_stat *cstat;
 u32 get_device_type(void);
 void save_omap_boot_params(void);
 void setup_clocks_for_console(void);
+void mpu_pll_config_val(int mpull_m);
 void ddr_pll_config(unsigned int ddrpll_M);
 
 void sdelay(unsigned long);
