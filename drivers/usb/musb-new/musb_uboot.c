@@ -1,4 +1,5 @@
 #include <common.h>
+#include <watchdog.h>
 #include <asm/errno.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
@@ -164,6 +165,7 @@ static struct musb *gadget;
 
 int usb_gadget_handle_interrupts(void)
 {
+	WATCHDOG_RESET();
 	if (!gadget || !gadget->isr)
 		return -EINVAL;
 
