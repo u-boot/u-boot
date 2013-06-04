@@ -1098,4 +1098,5 @@ void usb_composite_unregister(struct usb_composite_driver *driver)
 	if (composite != driver)
 		return;
 	usb_gadget_unregister_driver(&composite_driver);
+	composite = NULL;
 }
