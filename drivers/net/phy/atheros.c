@@ -61,7 +61,17 @@ static struct phy_driver AR8021_driver =  {
 	.shutdown = genphy_shutdown,
 };
 
-struct phy_driver AR8035_driver =  {
+static struct phy_driver AR8031_driver =  {
+	.name = "AR8031",
+	.uid = 0x4dd074,
+	.mask = 0xfffff0,
+	.features = PHY_GBIT_FEATURES,
+	.config = genphy_config,
+	.startup = genphy_startup,
+	.shutdown = genphy_shutdown,
+};
+
+static struct phy_driver AR8035_driver =  {
 	.name = "AR8035",
 	.uid = 0x4dd072,
 	.mask = 0x4fffff,
@@ -74,6 +84,7 @@ struct phy_driver AR8035_driver =  {
 int phy_atheros_init(void)
 {
 	phy_register(&AR8021_driver);
+	phy_register(&AR8031_driver);
 	phy_register(&AR8035_driver);
 
 	return 0;
