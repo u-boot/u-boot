@@ -151,12 +151,7 @@ static int calc_divisor (NS16550_t port)
 	}
 #endif
 
-#ifdef CONFIG_APTIX
-#define MODE_X_DIV 13
-#else
 #define MODE_X_DIV 16
-#endif
-
 	/* Compute divisor value. Normally, we should simply return:
 	 *   CONFIG_SYS_NS16550_CLK) / MODE_X_DIV / gd->baudrate
 	 * but we need to round that value by adding 0.5.
