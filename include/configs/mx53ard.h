@@ -118,7 +118,7 @@
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
-	"mmcpart=" __stringify(CONFIG_SYS_MMC_ENV_PART) "\0" \
+	"mmcpart=2\0" \
 	"mmcroot=/dev/mmcblk0p3 rootwait rw\0" \
 	"update_sd_firmware_filename=u-boot.imx\0" \
 	"update_sd_firmware=" \
@@ -240,7 +240,6 @@
 #define CONFIG_ENV_SIZE        (8 * 1024)
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV	0
-#define CONFIG_SYS_MMC_ENV_PART	2
 
 #define CONFIG_OF_LIBFDT
 
