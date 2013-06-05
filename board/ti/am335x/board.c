@@ -132,22 +132,6 @@ static int read_eeprom(void)
 #define UART_CLK_RUNNING_MASK	0x1
 #define UART_SMART_IDLE_EN	(0x1 << 0x3)
 
-static void rtc32k_enable(void)
-{
-	struct rtc_regs *rtc = (struct rtc_regs *)RTC_BASE;
-
-	/*
-	 * Unlock the RTC's registers.  For more details please see the
-	 * RTC_SS section of the TRM.  In order to unlock we need to
-	 * write these specific values (keys) in this order.
-	 */
-	writel(0x83e70b13, &rtc->kick0r);
-	writel(0x95a4f1e0, &rtc->kick1r);
-
-	/* Enable the RTC 32K OSC by setting bits 3 and 6. */
-	writel((1 << 3) | (1 << 6), &rtc->osc);
-}
-
 static const struct ddr_data ddr2_data = {
 	.datardsratio0 = ((MT47H128M16RT25E_RD_DQS<<30) |
 			  (MT47H128M16RT25E_RD_DQS<<20) |
