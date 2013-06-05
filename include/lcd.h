@@ -46,7 +46,8 @@ void lcd_initcolregs(void);
 int lcd_getfgcolor(void);
 
 /* gunzip_bmp used if CONFIG_VIDEO_BMP_GZIP */
-struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp);
+struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp,
+			     void **alloc_addr);
 int bmp_display(ulong addr, int x, int y);
 
 /**
