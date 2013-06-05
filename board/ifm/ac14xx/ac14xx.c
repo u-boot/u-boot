@@ -23,6 +23,10 @@
 #include <i2c.h>
 #endif
 
+static int eeprom_diag;
+static int mac_diag;
+static int gpio_diag;
+
 DECLARE_GLOBAL_DATA_PTR;
 
 static void gpio_configure(void)
@@ -125,8 +129,6 @@ static u32 gpio_querykbd(void)
 }
 
 /* excerpt from the recovery's hw_info.h */
-
-static int eeprom_diag = 1;
 
 struct __attribute__ ((__packed__)) eeprom_layout {
 	char	magic[3];	/** 'ifm' */
@@ -231,11 +233,13 @@ int mac_read_from_eeprom(void)
 
 	if (mac && is_valid_ether_addr(mac)) {
 		eth_setenv_enetaddr("ethaddr", mac);
-		mac_txt = getenv("ethaddr");
-		if (mac_txt)
-			printf("DIAG: MAC value [%s]\n", mac_txt);
-		else
-			printf("DIAG: failed to setup MAC env\n");
+		if (mac_diag) {
+			mac_txt = getenv("ethaddr");
+			if (mac_txt)
+				printf("DIAG: MAC value [%s]\n", mac_txt);
+			else
+				printf("DIAG: failed to setup MAC env\n");
+		}
 	}
 
 	return 0;
@@ -337,29 +341,31 @@ int misc_init_r(void)
 	 */
 	want_recovery = 0;
 	keys = gpio_querykbd();
-	printf("GPIO keyboard status [0x%08X]\n", keys);
+	if (gpio_diag)
+		printf("GPIO keyboard status [0x%02X]\n", keys);
 	if ((keys & GPIOKEY_BITS_RECOVERY) == GPIOKEY_BITS_RECOVERY) {
-		printf("GPIO keyboard requested RECOVERY\n");
+		printf("detected recovery request (keyboard)\n");
 		want_recovery = 1;
 	}
 	s = getenv("install_in_progress");
 	if ((s != NULL) && (*s != '\0')) {
-		printf("previous installation aborted, running RECOVERY\n");
+		printf("previous installation has not completed\n");
 		want_recovery = 1;
 	}
 	s = getenv("install_failed");
 	if ((s != NULL) && (*s != '\0')) {
-		printf("previous installation FAILED, running RECOVERY\n");
+		printf("previous installation has failed\n");
 		want_recovery = 1;
 	}
 	s = getenv("want_recovery");
 	if ((s != NULL) && (*s != '\0')) {
-		printf("running RECOVERY according to the request\n");
+		printf("detected recovery request (environment)\n");
 		want_recovery = 1;
 	}
-
-	if (want_recovery)
+	if (want_recovery) {
+		printf("enforced start of the recovery system\n");
 		setenv("bootcmd", "run recovery");
+	}
 
 	/*
 	 * boot the recovery system without waiting; boot the
