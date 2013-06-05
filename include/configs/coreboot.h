@@ -90,7 +90,8 @@
 #endif
 
 /* Generic TPM interfaced through LPC bus */
-#define CONFIG_GENERIC_LPC_TPM
+#define CONFIG_TPM
+#define CONFIG_TPM_TIS_LPC
 #define CONFIG_TPM_TIS_BASE_ADDRESS        0xfed40000
 
 /*-----------------------------------------------------------------------

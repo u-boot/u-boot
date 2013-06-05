@@ -33,12 +33,11 @@
  * MA 02111-1307 USA
  */
 
-#ifndef _TPM_H_
-#define _TPM_H_
+#ifndef _TPM_PRIVATE_H_
+#define _TPM_PRIVATE_H_
 
 #include <linux/compiler.h>
-
-#include "compatibility.h"
+#include <linux/types.h>
 
 enum tpm_timeout {
 	TPM_TIMEOUT = 5,	/* msecs */
@@ -47,13 +46,9 @@ enum tpm_timeout {
 /* Size of external transmit buffer (used in tpm_transmit)*/
 #define TPM_BUFSIZE 4096
 
-/* Index of fields in TPM command buffer */
-#define TPM_CMD_SIZE_BYTE 2
-#define TPM_CMD_ORDINAL_BYTE 6
-
 /* Index of Count field in TPM response buffer */
-#define TPM_RSP_SIZE_BYTE 2
-#define TPM_RSP_RC_BYTE 6
+#define TPM_RSP_SIZE_BYTE	2
+#define TPM_RSP_RC_BYTE		6
 
 struct tpm_chip;
 
@@ -65,10 +60,10 @@ struct tpm_vendor_specific {
 	int (*recv) (struct tpm_chip *, u8 *, size_t);
 	int (*send) (struct tpm_chip *, u8 *, size_t);
 	void (*cancel) (struct tpm_chip *);
-	 u8(*status) (struct tpm_chip *);
+	u8(*status) (struct tpm_chip *);
 	int locality;
-	unsigned long timeout_a, timeout_b, timeout_c, timeout_d; /* msec */
-	unsigned long duration[3];	/* msec */
+	unsigned long timeout_a, timeout_b, timeout_c, timeout_d;  /* msec */
+	unsigned long duration[3];  /* msec */
 };
 
 struct tpm_chip {
@@ -132,30 +127,11 @@ struct tpm_cmd_t {
 	union tpm_cmd_params params;
 } __packed;
 
+struct tpm_chip *tpm_register_hardware(const struct tpm_vendor_specific *);
 
-/* ---------- Interface for TPM vendor ------------ */
+int tpm_vendor_init(uint32_t dev_addr);
 
-extern struct tpm_chip *tpm_register_hardware(
-	const struct tpm_vendor_specific *);
+void tpm_vendor_cleanup(struct tpm_chip *chip);
 
-extern int tpm_vendor_init(uint32_t dev_addr);
-
-extern void tpm_vendor_cleanup(struct tpm_chip *chip);
-
-/* ---------- Interface for TDDL ------------------- */
-
-/*
- * if dev_addr != 0 - redefines TPM device address
- * Returns < 0 on error, 0 on success.
- */
-extern int tpm_open(uint32_t dev_addr);
-
-extern void tpm_close(void);
-
-/*
- * Transmit bufsiz bytes out of buf to TPM and get results back in buf, too.
- * Returns < 0 on error, 0 on success.
- */
-extern ssize_t tpm_transmit(const unsigned char *buf, size_t bufsiz);
 
 #endif

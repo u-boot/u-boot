@@ -32,11 +32,30 @@
  * MA 02111-1307 USA
  */
 
-#include <malloc.h>
-#include "tpm.h"
+#include <config.h>
+#include <common.h>
+#include <compiler.h>
+#include <fdtdec.h>
+#include <i2c.h>
+#include <tpm.h>
+#include <asm-generic/errno.h>
+#include <linux/types.h>
+#include <linux/unaligned/be_byteshift.h>
 
-/* global structure for tpm chip data */
-struct tpm_chip g_chip;
+#include "tpm_private.h"
+
+DECLARE_GLOBAL_DATA_PTR;
+
+/* TPM configuration */
+struct tpm {
+	int i2c_bus;
+	int slave_addr;
+	char inited;
+	int old_bus;
+} tpm;
+
+/* Global structure for tpm chip data */
+static struct tpm_chip g_chip;
 
 enum tpm_duration {
 	TPM_SHORT = 0,
@@ -45,9 +64,18 @@ enum tpm_duration {
 	TPM_UNDEFINED,
 };
 
-#define TPM_MAX_ORDINAL 243
-#define TPM_MAX_PROTECTED_ORDINAL 12
-#define TPM_PROTECTED_ORDINAL_MASK 0xFF
+/* Extended error numbers from linux (see errno.h) */
+#define ECANCELED	125	/* Operation Canceled */
+
+/* Timer frequency. Corresponds to msec timer resolution*/
+#define HZ		1000
+
+#define TPM_MAX_ORDINAL			243
+#define TPM_MAX_PROTECTED_ORDINAL	12
+#define TPM_PROTECTED_ORDINAL_MASK	0xFF
+
+#define TPM_CMD_COUNT_BYTE	2
+#define TPM_CMD_ORDINAL_BYTE	6
 
 /*
  * Array with one entry per ordinal defining the maximum amount
@@ -318,34 +346,31 @@ static const u8 tpm_ordinal_duration[TPM_MAX_ORDINAL] = {
 	TPM_MEDIUM,
 };
 
-/*
- * Returns max number of milliseconds to wait
- */
-unsigned long tpm_calc_ordinal_duration(struct tpm_chip *chip, u32 ordinal)
+/* Returns max number of milliseconds to wait */
+static unsigned long tpm_calc_ordinal_duration(struct tpm_chip *chip,
+		u32 ordinal)
 {
 	int duration_idx = TPM_UNDEFINED;
 	int duration = 0;
 
-	if (ordinal < TPM_MAX_ORDINAL)
+	if (ordinal < TPM_MAX_ORDINAL) {
 		duration_idx = tpm_ordinal_duration[ordinal];
-	else if ((ordinal & TPM_PROTECTED_ORDINAL_MASK) <
-		 TPM_MAX_PROTECTED_ORDINAL)
-		duration_idx =
-		    tpm_protected_ordinal_duration[ordinal &
-						   TPM_PROTECTED_ORDINAL_MASK];
+	} else if ((ordinal & TPM_PROTECTED_ORDINAL_MASK) <
+			TPM_MAX_PROTECTED_ORDINAL) {
+		duration_idx = tpm_protected_ordinal_duration[
+				ordinal & TPM_PROTECTED_ORDINAL_MASK];
+	}
 
 	if (duration_idx != TPM_UNDEFINED)
 		duration = chip->vendor.duration[duration_idx];
+
 	if (duration <= 0)
-		return 2 * 60 * HZ; /*two minutes timeout*/
+		return 2 * 60 * HZ; /* Two minutes timeout */
 	else
 		return duration;
 }
 
-#define TPM_CMD_COUNT_BYTE 2
-#define TPM_CMD_ORDINAL_BYTE 6
-
-ssize_t tpm_transmit(const unsigned char *buf, size_t bufsiz)
+static ssize_t tpm_transmit(const unsigned char *buf, size_t bufsiz)
 {
 	ssize_t rc;
 	u32 count, ordinal;
@@ -358,18 +383,17 @@ ssize_t tpm_transmit(const unsigned char *buf, size_t bufsiz)
 	ordinal = get_unaligned_be32(buf + TPM_CMD_ORDINAL_BYTE);
 
 	if (count == 0) {
-		dev_err(chip->dev, "no data\n");
+		error("no data\n");
 		return -ENODATA;
 	}
 	if (count > bufsiz) {
-		dev_err(chip->dev,
-			"invalid count value %x %zx\n", count, bufsiz);
+		error("invalid count value %x %zx\n", count, bufsiz);
 		return -E2BIG;
 	}
 
 	rc = chip->vendor.send(chip, (u8 *)buf, count);
 	if (rc < 0) {
-		dev_err(chip->dev, "tpm_transmit: tpm_send: error %zd\n", rc);
+		error("tpm_transmit: tpm_send: error %zd\n", rc);
 		goto out;
 	}
 
@@ -379,47 +403,126 @@ ssize_t tpm_transmit(const unsigned char *buf, size_t bufsiz)
 	start = get_timer(0);
 	stop = tpm_calc_ordinal_duration(chip, ordinal);
 	do {
-		dbg_printf("waiting for status...\n");
+		debug("waiting for status...\n");
 		u8 status = chip->vendor.status(chip);
 		if ((status & chip->vendor.req_complete_mask) ==
 		    chip->vendor.req_complete_val) {
-			dbg_printf("...got it;\n");
+			debug("...got it;\n");
 			goto out_recv;
 		}
 
 		if ((status == chip->vendor.req_canceled)) {
-			dev_err(chip->dev, "Operation Canceled\n");
+			error("Operation Canceled\n");
 			rc = -ECANCELED;
 			goto out;
 		}
-		msleep(TPM_TIMEOUT);
+		udelay(TPM_TIMEOUT * 1000);
 	} while (get_timer(start) < stop);
 
 	chip->vendor.cancel(chip);
-	dev_err(chip->dev, "Operation Timed out\n");
+	error("Operation Timed out\n");
 	rc = -ETIME;
 	goto out;
 
 out_recv:
-
-	dbg_printf("out_recv: reading response...\n");
+	debug("out_recv: reading response...\n");
 	rc = chip->vendor.recv(chip, (u8 *)buf, TPM_BUFSIZE);
 	if (rc < 0)
-		dev_err(chip->dev, "tpm_transmit: tpm_recv: error %zd\n", rc);
+		error("tpm_transmit: tpm_recv: error %zd\n", rc);
+
 out:
 	return rc;
 }
 
-#define TPM_ERROR_SIZE 10
+static int tpm_open(uint32_t dev_addr)
+{
+	int rc;
+	if (g_chip.is_open)
+		return -EBUSY;
+	rc = tpm_vendor_init(dev_addr);
+	if (rc < 0)
+		g_chip.is_open = 0;
+	return rc;
+}
 
-enum tpm_capabilities {
-	TPM_CAP_PROP = cpu_to_be32(5),
-};
+static void tpm_close(void)
+{
+	if (g_chip.is_open) {
+		tpm_vendor_cleanup(&g_chip);
+		g_chip.is_open = 0;
+	}
+}
 
-enum tpm_sub_capabilities {
-	TPM_CAP_PROP_TIS_TIMEOUT = cpu_to_be32(0x115),
-	TPM_CAP_PROP_TIS_DURATION = cpu_to_be32(0x120),
-};
+static int tpm_select(void)
+{
+	int ret;
+
+	tpm.old_bus = i2c_get_bus_num();
+	if (tpm.old_bus != tpm.i2c_bus) {
+		ret = i2c_set_bus_num(tpm.i2c_bus);
+		if (ret) {
+			debug("%s: Fail to set i2c bus %d\n", __func__,
+			      tpm.i2c_bus);
+			return -1;
+		}
+	}
+	return 0;
+}
+
+static int tpm_deselect(void)
+{
+	int ret;
+
+	if (tpm.old_bus != i2c_get_bus_num()) {
+		ret = i2c_set_bus_num(tpm.old_bus);
+		if (ret) {
+			debug("%s: Fail to restore i2c bus %d\n",
+			      __func__, tpm.old_bus);
+			return -1;
+		}
+	}
+	tpm.old_bus = -1;
+	return 0;
+}
+
+/**
+ * Decode TPM configuration.
+ *
+ * @param dev	Returns a configuration of TPM device
+ * @return 0 if ok, -1 on error
+ */
+static int tpm_decode_config(struct tpm *dev)
+{
+#ifdef CONFIG_OF_CONTROL
+	const void *blob = gd->fdt_blob;
+	int node, parent;
+	int i2c_bus;
+
+	node = fdtdec_next_compatible(blob, 0, COMPAT_INFINEON_SLB9635_TPM);
+	if (node < 0) {
+		node = fdtdec_next_compatible(blob, 0,
+				COMPAT_INFINEON_SLB9645_TPM);
+	}
+	if (node < 0) {
+		debug("%s: Node not found\n", __func__);
+		return -1;
+	}
+	parent = fdt_parent_offset(blob, node);
+	if (parent < 0) {
+		debug("%s: Cannot find node parent\n", __func__);
+		return -1;
+	}
+	i2c_bus = i2c_get_bus_num_fdt(parent);
+	if (i2c_bus < 0)
+		return -1;
+	dev->i2c_bus = i2c_bus;
+	dev->slave_addr = fdtdec_get_addr(blob, node, "reg");
+#else
+	dev->i2c_bus = CONFIG_TPM_TIS_I2C_BUS_NUMBER;
+	dev->slave_addr = CONFIG_TPM_TIS_I2C_SLAVE_ADDRESS;
+#endif
+	return 0;
+}
 
 struct tpm_chip *tpm_register_hardware(const struct tpm_vendor_specific *entry)
 {
@@ -433,21 +536,94 @@ struct tpm_chip *tpm_register_hardware(const struct tpm_vendor_specific *entry)
 	return chip;
 }
 
-int tpm_open(uint32_t dev_addr)
+int tis_init(void)
+{
+	if (tpm.inited)
+		return 0;
+
+	if (tpm_decode_config(&tpm))
+		return -1;
+
+	if (tpm_select())
+		return -1;
+
+	/*
+	 * Probe TPM twice; the first probing might fail because TPM is asleep,
+	 * and the probing can wake up TPM.
+	 */
+	if (i2c_probe(tpm.slave_addr) && i2c_probe(tpm.slave_addr)) {
+		debug("%s: fail to probe i2c addr 0x%x\n", __func__,
+		      tpm.slave_addr);
+		return -1;
+	}
+
+	tpm_deselect();
+
+	tpm.inited = 1;
+
+	return 0;
+}
+
+int tis_open(void)
 {
 	int rc;
-	if (g_chip.is_open)
-		return -EBUSY;
-	rc = tpm_vendor_init(dev_addr);
-	if (rc < 0)
-		g_chip.is_open = 0;
+
+	if (!tpm.inited)
+		return -1;
+
+	if (tpm_select())
+		return -1;
+
+	rc = tpm_open(tpm.slave_addr);
+
+	tpm_deselect();
+
 	return rc;
 }
 
-void tpm_close(void)
+int tis_close(void)
 {
-	if (g_chip.is_open) {
-		tpm_vendor_cleanup(&g_chip);
-		g_chip.is_open = 0;
+	if (!tpm.inited)
+		return -1;
+
+	if (tpm_select())
+		return -1;
+
+	tpm_close();
+
+	tpm_deselect();
+
+	return 0;
+}
+
+int tis_sendrecv(const uint8_t *sendbuf, size_t sbuf_size,
+		uint8_t *recvbuf, size_t *rbuf_len)
+{
+	int len;
+	uint8_t buf[4096];
+
+	if (!tpm.inited)
+		return -1;
+
+	if (sizeof(buf) < sbuf_size)
+		return -1;
+
+	memcpy(buf, sendbuf, sbuf_size);
+
+	if (tpm_select())
+		return -1;
+
+	len = tpm_transmit(buf, sbuf_size);
+
+	tpm_deselect();
+
+	if (len < 10) {
+		*rbuf_len = 0;
+		return -1;
 	}
+
+	memcpy(recvbuf, buf, len);
+	*rbuf_len = len;
+
+	return 0;
 }
