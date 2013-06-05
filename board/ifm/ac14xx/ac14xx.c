@@ -37,7 +37,7 @@ static void gpio_configure(void)
 
 	/*
 	 * out_be32(&gpioregs->gpdir, 0xC2293020);
-	 * workaround for a hardware affect: configure direction in pieces,
+	 * workaround for a hardware effect: configure direction in pieces,
 	 * setting all outputs at once drops the reset line too low and
 	 * makes us lose the MII connection (breaks ethernet for us)
 	 */
@@ -330,8 +330,7 @@ int misc_init_r(void)
 	gpio_configure();
 
 	/*
-	 * check the GPIO keyboard,
-	 * enforced start of the recovery when
+	 * enforce the start of the recovery system when
 	 * - the appropriate keys were pressed
 	 * - a previous installation was aborted or has failed
 	 * - "some" external software told us to
@@ -339,13 +338,8 @@ int misc_init_r(void)
 	want_recovery = 0;
 	keys = gpio_querykbd();
 	printf("GPIO keyboard status [0x%08X]\n", keys);
-	/* XXX insist in the _exact_ combination? */
 	if ((keys & GPIOKEY_BITS_RECOVERY) == GPIOKEY_BITS_RECOVERY) {
 		printf("GPIO keyboard requested RECOVERY\n");
-		/* XXX TODO
-		 * refine the logic to detect the first keypress, and
-		 * wait to recheck IF it was the recovery combination?
-		 */
 		want_recovery = 1;
 	}
 	s = getenv("install_in_progress");

@@ -72,7 +72,7 @@
 #define CONFIG_SYS_MAX_RAM_SIZE		0x20000000
 
 /*
- * DDR Controller Configuration XXX TODO
+ * DDR Controller Configuration
  *
  * SYS_CFG:
  *	[31:31]	MDDRC Soft Reset:	Diabled
@@ -265,7 +265,6 @@
 
 /*
  * CS related parameters
- * TODO document these
  */
 /* CS0 Flash */
 #define CONFIG_SYS_CS0_CFG		0x00031110
@@ -506,7 +505,7 @@
 
 #define CONFIG_BOOTDELAY	2	/* -1 disables auto-boot */
 
-/* XXX TODO need to specify the builtin environment */
+/* the builtin environment and standard greeting */
 #define CONFIG_PREBOOT	"echo;"	\
 	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
 	"echo"
