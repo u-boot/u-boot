@@ -336,8 +336,8 @@ int misc_init_r(void)
 	/*
 	 * enforce the start of the recovery system when
 	 * - the appropriate keys were pressed
-	 * - a previous installation was aborted or has failed
 	 * - "some" external software told us to
+	 * - a previous installation was aborted or has failed
 	 */
 	want_recovery = 0;
 	keys = gpio_querykbd();
@@ -345,6 +345,11 @@ int misc_init_r(void)
 		printf("GPIO keyboard status [0x%02X]\n", keys);
 	if ((keys & GPIOKEY_BITS_RECOVERY) == GPIOKEY_BITS_RECOVERY) {
 		printf("detected recovery request (keyboard)\n");
+		want_recovery = 1;
+	}
+	s = getenv("want_recovery");
+	if ((s != NULL) && (*s != '\0')) {
+		printf("detected recovery request (environment)\n");
 		want_recovery = 1;
 	}
 	s = getenv("install_in_progress");
@@ -355,11 +360,6 @@ int misc_init_r(void)
 	s = getenv("install_failed");
 	if ((s != NULL) && (*s != '\0')) {
 		printf("previous installation has failed\n");
-		want_recovery = 1;
-	}
-	s = getenv("want_recovery");
-	if ((s != NULL) && (*s != '\0')) {
-		printf("detected recovery request (environment)\n");
 		want_recovery = 1;
 	}
 	if (want_recovery) {
