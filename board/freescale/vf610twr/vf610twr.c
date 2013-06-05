@@ -301,16 +301,13 @@ int board_mmc_init(bd_t *bis)
 		NEW_PAD_CTRL(VF610_PAD_PTA28__ESDHC1_DAT2, ESDHC_PAD_CTRL),
 		NEW_PAD_CTRL(VF610_PAD_PTA29__ESDHC1_DAT3, ESDHC_PAD_CTRL),
 	};
-	s32 status = 0;
 
 	esdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
 
 	imx_iomux_v3_setup_multiple_pads(
 		esdhc1_pads, ARRAY_SIZE(esdhc1_pads));
 
-	status |= fsl_esdhc_initialize(bis, &esdhc_cfg[0]);
-
-	return status;
+	return fsl_esdhc_initialize(bis, &esdhc_cfg[0]);
 }
 #endif
 
