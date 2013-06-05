@@ -507,13 +507,13 @@
 #define CONFIG_EXTRA_ENV_SETTINGS_DEVEL					\
 	"muster_nr=00\0"						\
 	"fromram=run ramargs addip addtty; "				\
-		"tftp ${fdt_addr_r} k6m2/ac14xx.dtb-${muster_nr}; "	\
-		"tftp ${kernel_addr_r} k6m2/uImage-${muster_nr}; "	\
-		"tftp ${ramdisk_addr_r} k6m2/uFS-${muster_nr}; "	\
+		"tftp ${fdt_addr_r} ac14xx/ac14xx.dtb-${muster_nr}; "	\
+		"tftp ${kernel_addr_r} ac14xx/uImage-${muster_nr}; "	\
+		"tftp ${ramdisk_addr_r} ac14xx/uFS-${muster_nr}; "	\
 		"bootm ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r}\0" \
 	"fromnfs=run nfsargs addip addtty; "				\
-		"tftp ${fdt_addr_r} k6m2/ac14xx.dtb-${muster_nr}; "	\
-		"tftp ${kernel_addr_r} k6m2/uImage-${muster_nr}; "	\
+		"tftp ${fdt_addr_r} ac14xx/ac14xx.dtb-${muster_nr}; "	\
+		"tftp ${kernel_addr_r} ac14xx/uImage-${muster_nr}; "	\
 		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
 	"fromflash=run nfsargs addip addtty; "				\
 		"bootm fc020000 - fc000000\0"				\
