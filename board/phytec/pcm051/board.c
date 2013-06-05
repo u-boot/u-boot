@@ -115,6 +115,15 @@ static struct emif_regs ddr3_emif_reg_data = {
 void s_init(void)
 {
 	/*
+	 * Save the boot parameters passed from romcode.
+	 * We cannot delay the saving further than this,
+	 * to prevent overwrites.
+	 */
+#ifdef CONFIG_SPL_BUILD
+	save_omap_boot_params();
+#endif
+
+	/*
 	 * WDT1 is already running when the bootloader gets control
 	 * Disable it to avoid "random" resets
 	 */

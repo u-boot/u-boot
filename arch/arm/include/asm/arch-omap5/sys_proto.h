@@ -58,6 +58,7 @@ void cancel_out(u32 *num, u32 *den, u32 den_limit);
 void sdram_init(void);
 u32 omap_sdram_size(void);
 u32 cortex_rev(void);
+void save_omap_boot_params(void);
 void init_omap_revision(void);
 void do_io_settings(void);
 void omap_vc_init(u16 speed_khz);
