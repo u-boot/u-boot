@@ -330,8 +330,6 @@
 #endif
 
 #define CONFIG_BAUDRATE			115200	/* ... at 115200 bps */
-#define CONFIG_SYS_BAUDRATE_TABLE  \
-	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 115200}
 
 #define CONSOLE_FIFO_TX_SIZE		FIFOC_PSC3_TX_SIZE
 #define CONSOLE_FIFO_TX_ADDR		FIFOC_PSC3_TX_ADDR
@@ -495,10 +493,6 @@
  */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_TIMESTAMP
-
-#define CONFIG_HOSTNAME		ac14xx
-#define CONFIG_BOOTFILE		"ac14xx/uImage"
-#define CONFIG_ROOTPATH		"/opt/eldk/ppc_6xx"
 
 /* default load addr for tftp and bootm */
 #define CONFIG_LOADADDR		400000
