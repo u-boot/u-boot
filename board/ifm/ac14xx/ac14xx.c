@@ -209,6 +209,7 @@ static int read_eeprom(void)
 int mac_read_from_eeprom(void)
 {
 	const u8 *mac;
+	const char *mac_txt;
 
 	if (read_eeprom()) {
 		printf("I2C EEPROM read failed.\n");
@@ -230,8 +231,11 @@ int mac_read_from_eeprom(void)
 
 	if (mac && is_valid_ether_addr(mac)) {
 		eth_setenv_enetaddr("ethaddr", mac);
-		printf("DIAG: %s() MAC value [%s]\n",
-			__func__, getenv("ethaddr"));
+		mac_txt = getenv("ethaddr");
+		if (mac_txt)
+			printf("DIAG: MAC value [%s]\n", mac_txt);
+		else
+			printf("DIAG: failed to setup MAC env\n");
 	}
 
 	return 0;
