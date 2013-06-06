@@ -39,11 +39,6 @@
 #define CONFIG_SYS_NS16550_COM3		UART3_BASE
 #define CONFIG_BAUDRATE			115200
 
-/* TWL6035 */
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_PALMAS_POWER
-#endif
-
 /* MMC ENV related defines */
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		1	/* SLOT2: eMMC(1) */

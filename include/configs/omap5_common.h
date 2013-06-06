@@ -238,6 +238,10 @@
 #define CONFIG_SYS_DEFAULT_LPDDR2_TIMINGS
 #endif
 
+#ifndef CONFIG_SPL_BUILD
+#define CONFIG_PALMAS_POWER
+#endif
+
 /* Defines for SPL */
 #define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK

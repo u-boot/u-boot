@@ -106,9 +106,9 @@
 /* CONTROL_EFUSE_2 */
 #define CONTROL_EFUSE_2_NMOS_PMOS_PTV_CODE_1		0x00ffc000
 
+#define SDCARD_BIAS_PWRDNZ				(1 << 27)
 #define SDCARD_PWRDNZ					(1 << 26)
 #define SDCARD_BIAS_HIZ_MODE				(1 << 25)
-#define SDCARD_BIAS_PWRDNZ				(1 << 22)
 #define SDCARD_PBIASLITE_VMODE				(1 << 21)
 
 #ifndef __ASSEMBLY__
