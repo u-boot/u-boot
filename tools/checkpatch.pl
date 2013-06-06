@@ -273,6 +273,7 @@ our $logFunctions = qr{(?x:
 	WARN(?:_RATELIMIT|_ONCE|)|
 	panic|
 	debug|
+	printf|
 	MODULE_[A-Z_]+
 )};
 
