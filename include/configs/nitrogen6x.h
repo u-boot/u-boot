@@ -287,5 +287,6 @@
 
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_SUPPORT_RAW_INITRD
+#define CONFIG_CMD_FS_GENERIC
 
 #endif	       /* __CONFIG_H */
