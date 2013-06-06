@@ -286,5 +286,6 @@
 #define CONFIG_SYS_ALT_MEMTEST
 
 #define CONFIG_CMD_BOOTZ
+#define CONFIG_SUPPORT_RAW_INITRD
 
 #endif	       /* __CONFIG_H */
