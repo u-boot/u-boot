@@ -306,12 +306,11 @@
 #define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
 /*
- * Place the image at the start of the ROM defined image space and leave
- * space for SRAM scratch entries (see arch/arm/include/omap_common.h).
+ * Place the image at the start of the ROM defined image space.
  * We limit our size to the ROM-defined downloaded image area, and use the
  * rest of the space for stack.
  */
-#define CONFIG_SPL_TEXT_BASE		0x402F0500
+#define CONFIG_SPL_TEXT_BASE		0x402F0400
 #define CONFIG_SPL_MAX_SIZE		(0x4030C000 - CONFIG_SPL_TEXT_BASE)
 #define CONFIG_SPL_STACK		CONFIG_SYS_INIT_SP_ADDR
 

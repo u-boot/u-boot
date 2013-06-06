@@ -188,6 +188,7 @@ struct s32ktimer {
  */
 #define NON_SECURE_SRAM_START	0x40300000
 #define NON_SECURE_SRAM_END	0x40320000	/* Not inclusive */
+#define SRAM_SCRATCH_SPACE_ADDR	NON_SECURE_SRAM_START
 /* base address for indirect vectors (internal boot mode) */
 #define SRAM_ROM_VECT_BASE	0x4031F000
 
