@@ -162,8 +162,10 @@ int key_matrix_decode_fdt(struct key_matrix *config, const void *blob, int node)
 
 	prop = fdt_get_property(blob, node, "linux,keymap", &proplen);
 	/* Basic keymap is required */
-	if (!prop)
+	if (!prop) {
+		debug("%s: cannot find keycode-plain map\n", __func__);
 		return -1;
+	}
 
 	plain_keycode = create_keymap(config, (u32 *)prop->data,
 		proplen, KEY_FN, &config->fn_pos);
@@ -180,7 +182,7 @@ int key_matrix_decode_fdt(struct key_matrix *config, const void *blob, int node)
 	config->fn_keycode = create_keymap(config, (u32 *)prop->data,
 		proplen, -1, NULL);
 	/* Conversion error -> fail */
-	if (!config->plain_keycode) {
+	if (!config->fn_keycode) {
 		free(plain_keycode);
 		return -1;
 	}
