@@ -167,5 +167,19 @@ extern int cfi_flash_num_flash_banks;
 
 void flash_write_cmd(flash_info_t * info, flash_sect_t sect,
 		     uint offset, u32 cmd);
+phys_addr_t cfi_flash_bank_addr(int i);
+unsigned long cfi_flash_bank_size(int i);
+void flash_cmd_reset(flash_info_t *info);
+
+#ifdef CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS
+void flash_write8(u8 value, void *addr);
+void flash_write16(u16 value, void *addr);
+void flash_write32(u32 value, void *addr);
+void flash_write64(u64 value, void *addr);
+u8 flash_read8(void *addr);
+u16 flash_read16(void *addr);
+u32 flash_read32(void *addr);
+u64 flash_read64(void *addr);
+#endif
 
 #endif /* __CFI_FLASH_H__ */
