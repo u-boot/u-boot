@@ -936,6 +936,7 @@ int board_nand_init(struct nand_chip *nand)
 	nand->ecc.layout = &hw_bch8_nand_oob;
 	nand->ecc.size = CONFIG_SYS_NAND_ECCSIZE;
 	nand->ecc.bytes = CONFIG_SYS_NAND_ECCBYTES;
+	nand->ecc.strength = 8;
 	nand->ecc.hwctl = omap_enable_ecc_bch;
 	nand->ecc.correct = omap_correct_data_bch;
 	nand->ecc.calculate = omap_calculate_ecc_bch;
@@ -954,6 +955,7 @@ int board_nand_init(struct nand_chip *nand)
 	nand->ecc.hwctl = omap_enable_hwecc;
 	nand->ecc.correct = omap_correct_data;
 	nand->ecc.calculate = omap_calculate_ecc;
+	nand->ecc.strength = 1;
 	omap_hwecc_init(nand);
 #endif
 #endif
