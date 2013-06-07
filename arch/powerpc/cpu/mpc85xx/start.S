@@ -1795,7 +1795,7 @@ clear_bss:
 	stw	r0,0(r3)
 	addi	r3,r3,4
 	cmplw	0,r3,r4
-	bne	5b
+	blt	5b
 6:
 
 	mr	r3,r9		/* Init Data pointer		*/

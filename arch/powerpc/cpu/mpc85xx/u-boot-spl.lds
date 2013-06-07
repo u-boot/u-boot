@@ -92,10 +92,12 @@ SECTIONS
 	 */
 	. |= 0x10;
 
+	. = ALIGN(4);
 	__bss_start = .;
 	.bss : {
 		*(.sbss*)
 		*(.bss*)
 	}
+	. = ALIGN(4);
 	__bss_end = .;
 }
