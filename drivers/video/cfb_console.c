@@ -572,8 +572,6 @@ static void video_drawchars(int xx, int yy, unsigned char *s, int count)
 					SWAP32((video_font_draw_table32
 						[bits & 15][3] & eorx) ^ bgx);
 			}
-			if (cfb_do_flush_cache)
-				flush_cache((ulong)dest0, 32);
 			dest0 += VIDEO_FONT_WIDTH * VIDEO_PIXEL_SIZE;
 			s++;
 		}
@@ -642,8 +640,6 @@ static void video_invertchar(int xx, int yy)
 		for (x = firstx; x < lastx; x++) {
 			u8 *dest = (u8 *)(video_fb_address) + x + y;
 			*dest = ~*dest;
-			if (cfb_do_flush_cache)
-				flush_cache((ulong)dest, 4);
 		}
 	}
 }
@@ -687,6 +683,8 @@ void console_cursor(int state)
 		}
 		cursor_state = state;
 	}
+	if (cfb_do_flush_cache)
+		flush_cache(VIDEO_FB_ADRS, VIDEO_SIZE);
 }
 #endif
 
@@ -739,8 +737,6 @@ static void console_clear_line(int line, int begin, int end)
 			memsetl(offset + i * VIDEO_LINE_LEN, size, bgx);
 	}
 #endif
-	if (cfb_do_flush_cache)
-		flush_cache((ulong)CONSOLE_ROW_FIRST, CONSOLE_SIZE);
 }
 
 static void console_scrollup(void)
@@ -1146,6 +1142,8 @@ void video_putc(const char c)
 #else
 	parse_putc(c);
 #endif
+	if (cfb_do_flush_cache)
+		flush_cache(VIDEO_FB_ADRS, VIDEO_SIZE);
 }
 
 void video_puts(const char *s)
@@ -1799,6 +1797,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 	}
 #endif
 
+	if (cfb_do_flush_cache)
+		flush_cache(VIDEO_FB_ADRS, VIDEO_SIZE);
 	return (0);
 }
 #endif
@@ -2208,6 +2208,9 @@ static int video_init(void)
 	/* Initialize the console */
 	console_col = 0;
 	console_row = 0;
+
+	if (cfb_do_flush_cache)
+		flush_cache(VIDEO_FB_ADRS, VIDEO_SIZE);
 
 	return 0;
 }

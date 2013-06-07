@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2012 Stephen Warren
+ * (C) Copyright 2012-2013 Stephen Warren
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -15,6 +15,8 @@
  */
 
 #include <common.h>
+#include <config.h>
+#include <lcd.h>
 #include <asm/arch/mbox.h>
 #include <asm/arch/sdhci.h>
 #include <asm/global_data.h>
@@ -76,4 +78,14 @@ int board_mmc_init(void)
 
 	return bcm2835_sdhci_init(BCM2835_SDHCI_BASE,
 				  msg_clk->get_clock_rate.body.resp.rate_hz);
+}
+
+void ft_board_setup(void *blob, bd_t *bd)
+{
+	/*
+	 * For now, we simply always add the simplefb DT node. Later, we
+	 * should be more intelligent, and e.g. only do this if no enabled DT
+	 * node exists for the "real" graphics driver.
+	 */
+	lcd_dt_simplefb_add_node(blob);
 }
