@@ -973,6 +973,10 @@ Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
 
 	SFFSDR		ARM926EJS
 
+Lokesh Vutla <lokeshvutla@ti.com>
+
+	dra7xx_evm	ARM ARMV7 (DRA7xx Soc)
+
 Matt Waddel <matt.waddel@linaro.org>
 
 	vexpress_ca9x4	ARM ARMV7 (Quad Core)
