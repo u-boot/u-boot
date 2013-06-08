@@ -116,7 +116,9 @@
 #define CONFIG_DOS_PARTITION
 #define CONFIG_FTSDC010
 #define CONFIG_FTSDC010_NUMBER		1
+#define CONFIG_FTSDC010_SDIO
 #define CONFIG_CMD_FAT
+#define CONFIG_CMD_EXT2
 
 /*
  * Command line configuration.
