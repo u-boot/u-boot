@@ -256,7 +256,7 @@ int board_nand_init(struct nand_chip *nand)
 	nand->ecc.strength	= 4;
 	nand->ecc.layout	= &qi_lb60_ecclayout_2gb;
 	nand->chip_delay	= 50;
-	nand->options		= NAND_USE_FLASH_BBT;
+	nand->bbt_options	|= NAND_BBT_USE_FLASH;
 
 	return 0;
 }
