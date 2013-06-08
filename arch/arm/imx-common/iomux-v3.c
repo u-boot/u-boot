@@ -48,8 +48,14 @@ void imx_iomux_v3_setup_pad(iomux_v3_cfg_t pad)
 	if (sel_input_ofs)
 		__raw_writel(sel_input, base + sel_input_ofs);
 
+#ifdef CONFIG_IOMUX_SHARE_CONF_REG
+	if (!(pad_ctrl & NO_PAD_CTRL))
+		__raw_writel((mux_mode << PAD_MUX_MODE_SHIFT) | pad_ctrl,
+			base + pad_ctrl_ofs);
+#else
 	if (!(pad_ctrl & NO_PAD_CTRL) && pad_ctrl_ofs)
 		__raw_writel(pad_ctrl, base + pad_ctrl_ofs);
+#endif
 }
 
 void imx_iomux_v3_setup_multiple_pads(iomux_v3_cfg_t const *pad_list,

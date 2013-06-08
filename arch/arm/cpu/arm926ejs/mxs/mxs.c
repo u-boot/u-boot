@@ -76,13 +76,32 @@ void enable_caches(void)
 #endif
 }
 
+/*
+ * This function will craft a jumptable at 0x0 which will redirect interrupt
+ * vectoring to proper location of U-Boot in RAM.
+ *
+ * The structure of the jumptable will be as follows:
+ *  ldr pc, [pc, #0x18] ..... for each vector, thus repeated 8 times
+ *  <destination address> ... for each previous ldr, thus also repeated 8 times
+ *
+ * The "ldr pc, [pc, #0x18]" instruction above loads address from memory at
+ * offset 0x18 from current value of PC register. Note that PC is already
+ * incremented by 4 when computing the offset, so the effective offset is
+ * actually 0x20, this the associated <destination address>. Loading the PC
+ * register with an address performs a jump to that address.
+ */
 void mx28_fixup_vt(uint32_t start_addr)
 {
-	uint32_t *vt = (uint32_t *)0x20;
+	/* ldr pc, [pc, #0x18] */
+	const uint32_t ldr_pc = 0xe59ff018;
+	/* Jumptable location is 0x0 */
+	uint32_t *vt = (uint32_t *)0x0;
 	int i;
 
-	for (i = 0; i < 8; i++)
-		vt[i] = start_addr + (4 * i);
+	for (i = 0; i < 8; i++) {
+		vt[i] = ldr_pc;
+		vt[i + 8] = start_addr + (4 * i);
+	}
 }
 
 #ifdef	CONFIG_ARCH_MISC_INIT

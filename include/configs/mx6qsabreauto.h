@@ -35,7 +35,12 @@
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 #if defined(CONFIG_ENV_IS_IN_MMC)
 #define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_SYS_MMC_ENV_PART		1	/* Boot partition 1 */
 #endif
+
+/* I2C Configs */
+#define CONFIG_CMD_I2C
+#define CONFIG_I2C_MULTI_BUS
+#define CONFIG_I2C_MXC
+#define CONFIG_SYS_I2C_SPEED		100000
 
 #endif                         /* __MX6QSABREAUTO_CONFIG_H */

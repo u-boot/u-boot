@@ -897,6 +897,10 @@ Steve Sakoman <sakoman@gmail.com>
 
 	omap3_overo	ARM ARMV7 (OMAP3xx SoC)
 
+Leo Sartre <lsartre@adeneo-embedded.com>
+
+	cgtqmx6qeval		i.MX6Q
+
 Jens Scharsig <esw@bus-elektronik.de>
 
 	eb_cpux9k2	ARM920T (AT91RM9200 SoC)
@@ -1065,6 +1069,10 @@ Eric Nelson <eric.nelson@boundarydevices.com>
 	nitrogen6q2g    	i.MX6Q/6D	2GB
 	nitrogen6s		i.MX6S		512MB
 	nitrogen6s1g		i.MX6S		1GB
+
+Alison Wang <b18965@freescale.com>
+
+	vf610twr	VF610
 
 -------------------------------------------------------------------------
 

@@ -14,12 +14,12 @@ Building U-boot for Wandboard
 
 To build U-Boot for the Wandboard Dual Lite version:
 
-$ make wanboard_dl_config
+$ make wandboard_dl_config
 $ make
 
 To build U-Boot for the Wandboard Solo version:
 
-$ make wanboard_solo_config
+$ make wandboard_solo_config
 $ make
 
 Flashing U-boot into the SD card

@@ -2,6 +2,7 @@ Driver implementing the fuse API for Freescale's On-Chip OTP Controller (OCOTP)
 on MXC
 
 This IP can be found on the following SoCs:
+ - Vybrid VF610,
  - i.MX6.
 
 Note that this IP is different from albeit similar to the IPs of the same name
