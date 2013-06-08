@@ -38,6 +38,7 @@
 #define SDMC_CR1_A		(CONFIG_FTSDMC021_BASE + FTSDMC021_CR1)
 #define SDMC_CR2_A		(CONFIG_FTSDMC021_BASE + FTSDMC021_CR2)
 #define SDMC_B0_BSR_A		(CONFIG_FTSDMC021_BASE + FTSDMC021_BANK0_BSR)
+#define SDMC_B1_BSR_A		(CONFIG_FTSDMC021_BASE + FTSDMC021_BANK1_BSR)
 
 #define SDMC_TP1_D		CONFIG_SYS_FTSDMC021_TP1
 #define SDMC_TP2_D		CONFIG_SYS_FTSDMC021_TP2
@@ -45,6 +46,7 @@
 #define SDMC_CR2_D		CONFIG_SYS_FTSDMC021_CR2
 
 #define SDMC_B0_BSR_D		CONFIG_SYS_FTSDMC021_BANK0_BSR
+#define SDMC_B1_BSR_D		CONFIG_SYS_FTSDMC021_BANK1_BSR
 
 /*
  * parameters for the static memory controller
@@ -167,12 +169,12 @@ relo_base:
 	 */
 	led	0x1a
 	write32	SDMC_B0_BSR_A, SDMC_B0_BSR_D		! 0x00001100
+	write32	SDMC_B1_BSR_A, SDMC_B1_BSR_D		! 0x00001140
 
 	/* clear empty BSR registers */
 	led	0x1b
 	li	$r4, CONFIG_FTSDMC021_BASE
 	li	$r5, 0x0
-	swi	$r5, [$r4 + FTSDMC021_BANK1_BSR]
 	swi	$r5, [$r4 + FTSDMC021_BANK2_BSR]
 	swi	$r5, [$r4 + FTSDMC021_BANK3_BSR]
 
@@ -223,6 +225,8 @@ relo_base:
 	 * - after  remap: flash/rom 0x80000000, sdram: 0x00000000
 	 */
 	led	0x1c
+	write32 SDMC_B0_BSR_A, 0x00001000
+	write32 SDMC_B1_BSR_A, 0x00001040
 	setbf15	AHBC_CR_A, FTAHBC020S_CR_REMAP		! 0x1
 
 #endif /* #ifdef CONFIG_MEM_REMAP */
