@@ -1393,6 +1393,19 @@ static void fixup_silent_linux(void)
 }
 #endif /* CONFIG_SILENT_CONSOLE */
 
+#if defined(CONFIG_BOOTM_NETBSD) || defined(CONFIG_BOOTM_PLAN9)
+static void copy_args(char *dest, int argc, char * const argv[], char delim)
+{
+	int i;
+
+	for (i = 0; i < argc; i++) {
+		if (i > 0)
+			*dest++ = delim;
+		strcpy(dest, argv[i]);
+		dest += strlen(argv[i]);
+	}
+}
+#endif
 
 /*******************************************************************/
 /* OS booting routines */
@@ -1455,13 +1468,7 @@ static int do_bootm_netbsd(int flag, int argc, char * const argv[],
 		for (i = 0, len = 0; i < argc; i += 1)
 			len += strlen(argv[i]) + 1;
 		cmdline = malloc(len);
-
-		for (i = 0, len = 0; i < argc; i += 1) {
-			if (i > 0)
-				cmdline[len++] = ' ';
-			strcpy(&cmdline[len], argv[i]);
-			len += strlen(argv[i]);
-		}
+		copy_args(cmdline, argc, argv, ' ');
 	} else if ((cmdline = getenv("bootargs")) == NULL) {
 		cmdline = "";
 	}
@@ -1580,6 +1587,7 @@ static int do_bootm_plan9(int flag, int argc, char * const argv[],
 			   bootm_headers_t *images)
 {
 	void (*entry_point)(void);
+	char *s;
 
 	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
 		return 1;
@@ -1590,6 +1598,20 @@ static int do_bootm_plan9(int flag, int argc, char * const argv[],
 		return 1;
 	}
 #endif
+
+	/* See README.plan9 */
+	s = getenv("confaddr");
+	if (s != NULL) {
+		char *confaddr = (char *)simple_strtoul(s, NULL, 16);
+
+		if (argc > 0) {
+			copy_args(confaddr, argc, argv, '\n');
+		} else {
+			s = getenv("bootargs");
+			if (s != NULL)
+				strcpy(confaddr, s);
+		}
+	}
 
 	entry_point = (void (*)(void))images->ep;
 
