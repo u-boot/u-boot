@@ -237,6 +237,7 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 
 int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
 {
+	struct spi_slave *spi = flash->spi;
 	unsigned long timebase;
 	int ret;
 	u8 status;
@@ -251,21 +252,27 @@ int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
 		cmd = CMD_FLAG_STATUS;
 	}
 
+	ret = spi_xfer(spi, 8, &cmd, NULL, SPI_XFER_BEGIN);
+	if (ret) {
+		debug("SF: fail to read %s status register\n",
+			cmd == CMD_READ_STATUS ? "read" : "flag");
+		return ret;
+	}
+
 	timebase = get_timer(0);
 	do {
 		WATCHDOG_RESET();
 
-		ret = spi_flash_read_common(flash, &cmd, 1, &status, 1);
-		if (ret < 0) {
-			debug("SF: fail to read %s status register\n",
-				cmd == CMD_READ_STATUS ? "read" : "flag");
-			return ret;
-		}
+		ret = spi_xfer(spi, 8, NULL, &status, 0);
+		if (ret)
+			return -1;
 
 		if ((status & poll_bit) == check_status)
 			break;
 
 	} while (get_timer(timebase) < timeout);
+
+	spi_xfer(spi, 0, NULL, NULL, SPI_XFER_END);
 
 	if ((status & poll_bit) == check_status)
 		return 0;
