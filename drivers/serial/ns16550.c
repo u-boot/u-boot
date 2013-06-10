@@ -74,13 +74,8 @@ void NS16550_init(NS16550_t com_port, int baud_divisor)
 	defined(CONFIG_AM33XX) || defined(CONFIG_SOC_DA8XX) || \
 	defined(CONFIG_TI814X)
 
-#if defined(CONFIG_APTIX)
-	/* /13 mode so Aptix 6MHz can hit 115200 */
-	serial_out(3, &com_port->mdr1);
-#else
 	/* /16 is proper to hit 115200 with 48MHz */
 	serial_out(0, &com_port->mdr1);
-#endif
 #endif /* CONFIG_OMAP */
 }
 

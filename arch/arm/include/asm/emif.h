@@ -581,7 +581,7 @@
 	(0xFF << EMIF_SYS_ADDR_SHIFT))
 
 #define EMIF_EXT_PHY_CTRL_TIMING_REG	0x5
-#define EMIF_EXT_PHY_CTRL_CONST_REG	0x13
+#define EMIF_EXT_PHY_CTRL_CONST_REG	0x14
 
 /* Reg mapping structure */
 struct emif_reg_struct {
@@ -855,13 +855,10 @@ struct dmm_lisa_map_regs {
 #define DPD_ENABLE	1
 
 /* Maximum delay before Low Power Modes */
-#ifndef CONFIG_OMAP54XX
-#define REG_CS_TIM		0xF
-#else
 #define REG_CS_TIM		0x0
-#endif
-#define REG_SR_TIM		0xF
-#define REG_PD_TIM		0xF
+#define REG_SR_TIM		0x0
+#define REG_PD_TIM		0x0
+
 
 /* EMIF_PWR_MGMT_CTRL register */
 #define EMIF_PWR_MGMT_CTRL (\
@@ -1113,6 +1110,7 @@ struct emif_regs {
 	u32 freq;
 	u32 sdram_config_init;
 	u32 sdram_config;
+	u32 sdram_config2;
 	u32 ref_ctrl;
 	u32 sdram_tim1;
 	u32 sdram_tim2;

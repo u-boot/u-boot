@@ -96,3 +96,4 @@ R5200            ColdFire    -              48ead7a     2008-03-31  Zachary P. L
 CPCI440          powerpc     440GP          b568fd2     2007-12-27  Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 PCIPPC2          powerpc     MPC740/MPC750  7c9e89b     2013-02-07  Wolfgang Denk <wd@denx.de>
 PCIPPC6	powerpc	MPC740/MPC750 -	  -		Wolfgang Denk <wd@denx.de>
+omap2420h4       arm         omap24xx       -           2013-06-04  Richard Woodruff <r-woodruff2@ti.com>

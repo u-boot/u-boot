@@ -17,6 +17,7 @@
 #include <common.h>
 #include <asm/omap_common.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch/clock.h>
 
 /*
  * Define Master code if there are multiple masters on the I2C_SR bus.
@@ -57,7 +58,7 @@
  * omap_vc_init() - Initialization for Voltage controller
  * @speed_khz: I2C buspeed in KHz
  */
-void omap_vc_init(u16 speed_khz)
+static void omap_vc_init(u16 speed_khz)
 {
 	u32 val;
 	u32 sys_clk_khz, cycles_hi, cycles_low;
@@ -136,4 +137,15 @@ int omap_vc_bypass_send_value(u8 sa, u8 reg_addr, u8 reg_data)
 
 	/* All good.. */
 	return 0;
+}
+
+void sri2c_init(void)
+{
+	static int sri2c = 1;
+
+	if (sri2c) {
+		omap_vc_init(PRM_VC_I2C_CHANNEL_FREQ_KHZ);
+		sri2c = 0;
+	}
+	return;
 }

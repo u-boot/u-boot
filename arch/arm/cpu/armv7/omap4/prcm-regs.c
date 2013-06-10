@@ -301,6 +301,8 @@ struct omap_sys_ctrl_regs const omap4_ctrl = {
 	.control_ldosram_iva_voltage_ctrl	= 0x4A002320,
 	.control_ldosram_mpu_voltage_ctrl	= 0x4A002324,
 	.control_ldosram_core_voltage_ctrl	= 0x4A002328,
+	.control_usbotghs_ctrl			= 0x4A00233C,
+	.control_padconf_core_base		= 0x4A100000,
 	.control_pbiaslite			= 0x4A100600,
 	.control_lpddr2io1_0			= 0x4A100638,
 	.control_lpddr2io1_1			= 0x4A10063C,
@@ -312,4 +314,5 @@ struct omap_sys_ctrl_regs const omap4_ctrl = {
 	.control_lpddr2io2_3			= 0x4A100654,
 	.control_efuse_1			= 0x4A100700,
 	.control_efuse_2			= 0x4A100704,
+	.control_padconf_wkup_base		= 0x4A31E000,
 };

@@ -32,7 +32,7 @@
 #include <asm/armv7.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/arch/clocks.h>
+#include <asm/arch/clock.h>
 #include <asm/sizes.h>
 #include <asm/utils.h>
 #include <asm/arch/gpio.h>
@@ -100,16 +100,21 @@ static void io_settings_ddr3(void)
 	writel(ioregs->ctrl_emif_sdram_config_ext,
 	       (*ctrl)->control_emif2_sdram_config_ext);
 
-	/* Disable DLL select */
-	io_settings = (readl((*ctrl)->control_port_emif1_sdram_config)
+	if (is_omap54xx()) {
+		/* Disable DLL select */
+		io_settings = (readl((*ctrl)->control_port_emif1_sdram_config)
 							& 0xFFEFFFFF);
-	writel(io_settings,
-		(*ctrl)->control_port_emif1_sdram_config);
+		writel(io_settings,
+			(*ctrl)->control_port_emif1_sdram_config);
 
-	io_settings = (readl((*ctrl)->control_port_emif2_sdram_config)
+		io_settings = (readl((*ctrl)->control_port_emif2_sdram_config)
 							& 0xFFEFFFFF);
-	writel(io_settings,
-		(*ctrl)->control_port_emif2_sdram_config);
+		writel(io_settings,
+			(*ctrl)->control_port_emif2_sdram_config);
+	} else {
+		writel(ioregs->ctrl_ddr_ctrl_ext_0,
+				(*ctrl)->control_ddr_control_ext_0);
+	}
 }
 
 /*
@@ -200,6 +205,9 @@ void srcomp_enable(void)
 	u32 srcomp_value, mul_factor, div_factor, clk_val, i;
 	u32 sysclk_ind	= get_sys_clk_index();
 	u32 omap_rev	= omap_revision();
+
+	if (!is_omap54xx())
+		return;
 
 	mul_factor = srcomp_parameters[sysclk_ind].multiply_factor;
 	div_factor = srcomp_parameters[sysclk_ind].divide_factor;

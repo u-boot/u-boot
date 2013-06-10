@@ -113,23 +113,21 @@ static void omap5_pbias_config(struct mmc *mmc)
 	u32 value = 0;
 
 	value = readl((*ctrl)->control_pbias);
-	value &= ~(SDCARD_PWRDNZ | SDCARD_BIAS_PWRDNZ);
-	value |= SDCARD_BIAS_HIZ_MODE;
+	value &= ~SDCARD_PWRDNZ;
+	writel(value, (*ctrl)->control_pbias);
+	udelay(10); /* wait 10 us */
+	value &= ~SDCARD_BIAS_PWRDNZ;
 	writel(value, (*ctrl)->control_pbias);
 
 	palmas_mmc1_poweron_ldo();
 
 	value = readl((*ctrl)->control_pbias);
-	value &= ~SDCARD_BIAS_HIZ_MODE;
-	value |= SDCARD_PBIASLITE_VMODE | SDCARD_PWRDNZ | SDCARD_BIAS_PWRDNZ;
+	value |= SDCARD_BIAS_PWRDNZ;
 	writel(value, (*ctrl)->control_pbias);
-
-	value = readl((*ctrl)->control_pbias);
-	if (value & (1 << 23)) {
-		value &= ~(SDCARD_PWRDNZ | SDCARD_BIAS_PWRDNZ);
-		value |= SDCARD_BIAS_HIZ_MODE;
-		writel(value, (*ctrl)->control_pbias);
-	}
+	udelay(150); /* wait 150 us */
+	value |= SDCARD_PWRDNZ;
+	writel(value, (*ctrl)->control_pbias);
+	udelay(150); /* wait 150 us */
 }
 #endif
 

@@ -27,7 +27,7 @@
 
 void  __flush_cache(unsigned long start, unsigned long size)
 {
-#if defined(CONFIG_OMAP2420) || defined(CONFIG_ARM1136)
+#if defined(CONFIG_ARM1136)
 	void arm1136_cache_flush(void);
 
 	arm1136_cache_flush();
