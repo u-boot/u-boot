@@ -71,6 +71,7 @@ COBJS-y += linux_string.o
 COBJS-$(CONFIG_REGEX) += slre.o
 COBJS-y += string.o
 COBJS-y += time.o
+COBJS-$(CONFIG_TRACE) += trace.o
 COBJS-$(CONFIG_BOOTP_PXE) += uuid.o
 COBJS-y += vsprintf.o
 COBJS-$(CONFIG_RANDOM_MACADDR) += rand.o
