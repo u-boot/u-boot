@@ -152,7 +152,7 @@ void os_usleep(unsigned long usec)
 	usleep(usec);
 }
 
-u64 os_get_nsec(void)
+u64 __attribute__((no_instrument_function)) os_get_nsec(void)
 {
 #if defined(CLOCK_MONOTONIC) && defined(_POSIX_MONOTONIC_CLOCK)
 	struct timespec tp;

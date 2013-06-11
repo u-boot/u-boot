@@ -37,7 +37,7 @@ void __udelay(unsigned long usec)
 	os_usleep(usec);
 }
 
-unsigned long timer_get_us(void)
+unsigned long __attribute__((no_instrument_function)) timer_get_us(void)
 {
 	return os_get_nsec() / 1000;
 }
