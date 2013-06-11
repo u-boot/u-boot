@@ -499,6 +499,7 @@ static cmd_tbl_t cmd_bootm_sub[] = {
 	U_BOOT_CMD_MKENT(cmdline, 0, 1, (void *)BOOTM_STATE_OS_CMDLINE, "", ""),
 	U_BOOT_CMD_MKENT(bdt, 0, 1, (void *)BOOTM_STATE_OS_BD_T, "", ""),
 	U_BOOT_CMD_MKENT(prep, 0, 1, (void *)BOOTM_STATE_OS_PREP, "", ""),
+	U_BOOT_CMD_MKENT(fake, 0, 1, (void *)BOOTM_STATE_OS_FAKE_GO, "", ""),
 	U_BOOT_CMD_MKENT(go, 0, 1, (void *)BOOTM_STATE_OS_GO, "", ""),
 };
 
@@ -539,6 +540,8 @@ static int boot_selected_os(int argc, char * const argv[], int state,
 #endif
 	arch_preboot_os();
 	boot_fn(state, argc, argv, images);
+	if (state == BOOTM_STATE_OS_FAKE_GO) /* We expect to return */
+		return 0;
 	bootstage_error(BOOTSTAGE_ID_BOOT_OS_RETURNED);
 #ifdef DEBUG
 	puts("\n## Control returned to monitor - resetting...\n");
@@ -645,6 +648,17 @@ static int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (!ret && (states & BOOTM_STATE_OS_PREP))
 		ret = boot_fn(BOOTM_STATE_OS_PREP, argc, argv, images);
 
+#ifdef CONFIG_TRACE
+	/* Pretend to run the OS, then run a user command */
+	if (!ret && (states & BOOTM_STATE_OS_FAKE_GO)) {
+		char *cmd_list = getenv("fakegocmd");
+
+		ret = boot_selected_os(argc, argv, BOOTM_STATE_OS_FAKE_GO,
+				images, boot_fn, &iflag);
+		if (!ret && cmd_list)
+			ret = run_command_list(cmd_list, -1, flag);
+	}
+#endif
 	/* Now run the OS! We hope this doesn't return */
 	if (!ret && (states & BOOTM_STATE_OS_GO))
 		ret = boot_selected_os(argc, argv, BOOTM_STATE_OS_GO,
@@ -754,7 +768,7 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return do_bootm_states(cmdtp, flag, argc, argv, BOOTM_STATE_START |
 		BOOTM_STATE_FINDOS | BOOTM_STATE_FINDOTHER |
 		BOOTM_STATE_LOADOS | BOOTM_STATE_OS_PREP |
-		BOOTM_STATE_OS_GO, &images, 1);
+		BOOTM_STATE_OS_FAKE_GO | BOOTM_STATE_OS_GO, &images, 1);
 }
 
 int bootm_maybe_autostart(cmd_tbl_t *cmdtp, const char *cmd)
@@ -1731,7 +1745,8 @@ int do_bootz(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 1;
 
 	ret = do_bootm_states(cmdtp, flag, argc, argv,
-			      BOOTM_STATE_OS_GO, &images, 1);
+			      BOOTM_STATE_OS_FAKE_GO | BOOTM_STATE_OS_GO,
+			      &images, 1);
 
 	return ret;
 }
