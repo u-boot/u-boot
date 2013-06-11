@@ -53,6 +53,7 @@
 #include <os.h>
 #include <post.h>
 #include <spi.h>
+#include <trace.h>
 #include <watchdog.h>
 #include <asm/errno.h>
 #include <asm/io.h>
@@ -500,6 +501,18 @@ static int reserve_lcd(void)
 }
 #endif /* CONFIG_LCD */
 
+static int reserve_trace(void)
+{
+#ifdef CONFIG_TRACE
+	gd->relocaddr -= CONFIG_TRACE_BUFFER_SIZE;
+	gd->trace_buff = map_sysmem(gd->relocaddr, CONFIG_TRACE_BUFFER_SIZE);
+	debug("Reserving %dk for trace data at: %08lx\n",
+	      CONFIG_TRACE_BUFFER_SIZE >> 10, gd->relocaddr);
+#endif
+
+	return 0;
+}
+
 #if defined(CONFIG_VIDEO) && (!defined(CONFIG_PPC) || defined(CONFIG_8xx)) \
 		&& !defined(CONFIG_ARM) && !defined(CONFIG_X86)
 static int reserve_video(void)
@@ -818,8 +831,9 @@ static init_fnc_t init_sequence_f[] = {
 #ifdef CONFIG_SANDBOX
 	setup_ram_buf,
 #endif
-	setup_fdt,
 	setup_mon_len,
+	setup_fdt,
+	trace_early_init,
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
 	/* TODO: can this go into arch_cpu_init()? */
 	probecpu,
@@ -963,6 +977,7 @@ static init_fnc_t init_sequence_f[] = {
 #ifdef CONFIG_LCD
 	reserve_lcd,
 #endif
+	reserve_trace,
 	/* TODO: Why the dependency on CONFIG_8xx? */
 #if defined(CONFIG_VIDEO) && (!defined(CONFIG_PPC) || defined(CONFIG_8xx)) \
 		&& !defined(CONFIG_ARM) && !defined(CONFIG_X86)

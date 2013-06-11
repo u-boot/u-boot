@@ -58,6 +58,7 @@
 #include <serial.h>
 #include <spi.h>
 #include <stdio_dev.h>
+#include <trace.h>
 #include <watchdog.h>
 #ifdef CONFIG_ADDR_MAP
 #include <asm/mmu.h>
@@ -102,6 +103,15 @@ static int initr_secondary_cpu(void)
 	 */
 	/* TODO: maybe define this for all archs? */
 	cpu_secondary_init_r();
+
+	return 0;
+}
+
+static int initr_trace(void)
+{
+#ifdef CONFIG_TRACE
+	trace_init(gd->trace_buff, CONFIG_TRACE_BUFFER_SIZE);
+#endif
 
 	return 0;
 }
@@ -711,6 +721,7 @@ static int run_main_loop(void)
  * TODO: perhaps reset the watchdog in the initcall function after each call?
  */
 init_fnc_t init_sequence_r[] = {
+	initr_trace,
 	initr_reloc,
 	/* TODO: could x86/PPC have this also perhaps? */
 #ifdef CONFIG_ARM
