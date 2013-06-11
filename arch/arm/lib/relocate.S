@@ -37,19 +37,15 @@
  */
 
 ENTRY(relocate_code)
-	mov	r6, r0	/* save addr of destination */
-
-	ldr	r0, =__image_copy_start	/* r0 <- SRC &__image_copy_start */
-	subs	r9, r6, r0		/* r9 <- relocation offset */
+	ldr	r1, =__image_copy_start	/* r1 <- SRC &__image_copy_start */
+	subs	r9, r0, r1		/* r9 <- relocation offset */
 	beq	relocate_done		/* skip relocation */
-	mov	r1, r6			/* r1 <- scratch for copy loop */
-	adr	r7, relocate_code	/* r7 <- SRC &relocate_code */
 	ldr	r2, =__image_copy_end	/* r2 <- SRC &__image_copy_end */
 
 copy_loop:
-	ldmia	r0!, {r10-r11}		/* copy from source address [r0]    */
-	stmia	r1!, {r10-r11}		/* copy to   target address [r1]    */
-	cmp	r0, r2			/* until source end address [r2]    */
+	ldmia	r1!, {r10-r11}		/* copy from source address [r1]    */
+	stmia	r0!, {r10-r11}		/* copy to   target address [r0]    */
+	cmp	r1, r2			/* until source end address [r2]    */
 	blo	copy_loop
 
 	/*
@@ -58,21 +54,17 @@ copy_loop:
 	ldr	r2, =__rel_dyn_start	/* r2 <- SRC &__rel_dyn_start */
 	ldr	r3, =__rel_dyn_end	/* r3 <- SRC &__rel_dyn_end */
 fixloop:
-	ldr	r0, [r2]		/* r0 <- SRC location to fix up */
-	add	r0, r0, r9		/* r0 <- DST location to fix up */
-	ldr	r1, [r2, #4]
-	and	r7, r1, #0xff
-	cmp	r7, #23			/* relative fixup? */
-	beq	fixrel
-	/* ignore unknown type of fixup */
-	b	fixnext
-fixrel:
+	ldmia	r2!, {r0-r1}		/* (r0,r1) <- (SRC location,fixup) */
+	and	r1, r1, #0xff
+	cmp	r1, #23			/* relative fixup? */
+	bne	fixnext
+
 	/* relative fix: increase location by offset */
+	add	r0, r0, r9
 	ldr	r1, [r0]
 	add	r1, r1, r9
-fixnext:
 	str	r1, [r0]
-	add	r2, r2, #8		/* each rel.dyn entry is 8 bytes */
+fixnext:
 	cmp	r2, r3
 	blo	fixloop
 
