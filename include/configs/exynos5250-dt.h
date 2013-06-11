@@ -43,6 +43,14 @@
 #define CONFIG_OF_CONTROL
 #define CONFIG_OF_SEPARATE
 
+/* Allow tracing to be enabled */
+#define CONFIG_TRACE
+#define CONFIG_CMD_TRACE
+#define CONFIG_TRACE_BUFFER_SIZE	(16 << 20)
+#define CONFIG_TRACE_EARLY_SIZE		(8 << 20)
+#define CONFIG_TRACE_EARLY
+#define CONFIG_TRACE_EARLY_ADDR		0x50000000
+
 /* Keep L2 Cache Disabled */
 #define CONFIG_SYS_DCACHE_OFF
 
