@@ -445,9 +445,9 @@ int bootstage_unstash(void *base, int size)
 	}
 
 	if (hdr->count * sizeof(*rec) > hdr->size) {
-		debug("%s: Bootstage has %d records needing %d bytes, but "
+		debug("%s: Bootstage has %d records needing %lu bytes, but "
 			"only %d bytes is available\n", __func__, hdr->count,
-		      hdr->count * sizeof(*rec), hdr->size);
+		      (ulong)hdr->count * sizeof(*rec), hdr->size);
 		return -1;
 	}
 
