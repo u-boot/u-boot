@@ -56,8 +56,6 @@ copy_loop:
 	/*
 	 * fix .rel.dyn relocations
 	 */
-	ldr	r10, _dynsym_start_ofs	/* r10 <- __dynsym_start local ofs */
-	add	r10, r10, r7		/* r10 <- SRC &__dynsym_start */
 	ldr	r2, _rel_dyn_start_ofs	/* r2 <- __rel_dyn_start local ofs */
 	add	r2, r2, r7		/* r2 <- SRC &__rel_dyn_start */
 	ldr	r3, _rel_dyn_end_ofs	/* r3 <- __rel_dyn_end local ofs */
@@ -69,16 +67,7 @@ fixloop:
 	and	r7, r1, #0xff
 	cmp	r7, #23			/* relative fixup? */
 	beq	fixrel
-	cmp	r7, #2			/* absolute fixup? */
-	beq	fixabs
 	/* ignore unknown type of fixup */
-	b	fixnext
-fixabs:
-	/* absolute fix: set location to (offset) symbol value */
-	mov	r1, r1, LSR #4		/* r1 <- symbol index in .dynsym */
-	add	r1, r10, r1		/* r1 <- address of symbol in table */
-	ldr	r1, [r1, #4]		/* r1 <- symbol value */
-	add	r1, r1, r9		/* r1 <- relocated sym addr */
 	b	fixnext
 fixrel:
 	/* relative fix: increase location by offset */
@@ -106,7 +95,5 @@ _rel_dyn_start_ofs:
 	.word __rel_dyn_start - relocate_code
 _rel_dyn_end_ofs:
 	.word __rel_dyn_end - relocate_code
-_dynsym_start_ofs:
-	.word __dynsym_start - relocate_code
 
 ENDPROC(relocate_code)

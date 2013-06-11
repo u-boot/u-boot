@@ -73,11 +73,6 @@ SECTIONS
 		__rel_dyn_end = .;
 	}
 
-	.dynsym : {
-		__dynsym_start = .;
-		*(.dynsym)
-	}
-
 	_end = .;
 
 /*
@@ -100,6 +95,7 @@ SECTIONS
 	}
 
 	/DISCARD/ : { *(.bss*) }
+	/DISCARD/ : { *(.dynsym) }
 	/DISCARD/ : { *(.dynstr*) }
 	/DISCARD/ : { *(.dynsym*) }
 	/DISCARD/ : { *(.dynamic*) }

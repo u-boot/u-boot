@@ -54,11 +54,6 @@ SECTIONS
 		__rel_dyn_end = .;
 	} >.sram
 
-	.dynsym : {
-		__dynsym_start = .;
-		*(.dynsym)
-	} >.sram
-
 	.bss :
 	{
 		. = ALIGN(4);
