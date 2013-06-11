@@ -71,10 +71,18 @@ SECTIONS
 		*(.__image_copy_end)
 	}
 
+	.rel_dyn_start :
+	{
+		*(.__rel_dyn_start)
+	}
+
 	.rel.dyn : {
-		__rel_dyn_start = .;
 		*(.rel*)
-		__rel_dyn_end = .;
+	}
+
+	.rel_dyn_end :
+	{
+		*(.__rel_dyn_end)
 	}
 
 	_end = .;

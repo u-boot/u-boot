@@ -55,10 +55,8 @@ copy_loop:
 	/*
 	 * fix .rel.dyn relocations
 	 */
-	ldr	r2, _rel_dyn_start_ofs	/* r2 <- __rel_dyn_start local ofs */
-	add	r2, r2, r7		/* r2 <- SRC &__rel_dyn_start */
-	ldr	r3, _rel_dyn_end_ofs	/* r3 <- __rel_dyn_end local ofs */
-	add	r3, r3, r7		/* r3 <- SRC &__rel_dyn_end */
+	ldr	r2, =__rel_dyn_start	/* r2 <- SRC &__rel_dyn_start */
+	ldr	r3, =__rel_dyn_end	/* r3 <- SRC &__rel_dyn_end */
 fixloop:
 	ldr	r0, [r2]		/* r0 <- SRC location to fix up */
 	add	r0, r0, r9		/* r0 <- DST location to fix up */
@@ -87,10 +85,5 @@ relocate_done:
 #else
         bx        lr
 #endif
-
-_rel_dyn_start_ofs:
-	.word __rel_dyn_start - relocate_code
-_rel_dyn_end_ofs:
-	.word __rel_dyn_end - relocate_code
 
 ENDPROC(relocate_code)
