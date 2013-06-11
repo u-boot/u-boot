@@ -109,3 +109,8 @@ ifeq ($(GAS_BUG_12532),y)
 PLATFORM_RELFLAGS += -fno-optimize-sibling-calls
 endif
 endif
+
+# check that only R_ARM_RELATIVE relocations are generated
+ifneq ($(CONFIG_SPL_BUILD),y)
+ALL-y	+= checkarmreloc
+endif
