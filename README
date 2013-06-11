@@ -3666,6 +3666,14 @@ but it can not erase, write this NOR flash by SRIO or PCIE interface.
 	  These two #defines specify the offset and size of the environment
 	  area within the specified MMC device.
 
+	  If offset is positive (the usual case), it is treated as relative to
+	  the start of the MMC partition. If offset is negative, it is treated
+	  as relative to the end of the MMC partition. This can be useful if
+	  your board may be fitted with different MMC devices, which have
+	  different sizes for the MMC partitions, and you always want the
+	  environment placed at the very end of the partition, to leave the
+	  maximum possible space before it, to store other data.
+
 	  These two values are in units of bytes, but must be aligned to an
 	  MMC sector boundary.
 
@@ -3675,6 +3683,9 @@ but it can not erase, write this NOR flash by SRIO or PCIE interface.
 	  hold a redundant copy of the environment data. This provides a
 	  valid backup copy in case the other copy is corrupted, e.g. due
 	  to a power failure during a "saveenv" operation.
+
+	  This value may also be positive or negative; this is handled in the
+	  same way as CONFIG_ENV_OFFSET.
 
 	  This value is also in units of bytes, but must also be aligned to
 	  an MMC sector boundary.
