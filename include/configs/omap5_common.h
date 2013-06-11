@@ -136,7 +136,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
-	"console=ttyO2,115200n8\0" \
+	"console=" CONSOLEDEV ",115200n8\0" \
 	"fdt_high=0xffffffff\0" \
 	"fdtaddr=0x80f80000\0" \
 	"fdtfile=undefined\0" \
@@ -168,6 +168,8 @@
 	"findfdt="\
 		"if test $board_name = omap5_uevm; then " \
 			"setenv fdtfile omap5-uevm.dtb; fi; " \
+		"if test $board_name = dra7xx; then " \
+			"setenv fdtfile dra7-evm.dtb; fi;" \
 		"if test $fdtfile = undefined; then " \
 			"echo WARNING: Could not determine device tree to use; fi; \0" \
 	"loadfdt=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile};\0" \
