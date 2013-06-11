@@ -49,6 +49,7 @@ static int next_id = BOOTSTAGE_ID_USER;
 enum {
 	BOOTSTAGE_VERSION	= 0,
 	BOOTSTAGE_MAGIC		= 0xb00757a3,
+	BOOTSTAGE_DIGITS	= 9,
 };
 
 struct bootstage_hdr {
@@ -165,21 +166,6 @@ uint32_t bootstage_accum(enum bootstage_id id)
 	return duration;
 }
 
-static void print_time(unsigned long us_time)
-{
-	char str[15], *s;
-	int grab = 3;
-
-	/* We don't seem to have %'d in U-Boot */
-	sprintf(str, "%12lu", us_time);
-	for (s = str + 3; *s; s += grab) {
-		if (s != str + 3)
-			putc(s[-1] != ' ' ? ',' : ' ');
-		printf("%.*s", grab, s);
-		grab = 3;
-	}
-}
-
 /**
  * Get a record name as a printable string
  *
@@ -208,10 +194,10 @@ static uint32_t print_time_record(enum bootstage_id id,
 
 	if (prev == -1U) {
 		printf("%11s", "");
-		print_time(rec->time_us);
+		print_grouped_ull(rec->time_us, BOOTSTAGE_DIGITS);
 	} else {
-		print_time(rec->time_us);
-		print_time(rec->time_us - prev);
+		print_grouped_ull(rec->time_us, BOOTSTAGE_DIGITS);
+		print_grouped_ull(rec->time_us - prev, BOOTSTAGE_DIGITS);
 	}
 	printf("  %s\n", get_record_name(buf, sizeof(buf), rec));
 
