@@ -182,15 +182,8 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		goto done;
 	}
 
-	if (dout)
-		pss->tx = dout;
-	else
-		pss->tx = NULL;
-
-	if (din)
-		pss->rx = din;
-	else
-		pss->rx = NULL;
+	pss->tx = dout;
+	pss->rx = din;
 
 	if (flags & SPI_XFER_BEGIN) {
 		spi_cs_activate(slave);
