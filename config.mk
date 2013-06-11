@@ -268,6 +268,16 @@ CFLAGS += $(CFLAGS_WARN)
 CFLAGS_STACK := $(call cc-option,-fstack-usage)
 CFLAGS += $(CFLAGS_STACK)
 
+BCURDIR = $(subst $(SRCTREE)/,,$(CURDIR:$(obj)%=%))
+
+ifeq ($(findstring examples/,$(BCURDIR)),)
+ifeq ($(CONFIG_SPL_BUILD),)
+ifdef FTRACE
+CFLAGS += -finstrument-functions -DFTRACE
+endif
+endif
+endif
+
 # $(CPPFLAGS) sets -g, which causes gcc to pass a suitable -g<format>
 # option to the assembler.
 AFLAGS_DEBUG :=
@@ -330,7 +340,6 @@ export	CONFIG_SYS_TEXT_BASE PLATFORM_CPPFLAGS PLATFORM_RELFLAGS CPPFLAGS CFLAGS 
 #########################################################################
 
 # Allow boards to use custom optimize flags on a per dir/file basis
-BCURDIR = $(subst $(SRCTREE)/,,$(CURDIR:$(obj)%=%))
 ALL_AFLAGS = $(AFLAGS) $(AFLAGS_$(BCURDIR)/$(@F)) $(AFLAGS_$(BCURDIR))
 ALL_CFLAGS = $(CFLAGS) $(CFLAGS_$(BCURDIR)/$(@F)) $(CFLAGS_$(BCURDIR))
 EXTRA_CPPFLAGS = $(CPPFLAGS_$(BCURDIR)/$(@F)) $(CPPFLAGS_$(BCURDIR))
