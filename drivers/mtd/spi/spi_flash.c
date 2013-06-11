@@ -71,7 +71,7 @@ int spi_flash_cmd_write(struct spi_slave *spi, const u8 *cmd, size_t cmd_len,
 int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 		size_t len, const void *buf)
 {
-	unsigned long page_addr, byte_addr, page_size;
+	unsigned long byte_addr, page_size;
 	size_t chunk_len, actual;
 	int ret;
 	u8 cmd[4];
@@ -97,16 +97,13 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 			return ret;
 		}
 #endif
-		page_addr = offset / page_size;
 		byte_addr = offset % page_size;
 		chunk_len = min(len - actual, page_size - byte_addr);
 
 		if (flash->spi->max_write_size)
 			chunk_len = min(chunk_len, flash->spi->max_write_size);
 
-		cmd[1] = page_addr >> 8;
-		cmd[2] = page_addr;
-		cmd[3] = byte_addr;
+		spi_flash_addr(offset, cmd);
 
 		debug("PP: 0x%p => cmd = { 0x%02x 0x%02x%02x%02x } chunk_len = %zu\n",
 		      buf + actual, cmd[0], cmd[1], cmd[2], cmd[3], chunk_len);
