@@ -37,7 +37,7 @@ void timer_set_base(u64 base)
  * restart. This yields a free running counter guaranteed to take almost 6
  * years to wrap around even at 100GHz clock rate.
  */
-u64 get_ticks(void)
+u64 __attribute__((no_instrument_function)) get_ticks(void)
 {
 	u64 now_tick = rdtsc();
 
@@ -50,7 +50,7 @@ u64 get_ticks(void)
 #define PLATFORM_INFO_MSR 0xce
 
 /* Get the speed of the TSC timer in MHz */
-unsigned long get_tbclk_mhz(void)
+unsigned __attribute__((no_instrument_function)) long get_tbclk_mhz(void)
 {
 	u32 ratio;
 	u64 platform_info = native_read_msr(PLATFORM_INFO_MSR);
@@ -75,7 +75,7 @@ ulong get_timer(ulong base)
 	return get_ms_timer() - base;
 }
 
-ulong timer_get_us(void)
+ulong __attribute__((no_instrument_function)) timer_get_us(void)
 {
 	return get_ticks() / get_tbclk_mhz();
 }
