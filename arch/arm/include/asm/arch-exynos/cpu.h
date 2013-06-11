@@ -178,7 +178,7 @@ static inline char *s5p_get_cpu_name(void)
 }
 
 #define IS_SAMSUNG_TYPE(type, id)			\
-static inline int cpu_is_##type(void)			\
+static inline int __attribute__((no_instrument_function)) cpu_is_##type(void) \
 {							\
 	return (s5p_cpu_id >> 12) == id;		\
 }
@@ -187,7 +187,8 @@ IS_SAMSUNG_TYPE(exynos4, 0x4)
 IS_SAMSUNG_TYPE(exynos5, 0x5)
 
 #define IS_EXYNOS_TYPE(type, id)			\
-static inline int proid_is_##type(void)			\
+static inline int __attribute__((no_instrument_function)) \
+	proid_is_##type(void)				\
 {							\
 	return s5p_cpu_id == id;			\
 }
@@ -197,9 +198,10 @@ IS_EXYNOS_TYPE(exynos4412, 0x4412)
 IS_EXYNOS_TYPE(exynos5250, 0x5250)
 
 #define SAMSUNG_BASE(device, base)				\
-static inline unsigned int samsung_get_base_##device(void)	\
+static inline unsigned int __attribute__((no_instrument_function)) \
+	samsung_get_base_##device(void) \
 {								\
-	if (cpu_is_exynos4()) {					\
+	if (cpu_is_exynos4()) {				\
 		if (proid_is_exynos4412())			\
 			return EXYNOS4X12_##base;		\
 		return EXYNOS4_##base;				\
