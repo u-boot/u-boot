@@ -168,6 +168,13 @@
  */
 #include <config_cmd_default.h>
 
+#define CONFIG_TRACE
+#define CONFIG_CMD_TRACE
+#define CONFIG_TRACE_BUFFER_SIZE	(16 << 20)
+#define CONFIG_TRACE_EARLY_SIZE		(8 << 20)
+#define CONFIG_TRACE_EARLY
+#define CONFIG_TRACE_EARLY_ADDR		0x01400000
+
 #define CONFIG_CMD_BDI
 #define CONFIG_CMD_BOOTD
 #define CONFIG_CMD_CONSOLE
