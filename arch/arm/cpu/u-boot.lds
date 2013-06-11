@@ -33,7 +33,7 @@ SECTIONS
 	. = ALIGN(4);
 	.text :
 	{
-		__image_copy_start = .;
+		*(.__image_copy_start)
 		CPUDIR/start.o (.text*)
 		*(.text*)
 	}
@@ -57,7 +57,10 @@ SECTIONS
 
 	. = ALIGN(4);
 
-	__image_copy_end = .;
+	.image_copy_end :
+	{
+		*(.__image_copy_end)
+	}
 
 	.rel.dyn : {
 		__rel_dyn_start = .;

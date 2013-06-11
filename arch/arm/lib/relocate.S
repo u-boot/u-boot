@@ -39,13 +39,12 @@
 ENTRY(relocate_code)
 	mov	r6, r0	/* save addr of destination */
 
-	ldr	r0, =_start		/* r0 <- SRC &_start */
+	ldr	r0, =__image_copy_start	/* r0 <- SRC &__image_copy_start */
 	subs	r9, r6, r0		/* r9 <- relocation offset */
 	beq	relocate_done		/* skip relocation */
 	mov	r1, r6			/* r1 <- scratch for copy loop */
 	adr	r7, relocate_code	/* r7 <- SRC &relocate_code */
-	ldr	r3, _image_copy_end_ofs	/* r3 <- __image_copy_end local ofs */
-	add	r2, r7, r3		/* r2 <- SRC &__image_copy_end */
+	ldr	r2, =__image_copy_end	/* r2 <- SRC &__image_copy_end */
 
 copy_loop:
 	ldmia	r0!, {r10-r11}		/* copy from source address [r0]    */
@@ -89,8 +88,6 @@ relocate_done:
         bx        lr
 #endif
 
-_image_copy_end_ofs:
-	.word __image_copy_end - relocate_code
 _rel_dyn_start_ofs:
 	.word __rel_dyn_start - relocate_code
 _rel_dyn_end_ofs:

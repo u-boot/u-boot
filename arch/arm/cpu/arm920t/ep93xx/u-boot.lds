@@ -31,6 +31,7 @@ SECTIONS
 	. = ALIGN(4);
 	.text      :
 	{
+		*(.__image_copy_start)
 	  arch/arm/cpu/arm920t/start.o	(.text*)
 		/* the EP93xx expects to find the pattern 'CRUS' at 0x1000 */
 	  . = 0x1000;
@@ -56,7 +57,10 @@ SECTIONS
 
 	. = ALIGN(4);
 
-	__image_copy_end = .;
+	.image_copy_end :
+	{
+		*(.__image_copy_end)
+	}
 
 	__bss_start = .;
 	.bss : { *(.bss*) }

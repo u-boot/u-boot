@@ -34,6 +34,7 @@ SECTIONS
 	. = ALIGN(4);
 	.text	   :
 	{
+		*(.__image_copy_start)
 	  /* WARNING - the following is hand-optimized to fit within	*/
 	  /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
@@ -65,7 +66,10 @@ SECTIONS
 
 	. = ALIGN(4);
 
-	__image_copy_end = .;
+	.image_copy_end :
+	{
+		*(.__image_copy_end)
+	}
 
 	.rel.dyn : {
 		__rel_dyn_start = .;

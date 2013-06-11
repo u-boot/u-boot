@@ -30,6 +30,7 @@ SECTIONS
 
 	. = ALIGN (4);
 	.text : {
+		*(.__image_copy_start)
 		arch/arm/cpu/ixp/start.o(.text*)
 		net/libnet.o(.text*)
 		board/actux3/libactux3.o(.text*)
@@ -62,7 +63,10 @@ SECTIONS
 
 	. = ALIGN (4);
 
-	__image_copy_end = .;
+	.image_copy_end :
+	{
+		*(.__image_copy_end)
+	}
 
 	.rel.dyn : {
 		__rel_dyn_start = .;
