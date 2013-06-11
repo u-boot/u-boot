@@ -104,9 +104,18 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
  *  - verified image architecture (PPC) and type (KERNEL or MULTI),
  *  - loaded (first part of) image to header load address,
  *  - disabled interrupts.
+ *
+ * @flag: Command flags (CMD_FLAG_...)
+ * @argc: Number of arguments. Note that the arguments are shifted down
+ *	 so that 0 is the first argument not processed by U-Boot, and
+ *	 argc is adjusted accordingly. This avoids confusion as to how
+ *	 many arguments are available for the OS.
+ * @images: Pointers to os/initrd/fdt
+ * @return 1 on error. On success the OS boots so this function does
+ * not return.
  */
 typedef int boot_os_fn(int flag, int argc, char * const argv[],
-			bootm_headers_t *images); /* pointers to os/initrd/fdt */
+			bootm_headers_t *images);
 
 #ifdef CONFIG_BOOTM_LINUX
 extern boot_os_fn do_bootm_linux;
@@ -457,7 +466,7 @@ static int bootm_start_standalone(ulong iflag, int argc, char * const argv[])
 		return 0;
 	}
 	appl = (int (*)(int, char * const []))(ulong)ntohl(images.ep);
-	(*appl)(argc-1, &argv[1]);
+	(*appl)(argc, argv);
 	return 0;
 }
 
@@ -486,17 +495,15 @@ static int do_bootm_subcommand(cmd_tbl_t *cmdtp, int flag, int argc,
 	cmd_tbl_t *c;
 	boot_os_fn *boot_fn;
 
-	c = find_cmd_tbl(argv[1], &cmd_bootm_sub[0], ARRAY_SIZE(cmd_bootm_sub));
+	c = find_cmd_tbl(argv[0], &cmd_bootm_sub[0], ARRAY_SIZE(cmd_bootm_sub));
+	argc--; argv++;
 
 	if (c) {
 		state = (long)c->cmd;
 
 		/* treat start special since it resets the state machine */
-		if (state == BOOTM_STATE_START) {
-			argc--;
-			argv++;
+		if (state == BOOTM_STATE_START)
 			return bootm_start(cmdtp, flag, argc, argv);
-		}
 	} else {
 		/* Unrecognized command */
 		return CMD_RET_USAGE;
@@ -611,11 +618,12 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 
 	/* determine if we have a sub command */
-	if (argc > 1) {
+	argc--; argv++;
+	if (argc > 0) {
 		char *endp;
 
-		simple_strtoul(argv[1], &endp, 16);
-		/* endp pointing to NULL means that argv[1] was just a
+		simple_strtoul(argv[0], &endp, 16);
+		/* endp pointing to NULL means that argv[0] was just a
 		 * valid number, pass it along to the normal bootm processing
 		 *
 		 * If endp is ':' or '#' assume a FIT identifier so pass
@@ -816,22 +824,22 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 #endif
 
 	/* find out kernel image address */
-	if (argc < 2) {
+	if (argc < 1) {
 		img_addr = load_addr;
 		debug("*  kernel: default image load address = 0x%08lx\n",
 				load_addr);
 #if defined(CONFIG_FIT)
-	} else if (fit_parse_conf(argv[1], load_addr, &img_addr,
+	} else if (fit_parse_conf(argv[0], load_addr, &img_addr,
 							&fit_uname_config)) {
 		debug("*  kernel: config '%s' from image at 0x%08lx\n",
 				fit_uname_config, img_addr);
-	} else if (fit_parse_subimage(argv[1], load_addr, &img_addr,
+	} else if (fit_parse_subimage(argv[0], load_addr, &img_addr,
 							&fit_uname_kernel)) {
 		debug("*  kernel: subimage '%s' from image at 0x%08lx\n",
 				fit_uname_kernel, img_addr);
 #endif
 	} else {
-		img_addr = simple_strtoul(argv[1], NULL, 16);
+		img_addr = simple_strtoul(argv[0], NULL, 16);
 		debug("*  kernel: cmdline image address = 0x%08lx\n", img_addr);
 	}
 
@@ -1401,16 +1409,16 @@ static int do_bootm_netbsd(int flag, int argc, char * const argv[],
 	consdev = "scc3";
 #endif
 
-	if (argc > 2) {
+	if (argc > 0) {
 		ulong len;
 		int   i;
 
-		for (i = 2, len = 0; i < argc; i += 1)
+		for (i = 0, len = 0; i < argc; i += 1)
 			len += strlen(argv[i]) + 1;
 		cmdline = malloc(len);
 
-		for (i = 2, len = 0; i < argc; i += 1) {
-			if (i > 2)
+		for (i = 0, len = 0; i < argc; i += 1) {
+			if (i > 0)
 				cmdline[len++] = ' ';
 			strcpy(&cmdline[len], argv[i]);
 			len += strlen(argv[i]);
