@@ -216,10 +216,10 @@
 		"fatload mmc 0 ${loadbit_addr} ${bitstream_image} && " \
 		"fpga load 0 ${loadbit_addr} ${filesize}\0" \
 	"norboot=echo Copying Linux from NOR flash to RAM... && " \
-		"cp 0xE2100000 0x3000000 ${kernel_size} && " \
-		"cp 0xE2600000 0x2A00000 ${devicetree_size} && " \
+		"cp.b 0xE2100000 0x3000000 ${kernel_size} && " \
+		"cp.b 0xE2600000 0x2A00000 ${devicetree_size} && " \
 		"echo Copying ramdisk... && " \
-		"cp 0xE2620000 0x2000000 ${ramdisk_size} && " \
+		"cp.b 0xE2620000 0x2000000 ${ramdisk_size} && " \
 		"bootm 0x3000000 0x2000000 0x2A00000\0" \
 	"qspiboot=echo Copying Linux from QSPI flash to RAM... && " \
 		"sf probe 0 0 0 && " \
