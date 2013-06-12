@@ -117,6 +117,7 @@
 # undef CONFIG_SYS_FLASH_PROTECTION /* don't use hardware protection */
 /* use buffered writes (20x faster) */
 # define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
+# define CONFIG_ZYNQ_M29EW_WB_HACK
 #endif
 
 /* QSPI */
