@@ -1392,6 +1392,12 @@ The following options need to be configured:
 		CONFIG_DFU_NAND
 		This enables support for exposing NAND devices via DFU.
 
+		CONFIG_SYS_DFU_DATA_BUF_SIZE
+		Dfu transfer uses a buffer before writing data to the
+		raw storage device. Make the size (in bytes) of this buffer
+		configurable. The size of this buffer is also configurable
+		through the "dfu_bufsiz" environment variable.
+
 		CONFIG_SYS_DFU_MAX_FILE_SIZE
 		When updating files rather than the raw storage device,
 		we use a static buffer to copy the file into and then write
