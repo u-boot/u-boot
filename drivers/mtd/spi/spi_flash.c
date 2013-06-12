@@ -98,7 +98,7 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 			write_addr /= 2;
 
 		if (is_dual == MODE_DUAL_STACKED) {
-			if (offset >= (flash->size / 2))
+			if (write_addr >= (flash->size / 2))
 				flash->spi->u_page = 1;
 			else
 				flash->spi->u_page = 0;
@@ -114,7 +114,7 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 			return ret;
 		}
 
-		byte_addr = offset % page_size;
+		byte_addr = write_addr % page_size;
 
 		chunk_len = min(len - actual, page_size - byte_addr);
 
@@ -212,7 +212,7 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 		if ((is_dual == MODE_DUAL_STACKED) && (flash->spi->u_page == 1))
 			bank_sel += ((flash->size / 2) / bank_boun);
 
-		remain_len = (bank_boun * (bank_sel + 1) - offset);
+		remain_len = (bank_boun * (bank_sel + 1) - read_addr);
 		if (len < remain_len)
 			read_len = len;
 		else
@@ -315,7 +315,7 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 			erase_addr /= 2;
 
 		if (is_dual == MODE_DUAL_STACKED) {
-			if (offset >= (flash->size / 2))
+			if (erase_addr >= (flash->size / 2))
 				flash->spi->u_page = 1;
 			else
 				flash->spi->u_page = 0;
@@ -334,7 +334,7 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 		spi_flash_addr(erase_addr, cmd);
 
 		debug("SF: erase %2x %2x %2x %2x (%x)\n", cmd[0], cmd[1],
-		      cmd[2], cmd[3], offset);
+		      cmd[2], cmd[3], erase_addr);
 
 		ret = spi_flash_cmd_write_enable(flash);
 		if (ret)
