@@ -53,6 +53,10 @@
 #include <asm/4xx_pci.h>
 #endif
 
+#ifndef CONFIG_USB_HUB_MIN_POWER_ON_DELAY
+#define CONFIG_USB_HUB_MIN_POWER_ON_DELAY	100
+#endif
+
 #define USB_BUFSIZ	512
 
 static struct usb_hub_device hub_dev[USB_MAX_HUB];
@@ -148,8 +152,8 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
 		debug("port %d returns %lX\n", i + 1, dev->status);
 	}
 
-	/* Wait at least 100 msec for power to become stable */
-	mdelay(max(pgood_delay, (unsigned)100));
+	/* Wait for power to become stable */
+	mdelay(max(pgood_delay, CONFIG_USB_HUB_MIN_POWER_ON_DELAY));
 }
 
 void usb_hub_reset(void)
@@ -485,7 +489,11 @@ static int usb_hub_configure(struct usb_device *dev)
 			      i + 1, portstatus);
 			usb_clear_port_feature(dev, i + 1,
 						USB_PORT_FEAT_C_ENABLE);
-
+			/*
+			 * The following hack causes a ghost device problem
+			 * to Faraday EHCI
+			 */
+#ifndef CONFIG_USB_EHCI_FARADAY
 			/* EM interference sometimes causes bad shielded USB
 			 * devices to be shutdown by the hub, this hack enables
 			 * them again. Works at least with mouse driver */
@@ -497,6 +505,7 @@ static int usb_hub_configure(struct usb_device *dev)
 				      "re-enabling...\n", i + 1);
 				      usb_hub_port_connect_change(dev, i);
 			}
+#endif
 		}
 		if (portstatus & USB_PORT_STAT_SUSPEND) {
 			debug("port %d suspend change\n", i + 1);

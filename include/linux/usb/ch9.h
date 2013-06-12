@@ -35,6 +35,7 @@
 
 #include <linux/types.h>	/* __u8 etc */
 #include <asm/byteorder.h>	/* le16_to_cpu */
+#include <asm/unaligned.h>	/* get_unaligned() */
 
 /*-------------------------------------------------------------------------*/
 
@@ -596,7 +597,7 @@ static inline int usb_endpoint_is_isoc_out(
  */
 static inline int usb_endpoint_maxp(const struct usb_endpoint_descriptor *epd)
 {
-	return __le16_to_cpu(epd->wMaxPacketSize);
+	return __le16_to_cpu(get_unaligned(&epd->wMaxPacketSize));
 }
 
 static inline int usb_endpoint_interrupt_type(
