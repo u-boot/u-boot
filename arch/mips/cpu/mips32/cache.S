@@ -129,7 +129,6 @@ NESTED(mips_cache_reset, 0, ra)
 	li	t2, CONFIG_SYS_ICACHE_SIZE
 	li	t3, CONFIG_SYS_DCACHE_SIZE
 	li	t4, CONFIG_SYS_CACHELINE_SIZE
-	move	t5, t4
 
 	li	v0, MIPS_MAX_CACHE_SIZE
 
@@ -164,7 +163,7 @@ NESTED(mips_cache_reset, 0, ra)
 	 * then initialize D-cache.
 	 */
 	move	a1, t3
-	move	a2, t5
+	move	a2, t4
 	PTR_LA	t7, mips_init_dcache
 	jalr	t7
 
