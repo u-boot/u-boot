@@ -47,6 +47,7 @@ _start:
 relocate_code:
 	move	sp, a0			# set new stack pointer
 
+	move	s0, a1			# save gd in s0
 	move	s2, a2			# save destination address in s2
 
 	li	t0, CONFIG_SYS_MONITOR_BASE
@@ -170,7 +171,7 @@ in_ram:
 	blt	t1, t2, 1b
 	 addi	t1, 4
 
-	move	a0, a1			# a0 <-- gd
+	move	a0, s0			# a0 <-- gd
 	la	t9, board_init_r
 	jr	t9
 	 move	a1, s2
