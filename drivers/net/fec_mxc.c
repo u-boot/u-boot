@@ -516,9 +516,7 @@ static int fec_open(struct eth_device *edev)
 #ifdef FEC_QUIRK_ENET_MAC
 	{
 		u32 ecr = readl(&fec->eth->ecntrl) & ~FEC_ECNTRL_SPEED;
-		u32 rcr = (readl(&fec->eth->r_cntrl) &
-				~(FEC_RCNTRL_RMII | FEC_RCNTRL_RMII_10T)) |
-				FEC_RCNTRL_RGMII | FEC_RCNTRL_MII_MODE;
+		u32 rcr = readl(&fec->eth->r_cntrl) & ~FEC_RCNTRL_RMII_10T;
 		if (speed == _1000BASET)
 			ecr |= FEC_ECNTRL_SPEED;
 		else if (speed != _100BASET)

@@ -30,6 +30,7 @@
  * MA 02111-1307 USA
  */
 
+#include <asm/omap_common.h>
 #include <twl4030.h>
 #include <twl6030.h>
 #include "omap3.h"
@@ -135,7 +136,8 @@ int musb_platform_init(void)
 #endif
 
 #ifdef CONFIG_OMAP4430
-		u32 *usbotghs_control = (u32 *)(CTRL_BASE + 0x33C);
+		u32 *usbotghs_control =
+			(u32 *)((*ctrl)->control_usbotghs_ctrl);
 		*usbotghs_control = 0x15;
 #endif
 		platform_needs_initialization = 0;

@@ -897,6 +897,10 @@ Steve Sakoman <sakoman@gmail.com>
 
 	omap3_overo	ARM ARMV7 (OMAP3xx SoC)
 
+Leo Sartre <lsartre@adeneo-embedded.com>
+
+	cgtqmx6qeval		i.MX6Q
+
 Jens Scharsig <esw@bus-elektronik.de>
 
 	eb_cpux9k2	ARM920T (AT91RM9200 SoC)
@@ -969,6 +973,10 @@ Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
 
 	SFFSDR		ARM926EJS
 
+Lokesh Vutla <lokeshvutla@ti.com>
+
+	dra7xx_evm	ARM ARMV7 (DRA7xx Soc)
+
 Matt Waddel <matt.waddel@linaro.org>
 
 	vexpress_ca9x4	ARM ARMV7 (Quad Core)
@@ -1025,10 +1033,6 @@ Matthias Weisser <weisserm@arcor.de>
 	jadecpu		ARM926EJS (MB86R01 SoC)
 	zmx25		ARM926EJS (imx25 SoC)
 
-Richard Woodruff <r-woodruff2@ti.com>
-
-	omap2420h4	ARM1136EJS
-
 Josh Wu <josh.wu@atmel.com>
 	at91sam9n12ek	ARM926EJS (AT91SAM9N12 SoC)
 
@@ -1065,6 +1069,14 @@ Eric Nelson <eric.nelson@boundarydevices.com>
 	nitrogen6q2g    	i.MX6Q/6D	2GB
 	nitrogen6s		i.MX6S		512MB
 	nitrogen6s1g		i.MX6S		1GB
+
+Alison Wang <b18965@freescale.com>
+
+	vf610twr	VF610
+
+Sergey Yanovich <ynvich@gmail.com>
+
+	lp8x4x		xscale/pxa
 
 -------------------------------------------------------------------------
 

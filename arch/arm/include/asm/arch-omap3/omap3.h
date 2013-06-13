@@ -253,4 +253,11 @@ struct gpio {
 
 #define OMAP3_EMU_HAL_START_HAL_CRITICAL	4
 
+/* ABB settings */
+#define OMAP_ABB_SETTLING_TIME		30
+#define OMAP_ABB_CLOCK_CYCLES		8
+
+/* ABB tranxdone mask */
+#define OMAP_ABB_MPU_TXDONE_MASK	(0x1 << 26)
+
 #endif

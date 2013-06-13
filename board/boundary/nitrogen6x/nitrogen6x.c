@@ -336,7 +336,6 @@ iomux_v3_cfg_t const ecspi1_pads[] = {
 
 void setup_spi(void)
 {
-	gpio_direction_output(CONFIG_SF_DEFAULT_CS, 1);
 	imx_iomux_v3_setup_multiple_pads(ecspi1_pads,
 					 ARRAY_SIZE(ecspi1_pads));
 }

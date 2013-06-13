@@ -1,9 +1,5 @@
 #
-# (C) Copyright 2000-2006
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# See file CREDITS for list of people who contributed to this
-# project.
+# Copyright 2013 Freescale Semiconductor, Inc.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -25,15 +21,13 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).o
 
-COBJS	:= omap2420h4.o mem.o sys_info.o
-SOBJS	:= lowlevel_init.o
+COBJS	:= $(BOARD).o
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
-	$(call cmd_link_o_target, $(OBJS) $(SOBJS))
+$(LIB):	$(obj).depend $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

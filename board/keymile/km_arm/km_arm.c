@@ -160,7 +160,7 @@ int ethernet_present(void)
 }
 #endif
 
-int initialize_unit_leds(void)
+static int initialize_unit_leds(void)
 {
 	/*
 	 * Init the unit LEDs per default they all are
@@ -181,7 +181,7 @@ int initialize_unit_leds(void)
 }
 
 #if defined(CONFIG_BOOTCOUNT_LIMIT)
-void set_bootcount_addr(void)
+static void set_bootcount_addr(void)
 {
 	uchar buf[32];
 	unsigned int bootcountaddr;
