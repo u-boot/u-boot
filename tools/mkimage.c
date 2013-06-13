@@ -270,6 +270,9 @@ main (int argc, char **argv)
 					usage ();
 				params.imagename = *++argv;
 				goto NXTARG;
+			case 'r':
+				params.require_keys = 1;
+				break;
 			case 'R':
 				if (--argc <= 0)
 					usage();
@@ -645,11 +648,12 @@ usage ()
 	fprintf(stderr, "          -D => set options for device tree compiler\n"
 			"          -f => input filename for FIT source\n");
 #ifdef CONFIG_FIT_SIGNATURE
-	fprintf(stderr, "Signing / verified boot options: [-k keydir] [-K dtb] [ -c <comment>]\n"
+	fprintf(stderr, "Signing / verified boot options: [-k keydir] [-K dtb] [ -c <comment>] [-r]\n"
 			"          -k => set directory containing private keys\n"
 			"          -K => write public keys to this .dtb file\n"
 			"          -c => add comment in signature node\n"
-			"          -F => re-sign existing FIT image\n");
+			"          -F => re-sign existing FIT image\n"
+			"          -r => mark keys used as 'required' in dtb\n");
 #else
 	fprintf(stderr, "Signing / verified boot not supported (CONFIG_FIT_SIGNATURE undefined)\n");
 #endif

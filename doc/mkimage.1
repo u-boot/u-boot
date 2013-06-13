@@ -133,6 +133,12 @@ the corresponding public key is written into this file for for run-time
 verification. Typically the file here is the device tree binary used by
 CONFIG_OF_CONTROL in U-Boot.
 
+.TP
+.BI "\-r
+Specifies that keys used to sign the FIT are required. This means that they
+must be verified for the image to boot. Without this option, the verification
+will be optional (useful for testing but not for release).
+
 .SH EXAMPLES
 
 List image information:

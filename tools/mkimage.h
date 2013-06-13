@@ -90,6 +90,7 @@ struct mkimage_params {
 	const char *keydir;	/* Directory holding private keys */
 	const char *keydest;	/* Destination .dtb for public key */
 	const char *comment;	/* Comment to add to signature node */
+	int require_keys;	/* 1 to mark signing keys as 'required' */
 };
 
 /*

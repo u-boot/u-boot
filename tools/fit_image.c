@@ -152,10 +152,11 @@ static int fit_handle_file (struct mkimage_params *params)
 		goto err_mmap;
 
 	/* set hashes for images in the blob */
-	if (fit_add_verification_data(params->keydir, dest_blob, ptr,
-				      params->comment, 0)) {
-		fprintf (stderr, "%s Can't add hashes to FIT blob",
-			 params->cmdname);
+	if (fit_add_verification_data(params->keydir,
+				      dest_blob, ptr, params->comment,
+				      params->require_keys)) {
+		fprintf(stderr, "%s Can't add hashes to FIT blob\n",
+			params->cmdname);
 		goto err_add_hashes;
 	}
 
