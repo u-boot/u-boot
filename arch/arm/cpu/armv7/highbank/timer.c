@@ -46,8 +46,6 @@ int timer_init(void)
 	writel(SYSTIMER_EN | SYSTIMER_32BIT | SYSTIMER_PRESC_256,
 		&systimer_base->timer0control);
 
-	reset_timer_masked();
-
 	return 0;
 
 }
