@@ -124,5 +124,5 @@ ulong get_timer_masked(void)
 
 ulong get_tbclk(void)
 {
-	return CONFIG_SYS_HZ;
+	return SYSTIMER_RATE;
 }
