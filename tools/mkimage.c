@@ -183,6 +183,11 @@ main (int argc, char **argv)
 					genimg_get_arch_id (*++argv)) < 0)
 					usage ();
 				goto NXTARG;
+			case 'c':
+				if (--argc <= 0)
+					usage();
+				params.comment = *++argv;
+				goto NXTARG;
 			case 'C':
 				if ((--argc <= 0) ||
 					(params.comp =
@@ -640,9 +645,10 @@ usage ()
 	fprintf(stderr, "          -D => set options for device tree compiler\n"
 			"          -f => input filename for FIT source\n");
 #ifdef CONFIG_FIT_SIGNATURE
-	fprintf(stderr, "Signing / verified boot options: [-k keydir] [-K dtb]\n"
+	fprintf(stderr, "Signing / verified boot options: [-k keydir] [-K dtb] [ -c <comment>]\n"
 			"          -k => set directory containing private keys\n"
 			"          -K => write public keys to this .dtb file\n"
+			"          -c => add comment in signature node\n"
 			"          -F => re-sign existing FIT image\n");
 #else
 	fprintf(stderr, "Signing / verified boot not supported (CONFIG_FIT_SIGNATURE undefined)\n");

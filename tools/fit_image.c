@@ -153,9 +153,9 @@ static int fit_handle_file (struct mkimage_params *params)
 
 	/* set hashes for images in the blob */
 	if (fit_add_verification_data(params->keydir, dest_blob, ptr,
-				      NULL, 0)) {
+				      params->comment, 0)) {
 		fprintf (stderr, "%s Can't add hashes to FIT blob",
-				params->cmdname);
+			 params->cmdname);
 		goto err_add_hashes;
 	}
 
