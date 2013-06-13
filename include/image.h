@@ -766,12 +766,26 @@ int fit_image_hash_get_value(const void *fit, int noffset, uint8_t **value,
 int fit_set_timestamp(void *fit, int noffset, time_t timestamp);
 
 /**
- * fit_add_verification_data() - Calculate and add hashes to FIT
+ * fit_add_verification_data() - add verification data to FIT image nodes
  *
- * @fit:	Fit image to process
- * @return 0 if ok, <0 for error
+ * @keydir:	Directory containing keys
+ * @kwydest:	FDT blob to write public key information to
+ * @fit:	Pointer to the FIT format image header
+ * @comment:	Comment to add to signature nodes
+ * @require_keys: Mark all keys as 'required'
+ *
+ * Adds hash values for all component images in the FIT blob.
+ * Hashes are calculated for all component images which have hash subnodes
+ * with algorithm property set to one of the supported hash algorithms.
+ *
+ * Also add signatures if signature nodes are present.
+ *
+ * returns
+ *     0, on success
+ *     libfdt error code, on failure
  */
-int fit_add_verification_data(void *fit);
+int fit_add_verification_data(const char *keydir, void *keydest, void *fit,
+			      const char *comment, int require_keys);
 
 int fit_image_verify(const void *fit, int noffset);
 int fit_config_verify(const void *fit, int conf_noffset);
@@ -913,6 +927,43 @@ struct image_sig_algo {
  * @return pointer to algorithm information, or NULL if not found
  */
 struct image_sig_algo *image_get_sig_algo(const char *name);
+
+/**
+ * fit_image_verify_required_sigs() - Verify signatures marked as 'required'
+ *
+ * @fit:		FIT to check
+ * @image_noffset:	Offset of image node to check
+ * @data:		Image data to check
+ * @size:		Size of image data
+ * @sig_blob:		FDT containing public keys
+ * @no_sigsp:		Returns 1 if no signatures were required, and
+ *			therefore nothing was checked. The caller may wish
+ *			to fall back to other mechanisms, or refuse to
+ *			boot.
+ * @return 0 if all verified ok, <0 on error
+ */
+int fit_image_verify_required_sigs(const void *fit, int image_noffset,
+		const char *data, size_t size, const void *sig_blob,
+		int *no_sigsp);
+
+/**
+ * fit_image_check_sig() - Check a single image signature node
+ *
+ * @fit:		FIT to check
+ * @noffset:		Offset of signature node to check
+ * @data:		Image data to check
+ * @size:		Size of image data
+ * @required_keynode:	Offset in the control FDT of the required key node,
+ *			if any. If this is given, then the image wil not
+ *			pass verification unless that key is used. If this is
+ *			-1 then any signature will do.
+ * @err_msgp:		In the event of an error, this will be pointed to a
+ *			help error string to display to the user.
+ * @return 0 if all verified ok, <0 on error
+ */
+int fit_image_check_sig(const void *fit, int noffset, const void *data,
+		size_t size, int required_keynode, char **err_msgp);
+
 
 static inline int fit_image_check_target_arch(const void *fdt, int node)
 {

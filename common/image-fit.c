@@ -234,42 +234,45 @@ void fit_print_contents(const void *fit)
  * @fit: pointer to the FIT format image header
  * @noffset: offset of the hash node
  * @p: pointer to prefix string
+ * @type: Type of information to print ("hash" or "sign")
  *
  * fit_image_print_data() lists properies for the processed hash node
+ *
+ * This function avoid using puts() since it prints a newline on the host
+ * but does not in U-Boot.
  *
  * returns:
  *     no returned results
  */
-static void fit_image_print_data(const void *fit, int noffset, const char *p)
+static void fit_image_print_data(const void *fit, int noffset, const char *p,
+				 const char *type)
 {
-	char *algo;
+	const char *keyname;
 	uint8_t *value;
 	int value_len;
-	int i, ret;
+	char *algo;
+	int required;
+	int ret, i;
 
-	/*
-	 * Check subnode name, must be equal to "hash".
-	 * Multiple hash nodes require unique unit node
-	 * names, e.g. hash@1, hash@2, etc.
-	 */
-	if (strncmp(fit_get_name(fit, noffset, NULL),
-		    FIT_HASH_NODENAME,
-		    strlen(FIT_HASH_NODENAME)) != 0)
-		return;
-
-	debug("%s  Hash node:    '%s'\n", p,
+	debug("%s  %s node:    '%s'\n", p, type,
 	      fit_get_name(fit, noffset, NULL));
-
-	printf("%s  Hash algo:    ", p);
+	printf("%s  %s algo:    ", p, type);
 	if (fit_image_hash_get_algo(fit, noffset, &algo)) {
 		printf("invalid/unsupported\n");
 		return;
 	}
-	printf("%s\n", algo);
+	printf("%s", algo);
+	keyname = fdt_getprop(fit, noffset, "key-name-hint", NULL);
+	required = fdt_getprop(fit, noffset, "required", NULL) != NULL;
+	if (keyname)
+		printf(":%s", keyname);
+	if (required)
+		printf(" (required)");
+	printf("\n");
 
 	ret = fit_image_hash_get_value(fit, noffset, &value,
 					&value_len);
-	printf("%s  Hash value:   ", p);
+	printf("%s  %s value:   ", p, type);
 	if (ret) {
 		printf("unavailable\n");
 	} else {
@@ -278,7 +281,18 @@ static void fit_image_print_data(const void *fit, int noffset, const char *p)
 		printf("\n");
 	}
 
-	debug("%s  Hash len:     %d\n", p, value_len);
+	debug("%s  %s len:     %d\n", p, type, value_len);
+
+	/* Signatures have a time stamp */
+	if (IMAGE_ENABLE_TIMESTAMP && keyname) {
+		time_t timestamp;
+
+		printf("%s  Timestamp:    ", p);
+		if (fit_get_timestamp(fit, noffset, &timestamp))
+			printf("unavailable\n");
+		else
+			genimg_print_time(timestamp);
+	}
 }
 
 /**
@@ -303,8 +317,12 @@ static void fit_image_print_verification_data(const void *fit, int noffset,
 	 * names, e.g. hash@1, hash@2, signature@1, signature@2, etc.
 	 */
 	name = fit_get_name(fit, noffset, NULL);
-	if (!strncmp(name, FIT_HASH_NODENAME, strlen(FIT_HASH_NODENAME)))
-		fit_image_print_data(fit, noffset, p);
+	if (!strncmp(name, FIT_HASH_NODENAME, strlen(FIT_HASH_NODENAME))) {
+		fit_image_print_data(fit, noffset, p, "Hash");
+	} else if (!strncmp(name, FIT_SIG_NODENAME,
+				strlen(FIT_SIG_NODENAME))) {
+		fit_image_print_data(fit, noffset, p, "Sign");
+	}
 }
 
 /**
@@ -944,13 +962,23 @@ int fit_image_verify(const void *fit, int image_noffset)
 {
 	const void	*data;
 	size_t		size;
-	int		noffset;
+	int		noffset = 0;
 	char		*err_msg = "";
+	int verify_all = 1;
+	int ret;
 
 	/* Get image data and data length */
 	if (fit_image_get_data(fit, image_noffset, &data, &size)) {
 		err_msg = "Can't get image data/size";
-		return 0;
+		goto error;
+	}
+
+	/* Verify all required signatures */
+	if (IMAGE_ENABLE_VERIFY &&
+	    fit_image_verify_required_sigs(fit, image_noffset, data, size,
+					   gd_fdt_blob(), &verify_all)) {
+		err_msg = "Unable to verify required signature";
+		goto error;
 	}
 
 	/* Process all hash subnodes of the component image node */
@@ -970,6 +998,15 @@ int fit_image_verify(const void *fit, int image_noffset)
 						 &err_msg))
 				goto error;
 			puts("+ ");
+		} else if (IMAGE_ENABLE_VERIFY && verify_all &&
+				!strncmp(name, FIT_SIG_NODENAME,
+					strlen(FIT_SIG_NODENAME))) {
+			ret = fit_image_check_sig(fit, noffset, data,
+							size, -1, &err_msg);
+			if (ret)
+				puts("- ");
+			else
+				puts("+ ");
 		}
 	}
 
