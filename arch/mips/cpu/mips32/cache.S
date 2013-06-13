@@ -156,16 +156,16 @@ NESTED(mips_cache_reset, 0, ra)
 	 */
 	move	a1, t2
 	move	a2, t8
-	PTR_LA	t7, mips_init_icache
-	jalr	t7
+	PTR_LA	v1, mips_init_icache
+	jalr	v1
 
 	/*
 	 * then initialize D-cache.
 	 */
 	move	a1, t3
 	move	a2, t8
-	PTR_LA	t7, mips_init_dcache
-	jalr	t7
+	PTR_LA	v1, mips_init_dcache
+	jalr	v1
 
 	jr	RA
 	END(mips_cache_reset)
