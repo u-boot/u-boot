@@ -18,7 +18,7 @@
 #define CONFIG_SYS_MIPS_CACHE_MODE CONF_CM_CACHABLE_NONCOHERENT
 #endif
 
-#define RA		t8
+#define RA		t9
 
 /*
  * 16kB is the maximum size of instruction and data caches on MIPS 4K,
