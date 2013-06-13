@@ -109,6 +109,14 @@ Specifies the directory containing keys to use for signing. This directory
 should contain a private key file <name>.key for use with signing and a
 certificate <name>.crt (containing the public key) for use with verification.
 
+.TP
+.BI "\-K [" "key_destination" "]"
+Specifies a compiled device tree binary file (typically .dtb) to write
+public key information into. When a private key is used to sign an image,
+the corresponding public key is written into this file for for run-time
+verification. Typically the file here is the device tree binary used by
+CONFIG_OF_CONTROL in U-Boot.
+
 .SH EXAMPLES
 
 List image information:
@@ -126,6 +134,14 @@ Create legacy image with compressed PowerPC Linux kernel:
 Create FIT image with compressed PowerPC Linux kernel:
 .nf
 .B mkimage -f kernel.its kernel.itb
+.fi
+.P
+Create FIT image with compressed kernel and sign it with keys in the
+/public/signing-keys directory. Add corresponding public keys into u-boot.dtb,
+skipping those for which keys cannot be found. Also add a comment.
+.nf
+.B mkimage -f kernel.its -k /public/signing-keys -K u-boot.dtb \\\\
+-c "Kernel 3.8 image for production devices" kernel.itb
 .fi
 
 .SH HOMEPAGE

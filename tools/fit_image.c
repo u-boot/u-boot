@@ -105,9 +105,11 @@ static int fit_handle_file (struct mkimage_params *params)
 {
 	char tmpfile[MKIMAGE_MAX_TMPFILE_LEN];
 	char cmd[MKIMAGE_MAX_DTC_CMDLINE_LEN];
-	int tfd;
+	int tfd, destfd = 0;
+	void *dest_blob = NULL;
 	struct stat sbuf;
 	void *ptr;
+	off_t destfd_size = 0;
 
 	/* Flattened Image Tree (FIT) format  handling */
 	debug ("FIT format handling\n");
@@ -132,12 +134,20 @@ static int fit_handle_file (struct mkimage_params *params)
 		goto err_system;
 	}
 
+	if (params->keydest) {
+		destfd = mmap_fdt(params, params->keydest, &dest_blob, &sbuf);
+		if (destfd < 0)
+			goto err_keydest;
+		destfd_size = sbuf.st_size;
+	}
+
 	tfd = mmap_fdt(params, tmpfile, &ptr, &sbuf);
 	if (tfd < 0)
 		goto err_mmap;
 
 	/* set hashes for images in the blob */
-	if (fit_add_verification_data(params->keydir, NULL, ptr, NULL, 0)) {
+	if (fit_add_verification_data(params->keydir, dest_blob, ptr,
+				      NULL, 0)) {
 		fprintf (stderr, "%s Can't add hashes to FIT blob",
 				params->cmdname);
 		goto err_add_hashes;
@@ -153,6 +163,10 @@ static int fit_handle_file (struct mkimage_params *params)
 
 	munmap ((void *)ptr, sbuf.st_size);
 	close (tfd);
+	if (dest_blob) {
+		munmap(dest_blob, destfd_size);
+		close(destfd);
+	}
 
 	if (rename (tmpfile, params->imagefile) == -1) {
 		fprintf (stderr, "%s: Can't rename %s to %s: %s\n",
@@ -168,6 +182,9 @@ err_add_timestamp:
 err_add_hashes:
 	munmap(ptr, sbuf.st_size);
 err_mmap:
+	if (dest_blob)
+		munmap(dest_blob, destfd_size);
+err_keydest:
 err_system:
 	unlink(tmpfile);
 	return -1;

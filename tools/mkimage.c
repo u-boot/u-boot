@@ -253,6 +253,11 @@ main (int argc, char **argv)
 					usage();
 				params.keydir = *++argv;
 				goto NXTARG;
+			case 'K':
+				if (--argc <= 0)
+					usage();
+				params.keydest = *++argv;
+				goto NXTARG;
 			case 'n':
 				if (--argc <= 0)
 					usage ();
@@ -633,8 +638,9 @@ usage ()
 	fprintf(stderr, "          -D => set options for device tree compiler\n"
 			"          -f => input filename for FIT source\n");
 #ifdef CONFIG_FIT_SIGNATURE
-	fprintf(stderr, "Signing / verified boot options: [-k keydir]\n"
-			"          -k => set directory containing private keys\n");
+	fprintf(stderr, "Signing / verified boot options: [-k keydir] [-K dtb]\n"
+			"          -k => set directory containing private keys\n"
+			"          -K => write public keys to this .dtb file\n");
 #else
 	fprintf(stderr, "Signing / verified boot not supported (CONFIG_FIT_SIGNATURE undefined)\n");
 #endif

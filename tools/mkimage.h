@@ -88,6 +88,7 @@ struct mkimage_params {
 	char *imagefile;
 	char *cmdname;
 	const char *keydir;	/* Directory holding private keys */
+	const char *keydest;	/* Destination .dtb for public key */
 };
 
 /*
