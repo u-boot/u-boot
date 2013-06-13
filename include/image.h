@@ -46,6 +46,9 @@ struct lmb;
 #define CONFIG_OF_LIBFDT	1
 #define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
 
+/* Support FIT image signing on host */
+#define CONFIG_FIT_SIGNATURE
+
 #define IMAGE_ENABLE_IGNORE	0
 #define IMAGE_INDENT_STRING	""
 
@@ -670,11 +673,12 @@ int image_setup_linux(bootm_headers_t *images);
 #define FIT_IMAGES_PATH		"/images"
 #define FIT_CONFS_PATH		"/configurations"
 
-/* hash node */
+/* hash/signature node */
 #define FIT_HASH_NODENAME	"hash"
 #define FIT_ALGO_PROP		"algo"
 #define FIT_VALUE_PROP		"value"
 #define FIT_IGNORE_PROP		"uboot-ignore"
+#define FIT_SIG_NODENAME	"signature"
 
 /* image node */
 #define FIT_DATA_PROP		"data"
@@ -804,15 +808,19 @@ int calculate_hash(const void *data, int data_len, const char *algo,
 			uint8_t *value, int *value_len);
 
 /*
- * At present we only support verification on the device
+ * At present we only support signing on the host, and verification on the
+ * device
  */
 #if defined(CONFIG_FIT_SIGNATURE)
 # ifdef USE_HOSTCC
+#  define IMAGE_ENABLE_SIGN	1
 #  define IMAGE_ENABLE_VERIFY	0
 #else
+#  define IMAGE_ENABLE_SIGN	0
 #  define IMAGE_ENABLE_VERIFY	1
 # endif
 #else
+# define IMAGE_ENABLE_SIGN	0
 # define IMAGE_ENABLE_VERIFY	0
 #endif
 
@@ -827,6 +835,84 @@ int calculate_hash(const void *data, int data_len, const char *algo,
 #else
 #define IMAGE_ENABLE_BEST_MATCH	0
 #endif
+
+/* Information passed to the signing routines */
+struct image_sign_info {
+	const char *keydir;		/* Directory conaining keys */
+	const char *keyname;		/* Name of key to use */
+	void *fit;			/* Pointer to FIT blob */
+	int node_offset;		/* Offset of signature node */
+	struct image_sig_algo *algo;	/* Algorithm information */
+	const void *fdt_blob;		/* FDT containing public keys */
+	int required_keynode;		/* Node offset of key to use: -1=any */
+	const char *require_keys;	/* Value for 'required' property */
+};
+
+/* A part of an image, used for hashing */
+struct image_region {
+	const void *data;
+	int size;
+};
+
+struct image_sig_algo {
+	const char *name;		/* Name of algorithm */
+
+	/**
+	 * sign() - calculate and return signature for given input data
+	 *
+	 * @info:	Specifies key and FIT information
+	 * @data:	Pointer to the input data
+	 * @data_len:	Data length
+	 * @sigp:	Set to an allocated buffer holding the signature
+	 * @sig_len:	Set to length of the calculated hash
+	 *
+	 * This computes input data signature according to selected algorithm.
+	 * Resulting signature value is placed in an allocated buffer, the
+	 * pointer is returned as *sigp. The length of the calculated
+	 * signature is returned via the sig_len pointer argument. The caller
+	 * should free *sigp.
+	 *
+	 * @return: 0, on success, -ve on error
+	 */
+	int (*sign)(struct image_sign_info *info,
+		    const struct image_region region[],
+		    int region_count, uint8_t **sigp, uint *sig_len);
+
+	/**
+	 * add_verify_data() - Add verification information to FDT
+	 *
+	 * Add public key information to the FDT node, suitable for
+	 * verification at run-time. The information added depends on the
+	 * algorithm being used.
+	 *
+	 * @info:	Specifies key and FIT information
+	 * @keydest:	Destination FDT blob for public key data
+	 * @return: 0, on success, -ve on error
+	 */
+	int (*add_verify_data)(struct image_sign_info *info, void *keydest);
+
+	/**
+	 * verify() - Verify a signature against some data
+	 *
+	 * @info:	Specifies key and FIT information
+	 * @data:	Pointer to the input data
+	 * @data_len:	Data length
+	 * @sig:	Signature
+	 * @sig_len:	Number of bytes in signature
+	 * @return 0 if verified, -ve on error
+	 */
+	int (*verify)(struct image_sign_info *info,
+		      const struct image_region region[], int region_count,
+		      uint8_t *sig, uint sig_len);
+};
+
+/**
+ * image_get_sig_algo() - Look up a signature algortihm
+ *
+ * @param name		Name of algorithm
+ * @return pointer to algorithm information, or NULL if not found
+ */
+struct image_sig_algo *image_get_sig_algo(const char *name);
 
 static inline int fit_image_check_target_arch(const void *fdt, int node)
 {
