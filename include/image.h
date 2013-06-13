@@ -964,6 +964,22 @@ int fit_image_verify_required_sigs(const void *fit, int image_noffset,
 int fit_image_check_sig(const void *fit, int noffset, const void *data,
 		size_t size, int required_keynode, char **err_msgp);
 
+/**
+ * fit_region_make_list() - Make a list of regions to hash
+ *
+ * Given a list of FIT regions (offset, size) provided by libfdt, create
+ * a list of regions (void *, size) for use by the signature creationg
+ * and verification code.
+ *
+ * @fit:		FIT image to process
+ * @fdt_regions:	Regions as returned by libfdt
+ * @count:		Number of regions returned by libfdt
+ * @region:		Place to put list of regions (NULL to allocate it)
+ * @return pointer to list of regions, or NULL if out of memory
+ */
+struct image_region *fit_region_make_list(const void *fit,
+		struct fdt_region *fdt_regions, int count,
+		struct image_region *region);
 
 static inline int fit_image_check_target_arch(const void *fdt, int node)
 {
