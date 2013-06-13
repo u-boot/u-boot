@@ -1193,7 +1193,7 @@ static int lcd_dt_simplefb_configure_node(void *blob, int off)
 	u32 stride;
 	fdt32_t cells[2];
 	int ret;
-	const char format[] =
+	static const char format[] =
 #if LCD_BPP == LCD_COLOR16
 		"r5g6b5";
 #else
@@ -1239,8 +1239,8 @@ static int lcd_dt_simplefb_configure_node(void *blob, int off)
 
 int lcd_dt_simplefb_add_node(void *blob)
 {
-	const char compat[] = "simple-framebuffer";
-	const char disabled[] = "disabled";
+	static const char compat[] = "simple-framebuffer";
+	static const char disabled[] = "disabled";
 	int off, ret;
 
 	off = fdt_add_subnode(blob, 0, "framebuffer");
