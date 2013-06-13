@@ -50,13 +50,13 @@ relocate_code:
 	move	s2, a2			# save destination address in s2
 
 	li	t0, CONFIG_SYS_MONITOR_BASE
-	sub	t6, s2, t0		# t6 <-- relocation offset
+	sub	s1, s2, t0		# s1 <-- relocation offset
 
 	la	t3, in_ram
 	lw	t2, -12(t3)		# t2 <-- __image_copy_end
 	move	t1, a2
 
-	add	gp, t6			# adjust gp
+	add	gp, s1			# adjust gp
 
 	/*
 	 * t0 = source address
@@ -117,13 +117,13 @@ in_ram:
 	 */
 	lw	t3, -4(t0)		# t3 <-- num_got_entries
 	lw	t4, -8(t0)		# t4 <-- _GLOBAL_OFFSET_TABLE_
-	add	t4, t6			# t4 now holds relocated _G_O_T_
+	add	t4, s1			# t4 now holds relocated _G_O_T_
 	addi	t4, t4, 8		# skipping first two entries
 	li	t2, 2
 1:
 	lw	t1, 0(t4)
 	beqz	t1, 2f
-	 add	t1, t6
+	 add	t1, s1
 	sw	t1, 0(t4)
 2:
 	addi	t2, 1
@@ -147,9 +147,9 @@ in_ram:
 	lw	t3, -8(t1)		# t3 <-- location to fix up in FLASH
 
 	lw	t4, 0(t3)		# t4 <-- original pointer
-	add	t4, t6			# t4 <-- adjusted pointer
+	add	t4, s1			# t4 <-- adjusted pointer
 
-	add	t3, t6			# t3 <-- location to fix up in RAM
+	add	t3, s1			# t3 <-- location to fix up in RAM
 	sw	t4, 0(t3)
 
 2:
