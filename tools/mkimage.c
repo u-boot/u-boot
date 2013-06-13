@@ -248,6 +248,11 @@ main (int argc, char **argv)
 				params.datafile = *++argv;
 				params.fflag = 1;
 				goto NXTARG;
+			case 'k':
+				if (--argc <= 0)
+					usage();
+				params.keydir = *++argv;
+				goto NXTARG;
 			case 'n':
 				if (--argc <= 0)
 					usage ();
@@ -623,8 +628,16 @@ usage ()
 			 "          -d ==> use image data from 'datafile'\n"
 			 "          -x ==> set XIP (execute in place)\n",
 		params.cmdname);
-	fprintf (stderr, "       %s [-D dtc_options] -f fit-image.its fit-image\n",
+	fprintf(stderr, "       %s [-D dtc_options] -f fit-image.its fit-image\n",
 		params.cmdname);
+	fprintf(stderr, "          -D => set options for device tree compiler\n"
+			"          -f => input filename for FIT source\n");
+#ifdef CONFIG_FIT_SIGNATURE
+	fprintf(stderr, "Signing / verified boot options: [-k keydir]\n"
+			"          -k => set directory containing private keys\n");
+#else
+	fprintf(stderr, "Signing / verified boot not supported (CONFIG_FIT_SIGNATURE undefined)\n");
+#endif
 	fprintf (stderr, "       %s -V ==> print version information and exit\n",
 		params.cmdname);
 

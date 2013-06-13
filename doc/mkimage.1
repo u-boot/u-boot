@@ -4,7 +4,14 @@
 mkimage \- Generate image for U-Boot
 .SH SYNOPSIS
 .B mkimage
-.RB [\fIoptions\fP]
+.RB "\-l [" "uimage file name" "]"
+
+.B mkimage
+.RB [\fIoptions\fP] " \-f [" "image tree source file" "]" " [" "uimage file name" "]"
+
+.B mkimage
+.RB [\fIoptions\fP] " (legacy mode)"
+
 .SH "DESCRIPTION"
 The
 .B mkimage
@@ -26,7 +33,8 @@ etc.
 The new
 .I FIT (Flattened Image Tree) format
 allows for more flexibility in handling images of various types and also
-enhances integrity protection of images with stronger checksums.
+enhances integrity protection of images with stronger checksums. It also
+supports verified boot.
 
 .SH "OPTIONS"
 
@@ -67,6 +75,10 @@ Set load address with a hex number.
 Set entry point with a hex number.
 
 .TP
+.BI "\-l"
+List the contents of an image.
+
+.TP
 .BI "\-n [" "image name" "]"
 Set image name to 'image name'.
 
@@ -90,6 +102,12 @@ create the image.
 .BI "\-f [" "image tree source file" "]"
 Image tree source file that describes the structure and contents of the
 FIT image.
+
+.TP
+.BI "\-k [" "key_directory" "]"
+Specifies the directory containing keys to use for signing. This directory
+should contain a private key file <name>.key for use with signing and a
+certificate <name>.crt (containing the public key) for use with verification.
 
 .SH EXAMPLES
 
@@ -115,4 +133,5 @@ http://www.denx.de/wiki/U-Boot/WebHome
 .PP
 .SH AUTHOR
 This manual page was written by Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-and Wolfgang Denk <wd@denx.de>
+and Wolfgang Denk <wd@denx.de>. It was updated for image signing by
+Simon Glass <sjg@chromium.org>.
