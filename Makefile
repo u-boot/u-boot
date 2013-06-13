@@ -247,6 +247,7 @@ OBJS := $(addprefix $(obj),$(OBJS))
 HAVE_VENDOR_COMMON_LIB = $(if $(wildcard board/$(VENDOR)/common/Makefile),y,n)
 
 LIBS-y += lib/libgeneric.o
+LIBS-y += lib/rsa/librsa.o
 LIBS-y += lib/lzma/liblzma.o
 LIBS-y += lib/lzo/liblzo.o
 LIBS-y += lib/zlib/libz.o

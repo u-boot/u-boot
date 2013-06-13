@@ -27,8 +27,15 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif /* !USE_HOSTCC*/
 #include <errno.h>
 #include <image.h>
+#include <rsa.h>
 
 struct image_sig_algo image_sig_algos[] = {
+	{
+		"sha1,rsa2048",
+		rsa_sign,
+		rsa_add_verify_data,
+		rsa_verify,
+	}
 };
 
 struct image_sig_algo *image_get_sig_algo(const char *name)

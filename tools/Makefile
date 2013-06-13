@@ -125,6 +125,9 @@ LIBFDT_OBJ_FILES-y += fdt_rw.o
 LIBFDT_OBJ_FILES-y += fdt_strerror.o
 LIBFDT_OBJ_FILES-y += fdt_wip.o
 
+# RSA objects
+RSA_OBJ_FILES-y += rsa-sign.o
+
 # Generated LCD/video logo
 LOGO_H = $(OBJTREE)/include/bmp_logo.h
 LOGO_DATA_H = $(OBJTREE)/include/bmp_logo_data.h
@@ -152,8 +155,10 @@ endif # !LOGO_BMP
 HOSTSRCS += $(addprefix $(SRCTREE)/,$(EXT_OBJ_FILES-y:.o=.c))
 HOSTSRCS += $(addprefix $(SRCTREE)/tools/,$(OBJ_FILES-y:.o=.c))
 HOSTSRCS += $(addprefix $(SRCTREE)/lib/libfdt/,$(LIBFDT_OBJ_FILES-y:.o=.c))
+HOSTSRCS += $(addprefix $(SRCTREE)/lib/rsa/,$(RSA_OBJ_FILES-y:.o=.c))
 BINS	:= $(addprefix $(obj),$(sort $(BIN_FILES-y)))
 LIBFDT_OBJS	:= $(addprefix $(obj),$(LIBFDT_OBJ_FILES-y))
+RSA_OBJS	:= $(addprefix $(obj),$(RSA_OBJ_FILES-y))
 
 # We cannot check CONFIG_FIT_SIGNATURE here since it is not set on the host
 FIT_SIG_OBJ_FILES	:= image-sig.o
@@ -228,8 +233,9 @@ $(obj)mkimage$(SFX):	$(obj)aisimage.o \
 			$(obj)omapimage.o \
 			$(obj)sha1.o \
 			$(obj)ublimage.o \
-			$(LIBFDT_OBJS)
-	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
+			$(LIBFDT_OBJS) \
+			$(RSA_OBJS)
+	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^ $(HOSTLIBS)
 	$(HOSTSTRIP) $@
 
 $(obj)mk$(BOARD)spl$(SFX):	$(obj)mkexynosspl.o
@@ -263,6 +269,9 @@ $(obj)%.o: $(SRCTREE)/lib/%.c
 	$(HOSTCC) -g $(HOSTCFLAGS) -c -o $@ $<
 
 $(obj)%.o: $(SRCTREE)/lib/libfdt/%.c
+	$(HOSTCC) -g $(HOSTCFLAGS_NOPED) -c -o $@ $<
+
+$(obj)%.o: $(SRCTREE)/lib/rsa/%.c
 	$(HOSTCC) -g $(HOSTCFLAGS_NOPED) -c -o $@ $<
 
 subdirs:

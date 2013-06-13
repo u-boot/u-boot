@@ -96,6 +96,7 @@ HOSTCFLAGS	+= $(call os_x_before, 10, 4, "-traditional-cpp")
 HOSTLDFLAGS	+= $(call os_x_before, 10, 5, "-multiply_defined suppress")
 else
 HOSTCC		= gcc
+HOSTLIBS	+= -lssl -lcrypto
 endif
 
 ifeq ($(HOSTOS),cygwin)

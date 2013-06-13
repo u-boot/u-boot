@@ -2581,6 +2581,16 @@ CBFS (Coreboot Filesystem) support
 		Note: There is also a sha1sum command, which should perhaps
 		be deprecated in favour of 'hash sha1'.
 
+- Signing support:
+		CONFIG_RSA
+
+		This enables the RSA algorithm used for FIT image verification
+		in U-Boot. See doc/uImage/signature for more information.
+
+		The signing part is build into mkimage regardless of this
+		option.
+
+
 - Show boot progress:
 		CONFIG_SHOW_BOOT_PROGRESS
 
