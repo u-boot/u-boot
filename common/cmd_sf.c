@@ -234,7 +234,7 @@ static int do_spi_flash_read_write(int argc, char * const argv[])
 	unsigned long len;
 	void *buf;
 	char *endp;
-	int ret;
+	int ret = 1;
 
 	if (argc < 4)
 		return -1;
@@ -264,19 +264,23 @@ static int do_spi_flash_read_write(int argc, char * const argv[])
 
 	if (strcmp(argv[0], "update") == 0)
 		ret = spi_flash_update(flash, offset, len, buf);
-	else if (strcmp(argv[0], "read") == 0)
-		ret = spi_flash_read(flash, offset, len, buf);
-	else
-		ret = spi_flash_write(flash, offset, len, buf);
+	else if (strncmp(argv[0], "read", 4) == 0 ||
+			strncmp(argv[0], "write", 5) == 0) {
+		int read;
+
+		read = strncmp(argv[0], "read", 4) == 0;
+		if (read)
+			ret = spi_flash_read(flash, offset, len, buf);
+		else
+			ret = spi_flash_write(flash, offset, len, buf);
+
+		printf("SF: %zu bytes @ %#x %s: %s\n", (size_t)len, (u32)offset,
+			read ? "Read" : "Written", ret ? "ERROR" : "OK");
+	}
 
 	unmap_physmem(buf, len);
 
-	if (ret) {
-		printf("SPI flash %s failed\n", argv[0]);
-		return 1;
-	}
-
-	return 0;
+	return ret == 0 ? 0 : 1;
 }
 
 static int do_spi_flash_erase(int argc, char * const argv[])
@@ -305,12 +309,10 @@ static int do_spi_flash_erase(int argc, char * const argv[])
 	}
 
 	ret = spi_flash_erase(flash, offset, len);
-	if (ret) {
-		printf("SPI flash %s failed\n", argv[0]);
-		return 1;
-	}
+	printf("SF: %zu bytes @ %#x Erased: %s\n", (size_t)len, (u32)offset,
+			ret ? "ERROR" : "OK");
 
-	return 0;
+	return ret == 0 ? 0 : 1;
 }
 
 #ifdef CONFIG_CMD_SF_TEST

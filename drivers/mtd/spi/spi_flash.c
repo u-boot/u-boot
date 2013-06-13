@@ -124,9 +124,6 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 		}
 	}
 
-	debug("SF: program %s %zu bytes @ %#x\n",
-	      ret ? "failure" : "success", len, offset);
-
 	spi_release_bus(flash->spi);
 	return ret;
 }
@@ -150,8 +147,10 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 	u8 cmd[5];
 
 	/* Handle memory-mapped SPI */
-	if (flash->memory_map)
+	if (flash->memory_map) {
 		memcpy(data, flash->memory_map + offset, len);
+		return 0;
+	}
 
 	cmd[0] = CMD_READ_ARRAY_FAST;
 	spi_flash_addr(offset, cmd);
@@ -205,7 +204,7 @@ int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
 
 int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
-	u32 start, end, erase_size;
+	u32 end, erase_size;
 	int ret;
 	u8 cmd[4];
 
@@ -225,8 +224,7 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 		cmd[0] = CMD_ERASE_4K;
 	else
 		cmd[0] = CMD_ERASE_64K;
-	start = offset;
-	end = start + len;
+	end = offset + len;
 
 	while (offset < end) {
 		spi_flash_addr(offset, cmd);
@@ -247,8 +245,6 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 		if (ret)
 			goto out;
 	}
-
-	debug("SF: Successfully erased %zu bytes @ %#x\n", len, start);
 
  out:
 	spi_release_bus(flash->spi);
