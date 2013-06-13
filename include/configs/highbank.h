@@ -85,6 +85,9 @@
 #define CONFIG_MENU
 
 #define CONFIG_BOOTDELAY		2
+#define CONFIG_BOOT_RETRY_TIME		-1
+#define CONFIG_RESET_TO_RETRY
+
 /*
  * Miscellaneous configurable options
  */
