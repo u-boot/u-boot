@@ -178,6 +178,8 @@
 			"setenv fdtfile omap4-sdp.dtb; fi; " \
 		"if test $board_name = panda; then " \
 			"setenv fdtfile omap4-panda.dtb; fi;" \
+		"if test $board_name = panda-a4; then " \
+			"setenv fdtfile omap4-panda-a4.dtb; fi;" \
 		"if test $board_name = panda-es; then " \
 			"setenv fdtfile omap4-panda-es.dtb; fi;" \
 		"if test $fdtfile = undefined; then " \
