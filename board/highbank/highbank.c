@@ -62,6 +62,7 @@ int board_eth_init(bd_t *bis)
 	return rc;
 }
 
+#ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
 	char envbuffer[16];
@@ -83,6 +84,7 @@ int misc_init_r(void)
 
 	return 0;
 }
+#endif
 
 int dram_init(void)
 {
