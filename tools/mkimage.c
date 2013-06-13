@@ -240,12 +240,14 @@ main (int argc, char **argv)
 			case 'f':
 				if (--argc <= 0)
 					usage ();
+				params.datafile = *++argv;
+				/* no break */
+			case 'F':
 				/*
 				 * The flattened image tree (FIT) format
 				 * requires a flattened device tree image type
 				 */
 				params.type = IH_TYPE_FLATDT;
-				params.datafile = *++argv;
 				params.fflag = 1;
 				goto NXTARG;
 			case 'k':
@@ -633,14 +635,15 @@ usage ()
 			 "          -d ==> use image data from 'datafile'\n"
 			 "          -x ==> set XIP (execute in place)\n",
 		params.cmdname);
-	fprintf(stderr, "       %s [-D dtc_options] -f fit-image.its fit-image\n",
+	fprintf(stderr, "       %s [-D dtc_options] [-f fit-image.its|-F] fit-image\n",
 		params.cmdname);
 	fprintf(stderr, "          -D => set options for device tree compiler\n"
 			"          -f => input filename for FIT source\n");
 #ifdef CONFIG_FIT_SIGNATURE
 	fprintf(stderr, "Signing / verified boot options: [-k keydir] [-K dtb]\n"
 			"          -k => set directory containing private keys\n"
-			"          -K => write public keys to this .dtb file\n");
+			"          -K => write public keys to this .dtb file\n"
+			"          -F => re-sign existing FIT image\n");
 #else
 	fprintf(stderr, "Signing / verified boot not supported (CONFIG_FIT_SIGNATURE undefined)\n");
 #endif

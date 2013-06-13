@@ -124,10 +124,16 @@ static int fit_handle_file (struct mkimage_params *params)
 	}
 	sprintf (tmpfile, "%s%s", params->imagefile, MKIMAGE_TMPFILE_SUFFIX);
 
-	/* dtc -I dts -O dtb -p 500 datafile > tmpfile */
-	sprintf (cmd, "%s %s %s > %s",
-		MKIMAGE_DTC, params->dtc, params->datafile, tmpfile);
-	debug ("Trying to execute \"%s\"\n", cmd);
+	/* We either compile the source file, or use the existing FIT image */
+	if (params->datafile) {
+		/* dtc -I dts -O dtb -p 500 datafile > tmpfile */
+		snprintf(cmd, sizeof(cmd), "%s %s %s > %s",
+			 MKIMAGE_DTC, params->dtc, params->datafile, tmpfile);
+		debug("Trying to execute \"%s\"\n", cmd);
+	} else {
+		snprintf(cmd, sizeof(cmd), "cp %s %s",
+			 params->imagefile, tmpfile);
+	}
 	if (system (cmd) == -1) {
 		fprintf (stderr, "%s: system(%s) failed: %s\n",
 				params->cmdname, cmd, strerror(errno));
@@ -153,8 +159,8 @@ static int fit_handle_file (struct mkimage_params *params)
 		goto err_add_hashes;
 	}
 
-	/* add a timestamp at offset 0 i.e., root  */
-	if (fit_set_timestamp (ptr, 0, sbuf.st_mtime)) {
+	/* for first image creation, add a timestamp at offset 0 i.e., root  */
+	if (params->datafile && fit_set_timestamp(ptr, 0, sbuf.st_mtime)) {
 		fprintf (stderr, "%s: Can't add image timestamp\n",
 				params->cmdname);
 		goto err_add_timestamp;
