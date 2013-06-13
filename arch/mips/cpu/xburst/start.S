@@ -47,8 +47,10 @@ _start:
 relocate_code:
 	move	sp, a0			# set new stack pointer
 
+	move	s2, a2			# save destination address in s2
+
 	li	t0, CONFIG_SYS_MONITOR_BASE
-	sub	t6, a2, t0		# t6 <-- relocation offset
+	sub	t6, s2, t0		# t6 <-- relocation offset
 
 	la	t3, in_ram
 	lw	t2, -12(t3)		# t2 <-- __image_copy_end
@@ -96,7 +98,7 @@ relocate_code:
 	nop
 
 	/* Jump to where we've relocated ourselves */
-	addi	t0, a2, in_ram - _start
+	addi	t0, s2, in_ram - _start
 	jr	t0
 	 nop
 
@@ -171,6 +173,6 @@ in_ram:
 	move	a0, a1			# a0 <-- gd
 	la	t9, board_init_r
 	jr	t9
-	 move	a1, a2
+	 move	a1, s2
 
 	.end	relocate_code
