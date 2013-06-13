@@ -174,7 +174,7 @@ int misc_init_r(void)
 		auxclk |= AUXCLK_ENABLE_MASK;
 
 		writel(auxclk, &scrm->auxclk3);
-       } else {
+	} else {
 		/* ULPI PHY supplied by auxclk1 derived from PER dpll */
 		debug("ULPI PHY supplied by auxclk1\n");
 
@@ -219,9 +219,9 @@ void set_muxconf_regs_essential(void)
 
 	if (omap_revision() >= OMAP4460_ES1_0)
 		do_set_mux((*ctrl)->control_padconf_wkup_base,
-				 wkup_padconf_array_essential_4460,
-				 sizeof(wkup_padconf_array_essential_4460) /
-				 sizeof(struct pad_conf_entry));
+			   wkup_padconf_array_essential_4460,
+			   sizeof(wkup_padconf_array_essential_4460) /
+			   sizeof(struct pad_conf_entry));
 }
 
 void set_muxconf_regs_non_essential(void)
@@ -233,14 +233,14 @@ void set_muxconf_regs_non_essential(void)
 
 	if (omap_revision() < OMAP4460_ES1_0)
 		do_set_mux((*ctrl)->control_padconf_core_base,
-				core_padconf_array_non_essential_4430,
-				sizeof(core_padconf_array_non_essential_4430) /
-				sizeof(struct pad_conf_entry));
+			   core_padconf_array_non_essential_4430,
+			   sizeof(core_padconf_array_non_essential_4430) /
+			   sizeof(struct pad_conf_entry));
 	else
 		do_set_mux((*ctrl)->control_padconf_core_base,
-				core_padconf_array_non_essential_4460,
-				sizeof(core_padconf_array_non_essential_4460) /
-				sizeof(struct pad_conf_entry));
+			   core_padconf_array_non_essential_4460,
+			   sizeof(core_padconf_array_non_essential_4460) /
+			   sizeof(struct pad_conf_entry));
 
 	do_set_mux((*ctrl)->control_padconf_wkup_base,
 		   wkup_padconf_array_non_essential,
@@ -249,9 +249,9 @@ void set_muxconf_regs_non_essential(void)
 
 	if (omap_revision() < OMAP4460_ES1_0)
 		do_set_mux((*ctrl)->control_padconf_wkup_base,
-				wkup_padconf_array_non_essential_4430,
-				sizeof(wkup_padconf_array_non_essential_4430) /
-				sizeof(struct pad_conf_entry));
+			   wkup_padconf_array_non_essential_4430,
+			   sizeof(wkup_padconf_array_non_essential_4430) /
+			   sizeof(struct pad_conf_entry));
 }
 
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_GENERIC_MMC)
