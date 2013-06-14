@@ -171,7 +171,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	volatile qspi_t *qspi = dev->regs;
 	u8 *txbuf = (u8 *)dout;
 	u8 *rxbuf = (u8 *)din;
-	u32 count = ((bitlen / 8) + (bitlen % 8 ? 1 : 0));
+	u32 count = DIV_ROUND_UP(bitlen, 8);
 	u32 n, i = 0;
 
 	/* Sanitize arguments */
