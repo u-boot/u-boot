@@ -114,7 +114,7 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 			return ret;
 		}
 
-		byte_addr = write_addr % page_size;
+		byte_addr = offset % page_size;
 
 		chunk_len = min(len - actual, page_size - byte_addr);
 
