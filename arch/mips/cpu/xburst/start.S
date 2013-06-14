@@ -139,10 +139,10 @@ in_ram:
 	 addi	t1, 8
 
 1:
-	lw	t3, -4(t1)		# t3 <-- relocation info
+	lw	t8, -4(t1)		# t8 <-- relocation info
 
-	sub	t3, 3
-	bnez	t3, 2f			# skip non R_MIPS_REL32 entries
+	li	t3, 3
+	bne	t8, t3, 2f		# skip non R_MIPS_REL32 entries
 	 nop
 
 	lw	t3, -8(t1)		# t3 <-- location to fix up in FLASH
