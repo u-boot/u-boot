@@ -61,12 +61,12 @@
 
 /*
  * Environment in eMMC, at the end of 2nd "boot sector". Note: This assumes
- * the user plugged the standard 8MB MoviNAND card into J29/HSMMC/POP. If
+ * the user plugged the standard 8GB MoviNAND card into J29/HSMMC/POP. If
  * they didn't, the boot sector layout may be different. However, use of that
  * particular card is standard practice as far as I know.
  */
 #define CONFIG_ENV_IS_IN_MMC
-#define CONFIG_ENV_OFFSET ((512 * 1024) - CONFIG_ENV_SIZE)
+#define CONFIG_ENV_OFFSET (-CONFIG_ENV_SIZE)
 #define CONFIG_SYS_MMC_ENV_DEV 0
 #define CONFIG_SYS_MMC_ENV_PART 2
 

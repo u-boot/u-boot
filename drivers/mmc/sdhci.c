@@ -486,8 +486,10 @@ int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 		mmc->voltages |= host->voltages;
 
 	mmc->host_caps = MMC_MODE_HS | MMC_MODE_HS_52MHz | MMC_MODE_4BIT;
-	if (caps & SDHCI_CAN_DO_8BIT)
-		mmc->host_caps |= MMC_MODE_8BIT;
+	if ((host->version & SDHCI_SPEC_VER_MASK) >= SDHCI_SPEC_300) {
+		if (caps & SDHCI_CAN_DO_8BIT)
+			mmc->host_caps |= MMC_MODE_8BIT;
+	}
 	if (host->host_caps)
 		mmc->host_caps |= host->host_caps;
 

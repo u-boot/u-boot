@@ -53,11 +53,19 @@ DECLARE_GLOBAL_DATA_PTR;
 
 __weak int mmc_get_env_addr(struct mmc *mmc, int copy, u32 *env_addr)
 {
-	*env_addr = CONFIG_ENV_OFFSET;
+	s64 offset;
+
+	offset = CONFIG_ENV_OFFSET;
 #ifdef CONFIG_ENV_OFFSET_REDUND
 	if (copy)
-		*env_addr = CONFIG_ENV_OFFSET_REDUND;
+		offset = CONFIG_ENV_OFFSET_REDUND;
 #endif
+
+	if (offset < 0)
+		offset += mmc->capacity;
+
+	*env_addr = offset;
+
 	return 0;
 }
 
