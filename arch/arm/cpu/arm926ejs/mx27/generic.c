@@ -380,3 +380,11 @@ void mx27_sd2_init_pins(void)
 
 }
 #endif /* CONFIG_MXC_MMC */
+
+#ifndef CONFIG_SYS_DCACHE_OFF
+void enable_caches(void)
+{
+	/* Enable D-cache. I-cache is already enabled in start.S */
+	dcache_enable();
+}
+#endif /* CONFIG_SYS_DCACHE_OFF */
