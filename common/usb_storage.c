@@ -170,9 +170,9 @@ int usb_stor_get_info(struct usb_device *dev, struct us_data *us,
 		      block_dev_desc_t *dev_desc);
 int usb_storage_probe(struct usb_device *dev, unsigned int ifnum,
 		      struct us_data *ss);
-unsigned long usb_stor_read(int device, unsigned long blknr,
+unsigned long usb_stor_read(int device, lbaint_t blknr,
 			    lbaint_t blkcnt, void *buffer);
-unsigned long usb_stor_write(int device, unsigned long blknr,
+unsigned long usb_stor_write(int device, lbaint_t blknr,
 			     lbaint_t blkcnt, const void *buffer);
 struct usb_device * usb_get_dev_index(int index);
 void uhci_show_temp_int_td(void);
@@ -1054,7 +1054,7 @@ static void usb_bin_fixup(struct usb_device_descriptor descriptor,
 }
 #endif /* CONFIG_USB_BIN_FIXUP */
 
-unsigned long usb_stor_read(int device, unsigned long blknr,
+unsigned long usb_stor_read(int device, lbaint_t blknr,
 			    lbaint_t blkcnt, void *buffer)
 {
 	lbaint_t start, blks;
@@ -1127,7 +1127,7 @@ retry_it:
 	return blkcnt;
 }
 
-unsigned long usb_stor_write(int device, unsigned long blknr,
+unsigned long usb_stor_write(int device, lbaint_t blknr,
 				lbaint_t blkcnt, const void *buffer)
 {
 	lbaint_t start, blks;

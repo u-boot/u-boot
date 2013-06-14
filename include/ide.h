@@ -54,8 +54,9 @@ typedef ulong lbaint_t;
  */
 
 void ide_init(void);
-ulong ide_read(int device, ulong blknr, lbaint_t blkcnt, void *buffer);
-ulong ide_write(int device, ulong blknr, lbaint_t blkcnt, const void *buffer);
+ulong ide_read(int device, lbaint_t blknr, lbaint_t blkcnt, void *buffer);
+ulong ide_write(int device, lbaint_t blknr, lbaint_t blkcnt,
+		const void *buffer);
 
 #ifdef CONFIG_IDE_PREINIT
 int ide_preinit(void);
