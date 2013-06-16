@@ -1557,7 +1557,7 @@ int fit_image_load(bootm_headers_t *images, const char *prop_name, ulong addr,
 	if (fit_image_get_data(fit, noffset, &buf, &size)) {
 		printf("Could not find %s subimage data!\n", prop_name);
 		bootstage_error(bootstage_id + BOOTSTAGE_SUB_GET_DATA);
-		return -ENOMEDIUM;
+		return -ENOENT;
 	}
 	len = (ulong)size;
 
