@@ -21,16 +21,11 @@
  */
 
 #include <splash.h>
-#include <config.h>
 
-#ifdef CONFIG_SPLASH_SCREEN_PREPARE
-int splash_screen_prepare(void)
-{
-	return board_splash_screen_prepare();
-}
-#else
-int splash_screen_prepare(void)
+int __splash_screen_prepare(void)
 {
 	return 0;
 }
-#endif
+
+int splash_screen_prepare(void)
+	__attribute__ ((weak, alias("__splash_screen_prepare")));
