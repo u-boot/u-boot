@@ -36,6 +36,7 @@
 #define ZYNQ_QSPI_BASEADDR		0xE000D000
 #define ZYNQ_SMC_BASEADDR		0xE000E000
 #define ZYNQ_NAND_BASEADDR		0xE1000000
+#define ZYNQ_DDRC_BASEADDR		0xF8006000
 
 /* Reflect slcr offsets */
 struct slcr_regs {
@@ -102,5 +103,12 @@ struct scu_regs {
 };
 
 #define scu_base ((struct scu_regs *)ZYNQ_SCU_BASEADDR)
+
+struct ddrc_regs {
+	u32 ddrc_ctrl; /* 0x0 */
+	u32 reserved[60];
+	u32 ecc_scrub; /* 0xF4 */
+};
+#define ddrc_base ((struct ddrc_regs *)ZYNQ_DDRC_BASEADDR)
 
 #endif /* _ASM_ARCH_HARDWARE_H */
