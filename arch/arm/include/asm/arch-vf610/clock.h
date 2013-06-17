@@ -29,6 +29,7 @@ enum mxc_clock {
 	MXC_UART_CLK,
 	MXC_ESDHC_CLK,
 	MXC_FEC_CLK,
+	MXC_I2C_CLK,
 };
 
 void enable_ocotp_clk(unsigned char enable);
