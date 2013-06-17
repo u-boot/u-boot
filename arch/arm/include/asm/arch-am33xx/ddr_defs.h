@@ -284,7 +284,6 @@ void config_ddr_data(const struct ddr_data *data, int nr);
  * This structure represents the DDR io control on AM33XX devices.
  */
 struct ddr_cmdtctrl {
-	unsigned int resv1[1];
 	unsigned int cm0ioctl;
 	unsigned int cm1ioctl;
 	unsigned int cm2ioctl;
