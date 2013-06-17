@@ -96,5 +96,7 @@ int dram_init(void)
 {
 	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
 
+	zynq_ddrc_init();
+
 	return 0;
 }
