@@ -16,6 +16,17 @@
 		reg = <0x00000000 0x40000000>;
 	};
 
+	host1x {
+		status = "okay";
+		dc@54200000 {
+			status = "okay";
+			rgb {
+				status = "okay";
+				nvidia,panel = <&lcd_panel>;
+			};
+		};
+	};
+
 	serial@70006300 {
 		clock-frequency = < 216000000 >;
 	};
@@ -55,5 +66,26 @@
 	sdhci@c8000600 {
 		status = "okay";
 		bus-width = <8>;
+	};
+
+	lcd_panel: panel {
+		clock = <72072000>;
+		xres = <1366>;
+		yres = <768>;
+		left-margin = <58>;
+		right-margin = <58>;
+		hsync-len = <58>;
+		lower-margin = <4>;
+		upper-margin = <4>;
+		vsync-len = <4>;
+		hsync-active-high;
+		vsync-active-high;
+		nvidia,bits-per-pixel = <16>;
+		nvidia,pwm = <&pwm 2 0>;
+		nvidia,backlight-enable-gpios = <&gpio 28 0>;	/* PD4 */
+		nvidia,lvds-shutdown-gpios = <&gpio 10 0>;	/* PB2 */
+		nvidia,backlight-vdd-gpios = <&gpio 176 0>;	/* PW0 */
+		nvidia,panel-vdd-gpios = <&gpio 22 0>;		/* PC6 */
+		nvidia,panel-timings = <0 0 200 0 0>;
 	};
 };
