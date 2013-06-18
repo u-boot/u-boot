@@ -651,6 +651,9 @@ Wolfgang Denk <wd@denx.de>
 	imx27lite	i.MX27
 	qong		i.MX31
 
+Mike Dunn <mikedunn@newsguy.com>
+	palmtreo680	pxa270
+
 Kristoffer Ericson <kristoffer.ericson@gmail.com>
 
 	jornada	SA1110

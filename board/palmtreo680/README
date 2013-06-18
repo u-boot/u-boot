@@ -1,0 +1,581 @@
+
+README for the Palm Treo 680.
+
+Copyright (C) 2013 Mike Dunn <mikedunn@newsguy.com>
+
+You may reproduce the contents of this file entirely or in part, but please
+credit me by name if you do.  Thanks.
+
+
+Intro
+=====
+
+Yes, you can program u-boot onto the flash of your Palm Treo 680 so that u-boot
+(then Linux, Android, ...) runs at power-up.  This document describes how, and
+gives some implementation details on this port of u-boot and describes how the
+Treo 680 boots from reset.
+
+But first, I probably don't need to tell you that after doing this, your phone
+will no longer run PalmOS.  You *may* be able to later restore your phone to its
+original state by creating a backup image of the flash before writing u-boot
+(details below), but this is not heavily tested and should not be relied upon.
+There is also the possibility that something may go wrong during the process of
+programming u-boot, leaving you with a bricked phone.  If you follow these
+instructions carefully this chance will be minimized, but I do not recommend
+that you program u-boot onto a phone that you can not afford to lose, and
+certainly not one that contains important data that is not backed up elsewhere.
+I AM NOT RESPONSIBLE FOR THE LOSS OF YOUR PHONE.  DO THIS AT YOUR OWN RISK.
+Having said that, feel free to send me a note cursing me out if something does
+go wrong, but please tell me what happened exactly.  For that matter, I'd love
+to hear from you if you succeed.
+
+
+
+Details on the SPL
+==================
+
+The docg4 features a 2k region at the start of its address space that interfaces
+to the system bus like a NOR flash.  This allows the docg4 to function as a boot
+ROM.  The Treo 680 uses this feature.  The contents of this 2k region are
+write-protected and can not be reprogrammed.  Fortunately, the code it contains
+does what we need to do, at least partially.  After some essential hardware
+initialization (like the SDRAM controller), it runs an IPL (initial program
+loader) that copies 128K (no more, no less) from flash to a fixed address in
+SDRAM (0xa1700000) and jumps to it.  128K is too small for u-boot, so we use it
+to load a u-boot secondary program loader (SPL).  But since our SPL only
+occupies a little over 1k, we can economize on flash usage by having the IPL
+load a portion of u-boot proper as well.  We let the IPL load the first 128k of
+a concatenated spl + u-boot image, and because the SPL is placed before u-boot
+proper, the IPL jumps to the SPL, which copies the portion of u-boot that the
+IPL has already loaded to its correct SDRAM address, and then loads the
+remainder of u-boot and jumps to it.
+
+
+
+The docg4's "reliable mode"
+===========================
+
+This is a special mode of operation of the docg4's integrated controller whereby
+consecutive pairs of 2k regions are used in parallel (in some fashion) to store
+2k of data.  In other words, the normal capacity is halved, but the data
+integrity is improved.  In this mode, the data is read or written from pages in
+even-numbered 2k regions (regions starting at 0x000, 0x1000, 0x2000, ...).  The
+odd-numbered 2k regions (regions starting at 0x800, 0x1800, 0x2800, ...) are
+transparently used in parallel.  In reliable mode, the odd-numbered 2k regions
+are not meant to be read or written directly.
+
+Reliable mode is used by the IPL because there is not enough space in its 2k
+footprint to implement the BCH ecc algorithm.  Data that is read while reliable
+mode is enabled must have been written in reliable mode, or the read fails.
+However, data written in reliable mode can also be read in normal mode (just not
+as reliably), but only from the even-numbered 2k regions; the odd-numbered 2k
+regions appear to contain junk, and will generate ecc errors.  When the IPL and
+SPL read from flash, the odd-numbered 2k regions are explicitly skipped.  The
+same is true for the flash_u-boot utility when it writes the u-boot image in
+reliable mode.
+
+The docg4 Linux driver supports writing in reliable mode (it is enabled by the
+module parameter), but not reading.  However, the u-boot docg4_spl driver does
+read in reliable mode, in the same fashion as the IPL.
+
+
+
+Details on the IPL and its data format
+======================================
+
+Starting from block 5 and counting upward, the IPL will search for and load the
+first two blocks it finds that contain a magic number in the oob of the first
+page of the block.  The contents are loaded to SDRAM starting at address
+0xa1700000.  After two blocks have been loaded, it jumps to 0xa1700000.  The
+number of blocks loaded and the load address in SDRAM are hard-coded; only the
+flash offset of the blocks can vary at run-time (based on the presence of the
+magic number).
+
+In addition to using the docg4's reliable mode, the IPL expects each 512 byte
+page to be written redundantly in the subsequent page.  The hardware is capable
+of detecting bit errors (but not correcting them), and if a bit error is
+detected when a page is read, the page contents are discarded and the subsequent
+page is read.
+
+Reliable mode reduces the capacity of a block by half, and the redundant pages
+reduce it by half again.  As a result, the normal 256k capacity of a block is
+reduced to 64k for the purposes of the IPL/SPL.
+
+For the sake of simplicity and uniformity, the u-boot SPL mimics the operation
+of the IPL, and expects the image to be stored in the same format.
+
+
+
+Instructions on Programming u-boot to flash
+===========================================
+
+To program u-boot to your flash, you will need to boot the Linux kernel on your
+phone using a PalmOS bootloader such as cocoboot.  The details of building and
+running Linux on your Treo (cross-compiling, creating a root filesystem,
+configuring the kernel, etc) are beyond the scope of this document.  The
+remainder of this document describes in detail how to program u-boot to the
+flash using Linux running on the Treo.
+
+
+
+Hardware Prerequisites
+======================
+
+A Palm Treo 680:
+  (dugh)
+
+A Palm usb cable:
+  You'll need this to establish a usbtty console connection to u-boot from a
+  desktop PC.  Currently there is no support in u-boot for the pxa27x keypad
+  (coming soon), so a serial link must be used for the console.
+  These cables are still widely available if you don't already have one.
+
+A Linux desktop PC.
+  You may be able to use Windows for the u-boot console if you have a usb driver
+  that is compatible with the Linux usbserial driver, but for programming u-boot
+  to flash, you'll really want to use a Linux PC.
+
+
+
+Treo-side Software Prerequisites
+================================
+
+Linux bootloader for PalmOS:
+
+  Cocoboot is the only one I'm aware of.  If you don't already have this, you
+  can download it from
+  https://download.enlightenment.org/misc/Illume/Treo-650/2008-11-13/sdcard-base.tar.gz
+  which is a compressed tar archive of the contents of an sd card containing
+  cocoboot.  Use mkdosfs to create a fat16 filesystem on the first primary
+  partition of the card, mount the partition, and extract the tar file to it.
+  You will probably need to edit the cocoboot.conf file to customize the
+  parameters passed to the kernel.
+
+
+
+Linux kernel:
+
+  The kernel on the Treo 680 is still a little rough around the edges, and the
+  official kernel frequently breaks on the Treo :(  A development kernel
+  specifically for the Treo 680 can be found on github:
+    http://github.com/mike-dunn/linux-treo680
+  The master branch of this tree has been tested on the Treo, and I recommend
+  using this kernel for programming u-boot.  As of this writing, there may be a
+  bug in the docg4 nand flash driver that sometimes causes block erasures to
+  fail.  This has been fixed in the above tree.
+
+  If you choose to use the official kernel, it must contain the docg4 driver that
+  includes the reliable_mode module parameter.  This was a later enhancement to
+  the driver, and was merged to the kernel as of v3.8.  Do not try to use an
+  earlier kernel that contains the docg4 driver without support for writing in
+  reliable mode.  If you try to program u-boot to flash with the docg4 driver
+  loaded without the reliable_mode parameter enabled, you *will* brick your
+  phone!
+
+  For the purpose of programming u-boot to flash, the following options must be
+  enabled in the Treo kernel's .config:
+
+     CONFIG_MTD=y
+     CONFIG_MTD_CMDLINE_PARTS=y
+     CONFIG_MTD_CHAR=y
+     CONFIG_MTD_NAND_DOCG4=m
+
+  Note that the docg4 nand driver is configured as a module, because we will
+  want to load and unload it with reliable_mode enabled or disabled as needed.
+
+  You will also need to specify mtd partitions on the kernel command line.  In
+  the instructions that follow, we will assume that the flash blocks to which
+  u-boot will be programmed are defined by the second partition on the device.
+  The u-boot config file (include/configs/palmtreo680.h) places the u-boot image
+  at the start of block 6 (offset 0x180000), which is the first writable
+  (non-protected) block on the flash (this is also where the PalmOS SPL starts).
+  The u-boot image occupies four blocks, so to create the u-boot partition, pass
+  this command line to the kernel:
+    mtdparts=Msys_Diskonchip_G4:1536k(protected_part)ro,1024k(bootloader_part),-(filesys_part)
+  This will create three partitions:
+    protected_part: the first six blocks, which are read-only
+    bootloader_part: the next four blocks, for the u-boot image
+    filesys_part: the remainder of the device
+  The mtdchar kernel device driver will use device nodes /dev/mtd0, /dev/mtd1,
+  and /dev/mtd2 for these partitions, respectively.  Ensure that your root file
+  system at least has /dev/mtd1 if you are not running udev or mdev.
+
+
+Userspace Utilities:
+
+  In addition to everything necessary to provide a useful userspace environment
+  (busybox is indispensable, of course), you will need the mtd-utils package on
+  your root filesystem.  I use version 1.5.0 of mtd-utils, and I suggest you use
+  this version as well, or at leat a version very close to this one, as
+  mtd-utils has tended to be fluid.
+
+  Note that busybox includes a version of mtd-utils.  These are deficient and
+  should not be used.  When you run one of these utilities (nanddump, etc),
+  ensure you are invoking the separate executable from mtd-utils, and not the
+  one built into busybox.  I recommend that you configure busybox with its
+  mtd-utils disabled to avoid any possibility of confusion.
+
+  You will also need to cross-compile the userspace Linux utility in
+  tools/palmtreo680/flash_u-boot.c, which we will run on the Treo to perform the
+  actual write of the u-boot image to flash.  This utility links against libmtd
+  from the mtd-utils package.
+
+
+
+Desktop PC-side Software Prerequisites
+======================================
+
+Terminal emulator application:
+  minicom, kermit, etc.
+
+
+Linux kernel:
+  Compiled with CONFIG_USB_SERIAL enabled.  Build this as a module.
+
+
+
+Recommended (Not directly related to u-boot)
+============================================
+
+Working directly on the Treo's tiny screen and keypad is difficult and
+error-prone.  I recommend that you log into the Linux kernel running on your
+Treo from your desktop PC using ethernet over usb.  The desktop's kernel must be
+configured with CONFIG_USB_USBNET, CONFIG_USB_NET_CDCETHER, and
+CONFIG_USB_NET_CDC_SUBSET.  The Treo's kernel will need CONFIG_USB_ETH, and its
+init script will need to start an ssh daemon like dropbear.  Note that the usb0
+network interface will not appear on the desktop PC until the Treo kernel's usb
+ethernet gadget driver has initialized.  You must wait for this to occur (watch
+the PC's kernel log) before you can assign usb0 an ip address and log in to the
+Treo.  If you also build the Treo's kernel with CONFIG_IP_PNP enabled, you can
+pass its ip address on the kernel command line, and obviate the need to
+initialize the network interface in your init script.
+
+Having the Palm usb cable connected to the host has the added benefit of keeping
+power supplied to your Treo, reducing the drain on the battery.  If something
+goes wrong while you're programming u-boot to the flash, you will have lots of
+time to correct it before the battery dies.
+
+I have encountered a situation where the kernel is sometimes unable to mount a
+root filesystem on the mmc card due to the mmc controller not initializing in
+time, (and CONFIG_MMC_UNSAFE_RESUME doesn't seem to help) so I recommend that
+you build a minimal root filesystem into the kernel using the kernel's initramfs
+feature (CONFIG_BLK_DEV_INITRD).  If you want your root filesystem on the mmc
+card, your init script can mount and switch_root to the mmc card after a short
+sleep.  But keep in mind that in this case you won't be able to use an mmc card
+to transfer files between your desktop and the Treo once Linux is running.
+Another option for transfering files is to mount an nfs filesystem exported by
+the desktop PC.  For greatest convenience, you can export the root filesystem
+itself from your desktop PC and switch_root to it in your init script.  This
+will work if your initramfs init script contains a loop that waits for you to
+initialize the usb0 network interface on the desktop PC; e.g., loop while a ping
+to the desktop PC returns an error.  After the loop exits, do the nfs mount and
+call switch_root.  (You can not use the kernel nfsroot feature because the
+network will not be up when the kernel expects it to be; i.e., not until you
+configure the usb0 interface on the desktop.)  Use the nfs 'nolock' option when
+mounting to avoid the need to run a portmapper like rpcbind.
+
+
+
+Preliminaries
+=============
+
+Once Linux is running on your Treo, you may want to perform a few sanity checks
+before programming u-boot.  These checks will verify my assumptions regarding
+all the Treo 680s out there, and also ensure that the flash and mtd-utils are
+working correctly.  If you are impatient and reckless, you may skip this
+section, but see disclaimer at the top of this file!
+
+Load the docg4 driver:
+
+  $ modprobe docg4 ignore_badblocks=1 reliable_mode=1
+
+We tell the driver to use the docg4's "reliable mode" when writing because this
+is the format required by the IPL, which runs from power-up and loads the first
+portion of u-boot.  We must ignore bad blocks because linux mtd uses out-of-band
+(oob) bytes to mark bad blocks, which will cause the blocks written by PalmOS to
+be misidentified as "bad" by libmtd.
+
+Check the kernel log to ensure that all's well:
+
+  $ dmesg | tail
+   	      <... snip ...>
+  docg4 docg4: NAND device: 128MiB Diskonchip G4 detected
+  3 cmdlinepart partitions found on MTD device Msys_Diskonchip_G4
+  Creating 3 MTD partitions on "Msys_Diskonchip_G4":
+  0x000000000000-0x000000180000 : "protected_part"
+  0x000000180000-0x000000280000 : "bootloader_part"
+  0x000000280000-0x000008000000 : "filesys_part"
+
+Ensure that the partition boundaries are as shown.  (If no partitions are shown,
+did you remember to pass them to the kernel on the command line?)  We will write
+u-boot to bootloader_part, which starts at offset 0x180000 (block 6) and spans 4
+256k blocks.  This partition is accessed through the device node /dev/mtd1.
+
+The docg4 contains a read-only table that identifies blocks that were marked as
+bad at the factory.  This table is in the page at offset 0x2000, which is within
+the partition protected_part (/dev/mtd0).  There is a slight chance that one or
+more of the four blocks that we will use for u-boot is listed in the table, so
+use nanddump to inspect the table to see if this is the case:
+
+  $ nanddump -p -l 512 -s 0x2000 -o /dev/mtd0
+  ECC failed: 0
+  ECC corrected: 0
+  Number of bad blocks: 0
+  Number of bbt blocks: 0
+  Block size 262144, page size 512, OOB size 16
+  Dumping data starting at 0x00002000 and ending at 0x00002200...
+  0x00002000: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+   	      <... snip ...>
+
+The format of the table is simple: one bit per block, with block numbers
+increasing from left to right, starting with block 0 as the most significant bit
+of the first byte.  A bit will be clear if the corresponding block is bad.  We
+want to use blocks 6 throgh 9, so both of the two least significant bits of the
+first byte must be set, as must the two most significant bits of the second
+byte.  If this is not true in your case (you are very unlucky), you should use
+the first contiguous set of four good blocks after block 6, and adjust the
+partition boundaries accordingly.  You will also have to change the value of
+CONFIG_SYS_NAND_U_BOOT_OFFS in include/configs/palmtreo680.h and recompile
+u-boot.  Because the two blocks loaded by the IPL do not have to be contiguous,
+but our SPL expects them to be, you will need to erase any good blocks that are
+at an offset prior to CONFIG_SYS_NAND_U_BOOT_OFFS, so that the IPL does not find
+the magic number in oob and load it.  Once you have done all this, the
+instructions in this file still apply, except that the instructions below for
+restoring the original PalmOS block contents may need to be modified.
+
+Next, use nanddump to verify that the PalmOS SPL is where we expect it to be.
+The SPL can be identified by a magic number in the oob bytes of the first page
+of each of the two blocks containing the SPL image.  Pages are 512 bytes in
+size, so to dump the first page, plus the oob:
+
+  $ nanddump -p -l 512 -s 0 -o /dev/mtd1
+  ECC failed: 0
+  ECC corrected: 0
+  Number of bad blocks: 0
+  Number of bbt blocks: 0
+  Block size 262144, page size 512, OOB size 16
+  Dumping data starting at 0x00000000 and ending at 0x00000200...
+  0x00000000: 0a 00 00 ea 00 00 00 00 00 00 00 00 00 00 00 00
+   	      <... snip ...>
+  0x000001f0: 13 4c 21 60 13 4d 2a 69 13 4b 29 69 89 1a 99 42
+    OOB Data: 42 49 50 4f 30 30 30 10 3a e2 00 92 be a0 11 ff
+
+Verify that the first seven bytes of oob data match those in the above line.
+(This is ASCII "BIPO000".)
+
+Do the same for the next block:
+  $ nanddump -p -l 512 -s 0x40000 -o /dev/mtd1
+
+The first seven oob bytes in last line should read:
+
+    OOB Data: 42 49 50 4f 30 30 31 81 db 8e 8f 46 07 9b 59 ff
+
+(This is ASCII "BIPO001".)
+
+For additional assurance, verify that the next block does *not* contain SPL
+data.
+
+  $ nanddump -p -l 512 -s 0x80000 -o /dev/mtd1
+
+It doesn't matter what the oob contains, as long as the first four bytes are
+*not* ASCII "BIPO".  PalmOS should only be using two blocks for the SPL
+(although we will need four for u-boot).
+
+If you want, you can back up the contents of bootloader_part to a file.  You may
+be able to restore it later, if desired (see "Restoring PalmOS" below).
+
+  $ nanddump -l 0x100000 -s 0 -o -f bootloader_part.orig /dev/mtd1
+
+nanddump will spew voluminous warnings about uncorrectable ecc errors.  This is
+a consequence of reading pages that were written in reliable mode, and is
+expected (these should all occur on pages in odd-numbered 2k regions; i.e.,
+0x800, 0xa00, 0xc00, 0xe00, 0x1800, 0x1a00, ...).  The size of the file
+bootloader_part.orig should be 1081344, which is 2048 pages, each of size 512
+plus 16 oob bytes.  If you are using initramfs for the root filesystem, don't
+forget to copy the file to permanent storage, such as an mmc card.
+
+If all of the above went well, you can now program u-boot.
+
+
+
+Programming u-boot
+==================
+
+Our u-boot includes a small SPL that must be prepended to u-boot proper.  From
+the base u-boot source directory on your desktop PC:
+
+  $ cat spl/u-boot-spl.bin u-boot.bin > u-boot-concat.bin
+
+cd to the tools/palmtreo680/ directory, and cross-compile flash_u-boot.c for the
+Treo:
+
+  $(CC) -o flash_u-boot $(CFLAGS) $(INCLUDEPATH) $(LIBPATH) flash_u-boot.c -lmtd
+
+Substitute variable values from your cross-compilation environment as
+appropriate.  Note that it links to libmtd from mtd-utils, and this must be
+included in $(LIBPATH) and $(INCLUDEPATH).
+
+Transfer u-boot-concat.bin and the compiled flash_u-boot utility to the Treo's
+root filesystem.  On the Treo, cd to the directory where these files were
+placed.
+
+Load the docg4 driver if you have not already done so.
+
+  $ modprobe docg4 ignore_badblocks=1 reliable_mode=1
+
+Erase the blocks to which we will write u-boot:
+
+  $ flash_erase /dev/mtd1 0x00 4
+
+If no errors are reported, write u-boot to the flash:
+
+  $ ./flash_u-boot u-boot-concat.bin /dev/mtd1
+
+You can use nanddump (see above) to verify that the data was written.  This
+time, "BIPO" should be seen in the first four oob bytes of the first page of all
+four blocks in /dev/mtd1; i.e., at offsets 0x00000, 0x40000, 0x80000, 0xc0000.
+
+Shutdown linux, remove and re-insert the battery, hold your breath...
+
+
+
+Enjoying u-boot
+===============
+
+After you insert the battery, the u-boot splash screen should appear on the lcd
+after a few seconds.  With the usb cable connecting the Treo to your PC, in the
+kernel log of your PC you should see
+
+  <6>usb 3-1: New USB device found, idVendor=0525, idProduct=a4a6
+  <6>usb 3-1: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+  <6>usb 3-1: Product: U-Boot 2013.01-00167-gd62ef56-dirty
+  <6>usb 3-1: Manufacturer: Das U-Boot
+
+Load the usbserial module on your desktop PC:
+
+  $ modprobe usbserial vendor=0x0525 product=0xa4a6
+
+and run your favorite terminal emulation utility (minicom, kermit, etc) with the
+serial device set to /dev/ttyUSB0 (assuming this is your only usb serial
+device).  You should be at the u-boot console (type 'help').
+
+There is not much that is unique about using u-boot on the palm treo 680.
+Kernels can be loaded from mmc, flash, and from the desktop PC via kermit.  You
+can expand the size of the second partition on the flash to contain a kernel, or
+else put the kernel(s) in their own partition.
+
+Nand commands work as expected, with the excepton that blocks not written by the
+linux mtd subsystem may be misidentified by the u-boot docg4 driver as "bad" if
+they contain data in the oob bytes.  This will be the case for the blocks
+containing the u-boot image, for example.  To work around this, use 'nand scrub'
+instead of 'nand erase' to erase these blocks, and 'nand read.raw' to read them
+to memory.  (It would be useful if u-boot's nand commands provided a way to
+explicitly ignore "bad" blocks, because read.raw does not perform ecc.)  The
+'nand dump' command will read these "bad" blocks, however.
+
+Currently u-boot itself can only be programmed to flash from Linux; there is no
+support for reliable mode in u-boot's docg4 flash driver.  This should be
+corrected soon.
+
+
+
+Customizing
+===========
+
+If you change u-boot's configuration significantly (adding or removing
+features), you may have to adjust the value of CONFIG_SYS_NAND_U_BOOT_SIZE.
+This is the size of the concatenated spl + u-boot image, and tells the SPL how
+many flash blocks it needs to load.  It will be rounded up to the next 64k
+boundary (the spl flash block capacity), so it does not have to be exact, but
+you must ensure that it is not less than the actual image size.  If it is larger
+than the image, blocks may be needlessly loaded, but if too small, u-boot may
+only be partially loaded, resulting in a boot failure (bricked phone), so better
+to be too large.  The flash_u-boot utility will work with any size image and
+write the required number of blocks, provided that the partition is large
+enough.
+
+As the first writable block on the device, block 6 seems to make the most sense
+as the flash offset for writing u-boot (and this is where PalmOS places its
+SPL).  But you can place it elsewhere if you like.  If you do, you need to
+adjust CONFIG_SYS_NAND_U_BOOT_OFFS accordingly, and you must ensure that blocks
+preceeding the ones containing u-boot do *not* have the magic number in oob (the
+IPL looks for this).  In other words, make sure that any blocks that previously
+contained the u-boot image or PalmOS SPL are erased (and optionally written with
+something else) so that the IPL does not load it.  Also make sure that the new
+u-boot starting offset is at the start of a flash partition (check the kernel
+log after loading the docg4 driver), and pass the corresponding mtd device file
+to the flash_u-boot utility.
+
+The u-boot built-in default environment is used because a writable environment
+in flash did not seem worth the cost of a 256k flash block.  But adding this
+should be straightforward.
+
+
+
+Restoring PalmOS
+================
+
+If you backed up the contents of bootloader_part flash partition earlier, you
+should be able to restore it with the shell script shown below.  The first two
+blocks of data contain the PalmOS SPL and were written in reliable mode, whereas
+the next two blocks were written in normal mode, so the script has to load and
+unload the docg4 driver.  Make sure that the mtd-utils nandwrite and flash_erase
+are in your path (and are not those from busybox).  Also double-check that the
+backup image file bootloader_part.orig is exactly 1081344 bytes in length.  If
+not, it was not backed up correctly.  Run the script as:
+
+  ./restore_bootpart bootloader_part.orig /dev/mtd1
+
+The script will take a minute or so to run.  When it finishes, you may want to
+verify with nanddump that the data looks correct before you cycle power, because
+if the backup or restore failed, your phone will be bricked.  Note that as a
+consequence of reliable mode, the odd-numbered 2k regions in the first two
+blocks will not exactly match the contents of the backup file, (so unfortunately
+we can't simply dump the flash contents to a file and do a binary diff with the
+original back-up image to verify that it was restored correctly).  Also,
+nanddump will report uncorrectable ecc errors when it reads those regions.
+
+#!/bin/sh
+
+if [ $# -ne 2 ]; then
+    echo "usage: $0: <image file> <mtd device node>"
+    exit 1
+fi
+
+# reliable mode used for the first two blocks
+modprobe -r docg4
+modprobe docg4 ignore_badblocks=1 reliable_mode=1 || exit 1
+
+# erase all four blocks
+flash_erase $2 0 4
+
+# Program the first two blocks in reliable mode.
+# 2k (4 pages) is written at a time, skipping alternate 2k regions
+# Note that "2k" is 2112 bytes, including 64 oob bytes
+file_ofs=0
+flash_ofs=0
+page=0
+while [ $page -ne 1024 ]; do
+    dd if=$1 bs=2112 skip=$file_ofs count=1 | nandwrite -o -n -s $flash_ofs $2 - || exit 1
+    file_ofs=$((file_ofs+2))
+    flash_ofs=$((flash_ofs+0x1000))
+    page=$((page+8))
+done;
+
+# normal mode used for the next two blocks
+modprobe -r docg4
+modprobe docg4 ignore_badblocks=1 || exit 1
+dd if=$1 bs=1 skip=$file_ofs count=540672 | nandwrite -o -n -s 0x80000 $2 - || exit 1
+modprobe -r docg4
+
+
+TODO
+====
+
+  - Keypad support.
+  - Interactive boot menu using keypad and lcd.
+  - Add reliable mode support to the u-boot docg4 driver.
+  - U-boot command that will write a new image to the bootloader partition in
+    flash.
+  - Linux FTD support.
+
