@@ -25,9 +25,12 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/hardware.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* Control regsiter bitfield definitions */
 #define ZYNQ_DDRC_CTRLREG_BUSWIDTH_MASK		0xC
 #define ZYNQ_DDRC_CTRLREG_BUSWIDTH_SHIFT	2
+#define ZYNQ_DDRC_CTRLREG_BUSWIDTH_16BIT	1
 
 /* ECC scrub regsiter definitions */
 #define ZYNQ_DDRC_ECC_SCRUBREG_ECC_MODE_MASK	0x7
@@ -45,7 +48,7 @@ void zynq_ddrc_init(void)
 
 	/* ECC is enabled when memory is in 16bit mode and it is enabled */
 	if ((ecctype == ZYNQ_DDRC_ECC_SCRUBREG_ECCMODE_SECDED) &&
-	    (width == 1)) {
+	    (width == ZYNQ_DDRC_CTRLREG_BUSWIDTH_16BIT)) {
 		puts("Memory: ECC enabled\n");
 		/*
 		 * Clear the first 1MB because it is not initialized from
@@ -56,4 +59,7 @@ void zynq_ddrc_init(void)
 	} else {
 		puts("Memory: ECC disabled\n");
 	}
+
+	if (width == ZYNQ_DDRC_CTRLREG_BUSWIDTH_16BIT)
+		gd->ram_size /= 2;
 }
