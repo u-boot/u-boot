@@ -32,4 +32,9 @@
 /* Buttons */
 #define NET2BIG_V2_GPIO_PUSH_BUTTON	34
 
+/* GMT G762 registers (I2C fan controller) */
+#define G762_REG_SET_CNT		0x00
+#define G762_REG_SET_OUT		0x03
+#define G762_REG_FAN_CMD1		0x04
+
 #endif /* NET2BIG_V2_H */

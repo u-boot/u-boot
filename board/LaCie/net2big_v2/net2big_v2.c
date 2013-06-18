@@ -22,6 +22,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <i2c.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/kirkwood.h>
 #include <asm/arch/mpp.h>
@@ -92,8 +93,59 @@ int board_init(void)
 }
 
 #if defined(CONFIG_MISC_INIT_R)
+
+#if defined(CONFIG_CMD_I2C) && defined(CONFIG_SYS_I2C_G762_ADDR)
+/*
+ * Start I2C fan (GMT G762 controller)
+ */
+static void init_fan(void)
+{
+	u8 data;
+
+	i2c_set_bus_num(0);
+
+	/* Enable open-loop and PWM modes */
+	data = 0x20;
+	if (i2c_write(CONFIG_SYS_I2C_G762_ADDR,
+		      G762_REG_FAN_CMD1, 1, &data, 1) != 0)
+		goto err;
+	data = 0;
+	if (i2c_write(CONFIG_SYS_I2C_G762_ADDR,
+		      G762_REG_SET_CNT, 1, &data, 1) != 0)
+		goto err;
+	/*
+	 * RPM to PWM (set_out register) fan speed conversion array:
+	 * 0    0x00
+	 * 1500	0x04
+	 * 2800	0x08
+	 * 3400	0x0C
+	 * 3700	0x10
+	 * 4400	0x20
+	 * 4700	0x30
+	 * 4800	0x50
+	 * 5200	0x80
+	 * 5400	0xC0
+	 * 5500	0xFF
+	 *
+	 * Start fan at low speed (2800 RPM):
+	 */
+	data = 0x08;
+	if (i2c_write(CONFIG_SYS_I2C_G762_ADDR,
+		      G762_REG_SET_OUT, 1, &data, 1) != 0)
+		goto err;
+
+	return;
+err:
+	printf("Error: failed to start I2C fan @%02x\n",
+	       CONFIG_SYS_I2C_G762_ADDR);
+}
+#else
+static void init_fan(void) {}
+#endif /* CONFIG_CMD_I2C && CONFIG_SYS_I2C_G762_ADDR */
+
 int misc_init_r(void)
 {
+	init_fan();
 #if defined(CONFIG_CMD_I2C) && defined(CONFIG_SYS_I2C_EEPROM_ADDR)
 	if (!getenv("ethaddr")) {
 		uchar mac[6];
@@ -103,7 +155,7 @@ int misc_init_r(void)
 #endif
 	return 0;
 }
-#endif
+#endif /* CONFIG_MISC_INIT_R */
 
 #if defined(CONFIG_CMD_NET) && defined(CONFIG_RESET_PHY_R)
 /* Configure and initialize PHY */
