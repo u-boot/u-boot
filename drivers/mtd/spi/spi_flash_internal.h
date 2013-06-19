@@ -28,6 +28,17 @@
 #define CMD_ERASE_64K			0xd8
 #define CMD_ERASE_CHIP			0xc7
 
+/* Manufacture ID's */
+#define SPI_FLASH_SPANSION_IDCODE0	0x01
+#define SPI_FLASH_STMICRO_IDCODE0	0x20
+#define SPI_FLASH_WINBOND_IDCODE0	0xef
+
+/* Bank addr access commands */
+#define CMD_BANKADDR_BRWR		0x17
+#define CMD_BANKADDR_BRRD		0x16
+#define CMD_EXTNADDR_WREAR		0xC5
+#define CMD_EXTNADDR_RDEAR		0xC8
+
 /* Common status */
 #define STATUS_WIP			0x01
 
@@ -79,6 +90,9 @@ int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr);
 
 /* Program the bank address register */
 int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 bank_sel);
+
+/* Configure the BAR - discover the bank cmds */
+int spi_flash_bank_config(struct spi_flash *flash, u8 idcode0);
 
 /*
  * Same as spi_flash_cmd_read() except it also claims/releases the SPI

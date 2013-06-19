@@ -304,6 +304,27 @@ int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 bank_sel)
 	return 0;
 }
 
+int spi_flash_bank_config(struct spi_flash *flash, u8 idcode0)
+{
+	/* discover bank cmds */
+	switch (idcode0) {
+	case SPI_FLASH_SPANSION_IDCODE0:
+		flash->bank_read_cmd = CMD_BANKADDR_BRRD;
+		flash->bank_write_cmd = CMD_BANKADDR_BRWR;
+		break;
+	case SPI_FLASH_STMICRO_IDCODE0:
+	case SPI_FLASH_WINBOND_IDCODE0:
+		flash->bank_read_cmd = CMD_EXTNADDR_RDEAR;
+		flash->bank_write_cmd = CMD_EXTNADDR_WREAR;
+		break;
+	default:
+		printf("SF: Unsupported bank commands %02x\n", idcode0);
+		return -1;
+	}
+
+	return 0;
+}
+
 #ifdef CONFIG_OF_CONTROL
 int spi_flash_decode_fdt(const void *blob, struct spi_flash *flash)
 {
