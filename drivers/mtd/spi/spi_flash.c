@@ -283,6 +283,12 @@ int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 bank_sel)
 	u8 cmd;
 	int ret;
 
+	if (flash->bank_curr == bank_sel) {
+		debug("SF: not require to enable bank%d\n", bank_sel);
+		return 0;
+	}
+
+	cmd = flash->bank_write_cmd;
 	ret = spi_flash_cmd_write_enable(flash);
 	if (ret < 0) {
 		debug("SF: enabling write failed\n");
@@ -294,6 +300,7 @@ int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 bank_sel)
 		debug("SF: fail to write bank addr register\n");
 		return ret;
 	}
+	flash->bank_curr = bank_sel;
 
 	ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
 	if (ret < 0) {
@@ -306,6 +313,9 @@ int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 bank_sel)
 
 int spi_flash_bank_config(struct spi_flash *flash, u8 idcode0)
 {
+	u8 cmd;
+	u8 curr_bank = 0;
+
 	/* discover bank cmds */
 	switch (idcode0) {
 	case SPI_FLASH_SPANSION_IDCODE0:
@@ -320,6 +330,18 @@ int spi_flash_bank_config(struct spi_flash *flash, u8 idcode0)
 	default:
 		printf("SF: Unsupported bank commands %02x\n", idcode0);
 		return -1;
+	}
+
+	/* read the bank reg - on which bank the flash is in currently */
+	cmd = flash->bank_read_cmd;
+	if (flash->size > SPI_FLASH_16MB_BOUN) {
+		if (spi_flash_read_common(flash, &cmd, 1, &curr_bank, 1)) {
+			debug("SF: fail to read bank addr register\n");
+			return -1;
+		}
+		flash->bank_curr = curr_bank;
+	} else {
+		flash->bank_curr = curr_bank;
 	}
 
 	return 0;
@@ -468,6 +490,11 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 		printf("SF: Unsupported manufacturer %02x\n", *idp);
 		goto err_manufacturer_probe;
 	}
+
+	/* Configure the BAR - disover bank cmds and read current bank  */
+	ret = spi_flash_bank_config(flash, *idp);
+	if (ret < 0)
+		goto err_manufacturer_probe;
 
 #ifdef CONFIG_OF_CONTROL
 	if (spi_flash_decode_fdt(gd->fdt_blob, flash)) {

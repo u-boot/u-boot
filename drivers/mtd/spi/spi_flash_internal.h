@@ -28,6 +28,8 @@
 #define CMD_ERASE_64K			0xd8
 #define CMD_ERASE_CHIP			0xc7
 
+#define SPI_FLASH_16MB_BOUN		0x1000000
+
 /* Manufacture ID's */
 #define SPI_FLASH_SPANSION_IDCODE0	0x01
 #define SPI_FLASH_STMICRO_IDCODE0	0x20

@@ -42,6 +42,8 @@ struct spi_flash {
 	u8		bank_read_cmd;
 	/* Bank write cmd */
 	u8		bank_write_cmd;
+	/* Current flash bank */
+	u8		bank_curr;
 
 	void *memory_map;	/* Address of read-only SPI flash access */
 	int		(*read)(struct spi_flash *flash, u32 offset,
