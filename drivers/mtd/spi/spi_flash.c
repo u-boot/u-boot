@@ -346,6 +346,9 @@ static const struct {
 #ifdef CONFIG_SPI_FLASH_EON
 	{ 0, 0x1c, spi_flash_probe_eon, },
 #endif
+#ifdef CONFIG_SPI_FLASH_GIGADEVICE
+	{ 0, 0xc8, spi_flash_probe_gigadevice, },
+#endif
 #ifdef CONFIG_SPI_FLASH_MACRONIX
 	{ 0, 0xc2, spi_flash_probe_macronix, },
 #endif

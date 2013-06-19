@@ -1447,3 +1447,137 @@ int mmc_initialize(bd_t *bis)
 	do_preinit();
 	return 0;
 }
+
+#ifdef CONFIG_SUPPORT_EMMC_BOOT
+/*
+ * This function changes the size of boot partition and the size of rpmb
+ * partition present on EMMC devices.
+ *
+ * Input Parameters:
+ * struct *mmc: pointer for the mmc device strcuture
+ * bootsize: size of boot partition
+ * rpmbsize: size of rpmb partition
+ *
+ * Returns 0 on success.
+ */
+
+int mmc_boot_partition_size_change(struct mmc *mmc, unsigned long bootsize,
+				unsigned long rpmbsize)
+{
+	int err;
+	struct mmc_cmd cmd;
+
+	/* Only use this command for raw EMMC moviNAND. Enter backdoor mode */
+	cmd.cmdidx = MMC_CMD_RES_MAN;
+	cmd.resp_type = MMC_RSP_R1b;
+	cmd.cmdarg = MMC_CMD62_ARG1;
+
+	err = mmc_send_cmd(mmc, &cmd, NULL);
+	if (err) {
+		debug("mmc_boot_partition_size_change: Error1 = %d\n", err);
+		return err;
+	}
+
+	/* Boot partition changing mode */
+	cmd.cmdidx = MMC_CMD_RES_MAN;
+	cmd.resp_type = MMC_RSP_R1b;
+	cmd.cmdarg = MMC_CMD62_ARG2;
+
+	err = mmc_send_cmd(mmc, &cmd, NULL);
+	if (err) {
+		debug("mmc_boot_partition_size_change: Error2 = %d\n", err);
+		return err;
+	}
+	/* boot partition size is multiple of 128KB */
+	bootsize = (bootsize * 1024) / 128;
+
+	/* Arg: boot partition size */
+	cmd.cmdidx = MMC_CMD_RES_MAN;
+	cmd.resp_type = MMC_RSP_R1b;
+	cmd.cmdarg = bootsize;
+
+	err = mmc_send_cmd(mmc, &cmd, NULL);
+	if (err) {
+		debug("mmc_boot_partition_size_change: Error3 = %d\n", err);
+		return err;
+	}
+	/* RPMB partition size is multiple of 128KB */
+	rpmbsize = (rpmbsize * 1024) / 128;
+	/* Arg: RPMB partition size */
+	cmd.cmdidx = MMC_CMD_RES_MAN;
+	cmd.resp_type = MMC_RSP_R1b;
+	cmd.cmdarg = rpmbsize;
+
+	err = mmc_send_cmd(mmc, &cmd, NULL);
+	if (err) {
+		debug("mmc_boot_partition_size_change: Error4 = %d\n", err);
+		return err;
+	}
+	return 0;
+}
+
+/*
+ * This function shall form and send the commands to open / close the
+ * boot partition specified by user.
+ *
+ * Input Parameters:
+ * ack: 0x0 - No boot acknowledge sent (default)
+ *	0x1 - Boot acknowledge sent during boot operation
+ * part_num: User selects boot data that will be sent to master
+ *	0x0 - Device not boot enabled (default)
+ *	0x1 - Boot partition 1 enabled for boot
+ *	0x2 - Boot partition 2 enabled for boot
+ * access: User selects partitions to access
+ *	0x0 : No access to boot partition (default)
+ *	0x1 : R/W boot partition 1
+ *	0x2 : R/W boot partition 2
+ *	0x3 : R/W Replay Protected Memory Block (RPMB)
+ *
+ * Returns 0 on success.
+ */
+int mmc_boot_part_access(struct mmc *mmc, u8 ack, u8 part_num, u8 access)
+{
+	int err;
+	struct mmc_cmd cmd;
+
+	/* Boot ack enable, boot partition enable , boot partition access */
+	cmd.cmdidx = MMC_CMD_SWITCH;
+	cmd.resp_type = MMC_RSP_R1b;
+
+	cmd.cmdarg = (MMC_SWITCH_MODE_WRITE_BYTE << 24) |
+			(EXT_CSD_PART_CONF << 16) |
+			((EXT_CSD_BOOT_ACK(ack) |
+			EXT_CSD_BOOT_PART_NUM(part_num) |
+			EXT_CSD_PARTITION_ACCESS(access)) << 8);
+
+	err = mmc_send_cmd(mmc, &cmd, NULL);
+	if (err) {
+		if (access) {
+			debug("mmc boot partition#%d open fail:Error1 = %d\n",
+			      part_num, err);
+		} else {
+			debug("mmc boot partition#%d close fail:Error = %d\n",
+			      part_num, err);
+		}
+		return err;
+	}
+
+	if (access) {
+		/* 4bit transfer mode at booting time. */
+		cmd.cmdidx = MMC_CMD_SWITCH;
+		cmd.resp_type = MMC_RSP_R1b;
+
+		cmd.cmdarg = (MMC_SWITCH_MODE_WRITE_BYTE << 24) |
+				(EXT_CSD_BOOT_BUS_WIDTH << 16) |
+				((1 << 0) << 8);
+
+		err = mmc_send_cmd(mmc, &cmd, NULL);
+		if (err) {
+			debug("mmc boot partition#%d open fail:Error2 = %d\n",
+			      part_num, err);
+			return err;
+		}
+	}
+	return 0;
+}
+#endif

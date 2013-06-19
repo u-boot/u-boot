@@ -146,4 +146,9 @@ struct mem_timings *clock_get_mem_timings(void);
  * Initialize clock for the device
  */
 void system_clock_init(void);
+
+/*
+ * Set clock divisor value for booting from EMMC.
+ */
+void emmc_boot_clk_div_set(void);
 #endif

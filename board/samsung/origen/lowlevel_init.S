@@ -87,12 +87,14 @@ lowlevel_init:
 1:
 	/* for UART */
 	bl uart_asm_init
+	bl arch_cpu_init
 	bl tzpc_init
 	pop	{pc}
 
 wakeup_reset:
 	bl system_clock_init
 	bl mem_ctrl_asm_init
+	bl arch_cpu_init
 	bl tzpc_init
 
 exit_wakeup:
@@ -353,45 +355,3 @@ uart_asm_init:
 	nop
 	nop
 
-/* Setting TZPC[TrustZone Protection Controller] */
-tzpc_init:
-	ldr	r0, =TZPC0_BASE
-	mov	r1, #R0SIZE
-	str	r1, [r0]
-	mov	r1, #DECPROTXSET
-	str	r1, [r0, #TZPC_DECPROT0SET_OFFSET]
-	str	r1, [r0, #TZPC_DECPROT1SET_OFFSET]
-	str	r1, [r0, #TZPC_DECPROT2SET_OFFSET]
-	str	r1, [r0, #TZPC_DECPROT3SET_OFFSET]
-
-	ldr	r0, =TZPC1_BASE
-	str	r1, [r0, #TZPC_DECPROT0SET_OFFSET]
-	str	r1, [r0, #TZPC_DECPROT1SET_OFFSET]
-	str	r1, [r0, #TZPC_DECPROT2SET_OFFSET]
-	str	r1, [r0, #TZPC_DECPROT3SET_OFFSET]
-
-	ldr	r0, =TZPC2_BASE
-	str	r1, [r0, #TZPC_DECPROT0SET_OFFSET]
-	str	r1, [r0, #TZPC_DECPROT1SET_OFFSET]
-	str	r1, [r0, #TZPC_DECPROT2SET_OFFSET]
-	str	r1, [r0, #TZPC_DECPROT3SET_OFFSET]
-
-	ldr	r0, =TZPC3_BASE
-	str	r1, [r0, #TZPC_DECPROT0SET_OFFSET]
-	str	r1, [r0, #TZPC_DECPROT1SET_OFFSET]
-	str	r1, [r0, #TZPC_DECPROT2SET_OFFSET]
-	str	r1, [r0, #TZPC_DECPROT3SET_OFFSET]
-
-	ldr	r0, =TZPC4_BASE
-	str	r1, [r0, #TZPC_DECPROT0SET_OFFSET]
-	str	r1, [r0, #TZPC_DECPROT1SET_OFFSET]
-	str	r1, [r0, #TZPC_DECPROT2SET_OFFSET]
-	str	r1, [r0, #TZPC_DECPROT3SET_OFFSET]
-
-	ldr	r0, =TZPC5_BASE
-	str	r1, [r0, #TZPC_DECPROT0SET_OFFSET]
-	str	r1, [r0, #TZPC_DECPROT1SET_OFFSET]
-	str	r1, [r0, #TZPC_DECPROT2SET_OFFSET]
-	str	r1, [r0, #TZPC_DECPROT3SET_OFFSET]
-
-	mov	pc, lr

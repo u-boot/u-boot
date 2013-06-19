@@ -23,16 +23,44 @@
 #include<common.h>
 #include<config.h>
 
+#include <asm/arch-exynos/dmc.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/clk.h>
+
+#include "clock_init.h"
+
+/* Index into irom ptr table */
+enum index {
+	MMC_INDEX,
+	EMMC44_INDEX,
+	EMMC44_END_INDEX,
+	SPI_INDEX,
+	USB_INDEX,
+};
+
+/* IROM Function Pointers Table */
+u32 irom_ptr_table[] = {
+	[MMC_INDEX] = 0x02020030,	/* iROM Function Pointer-SDMMC boot */
+	[EMMC44_INDEX] = 0x02020044,	/* iROM Function Pointer-EMMC4.4 boot*/
+	[EMMC44_END_INDEX] = 0x02020048,/* iROM Function Pointer
+						-EMMC4.4 end boot operation */
+	[SPI_INDEX] = 0x02020058,	/* iROM Function Pointer-SPI boot */
+	[USB_INDEX] = 0x02020070,	/* iROM Function Pointer-USB boot*/
+	};
+
 enum boot_mode {
 	BOOT_MODE_MMC = 4,
 	BOOT_MODE_SERIAL = 20,
+	BOOT_MODE_EMMC = 8,     /* EMMC4.4 */
 	/* Boot based on Operating Mode pin settings */
 	BOOT_MODE_OM = 32,
 	BOOT_MODE_USB,	/* Boot using USB download */
 };
 
-	typedef u32 (*spi_copy_func_t)(u32 offset, u32 nblock, u32 dst);
-	typedef u32 (*usb_copy_func_t)(void);
+void *get_irom_func(int index)
+{
+	return (void *)*(u32 *)irom_ptr_table[index];
+}
 
 /*
  * Set/clear program flow prediction and return the previous state.
@@ -55,13 +83,15 @@ static int config_branch_prediction(int set_cr_z)
 */
 void copy_uboot_to_ram(void)
 {
-	spi_copy_func_t spi_copy;
-	usb_copy_func_t usb_copy;
-
 	int is_cr_z_set;
 	unsigned int sec_boot_check;
 	enum boot_mode bootmode = BOOT_MODE_OM;
-	u32 (*copy_bl2)(u32, u32, u32);
+
+	u32 (*spi_copy)(u32 offset, u32 nblock, u32 dst);
+	u32 (*copy_bl2)(u32 offset, u32 nblock, u32 dst);
+	u32 (*copy_bl2_from_emmc)(u32 nblock, u32 dst);
+	void (*end_bootop_from_emmc)(void);
+	u32 (*usb_copy)(void);
 
 	/* Read iRAM location to check for secondary USB boot mode */
 	sec_boot_check = readl(EXYNOS_IRAM_SECONDARY_BASE);
@@ -73,14 +103,24 @@ void copy_uboot_to_ram(void)
 
 	switch (bootmode) {
 	case BOOT_MODE_SERIAL:
-		spi_copy = *(spi_copy_func_t *)EXYNOS_COPY_SPI_FNPTR_ADDR;
+		spi_copy = get_irom_func(SPI_INDEX);
 		spi_copy(SPI_FLASH_UBOOT_POS, CONFIG_BL2_SIZE,
-						CONFIG_SYS_TEXT_BASE);
+			 CONFIG_SYS_TEXT_BASE);
 		break;
 	case BOOT_MODE_MMC:
-		copy_bl2 = (void *) *(u32 *)COPY_BL2_FNPTR_ADDR;
+		copy_bl2 = get_irom_func(MMC_INDEX);
 		copy_bl2(BL2_START_OFFSET, BL2_SIZE_BLOC_COUNT,
-						CONFIG_SYS_TEXT_BASE);
+			 CONFIG_SYS_TEXT_BASE);
+		break;
+	case BOOT_MODE_EMMC:
+		/* Set the FSYS1 clock divisor value for EMMC boot */
+		emmc_boot_clk_div_set();
+
+		copy_bl2_from_emmc = get_irom_func(EMMC44_INDEX);
+		end_bootop_from_emmc = get_irom_func(EMMC44_END_INDEX);
+
+		copy_bl2_from_emmc(BL2_SIZE_BLOC_COUNT, CONFIG_SYS_TEXT_BASE);
+		end_bootop_from_emmc();
 		break;
 	case BOOT_MODE_USB:
 		/*
@@ -88,8 +128,7 @@ void copy_uboot_to_ram(void)
 		 * before copy from USB device to RAM
 		 */
 		is_cr_z_set = config_branch_prediction(0);
-		usb_copy = *(usb_copy_func_t *)
-				EXYNOS_COPY_USB_FNPTR_ADDR;
+		usb_copy = get_irom_func(USB_INDEX);
 		usb_copy();
 		config_branch_prediction(is_cr_z_set);
 		break;
@@ -117,5 +156,4 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	while (1)
 		;
 }
-
 void save_boot_params(u32 r0, u32 r1, u32 r2, u32 r3) {}

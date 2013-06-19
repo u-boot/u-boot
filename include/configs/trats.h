@@ -146,7 +146,8 @@
 
 #define CONFIG_DFU_ALT \
 	"u-boot mmc 80 400;" \
-	"uImage ext4 0 2\0" \
+	"uImage ext4 0 2;" \
+	"exynos4210-trats.dtb ext4 0 2\0"
 
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
@@ -154,7 +155,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootk=" \
-		"run loaduimage; bootm 0x40007FC0\0" \
+		"run loaddtb; run loaduimage; bootm 0x40007FC0 - ${fdtaddr}\0" \
 	"updatemmc=" \
 		"mmc boot 0 1 1 1; mmc write 0 0x42008000 0 0x200;" \
 		"mmc boot 0 1 1 0\0" \
@@ -177,7 +178,7 @@
 	"mmcboot=" \
 		"setenv bootargs root=/dev/mmcblk${mmcdev}p${mmcrootpart} " \
 		"${lpj} rootwait ${console} ${meminfo} ${opts} ${lcdinfo}; " \
-		"run loaduimage; bootm 0x40007FC0\0" \
+		"run loaddtb; run loaduimage; bootm 0x40007FC0 - ${fdtaddr}\0" \
 	"bootchart=setenv opts init=/sbin/bootchartd; run bootcmd\0" \
 	"boottrace=setenv opts initcall_debug; run bootcmd\0" \
 	"mmcoops=mmc read 0 0x40000000 0x40 8; md 0x40000000 0x400\0" \
@@ -188,6 +189,8 @@
 	"nfsroot=/nfsroot/arm\0" \
 	"bootblock=" CONFIG_BOOTBLOCK "\0" \
 	"loaduimage=ext4load mmc ${mmcdev}:${mmcbootpart} 0x40007FC0 uImage\0" \
+	"loaddtb=ext4load mmc ${mmcdev}:${mmcbootpart} ${fdtaddr}" \
+		"${fdtfile}\0" \
 	"mmcdev=0\0" \
 	"mmcbootpart=2\0" \
 	"mmcrootpart=5\0" \
@@ -212,7 +215,10 @@
 		   " /${splfile} ${spl_imgaddr} ${spl_imgsize};" \
 		   "setenv spl_imgsize;" \
 		   "setenv spl_imgaddr;" \
-		   "setenv spl_addr_tmp;\0"
+		   "setenv spl_addr_tmp;\0" \
+	"fdtaddr=40800000\0" \
+	"fdtfile=exynos4210-trats.dtb\0"
+
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
@@ -321,5 +327,8 @@
 #if defined(CONFIG_CMD_USB_MASS_STORAGE)
 #define CONFIG_USB_GADGET_MASS_STORAGE
 #endif
+
+/* Pass open firmware flat tree */
+#define CONFIG_OF_LIBFDT    1
 
 #endif	/* __CONFIG_H */
