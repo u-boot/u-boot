@@ -39,9 +39,6 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 static struct wd_timer *wdtimer = (struct wd_timer *)WDT_BASE;
-#ifdef CONFIG_SPL_BUILD
-static struct uart_sys *uart_base = (struct uart_sys *)DEFAULT_UART_BASE;
-#endif
 
 /* MII mode defines */
 #define MII_MODE_ENABLE		0x0
@@ -50,30 +47,10 @@ static struct uart_sys *uart_base = (struct uart_sys *)DEFAULT_UART_BASE;
 
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
-/* UART defines */
 #ifdef CONFIG_SPL_BUILD
-#define UART_RESET		(0x1 << 1)
-#define UART_CLK_RUNNING_MASK	0x1
-#define UART_SMART_IDLE_EN	(0x1 << 0x3)
 
 /* DDR RAM defines */
 #define DDR_CLK_MHZ		303 /* DDR_DPLL_MULT value */
-
-static void rtc32k_enable(void)
-{
-	struct rtc_regs *rtc = (struct rtc_regs *)RTC_BASE;
-
-	/*
-	 * Unlock the RTC's registers.  For more details please see the
-	 * RTC_SS section of the TRM.  In order to unlock we need to
-	 * write these specific values (keys) in this order.
-	 */
-	writel(0x83e70b13, &rtc->kick0r);
-	writel(0x95a4f1e0, &rtc->kick1r);
-
-	/* Enable the RTC 32K OSC by setting bits 3 and 6. */
-	writel((1 << 3) | (1 << 6), &rtc->osc);
-}
 
 static const struct ddr_data ddr3_data = {
 	.datardsratio0 = MT41J256M8HX15E_RD_DQS,
@@ -141,22 +118,8 @@ void s_init(void)
 	/* Enable RTC32K clock */
 	rtc32k_enable();
 
-	/* UART softreset */
-	u32 regval;
-
 	enable_uart0_pin_mux();
-
-	regval = readl(&uart_base->uartsyscfg);
-	regval |= UART_RESET;
-	writel(regval, &uart_base->uartsyscfg);
-	while ((readl(&uart_base->uartsyssts) &	UART_CLK_RUNNING_MASK)
-		!= UART_CLK_RUNNING_MASK)
-		;
-
-	/* Disable smart idle */
-	regval = readl(&uart_base->uartsyscfg);
-	regval |= UART_SMART_IDLE_EN;
-	writel(regval, &uart_base->uartsyscfg);
+	uart_soft_reset();
 
 	gd = &gdata;
 

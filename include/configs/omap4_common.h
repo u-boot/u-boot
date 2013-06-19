@@ -150,6 +150,7 @@
 	"console=ttyO2,115200n8\0" \
 	"fdt_high=0xffffffff\0" \
 	"fdtaddr=0x80f80000\0" \
+	"fdtfile=undefined\0" \
 	"bootpart=0:2\0" \
 	"bootdir=/boot\0" \
 	"bootfile=zImage\0" \
@@ -177,8 +178,12 @@
 			"setenv fdtfile omap4-sdp.dtb; fi; " \
 		"if test $board_name = panda; then " \
 			"setenv fdtfile omap4-panda.dtb; fi;" \
+		"if test $board_name = panda-a4; then " \
+			"setenv fdtfile omap4-panda-a4.dtb; fi;" \
 		"if test $board_name = panda-es; then " \
-			"setenv fdtfile omap4-panda-es.dtb; fi; \0" \
+			"setenv fdtfile omap4-panda-es.dtb; fi;" \
+		"if test $fdtfile = undefined; then " \
+			"echo WARNING: Could not determine device tree to use; fi; \0" \
 	"loadfdt=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
 
 #define CONFIG_BOOTCOMMAND \

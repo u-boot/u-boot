@@ -37,6 +37,11 @@
 #endif
 
 #define PANDA_ULPI_PHY_TYPE_GPIO       182
+#define PANDA_BOARD_ID_1_GPIO          101
+#define PANDA_ES_BOARD_ID_1_GPIO        48
+#define PANDA_BOARD_ID_2_GPIO          171
+#define PANDA_ES_BOARD_ID_3_GPIO         3
+#define PANDA_ES_BOARD_ID_4_GPIO         2
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -66,6 +71,73 @@ int board_eth_init(bd_t *bis)
 	return 0;
 }
 
+/*
+* Routine: get_board_revision
+* Description: Detect if we are running on a panda revision A1-A6,
+*              or an ES panda board. This can be done by reading
+*              the level of GPIOs and checking the processor revisions.
+*              This should result in:
+*			Panda 4430:
+*              GPIO171, GPIO101, GPIO182: 0 1 1 => A1-A5
+*              GPIO171, GPIO101, GPIO182: 1 0 1 => A6
+*			Panda ES:
+*              GPIO2, GPIO3, GPIO171, GPIO48, GPIO182: 0 0 0 1 1 => B1/B2
+*              GPIO2, GPIO3, GPIO171, GPIO48, GPIO182: 0 0 1 1 1 => B3
+*/
+int get_board_revision(void)
+{
+	int board_id0, board_id1, board_id2;
+	int board_id3, board_id4;
+	int board_id;
+
+	int processor_rev = omap_revision();
+
+	/* Setup the mux for the common board ID pins (gpio 171 and 182) */
+	writew((IEN | M3), (*ctrl)->control_padconf_core_base + UNIPRO_TX0);
+	writew((IEN | M3), (*ctrl)->control_padconf_core_base + FREF_CLK2_OUT);
+
+	board_id0 = gpio_get_value(PANDA_ULPI_PHY_TYPE_GPIO);
+	board_id2 = gpio_get_value(PANDA_BOARD_ID_2_GPIO);
+
+	if ((processor_rev >= OMAP4460_ES1_0 &&
+	     processor_rev <= OMAP4460_ES1_1)) {
+		/*
+		 * Setup the mux for the ES specific board ID pins (gpio 101,
+		 * 2 and 3.
+		 */
+		writew((IEN | M3), (*ctrl)->control_padconf_core_base +
+				GPMC_A24);
+		writew((IEN | M3), (*ctrl)->control_padconf_core_base +
+				UNIPRO_RY0);
+		writew((IEN | M3), (*ctrl)->control_padconf_core_base +
+				UNIPRO_RX1);
+
+		board_id1 = gpio_get_value(PANDA_ES_BOARD_ID_1_GPIO);
+		board_id3 = gpio_get_value(PANDA_ES_BOARD_ID_3_GPIO);
+		board_id4 = gpio_get_value(PANDA_ES_BOARD_ID_4_GPIO);
+
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+		setenv("board_name", strcat(CONFIG_SYS_BOARD, "-es"));
+#endif
+		board_id = ((board_id4 << 4) | (board_id3 << 3) |
+			(board_id2 << 2) | (board_id1 << 1) | (board_id0));
+	} else {
+		/* Setup the mux for the Ax specific board ID pins (gpio 101) */
+		writew((IEN | M3), (*ctrl)->control_padconf_core_base +
+				FREF_CLK2_OUT);
+
+		board_id1 = gpio_get_value(PANDA_BOARD_ID_1_GPIO);
+		board_id = ((board_id2 << 2) | (board_id1 << 1) | (board_id0));
+
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+		if ((board_id >= 0x3) && (processor_rev == OMAP4430_ES2_3))
+			setenv("board_name", strcat(CONFIG_SYS_BOARD, "-a4"));
+#endif
+	}
+
+	return board_id;
+}
+
 /**
  * @brief misc_init_r - Configure Panda board specific configurations
  * such as power configurations, ethernet initialization as phase2 of
@@ -82,11 +154,7 @@ int misc_init_r(void)
 	if (omap_revision() == OMAP4430_ES1_0)
 		return 0;
 
-#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	if (omap_revision() >= OMAP4460_ES1_0 ||
-		omap_revision() <= OMAP4460_ES1_1)
-		setenv("board_name", strcat(CONFIG_SYS_BOARD, "-es"));
-#endif
+	get_board_revision();
 
 	gpio_direction_input(PANDA_ULPI_PHY_TYPE_GPIO);
 	phy_type = gpio_get_value(PANDA_ULPI_PHY_TYPE_GPIO);
@@ -106,7 +174,7 @@ int misc_init_r(void)
 		auxclk |= AUXCLK_ENABLE_MASK;
 
 		writel(auxclk, &scrm->auxclk3);
-       } else {
+	} else {
 		/* ULPI PHY supplied by auxclk1 derived from PER dpll */
 		debug("ULPI PHY supplied by auxclk1\n");
 
@@ -151,9 +219,9 @@ void set_muxconf_regs_essential(void)
 
 	if (omap_revision() >= OMAP4460_ES1_0)
 		do_set_mux((*ctrl)->control_padconf_wkup_base,
-				 wkup_padconf_array_essential_4460,
-				 sizeof(wkup_padconf_array_essential_4460) /
-				 sizeof(struct pad_conf_entry));
+			   wkup_padconf_array_essential_4460,
+			   sizeof(wkup_padconf_array_essential_4460) /
+			   sizeof(struct pad_conf_entry));
 }
 
 void set_muxconf_regs_non_essential(void)
@@ -165,14 +233,14 @@ void set_muxconf_regs_non_essential(void)
 
 	if (omap_revision() < OMAP4460_ES1_0)
 		do_set_mux((*ctrl)->control_padconf_core_base,
-				core_padconf_array_non_essential_4430,
-				sizeof(core_padconf_array_non_essential_4430) /
-				sizeof(struct pad_conf_entry));
+			   core_padconf_array_non_essential_4430,
+			   sizeof(core_padconf_array_non_essential_4430) /
+			   sizeof(struct pad_conf_entry));
 	else
 		do_set_mux((*ctrl)->control_padconf_core_base,
-				core_padconf_array_non_essential_4460,
-				sizeof(core_padconf_array_non_essential_4460) /
-				sizeof(struct pad_conf_entry));
+			   core_padconf_array_non_essential_4460,
+			   sizeof(core_padconf_array_non_essential_4460) /
+			   sizeof(struct pad_conf_entry));
 
 	do_set_mux((*ctrl)->control_padconf_wkup_base,
 		   wkup_padconf_array_non_essential,
@@ -181,9 +249,9 @@ void set_muxconf_regs_non_essential(void)
 
 	if (omap_revision() < OMAP4460_ES1_0)
 		do_set_mux((*ctrl)->control_padconf_wkup_base,
-				wkup_padconf_array_non_essential_4430,
-				sizeof(wkup_padconf_array_non_essential_4430) /
-				sizeof(struct pad_conf_entry));
+			   wkup_padconf_array_non_essential_4430,
+			   sizeof(wkup_padconf_array_non_essential_4430) /
+			   sizeof(struct pad_conf_entry));
 }
 
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_GENERIC_MMC)
