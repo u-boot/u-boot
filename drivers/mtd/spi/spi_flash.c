@@ -74,7 +74,7 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 	unsigned long page_addr, byte_addr, page_size;
 	size_t chunk_len, actual;
 	int ret;
-	u8 cmd[4], bank_sel;
+	u8 cmd[4];
 
 	page_size = flash->page_size;
 
@@ -86,6 +86,9 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 
 	cmd[0] = CMD_PAGE_PROGRAM;
 	for (actual = 0; actual < len; actual += chunk_len) {
+#ifdef CONFIG_SPI_FLASH_BAR
+		u8 bank_sel;
+
 		bank_sel = offset / SPI_FLASH_16MB_BOUN;
 
 		ret = spi_flash_cmd_bankaddr_write(flash, bank_sel);
@@ -93,7 +96,7 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 			debug("SF: fail to set bank%d\n", bank_sel);
 			return ret;
 		}
-
+#endif
 		page_addr = offset / page_size;
 		byte_addr = offset % page_size;
 		chunk_len = min(len - actual, page_size - byte_addr);
@@ -148,7 +151,7 @@ int spi_flash_read_common(struct spi_flash *flash, const u8 *cmd,
 int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 		size_t len, void *data)
 {
-	u8 cmd[5], bank_sel;
+	u8 cmd[5], bank_sel = 0;
 	u32 remain_len, read_len;
 	int ret = -1;
 
@@ -162,6 +165,7 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 	cmd[4] = 0x00;
 
 	while (len) {
+#ifdef CONFIG_SPI_FLASH_BAR
 		bank_sel = offset / SPI_FLASH_16MB_BOUN;
 
 		ret = spi_flash_cmd_bankaddr_write(flash, bank_sel);
@@ -169,7 +173,7 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 			debug("SF: fail to set bank%d\n", bank_sel);
 			return ret;
 		}
-
+#endif
 		remain_len = (SPI_FLASH_16MB_BOUN * (bank_sel + 1) - offset);
 		if (len < remain_len)
 			read_len = len;
@@ -240,7 +244,7 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
 	u32 erase_size;
 	int ret;
-	u8 cmd[4], bank_sel;
+	u8 cmd[4];
 
 	erase_size = flash->sector_size;
 	if (offset % erase_size || len % erase_size) {
@@ -260,6 +264,9 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 		cmd[0] = CMD_ERASE_64K;
 
 	while (len) {
+#ifdef CONFIG_SPI_FLASH_BAR
+		u8 bank_sel;
+
 		bank_sel = offset / SPI_FLASH_16MB_BOUN;
 
 		ret = spi_flash_cmd_bankaddr_write(flash, bank_sel);
@@ -267,7 +274,7 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 			debug("SF: fail to set bank%d\n", bank_sel);
 			return ret;
 		}
-
+#endif
 		spi_flash_addr(offset, cmd);
 
 		debug("SF: erase %2x %2x %2x %2x (%x)\n", cmd[0], cmd[1],
@@ -321,6 +328,7 @@ int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr)
 	return 0;
 }
 
+#ifdef CONFIG_SPI_FLASH_BAR
 int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 bank_sel)
 {
 	u8 cmd;
@@ -389,6 +397,7 @@ int spi_flash_bank_config(struct spi_flash *flash, u8 idcode0)
 
 	return 0;
 }
+#endif
 
 #ifdef CONFIG_OF_CONTROL
 int spi_flash_decode_fdt(const void *blob, struct spi_flash *flash)
@@ -534,10 +543,12 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 		goto err_manufacturer_probe;
 	}
 
+#ifdef CONFIG_SPI_FLASH_BAR
 	/* Configure the BAR - disover bank cmds and read current bank  */
 	ret = spi_flash_bank_config(flash, *idp);
 	if (ret < 0)
 		goto err_manufacturer_probe;
+#endif
 
 #ifdef CONFIG_OF_CONTROL
 	if (spi_flash_decode_fdt(gd->fdt_blob, flash)) {

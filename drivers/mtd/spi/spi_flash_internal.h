@@ -35,11 +35,13 @@
 #define SPI_FLASH_STMICRO_IDCODE0	0x20
 #define SPI_FLASH_WINBOND_IDCODE0	0xef
 
+#ifdef CONFIG_SPI_FLASH_BAR
 /* Bank addr access commands */
-#define CMD_BANKADDR_BRWR		0x17
-#define CMD_BANKADDR_BRRD		0x16
-#define CMD_EXTNADDR_WREAR		0xC5
-#define CMD_EXTNADDR_RDEAR		0xC8
+# define CMD_BANKADDR_BRWR		0x17
+# define CMD_BANKADDR_BRRD		0x16
+# define CMD_EXTNADDR_WREAR		0xC5
+# define CMD_EXTNADDR_RDEAR		0xC8
+#endif
 
 /* Common status */
 #define STATUS_WIP			0x01
@@ -90,11 +92,13 @@ static inline int spi_flash_cmd_write_disable(struct spi_flash *flash)
 /* Program the status register. */
 int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr);
 
+#ifdef CONFIG_SPI_FLASH_BAR
 /* Program the bank address register */
 int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 bank_sel);
 
 /* Configure the BAR - discover the bank cmds */
 int spi_flash_bank_config(struct spi_flash *flash, u8 idcode0);
+#endif
 
 /*
  * Same as spi_flash_cmd_read() except it also claims/releases the SPI
