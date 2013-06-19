@@ -1200,6 +1200,9 @@ void dmm_init(u32 base)
 	/* TRAP for invalid TILER mappings in section 0 */
 	lis_map_regs_calculated.dmm_lisa_map_0 = DMM_LISA_MAP_0_INVAL_ADDR_TRAP;
 
+	if (omap_revision() >= OMAP4460_ES1_0)
+		lis_map_regs_calculated.is_ma_present = 1;
+
 	lisa_map_regs = &lis_map_regs_calculated;
 #endif
 	struct dmm_lisa_map_regs *hw_lisa_map_regs =
