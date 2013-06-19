@@ -476,7 +476,7 @@ void fdt_fixup_fman_firmware(void *blob)
 	if (!p)
 		return;
 
-	fmanfw = (struct qe_firmware *) simple_strtoul(p, NULL, 0);
+	fmanfw = (struct qe_firmware *) simple_strtoul(p, NULL, 16);
 	if (!fmanfw)
 		return;
 
