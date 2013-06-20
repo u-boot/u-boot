@@ -854,7 +854,7 @@ The following options need to be configured:
 		CONFIG_CMD_FDOS		* Dos diskette Support
 		CONFIG_CMD_FLASH	  flinfo, erase, protect
 		CONFIG_CMD_FPGA		  FPGA device initialization support
-		CONFIG_CMD_FUSE		  Device fuse support
+		CONFIG_CMD_FUSE		* Device fuse support
 		CONFIG_CMD_GETTIME	* Get time since boot
 		CONFIG_CMD_GO		* the 'go' command (exec code)
 		CONFIG_CMD_GREPENV	* search environment
@@ -864,7 +864,7 @@ The following options need to be configured:
 		CONFIG_CMD_IDE		* IDE harddisk support
 		CONFIG_CMD_IMI		  iminfo
 		CONFIG_CMD_IMLS		  List all images found in NOR flash
-		CONFIG_CMD_IMLS_NAND	  List all images found in NAND flash
+		CONFIG_CMD_IMLS_NAND	* List all images found in NAND flash
 		CONFIG_CMD_IMMAP	* IMMR dump support
 		CONFIG_CMD_IMPORTENV	* import an environment
 		CONFIG_CMD_INI		* import data from an ini file into the env
@@ -872,23 +872,24 @@ The following options need to be configured:
 		CONFIG_CMD_ITEST	  Integer/string test of 2 values
 		CONFIG_CMD_JFFS2	* JFFS2 Support
 		CONFIG_CMD_KGDB		* kgdb
-		CONFIG_CMD_LDRINFO	  ldrinfo (display Blackfin loader)
+		CONFIG_CMD_LDRINFO	* ldrinfo (display Blackfin loader)
 		CONFIG_CMD_LINK_LOCAL	* link-local IP address auto-configuration
 					  (169.254.*.*)
 		CONFIG_CMD_LOADB	  loadb
 		CONFIG_CMD_LOADS	  loads
-		CONFIG_CMD_MD5SUM	  print md5 message digest
+		CONFIG_CMD_MD5SUM	* print md5 message digest
 					  (requires CONFIG_CMD_MEMORY and CONFIG_MD5)
 		CONFIG_CMD_MEMINFO	* Display detailed memory information
 		CONFIG_CMD_MEMORY	  md, mm, nm, mw, cp, cmp, crc, base,
 					  loop, loopw
-		CONFIG_CMD_MEMTEST	  mtest
+		CONFIG_CMD_MEMTEST	* mtest
 		CONFIG_CMD_MISC		  Misc functions like sleep etc
 		CONFIG_CMD_MMC		* MMC memory mapped support
 		CONFIG_CMD_MII		* MII utility commands
 		CONFIG_CMD_MTDPARTS	* MTD partition support
 		CONFIG_CMD_NAND		* NAND support
 		CONFIG_CMD_NET		  bootp, tftpboot, rarpboot
+		CONFIG_CMD_NFS		  NFS support
 		CONFIG_CMD_PCA953X	* PCA953x I2C gpio commands
 		CONFIG_CMD_PCA953X_INFO * PCA953x I2C gpio info command
 		CONFIG_CMD_PCI		* pciinfo
@@ -907,7 +908,7 @@ The following options need to be configured:
 		CONFIG_CMD_SETGETDCR	  Support for DCR Register access
 					  (4xx only)
 		CONFIG_CMD_SF		* Read/write/erase SPI NOR flash
-		CONFIG_CMD_SHA1SUM	  print sha1 memory digest
+		CONFIG_CMD_SHA1SUM	* print sha1 memory digest
 					  (requires CONFIG_CMD_MEMORY)
 		CONFIG_CMD_SOFTSWITCH	* Soft switch setting command for BF60x
 		CONFIG_CMD_SOURCE	  "source" command Support
@@ -919,6 +920,7 @@ The following options need to be configured:
 		CONFIG_CMD_USB		* USB support
 		CONFIG_CMD_CDP		* Cisco Discover Protocol support
 		CONFIG_CMD_MFSL		* Microblaze FSL support
+		CONFIG_CMD_XIMG		  Load part of Multi Image
 
 
 		EXAMPLE: If you want all functions except of network
