@@ -140,7 +140,6 @@ int set_default_vars(int nvars, char * const vars[])
 				H_NOCLEAR | H_INTERACTIVE, nvars, vars);
 }
 
-#ifndef CONFIG_SPL_BUILD
 /*
  * Check if CRC is valid and (if yes) import the environment.
  * Note that "buf" may or may not be aligned.
@@ -172,7 +171,6 @@ int env_import(const char *buf, int check)
 
 	return 0;
 }
-#endif
 
 void env_relocate(void)
 {
