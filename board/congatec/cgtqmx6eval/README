@@ -7,8 +7,7 @@ Conga-QEVAl Evaluation Carrier board with qmx6 quad module.
 1. Boot source, boot from SD card
 ---------------------------------
 
-This version of u-boot works only on the SD card. By default, the
-Congatec board can boot only from the SPI-NOR.
+By default, the Congatec board can boot only from the SPI-NOR.
 But, with the u-boot version provided with the board you can write boot
 registers to force the board to reboot and boot from the SD slot. If
 "bmode" command is not available from your pre-installed u-boot, these
