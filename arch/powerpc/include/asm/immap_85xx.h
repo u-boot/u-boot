@@ -2160,7 +2160,7 @@ typedef struct ccsr_gur {
 	u32	porbmsr;	/* POR boot mode status */
 #define MPC85xx_PORBMSR_HA		0x00070000
 #define MPC85xx_PORBMSR_HA_SHIFT	16
-#define MPC85XX_PORBMSR_ROMLOC_SHIFT	24
+#define MPC85xx_PORBMSR_ROMLOC_SHIFT	24
 #define PORBMSR_ROMLOC_SPI	0x6
 #define PORBMSR_ROMLOC_SDHC	0x7
 #define PORBMSR_ROMLOC_NAND_2K	0x9
