@@ -68,6 +68,51 @@ int spi_flash_cmd_write(struct spi_slave *spi, const u8 *cmd, size_t cmd_len,
 	return spi_flash_read_write(spi, cmd, cmd_len, data, NULL, data_len);
 }
 
+int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
+{
+	struct spi_slave *spi = flash->spi;
+	unsigned long timebase;
+	int ret;
+	u8 status;
+	u8 check_status = 0x0;
+	u8 poll_bit = STATUS_WIP;
+	u8 cmd = flash->poll_cmd;
+
+	if (cmd == CMD_FLAG_STATUS) {
+		poll_bit = STATUS_PEC;
+		check_status = poll_bit;
+	}
+
+	ret = spi_xfer(spi, 8, &cmd, NULL, SPI_XFER_BEGIN);
+	if (ret) {
+		debug("SF: fail to read %s status register\n",
+			cmd == CMD_READ_STATUS ? "read" : "flag");
+		return ret;
+	}
+
+	timebase = get_timer(0);
+	do {
+		WATCHDOG_RESET();
+
+		ret = spi_xfer(spi, 8, NULL, &status, 0);
+		if (ret)
+			return -1;
+
+		if ((status & poll_bit) == check_status)
+			break;
+
+	} while (get_timer(timebase) < timeout);
+
+	spi_xfer(spi, 0, NULL, NULL, SPI_XFER_END);
+
+	if ((status & poll_bit) == check_status)
+		return 0;
+
+	/* Timed out */
+	debug("SF: time out!\n");
+	return -1;
+}
+
 int spi_flash_write_common(struct spi_flash *flash, const u8 *cmd,
 		size_t cmd_len, const void *buf, size_t buf_len)
 {
@@ -105,6 +150,53 @@ int spi_flash_write_common(struct spi_flash *flash, const u8 *cmd,
 	}
 
 	spi_release_bus(spi);
+
+	return ret;
+}
+
+int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
+{
+	u32 erase_size;
+	u8 cmd[4];
+	int ret = -1;
+
+	erase_size = flash->sector_size;
+	if (offset % erase_size || len % erase_size) {
+		debug("SF: Erase offset/length not multiple of erase size\n");
+		return -1;
+	}
+
+	if (erase_size == 4096)
+		cmd[0] = CMD_ERASE_4K;
+	else
+		cmd[0] = CMD_ERASE_64K;
+
+	while (len) {
+#ifdef CONFIG_SPI_FLASH_BAR
+		u8 bank_sel;
+
+		bank_sel = offset / SPI_FLASH_16MB_BOUN;
+
+		ret = spi_flash_cmd_bankaddr_write(flash, bank_sel);
+		if (ret) {
+			debug("SF: fail to set bank%d\n", bank_sel);
+			return ret;
+		}
+#endif
+		spi_flash_addr(offset, cmd);
+
+		debug("SF: erase %2x %2x %2x %2x (%x)\n", cmd[0], cmd[1],
+		      cmd[2], cmd[3], offset);
+
+		ret = spi_flash_write_common(flash, cmd, sizeof(cmd), NULL, 0);
+		if (ret < 0) {
+			debug("SF: erase failed\n");
+			break;
+		}
+
+		offset += erase_size;
+		len -= erase_size;
+	}
 
 	return ret;
 }
@@ -213,98 +305,6 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 		offset += read_len;
 		len -= read_len;
 		data += read_len;
-	}
-
-	return ret;
-}
-
-int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
-{
-	struct spi_slave *spi = flash->spi;
-	unsigned long timebase;
-	int ret;
-	u8 status;
-	u8 check_status = 0x0;
-	u8 poll_bit = STATUS_WIP;
-	u8 cmd = flash->poll_cmd;
-
-	if (cmd == CMD_FLAG_STATUS) {
-		poll_bit = STATUS_PEC;
-		check_status = poll_bit;
-	}
-
-	ret = spi_xfer(spi, 8, &cmd, NULL, SPI_XFER_BEGIN);
-	if (ret) {
-		debug("SF: fail to read %s status register\n",
-			cmd == CMD_READ_STATUS ? "read" : "flag");
-		return ret;
-	}
-
-	timebase = get_timer(0);
-	do {
-		WATCHDOG_RESET();
-
-		ret = spi_xfer(spi, 8, NULL, &status, 0);
-		if (ret)
-			return -1;
-
-		if ((status & poll_bit) == check_status)
-			break;
-
-	} while (get_timer(timebase) < timeout);
-
-	spi_xfer(spi, 0, NULL, NULL, SPI_XFER_END);
-
-	if ((status & poll_bit) == check_status)
-		return 0;
-
-	/* Timed out */
-	debug("SF: time out!\n");
-	return -1;
-}
-
-int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
-{
-	u32 erase_size;
-	u8 cmd[4];
-	int ret = -1;
-
-	erase_size = flash->sector_size;
-	if (offset % erase_size || len % erase_size) {
-		debug("SF: Erase offset/length not multiple of erase size\n");
-		return -1;
-	}
-
-	if (erase_size == 4096)
-		cmd[0] = CMD_ERASE_4K;
-	else
-		cmd[0] = CMD_ERASE_64K;
-
-	while (len) {
-#ifdef CONFIG_SPI_FLASH_BAR
-		u8 bank_sel;
-
-		bank_sel = offset / SPI_FLASH_16MB_BOUN;
-
-		ret = spi_flash_cmd_bankaddr_write(flash, bank_sel);
-		if (ret) {
-			debug("SF: fail to set bank%d\n", bank_sel);
-			return ret;
-		}
-#endif
-		spi_flash_addr(offset, cmd);
-
-		debug("SF: erase %2x %2x %2x %2x (%x)\n", cmd[0], cmd[1],
-		      cmd[2], cmd[3], offset);
-
-		ret = spi_flash_write_common(flash, cmd, sizeof(cmd), NULL, 0);
-		if (ret < 0) {
-			debug("SF: erase failed\n");
-			break;
-		}
-
-		offset += erase_size;
-		len -= erase_size;
 	}
 
 	return ret;
