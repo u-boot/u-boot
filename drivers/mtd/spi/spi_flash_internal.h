@@ -108,6 +108,16 @@ int spi_flash_bank_config(struct spi_flash *flash, u8 idcode0);
  */
 int spi_flash_read_common(struct spi_flash *flash, const u8 *cmd,
 		size_t cmd_len, void *data, size_t data_len);
+/*
+ * Used for spi_flash write operation
+ * - SPI claim
+ * - spi_flash_cmd_write_enable
+ * - spi_flash_cmd_write
+ * - spi_flash_cmd_wait_ready
+ * - SPI release
+ */
+int spi_flash_write_common(struct spi_flash *flash, const u8 *cmd,
+		size_t cmd_len, const void *buf, size_t buf_len);
 
 /*
  * Send the read status command to the device and wait for the wip
