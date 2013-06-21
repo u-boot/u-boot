@@ -40,6 +40,8 @@
 
 #include <asm/omap_gpio.h>
 
+#define OMAP_MAX_GPIO			192
+
 #define OMAP44XX_GPIO1_BASE		0x4A310000
 #define OMAP44XX_GPIO2_BASE		0x48055000
 #define OMAP44XX_GPIO3_BASE		0x48057000
