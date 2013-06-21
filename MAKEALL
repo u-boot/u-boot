@@ -2,6 +2,8 @@
 # Tool mainly for U-Boot Quality Assurance: build one or more board
 # configurations with minimal verbosity, showing only warnings and
 # errors.
+#
+# SPDX-License-Identifier:	GPL-2.0+
 
 usage()
 {
