@@ -254,8 +254,18 @@ int spi_flash_read_common(struct spi_flash *flash, const u8 *cmd,
 	struct spi_slave *spi = flash->spi;
 	int ret;
 
-	spi_claim_bus(spi);
+	ret = spi_claim_bus(flash->spi);
+	if (ret) {
+		debug("SF: unable to claim SPI bus\n");
+		return ret;
+	}
+
 	ret = spi_flash_cmd_read(spi, cmd, cmd_len, data, data_len);
+	if (ret < 0) {
+		debug("SF: read cmd failed\n");
+		return ret;
+	}
+
 	spi_release_bus(spi);
 
 	return ret;
