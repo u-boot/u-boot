@@ -557,6 +557,12 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 	if (flash->memory_map)
 		printf(", mapped at %p", flash->memory_map);
 	puts("\n");
+#ifndef CONFIG_SPI_FLASH_BAR
+	if (flash->size > SPI_FLASH_16MB_BOUN) {
+		puts("SF: Warning - Only lower 16MiB accessible,");
+		puts(" Full access #define CONFIG_SPI_FLASH_BAR\n");
+	}
+#endif
 
 	spi_release_bus(spi);
 
