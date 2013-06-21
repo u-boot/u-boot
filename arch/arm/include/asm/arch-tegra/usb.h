@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2011 The Chromium OS Authors.
+ * Copyright (c) 2013 NVIDIA Corporation
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -22,120 +23,6 @@
 #ifndef _TEGRA_USB_H_
 #define _TEGRA_USB_H_
 
-
-/* USB Controller (USBx_CONTROLLER_) regs */
-struct usb_ctlr {
-	/* 0x000 */
-	uint id;
-	uint reserved0;
-	uint host;
-	uint device;
-
-	/* 0x010 */
-	uint txbuf;
-	uint rxbuf;
-	uint reserved1[2];
-
-	/* 0x020 */
-	uint reserved2[56];
-
-	/* 0x100 */
-	u16 cap_length;
-	u16 hci_version;
-	uint hcs_params;
-	uint hcc_params;
-	uint reserved3[5];
-
-	/* 0x120 */
-	uint dci_version;
-	uint dcc_params;
-	uint reserved4[6];
-
-	/* 0x140 */
-	uint usb_cmd;
-	uint usb_sts;
-	uint usb_intr;
-	uint frindex;
-
-	/* 0x150 */
-	uint reserved5;
-	uint periodic_list_base;
-	uint async_list_addr;
-	uint async_tt_sts;
-
-	/* 0x160 */
-	uint burst_size;
-	uint tx_fill_tuning;
-	uint reserved6;   /* is this port_sc1 on some controllers? */
-	uint icusb_ctrl;
-
-	/* 0x170 */
-	uint ulpi_viewport;
-	uint reserved7;
-	uint endpt_nak;
-	uint endpt_nak_enable;
-
-	/* 0x180 */
-	uint reserved;
-	uint port_sc1;
-	uint reserved8[6];
-
-	/* 0x1a0 */
-	uint reserved9;
-	uint otgsc;
-	uint usb_mode;
-	uint endpt_setup_stat;
-
-	/* 0x1b0 */
-	uint reserved10[20];
-
-	/* 0x200 */
-	uint reserved11[0x80];
-
-	/* 0x400 */
-	uint susp_ctrl;
-	uint phy_vbus_sensors;
-	uint phy_vbus_wakeup_id;
-	uint phy_alt_vbus_sys;
-
-	/* 0x410 */
-	uint usb1_legacy_ctrl;
-	uint reserved12[4];
-
-	/* 0x424 */
-	uint ulpi_timing_ctrl_0;
-	uint ulpi_timing_ctrl_1;
-	uint reserved13[53];
-
-	/* 0x500 */
-	uint reserved14[64 * 3];
-
-	/* 0x800 */
-	uint utmip_pll_cfg0;
-	uint utmip_pll_cfg1;
-	uint utmip_xcvr_cfg0;
-	uint utmip_bias_cfg0;
-
-	/* 0x810 */
-	uint utmip_hsrx_cfg0;
-	uint utmip_hsrx_cfg1;
-	uint utmip_fslsrx_cfg0;
-	uint utmip_fslsrx_cfg1;
-
-	/* 0x820 */
-	uint utmip_tx_cfg0;
-	uint utmip_misc_cfg0;
-	uint utmip_misc_cfg1;
-	uint utmip_debounce_cfg0;
-
-	/* 0x830 */
-	uint utmip_bat_chrg_cfg0;
-	uint utmip_spare_cfg0;
-	uint utmip_xcvr_cfg1;
-	uint utmip_bias_cfg1;
-};
-
-
 /* USB1_LEGACY_CTRL */
 #define USB1_NO_LEGACY_MODE		1
 
@@ -146,24 +33,17 @@ struct usb_ctlr {
 #define VBUS_SENSE_CTL_AB_SESS_VLD		2
 #define VBUS_SENSE_CTL_A_SESS_VLD		3
 
-/* USB2_IF_ULPI_TIMING_CTRL_0 */
-#define ULPI_OUTPUT_PINMUX_BYP			(1 << 10)
-#define ULPI_CLKOUT_PINMUX_BYP			(1 << 11)
-
-/* USB2_IF_ULPI_TIMING_CTRL_1 */
-#define ULPI_DATA_TRIMMER_LOAD			(1 << 0)
-#define ULPI_DATA_TRIMMER_SEL(x)		(((x) & 0x7) << 1)
-#define ULPI_STPDIRNXT_TRIMMER_LOAD		(1 << 16)
-#define ULPI_STPDIRNXT_TRIMMER_SEL(x)	(((x) & 0x7) << 17)
-#define ULPI_DIR_TRIMMER_LOAD			(1 << 24)
-#define ULPI_DIR_TRIMMER_SEL(x)			(((x) & 0x7) << 25)
-
 /* USBx_IF_USB_SUSP_CTRL_0 */
-#define ULPI_PHY_ENB				(1 << 13)
 #define UTMIP_PHY_ENB			        (1 << 12)
 #define UTMIP_RESET			        (1 << 11)
 #define USB_PHY_CLK_VALID			(1 << 7)
 #define USB_SUSP_CLR				(1 << 5)
+
+/* USB2_IF_USB_SUSP_CTRL_0 */
+#define ULPI_PHY_ENB				(1 << 13)
+
+/* USBx_UTMIP_MISC_CFG0 */
+#define UTMIP_SUSPEND_EXIT_ON_EDGE		(1 << 22)
 
 /* USBx_UTMIP_MISC_CFG1 */
 #define UTMIP_PLLU_STABLE_COUNT_SHIFT		6
@@ -177,15 +57,28 @@ struct usb_ctlr {
 /* USBx_UTMIP_PLL_CFG1_0 */
 #define UTMIP_PLLU_ENABLE_DLY_COUNT_SHIFT	27
 #define UTMIP_PLLU_ENABLE_DLY_COUNT_MASK	\
-				(0xf << UTMIP_PLLU_ENABLE_DLY_COUNT_SHIFT)
+				(0x1f << UTMIP_PLLU_ENABLE_DLY_COUNT_SHIFT)
 #define UTMIP_XTAL_FREQ_COUNT_SHIFT		0
 #define UTMIP_XTAL_FREQ_COUNT_MASK		0xfff
 
+/* USBx_UTMIP_BIAS_CFG0_0 */
+#define UTMIP_HSDISCON_LEVEL_MSB		(1 << 24)
+#define UTMIP_OTGPD				(1 << 11)
+#define UTMIP_BIASPD				(1 << 10)
+#define UTMIP_HSDISCON_LEVEL_SHIFT		2
+#define UTMIP_HSDISCON_LEVEL_MASK		\
+				(0x3 << UTMIP_HSDISCON_LEVEL_SHIFT)
+#define UTMIP_HSSQUELCH_LEVEL_SHIFT		0
+#define UTMIP_HSSQUELCH_LEVEL_MASK		\
+				(0x3 << UTMIP_HSSQUELCH_LEVEL_SHIFT)
+
 /* USBx_UTMIP_BIAS_CFG1_0 */
+#define UTMIP_FORCE_PDTRK_POWERDOWN		1
 #define UTMIP_BIAS_PDTRK_COUNT_SHIFT		3
 #define UTMIP_BIAS_PDTRK_COUNT_MASK		\
 				(0x1f << UTMIP_BIAS_PDTRK_COUNT_SHIFT)
 
+/* USBx_UTMIP_DEBOUNCE_CFG0_0 */
 #define UTMIP_DEBOUNCE_CFG0_SHIFT		0
 #define UTMIP_DEBOUNCE_CFG0_MASK		0xffff
 
@@ -194,9 +87,6 @@ struct usb_ctlr {
 
 /* USBx_UTMIP_BAT_CHRG_CFG0_0 */
 #define UTMIP_PD_CHRG				1
-
-/* USBx_UTMIP_XCVR_CFG0_0 */
-#define UTMIP_XCVR_LSBIAS_SE			(1 << 21)
 
 /* USBx_UTMIP_SPARE_CFG0_0 */
 #define FUSE_SETUP_SEL				(1 << 3)
@@ -208,23 +98,26 @@ struct usb_ctlr {
 #define UTMIP_ELASTIC_LIMIT_MASK		\
 				(0x1f << UTMIP_ELASTIC_LIMIT_SHIFT)
 
-/* USBx_UTMIP_HSRX_CFG0_1 */
+/* USBx_UTMIP_HSRX_CFG1_0 */
 #define UTMIP_HS_SYNC_START_DLY_SHIFT		1
 #define UTMIP_HS_SYNC_START_DLY_MASK		\
-				(0xf << UTMIP_HS_SYNC_START_DLY_SHIFT)
+				(0x1f << UTMIP_HS_SYNC_START_DLY_SHIFT)
 
 /* USBx_CONTROLLER_2_USB2D_ICUSB_CTRL_0 */
 #define IC_ENB1					(1 << 3)
 
-/* SB2_CONTROLLER_2_USB2D_PORTSC1_0 */
-#define PTS_SHIFT				30
-#define PTS_MASK				(3U << PTS_SHIFT)
-#define PTS_UTMI		0
-#define PTS_RESERVED	1
-#define PTS_ULPI		2
-#define PTS_ICUSB_SER	3
+/* PORTSC1, USB1, defined for Tegra20 */
+#define PTS1_SHIFT				31
+#define PTS1_MASK				(1 << PTS1_SHIFT)
+#define STS1					(1 << 30)
 
-#define STS					(1 << 29)
+#define PTS_UTMI	0
+#define PTS_RESERVED	1
+#define PTS_ULPI	2
+#define PTS_ICUSB_SER	3
+#define PTS_HSIC	4
+
+/* SB2_CONTROLLER_2_USB2D_PORTSC1_0 */
 #define WKOC				(1 << 22)
 #define WKDS				(1 << 21)
 #define WKCN				(1 << 20)
@@ -233,8 +126,19 @@ struct usb_ctlr {
 #define UTMIP_FORCE_PD_POWERDOWN		(1 << 14)
 #define UTMIP_FORCE_PD2_POWERDOWN		(1 << 16)
 #define UTMIP_FORCE_PDZI_POWERDOWN		(1 << 18)
+#define UTMIP_XCVR_LSBIAS_SE			(1 << 21)
+#define UTMIP_XCVR_HSSLEW_MSB_SHIFT		25
+#define UTMIP_XCVR_HSSLEW_MSB_MASK		\
+			(0x7f << UTMIP_XCVR_HSSLEW_MSB_SHIFT)
+#define UTMIP_XCVR_SETUP_MSB_SHIFT	22
+#define UTMIP_XCVR_SETUP_MSB_MASK	(0x7 << UTMIP_XCVR_SETUP_MSB_SHIFT)
+#define UTMIP_XCVR_SETUP_SHIFT		0
+#define UTMIP_XCVR_SETUP_MASK		(0xf << UTMIP_XCVR_SETUP_SHIFT)
 
 /* USBx_UTMIP_XCVR_CFG1_0 */
+#define UTMIP_XCVR_TERM_RANGE_ADJ_SHIFT		18
+#define UTMIP_XCVR_TERM_RANGE_ADJ_MASK		\
+			(0xf << UTMIP_XCVR_TERM_RANGE_ADJ_SHIFT)
 #define UTMIP_FORCE_PDDISC_POWERDOWN		(1 << 0)
 #define UTMIP_FORCE_PDCHRP_POWERDOWN		(1 << 2)
 #define UTMIP_FORCE_PDDR_POWERDOWN		(1 << 4)
