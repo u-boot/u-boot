@@ -70,6 +70,15 @@ fixnext:
 
 relocate_done:
 
+#ifdef __XSCALE__
+	/*
+	 * On xscale, icache must be invalidated and write buffers drained,
+	 * even with cache disabled - 4.2.7 of xscale core developer's manual
+	 */
+	mcr	p15, 0, r0, c7, c7, 0	/* invalidate icache */
+	mcr	p15, 0, r0, c7, c10, 4	/* drain write buffer */
+#endif
+
 	/* ARMv4- don't know bx lr but the assembler fails to see that */
 
 #ifdef __ARM_ARCH_4__
