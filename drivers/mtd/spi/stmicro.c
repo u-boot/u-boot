@@ -210,5 +210,9 @@ struct spi_flash *spi_flash_probe_stmicro(struct spi_slave *spi, u8 * idcode)
 	flash->sector_size = 256 * params->pages_per_sector;
 	flash->size = flash->sector_size * params->nr_sectors;
 
+	/* for >= 512MiB flashes, use flag status instead of read_status */
+	if (flash->size >= 0x4000000)
+		flash->poll_cmd = CMD_FLAG_STATUS;
+
 	return flash;
 }

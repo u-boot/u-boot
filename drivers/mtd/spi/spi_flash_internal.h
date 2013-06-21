@@ -22,6 +22,7 @@
 #define CMD_PAGE_PROGRAM		0x02
 #define CMD_WRITE_DISABLE		0x04
 #define CMD_READ_STATUS			0x05
+#define CMD_FLAG_STATUS			0x70
 #define CMD_WRITE_ENABLE		0x06
 #define CMD_ERASE_4K			0x20
 #define CMD_ERASE_32K			0x52
@@ -45,6 +46,7 @@
 
 /* Common status */
 #define STATUS_WIP			0x01
+#define STATUS_PEC			0x80
 
 /* Send a single-byte command to the device and read the response */
 int spi_flash_cmd(struct spi_slave *spi, u8 cmd, void *response, size_t len);

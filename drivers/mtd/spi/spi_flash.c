@@ -200,12 +200,19 @@ int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
 	unsigned long timebase;
 	int ret;
 	u8 status;
+	u8 check_status = 0x0;
 	u8 poll_bit = STATUS_WIP;
-	u8 cmd = CMD_READ_STATUS;
+	u8 cmd = flash->poll_cmd;
+
+	if (cmd == CMD_FLAG_STATUS) {
+		poll_bit = STATUS_PEC;
+		check_status = poll_bit;
+	}
 
 	ret = spi_xfer(spi, 8, &cmd, NULL, SPI_XFER_BEGIN);
 	if (ret) {
-		debug("SF: Failed to send command %02x: %d\n", cmd, ret);
+		debug("SF: fail to read %s status register\n",
+			cmd == CMD_READ_STATUS ? "read" : "flag");
 		return ret;
 	}
 
@@ -217,14 +224,14 @@ int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
 		if (ret)
 			return -1;
 
-		if ((status & poll_bit) == 0)
+		if ((status & poll_bit) == check_status)
 			break;
 
 	} while (get_timer(timebase) < timeout);
 
 	spi_xfer(spi, 0, NULL, NULL, SPI_XFER_END);
 
-	if ((status & poll_bit) == 0)
+	if ((status & poll_bit) == check_status)
 		return 0;
 
 	/* Timed out */
@@ -584,6 +591,7 @@ void *spi_flash_do_alloc(int offset, int size, struct spi_slave *spi,
 	/* Set up some basic fields - caller will sort out sizes */
 	flash->spi = spi;
 	flash->name = name;
+	flash->poll_cmd = CMD_READ_STATUS;
 
 	flash->read = spi_flash_cmd_read_fast;
 	flash->write = spi_flash_cmd_write_multi;
