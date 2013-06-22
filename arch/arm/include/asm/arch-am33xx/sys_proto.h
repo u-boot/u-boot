@@ -32,6 +32,7 @@ extern struct ctrl_stat *cstat;
 u32 get_device_type(void);
 void save_omap_boot_params(void);
 void setup_clocks_for_console(void);
+void mpu_pll_config_val(int mpull_m);
 void ddr_pll_config(unsigned int ddrpll_M);
 
 void sdelay(unsigned long);
@@ -41,4 +42,7 @@ void gpmc_init(void);
 void enable_gpmc_cs_config(const u32 *gpmc_config, struct gpmc_cs *cs, u32 base,
 			u32 size);
 void omap_nand_switch_ecc(uint32_t, uint32_t);
+
+void rtc32k_enable(void);
+void uart_soft_reset(void);
 #endif

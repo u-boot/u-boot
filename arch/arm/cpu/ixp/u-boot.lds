@@ -31,6 +31,7 @@ SECTIONS
 	. = ALIGN(4);
 	.text :
 	{
+		*(.__image_copy_start)
 		arch/arm/cpu/ixp/start.o(.text*)
 		*(.text*)
 	}
@@ -54,17 +55,23 @@ SECTIONS
 
 	. = ALIGN(4);
 
-	__image_copy_end = .;
-
-	.rel.dyn : {
-		__rel_dyn_start = .;
-		*(.rel*)
-		__rel_dyn_end = .;
+	.image_copy_end :
+	{
+		*(.__image_copy_end)
 	}
 
-	.dynsym : {
-		__dynsym_start = .;
-		*(.dynsym)
+	.rel_dyn_start :
+	{
+		*(.__rel_dyn_start)
+	}
+
+	.rel.dyn : {
+		*(.rel*)
+	}
+
+	.rel_dyn_end :
+	{
+		*(.__rel_dyn_end)
 	}
 
 	_end = .;
@@ -88,6 +95,7 @@ SECTIONS
 		KEEP(*(.__bss_end));
 	}
 
+	/DISCARD/ : { *(.dynsym) }
 	/DISCARD/ : { *(.dynstr*) }
 	/DISCARD/ : { *(.dynamic*) }
 	/DISCARD/ : { *(.plt*) }

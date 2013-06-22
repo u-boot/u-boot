@@ -121,19 +121,6 @@
 #define UBRDIV_OFFSET		0x28
 #define UFRACVAL_OFFSET		0x2C
 
-/* TZPC : Register Offsets */
-#define TZPC0_BASE		0x10110000
-#define TZPC1_BASE		0x10120000
-#define TZPC2_BASE		0x10130000
-#define TZPC3_BASE		0x10140000
-#define TZPC4_BASE		0x10150000
-#define TZPC5_BASE		0x10160000
-
-#define TZPC_DECPROT0SET_OFFSET	0x804
-#define TZPC_DECPROT1SET_OFFSET	0x810
-#define TZPC_DECPROT2SET_OFFSET	0x81C
-#define TZPC_DECPROT3SET_OFFSET	0x828
-
 /* CLK_SRC_CPU */
 #define MUX_HPM_SEL_MOUTAPLL		0x0
 #define MUX_HPM_SEL_SCLKMPLL		0x1
@@ -617,16 +604,4 @@
  * UBRFRACVAL = ((((800MHz*10/(115200*16) -10))%10)*16/10)
  */
 #define UFRACVAL_VAL		0x4
-
-/*
- * TZPC Register Value :
- * R0SIZE: 0x0 : Size of secured ram
- */
-#define R0SIZE			0x0
-
-/*
- * TZPC Decode Protection Register Value :
- * DECPROTXSET: 0xFF : Set Decode region to non-secure
- */
-#define DECPROTXSET		0xFF
 #endif

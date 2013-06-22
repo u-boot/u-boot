@@ -58,11 +58,6 @@ SECTIONS
 		__rel_dyn_end = .;
 	}
 
-	.dynsym : {
-		__dynsym_start = .;
-		*(.dynsym)
-	}
-
 	_end = .;
 
 	.bss __rel_dyn_start (OVERLAY) : {
@@ -72,6 +67,7 @@ SECTIONS
 		__bss_end = .;
 	}
 
+	/DISCARD/ : { *(.dynsym) }
 	/DISCARD/ : { *(.dynstr*) }
 	/DISCARD/ : { *(.dynamic*) }
 	/DISCARD/ : { *(.plt*) }

@@ -319,10 +319,10 @@ void lcd_ctrl_init(void *lcdbase)
 #ifdef CONFIG_OF_CONTROL
 	if (exynos_fimd_parse_dt(gd->fdt_blob))
 		debug("Can't get proper panel info\n");
-#endif
+#else
 	/* initialize parameters which is specific to panel. */
 	init_panel_info(&panel_info);
-
+#endif
 	panel_width = panel_info.vl_width;
 	panel_height = panel_info.vl_height;
 

@@ -50,15 +50,15 @@
 /* Tmeperature threshold values for various thermal events */
 struct temperature_params {
 	/* minimum value in temperature code range */
-	unsigned int min_val;
+	unsigned min_val;
 	/* maximum value in temperature code range */
-	unsigned int max_val;
+	unsigned max_val;
 	/* temperature threshold to start warning */
-	unsigned int start_warning;
+	unsigned start_warning;
 	/* temperature threshold CPU tripping */
-	unsigned int start_tripping;
+	unsigned start_tripping;
 	/* temperature threshold for HW tripping */
-	unsigned int hardware_tripping;
+	unsigned hardware_tripping;
 };
 
 /* Pre-defined values and thresholds for calibration of current temperature */
@@ -66,25 +66,27 @@ struct tmu_data {
 	/* pre-defined temperature thresholds */
 	struct temperature_params ts;
 	/* pre-defined efuse range minimum value */
-	unsigned int efuse_min_value;
+	unsigned efuse_min_value;
 	/* pre-defined efuse value for temperature calibration */
-	unsigned int efuse_value;
+	unsigned efuse_value;
 	/* pre-defined efuse range maximum value */
-	unsigned int efuse_max_value;
+	unsigned efuse_max_value;
 	/* current temperature sensing slope */
-	unsigned int slope;
+	unsigned slope;
 };
 
 /* TMU device specific details and status */
 struct tmu_info {
 	/* base Address for the TMU */
-	unsigned tmu_base;
+	struct exynos5_tmu_reg *tmu_base;
+	/* mux Address for the TMU */
+	int tmu_mux;
 	/* pre-defined values for calibration and thresholds */
 	struct tmu_data data;
 	/* value required for triminfo_25 calibration */
-	unsigned int te1;
+	unsigned te1;
 	/* value required for triminfo_85 calibration */
-	unsigned int te2;
+	unsigned te2;
 	/* Value for measured data calibration */
 	int dc_value;
 	/* enum value indicating status of the TMU */
@@ -103,17 +105,24 @@ static struct tmu_info gbl_info;
  */
 static int get_cur_temp(struct tmu_info *info)
 {
-	int cur_temp;
-	struct exynos5_tmu_reg *reg = (struct exynos5_tmu_reg *)info->tmu_base;
+	struct exynos5_tmu_reg *reg = info->tmu_base;
+	ulong start;
+	int cur_temp = 0;
 
 	/*
 	 * Temperature code range between min 25 and max 125.
 	 * May run more than once for first call as initial sensing
 	 * has not yet happened.
 	 */
-	do {
-		cur_temp = readl(&reg->current_temp) & 0xff;
-	} while (cur_temp == 0 && info->tmu_state == TMU_STATUS_NORMAL);
+	if (info->tmu_state == TMU_STATUS_NORMAL) {
+		start = get_timer(0);
+		do {
+			cur_temp = readl(&reg->current_temp) & 0xff;
+		} while ((cur_temp == 0) || (get_timer(start) > 100));
+	}
+
+	if (cur_temp == 0)
+		return cur_temp;
 
 	/* Calibrate current temperature */
 	cur_temp = cur_temp - info->te1 + info->dc_value;
@@ -137,23 +146,29 @@ enum tmu_status_t tmu_monitor(int *temp)
 
 	/* Read current temperature of the SOC */
 	cur_temp = get_cur_temp(&gbl_info);
+
+	if (!cur_temp)
+		goto out;
+
 	*temp = cur_temp;
 
 	/* Temperature code lies between min 25 and max 125 */
-	if (cur_temp >= data->ts.start_tripping &&
-			cur_temp <= data->ts.max_val) {
+	if ((cur_temp >= data->ts.start_tripping) &&
+	    (cur_temp <= data->ts.max_val))
 		return TMU_STATUS_TRIPPED;
-	} else if (cur_temp >= data->ts.start_warning) {
+
+	if (cur_temp >= data->ts.start_warning)
 		return TMU_STATUS_WARNING;
-	} else if (cur_temp < data->ts.start_warning &&
-			cur_temp >= data->ts.min_val) {
+
+	if ((cur_temp < data->ts.start_warning) &&
+	    (cur_temp >= data->ts.min_val))
 		return TMU_STATUS_NORMAL;
-	} else {
-		/* Temperature code does not lie between min 25 and max 125 */
-		gbl_info.tmu_state = TMU_STATUS_INIT;
-		debug("EXYNOS_TMU: Thermal reading failed\n");
-		return TMU_STATUS_INIT;
-	}
+
+ out:
+	/* Temperature code does not lie between min 25 and max 125 */
+	gbl_info.tmu_state = TMU_STATUS_INIT;
+	debug("EXYNOS_TMU: Thermal reading failed\n");
+	return TMU_STATUS_INIT;
 }
 
 /*
@@ -166,6 +181,7 @@ enum tmu_status_t tmu_monitor(int *temp)
 static int get_tmu_fdt_values(struct tmu_info *info, const void *blob)
 {
 #ifdef CONFIG_OF_CONTROL
+	fdt_addr_t addr;
 	int node;
 	int error = 0;
 
@@ -183,46 +199,58 @@ static int get_tmu_fdt_values(struct tmu_info *info, const void *blob)
 	 * miscalculation of register values in tmu_setup_parameters
 	 * may result in misleading current temperature.
 	 */
-	info->tmu_base = fdtdec_get_addr(blob, node, "reg");
-	if (info->tmu_base == FDT_ADDR_T_NONE) {
+	addr = fdtdec_get_addr(blob, node, "reg");
+	if (addr == FDT_ADDR_T_NONE) {
 		debug("%s: Missing tmu-base\n", __func__);
 		return -1;
 	}
+	info->tmu_base = (struct exynos5_tmu_reg *)addr;
+
+	/* Optional field. */
+	info->tmu_mux = fdtdec_get_int(blob,
+				node, "samsung,mux", -1);
+	/* Take default value as per the user manual b(110) */
+	if (info->tmu_mux == -1)
+		info->tmu_mux = 0x6;
+
 	info->data.ts.min_val = fdtdec_get_int(blob,
 				node, "samsung,min-temp", -1);
-	error |= info->data.ts.min_val;
+	error |= (info->data.ts.min_val == -1);
 	info->data.ts.max_val = fdtdec_get_int(blob,
 				node, "samsung,max-temp", -1);
-	error |= info->data.ts.max_val;
+	error |= (info->data.ts.max_val == -1);
 	info->data.ts.start_warning = fdtdec_get_int(blob,
 				node, "samsung,start-warning", -1);
-	error |= info->data.ts.start_warning;
+	error |= (info->data.ts.start_warning == -1);
 	info->data.ts.start_tripping = fdtdec_get_int(blob,
 				node, "samsung,start-tripping", -1);
-	error |= info->data.ts.start_tripping;
+	error |= (info->data.ts.start_tripping == -1);
 	info->data.ts.hardware_tripping = fdtdec_get_int(blob,
 				node, "samsung,hw-tripping", -1);
-	error |= info->data.ts.hardware_tripping;
+	error |= (info->data.ts.hardware_tripping == -1);
 	info->data.efuse_min_value = fdtdec_get_int(blob,
 				node, "samsung,efuse-min-value", -1);
-	error |= info->data.efuse_min_value;
+	error |= (info->data.efuse_min_value == -1);
 	info->data.efuse_value = fdtdec_get_int(blob,
 				node, "samsung,efuse-value", -1);
-	error |= info->data.efuse_value;
+	error |= (info->data.efuse_value == -1);
 	info->data.efuse_max_value = fdtdec_get_int(blob,
 				node, "samsung,efuse-max-value", -1);
-	error |= info->data.efuse_max_value;
+	error |= (info->data.efuse_max_value == -1);
 	info->data.slope = fdtdec_get_int(blob,
 				node, "samsung,slope", -1);
-	error |= info->data.slope;
+	error |= (info->data.slope == -1);
 	info->dc_value = fdtdec_get_int(blob,
 				node, "samsung,dc-value", -1);
-	error |= info->dc_value;
+	error |= (info->dc_value == -1);
 
-	if (error == -1) {
+	if (error) {
 		debug("fail to get tmu node properties\n");
 		return -1;
 	}
+#else
+	/* Non DT support may never be added. Just in case  */
+	return -1;
 #endif
 
 	return 0;
@@ -236,12 +264,12 @@ static int get_tmu_fdt_values(struct tmu_info *info, const void *blob)
  */
 static void tmu_setup_parameters(struct tmu_info *info)
 {
-	unsigned int te_code, con;
-	unsigned int warning_code, trip_code, hwtrip_code;
-	unsigned int cooling_temp;
-	unsigned int rising_value;
+	unsigned te_code, con;
+	unsigned warning_code, trip_code, hwtrip_code;
+	unsigned cooling_temp;
+	unsigned rising_value;
 	struct tmu_data *data = &info->data;
-	struct exynos5_tmu_reg *reg = (struct exynos5_tmu_reg *)info->tmu_base;
+	struct exynos5_tmu_reg *reg = info->tmu_base;
 
 	/* Must reload for reading efuse value from triminfo register */
 	writel(TRIMINFO_RELOAD, &reg->triminfo_control);
@@ -288,7 +316,7 @@ static void tmu_setup_parameters(struct tmu_info *info)
 
 	/* TMU core enable */
 	con = readl(&reg->tmu_control);
-	con |= THERM_TRIP_EN | CORE_EN;
+	con |= THERM_TRIP_EN | CORE_EN | (info->tmu_mux << 20);
 
 	writel(con, &reg->tmu_control);
 
@@ -314,6 +342,5 @@ int tmu_init(const void *blob)
 	tmu_setup_parameters(&gbl_info);
 	gbl_info.tmu_state = TMU_STATUS_NORMAL;
 ret:
-
 	return gbl_info.tmu_state;
 }

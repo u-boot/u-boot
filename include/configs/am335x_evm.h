@@ -60,7 +60,7 @@
 	"rdaddr=0x81000000\0" \
 	"bootdir=/boot\0" \
 	"bootfile=uImage\0" \
-	"fdtfile=\0" \
+	"fdtfile=undefined\0" \
 	"console=ttyO0,115200n8\0" \
 	"optargs=\0" \
 	"mtdids=" MTDIDS_DEFAULT "\0" \
@@ -145,8 +145,9 @@
 		"if test $board_name = A33515BB; then " \
 			"setenv fdtfile am335x-evm.dtb; fi; " \
 		"if test $board_name = A335X_SK; then " \
-			"setenv fdtfile am335x-evmsk.dtb; fi\0" \
-
+			"setenv fdtfile am335x-evmsk.dtb; fi " \
+		"if test $fdtfile = undefined; then " \
+			"echo WARNING: Could not determine device tree to use; fi; \0"
 #endif
 
 #define CONFIG_BOOTCOMMAND \

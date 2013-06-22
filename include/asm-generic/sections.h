@@ -90,9 +90,6 @@ extern void _start(void);
 extern ulong _rel_dyn_start_ofs;
 extern ulong _rel_dyn_end_ofs;
 
-/* Start/end of the relocation symbol table, as an offset from _start */
-extern ulong _dynsym_start_ofs;
-
 /* End of the region to be relocated, as an offset form _start */
 extern ulong _image_copy_end_ofs;
 

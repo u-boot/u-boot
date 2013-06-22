@@ -116,10 +116,8 @@ static int exynos_get_pll_clk(int pllreg, unsigned int r, unsigned int k)
 		/* FOUT = (MDIV + K / 1024) * FIN / (PDIV * 2^SDIV) */
 		fout = (m + k / 1024) * (freq / (p * (1 << s)));
 	} else {
-		if (s < 1)
-			s = 1;
-		/* FOUT = MDIV * FIN / (PDIV * 2^(SDIV - 1)) */
-		fout = m * (freq / (p * (1 << (s - 1))));
+		/* FOUT = MDIV * FIN / (PDIV * 2^SDIV) */
+		fout = m * (freq / (p * (1 << s)));
 	}
 
 	return fout;
@@ -613,7 +611,7 @@ static unsigned long exynos4_get_mmc_clk(int dev_index)
 		(struct exynos4_clock *)samsung_get_base_clock();
 	unsigned long uclk, sclk;
 	unsigned int sel, ratio, pre_ratio;
-	int shift;
+	int shift = 0;
 
 	sel = readl(&clk->src_fsys);
 	sel = (sel >> (dev_index << 2)) & 0xf;
@@ -662,7 +660,7 @@ static unsigned long exynos5_get_mmc_clk(int dev_index)
 		(struct exynos5_clock *)samsung_get_base_clock();
 	unsigned long uclk, sclk;
 	unsigned int sel, ratio, pre_ratio;
-	int shift;
+	int shift = 0;
 
 	sel = readl(&clk->src_fsys);
 	sel = (sel >> (dev_index << 2)) & 0xf;

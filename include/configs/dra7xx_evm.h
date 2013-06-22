@@ -41,4 +41,7 @@
 #define CONFIG_BAUDRATE			115200
 
 #define CONFIG_SYS_OMAP_ABE_SYSCK
+
+#define CONSOLEDEV		"ttyO0"
+
 #endif /* __CONFIG_DRA7XX_EVM_H */

@@ -43,7 +43,7 @@ SOBJS-y += relocate.o
 ifndef CONFIG_SYS_GENERIC_BOARD
 COBJS-y	+= board.o
 endif
-COBJS-y += bss.o
+COBJS-y += sections.o
 
 COBJS-y	+= bootm.o
 COBJS-$(CONFIG_OF_LIBFDT) += bootm-fdt.o

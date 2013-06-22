@@ -28,18 +28,6 @@
 #include <config.h>
 #include <asm/arch/dmc.h>
 
-/* TZPC : Register Offsets */
-#define TZPC0_BASE		0x10100000
-#define TZPC1_BASE		0x10110000
-#define TZPC2_BASE		0x10120000
-#define TZPC3_BASE		0x10130000
-#define TZPC4_BASE		0x10140000
-#define TZPC5_BASE		0x10150000
-#define TZPC6_BASE		0x10160000
-#define TZPC7_BASE		0x10170000
-#define TZPC8_BASE		0x10180000
-#define TZPC9_BASE		0x10190000
-
 /* APLL_CON1	*/
 #define APLL_CON1_VAL	(0x00203800)
 
@@ -458,18 +446,6 @@
 /* CLK_GATE_IP_DISP1 */
 #define CLK_GATE_DP1_ALLOW	(1 << 4)
 
-/*
- * TZPC Register Value :
- * R0SIZE: 0x0 : Size of secured ram
- */
-#define R0SIZE			0x0
-
-/*
- * TZPC Decode Protection Register Value :
- * DECPROTXSET: 0xFF : Set Decode region to non-secure
- */
-#define DECPROTXSET		0xFF
-
 #define DDR3PHY_CTRL_PHY_RESET	(1 << 0)
 #define DDR3PHY_CTRL_PHY_RESET_OFF	(0 << 0)
 
@@ -590,5 +566,4 @@ void update_reset_dll(struct exynos5_dmc *, enum ddr_mode);
 void sdelay(unsigned long);
 void mem_ctrl_init(void);
 void system_clock_init(void);
-void tzpc_init(void);
 #endif
