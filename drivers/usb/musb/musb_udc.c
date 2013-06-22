@@ -894,8 +894,7 @@ void udc_setup_ep(struct usb_device_instance *device, unsigned int id,
 			epinfo[id * 2].epsize = endpoint->rcv_packetSize;
 		}
 
-		musb_configure_ep(&epinfo[0],
-				  sizeof(epinfo) / sizeof(struct musb_epinfo));
+		musb_configure_ep(&epinfo[0], ARRAY_SIZE(epinfo));
 	} else {
 		if (debug_level > 0)
 			serial_printf("ERROR : %s endpoint request %d "
