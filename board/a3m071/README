@@ -57,13 +57,13 @@ the following command:
 => fdt print
 
 5. Save fdt to NOR flash:
-=> erase fc060000 fc07ffff
-=> cp.b 1800000 fc060000 10000
+=> erase fc180000 fc07ffff
+=> cp.b 1800000 fc180000 10000
 
 All this can be integrated into an environment command:
-=> setenv upd_fdt 'tftp 1800000 a3m071/a3m071.dtb;run mtdargs addip2 addtty; \
-	fdt addr 1800000;fdt boardsetup;fdt chosen;erase fc060000 fc07ffff; \
-	cp.b 1800000 fc060000 10000'
+=> setenv upd_fdt 'tftp 1800000 a3m071/a3m071.dtb;run mtdargs addip addtty; \
+	fdt addr 1800000;fdt boardsetup;fdt chosen;erase fc180000 fc07ffff; \
+	cp.b 1800000 fc180000 10000'
 => saveenv
 
 After this, only "run upd_fdt" needs to get called to load, patch
