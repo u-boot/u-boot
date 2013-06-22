@@ -127,8 +127,6 @@ static uchar i2c_no_probes[] = CONFIG_SYS_I2C_NOPROBES;
 #define COMPARE_ADDR(a,i)	(i2c_no_probes[(i)] == (a))
 #define NO_PROBE_ADDR(i)	i2c_no_probes[(i)]
 #endif	/* defined(CONFIG_SYS_I2C) */
-
-#define NUM_ELEMENTS_NOPROBE (sizeof(i2c_no_probes)/sizeof(i2c_no_probes[0]))
 #endif
 
 #define DISP_LINE_LEN	16
@@ -717,7 +715,7 @@ static int do_i2c_probe (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 
 #if defined(CONFIG_SYS_I2C_NOPROBES)
 		skip = 0;
-		for (k=0; k < NUM_ELEMENTS_NOPROBE; k++) {
+		for (k = 0; k < ARRAY_SIZE(i2c_no_probes); k++) {
 			if (COMPARE_BUS(bus, k) && COMPARE_ADDR(j, k)) {
 				skip = 1;
 				break;
@@ -735,7 +733,7 @@ static int do_i2c_probe (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 
 #if defined(CONFIG_SYS_I2C_NOPROBES)
 	puts ("Excluded chip addresses:");
-	for (k=0; k < NUM_ELEMENTS_NOPROBE; k++) {
+	for (k = 0; k < ARRAY_SIZE(i2c_no_probes); k++) {
 		if (COMPARE_BUS(bus,k))
 			printf(" %02X", NO_PROBE_ADDR(k));
 	}
