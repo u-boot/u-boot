@@ -37,7 +37,6 @@ static struct serial_device *serial_current;
  * Table with supported baudrates (defined in config_xyz.h)
  */
 static const unsigned long baudrate_table[] = CONFIG_SYS_BAUDRATE_TABLE;
-#define	N_BAUDRATES (sizeof(baudrate_table) / sizeof(baudrate_table[0]))
 
 /**
  * serial_null() - Void registration routine of a serial driver
@@ -74,11 +73,11 @@ static int on_baudrate(const char *name, const char *value, enum env_op op,
 		if (gd->baudrate == baudrate)
 			return 0;
 
-		for (i = 0; i < N_BAUDRATES; ++i) {
+		for (i = 0; i < ARRAY_SIZE(baudrate_table); ++i) {
 			if (baudrate == baudrate_table[i])
 				break;
 		}
-		if (i == N_BAUDRATES) {
+		if (i == ARRAY_SIZE(baudrate_table)) {
 			if ((flags & H_FORCE) == 0)
 				printf("## Baudrate %d bps not supported\n",
 					baudrate);
