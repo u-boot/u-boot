@@ -72,7 +72,7 @@
 #define CONFIG_SYS_MAX_RAM_SIZE		0x20000000
 
 /*
- * DDR Controller Configuration XXX TODO
+ * DDR Controller Configuration
  *
  * SYS_CFG:
  *	[31:31]	MDDRC Soft Reset:	Diabled
@@ -265,7 +265,6 @@
 
 /*
  * CS related parameters
- * TODO document these
  */
 /* CS0 Flash */
 #define CONFIG_SYS_CS0_CFG		0x00031110
@@ -331,8 +330,6 @@
 #endif
 
 #define CONFIG_BAUDRATE			115200	/* ... at 115200 bps */
-#define CONFIG_SYS_BAUDRATE_TABLE  \
-	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 115200}
 
 #define CONSOLE_FIFO_TX_SIZE		FIFOC_PSC3_TX_SIZE
 #define CONSOLE_FIFO_TX_ADDR		FIFOC_PSC3_TX_ADDR
@@ -497,30 +494,26 @@
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_TIMESTAMP
 
-#define CONFIG_HOSTNAME		ac14xx
-#define CONFIG_BOOTFILE		"ac14xx/uImage"
-#define CONFIG_ROOTPATH		"/opt/eldk/ppc_6xx"
-
 /* default load addr for tftp and bootm */
 #define CONFIG_LOADADDR		400000
 
 #define CONFIG_BOOTDELAY	2	/* -1 disables auto-boot */
 
-/* XXX TODO need to specify the builtin environment */
+/* the builtin environment and standard greeting */
 #define CONFIG_PREBOOT	"echo;"	\
 	"echo Type \\\"run flash_nfs\\\" to mount root filesystem over NFS;" \
 	"echo"
 
 #define CONFIG_EXTRA_ENV_SETTINGS_DEVEL					\
-	"muster_nr=00\0"						\
+	"muster_nr=-00\0"						\
 	"fromram=run ramargs addip addtty; "				\
-		"tftp ${fdt_addr_r} k6m2/ac14xx.dtb-${muster_nr}; "	\
-		"tftp ${kernel_addr_r} k6m2/uImage-${muster_nr}; "	\
-		"tftp ${ramdisk_addr_r} k6m2/uFS-${muster_nr}; "	\
+		"tftp ${fdt_addr_r} ac14xx/ac14xx.dtb${muster_nr}; "	\
+		"tftp ${kernel_addr_r} ac14xx/uImage${muster_nr}; "	\
+		"tftp ${ramdisk_addr_r} ac14xx/uFS${muster_nr}; "	\
 		"bootm ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r}\0" \
 	"fromnfs=run nfsargs addip addtty; "				\
-		"tftp ${fdt_addr_r} k6m2/ac14xx.dtb-${muster_nr}; "	\
-		"tftp ${kernel_addr_r} k6m2/uImage-${muster_nr}; "	\
+		"tftp ${fdt_addr_r} ac14xx/ac14xx.dtb${muster_nr}; "	\
+		"tftp ${kernel_addr_r} ac14xx/uImage${muster_nr}; "	\
 		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
 	"fromflash=run nfsargs addip addtty; "				\
 		"bootm fc020000 - fc000000\0"				\
@@ -548,12 +541,11 @@
 	"u-boot=ac14xx/u-boot.bin\0"					\
 	"bootfile=ac14xx/uImage\0"					\
 	"fdtfile=ac14xx/ac14xx.dtb\0"					\
-	"rootpath=/opt/eldk/ppc_6xx\n"					\
 	"netdev=eth0\0"							\
 	"consdev=ttyPSC0\0"						\
 	"hostname=ac14xx\0"						\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
-		"nfsroot=${serverip}:${rootpath}-${muster_nr}\0"	\
+		"nfsroot=${serverip}:${rootpath}${muster_nr}\0"	\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
 	"addip=setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
@@ -582,6 +574,8 @@
 	""
 
 #define CONFIG_BOOTCOMMAND	"run production"
+
+#define CONFIG_ARP_TIMEOUT	200UL
 
 #define CONFIG_FIT		1
 #define CONFIG_OF_LIBFDT	1
