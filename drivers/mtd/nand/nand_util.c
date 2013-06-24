@@ -120,6 +120,10 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 
 		WATCHDOG_RESET();
 
+		if (opts->lim && (erase.addr >= (opts->offset + opts->lim))) {
+			puts("Size of erase exceeds limit\n");
+			return -EFBIG;
+		}
 		if (!opts->scrub && bbtest) {
 			int ret = mtd_block_isbad(meminfo, erase.addr);
 			if (ret > 0) {

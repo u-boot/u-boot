@@ -125,6 +125,8 @@ struct nand_erase_options {
 
 	/* Don't include skipped bad blocks in size to be erased */
 	int spread;
+	/* maximum size that actual may be in order to not exceed the buf */
+	loff_t lim;
 };
 
 typedef struct nand_erase_options nand_erase_options_t;
