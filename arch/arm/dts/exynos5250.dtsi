@@ -202,4 +202,31 @@
 		interrupts = <0 78 0>;
 	};
 
+	serial@12C00000 {
+		compatible = "samsung,exynos4210-uart";
+		reg = <0x12C00000 0x100>;
+		interrupts = <0 51 0>;
+		id = <0>;
+	};
+
+	serial@12C10000 {
+		compatible = "samsung,exynos4210-uart";
+		reg = <0x12C10000 0x100>;
+		interrupts = <0 52 0>;
+		id = <1>;
+	};
+
+	serial@12C20000 {
+		compatible = "samsung,exynos4210-uart";
+		reg = <0x12C20000 0x100>;
+		interrupts = <0 53 0>;
+		id = <2>;
+	};
+
+	serial@12C30000 {
+		compatible = "samsung,exynos4210-uart";
+		reg = <0x12C30000 0x100>;
+		interrupts = <0 54 0>;
+		id = <3>;
+	};
 };

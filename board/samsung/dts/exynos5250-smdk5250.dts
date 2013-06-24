@@ -34,6 +34,8 @@
 		mmc1 = "/mmc@12210000";
 		mmc2 = "/mmc@12220000";
 		mmc3 = "/mmc@12230000";
+		serial0 = "/serial@12C30000";
+		console = "/serial@12C30000";
 	};
 
 	sromc@12250000 {
