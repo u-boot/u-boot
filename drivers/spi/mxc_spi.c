@@ -224,7 +224,7 @@ int spi_xchg_single(struct spi_slave *slave, unsigned int bitlen,
 	const u8 *dout, u8 *din, unsigned long flags)
 {
 	struct mxc_spi_slave *mxcs = to_mxc_spi_slave(slave);
-	int nbytes = (bitlen + 7) / 8;
+	int nbytes = DIV_ROUND_UP(bitlen, 8);
 	u32 data, cnt, i;
 	struct cspi_regs *regs = (struct cspi_regs *)mxcs->base;
 
@@ -294,7 +294,7 @@ int spi_xchg_single(struct spi_slave *slave, unsigned int bitlen,
 	/* Transfer completed, clear any pending request */
 	reg_write(&regs->stat, MXC_CSPICTRL_TC | MXC_CSPICTRL_RXOVF);
 
-	nbytes = (bitlen + 7) / 8;
+	nbytes = DIV_ROUND_UP(bitlen, 8);
 
 	cnt = nbytes % 32;
 
@@ -330,7 +330,7 @@ int spi_xchg_single(struct spi_slave *slave, unsigned int bitlen,
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		void *din, unsigned long flags)
 {
-	int n_bytes = (bitlen + 7) / 8;
+	int n_bytes = DIV_ROUND_UP(bitlen, 8);
 	int n_bits;
 	int ret;
 	u32 blk_size;

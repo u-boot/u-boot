@@ -38,6 +38,16 @@ struct spi_flash {
 	u32		page_size;
 	/* Erase (sector) size */
 	u32		sector_size;
+#ifdef CONFIG_SPI_FLASH_BAR
+	/* Bank read cmd */
+	u8		bank_read_cmd;
+	/* Bank write cmd */
+	u8		bank_write_cmd;
+	/* Current flash bank */
+	u8		bank_curr;
+#endif
+	/* Poll cmd - for flash erase/program */
+	u8		poll_cmd;
 
 	void *memory_map;	/* Address of read-only SPI flash access */
 	int		(*read)(struct spi_flash *flash, u32 offset,

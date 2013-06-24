@@ -55,27 +55,27 @@ static const struct winbond_spi_flash_params winbond_spi_flash_table[] = {
 	{
 		.id			= 0x4014,
 		.nr_blocks		= 16,
-		.name			= "W25Q80BL",
+		.name			= "W25Q80BL/W25Q80BV",
 	},
 	{
 		.id			= 0x4015,
 		.nr_blocks		= 32,
-		.name			= "W25Q16",
+		.name			= "W25Q16CL/W25Q16DV",
 	},
 	{
 		.id			= 0x4016,
 		.nr_blocks		= 64,
-		.name			= "W25Q32",
+		.name			= "W25Q32BV/W25Q32FV_SPI",
 	},
 	{
 		.id			= 0x4017,
 		.nr_blocks		= 128,
-		.name			= "W25Q64",
+		.name			= "W25Q64CV/W25Q64FV_SPI",
 	},
 	{
 		.id			= 0x4018,
 		.nr_blocks		= 256,
-		.name			= "W25Q128",
+		.name			= "W25Q128BV/W25Q128FV_SPI",
 	},
 	{
 		.id			= 0x4019,
@@ -88,14 +88,24 @@ static const struct winbond_spi_flash_params winbond_spi_flash_table[] = {
 		.name			= "W25Q80BW",
 	},
 	{
+		.id			= 0x6015,
+		.nr_blocks		= 32,
+		.name			= "W25Q16DW",
+	},
+	{
 		.id			= 0x6016,
 		.nr_blocks		= 64,
-		.name			= "W25Q32DW",
+		.name			= "W25Q32DW/W25Q32FV_QPI",
 	},
 	{
 		.id			= 0x6017,
 		.nr_blocks		= 128,
-		.name			= "W25Q64DW",
+		.name			= "W25Q64DW/W25Q64FV_QPI",
+	},
+	{
+		.id			= 0x6018,
+		.nr_blocks		= 256,
+		.name			= "W25Q128FW/W25Q128FV_QPI",
 	},
 };
 
