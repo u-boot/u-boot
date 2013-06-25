@@ -44,10 +44,10 @@ int checkcpu (void)
 	uint major, minor;
 	struct cpu_type *cpu;
 	char buf1[32], buf2[32];
-#if (defined(CONFIG_DDR_CLK_FREQ) || \
-	defined(CONFIG_FSL_CORENET)) && !defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2)
-	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-#endif /* CONFIG_FSL_CORENET */
+#if defined(CONFIG_DDR_CLK_FREQ) || defined(CONFIG_FSL_CORENET)
+	ccsr_gur_t __iomem *gur =
+		(void __iomem *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+#endif
 
 	/*
 	 * Cornet platforms use ddr sync bit in RCW to indicate sync vs async
@@ -210,6 +210,21 @@ int checkcpu (void)
 #endif
 
 	puts("L1:    D-cache 32 kB enabled\n       I-cache 32 kB enabled\n");
+
+#ifdef CONFIG_FSL_CORENET
+	/* Display the RCW, so that no one gets confused as to what RCW
+	 * we're actually using for this boot.
+	 */
+	puts("Reset Configuration Word (RCW):");
+	for (i = 0; i < ARRAY_SIZE(gur->rcwsr); i++) {
+		u32 rcw = in_be32(&gur->rcwsr[i]);
+
+		if ((i % 4) == 0)
+			printf("\n       %08x:", i * 4);
+		printf(" %08x", rcw);
+	}
+	puts("\n");
+#endif
 
 	return 0;
 }

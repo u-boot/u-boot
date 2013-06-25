@@ -27,8 +27,10 @@ int checkboard (void)
 {
 	u8 sw;
 	struct cpu_type *cpu = gd->arch.cpu;
-	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
+#if defined(CONFIG_P3041DS) || defined(CONFIG_P5020DS) || \
+	defined(CONFIG_P5040DS)
 	unsigned int i;
+#endif
 	static const char * const freq[] = {"100", "125", "156.25", "212.5" };
 
 	printf("Board: %sDS, ", cpu->name);
@@ -46,19 +48,6 @@ int checkboard (void)
 		puts("NAND\n");
 	else
 		printf("invalid setting of SW%u\n", PIXIS_LBMAP_SWITCH);
-
-	/* Display the RCW, so that no one gets confused as to what RCW
-	 * we're actually using for this boot.
-	 */
-	puts("Reset Configuration Word (RCW):");
-	for (i = 0; i < ARRAY_SIZE(gur->rcwsr); i++) {
-		u32 rcw = in_be32(&gur->rcwsr[i]);
-
-		if ((i % 4) == 0)
-			printf("\n       %08x:", i * 4);
-		printf(" %08x", rcw);
-	}
-	puts("\n");
 
 	/* Display the actual SERDES reference clocks as configured by the
 	 * dip switches on the board.  Note that the SWx registers could

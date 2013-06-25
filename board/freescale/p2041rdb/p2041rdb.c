@@ -28,7 +28,6 @@ int checkboard(void)
 {
 	u8 sw;
 	struct cpu_type *cpu = gd->arch.cpu;
-	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
 	unsigned int i;
 
 	printf("Board: %sRDB, ", cpu->name);
@@ -37,20 +36,6 @@ int checkboard(void)
 
 	sw = CPLD_READ(fbank_sel);
 	printf("vBank: %d\n", sw & 0x1);
-
-	/*
-	 * Display the RCW, so that no one gets confused as to what RCW
-	 * we're actually using for this boot.
-	 */
-	puts("Reset Configuration Word (RCW):");
-	for (i = 0; i < ARRAY_SIZE(gur->rcwsr); i++) {
-		u32 rcw = in_be32(&gur->rcwsr[i]);
-
-		if ((i % 4) == 0)
-			printf("\n       %08x:", i * 4);
-		printf(" %08x", rcw);
-	}
-	puts("\n");
 
 	/*
 	 * Display the actual SERDES reference clocks as configured by the
