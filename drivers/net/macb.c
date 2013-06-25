@@ -163,7 +163,7 @@ static u16 macb_mdio_read(struct macb_device *macb, u8 reg)
 	return MACB_BFEXT(DATA, frame);
 }
 
-static void __weak arch_get_mdio_control(const char *name)
+void __weak arch_get_mdio_control(const char *name)
 {
 	return;
 }
