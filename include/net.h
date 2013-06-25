@@ -39,7 +39,7 @@
 #define PKTALIGN	ARCH_DMA_MINALIGN
 
 /* IPv4 addresses are always 32 bits in size */
-typedef u32		IPaddr_t;
+typedef __be32		IPaddr_t;
 
 
 /**

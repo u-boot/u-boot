@@ -8,9 +8,20 @@
 #define MII_KSZ9021_EXT_RGMII_RX_DATA_SKEW	0x105
 #define MII_KSZ9021_EXT_RGMII_TX_DATA_SKEW	0x106
 #define MII_KSZ9021_EXT_ANALOG_TEST		0x107
+/* Register operations */
+#define MII_KSZ9031_MOD_REG			0x0000
+/* Data operations */
+#define MII_KSZ9031_MOD_DATA_NO_POST_INC	0x4000
+#define MII_KSZ9031_MOD_DATA_POST_INC_RW	0x8000
+#define MII_KSZ9031_MOD_DATA_POST_INC_W		0xC000
 
 struct phy_device;
 int ksz9021_phy_extended_write(struct phy_device *phydev, int regnum, u16 val);
 int ksz9021_phy_extended_read(struct phy_device *phydev, int regnum);
+
+int ksz9031_phy_extended_write(struct phy_device *phydev, int devaddr,
+			       int regnum, u16 mode, u16 val);
+int ksz9031_phy_extended_read(struct phy_device *phydev, int devaddr,
+			      int regnum, u16 mode);
 
 #endif
