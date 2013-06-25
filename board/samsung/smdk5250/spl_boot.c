@@ -26,6 +26,7 @@
 #include <asm/arch-exynos/dmc.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/clk.h>
+#include <asm/arch/spl.h>
 
 #include "clock_init.h"
 
@@ -47,15 +48,6 @@ u32 irom_ptr_table[] = {
 	[SPI_INDEX] = 0x02020058,	/* iROM Function Pointer-SPI boot */
 	[USB_INDEX] = 0x02020070,	/* iROM Function Pointer-USB boot*/
 	};
-
-enum boot_mode {
-	BOOT_MODE_MMC = 4,
-	BOOT_MODE_SERIAL = 20,
-	BOOT_MODE_EMMC = 8,     /* EMMC4.4 */
-	/* Boot based on Operating Mode pin settings */
-	BOOT_MODE_OM = 32,
-	BOOT_MODE_USB,	/* Boot using USB download */
-};
 
 void *get_irom_func(int index)
 {
