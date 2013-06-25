@@ -1544,6 +1544,18 @@ struct rio_pw {
 };
 #endif
 
+#ifdef CONFIG_SYS_FSL_SRIO_LIODN
+struct rio_liodn {
+	u32	plbr;
+	u8	res0[28];
+	u32	plaor;
+	u8	res1[12];
+	u32	pludr;
+	u32	plldr;
+	u8	res2[456];
+};
+#endif
+
 /* RapidIO Registers */
 struct ccsr_rio {
 	struct rio_arch	arch;
@@ -1565,6 +1577,10 @@ struct ccsr_rio {
 	struct rio_dbell	dbell;
 	u8	res7[100];
 	struct rio_pw	pw;
+#endif
+#ifdef CONFIG_SYS_FSL_SRIO_LIODN
+	u8	res5[8192];
+	struct rio_liodn liodn[CONFIG_SYS_FSL_SRIO_MAX_PORTS];
 #endif
 };
 #endif
