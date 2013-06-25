@@ -183,6 +183,7 @@ static inline void to_dfu_mode(struct f_dfu *f_dfu)
 {
 	f_dfu->usb_function.strings = dfu_strings;
 	f_dfu->usb_function.hs_descriptors = f_dfu->function;
+	f_dfu->dfu_state = DFU_STATE_dfuIDLE;
 }
 
 static inline void to_runtime_mode(struct f_dfu *f_dfu)
@@ -233,7 +234,6 @@ static int state_app_idle(struct f_dfu *f_dfu,
 	case USB_REQ_DFU_DETACH:
 		f_dfu->dfu_state = DFU_STATE_appDETACH;
 		to_dfu_mode(f_dfu);
-		f_dfu->dfu_state = DFU_STATE_dfuIDLE;
 		value = RET_ZLP;
 		break;
 	default:
@@ -652,6 +652,8 @@ static int dfu_bind(struct usb_configuration *c, struct usb_function *f)
 		((struct usb_interface_descriptor *)f_dfu->function[i])
 			->iInterface = id;
 	}
+
+	to_dfu_mode(f_dfu);
 
 	stringtab_dfu.strings = f_dfu->strings;
 
