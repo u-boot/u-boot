@@ -604,8 +604,12 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 
 	fdt_add_enet_stashing(blob);
 
+#ifndef CONFIG_FSL_TBCLK_EXTRA_DIV
+#define CONFIG_FSL_TBCLK_EXTRA_DIV 1
+#endif
 	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
-		"timebase-frequency", get_tbclk(), 1);
+		"timebase-frequency", get_tbclk() / CONFIG_FSL_TBCLK_EXTRA_DIV,
+		1);
 	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
 		"bus-frequency", bd->bi_busfreq, 1);
 	get_sys_info(&sysinfo);

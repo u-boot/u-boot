@@ -123,10 +123,17 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	out_be32(&ddr->timing_cfg_5, regs->timing_cfg_5);
 	out_be32(&ddr->ddr_zq_cntl, regs->ddr_zq_cntl);
 	out_be32(&ddr->ddr_wrlvl_cntl, regs->ddr_wrlvl_cntl);
+#ifndef CONFIG_SYS_FSL_DDR_EMU
+	/*
+	 * Skip these two registers if running on emulator
+	 * because emulator doesn't have skew between bytes.
+	 */
+
 	if (regs->ddr_wrlvl_cntl_2)
 		out_be32(&ddr->ddr_wrlvl_cntl_2, regs->ddr_wrlvl_cntl_2);
 	if (regs->ddr_wrlvl_cntl_3)
 		out_be32(&ddr->ddr_wrlvl_cntl_3, regs->ddr_wrlvl_cntl_3);
+#endif
 
 	out_be32(&ddr->ddr_sr_cntr, regs->ddr_sr_cntr);
 	out_be32(&ddr->ddr_sdram_rcw_1, regs->ddr_sdram_rcw_1);

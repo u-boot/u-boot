@@ -413,6 +413,10 @@ The following options need to be configured:
 		CONFIG_SYS_FSL_DSP_CCSRBAR_DEFAULT
 		This value denotes start offset of DSP CCSR space.
 
+		CONFIG_SYS_FSL_DDR_EMU
+		Specify emulator support for DDR. Some DDR features such as
+		deskew training are not available.
+
 - Generic CPU options:
 		CONFIG_SYS_BIG_ENDIAN, CONFIG_SYS_LITTLE_ENDIAN
 

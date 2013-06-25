@@ -532,8 +532,10 @@ skip_l2:
 
 	enable_cpc();
 
+#ifndef CONFIG_SYS_FSL_NO_SERDES
 	/* needs to be in ram since code uses global static vars */
 	fsl_serdes_init();
+#endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A005871
 	if (IS_SVR_REV(svr, 1, 0)) {
