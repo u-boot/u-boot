@@ -504,7 +504,13 @@ fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step,
 				fsl_ddr_cfg_regs_t *reg = &ddr_reg[i];
 				if (reg->cs[j].config & 0x80000000) {
 					unsigned int end;
-					end = reg->cs[j].bnds & 0xFFF;
+					/*
+					 * 0xfffffff is a special value we put
+					 * for unused bnds
+					 */
+					if (reg->cs[j].bnds == 0xffffffff)
+						continue;
+					end = reg->cs[j].bnds & 0xffff;
 					if (end > max_end) {
 						max_end = end;
 					}

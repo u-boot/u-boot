@@ -1585,8 +1585,8 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 				| ((ea & 0xFFF) << 0)	/* ending address MSB */
 				);
 		} else {
-			debug("FSLDDR: setting bnds to 0 for inactive CS\n");
-			ddr->cs[i].bnds = 0;
+			/* setting bnds to 0xffffffff for inactive CS */
+			ddr->cs[i].bnds = 0xffffffff;
 		}
 
 		debug("FSLDDR: cs[%d]_bnds = 0x%08x\n", i, ddr->cs[i].bnds);
