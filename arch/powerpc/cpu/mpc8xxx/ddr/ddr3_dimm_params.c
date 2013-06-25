@@ -129,6 +129,7 @@ ddr_compute_dimm_parameters(const ddr3_spd_eeprom_t *spd,
 		pdimm->ec_sdram_width = 0;
 	pdimm->data_width = pdimm->primary_sdram_width
 			  + pdimm->ec_sdram_width;
+	pdimm->device_width = 1 << ((spd->organization & 0x7) + 2);
 
 	/* These are the types defined by the JEDEC DDR3 SPD spec */
 	pdimm->mirrored_dimm = 0;

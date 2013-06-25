@@ -277,6 +277,7 @@ typedef struct memctl_options_s {
 	unsigned int mirrored_dimm;
 	unsigned int quad_rank_present;
 	unsigned int ap_en;	/* address parity enable for RDIMM */
+	unsigned int x4_en;	/* enable x4 devices */
 
 	/* Global Timing Parameters */
 	unsigned int cas_latency_override;

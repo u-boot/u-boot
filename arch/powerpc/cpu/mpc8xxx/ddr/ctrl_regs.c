@@ -681,6 +681,7 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 	unsigned int odt_cfg = 0;	/* ODT configuration */
 	unsigned int num_pr;		/* Number of posted refreshes */
 	unsigned int slow = 0;		/* DDR will be run less than 1250 */
+	unsigned int x4_en = 0;		/* x4 DRAM enable */
 	unsigned int obc_cfg;		/* On-The-Fly Burst Chop Cfg */
 	unsigned int ap_en;		/* Address Parity Enable */
 	unsigned int d_init;		/* DRAM data initialization */
@@ -725,6 +726,8 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 		ap_en = 0;
 	}
 
+	x4_en = popts->x4_en ? 1 : 0;
+
 #if defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 	/* Use the DDR controller to auto initialize memory. */
 	d_init = popts->ECC_init_using_memctl;
@@ -747,6 +750,7 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 		| ((odt_cfg & 0x3) << 21)
 		| ((num_pr & 0xf) << 12)
 		| ((slow & 1) << 11)
+		| (x4_en << 10)
 		| (qd_en << 9)
 		| (unq_mrs_en << 8)
 		| ((obc_cfg & 0x1) << 6)
