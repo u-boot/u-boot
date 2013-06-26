@@ -135,7 +135,7 @@ int ext4fs_mount(unsigned part_length);
 void ext4fs_close(void);
 int ext4fs_ls(const char *dirname);
 void ext4fs_free_node(struct ext2fs_node *node, struct ext2fs_node *currroot);
-int ext4fs_devread(int sector, int byte_offset, int byte_len, char *buf);
+int ext4fs_devread(lbaint_t sector, int byte_offset, int byte_len, char *buf);
 void ext4fs_set_blk_dev(block_dev_desc_t *rbdd, disk_partition_t *info);
 long int read_allocated_block(struct ext2_inode *inode, int fileblock);
 int ext4fs_probe(block_dev_desc_t *fs_dev_desc,

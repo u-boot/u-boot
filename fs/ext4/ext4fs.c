@@ -62,16 +62,16 @@ int ext4fs_read_file(struct ext2fs_node *node, int pos,
 {
 	struct ext_filesystem *fs = get_fs();
 	int i;
-	int blockcnt;
+	lbaint_t blockcnt;
 	int log2blksz = fs->dev_desc->log2blksz;
 	int log2_fs_blocksize = LOG2_BLOCK_SIZE(node->data) - log2blksz;
 	int blocksize = (1 << (log2_fs_blocksize + log2blksz));
 	unsigned int filesize = __le32_to_cpu(node->inode.size);
-	int previous_block_number = -1;
-	int delayed_start = 0;
-	int delayed_extent = 0;
-	int delayed_skipfirst = 0;
-	int delayed_next = 0;
+	lbaint_t previous_block_number = -1;
+	lbaint_t delayed_start = 0;
+	lbaint_t delayed_extent = 0;
+	lbaint_t delayed_skipfirst = 0;
+	lbaint_t delayed_next = 0;
 	char *delayed_buf = NULL;
 	short status;
 
@@ -82,7 +82,7 @@ int ext4fs_read_file(struct ext2fs_node *node, int pos,
 	blockcnt = ((len + pos) + blocksize - 1) / blocksize;
 
 	for (i = pos / blocksize; i < blockcnt; i++) {
-		int blknr;
+		lbaint_t blknr;
 		int blockoff = pos % blocksize;
 		int blockend = blocksize;
 		int skipfirst = 0;

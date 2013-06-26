@@ -97,8 +97,8 @@ typedef struct block_dev_desc {
 #define DEV_TYPE_OPDISK		0x07	/* optical disk */
 
 typedef struct disk_partition {
-	ulong	start;		/* # of first block in partition	*/
-	ulong	size;		/* number of blocks in partition	*/
+	lbaint_t	start;	/* # of first block in partition	*/
+	lbaint_t	size;	/* number of blocks in partition	*/
 	ulong	blksz;		/* block size in bytes			*/
 	uchar	name[32];	/* partition name			*/
 	uchar	type[32];	/* string type description		*/

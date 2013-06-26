@@ -200,8 +200,8 @@ int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 	uuid_string(gpt_pte[part - 1].unique_partition_guid.b, info->uuid);
 #endif
 
-	debug("%s: start 0x%lX, size 0x%lX, name %s", __func__,
-		info->start, info->size, info->name);
+	debug("%s: start 0x" LBAF ", size 0x" LBAF ", name %s", __func__,
+	      info->start, info->size, info->name);
 
 	/* Remember to free pte */
 	free(gpt_pte);
@@ -431,7 +431,7 @@ int gpt_fill_pte(gpt_header *gpt_h, gpt_entry *gpt_e,
 			gpt_e[i].partition_name[k] =
 				(efi_char16_t)(partitions[i].name[k]);
 
-		debug("%s: name: %s offset[%d]: 0x%x size[%d]: 0x%lx\n",
+		debug("%s: name: %s offset[%d]: 0x%x size[%d]: 0x" LBAF "\n",
 		      __func__, partitions[i].name, i,
 		      offset, i, partitions[i].size);
 	}
