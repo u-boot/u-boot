@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(ARCH).o
 
-COBJS-y	+= bootm.o
+COBJS-$(CONFIG_CMD_BOOTM) += bootm.o
 COBJS-y	+= cmd_boot.o
 COBJS-y	+= gcc.o
 COBJS-y	+= init_helpers.o

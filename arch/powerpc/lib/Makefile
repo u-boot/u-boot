@@ -63,7 +63,7 @@ ifndef CONFIG_SYS_GENERIC_BOARD
 COBJS-y	+= board.o
 endif
 endif
-COBJS-y	+= bootm.o
+COBJS-$(CONFIG_CMD_BOOTM) += bootm.o
 COBJS-y	+= cache.o
 COBJS-y	+= extable.o
 COBJS-y	+= interrupts.o

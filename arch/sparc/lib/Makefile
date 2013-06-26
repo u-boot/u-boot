@@ -27,7 +27,8 @@ LIB	= $(obj)lib$(ARCH).o
 
 SOBJS	=
 
-COBJS	= board.o cache.o interrupts.o time.o bootm.o
+COBJS	= board.o cache.o interrupts.o time.o
+COBJS-$(CONFIG_CMD_BOOTM) += bootm.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))

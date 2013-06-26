@@ -45,8 +45,8 @@ COBJS-y	+= board.o
 endif
 COBJS-y += sections.o
 
-COBJS-y	+= bootm.o
 COBJS-$(CONFIG_OF_LIBFDT) += bootm-fdt.o
+COBJS-$(CONFIG_CMD_BOOTM) += bootm.o
 COBJS-$(CONFIG_SYS_L2_PL310) += cache-pl310.o
 SOBJS-$(CONFIG_USE_ARCH_MEMSET) += memset.o
 SOBJS-$(CONFIG_USE_ARCH_MEMCPY) += memcpy.o

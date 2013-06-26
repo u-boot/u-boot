@@ -33,7 +33,7 @@ GLSOBJS	+= lshrdi3.o
 GLSOBJS	+= movmem.o
 
 COBJS-y	+= board.o
-COBJS-y	+= bootm.o
+COBJS-$(CONFIG_CMD_BOOTM) += bootm.o
 ifeq ($(CONFIG_SH2),y)
 COBJS-y	+= time_sh2.o
 else

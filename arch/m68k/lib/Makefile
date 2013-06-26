@@ -28,7 +28,7 @@ LIB	= $(obj)lib$(ARCH).o
 SOBJS-y	+=
 
 COBJS-y	+= board.o
-COBJS-y	+= bootm.o
+COBJS-$(CONFIG_CMD_BOOTM) += bootm.o
 COBJS-y	+= cache.o
 COBJS-y	+= interrupts.o
 COBJS-y	+= time.o

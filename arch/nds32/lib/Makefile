@@ -29,7 +29,8 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(ARCH).o
 
-OBJS	:= board.o bootm.o cache.o interrupts.o
+OBJS	:= board.o cache.o interrupts.o
+COBJS-$(CONFIG_CMD_BOOTM) += bootm.o
 
 all:	$(LIB)
 
