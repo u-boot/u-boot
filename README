@@ -1238,6 +1238,9 @@ The following options need to be configured:
 			CONFIG_TPM_TIS_I2C_BURST_LIMITATION
 			Define the burst count bytes upper limit
 
+		CONFIG_TPM_ATMEL_TWI
+		Support for Atmel TWI TPM device. Requires I2C support.
+
 		CONFIG_TPM_TIS_LPC
 		Support for generic parallel port TPM devices. Only one device
 		per system is supported at this time.
