@@ -22,6 +22,11 @@ To build U-Boot for the Wandboard Solo version:
 $ make wandboard_solo_config
 $ make
 
+To build U-Boot for the Wandboard Quad version:
+
+$ make wandboard_quad_config
+$ make
+
 Flashing U-boot into the SD card
 --------------------------------
 
