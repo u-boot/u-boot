@@ -31,7 +31,7 @@ static table_entry_t imximage_cmds[] = {
  * Supported Boot options for configuration file
  * this is needed to set the correct flash offset
  */
-static table_entry_t imximage_bootops[] = {
+static table_entry_t imximage_boot_offset[] = {
 	{FLASH_OFFSET_ONENAND,	"onenand",	"OneNAND Flash",},
 	{FLASH_OFFSET_NAND,	"nand",		"NAND Flash",	},
 	{FLASH_OFFSET_NOR,	"nor",		"NOR Flash",	},
@@ -39,6 +39,20 @@ static table_entry_t imximage_bootops[] = {
 	{FLASH_OFFSET_SD,	"sd",		"SD Card",	},
 	{FLASH_OFFSET_SPI,	"spi",		"SPI Flash",	},
 	{-1,			"",		"Invalid",	},
+};
+
+/*
+ * Supported Boot options for configuration file
+ * this is needed to determine the initial load size
+ */
+static table_entry_t imximage_boot_loadsize[] = {
+	{FLASH_LOADSIZE_ONENAND,	"onenand",	"OneNAND Flash",},
+	{FLASH_LOADSIZE_NAND,		"nand",		"NAND Flash",	},
+	{FLASH_LOADSIZE_NOR,		"nor",		"NOR Flash",	},
+	{FLASH_LOADSIZE_SATA,		"sata",		"SATA Disk",	},
+	{FLASH_LOADSIZE_SD,		"sd",		"SD Card",	},
+	{FLASH_LOADSIZE_SPI,		"spi",		"SPI Flash",	},
+	{-1,				"",		"Invalid",	},
 };
 
 /*
@@ -54,6 +68,8 @@ static struct imx_header imximage_header;
 static uint32_t imximage_version;
 /* Image Vector Table Offset */
 static uint32_t imximage_ivt_offset;
+/* Initial Load Region Size */
+static uint32_t imximage_init_loadsize;
 
 static set_dcd_val_t set_dcd_val;
 static set_dcd_rst_t set_dcd_rst;
@@ -195,7 +211,8 @@ static void set_imx_hdr_v1(struct imx_header *imxhdr, uint32_t dcd_len,
 	/* Set magic number */
 	fhdr_v1->app_code_barker = APP_CODE_BARKER;
 
-	hdr_base = entry_point - sizeof(struct imx_header);
+	/* TODO: check i.MX image V1 handling, for now use 'old' style */
+	hdr_base = entry_point - 4096;
 	fhdr_v1->app_dest_ptr = hdr_base - flash_offset;
 	fhdr_v1->app_code_jump_vector = entry_point;
 
@@ -222,12 +239,13 @@ static void set_imx_hdr_v2(struct imx_header *imxhdr, uint32_t dcd_len,
 
 	fhdr_v2->entry = entry_point;
 	fhdr_v2->reserved1 = fhdr_v2->reserved2 = 0;
-	fhdr_v2->self = hdr_base = entry_point - sizeof(struct imx_header);
-
+	hdr_base = entry_point - imximage_init_loadsize +
+		flash_offset;
+	fhdr_v2->self = hdr_base;
 	fhdr_v2->dcd_ptr = hdr_base + offsetof(imx_header_v2_t, dcd_table);
 	fhdr_v2->boot_data_ptr = hdr_base
 			+ offsetof(imx_header_v2_t, boot_data);
-	hdr_v2->boot_data.start = hdr_base - flash_offset;
+	hdr_v2->boot_data.start = entry_point - imximage_init_loadsize;
 
 	/* Security feature are not supported */
 	fhdr_v2->csf = 0;
@@ -329,11 +347,22 @@ static void parse_cfg_cmd(struct imx_header *imxhdr, int32_t cmd, char *token,
 		set_hdr_func(imxhdr);
 		break;
 	case CMD_BOOT_FROM:
-		imximage_ivt_offset = get_table_entry_id(imximage_bootops,
+		imximage_ivt_offset = get_table_entry_id(imximage_boot_offset,
 					"imximage boot option", token);
 		if (imximage_ivt_offset == -1) {
 			fprintf(stderr, "Error: %s[%d] -Invalid boot device"
 				"(%s)\n", name, lineno, token);
+			exit(EXIT_FAILURE);
+		}
+
+		imximage_init_loadsize =
+			get_table_entry_id(imximage_boot_loadsize,
+					   "imximage boot option", token);
+
+		if (imximage_init_loadsize == -1) {
+			fprintf(stderr,
+				"Error: %s[%d] -Invalid boot device(%s)\n",
+				name, lineno, token);
 			exit(EXIT_FAILURE);
 		}
 		if (unlikely(cmd_ver_first != 1))
@@ -517,7 +546,7 @@ static void imximage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	 *
 	 * The remaining fraction of a block bytes would not be loaded!
 	 */
-	*header_size_ptr = ROUND(sbuf->st_size + imximage_ivt_offset, 4096);
+	*header_size_ptr = ROUND(sbuf->st_size, 4096);
 }
 
 int imximage_check_params(struct mkimage_params *params)
