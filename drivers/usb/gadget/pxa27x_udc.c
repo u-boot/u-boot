@@ -151,7 +151,7 @@ static int udc_read_urb(struct usb_endpoint_instance *endpoint)
 	struct urb *urb = endpoint->rcv_urb;
 	int ep_num = endpoint->endpoint_address & USB_ENDPOINT_NUMBER_MASK;
 	u32 *data32 = (u32 *) urb->buffer;
-	unsigned int i, n, is_short ;
+	unsigned int i, n;
 
 	usbdbg("read urb on ep %d", ep_num);
 #if defined(USBDDBG) && defined(USBDPARANOIA)
@@ -165,9 +165,8 @@ static int udc_read_urb(struct usb_endpoint_instance *endpoint)
 		n = readl(UDCBCN(ep_num)) & 0x3ff;
 	else /* zlp */
 		n = 0;
-	is_short = n != endpoint->rcv_packetSize;
 
-	usbdbg("n %d%s", n, is_short ? "-s" : "");
+	usbdbg("n %d%s", n, n != endpoint->rcv_packetSize ? "-s" : "");
 	for (i = 0; i < n; i += 4)
 		data32[urb->actual_length / 4 + i / 4] = readl(UDCDN(ep_num));
 
@@ -402,16 +401,13 @@ static void udc_handle_ep(struct usb_endpoint_instance *endpoint)
 
 static void udc_state_changed(void)
 {
-	int config, interface, alternate;
 
 	writel(readl(UDCCR) | UDCCR_SMAC, UDCCR);
 
-	config = (readl(UDCCR) & UDCCR_ACN) >> UDCCR_ACN_S;
-	interface = (readl(UDCCR) & UDCCR_AIN) >> UDCCR_AIN_S;
-	alternate = (readl(UDCCR) & UDCCR_AAISN) >> UDCCR_AAISN_S;
-
 	usbdbg("New UDC settings are: conf %d - inter %d - alter %d",
-		config, interface, alternate);
+	       (readl(UDCCR) & UDCCR_ACN) >> UDCCR_ACN_S,
+	       (readl(UDCCR) & UDCCR_AIN) >> UDCCR_AIN_S,
+	       (readl(UDCCR) & UDCCR_AAISN) >> UDCCR_AAISN_S);
 
 	usbd_device_event_irq(udc_device, DEVICE_CONFIGURED, 0);
 	writel(UDCISR1_IRCC, UDCISR1);
