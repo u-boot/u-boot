@@ -147,7 +147,6 @@ struct imx_header {
 		imx_header_v1_t hdr_v1;
 		imx_header_v2_t hdr_v2;
 	} header;
-	uint32_t flash_offset;
 } __attribute__((aligned(4096)));
 
 typedef void (*set_dcd_val_t)(struct imx_header *imxhdr,

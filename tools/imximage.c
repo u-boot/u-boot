@@ -52,6 +52,7 @@ static table_entry_t imximage_versions[] = {
 
 static struct imx_header imximage_header;
 static uint32_t imximage_version;
+static uint32_t imximage_flash_offset;
 
 static set_dcd_val_t set_dcd_val;
 static set_dcd_rst_t set_dcd_rst;
@@ -327,9 +328,9 @@ static void parse_cfg_cmd(struct imx_header *imxhdr, int32_t cmd, char *token,
 		set_hdr_func(imxhdr);
 		break;
 	case CMD_BOOT_FROM:
-		imxhdr->flash_offset = get_table_entry_id(imximage_bootops,
+		imximage_flash_offset = get_table_entry_id(imximage_bootops,
 					"imximage boot option", token);
-		if (imxhdr->flash_offset == -1) {
+		if (imximage_flash_offset == -1) {
 			fprintf(stderr, "Error: %s[%d] -Invalid boot device"
 				"(%s)\n", name, lineno, token);
 			exit(EXIT_FAILURE);
@@ -338,7 +339,7 @@ static void parse_cfg_cmd(struct imx_header *imxhdr, int32_t cmd, char *token,
 			cmd_ver_first = 0;
 		break;
 	case CMD_BOOT_OFFSET:
-		imxhdr->flash_offset = get_cfg_value(token, name, lineno);
+		imximage_flash_offset = get_cfg_value(token, name, lineno);
 		if (unlikely(cmd_ver_first != 1))
 			cmd_ver_first = 0;
 		break;
@@ -439,7 +440,7 @@ static uint32_t parse_cfg_file(struct imx_header *imxhdr, char *name)
 	fclose(fd);
 
 	/* Exit if there is no BOOT_FROM field specifying the flash_offset */
-	if (imxhdr->flash_offset == FLASH_OFFSET_UNDEFINED) {
+	if (imximage_flash_offset == FLASH_OFFSET_UNDEFINED) {
 		fprintf(stderr, "Error: No BOOT_FROM tag in %s\n", name);
 		exit(EXIT_FAILURE);
 	}
@@ -497,14 +498,14 @@ static void imximage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	 */
 	imximage_version = IMXIMAGE_V1;
 	/* Be able to detect if the cfg file has no BOOT_FROM tag */
-	imxhdr->flash_offset = FLASH_OFFSET_UNDEFINED;
+	imximage_flash_offset = FLASH_OFFSET_UNDEFINED;
 	set_hdr_func(imxhdr);
 
 	/* Parse dcd configuration file */
 	dcd_len = parse_cfg_file(imxhdr, params->imagename);
 
 	/* Set the imx header */
-	(*set_imx_hdr)(imxhdr, dcd_len, params->ep, imxhdr->flash_offset);
+	(*set_imx_hdr)(imxhdr, dcd_len, params->ep, imximage_flash_offset);
 
 	/*
 	 * ROM bug alert
@@ -515,7 +516,7 @@ static void imximage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	 *
 	 * The remaining fraction of a block bytes would not be loaded!
 	 */
-	*header_size_ptr = ROUND(sbuf->st_size + imxhdr->flash_offset, 4096);
+	*header_size_ptr = ROUND(sbuf->st_size + imximage_flash_offset, 4096);
 }
 
 int imximage_check_params(struct mkimage_params *params)
