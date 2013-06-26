@@ -27,6 +27,13 @@
 #include <asm/unaligned.h>
 #include <linux/string.h>
 
+/* Useful constants */
+enum {
+	DIGEST_LENGTH		= 20,
+	/* max lengths, valid for RSA keys <= 2048 bits */
+	TPM_PUBKEY_MAX_LENGTH	= 288,
+};
+
 /**
  * Print a byte string in hexdecimal format, 16-bytes per line.
  *
@@ -546,6 +553,72 @@ static int do_tpm_nv_write(cmd_tbl_t *cmdtp, int flag,
 	return convert_return_code(err);
 }
 
+#ifdef CONFIG_TPM_AUTH_SESSIONS
+
+static int do_tpm_oiap(cmd_tbl_t *cmdtp, int flag,
+		int argc, char * const argv[])
+{
+	uint32_t auth_handle, err;
+
+	err = tpm_oiap(&auth_handle);
+
+	return convert_return_code(err);
+}
+
+static int do_tpm_load_key2_oiap(cmd_tbl_t *cmdtp, int flag,
+		int argc, char * const argv[])
+{
+	uint32_t parent_handle, key_len, key_handle, err;
+	uint8_t usage_auth[DIGEST_LENGTH];
+	void *key;
+
+	if (argc < 5)
+		return CMD_RET_USAGE;
+
+	parent_handle = simple_strtoul(argv[1], NULL, 0);
+	key = (void *)simple_strtoul(argv[2], NULL, 0);
+	key_len = simple_strtoul(argv[3], NULL, 0);
+	if (strlen(argv[4]) != 2 * DIGEST_LENGTH)
+		return CMD_RET_FAILURE;
+	parse_byte_string(argv[4], usage_auth, NULL);
+
+	err = tpm_load_key2_oiap(parent_handle, key, key_len, usage_auth,
+			&key_handle);
+	if (!err)
+		printf("Key handle is 0x%x\n", key_handle);
+
+	return convert_return_code(err);
+}
+
+static int do_tpm_get_pub_key_oiap(cmd_tbl_t *cmdtp, int flag,
+		int argc, char * const argv[])
+{
+	uint32_t key_handle, err;
+	uint8_t usage_auth[DIGEST_LENGTH];
+	uint8_t pub_key_buffer[TPM_PUBKEY_MAX_LENGTH];
+	size_t pub_key_len = sizeof(pub_key_buffer);
+
+	if (argc < 3)
+		return CMD_RET_USAGE;
+
+	key_handle = simple_strtoul(argv[1], NULL, 0);
+	if (strlen(argv[2]) != 2 * DIGEST_LENGTH)
+		return CMD_RET_FAILURE;
+	parse_byte_string(argv[2], usage_auth, NULL);
+
+	err = tpm_get_pub_key_oiap(key_handle, usage_auth,
+			pub_key_buffer, &pub_key_len);
+	if (!err) {
+		printf("dump of received pub key structure:\n");
+		print_byte_string(pub_key_buffer, pub_key_len);
+	}
+	return convert_return_code(err);
+}
+
+TPM_COMMAND_NO_ARG(tpm_end_oiap)
+
+#endif /* CONFIG_TPM_AUTH_SESSIONS */
+
 #define MAKE_TPM_CMD_ENTRY(cmd) \
 	U_BOOT_CMD_MKENT(cmd, 0, 1, do_tpm_ ## cmd, "", "")
 
@@ -590,6 +663,16 @@ static cmd_tbl_t tpm_commands[] = {
 			do_tpm_nv_read, "", ""),
 	U_BOOT_CMD_MKENT(nv_write, 0, 1,
 			do_tpm_nv_write, "", ""),
+#ifdef CONFIG_TPM_AUTH_SESSIONS
+	U_BOOT_CMD_MKENT(oiap, 0, 1,
+			 do_tpm_oiap, "", ""),
+	U_BOOT_CMD_MKENT(end_oiap, 0, 1,
+			 do_tpm_end_oiap, "", ""),
+	U_BOOT_CMD_MKENT(load_key2_oiap, 0, 1,
+			 do_tpm_load_key2_oiap, "", ""),
+	U_BOOT_CMD_MKENT(get_pub_key_oiap, 0, 1,
+			 do_tpm_get_pub_key_oiap, "", ""),
+#endif /* CONFIG_TPM_AUTH_SESSIONS */
 };
 
 static int do_tpm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -638,6 +721,16 @@ U_BOOT_CMD(tpm, CONFIG_SYS_MAXARGS, 1, do_tpm,
 "  get_capability cap_area sub_cap addr count\n"
 "    - Read <count> bytes of TPM capability indexed by <cap_area> and\n"
 "      <sub_cap> to memory address <addr>.\n"
+#ifdef CONFIG_TPM_AUTH_SESSIONS
+"Storage functions\n"
+"  loadkey2_oiap parent_handle key_addr key_len usage_auth\n"
+"    - loads a key data from memory address <key_addr>, <key_len> bytes\n"
+"      into TPM using the parent key <parent_handle> with authorization\n"
+"      <usage_auth> (20 bytes hex string).\n"
+"  get_pub_key_oiap key_handle usage_auth\n"
+"    - get the public key portion of a loaded key <key_handle> using\n"
+"      authorization <usage auth> (20 bytes hex string)\n"
+#endif /* CONFIG_TPM_AUTH_SESSIONS */
 "Endorsement Key Handling Commands:\n"
 "  read_pubek addr count\n"
 "    - Read <count> bytes of the public endorsement key to memory\n"
@@ -648,6 +741,13 @@ U_BOOT_CMD(tpm, CONFIG_SYS_MAXARGS, 1, do_tpm,
 "      <digest_hex_string>\n"
 "  pcr_read index addr count\n"
 "    - Read <count> bytes from PCR <index> to memory address <addr>.\n"
+#ifdef CONFIG_TPM_AUTH_SESSIONS
+"Authorization Sessions\n"
+"  oiap\n"
+"    - setup an OIAP session\n"
+"  end_oiap\n"
+"    - terminates an active OIAP session\n"
+#endif /* CONFIG_TPM_AUTH_SESSIONS */
 "Non-volatile Storage Commands:\n"
 "  nv_define_space index permission size\n"
 "    - Establish a space at index <index> with <permission> of <size> bytes.\n"

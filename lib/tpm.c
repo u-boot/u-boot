@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2013 The Chromium OS Authors.
+ * Coypright (c) 2013 Guntermann & Drunck GmbH
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -22,6 +23,7 @@
 
 #include <common.h>
 #include <stdarg.h>
+#include <sha1.h>
 #include <tpm.h>
 #include <asm/unaligned.h>
 
@@ -35,7 +37,30 @@ enum {
 	TPM_REQUEST_HEADER_LENGTH	= 10,
 	TPM_RESPONSE_HEADER_LENGTH	= 10,
 	PCR_DIGEST_LENGTH		= 20,
+	DIGEST_LENGTH			= 20,
+	TPM_REQUEST_AUTH_LENGTH		= 45,
+	TPM_RESPONSE_AUTH_LENGTH	= 41,
+	/* some max lengths, valid for RSA keys <= 2048 bits */
+	TPM_KEY12_MAX_LENGTH		= 618,
+	TPM_PUBKEY_MAX_LENGTH		= 288,
 };
+
+#ifdef CONFIG_TPM_AUTH_SESSIONS
+
+#ifndef CONFIG_SHA1
+#error "TPM_AUTH_SESSIONS require SHA1 to be configured, too"
+#endif /* !CONFIG_SHA1 */
+
+struct session_data {
+	int		valid;
+	uint32_t	handle;
+	uint8_t		nonce_even[DIGEST_LENGTH];
+	uint8_t		nonce_odd[DIGEST_LENGTH];
+};
+
+static struct session_data oiap_session = {0, };
+
+#endif /* CONFIG_TPM_AUTH_SESSIONS */
 
 /**
  * Pack data into a byte string.  The data types are specified in
@@ -235,7 +260,7 @@ static uint32_t tpm_sendrecv_command(const void *command,
 			response, &response_length);
 	if (err)
 		return TPM_LIB_ERROR;
-	if (response)
+	if (size_ptr)
 		*size_ptr = response_length;
 
 	return tpm_return_code(response);
@@ -579,3 +604,327 @@ uint32_t tpm_get_capability(uint32_t cap_area, uint32_t sub_cap,
 
 	return 0;
 }
+
+#ifdef CONFIG_TPM_AUTH_SESSIONS
+
+/**
+ * Fill an authentication block in a request.
+ * This func can create the first as well as the second auth block (for
+ * double authorized commands).
+ *
+ * @param request	pointer to the request (w/ uninitialised auth data)
+ * @param request_len0	length of the request without auth data
+ * @param handles_len	length of the handles area in request
+ * @param auth_session	pointer to the (valid) auth session to be used
+ * @param request_auth	pointer to the auth block of the request to be filled
+ * @param auth		authentication data (HMAC key)
+ */
+static uint32_t create_request_auth(const void *request, size_t request_len0,
+	size_t handles_len,
+	struct session_data *auth_session,
+	void *request_auth, const void *auth)
+{
+	uint8_t hmac_data[DIGEST_LENGTH * 3 + 1];
+	sha1_context hash_ctx;
+	const size_t command_code_offset = 6;
+	const size_t auth_nonce_odd_offset = 4;
+	const size_t auth_continue_offset = 24;
+	const size_t auth_auth_offset = 25;
+
+	if (!auth_session || !auth_session->valid)
+		return TPM_LIB_ERROR;
+
+	sha1_starts(&hash_ctx);
+	sha1_update(&hash_ctx, request + command_code_offset, 4);
+	if (request_len0 > TPM_REQUEST_HEADER_LENGTH + handles_len)
+		sha1_update(&hash_ctx,
+			    request + TPM_REQUEST_HEADER_LENGTH + handles_len,
+			    request_len0 - TPM_REQUEST_HEADER_LENGTH
+			    - handles_len);
+	sha1_finish(&hash_ctx, hmac_data);
+
+	sha1_starts(&hash_ctx);
+	sha1_update(&hash_ctx, auth_session->nonce_odd, DIGEST_LENGTH);
+	sha1_update(&hash_ctx, hmac_data, sizeof(hmac_data));
+	sha1_finish(&hash_ctx, auth_session->nonce_odd);
+
+	if (pack_byte_string(request_auth, TPM_REQUEST_AUTH_LENGTH, "dsb",
+			     0, auth_session->handle,
+			     auth_nonce_odd_offset, auth_session->nonce_odd,
+			     DIGEST_LENGTH,
+			     auth_continue_offset, 1))
+		return TPM_LIB_ERROR;
+	if (pack_byte_string(hmac_data, sizeof(hmac_data), "ss",
+			     DIGEST_LENGTH,
+			     auth_session->nonce_even,
+			     DIGEST_LENGTH,
+			     2 * DIGEST_LENGTH,
+			     request_auth + auth_nonce_odd_offset,
+			     DIGEST_LENGTH + 1))
+		return TPM_LIB_ERROR;
+	sha1_hmac(auth, DIGEST_LENGTH, hmac_data, sizeof(hmac_data),
+		  request_auth + auth_auth_offset);
+
+	return TPM_SUCCESS;
+}
+
+/**
+ * Verify an authentication block in a response.
+ * Since this func updates the nonce_even in the session data it has to be
+ * called when receiving a succesfull AUTH response.
+ * This func can verify the first as well as the second auth block (for
+ * double authorized commands).
+ *
+ * @param command_code	command code of the request
+ * @param response	pointer to the request (w/ uninitialised auth data)
+ * @param handles_len	length of the handles area in response
+ * @param auth_session	pointer to the (valid) auth session to be used
+ * @param response_auth	pointer to the auth block of the response to be verified
+ * @param auth		authentication data (HMAC key)
+ */
+static uint32_t verify_response_auth(uint32_t command_code,
+	const void *response, size_t response_len0,
+	size_t handles_len,
+	struct session_data *auth_session,
+	const void *response_auth, const void *auth)
+{
+	uint8_t hmac_data[DIGEST_LENGTH * 3 + 1];
+	uint8_t computed_auth[DIGEST_LENGTH];
+	sha1_context hash_ctx;
+	const size_t return_code_offset = 6;
+	const size_t auth_continue_offset = 20;
+	const size_t auth_auth_offset = 21;
+	uint8_t auth_continue;
+
+	if (!auth_session || !auth_session->valid)
+		return TPM_AUTHFAIL;
+	if (pack_byte_string(hmac_data, sizeof(hmac_data), "d",
+			     0, command_code))
+		return TPM_LIB_ERROR;
+	if (response_len0 < TPM_RESPONSE_HEADER_LENGTH)
+		return TPM_LIB_ERROR;
+
+	sha1_starts(&hash_ctx);
+	sha1_update(&hash_ctx, response + return_code_offset, 4);
+	sha1_update(&hash_ctx, hmac_data, 4);
+	if (response_len0 > TPM_RESPONSE_HEADER_LENGTH + handles_len)
+		sha1_update(&hash_ctx,
+			    response + TPM_RESPONSE_HEADER_LENGTH + handles_len,
+			    response_len0 - TPM_RESPONSE_HEADER_LENGTH
+			    - handles_len);
+	sha1_finish(&hash_ctx, hmac_data);
+
+	memcpy(auth_session->nonce_even, response_auth, DIGEST_LENGTH);
+	auth_continue = ((uint8_t *)response_auth)[auth_continue_offset];
+	if (pack_byte_string(hmac_data, sizeof(hmac_data), "ssb",
+			     DIGEST_LENGTH,
+			     response_auth,
+			     DIGEST_LENGTH,
+			     2 * DIGEST_LENGTH,
+			     auth_session->nonce_odd,
+			     DIGEST_LENGTH,
+			     3 * DIGEST_LENGTH,
+			     auth_continue))
+		return TPM_LIB_ERROR;
+
+	sha1_hmac(auth, DIGEST_LENGTH, hmac_data, sizeof(hmac_data),
+		  computed_auth);
+
+	if (memcmp(computed_auth, response_auth + auth_auth_offset,
+		   DIGEST_LENGTH))
+		return TPM_AUTHFAIL;
+
+	return TPM_SUCCESS;
+}
+
+
+uint32_t tpm_terminate_auth_session(uint32_t auth_handle)
+{
+	const uint8_t command[18] = {
+		0x00, 0xc1,		/* TPM_TAG */
+		0x00, 0x00, 0x00, 0x00,	/* parameter size */
+		0x00, 0x00, 0x00, 0xba,	/* TPM_COMMAND_CODE */
+		0x00, 0x00, 0x00, 0x00,	/* TPM_HANDLE */
+		0x00, 0x00, 0x00, 0x02,	/* TPM_RESSOURCE_TYPE */
+	};
+	const size_t req_handle_offset = TPM_REQUEST_HEADER_LENGTH;
+	uint8_t request[COMMAND_BUFFER_SIZE];
+
+	if (pack_byte_string(request, sizeof(request), "sd",
+			     0, command, sizeof(command),
+			     req_handle_offset, auth_handle))
+		return TPM_LIB_ERROR;
+	if (oiap_session.valid && oiap_session.handle == auth_handle)
+		oiap_session.valid = 0;
+
+	return tpm_sendrecv_command(request, NULL, NULL);
+}
+
+uint32_t tpm_end_oiap(void)
+{
+	uint32_t err = TPM_SUCCESS;
+	if (oiap_session.valid)
+		err = tpm_terminate_auth_session(oiap_session.handle);
+	return err;
+}
+
+uint32_t tpm_oiap(uint32_t *auth_handle)
+{
+	const uint8_t command[10] = {
+		0x00, 0xc1,		/* TPM_TAG */
+		0x00, 0x00, 0x00, 0x0a,	/* parameter size */
+		0x00, 0x00, 0x00, 0x0a,	/* TPM_COMMAND_CODE */
+	};
+	const size_t res_auth_handle_offset = TPM_RESPONSE_HEADER_LENGTH;
+	const size_t res_nonce_even_offset = TPM_RESPONSE_HEADER_LENGTH + 4;
+	uint8_t response[COMMAND_BUFFER_SIZE];
+	size_t response_length = sizeof(response);
+	uint32_t err;
+
+	if (oiap_session.valid)
+		tpm_terminate_auth_session(oiap_session.handle);
+
+	err = tpm_sendrecv_command(command, response, &response_length);
+	if (err)
+		return err;
+	if (unpack_byte_string(response, response_length, "ds",
+			       res_auth_handle_offset, &oiap_session.handle,
+			       res_nonce_even_offset, &oiap_session.nonce_even,
+			       (uint32_t)DIGEST_LENGTH))
+		return TPM_LIB_ERROR;
+	oiap_session.valid = 1;
+	if (auth_handle)
+		*auth_handle = oiap_session.handle;
+	return 0;
+}
+
+uint32_t tpm_load_key2_oiap(uint32_t parent_handle,
+		const void *key, size_t key_length,
+		const void *parent_key_usage_auth,
+		uint32_t *key_handle)
+{
+	const uint8_t command[14] = {
+		0x00, 0xc2,		/* TPM_TAG */
+		0x00, 0x00, 0x00, 0x00,	/* parameter size */
+		0x00, 0x00, 0x00, 0x41,	/* TPM_COMMAND_CODE */
+		0x00, 0x00, 0x00, 0x00,	/* parent handle */
+	};
+	const size_t req_size_offset = 2;
+	const size_t req_parent_handle_offset = TPM_REQUEST_HEADER_LENGTH;
+	const size_t req_key_offset = TPM_REQUEST_HEADER_LENGTH + 4;
+	const size_t res_handle_offset = TPM_RESPONSE_HEADER_LENGTH;
+	uint8_t request[sizeof(command) + TPM_KEY12_MAX_LENGTH
+			+ TPM_REQUEST_AUTH_LENGTH];
+	uint8_t response[COMMAND_BUFFER_SIZE];
+	size_t response_length = sizeof(response);
+	uint32_t err;
+
+	if (!oiap_session.valid) {
+		err = tpm_oiap(NULL);
+		if (err)
+			return err;
+	}
+	if (pack_byte_string(request, sizeof(request), "sdds",
+			     0, command, sizeof(command),
+			     req_size_offset,
+			     sizeof(command) + key_length
+			     + TPM_REQUEST_AUTH_LENGTH,
+			     req_parent_handle_offset, parent_handle,
+			     req_key_offset, key, key_length
+		))
+		return TPM_LIB_ERROR;
+
+	err = create_request_auth(request, sizeof(command) + key_length, 4,
+				&oiap_session,
+				request + sizeof(command) + key_length,
+				parent_key_usage_auth);
+	if (err)
+		return err;
+	err = tpm_sendrecv_command(request, response, &response_length);
+	if (err) {
+		if (err == TPM_AUTHFAIL)
+			oiap_session.valid = 0;
+		return err;
+	}
+
+	err = verify_response_auth(0x00000041, response,
+			response_length - TPM_RESPONSE_AUTH_LENGTH,
+			4, &oiap_session,
+			response + response_length - TPM_RESPONSE_AUTH_LENGTH,
+			parent_key_usage_auth);
+	if (err)
+		return err;
+
+	if (key_handle) {
+		if (unpack_byte_string(response, response_length, "d",
+				       res_handle_offset, key_handle))
+			return TPM_LIB_ERROR;
+	}
+
+	return 0;
+}
+
+uint32_t tpm_get_pub_key_oiap(uint32_t key_handle, const void *usage_auth,
+			void *pubkey, size_t *pubkey_len)
+{
+	const uint8_t command[14] = {
+		0x00, 0xc2,		/* TPM_TAG */
+		0x00, 0x00, 0x00, 0x00,	/* parameter size */
+		0x00, 0x00, 0x00, 0x21,	/* TPM_COMMAND_CODE */
+		0x00, 0x00, 0x00, 0x00,	/* key handle */
+	};
+	const size_t req_size_offset = 2;
+	const size_t req_key_handle_offset = TPM_REQUEST_HEADER_LENGTH;
+	const size_t res_pubkey_offset = TPM_RESPONSE_HEADER_LENGTH;
+	uint8_t request[sizeof(command) + TPM_REQUEST_AUTH_LENGTH];
+	uint8_t response[TPM_RESPONSE_HEADER_LENGTH + TPM_PUBKEY_MAX_LENGTH
+			+ TPM_RESPONSE_AUTH_LENGTH];
+	size_t response_length = sizeof(response);
+	uint32_t err;
+
+	if (!oiap_session.valid) {
+		err = tpm_oiap(NULL);
+		if (err)
+			return err;
+	}
+	if (pack_byte_string(request, sizeof(request), "sdd",
+			     0, command, sizeof(command),
+			     req_size_offset,
+			     (uint32_t)(sizeof(command)
+			     + TPM_REQUEST_AUTH_LENGTH),
+			     req_key_handle_offset, key_handle
+		))
+		return TPM_LIB_ERROR;
+	err = create_request_auth(request, sizeof(command), 4, &oiap_session,
+			request + sizeof(command), usage_auth);
+	if (err)
+		return err;
+	err = tpm_sendrecv_command(request, response, &response_length);
+	if (err) {
+		if (err == TPM_AUTHFAIL)
+			oiap_session.valid = 0;
+		return err;
+	}
+	err = verify_response_auth(0x00000021, response,
+			response_length - TPM_RESPONSE_AUTH_LENGTH,
+			0, &oiap_session,
+			response + response_length - TPM_RESPONSE_AUTH_LENGTH,
+			usage_auth);
+	if (err)
+		return err;
+
+	if (pubkey) {
+		if ((response_length - TPM_RESPONSE_HEADER_LENGTH
+			- TPM_RESPONSE_AUTH_LENGTH) > *pubkey_len)
+			return TPM_LIB_ERROR;
+		*pubkey_len = response_length - TPM_RESPONSE_HEADER_LENGTH
+			- TPM_RESPONSE_AUTH_LENGTH;
+		memcpy(pubkey, response + res_pubkey_offset,
+		       response_length - TPM_RESPONSE_HEADER_LENGTH
+		       - TPM_RESPONSE_AUTH_LENGTH);
+	}
+
+	return 0;
+}
+
+#endif /* CONFIG_TPM_AUTH_SESSIONS */

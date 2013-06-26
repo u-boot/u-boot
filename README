@@ -1247,6 +1247,20 @@ The following options need to be configured:
 			to. Contemporary x86 systems usually map it at
 			0xfed40000.
 
+		CONFIG_CMD_TPM
+		Add tpm monitor functions.
+		Requires CONFIG_TPM. If CONFIG_TPM_AUTH_SESSIONS is set, also
+		provides monitor access to authorized functions.
+
+		CONFIG_TPM
+		Define this to enable the TPM support library which provides
+		functional interfaces to some TPM commands.
+		Requires support for a TPM device.
+
+		CONFIG_TPM_AUTH_SESSIONS
+		Define this to enable authorized functions in the TPM library.
+		Requires CONFIG_TPM and CONFIG_SHA1.
+
 - USB Support:
 		At the moment only the UHCI host controller is
 		supported (PIP405, MIP405, MPC5200); define
