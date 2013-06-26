@@ -26,10 +26,6 @@
 
 #define PIXCLK_640_480_60 25180000
 
-#define BASE_WIDTH 32
-#define BASE_HEIGHT 16
-#define BUFSIZE (BASE_WIDTH * BASE_HEIGHT)
-
 enum {
 	CH7301_CM = 0x1c,		/* Clock Mode Register */
 	CH7301_IC = 0x1d,		/* Input Clock Register */
@@ -50,6 +46,11 @@ enum {
 	CH7301_DID = 0x4b,		/* Device ID Register */
 	CH7301_DSP = 0x56,		/* DVI Sync polarity Register */
 };
+
+unsigned int base_width;
+unsigned int base_height;
+size_t bufsize;
+u16 *buf;
 
 unsigned int max_osd_screen = CONFIG_SYS_OSD_SCREENS - 1;
 
@@ -264,7 +265,7 @@ static int osd_write_videomem(unsigned screen, unsigned offset,
 	unsigned int k;
 
 	for (k = 0; k < charcount; ++k) {
-		if (offset + k >= BUFSIZE)
+		if (offset + k >= bufsize)
 			return -1;
 		FPGA_SET_REG(screen, videomem[offset + k], data[k]);
 	}
@@ -283,7 +284,6 @@ static int osd_print(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		unsigned len;
 		u8 color;
 		unsigned int k;
-		u16 buf[BUFSIZE];
 		char *text;
 		int res;
 
@@ -297,12 +297,12 @@ static int osd_print(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		color = simple_strtoul(argv[3], NULL, 16);
 		text = argv[4];
 		charcount = strlen(text);
-		len = (charcount > BUFSIZE) ? BUFSIZE : charcount;
+		len = (charcount > bufsize) ? bufsize : charcount;
 
 		for (k = 0; k < len; ++k)
 			buf[k] = (text[k] << 8) | color;
 
-		res = osd_write_videomem(screen, y * BASE_WIDTH + x, buf, len);
+		res = osd_write_videomem(screen, y * base_width + x, buf, len);
 		if (res < 0)
 			return res;
 	}
@@ -314,8 +314,6 @@ int osd_probe(unsigned screen)
 {
 	u16 version;
 	u16 features;
-	unsigned width;
-	unsigned height;
 	u8 value;
 #ifdef CONFIG_SYS_CH7301
 	int old_bus = i2c_get_bus_num();
@@ -324,11 +322,15 @@ int osd_probe(unsigned screen)
 	FPGA_GET_REG(0, osd.version, &version);
 	FPGA_GET_REG(0, osd.features, &features);
 
-	width = ((features & 0x3f00) >> 8) + 1;
-	height = (features & 0x001f) + 1;
+	base_width = ((features & 0x3f00) >> 8) + 1;
+	base_height = (features & 0x001f) + 1;
+	bufsize = base_width * base_height;
+	buf = malloc(sizeof(u16) * bufsize);
+	if (!buf)
+		return -1;
 
 	printf("OSD%d:  Digital-OSD version %01d.%02d, %d" "x%d characters\n",
-		screen, version/100, version%100, width, height);
+		screen, version/100, version%100, base_width, base_height);
 
 #ifdef CONFIG_SYS_CH7301
 	i2c_set_bus_num(ch7301_i2c[screen]);
@@ -394,7 +396,7 @@ int osd_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		unsigned x;
 		unsigned y;
 		unsigned k;
-		u16 buffer[BASE_WIDTH];
+		u16 buffer[base_width];
 		char *rp;
 		u16 *wp = buffer;
 		unsigned count = (argc > 4) ?
@@ -419,13 +421,13 @@ int osd_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 			rp += 4;
 			wp++;
-			if (wp - buffer > BASE_WIDTH)
+			if (wp - buffer > base_width)
 				break;
 		}
 
 		for (k = 0; k < count; ++k) {
 			unsigned offset =
-				y * BASE_WIDTH + x + k * (wp - buffer);
+				y * base_width + x + k * (wp - buffer);
 			osd_write_videomem(screen, offset, buffer,
 				wp - buffer);
 		}
