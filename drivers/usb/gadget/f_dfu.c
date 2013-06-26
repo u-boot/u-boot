@@ -589,7 +589,7 @@ static int dfu_prepare_function(struct f_dfu *f_dfu, int n)
 	struct usb_interface_descriptor *d;
 	int i = 0;
 
-	f_dfu->function = calloc(sizeof(struct usb_descriptor_header *), n);
+	f_dfu->function = calloc(sizeof(struct usb_descriptor_header *), n + 1);
 	if (!f_dfu->function)
 		goto enomem;
 
