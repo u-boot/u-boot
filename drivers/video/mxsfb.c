@@ -137,7 +137,7 @@ void *video_hw_init(void)
 	/* Suck display configuration from "videomode" variable */
 	penv = getenv("videomode");
 	if (!penv) {
-		printf("MXSFB: 'videomode' variable not set!");
+		puts("MXSFB: 'videomode' variable not set!\n");
 		return NULL;
 	}
 
