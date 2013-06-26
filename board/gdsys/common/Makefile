@@ -13,6 +13,8 @@ endif
 
 LIB	= $(obj)lib$(VENDOR).o
 
+COBJS-$(CONFIG_SYS_FPGA_COMMON) += fpga.o
+
 COBJS-$(CONFIG_IO) += miiphybb.o
 COBJS-$(CONFIG_IO64) += miiphybb.o
 COBJS-$(CONFIG_IOCON) += osd.o

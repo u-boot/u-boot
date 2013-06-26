@@ -236,6 +236,11 @@ int fpga_gpio_get(int pin);
 
 #define CONFIG_SYS_FPGA_COUNT		1
 
+#define CONFIG_SYS_FPGA_PTR \
+	{ (struct ihs_fpga *)CONFIG_SYS_FPGA0_BASE }
+
+#define CONFIG_SYS_FPGA_COMMON
+
 /* Memory Bank 3 (Latches) initialization */
 #define CONFIG_SYS_LATCH_BASE		0x7f200000
 #define CONFIG_SYS_EBC_PB3AP		0x02025080

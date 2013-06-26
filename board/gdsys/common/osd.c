@@ -6,8 +6,8 @@
  */
 
 #include <common.h>
-#include <i2c.h>
 #include <asm/io.h>
+#include <i2c.h>
 
 #include <gdsys_fpga.h>
 
@@ -54,34 +54,41 @@ enum {
 #if defined(CONFIG_SYS_ICS8N3QV01) || defined(CONFIG_SYS_SIL1178)
 static void fpga_iic_write(unsigned screen, u8 slave, u8 reg, u8 data)
 {
-	struct ihs_fpga *fpga = (struct ihs_fpga *)CONFIG_SYS_FPGA_BASE(screen);
-	struct ihs_i2c *i2c = &fpga->i2c;
+	u16 val;
 
-	while (in_le16(&fpga->extended_interrupt) & (1 << 12))
-		;
-	out_le16(&i2c->write_mailbox_ext, reg | (data << 8));
-	out_le16(&i2c->write_mailbox, 0xc400 | (slave << 1));
+	do {
+		FPGA_GET_REG(screen, extended_interrupt, &val);
+	} while (val & (1 << 12));
+
+	FPGA_SET_REG(screen, i2c.write_mailbox_ext, reg | (data << 8));
+	FPGA_SET_REG(screen, i2c.write_mailbox, 0xc400 | (slave << 1));
 }
 
 static u8 fpga_iic_read(unsigned screen, u8 slave, u8 reg)
 {
-	struct ihs_fpga *fpga = (struct ihs_fpga *)CONFIG_SYS_FPGA_BASE(screen);
-	struct ihs_i2c *i2c = &fpga->i2c;
 	unsigned int ctr = 0;
+	u16 val;
 
-	while (in_le16(&fpga->extended_interrupt) & (1 << 12))
-		;
-	out_le16(&fpga->extended_interrupt, 1 << 14);
-	out_le16(&i2c->write_mailbox_ext, reg);
-	out_le16(&i2c->write_mailbox, 0xc000 | (slave << 1));
-	while (!(in_le16(&fpga->extended_interrupt) & (1 << 14))) {
+	do {
+		FPGA_GET_REG(screen, extended_interrupt, &val);
+	} while (val & (1 << 12));
+
+	FPGA_SET_REG(screen, extended_interrupt, 1 << 14);
+	FPGA_SET_REG(screen, i2c.write_mailbox_ext, reg);
+	FPGA_SET_REG(screen, i2c.write_mailbox, 0xc000 | (slave << 1));
+
+	FPGA_GET_REG(screen, extended_interrupt, &val);
+	while (!(val & (1 << 14))) {
 		udelay(100000);
 		if (ctr++ > 5) {
 			printf("iic receive timeout\n");
 			break;
 		}
+		FPGA_GET_REG(screen, extended_interrupt, &val);
 	}
-	return in_le16(&i2c->read_mailbox_ext) >> 8;
+
+	FPGA_GET_REG(screen, i2c.read_mailbox_ext, &val);
+	return val >> 8;
 }
 #endif
 
@@ -113,7 +120,6 @@ static void mpc92469ac_calc_parameters(unsigned int fout,
 
 static void mpc92469ac_set(unsigned screen, unsigned int fout)
 {
-	struct ihs_fpga *fpga = (struct ihs_fpga *)CONFIG_SYS_FPGA_BASE(screen);
 	unsigned int n;
 	unsigned int m;
 	unsigned int bitval = 0;
@@ -134,7 +140,7 @@ static void mpc92469ac_set(unsigned screen, unsigned int fout)
 		break;
 	}
 
-	out_le16(&fpga->mpc3w_control, (bitval << 9) | m);
+	FPGA_SET_REG(screen, mpc3w_control, (bitval << 9) | m);
 }
 #endif
 
@@ -249,14 +255,12 @@ static void ics8n3qv01_set(unsigned screen, unsigned int fout)
 static int osd_write_videomem(unsigned screen, unsigned offset,
 	u16 *data, size_t charcount)
 {
-	struct ihs_fpga *fpga =
-		(struct ihs_fpga *) CONFIG_SYS_FPGA_BASE(screen);
 	unsigned int k;
 
 	for (k = 0; k < charcount; ++k) {
 		if (offset + k >= BUFSIZE)
 			return -1;
-		out_le16(&fpga->videomem + offset + k, data[k]);
+		FPGA_SET_REG(screen, videomem[offset + k], data[k]);
 	}
 
 	return charcount;
@@ -302,13 +306,14 @@ static int osd_print(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 int osd_probe(unsigned screen)
 {
-	struct ihs_fpga *fpga = (struct ihs_fpga *)CONFIG_SYS_FPGA_BASE(screen);
-	struct ihs_osd *osd = &fpga->osd;
-	u16 version = in_le16(&osd->version);
-	u16 features = in_le16(&osd->features);
+	u16 version;
+	u16 features;
 	unsigned width;
 	unsigned height;
 	u8 value;
+
+	FPGA_GET_REG(0, osd.version, &version);
+	FPGA_GET_REG(0, osd.features, &features);
 
 	width = ((features & 0x3f00) >> 8) + 1;
 	height = (features & 0x001f) + 1;
@@ -356,12 +361,13 @@ int osd_probe(unsigned screen)
 	fpga_iic_write(screen, SIL1178_MASTER_I2C_ADDRESS, 0x08, 0x37);
 #endif
 
-	out_le16(&fpga->videocontrol, 0x0002);
-	out_le16(&osd->control, 0x0049);
+	FPGA_SET_REG(screen, videocontrol, 0x0002);
+	FPGA_SET_REG(screen, osd.control, 0x0049);
 
-	out_le16(&osd->xy_size, ((32 - 1) << 8) | (16 - 1));
-	out_le16(&osd->x_pos, 0x007f);
-	out_le16(&osd->y_pos, 0x005f);
+	FPGA_SET_REG(screen, osd.xy_size, ((32 - 1) << 8) | (16 - 1));
+	FPGA_SET_REG(screen, osd.x_pos, 0x007f);
+	FPGA_SET_REG(screen, osd.y_pos, 0x005f);
+
 
 	return 0;
 }

@@ -53,6 +53,8 @@ enum {
 	RAM_DDR2_32 = 0,
 };
 
+struct ihs_fpga *fpga_ptr[] = CONFIG_SYS_FPGA_PTR;
+
 /*
  * Check Board Identity:
  */
@@ -76,10 +78,9 @@ int checkboard(void)
 
 static void print_fpga_info(void)
 {
-	struct ihs_fpga *fpga = (struct ihs_fpga *) CONFIG_SYS_FPGA_BASE(0);
-	u16 versions = in_le16(&fpga->versions);
-	u16 fpga_version = in_le16(&fpga->fpga_version);
-	u16 fpga_features = in_le16(&fpga->fpga_features);
+	u16 versions;
+	u16 fpga_version;
+	u16 fpga_features;
 	unsigned unit_type;
 	unsigned hardware_version;
 	unsigned feature_compression;
@@ -89,6 +90,10 @@ static void print_fpga_info(void)
 	unsigned feature_ramconfig;
 	unsigned feature_carriers;
 	unsigned feature_video_channels;
+
+	FPGA_GET_REG(0, versions, &versions);
+	FPGA_GET_REG(0, fpga_version, &fpga_version);
+	FPGA_GET_REG(0, fpga_features, &fpga_features);
 
 	unit_type = (versions & 0xf000) >> 12;
 	hardware_version = versions & 0x000f;
@@ -211,20 +216,25 @@ int last_stage_init(void)
 
 /*
  * provide access to fpga gpios (for I2C bitbang)
+ * (these may look all too simple but make iocon.h much more readable)
  */
 void fpga_gpio_set(int pin)
 {
-	out_le16((void *)(CONFIG_SYS_FPGA0_BASE + 0x18), pin);
+	FPGA_SET_REG(0, gpio.set, pin);
 }
 
 void fpga_gpio_clear(int pin)
 {
-	out_le16((void *)(CONFIG_SYS_FPGA0_BASE + 0x16), pin);
+	FPGA_SET_REG(0, gpio.clear, pin);
 }
 
 int fpga_gpio_get(int pin)
 {
-	return in_le16((void *)(CONFIG_SYS_FPGA0_BASE + 0x14)) & pin;
+	u16 val;
+
+	FPGA_GET_REG(0, gpio.read, &val);
+
+	return val & pin;
 }
 
 void gd405ep_init(void)

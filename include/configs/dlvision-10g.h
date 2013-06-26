@@ -123,6 +123,12 @@
 
 #define CONFIG_SYS_FPGA_COUNT		2
 
+#define CONFIG_SYS_FPGA_PTR { \
+	(struct ihs_fpga *)CONFIG_SYS_FPGA0_BASE, \
+	(struct ihs_fpga *)CONFIG_SYS_FPGA1_BASE }
+
+#define CONFIG_SYS_FPGA_COMMON
+
 #define CONFIG_SYS_LATCH0_RESET		0xffff
 #define CONFIG_SYS_LATCH0_BOOT		0xffff
 #define CONFIG_SYS_LATCH1_RESET		0xffcf

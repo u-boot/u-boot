@@ -55,6 +55,8 @@ enum {
 	RAM_DDR2_64 = 2,
 };
 
+struct ihs_fpga *fpga_ptr[] = CONFIG_SYS_FPGA_PTR;
+
 int misc_init_r(void)
 {
 	/* startup fans */
@@ -79,10 +81,9 @@ static unsigned int get_mc2_present(void)
 
 static void print_fpga_info(unsigned dev)
 {
-	struct ihs_fpga *fpga = (struct ihs_fpga *) CONFIG_SYS_FPGA_BASE(dev);
-	u16 versions = in_le16(&fpga->versions);
-	u16 fpga_version = in_le16(&fpga->fpga_version);
-	u16 fpga_features = in_le16(&fpga->fpga_features);
+	u16 versions;
+	u16 fpga_version;
+	u16 fpga_features;
 	unsigned unit_type;
 	unsigned hardware_version;
 	unsigned feature_rs232;
@@ -95,6 +96,10 @@ static void print_fpga_info(unsigned dev)
 	int fpga_state = get_fpga_state(dev);
 
 	printf("FPGA%d: ", dev);
+
+	FPGA_GET_REG(dev, versions, &versions);
+	FPGA_GET_REG(dev, fpga_version, &fpga_version);
+	FPGA_GET_REG(dev, fpga_features, &fpga_features);
 
 	hardware_version = versions & 0x000f;
 
@@ -247,8 +252,9 @@ int checkboard(void)
 
 int last_stage_init(void)
 {
-	struct ihs_fpga *fpga = (struct ihs_fpga *) CONFIG_SYS_FPGA_BASE(0);
-	u16 versions = in_le16(&fpga->versions);
+	u16 versions;
+
+	FPGA_GET_REG(0, versions, &versions);
 
 	print_fpga_info(0);
 	if (get_mc2_present())

@@ -19,6 +19,23 @@ enum {
 int get_fpga_state(unsigned dev);
 void print_fpga_state(unsigned dev);
 
+int fpga_set_reg(u32 fpga, u16 *reg, off_t regoff, u16 data);
+int fpga_get_reg(u32 fpga, u16 *reg, off_t regoff, u16 *data);
+
+extern struct ihs_fpga *fpga_ptr[];
+
+#define FPGA_SET_REG(ix, fld, val) \
+	fpga_set_reg((ix), \
+		     &fpga_ptr[ix]->fld, \
+		     offsetof(struct ihs_fpga, fld), \
+		     val)
+
+#define FPGA_GET_REG(ix, fld, val) \
+	fpga_get_reg((ix), \
+		     &fpga_ptr[ix]->fld, \
+		     offsetof(struct ihs_fpga, fld), \
+		     val)
+
 struct ihs_gpio {
 	u16 read;
 	u16 clear;
@@ -67,6 +84,19 @@ struct ihs_fpga {
 #endif
 
 #ifdef CONFIG_IO64
+
+struct ihs_fpga_channel {
+	u16 status_int;
+	u16 config_int;
+	u16 switch_connect_config;
+	u16 tx_destination;
+};
+
+struct ihs_fpga_hicb {
+	u16 status_int;
+	u16 config_int;
+};
+
 struct ihs_fpga {
 	u16 reflection_low;	/* 0x0000 */
 	u16 versions;		/* 0x0002 */
@@ -75,12 +105,9 @@ struct ihs_fpga {
 	u16 reserved_0[5];	/* 0x0008 */
 	u16 quad_serdes_reset;	/* 0x0012 */
 	u16 reserved_1[502];	/* 0x0014 */
-	u16 ch0_status_int;	/* 0x0400 */
-	u16 ch0_config_int;	/* 0x0402 */
-	u16 reserved_2[126];	/* 0x0404 */
-	u16 ch0_hicb_status_int;/* 0x0500 */
-	u16 ch0_hicb_config_int;/* 0x0502 */
-	u16 reserved_3[7549];	/* 0x0504 */
+	struct ihs_fpga_channel ch[32];		/* 0x0400 */
+	struct ihs_fpga_channel hicb_ch[32];	/* 0x0500 */
+	u16 reserved_2[7487];	/* 0x0580 */
 	u16 reflection_high;	/* 0x3ffe */
 };
 #endif
@@ -100,7 +127,7 @@ struct ihs_fpga {
 	u16 reflection_high;	/* 0x00fe */
 	struct ihs_osd osd;	/* 0x0100 */
 	u16 reserved_3[889];	/* 0x010e */
-	u16 videomem;		/* 0x0800 */
+	u16 videomem[31736];	/* 0x0800 */
 };
 #endif
 
@@ -121,7 +148,7 @@ struct ihs_fpga {
 	u16 reserved_4[176];	/* 0x00a0 */
 	struct ihs_osd osd;	/* 0x0200 */
 	u16 reserved_5[761];	/* 0x020e */
-	u16 videomem;		/* 0x0800 */
+	u16 videomem[31736];	/* 0x0800 */
 };
 #endif
 
