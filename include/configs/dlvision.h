@@ -18,7 +18,7 @@
  * Include common defines/options for all AMCC eval boards
  */
 #define CONFIG_HOSTNAME		dlvision
-#define CONFIG_IDENT_STRING	" dlvision 0.01"
+#define CONFIG_IDENT_STRING	" dlvision 0.02"
 #include "amcc-common.h"
 
 #define CONFIG_BOARD_EARLY_INIT_F	/* call board_early_init_f */
@@ -109,7 +109,6 @@
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write/ms */
 
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE 1	/* use buff'd writes */
-#define CONFIG_SYS_FLASH_PROTECTION	1	/* use hardware flash protect */
 
 #define CONFIG_SYS_FLASH_EMPTY_INFO	/* 'E' for empty sector on flinfo */
 #define CONFIG_SYS_FLASH_QUIET_TEST	1	/* no warn upon unknown flash */
