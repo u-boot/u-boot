@@ -96,7 +96,6 @@ HOSTCFLAGS	+= $(call os_x_before, 10, 4, "-traditional-cpp")
 HOSTLDFLAGS	+= $(call os_x_before, 10, 5, "-multiply_defined suppress")
 else
 HOSTCC		= gcc
-HOSTLIBS	+= -lssl -lcrypto
 endif
 
 ifeq ($(HOSTOS),cygwin)
@@ -209,6 +208,11 @@ CPPFLAGS := $(DBGFLAGS) $(OPTFLAGS) $(RELFLAGS)		\
 ifeq ($(CONFIG_SPL_BUILD),y)
 CPPFLAGS += -ffunction-sections -fdata-sections
 LDFLAGS_FINAL += --gc-sections
+endif
+
+# TODO(sjg@chromium.org): Is this correct on Mac OS?
+ifdef CONFIG_FIT_SIGNATURE
+HOSTLIBS	+= -lssl -lcrypto
 endif
 
 ifneq ($(CONFIG_SYS_TEXT_BASE),)

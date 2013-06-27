@@ -46,9 +46,6 @@ struct lmb;
 #define CONFIG_OF_LIBFDT	1
 #define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
 
-/* Support FIT image signing on host */
-#define CONFIG_FIT_SIGNATURE
-
 #define IMAGE_ENABLE_IGNORE	0
 #define IMAGE_INDENT_STRING	""
 

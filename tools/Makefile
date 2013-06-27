@@ -126,7 +126,7 @@ LIBFDT_OBJ_FILES-y += fdt_strerror.o
 LIBFDT_OBJ_FILES-y += fdt_wip.o
 
 # RSA objects
-RSA_OBJ_FILES-y += rsa-sign.o
+RSA_OBJ_FILES-$(CONFIG_FIT_SIGNATURE) += rsa-sign.o
 
 # Generated LCD/video logo
 LOGO_H = $(OBJTREE)/include/bmp_logo.h
