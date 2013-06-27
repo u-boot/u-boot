@@ -456,7 +456,13 @@ struct fuse_bank0_regs {
 	u32	uid_low;
 	u32	rsvd1[3];
 	u32	uid_high;
-	u32	rsvd2[0x17];
+	u32	rsvd2[3];
+	u32	rsvd3[4];
+	u32	rsvd4[4];
+	u32	rsvd5[4];
+	u32	cfg5;
+	u32	rsvd6[3];
+	u32	rsvd7[4];
 };
 
 struct fuse_bank4_regs {
