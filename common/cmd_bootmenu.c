@@ -64,12 +64,12 @@ enum bootmenu_key {
 
 static char *bootmenu_getoption(unsigned short int n)
 {
-	char name[MAX_ENV_SIZE] = "bootmenu_";
+	char name[MAX_ENV_SIZE];
 
 	if (n > MAX_COUNT)
 		return NULL;
 
-	sprintf(name + 9, "%d", n);
+	sprintf(name, "bootmenu_%d", n);
 	return getenv(name);
 }
 
