@@ -52,7 +52,8 @@ enum imximage_cmd {
 	CMD_IMAGE_VERSION,
 	CMD_BOOT_FROM,
 	CMD_BOOT_OFFSET,
-	CMD_DATA
+	CMD_DATA,
+	CMD_CSF,
 };
 
 enum imximage_fld_types {
