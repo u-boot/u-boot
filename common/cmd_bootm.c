@@ -345,8 +345,10 @@ static int bootm_find_other(cmd_tbl_t *cmdtp, int flag, int argc,
 #define BOOTM_ERR_RESET		-1
 #define BOOTM_ERR_OVERLAP	-2
 #define BOOTM_ERR_UNIMPLEMENTED	-3
-static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
+static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
+		int boot_progress)
 {
+	image_info_t os = images->os;
 	uint8_t comp = os.comp;
 	ulong load = os.load;
 	ulong blob_start = os.start;
@@ -464,7 +466,17 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 		debug("images.os.load = 0x%lx, load_end = 0x%lx\n", load,
 			*load_end);
 
-		return BOOTM_ERR_OVERLAP;
+		/* Check what type of image this is. */
+		if (images->legacy_hdr_valid) {
+			if (image_get_type(&images->legacy_hdr_os_copy)
+					== IH_TYPE_MULTI)
+				puts("WARNING: legacy format multi component image overwritten\n");
+			return BOOTM_ERR_OVERLAP;
+		} else {
+			puts("ERROR: new format image overwritten - must RESET the board to recover\n");
+			bootstage_error(BOOTSTAGE_ID_OVERWRITTEN);
+			return BOOTM_ERR_RESET;
+		}
 	}
 
 	return 0;
@@ -558,6 +570,10 @@ static int boot_selected_os(int argc, char * const argv[], int state,
  * Note that if states contains more than one flag it MUST contain
  * BOOTM_STATE_START, since this handles and consumes the command line args.
  *
+ * Also note that aside from boot_os_fn functions and bootm_load_os no other
+ * functions we store the return value of in 'ret' may use a negative return
+ * value, without special handling.
+ *
  * @param cmdtp		Pointer to bootm command table entry
  * @param flag		Command flags (CMD_FLAG_...)
  * @param argc		Number of subcommand arguments (0 = no arguments)
@@ -599,11 +615,15 @@ static int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (!ret && (states & BOOTM_STATE_LOADOS)) {
 		ulong load_end;
 
-		ret = bootm_load_os(images->os, &load_end, 0);
-		if (!ret) {
+		ret = bootm_load_os(images, &load_end, 0);
+		if (ret && ret != BOOTM_ERR_OVERLAP)
+			goto err;
+
+		if (ret == 0)
 			lmb_reserve(&images->lmb, images->os.load,
 				    (load_end - images->os.load));
-		}
+		else if (ret == BOOTM_ERR_OVERLAP)
+			ret = 0;
 	}
 
 	/* Relocate the ramdisk */
@@ -660,34 +680,25 @@ static int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc,
 	}
 #endif
 	/* Now run the OS! We hope this doesn't return */
-	if (!ret && (states & BOOTM_STATE_OS_GO))
+	if (!ret && (states & BOOTM_STATE_OS_GO)) {
 		ret = boot_selected_os(argc, argv, BOOTM_STATE_OS_GO,
 				images, boot_fn, &iflag);
+		if (ret)
+			goto err;
+	}
+
+	return ret;
 
 	/* Deal with any fallout */
-	if (ret < 0) {
-		if (ret == BOOTM_ERR_UNIMPLEMENTED) {
-			if (iflag)
-				enable_interrupts();
-			bootstage_error(BOOTSTAGE_ID_DECOMP_UNIMPL);
-			return 1;
-		} else if (ret == BOOTM_ERR_OVERLAP) {
-			if (images->legacy_hdr_valid) {
-				if (image_get_type(&images->legacy_hdr_os_copy)
-						== IH_TYPE_MULTI)
-					puts("WARNING: legacy format multi component image overwritten\n");
-			} else {
-				puts("ERROR: new format image overwritten - must RESET the board to recover\n");
-				bootstage_error(BOOTSTAGE_ID_OVERWRITTEN);
-				ret = BOOTM_ERR_RESET;
-			}
-		}
-		if (ret == BOOTM_ERR_RESET)
-			do_reset(cmdtp, flag, argc, argv);
-	}
+err:
 	if (iflag)
 		enable_interrupts();
-	if (ret)
+
+	if (ret == BOOTM_ERR_UNIMPLEMENTED)
+		bootstage_error(BOOTSTAGE_ID_DECOMP_UNIMPL);
+	else if (ret == BOOTM_ERR_RESET)
+		do_reset(cmdtp, flag, argc, argv);
+	else
 		puts("subcommand not supported\n");
 
 	return ret;
