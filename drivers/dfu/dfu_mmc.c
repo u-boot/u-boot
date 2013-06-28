@@ -98,6 +98,8 @@ static int mmc_file_op(enum dfu_mmc_op op, struct dfu_entity *dfu,
 			op == DFU_OP_READ ? "load" : "write",
 			dfu->data.mmc.dev, dfu->data.mmc.part,
 			(unsigned int) buf, dfu->name);
+		if (op == DFU_OP_WRITE)
+			sprintf(cmd_buf + strlen(cmd_buf), " %ld", *len);
 		break;
 	default:
 		printf("%s: Layout (%s) not (yet) supported!\n", __func__,
