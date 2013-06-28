@@ -34,7 +34,7 @@
 #define CONFIG_SYS_L2_SIZE	(256 << 10)
 #endif
 
-#if defined(CONFIG_P1020RDB)
+#if defined(CONFIG_P1020RDB_PC)
 #define CONFIG_BOARDNAME "P1020RDB-PC"
 #define CONFIG_NAND_FSL_ELBC
 #define CONFIG_P1020
@@ -47,6 +47,35 @@
 #define __SW_BOOT_SD		0x9c
 #define __SW_BOOT_NAND		0xec
 #define __SW_BOOT_PCIE		0x6c
+#define CONFIG_SYS_L2_SIZE	(256 << 10)
+#endif
+
+/*
+ * P1020RDB-PD board has user selectable switches for evaluating different
+ * frequency and boot options for the P1020 device. The table that
+ * follow describe the available options. The front six binary number was in
+ * accordance with SW3[1:6].
+ * 111101 533 533 267 667 NOR Core0 boot; Core1 hold-off
+ * 101101 667 667 333 667 NOR Core0 boot; Core1 hold-off
+ * 011001 800 800 400 667 NOR Core0 boot; Core1 hold-off
+ * 001001 800 800 400 667 SD/MMC Core0 boot; Core1 hold-off
+ * 001101 800 800 400 667 SPI Core0 boot; Core1 hold-off
+ * 010001 800 800 400 667 NAND Core0 boot; Core1 hold-off
+ * 011101 800 800 400 667 PCIe-2 Core0 boot; Core1 hold-off
+ */
+#if defined(CONFIG_P1020RDB_PD)
+#define CONFIG_BOARDNAME "P1020RDB-PD"
+#define CONFIG_NAND_FSL_ELBC
+#define CONFIG_P1020
+#define CONFIG_SPI_FLASH
+#define CONFIG_VSC7385_ENET
+#define CONFIG_SLIC
+#define __SW_BOOT_MASK		0x03
+#define __SW_BOOT_NOR		0x64
+#define __SW_BOOT_SPI		0x34
+#define __SW_BOOT_SD		0x24
+#define __SW_BOOT_NAND		0x44
+#define __SW_BOOT_PCIE		0x74
 #define CONFIG_SYS_L2_SIZE	(256 << 10)
 #endif
 
@@ -259,7 +288,7 @@
 #define SPD_EEPROM_ADDRESS 0x52
 #undef CONFIG_FSL_DDR_INTERACTIVE
 
-#ifdef CONFIG_P1020MBG
+#if (defined(CONFIG_P1020MBG) || defined(CONFIG_P1020RDB_PD))
 #define CONFIG_SYS_SDRAM_SIZE_LAW	LAW_SIZE_2G
 #define CONFIG_CHIP_SELECTS_PER_CTRL	2
 #else
@@ -330,7 +359,7 @@
 /*
  * Local Bus Definitions
  */
-#if defined(CONFIG_P1020MBG)
+#if (defined(CONFIG_P1020MBG) || defined(CONFIG_P1020RDB_PD))
 #define CONFIG_SYS_MAX_FLASH_SECT	512	/* 64M */
 #define CONFIG_SYS_FLASH_BASE		0xec000000
 #elif defined(CONFIG_P1020UTM)
@@ -381,13 +410,27 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_MTD_NAND_VERIFY_WRITE
 #define CONFIG_CMD_NAND
+#if defined(CONFIG_P1020RDB_PD)
+#define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
+#else
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(16 * 1024)
+#endif
 
 #define CONFIG_SYS_NAND_BR_PRELIM (BR_PHYS_ADDR(CONFIG_SYS_NAND_BASE_PHYS) \
 	| (2<<BR_DECC_SHIFT)	/* Use HW ECC */ \
 	| BR_PS_8	/* Port Size = 8 bit */ \
 	| BR_MS_FCM	/* MSEL = FCM */ \
 	| BR_V)	/* valid */
+#if defined(CONFIG_P1020RDB_PD)
+#define CONFIG_SYS_NAND_OR_PRELIM	(OR_AM_32KB \
+	| OR_FCM_PGS	/* Large Page*/ \
+	| OR_FCM_CSCT \
+	| OR_FCM_CST \
+	| OR_FCM_CHT \
+	| OR_FCM_SCY_1 \
+	| OR_FCM_TRLX \
+	| OR_FCM_EHTR)
+#else
 #define CONFIG_SYS_NAND_OR_PRELIM	(OR_AM_32KB	/* small page */ \
 	| OR_FCM_CSCT \
 	| OR_FCM_CST \
@@ -395,6 +438,7 @@
 	| OR_FCM_SCY_1 \
 	| OR_FCM_TRLX \
 	| OR_FCM_EHTR)
+#endif
 #endif /* CONFIG_NAND_FSL_ELBC */
 
 #define CONFIG_BOARD_EARLY_INIT_R	/* call board_early_init_r function */
