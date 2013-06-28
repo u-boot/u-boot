@@ -256,11 +256,6 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 		return 0;
 	}
 
-	if (flag & BOOTM_STATE_OS_GO) {
-		boot_jump_linux(images);
-		return 0;
-	}
-
 	boot_prep_linux(images);
 	ret = boot_body_linux(images);
 	if (ret)
