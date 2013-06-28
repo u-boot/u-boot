@@ -247,7 +247,7 @@ static struct {
 
 static void portmux_setup(unsigned short per)
 {
-	u16 y, offset, muxreg;
+	u16 y, offset, muxreg, mask;
 	u16 function = P_FUNCT2MUX(per);
 
 	for (y = 0; y < ARRAY_SIZE(port_mux_lut); y++) {
@@ -258,12 +258,13 @@ static void portmux_setup(unsigned short per)
 			offset = port_mux_lut[y].offset;
 			muxreg = bfin_read_PORT_MUX();
 
-			if (offset != 1)
-				muxreg &= ~(1 << offset);
+			if (offset == 1)
+				mask = 3;
 			else
-				muxreg &= ~(3 << 1);
+				mask = 1;
 
-			muxreg |= (function << offset);
+			muxreg &= ~(mask << offset);
+			muxreg |= ((function & mask) << offset);
 			bfin_write_PORT_MUX(muxreg);
 		}
 	}
