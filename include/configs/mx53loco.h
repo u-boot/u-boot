@@ -124,8 +124,8 @@
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
 	"mmcdev=0\0" \
-	"mmcpart=2\0" \
-	"mmcroot=/dev/mmcblk0p3 rw rootwait\0" \
+	"mmcpart=1\0" \
+	"mmcroot=/dev/mmcblk0p2 rw rootwait\0" \
 	"mmcargs=setenv bootargs console=ttymxc0,${baudrate} root=${mmcroot}\0" \
 	"loadbootscript=" \
 		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
