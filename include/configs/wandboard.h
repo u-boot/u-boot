@@ -103,6 +103,8 @@
 
 #if defined(CONFIG_MX6DL)
 #define CONFIG_DEFAULT_FDT_FILE		"imx6dl-wandboard.dtb"
+#elif defined(CONFIG_MX6Q)
+#define CONFIG_DEFAULT_FDT_FILE		"imx6q-wandboard.dtb"
 #elif defined(CONFIG_MX6S)
 #define CONFIG_DEFAULT_FDT_FILE		"imx6s-wandboard.dtb"
 #endif

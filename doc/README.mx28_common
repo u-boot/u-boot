@@ -1,11 +1,14 @@
-Booting U-boot on a MX28 processor
-==================================
+Booting U-boot on a MXS processor
+=================================
 
-This document describes the MX28 U-Boot port. This document mostly
-covers topics related to making the module/board bootable.
+This document describes the MXS U-Boot port. This document mostly covers topics
+related to making the module/board bootable.
 
 Terminology
 -----------
+
+The term "MXS" refers to a family of Freescale SoCs that is composed by MX23
+and MX28.
 
 The dollar symbol ($) introduces a snipped of shell code. This shall be typed
 into the unix command prompt in U-Boot source code root directory.
@@ -17,16 +20,16 @@ Contents
 --------
 
 1) Prerequisites
-2) Compiling U-Boot for a MX28 based board
-3) Installation of U-Boot for a MX28 based board to SD card
-4) Installation of U-Boot into NAND flash
+2) Compiling U-Boot for a MXS based board
+3) Installation of U-Boot for a MXS based board to SD card
+4) Installation of U-Boot into NAND flash on a MX28 based board
 
 1) Prerequisites
 ----------------
 
-To make a MX28 based board bootable, some tools are necessary. The first one
-is the "elftosb" tool distributed by Freescale Semiconductor. The other one
-is the "mxsboot" tool found in U-Boot source tree.
+To make a MXS based board bootable, some tools are necessary. The first one is
+the "elftosb" tool distributed by Freescale Semiconductor. The other one is the
+"mxsboot" tool found in U-Boot source tree.
 
 Firstly, obtain the elftosb archive from the following location:
 
@@ -60,18 +63,18 @@ copy the binary by hand:
 Make sure the "elftosb" binary can be found in your $PATH, in this case this
 means "/usr/local/bin/" has to be in your $PATH.
 
-2) Compiling U-Boot for a MX28 based board
+2) Compiling U-Boot for a MXS based board
 -------------------------------------------
 
-Compiling the U-Boot for a MX28 board is straightforward and done as compiling U-Boot
-for any other ARM device. For cross-compiler setup, please refer to ELDK5.0
-documentation. First, clean up the source code:
+Compiling the U-Boot for a MXS board is straightforward and done as compiling
+U-Boot for any other ARM device. For cross-compiler setup, please refer to
+ELDK5.0 documentation. First, clean up the source code:
 
 	$ make mrproper
 
-Next, configure U-Boot for a MX28 based board
+Next, configure U-Boot for a MXS based board
 
-	$ make <mx28_based_board_name>_config
+	$ make <mxs_based_board_name>_config
 
 Examples:
 
@@ -83,8 +86,16 @@ Examples:
 
 	$ make mx28evk_config
 
+3. For building U-boot for Freescale MX23EVK board:
+
+	$ make mx23evk_config
+
+4. For building U-boot for Olimex MX23 Olinuxino board:
+
+	$ make mx23_olinuxino_config
+
 Lastly, compile U-Boot and prepare a "BootStream". The "BootStream" is a special
-type of file, which the i.MX28 CPU can boot. This is handled by the following
+type of file, which MXS CPUs can boot. This is handled by the following
 command:
 
 	$ make u-boot.sb
@@ -96,18 +107,16 @@ The code produces "u-boot.sb" file. This file needs to be augmented with a
 proper header to allow successful boot from SD or NAND. Adding the header is
 discussed in the following chapters.
 
-3) Installation of U-Boot for a MX28 based board to SD card
------------------------------------------------------------
+3) Installation of U-Boot for a MXS based board to SD card
+----------------------------------------------------------
 
-To boot a MX28 based board from SD, set the boot mode DIP switches according
-to i.MX28 manual chapter 12.2.1 (Table 12-2), PORT=SSP0, SD/MMC master on
-SSP0, 3.3V.
+To boot a MXS based board from SD, set the boot mode DIP switches according to
+to MX28 manual, section 12.2.1 (Table 12-2) or MX23 manual, section 35.1.2
+(Table 35-3).
 
-
-An SD card the i.MX28 CPU can use to boot U-Boot must contain a DOS partition
-table, which in turn carries a partition of special type and which contains a
-special header. The rest of partitions in the DOS partition table can be used
-by the user.
+The SD card used to boot U-Boot must contain a DOS partition table, which in
+turn carries a partition of special type and which contains a special header.
+The rest of partitions in the DOS partition table can be used by the user.
 
 To prepare such partition, use your favourite partitioning tool. The partition
 must have the following parameters:
@@ -141,17 +150,17 @@ case, we assume the first partition of the SD card is /dev/mmcblk0p1:
 
 	$ dd if=u-boot.sd of=/dev/mmcblk0p1
 
-Last step is to insert the card into MX28 based board and boot.
+Last step is to insert the card into the MXS based board and boot.
 
 NOTE: If the user needs to adjust the start sector, the "mxsboot" tool contains
       a "-p" switch for that purpose. The "-p" switch takes the sector number as
       an argument.
 
-4) Installation of U-Boot into NAND flash
------------------------------------------
+4) Installation of U-Boot into NAND flash on a MX28 based board
+---------------------------------------------------------------
 
-To boot a MX28 based board from NAND, set the boot mode DIP switches according to i.MX28
-manual chapter 12.2.1 (Table 12-2), PORT=GPMI, NAND 1.8 V.
+To boot a MX28 based board from NAND, set the boot mode DIP switches according
+to MX28 manual section 12.2.1 (Table 12-2), PORT=GPMI, NAND 1.8 V.
 
 There are two possibilities when preparing an image writable to NAND flash.
 
@@ -214,7 +223,7 @@ There are two possibilities when preparing an image writable to NAND flash.
 	--------------------------------------------
 	   There is a slight possibility of the user wanting to adjust the
 	   STRIDE and COUNT options of the NAND boot. For description of these,
-	   see i.MX28 manual section 12.12.1.2 and 12.12.1.3.
+	   see MX28 manual section 12.12.1.2 and 12.12.1.3.
 
 	   The update scripts take this possibility into account. In case the
 	   user changes STRIDE by blowing fuses, the user also has to change
