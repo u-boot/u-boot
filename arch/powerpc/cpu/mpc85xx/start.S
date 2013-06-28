@@ -33,7 +33,8 @@
 #define MINIMAL_SPL
 #endif
 
-#if !defined(CONFIG_SPL) && !defined(CONFIG_SYS_RAMBOOT) && !defined(CONFIG_SECURE_BOOT)
+#if !defined(CONFIG_SPL) && !defined(CONFIG_SYS_RAMBOOT) && \
+	!defined(CONFIG_SECURE_BOOT) && !defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
 #define NOR_BOOT
 #endif
 
