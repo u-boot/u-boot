@@ -516,36 +516,13 @@ static cmd_tbl_t cmd_bootm_sub[] = {
 };
 
 static int boot_selected_os(int argc, char * const argv[], int state,
-		bootm_headers_t *images, boot_os_fn *boot_fn, ulong *iflag)
+		bootm_headers_t *images, boot_os_fn *boot_fn)
 {
 	if (images->os.type == IH_TYPE_STANDALONE) {
 		/* This may return when 'autostart' is 'no' */
 		bootm_start_standalone(argc, argv);
 		return 0;
 	}
-	/*
-	 * We have reached the point of no return: we are going to
-	 * overwrite all exception vector code, so we cannot easily
-	 * recover from any failures any more...
-	 */
-	*iflag = disable_interrupts();
-#ifdef CONFIG_NETCONSOLE
-	/* Stop the ethernet stack if NetConsole could have left it up */
-	eth_halt();
-#endif
-
-#if defined(CONFIG_CMD_USB)
-	/*
-	 * turn off USB to prevent the host controller from writing to the
-	 * SDRAM while Linux is booting. This could happen (at least for OHCI
-	 * controller), because the HCCA (Host Controller Communication Area)
-	 * lies within the SDRAM and the host controller writes continously to
-	 * this area (as busmaster!). The HccaFrameNumber is for example
-	 * updated every 1 ms within the HCCA structure in SDRAM! For more
-	 * details see the OpenHCI specification.
-	 */
-	usb_stop();
-#endif
 #ifdef CONFIG_SILENT_CONSOLE
 	if (images->os.os == IH_OS_LINUX)
 		fixup_silent_linux();
@@ -611,6 +588,30 @@ static int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc,
 		argc = 0;	/* consume the args */
 	}
 
+	/*
+	 * We have reached the point of no return: we are going to
+	 * overwrite all exception vector code, so we cannot easily
+	 * recover from any failures any more...
+	 */
+	iflag = disable_interrupts();
+#ifdef CONFIG_NETCONSOLE
+	/* Stop the ethernet stack if NetConsole could have left it up */
+	eth_halt();
+#endif
+
+#if defined(CONFIG_CMD_USB)
+	/*
+	 * turn off USB to prevent the host controller from writing to the
+	 * SDRAM while Linux is booting. This could happen (at least for OHCI
+	 * controller), because the HCCA (Host Controller Communication Area)
+	 * lies within the SDRAM and the host controller writes continously to
+	 * this area (as busmaster!). The HccaFrameNumber is for example
+	 * updated every 1 ms within the HCCA structure in SDRAM! For more
+	 * details see the OpenHCI specification.
+	 */
+	usb_stop();
+#endif
+
 	/* Load the OS */
 	if (!ret && (states & BOOTM_STATE_LOADOS)) {
 		ulong load_end;
@@ -674,7 +675,7 @@ static int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc,
 		char *cmd_list = getenv("fakegocmd");
 
 		ret = boot_selected_os(argc, argv, BOOTM_STATE_OS_FAKE_GO,
-				images, boot_fn, &iflag);
+				images, boot_fn);
 		if (!ret && cmd_list)
 			ret = run_command_list(cmd_list, -1, flag);
 	}
@@ -682,7 +683,7 @@ static int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc,
 	/* Now run the OS! We hope this doesn't return */
 	if (!ret && (states & BOOTM_STATE_OS_GO)) {
 		ret = boot_selected_os(argc, argv, BOOTM_STATE_OS_GO,
-				images, boot_fn, &iflag);
+				images, boot_fn);
 		if (ret)
 			goto err;
 	}
