@@ -248,7 +248,11 @@ int dfu_read(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 	       __func__, dfu->name, buf, size, blk_seq_num, dfu->i_buf);
 
 	if (!dfu->inited) {
-		ret = dfu->read_medium(dfu, 0, buf, &dfu->r_left);
+		dfu->i_buf_start = dfu_get_buf();
+		if (dfu->i_buf_start == NULL)
+			return -ENOMEM;
+
+		ret = dfu->read_medium(dfu, 0, dfu->i_buf_start, &dfu->r_left);
 		if (ret != 0) {
 			debug("%s: failed to get r_left\n", __func__);
 			return ret;
@@ -259,9 +263,6 @@ int dfu_read(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 		dfu->i_blk_seq_num = 0;
 		dfu->crc = 0;
 		dfu->offset = 0;
-		dfu->i_buf_start = dfu_get_buf();
-		if (dfu->i_buf_start == NULL)
-			return -ENOMEM;
 		dfu->i_buf_end = dfu_get_buf() + dfu_buf_size;
 		dfu->i_buf = dfu->i_buf_start;
 		dfu->b_left = 0;
