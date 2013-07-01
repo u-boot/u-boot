@@ -67,6 +67,7 @@ static int display_banner(void)
 static int init_baudrate(void)
 {
 	gd->baudrate = getenv_ulong("baudrate", 10, CONFIG_BAUDRATE);
+	gd->bd->bi_baudrate = gd->baudrate;
 	return 0;
 }
 
@@ -235,8 +236,6 @@ static int global_board_data_init(void)
 	bd->bi_sclk = get_sclk();
 	bd->bi_memstart = CONFIG_SYS_SDRAM_BASE;
 	bd->bi_memsize = CONFIG_SYS_MAX_RAM_SIZE;
-	bd->bi_baudrate = (gd->baudrate > 0)
-		? simple_strtoul(gd->baudrate, NULL, 10) : CONFIG_BAUDRATE;
 
 	return 0;
 }
