@@ -31,6 +31,7 @@
 #include <command.h>
 #include <asm/byteorder.h>
 #include <malloc.h>
+#include <splash.h>
 #include <video.h>
 
 static int bmp_info (ulong addr);
@@ -124,6 +125,8 @@ static int do_bmp_display(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 {
 	ulong addr;
 	int x = 0, y = 0;
+
+	splash_get_pos(&x, &y);
 
 	switch (argc) {
 	case 1:		/* use load_addr as default address */

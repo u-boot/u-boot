@@ -25,5 +25,12 @@
 
 int splash_screen_prepare(void);
 
+#ifdef CONFIG_SPLASH_SCREEN_ALIGN
+void splash_get_pos(int *x, int *y);
+#else
+static inline void splash_get_pos(int *x, int *y) { }
+#endif
+
+#define BMP_ALIGN_CENTER	0x7FFF
 
 #endif

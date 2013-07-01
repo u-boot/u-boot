@@ -20,6 +20,7 @@
  *
  */
 
+#include <common.h>
 #include <splash.h>
 
 int __splash_screen_prepare(void)
@@ -29,3 +30,27 @@ int __splash_screen_prepare(void)
 
 int splash_screen_prepare(void)
 	__attribute__ ((weak, alias("__splash_screen_prepare")));
+
+
+#ifdef CONFIG_SPLASH_SCREEN_ALIGN
+void splash_get_pos(int *x, int *y)
+{
+	char *s = getenv("splashpos");
+
+	if (!s)
+		return;
+
+	if (s[0] == 'm')
+		*x = BMP_ALIGN_CENTER;
+	else
+		*x = simple_strtol(s, NULL, 0);
+
+	s = strchr(s + 1, ',');
+	if (s != NULL) {
+		if (s[1] == 'm')
+			*y = BMP_ALIGN_CENTER;
+		else
+			*y = simple_strtol(s + 1, NULL, 0);
+	}
+}
+#endif /* CONFIG_SPLASH_SCREEN_ALIGN */
