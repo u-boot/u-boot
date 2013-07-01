@@ -669,6 +669,13 @@ static int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (!ret && (states & BOOTM_STATE_OS_PREP))
 		ret = boot_fn(BOOTM_STATE_OS_PREP, argc, argv, images);
 
+	/* Check for unsupported subcommand. */
+	if (ret) {
+		puts("subcommand not supported\n");
+		return ret;
+	}
+
+
 #ifdef CONFIG_TRACE
 	/* Pretend to run the OS, then run a user command */
 	if (!ret && (states & BOOTM_STATE_OS_FAKE_GO)) {
@@ -699,8 +706,6 @@ err:
 		bootstage_error(BOOTSTAGE_ID_DECOMP_UNIMPL);
 	else if (ret == BOOTM_ERR_RESET)
 		do_reset(cmdtp, flag, argc, argv);
-	else
-		puts("subcommand not supported\n");
 
 	return ret;
 }
