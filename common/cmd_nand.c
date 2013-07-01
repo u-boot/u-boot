@@ -426,7 +426,7 @@ static int raw_access(nand_info_t *nand, ulong addr, loff_t off, ulong count,
 }
 
 /* Adjust a chip/partition size down for bad blocks so we don't
- * read/write/erase past the end of a chip/partition by accident.
+ * read/write past the end of a chip/partition by accident.
  */
 static void adjust_size_for_badblocks(loff_t *size, loff_t offset, int dev)
 {
@@ -546,7 +546,6 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		int scrub = !strncmp(cmd, "scrub", 5);
 		int spread = 0;
 		int args = 2;
-		int adjust_size = 0;
 		const char *scrub_warn =
 			"Warning: "
 			"scrub option will erase all factory set bad blocks!\n"
@@ -563,10 +562,8 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				spread = 1;
 			} else if (!strcmp(&cmd[5], ".part")) {
 				args = 1;
-				adjust_size = 1;
 			} else if (!strcmp(&cmd[5], ".chip")) {
 				args = 0;
-				adjust_size = 1;
 			} else {
 				goto usage;
 			}
@@ -585,10 +582,6 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (arg_off_size(argc - o, argv + o, &dev, &off, &size,
 				 &maxsize) != 0)
 			return 1;
-
-		/* size is unspecified */
-		if (adjust_size && !scrub)
-			adjust_size_for_badblocks(&size, off, dev);
 
 		nand = &nand_info[dev];
 

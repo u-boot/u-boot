@@ -63,12 +63,26 @@ static int nand_block_op(enum dfu_nand_op op, struct dfu_entity *dfu,
 
 	nand = &nand_info[nand_curr_device];
 
-	if (op == DFU_OP_READ)
+	if (op == DFU_OP_READ) {
 		ret = nand_read_skip_bad(nand, start, &count, &actual,
 				lim, buf);
-	else
+	} else {
+		nand_erase_options_t opts;
+
+		memset(&opts, 0, sizeof(opts));
+		opts.offset = start;
+		opts.length = count;
+		opts.spread = 1;
+		opts.quiet = 1;
+		opts.lim = lim;
+		/* first erase */
+		ret = nand_erase_opts(nand, &opts);
+		if (ret)
+			return ret;
+		/* then write */
 		ret = nand_write_skip_bad(nand, start, &count, &actual,
 				lim, buf, 0);
+	}
 
 	if (ret != 0) {
 		printf("%s: nand_%s_skip_bad call failed at %llx!\n",

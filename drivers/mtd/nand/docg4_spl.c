@@ -113,7 +113,6 @@ static int docg4_load_block_reliable(uint32_t flash_offset, void *dest_addr)
 	int g4_index = 0;
 	uint16_t flash_status;
 	uint16_t *buf;
-	uint16_t discard, magic_high, magic_low;
 
 	/* flash_offset must be aligned to the start of a block */
 	if (flash_offset & 0x3ffff)
@@ -154,9 +153,9 @@ static int docg4_load_block_reliable(uint32_t flash_offset, void *dest_addr)
 	 * The IPL on the palmtreo680 requires that this contain a 32 bit magic
 	 * number, or the load aborts.  We'll ignore it.
 	 */
-	discard = readw(docptr + 0x103c); /* hw quirk; 1st read discarded */
-	magic_low = readw(docptr + 0x103c);
-	magic_high = readw(docptr + DOCG4_MYSTERY_REG);
+	readw(docptr + 0x103c); /* hw quirk; 1st read discarded */
+	readw(docptr + 0x103c);	/* lower 16 bits of magic number */
+	readw(docptr + DOCG4_MYSTERY_REG); /* upper 16 bits of magic number */
 	writew(0, docptr + DOC_DATAEND);
 	write_nop(docptr);
 	write_nop(docptr);
@@ -183,15 +182,15 @@ static int docg4_load_block_reliable(uint32_t flash_offset, void *dest_addr)
 		write_nop(docptr);
 
 		/* read the 512 bytes of page data, 2 bytes at a time */
-		discard = readw(docptr + 0x103c);
+		readw(docptr + 0x103c); /* hw quirk */
 		for (i = 0; i < 256; i++)
 			*buf++ = readw(docptr + 0x103c);
 
 		/* read oob, but discard it */
 		for (i = 0; i < 7; i++)
-			discard = readw(docptr + 0x103c);
-		discard = readw(docptr + DOCG4_OOB_6_7);
-		discard = readw(docptr + DOCG4_OOB_6_7);
+			readw(docptr + 0x103c);
+		readw(docptr + DOCG4_OOB_6_7);
+		readw(docptr + DOCG4_OOB_6_7);
 
 		writew(0, docptr + DOC_DATAEND);
 		write_nop(docptr);

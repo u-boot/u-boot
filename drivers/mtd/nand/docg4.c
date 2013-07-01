@@ -487,7 +487,7 @@ static void docg4_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
 }
 
 static int docg4_read_oob(struct mtd_info *mtd, struct nand_chip *nand,
-			  int page, int sndcmd)
+			  int page)
 {
 	struct docg4_priv *doc = nand->priv;
 	void __iomem *docptr = CONFIG_SYS_NAND_BASE;
@@ -577,7 +577,7 @@ static void docg4_write_buf16(struct mtd_info *mtd, const uint8_t *buf, int len)
 		writew(p[i], nand->IO_ADDR_W);
 }
 
-static void write_page(struct mtd_info *mtd, struct nand_chip *nand,
+static int write_page(struct mtd_info *mtd, struct nand_chip *nand,
 		       const uint8_t *buf, int use_ecc)
 {
 	void __iomem *docptr = CONFIG_SYS_NAND_BASE;
@@ -626,16 +626,18 @@ static void write_page(struct mtd_info *mtd, struct nand_chip *nand,
 	write_nop(docptr);
 	writew(0, docptr + DOC_DATAEND);
 	write_nop(docptr);
+
+	return 0;
 }
 
-static void docg4_write_page_raw(struct mtd_info *mtd, struct nand_chip *nand,
-				 const uint8_t *buf)
+static int docg4_write_page_raw(struct mtd_info *mtd, struct nand_chip *nand,
+				 const uint8_t *buf, int oob_required)
 {
 	return write_page(mtd, nand, buf, 0);
 }
 
-static void docg4_write_page(struct mtd_info *mtd, struct nand_chip *nand,
-			     const uint8_t *buf)
+static int docg4_write_page(struct mtd_info *mtd, struct nand_chip *nand,
+			     const uint8_t *buf, int oob_required)
 {
 	return write_page(mtd, nand, buf, 1);
 }
@@ -706,13 +708,13 @@ static int read_page(struct mtd_info *mtd, struct nand_chip *nand,
 
 
 static int docg4_read_page_raw(struct mtd_info *mtd, struct nand_chip *nand,
-			       uint8_t *buf, int page)
+			       uint8_t *buf, int oob_required, int page)
 {
 	return read_page(mtd, nand, buf, page, 0);
 }
 
 static int docg4_read_page(struct mtd_info *mtd, struct nand_chip *nand,
-			   uint8_t *buf, int page)
+			   uint8_t *buf, int oob_required, int page)
 {
 	return read_page(mtd, nand, buf, page, 1);
 }
@@ -779,7 +781,7 @@ static int read_factory_bbt(struct mtd_info *mtd)
 		return -ENOMEM;
 
 	read_page_prologue(CONFIG_SYS_NAND_BASE, g4_addr);
-	status = docg4_read_page(mtd, nand, buf, DOCG4_FACTORY_BBT_PAGE);
+	status = docg4_read_page(mtd, nand, buf, 0, DOCG4_FACTORY_BBT_PAGE);
 	if (status)
 		goto exit;
 
@@ -858,7 +860,7 @@ static int docg4_block_markbad(struct mtd_info *mtd, loff_t ofs)
 
 	/* write first page of block */
 	write_page_prologue(CONFIG_SYS_NAND_BASE, g4_addr);
-	docg4_write_page(mtd, nand, buf);
+	docg4_write_page(mtd, nand, buf, 1);
 	ret = pageprog(mtd);
 	if (!ret)
 		mtd->ecc_stats.badblocks++;
@@ -959,8 +961,8 @@ int docg4_nand_init(struct mtd_info *mtd, struct nand_chip *nand, int devnum)
 	nand->ecc.size = DOCG4_PAGE_SIZE;
 	nand->ecc.prepad = 8;
 	nand->ecc.bytes	= 8;
-	nand->options =
-		NAND_BUSWIDTH_16 | NAND_NO_SUBPAGE_WRITE | NAND_NO_AUTOINCR;
+	nand->ecc.strength = DOCG4_T;
+	nand->options = NAND_BUSWIDTH_16 | NAND_NO_SUBPAGE_WRITE;
 	nand->controller = &nand->hwcontrol;
 
 	/* methods */
