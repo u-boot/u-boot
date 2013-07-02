@@ -16,6 +16,7 @@ ifneq ($(CONFIG_AM43XX)$(CONFIG_AM33XX),)
 COBJS	+= clock.o
 endif
 
+COBJS-$(CONFIG_TI816X)	+= clock_ti816x.o
 COBJS	+= sys_info.o
 COBJS	+= mem.o
 COBJS	+= ddr.o
