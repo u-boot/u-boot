@@ -54,6 +54,7 @@ COBJS-$(CONFIG_P4080DS)		+= ics307_clk.o
 COBJS-$(CONFIG_P5020DS)		+= ics307_clk.o
 COBJS-$(CONFIG_P5040DS)		+= ics307_clk.o
 COBJS-$(CONFIG_VSC_CROSSBAR)    += vsc3316_3308.o
+COBJS-$(CONFIG_IDT8T49N222A)	+= idt8t49n222a_serdes_clk.o
 
 # deal with common files for P-series corenet based devices
 SUBLIB-$(CONFIG_P2041RDB)	+= p_corenet/libp_corenet.o
