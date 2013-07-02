@@ -333,7 +333,7 @@ static void check_trace_config_line(struct trace_configline_info *item)
 		if (err == REG_NOMATCH)
 			continue;
 
-		if (err != REG_NOERROR) {
+		if (err) {
 			regex_report_error(&item->regex, err, "match",
 					   item->name);
 			break;
