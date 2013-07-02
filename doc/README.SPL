@@ -77,7 +77,7 @@ an SPL CPU in boards.cfg as follows:
 
 	normal_cpu:spl_cpu
 
-This this case CPU will be set to "normal_cpu" during the main u-boot
+This case CPU will be set to "normal_cpu" during the main u-boot
 build and "spl_cpu" during the SPL build.
 
 
