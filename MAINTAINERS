@@ -945,6 +945,10 @@ Lucas Stach <dev@lynxeye.de>
 
 	colibri_t20_iris	Tegra20 (ARM7 & A9 Dual Core)
 
+Antoine Tenart <atenart@adeneo-embedded.com>
+
+	TI816X		ARM ARMV7 (TI816x Soc)
+
 Nick Thompson <nick.thompson@gefanuc.com>
 
 	da830evm	ARM926EJS (DA830/OMAP-L137)
