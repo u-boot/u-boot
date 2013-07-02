@@ -74,6 +74,13 @@
 #define VSC3308_TX_ADDRESS              0x02
 #define VSC3308_RX_ADDRESS              0x03
 
+/* IDT clock synthesizers */
+#define CONFIG_IDT8T49N222A
+#define I2C_CH_IDT                     0x9
+
+#define IDT_SERDES1_ADDRESS            0x6E
+#define IDT_SERDES2_ADDRESS            0x6C
+
 #define CONFIG_ENV_OVERWRITE
 
 #ifdef CONFIG_SYS_NO_FLASH

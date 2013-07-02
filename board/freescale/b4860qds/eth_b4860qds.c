@@ -201,8 +201,6 @@ int board_eth_init(bd_t *bis)
 		debug("Setting phy addresses for FM1_DTSEC5: %x and"
 			"FM1_DTSEC6: %x\n", CONFIG_SYS_FM1_DTSEC5_PHY_ADDR,
 			CONFIG_SYS_FM1_DTSEC6_PHY_ADDR);
-		/* Fixing Serdes clock by programming FPGA register */
-		QIXIS_WRITE(brdcfg[4], QIXIS_SRDS1CLK_125);
 		fm_info_set_phy_address(FM1_DTSEC5,
 				CONFIG_SYS_FM1_DTSEC5_PHY_ADDR);
 		fm_info_set_phy_address(FM1_DTSEC6,
