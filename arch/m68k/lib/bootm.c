@@ -75,6 +75,12 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 	void  (*kernel) (bd_t *, ulong, ulong, ulong, ulong);
 	struct lmb *lmb = &images->lmb;
 
+	/*
+	 * allow the PREP bootm subcommand, it is required for bootm to work
+	 */
+	if (flag & BOOTM_STATE_OS_PREP)
+		return 0;
+
 	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
 		return 1;
 

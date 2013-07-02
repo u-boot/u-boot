@@ -45,6 +45,12 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 	if (of_flat_tree)
 		initrd_end = (ulong)of_flat_tree;
 
+	/*
+	 * allow the PREP bootm subcommand, it is required for bootm to work
+	 */
+	if (flag & BOOTM_STATE_OS_PREP)
+		return 0;
+
 	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
 		return 1;
 

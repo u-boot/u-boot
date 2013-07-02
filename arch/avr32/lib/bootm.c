@@ -187,6 +187,15 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 	struct	tag *params, *params_start;
 	char	*commandline = getenv("bootargs");
 
+	/*
+	 * allow the PREP bootm subcommand, it is required for bootm to work
+	 *
+	 * TODO: Andreas Bießmann <andreas.devel@googlemail.com> refactor the
+	 * do_bootm_linux() for avr32
+	 */
+	if (flag & BOOTM_STATE_OS_PREP)
+		return 0;
+
 	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
 		return 1;
 
