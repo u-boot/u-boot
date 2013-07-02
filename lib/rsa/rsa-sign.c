@@ -20,7 +20,6 @@
 #include "mkimage.h"
 #include <stdio.h>
 #include <string.h>
-#include <error.h>
 #include <image.h>
 #include <time.h>
 #include <openssl/rsa.h>
