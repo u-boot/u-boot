@@ -160,7 +160,8 @@ static const char *spi_flash_update_block(struct spi_flash *flash, u32 offset,
 		*skipped += len;
 		return NULL;
 	}
-	if (spi_flash_erase(flash, offset, len))
+	/* Erase the entire sector */
+	if (spi_flash_erase(flash, offset, flash->sector_size))
 		return "erase";
 	if (spi_flash_write(flash, offset, len, buf))
 		return "write";
