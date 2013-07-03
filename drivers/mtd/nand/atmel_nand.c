@@ -16,6 +16,7 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/at91_pio.h>
 
+#include <malloc.h>
 #include <nand.h>
 #include <watchdog.h>
 
@@ -50,13 +51,13 @@ struct atmel_nand_host {
 	void __iomem	*pmecc_index_of;
 
 	/* data for pmecc computation */
-	int16_t	pmecc_smu[(CONFIG_PMECC_CAP + 2) * (2 * CONFIG_PMECC_CAP + 1)];
-	int16_t	pmecc_partial_syn[2 * CONFIG_PMECC_CAP + 1];
-	int16_t	pmecc_si[2 * CONFIG_PMECC_CAP + 1];
-	int16_t	pmecc_lmu[CONFIG_PMECC_CAP + 1]; /* polynomal order */
-	int	pmecc_mu[CONFIG_PMECC_CAP + 1];
-	int	pmecc_dmu[CONFIG_PMECC_CAP + 1];
-	int	pmecc_delta[CONFIG_PMECC_CAP + 1];
+	int16_t	*pmecc_smu;
+	int16_t	*pmecc_partial_syn;
+	int16_t	*pmecc_si;
+	int16_t	*pmecc_lmu; /* polynomal order */
+	int	*pmecc_mu;
+	int	*pmecc_dmu;
+	int	*pmecc_delta;
 };
 
 static struct atmel_nand_host pmecc_host;
@@ -107,6 +108,48 @@ static void __iomem *pmecc_get_alpha_to(struct atmel_nand_host *host)
 	/* the ALPHA lookup table is right behind the INDEX lookup table. */
 	return host->pmecc_rom_base + host->pmecc_index_table_offset +
 			table_size * sizeof(int16_t);
+}
+
+static void pmecc_data_free(struct atmel_nand_host *host)
+{
+	free(host->pmecc_partial_syn);
+	free(host->pmecc_si);
+	free(host->pmecc_lmu);
+	free(host->pmecc_smu);
+	free(host->pmecc_mu);
+	free(host->pmecc_dmu);
+	free(host->pmecc_delta);
+}
+
+static int pmecc_data_alloc(struct atmel_nand_host *host)
+{
+	const int cap = host->pmecc_corr_cap;
+	int size;
+
+	size = (2 * cap + 1) * sizeof(int16_t);
+	host->pmecc_partial_syn = malloc(size);
+	host->pmecc_si = malloc(size);
+	host->pmecc_lmu = malloc((cap + 1) * sizeof(int16_t));
+	host->pmecc_smu = malloc((cap + 2) * size);
+
+	size = (cap + 1) * sizeof(int);
+	host->pmecc_mu = malloc(size);
+	host->pmecc_dmu = malloc(size);
+	host->pmecc_delta = malloc(size);
+
+	if (host->pmecc_partial_syn &&
+			host->pmecc_si &&
+			host->pmecc_lmu &&
+			host->pmecc_smu &&
+			host->pmecc_mu &&
+			host->pmecc_dmu &&
+			host->pmecc_delta)
+		return 0;
+
+	/* error happened */
+	pmecc_data_free(host);
+	return -ENOMEM;
+
 }
 
 static void pmecc_gen_syndrome(struct mtd_info *mtd, int sector)
@@ -692,6 +735,12 @@ static int atmel_pmecc_nand_init_params(struct nand_chip *nand,
 		nand->ecc.prepad = 0;
 		nand->ecc.bytes = 0;
 		return 0;
+	}
+
+	/* Allocate data for PMECC computation */
+	if (pmecc_data_alloc(host)) {
+		dev_err(host->dev, "Cannot allocate memory for PMECC computation!\n");
+		return -ENOMEM;
 	}
 
 	nand->ecc.read_page = atmel_nand_pmecc_read_page;
