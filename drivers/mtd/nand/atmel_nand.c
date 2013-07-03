@@ -637,7 +637,10 @@ static int atmel_pmecc_nand_init_params(struct nand_chip *nand,
 
 	cap = host->pmecc_corr_cap = CONFIG_PMECC_CAP;
 	sector_size = host->pmecc_sector_size = CONFIG_PMECC_SECTOR_SIZE;
-	host->pmecc_index_table_offset = CONFIG_PMECC_INDEX_TABLE_OFFSET;
+	if (host->pmecc_sector_size == 512)
+		host->pmecc_index_table_offset = ATMEL_PMECC_INDEX_OFFSET_512;
+	else
+		host->pmecc_index_table_offset = ATMEL_PMECC_INDEX_OFFSET_1024;
 
 	MTDDEBUG(MTD_DEBUG_LEVEL1,
 		"Initialize PMECC params, cap: %d, sector: %d\n",
