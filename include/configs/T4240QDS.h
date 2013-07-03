@@ -360,6 +360,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_DPAA_PME
 #define CONFIG_SYS_PMAN
 #define CONFIG_SYS_DPAA_DCE
+#define CONFIG_SYS_DPAA_RMAN
 #define CONFIG_SYS_INTERLAKEN
 
 /* Default address of microcode for the Linux Fman driver */

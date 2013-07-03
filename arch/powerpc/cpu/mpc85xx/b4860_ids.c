@@ -112,10 +112,10 @@ int sec_liodn_tbl_sz = ARRAY_SIZE(sec_liodn_tbl);
 #ifdef CONFIG_SYS_DPAA_RMAN
 struct liodn_id_table rman_liodn_tbl[] = {
 	/* Set RMan block 0-3 liodn offset */
-	SET_RMAN_LIODN(0, 678),
-	SET_RMAN_LIODN(1, 679),
-	SET_RMAN_LIODN(2, 680),
-	SET_RMAN_LIODN(3, 681),
+	SET_RMAN_LIODN(0, 6),
+	SET_RMAN_LIODN(1, 7),
+	SET_RMAN_LIODN(2, 8),
+	SET_RMAN_LIODN(3, 9),
 };
 int rman_liodn_tbl_sz = ARRAY_SIZE(rman_liodn_tbl);
 #endif
