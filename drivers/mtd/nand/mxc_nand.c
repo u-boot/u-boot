@@ -1242,12 +1242,10 @@ int board_nand_init(struct nand_chip *this)
 		this->ecc.mode = NAND_ECC_HW;
 	}
 
-	if (this->ecc.mode == NAND_ECC_HW) {
-		if (is_mxc_nfc_1())
-			this->ecc.strength = 1;
-		else
-			this->ecc.strength = 4;
-	}
+	if (is_mxc_nfc_1())
+		this->ecc.strength = 1;
+	else
+		this->ecc.strength = 4;
 
 	host->pagesize_2k = 0;
 
