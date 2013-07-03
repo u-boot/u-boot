@@ -577,9 +577,9 @@ static int fsg_setup(struct usb_function *f,
 {
 	struct fsg_dev		*fsg = fsg_from_func(f);
 	struct usb_request	*req = fsg->common->ep0req;
-	u16			w_index = le16_to_cpu(ctrl->wIndex);
-	u16			w_value = le16_to_cpu(ctrl->wValue);
-	u16			w_length = le16_to_cpu(ctrl->wLength);
+	u16			w_index = get_unaligned_le16(&ctrl->wIndex);
+	u16			w_value = get_unaligned_le16(&ctrl->wValue);
+	u16			w_length = get_unaligned_le16(&ctrl->wLength);
 
 	if (!fsg_is_set(fsg->common))
 		return -EOPNOTSUPP;
@@ -617,7 +617,7 @@ static int fsg_setup(struct usb_function *f,
 	     "unknown class-specific control req "
 	     "%02x.%02x v%04x i%04x l%u\n",
 	     ctrl->bRequestType, ctrl->bRequest,
-	     le16_to_cpu(ctrl->wValue), w_index, w_length);
+	     get_unaligned_le16(&ctrl->wValue), w_index, w_length);
 	return -EOPNOTSUPP;
 }
 
