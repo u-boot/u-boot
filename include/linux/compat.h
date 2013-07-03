@@ -3,6 +3,14 @@
 
 #define ndelay(x)	udelay(1)
 
+#define dev_dbg(dev, fmt, args...)		\
+	debug(fmt, ##args)
+#define dev_vdbg(dev, fmt, args...)		\
+	debug(fmt, ##args)
+#define dev_info(dev, fmt, args...)		\
+	printf(fmt, ##args)
+#define dev_err(dev, fmt, args...)		\
+	printf(fmt, ##args)
 #define printk	printf
 
 #define KERN_EMERG
