@@ -144,7 +144,7 @@ void ixEthDBFeatureCapabilityScan(void)
 
                 /* find the traffic class definition index compatible with the current NPE A functionality ID */
                 for (trafficClassDefinitionIndex = 0 ;
-                    trafficClassDefinitionIndex < sizeof (ixEthDBTrafficClassDefinitions) / sizeof (ixEthDBTrafficClassDefinitions[0]);
+                    trafficClassDefinitionIndex < ARRAY_SIZE(ixEthDBTrafficClassDefinitions);
                     trafficClassDefinitionIndex++)
                 {
                     if (ixEthDBTrafficClassDefinitions[trafficClassDefinitionIndex][IX_ETH_DB_NPE_A_FUNCTIONALITY_ID_INDEX] == npeAImageId.functionalityId)
@@ -155,7 +155,7 @@ void ixEthDBFeatureCapabilityScan(void)
                 }
 
                 /* select the default case if we went over the array boundary */
-                if (trafficClassDefinitionIndex == sizeof (ixEthDBTrafficClassDefinitions) / sizeof (ixEthDBTrafficClassDefinitions[0]))
+                if (trafficClassDefinitionIndex == ARRAY_SIZE(ixEthDBTrafficClassDefinitions))
                 {
                     trafficClassDefinitionIndex = 0; /* the first record is the default case */
                 }

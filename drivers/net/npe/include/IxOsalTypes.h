@@ -91,12 +91,6 @@ typedef volatile UINT32 VUINT32;
  */
 typedef volatile INT32 VINT32;
 
-
-#ifndef NUMELEMS
-#define NUMELEMS(x) (sizeof(x) / sizeof((x)[0]))
-#endif
-
-
 /**
  * @ingroup IxOsalTypes
  *

@@ -106,7 +106,7 @@ static const IxEthDBPortDefinition ixEthDBPortDefinitions[] =
  * @def IX_ETH_DB_NUMBER_OF_PORTS
  * @brief number of supported ports 
  */
-#define IX_ETH_DB_NUMBER_OF_PORTS (sizeof (ixEthDBPortDefinitions) / sizeof (ixEthDBPortDefinitions[0]))
+#define IX_ETH_DB_NUMBER_OF_PORTS ARRAY_SIZE(ixEthDBPortDefinitions)
 
 /**
  * @def IX_ETH_DB_UNKNOWN_PORT

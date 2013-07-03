@@ -170,7 +170,7 @@ int mii_discover_phy(struct eth_device *dev)
 			printf("PHY @ 0x%x pass %d\n", phyno, pass);
 #endif
 
-			for (i = 0; (i < (sizeof(phyinfo) / sizeof(phy_info_t)))
+			for (i = 0; (i < ARRAY_SIZE(phyinfo))
 				&& (phyinfo[i].phyid != 0); i++) {
 				if (phyinfo[i].phyid == phytype) {
 #ifdef ET_DEBUG

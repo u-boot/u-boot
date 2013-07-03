@@ -543,7 +543,7 @@ int mcffec_initialize(bd_t * bis)
 	u32 tmp = CONFIG_SYS_INIT_RAM_ADDR + 0x1000;
 #endif
 
-	for (i = 0; i < sizeof(fec_info) / sizeof(fec_info[0]); i++) {
+	for (i = 0; i < ARRAY_SIZE(fec_info); i++) {
 
 		dev =
 		    (struct eth_device *)memalign(CONFIG_SYS_CACHELINE_SIZE,

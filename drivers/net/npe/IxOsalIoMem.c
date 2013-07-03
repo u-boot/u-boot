@@ -66,8 +66,7 @@ ixOsalMemMapFind (UINT32 requestedAddress,
 {
     UINT32 mapIndex;
 
-    UINT32 numMapElements =
-        sizeof (ixOsalGlobalMemoryMap) / sizeof (IxOsalMemoryMap);
+    UINT32 numMapElements = ARRAY_SIZE(ixOsalGlobalMemoryMap);
 
     for (mapIndex = 0; mapIndex < numMapElements; mapIndex++)
     {
