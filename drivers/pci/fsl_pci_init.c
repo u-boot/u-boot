@@ -28,12 +28,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #include <asm/io.h>
 #include <asm/fsl_pci.h>
 
-/* Freescale-specific PCI config registers */
-#define FSL_PCI_PBFR		0x44
-#define FSL_PCIE_CAP_ID		0x4c
-#define FSL_PCIE_CFG_RDY	0x4b0
-#define FSL_PROG_IF_AGENT	0x1
-
 #ifndef CONFIG_SYS_PCI_MEMORY_BUS
 #define CONFIG_SYS_PCI_MEMORY_BUS 0
 #endif
@@ -424,6 +418,15 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 	udelay(1);
 #endif
 	if (pcie_cap == PCI_CAP_ID_EXP) {
+		if (block_rev >= PEX_IP_BLK_REV_3_0) {
+#define PEX_CSR0_LTSSM_MASK	0xFC
+#define PEX_CSR0_LTSSM_SHIFT	2
+			ltssm = (in_be32(&pci->pex_csr0)
+				& PEX_CSR0_LTSSM_MASK) >> PEX_CSR0_LTSSM_SHIFT;
+			enabled = (ltssm == 0x11) ? 1 : 0;
+		} else {
+		/* pci_hose_read_config_word(hose, dev, PCI_LTSSM, &ltssm); */
+		/* enabled = ltssm >= PCI_LTSSM_L0; */
 		pci_hose_read_config_word(hose, dev, PCI_LTSSM, &ltssm);
 		enabled = ltssm >= PCI_LTSSM_L0;
 
@@ -456,6 +459,7 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 					PCI_BASE_ADDRESS_0, pcicsrbar);
 		}
 #endif
+	}
 
 #ifdef CONFIG_SYS_P4080_ERRATUM_PCIE_A003
 		if (enabled == 0) {
@@ -564,6 +568,10 @@ int fsl_is_pci_agent(struct pci_controller *hose)
 		u8 prog_if;
 
 		pci_hose_read_config_byte(hose, dev, PCI_CLASS_PROG, &prog_if);
+		/* Programming Interface (PCI_CLASS_PROG)
+		 * 0 == pci host or pcie root-complex,
+		 * 1 == pci agent or pcie end-point
+		 */
 		return (prog_if == FSL_PROG_IF_AGENT);
 	}
 }
