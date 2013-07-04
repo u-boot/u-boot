@@ -153,7 +153,7 @@
 #define COPY_BL2_FNPTR_ADDR	0x02020030
 
 /* specific .lds file */
-#define CONFIG_SPL_LDSCRIPT	"board/samsung/smdk5250/smdk5250-uboot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT	"board/samsung/common/exynos-uboot-spl.lds"
 #define CONFIG_SPL_TEXT_BASE	0x02023400
 #define CONFIG_SPL_MAX_FOOTPRINT	(14 * 1024)
 
