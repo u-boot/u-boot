@@ -1791,7 +1791,6 @@ static int bootz_start(cmd_tbl_t *cmdtp, int flag, int argc,
 
 int do_bootz(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	bootm_headers_t	images;
 	int ret;
 
 	if (bootz_start(cmdtp, flag, argc, argv, &images))
@@ -1803,8 +1802,10 @@ int do_bootz(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	 */
 	bootm_disable_interrupts();
 
+	images.os.os = IH_OS_LINUX;
 	ret = do_bootm_states(cmdtp, flag, argc, argv,
-			      BOOTM_STATE_OS_FAKE_GO | BOOTM_STATE_OS_GO,
+			      BOOTM_STATE_OS_PREP | BOOTM_STATE_OS_FAKE_GO |
+			      BOOTM_STATE_OS_GO,
 			      &images, 1);
 
 	return ret;
