@@ -2147,6 +2147,11 @@ typedef struct ccsr_gur {
 #ifdef CONFIG_MPC8536
 #define MPC85xx_PORPLLSR_DDR_RATIO	0x3e000000
 #define MPC85xx_PORPLLSR_DDR_RATIO_SHIFT	25
+#elif defined(CONFIG_PPC_C29X)
+#define MPC85xx_PORPLLSR_DDR_RATIO	0x00003f00
+#define MPC85xx_PORPLLSR_DDR_RATIO_SHIFT	(9 - ((gur->pordevsr2 \
+					& MPC85xx_PORDEVSR2_DDR_SPD_0) \
+					>> MPC85xx_PORDEVSR2_DDR_SPD_0_SHIFT))
 #else
 #if defined(CONFIG_BSC9131) || defined(CONFIG_BSC9132)
 #define MPC85xx_PORPLLSR_DDR_RATIO	0x00003f00
@@ -2194,6 +2199,9 @@ typedef struct ccsr_gur {
 #elif defined(CONFIG_BSC9132)
 #define MPC85xx_PORDEVSR_IO_SEL		0x00FE0000
 #define MPC85xx_PORDEVSR_IO_SEL_SHIFT	17
+#elif defined(CONFIG_PPC_C29X)
+#define MPC85xx_PORDEVSR_IO_SEL		0x00e00000
+#define MPC85xx_PORDEVSR_IO_SEL_SHIFT	21
 #else
 #define MPC85xx_PORDEVSR_IO_SEL		0x00780000
 #define MPC85xx_PORDEVSR_IO_SEL_SHIFT	19
@@ -2209,6 +2217,10 @@ typedef struct ccsr_gur {
 #define MPC85xx_PORDEVSR_RIO_DEV_ID	0x00000007
 	u32	pordbgmsr;	/* POR debug mode status */
 	u32	pordevsr2;	/* POR I/O device status 2 */
+#if defined(CONFIG_PPC_C29X)
+#define MPC85xx_PORDEVSR2_DDR_SPD_0	0x00000008
+#define MPC85xx_PORDEVSR2_DDR_SPD_0_SHIFT	3
+#endif
 /* The 8544 RM says this is bit 26, but it's really bit 24 */
 #define MPC85xx_PORDEVSR2_SEC_CFG	0x00000080
 	u8	res1[8];
@@ -2354,6 +2366,11 @@ typedef struct ccsr_gur {
 #ifdef CONFIG_BSC9132
 #define MPC85xx_PMUXCR0_SIM_SEL_MASK	0x0003b000
 #define MPC85xx_PMUXCR0_SIM_SEL		0x00014000
+#endif
+#if defined(CONFIG_PPC_C29X)
+#define MPC85xx_PMUXCR_SPI_MASK			0x00000300
+#define MPC85xx_PMUXCR_SPI			0x00000000
+#define MPC85xx_PMUXCR_SPI_GPIO			0x00000100
 #endif
 	u32	pmuxcr2;	/* Alt. function signal multiplex control 2 */
 #if defined(CONFIG_P1010) || defined(CONFIG_P1014)
@@ -3026,12 +3043,18 @@ struct ccsr_pman {
 #define CONFIG_SYS_MPC85xx_USB2_OFFSET		0x23000
 #ifdef CONFIG_TSECV2
 #define CONFIG_SYS_TSEC1_OFFSET			0xB0000
+#elif defined(CONFIG_TSECV2_1)
+#define CONFIG_SYS_TSEC1_OFFSET			0x10000
 #else
 #define CONFIG_SYS_TSEC1_OFFSET			0x24000
 #endif
 #define CONFIG_SYS_MDIO1_OFFSET			0x24000
 #define CONFIG_SYS_MPC85xx_ESDHC_OFFSET		0x2e000
+#if defined(CONFIG_PPC_C29X)
+#define CONFIG_SYS_FSL_SEC_OFFSET		0x80000
+#else
 #define CONFIG_SYS_FSL_SEC_OFFSET		0x30000
+#endif
 #define CONFIG_SYS_MPC85xx_SERDES2_OFFSET	0xE3100
 #define CONFIG_SYS_MPC85xx_SERDES1_OFFSET	0xE3000
 #define CONFIG_SYS_SNVS_OFFSET			0xE6000

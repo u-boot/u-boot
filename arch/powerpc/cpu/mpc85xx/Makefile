@@ -46,6 +46,7 @@ COBJS-$(CONFIG_MPC8568) += ddr-gen2.o
 COBJS-$(CONFIG_MPC8544) += ddr-gen2.o
 
 # supports ddr1/2/3
+COBJS-$(CONFIG_PPC_C29X)	+= ddr-gen3.o
 COBJS-$(CONFIG_MPC8572) += ddr-gen3.o
 COBJS-$(CONFIG_MPC8536) += ddr-gen3.o
 COBJS-$(CONFIG_MPC8569)	+= ddr-gen3.o
@@ -100,6 +101,7 @@ COBJS-$(CONFIG_SYS_FSL_QORIQ_CHASSIS1) += fsl_corenet_serdes.o
 COBJS-$(CONFIG_SYS_FSL_QORIQ_CHASSIS2) += fsl_corenet2_serdes.o
 
 # SoC specific SERDES support
+COBJS-$(CONFIG_PPC_C29X)	+= c29x_serdes.o
 COBJS-$(CONFIG_MPC8536) += mpc8536_serdes.o
 COBJS-$(CONFIG_MPC8544) += mpc8544_serdes.o
 COBJS-$(CONFIG_MPC8548) += mpc8548_serdes.o
