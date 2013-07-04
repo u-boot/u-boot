@@ -543,6 +543,10 @@ Detlev Zundel <dzu@denx.de>
 
 	inka4x0		MPC5200
 
+Po Liu <po.liu@freescale.com>
+
+	C29XPCIE	C29X
+
 -------------------------------------------------------------------------
 
 Unknown / orphaned boards:
