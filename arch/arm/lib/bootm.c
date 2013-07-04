@@ -300,21 +300,23 @@ struct zimage_header {
 
 #define	LINUX_ARM_ZIMAGE_MAGIC	0x016f2818
 
-int bootz_setup(void *image, void **start, void **end)
+int bootz_setup(ulong image, ulong *start, ulong *end)
 {
-	struct zimage_header *zi = (struct zimage_header *)image;
+	struct zimage_header *zi;
 
+	zi = (struct zimage_header *)map_sysmem(image, 0);
 	if (zi->zi_magic != LINUX_ARM_ZIMAGE_MAGIC) {
 		puts("Bad Linux ARM zImage magic!\n");
 		return 1;
 	}
 
-	*start = (void *)zi->zi_start;
-	*end = (void *)zi->zi_end;
+	*start = zi->zi_start;
+	*end = zi->zi_end;
 
-	debug("Kernel image @ 0x%08x [ 0x%08x - 0x%08x ]\n",
-		(uint32_t)image, (uint32_t)*start, (uint32_t)*end);
+	printf("Kernel image @ %#08lx [ %#08lx - %#08lx ]\n", image, *start,
+	      *end);
 
 	return 0;
 }
+
 #endif	/* CONFIG_CMD_BOOTZ */

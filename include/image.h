@@ -662,6 +662,17 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
  */
 int image_setup_linux(bootm_headers_t *images);
 
+/**
+ * bootz_setup() - Extract stat and size of a Linux xImage
+ *
+ * @image: Address of image
+ * @start: Returns start address of image
+ * @end : Returns end address of image
+ * @return 0 if OK, 1 if the image was not recognised
+ */
+int bootz_setup(ulong image, ulong *start, ulong *end);
+
+
 /*******************************************************************/
 /* New uImage format specific code (prefixed with fit_) */
 /*******************************************************************/

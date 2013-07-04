@@ -1746,15 +1746,13 @@ static int do_bootm_integrity(int flag, int argc, char * const argv[],
 
 #ifdef CONFIG_CMD_BOOTZ
 
-static int __bootz_setup(void *image, void **start, void **end)
+int __weak bootz_setup(ulong image, ulong *start, ulong *end)
 {
 	/* Please define bootz_setup() for your platform */
 
 	puts("Your platform's zImage format isn't supported yet!\n");
 	return -1;
 }
-int bootz_setup(void *image, void **start, void **end)
-	__attribute__((weak, alias("__bootz_setup")));
 
 /*
  * zImage booting support
@@ -1763,7 +1761,7 @@ static int bootz_start(cmd_tbl_t *cmdtp, int flag, int argc,
 			char * const argv[], bootm_headers_t *images)
 {
 	int ret;
-	void *zi_start, *zi_end;
+	ulong zi_start, zi_end;
 
 	ret = do_bootm_states(cmdtp, flag, argc, argv, BOOTM_STATE_START,
 			      images, 1);
@@ -1779,7 +1777,7 @@ static int bootz_start(cmd_tbl_t *cmdtp, int flag, int argc,
 			images->ep);
 	}
 
-	ret = bootz_setup((void *)images->ep, &zi_start, &zi_end);
+	ret = bootz_setup(images->ep, &zi_start, &zi_end);
 	if (ret != 0)
 		return 1;
 
