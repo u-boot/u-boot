@@ -1820,7 +1820,7 @@ static int flash_detect_legacy(phys_addr_t base, int banknum)
 					break;
 				else
 					unmap_physmem((void *)info->start[0],
-						      MAP_NOCACHE);
+						      info->portwidth);
 			}
 		}
 
