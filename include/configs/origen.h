@@ -36,6 +36,7 @@
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
+#define CONFIG_BOARD_EARLY_INIT_F
 
 /* Keep L2 Cache Disabled */
 #define CONFIG_L2_OFF			1
