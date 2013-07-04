@@ -228,13 +228,13 @@ static u32 get_axi_clk(void)
 
 static u32 get_emi_slow_clk(void)
 {
-	u32 emi_clk_sel, emi_slow_pof, cscmr1, root_freq = 0;
+	u32 emi_clk_sel, emi_slow_podf, cscmr1, root_freq = 0;
 
 	cscmr1 =  __raw_readl(&imx_ccm->cscmr1);
 	emi_clk_sel = cscmr1 & MXC_CCM_CSCMR1_ACLK_EMI_SLOW_MASK;
 	emi_clk_sel >>= MXC_CCM_CSCMR1_ACLK_EMI_SLOW_OFFSET;
-	emi_slow_pof = cscmr1 & MXC_CCM_CSCMR1_ACLK_EMI_SLOW_PODF_MASK;
-	emi_slow_pof >>= MXC_CCM_CSCMR1_ACLK_EMI_PODF_OFFSET;
+	emi_slow_podf = cscmr1 & MXC_CCM_CSCMR1_ACLK_EMI_SLOW_PODF_MASK;
+	emi_slow_podf >>= MXC_CCM_CSCMR1_ACLK_EMI_SLOW_PODF_OFFSET;
 
 	switch (emi_clk_sel) {
 	case 0:
@@ -251,7 +251,7 @@ static u32 get_emi_slow_clk(void)
 		break;
 	}
 
-	return root_freq / (emi_slow_pof + 1);
+	return root_freq / (emi_slow_podf + 1);
 }
 
 #ifdef CONFIG_MX6SL
