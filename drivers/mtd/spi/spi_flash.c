@@ -182,7 +182,7 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 
 	bank_boun = SPI_FLASH_16MB_BOUN;
 	if (is_dual == MODE_DUAL_PARALLEL)
-		bank_boun = SPI_FLASH_16MB_BOUN >> 1;
+		bank_boun = SPI_FLASH_16MB_BOUN << 1;
 
 	cmd[0] = CMD_READ_ARRAY_FAST;
 	cmd[sizeof(cmd)-1] = 0x00;
