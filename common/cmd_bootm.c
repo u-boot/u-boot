@@ -605,7 +605,7 @@ static int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc,
 {
 	boot_os_fn *boot_fn;
 	ulong iflag = 0;
-	int ret = 0;
+	int ret = 0, need_boot_fn;
 
 	images->state |= states;
 
@@ -665,7 +665,10 @@ static int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (ret)
 		return ret;
 	boot_fn = boot_os[images->os.os];
-	if (boot_fn == NULL) {
+	need_boot_fn = states & (BOOTM_STATE_OS_CMDLINE |
+			BOOTM_STATE_OS_BD_T | BOOTM_STATE_OS_PREP |
+			BOOTM_STATE_OS_FAKE_GO | BOOTM_STATE_OS_GO);
+	if (boot_fn == NULL && need_boot_fn) {
 		if (iflag)
 			enable_interrupts();
 		printf("ERROR: booting os '%s' (%d) is not supported\n",
