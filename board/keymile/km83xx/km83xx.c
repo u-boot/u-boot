@@ -28,7 +28,7 @@
 
 #include "../common/common.h"
 
-static const qe_iop_conf_t qe_iop_conf_tab[] = {
+const qe_iop_conf_t qe_iop_conf_tab[] = {
 	/* port pin dir open_drain assign */
 #if defined(CONFIG_MPC8360)
 	/* MDIO */
