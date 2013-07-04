@@ -31,7 +31,8 @@
 #include <asm/arch/dwmmc.h>
 
 #include "clock_init.h"
-#include "setup.h"
+#include "common_setup.h"
+#include "exynos5_setup.h"
 
 #define FSYS1_MMC0_DIV_MASK	0xff0f
 #define FSYS1_MMC0_DIV_VAL	0x0701
@@ -214,10 +215,10 @@ struct mem_timings mem_timings[] = {
 			DMC_MEMCONTROL_BL_8 |
 			DMC_MEMCONTROL_PZQ_DISABLE |
 			DMC_MEMCONTROL_MRR_BYTE_7_0,
-		.memconfig = DMC_MEMCONFIGx_CHIP_MAP_INTERLEAVED |
-			DMC_MEMCONFIGx_CHIP_COL_10 |
-			DMC_MEMCONFIGx_CHIP_ROW_15 |
-			DMC_MEMCONFIGx_CHIP_BANK_8,
+		.memconfig = DMC_MEMCONFIGX_CHIP_MAP_INTERLEAVED |
+			DMC_MEMCONFIGX_CHIP_COL_10 |
+			DMC_MEMCONFIGX_CHIP_ROW_15 |
+			DMC_MEMCONFIGX_CHIP_BANK_8,
 		.membaseconfig0 = DMC_MEMBASECONFIG_VAL(0x40),
 		.membaseconfig1 = DMC_MEMBASECONFIG_VAL(0x80),
 		.prechconfig_tp_cnt = 0xff,
@@ -317,10 +318,10 @@ struct mem_timings mem_timings[] = {
 			DMC_MEMCONTROL_BL_8 |
 			DMC_MEMCONTROL_PZQ_DISABLE |
 			DMC_MEMCONTROL_MRR_BYTE_7_0,
-		.memconfig = DMC_MEMCONFIGx_CHIP_MAP_INTERLEAVED |
-			DMC_MEMCONFIGx_CHIP_COL_10 |
-			DMC_MEMCONFIGx_CHIP_ROW_15 |
-			DMC_MEMCONFIGx_CHIP_BANK_8,
+		.memconfig = DMC_MEMCONFIGX_CHIP_MAP_INTERLEAVED |
+			DMC_MEMCONFIGX_CHIP_COL_10 |
+			DMC_MEMCONFIGX_CHIP_ROW_15 |
+			DMC_MEMCONFIGX_CHIP_BANK_8,
 		.membaseconfig0 = DMC_MEMBASECONFIG_VAL(0x40),
 		.membaseconfig1 = DMC_MEMBASECONFIG_VAL(0x80),
 		.prechconfig_tp_cnt = 0xff,
@@ -350,9 +351,8 @@ struct mem_timings mem_timings[] = {
  * @param frequency_mhz	Returns memory speed in MHz
  * @param arm_freq	Returns ARM clock speed in MHz
  * @param mem_manuf	Return Memory Manufacturer name
- * @return 0 if all ok
  */
-static int clock_get_mem_selection(enum ddr_mode *mem_type,
+static void clock_get_mem_selection(enum ddr_mode *mem_type,
 		unsigned *frequency_mhz, unsigned *arm_freq,
 		enum mem_manuf *mem_manuf)
 {
@@ -363,8 +363,6 @@ static int clock_get_mem_selection(enum ddr_mode *mem_type,
 	*frequency_mhz = params->frequency_mhz;
 	*arm_freq = params->arm_freq_mhz;
 	*mem_manuf = params->mem_manuf;
-
-	return 0;
 }
 
 /* Get the ratios for setting ARM clock */
@@ -376,9 +374,9 @@ struct arm_clk_ratios *get_arm_ratios(void)
 	unsigned frequency_mhz, arm_freq;
 	int i;
 
-	if (clock_get_mem_selection(&mem_type, &frequency_mhz,
-					&arm_freq, &mem_manuf))
-		;
+	clock_get_mem_selection(&mem_type, &frequency_mhz,
+				&arm_freq, &mem_manuf);
+
 	for (i = 0, arm_ratio = arm_clk_ratios; i < ARRAY_SIZE(arm_clk_ratios);
 		i++, arm_ratio++) {
 		if (arm_ratio->arm_freq_mhz == arm_freq)
@@ -400,15 +398,14 @@ struct mem_timings *clock_get_mem_timings(void)
 	unsigned frequency_mhz, arm_freq;
 	int i;
 
-	if (!clock_get_mem_selection(&mem_type, &frequency_mhz,
-						&arm_freq, &mem_manuf)) {
-		for (i = 0, mem = mem_timings; i < ARRAY_SIZE(mem_timings);
-				i++, mem++) {
-			if (mem->mem_type == mem_type &&
-					mem->frequency_mhz == frequency_mhz &&
-					mem->mem_manuf == mem_manuf)
-				return mem;
-		}
+	clock_get_mem_selection(&mem_type, &frequency_mhz,
+				&arm_freq, &mem_manuf);
+	for (i = 0, mem = mem_timings; i < ARRAY_SIZE(mem_timings);
+	     i++, mem++) {
+		if (mem->mem_type == mem_type &&
+		    mem->frequency_mhz == frequency_mhz &&
+		    mem->mem_manuf == mem_manuf)
+			return mem;
 	}
 
 	/* will hang if failed to find memory timings */
@@ -420,7 +417,8 @@ struct mem_timings *clock_get_mem_timings(void)
 
 void system_clock_init()
 {
-	struct exynos5_clock *clk = (struct exynos5_clock *)EXYNOS5_CLOCK_BASE;
+	struct exynos5_clock *clk =
+		(struct exynos5_clock *)samsung_get_base_clock();
 	struct mem_timings *mem;
 	struct arm_clk_ratios *arm_clk_ratio;
 	u32 val, tmp;
@@ -660,7 +658,8 @@ void system_clock_init()
 
 void clock_init_dp_clock(void)
 {
-	struct exynos5_clock *clk = (struct exynos5_clock *)EXYNOS5_CLOCK_BASE;
+	struct exynos5_clock *clk =
+		(struct exynos5_clock *)samsung_get_base_clock();
 
 	/* DP clock enable */
 	setbits_le32(&clk->gate_ip_disp1, CLK_GATE_DP1_ALLOW);
@@ -675,7 +674,8 @@ void clock_init_dp_clock(void)
  */
 void emmc_boot_clk_div_set(void)
 {
-	struct exynos5_clock *clk = (struct exynos5_clock *)EXYNOS5_CLOCK_BASE;
+	struct exynos5_clock *clk =
+		(struct exynos5_clock *)samsung_get_base_clock();
 	unsigned int div_mmc;
 
 	div_mmc = readl((unsigned int) &clk->div_fsys1) & ~FSYS1_MMC0_DIV_MASK;
