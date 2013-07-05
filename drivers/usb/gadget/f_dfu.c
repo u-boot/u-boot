@@ -5,6 +5,13 @@
  * authors: Andrzej Pietrasiewicz <andrzej.p@samsung.com>
  *          Lukasz Majewski <l.majewski@samsung.com>
  *
+ * Based on OpenMoko u-boot: drivers/usb/usbdfu.c
+ * (C) 2007 by OpenMoko, Inc.
+ * Author: Harald Welte <laforge@openmoko.org>
+ *
+ * based on existing SAM7DFU code from OpenPCD:
+ * (C) Copyright 2006 by Harald Welte <hwelte at hmw-consulting.de>
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
