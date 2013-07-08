@@ -37,5 +37,19 @@ const struct pad_conf_entry core_padconf_array_essential[] = {
 	{UART1_RTSN, (IEN | PTU | PDIS | M3)},	/* UART1_RTSN */
 	{I2C1_SDA, (IEN | PTU | PDIS | M0)},	/* I2C1_SDA */
 	{I2C1_SCL, (IEN | PTU | PDIS | M0)},	/* I2C1_SCL */
+	{MDIO_MCLK, (PTU | PEN | M0)},		/* MDIO_MCLK  */
+	{MDIO_D, (IEN | PTU | PEN | M0)},	/* MDIO_D  */
+	{RGMII0_TXC, (M0) },
+	{RGMII0_TXCTL, (M0) },
+	{RGMII0_TXD3, (M0) },
+	{RGMII0_TXD2, (M0) },
+	{RGMII0_TXD1, (M0) },
+	{RGMII0_TXD0, (M0) },
+	{RGMII0_RXC, (IEN | M0) },
+	{RGMII0_RXCTL, (IEN | M0) },
+	{RGMII0_RXD3, (IEN | M0) },
+	{RGMII0_RXD2, (IEN | M0) },
+	{RGMII0_RXD1, (IEN | M0) },
+	{RGMII0_RXD0, (IEN | M0) },
 };
 #endif /* _MUX_DATA_DRA7XX_H_ */
