@@ -51,8 +51,6 @@
 #define CPDMA_RXCP_VER1		0x160
 #define CPDMA_RXCP_VER2		0x260
 
-#define CPDMA_RAM_ADDR		0x4a102000
-
 /* Descriptor mode bits */
 #define CPDMA_DESC_SOP		BIT(31)
 #define CPDMA_DESC_EOP		BIT(30)
@@ -984,12 +982,12 @@ int cpsw_register(struct cpsw_platform_data *data)
 		return -ENOMEM;
 	}
 
-	priv->descs		= (void *)CPDMA_RAM_ADDR;
 	priv->host_port		= data->host_port_num;
 	priv->regs		= regs;
 	priv->host_port_regs	= regs + data->host_port_reg_ofs;
 	priv->dma_regs		= regs + data->cpdma_reg_ofs;
 	priv->ale_regs		= regs + data->ale_reg_ofs;
+	priv->descs		= (void *)regs + data->bd_ram_ofs;
 
 	int idx = 0;
 
