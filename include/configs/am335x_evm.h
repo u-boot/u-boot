@@ -238,7 +238,11 @@
 	"rootfs part 0 2;" \
 	"MLO fat 0 1;" \
 	"MLO.raw mmc 100 100;" \
-	"u-boot.img.raw mmc 300 3C0;" \
+	"u-boot.img.raw mmc 300 400;" \
+	"spl-os-args.raw mmc 80 80;" \
+	"spl-os-image.raw mmc 900 2000;" \
+	"spl-os-args fat 0 1;" \
+	"spl-os-image fat 0 1;" \
 	"u-boot.img fat 0 1;" \
 	"uEnv.txt fat 0 1"
 #define DFU_ALT_INFO_NAND \
@@ -247,8 +251,9 @@
 	"SPL.backup2 part 0 3;" \
 	"SPL.backup3 part 0 4;" \
 	"u-boot part 0 5;" \
-	"kernel part 0 7;" \
-	"rootfs part 0 8"
+	"u-boot-spl-os part 0 6;" \
+	"kernel part 0 8;" \
+	"rootfs part 0 9"
 
  /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1		/*  1 bank of DRAM */
