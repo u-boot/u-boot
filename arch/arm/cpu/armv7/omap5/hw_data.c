@@ -393,6 +393,9 @@ void enable_basic_clocks(void)
 		(*prcm)->cm_l3init_clkstctrl,
 		(*prcm)->cm_memif_clkstctrl,
 		(*prcm)->cm_l4cfg_clkstctrl,
+#ifdef CONFIG_DRIVER_TI_CPSW
+		(*prcm)->cm_gmac_clkstctrl,
+#endif
 		0
 	};
 
@@ -420,6 +423,9 @@ void enable_basic_clocks(void)
 		(*prcm)->cm_wkup_wdtimer2_clkctrl,
 		(*prcm)->cm_l4per_uart3_clkctrl,
 		(*prcm)->cm_l4per_i2c1_clkctrl,
+#ifdef CONFIG_DRIVER_TI_CPSW
+		(*prcm)->cm_gmac_gmac_clkctrl,
+#endif
 		0
 	};
 
@@ -476,7 +482,6 @@ void enable_basic_uboot_clocks(void)
 		(*prcm)->cm_l3init_fsusb_clkctrl,
 		0
 	};
-
 	do_enable_clocks(clk_domains_essential,
 			 clk_modules_hw_auto_essential,
 			 clk_modules_explicit_en_essential,

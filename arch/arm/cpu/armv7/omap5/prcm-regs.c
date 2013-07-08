@@ -896,6 +896,8 @@ struct prcm_regs const dra7xx_prcm = {
 	.cm_l3init_hsusbhost_clkctrl		= 0x4a009340,
 	.cm_l3init_hsusbotg_clkctrl		= 0x4a009348,
 	.cm_l3init_hsusbtll_clkctrl		= 0x4a009350,
+	.cm_gmac_clkstctrl			= 0x4a0093c0,
+	.cm_gmac_gmac_clkctrl			= 0x4a0093d0,
 	.cm_l3init_ocp2scp1_clkctrl		= 0x4a0093e0,
 
 	/* cm2.l4per */

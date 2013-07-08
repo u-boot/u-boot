@@ -340,6 +340,10 @@ struct prcm_regs {
 	/* SCRM stuff, used by some boards */
 	u32 scrm_auxclk0;
 	u32 scrm_auxclk1;
+
+	/* GMAC Clk Ctrl */
+	u32 cm_gmac_gmac_clkctrl;
+	u32 cm_gmac_clkstctrl;
 };
 
 struct omap_sys_ctrl_regs {
