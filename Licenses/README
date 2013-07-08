@@ -47,4 +47,5 @@ Full name					SPDX Identifier	OSI Approved	File name	URI
 =======================================================================================================================================
 GNU General Public License v2.0 only		GPL-2.0		Y		gpl-2.0.txt	http://www.gnu.org/licenses/gpl-2.0.txt
 GNU General Public License v2.0 or later	GPL-2.0+	Y		gpl-2.0.txt	http://www.gnu.org/licenses/gpl-2.0.txt
+GNU Library General Public License v2 or later	LGPL-2.0+	Y		lgpl-2.0.txt	http://www.gnu.org/licenses/old-licenses/lgpl-2.0.txt
 GNU Lesser General Public License v2.1 or later	LGPL-2.1+	Y		lgpl-2.1.txt	http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt
