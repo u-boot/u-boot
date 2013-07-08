@@ -378,6 +378,10 @@ struct omap_sys_ctrl_regs const omap5_ctrl = {
 
 struct omap_sys_ctrl_regs const dra7xx_ctrl = {
 	.control_status				= 0x4A002134,
+	.control_core_mac_id_0_lo		= 0x4A002514,
+	.control_core_mac_id_0_hi		= 0x4A002518,
+	.control_core_mac_id_1_lo		= 0x4A00251C,
+	.control_core_mac_id_1_hi		= 0x4A002520,
 	.control_core_mmr_lock1			= 0x4A002540,
 	.control_core_mmr_lock2			= 0x4A002544,
 	.control_core_mmr_lock3			= 0x4A002548,

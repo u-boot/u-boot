@@ -99,6 +99,8 @@ struct watchdog {
 #endif /* __ASSEMBLY__ */
 #endif /* __KERNEL_STRICT_NAMES */
 
+#define BIT(x)				(1 << (x))
+
 #define WD_UNLOCK1		0xAAAA
 #define WD_UNLOCK2		0x5555
 
@@ -157,5 +159,9 @@ struct watchdog {
 #define PRM_RSTCTRL_RESET	0x01
 #define PRM_RSTST		(PRM_DEVICE_BASE + 0x4)
 #define PRM_RSTST_WARM_RESET_MASK	0x7FEA
+
+/* DRA7XX CPSW Config space */
+#define CPSW_BASE			0x48484000
+#define CPSW_MDIO_BASE			0x48485000
 
 #endif /* _CPU_H */
