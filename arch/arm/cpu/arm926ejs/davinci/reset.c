@@ -4,9 +4,8 @@
  * Copyright (C) 2012 Dmitry Bondar <bond@inmys.ru>
  * Copyright (C) 2007 Sergey Kubushyn <ksi@koi8.net>
  *
- * This file is released under the terms of GPL v2 and any later version.
- * See the file COPYING in the root directory of the source tree for details.
-*/
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
 
 #include <common.h>
 #include <asm/io.h>

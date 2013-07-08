@@ -2,10 +2,7 @@
  * (C) Masami Komiya <mkomiya@sonare.it> 2005
  *  Copyright 2009, Robin Getz <rgetz@blackfin.uclinux.org>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2, or (at
- * your option) any later version.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __DNS_H__
