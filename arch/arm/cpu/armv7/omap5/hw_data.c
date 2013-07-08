@@ -247,6 +247,16 @@ static const struct dpll_params ddr_dpll_params_2128mhz[NUM_SYS_CLKS] = {
 	{665, 23, 2, 1, 8, -1, -1, -1, -1, -1, -1, -1},		/* 38.4 MHz */
 };
 
+static const struct dpll_params gmac_dpll_params_2000mhz[NUM_SYS_CLKS] = {
+	{250, 2, 4, 10, 40, 8, 10, -1, -1, -1, -1, -1},		/* 12 MHz   */
+	{250, 4, 4, 10, 40, 8, 10, -1, -1, -1, -1, -1},		/* 20 MHz   */
+	{119, 1, 4, 10, 40, 8, 10, -1, -1, -1, -1, -1},		/* 16.8 MHz */
+	{625, 11, 4, 10, 40, 8, 10, -1, -1, -1, -1, -1},	/* 19.2 MHz */
+	{500, 12, 4, 10, 40, 8, 10, -1, -1, -1, -1, -1},	/* 26 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
+	{625, 23, 4, 10, 40, 8, 10, -1, -1, -1, -1, -1},	/* 38.4 MHz */
+};
+
 struct dplls omap5_dplls_es1 = {
 	.mpu = mpu_dpll_params_800mhz,
 	.core = core_dpll_params_2128mhz_ddr532,
@@ -283,6 +293,7 @@ struct dplls dra7xx_dplls = {
 	.iva = iva_dpll_params_2330mhz_dra7xx,
 	.usb = usb_dpll_params_1920mhz,
 	.ddr = ddr_dpll_params_2128mhz,
+	.gmac = gmac_dpll_params_2000mhz,
 };
 
 struct pmic_data palmas = {

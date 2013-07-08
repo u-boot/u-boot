@@ -73,6 +73,7 @@ struct prcm_regs {
 	u32 cm_ssc_deltamstep_dpll_ddrphy;
 	u32 cm_clkmode_dpll_dsp;
 	u32 cm_shadow_freq_config1;
+	u32 cm_clkmode_dpll_gmac;
 	u32 cm_mpu_mpu_clkctrl;
 
 	/* cm1.dsp */
@@ -483,6 +484,7 @@ struct dplls {
 	const struct dpll_params *iva;
 	const struct dpll_params *usb;
 	const struct dpll_params *ddr;
+	const struct dpll_params *gmac;
 };
 
 struct pmic_data {

@@ -798,6 +798,7 @@ struct prcm_regs const dra7xx_prcm = {
 	.cm_ssc_deltamstep_dpll_ddrphy		= 0x4a00522c,
 	.cm_clkmode_dpll_dsp			= 0x4a005234,
 	.cm_shadow_freq_config1			= 0x4a005260,
+	.cm_clkmode_dpll_gmac			= 0x4a0052a8,
 
 	/* cm1.mpu */
 	.cm_mpu_mpu_clkctrl			= 0x4a005320,
