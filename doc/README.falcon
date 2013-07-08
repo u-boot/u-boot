@@ -41,6 +41,8 @@ file (CONFIG_CMD_SPL_NAND_OFS for NAND).
 
 3. Boot the board into Falcon Mode. SPL will load the kernel and copy
 the parameters which are saved in the persistent area to the required address.
+If a valid uImage is not found at the defined location, U-Boot will be
+booted instead.
 
 It is required to implement a custom mechanism to select if SPL loads U-Boot
 or another image.
