@@ -344,7 +344,7 @@
 /* nand */
 #define CONFIG_CMD_SPL_NAND_OFS			0x240000 /* end of u-boot */
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS		0x280000
-#define CONFIG_CMD_SPL_WRITE_SIZE		0x1000
+#define CONFIG_CMD_SPL_WRITE_SIZE		0x2000
 
 /* spl export command */
 #define CONFIG_CMD_SPL
