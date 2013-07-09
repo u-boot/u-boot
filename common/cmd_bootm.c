@@ -1767,12 +1767,12 @@ static int bootz_start(cmd_tbl_t *cmdtp, int flag, int argc,
 			      images, 1);
 
 	/* Setup Linux kernel zImage entry point */
-	if (argc < 2) {
+	if (!argc) {
 		images->ep = load_addr;
 		debug("*  kernel: default image load address = 0x%08lx\n",
 				load_addr);
 	} else {
-		images->ep = simple_strtoul(argv[1], NULL, 16);
+		images->ep = simple_strtoul(argv[0], NULL, 16);
 		debug("*  kernel: cmdline image address = 0x%08lx\n",
 			images->ep);
 	}
@@ -1783,15 +1783,23 @@ static int bootz_start(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	lmb_reserve(&images->lmb, images->ep, zi_end - zi_start);
 
-	ret = do_bootm_states(cmdtp, flag, argc, argv, BOOTM_STATE_FINDOTHER,
-			      images, 1);
+	if (bootm_find_ramdisk(flag, argc, argv))
+		return 1;
 
-	return ret;
+#if defined(CONFIG_OF_LIBFDT)
+	if (bootm_find_fdt(flag, argc, argv))
+		return 1;
+#endif
+
+	return 0;
 }
 
 int do_bootz(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int ret;
+
+	/* Consume 'bootz' */
+	argc--; argv++;
 
 	if (bootz_start(cmdtp, flag, argc, argv, &images))
 		return 1;
