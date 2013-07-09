@@ -323,4 +323,26 @@
 #define PER_36XX_FSEL_38P4	0x07
 #define PER_36XX_M2_38P4	0x09
 
+/* 36XX PER2 DPLL */
+
+#define PER2_36XX_M_12		0x50
+#define PER2_36XX_N_12		0x00
+#define PER2_36XX_M2_12		0x08
+
+#define PER2_36XX_M_13		0x1BB
+#define PER2_36XX_N_13		0x05
+#define PER2_36XX_M2_13		0x08
+
+#define PER2_36XX_M_19P2		0x32
+#define PER2_36XX_N_19P2		0x00
+#define PER2_36XX_M2_19P2		0x08
+
+#define PER2_36XX_M_26		0x1BB
+#define PER2_36XX_N_26		0x0B
+#define PER2_36XX_M2_26		0x08
+
+#define PER2_36XX_M_38P4		0x19
+#define PER2_36XX_N_38P4		0x00
+#define PER2_36XX_M2_38P4		0x08
+
 #endif	/* endif _CLOCKS_OMAP3_H_ */
