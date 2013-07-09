@@ -309,33 +309,53 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static int bootm_find_other(cmd_tbl_t *cmdtp, int flag, int argc,
-			    char * const argv[])
+static int bootm_find_ramdisk(int flag, int argc, char * const argv[])
 {
 	int ret;
 
+	/* find ramdisk */
+	ret = boot_get_ramdisk(argc, argv, &images, IH_INITRD_ARCH,
+			       &images.rd_start, &images.rd_end);
+	if (ret) {
+		puts("Ramdisk image is corrupt or invalid\n");
+		return 1;
+	}
+
+	return 0;
+}
+
+#if defined(CONFIG_OF_LIBFDT)
+static int bootm_find_fdt(int flag, int argc, char * const argv[])
+{
+	int ret;
+
+	/* find flattened device tree */
+	ret = boot_get_fdt(flag, argc, argv, IH_ARCH_DEFAULT, &images,
+			   &images.ft_addr, &images.ft_len);
+	if (ret) {
+		puts("Could not find a valid device tree\n");
+		return 1;
+	}
+
+	set_working_fdt_addr(images.ft_addr);
+
+	return 0;
+}
+#endif
+
+static int bootm_find_other(cmd_tbl_t *cmdtp, int flag, int argc,
+			    char * const argv[])
+{
 	if (((images.os.type == IH_TYPE_KERNEL) ||
 	     (images.os.type == IH_TYPE_KERNEL_NOLOAD) ||
 	     (images.os.type == IH_TYPE_MULTI)) &&
 	    (images.os.os == IH_OS_LINUX)) {
-		/* find ramdisk */
-		ret = boot_get_ramdisk(argc, argv, &images, IH_INITRD_ARCH,
-				&images.rd_start, &images.rd_end);
-		if (ret) {
-			puts("Ramdisk image is corrupt or invalid\n");
+		if (bootm_find_ramdisk(flag, argc, argv))
 			return 1;
-		}
 
 #if defined(CONFIG_OF_LIBFDT)
-		/* find flattened device tree */
-		ret = boot_get_fdt(flag, argc, argv, IH_ARCH_DEFAULT, &images,
-				   &images.ft_addr, &images.ft_len);
-		if (ret) {
-			puts("Could not find a valid device tree\n");
+		if (bootm_find_fdt(flag, argc, argv))
 			return 1;
-		}
-
-		set_working_fdt_addr(images.ft_addr);
 #endif
 	}
 
@@ -1783,6 +1803,10 @@ static int bootz_start(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	lmb_reserve(&images->lmb, images->ep, zi_end - zi_start);
 
+	/*
+	 * Handle the BOOTM_STATE_FINDOTHER state ourselves as we do not
+	 * have a header that provide this informaiton.
+	 */
 	if (bootm_find_ramdisk(flag, argc, argv))
 		return 1;
 
