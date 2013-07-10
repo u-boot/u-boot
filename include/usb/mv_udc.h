@@ -74,7 +74,7 @@ struct mv_drv {
 	struct usb_gadget		gadget;
 	struct usb_gadget_driver	*driver;
 	struct mv_udc			*udc;
-	struct mv_ep			ep[2 * NUM_ENDPOINTS];
+	struct mv_ep			ep[NUM_ENDPOINTS];
 };
 
 struct ept_queue_head {

@@ -83,6 +83,20 @@ static struct usb_ep_ops mv_ep_ops = {
 	.free_request   = mv_ep_free_request,
 };
 
+/* Init values for USB endpoints. */
+static const struct usb_ep mv_ep_init[2] = {
+	[0] = {	/* EP 0 */
+		.maxpacket	= 64,
+		.name		= "ep0",
+		.ops		= &mv_ep_ops,
+	},
+	[1] = {	/* EP 1..n */
+		.maxpacket	= 512,
+		.name		= "ep-",
+		.ops		= &mv_ep_ops,
+	},
+};
+
 static struct mv_drv controller = {
 	.gadget = {
 		.name = "mv_udc",
@@ -435,21 +449,21 @@ static int mvudc_probe(void)
 	}
 
 	INIT_LIST_HEAD(&controller.gadget.ep_list);
-	controller.gadget.ep0 = &controller.ep[0].ep;
-	controller.ep[0].ep.maxpacket = 64;
-	controller.ep[0].ep.name = "ep0";
+
+	/* Init EP 0 */
+	memcpy(&controller.ep[0].ep, &mv_ep_init[0], sizeof(*mv_ep_init));
 	controller.ep[0].desc = &ep0_in_desc;
+	controller.gadget.ep0 = &controller.ep[0].ep;
 	INIT_LIST_HEAD(&controller.gadget.ep0->ep_list);
-	for (i = 0; i < 2 * NUM_ENDPOINTS; i++) {
-		if (i != 0) {
-			controller.ep[i].ep.maxpacket = 512;
-			controller.ep[i].ep.name = "ep-";
-			list_add_tail(&controller.ep[i].ep.ep_list,
-				      &controller.gadget.ep_list);
-			controller.ep[i].desc = NULL;
-		}
-		controller.ep[i].ep.ops = &mv_ep_ops;
+
+	/* Init EP 1..n */
+	for (i = 1; i < NUM_ENDPOINTS; i++) {
+		memcpy(&controller.ep[i].ep, &mv_ep_init[1],
+		       sizeof(*mv_ep_init));
+		list_add_tail(&controller.ep[i].ep.ep_list,
+			      &controller.gadget.ep_list);
 	}
+
 	return 0;
 }
 
