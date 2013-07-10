@@ -1,7 +1,7 @@
 /*
  * Faraday 10/100Mbps Ethernet Controller
  *
- * (C) Copyright 2010 Faraday Technology
+ * (C) Copyright 2013 Faraday Technology
  * Dante Su <dantesu@faraday-tech.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
