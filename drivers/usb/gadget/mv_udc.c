@@ -123,6 +123,19 @@ static struct ept_queue_head *mv_get_qh(int ep_num, int dir_in)
 	return &controller.epts[(ep_num * 2) + dir_in];
 }
 
+/**
+ * mv_get_qtd() - return queue item for endpoint
+ * @ep_num:	Endpoint number
+ * @dir_in:	Direction of the endpoint (IN = 1, OUT = 0)
+ *
+ * This function returns the QH associated with particular endpoint
+ * and it's direction.
+ */
+static struct ept_queue_item *mv_get_qtd(int ep_num, int dir_in)
+{
+	return controller.items[(ep_num * 2) + dir_in];
+}
+
 static struct usb_request *
 mv_ep_alloc_request(struct usb_ep *ep, unsigned int gfp_flags)
 {
@@ -181,7 +194,7 @@ static int mv_ep_queue(struct usb_ep *ep,
 	int bit, num, len, in;
 	num = mv_ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
 	in = (mv_ep->desc->bEndpointAddress & USB_DIR_IN) != 0;
-	item = controller.items[2 * num + in];
+	item = mv_get_qtd(num, in);
 	head = mv_get_qh(num, in);
 	phys = (unsigned)req->buf;
 	len = req->length;
@@ -217,7 +230,7 @@ static void handle_ep_complete(struct mv_ep *ep)
 	in = (ep->desc->bEndpointAddress & USB_DIR_IN) != 0;
 	if (num == 0)
 		ep->desc = &ep0_out_desc;
-	item = controller.items[2 * num + in];
+	item = mv_get_qtd(num, in);
 
 	if (item->info & 0xff)
 		printf("EP%d/%s FAIL nfo=%x pg0=%x\n",
