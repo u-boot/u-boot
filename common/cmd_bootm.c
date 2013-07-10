@@ -703,13 +703,6 @@ static int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (!ret && (states & BOOTM_STATE_OS_PREP))
 		ret = boot_fn(BOOTM_STATE_OS_PREP, argc, argv, images);
 
-	/* Check for unsupported subcommand. */
-	if (ret) {
-		puts("subcommand not supported\n");
-		return ret;
-	}
-
-
 #ifdef CONFIG_TRACE
 	/* Pretend to run the OS, then run a user command */
 	if (!ret && (states & BOOTM_STATE_OS_FAKE_GO)) {
@@ -721,15 +714,17 @@ static int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc,
 			ret = run_command_list(cmd_list, -1, flag);
 	}
 #endif
-	/* Now run the OS! We hope this doesn't return */
-	if (!ret && (states & BOOTM_STATE_OS_GO)) {
-		ret = boot_selected_os(argc, argv, BOOTM_STATE_OS_GO,
-				images, boot_fn);
-		if (ret)
-			goto err;
+
+	/* Check for unsupported subcommand. */
+	if (ret) {
+		puts("subcommand not supported\n");
+		return ret;
 	}
 
-	return ret;
+	/* Now run the OS! We hope this doesn't return */
+	if (!ret && (states & BOOTM_STATE_OS_GO))
+		ret = boot_selected_os(argc, argv, BOOTM_STATE_OS_GO,
+				images, boot_fn);
 
 	/* Deal with any fallout */
 err:
