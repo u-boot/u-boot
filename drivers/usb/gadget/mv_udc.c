@@ -471,13 +471,12 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 	struct mv_udc *udc;
 	int ret;
 
-	if (!driver
-			|| driver->speed < USB_SPEED_FULL
-			|| !driver->bind
-			|| !driver->setup) {
-		DBG("bad parameter.\n");
+	if (!driver)
 		return -EINVAL;
-	}
+	if (!driver->bind || !driver->setup || !driver->disconnect)
+		return -EINVAL;
+	if (driver->speed != USB_SPEED_FULL && driver->speed != USB_SPEED_HIGH)
+		return -EINVAL;
 
 	ret = usb_lowlevel_init(0, (void **)&controller.ctrl);
 	if (ret)
