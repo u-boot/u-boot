@@ -444,6 +444,7 @@ void udc_disconnect(void)
 static int mvudc_probe(void)
 {
 	struct ept_queue_head *head;
+	uint8_t *imem;
 	int i;
 
 	const int num = 2 * NUM_ENDPOINTS;
@@ -453,11 +454,28 @@ static int mvudc_probe(void)
 	const int eplist_raw_sz = num * sizeof(struct ept_queue_head);
 	const int eplist_sz = roundup(eplist_raw_sz, ARCH_DMA_MINALIGN);
 
+	const int ilist_align = roundup(ARCH_DMA_MINALIGN, 32);
+	const int ilist_ent_raw_sz = 2 * sizeof(struct ept_queue_item);
+	const int ilist_ent_sz = roundup(ilist_ent_raw_sz, ARCH_DMA_MINALIGN);
+	const int ilist_sz = NUM_ENDPOINTS * ilist_ent_sz;
+
 	/* The QH list must be aligned to 4096 bytes. */
 	controller.epts = memalign(eplist_align, eplist_sz);
 	if (!controller.epts)
 		return -ENOMEM;
 	memset(controller.epts, 0, eplist_sz);
+
+	/*
+	 * Each qTD item must be 32-byte aligned, each qTD touple must be
+	 * cacheline aligned. There are two qTD items for each endpoint and
+	 * only one of them is used for the endpoint at time, so we can group
+	 * them together.
+	 */
+	controller.items_mem = memalign(ilist_align, ilist_sz);
+	if (!controller.items_mem) {
+		free(controller.epts);
+		return -ENOMEM;
+	}
 
 	for (i = 0; i < 2 * NUM_ENDPOINTS; i++) {
 		/*
@@ -477,8 +495,11 @@ static int mvudc_probe(void)
 		head->next = TERMINATE;
 		head->info = 0;
 
-		controller.items[i] = memalign(roundup(32, ARCH_DMA_MINALIGN),
-					       sizeof(struct ept_queue_item));
+		imem = controller.items_mem + ((i >> 1) * ilist_ent_sz);
+		if (i & 1)
+			imem += sizeof(struct ept_queue_item);
+
+		controller.items[i] = (struct ept_queue_item *)imem;
 	}
 
 	INIT_LIST_HEAD(&controller.gadget.ep_list);
