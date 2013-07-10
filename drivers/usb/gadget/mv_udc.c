@@ -59,8 +59,6 @@ static struct usb_endpoint_descriptor ep0_in_desc = {
 	.bmAttributes =	USB_ENDPOINT_XFER_CONTROL,
 };
 
-struct ept_queue_head *epts;
-struct ept_queue_item *items[2 * NUM_ENDPOINTS];
 static int mv_pullup(struct usb_gadget *gadget, int is_on);
 static int mv_ep_enable(struct usb_ep *ep,
 		const struct usb_endpoint_descriptor *desc);
@@ -121,7 +119,7 @@ static void ep_enable(int num, int in)
 	struct ept_queue_head *head;
 	struct mv_udc *udc = (struct mv_udc *)controller.ctrl->hcor;
 	unsigned n;
-	head = epts + 2*num + in;
+	head = controller.epts + 2*num + in;
 
 	n = readl(&udc->epctrl[num]);
 	if (in)
@@ -162,8 +160,8 @@ static int mv_ep_queue(struct usb_ep *ep,
 	int bit, num, len, in;
 	num = mv_ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
 	in = (mv_ep->desc->bEndpointAddress & USB_DIR_IN) != 0;
-	item = items[2 * num + in];
-	head = epts + 2 * num + in;
+	item = controller.items[2 * num + in];
+	head = controller.epts + 2 * num + in;
 	phys = (unsigned)req->buf;
 	len = req->length;
 
@@ -198,7 +196,7 @@ static void handle_ep_complete(struct mv_ep *ep)
 	in = (ep->desc->bEndpointAddress & USB_DIR_IN) != 0;
 	if (num == 0)
 		ep->desc = &ep0_out_desc;
-	item = items[2 * num + in];
+	item = controller.items[2 * num + in];
 
 	if (item->info & 0xff)
 		printf("EP%d/%s FAIL nfo=%x pg0=%x\n",
@@ -227,7 +225,7 @@ static void handle_setup(void)
 	int status = 0;
 	int num, in, _num, _in, i;
 	char *buf;
-	head = epts;
+	head = controller.epts + 2 * 0 + 0;
 
 	flush_cache((unsigned long)head, sizeof(struct ept_queue_head));
 	memcpy(&r, head->setup_data, sizeof(struct usb_ctrlrequest));
@@ -308,7 +306,7 @@ static void stop_activity(void)
 				& USB_ENDPOINT_NUMBER_MASK;
 			in = (controller.ep[i].desc->bEndpointAddress
 				& USB_DIR_IN) != 0;
-			head = epts + (num * 2) + (in);
+			head = controller.epts + (num * 2) + (in);
 			head->info = INFO_ACTIVE;
 		}
 	}
@@ -391,7 +389,7 @@ static int mv_pullup(struct usb_gadget *gadget, int is_on)
 		writel(USBCMD_ITC(MICRO_8FRAME) | USBCMD_RST, &udc->usbcmd);
 		udelay(200);
 
-		writel((unsigned) epts, &udc->epinitaddr);
+		writel((unsigned) controller.epts, &udc->epinitaddr);
 
 		/* select DEVICE mode */
 		writel(USBMODE_DEVICE, &udc->usbmode);
@@ -428,14 +426,15 @@ static int mvudc_probe(void)
 	int i;
 	const int num = 2 * NUM_ENDPOINTS;
 
-	epts = memalign(PAGE_SIZE, num * sizeof(struct ept_queue_head));
-	memset(epts, 0, num * sizeof(struct ept_queue_head));
+	controller.epts = memalign(PAGE_SIZE,
+				   num * sizeof(struct ept_queue_head));
+	memset(controller.epts, 0, num * sizeof(struct ept_queue_head));
 	for (i = 0; i < 2 * NUM_ENDPOINTS; i++) {
 		/*
 		 * For item0 and item1, they are served as ep0
 		 * out&in seperately
 		 */
-		head = epts + i;
+		head = controller.epts + i;
 		if (i < 2)
 			head->config = CONFIG_MAX_PKT(EP0_MAX_PACKET_SIZE)
 				| CONFIG_ZLT | CONFIG_IOS;
@@ -445,7 +444,8 @@ static int mvudc_probe(void)
 		head->next = TERMINATE;
 		head->info = 0;
 
-		items[i] = memalign(PAGE_SIZE, sizeof(struct ept_queue_item));
+		controller.items[i] = memalign(PAGE_SIZE,
+					       sizeof(struct ept_queue_item));
 	}
 
 	INIT_LIST_HEAD(&controller.gadget.ep_list);
