@@ -98,8 +98,9 @@ static const struct usb_ep mv_ep_init[2] = {
 };
 
 static struct mv_drv controller = {
-	.gadget = {
-		.name = "mv_udc",
+	.gadget	= {
+		.name	= "mv_udc",
+		.ops	= &mv_udc_ops,
 	},
 };
 
@@ -427,7 +428,6 @@ static int mvudc_probe(void)
 	int i;
 	const int num = 2 * NUM_ENDPOINTS;
 
-	controller.gadget.ops = &mv_udc_ops;
 	epts = memalign(PAGE_SIZE, num * sizeof(struct ept_queue_head));
 	memset(epts, 0, num * sizeof(struct ept_queue_head));
 	for (i = 0; i < 2 * NUM_ENDPOINTS; i++) {
