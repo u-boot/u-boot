@@ -22,6 +22,8 @@
 #ifndef USB_EHCI_H
 #define USB_EHCI_H
 
+#include <usb.h>
+
 #if !defined(CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS)
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	2
 #endif
@@ -250,6 +252,17 @@ struct QH {
 		uint32_t fill[4];
 		void *buffer;
 	};
+};
+
+struct ehci_ctrl {
+	struct ehci_hccr *hccr;	/* R/O registers, not need for volatile */
+	struct ehci_hcor *hcor;
+	int rootdev;
+	uint16_t portreset;
+	struct QH qh_list __aligned(USB_DMA_MINALIGN);
+	struct QH periodic_queue __aligned(USB_DMA_MINALIGN);
+	uint32_t *periodic_list;
+	int ntds;
 };
 
 /* Low level init functions */
