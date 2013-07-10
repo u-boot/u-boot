@@ -66,9 +66,13 @@ struct mv_udc {
 
 struct mv_ep {
 	struct usb_ep ep;
-	struct usb_request req;
 	struct list_head queue;
 	const struct usb_endpoint_descriptor *desc;
+
+	struct usb_request req;
+	uint8_t *b_buf;
+	uint32_t b_len;
+	uint8_t b_fast[64] __aligned(ARCH_DMA_MINALIGN);
 };
 
 struct mv_drv {

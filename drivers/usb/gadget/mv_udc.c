@@ -247,6 +247,71 @@ static int mv_ep_disable(struct usb_ep *ep)
 	return 0;
 }
 
+static int mv_bounce(struct mv_ep *ep)
+{
+	uint32_t addr = (uint32_t)ep->req.buf;
+	uint32_t ba;
+
+	/* Input buffer address is not aligned. */
+	if (addr & (ARCH_DMA_MINALIGN - 1))
+		goto align;
+
+	/* Input buffer length is not aligned. */
+	if (ep->req.length & (ARCH_DMA_MINALIGN - 1))
+		goto align;
+
+	/* The buffer is well aligned, only flush cache. */
+	ep->b_len = ep->req.length;
+	ep->b_buf = ep->req.buf;
+	goto flush;
+
+align:
+	/* Use internal buffer for small payloads. */
+	if (ep->req.length <= 64) {
+		ep->b_len = 64;
+		ep->b_buf = ep->b_fast;
+	} else {
+		ep->b_len = roundup(ep->req.length, ARCH_DMA_MINALIGN);
+		ep->b_buf = memalign(ARCH_DMA_MINALIGN, ep->b_len);
+		if (!ep->b_buf)
+			return -ENOMEM;
+	}
+
+	memcpy(ep->b_buf, ep->req.buf, ep->req.length);
+
+flush:
+	ba = (uint32_t)ep->b_buf;
+	flush_dcache_range(ba, ba + ep->b_len);
+
+	return 0;
+}
+
+static void mv_debounce(struct mv_ep *ep)
+{
+	uint32_t addr = (uint32_t)ep->req.buf;
+	uint32_t ba = (uint32_t)ep->b_buf;
+
+	invalidate_dcache_range(ba, ba + ep->b_len);
+
+	/* Input buffer address is not aligned. */
+	if (addr & (ARCH_DMA_MINALIGN - 1))
+		goto copy;
+
+	/* Input buffer length is not aligned. */
+	if (ep->req.length & (ARCH_DMA_MINALIGN - 1))
+		goto copy;
+
+	/* The buffer is well aligned, only invalidate cache. */
+	return;
+
+copy:
+	memcpy(ep->req.buf, ep->b_buf, ep->req.length);
+
+	/* Large payloads use allocated buffer, free it. */
+	if (ep->req.length > 64)
+		free(ep->b_buf);
+}
+
 static int mv_ep_queue(struct usb_ep *ep,
 		struct usb_request *req, gfp_t gfp_flags)
 {
@@ -254,25 +319,27 @@ static int mv_ep_queue(struct usb_ep *ep,
 	struct mv_udc *udc = (struct mv_udc *)controller.ctrl->hcor;
 	struct ept_queue_item *item;
 	struct ept_queue_head *head;
-	unsigned phys;
-	int bit, num, len, in;
+	int bit, num, len, in, ret;
 	num = mv_ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
 	in = (mv_ep->desc->bEndpointAddress & USB_DIR_IN) != 0;
 	item = mv_get_qtd(num, in);
 	head = mv_get_qh(num, in);
-	phys = (unsigned)req->buf;
 	len = req->length;
+
+	ret = mv_bounce(mv_ep);
+	if (ret)
+		return ret;
 
 	item->next = TERMINATE;
 	item->info = INFO_BYTES(len) | INFO_IOC | INFO_ACTIVE;
-	item->page0 = phys;
-	item->page1 = (phys & 0xfffff000) + 0x1000;
+	item->page0 = (uint32_t)mv_ep->b_buf;
+	item->page1 = ((uint32_t)mv_ep->b_buf & 0xfffff000) + 0x1000;
 
 	head->next = (unsigned) item;
 	head->info = 0;
 
-	DBG("ept%d %s queue len %x, buffer %x\n",
-			num, in ? "in" : "out", len, phys);
+	DBG("ept%d %s queue len %x, buffer %p\n",
+	    num, in ? "in" : "out", len, mv_ep->b_buf);
 
 	if (in)
 		bit = EPT_TX(num);
@@ -303,6 +370,9 @@ static void handle_ep_complete(struct mv_ep *ep)
 			num, in ? "in" : "out", item->info, item->page0);
 
 	len = (item->info >> 16) & 0x7fff;
+
+	mv_debounce(ep);
+
 	ep->req.length -= len;
 	DBG("ept%d %s complete %x\n",
 			num, in ? "in" : "out", len);
