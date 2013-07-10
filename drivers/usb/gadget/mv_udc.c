@@ -83,10 +83,8 @@ static struct usb_ep_ops mv_ep_ops = {
 	.free_request   = mv_ep_free_request,
 };
 
-static struct mv_ep ep[2 * NUM_ENDPOINTS];
 static struct mv_drv controller = {
 	.gadget = {
-		.ep0 = &ep[0].ep,
 		.name = "mv_udc",
 	},
 };
@@ -207,7 +205,7 @@ static void handle_ep_complete(struct mv_ep *ep)
 
 static void handle_setup(void)
 {
-	struct usb_request *req = &ep[0].req;
+	struct usb_request *req = &controller.ep[0].req;
 	struct mv_udc *udc = controller.udc;
 	struct ept_queue_head *head;
 	struct usb_ctrlrequest r;
@@ -230,11 +228,11 @@ static void handle_setup(void)
 		if ((r.wValue == 0) && (r.wLength == 0)) {
 			req->length = 0;
 			for (i = 0; i < NUM_ENDPOINTS; i++) {
-				if (!ep[i].desc)
+				if (!controller.ep[i].desc)
 					continue;
-				num = ep[i].desc->bEndpointAddress
-					& USB_ENDPOINT_NUMBER_MASK;
-				in = (ep[i].desc->bEndpointAddress
+				num = controller.ep[i].desc->bEndpointAddress
+						& USB_ENDPOINT_NUMBER_MASK;
+				in = (controller.ep[i].desc->bEndpointAddress
 						& USB_DIR_IN) != 0;
 				if ((num == _num) && (in == _in)) {
 					ep_enable(num, in);
@@ -290,10 +288,11 @@ static void stop_activity(void)
 	for (i = 0; i < NUM_ENDPOINTS; i++) {
 		if (i != 0)
 			writel(0, &udc->epctrl[i]);
-		if (ep[i].desc) {
-			num = ep[i].desc->bEndpointAddress
+		if (controller.ep[i].desc) {
+			num = controller.ep[i].desc->bEndpointAddress
 				& USB_ENDPOINT_NUMBER_MASK;
-			in = (ep[i].desc->bEndpointAddress & USB_DIR_IN) != 0;
+			in = (controller.ep[i].desc->bEndpointAddress
+				& USB_DIR_IN) != 0;
 			head = epts + (num * 2) + (in);
 			head->info = INFO_ACTIVE;
 		}
@@ -324,8 +323,8 @@ void udc_irq(void)
 		if (bit == 2) {
 			controller.gadget.speed = USB_SPEED_HIGH;
 			for (i = 1; i < NUM_ENDPOINTS && n; i++)
-				if (ep[i].desc)
-					ep[i].ep.maxpacket = 512;
+				if (controller.ep[i].desc)
+					controller.ep[i].ep.maxpacket = 512;
 		} else {
 			controller.gadget.speed = USB_SPEED_FULL;
 		}
@@ -344,14 +343,14 @@ void udc_irq(void)
 			writel(n, &udc->epcomp);
 
 		for (i = 0; i < NUM_ENDPOINTS && n; i++) {
-			if (ep[i].desc) {
-				num = ep[i].desc->bEndpointAddress
+			if (controller.ep[i].desc) {
+				num = controller.ep[i].desc->bEndpointAddress
 					& USB_ENDPOINT_NUMBER_MASK;
-				in = (ep[i].desc->bEndpointAddress
+				in = (controller.ep[i].desc->bEndpointAddress
 						& USB_DIR_IN) != 0;
 				bit = (in) ? EPT_TX(num) : EPT_RX(num);
 				if (n & bit)
-					handle_ep_complete(&ep[i]);
+					handle_ep_complete(&controller.ep[i]);
 			}
 		}
 	}
@@ -436,19 +435,20 @@ static int mvudc_probe(void)
 	}
 
 	INIT_LIST_HEAD(&controller.gadget.ep_list);
-	ep[0].ep.maxpacket = 64;
-	ep[0].ep.name = "ep0";
-	ep[0].desc = &ep0_in_desc;
+	controller.gadget.ep0 = &controller.ep[0].ep;
+	controller.ep[0].ep.maxpacket = 64;
+	controller.ep[0].ep.name = "ep0";
+	controller.ep[0].desc = &ep0_in_desc;
 	INIT_LIST_HEAD(&controller.gadget.ep0->ep_list);
 	for (i = 0; i < 2 * NUM_ENDPOINTS; i++) {
 		if (i != 0) {
-			ep[i].ep.maxpacket = 512;
-			ep[i].ep.name = "ep-";
-			list_add_tail(&ep[i].ep.ep_list,
+			controller.ep[i].ep.maxpacket = 512;
+			controller.ep[i].ep.name = "ep-";
+			list_add_tail(&controller.ep[i].ep.ep_list,
 				      &controller.gadget.ep_list);
-			ep[i].desc = NULL;
+			controller.ep[i].desc = NULL;
 		}
-		ep[i].ep.ops = &mv_ep_ops;
+		controller.ep[i].ep.ops = &mv_ep_ops;
 	}
 	return 0;
 }

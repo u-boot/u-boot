@@ -22,13 +22,6 @@
 #define EP_MAX_PACKET_SIZE	0x200
 #define EP0_MAX_PACKET_SIZE	64
 
-struct mv_ep {
-	struct usb_ep ep;
-	struct usb_request req;
-	struct list_head queue;
-	const struct usb_endpoint_descriptor *desc;
-};
-
 struct mv_udc {
 	u32 pad0[80];
 #define MICRO_8FRAME	0x8
@@ -70,10 +63,18 @@ struct mv_udc {
 	u32 epctrl[16];		/* 0x1c0 */
 };
 
+struct mv_ep {
+	struct usb_ep ep;
+	struct usb_request req;
+	struct list_head queue;
+	const struct usb_endpoint_descriptor *desc;
+};
+
 struct mv_drv {
 	struct usb_gadget		gadget;
-	struct usb_gadget_driver		*driver;
+	struct usb_gadget_driver	*driver;
 	struct mv_udc			*udc;
+	struct mv_ep			ep[2 * NUM_ENDPOINTS];
 };
 
 struct ept_queue_head {
