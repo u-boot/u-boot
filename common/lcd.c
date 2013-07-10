@@ -43,6 +43,8 @@
 #include <lcd.h>
 #include <watchdog.h>
 
+#include <splash.h>
+
 #if defined(CONFIG_CPU_PXA25X) || defined(CONFIG_CPU_PXA27X) || \
 	defined(CONFIG_CPU_MONAHANS)
 #define CONFIG_CPU_PXA
@@ -1072,18 +1074,6 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 }
 #endif
 
-#ifdef CONFIG_SPLASH_SCREEN_PREPARE
-static inline int splash_screen_prepare(void)
-{
-	return board_splash_screen_prepare();
-}
-#else
-static inline int splash_screen_prepare(void)
-{
-	return 0;
-}
-#endif
-
 static void *lcd_logo(void)
 {
 #ifdef CONFIG_SPLASH_SCREEN
@@ -1096,26 +1086,11 @@ static void *lcd_logo(void)
 		do_splash = 0;
 
 		if (splash_screen_prepare())
-			return (void *)gd->fb_base;
+			return (void *)lcd_base;
 
 		addr = simple_strtoul (s, NULL, 16);
-#ifdef CONFIG_SPLASH_SCREEN_ALIGN
-		s = getenv("splashpos");
-		if (s != NULL) {
-			if (s[0] == 'm')
-				x = BMP_ALIGN_CENTER;
-			else
-				x = simple_strtol(s, NULL, 0);
 
-			s = strchr(s + 1, ',');
-			if (s != NULL) {
-				if (s[1] == 'm')
-					y = BMP_ALIGN_CENTER;
-				else
-					y = simple_strtol (s + 1, NULL, 0);
-			}
-		}
-#endif /* CONFIG_SPLASH_SCREEN_ALIGN */
+		splash_get_pos(&x, &y);
 
 		if (bmp_display(addr, x, y) == 0)
 			return (void *)lcd_base;
@@ -1193,7 +1168,7 @@ static int lcd_dt_simplefb_configure_node(void *blob, int off)
 	u32 stride;
 	fdt32_t cells[2];
 	int ret;
-	const char format[] =
+	static const char format[] =
 #if LCD_BPP == LCD_COLOR16
 		"r5g6b5";
 #else
@@ -1239,8 +1214,8 @@ static int lcd_dt_simplefb_configure_node(void *blob, int off)
 
 int lcd_dt_simplefb_add_node(void *blob)
 {
-	const char compat[] = "simple-framebuffer";
-	const char disabled[] = "disabled";
+	static const char compat[] = "simple-framebuffer";
+	static const char disabled[] = "disabled";
 	int off, ret;
 
 	off = fdt_add_subnode(blob, 0, "framebuffer");

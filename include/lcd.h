@@ -37,7 +37,6 @@ extern struct vidinfo panel_info;
 
 void lcd_ctrl_init(void *lcdbase);
 void lcd_enable(void);
-int board_splash_screen_prepare(void);
 
 /* setcolreg used in 8bpp/16bpp; initcolregs used in monochrome */
 void lcd_setcolreg(ushort regno, ushort red, ushort green, ushort blue);
@@ -46,7 +45,8 @@ void lcd_initcolregs(void);
 int lcd_getfgcolor(void);
 
 /* gunzip_bmp used if CONFIG_VIDEO_BMP_GZIP */
-struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp);
+struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp,
+			     void **alloc_addr);
 int bmp_display(ulong addr, int x, int y);
 
 /**

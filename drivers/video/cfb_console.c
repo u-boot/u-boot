@@ -181,6 +181,8 @@
  */
 #include <video_fb.h>
 
+#include <splash.h>
+
 /*
  * some Macros
  */
@@ -220,11 +222,7 @@
 #if defined(CONFIG_CMD_BMP) || defined(CONFIG_SPLASH_SCREEN)
 #include <watchdog.h>
 #include <bmp_layout.h>
-
-#ifdef CONFIG_SPLASH_SCREEN_ALIGN
-#define BMP_ALIGN_CENTER	0x7FFF
-#endif
-
+#include <splash.h>
 #endif
 
 /*
@@ -1974,30 +1972,13 @@ static void *video_logo(void)
 	__maybe_unused ulong addr;
 	__maybe_unused char *s;
 
-#ifdef CONFIG_SPLASH_SCREEN_ALIGN
-	s = getenv("splashpos");
-	if (s != NULL) {
-		if (s[0] == 'm')
-			video_logo_xpos = BMP_ALIGN_CENTER;
-		else
-			video_logo_xpos = simple_strtol(s, NULL, 0);
-
-		s = strchr(s + 1, ',');
-		if (s != NULL) {
-			if (s[1] == 'm')
-				video_logo_ypos = BMP_ALIGN_CENTER;
-			else
-				video_logo_ypos = simple_strtol(s + 1, NULL, 0);
-		}
-	}
-#endif /* CONFIG_SPLASH_SCREEN_ALIGN */
+	splash_get_pos(&video_logo_xpos, &video_logo_ypos);
 
 #ifdef CONFIG_SPLASH_SCREEN
 	s = getenv("splashimage");
 	if (s != NULL) {
-
+		splash_screen_prepare();
 		addr = simple_strtoul(s, NULL, 16);
-
 
 		if (video_display_bitmap(addr,
 					video_logo_xpos,

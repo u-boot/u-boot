@@ -120,7 +120,7 @@ static inline int splash_load_from_nand(void)
 }
 #endif /* CONFIG_CMD_NAND */
 
-int board_splash_screen_prepare(void)
+int splash_screen_prepare(void)
 {
 	char *env_splashimage_value;
 	u32 bmp_load_addr;
