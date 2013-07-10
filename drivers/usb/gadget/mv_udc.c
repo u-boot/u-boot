@@ -136,6 +136,68 @@ static struct ept_queue_item *mv_get_qtd(int ep_num, int dir_in)
 	return controller.items[(ep_num * 2) + dir_in];
 }
 
+/**
+ * mv_flush_qh - flush cache over queue head
+ * @ep_num:	Endpoint number
+ *
+ * This function flushes cache over QH for particular endpoint.
+ */
+static void mv_flush_qh(int ep_num)
+{
+	struct ept_queue_head *head = mv_get_qh(ep_num, 0);
+	const uint32_t start = (uint32_t)head;
+	const uint32_t end = start + 2 * sizeof(*head);
+
+	flush_dcache_range(start, end);
+}
+
+/**
+ * mv_invalidate_qh - invalidate cache over queue head
+ * @ep_num:	Endpoint number
+ *
+ * This function invalidates cache over QH for particular endpoint.
+ */
+static void mv_invalidate_qh(int ep_num)
+{
+	struct ept_queue_head *head = mv_get_qh(ep_num, 0);
+	uint32_t start = (uint32_t)head;
+	uint32_t end = start + 2 * sizeof(*head);
+
+	invalidate_dcache_range(start, end);
+}
+
+/**
+ * mv_flush_qtd - flush cache over queue item
+ * @ep_num:	Endpoint number
+ *
+ * This function flushes cache over qTD pair for particular endpoint.
+ */
+static void mv_flush_qtd(int ep_num)
+{
+	struct ept_queue_item *item = mv_get_qtd(ep_num, 0);
+	const uint32_t start = (uint32_t)item;
+	const uint32_t end_raw = start + 2 * sizeof(*item);
+	const uint32_t end = roundup(end_raw, ARCH_DMA_MINALIGN);
+
+	flush_dcache_range(start, end);
+}
+
+/**
+ * mv_invalidate_qtd - invalidate cache over queue item
+ * @ep_num:	Endpoint number
+ *
+ * This function invalidates cache over qTD pair for particular endpoint.
+ */
+static void mv_invalidate_qtd(int ep_num)
+{
+	struct ept_queue_item *item = mv_get_qtd(ep_num, 0);
+	const uint32_t start = (uint32_t)item;
+	const uint32_t end_raw = start + 2 * sizeof(*item);
+	const uint32_t end = roundup(end_raw, ARCH_DMA_MINALIGN);
+
+	invalidate_dcache_range(start, end);
+}
+
 static struct usb_request *
 mv_ep_alloc_request(struct usb_ep *ep, unsigned int gfp_flags)
 {
@@ -161,8 +223,10 @@ static void ep_enable(int num, int in)
 	else
 		n |= (CTRL_RXE | CTRL_RXR | CTRL_RXT_BULK);
 
-	if (num != 0)
+	if (num != 0) {
 		head->config = CONFIG_MAX_PKT(EP_MAX_PACKET_SIZE) | CONFIG_ZLT;
+		mv_flush_qh(num);
+	}
 	writel(n, &udc->epctrl[num]);
 }
 
@@ -215,8 +279,9 @@ static int mv_ep_queue(struct usb_ep *ep,
 	else
 		bit = EPT_RX(num);
 
-	flush_cache(phys, len);
-	flush_cache((unsigned long)item, sizeof(struct ept_queue_item));
+	mv_flush_qh(num);
+	mv_flush_qtd(num);
+
 	writel(bit, &udc->epprime);
 
 	return 0;
@@ -231,7 +296,8 @@ static void handle_ep_complete(struct mv_ep *ep)
 	if (num == 0)
 		ep->desc = &ep0_out_desc;
 	item = mv_get_qtd(num, in);
-
+	mv_invalidate_qtd(num);
+	
 	if (item->info & 0xff)
 		printf("EP%d/%s FAIL nfo=%x pg0=%x\n",
 			num, in ? "in" : "out", item->info, item->page0);
@@ -261,7 +327,7 @@ static void handle_setup(void)
 	char *buf;
 	head = mv_get_qh(0, 0);	/* EP0 OUT */
 
-	flush_cache((unsigned long)head, sizeof(struct ept_queue_head));
+	mv_invalidate_qh(0);
 	memcpy(&r, head->setup_data, sizeof(struct usb_ctrlrequest));
 	writel(EPT_RX(0), &udc->epstat);
 	DBG("handle setup %s, %x, %x index %x value %x\n", reqname(r.bRequest),
@@ -342,6 +408,7 @@ static void stop_activity(void)
 				& USB_DIR_IN) != 0;
 			head = mv_get_qh(num, in);
 			head->info = INFO_ACTIVE;
+			mv_flush_qh(num);
 		}
 	}
 }
@@ -513,6 +580,11 @@ static int mvudc_probe(void)
 			imem += sizeof(struct ept_queue_item);
 
 		controller.items[i] = (struct ept_queue_item *)imem;
+
+		if (i & 1) {
+			mv_flush_qh(i - 1);
+			mv_flush_qtd(i - 1);
+		}
 	}
 
 	INIT_LIST_HEAD(&controller.gadget.ep_list);
