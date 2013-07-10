@@ -44,7 +44,7 @@ static const char *reqname(unsigned r)
 #endif
 
 #define PAGE_SIZE	4096
-#define QH_MAXNUM	32
+
 static struct usb_endpoint_descriptor ep0_out_desc = {
 	.bLength = sizeof(struct usb_endpoint_descriptor),
 	.bDescriptorType = USB_DT_ENDPOINT,
@@ -425,10 +425,11 @@ static int mvudc_probe(void)
 {
 	struct ept_queue_head *head;
 	int i;
+	const int num = 2 * NUM_ENDPOINTS;
 
 	controller.gadget.ops = &mv_udc_ops;
-	epts = memalign(PAGE_SIZE, QH_MAXNUM * sizeof(struct ept_queue_head));
-	memset(epts, 0, QH_MAXNUM * sizeof(struct ept_queue_head));
+	epts = memalign(PAGE_SIZE, num * sizeof(struct ept_queue_head));
+	memset(epts, 0, num * sizeof(struct ept_queue_head));
 	for (i = 0; i < 2 * NUM_ENDPOINTS; i++) {
 		/*
 		 * For item0 and item1, they are served as ep0
