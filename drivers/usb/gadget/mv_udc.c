@@ -118,7 +118,7 @@ static void mv_ep_free_request(struct usb_ep *ep, struct usb_request *_req)
 static void ep_enable(int num, int in)
 {
 	struct ept_queue_head *head;
-	struct mv_udc *udc = controller.udc;
+	struct mv_udc *udc = (struct mv_udc *)controller.ctrl->hcor;
 	unsigned n;
 	head = epts + 2*num + in;
 
@@ -154,7 +154,7 @@ static int mv_ep_queue(struct usb_ep *ep,
 		struct usb_request *req, gfp_t gfp_flags)
 {
 	struct mv_ep *mv_ep = container_of(ep, struct mv_ep, ep);
-	struct mv_udc *udc = controller.udc;
+	struct mv_udc *udc = (struct mv_udc *)controller.ctrl->hcor;
 	struct ept_queue_item *item;
 	struct ept_queue_head *head;
 	unsigned phys;
@@ -220,7 +220,7 @@ static void handle_ep_complete(struct mv_ep *ep)
 static void handle_setup(void)
 {
 	struct usb_request *req = &controller.ep[0].req;
-	struct mv_udc *udc = controller.udc;
+	struct mv_udc *udc = (struct mv_udc *)controller.ctrl->hcor;
 	struct ept_queue_head *head;
 	struct usb_ctrlrequest r;
 	int status = 0;
@@ -293,7 +293,7 @@ static void stop_activity(void)
 {
 	int i, num, in;
 	struct ept_queue_head *head;
-	struct mv_udc *udc = controller.udc;
+	struct mv_udc *udc = (struct mv_udc *)controller.ctrl->hcor;
 	writel(readl(&udc->epcomp), &udc->epcomp);
 	writel(readl(&udc->epstat), &udc->epstat);
 	writel(0xffffffff, &udc->epflush);
@@ -315,7 +315,7 @@ static void stop_activity(void)
 
 void udc_irq(void)
 {
-	struct mv_udc *udc = controller.udc;
+	struct mv_udc *udc = (struct mv_udc *)controller.ctrl->hcor;
 	unsigned n = readl(&udc->usbsts);
 	writel(n, &udc->usbsts);
 	int bit, i, num, in;
@@ -373,7 +373,7 @@ void udc_irq(void)
 int usb_gadget_handle_interrupts(void)
 {
 	u32 value;
-	struct mv_udc *udc = controller.udc;
+	struct mv_udc *udc = (struct mv_udc *)controller.ctrl->hcor;
 
 	value = readl(&udc->usbsts);
 	if (value)
@@ -384,7 +384,7 @@ int usb_gadget_handle_interrupts(void)
 
 static int mv_pullup(struct usb_gadget *gadget, int is_on)
 {
-	struct mv_udc *udc = controller.udc;
+	struct mv_udc *udc = (struct mv_udc *)controller.ctrl->hcor;
 	if (is_on) {
 		/* RESET */
 		writel(USBCMD_ITC(MICRO_8FRAME) | USBCMD_RST, &udc->usbcmd);
@@ -412,7 +412,7 @@ static int mv_pullup(struct usb_gadget *gadget, int is_on)
 
 void udc_disconnect(void)
 {
-	struct mv_udc *udc = controller.udc;
+	struct mv_udc *udc = (struct mv_udc *)controller.ctrl->hcor;
 	/* disable pullup */
 	stop_activity();
 	writel(USBCMD_FS2, &udc->usbcmd);
@@ -427,7 +427,6 @@ static int mvudc_probe(void)
 	int i;
 
 	controller.gadget.ops = &mv_udc_ops;
-	controller.udc = (struct mv_udc *)CONFIG_USB_REG_BASE;
 	epts = memalign(PAGE_SIZE, QH_MAXNUM * sizeof(struct ept_queue_head));
 	memset(epts, 0, QH_MAXNUM * sizeof(struct ept_queue_head));
 	for (i = 0; i < 2 * NUM_ENDPOINTS; i++) {
@@ -469,9 +468,8 @@ static int mvudc_probe(void)
 
 int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 {
-	struct mv_udc *udc = controller.udc;
-	int             retval;
-	void *ctrl;
+	struct mv_udc *udc;
+	int ret;
 
 	if (!driver
 			|| driver->speed < USB_SPEED_FULL
@@ -481,15 +479,22 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 		return -EINVAL;
 	}
 
-	if (!mvudc_probe()) {
-		usb_lowlevel_init(0, &ctrl);
+	ret = usb_lowlevel_init(0, (void **)&controller.ctrl);
+	if (ret)
+		return ret;
+
+	ret = mvudc_probe();
+	if (!ret) {
+		udc = (struct mv_udc *)controller.ctrl->hcor;
+
 		/* select ULPI phy */
 		writel(PTS(PTS_ENABLE) | PFSC, &udc->portsc);
 	}
-	retval = driver->bind(&controller.gadget);
-	if (retval) {
-		DBG("driver->bind() returned %d\n", retval);
-		return retval;
+
+	ret = driver->bind(&controller.gadget);
+	if (ret) {
+		DBG("driver->bind() returned %d\n", ret);
+		return ret;
 	}
 	controller.driver = driver;
 

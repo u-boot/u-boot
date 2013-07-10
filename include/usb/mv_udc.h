@@ -14,6 +14,8 @@
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
 
+#include "../../drivers/usb/host/ehci.h"
+
 #define NUM_ENDPOINTS		6
 
 /* Endpoint parameters */
@@ -23,7 +25,6 @@
 #define EP0_MAX_PACKET_SIZE	64
 
 struct mv_udc {
-	u32 pad0[80];
 #define MICRO_8FRAME	0x8
 #define USBCMD_ITC(x)	((((x) > 0xff) ? 0xff : x) << 16)
 #define USBCMD_FS2	(1 << 15)
@@ -73,7 +74,7 @@ struct mv_ep {
 struct mv_drv {
 	struct usb_gadget		gadget;
 	struct usb_gadget_driver	*driver;
-	struct mv_udc			*udc;
+	struct ehci_ctrl		*ctrl;
 	struct mv_ep			ep[NUM_ENDPOINTS];
 };
 
@@ -121,5 +122,4 @@ struct ept_queue_item {
 #define INFO_BUFFER_ERROR	(1 << 5)
 #define INFO_TX_ERROR		(1 << 3)
 
-extern int usb_lowlevel_init(int index, void **controller);
 #endif /* __MV_UDC_H__ */
