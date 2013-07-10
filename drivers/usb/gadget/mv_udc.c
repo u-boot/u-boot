@@ -43,8 +43,6 @@ static const char *reqname(unsigned r)
 }
 #endif
 
-#define PAGE_SIZE	4096
-
 static struct usb_endpoint_descriptor ep0_out_desc = {
 	.bLength = sizeof(struct usb_endpoint_descriptor),
 	.bDescriptorType = USB_DT_ENDPOINT,
@@ -424,15 +422,27 @@ static int mvudc_probe(void)
 {
 	struct ept_queue_head *head;
 	int i;
+
 	const int num = 2 * NUM_ENDPOINTS;
 
-	controller.epts = memalign(PAGE_SIZE,
-				   num * sizeof(struct ept_queue_head));
-	memset(controller.epts, 0, num * sizeof(struct ept_queue_head));
+	const int eplist_min_align = 4096;
+	const int eplist_align = roundup(eplist_min_align, ARCH_DMA_MINALIGN);
+	const int eplist_raw_sz = num * sizeof(struct ept_queue_head);
+	const int eplist_sz = roundup(eplist_raw_sz, ARCH_DMA_MINALIGN);
+
+	/* The QH list must be aligned to 4096 bytes. */
+	controller.epts = memalign(eplist_align, eplist_sz);
+	if (!controller.epts)
+		return -ENOMEM;
+	memset(controller.epts, 0, eplist_sz);
+
 	for (i = 0; i < 2 * NUM_ENDPOINTS; i++) {
 		/*
-		 * For item0 and item1, they are served as ep0
-		 * out&in seperately
+		 * Configure QH for each endpoint. The structure of the QH list
+		 * is such that each two subsequent fields, N and N+1 where N is
+		 * even, in the QH list represent QH for one endpoint. The Nth
+		 * entry represents OUT configuration and the N+1th entry does
+		 * represent IN configuration of the endpoint.
 		 */
 		head = controller.epts + i;
 		if (i < 2)
@@ -444,7 +454,7 @@ static int mvudc_probe(void)
 		head->next = TERMINATE;
 		head->info = 0;
 
-		controller.items[i] = memalign(PAGE_SIZE,
+		controller.items[i] = memalign(roundup(32, ARCH_DMA_MINALIGN),
 					       sizeof(struct ept_queue_item));
 	}
 
