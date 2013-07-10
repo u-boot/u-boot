@@ -17,6 +17,10 @@
 #include <linux/types.h>
 #include <usb/mv_udc.h>
 
+#if CONFIG_USB_MAX_CONTROLLER_COUNT > 1
+#error This driver only supports one single controller.
+#endif
+
 #ifndef DEBUG
 #define DBG(x...) do {} while (0)
 #else
@@ -453,6 +457,7 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 {
 	struct mv_udc *udc = controller.udc;
 	int             retval;
+	void *ctrl;
 
 	if (!driver
 			|| driver->speed < USB_SPEED_FULL
@@ -463,7 +468,7 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 	}
 
 	if (!mvudc_probe()) {
-		usb_lowlevel_init();
+		usb_lowlevel_init(0, &ctrl);
 		/* select ULPI phy */
 		writel(PTS(PTS_ENABLE) | PFSC, &udc->portsc);
 	}

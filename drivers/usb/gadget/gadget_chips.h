@@ -144,7 +144,7 @@
 #define	gadget_is_m66592(g)	0
 #endif
 
-#ifdef CONFIG_USB_GADGET_MV
+#ifdef CONFIG_MV_UDC
 #define gadget_is_mv(g)        (!strcmp("mv_udc", (g)->name))
 #else
 #define gadget_is_mv(g)        0
