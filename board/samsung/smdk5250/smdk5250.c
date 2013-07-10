@@ -144,7 +144,7 @@ int power_init_board(void)
 
 	/* VDD_MIF */
 	if (pmic_reg_write(p, MAX77686_REG_PMIC_BUCK1OUT,
-						MAX77686_BUCK1OUT_1V)) {
+						MAX77686_BUCK1OUT_1_05V)) {
 		debug("%s: PMIC %d register write failed\n", __func__,
 						MAX77686_REG_PMIC_BUCK1OUT);
 		return -1;
@@ -330,6 +330,16 @@ static int board_uart_init(void)
 		}
 	}
 	return ret;
+}
+
+void board_i2c_init(const void *blob)
+{
+	int i;
+
+	for (i = 0; i < CONFIG_MAX_I2C_NUM; i++) {
+		exynos_pinmux_config((PERIPH_ID_I2C0 + i),
+				     PINMUX_FLAG_NONE);
+	}
 }
 
 #ifdef CONFIG_BOARD_EARLY_INIT_F

@@ -24,10 +24,6 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).o
 
-SOBJS	:= lowlevel_init.o
-
-COBJS	:= clock_init.o
-COBJS	+= dmc_common.o dmc_init_ddr3.o
 COBJS	+= smdk5250_spl.o
 
 ifndef CONFIG_SPL_BUILD
@@ -38,14 +34,10 @@ COBJS	+= smdk5250.o
 endif
 endif
 
-ifdef CONFIG_SPL_BUILD
-COBJS	+= spl_boot.o
-endif
+SRCS	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS) $(SOBJS))
-
-ALL	:=	 $(obj).depend $(LIB)
+ALL	:= $(obj).depend $(LIB)
 
 all:	$(ALL)
 

@@ -78,9 +78,9 @@
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (4 << 20))
 
 /* select serial console configuration */
-#define CONFIG_SERIAL3			/* use SERIAL 3 */
 #define CONFIG_BAUDRATE			115200
 #define EXYNOS5_DEFAULT_UART_OFFSET	0x010000
+#define CONFIG_SILENT_CONSOLE
 
 /* Console configuration */
 #define CONFIG_CONSOLE_MUX
@@ -104,6 +104,7 @@
 
 
 #define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_SKIP_LOWLEVEL_INIT
 
 /* PWM */
 #define CONFIG_PWM
@@ -137,6 +138,7 @@
 #define CONFIG_USB_STORAGE
 
 /* USB boot mode */
+#define CONFIG_USB_BOOTING
 #define EXYNOS_COPY_USB_FNPTR_ADDR	0x02020070
 #define EXYNOS_USB_SECONDARY_BOOT	0xfeed0002
 #define EXYNOS_IRAM_SECONDARY_BASE	0x02020018
@@ -152,8 +154,10 @@
 #define CONFIG_SPL
 #define COPY_BL2_FNPTR_ADDR	0x02020030
 
+#define CONFIG_SPL_LIBCOMMON_SUPPORT
+
 /* specific .lds file */
-#define CONFIG_SPL_LDSCRIPT	"board/samsung/smdk5250/smdk5250-uboot-spl.lds"
+#define CONFIG_SPL_LDSCRIPT	"board/samsung/common/exynos-uboot-spl.lds"
 #define CONFIG_SPL_TEXT_BASE	0x02023400
 #define CONFIG_SPL_MAX_FOOTPRINT	(14 * 1024)
 
@@ -229,7 +233,7 @@
 #define BL2_START_OFFSET	(CONFIG_BL2_OFFSET/512)
 #define BL2_SIZE_BLOC_COUNT	(CONFIG_BL2_SIZE/512)
 
-#define OM_STAT				(0x1f << 1)
+#define CONFIG_SPI_BOOTING
 #define EXYNOS_COPY_SPI_FNPTR_ADDR	0x02020058
 #define SPI_FLASH_UBOOT_POS		(CONFIG_SEC_FW_SIZE + CONFIG_BL1_SIZE)
 
@@ -241,7 +245,7 @@
 
 #define CONFIG_IRAM_STACK	0x02050000
 
-#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR - 0x1000000)
+#define CONFIG_SYS_INIT_SP_ADDR	CONFIG_IRAM_STACK
 
 /* I2C */
 #define CONFIG_SYS_I2C_INIT_BOARD

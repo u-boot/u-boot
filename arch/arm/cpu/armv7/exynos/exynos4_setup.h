@@ -1,5 +1,5 @@
 /*
- * Machine Specific Values for ORIGEN board based on S5PV310
+ * Machine Specific Values for EXYNOS4012 based board
  *
  * Copyright (C) 2011 Samsung Electronics
  *
@@ -29,97 +29,21 @@
 #include <version.h>
 #include <asm/arch/cpu.h>
 
-/* Offsets of clock registers (sources and dividers) */
-#define CLK_SRC_CPU_OFFSET	0x14200
-#define CLK_DIV_CPU0_OFFSET	0x14500
-#define CLK_DIV_CPU1_OFFSET	0x14504
-
-#define CLK_SRC_DMC_OFFSET	0x10200
-#define CLK_DIV_DMC0_OFFSET	0x10500
-#define CLK_DIV_DMC1_OFFSET	0x10504
-
-#define CLK_SRC_TOP0_OFFSET	0xC210
-#define CLK_SRC_TOP1_OFFSET	0xC214
-#define CLK_DIV_TOP_OFFSET	0xC510
-
-#define CLK_SRC_LEFTBUS_OFFSET	0x4200
-#define CLK_DIV_LEFTBUS_OFFSET	0x4500
-
-#define CLK_SRC_RIGHTBUS_OFFSET	0x8200
-#define CLK_DIV_RIGHTBUS_OFFSET	0x8500
-
-#define CLK_SRC_FSYS_OFFSET	0xC240
-#define CLK_DIV_FSYS1_OFFSET	0xC544
-#define CLK_DIV_FSYS2_OFFSET	0xC548
-#define CLK_DIV_FSYS3_OFFSET	0xC54C
-
-#define CLK_SRC_CAM_OFFSET	0xC220
-#define CLK_SRC_TV_OFFSET	0xC224
-#define CLK_SRC_MFC_OFFSET	0xC228
-#define CLK_SRC_G3D_OFFSET	0xC22C
-#define CLK_SRC_LCD0_OFFSET	0xC234
-#define CLK_SRC_PERIL0_OFFSET	0xC250
-
-#define CLK_DIV_CAM_OFFSET	0xC520
-#define CLK_DIV_TV_OFFSET	0xC524
-#define CLK_DIV_MFC_OFFSET	0xC528
-#define CLK_DIV_G3D_OFFSET	0xC52C
-#define CLK_DIV_LCD0_OFFSET	0xC534
-#define CLK_DIV_PERIL0_OFFSET	0xC550
-
-#define CLK_SRC_LCD0_OFFSET	0xC234
-
-#define APLL_LOCK_OFFSET	0x14000
-#define MPLL_LOCK_OFFSET	0x14008
-#define APLL_CON0_OFFSET	0x14100
-#define APLL_CON1_OFFSET	0x14104
-#define MPLL_CON0_OFFSET	0x14108
-#define MPLL_CON1_OFFSET	0x1410C
-
-#define EPLL_LOCK_OFFSET	0xC010
-#define VPLL_LOCK_OFFSET	0xC020
-#define EPLL_CON0_OFFSET	0xC110
-#define EPLL_CON1_OFFSET	0xC114
-#define VPLL_CON0_OFFSET	0xC120
-#define VPLL_CON1_OFFSET	0xC124
-
-/* DMC: DRAM Controllor Register offsets */
-#define DMC_CONCONTROL		0x00
-#define DMC_MEMCONTROL		0x04
-#define DMC_MEMCONFIG0		0x08
-#define DMC_MEMCONFIG1		0x0C
-#define DMC_DIRECTCMD		0x10
-#define DMC_PRECHCONFIG		0x14
-#define DMC_PHYCONTROL0		0x18
-#define DMC_PHYCONTROL1		0x1C
-#define DMC_PHYCONTROL2		0x20
-#define DMC_TIMINGAREF		0x30
-#define DMC_TIMINGROW		0x34
-#define DMC_TIMINGDATA		0x38
-#define DMC_TIMINGPOWER		0x3C
-#define DMC_PHYZQCONTROL	0x44
+#ifdef CONFIG_CLK_800_330_165
+#define DRAM_CLK_330
+#endif
+#ifdef CONFIG_CLK_1000_200_200
+#define DRAM_CLK_200
+#endif
+#ifdef CONFIG_CLK_1000_330_165
+#define DRAM_CLK_330
+#endif
+#ifdef CONFIG_CLK_1000_400_200
+#define DRAM_CLK_400
+#endif
 
 /* Bus Configuration Register Address */
 #define ASYNC_CONFIG		0x10010350
-
-/* MIU Config Register Offsets*/
-#define APB_SFR_INTERLEAVE_CONF_OFFSET	0x400
-#define APB_SFR_ARBRITATION_CONF_OFFSET		0xC00
-
-/* Offset for inform registers */
-#define INFORM0_OFFSET			0x800
-#define INFORM1_OFFSET			0x804
-
-/* GPIO Offsets for UART: GPIO Contol Register */
-#define EXYNOS4_GPIO_A0_CON_OFFSET	0x00
-#define EXYNOS4_GPIO_A1_CON_OFFSET	0x20
-
-/* UART Register offsets */
-#define ULCON_OFFSET		0x00
-#define UCON_OFFSET		0x04
-#define UFCON_OFFSET		0x08
-#define UBRDIV_OFFSET		0x28
-#define UFRACVAL_OFFSET		0x2C
 
 /* CLK_SRC_CPU */
 #define MUX_HPM_SEL_MOUTAPLL		0x0
@@ -485,123 +409,186 @@
 				| (VPLL_MRR << 24) \
 				| (VPLL_MFR << 16) \
 				| (VPLL_K << 0))
-/*
- * UART GPIO_A0/GPIO_A1 Control Register Value
- * 0x2: UART Function
- */
-#define EXYNOS4_GPIO_A0_CON_VAL	0x22222222
-#define EXYNOS4_GPIO_A1_CON_VAL	0x222222
 
-/* ULCON: UART Line Control Value 8N1 */
-#define WORD_LEN_5_BIT		0x00
-#define WORD_LEN_6_BIT		0x01
-#define WORD_LEN_7_BIT		0x02
-#define WORD_LEN_8_BIT		0x03
+/* DMC */
+#define DIRECT_CMD_NOP	0x07000000
+#define DIRECT_CMD_ZQ	0x0a000000
+#define DIRECT_CMD_CHIP1_SHIFT	(1 << 20)
+#define MEM_TIMINGS_MSR_COUNT	4
+#define CTRL_START	(1 << 0)
+#define CTRL_DLL_ON	(1 << 1)
+#define AREF_EN		(1 << 5)
+#define DRV_TYPE	(1 << 6)
 
-#define STOP_BIT_1		0x00
-#define STOP_BIT_2		0x01
+struct mem_timings {
+	unsigned direct_cmd_msr[MEM_TIMINGS_MSR_COUNT];
+	unsigned timingref;
+	unsigned timingrow;
+	unsigned timingdata;
+	unsigned timingpower;
+	unsigned zqcontrol;
+	unsigned control0;
+	unsigned control1;
+	unsigned control2;
+	unsigned concontrol;
+	unsigned prechconfig;
+	unsigned memcontrol;
+	unsigned memconfig0;
+	unsigned memconfig1;
+	unsigned dll_resync;
+	unsigned dll_on;
+};
 
-#define NO_PARITY			0x00
-#define ODD_PARITY			0x4
-#define EVEN_PARITY			0x5
-#define FORCED_PARITY_CHECK_AS_1	0x6
-#define FORCED_PARITY_CHECK_AS_0	0x7
+/* MIU */
+/* MIU Config Register Offsets*/
+#define APB_SFR_INTERLEAVE_CONF_OFFSET	0x400
+#define APB_SFR_ARBRITATION_CONF_OFFSET	0xC00
+#define ABP_SFR_SLV_ADDRMAP_CONF_OFFSET	0x800
+#define ABP_SFR_INTERLEAVE_ADDRMAP_START_OFFSET	0x808
+#define ABP_SFR_INTERLEAVE_ADDRMAP_END_OFFSET	0x810
+#define ABP_SFR_SLV0_SINGLE_ADDRMAP_START_OFFSET	0x818
+#define ABP_SFR_SLV0_SINGLE_ADDRMAP_END_OFFSET	0x820
+#define ABP_SFR_SLV1_SINGLE_ADDRMAP_START_OFFSET	0x828
+#define ABP_SFR_SLV1_SINGLE_ADDRMAP_END_OFFSET	0x830
 
-#define INFRAMODE_NORMAL		0x00
-#define INFRAMODE_INFRARED		0x01
+#ifdef CONFIG_ORIGEN
+/* Interleave: 2Bit, Interleave_bit1: 0x15, Interleave_bit0: 0x7 */
+#define APB_SFR_INTERLEAVE_CONF_VAL	0x20001507
+#define APB_SFR_ARBRITATION_CONF_VAL	0x00000001
+#endif
 
-#define ULCON_VAL		((INFRAMODE_NORMAL << 6) \
-				| (NO_PARITY << 3) \
-				| (STOP_BIT_1 << 2) \
-				| (WORD_LEN_8_BIT << 0))
+#define INTERLEAVE_ADDR_MAP_START_ADDR	0x40000000
+#define INTERLEAVE_ADDR_MAP_END_ADDR	0xbfffffff
+#define INTERLEAVE_ADDR_MAP_EN		0x00000001
 
-/*
- * UCON: UART Control Value
- * Tx_interrupt Type: Level
- * Rx_interrupt Type: Level
- * Rx Timeout Enabled: Yes
- * Rx-Error Atatus_Int Enable: Yes
- * Loop_Back: No
- * Break Signal: No
- * Transmit mode : Interrupt request/polling
- * Receive mode : Interrupt request/polling
- */
-#define TX_PULSE_INTERRUPT	0
-#define TX_LEVEL_INTERRUPT	1
-#define RX_PULSE_INTERRUPT	0
-#define RX_LEVEL_INTERRUPT	1
+#ifdef CONFIG_MIU_1BIT_INTERLEAVED
+/* Interleave_bit0: 0xC*/
+#define APB_SFR_INTERLEAVE_CONF_VAL	0x0000000c
+#endif
+#ifdef CONFIG_MIU_2BIT_INTERLEAVED
+/* Interleave: 2Bit, Interleave_bit1: 0x15, Interleave_bit0: 0xc */
+#define APB_SFR_INTERLEAVE_CONF_VAL	0x2000150c
+#endif
+#define SLAVE0_SINGLE_ADDR_MAP_START_ADDR	0x40000000
+#define SLAVE0_SINGLE_ADDR_MAP_END_ADDR		0x7fffffff
+#define SLAVE1_SINGLE_ADDR_MAP_START_ADDR	0x80000000
+#define SLAVE1_SINGLE_ADDR_MAP_END_ADDR		0xbfffffff
+/* Enable SME0 and SME1*/
+#define APB_SFR_SLV_ADDR_MAP_CONF_VAL		0x00000006
 
-#define RX_TIME_OUT		ENABLE
-#define RX_ERROR_STATE_INT_ENB	ENABLE
-#define LOOP_BACK		DISABLE
-#define BREAK_SIGNAL		DISABLE
+#define FORCE_DLL_RESYNC	3
+#define DLL_CONTROL_ON		1
 
-#define TX_MODE_DISABLED	0X00
-#define TX_MODE_IRQ_OR_POLL	0X01
-#define TX_MODE_DMA		0X02
+#define DIRECT_CMD1	0x00020000
+#define DIRECT_CMD2	0x00030000
+#define DIRECT_CMD3	0x00010002
+#define DIRECT_CMD4	0x00000328
 
-#define RX_MODE_DISABLED	0X00
-#define RX_MODE_IRQ_OR_POLL	0X01
-#define RX_MODE_DMA		0X02
+#define CTRL_ZQ_MODE_NOTERM	(0x1 << 0)
+#define CTRL_ZQ_START		(0x1 << 1)
+#define CTRL_ZQ_DIV		(0 << 4)
+#define CTRL_ZQ_MODE_DDS	(0x7 << 8)
+#define CTRL_ZQ_MODE_TERM	(0x2 << 11)
+#define CTRL_ZQ_FORCE_IMPN	(0x5 << 14)
+#define CTRL_ZQ_FORCE_IMPP	(0x6 << 17)
+#define CTRL_DCC		(0xE38 << 20)
+#define ZQ_CONTROL_VAL		(CTRL_ZQ_MODE_NOTERM | CTRL_ZQ_START\
+				| CTRL_ZQ_DIV | CTRL_ZQ_MODE_DDS\
+				| CTRL_ZQ_MODE_TERM | CTRL_ZQ_FORCE_IMPN\
+				| CTRL_ZQ_FORCE_IMPP | CTRL_DCC)
 
-#define UCON_VAL		((TX_LEVEL_INTERRUPT << 9) \
-				| (RX_LEVEL_INTERRUPT << 8) \
-				| (RX_TIME_OUT << 7) \
-				| (RX_ERROR_STATE_INT_ENB << 6) \
-				| (LOOP_BACK << 5) \
-				| (BREAK_SIGNAL << 4) \
-				| (TX_MODE_IRQ_OR_POLL << 2) \
-				| (RX_MODE_IRQ_OR_POLL << 0))
+#define ASYNC			(0 << 0)
+#define CLK_RATIO		(1 << 1)
+#define DIV_PIPE		(1 << 3)
+#define AWR_ON			(1 << 4)
+#define AREF_DISABLE		(0 << 5)
+#define DRV_TYPE_DISABLE	(0 << 6)
+#define CHIP0_NOT_EMPTY		(0 << 8)
+#define CHIP1_NOT_EMPTY		(0 << 9)
+#define DQ_SWAP_DISABLE		(0 << 10)
+#define QOS_FAST_DISABLE	(0 << 11)
+#define RD_FETCH		(0x3 << 12)
+#define TIMEOUT_LEVEL0		(0xFFF << 16)
+#define CONCONTROL_VAL		(ASYNC | CLK_RATIO | DIV_PIPE | AWR_ON\
+				| AREF_DISABLE | DRV_TYPE_DISABLE\
+				| CHIP0_NOT_EMPTY | CHIP1_NOT_EMPTY\
+				| DQ_SWAP_DISABLE | QOS_FAST_DISABLE\
+				| RD_FETCH | TIMEOUT_LEVEL0)
 
-/*
- * UFCON: UART FIFO Control Value
- * Tx FIFO Trigger LEVEL: 2 Bytes (001)
- * Rx FIFO Trigger LEVEL: 2 Bytes (001)
- * Tx Fifo Reset: No
- * Rx Fifo Reset: No
- * FIFO Enable: Yes
- */
-#define TX_FIFO_TRIGGER_LEVEL_0_BYTES	0x00
-#define TX_FIFO_TRIGGER_LEVEL_2_BYTES	0x1
-#define TX_FIFO_TRIGGER_LEVEL_4_BYTES	0x2
-#define TX_FIFO_TRIGGER_LEVEL_6_BYTES	0x3
-#define TX_FIFO_TRIGGER_LEVEL_8_BYTES	0x4
-#define TX_FIFO_TRIGGER_LEVEL_10_BYTES	0x5
-#define TX_FIFO_TRIGGER_LEVEL_12_BYTES	0x6
-#define TX_FIFO_TRIGGER_LEVEL_14_BYTES	0x7
+#define CLK_STOP_DISABLE	(0 << 1)
+#define DPWRDN_DISABLE		(0 << 2)
+#define DPWRDN_TYPE		(0 << 3)
+#define TP_DISABLE		(0 << 4)
+#define DSREF_DIABLE		(0 << 5)
+#define ADD_LAT_PALL		(1 << 6)
+#define MEM_TYPE_DDR3		(0x6 << 8)
+#define MEM_WIDTH_32		(0x2 << 12)
+#define NUM_CHIP_2		(1 << 16)
+#define BL_8			(0x3 << 20)
+#define MEMCONTROL_VAL		(CLK_STOP_DISABLE | DPWRDN_DISABLE\
+				| DPWRDN_TYPE | TP_DISABLE | DSREF_DIABLE\
+				| ADD_LAT_PALL | MEM_TYPE_DDR3 | MEM_WIDTH_32\
+				| NUM_CHIP_2 | BL_8)
 
-#define RX_FIFO_TRIGGER_LEVEL_2_BYTES	0x0
-#define RX_FIFO_TRIGGER_LEVEL_4_BYTES	0x1
-#define RX_FIFO_TRIGGER_LEVEL_6_BYTES	0x2
-#define RX_FIFO_TRIGGER_LEVEL_8_BYTES	0x3
-#define RX_FIFO_TRIGGER_LEVEL_10_BYTES	0x4
-#define RX_FIFO_TRIGGER_LEVEL_12_BYTES	0x5
-#define RX_FIFO_TRIGGER_LEVEL_14_BYTES	0x6
-#define RX_FIFO_TRIGGER_LEVEL_16_BYTES	0x7
 
-#define TX_FIFO_TRIGGER_LEVEL		TX_FIFO_TRIGGER_LEVEL_2_BYTES
-#define RX_FIFO_TRIGGER_LEVEL		RX_FIFO_TRIGGER_LEVEL_4_BYTES
-#define TX_FIFO_RESET			DISABLE
-#define RX_FIFO_RESET			DISABLE
-#define FIFO_ENABLE			ENABLE
-#define UFCON_VAL			((TX_FIFO_TRIGGER_LEVEL << 8) \
-					| (RX_FIFO_TRIGGER_LEVEL << 4) \
-					| (TX_FIFO_RESET << 2) \
-					| (RX_FIFO_RESET << 1) \
-					| (FIFO_ENABLE << 0))
-/*
- * Baud Rate Division Value
- * 115200 BAUD:
- * UBRDIV_VAL = SCLK_UART/((115200 * 16) - 1)
- * UBRDIV_VAL = (800 MHz)/((115200 * 16) - 1)
- */
-#define UBRDIV_VAL		0x35
+#define CHIP_BANK_8		(0x3 << 0)
+#define CHIP_ROW_14		(0x2 << 4)
+#define CHIP_COL_10		(0x3 << 8)
+#define CHIP_MAP_INTERLEAVED	(1 << 12)
+#define CHIP_MASK		(0xe0 << 16)
+#ifdef CONFIG_MIU_LINEAR
+#define CHIP0_BASE		(0x40 << 24)
+#define CHIP1_BASE		(0x60 << 24)
+#else
+#define CHIP0_BASE		(0x20 << 24)
+#define CHIP1_BASE		(0x40 << 24)
+#endif
+#define MEMCONFIG0_VAL		(CHIP_BANK_8 | CHIP_ROW_14 | CHIP_COL_10\
+				| CHIP_MAP_INTERLEAVED | CHIP_MASK | CHIP0_BASE)
+#define MEMCONFIG1_VAL		(CHIP_BANK_8 | CHIP_ROW_14 | CHIP_COL_10\
+				| CHIP_MAP_INTERLEAVED | CHIP_MASK | CHIP1_BASE)
 
-/*
- * Fractional Part of Baud Rate Divisor:
- * 115200 BAUD:
- * UBRFRACVAL = ((((SCLK_UART*10/(115200*16) -10))%10)*16/10)
- * UBRFRACVAL = ((((800MHz*10/(115200*16) -10))%10)*16/10)
- */
-#define UFRACVAL_VAL		0x4
+#define TP_CNT			(0xff << 24)
+#define PRECHCONFIG		TP_CNT
+
+#define CTRL_OFF		(0 << 0)
+#define CTRL_DLL_OFF		(0 << 1)
+#define CTRL_HALF		(0 << 2)
+#define CTRL_DFDQS		(1 << 3)
+#define DQS_DELAY		(0 << 4)
+#define CTRL_START_POINT	(0x10 << 8)
+#define CTRL_INC		(0x10 << 16)
+#define CTRL_FORCE		(0x71 << 24)
+#define CONTROL0_VAL		(CTRL_OFF | CTRL_DLL_OFF | CTRL_HALF\
+				| CTRL_DFDQS | DQS_DELAY | CTRL_START_POINT\
+				| CTRL_INC | CTRL_FORCE)
+
+#define CTRL_SHIFTC		(0x6 << 0)
+#define CTRL_REF		(8 << 4)
+#define CTRL_SHGATE		(1 << 29)
+#define TERM_READ_EN		(1 << 30)
+#define TERM_WRITE_EN		(1 << 31)
+#define CONTROL1_VAL		(CTRL_SHIFTC | CTRL_REF | CTRL_SHGATE\
+				| TERM_READ_EN | TERM_WRITE_EN)
+
+#define CONTROL2_VAL		0x00000000
+
+#ifdef CONFIG_ORIGEN
+#define TIMINGREF_VAL		0x000000BB
+#define TIMINGROW_VAL		0x4046654f
+#define	TIMINGDATA_VAL		0x46400506
+#define	TIMINGPOWER_VAL		0x52000A3C
+#else
+#define TIMINGREF_VAL		0x000000BC
+#ifdef DRAM_CLK_330
+#define TIMINGROW_VAL		0x3545548d
+#define	TIMINGDATA_VAL		0x45430506
+#define	TIMINGPOWER_VAL		0x4439033c
+#endif
+#ifdef DRAM_CLK_400
+#define TIMINGROW_VAL		0x45430506
+#define	TIMINGDATA_VAL		0x56500506
+#define	TIMINGPOWER_VAL		0x5444033d
+#endif
+#endif
 #endif

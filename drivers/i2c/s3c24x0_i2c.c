@@ -518,8 +518,9 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 #ifdef CONFIG_OF_CONTROL
 void board_i2c_init(const void *blob)
 {
+	int i;
 	int node_list[CONFIG_MAX_I2C_NUM];
-	int count, i;
+	int count;
 
 	count = fdtdec_find_aliases_for_id(blob, "i2c",
 		COMPAT_SAMSUNG_S3C2440_I2C, node_list,

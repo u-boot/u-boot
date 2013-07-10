@@ -26,6 +26,8 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
+#include <asm/arch/periph.h>
+#include <asm/arch/pinmux.h>
 #include <asm/arch/sromc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -134,6 +136,50 @@ int board_mmc_init(bd_t *bis)
 		s5p_gpio_set_pull(&gpio2->k2, i, GPIO_PULL_UP);
 	}
 	err = s5p_mmc_init(2, 4);
+	return err;
+}
+#endif
+
+static int board_uart_init(void)
+{
+	int err;
+
+	err = exynos_pinmux_config(PERIPH_ID_UART0, PINMUX_FLAG_NONE);
+	if (err) {
+		debug("UART0 not configured\n");
+		return err;
+	}
+
+	err = exynos_pinmux_config(PERIPH_ID_UART1, PINMUX_FLAG_NONE);
+	if (err) {
+		debug("UART1 not configured\n");
+		return err;
+	}
+
+	err = exynos_pinmux_config(PERIPH_ID_UART2, PINMUX_FLAG_NONE);
+	if (err) {
+		debug("UART2 not configured\n");
+		return err;
+	}
+
+	err = exynos_pinmux_config(PERIPH_ID_UART3, PINMUX_FLAG_NONE);
+	if (err) {
+		debug("UART3 not configured\n");
+		return err;
+	}
+
+	return 0;
+}
+
+#ifdef CONFIG_BOARD_EARLY_INIT_F
+int board_early_init_f(void)
+{
+	int err;
+	err = board_uart_init();
+	if (err) {
+		debug("UART init failed\n");
+		return err;
+	}
 	return err;
 }
 #endif

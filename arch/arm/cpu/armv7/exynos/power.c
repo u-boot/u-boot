@@ -140,3 +140,53 @@ void set_hw_thermal_trip(void)
 		setbits_le32(&power->ps_hold_control, POWER_ENABLE_HW_TRIP);
 	}
 }
+
+static uint32_t exynos5_get_reset_status(void)
+{
+	struct exynos5_power *power =
+		(struct exynos5_power *)samsung_get_base_power();
+
+	return power->inform1;
+}
+
+static uint32_t exynos4_get_reset_status(void)
+{
+	struct exynos4_power *power =
+		(struct exynos4_power *)samsung_get_base_power();
+
+	return power->inform1;
+}
+
+uint32_t get_reset_status(void)
+{
+	if (cpu_is_exynos5())
+		return exynos5_get_reset_status();
+	else
+		return  exynos4_get_reset_status();
+}
+
+static void exynos5_power_exit_wakeup(void)
+{
+	struct exynos5_power *power =
+		(struct exynos5_power *)samsung_get_base_power();
+	typedef void (*resume_func)(void);
+
+	((resume_func)power->inform0)();
+}
+
+static void exynos4_power_exit_wakeup(void)
+{
+	struct exynos4_power *power =
+		(struct exynos4_power *)samsung_get_base_power();
+	typedef void (*resume_func)(void);
+
+	((resume_func)power->inform0)();
+}
+
+void power_exit_wakeup(void)
+{
+	if (cpu_is_exynos5())
+		exynos5_power_exit_wakeup();
+	else
+		exynos4_power_exit_wakeup();
+}
