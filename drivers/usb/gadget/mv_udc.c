@@ -21,6 +21,16 @@
 #error This driver only supports one single controller.
 #endif
 
+/*
+ * Check if the system has too long cachelines. If the cachelines are
+ * longer then 128b, the driver will not be able flush/invalidate data
+ * cache over separate QH entries. We use 128b because one QH entry is
+ * 64b long and there are always two QH list entries for each endpoint.
+ */
+#if ARCH_DMA_MINALIGN > 128
+#error This driver can not work on systems with caches longer than 128b
+#endif
+
 #ifndef DEBUG
 #define DBG(x...) do {} while (0)
 #else
