@@ -69,7 +69,7 @@ static uint16_t mdio_read(struct eth_device *dev,
 	uint8_t phyaddr, uint8_t phyreg)
 {
 	struct ftmac110_chip *chip = dev->priv;
-	struct ftmac110_regs __iomem *regs = chip->regs;
+	struct ftmac110_regs *regs = chip->regs;
 	uint32_t tmp, ts;
 	uint16_t ret = 0xffff;
 
@@ -98,7 +98,7 @@ static void mdio_write(struct eth_device *dev,
 	uint8_t phyaddr, uint8_t phyreg, uint16_t phydata)
 {
 	struct ftmac110_chip *chip = dev->priv;
-	struct ftmac110_regs __iomem *regs = chip->regs;
+	struct ftmac110_regs *regs = chip->regs;
 	uint32_t tmp, ts;
 
 	tmp = PHYCR_WRITE
@@ -195,7 +195,7 @@ static int ftmac110_reset(struct eth_device *dev)
 	uint8_t *a;
 	uint32_t i, maccr;
 	struct ftmac110_chip *chip = dev->priv;
-	struct ftmac110_regs __iomem *regs = chip->regs;
+	struct ftmac110_regs *regs = chip->regs;
 
 	/* 1. MAC reset */
 	writel(MACCR_RESET, &regs->maccr);
@@ -268,7 +268,7 @@ static int ftmac110_probe(struct eth_device *dev, bd_t *bis)
 static void ftmac110_halt(struct eth_device *dev)
 {
 	struct ftmac110_chip *chip = dev->priv;
-	struct ftmac110_regs __iomem *regs = chip->regs;
+	struct ftmac110_regs *regs = chip->regs;
 
 	writel(0, &regs->imr);
 	writel(0, &regs->maccr);
@@ -279,7 +279,7 @@ static void ftmac110_halt(struct eth_device *dev)
 static int ftmac110_send(struct eth_device *dev, void *pkt, int len)
 {
 	struct ftmac110_chip *chip = dev->priv;
-	struct ftmac110_regs __iomem *regs = chip->regs;
+	struct ftmac110_regs *regs = chip->regs;
 	struct ftmac110_txd *des;
 
 	if (!chip->lnkup)
