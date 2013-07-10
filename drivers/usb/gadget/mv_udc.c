@@ -110,6 +110,19 @@ static struct mv_drv controller = {
 	},
 };
 
+/**
+ * mv_get_qh() - return queue head for endpoint
+ * @ep_num:	Endpoint number
+ * @dir_in:	Direction of the endpoint (IN = 1, OUT = 0)
+ *
+ * This function returns the QH associated with particular endpoint
+ * and it's direction.
+ */
+static struct ept_queue_head *mv_get_qh(int ep_num, int dir_in)
+{
+	return &controller.epts[(ep_num * 2) + dir_in];
+}
+
 static struct usb_request *
 mv_ep_alloc_request(struct usb_ep *ep, unsigned int gfp_flags)
 {
@@ -127,7 +140,7 @@ static void ep_enable(int num, int in)
 	struct ept_queue_head *head;
 	struct mv_udc *udc = (struct mv_udc *)controller.ctrl->hcor;
 	unsigned n;
-	head = controller.epts + 2*num + in;
+	head = mv_get_qh(num, in);
 
 	n = readl(&udc->epctrl[num]);
 	if (in)
@@ -169,7 +182,7 @@ static int mv_ep_queue(struct usb_ep *ep,
 	num = mv_ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
 	in = (mv_ep->desc->bEndpointAddress & USB_DIR_IN) != 0;
 	item = controller.items[2 * num + in];
-	head = controller.epts + 2 * num + in;
+	head = mv_get_qh(num, in);
 	phys = (unsigned)req->buf;
 	len = req->length;
 
@@ -233,7 +246,7 @@ static void handle_setup(void)
 	int status = 0;
 	int num, in, _num, _in, i;
 	char *buf;
-	head = controller.epts + 2 * 0 + 0;
+	head = mv_get_qh(0, 0);	/* EP0 OUT */
 
 	flush_cache((unsigned long)head, sizeof(struct ept_queue_head));
 	memcpy(&r, head->setup_data, sizeof(struct usb_ctrlrequest));
@@ -314,7 +327,7 @@ static void stop_activity(void)
 				& USB_ENDPOINT_NUMBER_MASK;
 			in = (controller.ep[i].desc->bEndpointAddress
 				& USB_DIR_IN) != 0;
-			head = controller.epts + (num * 2) + (in);
+			head = mv_get_qh(num, in);
 			head->info = INFO_ACTIVE;
 		}
 	}
@@ -397,7 +410,7 @@ static int mv_pullup(struct usb_gadget *gadget, int is_on)
 		writel(USBCMD_ITC(MICRO_8FRAME) | USBCMD_RST, &udc->usbcmd);
 		udelay(200);
 
-		writel((unsigned) controller.epts, &udc->epinitaddr);
+		writel((unsigned)controller.epts, &udc->epinitaddr);
 
 		/* select DEVICE mode */
 		writel(USBMODE_DEVICE, &udc->usbmode);
