@@ -42,6 +42,8 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 	int	(*appl) (char *cmdline);
 	char	*cmdline;
 
+	if (flag & BOOTM_STATE_OS_PREP)
+		return 0;
 	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
 		return 1;
 

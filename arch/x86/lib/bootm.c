@@ -48,6 +48,8 @@ int do_bootm_linux(int flag, int argc, char * const argv[],
 	size_t		len;
 #endif
 
+	if (flag & BOOTM_STATE_OS_PREP)
+		return 0;
 	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
 		return 1;
 

@@ -1472,6 +1472,8 @@ static int do_bootm_netbsd(int flag, int argc, char * const argv[],
 	char *consdev;
 	char *cmdline;
 
+	if (flag & BOOTM_STATE_OS_PREP)
+		return 0;
 	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
 		return 1;
 
@@ -1551,6 +1553,8 @@ static int do_bootm_lynxkdi(int flag, int argc, char * const argv[],
 {
 	image_header_t *hdr = &images->legacy_hdr_os_copy;
 
+	if (flag & BOOTM_STATE_OS_PREP)
+		return 0;
 	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
 		return 1;
 
@@ -1573,6 +1577,8 @@ static int do_bootm_rtems(int flag, int argc, char * const argv[],
 {
 	void (*entry_point)(bd_t *);
 
+	if (flag & BOOTM_STATE_OS_PREP)
+		return 0;
 	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
 		return 1;
 
@@ -1606,6 +1612,8 @@ static int do_bootm_ose(int flag, int argc, char * const argv[],
 {
 	void (*entry_point)(void);
 
+	if (flag & BOOTM_STATE_OS_PREP)
+		return 0;
 	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
 		return 1;
 
@@ -1640,6 +1648,8 @@ static int do_bootm_plan9(int flag, int argc, char * const argv[],
 	void (*entry_point)(void);
 	char *s;
 
+	if (flag & BOOTM_STATE_OS_PREP)
+		return 0;
 	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
 		return 1;
 
@@ -1687,6 +1697,8 @@ static int do_bootm_vxworks(int flag, int argc, char * const argv[],
 {
 	char str[80];
 
+	if (flag & BOOTM_STATE_OS_PREP)
+		return 0;
 	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
 		return 1;
 
@@ -1710,6 +1722,8 @@ static int do_bootm_qnxelf(int flag, int argc, char * const argv[],
 	char *local_args[2];
 	char str[16];
 
+	if (flag & BOOTM_STATE_OS_PREP)
+		return 0;
 	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
 		return 1;
 
@@ -1735,6 +1749,8 @@ static int do_bootm_integrity(int flag, int argc, char * const argv[],
 {
 	void (*entry_point)(void);
 
+	if (flag & BOOTM_STATE_OS_PREP)
+		return 0;
 	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
 		return 1;
 
