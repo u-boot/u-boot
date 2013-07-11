@@ -42,6 +42,7 @@ static int nand_dump(nand_info_t *nand, ulong off, int only_oob, int repeat)
 	int i;
 	u_char *datbuf, *oobbuf, *p;
 	static loff_t last;
+	int ret = 0;
 
 	if (repeat)
 		off = last + nand->writesize;
@@ -49,10 +50,16 @@ static int nand_dump(nand_info_t *nand, ulong off, int only_oob, int repeat)
 	last = off;
 
 	datbuf = memalign(ARCH_DMA_MINALIGN, nand->writesize);
-	oobbuf = memalign(ARCH_DMA_MINALIGN, nand->oobsize);
-	if (!datbuf || !oobbuf) {
+	if (!datbuf) {
 		puts("No memory for page buffer\n");
 		return 1;
+	}
+
+	oobbuf = memalign(ARCH_DMA_MINALIGN, nand->oobsize);
+	if (!oobbuf) {
+		puts("No memory for page buffer\n");
+		ret = 1;
+		goto free_dat;
 	}
 	off &= ~(nand->writesize - 1);
 	loff_t addr = (loff_t) off;
@@ -66,9 +73,8 @@ static int nand_dump(nand_info_t *nand, ulong off, int only_oob, int repeat)
 	i = mtd_read_oob(nand, addr, &ops);
 	if (i < 0) {
 		printf("Error (%d) reading page %08lx\n", i, off);
-		free(datbuf);
-		free(oobbuf);
-		return 1;
+		ret = 1;
+		goto free_all;
 	}
 	printf("Page %08lx dump:\n", off);
 	i = nand->writesize >> 4;
@@ -91,10 +97,13 @@ static int nand_dump(nand_info_t *nand, ulong off, int only_oob, int repeat)
 		       p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
 		p += 8;
 	}
-	free(datbuf);
-	free(oobbuf);
 
-	return 0;
+free_all:
+	free(oobbuf);
+free_dat:
+	free(datbuf);
+
+	return ret;
 }
 
 /* ------------------------------------------------------------------------- */
