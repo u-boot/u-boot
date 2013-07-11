@@ -560,7 +560,6 @@ static int fec_init(struct eth_device *dev, bd_t* bd)
 		}
 		memset(fec->tbd_base, 0, size);
 		fec_tbd_init(fec);
-		flush_dcache_range((unsigned)fec->tbd_base, size);
 	}
 
 	/*
