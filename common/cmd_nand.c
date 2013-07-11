@@ -616,11 +616,11 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 					opts.scrub = 1;
 				else {
 					puts("scrub aborted\n");
-					return -1;
+					return 1;
 				}
 			} else {
 				puts("scrub aborted\n");
-				return -1;
+				return 1;
 			}
 		}
 		ret = nand_erase_opts(nand, &opts);
