@@ -650,12 +650,11 @@ static int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc,
 
 		iflag = bootm_disable_interrupts();
 		ret = bootm_load_os(images, &load_end, 0);
-		if (ret && ret != BOOTM_ERR_OVERLAP)
-			goto err;
-
 		if (ret == 0)
 			lmb_reserve(&images->lmb, images->os.load,
 				    (load_end - images->os.load));
+		else if (ret && ret != BOOTM_ERR_OVERLAP)
+			goto err;
 		else if (ret == BOOTM_ERR_OVERLAP)
 			ret = 0;
 	}
