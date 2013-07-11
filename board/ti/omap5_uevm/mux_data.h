@@ -40,6 +40,8 @@ const struct pad_conf_entry core_padconf_array_essential[] = {
 	{USBD0_HS_DP, (IEN | M0)},	/*  USBD0_HS_DP */
 	{USBD0_HS_DM, (IEN | M0)},	/*  USBD0_HS_DM */
 	{USBD0_SS_RX, (IEN | M0)},	/*  USBD0_SS_RX */
+	{I2C5_SCL, (IEN | M0)}, /* I2C5_SCL */
+	{I2C5_SDA, (IEN | M0)}, /* I2C5_SDA */
 
 };
 
