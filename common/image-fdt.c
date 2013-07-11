@@ -243,7 +243,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 	ulong		load, load_end;
 	void		*buf;
 #if defined(CONFIG_FIT)
-	const char	*fit_uname_config = NULL;
+	const char	*fit_uname_config = images->fit_uname_cfg;
 	const char	*fit_uname_fdt = NULL;
 	ulong		default_addr;
 	int		fdt_noffset;
@@ -367,7 +367,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 				fdt_noffset = fit_image_load(images,
 					FIT_FDT_PROP,
 					fdt_addr, &fit_uname_fdt,
-					fit_uname_config,
+					&fit_uname_config,
 					arch, IH_TYPE_FLATDT,
 					BOOTSTAGE_ID_FIT_FDT_START,
 					FIT_LOAD_OPTIONAL, &load, &len);

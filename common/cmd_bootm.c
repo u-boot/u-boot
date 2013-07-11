@@ -988,7 +988,7 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 	case IMAGE_FORMAT_FIT:
 		os_noffset = fit_image_load(images, FIT_KERNEL_PROP,
 				img_addr,
-				&fit_uname_kernel, fit_uname_config,
+				&fit_uname_kernel, &fit_uname_config,
 				IH_ARCH_DEFAULT, IH_TYPE_KERNEL,
 				BOOTSTAGE_ID_FIT_KERNEL_START,
 				FIT_LOAD_IGNORED, os_data, os_len);
@@ -997,6 +997,7 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 
 		images->fit_hdr_os = map_sysmem(img_addr, 0);
 		images->fit_uname_os = fit_uname_kernel;
+		images->fit_uname_cfg = fit_uname_config;
 		images->fit_noffset_os = os_noffset;
 		break;
 #endif

@@ -811,7 +811,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 	char *end;
 #endif
 #if defined(CONFIG_FIT)
-	const char	*fit_uname_config = NULL;
+	const char	*fit_uname_config = images->fit_uname_cfg;
 	const char	*fit_uname_ramdisk = NULL;
 	ulong		default_addr;
 	int		rd_noffset;
@@ -907,7 +907,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 		case IMAGE_FORMAT_FIT:
 			rd_noffset = fit_image_load(images, FIT_RAMDISK_PROP,
 					rd_addr, &fit_uname_ramdisk,
-					fit_uname_config, arch,
+					&fit_uname_config, arch,
 					IH_TYPE_RAMDISK,
 					BOOTSTAGE_ID_FIT_RD_START,
 					FIT_LOAD_REQUIRED, &rd_data, &rd_len);

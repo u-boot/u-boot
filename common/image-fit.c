@@ -1478,12 +1478,13 @@ int fit_get_node_from_config(bootm_headers_t *images, const char *prop_name,
 }
 
 int fit_image_load(bootm_headers_t *images, const char *prop_name, ulong addr,
-		   const char **fit_unamep, const char *fit_uname_config,
+		   const char **fit_unamep, const char **fit_uname_configp,
 		   int arch, int image_type, int bootstage_id,
 		   enum fit_load_op load_op, ulong *datap, ulong *lenp)
 {
 	int cfg_noffset, noffset;
 	const char *fit_uname;
+	const char *fit_uname_config;
 	const void *fit;
 	const void *buf;
 	size_t size;
@@ -1493,6 +1494,7 @@ int fit_image_load(bootm_headers_t *images, const char *prop_name, ulong addr,
 
 	fit = map_sysmem(addr, 0);
 	fit_uname = fit_unamep ? *fit_unamep : NULL;
+	fit_uname_config = fit_uname_configp ? *fit_uname_configp : NULL;
 	printf("## Loading %s from FIT Image at %08lx ...\n", prop_name, addr);
 
 	bootstage_mark(bootstage_id + BOOTSTAGE_SUB_FORMAT);
@@ -1658,6 +1660,8 @@ int fit_image_load(bootm_headers_t *images, const char *prop_name, ulong addr,
 	*lenp = len;
 	if (fit_unamep)
 		*fit_unamep = (char *)fit_uname;
+	if (fit_uname_configp)
+		*fit_uname_configp = (char *)fit_uname_config;
 
 	return noffset;
 }
