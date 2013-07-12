@@ -221,15 +221,13 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *data_out,
 	      slave->bus, slave->cs, *(uint *) dout,
 	      dout, *(uint *) din, din, len);
 
-	num_chunks = data_len / max_tran_len +
-		(data_len % max_tran_len ? 1 : 0);
+	num_chunks = DIV_ROUND_UP(data_len, max_tran_len);
 	while (num_chunks--) {
 		if (data_in)
 			din = buffer + rx_offset;
 		dout = buffer;
 		tran_len = min(data_len , max_tran_len);
-		num_blks = (tran_len + cmd_len) / 4 +
-			((tran_len + cmd_len) % 4 ? 1 : 0);
+		num_blks = DIV_ROUND_UP(tran_len + cmd_len, 4);
 		num_bytes = (tran_len + cmd_len) % 4;
 		fsl->data_len = tran_len + cmd_len;
 		spi_cs_activate(slave);
