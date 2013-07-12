@@ -77,7 +77,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 {
 	volatile spi8xxx_t *spi = &((immap_t *) (CONFIG_SYS_IMMR))->spi;
 	unsigned int tmpdout, tmpdin, event;
-	int numBlks = bitlen / 32 + (bitlen % 32 ? 1 : 0);
+	int numBlks = DIV_ROUND_UP(bitlen, 32);
 	int tm, isRead = 0;
 	unsigned char charSize = 32;
 
