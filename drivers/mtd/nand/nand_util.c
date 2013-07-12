@@ -51,7 +51,6 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 	struct jffs2_unknown_node cleanmarker;
 	erase_info_t erase;
 	unsigned long erase_length, erased_length; /* in blocks */
-	int bbtest = 1;
 	int result;
 	int percent_complete = -1;
 	const char *mtd_device = meminfo->name;
@@ -102,7 +101,7 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 			puts("Size of erase exceeds limit\n");
 			return -EFBIG;
 		}
-		if (!opts->scrub && bbtest) {
+		if (!opts->scrub) {
 			int ret = mtd_block_isbad(meminfo, erase.addr);
 			if (ret > 0) {
 				if (!opts->quiet)
