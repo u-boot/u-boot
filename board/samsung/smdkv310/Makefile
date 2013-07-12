@@ -24,18 +24,12 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).o
 
-SOBJS	:= mem_setup.o
-SOBJS	+= lowlevel_init.o
 ifndef CONFIG_SPL_BUILD
 COBJS	+= smdkv310.o
 endif
 
-ifdef CONFIG_SPL_BUILD
-COBJS	+= mmc_boot.o
-endif
-
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS) $(SOBJS))
+SRCS	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
 
 ALL	:=	 $(obj).depend $(LIB)
 

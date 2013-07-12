@@ -93,17 +93,17 @@
 #define DMC_MEMCONTROL_MRR_BYTE_31_24   (3 << 25)
 
 /* MEMCONFIG0 register bit fields */
-#define DMC_MEMCONFIGx_CHIP_MAP_INTERLEAVED     (1 << 12)
-#define DMC_MEMCONFIGx_CHIP_COL_10              (3 << 8)
-#define DMC_MEMCONFIGx_CHIP_ROW_14              (2 << 4)
-#define DMC_MEMCONFIGx_CHIP_ROW_15              (3 << 4)
-#define DMC_MEMCONFIGx_CHIP_BANK_8              (3 << 0)
+#define DMC_MEMCONFIGX_CHIP_MAP_INTERLEAVED     (1 << 12)
+#define DMC_MEMCONFIGX_CHIP_COL_10              (3 << 8)
+#define DMC_MEMCONFIGX_CHIP_ROW_14              (2 << 4)
+#define DMC_MEMCONFIGX_CHIP_ROW_15              (3 << 4)
+#define DMC_MEMCONFIGX_CHIP_BANK_8              (3 << 0)
 
-#define DMC_MEMBASECONFIGx_CHIP_BASE(x)         (x << 16)
-#define DMC_MEMBASECONFIGx_CHIP_MASK(x)         (x << 0)
+#define DMC_MEMBASECONFIGX_CHIP_BASE(x)         (x << 16)
+#define DMC_MEMBASECONFIGX_CHIP_MASK(x)         (x << 0)
 #define DMC_MEMBASECONFIG_VAL(x)        (       \
-	DMC_MEMBASECONFIGx_CHIP_BASE(x) |       \
-	DMC_MEMBASECONFIGx_CHIP_MASK(0x780)     \
+	DMC_MEMBASECONFIGX_CHIP_BASE(x) |       \
+	DMC_MEMBASECONFIGX_CHIP_MASK(0x780)     \
 )
 
 #define DMC_MEMBASECONFIG0_VAL  DMC_MEMBASECONFIG_VAL(0x40)
@@ -513,9 +513,11 @@ enum {
  *			which the DMC uses to decide how to split a memory
  *			chunk into smaller chunks to support concurrent
  *			accesses; may vary across boards.
+ * @param reset         Reset DDR PHY during initialization.
  * @return 0 if ok, SETUP_ERR_... if there is a problem
  */
-int ddr3_mem_ctrl_init(struct mem_timings *mem, unsigned long mem_iv_size);
+int ddr3_mem_ctrl_init(struct mem_timings *mem, unsigned long mem_iv_size,
+			int reset);
 
 /*
  * Configure ZQ I/O interface
@@ -562,8 +564,4 @@ void dmc_config_memory(struct mem_timings *mem, struct exynos5_dmc *dmc);
  * @param ddr_mode	Type of DDR memory
  */
 void update_reset_dll(struct exynos5_dmc *, enum ddr_mode);
-
-void sdelay(unsigned long);
-void mem_ctrl_init(void);
-void system_clock_init(void);
 #endif

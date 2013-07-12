@@ -77,4 +77,7 @@
 /* Total I2C ports on Tegra114 */
 #define TEGRA_I2C_NUM_CONTROLLERS	5
 
+/* For USB EHCI controller */
+#define CONFIG_EHCI_IS_TDI
+
 #endif /* _TEGRA114_COMMON_H_ */

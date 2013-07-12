@@ -118,8 +118,8 @@
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
-	"mmcpart=2\0" \
-	"mmcroot=/dev/mmcblk0p3 rootwait rw\0" \
+	"mmcpart=1\0" \
+	"mmcroot=/dev/mmcblk0p2 rootwait rw\0" \
 	"update_sd_firmware_filename=u-boot.imx\0" \
 	"update_sd_firmware=" \
 		"if test ${ip_dyn} = yes; then " \

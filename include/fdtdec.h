@@ -64,6 +64,8 @@ struct fdt_memory {
 enum fdt_compat_id {
 	COMPAT_UNKNOWN,
 	COMPAT_NVIDIA_TEGRA20_USB,	/* Tegra20 USB port */
+	COMPAT_NVIDIA_TEGRA30_USB,	/* Tegra30 USB port */
+	COMPAT_NVIDIA_TEGRA114_USB,	/* Tegra114 USB port */
 	COMPAT_NVIDIA_TEGRA114_I2C,	/* Tegra114 I2C w/single clock source */
 	COMPAT_NVIDIA_TEGRA20_I2C,	/* Tegra20 i2c */
 	COMPAT_NVIDIA_TEGRA20_DVC,	/* Tegra20 dvc (really just i2c) */
@@ -92,6 +94,7 @@ enum fdt_compat_id {
 	COMPAT_SAMSUNG_EXYNOS_FIMD,	/* Exynos Display controller */
 	COMPAT_SAMSUNG_EXYNOS5_DP,	/* Exynos Display port controller */
 	COMPAT_SAMSUNG_EXYNOS5_DWMMC,	/* Exynos5 DWMMC controller */
+	COMPAT_SAMSUNG_EXYNOS_SERIAL,	/* Exynos UART */
 	COMPAT_MAXIM_MAX77686_PMIC,	/* MAX77686 PMIC */
 	COMPAT_GENERIC_SPI_FLASH,	/* Generic SPI Flash chip */
 	COMPAT_MAXIM_98095_CODEC,	/* MAX98095 Codec */

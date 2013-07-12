@@ -412,6 +412,8 @@ void enable_basic_clocks(void)
 		(*prcm)->cm_l4per_gpio4_clkctrl,
 		(*prcm)->cm_l4per_gpio5_clkctrl,
 		(*prcm)->cm_l4per_gpio6_clkctrl,
+		(*prcm)->cm_l4per_gpio7_clkctrl,
+		(*prcm)->cm_l4per_gpio8_clkctrl,
 		0
 	};
 

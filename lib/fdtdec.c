@@ -37,6 +37,8 @@ DECLARE_GLOBAL_DATA_PTR;
 static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(UNKNOWN, "<none>"),
 	COMPAT(NVIDIA_TEGRA20_USB, "nvidia,tegra20-ehci"),
+	COMPAT(NVIDIA_TEGRA30_USB, "nvidia,tegra30-ehci"),
+	COMPAT(NVIDIA_TEGRA114_USB, "nvidia,tegra114-ehci"),
 	COMPAT(NVIDIA_TEGRA114_I2C, "nvidia,tegra114-i2c"),
 	COMPAT(NVIDIA_TEGRA20_I2C, "nvidia,tegra20-i2c"),
 	COMPAT(NVIDIA_TEGRA20_DVC, "nvidia,tegra20-i2c-dvc"),
@@ -65,6 +67,7 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(SAMSUNG_EXYNOS_FIMD, "samsung,exynos-fimd"),
 	COMPAT(SAMSUNG_EXYNOS5_DP, "samsung,exynos5-dp"),
 	COMPAT(SAMSUNG_EXYNOS5_DWMMC, "samsung,exynos5250-dwmmc"),
+	COMPAT(SAMSUNG_EXYNOS_SERIAL, "samsung,exynos4210-uart"),
 	COMPAT(MAXIM_MAX77686_PMIC, "maxim,max77686_pmic"),
 	COMPAT(GENERIC_SPI_FLASH, "spi-flash"),
 	COMPAT(MAXIM_98095_CODEC, "maxim,max98095-codec"),

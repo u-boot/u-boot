@@ -48,7 +48,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)
 {
-	gd->ram_size = CONFIG_DDR_MB * SZ_1M;
+	gd->ram_size = (phys_size_t)CONFIG_DDR_MB * 1024 * 1024;
 
 	return 0;
 }

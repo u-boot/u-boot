@@ -24,7 +24,7 @@
 #define CONFIG_DEFAULT_FDT_FILE	"imx6q-sabresd.dtb"
 #define PHYS_SDRAM_SIZE		(1u * 1024 * 1024 * 1024)
 
-#include "mx6qsabre_common.h"
+#include "mx6sabre_common.h"
 
 #define CONFIG_SYS_FSL_USDHC_NUM	3
 #if defined(CONFIG_ENV_IS_IN_MMC)

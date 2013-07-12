@@ -48,15 +48,8 @@ void s5p_gpio_cfg_pin(struct s5p_gpio_bank *bank, int gpio, int cfg)
 
 void s5p_gpio_direction_output(struct s5p_gpio_bank *bank, int gpio, int en)
 {
-	unsigned int value;
-
 	s5p_gpio_cfg_pin(bank, gpio, GPIO_OUTPUT);
-
-	value = readl(&bank->dat);
-	value &= ~DAT_MASK(gpio);
-	if (en)
-		value |= DAT_SET(gpio);
-	writel(value, &bank->dat);
+	s5p_gpio_set_value(bank, gpio, en);
 }
 
 void s5p_gpio_direction_input(struct s5p_gpio_bank *bank, int gpio)

@@ -888,4 +888,16 @@ void set_ps_hold_ctrl(void);
  * source as XXTI
  */
 void set_xclkout(void);
+
+/*
+ *  Read inform1 to get the reset status.
+ *  @return: the value can be either S5P_CHECK_SLEEP or
+ *  S5P_CHECK_DIDLE or S5P_CHECK_LPA as stored in inform1
+ *  if none of these then its normal booting.
+ */
+uint32_t get_reset_status(void);
+
+
+/* Read the resume function and call it */
+void power_exit_wakeup(void);
 #endif

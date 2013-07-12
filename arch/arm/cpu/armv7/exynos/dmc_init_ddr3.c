@@ -27,31 +27,36 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/dmc.h>
-#include "setup.h"
+#include "common_setup.h"
+#include "exynos5_setup.h"
 #include "clock_init.h"
 
 #define RDLVL_COMPLETE_TIMEOUT	10000
 
 static void reset_phy_ctrl(void)
 {
-	struct exynos5_clock *clk = (struct exynos5_clock *)EXYNOS5_CLOCK_BASE;
+	struct exynos5_clock *clk =
+		(struct exynos5_clock *)samsung_get_base_clock();
 
 	writel(DDR3PHY_CTRL_PHY_RESET_OFF, &clk->lpddr3phy_ctrl);
 	writel(DDR3PHY_CTRL_PHY_RESET, &clk->lpddr3phy_ctrl);
 }
 
-int ddr3_mem_ctrl_init(struct mem_timings *mem, unsigned long mem_iv_size)
+int ddr3_mem_ctrl_init(struct mem_timings *mem, unsigned long mem_iv_size,
+		       int reset)
 {
 	unsigned int val;
 	struct exynos5_phy_control *phy0_ctrl, *phy1_ctrl;
 	struct exynos5_dmc *dmc;
 	int i;
 
-	phy0_ctrl = (struct exynos5_phy_control *)EXYNOS5_DMC_PHY0_BASE;
-	phy1_ctrl = (struct exynos5_phy_control *)EXYNOS5_DMC_PHY1_BASE;
-	dmc = (struct exynos5_dmc *)EXYNOS5_DMC_CTRL_BASE;
+	phy0_ctrl = (struct exynos5_phy_control *)samsung_get_base_dmc_phy();
+	phy1_ctrl = (struct exynos5_phy_control *)(samsung_get_base_dmc_phy()
+							+ DMC_OFFSET);
+	dmc = (struct exynos5_dmc *)samsung_get_base_dmc_ctrl();
 
-	reset_phy_ctrl();
+	if (reset)
+		reset_phy_ctrl();
 
 	/* Set Impedance Output Driver */
 	val = (mem->impedance << CA_CK_DRVR_DS_OFFSET) |
@@ -100,14 +105,14 @@ int ddr3_mem_ctrl_init(struct mem_timings *mem, unsigned long mem_iv_size)
 
 	/* Start DLL locking */
 	writel(val | (mem->ctrl_start << PHY_CON12_CTRL_START_SHIFT),
-		&phy0_ctrl->phy_con12);
+	       &phy0_ctrl->phy_con12);
 	writel(val | (mem->ctrl_start << PHY_CON12_CTRL_START_SHIFT),
-		&phy1_ctrl->phy_con12);
+	       &phy1_ctrl->phy_con12);
 
 	update_reset_dll(dmc, DDR_MODE_DDR3);
 
 	writel(mem->concontrol | (mem->rd_fetch << CONCONTROL_RD_FETCH_SHIFT),
-		&dmc->concontrol);
+	       &dmc->concontrol);
 
 	/* Memory Channel Inteleaving Size */
 	writel(mem->iv_size, &dmc->ivcontrol);
@@ -119,7 +124,7 @@ int ddr3_mem_ctrl_init(struct mem_timings *mem, unsigned long mem_iv_size)
 
 	/* Precharge Configuration */
 	writel(mem->prechconfig_tp_cnt << PRECHCONFIG_TP_CNT_SHIFT,
-		&dmc->prechconfig);
+	       &dmc->prechconfig);
 
 	/* Power Down mode Configuration */
 	writel(mem->dpwrdn_cyc << PWRDNCONFIG_DPWRDN_CYC_SHIFT |

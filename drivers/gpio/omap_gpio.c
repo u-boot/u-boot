@@ -55,7 +55,7 @@ static inline int get_gpio_index(int gpio)
 
 int gpio_is_valid(int gpio)
 {
-	return (gpio >= 0) && (gpio < 192);
+	return (gpio >= 0) && (gpio < OMAP_MAX_GPIO);
 }
 
 static int check_gpio(int gpio)

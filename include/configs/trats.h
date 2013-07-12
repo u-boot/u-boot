@@ -66,7 +66,7 @@
 #define CONFIG_MACH_TYPE		MACH_TYPE_TRATS
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (1 << 20))
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (16 << 20))
 
 /* select serial console configuration */
 #define CONFIG_SERIAL2			/* use SERIAL 2 */

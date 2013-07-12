@@ -159,6 +159,8 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 	switch (clk) {
 	case MXC_ARM_CLK:
 		return imx_get_armclk();
+	case MXC_I2C_CLK:
+		return imx_get_ahbclk()/2;
 	case MXC_UART_CLK:
 		return imx_get_perclk1();
 	case MXC_FEC_CLK:
@@ -380,3 +382,11 @@ void mx27_sd2_init_pins(void)
 
 }
 #endif /* CONFIG_MXC_MMC */
+
+#ifndef CONFIG_SYS_DCACHE_OFF
+void enable_caches(void)
+{
+	/* Enable D-cache. I-cache is already enabled in start.S */
+	dcache_enable();
+}
+#endif /* CONFIG_SYS_DCACHE_OFF */

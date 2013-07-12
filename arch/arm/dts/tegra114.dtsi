@@ -216,4 +216,31 @@
 		clocks = <&tegra_car 15>;
 		status = "disable";
 	};
+
+	usb@7d000000 {
+		compatible = "nvidia,tegra114-ehci";
+		reg = <0x7d000000 0x4000>;
+		interrupts = <52>;
+		phy_type = "utmi";
+		clocks = <&tegra_car 22>;	/* PERIPH_ID_USBD */
+		status = "disabled";
+	};
+
+	usb@7d004000 {
+		compatible = "nvidia,tegra114-ehci";
+		reg = <0x7d004000 0x4000>;
+		interrupts = <53>;
+		phy_type = "hsic";
+		clocks = <&tegra_car 58>;	/* PERIPH_ID_USB2 */
+		status = "disabled";
+	};
+
+	usb@7d008000 {
+		compatible = "nvidia,tegra114-ehci";
+		reg = <0x7d008000 0x4000>;
+		interrupts = <129>;
+		phy_type = "utmi";
+		clocks = <&tegra_car 59>;	/* PERIPH_ID_USB3 */
+		status = "disabled";
+	};
 };

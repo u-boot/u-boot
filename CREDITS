@@ -124,6 +124,10 @@ N: James F. Dougherty
 E: jfd@GigabitNetworks.COM
 D: Port to the MOUSSE board
 
+N: Mike Dunn
+E: mikedunn@newsguy.com
+D: Palmtreo680 board, docg4 nand flash driver
+
 N: Dave Ellis
 E: DGE@sixnetio.com
 D: EEPROM Speedup, SXNI855T port

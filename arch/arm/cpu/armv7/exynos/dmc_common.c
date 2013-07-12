@@ -26,7 +26,8 @@
 #include <asm/arch/spl.h>
 
 #include "clock_init.h"
-#include "setup.h"
+#include "common_setup.h"
+#include "exynos5_setup.h"
 
 #define ZQ_INIT_TIMEOUT	10000
 
@@ -175,7 +176,7 @@ void dmc_config_memory(struct mem_timings *mem, struct exynos5_dmc *dmc)
 	writel(DMC_MEMBASECONFIG1_VAL, &dmc->membaseconfig1);
 }
 
-void mem_ctrl_init()
+void mem_ctrl_init(int reset)
 {
 	struct spl_machine_param *param = spl_get_machine_params();
 	struct mem_timings *mem;
@@ -185,7 +186,7 @@ void mem_ctrl_init()
 
 	/* If there are any other memory variant, add their init call below */
 	if (param->mem_type == DDR_MODE_DDR3) {
-		ret = ddr3_mem_ctrl_init(mem, param->mem_iv_size);
+		ret = ddr3_mem_ctrl_init(mem, param->mem_iv_size, reset);
 		if (ret) {
 			/* will hang if failed to init memory control */
 			while (1)
