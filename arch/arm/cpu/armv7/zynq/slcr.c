@@ -171,6 +171,12 @@ out:
 	zynq_slcr_lock();
 }
 
+u32 zynq_slcr_get_lqspi_clk_ctrl(void)
+{
+	/* Get the lqspi_clkk_ctrl register value */
+	return readl(&slcr_base->lqspi_clk_ctrl);
+}
+
 void zynq_slcr_devcfg_disable(void)
 {
 	zynq_slcr_unlock();

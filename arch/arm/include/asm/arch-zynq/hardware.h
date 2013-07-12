@@ -50,7 +50,9 @@ struct slcr_regs {
 	u32 gem1_rclk_ctrl; /* 0x13c */
 	u32 gem0_clk_ctrl; /* 0x140 */
 	u32 gem1_clk_ctrl; /* 0x144 */
-	u32 reserved1[46];
+	u32 smc_clk_ctrl; /* 0x148 */
+	u32 lqspi_clk_ctrl; /* 0x14c */
+	u32 reserved1[44];
 	u32 pss_rst_ctrl; /* 0x200 */
 	u32 reserved2[15];
 	u32 fpga_rst_ctrl; /* 0x240 */
