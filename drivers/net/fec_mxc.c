@@ -560,7 +560,6 @@ static int fec_init(struct eth_device *dev, bd_t* bd)
 		}
 		memset(fec->tbd_base, 0, size);
 		fec_tbd_init(fec);
-		flush_dcache_range((unsigned)fec->tbd_base, size);
 	}
 
 	/*
@@ -736,6 +735,28 @@ static int fec_send(struct eth_device *dev, void *packet, int length)
 	size = roundup(2 * sizeof(struct fec_bd), ARCH_DMA_MINALIGN);
 	addr = (uint32_t)fec->tbd_base;
 	flush_dcache_range(addr, addr + size);
+
+	/*
+	 * Below we read the DMA descriptor's last four bytes back from the
+	 * DRAM. This is important in order to make sure that all WRITE
+	 * operations on the bus that were triggered by previous cache FLUSH
+	 * have completed.
+	 *
+	 * Otherwise, on MX28, it is possible to observe a corruption of the
+	 * DMA descriptors. Please refer to schematic "Figure 1-2" in MX28RM
+	 * for the bus structure of MX28. The scenario is as follows:
+	 *
+	 * 1) ARM core triggers a series of WRITEs on the AHB_ARB2 bus going
+	 *    to DRAM due to flush_dcache_range()
+	 * 2) ARM core writes the FEC registers via AHB_ARB2
+	 * 3) FEC DMA starts reading/writing from/to DRAM via AHB_ARB3
+	 *
+	 * Note that 2) does sometimes finish before 1) due to reordering of
+	 * WRITE accesses on the AHB bus, therefore triggering 3) before the
+	 * DMA descriptor is fully written into DRAM. This results in occasional
+	 * corruption of the DMA descriptor.
+	 */
+	readl(addr + size - 4);
 
 	/*
 	 * Enable SmartDMA transmit task
