@@ -141,18 +141,17 @@ static int exynos_get_pll_clk(int pllreg, unsigned int r, unsigned int k)
 		fout = (m + k / div) * (freq / (p * (1 << s)));
 	} else {
 		/*
-		 * Exynos4210
+		 * Exynos4412 / Exynos5250
 		 * FOUT = MDIV * FIN / (PDIV * 2^SDIV)
 		 *
-		 * Exynos4412 / Exynos5250
+		 * Exynos4210
 		 * FOUT = MDIV * FIN / (PDIV * 2^(SDIV-1))
 		 */
 		if (proid_is_exynos4210())
-			fout = m * (freq / (p * (1 << s)));
-		else
 			fout = m * (freq / (p * (1 << (s - 1))));
+		else
+			fout = m * (freq / (p * (1 << s)));
 	}
-
 	return fout;
 }
 
