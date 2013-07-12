@@ -910,7 +910,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 					&fit_uname_config, arch,
 					IH_TYPE_RAMDISK,
 					BOOTSTAGE_ID_FIT_RD_START,
-					FIT_LOAD_REQUIRED, &rd_data, &rd_len);
+					FIT_LOAD_IGNORED, &rd_data, &rd_len);
 			if (rd_noffset < 0)
 				return 1;
 
