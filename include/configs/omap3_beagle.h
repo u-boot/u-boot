@@ -134,6 +134,7 @@
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_EXT2		/* EXT2 Support			*/
 #define CONFIG_CMD_FAT		/* FAT support			*/
+#define CONFIG_CMD_FS_GENERIC	/* Generic FS support */
 #define CONFIG_CMD_MTDPARTS	/* Enable MTD parts commands */
 #define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
 #define MTDIDS_DEFAULT			"nand0=nand"
@@ -195,6 +196,9 @@
 	"rdaddr=0x81000000\0" \
 	"usbtty=cdc_acm\0" \
 	"bootfile=uImage\0" \
+	"ramdisk=ramdisk.gz\0" \
+	"bootdir=/boot\0" \
+	"bootpart=0:2\0" \
 	"console=ttyO2,115200n8\0" \
 	"mpurate=auto\0" \
 	"buddy=none\0" \
@@ -243,9 +247,8 @@
 		"omapdss.def_disp=${defaultdisplay} " \
 		"root=${ramroot} " \
 		"rootfstype=${ramrootfstype}\0" \
-	"loadramdisk=fatload mmc ${mmcdev} ${rdaddr} ramdisk.gz\0" \
-	"loaduimagefat=fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
-	"loaduimage=ext2load mmc ${mmcdev}:2 ${loadaddr} /boot/uImage\0" \
+	"loadramdisk=load mmc ${bootpart} ${rdaddr} ${bootdir}/${ramdisk}\0" \
+	"loadimage=load mmc ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"bootm ${loadaddr}\0" \
@@ -277,7 +280,7 @@
 			"echo Running uenvcmd ...;" \
 			"run uenvcmd;" \
 		"fi;" \
-		"if run loaduimage; then " \
+		"if run loadimage; then " \
 			"run mmcboot;" \
 		"fi;" \
 	"fi;" \
