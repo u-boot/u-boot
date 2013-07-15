@@ -266,6 +266,9 @@
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"bootm ${loadaddr}\0" \
+	"mmcbootz=echo Booting with DT from mmc${mmcdev} ...; " \
+		"run mmcargs; " \
+		"bootz ${loadaddr} - ${fdtaddr}\0" \
 	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
 		"nand read ${loadaddr} 280000 400000; " \
@@ -300,6 +303,11 @@
 		"fi;" \
 	"fi;" \
 	"run nandboot;" \
+	"setenv bootfile zImage;" \
+	"if run loadimage; then " \
+		"run loadfdt;" \
+		"run mmcbootz; " \
+	"fi; " \
 
 #define CONFIG_AUTO_COMPLETE		1
 /*
