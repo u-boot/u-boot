@@ -194,6 +194,8 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x80200000\0" \
 	"rdaddr=0x81000000\0" \
+	"fdt_high=0xffffffff\0" \
+	"fdtaddr=0x80f80000\0" \
 	"usbtty=cdc_acm\0" \
 	"bootfile=uImage\0" \
 	"ramdisk=ramdisk.gz\0" \
@@ -234,6 +236,17 @@
 		"omapdss.def_disp=${defaultdisplay} " \
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype}\0" \
+	"findfdt=" \
+		"if test $beaglerev = AxBx; then " \
+			"setenv fdtfile omap3-beagle.dtb; fi; " \
+		"if test $beaglerev = Cx; then " \
+			"setenv fdtfile omap3-beagle.dtb; fi; " \
+		"if test $beaglerev = xMAB; then " \
+			"setenv fdtfile omap3-beagle-xm.dtb; fi; " \
+		"if test $beaglerev = xMC; then " \
+			"setenv fdtfile omap3-beagle-xm.dtb; fi; " \
+		"if test $fdtfile = undefined; then " \
+			"echo WARNING: Could not determine device tree to use; fi; \0" \
 	"bootenv=uEnv.txt\0" \
 	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
 	"importbootenv=echo Importing environment from mmc ...; " \
@@ -249,6 +262,7 @@
 		"rootfstype=${ramrootfstype}\0" \
 	"loadramdisk=load mmc ${bootpart} ${rdaddr} ${bootdir}/${ramdisk}\0" \
 	"loadimage=load mmc ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
+	"loadfdt=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"bootm ${loadaddr}\0" \
@@ -265,6 +279,7 @@
 	"userbutton_nonxm=gpio input 7;\0"
 /* "run userbutton" will return 1 (false) if pressed and 0 (true) if not */
 #define CONFIG_BOOTCOMMAND \
+	"run findfdt; " \
 	"mmc dev ${mmcdev}; if mmc rescan; then " \
 		"if run userbutton; then " \
 			"setenv bootenv uEnv.txt;" \
