@@ -134,7 +134,6 @@
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_EXT2		/* EXT2 Support			*/
 #define CONFIG_CMD_FAT		/* FAT support			*/
-#define CONFIG_CMD_JFFS2	/* JFFS2 Support		*/
 #define CONFIG_CMD_MTDPARTS	/* Enable MTD parts commands */
 #define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
 #define MTDIDS_DEFAULT			"nand0=nand"
@@ -187,13 +186,6 @@
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of NAND */
 							/* devices */
-#define CONFIG_JFFS2_NAND
-/* nand device jffs2 lives on */
-#define CONFIG_JFFS2_DEV		"nand0"
-/* start of jffs2 partition */
-#define CONFIG_JFFS2_PART_OFFSET	0x680000
-#define CONFIG_JFFS2_PART_SIZE		0xf980000	/* size of jffs2 */
-							/* partition */
 
 /* Environment information */
 #define CONFIG_BOOTDELAY		3
