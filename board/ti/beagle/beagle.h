@@ -23,8 +23,7 @@ const omap3_sysinfo sysinfo = {
 #define REVISION_AXBX	0x7
 #define REVISION_CX	0x6
 #define REVISION_C4	0x5
-#define REVISION_XM_A	0x0
-#define REVISION_XM_B	0x1
+#define REVISION_XM_AB	0x0
 #define REVISION_XM_C	0x2
 
 /*
