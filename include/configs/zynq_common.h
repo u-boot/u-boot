@@ -121,7 +121,7 @@
 #endif
 
 /* QSPI */
-#ifdef CONFIG_ZYNQ_SPI
+#ifdef CONFIG_ZYNQ_QSPI
 # define CONFIG_SF_DEFAULT_SPEED	30000000
 # define CONFIG_SPI_FLASH
 # define CONFIG_SPI_FLASH_SPANSION
@@ -177,7 +177,7 @@
 # ifndef CONFIG_SYS_NO_FLASH
 /* Environment in NOR flash */
 #  define CONFIG_ENV_IS_IN_FLASH
-# elif defined(CONFIG_ZYNQ_SPI)
+# elif defined(CONFIG_ZYNQ_QSPI)
 /* Environment in Serial Flash */
 #  define CONFIG_ENV_IS_IN_SPI_FLASH
 # elif defined(CONFIG_NAND_ZYNQ)

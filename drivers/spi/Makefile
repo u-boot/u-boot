@@ -55,7 +55,7 @@ COBJS-$(CONFIG_TEGRA20_SFLASH) += tegra20_sflash.o
 COBJS-$(CONFIG_TEGRA20_SLINK) += tegra20_slink.o
 COBJS-$(CONFIG_TEGRA114_SPI) += tegra114_spi.o
 COBJS-$(CONFIG_XILINX_SPI) += xilinx_spi.o
-COBJS-$(CONFIG_ZYNQ_SPI) += zynq_qspi.o
+COBJS-$(CONFIG_ZYNQ_QSPI) += zynq_qspi.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
