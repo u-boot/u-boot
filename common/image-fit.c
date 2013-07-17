@@ -343,6 +343,17 @@ void fit_image_print(const void *fit, int image_noffset, const char *p)
 	else
 		printf("%s\n", desc);
 
+	if (IMAGE_ENABLE_TIMESTAMP) {
+		time_t timestamp;
+
+		ret = fit_get_timestamp(fit, 0, &timestamp);
+		printf("%s  Created:      ", p);
+		if (ret)
+			printf("unavailable\n");
+		else
+			genimg_print_time(timestamp);
+	}
+
 	fit_image_get_type(fit, image_noffset, &type);
 	printf("%s  Type:         %s\n", p, genimg_get_type_name(type));
 
