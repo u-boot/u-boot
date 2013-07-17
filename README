@@ -4627,6 +4627,12 @@ List of environment variables (most likely not complete):
 
   npe_ucode	- set load address for the NPE microcode
 
+  silent_linux  - If set then linux will be told to boot silently, by
+		  changing the console to be empty. If "yes" it will be
+		  made silent. If "no" it will not be made silent. If
+		  unset, then it will be made silent if the U-Boot console
+		  is silent.
+
   tftpsrcport	- If this is set, the value is used for TFTP's
 		  UDP source port.
 
