@@ -23,7 +23,6 @@
 #include <malloc.h>
 #include <mmc.h>
 #include <dwmmc.h>
-#include <asm/arch/clk.h>
 #include <asm-generic/errno.h>
 
 #define PAGE_SIZE 4096

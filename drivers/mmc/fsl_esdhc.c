@@ -100,7 +100,7 @@ static uint esdhc_xfertyp(struct mmc_cmd *cmd, struct mmc_data *data)
 	else if (cmd->resp_type & MMC_RSP_PRESENT)
 		xfertyp |= XFERTYP_RSPTYP_48;
 
-#ifdef CONFIG_MX53
+#if defined(CONFIG_MX53) || defined(CONFIG_T4240QDS)
 	if (cmd->cmdidx == MMC_CMD_STOP_TRANSMISSION)
 		xfertyp |= XFERTYP_CMDTYP_ABORT;
 #endif
@@ -470,7 +470,7 @@ static int esdhc_init(struct mmc *mmc)
 	int timeout = 1000;
 
 	/* Reset the entire host controller */
-	esdhc_write32(&regs->sysctl, SYSCTL_RSTA);
+	esdhc_setbits32(&regs->sysctl, SYSCTL_RSTA);
 
 	/* Wait until the controller is available */
 	while ((esdhc_read32(&regs->sysctl) & SYSCTL_RSTA) && --timeout)
@@ -481,7 +481,7 @@ static int esdhc_init(struct mmc *mmc)
 	esdhc_write32(&regs->scr, 0x00000040);
 #endif
 
-	esdhc_write32(&regs->sysctl, SYSCTL_HCKEN | SYSCTL_IPGEN);
+	esdhc_setbits32(&regs->sysctl, SYSCTL_HCKEN | SYSCTL_IPGEN);
 
 	/* Set the initial clock speed */
 	mmc_set_clock(mmc, 400000);
@@ -515,7 +515,7 @@ static void esdhc_reset(struct fsl_esdhc *regs)
 	unsigned long timeout = 100; /* wait max 100 ms */
 
 	/* reset the controller */
-	esdhc_write32(&regs->sysctl, SYSCTL_RSTA);
+	esdhc_setbits32(&regs->sysctl, SYSCTL_RSTA);
 
 	/* hardware clears the bit when it is done */
 	while ((esdhc_read32(&regs->sysctl) & SYSCTL_RSTA) && --timeout)
