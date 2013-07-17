@@ -59,7 +59,7 @@ static void at91sam9n12ek_nand_hw_init(void)
 	/* Configure databus */
 	csa &= ~AT91_MATRIX_NFD0_ON_D16; /* nandflash connect to D0~D15 */
 	/* Configure IO drive */
-	csa &= ~AT91_MATRIX_EBI_EBI_IOSR_NORMAL;
+	csa |= AT91_MATRIX_EBI_EBI_IOSR_NORMAL;
 
 	writel(csa, &matrix->ebicsa);
 
