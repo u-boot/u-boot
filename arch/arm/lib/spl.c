@@ -25,9 +25,6 @@ gd_t gdata __attribute__ ((section(".data")));
  */
 void __weak board_init_f(ulong dummy)
 {
-	/* Set the stack pointer. */
-	asm volatile("mov sp, %0\n" : : "r"(CONFIG_SPL_STACK));
-
 	/* Clear the BSS. */
 	memset(__bss_start, 0, __bss_end - __bss_start);
 
