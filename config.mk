@@ -213,6 +213,10 @@ endif
 # TODO(sjg@chromium.org): Is this correct on Mac OS?
 ifdef CONFIG_FIT_SIGNATURE
 HOSTLIBS	+= -lssl -lcrypto
+
+# This affects include/image.h, but including the board config file
+# is tricky, so manually define this options here.
+HOSTCFLAGS	+= -DCONFIG_FIT_SIGNATURE
 endif
 
 ifneq ($(CONFIG_SYS_TEXT_BASE),)
