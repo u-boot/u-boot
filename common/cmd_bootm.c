@@ -542,10 +542,6 @@ static int boot_selected_os(int argc, char * const argv[], int state,
 		bootm_start_standalone(argc, argv);
 		return 0;
 	}
-#ifdef CONFIG_SILENT_CONSOLE
-	if (images->os.os == IH_OS_LINUX)
-		fixup_silent_linux();
-#endif
 	arch_preboot_os();
 	boot_fn(state, argc, argv, images);
 	if (state == BOOTM_STATE_OS_FAKE_GO) /* We expect to return */
@@ -656,6 +652,10 @@ static int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc,
 			goto err;
 		else if (ret == BOOTM_ERR_OVERLAP)
 			ret = 0;
+#ifdef CONFIG_SILENT_CONSOLE
+		if (images->os.os == IH_OS_LINUX)
+			fixup_silent_linux();
+#endif
 	}
 
 	/* Relocate the ramdisk */
