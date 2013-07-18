@@ -312,6 +312,8 @@ static int state_dfu_idle(struct f_dfu *f_dfu,
 			DFU_STATE_dfuMANIFEST_WAIT_RST;
 		to_runtime_mode(f_dfu);
 		f_dfu->dfu_state = DFU_STATE_appIDLE;
+
+		dfu_trigger_reset();
 		break;
 	default:
 		f_dfu->dfu_state = DFU_STATE_dfuERROR;

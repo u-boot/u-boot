@@ -109,6 +109,8 @@ const char *dfu_get_dev_type(enum dfu_device_type t);
 const char *dfu_get_layout(enum dfu_layout l);
 struct dfu_entity *dfu_get_entity(int alt);
 char *dfu_extract_token(char** e, int *n);
+void dfu_trigger_reset(void);
+bool dfu_reset(void);
 
 int dfu_read(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
 int dfu_write(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
