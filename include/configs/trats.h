@@ -189,7 +189,7 @@
 	"nfsroot=/nfsroot/arm\0" \
 	"bootblock=" CONFIG_BOOTBLOCK "\0" \
 	"loaduimage=ext4load mmc ${mmcdev}:${mmcbootpart} 0x40007FC0 uImage\0" \
-	"loaddtb=ext4load mmc ${mmcdev}:${mmcbootpart} ${fdtaddr}" \
+	"loaddtb=ext4load mmc ${mmcdev}:${mmcbootpart} ${fdtaddr} " \
 		"${fdtfile}\0" \
 	"mmcdev=0\0" \
 	"mmcbootpart=2\0" \
