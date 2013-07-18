@@ -19,6 +19,7 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch/mem.h>
 #include <asm/io.h>
 #include <asm/emif.h>
 #include <asm/gpio.h>
@@ -339,9 +340,21 @@ void s_init(void)
  */
 int board_init(void)
 {
+#ifdef CONFIG_NOR
+	const u32 gpmc_nor[GPMC_MAX_REG] = { STNOR_GPMC_CONFIG1,
+		STNOR_GPMC_CONFIG2, STNOR_GPMC_CONFIG3, STNOR_GPMC_CONFIG4,
+		STNOR_GPMC_CONFIG5, STNOR_GPMC_CONFIG6, STNOR_GPMC_CONFIG7 };
+#endif
+
 	gd->bd->bi_boot_params = PHYS_DRAM_1 + 0x100;
 
 	gpmc_init();
+
+#ifdef CONFIG_NOR
+	/* Reconfigure CS0 for NOR instead of NAND. */
+	enable_gpmc_cs_config(gpmc_nor, &gpmc_cfg->cs[0],
+			      CONFIG_SYS_FLASH_BASE, GPMC_SIZE_16M);
+#endif
 
 	return 0;
 }

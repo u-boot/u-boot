@@ -523,4 +523,32 @@
 #endif
 #endif
 
+/*
+ * NOR Size = 16 MiB
+ * Number of Sectors/Blocks = 128
+ * Sector Size = 128 KiB
+ * Word length = 16 bits
+ * Default layout:
+ * 0x000000 - 0x07FFFF : U-Boot (512 KiB)
+ * 0x080000 - 0x09FFFF : First copy of U-Boot Environment (128 KiB)
+ * 0x0A0000 - 0x0BFFFF : Second copy of U-Boot Environment (128 KiB)
+ * 0x0C0000 - 0x4BFFFF : Linux Kernel (4 MiB)
+ * 0x4C0000 - 0xFFFFFF : Userland (11 MiB + 256 KiB)
+ */
+#if defined(CONFIG_NOR)
+#undef CONFIG_SYS_NO_FLASH
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
+#define CONFIG_SYS_FLASH_PROTECTION
+#define CONFIG_SYS_FLASH_CFI
+#define CONFIG_FLASH_CFI_DRIVER
+#define CONFIG_FLASH_CFI_MTD
+#define CONFIG_SYS_MAX_FLASH_SECT	128
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
+#define CONFIG_SYS_FLASH_BASE		(0x08000000)
+#define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
+#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
+#define CONFIG_MTD_DEVICE
+#define CONFIG_CMD_FLASH
+#endif  /* NOR support */
+
 #endif	/* ! __CONFIG_AM335X_EVM_H */
