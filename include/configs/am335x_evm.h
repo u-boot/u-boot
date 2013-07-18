@@ -367,7 +367,7 @@
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SPL_SPI_BUS		0
 #define CONFIG_SPL_SPI_CS		0
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x80000
+#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
 #define CONFIG_SPL_MUSB_NEW_SUPPORT
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/am33xx/u-boot-spl.lds"
 
@@ -453,22 +453,27 @@
 #endif
 
 /*
- * Default to using SPI for environment, etc.  We have multiple copies
- * of SPL as the ROM will check these locations.
- * 0x0 - 0x20000 : First copy of SPL
- * 0x20000 - 0x40000 : Second copy of SPL
- * 0x40000 - 0x60000 : Third copy of SPL
- * 0x60000 - 0x80000 : Fourth copy of SPL
- * 0x80000 - 0xDF000 : U-Boot
- * 0xDF000 - 0xE0000 : U-Boot Environment
- * 0xE0000 - 0x442000 : Linux Kernel
+ * Default to using SPI for environment, etc.
+ * 0x000000 - 0x020000 : SPL (128KiB)
+ * 0x020000 - 0x0A0000 : U-Boot (512KiB)
+ * 0x0A0000 - 0x0BFFFF : First copy of U-Boot Environment (128KiB)
+ * 0x0C0000 - 0x0DFFFF : Second copy of U-Boot Environment (128KiB)
+ * 0x0E0000 - 0x442000 : Linux Kernel
  * 0x442000 - 0x800000 : Userland
  */
 #if defined(CONFIG_SPI_BOOT)
-# define CONFIG_ENV_IS_IN_SPI_FLASH
-# define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
-# define CONFIG_ENV_OFFSET		(892 << 10) /* 892 KiB in */
-# define CONFIG_ENV_SECT_SIZE		(4 << 10) /* 4 KB sectors */
+#define CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
+#define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
+#define CONFIG_ENV_SECT_SIZE		(4 << 10) /* 4 KB sectors */
+#define CONFIG_ENV_OFFSET		(768 << 10) /* 768 KiB in */
+#define CONFIG_ENV_OFFSET_REDUND	(896 << 10) /* 896 KiB in */
+#define CONFIG_CMD_MTDPARTS
+#define MTDIDS_DEFAULT			"nor0=m25p80-flash.0"
+#define MTDPARTS_DEFAULT		"mtdparts=m25p80-flash.0:128k(SPL)," \
+					"512k(u-boot),128k(u-boot-env1)," \
+					"128k(u-boot-env2),3464k(kernel)," \
+					"-(rootfs)"
 #endif /* SPI support */
 
 /* Unsupported features */
@@ -497,13 +502,6 @@
 #ifdef CONFIG_NAND
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_MTDPARTS
-#define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
-#define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:128k(SPL)," \
-					"128k(SPL.backup1)," \
-					"128k(SPL.backup2)," \
-					"128k(SPL.backup3),1792k(u-boot)," \
-					"128k(u-boot-spl-os)," \
-					"128k(u-boot-env),5m(kernel),-(rootfs)"
 #define CONFIG_NAND_OMAP_GPMC
 #define GPMC_NAND_ECC_LP_x16_LAYOUT	1
 #define CONFIG_SYS_NAND_BASE		(0x08000000)	/* physical address */
@@ -512,6 +510,13 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of NAND
 							   devices */
 #if !defined(CONFIG_SPI_BOOT)
+#define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
+#define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:128k(SPL)," \
+					"128k(SPL.backup1)," \
+					"128k(SPL.backup2)," \
+					"128k(SPL.backup3),1792k(u-boot)," \
+					"128k(u-boot-spl-os)," \
+					"128k(u-boot-env),5m(kernel),-(rootfs)"
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		0x260000 /* environment starts here */
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
