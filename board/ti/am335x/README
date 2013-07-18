@@ -38,6 +38,29 @@ U-Boot # nand write 81000000 0 260000
 U-Boot # load mmc 0 ${loadaddr} uImage
 U-Boot # nand write ${loadaddr} kernel 500000
 
+NOR
+===
+
+The Beaglebone White can be equiped with a "memory cape" that in turn can
+have a NOR module plugged into it.  In this case it is then possible to
+program and boot from NOR.  Note that due to how U-Boot is architectured we
+must build a specific version of U-Boot that knows we have NOR flash.  This
+build is named 'am335x_evm_nor'.  Further, we have a 'am335x_evm_norboot'
+build that will assume that the environment is on NOR rather than NAND.  In
+the following example we assume that and SD card has been populated with
+MLO and u-boot.img from a 'am335x_evm_nor' build and also contains the
+'u-boot.bin' from a 'am335x_evm_norboot' build.  When booting from NOR, a
+binary must be written to the start of NOR, with no header or similar
+prepended.  In the following example we use a size of 512KiB (0x80000)
+as that is how much space we set aside before the environment, as per
+the config file.
+
+U-Boot # mmc rescan
+U-Boot # load mmc 0 ${loadaddr} u-boot.bin
+U-Boot # protect off 08000000 +80000
+U-Boot # erase 08000000 +80000
+U-Boot # cp.b ${loadaddr} 08000000 ${filesize}
+
 Falcon Mode
 ===========
 
