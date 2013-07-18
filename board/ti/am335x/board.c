@@ -40,43 +40,10 @@ static struct wd_timer *wdtimer = (struct wd_timer *)WDT_BASE;
 
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
-static struct am335x_baseboard_id __attribute__((section (".data"))) header;
-
-static inline int board_is_bone(void)
-{
-	return !strncmp(header.name, "A335BONE", HDR_NAME_LEN);
-}
-
-static inline int board_is_bone_lt(void)
-{
-	return !strncmp(header.name, "A335BNLT", HDR_NAME_LEN);
-}
-
-static inline int board_is_evm_sk(void)
-{
-	return !strncmp("A335X_SK", header.name, HDR_NAME_LEN);
-}
-
-static inline int board_is_idk(void)
-{
-	return !strncmp(header.config, "SKU#02", 6);
-}
-
-static int __maybe_unused board_is_gp_evm(void)
-{
-	return !strncmp("A33515BB", header.name, 8);
-}
-
-int board_is_evm_15_or_later(void)
-{
-	return (!strncmp("A33515BB", header.name, 8) &&
-		strncmp("1.5", header.version, 3) <= 0);
-}
-
 /*
  * Read header information from EEPROM into global structure.
  */
-static int read_eeprom(void)
+static int read_eeprom(struct am335x_baseboard_id *header)
 {
 	/* Check if baseboard eeprom is available */
 	if (i2c_probe(CONFIG_SYS_I2C_EEPROM_ADDR)) {
@@ -86,28 +53,28 @@ static int read_eeprom(void)
 	}
 
 	/* read the eeprom using i2c */
-	if (i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0, 2, (uchar *)&header,
-							sizeof(header))) {
+	if (i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0, 2, (uchar *)header,
+		     sizeof(struct am335x_baseboard_id))) {
 		puts("Could not read the EEPROM; something fundamentally"
 			" wrong on the I2C bus.\n");
 		return -EIO;
 	}
 
-	if (header.magic != 0xEE3355AA) {
+	if (header->magic != 0xEE3355AA) {
 		/*
 		 * read the eeprom using i2c again,
 		 * but use only a 1 byte address
 		 */
-		if (i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0, 1,
-					(uchar *)&header, sizeof(header))) {
+		if (i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0, 1, (uchar *)header,
+			     sizeof(struct am335x_baseboard_id))) {
 			puts("Could not read the EEPROM; something "
 				"fundamentally wrong on the I2C bus.\n");
 			return -EIO;
 		}
 
-		if (header.magic != 0xEE3355AA) {
+		if (header->magic != 0xEE3355AA) {
 			printf("Incorrect magic number (0x%x) in EEPROM\n",
-					header.magic);
+					header->magic);
 			return -EINVAL;
 		}
 	}
@@ -281,12 +248,14 @@ int spl_start_uboot(void)
  */
 void s_init(void)
 {
+#ifdef CONFIG_SPL_BUILD
+	struct am335x_baseboard_id header;
+
 	/*
 	 * Save the boot parameters passed from romcode.
 	 * We cannot delay the saving further than this,
 	 * to prevent overwrites.
 	 */
-#ifdef CONFIG_SPL_BUILD
 	save_omap_boot_params();
 #endif
 
@@ -335,11 +304,11 @@ void s_init(void)
 	/* Initalize the board header */
 	enable_i2c0_pin_mux();
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-	if (read_eeprom() < 0)
+	if (read_eeprom(&header) < 0)
 		puts("Could not get board ID.\n");
 
 	enable_board_pin_mux(&header);
-	if (board_is_evm_sk()) {
+	if (board_is_evm_sk(&header)) {
 		/*
 		 * EVM SK 1.2A and later use gpio0_7 to enable DDR3.
 		 * This is safe enough to do on older revs.
@@ -348,15 +317,15 @@ void s_init(void)
 		gpio_direction_output(GPIO_DDR_VTT_EN, 1);
 	}
 
-	if (board_is_evm_sk())
+	if (board_is_evm_sk(&header))
 		config_ddr(303, MT41J128MJT125_IOCTRL_VALUE, &ddr3_data,
 			   &ddr3_cmd_ctrl_data, &ddr3_emif_reg_data, 0);
-	else if (board_is_bone_lt())
+	else if (board_is_bone_lt(&header))
 		config_ddr(400, MT41K256M16HA125E_IOCTRL_VALUE,
 			   &ddr3_beagleblack_data,
 			   &ddr3_beagleblack_cmd_ctrl_data,
 			   &ddr3_beagleblack_emif_reg_data, 0);
-	else if (board_is_evm_15_or_later())
+	else if (board_is_evm_15_or_later(&header))
 		config_ddr(303, MT41J512M8RH125_IOCTRL_VALUE, &ddr3_evm_data,
 			   &ddr3_evm_cmd_ctrl_data, &ddr3_evm_emif_reg_data, 0);
 	else
@@ -370,10 +339,6 @@ void s_init(void)
  */
 int board_init(void)
 {
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-	if (read_eeprom() < 0)
-		puts("Could not get board ID.\n");
-
 	gd->bd->bi_boot_params = PHYS_DRAM_1 + 0x100;
 
 	gpmc_init();
@@ -386,6 +351,10 @@ int board_late_init(void)
 {
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	char safe_string[HDR_NAME_LEN + 1];
+	struct am335x_baseboard_id header;
+
+	if (read_eeprom(&header) < 0)
+		puts("Could not get board ID.\n");
 
 	/* Now set variables based on the header. */
 	strncpy(safe_string, (char *)header.name, sizeof(header.name));
@@ -450,6 +419,7 @@ int board_eth_init(bd_t *bis)
 	int rv, n = 0;
 	uint8_t mac_addr[6];
 	uint32_t mac_hi, mac_lo;
+	__maybe_unused struct am335x_baseboard_id header;
 
 	/* try reading mac address from efuse */
 	mac_lo = readl(&cdev->macid0l);
@@ -471,7 +441,11 @@ int board_eth_init(bd_t *bis)
 	}
 
 #ifdef CONFIG_DRIVER_TI_CPSW
-	if (board_is_bone() || board_is_bone_lt() || board_is_idk()) {
+	if (read_eeprom(&header) < 0)
+		puts("Could not get board ID.\n");
+
+	if (board_is_bone(&header) || board_is_bone_lt(&header) ||
+	    board_is_idk(&header)) {
 		writel(MII_MODE_ENABLE, &cdev->miisel);
 		cpsw_slaves[0].phy_if = cpsw_slaves[1].phy_if =
 				PHY_INTERFACE_MODE_MII;
@@ -500,7 +474,7 @@ int board_eth_init(bd_t *bis)
 #define AR8051_DEBUG_RGMII_CLK_DLY_REG	0x5
 #define AR8051_RGMII_TX_CLK_DLY		0x100
 
-	if (board_is_evm_sk() || board_is_gp_evm()) {
+	if (board_is_evm_sk(&header) || board_is_gp_evm(&header)) {
 		const char *devname;
 		devname = miiphy_get_current_dev();
 

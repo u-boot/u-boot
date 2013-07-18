@@ -262,13 +262,13 @@ static unsigned short detect_daughter_board_profile(void)
 void enable_board_pin_mux(struct am335x_baseboard_id *header)
 {
 	/* Do board-specific muxes. */
-	if (!strncmp(header->name, "A335BONE", HDR_NAME_LEN)) {
+	if (board_is_bone(header)) {
 		/* Beaglebone pinmux */
 		configure_module_pin_mux(i2c1_pin_mux);
 		configure_module_pin_mux(mii1_pin_mux);
 		configure_module_pin_mux(mmc0_pin_mux);
 		configure_module_pin_mux(mmc1_pin_mux);
-	} else if (!strncmp(header->config, "SKU#01", 6)) {
+	} else if (board_is_gp_evm(header)) {
 		/* General Purpose EVM */
 		unsigned short profile = detect_daughter_board_profile();
 		configure_module_pin_mux(rgmii1_pin_mux);
@@ -283,7 +283,7 @@ void enable_board_pin_mux(struct am335x_baseboard_id *header)
 			configure_module_pin_mux(mmc1_pin_mux);
 			configure_module_pin_mux(spi0_pin_mux);
 		}
-	} else if (!strncmp(header->config, "SKU#02", 6)) {
+	} else if (board_is_idk(header)) {
 		/*
 		 * Industrial Motor Control (IDK)
 		 * note: IDK console is on UART3 by default.
@@ -292,13 +292,13 @@ void enable_board_pin_mux(struct am335x_baseboard_id *header)
 		 */
 		configure_module_pin_mux(mii1_pin_mux);
 		configure_module_pin_mux(mmc0_no_cd_pin_mux);
-	} else if (!strncmp(header->name, "A335X_SK", HDR_NAME_LEN)) {
+	} else if (board_is_evm_sk(header)) {
 		/* Starter Kit EVM */
 		configure_module_pin_mux(i2c1_pin_mux);
 		configure_module_pin_mux(gpio0_7_pin_mux);
 		configure_module_pin_mux(rgmii1_pin_mux);
 		configure_module_pin_mux(mmc0_pin_mux_sk_evm);
-	} else if (!strncmp(header->name, "A335BNLT", HDR_NAME_LEN)) {
+	} else if (board_is_bone_lt(header)) {
 		/* Beaglebone LT pinmux */
 		configure_module_pin_mux(i2c1_pin_mux);
 		configure_module_pin_mux(mii1_pin_mux);
