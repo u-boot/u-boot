@@ -17,8 +17,6 @@
 #define CONFIG_TEGRA			/* which is a Tegra generic machine */
 #define CONFIG_SYS_L2CACHE_OFF		/* No L2 cache */
 
-#define CONFIG_SYS_CACHELINE_SIZE	32
-
 #include <asm/arch/tegra.h>		/* get chip and board defs */
 
 /*
