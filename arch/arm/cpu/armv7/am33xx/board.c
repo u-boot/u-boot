@@ -142,7 +142,7 @@ int arch_misc_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
+#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_NOR_BOOT)
 void rtc32k_enable(void)
 {
 	struct rtc_regs *rtc = (struct rtc_regs *)RTC_BASE;

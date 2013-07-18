@@ -40,6 +40,9 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 
+/* Custom script for NOR */
+#define CONFIG_SYS_LDSCRIPT		"board/ti/am335x/u-boot.lds"
+
 #define CONFIG_SYS_CACHELINE_SIZE       64
 
 /* commands to include */
@@ -306,6 +309,7 @@
 #define CONFIG_ENV_OVERWRITE		1
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
 
+#ifndef CONFIG_NOR_BOOT
 /* Defines for SPL */
 #define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
@@ -377,6 +381,7 @@
 #define CONFIG_SPL_NAND_BASE
 #define CONFIG_SPL_NAND_DRIVERS
 #define CONFIG_SPL_NAND_ECC
+#endif
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_PAGE_COUNT	(CONFIG_SYS_NAND_BLOCK_SIZE / \
 					 CONFIG_SYS_NAND_PAGE_SIZE)
@@ -405,14 +410,18 @@
  * header. That is 0x800FFFC0--0x80100000 should not be used for any
  * other needs.
  */
+#ifdef CONFIG_NOR_BOOT
+#define CONFIG_SYS_TEXT_BASE		0x08000000
+#else
 #define CONFIG_SYS_TEXT_BASE		0x80800000
+#endif
 #define CONFIG_SYS_SPL_MALLOC_START	0x80a08000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
 
 /* Since SPL did pll and ddr initialization for us,
  * we don't need to do it twice.
  */
-#ifndef CONFIG_SPL_BUILD
+#if !defined(CONFIG_SPL_BUILD) && !defined(CONFIG_NOR_BOOT)
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #endif
 
@@ -509,7 +518,7 @@
 							/* CS0 */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of NAND
 							   devices */
-#if !defined(CONFIG_SPI_BOOT)
+#if !defined(CONFIG_SPI_BOOT) && !defined(CONFIG_NOR_BOOT)
 #define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
 #define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:128k(SPL)," \
 					"128k(SPL.backup1)," \
@@ -547,6 +556,19 @@
 #define CONFIG_SYS_FLASH_BASE		(0x08000000)
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
+#ifdef CONFIG_NOR_BOOT
+#define CONFIG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_SECT_SIZE		(128 << 10)	/* 128 KiB */
+#define CONFIG_ENV_OFFSET		(512 << 10)	/* 512 KiB */
+#define CONFIG_ENV_OFFSET_REDUND	(768 << 10)	/* 768 KiB */
+#define CONFIG_CMD_MTDPARTS
+#define MTDIDS_DEFAULT			"nor0=physmap-flash.0"
+#define MTDPARTS_DEFAULT		"mtdparts=physmap-flash.0:" \
+					"512k(u-boot)," \
+					"128k(u-boot-env1)," \
+					"128k(u-boot-env2)," \
+					"4m(kernel),-(rootfs)"
+#endif
 #define CONFIG_MTD_DEVICE
 #define CONFIG_CMD_FLASH
 #endif  /* NOR support */

@@ -83,7 +83,7 @@ static int read_eeprom(struct am335x_baseboard_id *header)
 	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
+#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_NOR_BOOT)
 static const struct ddr_data ddr2_data = {
 	.datardsratio0 = ((MT47H128M16RT25E_RD_DQS<<30) |
 			  (MT47H128M16RT25E_RD_DQS<<20) |
@@ -249,9 +249,27 @@ int spl_start_uboot(void)
  */
 void s_init(void)
 {
-#ifdef CONFIG_SPL_BUILD
-	struct am335x_baseboard_id header;
+	__maybe_unused struct am335x_baseboard_id header;
 
+	/*
+	 * The ROM will only have set up sufficient pinmux to allow for the
+	 * first 4KiB NOR to be read, we must finish doing what we know of
+	 * the NOR mux in this space in order to continue.
+	 */
+#ifdef CONFIG_NOR_BOOT
+	asm("stmfd      sp!, {r2 - r4}");
+	asm("movw       r4, #0x8A4");
+	asm("movw       r3, #0x44E1");
+	asm("orr        r4, r4, r3, lsl #16");
+	asm("mov        r2, #9");
+	asm("mov        r3, #8");
+	asm("gpmc_mux:  str     r2, [r4], #4");
+	asm("subs       r3, r3, #1");
+	asm("bne        gpmc_mux");
+	asm("ldmfd      sp!, {r2 - r4}");
+#endif
+
+#ifdef CONFIG_SPL_BUILD
 	/*
 	 * Save the boot parameters passed from romcode.
 	 * We cannot delay the saving further than this,
@@ -270,7 +288,7 @@ void s_init(void)
 	while (readl(&wdtimer->wdtwwps) != 0x0)
 		;
 
-#ifdef CONFIG_SPL_BUILD
+#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_NOR_BOOT)
 	/* Setup the PLLs and the clocks for the peripherals */
 	pll_init();
 
@@ -298,9 +316,16 @@ void s_init(void)
 
 	uart_soft_reset();
 
+#if defined(CONFIG_NOR_BOOT)
+	/* We want our console now. */
+	gd->baudrate = CONFIG_BAUDRATE;
+	serial_init();
+	gd->have_console = 1;
+#else
 	gd = &gdata;
 
 	preloader_console_init();
+#endif
 
 	/* Initalize the board header */
 	enable_i2c0_pin_mux();
