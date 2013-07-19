@@ -412,7 +412,7 @@ int genphy_config(struct phy_device *phydev)
 		if (val & ESTATUS_1000_XFULL)
 			features |= SUPPORTED_1000baseX_Full;
 		if (val & ESTATUS_1000_XHALF)
-			features |= SUPPORTED_1000baseX_Full;
+			features |= SUPPORTED_1000baseX_Half;
 	}
 
 	phydev->supported = features;
