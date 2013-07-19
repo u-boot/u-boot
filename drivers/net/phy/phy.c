@@ -333,7 +333,15 @@ int genphy_parse_link(struct phy_device *phydev)
 		} else if (lpa & LPA_10FULL)
 			phydev->duplex = DUPLEX_FULL;
 
-		if (mii_reg & BMSR_ESTATEN)
+		/*
+		 * Extended status may indicate that the PHY supports
+		 * 1000BASE-T/X even though the 1000BASE-T registers
+		 * are missing. In this case we can't tell whether the
+		 * peer also supports it, so we only check extended
+		 * status if the 1000BASE-T registers are actually
+		 * missing.
+		 */
+		if ((mii_reg & BMSR_ESTATEN) && !(mii_reg & BMSR_ERCAP))
 			estatus = phy_read(phydev, MDIO_DEVAD_NONE,
 					   MII_ESTATUS);
 
