@@ -192,6 +192,8 @@
 #define   SDHCI_SPEC_200	1
 #define   SDHCI_SPEC_300	2
 
+#define SDHCI_GET_VERSION(x) (x->version & SDHCI_SPEC_VER_MASK)
+
 /*
  * End of controller registers.
  */
@@ -210,6 +212,7 @@
 #define SDHCI_QUIRK_NO_CD		(1 << 5)
 #define SDHCI_QUIRK_WAIT_SEND_CMD	(1 << 6)
 #define SDHCI_QUIRK_NO_SIMULT_VDD_AND_POWER (1 << 7)
+#define SDHCI_QUIRK_USE_WIDE8		(1 << 8)
 
 /* to make gcc happy */
 struct sdhci_host;
