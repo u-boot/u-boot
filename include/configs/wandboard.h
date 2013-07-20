@@ -113,6 +113,7 @@
 	"script=boot.scr\0" \
 	"uimage=uImage\0" \
 	"console=ttymxc0\0" \
+	"splashpos=m,m\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
