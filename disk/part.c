@@ -548,6 +548,8 @@ int get_device_and_partition(const char *ifname, const char *dev_part_str,
 			goto cleanup;
 		}
 
+		(*dev_desc)->log2blksz = LOG2((*dev_desc)->blksz);
+
 		info->start = 0;
 		info->size = (*dev_desc)->lba;
 		info->blksz = (*dev_desc)->blksz;
@@ -630,6 +632,8 @@ int get_device_and_partition(const char *ifname, const char *dev_part_str,
 		ret  = -1;
 		goto cleanup;
 	}
+
+	(*dev_desc)->log2blksz = LOG2((*dev_desc)->blksz);
 
 	ret = part;
 	goto cleanup;
