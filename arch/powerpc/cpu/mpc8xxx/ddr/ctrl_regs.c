@@ -364,7 +364,7 @@ static void set_timing_cfg_3(fsl_ddr_cfg_regs_t *ddr,
 
 	ddr->timing_cfg_3 = (0
 		| ((ext_pretoact & 0x1) << 28)
-		| ((ext_acttopre & 0x2) << 24)
+		| ((ext_acttopre & 0x3) << 24)
 		| ((ext_acttorw & 0x1) << 22)
 		| ((ext_refrec & 0x1F) << 16)
 		| ((ext_caslat & 0x3) << 12)
