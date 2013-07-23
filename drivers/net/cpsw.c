@@ -487,7 +487,7 @@ static inline void wait_for_idle(void)
 static int cpsw_mdio_read(struct mii_dev *bus, int phy_id,
 				int dev_addr, int phy_reg)
 {
-	unsigned short data;
+	int data;
 	u32 reg;
 
 	if (phy_reg & ~PHY_REG_MASK || phy_id & ~PHY_ID_MASK)

@@ -277,7 +277,7 @@ int genphy_parse_link(struct phy_device *phydev)
 	/* We're using autonegotiation */
 	if (mii_reg & BMSR_ANEGCAPABLE) {
 		u32 lpa = 0;
-		u32 gblpa = 0;
+		int gblpa = 0;
 		u32 estatus = 0;
 
 		/* Check for gigabit capability */
@@ -286,6 +286,10 @@ int genphy_parse_link(struct phy_device *phydev)
 			 * both PHYs in the link
 			 */
 			gblpa = phy_read(phydev, MDIO_DEVAD_NONE, MII_STAT1000);
+			if (gblpa < 0) {
+				debug("Could not read MII_STAT1000. Ignoring gigabit capability\n");
+				gblpa = 0;
+			}
 			gblpa &= phy_read(phydev,
 					MDIO_DEVAD_NONE, MII_CTRL1000) << 2;
 		}
