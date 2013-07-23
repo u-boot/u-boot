@@ -477,7 +477,7 @@ struct display_info_t {
 static int detect_hdmi(struct display_info_t const *dev)
 {
 	struct hdmi_regs *hdmi	= (struct hdmi_regs *)HDMI_ARB_BASE_ADDR;
-	return readb(&hdmi->phy_stat0) & HDMI_PHY_HPD;
+	return readb(&hdmi->phy_stat0) & HDMI_DVI_STAT;
 }
 
 static void do_enable_hdmi(struct display_info_t const *dev)
