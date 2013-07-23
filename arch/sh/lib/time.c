@@ -17,6 +17,8 @@
 #include <asm/io.h>
 #include <sh_tmu.h>
 
+#define TCR_TPSC 0x07
+
 static struct tmu_regs *tmu = (struct tmu_regs *)TMU_BASE;
 
 static u16 bit;
@@ -61,7 +63,7 @@ static void tmu_timer_stop(unsigned int timer)
 int timer_init(void)
 {
 	bit = (ffs(CONFIG_SYS_TMU_CLK_DIV) >> 1) - 1;
-	writew(readw(&tmu->tcr0) | bit, &tmu->tcr0);
+	writew((readw(&tmu->tcr0) & ~TCR_TPSC) | bit, &tmu->tcr0);
 
 	tmu_timer_stop(0);
 	tmu_timer_start(0);
