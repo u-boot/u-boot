@@ -413,7 +413,7 @@ endif
 
 all:		$(ALL-y) $(SUBDIR_EXAMPLES)
 
-$(obj)u-boot.dtb:	$(obj)u-boot
+$(obj)u-boot.dtb:	checkdtc $(obj)u-boot
 		$(MAKE) -C dts binary
 		mv $(obj)dts/dt.dtb $@
 
@@ -664,6 +664,12 @@ checkthumb:
 checkgcc4:
 	@if test $(call cc-version) -lt 0400; then \
 		echo -n '*** Your GCC is too old, please upgrade to GCC 4.x or newer'; \
+		false; \
+	fi
+
+checkdtc:
+	@if test $(call dtc-version) -lt 0104; then \
+		echo '*** Your dtc is too old, please upgrade to dtc 1.4 or newer'; \
 		false; \
 	fi
 
