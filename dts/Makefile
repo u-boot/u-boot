@@ -35,7 +35,7 @@ all:	$(obj).depend $(LIB)
 DT_BIN	:= $(obj)dt.dtb
 
 $(DT_BIN): $(TOPDIR)/board/$(VENDOR)/dts/$(DEVICE_TREE).dts
-	$(CPP) -P $(DTS_CPPFLAGS) $< -o $(DT_BIN).dts.tmp
+	$(CPP) $(DTS_CPPFLAGS) $< -o $(DT_BIN).dts.tmp
 	$(DTC) $(DTC_FLAGS) -O dtb -o ${DT_BIN} $(DT_BIN).dts.tmp
 
 process_lds = \
