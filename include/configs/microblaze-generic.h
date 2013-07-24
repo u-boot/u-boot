@@ -18,7 +18,7 @@
 /* Open Firmware DTS */
 #define CONFIG_OF_CONTROL	1
 #define CONFIG_OF_EMBED		1
-#define CONFIG_DEFAULT_DEVICE_TREE microblaze
+#define CONFIG_DEFAULT_DEVICE_TREE microblaze-generic
 
 /* linear and spi flash memory */
 #ifdef XILINX_FLASH_START
