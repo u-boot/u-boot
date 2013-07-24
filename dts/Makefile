@@ -21,11 +21,18 @@ $(if $(CONFIG_ARCH_DEVICE_TREE),,\
 $(error Your architecture does not have device tree support enabled. \
 Please define CONFIG_ARCH_DEVICE_TREE))
 
+DTS_INCDIRS =  $(SRCTREE)/board/$(VENDOR)/$(BOARD)/dts
+DTS_INCDIRS += $(SRCTREE)/board/$(VENDOR)/dts
+DTS_INCDIRS += $(SRCTREE)/arch/$(ARCH)/dts
+
 # We preprocess the device tree file provide a useful define
 DTS_CPPFLAGS := -x assembler-with-cpp \
 		-DARCH_CPU_DTS=\"$(SRCTREE)/arch/$(ARCH)/dts/$(CONFIG_ARCH_DEVICE_TREE).dtsi\" \
 		-DBOARD_DTS=\"$(SRCTREE)/board/$(VENDOR)/$(BOARD)/dts/$(DEVICE_TREE).dts\" \
-		-I$(SRCTREE)/board/$(VENDOR)/dts -I$(SRCTREE)/arch/$(ARCH)/dts
+		-nostdinc $(addprefix -I,$(DTS_INCDIRS))
+
+DTC_FLAGS := -R 4 -p 0x1000 \
+	$(addprefix -i ,$(DTS_INCDIRS))
 
 all:	$(obj).depend $(LIB)
 
@@ -36,7 +43,7 @@ DT_BIN	:= $(obj)dt.dtb
 
 $(DT_BIN): $(TOPDIR)/board/$(VENDOR)/dts/$(DEVICE_TREE).dts
 	$(CPP) -P $(DTS_CPPFLAGS) $< -o $(DT_BIN).dts.tmp
-	$(DTC) -R 4 -p 0x1000 -O dtb -o ${DT_BIN} $(DT_BIN).dts.tmp
+	$(DTC) $(DTC_FLAGS) -O dtb -o ${DT_BIN} $(DT_BIN).dts.tmp
 
 process_lds = \
 	$(1) | sed -r -n 's/^OUTPUT_$(2)[ ("]*([^")]*).*/\1/p'
