@@ -15,5 +15,3 @@ CONFIG_STANDALONE_LOAD_ADDR ?= 0x80F00000
 PLATFORM_CPPFLAGS += -ffixed-r31 -D__microblaze__
 
 LDSCRIPT ?= $(SRCTREE)/$(CPUDIR)/u-boot.lds
-
-CONFIG_ARCH_DEVICE_TREE := microblaze
