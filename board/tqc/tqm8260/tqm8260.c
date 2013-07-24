@@ -144,7 +144,7 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PD18 */ {   0,   0,   0,   1,   0,   0   }, /* PD19 */
 	/* PD17 */ {   0,   1,   0,   0,   0,   0   }, /* FCC1 ATMRXPRTY */
 	/* PD16 */ {   0,   1,   0,   1,   0,   0   }, /* FCC1 ATMTXPRTY */
-#if defined(CONFIG_SOFT_I2C)
+#if defined(CONFIG_SYS_I2C_SOFT)
 	/* PD15 */ {   1,   0,   0,   1,   1,   1   }, /* I2C SDA */
 	/* PD14 */ {   1,   0,   0,   1,   1,   1   }, /* I2C SCL */
 #else

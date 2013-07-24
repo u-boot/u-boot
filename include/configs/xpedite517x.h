@@ -242,13 +242,14 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * I2C
  */
-#define CONFIG_FSL_I2C				/* Use FSL common I2C driver */
-#define CONFIG_HARD_I2C				/* I2C with hardware support */
-#define CONFIG_SYS_I2C_SPEED		100000	/* M41T00 only supports 100 KHz */
-#define CONFIG_SYS_I2C_SLAVE		0x7F
-#define CONFIG_SYS_I2C_OFFSET		0x3000
-#define CONFIG_SYS_I2C2_OFFSET		0x3100
-#define CONFIG_I2C_MULTI_BUS
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_FSL
+#define CONFIG_SYS_FSL_I2C_SPEED	100000
+#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
+#define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
+#define CONFIG_SYS_FSL_I2C2_SPEED	100000
+#define CONFIG_SYS_FSL_I2C2_SLAVE	0x7F
+#define CONFIG_SYS_FSL_I2C2_OFFSET	0x3100
 
 /* PEX8518 slave I2C interface */
 #define CONFIG_SYS_I2C_PEX8518_ADDR	0x70

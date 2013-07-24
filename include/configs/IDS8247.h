@@ -57,11 +57,10 @@
 #define CONFIG_MISC_INIT_R	1
 
 /* enable I2C and select the hardware/software driver */
-#undef  CONFIG_HARD_I2C			/* I2C with hardware support	*/
-#define CONFIG_SOFT_I2C		1	/* I2C bit-banged		*/
-#define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed and slave address	*/
-#define CONFIG_SYS_I2C_SLAVE		0x7F
-
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
+#define CONFIG_SYS_I2C_SOFT_SPEED	400000
+#define CONFIG_SYS_I2C_SOFT_SLAVE	0x7F
 /*
  * Software (bit-bang) I2C driver configuration
  */

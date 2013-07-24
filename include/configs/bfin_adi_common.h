@@ -71,7 +71,7 @@
 # ifdef CONFIG_SPI_FLASH
 #  define CONFIG_CMD_SF
 # endif
-# if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
+# if defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C_SOFT)
 #  define CONFIG_CMD_I2C
 #  define CONFIG_SOFT_I2C_READ_REPEATED_START
 # endif
@@ -299,7 +299,7 @@
 /*
  * I2C Settings
  */
-#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
+#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C_SOFT)
 # ifndef CONFIG_SYS_I2C_SPEED
 #  define CONFIG_SYS_I2C_SPEED 50000
 # endif

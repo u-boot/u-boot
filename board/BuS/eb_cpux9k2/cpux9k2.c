@@ -272,7 +272,7 @@ int drv_video_init(void)
 }
 #endif
 
-#ifdef CONFIG_SOFT_I2C
+#ifdef CONFIG_SYS_I2C_SOFT
 
 void i2c_init_board(void)
 {

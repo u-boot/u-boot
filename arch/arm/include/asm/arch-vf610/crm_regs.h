@@ -177,6 +177,7 @@ struct anadig_reg {
 #define CCM_CCGR4_WKUP_CTRL_MASK		(0x3 << 20)
 #define CCM_CCGR4_CCM_CTRL_MASK			(0x3 << 22)
 #define CCM_CCGR4_GPC_CTRL_MASK			(0x3 << 24)
+#define CCM_CCGR4_I2C0_CTRL_MASK		(0x3 << 12)
 #define CCM_CCGR6_OCOTP_CTRL_MASK		(0x3 << 10)
 #define CCM_CCGR6_DDRMC_CTRL_MASK		(0x3 << 28)
 #define CCM_CCGR7_SDHC1_CTRL_MASK		(0x3 << 4)

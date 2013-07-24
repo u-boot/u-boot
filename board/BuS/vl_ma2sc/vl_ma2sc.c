@@ -307,7 +307,7 @@ int board_eth_init(bd_t *bis)
 	return rc;
 }
 
-#ifdef CONFIG_SOFT_I2C
+#ifdef CONFIG_SYS_I2C_SOFT
 void i2c_init_board(void)
 {
 	u32 pin;

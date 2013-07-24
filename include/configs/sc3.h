@@ -230,16 +230,16 @@
  * IIC stuff
  *-----------------------------------------------------------------------
  */
-#define  CONFIG_HARD_I2C		/* I2C with hardware support	*/
-#undef	CONFIG_SOFT_I2C			/* I2C bit-banged		*/
-#define CONFIG_PPC4XX_I2C		/* use PPC4xx driver		*/
+#define  CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_PPC4XX
+#define CONFIG_SYS_I2C_PPC4XX_CH0
 
 #define I2C_INIT
 #define I2C_ACTIVE 0
 #define I2C_TRISTATE 0
 
-#define CONFIG_SYS_I2C_SPEED		100000	/* use the standard 100kHz speed */
-#define CONFIG_SYS_I2C_SLAVE		0x7F		/* mask valid bits */
+#define CONFIG_SYS_I2C_PPC4XX_SPEED_0		100000
+#define CONFIG_SYS_I2C_PPC4XX_SLAVE_0		0x7F	/* mask valid bits */
 
 #define CONFIG_RTC_DS1337
 #define CONFIG_SYS_I2C_RTC_ADDR 0x68

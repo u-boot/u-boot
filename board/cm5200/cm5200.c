@@ -309,7 +309,7 @@ int board_early_init_r(void)
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
-#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
+#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C_SOFT)
 	uchar buf[6];
 	char str[18];
 	char hostname[MODULE_NAME_MAXLEN];
@@ -332,7 +332,7 @@ int misc_init_r(void)
 			" device at address %02X:%04X\n", CONFIG_SYS_I2C_EEPROM,
 			CONFIG_MAC_OFFSET);
 	}
-#endif /* defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C) */
+#endif /* defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C_SOFT) */
 	if (!getenv("ethaddr"))
 		printf(LOG_PREFIX "MAC address not set, networking is not "
 					"operational\n");

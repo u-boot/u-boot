@@ -207,11 +207,10 @@
  * I2C-Bus
  */
 
-#define CONFIG_SYS_I2C_SPEED		50000
-#define CONFIG_SYS_I2C_SLAVE		0 		/* not used */
-
-#ifndef CONFIG_HARD_I2C
-#define CONFIG_SOFT_I2C
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
+#define CONFIG_SYS_I2C_SOFT_SPEED	50000
+#define CONFIG_SYS_I2C_SOFT_SLAVE	0
 
 /* Software  I2C driver configuration */
 
@@ -235,9 +234,7 @@
 	else							\
 		writel(ATMEL_PMX_AA_TWCK, &pio->pioa.codr);
 
-#define I2C_DELAY	udelay(2500000/CONFIG_SYS_I2C_SPEED)
-
-#endif	/* CONFIG_HARD_I2C */
+#define I2C_DELAY	udelay(2500000/CONFIG_SYS_I2C_SOFT_SPEED)
 
 /* I2C-RTC */
 

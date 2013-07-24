@@ -191,6 +191,11 @@ u32 get_fec_clk(void)
 	return freq;
 }
 
+static u32 get_i2c_clk(void)
+{
+	return get_ipg_clk();
+}
+
 unsigned int mxc_get_clock(enum mxc_clock clk)
 {
 	switch (clk) {
@@ -206,6 +211,8 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 		return get_sdhc_clk();
 	case MXC_FEC_CLK:
 		return get_fec_clk();
+	case MXC_I2C_CLK:
+		return get_i2c_clk();
 	default:
 		break;
 	}

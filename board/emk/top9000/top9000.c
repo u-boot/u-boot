@@ -229,7 +229,7 @@ int board_eth_init(bd_t *bis)
  * However i2c_get_bus_num() cannot be called before
  * relocation.
  */
-#ifdef CONFIG_SOFT_I2C
+#ifdef CONFIG_SYS_I2C_SOFT
 void iic_init(void)
 {
 	/* ports are now initialized in board_early_init_f() */
@@ -237,7 +237,7 @@ void iic_init(void)
 
 int iic_read(void)
 {
-	switch ((gd->flags & GD_FLG_RELOC) ? i2c_get_bus_num() : 0) {
+	switch (I2C_ADAP_HWNR) {
 	case 0:
 		return at91_get_pio_value(I2C0_PORT, SDA0_PIN);
 	case 1:
@@ -248,7 +248,7 @@ int iic_read(void)
 
 void iic_sda(int bit)
 {
-	switch ((gd->flags & GD_FLG_RELOC) ? i2c_get_bus_num() : 0) {
+	switch (I2C_ADAP_HWNR) {
 	case 0:
 		at91_set_pio_value(I2C0_PORT, SDA0_PIN, bit);
 		break;
@@ -260,7 +260,7 @@ void iic_sda(int bit)
 
 void iic_scl(int bit)
 {
-	switch ((gd->flags & GD_FLG_RELOC) ? i2c_get_bus_num() : 0) {
+	switch (I2C_ADAP_HWNR) {
 	case 0:
 		at91_set_pio_value(I2C0_PORT, SCL0_PIN, bit);
 		break;

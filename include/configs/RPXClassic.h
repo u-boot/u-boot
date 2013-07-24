@@ -132,14 +132,16 @@
  * I2C Configuration
  *-----------------------------------------------------------------------------
  */
-#define CONFIG_I2C              1
-#define CONFIG_SYS_I2C_SPEED           50000
-#define CONFIG_SYS_I2C_SLAVE           0x34
+#define CONFIG_SYS_I2C_SPEED		50000
+#define CONFIG_SYS_I2C_SLAVE		0x34
 
 
 /* enable I2C and select the hardware/software driver */
 #define CONFIG_HARD_I2C		1	/* I2C with hardware support	*/
-#undef  CONFIG_SOFT_I2C			/* I2C bit-banged		*/
+#undef  CONFIG_SYS_I2C_SOFT		/* I2C bit-banged		*/
+
+#if defined(CONFIG_SYS_I2C_SOFT)
+#define CONFIG_SYS_I2C			1
 /*
  * Software (bit-bang) I2C driver configuration
  */
@@ -154,8 +156,10 @@
 #define I2C_DELAY	udelay(5)	/* 1/4 I2C clock duration */
 
 
-# define CONFIG_SYS_I2C_SPEED		50000
-# define CONFIG_SYS_I2C_SLAVE		0x34
+#define CONFIG_SYS_I2C_SOFT_SPEED	50000
+#define CONFIG_SYS_I2C_SOFT_SLAVE	0x34
+#endif
+
 # define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* EEPROM X24C16		*/
 # define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1	/* bytes of address		*/
 /* mask of address bits that overflow into the "EEPROM chip address"    */

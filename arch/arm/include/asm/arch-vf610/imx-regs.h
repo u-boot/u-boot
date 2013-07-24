@@ -90,6 +90,7 @@
 #define CONFIG_IOMUX_SHARE_CONF_REG
 
 #define FEC_QUIRK_ENET_MAC
+#define I2C_QUIRK_REG
 
 /* MSCM interrupt rounter */
 #define MSCM_IRSPRC_CP0_EN				1

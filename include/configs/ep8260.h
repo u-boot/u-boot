@@ -211,15 +211,18 @@
  * If the software driver is chosen, there are some additional
  * configuration items that the driver uses to drive the port pins.
  */
-#undef  CONFIG_HARD_I2C			/* I2C with hardware support	*/
-#define CONFIG_SOFT_I2C		1	/* I2C bit-banged		*/
+#define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
+
 #define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed and slave address	*/
-#define CONFIG_SYS_I2C_SLAVE		0x7F
+#define CONFIG_SYS_I2C_SLAVE		0x7F	/* This is for HARD, must go */
 
 /*
  * Software (bit-bang) I2C driver configuration
  */
-#ifdef CONFIG_SOFT_I2C
+#ifdef CONFIG_SYS_I2C_SOFT
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_SOFT_SPEED	50000
+#define CONFIG_SYS_I2C_SOFT_SLAVE	0xFE
 #define I2C_PORT	3		/* Port A=0, B=1, C=2, D=3 */
 #define I2C_ACTIVE	(iop->pdir |=  0x00010000)
 #define I2C_TRISTATE	(iop->pdir &= ~0x00010000)
@@ -229,7 +232,7 @@
 #define I2C_SCL(bit)	if(bit) iop->pdat |=  0x00020000; \
 			else    iop->pdat &= ~0x00020000
 #define I2C_DELAY	udelay(5)	/* 1/4 I2C clock duration */
-#endif /* CONFIG_SOFT_I2C */
+#endif /* CONFIG_SYS_I2C_SOFT */
 
 /* #define CONFIG_RTC_DS174x */
 

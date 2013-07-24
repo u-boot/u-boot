@@ -35,7 +35,7 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PA27 */ {   1,   1,	 1,   0,   0,	0   }, /* FCC1 RXDV */
 	/* PA26 */ {   1,   1,	 1,   0,   0,	0   }, /* FCC1 RXER */
 	/* PA25 */ {   0,   0,	 0,   0,   1,	0   }, /* 8247_P0 */
-#if defined(CONFIG_SOFT_I2C)
+#if defined(CONFIG_SYS_I2C_SOFT)
 	/* PA24 */ {   1,   0,	 0,   0,   1,	1   }, /* I2C_SDA2 */
 	/* PA23 */ {   1,   0,	 0,   1,   1,	1   }, /* I2C_SCL2 */
 #else /* normal I/O port pins */

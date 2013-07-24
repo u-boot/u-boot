@@ -131,10 +131,12 @@
 #define CONFIG_SYS_I2C_SLAVE			0		/* not used */
 
 #ifndef CONFIG_HARD_I2C
-#define CONFIG_SOFT_I2C
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_SOFT			/* I2C bit-banged */
+#define CONFIG_SYS_I2C_SOFT_SPEED	CONFIG_SYS_I2C_SPEED
+#define CONFIG_SYS_I2C_SOFT_SLAVE	CONFIG_SYS_I2C_SLAVE
 
 /* Software  I2C driver configuration */
-
 #define I2C_DELAY	udelay(2500000/CONFIG_SYS_I2C_SPEED)
 
 #define AT91_PIN_SDA	(1<<4)		/* AT91C_PIO_PB4 */

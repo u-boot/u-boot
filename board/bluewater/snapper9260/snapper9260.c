@@ -132,7 +132,7 @@ int board_init(void)
 
 	/* Initialise peripherals */
 	at91_seriald_hw_init();
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+	i2c_set_bus_num(0);
 	nand_hw_init();
 	macb_hw_init();
 

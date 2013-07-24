@@ -93,8 +93,11 @@
 #ifndef __ASSEMBLY__
 #include <asm/arch/gpio.h>
 #define CONFIG_CMD_I2C
-#define CONFIG_SOFT_I2C
-#define CONFIG_SYS_I2C_SPEED	400000
+#define CONFIG_SYS_I2C
+#define	CONFIG_SYS_I2C_SOFT	1	/* I2C bit-banged	*/
+#define I2C_SOFT_DEFS
+#define CONFIG_SYS_I2C_SOFT_SPEED	400000
+#define CONFIG_SYS_I2C_SOFT_SLAVE	0x7F
 #define __SDA			63
 #define __SCL			62
 #define I2C_SDA(x)		nmk_gpio_set(__SDA, x)

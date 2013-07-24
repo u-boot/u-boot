@@ -57,8 +57,13 @@ int dtt_i2c(void)
 	/* Force a compilation error, if there are more then 32 sensors */
 	BUILD_BUG_ON(sizeof(sensors) > 32);
 	/* switch to correct I2C bus */
+#ifdef CONFIG_SYS_I2C
+	old_bus = i2c_get_bus_num();
+	i2c_set_bus_num(CONFIG_SYS_DTT_BUS_NUM);
+#else
 	old_bus = I2C_GET_BUS();
 	I2C_SET_BUS(CONFIG_SYS_DTT_BUS_NUM);
+#endif
 
 	_initialize_dtt();
 
@@ -70,7 +75,11 @@ int dtt_i2c(void)
 		printf("DTT%d: %i C\n", i + 1, dtt_get_temp(sensors[i]));
 
 	/* switch back to original I2C bus */
+#ifdef CONFIG_SYS_I2C
+	i2c_set_bus_num(old_bus);
+#else
 	I2C_SET_BUS(old_bus);
+#endif
 #endif
 
 	return 0;

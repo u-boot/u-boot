@@ -29,9 +29,10 @@
 /*
  * I2C
  */
-#define CONFIG_HARD_I2C			/* I2C with hardware support	*/
-#define CONFIG_PPC4XX_I2C		/* use PPC4xx driver		*/
-#define CONFIG_SYS_I2C_SLAVE		0x7F
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_PPC4XX
+#define CONFIG_SYS_I2C_PPC4XX_CH0
+#define CONFIG_SYS_I2C_PPC4XX_SLAVE_0		0x7F
 
 /*
  * Ethernet/EMAC/PHY

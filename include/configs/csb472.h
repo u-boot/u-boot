@@ -158,10 +158,11 @@
  * I2C configuration
  *
  */
-#define CONFIG_HARD_I2C		1	/* I2C with hardware support	*/
-#define CONFIG_PPC4XX_I2C		/* use PPC4xx driver		*/
-#define CONFIG_SYS_I2C_SPEED		100000	/* I2C speed			*/
-#define CONFIG_SYS_I2C_SLAVE		0x7F	/* I2C slave address		*/
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_PPC4XX
+#define CONFIG_SYS_I2C_PPC4XX_CH0
+#define CONFIG_SYS_I2C_PPC4XX_SPEED_0		100000
+#define CONFIG_SYS_I2C_PPC4XX_SLAVE_0		0x7F	/* I2C slave address */
 
 /*
  * MII PHY configuration

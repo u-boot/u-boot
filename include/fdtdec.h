@@ -84,6 +84,7 @@ enum fdt_compat_id {
 	COMPAT_MAXIM_98095_CODEC,	/* MAX98095 Codec */
 	COMPAT_INFINEON_SLB9635_TPM,	/* Infineon SLB9635 TPM */
 	COMPAT_INFINEON_SLB9645_TPM,	/* Infineon SLB9645 TPM */
+	COMPAT_SAMSUNG_EXYNOS5_I2C,	/* Exynos5 High Speed I2C Controller */
 
 	COMPAT_COUNT,
 };

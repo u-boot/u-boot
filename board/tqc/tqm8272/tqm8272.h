@@ -34,4 +34,4 @@ typedef struct{
 
 static HWIB_INFO	hwinf = {0, 0, 1, 0, 1, 0, 0, 0, 0, 8272, 0 ,0,
 			 0, 0, 0, 0, 0, 0};
-#endif
+#endif	/* __CONFIG_H */

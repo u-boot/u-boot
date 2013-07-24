@@ -106,13 +106,10 @@
 #endif
 
 /* enable I2C and select the hardware/software driver */
-#undef	CONFIG_HARD_I2C			/* I2C with hardware support	*/
-#define	CONFIG_SOFT_I2C			/* I2C bit-banged		*/
-
-# define CONFIG_SYS_I2C_SPEED		50000	/* 50 kHz is supposed to work	*/
-# define CONFIG_SYS_I2C_SLAVE		0xFE
-
-#ifdef CONFIG_SOFT_I2C
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
+#define CONFIG_SYS_I2C_SOFT_SPEED	50000
+#define CONFIG_SYS_I2C_SOFT_SLAVE	0xFE
 /*
  * Software (bit-bang) I2C driver configuration
  */
@@ -128,7 +125,6 @@
 #define I2C_SCL(bit)	if(bit) immr->im_cpm.cp_pbdat |=  PB_SCL; \
 			else    immr->im_cpm.cp_pbdat &= ~PB_SCL
 #define I2C_DELAY	udelay(1)	/* 1/4 I2C clock duration */
-#endif	/* CONFIG_SOFT_I2C */
 
 
 /*

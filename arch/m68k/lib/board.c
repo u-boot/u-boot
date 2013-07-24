@@ -40,7 +40,7 @@
 #include <version.h>
 
 #if defined(CONFIG_HARD_I2C) || \
-    defined(CONFIG_SOFT_I2C)
+	defined(CONFIG_SYS_I2C)
 #include <i2c.h>
 #endif
 
@@ -126,11 +126,15 @@ static int init_func_ram (void)
 
 /***********************************************************************/
 
-#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
+#if defined(CONFIG_HARD_I2C) ||	defined(CONFIG_SYS_I2C)
 static int init_func_i2c (void)
 {
 	puts ("I2C:   ");
+#ifdef CONFIG_SYS_I2C
+	i2c_init_all();
+#else
 	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+#endif
 	puts ("ready\n");
 	return (0);
 }
@@ -162,7 +166,7 @@ init_fnc_t *init_sequence[] = {
 	display_options,
 	checkcpu,
 	checkboard,
-#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
+#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C)
 	init_func_i2c,
 #endif
 #if defined(CONFIG_HARD_SPI)
@@ -483,6 +487,11 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	spi_init_f ();
 # endif
 	spi_init_r ();
+#endif
+
+#if defined(CONFIG_SYS_I2C)
+	/* Adjust I2C subsystem pointers after relocation */
+	i2c_reloc_fixup();
 #endif
 
 	/* relocate environment function pointers etc. */

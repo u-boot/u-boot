@@ -66,12 +66,11 @@
 #undef CONFIG_MCFPIT
 
 /* I2C */
-#define CONFIG_FSL_I2C
-#define CONFIG_HARD_I2C			/* I2C with hw support */
-#undef CONFIG_SOFT_I2C			/* I2C bit-banged */
-#define CONFIG_SYS_I2C_SPEED		80000
-#define CONFIG_SYS_I2C_SLAVE		0x7F
-#define CONFIG_SYS_I2C_OFFSET		0x58000
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_FSL
+#define CONFIG_SYS_FSL_I2C_SPEED	80000
+#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
+#define CONFIG_SYS_FSL_I2C_OFFSET	0x58000
 #define CONFIG_SYS_IMMR			CONFIG_SYS_MBAR
 
 #define CONFIG_BOOTDELAY		1	/* autoboot after 5 seconds */

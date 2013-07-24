@@ -1024,8 +1024,7 @@ phys_size_t initdram(int board_type)
 	 * before continuing.
 	 */
 	/* switch to correct I2C bus */
-	I2C_SET_BUS(CONFIG_SYS_SPD_BUS_NUM);
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+	i2c_set_bus_num(CONFIG_SYS_SPD_BUS_NUM);
 
 	/*------------------------------------------------------------------
 	 * Clear out the serial presence detect buffers.

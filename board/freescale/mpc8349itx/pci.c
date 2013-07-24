@@ -71,7 +71,7 @@ void pci_init_board(void)
 #endif
 	u8 reg8;
 
-#ifdef CONFIG_HARD_I2C
+#if defined(CONFIG_SYS_I2C)
 	i2c_set_bus_num(1);
 	/* Read the PCI_M66EN jumper setting */
 	if ((i2c_read(CONFIG_SYS_I2C_8574_ADDR2, 0, 0, &reg8, sizeof(reg8)) == 0) ||

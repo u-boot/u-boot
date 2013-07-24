@@ -104,7 +104,7 @@ int pcmcia_hardware_enable(int slot)
 
 	/*  switch VCC on */
 	val |= MAX1604_OP_SUS | MAX1604_VCCBON;
-	i2c_init  (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+	i2c_set_bus_num(0);
 	i2c_write (CONFIG_SYS_I2C_POWER_A_ADDR, 0, 0, &val, 1);
 
 	udelay(500000);
@@ -193,7 +193,7 @@ int pcmcia_voltage_set(int slot, int vcc, int vpp)
 	 */
 	debug ("PCMCIA power OFF\n");
 	val  = MAX1604_VCCBHIZ | MAX1604_VPPBHIZ;
-	i2c_init  (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+	i2c_set_bus_num(0);
 	i2c_write (CONFIG_SYS_I2C_POWER_A_ADDR, 0, 0, &val, 1);
 
 	val = 0;

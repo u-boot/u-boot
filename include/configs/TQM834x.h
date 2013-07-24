@@ -171,12 +171,11 @@
 /*
  * I2C
  */
-#define CONFIG_HARD_I2C			/* I2C with hardware support */
-#undef CONFIG_SOFT_I2C			/* I2C bit-banged */
-#define CONFIG_FSL_I2C
-#define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed: 400KHz */
-#define CONFIG_SYS_I2C_SLAVE		0x7F	/* slave address */
-#define CONFIG_SYS_I2C_OFFSET		0x3000
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_FSL
+#define CONFIG_SYS_FSL_I2C_SPEED	400000
+#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
+#define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
 
 /* I2C EEPROM, configuration for onboard EEPROMs 24C256 and 24C32 */
 #define CONFIG_SYS_I2C_EEPROM_ADDR		0x50	/* 1010000x */

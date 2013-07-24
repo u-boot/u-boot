@@ -117,10 +117,11 @@
 /*-----------------------------------------------------------------------
  * I2C/EEPROM/RTC configuration
  */
-#define CONFIG_SOFT_I2C			/* Software I2C support enabled */
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
+#define CONFIG_SYS_I2C_SOFT_SPEED	50000
+#define CONFIG_SYS_I2C_SOFT_SLAVE	0xFE
 
-# define CONFIG_SYS_I2C_SPEED		50000
-# define CONFIG_SYS_I2C_SLAVE		0xFE
 /*
  * Software (bit-bang) I2C driver configuration
  */

@@ -36,10 +36,6 @@
 /*
  * Set default values
  */
-#ifndef CONFIG_SYS_I2C_SPEED
-#define CONFIG_SYS_I2C_SPEED	50000
-#endif
-
 #define ONE_BILLION	1000000000
 
 #define	 SDRAM0_CFG_DCE		0x80000000
@@ -142,7 +138,7 @@ long int spd_sdram(int(read_spd)(uint addr))
 		 * Make sure I2C controller is initialized
 		 * before continuing.
 		 */
-		i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+		i2c_set_bus_num(CONFIG_SYS_SPD_BUS_NUM);
 	}
 
 	/* Make shure we are using SDRAM */

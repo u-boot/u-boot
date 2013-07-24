@@ -14,7 +14,6 @@
 #include <asm/io.h>
 #include <spd_sdram.h>
 #include <i2c.h>
-#include "../common/ppc440gx_i2c.h"
 #include "../common/sb_common.h"
 #if defined(CONFIG_HAS_ETH0) || defined(CONFIG_HAS_ETH1) || \
     defined(CONFIG_HAS_ETH2) || defined(CONFIG_HAS_ETH3)
@@ -289,11 +288,6 @@ int checkboard (void)
  ************************************************************************/
 int misc_init_f (void)
 {
-	/* Turn on i2c bus 1 */
-	puts ("I2C1:  ");
-	i2c1_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-	puts ("ready\n");
-
 	/* Turn on fans */
 	sbcommon_fans();
 

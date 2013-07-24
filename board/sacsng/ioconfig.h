@@ -187,7 +187,7 @@ const iop_conf_t iop_conf_tab[4][32] = {
 	/* PD17 */ { CONF, SPEC,   1,  DOUT, ACTV,   0   }, /* SPI_MOSI       */
 	/* PD16 */ { CONF, SPEC,   1,  DIN,  ACTV,   0   }, /* SPI_MISO       */
 #endif
-#if defined(CONFIG_SOFT_I2C)
+#if defined(CONFIG_SYS_I2C_SOFT)
 	/* PD15 */ { CONF, GPIO,   0,  DOUT, OPEN,   1   }, /* I2C_SDA        */
 	/* PD14 */ { CONF, GPIO,   0,  DOUT, ACTV,   1   }, /* I2C_SCL        */
 #else

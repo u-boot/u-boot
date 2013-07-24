@@ -76,7 +76,6 @@
 #define CONFIG_USART_ID		0/* ignored in arm */
 
 #undef CONFIG_HARD_I2C
-#undef CONFIG_SOFT_I2C
 #define AT91_PIN_SDA			(1<<25)
 #define AT91_PIN_SCL			(1<<26)
 
@@ -123,7 +122,7 @@
 #undef CONFIG_CMD_NFS
 #undef CONFIG_CMD_DHCP
 
-#ifdef CONFIG_SOFT_I2C
+#ifdef CONFIG_SYS_I2C_SOFT
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_I2C
 #endif

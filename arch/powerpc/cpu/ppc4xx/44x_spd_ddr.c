@@ -46,10 +46,6 @@
 /*
  * Set default values
  */
-#ifndef CONFIG_SYS_I2C_SPEED
-#define CONFIG_SYS_I2C_SPEED	50000
-#endif
-
 #define ONE_BILLION	1000000000
 
 /*
@@ -152,7 +148,7 @@ long int spd_sdram(void) {
 	 * Make sure I2C controller is initialized
 	 * before continuing.
 	 */
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+	i2c_set_bus_num(CONFIG_SYS_SPD_BUS_NUM);
 
 	/*
 	 * Read the SPD information using I2C interface. Check to see if the

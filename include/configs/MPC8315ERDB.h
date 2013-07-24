@@ -331,13 +331,12 @@
 #define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
 /* I2C */
-#define CONFIG_HARD_I2C		/* I2C with hardware support */
-#define CONFIG_FSL_I2C
-#define CONFIG_SYS_I2C_SPEED		400000 /* I2C speed and slave addr */
-#define CONFIG_SYS_I2C_SLAVE		0x7F
-#define CONFIG_SYS_I2C_NOPROBES		{0x51} /* Don't probe these addrs */
-#define CONFIG_SYS_I2C_OFFSET		0x3000
-#define CONFIG_SYS_I2C2_OFFSET		0x3100
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_FSL
+#define CONFIG_SYS_FSL_I2C_SPEED	400000
+#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
+#define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
+#define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x51} }
 
 /*
  * Board info - revision and where boot from

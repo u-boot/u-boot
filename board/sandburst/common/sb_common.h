@@ -12,7 +12,6 @@
 #include <asm/io.h>
 #include <spd_sdram.h>
 #include <i2c.h>
-#include "ppc440gx_i2c.h"
 
 /*
  * GPIO Settings

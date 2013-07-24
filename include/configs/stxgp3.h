@@ -162,18 +162,18 @@
 /*
  * I2C
  */
-#define CONFIG_FSL_I2C		/* Use FSL common I2C driver */
-#define CONFIG_HARD_I2C		/* I2C with hardware support*/
-#undef	CONFIG_SOFT_I2C			/* I2C bit-banged */
-#define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed and slave address	*/
-#define CONFIG_SYS_I2C_SLAVE		0x7F
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_FSL
+#define CONFIG_SYS_FSL_I2C_SPEED	400000
+#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
+#define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
+
 #if 0
 #define CONFIG_SYS_I2C_NOPROBES        {0x00}  /* Don't probe these addrs */
 #else
 /* I did the 'if 0' so we could keep the syntax above if ever needed. */
 #undef CONFIG_SYS_I2C_NOPROBES
 #endif
-#define CONFIG_SYS_I2C_OFFSET		0x3000
 
 /* RapdIO Map configuration, mapped 1:1.
 */

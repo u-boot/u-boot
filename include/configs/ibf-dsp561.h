@@ -105,10 +105,10 @@
 /*
  * I2C Settings
  */
-#define CONFIG_SOFT_I2C		1
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
 #define CONFIG_SOFT_I2C_GPIO_SCL GPIO_PF0
 #define CONFIG_SOFT_I2C_GPIO_SDA GPIO_PF1
-
 
 /*
  * Misc Settings

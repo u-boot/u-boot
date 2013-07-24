@@ -219,15 +219,14 @@
 /*
  * I2C
  */
-#define CONFIG_FSL_I2C		/* Use FSL common I2C driver */
-#define CONFIG_HARD_I2C			/* I2C with hardware support	*/
-#undef	CONFIG_SOFT_I2C			/* I2C bit-banged		*/
-#define CONFIG_SYS_I2C_SPEED		102124	/* I2C speed and slave address	*/
-#define CONFIG_SYS_I2C_SLAVE		0x7F
-#define CONFIG_SYS_I2C_OFFSET		0x3000
-
-#define CONFIG_I2C_MULTI_BUS
-#define CONFIG_SYS_I2C2_OFFSET		0x3100
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_FSL
+#define CONFIG_SYS_FSL_I2C_SPEED	102124
+#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
+#define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
+#define CONFIG_SYS_FSL_I2C2_SPEED	102124
+#define CONFIG_SYS_FSL_I2C2_SLAVE	0x7F
+#define CONFIG_SYS_FSL_I2C2_OFFSET	0x3100
 
 /* I2C RTC */
 #define CONFIG_RTC_RX8025		/* Use Epson rx8025 rtc via i2c	*/

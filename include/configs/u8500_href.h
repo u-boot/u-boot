@@ -150,7 +150,6 @@
  */
 #define CONFIG_U8500_I2C
 #undef	CONFIG_HARD_I2C			/* I2C with hardware support */
-#undef	CONFIG_SOFT_I2C			/* I2C bit-banged */
 #define CONFIG_I2C_MULTI_BUS
 #define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_SYS_I2C_SLAVE		0	/* slave addr of controller */

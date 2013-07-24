@@ -104,7 +104,10 @@
 
 #define	CONFIG_RTC_DS1306		/* Dallas 1306 real time clock	*/
 
-#define	CONFIG_SOFT_I2C			/* I2C bit-banged		*/
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
+#define CONFIG_SYS_I2C_SOFT_SPEED	50000
+#define CONFIG_SYS_I2C_SOFT_SLAVE	0xFE
 /*
  * Software (bit-bang) I2C driver configuration
  */
@@ -121,8 +124,6 @@
 			else    immr->im_cpm.cp_pbdat &= ~PB_SCL
 #define I2C_DELAY	udelay(5)	/* 1/4 I2C clock duration */
 
-# define CONFIG_SYS_I2C_SPEED		50000
-# define CONFIG_SYS_I2C_SLAVE		0xFE
 # define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* Atmel 24C64			*/
 # define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 2	/* two byte address		*/
 

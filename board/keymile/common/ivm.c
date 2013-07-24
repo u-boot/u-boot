@@ -298,29 +298,14 @@ int ivm_analyze_eeprom(unsigned char *buf, int len)
 
 int ivm_read_eeprom(void)
 {
-#if defined(CONFIG_I2C_MUX)
-	I2C_MUX_DEVICE *dev = NULL;
-#endif
 	uchar i2c_buffer[CONFIG_SYS_IVM_EEPROM_MAX_LEN];
-	uchar	*buf;
-	unsigned long dev_addr = CONFIG_SYS_IVM_EEPROM_ADR;
 	int ret;
 
-#if defined(CONFIG_I2C_MUX)
-	/* First init the Bus, select the Bus */
-	buf = (unsigned char *) getenv("EEprom_ivm");
-	if (buf != NULL)
-		dev = i2c_mux_ident_muxstring(buf);
-	if (dev == NULL) {
-		printf("Error couldnt add Bus for IVM\n");
-		return -1;
-	}
-	i2c_set_bus_num(dev->busid);
-#endif
+	i2c_set_bus_num(CONFIG_KM_IVM_BUS);
 	/* add deblocking here */
 	i2c_make_abort();
 
-	ret = i2c_read(dev_addr, 0, 1, i2c_buffer,
+	ret = i2c_read(CONFIG_SYS_IVM_EEPROM_ADR, 0, 1, i2c_buffer,
 		CONFIG_SYS_IVM_EEPROM_MAX_LEN);
 	if (ret != 0) {
 		printf("Error reading EEprom\n");

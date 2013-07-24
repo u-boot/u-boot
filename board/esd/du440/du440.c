@@ -372,7 +372,6 @@ int last_stage_init(void)
 	return 0;
 }
 
-#if defined(CONFIG_I2C_MULTI_BUS)
 /*
  * read field strength from I2C ADC
  */
@@ -487,7 +486,6 @@ U_BOOT_CMD(
 	"Initialize USB hub",
 	""
 );
-#endif /* CONFIG_I2C_MULTI_BUS */
 
 #define CONFIG_SYS_BOOT_EEPROM_PAGE_WRITE_BITS 3
 int boot_eeprom_write (unsigned dev_addr,

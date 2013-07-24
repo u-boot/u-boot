@@ -212,7 +212,7 @@ void cpu_init_f(void)
 	/* FlexBus Chipselect */
 	init_fbcs();
 
-#ifdef CONFIG_FSL_I2C
+#ifdef CONFIG_SYS_I2C_FSL
 	CONFIG_SYS_I2C_PINMUX_REG =
 	    CONFIG_SYS_I2C_PINMUX_REG & CONFIG_SYS_I2C_PINMUX_CLR;
 	CONFIG_SYS_I2C_PINMUX_REG |= CONFIG_SYS_I2C_PINMUX_SET;
@@ -482,7 +482,7 @@ void cpu_init_f(void)
 	init_fbcs();
 #endif				/* #ifndef CONFIG_MONITOR_IS_IN_RAM */
 
-#ifdef CONFIG_FSL_I2C
+#ifdef CONFIG_SYS_I2C_FSL
 	CONFIG_SYS_I2C_PINMUX_REG &= CONFIG_SYS_I2C_PINMUX_CLR;
 	CONFIG_SYS_I2C_PINMUX_REG |= CONFIG_SYS_I2C_PINMUX_SET;
 #endif

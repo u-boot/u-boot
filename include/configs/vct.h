@@ -232,11 +232,10 @@
 /*
  * I2C/EEPROM
  */
-#undef	CONFIG_HARD_I2C			/* I2C with hardware support	*/
-#define	CONFIG_SOFT_I2C			/* I2C bit-banged		*/
-
-#define CONFIG_SYS_I2C_SPEED		83000	/* 83 kHz is supposed to work	*/
-#define CONFIG_SYS_I2C_SLAVE		0x7f
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
+#define CONFIG_SYS_I2C_SOFT_SPEED	83000	/* 83 kHz is supposed to work */
+#define CONFIG_SYS_I2C_SOFT_SLAVE	0x7f
 
 /*
  * Software (bit-bang) I2C driver configuration
@@ -324,7 +323,7 @@ int vct_gpio_get(int pin);
 #undef CONFIG_CMD_USB
 
 #undef CONFIG_SMC911X
-#undef CONFIG_SOFT_I2C
+#undef CONFIG_SYS_I2C_SOFT
 #undef CONFIG_SOURCE
 #undef CONFIG_SYS_LONGHELP
 #undef CONFIG_TIMESTAMP
