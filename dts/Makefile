@@ -35,13 +35,8 @@ all:	$(obj).depend $(LIB)
 DT_BIN	:= $(obj)dt.dtb
 
 $(DT_BIN): $(TOPDIR)/board/$(VENDOR)/dts/$(DEVICE_TREE).dts
-	rc=$$( \
-		cat $< | $(CPP) -P $(DTS_CPPFLAGS) - | \
-		{ { $(DTC) -R 4 -p 0x1000 -O dtb -o ${DT_BIN} - 2>&1 ; \
-		    echo $$? >&3 ; } | \
-		  grep -v '^DTC: dts->dtb  on file' ; \
-	        } 3>&1 1>&2 ) ; \
-	exit $$rc
+	$(CPP) -P $(DTS_CPPFLAGS) $< -o $(DT_BIN).dts.tmp
+	$(DTC) -R 4 -p 0x1000 -O dtb -o ${DT_BIN} $(DT_BIN).dts.tmp
 
 process_lds = \
 	$(1) | sed -r -n 's/^OUTPUT_$(2)[ ("]*([^")]*).*/\1/p'

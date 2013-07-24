@@ -16,6 +16,7 @@
 *.patch
 *.bin
 *.cfgtmp
+*.dts.tmp
 
 # Build tree
 /build-*
