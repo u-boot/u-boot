@@ -552,9 +552,11 @@ set_cluster(fsdata *mydata, __u32 clustnum, __u8 *buffer,
 
 	debug("clustnum: %d, startsect: %d\n", clustnum, startsect);
 
-	if (disk_write(startsect, size / mydata->sect_size, buffer) < 0) {
-		debug("Error writing data\n");
-		return -1;
+	if ((size / mydata->sect_size) > 0) {
+		if (disk_write(startsect, size / mydata->sect_size, buffer) < 0) {
+			debug("Error writing data\n");
+			return -1;
+		}
 	}
 
 	if (size % mydata->sect_size) {
