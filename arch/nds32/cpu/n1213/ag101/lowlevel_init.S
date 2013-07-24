@@ -98,6 +98,11 @@ lowlevel_init:
 	led	0x10
 	jal	remap
 
+#if (defined(NDS32_EXT_FPU_DP) || defined(NDS32_EXT_FPU_SP))
+	led	0x1f
+	jal	enable_fpu
+#endif
+
 	led	0x20
 	ret	$r10
 
@@ -233,6 +238,27 @@ relo_base:
 	move	$lp, $r11
 2:
 	ret
+
+	/*
+	 * enable_fpu:
+	 *  Some of Andes CPU version support FPU coprocessor, if so,
+	 *  and toolchain support FPU instruction set, we should enable it.
+	 */
+#if (defined(NDS32_EXT_FPU_DP) || defined(NDS32_EXT_FPU_SP))
+enable_fpu:
+	mfsr    $r0, $CPU_VER     /* enable FPU if it exists */
+	srli    $r0, $r0, 3
+	andi    $r0, $r0, 1
+	beqz    $r0, 1f           /* skip if no COP */
+	mfsr    $r0, $FUCOP_EXIST
+	srli    $r0, $r0, 31
+	beqz    $r0, 1f           /* skip if no FPU */
+	mfsr    $r0, $FUCOP_CTL
+	ori     $r0, $r0, 1
+	mtsr    $r0, $FUCOP_CTL
+1:
+	ret
+#endif
 
 .globl show_led
 show_led:
