@@ -120,6 +120,14 @@
 # define CONFIG_ZYNQ_M29EW_WB_HACK
 #endif
 
+/* SPI */
+#ifdef CONFIG_ZYNQ_SPI
+# define CONFIG_SPI_FLASH
+# define CONFIG_SPI_FLASH_SST
+# define CONFIG_CMD_SPI
+# define CONFIG_CMD_SF
+#endif
+
 /* QSPI */
 #ifdef CONFIG_ZYNQ_QSPI
 # define CONFIG_SF_DEFAULT_SPEED	30000000
