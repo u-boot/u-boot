@@ -17,18 +17,11 @@ $(error Please define CONFIG_DEFAULT_DEVICE_TREE in your board header file))
 DEVICE_TREE = $(subst ",,$(CONFIG_DEFAULT_DEVICE_TREE))
 endif
 
-$(if $(CONFIG_ARCH_DEVICE_TREE),,\
-$(error Your architecture does not have device tree support enabled. \
-Please define CONFIG_ARCH_DEVICE_TREE))
-
 DTS_INCDIRS =  $(SRCTREE)/board/$(VENDOR)/$(BOARD)/dts
 DTS_INCDIRS += $(SRCTREE)/board/$(VENDOR)/dts
 DTS_INCDIRS += $(SRCTREE)/arch/$(ARCH)/dts
 
-# We preprocess the device tree file provide a useful define
 DTS_CPPFLAGS := -x assembler-with-cpp \
-		-DARCH_CPU_DTS=\"$(SRCTREE)/arch/$(ARCH)/dts/$(CONFIG_ARCH_DEVICE_TREE).dtsi\" \
-		-DBOARD_DTS=\"$(SRCTREE)/board/$(VENDOR)/$(BOARD)/dts/$(DEVICE_TREE).dts\" \
 		-nostdinc $(addprefix -I,$(DTS_INCDIRS))
 
 DTC_FLAGS := -R 4 -p 0x1000 \
