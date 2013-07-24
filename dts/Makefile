@@ -21,7 +21,7 @@ DTS_INCDIRS =  $(SRCTREE)/board/$(VENDOR)/$(BOARD)/dts
 DTS_INCDIRS += $(SRCTREE)/board/$(VENDOR)/dts
 DTS_INCDIRS += $(SRCTREE)/arch/$(ARCH)/dts
 
-DTS_CPPFLAGS := -x assembler-with-cpp \
+DTS_CPPFLAGS := -x assembler-with-cpp -undef -D__DTS__ \
 		-nostdinc $(addprefix -I,$(DTS_INCDIRS))
 
 DTC_FLAGS := -R 4 -p 0x1000 \
