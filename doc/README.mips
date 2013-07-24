@@ -39,8 +39,6 @@ TODOs
 
   * Secondary cache support missing
 
-  * Centralize the link directive files
-
   * Initialize TLB entries redardless of their use
 
   * R2000/R3000 class parts are not supported
@@ -50,8 +48,6 @@ TODOs
   * Due to cache initialization issues, the DRAM on board must be
     initialized in board specific assembler language before the cache init
     code is run -- that is, initialize the DRAM in lowlevel_init().
-
-  * get rid of CONFIG_MANUAL_RELOC
 
   * centralize/share more CPU code of MIPS32, MIPS64 and XBurst
 

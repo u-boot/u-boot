@@ -12,6 +12,7 @@ LIB	:= $(obj)libpci.o
 COBJS-$(CONFIG_FSL_PCI_INIT) += fsl_pci_init.o
 COBJS-$(CONFIG_PCI) += pci.o pci_auto.o
 COBJS-$(CONFIG_PCI_INDIRECT_BRIDGE) += pci_indirect.o
+COBJS-$(CONFIG_PCI_GT64120) += pci_gt64120.o
 COBJS-$(CONFIG_FTPCI100) += pci_ftpci100.o
 COBJS-$(CONFIG_IXP_PCI) += pci_ixp.o
 COBJS-$(CONFIG_SH4_PCI) += pci_sh4.o

@@ -6,7 +6,6 @@
  */
 
 #include <common.h>
-#include <asm/mipsregs.h>
 
 void enable_interrupts(void)
 {

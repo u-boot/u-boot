@@ -11,7 +11,8 @@
 static unsigned long timestamp;
 
 /* how many counter cycles in a jiffy */
-#define CYCLES_PER_JIFFY	(CONFIG_SYS_MIPS_TIMER_FREQ + CONFIG_SYS_HZ / 2) / CONFIG_SYS_HZ
+#define CYCLES_PER_JIFFY	\
+	(CONFIG_SYS_MIPS_TIMER_FREQ + CONFIG_SYS_HZ / 2) / CONFIG_SYS_HZ
 
 /*
  * timer without interrupts
@@ -38,7 +39,7 @@ ulong get_timer(ulong base)
 	}
 	write_c0_compare(expirelo);
 
-	return (timestamp - base);
+	return timestamp - base;
 }
 
 void __udelay(unsigned long usec)
