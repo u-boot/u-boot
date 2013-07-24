@@ -1,6 +1,6 @@
 /dts-v1/;
 
-/include/ ARCH_CPU_DTS
+/include/ "coreboot.dtsi"
 
 / {
         #address-cells = <1>;
