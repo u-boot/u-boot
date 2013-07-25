@@ -10,6 +10,7 @@
 #include <netdev.h>
 #include <asm/io.h>
 
+#include <faraday/ftpci100.h>
 #include <faraday/ftsdc010.h>
 #ifdef CONFIG_FTSMC020
 #include <faraday/ftsmc020.h>
@@ -77,8 +78,6 @@ ulong board_flash_get_legacy(ulong base, int banknum, flash_info_t *info)
 void pci_init_board(void)
 {
 	/* should be pci_ftpci100_init() */
-	extern void pci_ftpci_init();
-
 	pci_ftpci_init();
 }
 #endif

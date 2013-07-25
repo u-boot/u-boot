@@ -17,15 +17,15 @@ LIB	= $(obj)lib$(SOC).o
 COBJS-y	:= cpu.o timer.o
 
 ifndef CONFIG_SKIP_LOWLEVEL_INIT
-SOBJS	:= lowlevel_init.o
+SOBJS-y	:= lowlevel_init.o
 endif
 
 ifndef CONFIG_SKIP_TRUNOFF_WATCHDOG
-SOBJS	+= watchdog.o
+SOBJS-y	+= watchdog.o
 endif
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS-y))
+SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 
 all:	$(obj).depend $(LIB)
 

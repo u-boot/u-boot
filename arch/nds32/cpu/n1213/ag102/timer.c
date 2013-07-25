@@ -71,7 +71,8 @@ void reset_timer_masked(void)
 #ifdef CONFIG_FTTMR010_EXT_CLK
 	lastdec = readl(&tmr->timer3_counter) / (TIMER_CLOCK / CONFIG_SYS_HZ);
 #else
-	lastdec = readl(&tmr->timer3_counter) / (CONFIG_SYS_CLK_FREQ / 2);
+	lastdec = readl(&tmr->timer3_counter) /
+			(CONFIG_SYS_CLK_FREQ / 2 / CONFIG_SYS_HZ);
 #endif
 	timestamp = 0;		/* start "advancing" time stamp from 0 */
 
@@ -95,8 +96,8 @@ ulong get_timer_masked(void)
 #ifdef CONFIG_FTTMR010_EXT_CLK
 	ulong now = readl(&tmr->timer3_counter) / (TIMER_CLOCK / CONFIG_SYS_HZ);
 #else
-	ulong now = readl(&tmr->timer3_counter) / \
-			(CONFIG_SYS_CLK_FREQ / 2 / 1024);
+	ulong now = readl(&tmr->timer3_counter) /
+			(CONFIG_SYS_CLK_FREQ / 2 / CONFIG_SYS_HZ);
 #endif
 
 	debug("%s(): now = %lx, lastdec = %lx\n", __func__, now, lastdec);

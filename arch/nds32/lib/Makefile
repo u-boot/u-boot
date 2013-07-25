@@ -13,12 +13,15 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(ARCH).o
 
-OBJS	:= board.o cache.o interrupts.o
+COBJS-y += board.o
+COBJS-y += cache.o
 COBJS-$(CONFIG_CMD_BOOTM) += bootm.o
+COBJS-y += interrupts.o
 
-all:	$(LIB)
+SRCS  := $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 
-$(LIB):	$(OBJS) $(SOBJS)
+$(LIB): $(obj).depend $(OBJS)
 	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################

@@ -35,7 +35,7 @@ int board_init(void)
 int dram_init(void)
 {
 	unsigned long sdram_base = PHYS_SDRAM_0;
-	unsigned long expected_size = PHYS_SDRAM_0_SIZE;
+	unsigned long expected_size = PHYS_SDRAM_0_SIZE + PHYS_SDRAM_1_SIZE;
 	unsigned long actual_size;
 
 	actual_size = get_ram_size((void *)sdram_base, expected_size);
@@ -48,6 +48,14 @@ int dram_init(void)
 	}
 
 	return 0;
+}
+
+void dram_init_banksize(void)
+{
+	gd->bd->bi_dram[0].start = PHYS_SDRAM_0;
+	gd->bd->bi_dram[0].size =  PHYS_SDRAM_0_SIZE;
+	gd->bd->bi_dram[1].start = PHYS_SDRAM_1;
+	gd->bd->bi_dram[1].size =  PHYS_SDRAM_1_SIZE;
 }
 
 int board_eth_init(bd_t *bd)
