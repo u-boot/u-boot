@@ -42,6 +42,9 @@
 /* Display cpuinfo */
 #define CONFIG_DISPLAY_CPUINFO
 
+/* Flattened Device Tree */
+#define CONFIG_OF_LIBFDT
+
 /* Commands to include */
 #include <config_cmd_default.h>
 
@@ -64,37 +67,27 @@
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"loadaddr=0x80200000\0" \
-	"rdaddr=0x81000000\0" \
-	"bootfile=/boot/uImage\0" \
+	"loadaddr=0x80F80000\0" \
+	"dtbaddr=0x80200000\0" \
+	"bootdir=/boot\0" \
+	"bootfile=zImage\0" \
+	"dtbfile=am335x-base0033.dtb\0" \
 	"console=ttyO0,115200n8\0" \
-	"optargs=\0" \
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \
 	"mmcrootfstype=ext4 rootwait\0" \
-	"ramroot=/dev/ram0 rw ramdisk_size=65536 initrd=${rdaddr},64M\0" \
-	"ramrootfstype=ext2\0" \
 	"mmcargs=setenv bootargs console=${console} " \
-		"${optargs} " \
 		"root=${mmcroot} " \
 		"rootfstype=${mmcrootfstype}\0" \
 	"bootenv=uEnv.txt\0" \
 	"loadbootenv=load mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
 	"importbootenv=echo Importing environment from mmc ...; " \
-		"env import -t $loadaddr $filesize\0" \
-	"ramargs=setenv bootargs console=${console} " \
-		"${optargs} " \
-		"root=${ramroot} " \
-		"rootfstype=${ramrootfstype}\0" \
-	"loadramdisk=load mmc ${mmcdev} ${rdaddr} ramdisk.gz\0" \
-	"loaduimagefat=load mmc ${mmcdev} ${loadaddr} ${bootfile}\0" \
-	"loaduimage=load mmc ${mmcdev}:2 ${loadaddr} ${bootfile}\0" \
+		"env import -t ${loadaddr} ${filesize}\0" \
+	"mmcload=load mmc ${mmcdev}:2 ${loadaddr} ${bootdir}/${bootfile}; " \
+		"load mmc ${mmcdev}:2 ${dtbaddr} ${bootdir}/${dtbfile}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
-		"bootm ${loadaddr}\0" \
-	"ramboot=echo Booting from ramdisk ...; " \
-		"run ramargs; " \
-		"bootm ${loadaddr}\0" \
+		"bootz ${loadaddr} - ${dtbaddr}\0" \
 
 #define CONFIG_BOOTCOMMAND \
 	"mmc dev ${mmcdev}; if mmc rescan; then " \
@@ -107,7 +100,7 @@
 			"echo Running uenvcmd ...;" \
 			"run uenvcmd;" \
 		"fi;" \
-		"if run loaduimage; then " \
+		"if run mmcload; then " \
 			"run mmcboot;" \
 		"fi;" \
 	"fi;" \
