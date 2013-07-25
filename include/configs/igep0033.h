@@ -137,7 +137,6 @@
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_LOAD_ADDR		0x81000000 /* Default load address */
-#define CONFIG_SYS_HZ			1000 /* 1ms clock */
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1		/*  1 bank of DRAM */
@@ -150,7 +149,7 @@
 /* Platform/Board specific defs */
 #define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
 #define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
-#define CONFIG_SYS_HZ			1000
+#define CONFIG_SYS_HZ			1000	/* 1ms clock */
 
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550
@@ -159,7 +158,6 @@
 #define CONFIG_SYS_NS16550_CLK		(48000000)
 #define CONFIG_SYS_NS16550_COM1		0x44e09000	/* UART0 */
 
-#define CONFIG_SERIAL_MULTI
 #define CONFIG_CONS_INDEX		1
 #define CONFIG_BAUDRATE			115200
 
@@ -272,10 +270,6 @@
 
 #define CONFIG_SYS_NAND_ECCSIZE		512
 #define CONFIG_SYS_NAND_ECCBYTES	14
-
-#define CONFIG_SYS_NAND_ECCSTEPS	4
-#define	CONFIG_SYS_NAND_ECCTOTAL	(CONFIG_SYS_NAND_ECCBYTES * \
-						CONFIG_SYS_NAND_ECCSTEPS)
 
 #define	CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 
