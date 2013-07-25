@@ -123,10 +123,21 @@ struct ihs_fpga {
 	u16 mpc3w_control;	/* 0x001a */
 	u16 reserved_1[19];	/* 0x001c */
 	u16 videocontrol;	/* 0x0042 */
-	u16 reserved_2[93];	/* 0x0044 */
+	u16 reserved_2[14];	/* 0x0044 */
+	u16 mc_int;		/* 0x0060 */
+	u16 mc_int_en;		/* 0x0062 */
+	u16 mc_status;		/* 0x0064 */
+	u16 mc_control;		/* 0x0066 */
+	u16 mc_tx_data;		/* 0x0068 */
+	u16 mc_tx_address;	/* 0x006a */
+	u16 mc_tx_cmd;		/* 0x006c */
+	u16 mc_res;		/* 0x006e */
+	u16 mc_rx_cmd_status;	/* 0x0070 */
+	u16 mc_rx_data;		/* 0x0072 */
+	u16 reserved_3[69];	/* 0x0074 */
 	u16 reflection_high;	/* 0x00fe */
 	struct ihs_osd osd;	/* 0x0100 */
-	u16 reserved_3[889];	/* 0x010e */
+	u16 reserved_4[889];	/* 0x010e */
 	u16 videomem[31736];	/* 0x0800 */
 };
 #endif

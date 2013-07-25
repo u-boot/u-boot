@@ -6,8 +6,8 @@
  */
 
 #include <common.h>
-#include <asm/io.h>
 #include <i2c.h>
+#include <malloc.h>
 
 #include <gdsys_fpga.h>
 
@@ -50,6 +50,12 @@ enum {
 	CH7301_DID = 0x4b,		/* Device ID Register */
 	CH7301_DSP = 0x56,		/* DVI Sync polarity Register */
 };
+
+unsigned int max_osd_screen = CONFIG_SYS_OSD_SCREENS - 1;
+
+#ifdef CONFIG_SYS_CH7301
+int ch7301_i2c[] = CONFIG_SYS_CH7301_I2C;
+#endif
 
 #if defined(CONFIG_SYS_ICS8N3QV01) || defined(CONFIG_SYS_SIL1178)
 static void fpga_iic_write(unsigned screen, u8 slave, u8 reg, u8 data)
@@ -270,7 +276,7 @@ static int osd_print(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned screen;
 
-	for (screen = 0; screen < CONFIG_SYS_OSD_SCREENS; ++screen) {
+	for (screen = 0; screen <= max_osd_screen; ++screen) {
 		unsigned x;
 		unsigned y;
 		unsigned charcount;
@@ -311,6 +317,9 @@ int osd_probe(unsigned screen)
 	unsigned width;
 	unsigned height;
 	u8 value;
+#ifdef CONFIG_SYS_CH7301
+	int old_bus = i2c_get_bus_num();
+#endif
 
 	FPGA_GET_REG(0, osd.version, &version);
 	FPGA_GET_REG(0, osd.features, &features);
@@ -322,9 +331,11 @@ int osd_probe(unsigned screen)
 		screen, version/100, version%100, width, height);
 
 #ifdef CONFIG_SYS_CH7301
+	i2c_set_bus_num(ch7301_i2c[screen]);
 	value = i2c_reg_read(CH7301_I2C_ADDR, CH7301_DID);
 	if (value != 0x17) {
 		printf("       Probing CH7301 failed, DID %02x\n", value);
+		i2c_set_bus_num(old_bus);
 		return -1;
 	}
 	i2c_reg_write(CH7301_I2C_ADDR, CH7301_TPCP, 0x08);
@@ -332,6 +343,7 @@ int osd_probe(unsigned screen)
 	i2c_reg_write(CH7301_I2C_ADDR, CH7301_TPF, 0x60);
 	i2c_reg_write(CH7301_I2C_ADDR, CH7301_DC, 0x09);
 	i2c_reg_write(CH7301_I2C_ADDR, CH7301_PM, 0xc0);
+	i2c_set_bus_num(old_bus);
 #endif
 
 #ifdef CONFIG_SYS_MPC92469AC
@@ -368,6 +380,8 @@ int osd_probe(unsigned screen)
 	FPGA_SET_REG(screen, osd.x_pos, 0x007f);
 	FPGA_SET_REG(screen, osd.y_pos, 0x005f);
 
+	if (screen > max_osd_screen)
+		max_osd_screen = screen;
 
 	return 0;
 }
@@ -376,7 +390,7 @@ int osd_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned screen;
 
-	for (screen = 0; screen < CONFIG_SYS_OSD_SCREENS; ++screen) {
+	for (screen = 0; screen <= max_osd_screen; ++screen) {
 		unsigned x;
 		unsigned y;
 		unsigned k;

@@ -17,7 +17,7 @@ COBJS-$(CONFIG_SYS_FPGA_COMMON) += fpga.o
 
 COBJS-$(CONFIG_IO) += miiphybb.o
 COBJS-$(CONFIG_IO64) += miiphybb.o
-COBJS-$(CONFIG_IOCON) += osd.o
+COBJS-$(CONFIG_IOCON) += osd.o mclink.o
 COBJS-$(CONFIG_DLVISION_10G) += osd.o
 COBJS-$(CONFIG_CONTROLCENTERD) += dp501.o
 
