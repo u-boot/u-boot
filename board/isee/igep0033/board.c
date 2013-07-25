@@ -1,5 +1,5 @@
 /*
- * Board functions for IGEP COM AQUILA/CYGNUS based boards
+ * Board functions for IGEP COM AQUILA based boards
  *
  * Copyright (C) 2013, ISEE 2007 SL - http://www.isee.biz/
  *
