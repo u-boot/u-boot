@@ -13,7 +13,7 @@
 #define CONFIG_SAMSUNG			/* in a SAMSUNG core */
 #define CONFIG_S5P			/* S5P Family */
 #define CONFIG_EXYNOS5			/* which is in a Exynos5 Family */
-#define CONFIG_SMDK5250			/* which is in a SMDK5250 */
+#define CONFIG_EXYNOS5250
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 
