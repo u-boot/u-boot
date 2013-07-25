@@ -3,23 +3,7 @@
  *
  *  Copyright (c) 2003	Wolfgang Denk <wd@denx.de>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm-offsets.h>
@@ -34,7 +18,7 @@
 #define CONFIG_SYS_MIPS_CACHE_MODE CONF_CM_CACHABLE_NONCOHERENT
 #endif
 
-#define RA		t8
+#define RA		t9
 
 /*
  * 16kB is the maximum size of instruction and data caches on MIPS 4K,
@@ -144,8 +128,7 @@ NESTED(mips_cache_reset, 0, ra)
 	move	RA, ra
 	li	t2, CONFIG_SYS_ICACHE_SIZE
 	li	t3, CONFIG_SYS_DCACHE_SIZE
-	li	t4, CONFIG_SYS_CACHELINE_SIZE
-	move	t5, t4
+	li	t8, CONFIG_SYS_CACHELINE_SIZE
 
 	li	v0, MIPS_MAX_CACHE_SIZE
 
@@ -172,17 +155,17 @@ NESTED(mips_cache_reset, 0, ra)
 	 * Initialize the I-cache first,
 	 */
 	move	a1, t2
-	move	a2, t4
-	PTR_LA	t7, mips_init_icache
-	jalr	t7
+	move	a2, t8
+	PTR_LA	v1, mips_init_icache
+	jalr	v1
 
 	/*
 	 * then initialize D-cache.
 	 */
 	move	a1, t3
-	move	a2, t5
-	PTR_LA	t7, mips_init_dcache
-	jalr	t7
+	move	a2, t8
+	PTR_LA	v1, mips_init_dcache
+	jalr	v1
 
 	jr	RA
 	END(mips_cache_reset)

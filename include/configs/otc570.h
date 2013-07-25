@@ -9,23 +9,7 @@
  *
  * Configuation settings for the esd OTC570 board.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -115,14 +99,13 @@
 /* RTC and I2C stuff */
 #define CONFIG_RTC_DS1338
 #define CONFIG_SYS_I2C_RTC_ADDR		0x68
-#undef CONFIG_HARD_I2C
-#define CONFIG_SOFT_I2C
-#define CONFIG_SYS_I2C_SPEED		100000
-#define CONFIG_SYS_I2C_SLAVE		0x7F
 
-#ifdef CONFIG_SOFT_I2C
-# define CONFIG_I2C_CMD_TREE
-# define CONFIG_I2C_MULTI_BUS
+#define CONFIG_SYS_I2C
+#define	CONFIG_SYS_I2C_SOFT	/* I2C bit-banged	*/
+#ifdef CONFIG_SYS_I2C_SOFT
+#define CONFIG_SYS_I2C_SOFT_SPEED	100000
+#define CONFIG_SYS_I2C_SOFT_SLAVE	0x7F
+
 /* Configure data and clock pins for pio */
 # define I2C_INIT { \
 	at91_set_pio_output(AT91_PIO_PORTB, 4, 0); \
@@ -140,7 +123,7 @@
 /* Set clock pin */
 # define I2C_SCL(bit)		at91_set_pio_value(AT91_PIO_PORTB, 5, bit)
 # define I2C_DELAY		udelay(2) /* 1/4 I2C clock duration */
-#endif /* CONFIG_SOFT_I2C */
+#endif /* CONFIG_SYS_I2C_SOFT */
 
 /*
  * BOOTP options

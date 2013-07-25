@@ -11,23 +11,7 @@
  *  Copyright (C) 2008 Darius Augulis <darius.augulis at teltonika.lt>
  *
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -38,6 +22,15 @@
 #include <i2c.h>
 #include <watchdog.h>
 
+#ifdef I2C_QUIRK_REG
+struct mxc_i2c_regs {
+	uint8_t		iadr;
+	uint8_t		ifdr;
+	uint8_t		i2cr;
+	uint8_t		i2sr;
+	uint8_t		i2dr;
+};
+#else
 struct mxc_i2c_regs {
 	uint32_t	iadr;
 	uint32_t	ifdr;
@@ -45,8 +38,8 @@ struct mxc_i2c_regs {
 	uint32_t	i2sr;
 	uint32_t	i2dr;
 };
+#endif
 
-#define I2CR_IEN	(1 << 7)
 #define I2CR_IIEN	(1 << 6)
 #define I2CR_MSTA	(1 << 5)
 #define I2CR_MTX	(1 << 4)
@@ -59,10 +52,39 @@ struct mxc_i2c_regs {
 #define I2SR_IIF	(1 << 1)
 #define I2SR_RX_NO_AK	(1 << 0)
 
+#ifdef I2C_QUIRK_REG
+#define I2CR_IEN	(0 << 7)
+#define I2CR_IDIS	(1 << 7)
+#define I2SR_IIF_CLEAR	(1 << 1)
+#else
+#define I2CR_IEN	(1 << 7)
+#define I2CR_IDIS	(0 << 7)
+#define I2SR_IIF_CLEAR	(0 << 1)
+#endif
+
 #if defined(CONFIG_HARD_I2C) && !defined(CONFIG_SYS_I2C_BASE)
 #error "define CONFIG_SYS_I2C_BASE to use the mxc_i2c driver"
 #endif
 
+#ifdef I2C_QUIRK_REG
+static u16 i2c_clk_div[60][2] = {
+	{ 20,	0x00 }, { 22,	0x01 }, { 24,	0x02 }, { 26,	0x03 },
+	{ 28,	0x04 },	{ 30,	0x05 },	{ 32,	0x09 }, { 34,	0x06 },
+	{ 36,	0x0A }, { 40,	0x07 }, { 44,	0x0C }, { 48,	0x0D },
+	{ 52,	0x43 },	{ 56,	0x0E }, { 60,	0x45 }, { 64,	0x12 },
+	{ 68,	0x0F },	{ 72,	0x13 },	{ 80,	0x14 },	{ 88,	0x15 },
+	{ 96,	0x19 },	{ 104,	0x16 },	{ 112,	0x1A },	{ 128,	0x17 },
+	{ 136,	0x4F }, { 144,	0x1C },	{ 160,	0x1D }, { 176,	0x55 },
+	{ 192,	0x1E }, { 208,	0x56 },	{ 224,	0x22 }, { 228,	0x24 },
+	{ 240,	0x1F },	{ 256,	0x23 }, { 288,	0x5C },	{ 320,	0x25 },
+	{ 384,	0x26 }, { 448,	0x2A },	{ 480,	0x27 }, { 512,	0x2B },
+	{ 576,	0x2C },	{ 640,	0x2D },	{ 768,	0x31 }, { 896,	0x32 },
+	{ 960,	0x2F },	{ 1024,	0x33 },	{ 1152,	0x34 }, { 1280,	0x35 },
+	{ 1536,	0x36 }, { 1792,	0x3A },	{ 1920,	0x37 },	{ 2048,	0x3B },
+	{ 2304,	0x3C },	{ 2560,	0x3D },	{ 3072,	0x3E }, { 3584,	0x7A },
+	{ 3840,	0x3F }, { 4096,	0x7B }, { 5120,	0x7D },	{ 6144,	0x7E },
+};
+#else
 static u16 i2c_clk_div[50][2] = {
 	{ 22,	0x20 }, { 24,	0x21 }, { 26,	0x22 }, { 28,	0x23 },
 	{ 30,	0x00 }, { 32,	0x24 }, { 36,	0x25 }, { 40,	0x26 },
@@ -78,6 +100,7 @@ static u16 i2c_clk_div[50][2] = {
 	{ 1920,	0x1B }, { 2048,	0x3F }, { 2304,	0x1C }, { 2560,	0x1D },
 	{ 3072,	0x1E }, { 3840,	0x1F }
 };
+#endif
 
 /*
  * Calculate and set proper clock divider
@@ -125,7 +148,7 @@ static int bus_i2c_set_bus_speed(void *base, int speed)
 	writeb(idx, &i2c_regs->ifdr);
 
 	/* Reset module */
-	writeb(0, &i2c_regs->i2cr);
+	writeb(I2CR_IDIS, &i2c_regs->i2cr);
 	writeb(0, &i2c_regs->i2sr);
 	return 0;
 }
@@ -157,7 +180,11 @@ static int wait_for_sr_state(struct mxc_i2c_regs *i2c_regs, unsigned state)
 	for (;;) {
 		sr = readb(&i2c_regs->i2sr);
 		if (sr & I2SR_IAL) {
+#ifdef I2C_QUIRK_REG
+			writeb(sr | I2SR_IAL, &i2c_regs->i2sr);
+#else
 			writeb(sr & ~I2SR_IAL, &i2c_regs->i2sr);
+#endif
 			printf("%s: Arbitration lost sr=%x cr=%x state=%x\n",
 				__func__, sr, readb(&i2c_regs->i2cr), state);
 			return -ERESTART;
@@ -178,7 +205,7 @@ static int tx_byte(struct mxc_i2c_regs *i2c_regs, u8 byte)
 {
 	int ret;
 
-	writeb(0, &i2c_regs->i2sr);
+	writeb(I2SR_IIF_CLEAR, &i2c_regs->i2sr);
 	writeb(byte, &i2c_regs->i2dr);
 	ret = wait_for_sr_state(i2c_regs, ST_IIF);
 	if (ret < 0)
@@ -214,14 +241,18 @@ static int i2c_init_transfer_(struct mxc_i2c_regs *i2c_regs,
 	int ret;
 
 	/* Enable I2C controller */
+#ifdef I2C_QUIRK_REG
+	if (readb(&i2c_regs->i2cr) & I2CR_IDIS) {
+#else
 	if (!(readb(&i2c_regs->i2cr) & I2CR_IEN)) {
+#endif
 		writeb(I2CR_IEN, &i2c_regs->i2cr);
 		/* Wait for controller to be stable */
 		udelay(50);
 	}
 	if (readb(&i2c_regs->iadr) == (chip << 1))
 		writeb((chip << 1) ^ 2, &i2c_regs->iadr);
-	writeb(0, &i2c_regs->i2sr);
+	writeb(I2SR_IIF_CLEAR, &i2c_regs->i2sr);
 	ret = wait_for_sr_state(i2c_regs, ST_BUS_IDLE);
 	if (ret < 0)
 		return ret;
@@ -269,7 +300,8 @@ static int i2c_init_transfer(struct mxc_i2c_regs *i2c_regs,
 		printf("%s: failed for chip 0x%x retry=%d\n", __func__, chip,
 				retry);
 		if (ret != -ERESTART)
-			writeb(0, &i2c_regs->i2cr);	/* Disable controller */
+			/* Disable controller */
+			writeb(I2CR_IDIS, &i2c_regs->i2cr);
 		udelay(100);
 		if (i2c_idle_bus(i2c_regs) < 0)
 			break;
@@ -309,7 +341,7 @@ int bus_i2c_read(void *base, uchar chip, uint addr, int alen, uchar *buf,
 	if (len == 1)
 		temp |= I2CR_TX_NO_AK;
 	writeb(temp, &i2c_regs->i2cr);
-	writeb(0, &i2c_regs->i2sr);
+	writeb(I2SR_IIF_CLEAR, &i2c_regs->i2sr);
 	readb(&i2c_regs->i2dr);		/* dummy read to clear ICF */
 
 	/* read data */
@@ -331,7 +363,7 @@ int bus_i2c_read(void *base, uchar chip, uint addr, int alen, uchar *buf,
 			temp |= I2CR_TX_NO_AK;
 			writeb(temp, &i2c_regs->i2cr);
 		}
-		writeb(0, &i2c_regs->i2sr);
+		writeb(I2SR_IIF_CLEAR, &i2c_regs->i2sr);
 		buf[i] = readb(&i2c_regs->i2dr);
 	}
 	i2c_imx_stop(i2c_regs);

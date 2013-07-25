@@ -5,7 +5,9 @@
 #
 # Parameters:  Target  Architecture  CPU  Board [VENDOR] [SOC]
 #
-# (C) 2002-2010 DENX Software Engineering, Wolfgang Denk <wd@denx.de>
+# (C) 2002-2013 DENX Software Engineering, Wolfgang Denk <wd@denx.de>
+#
+# SPDX-License-Identifier:	GPL-2.0+
 #
 
 APPEND=no	# Default: Create new config file

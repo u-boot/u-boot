@@ -6,23 +6,7 @@
  * (C) Copyright 2010
  * Reinhard Meyer, EMK Elektronik, reinhard.meyer@emk-elektronik.de
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -245,7 +229,7 @@ int board_eth_init(bd_t *bis)
  * However i2c_get_bus_num() cannot be called before
  * relocation.
  */
-#ifdef CONFIG_SOFT_I2C
+#ifdef CONFIG_SYS_I2C_SOFT
 void iic_init(void)
 {
 	/* ports are now initialized in board_early_init_f() */
@@ -253,7 +237,7 @@ void iic_init(void)
 
 int iic_read(void)
 {
-	switch ((gd->flags & GD_FLG_RELOC) ? i2c_get_bus_num() : 0) {
+	switch (I2C_ADAP_HWNR) {
 	case 0:
 		return at91_get_pio_value(I2C0_PORT, SDA0_PIN);
 	case 1:
@@ -264,7 +248,7 @@ int iic_read(void)
 
 void iic_sda(int bit)
 {
-	switch ((gd->flags & GD_FLG_RELOC) ? i2c_get_bus_num() : 0) {
+	switch (I2C_ADAP_HWNR) {
 	case 0:
 		at91_set_pio_value(I2C0_PORT, SDA0_PIN, bit);
 		break;
@@ -276,7 +260,7 @@ void iic_sda(int bit)
 
 void iic_scl(int bit)
 {
-	switch ((gd->flags & GD_FLG_RELOC) ? i2c_get_bus_num() : 0) {
+	switch (I2C_ADAP_HWNR) {
 	case 0:
 		at91_set_pio_value(I2C0_PORT, SCL0_PIN, bit);
 		break;

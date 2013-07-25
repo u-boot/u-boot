@@ -9,23 +9,7 @@
  * (C) Copyright 2010-2011
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -58,7 +42,6 @@
 
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_SF
-#define CONFIG_SOFT_I2C		/* I2C bit-banged	*/
 
 /* SPI NOR Flash default params, used by sf commands */
 #define CONFIG_SF_DEFAULT_SPEED		8100000
@@ -187,8 +170,23 @@
 /*
  * I2C related stuff
  */
+#undef CONFIG_I2C_MVTWSI
+#define CONFIG_SYS_I2C
+#define	CONFIG_SYS_I2C_SOFT	/* I2C bit-banged	*/
+
 #define	CONFIG_KIRKWOOD_GPIO		/* Enable GPIO Support */
-#if defined(CONFIG_SOFT_I2C)
+#if defined(CONFIG_SYS_I2C_SOFT)
+
+#define CONFIG_SYS_NUM_I2C_BUSES	6
+#define CONFIG_SYS_I2C_MAX_HOPS		1
+#define CONFIG_SYS_I2C_BUSES	{	{0, {I2C_NULL_HOP} }, \
+					{0, {{I2C_MUX_PCA9547, 0x70, 1} } }, \
+					{0, {{I2C_MUX_PCA9547, 0x70, 2} } }, \
+					{0, {{I2C_MUX_PCA9547, 0x70, 3} } }, \
+					{0, {{I2C_MUX_PCA9547, 0x70, 4} } }, \
+					{0, {{I2C_MUX_PCA9547, 0x70, 5} } }, \
+				}
+
 #ifndef __ASSEMBLY__
 #include <asm/arch-kirkwood/gpio.h>
 extern void __set_direction(unsigned pin, int high);
@@ -211,6 +209,8 @@ int get_scl(void);
 #define I2C_DELAY	udelay(1)
 #define I2C_SOFT_DECLARATIONS
 
+#define	CONFIG_SYS_I2C_SOFT_SLAVE	0x0
+#define	CONFIG_SYS_I2C_SOFT_SPEED	100000
 #endif
 
 /* EEprom support 24C128, 24C256 valid for environment eeprom */
@@ -240,7 +240,7 @@ int get_scl(void);
 #define CONFIG_SYS_EEPROM_WREN
 #define CONFIG_ENV_OFFSET		0x0 /* no bracets! */
 #define CONFIG_ENV_SIZE			(0x2000 - CONFIG_ENV_OFFSET)
-#define CONFIG_I2C_ENV_EEPROM_BUS	KM_ENV_BUS "\0"
+#define CONFIG_I2C_ENV_EEPROM_BUS	KM_ENV_BUS
 #define CONFIG_ENV_OFFSET_REDUND	0x2000 /* no bracets! */
 #define CONFIG_ENV_SIZE_REDUND		(CONFIG_ENV_SIZE)
 #endif
@@ -279,7 +279,8 @@ int get_scl(void);
 #else
 #define CONFIG_KM_NEW_ENV						\
 	"newenv=setenv addr 0x100000 && "				\
-		"i2c dev 1; mw.b ${addr} 0 4 && "			\
+		"i2c dev " __stringify(CONFIG_I2C_ENV_EEPROM_BUS) "; "  \
+		"mw.b ${addr} 0 4 && "					\
 		"eeprom write " __stringify(CONFIG_SYS_DEF_EEPROM_ADDR)	\
 		" ${addr} " __stringify(CONFIG_ENV_OFFSET) " 4 && "	\
 		"eeprom write " __stringify(CONFIG_SYS_DEF_EEPROM_ADDR)	\
@@ -293,7 +294,6 @@ int get_scl(void);
 	CONFIG_KM_DEF_ENV						\
 	CONFIG_KM_NEW_ENV						\
 	"arch=arm\0"							\
-	"EEprom_ivm=" KM_IVM_BUS "\0"					\
 	""
 
 #if defined(CONFIG_SYS_NO_FLASH)

@@ -3,23 +3,7 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  * Keith Outwater, keith_outwater@mvis.com
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -158,26 +142,33 @@
 /*
  * Enable I2C and select the hardware/software driver
  */
-#define CONFIG_HARD_I2C		1				/* CPM based I2C			*/
-#undef	CONFIG_SOFT_I2C						/* Bit-banged I2C			*/
+#define CONFIG_HARD_I2C		1		/* CPM based I2C */
+#undef	CONFIG_SYS_I2C_SOFT			/* Bit-banged I2C */
 
 #ifdef CONFIG_HARD_I2C
-#define	CONFIG_SYS_I2C_SPEED		100000			/* clock speed in Hz		*/
-#define CONFIG_SYS_I2C_SLAVE		0xFE			/* I2C slave address		*/
+#define	CONFIG_SYS_I2C_SPEED		100000	/* clock speed in Hz */
+#define CONFIG_SYS_I2C_SLAVE		0xFE	/* I2C slave address */
 #endif
 
-#ifdef CONFIG_SOFT_I2C
-#define PB_SCL				0x00000020		/* PB 26					*/
-#define PB_SDA				0x00000010		/* PB 27					*/
-#define I2C_INIT			(immr->im_cpm.cp_pbdir |=  PB_SCL)
-#define I2C_ACTIVE			(immr->im_cpm.cp_pbdir |=  PB_SDA)
-#define I2C_TRISTATE		(immr->im_cpm.cp_pbdir &= ~PB_SDA)
-#define I2C_READ			((immr->im_cpm.cp_pbdat & PB_SDA) != 0)
-#define I2C_SDA(bit)		if(bit) immr->im_cpm.cp_pbdat |=  PB_SDA; \
-								else    immr->im_cpm.cp_pbdat &= ~PB_SDA
-#define I2C_SCL(bit)		if(bit) immr->im_cpm.cp_pbdat |=  PB_SCL; \
-								else    immr->im_cpm.cp_pbdat &= ~PB_SCL
-#define I2C_DELAY			udelay(5)		/* 1/4 I2C clock duration	*/
+#ifdef CONFIG_SYS_I2C_SOFT
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_SOFT_SPEED	50000
+#define CONFIG_SYS_I2C_SOFT_SLAVE	0xFE
+#define PB_SCL		0x00000020		/* PB 26 */
+#define PB_SDA		0x00000010		/* PB 27 */
+#define I2C_INIT	(immr->im_cpm.cp_pbdir |=  PB_SCL)
+#define I2C_ACTIVE	(immr->im_cpm.cp_pbdir |=  PB_SDA)
+#define I2C_TRISTATE	(immr->im_cpm.cp_pbdir &= ~PB_SDA)
+#define I2C_READ	((immr->im_cpm.cp_pbdat & PB_SDA) != 0)
+#define I2C_SDA(bit)	if (bit) \
+				immr->im_cpm.cp_pbdat |=  PB_SDA; \
+			else \
+				immr->im_cpm.cp_pbdat &= ~PB_SDA
+#define I2C_SCL(bit)	if (bit) \
+				immr->im_cpm.cp_pbdat |=  PB_SCL; \
+			else \
+				immr->im_cpm.cp_pbdat &= ~PB_SCL
+#define I2C_DELAY	udelay(5) /* 1/4 I2C clock duration */
 #endif
 
 /*

@@ -6,22 +6,7 @@
  * Shawn Lin, Andes Technology Corporation <nobuhiro@andestech.com>
  * Macpaul Lin, Andes Technology Corporation <macpaul@andestech.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -86,7 +71,8 @@ void reset_timer_masked(void)
 #ifdef CONFIG_FTTMR010_EXT_CLK
 	lastdec = readl(&tmr->timer3_counter) / (TIMER_CLOCK / CONFIG_SYS_HZ);
 #else
-	lastdec = readl(&tmr->timer3_counter) / (CONFIG_SYS_CLK_FREQ / 2);
+	lastdec = readl(&tmr->timer3_counter) /
+			(CONFIG_SYS_CLK_FREQ / 2 / CONFIG_SYS_HZ);
 #endif
 	timestamp = 0;		/* start "advancing" time stamp from 0 */
 
@@ -110,8 +96,8 @@ ulong get_timer_masked(void)
 #ifdef CONFIG_FTTMR010_EXT_CLK
 	ulong now = readl(&tmr->timer3_counter) / (TIMER_CLOCK / CONFIG_SYS_HZ);
 #else
-	ulong now = readl(&tmr->timer3_counter) / \
-			(CONFIG_SYS_CLK_FREQ / 2 / 1024);
+	ulong now = readl(&tmr->timer3_counter) /
+			(CONFIG_SYS_CLK_FREQ / 2 / CONFIG_SYS_HZ);
 #endif
 
 	debug("%s(): now = %lx, lastdec = %lx\n", __func__, now, lastdec);

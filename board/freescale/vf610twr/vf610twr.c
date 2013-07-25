@@ -1,20 +1,7 @@
 /*
  * Copyright 2013 Freescale Semiconductor, Inc.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -27,6 +14,7 @@
 #include <fsl_esdhc.h>
 #include <miiphy.h>
 #include <netdev.h>
+#include <i2c.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -280,6 +268,16 @@ static void setup_iomux_enet(void)
 	imx_iomux_v3_setup_multiple_pads(enet0_pads, ARRAY_SIZE(enet0_pads));
 }
 
+static void setup_iomux_i2c(void)
+{
+	static const iomux_v3_cfg_t i2c0_pads[] = {
+		VF610_PAD_PTB14__I2C0_SCL,
+		VF610_PAD_PTB15__I2C0_SDA,
+	};
+
+	imx_iomux_v3_setup_multiple_pads(i2c0_pads, ARRAY_SIZE(i2c0_pads));
+}
+
 #ifdef CONFIG_FSL_ESDHC
 struct fsl_esdhc_cfg esdhc_cfg[1] = {
 	{ESDHC1_BASE_ADDR},
@@ -328,7 +326,7 @@ static void clock_init(void)
 		CCM_CCGR3_ANADIG_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr4, CCM_REG_CTRL_MASK,
 		CCM_CCGR4_WKUP_CTRL_MASK | CCM_CCGR4_CCM_CTRL_MASK |
-		CCM_CCGR4_GPC_CTRL_MASK);
+		CCM_CCGR4_GPC_CTRL_MASK | CCM_CCGR4_I2C0_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr6, CCM_REG_CTRL_MASK,
 		CCM_CCGR6_OCOTP_CTRL_MASK | CCM_CCGR6_DDRMC_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr7, CCM_REG_CTRL_MASK,
@@ -387,6 +385,7 @@ int board_early_init_f(void)
 
 	setup_iomux_uart();
 	setup_iomux_enet();
+	setup_iomux_i2c();
 
 	return 0;
 }

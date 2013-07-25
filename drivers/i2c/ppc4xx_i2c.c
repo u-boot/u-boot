@@ -7,23 +7,7 @@
  * (C) Copyright 2001
  * Bill Hunter,  Wave 7 Optics, williamhunter@mediaone.net
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -32,27 +16,29 @@
 #include <i2c.h>
 #include <asm/io.h>
 
-#ifdef CONFIG_HARD_I2C
-
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_I2C_MULTI_BUS)
-/*
- * Initialize the bus pointer to whatever one the SPD EEPROM is on.
- * Default is bus 0.  This is necessary because the DDR initialization
- * runs from ROM, and we can't switch buses because we can't modify
- * the global variables.
- */
-#ifndef CONFIG_SYS_SPD_BUS_NUM
-#define CONFIG_SYS_SPD_BUS_NUM	0
-#endif
-static unsigned int i2c_bus_num __attribute__ ((section (".data"))) =
-	CONFIG_SYS_SPD_BUS_NUM;
-#endif /* CONFIG_I2C_MULTI_BUS */
-
-static void _i2c_bus_reset(void)
+static inline struct ppc4xx_i2c *ppc4xx_get_i2c(int hwadapnr)
 {
-	struct ppc4xx_i2c *i2c = (struct ppc4xx_i2c *)I2C_BASE_ADDR;
+	unsigned long base;
+
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
+	defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+	defined(CONFIG_460EX) || defined(CONFIG_460GT)
+	base = CONFIG_SYS_PERIPHERAL_BASE + 0x00000700 + (hwadapnr * 0x100);
+#elif defined(CONFIG_440) || defined(CONFIG_405EX)
+/* all remaining 440 variants */
+	base = CONFIG_SYS_PERIPHERAL_BASE + 0x00000400 + (hwadapnr * 0x100);
+#else
+/* all 405 variants */
+	base = 0xEF600500 + (hwadapnr * 0x100);
+#endif
+	return (struct ppc4xx_i2c *)base;
+}
+
+static void _i2c_bus_reset(struct i2c_adapter *adap)
+{
+	struct ppc4xx_i2c *i2c = ppc4xx_get_i2c(adap->hwadapnr);
 	int i;
 	u8 dc;
 
@@ -91,11 +77,10 @@ static void _i2c_bus_reset(void)
 	out_8(&i2c->xtcntlss, 0);
 }
 
-void i2c_init(int speed, int slaveaddr)
+static void ppc4xx_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
 {
-	struct ppc4xx_i2c *i2c;
+	struct ppc4xx_i2c *i2c = ppc4xx_get_i2c(adap->hwadapnr);
 	int val, divisor;
-	int bus;
 
 #ifdef CONFIG_SYS_I2C_INIT_BOARD
 	/*
@@ -106,67 +91,57 @@ void i2c_init(int speed, int slaveaddr)
 	i2c_init_board();
 #endif
 
-	for (bus = 0; bus < CONFIG_SYS_MAX_I2C_BUS; bus++) {
-		I2C_SET_BUS(bus);
+	/* Handle possible failed I2C state */
+	/* FIXME: put this into i2c_init_board()? */
+	_i2c_bus_reset(adap);
 
-		/* Set i2c pointer after calling I2C_SET_BUS() */
-		i2c = (struct ppc4xx_i2c *)I2C_BASE_ADDR;
+	/* clear lo master address */
+	out_8(&i2c->lmadr, 0);
 
-		/* Handle possible failed I2C state */
-		/* FIXME: put this into i2c_init_board()? */
-		_i2c_bus_reset();
+	/* clear hi master address */
+	out_8(&i2c->hmadr, 0);
 
-		/* clear lo master address */
-		out_8(&i2c->lmadr, 0);
+	/* clear lo slave address */
+	out_8(&i2c->lsadr, 0);
 
-		/* clear hi master address */
-		out_8(&i2c->hmadr, 0);
+	/* clear hi slave address */
+	out_8(&i2c->hsadr, 0);
 
-		/* clear lo slave address */
-		out_8(&i2c->lsadr, 0);
+	/* Clock divide Register */
+	/* set divisor according to freq_opb */
+	divisor = (get_OPB_freq() - 1) / 10000000;
+	if (divisor == 0)
+		divisor = 1;
+	out_8(&i2c->clkdiv, divisor);
 
-		/* clear hi slave address */
-		out_8(&i2c->hsadr, 0);
+	/* no interrupts */
+	out_8(&i2c->intrmsk, 0);
 
-		/* Clock divide Register */
-		/* set divisor according to freq_opb */
-		divisor = (get_OPB_freq() - 1) / 10000000;
-		if (divisor == 0)
-			divisor = 1;
-		out_8(&i2c->clkdiv, divisor);
+	/* clear transfer count */
+	out_8(&i2c->xfrcnt, 0);
 
-		/* no interrupts */
-		out_8(&i2c->intrmsk, 0);
+	/* clear extended control & stat */
+	/* write 1 in SRC SRS SWC SWS to clear these fields */
+	out_8(&i2c->xtcntlss, 0xF0);
 
-		/* clear transfer count */
-		out_8(&i2c->xfrcnt, 0);
+	/* Mode Control Register
+	   Flush Slave/Master data buffer */
+	out_8(&i2c->mdcntl, IIC_MDCNTL_FSDB | IIC_MDCNTL_FMDB);
 
-		/* clear extended control & stat */
-		/* write 1 in SRC SRS SWC SWS to clear these fields */
-		out_8(&i2c->xtcntlss, 0xF0);
+	val = in_8(&i2c->mdcntl);
 
-		/* Mode Control Register
-		   Flush Slave/Master data buffer */
-		out_8(&i2c->mdcntl, IIC_MDCNTL_FSDB | IIC_MDCNTL_FMDB);
+	/* Ignore General Call, slave transfers are ignored,
+	 * disable interrupts, exit unknown bus state, enable hold
+	 * SCL 100kHz normaly or FastMode for 400kHz and above
+	 */
 
-		val = in_8(&i2c->mdcntl);
+	val |= IIC_MDCNTL_EUBS | IIC_MDCNTL_HSCL;
+	if (speed >= 400000)
+		val |= IIC_MDCNTL_FSM;
+	out_8(&i2c->mdcntl, val);
 
-		/* Ignore General Call, slave transfers are ignored,
-		 * disable interrupts, exit unknown bus state, enable hold
-		 * SCL 100kHz normaly or FastMode for 400kHz and above
-		 */
-
-		val |= IIC_MDCNTL_EUBS | IIC_MDCNTL_HSCL;
-		if (speed >= 400000)
-			val |= IIC_MDCNTL_FSM;
-		out_8(&i2c->mdcntl, val);
-
-		/* clear control reg */
-		out_8(&i2c->cntl, 0x00);
-	}
-
-	/* set to SPD bus as default bus upon powerup */
-	I2C_SET_BUS(CONFIG_SYS_SPD_BUS_NUM);
+	/* clear control reg */
+	out_8(&i2c->cntl, 0x00);
 }
 
 /*
@@ -194,14 +169,15 @@ void i2c_init(int speed, int slaveaddr)
  *
  * It does not check XFRCNT.
  */
-static int i2c_transfer(unsigned char cmd_type,
+static int _i2c_transfer(struct i2c_adapter *adap,
+			unsigned char cmd_type,
 			unsigned char chip,
 			unsigned char addr[],
 			unsigned char addr_len,
 			unsigned char data[],
 			unsigned short data_len)
 {
-	struct ppc4xx_i2c *i2c = (struct ppc4xx_i2c *)I2C_BASE_ADDR;
+	struct ppc4xx_i2c *i2c = ppc4xx_get_i2c(adap->hwadapnr);
 	u8 *ptr;
 	int reading;
 	int tran, cnt;
@@ -345,7 +321,7 @@ static int i2c_transfer(unsigned char cmd_type,
 	return result;
 }
 
-int i2c_probe(uchar chip)
+static int ppc4xx_i2c_probe(struct i2c_adapter *adap, uchar chip)
 {
 	uchar buf[1];
 
@@ -356,11 +332,11 @@ int i2c_probe(uchar chip)
 	 * address was <ACK>ed (i.e. there was a chip at that address which
 	 * drove the data line low).
 	 */
-	return (i2c_transfer(1, chip << 1, 0, 0, buf, 1) != 0);
+	return (_i2c_transfer(adap, 1, chip << 1, 0, 0, buf, 1) != 0);
 }
 
-static int ppc4xx_i2c_transfer(uchar chip, uint addr, int alen, uchar *buffer,
-			       int len, int read)
+static int ppc4xx_i2c_transfer(struct i2c_adapter *adap, uchar chip, uint addr,
+			       int alen, uchar *buffer, int len, int read)
 {
 	uchar xaddr[4];
 	int ret;
@@ -394,43 +370,50 @@ static int ppc4xx_i2c_transfer(uchar chip, uint addr, int alen, uchar *buffer,
 		chip |= ((addr >> (alen * 8)) &
 			 CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW);
 #endif
-	if ((ret = i2c_transfer(read, chip << 1, &xaddr[4 - alen], alen,
-				buffer, len)) != 0) {
+	ret = _i2c_transfer(adap, read, chip << 1, &xaddr[4 - alen], alen,
+			    buffer, len);
+	if (ret) {
 		printf("I2C %s: failed %d\n", read ? "read" : "write", ret);
-
 		return 1;
 	}
 
 	return 0;
 }
 
-int i2c_read(uchar chip, uint addr, int alen, uchar * buffer, int len)
+static int ppc4xx_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
+			   int alen, uchar *buffer, int len)
 {
-	return ppc4xx_i2c_transfer(chip, addr, alen, buffer, len, 1);
+	return ppc4xx_i2c_transfer(adap, chip, addr, alen, buffer, len, 1);
 }
 
-int i2c_write(uchar chip, uint addr, int alen, uchar * buffer, int len)
+static int ppc4xx_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
+			    int alen, uchar *buffer, int len)
 {
-	return ppc4xx_i2c_transfer(chip, addr, alen, buffer, len, 0);
+	return ppc4xx_i2c_transfer(adap, chip, addr, alen, buffer, len, 0);
 }
 
-#if defined(CONFIG_I2C_MULTI_BUS)
-/*
- * Functions for multiple I2C bus handling
- */
-unsigned int i2c_get_bus_num(void)
+static unsigned int ppc4xx_i2c_set_bus_speed(struct i2c_adapter *adap,
+					     unsigned int speed)
 {
-	return i2c_bus_num;
-}
-
-int i2c_set_bus_num(unsigned int bus)
-{
-	if (bus >= CONFIG_SYS_MAX_I2C_BUS)
+	if (speed != adap->speed)
 		return -1;
-
-	i2c_bus_num = bus;
-
-	return 0;
+	return speed;
 }
-#endif	/* CONFIG_I2C_MULTI_BUS */
-#endif	/* CONFIG_HARD_I2C */
+
+/*
+ * Register ppc4xx i2c adapters
+ */
+#ifdef CONFIG_SYS_I2C_PPC4XX_CH0
+U_BOOT_I2C_ADAP_COMPLETE(ppc4xx_0, ppc4xx_i2c_init, ppc4xx_i2c_probe,
+			 ppc4xx_i2c_read, ppc4xx_i2c_write,
+			 ppc4xx_i2c_set_bus_speed,
+			 CONFIG_SYS_I2C_PPC4XX_SPEED_0,
+			 CONFIG_SYS_I2C_PPC4XX_SLAVE_0, 0)
+#endif
+#ifdef CONFIG_SYS_I2C_PPC4XX_CH1
+U_BOOT_I2C_ADAP_COMPLETE(ppc4xx_1, ppc4xx_i2c_init, ppc4xx_i2c_probe,
+			 ppc4xx_i2c_read, ppc4xx_i2c_write,
+			 ppc4xx_i2c_set_bus_speed,
+			 CONFIG_SYS_I2C_PPC4XX_SPEED_1,
+			 CONFIG_SYS_I2C_PPC4XX_SLAVE_1, 1)
+#endif

@@ -2,23 +2,7 @@
  * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /* Yoo. Jonghoon, IPone, yooth@ipone.co.kr
@@ -62,6 +46,36 @@
 #undef	CONFIG_SYS_LOADS_BAUD_CHANGE		/* don't allow baudrate change	*/
 
 #define CONFIG_BZIP2		/* Include support for bzip2 compressed images  */
+
+/* enable I2C and select the hardware/software driver */
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
+#define CONFIG_SYS_I2C_SOFT_SPEED	40000	/* 40 kHz is supposed to work */
+#define CONFIG_SYS_I2C_SOFT_SLAVE	0xFE
+/* Software (bit-bang) I2C driver configuration */
+#define PB_SCL		0x00000020	/* PB 26 */
+#define PB_SDA		0x00000010	/* PB 27 */
+
+#define I2C_INIT	(immr->im_cpm.cp_pbdir |=  PB_SCL)
+#define I2C_ACTIVE	(immr->im_cpm.cp_pbdir |=  PB_SDA)
+#define I2C_TRISTATE	(immr->im_cpm.cp_pbdir &= ~PB_SDA)
+#define I2C_READ	((immr->im_cpm.cp_pbdat & PB_SDA) != 0)
+#define I2C_SDA(bit)	if (bit) \
+				immr->im_cpm.cp_pbdat |=  PB_SDA; \
+			else \
+				immr->im_cpm.cp_pbdat &= ~PB_SDA
+#define I2C_SCL(bit)	if (bit) \
+				immr->im_cpm.cp_pbdat |=  PB_SCL; \
+			else \
+				immr->im_cpm.cp_pbdat &= ~PB_SCL
+#define I2C_DELAY	udelay(5)	/* 1/4 I2C clock duration */
+
+/* M41T11 Serial Access Timekeeper(R) SRAM */
+#define CONFIG_RTC_M41T11 1
+#define CONFIG_SYS_I2C_RTC_ADDR 0x68
+/* play along with the linux driver */
+#define CONFIG_SYS_M41T11_BASE_YEAR 1900
+
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
 /*

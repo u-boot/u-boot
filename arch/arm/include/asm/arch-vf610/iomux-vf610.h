@@ -1,20 +1,7 @@
 /*
  * Copyright 2013 Freescale Semiconductor, Inc.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __IOMUX_VF610_H__
@@ -30,6 +17,8 @@
 #define VF610_ENET_PAD_CTRL	(PAD_CTL_PUS_47K_UP | PAD_CTL_DSE_50ohm | \
 				PAD_CTL_OBE_IBE_ENABLE)
 #define VF610_DDR_PAD_CTRL	PAD_CTL_DSE_25ohm
+#define VF610_I2C_PAD_CTRL	(PAD_CTL_PUS_47K_UP | PAD_CTL_DSE_50ohm | \
+				PAD_CTL_SPEED_HIGH | PAD_CTL_OBE_IBE_ENABLE)
 
 enum {
 	VF610_PAD_PTA6__RMII0_CLKIN		= IOMUX_PAD(0x0000, 0x0000, 2, __NA_, 0, VF610_ENET_PAD_CTRL),
@@ -50,6 +39,8 @@ enum {
 	VF610_PAD_PTA27__ESDHC1_DAT1		= IOMUX_PAD(0x0044, 0x0044, 5, __NA_, 0, VF610_SDHC_PAD_CTRL),
 	VF610_PAD_PTA28__ESDHC1_DAT2		= IOMUX_PAD(0x0048, 0x0048, 5, __NA_, 0, VF610_SDHC_PAD_CTRL),
 	VF610_PAD_PTA29__ESDHC1_DAT3		= IOMUX_PAD(0x004c, 0x004c, 5, __NA_, 0, VF610_SDHC_PAD_CTRL),
+	VF610_PAD_PTB14__I2C0_SCL		= IOMUX_PAD(0x0090, 0x0090, 2, 0x033c, 1, VF610_I2C_PAD_CTRL),
+	VF610_PAD_PTB15__I2C0_SDA		= IOMUX_PAD(0x0094, 0x0094, 2, 0x0340, 1, VF610_I2C_PAD_CTRL),
 	VF610_PAD_DDR_A15__DDR_A_15		= IOMUX_PAD(0x0220, 0x0220, 0, __NA_, 0, VF610_DDR_PAD_CTRL),
 	VF610_PAD_DDR_A14__DDR_A_14		= IOMUX_PAD(0x0224, 0x0224, 0, __NA_, 0, VF610_DDR_PAD_CTRL),
 	VF610_PAD_DDR_A13__DDR_A_13		= IOMUX_PAD(0x0228, 0x0228, 0, __NA_, 0, VF610_DDR_PAD_CTRL),

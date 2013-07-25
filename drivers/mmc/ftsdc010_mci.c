@@ -4,8 +4,7 @@
  * (C) Copyright 2010 Faraday Technology
  * Dante Su <dantesu@faraday-tech.com>
  *
- * This file is released under the terms of GPL v2 and any later version.
- * See the file COPYING in the root directory of the source tree for details.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -175,7 +174,11 @@ static int ftsdc010_request(struct mmc *mmc, struct mmc_cmd *cmd,
 		len = data->blocksize * data->blocks;
 
 		/* 1. data disable + fifo reset */
-		writel(FTSDC010_DCR_FIFO_RST, &regs->dcr);
+		dcr = 0;
+#ifdef CONFIG_FTSDC010_SDIO
+		dcr |= FTSDC010_DCR_FIFO_RST;
+#endif
+		writel(dcr, &regs->dcr);
 
 		/* 2. clear status register */
 		writel(FTSDC010_STATUS_DATA_MASK | FTSDC010_STATUS_FIFO_URUN

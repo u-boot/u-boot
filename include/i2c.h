@@ -1,24 +1,12 @@
 /*
+ * Copyright (C) 2009 Sergey Kubushyn <ksi@koi8.net>
+ * Copyright (C) 2009 - 2013 Heiko Schocher <hs@denx.de>
+ * Changes for multibus/multiadapter I2C support.
+ *
  * (C) Copyright 2001
  * Gerald Van Baren, Custom IDEAS, vanbaren@cideas.com.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  *
  * The original I2C interface was
  *   (C) 2000 by Paolo Scaffardi (arsenio@tin.it)
@@ -46,16 +34,14 @@
  */
 #define I2C_RXTX_LEN	128	/* maximum tx/rx buffer length */
 
-#ifdef	CONFIG_I2C_MULTI_BUS
-#define	MAX_I2C_BUS			2
-#define	I2C_MULTI_BUS			1
+#if !defined(CONFIG_SYS_I2C_MAX_HOPS)
+/* no muxes used bus = i2c adapters */
+#define CONFIG_SYS_I2C_DIRECT_BUS	1
+#define CONFIG_SYS_I2C_MAX_HOPS		0
+#define CONFIG_SYS_NUM_I2C_BUSES	ll_entry_count(struct i2c_adapter, i2c)
 #else
-#define	MAX_I2C_BUS			1
-#define	I2C_MULTI_BUS			0
-#endif
-
-#if !defined(CONFIG_SYS_MAX_I2C_BUS)
-#define CONFIG_SYS_MAX_I2C_BUS		MAX_I2C_BUS
+/* we use i2c muxes */
+#undef CONFIG_SYS_I2C_DIRECT_BUS
 #endif
 
 /* define the I2C bus number for RTC and DTT if not already done */
@@ -67,6 +53,88 @@
 #endif
 #if !defined(CONFIG_SYS_SPD_BUS_NUM)
 #define CONFIG_SYS_SPD_BUS_NUM		0
+#endif
+
+struct i2c_adapter {
+	void		(*init)(struct i2c_adapter *adap, int speed,
+				int slaveaddr);
+	int		(*probe)(struct i2c_adapter *adap, uint8_t chip);
+	int		(*read)(struct i2c_adapter *adap, uint8_t chip,
+				uint addr, int alen, uint8_t *buffer,
+				int len);
+	int		(*write)(struct i2c_adapter *adap, uint8_t chip,
+				uint addr, int alen, uint8_t *buffer,
+				int len);
+	uint		(*set_bus_speed)(struct i2c_adapter *adap,
+				uint speed);
+	int		speed;
+	int		slaveaddr;
+	int		init_done;
+	int		hwadapnr;
+	char		*name;
+};
+
+#define U_BOOT_I2C_MKENT_COMPLETE(_init, _probe, _read, _write, \
+		_set_speed, _speed, _slaveaddr, _hwadapnr, _name) \
+	{ \
+		.init		=	_init, \
+		.probe		=	_probe, \
+		.read		=	_read, \
+		.write		=	_write, \
+		.set_bus_speed	=	_set_speed, \
+		.speed		=	_speed, \
+		.slaveaddr	=	_slaveaddr, \
+		.init_done	=	0, \
+		.hwadapnr	=	_hwadapnr, \
+		.name		=	#_name \
+};
+
+#define U_BOOT_I2C_ADAP_COMPLETE(_name, _init, _probe, _read, _write, \
+			_set_speed, _speed, _slaveaddr, _hwadapnr) \
+	ll_entry_declare(struct i2c_adapter, _name, i2c) = \
+	U_BOOT_I2C_MKENT_COMPLETE(_init, _probe, _read, _write, \
+		 _set_speed, _speed, _slaveaddr, _hwadapnr, _name);
+
+struct i2c_adapter *i2c_get_adapter(int index);
+
+#ifndef CONFIG_SYS_I2C_DIRECT_BUS
+struct i2c_mux {
+	int	id;
+	char	name[16];
+};
+
+struct i2c_next_hop {
+	struct i2c_mux		mux;
+	uint8_t		chip;
+	uint8_t		channel;
+};
+
+struct i2c_bus_hose {
+	int	adapter;
+	struct i2c_next_hop	next_hop[CONFIG_SYS_I2C_MAX_HOPS];
+};
+#define I2C_NULL_HOP	{{-1, ""}, 0, 0}
+extern struct i2c_bus_hose	i2c_bus[];
+
+#define I2C_ADAPTER(bus)	i2c_bus[bus].adapter
+#else
+#define I2C_ADAPTER(bus)	bus
+#endif
+#define	I2C_BUS			gd->cur_i2c_bus
+
+#define	I2C_ADAP_NR(bus)	i2c_get_adapter(I2C_ADAPTER(bus))
+#define	I2C_ADAP		I2C_ADAP_NR(gd->cur_i2c_bus)
+#define I2C_ADAP_HWNR		(I2C_ADAP->hwadapnr)
+
+#ifndef CONFIG_SYS_I2C_DIRECT_BUS
+#define I2C_MUX_PCA9540_ID	1
+#define I2C_MUX_PCA9540		{I2C_MUX_PCA9540_ID, "PCA9540B"}
+#define I2C_MUX_PCA9542_ID	2
+#define I2C_MUX_PCA9542		{I2C_MUX_PCA9542_ID, "PCA9542A"}
+#define I2C_MUX_PCA9544_ID	3
+#define I2C_MUX_PCA9544		{I2C_MUX_PCA9544_ID, "PCA9544A"}
+#define I2C_MUX_PCA9547_ID	4
+#define I2C_MUX_PCA9547		{I2C_MUX_PCA9547_ID, "PCA9547A"}
 #endif
 
 #ifndef I2C_SOFT_DECLARATIONS
@@ -113,26 +181,103 @@ void i2c_init_board(void);
 void i2c_board_late_init(void);
 #endif
 
-#if defined(CONFIG_I2C_MUX)
+#ifdef CONFIG_SYS_I2C
+/*
+ * i2c_get_bus_num:
+ *
+ *  Returns index of currently active I2C bus.  Zero-based.
+ */
+unsigned int i2c_get_bus_num(void);
 
-typedef struct _mux {
-	uchar	chip;
-	uchar	channel;
-	char	*name;
-	struct _mux	*next;
-} I2C_MUX;
+/*
+ * i2c_set_bus_num:
+ *
+ *  Change the active I2C bus.  Subsequent read/write calls will
+ *  go to this one.
+ *
+ *	bus - bus index, zero based
+ *
+ *	Returns: 0 on success, not 0 on failure
+ *
+ */
+int i2c_set_bus_num(unsigned int bus);
 
-typedef struct _mux_device {
-	int	busid;
-	I2C_MUX	*mux;	/* List of muxes, to reach the device */
-	struct _mux_device	*next;
-} I2C_MUX_DEVICE;
+/*
+ * i2c_init_all():
+ *
+ * Initializes all I2C adapters in the system. All i2c_adap structures must
+ * be initialized beforehead with function pointers and data, including
+ * speed and slaveaddr. Returns 0 on success, non-0 on failure.
+ */
+void i2c_init_all(void);
 
-I2C_MUX_DEVICE	*i2c_mux_search_device(int id);
-I2C_MUX_DEVICE *i2c_mux_ident_muxstring (uchar *buf);
-int i2x_mux_select_mux(int bus);
-int i2c_mux_ident_muxstring_f (uchar *buf);
+/*
+ * Probe the given I2C chip address.  Returns 0 if a chip responded,
+ * not 0 on failure.
+ */
+int i2c_probe(uint8_t chip);
+
+/*
+ * Read/Write interface:
+ *   chip:    I2C chip address, range 0..127
+ *   addr:    Memory (register) address within the chip
+ *   alen:    Number of bytes to use for addr (typically 1, 2 for larger
+ *              memories, 0 for register type devices with only one
+ *              register)
+ *   buffer:  Where to read/write the data
+ *   len:     How many bytes to read/write
+ *
+ *   Returns: 0 on success, not 0 on failure
+ */
+int i2c_read(uint8_t chip, unsigned int addr, int alen,
+				uint8_t *buffer, int len);
+
+int i2c_write(uint8_t chip, unsigned int addr, int alen,
+				uint8_t *buffer, int len);
+
+/*
+ * Utility routines to read/write registers.
+ */
+uint8_t i2c_reg_read(uint8_t addr, uint8_t reg);
+
+void i2c_reg_write(uint8_t addr, uint8_t reg, uint8_t val);
+
+/*
+ * i2c_set_bus_speed:
+ *
+ *  Change the speed of the active I2C bus
+ *
+ *	speed - bus speed in Hz
+ *
+ *	Returns: new bus speed
+ *
+ */
+unsigned int i2c_set_bus_speed(unsigned int speed);
+
+/*
+ * i2c_get_bus_speed:
+ *
+ *  Returns speed of currently active I2C bus in Hz
+ */
+
+unsigned int i2c_get_bus_speed(void);
+
+/*
+ * i2c_reloc_fixup:
+ *
+ * Adjusts I2C pointers after U-Boot is relocated to DRAM
+ */
+void i2c_reloc_fixup(void);
+#if defined(CONFIG_SYS_I2C_SOFT)
+void i2c_soft_init(void);
+void i2c_soft_active(void);
+void i2c_soft_tristate(void);
+int i2c_soft_read(void);
+void i2c_soft_sda(int bit);
+void i2c_soft_scl(int bit);
+void i2c_soft_delay(void);
 #endif
+#else
 
 /*
  * Probe the given I2C chip address.  Returns 0 if a chip responded,
@@ -235,6 +380,21 @@ int i2c_set_bus_speed(unsigned int);
  */
 
 unsigned int i2c_get_bus_speed(void);
+#endif /* CONFIG_SYS_I2C */
+
+/*
+ * only for backwardcompatibility, should go away if we switched
+ * completely to new multibus support.
+ */
+#if defined(CONFIG_SYS_I2C) || defined(CONFIG_I2C_MULTI_BUS)
+# if !defined(CONFIG_SYS_MAX_I2C_BUS)
+#  define CONFIG_SYS_MAX_I2C_BUS		2
+# endif
+# define I2C_MULTI_BUS				0
+#else
+# define CONFIG_SYS_MAX_I2C_BUS		1
+# define I2C_MULTI_BUS				0
+#endif
 
 /* NOTE: These two functions MUST be always_inline to avoid code growth! */
 static inline unsigned int I2C_GET_BUS(void) __attribute__((always_inline));
