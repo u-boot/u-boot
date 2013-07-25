@@ -60,13 +60,6 @@
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 
-/*
- * Because the issues explained in doc/README.memory-test, the "mtest command
- * is considered deprecated. It should not be enabled in most normal ports of
- * U-Boot.
- */
-#undef CONFIG_CMD_MEMTEST
-
 #define CONFIG_BOOTDELAY		1	/* negative for no autoboot */
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
