@@ -100,6 +100,7 @@
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_IPUV3_CLK 260000000
+#define CONFIG_IMX_HDMI
 
 #if defined(CONFIG_MX6DL)
 #define CONFIG_DEFAULT_FDT_FILE		"imx6dl-wandboard.dtb"

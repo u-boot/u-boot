@@ -21,6 +21,11 @@
 #ifndef __MXC_HDMI_H__
 #define __MXC_HDMI_H__
 
+#ifdef CONFIG_IMX_HDMI
+void imx_enable_hdmi_phy(void);
+void imx_setup_hdmi(void);
+#endif
+
 /*
  * Hdmi controller registers
  */
