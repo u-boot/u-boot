@@ -63,6 +63,10 @@
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 
+/* Make the verbose messages from UBI stop printing */
+#define CONFIG_UBI_SILENCE_MSG
+#define CONFIG_UBIFS_SILENCE_MSG
+
 #define CONFIG_BOOTDELAY		1	/* negative for no autoboot */
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
@@ -73,20 +77,33 @@
 	"bootfile=zImage\0" \
 	"dtbfile=am335x-base0033.dtb\0" \
 	"console=ttyO0,115200n8\0" \
+	"mtdids=" MTDIDS_DEFAULT "\0" \
+	"mtdparts=" MTDPARTS_DEFAULT "\0" \
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \
+	"ubiroot=ubi0:filesystem rw ubi.mtd=3,2048\0" \
 	"mmcrootfstype=ext4 rootwait\0" \
+	"ubirootfstype=ubifs rootwait\0" \
 	"mmcargs=setenv bootargs console=${console} " \
 		"root=${mmcroot} " \
 		"rootfstype=${mmcrootfstype}\0" \
+	"ubiargs=setenv bootargs console=${console} " \
+		"root=${ubiroot} " \
+		"rootfstype=${ubirootfstype}\0" \
 	"bootenv=uEnv.txt\0" \
 	"loadbootenv=load mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
 	"importbootenv=echo Importing environment from mmc ...; " \
 		"env import -t ${loadaddr} ${filesize}\0" \
 	"mmcload=load mmc ${mmcdev}:2 ${loadaddr} ${bootdir}/${bootfile}; " \
 		"load mmc ${mmcdev}:2 ${dtbaddr} ${bootdir}/${dtbfile}\0" \
+	"ubiload=ubi part filesystem 2048; ubifsmount ubi0; " \
+		"ubifsload ${loadaddr} ${bootdir}/${bootfile}; " \
+		"ubifsload ${dtbaddr} ${bootdir}/${dtbfile} \0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
+		"bootz ${loadaddr} - ${dtbaddr}\0" \
+	"ubiboot=echo Booting from nand (ubifs) ...; " \
+		"run ubiargs; run ubiload; " \
 		"bootz ${loadaddr} - ${dtbaddr}\0" \
 
 #define CONFIG_BOOTCOMMAND \
@@ -103,6 +120,8 @@
 		"if run mmcload; then " \
 			"run mmcboot;" \
 		"fi;" \
+	"else " \
+		"run ubiboot;" \
 	"fi;" \
 
 /* Max number of command args */
@@ -182,18 +201,21 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_ONFI_DETECTION	1
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
+#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 #define CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_OFFSET		0x260000 /* environment starts here */
+#define CONFIG_ENV_OFFSET		0x180000 /* environment starts here */
+#define CONFIG_ENV_ADDR_REDUND		(CONFIG_ENV_OFFSET + CONFIG_SYS_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND		(CONFIG_ENV_SIZE)
 
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_MTD_DEVICE
 #define CONFIG_RBTREE
 #define CONFIG_LZO
 
-#define MTDIDS_DEFAULT			"nand0=nand"
-#define MTDPARTS_DEFAULT		"mtdparts=nand:512k(SPL),"\
-					"1m(U-Boot),128k(U-Boot Env),"\
-					"5m(Kernel),-(File System)"
+#define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
+#define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:512k(spl),"\
+					"1m(uboot),256k(environment),"\
+					"-(filesystem)"
 
 /* Unsupported features */
 #undef CONFIG_USE_IRQ
