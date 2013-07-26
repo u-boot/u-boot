@@ -223,10 +223,10 @@ int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 	struct usb_ehci *ehci;
 
 	set_usboh3_clk();
-	enable_usboh3_clk(1);
+	enable_usboh3_clk(true);
 	set_usb_phy_clk();
-	enable_usb_phy1_clk(1);
-	enable_usb_phy2_clk(1);
+	enable_usb_phy1_clk(true);
+	enable_usb_phy2_clk(true);
 	mdelay(1);
 
 	/* Do board specific initialization */
