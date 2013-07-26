@@ -1015,10 +1015,10 @@ static inline phys_addr_t map_to_sysmem(void *ptr)
  * of a function scoped static buffer.  It can not be used to create a cache
  * line aligned global buffer.
  */
-#define PAD_COUNT(s, pad) ((s - 1) / pad + 1)
+#define PAD_COUNT(s, pad) (((s) - 1) / (pad) + 1)
 #define PAD_SIZE(s, pad) (PAD_COUNT(s, pad) * pad)
 #define ALLOC_ALIGN_BUFFER_PAD(type, name, size, align, pad)		\
-	char __##name[ROUND(PAD_SIZE(size * sizeof(type), pad), align)  \
+	char __##name[ROUND(PAD_SIZE((size) * sizeof(type), pad), align)  \
 		      + (align - 1)];					\
 									\
 	type *name = (type *) ALIGN((uintptr_t)__##name, align)
