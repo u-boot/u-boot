@@ -28,6 +28,8 @@ enum {
 	HWVER_300 = 3,
 };
 
+struct ihs_fpga *fpga_ptr[] = CONFIG_SYS_FPGA_PTR;
+
 int misc_init_r(void)
 {
 	/* startup fans */
@@ -54,10 +56,9 @@ int checkboard(void)
 
 static void print_fpga_info(void)
 {
-	struct ihs_fpga *fpga = (struct ihs_fpga *) CONFIG_SYS_FPGA_BASE(0);
-	u16 versions = in_le16(&fpga->versions);
-	u16 fpga_version = in_le16(&fpga->fpga_version);
-	u16 fpga_features = in_le16(&fpga->fpga_features);
+	u16 versions;
+	u16 fpga_version;
+	u16 fpga_features;
 	int fpga_state = get_fpga_state(0);
 	unsigned unit_type;
 	unsigned hardware_version;
@@ -73,6 +74,10 @@ static void print_fpga_info(void)
 		printf(" refelectione test failed\n");
 		return;
 	}
+
+	FPGA_GET_REG(0, versions, &versions);
+	FPGA_GET_REG(0, fpga_version, &fpga_version);
+	FPGA_GET_REG(0, fpga_features, &fpga_features);
 
 	unit_type = (versions & 0xf000) >> 12;
 	hardware_version = versions & 0x000f;

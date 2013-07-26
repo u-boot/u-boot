@@ -37,6 +37,8 @@ enum {
 	HWVER_122 = 3,
 };
 
+struct ihs_fpga *fpga_ptr[] = CONFIG_SYS_FPGA_PTR;
+
 int misc_init_r(void)
 {
 	/* startup fans */
@@ -101,14 +103,17 @@ int checkboard(void)
 
 static void print_fpga_info(void)
 {
-	struct ihs_fpga *fpga = (struct ihs_fpga *) CONFIG_SYS_FPGA_BASE(0);
-	u16 versions = in_le16(&fpga->versions);
-	u16 fpga_version = in_le16(&fpga->fpga_version);
-	u16 fpga_features = in_le16(&fpga->fpga_features);
+	u16 versions;
+	u16 fpga_version;
+	u16 fpga_features;
 	unsigned unit_type;
 	unsigned hardware_version;
 	unsigned feature_channels;
 	unsigned feature_expansion;
+
+	FPGA_GET_REG(0, versions, &versions);
+	FPGA_GET_REG(0, fpga_version, &fpga_version);
+	FPGA_GET_REG(0, fpga_features, &fpga_features);
 
 	unit_type = (versions & 0xf000) >> 12;
 	hardware_version = versions & 0x000f;
@@ -163,7 +168,6 @@ static void print_fpga_info(void)
  */
 int last_stage_init(void)
 {
-	struct ihs_fpga *fpga = (struct ihs_fpga *) CONFIG_SYS_FPGA_BASE(0);
 	unsigned int k;
 
 	print_fpga_info();
@@ -175,7 +179,7 @@ int last_stage_init(void)
 		configure_gbit_phy(k);
 
 	/* take fpga serdes blocks out of reset */
-	out_le16(&fpga->quad_serdes_reset, 0);
+	FPGA_SET_REG(0, quad_serdes_reset, 0);
 
 	return 0;
 }

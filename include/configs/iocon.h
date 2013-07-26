@@ -18,7 +18,7 @@
  * Include common defines/options for all AMCC eval boards
  */
 #define CONFIG_HOSTNAME		iocon
-#define CONFIG_IDENT_STRING	" iocon 0.04"
+#define CONFIG_IDENT_STRING	" iocon 0.05"
 #include "amcc-common.h"
 
 #define CONFIG_BOARD_EARLY_INIT_F
@@ -63,6 +63,7 @@
  * Commands additional to the ones defined in amcc-common.h
  */
 #define CONFIG_CMD_CACHE
+#define CONFIG_CMD_FPGAD
 #undef CONFIG_CMD_EEPROM
 
 /*
@@ -100,23 +101,53 @@
 #define CONFIG_SYS_I2C_PPC4XX_SPEED_0		400000
 #define CONFIG_SYS_I2C_PPC4XX_SLAVE_0		0x7F
 
+#define CONFIG_SYS_I2C_SPEED		400000
+
+#define CONFIG_PCA953X			/* NXP PCA9554 */
+#define CONFIG_PCA9698			/* NXP PCA9698 */
+
 /*
  * Software (bit-bang) I2C driver configuration
  */
+#define CONFIG_SYS_I2C_SOFT
+#define CONFIG_SYS_I2C_SOFT_SPEED		50000
+#define CONFIG_SYS_I2C_SOFT_SLAVE		0x7F
+#define I2C_SOFT_DECLARATIONS2
+#define CONFIG_SYS_I2C_SOFT_SPEED_2		50000
+#define CONFIG_SYS_I2C_SOFT_SLAVE_2		0x7F
+#define I2C_SOFT_DECLARATIONS3
+#define CONFIG_SYS_I2C_SOFT_SPEED_3		50000
+#define CONFIG_SYS_I2C_SOFT_SLAVE_3		0x7F
+#define I2C_SOFT_DECLARATIONS4
+#define CONFIG_SYS_I2C_SOFT_SPEED_4		50000
+#define CONFIG_SYS_I2C_SOFT_SLAVE_4		0x7F
+
+#define CONFIG_SYS_CH7301_I2C			{1, 2, 3, 4}
 
 #ifndef __ASSEMBLY__
-void fpga_gpio_set(int pin);
-void fpga_gpio_clear(int pin);
-int fpga_gpio_get(int pin);
+void fpga_gpio_set(unsigned int bus, int pin);
+void fpga_gpio_clear(unsigned int bus, int pin);
+int fpga_gpio_get(unsigned int bus, int pin);
 #endif
 
 #define I2C_ACTIVE	{ }
 #define I2C_TRISTATE	{ }
-#define I2C_READ	fpga_gpio_get(0x0040) ? 1 : 0
-#define I2C_SDA(bit)	if (bit) fpga_gpio_set(0x0040); \
-			else fpga_gpio_clear(0x0040)
-#define I2C_SCL(bit)	if (bit) fpga_gpio_set(0x0020); \
-			else fpga_gpio_clear(0x0020)
+#define I2C_READ \
+	(fpga_gpio_get(I2C_ADAP_HWNR, 0x0040) ? 1 : 0)
+#define I2C_SDA(bit) \
+	do { \
+		if (bit) \
+			fpga_gpio_set(I2C_ADAP_HWNR, 0x0040); \
+		else \
+			fpga_gpio_clear(I2C_ADAP_HWNR, 0x0040); \
+	} while (0)
+#define I2C_SCL(bit) \
+	do { \
+		if (bit) \
+			fpga_gpio_set(I2C_ADAP_HWNR, 0x0020); \
+		else \
+			fpga_gpio_clear(I2C_ADAP_HWNR, 0x0020); \
+	} while (0)
 #define I2C_DELAY	udelay(25)	/* 1/4 I2C clock duration */
 
 /*
@@ -141,7 +172,6 @@ int fpga_gpio_get(int pin);
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write/ms */
 
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE 1	/* use buff'd writes */
-#define CONFIG_SYS_FLASH_PROTECTION	1	/* use hardware flash protect */
 
 #define CONFIG_SYS_FLASH_EMPTY_INFO	/* 'E' for empty sector on flinfo */
 #define CONFIG_SYS_FLASH_QUIET_TEST	1	/* no warn upon unknown flash */
@@ -236,6 +266,11 @@ int fpga_gpio_get(int pin);
 
 #define CONFIG_SYS_FPGA_COUNT		1
 
+#define CONFIG_SYS_MCLINK_MAX		3
+
+#define CONFIG_SYS_FPGA_PTR \
+	{ (struct ihs_fpga *)CONFIG_SYS_FPGA0_BASE, NULL, NULL, NULL }
+
 /* Memory Bank 3 (Latches) initialization */
 #define CONFIG_SYS_LATCH_BASE		0x7f200000
 #define CONFIG_SYS_EBC_PB3AP		0x02025080
@@ -251,6 +286,9 @@ int fpga_gpio_get(int pin);
  */
 #define CONFIG_SYS_MPC92469AC
 #define CONFIG_SYS_CH7301
-#define CONFIG_SYS_OSD_SCREENS		CONFIG_SYS_FPGA_COUNT
+#define CONFIG_SYS_OSD_SCREENS		1
+
+#define CONFIG_BITBANGMII		/* bit-bang MII PHY management */
+#define CONFIG_BITBANGMII_MULTI
 
 #endif	/* __CONFIG_H */

@@ -92,6 +92,7 @@ COBJS-$(CONFIG_CMD_FLASH) += cmd_flash.o
 ifdef CONFIG_FPGA
 COBJS-$(CONFIG_CMD_FPGA) += cmd_fpga.o
 endif
+COBJS-$(CONFIG_CMD_FPGAD) += cmd_fpgad.o
 COBJS-$(CONFIG_CMD_FS_GENERIC) += cmd_fs.o
 COBJS-$(CONFIG_CMD_FUSE) += cmd_fuse.o
 COBJS-$(CONFIG_CMD_GETTIME) += cmd_gettime.o
