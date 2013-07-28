@@ -51,3 +51,5 @@ GNU Library General Public License v2 or later	LGPL-2.0+	Y		lgpl-2.0.txt		http:/
 GNU Lesser General Public License v2.1 or later	LGPL-2.1+	Y		lgpl-2.1.txt		http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt
 eCos license version 2.0			eCos-2.0			eCos-2.0.txt		http://www.gnu.org/licenses/ecos-license.html
 BSD 2-Clause License				BSD-2-Clause	Y		bsd-2-clause.txt	https://spdx.org/licenses/BSD-2-Clause
+IBM PIBS (PowerPC Initialization and		ibm-pibs			ibm-pibs.txt
+	Boot Software) license
