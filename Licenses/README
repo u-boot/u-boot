@@ -50,6 +50,7 @@ GNU General Public License v2.0 or later	GPL-2.0+	Y		gpl-2.0.txt		http://www.gnu
 GNU Library General Public License v2 or later	LGPL-2.0+	Y		lgpl-2.0.txt		http://www.gnu.org/licenses/old-licenses/lgpl-2.0.txt
 GNU Lesser General Public License v2.1 or later	LGPL-2.1+	Y		lgpl-2.1.txt		http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt
 eCos license version 2.0			eCos-2.0			eCos-2.0.txt		http://www.gnu.org/licenses/ecos-license.html
-BSD 2-Clause License				BSD-2-Clause	Y		bsd-2-clause.txt	https://spdx.org/licenses/BSD-2-Clause
+BSD 2-Clause License				BSD-2-Clause	Y		bsd-2-clause.txt	http://spdx.org/licenses/BSD-2-Clause
+BSD 3-clause "New" or "Revised" License		BSD-3-Clause	Y		bsd-3-clause.txt	http://spdx.org/licenses/BSD-3-Clause#licenseText
 IBM PIBS (PowerPC Initialization and		ibm-pibs			ibm-pibs.txt
 	Boot Software) license
