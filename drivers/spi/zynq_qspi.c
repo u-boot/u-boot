@@ -977,21 +977,19 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		return NULL;
 	}
 
-/*
- * Read the lqspi_clk_ctrl_reg register and calculate the frequency. If failure
- * revert to 200Mhz
- */
-
+	/*
+	 * Read the lqspi_clk_ctrl_reg register and calculate the frequency.
+	 * If failure revert to 200Mhz
+	 */
 	lqspi_clk_ctrl_reg = zynq_slcr_get_lqspi_clk_ctrl();
-
 	lqspi_frequency = (CONFIG_CPU_FREQ_HZ / ((lqspi_clk_ctrl_reg & 0x3F00)>>
 				8));
 	if (!lqspi_frequency) {
-		printf("Defaulting to 200000000 Hz qspi clk");
+		debug("Defaulting to 200000000 Hz qspi clk");
 		qspi->qspi.master.input_clk_hz = 200000000;
 	} else {
 		qspi->qspi.master.input_clk_hz = lqspi_frequency;
-		printf("Qspi clk frequency set to %d Hz\n", lqspi_frequency);
+		debug("Qspi clk frequency set to %ld Hz\n", lqspi_frequency);
 	}
 
 	qspi->slave.is_dual = is_dual;
@@ -1003,7 +1001,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	qspi->qspi.bits_per_word = 32;
 	zynq_qspi_setup_transfer(&qspi->qspi, NULL);
 
-	debug("%s: lqspi_clk_ctrl_reg: %d CONFIG_CPU_FREQ_HZ %d\n",
+	debug("%s: lqspi_clk_ctrl_reg: %ld CONFIG_CPU_FREQ_HZ %d\n",
 	      __func__, lqspi_clk_ctrl_reg, CONFIG_CPU_FREQ_HZ);
 
 	spi_enable_quad_bit(&qspi->slave);
