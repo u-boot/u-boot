@@ -945,7 +945,9 @@ int usb_lowlevel_init(int index, void **controller)
 	 *         Split Transactions will be spread across microframes using
 	 *         S-mask and C-mask.
 	 */
-	ehcic[index].periodic_list = memalign(4096, 1024*4);
+	if (ehcic[index].periodic_list == NULL)
+		ehcic[index].periodic_list = memalign(4096, 1024 * 4);
+
 	if (!ehcic[index].periodic_list)
 		return -ENOMEM;
 	for (i = 0; i < 1024; i++) {
