@@ -266,7 +266,7 @@ struct spi_flash *spi_fram_probe_ramtron(struct spi_slave *spi, u8 *idcode)
 
 	/* arriving here means no method has found a device we can handle */
 	debug("SF/ramtron: unsupported device id0=%02x id1=%02x id2=%02x\n",
-		idcode[0], idcode[1], idcode[2]);
+	      idcode[0], idcode[1], idcode[2]);
 	return NULL;
 
 found:

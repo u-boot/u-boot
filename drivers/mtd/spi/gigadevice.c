@@ -45,7 +45,7 @@ struct spi_flash *spi_flash_probe_gigadevice(struct spi_slave *spi, u8 *idcode)
 
 	if (i == ARRAY_SIZE(gigadevice_spi_flash_table)) {
 		debug("SF: Unsupported Gigadevice ID %02x%02x\n",
-				idcode[1], idcode[2]);
+		      idcode[1], idcode[2]);
 		return NULL;
 	}
 

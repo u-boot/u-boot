@@ -8,7 +8,7 @@
  * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -166,8 +166,9 @@ struct spi_flash *spi_flash_probe_stmicro(struct spi_slave *spi, u8 *idcode)
 			idcode[0] = 0x20;
 			idcode[1] = 0x20;
 			idcode[2] = idcode[3] + 1;
-		} else
+		} else {
 			return NULL;
+		}
 	}
 
 	id = ((idcode[1] << 8) | idcode[2]);
