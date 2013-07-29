@@ -99,6 +99,12 @@ static const struct sst_spi_flash_params sst_spi_flash_table[] = {
 		.nr_sectors = 128,
 		.name = "SST25WF040",
 	},
+	{
+		.idcode1 = 0x05,
+		.flags = SST_FEAT_WP,
+		.nr_sectors = 256,
+		.name = "SST25WF080",
+	},
 };
 
 static int
