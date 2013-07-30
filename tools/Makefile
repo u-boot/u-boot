@@ -154,6 +154,7 @@ NOPEDOBJS := $(addprefix $(obj),$(NOPED_OBJ_FILES-y))
 #
 # Use native tools and options
 # Define __KERNEL_STRICT_NAMES to prevent typedef overlaps
+# Define _GNU_SOURCE to obtain the getline prototype from stdio.h
 #
 HOSTCPPFLAGS =	-include $(SRCTREE)/include/libfdt_env.h \
 		-idirafter $(SRCTREE)/include \
@@ -163,7 +164,8 @@ HOSTCPPFLAGS =	-include $(SRCTREE)/include/libfdt_env.h \
 		-I $(SRCTREE)/tools \
 		-DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE) \
 		-DUSE_HOSTCC \
-		-D__KERNEL_STRICT_NAMES
+		-D__KERNEL_STRICT_NAMES \
+		-D_GNU_SOURCE
 
 
 all:	$(obj).depend $(BINS) $(LOGO-y) subdirs

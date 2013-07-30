@@ -9,9 +9,6 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-/* We want the GNU version of basename() */
-#define _GNU_SOURCE
-
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>

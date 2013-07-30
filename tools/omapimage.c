@@ -14,9 +14,6 @@
  * SPDX-License-Identifier:	GPL-2.0+ 
  */
 
-/* Required to obtain the getline prototype from stdio.h */
-#define _GNU_SOURCE
-
 #include "mkimage.h"
 #include <image.h>
 #include "omapimage.h"
