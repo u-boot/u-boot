@@ -40,7 +40,8 @@ void save_omap_boot_params(void)
 
 	if ((boot_device >= MMC_BOOT_DEVICES_START) &&
 	    (boot_device <= MMC_BOOT_DEVICES_END)) {
-#if !defined(CONFIG_AM33XX) && !defined(CONFIG_TI81XX)
+#if !defined(CONFIG_AM33XX) && !defined(CONFIG_TI81XX) && \
+	!defined(CONFIG_AM43XX)
 		if ((omap_hw_init_context() ==
 				      OMAP_INIT_CONTEXT_UBOOT_AFTER_SPL)) {
 			gd->arch.omap_boot_params.omap_bootmode =
