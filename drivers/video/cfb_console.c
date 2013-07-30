@@ -452,6 +452,10 @@ static void video_drawchars(int xx, int yy, unsigned char *s, int count)
 				((u32 *) dest)[0] =
 					(video_font_draw_table8[bits >> 4] &
 					 eorx) ^ bgx;
+
+				if (VIDEO_FONT_WIDTH == 4)
+					continue;
+
 				((u32 *) dest)[1] =
 					(video_font_draw_table8[bits & 15] &
 					 eorx) ^ bgx;
@@ -477,6 +481,10 @@ static void video_drawchars(int xx, int yy, unsigned char *s, int count)
 					SHORTSWAP32((video_font_draw_table15
 						     [bits >> 4 & 3] & eorx) ^
 						    bgx);
+
+				if (VIDEO_FONT_WIDTH == 4)
+					continue;
+
 				((u32 *) dest)[2] =
 					SHORTSWAP32((video_font_draw_table15
 						     [bits >> 2 & 3] & eorx) ^
@@ -507,6 +515,10 @@ static void video_drawchars(int xx, int yy, unsigned char *s, int count)
 					SHORTSWAP32((video_font_draw_table16
 						     [bits >> 4 & 3] & eorx) ^
 						    bgx);
+
+				if (VIDEO_FONT_WIDTH == 4)
+					continue;
+
 				((u32 *) dest)[2] =
 					SHORTSWAP32((video_font_draw_table16
 						     [bits >> 2 & 3] & eorx) ^
@@ -541,6 +553,11 @@ static void video_drawchars(int xx, int yy, unsigned char *s, int count)
 				((u32 *) dest)[3] =
 					SWAP32((video_font_draw_table32
 						[bits >> 4][3] & eorx) ^ bgx);
+
+
+				if (VIDEO_FONT_WIDTH == 4)
+					continue;
+
 				((u32 *) dest)[4] =
 					SWAP32((video_font_draw_table32
 						[bits & 15][0] & eorx) ^ bgx);
@@ -576,6 +593,10 @@ static void video_drawchars(int xx, int yy, unsigned char *s, int count)
 				((u32 *) dest)[2] =
 					(video_font_draw_table24[bits >> 4][2]
 					 & eorx) ^ bgx;
+
+				if (VIDEO_FONT_WIDTH == 4)
+					continue;
+
 				((u32 *) dest)[3] =
 					(video_font_draw_table24[bits & 15][0]
 					 & eorx) ^ bgx;
