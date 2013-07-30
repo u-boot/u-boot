@@ -21,6 +21,17 @@
 
 static GraphicDevice panel;
 
+/**
+ * mxsfb_system_setup() - Fine-tune LCDIF configuration
+ *
+ * This function is used to adjust the LCDIF configuration. This is usually
+ * needed when driving the controller in System-Mode to operate an 8080 or
+ * 6800 connected SmartLCD.
+ */
+__weak void mxsfb_system_setup(void)
+{
+}
+
 /*
  * DENX M28EVK:
  * setenv videomode
@@ -75,6 +86,9 @@ static void mxs_lcd_init(GraphicDevice *panel,
 
 	writel(valid_data << LCDIF_CTRL1_BYTE_PACKING_FORMAT_OFFSET,
 		&regs->hw_lcdif_ctrl1);
+
+	mxsfb_system_setup();
+
 	writel((mode->yres << LCDIF_TRANSFER_COUNT_V_COUNT_OFFSET) | mode->xres,
 		&regs->hw_lcdif_transfer_count);
 
@@ -102,8 +116,10 @@ static void mxs_lcd_init(GraphicDevice *panel,
 	/* Flush FIFO first */
 	writel(LCDIF_CTRL1_FIFO_CLEAR, &regs->hw_lcdif_ctrl1_set);
 
+#ifndef CONFIG_VIDEO_MXS_MODE_SYSTEM
 	/* Sync signals ON */
 	setbits_le32(&regs->hw_lcdif_vdctrl4, LCDIF_VDCTRL4_SYNC_SIGNALS_ON);
+#endif
 
 	/* FIFO cleared */
 	writel(LCDIF_CTRL1_FIFO_CLEAR, &regs->hw_lcdif_ctrl1_clr);
