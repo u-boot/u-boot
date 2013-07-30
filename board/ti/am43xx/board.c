@@ -10,6 +10,7 @@
 
 #include <common.h>
 #include <spl.h>
+#include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mux.h>
 #include "board.h"
@@ -19,7 +20,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #ifdef CONFIG_SPL_BUILD
 
 const struct dpll_params dpll_ddr = {
-		266, OSC-1, 1, -1, -1, -1, -1};
+		-1, -1, -1, -1, -1, -1, -1};
 
 const struct dpll_params *get_dpll_ddr_params(void)
 {

@@ -10,7 +10,12 @@ LIB	= $(obj)lib$(SOC).o
 
 COBJS-$(CONFIG_AM33XX)	+= clock_am33xx.o
 COBJS-$(CONFIG_TI814X)	+= clock_ti814x.o
-COBJS-$(CONFIG_AM33XX)	+= clock.o
+COBJS-$(CONFIG_AM43XX)	+= clock_am43xx.o
+
+ifneq ($(CONFIG_AM43XX)$(CONFIG_AM33XX),)
+COBJS	+= clock.o
+endif
+
 COBJS	+= sys_info.o
 COBJS	+= mem.o
 COBJS	+= ddr.o
