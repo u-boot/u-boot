@@ -8,9 +8,6 @@
 #ifndef _VIDEO_FONT_
 #define _VIDEO_FONT_
 
-#define VIDEO_FONT_CHARS	256
-#define VIDEO_FONT_WIDTH	8
-#define VIDEO_FONT_HEIGHT	16
-#define VIDEO_FONT_SIZE		(VIDEO_FONT_CHARS * VIDEO_FONT_HEIGHT)
+#include <video_font_data.h>
 
 #endif /* _VIDEO_FONT_ */
