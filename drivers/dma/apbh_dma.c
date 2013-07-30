@@ -545,6 +545,28 @@ int mxs_dma_go(int chan)
 }
 
 /*
+ * Execute a continuously running circular DMA descriptor.
+ * NOTE: This is not intended for general use, but rather
+ *	 for the LCD driver in Smart-LCD mode. It allows
+ *	 continuous triggering of the RUN bit there.
+ */
+void mxs_dma_circ_start(int chan, struct mxs_dma_desc *pdesc)
+{
+	struct mxs_apbh_regs *apbh_regs =
+		(struct mxs_apbh_regs *)MXS_APBH_BASE;
+
+	mxs_dma_flush_desc(pdesc);
+
+	mxs_dma_enable_irq(chan, 1);
+
+	writel(mxs_dma_cmd_address(pdesc),
+		&apbh_regs->ch[chan].hw_apbh_ch_nxtcmdar);
+	writel(1, &apbh_regs->ch[chan].hw_apbh_ch_sema);
+	writel(1 << (chan + APBH_CTRL0_CLKGATE_CHANNEL_OFFSET),
+		&apbh_regs->hw_apbh_ctrl0_clr);
+}
+
+/*
  * Initialize the DMA hardware
  */
 void mxs_dma_init(void)
