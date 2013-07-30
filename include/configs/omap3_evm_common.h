@@ -15,6 +15,7 @@
 #define CONFIG_OMAP			/* This is TI OMAP core */
 #define CONFIG_OMAP34XX			/* belonging to 34XX family */
 #define CONFIG_OMAP_GPIO
+#define CONFIG_OMAP_COMMON
 
 #define CONFIG_SDRC			/* The chip has SDRC controller */
 

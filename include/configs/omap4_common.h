@@ -20,6 +20,7 @@
 #define CONFIG_OMAP44XX		1	/* which is a 44XX */
 #define CONFIG_OMAP4430		1	/* which is in a 4430 */
 #define CONFIG_OMAP_GPIO
+#define CONFIG_OMAP_COMMON
 
 /* Get CPU defs */
 #include <asm/arch/cpu.h>

@@ -21,6 +21,7 @@
 
 #define CONFIG_AM33XX
 #define CONFIG_OMAP
+#define CONFIG_OMAP_COMMON
 
 #include <asm/arch/omap.h>
 

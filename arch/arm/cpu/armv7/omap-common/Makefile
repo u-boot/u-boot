@@ -21,7 +21,7 @@ COBJS	+= vc.o
 COBJS	+= abb.o
 endif
 
-ifneq ($(CONFIG_AM33XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX)$(CONFIG_TI814X),)
+ifeq ($(CONFIG_OMAP34XX),)
 COBJS	+= boot-common.o
 SOBJS	+= lowlevel_init.o
 endif

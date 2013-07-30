@@ -20,6 +20,7 @@
 #define CONFIG_OMAP	/* in a TI OMAP core */
 #define CONFIG_OMAP54XX	/* which is a 54XX */
 #define CONFIG_OMAP_GPIO
+#define CONFIG_OMAP_COMMON
 
 /* Get CPU defs */
 #include <asm/arch/cpu.h>
