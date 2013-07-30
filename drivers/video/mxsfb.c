@@ -161,7 +161,8 @@ void *video_hw_init(void)
 	panel.memSize = mode.xres * mode.yres * panel.gdfBytesPP;
 
 	/* Allocate framebuffer */
-	fb = malloc(panel.memSize);
+	fb = memalign(ARCH_DMA_MINALIGN,
+		      roundup(panel.memSize, ARCH_DMA_MINALIGN));
 	if (!fb) {
 		printf("MXSFB: Error allocating framebuffer!\n");
 		return NULL;
