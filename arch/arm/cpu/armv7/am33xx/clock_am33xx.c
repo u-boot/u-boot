@@ -18,55 +18,50 @@
 #define PRCM_FORCE_WAKEUP	0x2
 #define PRCM_FUNCTL		0x0
 
-#define PRCM_EMIF_CLK_ACTIVITY	BIT(2)
-#define PRCM_L3_GCLK_ACTIVITY	BIT(4)
-
-#define PLL_BYPASS_MODE		0x4
-#define ST_MN_BYPASS		0x00000100
-#define ST_DPLL_CLK		0x00000001
-#define CLK_SEL_MASK		0x7ffff
-#define CLK_DIV_MASK		0x1f
-#define CLK_DIV2_MASK		0x7f
-#define CLK_SEL_SHIFT		0x8
-#define CLK_MODE_SEL		0x7
-#define CLK_MODE_MASK		0xfffffff8
-#define CLK_DIV_SEL		0xFFFFFFE0
 #define CPGMAC0_IDLE		0x30000
-#define DPLL_CLKDCOLDO_GATE_CTRL        0x300
-
 #define OSC	(V_OSCK/1000000)
-
-#define MPUPLL_M	CONFIG_SYS_MPUCLK
-#define MPUPLL_N	(OSC-1)
-#define MPUPLL_M2	1
-
-/* Core PLL Fdll = 1 GHZ, */
-#define COREPLL_M	1000
-#define COREPLL_N	(OSC-1)
-
-#define COREPLL_M4	10	/* CORE_CLKOUTM4 = 200 MHZ */
-#define COREPLL_M5	8	/* CORE_CLKOUTM5 = 250 MHZ */
-#define COREPLL_M6	4	/* CORE_CLKOUTM6 = 500 MHZ */
-
-/*
- * USB PHY clock is 960 MHZ. Since, this comes directly from Fdll, Fdll
- * frequency needs to be set to 960 MHZ. Hence,
- * For clkout = 192 MHZ, Fdll = 960 MHZ, divider values are given below
- */
-#define PERPLL_M	960
-#define PERPLL_N	(OSC-1)
-#define PERPLL_M2	5
-
-/* DDR Freq is 266 MHZ for now */
-/* Set Fdll = 400 MHZ , Fdll = M * 2 * CLKINP/ N + 1; clkout = Fdll /(2 * M2) */
-#define DDRPLL_M	266
-#define DDRPLL_N	(OSC-1)
-#define DDRPLL_M2	1
 
 const struct cm_perpll *cmper = (struct cm_perpll *)CM_PER;
 const struct cm_wkuppll *cmwkup = (struct cm_wkuppll *)CM_WKUP;
 const struct cm_dpll *cmdpll = (struct cm_dpll *)CM_DPLL;
 const struct cm_rtc *cmrtc = (struct cm_rtc *)CM_RTC;
+
+const struct dpll_regs dpll_mpu_regs = {
+	.cm_clkmode_dpll	= CM_WKUP + 0x88,
+	.cm_idlest_dpll		= CM_WKUP + 0x20,
+	.cm_clksel_dpll		= CM_WKUP + 0x2C,
+	.cm_div_m2_dpll		= CM_WKUP + 0xA8,
+};
+
+const struct dpll_regs dpll_core_regs = {
+	.cm_clkmode_dpll	= CM_WKUP + 0x90,
+	.cm_idlest_dpll		= CM_WKUP + 0x5C,
+	.cm_clksel_dpll		= CM_WKUP + 0x68,
+	.cm_div_m4_dpll		= CM_WKUP + 0x80,
+	.cm_div_m5_dpll		= CM_WKUP + 0x84,
+	.cm_div_m6_dpll		= CM_WKUP + 0xD8,
+};
+
+const struct dpll_regs dpll_per_regs = {
+	.cm_clkmode_dpll	= CM_WKUP + 0x8C,
+	.cm_idlest_dpll		= CM_WKUP + 0x70,
+	.cm_clksel_dpll		= CM_WKUP + 0x9C,
+	.cm_div_m2_dpll		= CM_WKUP + 0xAC,
+};
+
+const struct dpll_regs dpll_ddr_regs = {
+	.cm_clkmode_dpll	= CM_WKUP + 0x94,
+	.cm_idlest_dpll		= CM_WKUP + 0x34,
+	.cm_clksel_dpll		= CM_WKUP + 0x40,
+	.cm_div_m2_dpll		= CM_WKUP + 0xA0,
+};
+
+const struct dpll_params dpll_mpu = {
+		CONFIG_SYS_MPUCLK, OSC-1, 1, -1, -1, -1, -1};
+const struct dpll_params dpll_core = {
+		1000, OSC-1, -1, -1, 10, 8, 4};
+const struct dpll_params dpll_per = {
+		960, OSC-1, 5, -1, -1, -1, -1};
 
 static void enable_interface_clocks(void)
 {
@@ -238,142 +233,6 @@ static void enable_per_clocks(void)
 		;
 }
 
-void mpu_pll_config_val(int mpull_m)
-{
-	u32 clkmode, clksel, div_m2;
-
-	clkmode = readl(&cmwkup->clkmoddpllmpu);
-	clksel = readl(&cmwkup->clkseldpllmpu);
-	div_m2 = readl(&cmwkup->divm2dpllmpu);
-
-	/* Set the PLL to bypass Mode */
-	writel(PLL_BYPASS_MODE, &cmwkup->clkmoddpllmpu);
-	while (readl(&cmwkup->idlestdpllmpu) != ST_MN_BYPASS)
-		;
-
-	clksel = clksel & (~CLK_SEL_MASK);
-	clksel = clksel | ((mpull_m << CLK_SEL_SHIFT) | MPUPLL_N);
-	writel(clksel, &cmwkup->clkseldpllmpu);
-
-	div_m2 = div_m2 & ~CLK_DIV_MASK;
-	div_m2 = div_m2 | MPUPLL_M2;
-	writel(div_m2, &cmwkup->divm2dpllmpu);
-
-	clkmode = clkmode | CLK_MODE_SEL;
-	writel(clkmode, &cmwkup->clkmoddpllmpu);
-
-	while (readl(&cmwkup->idlestdpllmpu) != ST_DPLL_CLK)
-		;
-}
-
-static void mpu_pll_config(void)
-{
-	mpu_pll_config_val(CONFIG_SYS_MPUCLK);
-}
-
-static void core_pll_config(void)
-{
-	u32 clkmode, clksel, div_m4, div_m5, div_m6;
-
-	clkmode = readl(&cmwkup->clkmoddpllcore);
-	clksel = readl(&cmwkup->clkseldpllcore);
-	div_m4 = readl(&cmwkup->divm4dpllcore);
-	div_m5 = readl(&cmwkup->divm5dpllcore);
-	div_m6 = readl(&cmwkup->divm6dpllcore);
-
-	/* Set the PLL to bypass Mode */
-	writel(PLL_BYPASS_MODE, &cmwkup->clkmoddpllcore);
-
-	while (readl(&cmwkup->idlestdpllcore) != ST_MN_BYPASS)
-		;
-
-	clksel = clksel & (~CLK_SEL_MASK);
-	clksel = clksel | ((COREPLL_M << CLK_SEL_SHIFT) | COREPLL_N);
-	writel(clksel, &cmwkup->clkseldpllcore);
-
-	div_m4 = div_m4 & ~CLK_DIV_MASK;
-	div_m4 = div_m4 | COREPLL_M4;
-	writel(div_m4, &cmwkup->divm4dpllcore);
-
-	div_m5 = div_m5 & ~CLK_DIV_MASK;
-	div_m5 = div_m5 | COREPLL_M5;
-	writel(div_m5, &cmwkup->divm5dpllcore);
-
-	div_m6 = div_m6 & ~CLK_DIV_MASK;
-	div_m6 = div_m6 | COREPLL_M6;
-	writel(div_m6, &cmwkup->divm6dpllcore);
-
-	clkmode = clkmode | CLK_MODE_SEL;
-	writel(clkmode, &cmwkup->clkmoddpllcore);
-
-	while (readl(&cmwkup->idlestdpllcore) != ST_DPLL_CLK)
-		;
-}
-
-static void per_pll_config(void)
-{
-	u32 clkmode, clksel, div_m2;
-
-	clkmode = readl(&cmwkup->clkmoddpllper);
-	clksel = readl(&cmwkup->clkseldpllper);
-	div_m2 = readl(&cmwkup->divm2dpllper);
-
-	/* Set the PLL to bypass Mode */
-	writel(PLL_BYPASS_MODE, &cmwkup->clkmoddpllper);
-
-	while (readl(&cmwkup->idlestdpllper) != ST_MN_BYPASS)
-		;
-
-	clksel = clksel & (~CLK_SEL_MASK);
-	clksel = clksel | ((PERPLL_M << CLK_SEL_SHIFT) | PERPLL_N);
-	writel(clksel, &cmwkup->clkseldpllper);
-
-	div_m2 = div_m2 & ~CLK_DIV2_MASK;
-	div_m2 = div_m2 | PERPLL_M2;
-	writel(div_m2, &cmwkup->divm2dpllper);
-
-	clkmode = clkmode | CLK_MODE_SEL;
-	writel(clkmode, &cmwkup->clkmoddpllper);
-
-	while (readl(&cmwkup->idlestdpllper) != ST_DPLL_CLK)
-		;
-
-	writel(DPLL_CLKDCOLDO_GATE_CTRL, &cmwkup->clkdcoldodpllper);
-}
-
-void ddr_pll_config(unsigned int ddrpll_m)
-{
-	u32 clkmode, clksel, div_m2;
-
-	clkmode = readl(&cmwkup->clkmoddpllddr);
-	clksel = readl(&cmwkup->clkseldpllddr);
-	div_m2 = readl(&cmwkup->divm2dpllddr);
-
-	/* Set the PLL to bypass Mode */
-	clkmode = (clkmode & CLK_MODE_MASK) | PLL_BYPASS_MODE;
-	writel(clkmode, &cmwkup->clkmoddpllddr);
-
-	/* Wait till bypass mode is enabled */
-	while ((readl(&cmwkup->idlestdpllddr) & ST_MN_BYPASS)
-				!= ST_MN_BYPASS)
-		;
-
-	clksel = clksel & (~CLK_SEL_MASK);
-	clksel = clksel | ((ddrpll_m << CLK_SEL_SHIFT) | DDRPLL_N);
-	writel(clksel, &cmwkup->clkseldpllddr);
-
-	div_m2 = div_m2 & CLK_DIV_SEL;
-	div_m2 = div_m2 | DDRPLL_M2;
-	writel(div_m2, &cmwkup->divm2dpllddr);
-
-	clkmode = (clkmode & CLK_MODE_MASK) | CLK_MODE_SEL;
-	writel(clkmode, &cmwkup->clkmoddpllddr);
-
-	/* Wait till dpll is locked */
-	while ((readl(&cmwkup->idlestdpllddr) & ST_DPLL_CLK) != ST_DPLL_CLK)
-		;
-}
-
 void enable_emif_clocks(void)
 {
 	/* Enable the  EMIF_FW Functional clock */
@@ -390,10 +249,7 @@ void enable_emif_clocks(void)
  */
 void pll_init()
 {
-	mpu_pll_config();
-	core_pll_config();
-	per_pll_config();
-
+	setup_dplls();
 	/* Enable the required interconnect clocks */
 	enable_interface_clocks();
 

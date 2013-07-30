@@ -66,6 +66,16 @@ static struct emif_regs ddr3_emif_reg_data = {
 	.zq_config = K4B2G1646EBIH9_ZQ_CFG,
 	.emif_ddr_phy_ctlr_1 = K4B2G1646EBIH9_EMIF_READ_LATENCY,
 };
+
+#define OSC    (V_OSCK/1000000)
+const struct dpll_params dpll_ddr = {
+		303, OSC-1, 1, -1, -1, -1, -1};
+
+const struct dpll_params *get_dpll_ddr_params(void)
+{
+	return &dpll_ddr;
+}
+
 #endif
 
 /*

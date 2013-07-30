@@ -37,4 +37,5 @@ void omap_nand_switch_ecc(uint32_t, uint32_t);
 
 void rtc32k_enable(void);
 void uart_soft_reset(void);
+u32 wait_on_value(u32, u32, void *, u32);
 #endif

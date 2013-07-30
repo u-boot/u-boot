@@ -242,6 +242,33 @@ int spl_start_uboot(void)
 }
 #endif
 
+#define OSC	(V_OSCK/1000000)
+const struct dpll_params dpll_ddr = {
+		266, OSC-1, 1, -1, -1, -1, -1};
+const struct dpll_params dpll_ddr_evm_sk = {
+		303, OSC-1, 1, -1, -1, -1, -1};
+const struct dpll_params dpll_ddr_bone_black = {
+		400, OSC-1, 1, -1, -1, -1, -1};
+
+const struct dpll_params *get_dpll_ddr_params(void)
+{
+	struct am335x_baseboard_id header;
+
+	enable_i2c0_pin_mux();
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+	if (read_eeprom(&header) < 0)
+		puts("Could not get board ID.\n");
+
+	if (board_is_evm_sk(&header))
+		return &dpll_ddr_evm_sk;
+	else if (board_is_bone_lt(&header))
+		return &dpll_ddr_bone_black;
+	else if (board_is_evm_15_or_later(&header))
+		return &dpll_ddr_evm_sk;
+	else
+		return &dpll_ddr;
+}
+
 #endif
 
 /*

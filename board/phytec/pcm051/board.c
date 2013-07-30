@@ -44,6 +44,15 @@ static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 /* DDR RAM defines */
 #define DDR_CLK_MHZ		303 /* DDR_DPLL_MULT value */
 
+#define OSC	(V_OSCK/1000000)
+const struct dpll_params dpll_ddr = {
+		DDR_CLK_MHZ, OSC-1, 1, -1, -1, -1, -1};
+
+const struct dpll_params *get_dpll_ddr_params(void)
+{
+	return &dpll_ddr;
+}
+
 static const struct ddr_data ddr3_data = {
 	.datardsratio0 = MT41J256M8HX15E_RD_DQS,
 	.datawdsratio0 = MT41J256M8HX15E_WR_DQS,

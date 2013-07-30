@@ -79,6 +79,10 @@ static void config_vtp(int nr)
 		;
 }
 
+void __weak ddr_pll_config(unsigned int ddrpll_m)
+{
+}
+
 void config_ddr(unsigned int pll, unsigned int ioctrl,
 		const struct ddr_data *data, const struct cmd_control *ctrl,
 		const struct emif_regs *regs, int nr)
