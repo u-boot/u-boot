@@ -16,8 +16,10 @@
 #define CONFIG_SYS_MPUCLK	550
 #endif
 
-extern void pll_init(void);
-extern void enable_emif_clocks(void);
+#define UART_RESET		(0x1 << 1)
+#define UART_CLK_RUNNING_MASK	0x1
+#define UART_SMART_IDLE_EN	(0x1 << 0x3)
+
 extern void enable_dmm_clocks(void);
 
 #endif	/* endif _CLOCKS_AM33XX_H_ */

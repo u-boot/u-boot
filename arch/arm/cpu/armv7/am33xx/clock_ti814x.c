@@ -277,6 +277,12 @@ static void enable_per_clocks(void)
 	writel(PRCM_MOD_EN, &cmalwon->ethernet1clkctrl);
 	while ((readl(&cmalwon->ethernet1clkctrl) & ENET_CLKCTRL_CMPL) != 0)
 		;
+
+	/* RTC clocks */
+	writel(PRCM_MOD_EN, &cmalwon->rtcclkstctrl);
+	writel(PRCM_MOD_EN, &cmalwon->rtcclkctrl);
+	while (readl(&cmalwon->rtcclkctrl) != PRCM_MOD_EN)
+		;
 }
 
 /*

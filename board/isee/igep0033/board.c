@@ -27,8 +27,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct wd_timer *wdtimer = (struct wd_timer *)WDT_BASE;
-
 /* MII mode defines */
 #define RMII_MODE_ENABLE	0x4D
 
@@ -76,54 +74,22 @@ const struct dpll_params *get_dpll_ddr_params(void)
 	return &dpll_ddr;
 }
 
-#endif
-
-/*
- * Early system init of muxing and clocks.
- */
-void s_init(void)
+void set_uart_mux_conf(void)
 {
-	/*
-	 * Save the boot parameters passed from romcode.
-	 * We cannot delay the saving further than this,
-	 * to prevent overwrites.
-	 */
-#ifdef CONFIG_SPL_BUILD
-	save_omap_boot_params();
-#endif
-
-	/* WDT1 is already running when the bootloader gets control
-	 * Disable it to avoid "random" resets
-	 */
-	writel(0xAAAA, &wdtimer->wdtwspr);
-	while (readl(&wdtimer->wdtwwps) != 0x0)
-		;
-	writel(0x5555, &wdtimer->wdtwspr);
-	while (readl(&wdtimer->wdtwwps) != 0x0)
-		;
-
-#ifdef CONFIG_SPL_BUILD
-	setup_clocks_for_console();
-
 	enable_uart0_pin_mux();
+}
 
-	uart_soft_reset();
-	gd = &gdata;
-
-	preloader_console_init();
-
-	prcm_init();
-
-	/* Enable RTC32K clock */
-	rtc32k_enable();
-
-	/* Configure board pin mux */
+void set_mux_conf_regs(void)
+{
 	enable_board_pin_mux();
+}
 
+void sdram_init(void)
+{
 	config_ddr(303, K4B2G1646EBIH9_IOCTRL_VALUE, &ddr3_data,
 		   &ddr3_cmd_ctrl_data, &ddr3_emif_reg_data, 0);
-#endif
 }
+#endif
 
 /*
  * Basic board specific setup.  Pinmux has been handled already.

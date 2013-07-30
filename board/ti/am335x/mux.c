@@ -239,6 +239,25 @@ static struct module_pin_mux bone_norcape_pin_mux[] = {
 };
 #endif
 
+#if defined(CONFIG_NOR_BOOT)
+static struct module_pin_mux norboot_pin_mux[] = {
+	{OFFSET(lcd_data1), MODE(1) | PULLUDDIS},
+	{OFFSET(lcd_data2), MODE(1) | PULLUDDIS},
+	{OFFSET(lcd_data3), MODE(1) | PULLUDDIS},
+	{OFFSET(lcd_data4), MODE(1) | PULLUDDIS},
+	{OFFSET(lcd_data5), MODE(1) | PULLUDDIS},
+	{OFFSET(lcd_data6), MODE(1) | PULLUDDIS},
+	{OFFSET(lcd_data7), MODE(1) | PULLUDDIS},
+	{OFFSET(lcd_data8), MODE(1) | PULLUDDIS},
+	{OFFSET(lcd_data9), MODE(1) | PULLUDDIS},
+	{-1},
+};
+
+void enable_norboot_pin_mux(void)
+{
+	configure_module_pin_mux(norboot_pin_mux);
+}
+#endif
 
 void enable_uart0_pin_mux(void)
 {
