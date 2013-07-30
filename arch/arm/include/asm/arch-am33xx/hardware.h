@@ -17,6 +17,8 @@
 #include <asm/arch/hardware_am33xx.h>
 #elif defined(CONFIG_TI814X)
 #include <asm/arch/hardware_ti814x.h>
+#elif defined(CONFIG_AM43XX)
+#include <asm/arch/hardware_am43xx.h>
 #endif
 
 /*
@@ -45,8 +47,6 @@
 #define EMIF4_1_CFG_BASE		0x4D000000
 
 /* PLL related registers */
-#define CM_PER				0x44E00000
-#define CM_WKUP				0x44E00400
 #define CM_DPLL				0x44E00500
 #define CM_DEVICE			0x44E00700
 #define CM_RTC				0x44E00800
@@ -73,9 +73,5 @@
 
 /* CPSW Config space */
 #define CPSW_BASE			0x4A100000
-
-/* OTG */
-#define USB0_OTG_BASE			0x47401000
-#define USB1_OTG_BASE			0x47401800
 
 #endif /* __AM33XX_HARDWARE_H */

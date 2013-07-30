@@ -43,13 +43,6 @@
 #define SYSBOOT_MASK			(BIT(0) | BIT(1) | BIT(2)\
 					| BIT(3) | BIT(4))
 
-/* Reset control */
-#ifdef CONFIG_AM33XX
-#define PRM_RSTCTRL			(PRCM_BASE + 0x0F00)
-#elif defined(CONFIG_TI814X)
-#define PRM_RSTCTRL			(PRCM_BASE + 0x00A0)
-#endif
-#define PRM_RSTST			(PRM_RSTCTRL + 8)
 #define PRM_RSTCTRL_RESET		0x01
 #define PRM_RSTST_WARM_RESET_MASK	0x232
 
@@ -108,6 +101,7 @@ struct gpmc {
 /* Used for board specific gpmc initialization */
 extern struct gpmc *gpmc_cfg;
 
+#ifndef CONFIG_AM43XX
 /* Encapsulating core pll registers */
 struct cm_wkuppll {
 	unsigned int wkclkstctrl;	/* offset 0x00 */
@@ -211,6 +205,162 @@ struct cm_perpll {
 	unsigned int resv10[8];
 	unsigned int cpswclkstctrl;	/* offset 0x144 */
 };
+#else
+/* Encapsulating core pll registers */
+struct cm_wkuppll {
+	unsigned int resv0[136];
+	unsigned int wkl4wkclkctrl;	/* offset 0x220 */
+	unsigned int resv1[55];
+	unsigned int wkclkstctrl;	/* offset 0x300 */
+	unsigned int resv2[15];
+	unsigned int wkup_i2c0ctrl;	/* offset 0x340 */
+	unsigned int resv3;
+	unsigned int wkup_uart0ctrl;	/* offset 0x348 */
+	unsigned int resv4[5];
+	unsigned int wkctrlclkctrl;	/* offset 0x360 */
+	unsigned int resv5;
+	unsigned int wkgpio0clkctrl;	/* offset 0x368 */
+
+	unsigned int resv6[109];
+	unsigned int clkmoddpllcore;	/* offset 0x520 */
+	unsigned int idlestdpllcore;	/* offset 0x524 */
+	unsigned int resv61;
+	unsigned int clkseldpllcore;	/* offset 0x52C */
+	unsigned int resv7[2];
+	unsigned int divm4dpllcore;	/* offset 0x538 */
+	unsigned int divm5dpllcore;	/* offset 0x53C */
+	unsigned int divm6dpllcore;	/* offset 0x540 */
+
+	unsigned int resv8[7];
+	unsigned int clkmoddpllmpu;	/* offset 0x560 */
+	unsigned int idlestdpllmpu;	/* offset 0x564 */
+	unsigned int resv9;
+	unsigned int clkseldpllmpu;	/* offset 0x56c */
+	unsigned int divm2dpllmpu;	/* offset 0x570 */
+
+	unsigned int resv10[11];
+	unsigned int clkmoddpllddr;	/* offset 0x5A0 */
+	unsigned int idlestdpllddr;	/* offset 0x5A4 */
+	unsigned int resv11;
+	unsigned int clkseldpllddr;	/* offset 0x5AC */
+	unsigned int divm2dpllddr;	/* offset 0x5B0 */
+
+	unsigned int resv12[11];
+	unsigned int clkmoddpllper;	/* offset 0x5E0 */
+	unsigned int idlestdpllper;	/* offset 0x5E4 */
+	unsigned int resv13;
+	unsigned int clkseldpllper;	/* offset 0x5EC */
+	unsigned int divm2dpllper;	/* offset 0x5F0 */
+	unsigned int resv14[8];
+	unsigned int clkdcoldodpllper;	/* offset 0x614 */
+
+	unsigned int resv15[2];
+	unsigned int clkmoddplldisp;	/* offset 0x620 */
+	unsigned int resv16[2];
+	unsigned int clkseldplldisp;	/* offset 0x62C */
+	unsigned int divm2dplldisp;	/* offset 0x630 */
+};
+
+/*
+ * Encapsulating peripheral functional clocks
+ * pll registers
+ */
+struct cm_perpll {
+	unsigned int l3clkstctrl;	/* offset 0x00 */
+	unsigned int resv0[7];
+	unsigned int l3clkctrl;		/* Offset 0x20 */
+	unsigned int resv1[7];
+	unsigned int l3instrclkctrl;	/* offset 0x40 */
+	unsigned int resv2[3];
+	unsigned int ocmcramclkctrl;	/* offset 0x50 */
+	unsigned int resv3[9];
+	unsigned int tpccclkctrl;	/* offset 0x78 */
+	unsigned int resv4;
+	unsigned int tptc0clkctrl;	/* offset 0x80 */
+
+	unsigned int resv5[7];
+	unsigned int l4hsclkctrl;	/* offset 0x0A0 */
+	unsigned int resv6;
+	unsigned int l4fwclkctrl;	/* offset 0x0A8 */
+	unsigned int resv7[85];
+	unsigned int l3sclkstctrl;	/* offset 0x200 */
+	unsigned int resv8[7];
+	unsigned int gpmcclkctrl;	/* offset 0x220 */
+	unsigned int resv9[5];
+	unsigned int mcasp0clkctrl;	/* offset 0x238 */
+	unsigned int resv10;
+	unsigned int mcasp1clkctrl;	/* offset 0x240 */
+	unsigned int resv11;
+	unsigned int mmc2clkctrl;	/* offset 0x248 */
+	unsigned int resv12[5];
+	unsigned int usb0clkctrl;	/* offset 0x260 */
+	unsigned int resv13[103];
+	unsigned int l4lsclkstctrl;	/* offset 0x400 */
+	unsigned int resv14[7];
+	unsigned int l4lsclkctrl;	/* offset 0x420 */
+	unsigned int resv15;
+	unsigned int dcan0clkctrl;	/* offset 0x428 */
+	unsigned int resv16;
+	unsigned int dcan1clkctrl;	/* offset 0x430 */
+	unsigned int resv17[13];
+	unsigned int elmclkctrl;	/* offset 0x468 */
+
+	unsigned int resv18[3];
+	unsigned int gpio1clkctrl;	/* offset 0x478 */
+	unsigned int resv19;
+	unsigned int gpio2clkctrl;	/* offset 0x480 */
+	unsigned int resv20;
+	unsigned int gpio3clkctrl;	/* offset 0x488 */
+	unsigned int resv21[7];
+
+	unsigned int i2c1clkctrl;	/* offset 0x4A8 */
+	unsigned int resv22;
+	unsigned int i2c2clkctrl;	/* offset 0x4B0 */
+	unsigned int resv23[3];
+	unsigned int mmc0clkctrl;	/* offset 0x4C0 */
+	unsigned int resv24;
+	unsigned int mmc1clkctrl;	/* offset 0x4C8 */
+
+	unsigned int resv25[13];
+	unsigned int spi0clkctrl;	/* offset 0x500 */
+	unsigned int resv26;
+	unsigned int spi1clkctrl;	/* offset 0x508 */
+	unsigned int resv27[9];
+	unsigned int timer2clkctrl;	/* offset 0x530 */
+	unsigned int resv28;
+	unsigned int timer3clkctrl;	/* offset 0x538 */
+	unsigned int resv29;
+	unsigned int timer4clkctrl;	/* offset 0x540 */
+	unsigned int resv30[5];
+	unsigned int timer7clkctrl;	/* offset 0x558 */
+
+	unsigned int resv31[9];
+	unsigned int uart1clkctrl;	/* offset 0x580 */
+	unsigned int resv32;
+	unsigned int uart2clkctrl;	/* offset 0x588 */
+	unsigned int resv33;
+	unsigned int uart3clkctrl;	/* offset 0x590 */
+	unsigned int resv34;
+	unsigned int uart4clkctrl;	/* offset 0x598 */
+	unsigned int resv35;
+	unsigned int uart5clkctrl;	/* offset 0x5A0 */
+	unsigned int resv36[87];
+
+	unsigned int emifclkstctrl;	/* offset 0x700 */
+	unsigned int resv361[7];
+	unsigned int emifclkctrl;	/* offset 0x720 */
+	unsigned int resv37[3];
+	unsigned int emiffwclkctrl;	/* offset 0x730 */
+	unsigned int resv371;
+	unsigned int otfaemifclkctrl;	/* offset 0x738 */
+	unsigned int resv38[57];
+	unsigned int lcdclkctrl;	/* offset 0x820 */
+	unsigned int resv39[183];
+	unsigned int cpswclkstctrl;	/* offset 0xB00 */
+	unsigned int resv40[7];
+	unsigned int cpgmac0clkctrl;	/* offset 0xB20 */
+};
+#endif /* CONFIG_AM43XX */
 
 /* Encapsulating Display pll registers */
 struct cm_dpll {

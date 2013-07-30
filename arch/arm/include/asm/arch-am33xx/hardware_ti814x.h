@@ -25,6 +25,11 @@
 
 /* PRCM Base Address */
 #define PRCM_BASE			0x48180000
+#define CM_PER				0x44E00000
+#define CM_WKUP				0x44E00400
+
+#define PRM_RSTCTRL			(PRCM_BASE + 0x00A0)
+#define PRM_RSTST			(PRM_RSTCTRL + 8)
 
 /* PLL Subsystem Base Address */
 #define PLL_SUBSYS_BASE			0x481C5000
@@ -42,5 +47,9 @@
 
 /* RTC base address */
 #define RTC_BASE			0x480C0000
+
+/* OTG */
+#define USB0_OTG_BASE			0x47401000
+#define USB1_OTG_BASE			0x47401800
 
 #endif /* __AM33XX_HARDWARE_TI814X_H */

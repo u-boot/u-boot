@@ -23,6 +23,8 @@
 #include <asm/arch/mux_am33xx.h>
 #elif defined(CONFIG_TI814X)
 #include <asm/arch/mux_ti814x.h>
+#elif defined(CONFIG_AM43XX)
+#include <asm/arch/mux_am43xx.h>
 #endif
 
 struct module_pin_mux {

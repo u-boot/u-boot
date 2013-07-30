@@ -1,15 +1,15 @@
 /*
- * hardware_am33xx.h
+ * hardware_am43xx.h
  *
- * AM33xx hardware specific header
+ * AM43xx hardware specific header
  *
  * Copyright (C) 2013, Texas Instruments, Incorporated - http://www.ti.com/
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __AM33XX_HARDWARE_AM33XX_H
-#define __AM33XX_HARDWARE_AM33XX_H
+#ifndef __AM43XX_HARDWARE_AM43XX_H
+#define __AM43XX_HARDWARE_AM43XX_H
 
 /* Module base addresses */
 
@@ -27,12 +27,12 @@
 #define CTRL_DEVICE_BASE		0x44E10600
 
 /* PRCM Base Address */
-#define PRCM_BASE			0x44E00000
-#define CM_PER				0x44E00000
-#define CM_WKUP				0x44E00400
+#define PRCM_BASE			0x44DF0000
+#define	CM_WKUP				0x44DF2800
+#define	CM_PER				0x44DF8800
 
-#define PRM_RSTCTRL			(PRCM_BASE + 0x0F00)
-#define PRM_RSTST			(PRM_RSTCTRL + 8)
+#define PRM_RSTCTRL			(PRCM_BASE + 0x4000)
+#define PRM_RSTST			(PRM_RSTCTRL + 4)
 
 /* VTP Base address */
 #define VTP0_CTRL_ADDR			0x44E10E0C
@@ -48,8 +48,4 @@
 /* RTC base address */
 #define RTC_BASE			0x44E3E000
 
-/* OTG */
-#define USB0_OTG_BASE			0x47401000
-#define USB1_OTG_BASE			0x47401800
-
-#endif /* __AM33XX_HARDWARE_AM33XX_H */
+#endif /* __AM43XX_HARDWARE_AM43XX_H */

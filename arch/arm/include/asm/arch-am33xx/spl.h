@@ -9,7 +9,7 @@
 
 #define BOOT_DEVICE_XIP       	2
 #define BOOT_DEVICE_NAND	5
-#ifdef CONFIG_AM33XX
+#if defined(CONFIG_AM33XX) || defined(CONFIG_AM43XX)
 #define BOOT_DEVICE_MMC1	8
 #define BOOT_DEVICE_MMC2	9	/* eMMC or daughter card */
 #elif defined(CONFIG_TI814X)
@@ -22,7 +22,7 @@
 #define BOOT_DEVICE_CPGMAC	70
 #define BOOT_DEVICE_MMC2_2      0xFF
 
-#ifdef CONFIG_AM33XX
+#if defined(CONFIG_AM33XX) || defined(CONFIG_AM43XX)
 #define MMC_BOOT_DEVICES_START	BOOT_DEVICE_MMC1
 #define MMC_BOOT_DEVICES_END	BOOT_DEVICE_MMC2
 #elif defined(CONFIG_TI814X)
