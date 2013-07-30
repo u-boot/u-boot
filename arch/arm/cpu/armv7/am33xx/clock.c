@@ -98,7 +98,7 @@ void do_setup_dpll(const struct dpll_regs *dpll_regs,
 	wait_for_lock(dpll_regs);
 }
 
-void setup_dplls(void)
+static void setup_dplls(void)
 {
 	const struct dpll_params *params;
 	do_setup_dpll(&dpll_core_regs, &dpll_core);
@@ -108,4 +108,64 @@ void setup_dplls(void)
 
 	params = get_dpll_ddr_params();
 	do_setup_dpll(&dpll_ddr_regs, params);
+}
+
+static inline void wait_for_clk_enable(u32 *clkctrl_addr)
+{
+	u32 clkctrl, idlest = MODULE_CLKCTRL_IDLEST_DISABLED;
+	u32 bound = LDELAY;
+
+	while ((idlest == MODULE_CLKCTRL_IDLEST_DISABLED) ||
+		(idlest == MODULE_CLKCTRL_IDLEST_TRANSITIONING)) {
+		clkctrl = readl(clkctrl_addr);
+		idlest = (clkctrl & MODULE_CLKCTRL_IDLEST_MASK) >>
+			 MODULE_CLKCTRL_IDLEST_SHIFT;
+		if (--bound == 0) {
+			printf("Clock enable failed for 0x%p idlest 0x%x\n",
+			       clkctrl_addr, clkctrl);
+			return;
+		}
+	}
+}
+
+static inline void enable_clock_module(u32 *const clkctrl_addr, u32 enable_mode,
+				       u32 wait_for_enable)
+{
+	clrsetbits_le32(clkctrl_addr, MODULE_CLKCTRL_MODULEMODE_MASK,
+			enable_mode << MODULE_CLKCTRL_MODULEMODE_SHIFT);
+	debug("Enable clock module - %p\n", clkctrl_addr);
+	if (wait_for_enable)
+		wait_for_clk_enable(clkctrl_addr);
+}
+
+static inline void enable_clock_domain(u32 *const clkctrl_reg, u32 enable_mode)
+{
+	clrsetbits_le32(clkctrl_reg, CD_CLKCTRL_CLKTRCTRL_MASK,
+			enable_mode << CD_CLKCTRL_CLKTRCTRL_SHIFT);
+	debug("Enable clock domain - %p\n", clkctrl_reg);
+}
+
+void do_enable_clocks(u32 *const *clk_domains,
+		      u32 *const *clk_modules_explicit_en, u8 wait_for_enable)
+{
+	u32 i, max = 100;
+
+	/* Put the clock domains in SW_WKUP mode */
+	for (i = 0; (i < max) && clk_domains[i]; i++) {
+		enable_clock_domain(clk_domains[i],
+				    CD_CLKCTRL_CLKTRCTRL_SW_WKUP);
+	}
+
+	/* Clock modules that need to be put in SW_EXPLICIT_EN mode */
+	for (i = 0; (i < max) && clk_modules_explicit_en[i]; i++) {
+		enable_clock_module(clk_modules_explicit_en[i],
+				    MODULE_CLKCTRL_MODULEMODE_SW_EXPLICIT_EN,
+				    wait_for_enable);
+	};
+}
+
+void prcm_init()
+{
+	enable_basic_clocks();
+	setup_dplls();
 }

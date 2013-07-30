@@ -56,12 +56,6 @@ int cpu_mmc_init(bd_t *bis)
 }
 #endif
 
-void setup_clocks_for_console(void)
-{
-	/* Not yet implemented */
-	return;
-}
-
 /* AM33XX has two MUSB controllers which can be host or gadget */
 #if (defined(CONFIG_MUSB_GADGET) || defined(CONFIG_MUSB_HOST)) && \
 	(defined(CONFIG_AM335X_USB0) || defined(CONFIG_AM335X_USB1))

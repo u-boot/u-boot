@@ -103,11 +103,7 @@ void s_init(void)
 		;
 
 #ifdef CONFIG_SPL_BUILD
-	/* Setup the PLLs and the clocks for the peripherals */
-	pll_init();
-
-	/* Enable RTC32K clock */
-	rtc32k_enable();
+	setup_clocks_for_console();
 
 	enable_uart0_pin_mux();
 
@@ -115,6 +111,11 @@ void s_init(void)
 	gd = &gdata;
 
 	preloader_console_init();
+
+	prcm_init();
+
+	/* Enable RTC32K clock */
+	rtc32k_enable();
 
 	/* Configure board pin mux */
 	enable_board_pin_mux();

@@ -317,10 +317,7 @@ void s_init(void)
 
 #if defined(CONFIG_SPL_BUILD) || defined(CONFIG_NOR_BOOT)
 	/* Setup the PLLs and the clocks for the peripherals */
-	pll_init();
-
-	/* Enable RTC32K clock */
-	rtc32k_enable();
+	setup_clocks_for_console();
 
 #ifdef CONFIG_SERIAL1
 	enable_uart0_pin_mux();
@@ -354,11 +351,13 @@ void s_init(void)
 	preloader_console_init();
 #endif
 
-	/* Initalize the board header */
-	enable_i2c0_pin_mux();
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+	prcm_init();
+
 	if (read_eeprom(&header) < 0)
 		puts("Could not get board ID.\n");
+
+	/* Enable RTC32K clock */
+	rtc32k_enable();
 
 	enable_board_pin_mux(&header);
 	if (board_is_evm_sk(&header)) {

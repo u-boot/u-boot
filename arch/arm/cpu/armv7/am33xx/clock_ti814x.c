@@ -264,11 +264,6 @@ const struct sata_pll *spll = (struct sata_pll *)SATA_PLL_BASE;
  */
 static void enable_per_clocks(void)
 {
-	/* UART0 */
-	writel(PRCM_MOD_EN, &cmalwon->uart0clkctrl);
-	while (readl(&cmalwon->uart0clkctrl) != PRCM_MOD_EN)
-		;
-
 	/* HSMMC1 */
 	writel(PRCM_MOD_EN, &cmalwon->mmchs1clkctrl);
 	while (readl(&cmalwon->mmchs1clkctrl) != PRCM_MOD_EN)
@@ -455,8 +450,6 @@ void sata_pll_config(void)
 		;
 }
 
-void enable_emif_clocks(void) {};
-
 void enable_dmm_clocks(void)
 {
 	writel(PRCM_MOD_EN, &cmdef->fwclkctrl);
@@ -477,13 +470,19 @@ void enable_dmm_clocks(void)
 		;
 }
 
+void setup_clocks_for_console(void)
+{
+	unlock_pll_control_mmr();
+	/* UART0 */
+	writel(PRCM_MOD_EN, &cmalwon->uart0clkctrl);
+	while (readl(&cmalwon->uart0clkctrl) != PRCM_MOD_EN)
+		;
+}
 /*
  * Configure the PLL/PRCM for necessary peripherals
  */
-void pll_init()
+void prcm_init(void)
 {
-	unlock_pll_control_mmr();
-
 	/* Enable the control module */
 	writel(PRCM_MOD_EN, &cmalwon->controlclkctrl);
 

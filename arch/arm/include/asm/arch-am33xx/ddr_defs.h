@@ -146,8 +146,6 @@ void set_sdram_timings(const struct emif_regs *regs, int nr);
  */
 void config_ddr_phy(const struct emif_regs *regs, int nr);
 
-void ddr_pll_config(unsigned int ddrpll_m);
-
 struct ddr_cmd_regs {
 	unsigned int resv0[7];
 	unsigned int cm0csratio;	/* offset 0x01C */

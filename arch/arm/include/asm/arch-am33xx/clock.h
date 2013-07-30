@@ -15,6 +15,28 @@
 
 #define LDELAY 1000000
 
+/*CM_<clock_domain>__CLKCTRL */
+#define CD_CLKCTRL_CLKTRCTRL_SHIFT		0
+#define CD_CLKCTRL_CLKTRCTRL_MASK		3
+
+#define CD_CLKCTRL_CLKTRCTRL_NO_SLEEP		0
+#define CD_CLKCTRL_CLKTRCTRL_SW_SLEEP		1
+#define CD_CLKCTRL_CLKTRCTRL_SW_WKUP		2
+
+/* CM_<clock_domain>_<module>_CLKCTRL */
+#define MODULE_CLKCTRL_MODULEMODE_SHIFT		0
+#define MODULE_CLKCTRL_MODULEMODE_MASK		3
+#define MODULE_CLKCTRL_IDLEST_SHIFT		16
+#define MODULE_CLKCTRL_IDLEST_MASK		(3 << 16)
+
+#define MODULE_CLKCTRL_MODULEMODE_SW_DISABLE		0
+#define MODULE_CLKCTRL_MODULEMODE_SW_EXPLICIT_EN	2
+
+#define MODULE_CLKCTRL_IDLEST_FULLY_FUNCTIONAL	0
+#define MODULE_CLKCTRL_IDLEST_TRANSITIONING	1
+#define MODULE_CLKCTRL_IDLEST_IDLE		2
+#define MODULE_CLKCTRL_IDLEST_DISABLED		3
+
 /* CM_CLKMODE_DPLL */
 #define CM_CLKMODE_DPLL_REGM4XEN_SHIFT		11
 #define CM_CLKMODE_DPLL_REGM4XEN_MASK		(1 << 11)
@@ -77,10 +99,12 @@ extern const struct dpll_params dpll_core;
 extern const struct dpll_params dpll_per;
 extern const struct dpll_params dpll_ddr;
 
-extern const struct cm_wkuppll *cmwkup;
+extern struct cm_wkuppll *const cmwkup;
 
-void setup_dplls(void);
 const struct dpll_params *get_dpll_ddr_params(void);
 void do_setup_dpll(const struct dpll_regs *, const struct dpll_params *);
+void prcm_init(void);
+void enable_basic_clocks(void);
+void do_enable_clocks(u32 *const *, u32 *const *, u8);
 
 #endif

@@ -125,11 +125,7 @@ void s_init(void)
 	/* Enable timer */
 	timer_init();
 
-	/* Setup the PLLs and the clocks for the peripherals */
-	pll_init();
-
-	/* Enable RTC32K clock */
-	rtc32k_enable();
+	setup_clocks_for_console();
 
 	/* Set UART pins */
 	enable_uart0_pin_mux();
@@ -146,6 +142,12 @@ void s_init(void)
 	gd = &gdata;
 
 	preloader_console_init();
+
+	/* Setup the PLLs and the clocks for the peripherals */
+	prcm_init();
+
+	/* Enable RTC32K clock */
+	rtc32k_enable();
 
 	config_dmm(&evm_lisa_map_regs);
 

@@ -87,7 +87,6 @@ void config_ddr(unsigned int pll, unsigned int ioctrl,
 		const struct ddr_data *data, const struct cmd_control *ctrl,
 		const struct emif_regs *regs, int nr)
 {
-	enable_emif_clocks();
 	ddr_pll_config(pll);
 	config_vtp(nr);
 	config_cmd_ctrl(ctrl, nr);
