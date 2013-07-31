@@ -5,8 +5,7 @@
  * Copyright (C) 2008 Nobuhiro Iwamatsu
  * Copyright (C) 2008 Renesas Solutions Corp.
  *
- * This file is released under the terms of GPL v2 and any later version.
- * See the file COPYING in the root directory of the source tree for details.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __RSK7264_H

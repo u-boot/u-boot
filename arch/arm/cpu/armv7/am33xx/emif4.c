@@ -5,15 +5,7 @@
  *
  * Copyright (C) 2011, Texas Instruments, Incorporated - http://www.ti.com/
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR /PURPOSE.  See the
- * GNU General Public License for more details.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -43,9 +35,11 @@ void dram_init_banksize(void)
 }
 
 
-#ifdef CONFIG_SPL_BUILD
+#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_NOR_BOOT)
+#ifdef CONFIG_TI81XX
 static struct dmm_lisa_map_regs *hw_lisa_map_regs =
 				(struct dmm_lisa_map_regs *)DMM_BASE;
+#endif
 static struct vtp_reg *vtpreg[2] = {
 				(struct vtp_reg *)VTP0_CTRL_ADDR,
 				(struct vtp_reg *)VTP1_CTRL_ADDR};
@@ -53,6 +47,7 @@ static struct vtp_reg *vtpreg[2] = {
 static struct ddr_ctrl *ddrctrl = (struct ddr_ctrl *)DDR_CTRL_ADDR;
 #endif
 
+#ifdef CONFIG_TI81XX
 void config_dmm(const struct dmm_lisa_map_regs *regs)
 {
 	enable_dmm_clocks();
@@ -67,6 +62,7 @@ void config_dmm(const struct dmm_lisa_map_regs *regs)
 	writel(regs->dmm_lisa_map_1, &hw_lisa_map_regs->dmm_lisa_map_1);
 	writel(regs->dmm_lisa_map_0, &hw_lisa_map_regs->dmm_lisa_map_0);
 }
+#endif
 
 static void config_vtp(int nr)
 {

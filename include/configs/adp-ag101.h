@@ -3,22 +3,7 @@
  * Shawn Lin, Andes Technology Corporation <nobuhiro@andestech.com>
  * Macpaul Lin, Andes Technology Corporation <macpaul@andestech.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -34,6 +19,13 @@
 #define CONFIG_USE_INTERRUPT
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
+
+/*
+ * Definitions related to passing arguments to kernel.
+ */
+#define CONFIG_CMDLINE_TAG			/* send commandline to Kernel */
+#define CONFIG_SETUP_MEMORY_TAGS	/* send memory definition to kernel */
+#define CONFIG_INITRD_TAG			/* send initrd params */
 
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_MEM_REMAP
@@ -116,7 +108,9 @@
 #define CONFIG_DOS_PARTITION
 #define CONFIG_FTSDC010
 #define CONFIG_FTSDC010_NUMBER		1
+#define CONFIG_FTSDC010_SDIO
 #define CONFIG_CMD_FAT
+#define CONFIG_CMD_EXT2
 
 /*
  * Command line configuration.
@@ -235,6 +229,11 @@
 #define CONFIG_SYS_FTSDMC021_BANK0_BSR	(FTSDMC021_BANK_ENABLE	 |	\
 					 CONFIG_SYS_FTSDMC021_BANK0_BASE)
 
+#define CONFIG_SYS_FTSDMC021_BANK1_BASE \
+	(CONFIG_SYS_FTAHBC020S_SLAVE_BSR_BASE + (PHYS_SDRAM_0_SIZE >> 20))
+#define CONFIG_SYS_FTSDMC021_BANK1_BSR (FTSDMC021_BANK_ENABLE   |      \
+		CONFIG_SYS_FTSDMC021_BANK1_BASE)
+
 #endif
 
 /*
@@ -248,9 +247,12 @@
 #else	/* !CONFIG_SKIP_LOWLEVEL_INIT && !CONFIG_MEM_REMAP */
 #define PHYS_SDRAM_0		0x10000000	/* SDRAM Bank #1 */
 #endif
+#define PHYS_SDRAM_1 \
+	(PHYS_SDRAM_0 + PHYS_SDRAM_0_SIZE)	/* SDRAM Bank #2 */
 
-#define CONFIG_NR_DRAM_BANKS	1		/* we have 1 bank of DRAM */
+#define CONFIG_NR_DRAM_BANKS	2		/* we have 2 bank of DRAM */
 #define PHYS_SDRAM_0_SIZE	0x04000000	/* 64 MB */
+#define PHYS_SDRAM_1_SIZE	0x04000000	/* 64 MB */
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_0
 

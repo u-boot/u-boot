@@ -3,9 +3,7 @@
  *
  * Copyright (C) 2013 Mike Dunn <mikedunn@newsguy.com>
  *
- * This file is released under the terms of GPL v2 and any later version.
- * See the file COPYING in the root directory of the source tree for details.
- *
+ * SPDX-License-Identifier:	GPL-2.0+
  *
  * This driver basically mimics the load functionality of a typical IPL (initial
  * program loader) resident in the 2k NOR-like region of the docg4 that is

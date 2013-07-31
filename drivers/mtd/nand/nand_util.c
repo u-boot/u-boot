@@ -14,29 +14,7 @@
  * Copyright (C) 2008 Nokia Corporation: drop_ffs() function by
  * Artem Bityutskiy <dedekind1@gmail.com> from mtd-utils
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License version
- * 2 as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
- *
- * Copyright 2010 Freescale Semiconductor
- * The portions of this file whose copyright is held by Freescale and which
- * are not considered a derived work of GPL v2-only code may be distributed
- * and/or modified under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

@@ -2,23 +2,7 @@
  * (C) Copyright 2007-2011
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+ 
  */
 
 #ifndef __CONFIG_H
@@ -212,7 +196,6 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	CONFIG_KM_BOARD_EXTRA_ENV					\
 	CONFIG_KM_DEF_ENV						\
-	"EEprom_ivm=pca9544a:70:4 \0"					\
 	"unlock=yes\0"							\
 	"newenv="							\
 		"prot off 0xFE0C0000 +0x40000 && "			\
@@ -242,10 +225,18 @@
 #endif /* CONFIG_ENV_IS_IN_FLASH */
 
 /* enable I2C and select the hardware/software driver */
-#undef	CONFIG_HARD_I2C			/* I2C with hardware support	*/
-#define	CONFIG_SOFT_I2C			/* I2C bit-banged		*/
-#define CONFIG_SYS_I2C_SPEED		50000	/* I2C speed */
-#define CONFIG_SYS_I2C_SLAVE		0x7F	/* I2C slave address */
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
+#define CONFIG_SYS_NUM_I2C_BUSES	3
+#define CONFIG_SYS_I2C_MAX_HOPS		1
+#define CONFIG_SYS_I2C_SOFT_SPEED	50000
+#define CONFIG_SYS_I2C_SPEED		CONFIG_SYS_I2C_SOFT_SPEED
+#define CONFIG_SYS_I2C_SOFT_SLAVE	0x7F
+#define CONFIG_SYS_I2C_BUSES	{{0, {I2C_NULL_HOP} }, \
+			{0, {{I2C_MUX_PCA9542, 0x70, 0} } }, \
+			{0, {{I2C_MUX_PCA9542, 0x70, 1} } } }
+
+#define CONFIG_KM_IVM_BUS		1	/* I2C2 (Mux-Port 1)*/
 
 /*
  * Software (bit-bang) I2C driver configuration
@@ -282,7 +273,7 @@ int get_scl(void);
 #define CONFIG_SYS_DTT_MAX_TEMP	70
 #define CONFIG_SYS_DTT_LOW_TEMP	-30
 #define CONFIG_SYS_DTT_HYSTERESIS	3
-#define CONFIG_SYS_DTT_BUS_NUM		(CONFIG_SYS_MAX_I2C_BUS)
+#define CONFIG_SYS_DTT_BUS_NUM		2
 
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 

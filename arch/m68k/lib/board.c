@@ -5,23 +5,7 @@
  * (C) Copyright 2000-2002
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -56,7 +40,7 @@
 #include <version.h>
 
 #if defined(CONFIG_HARD_I2C) || \
-    defined(CONFIG_SOFT_I2C)
+	defined(CONFIG_SYS_I2C)
 #include <i2c.h>
 #endif
 
@@ -142,11 +126,15 @@ static int init_func_ram (void)
 
 /***********************************************************************/
 
-#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
+#if defined(CONFIG_HARD_I2C) ||	defined(CONFIG_SYS_I2C)
 static int init_func_i2c (void)
 {
 	puts ("I2C:   ");
+#ifdef CONFIG_SYS_I2C
+	i2c_init_all();
+#else
 	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+#endif
 	puts ("ready\n");
 	return (0);
 }
@@ -178,7 +166,7 @@ init_fnc_t *init_sequence[] = {
 	display_options,
 	checkcpu,
 	checkboard,
-#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
+#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C)
 	init_func_i2c,
 #endif
 #if defined(CONFIG_HARD_SPI)
@@ -499,6 +487,11 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	spi_init_f ();
 # endif
 	spi_init_r ();
+#endif
+
+#if defined(CONFIG_SYS_I2C)
+	/* Adjust I2C subsystem pointers after relocation */
+	i2c_reloc_fixup();
 #endif
 
 	/* relocate environment function pointers etc. */

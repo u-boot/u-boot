@@ -3,8 +3,7 @@
  *
  * Copyright (C) 2013 Mike Dunn <mikedunn@newsguy.com>
  *
- * This file is released under the terms of GPL v2 and any later version.
- * See the file COPYING in the root directory of the source tree for details.
+ * SPDX-License-Identifier:	GPL-2.0+
  *
  * mtd nand driver for M-Systems DiskOnChip G4
  *
@@ -25,7 +24,6 @@
  *
  *  Support for multiple cascaded devices ("floors").  Not sure which gadgets
  *  contain multiple G4s in a cascaded configuration, if any.
- *
  */
 
 

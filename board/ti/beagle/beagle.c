@@ -11,23 +11,7 @@
  *	Syed Mohammed Khasim <khasim@ti.com>
  *
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #ifdef CONFIG_STATUS_LED
@@ -182,8 +166,7 @@ void get_board_mem_timings(struct board_sdrc_timings *timings)
 			timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
 			break;
 		}
-	case REVISION_XM_A:
-	case REVISION_XM_B:
+	case REVISION_XM_AB:
 	case REVISION_XM_C:
 		if (pop_mfr == 0) {
 			/* 256MB DDR */
@@ -256,8 +239,7 @@ static void beagle_display_init(void)
 	case REVISION_C4:
 		omap3_dss_panel_config(&dvid_cfg);
 		break;
-	case REVISION_XM_A:
-	case REVISION_XM_B:
+	case REVISION_XM_AB:
 	case REVISION_XM_C:
 	default:
 		omap3_dss_panel_config(&dvid_cfg_xm);
@@ -276,12 +258,11 @@ static void beagle_dvi_pup(void)
 	case REVISION_AXBX:
 	case REVISION_CX:
 	case REVISION_C4:
-	case REVISION_XM_A:
 		gpio_request(170, "");
 		gpio_direction_output(170, 0);
 		gpio_set_value(170, 1);
 		break;
-	case REVISION_XM_B:
+	case REVISION_XM_AB:
 	case REVISION_XM_C:
 	default:
 		#define GPIODATADIR1 (TWL4030_BASEADD_GPIO+3)
@@ -359,19 +340,9 @@ int misc_init_r(void)
 					TWL4030_PM_RECEIVER_VAUX2_DEV_GRP,
 					TWL4030_PM_RECEIVER_DEV_GRP_P1);
 		break;
-	case REVISION_XM_A:
-		printf("Beagle xM Rev A\n");
-		setenv("beaglerev", "xMA");
-		MUX_BEAGLE_XM();
-		/* Set VAUX2 to 1.8V for EHCI PHY */
-		twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VAUX2_DEDICATED,
-					TWL4030_PM_RECEIVER_VAUX2_VSEL_18,
-					TWL4030_PM_RECEIVER_VAUX2_DEV_GRP,
-					TWL4030_PM_RECEIVER_DEV_GRP_P1);
-		break;
-	case REVISION_XM_B:
-		printf("Beagle xM Rev B\n");
-		setenv("beaglerev", "xMB");
+	case REVISION_XM_AB:
+		printf("Beagle xM Rev A/B\n");
+		setenv("beaglerev", "xMAB");
 		MUX_BEAGLE_XM();
 		/* Set VAUX2 to 1.8V for EHCI PHY */
 		twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VAUX2_DEDICATED,
@@ -484,8 +455,7 @@ int misc_init_r(void)
 
 	twl4030_power_init();
 	switch (get_board_revision()) {
-	case REVISION_XM_A:
-	case REVISION_XM_B:
+	case REVISION_XM_AB:
 		twl4030_led_init(TWL4030_LED_LEDEN_LEDBON);
 		break;
 	default:

@@ -5,23 +5,7 @@
  * (C) Copyright 2000 Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Marius Groeger <mgroeger@sysgo.de>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -746,23 +730,9 @@ unsigned int i2c_get_bus_num(void)
 
 int i2c_set_bus_num(unsigned int bus)
 {
-#if defined(CONFIG_I2C_MUX)
-	if (bus < CONFIG_SYS_MAX_I2C_BUS) {
-		i2c_bus_num = bus;
-	} else {
-		int ret;
-
-		ret = i2x_mux_select_mux(bus);
-		if (ret == 0)
-			i2c_bus_num = bus;
-		else
-			return ret;
-	}
-#else
 	if (bus >= CONFIG_SYS_MAX_I2C_BUS)
 		return -1;
 	i2c_bus_num = bus;
-#endif
 	return 0;
 }
 

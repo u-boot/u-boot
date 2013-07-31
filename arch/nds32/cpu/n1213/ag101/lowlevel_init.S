@@ -3,23 +3,7 @@
  * Shawn Lin, Andes Technology Corporation <nobuhiro@andestech.com>
  * Macpaul Lin, Andes Technology Corporation <macpaul@andestech.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 .text
@@ -38,6 +22,7 @@
 #define SDMC_CR1_A		(CONFIG_FTSDMC021_BASE + FTSDMC021_CR1)
 #define SDMC_CR2_A		(CONFIG_FTSDMC021_BASE + FTSDMC021_CR2)
 #define SDMC_B0_BSR_A		(CONFIG_FTSDMC021_BASE + FTSDMC021_BANK0_BSR)
+#define SDMC_B1_BSR_A		(CONFIG_FTSDMC021_BASE + FTSDMC021_BANK1_BSR)
 
 #define SDMC_TP1_D		CONFIG_SYS_FTSDMC021_TP1
 #define SDMC_TP2_D		CONFIG_SYS_FTSDMC021_TP2
@@ -45,6 +30,7 @@
 #define SDMC_CR2_D		CONFIG_SYS_FTSDMC021_CR2
 
 #define SDMC_B0_BSR_D		CONFIG_SYS_FTSDMC021_BANK0_BSR
+#define SDMC_B1_BSR_D		CONFIG_SYS_FTSDMC021_BANK1_BSR
 
 /*
  * parameters for the static memory controller
@@ -95,6 +81,11 @@ lowlevel_init:
 
 	led	0x10
 	jal	remap
+
+#if (defined(NDS32_EXT_FPU_DP) || defined(NDS32_EXT_FPU_SP))
+	led	0x1f
+	jal	enable_fpu
+#endif
 
 	led	0x20
 	ret	$r10
@@ -167,12 +158,12 @@ relo_base:
 	 */
 	led	0x1a
 	write32	SDMC_B0_BSR_A, SDMC_B0_BSR_D		! 0x00001100
+	write32	SDMC_B1_BSR_A, SDMC_B1_BSR_D		! 0x00001140
 
 	/* clear empty BSR registers */
 	led	0x1b
 	li	$r4, CONFIG_FTSDMC021_BASE
 	li	$r5, 0x0
-	swi	$r5, [$r4 + FTSDMC021_BANK1_BSR]
 	swi	$r5, [$r4 + FTSDMC021_BANK2_BSR]
 	swi	$r5, [$r4 + FTSDMC021_BANK3_BSR]
 
@@ -223,12 +214,35 @@ relo_base:
 	 * - after  remap: flash/rom 0x80000000, sdram: 0x00000000
 	 */
 	led	0x1c
+	write32 SDMC_B0_BSR_A, 0x00001000
+	write32 SDMC_B1_BSR_A, 0x00001040
 	setbf15	AHBC_CR_A, FTAHBC020S_CR_REMAP		! 0x1
 
 #endif /* #ifdef CONFIG_MEM_REMAP */
 	move	$lp, $r11
 2:
 	ret
+
+	/*
+	 * enable_fpu:
+	 *  Some of Andes CPU version support FPU coprocessor, if so,
+	 *  and toolchain support FPU instruction set, we should enable it.
+	 */
+#if (defined(NDS32_EXT_FPU_DP) || defined(NDS32_EXT_FPU_SP))
+enable_fpu:
+	mfsr    $r0, $CPU_VER     /* enable FPU if it exists */
+	srli    $r0, $r0, 3
+	andi    $r0, $r0, 1
+	beqz    $r0, 1f           /* skip if no COP */
+	mfsr    $r0, $FUCOP_EXIST
+	srli    $r0, $r0, 31
+	beqz    $r0, 1f           /* skip if no FPU */
+	mfsr    $r0, $FUCOP_CTL
+	ori     $r0, $r0, 1
+	mtsr    $r0, $FUCOP_CTL
+1:
+	ret
+#endif
 
 .globl show_led
 show_led:

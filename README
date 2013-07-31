@@ -1,24 +1,8 @@
 #
-# (C) Copyright 2000 - 2012
+# (C) Copyright 2000 - 2013
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
-# See file CREDITS for list of people who contributed to this
-# project.
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 2 of
-# the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA 02111-1307 USA
+# SPDX-License-Identifier:	GPL-2.0+
 #
 
 Summary:
@@ -1944,11 +1928,114 @@ CBFS (Coreboot Filesystem) support
 		on those systems that support this (optional)
 		feature, like the TQM8xxL modules.
 
-- I2C Support:	CONFIG_HARD_I2C | CONFIG_SOFT_I2C
+- I2C Support:	CONFIG_SYS_I2C
 
-		These enable I2C serial bus commands. Defining either of
-		(but not both of) CONFIG_HARD_I2C or CONFIG_SOFT_I2C will
-		include the appropriate I2C driver for the selected CPU.
+		This enable the NEW i2c subsystem, and will allow you to use
+		i2c commands at the u-boot command line (as long as you set
+		CONFIG_CMD_I2C in CONFIG_COMMANDS) and communicate with i2c
+		based realtime clock chips or other i2c devices. See
+		common/cmd_i2c.c for a description of the command line
+		interface.
+
+		ported i2c driver to the new framework:
+		- drivers/i2c/soft_i2c.c:
+		  - activate first bus with CONFIG_SYS_I2C_SOFT define
+		    CONFIG_SYS_I2C_SOFT_SPEED and CONFIG_SYS_I2C_SOFT_SLAVE
+		    for defining speed and slave address
+		  - activate second bus with I2C_SOFT_DECLARATIONS2 define
+		    CONFIG_SYS_I2C_SOFT_SPEED_2 and CONFIG_SYS_I2C_SOFT_SLAVE_2
+		    for defining speed and slave address
+		  - activate third bus with I2C_SOFT_DECLARATIONS3 define
+		    CONFIG_SYS_I2C_SOFT_SPEED_3 and CONFIG_SYS_I2C_SOFT_SLAVE_3
+		    for defining speed and slave address
+		  - activate fourth bus with I2C_SOFT_DECLARATIONS4 define
+		    CONFIG_SYS_I2C_SOFT_SPEED_4 and CONFIG_SYS_I2C_SOFT_SLAVE_4
+		    for defining speed and slave address
+
+		- drivers/i2c/fsl_i2c.c:
+		  - activate i2c driver with CONFIG_SYS_I2C_FSL
+		    define CONFIG_SYS_FSL_I2C_OFFSET for setting the register
+		    offset CONFIG_SYS_FSL_I2C_SPEED for the i2c speed and
+		    CONFIG_SYS_FSL_I2C_SLAVE for the slave addr of the first
+		    bus.
+                  - If your board supports a second fsl i2c bus, define
+		    CONFIG_SYS_FSL_I2C2_OFFSET for the register offset
+		    CONFIG_SYS_FSL_I2C2_SPEED for the speed and
+		    CONFIG_SYS_FSL_I2C2_SLAVE for the slave address of the
+		    second bus.
+
+		- drivers/i2c/tegra_i2c.c:
+		 - activate this driver with CONFIG_SYS_I2C_TEGRA
+		 - This driver adds 4 i2c buses with a fix speed from
+		   100000 and the slave addr 0!
+
+		- drivers/i2c/ppc4xx_i2c.c
+		  - activate this driver with CONFIG_SYS_I2C_PPC4XX
+		  - CONFIG_SYS_I2C_PPC4XX_CH0 activate hardware channel 0
+		  - CONFIG_SYS_I2C_PPC4XX_CH1 activate hardware channel 1
+
+		additional defines:
+
+		CONFIG_SYS_NUM_I2C_BUSES
+		Hold the number of i2c busses you want to use. If you
+		don't use/have i2c muxes on your i2c bus, this
+		is equal to CONFIG_SYS_NUM_I2C_ADAPTERS, and you can
+		omit this define.
+
+		CONFIG_SYS_I2C_DIRECT_BUS
+		define this, if you don't use i2c muxes on your hardware.
+		if CONFIG_SYS_I2C_MAX_HOPS is not defined or == 0 you can
+		omit this define.
+
+		CONFIG_SYS_I2C_MAX_HOPS
+		define how many muxes are maximal consecutively connected
+		on one i2c bus. If you not use i2c muxes, omit this
+		define.
+
+		CONFIG_SYS_I2C_BUSES
+		hold a list of busses you want to use, only used if
+		CONFIG_SYS_I2C_DIRECT_BUS is not defined, for example
+		a board with CONFIG_SYS_I2C_MAX_HOPS = 1 and
+		CONFIG_SYS_NUM_I2C_BUSES = 9:
+
+		 CONFIG_SYS_I2C_BUSES	{{0, {I2C_NULL_HOP}}, \
+					{0, {{I2C_MUX_PCA9547, 0x70, 1}}}, \
+					{0, {{I2C_MUX_PCA9547, 0x70, 2}}}, \
+					{0, {{I2C_MUX_PCA9547, 0x70, 3}}}, \
+					{0, {{I2C_MUX_PCA9547, 0x70, 4}}}, \
+					{0, {{I2C_MUX_PCA9547, 0x70, 5}}}, \
+					{1, {I2C_NULL_HOP}}, \
+					{1, {{I2C_MUX_PCA9544, 0x72, 1}}}, \
+					{1, {{I2C_MUX_PCA9544, 0x72, 2}}}, \
+					}
+
+		which defines
+			bus 0 on adapter 0 without a mux
+			bus 1 on adapter 0 with a PCA9547 on address 0x70 port 1
+			bus 2 on adapter 0 with a PCA9547 on address 0x70 port 2
+			bus 3 on adapter 0 with a PCA9547 on address 0x70 port 3
+			bus 4 on adapter 0 with a PCA9547 on address 0x70 port 4
+			bus 5 on adapter 0 with a PCA9547 on address 0x70 port 5
+			bus 6 on adapter 1 without a mux
+			bus 7 on adapter 1 with a PCA9544 on address 0x72 port 1
+			bus 8 on adapter 1 with a PCA9544 on address 0x72 port 2
+
+		If you do not have i2c muxes on your board, omit this define.
+
+- Legacy I2C Support:	CONFIG_HARD_I2C
+
+		NOTE: It is intended to move drivers to CONFIG_SYS_I2C which
+		provides the following compelling advantages:
+
+		- more than one i2c adapter is usable
+		- approved multibus support
+		- better i2c mux support
+
+		** Please consider updating your I2C driver now. **
+
+		These enable legacy I2C serial bus commands. Defining
+		CONFIG_HARD_I2C will include the appropriate I2C driver
+		for the selected CPU.
 
 		This will allow you to use i2c commands at the u-boot
 		command line (as long as you set CONFIG_CMD_I2C in
@@ -1958,12 +2045,8 @@ CBFS (Coreboot Filesystem) support
 
 		CONFIG_HARD_I2C selects a hardware I2C controller.
 
-		CONFIG_SOFT_I2C configures u-boot to use a software (aka
-		bit-banging) driver instead of CPM or similar hardware
-		support for I2C.
-
 		There are several other quantities that must also be
-		defined when you define CONFIG_HARD_I2C or CONFIG_SOFT_I2C.
+		defined when you define CONFIG_HARD_I2C.
 
 		In both cases you will need to define CONFIG_SYS_I2C_SPEED
 		to be the frequency (in Hz) at which you wish your i2c bus
@@ -1985,7 +2068,7 @@ CBFS (Coreboot Filesystem) support
 
 		That's all that's required for CONFIG_HARD_I2C.
 
-		If you use the software i2c interface (CONFIG_SOFT_I2C)
+		If you use the software i2c interface (CONFIG_SYS_I2C_SOFT)
 		then the following macros need to be defined (examples are
 		from include/configs/lwmon.h):
 
@@ -2135,58 +2218,6 @@ CBFS (Coreboot Filesystem) support
 		If defined, specifies the I2C address of the DTT device.
 		If not defined, then U-Boot uses predefined value for
 		specified DTT device.
-
-		CONFIG_FSL_I2C
-
-		Define this option if you want to use Freescale's I2C driver in
-		drivers/i2c/fsl_i2c.c.
-
-		CONFIG_I2C_MUX
-
-		Define this option if you have I2C devices reached over 1 .. n
-		I2C Muxes like the pca9544a. This option addes a new I2C
-		Command "i2c bus [muxtype:muxaddr:muxchannel]" which adds a
-		new I2C Bus to the existing I2C Busses. If you select the
-		new Bus with "i2c dev", u-bbot sends first the commandos for
-		the muxes to activate this new "bus".
-
-		CONFIG_I2C_MULTI_BUS must be also defined, to use this
-		feature!
-
-		Example:
-		Adding a new I2C Bus reached over 2 pca9544a muxes
-			The First mux with address 70 and channel 6
-			The Second mux with address 71 and channel 4
-
-		=> i2c bus pca9544a:70:6:pca9544a:71:4
-
-		Use the "i2c bus" command without parameter, to get a list
-		of I2C Busses with muxes:
-
-		=> i2c bus
-		Busses reached over muxes:
-		Bus ID: 2
-		  reached over Mux(es):
-		    pca9544a@70 ch: 4
-		Bus ID: 3
-		  reached over Mux(es):
-		    pca9544a@70 ch: 6
-		    pca9544a@71 ch: 4
-		=>
-
-		If you now switch to the new I2C Bus 3 with "i2c dev 3"
-		u-boot first sends the command to the mux@70 to enable
-		channel 6, and then the command to the mux@71 to enable
-		the channel 4.
-
-		After that, you can use the "normal" i2c commands as
-		usual to communicate with your I2C devices behind
-		the 2 muxes.
-
-		This option is actually implemented for the bitbanging
-		algorithm in common/soft_i2c.c and for the Hardware I2C
-		Bus on the MPC8260. But it should be not so difficult
-		to add this option to other architectures.
 
 		CONFIG_SOFT_I2C_READ_REPEATED_START
 
@@ -3619,7 +3650,7 @@ to save the current settings.
 	  I2C muxes, you can define here, how to reach this
 	  EEPROM. For example:
 
-	  #define CONFIG_I2C_ENV_EEPROM_BUS	  "pca9547:70:d\0"
+	  #define CONFIG_I2C_ENV_EEPROM_BUS	  1
 
 	  EEPROM which holds the environment, is reached over
 	  a pca9547 i2c mux with address 0x70, channel 3.

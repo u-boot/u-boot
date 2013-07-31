@@ -37,8 +37,14 @@
 #define CONFIG_OF_LIBFDT
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
+#define CONFIG_CMDLINE_EDITING
+#define CONFIG_STACKSIZE		(128 * 1024)
+#define CONFIG_AUTO_COMPLETE
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
+
+/* Custom script for NOR */
+#define CONFIG_SYS_LDSCRIPT		"board/ti/am335x/u-boot.lds"
 
 #define CONFIG_SYS_CACHELINE_SIZE       64
 
@@ -47,6 +53,27 @@
 
 #define CONFIG_CMD_ASKENV
 #define CONFIG_VERSION_VARIABLE
+
+#ifdef CONFIG_NAND
+#define NANDARGS \
+	"mtdids=" MTDIDS_DEFAULT "\0" \
+	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"nandargs=setenv bootargs console=${console} " \
+		"${optargs} " \
+		"root=${nandroot} " \
+		"rootfstype=${nandrootfstype}\0" \
+	"dfu_alt_info_nand=" DFU_ALT_INFO_NAND "\0" \
+	"nandroot=ubi0:rootfs rw ubi.mtd=7,2048\0" \
+	"nandrootfstype=ubifs rootwait=1\0" \
+	"nandsrcaddr=0x280000\0" \
+		"nandboot=echo Booting from nand ...; " \
+		"run nandargs; " \
+		"nand read ${loadaddr} ${nandsrcaddr} ${nandimgsize}; " \
+		"bootm ${loadaddr}\0" \
+	"nandimgsize=0x500000\0"
+#else
+#define NANDARGS ""
+#endif
 
 /* set to negative value for no autoboot */
 #define CONFIG_BOOTDELAY		1
@@ -63,19 +90,12 @@
 	"fdtfile=undefined\0" \
 	"console=ttyO0,115200n8\0" \
 	"optargs=\0" \
-	"mtdids=" MTDIDS_DEFAULT "\0" \
-	"mtdparts=" MTDPARTS_DEFAULT "\0" \
 	"dfu_alt_info_mmc=" DFU_ALT_INFO_MMC "\0" \
 	"dfu_alt_info_emmc=rawemmc mmc 0 3751936\0" \
-	"dfu_alt_info_nand=" DFU_ALT_INFO_NAND "\0" \
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 ro\0" \
 	"mmcrootfstype=ext4 rootwait\0" \
 	"bootpart=0:2\0" \
-	"nandroot=ubi0:rootfs rw ubi.mtd=7,2048\0" \
-	"nandrootfstype=ubifs rootwait=1\0" \
-	"nandsrcaddr=0x280000\0" \
-	"nandimgsize=0x500000\0" \
 	"rootpath=/export/rootfs\0" \
 	"nfsopts=nolock\0" \
 	"static_ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}" \
@@ -86,10 +106,6 @@
 		"${optargs} " \
 		"root=${mmcroot} " \
 		"rootfstype=${mmcrootfstype}\0" \
-	"nandargs=setenv bootargs console=${console} " \
-		"${optargs} " \
-		"root=${nandroot} " \
-		"rootfstype=${nandrootfstype}\0" \
 	"spiroot=/dev/mtdblock4 rw\0" \
 	"spirootfstype=jffs2\0" \
 	"spisrcaddr=0xe0000\0" \
@@ -115,13 +131,23 @@
 	"loadramdisk=load mmc ${mmcdev} ${rdaddr} ramdisk.gz\0" \
 	"loaduimage=load mmc ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
 	"loadfdt=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
-	"mmcboot=echo Booting from mmc ...; " \
-		"run mmcargs; " \
-		"bootm ${loadaddr} - ${fdtaddr}\0" \
-	"nandboot=echo Booting from nand ...; " \
-		"run nandargs; " \
-		"nand read ${loadaddr} ${nandsrcaddr} ${nandimgsize}; " \
-		"bootm ${loadaddr}\0" \
+	"mmcboot=mmc dev ${mmcdev}; " \
+		"if mmc rescan; then " \
+			"echo SD/MMC found on device ${mmcdev};" \
+			"if run loadbootenv; then " \
+				"echo Loaded environment from ${bootenv};" \
+				"run importbootenv;" \
+			"fi;" \
+			"if test -n $uenvcmd; then " \
+				"echo Running uenvcmd ...;" \
+				"run uenvcmd;" \
+			"fi;" \
+			"if run loaduimage; then " \
+				"run loadfdt;" \
+				"run mmcargs; " \
+				"bootm ${loadaddr} - ${fdtaddr};" \
+			"fi;" \
+		"fi;\0" \
 	"spiboot=echo Booting from spi ...; " \
 		"run spiargs; " \
 		"sf probe ${spibusno}:0; " \
@@ -147,28 +173,17 @@
 		"if test $board_name = A335X_SK; then " \
 			"setenv fdtfile am335x-evmsk.dtb; fi; " \
 		"if test $fdtfile = undefined; then " \
-			"echo WARNING: Could not determine device tree to use; fi; \0"
+			"echo WARNING: Could not determine device tree to use; fi; \0" \
+	NANDARGS
 #endif
 
 #define CONFIG_BOOTCOMMAND \
 	"run findfdt; " \
-	"mmc dev ${mmcdev}; if mmc rescan; then " \
-		"echo SD/MMC found on device ${mmcdev};" \
-		"if run loadbootenv; then " \
-			"echo Loaded environment from ${bootenv};" \
-			"run importbootenv;" \
-		"fi;" \
-		"if test -n $uenvcmd; then " \
-			"echo Running uenvcmd ...;" \
-			"run uenvcmd;" \
-		"fi;" \
-		"if run loaduimage; then " \
-			"run loadfdt;" \
-			"run mmcboot;" \
-		"fi;" \
-	"else " \
-		"run nandboot;" \
-	"fi;" \
+	"run mmcboot;" \
+	"setenv mmcdev 1; " \
+	"setenv bootpart 1:2; " \
+	"run mmcboot;" \
+	"run nandboot;"
 
 /* Clock Defines */
 #define V_OSCK				24000000  /* Clock output from T2 */
@@ -231,24 +246,31 @@
 /* USB Device Firmware Update support */
 #define CONFIG_DFU_FUNCTION
 #define CONFIG_DFU_MMC
-#define CONFIG_DFU_NAND
 #define CONFIG_CMD_DFU
 #define DFU_ALT_INFO_MMC \
 	"boot part 0 1;" \
 	"rootfs part 0 2;" \
 	"MLO fat 0 1;" \
 	"MLO.raw mmc 100 100;" \
-	"u-boot.img.raw mmc 300 3C0;" \
+	"u-boot.img.raw mmc 300 400;" \
+	"spl-os-args.raw mmc 80 80;" \
+	"spl-os-image.raw mmc 900 2000;" \
+	"spl-os-args fat 0 1;" \
+	"spl-os-image fat 0 1;" \
 	"u-boot.img fat 0 1;" \
 	"uEnv.txt fat 0 1"
+#ifdef CONFIG_NAND
+#define CONFIG_DFU_NAND
 #define DFU_ALT_INFO_NAND \
 	"SPL part 0 1;" \
 	"SPL.backup1 part 0 2;" \
 	"SPL.backup2 part 0 3;" \
 	"SPL.backup3 part 0 4;" \
 	"u-boot part 0 5;" \
-	"kernel part 0 7;" \
-	"rootfs part 0 8"
+	"u-boot-spl-os part 0 6;" \
+	"kernel part 0 8;" \
+	"rootfs part 0 9"
+#endif
 
  /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1		/*  1 bank of DRAM */
@@ -301,8 +323,7 @@
 #define CONFIG_ENV_OVERWRITE		1
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
 
-#define CONFIG_ENV_IS_NOWHERE
-
+#ifndef CONFIG_NOR_BOOT
 /* Defines for SPL */
 #define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
@@ -332,14 +353,16 @@
 #define CONFIG_SYS_SPL_ARGS_ADDR		(PHYS_DRAM_1 + 0x100)
 
 /* raw mmc */
-#define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	0x500 /* address 0xa0000 */
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x8   /* address 0x1000 */
-#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	8     /* 4KB */
+#define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	0x900	/* address 0x120000 */
+#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0x80	/* address 0x10000 */
+#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0x80	/* 64KiB */
 
 /* nand */
+#ifdef CONFIG_NAND
 #define CONFIG_CMD_SPL_NAND_OFS			0x240000 /* end of u-boot */
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS		0x280000
-#define CONFIG_CMD_SPL_WRITE_SIZE		0x1000
+#define CONFIG_CMD_SPL_WRITE_SIZE		0x2000
+#endif
 
 /* spl export command */
 #define CONFIG_CMD_SPL
@@ -364,11 +387,13 @@
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SPL_SPI_BUS		0
 #define CONFIG_SPL_SPI_CS		0
-#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x80000
+#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x20000
 #define CONFIG_SPL_MUSB_NEW_SUPPORT
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/am33xx/u-boot-spl.lds"
 
 #define CONFIG_SPL_BOARD_INIT
+
+#ifdef CONFIG_NAND
 #define CONFIG_SPL_NAND_AM33XX_BCH
 #define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_NAND_BASE
@@ -395,6 +420,8 @@
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
+#endif
+#endif
 
 /*
  * 1MB into the SDRAM to allow for SPL's bss at the beginning of SDRAM
@@ -402,14 +429,18 @@
  * header. That is 0x800FFFC0--0x80100000 should not be used for any
  * other needs.
  */
+#ifdef CONFIG_NOR_BOOT
+#define CONFIG_SYS_TEXT_BASE		0x08000000
+#else
 #define CONFIG_SYS_TEXT_BASE		0x80800000
+#endif
 #define CONFIG_SYS_SPL_MALLOC_START	0x80a08000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
 
 /* Since SPL did pll and ddr initialization for us,
  * we don't need to do it twice.
  */
-#ifndef CONFIG_SPL_BUILD
+#if !defined(CONFIG_SPL_BUILD) && !defined(CONFIG_NOR_BOOT)
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #endif
 
@@ -450,24 +481,33 @@
 #endif
 
 /*
- * Default to using SPI for environment, etc.  We have multiple copies
- * of SPL as the ROM will check these locations.
- * 0x0 - 0x20000 : First copy of SPL
- * 0x20000 - 0x40000 : Second copy of SPL
- * 0x40000 - 0x60000 : Third copy of SPL
- * 0x60000 - 0x80000 : Fourth copy of SPL
- * 0x80000 - 0xDF000 : U-Boot
- * 0xDF000 - 0xE0000 : U-Boot Environment
- * 0xE0000 - 0x442000 : Linux Kernel
+ * Default to using SPI for environment, etc.
+ * 0x000000 - 0x020000 : SPL (128KiB)
+ * 0x020000 - 0x0A0000 : U-Boot (512KiB)
+ * 0x0A0000 - 0x0BFFFF : First copy of U-Boot Environment (128KiB)
+ * 0x0C0000 - 0x0DFFFF : Second copy of U-Boot Environment (128KiB)
+ * 0x0E0000 - 0x442000 : Linux Kernel
  * 0x442000 - 0x800000 : Userland
  */
 #if defined(CONFIG_SPI_BOOT)
-# undef CONFIG_ENV_IS_NOWHERE
-# define CONFIG_ENV_IS_IN_SPI_FLASH
-# define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
-# define CONFIG_ENV_OFFSET		(892 << 10) /* 892 KiB in */
-# define CONFIG_ENV_SECT_SIZE		(4 << 10) /* 4 KB sectors */
-#endif /* SPI support */
+#define CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
+#define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
+#define CONFIG_ENV_SECT_SIZE		(4 << 10) /* 4 KB sectors */
+#define CONFIG_ENV_OFFSET		(768 << 10) /* 768 KiB in */
+#define CONFIG_ENV_OFFSET_REDUND	(896 << 10) /* 896 KiB in */
+#define CONFIG_CMD_MTDPARTS
+#define MTDIDS_DEFAULT			"nor0=m25p80-flash.0"
+#define MTDPARTS_DEFAULT		"mtdparts=m25p80-flash.0:128k(SPL)," \
+					"512k(u-boot),128k(u-boot-env1)," \
+					"128k(u-boot-env2),3464k(kernel)," \
+					"-(rootfs)"
+#elif defined(CONFIG_EMMC_BOOT)
+#undef CONFIG_ENV_IS_NOWHERE
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_SYS_MMC_ENV_DEV		1
+#define CONFIG_SYS_MMC_ENV_PART		2
+#endif
 
 /* Unsupported features */
 #undef CONFIG_USE_IRQ
@@ -490,18 +530,10 @@
 #define CONFIG_PHY_ADDR			0
 #define CONFIG_PHY_SMSC
 
-#define CONFIG_NAND
 /* NAND support */
 #ifdef CONFIG_NAND
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_MTDPARTS
-#define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
-#define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:128k(SPL)," \
-					"128k(SPL.backup1)," \
-					"128k(SPL.backup2)," \
-					"128k(SPL.backup3),1792k(u-boot)," \
-					"128k(u-boot-spl-os)," \
-					"128k(u-boot-env),5m(kernel),-(rootfs)"
 #define CONFIG_NAND_OMAP_GPMC
 #define GPMC_NAND_ECC_LP_x16_LAYOUT	1
 #define CONFIG_SYS_NAND_BASE		(0x08000000)	/* physical address */
@@ -509,12 +541,59 @@
 							/* CS0 */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of NAND
 							   devices */
-#if !defined(CONFIG_SPI_BOOT)
-#undef CONFIG_ENV_IS_NOWHERE
+#if !defined(CONFIG_SPI_BOOT) && !defined(CONFIG_NOR_BOOT)
+#define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
+#define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:128k(SPL)," \
+					"128k(SPL.backup1)," \
+					"128k(SPL.backup2)," \
+					"128k(SPL.backup3),1792k(u-boot)," \
+					"128k(u-boot-spl-os)," \
+					"128k(u-boot-env),5m(kernel),-(rootfs)"
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		0x260000 /* environment starts here */
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
 #endif
 #endif
+
+/*
+ * NOR Size = 16 MiB
+ * Number of Sectors/Blocks = 128
+ * Sector Size = 128 KiB
+ * Word length = 16 bits
+ * Default layout:
+ * 0x000000 - 0x07FFFF : U-Boot (512 KiB)
+ * 0x080000 - 0x09FFFF : First copy of U-Boot Environment (128 KiB)
+ * 0x0A0000 - 0x0BFFFF : Second copy of U-Boot Environment (128 KiB)
+ * 0x0C0000 - 0x4BFFFF : Linux Kernel (4 MiB)
+ * 0x4C0000 - 0xFFFFFF : Userland (11 MiB + 256 KiB)
+ */
+#if defined(CONFIG_NOR)
+#undef CONFIG_SYS_NO_FLASH
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
+#define CONFIG_SYS_FLASH_PROTECTION
+#define CONFIG_SYS_FLASH_CFI
+#define CONFIG_FLASH_CFI_DRIVER
+#define CONFIG_FLASH_CFI_MTD
+#define CONFIG_SYS_MAX_FLASH_SECT	128
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
+#define CONFIG_SYS_FLASH_BASE		(0x08000000)
+#define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
+#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
+#ifdef CONFIG_NOR_BOOT
+#define CONFIG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_SECT_SIZE		(128 << 10)	/* 128 KiB */
+#define CONFIG_ENV_OFFSET		(512 << 10)	/* 512 KiB */
+#define CONFIG_ENV_OFFSET_REDUND	(768 << 10)	/* 768 KiB */
+#define CONFIG_CMD_MTDPARTS
+#define MTDIDS_DEFAULT			"nor0=physmap-flash.0"
+#define MTDPARTS_DEFAULT		"mtdparts=physmap-flash.0:" \
+					"512k(u-boot)," \
+					"128k(u-boot-env1)," \
+					"128k(u-boot-env2)," \
+					"4m(kernel),-(rootfs)"
+#endif
+#define CONFIG_MTD_DEVICE
+#define CONFIG_CMD_FLASH
+#endif  /* NOR support */
 
 #endif	/* ! __CONFIG_AM335X_EVM_H */

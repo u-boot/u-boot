@@ -3,18 +3,7 @@
  *
  * Based on arm926ejs/mx27/timer.c
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 2 of the License, or (at your option)
- * any later version.
- *
- * This program is distributed in the hope it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program.  If not, see <http://www.gnu.org/licenses/>.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -26,7 +15,7 @@
 
 #undef SYSTIMER_BASE
 #define SYSTIMER_BASE		0xFFF34000	/* Timer 0 and 1 base	*/
-#define SYSTIMER_RATE		150000000
+#define SYSTIMER_RATE		(150000000 / 256)
 
 static ulong timestamp;
 static ulong lastinc;
@@ -40,11 +29,11 @@ int timer_init(void)
 	/*
 	 * Setup timer0
 	 */
+	writel(0, &systimer_base->timer0control);
 	writel(SYSTIMER_RELOAD, &systimer_base->timer0load);
 	writel(SYSTIMER_RELOAD, &systimer_base->timer0value);
-	writel(SYSTIMER_EN | SYSTIMER_32BIT, &systimer_base->timer0control);
-
-	reset_timer_masked();
+	writel(SYSTIMER_EN | SYSTIMER_32BIT | SYSTIMER_PRESC_256,
+		&systimer_base->timer0control);
 
 	return 0;
 
@@ -124,5 +113,5 @@ ulong get_timer_masked(void)
 
 ulong get_tbclk(void)
 {
-	return CONFIG_SYS_HZ;
+	return SYSTIMER_RATE;
 }

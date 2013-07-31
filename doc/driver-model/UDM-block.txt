@@ -93,7 +93,7 @@ I) Overview
       uchar ide_read_register(int dev, unsigned int port);
       void  ide_write_register(int dev, unsigned int port, unsigned char val);
       void  ide_read_data(int dev, ulong *sect_buf, int words);
-      void  ide_write_data(int dev, ulong *sect_buf, int words);
+      void  ide_write_data(int dev, const ulong *sect_buf, int words);
 
     The first two functions are called from ide_inb()/ide_outb(), and will
     default to direct memory access if CONFIG_IDE_AHB is not set, or

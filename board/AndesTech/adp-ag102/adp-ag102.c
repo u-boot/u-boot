@@ -3,28 +3,14 @@
  * Shawn Lin, Andes Technology Corporation <nobuhiro@andestech.com>
  * Macpaul Lin, Andes Technology Corporation <macpaul@andestech.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <netdev.h>
 #include <asm/io.h>
 
+#include <faraday/ftpci100.h>
 #include <faraday/ftsdc010.h>
 #ifdef CONFIG_FTSMC020
 #include <faraday/ftsmc020.h>
@@ -92,8 +78,6 @@ ulong board_flash_get_legacy(ulong base, int banknum, flash_info_t *info)
 void pci_init_board(void)
 {
 	/* should be pci_ftpci100_init() */
-	extern void pci_ftpci_init();
-
 	pci_ftpci_init();
 }
 #endif

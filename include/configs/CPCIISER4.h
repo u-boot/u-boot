@@ -2,23 +2,7 @@
  * (C) Copyright 2001-2003
  * Stefan Roese, esd gmbh germany, stefan.roese@esd-electronics.com
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -196,10 +180,11 @@
 /*-----------------------------------------------------------------------
  * I2C EEPROM (CAT24WC08) for environment
  */
-#define CONFIG_HARD_I2C			/* I2C with hardware support */
-#define CONFIG_PPC4XX_I2C		/* use PPC4xx driver		*/
-#define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed and slave address */
-#define CONFIG_SYS_I2C_SLAVE		0x7F
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_PPC4XX
+#define CONFIG_SYS_I2C_PPC4XX_CH0
+#define CONFIG_SYS_I2C_PPC4XX_SPEED_0		400000
+#define CONFIG_SYS_I2C_PPC4XX_SLAVE_0		0x7F
 
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* EEPROM CAT28WC08		*/
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1	/* Bytes of address		*/

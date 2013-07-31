@@ -6,23 +6,7 @@
  * Configuration settings for the TI DRA7XX board.
  * See omap5_common.h for omap5 common settings.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+ 
  */
 
 #ifndef __CONFIG_DRA7XX_EVM_H
@@ -43,5 +27,24 @@
 #define CONFIG_SYS_OMAP_ABE_SYSCK
 
 #define CONSOLEDEV		"ttyO0"
+
+/* CPSW Ethernet */
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_MII
+#define CONFIG_DRIVER_TI_CPSW
+#define CONFIG_MII
+#define CONFIG_BOOTP_DEFAULT
+#define CONFIG_BOOTP_DNS
+#define CONFIG_BOOTP_DNS2
+#define CONFIG_BOOTP_SEND_HOSTNAME
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_NET_RETRY_COUNT         10
+#define CONFIG_NET_MULTI
+#define CONFIG_PHY_GIGE
+#define CONFIG_PHYLIB
+#define CONFIG_PHY_ADDR			2
 
 #endif /* __CONFIG_DRA7XX_EVM_H */

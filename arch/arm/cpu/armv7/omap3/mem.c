@@ -9,20 +9,7 @@
  *     Richard Woodruff <r-woodruff2@ti.com>
  *     Syed Mohammed Khasim <khasim@ti.com>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -34,6 +21,17 @@
 struct gpmc *gpmc_cfg;
 
 #if defined(CONFIG_CMD_NAND)
+#if defined(GPMC_NAND_ECC_SP_x8_LAYOUT) || defined(GPMC_NAND_ECC_LP_x8_LAYOUT)
+static const u32 gpmc_m_nand[GPMC_MAX_REG] = {
+	SMNAND_GPMC_CONFIG1,
+	SMNAND_GPMC_CONFIG2,
+	SMNAND_GPMC_CONFIG3,
+	SMNAND_GPMC_CONFIG4,
+	SMNAND_GPMC_CONFIG5,
+	SMNAND_GPMC_CONFIG6,
+	0,
+};
+#else
 static const u32 gpmc_m_nand[GPMC_MAX_REG] = {
 	M_NAND_GPMC_CONFIG1,
 	M_NAND_GPMC_CONFIG2,
@@ -42,6 +40,7 @@ static const u32 gpmc_m_nand[GPMC_MAX_REG] = {
 	M_NAND_GPMC_CONFIG5,
 	M_NAND_GPMC_CONFIG6, 0
 };
+#endif
 #endif /* CONFIG_CMD_NAND */
 
 #if defined(CONFIG_CMD_ONENAND)

@@ -2,23 +2,7 @@
  * (C) Copyright 2008
  * Dirk Behme <dirk.behme@gmail.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _BEAGLE_H_
 #define _BEAGLE_H_
@@ -39,8 +23,7 @@ const omap3_sysinfo sysinfo = {
 #define REVISION_AXBX	0x7
 #define REVISION_CX	0x6
 #define REVISION_C4	0x5
-#define REVISION_XM_A	0x0
-#define REVISION_XM_B	0x1
+#define REVISION_XM_AB	0x0
 #define REVISION_XM_C	0x2
 
 /*

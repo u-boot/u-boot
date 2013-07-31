@@ -5,15 +5,7 @@
  *
  * Copyright (C) 2011, Texas Instruments, Incorporated - http://www.ti.com/
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR /PURPOSE.  See the
- * GNU General Public License for more details.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -215,6 +207,7 @@ static struct cpsw_platform_data cpsw_data = {
 	.ale_entries		= 1024,
 	.host_port_reg_ofs	= 0x28,
 	.hw_stats_reg_ofs	= 0x400,
+	.bd_ram_ofs		= 0x2000,
 	.mac_control		= (1 << 5),
 	.control		= cpsw_control,
 	.host_port_num		= 0,
