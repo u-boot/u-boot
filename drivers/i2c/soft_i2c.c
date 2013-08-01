@@ -105,11 +105,11 @@ DECLARE_GLOBAL_DATA_PTR;
 # endif
 #endif
 
-#if !defined(CONFIG_SYS_SOFT_I2C_SPEED)
-#define CONFIG_SYS_SOFT_I2C_SPEED CONFIG_SYS_I2C_SPEED
+#if !defined(CONFIG_SYS_I2C_SOFT_SPEED)
+#define CONFIG_SYS_I2C_SOFT_SPEED CONFIG_SYS_I2C_SPEED
 #endif
-#if !defined(CONFIG_SYS_SOFT_I2C_SLAVE)
-#define CONFIG_SYS_SOFT_I2C_SLAVE CONFIG_SYS_I2C_SLAVE
+#if !defined(CONFIG_SYS_I2C_SOFT_SLAVE)
+#define CONFIG_SYS_I2C_SOFT_SLAVE CONFIG_SYS_I2C_SLAVE
 #endif
 
 /*-----------------------------------------------------------------------
