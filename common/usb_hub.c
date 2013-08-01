@@ -44,6 +44,10 @@
 static struct usb_hub_device hub_dev[USB_MAX_HUB];
 static int usb_hub_index;
 
+__weak void usb_hub_reset_devices(int port)
+{
+	return;
+}
 
 static int usb_get_hub_descriptor(struct usb_device *dev, void *data, int size)
 {
@@ -425,6 +429,14 @@ static int usb_hub_configure(struct usb_device *dev)
 	      (le16_to_cpu(hubsts->wHubStatus) & HUB_STATUS_OVERCURRENT) ? \
 	      "" : "no ");
 	usb_hub_power_on(hub);
+
+	/*
+	 * Reset any devices that may be in a bad state when applying
+	 * the power.  This is a __weak function.  Resetting of the devices
+	 * should occur in the board file of the device.
+	 */
+	for (i = 0; i < dev->maxchild; i++)
+		usb_hub_reset_devices(i + 1);
 
 	for (i = 0; i < dev->maxchild; i++) {
 		ALLOC_CACHE_ALIGN_BUFFER(struct usb_port_status, portsts, 1);
