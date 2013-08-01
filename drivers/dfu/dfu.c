@@ -16,8 +16,19 @@
 #include <linux/list.h>
 #include <linux/compiler.h>
 
+static bool dfu_reset_request;
 static LIST_HEAD(dfu_list);
 static int dfu_alt_num;
+
+bool dfu_reset(void)
+{
+	return dfu_reset_request;
+}
+
+void dfu_trigger_reset()
+{
+	dfu_reset_request = true;
+}
 
 static int dfu_find_alt_num(const char *s)
 {

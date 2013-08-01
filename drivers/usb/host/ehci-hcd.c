@@ -36,16 +36,7 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 1
 #endif
 
-static struct ehci_ctrl {
-	struct ehci_hccr *hccr;	/* R/O registers, not need for volatile */
-	struct ehci_hcor *hcor;
-	int rootdev;
-	uint16_t portreset;
-	struct QH qh_list __aligned(USB_DMA_MINALIGN);
-	struct QH periodic_queue __aligned(USB_DMA_MINALIGN);
-	uint32_t *periodic_list;
-	int ntds;
-} ehcic[CONFIG_USB_MAX_CONTROLLER_COUNT];
+static struct ehci_ctrl ehcic[CONFIG_USB_MAX_CONTROLLER_COUNT];
 
 #define ALIGN_END_ADDR(type, ptr, size)			\
 	((uint32_t)(ptr) + roundup((size) * sizeof(type), USB_DMA_MINALIGN))
@@ -954,7 +945,9 @@ int usb_lowlevel_init(int index, void **controller)
 	 *         Split Transactions will be spread across microframes using
 	 *         S-mask and C-mask.
 	 */
-	ehcic[index].periodic_list = memalign(4096, 1024*4);
+	if (ehcic[index].periodic_list == NULL)
+		ehcic[index].periodic_list = memalign(4096, 1024 * 4);
+
 	if (!ehcic[index].periodic_list)
 		return -ENOMEM;
 	for (i = 0; i < 1024; i++) {

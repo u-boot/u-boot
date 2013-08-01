@@ -110,7 +110,7 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
 		ret = usb_get_port_status(dev, i + 1, portsts);
 		if (ret < 0) {
 			debug("port %d: get_port_status failed\n", i + 1);
-			return;
+			continue;
 		}
 
 		/*
@@ -125,7 +125,7 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
 		portstatus = le16_to_cpu(portsts->wPortStatus);
 		if (portstatus & (USB_PORT_STAT_POWER << 1)) {
 			debug("port %d: Port power change failed\n", i + 1);
-			return;
+			continue;
 		}
 	}
 
