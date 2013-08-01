@@ -17,7 +17,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 const struct omap_sysinfo sysinfo = {
-	"Board: OMAP5430 EVM\n"
+	"Board: OMAP5432 uEVM\n"
 };
 
 /**
