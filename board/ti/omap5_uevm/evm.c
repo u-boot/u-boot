@@ -16,6 +16,7 @@
 
 #ifdef CONFIG_USB_EHCI
 #include <usb.h>
+#include <asm/gpio.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/ehci.h>
 #include <asm/ehci-omap.h>
@@ -190,5 +191,15 @@ int ehci_hcd_stop(void)
 
 	ret = omap_ehci_hcd_stop();
 	return ret;
+}
+
+void usb_hub_reset_devices(int port)
+{
+	/* The LAN9730 needs to be reset after the port power has been set. */
+	if (port == 3) {
+		gpio_direction_output(CONFIG_OMAP_EHCI_PHY3_RESET_GPIO, 0);
+		udelay(10);
+		gpio_direction_output(CONFIG_OMAP_EHCI_PHY3_RESET_GPIO, 1);
+	}
 }
 #endif
