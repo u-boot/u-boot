@@ -79,6 +79,7 @@ static void omap_usbhs_hsic_init(int port)
 	writel(reg, &usbtll->channel_conf + port);
 }
 
+#ifdef CONFIG_USB_ULPI
 static void omap_ehci_soft_phy_reset(int port)
 {
 	struct ulpi_viewport ulpi_vp;
@@ -88,6 +89,12 @@ static void omap_ehci_soft_phy_reset(int port)
 
 	ulpi_reset(&ulpi_vp);
 }
+#else
+static void omap_ehci_soft_phy_reset(int port)
+{
+	return;
+}
+#endif
 
 inline int __board_usb_init(void)
 {
