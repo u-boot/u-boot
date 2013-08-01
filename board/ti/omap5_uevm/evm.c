@@ -19,6 +19,10 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/ehci.h>
 #include <asm/ehci-omap.h>
+
+#define DIE_ID_REG_BASE     (OMAP54XX_L4_CORE_BASE + 0x2000)
+#define DIE_ID_REG_OFFSET	0x200
+
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -144,8 +148,27 @@ int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	int ret;
 	int auxclk;
+	int reg;
+	uint8_t device_mac[6];
 
 	enable_host_clocks();
+
+	if (!getenv("usbethaddr")) {
+		reg = DIE_ID_REG_BASE + DIE_ID_REG_OFFSET;
+
+		/*
+		 * create a fake MAC address from the processor ID code.
+		 * first byte is 0x02 to signify locally administered.
+		 */
+		device_mac[0] = 0x02;
+		device_mac[1] = readl(reg + 0x10) & 0xff;
+		device_mac[2] = readl(reg + 0xC) & 0xff;
+		device_mac[3] = readl(reg + 0x8) & 0xff;
+		device_mac[4] = readl(reg) & 0xff;
+		device_mac[5] = (readl(reg) >> 8) & 0xff;
+
+		eth_setenv_enetaddr("usbethaddr", device_mac);
+	}
 
 	auxclk = readl((*prcm)->scrm_auxclk1);
 	/* Request auxilary clock */
