@@ -42,6 +42,7 @@ enum usbhs_omap_port_mode {
 /* Values of UHH_REVISION - Note: these are not given in the TRM */
 #define OMAP_USBHS_REV1					0x00000010 /* OMAP3 */
 #define OMAP_USBHS_REV2					0x50700100 /* OMAP4 */
+#define OMAP_USBHS_REV2_1				0x50700101 /* OMAP5 */
 
 /* UHH Register Set */
 #define OMAP_UHH_HOSTCONFIG_INCR4_BURST_EN		(1 << 2)
@@ -60,6 +61,7 @@ enum usbhs_omap_port_mode {
 #define OMAP_P2_MODE_CLEAR				(3 << 18)
 #define OMAP_P2_MODE_TLL				(1 << 18)
 #define OMAP_P2_MODE_HSIC				(3 << 18)
+#define OMAP_P3_MODE_CLEAR				(3 << 20)
 #define OMAP_P3_MODE_HSIC				(3 << 20)
 
 /* EHCI Register Set */
