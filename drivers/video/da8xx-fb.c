@@ -959,6 +959,7 @@ void *video_hw_init(void)
 		printf("GLCD: malloc for frame buffer failed\n");
 		goto err_release_fb;
 	}
+	gd->fb_base = (int)par->vram_virt;
 
 	gpanel.frameAdrs = (unsigned int)par->vram_virt;
 	da8xx_fb_info->screen_base = (char *) par->vram_virt;
