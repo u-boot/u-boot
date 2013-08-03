@@ -35,6 +35,13 @@
 #define CONFIG_SYS_SDRAM_BASE	0
 #define CONFIG_SYS_SDRAM_SIZE	PHYS_SDRAM_1_SIZE
 
+/* TEXT BASE defines */
+#if defined(CONFIG_CSE_QSPI)
+# define CONFIG_SYS_TEXT_BASE		0xFFFC4800
+#else
+# define CONFIG_SYS_TEXT_BASE		0x04000000
+#endif
+
 /* Total Size of Environment Sector */
 #define CONFIG_ENV_SIZE			(128 << 10)
 
@@ -288,7 +295,6 @@
 /* Physical Memory map */
 #define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM_1			0
-#define CONFIG_SYS_TEXT_BASE		0x04000000
 
 #define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM_1
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + \
