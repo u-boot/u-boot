@@ -24,7 +24,7 @@
 #include <asm/io.h>
 #include <asm/arch/davinci_misc.h>
 #include <asm/gpio.h>
-#include <asm/arch/da8xx-fb.h>
+#include "../../../drivers/video/da8xx-fb.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 

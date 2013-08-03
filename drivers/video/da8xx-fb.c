@@ -24,7 +24,7 @@
 #include <asm/arch/hardware.h>
 
 #include "videomodes.h"
-#include <asm/arch/da8xx-fb.h>
+#include "da8xx-fb.h"
 
 #define DRIVER_NAME "da8xx_lcdc"
 
