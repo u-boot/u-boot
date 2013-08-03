@@ -38,6 +38,8 @@
 /* TEXT BASE defines */
 #if defined(CONFIG_CSE_QSPI)
 # define CONFIG_SYS_TEXT_BASE		0xFFFC4800
+#elif defined(CONFIG_CSE_NAND)
+# define CONFIG_SYS_TEXT_BASE		0x00100000
 #else
 # define CONFIG_SYS_TEXT_BASE		0x04000000
 #endif
