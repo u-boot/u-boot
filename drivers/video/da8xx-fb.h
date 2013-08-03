@@ -109,6 +109,8 @@ struct lcd_sync_arg {
 	int pulse_width;
 };
 
-void da8xx_video_init(const struct da8xx_panel *panel, int bits_pixel);
+void da8xx_video_init(const struct da8xx_panel *panel,
+		      const struct lcd_ctrl_config *lcd_cfg,
+		      int bits_pixel);
 
 #endif  /* ifndef DA8XX_FB_H */
