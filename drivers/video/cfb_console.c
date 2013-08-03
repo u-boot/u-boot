@@ -431,6 +431,16 @@ static const int video_font_draw_table32[16][4] = {
 	{0x00ffffff, 0x00ffffff, 0x00ffffff, 0x00ffffff}
 };
 
+/*
+ * Implement a weak default function for boards that optionally
+ * need to skip the cfb initialization.
+ */
+__weak int board_cfb_skip(void)
+{
+	/* As default, don't skip cfb init */
+	return 0;
+}
+
 static void video_drawchars(int xx, int yy, unsigned char *s, int count)
 {
 	u8 *cdat, *dest, *dest0;
@@ -2017,6 +2027,8 @@ static void *video_logo(void)
 		return video_fb_address + video_logo_height * VIDEO_LINE_LEN;
 	}
 #endif
+	if (board_cfb_skip())
+		return 0;
 
 	sprintf(info, " %s", version_string);
 
@@ -2225,6 +2237,9 @@ int drv_video_init(void)
 
 	/* Init video chip - returns with framebuffer cleared */
 	skip_dev_init = (video_init() == -1);
+
+	if (board_cfb_skip())
+		return 0;
 
 #if !defined(CONFIG_VGA_AS_SINGLE_DEVICE)
 	debug("KBD: Keyboard init ...\n");
