@@ -22,6 +22,9 @@
 #elif defined(CONFIG_CSE_NAND)
 # define CONFIG_NAND_ZYNQ
 
+#elif defined(CONFIG_CSE_NOR)
+#undef CONFIG_SYS_NO_FLASH
+
 #endif
 
 #include <configs/zynq_common.h>
@@ -61,6 +64,11 @@
 # define PHYS_SDRAM_1_SIZE		(4 * 1024 * 1024)
 # define CONFIG_SYS_SDRAM_BASE		0
 # define CONFIG_ENV_SIZE		0x10000
+
+#elif defined(CONFIG_CSE_NOR)
+# define PHYS_SDRAM_1_SIZE		(256 * 1024)
+# define CONFIG_SYS_SDRAM_BASE		0xFFFD0000
+# define CONFIG_ENV_SIZE		1400
 
 #endif
 

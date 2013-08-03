@@ -36,7 +36,7 @@
 #define CONFIG_SYS_SDRAM_SIZE	PHYS_SDRAM_1_SIZE
 
 /* TEXT BASE defines */
-#if defined(CONFIG_CSE_QSPI)
+#if defined(CONFIG_CSE_QSPI) || defined(CONFIG_CSE_NOR)
 # define CONFIG_SYS_TEXT_BASE		0xFFFC4800
 #elif defined(CONFIG_CSE_NAND)
 # define CONFIG_SYS_TEXT_BASE		0x00100000
