@@ -179,7 +179,7 @@ int main (int argc, char *argv[])
 	printf("unsigned char bmp_logo_bitmap[] = {\n");
 	for (i=(b->height-1)*b->width; i>=0; i-=b->width) {
 		for (x = 0; x < b->width; x++) {
-			b->data[(uint16_t) i + x] = (uint8_t) fgetc (fp) \
+			b->data[i + x] = (uint8_t) fgetc(fp)
 						+ DEFAULT_CMAP_SIZE;
 		}
 	}
