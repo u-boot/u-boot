@@ -196,9 +196,6 @@ int stdio_init (void)
 	/* Initialize the list */
 	INIT_LIST_HEAD(&(devs.list));
 
-#ifdef CONFIG_ARM_DCC
-	drv_arm_dcc_init ();
-#endif
 #ifdef CONFIG_SYS_I2C
 	i2c_init_all();
 #else

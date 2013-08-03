@@ -27,7 +27,6 @@
  */
 
 #include <common.h>
-#include <stdio_dev.h>
 
 #if defined(CONFIG_CPU_V6)
 /*
@@ -136,21 +135,6 @@ int arm_dcc_tstc(void)
 	can_read_dcc(reg);
 
 	return reg;
-}
-
-static struct stdio_dev arm_dcc_dev;
-
-int drv_arm_dcc_init(void)
-{
-	strcpy(arm_dcc_dev.name, "dcc");
-	arm_dcc_dev.ext = 0;	/* No extensions */
-	arm_dcc_dev.flags = DEV_FLAGS_INPUT | DEV_FLAGS_OUTPUT;
-	arm_dcc_dev.tstc = arm_dcc_tstc;	/* 'tstc' function */
-	arm_dcc_dev.getc = arm_dcc_getc;	/* 'getc' function */
-	arm_dcc_dev.putc = arm_dcc_putc;	/* 'putc' function */
-	arm_dcc_dev.puts = arm_dcc_puts;	/* 'puts' function */
-
-	return stdio_register(&arm_dcc_dev);
 }
 
 __weak struct serial_device *default_serial_console(void)
