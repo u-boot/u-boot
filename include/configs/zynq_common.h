@@ -65,6 +65,12 @@
 #define CONFIG_ZYNQ_SERIAL
 #endif
 
+/* DCC driver */
+#if defined(CONFIG_ZYNQ_DCC)
+# define CONFIG_ARM_DCC
+# define CONFIG_CPU_V6 /* Required by CONFIG_ARM_DCC */
+#endif
+
 /* Ethernet driver */
 #if defined(CONFIG_ZYNQ_GEM0) || defined(CONFIG_ZYNQ_GEM1)
 # define CONFIG_NET_MULTI
