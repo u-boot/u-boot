@@ -636,7 +636,7 @@ static int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc,
 			goto err;
 		else if (ret == BOOTM_ERR_OVERLAP)
 			ret = 0;
-#ifdef CONFIG_SILENT_CONSOLE
+#if defined(CONFIG_SILENT_CONSOLE) && !defined(CONFIG_SILENT_U_BOOT_ONLY)
 		if (images->os.os == IH_OS_LINUX)
 			fixup_silent_linux();
 #endif
