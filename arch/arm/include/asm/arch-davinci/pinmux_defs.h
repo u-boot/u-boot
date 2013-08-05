@@ -23,12 +23,13 @@ extern const struct pinmux_config spi1_pins_scs0[1];
 
 /* UART pin muxer settings */
 extern const struct pinmux_config uart0_pins_txrx[2];
+extern const struct pinmux_config uart0_pins_rtscts[2];
 extern const struct pinmux_config uart1_pins_txrx[2];
 extern const struct pinmux_config uart2_pins_txrx[2];
 extern const struct pinmux_config uart2_pins_rtscts[2];
 
 /* EMAC pin muxer settings*/
-extern const struct pinmux_config emac_pins_rmii[7];
+extern const struct pinmux_config emac_pins_rmii[8];
 extern const struct pinmux_config emac_pins_rmii_clk_source[1];
 extern const struct pinmux_config emac_pins_mii[15];
 extern const struct pinmux_config emac_pins_mdio[2];
