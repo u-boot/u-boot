@@ -121,11 +121,8 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 {
 	const char *modes[] = { "host", "peripheral", "otg" };
 	const char *phys[] = { "ulpi", "utmi" };
-	const char *mode = NULL;
-	const char *phy_type = NULL;
 	const char *dr_mode_type = NULL;
 	const char *dr_phy_type = NULL;
-	char usb1_defined = 0;
 	int usb_mode_off = -1;
 	int usb_phy_off = -1;
 	char str[5];
@@ -159,12 +156,6 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 			dr_mode_type = modes[mode_idx];
 			dr_phy_type = phys[phy_idx];
 
-			/* use usb_dr_mode and usb_phy_type if
-			   usb1_defined = 0; these variables are to
-			   be deprecated */
-			if (!strcmp(str, "usb1"))
-				usb1_defined = 1;
-
 			if (mode_idx < 0 && phy_idx < 0) {
 				printf("WARNING: invalid phy or mode\n");
 				return;
@@ -182,19 +173,6 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 
 		if (usb_phy_off < 0)
 			return;
-	}
-
-	if (!usb1_defined) {
-		int usb_off = -1;
-		mode = getenv("usb_dr_mode");
-		phy_type = getenv("usb_phy_type");
-		if (mode || phy_type) {
-			printf("WARNING: usb_dr_mode and usb_phy_type "
-				"are to be deprecated soon. Use "
-				"hwconfig to set these values instead!!\n");
-			fdt_fixup_usb_mode_phy_type(blob, mode,
-				phy_type, usb_off);
-		}
 	}
 }
 #endif /* defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_MPH_USB) */
