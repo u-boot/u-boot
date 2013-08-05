@@ -88,6 +88,18 @@ static const struct spi_flash_params spi_flash_params_table[] = {
 	{"N25Q1024",		0x20ba21, 0x0,     64 * 1024,	2048},
 	{"N25Q1024A",		0x20bb21, 0x0,     64 * 1024,	2048},
 #endif
+#ifdef CONFIG_SPI_FLASH_SST		/* SST */
+	{"SST25VF040B",		0xbf258d, 0x0,	   64 * 1024,	   8},
+	{"SST25VF080B",		0xbf258e, 0x0,	   64 * 1024,	  16},
+	{"SST25VF016B",		0xbf2541, 0x0,	   64 * 1024,	  32},
+	{"SST25VF032B",		0xbf254a, 0x0,	   64 * 1024,	  64},
+	{"SST25VF064C",		0xbf254b, 0x0,	   64 * 1024,	 128},
+	{"SST25WF512",		0xbf2501, 0x0,	   64 * 1024,	   1},
+	{"SST25WF010",		0xbf2502, 0x0,	   64 * 1024,	   2},
+	{"SST25WF020",		0xbf2503, 0x0,	   64 * 1024,	   4},
+	{"SST25WF040",		0xbf2504, 0x0,	   64 * 1024,	   8},
+	{"SST25WF080",		0xbf2505, 0x0,	   64 * 1024,	  16},
+#endif
 #ifdef CONFIG_SPI_FLASH_WINBOND		/* WINBOND */
 	{"W25P80",		0xef2014, 0x0,	   64 * 1024,	  16},
 	{"W25P16",		0xef2015, 0x0,	   64 * 1024,	  32},
@@ -125,7 +137,6 @@ static const struct spi_flash_params spi_flash_params_table[] = {
 	 * TODO:
 	 * ATMEL
 	 * RAMTRON
-	 * SST
 	 */
 };
 
