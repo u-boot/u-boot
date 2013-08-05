@@ -448,6 +448,7 @@ Heiko Schocher <hs@denx.de>
 	cam_enc_4xx	davinci/ARM926EJS
 	charon		MPC5200
 	ids8247		MPC8247
+	ipam390		davinci/ARM926EJS
 	jupiter		MPC5200
 	kmsupx5		MPC8321
 	mucmc52		MPC5200

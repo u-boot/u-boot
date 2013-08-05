@@ -1,0 +1,53 @@
+/*
+ * (C) Copyright 2002
+ * Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
+ *
+ * (C) Copyright 2008
+ * Guennadi Liakhovetki, DENX Software Engineering, <lg@denx.de>
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+MEMORY { .sram : ORIGIN = CONFIG_SPL_TEXT_BASE,\
+		LENGTH = CONFIG_SPL_MAX_FOOTPRINT }
+
+OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
+OUTPUT_ARCH(arm)
+ENTRY(_start)
+SECTIONS
+{
+	. = 0x00000000;
+
+	. = ALIGN(4);
+	.text      :
+	{
+	__start = .;
+	  arch/arm/cpu/arm926ejs/start.o	(.text*)
+	  *(.text*)
+	} >.sram
+
+	. = ALIGN(4);
+	.rodata : { *(SORT_BY_ALIGNMENT(.rodata*)) } >.sram
+
+	. = ALIGN(4);
+	.data : { *(SORT_BY_ALIGNMENT(.data*)) } >.sram
+
+	. = ALIGN(4);
+	.rel.dyn : {
+		__rel_dyn_start = .;
+		*(.rel*)
+		__rel_dyn_end = .;
+	} >.sram
+
+	.bss :
+	{
+		. = ALIGN(4);
+		__bss_start = .;
+		*(.bss*)
+		. = ALIGN(4);
+		__bss_end = .;
+	} >.sram
+
+	__image_copy_end = .;
+	_end = .;
+}
