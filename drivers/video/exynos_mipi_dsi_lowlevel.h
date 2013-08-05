@@ -91,7 +91,7 @@ unsigned int _exynos_mipi_dsi_get_frame_done_status(struct mipi_dsim_device
 						*dsim);
 void _exynos_mipi_dsi_clear_frame_done(struct mipi_dsim_device *dsim);
 void exynos_mipi_dsi_wr_tx_header(struct mipi_dsim_device *dsim,
-		unsigned int di, unsigned int data0, unsigned int data1);
+		unsigned int di, const unsigned char data0, const unsigned char data1);
 void exynos_mipi_dsi_wr_tx_data(struct mipi_dsim_device *dsim,
 		unsigned int tx_data);
 
