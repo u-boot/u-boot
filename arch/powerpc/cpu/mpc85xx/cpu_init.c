@@ -22,6 +22,7 @@
 #include <asm/fsl_law.h>
 #include <asm/fsl_serdes.h>
 #include <asm/fsl_srio.h>
+#include <fsl_usb.h>
 #include <hwconfig.h>
 #include <linux/compiler.h>
 #include "mp.h"
@@ -605,7 +606,7 @@ skip_l2:
 
 #ifdef CONFIG_SYS_FSL_USB1_PHY_ENABLE
 	{
-		ccsr_usb_phy_t *usb_phy1 =
+		struct ccsr_usb_phy __iomem *usb_phy1 =
 			(void *)CONFIG_SYS_MPC85xx_USB1_PHY_ADDR;
 		out_be32(&usb_phy1->usb_enable_override,
 				CONFIG_SYS_FSL_USB_ENABLE_OVERRIDE);
@@ -613,7 +614,7 @@ skip_l2:
 #endif
 #ifdef CONFIG_SYS_FSL_USB2_PHY_ENABLE
 	{
-		ccsr_usb_phy_t *usb_phy2 =
+		struct ccsr_usb_phy __iomem *usb_phy2 =
 			(void *)CONFIG_SYS_MPC85xx_USB2_PHY_ADDR;
 		out_be32(&usb_phy2->usb_enable_override,
 				CONFIG_SYS_FSL_USB_ENABLE_OVERRIDE);
@@ -635,7 +636,7 @@ skip_l2:
 #endif
 
 #if defined(CONFIG_SYS_FSL_USB_DUAL_PHY_ENABLE)
-		ccsr_usb_phy_t *usb_phy =
+		struct ccsr_usb_phy __iomem *usb_phy =
 			(void *)CONFIG_SYS_MPC85xx_USB1_PHY_ADDR;
 		setbits_be32(&usb_phy->pllprg[1],
 			     CONFIG_SYS_FSL_USB_PLLPRG2_PHY2_CLK_EN |
