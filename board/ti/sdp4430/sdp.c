@@ -65,7 +65,8 @@ void set_muxconf_regs_essential(void)
 		   sizeof(wkup_padconf_array_essential) /
 		   sizeof(struct pad_conf_entry));
 
-	if (omap_revision() >= OMAP4460_ES1_0)
+	if ((omap_revision() >= OMAP4460_ES1_0) &&
+			(omap_revision() < OMAP4470_ES1_0))
 		do_set_mux((*ctrl)->control_padconf_wkup_base,
 				 wkup_padconf_array_essential_4460,
 				 sizeof(wkup_padconf_array_essential_4460) /
