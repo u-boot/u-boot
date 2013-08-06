@@ -288,6 +288,30 @@ static void mmc_reset_controller_fsm(struct hsmmc *mmc_base, u32 bit)
 
 	mmc_reg_out(&mmc_base->sysctl, bit, bit);
 
+	/*
+	 * CMD(DAT) lines reset procedures are slightly different
+	 * for OMAP3 and OMAP4(AM335x,OMAP5,DRA7xx).
+	 * According to OMAP3 TRM:
+	 * Set SRC(SRD) bit in MMCHS_SYSCTL register to 0x1 and wait until it
+	 * returns to 0x0.
+	 * According to OMAP4(AM335x,OMAP5,DRA7xx) TRMs, CMD(DATA) lines reset
+	 * procedure steps must be as follows:
+	 * 1. Initiate CMD(DAT) line reset by writing 0x1 to SRC(SRD) bit in
+	 *    MMCHS_SYSCTL register (SD_SYSCTL for AM335x).
+	 * 2. Poll the SRC(SRD) bit until it is set to 0x1.
+	 * 3. Wait until the SRC (SRD) bit returns to 0x0
+	 *    (reset procedure is completed).
+	 */
+#if defined(CONFIG_OMAP44XX) || defined(CONFIG_OMAP54XX) || \
+	defined(CONFIG_AM33XX)
+	if (!(readl(&mmc_base->sysctl) & bit)) {
+		start = get_timer(0);
+		while (!(readl(&mmc_base->sysctl) & bit)) {
+			if (get_timer(0) - start > MAX_RETRY_MS)
+				return;
+		}
+	}
+#endif
 	start = get_timer(0);
 	while ((readl(&mmc_base->sysctl) & bit) != 0) {
 		if (get_timer(0) - start > MAX_RETRY_MS) {
