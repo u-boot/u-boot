@@ -55,10 +55,7 @@ int board_mmc_getcd(struct mmc *mmc)__attribute__((weak,
 static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			struct mmc_data *data)
 {
-	struct mmc_data backup;
 	int ret;
-
-	memset(&backup, 0, sizeof(backup));
 
 #ifdef CONFIG_MMC_TRACE
 	int i;
