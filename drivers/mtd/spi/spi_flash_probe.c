@@ -36,6 +36,15 @@ struct spi_flash_params {
 };
 
 static const struct spi_flash_params spi_flash_params_table[] = {
+#ifdef CONFIG_SPI_FLASH_ATMEL		/* ATMEL */
+	{"AT45DB011D",		0x1f2200, 0x0,	   64 * 1024,	   4},
+	{"AT45DB021D",		0x1f2300, 0x0,	   64 * 1024,	   8},
+	{"AT45DB041D",		0x1f2400, 0x0,	   64 * 1024,	   8},
+	{"AT45DB081D",		0x1f2500, 0x0,	   64 * 1024,	  16},
+	{"AT45DB161D",		0x1f2600, 0x0,	   64 * 1024,	  32},
+	{"AT45DB321D",		0x1f2700, 0x0,	   64 * 1024,	  64},
+	{"AT45DB641D",		0x1f2800, 0x0,	   64 * 1024,	 128},
+#endif
 #ifdef CONFIG_SPI_FLASH_EON		/* EON */
 	{"EN25Q32B",		0x1c3016, 0x0,	   64 * 1024,	  64},
 	{"EN25Q128B",		0x1c3018, 0x0,     64 * 1024,	 256},
@@ -135,7 +144,6 @@ static const struct spi_flash_params spi_flash_params_table[] = {
 	 */
 	/*
 	 * TODO:
-	 * ATMEL
 	 * RAMTRON
 	 */
 };
