@@ -36,6 +36,10 @@ struct spi_flash_params {
 };
 
 static const struct spi_flash_params spi_flash_params_table[] = {
+#ifdef CONFIG_SPI_FLASH_EON		/* EON */
+	{"EN25Q32B",		0x1c3016, 0x0,	   64 * 1024,	  64},
+	{"EN25Q128B",		0x1c3018, 0x0,     64 * 1024,	 256},
+#endif
 #ifdef CONFIG_SPI_FLASH_STMICRO		/* STMICRO */
 	{"M25P10",		0x202011, 0x0,     32 * 1024,	   4},
 	{"M25P20",		0x202012, 0x0,     64 * 1024,	   4},
@@ -61,7 +65,6 @@ static const struct spi_flash_params spi_flash_params_table[] = {
 	/*
 	 * TODO:
 	 * ATMEL
-	 * EON
 	 * GIGADEVICE
 	 * MACRONIX
 	 * RAMTRON
