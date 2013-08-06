@@ -122,6 +122,31 @@ static struct descriptor {
 #define ehci_is_TDI()	(0)
 #endif
 
+int __ehci_get_port_speed(struct ehci_hcor *hcor, uint32_t reg)
+{
+	return PORTSC_PSPD(reg);
+}
+
+int ehci_get_port_speed(struct ehci_hcor *hcor, uint32_t reg)
+	__attribute__((weak, alias("__ehci_get_port_speed")));
+
+void __ehci_set_usbmode(int index)
+{
+	uint32_t tmp;
+	uint32_t *reg_ptr;
+
+	reg_ptr = (uint32_t *)((u8 *)&ehcic[index].hcor->or_usbcmd + USBMODE);
+	tmp = ehci_readl(reg_ptr);
+	tmp |= USBMODE_CM_HC;
+#if defined(CONFIG_EHCI_MMIO_BIG_ENDIAN)
+	tmp |= USBMODE_BE;
+#endif
+	ehci_writel(reg_ptr, tmp);
+}
+
+void ehci_set_usbmode(int index)
+	__attribute__((weak, alias("__ehci_set_usbmode")));
+
 void __ehci_powerup_fixup(uint32_t *status_reg, uint32_t *reg)
 {
 	mdelay(50);
@@ -149,8 +174,6 @@ static int handshake(uint32_t *ptr, uint32_t mask, uint32_t done, int usec)
 static int ehci_reset(int index)
 {
 	uint32_t cmd;
-	uint32_t tmp;
-	uint32_t *reg_ptr;
 	int ret = 0;
 
 	cmd = ehci_readl(&ehcic[index].hcor->or_usbcmd);
@@ -163,15 +186,8 @@ static int ehci_reset(int index)
 		goto out;
 	}
 
-	if (ehci_is_TDI()) {
-		reg_ptr = (uint32_t *)((u8 *)ehcic[index].hcor + USBMODE);
-		tmp = ehci_readl(reg_ptr);
-		tmp |= USBMODE_CM_HC;
-#if defined(CONFIG_EHCI_MMIO_BIG_ENDIAN)
-		tmp |= USBMODE_BE;
-#endif
-		ehci_writel(reg_ptr, tmp);
-	}
+	if (ehci_is_TDI())
+		ehci_set_usbmode(index);
 
 #ifdef CONFIG_USB_EHCI_TXFIFO_THRESH
 	cmd = ehci_readl(&ehcic[index].hcor->or_txfilltuning);
@@ -573,10 +589,12 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 		dev->act_len = length - QT_TOKEN_GET_TOTALBYTES(token);
 	} else {
 		dev->act_len = 0;
+#ifndef CONFIG_USB_EHCI_FARADAY
 		debug("dev=%u, usbsts=%#x, p[1]=%#x, p[2]=%#x\n",
 		      dev->devnum, ehci_readl(&ctrl->hcor->or_usbsts),
 		      ehci_readl(&ctrl->hcor->or_portsc[0]),
 		      ehci_readl(&ctrl->hcor->or_portsc[1]));
+#endif
 	}
 
 	free(qtd);
@@ -587,14 +605,15 @@ fail:
 	return -1;
 }
 
-static inline int min3(int a, int b, int c)
+__weak uint32_t *ehci_get_portsc_register(struct ehci_hcor *hcor, int port)
 {
+	if (port < 0 || port >= CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS) {
+		/* Printing the message would cause a scan failure! */
+		debug("The request port(%u) is not configured\n", port);
+		return NULL;
+	}
 
-	if (b < a)
-		a = b;
-	if (c < a)
-		a = c;
-	return a;
+	return (uint32_t *)&hcor->or_portsc[port];
 }
 
 int
@@ -607,15 +626,9 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 	int len, srclen;
 	uint32_t reg;
 	uint32_t *status_reg;
+	int port = le16_to_cpu(req->index) & 0xff;
 	struct ehci_ctrl *ctrl = dev->controller;
 
-	if (le16_to_cpu(req->index) > CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS) {
-		printf("The request port(%d) is not configured\n",
-			le16_to_cpu(req->index) - 1);
-		return -1;
-	}
-	status_reg = (uint32_t *)&ctrl->hcor->or_portsc[
-						le16_to_cpu(req->index) - 1];
 	srclen = 0;
 
 	debug("req=%u (%#x), type=%u (%#x), value=%u, index=%u\n",
@@ -624,6 +637,19 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 	      le16_to_cpu(req->value), le16_to_cpu(req->index));
 
 	typeReq = req->request | req->requesttype << 8;
+
+	switch (typeReq) {
+	case USB_REQ_GET_STATUS | ((USB_RT_PORT | USB_DIR_IN) << 8):
+	case USB_REQ_SET_FEATURE | ((USB_DIR_OUT | USB_RT_PORT) << 8):
+	case USB_REQ_CLEAR_FEATURE | ((USB_DIR_OUT | USB_RT_PORT) << 8):
+		status_reg = ehci_get_portsc_register(ctrl->hcor, port - 1);
+		if (!status_reg)
+			return -1;
+		break;
+	default:
+		status_reg = NULL;
+		break;
+	}
 
 	switch (typeReq) {
 	case DeviceRequest | USB_REQ_GET_DESCRIPTOR:
@@ -711,7 +737,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 			tmpbuf[1] |= USB_PORT_STAT_POWER >> 8;
 
 		if (ehci_is_TDI()) {
-			switch (PORTSC_PSPD(reg)) {
+			switch (ehci_get_port_speed(ctrl->hcor, reg)) {
 			case PORTSC_PSPD_FS:
 				break;
 			case PORTSC_PSPD_LS:
@@ -732,7 +758,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 			tmpbuf[2] |= USB_PORT_STAT_C_ENABLE;
 		if (reg & EHCI_PS_OCC)
 			tmpbuf[2] |= USB_PORT_STAT_C_OVERCURRENT;
-		if (ctrl->portreset & (1 << le16_to_cpu(req->index)))
+		if (ctrl->portreset & (1 << port))
 			tmpbuf[2] |= USB_PORT_STAT_C_RESET;
 
 		srcptr = tmpbuf;
@@ -758,7 +784,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 			    EHCI_PS_IS_LOWSPEED(reg)) {
 				/* Low speed device, give up ownership. */
 				debug("port %d low speed --> companion\n",
-				      req->index - 1);
+				      port - 1);
 				reg |= EHCI_PS_PO;
 				ehci_writel(status_reg, reg);
 				break;
@@ -784,12 +810,16 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 				ret = handshake(status_reg, EHCI_PS_PR, 0,
 						2 * 1000);
 				if (!ret)
-					ctrl->portreset |=
-						1 << le16_to_cpu(req->index);
+					ctrl->portreset |= 1 << port;
 				else
 					printf("port(%d) reset error\n",
-					le16_to_cpu(req->index) - 1);
+					       port - 1);
 			}
+			break;
+		case USB_PORT_FEAT_TEST:
+			reg &= ~(0xf << 16);
+			reg |= ((le16_to_cpu(req->index) >> 8) & 0xf) << 16;
+			ehci_writel(status_reg, reg);
 			break;
 		default:
 			debug("unknown feature %x\n", le16_to_cpu(req->value));
@@ -800,24 +830,26 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 		break;
 	case USB_REQ_CLEAR_FEATURE | ((USB_DIR_OUT | USB_RT_PORT) << 8):
 		reg = ehci_readl(status_reg);
+		reg &= ~EHCI_PS_CLEAR;
 		switch (le16_to_cpu(req->value)) {
 		case USB_PORT_FEAT_ENABLE:
 			reg &= ~EHCI_PS_PE;
 			break;
 		case USB_PORT_FEAT_C_ENABLE:
-			reg = (reg & ~EHCI_PS_CLEAR) | EHCI_PS_PE;
+			reg |= EHCI_PS_PE;
 			break;
 		case USB_PORT_FEAT_POWER:
 			if (HCS_PPC(ehci_readl(&ctrl->hccr->cr_hcsparams)))
-				reg = reg & ~(EHCI_PS_CLEAR | EHCI_PS_PP);
+				reg &= ~EHCI_PS_PP;
+			break;
 		case USB_PORT_FEAT_C_CONNECTION:
-			reg = (reg & ~EHCI_PS_CLEAR) | EHCI_PS_CSC;
+			reg |= EHCI_PS_CSC;
 			break;
 		case USB_PORT_FEAT_OVER_CURRENT:
-			reg = (reg & ~EHCI_PS_CLEAR) | EHCI_PS_OCC;
+			reg |= EHCI_PS_OCC;
 			break;
 		case USB_PORT_FEAT_C_RESET:
-			ctrl->portreset &= ~(1 << le16_to_cpu(req->index));
+			ctrl->portreset &= ~(1 << port);
 			break;
 		default:
 			debug("unknown feature %x\n", le16_to_cpu(req->value));
@@ -894,6 +926,9 @@ int usb_lowlevel_init(int index, void **controller)
 	qh_list->qh_overlay.qt_token =
 			cpu_to_hc32(QT_TOKEN_STATUS(QT_TOKEN_STATUS_HALTED));
 
+	flush_dcache_range((uint32_t)qh_list,
+			   ALIGN_END_ADDR(struct QH, qh_list, 1));
+
 	/* Set async. queue head pointer. */
 	ehci_writel(&ehcic[index].hcor->or_asynclistaddr, (uint32_t)qh_list);
 
@@ -906,6 +941,9 @@ int usb_lowlevel_init(int index, void **controller)
 	periodic->qh_link = cpu_to_hc32(QH_LINK_TERMINATE);
 	periodic->qh_overlay.qt_next = cpu_to_hc32(QT_NEXT_TERMINATE);
 	periodic->qh_overlay.qt_altnext = cpu_to_hc32(QT_NEXT_TERMINATE);
+
+	flush_dcache_range((uint32_t)periodic,
+			   ALIGN_END_ADDR(struct QH, periodic, 1));
 
 	/*
 	 * Step 2: Setup frame-list: Every microframe, USB tries the same list.
@@ -923,6 +961,10 @@ int usb_lowlevel_init(int index, void **controller)
 		ehcic[index].periodic_list[i] = (uint32_t)periodic
 						| QH_LINK_TYPE_QH;
 	}
+
+	flush_dcache_range((uint32_t)ehcic[index].periodic_list,
+			   ALIGN_END_ADDR(uint32_t, ehcic[index].periodic_list,
+					  1024));
 
 	/* Set periodic list base address */
 	ehci_writel(&ehcic[index].hcor->or_periodiclistbase,
@@ -950,10 +992,13 @@ int usb_lowlevel_init(int index, void **controller)
 	cmd |= CMD_RUN;
 	ehci_writel(&ehcic[index].hcor->or_usbcmd, cmd);
 
+#ifndef CONFIG_USB_EHCI_FARADAY
 	/* take control over the ports */
 	cmd = ehci_readl(&ehcic[index].hcor->or_configflag);
 	cmd |= FLAG_CF;
 	ehci_writel(&ehcic[index].hcor->or_configflag, cmd);
+#endif
+
 	/* unblock posted write */
 	cmd = ehci_readl(&ehcic[index].hcor->or_usbcmd);
 	mdelay(5);
@@ -1135,6 +1180,16 @@ create_int_queue(struct usb_device *dev, unsigned long pipe, int queuesize,
 		*buf = buffer + i * elementsize;
 	}
 
+	flush_dcache_range((uint32_t)buffer,
+			   ALIGN_END_ADDR(char, buffer,
+					  queuesize * elementsize));
+	flush_dcache_range((uint32_t)result->first,
+			   ALIGN_END_ADDR(struct QH, result->first,
+					  queuesize));
+	flush_dcache_range((uint32_t)result->tds,
+			   ALIGN_END_ADDR(struct qTD, result->tds,
+					  queuesize));
+
 	if (disable_periodic(ctrl) < 0) {
 		debug("FATAL: periodic should never fail, but did");
 		goto fail3;
@@ -1144,6 +1199,11 @@ create_int_queue(struct usb_device *dev, unsigned long pipe, int queuesize,
 	struct QH *list = &ctrl->periodic_queue;
 	result->last->qh_link = list->qh_link;
 	list->qh_link = (uint32_t)result->first | QH_LINK_TYPE_QH;
+
+	flush_dcache_range((uint32_t)result->last,
+			   ALIGN_END_ADDR(struct QH, result->last, 1));
+	flush_dcache_range((uint32_t)list,
+			   ALIGN_END_ADDR(struct QH, list, 1));
 
 	if (enable_periodic(ctrl) < 0) {
 		debug("FATAL: periodic should never fail, but did");
@@ -1175,6 +1235,8 @@ void *poll_int_queue(struct usb_device *dev, struct int_queue *queue)
 		return NULL;
 	}
 	/* still active */
+	invalidate_dcache_range((uint32_t)cur,
+				ALIGN_END_ADDR(struct QH, cur, 1));
 	if (cur->qh_overlay.qt_token & 0x80) {
 		debug("Exit poll_int_queue with no completed intr transfer. "
 		      "token is %x\n", cur->qh_overlay.qt_token);
@@ -1280,6 +1342,9 @@ submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 		      (uint32_t)backbuffer, (uint32_t)buffer);
 		return -EINVAL;
 	}
+
+	invalidate_dcache_range((uint32_t)buffer,
+				ALIGN_END_ADDR(char, buffer, length));
 
 	ret = destroy_int_queue(dev, queue);
 	if (ret < 0)

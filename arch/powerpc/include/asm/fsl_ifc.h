@@ -21,6 +21,7 @@
 #ifndef __ASM_PPC_FSL_IFC_H
 #define __ASM_PPC_FSL_IFC_H
 
+#ifdef CONFIG_FSL_IFC
 #include <config.h>
 #include <common.h>
 
@@ -798,13 +799,15 @@ extern void init_early_memctl_regs(void);
 #define set_ifc_ftim(i, j, v) \
 			(out_be32(&(IFC_BASE_ADDR)->ftim_cs[i].ftim[j], v))
 
-#define FSL_IFC_BANK_COUNT	4
-
 enum ifc_chip_sel {
 	IFC_CS0,
 	IFC_CS1,
 	IFC_CS2,
 	IFC_CS3,
+	IFC_CS4,
+	IFC_CS5,
+	IFC_CS6,
+	IFC_CS7,
 };
 
 enum ifc_ftims {
@@ -907,6 +910,49 @@ struct fsl_ifc_gpcm {
 	u32 res4[0x1F3];
 };
 
+#ifdef CONFIG_SYS_FSL_IFC_BANK_COUNT
+#if (CONFIG_SYS_FSL_IFC_BANK_COUNT <= 8)
+#define IFC_CSPR_REG_LEN	148
+#define IFC_AMASK_REG_LEN	144
+#define IFC_CSOR_REG_LEN	144
+#define IFC_FTIM_REG_LEN	576
+
+#define IFC_CSPR_USED_LEN	sizeof(struct fsl_ifc_cspr) * \
+					CONFIG_SYS_FSL_IFC_BANK_COUNT
+#define IFC_AMASK_USED_LEN	sizeof(struct fsl_ifc_amask) * \
+					CONFIG_SYS_FSL_IFC_BANK_COUNT
+#define IFC_CSOR_USED_LEN	sizeof(struct fsl_ifc_csor) * \
+					CONFIG_SYS_FSL_IFC_BANK_COUNT
+#define IFC_FTIM_USED_LEN	sizeof(struct fsl_ifc_ftim) * \
+					CONFIG_SYS_FSL_IFC_BANK_COUNT
+#else
+#error IFC BANK count not vaild
+#endif
+#else
+#error IFC BANK count not defined
+#endif
+
+struct fsl_ifc_cspr {
+	u32 cspr_ext;
+	u32 cspr;
+	u32 res;
+};
+
+struct fsl_ifc_amask {
+	u32 amask;
+	u32 res[0x2];
+};
+
+struct fsl_ifc_csor {
+	u32 csor;
+	u32 csor_ext;
+	u32 res;
+};
+
+struct fsl_ifc_ftim {
+	u32 ftim[4];
+	u32 res[0x8];
+};
 
 /*
  * IFC Controller Registers
@@ -914,44 +960,30 @@ struct fsl_ifc_gpcm {
 struct fsl_ifc {
 	u32 ifc_rev;
 	u32 res1[0x2];
-	struct {
-		u32 cspr_ext;
-		u32 cspr;
-		u32 res2;
-	} cspr_cs[FSL_IFC_BANK_COUNT];
-	u32 res3[0x19];
-	struct {
-		u32 amask;
-		u32 res4[0x2];
-	} amask_cs[FSL_IFC_BANK_COUNT];
-	u32 res5[0x17];
-	struct {
-		u32 csor_ext;
-		u32 csor;
-		u32 res6;
-	} csor_cs[FSL_IFC_BANK_COUNT];
-	u32 res7[0x19];
-	struct {
-		u32 ftim[4];
-		u32 res8[0x8];
-	} ftim_cs[FSL_IFC_BANK_COUNT];
-	u32 res9[0x60];
+	struct fsl_ifc_cspr cspr_cs[CONFIG_SYS_FSL_IFC_BANK_COUNT];
+	u8 res2[IFC_CSPR_REG_LEN - IFC_CSPR_USED_LEN];
+	struct fsl_ifc_amask amask_cs[CONFIG_SYS_FSL_IFC_BANK_COUNT];
+	u8 res3[IFC_AMASK_REG_LEN - IFC_AMASK_USED_LEN];
+	struct fsl_ifc_csor csor_cs[CONFIG_SYS_FSL_IFC_BANK_COUNT];
+	u8 res4[IFC_CSOR_REG_LEN - IFC_CSOR_USED_LEN];
+	struct fsl_ifc_ftim ftim_cs[CONFIG_SYS_FSL_IFC_BANK_COUNT];
+	u8 res5[IFC_FTIM_REG_LEN - IFC_FTIM_USED_LEN];
 	u32 rb_stat;
-	u32 res10[0x2];
+	u32 res6[0x2];
 	u32 ifc_gcr;
-	u32 res11[0x2];
+	u32 res7[0x2];
 	u32 cm_evter_stat;
-	u32 res12[0x2];
+	u32 res8[0x2];
 	u32 cm_evter_en;
-	u32 res13[0x2];
+	u32 res9[0x2];
 	u32 cm_evter_intr_en;
-	u32 res14[0x2];
+	u32 res10[0x2];
 	u32 cm_erattr0;
 	u32 cm_erattr1;
-	u32 res15[0x2];
+	u32 res11[0x2];
 	u32 ifc_ccr;
 	u32 ifc_csr;
-	u32 res16[0x2EB];
+	u32 res12[0x2EB];
 	struct fsl_ifc_nand ifc_nand;
 	struct fsl_ifc_nor ifc_nor;
 	struct fsl_ifc_gpcm ifc_gpcm;
@@ -961,6 +993,7 @@ struct fsl_ifc {
 #undef CSPR_MSEL_NOR
 #define CSPR_MSEL_NOR	CSPR_MSEL_GPCM
 #endif
+#endif /* CONFIG_FSL_IFC */
 
 #endif /* __ASSEMBLY__ */
 #endif /* __ASM_PPC_FSL_IFC_H */

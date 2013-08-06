@@ -172,6 +172,9 @@ static void enable_cpc(void)
 #ifdef CONFIG_SYS_FSL_ERRATUM_CPC_A003
 		setbits_be32(&cpc->cpchdbcr0, CPC_HDBCR0_DATA_ECC_SCRUB_DIS);
 #endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A006593
+		setbits_be32(&cpc->cpchdbcr0, 1 << (31 - 21));
+#endif
 
 		out_be32(&cpc->cpccsr0, CPC_CSR0_CE | CPC_CSR0_PE);
 		/* Read back to sync write */
@@ -337,7 +340,7 @@ int enable_cluster_l2(void)
 			while ((in_be32(&l2cache->l2csr0)
 				& (L2CSR0_L2FI|L2CSR0_L2LFC)) != 0)
 					;
-			out_be32(&l2cache->l2csr0, L2CSR0_L2E);
+			out_be32(&l2cache->l2csr0, L2CSR0_L2E|L2CSR0_L2PE|L2CSR0_L2REP_MODE);
 		}
 		i++;
 	} while (!(cluster & TP_CLUSTER_EOC));
@@ -564,7 +567,7 @@ skip_l2:
 
 #ifdef CONFIG_SYS_SRIO
 	srio_init();
-#ifdef CONFIG_SYS_FSL_SRIO_PCIE_BOOT_MASTER 
+#ifdef CONFIG_SRIO_PCIE_BOOT_MASTER
 	char *s = getenv("bootmaster");
 	if (s) {
 		if (!strcmp(s, "SRIO1")) {
@@ -621,6 +624,42 @@ skip_l2:
 		out_be32(&usb_phy2->usb_enable_override,
 				CONFIG_SYS_FSL_USB_ENABLE_OVERRIDE);
 	}
+#endif
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_USB14
+	/* On P204x/P304x/P50x0 Rev1.0, USB transmit will result internal
+	 * multi-bit ECC errors which has impact on performance, so software
+	 * should disable all ECC reporting from USB1 and USB2.
+	 */
+	if (IS_SVR_REV(get_svr(), 1, 0)) {
+		struct dcsr_dcfg_regs *dcfg = (struct dcsr_dcfg_regs *)
+			(CONFIG_SYS_DCSRBAR + CONFIG_SYS_DCSR_DCFG_OFFSET);
+		setbits_be32(&dcfg->ecccr1,
+				(DCSR_DCFG_ECC_DISABLE_USB1 |
+				 DCSR_DCFG_ECC_DISABLE_USB2));
+	}
+#endif
+
+#if defined(CONFIG_SYS_FSL_USB_DUAL_PHY_ENABLE)
+		ccsr_usb_phy_t *usb_phy =
+			(void *)CONFIG_SYS_MPC85xx_USB1_PHY_ADDR;
+		setbits_be32(&usb_phy->pllprg[1],
+			     CONFIG_SYS_FSL_USB_PLLPRG2_PHY2_CLK_EN |
+			     CONFIG_SYS_FSL_USB_PLLPRG2_PHY1_CLK_EN |
+			     CONFIG_SYS_FSL_USB_PLLPRG2_MFI |
+			     CONFIG_SYS_FSL_USB_PLLPRG2_PLL_EN);
+		setbits_be32(&usb_phy->port1.ctrl,
+			     CONFIG_SYS_FSL_USB_CTRL_PHY_EN);
+		setbits_be32(&usb_phy->port1.drvvbuscfg,
+			     CONFIG_SYS_FSL_USB_DRVVBUS_CR_EN);
+		setbits_be32(&usb_phy->port1.pwrfltcfg,
+			     CONFIG_SYS_FSL_USB_PWRFLT_CR_EN);
+		setbits_be32(&usb_phy->port2.ctrl,
+			     CONFIG_SYS_FSL_USB_CTRL_PHY_EN);
+		setbits_be32(&usb_phy->port2.drvvbuscfg,
+			     CONFIG_SYS_FSL_USB_DRVVBUS_CR_EN);
+		setbits_be32(&usb_phy->port2.pwrfltcfg,
+			     CONFIG_SYS_FSL_USB_PWRFLT_CR_EN);
 #endif
 
 #ifdef CONFIG_FMAN_ENET

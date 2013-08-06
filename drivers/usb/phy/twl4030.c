@@ -54,7 +54,7 @@ static int twl4030_usb_write(u8 address, u8 data)
 {
 	int ret;
 
-	ret = twl4030_i2c_write_u8(TWL4030_CHIP_USB, data, address);
+	ret = twl4030_i2c_write_u8(TWL4030_CHIP_USB, address, data);
 	if (ret != 0)
 		printf("TWL4030:USB:Write[0x%x] Error %d\n", address, ret);
 
@@ -66,7 +66,7 @@ static int twl4030_usb_read(u8 address)
 	u8 data;
 	int ret;
 
-	ret = twl4030_i2c_read_u8(TWL4030_CHIP_USB, &data, address);
+	ret = twl4030_i2c_read_u8(TWL4030_CHIP_USB, address, &data);
 	if (ret == 0)
 		ret = data;
 	else
@@ -78,40 +78,40 @@ static int twl4030_usb_read(u8 address)
 static void twl4030_usb_ldo_init(void)
 {
 	/* Enable writing to power configuration registers */
-	twl4030_i2c_write_u8(TWL4030_CHIP_PM_MASTER, 0xC0,
-			     TWL4030_PM_MASTER_PROTECT_KEY);
-	twl4030_i2c_write_u8(TWL4030_CHIP_PM_MASTER, 0x0C,
-			     TWL4030_PM_MASTER_PROTECT_KEY);
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_MASTER,
+			     TWL4030_PM_MASTER_PROTECT_KEY, 0xC0);
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_MASTER,
+			     TWL4030_PM_MASTER_PROTECT_KEY, 0x0C);
 
 	/* put VUSB3V1 LDO in active state */
-	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, 0x00,
-			     TWL4030_PM_RECEIVER_VUSB_DEDICATED2);
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER,
+			     TWL4030_PM_RECEIVER_VUSB_DEDICATED2, 0x00);
 
 	/* input to VUSB3V1 LDO is from VBAT, not VBUS */
-	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, 0x14,
-			     TWL4030_PM_RECEIVER_VUSB_DEDICATED1);
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER,
+			     TWL4030_PM_RECEIVER_VUSB_DEDICATED1, 0x14);
 
 	/* turn on 3.1V regulator */
-	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, 0x20,
-			     TWL4030_PM_RECEIVER_VUSB3V1_DEV_GRP);
-	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, 0x00,
-			     TWL4030_PM_RECEIVER_VUSB3V1_TYPE);
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER,
+			     TWL4030_PM_RECEIVER_VUSB3V1_DEV_GRP, 0x20);
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER,
+			     TWL4030_PM_RECEIVER_VUSB3V1_TYPE, 0x00);
 
 	/* turn on 1.5V regulator */
-	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, 0x20,
-			     TWL4030_PM_RECEIVER_VUSB1V5_DEV_GRP);
-	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, 0x00,
-			     TWL4030_PM_RECEIVER_VUSB1V5_TYPE);
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER,
+			     TWL4030_PM_RECEIVER_VUSB1V5_DEV_GRP, 0x20);
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER,
+			     TWL4030_PM_RECEIVER_VUSB1V5_TYPE, 0x00);
 
 	/* turn on 1.8V regulator */
-	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, 0x20,
-			     TWL4030_PM_RECEIVER_VUSB1V8_DEV_GRP);
-	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, 0x00,
-			     TWL4030_PM_RECEIVER_VUSB1V8_TYPE);
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER,
+			     TWL4030_PM_RECEIVER_VUSB1V8_DEV_GRP, 0x20);
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER,
+			     TWL4030_PM_RECEIVER_VUSB1V8_TYPE, 0x00);
 
 	/* disable access to power configuration registers */
-	twl4030_i2c_write_u8(TWL4030_CHIP_PM_MASTER, 0x00,
-			     TWL4030_PM_MASTER_PROTECT_KEY);
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_MASTER,
+			     TWL4030_PM_MASTER_PROTECT_KEY, 0x00);
 }
 
 static void twl4030_phy_power(void)

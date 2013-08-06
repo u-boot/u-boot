@@ -535,7 +535,7 @@ do_i2cinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	volatile iic_t *iip;
 	uint dpaddr;
 
-	dpaddr = *((unsigned short *) (&immap->im_dprambase[PROFF_I2C_BASE]));
+	dpaddr = immap->im_dprambase16[PROFF_I2C_BASE / sizeof(u16)];
 	if (dpaddr == 0)
 		iip = NULL;
 	else

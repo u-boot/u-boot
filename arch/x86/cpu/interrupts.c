@@ -37,6 +37,8 @@
 #include <asm/msr.h>
 #include <asm/u-boot-x86.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define DECLARE_INTERRUPT(x) \
 	".globl irq_"#x"\n" \
 	".hidden irq_"#x"\n" \

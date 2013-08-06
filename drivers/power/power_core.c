@@ -205,7 +205,8 @@ int do_pmic(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 		if (strcmp(argv[3], "charge") == 0) {
 			if (p->pbat) {
-				printf("PRINT BAT charge %s\n", p->name);
+				printf("BAT: %s charging (ctrl+c to break)\n",
+				       p->name);
 				if (p->low_power_mode)
 					p->low_power_mode();
 				if (p->pbat->battery_charge)

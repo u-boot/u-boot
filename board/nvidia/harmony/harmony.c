@@ -22,6 +22,7 @@
  */
 
 #include <common.h>
+#include <lcd.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/funcmux.h>
@@ -58,4 +59,10 @@ void pin_mux_usb(void)
 	pinmux_tristate_disable(PINGRP_CDEV2);
 	/* USB2 PHY reset GPIO */
 	pinmux_tristate_disable(PINGRP_UAC);
+}
+
+void pin_mux_display(void)
+{
+	pinmux_set_func(PINGRP_SDC, PMUX_FUNC_PWM);
+	pinmux_tristate_disable(PINGRP_SDC);
 }

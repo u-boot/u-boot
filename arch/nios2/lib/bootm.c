@@ -40,10 +40,16 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 	if (images->ft_len)
 		of_flat_tree = images->ft_addr;
 #endif
-	if (!of_flat_tree && argc > 3)
-		of_flat_tree = (char *)simple_strtoul(argv[3], NULL, 16);
+	if (!of_flat_tree && argc > 1)
+		of_flat_tree = (char *)simple_strtoul(argv[1], NULL, 16);
 	if (of_flat_tree)
 		initrd_end = (ulong)of_flat_tree;
+
+	/*
+	 * allow the PREP bootm subcommand, it is required for bootm to work
+	 */
+	if (flag & BOOTM_STATE_OS_PREP)
+		return 0;
 
 	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
 		return 1;

@@ -26,10 +26,11 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#include <palmas.h>
 #include <asm/arch/omap.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/omap_common.h>
-#include <asm/arch/clocks.h>
+#include <asm/arch/clock.h>
 #include <asm/omap_gpio.h>
 #include <asm/io.h>
 #include <asm/emif.h>
@@ -41,7 +42,7 @@ struct dplls const **dplls_data =
 struct vcores_data const **omap_vcores =
 		(struct vcores_data const **) OMAP_SRAM_SCRATCH_VCORES_PTR;
 struct omap_sys_ctrl_regs const **ctrl =
-	(struct omap_sys_ctrl_regs const **)OMAP5_SRAM_SCRATCH_SYS_CTRL;
+	(struct omap_sys_ctrl_regs const **)OMAP_SRAM_SCRATCH_SYS_CTRL;
 
 /* OPP HIGH FREQUENCY for ES2.0 */
 static const struct dpll_params mpu_dpll_params_1_5ghz[NUM_SYS_CLKS] = {
@@ -99,14 +100,13 @@ static const struct dpll_params mpu_dpll_params_499mhz[NUM_SYS_CLKS] = {
 };
 
 static const struct dpll_params mpu_dpll_params_1ghz[NUM_SYS_CLKS] = {
-	{250, 2, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 12 MHz   */
-	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 13 MHz   */
-	{119, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 16.8 MHz */
-	{625, 11, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 19.2 MHz */
-	{500, 12, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 26 MHz   */
+	{250, 2, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1},		/* 12 MHz   */
+	{500, 9, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1},		/* 20 MHz   */
+	{119, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1},		/* 16.8 MHz */
+	{625, 11, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 19.2 MHz */
+	{500, 12, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 26 MHz   */
 	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
-	{625, 23, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 38.4 MHz */
-	{50, 0, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1}		/* 20 MHz   */
+	{625, 23, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 38.4 MHz */
 };
 
 static const struct dpll_params
@@ -132,15 +132,14 @@ static const struct dpll_params
 };
 
 static const struct dpll_params
-		core_dpll_params_2128mhz_ddr532_dra7xx[NUM_SYS_CLKS] = {
-	{266, 2, 2, -1, -1, 4, 62, 5, -1, 5, 7, 6},		/* 12 MHz   */
-	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 13 MHz   */
-	{443, 6, 2, -1, -1, 4, 62, 5, -1, 5, 7, 6},		/* 16.8 MHz */
-	{277, 4, 2, -1, -1, 4, 62, 5, -1, 5, 7, 6},		/* 19.2 MHz */
-	{368, 8, 2, -1, -1, 4, 62, 5, -1, 5, 7, 6},		/* 26 MHz   */
+		core_dpll_params_2128mhz_dra7xx[NUM_SYS_CLKS] = {
+	{266, 2, 2, 1, -1, 4, 62, 5, -1, 5, 4, 6},		/* 12 MHz   */
+	{266, 4, 2, 1, -1, 4, 62, 5, -1, 5, 4, 6},		/* 20 MHz   */
+	{443, 6, 2, 1, -1, 4, 62, 5, -1, 5, 4, 6},		/* 16.8 MHz */
+	{277, 4, 2, 1, -1, 4, 62, 5, -1, 5, 4, 6},		/* 19.2 MHz */
+	{368, 8, 2, 1, -1, 4, 62, 5, -1, 5, 4, 6},		/* 26 MHz   */
 	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
-	{277, 9, 2, -1, -1, 4, 62, 5, -1, 5, 7, 6},		/* 38.4 MHz */
-	{266, 4, 2, -1, -1, 4, 62, 5, -1, 5, 7, 6}		/* 20 MHz   */
+	{277, 9, 2, 1, -1, 4, 62, 5, -1, 5, 4, 6},		/* 38.4 MHz */
 };
 
 static const struct dpll_params
@@ -186,14 +185,13 @@ static const struct dpll_params per_dpll_params_768mhz_es2[NUM_SYS_CLKS] = {
 };
 
 static const struct dpll_params per_dpll_params_768mhz_dra7xx[NUM_SYS_CLKS] = {
-	{32, 0, 4, -1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 12 MHz   */
-	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 13 MHz   */
-	{160, 6, 4, -1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 16.8 MHz */
-	{20, 0, 4, -1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 19.2 MHz */
-	{192, 12, 4, -1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 26 MHz   */
+	{32, 0, 4, 1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 12 MHz   */
+	{96, 4, 4, 1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 20 MHz   */
+	{160, 6, 4, 1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 16.8 MHz */
+	{20, 0, 4, 1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 19.2 MHz */
+	{192, 12, 4, 1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 26 MHz   */
 	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
-	{10, 0, 4, -1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 38.4 MHz */
-	{96, 4, 4, -1, 3, 4, 10, 2, -1, -1, -1, -1}		/* 20 MHz   */
+	{10, 0, 4, 1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 38.4 MHz */
 };
 
 static const struct dpll_params iva_dpll_params_2330mhz[NUM_SYS_CLKS] = {
@@ -204,6 +202,16 @@ static const struct dpll_params iva_dpll_params_2330mhz[NUM_SYS_CLKS] = {
 	{224, 4, -1, -1, 5, 6, -1, -1, -1, -1, -1, -1},		/* 26 MHz   */
 	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
 	{91, 2, -1, -1, 5, 6, -1, -1, -1, -1, -1, -1}		/* 38.4 MHz */
+};
+
+static const struct dpll_params iva_dpll_params_2330mhz_dra7xx[NUM_SYS_CLKS] = {
+	{1165, 11, 3, 1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 12 MHz   */
+	{233, 3, 3, 1, -1, -1, -1, -1, -1, -1, -1, -1},		/* 20 MHz */
+	{208, 2, 3, 1, -1, -1, -1, -1, -1, -1, -1, -1},		/* 16.8 MHz */
+	{182, 2, 3, 1, -1, -1, -1, -1, -1, -1, -1, -1},		/* 19.2 MHz */
+	{224, 4, 3, 1, -1, -1, -1, -1, -1, -1, -1, -1},		/* 26 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
+	{91, 2, 3, 1, -1, -1, -1, -1, -1, -1, -1, -1},		/* 38.4 MHz */
 };
 
 /* ABE M & N values with sys_clk as source */
@@ -223,26 +231,36 @@ static const struct dpll_params abe_dpll_params_32k_196608khz = {
 	750, 0, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1
 };
 
+/* ABE M & N values with sysclk2(22.5792 MHz) as input */
+static const struct dpll_params
+		abe_dpll_params_sysclk2_361267khz[NUM_SYS_CLKS] = {
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 12 MHz   */
+	{16, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1},		/* 20 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 16.8 MHz */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 19.2 MHz */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 26 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 38.4 MHz */
+};
+
 static const struct dpll_params usb_dpll_params_1920mhz[NUM_SYS_CLKS] = {
 	{400, 4, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 12 MHz   */
-	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 13 MHz   */
+	{480, 9, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 20 MHz   */
 	{400, 6, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 16.8 MHz */
 	{400, 7, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 19.2 MHz */
 	{480, 12, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 26 MHz   */
 	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
 	{400, 15, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 38.4 MHz */
-	{48, 0, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1}		/* 20 MHz   */
 };
 
-static const struct dpll_params ddr_dpll_params_1066mhz[NUM_SYS_CLKS] = {
-	{533, 11, 1, 1, 4, -1, -1, -1, -1, -1, -1, -1},		/* 12 MHz   */
-	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 13 MHz   */
-	{222, 6, 1, 1, 4, -1, -1, -1, -1, -1, -1, -1},		/* 16.8 MHz */
-	{111, 3, 1, 1, 4, -1, -1, -1, -1, -1, -1, -1},		/* 19.2 MHz */
-	{41, 1, 1, 1, 4, -1, -1, -1, -1, -1, -1, -1},		/* 26 MHz   */
+static const struct dpll_params ddr_dpll_params_2128mhz[NUM_SYS_CLKS] = {
+	{266, 2, 2, 1, 8, -1, -1, -1, -1, -1, -1, -1},		/* 12 MHz   */
+	{266, 4, 2, 1, 8, -1, -1, -1, -1, -1, -1, -1},		/* 20 MHz   */
+	{190, 2, 2, 1, 8, -1, -1, -1, -1, -1, -1, -1},		/* 16.8 MHz */
+	{665, 11, 2, 1, 8, -1, -1, -1, -1, -1, -1, -1},		/* 19.2 MHz */
+	{532, 12, 2, 1, 8, -1, -1, -1, -1, -1, -1, -1},		/* 26 MHz   */
 	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
-	{347, 24, 1, 1, 4, -1, -1, -1, -1, -1, -1, -1},		/* 38.4 MHz */
-	{533, 19, 1, 1, 4, -1, -1, -1, -1, -1, -1, -1}		/* 20 MHz   */
+	{665, 23, 2, 1, 8, -1, -1, -1, -1, -1, -1, -1},		/* 38.4 MHz */
 };
 
 struct dplls omap5_dplls_es1 = {
@@ -275,10 +293,12 @@ struct dplls omap5_dplls_es2 = {
 
 struct dplls dra7xx_dplls = {
 	.mpu = mpu_dpll_params_1ghz,
-	.core = core_dpll_params_2128mhz_ddr532_dra7xx,
+	.core = core_dpll_params_2128mhz_dra7xx,
 	.per = per_dpll_params_768mhz_dra7xx,
+	.abe = abe_dpll_params_sysclk2_361267khz,
+	.iva = iva_dpll_params_2330mhz_dra7xx,
 	.usb = usb_dpll_params_1920mhz,
-	.ddr = ddr_dpll_params_1066mhz,
+	.ddr = ddr_dpll_params_2128mhz,
 };
 
 struct pmic_data palmas = {
@@ -289,6 +309,22 @@ struct pmic_data palmas = {
 	 * Offset code 0 switches OFF the SMPS
 	 */
 	.start_code = 6,
+	.i2c_slave_addr	= SMPS_I2C_SLAVE_ADDR,
+	.pmic_bus_init	= sri2c_init,
+	.pmic_write	= omap_vc_bypass_send_value,
+};
+
+struct pmic_data tps659038 = {
+	.base_offset = PALMAS_SMPS_BASE_VOLT_UV,
+	.step = 10000, /* 10 mV represented in uV */
+	/*
+	 * Offset codes 1-6 all give the base voltage in Palmas
+	 * Offset code 0 switches OFF the SMPS
+	 */
+	.start_code = 6,
+	.i2c_slave_addr	= TPS659038_I2C_SLAVE_ADDR,
+	.pmic_bus_init	= gpi2c_init,
+	.pmic_write	= palmas_i2c_write_u8,
 };
 
 struct vcores_data omap5430_volts = {
@@ -319,6 +355,38 @@ struct vcores_data omap5430_volts_es2 = {
 	.mm.pmic = &palmas,
 };
 
+struct vcores_data dra752_volts = {
+	.mpu.value	= VDD_MPU_DRA752,
+	.mpu.efuse.reg	= STD_FUSE_OPP_VMIN_MPU_NOM,
+	.mpu.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.mpu.addr	= TPS659038_REG_ADDR_SMPS12_MPU,
+	.mpu.pmic	= &tps659038,
+
+	.eve.value	= VDD_EVE_DRA752,
+	.eve.efuse.reg	= STD_FUSE_OPP_VMIN_DSPEVE_NOM,
+	.eve.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.eve.addr	= TPS659038_REG_ADDR_SMPS45_EVE,
+	.eve.pmic	= &tps659038,
+
+	.gpu.value	= VDD_GPU_DRA752,
+	.gpu.efuse.reg	= STD_FUSE_OPP_VMIN_GPU_NOM,
+	.gpu.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.gpu.addr	= TPS659038_REG_ADDR_SMPS6_GPU,
+	.gpu.pmic	= &tps659038,
+
+	.core.value	= VDD_CORE_DRA752,
+	.core.efuse.reg	= STD_FUSE_OPP_VMIN_CORE_NOM,
+	.core.efuse.reg_bits = DRA752_EFUSE_REGBITS,
+	.core.addr	= TPS659038_REG_ADDR_SMPS7_CORE,
+	.core.pmic	= &tps659038,
+
+	.iva.value	= VDD_IVA_DRA752,
+	.iva.efuse.reg	= STD_FUSE_OPP_VMIN_IVA_NOM,
+	.iva.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.iva.addr	= TPS659038_REG_ADDR_SMPS8_IVA,
+	.iva.pmic	= &tps659038,
+};
+
 /*
  * Enable essential clock domains, modules and
  * do some additional special settings needed
@@ -344,6 +412,8 @@ void enable_basic_clocks(void)
 		(*prcm)->cm_l4per_gpio4_clkctrl,
 		(*prcm)->cm_l4per_gpio5_clkctrl,
 		(*prcm)->cm_l4per_gpio6_clkctrl,
+		(*prcm)->cm_l4per_gpio7_clkctrl,
+		(*prcm)->cm_l4per_gpio8_clkctrl,
 		0
 	};
 
@@ -383,12 +453,6 @@ void enable_basic_clocks(void)
 			 clk_modules_explicit_en_essential,
 			 1);
 
-	/* Select 384Mhz for GPU as its the POR for ES1.0 */
-	setbits_le32((*prcm)->cm_sgx_sgx_clkctrl,
-			CLKSEL_GPU_HYD_GCLK_MASK);
-	setbits_le32((*prcm)->cm_sgx_sgx_clkctrl,
-			CLKSEL_GPU_CORE_GCLK_MASK);
-
 	/* Enable SCRM OPT clocks for PER and CORE dpll */
 	setbits_le32((*prcm)->cm_wkupaon_scrm_clkctrl,
 			OPTFCLKEN_SCRM_PER_MASK);
@@ -403,6 +467,7 @@ void enable_basic_uboot_clocks(void)
 	};
 
 	u32 const clk_modules_hw_auto_essential[] = {
+		(*prcm)->cm_l3init_hsusbtll_clkctrl,
 		0
 	};
 
@@ -411,7 +476,7 @@ void enable_basic_uboot_clocks(void)
 		(*prcm)->cm_l4per_i2c2_clkctrl,
 		(*prcm)->cm_l4per_i2c3_clkctrl,
 		(*prcm)->cm_l4per_i2c4_clkctrl,
-		(*prcm)->cm_l3init_hsusbtll_clkctrl,
+		(*prcm)->cm_l4per_i2c5_clkctrl,
 		(*prcm)->cm_l3init_hsusbhost_clkctrl,
 		(*prcm)->cm_l3init_fsusb_clkctrl,
 		0
@@ -539,6 +604,17 @@ const struct ctrl_ioregs ioregs_omap5432_es2 = {
 	.ctrl_emif_sdram_config_ext = SDRAM_CONFIG_EXT_RD_LVL_11_SAMPLES,
 };
 
+const struct ctrl_ioregs ioregs_dra7xx_es1 = {
+	.ctrl_ddrch = 0x40404040,
+	.ctrl_lpddr2ch = 0x40404040,
+	.ctrl_ddr3ch = 0x80808080,
+	.ctrl_ddrio_0 = 0xbae8c631,
+	.ctrl_ddrio_1 = 0xb46318d8,
+	.ctrl_ddrio_2 = 0x84210000,
+	.ctrl_emif_sdram_config_ext = 0xb2c00000,
+	.ctrl_ddr_ctrl_ext_0 = 0xA2000000,
+};
+
 void hw_data_init(void)
 {
 	u32 omap_rev = omap_revision();
@@ -564,7 +640,7 @@ void hw_data_init(void)
 	case DRA752_ES1_0:
 	*prcm = &dra7xx_prcm;
 	*dplls_data = &dra7xx_dplls;
-	*omap_vcores = &omap5430_volts_es2;
+	*omap_vcores = &dra752_volts;
 	*ctrl = &dra7xx_ctrl;
 	break;
 
@@ -581,14 +657,16 @@ void get_ioregs(const struct ctrl_ioregs **regs)
 	case OMAP5430_ES1_0:
 	case OMAP5430_ES2_0:
 		*regs = &ioregs_omap5430;
-	break;
+		break;
 	case OMAP5432_ES1_0:
 		*regs = &ioregs_omap5432_es1;
-	break;
+		break;
 	case OMAP5432_ES2_0:
-	case DRA752_ES1_0:
 		*regs = &ioregs_omap5432_es2;
-	break;
+		break;
+	case DRA752_ES1_0:
+		*regs = &ioregs_dra7xx_es1;
+		break;
 
 	default:
 		printf("\n INVALID OMAP REVISION ");

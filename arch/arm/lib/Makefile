@@ -39,12 +39,14 @@ GLCOBJS	+= div0.o
 SOBJS-y += crt0.o
 
 ifndef CONFIG_SPL_BUILD
+SOBJS-y += relocate.o
 ifndef CONFIG_SYS_GENERIC_BOARD
 COBJS-y	+= board.o
 endif
-COBJS-y += bss.o
+COBJS-y += sections.o
 
-COBJS-y	+= bootm.o
+COBJS-$(CONFIG_OF_LIBFDT) += bootm-fdt.o
+COBJS-$(CONFIG_CMD_BOOTM) += bootm.o
 COBJS-$(CONFIG_SYS_L2_PL310) += cache-pl310.o
 SOBJS-$(CONFIG_USE_ARCH_MEMSET) += memset.o
 SOBJS-$(CONFIG_USE_ARCH_MEMCPY) += memcpy.o

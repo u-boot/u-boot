@@ -72,6 +72,7 @@ int tegra_get_chip_sku(void)
 	switch (chip_id) {
 	case CHIPID_TEGRA20:
 		switch (sku_id) {
+		case SKU_ID_T20_7:
 		case SKU_ID_T20:
 			return TEGRA_SOC_T20;
 		case SKU_ID_T25SE:
@@ -92,6 +93,7 @@ int tegra_get_chip_sku(void)
 	case CHIPID_TEGRA114:
 		switch (sku_id) {
 		case SKU_ID_T114_ENG:
+		case SKU_ID_T114_1:
 			return TEGRA_SOC_T114;
 		}
 		break;
@@ -106,6 +108,10 @@ static void enable_scu(void)
 {
 	struct scu_ctlr *scu = (struct scu_ctlr *)NV_PA_ARM_PERIPHBASE;
 	u32 reg;
+
+	/* Only enable the SCU on T20/T25 */
+	if (tegra_get_chip() != CHIPID_TEGRA20)
+		return;
 
 	/* If SCU already setup/enabled, return */
 	if (readl(&scu->scu_ctrl) & SCU_CTRL_ENABLE)

@@ -152,13 +152,11 @@ struct spi_slave *tegra114_spi_setup_slave(unsigned int bus, unsigned int cs,
 		return NULL;
 	}
 
-	spi = malloc(sizeof(struct tegra_spi_slave));
+	spi = spi_alloc_slave(struct tegra_spi_slave, bus, cs);
 	if (!spi) {
 		printf("SPI error: malloc of SPI structure failed\n");
 		return NULL;
 	}
-	spi->slave.bus = bus;
-	spi->slave.cs = cs;
 	spi->ctrl = &spi_ctrls[bus];
 	if (!spi->ctrl) {
 		printf("SPI error: could not find controller for bus %d\n",

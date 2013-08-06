@@ -25,7 +25,9 @@ include $(TOPDIR)/config.mk
 
 LIB	:= $(obj)libmtd.o
 
-COBJS-$(CONFIG_MTD_DEVICE) += mtdcore.o
+ifneq (,$(findstring y,$(CONFIG_MTD_DEVICE)$(CONFIG_CMD_NAND)$(CONFIG_CMD_ONENAND)))
+COBJS-y += mtdcore.o
+endif
 COBJS-$(CONFIG_MTD_PARTITIONS) += mtdpart.o
 COBJS-$(CONFIG_MTD_CONCAT) += mtdconcat.o
 COBJS-$(CONFIG_HAS_DATAFLASH) += at45.o

@@ -117,6 +117,23 @@
 #define MT41J512M8RH125_PHY_WR_DATA		0x74
 #define MT41J512M8RH125_IOCTRL_VALUE		0x18B
 
+/* Samsung K4B2G1646E-BIH9 */
+#define K4B2G1646EBIH9_EMIF_READ_LATENCY	0x06
+#define K4B2G1646EBIH9_EMIF_TIM1		0x0888A39B
+#define K4B2G1646EBIH9_EMIF_TIM2		0x2A04011A
+#define K4B2G1646EBIH9_EMIF_TIM3		0x501F820F
+#define K4B2G1646EBIH9_EMIF_SDCFG		0x61C24AB2
+#define K4B2G1646EBIH9_EMIF_SDREF		0x0000093B
+#define K4B2G1646EBIH9_ZQ_CFG			0x50074BE4
+#define K4B2G1646EBIH9_DLL_LOCK_DIFF		0x1
+#define K4B2G1646EBIH9_RATIO			0x40
+#define K4B2G1646EBIH9_INVERT_CLKOUT		0x1
+#define K4B2G1646EBIH9_RD_DQS			0x3B
+#define K4B2G1646EBIH9_WR_DQS			0x85
+#define K4B2G1646EBIH9_PHY_FIFO_WE		0x100
+#define K4B2G1646EBIH9_PHY_WR_DATA		0xC1
+#define K4B2G1646EBIH9_IOCTRL_VALUE		0x18B
+
 /**
  * Configure DMM
  */
@@ -267,7 +284,6 @@ void config_ddr_data(const struct ddr_data *data, int nr);
  * This structure represents the DDR io control on AM33XX devices.
  */
 struct ddr_cmdtctrl {
-	unsigned int resv1[1];
 	unsigned int cm0ioctl;
 	unsigned int cm1ioctl;
 	unsigned int cm2ioctl;

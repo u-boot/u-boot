@@ -59,6 +59,12 @@ int board_early_init_f(void)
 	gpio_direction_output(MX28_PAD_AUART2_RX__GPIO_3_8, 1);
 #endif
 
+	/* Power on LCD */
+	gpio_direction_output(MX28_PAD_LCD_RESET__GPIO_3_30, 1);
+
+	/* Set contrast to maximum */
+	gpio_direction_output(MX28_PAD_PWM2__GPIO_3_18, 1);
+
 	return 0;
 }
 

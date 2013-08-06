@@ -82,8 +82,9 @@ void scsi_ident_cpy (unsigned char *dest, unsigned char *src, unsigned int len);
 
 static int scsi_read_capacity(ccb *pccb, lbaint_t *capacity,
 			      unsigned long *blksz);
-static ulong scsi_read(int device, ulong blknr, lbaint_t blkcnt, void *buffer);
-static ulong scsi_write(int device, ulong blknr,
+static ulong scsi_read(int device, lbaint_t blknr, lbaint_t blkcnt,
+		       void *buffer);
+static ulong scsi_write(int device, lbaint_t blknr,
 			lbaint_t blkcnt, const void *buffer);
 
 
@@ -106,6 +107,8 @@ void scsi_scan(int mode)
 		scsi_dev_desc[i].lun=0xff;
 		scsi_dev_desc[i].lba=0;
 		scsi_dev_desc[i].blksz=0;
+		scsi_dev_desc[i].log2blksz =
+			LOG2_INVALID(typeof(scsi_dev_desc[i].log2blksz));
 		scsi_dev_desc[i].type=DEV_TYPE_UNKNOWN;
 		scsi_dev_desc[i].vendor[0]=0;
 		scsi_dev_desc[i].product[0]=0;
@@ -166,6 +169,8 @@ void scsi_scan(int mode)
 			}
 			scsi_dev_desc[scsi_max_devs].lba=capacity;
 			scsi_dev_desc[scsi_max_devs].blksz=blksz;
+			scsi_dev_desc[scsi_max_devs].log2blksz =
+				LOG2(scsi_dev_desc[scsi_max_devs].blksz);
 			scsi_dev_desc[scsi_max_devs].type=perq;
 			init_part(&scsi_dev_desc[scsi_max_devs]);
 removable:
@@ -368,7 +373,8 @@ int do_scsi (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 #define SCSI_MAX_READ_BLK 0xFFFF /* almost the maximum amount of the scsi_ext command.. */
 
-static ulong scsi_read(int device, ulong blknr, lbaint_t blkcnt, void *buffer)
+static ulong scsi_read(int device, lbaint_t blknr, lbaint_t blkcnt,
+		       void *buffer)
 {
 	lbaint_t start, blks;
 	uintptr_t buf_addr;
@@ -423,7 +429,7 @@ static ulong scsi_read(int device, ulong blknr, lbaint_t blkcnt, void *buffer)
 /* Almost the maximum amount of the scsi_ext command.. */
 #define SCSI_MAX_WRITE_BLK 0xFFFF
 
-static ulong scsi_write(int device, ulong blknr,
+static ulong scsi_write(int device, lbaint_t blknr,
 			lbaint_t blkcnt, const void *buffer)
 {
 	lbaint_t start, blks;

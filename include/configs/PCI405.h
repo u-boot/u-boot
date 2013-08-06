@@ -141,6 +141,7 @@
 #define PCI_HOST_AUTO	2		/* detected via arbiter enable	*/
 
 #define CONFIG_PCI			/* include pci support		*/
+#define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
 #define CONFIG_PCI_HOST PCI_HOST_ADAPTER /* select pci host function	*/
 #undef	CONFIG_PCI_PNP			/* no pci plug-and-play		*/
 					/* resource configuration	*/

@@ -149,6 +149,9 @@ flash_write (char *src, ulong addr, ulong cnt)
 	flash_info_t *info_first = addr2info (addr);
 	flash_info_t *info_last  = addr2info (end );
 	flash_info_t *info;
+	__maybe_unused char *src_orig = src;
+	__maybe_unused char *addr_orig = (char *)addr;
+	__maybe_unused ulong cnt_orig = cnt;
 
 	if (cnt == 0) {
 		return (ERR_OK);
@@ -185,6 +188,14 @@ flash_write (char *src, ulong addr, ulong cnt)
 		addr += len;
 		src  += len;
 	}
+
+#if defined(CONFIG_FLASH_VERIFY)
+	if (memcmp(src_orig, addr_orig, cnt_orig)) {
+		printf("\nVerify failed!\n");
+		return ERR_PROG_ERROR;
+	}
+#endif /* CONFIG_SYS_FLASH_VERIFY_AFTER_WRITE */
+
 	return (ERR_OK);
 #endif /* CONFIG_SPD823TS */
 }

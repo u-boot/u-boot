@@ -29,35 +29,12 @@
  * at 0x40304000(EMU base) so that our code works for both EMU and GP
  */
 #ifdef CONFIG_AM33XX
-#define NON_SECURE_SRAM_START	0x40304000
-#define NON_SECURE_SRAM_END	0x4030E000
+#define NON_SECURE_SRAM_START	0x402F0400
+#define NON_SECURE_SRAM_END	0x40310000
+#define SRAM_SCRATCH_SPACE_ADDR	0x4030C000
 #elif defined(CONFIG_TI814X)
 #define NON_SECURE_SRAM_START	0x40300000
 #define NON_SECURE_SRAM_END	0x40320000
-#endif
-
-/* ROM code defines */
-/* Boot device */
-#define BOOT_DEVICE_MASK	0xFF
-#define BOOT_DEVICE_OFFSET	0x8
-#define DEV_DESC_PTR_OFFSET	0x4
-#define DEV_DATA_PTR_OFFSET	0x18
-#define BOOT_MODE_OFFSET	0x8
-#define RESET_REASON_OFFSET	0x9
-#define CH_FLAGS_OFFSET		0xA
-
-#define CH_FLAGS_CHSETTINGS	(0x1 << 0)
-#define CH_FLAGS_CHRAM		(0x1 << 1)
-#define CH_FLAGS_CHFLASH	(0x1 << 2)
-#define CH_FLAGS_CHMMCSD	(0x1 << 3)
-
-#ifndef __ASSEMBLY__
-struct omap_boot_parameters {
-	char *boot_message;
-	unsigned int mem_boot_descriptor;
-	unsigned char omap_bootdevice;
-	unsigned char reset_reason;
-	unsigned char ch_flags;
-};
+#define SRAM_SCRATCH_SPACE_ADDR	0x4031B800
 #endif
 #endif

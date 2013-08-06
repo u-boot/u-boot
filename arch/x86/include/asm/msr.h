@@ -85,7 +85,8 @@ static inline unsigned long long native_read_tscp(unsigned int *aux)
 #define EAX_EDX_RET(val, low, high)	"=A" (val)
 #endif
 
-static inline unsigned long long native_read_msr(unsigned int msr)
+static inline __attribute__((no_instrument_function))
+	unsigned long long native_read_msr(unsigned int msr)
 {
 	DECLARE_ARGS(val, low, high);
 

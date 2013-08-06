@@ -45,10 +45,6 @@
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
-/* Clock Defines */
-#define V_OSCK			19200000	/* Clock output from T2 */
-#define V_SCLK	V_OSCK
-
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_OF_LIBFDT
@@ -81,10 +77,9 @@
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #define CONFIG_SYS_NS16550_CLK		V_NS16550_CLK
-#define CONFIG_CONS_INDEX		3
-#define CONFIG_SYS_NS16550_COM3		UART3_BASE
 
-#define CONFIG_BAUDRATE			115200
+/* CPU */
+#define CONFIG_ARCH_CPU_INIT
 
 /* I2C  */
 #define CONFIG_HARD_I2C
@@ -141,19 +136,22 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
-	"console=ttyO2,115200n8\0" \
+	"console=" CONSOLEDEV ",115200n8\0" \
 	"fdt_high=0xffffffff\0" \
 	"fdtaddr=0x80f80000\0" \
+	"fdtfile=undefined\0" \
 	"bootpart=0:2\0" \
 	"bootdir=/boot\0" \
 	"bootfile=zImage\0" \
 	"usbtty=cdc_acm\0" \
 	"vram=16M\0" \
 	"partitions=" PARTS_DEFAULT "\0" \
+	"optargs=\0" \
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \
 	"mmcrootfstype=ext4 rootwait\0" \
 	"mmcargs=setenv bootargs console=${console} " \
+		"${optargs} " \
 		"vram=${vram} " \
 		"root=${mmcroot} " \
 		"rootfstype=${mmcrootfstype}\0" \
@@ -169,7 +167,11 @@
 		"bootz ${loadaddr} - ${fdtaddr}\0" \
 	"findfdt="\
 		"if test $board_name = omap5_uevm; then " \
-			"setenv fdtfile omap5-uevm.dtb; fi;\0 " \
+			"setenv fdtfile omap5-uevm.dtb; fi; " \
+		"if test $board_name = dra7xx; then " \
+			"setenv fdtfile dra7-evm.dtb; fi;" \
+		"if test $fdtfile = undefined; then " \
+			"echo WARNING: Could not determine device tree to use; fi; \0" \
 	"loadfdt=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile};\0" \
 
 #define CONFIG_BOOTCOMMAND \
@@ -239,6 +241,10 @@
 #ifndef CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS
 #define CONFIG_SYS_AUTOMATIC_SDRAM_DETECTION
 #define CONFIG_SYS_DEFAULT_LPDDR2_TIMINGS
+#endif
+
+#ifndef CONFIG_SPL_BUILD
+#define CONFIG_PALMAS_POWER
 #endif
 
 /* Defines for SPL */

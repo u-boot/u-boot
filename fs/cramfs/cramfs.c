@@ -126,7 +126,8 @@ static unsigned long cramfs_resolve (unsigned long begin, unsigned long offset,
 			namelen--;
 		}
 
-		if (!strncmp (filename, name, namelen)) {
+		if (!strncmp(filename, name, namelen) &&
+		    (namelen == strlen(filename))) {
 			char *p = strtok (NULL, "/");
 
 			if (raw && (p == NULL || *p == '\0'))

@@ -127,6 +127,7 @@ typedef struct cpm_buf_desc {
 */
 #define PROFF_SCC1	((uint)0x0000)
 #define PROFF_IIC	((uint)0x0080)
+#define PROFF_REVNUM	((uint)0x00b0)
 #define PROFF_SCC2	((uint)0x0100)
 #define PROFF_SPI	((uint)0x0180)
 #define PROFF_SCC3	((uint)0x0200)

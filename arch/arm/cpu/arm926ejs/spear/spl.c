@@ -31,13 +31,6 @@
 #include <asm/arch/spr_misc.h>
 #include <asm/arch/spr_syscntl.h>
 
-inline void hang(void)
-{
-	serial_puts("### ERROR ### Please RESET the board ###\n");
-	for (;;)
-		;
-}
-
 static void ddr_clock_init(void)
 {
 	struct misc_regs *misc_p = (struct misc_regs *)CONFIG_SPEAR_MISCBASE;

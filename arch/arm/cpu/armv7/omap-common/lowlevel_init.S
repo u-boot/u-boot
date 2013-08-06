@@ -28,59 +28,13 @@
 
 #include <config.h>
 #include <asm/arch/omap.h>
+#include <asm/omap_common.h>
 #include <asm/arch/spl.h>
 #include <linux/linkage.h>
 
 ENTRY(save_boot_params)
-	/*
-	 * See if the rom code passed pointer is valid:
-	 * It is not valid if it is not in non-secure SRAM
-	 * This may happen if you are booting with the help of
-	 * debugger
-	 */
-	ldr     r2, =NON_SECURE_SRAM_START
-	cmp	r2, r0
-	bgt	1f
-	ldr	r2, =NON_SECURE_SRAM_END
-	cmp	r2, r0
-	blt	1f
-
-	/*
-	 * store the boot params passed from rom code or saved
-	 * and passed by SPL
-	 */
-	cmp	r0, #0
-	beq	1f
-	ldr	r1, =boot_params
+	ldr	r1, =OMAP_SRAM_SCRATCH_BOOT_PARAMS
 	str	r0, [r1]
-#ifdef CONFIG_SPL_BUILD
-	/* Store the boot device in spl_boot_device */
-	ldrb	r2, [r0, #BOOT_DEVICE_OFFSET]	@ r1 <- value of boot device
-	and	r2, #BOOT_DEVICE_MASK
-	ldr	r3, =boot_params
-	strb	r2, [r3, #BOOT_DEVICE_OFFSET]	@ spl_boot_device <- r1
-
-	/*
-	 * boot mode is only valid for device that can be raw or FAT booted.
-	 * in other cases it may be fatal to look.  While platforms differ
-	 * in the values used for each MMC slot, they are contiguous.
-	 */
-	cmp	r2, #MMC_BOOT_DEVICES_START
-	blt	2f
-	cmp	r2, #MMC_BOOT_DEVICES_END
-	bgt	2f
-	/* Store the boot mode (raw/FAT) in omap_bootmode */
-	ldr	r2, [r0, #DEV_DESC_PTR_OFFSET]	@ get the device descriptor ptr
-	ldr	r2, [r2, #DEV_DATA_PTR_OFFSET]	@ get the pDeviceData ptr
-	ldr	r2, [r2, #BOOT_MODE_OFFSET]	@ get the boot mode
-	ldr	r3, =omap_bootmode
-	str	r2, [r3]
-#endif
-2:
-	ldrb	r2, [r0, #CH_FLAGS_OFFSET]
-	ldr	r3, =boot_params
-	strb	r2, [r3, #CH_FLAGS_OFFSET]
-1:
 	bx	lr
 ENDPROC(save_boot_params)
 

@@ -67,11 +67,6 @@ SECTIONS
 		__rel_dyn_end = .;
 	}
 
-	.dynsym : {
-		__dynsym_start = .;
-		*(.dynsym)
-	}
-
 	. = ALIGN(0x800);
 
 	_end = .;
@@ -84,6 +79,7 @@ SECTIONS
 	}
 
 	/DISCARD/ : { *(.bss*) }
+	/DISCARD/ : { *(.dynsym) }
 	/DISCARD/ : { *(.dynstr*) }
 	/DISCARD/ : { *(.dynsym*) }
 	/DISCARD/ : { *(.dynamic*) }

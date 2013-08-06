@@ -95,7 +95,7 @@ unsigned long get_timer(unsigned long base)
 	return time_ms - base;
 }
 
-unsigned long timer_get_us(void)
+unsigned long __attribute__((no_instrument_function)) timer_get_us(void)
 {
 	static unsigned long base_time_us;
 

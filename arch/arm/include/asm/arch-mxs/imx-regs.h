@@ -23,11 +23,11 @@
 #ifndef __IMX_REGS_H__
 #define __IMX_REGS_H__
 
-#include <asm/arch/regs-apbh.h>
+#include <asm/imx-common/regs-apbh.h>
 #include <asm/arch/regs-base.h>
-#include <asm/arch/regs-bch.h>
+#include <asm/imx-common/regs-bch.h>
 #include <asm/arch/regs-digctl.h>
-#include <asm/arch/regs-gpmi.h>
+#include <asm/imx-common/regs-gpmi.h>
 #include <asm/arch/regs-i2c.h>
 #include <asm/arch/regs-lcdif.h>
 #include <asm/arch/regs-lradc.h>

@@ -38,7 +38,6 @@
 #define CONFIG_SHOW_BOOT_PROGRESS
 #define CONFIG_LAST_STAGE_INIT
 #define CONFIG_SYS_VSNPRINTF
-#define CONFIG_INTEL_CORE_ARCH	/* Sandy bridge and ivy bridge chipsets. */
 #define CONFIG_ZBOOT_32
 #define CONFIG_PHYSMEM
 #define CONFIG_SYS_EARLY_PCI_INIT
@@ -48,6 +47,19 @@
 #define CONFIG_OF_CONTROL
 #define CONFIG_OF_SEPARATE
 #define CONFIG_DEFAULT_DEVICE_TREE	link
+
+#define CONFIG_BOOTSTAGE
+#define CONFIG_BOOTSTAGE_REPORT
+#define CONFIG_BOOTSTAGE_FDT
+#define CONFIG_CMD_BOOTSTAGE
+/* Place to stash bootstage data from first-stage U-Boot */
+#define CONFIG_BOOTSTAGE_STASH		0x0110f000
+#define CONFIG_BOOTSTAGE_STASH_SIZE	0x7fc
+#define CONFIG_BOOTSTAGE_USER_COUNT	60
+
+#define CONFIG_LZO
+#undef CONFIG_ZLIB
+#undef CONFIG_GZIP
 
 /*-----------------------------------------------------------------------
  * Watchdog Configuration
@@ -78,7 +90,8 @@
 #endif
 
 /* Generic TPM interfaced through LPC bus */
-#define CONFIG_GENERIC_LPC_TPM
+#define CONFIG_TPM
+#define CONFIG_TPM_TIS_LPC
 #define CONFIG_TPM_TIS_BASE_ADDRESS        0xfed40000
 
 /*-----------------------------------------------------------------------
@@ -155,6 +168,13 @@
  */
 #include <config_cmd_default.h>
 
+#define CONFIG_TRACE
+#define CONFIG_CMD_TRACE
+#define CONFIG_TRACE_BUFFER_SIZE	(16 << 20)
+#define CONFIG_TRACE_EARLY_SIZE		(8 << 20)
+#define CONFIG_TRACE_EARLY
+#define CONFIG_TRACE_EARLY_ADDR		0x01400000
+
 #define CONFIG_CMD_BDI
 #define CONFIG_CMD_BOOTD
 #define CONFIG_CMD_CONSOLE
@@ -218,7 +238,6 @@
 #define CONFIG_SYS_MEMTEST_END			0x01000000
 #define CONFIG_SYS_LOAD_ADDR			0x100000
 #define CONFIG_SYS_HZ				1000
-#define CONFIG_SYS_X86_ISR_TIMER
 
 /*-----------------------------------------------------------------------
  * SDRAM Configuration
@@ -235,8 +254,9 @@
  * CPU Features
  */
 
-#define CONFIG_SYS_GENERIC_TIMER
+#define CONFIG_SYS_X86_TSC_TIMER
 #define CONFIG_SYS_PCAT_INTERRUPTS
+#define CONFIG_SYS_PCAT_TIMER
 #define CONFIG_SYS_NUM_IRQS			16
 
 /*-----------------------------------------------------------------------

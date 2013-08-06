@@ -84,7 +84,7 @@ u32 cortex_rev(void)
 	return rev;
 }
 
-void omap_rev_string(void)
+static void omap_rev_string(void)
 {
 	u32 omap_rev = omap_revision();
 	u32 soc_variant	= (omap_rev & 0xF0000000) >> 28;
@@ -101,11 +101,6 @@ void omap_rev_string(void)
 }
 
 #ifdef CONFIG_SPL_BUILD
-static void init_boot_params(void)
-{
-	boot_params_ptr = (u32 *) &boot_params;
-}
-
 void spl_display_print(void)
 {
 	omap_rev_string();
@@ -115,6 +110,17 @@ void spl_display_print(void)
 void __weak srcomp_enable(void)
 {
 }
+
+#ifdef CONFIG_ARCH_CPU_INIT
+/*
+ * SOC specific cpu init
+ */
+int arch_cpu_init(void)
+{
+	save_omap_boot_params();
+	return 0;
+}
+#endif /* CONFIG_ARCH_CPU_INIT */
 
 /*
  * Routine: s_init
@@ -132,6 +138,14 @@ void __weak srcomp_enable(void)
  */
 void s_init(void)
 {
+	/*
+	 * Save the boot parameters passed from romcode.
+	 * We cannot delay the saving further than this,
+	 * to prevent overwrites.
+	 */
+#ifdef CONFIG_SPL_BUILD
+	save_omap_boot_params();
+#endif
 	init_omap_revision();
 	hw_data_init();
 
@@ -152,11 +166,8 @@ void s_init(void)
 #endif
 	prcm_init();
 #ifdef CONFIG_SPL_BUILD
-	timer_init();
-
 	/* For regular u-boot sdram_init() is called from dram_init() */
 	sdram_init();
-	init_boot_params();
 #endif
 }
 

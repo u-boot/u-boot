@@ -480,6 +480,7 @@ static int pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 	    ||	unknown_param) {
 #ifdef CONFIG_SYS_LONGHELP
 		puts(cmdtp->help);
+		putc('\n');
 #endif
 		return 1;
 	}
@@ -512,6 +513,7 @@ static int pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const ar
 		      && set_px_mpxpll(mpxpll))) {
 #ifdef CONFIG_SYS_LONGHELP
 			puts(cmdtp->help);
+			putc('\n');
 #endif
 			return 1;
 		}

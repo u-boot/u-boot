@@ -149,3 +149,43 @@ int arch_misc_init(void)
 #endif
 	return 0;
 }
+
+#ifdef CONFIG_SPL_BUILD
+void rtc32k_enable(void)
+{
+	struct rtc_regs *rtc = (struct rtc_regs *)RTC_BASE;
+
+	/*
+	 * Unlock the RTC's registers.  For more details please see the
+	 * RTC_SS section of the TRM.  In order to unlock we need to
+	 * write these specific values (keys) in this order.
+	 */
+	writel(0x83e70b13, &rtc->kick0r);
+	writel(0x95a4f1e0, &rtc->kick1r);
+
+	/* Enable the RTC 32K OSC by setting bits 3 and 6. */
+	writel((1 << 3) | (1 << 6), &rtc->osc);
+}
+
+#define UART_RESET		(0x1 << 1)
+#define UART_CLK_RUNNING_MASK	0x1
+#define UART_SMART_IDLE_EN	(0x1 << 0x3)
+
+void uart_soft_reset(void)
+{
+	struct uart_sys *uart_base = (struct uart_sys *)DEFAULT_UART_BASE;
+	u32 regval;
+
+	regval = readl(&uart_base->uartsyscfg);
+	regval |= UART_RESET;
+	writel(regval, &uart_base->uartsyscfg);
+	while ((readl(&uart_base->uartsyssts) &
+		UART_CLK_RUNNING_MASK) != UART_CLK_RUNNING_MASK)
+		;
+
+	/* Disable smart idle */
+	regval = readl(&uart_base->uartsyscfg);
+	regval |= UART_SMART_IDLE_EN;
+	writel(regval, &uart_base->uartsyscfg);
+}
+#endif

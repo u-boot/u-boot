@@ -26,6 +26,13 @@
 #include "config.h"	/* CONFIG_BOARDDIR */
 
 OUTPUT_ARCH(powerpc)
+#ifdef CONFIG_SYS_MPC85XX_NO_RESETVEC
+PHDRS
+{
+	text PT_LOAD;
+	bss PT_LOAD;
+}
+#endif
 SECTIONS
 {
 	. = CONFIG_SPL_TEXT_BASE;
@@ -60,7 +67,7 @@ SECTIONS
 #if defined(CONFIG_FSL_IFC) /* Restrict bootpg at 4K boundry for IFC */
 	.bootpg ADDR(.text) + 0x1000 :
 	{
-		start.o	(.bootpg)
+		arch/powerpc/cpu/mpc85xx/start.o (.bootpg)
 	}
 #define RESET_VECTOR_OFFSET 0x1ffc /* IFC has 8K sram */
 #elif defined(CONFIG_FSL_ELBC)
@@ -68,9 +75,16 @@ SECTIONS
 #else
 #error unknown NAND controller
 #endif
+#ifdef CONFIG_SYS_MPC85XX_NO_RESETVEC
+	.bootpg ADDR(.text) - 0x1000 :
+	{
+		KEEP(*(.bootpg))
+	} :text = 0xffff
+#else
 	.resetvec ADDR(.text) + RESET_VECTOR_OFFSET : {
 		KEEP(*(.resetvec))
 	} = 0xffff
+#endif
 
 	/*
 	 * Make sure that the bss segment isn't linked at 0x0, otherwise its
@@ -78,10 +92,12 @@ SECTIONS
 	 */
 	. |= 0x10;
 
+	. = ALIGN(4);
 	__bss_start = .;
 	.bss : {
 		*(.sbss*)
 		*(.bss*)
 	}
+	. = ALIGN(4);
 	__bss_end = .;
 }

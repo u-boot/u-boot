@@ -220,101 +220,19 @@ static int boot_bd_t_linux(bootm_headers_t *images)
 	return ret;
 }
 
-/*
- * Verify the device tree.
- *
- * This function is called after all device tree fix-ups have been enacted,
- * so that the final device tree can be verified.  The definition of "verified"
- * is up to the specific implementation.  However, it generally means that the
- * addresses of some of the devices in the device tree are compared with the
- * actual addresses at which U-Boot has placed them.
- *
- * Returns 1 on success, 0 on failure.  If 0 is returned, U-boot will halt the
- * boot process.
- */
-static int __ft_verify_fdt(void *fdt)
-{
-	return 1;
-}
-__attribute__((weak, alias("__ft_verify_fdt"))) int ft_verify_fdt(void *fdt);
-
 static int boot_body_linux(bootm_headers_t *images)
 {
-	ulong rd_len;
-	struct lmb *lmb = &images->lmb;
-	ulong *initrd_start = &images->initrd_start;
-	ulong *initrd_end = &images->initrd_end;
-#if defined(CONFIG_OF_LIBFDT)
-	ulong of_size = images->ft_len;
-	char **of_flat_tree = &images->ft_addr;
-#endif
-
 	int ret;
-
-#if defined(CONFIG_OF_LIBFDT)
-	boot_fdt_add_mem_rsv_regions(lmb, *of_flat_tree);
-#endif
-
-	/* allocate space and init command line */
-	ret = boot_cmdline_linux(images);
-	if (ret)
-		return ret;
 
 	/* allocate space for kernel copy of board info */
 	ret = boot_bd_t_linux(images);
 	if (ret)
 		return ret;
 
-	rd_len = images->rd_end - images->rd_start;
-	ret = boot_ramdisk_high (lmb, images->rd_start, rd_len, initrd_start, initrd_end);
+	ret = image_setup_linux(images);
 	if (ret)
 		return ret;
 
-#if defined(CONFIG_OF_LIBFDT)
-	ret = boot_relocate_fdt(lmb, of_flat_tree, &of_size);
-	if (ret)
-		return ret;
-
-	/*
-	 * Add the chosen node if it doesn't exist, add the env and bd_t
-	 * if the user wants it (the logic is in the subroutines).
-	 */
-	if (of_size) {
-		if (fdt_chosen(*of_flat_tree, 1) < 0) {
-			puts ("ERROR: ");
-			puts ("/chosen node create failed");
-			puts (" - must RESET the board to recover.\n");
-			return -1;
-		}
-#ifdef CONFIG_OF_BOARD_SETUP
-		/* Call the board-specific fixup routine */
-		ft_board_setup(*of_flat_tree, gd->bd);
-#endif
-
-		/* Delete the old LMB reservation */
-		lmb_free(lmb, (phys_addr_t)(u32)*of_flat_tree,
-				(phys_size_t)fdt_totalsize(*of_flat_tree));
-
-		ret = fdt_resize(*of_flat_tree);
-		if (ret < 0)
-			return ret;
-		of_size = ret;
-
-		if (*initrd_start && *initrd_end) {
-			of_size += FDT_RAMDISK_OVERHEAD;
-			fdt_set_totalsize(*of_flat_tree, of_size);
-		}
-		/* Create a new LMB reservation */
-		lmb_reserve(lmb, (ulong)*of_flat_tree, of_size);
-
-		/* fixup the initrd now that we know where it should be */
-		if (*initrd_start && *initrd_end)
-			fdt_initrd(*of_flat_tree, *initrd_start, *initrd_end, 1);
-
-		if (!ft_verify_fdt(*of_flat_tree))
-			return -1;
-	}
-#endif	/* CONFIG_OF_LIBFDT */
 	return 0;
 }
 
@@ -335,11 +253,6 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 
 	if (flag & BOOTM_STATE_OS_PREP) {
 		boot_prep_linux(images);
-		return 0;
-	}
-
-	if (flag & BOOTM_STATE_OS_GO) {
-		boot_jump_linux(images);
 		return 0;
 	}
 
@@ -368,13 +281,6 @@ static void set_clocks_in_mhz (bd_t *kbd)
 		/* convert all clock information to MHz */
 		kbd->bi_intfreq /= 1000000L;
 		kbd->bi_busfreq /= 1000000L;
-#if defined(CONFIG_MPC8220)
-		kbd->bi_inpfreq /= 1000000L;
-		kbd->bi_pcifreq /= 1000000L;
-		kbd->bi_pevfreq /= 1000000L;
-		kbd->bi_flbfreq /= 1000000L;
-		kbd->bi_vcofreq /= 1000000L;
-#endif
 #if defined(CONFIG_CPM2)
 		kbd->bi_cpmfreq /= 1000000L;
 		kbd->bi_brgfreq /= 1000000L;

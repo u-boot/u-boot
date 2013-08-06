@@ -30,11 +30,9 @@
 #include <asm/fsl_portals.h>
 #include <asm/fsl_liodn.h>
 
-static ccsr_qman_t *qman = (void *)CONFIG_SYS_FSL_QMAN_ADDR;
-static ccsr_bman_t *bman = (void *)CONFIG_SYS_FSL_BMAN_ADDR;
-
 void setup_portals(void)
 {
+	ccsr_qman_t *qman = (void *)CONFIG_SYS_FSL_QMAN_ADDR;
 #ifdef CONFIG_FSL_CORENET
 	int i;
 
@@ -130,24 +128,32 @@ static int fdt_qportal(void *blob, int off, int id, char *name,
 
 	childoff = fdt_subnode_offset(blob, off, name);
 	if (create) {
+		char handle[64], *p;
+
+		strncpy(handle, name, sizeof(handle));
+		p = strchr(handle, '@');
+		if (!strncmp(name, "fman", 4)) {
+			*p = *(p + 1);
+			p++;
+		}
+		*p = '\0';
+
+		dev_off = fdt_path_offset(blob, handle);
+		/* skip this node if alias is not found */
+		if (dev_off == -FDT_ERR_BADPATH)
+			return 0;
+		if (dev_off < 0)
+			return dev_off;
+
 		if (childoff <= 0)
 			childoff = fdt_add_subnode(blob, off, name);
 
+		/* need to update the dev_off after adding a subnode */
+		dev_off = fdt_path_offset(blob, handle);
+		if (dev_off < 0)
+			return dev_off;
+
 		if (childoff > 0) {
-			char handle[64], *p;
-
-			strncpy(handle, name, sizeof(handle));
-			p = strchr(handle, '@');
-			if (!strncmp(name, "fman", 4)) {
-				*p = *(p + 1);
-				p++;
-			}
-			*p = '\0';
-
-			dev_off = fdt_path_offset(blob, handle);
-			if (dev_off < 0)
-				return dev_off;
-
 			dev_handle = fdt_get_phandle(blob, dev_off);
 			if (dev_handle <= 0) {
 				dev_handle = fdt_alloc_phandle(blob);
@@ -166,6 +172,20 @@ static int fdt_qportal(void *blob, int off, int id, char *name,
 			num = get_dpaa_liodn(dev, &liodns[0], id);
 			ret = fdt_setprop(blob, childoff, "fsl,liodn",
 					  &liodns[0], sizeof(u32) * num);
+			if (!strncmp(name, "pme", 3)) {
+				u32 pme_rev1, pme_rev2;
+				ccsr_pme_t *pme_regs =
+					(void *)CONFIG_SYS_FSL_CORENET_PME_ADDR;
+
+				pme_rev1 = in_be32(&pme_regs->pm_ip_rev_1);
+				pme_rev2 = in_be32(&pme_regs->pm_ip_rev_2);
+				ret = fdt_setprop(blob, childoff,
+					"fsl,pme-rev1", &pme_rev1, sizeof(u32));
+				if (ret < 0)
+					return ret;
+				ret = fdt_setprop(blob, childoff,
+					"fsl,pme-rev2", &pme_rev2, sizeof(u32));
+			}
 #endif
 		} else {
 			return childoff;
@@ -183,6 +203,7 @@ void fdt_fixup_qportals(void *blob)
 	int off, err;
 	unsigned int maj, min;
 	unsigned int ip_cfg;
+	ccsr_qman_t *qman = (void *)CONFIG_SYS_FSL_QMAN_ADDR;
 	u32 rev_1 = in_be32(&qman->ip_rev_1);
 	u32 rev_2 = in_be32(&qman->ip_rev_2);
 	char compat[64];
@@ -272,6 +293,7 @@ void fdt_fixup_bportals(void *blob)
 	int off, err;
 	unsigned int maj, min;
 	unsigned int ip_cfg;
+	ccsr_bman_t *bman = (void *)CONFIG_SYS_FSL_BMAN_ADDR;
 	u32 rev_1 = in_be32(&bman->ip_rev_1);
 	u32 rev_2 = in_be32(&bman->ip_rev_2);
 	char compat[64];

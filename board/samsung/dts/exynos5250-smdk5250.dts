@@ -30,6 +30,12 @@
 		spi2 = "/spi@12d40000";
 		spi3 = "/spi@131a0000";
 		spi4 = "/spi@131b0000";
+		mmc0 = "/mmc@12200000";
+		mmc1 = "/mmc@12210000";
+		mmc2 = "/mmc@12220000";
+		mmc3 = "/mmc@12230000";
+		serial0 = "/serial@12C30000";
+		console = "/serial@12C30000";
 	};
 
 	sromc@12250000 {
@@ -118,5 +124,25 @@
 		samsung,dynamic-range = <0>;
 		samsung,ycbcr-coeff = <0>;
 		samsung,color-depth = <1>;
+	};
+
+	mmc@12200000 {
+		samsung,bus-width = <8>;
+		samsung,timing = <1 3 3>;
+		samsung,removable = <0>;
+	};
+
+	mmc@12210000 {
+		status = "disabled";
+	};
+
+	mmc@12220000 {
+		samsung,bus-width = <4>;
+		samsung,timing = <1 2 3>;
+		samsung,removable = <1>;
+	};
+
+	mmc@12230000 {
+		status = "disabled";
 	};
 };

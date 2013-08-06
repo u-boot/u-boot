@@ -53,7 +53,7 @@ void fsl_serdes_init(void)
 
 	debug("PORDEVSR[IO_SEL] = %x\n", srds1_cfg);
 
-	if (srds1_cfg > ARRAY_SIZE(serdes1_cfg_tbl)) {
+	if (srds1_cfg >= ARRAY_SIZE(serdes1_cfg_tbl)) {
 		printf("Invalid PORDEVSR[IO_SEL] = %d\n", srds1_cfg);
 		return ;
 	}

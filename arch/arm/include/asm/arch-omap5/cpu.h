@@ -119,18 +119,6 @@ struct watchdog {
 #define WD_UNLOCK1		0xAAAA
 #define WD_UNLOCK2		0x5555
 
-#define SYSCLKDIV_1		(0x1 << 6)
-#define SYSCLKDIV_2		(0x1 << 7)
-
-#define CLKSEL_GPT1		(0x1 << 0)
-
-#define EN_GPT1			(0x1 << 0)
-#define EN_32KSYNC		(0x1 << 2)
-
-#define ST_WDT2			(0x1 << 5)
-
-#define RESETDONE		(0x1 << 0)
-
 #define TCLR_ST			(0x1 << 0)
 #define TCLR_AR			(0x1 << 1)
 #define TCLR_PRE		(0x1 << 5)
@@ -142,6 +130,8 @@ struct watchdog {
 #define I2C_BASE1		(OMAP54XX_L4_PER_BASE + 0x70000)
 #define I2C_BASE2		(OMAP54XX_L4_PER_BASE + 0x72000)
 #define I2C_BASE3		(OMAP54XX_L4_PER_BASE + 0x60000)
+#define I2C_BASE4		(OMAP54XX_L4_PER_BASE + 0x7A000)
+#define I2C_BASE5		(OMAP54XX_L4_PER_BASE + 0x7C000)
 
 /* MUSB base */
 #define MUSB_BASE		(OMAP54XX_L4_CORE_BASE + 0xAB000)

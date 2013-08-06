@@ -484,7 +484,7 @@ static void smc911x_reset(struct eth_device *dev)
 		while (timeout-- &&
 			!(smc911x_reg_read(dev, PMT_CTRL) & PMT_CTRL_READY))
 			udelay(10);
-		if (!timeout) {
+		if (timeout < 0) {
 			printf(DRIVERNAME
 				": timeout waiting for PM restore\n");
 			return;
@@ -500,7 +500,7 @@ static void smc911x_reset(struct eth_device *dev)
 	while (timeout-- && smc911x_reg_read(dev, E2P_CMD) & E2P_CMD_EPC_BUSY)
 		udelay(10);
 
-	if (!timeout) {
+	if (timeout < 0) {
 		printf(DRIVERNAME ": reset timeout\n");
 		return;
 	}

@@ -21,59 +21,11 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
-#include <command.h>
 #include <fdtdec.h>
-#include <stdio_dev.h>
-#include <version.h>
-#include <malloc.h>
-#include <net.h>
-#include <ide.h>
-#include <serial.h>
 #include <spi.h>
-#include <status_led.h>
-#include <asm/processor.h>
 #include <asm/sections.h>
-#include <asm/u-boot-x86.h>
-#include <linux/compiler.h>
-
-#include <asm/init_helpers.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-/************************************************************************
- * Init Utilities							*
- ************************************************************************
- * Some of this code should be moved into the core functions,
- * or dropped completely,
- * but let's get it working (again) first...
- */
-
-int display_banner(void)
-{
-	printf("\n\n%s\n\n", version_string);
-
-	return 0;
-}
-
-int display_dram_config(void)
-{
-	int i;
-
-	puts("DRAM Configuration:\n");
-
-	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		printf("Bank #%d: %08lx ", i, gd->bd->bi_dram[i].start);
-		print_size(gd->bd->bi_dram[i].size, "\n");
-	}
-
-	return 0;
-}
-
-int init_baudrate_f(void)
-{
-	gd->baudrate = getenv_ulong("baudrate", 10, CONFIG_BAUDRATE);
-	return 0;
-}
 
 /* Get the top of usable RAM */
 __weak ulong board_get_usable_ram_top(ulong total_size)
@@ -134,60 +86,12 @@ int init_cache_f_r(void)
 	return init_cache();
 }
 
-int set_reloc_flag_r(void)
-{
-	gd->flags = GD_FLG_RELOC;
-
-	return 0;
-}
-
-int mem_malloc_init_r(void)
-{
-	mem_malloc_init(((gd->relocaddr - CONFIG_SYS_MALLOC_LEN)+3)&~3,
-			CONFIG_SYS_MALLOC_LEN);
-
-	return 0;
-}
-
 bd_t bd_data;
 
 int init_bd_struct_r(void)
 {
 	gd->bd = &bd_data;
 	memset(gd->bd, 0, sizeof(bd_t));
-
-	return 0;
-}
-
-#ifndef CONFIG_SYS_NO_FLASH
-int flash_init_r(void)
-{
-	ulong size;
-
-	puts("Flash: ");
-
-	/* configure available FLASH banks */
-	size = flash_init();
-
-	print_size(size, "\n");
-
-	return 0;
-}
-#endif
-
-#ifdef CONFIG_STATUS_LED
-int status_led_set_r(void)
-{
-	status_led_set(STATUS_LED_BOOT, STATUS_LED_BLINKING);
-
-	return 0;
-}
-#endif
-
-int set_load_addr_r(void)
-{
-	/* Initialize from environment */
-	load_addr = getenv_ulong("loadaddr", 16, load_addr);
 
 	return 0;
 }
@@ -200,7 +104,6 @@ int init_func_spi(void)
 	return 0;
 }
 
-#ifdef CONFIG_OF_CONTROL
 int find_fdt(void)
 {
 #ifdef CONFIG_OF_EMBED
@@ -227,4 +130,3 @@ int prepare_fdt(void)
 
 	return 0;
 }
-#endif

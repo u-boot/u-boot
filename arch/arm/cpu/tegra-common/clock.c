@@ -321,17 +321,17 @@ unsigned clock_adjust_periph_pll_div(enum periph_id periph_id,
 	unsigned effective_rate;
 	int mux_bits, divider_bits, source;
 	int divider;
+	int xdiv = 0;
 
 	/* work out the source clock and set it */
 	source = get_periph_clock_source(periph_id, parent, &mux_bits,
 					 &divider_bits);
 
+	divider = find_best_divider(divider_bits, pll_rate[parent],
+				    rate, &xdiv);
 	if (extra_div)
-		divider = find_best_divider(divider_bits, pll_rate[parent],
-						rate, extra_div);
-	else
-		divider = clk_get_divider(divider_bits, pll_rate[parent],
-					  rate);
+		*extra_div = xdiv;
+
 	assert(divider >= 0);
 	if (adjust_periph_pll(periph_id, source, mux_bits, divider))
 		return -1U;

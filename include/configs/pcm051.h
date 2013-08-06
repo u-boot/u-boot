@@ -20,6 +20,7 @@
 #define __CONFIG_PCM051_H
 
 #define CONFIG_AM33XX
+#define CONFIG_OMAP
 
 #include <asm/arch/omap.h>
 
@@ -129,7 +130,6 @@
 					+ (8 * 1024 * 1024))
 
 #define CONFIG_SYS_LOAD_ADDR		0x80007fc0 /* Default load address */
-#define CONFIG_SYS_HZ			1000 /* 1ms clock */
 
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
@@ -158,13 +158,12 @@
  /* Platform/Board specific defs */
 #define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
 #define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
-#define CONFIG_SYS_HZ			1000
+#define CONFIG_SYS_HZ			1000	/* 1ms clock */
 
 #define CONFIG_CONS_INDEX		1
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SERIAL_MULTI
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #define CONFIG_SYS_NS16550_CLK		(48000000)
 #define CONFIG_SYS_NS16550_COM1		0x44e09000	/* Base EVM has UART0 */
@@ -194,6 +193,9 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 110, 300, 600, 1200, 2400, \
 4800, 9600, 14400, 19200, 28800, 38400, 56000, 57600, 115200 }
 
+/* CPU */
+#define CONFIG_ARCH_CPU_INIT
+
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
 
@@ -202,8 +204,13 @@
 /* Defines for SPL */
 #define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
+/*
+ * Place the image at the start of the ROM defined image space.
+ * We limit our size to the ROM-defined downloaded image area, and use the
+ * rest of the space for stack.
+ */
 #define CONFIG_SPL_TEXT_BASE		0x402F0400
-#define CONFIG_SPL_MAX_SIZE		(101 * 1024)
+#define CONFIG_SPL_MAX_SIZE		(0x4030C000 - CONFIG_SPL_TEXT_BASE)
 #define CONFIG_SPL_STACK		CONFIG_SYS_INIT_SP_ADDR
 
 #define CONFIG_SPL_BSS_START_ADDR	0x80000000
@@ -224,6 +231,7 @@
 #define CONFIG_SPL_GPIO_SUPPORT
 #define CONFIG_SPL_YMODEM_SUPPORT
 #define CONFIG_SPL_NET_SUPPORT
+#define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_SPL_NET_VCI_STRING	"pcm051 U-Boot SPL"
 #define CONFIG_SPL_ETH_SUPPORT
 #define CONFIG_SPL_SPI_SUPPORT

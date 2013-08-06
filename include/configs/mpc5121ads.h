@@ -336,6 +336,7 @@
  * PCI
  */
 #ifdef CONFIG_PCI
+#define CONFIG_PCI_INDIRECT_BRIDGE
 
 /*
  * General PCI
@@ -370,7 +371,7 @@
 /*
  * IIM - IC Identification Module
  */
-#undef CONFIG_IIM
+#undef CONFIG_FSL_IIM
 
 /*
  * EEPROM configuration

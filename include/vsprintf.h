@@ -178,4 +178,15 @@ int vscnprintf(char *buf, size_t size, const char *fmt, va_list args);
 #define vscnprintf(buf, size, fmt, args...) vsprintf(buf, fmt, ##args)
 #endif /* CONFIG_SYS_VSNPRINTF */
 
+/**
+ * print_grouped_ull() - print a value with digits grouped by ','
+ *
+ * This prints a value with grouped digits, like 12,345,678 to make it easier
+ * to read.
+ *
+ * @val:	Value to print
+ * @digits:	Number of digiits to print
+ */
+void print_grouped_ull(unsigned long long int_val, int digits);
+
 #endif

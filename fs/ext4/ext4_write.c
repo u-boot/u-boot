@@ -88,8 +88,8 @@ int ext4fs_get_bgdtable(void)
 	if (!fs->gdtable)
 		return -ENOMEM;
 	/* read the group descriptor table */
-	status = ext4fs_devread(fs->gdtable_blkno * fs->sect_perblk, 0,
-				fs->blksz * fs->no_blk_pergdt, fs->gdtable);
+	status = ext4fs_devread((lbaint_t)fs->gdtable_blkno * fs->sect_perblk,
+				0, fs->blksz * fs->no_blk_pergdt, fs->gdtable);
 	if (status == 0)
 		goto fail;
 
@@ -142,7 +142,7 @@ static void delete_single_indirect_block(struct ext2_inode *inode)
 		/* journal backup */
 		if (prev_bg_bmap_idx != bg_idx) {
 			status =
-			    ext4fs_devread(bgd[bg_idx].block_id *
+			    ext4fs_devread((lbaint_t)bgd[bg_idx].block_id *
 					   fs->sect_perblk, 0, fs->blksz,
 					   journal_buffer);
 			if (status == 0)
@@ -186,8 +186,8 @@ static void delete_double_indirect_block(struct ext2_inode *inode)
 		}
 		DIB_start_addr = (unsigned int *)di_buffer;
 		blknr = inode->b.blocks.double_indir_block;
-		status = ext4fs_devread(blknr * fs->sect_perblk, 0, fs->blksz,
-					(char *)di_buffer);
+		status = ext4fs_devread((lbaint_t)blknr * fs->sect_perblk, 0,
+					fs->blksz, (char *)di_buffer);
 		for (i = 0; i < fs->blksz / sizeof(int); i++) {
 			if (*di_buffer == 0)
 				break;
@@ -208,7 +208,8 @@ static void delete_double_indirect_block(struct ext2_inode *inode)
 			fs->sb->free_blocks++;
 			/* journal backup */
 			if (prev_bg_bmap_idx != bg_idx) {
-				status = ext4fs_devread(bgd[bg_idx].block_id
+				status = ext4fs_devread((lbaint_t)
+							bgd[bg_idx].block_id
 							* fs->sect_perblk, 0,
 							fs->blksz,
 							journal_buffer);
@@ -238,7 +239,7 @@ static void delete_double_indirect_block(struct ext2_inode *inode)
 		/* journal backup */
 		if (prev_bg_bmap_idx != bg_idx) {
 			memset(journal_buffer, '\0', fs->blksz);
-			status = ext4fs_devread(bgd[bg_idx].block_id *
+			status = ext4fs_devread((lbaint_t)bgd[bg_idx].block_id *
 						fs->sect_perblk, 0, fs->blksz,
 						journal_buffer);
 			if (status == 0)
@@ -287,8 +288,8 @@ static void delete_triple_indirect_block(struct ext2_inode *inode)
 		}
 		tib_start_addr = (unsigned int *)tigp_buffer;
 		blknr = inode->b.blocks.triple_indir_block;
-		status = ext4fs_devread(blknr * fs->sect_perblk, 0, fs->blksz,
-					(char *)tigp_buffer);
+		status = ext4fs_devread((lbaint_t)blknr * fs->sect_perblk, 0,
+					fs->blksz, (char *)tigp_buffer);
 		for (i = 0; i < fs->blksz / sizeof(int); i++) {
 			if (*tigp_buffer == 0)
 				break;
@@ -298,7 +299,7 @@ static void delete_triple_indirect_block(struct ext2_inode *inode)
 			if (!tip_buffer)
 				goto fail;
 			tipb_start_addr = (unsigned int *)tip_buffer;
-			status = ext4fs_devread((*tigp_buffer) *
+			status = ext4fs_devread((lbaint_t)(*tigp_buffer) *
 						fs->sect_perblk, 0, fs->blksz,
 						(char *)tip_buffer);
 			for (j = 0; j < fs->blksz / sizeof(int); j++) {
@@ -325,6 +326,7 @@ static void delete_triple_indirect_block(struct ext2_inode *inode)
 				if (prev_bg_bmap_idx != bg_idx) {
 					status =
 					    ext4fs_devread(
+							(lbaint_t)
 							bgd[bg_idx].block_id *
 							fs->sect_perblk, 0,
 							fs->blksz,
@@ -365,7 +367,8 @@ static void delete_triple_indirect_block(struct ext2_inode *inode)
 			if (prev_bg_bmap_idx != bg_idx) {
 				memset(journal_buffer, '\0', fs->blksz);
 				status =
-				    ext4fs_devread(bgd[bg_idx].block_id *
+				    ext4fs_devread((lbaint_t)
+						   bgd[bg_idx].block_id *
 						   fs->sect_perblk, 0,
 						   fs->blksz, journal_buffer);
 				if (status == 0)
@@ -394,7 +397,7 @@ static void delete_triple_indirect_block(struct ext2_inode *inode)
 		/* journal backup */
 		if (prev_bg_bmap_idx != bg_idx) {
 			memset(journal_buffer, '\0', fs->blksz);
-			status = ext4fs_devread(bgd[bg_idx].block_id *
+			status = ext4fs_devread((lbaint_t)bgd[bg_idx].block_id *
 						fs->sect_perblk, 0, fs->blksz,
 						journal_buffer);
 			if (status == 0)
@@ -480,7 +483,8 @@ static int ext4fs_delete_file(int inodeno)
 			/* journal backup */
 			if (prev_bg_bmap_idx != bg_idx) {
 				status =
-				    ext4fs_devread(bgd[bg_idx].block_id *
+				    ext4fs_devread((lbaint_t)
+						   bgd[bg_idx].block_id *
 						   fs->sect_perblk, 0,
 						   fs->blksz, journal_buffer);
 				if (status == 0)
@@ -524,7 +528,8 @@ static int ext4fs_delete_file(int inodeno)
 			/* journal backup */
 			if (prev_bg_bmap_idx != bg_idx) {
 				memset(journal_buffer, '\0', fs->blksz);
-				status = ext4fs_devread(bgd[bg_idx].block_id
+				status = ext4fs_devread((lbaint_t)
+							bgd[bg_idx].block_id
 							* fs->sect_perblk,
 							0, fs->blksz,
 							journal_buffer);
@@ -555,7 +560,7 @@ static int ext4fs_delete_file(int inodeno)
 	if (!read_buffer)
 		goto fail;
 	start_block_address = read_buffer;
-	status = ext4fs_devread(blkno * fs->sect_perblk,
+	status = ext4fs_devread((lbaint_t)blkno * fs->sect_perblk,
 				0, fs->blksz, read_buffer);
 	if (status == 0)
 		goto fail;
@@ -578,7 +583,7 @@ static int ext4fs_delete_file(int inodeno)
 	fs->sb->free_inodes++;
 	/* journal backup */
 	memset(journal_buffer, '\0', fs->blksz);
-	status = ext4fs_devread(bgd[ibmap_idx].inode_id *
+	status = ext4fs_devread((lbaint_t)bgd[ibmap_idx].inode_id *
 				fs->sect_perblk, 0, fs->blksz, journal_buffer);
 	if (status == 0)
 		goto fail;
@@ -614,14 +619,13 @@ int ext4fs_init(void)
 	/* populate fs */
 	fs->blksz = EXT2_BLOCK_SIZE(ext4fs_root);
 	fs->inodesz = INODE_SIZE_FILESYSTEM(ext4fs_root);
-	fs->sect_perblk = fs->blksz / SECTOR_SIZE;
+	fs->sect_perblk = fs->blksz >> fs->dev_desc->log2blksz;
 
 	/* get the superblock */
 	fs->sb = zalloc(SUPERBLOCK_SIZE);
 	if (!fs->sb)
 		return -ENOMEM;
-	if (!ext4fs_devread(SUPERBLOCK_SECTOR, 0, SUPERBLOCK_SIZE,
-			(char *)fs->sb))
+	if (!ext4_read_superblock((char *)fs->sb))
 		goto fail;
 
 	/* init journal */
@@ -654,7 +658,8 @@ int ext4fs_init(void)
 
 	for (i = 0; i < fs->no_blkgrp; i++) {
 		status =
-		    ext4fs_devread(fs->bgd[i].block_id * fs->sect_perblk, 0,
+		    ext4fs_devread((lbaint_t)fs->bgd[i].block_id *
+				   fs->sect_perblk, 0,
 				   fs->blksz, (char *)fs->blk_bmaps[i]);
 		if (status == 0)
 			goto fail;
@@ -671,7 +676,8 @@ int ext4fs_init(void)
 	}
 
 	for (i = 0; i < fs->no_blkgrp; i++) {
-		status = ext4fs_devread(fs->bgd[i].inode_id * fs->sect_perblk,
+		status = ext4fs_devread((lbaint_t)fs->bgd[i].inode_id *
+					fs->sect_perblk,
 					0, fs->blksz,
 					(char *)fs->inode_bmaps[i]);
 		if (status == 0)
@@ -711,7 +717,7 @@ void ext4fs_deinit(void)
 				  &inode_journal);
 		blknr = read_allocated_block(&inode_journal,
 					EXT2_JOURNAL_SUPERBLOCK);
-		ext4fs_devread(blknr * fs->sect_perblk, 0, fs->blksz,
+		ext4fs_devread((lbaint_t)blknr * fs->sect_perblk, 0, fs->blksz,
 			       temp_buff);
 		jsb = (struct journal_superblock_t *)temp_buff;
 		jsb->s_start = cpu_to_be32(0);
@@ -722,7 +728,7 @@ void ext4fs_deinit(void)
 	ext4fs_free_journal();
 
 	/* get the superblock */
-	ext4fs_devread(SUPERBLOCK_SECTOR, 0, SUPERBLOCK_SIZE, (char *)fs->sb);
+	ext4_read_superblock((char *)fs->sb);
 	fs->sb->feature_incompat &= ~EXT3_FEATURE_INCOMPAT_RECOVER;
 	put_ext4((uint64_t)(SUPERBLOCK_SIZE),
 		 (struct ext2_sblock *)fs->sb, (uint32_t)SUPERBLOCK_SIZE);
@@ -766,9 +772,10 @@ static int ext4fs_write_file(struct ext2_inode *file_inode,
 {
 	int i;
 	int blockcnt;
-	int log2blocksize = LOG2_EXT2_BLOCK_SIZE(ext4fs_root);
 	unsigned int filesize = __le32_to_cpu(file_inode->size);
 	struct ext_filesystem *fs = get_fs();
+	int log2blksz = fs->dev_desc->log2blksz;
+	int log2_fs_blocksize = LOG2_BLOCK_SIZE(ext4fs_root) - log2blksz;
 	int previous_block_number = -1;
 	int delayed_start = 0;
 	int delayed_extent = 0;
@@ -789,16 +796,16 @@ static int ext4fs_write_file(struct ext2_inode *file_inode,
 		if (blknr < 0)
 			return -1;
 
-		blknr = blknr << log2blocksize;
+		blknr = blknr << log2_fs_blocksize;
 
 		if (blknr) {
 			if (previous_block_number != -1) {
 				if (delayed_next == blknr) {
 					delayed_extent += blockend;
-					delayed_next += blockend >> SECTOR_BITS;
+					delayed_next += blockend >> log2blksz;
 				} else {	/* spill */
-					put_ext4((uint64_t) (delayed_start *
-							     SECTOR_SIZE),
+					put_ext4((uint64_t)
+						 (delayed_start << log2blksz),
 						 delayed_buf,
 						 (uint32_t) delayed_extent);
 					previous_block_number = blknr;
@@ -806,7 +813,7 @@ static int ext4fs_write_file(struct ext2_inode *file_inode,
 					delayed_extent = blockend;
 					delayed_buf = buf;
 					delayed_next = blknr +
-					    (blockend >> SECTOR_BITS);
+					    (blockend >> log2blksz);
 				}
 			} else {
 				previous_block_number = blknr;
@@ -814,13 +821,14 @@ static int ext4fs_write_file(struct ext2_inode *file_inode,
 				delayed_extent = blockend;
 				delayed_buf = buf;
 				delayed_next = blknr +
-				    (blockend >> SECTOR_BITS);
+				    (blockend >> log2blksz);
 			}
 		} else {
 			if (previous_block_number != -1) {
 				/* spill */
-				put_ext4((uint64_t) (delayed_start *
-						     SECTOR_SIZE), delayed_buf,
+				put_ext4((uint64_t) (delayed_start <<
+						     log2blksz),
+					 delayed_buf,
 					 (uint32_t) delayed_extent);
 				previous_block_number = -1;
 			}
@@ -830,7 +838,7 @@ static int ext4fs_write_file(struct ext2_inode *file_inode,
 	}
 	if (previous_block_number != -1) {
 		/* spill */
-		put_ext4((uint64_t) (delayed_start * SECTOR_SIZE),
+		put_ext4((uint64_t) (delayed_start << log2blksz),
 			 delayed_buf, (uint32_t) delayed_extent);
 		previous_block_number = -1;
 	}
@@ -921,7 +929,8 @@ int ext4fs_write(const char *fname, unsigned char *buffer,
 	/* Allocate data blocks */
 	ext4fs_allocate_blocks(file_inode, blocks_remaining,
 			       &blks_reqd_for_file);
-	file_inode->blockcnt = (blks_reqd_for_file * fs->blksz) / SECTOR_SIZE;
+	file_inode->blockcnt = (blks_reqd_for_file * fs->blksz) >>
+		fs->dev_desc->log2blksz;
 
 	temp_ptr = zalloc(fs->blksz);
 	if (!temp_ptr)
@@ -932,7 +941,8 @@ int ext4fs_write(const char *fname, unsigned char *buffer,
 			(inodeno % __le32_to_cpu(sblock->inodes_per_group)) /
 			inodes_per_block;
 	blkoff = (inodeno % inodes_per_block) * fs->inodesz;
-	ext4fs_devread(itable_blkno * fs->sect_perblk, 0, fs->blksz, temp_ptr);
+	ext4fs_devread((lbaint_t)itable_blkno * fs->sect_perblk, 0, fs->blksz,
+		       temp_ptr);
 	if (ext4fs_log_journal(temp_ptr, itable_blkno))
 		goto fail;
 
@@ -952,7 +962,7 @@ int ext4fs_write(const char *fname, unsigned char *buffer,
 	blkoff = (parent_inodeno % inodes_per_block) * fs->inodesz;
 	if (parent_itable_blkno != itable_blkno) {
 		memset(temp_ptr, '\0', fs->blksz);
-		ext4fs_devread(parent_itable_blkno * fs->sect_perblk,
+		ext4fs_devread((lbaint_t)parent_itable_blkno * fs->sect_perblk,
 			       0, fs->blksz, temp_ptr);
 		if (ext4fs_log_journal(temp_ptr, parent_itable_blkno))
 			goto fail;

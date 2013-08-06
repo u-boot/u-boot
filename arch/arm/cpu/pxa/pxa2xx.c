@@ -244,7 +244,7 @@ void pxa_clock_setup(void)
 {
 	writel(CONFIG_SYS_CKEN, CKEN);
 	writel(CONFIG_SYS_CCCR, CCCR);
-	asm volatile("mcr	p14, 0, %0, c6, c0, 0" : : "r"(2));
+	asm volatile("mcr	p14, 0, %0, c6, c0, 0" : : "r"(0x0b));
 
 	/* enable the 32Khz oscillator for RTC and PowerManager */
 	writel(OSCC_OON, OSCC);
@@ -284,7 +284,7 @@ void i2c_clk_enable(void)
 	writel(readl(CKEN) | CKEN14_I2C, CKEN);
 }
 
-void reset_cpu(ulong ignored) __attribute__((noreturn));
+void __attribute__((weak)) reset_cpu(ulong ignored) __attribute__((noreturn));
 
 void reset_cpu(ulong ignored)
 {

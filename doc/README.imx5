@@ -20,3 +20,9 @@ i.MX5x SoCs.
     This option should be enabled for boards having a SYS_ON_OFF_CTL signal
     connected to GPIO1[23] and triggering the MAIN_PWR_ON signal like in the
     reference designs.
+
+2. CONVENTIONS FOR FUSE ASSIGNMENTS
+-----------------------------------
+
+2.1 MAC Address: It is stored in the words 9 to 14 of fuse bank 1, using the
+    natural MAC byte order (i.e. MSB first).

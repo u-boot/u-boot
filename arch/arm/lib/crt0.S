@@ -97,13 +97,13 @@ ENTRY(_main)
  * 'here' but relocated.
  */
 
-	ldr	sp, [r8, #GD_START_ADDR_SP]	/* r8 = gd->start_addr_sp */
+	ldr	sp, [r8, #GD_START_ADDR_SP]	/* sp = gd->start_addr_sp */
 	bic	sp, sp, #7	/* 8-byte alignment for ABI compliance */
 	ldr	r8, [r8, #GD_BD]		/* r8 = gd->bd */
 	sub	r8, r8, #GD_SIZE		/* new GD is below bd */
 
 	adr	lr, here
-	ldr	r0, [r8, #GD_RELOC_OFF]		/* lr = gd->start_addr_sp */
+	ldr	r0, [r8, #GD_RELOC_OFF]		/* r0 = gd->reloc_off */
 	add	lr, lr, r0
 	ldr	r0, [r8, #GD_RELOCADDR]		/* r0 = gd->relocaddr */
 	b	relocate_code

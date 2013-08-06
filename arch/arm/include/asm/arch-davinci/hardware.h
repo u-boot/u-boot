@@ -346,6 +346,8 @@ void davinci_errata_workarounds(void);
 #define PSC_PSC0_MODULE_ID_CNT		16
 #define PSC_PSC1_MODULE_ID_CNT		32
 
+#define UART0_PWREMU_MGMT		(0x01c42030)
+
 struct davinci_psc_regs {
 	dv_reg	revid;
 	dv_reg	rsvd0[71];

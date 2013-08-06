@@ -11,8 +11,11 @@ easily if here is something they might want to dig for...
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
-smdk6400         arm         arm1176        -           -           Zhong Hongbo <bocui107@gmail.com>
-ns9750dev        arm         arm926ejs      -           -           Markus Pietrek <mpietrek@fsforth.de>
+Alaska8220       powerpc     mpc8220        -           -
+Yukon8220        powerpc     mpc8220        -           -
+sorcery          powerpc     mpc8220        -           -
+smdk6400         arm         arm1176        52587f1	2013-04-12  Zhong Hongbo <bocui107@gmail.com>
+ns9750dev        arm         arm926ejs      4cfc611	2013-02-28  Markus Pietrek <mpietrek@fsforth.de>
 AMX860           powerpc     mpc860         1b0757e     2012-10-28  Wolfgang Denk <wd@denx.de>
 c2mon            powerpc     mpc855         1b0757e     2012-10-28  Wolfgang Denk <wd@denx.de>
 ETX094           powerpc     mpc850         1b0757e     2012-10-28  Wolfgang Denk <wd@denx.de>
@@ -93,3 +96,4 @@ R5200            ColdFire    -              48ead7a     2008-03-31  Zachary P. L
 CPCI440          powerpc     440GP          b568fd2     2007-12-27  Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 PCIPPC2          powerpc     MPC740/MPC750  7c9e89b     2013-02-07  Wolfgang Denk <wd@denx.de>
 PCIPPC6	powerpc	MPC740/MPC750 -	  -		Wolfgang Denk <wd@denx.de>
+omap2420h4       arm         omap24xx       -           2013-06-04  Richard Woodruff <r-woodruff2@ti.com>

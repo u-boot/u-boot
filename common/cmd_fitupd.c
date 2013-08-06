@@ -8,12 +8,11 @@
 
 #include <common.h>
 #include <command.h>
+#include <net.h>
 
 #if !defined(CONFIG_UPDATE_TFTP)
 #error "CONFIG_UPDATE_TFTP required"
 #endif
-
-extern int update_tftp(ulong addr);
 
 static int do_fitupd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {

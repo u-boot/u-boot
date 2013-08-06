@@ -39,7 +39,7 @@
 #define PKTALIGN	ARCH_DMA_MINALIGN
 
 /* IPv4 addresses are always 32 bits in size */
-typedef u32		IPaddr_t;
+typedef __be32		IPaddr_t;
 
 
 /**
@@ -694,6 +694,9 @@ extern void copy_filename(char *dst, const char *src, int size);
 
 /* get a random source port */
 extern unsigned int random_port(void);
+
+/* Update U-Boot over TFTP */
+extern int update_tftp(ulong addr);
 
 /**********************************************************************/
 

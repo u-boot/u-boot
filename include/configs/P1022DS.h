@@ -34,6 +34,29 @@
 #define CONFIG_RESET_VECTOR_ADDRESS	0x1107fffc
 #endif
 
+#define CONFIG_NAND_FSL_ELBC
+
+#ifdef CONFIG_NAND
+#define CONFIG_SPL
+#define CONFIG_SPL_INIT_MINIMAL
+#define CONFIG_SPL_SERIAL_SUPPORT
+#define CONFIG_SPL_NAND_SUPPORT
+#define CONFIG_SPL_NAND_MINIMAL
+#define CONFIG_SPL_FLUSH_IMAGE
+#define CONFIG_SPL_TARGET              "u-boot-with-spl.bin"
+
+#define CONFIG_SYS_TEXT_BASE           0x00201000
+#define CONFIG_SPL_TEXT_BASE           0xfffff000
+#define CONFIG_SPL_MAX_SIZE            4096
+#define CONFIG_SPL_RELOC_TEXT_BASE     0x00100000
+#define CONFIG_SPL_RELOC_STACK         0x00100000
+#define CONFIG_SYS_NAND_U_BOOT_SIZE    ((512 << 10) + CONFIG_SPL_MAX_SIZE)
+#define CONFIG_SYS_NAND_U_BOOT_DST     (0x00200000 - CONFIG_SPL_MAX_SIZE)
+#define CONFIG_SYS_NAND_U_BOOT_START   0x00200000
+#define CONFIG_SYS_NAND_U_BOOT_OFFS    0
+#define CONFIG_SYS_LDSCRIPT            "arch/powerpc/cpu/mpc85xx/u-boot-nand.lds"
+#endif
+
 /* High Level Configuration Options */
 #define CONFIG_BOOKE			/* BOOKE */
 #define CONFIG_E500			/* BOOKE e500 family */
@@ -84,6 +107,13 @@
 #define CONFIG_SYS_CCSRBAR		0xffe00000
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
 
+/* IN case of NAND bootloader relocate CCSRBAR in RAMboot code not in the 4k
+       SPL code*/
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_SYS_CCSR_DO_NOT_RELOCATE
+#endif
+
+
 /* DDR Setup */
 #define CONFIG_DDR_SPD
 #define CONFIG_VERY_BIG_RAM
@@ -105,6 +135,30 @@
 #define CONFIG_SYS_SPD_BUS_NUM		1
 #define SPD_EEPROM_ADDRESS		0x51	/* CTLR 0 DIMM 0 */
 
+/* These are used when DDR doesn't use SPD.  */
+#define CONFIG_SYS_SDRAM_SIZE		2048
+#define CONFIG_SYS_SDRAM_SIZE_LAW	LAW_SIZE_2G
+#define CONFIG_SYS_DDR_CS0_BNDS		0x0000003F
+#define CONFIG_SYS_DDR_CS0_CONFIG	0x80014202
+#define CONFIG_SYS_DDR_CS1_BNDS		0x0040007F
+#define CONFIG_SYS_DDR_CS1_CONFIG	0x80014202
+#define CONFIG_SYS_DDR_TIMING_3		0x00010000
+#define CONFIG_SYS_DDR_TIMING_0		0x40110104
+#define CONFIG_SYS_DDR_TIMING_1		0x5c5bd746
+#define CONFIG_SYS_DDR_TIMING_2		0x0fa8d4ca
+#define CONFIG_SYS_DDR_MODE_1		0x00441221
+#define CONFIG_SYS_DDR_MODE_2		0x00000000
+#define CONFIG_SYS_DDR_INTERVAL		0x0a280100
+#define CONFIG_SYS_DDR_DATA_INIT	0xdeadbeef
+#define CONFIG_SYS_DDR_CLK_CTRL		0x02800000
+#define CONFIG_SYS_DDR_CONTROL		0xc7000008
+#define CONFIG_SYS_DDR_CONTROL_2	0x24401041
+#define	CONFIG_SYS_DDR_TIMING_4		0x00220001
+#define	CONFIG_SYS_DDR_TIMING_5		0x02401400
+#define	CONFIG_SYS_DDR_ZQ_CONTROL	0x89080600
+#define CONFIG_SYS_DDR_WRLVL_CONTROL	0x8675f608
+
+
 /*
  * Memory map
  *
@@ -118,6 +172,7 @@
  * Localbus non-cacheable
  * 0xe000_0000	0xe80f_ffff	Promjet/free		128M non-cacheable
  * 0xe800_0000	0xefff_ffff	FLASH			128M non-cacheable
+ * 0xff80_0000	0xff80_7fff	NAND			32K non-cacheable
  * 0xffdf_0000	0xffdf_7fff	PIXIS			32K non-cacheable TLB0
  * 0xffd0_0000	0xffd0_3fff	L1 for stack		16K Cacheable TLB0
  * 0xffe0_0000	0xffef_ffff	CCSR			1M non-cacheable
@@ -126,37 +181,83 @@
 /*
  * Local Bus Definitions
  */
-#define CONFIG_SYS_FLASH_BASE		0xe0000000 /* start of FLASH 128M */
+#define CONFIG_SYS_FLASH_BASE		0xe8000000 /* start of FLASH 128M */
 #ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_FLASH_BASE_PHYS	0xfe0000000ull
+#define CONFIG_SYS_FLASH_BASE_PHYS	0xfe8000000ull
 #else
 #define CONFIG_SYS_FLASH_BASE_PHYS	CONFIG_SYS_FLASH_BASE
 #endif
 
 #define CONFIG_FLASH_BR_PRELIM  \
-	(BR_PHYS_ADDR(CONFIG_SYS_FLASH_BASE_PHYS + 0x8000000) | BR_PS_16 | BR_V)
+	(BR_PHYS_ADDR(CONFIG_SYS_FLASH_BASE_PHYS) | BR_PS_16 | BR_V)
 #define CONFIG_FLASH_OR_PRELIM	(OR_AM_128MB | 0xff7)
 
+#ifdef CONFIG_NAND
+#define CONFIG_SYS_BR1_PRELIM	CONFIG_FLASH_BR_PRELIM	/* NOR Base Address */
+#define CONFIG_SYS_OR1_PRELIM	CONFIG_FLASH_OR_PRELIM	/* NOR Options */
+#else
 #define CONFIG_SYS_BR0_PRELIM	CONFIG_FLASH_BR_PRELIM  /* NOR Base Address */
 #define CONFIG_SYS_OR0_PRELIM	CONFIG_FLASH_OR_PRELIM  /* NOR Options */
+#endif
 
-#define CONFIG_SYS_BR1_PRELIM	\
-	(BR_PHYS_ADDR(CONFIG_SYS_FLASH_BASE_PHYS) | BR_PS_16 | BR_V)
-#define CONFIG_SYS_OR1_PRELIM	CONFIG_FLASH_OR_PRELIM
-
-#define CONFIG_SYS_FLASH_BANKS_LIST	\
-	{CONFIG_SYS_FLASH_BASE_PHYS + 0x8000000, CONFIG_SYS_FLASH_BASE_PHYS}
+#define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE_PHYS}
 #define CONFIG_SYS_FLASH_QUIET_TEST
 #define CONFIG_FLASH_SHOW_PROGRESS	45 /* count down from 45/5: 9..1 */
 
-#define CONFIG_SYS_MAX_FLASH_BANKS	2
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
 #define CONFIG_SYS_MAX_FLASH_SECT	1024
 
+#ifndef CONFIG_SYS_MONITOR_BASE
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_SYS_MONITOR_BASE		CONFIG_SPL_TEXT_BASE
+#else
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE	/* start of monitor */
+#endif
+#endif
 
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI
 #define CONFIG_SYS_FLASH_EMPTY_INFO
+
+/* Nand Flash */
+#if defined(CONFIG_NAND_FSL_ELBC)
+#define CONFIG_SYS_NAND_BASE		0xff800000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_NAND_BASE_PHYS	0xfff800000ull
+#else
+#define CONFIG_SYS_NAND_BASE_PHYS	CONFIG_SYS_NAND_BASE
+#endif
+
+#define CONFIG_SYS_NAND_BASE_LIST     { CONFIG_SYS_NAND_BASE, }
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+#define CONFIG_MTD_NAND_VERIFY_WRITE
+#define CONFIG_CMD_NAND			1
+#define CONFIG_SYS_NAND_BLOCK_SIZE    (256 * 1024)
+#define CONFIG_ELBC_NAND_SPL_STATIC_PGSIZE
+
+/* NAND flash config */
+#define CONFIG_SYS_NAND_BR_PRELIM  (BR_PHYS_ADDR(CONFIG_SYS_NAND_BASE_PHYS) \
+			       | (2<<BR_DECC_SHIFT)    /* Use HW ECC */ \
+			       | BR_PS_8	       /* Port Size = 8 bit */ \
+			       | BR_MS_FCM	       /* MSEL = FCM */ \
+			       | BR_V)		       /* valid */
+#define CONFIG_SYS_NAND_OR_PRELIM  (OR_AM_32KB	       /* length 256K */ \
+			       | OR_FCM_PGS	       /* Large Page*/ \
+			       | OR_FCM_CSCT \
+			       | OR_FCM_CST \
+			       | OR_FCM_CHT \
+			       | OR_FCM_SCY_1 \
+			       | OR_FCM_TRLX \
+			       | OR_FCM_EHTR)
+#ifdef CONFIG_NAND
+#define CONFIG_SYS_BR0_PRELIM	CONFIG_SYS_NAND_BR_PRELIM /* NAND Base Address */
+#define CONFIG_SYS_OR0_PRELIM	CONFIG_SYS_NAND_OR_PRELIM /* NAND Options */
+#else
+#define CONFIG_SYS_BR1_PRELIM	CONFIG_SYS_NAND_BR_PRELIM /* NAND Base Address */
+#define CONFIG_SYS_OR1_PRELIM	CONFIG_SYS_NAND_OR_PRELIM /* NAND Options */
+#endif
+
+#endif /* CONFIG_NAND_FSL_ELBC */
 
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_EARLY_INIT_R
@@ -177,6 +278,8 @@
 #define PIXIS_LBMAP_SWITCH	7
 #define PIXIS_LBMAP_MASK	0xF0
 #define PIXIS_LBMAP_ALTBANK	0x20
+#define PIXIS_SPD		0x07
+#define PIXIS_SPD_SYSCLK_MASK	0x07
 #define PIXIS_ELBC_SPI_MASK	0xc0
 #define PIXIS_SPI		0x80
 
@@ -199,6 +302,9 @@
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		get_bus_freq(0)
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_NS16550_MIN_FUNCTIONS
+#endif
 
 #define CONFIG_SYS_BAUDRATE_TABLE	\
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200}
@@ -210,7 +316,6 @@
 #define CONFIG_SYS_HUSH_PARSER
 
 /* Video */
-#define CONFIG_FSL_DIU_FB
 
 #ifdef CONFIG_FSL_DIU_FB
 #define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_CCSRBAR + 0x10000)
@@ -230,7 +335,6 @@
 #endif
 
 #ifndef CONFIG_FSL_DIU_FB
-#define CONFIG_ATI
 #endif
 
 #ifdef CONFIG_ATI
@@ -352,6 +456,7 @@
 #define CONFIG_SYS_PCIE3_IO_SIZE	0x00010000	/* 64k */
 
 #ifdef CONFIG_PCI
+#define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #define CONFIG_E1000			/* Define e1000 pci Ethernet card */
@@ -419,7 +524,6 @@
 /*
  * Environment
  */
-#ifdef CONFIG_SYS_RAMBOOT
 #ifdef CONFIG_RAMBOOT_SPIFLASH
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SPI_BUS	0
@@ -433,16 +537,15 @@
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_ENV_SIZE		0x2000
 #define CONFIG_SYS_MMC_ENV_DEV	0
-#elif defined(CONFIG_NAND_U_BOOT)
+#elif defined(CONFIG_NAND)
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_SIZE		CONFIG_SYS_NAND_BLOCK_SIZE
 #define CONFIG_ENV_OFFSET	((512 * 1024) + CONFIG_SYS_NAND_BLOCK_SIZE)
 #define CONFIG_ENV_RANGE	(3 * CONFIG_ENV_SIZE)
-#else
+#elif defined(CONFIG_SYS_RAMBOOT)
 #define CONFIG_ENV_IS_NOWHERE	/* Store ENV in memory only */
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
 #define CONFIG_ENV_SIZE		0x2000
-#endif
 #else
 #define CONFIG_ENV_IS_IN_FLASH
 #if CONFIG_SYS_MONITOR_BASE > 0xfff80000

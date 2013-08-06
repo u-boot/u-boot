@@ -89,10 +89,14 @@ NAND boot
 Building U-boot
 --------------
 To build the u-boot for BSC9131RDB:
-1. NAND Flash
+1. NAND Flash with sysclk 66MHz(J16 on RDB closed, default)
 	make BSC9131RDB_NAND
-2. SPI Flash
+2. NAND Flash with sysclk 100MHz(J16 on RDB open)
+	make BSC9131RDB_NAND_SYSCLK100
+3. SPI Flash with sysclk 66MHz(J16 on RDB closed, default)
 	make BSC9131RDB_SPIFLASH
+4. SPI Flash with sysclk 100MHz(J16 on RDB open)
+	make BSC9131RDB_SPIFLASH_SYSCLK100
 
 Memory map
 -----------
@@ -106,6 +110,16 @@ Memory map
  0xFF60_0000	0xFF6F_FFFF 	DSP CCSR		1M
  0xFF70_0000	0xFF7F_FFFF	PA CCSR			1M
  0xFF80_0000	0xFFFF_FFFF	Boot Page & NAND Buffer 8M
+
+DDR Memory map
+---------------
+ 0x0000_0000	0x36FF_FFFF	Memory passed onto Linux
+ 0x3700_0000	0x37FF_FFFF	PowerPC-DSP shared control area
+ 0x3800_0000	0x4FFF_FFFF	DSP Private area
+
+ Out of 880M, passed onto Linux, 1hugetlb page of 256M is reserved for
+ data communcation between PowerPC and DSP core.
+ Rest is PowerPC private area.
 
 Flashing Images
 ---------------

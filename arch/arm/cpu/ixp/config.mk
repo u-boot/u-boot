@@ -31,10 +31,6 @@ PLATFORM_CPPFLAGS += -mbig-endian -march=armv5te -mtune=strongarm1100
 PLATFORM_LDFLAGS += -EB
 USE_PRIVATE_LIBGCC = yes
 
-# -fdata-sections triggers "section .bss overlaps section .rel.dyn" linker error
-PLATFORM_RELFLAGS += -ffunction-sections
-LDFLAGS_u-boot += --gc-sections
-
 # =========================================================================
 #
 # Supply options according to compiler version

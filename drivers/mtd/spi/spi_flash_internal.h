@@ -12,9 +12,6 @@
 #define SPI_FLASH_PAGE_ERASE_TIMEOUT	(5 * CONFIG_SYS_HZ)
 #define SPI_FLASH_SECTOR_ERASE_TIMEOUT	(10 * CONFIG_SYS_HZ)
 
-#define SPI_FLASH_16MB_BOUN		0x1000000
-#define SPI_FLASH_512MB_MIC		0x4000000
-
 /* Common commands */
 #define CMD_READ_ID			0x9f
 
@@ -32,11 +29,20 @@
 #define CMD_ERASE_64K			0xd8
 #define CMD_ERASE_CHIP			0xc7
 
-/* Bank addr acess commands */
-#define CMD_BANKADDR_BRWR		0x17
-#define CMD_BANKADDR_BRRD		0x16
-#define CMD_EXTNADDR_WREAR		0xC5
-#define CMD_EXTNADDR_RDEAR		0xC8
+#define SPI_FLASH_16MB_BOUN		0x1000000
+
+/* Manufacture ID's */
+#define SPI_FLASH_SPANSION_IDCODE0	0x01
+#define SPI_FLASH_STMICRO_IDCODE0	0x20
+#define SPI_FLASH_WINBOND_IDCODE0	0xef
+
+#ifdef CONFIG_SPI_FLASH_BAR
+/* Bank addr access commands */
+# define CMD_BANKADDR_BRWR		0x17
+# define CMD_BANKADDR_BRRD		0x16
+# define CMD_EXTNADDR_WREAR		0xC5
+# define CMD_EXTNADDR_RDEAR		0xC8
+#endif
 
 /* Common status */
 #define STATUS_WIP			0x01
@@ -88,11 +94,13 @@ static inline int spi_flash_cmd_write_disable(struct spi_flash *flash)
 /* Program the status register. */
 int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr);
 
+#ifdef CONFIG_SPI_FLASH_BAR
 /* Program the bank address register */
 int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 bank_sel);
 
-/* Read the bank address register */
-int spi_flash_cmd_bankaddr_read(struct spi_flash *flash, void *data);
+/* Configure the BAR - discover the bank cmds */
+int spi_flash_bank_config(struct spi_flash *flash, u8 idcode0);
+#endif
 
 /*
  * Same as spi_flash_cmd_read() except it also claims/releases the SPI
@@ -100,6 +108,16 @@ int spi_flash_cmd_bankaddr_read(struct spi_flash *flash, void *data);
  */
 int spi_flash_read_common(struct spi_flash *flash, const u8 *cmd,
 		size_t cmd_len, void *data, size_t data_len);
+/*
+ * Used for spi_flash write operation
+ * - SPI claim
+ * - spi_flash_cmd_write_enable
+ * - spi_flash_cmd_write
+ * - spi_flash_cmd_wait_ready
+ * - SPI release
+ */
+int spi_flash_write_common(struct spi_flash *flash, const u8 *cmd,
+		size_t cmd_len, const void *buf, size_t buf_len);
 
 /*
  * Send the read status command to the device and wait for the wip
@@ -119,3 +137,4 @@ struct spi_flash *spi_flash_probe_sst(struct spi_slave *spi, u8 *idcode);
 struct spi_flash *spi_flash_probe_stmicro(struct spi_slave *spi, u8 *idcode);
 struct spi_flash *spi_flash_probe_winbond(struct spi_slave *spi, u8 *idcode);
 struct spi_flash *spi_fram_probe_ramtron(struct spi_slave *spi, u8 *idcode);
+struct spi_flash *spi_flash_probe_gigadevice(struct spi_slave *spi, u8 *idcode);

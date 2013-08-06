@@ -75,12 +75,14 @@ lowlevel_init:
 	bl	mem_ctrl_init
 
 1:
+	bl	arch_cpu_init
 	bl	tzpc_init
 	ldmia	r13!, {ip,pc}
 
 wakeup_reset:
 	bl	system_clock_init
 	bl	mem_ctrl_init
+	bl	arch_cpu_init
 	bl	tzpc_init
 
 exit_wakeup:

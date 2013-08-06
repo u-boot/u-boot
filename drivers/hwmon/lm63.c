@@ -133,8 +133,7 @@ int dtt_init_one(int sensor)
 	/*
 	 * Setup PWM Lookup-Table
 	 */
-	for (i = 0; i < sizeof(pwm_lookup) / sizeof(struct pwm_lookup_entry);
-	     i++) {
+	for (i = 0; i < ARRAY_SIZE(pwm_lookup); i++) {
 		int address = DTT_PWM_LOOKUP_BASE + 2 * i;
 		val = pwm_lookup[i].temp;
 		if (is_lm64(sensor))

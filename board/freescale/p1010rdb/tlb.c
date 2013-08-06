@@ -44,15 +44,20 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	/* TLB 1 */
 	/* *I*** - Covers boot page */
 	SET_TLB_ENTRY(1, 0xfffff000, 0xfffff000,
-			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
-			0, 0, BOOKE_PAGESZ_4K, 1),
+		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
+		      0, 0, BOOKE_PAGESZ_4K, 1),
+#ifdef CONFIG_SPL_NAND_MINIMAL
+	SET_TLB_ENTRY(1, 0xffffe000, 0xffffe000,
+		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
+		      0, 10, BOOKE_PAGESZ_4K, 1),
+#endif
 
 	/* *I*G* - CCSRBAR */
 	SET_TLB_ENTRY(1, CONFIG_SYS_CCSRBAR, CONFIG_SYS_CCSRBAR_PHYS,
 			MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 			0, 1, BOOKE_PAGESZ_1M, 1),
 
-#ifndef CONFIG_NAND_SPL
+#ifndef CONFIG_SPL_BUILD
 #ifndef CONFIG_SDCARD
 	SET_TLB_ENTRY(1, CONFIG_SYS_FLASH_BASE, CONFIG_SYS_FLASH_BASE_PHYS,
 			MAS3_SX|MAS3_SR, MAS2_W|MAS2_G,
@@ -88,7 +93,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 			0, 7, BOOKE_PAGESZ_1M, 1),
 #endif
 
-#if defined(CONFIG_SYS_RAMBOOT)
+#if defined(CONFIG_SYS_RAMBOOT) || defined(CONFIG_SPL)
 	SET_TLB_ENTRY(1, CONFIG_SYS_DDR_SDRAM_BASE, CONFIG_SYS_DDR_SDRAM_BASE,
 			MAS3_SX|MAS3_SW|MAS3_SR, 0,
 			0, 8, BOOKE_PAGESZ_1G, 1)

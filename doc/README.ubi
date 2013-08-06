@@ -2,7 +2,8 @@
 UBI usage in U-Boot
 -------------------
 
-Here the list of the currently implemented UBI commands:
+UBI support in U-Boot is broken down into five separate commands.
+The first is the ubi command, which has six subcommands:
 
 => help ubi
 ubi - ubi commands
@@ -142,3 +143,80 @@ read 524288 bytes from volume 0 to 900000(buf address)
 
 => cmp.b 800000 900000 80000
 Total of 524288 bytes were the same
+
+
+Next, the ubifsmount command allows you to access filesystems on the
+UBI partition which has been attached with the ubi part command:
+
+=> help ubifsmount
+ubifsmount - mount UBIFS volume
+
+Usage:
+ubifsmount <volume-name>
+    - mount 'volume-name' volume
+
+For example:
+
+=> ubifsmount ubi0:recovery
+UBIFS: mounted UBI device 0, volume 0, name "recovery"
+UBIFS: mounted read-only
+UBIFS: file system size:   46473216 bytes (45384 KiB, 44 MiB, 366 LEBs)
+UBIFS: journal size:       6348800 bytes (6200 KiB, 6 MiB, 50 LEBs)
+UBIFS: media format:       w4/r0 (latest is w4/r0)
+UBIFS: default compressor: LZO
+UBIFS: reserved for root:  0 bytes (0 KiB)
+
+Note that unlike Linux, U-Boot can only have one active UBI partition
+at a time, which can be referred to as ubi0, and must be supplied along
+with the name of the filesystem you are mounting.
+
+
+Once a UBI filesystem has been mounted, the ubifsls command allows you
+to list the contents of a directory in the filesystem:
+
+
+=> help ubifsls
+ubifsls - list files in a directory
+
+Usage:
+ubifsls [directory]
+    - list files in a 'directory' (default '/')
+
+For example:
+
+=> ubifsls
+            17442  Thu Jan 01 02:57:38 1970  imx28-evk.dtb
+          2998146  Thu Jan 01 02:57:43 1970  zImage
+
+
+And the ubifsload command allows you to load a file from a UBI
+filesystem:
+
+
+=> help ubifsload
+ubifsload - load file from an UBIFS filesystem
+
+Usage:
+ubifsload <addr> <filename> [bytes]
+    - load file 'filename' to address 'addr'
+
+For example:
+
+=> ubifsload ${loadaddr} zImage
+Loading file 'zImage' to addr 0x42000000 with size 2998146 (0x002dbf82)...
+Done
+
+
+Finally, you can unmount the UBI filesystem with the ubifsumount
+command:
+
+=> help ubifsumount
+ubifsumount - unmount UBIFS volume
+
+Usage:
+ubifsumount     - unmount current volume
+
+For example:
+
+=> ubifsumount
+Unmounting UBIFS volume recovery!

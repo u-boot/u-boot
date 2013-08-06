@@ -17,6 +17,7 @@
  */
 
 #include <common.h>
+#include <cpsw.h>
 #include <errno.h>
 #include <spl.h>
 #include <asm/arch/cpu.h>
@@ -36,47 +37,16 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_SPL_BUILD
 static struct wd_timer *wdtimer = (struct wd_timer *)WDT_BASE;
-static struct uart_sys *uart_base = (struct uart_sys *)DEFAULT_UART_BASE;
 #endif
+
+static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
 /* UART Defines */
 #ifdef CONFIG_SPL_BUILD
-#define UART_RESET		(0x1 << 1)
-#define UART_CLK_RUNNING_MASK	0x1
-#define UART_SMART_IDLE_EN	(0x1 << 0x3)
-
-static void rtc32k_enable(void)
-{
-	struct rtc_regs *rtc = (struct rtc_regs *)RTC_BASE;
-
-	/*
-	 * Unlock the RTC's registers.  For more details please see the
-	 * RTC_SS section of the TRM.  In order to unlock we need to
-	 * write these specific values (keys) in this order.
-	 */
-	writel(0x83e70b13, &rtc->kick0r);
-	writel(0x95a4f1e0, &rtc->kick1r);
-
-	/* Enable the RTC 32K OSC by setting bits 3 and 6. */
-	writel((1 << 3) | (1 << 6), &rtc->osc);
-}
-
 static void uart_enable(void)
 {
-	u32 regVal;
-
 	/* UART softreset */
-	regVal = readl(&uart_base->uartsyscfg);
-	regVal |= UART_RESET;
-	writel(regVal, &uart_base->uartsyscfg);
-	while ((readl(&uart_base->uartsyssts) &
-		UART_CLK_RUNNING_MASK) != UART_CLK_RUNNING_MASK)
-		;
-
-	/* Disable smart idle */
-	regVal = readl(&uart_base->uartsyscfg);
-	regVal |= UART_SMART_IDLE_EN;
-	writel(regVal, &uart_base->uartsyscfg);
+	uart_soft_reset();
 }
 
 static void wdt_disable(void)
@@ -146,10 +116,22 @@ static const struct ddr_data evm_ddr2_data = {
 void s_init(void)
 {
 #ifdef CONFIG_SPL_BUILD
+	/*
+	 * Save the boot parameters passed from romcode.
+	 * We cannot delay the saving further than this,
+	 * to prevent overwrites.
+	 */
+#ifdef CONFIG_SPL_BUILD
+	save_omap_boot_params();
+#endif
+
 	/* WDT1 is already running when the bootloader gets control
 	 * Disable it to avoid "random" resets
 	 */
 	wdt_disable();
+
+	/* Enable timer */
+	timer_init();
 
 	/* Setup the PLLs and the clocks for the peripherals */
 	pll_init();
@@ -162,6 +144,9 @@ void s_init(void)
 
 	/* Set MMC pins */
 	enable_mmc1_pin_mux();
+
+	/* Set Ethernet pins */
+	enable_enet_pin_mux();
 
 	/* Enable UART */
 	uart_enable();
@@ -196,3 +181,69 @@ int board_mmc_init(bd_t *bis)
 	return 0;
 }
 #endif
+
+#ifdef CONFIG_DRIVER_TI_CPSW
+static void cpsw_control(int enabled)
+{
+	/* VTP can be added here */
+
+	return;
+}
+
+static struct cpsw_slave_data cpsw_slaves[] = {
+	{
+		.slave_reg_ofs	= 0x50,
+		.sliver_reg_ofs	= 0x700,
+		.phy_id		= 1,
+	},
+	{
+		.slave_reg_ofs	= 0x90,
+		.sliver_reg_ofs	= 0x740,
+		.phy_id		= 0,
+	},
+};
+
+static struct cpsw_platform_data cpsw_data = {
+	.mdio_base		= CPSW_MDIO_BASE,
+	.cpsw_base		= CPSW_BASE,
+	.mdio_div		= 0xff,
+	.channels		= 8,
+	.cpdma_reg_ofs		= 0x100,
+	.slaves			= 1,
+	.slave_data		= cpsw_slaves,
+	.ale_reg_ofs		= 0x600,
+	.ale_entries		= 1024,
+	.host_port_reg_ofs	= 0x28,
+	.hw_stats_reg_ofs	= 0x400,
+	.mac_control		= (1 << 5),
+	.control		= cpsw_control,
+	.host_port_num		= 0,
+	.version		= CPSW_CTRL_VERSION_1,
+};
+#endif
+
+int board_eth_init(bd_t *bis)
+{
+	uint8_t mac_addr[6];
+	uint32_t mac_hi, mac_lo;
+
+	if (!eth_getenv_enetaddr("ethaddr", mac_addr)) {
+		printf("<ethaddr> not set. Reading from E-fuse\n");
+		/* try reading mac address from efuse */
+		mac_lo = readl(&cdev->macid0l);
+		mac_hi = readl(&cdev->macid0h);
+		mac_addr[0] = mac_hi & 0xFF;
+		mac_addr[1] = (mac_hi & 0xFF00) >> 8;
+		mac_addr[2] = (mac_hi & 0xFF0000) >> 16;
+		mac_addr[3] = (mac_hi & 0xFF000000) >> 24;
+		mac_addr[4] = mac_lo & 0xFF;
+		mac_addr[5] = (mac_lo & 0xFF00) >> 8;
+
+		if (is_valid_ether_addr(mac_addr))
+			eth_setenv_enetaddr("ethaddr", mac_addr);
+		else
+			printf("Unable to read MAC address. Set <ethaddr>\n");
+	}
+
+	return cpsw_register(&cpsw_data);
+}

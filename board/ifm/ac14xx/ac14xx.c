@@ -23,6 +23,10 @@
 #include <i2c.h>
 #endif
 
+static int eeprom_diag;
+static int mac_diag;
+static int gpio_diag;
+
 DECLARE_GLOBAL_DATA_PTR;
 
 static void gpio_configure(void)
@@ -37,7 +41,7 @@ static void gpio_configure(void)
 
 	/*
 	 * out_be32(&gpioregs->gpdir, 0xC2293020);
-	 * workaround for a hardware affect: configure direction in pieces,
+	 * workaround for a hardware effect: configure direction in pieces,
 	 * setting all outputs at once drops the reset line too low and
 	 * makes us lose the MII connection (breaks ethernet for us)
 	 */
@@ -126,8 +130,6 @@ static u32 gpio_querykbd(void)
 
 /* excerpt from the recovery's hw_info.h */
 
-static int eeprom_diag = 1;
-
 struct __attribute__ ((__packed__)) eeprom_layout {
 	char	magic[3];	/** 'ifm' */
 	u8	len[2];		/** content length without magic/len fields */
@@ -209,6 +211,7 @@ static int read_eeprom(void)
 int mac_read_from_eeprom(void)
 {
 	const u8 *mac;
+	const char *mac_txt;
 
 	if (read_eeprom()) {
 		printf("I2C EEPROM read failed.\n");
@@ -230,8 +233,13 @@ int mac_read_from_eeprom(void)
 
 	if (mac && is_valid_ether_addr(mac)) {
 		eth_setenv_enetaddr("ethaddr", mac);
-		printf("DIAG: %s() MAC value [%s]\n",
-			__func__, getenv("ethaddr"));
+		if (mac_diag) {
+			mac_txt = getenv("ethaddr");
+			if (mac_txt)
+				printf("DIAG: MAC value [%s]\n", mac_txt);
+			else
+				printf("DIAG: failed to setup MAC env\n");
+		}
 	}
 
 	return 0;
@@ -326,42 +334,38 @@ int misc_init_r(void)
 	gpio_configure();
 
 	/*
-	 * check the GPIO keyboard,
-	 * enforced start of the recovery when
+	 * enforce the start of the recovery system when
 	 * - the appropriate keys were pressed
-	 * - a previous installation was aborted or has failed
 	 * - "some" external software told us to
+	 * - a previous installation was aborted or has failed
 	 */
 	want_recovery = 0;
 	keys = gpio_querykbd();
-	printf("GPIO keyboard status [0x%08X]\n", keys);
-	/* XXX insist in the _exact_ combination? */
+	if (gpio_diag)
+		printf("GPIO keyboard status [0x%02X]\n", keys);
 	if ((keys & GPIOKEY_BITS_RECOVERY) == GPIOKEY_BITS_RECOVERY) {
-		printf("GPIO keyboard requested RECOVERY\n");
-		/* XXX TODO
-		 * refine the logic to detect the first keypress, and
-		 * wait to recheck IF it was the recovery combination?
-		 */
-		want_recovery = 1;
-	}
-	s = getenv("install_in_progress");
-	if ((s != NULL) && (*s != '\0')) {
-		printf("previous installation aborted, running RECOVERY\n");
-		want_recovery = 1;
-	}
-	s = getenv("install_failed");
-	if ((s != NULL) && (*s != '\0')) {
-		printf("previous installation FAILED, running RECOVERY\n");
+		printf("detected recovery request (keyboard)\n");
 		want_recovery = 1;
 	}
 	s = getenv("want_recovery");
 	if ((s != NULL) && (*s != '\0')) {
-		printf("running RECOVERY according to the request\n");
+		printf("detected recovery request (environment)\n");
 		want_recovery = 1;
 	}
-
-	if (want_recovery)
+	s = getenv("install_in_progress");
+	if ((s != NULL) && (*s != '\0')) {
+		printf("previous installation has not completed\n");
+		want_recovery = 1;
+	}
+	s = getenv("install_failed");
+	if ((s != NULL) && (*s != '\0')) {
+		printf("previous installation has failed\n");
+		want_recovery = 1;
+	}
+	if (want_recovery) {
+		printf("enforced start of the recovery system\n");
 		setenv("bootcmd", "run recovery");
+	}
 
 	/*
 	 * boot the recovery system without waiting; boot the

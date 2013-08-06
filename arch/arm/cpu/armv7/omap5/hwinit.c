@@ -32,23 +32,26 @@
 #include <asm/armv7.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/arch/clocks.h>
+#include <asm/arch/clock.h>
 #include <asm/sizes.h>
 #include <asm/utils.h>
 #include <asm/arch/gpio.h>
 #include <asm/emif.h>
+#include <asm/omap_common.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-u32 *const omap_si_rev = (u32 *)OMAP5_SRAM_SCRATCH_OMAP5_REV;
+u32 *const omap_si_rev = (u32 *)OMAP_SRAM_SCRATCH_OMAP_REV;
 
-static struct gpio_bank gpio_bank_54xx[6] = {
+static struct gpio_bank gpio_bank_54xx[8] = {
 	{ (void *)OMAP54XX_GPIO1_BASE, METHOD_GPIO_24XX },
 	{ (void *)OMAP54XX_GPIO2_BASE, METHOD_GPIO_24XX },
 	{ (void *)OMAP54XX_GPIO3_BASE, METHOD_GPIO_24XX },
 	{ (void *)OMAP54XX_GPIO4_BASE, METHOD_GPIO_24XX },
 	{ (void *)OMAP54XX_GPIO5_BASE, METHOD_GPIO_24XX },
 	{ (void *)OMAP54XX_GPIO6_BASE, METHOD_GPIO_24XX },
+	{ (void *)OMAP54XX_GPIO7_BASE, METHOD_GPIO_24XX },
+	{ (void *)OMAP54XX_GPIO8_BASE, METHOD_GPIO_24XX },
 };
 
 const struct gpio_bank *const omap_gpio_bank = gpio_bank_54xx;
@@ -99,16 +102,21 @@ static void io_settings_ddr3(void)
 	writel(ioregs->ctrl_emif_sdram_config_ext,
 	       (*ctrl)->control_emif2_sdram_config_ext);
 
-	/* Disable DLL select */
-	io_settings = (readl((*ctrl)->control_port_emif1_sdram_config)
+	if (is_omap54xx()) {
+		/* Disable DLL select */
+		io_settings = (readl((*ctrl)->control_port_emif1_sdram_config)
 							& 0xFFEFFFFF);
-	writel(io_settings,
-		(*ctrl)->control_port_emif1_sdram_config);
+		writel(io_settings,
+			(*ctrl)->control_port_emif1_sdram_config);
 
-	io_settings = (readl((*ctrl)->control_port_emif2_sdram_config)
+		io_settings = (readl((*ctrl)->control_port_emif2_sdram_config)
 							& 0xFFEFFFFF);
-	writel(io_settings,
-		(*ctrl)->control_port_emif2_sdram_config);
+		writel(io_settings,
+			(*ctrl)->control_port_emif2_sdram_config);
+	} else {
+		writel(ioregs->ctrl_ddr_ctrl_ext_0,
+				(*ctrl)->control_ddr_control_ext_0);
+	}
 }
 
 /*
@@ -199,6 +207,9 @@ void srcomp_enable(void)
 	u32 srcomp_value, mul_factor, div_factor, clk_val, i;
 	u32 sysclk_ind	= get_sys_clk_index();
 	u32 omap_rev	= omap_revision();
+
+	if (!is_omap54xx())
+		return;
 
 	mul_factor = srcomp_parameters[sysclk_ind].multiply_factor;
 	div_factor = srcomp_parameters[sysclk_ind].divide_factor;
@@ -362,4 +373,23 @@ void reset_cpu(ulong ignored)
 u32 warm_reset(void)
 {
 	return readl((*prcm)->prm_rstst) & PRM_RSTST_WARM_RESET_MASK;
+}
+
+void setup_warmreset_time(void)
+{
+	u32 rst_time, rst_val;
+
+#ifndef CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC
+	rst_time = CONFIG_DEFAULT_OMAP_RESET_TIME_MAX_USEC;
+#else
+	rst_time = CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC;
+#endif
+	rst_time = usec_to_32k(rst_time) << RSTTIME1_SHIFT;
+
+	if (rst_time > RSTTIME1_MASK)
+		rst_time = RSTTIME1_MASK;
+
+	rst_val = readl((*prcm)->prm_rsttime) & ~RSTTIME1_MASK;
+	rst_val |= rst_time;
+	writel(rst_val, (*prcm)->prm_rsttime);
 }

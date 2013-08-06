@@ -293,7 +293,7 @@ static iomux_v3_cfg_t const efikamx_sdhc1_pads[] = {
 
 static iomux_v3_cfg_t const efikamx_sdhc1_cd_pads[] = {
 	MX51_PAD_GPIO1_0__SD1_CD,
-	MX51_PAD_EIM_CS2__SD1_CD,
+	NEW_PAD_CTRL(MX51_PAD_EIM_CS2__GPIO2_27, MX51_ESDHC_PAD_CTRL),
 };
 
 #define EFIKAMX_SDHC1_CD	IMX_GPIO_NR(1, 0)

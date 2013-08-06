@@ -280,8 +280,9 @@ void exynos_fimd_lcd_init(vidinfo_t *vid)
 								node, "reg");
 	if (fimd_ctrl == NULL)
 		debug("Can't get the FIMD base address\n");
-#endif
+#else
 	fimd_ctrl = (struct exynos_fb *)samsung_get_base_fimd();
+#endif
 
 	offset = exynos_fimd_get_base_offset();
 

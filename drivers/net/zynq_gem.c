@@ -237,26 +237,28 @@ static void phy_detection(struct eth_device *dev)
 	u16 phyreg;
 	struct zynq_gem_priv *priv = dev->priv;
 
-	if (priv->phyaddr != -1 ) {
+	if (priv->phyaddr != -1) {
 		phyread(dev, priv->phyaddr, PHY_DETECT_REG, &phyreg);
 		if ((phyreg != 0xFFFF) &&
-		((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
+		    ((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
 			/* Found a valid PHY address */
-			debug("Default phy address %d is valid\n", priv->phyaddr);
+			debug("Default phy address %d is valid\n",
+			      priv->phyaddr);
 			return;
 		} else {
-			debug("PHY address is not setup correctly %d\n", priv->phyaddr);
+			debug("PHY address is not setup correctly %d\n",
+			      priv->phyaddr);
 			priv->phyaddr = -1;
 		}
 	}
 
 	debug("detecting phy address\n");
-	if (priv->phyaddr == -1 ) {
+	if (priv->phyaddr == -1) {
 		/* detect the PHY address */
 		for (i = 31; i >= 0; i--) {
 			phyread(dev, i, PHY_DETECT_REG, &phyreg);
 			if ((phyreg != 0xFFFF) &&
-			((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
+			    ((phyreg & PHY_DETECT_MASK) == PHY_DETECT_MASK)) {
 				/* Found a valid PHY address */
 				priv->phyaddr = i;
 				debug("Found valid phy address, %d\n", i);
@@ -297,7 +299,7 @@ static int zynq_gem_setup_mac(struct eth_device *dev)
 
 static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 {
-	u32 i;
+	u32 i, rclk, clk = 0;
 	struct phy_device *phydev;
 	const u32 stat_size = (sizeof(struct zynq_gem_regs) -
 				offsetof(struct zynq_gem_regs, stat)) / 4;
@@ -320,8 +322,7 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 		writel(0, &regs->rxsr);
 		writel(0, &regs->phymntnc);
 
-		/*
-		 * Clear the Hash registers for the mac address
+		/* Clear the Hash registers for the mac address
 		 * pointed by AddressPtr
 		 */
 		writel(0x0, &regs->hashl);
@@ -340,13 +341,13 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 		for (i = 0; i < RX_BUF; i++) {
 			priv->rx_bd[i].status = 0xF0000000;
 			priv->rx_bd[i].addr =
-					(u32)((char *) &(priv->rxbuffers) +
+					(u32)((char *)&(priv->rxbuffers) +
 							(i * PKTSIZE_ALIGN));
 		}
 		/* WRAP bit to last BD */
 		priv->rx_bd[--i].addr |= ZYNQ_GEM_RXBUF_WRAP_MASK;
 		/* Write RxBDs to IP */
-		writel((u32) &(priv->rx_bd), &regs->rxqbase);
+		writel((u32)&(priv->rx_bd), &regs->rxqbase);
 
 		/* Setup for DMA Configuration register */
 		writel(ZYNQ_GEM_DMACR_INIT, &regs->dmacr);
@@ -360,27 +361,26 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 	phy_detection(dev);
 
 #ifdef CONFIG_PHYLIB
-	u32 rclk, clk = 0;
-
 	/* interface - look at tsec */
 	phydev = phy_connect(priv->bus, priv->phyaddr, dev, 0);
 
-	phydev->supported = supported | ADVERTISED_Pause | ADVERTISED_Asym_Pause;
+	phydev->supported = supported | ADVERTISED_Pause |
+			    ADVERTISED_Asym_Pause;
 	phydev->advertising = phydev->supported;
 	priv->phydev = phydev;
 	phy_config(phydev);
 	phy_startup(phydev);
 
-	switch(phydev->speed) {
+	switch (phydev->speed) {
 	case SPEED_1000:
 		writel(ZYNQ_GEM_NWCFG_INIT | ZYNQ_GEM_NWCFG_SPEED1000,
-								&regs->nwcfg);
+		       &regs->nwcfg);
 		rclk = (0 << 4) | (1 << 0);
 		clk = (1 << 20) | (8 << 8) | (0 << 4) | (1 << 0);
 		break;
 	case SPEED_100:
 		clrsetbits_le32(&regs->nwcfg, ZYNQ_GEM_NWCFG_SPEED1000,
-			ZYNQ_GEM_NWCFG_INIT | ZYNQ_GEM_NWCFG_SPEED100);
+				ZYNQ_GEM_NWCFG_INIT | ZYNQ_GEM_NWCFG_SPEED100);
 		rclk = 1 << 0;
 		clk = (5 << 20) | (8 << 8) | (0 << 4) | (1 << 0);
 		break;
@@ -454,7 +454,7 @@ static int zynq_gem_send(struct eth_device *dev, void *ptr, int len)
 	writel((u32)&(priv->tx_bd), &regs->txqbase);
 
 	/* Setup Tx BD */
-	memset((void *) &(priv->tx_bd), 0, sizeof(struct emac_bd));
+	memset((void *)&(priv->tx_bd), 0, sizeof(struct emac_bd));
 
 	priv->tx_bd.addr = (u32)ptr;
 	priv->tx_bd.status = len | ZYNQ_GEM_TXBUF_LAST_MASK;

@@ -36,6 +36,7 @@
 #include <nand.h>
 #include <onenand_uboot.h>
 #include <mmc.h>
+#include <asm/sections.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -300,7 +301,7 @@ void board_init_r(gd_t *id, ulong dest_addr)
 
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
 
-	monitor_flash_len = &_end - &_start;
+	monitor_flash_len = (ulong)&_end - (ulong)&_start;
 	debug("monitor flash len: %08lX\n", monitor_flash_len);
 
 	board_init();	/* Setup chipselects */
@@ -403,11 +404,4 @@ void board_init_r(gd_t *id, ulong dest_addr)
 		main_loop();
 
 	/* NOTREACHED - no way out of command loop except booting */
-}
-
-void hang(void)
-{
-	puts("### ERROR ### Please RESET the board ###\n");
-	for (;;)
-		;
 }

@@ -154,15 +154,3 @@ void board_init(void)
 		main_loop();
 	}
 }
-
-
-/***********************************************************************/
-
-void hang(void)
-{
-	disable_interrupts();
-	puts("### ERROR ### Please reset board ###\n");
-
-	for (;;)
-		;
-}

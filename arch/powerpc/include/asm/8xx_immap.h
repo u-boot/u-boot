@@ -485,7 +485,12 @@ typedef struct comm_proc {
 	 * Some processors don't have all of it populated.
 	 */
 	u_char	cp_dpmem[0x1C00];	/* BD / Data / ucode */
-	u_char	cp_dparam[0x400];	/* Parameter RAM */
+
+	/* Parameter RAM */
+	union {
+		u_char	cp_dparam[0x400];
+		u16	cp_dparam16[0x200];
+	};
 } cpm8xx_t;
 
 /* Internal memory map.

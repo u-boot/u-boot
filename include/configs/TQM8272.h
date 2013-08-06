@@ -443,6 +443,7 @@
 
 #define	CONFIG_PCI
 #ifdef CONFIG_PCI
+#define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f	*/
 #define CONFIG_PCI_PNP
 #define CONFIG_EEPRO100

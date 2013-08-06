@@ -148,10 +148,3 @@ inline void board_init_r(gd_t *id, ulong dest_addr)
 	for (;;)
 		;
 }
-
-void hang(void) __attribute__ ((noreturn));
-void hang(void)
-{
-	for (;;)
-		;
-}

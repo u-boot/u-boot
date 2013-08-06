@@ -29,7 +29,7 @@ extern char _data[], _sdata[], _edata[];
 extern char __bss_start[], __bss_stop[];
 extern char __init_begin[], __init_end[];
 extern char _sinittext[], _einittext[];
-extern char _end[];
+extern char _end[], _init[];
 extern char __per_cpu_load[], __per_cpu_start[], __per_cpu_end[];
 extern char __kprobes_text_start[], __kprobes_text_end[];
 extern char __entry_text_start[], __entry_text_end[];
@@ -89,9 +89,6 @@ extern void _start(void);
 /* Start/end of the relocation entries, as an offset from _start */
 extern ulong _rel_dyn_start_ofs;
 extern ulong _rel_dyn_end_ofs;
-
-/* Start/end of the relocation symbol table, as an offset from _start */
-extern ulong _dynsym_start_ofs;
 
 /* End of the region to be relocated, as an offset form _start */
 extern ulong _image_copy_end_ofs;

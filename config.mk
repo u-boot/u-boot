@@ -210,6 +210,15 @@ CPPFLAGS += -ffunction-sections -fdata-sections
 LDFLAGS_FINAL += --gc-sections
 endif
 
+# TODO(sjg@chromium.org): Is this correct on Mac OS?
+ifdef CONFIG_FIT_SIGNATURE
+HOSTLIBS	+= -lssl -lcrypto
+
+# This affects include/image.h, but including the board config file
+# is tricky, so manually define this options here.
+HOSTCFLAGS	+= -DCONFIG_FIT_SIGNATURE
+endif
+
 ifneq ($(CONFIG_SYS_TEXT_BASE),)
 CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE)
 endif
@@ -222,6 +231,10 @@ ifneq ($(CONFIG_SPL_PAD_TO),)
 CPPFLAGS += -DCONFIG_SPL_PAD_TO=$(CONFIG_SPL_PAD_TO)
 endif
 
+ifneq ($(CONFIG_UBOOT_PAD_TO),)
+CPPFLAGS += -DCONFIG_UBOOT_PAD_TO=$(CONFIG_UBOOT_PAD_TO)
+endif
+
 ifeq ($(CONFIG_SPL_BUILD),y)
 CPPFLAGS += -DCONFIG_SPL_BUILD
 endif
@@ -229,8 +242,8 @@ endif
 # Does this architecture support generic board init?
 ifeq ($(__HAVE_ARCH_GENERIC_BOARD),)
 ifneq ($(CONFIG_SYS_GENERIC_BOARD),)
-$(error Your architecture does not support generic board. Please undefined \
-CONFIG_SYS_GENERIC_BOARD in your board config file)
+CHECK_GENERIC_BOARD = $(error Your architecture does not support generic board. \
+Please undefined CONFIG_SYS_GENERIC_BOARD in your board config file)
 endif
 endif
 
@@ -246,11 +259,10 @@ CPPFLAGS += -I$(TOPDIR)/include
 CPPFLAGS += -fno-builtin -ffreestanding -nostdinc	\
 	-isystem $(gccincdir) -pipe $(PLATFORM_CPPFLAGS)
 
-ifdef BUILD_TAG
-CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes \
-	-DBUILD_TAG='"$(BUILD_TAG)"'
-else
 CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes
+
+ifdef BUILD_TAG
+CFLAGS += -DBUILD_TAG='"$(BUILD_TAG)"'
 endif
 
 CFLAGS_SSP := $(call cc-option,-fno-stack-protector)
@@ -264,6 +276,16 @@ CFLAGS += $(CFLAGS_WARN)
 # Report stack usage if supported
 CFLAGS_STACK := $(call cc-option,-fstack-usage)
 CFLAGS += $(CFLAGS_STACK)
+
+BCURDIR = $(subst $(SRCTREE)/,,$(CURDIR:$(obj)%=%))
+
+ifeq ($(findstring examples/,$(BCURDIR)),)
+ifeq ($(CONFIG_SPL_BUILD),)
+ifdef FTRACE
+CFLAGS += -finstrument-functions -DFTRACE
+endif
+endif
+endif
 
 # $(CPPFLAGS) sets -g, which causes gcc to pass a suitable -g<format>
 # option to the assembler.
@@ -327,7 +349,6 @@ export	CONFIG_SYS_TEXT_BASE PLATFORM_CPPFLAGS PLATFORM_RELFLAGS CPPFLAGS CFLAGS 
 #########################################################################
 
 # Allow boards to use custom optimize flags on a per dir/file basis
-BCURDIR = $(subst $(SRCTREE)/,,$(CURDIR:$(obj)%=%))
 ALL_AFLAGS = $(AFLAGS) $(AFLAGS_$(BCURDIR)/$(@F)) $(AFLAGS_$(BCURDIR))
 ALL_CFLAGS = $(CFLAGS) $(CFLAGS_$(BCURDIR)/$(@F)) $(CFLAGS_$(BCURDIR))
 EXTRA_CPPFLAGS = $(CPPFLAGS_$(BCURDIR)/$(@F)) $(CPPFLAGS_$(BCURDIR))

@@ -46,6 +46,7 @@
 #define	CONFIG_SYS_TEXT_BASE	0xFFF80000
 
 #define CONFIG_PCI			/* PCI ethernet support	*/
+#define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
 #define CONFIG_TSEC_ENET		/* tsec ethernet support*/
 #undef CONFIG_ETHER_ON_FCC		/* cpm FCC ethernet support */
 #define CONFIG_ENV_OVERWRITE

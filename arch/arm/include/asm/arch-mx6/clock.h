@@ -61,6 +61,7 @@ enum mxc_clock {
 u32 imx_get_uartclk(void);
 u32 imx_get_fecclk(void);
 unsigned int mxc_get_clock(enum mxc_clock clk);
+void enable_ocotp_clk(unsigned char enable);
 void enable_usboh3_clk(unsigned char enable);
 int enable_sata_clock(void);
 int enable_i2c_clk(unsigned char enable, unsigned i2c_num);

@@ -100,7 +100,7 @@ static uint esdhc_xfertyp(struct mmc_cmd *cmd, struct mmc_data *data)
 	else if (cmd->resp_type & MMC_RSP_PRESENT)
 		xfertyp |= XFERTYP_RSPTYP_48;
 
-#ifdef CONFIG_MX53
+#if defined(CONFIG_MX53) || defined(CONFIG_T4240QDS)
 	if (cmd->cmdidx == MMC_CMD_STOP_TRANSMISSION)
 		xfertyp |= XFERTYP_CMDTYP_ABORT;
 #endif
@@ -310,6 +310,9 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	/* Figure out the transfer arguments */
 	xfertyp = esdhc_xfertyp(cmd, data);
 
+	/* Mask all irqs */
+	esdhc_write32(&regs->irqsigen, 0);
+
 	/* Send the command */
 	esdhc_write32(&regs->cmdarg, cmd->cmdarg);
 #if defined(CONFIG_FSL_USDHC)
@@ -320,15 +323,11 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	esdhc_write32(&regs->xfertyp, xfertyp);
 #endif
 
-	/* Mask all irqs */
-	esdhc_write32(&regs->irqsigen, 0);
-
 	/* Wait for the command to complete */
 	while (!(esdhc_read32(&regs->irqstat) & (IRQSTAT_CC | IRQSTAT_CTOE)))
 		;
 
 	irqstat = esdhc_read32(&regs->irqstat);
-	esdhc_write32(&regs->irqstat, irqstat);
 
 	/* Reset CMD and DATA portions on error */
 	if (irqstat & (CMD_ERR | IRQSTAT_CTOE)) {
@@ -471,7 +470,7 @@ static int esdhc_init(struct mmc *mmc)
 	int timeout = 1000;
 
 	/* Reset the entire host controller */
-	esdhc_write32(&regs->sysctl, SYSCTL_RSTA);
+	esdhc_setbits32(&regs->sysctl, SYSCTL_RSTA);
 
 	/* Wait until the controller is available */
 	while ((esdhc_read32(&regs->sysctl) & SYSCTL_RSTA) && --timeout)
@@ -482,7 +481,7 @@ static int esdhc_init(struct mmc *mmc)
 	esdhc_write32(&regs->scr, 0x00000040);
 #endif
 
-	esdhc_write32(&regs->sysctl, SYSCTL_HCKEN | SYSCTL_IPGEN);
+	esdhc_setbits32(&regs->sysctl, SYSCTL_HCKEN | SYSCTL_IPGEN);
 
 	/* Set the initial clock speed */
 	mmc_set_clock(mmc, 400000);
@@ -516,7 +515,7 @@ static void esdhc_reset(struct fsl_esdhc *regs)
 	unsigned long timeout = 100; /* wait max 100 ms */
 
 	/* reset the controller */
-	esdhc_write32(&regs->sysctl, SYSCTL_RSTA);
+	esdhc_setbits32(&regs->sysctl, SYSCTL_RSTA);
 
 	/* hardware clears the bit when it is done */
 	while ((esdhc_read32(&regs->sysctl) & SYSCTL_RSTA) && --timeout)
@@ -601,8 +600,7 @@ int fsl_esdhc_mmc_init(bd_t *bis)
 {
 	struct fsl_esdhc_cfg *cfg;
 
-	cfg = malloc(sizeof(struct fsl_esdhc_cfg));
-	memset(cfg, 0, sizeof(struct fsl_esdhc_cfg));
+	cfg = calloc(sizeof(struct fsl_esdhc_cfg), 1);
 	cfg->esdhc_base = CONFIG_SYS_FSL_ESDHC_ADDR;
 	cfg->sdhc_clk = gd->arch.sdhc_clk;
 	return fsl_esdhc_initialize(bis, cfg);

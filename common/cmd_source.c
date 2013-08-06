@@ -36,6 +36,7 @@
 #include <image.h>
 #include <malloc.h>
 #include <asm/byteorder.h>
+#include <asm/io.h>
 #if defined(CONFIG_8xx)
 #include <mpc8xx.h>
 #endif
@@ -44,9 +45,10 @@ int
 source (ulong addr, const char *fit_uname)
 {
 	ulong		len;
-	image_header_t	*hdr;
+	const image_header_t *hdr;
 	ulong		*data;
 	int		verify;
+	void *buf;
 #if defined(CONFIG_FIT)
 	const void*	fit_hdr;
 	int		noffset;
@@ -56,9 +58,10 @@ source (ulong addr, const char *fit_uname)
 
 	verify = getenv_yesno ("verify");
 
-	switch (genimg_get_format ((void *)addr)) {
+	buf = map_sysmem(addr, 0);
+	switch (genimg_get_format(buf)) {
 	case IMAGE_FORMAT_LEGACY:
-		hdr = (image_header_t *)addr;
+		hdr = buf;
 
 		if (!image_check_magic (hdr)) {
 			puts ("Bad magic number\n");
@@ -104,7 +107,7 @@ source (ulong addr, const char *fit_uname)
 			return 1;
 		}
 
-		fit_hdr = (const void *)addr;
+		fit_hdr = buf;
 		if (!fit_check_format (fit_hdr)) {
 			puts ("Bad FIT image format\n");
 			return 1;
@@ -124,7 +127,7 @@ source (ulong addr, const char *fit_uname)
 
 		/* verify integrity */
 		if (verify) {
-			if (!fit_image_check_hashes (fit_hdr, noffset)) {
+			if (!fit_image_verify(fit_hdr, noffset)) {
 				puts ("Bad Data Hash\n");
 				return 1;
 			}

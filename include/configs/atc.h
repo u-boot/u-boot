@@ -263,6 +263,7 @@
 #endif
 
 #define	CONFIG_PCI
+#define CONFIG_PCI_INDIRECT_BRIDGE
 #define	CONFIG_PCI_PNP
 #define	CONFIG_SYS_PCI_MSTR_IO_BUS	0x00000000	/* PCI base   */
 

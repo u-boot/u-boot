@@ -38,6 +38,7 @@
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/byteorder.h>
+#include <asm/unaligned.h>
 #include <environment.h>
 #include <mtd/cfi_flash.h>
 #include <watchdog.h>
@@ -183,16 +184,16 @@ u64 flash_read64(void *addr)__attribute__((weak, alias("__flash_read64")));
 flash_info_t *flash_get_info(ulong base)
 {
 	int i;
-	flash_info_t *info = NULL;
+	flash_info_t *info;
 
 	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
-		info = & flash_info[i];
+		info = &flash_info[i];
 		if (info->size && info->start[0] <= base &&
 		    base <= info->start[0] + info->size - 1)
-			break;
+			return info;
 	}
 
-	return info;
+	return NULL;
 }
 #endif
 
@@ -1640,9 +1641,10 @@ static void cfi_reverse_geometry(struct cfi_qry *qry)
 	u32 tmp;
 
 	for (i = 0, j = qry->num_erase_regions - 1; i < j; i++, j--) {
-		tmp = qry->erase_region_info[i];
-		qry->erase_region_info[i] = qry->erase_region_info[j];
-		qry->erase_region_info[j] = tmp;
+		tmp = get_unaligned(&(qry->erase_region_info[i]));
+		put_unaligned(get_unaligned(&(qry->erase_region_info[j])),
+			      &(qry->erase_region_info[i]));
+		put_unaligned(tmp, &(qry->erase_region_info[j]));
 	}
 }
 
@@ -1795,7 +1797,7 @@ static int flash_detect_legacy(phys_addr_t base, int banknum)
 			};
 			int i;
 
-			for (i = 0; i < sizeof(modes) / sizeof(modes[0]); i++) {
+			for (i = 0; i < ARRAY_SIZE(modes); i++) {
 				info->vendor = modes[i];
 				info->start[0] =
 					(ulong)map_physmem(base,
@@ -1881,8 +1883,7 @@ static int __flash_detect_cfi (flash_info_t * info, struct cfi_qry *qry)
 	/* Issue FLASH reset command */
 	flash_cmd_reset(info);
 
-	for (cfi_offset=0;
-	     cfi_offset < sizeof(flash_offset_cfi) / sizeof(uint);
+	for (cfi_offset = 0; cfi_offset < ARRAY_SIZE(flash_offset_cfi);
 	     cfi_offset++) {
 		flash_write_cmd (info, 0, flash_offset_cfi[cfi_offset],
 				 FLASH_CMD_CFI);
@@ -2073,8 +2074,8 @@ ulong flash_get_size (phys_addr_t base, int banknum)
 	info->start[0] = (ulong)map_physmem(base, info->portwidth, MAP_NOCACHE);
 
 	if (flash_detect_cfi (info, &qry)) {
-		info->vendor = le16_to_cpu(qry.p_id);
-		info->ext_addr = le16_to_cpu(qry.p_adr);
+		info->vendor = le16_to_cpu(get_unaligned(&(qry.p_id)));
+		info->ext_addr = le16_to_cpu(get_unaligned(&(qry.p_adr)));
 		num_erase_regions = qry.num_erase_regions;
 
 		if (info->ext_addr) {
@@ -2163,7 +2164,8 @@ ulong flash_get_size (phys_addr_t base, int banknum)
 				break;
 			}
 
-			tmp = le32_to_cpu(qry.erase_region_info[i]);
+			tmp = le32_to_cpu(get_unaligned(
+						&(qry.erase_region_info[i])));
 			debug("erase region %u: 0x%08lx\n", i, tmp);
 
 			erase_region_count = (tmp & 0xffff) + 1;
@@ -2337,7 +2339,7 @@ void flash_protect_default(void)
 #endif
 
 #if defined(CONFIG_SYS_FLASH_AUTOPROTECT_LIST)
-	for (i = 0; i < (sizeof(apl) / sizeof(struct apl_s)); i++) {
+	for (i = 0; i < ARRAY_SIZE(apl); i++) {
 		debug("autoprotecting from %08lx to %08lx\n",
 		      apl[i].start, apl[i].start + apl[i].size - 1);
 		flash_protect(FLAG_PROTECT_SET,

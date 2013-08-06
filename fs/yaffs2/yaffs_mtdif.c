@@ -70,22 +70,22 @@ int nandmtd_WriteChunkToNAND(struct yaffs_dev *dev, int chunkInNAND,
 	u8 spareAsBytes[8]; /* OOB */
 
 	if (data && !spare)
-		retval = mtd->write(mtd, addr, dev->data_bytes_per_chunk,
+		retval = mtd_write(mtd, addr, dev->data_bytes_per_chunk,
 				&dummy, data);
 	else if (spare) {
 		if (dev->param.use_nand_ecc) {
 			translate_spare2oob(spare, spareAsBytes);
-			ops.mode = MTD_OOB_AUTO;
+			ops.mode = MTD_OPS_AUTO_OOB;
 			ops.ooblen = 8; /* temp hack */
 		} else {
-			ops.mode = MTD_OOB_RAW;
+			ops.mode = MTD_OPS_RAW;
 			ops.ooblen = YAFFS_BYTES_PER_SPARE;
 		}
 		ops.len = data ? dev->data_bytes_per_chunk : ops.ooblen;
 		ops.datbuf = (u8 *)data;
 		ops.ooboffs = 0;
 		ops.oobbuf = spareAsBytes;
-		retval = mtd->write_oob(mtd, addr, &ops);
+		retval = mtd_write_oob(mtd, addr, &ops);
 	}
 
 	if (retval == 0)
@@ -106,21 +106,21 @@ int nandmtd_ReadChunkFromNAND(struct yaffs_dev *dev, int chunkInNAND, u8 *data,
 	u8 spareAsBytes[8]; /* OOB */
 
 	if (data && !spare)
-		retval = mtd->read(mtd, addr, dev->data_bytes_per_chunk,
+		retval = mtd_read(mtd, addr, dev->data_bytes_per_chunk,
 				&dummy, data);
 	else if (spare) {
 		if (dev->param.use_nand_ecc) {
-			ops.mode = MTD_OOB_AUTO;
+			ops.mode = MTD_OPS_AUTO_OOB;
 			ops.ooblen = 8; /* temp hack */
 		} else {
-			ops.mode = MTD_OOB_RAW;
+			ops.mode = MTD_OPS_RAW;
 			ops.ooblen = YAFFS_BYTES_PER_SPARE;
 		}
 		ops.len = data ? dev->data_bytes_per_chunk : ops.ooblen;
 		ops.datbuf = data;
 		ops.ooboffs = 0;
 		ops.oobbuf = spareAsBytes;
-		retval = mtd->read_oob(mtd, addr, &ops);
+		retval = mtd_read_oob(mtd, addr, &ops);
 		if (dev->param.use_nand_ecc)
 			translate_oob2spare(spare, spareAsBytes);
 	}
@@ -151,7 +151,7 @@ int nandmtd_EraseBlockInNAND(struct yaffs_dev *dev, int blockNumber)
 	/* Todo finish off the ei if required */
 
 
-	retval = mtd->erase(mtd, &ei);
+	retval = mtd_erase(mtd, &ei);
 
 	if (retval == 0)
 		return YAFFS_OK;

@@ -36,6 +36,7 @@
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
+#define CONFIG_BOARD_EARLY_INIT_F
 
 /* Mach Type */
 #define CONFIG_MACH_TYPE		MACH_TYPE_SMDKV310
@@ -57,6 +58,7 @@
 /* Handling Sleep Mode*/
 #define S5P_CHECK_SLEEP			0x00000BAD
 #define S5P_CHECK_DIDLE			0xBAD00000
+#define S5P_CHECK_LPA			0xABAD0000
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (1 << 20))
@@ -93,7 +95,10 @@
 
 /* MMC SPL */
 #define CONFIG_SPL
+#define CONFIG_SKIP_LOWLEVEL_INIT
 #define COPY_BL2_FNPTR_ADDR	0x00002488
+
+#define CONFIG_SPL_TEXT_BASE	0x02021410
 
 #define CONFIG_BOOTCOMMAND	"fatload mmc 0 40007000 uImage; bootm 40007000"
 
@@ -144,7 +149,10 @@
 #define CONFIG_ENV_OFFSET		(RESERVE_BLOCK_SIZE + BL1_SIZE)
 #define CONFIG_DOS_PARTITION		1
 
-#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR - GENERATED_GBL_DATA_SIZE)
+#define CONFIG_SPL_LDSCRIPT	"board/samsung/common/exynos-uboot-spl.lds"
+#define CONFIG_SPL_MAX_FOOTPRINT	(14 * 1024)
+
+#define CONFIG_SYS_INIT_SP_ADDR		0x02040000
 
 /* U-boot copy size from boot Media to DRAM.*/
 #define	COPY_BL2_SIZE		0x80000

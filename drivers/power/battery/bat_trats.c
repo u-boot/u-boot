@@ -41,18 +41,23 @@ static int power_battery_charge(struct pmic *bat)
 	for (k = 0; bat->chrg->chrg_bat_present(p_bat->chrg) &&
 		     bat->chrg->chrg_type(p_bat->muic) &&
 		     battery->state_of_chrg < 100; k++) {
-		udelay(10000000);
-		puts(".");
+		udelay(2000000);
+		if (!(k % 5))
+			puts(".");
 		bat->fg->fg_battery_update(p_bat->fg, bat);
 
-		if (k == 100) {
+		if (k == 200) {
 			debug(" %d [V]", battery->voltage_uV);
 			puts("\n");
 			k = 0;
 		}
 
+		if (ctrlc()) {
+			printf("\nCharging disabled on request.\n");
+			goto exit;
+		}
 	}
-
+ exit:
 	bat->chrg->chrg_state(p_bat->chrg, CHARGER_DISABLE, 0);
 
 	return 0;

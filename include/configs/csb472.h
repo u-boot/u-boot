@@ -203,6 +203,7 @@
  *
  */
 #define CONFIG_PCI			/* include pci support	        */
+#define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
 #define PCI_HOST_ADAPTER	0	/* configure ar pci adapter     */
 #define PCI_HOST_FORCE		1	/* configure as pci host        */
 #define PCI_HOST_AUTO		2	/* detected via arbiter enable  */

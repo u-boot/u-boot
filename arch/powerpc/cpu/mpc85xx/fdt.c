@@ -663,6 +663,13 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_FSL_CORENET
 	do_fixup_by_compat_u32(blob, "fsl,qoriq-clockgen-1.0",
 		"clock-frequency", CONFIG_SYS_CLK_FREQ, 1);
+	do_fixup_by_compat_u32(blob, "fsl,qoriq-clockgen-2.0",
+		"clock-frequency", CONFIG_SYS_CLK_FREQ, 1);
+	do_fixup_by_compat_u32(blob, "fsl,mpic",
+		"clock-frequency", get_bus_freq(0)/2, 1);
+#else
+	do_fixup_by_compat_u32(blob, "fsl,mpic",
+		"clock-frequency", get_bus_freq(0), 1);
 #endif
 
 	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);

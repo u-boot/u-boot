@@ -164,7 +164,7 @@ u64 serdes_init(u32 sd, u32 sd_addr, u32 sd_prctl_mask, u32 sd_prctl_shift)
 	}
 
 	cfg >>= sd_prctl_shift;
-	printf("Using SERDES%d Protocol: 0x%x\n", sd + 1, cfg);
+	printf("Using SERDES%d Protocol: %d (0x%x)\n", sd + 1, cfg, cfg);
 	if (!is_serdes_prtcl_valid(sd, cfg))
 		printf("SERDES%d[PRTCL] = 0x%x is not valid\n", sd + 1, cfg);
 

@@ -105,7 +105,7 @@ static int mpc8260_smc_serial_init(void)
 	/* initialize pointers to SMC */
 
 	sp = (smc_t *) &(im->im_smc[SMC_INDEX]);
-	*(ushort *)(&im->im_dprambase[PROFF_SMC_BASE]) = PROFF_SMC;
+	im->im_dprambase16[PROFF_SMC_BASE / sizeof(u16)] = PROFF_SMC;
 	up = (smc_uart_t *)&im->im_dprambase[PROFF_SMC];
 
 	/* Disable transmitter/receiver. */
@@ -331,7 +331,7 @@ kgdb_serial_init (void)
 	/* initialize pointers to SMC */
 
 	sp = (smc_t *) &(im->im_smc[KGDB_SMC_INDEX]);
-	*(ushort *)(&im->im_dprambase[KGDB_PROFF_SMC_BASE]) = KGDB_PROFF_SMC;
+	im->im_dprambase16[KGDB_PROFF_SMC_BASE / sizeof(u16)] = KGDB_PROFF_SMC;
 	up = (smc_uart_t *)&im->im_dprambase[KGDB_PROFF_SMC];
 
 	/* Disable transmitter/receiver. */

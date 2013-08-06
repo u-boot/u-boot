@@ -52,6 +52,7 @@
 #endif
 
 #define CONFIG_PCI
+#define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_FSL_ELBC			1
 
 #define CONFIG_MISC_INIT_R

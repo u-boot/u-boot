@@ -44,13 +44,11 @@ COBJS-$(CONFIG_SYS_GENERIC_BOARD) += board_r.o
 COBJS-y += cmd_boot.o
 COBJS-$(CONFIG_CMD_BOOTM) += cmd_bootm.o
 COBJS-y += cmd_help.o
-COBJS-y += cmd_nvedit.o
 COBJS-y += cmd_version.o
 
 # environment
 COBJS-y += env_attr.o
 COBJS-y += env_callback.o
-COBJS-y += env_common.o
 COBJS-y += env_flags.o
 COBJS-$(CONFIG_ENV_IS_IN_DATAFLASH) += env_dataflash.o
 COBJS-$(CONFIG_ENV_IS_IN_EEPROM) += env_eeprom.o
@@ -111,6 +109,7 @@ ifdef CONFIG_FPGA
 COBJS-$(CONFIG_CMD_FPGA) += cmd_fpga.o
 endif
 COBJS-$(CONFIG_CMD_FS_GENERIC) += cmd_fs.o
+COBJS-$(CONFIG_CMD_FUSE) += cmd_fuse.o
 COBJS-$(CONFIG_CMD_GETTIME) += cmd_gettime.o
 COBJS-$(CONFIG_CMD_GPIO) += cmd_gpio.o
 COBJS-$(CONFIG_CMD_I2C) += cmd_i2c.o
@@ -164,11 +163,13 @@ COBJS-$(CONFIG_CMD_SF) += cmd_sf.o
 COBJS-$(CONFIG_CMD_SCSI) += cmd_scsi.o
 COBJS-$(CONFIG_CMD_SHA1SUM) += cmd_sha1sum.o
 COBJS-$(CONFIG_CMD_SETEXPR) += cmd_setexpr.o
+COBJS-$(CONFIG_CMD_SOFTSWITCH) += cmd_softswitch.o
 COBJS-$(CONFIG_CMD_SPI) += cmd_spi.o
 COBJS-$(CONFIG_CMD_SPIBOOTLDR) += cmd_spibootldr.o
 COBJS-$(CONFIG_CMD_STRINGS) += cmd_strings.o
 COBJS-$(CONFIG_CMD_TERMINAL) += cmd_terminal.o
 COBJS-$(CONFIG_CMD_TIME) += cmd_time.o
+COBJS-$(CONFIG_CMD_TRACE) += cmd_trace.o
 COBJS-$(CONFIG_SYS_HUSH_PARSER) += cmd_test.o
 COBJS-$(CONFIG_CMD_TPM) += cmd_tpm.o
 COBJS-$(CONFIG_CMD_TSI148) += cmd_tsi148.o
@@ -189,20 +190,13 @@ COBJS-$(CONFIG_CMD_ZIP) += cmd_zip.o
 COBJS-$(CONFIG_CMD_ZFS) += cmd_zfs.o
 
 # others
-ifdef CONFIG_DDR_SPD
-SPD := y
-endif
-ifdef CONFIG_SPD_EEPROM
-SPD := y
-endif
-COBJS-$(SPD) += ddr_spd.o
-COBJS-$(CONFIG_HWCONFIG) += hwconfig.o
 COBJS-$(CONFIG_BOOTSTAGE) += bootstage.o
 COBJS-$(CONFIG_CONSOLE_MUX) += iomux.o
 COBJS-y += flash.o
 COBJS-$(CONFIG_CMD_KGDB) += kgdb.o kgdb_stubs.o
 COBJS-$(CONFIG_I2C_EDID) += edid.o
 COBJS-$(CONFIG_KALLSYMS) += kallsyms.o
+COBJS-y += splash.o
 COBJS-$(CONFIG_LCD) += lcd.o
 COBJS-$(CONFIG_LYNXKDI) += lynxkdi.o
 COBJS-$(CONFIG_MENU) += menu.o
@@ -214,22 +208,43 @@ COBJS-$(CONFIG_CMD_GPT) += cmd_gpt.o
 endif
 
 ifdef CONFIG_SPL_BUILD
-COBJS-y += cmd_nvedit.o
-COBJS-y += env_common.o
 COBJS-$(CONFIG_ENV_IS_IN_FLASH) += env_flash.o
 COBJS-$(CONFIG_SPL_YMODEM_SUPPORT) += xyzModem.o
-COBJS-$(CONFIG_SPL_NET_SUPPORT) += cmd_nvedit.o
-COBJS-$(CONFIG_SPL_NET_SUPPORT) += env_attr.o
-COBJS-$(CONFIG_SPL_NET_SUPPORT) += env_callback.o
-COBJS-$(CONFIG_SPL_NET_SUPPORT) += env_common.o
-COBJS-$(CONFIG_SPL_NET_SUPPORT) += env_flags.o
-COBJS-$(CONFIG_SPL_NET_SUPPORT) += env_nowhere.o
 COBJS-$(CONFIG_SPL_NET_SUPPORT) += miiphyutil.o
+# environment
+COBJS-$(CONFIG_SPL_ENV_SUPPORT) += env_attr.o
+COBJS-$(CONFIG_SPL_ENV_SUPPORT) += env_flags.o
+COBJS-$(CONFIG_SPL_ENV_SUPPORT) += env_callback.o
+ifneq ($(CONFIG_SPL_NET_SUPPORT),y)
+COBJS-$(CONFIG_ENV_IS_NOWHERE) += env_nowhere.o
+COBJS-$(CONFIG_ENV_IS_IN_MMC) += env_mmc.o
+COBJS-$(CONFIG_ENV_IS_IN_NAND) += env_nand.o
+COBJS-$(CONFIG_ENV_IS_IN_SPI_FLASH) += env_sf.o
+COBJS-$(CONFIG_ENV_IS_IN_FLASH) += env_flash.o
+else
+COBJS-y += env_nowhere.o
 endif
+endif
+# core command
+COBJS-y += cmd_nvedit.o
+#environment
+COBJS-y += env_common.o
+#others
+ifdef CONFIG_DDR_SPD
+SPD := y
+endif
+ifdef CONFIG_SPD_EEPROM
+SPD := y
+endif
+COBJS-$(SPD) += ddr_spd.o
+COBJS-$(CONFIG_HWCONFIG) += hwconfig.o
 COBJS-$(CONFIG_BOUNCE_BUFFER) += bouncebuf.o
 COBJS-y += console.o
 COBJS-y += dlmalloc.o
 COBJS-y += image.o
+COBJS-$(CONFIG_OF_LIBFDT) += image-fdt.o
+COBJS-$(CONFIG_FIT) += image-fit.o
+COBJS-$(CONFIG_FIT_SIGNATURE) += image-sig.o
 COBJS-y += memsize.o
 COBJS-y += stdio.o
 

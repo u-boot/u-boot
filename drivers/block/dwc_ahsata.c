@@ -447,10 +447,13 @@ static int ahci_exec_ata_cmd(struct ahci_probe_ent *probe_ent,
 	if (buf && buf_len)
 		sg_count = ahci_fill_sg(probe_ent, port, buf, buf_len);
 	opts = (sizeof(struct sata_fis_h2d) >> 2) | (sg_count << 16);
-	if (is_write)
+	if (is_write) {
 		opts |= 0x40;
+		flush_cache((ulong)buf, buf_len);
+	}
 	ahci_fill_cmd_slot(pp, cmd_slot, opts);
 
+	flush_cache((int)(pp->cmd_slot), AHCI_PORT_PRIV_DMA_SZ);
 	writel_with_flush(1 << cmd_slot, &(port_mmio->ci));
 
 	if (waiting_for_cmd_completed((u8 *)&(port_mmio->ci),
@@ -458,8 +461,12 @@ static int ahci_exec_ata_cmd(struct ahci_probe_ent *probe_ent,
 		printf("timeout exit!\n");
 		return -1;
 	}
+	invalidate_dcache_range((int)(pp->cmd_slot),
+				(int)(pp->cmd_slot)+AHCI_PORT_PRIV_DMA_SZ);
 	debug("ahci_exec_ata_cmd: %d byte transferred.\n",
 	      pp->cmd_slot->status);
+	if (!is_write)
+		invalidate_dcache_range((ulong)buf, (ulong)buf+buf_len);
 
 	return buf_len;
 }
@@ -468,7 +475,8 @@ static void ahci_set_feature(u8 dev, u8 port)
 {
 	struct ahci_probe_ent *probe_ent =
 		(struct ahci_probe_ent *)sata_dev_desc[dev].priv;
-	struct sata_fis_h2d h2d, *cfis = &h2d;
+	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
+	struct sata_fis_h2d *cfis = &h2d;
 
 	memset(cfis, 0, sizeof(struct sata_fis_h2d));
 	cfis->fis_type = SATA_FIS_TYPE_REGISTER_H2D;
@@ -615,7 +623,8 @@ static void dwc_ahsata_identify(int dev, u16 *id)
 {
 	struct ahci_probe_ent *probe_ent =
 		(struct ahci_probe_ent *)sata_dev_desc[dev].priv;
-	struct sata_fis_h2d h2d, *cfis = &h2d;
+	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
+	struct sata_fis_h2d *cfis = &h2d;
 	u8 port = probe_ent->hard_port_no;
 
 	memset(cfis, 0, sizeof(struct sata_fis_h2d));
@@ -645,7 +654,8 @@ static u32 dwc_ahsata_rw_cmd(int dev, u32 start, u32 blkcnt,
 {
 	struct ahci_probe_ent *probe_ent =
 		(struct ahci_probe_ent *)sata_dev_desc[dev].priv;
-	struct sata_fis_h2d h2d, *cfis = &h2d;
+	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
+	struct sata_fis_h2d *cfis = &h2d;
 	u8 port = probe_ent->hard_port_no;
 	u32 block;
 
@@ -675,7 +685,8 @@ void dwc_ahsata_flush_cache(int dev)
 {
 	struct ahci_probe_ent *probe_ent =
 		(struct ahci_probe_ent *)sata_dev_desc[dev].priv;
-	struct sata_fis_h2d h2d, *cfis = &h2d;
+	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
+	struct sata_fis_h2d *cfis = &h2d;
 	u8 port = probe_ent->hard_port_no;
 
 	memset(cfis, 0, sizeof(struct sata_fis_h2d));
@@ -692,7 +703,8 @@ static u32 dwc_ahsata_rw_cmd_ext(int dev, u32 start, lbaint_t blkcnt,
 {
 	struct ahci_probe_ent *probe_ent =
 		(struct ahci_probe_ent *)sata_dev_desc[dev].priv;
-	struct sata_fis_h2d h2d, *cfis = &h2d;
+	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
+	struct sata_fis_h2d *cfis = &h2d;
 	u8 port = probe_ent->hard_port_no;
 	u64 block;
 
@@ -728,7 +740,8 @@ u32 dwc_ahsata_rw_ncq_cmd(int dev, u32 start, lbaint_t blkcnt,
 {
 	struct ahci_probe_ent *probe_ent =
 		(struct ahci_probe_ent *)sata_dev_desc[dev].priv;
-	struct sata_fis_h2d h2d, *cfis = &h2d;
+	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
+	struct sata_fis_h2d *cfis = &h2d;
 	u8 port = probe_ent->hard_port_no;
 	u64 block;
 
@@ -769,7 +782,8 @@ void dwc_ahsata_flush_cache_ext(int dev)
 {
 	struct ahci_probe_ent *probe_ent =
 		(struct ahci_probe_ent *)sata_dev_desc[dev].priv;
-	struct sata_fis_h2d h2d, *cfis = &h2d;
+	struct sata_fis_h2d h2d __aligned(ARCH_DMA_MINALIGN);
+	struct sata_fis_h2d *cfis = &h2d;
 	u8 port = probe_ent->hard_port_no;
 
 	memset(cfis, 0, sizeof(struct sata_fis_h2d));
@@ -912,7 +926,9 @@ int scan_sata(int dev)
 	u8 port = probe_ent->hard_port_no;
 	block_dev_desc_t *pdev = &(sata_dev_desc[dev]);
 
-	id = (u16 *)malloc(ATA_ID_WORDS * 2);
+	id = (u16 *)memalign(ARCH_DMA_MINALIGN,
+				roundup(ARCH_DMA_MINALIGN,
+					(ATA_ID_WORDS * 2)));
 	if (!id) {
 		printf("id malloc failed\n\r");
 		return -1;

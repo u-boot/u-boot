@@ -34,7 +34,6 @@
 #define __EXT_COMMON__
 #include <command.h>
 #define SECTOR_SIZE		0x200
-#define SECTOR_BITS		9
 
 /* Magic value used to identify an ext2 filesystem.  */
 #define	EXT2_MAGIC			0xEF53
@@ -58,18 +57,13 @@
 #define FILETYPE_INO_SYMLINK		0120000
 #define EXT2_ROOT_INO			2 /* Root inode */
 
-/* Bits used as offset in sector */
-#define DISK_SECTOR_BITS		9
 /* The size of an ext2 block in bytes.  */
 #define EXT2_BLOCK_SIZE(data)	   (1 << LOG2_BLOCK_SIZE(data))
 
-/* Log2 size of ext2 block in 512 blocks.  */
-#define LOG2_EXT2_BLOCK_SIZE(data) (__le32_to_cpu \
-				(data->sblock.log2_block_size) + 1)
-
 /* Log2 size of ext2 block in bytes.  */
-#define LOG2_BLOCK_SIZE(data)	   (__le32_to_cpu \
-		(data->sblock.log2_block_size) + 10)
+#define LOG2_BLOCK_SIZE(data)	   (__le32_to_cpu		   \
+				    (data->sblock.log2_block_size) \
+				    + EXT2_MIN_BLOCK_LOG_SIZE)
 #define INODE_SIZE_FILESYSTEM(data)	(__le32_to_cpu \
 			(data->sblock.inode_size))
 
@@ -186,7 +180,7 @@ struct ext2_data {
 	struct ext2fs_node diropen;
 };
 
-extern unsigned long part_offset;
+extern lbaint_t part_offset;
 
 int do_ext2ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 int do_ext2load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);

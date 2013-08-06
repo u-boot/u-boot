@@ -45,10 +45,6 @@
 #define CONFIG_DISPLAY_CPUINFO		1
 #define CONFIG_DISPLAY_BOARDINFO	1
 
-/* Clock Defines */
-#define V_OSCK			38400000	/* Clock output from T2 */
-#define V_SCLK                   V_OSCK
-
 #define CONFIG_MISC_INIT_R
 
 #define CONFIG_OF_LIBFDT		1
@@ -87,6 +83,10 @@
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
 					115200}
+
+/* CPU */
+#define CONFIG_ARCH_CPU_INIT
+
 /* I2C  */
 #define CONFIG_HARD_I2C			1
 #define CONFIG_SYS_I2C_SPEED		100000
@@ -150,6 +150,7 @@
 	"console=ttyO2,115200n8\0" \
 	"fdt_high=0xffffffff\0" \
 	"fdtaddr=0x80f80000\0" \
+	"fdtfile=undefined\0" \
 	"bootpart=0:2\0" \
 	"bootdir=/boot\0" \
 	"bootfile=zImage\0" \
@@ -176,7 +177,13 @@
 		"if test $board_name = sdp4430; then " \
 			"setenv fdtfile omap4-sdp.dtb; fi; " \
 		"if test $board_name = panda; then " \
-			"setenv fdtfile omap4-panda-es.dtb; fi\0" \
+			"setenv fdtfile omap4-panda.dtb; fi;" \
+		"if test $board_name = panda-a4; then " \
+			"setenv fdtfile omap4-panda-a4.dtb; fi;" \
+		"if test $board_name = panda-es; then " \
+			"setenv fdtfile omap4-panda-es.dtb; fi;" \
+		"if test $fdtfile = undefined; then " \
+			"echo WARNING: Could not determine device tree to use; fi; \0" \
 	"loadfdt=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
 
 #define CONFIG_BOOTCOMMAND \

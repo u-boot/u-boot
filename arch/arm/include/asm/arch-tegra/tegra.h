@@ -72,6 +72,7 @@ struct timerus {
 
 /* These are the available SKUs (product types) for Tegra */
 enum {
+	SKU_ID_T20_7		= 0x7,
 	SKU_ID_T20		= 0x8,
 	SKU_ID_T25SE		= 0x14,
 	SKU_ID_AP25		= 0x17,
@@ -81,6 +82,7 @@ enum {
 	SKU_ID_T33		= 0x80,
 	SKU_ID_T30		= 0x81, /* Cardhu value */
 	SKU_ID_T114_ENG		= 0x00, /* Dalmore value, unfused */
+	SKU_ID_T114_1		= 0x01,
 };
 
 /*

@@ -44,16 +44,15 @@
 #define DRAM_ADDR_SPACE_START	OMAP54XX_DRAM_ADDR_SPACE_START
 #define DRAM_ADDR_SPACE_END	OMAP54XX_DRAM_ADDR_SPACE_END
 
-/* CONTROL */
-#define CTRL_BASE		(OMAP54XX_L4_CORE_BASE + 0x2000)
-#define CONTROL_PADCONF_CORE	(CTRL_BASE + 0x0800)
-#define CONTROL_PADCONF_WKUP	(OMAP54XX_L4_WKUP_BASE + 0xc800)
+/* CONTROL ID CODE */
+#define CONTROL_CORE_ID_CODE	0x4A002204
+#define CONTROL_WKUP_ID_CODE	0x4AE0C204
 
-/* LPDDR2 IO regs. To be verified */
-#define LPDDR2_IO_REGS_BASE	0x4A100638
-
-/* CONTROL_ID_CODE */
-#define CONTROL_ID_CODE		(CTRL_BASE + 0x204)
+#ifdef CONFIG_DRA7XX
+#define CONTROL_ID_CODE		CONTROL_WKUP_ID_CODE
+#else
+#define CONTROL_ID_CODE		CONTROL_CORE_ID_CODE
+#endif
 
 /* To be verified */
 #define OMAP5430_CONTROL_ID_CODE_ES1_0		0x0B94202F
@@ -61,11 +60,6 @@
 #define OMAP5432_CONTROL_ID_CODE_ES1_0		0x0B99802F
 #define OMAP5432_CONTROL_ID_CODE_ES2_0          0x1B99802F
 #define DRA752_CONTROL_ID_CODE_ES1_0		0x0B99002F
-
-/* STD_FUSE_PROD_ID_1 */
-#define STD_FUSE_PROD_ID_1		(CTRL_BASE + 0x218)
-#define PROD_ID_1_SILICON_TYPE_SHIFT	16
-#define PROD_ID_1_SILICON_TYPE_MASK	(3 << 16)
 
 /* UART */
 #define UART1_BASE		(OMAP54XX_L4_PER_BASE + 0x6a000)
@@ -80,14 +74,8 @@
 /* Watchdog Timer2 - MPU watchdog */
 #define WDT2_BASE		(OMAP54XX_L4_WKUP_BASE + 0x14000)
 
-/* 32KTIMER */
-#define SYNC_32KTIMER_BASE	(OMAP54XX_L4_WKUP_BASE + 0x4000)
-
 /* GPMC */
 #define OMAP54XX_GPMC_BASE	0x50000000
-
-/* SYSTEM CONTROL MODULE */
-#define SYSCTRL_GENERAL_CORE_BASE	0x4A002000
 
 /*
  * Hardware Register Details
@@ -118,9 +106,9 @@
 /* CONTROL_EFUSE_2 */
 #define CONTROL_EFUSE_2_NMOS_PMOS_PTV_CODE_1		0x00ffc000
 
+#define SDCARD_BIAS_PWRDNZ				(1 << 27)
 #define SDCARD_PWRDNZ					(1 << 26)
 #define SDCARD_BIAS_HIZ_MODE				(1 << 25)
-#define SDCARD_BIAS_PWRDNZ				(1 << 22)
 #define SDCARD_PBIASLITE_VMODE				(1 << 21)
 
 #ifndef __ASSEMBLY__
@@ -181,53 +169,17 @@ struct s32ktimer {
 #define EFUSE_4 0x45145100
 #endif /* __ASSEMBLY__ */
 
-/*
- * Non-secure SRAM Addresses
- * Non-secure RAM starts at 0x40300000 for GP devices. But we keep SRAM_BASE
- * at 0x40304000(EMU base) so that our code works for both EMU and GP
- */
+#ifdef CONFIG_DRA7XX
+#define NON_SECURE_SRAM_START	0x40300000
+#define NON_SECURE_SRAM_END	0x40380000	/* Not inclusive */
+#else
 #define NON_SECURE_SRAM_START	0x40300000
 #define NON_SECURE_SRAM_END	0x40320000	/* Not inclusive */
+#endif
+#define SRAM_SCRATCH_SPACE_ADDR	NON_SECURE_SRAM_START
+
 /* base address for indirect vectors (internal boot mode) */
 #define SRAM_ROM_VECT_BASE	0x4031F000
-
-#define SRAM_SCRATCH_SPACE_ADDR		NON_SECURE_SRAM_START
-/*
- * SRAM scratch space entries
- */
-#define OMAP5_SRAM_SCRATCH_OMAP5_REV	SRAM_SCRATCH_SPACE_ADDR
-#define OMAP5_SRAM_SCRATCH_EMIF_T_NUM	(SRAM_SCRATCH_SPACE_ADDR + 0xC)
-#define OMAP5_SRAM_SCRATCH_EMIF_T_DEN	(SRAM_SCRATCH_SPACE_ADDR + 0x10)
-#define OMAP_SRAM_SCRATCH_PRCM_PTR      (SRAM_SCRATCH_SPACE_ADDR + 0x14)
-#define OMAP_SRAM_SCRATCH_DPLLS_PTR     (SRAM_SCRATCH_SPACE_ADDR + 0x18)
-#define OMAP_SRAM_SCRATCH_VCORES_PTR    (SRAM_SCRATCH_SPACE_ADDR + 0x1C)
-#define OMAP5_SRAM_SCRATCH_SYS_CTRL	(SRAM_SCRATCH_SPACE_ADDR + 0x20)
-#define OMAP5_SRAM_SCRATCH_SPACE_END	(SRAM_SCRATCH_SPACE_ADDR + 0x24)
-
-/* Silicon revisions */
-#define OMAP4430_SILICON_ID_INVALID	0xFFFFFFFF
-#define OMAP4430_ES1_0	0x44300100
-#define OMAP4430_ES2_0	0x44300200
-#define OMAP4430_ES2_1	0x44300210
-#define OMAP4430_ES2_2	0x44300220
-#define OMAP4430_ES2_3	0x44300230
-#define OMAP4460_ES1_0	0x44600100
-#define OMAP4460_ES1_1	0x44600110
-
-/* ROM code defines */
-/* Boot device */
-#define BOOT_DEVICE_MASK	0xFF
-#define BOOT_DEVICE_OFFSET	0x8
-#define DEV_DESC_PTR_OFFSET	0x4
-#define DEV_DATA_PTR_OFFSET	0x18
-#define BOOT_MODE_OFFSET	0x8
-#define RESET_REASON_OFFSET     0x9
-#define CH_FLAGS_OFFSET         0xA
-
-#define CH_FLAGS_CHSETTINGS	(0x1 << 0)
-#define	CH_FLAGS_CHRAM		(0x1 << 1)
-#define CH_FLAGS_CHFLASH	(0x1 << 2)
-#define CH_FLAGS_CHMMCSD	(0x1 << 3)
 
 /* CONTROL_SRCOMP_XXX_SIDE */
 #define OVERRIDE_XS_SHIFT		30
@@ -243,18 +195,23 @@ struct s32ktimer {
 #define SRCODE_OVERRIDE_SEL_XS_SHIFT	0
 #define SRCODE_OVERRIDE_SEL_XS_MASK	(1 << 0)
 
+/* ABB settings */
+#define OMAP_ABB_SETTLING_TIME		50
+#define OMAP_ABB_CLOCK_CYCLES		16
+
+/* ABB tranxdone mask */
+#define OMAP_ABB_MPU_TXDONE_MASK		(0x1 << 7)
+
+/* ABB efuse masks */
+#define OMAP5_ABB_FUSE_VSET_MASK		(0x1F << 24)
+#define OMAP5_ABB_FUSE_ENABLE_MASK		(0x1 << 29)
+#define OMAP5_ABB_LDOVBBMPU_MUX_CTRL_MASK	(0x1 << 10)
+#define OMAP5_ABB_LDOVBBMPU_VSET_OUT_MASK	(0x1f << 0)
+
 #ifndef __ASSEMBLY__
 struct srcomp_params {
 	s8 divide_factor;
 	s8 multiply_factor;
-};
-
-struct omap_boot_parameters {
-	char *boot_message;
-	unsigned int mem_boot_descriptor;
-	unsigned char omap_bootdevice;
-	unsigned char reset_reason;
-	unsigned char ch_flags;
 };
 
 struct ctrl_ioregs {
@@ -265,6 +222,7 @@ struct ctrl_ioregs {
 	u32 ctrl_ddrio_1;
 	u32 ctrl_ddrio_2;
 	u32 ctrl_emif_sdram_config_ext;
+	u32 ctrl_ddr_ctrl_ext_0;
 };
 #endif /* __ASSEMBLY__ */
 #endif

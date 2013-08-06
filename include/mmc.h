@@ -68,6 +68,7 @@
 #define UNUSABLE_ERR		-17 /* Unusable Card */
 #define COMM_ERR		-18 /* Communications Error */
 #define TIMEOUT			-19
+#define IN_PROGRESS		-20 /* operation is in progress */
 
 #define MMC_CMD_GO_IDLE_STATE		0
 #define MMC_CMD_SEND_OP_COND		1
@@ -92,6 +93,11 @@
 #define MMC_CMD_APP_CMD			55
 #define MMC_CMD_SPI_READ_OCR		58
 #define MMC_CMD_SPI_CRC_ON_OFF		59
+#define MMC_CMD_RES_MAN			62
+
+#define MMC_CMD62_ARG1			0xefac62ec
+#define MMC_CMD62_ARG2			0xcbaea7
+
 
 #define SD_CMD_SEND_RELATIVE_ADDR	3
 #define SD_CMD_SWITCH_FUNC		6
@@ -157,14 +163,18 @@
 /*
  * EXT_CSD fields
  */
+#define EXT_CSD_GP_SIZE_MULT		143	/* R/W */
 #define EXT_CSD_PARTITIONING_SUPPORT	160	/* RO */
+#define EXT_CSD_RPMB_MULT		168	/* RO */
 #define EXT_CSD_ERASE_GROUP_DEF		175	/* R/W */
+#define EXT_CSD_BOOT_BUS_WIDTH		177
 #define EXT_CSD_PART_CONF		179	/* R/W */
 #define EXT_CSD_BUS_WIDTH		183	/* R/W */
 #define EXT_CSD_HS_TIMING		185	/* R/W */
 #define EXT_CSD_REV			192	/* RO */
 #define EXT_CSD_CARD_TYPE		196	/* RO */
 #define EXT_CSD_SEC_CNT			212	/* RO, 4 bytes */
+#define EXT_CSD_HC_WP_GRP_SIZE		221	/* RO */
 #define EXT_CSD_HC_ERASE_GRP_SIZE	224	/* RO */
 #define EXT_CSD_BOOT_MULT		226	/* RO */
 
@@ -182,6 +192,16 @@
 #define EXT_CSD_BUS_WIDTH_1	0	/* Card is in 1 bit mode */
 #define EXT_CSD_BUS_WIDTH_4	1	/* Card is in 4 bit mode */
 #define EXT_CSD_BUS_WIDTH_8	2	/* Card is in 8 bit mode */
+
+#define EXT_CSD_BOOT_ACK_ENABLE			(1 << 6)
+#define EXT_CSD_BOOT_PARTITION_ENABLE		(1 << 3)
+#define EXT_CSD_PARTITION_ACCESS_ENABLE		(1 << 0)
+#define EXT_CSD_PARTITION_ACCESS_DISABLE	(0 << 0)
+
+#define EXT_CSD_BOOT_ACK(x)		(x << 6)
+#define EXT_CSD_BOOT_PART_NUM(x)	(x << 3)
+#define EXT_CSD_PARTITION_ACCESS(x)	(x << 0)
+
 
 #define R1_ILLEGAL_COMMAND		(1 << 22)
 #define R1_APP_CMD			(1 << 5)
@@ -206,6 +226,14 @@
 #define MMCPART_NOAVAILABLE	(0xff)
 #define PART_ACCESS_MASK	(0x7)
 #define PART_SUPPORT		(0x1)
+
+/* Maximum block size for MMC */
+#define MMC_MAX_BLOCK_LEN	512
+
+/* The number of MMC physical partitions.  These consist of:
+ * boot partitions (2), general purpose partitions (4) in MMC v4.4.
+ */
+#define MMC_NUM_BOOT_PARTITION	2
 
 struct mmc_cid {
 	unsigned long psn;
@@ -259,6 +287,10 @@ struct mmc {
 	uint write_bl_len;
 	uint erase_grp_size;
 	u64 capacity;
+	u64 capacity_user;
+	u64 capacity_boot;
+	u64 capacity_rpmb;
+	u64 capacity_gp[4];
 	block_dev_desc_t block_dev;
 	int (*send_cmd)(struct mmc *mmc,
 			struct mmc_cmd *cmd, struct mmc_data *data);
@@ -267,6 +299,10 @@ struct mmc {
 	int (*getcd)(struct mmc *mmc);
 	int (*getwp)(struct mmc *mmc);
 	uint b_max;
+	char op_cond_pending;	/* 1 if we are waiting on an op_cond command */
+	char init_in_progress;	/* 1 if we have done mmc_start_init() */
+	char preinit;		/* start init as early as possible */
+	uint op_cond_response;	/* the response byte from the last op_cond */
 };
 
 int mmc_register(struct mmc *mmc);
@@ -283,6 +319,36 @@ int mmc_switch_part(int dev_num, unsigned int part_num);
 int mmc_getcd(struct mmc *mmc);
 int mmc_getwp(struct mmc *mmc);
 void spl_mmc_load(void) __noreturn;
+/* Function to change the size of boot partition and rpmb partitions */
+int mmc_boot_partition_size_change(struct mmc *mmc, unsigned long bootsize,
+					unsigned long rpmbsize);
+/* Function to send commands to open/close the specified boot partition */
+int mmc_boot_part_access(struct mmc *mmc, u8 ack, u8 part_num, u8 access);
+
+/**
+ * Start device initialization and return immediately; it does not block on
+ * polling OCR (operation condition register) status.  Then you should call
+ * mmc_init, which would block on polling OCR status and complete the device
+ * initializatin.
+ *
+ * @param mmc	Pointer to a MMC device struct
+ * @return 0 on success, IN_PROGRESS on waiting for OCR status, <0 on error.
+ */
+int mmc_start_init(struct mmc *mmc);
+
+/**
+ * Set preinit flag of mmc device.
+ *
+ * This will cause the device to be pre-inited during mmc_initialize(),
+ * which may save boot time if the device is not accessed until later.
+ * Some eMMC devices take 200-300ms to init, but unfortunately they
+ * must be sent a series of commands to even get them to start preparing
+ * for operation.
+ *
+ * @param mmc		Pointer to a MMC device struct
+ * @param preinit	preinit flag value
+ */
+void mmc_set_preinit(struct mmc *mmc, int preinit);
 
 #ifdef CONFIG_GENERIC_MMC
 #define mmc_host_is_spi(mmc)	((mmc)->host_caps & MMC_MODE_SPI)

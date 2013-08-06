@@ -27,7 +27,7 @@
 
 #include <common.h>
 #include <asm/emif.h>
-#include <asm/arch/clocks.h>
+#include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/omap_common.h>
 #include <asm/utils.h>
@@ -209,7 +209,8 @@ void emif_update_timings(u32 base, const struct emif_regs *regs)
 	writel(regs->temp_alert_config, &emif->emif_temp_alert_config);
 	writel(regs->emif_ddr_phy_ctlr_1, &emif->emif_ddr_phy_ctrl_1_shdw);
 
-	if (omap_revision() >= OMAP5430_ES1_0) {
+	if ((omap_revision() >= OMAP5430_ES1_0) ||
+				(omap_revision() == DRA752_ES1_0)) {
 		writel(EMIF_L3_CONFIG_VAL_SYS_10_MPU_5_LL_0,
 			&emif->emif_l3_config);
 	} else if (omap_revision() >= OMAP4460_ES1_0) {
@@ -263,6 +264,18 @@ static void ddr3_leveling(u32 base, const struct emif_regs *regs)
 	__udelay(130);
 }
 
+static void ddr3_sw_leveling(u32 base, const struct emif_regs *regs)
+{
+	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
+
+	writel(regs->emif_ddr_phy_ctlr_1, &emif->emif_ddr_phy_ctrl_1);
+	writel(regs->emif_ddr_phy_ctlr_1, &emif->emif_ddr_phy_ctrl_1_shdw);
+	config_data_eye_leveling_samples(base);
+
+	writel(regs->emif_rd_wr_lvl_ctl, &emif->emif_rd_wr_lvl_ctl);
+	writel(regs->sdram_config, &emif->emif_sdram_config);
+}
+
 static void ddr3_init(u32 base, const struct emif_regs *regs)
 {
 	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
@@ -273,6 +286,7 @@ static void ddr3_init(u32 base, const struct emif_regs *regs)
 	 * defined, contents of mode Registers must be fully initialized.
 	 * H/W takes care of this initialization
 	 */
+	writel(regs->sdram_config2, &emif->emif_lpddr2_nvm_config);
 	writel(regs->sdram_config_init, &emif->emif_sdram_config);
 
 	writel(regs->emif_ddr_phy_ctlr_1_init, &emif->emif_ddr_phy_ctrl_1);
@@ -290,7 +304,10 @@ static void ddr3_init(u32 base, const struct emif_regs *regs)
 	/* enable leveling */
 	writel(regs->emif_rd_wr_lvl_rmp_ctl, &emif->emif_rd_wr_lvl_rmp_ctl);
 
-	ddr3_leveling(base, regs);
+	if (omap_revision() == DRA752_ES1_0)
+		ddr3_sw_leveling(base, regs);
+	else
+		ddr3_leveling(base, regs);
 }
 
 #ifndef CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS
@@ -1075,6 +1092,14 @@ static void do_sdram_init(u32 base)
 		else
 			ddr3_init(base, regs);
 	}
+	if (warm_reset() && (emif_sdram_type() == EMIF_SDRAM_TYPE_DDR3)) {
+		set_lpmode_selfrefresh(base);
+		emif_reset_phy(base);
+		if (omap_revision() == DRA752_ES1_0)
+			ddr3_sw_leveling(base, regs);
+		else
+			ddr3_leveling(base, regs);
+	}
 
 	/* Write to the shadow registers */
 	emif_update_timings(base, regs);
@@ -1175,6 +1200,9 @@ void dmm_init(u32 base)
 	/* TRAP for invalid TILER mappings in section 0 */
 	lis_map_regs_calculated.dmm_lisa_map_0 = DMM_LISA_MAP_0_INVAL_ADDR_TRAP;
 
+	if (omap_revision() >= OMAP4460_ES1_0)
+		lis_map_regs_calculated.is_ma_present = 1;
+
 	lisa_map_regs = &lis_map_regs_calculated;
 #endif
 	struct dmm_lisa_map_regs *hw_lisa_map_regs =
@@ -1262,10 +1290,10 @@ void sdram_init(void)
 	in_sdram = running_from_sdram();
 	debug("in_sdram = %d\n", in_sdram);
 
-	if (!(in_sdram || warm_reset())) {
-		if (sdram_type == EMIF_SDRAM_TYPE_LPDDR2)
+	if (!in_sdram) {
+		if ((sdram_type == EMIF_SDRAM_TYPE_LPDDR2) && !warm_reset())
 			bypass_dpll((*prcm)->cm_clkmode_dpll_core);
-		else
+		else if (sdram_type == EMIF_SDRAM_TYPE_DDR3)
 			writel(CM_DLL_CTRL_NO_OVERRIDE, (*prcm)->cm_dll_ctrl);
 	}
 

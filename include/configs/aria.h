@@ -350,6 +350,7 @@
  * PCI
  */
 #ifdef CONFIG_PCI
+#define CONFIG_PCI_INDIRECT_BRIDGE
 
 #define CONFIG_SYS_PCI_MEM_BASE		0xA0000000
 #define CONFIG_SYS_PCI_MEM_PHYS		CONFIG_SYS_PCI_MEM_BASE
@@ -383,7 +384,7 @@
 /*
  * IIM - IC Identification Module
  */
-#undef CONFIG_IIM
+#undef CONFIG_FSL_IIM
 
 /*
  * EEPROM configuration for Atmel AT24C32A-10TQ-2.7:

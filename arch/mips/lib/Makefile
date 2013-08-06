@@ -36,9 +36,9 @@ SOBJS-y	+=
 
 COBJS-y	+= board.o
 ifeq ($(CONFIG_QEMU_MIPS),y)
-COBJS-y	+= bootm_qemu_mips.o
+COBJS-$(CONFIG_CMD_BOOTM) += bootm_qemu_mips.o
 else
-COBJS-y	+= bootm.o
+COBJS-$(CONFIG_CMD_BOOTM) += bootm.o
 endif
 
 SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)

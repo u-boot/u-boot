@@ -26,7 +26,6 @@
 /* SOC type must be included before imx-regs.h */
 #define CONFIG_MX53
 #include <asm/arch/imx-regs.h>
-#include <asm/arch/mx5x_pins.h>
 
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
@@ -79,8 +78,6 @@
 /* SPI FLASH - not used for environment */
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
-#define CONFIG_SPI_FLASH_CS		(IOMUX_TO_GPIO(MX53_PIN_CSI0_D11) \
-						 << 8) | 0
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #define CONFIG_SF_DEFAULT_SPEED		25000000
 

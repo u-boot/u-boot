@@ -1676,18 +1676,17 @@ typedef struct cpc_corenet {
 /* Global Utilities Block */
 #ifdef CONFIG_FSL_CORENET
 typedef struct ccsr_gur {
-	u32	porsr1;		/* POR status */
-	u8	res1[28];
+	u32	porsr1;		/* POR status 1 */
+	u32	porsr2;		/* POR status 2 */
+	u8	res_008[0x20-0x8];
 	u32	gpporcr1;	/* General-purpose POR configuration */
-	u8	res2[12];
-	u32	gpiocr;		/* GPIO control */
-	u8	res3[12];
-	u32	gpoutdr;	/* General-purpose output data */
-	u8	res4[12];
-	u32	gpindr;		/* General-purpose input data */
-	u8	res5[12];
-	u32	alt_pmuxcr;	/* Alt function signal multiplex control */
-	u8	res6[12];
+	u32	gpporcr2;	/* General-purpose POR configuration 2 */
+	u32	dcfg_fusesr;	/* Fuse status register */
+#define FSL_CORENET_DCFG_FUSESR_VID_SHIFT	25
+#define FSL_CORENET_DCFG_FUSESR_VID_MASK	0x1F
+#define FSL_CORENET_DCFG_FUSESR_ALTVID_SHIFT	20
+#define FSL_CORENET_DCFG_FUSESR_ALTVID_MASK	0x1F
+	u8	res_02c[0x70-0x2c];
 	u32	devdisr;	/* Device disable control */
 	u32	devdisr2;	/* Device disable control 2 */
 	u32	devdisr3;	/* Device disable control 3 */
@@ -1831,7 +1830,7 @@ typedef struct ccsr_gur {
 #ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
 #define FSL_CORENET_RCWSR0_MEM_PLL_RAT_SHIFT	16
 #define FSL_CORENET_RCWSR0_MEM_PLL_RAT_MASK	0x3f
-#if defined(CONFIG_PPC_T4240)
+#if defined(CONFIG_PPC_T4240) || defined(CONFIG_PPC_T4160)
 #define FSL_CORENET2_RCWSR4_SRDS1_PRTCL		0xfc000000
 #define FSL_CORENET2_RCWSR4_SRDS1_PRTCL_SHIFT	26
 #define FSL_CORENET2_RCWSR4_SRDS2_PRTCL		0x00fe0000
@@ -1840,11 +1839,18 @@ typedef struct ccsr_gur {
 #define FSL_CORENET2_RCWSR4_SRDS3_PRTCL_SHIFT	11
 #define FSL_CORENET2_RCWSR4_SRDS4_PRTCL		0x000000f8
 #define FSL_CORENET2_RCWSR4_SRDS4_PRTCL_SHIFT	3
+#define FSL_CORENET_RCWSR6_BOOT_LOC	0x0f800000
 #elif defined(CONFIG_PPC_B4860) || defined(CONFIG_PPC_B4420)
 #define FSL_CORENET2_RCWSR4_SRDS1_PRTCL	0xfe000000
 #define FSL_CORENET2_RCWSR4_SRDS1_PRTCL_SHIFT	25
 #define FSL_CORENET2_RCWSR4_SRDS2_PRTCL	0x00ff0000
 #define FSL_CORENET2_RCWSR4_SRDS2_PRTCL_SHIFT	16
+#define FSL_CORENET_RCWSR6_BOOT_LOC	0x0f800000
+#elif defined(CONFIG_PPC_T1040)
+#define FSL_CORENET2_RCWSR4_SRDS1_PRTCL	0xff000000
+#define FSL_CORENET2_RCWSR4_SRDS1_PRTCL_SHIFT	24
+#define FSL_CORENET2_RCWSR4_SRDS2_PRTCL	0x00fe0000
+#define FSL_CORENET2_RCWSR4_SRDS2_PRTCL_SHIFT	17
 #endif
 #define FSL_CORENET2_RCWSR5_SRDS_PLL_PD_S1_PLL1	0x00800000
 #define FSL_CORENET2_RCWSR5_SRDS_PLL_PD_S1_PLL2	0x00400000
@@ -1899,7 +1905,7 @@ typedef struct ccsr_gur {
 #define FSL_CORENET_RCWSR11_EC2_FM2_DTSEC5_MII          0x00100000
 #define FSL_CORENET_RCWSR11_EC2_FM2_DTSEC5_NONE         0x00180000
 #endif
-#if defined(CONFIG_PPC_T4240)
+#if defined(CONFIG_PPC_T4240) || defined(CONFIG_PPC_T4160)
 #define FSL_CORENET_RCWSR13_EC1			0x60000000 /* bits 417..418 */
 #define FSL_CORENET_RCWSR13_EC1_FM2_DTSEC5_RGMII	0x00000000
 #define FSL_CORENET_RCWSR13_EC1_FM2_GPIO		0x40000000
@@ -1992,6 +1998,7 @@ typedef struct ccsr_gur {
 
 #define TP_CLUSTER_EOC		0x80000000	/* end of clusters */
 #define TP_CLUSTER_INIT_MASK	0x0000003f	/* initiator mask */
+#define TP_INIT_PER_CLUSTER	4
 
 #define FSL_CORENET_DCSR_SZ_MASK	0x00000003
 #define FSL_CORENET_DCSR_SZ_4M		0x0
@@ -2004,22 +2011,13 @@ typedef struct ccsr_gur {
 #define rmuliodnr rio1maintliodnr
 
 typedef struct ccsr_clk {
-	u32	clkc0csr;	/* 0x000 Core 0 Clock control/status */
-	u8	res1[0x1c];
-	u32	clkc1csr;	/* 0x020 Core 1 Clock control/status */
-	u8	res2[0x1c];
-	u32	clkc2csr;	/* 0x040 Core 2 Clock control/status */
-	u8	res3[0x1c];
-	u32	clkc3csr;	/* 0x060 Core 3 Clock control/status */
-	u8	res4[0x1c];
-	u32	clkc4csr;	/* 0x080 Core 4 Clock control/status */
-	u8	res5[0x1c];
-	u32	clkc5csr;	/* 0x0a0 Core 5 Clock control/status */
-	u8	res6[0x1c];
-	u32	clkc6csr;	/* 0x0c0 Core 6 Clock control/status */
-	u8	res7[0x1c];
-	u32	clkc7csr;	/* 0x0e0 Core 7 Clock control/status */
-	u8	res8[0x71c];
+	struct {
+		u32 clkcncsr;	/* core cluster n clock control status */
+		u8  res_004[0x0c];
+		u32 clkcgnhwacsr;/* clock generator n hardware accelerator */
+		u8  res_014[0x0c];
+	} clkcsr[8];
+	u8	res_100[0x700]; /* 0x100 */
 	u32	pllc1gsr;	/* 0x800 Cluster PLL 1 General Status */
 	u8	res10[0x1c];
 	u32	pllc2gsr;	/* 0x820 Cluster PLL 2 General Status */
@@ -2164,7 +2162,7 @@ typedef struct ccsr_gur {
 	u32	porbmsr;	/* POR boot mode status */
 #define MPC85xx_PORBMSR_HA		0x00070000
 #define MPC85xx_PORBMSR_HA_SHIFT	16
-#define MPC85XX_PORBMSR_ROMLOC_SHIFT	24
+#define MPC85xx_PORBMSR_ROMLOC_SHIFT	24
 #define PORBMSR_ROMLOC_SPI	0x6
 #define PORBMSR_ROMLOC_SDHC	0x7
 #define PORBMSR_ROMLOC_NAND_2K	0x9
@@ -2829,12 +2827,53 @@ typedef struct ccsr_pme {
 	u8	res4[0x400];
 } ccsr_pme_t;
 
+#ifdef CONFIG_SYS_FSL_USB_DUAL_PHY_ENABLE
+struct ccsr_usb_port_ctrl {
+	u32	ctrl;
+	u32	drvvbuscfg;
+	u32	pwrfltcfg;
+	u32	sts;
+	u8	res_14[0xc];
+	u32	bistcfg;
+	u32	biststs;
+	u32	abistcfg;
+	u32	abiststs;
+	u8	res_30[0x10];
+	u32	xcvrprg;
+	u32	anaprg;
+	u32	anadrv;
+	u32	anasts;
+};
+
+typedef struct ccsr_usb_phy {
+	u32	id;
+	struct  ccsr_usb_port_ctrl port1;
+	u8	res_50[0xc];
+	u32	tvr;
+	u32	pllprg[4];
+	u8	res_70[0x4];
+	u32	anaccfg;
+	u32	dbg;
+	u8	res_7c[0x4];
+	struct  ccsr_usb_port_ctrl port2;
+	u8	res_dc[0x334];
+} ccsr_usb_phy_t;
+
+#define CONFIG_SYS_FSL_USB_CTRL_PHY_EN (1 << 0)
+#define CONFIG_SYS_FSL_USB_DRVVBUS_CR_EN (1 << 1)
+#define CONFIG_SYS_FSL_USB_PWRFLT_CR_EN (1 << 1)
+#define CONFIG_SYS_FSL_USB_PLLPRG2_PHY2_CLK_EN (1 << 0)
+#define CONFIG_SYS_FSL_USB_PLLPRG2_PHY1_CLK_EN (1 << 1)
+#define CONFIG_SYS_FSL_USB_PLLPRG2_MFI (5 << 16)
+#define CONFIG_SYS_FSL_USB_PLLPRG2_PLL_EN (1 << 21)
+#else
 typedef struct ccsr_usb_phy {
 	u8	res0[0x18];
 	u32	usb_enable_override;
 	u8	res[0xe4];
 } ccsr_usb_phy_t;
 #define CONFIG_SYS_FSL_USB_ENABLE_OVERRIDE 1
+#endif
 
 #ifdef CONFIG_SYS_FSL_RAID_ENGINE
 struct ccsr_raide {
@@ -2914,7 +2953,8 @@ struct ccsr_pman {
 #define CONFIG_SYS_MPC85xx_IFC_OFFSET		0x124000
 #define CONFIG_SYS_MPC85xx_GPIO_OFFSET		0x130000
 #define CONFIG_SYS_FSL_CORENET_RMAN_OFFSET	0x1e0000
-#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+#if defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2) && !defined(CONFIG_PPC_B4860)\
+	&& !defined(CONFIG_PPC_B4420)
 #define CONFIG_SYS_MPC85xx_PCIE1_OFFSET		0x240000
 #define CONFIG_SYS_MPC85xx_PCIE2_OFFSET		0x250000
 #define CONFIG_SYS_MPC85xx_PCIE3_OFFSET		0x260000
@@ -3160,4 +3200,13 @@ struct ccsr_cluster_l2 {
 #define CONFIG_SYS_FSL_CLUSTER_1_L2 \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_CLUSTER_1_L2_OFFSET)
 #endif /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
+
+#define	CONFIG_SYS_DCSR_DCFG_OFFSET	0X20000
+struct dcsr_dcfg_regs {
+	u8  res_0[0x520];
+	u32 ecccr1;
+#define	DCSR_DCFG_ECC_DISABLE_USB1	0x00008000
+#define	DCSR_DCFG_ECC_DISABLE_USB2	0x00004000
+	u8  res_524[0x1000 - 0x524]; /* 0x524 - 0x1000 */
+};
 #endif /*__IMMAP_85xx__*/

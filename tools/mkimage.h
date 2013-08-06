@@ -42,11 +42,25 @@
 #define debug(fmt,args...)
 #endif /* MKIMAGE_DEBUG */
 
+#define ARRAY_SIZE(x)		(sizeof(x) / sizeof((x)[0]))
+
+static inline void *map_sysmem(ulong paddr, unsigned long len)
+{
+	return (void *)(uintptr_t)paddr;
+}
+
+static inline ulong map_to_sysmem(void *ptr)
+{
+	return (ulong)(uintptr_t)ptr;
+}
+
 #define MKIMAGE_TMPFILE_SUFFIX		".tmp"
 #define MKIMAGE_MAX_TMPFILE_LEN		256
 #define MKIMAGE_DEFAULT_DTC_OPTIONS	"-I dts -O dtb -p 500"
 #define MKIMAGE_MAX_DTC_CMDLINE_LEN	512
 #define MKIMAGE_DTC			"dtc"   /* assume dtc is in $PATH */
+
+#define IH_ARCH_DEFAULT		IH_ARCH_INVALID
 
 /*
  * This structure defines all such variables those are initialized by
@@ -73,6 +87,10 @@ struct mkimage_params {
 	char *datafile;
 	char *imagefile;
 	char *cmdname;
+	const char *keydir;	/* Directory holding private keys */
+	const char *keydest;	/* Destination .dtb for public key */
+	const char *comment;	/* Comment to add to signature node */
+	int require_keys;	/* 1 to mark signing keys as 'required' */
 };
 
 /*

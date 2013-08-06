@@ -309,7 +309,8 @@ int idma_init (void)
 
 	memaddr = dpalloc (sizeof (pram_idma_t), 64);
 
-	*(volatile ushort *) &immap->im_dprambase[PROFF_IDMA2_BASE] = memaddr;
+	*(volatile u16 *)&immap->im_dprambase16
+		[PROFF_IDMA2_BASE / sizeof(u16)] = memaddr;
 	piptr = (volatile pram_idma_t *) ((uint) (immap) + memaddr);
 
 	piptr->pi_resv1 = 0;		/* manual says: clear it */

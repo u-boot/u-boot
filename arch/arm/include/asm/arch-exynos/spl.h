@@ -32,6 +32,7 @@ enum boot_mode {
 	 * pin values are the same across Exynos4 and Exynos5.
 	 */
 	BOOT_MODE_MMC = 4,
+	BOOT_MODE_EMMC = 8,     /* EMMC4.4 */
 	BOOT_MODE_SERIAL = 20,
 	/* Boot based on Operating Mode pin settings */
 	BOOT_MODE_OM = 32,

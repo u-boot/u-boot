@@ -407,6 +407,25 @@ static int asix_basic_reset(struct ueth_data *dev)
 	rx_ctl = asix_read_rx_ctl(dev);
 	debug("RX_CTL is 0x%04x setting to 0x0000\n", rx_ctl);
 
+	dev->phy_id = asix_get_phy_addr(dev);
+	if (dev->phy_id < 0)
+		debug("Failed to read phy id\n");
+
+	asix_mdio_write(dev, dev->phy_id, MII_BMCR, BMCR_RESET);
+	asix_mdio_write(dev, dev->phy_id, MII_ADVERTISE,
+			ADVERTISE_ALL | ADVERTISE_CSMA);
+	mii_nway_restart(dev);
+
+	if (asix_write_medium_mode(dev, AX88772_MEDIUM_DEFAULT) < 0)
+		return -1;
+
+	if (asix_write_cmd(dev, AX_CMD_WRITE_IPG0,
+				AX88772_IPG0_DEFAULT | AX88772_IPG1_DEFAULT,
+				AX88772_IPG2_DEFAULT, 0, NULL) < 0) {
+		debug("Write IPG,IPG1,IPG2 failed\n");
+		return -1;
+	}
+
 	return 0;
 }
 
@@ -421,31 +440,6 @@ static int asix_init(struct eth_device *eth, bd_t *bd)
 	int link_detected;
 
 	debug("** %s()\n", __func__);
-
-	dev->phy_id = asix_get_phy_addr(dev);
-	if (dev->phy_id < 0)
-		debug("Failed to read phy id\n");
-
-	if (asix_sw_reset(dev, AX_SWRESET_PRL) < 0)
-		goto out_err;
-
-	if (asix_sw_reset(dev, AX_SWRESET_IPRL | AX_SWRESET_PRL) < 0)
-		goto out_err;
-
-	asix_mdio_write(dev, dev->phy_id, MII_BMCR, BMCR_RESET);
-	asix_mdio_write(dev, dev->phy_id, MII_ADVERTISE,
-			ADVERTISE_ALL | ADVERTISE_CSMA);
-	mii_nway_restart(dev);
-
-	if (asix_write_medium_mode(dev, AX88772_MEDIUM_DEFAULT) < 0)
-		goto out_err;
-
-	if (asix_write_cmd(dev, AX_CMD_WRITE_IPG0,
-				AX88772_IPG0_DEFAULT | AX88772_IPG1_DEFAULT,
-				AX88772_IPG2_DEFAULT, 0, NULL) < 0) {
-		debug("Write IPG,IPG1,IPG2 failed\n");
-		goto out_err;
-	}
 
 	if (asix_write_rx_ctl(dev, AX_DEFAULT_RX_CTL) < 0)
 		goto out_err;
@@ -591,6 +585,7 @@ struct asix_dongle {
 static const struct asix_dongle const asix_dongles[] = {
 	{ 0x05ac, 0x1402, FLAG_TYPE_AX88772 },	/* Apple USB Ethernet Adapter */
 	{ 0x07d1, 0x3c05, FLAG_TYPE_AX88772 },	/* D-Link DUB-E100 H/W Ver B1 */
+	{ 0x2001, 0x1a02, FLAG_TYPE_AX88772 },	/* D-Link DUB-E100 H/W Ver C1 */
 	/* Cables-to-Go USB Ethernet Adapter */
 	{ 0x0b95, 0x772a, FLAG_TYPE_AX88772 },
 	{ 0x0b95, 0x7720, FLAG_TYPE_AX88772 },	/* Trendnet TU2-ET100 V3.0R */

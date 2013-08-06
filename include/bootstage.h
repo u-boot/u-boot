@@ -37,6 +37,24 @@ enum bootstage_flags {
 	BOOTSTAGEF_ALLOC	= 1 << 1,	/* Allocate an id */
 };
 
+/* bootstate sub-IDs used for kernel and ramdisk ranges */
+enum {
+	BOOTSTAGE_SUB_FORMAT,
+	BOOTSTAGE_SUB_FORMAT_OK,
+	BOOTSTAGE_SUB_NO_UNIT_NAME,
+	BOOTSTAGE_SUB_UNIT_NAME,
+	BOOTSTAGE_SUB_SUBNODE,
+
+	BOOTSTAGE_SUB_CHECK,
+	BOOTSTAGE_SUB_HASH = 5,
+	BOOTSTAGE_SUB_CHECK_ARCH = 5,
+	BOOTSTAGE_SUB_CHECK_ALL,
+	BOOTSTAGE_SUB_GET_DATA,
+	BOOTSTAGE_SUB_CHECK_ALL_OK = 7,
+	BOOTSTAGE_SUB_GET_DATA_OK,
+	BOOTSTAGE_SUB_LOAD,
+};
+
 /*
  * A list of boot stages that we know about. Each of these indicates the
  * state that we are at, and the action that we are about to perform. For
@@ -137,43 +155,24 @@ enum bootstage_id {
 	BOOTSTAGE_ID_NET_DONE_ERR,
 	BOOTSTAGE_ID_NET_DONE,
 
+	BOOTSTAGE_ID_FIT_FDT_START = 90,
 	/*
 	 * Boot stages related to loading a FIT image. Some of these are a
 	 * bit wonky.
 	 */
-	BOOTSTAGE_ID_FIT_FORMAT = 100,
-	BOOTSTAGE_ID_FIT_NO_UNIT_NAME,
-	BOOTSTAGE_ID_FIT_UNIT_NAME,
-	BOOTSTAGE_ID_FIT_CONFIG,
-	BOOTSTAGE_ID_FIT_CHECK_SUBIMAGE,
-	BOOTSTAGE_ID_FIT_CHECK_HASH = 104,
+	BOOTSTAGE_ID_FIT_KERNEL_START = 100,
 
-	BOOTSTAGE_ID_FIT_CHECK_ARCH,
-	BOOTSTAGE_ID_FIT_CHECK_KERNEL,
-	BOOTSTAGE_ID_FIT_CHECKED,
-
-	BOOTSTAGE_ID_FIT_KERNEL_INFO_ERR = 107,
-	BOOTSTAGE_ID_FIT_KERNEL_INFO,
+	BOOTSTAGE_ID_FIT_CONFIG = 110,
 	BOOTSTAGE_ID_FIT_TYPE,
+	BOOTSTAGE_ID_FIT_KERNEL_INFO,
 
 	BOOTSTAGE_ID_FIT_COMPRESSION,
 	BOOTSTAGE_ID_FIT_OS,
 	BOOTSTAGE_ID_FIT_LOADADDR,
 	BOOTSTAGE_ID_OVERWRITTEN,
 
-	BOOTSTAGE_ID_FIT_RD_FORMAT = 120,
-	BOOTSTAGE_ID_FIT_RD_FORMAT_OK,
-	BOOTSTAGE_ID_FIT_RD_NO_UNIT_NAME,
-	BOOTSTAGE_ID_FIT_RD_UNIT_NAME,
-	BOOTSTAGE_ID_FIT_RD_SUBNODE,
-
-	BOOTSTAGE_ID_FIT_RD_CHECK,
-	BOOTSTAGE_ID_FIT_RD_HASH = 125,
-	BOOTSTAGE_ID_FIT_RD_CHECK_ALL,
-	BOOTSTAGE_ID_FIT_RD_GET_DATA,
-	BOOTSTAGE_ID_FIT_RD_CHECK_ALL_OK = 127,
-	BOOTSTAGE_ID_FIT_RD_GET_DATA_OK,
-	BOOTSTAGE_ID_FIT_RD_LOAD,
+	/* Next 10 IDs used by BOOTSTAGE_SUB_... */
+	BOOTSTAGE_ID_FIT_RD_START = 120,	/* Ramdisk stages */
 
 	BOOTSTAGE_ID_IDE_FIT_READ = 140,
 	BOOTSTAGE_ID_IDE_FIT_READ_OK,
@@ -221,7 +220,7 @@ enum bootstage_id {
  */
 ulong timer_get_boot_us(void);
 
-#ifndef CONFIG_SPL_BUILD
+#if !defined(CONFIG_SPL_BUILD) && !defined(USE_HOSTCC)
 /*
  * Board code can implement show_boot_progress() if needed.
  *
@@ -233,8 +232,19 @@ void show_boot_progress(int val);
 #define show_boot_progress(val) do {} while (0)
 #endif
 
-#if defined(CONFIG_BOOTSTAGE) && !defined(CONFIG_SPL_BUILD)
+#if defined(CONFIG_BOOTSTAGE) && !defined(CONFIG_SPL_BUILD) && \
+	!defined(USE_HOSTCC)
 /* This is the full bootstage implementation */
+
+/**
+ * Relocate existing bootstage records
+ *
+ * Call this after relocation has happened and after malloc has been initted.
+ * We need to copy any pointers in bootstage records that were added pre-
+ * relocation, since memory can be overritten later.
+ * @return Always returns 0, to indicate success
+ */
+int bootstage_relocate(void);
 
 /**
  * Add a new bootstage record
@@ -255,6 +265,19 @@ ulong bootstage_mark(enum bootstage_id id);
 ulong bootstage_error(enum bootstage_id id);
 
 ulong bootstage_mark_name(enum bootstage_id id, const char *name);
+
+/**
+ * Mark a time stamp in the given function and line number
+ *
+ * See BOOTSTAGE_MARKER() for a convenient macro.
+ *
+ * @param file		Filename to record (NULL if none)
+ * @param func		Function name to record
+ * @param linenum	Line number to record
+ * @return recorded time stamp
+ */
+ulong bootstage_mark_code(const char *file, const char *func,
+			  int linenum);
 
 /**
  * Mark the start of a bootstage activity. The end will be marked later with
@@ -315,10 +338,21 @@ int bootstage_stash(void *base, int size);
 int bootstage_unstash(void *base, int size);
 
 #else
+static inline ulong bootstage_add_record(enum bootstage_id id,
+		const char *name, int flags, ulong mark)
+{
+	return 0;
+}
+
 /*
  * This is a dummy implementation which just calls show_boot_progress(),
  * and won't even do that unless CONFIG_SHOW_BOOT_PROGRESS is defined
  */
+
+static inline int bootstage_relocate(void)
+{
+	return 0;
+}
 
 static inline ulong bootstage_mark(enum bootstage_id id)
 {
@@ -337,6 +371,22 @@ static inline ulong bootstage_mark_name(enum bootstage_id id, const char *name)
 	return 0;
 }
 
+static inline ulong bootstage_mark_code(const char *file, const char *func,
+					int linenum)
+{
+	return 0;
+}
+
+static inline uint32_t bootstage_start(enum bootstage_id id, const char *name)
+{
+	return 0;
+}
+
+static inline uint32_t bootstage_accum(enum bootstage_id id)
+{
+	return 0;
+}
+
 static inline int bootstage_stash(void *base, int size)
 {
 	return 0;	/* Pretend to succeed */
@@ -347,5 +397,9 @@ static inline int bootstage_unstash(void *base, int size)
 	return 0;	/* Pretend to succeed */
 }
 #endif /* CONFIG_BOOTSTAGE */
+
+/* Helper macro for adding a bootstage to a line of code */
+#define BOOTSTAGE_MARKER()	\
+		bootstage_mark_code(__FILE__, __func__, __LINE__)
 
 #endif

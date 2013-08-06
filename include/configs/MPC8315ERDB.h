@@ -405,6 +405,7 @@
 #define CONFIG_SYS_PCIE2_IO_SIZE	0x00800000
 
 #define CONFIG_PCI
+#define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_PCIE
 
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */

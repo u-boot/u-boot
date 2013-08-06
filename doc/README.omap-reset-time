@@ -1,0 +1,20 @@
+README on how reset time on OMAPs should be calculated
+
+CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC:
+Most OMAPs' provide a way to specify the time for
+which the reset should be held low while the voltages
+and Oscillator outputs stabilize.
+
+This time is mostly board and PMIC dependent. Hence the
+boards are expected to specify a pre-computed time
+using the above option, (the details on how to compute
+the value are given below) without which a default time
+as specified by CONFIG_DEFAULT_OMAP_RESET_TIME_MAX_USEC
+is used.
+
+The value for CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC
+can be computed using a summation of the below 3 parameters
+-1- Time taken by the Osciallator to stop and restart
+-2- PMIC OTP time
+-3- Voltage ramp time, which can be derived using the
+PMIC slew rate and value of voltage ramp needed.

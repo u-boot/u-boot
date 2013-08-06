@@ -116,10 +116,10 @@ _start_e500:
 	/* Erratum says set bits 55:60 to 001001 */
 	msync
 	isync
-	mfspr	r3,976
+	mfspr	r3,SPRN_HDBCR0
 	li	r4,0x48
 	rlwimi	r3,r4,0,0x1f8
-	mtspr	976,r3
+	mtspr	SPRN_HDBCR0,r3
 	isync
 2:
 #endif
@@ -173,52 +173,6 @@ l2_disabled:
 	mfspr	r1,DBSR
 	mtspr	DBSR,r1		/* Clear all valid bits */
 
-	/*
-	 *	Enable L1 Caches early
-	 *
-	 */
-
-#ifdef CONFIG_SYS_CACHE_STASHING
-	/* set stash id to (coreID) * 2 + 32 + L1 CT (0) */
-	li	r2,(32 + 0)
-	mtspr	L1CSR2,r2
-#endif
-
-	/* Enable/invalidate the I-Cache */
-	lis	r2,(L1CSR1_ICFI|L1CSR1_ICLFR)@h
-	ori	r2,r2,(L1CSR1_ICFI|L1CSR1_ICLFR)@l
-	mtspr	SPRN_L1CSR1,r2
-1:
-	mfspr	r3,SPRN_L1CSR1
-	and.	r1,r3,r2
-	bne	1b
-
-	lis	r3,(L1CSR1_CPE|L1CSR1_ICE)@h
-	ori	r3,r3,(L1CSR1_CPE|L1CSR1_ICE)@l
-	mtspr	SPRN_L1CSR1,r3
-	isync
-2:
-	mfspr	r3,SPRN_L1CSR1
-	andi.	r1,r3,L1CSR1_ICE@l
-	beq	2b
-
-	/* Enable/invalidate the D-Cache */
-	lis	r2,(L1CSR0_DCFI|L1CSR0_DCLFR)@h
-	ori	r2,r2,(L1CSR0_DCFI|L1CSR0_DCLFR)@l
-	mtspr	SPRN_L1CSR0,r2
-1:
-	mfspr	r3,SPRN_L1CSR0
-	and.	r1,r3,r2
-	bne	1b
-
-	lis	r3,(L1CSR0_CPE|L1CSR0_DCE)@h
-	ori	r3,r3,(L1CSR0_CPE|L1CSR0_DCE)@l
-	mtspr	SPRN_L1CSR0,r3
-	isync
-2:
-	mfspr	r3,SPRN_L1CSR0
-	andi.	r1,r3,L1CSR0_DCE@l
-	beq	2b
 
 	.macro	create_tlb1_entry esel ts tsize epn wimg rpn perm phy_high scratch
 	lis	\scratch, FSL_BOOKE_MAS0(1, \esel, 0)@h
@@ -372,9 +326,9 @@ l2_disabled:
 #endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_CPU_A003999
-	mfspr	r3,977
+	mfspr	r3,SPRN_HDBCR1
 	oris	r3,r3,0x0100
-	mtspr	977,r3
+	mtspr	SPRN_HDBCR1,r3
 #endif
 
 	/* Enable Branch Prediction */
@@ -780,13 +734,60 @@ enable_l2_cluster_l2:
 	isync
 	and.	r1, r0, r4
 	bne	1b
-	lis	r4, L2CSR0_L2E@h
+	lis	r4, (L2CSR0_L2E|L2CSR0_L2PE)@h
+	ori	r4, r4, (L2CSR0_L2REP_MODE)@l
 	sync
-	stw	r4, 0(r3)	/* eanble L2 */
+	stw	r4, 0(r3)	/* enable L2 */
 delete_ccsr_l2_tlb:
 	delete_tlb0_entry 0, CONFIG_SYS_CCSRBAR + 0xC20000, MAS2_I|MAS2_G, r3
 #endif
 
+	/*
+	 * Enable the L1. On e6500, this has to be done
+	 * after the L2 is up.
+	 */
+
+#ifdef CONFIG_SYS_CACHE_STASHING
+	/* set stash id to (coreID) * 2 + 32 + L1 CT (0) */
+	li	r2,(32 + 0)
+	mtspr	L1CSR2,r2
+#endif
+
+	/* Enable/invalidate the I-Cache */
+	lis	r2,(L1CSR1_ICFI|L1CSR1_ICLFR)@h
+	ori	r2,r2,(L1CSR1_ICFI|L1CSR1_ICLFR)@l
+	mtspr	SPRN_L1CSR1,r2
+1:
+	mfspr	r3,SPRN_L1CSR1
+	and.	r1,r3,r2
+	bne	1b
+
+	lis	r3,(L1CSR1_CPE|L1CSR1_ICE)@h
+	ori	r3,r3,(L1CSR1_CPE|L1CSR1_ICE)@l
+	mtspr	SPRN_L1CSR1,r3
+	isync
+2:
+	mfspr	r3,SPRN_L1CSR1
+	andi.	r1,r3,L1CSR1_ICE@l
+	beq	2b
+
+	/* Enable/invalidate the D-Cache */
+	lis	r2,(L1CSR0_DCFI|L1CSR0_DCLFR)@h
+	ori	r2,r2,(L1CSR0_DCFI|L1CSR0_DCLFR)@l
+	mtspr	SPRN_L1CSR0,r2
+1:
+	mfspr	r3,SPRN_L1CSR0
+	and.	r1,r3,r2
+	bne	1b
+
+	lis	r3,(L1CSR0_CPE|L1CSR0_DCE)@h
+	ori	r3,r3,(L1CSR0_CPE|L1CSR0_DCE)@l
+	mtspr	SPRN_L1CSR0,r3
+	isync
+2:
+	mfspr	r3,SPRN_L1CSR0
+	andi.	r1,r3,L1CSR0_DCE@l
+	beq	2b
 #ifdef CONFIG_SYS_FSL_ERRATUM_A004510
 #define DCSR_LAWBARH0	(CONFIG_SYS_CCSRBAR + 0x1000)
 #define LAW_SIZE_1M	0x13
@@ -1794,7 +1795,7 @@ clear_bss:
 	stw	r0,0(r3)
 	addi	r3,r3,4
 	cmplw	0,r3,r4
-	bne	5b
+	blt	5b
 6:
 
 	mr	r3,r9		/* Init Data pointer		*/
@@ -1905,6 +1906,7 @@ unlock_ram_in_cache:
 	slwi	r4,r4,(10 - 1 - L1_CACHE_SHIFT)
 	mtctr	r4
 1:	dcbi	r0,r3
+	dcblc	r0,r3
 	addi	r3,r3,CONFIG_SYS_CACHELINE_SIZE
 	bdnz	1b
 	sync

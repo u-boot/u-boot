@@ -23,9 +23,11 @@
 
 #include <asm/arch/omap.h>
 #include <asm/io.h>
-#include <asm/arch/clocks.h>
+#include <asm/arch/clock.h>
 #include <asm/omap_common.h>
-#include <asm/arch/clocks.h>
+#include <asm/arch/clock.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 struct pad_conf_entry {
 	u32 offset;
@@ -56,22 +58,17 @@ void cancel_out(u32 *num, u32 *den, u32 den_limit);
 void sdram_init(void);
 u32 omap_sdram_size(void);
 u32 cortex_rev(void);
+void save_omap_boot_params(void);
 void init_omap_revision(void);
 void do_io_settings(void);
-void omap_vc_init(u16 speed_khz);
+void sri2c_init(void);
+void gpi2c_init(void);
 int omap_vc_bypass_send_value(u8 sa, u8 reg_addr, u8 reg_data);
 u32 warm_reset(void);
 void force_emif_self_refresh(void);
 void get_ioregs(const struct ctrl_ioregs **regs);
 void srcomp_enable(void);
-
-/*
- * This is used to verify if the configuration header
- * was executed by Romcode prior to control of transfer
- * to the bootloader. SPL is responsible for saving and
- * passing this to the u-boot.
- */
-extern struct omap_boot_parameters boot_params;
+void setup_warmreset_time(void);
 
 static inline u32 running_from_sdram(void)
 {
@@ -91,7 +88,7 @@ static inline u8 uboot_loaded_by_spl(void)
 	 * variable by both SPL and u-boot.Check out for CHSETTINGS, which is a
 	 * mandatory section if CH is present.
 	 */
-	if ((boot_params.ch_flags) & (CH_FLAGS_CHSETTINGS))
+	if ((gd->arch.omap_boot_params.ch_flags) & (CH_FLAGS_CHSETTINGS))
 		return 0;
 	else
 		return running_from_sdram();
@@ -122,4 +119,13 @@ static inline u32 omap_hw_init_context(void)
 #endif
 }
 
+static inline u32 div_round_up(u32 num, u32 den)
+{
+	return (num + den - 1)/den;
+}
+
+static inline u32 usec_to_32k(u32 usec)
+{
+	return div_round_up(32768 * usec, 1000000);
+}
 #endif

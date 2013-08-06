@@ -65,9 +65,27 @@ Configuration command line syntax:
 				This command need appear the fist before
 				other valid commands in configuration file.
 
+	BOOT_OFFSET		value
+
+				This command is parallel to BOOT_FROM and
+				is preferred over BOOT_FROM.
+
+				value:  Offset of the image header, this
+					value shall be set to one of the
+					values found in the file:
+						arch/arm/include/asm/\
+						imx-common/imximage.cfg
+				Example:
+				BOOT_OFFSET FLASH_OFFSET_STANDARD
+
 	BOOT_FROM		nand/spi/sd/onenand/nor/sata
+
+				This command is parallel to BOOT_OFFSET and
+				is to be deprecated in favor of BOOT_OFFSET.
+
 				Example:
 				BOOT_FROM spi
+
 	DATA			type address value
 
 				type: word=4, halfword=2, byte=1

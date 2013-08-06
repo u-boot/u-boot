@@ -152,4 +152,6 @@ struct fm_eth {
 #define MAX_RXBUF_LOG2		11
 #define MAX_RXBUF_LEN		(1 << MAX_RXBUF_LOG2)
 
+#define PORT_IS_ENABLED(port)	fm_info[fm_port_to_index(port)].enabled
+
 #endif /* __FM_H__ */

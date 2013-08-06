@@ -37,6 +37,7 @@
  */
 static table_entry_t imximage_cmds[] = {
 	{CMD_BOOT_FROM,         "BOOT_FROM",            "boot command",	  },
+	{CMD_BOOT_OFFSET,       "BOOT_OFFSET",          "Boot offset",	  },
 	{CMD_DATA,              "DATA",                 "Reg Write Data", },
 	{CMD_IMAGE_VERSION,     "IMAGE_VERSION",        "image version",  },
 	{-1,                    "",                     "",	          },
@@ -352,6 +353,11 @@ static void parse_cfg_cmd(struct imx_header *imxhdr, int32_t cmd, char *token,
 		if (unlikely(cmd_ver_first != 1))
 			cmd_ver_first = 0;
 		break;
+	case CMD_BOOT_OFFSET:
+		imxhdr->flash_offset = get_cfg_value(token, name, lineno);
+		if (unlikely(cmd_ver_first != 1))
+			cmd_ver_first = 0;
+		break;
 	case CMD_DATA:
 		value = get_cfg_value(token, name, lineno);
 		(*set_dcd_val)(imxhdr, name, lineno, fld, value, dcd_len);
@@ -518,11 +524,14 @@ static void imximage_set_header(void *ptr, struct stat *sbuf, int ifd,
 
 	/*
 	 * ROM bug alert
-	 * mx53 only loads 512 byte multiples.
-	 * The remaining fraction of a block bytes would
-	 * not be loaded.
+	 *
+	 * MX53 only loads 512 byte multiples in case of SD boot.
+	 * MX53 only loads NAND page multiples in case of NAND boot and
+	 * supports up to 4096 byte large pages, thus align to 4096.
+	 *
+	 * The remaining fraction of a block bytes would not be loaded!
 	 */
-	*header_size_ptr = ROUND(sbuf->st_size + imxhdr->flash_offset, 512);
+	*header_size_ptr = ROUND(sbuf->st_size + imxhdr->flash_offset, 4096);
 }
 
 int imximage_check_params(struct mkimage_params *params)

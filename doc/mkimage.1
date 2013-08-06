@@ -4,7 +4,17 @@
 mkimage \- Generate image for U-Boot
 .SH SYNOPSIS
 .B mkimage
-.RB [\fIoptions\fP]
+.RB "\-l [" "uimage file name" "]"
+
+.B mkimage
+.RB [\fIoptions\fP] " \-f [" "image tree source file" "]" " [" "uimage file name" "]"
+
+.B mkimage
+.RB [\fIoptions\fP] " \-F [" "uimage file name" "]"
+
+.B mkimage
+.RB [\fIoptions\fP] " (legacy mode)"
+
 .SH "DESCRIPTION"
 The
 .B mkimage
@@ -26,7 +36,8 @@ etc.
 The new
 .I FIT (Flattened Image Tree) format
 allows for more flexibility in handling images of various types and also
-enhances integrity protection of images with stronger checksums.
+enhances integrity protection of images with stronger checksums. It also
+supports verified boot.
 
 .SH "OPTIONS"
 
@@ -67,6 +78,10 @@ Set load address with a hex number.
 Set entry point with a hex number.
 
 .TP
+.BI "\-l"
+List the contents of an image.
+
+.TP
 .BI "\-n [" "image name" "]"
 Set image name to 'image name'.
 
@@ -82,6 +97,12 @@ Set XIP (execute in place) flag.
 .B Create FIT image:
 
 .TP
+.BI "\-c [" "comment" "]"
+Specifies a comment to be added when signing. This is typically a useful
+message which describes how the image was signed or some other useful
+information.
+
+.TP
 .BI "\-D [" "dtc options" "]"
 Provide special options to the device tree compiler that is used to
 create the image.
@@ -90,6 +111,33 @@ create the image.
 .BI "\-f [" "image tree source file" "]"
 Image tree source file that describes the structure and contents of the
 FIT image.
+
+.TP
+.BI "\-F"
+Indicates that an existing FIT image should be modified. No dtc
+compilation is performed and the -f flag should not be given.
+This can be used to sign images with additional keys after initial image
+creation.
+
+.TP
+.BI "\-k [" "key_directory" "]"
+Specifies the directory containing keys to use for signing. This directory
+should contain a private key file <name>.key for use with signing and a
+certificate <name>.crt (containing the public key) for use with verification.
+
+.TP
+.BI "\-K [" "key_destination" "]"
+Specifies a compiled device tree binary file (typically .dtb) to write
+public key information into. When a private key is used to sign an image,
+the corresponding public key is written into this file for for run-time
+verification. Typically the file here is the device tree binary used by
+CONFIG_OF_CONTROL in U-Boot.
+
+.TP
+.BI "\-r
+Specifies that keys used to sign the FIT are required. This means that they
+must be verified for the image to boot. Without this option, the verification
+will be optional (useful for testing but not for release).
 
 .SH EXAMPLES
 
@@ -109,10 +157,29 @@ Create FIT image with compressed PowerPC Linux kernel:
 .nf
 .B mkimage -f kernel.its kernel.itb
 .fi
+.P
+Create FIT image with compressed kernel and sign it with keys in the
+/public/signing-keys directory. Add corresponding public keys into u-boot.dtb,
+skipping those for which keys cannot be found. Also add a comment.
+.nf
+.B mkimage -f kernel.its -k /public/signing-keys -K u-boot.dtb \\\\
+-c "Kernel 3.8 image for production devices" kernel.itb
+.fi
+
+.P
+Update an existing FIT image, signing it with additional keys.
+Add corresponding public keys into u-boot.dtb. This will resign all images
+with keys that are available in the new directory. Images that request signing
+with unavailable keys are skipped.
+.nf
+.B mkimage -F -k /secret/signing-keys -K u-boot.dtb \\\\
+-c "Kernel 3.8 image for production devices" kernel.itb
+.fi
 
 .SH HOMEPAGE
 http://www.denx.de/wiki/U-Boot/WebHome
 .PP
 .SH AUTHOR
 This manual page was written by Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-and Wolfgang Denk <wd@denx.de>
+and Wolfgang Denk <wd@denx.de>. It was updated for image signing by
+Simon Glass <sjg@chromium.org>.

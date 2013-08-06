@@ -26,18 +26,14 @@
 #include "pblimage.h"
 
 /*
- * The PBL can load up to 64 bytes at a time, so we split the U-Boot
- * image into 64 byte chunks. PBL needs a command for each piece, of
- * the form "81xxxxxx", where "xxxxxx" is the offset. SYS_TEXT_BASE
- * is 0xFFF80000 for PBL boot, and PBL only cares about low 24-bit,
- * so it starts from 0x81F80000.
+ * Initialize to an invalid value.
  */
-static uint32_t next_pbl_cmd = 0x81F80000;
+static uint32_t next_pbl_cmd = 0x82000000;
 /*
  * need to store all bytes in memory for calculating crc32, then write the
  * bytes to image file for PBL boot.
  */
-static unsigned char mem_buf[600000];
+static unsigned char mem_buf[1000000];
 static unsigned char *pmem_buf = mem_buf;
 static int pbl_size;
 static char *fname = "Unknown";
@@ -51,6 +47,27 @@ static union
 } endian_test = { {'l', '?', '?', 'b'} };
 
 #define ENDIANNESS ((char)endian_test.l)
+
+/*
+ * The PBL can load up to 64 bytes at a time, so we split the U-Boot
+ * image into 64 byte chunks. PBL needs a command for each piece, of
+ * the form "81xxxxxx", where "xxxxxx" is the offset. Calculate the
+ * start offset by subtracting the size of the u-boot image from the
+ * top of the allowable 24-bit range.
+ */
+static void init_next_pbl_cmd(FILE *fp_uboot)
+{
+	struct stat st;
+	int fd = fileno(fp_uboot);
+
+	if (fstat(fd, &st) == -1) {
+		printf("Error: Could not determine u-boot image size. %s\n",
+			strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	next_pbl_cmd = 0x82000000 - st.st_size;
+}
 
 static void generate_pbl_cmd(void)
 {
@@ -80,6 +97,7 @@ static void pbl_fget(size_t size, FILE *stream)
 /* load split u-boot with PBI command 81xxxxxx. */
 static void load_uboot(FILE *fp_uboot)
 {
+	init_next_pbl_cmd(fp_uboot);
 	while (next_pbl_cmd < 0x82000000) {
 		generate_pbl_cmd();
 		pbl_fget(64, fp_uboot);

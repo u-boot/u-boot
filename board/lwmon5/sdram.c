@@ -6,7 +6,7 @@
  * Alain Saurel,	    AMCC/IBM, alain.saurel@fr.ibm.com
  * Robert Snyder,	    AMCC/IBM, rob.snyder@fr.ibm.com
  *
- * (C) Copyright 2007-2008
+ * (C) Copyright 2007-2013
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * This program is free software; you can redistribute it and/or
@@ -160,6 +160,7 @@ static void program_ecc(u32 start_address,
  ************************************************************************/
 phys_size_t initdram (int board_type)
 {
+#if defined(CONFIG_SPL_BUILD) || !defined(CONFIG_LCD4_LWMON5)
 	/* CL=4 */
 	mtsdram(DDR0_02, 0x00000000);
 
@@ -253,6 +254,7 @@ phys_size_t initdram (int board_type)
 	 * exceptions are enabled.
 	 */
 	set_mcsr(get_mcsr());
+#endif /* CONFIG_SPL_BUILD */
 
 	return (CONFIG_SYS_MBYTES_SDRAM << 20);
 }

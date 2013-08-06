@@ -48,13 +48,6 @@ struct spl_image_info spl_image;
 /* Define board data structure */
 static bd_t bdata __attribute__ ((section(".data")));
 
-inline void hang(void)
-{
-	puts("### ERROR ### Please RESET the board ###\n");
-	for (;;)
-		;
-}
-
 /*
  * Default function to determine if u-boot or the OS should
  * be started. This implementation always returns 1.
@@ -125,17 +118,13 @@ void spl_parse_image_header(const struct image_header *header)
 
 __weak void __noreturn jump_to_image_no_args(struct spl_image_info *spl_image)
 {
-	typedef void __noreturn (*image_entry_noargs_t)(u32 *);
+	typedef void __noreturn (*image_entry_noargs_t)(void);
+
 	image_entry_noargs_t image_entry =
 			(image_entry_noargs_t) spl_image->entry_point;
 
 	debug("image entry point: 0x%X\n", spl_image->entry_point);
-	/* Pass the saved boot_params from rom code */
-#if defined(CONFIG_VIRTIO) || defined(CONFIG_ZEBU)
-	image_entry = (image_entry_noargs_t)0x80100000;
-#endif
-	u32 boot_params_ptr_addr = (u32)&boot_params_ptr;
-	image_entry((u32 *)boot_params_ptr_addr);
+	image_entry();
 }
 
 #ifdef CONFIG_SPL_RAM_DEVICE

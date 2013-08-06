@@ -139,7 +139,7 @@ enum srds_prtcl serdes_get_prtcl(int cfg, int lane)
 int is_serdes_prtcl_valid(u32 prtcl) {
 	int i;
 
-	if (prtcl > ARRAY_SIZE(serdes_cfg_tbl))
+	if (prtcl >= ARRAY_SIZE(serdes_cfg_tbl))
 		return 0;
 
 	for (i = 0; i < SRDS_MAX_LANES; i++) {

@@ -203,6 +203,10 @@ void at91_macb_hw_init(void)
 #if defined(CONFIG_GENERIC_ATMEL_MCI)
 void at91_mci_hw_init(void)
 {
+	/* Enable mci clock */
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
+	writel(1 << ATMEL_ID_MCI, &pmc->pcer);
+
 	at91_set_a_periph(AT91_PIO_PORTA, 8, 1);	/* MCCK */
 #if defined(CONFIG_ATMEL_MCI_PORTB)
 	at91_set_b_periph(AT91_PIO_PORTA, 1, 1);	/* MCCDB */

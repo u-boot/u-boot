@@ -115,18 +115,6 @@ struct watchdog {
 #define WD_UNLOCK1		0xAAAA
 #define WD_UNLOCK2		0x5555
 
-#define SYSCLKDIV_1		(0x1 << 6)
-#define SYSCLKDIV_2		(0x1 << 7)
-
-#define CLKSEL_GPT1		(0x1 << 0)
-
-#define EN_GPT1			(0x1 << 0)
-#define EN_32KSYNC		(0x1 << 2)
-
-#define ST_WDT2			(0x1 << 5)
-
-#define RESETDONE		(0x1 << 0)
-
 #define TCLR_ST			(0x1 << 0)
 #define TCLR_AR			(0x1 << 1)
 #define TCLR_PRE		(0x1 << 5)

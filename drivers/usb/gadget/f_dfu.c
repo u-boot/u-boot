@@ -5,6 +5,13 @@
  * authors: Andrzej Pietrasiewicz <andrzej.p@samsung.com>
  *          Lukasz Majewski <l.majewski@samsung.com>
  *
+ * Based on OpenMoko u-boot: drivers/usb/usbdfu.c
+ * (C) 2007 by OpenMoko, Inc.
+ * Author: Harald Welte <laforge@openmoko.org>
+ *
+ * based on existing SAM7DFU code from OpenPCD:
+ * (C) Copyright 2006 by Harald Welte <hwelte at hmw-consulting.de>
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -183,6 +190,7 @@ static inline void to_dfu_mode(struct f_dfu *f_dfu)
 {
 	f_dfu->usb_function.strings = dfu_strings;
 	f_dfu->usb_function.hs_descriptors = f_dfu->function;
+	f_dfu->dfu_state = DFU_STATE_dfuIDLE;
 }
 
 static inline void to_runtime_mode(struct f_dfu *f_dfu)
@@ -233,7 +241,6 @@ static int state_app_idle(struct f_dfu *f_dfu,
 	case USB_REQ_DFU_DETACH:
 		f_dfu->dfu_state = DFU_STATE_appDETACH;
 		to_dfu_mode(f_dfu);
-		f_dfu->dfu_state = DFU_STATE_dfuIDLE;
 		value = RET_ZLP;
 		break;
 	default:
@@ -589,7 +596,7 @@ static int dfu_prepare_function(struct f_dfu *f_dfu, int n)
 	struct usb_interface_descriptor *d;
 	int i = 0;
 
-	f_dfu->function = calloc(sizeof(struct usb_descriptor_header *), n);
+	f_dfu->function = calloc(sizeof(struct usb_descriptor_header *), n + 1);
 	if (!f_dfu->function)
 		goto enomem;
 
@@ -652,6 +659,8 @@ static int dfu_bind(struct usb_configuration *c, struct usb_function *f)
 		((struct usb_interface_descriptor *)f_dfu->function[i])
 			->iInterface = id;
 	}
+
+	to_dfu_mode(f_dfu);
 
 	stringtab_dfu.strings = f_dfu->strings;
 

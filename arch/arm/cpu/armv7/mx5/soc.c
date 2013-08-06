@@ -72,6 +72,13 @@ u32 get_cpu_rev(void)
 	return system_rev;
 }
 
+#ifdef CONFIG_REVISION_TAG
+u32 __weak get_board_rev(void)
+{
+	return get_cpu_rev();
+}
+#endif
+
 #ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)
 {

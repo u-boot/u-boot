@@ -39,6 +39,8 @@
 #include <asm/sections.h>
 #include <elf.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int copy_uboot_to_ram(void)
 {
 	size_t len = (size_t)&__data_end - (size_t)&__text_start;

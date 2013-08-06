@@ -1,0 +1,8 @@
+---------------------------------------------------------------------
+Splash Screen
+---------------------------------------------------------------------
+The splash_screen_prepare() function is a weak function defined in
+common/splash.c. It is called as part of the splash screen display
+sequence. It gives the board an opportunity to prepare the splash
+image data before it is processed and sent to the frame buffer by
+U-Boot.  Define your own version to use this feature.

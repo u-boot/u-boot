@@ -151,9 +151,3 @@ U_BOOT_CMD(clocks, 1, 0, do_clocks,
 	"print clock configuration",
 	"    clocks"
 );
-
-int prt_mpc512x_clks (void)
-{
-	do_clocks (NULL, 0, 0, NULL);
-	return (0);
-}

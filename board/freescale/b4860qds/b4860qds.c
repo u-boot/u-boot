@@ -166,11 +166,13 @@ int configure_vsc3316_3308(void)
 		ret = select_i2c_ch_pca(I2C_CH_VSC3316);
 		if (!ret) {
 			ret = vsc3316_config(VSC3316_TX_ADDRESS,
-					vsc16_tx_sgmii_lane_ab, num_vsc16_con);
+					vsc16_tx_4sfp_sgmii_12_56,
+					num_vsc16_con);
 			if (ret)
 				return ret;
 			ret = vsc3316_config(VSC3316_RX_ADDRESS,
-					vsc16_rx_sgmii_lane_ab, num_vsc16_con);
+					vsc16_rx_4sfp_sgmii_12_56,
+					num_vsc16_con);
 			if (ret)
 				return ret;
 		} else {

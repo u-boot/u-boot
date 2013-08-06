@@ -44,6 +44,12 @@ int do_bootm_linux(int flag, int argc, char * const argv[],
 	char	*commandline = getenv("bootargs");
 	ulong	rd_data_start, rd_data_end;
 
+	/*
+	 * allow the PREP bootm subcommand, it is required for bootm to work
+	 */
+	if (flag & BOOTM_STATE_OS_PREP)
+		return 0;
+
 	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
 		return 1;
 
@@ -66,8 +72,8 @@ int do_bootm_linux(int flag, int argc, char * const argv[],
 
 	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 
-	if (!of_flat_tree && argc > 3)
-		of_flat_tree = (char *)simple_strtoul(argv[3], NULL, 16);
+	if (!of_flat_tree && argc > 1)
+		of_flat_tree = (char *)simple_strtoul(argv[1], NULL, 16);
 
 	/* fixup the initrd now that we know where it should be */
 	if (images->rd_start && images->rd_end && of_flat_tree)

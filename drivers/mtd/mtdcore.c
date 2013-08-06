@@ -25,6 +25,11 @@ int add_mtd_device(struct mtd_info *mtd)
 			mtd->index = i;
 			mtd->usecount = 0;
 
+			/* default value if not set by driver */
+			if (mtd->bitflip_threshold == 0)
+				mtd->bitflip_threshold = mtd->ecc_strength;
+
+
 			/* No need to get a refcount on the module containing
 			   the notifier, since we hold the mtd_table_mutex */
 
@@ -186,3 +191,189 @@ void mtd_get_len_incl_bad(struct mtd_info *mtd, uint64_t offset,
 	}
 }
 #endif /* defined(CONFIG_CMD_MTDPARTS_SPREAD) */
+
+ /*
+ * Erase is an asynchronous operation.  Device drivers are supposed
+ * to call instr->callback() whenever the operation completes, even
+ * if it completes with a failure.
+ * Callers are supposed to pass a callback function and wait for it
+ * to be called before writing to the block.
+ */
+int mtd_erase(struct mtd_info *mtd, struct erase_info *instr)
+{
+	if (instr->addr > mtd->size || instr->len > mtd->size - instr->addr)
+		return -EINVAL;
+	if (!(mtd->flags & MTD_WRITEABLE))
+		return -EROFS;
+	instr->fail_addr = MTD_FAIL_ADDR_UNKNOWN;
+	if (!instr->len) {
+		instr->state = MTD_ERASE_DONE;
+		mtd_erase_callback(instr);
+		return 0;
+	}
+	return mtd->_erase(mtd, instr);
+}
+
+int mtd_read(struct mtd_info *mtd, loff_t from, size_t len, size_t *retlen,
+	     u_char *buf)
+{
+	if (from < 0 || from > mtd->size || len > mtd->size - from)
+		return -EINVAL;
+	if (!len)
+		return 0;
+	return mtd->_read(mtd, from, len, retlen, buf);
+}
+
+int mtd_write(struct mtd_info *mtd, loff_t to, size_t len, size_t *retlen,
+	      const u_char *buf)
+{
+	*retlen = 0;
+	if (to < 0 || to > mtd->size || len > mtd->size - to)
+		return -EINVAL;
+	if (!mtd->_write || !(mtd->flags & MTD_WRITEABLE))
+		return -EROFS;
+	if (!len)
+		return 0;
+	return mtd->_write(mtd, to, len, retlen, buf);
+}
+
+/*
+ * In blackbox flight recorder like scenarios we want to make successful writes
+ * in interrupt context. panic_write() is only intended to be called when its
+ * known the kernel is about to panic and we need the write to succeed. Since
+ * the kernel is not going to be running for much longer, this function can
+ * break locks and delay to ensure the write succeeds (but not sleep).
+ */
+int mtd_panic_write(struct mtd_info *mtd, loff_t to, size_t len, size_t *retlen,
+		    const u_char *buf)
+{
+	*retlen = 0;
+	if (!mtd->_panic_write)
+		return -EOPNOTSUPP;
+	if (to < 0 || to > mtd->size || len > mtd->size - to)
+		return -EINVAL;
+	if (!(mtd->flags & MTD_WRITEABLE))
+		return -EROFS;
+	if (!len)
+		return 0;
+	return mtd->_panic_write(mtd, to, len, retlen, buf);
+}
+
+int mtd_read_oob(struct mtd_info *mtd, loff_t from, struct mtd_oob_ops *ops)
+{
+	ops->retlen = ops->oobretlen = 0;
+	if (!mtd->_read_oob)
+		return -EOPNOTSUPP;
+	return mtd->_read_oob(mtd, from, ops);
+}
+
+/*
+ * Method to access the protection register area, present in some flash
+ * devices. The user data is one time programmable but the factory data is read
+ * only.
+ */
+int mtd_get_fact_prot_info(struct mtd_info *mtd, struct otp_info *buf,
+			   size_t len)
+{
+	if (!mtd->_get_fact_prot_info)
+		return -EOPNOTSUPP;
+	if (!len)
+		return 0;
+	return mtd->_get_fact_prot_info(mtd, buf, len);
+}
+
+int mtd_read_fact_prot_reg(struct mtd_info *mtd, loff_t from, size_t len,
+			   size_t *retlen, u_char *buf)
+{
+	*retlen = 0;
+	if (!mtd->_read_fact_prot_reg)
+		return -EOPNOTSUPP;
+	if (!len)
+		return 0;
+	return mtd->_read_fact_prot_reg(mtd, from, len, retlen, buf);
+}
+
+int mtd_get_user_prot_info(struct mtd_info *mtd, struct otp_info *buf,
+			   size_t len)
+{
+	if (!mtd->_get_user_prot_info)
+		return -EOPNOTSUPP;
+	if (!len)
+		return 0;
+	return mtd->_get_user_prot_info(mtd, buf, len);
+}
+
+int mtd_read_user_prot_reg(struct mtd_info *mtd, loff_t from, size_t len,
+			   size_t *retlen, u_char *buf)
+{
+	*retlen = 0;
+	if (!mtd->_read_user_prot_reg)
+		return -EOPNOTSUPP;
+	if (!len)
+		return 0;
+	return mtd->_read_user_prot_reg(mtd, from, len, retlen, buf);
+}
+
+int mtd_write_user_prot_reg(struct mtd_info *mtd, loff_t to, size_t len,
+			    size_t *retlen, u_char *buf)
+{
+	*retlen = 0;
+	if (!mtd->_write_user_prot_reg)
+		return -EOPNOTSUPP;
+	if (!len)
+		return 0;
+	return mtd->_write_user_prot_reg(mtd, to, len, retlen, buf);
+}
+
+int mtd_lock_user_prot_reg(struct mtd_info *mtd, loff_t from, size_t len)
+{
+	if (!mtd->_lock_user_prot_reg)
+		return -EOPNOTSUPP;
+	if (!len)
+		return 0;
+	return mtd->_lock_user_prot_reg(mtd, from, len);
+}
+
+/* Chip-supported device locking */
+int mtd_lock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
+{
+	if (!mtd->_lock)
+		return -EOPNOTSUPP;
+	if (ofs < 0 || ofs > mtd->size || len > mtd->size - ofs)
+		return -EINVAL;
+	if (!len)
+		return 0;
+	return mtd->_lock(mtd, ofs, len);
+}
+
+int mtd_unlock(struct mtd_info *mtd, loff_t ofs, uint64_t len)
+{
+	if (!mtd->_unlock)
+		return -EOPNOTSUPP;
+	if (ofs < 0 || ofs > mtd->size || len > mtd->size - ofs)
+		return -EINVAL;
+	if (!len)
+		return 0;
+	return mtd->_unlock(mtd, ofs, len);
+}
+
+int mtd_block_isbad(struct mtd_info *mtd, loff_t ofs)
+{
+	if (!mtd->_block_isbad)
+		return 0;
+	if (ofs < 0 || ofs > mtd->size)
+		return -EINVAL;
+	return mtd->_block_isbad(mtd, ofs);
+}
+
+int mtd_block_markbad(struct mtd_info *mtd, loff_t ofs)
+{
+	if (!mtd->_block_markbad)
+		return -EOPNOTSUPP;
+	if (ofs < 0 || ofs > mtd->size)
+		return -EINVAL;
+	if (!(mtd->flags & MTD_WRITEABLE))
+		return -EROFS;
+	return mtd->_block_markbad(mtd, ofs);
+}
+

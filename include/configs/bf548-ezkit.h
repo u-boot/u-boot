@@ -120,18 +120,16 @@
 #define CONFIG_ENV_SECT_SIZE	0x8000
 #endif
 
-
 /*
  * NAND Settings
  */
-#define CONFIG_BFIN_NFC_CTL_VAL	0x0033
 #if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_NAND)
-# define CONFIG_BFIN_NFC_BOOTROM_ECC
-#endif
+#define CONFIG_BFIN_NFC_CTL_VAL        0x0033
+#define CONFIG_BFIN_NFC_BOOTROM_ECC
 #define CONFIG_DRIVER_NAND_BFIN
-#define CONFIG_SYS_NAND_BASE		0 /* not actually used */
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
-
+#define CONFIG_SYS_NAND_BASE           0 /* not actually used */
+#define CONFIG_SYS_MAX_NAND_DEVICE     1
+#endif
 
 /*
  * I2C Settings
@@ -184,13 +182,12 @@
 #define CONFIG_UART_CONSOLE	1
 #define CONFIG_BFIN_SPI_IMG_SIZE 0x50000
 
-#ifndef __ADSPBF542__
-/* Don't waste time transferring a logo over the UART */
-# if (CONFIG_BFIN_BOOT_MODE != BFIN_BOOT_UART)
-#  define CONFIG_VIDEO
-#  define EASYLOGO_HEADER <asm/bfin_logo_230x230_gzip.h>
-# endif
-# define CONFIG_DEB_DMA_URGENT
+#define CONFIG_ADI_GPIO2
+
+#undef CONFIG_VIDEO
+#ifdef CONFIG_VIDEO
+#define EASYLOGO_HEADER < asm/bfin_logo_230x230_gzip.h >
+#define CONFIG_DEB_DMA_URGENT
 #endif
 
 /* Define if want to do post memory test */

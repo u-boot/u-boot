@@ -125,6 +125,12 @@ static int g_dnl_config_register(struct usb_composite_dev *cdev)
 	return usb_add_config(cdev, &config);
 }
 
+__weak
+int g_dnl_bind_fixup(struct usb_device_descriptor *dev)
+{
+	return 0;
+}
+
 static int g_dnl_bind(struct usb_composite_dev *cdev)
 {
 	struct usb_gadget *gadget = cdev->gadget;
@@ -147,6 +153,7 @@ static int g_dnl_bind(struct usb_composite_dev *cdev)
 	g_dnl_string_defs[1].id = id;
 	device_desc.iProduct = id;
 
+	g_dnl_bind_fixup(&device_desc);
 	ret = g_dnl_config_register(cdev);
 	if (ret)
 		goto error;

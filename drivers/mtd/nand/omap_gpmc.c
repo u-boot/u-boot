@@ -590,11 +590,12 @@ static int omap_correct_data_bch(struct mtd_info *mtd, uint8_t *dat,
  * @mtd:	mtd info structure
  * @chip:	nand chip info structure
  * @buf:	buffer to store read data
+ * @oob_required: caller expects OOB data read to chip->oob_poi
  * @page:	page number to read
  *
  */
 static int omap_read_page_bch(struct mtd_info *mtd, struct nand_chip *chip,
-				uint8_t *buf, int page)
+				uint8_t *buf, int oob_required, int page)
 {
 	int i, eccsize = chip->ecc.size;
 	int eccbytes = chip->ecc.bytes;
@@ -804,6 +805,7 @@ void omap_nand_switch_ecc(uint32_t hardware, uint32_t eccstrength)
 	nand->ecc.hwctl = NULL;
 	nand->ecc.correct = NULL;
 	nand->ecc.calculate = NULL;
+	nand->ecc.strength = eccstrength;
 
 	/* Setup the ecc configurations again */
 	if (hardware) {
@@ -901,7 +903,7 @@ int board_nand_init(struct nand_chip *nand)
 	nand->IO_ADDR_W = (void __iomem *)&gpmc_cfg->cs[cs].nand_cmd;
 
 	nand->cmd_ctrl = omap_nand_hwcontrol;
-	nand->options = NAND_NO_PADDING | NAND_CACHEPRG | NAND_NO_AUTOINCR;
+	nand->options = NAND_NO_PADDING | NAND_CACHEPRG;
 	/* If we are 16 bit dev, our gpmc config tells us that */
 	if ((readl(&gpmc_cfg->cs[cs].config1) & 0x3000) == 0x1000)
 		nand->options |= NAND_BUSWIDTH_16;
@@ -934,6 +936,7 @@ int board_nand_init(struct nand_chip *nand)
 	nand->ecc.layout = &hw_bch8_nand_oob;
 	nand->ecc.size = CONFIG_SYS_NAND_ECCSIZE;
 	nand->ecc.bytes = CONFIG_SYS_NAND_ECCBYTES;
+	nand->ecc.strength = 8;
 	nand->ecc.hwctl = omap_enable_ecc_bch;
 	nand->ecc.correct = omap_correct_data_bch;
 	nand->ecc.calculate = omap_calculate_ecc_bch;
@@ -952,6 +955,7 @@ int board_nand_init(struct nand_chip *nand)
 	nand->ecc.hwctl = omap_enable_hwecc;
 	nand->ecc.correct = omap_correct_data;
 	nand->ecc.calculate = omap_calculate_ecc;
+	nand->ecc.strength = 1;
 	omap_hwecc_init(nand);
 #endif
 #endif

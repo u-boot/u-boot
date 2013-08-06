@@ -37,7 +37,8 @@ struct watchdog_regs {
 	u32 tbr; /* 0x8 */
 };
 
-#define watchdog_base ((struct watchdog_regs *)CONFIG_WATCHDOG_BASEADDR)
+static struct watchdog_regs *watchdog_base =
+			(struct watchdog_regs *)CONFIG_WATCHDOG_BASEADDR;
 
 void hw_watchdog_reset(void)
 {

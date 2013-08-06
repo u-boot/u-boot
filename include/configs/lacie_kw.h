@@ -120,10 +120,14 @@
 #endif
 
 /*
+ * Enable platform initialisation via misc_init_r() function
+ */
+#define CONFIG_MISC_INIT_R
+
+/*
  * Ethernet Driver configuration
  */
 #ifdef CONFIG_CMD_NET
-#define CONFIG_MISC_INIT_R /* Call misc_init_r() to initialize MAC address */
 #define CONFIG_MVGBE_PORTS		{1, 0} /* enable port 0 only */
 #define CONFIG_NETCONSOLE
 #endif
@@ -153,6 +157,9 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR		0x50
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	4 /* 16-byte page size */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1 /* 8-bit device address */
+#if defined(CONFIG_NET2BIG_V2)
+#define CONFIG_SYS_I2C_G762_ADDR		0x3e
+#endif
 #endif /* CONFIG_CMD_I2C */
 
 /*

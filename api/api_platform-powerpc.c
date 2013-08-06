@@ -55,8 +55,6 @@ int platform_sys_info(struct sys_info *si)
 #define bi_bar	bi_mbar_base
 #elif defined(CONFIG_MPC83xx)
 #define bi_bar	bi_immrbar
-#elif defined(CONFIG_MPC8220)
-#define bi_bar	bi_mbar_base
 #endif
 
 #if defined(bi_bar)

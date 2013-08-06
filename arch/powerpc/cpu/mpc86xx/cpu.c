@@ -78,7 +78,7 @@ checkcpu(void)
 	major = PVR_E600_MAJ(pvr);
 	minor = PVR_E600_MIN(pvr);
 
-	printf("E600 Core %d", (msscr0 & 0x20) ? 1 : 0 );
+	printf("e600 Core %d", (msscr0 & 0x20) ? 1 : 0);
 	if (gur->pordevsr & MPC86xx_PORDEVSR_CORE1TE)
 		puts("\n    Core1Translation Enabled");
 	debug(" (MSSCR0=%x, PORDEVSR=%x)", msscr0, gur->pordevsr);

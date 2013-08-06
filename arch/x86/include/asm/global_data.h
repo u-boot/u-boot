@@ -40,7 +40,7 @@ struct arch_global_data {
 #include <asm-generic/global_data.h>
 
 #ifndef __ASSEMBLY__
-static inline gd_t *get_fs_gd_ptr(void)
+static inline __attribute__((no_instrument_function)) gd_t *get_fs_gd_ptr(void)
 {
 	gd_t *gd_ptr;
 

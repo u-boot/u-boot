@@ -32,6 +32,15 @@ int board_eth_init(bd_t *bis)
 	return 0;
 }
 
+void reset_cpu(ulong ignore)
+{
+	/* Enable VLIO interface on Hamcop */
+	writeb(0x1, 0x4000);
+
+	/* Reset board (cold reset) */
+	writeb(0xff, 0x4002);
+}
+
 int board_init(void)
 {
 	/* We have RAM, disable cache */

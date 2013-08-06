@@ -27,6 +27,10 @@
 #include <asm/arch/clk.h>
 #include <asm/arch/periph.h>
 
+#define PLL_DIV_1024	1024
+#define PLL_DIV_65535	65535
+#define PLL_DIV_65536	65536
+
 /* *
  * This structure is to store the src bit, div bit and prediv bit
  * positions of the peripheral clocks of the src and div registers
@@ -85,6 +89,7 @@ static struct set_epll_con_val exynos5_epll_div[] = {
 static int exynos_get_pll_clk(int pllreg, unsigned int r, unsigned int k)
 {
 	unsigned long m, p, s = 0, mask, fout;
+	unsigned int div;
 	unsigned int freq;
 	/*
 	 * APLL_CON: MIDV [25:16]
@@ -110,18 +115,43 @@ static int exynos_get_pll_clk(int pllreg, unsigned int r, unsigned int k)
 	if (pllreg == EPLL) {
 		k = k & 0xffff;
 		/* FOUT = (MDIV + K / 65536) * FIN / (PDIV * 2^SDIV) */
-		fout = (m + k / 65536) * (freq / (p * (1 << s)));
+		fout = (m + k / PLL_DIV_65536) * (freq / (p * (1 << s)));
 	} else if (pllreg == VPLL) {
 		k = k & 0xfff;
-		/* FOUT = (MDIV + K / 1024) * FIN / (PDIV * 2^SDIV) */
-		fout = (m + k / 1024) * (freq / (p * (1 << s)));
-	} else {
-		if (s < 1)
-			s = 1;
-		/* FOUT = MDIV * FIN / (PDIV * 2^(SDIV - 1)) */
-		fout = m * (freq / (p * (1 << (s - 1))));
-	}
 
+		/*
+		 * Exynos4210
+		 * FOUT = (MDIV + K / 1024) * FIN / (PDIV * 2^SDIV)
+		 *
+		 * Exynos4412
+		 * FOUT = (MDIV + K / 65535) * FIN / (PDIV * 2^SDIV)
+		 *
+		 * Exynos5250
+		 * FOUT = (MDIV + K / 65536) * FIN / (PDIV * 2^SDIV)
+		 */
+		if (proid_is_exynos4210())
+			div = PLL_DIV_1024;
+		else if (proid_is_exynos4412())
+			div = PLL_DIV_65535;
+		else if (proid_is_exynos5250())
+			div = PLL_DIV_65536;
+		else
+			return 0;
+
+		fout = (m + k / div) * (freq / (p * (1 << s)));
+	} else {
+		/*
+		 * Exynos4412 / Exynos5250
+		 * FOUT = MDIV * FIN / (PDIV * 2^SDIV)
+		 *
+		 * Exynos4210
+		 * FOUT = MDIV * FIN / (PDIV * 2^(SDIV-1))
+		 */
+		if (proid_is_exynos4210())
+			fout = m * (freq / (p * (1 << (s - 1))));
+		else
+			fout = m * (freq / (p * (1 << s)));
+	}
 	return fout;
 }
 
@@ -613,7 +643,7 @@ static unsigned long exynos4_get_mmc_clk(int dev_index)
 		(struct exynos4_clock *)samsung_get_base_clock();
 	unsigned long uclk, sclk;
 	unsigned int sel, ratio, pre_ratio;
-	int shift;
+	int shift = 0;
 
 	sel = readl(&clk->src_fsys);
 	sel = (sel >> (dev_index << 2)) & 0xf;
@@ -662,7 +692,7 @@ static unsigned long exynos5_get_mmc_clk(int dev_index)
 		(struct exynos5_clock *)samsung_get_base_clock();
 	unsigned long uclk, sclk;
 	unsigned int sel, ratio, pre_ratio;
-	int shift;
+	int shift = 0;
 
 	sel = readl(&clk->src_fsys);
 	sel = (sel >> (dev_index << 2)) & 0xf;

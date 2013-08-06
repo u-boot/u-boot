@@ -58,12 +58,6 @@ u32 get_board_rev(void)
 #endif
 
 static void check_hw_revision(void);
-
-static int hwrevision(int rev)
-{
-	return (board_rev & 0xf) == rev;
-}
-
 struct s3c_plat_otg_data s5pc210_otg_data;
 
 int board_init(void)
@@ -773,9 +767,7 @@ void init_panel_info(vidinfo_t *vid)
 #ifdef CONFIG_TIZEN
 	get_tizen_logo_info(vid);
 #endif
-
-	if (hwrevision(2))
-		mipi_lcd_device.reverse_panel = 1;
+	mipi_lcd_device.reverse_panel = 1;
 
 	strcpy(s6e8ax0_platform_data.lcd_panel_name, mipi_lcd_device.name);
 	s6e8ax0_platform_data.lcd_power = lcd_power;

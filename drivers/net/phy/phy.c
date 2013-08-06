@@ -75,6 +75,10 @@ static int genphy_config_advert(struct phy_device *phydev)
 		adv |= ADVERTISE_PAUSE_CAP;
 	if (advertise & ADVERTISED_Asym_Pause)
 		adv |= ADVERTISE_PAUSE_ASYM;
+	if (advertise & ADVERTISED_1000baseX_Half)
+		adv |= ADVERTISE_1000XHALF;
+	if (advertise & ADVERTISED_1000baseX_Full)
+		adv |= ADVERTISE_1000XFULL;
 
 	if (adv != oldadv) {
 		err = phy_write(phydev, MDIO_DEVAD_NONE, MII_ADVERTISE, adv);
@@ -280,7 +284,7 @@ int genphy_update_link(struct phy_device *phydev)
  *
  * Stolen from Linux's mii.c and phy_device.c
  */
-static int genphy_parse_link(struct phy_device *phydev)
+int genphy_parse_link(struct phy_device *phydev)
 {
 	int mii_reg = phy_read(phydev, MDIO_DEVAD_NONE, MII_BMSR);
 
@@ -288,6 +292,7 @@ static int genphy_parse_link(struct phy_device *phydev)
 	if (mii_reg & BMSR_ANEGCAPABLE) {
 		u32 lpa = 0;
 		u32 gblpa = 0;
+		u32 estatus = 0;
 
 		/* Check for gigabit capability */
 		if (mii_reg & BMSR_ERCAP) {
@@ -327,6 +332,26 @@ static int genphy_parse_link(struct phy_device *phydev)
 
 		} else if (lpa & LPA_10FULL)
 			phydev->duplex = DUPLEX_FULL;
+
+		/*
+		 * Extended status may indicate that the PHY supports
+		 * 1000BASE-T/X even though the 1000BASE-T registers
+		 * are missing. In this case we can't tell whether the
+		 * peer also supports it, so we only check extended
+		 * status if the 1000BASE-T registers are actually
+		 * missing.
+		 */
+		if ((mii_reg & BMSR_ESTATEN) && !(mii_reg & BMSR_ERCAP))
+			estatus = phy_read(phydev, MDIO_DEVAD_NONE,
+					   MII_ESTATUS);
+
+		if (estatus & (ESTATUS_1000_XFULL | ESTATUS_1000_XHALF |
+				ESTATUS_1000_TFULL | ESTATUS_1000_THALF)) {
+			phydev->speed = SPEED_1000;
+			if (estatus & (ESTATUS_1000_XFULL | ESTATUS_1000_TFULL))
+				phydev->duplex = DUPLEX_FULL;
+		}
+
 	} else {
 		u32 bmcr = phy_read(phydev, MDIO_DEVAD_NONE, MII_BMCR);
 
@@ -384,6 +409,10 @@ int genphy_config(struct phy_device *phydev)
 			features |= SUPPORTED_1000baseT_Full;
 		if (val & ESTATUS_1000_THALF)
 			features |= SUPPORTED_1000baseT_Half;
+		if (val & ESTATUS_1000_XFULL)
+			features |= SUPPORTED_1000baseX_Full;
+		if (val & ESTATUS_1000_XHALF)
+			features |= SUPPORTED_1000baseX_Half;
 	}
 
 	phydev->supported = features;
@@ -429,6 +458,12 @@ int phy_init(void)
 #endif
 #ifdef CONFIG_PHY_DAVICOM
 	phy_davicom_init();
+#endif
+#ifdef CONFIG_PHY_ET1011C
+	phy_et1011c_init();
+#endif
+#ifdef CONFIG_PHY_ICPLUS
+	phy_icplus_init();
 #endif
 #ifdef CONFIG_PHY_LXT
 	phy_lxt_init();

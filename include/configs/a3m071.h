@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Stefan Roese <sr@denx.de>
+ * Copyright 2012-2013 Stefan Roese <sr@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -59,6 +59,38 @@
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_DHCP
+#define CONFIG_BOOTP_SEND_HOSTNAME
+#define CONFIG_BOOTP_SERVERIP
+#define CONFIG_BOOTP_MAY_FAIL
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_SERVERIP
+#define CONFIG_NET_RETRY_COUNT 3
+#define CONFIG_CMD_LINK_LOCAL
+#define CONFIG_NETCONSOLE
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define CONFIG_CMD_PING
+#define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
+#define CONFIG_MTD_PARTITIONS	/* needed for UBI */
+#define CONFIG_FLASH_CFI_MTD
+#define MTDIDS_DEFAULT          "nor0=fc000000.flash"
+#define MTDPARTS_DEFAULT	"mtdparts=fc000000.flash:512k(u-boot),"	\
+						"256k(env),"	\
+						"128k(hwinfo),"	\
+						"1M(nvramsim),"	\
+						"128k(dtb),"	\
+						"5M(kernel),"	\
+						"128k(sysinfo),"	\
+						"7552k(root),"	\
+						"4M(app),"	\
+						"13568k(data)"
+#define CONFIG_LZO			/* needed for UBI */
+#define CONFIG_RBTREE			/* needed for UBI */
+#define CONFIG_CMD_MTDPARTS
+#define CONFIG_CMD_UBI
+#define CONFIG_CMD_UBIFS
+#define CONFIG_FIT
 
 /*
  * IPB Bus clocking configuration.
@@ -88,7 +120,7 @@
  */
 #define CONFIG_SYS_FLASH_BASE		0xfc000000
 #define CONFIG_SYS_FLASH_SIZE		0x02000000
-#define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + 0x40000)
+#define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + 0x80000)
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1
 #define CONFIG_SYS_MAX_FLASH_SECT	256
@@ -101,6 +133,7 @@
 #define CONFIG_SYS_FLASH_CFI
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
+#define CONFIG_FLASH_VERIFY
 
 /*
  * Environment settings
@@ -109,6 +142,8 @@
 #define CONFIG_ENV_SIZE		0x10000
 #define CONFIG_ENV_SECT_SIZE	0x20000
 #define CONFIG_ENV_OVERWRITE
+#define CONFIG_ENV_ADDR_REDUND  (CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND  (CONFIG_ENV_SIZE)
 
 /*
  * Memory map
@@ -121,16 +156,14 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	MPC5XXX_SRAM
 #define CONFIG_SYS_INIT_RAM_END		MPC5XXX_SRAM_SIZE
 
-
-#define CONFIG_SYS_GBL_DATA_SIZE	128
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - \
-					 CONFIG_SYS_GBL_DATA_SIZE)
+					 GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 
-#define CONFIG_SYS_MONITOR_LEN		(256 << 10)
-#define CONFIG_SYS_MALLOC_LEN		(1 << 20)
+#define CONFIG_SYS_MONITOR_LEN		(512 << 10)
+#define CONFIG_SYS_MALLOC_LEN		(4 << 20)
 #define CONFIG_SYS_BOOTMAPSZ		(8 << 20)
 
 /*
@@ -156,14 +189,14 @@
  */
 
 #ifdef CONFIG_A4M2K
-#define CONFIG_SYS_GPS_PORT_CONFIG	0x0005C805
+#define CONFIG_SYS_GPS_PORT_CONFIG	0x1005C805
 #else
 /* for failsave-level 0 - full failsave */
 #define CONFIG_SYS_GPS_PORT_CONFIG	0x1005C005
 /* for failsave-level 1 - only digiboard ok */
-#define CONFIG_SYS_GPS_PORT_CONFIG_1	0x1005C005
+#define CONFIG_SYS_GPS_PORT_CONFIG_1	0x1005C065
 /* for failsave-level 2 - all ok */
-#define CONFIG_SYS_GPS_PORT_CONFIG_2	0x1005C005
+#define CONFIG_SYS_GPS_PORT_CONFIG_2	0x1005C065
 #endif
 
 #define CONFIG_WDOG_GPIO_PIN		GPIO_WKUP_7
@@ -173,10 +206,10 @@
 
 /*
  * Configuration matrix
- *                        MSB                          LSB
+ *                        MSB                            LSB
  * failsave 0  0x1005C005  00010000000001011100000000000101  ( full failsave )
- * failsave 1  0x1005C005  00010000000001011100000000000101  ( digib.-ver ok )
- * failsave 2  0x1005C005  00010000000001011100000000000101  ( all ok )
+ * failsave 1  0x1005C065  00010000000001011100000001100101  ( digib.-ver ok )
+ * failsave 2  0x1005C065  00010000000001011100000001100101  ( all ok )
  *                         || ||| ||  |   ||| |   |   |   |
  *                         || ||| ||  |   ||| |   |   |   |  bit rev name
  *                         ++-+++-++--+---+++-+---+---+---+-  0   31 CS1
@@ -312,9 +345,11 @@
  * Environment Configuration
  */
 
-#define CONFIG_BOOTDELAY	0	/* -1 disables auto-boot */
+#define CONFIG_BOOTDELAY	3	/* -1 disables auto-boot */
 #undef  CONFIG_BOOTARGS
 #define CONFIG_ZERO_BOOTDELAY_CHECK
+
+#define CONFIG_SYS_AUTOLOAD	"n"
 
 #define CONFIG_PREBOOT	"echo;"	\
 	"echo Type \"run flash_mtd\" to boot from flash with mtd filesystem;" \
@@ -323,11 +358,10 @@
 
 #undef	CONFIG_BOOTARGS
 
-#define CONFIG_SYS_OS_BASE	0xfc080000
-#define CONFIG_SYS_FDT_BASE	0xfc060000
+#define CONFIG_SYS_OS_BASE	0xfc200000
+#define CONFIG_SYS_FDT_BASE	0xfc1e0000
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
-	"hostname=" __stringify(CONFIG_HOSTNAME) "\0"			\
 	"netdev=eth0\0"							\
 	"verify=no\0"							\
 	"loadaddr=200000\0"						\
@@ -344,29 +378,31 @@
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
 	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
-	"mtdargs=setenv bootargs root=/dev/mtdblock4 rw rootfstype=jffs2\0" \
+	"mtdargs=setenv bootargs root=/dev/mtdblock7 "			\
+		"rootfstype=squashfs,jffs2\0"				\
+	"addhost=setenv bootargs ${bootargs} "				\
+		"hostname=${hostname}\0"				\
 	"addip=setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
 	"addtty=setenv bootargs ${bootargs} "				\
 		"console=${consoledev},${baudrate}\0"			\
-	"flash_nfs=run nfsargs addip addtty;"				\
-		"bootm ${kernel_addr} - ${fdtaddr}\0"			\
-	"flash_mtd=run mtdargs addip addtty;"				\
-		"bootm ${kernel_addr} - ${fdtaddr}\0"			\
-	"flash_self=run ramargs addip addtty;"				\
+	"flash_nfs=run nfsargs addip addtty addhost;"			\
+		"bootm ${kernel_addr} - ${fdt_addr}\0"			\
+	"flash_mtd=run mtdargs addip addtty addhost;"			\
+		"bootm ${kernel_addr} - ${fdt_addr}\0"			\
+	"flash_self=run ramargs addip addtty addhost;"			\
 		"bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"	\
 	"net_nfs=tftp ${kernel_addr_r} ${bootfile};"			\
 		"tftp ${fdt_addr_r} ${fdtfile};"			\
-		"run nfsargs addip addtty;"				\
+		"run nfsargs addip addtty addhost;"			\
 		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
 	"load=tftp ${loadaddr} " __stringify(CONFIG_HOSTNAME)		\
 		"/u-boot-img.bin\0"					\
-	"update=protect off fc000000 fc03ffff; "			\
-		"era fc000000 fc03ffff; cp.b ${loadaddr} fc000000 40000\0" \
+	"update=protect off fc000000 fc07ffff; "			\
+		"era fc000000 fc07ffff;"				\
+		"cp.b ${loadaddr} fc000000 ${filesize}\0"		\
 	"upd=run load;run update\0"					\
-	"bootdelay=3\0"							\
-	"bootcmd=run net_nfs\0"						\
 	""
 
 #define CONFIG_BOOTCOMMAND	"run flash_mtd"
@@ -390,6 +426,7 @@
 #define CONFIG_SPL_BSS_MAX_SIZE		(64 << 10)
 
 #define CONFIG_SPL_OS_BOOT
+#define CONFIG_SPL_ENV_SUPPORT
 /* Place patched DT blob (fdt) at this address */
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x01800000
 

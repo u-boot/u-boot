@@ -28,8 +28,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/clock.h>
-#include <asm/arch/mx35_pins.h>
-#include <asm/arch/iomux.h>
+#include <asm/arch/iomux-mx35.h>
 #include <i2c.h>
 #include <power/pmic.h>
 #include <fsl_pmic.h>
@@ -74,25 +73,29 @@ static void board_setup_sdram(void)
 
 static void setup_iomux_fec(void)
 {
+	static const iomux_v3_cfg_t fec_pads[] = {
+		MX35_PAD_FEC_TX_CLK__FEC_TX_CLK,
+		MX35_PAD_FEC_RX_CLK__FEC_RX_CLK,
+		MX35_PAD_FEC_RX_DV__FEC_RX_DV,
+		MX35_PAD_FEC_COL__FEC_COL,
+		MX35_PAD_FEC_RDATA0__FEC_RDATA_0,
+		MX35_PAD_FEC_TDATA0__FEC_TDATA_0,
+		MX35_PAD_FEC_TX_EN__FEC_TX_EN,
+		MX35_PAD_FEC_MDC__FEC_MDC,
+		MX35_PAD_FEC_MDIO__FEC_MDIO,
+		MX35_PAD_FEC_TX_ERR__FEC_TX_ERR,
+		MX35_PAD_FEC_RX_ERR__FEC_RX_ERR,
+		MX35_PAD_FEC_CRS__FEC_CRS,
+		MX35_PAD_FEC_RDATA1__FEC_RDATA_1,
+		MX35_PAD_FEC_TDATA1__FEC_TDATA_1,
+		MX35_PAD_FEC_RDATA2__FEC_RDATA_2,
+		MX35_PAD_FEC_TDATA2__FEC_TDATA_2,
+		MX35_PAD_FEC_RDATA3__FEC_RDATA_3,
+		MX35_PAD_FEC_TDATA3__FEC_TDATA_3,
+	};
+
 	/* setup pins for FEC */
-	mxc_request_iomux(MX35_PIN_FEC_TX_CLK, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_RX_CLK, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_RX_DV, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_COL, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_RDATA0, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_TDATA0, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_TX_EN, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_MDC, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_MDIO, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_TX_ERR, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_RX_ERR, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_CRS, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_RDATA1, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_TDATA1, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_RDATA2, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_TDATA2, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_RDATA3, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_FEC_TDATA3, MUX_CONFIG_FUNC);
+	imx_iomux_v3_setup_multiple_pads(fec_pads, ARRAY_SIZE(fec_pads));
 }
 
 int woodburn_init(void)
@@ -130,9 +133,9 @@ int woodburn_init(void)
 	setup_iomux_fec();
 
 	/* setup GPIO1_4 FEC_ENABLE signal */
-	mxc_request_iomux(MX35_PIN_SCKR, MUX_CONFIG_ALT5);
+	imx_iomux_v3_setup_pad(MX35_PAD_SCKR__GPIO1_4);
 	gpio_direction_output(4, 1);
-	mxc_request_iomux(MX35_PIN_HCKT, MUX_CONFIG_ALT5);
+	imx_iomux_v3_setup_pad(MX35_PAD_HCKT__GPIO1_9);
 	gpio_direction_output(9, 1);
 
 	return 0;
@@ -228,22 +231,24 @@ struct fsl_esdhc_cfg esdhc_cfg = {MMC_SDHC1_BASE_ADDR};
 
 int board_mmc_init(bd_t *bis)
 {
+	static const iomux_v3_cfg_t sdhc1_pads[] = {
+		MX35_PAD_SD1_CMD__ESDHC1_CMD,
+		MX35_PAD_SD1_CLK__ESDHC1_CLK,
+		MX35_PAD_SD1_DATA0__ESDHC1_DAT0,
+		MX35_PAD_SD1_DATA1__ESDHC1_DAT1,
+		MX35_PAD_SD1_DATA2__ESDHC1_DAT2,
+		MX35_PAD_SD1_DATA3__ESDHC1_DAT3,
+	};
+
 	/* configure pins for SDHC1 only */
-	mxc_request_iomux(MX35_PIN_SD1_CMD, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_SD1_CLK, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_SD1_DATA0, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_SD1_DATA1, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_SD1_DATA2, MUX_CONFIG_FUNC);
-	mxc_request_iomux(MX35_PIN_SD1_DATA3, MUX_CONFIG_FUNC);
+	imx_iomux_v3_setup_multiple_pads(sdhc1_pads, ARRAY_SIZE(sdhc1_pads));
 
 	/* MMC Card Detect on GPIO1_7 */
-	mxc_request_iomux(MX35_PIN_SCKT, MUX_CONFIG_ALT5);
-	mxc_iomux_set_input(MUX_IN_GPIO1_IN_7, 0x1);
+	imx_iomux_v3_setup_pad(MX35_PAD_SCKT__GPIO1_7);
 	gpio_direction_input(GPIO_MMC_CD);
 
 	/* MMC Write Protection on GPIO1_8 */
-	mxc_request_iomux(MX35_PIN_FST, MUX_CONFIG_ALT5);
-	mxc_iomux_set_input(MUX_IN_GPIO1_IN_8, 0x1);
+	imx_iomux_v3_setup_pad(MX35_PAD_FST__GPIO1_8);
 	gpio_direction_input(GPIO_MMC_WP);
 
 	esdhc_cfg.sdhc_clk = mxc_get_clock(MXC_ESDHC1_CLK);

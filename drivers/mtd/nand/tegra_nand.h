@@ -224,7 +224,7 @@ enum {
 #define BCH_DEC_STATUS_MAX_CORR_CNT_MASK	(0x1f << 8)
 #define BCH_DEC_STATUS_PAGE_NUMBER_MASK		0xFF
 
-#define LP_OPTIONS (NAND_NO_READRDY | NAND_NO_AUTOINCR)
+#define LP_OPTIONS	0
 
 struct nand_ctlr {
 	u32	command;	/* offset 00h */

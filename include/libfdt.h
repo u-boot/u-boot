@@ -136,6 +136,28 @@ uint32_t fdt_next_tag(const void *fdt, int offset, int *nextoffset);
 
 int fdt_next_node(const void *fdt, int offset, int *depth);
 
+/**
+ * fdt_first_subnode() - get offset of first direct subnode
+ *
+ * @fdt:	FDT blob
+ * @offset:	Offset of node to check
+ * @return offset of first subnode, or -FDT_ERR_NOTFOUND if there is none
+ */
+int fdt_first_subnode(const void *fdt, int offset);
+
+/**
+ * fdt_next_subnode() - get offset of next direct subnode
+ *
+ * After first calling fdt_first_subnode(), call this function repeatedly to
+ * get direct subnodes of a parent node.
+ *
+ * @fdt:	FDT blob
+ * @offset:	Offset of previous subnode
+ * @return offset of next subnode, or -FDT_ERR_NOTFOUND if there are no more
+ * subnodes
+ */
+int fdt_next_subnode(const void *fdt, int offset);
+
 /**********************************************************************/
 /* General functions                                                  */
 /**********************************************************************/
@@ -582,7 +604,7 @@ const char *fdt_get_alias_namelen(const void *fdt,
  * value of the property named 'name' in the node /aliases.
  *
  * returns:
- *	a pointer to the expansion of the alias named 'name', of it exists
+ *	a pointer to the expansion of the alias named 'name', if it exists
  *	NULL, if the given alias or the /aliases node does not exist
  */
 const char *fdt_get_alias(const void *fdt, const char *name);
@@ -815,6 +837,20 @@ int fdt_node_check_compatible(const void *fdt, int nodeoffset,
  */
 int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
 				  const char *compatible);
+
+/**
+ * fdt_stringlist_contains - check a string list property for a string
+ * @strlist: Property containing a list of strings to check
+ * @listlen: Length of property
+ * @str: String to search for
+ *
+ * This is a utility function provided for convenience. The list contains
+ * one or more strings, each terminated by \0, as is found in a device tree
+ * "compatible" property.
+ *
+ * @return: 1 if the string is found in the list, 0 not found, or invalid list
+ */
+int fdt_stringlist_contains(const char *strlist, int listlen, const char *str);
 
 /**********************************************************************/
 /* Write-in-place functions                                           */
@@ -1474,5 +1510,69 @@ int fdt_del_node(void *fdt, int nodeoffset);
 /**********************************************************************/
 
 const char *fdt_strerror(int errval);
+
+struct fdt_region {
+	int offset;
+	int size;
+};
+
+/**
+ * fdt_find_regions() - find regions in device tree
+ *
+ * Given a list of nodes to include and properties to exclude, find
+ * the regions of the device tree which describe those included parts.
+ *
+ * The intent is to get a list of regions which will be invariant provided
+ * those parts are invariant. For example, if you request a list of regions
+ * for all nodes but exclude the property "data", then you will get the
+ * same region contents regardless of any change to "data" properties.
+ *
+ * This function can be used to produce a byte-stream to send to a hashing
+ * function to verify that critical parts of the FDT have not changed.
+ *
+ * Nodes which are given in 'inc' are included in the region list, as
+ * are the names of the immediate subnodes nodes (but not the properties
+ * or subnodes of those subnodes).
+ *
+ * For eaxample "/" means to include the root node, all root properties
+ * and the FDT_BEGIN_NODE and FDT_END_NODE of all subnodes of /. The latter
+ * ensures that we capture the names of the subnodes. In a hashing situation
+ * it prevents the root node from changing at all Any change to non-excluded
+ * properties, names of subnodes or number of subnodes would be detected.
+ *
+ * When used with FITs this provides the ability to hash and sign parts of
+ * the FIT based on different configurations in the FIT. Then it is
+ * impossible to change anything about that configuration (include images
+ * attached to the configuration), but it may be possible to add new
+ * configurations, new images or new signatures within the existing
+ * framework.
+ *
+ * Adding new properties to a device tree may result in the string table
+ * being extended (if the new property names are different from those
+ * already added). This function can optionally include a region for
+ * the string table so that this can be part of the hash too.
+ *
+ * The device tree header is not included in the list.
+ *
+ * @fdt:	Device tree to check
+ * @inc:	List of node paths to included
+ * @inc_count:	Number of node paths in list
+ * @exc_prop:	List of properties names to exclude
+ * @exc_prop_count:	Number of properties in exclude list
+ * @region:	Returns list of regions
+ * @max_region:	Maximum length of region list
+ * @path:	Pointer to a temporary string for the function to use for
+ *		building path names
+ * @path_len:	Length of path, must be large enough to hold the longest
+ *		path in the tree
+ * @add_string_tab:	1 to add a region for the string table
+ * @return number of regions in list. If this is >max_regions then the
+ * region array was exhausted. You should increase max_regions and try
+ * the call again.
+ */
+int fdt_find_regions(const void *fdt, char * const inc[], int inc_count,
+		     char * const exc_prop[], int exc_prop_count,
+		     struct fdt_region region[], int max_regions,
+		     char *path, int path_len, int add_string_tab);
 
 #endif /* _LIBFDT_H */

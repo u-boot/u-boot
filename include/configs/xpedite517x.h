@@ -49,6 +49,7 @@
 #define CONFIG_PCIE1		1	/* PCIE controler 1 */
 #define CONFIG_PCIE2		1	/* PCIE controler 2 */
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
+#define CONFIG_PCI_INDIRECT_BRIDGE 1	/* indirect PCI bridge support */
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 

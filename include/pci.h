@@ -462,7 +462,7 @@ struct pci_region {
 #define PCI_REGION_SYS_MEMORY	0x00000100	/* System memory */
 #define PCI_REGION_RO		0x00000200	/* Read-only memory */
 
-extern __inline__ void pci_set_region(struct pci_region *reg,
+static inline void pci_set_region(struct pci_region *reg,
 				      pci_addr_t bus_start,
 				      phys_addr_t phys_start,
 				      pci_size_t size,
@@ -548,7 +548,7 @@ struct pci_controller {
 	void *priv_data;
 };
 
-extern __inline__ void pci_set_ops(struct pci_controller *hose,
+static inline void pci_set_ops(struct pci_controller *hose,
 				   int (*read_byte)(struct pci_controller*,
 						    pci_dev_t, int where, u8 *),
 				   int (*read_word)(struct pci_controller*,
@@ -569,7 +569,9 @@ extern __inline__ void pci_set_ops(struct pci_controller *hose,
 	hose->write_dword = write_dword;
 }
 
+#ifdef CONFIG_PCI_INDIRECT_BRIDGE
 extern void pci_setup_indirect(struct pci_controller* hose, u32 cfg_addr, u32 cfg_data);
+#endif
 
 extern phys_addr_t pci_hose_bus_to_phys(struct pci_controller* hose,
 					pci_addr_t addr, unsigned long flags);

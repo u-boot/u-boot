@@ -35,15 +35,16 @@
 
 #include <configs/omap5_common.h>
 
-/* TWL6035 */
-#ifndef CONFIG_SPL_BUILD
-#define CONFIG_TWL6035_POWER
-#endif
+#define CONFIG_CONS_INDEX		3
+#define CONFIG_SYS_NS16550_COM3		UART3_BASE
+#define CONFIG_BAUDRATE			115200
 
 /* MMC ENV related defines */
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		1	/* SLOT2: eMMC(1) */
 #define CONFIG_ENV_OFFSET		0xE0000
+#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
+#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 #define CONFIG_CMD_SAVEENV
 
 /* Enhance our eMMC support / experience. */
@@ -52,6 +53,9 @@
 #define CONFIG_PARTITION_UUIDS
 #define CONFIG_CMD_PART
 
-#define CONFIG_SYS_PROMPT		"OMAP5430 EVM # "
+#define CONFIG_SYS_PROMPT		"OMAP5432 uEVM # "
 
+#define CONSOLEDEV		"ttyO2"
+
+#define CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC	16296
 #endif /* __CONFIG_OMAP5_EVM_H */

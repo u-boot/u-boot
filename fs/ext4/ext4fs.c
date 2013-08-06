@@ -60,16 +60,18 @@ void ext4fs_free_node(struct ext2fs_node *node, struct ext2fs_node *currroot)
 int ext4fs_read_file(struct ext2fs_node *node, int pos,
 		unsigned int len, char *buf)
 {
+	struct ext_filesystem *fs = get_fs();
 	int i;
-	int blockcnt;
-	int log2blocksize = LOG2_EXT2_BLOCK_SIZE(node->data);
-	int blocksize = 1 << (log2blocksize + DISK_SECTOR_BITS);
+	lbaint_t blockcnt;
+	int log2blksz = fs->dev_desc->log2blksz;
+	int log2_fs_blocksize = LOG2_BLOCK_SIZE(node->data) - log2blksz;
+	int blocksize = (1 << (log2_fs_blocksize + log2blksz));
 	unsigned int filesize = __le32_to_cpu(node->inode.size);
-	int previous_block_number = -1;
-	int delayed_start = 0;
-	int delayed_extent = 0;
-	int delayed_skipfirst = 0;
-	int delayed_next = 0;
+	lbaint_t previous_block_number = -1;
+	lbaint_t delayed_start = 0;
+	lbaint_t delayed_extent = 0;
+	lbaint_t delayed_skipfirst = 0;
+	lbaint_t delayed_next = 0;
 	char *delayed_buf = NULL;
 	short status;
 
@@ -80,7 +82,7 @@ int ext4fs_read_file(struct ext2fs_node *node, int pos,
 	blockcnt = ((len + pos) + blocksize - 1) / blocksize;
 
 	for (i = pos / blocksize; i < blockcnt; i++) {
-		int blknr;
+		lbaint_t blknr;
 		int blockoff = pos % blocksize;
 		int blockend = blocksize;
 		int skipfirst = 0;
@@ -88,7 +90,7 @@ int ext4fs_read_file(struct ext2fs_node *node, int pos,
 		if (blknr < 0)
 			return -1;
 
-		blknr = blknr << log2blocksize;
+		blknr = blknr << log2_fs_blocksize;
 
 		/* Last block.  */
 		if (i == blockcnt - 1) {
@@ -110,7 +112,7 @@ int ext4fs_read_file(struct ext2fs_node *node, int pos,
 			if (previous_block_number != -1) {
 				if (delayed_next == blknr) {
 					delayed_extent += blockend;
-					delayed_next += blockend >> SECTOR_BITS;
+					delayed_next += blockend >> log2blksz;
 				} else {	/* spill */
 					status = ext4fs_devread(delayed_start,
 							delayed_skipfirst,
@@ -124,7 +126,7 @@ int ext4fs_read_file(struct ext2fs_node *node, int pos,
 					delayed_skipfirst = skipfirst;
 					delayed_buf = buf;
 					delayed_next = blknr +
-						(blockend >> SECTOR_BITS);
+						(blockend >> log2blksz);
 				}
 			} else {
 				previous_block_number = blknr;
@@ -133,7 +135,7 @@ int ext4fs_read_file(struct ext2fs_node *node, int pos,
 				delayed_skipfirst = skipfirst;
 				delayed_buf = buf;
 				delayed_next = blknr +
-					(blockend >> SECTOR_BITS);
+					(blockend >> log2blksz);
 			}
 		} else {
 			if (previous_block_number != -1) {

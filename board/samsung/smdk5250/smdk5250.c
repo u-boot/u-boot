@@ -29,6 +29,7 @@
 #include <netdev.h>
 #include <spi.h>
 #include <asm/arch/cpu.h>
+#include <asm/arch/dwmmc.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
 #include <asm/arch/pinmux.h>
@@ -37,38 +38,8 @@
 #include <asm/arch/dp_info.h>
 #include <power/pmic.h>
 #include <power/max77686_pmic.h>
-#include <tmu.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#if defined CONFIG_EXYNOS_TMU
-/*
- * Boot Time Thermal Analysis for SoC temperature threshold breach
- */
-static void boot_temp_check(void)
-{
-	int temp;
-
-	switch (tmu_monitor(&temp)) {
-	/* Status TRIPPED ans WARNING means corresponding threshold breach */
-	case TMU_STATUS_TRIPPED:
-		puts("EXYNOS_TMU: TRIPPING! Device power going down ...\n");
-		set_ps_hold_ctrl();
-		hang();
-		break;
-	case TMU_STATUS_WARNING:
-		puts("EXYNOS_TMU: WARNING! Temperature very high\n");
-		break;
-	/*
-	 * TMU_STATUS_INIT means something is wrong with temperature sensing
-	 * and TMU status was changed back from NORMAL to INIT.
-	 */
-	case TMU_STATUS_INIT:
-	default:
-		debug("EXYNOS_TMU: Unknown TMU state\n");
-	}
-}
-#endif
 
 #ifdef CONFIG_USB_EHCI_EXYNOS
 int board_usb_vbus_init(void)
@@ -102,14 +73,6 @@ int board_init(void)
 {
 	gd->bd->bi_boot_params = (PHYS_SDRAM_1 + 0x100UL);
 
-#if defined CONFIG_EXYNOS_TMU
-	if (tmu_init(gd->fdt_blob) != TMU_STATUS_NORMAL) {
-		debug("%s: Failed to init TMU\n", __func__);
-		return -1;
-	}
-	boot_temp_check();
-#endif
-
 #ifdef CONFIG_EXYNOS_SPI
 	spi_init();
 #endif
@@ -124,14 +87,13 @@ int board_init(void)
 
 int dram_init(void)
 {
-	gd->ram_size	= get_ram_size((long *)PHYS_SDRAM_1, PHYS_SDRAM_1_SIZE)
-			+ get_ram_size((long *)PHYS_SDRAM_2, PHYS_SDRAM_2_SIZE)
-			+ get_ram_size((long *)PHYS_SDRAM_3, PHYS_SDRAM_3_SIZE)
-			+ get_ram_size((long *)PHYS_SDRAM_4, PHYS_SDRAM_4_SIZE)
-			+ get_ram_size((long *)PHYS_SDRAM_5, PHYS_SDRAM_7_SIZE)
-			+ get_ram_size((long *)PHYS_SDRAM_6, PHYS_SDRAM_7_SIZE)
-			+ get_ram_size((long *)PHYS_SDRAM_7, PHYS_SDRAM_7_SIZE)
-			+ get_ram_size((long *)PHYS_SDRAM_8, PHYS_SDRAM_8_SIZE);
+	int i;
+	u32 addr;
+
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+		addr = CONFIG_SYS_SDRAM_BASE + (i * SDRAM_BANK_SIZE);
+		gd->ram_size += get_ram_size((long *)addr, SDRAM_BANK_SIZE);
+	}
 	return 0;
 }
 
@@ -182,7 +144,7 @@ int power_init_board(void)
 
 	/* VDD_MIF */
 	if (pmic_reg_write(p, MAX77686_REG_PMIC_BUCK1OUT,
-						MAX77686_BUCK1OUT_1V)) {
+						MAX77686_BUCK1OUT_1_05V)) {
 		debug("%s: PMIC %d register write failed\n", __func__,
 						MAX77686_REG_PMIC_BUCK1OUT);
 		return -1;
@@ -254,57 +216,15 @@ int power_init_board(void)
 
 void dram_init_banksize(void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = get_ram_size((long *)PHYS_SDRAM_1,
-							PHYS_SDRAM_1_SIZE);
-	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
-	gd->bd->bi_dram[1].size = get_ram_size((long *)PHYS_SDRAM_2,
-							PHYS_SDRAM_2_SIZE);
-	gd->bd->bi_dram[2].start = PHYS_SDRAM_3;
-	gd->bd->bi_dram[2].size = get_ram_size((long *)PHYS_SDRAM_3,
-							PHYS_SDRAM_3_SIZE);
-	gd->bd->bi_dram[3].start = PHYS_SDRAM_4;
-	gd->bd->bi_dram[3].size = get_ram_size((long *)PHYS_SDRAM_4,
-							PHYS_SDRAM_4_SIZE);
-	gd->bd->bi_dram[4].start = PHYS_SDRAM_5;
-	gd->bd->bi_dram[4].size = get_ram_size((long *)PHYS_SDRAM_5,
-							PHYS_SDRAM_5_SIZE);
-	gd->bd->bi_dram[5].start = PHYS_SDRAM_6;
-	gd->bd->bi_dram[5].size = get_ram_size((long *)PHYS_SDRAM_6,
-							PHYS_SDRAM_6_SIZE);
-	gd->bd->bi_dram[6].start = PHYS_SDRAM_7;
-	gd->bd->bi_dram[6].size = get_ram_size((long *)PHYS_SDRAM_7,
-							PHYS_SDRAM_7_SIZE);
-	gd->bd->bi_dram[7].start = PHYS_SDRAM_8;
-	gd->bd->bi_dram[7].size = get_ram_size((long *)PHYS_SDRAM_8,
-							PHYS_SDRAM_8_SIZE);
-}
-
-#ifdef CONFIG_OF_CONTROL
-static int decode_sromc(const void *blob, struct fdt_sromc *config)
-{
-	int err;
-	int node;
-
-	node = fdtdec_next_compatible(blob, 0, COMPAT_SAMSUNG_EXYNOS5_SROMC);
-	if (node < 0) {
-		debug("Could not find SROMC node\n");
-		return node;
+	int i;
+	u32 addr, size;
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+		addr = CONFIG_SYS_SDRAM_BASE + (i * SDRAM_BANK_SIZE);
+		size = get_ram_size((long *)addr, SDRAM_BANK_SIZE);
+		gd->bd->bi_dram[i].start = addr;
+		gd->bd->bi_dram[i].size = size;
 	}
-
-	config->bank = fdtdec_get_int(blob, node, "bank", 0);
-	config->width = fdtdec_get_int(blob, node, "width", 2);
-
-	err = fdtdec_get_int_array(blob, node, "srom-timing", config->timing,
-			FDT_SROM_TIMING_COUNT);
-	if (err < 0) {
-		debug("Could not decode SROMC configuration\n");
-		return -FDT_ERR_NOTFOUND;
-	}
-
-	return 0;
 }
-#endif
 
 int board_eth_init(bd_t *bis)
 {
@@ -313,27 +233,6 @@ int board_eth_init(bd_t *bis)
 	struct fdt_sromc config;
 	fdt_addr_t base_addr;
 
-#ifdef CONFIG_OF_CONTROL
-	int node;
-
-	node = decode_sromc(gd->fdt_blob, &config);
-	if (node < 0) {
-		debug("%s: Could not find sromc configuration\n", __func__);
-		return 0;
-	}
-	node = fdtdec_next_compatible(gd->fdt_blob, node, COMPAT_SMSC_LAN9215);
-	if (node < 0) {
-		debug("%s: Could not find lan9215 configuration\n", __func__);
-		return 0;
-	}
-
-	/* We now have a node, so any problems from now on are errors */
-	base_addr = fdtdec_get_addr(gd->fdt_blob, node, "reg");
-	if (base_addr == FDT_ADDR_T_NONE) {
-		debug("%s: Could not find lan9215 address\n", __func__);
-		return -1;
-	}
-#else
 	/* Non-FDT configuration - bank number and timing parameters*/
 	config.bank = CONFIG_ENV_SROM_BANK;
 	config.width = 2;
@@ -346,7 +245,6 @@ int board_eth_init(bd_t *bis)
 	config.timing[FDT_SROM_TACP] = 0x09;
 	config.timing[FDT_SROM_PMC] = 0x01;
 	base_addr = CONFIG_SMC911X_BASE;
-#endif
 
 	/* Ethernet needs data bus width of 16 bits */
 	if (config.width != 2) {
@@ -376,17 +274,7 @@ int board_eth_init(bd_t *bis)
 #ifdef CONFIG_DISPLAY_BOARDINFO
 int checkboard(void)
 {
-#ifdef CONFIG_OF_CONTROL
-	const char *board_name;
-
-	board_name = fdt_getprop(gd->fdt_blob, 0, "model", NULL);
-	if (board_name == NULL)
-		printf("\nUnknown Board\n");
-	else
-		printf("\nBoard: %s\n", board_name);
-#else
 	printf("\nBoard: SMDK5250\n");
-#endif
 	return 0;
 }
 #endif
@@ -394,48 +282,64 @@ int checkboard(void)
 #ifdef CONFIG_GENERIC_MMC
 int board_mmc_init(bd_t *bis)
 {
-	int err;
+	int err, ret = 0, index, bus_width;
+	u32 base;
 
 	err = exynos_pinmux_config(PERIPH_ID_SDMMC0, PINMUX_FLAG_8BIT_MODE);
-	if (err) {
+	if (err)
 		debug("SDMMC0 not configured\n");
-		return err;
-	}
+	ret |= err;
 
-	err = s5p_mmc_init(0, 8);
-	return err;
+	/*EMMC: dwmmc Channel-0 with 8 bit bus width */
+	index = 0;
+	base =  samsung_get_base_mmc() + (0x10000 * index);
+	bus_width = 8;
+	err = exynos_dwmci_add_port(index, base, bus_width, (u32)NULL);
+	if (err)
+		debug("dwmmc Channel-0 init failed\n");
+	ret |= err;
+
+	err = exynos_pinmux_config(PERIPH_ID_SDMMC2, PINMUX_FLAG_NONE);
+	if (err)
+		debug("SDMMC2 not configured\n");
+	ret |= err;
+
+	/*SD: dwmmc Channel-2 with 4 bit bus width */
+	index = 2;
+	base = samsung_get_base_mmc() + (0x10000 * index);
+	bus_width = 4;
+	err = exynos_dwmci_add_port(index, base, bus_width, (u32)NULL);
+	if (err)
+		debug("dwmmc Channel-2 init failed\n");
+	ret |= err;
+
+	return ret;
 }
 #endif
 
 static int board_uart_init(void)
 {
-	int err;
+	int err, uart_id, ret = 0;
 
-	err = exynos_pinmux_config(PERIPH_ID_UART0, PINMUX_FLAG_NONE);
-	if (err) {
-		debug("UART0 not configured\n");
-		return err;
+	for (uart_id = PERIPH_ID_UART0; uart_id <= PERIPH_ID_UART3; uart_id++) {
+		err = exynos_pinmux_config(uart_id, PINMUX_FLAG_NONE);
+		if (err) {
+			debug("UART%d not configured\n",
+			      (uart_id - PERIPH_ID_UART0));
+			ret |= err;
+		}
 	}
+	return ret;
+}
 
-	err = exynos_pinmux_config(PERIPH_ID_UART1, PINMUX_FLAG_NONE);
-	if (err) {
-		debug("UART1 not configured\n");
-		return err;
+void board_i2c_init(const void *blob)
+{
+	int i;
+
+	for (i = 0; i < CONFIG_MAX_I2C_NUM; i++) {
+		exynos_pinmux_config((PERIPH_ID_I2C0 + i),
+				     PINMUX_FLAG_NONE);
 	}
-
-	err = exynos_pinmux_config(PERIPH_ID_UART2, PINMUX_FLAG_NONE);
-	if (err) {
-		debug("UART2 not configured\n");
-		return err;
-	}
-
-	err = exynos_pinmux_config(PERIPH_ID_UART3, PINMUX_FLAG_NONE);
-	if (err) {
-		debug("UART3 not configured\n");
-		return err;
-	}
-
-	return 0;
 }
 
 #ifdef CONFIG_BOARD_EARLY_INIT_F
@@ -448,7 +352,7 @@ int board_early_init_f(void)
 		return err;
 	}
 #ifdef CONFIG_SYS_I2C_INIT_BOARD
-	board_i2c_init(gd->fdt_blob);
+	board_i2c_init(NULL);
 #endif
 	return err;
 }
@@ -477,7 +381,6 @@ void exynos_set_dp_phy(unsigned int onoff)
 	set_dp_phy_ctrl(onoff);
 }
 
-#ifndef CONFIG_OF_CONTROL
 vidinfo_t panel_info = {
 	.vl_freq	= 60,
 	.vl_col		= 2560,
@@ -543,13 +446,9 @@ static struct exynos_dp_platform_data dp_platform_data = {
 	.edp_dev_info	= &edp_info,
 };
 
-#endif
 void init_panel_info(vidinfo_t *vid)
 {
-#ifndef CONFIG_OF_CONTROL
-	vid->rgb_mode   = MODE_RGB_P,
-
+	vid->rgb_mode   = MODE_RGB_P;
 	exynos_set_dp_platform_data(&dp_platform_data);
-#endif
 }
 #endif

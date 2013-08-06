@@ -1,0 +1,382 @@
+U-Boot FIT Signature Verification
+=================================
+
+Introduction
+------------
+FIT supports hashing of images so that these hashes can be checked on
+loading. This protects against corruption of the image. However it does not
+prevent the substitution of one image for another.
+
+The signature feature allows the hash to be signed with a private key such
+that it can be verified using a public key later. Provided that the private
+key is kept secret and the public key is stored in a non-volatile place,
+any image can be verified in this way.
+
+See verified-boot.txt for more general information on verified boot.
+
+
+Concepts
+--------
+Some familiarity with public key cryptography is assumed in this section.
+
+The procedure for signing is as follows:
+
+   - hash an image in the FIT
+   - sign the hash with a private key to produce a signature
+   - store the resulting signature in the FIT
+
+The procedure for verification is:
+
+   - read the FIT
+   - obtain the public key
+   - extract the signature from the FIT
+   - hash the image from the FIT
+   - verify (with the public key) that the extracted signature matches the
+       hash
+
+The signing is generally performed by mkimage, as part of making a firmware
+image for the device. The verification is normally done in U-Boot on the
+device.
+
+
+Algorithms
+----------
+In principle any suitable algorithm can be used to sign and verify a hash.
+At present only one class of algorithms is supported: SHA1 hashing with RSA.
+This works by hashing the image to produce a 20-byte hash.
+
+While it is acceptable to bring in large cryptographic libraries such as
+openssl on the host side (e.g. mkimage), it is not desirable for U-Boot.
+For the run-time verification side, it is important to keep code and data
+size as small as possible.
+
+For this reason the RSA image verification uses pre-processed public keys
+which can be used with a very small amount of code - just some extraction
+of data from the FDT and exponentiation mod n. Code size impact is a little
+under 5KB on Tegra Seaboard, for example.
+
+It is relatively straightforward to add new algorithms if required. If
+another RSA variant is needed, then it can be added to the table in
+image-sig.c. If another algorithm is needed (such as DSA) then it can be
+placed alongside rsa.c, and its functions added to the table in image-sig.c
+also.
+
+
+Creating an RSA key and certificate
+-----------------------------------
+To create a new public key, size 2048 bits:
+
+$ openssl genrsa -F4 -out keys/dev.key 2048
+
+To create a certificate for this:
+
+$ openssl req -batch -new -x509 -key keys/dev.key -out keys/dev.crt
+
+If you like you can look at the public key also:
+
+$ openssl rsa -in keys/dev.key -pubout
+
+
+Device Tree Bindings
+--------------------
+The following properties are required in the FIT's signature node(s) to
+allow thes signer to operate. These should be added to the .its file.
+Signature nodes sit at the same level as hash nodes and are called
+signature@1, signature@2, etc.
+
+- algo: Algorithm name (e.g. "sha1,rs2048")
+
+- key-name-hint: Name of key to use for signing. The keys will normally be in
+a single directory (parameter -k to mkimage). For a given key <name>, its
+private key is stored in <name>.key and the certificate is stored in
+<name>.crt.
+
+When the image is signed, the following properties are added (mandatory):
+
+- value: The signature data (e.g. 256 bytes for 2048-bit RSA)
+
+When the image is signed, the following properties are optional:
+
+- timestamp: Time when image was signed (standard Unix time_t format)
+
+- signer-name: Name of the signer (e.g. "mkimage")
+
+- signer-version: Version string of the signer (e.g. "2013.01")
+
+- comment: Additional information about the signer or image
+
+For config bindings (see Signed Configurations below), the following
+additional properties are optional:
+
+- sign-images: A list of images to sign, each being a property of the conf
+node that contains then. The default is "kernel,fdt" which means that these
+two images will be looked up in the config and signed if present.
+
+For config bindings, these properties are added by the signer:
+
+- hashed-nodes: A list of nodes which were hashed by the signer. Each is
+	a string - the full path to node. A typical value might be:
+
+	hashed-nodes = "/", "/configurations/conf@1", "/images/kernel@1",
+		"/images/kernel@1/hash@1", "/images/fdt@1",
+		"/images/fdt@1/hash@1";
+
+- hashed-strings: The start and size of the string region of the FIT that
+	was hashed
+
+Example: See sign-images.its for an example image tree source file and
+sign-configs.its for config signing.
+
+
+Public Key Storage
+------------------
+In order to verify an image that has been signed with a public key we need to
+have a trusted public key. This cannot be stored in the signed image, since
+it would be easy to alter. For this implementation we choose to store the
+public key in U-Boot's control FDT (using CONFIG_OF_CONTROL).
+
+Public keys should be stored as sub-nodes in a /signature node. Required
+properties are:
+
+- algo: Algorithm name (e.g. "sha1,rs2048")
+
+Optional properties are:
+
+- key-name-hint: Name of key used for signing. This is only a hint since it
+is possible for the name to be changed. Verification can proceed by checking
+all available signing keys until one matches.
+
+- required: If present this indicates that the key must be verified for the
+image / configuration to be considered valid. Only required keys are
+normally verified by the FIT image booting algorithm. Valid values are
+"image" to force verification of all images, and "conf" to force verfication
+of the selected configuration (which then relies on hashes in the images to
+verify those).
+
+Each signing algorithm has its own additional properties.
+
+For RSA the following are mandatory:
+
+- rsa,num-bits: Number of key bits (e.g. 2048)
+- rsa,modulus: Modulus (N) as a big-endian multi-word integer
+- rsa,r-squared: (2^num-bits)^2 as a big-endian multi-word integer
+- rsa,n0-inverse: -1 / modulus[0] mod 2^32
+
+
+Signed Configurations
+---------------------
+While signing images is useful, it does not provide complete protection
+against several types of attack. For example, it it possible to create a
+FIT with the same signed images, but with the configuration changed such
+that a different one is selected (mix and match attack). It is also possible
+to substitute a signed image from an older FIT version into a newer FIT
+(roll-back attack).
+
+As an example, consider this FIT:
+
+/ {
+	images {
+		kernel@1 {
+			data = <data for kernel1>
+			signature@1 {
+				algo = "sha1,rsa2048";
+				value = <...kernel signature 1...>
+			};
+		};
+		kernel@2 {
+			data = <data for kernel2>
+			signature@1 {
+				algo = "sha1,rsa2048";
+				value = <...kernel signature 2...>
+			};
+		};
+		fdt@1 {
+			data = <data for fdt1>;
+			signature@1 {
+				algo = "sha1,rsa2048";
+				vaue = <...fdt signature 1...>
+			};
+		};
+		fdt@2 {
+			data = <data for fdt2>;
+			signature@1 {
+				algo = "sha1,rsa2048";
+				vaue = <...fdt signature 2...>
+			};
+		};
+	};
+	configurations {
+		default = "conf@1";
+		conf@1 {
+			kernel = "kernel@1";
+			fdt = "fdt@1";
+		};
+		conf@1 {
+			kernel = "kernel@2";
+			fdt = "fdt@2";
+		};
+	};
+};
+
+Since both kernels are signed it is easy for an attacker to add a new
+configuration 3 with kernel 1 and fdt 2:
+
+	configurations {
+		default = "conf@1";
+		conf@1 {
+			kernel = "kernel@1";
+			fdt = "fdt@1";
+		};
+		conf@1 {
+			kernel = "kernel@2";
+			fdt = "fdt@2";
+		};
+		conf@3 {
+			kernel = "kernel@1";
+			fdt = "fdt@2";
+		};
+	};
+
+With signed images, nothing protects against this. Whether it gains an
+advantage for the attacker is debatable, but it is not secure.
+
+To solved this problem, we support signed configurations. In this case it
+is the configurations that are signed, not the image. Each image has its
+own hash, and we include the hash in the configuration signature.
+
+So the above example is adjusted to look like this:
+
+/ {
+	images {
+		kernel@1 {
+			data = <data for kernel1>
+			hash@1 {
+				algo = "sha1";
+				value = <...kernel hash 1...>
+			};
+		};
+		kernel@2 {
+			data = <data for kernel2>
+			hash@1 {
+				algo = "sha1";
+				value = <...kernel hash 2...>
+			};
+		};
+		fdt@1 {
+			data = <data for fdt1>;
+			hash@1 {
+				algo = "sha1";
+				value = <...fdt hash 1...>
+			};
+		};
+		fdt@2 {
+			data = <data for fdt2>;
+			hash@1 {
+				algo = "sha1";
+				value = <...fdt hash 2...>
+			};
+		};
+	};
+	configurations {
+		default = "conf@1";
+		conf@1 {
+			kernel = "kernel@1";
+			fdt = "fdt@1";
+			signature@1 {
+				algo = "sha1,rsa2048";
+				value = <...conf 1 signature...>;
+			};
+		};
+		conf@2 {
+			kernel = "kernel@2";
+			fdt = "fdt@2";
+			signature@1 {
+				algo = "sha1,rsa2048";
+				value = <...conf 1 signature...>;
+			};
+		};
+	};
+};
+
+
+You can see that we have added hashes for all images (since they are no
+longer signed), and a signature to each configuration. In the above example,
+mkimage will sign configurations/conf@1, the kernel and fdt that are
+pointed to by the configuration (/images/kernel@1, /images/kernel@1/hash@1,
+/images/fdt@1, /images/fdt@1/hash@1) and the root structure of the image
+(so that it isn't possible to add or remove root nodes). The signature is
+written into /configurations/conf@1/signature@1/value. It can easily be
+verified later even if the FIT has been signed with other keys in the
+meantime.
+
+
+Verification
+------------
+FITs are verified when loaded. After the configuration is selected a list
+of required images is produced. If there are 'required' public keys, then
+each image must be verified against those keys. This means that every image
+that might be used by the target needs to be signed with 'required' keys.
+
+This happens automatically as part of a bootm command when FITs are used.
+
+
+Enabling FIT Verification
+-------------------------
+In addition to the options to enable FIT itself, the following CONFIGs must
+be enabled:
+
+CONFIG_FIT_SIGNATURE - enable signing and verfication in FITs
+CONFIG_RSA - enable RSA algorithm for signing
+
+
+Testing
+-------
+An easy way to test signing and verfication is to use the test script
+provided in test/vboot/vboot_test.sh. This uses sandbox (a special version
+of U-Boot which runs under Linux) to show the operation of a 'bootm'
+command loading and verifying images.
+
+A sample run is show below:
+
+$ make O=sandbox sandbox_config
+$ make O=sandbox
+$ O=sandbox ./test/vboot/vboot_test.sh
+Simple Verified Boot Test
+=========================
+
+Please see doc/uImage.FIT/verified-boot.txt for more information
+
+Build keys
+Build FIT with signed images
+Test Verified Boot Run: unsigned signatures:: OK
+Sign images
+Test Verified Boot Run: signed images: OK
+Build FIT with signed configuration
+Test Verified Boot Run: unsigned config: OK
+Sign images
+Test Verified Boot Run: signed config: OK
+
+Test passed
+
+
+Future Work
+-----------
+- Roll-back protection using a TPM is done using the tpm command. This can
+be scripted, but we might consider a default way of doing this, built into
+bootm.
+
+
+Possible Future Work
+--------------------
+- Add support for other RSA/SHA variants, such as rsa4096,sha512.
+- Other algorithms besides RSA
+- More sandbox tests for failure modes
+- Passwords for keys/certificates
+- Perhaps implement OAEP
+- Enhance bootm to permit scripted signature verification (so that a script
+can verify an image but not actually boot it)
+
+
+Simon Glass
+sjg@chromium.org
+1-1-13

@@ -64,7 +64,7 @@
 #define ATMEL_SPI_CSRx_DLYBCT(x)	((x) << 24)
 
 /* Bits in VERSION */
-#define ATMEL_SPI_VERSION_REV(x)	((x) << 0)
+#define ATMEL_SPI_VERSION_REV(x)	((x) & 0xfff)
 #define ATMEL_SPI_VERSION_MFN(x)	((x) << 16)
 
 /* Constants for CSRx:BITS */

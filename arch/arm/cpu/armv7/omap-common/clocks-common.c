@@ -30,9 +30,10 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#include <i2c.h>
 #include <asm/omap_common.h>
 #include <asm/gpio.h>
-#include <asm/arch/clocks.h>
+#include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/utils.h>
 #include <asm/omap_gpio.h>
@@ -49,13 +50,12 @@
 
 const u32 sys_clk_array[8] = {
 	12000000,	       /* 12 MHz */
-	13000000,	       /* 13 MHz */
+	20000000,		/* 20 MHz */
 	16800000,	       /* 16.8 MHz */
 	19200000,	       /* 19.2 MHz */
 	26000000,	       /* 26 MHz */
 	27000000,	       /* 27 MHz */
 	38400000,	       /* 38.4 MHz */
-	20000000,		/* 20 MHz */
 };
 
 static inline u32 __get_sys_clk_index(void)
@@ -74,13 +74,6 @@ static inline u32 __get_sys_clk_index(void)
 		/* SYS_CLKSEL - 1 to match the dpll param array indices */
 		ind = (readl((*prcm)->cm_sys_clksel) &
 			CM_SYS_CLKSEL_SYS_CLKSEL_MASK) - 1;
-		/*
-		 * SYS_CLKSEL value for 20MHz is 0. This is introduced newly
-		 * in DRA7XX socs. SYS_CLKSEL -1 will be greater than
-		 * NUM_SYS_CLK. So considering the last 3 bits as the index
-		 * for the dpll param array.
-		 */
-		ind &= CM_SYS_CLKSEL_SYS_CLKSEL_MASK;
 	}
 	return ind;
 }
@@ -440,6 +433,12 @@ static void setup_non_essential_dplls(void)
 	params = get_abe_dpll_params(*dplls_data);
 #ifdef CONFIG_SYS_OMAP_ABE_SYSCK
 	abe_ref_clk = CM_ABE_PLL_REF_CLKSEL_CLKSEL_SYSCLK;
+
+	if (omap_revision() == DRA752_ES1_0)
+		/* Select the sys clk for dpll_abe */
+		clrsetbits_le32((*prcm)->cm_abe_pll_sys_clksel,
+				CM_CLKSEL_ABE_PLL_SYS_CLKSEL_MASK,
+				CM_ABE_PLL_SYS_CLKSEL_SYSCLK2);
 #else
 	abe_ref_clk = CM_ABE_PLL_REF_CLKSEL_CLKSEL_32KCLK;
 	/*
@@ -487,6 +486,10 @@ void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic)
 	u32 offset = volt_mv;
 	int ret = 0;
 
+	if (!volt_mv)
+		return;
+
+	pmic->pmic_bus_init();
 	/* See if we can first get the GPIO if needed */
 	if (pmic->gpio_en)
 		ret = gpio_request(pmic->gpio, "PMIC_GPIO");
@@ -509,12 +512,43 @@ void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic)
 	debug("do_scale_vcore: volt - %d offset_code - 0x%x\n", volt_mv,
 		offset_code);
 
-	if (omap_vc_bypass_send_value(SMPS_I2C_SLAVE_ADDR,
-				vcore_reg, offset_code))
+	if (pmic->pmic_write(pmic->i2c_slave_addr, vcore_reg, offset_code))
 		printf("Scaling voltage failed for 0x%x\n", vcore_reg);
 
 	if (pmic->gpio_en)
 		gpio_direction_output(pmic->gpio, 1);
+}
+
+static u32 optimize_vcore_voltage(struct volts const *v)
+{
+	u32 val;
+	if (!v->value)
+		return 0;
+	if (!v->efuse.reg)
+		return v->value;
+
+	switch (v->efuse.reg_bits) {
+	case 16:
+		val = readw(v->efuse.reg);
+		break;
+	case 32:
+		val = readl(v->efuse.reg);
+		break;
+	default:
+		printf("Error: efuse 0x%08x bits=%d unknown\n",
+		       v->efuse.reg, v->efuse.reg_bits);
+		return v->value;
+	}
+
+	if (!val) {
+		printf("Error: efuse 0x%08x bits=%d val=0, using %d\n",
+		       v->efuse.reg, v->efuse.reg_bits, v->value);
+		return v->value;
+	}
+
+	debug("%s:efuse 0x%08x bits=%d Vnom=%d, using efuse value %d\n",
+	      __func__, v->efuse.reg, v->efuse.reg_bits, v->value, val);
+	return val;
 }
 
 /*
@@ -525,16 +559,34 @@ void do_scale_vcore(u32 vcore_reg, u32 volt_mv, struct pmic_data *pmic)
  */
 void scale_vcores(struct vcores_data const *vcores)
 {
-	omap_vc_init(PRM_VC_I2C_CHANNEL_FREQ_KHZ);
+	u32 val;
 
-	do_scale_vcore(vcores->core.addr, vcores->core.value,
-					  vcores->core.pmic);
+	val = optimize_vcore_voltage(&vcores->core);
+	do_scale_vcore(vcores->core.addr, val, vcores->core.pmic);
 
-	do_scale_vcore(vcores->mpu.addr, vcores->mpu.value,
-					  vcores->mpu.pmic);
+	val = optimize_vcore_voltage(&vcores->mpu);
+	do_scale_vcore(vcores->mpu.addr, val, vcores->mpu.pmic);
 
-	do_scale_vcore(vcores->mm.addr, vcores->mm.value,
-					  vcores->mm.pmic);
+	/* Configure MPU ABB LDO after scale */
+	abb_setup((*ctrl)->control_std_fuse_opp_vdd_mpu_2,
+		  (*ctrl)->control_wkup_ldovbb_mpu_voltage_ctrl,
+		  (*prcm)->prm_abbldo_mpu_setup,
+		  (*prcm)->prm_abbldo_mpu_ctrl,
+		  (*prcm)->prm_irqstatus_mpu_2,
+		  OMAP_ABB_MPU_TXDONE_MASK,
+		  OMAP_ABB_FAST_OPP);
+
+	val = optimize_vcore_voltage(&vcores->mm);
+	do_scale_vcore(vcores->mm.addr, val, vcores->mm.pmic);
+
+	val = optimize_vcore_voltage(&vcores->gpu);
+	do_scale_vcore(vcores->gpu.addr, val, vcores->gpu.pmic);
+
+	val = optimize_vcore_voltage(&vcores->eve);
+	do_scale_vcore(vcores->eve.addr, val, vcores->eve.pmic);
+
+	val = optimize_vcore_voltage(&vcores->iva);
+	do_scale_vcore(vcores->iva.addr, val, vcores->iva.pmic);
 
 	 if (emif_sdram_type() == EMIF_SDRAM_TYPE_DDR3) {
 		/* Configure LDO SRAM "magic" bits */
@@ -710,12 +762,14 @@ void prcm_init(void)
 	case OMAP_INIT_CONTEXT_UBOOT_FROM_NOR:
 	case OMAP_INIT_CONTEXT_UBOOT_AFTER_CH:
 		enable_basic_clocks();
+		timer_init();
 		scale_vcores(*omap_vcores);
 		setup_dplls();
 #ifdef CONFIG_SYS_CLOCKS_ENABLE_ALL
 		setup_non_essential_dplls();
 		enable_non_essential_clocks();
 #endif
+		setup_warmreset_time();
 		break;
 	default:
 		break;
@@ -723,4 +777,14 @@ void prcm_init(void)
 
 	if (OMAP_INIT_CONTEXT_SPL != omap_hw_init_context())
 		enable_basic_uboot_clocks();
+}
+
+void gpi2c_init(void)
+{
+	static int gpi2c = 1;
+
+	if (gpi2c) {
+		i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+		gpi2c = 0;
+	}
 }

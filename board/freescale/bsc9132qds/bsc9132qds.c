@@ -258,7 +258,7 @@ int misc_init_r(void)
 	u8 val;
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	u32 porbmsr = in_be32(&gur->porbmsr);
-	u32 romloc = (porbmsr >> MPC85XX_PORBMSR_ROMLOC_SHIFT) & 0xf;
+	u32 romloc = (porbmsr >> MPC85xx_PORBMSR_ROMLOC_SHIFT) & 0xf;
 
 	/*Configure 1588 clock-in source from RF Card*/
 	val = QIXIS_READ_I2C(brdcfg[5]);
@@ -360,7 +360,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	u32 porbmsr = in_be32(&gur->porbmsr);
-	u32 romloc = (porbmsr >> MPC85XX_PORBMSR_ROMLOC_SHIFT) & 0xf;
+	u32 romloc = (porbmsr >> MPC85xx_PORBMSR_ROMLOC_SHIFT) & 0xf;
 
 	if (!(hwconfig("uart2") && hwconfig("usb1"))) {
 		/* If uart2 is there in hwconfig remove usb node from

@@ -40,6 +40,7 @@
 #define CONFIG_CMD_FDOS		/* Floppy DOS support		*/
 #define CONFIG_CMD_FLASH	/* flinfo, erase, protect	*/
 #define CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
+#define CONFIG_CMD_FUSE		/* Device fuse support		*/
 #define CONFIG_CMD_GETTIME	/* Get time since boot         */
 #define CONFIG_CMD_HASH		/* calculate hash / digest	*/
 #define CONFIG_CMD_HWFLOW	/* RTS/CTS hw flow control	*/

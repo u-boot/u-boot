@@ -31,7 +31,8 @@
  * at the same time, so do it here.  When all drivers are
  * converted, this will go away.
  */
-#if defined(CONFIG_NAND_FSL_ELBC) || defined(CONFIG_NAND_ATMEL)
+#if defined(CONFIG_NAND_FSL_ELBC) || defined(CONFIG_NAND_ATMEL)\
+	|| defined(CONFIG_NAND_FSL_IFC)
 #define CONFIG_SYS_NAND_SELF_INIT
 #endif
 
@@ -55,17 +56,17 @@ extern nand_info_t nand_info[];
 
 static inline int nand_read(nand_info_t *info, loff_t ofs, size_t *len, u_char *buf)
 {
-	return info->read(info, ofs, *len, (size_t *)len, buf);
+	return mtd_read(info, ofs, *len, (size_t *)len, buf);
 }
 
 static inline int nand_write(nand_info_t *info, loff_t ofs, size_t *len, u_char *buf)
 {
-	return info->write(info, ofs, *len, (size_t *)len, buf);
+	return mtd_write(info, ofs, *len, (size_t *)len, buf);
 }
 
 static inline int nand_block_isbad(nand_info_t *info, loff_t ofs)
 {
-	return info->block_isbad(info, ofs);
+	return mtd_block_isbad(info, ofs);
 }
 
 static inline int nand_erase(nand_info_t *info, loff_t off, size_t size)
@@ -77,7 +78,7 @@ static inline int nand_erase(nand_info_t *info, loff_t off, size_t size)
 	instr.len = size;
 	instr.callback = 0;
 
-	return info->erase(info, &instr);
+	return mtd_erase(info, &instr);
 }
 
 
@@ -124,6 +125,8 @@ struct nand_erase_options {
 
 	/* Don't include skipped bad blocks in size to be erased */
 	int spread;
+	/* maximum size that actual may be in order to not exceed the buf */
+	loff_t lim;
 };
 
 typedef struct nand_erase_options nand_erase_options_t;

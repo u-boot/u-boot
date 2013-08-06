@@ -192,6 +192,7 @@
  */
 /* General PCI */
 #define CONFIG_PCI			/* include pci support		*/
+#define CONFIG_PCI_INDIRECT_BRIDGE	/* indirect PCI bridge support */
 #define CONFIG_PCI_PNP			/* do pci plug-and-play		*/
 #define CONFIG_EEPRO100       1		/* include PCI EEPRO100		*/
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup	*/

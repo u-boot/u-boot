@@ -111,8 +111,8 @@
 #ifndef CONFIG_BAUDRATE
 # define CONFIG_BAUDRATE	57600
 #endif
-#ifndef CONFIG_DEBUG_EARLY_SERIAL
-# define CONFIG_SYS_BFIN_UART
+#ifdef CONFIG_UART_CONSOLE
+# define CONFIG_BFIN_SERIAL
 #endif
 
 /*
@@ -317,5 +317,13 @@
 #define CONFIG_BFIN_SPI_GPIO_CS /* Only matters if BFIN_SPI is enabled */
 #define CONFIG_LZMA
 #define CONFIG_MONITOR_IS_IN_RAM
-
+#ifdef CONFIG_HW_WATCHDOG
+# define CONFIG_BFIN_WATCHDOG
+# ifndef CONFIG_WATCHDOG_TIMEOUT_MSECS
+#  define CONFIG_WATCHDOG_TIMEOUT_MSECS 5000
+# endif
+#endif
+#ifndef CONFIG_ADI_GPIO2
+# define CONFIG_ADI_GPIO1
+#endif
 #endif

@@ -64,7 +64,6 @@ typedef int (init_fnc_t) (void);
  ***********************************************************************/
 
 init_fnc_t *init_sequence[] = {
-
 #if defined(CONFIG_BOARD_EARLY_INIT_F)
 	board_early_init_f,	/* Call board-specific init code early.*/
 #endif
@@ -83,7 +82,7 @@ init_fnc_t *init_sequence[] = {
 
 
 /***********************************************************************/
-void board_init (void)
+void board_init(void)
 {
 	bd_t *bd;
 	init_fnc_t **init_fnc_ptr;
@@ -93,7 +92,7 @@ void board_init (void)
 	/* Pointer is writable since we allocated a register for it. */
 	gd = &gd_data;
 	/* compiler optimization barrier needed for GCC >= 3.4 */
-	__asm__ __volatile__("": : :"memory");
+	__asm__ __volatile__("" : : : "memory");
 
 	gd->bd = &bd_data;
 	gd->baudrate = CONFIG_BAUDRATE;
@@ -106,25 +105,24 @@ void board_init (void)
 	bd->bi_flashstart = CONFIG_SYS_FLASH_BASE;
 #endif
 #if	defined(CONFIG_SYS_SRAM_BASE) && defined(CONFIG_SYS_SRAM_SIZE)
-	bd->bi_sramstart= CONFIG_SYS_SRAM_BASE;
+	bd->bi_sramstart = CONFIG_SYS_SRAM_BASE;
 	bd->bi_sramsize	= CONFIG_SYS_SRAM_SIZE;
 #endif
 	bd->bi_baudrate	= CONFIG_BAUDRATE;
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
-		WATCHDOG_RESET ();
-		if ((*init_fnc_ptr) () != 0) {
-			hang ();
-		}
+		WATCHDOG_RESET();
+		if ((*init_fnc_ptr) () != 0)
+			hang();
 	}
 
-	WATCHDOG_RESET ();
+	WATCHDOG_RESET();
 
 	/* The Malloc area is immediately below the monitor copy in RAM */
 	mem_malloc_init(CONFIG_SYS_MALLOC_BASE, CONFIG_SYS_MALLOC_LEN);
 
 #ifndef CONFIG_SYS_NO_FLASH
-	WATCHDOG_RESET ();
+	WATCHDOG_RESET();
 	bd->bi_flashsize = flash_init();
 #endif
 
@@ -138,39 +136,29 @@ void board_init (void)
 	mmc_initialize(bd);
 #endif
 
-	WATCHDOG_RESET ();
+	WATCHDOG_RESET();
 	env_relocate();
 
-	WATCHDOG_RESET ();
+	WATCHDOG_RESET();
 	stdio_init();
 	jumptable_init();
 	console_init_r();
 
-	WATCHDOG_RESET ();
-	interrupt_init ();
+	WATCHDOG_RESET();
+	interrupt_init();
 
 #if defined(CONFIG_BOARD_LATE_INIT)
-	board_late_init ();
+	board_late_init();
 #endif
 
 #if defined(CONFIG_CMD_NET)
-	puts ("Net:   ");
-	eth_initialize (bd);
+	puts("Net:   ");
+	eth_initialize(bd);
 #endif
 
 	/* main_loop */
 	for (;;) {
-		WATCHDOG_RESET ();
-		main_loop ();
+		WATCHDOG_RESET();
+		main_loop();
 	}
-}
-
-
-/***********************************************************************/
-
-void hang (void)
-{
-	disable_interrupts ();
-	puts("### ERROR ### Please reset board ###\n");
-	for (;;);
 }

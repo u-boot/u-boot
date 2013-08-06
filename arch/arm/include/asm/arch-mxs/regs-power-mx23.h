@@ -22,7 +22,7 @@
 #ifndef __MX23_REGS_POWER_H__
 #define __MX23_REGS_POWER_H__
 
-#include <asm/arch/regs-common.h>
+#include <asm/imx-common/regs-common.h>
 
 #ifndef	__ASSEMBLY__
 struct mxs_power_regs {

@@ -526,13 +526,18 @@ typedef struct immap {
 	/* Some references are into the unique and known dpram spaces,
 	 * others are from the generic base.
 	 */
-#define im_dprambase	im_dpram1
-	u_char		im_dpram1[16*1024];
-	char		res1[16*1024];
-	u_char		im_dpram2[4*1024];
-	char		res2[8*1024];
-	u_char		im_dpram3[4*1024];
-	char		res3[16*1024];
+	union {
+		struct {
+			u_char		im_dpram1[16 * 1024];
+			char		res1[16 * 1024];
+			u_char		im_dpram2[4 * 1024];
+			char		res2[8 * 1024];
+			u_char		im_dpram3[4 * 1024];
+			char		res3[16 * 1024];
+		};
+		u8	im_dprambase[64 * 1024];
+		u16	im_dprambase16[32 * 1024];
+	};
 
 	sysconf8260_t	im_siu_conf;	/* SIU Configuration */
 	memctl8260_t	im_memctl;	/* Memory Controller */

@@ -43,7 +43,7 @@ m8260_cpm_reset(void)
 	} while ((immr->im_cpm.cp_cpcr & CPM_CR_FLG) && ++count < 1000000);
 
 #ifdef CONFIG_HARD_I2C
-	*((unsigned short*)(&immr->im_dprambase[PROFF_I2C_BASE])) = 0;
+	immr->im_dprambase16[PROFF_I2C_BASE / sizeof(u16)] = 0;
 #endif
 }
 

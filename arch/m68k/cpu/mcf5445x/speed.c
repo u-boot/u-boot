@@ -122,17 +122,17 @@ void setup_5441x_clocks(void)
 
 	vco =  ((in_be32(&pll->pcr) & PLL_CR_FBKDIV_BITS) + 1) *
 		CONFIG_SYS_INPUT_CLKSRC;
-	gd->vco_clk = vco;
+	gd->arch.vco_clk = vco;
 
-	gd->inp_clk = CONFIG_SYS_INPUT_CLKSRC;	/* Input clock */
+	gd->arch.inp_clk = CONFIG_SYS_INPUT_CLKSRC;	/* Input clock */
 
 	pdr = in_be32(&pll->pdr);
 	temp = (pdr & PLL_DR_OUTDIV1_BITS) + 1;
 	gd->cpu_clk = vco / temp;	/* cpu clock */
-	gd->flb_clk = vco / temp;	/* FlexBus clock */
-	gd->flb_clk >>= 1;
+	gd->arch.flb_clk = vco / temp;	/* FlexBus clock */
+	gd->arch.flb_clk >>= 1;
 	if (in_be16(ccm->misccr2) & 2)		/* fsys/4 */
-		gd->flb_clk >>= 1;
+		gd->arch.flb_clk >>= 1;
 
 	temp = ((pdr & PLL_DR_OUTDIV2_BITS) >> 5) + 1;
 	gd->bus_clk = vco / temp;	/* bus clock */

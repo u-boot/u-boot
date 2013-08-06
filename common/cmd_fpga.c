@@ -210,8 +210,8 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 				}
 
 				/* verify integrity */
-				if (!fit_image_check_hashes(fit_hdr, noffset)) {
-					puts("Bad Data Hash\n");
+				if (!fit_image_verify(fit_hdr, noffset)) {
+					puts ("Bad Data Hash\n");
 					return 1;
 				}
 

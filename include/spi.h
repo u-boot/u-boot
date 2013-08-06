@@ -37,11 +37,16 @@
 #define	SPI_LSB_FIRST	0x08			/* per-word bits-on-wire */
 #define	SPI_3WIRE	0x10			/* SI/SO signals shared */
 #define	SPI_LOOP	0x20			/* loopback mode */
+#define	SPI_SLAVE	0x40			/* slave mode */
+#define	SPI_PREAMBLE	0x80			/* Skip preamble bytes */
 
 /* SPI transfer flags */
 #define SPI_XFER_BEGIN	0x01			/* Assert CS before transfer */
 #define SPI_XFER_END	0x02			/* Deassert CS after transfer */
 #define SPI_FLASH_U_PAGE	0x04		/* Enable Upper memory page */
+
+/* Header byte that marks the start of the message */
+#define SPI_PREAMBLE_END_BYTE	0xec
 
 /*-----------------------------------------------------------------------
  * Representation of a SPI slave, i.e. what we're communicating with.
@@ -246,5 +251,21 @@ static inline int spi_w8r8(struct spi_slave *slave, unsigned char byte)
 	ret = spi_xfer(slave, 16, dout, din, SPI_XFER_BEGIN | SPI_XFER_END);
 	return ret < 0 ? ret : din[1];
 }
+
+/**
+ * Set up a SPI slave for a particular device tree node
+ *
+ * This calls spi_setup_slave() with the correct bus number. Call
+ * spi_free_slave() to free it later.
+ *
+ * @param blob		Device tree blob
+ * @param node		SPI peripheral node to use
+ * @param cs		Chip select to use
+ * @param max_hz	Maximum SCK rate in Hz (0 for default)
+ * @param mode		Clock polarity, clock phase and other parameters
+ * @return pointer to new spi_slave structure
+ */
+struct spi_slave *spi_setup_slave_fdt(const void *blob, int node,
+		unsigned int cs, unsigned int max_hz, unsigned int mode);
 
 #endif	/* _SPI_H_ */

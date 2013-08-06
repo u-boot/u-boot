@@ -37,10 +37,14 @@
 # define NFS_TIMEOUT CONFIG_NFS_TIMEOUT
 #endif
 
+#define NFS_RPC_ERR	1
+#define NFS_RPC_DROP	124
+
 static int fs_mounted;
 static unsigned long rpc_id;
 static int nfs_offset = -1;
 static int nfs_len;
+static ulong nfs_timeout = NFS_TIMEOUT;
 
 static char dirfh[NFS_FHSIZE];	/* file handle of directory */
 static char filefh[NFS_FHSIZE]; /* file handle of kernel image */
@@ -399,8 +403,10 @@ rpc_lookup_reply(int prog, uchar *pkt, unsigned len)
 
 	debug("%s\n", __func__);
 
-	if (ntohl(rpc_pkt.u.reply.id) != rpc_id)
-		return -1;
+	if (ntohl(rpc_pkt.u.reply.id) > rpc_id)
+		return -NFS_RPC_ERR;
+	else if (ntohl(rpc_pkt.u.reply.id) < rpc_id)
+		return -NFS_RPC_DROP;
 
 	if (rpc_pkt.u.reply.rstatus  ||
 	    rpc_pkt.u.reply.verifier ||
@@ -428,8 +434,10 @@ nfs_mount_reply(uchar *pkt, unsigned len)
 
 	memcpy((unsigned char *)&rpc_pkt, pkt, len);
 
-	if (ntohl(rpc_pkt.u.reply.id) != rpc_id)
-		return -1;
+	if (ntohl(rpc_pkt.u.reply.id) > rpc_id)
+		return -NFS_RPC_ERR;
+	else if (ntohl(rpc_pkt.u.reply.id) < rpc_id)
+		return -NFS_RPC_DROP;
 
 	if (rpc_pkt.u.reply.rstatus  ||
 	    rpc_pkt.u.reply.verifier ||
@@ -452,8 +460,10 @@ nfs_umountall_reply(uchar *pkt, unsigned len)
 
 	memcpy((unsigned char *)&rpc_pkt, pkt, len);
 
-	if (ntohl(rpc_pkt.u.reply.id) != rpc_id)
-		return -1;
+	if (ntohl(rpc_pkt.u.reply.id) > rpc_id)
+		return -NFS_RPC_ERR;
+	else if (ntohl(rpc_pkt.u.reply.id) < rpc_id)
+		return -NFS_RPC_DROP;
 
 	if (rpc_pkt.u.reply.rstatus  ||
 	    rpc_pkt.u.reply.verifier ||
@@ -475,8 +485,10 @@ nfs_lookup_reply(uchar *pkt, unsigned len)
 
 	memcpy((unsigned char *)&rpc_pkt, pkt, len);
 
-	if (ntohl(rpc_pkt.u.reply.id) != rpc_id)
-		return -1;
+	if (ntohl(rpc_pkt.u.reply.id) > rpc_id)
+		return -NFS_RPC_ERR;
+	else if (ntohl(rpc_pkt.u.reply.id) < rpc_id)
+		return -NFS_RPC_DROP;
 
 	if (rpc_pkt.u.reply.rstatus  ||
 	    rpc_pkt.u.reply.verifier ||
@@ -499,8 +511,10 @@ nfs_readlink_reply(uchar *pkt, unsigned len)
 
 	memcpy((unsigned char *)&rpc_pkt, pkt, len);
 
-	if (ntohl(rpc_pkt.u.reply.id) != rpc_id)
-		return -1;
+	if (ntohl(rpc_pkt.u.reply.id) > rpc_id)
+		return -NFS_RPC_ERR;
+	else if (ntohl(rpc_pkt.u.reply.id) < rpc_id)
+		return -NFS_RPC_DROP;
 
 	if (rpc_pkt.u.reply.rstatus  ||
 	    rpc_pkt.u.reply.verifier ||
@@ -534,8 +548,10 @@ nfs_read_reply(uchar *pkt, unsigned len)
 
 	memcpy((uchar *)&rpc_pkt, pkt, sizeof(rpc_pkt.u.reply));
 
-	if (ntohl(rpc_pkt.u.reply.id) != rpc_id)
-		return -1;
+	if (ntohl(rpc_pkt.u.reply.id) > rpc_id)
+		return -NFS_RPC_ERR;
+	else if (ntohl(rpc_pkt.u.reply.id) < rpc_id)
+		return -NFS_RPC_DROP;
 
 	if (rpc_pkt.u.reply.rstatus  ||
 	    rpc_pkt.u.reply.verifier ||
@@ -574,7 +590,8 @@ NfsTimeout(void)
 		NetStartAgain();
 	} else {
 		puts("T ");
-		NetSetTimeout(NFS_TIMEOUT, NfsTimeout);
+		NetSetTimeout(nfs_timeout + NFS_TIMEOUT * NfsTimeoutCount,
+			      NfsTimeout);
 		NfsSend();
 	}
 }
@@ -583,6 +600,7 @@ static void
 NfsHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src, unsigned len)
 {
 	int rlen;
+	int reply;
 
 	debug("%s\n", __func__);
 
@@ -591,19 +609,24 @@ NfsHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src, unsigned len)
 
 	switch (NfsState) {
 	case STATE_PRCLOOKUP_PROG_MOUNT_REQ:
-		rpc_lookup_reply(PROG_MOUNT, pkt, len);
+		if (rpc_lookup_reply(PROG_MOUNT, pkt, len) == -NFS_RPC_DROP)
+			break;
 		NfsState = STATE_PRCLOOKUP_PROG_NFS_REQ;
 		NfsSend();
 		break;
 
 	case STATE_PRCLOOKUP_PROG_NFS_REQ:
-		rpc_lookup_reply(PROG_NFS, pkt, len);
+		if (rpc_lookup_reply(PROG_NFS, pkt, len) == -NFS_RPC_DROP)
+			break;
 		NfsState = STATE_MOUNT_REQ;
 		NfsSend();
 		break;
 
 	case STATE_MOUNT_REQ:
-		if (nfs_mount_reply(pkt, len)) {
+		reply = nfs_mount_reply(pkt, len);
+		if (reply == -NFS_RPC_DROP)
+			break;
+		else if (reply == -NFS_RPC_ERR) {
 			puts("*** ERROR: Cannot mount\n");
 			/* just to be sure... */
 			NfsState = STATE_UMOUNT_REQ;
@@ -615,7 +638,10 @@ NfsHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src, unsigned len)
 		break;
 
 	case STATE_UMOUNT_REQ:
-		if (nfs_umountall_reply(pkt, len)) {
+		reply = nfs_umountall_reply(pkt, len);
+		if (reply == -NFS_RPC_DROP)
+			break;
+		else if (reply == -NFS_RPC_ERR) {
 			puts("*** ERROR: Cannot umount\n");
 			net_set_state(NETLOOP_FAIL);
 		} else {
@@ -625,7 +651,10 @@ NfsHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src, unsigned len)
 		break;
 
 	case STATE_LOOKUP_REQ:
-		if (nfs_lookup_reply(pkt, len)) {
+		reply = nfs_lookup_reply(pkt, len);
+		if (reply == -NFS_RPC_DROP)
+			break;
+		else if (reply == -NFS_RPC_ERR) {
 			puts("*** ERROR: File lookup fail\n");
 			NfsState = STATE_UMOUNT_REQ;
 			NfsSend();
@@ -638,7 +667,10 @@ NfsHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src, unsigned len)
 		break;
 
 	case STATE_READLINK_REQ:
-		if (nfs_readlink_reply(pkt, len)) {
+		reply = nfs_readlink_reply(pkt, len);
+		if (reply == -NFS_RPC_DROP)
+			break;
+		else if (reply == -NFS_RPC_ERR) {
 			puts("*** ERROR: Symlink fail\n");
 			NfsState = STATE_UMOUNT_REQ;
 			NfsSend();
@@ -654,7 +686,7 @@ NfsHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src, unsigned len)
 
 	case STATE_READ_REQ:
 		rlen = nfs_read_reply(pkt, len);
-		NetSetTimeout(NFS_TIMEOUT, NfsTimeout);
+		NetSetTimeout(nfs_timeout, NfsTimeout);
 		if (rlen > 0) {
 			nfs_offset += rlen;
 			NfsSend();
@@ -738,7 +770,7 @@ NfsStart(void)
 	printf("\nLoad address: 0x%lx\n"
 		"Loading: *\b", load_addr);
 
-	NetSetTimeout(NFS_TIMEOUT, NfsTimeout);
+	NetSetTimeout(nfs_timeout, NfsTimeout);
 	net_set_udp_handler(NfsHandler);
 
 	NfsTimeoutCount = 0;

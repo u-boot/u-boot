@@ -61,7 +61,7 @@ int gpio_set_value(unsigned gpio, int value)
 	else
 		l &= ~bit;
 
-	return writel(port, l);
+	return writel(l, port);
 }
 
 int gpio_get_value(unsigned gpio)
@@ -85,11 +85,11 @@ int gpio_free(unsigned gpio)
 
 int gpio_direction_input(unsigned gpio)
 {
-	return writel(GPIO_FULLPORT(gpio), GPIO_INPUT << GPIO_BIT(gpio));
+	return writel(GPIO_INPUT << GPIO_BIT(gpio), GPIO_FULLPORT(gpio));
 }
 
 int gpio_direction_output(unsigned gpio, int value)
 {
-	writel(GPIO_FULLPORT(gpio), GPIO_OUTPUT << GPIO_BIT(gpio));
+	writel(GPIO_OUTPUT << GPIO_BIT(gpio), GPIO_FULLPORT(gpio));
 	return gpio_set_value(gpio, value);
 }

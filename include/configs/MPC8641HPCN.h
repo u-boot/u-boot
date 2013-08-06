@@ -510,6 +510,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  * BAT2		Rapidio Memory
  */
 #ifdef CONFIG_PCI
+#define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_SYS_DBAT2L	(BAT_PHYS_ADDR(CONFIG_SYS_PCIE1_MEM_PHYS_LOW, \
 					       CONFIG_SYS_PCIE1_MEM_PHYS_HIGH) \
 				 | BATL_PP_RW | BATL_CACHEINHIBIT \

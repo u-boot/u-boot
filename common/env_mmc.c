@@ -32,6 +32,11 @@
 #include <search.h>
 #include <errno.h>
 
+#if defined(CONFIG_ENV_SIZE_REDUND) &&  \
+	(CONFIG_ENV_SIZE_REDUND != CONFIG_ENV_SIZE)
+#error CONFIG_ENV_SIZE_REDUND should be the same as CONFIG_ENV_SIZE
+#endif
+
 char *env_name_spec = "MMC";
 
 #ifdef ENV_IS_EMBEDDED
@@ -46,9 +51,21 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CONFIG_ENV_OFFSET 0
 #endif
 
-__weak int mmc_get_env_addr(struct mmc *mmc, u32 *env_addr)
+__weak int mmc_get_env_addr(struct mmc *mmc, int copy, u32 *env_addr)
 {
-	*env_addr = CONFIG_ENV_OFFSET;
+	s64 offset;
+
+	offset = CONFIG_ENV_OFFSET;
+#ifdef CONFIG_ENV_OFFSET_REDUND
+	if (copy)
+		offset = CONFIG_ENV_OFFSET_REDUND;
+#endif
+
+	if (offset < 0)
+		offset += mmc->capacity;
+
+	*env_addr = offset;
+
 	return 0;
 }
 
@@ -110,6 +127,10 @@ static inline int write_env(struct mmc *mmc, unsigned long size,
 	return (n == blk_cnt) ? 0 : -1;
 }
 
+#ifdef CONFIG_ENV_OFFSET_REDUND
+static unsigned char env_flags;
+#endif
+
 int saveenv(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
@@ -117,15 +138,10 @@ int saveenv(void)
 	char	*res;
 	struct mmc *mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
 	u32	offset;
-	int	ret;
+	int	ret, copy = 0;
 
 	if (init_mmc_for_env(mmc))
 		return 1;
-
-	if (mmc_get_env_addr(mmc, &offset)) {
-		ret = 1;
-		goto fini;
-	}
 
 	res = (char *)&env_new->data;
 	len = hexport_r(&env_htab, '\0', 0, &res, ENV_SIZE, 0, NULL);
@@ -136,7 +152,21 @@ int saveenv(void)
 	}
 
 	env_new->crc = crc32(0, &env_new->data[0], ENV_SIZE);
-	printf("Writing to MMC(%d)... ", CONFIG_SYS_MMC_ENV_DEV);
+
+#ifdef CONFIG_ENV_OFFSET_REDUND
+	env_new->flags	= ++env_flags; /* increase the serial */
+
+	if (gd->env_valid == 1)
+		copy = 1;
+#endif
+
+	if (mmc_get_env_addr(mmc, copy, &offset)) {
+		ret = 1;
+		goto fini;
+	}
+
+	printf("Writing to %sMMC(%d)... ", copy ? "redundant " : "",
+	       CONFIG_SYS_MMC_ENV_DEV);
 	if (write_env(mmc, CONFIG_ENV_SIZE, offset, (u_char *)env_new)) {
 		puts("failed\n");
 		ret = 1;
@@ -145,6 +175,10 @@ int saveenv(void)
 
 	puts("done\n");
 	ret = 0;
+
+#ifdef CONFIG_ENV_OFFSET_REDUND
+	gd->env_valid = gd->env_valid == 2 ? 1 : 2;
+#endif
 
 fini:
 	fini_mmc_for_env(mmc);
@@ -166,6 +200,93 @@ static inline int read_env(struct mmc *mmc, unsigned long size,
 	return (n == blk_cnt) ? 0 : -1;
 }
 
+#ifdef CONFIG_ENV_OFFSET_REDUND
+void env_relocate_spec(void)
+{
+#if !defined(ENV_IS_EMBEDDED)
+	struct mmc *mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
+	u32 offset1, offset2;
+	int read1_fail = 0, read2_fail = 0;
+	int crc1_ok = 0, crc2_ok = 0;
+	env_t *ep, *tmp_env1, *tmp_env2;
+	int ret;
+
+	tmp_env1 = (env_t *)malloc(CONFIG_ENV_SIZE);
+	tmp_env2 = (env_t *)malloc(CONFIG_ENV_SIZE);
+	if (tmp_env1 == NULL || tmp_env2 == NULL) {
+		puts("Can't allocate buffers for environment\n");
+		ret = 1;
+		goto err;
+	}
+
+	if (init_mmc_for_env(mmc)) {
+		ret = 1;
+		goto err;
+	}
+
+	if (mmc_get_env_addr(mmc, 0, &offset1) ||
+	    mmc_get_env_addr(mmc, 1, &offset2)) {
+		ret = 1;
+		goto fini;
+	}
+
+	read1_fail = read_env(mmc, CONFIG_ENV_SIZE, offset1, tmp_env1);
+	read2_fail = read_env(mmc, CONFIG_ENV_SIZE, offset2, tmp_env2);
+
+	if (read1_fail && read2_fail)
+		puts("*** Error - No Valid Environment Area found\n");
+	else if (read1_fail || read2_fail)
+		puts("*** Warning - some problems detected "
+		     "reading environment; recovered successfully\n");
+
+	crc1_ok = !read1_fail &&
+		(crc32(0, tmp_env1->data, ENV_SIZE) == tmp_env1->crc);
+	crc2_ok = !read2_fail &&
+		(crc32(0, tmp_env2->data, ENV_SIZE) == tmp_env2->crc);
+
+	if (!crc1_ok && !crc2_ok) {
+		ret = 1;
+		goto fini;
+	} else if (crc1_ok && !crc2_ok) {
+		gd->env_valid = 1;
+	} else if (!crc1_ok && crc2_ok) {
+		gd->env_valid = 2;
+	} else {
+		/* both ok - check serial */
+		if (tmp_env1->flags == 255 && tmp_env2->flags == 0)
+			gd->env_valid = 2;
+		else if (tmp_env2->flags == 255 && tmp_env1->flags == 0)
+			gd->env_valid = 1;
+		else if (tmp_env1->flags > tmp_env2->flags)
+			gd->env_valid = 1;
+		else if (tmp_env2->flags > tmp_env1->flags)
+			gd->env_valid = 2;
+		else /* flags are equal - almost impossible */
+			gd->env_valid = 1;
+	}
+
+	free(env_ptr);
+
+	if (gd->env_valid == 1)
+		ep = tmp_env1;
+	else
+		ep = tmp_env2;
+
+	env_flags = ep->flags;
+	env_import((char *)ep, 0);
+	ret = 0;
+
+fini:
+	fini_mmc_for_env(mmc);
+err:
+	if (ret)
+		set_default_env(NULL);
+
+	free(tmp_env1);
+	free(tmp_env2);
+#endif
+}
+#else /* ! CONFIG_ENV_OFFSET_REDUND */
 void env_relocate_spec(void)
 {
 #if !defined(ENV_IS_EMBEDDED)
@@ -179,7 +300,7 @@ void env_relocate_spec(void)
 		goto err;
 	}
 
-	if (mmc_get_env_addr(mmc, &offset)) {
+	if (mmc_get_env_addr(mmc, 0, &offset)) {
 		ret = 1;
 		goto fini;
 	}
@@ -199,3 +320,4 @@ err:
 		set_default_env(NULL);
 #endif
 }
+#endif /* CONFIG_ENV_OFFSET_REDUND */

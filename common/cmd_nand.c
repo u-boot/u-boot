@@ -62,8 +62,8 @@ static int nand_dump(nand_info_t *nand, ulong off, int only_oob, int repeat)
 	ops.oobbuf = oobbuf;
 	ops.len = nand->writesize;
 	ops.ooblen = nand->oobsize;
-	ops.mode = MTD_OOB_RAW;
-	i = nand->read_oob(nand, addr, &ops);
+	ops.mode = MTD_OPS_RAW;
+	i = mtd_read_oob(nand, addr, &ops);
 	if (i < 0) {
 		printf("Error (%d) reading page %08lx\n", i, off);
 		free(datbuf);
@@ -404,13 +404,13 @@ static int raw_access(nand_info_t *nand, ulong addr, loff_t off, ulong count,
 			.oobbuf = ((u8 *)addr) + nand->writesize,
 			.len = nand->writesize,
 			.ooblen = nand->oobsize,
-			.mode = MTD_OOB_RAW
+			.mode = MTD_OPS_RAW
 		};
 
 		if (read)
-			ret = nand->read_oob(nand, off, &ops);
+			ret = mtd_read_oob(nand, off, &ops);
 		else
-			ret = nand->write_oob(nand, off, &ops);
+			ret = mtd_write_oob(nand, off, &ops);
 
 		if (ret) {
 			printf("%s: error at offset %llx, ret %d\n",
@@ -423,6 +423,31 @@ static int raw_access(nand_info_t *nand, ulong addr, loff_t off, ulong count,
 	}
 
 	return ret;
+}
+
+/* Adjust a chip/partition size down for bad blocks so we don't
+ * read/write past the end of a chip/partition by accident.
+ */
+static void adjust_size_for_badblocks(loff_t *size, loff_t offset, int dev)
+{
+	/* We grab the nand info object here fresh because this is usually
+	 * called after arg_off_size() which can change the value of dev.
+	 */
+	nand_info_t *nand = &nand_info[dev];
+	loff_t maxoffset = offset + *size;
+	int badblocks = 0;
+
+	/* count badblocks in NAND from offset to offset + size */
+	for (; offset < maxoffset; offset += nand->erasesize) {
+		if (nand_block_isbad(nand, offset))
+			badblocks++;
+	}
+	/* adjust size if any bad blocks found */
+	if (badblocks) {
+		*size -= badblocks * nand->erasesize;
+		printf("size adjusted to 0x%llx (%d bad blocks)\n",
+		       (unsigned long long)*size, badblocks);
+	}
 }
 
 static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -642,6 +667,9 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 						&off, &size, &maxsize) != 0)
 				return 1;
 
+			/* size is unspecified */
+			if (argc < 5)
+				adjust_size_for_badblocks(&size, off, dev);
 			rwsize = size;
 		}
 
@@ -680,13 +708,13 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			mtd_oob_ops_t ops = {
 				.oobbuf = (u8 *)addr,
 				.ooblen = rwsize,
-				.mode = MTD_OOB_RAW
+				.mode = MTD_OPS_RAW
 			};
 
 			if (read)
-				ret = nand->read_oob(nand, off, &ops);
+				ret = mtd_read_oob(nand, off, &ops);
 			else
-				ret = nand->write_oob(nand, off, &ops);
+				ret = mtd_write_oob(nand, off, &ops);
 		} else if (raw) {
 			ret = raw_access(nand, addr, off, pagecount, read);
 		} else {
@@ -729,7 +757,7 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		while (argc > 0) {
 			addr = simple_strtoul(*argv, NULL, 16);
 
-			if (nand->block_markbad(nand, addr)) {
+			if (mtd_block_markbad(nand, addr)) {
 				printf("block 0x%08lx NOT marked "
 					"as bad! ERROR %d\n",
 					addr, ret);

@@ -169,4 +169,67 @@
 		#address-cells = <1>;
 		#size-cells = <1>;
 	};
+
+	mmc@12200000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,exynos5250-dwmmc";
+		reg = <0x12200000 0x1000>;
+		interrupts = <0 75 0>;
+	};
+
+	mmc@12210000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,exynos5250-dwmmc";
+		reg = <0x12210000 0x1000>;
+		interrupts = <0 76 0>;
+	};
+
+	mmc@12220000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,exynos5250-dwmmc";
+		reg = <0x12220000 0x1000>;
+		interrupts = <0 77 0>;
+	};
+
+	mmc@12230000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,exynos5250-dwmmc";
+		reg = <0x12230000 0x1000>;
+		interrupts = <0 78 0>;
+	};
+
+	serial@12C00000 {
+		compatible = "samsung,exynos4210-uart";
+		reg = <0x12C00000 0x100>;
+		interrupts = <0 51 0>;
+		id = <0>;
+	};
+
+	serial@12C10000 {
+		compatible = "samsung,exynos4210-uart";
+		reg = <0x12C10000 0x100>;
+		interrupts = <0 52 0>;
+		id = <1>;
+	};
+
+	serial@12C20000 {
+		compatible = "samsung,exynos4210-uart";
+		reg = <0x12C20000 0x100>;
+		interrupts = <0 53 0>;
+		id = <2>;
+	};
+
+	serial@12C30000 {
+		compatible = "samsung,exynos4210-uart";
+		reg = <0x12C30000 0x100>;
+		interrupts = <0 54 0>;
+		id = <3>;
+	};
+
+	gpio: gpio {
+	};
 };

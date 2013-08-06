@@ -54,8 +54,6 @@ int	arch_early_init_r(void);
 int	board_init(void);
 int	dram_init (void);
 void	dram_init_banksize (void);
-void	setup_serial_tag (struct tag **params);
-void	setup_revision_tag (struct tag **params);
 
 /* cpu/.../interrupt.c */
 int	arch_interrupt_init	(void);

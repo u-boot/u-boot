@@ -216,6 +216,7 @@ int board_nand_init(struct nand_chip *nand)
 	nand->ecc.mode = NAND_ECC_HW;
 	nand->ecc.size = 256;
 	nand->ecc.bytes = 3;
+	nand->ecc.strength = 1;
 	nand->select_chip = ndfc_select_chip;
 
 #ifdef CONFIG_SYS_NAND_BUSWIDTH_16BIT

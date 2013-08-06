@@ -687,6 +687,12 @@ static void mxs_power_configure_power_source(void)
 	mxs_init_batt_bo();
 
 	mxs_switch_vddd_to_dcdc_source();
+
+#ifdef CONFIG_MX23
+	/* Fire up the VDDMEM LinReg now that we're all set. */
+	writel(POWER_VDDMEMCTRL_ENABLE_LINREG | POWER_VDDMEMCTRL_ENABLE_ILIMIT,
+		&power_regs->hw_power_vddmemctrl);
+#endif
 }
 
 static void mxs_enable_output_rail_protection(void)
@@ -781,7 +787,11 @@ struct mxs_vddx_cfg {
 static const struct mxs_vddx_cfg mxs_vddio_cfg = {
 	.reg			= &(((struct mxs_power_regs *)MXS_POWER_BASE)->
 					hw_power_vddioctrl),
+#if defined(CONFIG_MX23)
+	.step_mV		= 25,
+#else
 	.step_mV		= 50,
+#endif
 	.lowest_mV		= 2800,
 	.powered_by_linreg	= mxs_get_vddio_power_source_off,
 	.trg_mask		= POWER_VDDIOCTRL_TRG_MASK,
@@ -804,6 +814,21 @@ static const struct mxs_vddx_cfg mxs_vddd_cfg = {
 	.bo_offset_offset	= POWER_VDDDCTRL_BO_OFFSET_OFFSET,
 };
 
+#ifdef CONFIG_MX23
+static const struct mxs_vddx_cfg mxs_vddmem_cfg = {
+	.reg			= &(((struct mxs_power_regs *)MXS_POWER_BASE)->
+					hw_power_vddmemctrl),
+	.step_mV		= 50,
+	.lowest_mV		= 1700,
+	.powered_by_linreg	= NULL,
+	.trg_mask		= POWER_VDDMEMCTRL_TRG_MASK,
+	.bo_irq			= 0,
+	.bo_enirq		= 0,
+	.bo_offset_mask		= 0,
+	.bo_offset_offset	= 0,
+};
+#endif
+
 static void mxs_power_set_vddx(const struct mxs_vddx_cfg *cfg,
 				uint32_t new_target, uint32_t new_brownout)
 {
@@ -821,9 +846,10 @@ static void mxs_power_set_vddx(const struct mxs_vddx_cfg *cfg,
 	cur_target += cfg->lowest_mV;
 
 	adjust_up = new_target > cur_target;
-	powered_by_linreg = cfg->powered_by_linreg();
+	if (cfg->powered_by_linreg)
+		powered_by_linreg = cfg->powered_by_linreg();
 
-	if (adjust_up) {
+	if (adjust_up && cfg->bo_irq) {
 		if (powered_by_linreg) {
 			bo_int = readl(cfg->reg);
 			clrbits_le32(cfg->reg, cfg->bo_enirq);
@@ -864,14 +890,16 @@ static void mxs_power_set_vddx(const struct mxs_vddx_cfg *cfg,
 		cur_target += cfg->lowest_mV;
 	} while (new_target > cur_target);
 
-	if (adjust_up && powered_by_linreg) {
-		writel(cfg->bo_irq, &power_regs->hw_power_ctrl_clr);
-		if (bo_int & cfg->bo_enirq)
-			setbits_le32(cfg->reg, cfg->bo_enirq);
-	}
+	if (cfg->bo_irq) {
+		if (adjust_up && powered_by_linreg) {
+			writel(cfg->bo_irq, &power_regs->hw_power_ctrl_clr);
+			if (bo_int & cfg->bo_enirq)
+				setbits_le32(cfg->reg, cfg->bo_enirq);
+		}
 
-	clrsetbits_le32(cfg->reg, cfg->bo_offset_mask,
-			new_brownout << cfg->bo_offset_offset);
+		clrsetbits_le32(cfg->reg, cfg->bo_offset_mask,
+				new_brownout << cfg->bo_offset_offset);
+	}
 }
 
 static void mxs_setup_batt_detect(void)
@@ -910,7 +938,9 @@ void mxs_power_init(void)
 
 	mxs_power_set_vddx(&mxs_vddio_cfg, 3300, 3150);
 	mxs_power_set_vddx(&mxs_vddd_cfg, 1500, 1000);
-
+#ifdef CONFIG_MX23
+	mxs_power_set_vddx(&mxs_vddmem_cfg, 2500, 1700);
+#endif
 	writel(POWER_CTRL_VDDD_BO_IRQ | POWER_CTRL_VDDA_BO_IRQ |
 		POWER_CTRL_VDDIO_BO_IRQ | POWER_CTRL_VDD5V_DROOP_IRQ |
 		POWER_CTRL_VBUS_VALID_IRQ | POWER_CTRL_BATT_BO_IRQ |

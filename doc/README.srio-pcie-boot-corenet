@@ -21,13 +21,13 @@ Environment of the SRIO or PCIE boot:
 	e) Slave's RCW should configure the SerDes for SRIO or PCIE boot port, set
 	   the boot location to SRIO or PCIE, and holdoff all the cores.
 
-	----------        -----------             -----------
-	|		  |       |         |             |         |
-	|		  |       |         |             |         |
+	-----------       -----------             -----------
+	|         |       |         |             |         |
+	|         |       |         |             |         |
 	| NorFlash|<----->| Master  |SRIO or PCIE |  Slave  |<---->[EEPROM]
-	|		  |       |         |<===========>|         |
-	|		  |       |         |             |         |
-	----------        -----------             -----------
+	|         |       |         |<===========>|         |
+	|         |       |         |             |         |
+	-----------       -----------             -----------
 
 The example based on P4080DS platform:
 	Two P4080DS platforms can be used to implement the boot from SRIO or PCIE.
@@ -87,26 +87,32 @@ How to use this feature:
 	   Please refer to the examples given above.
 
 	2. U-Boot image's compilation.
-		For master, U-Boot image should be generated normally.
+	   For master, U-Boot image should be generated normally.
 
-		For example, master U-Boot image used on P4080DS should be compiled with
+	   For example, master U-Boot image used on P4080DS should be compiled with
 
 				make P4080DS_config.
 
-		For slave, U-Boot image should be generated specifically by
+	   For slave, U-Boot image should be generated specifically by
 
 				make xxxx_SRIO_PCIE_BOOT_config.
 
-		For example, slave U-Boot image used on P4080DS should be compiled with
+	   For example, slave U-Boot image used on P4080DS should be compiled with
 
 				make P4080DS_SRIO_PCIE_BOOT_config.
 
 	3. Necessary modifications based on a specific environment.
-		For a specific environment, the addresses of the slave's U-Boot image,
-		UCode, ENV stored in master's NorFlash, and any other configurations
-		can be modified in the file:
-					include/configs/corenet_ds.h.
+	   For a specific environment, the addresses of the slave's U-Boot image,
+	   UCode, ENV stored in master's NorFlash, and any other configurations
+	   can be modified in the file:
+				include/configs/corenet_ds.h.
 
 	4. Set and save the environment variable "bootmaster" with "SRIO1", "SRIO2"
 	   or "PCIE1", "PCIE2", "PCIE3" for master, and then restart it in order to
 	   perform the role as a master for boot from SRIO or PCIE.
+
+NOTE: When the Slave's ENV parameters are stored in Master's NorFlash,
+      it can fetch them through PCIE or SRIO interface. But the ENV
+      parameters can not be modified by "saveenv" or other commands under
+      the Slave's u-boot environment, because the Slave can not erase,
+      write Master's NorFlash by PCIE or SRIO link.

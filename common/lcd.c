@@ -43,6 +43,8 @@
 #include <lcd.h>
 #include <watchdog.h>
 
+#include <splash.h>
+
 #if defined(CONFIG_CPU_PXA25X) || defined(CONFIG_CPU_PXA27X) || \
 	defined(CONFIG_CPU_MONAHANS)
 #define CONFIG_CPU_PXA
@@ -55,6 +57,10 @@
 
 #if defined(CONFIG_ATMEL_LCD)
 #include <atmel_lcdc.h>
+#endif
+
+#if defined(CONFIG_LCD_DT_SIMPLEFB)
+#include <libfdt.h>
 #endif
 
 /************************************************************************/
@@ -1068,18 +1074,6 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 }
 #endif
 
-#ifdef CONFIG_SPLASH_SCREEN_PREPARE
-static inline int splash_screen_prepare(void)
-{
-	return board_splash_screen_prepare();
-}
-#else
-static inline int splash_screen_prepare(void)
-{
-	return 0;
-}
-#endif
-
 static void *lcd_logo(void)
 {
 #ifdef CONFIG_SPLASH_SCREEN
@@ -1092,26 +1086,11 @@ static void *lcd_logo(void)
 		do_splash = 0;
 
 		if (splash_screen_prepare())
-			return (void *)gd->fb_base;
+			return (void *)lcd_base;
 
 		addr = simple_strtoul (s, NULL, 16);
-#ifdef CONFIG_SPLASH_SCREEN_ALIGN
-		s = getenv("splashpos");
-		if (s != NULL) {
-			if (s[0] == 'm')
-				x = BMP_ALIGN_CENTER;
-			else
-				x = simple_strtol(s, NULL, 0);
 
-			s = strchr(s + 1, ',');
-			if (s != NULL) {
-				if (s[1] == 'm')
-					y = BMP_ALIGN_CENTER;
-				else
-					y = simple_strtol (s + 1, NULL, 0);
-			}
-		}
-#endif /* CONFIG_SPLASH_SCREEN_ALIGN */
+		splash_get_pos(&x, &y);
 
 		if (bmp_display(addr, x, y) == 0)
 			return (void *)lcd_base;
@@ -1182,3 +1161,86 @@ int lcd_get_screen_columns(void)
 {
 	return CONSOLE_COLS;
 }
+
+#if defined(CONFIG_LCD_DT_SIMPLEFB)
+static int lcd_dt_simplefb_configure_node(void *blob, int off)
+{
+	u32 stride;
+	fdt32_t cells[2];
+	int ret;
+	static const char format[] =
+#if LCD_BPP == LCD_COLOR16
+		"r5g6b5";
+#else
+		"";
+#endif
+
+	if (!format[0])
+		return -1;
+
+	stride = panel_info.vl_col * 2;
+
+	cells[0] = cpu_to_fdt32(gd->fb_base);
+	cells[1] = cpu_to_fdt32(stride * panel_info.vl_row);
+	ret = fdt_setprop(blob, off, "reg", cells, sizeof(cells[0]) * 2);
+	if (ret < 0)
+		return -1;
+
+	cells[0] = cpu_to_fdt32(panel_info.vl_col);
+	ret = fdt_setprop(blob, off, "width", cells, sizeof(cells[0]));
+	if (ret < 0)
+		return -1;
+
+	cells[0] = cpu_to_fdt32(panel_info.vl_row);
+	ret = fdt_setprop(blob, off, "height", cells, sizeof(cells[0]));
+	if (ret < 0)
+		return -1;
+
+	cells[0] = cpu_to_fdt32(stride);
+	ret = fdt_setprop(blob, off, "stride", cells, sizeof(cells[0]));
+	if (ret < 0)
+		return -1;
+
+	ret = fdt_setprop(blob, off, "format", format, strlen(format) + 1);
+	if (ret < 0)
+		return -1;
+
+	ret = fdt_delprop(blob, off, "status");
+	if (ret < 0)
+		return -1;
+
+	return 0;
+}
+
+int lcd_dt_simplefb_add_node(void *blob)
+{
+	static const char compat[] = "simple-framebuffer";
+	static const char disabled[] = "disabled";
+	int off, ret;
+
+	off = fdt_add_subnode(blob, 0, "framebuffer");
+	if (off < 0)
+		return -1;
+
+	ret = fdt_setprop(blob, off, "status", disabled, sizeof(disabled));
+	if (ret < 0)
+		return -1;
+
+	ret = fdt_setprop(blob, off, "compatible", compat, sizeof(compat));
+	if (ret < 0)
+		return -1;
+
+	return lcd_dt_simplefb_configure_node(blob, off);
+}
+
+int lcd_dt_simplefb_enable_existing_node(void *blob)
+{
+	int off;
+
+	off = fdt_node_offset_by_compatible(blob, -1, "simple-framebuffer");
+	if (off < 0)
+		return -1;
+
+	return lcd_dt_simplefb_configure_node(blob, off);
+}
+#endif

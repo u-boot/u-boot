@@ -30,6 +30,8 @@
 
 #include <common.h>
 #include <libfdt.h>
+#include <malloc.h>
+#include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -47,6 +49,7 @@ static int next_id = BOOTSTAGE_ID_USER;
 enum {
 	BOOTSTAGE_VERSION	= 0,
 	BOOTSTAGE_MAGIC		= 0xb00757a3,
+	BOOTSTAGE_DIGITS	= 9,
 };
 
 struct bootstage_hdr {
@@ -55,6 +58,21 @@ struct bootstage_hdr {
 	uint32_t size;		/* Total data size (non-zero if valid) */
 	uint32_t magic;		/* Unused */
 };
+
+int bootstage_relocate(void)
+{
+	int i;
+
+	/*
+	 * Duplicate all strings.  They may point to an old location in the
+	 * program .text section that can eventually get trashed.
+	 */
+	for (i = 0; i < BOOTSTAGE_ID_COUNT; i++)
+		if (record[i].name)
+			record[i].name = strdup(record[i].name);
+
+	return 0;
+}
 
 ulong bootstage_add_record(enum bootstage_id id, const char *name,
 			   int flags, ulong mark)
@@ -102,6 +120,33 @@ ulong bootstage_mark_name(enum bootstage_id id, const char *name)
 	return bootstage_add_record(id, name, flags, timer_get_boot_us());
 }
 
+ulong bootstage_mark_code(const char *file, const char *func, int linenum)
+{
+	char *str, *p;
+	__maybe_unused char *end;
+	int len = 0;
+
+	/* First work out the length we need to allocate */
+	if (linenum != -1)
+		len = 11;
+	if (func)
+		len += strlen(func);
+	if (file)
+		len += strlen(file);
+
+	str = malloc(len + 1);
+	p = str;
+	end = p + len;
+	if (file)
+		p += snprintf(p, end - p, "%s,", file);
+	if (linenum != -1)
+		p += snprintf(p, end - p, "%d", linenum);
+	if (func)
+		p += snprintf(p, end - p, ": %s", func);
+
+	return bootstage_mark_name(BOOTSTAGE_ID_ALLOC, str);
+}
+
 uint32_t bootstage_start(enum bootstage_id id, const char *name)
 {
 	struct bootstage_record *rec = &record[id];
@@ -119,21 +164,6 @@ uint32_t bootstage_accum(enum bootstage_id id)
 	duration = (uint32_t)timer_get_boot_us() - rec->start_us;
 	rec->time_us += duration;
 	return duration;
-}
-
-static void print_time(unsigned long us_time)
-{
-	char str[15], *s;
-	int grab = 3;
-
-	/* We don't seem to have %'d in U-Boot */
-	sprintf(str, "%12lu", us_time);
-	for (s = str + 3; *s; s += grab) {
-		if (s != str + 3)
-			putc(s[-1] != ' ' ? ',' : ' ');
-		printf("%.*s", grab, s);
-		grab = 3;
-	}
 }
 
 /**
@@ -164,10 +194,10 @@ static uint32_t print_time_record(enum bootstage_id id,
 
 	if (prev == -1U) {
 		printf("%11s", "");
-		print_time(rec->time_us);
+		print_grouped_ull(rec->time_us, BOOTSTAGE_DIGITS);
 	} else {
-		print_time(rec->time_us);
-		print_time(rec->time_us - prev);
+		print_grouped_ull(rec->time_us, BOOTSTAGE_DIGITS);
+		print_grouped_ull(rec->time_us - prev, BOOTSTAGE_DIGITS);
 	}
 	printf("  %s\n", get_record_name(buf, sizeof(buf), rec));
 
@@ -401,9 +431,9 @@ int bootstage_unstash(void *base, int size)
 	}
 
 	if (hdr->count * sizeof(*rec) > hdr->size) {
-		debug("%s: Bootstage has %d records needing %d bytes, but "
+		debug("%s: Bootstage has %d records needing %lu bytes, but "
 			"only %d bytes is available\n", __func__, hdr->count,
-		      hdr->count * sizeof(*rec), hdr->size);
+		      (ulong)hdr->count * sizeof(*rec), hdr->size);
 		return -1;
 	}
 

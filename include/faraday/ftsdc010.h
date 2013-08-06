@@ -23,6 +23,7 @@
 #define __FTSDC010_H
 
 #ifndef __ASSEMBLY__
+
 /* sd controller register */
 struct ftsdc010_mmc {
 	unsigned int	cmd;		/* 0x00 - command reg		*/
@@ -143,6 +144,15 @@ int ftsdc010_mmc_init(int dev_index);
 #define FTSDC010_STATUS_SDIO_IRPT		(1 << 16) /* SDIO card intr */
 #define FTSDC010_STATUS_DATA0_STATUS		(1 << 17)
 #endif /* CONFIG_FTSDC010_SDIO */
+#define FTSDC010_STATUS_RSP_ERROR	\
+	(FTSDC010_STATUS_RSP_CRC_FAIL | FTSDC010_STATUS_RSP_TIMEOUT)
+#define FTSDC010_STATUS_RSP_MASK	\
+	(FTSDC010_STATUS_RSP_ERROR | FTSDC010_STATUS_RSP_CRC_OK)
+#define FTSDC010_STATUS_DATA_ERROR	\
+	(FTSDC010_STATUS_DATA_CRC_FAIL | FTSDC010_STATUS_DATA_TIMEOUT)
+#define FTSDC010_STATUS_DATA_MASK	\
+	(FTSDC010_STATUS_DATA_ERROR | FTSDC010_STATUS_DATA_CRC_OK \
+	| FTSDC010_STATUS_DATA_END)
 
 /* 0x2c - clear register */
 #define FTSDC010_CLR_RSP_CRC_FAIL		(1 << 0)
@@ -192,21 +202,24 @@ int ftsdc010_mmc_init(int dev_index);
 #define FTSDC010_CCR_CLK_DIV(x)			(((x) & 0x7f) << 0)
 #define FTSDC010_CCR_CLK_SD			(1 << 7) /* 0: MMC, 1: SD */
 #define FTSDC010_CCR_CLK_DIS			(1 << 8)
+#define FTSDC010_CCR_CLK_HISPD			(1 << 9) /* high speed */
 
 /* card type */
 #define FTSDC010_CARD_TYPE_SD			FTSDC010_CLOCK_REG_CARD_TYPE
 #define FTSDC010_CARD_TYPE_MMC			0x0
 
 /* 0x3c - bus width register */
-#define FTSDC010_BWR_SINGLE_BUS			(1 << 0)
-#define FTSDC010_BWR_WIDE_8_BUS			(1 << 1)
-#define FTSDC010_BWR_WIDE_4_BUS			(1 << 2)
-#define FTSDC010_BWR_WIDE_BUS_SUPPORT(x)	(((x) >> 3) & 0x3)
-#define FTSDC010_BWR_CARD_DETECT		(1 << 5)
-
-#define FTSDC010_BWR_1_BUS_SUPPORT		0x0
-#define FTSDC010_BWR_4_BUS_SUPPORT		0x1
-#define FTSDC010_BWR_8_BUS_SUPPORT		0x2
+#define FTSDC010_BWR_MODE_1BIT      (1 << 0) /* 1 bit mode enabled */
+#define FTSDC010_BWR_MODE_8BIT      (1 << 1) /* 8 bit mode enabled */
+#define FTSDC010_BWR_MODE_4BIT      (1 << 2) /* 4 bit mode enabled */
+#define FTSDC010_BWR_MODE_MASK      (7 << 0)
+#define FTSDC010_BWR_MODE_SHIFT     (0)
+#define FTSDC010_BWR_CAPS_1BIT      (0 << 3) /* 1 bits mode supported */
+#define FTSDC010_BWR_CAPS_4BIT      (1 << 3) /* 1,4 bits mode supported */
+#define FTSDC010_BWR_CAPS_8BIT      (2 << 3) /* 1,4,8 bits mode supported */
+#define FTSDC010_BWR_CAPS_MASK      (3 << 3)
+#define FTSDC010_BWR_CAPS_SHIFT     (3)
+#define FTSDC010_BWR_CARD_DETECT    (1 << 5)
 
 /* 0x44 or 0x9c - feature register */
 #define FTSDC010_FEATURE_FIFO_DEPTH(x)		(((x) >> 0) & 0xff)

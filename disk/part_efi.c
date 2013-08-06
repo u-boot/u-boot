@@ -115,7 +115,7 @@ static inline int is_bootable(gpt_entry *p)
 
 void print_part_efi(block_dev_desc_t * dev_desc)
 {
-	ALLOC_CACHE_ALIGN_BUFFER(gpt_header, gpt_head, 1);
+	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, dev_desc->blksz);
 	gpt_entry *gpt_pte = NULL;
 	int i = 0;
 	char uuid[37];
@@ -162,7 +162,7 @@ void print_part_efi(block_dev_desc_t * dev_desc)
 int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 				disk_partition_t * info)
 {
-	ALLOC_CACHE_ALIGN_BUFFER(gpt_header, gpt_head, 1);
+	ALLOC_CACHE_ALIGN_BUFFER_PAD(gpt_header, gpt_head, 1, dev_desc->blksz);
 	gpt_entry *gpt_pte = NULL;
 
 	/* "part" argument must be at least 1 */
@@ -190,7 +190,7 @@ int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 	/* The ending LBA is inclusive, to calculate size, add 1 to it */
 	info->size = ((u64)le64_to_cpu(gpt_pte[part - 1].ending_lba) + 1)
 		     - info->start;
-	info->blksz = GPT_BLOCK_SIZE;
+	info->blksz = dev_desc->blksz;
 
 	sprintf((char *)info->name, "%s",
 			print_efiname(&gpt_pte[part - 1]));
@@ -200,8 +200,8 @@ int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 	uuid_string(gpt_pte[part - 1].unique_partition_guid.b, info->uuid);
 #endif
 
-	debug("%s: start 0x%lX, size 0x%lX, name %s", __func__,
-		info->start, info->size, info->name);
+	debug("%s: start 0x" LBAF ", size 0x" LBAF ", name %s", __func__,
+	      info->start, info->size, info->name);
 
 	/* Remember to free pte */
 	free(gpt_pte);
@@ -210,7 +210,7 @@ int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 
 int test_part_efi(block_dev_desc_t * dev_desc)
 {
-	ALLOC_CACHE_ALIGN_BUFFER(legacy_mbr, legacymbr, 1);
+	ALLOC_CACHE_ALIGN_BUFFER_PAD(legacy_mbr, legacymbr, 1, dev_desc->blksz);
 
 	/* Read legacy MBR from block 0 and validate it */
 	if ((dev_desc->block_read(dev_desc->dev, 0, 1, (ulong *)legacymbr) != 1)
@@ -311,9 +311,8 @@ static int string_uuid(char *uuid, u8 *dst)
 int write_gpt_table(block_dev_desc_t *dev_desc,
 		gpt_header *gpt_h, gpt_entry *gpt_e)
 {
-	const int pte_blk_num = (gpt_h->num_partition_entries
-		* sizeof(gpt_entry)) / dev_desc->blksz;
-
+	const int pte_blk_cnt = BLOCK_CNT((gpt_h->num_partition_entries
+					   * sizeof(gpt_entry)), dev_desc);
 	u32 calc_crc32;
 	u64 val;
 
@@ -336,8 +335,8 @@ int write_gpt_table(block_dev_desc_t *dev_desc,
 	if (dev_desc->block_write(dev_desc->dev, 1, 1, gpt_h) != 1)
 		goto err;
 
-	if (dev_desc->block_write(dev_desc->dev, 2, pte_blk_num, gpt_e)
-	    != pte_blk_num)
+	if (dev_desc->block_write(dev_desc->dev, 2, pte_blk_cnt, gpt_e)
+	    != pte_blk_cnt)
 		goto err;
 
 	/* recalculate the values for the Second GPT Header */
@@ -352,7 +351,7 @@ int write_gpt_table(block_dev_desc_t *dev_desc,
 
 	if (dev_desc->block_write(dev_desc->dev,
 				  le32_to_cpu(gpt_h->last_usable_lba + 1),
-				  pte_blk_num, gpt_e) != pte_blk_num)
+				  pte_blk_cnt, gpt_e) != pte_blk_cnt)
 		goto err;
 
 	if (dev_desc->block_write(dev_desc->dev,
@@ -373,7 +372,7 @@ int gpt_fill_pte(gpt_header *gpt_h, gpt_entry *gpt_e,
 	u32 offset = (u32)le32_to_cpu(gpt_h->first_usable_lba);
 	ulong start;
 	int i, k;
-	size_t name_len;
+	size_t efiname_len, dosname_len;
 #ifdef CONFIG_PARTITION_UUIDS
 	char *str_uuid;
 #endif
@@ -421,13 +420,18 @@ int gpt_fill_pte(gpt_header *gpt_h, gpt_entry *gpt_e,
 		       sizeof(gpt_entry_attributes));
 
 		/* partition name */
-		name_len = sizeof(gpt_e[i].partition_name)
+		efiname_len = sizeof(gpt_e[i].partition_name)
 			/ sizeof(efi_char16_t);
-		for (k = 0; k < name_len; k++)
+		dosname_len = sizeof(partitions[i].name);
+
+		memset(gpt_e[i].partition_name, 0,
+		       sizeof(gpt_e[i].partition_name));
+
+		for (k = 0; k < min(dosname_len, efiname_len); k++)
 			gpt_e[i].partition_name[k] =
 				(efi_char16_t)(partitions[i].name[k]);
 
-		debug("%s: name: %s offset[%d]: 0x%x size[%d]: 0x%lx\n",
+		debug("%s: name: %s offset[%d]: 0x%x size[%d]: 0x" LBAF "\n",
 		      __func__, partitions[i].name, i,
 		      offset, i, partitions[i].size);
 	}
@@ -462,13 +466,18 @@ int gpt_restore(block_dev_desc_t *dev_desc, char *str_disk_guid,
 {
 	int ret;
 
-	gpt_header *gpt_h = calloc(1, sizeof(gpt_header));
+	gpt_header *gpt_h = calloc(1, PAD_TO_BLOCKSIZE(sizeof(gpt_header),
+						       dev_desc));
+	gpt_entry *gpt_e;
+
 	if (gpt_h == NULL) {
 		printf("%s: calloc failed!\n", __func__);
 		return -1;
 	}
 
-	gpt_entry *gpt_e = calloc(GPT_ENTRY_NUMBERS, sizeof(gpt_entry));
+	gpt_e = calloc(1, PAD_TO_BLOCKSIZE(GPT_ENTRY_NUMBERS
+					       * sizeof(gpt_entry),
+					       dev_desc));
 	if (gpt_e == NULL) {
 		printf("%s: calloc failed!\n", __func__);
 		free(gpt_h);
@@ -652,7 +661,7 @@ static int is_gpt_valid(block_dev_desc_t * dev_desc, unsigned long long lba,
 static gpt_entry *alloc_read_gpt_entries(block_dev_desc_t * dev_desc,
 					 gpt_header * pgpt_head)
 {
-	size_t count = 0;
+	size_t count = 0, blk_cnt;
 	gpt_entry *pte = NULL;
 
 	if (!dev_desc || !pgpt_head) {
@@ -669,7 +678,8 @@ static gpt_entry *alloc_read_gpt_entries(block_dev_desc_t * dev_desc,
 
 	/* Allocate memory for PTE, remember to FREE */
 	if (count != 0) {
-		pte = memalign(ARCH_DMA_MINALIGN, count);
+		pte = memalign(ARCH_DMA_MINALIGN,
+			       PAD_TO_BLOCKSIZE(count, dev_desc));
 	}
 
 	if (count == 0 || pte == NULL) {
@@ -680,10 +690,11 @@ static gpt_entry *alloc_read_gpt_entries(block_dev_desc_t * dev_desc,
 	}
 
 	/* Read GPT Entries from device */
+	blk_cnt = BLOCK_CNT(count, dev_desc);
 	if (dev_desc->block_read (dev_desc->dev,
 		le64_to_cpu(pgpt_head->partition_entry_lba),
-		(lbaint_t) (count / GPT_BLOCK_SIZE), pte)
-		!= (count / GPT_BLOCK_SIZE)) {
+		(lbaint_t) (blk_cnt), pte)
+		!= blk_cnt) {
 
 		printf("*** ERROR: Can't read GPT Entries ***\n");
 		free(pte);

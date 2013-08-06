@@ -222,6 +222,10 @@ struct memac {
 
 /* IF_MODE - Interface Mode Register */
 #define IF_MODE_EN_AUTO	0x00008000 /* 1 - Enable automatic speed selection */
+#define IF_MODE_SETSP_100M	0x00000000 /* 00 - 100Mbps RGMII */
+#define IF_MODE_SETSP_10M	0x00002000 /* 01 - 10Mbps RGMII */
+#define IF_MODE_SETSP_1000M	0x00004000 /* 10 - 1000Mbps RGMII */
+#define IF_MODE_SETSP_MASK	0x00006000 /* setsp mask bits */
 #define IF_MODE_XGMII	0x00000000 /* 00- XGMII(10) interface mode */
 #define IF_MODE_GMII		0x00000002 /* 10- GMII interface mode */
 #define IF_MODE_MASK	0x00000003 /* mask for mode interface mode */

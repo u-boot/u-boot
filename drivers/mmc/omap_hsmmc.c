@@ -29,7 +29,7 @@
 #include <i2c.h>
 #include <twl4030.h>
 #include <twl6030.h>
-#include <twl6035.h>
+#include <palmas.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/mmc_host_def.h>
@@ -107,29 +107,27 @@ static void omap4_vmmc_pbias_config(struct mmc *mmc)
 }
 #endif
 
-#if defined(CONFIG_OMAP54XX) && defined(CONFIG_TWL6035_POWER)
+#if defined(CONFIG_OMAP54XX) && defined(CONFIG_PALMAS_POWER)
 static void omap5_pbias_config(struct mmc *mmc)
 {
 	u32 value = 0;
 
 	value = readl((*ctrl)->control_pbias);
-	value &= ~(SDCARD_PWRDNZ | SDCARD_BIAS_PWRDNZ);
-	value |= SDCARD_BIAS_HIZ_MODE;
+	value &= ~SDCARD_PWRDNZ;
+	writel(value, (*ctrl)->control_pbias);
+	udelay(10); /* wait 10 us */
+	value &= ~SDCARD_BIAS_PWRDNZ;
 	writel(value, (*ctrl)->control_pbias);
 
-	twl6035_mmc1_poweron_ldo();
+	palmas_mmc1_poweron_ldo();
 
 	value = readl((*ctrl)->control_pbias);
-	value &= ~SDCARD_BIAS_HIZ_MODE;
-	value |= SDCARD_PBIASLITE_VMODE | SDCARD_PWRDNZ | SDCARD_BIAS_PWRDNZ;
+	value |= SDCARD_BIAS_PWRDNZ;
 	writel(value, (*ctrl)->control_pbias);
-
-	value = readl((*ctrl)->control_pbias);
-	if (value & (1 << 23)) {
-		value &= ~(SDCARD_PWRDNZ | SDCARD_BIAS_PWRDNZ);
-		value |= SDCARD_BIAS_HIZ_MODE;
-		writel(value, (*ctrl)->control_pbias);
-	}
+	udelay(150); /* wait 150 us */
+	value |= SDCARD_PWRDNZ;
+	writel(value, (*ctrl)->control_pbias);
+	udelay(150); /* wait 150 us */
 }
 #endif
 
@@ -178,7 +176,7 @@ unsigned char mmc_board_init(struct mmc *mmc)
 	if (mmc->block_dev.dev == 0)
 		omap4_vmmc_pbias_config(mmc);
 #endif
-#if defined(CONFIG_OMAP54XX) && defined(CONFIG_TWL6035_POWER)
+#if defined(CONFIG_OMAP54XX) && defined(CONFIG_PALMAS_POWER)
 	if (mmc->block_dev.dev == 0)
 		omap5_pbias_config(mmc);
 #endif

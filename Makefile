@@ -22,7 +22,7 @@
 #
 
 VERSION = 2013
-PATCHLEVEL = 04
+PATCHLEVEL = 07
 SUBLEVEL =
 EXTRAVERSION =
 ifneq "$(SUBLEVEL)" ""
@@ -183,6 +183,16 @@ endif
 # load other configuration
 include $(TOPDIR)/config.mk
 
+# Targets which don't build the source code
+NON_BUILD_TARGETS = backup clean clobber distclean mkproper tidy unconfig
+
+# Only do the generic board check when actually building, not configuring
+ifeq ($(filter $(NON_BUILD_TARGETS),$(MAKECMDGOALS)),)
+ifeq ($(findstring _config,$(MAKECMDGOALS)),)
+$(CHECK_GENERIC_BOARD)
+endif
+endif
+
 # If board code explicitly specified LDSCRIPT or CONFIG_SYS_LDSCRIPT, use
 # that (or fail if absent).  Otherwise, search for a linker script in a
 # standard location.
@@ -237,6 +247,7 @@ OBJS := $(addprefix $(obj),$(OBJS))
 HAVE_VENDOR_COMMON_LIB = $(if $(wildcard board/$(VENDOR)/common/Makefile),y,n)
 
 LIBS-y += lib/libgeneric.o
+LIBS-y += lib/rsa/librsa.o
 LIBS-y += lib/lzma/liblzma.o
 LIBS-y += lib/lzo/liblzo.o
 LIBS-y += lib/zlib/libz.o
@@ -331,7 +342,7 @@ ifneq ($(CONFIG_AM33XX)$(CONFIG_OMAP34XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX)$(C
 LIBS-y += $(CPUDIR)/omap-common/libomap-common.o
 endif
 
-ifneq (,$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35))
+ifneq (,$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35 mxs vf610))
 LIBS-y += arch/$(ARCH)/imx-common/libimx-common.o
 endif
 
@@ -512,13 +523,9 @@ $(obj)u-boot.ais:       $(obj)spl/u-boot-spl.bin $(obj)u-boot.img
 		cat $(obj)spl/u-boot-spl-pad.ais $(obj)u-boot.img > \
 			$(obj)u-boot.ais
 
-# Specify the target for use in elftosb call
-ELFTOSB_TARGET-$(CONFIG_MX23) = imx23
-ELFTOSB_TARGET-$(CONFIG_MX28) = imx28
 
 $(obj)u-boot.sb:       $(obj)u-boot.bin $(obj)spl/u-boot-spl.bin
-		elftosb -zf $(ELFTOSB_TARGET-y) -c $(TOPDIR)/$(CPUDIR)/$(SOC)/u-boot-$(ELFTOSB_TARGET-y).bd \
-			-o $(obj)u-boot.sb
+		$(MAKE) -C $(SRCTREE)/$(CPUDIR)/$(SOC)/ $(OBJTREE)/u-boot.sb
 
 # On x600 (SPEAr600) U-Boot is appended to U-Boot SPL.
 # Both images are created using mkimage (crc etc), so that the ROM
@@ -537,22 +544,31 @@ $(obj)u-boot.spr:	$(obj)u-boot.img $(obj)spl/u-boot-spl.bin
 		cat $(obj)spl/u-boot-spl-pad.img $(obj)u-boot.img > $@
 
 ifneq ($(CONFIG_TEGRA),)
-ifeq ($(CONFIG_OF_SEPARATE),y)
-nodtb=dtb
-dtbfile=$(obj)u-boot.dtb
-else
-nodtb=nodtb
-dtbfile=
-endif
-
-$(obj)u-boot-$(nodtb)-tegra.bin: $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin $(dtbfile)
+$(obj)u-boot-nodtb-tegra.bin: $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
 		$(OBJCOPY) ${OBJCFLAGS} --pad-to=$(CONFIG_SYS_TEXT_BASE) -O binary $(obj)spl/u-boot-spl $(obj)spl/u-boot-spl-pad.bin
-		cat $(obj)spl/u-boot-spl-pad.bin $(obj)u-boot.bin $(dtbfile) > $@
+		cat $(obj)spl/u-boot-spl-pad.bin $(obj)u-boot.bin > $@
 		rm $(obj)spl/u-boot-spl-pad.bin
+
+ifeq ($(CONFIG_OF_SEPARATE),y)
+$(obj)u-boot-dtb-tegra.bin: $(obj)u-boot-nodtb-tegra.bin $(obj)u-boot.dtb
+		cat $(obj)u-boot-nodtb-tegra.bin $(obj)u-boot.dtb > $@
+endif
 endif
 
 $(obj)u-boot-img.bin: $(obj)spl/u-boot-spl.bin $(obj)u-boot.img
 		cat $(obj)spl/u-boot-spl.bin $(obj)u-boot.img > $@
+
+# PPC4xx needs the SPL at the end of the image, since the reset vector
+# is located at 0xfffffffc. So we can't use the "u-boot-img.bin" target
+# and need to introduce a new build target with the full blown U-Boot
+# at the start padded up to the start of the SPL image. And then concat
+# the SPL image to the end.
+$(obj)u-boot-img-spl-at-end.bin: $(obj)spl/u-boot-spl.bin $(obj)u-boot.img
+		tr "\000" "\377" < /dev/zero | dd ibs=1 count=$(CONFIG_UBOOT_PAD_TO) \
+			of=$(obj)u-boot-pad.img 2>/dev/null
+		dd if=$(obj)u-boot.img of=$(obj)u-boot-pad.img \
+			conv=notrunc 2>/dev/null
+		cat $(obj)u-boot-pad.img $(obj)spl/u-boot-spl.bin > $@
 
 ifeq ($(CONFIG_SANDBOX),y)
 GEN_UBOOT = \
@@ -728,6 +744,13 @@ tools: $(VERSION_FILE) $(TIMESTAMP_FILE)
 	$(MAKE) -C $@ all
 endif	# config.mk
 
+# ARM relocations should all be R_ARM_RELATIVE.
+checkarmreloc: $(obj)u-boot
+	@if test "R_ARM_RELATIVE" != \
+		"`$(CROSS_COMPILE)readelf -r $< | cut -d ' ' -f 4 | grep R_ARM | sort -u`"; \
+		then echo "$< contains relocations other than \
+		R_ARM_RELATIVE"; false; fi
+
 $(VERSION_FILE):
 		@mkdir -p $(dir $(VERSION_FILE))
 		@( localvers='$(shell $(TOPDIR)/tools/setlocalversion $(TOPDIR))' ; \
@@ -809,7 +832,8 @@ clean:
 	       $(obj)tools/mk{smdk5250,}spl				  \
 	       $(obj)tools/mxsboot					  \
 	       $(obj)tools/ncb		   $(obj)tools/ubsha1		  \
-	       $(obj)tools/kernel-doc/docproc
+	       $(obj)tools/kernel-doc/docproc				  \
+	       $(obj)tools/proftool
 	@rm -f $(obj)board/cray/L1/{bootscript.c,bootscript.image}	  \
 	       $(obj)board/matrix_vision/*/bootscript.img		  \
 	       $(obj)board/voiceblue/eeprom 				  \
@@ -849,6 +873,7 @@ clobber:	tidy
 	@rm -f $(obj)u-boot.ais
 	@rm -f $(obj)u-boot.dtb
 	@rm -f $(obj)u-boot.sb
+	@rm -f $(obj)u-boot.bd
 	@rm -f $(obj)u-boot.spr
 	@rm -f $(obj)nand_spl/{u-boot.{lds,lst},System.map}
 	@rm -f $(obj)nand_spl/{u-boot-nand_spl.lds,u-boot-spl,u-boot-spl.map}

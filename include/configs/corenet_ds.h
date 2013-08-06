@@ -38,6 +38,8 @@
 #define CONFIG_PBLRCW_CONFIG $(SRCTREE)/board/freescale/corenet_ds/rcw_p4080ds.cfg
 #elif defined(CONFIG_P5020DS)
 #define CONFIG_PBLRCW_CONFIG $(SRCTREE)/board/freescale/corenet_ds/rcw_p5020ds.cfg
+#elif defined(CONFIG_P5040DS)
+#define CONFIG_PBLRCW_CONFIG $(SRCTREE)/board/freescale/corenet_ds/rcw_p5040ds.cfg
 #endif
 #endif
 
@@ -562,6 +564,7 @@
 #endif
 
 #ifdef CONFIG_PCI
+#define CONFIG_PCI_INDIRECT_BRIDGE
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 #define CONFIG_E1000
 
@@ -714,6 +717,7 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"hwconfig=fsl_ddr:ctlr_intlv=cacheline,"		\
 	"bank_intlv=cs0_cs1;"					\
+	"usb2:dr_mode=peripheral,phy_type=" __stringify(__USB_PHY_TYPE) ";"\
 	"usb1:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) "\0"\
 	"netdev=eth0\0"						\
 	"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"		\

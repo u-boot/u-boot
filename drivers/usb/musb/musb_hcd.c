@@ -1105,8 +1105,7 @@ int usb_lowlevel_init(int index, void **controller)
 
 	/* Configure all the endpoint FIFO's and start usb controller */
 	musbr = musb_cfg.regs;
-	musb_configure_ep(&epinfo[0],
-			sizeof(epinfo) / sizeof(struct musb_epinfo));
+	musb_configure_ep(&epinfo[0], ARRAY_SIZE(epinfo));
 	musb_start();
 
 	/*

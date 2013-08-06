@@ -103,6 +103,10 @@ static const struct {
 	{ 22, 168, FSL_SRDS_BANK_3 },
 	{ 23, 169, FSL_SRDS_BANK_3 },
 #endif
+#if SRDS_MAX_BANK > 3
+	{ 24, 175, FSL_SRDS_BANK_4 },
+	{ 25, 176, FSL_SRDS_BANK_4 },
+#endif
 };
 
 int serdes_get_lane_idx(int lane)

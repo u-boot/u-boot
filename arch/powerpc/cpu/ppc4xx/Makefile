@@ -68,6 +68,10 @@ COBJS	+= miiphy.o
 COBJS	+= uic.o
 endif
 
+ifdef CONFIG_SPL_BUILD
+COBJS-y += spl_boot.o
+endif
+
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS) $(COBJS-y))
 START	:= $(addprefix $(obj),$(START))

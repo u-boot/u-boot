@@ -37,7 +37,7 @@ void __udelay(unsigned long usec)
 	os_usleep(usec);
 }
 
-unsigned long timer_get_us(void)
+unsigned long __attribute__((no_instrument_function)) timer_get_us(void)
 {
 	return os_get_nsec() / 1000;
 }
@@ -55,6 +55,11 @@ int cleanup_before_linux(void)
 void *map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
 {
 	return (void *)(gd->arch.ram_buf + paddr);
+}
+
+phys_addr_t map_to_sysmem(void *ptr)
+{
+	return (u8 *)ptr - gd->arch.ram_buf;
 }
 
 void flush_dcache_range(unsigned long start, unsigned long stop)

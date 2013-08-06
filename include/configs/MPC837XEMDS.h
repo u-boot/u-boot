@@ -395,6 +395,7 @@
 #define CONFIG_SYS_PCIE2_IO_SIZE	0x00800000
 
 #ifdef CONFIG_PCI
+#define CONFIG_PCI_INDIRECT_BRIDGE
 #ifndef __ASSEMBLY__
 extern int board_pci_host_broken(void);
 #endif

@@ -27,12 +27,13 @@ LIB	:= $(obj)libwatchdog.o
 
 COBJS-$(CONFIG_AT91SAM9_WATCHDOG) += at91sam9_wdt.o
 COBJS-$(CONFIG_FTWDT010_WATCHDOG) += ftwdt010_wdt.o
-ifneq (,$(filter $(SOC), mx31 mx35 mx5 mx6))
+ifneq (,$(filter $(SOC), mx31 mx35 mx5 mx6 vf610))
 COBJS-y += imx_watchdog.o
 endif
 COBJS-$(CONFIG_TNETV107X_WATCHDOG) += tnetv107x_wdt.o
 COBJS-$(CONFIG_S5P)               += s5p_wdt.o
 COBJS-$(CONFIG_XILINX_TB_WATCHDOG) += xilinx_tb_wdt.o
+COBJS-$(CONFIG_BFIN_WATCHDOG)  += bfin_wdt.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)

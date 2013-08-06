@@ -28,7 +28,9 @@
 #define WRAP_LIBGCC_CALL(type, name) \
 	type __normal_##name(type a, type b) __attribute__((regparm(0))); \
 	type __wrap_##name(type a, type b); \
-	type __wrap_##name(type a, type b) { return __normal_##name(a, b); }
+	type __attribute__((no_instrument_function)) \
+		__wrap_##name(type a, type b) \
+		 { return __normal_##name(a, b); }
 
 WRAP_LIBGCC_CALL(long long, __divdi3)
 WRAP_LIBGCC_CALL(unsigned long long, __udivdi3)

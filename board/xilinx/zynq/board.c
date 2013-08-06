@@ -92,7 +92,6 @@ int board_init(void)
 	fpga_init();
 	fpga_add(fpga_xilinx, &fpga);
 #endif
-
 	return 0;
 }
 
@@ -154,7 +153,6 @@ int board_eth_init(bd_t *bis)
 						CONFIG_ZYNQ_GEM_PHY_ADDR1, 0);
 # endif
 #endif
-
 	return ret;
 }
 #endif

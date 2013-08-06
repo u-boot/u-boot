@@ -77,17 +77,6 @@
 #define GPIO_FALLING_EDGE	1
 #define GPIO_RISING_EDGE	2
 #define GPIO_BOTH_EDGES		3
-extern void set_GPIO_IRQ_edge( int gpio_nr, int edge_mask );
-
-/*
- * Handy routine to set GPIO alternate functions
- */
-extern void set_GPIO_mode( int gpio_mode );
-
-/*
- * return current lclk frequency in units of 10kHz
- */
-extern unsigned int get_lclk_frequency_10khz(void);
 
 #endif
 

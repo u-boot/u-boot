@@ -24,7 +24,7 @@
 #include <common.h>
 #include <linux/list.h>
 #include <asm/gpio.h>
-#include <asm/arch/iomux.h>
+#include <asm/arch/iomux-mx51.h>
 #include <linux/fb.h>
 #include <ipu_pixfmt.h>
 
@@ -67,25 +67,25 @@ static struct fb_videomode const dvi = {
 void setup_iomux_lcd(void)
 {
 	/* DI2_PIN15 */
-	mxc_request_iomux(MX51_PIN_DI_GP4, IOMUX_CONFIG_ALT4);
+	imx_iomux_v3_setup_pad(MX51_PAD_DI_GP4__DI2_PIN15);
 
-	/* Pad settings for MX51_PIN_DI2_DISP_CLK */
-	mxc_iomux_set_pad(MX51_PIN_DI2_DISP_CLK, PAD_CTL_HYS_NONE |
-			  PAD_CTL_PKE_ENABLE | PAD_CTL_PUE_KEEPER |
-			  PAD_CTL_DRV_MAX | PAD_CTL_SRE_SLOW);
+	/* Pad settings for DI2_DISP_CLK */
+	imx_iomux_v3_setup_pad(NEW_PAD_CTRL(MX51_PAD_DI2_DISP_CLK__DI2_DISP_CLK,
+			    PAD_CTL_PKE | PAD_CTL_DSE_MAX | PAD_CTL_SRE_SLOW));
 
 	/* Turn on 3.3V voltage for LCD */
-	mxc_request_iomux(MX51_PIN_CSI2_D12, IOMUX_CONFIG_ALT3);
+	imx_iomux_v3_setup_pad(NEW_PAD_CTRL(MX51_PAD_CSI2_D12__GPIO4_9,
+						NO_PAD_CTRL));
 	gpio_direction_output(MX51EVK_LCD_3V3, 1);
 
 	/* Turn on 5V voltage for LCD */
-	mxc_request_iomux(MX51_PIN_CSI2_D13, IOMUX_CONFIG_ALT3);
+	imx_iomux_v3_setup_pad(NEW_PAD_CTRL(MX51_PAD_CSI2_D13__GPIO4_10,
+						NO_PAD_CTRL));
 	gpio_direction_output(MX51EVK_LCD_5V, 1);
 
 	/* Turn on GPIO backlight */
-	mxc_request_iomux(MX51_PIN_DI1_D1_CS, IOMUX_CONFIG_ALT4);
-	mxc_iomux_set_input(MX51_GPIO3_IPP_IND_G_IN_4_SELECT_INPUT,
-							INPUT_CTL_PATH1);
+	imx_iomux_v3_setup_pad(NEW_PAD_CTRL(MX51_PAD_DI1_D1_CS__GPIO3_4,
+						NO_PAD_CTRL));
 	gpio_direction_output(MX51EVK_LCD_BACKLIGHT, 1);
 }
 

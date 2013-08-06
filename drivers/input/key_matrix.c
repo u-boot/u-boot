@@ -154,54 +154,42 @@ static uchar *create_keymap(struct key_matrix *config, u32 *data, int len,
 	return map;
 }
 
-int key_matrix_decode_fdt(struct key_matrix *config, const void *blob,
-			  int node)
+int key_matrix_decode_fdt(struct key_matrix *config, const void *blob, int node)
 {
 	const struct fdt_property *prop;
-	const char prefix[] = "linux,";
-	int plen = sizeof(prefix) - 1;
-	int offset;
+	int proplen;
+	uchar *plain_keycode;
 
-	/* Check each property name for ones that we understand */
-	for (offset = fdt_first_property_offset(blob, node);
-		      offset > 0;
-		      offset = fdt_next_property_offset(blob, offset)) {
-		const char *name;
-		int len;
-
-		prop = fdt_get_property_by_offset(blob, offset, NULL);
-		name = fdt_string(blob, fdt32_to_cpu(prop->nameoff));
-		len = strlen(name);
-
-		/* Name needs to match "1,<type>keymap" */
-		debug("%s: property '%s'\n", __func__, name);
-		if (strncmp(name, prefix, plen) ||
-				len < plen + 6 ||
-				strcmp(name + len - 6, "keymap"))
-			continue;
-
-		len -= plen + 6;
-		if (len == 0) {
-			config->plain_keycode = create_keymap(config,
-				(u32 *)prop->data, fdt32_to_cpu(prop->len),
-				KEY_FN, &config->fn_pos);
-		} else if (0 == strncmp(name + plen, "fn-", len)) {
-			config->fn_keycode = create_keymap(config,
-				(u32 *)prop->data, fdt32_to_cpu(prop->len),
-				-1, NULL);
-		} else {
-			debug("%s: unrecognised property '%s'\n", __func__,
-			      name);
-		}
-	}
-	debug("%s: Decoded key maps %p, %p from fdt\n", __func__,
-	      config->plain_keycode, config->fn_keycode);
-
-	if (!config->plain_keycode) {
+	prop = fdt_get_property(blob, node, "linux,keymap", &proplen);
+	/* Basic keymap is required */
+	if (!prop) {
 		debug("%s: cannot find keycode-plain map\n", __func__);
 		return -1;
 	}
 
+	plain_keycode = create_keymap(config, (u32 *)prop->data,
+		proplen, KEY_FN, &config->fn_pos);
+	config->plain_keycode = plain_keycode;
+	/* Conversion error -> fail */
+	if (!config->plain_keycode)
+		return -1;
+
+	prop = fdt_get_property(blob, node, "linux,fn-keymap", &proplen);
+	/* fn keymap is optional */
+	if (!prop)
+		goto done;
+
+	config->fn_keycode = create_keymap(config, (u32 *)prop->data,
+		proplen, -1, NULL);
+	/* Conversion error -> fail */
+	if (!config->fn_keycode) {
+		free(plain_keycode);
+		return -1;
+	}
+
+done:
+	debug("%s: Decoded key maps %p, %p from fdt\n", __func__,
+	      config->plain_keycode, config->fn_keycode);
 	return 0;
 }
 

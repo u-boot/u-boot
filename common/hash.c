@@ -30,6 +30,7 @@
 #include <sha1.h>
 #include <sha256.h>
 #include <asm/io.h>
+#include <asm/errno.h>
 
 /*
  * These are the hash algorithms we support. Chips which support accelerated
@@ -236,6 +237,28 @@ static void show_hash(struct hash_algo *algo, ulong addr, ulong len,
 	printf("%s for %08lx ... %08lx ==> ", algo->name, addr, addr + len - 1);
 	for (i = 0; i < algo->digest_size; i++)
 		printf("%02x", output[i]);
+}
+
+int hash_block(const char *algo_name, const void *data, unsigned int len,
+	       uint8_t *output, int *output_size)
+{
+	struct hash_algo *algo;
+
+	algo = find_hash_algo(algo_name);
+	if (!algo) {
+		debug("Unknown hash algorithm '%s'\n", algo_name);
+		return -EPROTONOSUPPORT;
+	}
+	if (output_size && *output_size < algo->digest_size) {
+		debug("Output buffer size %d too small (need %d bytes)",
+		      *output_size, algo->digest_size);
+		return -ENOSPC;
+	}
+	if (output_size)
+		*output_size = algo->digest_size;
+	algo->hash_func_ws(data, len, output, algo->chunk_size);
+
+	return 0;
 }
 
 int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,

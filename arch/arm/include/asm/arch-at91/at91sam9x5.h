@@ -1,10 +1,10 @@
 /*
  * Chip-specific header file for the AT91SAM9x5 family
  *
- *  Copyright (C) 2012 Atmel Corporation.
+ *  Copyright (C) 2012-2013 Atmel Corporation.
  *
  * Definitions for the SoC:
- * AT91SAM9x5
+ * AT91SAM9x5 & AT91SAM9N12
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,10 +22,12 @@
 #define ATMEL_ID_SYS	1	/* System Controller Interrupt */
 #define ATMEL_ID_PIOAB	2	/* Parallel I/O Controller A and B */
 #define ATMEL_ID_PIOCD	3	/* Parallel I/O Controller C and D */
-#define ATMEL_ID_SMD	4	/* SMD Soft Modem (SMD) */
+#define ATMEL_ID_SMD	4	/* SMD Soft Modem (SMD), only for AT91SAM9X5 */
+#define ATMEL_ID_FUSE	4	/* FUSE Controller, only for AT91SAM9N12 */
 #define ATMEL_ID_USART0	5	/* USART 0 */
 #define ATMEL_ID_USART1	6	/* USART 1 */
 #define ATMEL_ID_USART2	7	/* USART 2 */
+#define ATMEL_ID_USART3	8	/* USART 3 */
 #define ATMEL_ID_TWI0	9	/* Two-Wire Interface 0 */
 #define ATMEL_ID_TWI1	10	/* Two-Wire Interface 1 */
 #define ATMEL_ID_TWI2	11	/* Two-Wire Interface 2 */
@@ -46,6 +48,7 @@
 #define ATMEL_ID_HSMCI1	26	/* High Speed Multimedia Card Interface 1 */
 #define ATMEL_ID_EMAC1	27	/* Ethernet MAC1 */
 #define ATMEL_ID_SSC	28	/* Synchronous Serial Controller */
+#define ATMEL_ID_TRNG	30	/* True Random Number Generator */
 #define ATMEL_ID_IRQ	31	/* Advanced Interrupt Controller */
 
 /*
@@ -85,6 +88,7 @@
 /*
  * System Peripherals
  */
+#define ATMEL_BASE_FUSE		0xffffdc00
 #define ATMEL_BASE_MATRIX	0xffffde00
 #define ATMEL_BASE_PMECC	0xffffe000
 #define ATMEL_BASE_PMERRLOC	0xffffe600
@@ -111,10 +115,15 @@
  */
 #define ATMEL_BASE_ROM		0x00100000 /* Internal ROM base address */
 #define ATMEL_BASE_SRAM		0x00300000 /* Internal SRAM base address */
+
+#ifdef CONFIG_AT91SAM9N12
+#define ATMEL_BASE_OHCI		0x00500000 /* USB Host controller */
+#else	/* AT91SAM9X5 */
 #define ATMEL_BASE_SMD		0x00400000 /* SMD Controller */
 #define ATMEL_BASE_UDPHS_FIFO	0x00500000 /* USB Device HS controller */
 #define ATMEL_BASE_OHCI		0x00600000 /* USB Host controller (OHCI) */
 #define ATMEL_BASE_EHCI		0x00700000 /* USB Host controller (EHCI) */
+#endif
 
 /* 9x5 series chip id definitions */
 #define ARCH_ID_AT91SAM9X5	0x819a05a0
@@ -140,7 +149,11 @@
 /*
  * Cpu Name
  */
+#ifdef CONFIG_AT91SAM9N12
+#define ATMEL_CPU_NAME	"AT91SAM9N12"
+#else	/* AT91SAM9X5 */
 #define ATMEL_CPU_NAME	get_cpu_name()
+#endif
 
 /*
  * Other misc defines

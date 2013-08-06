@@ -29,7 +29,7 @@
 #include <asm/arch/omap.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/omap_common.h>
-#include <asm/arch/clocks.h>
+#include <asm/arch/clock.h>
 #include <asm/omap_gpio.h>
 #include <asm/io.h>
 
@@ -40,7 +40,7 @@ struct dplls const **dplls_data =
 struct vcores_data const **omap_vcores =
 		(struct vcores_data const **) OMAP_SRAM_SCRATCH_VCORES_PTR;
 struct omap_sys_ctrl_regs const **ctrl =
-	(struct omap_sys_ctrl_regs const **)OMAP4_SRAM_SCRATCH_SYS_CTRL;
+	(struct omap_sys_ctrl_regs const **)OMAP_SRAM_SCRATCH_SYS_CTRL;
 
 /*
  * The M & N values in the following tables are created using the
@@ -219,6 +219,9 @@ struct pmic_data twl6030_4430es1 = {
 	.step = 12660, /* 12.66 mV represented in uV */
 	/* The code starts at 1 not 0 */
 	.start_code = 1,
+	.i2c_slave_addr	= SMPS_I2C_SLAVE_ADDR,
+	.pmic_bus_init	= sri2c_init,
+	.pmic_write	= omap_vc_bypass_send_value,
 };
 
 struct pmic_data twl6030 = {
@@ -226,6 +229,9 @@ struct pmic_data twl6030 = {
 	.step = 12660, /* 12.66 mV represented in uV */
 	/* The code starts at 1 not 0 */
 	.start_code = 1,
+	.i2c_slave_addr	= SMPS_I2C_SLAVE_ADDR,
+	.pmic_bus_init	= sri2c_init,
+	.pmic_write	= omap_vc_bypass_send_value,
 };
 
 struct pmic_data tps62361 = {
@@ -233,7 +239,10 @@ struct pmic_data tps62361 = {
 	.step = 10000, /* 10 mV represented in uV */
 	.start_code = 0,
 	.gpio = TPS62361_VSEL0_GPIO,
-	.gpio_en = 1
+	.gpio_en = 1,
+	.i2c_slave_addr	= SMPS_I2C_SLAVE_ADDR,
+	.pmic_bus_init	= sri2c_init,
+	.pmic_write	= omap_vc_bypass_send_value,
 };
 
 struct vcores_data omap4430_volts_es1 = {

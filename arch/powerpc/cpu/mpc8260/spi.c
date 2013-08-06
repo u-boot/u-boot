@@ -146,7 +146,7 @@ void spi_init_f (void)
 	immr = (immap_t *)  CONFIG_SYS_IMMR;
 	cp   = (cpm8260_t *) &immr->im_cpm;
 
-	*(ushort *)(&immr->im_dprambase[PROFF_SPI_BASE]) = PROFF_SPI;
+	immr->im_dprambase16[PROFF_SPI_BASE / sizeof(u16)] = PROFF_SPI;
 	spi  = (spi_t *)&immr->im_dprambase[PROFF_SPI];
 
 /* 1 */

@@ -151,6 +151,10 @@
 #endif
 #endif
 
+#ifdef CONFIG_VIDEO_MXS
+#define VIDEO_FB_16BPP_WORD_SWAP
+#endif
+
 /*
  * Defines for the MB862xx driver
  */
@@ -176,6 +180,8 @@
  * Include video_fb.h after definitions of VIDEO_HW_RECTFILL etc.
  */
 #include <video_fb.h>
+
+#include <splash.h>
 
 /*
  * some Macros
@@ -216,11 +222,7 @@
 #if defined(CONFIG_CMD_BMP) || defined(CONFIG_SPLASH_SCREEN)
 #include <watchdog.h>
 #include <bmp_layout.h>
-
-#ifdef CONFIG_SPLASH_SCREEN_ALIGN
-#define BMP_ALIGN_CENTER	0x7FFF
-#endif
-
+#include <splash.h>
 #endif
 
 /*
@@ -568,8 +570,6 @@ static void video_drawchars(int xx, int yy, unsigned char *s, int count)
 					SWAP32((video_font_draw_table32
 						[bits & 15][3] & eorx) ^ bgx);
 			}
-			if (cfb_do_flush_cache)
-				flush_cache((ulong)dest0, 32);
 			dest0 += VIDEO_FONT_WIDTH * VIDEO_PIXEL_SIZE;
 			s++;
 		}
@@ -638,8 +638,6 @@ static void video_invertchar(int xx, int yy)
 		for (x = firstx; x < lastx; x++) {
 			u8 *dest = (u8 *)(video_fb_address) + x + y;
 			*dest = ~*dest;
-			if (cfb_do_flush_cache)
-				flush_cache((ulong)dest, 4);
 		}
 	}
 }
@@ -683,6 +681,8 @@ void console_cursor(int state)
 		}
 		cursor_state = state;
 	}
+	if (cfb_do_flush_cache)
+		flush_cache(VIDEO_FB_ADRS, VIDEO_SIZE);
 }
 #endif
 
@@ -735,8 +735,6 @@ static void console_clear_line(int line, int begin, int end)
 			memsetl(offset + i * VIDEO_LINE_LEN, size, bgx);
 	}
 #endif
-	if (cfb_do_flush_cache)
-		flush_cache((ulong)CONSOLE_ROW_FIRST, CONSOLE_SIZE);
 }
 
 static void console_scrollup(void)
@@ -1142,6 +1140,8 @@ void video_putc(const char c)
 #else
 	parse_putc(c);
 #endif
+	if (cfb_do_flush_cache)
+		flush_cache(VIDEO_FB_ADRS, VIDEO_SIZE);
 }
 
 void video_puts(const char *s)
@@ -1795,6 +1795,8 @@ int video_display_bitmap(ulong bmp_image, int x, int y)
 	}
 #endif
 
+	if (cfb_do_flush_cache)
+		flush_cache(VIDEO_FB_ADRS, VIDEO_SIZE);
 	return (0);
 }
 #endif
@@ -1970,30 +1972,13 @@ static void *video_logo(void)
 	__maybe_unused ulong addr;
 	__maybe_unused char *s;
 
-#ifdef CONFIG_SPLASH_SCREEN_ALIGN
-	s = getenv("splashpos");
-	if (s != NULL) {
-		if (s[0] == 'm')
-			video_logo_xpos = BMP_ALIGN_CENTER;
-		else
-			video_logo_xpos = simple_strtol(s, NULL, 0);
-
-		s = strchr(s + 1, ',');
-		if (s != NULL) {
-			if (s[1] == 'm')
-				video_logo_ypos = BMP_ALIGN_CENTER;
-			else
-				video_logo_ypos = simple_strtol(s + 1, NULL, 0);
-		}
-	}
-#endif /* CONFIG_SPLASH_SCREEN_ALIGN */
+	splash_get_pos(&video_logo_xpos, &video_logo_ypos);
 
 #ifdef CONFIG_SPLASH_SCREEN
 	s = getenv("splashimage");
 	if (s != NULL) {
-
+		splash_screen_prepare();
 		addr = simple_strtoul(s, NULL, 16);
-
 
 		if (video_display_bitmap(addr,
 					video_logo_xpos,
@@ -2204,6 +2189,9 @@ static int video_init(void)
 	/* Initialize the console */
 	console_col = 0;
 	console_row = 0;
+
+	if (cfb_do_flush_cache)
+		flush_cache(VIDEO_FB_ADRS, VIDEO_SIZE);
 
 	return 0;
 }

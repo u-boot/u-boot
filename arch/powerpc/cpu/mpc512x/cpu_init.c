@@ -201,7 +201,7 @@ void cpu_init_f (volatile immap_t * im)
 	 */
 	out_be32(&im->clk.sccr[0], SCCR1_CLOCKS_EN);
 	out_be32(&im->clk.sccr[1], SCCR2_CLOCKS_EN);
-#if defined(CONFIG_IIM) || defined(CONFIG_CMD_FUSE)
+#if defined(CONFIG_FSL_IIM) || defined(CONFIG_CMD_FUSE)
 	setbits_be32(&im->clk.sccr[1], CLOCK_SCCR2_IIM_EN);
 #endif
 }

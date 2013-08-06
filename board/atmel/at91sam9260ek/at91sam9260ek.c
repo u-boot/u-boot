@@ -30,6 +30,7 @@
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/gpio.h>
+#include <atmel_mci.h>
 
 #if defined(CONFIG_RESET_PHY_R) && defined(CONFIG_MACB)
 # include <net.h>
@@ -143,6 +144,15 @@ static void at91sam9260ek_macb_hw_init(void)
 }
 #endif
 
+#ifdef CONFIG_GENERIC_ATMEL_MCI
+int board_mmc_init(bd_t *bd)
+{
+	at91_mci_hw_init();
+
+	return atmel_mci_init((void *)ATMEL_BASE_MCI);
+}
+#endif
+
 int board_early_init_f(void)
 {
 	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
@@ -157,18 +167,6 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-#ifdef CONFIG_AT91SAM9G20EK_2MMC
-	/* arch number of AT91SAM9G20EK_2MMC-Board */
-	gd->bd->bi_arch_number = MACH_TYPE_AT91SAM9G20EK_2MMC;
-#else
-#ifdef CONFIG_AT91SAM9G20EK
-	/* arch number of AT91SAM9G20EK-Board */
-	gd->bd->bi_arch_number = MACH_TYPE_AT91SAM9G20EK;
-#else
-	/* arch number of AT91SAM9260EK-Board */
-	gd->bd->bi_arch_number = MACH_TYPE_AT91SAM9260EK;
-#endif
-#endif
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 

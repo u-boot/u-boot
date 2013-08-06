@@ -42,7 +42,7 @@ int usb_cpu_init(void)
 	while ((readl(&pmc->sr) & AT91_PMC_LOCKB) != AT91_PMC_LOCKB)
 		;
 #elif defined(CONFIG_AT91SAM9G45) || defined(CONFIG_AT91SAM9M10G45) || \
-	defined(CONFIG_AT91SAM9X5)
+	defined(CONFIG_AT91SAM9X5) || defined(CONFIG_SAMA5D3)
 	/* Enable UPLL */
 	writel(readl(&pmc->uckr) | AT91_PMC_UPLLEN | AT91_PMC_BIASEN,
 		&pmc->uckr);
@@ -54,8 +54,13 @@ int usb_cpu_init(void)
 #endif
 
 	/* Enable USB host clock. */
+#ifdef CONFIG_SAMA5D3
+	writel(1 << (ATMEL_ID_UHP - 32), &pmc->pcer1);
+#else
 	writel(1 << ATMEL_ID_UHP, &pmc->pcer);
-#ifdef CONFIG_AT91SAM9261
+#endif
+
+#if defined(CONFIG_AT91SAM9261) || defined(CONFIG_AT91SAM9G10)
 	writel(ATMEL_PMC_UHP | AT91_PMC_HCK0, &pmc->scer);
 #else
 	writel(ATMEL_PMC_UHP, &pmc->scer);
@@ -69,8 +74,13 @@ int usb_cpu_stop(void)
 	at91_pmc_t *pmc	= (at91_pmc_t *)ATMEL_BASE_PMC;
 
 	/* Disable USB host clock. */
+#ifdef CONFIG_SAMA5D3
+	writel(1 << (ATMEL_ID_UHP - 32), &pmc->pcdr1);
+#else
 	writel(1 << ATMEL_ID_UHP, &pmc->pcdr);
-#ifdef CONFIG_AT91SAM9261
+#endif
+
+#if defined(CONFIG_AT91SAM9261) || defined(CONFIG_AT91SAM9G10)
 	writel(ATMEL_PMC_UHP | AT91_PMC_HCK0, &pmc->scdr);
 #else
 	writel(ATMEL_PMC_UHP, &pmc->scdr);
@@ -83,7 +93,7 @@ int usb_cpu_stop(void)
 	while ((readl(&pmc->sr) & AT91_PMC_LOCKB) != 0)
 		;
 #elif defined(CONFIG_AT91SAM9G45) || defined(CONFIG_AT91SAM9M10G45) || \
-	defined(CONFIG_AT91SAM9X5)
+	defined(CONFIG_AT91SAM9X5) || defined(CONFIG_SAMA5D3)
 	/* Disable UPLL */
 	writel(readl(&pmc->uckr) & (~AT91_PMC_UPLLEN), &pmc->uckr);
 	while ((readl(&pmc->sr) & AT91_PMC_LOCKU) == AT91_PMC_LOCKU)

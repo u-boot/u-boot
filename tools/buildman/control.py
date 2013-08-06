@@ -111,6 +111,10 @@ def DoBuildman(options, args):
             print col.Color(col.RED, str)
             sys.exit(1)
         count = gitutil.CountCommitsInBranch(options.git_dir, options.branch)
+        if count is None:
+            str = "Branch '%s' not found or has no upstream" % options.branch
+            print col.Color(col.RED, str)
+            sys.exit(1)
         count += 1   # Build upstream commit also
 
     if not count:
@@ -137,6 +141,11 @@ def DoBuildman(options, args):
     upstream_commit = gitutil.GetUpstream(options.git_dir, options.branch)
     series = patchstream.GetMetaDataForList(upstream_commit, options.git_dir,
             1)
+    # Conflicting tags are not a problem for buildman, since it does not use
+    # them. For example, Series-version is not useful for buildman. On the
+    # other hand conflicting tags will cause an error. So allow later tags
+    # to overwrite earlier ones.
+    series.allow_overwrite = True
     series = patchstream.GetMetaDataForList(range_expr, options.git_dir, None,
             series)
 

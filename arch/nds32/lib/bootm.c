@@ -58,6 +58,12 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 	char *commandline = getenv("bootargs");
 #endif
 
+	/*
+	 * allow the PREP bootm subcommand, it is required for bootm to work
+	 */
+	if (flag & BOOTM_STATE_OS_PREP)
+		return 0;
+
 	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
 		return 1;
 
