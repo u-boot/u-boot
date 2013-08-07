@@ -453,6 +453,10 @@ void i2c_init_board(void)
 
 static void tegra_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
 {
+	/* No i2c support prior to relocation */
+	if (!(gd->flags & GD_FLG_RELOC))
+		return;
+
 	/* This will override the speed selected in the fdt for that port */
 	debug("i2c_init(speed=%u, slaveaddr=0x%x)\n", speed, slaveaddr);
 	i2c_set_bus_speed(speed);
