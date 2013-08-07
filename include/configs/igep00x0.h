@@ -138,6 +138,9 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"usbtty=cdc_acm\0" \
 	"loadaddr=0x82000000\0" \
+	"dtbaddr=0x81600000\0" \
+	"bootdir=/boot\0" \
+	"bootfile=zImage\0" \
 	"usbtty=cdc_acm\0" \
 	"console=ttyO2,115200n8\0" \
 	"mpurate=auto\0" \
@@ -168,10 +171,13 @@
 	"loadbootenv=load mmc ${mmcdev} ${loadaddr} uEnv.txt\0" \
 	"importbootenv=echo Importing environment from mmc ...; " \
 		"env import -t $loadaddr $filesize\0" \
-	"loadzimage=load mmc ${mmcdev} ${loadaddr} zImage\0" \
+	"loadzimage=load mmc ${mmcdev}:2 ${loadaddr} ${bootdir}/${bootfile}\0" \
+	"loadfdt=load mmc ${mmcdev}:2 ${dtbaddr} ${bootdir}/${dtbfile}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"bootz ${loadaddr}\0" \
+	"mmcbootfdt=echo Booting with DT from mmc ...; " \
+		"bootz ${loadaddr} - ${dtbaddr}\0" \
 	"nandboot=echo Booting from onenand ...; " \
 		"run nandargs; " \
 		"onenand read ${loadaddr} 280000 400000; " \
@@ -188,6 +194,11 @@
 			"run uenvcmd;" \
 		"fi;" \
 		"if run loadzimage; then " \
+			"if test -n $dtbfile; then " \
+				"if run loadfdt; then " \
+					"run mmcbootfdt;" \
+				"fi;" \
+			"fi;" \
 			"run mmcboot;" \
 		"fi;" \
 	"fi;" \
