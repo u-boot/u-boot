@@ -894,9 +894,6 @@
 #define PVR_405GP_RC	0x40110082
 #define PVR_405GP_RD	0x401100C4
 #define PVR_405GP_RE	0x40110145  /* same as pc405cr rev c */
-#define PVR_405CR_RA	0x40110041
-#define PVR_405CR_RB	0x401100C5
-#define PVR_405CR_RC	0x40110145  /* same as pc405gp rev e */
 #define PVR_405EP_RA	0x51210950
 #define PVR_405GPR_RB	0x50910951
 #define PVR_405EZ_RA	0x41511460

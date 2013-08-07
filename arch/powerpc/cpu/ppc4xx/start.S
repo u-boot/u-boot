@@ -794,7 +794,7 @@ _start:
 #endif /* CONFIG_440 */
 
 /*****************************************************************************/
-#if defined(CONFIG_405GP) || defined(CONFIG_405CR) || \
+#if defined(CONFIG_405GP) || \
     defined(CONFIG_405EP) || defined(CONFIG_405EZ) || \
     defined(CONFIG_405EX) || defined(CONFIG_405)
 	/*----------------------------------------------------------------------- */
@@ -1064,7 +1064,7 @@ _start:
 
 #endif /* CONFIG_NAND_SPL */
 
-#endif	/* CONFIG_405GP || CONFIG_405CR || CONFIG_405 || CONFIG_405EP */
+#endif	/* CONFIG_405GP || CONFIG_405 || CONFIG_405EP */
 	/*----------------------------------------------------------------------- */
 
 

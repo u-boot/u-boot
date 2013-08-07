@@ -8,10 +8,6 @@
 /*
  * Include SoC specific headers
  */
-#if defined(CONFIG_405CR)
-#include <asm/ppc405cr.h>
-#endif
-
 #if defined(CONFIG_405EP)
 #include <asm/ppc405ep.h>
 #endif

@@ -326,7 +326,7 @@ cpu_init_f (void)
 	 * External Bus Controller (EBC) Setup
 	 */
 #if (defined(CONFIG_SYS_EBC_PB0AP) && defined(CONFIG_SYS_EBC_PB0CR))
-#if (defined(CONFIG_405GP) || defined(CONFIG_405CR) || \
+#if (defined(CONFIG_405GP) || \
      defined(CONFIG_405EP) || defined(CONFIG_405EZ) || \
      defined(CONFIG_405EX) || defined(CONFIG_405))
 	/*

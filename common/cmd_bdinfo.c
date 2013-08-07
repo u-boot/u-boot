@@ -92,7 +92,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_num("immr_base",		bd->bi_immr_base);
 #endif
 	print_num("bootflags",		bd->bi_bootflags);
-#if	defined(CONFIG_405CR) || defined(CONFIG_405EP) || \
+#if	defined(CONFIG_405EP) || \
 	defined(CONFIG_405GP) || \
 	defined(CONFIG_440EP) || defined(CONFIG_440EPX) || \
 	defined(CONFIG_440GR) || defined(CONFIG_440GRX) || \
@@ -106,7 +106,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	defined(CONFIG_440SPE) || defined(CONFIG_XILINX_405)
 	print_mhz("pci_busfreq",	bd->bi_pci_busfreq);
 #endif
-#else	/* ! CONFIG_405GP, CONFIG_405CR, CONFIG_405EP, CONFIG_XILINX_405, CONFIG_440EP CONFIG_440GR */
+#else	/* ! CONFIG_405GP, CONFIG_405EP, CONFIG_XILINX_405, CONFIG_440EP CONFIG_440GR */
 #if defined(CONFIG_CPM2)
 	print_mhz("vco",		bd->bi_vco);
 	print_mhz("sccfreq",		bd->bi_sccfreq);
@@ -117,7 +117,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_mhz("cpmfreq",		bd->bi_cpmfreq);
 #endif
 	print_mhz("busfreq",		bd->bi_busfreq);
-#endif /* CONFIG_405GP, CONFIG_405CR, CONFIG_405EP, CONFIG_XILINX_405, CONFIG_440EP CONFIG_440GR */
+#endif /* CONFIG_405GP, CONFIG_405EP, CONFIG_XILINX_405, CONFIG_440EP CONFIG_440GR */
 
 #ifdef CONFIG_ENABLE_36BIT_PHYS
 #ifdef CONFIG_PHYS_64BIT

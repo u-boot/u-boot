@@ -69,7 +69,6 @@ typedef struct bd_info {
 	unsigned int	bi_baudrate;	/* Console Baudrate */
 #if defined(CONFIG_405)   || \
 		defined(CONFIG_405GP) || \
-		defined(CONFIG_405CR) || \
 		defined(CONFIG_405EP) || \
 		defined(CONFIG_405EZ) || \
 		defined(CONFIG_405EX) || \

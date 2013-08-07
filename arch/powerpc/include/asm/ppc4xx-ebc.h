@@ -14,12 +14,12 @@
  * Within this group there is a slight variation concerning the bit field
  * position of the EMPL and EMPH fields:
  */
-#if defined(CONFIG_405CR) || defined(CONFIG_405GP) || \
+#if defined(CONFIG_405GP) || \
     defined(CONFIG_405EP) || \
     defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #define CONFIG_EBC_PPC4xx_IBM_VER1
-#if defined(CONFIG_405CR) || defined(CONFIG_405GP) || \
+#if defined(CONFIG_405GP) || \
     defined(CONFIG_405EP)
 #define EBC_CFG_EMPH_POS	8
 #define EBC_CFG_EMPL_POS	6
@@ -32,7 +32,7 @@
 /*
  * Define the max number of EBC banks (chip selects)
  */
-#if defined(CONFIG_405CR) || defined(CONFIG_405GP) || \
+#if defined(CONFIG_405GP) || \
     defined(CONFIG_405EZ) || \
     defined(CONFIG_440GP) || defined(CONFIG_440GX)
 #define EBC_NUM_BANKS	8
