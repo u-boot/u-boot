@@ -98,8 +98,9 @@
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_CACHE
-#define CONFIG_CMD_EXT2		/* EXT2 Support			*/
+#define CONFIG_CMD_EXT4
 #define CONFIG_CMD_FAT		/* FAT support			*/
+#define CONFIG_CMD_FS_GENERIC
 #define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MMC		/* MMC support			*/
 #ifdef CONFIG_BOOT_ONENAND
@@ -164,17 +165,17 @@
 		"omapdss.def_disp=${defaultdisplay} " \
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype}\0" \
-	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} uEnv.txt\0" \
+	"loadbootenv=load mmc ${mmcdev} ${loadaddr} uEnv.txt\0" \
 	"importbootenv=echo Importing environment from mmc ...; " \
 		"env import -t $loadaddr $filesize\0" \
-	"loaduimage=fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
+	"loadzimage=load mmc ${mmcdev} ${loadaddr} zImage\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
-		"bootm ${loadaddr}\0" \
+		"bootz ${loadaddr}\0" \
 	"nandboot=echo Booting from onenand ...; " \
 		"run nandargs; " \
 		"onenand read ${loadaddr} 280000 400000; " \
-		"bootm ${loadaddr}\0" \
+		"bootz ${loadaddr}\0" \
 
 #define CONFIG_BOOTCOMMAND \
 	"mmc dev ${mmcdev}; if mmc rescan; then " \
@@ -186,7 +187,7 @@
 			"echo Running uenvcmd ...;" \
 			"run uenvcmd;" \
 		"fi;" \
-		"if run loaduimage; then " \
+		"if run loadzimage; then " \
 			"run mmcboot;" \
 		"fi;" \
 	"fi;" \
