@@ -54,7 +54,7 @@ struct edid_detailed_timing {
 	 (_x).vertical_blanking)
 	unsigned char hsync_offset;
 	unsigned char hsync_pulse_width;
-	unsigned char sync_offset_pulse_width;
+	unsigned char vsync_offset_pulse_width;
 	unsigned char hsync_vsync_offset_pulse_width_hi;
 #define EDID_DETAILED_TIMING_HSYNC_OFFSET(_x) \
 	((GET_BITS((_x).hsync_vsync_offset_pulse_width_hi, 7, 6) << 8) + \
