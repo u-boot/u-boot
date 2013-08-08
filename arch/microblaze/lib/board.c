@@ -16,6 +16,7 @@
 #include <stdio_dev.h>
 #include <serial.h>
 #include <net.h>
+#include <spi.h>
 #include <linux/compiler.h>
 #include <asm/processor.h>
 #include <asm/microblaze_intc.h>
@@ -145,6 +146,10 @@ void board_init_f(ulong not_used)
 		bd->bi_flashsize = 0;
 		bd->bi_flashoffset = 0;
 	}
+#endif
+
+#ifdef CONFIG_SPI
+	spi_init();
 #endif
 
 	/* relocate environment function pointers etc. */
