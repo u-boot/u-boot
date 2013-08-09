@@ -30,6 +30,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define LATCH1_BASE (CONFIG_SYS_LATCH_BASE + 0x100)
 #define LATCH2_BASE (CONFIG_SYS_LATCH_BASE + 0x200)
 
+#define MAX_MUX_CHANNELS 2
+
 enum {
 	UNITTYPE_MAIN_SERVER = 0,
 	UNITTYPE_MAIN_USER = 1,
@@ -163,7 +165,7 @@ int checkboard(void)
 	return 0;
 }
 
-static void print_fpga_info(unsigned int fpga)
+static void print_fpga_info(unsigned int fpga, bool rgmii2_present)
 {
 	u16 versions;
 	u16 fpga_version;
@@ -260,6 +262,8 @@ static void print_fpga_info(unsigned int fpga)
 			       hardware_version);
 			break;
 		}
+		if (rgmii2_present)
+			printf(" RGMII2,");
 	}
 
 	if (unit_type == UNITTYPE_VIDEO_USER) {
@@ -362,14 +366,19 @@ int last_stage_init(void)
 {
 	int slaves;
 	unsigned int k;
+	unsigned int mux_ch;
 	unsigned char mclink_controllers[] = { 0x24, 0x25, 0x26 };
 	int legacy = get_fpga_state(0) & FPGA_STATE_PLATFORM;
 	u16 fpga_features;
 	int feature_carrier_speed = fpga_features & (1<<4);
+	bool ch0_rgmii2_present = false;
 
 	FPGA_GET_REG(0, fpga_features, &fpga_features);
 
-	print_fpga_info(0);
+	if (!legacy)
+		ch0_rgmii2_present = !pca9698_get_value(0x20, 30);
+
+	print_fpga_info(0, ch0_rgmii2_present);
 	osd_probe(0);
 
 	/* wait for FPGA done */
@@ -392,10 +401,15 @@ int last_stage_init(void)
 	if (!legacy && (feature_carrier_speed == CARRIER_SPEED_1G)) {
 		miiphy_register(bb_miiphy_buses[0].name, bb_miiphy_read,
 				bb_miiphy_write);
-		if (!verify_88e1518(bb_miiphy_buses[0].name, 0)) {
-			printf("Fixup 88e1518 erratum on %s\n",
-			       bb_miiphy_buses[0].name);
-			setup_88e1518(bb_miiphy_buses[0].name, 0);
+		for (mux_ch = 0; mux_ch < MAX_MUX_CHANNELS; ++mux_ch) {
+			if ((mux_ch == 1) && !ch0_rgmii2_present)
+				continue;
+
+			if (!verify_88e1518(bb_miiphy_buses[0].name, mux_ch)) {
+				printf("Fixup 88e1518 erratum on %s phy %u\n",
+				       bb_miiphy_buses[0].name, mux_ch);
+				setup_88e1518(bb_miiphy_buses[0].name, mux_ch);
+			}
 		}
 	}
 
@@ -415,7 +429,7 @@ int last_stage_init(void)
 		FPGA_GET_REG(k, fpga_features, &fpga_features);
 		feature_carrier_speed = fpga_features & (1<<4);
 
-		print_fpga_info(k);
+		print_fpga_info(k, false);
 		osd_probe(k);
 		if (feature_carrier_speed == CARRIER_SPEED_1G) {
 			miiphy_register(bb_miiphy_buses[k].name,
@@ -590,7 +604,7 @@ static int mii_delay(struct bb_miiphy_bus *bus)
 
 struct bb_miiphy_bus bb_miiphy_buses[] = {
 	{
-		.name = "trans1",
+		.name = "board0",
 		.init = mii_dummy_init,
 		.mdio_active = mii_mdio_active,
 		.mdio_tristate = mii_mdio_tristate,
@@ -601,7 +615,7 @@ struct bb_miiphy_bus bb_miiphy_buses[] = {
 		.priv = &fpga_mii[0],
 	},
 	{
-		.name = "trans2",
+		.name = "board1",
 		.init = mii_dummy_init,
 		.mdio_active = mii_mdio_active,
 		.mdio_tristate = mii_mdio_tristate,
@@ -612,7 +626,7 @@ struct bb_miiphy_bus bb_miiphy_buses[] = {
 		.priv = &fpga_mii[1],
 	},
 	{
-		.name = "trans3",
+		.name = "board2",
 		.init = mii_dummy_init,
 		.mdio_active = mii_mdio_active,
 		.mdio_tristate = mii_mdio_tristate,
@@ -623,7 +637,7 @@ struct bb_miiphy_bus bb_miiphy_buses[] = {
 		.priv = &fpga_mii[2],
 	},
 	{
-		.name = "trans4",
+		.name = "board3",
 		.init = mii_dummy_init,
 		.mdio_active = mii_mdio_active,
 		.mdio_tristate = mii_mdio_tristate,
