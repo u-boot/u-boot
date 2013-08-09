@@ -18,7 +18,7 @@
  * Include common defines/options for all AMCC eval boards
  */
 #define CONFIG_HOSTNAME		dlvsion-10g
-#define CONFIG_IDENT_STRING	" dlvision-10g 0.04"
+#define CONFIG_IDENT_STRING	" dlvision-10g 0.05"
 #include "amcc-common.h"
 
 #define CONFIG_BOARD_EARLY_INIT_F
@@ -131,7 +131,7 @@
 
 #define CONFIG_SYS_LATCH0_RESET		0xffff
 #define CONFIG_SYS_LATCH0_BOOT		0xffff
-#define CONFIG_SYS_LATCH1_RESET		0xffcf
+#define CONFIG_SYS_LATCH1_RESET		0xffbf
 #define CONFIG_SYS_LATCH1_BOOT		0xffff
 
 #define CONFIG_SYS_FPGA_NO_RFL_HI
