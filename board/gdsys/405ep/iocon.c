@@ -44,6 +44,8 @@ enum {
 	HWVER_120 = 3,
 	HWVER_200 = 4,
 	HWVER_210 = 5,
+	HWVER_220 = 6,
+	HWVER_230 = 7,
 };
 
 enum {
@@ -71,6 +73,11 @@ enum {
 enum {
 	RAM_DDR2_32 = 0,
 	RAM_DDR3_32 = 1,
+};
+
+enum {
+	CARRIER_SPEED_1G = 0,
+	CARRIER_SPEED_2_5G = 1,
 };
 
 enum {
@@ -168,8 +175,10 @@ static void print_fpga_info(unsigned int fpga)
 	unsigned feature_audio;
 	unsigned feature_sysclock;
 	unsigned feature_ramconfig;
+	unsigned feature_carrier_speed;
 	unsigned feature_carriers;
 	unsigned feature_video_channels;
+
 	int legacy = get_fpga_state(0) & FPGA_STATE_PLATFORM;
 
 	FPGA_GET_REG(0, versions, &versions);
@@ -182,6 +191,7 @@ static void print_fpga_info(unsigned int fpga)
 	feature_audio = (fpga_features & 0x0600) >> 9;
 	feature_sysclock = (fpga_features & 0x0180) >> 7;
 	feature_ramconfig = (fpga_features & 0x0060) >> 5;
+	feature_carrier_speed = fpga_features & (1<<4);
 	feature_carriers = (fpga_features & 0x000c) >> 2;
 	feature_video_channels = fpga_features & 0x0003;
 
@@ -235,6 +245,14 @@ static void print_fpga_info(unsigned int fpga)
 
 		case HWVER_210:
 			printf(" HW-Ver 2.10,");
+			break;
+
+		case HWVER_220:
+			printf(" HW-Ver 2.20,");
+			break;
+
+		case HWVER_230:
+			printf(" HW-Ver 2.30,");
 			break;
 
 		default:
@@ -334,7 +352,8 @@ static void print_fpga_info(unsigned int fpga)
 		break;
 	}
 
-	printf(", %d carrier(s)", feature_carriers);
+	printf(", %d carrier(s) %s", feature_carriers,
+	       feature_carrier_speed ? "2.5Gbit/s" : "1Gbit/s");
 
 	printf(", %d video channel(s)\n", feature_video_channels);
 }
@@ -345,6 +364,10 @@ int last_stage_init(void)
 	unsigned int k;
 	unsigned char mclink_controllers[] = { 0x24, 0x25, 0x26 };
 	int legacy = get_fpga_state(0) & FPGA_STATE_PLATFORM;
+	u16 fpga_features;
+	int feature_carrier_speed = fpga_features & (1<<4);
+
+	FPGA_GET_REG(0, fpga_features, &fpga_features);
 
 	print_fpga_info(0);
 	osd_probe(0);
@@ -366,7 +389,7 @@ int last_stage_init(void)
 		}
 	}
 
-	if (!legacy) {
+	if (!legacy && (feature_carrier_speed == CARRIER_SPEED_1G)) {
 		miiphy_register(bb_miiphy_buses[0].name, bb_miiphy_read,
 				bb_miiphy_write);
 		if (!verify_88e1518(bb_miiphy_buses[0].name, 0)) {
@@ -389,14 +412,19 @@ int last_stage_init(void)
 	mclink_fpgacount = slaves;
 
 	for (k = 1; k <= slaves; ++k) {
+		FPGA_GET_REG(k, fpga_features, &fpga_features);
+		feature_carrier_speed = fpga_features & (1<<4);
+
 		print_fpga_info(k);
 		osd_probe(k);
-		miiphy_register(bb_miiphy_buses[k].name,
-				bb_miiphy_read, bb_miiphy_write);
-		if (!verify_88e1518(bb_miiphy_buses[k].name, 0)) {
-			printf("Fixup 88e1518 erratum on %s\n",
-			       bb_miiphy_buses[k].name);
-			setup_88e1518(bb_miiphy_buses[k].name, 0);
+		if (feature_carrier_speed == CARRIER_SPEED_1G) {
+			miiphy_register(bb_miiphy_buses[k].name,
+					bb_miiphy_read, bb_miiphy_write);
+			if (!verify_88e1518(bb_miiphy_buses[k].name, 0)) {
+				printf("Fixup 88e1518 erratum on %s\n",
+				       bb_miiphy_buses[k].name);
+				setup_88e1518(bb_miiphy_buses[k].name, 0);
+			}
 		}
 	}
 
