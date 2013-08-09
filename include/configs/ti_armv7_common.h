@@ -80,6 +80,7 @@
 
 /* GPIO block */
 #define CONFIG_OMAP_GPIO
+#define CONFIG_CMD_GPIO
 
 /*
  * GPMC NAND block.  We support 1 device and the physical address to
