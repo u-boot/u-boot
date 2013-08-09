@@ -112,7 +112,7 @@ int board_init(void)
 {
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 
-	gd->bd->bi_boot_params = PHYS_DRAM_1 + 0x100;
+	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 	return 0;
 }

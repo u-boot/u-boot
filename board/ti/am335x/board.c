@@ -343,7 +343,7 @@ int board_init(void)
 		STNOR_GPMC_CONFIG5, STNOR_GPMC_CONFIG6, STNOR_GPMC_CONFIG7 };
 #endif
 
-	gd->bd->bi_boot_params = PHYS_DRAM_1 + 0x100;
+	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 	gpmc_init();
 
