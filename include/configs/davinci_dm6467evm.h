@@ -69,7 +69,6 @@ extern unsigned int davinci_arm_clk_get(void);
 /* Network & Ethernet Configuration */
 #define CONFIG_DRIVER_TI_EMAC
 #define CONFIG_MII
-#define CONFIG_BOOTP_DEFAULT
 #define CONFIG_BOOTP_DNS
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME
