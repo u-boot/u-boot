@@ -357,7 +357,7 @@ struct icmp_hdr {
 		} echo;
 		ulong	gateway;
 		struct {
-			ushort	__unused;
+			ushort	unused;
 			ushort	mtu;
 		} frag;
 		uchar data[0];
