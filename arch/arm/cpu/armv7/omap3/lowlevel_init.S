@@ -69,15 +69,13 @@ ENDPROC(do_omap3_emu_romcode_call)
  *************************************************************************/
 ENTRY(cpy_clk_code)
 	/* Copy DPLL code into SRAM */
-	adr	r0, go_to_speed		/* get addr of clock setting code */
-	mov	r2, #384		/* r2 size to copy (div by 32 bytes) */
-	mov	r1, r1			/* r1 <- dest address (passed in) */
-	add	r2, r2, r0		/* r2 <- source end address */
+	adr	r0, go_to_speed		/* copy from start of go_to_speed... */
+	adr	r2, lowlevel_init	/* ... up to start of low_level_init */
 next2:
 	ldmia	r0!, {r3 - r10}		/* copy from source address [r0] */
 	stmia	r1!, {r3 - r10}		/* copy to   target address [r1] */
 	cmp	r0, r2			/* until source end address [r2] */
-	bne	next2
+	blo	next2
 	mov	pc, lr			/* back to caller */
 ENDPROC(cpy_clk_code)
 
