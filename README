@@ -4371,6 +4371,11 @@ use the "saveenv" command to store a valid environment.
 		later, once stdio is running and output goes to the LCD, if
 		present.
 
+- CONFIG_BOARD_SIZE_LIMIT:
+		Maximum size of the U-Boot image. When defined, the
+		build system checks that the actual size does not
+		exceed it.
+
 Low Level (hardware related) configuration options:
 ---------------------------------------------------
 
