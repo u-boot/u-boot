@@ -197,7 +197,7 @@
 				"bootm 0x22000000 - 0x21000000"
 #define CONFIG_SYS_MMC_ENV_DEV	0
 #else
-#define CONIG_ENV_IS_NOWHERE
+#define CONFIG_ENV_IS_NOWHERE
 #endif
 
 #ifdef CONFIG_SYS_USE_MMC
