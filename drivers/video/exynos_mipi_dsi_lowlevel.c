@@ -600,7 +600,7 @@ unsigned int exynos_mipi_dsi_get_fifo_state(struct mipi_dsim_device *dsim)
 }
 
 void exynos_mipi_dsi_wr_tx_header(struct mipi_dsim_device *dsim,
-	unsigned int di, unsigned int data0, unsigned int data1)
+	unsigned int di, const unsigned char data0, const unsigned char data1)
 {
 	struct exynos_mipi_dsim *mipi_dsim =
 		(struct exynos_mipi_dsim *)samsung_get_base_mipi_dsim();

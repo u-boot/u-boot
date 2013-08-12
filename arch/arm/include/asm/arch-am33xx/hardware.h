@@ -78,4 +78,5 @@
 #define USB0_OTG_BASE			0x47401000
 #define USB1_OTG_BASE			0x47401800
 
+int clk_get(int clk);
 #endif /* __AM33XX_HARDWARE_H */

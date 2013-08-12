@@ -291,7 +291,7 @@ struct exynos_platform_mipi_dsim {
  */
 struct mipi_dsim_master_ops {
 	int (*cmd_write)(struct mipi_dsim_device *dsim, unsigned int data_id,
-		unsigned int data0, unsigned int data1);
+		const unsigned char *data0, unsigned int data1);
 	int (*cmd_read)(struct mipi_dsim_device *dsim, unsigned int data_id,
 		unsigned int data0, unsigned int data1);
 	int (*get_dsim_frame_done)(struct mipi_dsim_device *dsim);

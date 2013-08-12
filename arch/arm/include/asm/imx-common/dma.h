@@ -161,4 +161,6 @@ void mxs_dma_init(void);
 int mxs_dma_init_channel(int chan);
 int mxs_dma_release(int chan);
 
+void mxs_dma_circ_start(int chan, struct mxs_dma_desc *pdesc);
+
 #endif	/* __DMA_H__ */
