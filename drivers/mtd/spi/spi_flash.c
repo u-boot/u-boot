@@ -40,12 +40,13 @@ static int spi_flash_read_write(struct spi_slave *spi,
 	ret = spi_xfer(spi, cmd_len * 8, cmd, NULL, flags);
 	if (ret) {
 		debug("SF: Failed to send command (%zu bytes): %d\n",
-				cmd_len, ret);
+		      cmd_len, ret);
 	} else if (data_len != 0) {
-		ret = spi_xfer(spi, data_len * 8, data_out, data_in, SPI_XFER_END);
+		ret = spi_xfer(spi, data_len * 8, data_out, data_in,
+					SPI_XFER_END);
 		if (ret)
 			debug("SF: Failed to transfer %zu bytes of data: %d\n",
-					data_len, ret);
+			      data_len, ret);
 	}
 
 	return ret;
@@ -86,7 +87,7 @@ int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
 	ret = spi_xfer(spi, 8, &cmd, NULL, SPI_XFER_BEGIN);
 	if (ret) {
 		debug("SF: fail to read %s status register\n",
-			cmd == CMD_READ_STATUS ? "read" : "flag");
+		      cmd == CMD_READ_STATUS ? "read" : "flag");
 		return ret;
 	}
 
@@ -144,7 +145,7 @@ int spi_flash_write_common(struct spi_flash *flash, const u8 *cmd,
 	ret = spi_flash_cmd_wait_ready(flash, timeout);
 	if (ret < 0) {
 		debug("SF: write %s timed out\n",
-			timeout == SPI_FLASH_PROG_TIMEOUT ?
+		      timeout == SPI_FLASH_PROG_TIMEOUT ?
 			"program" : "page erase");
 		return ret;
 	}

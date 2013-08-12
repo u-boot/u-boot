@@ -123,7 +123,7 @@ struct spi_flash *spi_flash_probe_winbond(struct spi_slave *spi, u8 *idcode)
 
 	if (i == ARRAY_SIZE(winbond_spi_flash_table)) {
 		debug("SF: Unsupported Winbond ID %02x%02x\n",
-				idcode[1], idcode[2]);
+		      idcode[1], idcode[2]);
 		return NULL;
 	}
 

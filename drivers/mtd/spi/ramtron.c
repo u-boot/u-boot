@@ -230,7 +230,8 @@ struct spi_flash *spi_fram_probe_ramtron(struct spi_slave *spi, u8 *idcode)
 		/* JEDEC conformant RAMTRON id */
 		for (i = 0; i < ARRAY_SIZE(ramtron_spi_fram_table); i++) {
 			params = &ramtron_spi_fram_table[i];
-			if (idcode[1] == params->id1 && idcode[2] == params->id2)
+			if (idcode[1] == params->id1 &&
+			    idcode[2] == params->id2)
 				goto found;
 		}
 		break;
@@ -251,7 +252,8 @@ struct spi_flash *spi_fram_probe_ramtron(struct spi_slave *spi, u8 *idcode)
 		/* now find the device */
 		for (i = 0; i < ARRAY_SIZE(ramtron_spi_fram_table); i++) {
 			params = &ramtron_spi_fram_table[i];
-			if (!strcmp(params->name, CONFIG_SPI_FRAM_RAMTRON_NON_JEDEC))
+			if (!strcmp(params->name,
+				    CONFIG_SPI_FRAM_RAMTRON_NON_JEDEC))
 				goto found;
 		}
 		debug("SF: Unsupported non-JEDEC RAMTRON device "
@@ -264,7 +266,7 @@ struct spi_flash *spi_fram_probe_ramtron(struct spi_slave *spi, u8 *idcode)
 
 	/* arriving here means no method has found a device we can handle */
 	debug("SF/ramtron: unsupported device id0=%02x id1=%02x id2=%02x\n",
-		idcode[0], idcode[1], idcode[2]);
+	      idcode[0], idcode[1], idcode[2]);
 	return NULL;
 
 found:

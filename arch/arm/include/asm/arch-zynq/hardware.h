@@ -17,6 +17,8 @@
 #define ZYNQ_SDHCI_BASEADDR1		0xE0101000
 #define ZYNQ_I2C_BASEADDR0		0xE0004000
 #define ZYNQ_I2C_BASEADDR1		0xE0005000
+#define ZYNQ_SPI_BASEADDR0		0xE0006000
+#define ZYNQ_SPI_BASEADDR1		0xE0007000
 
 /* Reflect slcr offsets */
 struct slcr_regs {

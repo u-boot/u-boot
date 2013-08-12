@@ -72,6 +72,15 @@
 # define CONFIG_CPU_V6 /* Required by CONFIG_ARM_DCC */
 #endif
 
+#define CONFIG_ZYNQ_SPI
+
+/* SPI */
+#ifdef CONFIG_ZYNQ_SPI
+# define CONFIG_SPI_FLASH
+# define CONFIG_SPI_FLASH_SST
+# define CONFIG_CMD_SF
+#endif
+
 /* Enable the PL to be downloaded */
 #define CONFIG_FPGA
 #define CONFIG_FPGA_XILINX

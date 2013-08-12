@@ -19,7 +19,7 @@
 #include "spi_flash_internal.h"
 
 #define CMD_SST_BP		0x02	/* Byte Program */
-#define CMD_SST_AAI_WP		0xAD	/* Auto Address Increment Word Program */
+#define CMD_SST_AAI_WP		0xAD	/* Auto Address Incr Word Program */
 
 #define SST_SR_WIP		(1 << 0)	/* Write-in-Progress */
 #define SST_SR_WEL		(1 << 1)	/* Write enable */
@@ -50,46 +50,60 @@ static const struct sst_spi_flash_params sst_spi_flash_table[] = {
 		.flags = SST_FEAT_WP,
 		.nr_sectors = 128,
 		.name = "SST25VF040B",
-	},{
+	},
+	{
 		.idcode1 = 0x8e,
 		.flags = SST_FEAT_WP,
 		.nr_sectors = 256,
 		.name = "SST25VF080B",
-	},{
+	},
+	{
 		.idcode1 = 0x41,
 		.flags = SST_FEAT_WP,
 		.nr_sectors = 512,
 		.name = "SST25VF016B",
-	},{
+	},
+	{
 		.idcode1 = 0x4a,
 		.flags = SST_FEAT_WP,
 		.nr_sectors = 1024,
 		.name = "SST25VF032B",
-	},{
+	},
+	{
 		.idcode1 = 0x4b,
 		.flags = SST_FEAT_MBP,
 		.nr_sectors = 2048,
 		.name = "SST25VF064C",
-	},{
+	},
+	{
 		.idcode1 = 0x01,
 		.flags = SST_FEAT_WP,
 		.nr_sectors = 16,
 		.name = "SST25WF512",
-	},{
+	},
+	{
 		.idcode1 = 0x02,
 		.flags = SST_FEAT_WP,
 		.nr_sectors = 32,
 		.name = "SST25WF010",
-	},{
+	},
+	{
 		.idcode1 = 0x03,
 		.flags = SST_FEAT_WP,
 		.nr_sectors = 64,
 		.name = "SST25WF020",
-	},{
+	},
+	{
 		.idcode1 = 0x04,
 		.flags = SST_FEAT_WP,
 		.nr_sectors = 128,
 		.name = "SST25WF040",
+	},
+	{
+		.idcode1 = 0x05,
+		.flags = SST_FEAT_WP,
+		.nr_sectors = 256,
+		.name = "SST25WF080",
 	},
 };
 
@@ -105,7 +119,7 @@ sst_byte_write(struct spi_flash *flash, u32 offset, const void *buf)
 	};
 
 	debug("BP[%02x]: 0x%p => cmd = { 0x%02x 0x%06x }\n",
-		spi_w8r8(flash->spi, CMD_READ_STATUS), buf, cmd[0], offset);
+	      spi_w8r8(flash->spi, CMD_READ_STATUS), buf, cmd[0], offset);
 
 	ret = spi_flash_cmd_write_enable(flash);
 	if (ret)
@@ -152,11 +166,11 @@ sst_write_wp(struct spi_flash *flash, u32 offset, size_t len, const void *buf)
 
 	for (; actual < len - 1; actual += 2) {
 		debug("WP[%02x]: 0x%p => cmd = { 0x%02x 0x%06x }\n",
-		     spi_w8r8(flash->spi, CMD_READ_STATUS), buf + actual, cmd[0],
-		     offset);
+		      spi_w8r8(flash->spi, CMD_READ_STATUS), buf + actual,
+		      cmd[0], offset);
 
 		ret = spi_flash_cmd_write(flash->spi, cmd, cmd_len,
-		                          buf + actual, 2);
+					buf + actual, 2);
 		if (ret) {
 			debug("SF: sst word program failed\n");
 			break;

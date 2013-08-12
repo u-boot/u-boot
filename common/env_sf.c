@@ -7,7 +7,7 @@
  *
  * (C) Copyright 2008 Atmel Corporation
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <environment.h>
