@@ -23,6 +23,7 @@
 #define DEVCFG_STATUS_DMA_CMD_Q_E	0x40000000
 #define DEVCFG_STATUS_DMA_DONE_CNT_MASK	0x30000000
 #define DEVCFG_STATUS_PCFG_INIT		0x00000010
+#define DEVCFG_MCTRL_PCAP_LPBK		0x00000010
 #define DEVCFG_MCTRL_RFIFO_FLUSH	0x00000002
 #define DEVCFG_MCTRL_WFIFO_FLUSH	0x00000001
 
@@ -31,7 +32,7 @@
 #endif
 
 #ifndef CONFIG_SYS_FPGA_PROG_TIME
-#define CONFIG_SYS_FPGA_PROG_TIME CONFIG_SYS_HZ	/* 1 s */
+#define CONFIG_SYS_FPGA_PROG_TIME	(CONFIG_SYS_HZ * 4) /* 4 s */
 #endif
 
 int zynq_info(Xilinx_desc *desc)
@@ -199,6 +200,9 @@ int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 
 		swap = SWAP_DONE;
 	}
+
+	/* Clear loopback bit */
+	clrbits_le32(&devcfg_base->mctrl, DEVCFG_MCTRL_PCAP_LPBK);
 
 	if (!partialbit) {
 		zynq_slcr_devcfg_disable();
