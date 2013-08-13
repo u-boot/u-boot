@@ -396,6 +396,8 @@ int fm_init_common(int index, struct ccsr_fman *reg)
 	}
 #elif defined(CONFIG_SYS_QE_FMAN_FW_IN_REMOTE)
 	void *addr = (void *)CONFIG_SYS_QE_FMAN_FW_ADDR;
+#else
+	void *addr = NULL;
 #endif
 
 	/* Upload the Fman microcode if it's present */

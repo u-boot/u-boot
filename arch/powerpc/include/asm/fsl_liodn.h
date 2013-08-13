@@ -29,6 +29,13 @@ struct srio_liodn_id_table {
 		+ CONFIG_SYS_MPC85xx_GUTS_OFFSET + CONFIG_SYS_CCSRBAR, \
 	}
 
+#define SET_SRIO_LIODN_BASE(port, id_a) \
+	{ .id = { id_a }, .num_ids = 1, .portid = port, \
+	  .reg_offset[0] = offsetof(struct ccsr_rio, liodn) \
+		+ (port - 1) * 0x200 \
+		+ CONFIG_SYS_FSL_SRIO_ADDR, \
+	}
+
 struct liodn_id_table {
 	const char * compat;
 	u32 id[2];

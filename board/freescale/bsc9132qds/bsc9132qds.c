@@ -125,6 +125,27 @@ void board_config_serdes_mux(void)
 	}
 }
 
+/* Configure DSP DDR controller */
+void dsp_ddr_configure(void)
+{
+	/*
+	 *There are separate DDR-controllers for DSP and PowerPC side DDR.
+	 *copy the ddr controller settings from PowerPC side DDR controller
+	 *to the DSP DDR controller as connected DDR memories are similar.
+	 */
+	ccsr_ddr_t __iomem *pa_ddr =
+			(ccsr_ddr_t __iomem *)CONFIG_SYS_MPC8xxx_DDR_ADDR;
+	ccsr_ddr_t temp_ddr;
+	ccsr_ddr_t __iomem *dsp_ddr =
+			(ccsr_ddr_t __iomem *)CONFIG_SYS_FSL_DSP_CCSR_DDR_ADDR;
+
+	memcpy(&temp_ddr, pa_ddr, sizeof(ccsr_ddr_t));
+	temp_ddr.cs0_bnds = CONFIG_SYS_DDR1_CS0_BNDS;
+	temp_ddr.sdram_cfg &= ~SDRAM_CFG_MEM_EN;
+	memcpy(dsp_ddr, &temp_ddr, sizeof(ccsr_ddr_t));
+	dsp_ddr->sdram_cfg |= SDRAM_CFG_MEM_EN;
+}
+
 int board_early_init_r(void)
 {
 #ifndef CONFIG_SYS_NO_FLASH
@@ -153,6 +174,7 @@ int board_early_init_r(void)
 			0, flash_esel+1, BOOKE_PAGESZ_64M, 1);
 #endif
 	board_config_serdes_mux();
+	dsp_ddr_configure();
 	return 0;
 }
 

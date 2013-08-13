@@ -90,6 +90,7 @@ void fsl_serdes_init(void);
 #ifdef CONFIG_FSL_CORENET
 #ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
 int serdes_get_first_lane(u32 sd, enum srds_prtcl device);
+enum srds_prtcl serdes_get_prtcl(int serdes, int cfg, int lane);
 #else
 int serdes_get_first_lane(enum srds_prtcl device);
 #endif

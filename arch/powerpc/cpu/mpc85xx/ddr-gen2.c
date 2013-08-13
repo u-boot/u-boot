@@ -16,7 +16,7 @@
 #endif
 
 void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
-			     unsigned int ctrl_num)
+			     unsigned int ctrl_num, int step)
 {
 	unsigned int i;
 	ccsr_ddr_t *ddr = (void *)CONFIG_SYS_MPC8xxx_DDR_ADDR;

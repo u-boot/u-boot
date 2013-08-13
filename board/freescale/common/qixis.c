@@ -107,6 +107,26 @@ const char *byte_to_binary_mask(u8 val, u8 mask, char *buf)
 	return buf;
 }
 
+#ifdef QIXIS_RST_FORCE_MEM
+void board_assert_mem_reset(void)
+{
+	u8 rst;
+
+	rst = QIXIS_READ(rst_frc[0]);
+	if (!(rst & QIXIS_RST_FORCE_MEM))
+		QIXIS_WRITE(rst_frc[0], rst | QIXIS_RST_FORCE_MEM);
+}
+
+void board_deassert_mem_reset(void)
+{
+	u8 rst;
+
+	rst = QIXIS_READ(rst_frc[0]);
+	if (rst & QIXIS_RST_FORCE_MEM)
+		QIXIS_WRITE(rst_frc[0], rst & ~QIXIS_RST_FORCE_MEM);
+}
+#endif
+
 void qixis_reset(void)
 {
 	QIXIS_WRITE(rst_ctl, QIXIS_RST_CTL_RESET);

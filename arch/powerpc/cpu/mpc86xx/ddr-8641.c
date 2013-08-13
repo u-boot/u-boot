@@ -15,7 +15,7 @@
 #endif
 
 void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
-			     unsigned int ctrl_num)
+			     unsigned int ctrl_num, int step)
 {
 	unsigned int i;
 	volatile ccsr_ddr_t *ddr;

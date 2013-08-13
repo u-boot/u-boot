@@ -109,7 +109,7 @@ phys_size_t fixed_sdram(void)
 					strmhz(buf, ddr_freq));
 
 	ddr_size = (phys_size_t) CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
-	fsl_ddr_set_memctl_regs(&ddr_cfg_regs, 0);
+	fsl_ddr_set_memctl_regs(&ddr_cfg_regs, 0, 0);
 
 	if (set_ddr_laws(CONFIG_SYS_DDR_SDRAM_BASE, ddr_size,
 					LAW_TRGT_IF_DDR_1) < 0) {

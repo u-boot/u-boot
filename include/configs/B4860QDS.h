@@ -33,7 +33,6 @@
 #define CONFIG_E500MC			/* BOOKE e500mc family */
 #define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
 #define CONFIG_MPC85xx			/* MPC85xx/PQ3 platform */
-#define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_MP			/* support multiple processors */
 
 #ifndef CONFIG_SYS_TEXT_BASE
@@ -74,6 +73,13 @@
 #define VSC3316_RX_ADDRESS              0x71
 #define VSC3308_TX_ADDRESS              0x02
 #define VSC3308_RX_ADDRESS              0x03
+
+/* IDT clock synthesizers */
+#define CONFIG_IDT8T49N222A
+#define I2C_CH_IDT                     0x9
+
+#define IDT_SERDES1_ADDRESS            0x6E
+#define IDT_SERDES2_ADDRESS            0x6C
 
 #define CONFIG_ENV_OVERWRITE
 
@@ -577,6 +583,8 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_QMAN_MEM_SIZE	0x02000000
 
 #define CONFIG_SYS_DPAA_FMAN
+
+#define CONFIG_SYS_DPAA_RMAN
 
 /* Default address of microcode for the Linux Fman driver */
 #if defined(CONFIG_SPIFLASH)

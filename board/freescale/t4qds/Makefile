@@ -8,7 +8,8 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).o
 
-COBJS-y	+= $(BOARD).o
+COBJS-$(CONFIG_T4240QDS) += t4240qds.o
+COBJS-$(CONFIG_T4240EMU) += t4240emu.o
 COBJS-y	+= ddr.o
 COBJS-$(CONFIG_T4240QDS)+= eth.o
 COBJS-$(CONFIG_PCI)	+= pci.o

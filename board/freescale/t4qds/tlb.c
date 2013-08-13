@@ -120,9 +120,11 @@ struct fsl_e_tlb_entry tlb_table[] = {
 			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 			0, 16, BOOKE_PAGESZ_64K, 1),
 #endif
+#ifdef QIXIS_BASE_PHYS
 	SET_TLB_ENTRY(1, QIXIS_BASE, QIXIS_BASE_PHYS,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 17, BOOKE_PAGESZ_4K, 1),
+#endif
 #ifdef CONFIG_SRIO_PCIE_BOOT_SLAVE
 	/*
 	 * SRIO_PCIE_BOOT-SLAVE. 1M space from 0xffe00000 for

@@ -220,7 +220,7 @@ phys_size_t fixed_sdram (void)
 		ddr_cfg_regs.cs[0].bnds = 0x0000001F;
 	}
 
-	fsl_ddr_set_memctl_regs(&ddr_cfg_regs, 0);
+	fsl_ddr_set_memctl_regs(&ddr_cfg_regs, 0, 0);
 
 	set_ddr_laws(0, ddr_size, LAW_TRGT_IF_DDR_1);
 	return ddr_size;

@@ -96,7 +96,7 @@ unsigned int check_fsl_memctl_config_regs(const fsl_ddr_cfg_regs_t *ddr);
 
 /* processor specific function */
 void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
-				   unsigned int ctrl_num);
+				   unsigned int ctrl_num, int step);
 
 /* board specific function */
 int fsl_ddr_get_dimm_params(dimm_params_t *pdimm,

@@ -56,14 +56,14 @@ phys_size_t fixed_sdram(void)
 
 	ddr_size = (phys_size_t) CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
 	ddr_cfg_regs.ddr_cdr1 = DDR_CDR1_DHC_EN;
-	fsl_ddr_set_memctl_regs(&ddr_cfg_regs, 0);
+	fsl_ddr_set_memctl_regs(&ddr_cfg_regs, 0, 0);
 
 #if (CONFIG_NUM_DDR_CONTROLLERS == 2)
 	memcpy(&ddr_cfg_regs,
 		fixed_ddr_parm_1[i].ddr_settings,
 		sizeof(ddr_cfg_regs));
 	ddr_cfg_regs.ddr_cdr1 = DDR_CDR1_DHC_EN;
-	fsl_ddr_set_memctl_regs(&ddr_cfg_regs, 1);
+	fsl_ddr_set_memctl_regs(&ddr_cfg_regs, 1, 0);
 #endif
 
 	/*

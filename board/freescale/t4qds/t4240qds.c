@@ -43,12 +43,11 @@ int checkboard(void)
 	char buf[64];
 	u8 sw;
 	struct cpu_type *cpu = gd->arch.cpu;
-	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
 	unsigned int i;
 
 	printf("Board: %sQDS, ", cpu->name);
 	printf("Sys ID: 0x%02x, Sys Ver: 0x%02x, ",
-		QIXIS_READ(id), QIXIS_READ(arch));
+	       QIXIS_READ(id), QIXIS_READ(arch));
 
 	sw = QIXIS_READ(brdcfg[0]);
 	sw = (sw & QIXIS_LBMAP_MASK) >> QIXIS_LBMAP_SHIFT;
@@ -63,23 +62,10 @@ int checkboard(void)
 		printf("invalid setting of SW%u\n", QIXIS_LBMAP_SWITCH);
 
 	printf("FPGA: v%d (%s), build %d",
-		(int)QIXIS_READ(scver), qixis_read_tag(buf),
-		(int)qixis_read_minor());
+	       (int)QIXIS_READ(scver), qixis_read_tag(buf),
+	       (int)qixis_read_minor());
 	/* the timestamp string contains "\n" at the end */
 	printf(" on %s", qixis_read_time(buf));
-
-	/* Display the RCW, so that no one gets confused as to what RCW
-	 * we're actually using for this boot.
-	 */
-	puts("Reset Configuration Word (RCW):");
-	for (i = 0; i < ARRAY_SIZE(gur->rcwsr); i++) {
-		u32 rcw = in_be32(&gur->rcwsr[i]);
-
-		if ((i % 4) == 0)
-			printf("\n       %08x:", i * 4);
-		printf(" %08x", rcw);
-	}
-	puts("\n");
 
 	/*
 	 * Display the actual SERDES reference clocks as configured by the
@@ -92,7 +78,7 @@ int checkboard(void)
 	puts("SERDES Reference Clocks: ");
 	sw = QIXIS_READ(brdcfg[2]);
 	for (i = 0; i < MAX_SERDES; i++) {
-		static const char *freq[] = {
+		static const char * const freq[] = {
 			"100", "125", "156.25", "161.1328125"};
 		unsigned int clock = (sw >> (6 - 2 * i)) & 3;
 
@@ -430,7 +416,7 @@ int config_backside_crossbar_mux(void)
 		break;
 	default:
 		printf("WARNING: unsupported for SerDes3 Protocol %d\n",
-				srds_prtcl_s3);
+		       srds_prtcl_s3);
 		return -1;
 	}
 
@@ -470,7 +456,7 @@ int config_backside_crossbar_mux(void)
 		break;
 	default:
 		printf("WARNING: unsupported for SerDes4 Protocol %d\n",
-				srds_prtcl_s4);
+		       srds_prtcl_s4);
 		return -1;
 	}
 
@@ -495,8 +481,8 @@ int board_early_init_r(void)
 	disable_tlb(flash_esel);
 
 	set_tlb(1, flashbase, CONFIG_SYS_FLASH_BASE_PHYS,
-			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
-			0, flash_esel, BOOKE_PAGESZ_256M, 1);
+		MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
+		0, flash_esel, BOOKE_PAGESZ_256M, 1);
 
 	set_liodns();
 #ifdef CONFIG_SYS_DPAA_QBMAN
@@ -634,9 +620,8 @@ int misc_init_r(void)
 		u32 pllcr0 = srds_regs->bank[i].pllcr0;
 		u32 expected = pllcr0 & SRDS_PLLCR0_RFCK_SEL_MASK;
 		if (expected != actual[i]) {
-			printf("Warning: SERDES%u expects reference clock"
-			       " %sMHz, but actual is %sMHz\n", i + 1,
-			       serdes_clock_to_string(expected),
+			printf("Warning: SERDES%u expects reference clock %sMHz, but actual is %sMHz\n",
+			       i + 1, serdes_clock_to_string(expected),
 			       serdes_clock_to_string(actual[i]));
 		}
 	}
@@ -795,42 +780,44 @@ void qixis_dump_switch(void)
 	}
 
 	sw[0] = dutcfg[0];
-	sw[1] = (dutcfg[1] << 0x07)		| \
-		((dutcfg[12] & 0xC0) >> 1)	| \
-		((dutcfg[11] & 0xE0) >> 3)	| \
-		((dutcfg[6] & 0x80) >> 6)	| \
+	sw[1] = (dutcfg[1] << 0x07)		|
+		((dutcfg[12] & 0xC0) >> 1)	|
+		((dutcfg[11] & 0xE0) >> 3)	|
+		((dutcfg[6] & 0x80) >> 6)	|
 		((dutcfg[1] & 0x80) >> 7);
-	sw[2] = ((brdcfg[1] & 0x0f) << 4)	| \
-		((brdcfg[1] & 0x30) >> 2)	| \
-		((brdcfg[1] & 0x40) >> 5)	| \
+	sw[2] = ((brdcfg[1] & 0x0f) << 4)	|
+		((brdcfg[1] & 0x30) >> 2)	|
+		((brdcfg[1] & 0x40) >> 5)	|
 		((brdcfg[1] & 0x80) >> 7);
 	sw[3] = brdcfg[2];
-	sw[4] = ((dutcfg[2] & 0x01) << 7)	| \
-		((dutcfg[2] & 0x06) << 4)	| \
-		((~QIXIS_READ(present)) & 0x10)	| \
-		((brdcfg[3] & 0x80) >> 4)	| \
-		((brdcfg[3] & 0x01) << 2)	| \
-		((brdcfg[6] == 0x62) ? 3 :	\
-		((brdcfg[6] == 0x5a) ? 2 :	\
+	sw[4] = ((dutcfg[2] & 0x01) << 7)	|
+		((dutcfg[2] & 0x06) << 4)	|
+		((~QIXIS_READ(present)) & 0x10)	|
+		((brdcfg[3] & 0x80) >> 4)	|
+		((brdcfg[3] & 0x01) << 2)	|
+		((brdcfg[6] == 0x62) ? 3 :
+		((brdcfg[6] == 0x5a) ? 2 :
 		((brdcfg[6] == 0x5e) ? 1 : 0)));
-	sw[5] = ((brdcfg[0] & 0x0f) << 4)	| \
-		((QIXIS_READ(rst_ctl) & 0x30) >> 2) | \
+	sw[5] = ((brdcfg[0] & 0x0f) << 4)	|
+		((QIXIS_READ(rst_ctl) & 0x30) >> 2) |
 		((brdcfg[0] & 0x40) >> 5);
 	sw[6] = (brdcfg[11] & 0x20)		|
 		((brdcfg[5] & 0x02) << 3);
-	sw[7] = (((~QIXIS_READ(rst_ctl)) & 0x40) << 1) | \
+	sw[7] = (((~QIXIS_READ(rst_ctl)) & 0x40) << 1) |
 		((brdcfg[5] & 0x10) << 2);
-	sw[8] = ((brdcfg[12] & 0x08) << 4)	| \
+	sw[8] = ((brdcfg[12] & 0x08) << 4)	|
 		((brdcfg[12] & 0x03) << 5);
 
 	puts("DIP switch (reverse-engineering)\n");
 	for (i = 0; i < 9; i++) {
 		printf("SW%d         = 0b%s (0x%02x)\n",
-			i + 1, byte_to_binary_mask(sw[i], mask[i], buf), sw[i]);
+		       i + 1, byte_to_binary_mask(sw[i], mask[i], buf), sw[i]);
 	}
 }
 
-static int do_vdd_adjust(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_vdd_adjust(cmd_tbl_t *cmdtp,
+			 int flag, int argc,
+			 char * const argv[])
 {
 	ulong override;
 

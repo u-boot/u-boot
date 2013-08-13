@@ -700,6 +700,8 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	}
 #endif
 
+	popts->x4_en = (pdimm[0].device_width == 4) ? 1 : 0;
+
 	/* Choose burst length. */
 #if defined(CONFIG_FSL_DDR3)
 #if defined(CONFIG_E500MC)
