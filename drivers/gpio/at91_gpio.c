@@ -1,5 +1,5 @@
 /*
- * Memory Setup stuff - taken from blob memsetup.S
+ * Copyright (C) 2013 Bo Shen <voice.shen@atmel.com>
  *
  * Copyright (C) 2009 Jens Scharsig (js_at_ng@scharsoft.de)
  *
