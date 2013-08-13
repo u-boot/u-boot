@@ -27,7 +27,7 @@
  */
 
 #include <common.h>
-#include <stdio_dev.h>
+#include <serial.h>
 
 #if defined(CONFIG_CPU_V6)
 /*
@@ -89,12 +89,12 @@
 
 #define TIMEOUT_COUNT 0x4000000
 
-int arm_dcc_init(void)
+static int arm_dcc_init(void)
 {
 	return 0;
 }
 
-int arm_dcc_getc(void)
+static int arm_dcc_getc(void)
 {
 	int ch;
 	register unsigned int reg;
@@ -107,7 +107,7 @@ int arm_dcc_getc(void)
 	return ch;
 }
 
-void arm_dcc_putc(char ch)
+static void arm_dcc_putc(char ch)
 {
 	register unsigned int reg;
 	unsigned int timeout_count = TIMEOUT_COUNT;
@@ -123,13 +123,13 @@ void arm_dcc_putc(char ch)
 		write_dcc(ch);
 }
 
-void arm_dcc_puts(const char *s)
+static void arm_dcc_puts(const char *s)
 {
 	while (*s)
 		arm_dcc_putc(*s++);
 }
 
-int arm_dcc_tstc(void)
+static int arm_dcc_tstc(void)
 {
 	register unsigned int reg;
 
@@ -138,22 +138,27 @@ int arm_dcc_tstc(void)
 	return reg;
 }
 
-static struct stdio_dev arm_dcc_dev;
-
-int drv_arm_dcc_init(void)
+static void arm_dcc_setbrg(void)
 {
-	strcpy(arm_dcc_dev.name, "dcc");
-	arm_dcc_dev.ext = 0;	/* No extensions */
-	arm_dcc_dev.flags = DEV_FLAGS_INPUT | DEV_FLAGS_OUTPUT;
-	arm_dcc_dev.tstc = arm_dcc_tstc;	/* 'tstc' function */
-	arm_dcc_dev.getc = arm_dcc_getc;	/* 'getc' function */
-	arm_dcc_dev.putc = arm_dcc_putc;	/* 'putc' function */
-	arm_dcc_dev.puts = arm_dcc_puts;	/* 'puts' function */
+}
 
-	return stdio_register(&arm_dcc_dev);
+static struct serial_device arm_dcc_drv = {
+	.name	= "arm_dcc",
+	.start	= arm_dcc_init,
+	.stop	= NULL,
+	.setbrg	= arm_dcc_setbrg,
+	.putc	= arm_dcc_putc,
+	.puts	= arm_dcc_puts,
+	.getc	= arm_dcc_getc,
+	.tstc	= arm_dcc_tstc,
+};
+
+void arm_dcc_initialize(void)
+{
+	serial_register(&arm_dcc_drv);
 }
 
 __weak struct serial_device *default_serial_console(void)
 {
-	return NULL;
+	return &arm_dcc_drv;
 }
