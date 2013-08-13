@@ -353,3 +353,46 @@ int at91_get_pio_value(unsigned port, unsigned pin)
 
 	return pdsr != 0;
 }
+
+/* Common GPIO API */
+
+#define at91_gpio_to_port(gpio)		(gpio / 32)
+#define at91_gpio_to_pin(gpio)		(gpio % 32)
+
+int gpio_request(unsigned gpio, const char *label)
+{
+	return 0;
+}
+
+int gpio_free(unsigned gpio)
+{
+	return 0;
+}
+
+int gpio_direction_input(unsigned gpio)
+{
+	at91_set_pio_input(at91_gpio_to_port(gpio),
+			   at91_gpio_to_pin(gpio), 0);
+	return 0;
+}
+
+int gpio_direction_output(unsigned gpio, int value)
+{
+	at91_set_pio_output(at91_gpio_to_port(gpio),
+			    at91_gpio_to_pin(gpio), value);
+	return 0;
+}
+
+int gpio_get_value(unsigned gpio)
+{
+	return at91_get_pio_value(at91_gpio_to_port(gpio),
+				  at91_gpio_to_pin(gpio));
+}
+
+int gpio_set_value(unsigned gpio, int value)
+{
+	at91_set_pio_value(at91_gpio_to_port(gpio),
+			   at91_gpio_to_pin(gpio), value);
+
+	return 0;
+}
