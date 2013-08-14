@@ -249,14 +249,13 @@ const struct dpll_params dpll_ddr_bone_black = {
 void am33xx_spl_board_init(void)
 {
 	struct am335x_baseboard_id header;
-	struct dpll_params dpll_mpu = {0, OSC-1, 1, -1, -1, -1, -1};
 	int mpu_vdd;
 
 	if (read_eeprom(&header) < 0)
 		puts("Could not get board ID.\n");
 
 	/* Get the frequency */
-	dpll_mpu.m = am335x_get_efuse_mpu_max_freq(cdev);
+	dpll_mpu_opp100.m = am335x_get_efuse_mpu_max_freq(cdev);
 
 	if (board_is_bone(&header) || board_is_bone_lt(&header)) {
 		/* BeagleBone PMIC Code */
@@ -293,13 +292,13 @@ void am33xx_spl_board_init(void)
 		 * a Beaglebone Black it supports 1GHz.
 		 */
 		if (board_is_bone_lt(&header))
-			dpll_mpu.m = MPUPLL_M_1000;
+			dpll_mpu_opp100.m = MPUPLL_M_1000;
 
 		/*
 		 * Increase USB current limit to 1300mA or 1800mA and set
 		 * the MPU voltage controller as needed.
 		 */
-		if (dpll_mpu.m == MPUPLL_M_1000) {
+		if (dpll_mpu_opp100.m == MPUPLL_M_1000) {
 			usb_cur_lim = TPS65217_USB_INPUT_CUR_LIMIT_1800MA;
 			mpu_vdd = TPS65217_DCDC_VOLT_SEL_1325MV;
 		} else {
@@ -313,6 +312,15 @@ void am33xx_spl_board_init(void)
 				       TPS65217_USB_INPUT_CUR_LIMIT_MASK))
 			puts("tps65217_reg_write failure\n");
 
+		/* Set DCDC3 (CORE) voltage to 1.125V */
+		if (tps65217_voltage_update(TPS65217_DEFDCDC3,
+					    TPS65217_DCDC_VOLT_SEL_1125MV)) {
+			puts("tps65217_voltage_update failure\n");
+			return;
+		}
+
+		/* Set CORE Frequencies to OPP100 */
+		do_setup_dpll(&dpll_core_regs, &dpll_core_opp100);
 
 		/* Set DCDC2 (MPU) voltage */
 		if (tps65217_voltage_update(TPS65217_DEFDCDC2, mpu_vdd)) {
@@ -360,7 +368,8 @@ void am33xx_spl_board_init(void)
 		 * VDD to drive at that speed.
 		 */
 		sil_rev = readl(&cdev->deviceid) >> 28;
-		mpu_vdd = am335x_get_tps65910_mpu_vdd(sil_rev, dpll_mpu.m);
+		mpu_vdd = am335x_get_tps65910_mpu_vdd(sil_rev,
+						      dpll_mpu_opp100.m);
 
 		/* Tell the TPS65910 to use i2c */
 		tps65910_set_i2c_control();
@@ -372,10 +381,13 @@ void am33xx_spl_board_init(void)
 		/* Second, update the CORE voltage. */
 		if (tps65910_voltage_update(CORE, TPS65910_OP_REG_SEL_1_1_3))
 			return;
+
+		/* Set CORE Frequencies to OPP100 */
+		do_setup_dpll(&dpll_core_regs, &dpll_core_opp100);
 	}
 
 	/* Set MPU Frequency to what we detected now that voltages are set */
-	do_setup_dpll(&dpll_mpu_regs, &dpll_mpu);
+	do_setup_dpll(&dpll_mpu_regs, &dpll_mpu_opp100);
 }
 
 const struct dpll_params *get_dpll_ddr_params(void)

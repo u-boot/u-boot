@@ -144,6 +144,8 @@ int arch_misc_init(void)
  */
 __weak void am33xx_spl_board_init(void)
 {
+	do_setup_dpll(&dpll_core_regs, &dpll_core_opp100);
+	do_setup_dpll(&dpll_mpu_regs, &dpll_mpu_opp100);
 }
 
 static void rtc32k_enable(void)
