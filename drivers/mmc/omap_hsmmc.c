@@ -400,6 +400,7 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	}
 
 	writel(cmd->cmdarg, &mmc_base->arg);
+	udelay(20);		/* To fix "No status update" error on eMMC */
 	writel((cmd->cmdidx << 24) | flags, &mmc_base->cmd);
 
 	start = get_timer(0);
@@ -504,7 +505,7 @@ static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
 	unsigned int count;
 
 	/*
-	 * Start Polled Read
+	 * Start Polled Write
 	 */
 	count = (size > MMCSD_SECTOR_SIZE) ? MMCSD_SECTOR_SIZE : size;
 	count /= 4;
@@ -610,6 +611,8 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 {
 	struct mmc *mmc = &hsmmc_dev[dev_index];
 	struct omap_hsmmc_data *priv_data = &hsmmc_dev_data[dev_index];
+	uint host_caps_val = MMC_MODE_4BIT | MMC_MODE_HS_52MHz | MMC_MODE_HS |
+			     MMC_MODE_HC;
 
 	sprintf(mmc->name, "OMAP SD/MMC");
 	mmc->send_cmd = mmc_send_cmd;
@@ -624,11 +627,20 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 #ifdef OMAP_HSMMC2_BASE
 	case 1:
 		priv_data->base_addr = (struct hsmmc *)OMAP_HSMMC2_BASE;
+#if (defined(CONFIG_OMAP44XX) || defined(CONFIG_OMAP54XX) || \
+     defined(CONFIG_DRA7XX)) && defined(CONFIG_HSMMC2_8BIT)
+		/* Enable 8-bit interface for eMMC on OMAP4/5 or DRA7XX */
+		host_caps_val |= MMC_MODE_8BIT;
+#endif
 		break;
 #endif
 #ifdef OMAP_HSMMC3_BASE
 	case 2:
 		priv_data->base_addr = (struct hsmmc *)OMAP_HSMMC3_BASE;
+#if defined(CONFIG_DRA7XX) && defined(CONFIG_HSMMC3_8BIT)
+		/* Enable 8-bit interface for eMMC on DRA7XX */
+		host_caps_val |= MMC_MODE_8BIT;
+#endif
 		break;
 #endif
 	default:
@@ -644,8 +656,7 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 		mmc->getwp = omap_mmc_getwp;
 
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
-	mmc->host_caps = (MMC_MODE_4BIT | MMC_MODE_HS_52MHz | MMC_MODE_HS |
-				MMC_MODE_HC) & ~host_caps_mask;
+	mmc->host_caps = host_caps_val & ~host_caps_mask;
 
 	mmc->f_min = 400000;
 
