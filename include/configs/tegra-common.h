@@ -133,6 +133,7 @@
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_ENTERRCM
 #define CONFIG_CMD_BOOTZ
+#define CONFIG_SUPPORT_RAW_INITRD
 
 /* Defines for SPL */
 #define CONFIG_SPL
