@@ -45,7 +45,7 @@ int checkcpu (void)
 		return -1;		/* no valid CPU revision info */
 	}
 
-	printf (" at %s MHz: ", strmhz (buf, clock));
+	printf(" at %s MHz: ", strmhz(buf, clock));
 
 	print_size(checkicache(), " I-Cache ");
 	print_size(checkdcache(), " D-Cache\n");

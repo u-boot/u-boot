@@ -210,7 +210,7 @@ int checkcpu (void)
 	printf("       PME:   %s MHz\n", strmhz(buf1, sysinfo.freq_pme));
 #endif
 
-	puts("L1:    D-cache 32 kB enabled\n       I-cache 32 kB enabled\n");
+	puts("L1:    D-cache 32 KiB enabled\n       I-cache 32 KiB enabled\n");
 
 #ifdef CONFIG_FSL_CORENET
 	/* Display the RCW, so that no one gets confused as to what RCW

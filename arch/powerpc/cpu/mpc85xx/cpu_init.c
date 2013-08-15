@@ -458,28 +458,28 @@ int cpu_init_r(void)
 	case 0x1:
 		if (ver == SVR_8540 || ver == SVR_8560   ||
 		    ver == SVR_8541 || ver == SVR_8555) {
-			puts("128 KB ");
-			/* set L2E=1, L2I=1, & L2BLKSZ=1 (128 Kbyte) */
+			puts("128 KiB ");
+			/* set L2E=1, L2I=1, & L2BLKSZ=1 (128 KiBibyte) */
 			cache_ctl = 0xc4000000;
 		} else {
-			puts("256 KB ");
+			puts("256 KiB ");
 			cache_ctl = 0xc0000000; /* set L2E=1, L2I=1, & L2SRAM=0 */
 		}
 		break;
 	case 0x2:
 		if (ver == SVR_8540 || ver == SVR_8560   ||
 		    ver == SVR_8541 || ver == SVR_8555) {
-			puts("256 KB ");
-			/* set L2E=1, L2I=1, & L2BLKSZ=2 (256 Kbyte) */
+			puts("256 KiB ");
+			/* set L2E=1, L2I=1, & L2BLKSZ=2 (256 KiBibyte) */
 			cache_ctl = 0xc8000000;
 		} else {
-			puts ("512 KB ");
+			puts("512 KiB ");
 			/* set L2E=1, L2I=1, & L2SRAM=0 */
 			cache_ctl = 0xc0000000;
 		}
 		break;
 	case 0x3:
-		puts("1024 KB ");
+		puts("1024 KiB ");
 		/* set L2E=1, L2I=1, & L2SRAM=0 */
 		cache_ctl = 0xc0000000;
 		break;

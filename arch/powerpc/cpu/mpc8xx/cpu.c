@@ -202,7 +202,7 @@ static int check_CPU (long clock, uint pvr, uint immr)
 		printf ("unknown MPC857 (0x%08x)", k);
 #endif
 
-	printf (" at %s MHz: ", strmhz (buf, clock));
+	printf(" at %s MHz: ", strmhz(buf, clock));
 
 	print_size(checkicache(), " I-Cache ");
 	print_size(checkdcache(), " D-Cache");
@@ -263,7 +263,7 @@ static int check_CPU (long clock, uint pvr, uint immr)
 	if (suf)
 		printf ("PPC823ZTnn%s", suf);
 
-	printf (" at %s MHz: ", strmhz (buf, clock));
+	printf(" at %s MHz: ", strmhz(buf, clock));
 
 	print_size(checkicache(), " I-Cache ");
 	print_size(checkdcache(), " D-Cache");
@@ -319,7 +319,7 @@ static int check_CPU (long clock, uint pvr, uint immr)
 	default:
 		printf ("unknown MPC850 (0x%08x)", k);
 	}
-	printf (" at %s MHz: ", strmhz (buf, clock));
+	printf(" at %s MHz: ", strmhz(buf, clock));
 
 	print_size(checkicache(), " I-Cache ");
 	print_size(checkdcache(), " D-Cache");

@@ -85,8 +85,8 @@ checkcpu(void)
 		       sysinfo.freq_localbus);
 	}
 
-	puts("L1:    D-cache 32 KB enabled\n");
-	puts("       I-cache 32 KB enabled\n");
+	puts("L1:    D-cache 32 KiB enabled\n");
+	puts("       I-cache 32 KiB enabled\n");
 
 	puts("L2:    ");
 	if (get_l2cr() & 0x80000000) {
@@ -95,7 +95,7 @@ checkcpu(void)
 #elif defined(CONFIG_MPC8641)
 		puts("512");
 #endif
-		puts(" KB enabled\n");
+		puts(" KiB enabled\n");
 	} else {
 		puts("Disabled\n");
 	}
