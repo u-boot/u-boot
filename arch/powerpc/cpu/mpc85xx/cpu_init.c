@@ -357,7 +357,9 @@ int cpu_init_r(void)
 	extern int spin_table_compat;
 	const char *spin;
 #endif
-
+#ifdef CONFIG_SYS_FSL_ERRATUM_SEC_A003571
+	ccsr_sec_t __iomem *sec = (void *)CONFIG_SYS_FSL_SEC_ADDR;
+#endif
 #if defined(CONFIG_SYS_P4080_ERRATUM_CPU22) || \
 	defined(CONFIG_SYS_FSL_ERRATUM_NMG_CPU_A011)
 	/*
@@ -546,6 +548,12 @@ skip_l2:
 #ifndef CONFIG_SYS_FSL_NO_SERDES
 	/* needs to be in ram since code uses global static vars */
 	fsl_serdes_init();
+#endif
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_SEC_A003571
+#define MCFGR_AXIPIPE 0x000000f0
+	if (IS_SVR_REV(svr, 1, 0))
+		clrbits_be32(&sec->mcfgr, MCFGR_AXIPIPE);
 #endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A005871
