@@ -167,7 +167,8 @@ static void enable_cpc(void)
 
 	}
 
-	printf("Corenet Platform Cache: %d KB enabled\n", size);
+	puts("Corenet Platform Cache: ");
+	print_size(size * 1024, " enabled\n");
 }
 
 static void invalidate_cpc(void)
@@ -526,13 +527,14 @@ int cpu_init_r(void)
 	if (CONFIG_SYS_INIT_L2CSR0 & L2CSR0_L2E) {
 		while (!(mfspr(SPRN_L2CSR0) & L2CSR0_L2E))
 			;
-		printf("%d KB enabled\n", (l2cfg0 & 0x3fff) * 64);
+		print_size((l2cfg0 & 0x3fff) * 64 * 1024, " enabled\n");
 	}
 
 skip_l2:
 #elif defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2)
 	if (l2cache->l2csr0 & L2CSR0_L2E)
-		printf("%d KB enabled\n", (l2cache->l2cfg0 & 0x3fff) * 64);
+		print_size((l2cache->l2cfg0 & 0x3fff) * 64 * 1024,
+			   " enabled\n");
 
 	enable_cluster_l2();
 #else
