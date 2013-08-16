@@ -211,6 +211,14 @@ static int fsl_i2c_fixup(const struct fsl_i2c *dev)
 	const unsigned long long timeout = usec2ticks(CONFIG_I2C_MBB_TIMEOUT);
 	unsigned long long timeval = 0;
 	int ret = -1;
+	unsigned int flags = 0;
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_I2C_A004447
+	unsigned int svr = get_svr();
+	if ((SVR_SOC_VER(svr) == SVR_8548 && IS_SVR_REV(svr, 3, 1)) ||
+	    (SVR_REV(svr) <= CONFIG_SYS_FSL_A004447_SVR_REV))
+		flags = I2C_CR_BIT6;
+#endif
 
 	writeb(I2C_CR_MEN | I2C_CR_MSTA, &dev->cr);
 
@@ -224,8 +232,8 @@ static int fsl_i2c_fixup(const struct fsl_i2c *dev)
 		/* SDA is stuck low */
 		writeb(0, &dev->cr);
 		udelay(100);
-		writeb(I2C_CR_MSTA, &dev->cr);
-		writeb(I2C_CR_MEN | I2C_CR_MSTA, &dev->cr);
+		writeb(I2C_CR_MSTA | flags, &dev->cr);
+		writeb(I2C_CR_MEN | I2C_CR_MSTA | flags, &dev->cr);
 	}
 
 	readb(&dev->dr);
@@ -238,7 +246,7 @@ static int fsl_i2c_fixup(const struct fsl_i2c *dev)
 	ret = 0;
 
 err:
-	writeb(I2C_CR_MEN, &dev->cr);
+	writeb(I2C_CR_MEN | flags, &dev->cr);
 	writeb(0, &dev->sr);
 	udelay(100);
 

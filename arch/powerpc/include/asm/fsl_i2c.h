@@ -54,6 +54,7 @@ typedef struct fsl_i2c {
 #define I2C_CR_MTX	0x10
 #define I2C_CR_TXAK	0x08
 #define I2C_CR_RSTA	0x04
+#define I2C_CR_BIT6	0x02	/* required for workaround A004447 */
 #define I2C_CR_BCST	0x01
 
 	u8 sr;		/* I2C status register */

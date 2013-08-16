@@ -847,7 +847,7 @@
 /* System-On-Chip Version Register (SVR) field extraction */
 
 #define SVR_VER(svr)	(((svr) >> 16) & 0xFFFF) /* Version field */
-#define SVR_REV(svr)	(((svr) >>  0) & 0xFFFF) /* Revision field */
+#define SVR_REV(svr)	(((svr) >>  0) & 0xFF)	 /* Revision field */
 
 #define SVR_CID(svr)	(((svr) >> 28) & 0x0F)	 /* Company or manufacturer ID */
 #define SVR_SOCOP(svr)	(((svr) >> 22) & 0x3F)	 /* SOC integration options */
@@ -1042,9 +1042,6 @@
  */
 
 /* System Version Register (SVR) field extraction */
-
-#define SVR_VER(svr)	(((svr) >>  16) & 0xFFFF)	/* Version field */
-#define SVR_REV(svr)	(((svr) >>   0) & 0xFFFF)	/* Revison field */
 
 #define SVR_SUBVER(svr)	(((svr) >>  8) & 0xFF)	/* Process/MFG sub-version */
 
