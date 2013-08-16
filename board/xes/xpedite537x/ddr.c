@@ -210,7 +210,7 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	unsigned int datarate;
 
 	get_sys_info(&sysinfo);
-	datarate = sysinfo.freqDDRBus / 1000 / 1000;
+	datarate = sysinfo.freq_ddrbus / 1000 / 1000;
 
 	for (i = 0; i < ARRAY_SIZE(bopts_ctrl[ctrl_num]); i++) {
 		if ((bopts[i].datarate_mhz_low <= datarate) &&

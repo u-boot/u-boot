@@ -72,17 +72,17 @@ checkcpu(void)
 	get_sys_info(&sysinfo);
 
 	puts("Clock Configuration:\n");
-	printf("       CPU:%-4s MHz, ", strmhz(buf1, sysinfo.freqProcessor));
-	printf("MPX:%-4s MHz\n", strmhz(buf1, sysinfo.freqSystemBus));
+	printf("       CPU:%-4s MHz, ", strmhz(buf1, sysinfo.freq_processor));
+	printf("MPX:%-4s MHz\n", strmhz(buf1, sysinfo.freq_systembus));
 	printf("       DDR:%-4s MHz (%s MT/s data rate), ",
-		strmhz(buf1, sysinfo.freqSystemBus / 2),
-		strmhz(buf2, sysinfo.freqSystemBus));
+		strmhz(buf1, sysinfo.freq_systembus / 2),
+		strmhz(buf2, sysinfo.freq_systembus));
 
-	if (sysinfo.freqLocalBus > LCRR_CLKDIV) {
-		printf("LBC:%-4s MHz\n", strmhz(buf1, sysinfo.freqLocalBus));
+	if (sysinfo.freq_localbus > LCRR_CLKDIV) {
+		printf("LBC:%-4s MHz\n", strmhz(buf1, sysinfo.freq_localbus));
 	} else {
 		printf("LBC: unknown (LCRR[CLKDIV] = 0x%02lx)\n",
-		       sysinfo.freqLocalBus);
+		       sysinfo.freq_localbus);
 	}
 
 	puts("L1:    D-cache 32 KB enabled\n");
@@ -131,7 +131,7 @@ get_tbclk(void)
 	sys_info_t sys_info;
 
 	get_sys_info(&sys_info);
-	return (sys_info.freqSystemBus + 3L) / 4L;
+	return (sys_info.freq_systembus + 3L) / 4L;
 }
 
 

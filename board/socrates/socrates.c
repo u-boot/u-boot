@@ -143,7 +143,7 @@ void local_bus_init (void)
 
 	get_sys_info (&sysinfo);
 	clkdiv = lbc->lcrr & LCRR_CLKDIV;
-	lbc_mhz = sysinfo.freqSystemBus / 1000000 / clkdiv;
+	lbc_mhz = sysinfo.freq_systembus / 1000000 / clkdiv;
 
 	/* Disable PLL bypass for Local Bus Clock >= 66 MHz */
 	if (lbc_mhz >= 66)

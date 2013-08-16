@@ -75,7 +75,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 	/* Set eSPI BRG clock source */
 	get_sys_info(&sysinfo);
-	spibrg = sysinfo.freqSystemBus / 2;
+	spibrg = sysinfo.freq_systembus / 2;
 	fsl->div16 = 0;
 	if ((spibrg / max_hz) > 32) {
 		fsl->div16 = ESPI_CSMODE_DIV16;

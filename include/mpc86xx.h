@@ -41,9 +41,9 @@
 #ifndef __ASSEMBLY__
 
 typedef struct {
-	unsigned long freqProcessor;
-	unsigned long freqSystemBus;
-	unsigned long freqLocalBus;
+	unsigned long freq_processor;
+	unsigned long freq_systembus;
+	unsigned long freq_localbus;
 } MPC86xx_SYS_INFO;
 
 #define l1icache_enable	icache_enable

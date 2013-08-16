@@ -273,7 +273,7 @@ local_bus_init(void)
 
 	get_sys_info(&sysinfo);
 	clkdiv = lbc->lcrr & LCRR_CLKDIV;
-	lbc_hz = sysinfo.freqSystemBus / 1000000 / clkdiv;
+	lbc_hz = sysinfo.freq_systembus / 1000000 / clkdiv;
 
 	if (lbc_hz < 66) {
 		lbc->lcrr = CONFIG_SYS_LBC_LCRR | LCRR_DBYP;	/* DLL Bypass */
