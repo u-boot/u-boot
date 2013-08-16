@@ -390,7 +390,7 @@ unsigned int i2c_get_bus_speed(void);
 # if !defined(CONFIG_SYS_MAX_I2C_BUS)
 #  define CONFIG_SYS_MAX_I2C_BUS		2
 # endif
-# define I2C_MULTI_BUS				0
+# define I2C_MULTI_BUS				1
 #else
 # define CONFIG_SYS_MAX_I2C_BUS		1
 # define I2C_MULTI_BUS				0
