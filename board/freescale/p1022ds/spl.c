@@ -27,6 +27,7 @@
 #include <i2c.h>
 #include "../common/ngpixis.h"
 #include <fsl_esdhc.h>
+#include <spi_flash.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -53,6 +54,11 @@ void board_init_f(ulong bootflag)
 	setbits_be32(&gur->pmuxcr,
 		     in_be32(&gur->pmuxcr) | MPC85xx_PMUXCR_SD_DATA);
 
+#ifdef CONFIG_SPL_SPI_BOOT
+	/* Enable the SPI */
+	clrsetbits_8(&pixis->brdcfg0, PIXIS_ELBC_SPI_MASK, PIXIS_SPI);
+#endif
+
 	/* Read back the register to synchronize the write. */
 	in_be32(&gur->pmuxcr);
 
@@ -66,6 +72,8 @@ void board_init_f(ulong bootflag)
 		     bus_clk / 16 / CONFIG_BAUDRATE);
 #ifdef CONFIG_SPL_MMC_BOOT
 	puts("\nSD boot...\n");
+#elif defined(CONFIG_SPL_SPI_BOOT)
+	puts("\nSPI Flash boot...\n");
 #endif
 
 	/* copy code to RAM and jump to it - this should not return */
@@ -106,5 +114,7 @@ void board_init_r(gd_t *gd, ulong dest_addr)
 
 #ifdef CONFIG_SPL_MMC_BOOT
 	mmc_boot();
+#elif defined(CONFIG_SPL_SPI_BOOT)
+	spi_boot();
 #endif
 }
