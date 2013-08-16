@@ -1680,6 +1680,10 @@ CBFS (Coreboot Filesystem) support
 		to compress the specified memory at its best effort.
 
 - Compression support:
+		CONFIG_GZIP
+
+		Enabled by default to support gzip compressed images.
+
 		CONFIG_BZIP2
 
 		If this option is set, support for bzip2 compressed
@@ -1712,6 +1716,11 @@ CBFS (Coreboot Filesystem) support
 		Use the lzmainfo tool to determinate the lc and lp values and
 		then calculate the amount of needed dynamic memory (ensuring
 		the appropriate CONFIG_SYS_MALLOC_LEN value).
+
+		CONFIG_LZO
+
+		If this option is set, support for LZO compressed images
+		is included.
 
 - MII/PHY support:
 		CONFIG_PHY_ADDR
