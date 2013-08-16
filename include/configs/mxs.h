@@ -119,11 +119,16 @@
 /* GPIO */
 #define CONFIG_MXS_GPIO
 
-/* DUART Serial Driver */
+/*
+ * DUART Serial Driver.
+ * Conflicts with AUART driver which can be set by board.
+ */
+#ifndef CONFIG_MXS_AUART
 #define CONFIG_PL011_SERIAL
 #define CONFIG_PL011_CLOCK		24000000
 #define CONFIG_PL01x_PORTS		{ (void *)MXS_UARTDBG_BASE }
 #define CONFIG_CONS_INDEX		0
+#endif
 /* Default baudrate can be overriden by board! */
 #ifndef CONFIG_BAUDRATE
 #define CONFIG_BAUDRATE			115200
