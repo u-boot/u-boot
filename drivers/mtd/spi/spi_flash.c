@@ -555,12 +555,14 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 		goto err_manufacturer_probe;
 	}
 #endif
+#ifndef CONFIG_SPL_BUILD
 	printf("SF: Detected %s with page size ", flash->name);
 	print_size(flash->sector_size, ", total ");
 	print_size(flash->size, "");
 	if (flash->memory_map)
 		printf(", mapped at %p", flash->memory_map);
 	puts("\n");
+#endif
 #ifndef CONFIG_SPI_FLASH_BAR
 	if (flash->size > SPI_FLASH_16MB_BOUN) {
 		puts("SF: Warning - Only lower 16MiB accessible,");

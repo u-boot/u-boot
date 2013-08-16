@@ -11,6 +11,7 @@ LIB	:= $(obj)libspi_flash.o
 
 ifdef CONFIG_SPL_BUILD
 COBJS-$(CONFIG_SPL_SPI_LOAD)	+= spi_spl_load.o
+COBJS-$(CONFIG_SPL_SPI_BOOT)	+= fsl_espi_spl.o
 endif
 
 COBJS-$(CONFIG_SPI_FLASH)	+= spi_flash.o
