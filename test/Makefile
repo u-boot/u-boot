@@ -9,6 +9,7 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)libtest.o
 
 COBJS-$(CONFIG_SANDBOX) += command_ut.o
+COBJS-$(CONFIG_SANDBOX) += compression.o
 
 COBJS	:= $(sort $(COBJS-y))
 SRCS	:= $(COBJS:.o=.c)

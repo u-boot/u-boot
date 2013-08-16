@@ -109,4 +109,9 @@
 					"stdout=serial\0" \
 					"stderr=serial\0"
 
+#define CONFIG_GZIP_COMPRESSED
+#define CONFIG_BZIP2
+#define CONFIG_LZO
+#define CONFIG_LZMA
+
 #endif
