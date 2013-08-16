@@ -3094,6 +3094,10 @@ FIT uImage format:
 		Set for the SPL on PPC mpc8xxx targets, support for
 		arch/powerpc/cpu/mpc8xxx/ddr/libddr.o in SPL binary.
 
+		CONFIG_SPL_COMMON_INIT_DDR
+		Set for common ddr init with serial presence detect in
+		SPL binary.
+
 		CONFIG_SYS_NAND_5_ADDR_CYCLE, CONFIG_SYS_NAND_PAGE_COUNT,
 		CONFIG_SYS_NAND_PAGE_SIZE, CONFIG_SYS_NAND_OOBSIZE,
 		CONFIG_SYS_NAND_BLOCK_SIZE, CONFIG_SYS_NAND_BAD_BLOCK_POS,
