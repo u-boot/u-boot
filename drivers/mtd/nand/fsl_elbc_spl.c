@@ -34,7 +34,11 @@ static void nand_wait(void)
 	}
 }
 
+#ifdef CONFIG_TPL_BUILD
+int nand_spl_load_image(uint32_t offs, unsigned int uboot_size, void *vdst)
+#else
 static int nand_load_image(uint32_t offs, unsigned int uboot_size, void *vdst)
+#endif
 {
 	fsl_lbc_t *regs = LBC_BASE_ADDR;
 	uchar *buf = (uchar *)CONFIG_SYS_NAND_BASE;
@@ -114,6 +118,15 @@ static int nand_load_image(uint32_t offs, unsigned int uboot_size, void *vdst)
 }
 
 /*
+ * Defines a static function nand_load_image() here, because non-static makes
+ * the code too large for certain SPLs(minimal SPL, maximum size <= 4Kbytes)
+ */
+#ifndef CONFIG_TPL_BUILD
+#define nand_spl_load_image(offs, uboot_size, vdst) \
+	nand_load_image(offs, uboot_size, vdst)
+#endif
+
+/*
  * The main entry for NAND booting. It's necessary that SDRAM is already
  * configured and available since this code loads the main U-Boot image
  * from NAND into SDRAM and starts it from there.
@@ -124,17 +137,17 @@ void nand_boot(void)
 	/*
 	 * Load U-Boot image from NAND into RAM
 	 */
-	nand_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
-			CONFIG_SYS_NAND_U_BOOT_SIZE,
-			(void *)CONFIG_SYS_NAND_U_BOOT_DST);
+	nand_spl_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
+			    CONFIG_SYS_NAND_U_BOOT_SIZE,
+			    (void *)CONFIG_SYS_NAND_U_BOOT_DST);
 
 #ifdef CONFIG_NAND_ENV_DST
-	nand_load_image(CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE,
-			(void *)CONFIG_NAND_ENV_DST);
+	nand_spl_load_image(CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE,
+			    (void *)CONFIG_NAND_ENV_DST);
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
-	nand_load_image(CONFIG_ENV_OFFSET_REDUND, CONFIG_ENV_SIZE,
-			(void *)CONFIG_NAND_ENV_DST + CONFIG_ENV_SIZE);
+	nand_spl_load_image(CONFIG_ENV_OFFSET_REDUND, CONFIG_ENV_SIZE,
+			    (void *)CONFIG_NAND_ENV_DST + CONFIG_ENV_SIZE);
 #endif
 #endif
 
