@@ -368,7 +368,7 @@ static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 
 	const char *type_name = genimg_get_type_name(os.type);
 
-	load_buf = map_sysmem(load, image_len);
+	load_buf = map_sysmem(load, unc_len);
 	image_buf = map_sysmem(image_start, image_len);
 	switch (comp) {
 	case IH_COMP_NONE:
