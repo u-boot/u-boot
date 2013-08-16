@@ -98,7 +98,7 @@ int pmic_reg_read(struct pmic *p, u32 reg, u32 *val)
 
 int pmic_probe(struct pmic *p)
 {
-	I2C_SET_BUS(p->bus);
+	i2c_set_bus_num(p->bus);
 	debug("Bus: %d PMIC:%s probed!\n", p->bus, p->name);
 	if (i2c_probe(pmic_i2c_addr)) {
 		printf("Can't find PMIC:%s\n", p->name);
