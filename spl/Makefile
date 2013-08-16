@@ -50,6 +50,9 @@ LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
 endif
 ifeq ($(CPU),mpc85xx)
 LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
+ifdef CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
+LIBS-y += arch/powerpc/cpu/mpc8xxx/ddr/libddr.o
+endif
 endif
 ifeq ($(CPU),mpc86xx)
 LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o

@@ -44,6 +44,11 @@ SECTIONS
 	}
 	_edata  =  .;
 
+	. = .;
+	__start___ex_table = .;
+	__ex_table : { *(__ex_table) }
+	__stop___ex_table = .;
+
 	. = ALIGN(8);
 	__init_begin = .;
 	__init_end = .;

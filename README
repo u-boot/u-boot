@@ -3090,6 +3090,10 @@ FIT uImage format:
 		Support for NAND boot using simple NAND drivers that
 		expose the cmd_ctrl() interface.
 
+		CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
+		Set for the SPL on PPC mpc8xxx targets, support for
+		arch/powerpc/cpu/mpc8xxx/ddr/libddr.o in SPL binary.
+
 		CONFIG_SYS_NAND_5_ADDR_CYCLE, CONFIG_SYS_NAND_PAGE_COUNT,
 		CONFIG_SYS_NAND_PAGE_SIZE, CONFIG_SYS_NAND_OOBSIZE,
 		CONFIG_SYS_NAND_BLOCK_SIZE, CONFIG_SYS_NAND_BAD_BLOCK_POS,
