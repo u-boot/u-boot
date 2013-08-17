@@ -123,12 +123,6 @@ static void arm_dcc_putc(char ch)
 		write_dcc(ch);
 }
 
-static void arm_dcc_puts(const char *s)
-{
-	while (*s)
-		arm_dcc_putc(*s++);
-}
-
 static int arm_dcc_tstc(void)
 {
 	register unsigned int reg;
@@ -148,7 +142,7 @@ static struct serial_device arm_dcc_drv = {
 	.stop	= NULL,
 	.setbrg	= arm_dcc_setbrg,
 	.putc	= arm_dcc_putc,
-	.puts	= arm_dcc_puts,
+	.puts	= default_serial_puts,
 	.getc	= arm_dcc_getc,
 	.tstc	= arm_dcc_tstc,
 };
