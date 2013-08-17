@@ -9,6 +9,11 @@
 #ifndef __MXC_HDMI_H__
 #define __MXC_HDMI_H__
 
+#ifdef CONFIG_IMX_HDMI
+void imx_enable_hdmi_phy(void);
+void imx_setup_hdmi(void);
+#endif
+
 /*
  * Hdmi controller registers
  */
@@ -883,6 +888,9 @@ enum {
 	HDMI_PHY_RX_SENSE0 = 0x10,
 	HDMI_PHY_HPD = 0x02,
 	HDMI_PHY_TX_PHY_LOCK = 0x01,
+
+/* Convenience macro RX_SENSE | HPD */
+	HDMI_DVI_STAT = 0xF2,
 
 /* PHY_I2CM_SLAVE_ADDR field values */
 	HDMI_PHY_I2CM_SLAVE_ADDR_PHY_GEN2 = 0x69,

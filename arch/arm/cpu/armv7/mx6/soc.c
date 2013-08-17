@@ -16,6 +16,8 @@
 #include <asm/imx-common/boot_mode.h>
 #include <asm/imx-common/dma.h>
 #include <stdbool.h>
+#include <asm/arch/mxc_hdmi.h>
+#include <asm/arch/crm_regs.h>
 
 struct scu_regs {
 	u32	ctrl;
@@ -212,3 +214,44 @@ const struct boot_mode soc_boot_modes[] = {
 void s_init(void)
 {
 }
+
+#ifdef CONFIG_IMX_HDMI
+void imx_enable_hdmi_phy(void)
+{
+	struct hdmi_regs *hdmi = (struct hdmi_regs *)HDMI_ARB_BASE_ADDR;
+	u8 reg;
+	reg = readb(&hdmi->phy_conf0);
+	reg |= HDMI_PHY_CONF0_PDZ_MASK;
+	writeb(reg, &hdmi->phy_conf0);
+	udelay(3000);
+	reg |= HDMI_PHY_CONF0_ENTMDS_MASK;
+	writeb(reg, &hdmi->phy_conf0);
+	udelay(3000);
+	reg |= HDMI_PHY_CONF0_GEN2_TXPWRON_MASK;
+	writeb(reg, &hdmi->phy_conf0);
+	writeb(HDMI_MC_PHYRSTZ_ASSERT, &hdmi->mc_phyrstz);
+}
+
+void imx_setup_hdmi(void)
+{
+	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	struct hdmi_regs *hdmi  = (struct hdmi_regs *)HDMI_ARB_BASE_ADDR;
+	int reg;
+
+	/* Turn on HDMI PHY clock */
+	reg = readl(&mxc_ccm->CCGR2);
+	reg |=  MXC_CCM_CCGR2_HDMI_TX_IAHBCLK_MASK|
+		 MXC_CCM_CCGR2_HDMI_TX_ISFRCLK_MASK;
+	writel(reg, &mxc_ccm->CCGR2);
+	writeb(HDMI_MC_PHYRSTZ_DEASSERT, &hdmi->mc_phyrstz);
+	reg = readl(&mxc_ccm->chsccdr);
+	reg &= ~(MXC_CCM_CHSCCDR_IPU1_DI0_PRE_CLK_SEL_MASK|
+		 MXC_CCM_CHSCCDR_IPU1_DI0_PODF_MASK|
+		 MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_MASK);
+	reg |= (CHSCCDR_PODF_DIVIDE_BY_3
+		 << MXC_CCM_CHSCCDR_IPU1_DI0_PODF_OFFSET)
+		 |(CHSCCDR_IPU_PRE_CLK_540M_PFD
+		 << MXC_CCM_CHSCCDR_IPU1_DI0_PRE_CLK_SEL_OFFSET);
+	writel(reg, &mxc_ccm->chsccdr);
+}
+#endif

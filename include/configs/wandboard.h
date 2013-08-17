@@ -97,6 +97,7 @@
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_IPUV3_CLK 260000000
+#define CONFIG_IMX_HDMI
 
 #if defined(CONFIG_MX6DL)
 #define CONFIG_DEFAULT_FDT_FILE		"imx6dl-wandboard.dtb"
@@ -110,6 +111,7 @@
 	"script=boot.scr\0" \
 	"uimage=uImage\0" \
 	"console=ttymxc0\0" \
+	"splashpos=m,m\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
