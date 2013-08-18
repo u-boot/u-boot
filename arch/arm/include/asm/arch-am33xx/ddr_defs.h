@@ -192,37 +192,46 @@ struct ddr_data_regs {
  * correspond to DATA1 registers defined here.
  */
 struct ddr_regs {
-	unsigned int resv0[7];
-	unsigned int cm0csratio;	/* offset 0x01C */
+	unsigned int resv0[3];
+	unsigned int cm0config;		/* offset 0x00C */
+	unsigned int cm0configclk;	/* offset 0x010 */
 	unsigned int resv1[2];
+	unsigned int cm0csratio;	/* offset 0x01C */
+	unsigned int resv2[2];
 	unsigned int cm0dldiff;		/* offset 0x028 */
 	unsigned int cm0iclkout;	/* offset 0x02C */
-	unsigned int resv2[8];
+	unsigned int resv3[4];
+	unsigned int cm1config;		/* offset 0x040 */
+	unsigned int cm1configclk;	/* offset 0x044 */
+	unsigned int resv4[2];
 	unsigned int cm1csratio;	/* offset 0x050 */
-	unsigned int resv3[2];
+	unsigned int resv5[2];
 	unsigned int cm1dldiff;		/* offset 0x05C */
 	unsigned int cm1iclkout;	/* offset 0x060 */
-	unsigned int resv4[8];
+	unsigned int resv6[4];
+	unsigned int cm2config;		/* offset 0x074 */
+	unsigned int cm2configclk;	/* offset 0x078 */
+	unsigned int resv7[2];
 	unsigned int cm2csratio;	/* offset 0x084 */
-	unsigned int resv5[2];
+	unsigned int resv8[2];
 	unsigned int cm2dldiff;		/* offset 0x090 */
 	unsigned int cm2iclkout;	/* offset 0x094 */
-	unsigned int resv6[12];
+	unsigned int resv9[12];
 	unsigned int dt0rdsratio0;	/* offset 0x0C8 */
-	unsigned int resv7[4];
+	unsigned int resv10[4];
 	unsigned int dt0wdsratio0;	/* offset 0x0DC */
-	unsigned int resv8[4];
+	unsigned int resv11[4];
 	unsigned int dt0wiratio0;	/* offset 0x0F0 */
-	unsigned int resv9;
+	unsigned int resv12;
 	unsigned int dt0wimode0;	/* offset 0x0F8 */
 	unsigned int dt0giratio0;	/* offset 0x0FC */
-	unsigned int resv10;
+	unsigned int resv13;
 	unsigned int dt0gimode0;	/* offset 0x104 */
 	unsigned int dt0fwsratio0;	/* offset 0x108 */
-	unsigned int resv11[4];
+	unsigned int resv14[4];
 	unsigned int dt0dqoffset;	/* offset 0x11C */
 	unsigned int dt0wrsratio0;	/* offset 0x120 */
-	unsigned int resv12[4];
+	unsigned int resv15[4];
 	unsigned int dt0rdelays0;	/* offset 0x134 */
 	unsigned int dt0dldiff0;	/* offset 0x138 */
 };

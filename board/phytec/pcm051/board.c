@@ -30,8 +30,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct wd_timer *wdtimer = (struct wd_timer *)WDT_BASE;
-
 /* MII mode defines */
 #define MII_MODE_ENABLE		0x0
 #define RGMII_MODE_ENABLE	0xA
@@ -43,6 +41,15 @@ static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
 /* DDR RAM defines */
 #define DDR_CLK_MHZ		303 /* DDR_DPLL_MULT value */
+
+#define OSC	(V_OSCK/1000000)
+const struct dpll_params dpll_ddr = {
+		DDR_CLK_MHZ, OSC-1, 1, -1, -1, -1, -1};
+
+const struct dpll_params *get_dpll_ddr_params(void)
+{
+	return &dpll_ddr;
+}
 
 static const struct ddr_data ddr3_data = {
 	.datardsratio0 = MT41J256M8HX15E_RD_DQS,
@@ -76,57 +83,27 @@ static struct emif_regs ddr3_emif_reg_data = {
 	.emif_ddr_phy_ctlr_1 = MT41J256M8HX15E_EMIF_READ_LATENCY |
 				PHY_EN_DYN_PWRDN,
 };
-#endif
 
-/*
- * early system init of muxing and clocks.
- */
-void s_init(void)
+void set_uart_mux_conf(void)
 {
-	/*
-	 * Save the boot parameters passed from romcode.
-	 * We cannot delay the saving further than this,
-	 * to prevent overwrites.
-	 */
-#ifdef CONFIG_SPL_BUILD
-	save_omap_boot_params();
-#endif
-
-	/*
-	 * WDT1 is already running when the bootloader gets control
-	 * Disable it to avoid "random" resets
-	 */
-	writel(0xAAAA, &wdtimer->wdtwspr);
-	while (readl(&wdtimer->wdtwwps) != 0x0)
-		;
-	writel(0x5555, &wdtimer->wdtwspr);
-	while (readl(&wdtimer->wdtwwps) != 0x0)
-		;
-
-#ifdef CONFIG_SPL_BUILD
-	/* Setup the PLLs and the clocks for the peripherals */
-	pll_init();
-
-	/* Enable RTC32K clock */
-	rtc32k_enable();
-
 	enable_uart0_pin_mux();
-	uart_soft_reset();
+}
 
-	gd = &gdata;
-
-	preloader_console_init();
-
+void set_mux_conf_regs(void)
+{
 	/* Initalize the board header */
 	enable_i2c0_pin_mux();
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 
 	enable_board_pin_mux();
+}
 
+void sdram_init(void)
+{
 	config_ddr(DDR_CLK_MHZ, MT41J256M8HX15E_IOCTRL_VALUE, &ddr3_data,
 			&ddr3_cmd_ctrl_data, &ddr3_emif_reg_data, 0);
-#endif
 }
+#endif
 
 /*
  * Basic board specific setup.  Pinmux has been handled already.
@@ -135,7 +112,7 @@ int board_init(void)
 {
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 
-	gd->bd->bi_boot_params = PHYS_DRAM_1 + 0x100;
+	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 	return 0;
 }

@@ -1,5 +1,5 @@
 /*
- * IGEP COM AQUILA/CYGNUS boards information header
+ * IGEP COM AQUILA boards information header
  *
  * Copyright (C) 2013, ISEE 2007 SL - http://www.isee.biz/
  *

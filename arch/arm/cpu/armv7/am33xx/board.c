@@ -56,12 +56,6 @@ int cpu_mmc_init(bd_t *bis)
 }
 #endif
 
-void setup_clocks_for_console(void)
-{
-	/* Not yet implemented */
-	return;
-}
-
 /* AM33XX has two MUSB controllers which can be host or gadget */
 #if (defined(CONFIG_MUSB_GADGET) || defined(CONFIG_MUSB_HOST)) && \
 	(defined(CONFIG_AM335X_USB0) || defined(CONFIG_AM335X_USB1))
@@ -142,8 +136,8 @@ int arch_misc_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
-void rtc32k_enable(void)
+#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_NOR_BOOT)
+static void rtc32k_enable(void)
 {
 	struct rtc_regs *rtc = (struct rtc_regs *)RTC_BASE;
 
@@ -159,11 +153,7 @@ void rtc32k_enable(void)
 	writel((1 << 3) | (1 << 6), &rtc->osc);
 }
 
-#define UART_RESET		(0x1 << 1)
-#define UART_CLK_RUNNING_MASK	0x1
-#define UART_SMART_IDLE_EN	(0x1 << 0x3)
-
-void uart_soft_reset(void)
+static void uart_soft_reset(void)
 {
 	struct uart_sys *uart_base = (struct uart_sys *)DEFAULT_UART_BASE;
 	u32 regval;
@@ -180,4 +170,58 @@ void uart_soft_reset(void)
 	regval |= UART_SMART_IDLE_EN;
 	writel(regval, &uart_base->uartsyscfg);
 }
+
+static void watchdog_disable(void)
+{
+	struct wd_timer *wdtimer = (struct wd_timer *)WDT_BASE;
+
+	writel(0xAAAA, &wdtimer->wdtwspr);
+	while (readl(&wdtimer->wdtwwps) != 0x0)
+		;
+	writel(0x5555, &wdtimer->wdtwspr);
+	while (readl(&wdtimer->wdtwwps) != 0x0)
+		;
+}
 #endif
+
+void s_init(void)
+{
+	/*
+	 * The ROM will only have set up sufficient pinmux to allow for the
+	 * first 4KiB NOR to be read, we must finish doing what we know of
+	 * the NOR mux in this space in order to continue.
+	 */
+#ifdef CONFIG_NOR_BOOT
+	enable_norboot_pin_mux();
+#endif
+	/*
+	 * Save the boot parameters passed from romcode.
+	 * We cannot delay the saving further than this,
+	 * to prevent overwrites.
+	 */
+#ifdef CONFIG_SPL_BUILD
+	save_omap_boot_params();
+#endif
+#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_NOR_BOOT)
+	watchdog_disable();
+	timer_init();
+	set_uart_mux_conf();
+	setup_clocks_for_console();
+	uart_soft_reset();
+#endif
+#ifdef CONFIG_NOR_BOOT
+	gd->baudrate = CONFIG_BAUDRATE;
+	serial_init();
+	gd->have_console = 1;
+#else
+	gd = &gdata;
+	preloader_console_init();
+#endif
+#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_NOR_BOOT)
+	prcm_init();
+	set_mux_conf_regs();
+	/* Enable RTC32K clock */
+	rtc32k_enable();
+	sdram_init();
+#endif
+}

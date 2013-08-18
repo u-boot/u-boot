@@ -28,6 +28,11 @@ const struct pinmux_config uart0_pins_txrx[] = {
 	{ pinmux(3), 2, 5 }, /* UART0_TXD */
 };
 
+const struct pinmux_config uart0_pins_rtscts[] = {
+	{ pinmux(3), 2, 6 },
+	{ pinmux(3), 2, 7 },
+};
+
 const struct pinmux_config uart1_pins_txrx[] = {
 	{ pinmux(4), 2, 6 }, /* UART1_RXD */
 	{ pinmux(4), 2, 7 }, /* UART1_TXD */
@@ -51,6 +56,7 @@ const struct pinmux_config emac_pins_rmii[] = {
 	{ pinmux(14), 8, 5 }, /* RMII_RXD[1] */
 	{ pinmux(14), 8, 6 }, /* RMII_RXD[0] */
 	{ pinmux(14), 8, 7 }, /* RMII_RXER */
+	{ pinmux(15), 0, 0 }, /* RMII_MHz_50_CLK */
 	{ pinmux(15), 8, 1 }, /* RMII_CRS_DV */
 };
 

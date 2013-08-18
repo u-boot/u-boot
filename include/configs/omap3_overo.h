@@ -14,6 +14,7 @@
 #define CONFIG_OMAP34XX				/* which is a 34XX */
 #define CONFIG_OMAP3_OVERO			/* working with overo */
 #define CONFIG_OMAP_GPIO
+#define CONFIG_OMAP_COMMON
 
 #define CONFIG_SDRC				/* The chip has SDRC controller */
 

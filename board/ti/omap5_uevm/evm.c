@@ -10,6 +10,7 @@
 #include <palmas.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mmc_host_def.h>
+#include <tca642x.h>
 
 #include "mux_data.h"
 
@@ -17,6 +18,25 @@ DECLARE_GLOBAL_DATA_PTR;
 
 const struct omap_sysinfo sysinfo = {
 	"Board: OMAP5430 EVM\n"
+};
+
+/**
+ * @brief tca642x_init - uEVM default values for the GPIO expander
+ * input reg, output reg, polarity reg, configuration reg
+ */
+struct tca642x_bank_info tca642x_init[] = {
+	{ .input_reg = 0x00,
+	  .output_reg = 0x04,
+	  .polarity_reg = 0x00,
+	  .configuration_reg = 0x80 },
+	{ .input_reg = 0x00,
+	  .output_reg = 0x00,
+	  .polarity_reg = 0x00,
+	  .configuration_reg = 0xff },
+	{ .input_reg = 0x00,
+	  .output_reg = 0x00,
+	  .polarity_reg = 0x00,
+	  .configuration_reg = 0x40 },
 };
 
 /**
@@ -29,6 +49,8 @@ int board_init(void)
 	gpmc_init();
 	gd->bd->bi_arch_number = MACH_TYPE_OMAP5_SEVM;
 	gd->bd->bi_boot_params = (0x80000000 + 0x100); /* boot param addr */
+
+	tca642x_set_inital_state(CONFIG_SYS_I2C_TCA642X_ADDR, tca642x_init);
 
 	return 0;
 }

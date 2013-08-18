@@ -19,6 +19,7 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch/mem.h>
 #include <asm/io.h>
 #include <asm/emif.h>
 #include <asm/gpio.h>
@@ -29,8 +30,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct wd_timer *wdtimer = (struct wd_timer *)WDT_BASE;
-
 /* MII mode defines */
 #define MII_MODE_ENABLE		0x0
 #define RGMII_MODE_ENABLE	0x3A
@@ -40,43 +39,10 @@ static struct wd_timer *wdtimer = (struct wd_timer *)WDT_BASE;
 
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
-static struct am335x_baseboard_id __attribute__((section (".data"))) header;
-
-static inline int board_is_bone(void)
-{
-	return !strncmp(header.name, "A335BONE", HDR_NAME_LEN);
-}
-
-static inline int board_is_bone_lt(void)
-{
-	return !strncmp(header.name, "A335BNLT", HDR_NAME_LEN);
-}
-
-static inline int board_is_evm_sk(void)
-{
-	return !strncmp("A335X_SK", header.name, HDR_NAME_LEN);
-}
-
-static inline int board_is_idk(void)
-{
-	return !strncmp(header.config, "SKU#02", 6);
-}
-
-static int __maybe_unused board_is_gp_evm(void)
-{
-	return !strncmp("A33515BB", header.name, 8);
-}
-
-int board_is_evm_15_or_later(void)
-{
-	return (!strncmp("A33515BB", header.name, 8) &&
-		strncmp("1.5", header.version, 3) <= 0);
-}
-
 /*
  * Read header information from EEPROM into global structure.
  */
-static int read_eeprom(void)
+static int read_eeprom(struct am335x_baseboard_id *header)
 {
 	/* Check if baseboard eeprom is available */
 	if (i2c_probe(CONFIG_SYS_I2C_EEPROM_ADDR)) {
@@ -86,28 +52,28 @@ static int read_eeprom(void)
 	}
 
 	/* read the eeprom using i2c */
-	if (i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0, 2, (uchar *)&header,
-							sizeof(header))) {
+	if (i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0, 2, (uchar *)header,
+		     sizeof(struct am335x_baseboard_id))) {
 		puts("Could not read the EEPROM; something fundamentally"
 			" wrong on the I2C bus.\n");
 		return -EIO;
 	}
 
-	if (header.magic != 0xEE3355AA) {
+	if (header->magic != 0xEE3355AA) {
 		/*
 		 * read the eeprom using i2c again,
 		 * but use only a 1 byte address
 		 */
-		if (i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0, 1,
-					(uchar *)&header, sizeof(header))) {
+		if (i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0, 1, (uchar *)header,
+			     sizeof(struct am335x_baseboard_id))) {
 			puts("Could not read the EEPROM; something "
 				"fundamentally wrong on the I2C bus.\n");
 			return -EIO;
 		}
 
-		if (header.magic != 0xEE3355AA) {
+		if (header->magic != 0xEE3355AA) {
 			printf("Incorrect magic number (0x%x) in EEPROM\n",
-					header.magic);
+					header->magic);
 			return -EINVAL;
 		}
 	}
@@ -115,7 +81,7 @@ static int read_eeprom(void)
 	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
+#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_NOR_BOOT)
 static const struct ddr_data ddr2_data = {
 	.datardsratio0 = ((MT47H128M16RT25E_RD_DQS<<30) |
 			  (MT47H128M16RT25E_RD_DQS<<20) |
@@ -274,39 +240,35 @@ int spl_start_uboot(void)
 }
 #endif
 
-#endif
+#define OSC	(V_OSCK/1000000)
+const struct dpll_params dpll_ddr = {
+		266, OSC-1, 1, -1, -1, -1, -1};
+const struct dpll_params dpll_ddr_evm_sk = {
+		303, OSC-1, 1, -1, -1, -1, -1};
+const struct dpll_params dpll_ddr_bone_black = {
+		400, OSC-1, 1, -1, -1, -1, -1};
 
-/*
- * early system init of muxing and clocks.
- */
-void s_init(void)
+const struct dpll_params *get_dpll_ddr_params(void)
 {
-	/*
-	 * Save the boot parameters passed from romcode.
-	 * We cannot delay the saving further than this,
-	 * to prevent overwrites.
-	 */
-#ifdef CONFIG_SPL_BUILD
-	save_omap_boot_params();
-#endif
+	struct am335x_baseboard_id header;
 
-	/* WDT1 is already running when the bootloader gets control
-	 * Disable it to avoid "random" resets
-	 */
-	writel(0xAAAA, &wdtimer->wdtwspr);
-	while (readl(&wdtimer->wdtwwps) != 0x0)
-		;
-	writel(0x5555, &wdtimer->wdtwspr);
-	while (readl(&wdtimer->wdtwwps) != 0x0)
-		;
+	enable_i2c0_pin_mux();
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+	if (read_eeprom(&header) < 0)
+		puts("Could not get board ID.\n");
 
-#ifdef CONFIG_SPL_BUILD
-	/* Setup the PLLs and the clocks for the peripherals */
-	pll_init();
+	if (board_is_evm_sk(&header))
+		return &dpll_ddr_evm_sk;
+	else if (board_is_bone_lt(&header))
+		return &dpll_ddr_bone_black;
+	else if (board_is_evm_15_or_later(&header))
+		return &dpll_ddr_evm_sk;
+	else
+		return &dpll_ddr;
+}
 
-	/* Enable RTC32K clock */
-	rtc32k_enable();
-
+void set_uart_mux_conf(void)
+{
 #ifdef CONFIG_SERIAL1
 	enable_uart0_pin_mux();
 #endif /* CONFIG_SERIAL1 */
@@ -325,21 +287,26 @@ void s_init(void)
 #ifdef CONFIG_SERIAL6
 	enable_uart5_pin_mux();
 #endif /* CONFIG_SERIAL6 */
+}
 
-	uart_soft_reset();
+void set_mux_conf_regs(void)
+{
+	__maybe_unused struct am335x_baseboard_id header;
 
-	gd = &gdata;
-
-	preloader_console_init();
-
-	/* Initalize the board header */
-	enable_i2c0_pin_mux();
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-	if (read_eeprom() < 0)
+	if (read_eeprom(&header) < 0)
 		puts("Could not get board ID.\n");
 
 	enable_board_pin_mux(&header);
-	if (board_is_evm_sk()) {
+}
+
+void sdram_init(void)
+{
+	__maybe_unused struct am335x_baseboard_id header;
+
+	if (read_eeprom(&header) < 0)
+		puts("Could not get board ID.\n");
+
+	if (board_is_evm_sk(&header)) {
 		/*
 		 * EVM SK 1.2A and later use gpio0_7 to enable DDR3.
 		 * This is safe enough to do on older revs.
@@ -348,35 +315,43 @@ void s_init(void)
 		gpio_direction_output(GPIO_DDR_VTT_EN, 1);
 	}
 
-	if (board_is_evm_sk())
+	if (board_is_evm_sk(&header))
 		config_ddr(303, MT41J128MJT125_IOCTRL_VALUE, &ddr3_data,
 			   &ddr3_cmd_ctrl_data, &ddr3_emif_reg_data, 0);
-	else if (board_is_bone_lt())
+	else if (board_is_bone_lt(&header))
 		config_ddr(400, MT41K256M16HA125E_IOCTRL_VALUE,
 			   &ddr3_beagleblack_data,
 			   &ddr3_beagleblack_cmd_ctrl_data,
 			   &ddr3_beagleblack_emif_reg_data, 0);
-	else if (board_is_evm_15_or_later())
+	else if (board_is_evm_15_or_later(&header))
 		config_ddr(303, MT41J512M8RH125_IOCTRL_VALUE, &ddr3_evm_data,
 			   &ddr3_evm_cmd_ctrl_data, &ddr3_evm_emif_reg_data, 0);
 	else
 		config_ddr(266, MT47H128M16RT25E_IOCTRL_VALUE, &ddr2_data,
 			   &ddr2_cmd_ctrl_data, &ddr2_emif_reg_data, 0);
-#endif
 }
+#endif
 
 /*
  * Basic board specific setup.  Pinmux has been handled already.
  */
 int board_init(void)
 {
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-	if (read_eeprom() < 0)
-		puts("Could not get board ID.\n");
+#ifdef CONFIG_NOR
+	const u32 gpmc_nor[GPMC_MAX_REG] = { STNOR_GPMC_CONFIG1,
+		STNOR_GPMC_CONFIG2, STNOR_GPMC_CONFIG3, STNOR_GPMC_CONFIG4,
+		STNOR_GPMC_CONFIG5, STNOR_GPMC_CONFIG6, STNOR_GPMC_CONFIG7 };
+#endif
 
-	gd->bd->bi_boot_params = PHYS_DRAM_1 + 0x100;
+	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 	gpmc_init();
+
+#ifdef CONFIG_NOR
+	/* Reconfigure CS0 for NOR instead of NAND. */
+	enable_gpmc_cs_config(gpmc_nor, &gpmc_cfg->cs[0],
+			      CONFIG_SYS_FLASH_BASE, GPMC_SIZE_16M);
+#endif
 
 	return 0;
 }
@@ -386,6 +361,10 @@ int board_late_init(void)
 {
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	char safe_string[HDR_NAME_LEN + 1];
+	struct am335x_baseboard_id header;
+
+	if (read_eeprom(&header) < 0)
+		puts("Could not get board ID.\n");
 
 	/* Now set variables based on the header. */
 	strncpy(safe_string, (char *)header.name, sizeof(header.name));
@@ -435,6 +414,7 @@ static struct cpsw_platform_data cpsw_data = {
 	.ale_entries		= 1024,
 	.host_port_reg_ofs	= 0x108,
 	.hw_stats_reg_ofs	= 0x900,
+	.bd_ram_ofs		= 0x2000,
 	.mac_control		= (1 << 5),
 	.control		= cpsw_control,
 	.host_port_num		= 0,
@@ -449,6 +429,7 @@ int board_eth_init(bd_t *bis)
 	int rv, n = 0;
 	uint8_t mac_addr[6];
 	uint32_t mac_hi, mac_lo;
+	__maybe_unused struct am335x_baseboard_id header;
 
 	/* try reading mac address from efuse */
 	mac_lo = readl(&cdev->macid0l);
@@ -470,7 +451,11 @@ int board_eth_init(bd_t *bis)
 	}
 
 #ifdef CONFIG_DRIVER_TI_CPSW
-	if (board_is_bone() || board_is_bone_lt() || board_is_idk()) {
+	if (read_eeprom(&header) < 0)
+		puts("Could not get board ID.\n");
+
+	if (board_is_bone(&header) || board_is_bone_lt(&header) ||
+	    board_is_idk(&header)) {
 		writel(MII_MODE_ENABLE, &cdev->miisel);
 		cpsw_slaves[0].phy_if = cpsw_slaves[1].phy_if =
 				PHY_INTERFACE_MODE_MII;
@@ -499,7 +484,7 @@ int board_eth_init(bd_t *bis)
 #define AR8051_DEBUG_RGMII_CLK_DLY_REG	0x5
 #define AR8051_RGMII_TX_CLK_DLY		0x100
 
-	if (board_is_evm_sk() || board_is_gp_evm()) {
+	if (board_is_evm_sk(&header) || board_is_gp_evm(&header)) {
 		const char *devname;
 		devname = miiphy_get_current_dev();
 

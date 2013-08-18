@@ -14,6 +14,8 @@
 #define SYSTIMER_RELOAD		0xFFFFFFFF
 #define SYSTIMER_EN		(1 << 7)
 #define SYSTIMER_32BIT		(1 << 1)
+#define SYSTIMER_PRESC_16	(1 << 2)
+#define SYSTIMER_PRESC_256	(1 << 3)
 
 struct systimer {
 	u32 timer0load;		/* 0x00 */

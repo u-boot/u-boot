@@ -196,6 +196,18 @@ static const struct dpll_params *get_ddr_dpll_params
 	return &dpll_data->ddr[sysclk_ind];
 }
 
+#ifdef CONFIG_DRIVER_TI_CPSW
+static const struct dpll_params *get_gmac_dpll_params
+			(struct dplls const *dpll_data)
+{
+	u32 sysclk_ind = get_sys_clk_index();
+
+	if (!dpll_data->gmac)
+		return NULL;
+	return &dpll_data->gmac[sysclk_ind];
+}
+#endif
+
 static void do_setup_dpll(u32 const base, const struct dpll_params *params,
 				u8 lock, char *dpll)
 {
@@ -398,6 +410,12 @@ static void setup_dplls(void)
 	params = get_ddr_dpll_params(*dplls_data);
 	do_setup_dpll((*prcm)->cm_clkmode_dpll_ddrphy,
 		      params, DPLL_LOCK, "ddr");
+
+#ifdef CONFIG_DRIVER_TI_CPSW
+	params = get_gmac_dpll_params(*dplls_data);
+	do_setup_dpll((*prcm)->cm_clkmode_dpll_gmac, params,
+		      DPLL_LOCK, "gmac");
+#endif
 }
 
 #ifdef CONFIG_SYS_CLOCKS_ENABLE_ALL

@@ -138,6 +138,18 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
+void set_fdt(void)
+{
+	switch (gd->bd->bi_arch_number) {
+	case MACH_TYPE_IGEP0020:
+		setenv("dtbfile", "omap3-igep0020.dtb");
+		break;
+	case MACH_TYPE_IGEP0030:
+		setenv("dtbfile", "omap3-igep0030.dtb");
+		break;
+	}
+}
+
 /*
  * Routine: misc_init_r
  * Description: Configure board specific parts
@@ -149,6 +161,8 @@ int misc_init_r(void)
 	setup_net_chip();
 
 	dieid_num_r();
+
+	set_fdt();
 
 	return 0;
 }

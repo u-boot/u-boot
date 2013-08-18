@@ -13,6 +13,7 @@
 #include <mmc.h>
 #include <fat.h>
 #include <version.h>
+#include <image.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -29,6 +30,9 @@ static int mmc_load_image_raw(struct mmc *mmc, unsigned long sector)
 	err = mmc->block_dev.block_read(0, sector, 1, header);
 	if (err == 0)
 		goto end;
+
+	if (image_get_magic(header) != IH_MAGIC)
+		return -1;
 
 	spl_parse_image_header(header);
 

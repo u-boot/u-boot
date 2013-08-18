@@ -342,9 +342,9 @@ int print_cpuinfo (void)
 	}
 
 	if (CPU_OMAP36XX == get_cpu_family())
-		printf("%s%s-%s ES%s, CPU-OPP2, L3-165MHz, Max CPU Clock %s\n",
-			cpu_family_s, cpu_s, sec_s,
-			rev_s_37xx[get_cpu_rev()], max_clk);
+		printf("%s%s-%s ES%s, CPU-OPP2, L3-200MHz, Max CPU Clock %s\n",
+		       cpu_family_s, cpu_s, sec_s,
+		       rev_s_37xx[get_cpu_rev()], max_clk);
 	else
 		printf("%s%s-%s ES%s, CPU-OPP2, L3-165MHz, Max CPU Clock %s\n",
 			cpu_family_s, cpu_s, sec_s,

@@ -299,7 +299,11 @@ int arch_cpu_init(void)
 	 */
 	writel((DAVINCI_UART_PWREMU_MGMT_FREE | DAVINCI_UART_PWREMU_MGMT_URRST |
 		DAVINCI_UART_PWREMU_MGMT_UTRST),
+#if (CONFIG_SYS_NS16550_COM1 == DAVINCI_UART0_BASE)
+	       &davinci_uart0_ctrl_regs->pwremu_mgmt);
+#else
 	       &davinci_uart2_ctrl_regs->pwremu_mgmt);
+#endif
 
 #if defined(CONFIG_SYS_DA850_DDR_INIT)
 	da850_ddr_setup();

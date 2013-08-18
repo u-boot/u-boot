@@ -35,6 +35,11 @@ void enable_gpmc_cs_config(const u32 *gpmc_config, struct gpmc_cs *cs, u32 base,
 			u32 size);
 void omap_nand_switch_ecc(uint32_t, uint32_t);
 
-void rtc32k_enable(void);
-void uart_soft_reset(void);
+void set_uart_mux_conf(void);
+void set_mux_conf_regs(void);
+void sdram_init(void);
+u32 wait_on_value(u32, u32, void *, u32);
+#ifdef CONFIG_NOR_BOOT
+void enable_norboot_pin_mux(void);
+#endif
 #endif

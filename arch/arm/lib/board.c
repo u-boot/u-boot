@@ -435,6 +435,7 @@ void board_init_f(ulong bootflag)
 	addr_sp += 128;	/* leave 32 words for abort-stack   */
 	gd->irq_sp = addr_sp;
 #endif
+	interrupt_init();
 
 	debug("New Stack Pointer is: %08lx\n", addr_sp);
 
@@ -636,8 +637,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	misc_init_r();
 #endif
 
-	 /* set up exceptions */
-	interrupt_init();
 	/* enable exceptions */
 	enable_interrupts();
 

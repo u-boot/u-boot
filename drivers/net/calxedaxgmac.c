@@ -390,7 +390,7 @@ static int xgmac_init(struct eth_device *dev, bd_t * bis)
 	/* set flow control parameters and store and forward mode */
 	value = (FIFO_MINUS_12K << XGMAC_CORE_OMR_RFD_SHIFT) |
 		(FIFO_MINUS_4K << XGMAC_CORE_OMR_RFA_SHIFT) |
-		XGMAC_CORE_OMR_EFC | XGMAC_CORE_OMR_TSF | XGMAC_CORE_OMR_RSF;
+		XGMAC_CORE_OMR_EFC | XGMAC_CORE_OMR_TSF;
 	writel(value, &regs->core_opmode);
 
 	/* enable pause frames */

@@ -45,12 +45,17 @@ void __weak board_init_f(ulong dummy)
 #ifdef CONFIG_SPL_OS_BOOT
 void __noreturn jump_to_image_linux(void *arg)
 {
+	unsigned long machid = 0xffffffff;
+#ifdef CONFIG_MACH_TYPE
+	machid = CONFIG_MACH_TYPE;
+#endif
+
 	debug("Entering kernel arg pointer: 0x%p\n", arg);
 	typedef void (*image_entry_arg_t)(int, int, void *)
 		__attribute__ ((noreturn));
 	image_entry_arg_t image_entry =
 		(image_entry_arg_t) spl_image.entry_point;
 	cleanup_before_linux();
-	image_entry(0, CONFIG_MACH_TYPE, arg);
+	image_entry(0, machid, arg);
 }
 #endif

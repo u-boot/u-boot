@@ -378,6 +378,10 @@ struct omap_sys_ctrl_regs const omap5_ctrl = {
 
 struct omap_sys_ctrl_regs const dra7xx_ctrl = {
 	.control_status				= 0x4A002134,
+	.control_core_mac_id_0_lo		= 0x4A002514,
+	.control_core_mac_id_0_hi		= 0x4A002518,
+	.control_core_mac_id_1_lo		= 0x4A00251C,
+	.control_core_mac_id_1_hi		= 0x4A002520,
 	.control_core_mmr_lock1			= 0x4A002540,
 	.control_core_mmr_lock2			= 0x4A002544,
 	.control_core_mmr_lock3			= 0x4A002548,
@@ -798,6 +802,7 @@ struct prcm_regs const dra7xx_prcm = {
 	.cm_ssc_deltamstep_dpll_ddrphy		= 0x4a00522c,
 	.cm_clkmode_dpll_dsp			= 0x4a005234,
 	.cm_shadow_freq_config1			= 0x4a005260,
+	.cm_clkmode_dpll_gmac			= 0x4a0052a8,
 
 	/* cm1.mpu */
 	.cm_mpu_mpu_clkctrl			= 0x4a005320,
@@ -895,6 +900,8 @@ struct prcm_regs const dra7xx_prcm = {
 	.cm_l3init_hsusbhost_clkctrl		= 0x4a009340,
 	.cm_l3init_hsusbotg_clkctrl		= 0x4a009348,
 	.cm_l3init_hsusbtll_clkctrl		= 0x4a009350,
+	.cm_gmac_clkstctrl			= 0x4a0093c0,
+	.cm_gmac_gmac_clkctrl			= 0x4a0093d0,
 	.cm_l3init_ocp2scp1_clkctrl		= 0x4a0093e0,
 
 	/* cm2.l4per */

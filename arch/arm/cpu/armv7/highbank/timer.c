@@ -15,7 +15,7 @@
 
 #undef SYSTIMER_BASE
 #define SYSTIMER_BASE		0xFFF34000	/* Timer 0 and 1 base	*/
-#define SYSTIMER_RATE		150000000
+#define SYSTIMER_RATE		(150000000 / 256)
 
 static ulong timestamp;
 static ulong lastinc;
@@ -29,11 +29,11 @@ int timer_init(void)
 	/*
 	 * Setup timer0
 	 */
+	writel(0, &systimer_base->timer0control);
 	writel(SYSTIMER_RELOAD, &systimer_base->timer0load);
 	writel(SYSTIMER_RELOAD, &systimer_base->timer0value);
-	writel(SYSTIMER_EN | SYSTIMER_32BIT, &systimer_base->timer0control);
-
-	reset_timer_masked();
+	writel(SYSTIMER_EN | SYSTIMER_32BIT | SYSTIMER_PRESC_256,
+		&systimer_base->timer0control);
 
 	return 0;
 
@@ -113,5 +113,5 @@ ulong get_timer_masked(void)
 
 ulong get_tbclk(void)
 {
-	return CONFIG_SYS_HZ;
+	return SYSTIMER_RATE;
 }

@@ -17,8 +17,6 @@
 	"uuid_disk=${uuid_gpt_disk};" \
 	"name=rootfs,start=2MiB,size=-,uuid=${uuid_gpt_rootfs}"
 
-#include <configs/omap5_common.h>
-
 #define CONFIG_CONS_INDEX		3
 #define CONFIG_SYS_NS16550_COM3		UART3_BASE
 #define CONFIG_BAUDRATE			115200
@@ -37,9 +35,14 @@
 #define CONFIG_PARTITION_UUIDS
 #define CONFIG_CMD_PART
 
-#define CONFIG_SYS_PROMPT		"OMAP5432 uEVM # "
+#define CONFIG_TCA642X
+#define CONFIG_CMD_TCA642X
+#define CONFIG_SYS_I2C_TCA642X_BUS_NUM 4
+#define CONFIG_SYS_I2C_TCA642X_ADDR 0x22
 
 #define CONSOLEDEV		"ttyO2"
-
 #define CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC	16296
+
+#include <configs/omap5_common.h>
+
 #endif /* __CONFIG_OMAP5_EVM_H */

@@ -7,14 +7,18 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_SYS_DCACHE_OFF
 #define CONFIG_L2_OFF
+#define CONFIG_SYS_THUMB_BUILD
 
 #define CONFIG_SYS_NO_FLASH
 #define CFG_HZ				1000
 #define CONFIG_SYS_HZ			CFG_HZ
 
 #define CONFIG_OF_LIBFDT
+#define CONFIG_OF_BOARD_SETUP
 #define CONFIG_FIT
+#define CONFIG_SUPPORT_RAW_INITRD
 #define CONFIG_SYS_BOOTMAPSZ		(16 << 20)
 
 /*
@@ -27,7 +31,7 @@
 #define CONFIG_PL01x_PORTS		{ (void *)(0xFFF36000) }
 #define CONFIG_CONS_INDEX		0
 
-#define CONFIG_BAUDRATE			38400
+#define CONFIG_BAUDRATE			115200
 
 #define CONFIG_BOOTCOUNT_LIMIT
 #define CONFIG_SYS_BOOTCOUNT_SINGLEWORD
@@ -43,6 +47,7 @@
 					CONFIG_SYS_SCSI_MAX_LUN)
 
 #define CONFIG_DOS_PARTITION
+#define CONFIG_EFI_PARTITION
 
 #define CONFIG_CALXEDA_XGMAC
 
@@ -57,31 +62,42 @@
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_BDI
+#define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_LOADS
 #define CONFIG_CMD_SCSI
 #define CONFIG_CMD_EXT2
+#define CONFIG_CMD_EXT4
+#define CONFIG_CMD_FAT
 #define CONFIG_CMD_PXE
 #define CONFIG_MENU
 
 #define CONFIG_BOOTDELAY		2
+#define CONFIG_BOOT_RETRY_TIME		-1
+#define CONFIG_RESET_TO_RETRY
+#define CONFIG_AUTOBOOT_KEYED
+#define CONFIG_AUTOBOOT_PROMPT "Autobooting in %d seconds...\nPress <s> to stop or <d> to delay\n", bootdelay
+
 /*
  * Miscellaneous configurable options
  */
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_LONGHELP		/* undef to save memory		 */
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
+#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 #define CONFIG_SYS_MAXARGS		16	/* max number of cmd args */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_PROMPT		"Highbank #"
+#define CONFIG_SYS_HUSH_PARSER
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					 sizeof(CONFIG_SYS_PROMPT)+16)
 
 #define CONFIG_SYS_LOAD_ADDR		0x800000
+#define CONFIG_SYS_64BIT_LBA
+
 
 /*-----------------------------------------------------------------------
  * Physical Memory Map

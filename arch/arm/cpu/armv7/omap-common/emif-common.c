@@ -153,7 +153,7 @@ static void lpddr2_init(u32 base, const struct emif_regs *regs)
 	 * un-locked frequency & default RL
 	 */
 	writel(regs->sdram_config_init, &emif->emif_sdram_config);
-	writel(regs->emif_ddr_phy_ctlr_1, &emif->emif_ddr_phy_ctrl_1);
+	writel(regs->emif_ddr_phy_ctlr_1_init, &emif->emif_ddr_phy_ctrl_1);
 
 	do_ext_phy_settings(base, regs);
 
