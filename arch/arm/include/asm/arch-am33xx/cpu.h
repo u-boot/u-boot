@@ -46,6 +46,26 @@
 #define PRM_RSTCTRL_RESET		0x01
 #define PRM_RSTST_WARM_RESET_MASK	0x232
 
+/*
+ * Watchdog:
+ * Using the prescaler, the OMAP watchdog could go for many
+ * months before firing.  These limits work without scaling,
+ * with the 60 second default assumed by most tools and docs.
+ */
+#define TIMER_MARGIN_MAX	(24 * 60 * 60)	/* 1 day */
+#define TIMER_MARGIN_DEFAULT	60	/* 60 secs */
+#define TIMER_MARGIN_MIN	1
+
+#define PTV			0	/* prescale */
+#define GET_WLDR_VAL(secs)	(0xffffffff - ((secs) * (32768/(1<<PTV))) + 1)
+#define WDT_WWPS_PEND_WCLR	BIT(0)
+#define WDT_WWPS_PEND_WLDR	BIT(2)
+#define WDT_WWPS_PEND_WTGR	BIT(3)
+#define WDT_WWPS_PEND_WSPR	BIT(4)
+
+#define WDT_WCLR_PRE		BIT(5)
+#define WDT_WCLR_PTV_OFF	2
+
 #ifndef __KERNEL_STRICT_NAMES
 #ifndef __ASSEMBLY__
 struct gpmc_cs {
