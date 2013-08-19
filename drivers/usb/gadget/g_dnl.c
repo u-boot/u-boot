@@ -56,11 +56,14 @@ static struct usb_device_descriptor device_desc = {
 	.bNumConfigurations = 1,
 };
 
-/* static strings, in UTF-8 */
+/*
+ * static strings, in UTF-8
+ * IDs for those strings are assigned dynamically at g_dnl_bind()
+ */
 static struct usb_string g_dnl_string_defs[] = {
-	{ 0, manufacturer, },
-	{ 1, product, },
-	{  }		/* end of list */
+	{.s = manufacturer},
+	{.s = product},
+	{ }		/* end of list */
 };
 
 static struct usb_gadget_strings g_dnl_string_tab = {
