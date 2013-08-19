@@ -58,4 +58,11 @@
 #define USB0_OTG_BASE			0x47401000
 #define USB1_OTG_BASE			0x47401800
 
+/* LCD Controller */
+#define LCD_CNTL_BASE			0x4830E000
+
+/* PWMSS */
+#define PWMSS0_BASE			0x48300000
+#define AM33XX_ECAP0_BASE		0x48300100
+
 #endif /* __AM33XX_HARDWARE_AM33XX_H */
