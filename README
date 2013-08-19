@@ -144,7 +144,6 @@ Directory Hierarchy:
       /arm1136		Files specific to ARM 1136 CPUs
       /ixp		Files specific to Intel XScale IXP CPUs
       /pxa		Files specific to Intel XScale PXA CPUs
-      /s3c44b0		Files specific to Samsung S3C44B0 CPUs
       /sa1100		Files specific to Intel StrongARM SA1100 CPUs
     /lib		Architecture specific library files
   /avr32		Files generic to AVR32 architecture
