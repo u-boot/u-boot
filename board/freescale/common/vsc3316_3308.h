@@ -12,7 +12,7 @@
 #include <errno.h>
 
 int vsc_if_enable(unsigned int vsc_addr);
-int vsc3316_config(unsigned int vsc_addr, const int8_t con_arr[][2],
+int vsc3316_config(unsigned int vsc_addr, int8_t con_arr[][2],
 		unsigned int num_con);
 int vsc3308_config(unsigned int vsc_addr, const int8_t con_arr[][2],
 		unsigned int num_con);
