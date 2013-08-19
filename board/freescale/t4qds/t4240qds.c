@@ -353,25 +353,60 @@ int config_frontside_crossbar_vsc3316(void)
 	srds_prtcl_s1 = in_be32(&gur->rcwsr[4]) &
 			FSL_CORENET2_RCWSR4_SRDS1_PRTCL;
 	srds_prtcl_s1 >>= FSL_CORENET2_RCWSR4_SRDS1_PRTCL_SHIFT;
-	if (srds_prtcl_s1) {
+	switch (srds_prtcl_s1) {
+	case 38:
+		/* swap first lane and third lane on slot1 */
+		vsc3316_fsm1_tx[0][1] = 14;
+		vsc3316_fsm1_tx[6][1] = 0;
+		vsc3316_fsm1_rx[1][1] = 2;
+		vsc3316_fsm1_rx[6][1] = 13;
+	case 40:
+	case 46:
+	case 48:
+		/* swap first lane and third lane on slot2 */
+		vsc3316_fsm1_tx[2][1] = 8;
+		vsc3316_fsm1_tx[4][1] = 6;
+		vsc3316_fsm1_rx[2][1] = 10;
+		vsc3316_fsm1_rx[5][1] = 5;
+	default:
 		ret = vsc3316_config(VSC3316_FSM_TX_ADDR, vsc3316_fsm1_tx, 8);
 		if (ret)
 			return ret;
 		ret = vsc3316_config(VSC3316_FSM_RX_ADDR, vsc3316_fsm1_rx, 8);
 		if (ret)
 			return ret;
+		break;
 	}
 
 	srds_prtcl_s2 = in_be32(&gur->rcwsr[4]) &
 				FSL_CORENET2_RCWSR4_SRDS2_PRTCL;
 	srds_prtcl_s2 >>= FSL_CORENET2_RCWSR4_SRDS2_PRTCL_SHIFT;
-	if (srds_prtcl_s2) {
+	switch (srds_prtcl_s2) {
+	case 38:
+		/* swap first lane and third lane on slot3 */
+		vsc3316_fsm2_tx[2][1] = 11;
+		vsc3316_fsm2_tx[5][1] = 4;
+		vsc3316_fsm2_rx[2][1] = 9;
+		vsc3316_fsm2_rx[4][1] = 7;
+	case 40:
+	case 46:
+	case 48:
+	case 50:
+	case 52:
+	case 54:
+		/* swap first lane and third lane on slot4 */
+		vsc3316_fsm2_tx[6][1] = 3;
+		vsc3316_fsm2_tx[1][1] = 12;
+		vsc3316_fsm2_rx[0][1] = 1;
+		vsc3316_fsm2_rx[6][1] = 15;
+	default:
 		ret = vsc3316_config(VSC3316_FSM_TX_ADDR, vsc3316_fsm2_tx, 8);
 		if (ret)
 			return ret;
 		ret = vsc3316_config(VSC3316_FSM_RX_ADDR, vsc3316_fsm2_rx, 8);
 		if (ret)
 			return ret;
+		break;
 	}
 
 	return 0;
