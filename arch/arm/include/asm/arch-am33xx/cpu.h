@@ -486,6 +486,25 @@ struct ctrl_dev {
 	unsigned int resv4[4];
 	unsigned int miisel;		/* offset 0x50 */
 };
+
+/* gmii_sel register defines */
+#define GMII1_SEL_MII		0x0
+#define GMII1_SEL_RMII		0x1
+#define GMII1_SEL_RGMII		0x2
+#define GMII2_SEL_MII		0x0
+#define GMII2_SEL_RMII		0x4
+#define GMII2_SEL_RGMII		0x8
+#define RGMII1_IDMODE		BIT(4)
+#define RGMII2_IDMODE		BIT(5)
+#define RMII1_IO_CLK_EN		BIT(6)
+#define RMII2_IO_CLK_EN		BIT(7)
+
+#define MII_MODE_ENABLE		(GMII1_SEL_MII | GMII2_SEL_MII)
+#define RMII_MODE_ENABLE        (GMII1_SEL_RMII | GMII2_SEL_RMII)
+#define RGMII_MODE_ENABLE	(GMII1_SEL_RGMII | GMII2_SEL_RGMII)
+#define RGMII_INT_DELAY		(RGMII1_IDMODE | RGMII2_IDMODE)
+#define RMII_CHIPCKL_ENABLE     (RMII1_IO_CLK_EN | RMII2_IO_CLK_EN)
+
 #endif /* __ASSEMBLY__ */
 #endif /* __KERNEL_STRICT_NAMES */
 
