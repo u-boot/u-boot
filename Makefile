@@ -613,6 +613,7 @@ updater:
 # Explicitly make _depend in subdirs containing multiple targets to prevent
 # parallel sub-makes creating .depend files simultaneously.
 depend dep:	$(TIMESTAMP_FILE) $(VERSION_FILE) \
+		$(obj)include/spl-autoconf.mk \
 		$(obj)include/autoconf.mk \
 		$(obj)include/generated/generic-asm-offsets.h \
 		$(obj)include/generated/asm-offsets.h
@@ -694,12 +695,23 @@ $(obj)include/autoconf.mk: $(obj)include/config.h
 		sed -n -f tools/scripts/define2mk.sed > $@.tmp && \
 	mv $@.tmp $@
 
+# Auto-generate the spl-autoconf.mk file (which is included by all makefiles for SPL)
+$(obj)include/spl-autoconf.mk: $(obj)include/config.h
+	@$(XECHO) Generating $@ ; \
+	set -e ; \
+	: Extract the config macros ; \
+	$(CPP) $(CFLAGS) -DCONFIG_SPL_BUILD -DDO_DEPS_ONLY -dM include/common.h | \
+	sed -n -f tools/scripts/define2mk.sed > $@.tmp && \
+	mv $@.tmp $@
+
 $(obj)include/generated/generic-asm-offsets.h:	$(obj)include/autoconf.mk.dep \
+	$(obj)include/spl-autoconf.mk \
 	$(obj)lib/asm-offsets.s
 	@$(XECHO) Generating $@
 	tools/scripts/make-asm-offsets $(obj)lib/asm-offsets.s $@
 
 $(obj)lib/asm-offsets.s:	$(obj)include/autoconf.mk.dep \
+	$(obj)include/spl-autoconf.mk \
 	$(src)lib/asm-offsets.c
 	@mkdir -p $(obj)lib
 	$(CC) -DDO_DEPS_ONLY \
@@ -707,11 +719,13 @@ $(obj)lib/asm-offsets.s:	$(obj)include/autoconf.mk.dep \
 		-o $@ $(src)lib/asm-offsets.c -c -S
 
 $(obj)include/generated/asm-offsets.h:	$(obj)include/autoconf.mk.dep \
+	$(obj)include/spl-autoconf.mk \
 	$(obj)$(CPUDIR)/$(SOC)/asm-offsets.s
 	@$(XECHO) Generating $@
 	tools/scripts/make-asm-offsets $(obj)$(CPUDIR)/$(SOC)/asm-offsets.s $@
 
-$(obj)$(CPUDIR)/$(SOC)/asm-offsets.s:	$(obj)include/autoconf.mk.dep
+$(obj)$(CPUDIR)/$(SOC)/asm-offsets.s:	$(obj)include/autoconf.mk.dep \
+	$(obj)include/spl-autoconf.mk
 	@mkdir -p $(obj)$(CPUDIR)/$(SOC)
 	if [ -f $(src)$(CPUDIR)/$(SOC)/asm-offsets.c ];then \
 		$(CC) -DDO_DEPS_ONLY \
@@ -783,7 +797,8 @@ include/license.h: tools/bin2header COPYING
 unconfig:
 	@rm -f $(obj)include/config.h $(obj)include/config.mk \
 		$(obj)board/*/config.tmp $(obj)board/*/*/config.tmp \
-		$(obj)include/autoconf.mk $(obj)include/autoconf.mk.dep
+		$(obj)include/autoconf.mk $(obj)include/autoconf.mk.dep \
+		$(obj)include/spl-autoconf.mk
 
 %_config::	unconfig
 	@$(MKCONFIG) -A $(@:_config=)

@@ -80,6 +80,7 @@ LIBS-$(CONFIG_SPL_POST_MEM_SUPPORT) += post/drivers/memory.o
 LIBS-$(CONFIG_SPL_NET_SUPPORT) += net/libnet.o
 LIBS-$(CONFIG_SPL_ETH_SUPPORT) += drivers/net/libnet.o
 LIBS-$(CONFIG_SPL_ETH_SUPPORT) += drivers/net/phy/libphy.o
+LIBS-$(CONFIG_SPL_USBETH_SUPPORT) += drivers/net/phy/libphy.o
 LIBS-$(CONFIG_SPL_MUSB_NEW_SUPPORT) += drivers/usb/musb-new/libusb_musb-new.o
 LIBS-$(CONFIG_SPL_USBETH_SUPPORT) += drivers/usb/gadget/libusb_gadget.o
 

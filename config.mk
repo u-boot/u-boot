@@ -145,7 +145,13 @@ CHECK	= sparse
 #########################################################################
 
 # Load generated board configuration
+ifeq ($(CONFIG_SPL_BUILD),y)
+# Include SPL autoconf
+sinclude $(OBJTREE)/include/spl-autoconf.mk
+else
+# Include normal autoconf
 sinclude $(OBJTREE)/include/autoconf.mk
+endif
 sinclude $(OBJTREE)/include/config.mk
 
 # Some architecture config.mk files need to know what CPUDIR is set to,
