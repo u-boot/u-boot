@@ -41,9 +41,15 @@
 #define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_NET_RETRY_COUNT         10
 
-/* SPL defines. */
+/*
+ * SPL related defines.  The Public RAM memory map the ROM defines the
+ * area between 0x402F0400 and 0x4030B800 as a download area and
+ * 0x4030B800 to 0x4030CE00 as a public stack area.  The ROM also
+ * supports X-MODEM loading via UART, and we leverage this and then use
+ * Y-MODEM to load u-boot.img, when booted over UART.
+ */
 #define CONFIG_SPL_TEXT_BASE		0x402F0400
-#define CONFIG_SPL_MAX_SIZE		(0x4030C000 - CONFIG_SPL_TEXT_BASE)
+#define CONFIG_SPL_MAX_SIZE		(0x4030B800 - CONFIG_SPL_TEXT_BASE)
 #define CONFIG_SPL_YMODEM_SUPPORT
 
 /*
