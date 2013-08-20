@@ -110,12 +110,6 @@
 #define ZYNQ_QSPI_FLASH_OPCODE_BE	0xC7	/* Erase whole flash block */
 #define ZYNQ_QSPI_FLASH_OPCODE_SE	0xD8	/* Sector erase (usually 64KB)*/
 
-/* Few mtd flash functions */
-extern int spi_flash_cmd(struct spi_slave *spi, u8 cmd,
-		void *response, size_t len);
-extern int spi_flash_cmd_read(struct spi_slave *spi, const u8 *cmd,
-		size_t cmd_len, void *data, size_t data_len);
-
 /* QSPI register offsets */
 struct zynq_qspi_regs {
 	u32 confr;	/* 0x00 */
@@ -818,38 +812,6 @@ static int zynq_qspi_check_is_dual_flash(void)
 	return is_dual;
 }
 
-/*
- * zynq_qspi_write_quad_bit - Write 1 to QUAD bit on flash
- *
- * This function will write a 1 to quad bit in flash
- * using QSPI controller and supports only spansion flash.
- *
- * @regs_base: base address of QSPI controller
- */
-static void zynq_qspi_write_quad_bit(void __iomem *regs_base)
-{
-	u32 config_reg, intr_status;
-
-	/* enable the QSPI controller */
-	writel(ZYNQ_QSPI_ENABLE_ENABLE_MASK, &zynq_qspi_base->enbr);
-
-	/* Write QUAD bit with 3-byte instruction */
-	writel(0x20001, &zynq_qspi_base->txd3r);
-
-	/* Enable manual start command */
-	config_reg = readl(&zynq_qspi_base->confr) |
-			ZYNQ_QSPI_CONFIG_MANSRT_MASK;
-	writel(config_reg, &zynq_qspi_base->confr);
-
-	/* Wait for the transfer to finish by polling Tx fifo status */
-	do {
-		intr_status = readl(&zynq_qspi_base->isr);
-	} while ((intr_status & 0x04) == 0);
-
-	/* Read data receive register */
-	config_reg = readl(&zynq_qspi_base->drxr);
-}
-
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
 	/* 1 bus with 2 chipselect */
@@ -869,82 +831,6 @@ void spi_cs_deactivate(struct spi_slave *slave)
 void spi_init()
 {
 	debug("%s\n", __func__);
-}
-
-/*
- * spi_enable_quad_bit - Enable the QUAD bit for SPI flash
- *
- * This function will enable the quad bit in flash using
- * the QSPI controller. Supports only spansion.
- *
- * @spi : SPI slave structure
- */
-void spi_enable_quad_bit(struct spi_slave *spi)
-{
-	int ret;
-	u8 idcode[5];
-	u8 rdid_cmd = 0x9f;	/* RDID */
-	u8 rcr_data = 0;
-	u8 rcr_cmd = 0x35;	/* RCR */
-	u8 rdsr_cmd = 0x05;	/* RDSR */
-	u8 wren_cmd = 0x06;	/* WREN */
-	int count = 0;
-
-	ret = spi_flash_cmd(spi, rdid_cmd, &idcode, sizeof(idcode));
-	if (ret) {
-		debug("%s: Failed read RDID\n", __func__);
-		return;
-	}
-
-	if ((idcode[0] == 0x01) || (idcode[0] == 0xef)) {
-		/* Read config register */
-		ret = spi_flash_cmd_read(spi, &rcr_cmd, sizeof(rcr_cmd),
-					&rcr_data, sizeof(rcr_data));
-		if (ret) {
-			debug("%s: Failed read RCR\n", __func__);
-			return;
-		}
-
-		if (rcr_data & 0x2) {
-			debug("%s: QUAD bit is already set\n", __func__);
-		} else {
-			debug("%s: QUAD bit needs to be set\n", __func__);
-
-			/* Write enable */
-			ret = spi_flash_cmd(spi, wren_cmd, NULL, 0);
-			if (ret) {
-				debug("%s: Failed write WREN\n", __func__);
-				return;
-			}
-
-			/* Write QUAD bit */
-			zynq_qspi_write_quad_bit((void *)ZYNQ_QSPI_BASEADDR);
-
-			/* Read RDSR */
-			count = 0;
-			do {
-				ret = spi_flash_cmd_read(spi, &rdsr_cmd,
-						sizeof(rdsr_cmd), &rcr_data,
-						sizeof(rcr_data));
-			} while ((ret == 0) && (rcr_data != 0) &&
-				 (count++ < 1000));
-
-			/* Read config register */
-			ret = spi_flash_cmd_read(spi, &rcr_cmd, sizeof(rcr_cmd),
-						&rcr_data, sizeof(rcr_data));
-			if (!(rcr_data & 0x2)) {
-				printf("%s: Fail to set QUAD enable bit 0x%x\n",
-				       __func__, rcr_data);
-				return;
-			} else
-				debug("%s: QUAD enable bit is set 0x%x\n",
-				      __func__, rcr_data);
-		}
-	} else
-		debug("%s: QUAD bit not enabled for 0x%x SPI flash\n",
-		      __func__, idcode[0]);
-
-	return;
 }
 
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
@@ -1005,8 +891,6 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 	debug("%s: lqspi_clk_ctrl_reg: %ld CONFIG_CPU_FREQ_HZ %d\n",
 	      __func__, lqspi_clk_ctrl_reg, CONFIG_CPU_FREQ_HZ);
-
-	spi_enable_quad_bit(&qspi->slave);
 
 	return &qspi->slave;
 }
