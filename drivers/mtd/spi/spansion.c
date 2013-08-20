@@ -121,6 +121,8 @@ static const struct spansion_spi_flash_params spansion_spi_flash_table[] = {
 		.idcode2 = 0x4d01,
 		.pages_per_sector = 256,
 		.nr_sectors = 1024,
+		.rd_cmd = READ_CMD_FULL,
+		.wr_cmd = PAGE_PROGRAM | QUAD_PAGE_PROGRAM,
 		.name = "S25FL512S_64K",
 	},
 	{
