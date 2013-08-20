@@ -384,6 +384,29 @@ int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr)
 	return 0;
 }
 
+int spi_flash_cmd_write_config(struct spi_flash *flash, u8 cr)
+{
+	u8 cmd, data[2];
+	int ret;
+
+	cmd = CMD_READ_STATUS;
+	ret = spi_flash_read_common(flash, &cmd, 1, &data[0], 1);
+	if (ret < 0) {
+		debug("SF: fail to read status register\n");
+		return ret;
+	}
+
+	cmd = CMD_WRITE_STATUS;
+	data[1] = cr;
+	ret = spi_flash_write_common(flash, &cmd, 1, &data, 2);
+	if (ret < 0) {
+		debug("SF: fail to write config register\n");
+		return ret;
+	}
+
+	return 0;
+}
+
 #ifdef CONFIG_SPI_FLASH_BAR
 int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 bank_sel)
 {

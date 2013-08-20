@@ -94,6 +94,9 @@ static inline int spi_flash_cmd_write_disable(struct spi_flash *flash)
 /* Program the status register. */
 int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr);
 
+/* Program the config register */
+int spi_flash_cmd_write_config(struct spi_flash *flash, u8 cr);
+
 #ifdef CONFIG_SPI_FLASH_BAR
 /* Program the bank address register */
 int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 bank_sel);
