@@ -138,12 +138,16 @@ static const struct stmicro_spi_flash_params stmicro_spi_flash_table[] = {
 		.id = 0xba19,
 		.pages_per_sector = 256,
 		.nr_sectors = 512,
+		.rd_cmd = READ_CMD_FULL,
+		.wr_cmd = PAGE_PROGRAM | QUAD_PAGE_PROGRAM,
 		.name = "N25Q256",
 	},
 	{
 		.id = 0xbb19,
 		.pages_per_sector = 256,
 		.nr_sectors = 512,
+		.rd_cmd = READ_CMD_FULL,
+		.wr_cmd = PAGE_PROGRAM | QUAD_PAGE_PROGRAM,
 		.name = "N25Q256A",
 	},
 	{
