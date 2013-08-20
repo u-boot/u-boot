@@ -98,6 +98,7 @@
 #define ZYNQ_QSPI_FLASH_OPCODE_BRRD	0x16	/* Bank address reg read */
 #define ZYNQ_QSPI_FLASH_OPCODE_BRWR	0x17	/* Bank address reg write */
 #define ZYNQ_QSPI_FLASH_OPCODE_BE_4K	0x20	/* Erase 4KiB block */
+#define ZYNQ_QSPI_FLASH_OPCODE_QPP	0x32	/* Quad Page Program */
 #define ZYNQ_QSPI_FLASH_OPCODE_RDSR2	0x35	/* Read status register 2 */
 #define ZYNQ_QSPI_FLASH_OPCODE_DR	0x3B	/* Dual read data bytes */
 #define ZYNQ_QSPI_FLASH_OPCODE_BE_32K	0x52	/* Erase 32KiB block */
@@ -105,6 +106,7 @@
 #define ZYNQ_QSPI_FLASH_OPCODE_ES	0x75	/* Erase suspend */
 #define ZYNQ_QSPI_FLASH_OPCODE_ER	0x7A	/* Erase resume */
 #define ZYNQ_QSPI_FLASH_OPCODE_RDID	0x9F	/* Read JEDEC ID */
+#define ZYNQ_QSPI_FLASH_OPCODE_DIOR	0xBB	/* Dual IO high perf read */
 #define ZYNQ_QSPI_FLASH_OPCODE_WREAR	0xC5	/* Extended address reg write */
 #define ZYNQ_QSPI_FLASH_OPCODE_RDEAR	0xC8	/* Extended address reg read */
 #define ZYNQ_QSPI_FLASH_OPCODE_BE	0xC7	/* Erase whole flash block */
@@ -210,6 +212,8 @@ static struct zynq_qspi_inst_format flash_inst[] = {
 	{ ZYNQ_QSPI_FLASH_OPCODE_BRRD, 1, ZYNQ_QSPI_TXD_00_01_OFFSET },
 	{ ZYNQ_QSPI_FLASH_OPCODE_WREAR, 1, ZYNQ_QSPI_TXD_00_01_OFFSET },
 	{ ZYNQ_QSPI_FLASH_OPCODE_RDEAR, 1, ZYNQ_QSPI_TXD_00_01_OFFSET },
+	{ ZYNQ_QSPI_FLASH_OPCODE_QPP, 4, ZYNQ_QSPI_TXD_00_00_OFFSET },
+	{ ZYNQ_QSPI_FLASH_OPCODE_DIOR, 4, ZYNQ_QSPI_TXD_00_00_OFFSET },
 	/* Add all the instructions supported by the flash device */
 };
 
@@ -705,7 +709,8 @@ xfer_data:
 	    ((zqspi->bytes_to_transfer) &&
 	     (instruction != ZYNQ_QSPI_FLASH_OPCODE_FR) &&
 	     (instruction != ZYNQ_QSPI_FLASH_OPCODE_DR) &&
-	     (instruction != ZYNQ_QSPI_FLASH_OPCODE_QR)))
+	     (instruction != ZYNQ_QSPI_FLASH_OPCODE_QR) &&
+	     (instruction != ZYNQ_QSPI_FLASH_OPCODE_DIOR)))
 		zynq_qspi_fill_tx_fifo(zqspi);
 
 	writel(ZYNQ_QSPI_IXR_ALL_MASK, &zynq_qspi_base->ier);
