@@ -153,6 +153,15 @@ struct s32ktimer {
 #define EFUSE_4 0x45145100
 #endif /* __ASSEMBLY__ */
 
+/*
+ * In all cases, the TRM defines the RAM Memory Map for the processor
+ * and indicates the area for the downloaded image.  We use all of that
+ * space for download and once up and running may use other parts of the
+ * map for our needs.  We set a scratch space that is at the end of the
+ * OMAP5 download area, but within the DRA7xx download area (as it is
+ * much larger) and do not, at this time, make use of the additional
+ * space.
+ */
 #ifdef CONFIG_DRA7XX
 #define NON_SECURE_SRAM_START	0x40300000
 #define NON_SECURE_SRAM_END	0x40380000	/* Not inclusive */
@@ -160,7 +169,7 @@ struct s32ktimer {
 #define NON_SECURE_SRAM_START	0x40300000
 #define NON_SECURE_SRAM_END	0x40320000	/* Not inclusive */
 #endif
-#define SRAM_SCRATCH_SPACE_ADDR	NON_SECURE_SRAM_START
+#define SRAM_SCRATCH_SPACE_ADDR	0x4031E000
 
 /* base address for indirect vectors (internal boot mode) */
 #define SRAM_ROM_VECT_BASE	0x4031F000
