@@ -35,6 +35,29 @@ enum spi_con_topology {
 	MODE_DUAL_PARALLEL,
 };
 
+/* Read commands */
+#define CMD_READ_ARRAY_SLOW		0x03
+#define CMD_READ_ARRAY_FAST		0x0b
+#define CMD_READ_DUAL_OUTPUT_FAST	0x3b
+#define CMD_READ_DUAL_IO_FAST		0xbb
+
+static u32 spi_read_cmds_array[] = {
+	CMD_READ_ARRAY_SLOW,
+	CMD_READ_ARRAY_FAST,
+	CMD_READ_DUAL_OUTPUT_FAST,
+	CMD_READ_DUAL_IO_FAST,
+};
+
+enum spi_read_cmds {
+	ARRAY_SLOW = 1 << 0,
+	ARRAY_FAST = 1 << 1,
+	DUAL_OUTPUT_FAST = 1 << 2,
+	DUAL_IO_FAST = 1 << 3,
+};
+
+#define READ_CMD_FULL	ARRAY_SLOW | ARRAY_FAST | DUAL_OUTPUT_FAST | \
+			DUAL_IO_FAST
+
 struct spi_flash {
 	struct spi_slave *spi;
 
@@ -56,6 +79,8 @@ struct spi_flash {
 #endif
 	/* Poll cmd - for flash erase/program */
 	u8		poll_cmd;
+	/* Read command */
+	u8		read_cmd;
 
 	void *memory_map;	/* Address of read-only SPI flash access */
 	int		(*read)(struct spi_flash *flash, u32 offset,

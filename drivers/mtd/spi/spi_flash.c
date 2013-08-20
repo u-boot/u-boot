@@ -318,7 +318,7 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 	if (is_dual == MODE_DUAL_PARALLEL)
 		bank_boun = SPI_FLASH_16MB_BOUN << 1;
 
-	cmd[0] = CMD_READ_ARRAY_FAST;
+	cmd[0] = flash->read_cmd;
 	cmd[4] = 0x00;
 
 	while (len) {
@@ -658,6 +658,9 @@ void *spi_flash_do_alloc(int offset, int size, struct spi_slave *spi,
 	flash->read = spi_flash_cmd_read_fast;
 	flash->write = spi_flash_cmd_write_multi;
 	flash->erase = spi_flash_cmd_erase;
+
+	/* Go for default command - if caller don't have any addons */
+	flash->read_cmd = CMD_READ_ARRAY_FAST;
 
 	return flash;
 }

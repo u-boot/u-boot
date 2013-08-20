@@ -36,6 +36,7 @@ struct spansion_spi_flash_params {
 	u16 idcode2;
 	u16 pages_per_sector;
 	u16 nr_sectors;
+	u8 rd_cmd;
 	const char *name;
 };
 
@@ -108,6 +109,7 @@ static const struct spansion_spi_flash_params spansion_spi_flash_table[] = {
 		.idcode2 = 0x4d01,
 		.pages_per_sector = 256,
 		.nr_sectors = 512,
+		.rd_cmd = READ_CMD_FULL,
 		.name = "S25FL256S_64K",
 	},
 	{
@@ -132,6 +134,7 @@ struct spi_flash *spi_flash_probe_spansion(struct spi_slave *spi, u8 *idcode)
 	struct spi_flash *flash;
 	unsigned int i;
 	unsigned short jedec, ext_jedec;
+	u8 cmd;
 
 	jedec = idcode[1] << 8 | idcode[2];
 	ext_jedec = idcode[3] << 8 | idcode[4];
@@ -153,6 +156,13 @@ struct spi_flash *spi_flash_probe_spansion(struct spi_slave *spi, u8 *idcode)
 	if (!flash) {
 		debug("SF: Failed to allocate memory\n");
 		return NULL;
+	}
+
+	/* Look for the fastest read cmd */
+	cmd = fls(params->rd_cmd & flash->spi->rd_cmd);
+	if (cmd) {
+		cmd = spi_read_cmds_array[cmd - 1];
+		flash->read_cmd = cmd;
 	}
 
 	flash->page_size = 256;
