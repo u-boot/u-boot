@@ -60,6 +60,7 @@
  *   max_write_size:	If non-zero, the maximum number of bytes which can
  *		be written at once, excluding command bytes.
  *   rd_cmd:	Read command.
+ *   wr_cmd:	Write command.
  */
 struct spi_slave {
 	unsigned int	bus;
@@ -68,6 +69,7 @@ struct spi_slave {
 	unsigned int	u_page;
 	unsigned int max_write_size;
 	u8 rd_cmd;
+	u8 wr_cmd;
 };
 
 /*-----------------------------------------------------------------------

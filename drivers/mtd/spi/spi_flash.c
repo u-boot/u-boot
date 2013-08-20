@@ -228,7 +228,7 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 
 	page_size = flash->page_size;
 
-	cmd[0] = CMD_PAGE_PROGRAM;
+	cmd[0] = flash->write_cmd;
 	for (actual = 0; actual < len; actual += chunk_len) {
 		write_addr = offset;
 		if (is_dual == MODE_DUAL_PARALLEL)
@@ -661,6 +661,7 @@ void *spi_flash_do_alloc(int offset, int size, struct spi_slave *spi,
 
 	/* Go for default command - if caller don't have any addons */
 	flash->read_cmd = CMD_READ_ARRAY_FAST;
+	flash->write_cmd = CMD_PAGE_PROGRAM;
 
 	return flash;
 }
