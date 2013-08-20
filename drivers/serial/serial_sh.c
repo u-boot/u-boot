@@ -48,7 +48,9 @@ static struct uart_port sh_sci = {
 static void sh_serial_setbrg(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	sci_out(&sh_sci, SCBRR, SCBRR_VALUE(gd->baudrate, CONFIG_SYS_CLK_FREQ));
+
+	sci_out(&sh_sci, SCBRR,
+		SCBRR_VALUE(gd->baudrate, CONFIG_SH_SCIF_CLK_FREQ));
 }
 
 static int sh_serial_init(void)
