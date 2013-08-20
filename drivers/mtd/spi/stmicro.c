@@ -40,6 +40,8 @@ struct stmicro_spi_flash_params {
 	u16 id;
 	u16 pages_per_sector;
 	u16 nr_sectors;
+	u8 rd_cmd;
+	u8 wr_cmd;
 	const char *name;
 };
 
@@ -120,12 +122,16 @@ static const struct stmicro_spi_flash_params stmicro_spi_flash_table[] = {
 		.id = 0xba18,
 		.pages_per_sector = 256,
 		.nr_sectors = 256,
+		.rd_cmd = READ_CMD_FULL,
+		.wr_cmd = PAGE_PROGRAM | QUAD_PAGE_PROGRAM,
 		.name = "N25Q128",
 	},
 	{
 		.id = 0xbb18,
 		.pages_per_sector = 256,
 		.nr_sectors = 256,
+		.rd_cmd = READ_CMD_FULL,
+		.wr_cmd = PAGE_PROGRAM | QUAD_PAGE_PROGRAM,
 		.name = "N25Q128A",
 	},
 	{
@@ -172,6 +178,7 @@ struct spi_flash *spi_flash_probe_stmicro(struct spi_slave *spi, u8 * idcode)
 	struct spi_flash *flash;
 	unsigned int i;
 	u16 id;
+	u8 cmd;
 
 	if (idcode[0] == 0xff) {
 		i = spi_flash_cmd(spi, CMD_M25PXX_RES,
@@ -204,6 +211,20 @@ struct spi_flash *spi_flash_probe_stmicro(struct spi_slave *spi, u8 * idcode)
 	if (!flash) {
 		debug("SF: Failed to allocate memory\n");
 		return NULL;
+	}
+
+	/* Look for the fastest read cmd */
+	cmd = fls(params->rd_cmd & flash->spi->rd_cmd);
+	if (cmd) {
+		cmd = spi_read_cmds_array[cmd - 1];
+		flash->read_cmd = cmd;
+	}
+
+	/* Look for the fastest write cmd */
+	cmd = fls(params->wr_cmd & flash->spi->wr_cmd);
+	if (cmd) {
+		cmd = spi_write_cmds_array[cmd - 1];
+		flash->write_cmd = cmd;
 	}
 
 	flash->page_size = 256;
