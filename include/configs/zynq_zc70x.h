@@ -30,6 +30,7 @@
 #define CONFIG_ZYNQ_QSPI
 #define CONFIG_ZYNQ_I2C0
 #define CONFIG_ZYNQ_EEPROM
+#define CONFIG_ZYNQ_BOOT_FREEBSD
 
 #include <configs/zynq_common.h>
 

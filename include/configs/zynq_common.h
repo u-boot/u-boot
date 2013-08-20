@@ -318,6 +318,13 @@
 #define CONFIG_FIT		1
 #define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
 
+/* Boot FreeBSD/vxWorks from an ELF image */
+#if defined(CONFIG_ZYNQ_BOOT_FREEBSD)
+# define CONFIG_API
+# define CONFIG_CMD_ELF
+# define CONFIG_SYS_MMC_MAX_DEVICE	1
+#endif
+
 #define CONFIG_CMD_BOOTZ
 #undef CONFIG_BOOTM_NETBSD
 
