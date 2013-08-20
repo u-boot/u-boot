@@ -28,9 +28,12 @@
 /* Use General purpose timer 1 */
 #define CONFIG_SYS_TIMERBASE		GPT2_BASE
 
+/*
+ * For the DDR timing information we can either dynamically determine
+ * the timings to use or use pre-determined timings (based on using the
+ * dynamic method.  Default to the static timing infomation.
+ */
 #define CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS
-
-/* Defines for SDRAM init */
 #ifndef CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS
 #define CONFIG_SYS_AUTOMATIC_SDRAM_DETECTION
 #define CONFIG_SYS_DEFAULT_LPDDR2_TIMINGS
@@ -127,7 +130,13 @@
 	"fi"
 
 
-/* Defines for SPL */
+/*
+ * SPL related defines.  The Public RAM memory map the ROM defines the
+ * area between 0x40300000 and 0x4031E000 as a download area for OMAP5
+ * (dra7xx is larger, but we do not need to be larger at this time).  We
+ * set CONFIG_SPL_DISPLAY_PRINT to have omap_rev_string() called and
+ * print some information.
+ */
 #define CONFIG_SPL_TEXT_BASE		0x40300000
 #define CONFIG_SPL_MAX_SIZE		(0x4031E000 - CONFIG_SPL_TEXT_BASE)
 #define CONFIG_SPL_DISPLAY_PRINT
