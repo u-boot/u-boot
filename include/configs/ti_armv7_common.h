@@ -223,14 +223,14 @@
 #endif
 
 #ifdef CONFIG_MMC
+#define CONFIG_SPL_LIBDISK_SUPPORT
 #define CONFIG_SPL_MMC_SUPPORT
 #define CONFIG_SPL_FAT_SUPPORT
 #endif
 
-/* General parts of the framework. */
+/* General parts of the framework, required. */
 #define CONFIG_SPL_I2C_SUPPORT
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBDISK_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_GPIO_SUPPORT
