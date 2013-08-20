@@ -666,7 +666,8 @@ static void setup_display(void)
 	writel(reg, &iomux->gpr[2]);
 
 	reg = readl(&iomux->gpr[3]);
-	reg = (reg & ~IOMUXC_GPR3_LVDS0_MUX_CTL_MASK)
+	reg = (reg & ~(IOMUXC_GPR3_LVDS0_MUX_CTL_MASK
+			|IOMUXC_GPR3_HDMI_MUX_CTL_MASK))
 	    | (IOMUXC_GPR3_MUX_SRC_IPU1_DI0
 	       <<IOMUXC_GPR3_LVDS0_MUX_CTL_OFFSET);
 	writel(reg, &iomux->gpr[3]);
