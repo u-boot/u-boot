@@ -61,10 +61,10 @@ void i2c_init_board(void)
 	struct exynos4_gpio_part2 *gpio2 =
 		(struct exynos4_gpio_part2 *)samsung_get_base_gpio_part2();
 
-	/* I2C_5 -> PMIC */
+	/* I2C_5 -> PMIC -> Adapter 0 */
 	s5p_gpio_direction_output(&gpio1->b, 7, 1);
 	s5p_gpio_direction_output(&gpio1->b, 6, 1);
-	/* I2C_9 -> FG */
+	/* I2C_9 -> FG -> Adapter 1 */
 	s5p_gpio_direction_output(&gpio2->y4, 0, 1);
 	s5p_gpio_direction_output(&gpio2->y4, 1, 1);
 }
@@ -282,10 +282,17 @@ int power_init_board(void)
 	struct power_battery *pb;
 	struct pmic *p_fg, *p_chrg, *p_muic, *p_bat;
 
-	ret = pmic_init(I2C_5);
+	/*
+	 * For PMIC/MUIC the I2C bus is named as I2C5, but it is connected
+	 * to logical I2C adapter 0
+	 *
+	 * The FUEL_GAUGE is marked as I2C9 on the schematic, but connected
+	 * to logical I2C adapter 1
+	 */
+	ret = pmic_init(I2C_0);
 	ret |= pmic_init_max8997();
-	ret |= power_fg_init(I2C_9);
-	ret |= power_muic_init(I2C_5);
+	ret |= power_fg_init(I2C_1);
+	ret |= power_muic_init(I2C_0);
 	ret |= power_bat_init(0);
 	if (ret)
 		return ret;

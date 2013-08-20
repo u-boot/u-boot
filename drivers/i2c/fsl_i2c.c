@@ -206,9 +206,58 @@ static unsigned int get_i2c_clock(int bus)
 		return gd->arch.i2c1_clk;	/* I2C1 clock */
 }
 
+static int fsl_i2c_fixup(const struct fsl_i2c *dev)
+{
+	const unsigned long long timeout = usec2ticks(CONFIG_I2C_MBB_TIMEOUT);
+	unsigned long long timeval = 0;
+	int ret = -1;
+	unsigned int flags = 0;
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_I2C_A004447
+	unsigned int svr = get_svr();
+	if ((SVR_SOC_VER(svr) == SVR_8548 && IS_SVR_REV(svr, 3, 1)) ||
+	    (SVR_REV(svr) <= CONFIG_SYS_FSL_A004447_SVR_REV))
+		flags = I2C_CR_BIT6;
+#endif
+
+	writeb(I2C_CR_MEN | I2C_CR_MSTA, &dev->cr);
+
+	timeval = get_ticks();
+	while (!(readb(&dev->sr) & I2C_SR_MBB)) {
+		if ((get_ticks() - timeval) > timeout)
+			goto err;
+	}
+
+	if (readb(&dev->sr) & I2C_SR_MAL) {
+		/* SDA is stuck low */
+		writeb(0, &dev->cr);
+		udelay(100);
+		writeb(I2C_CR_MSTA | flags, &dev->cr);
+		writeb(I2C_CR_MEN | I2C_CR_MSTA | flags, &dev->cr);
+	}
+
+	readb(&dev->dr);
+
+	timeval = get_ticks();
+	while (!(readb(&dev->sr) & I2C_SR_MIF)) {
+		if ((get_ticks() - timeval) > timeout)
+			goto err;
+	}
+	ret = 0;
+
+err:
+	writeb(I2C_CR_MEN | flags, &dev->cr);
+	writeb(0, &dev->sr);
+	udelay(100);
+
+	return ret;
+}
+
 static void fsl_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
 {
 	const struct fsl_i2c *dev;
+	const unsigned long long timeout = usec2ticks(CONFIG_I2C_MBB_TIMEOUT);
+	unsigned long long timeval;
 
 #ifdef CONFIG_SYS_I2C_INIT_BOARD
 	/* Call board specific i2c bus reset routine before accessing the
@@ -225,6 +274,18 @@ static void fsl_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
 	writeb(slaveadd << 1, &dev->adr);/* write slave address */
 	writeb(0x0, &dev->sr);		/* clear status register */
 	writeb(I2C_CR_MEN, &dev->cr);	/* start I2C controller */
+
+	timeval = get_ticks();
+	while (readb(&dev->sr) & I2C_SR_MBB) {
+		if ((get_ticks() - timeval) < timeout)
+			continue;
+
+		if (fsl_i2c_fixup(dev))
+			debug("i2c_init: BUS#%d failed to init\n",
+			      adap->hwadapnr);
+
+		break;
+	}
 
 #ifdef CONFIG_SYS_I2C_BOARD_LATE_INIT
 	/* Call board specific i2c bus reset routine AFTER the bus has been
@@ -394,8 +455,10 @@ fsl_i2c_write(struct i2c_adapter *adap, u8 dev, uint addr, int alen,
 	int i = -1; /* signal error */
 	u8 *a = (u8*)&addr;
 
-	if (i2c_wait4bus(adap) >= 0 &&
-	    i2c_write_addr(adap, dev, I2C_WRITE_BIT, 0) != 0 &&
+	if (i2c_wait4bus(adap) < 0)
+		return -1;
+
+	if (i2c_write_addr(adap, dev, I2C_WRITE_BIT, 0) != 0 &&
 	    __i2c_write(adap, &a[4 - alen], alen) == alen) {
 		i = __i2c_write(adap, data, length);
 	}
