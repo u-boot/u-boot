@@ -72,6 +72,8 @@ static const struct winbond_spi_flash_params winbond_spi_flash_table[] = {
 	{
 		.id			= 0x4017,
 		.nr_blocks		= 128,
+		.rd_cmd			= READ_CMD_FULL,
+		.wr_cmd			= PAGE_PROGRAM | QUAD_PAGE_PROGRAM,
 		.name			= "W25Q64CV/W25Q64FV_SPI",
 	},
 	{
@@ -106,6 +108,8 @@ static const struct winbond_spi_flash_params winbond_spi_flash_table[] = {
 	{
 		.id			= 0x6017,
 		.nr_blocks		= 128,
+		.rd_cmd			= READ_CMD_FULL,
+		.wr_cmd			= PAGE_PROGRAM | QUAD_PAGE_PROGRAM,
 		.name			= "W25Q64DW/W25Q64FV_QPI",
 	},
 	{
