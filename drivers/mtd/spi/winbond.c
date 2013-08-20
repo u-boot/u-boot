@@ -13,6 +13,8 @@
 struct winbond_spi_flash_params {
 	uint16_t	id;
 	uint16_t	nr_blocks;
+	u8 rd_cmd;
+	u8 wr_cmd;
 	const char	*name;
 };
 
@@ -80,6 +82,8 @@ static const struct winbond_spi_flash_params winbond_spi_flash_table[] = {
 	{
 		.id			= 0x4019,
 		.nr_blocks		= 512,
+		.rd_cmd			= READ_CMD_FULL,
+		.wr_cmd			= PAGE_PROGRAM | QUAD_PAGE_PROGRAM,
 		.name			= "W25Q256",
 	},
 	{
@@ -114,6 +118,7 @@ struct spi_flash *spi_flash_probe_winbond(struct spi_slave *spi, u8 *idcode)
 	const struct winbond_spi_flash_params *params;
 	struct spi_flash *flash;
 	unsigned int i;
+	u8 cmd;
 
 	for (i = 0; i < ARRAY_SIZE(winbond_spi_flash_table); i++) {
 		params = &winbond_spi_flash_table[i];
@@ -131,6 +136,20 @@ struct spi_flash *spi_flash_probe_winbond(struct spi_slave *spi, u8 *idcode)
 	if (!flash) {
 		debug("SF: Failed to allocate memory\n");
 		return NULL;
+	}
+
+	/* Look for the fastest read cmd */
+	cmd = fls(params->rd_cmd & flash->spi->rd_cmd);
+	if (cmd) {
+		cmd = spi_read_cmds_array[cmd - 1];
+		flash->read_cmd = cmd;
+	}
+
+	/* Look for the fastest write cmd */
+	cmd = fls(params->wr_cmd & flash->spi->wr_cmd);
+	if (cmd) {
+		cmd = spi_write_cmds_array[cmd - 1];
+		flash->write_cmd = cmd;
 	}
 
 	flash->page_size = 256;
