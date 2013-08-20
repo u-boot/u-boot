@@ -171,44 +171,6 @@
 	"run mmcboot;" \
 	"run nandboot;"
 
-/* USB Composite download gadget - g_dnl */
-#define CONFIG_USB_GADGET
-#define CONFIG_USBDOWNLOAD_GADGET
-
-/* USB TI's IDs */
-#define CONFIG_G_DNL_VENDOR_NUM 0x0403
-#define CONFIG_G_DNL_PRODUCT_NUM 0xBD00
-#define CONFIG_G_DNL_MANUFACTURER "Texas Instruments"
-
-/* USB Device Firmware Update support */
-#define CONFIG_DFU_FUNCTION
-#define CONFIG_DFU_MMC
-#define CONFIG_CMD_DFU
-#define DFU_ALT_INFO_MMC \
-	"boot part 0 1;" \
-	"rootfs part 0 2;" \
-	"MLO fat 0 1;" \
-	"MLO.raw mmc 100 100;" \
-	"u-boot.img.raw mmc 300 400;" \
-	"spl-os-args.raw mmc 80 80;" \
-	"spl-os-image.raw mmc 900 2000;" \
-	"spl-os-args fat 0 1;" \
-	"spl-os-image fat 0 1;" \
-	"u-boot.img fat 0 1;" \
-	"uEnv.txt fat 0 1"
-#ifdef CONFIG_NAND
-#define CONFIG_DFU_NAND
-#define DFU_ALT_INFO_NAND \
-	"SPL part 0 1;" \
-	"SPL.backup1 part 0 2;" \
-	"SPL.backup2 part 0 3;" \
-	"SPL.backup3 part 0 4;" \
-	"u-boot part 0 5;" \
-	"u-boot-spl-os part 0 6;" \
-	"kernel part 0 8;" \
-	"rootfs part 0 9"
-#endif
-
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550_COM1		0x44e09000	/* Base EVM has UART0 */
 #define CONFIG_SYS_NS16550_COM2		0x48022000	/* UART1 */
@@ -283,13 +245,19 @@
 #endif
 
 /*
- * USB configuration
+ * USB configuration.  We enable MUSB support, both for host and for
+ * gadget.  We set USB0 as peripheral and USB1 as host, based on the
+ * board schematic and physical port wired to each.  Then for host we
+ * add mass storage support and for gadget we add both RNDIS ethernet
+ * and DFU.
  */
 #define CONFIG_USB_MUSB_DSPS
 #define CONFIG_ARCH_MISC_INIT
 #define CONFIG_MUSB_GADGET
 #define CONFIG_MUSB_PIO_ONLY
 #define CONFIG_MUSB_DISABLE_BULK_COMBINE_SPLIT
+#define CONFIG_USB_GADGET
+#define CONFIG_USBDOWNLOAD_GADGET
 #define CONFIG_USB_GADGET_DUALSPEED
 #define CONFIG_USB_GADGET_VBUS_DRAW	2
 #define CONFIG_MUSB_HOST
@@ -307,6 +275,11 @@
 #define CONFIG_USB_ETHER
 #define CONFIG_USB_ETH_RNDIS
 #define CONFIG_USBNET_HOST_ADDR	"de:ad:be:af:00:00"
+
+/* USB TI's IDs */
+#define CONFIG_G_DNL_VENDOR_NUM 0x0403
+#define CONFIG_G_DNL_PRODUCT_NUM 0xBD00
+#define CONFIG_G_DNL_MANUFACTURER "Texas Instruments"
 #endif /* CONFIG_MUSB_GADGET */
 
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_USBETH_SUPPORT)
@@ -316,6 +289,35 @@
  * Disable CPSW SPL support so we fit within the 101KiB limit.
  */
 #undef CONFIG_SPL_ETH_SUPPORT
+#endif
+
+/* USB Device Firmware Update support */
+#define CONFIG_DFU_FUNCTION
+#define CONFIG_DFU_MMC
+#define CONFIG_CMD_DFU
+#define DFU_ALT_INFO_MMC \
+	"boot part 0 1;" \
+	"rootfs part 0 2;" \
+	"MLO fat 0 1;" \
+	"MLO.raw mmc 100 100;" \
+	"u-boot.img.raw mmc 300 400;" \
+	"spl-os-args.raw mmc 80 80;" \
+	"spl-os-image.raw mmc 900 2000;" \
+	"spl-os-args fat 0 1;" \
+	"spl-os-image fat 0 1;" \
+	"u-boot.img fat 0 1;" \
+	"uEnv.txt fat 0 1"
+#ifdef CONFIG_NAND
+#define CONFIG_DFU_NAND
+#define DFU_ALT_INFO_NAND \
+	"SPL part 0 1;" \
+	"SPL.backup1 part 0 2;" \
+	"SPL.backup2 part 0 3;" \
+	"SPL.backup3 part 0 4;" \
+	"u-boot part 0 5;" \
+	"u-boot-spl-os part 0 6;" \
+	"kernel part 0 8;" \
+	"rootfs part 0 9"
 #endif
 
 /*
