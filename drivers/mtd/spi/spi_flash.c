@@ -407,6 +407,29 @@ int spi_flash_cmd_write_config(struct spi_flash *flash, u8 cr)
 	return 0;
 }
 
+int spi_flash_set_qeb(struct spi_flash *flash)
+{
+	u8 qeb_status, cmd;
+	int ret;
+
+	cmd = CMD_READ_CONFIG;
+	ret = spi_flash_read_common(flash, &cmd, 1, &qeb_status, 1);
+	if (ret < 0) {
+		debug("SF: fail to read config register\n");
+		return ret;
+	}
+
+	if (qeb_status & STATUS_QEB) {
+		debug("SF: qeb is already set\n");
+	} else {
+		ret = spi_flash_cmd_write_config(flash, STATUS_QEB);
+		if (ret < 0)
+			return ret;
+	}
+
+	return 0;
+}
+
 #ifdef CONFIG_SPI_FLASH_BAR
 int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 bank_sel)
 {
@@ -623,6 +646,15 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 	if (ret < 0)
 		goto err_manufacturer_probe;
 #endif
+
+	/* set the quad enable bit - only for quad commands */
+	if ((flash->read_cmd == CMD_READ_QUAD_OUTPUT_FAST) ||
+	    (flash->write_cmd == CMD_QUAD_PAGE_PROGRAM)) {
+		if (spi_flash_set_qeb(flash)) {
+			debug("SF: Fail to set qeb\n");
+			goto err_manufacturer_probe;
+		}
+	}
 
 #ifdef CONFIG_OF_CONTROL
 	if (spi_flash_decode_fdt(gd->fdt_blob, flash)) {
