@@ -10,9 +10,6 @@ int cache_control(unsigned int cmd);
 struct __large_struct { unsigned long buf[100]; };
 #define __m(x) (*(struct __large_struct *)(x))
 
-void dcache_wback_range(u32 start, u32 end);
-void dcache_invalid_range(u32 start, u32 end);
-
 #else
 
 /*
