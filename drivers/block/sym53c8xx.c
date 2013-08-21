@@ -248,7 +248,7 @@ void scsi_print_error (ccb * pccb)
 
 /******************************************************************************
  * sets-up the SCSI controller
- * the base memory address is retrived via the pci_read_config_dword
+ * the base memory address is retrieved via the pci_read_config_dword
  */
 void scsi_low_level_init(int busdevfunc)
 {

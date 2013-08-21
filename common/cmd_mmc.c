@@ -260,7 +260,7 @@ static int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				if (!ret)
 					mmc->part_num = part;
 
-				printf("switch to partions #%d, %s\n",
+				printf("switch to partitions #%d, %s\n",
 						part, (!ret) ? "OK" : "ERROR");
 			}
 		}
@@ -421,7 +421,7 @@ U_BOOT_CMD(
 	"mmc close <dev> <boot_partition>\n"
 	" - Enable boot_part for booting and disable access to boot_part\n"
 	"mmc bootpart <device num> <boot part size MB> <RPMB part size MB>\n"
-	" - change sizes of boot and RPMB partions of specified device\n"
+	" - change sizes of boot and RPMB partitions of specified device\n"
 #endif
 	);
 #endif /* !CONFIG_GENERIC_MMC */

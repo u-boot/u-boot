@@ -161,7 +161,7 @@ static int set_gpt_info(block_dev_desc_t *dev_desc,
 	/* allocate memory for partitions */
 	parts = calloc(sizeof(disk_partition_t), p_count);
 
-	/* retrive partions data from string */
+	/* retrieve partitions data from string */
 	for (i = 0; i < p_count; i++) {
 		tok = strsep(&s, ";");
 
@@ -316,7 +316,7 @@ static int do_gpt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 U_BOOT_CMD(gpt, CONFIG_SYS_MAXARGS, 1, do_gpt,
 	"GUID Partition Table",
-	"<command> <interface> <dev> <partions_list>\n"
+	"<command> <interface> <dev> <partitions_list>\n"
 	" - GUID partition table restoration\n"
 	" Restore GPT information on a device connected\n"
 	" to interface\n"

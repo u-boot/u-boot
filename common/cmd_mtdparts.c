@@ -420,7 +420,7 @@ static int part_validate(struct mtdids *id, struct part_info *part)
 }
 
 /**
- * Delete selected partition from the partion list of the specified device.
+ * Delete selected partition from the partition list of the specified device.
  *
  * @param dev device to delete partition from
  * @param part partition to delete

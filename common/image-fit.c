@@ -1331,7 +1331,7 @@ int fit_conf_find_compat(const void *fit, const void *fdt)
  *
  * When NULL is provided in second argument fit_conf_get_node() will search
  * for a default configuration node instead. Default configuration node unit
- * name is retrived from FIT_DEFAULT_PROP property of the '/configurations'
+ * name is retrieved from FIT_DEFAULT_PROP property of the '/configurations'
  * node.
  *
  * returns:
