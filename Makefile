@@ -482,7 +482,7 @@ $(obj)u-boot.dis:	$(obj)u-boot
 SPL_PAD_APPEND = \
 		$(OBJCOPY) ${OBJCFLAGS} --pad-to=$(4) -I binary -O binary \
 		$(1) $(obj)$(3); \
-		cat $(obj)$(3) $(obj)$(2) > $@; \
+		cat $(obj)$(3) $(2) > $@; \
 		rm $(obj)$(3)
 
 ifdef CONFIG_TPL
@@ -495,7 +495,7 @@ $(obj)u-boot-with-spl.bin: $(obj)spl/u-boot-spl.bin $(SPL_PAYLOAD)
 		$(call SPL_PAD_APPEND,$<,$(SPL_PAYLOAD),spl/u-boot-spl-pad.bin,$(CONFIG_SPL_PAD_TO))
 
 $(obj)tpl/u-boot-with-tpl.bin: $(obj)tpl/u-boot-tpl.bin $(obj)u-boot.bin
-		$(call SPL_PAD_APPEND,$<,u-boot.bin,tpl/u-boot-tpl-pad.bin,$(CONFIG_TPL_PAD_TO))
+		$(call SPL_PAD_APPEND,$<,$(obj)u-boot.bin,tpl/u-boot-tpl-pad.bin,$(CONFIG_TPL_PAD_TO))
 
 $(obj)u-boot-with-spl.imx: $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
 		$(MAKE) -C $(SRCTREE)/arch/arm/imx-common \
