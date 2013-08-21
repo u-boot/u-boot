@@ -465,6 +465,10 @@ Andre Schwarz <andre.schwarz@matrix-vision.de>
 	mvblm7		MPC8343
 	mvsmr		MPC5200
 
+Inderpal Singh <inderpal.singh@linaro.org>
+
+	Arndale		ARM ARMV7 (EXYNOS5250 SoC)
+
 Jon Smirl <jonsmirl@gmail.com>
 
 	pcm030		MPC5200
