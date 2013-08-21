@@ -341,7 +341,9 @@ static int fm_eth_startup(struct fm_eth *fm_eth)
 	mac->init_mac(mac);
 
 	/* For some reason we need to set SPEED_100 */
-	if ((fm_eth->enet_if == PHY_INTERFACE_MODE_SGMII) && mac->set_if_mode)
+	if (((fm_eth->enet_if == PHY_INTERFACE_MODE_SGMII) ||
+	     (fm_eth->enet_if == PHY_INTERFACE_MODE_QSGMII)) &&
+	      mac->set_if_mode)
 		mac->set_if_mode(mac, fm_eth->enet_if, SPEED_100);
 
 	/* init bmi rx port, IM mode and disable */

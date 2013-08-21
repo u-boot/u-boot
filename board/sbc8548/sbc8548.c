@@ -65,8 +65,8 @@ local_bus_init(void)
 
 	get_sys_info(&sysinfo);
 
-	lbc_mhz = sysinfo.freqLocalBus / 1000000;
-	clkdiv = sysinfo.freqSystemBus / sysinfo.freqLocalBus;
+	lbc_mhz = sysinfo.freq_localbus / 1000000;
+	clkdiv = sysinfo.freq_systembus / sysinfo.freq_localbus;
 
 	debug("LCRR=0x%x, CD=%d, MHz=%d\n", lcrr, clkdiv, lbc_mhz);
 

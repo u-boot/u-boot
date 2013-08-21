@@ -31,7 +31,7 @@ int vsc_if_enable(unsigned int vsc_addr)
 	return i2c_write(vsc_addr, INTERFACE_MODE_REG, 1, &data, 1);
 }
 
-int vsc3316_config(unsigned int vsc_addr, const int8_t con_arr[][2],
+int vsc3316_config(unsigned int vsc_addr, int8_t con_arr[][2],
 		unsigned int num_con)
 {
 	unsigned int i;

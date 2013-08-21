@@ -26,7 +26,7 @@ void sdram_init(void)
 
 	ddr_ratio = in_be32(&gur->porpllsr) & MPC85xx_PORPLLSR_DDR_RATIO;
 	ddr_ratio = ddr_ratio >> MPC85xx_PORPLLSR_DDR_RATIO_SHIFT;
-	ddr_freq_mhz = (CONFIG_SYS_CLK_FREQ * ddr_ratio) / 0x1000000;
+	ddr_freq_mhz = (CONFIG_SYS_CLK_FREQ * ddr_ratio) / 1000000;
 
 	/* mask off E bit */
 	u32 svr = SVR_SOC_VER(mfspr(SPRN_SVR));

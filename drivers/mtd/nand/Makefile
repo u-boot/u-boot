@@ -23,6 +23,7 @@ COBJS-$(CONFIG_SPL_NAND_SIMPLE) += nand_spl_simple.o
 COBJS-$(CONFIG_SPL_NAND_LOAD) += nand_spl_load.o
 COBJS-$(CONFIG_SPL_NAND_ECC) += nand_ecc.o
 COBJS-$(CONFIG_SPL_NAND_BASE) += nand_base.o
+COBJS-$(CONFIG_SPL_NAND_INIT) += nand.o
 
 else # not spl
 

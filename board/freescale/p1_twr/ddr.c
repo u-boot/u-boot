@@ -53,7 +53,7 @@ phys_size_t fixed_sdram(void)
 
 	get_sys_info(&sysinfo);
 	printf("Configuring DDR for %s MT/s data rate\n",
-			strmhz(buf, sysinfo.freqDDRBus));
+			strmhz(buf, sysinfo.freq_ddrbus));
 
 	ddr_size = CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
 

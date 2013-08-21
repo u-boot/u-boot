@@ -631,12 +631,12 @@ int checkcpu (void)
 #endif
 
 #if defined(CONFIG_405EP) || defined(CONFIG_405EZ) || defined(CONFIG_405EX)
-	printf ("       16 kB I-Cache 16 kB D-Cache");
+	printf("       16 KiB I-Cache 16 KiB D-Cache");
 #elif defined(CONFIG_440)
-	printf ("       32 kB I-Cache 32 kB D-Cache");
+	printf("       32 KiB I-Cache 32 KiB D-Cache");
 #else
-	printf ("       16 kB I-Cache %d kB D-Cache",
-		((pvr | 0x00000001) == PVR_405GPR_RB) ? 16 : 8);
+	printf("       16 KiB I-Cache %d KiB D-Cache",
+	       ((pvr | 0x00000001) == PVR_405GPR_RB) ? 16 : 8);
 #endif
 
 #endif /* !defined(CONFIG_405) */

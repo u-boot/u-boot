@@ -114,7 +114,45 @@ phy_interface_t fman_port_enet_if(enum fm_port port)
 			return PHY_INTERFACE_MODE_SGMII;
 		break;
 	default:
-		return PHY_INTERFACE_MODE_NONE;
+		break;
+	}
+
+	/* handle QSGMII */
+	switch (port) {
+	case FM1_DTSEC1:
+	case FM1_DTSEC2:
+	case FM1_DTSEC3:
+	case FM1_DTSEC4:
+		/* check lane G on SerDes1 */
+		if (is_serdes_configured(QSGMII_FM1_A))
+			return PHY_INTERFACE_MODE_QSGMII;
+		break;
+	case FM1_DTSEC5:
+	case FM1_DTSEC6:
+	case FM1_DTSEC9:
+	case FM1_DTSEC10:
+		/* check lane C on SerDes1 */
+		if (is_serdes_configured(QSGMII_FM1_B))
+			return PHY_INTERFACE_MODE_QSGMII;
+		break;
+	case FM2_DTSEC1:
+	case FM2_DTSEC2:
+	case FM2_DTSEC3:
+	case FM2_DTSEC4:
+		/* check lane G on SerDes2 */
+		if (is_serdes_configured(QSGMII_FM2_A))
+			return PHY_INTERFACE_MODE_QSGMII;
+		break;
+	case FM2_DTSEC5:
+	case FM2_DTSEC6:
+	case FM2_DTSEC9:
+	case FM2_DTSEC10:
+		/* check lane C on SerDes2 */
+		if (is_serdes_configured(QSGMII_FM2_B))
+			return PHY_INTERFACE_MODE_QSGMII;
+		break;
+	default:
+		break;
 	}
 
 	return PHY_INTERFACE_MODE_NONE;

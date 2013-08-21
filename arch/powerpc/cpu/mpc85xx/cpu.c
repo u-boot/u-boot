@@ -135,81 +135,82 @@ int checkcpu (void)
 		if (!(i & 3))
 			printf ("\n       ");
 		printf("CPU%d:%-4s MHz, ", core,
-			strmhz(buf1, sysinfo.freqProcessor[core]));
+			strmhz(buf1, sysinfo.freq_processor[core]));
 	}
-	printf("\n       CCB:%-4s MHz,\n", strmhz(buf1, sysinfo.freqSystemBus));
+	printf("\n       CCB:%-4s MHz,", strmhz(buf1, sysinfo.freq_systembus));
+	printf("\n");
 
 #ifdef CONFIG_FSL_CORENET
 	if (ddr_sync == 1) {
 		printf("       DDR:%-4s MHz (%s MT/s data rate) "
 			"(Synchronous), ",
-			strmhz(buf1, sysinfo.freqDDRBus/2),
-			strmhz(buf2, sysinfo.freqDDRBus));
+			strmhz(buf1, sysinfo.freq_ddrbus/2),
+			strmhz(buf2, sysinfo.freq_ddrbus));
 	} else {
 		printf("       DDR:%-4s MHz (%s MT/s data rate) "
 			"(Asynchronous), ",
-			strmhz(buf1, sysinfo.freqDDRBus/2),
-			strmhz(buf2, sysinfo.freqDDRBus));
+			strmhz(buf1, sysinfo.freq_ddrbus/2),
+			strmhz(buf2, sysinfo.freq_ddrbus));
 	}
 #else
 	switch (ddr_ratio) {
 	case 0x0:
 		printf("       DDR:%-4s MHz (%s MT/s data rate), ",
-			strmhz(buf1, sysinfo.freqDDRBus/2),
-			strmhz(buf2, sysinfo.freqDDRBus));
+			strmhz(buf1, sysinfo.freq_ddrbus/2),
+			strmhz(buf2, sysinfo.freq_ddrbus));
 		break;
 	case 0x7:
 		printf("       DDR:%-4s MHz (%s MT/s data rate) "
 			"(Synchronous), ",
-			strmhz(buf1, sysinfo.freqDDRBus/2),
-			strmhz(buf2, sysinfo.freqDDRBus));
+			strmhz(buf1, sysinfo.freq_ddrbus/2),
+			strmhz(buf2, sysinfo.freq_ddrbus));
 		break;
 	default:
 		printf("       DDR:%-4s MHz (%s MT/s data rate) "
 			"(Asynchronous), ",
-			strmhz(buf1, sysinfo.freqDDRBus/2),
-			strmhz(buf2, sysinfo.freqDDRBus));
+			strmhz(buf1, sysinfo.freq_ddrbus/2),
+			strmhz(buf2, sysinfo.freq_ddrbus));
 		break;
 	}
 #endif
 
 #if defined(CONFIG_FSL_LBC)
-	if (sysinfo.freqLocalBus > LCRR_CLKDIV) {
-		printf("LBC:%-4s MHz\n", strmhz(buf1, sysinfo.freqLocalBus));
+	if (sysinfo.freq_localbus > LCRR_CLKDIV) {
+		printf("LBC:%-4s MHz\n", strmhz(buf1, sysinfo.freq_localbus));
 	} else {
 		printf("LBC: unknown (LCRR[CLKDIV] = 0x%02lx)\n",
-		       sysinfo.freqLocalBus);
+		       sysinfo.freq_localbus);
 	}
 #endif
 
 #if defined(CONFIG_FSL_IFC)
-	printf("IFC:%-4s MHz\n", strmhz(buf1, sysinfo.freqLocalBus));
+	printf("IFC:%-4s MHz\n", strmhz(buf1, sysinfo.freq_localbus));
 #endif
 
 #ifdef CONFIG_CPM2
-	printf("CPM:   %s MHz\n", strmhz(buf1, sysinfo.freqSystemBus));
+	printf("CPM:   %s MHz\n", strmhz(buf1, sysinfo.freq_systembus));
 #endif
 
 #ifdef CONFIG_QE
-	printf("       QE:%-4s MHz\n", strmhz(buf1, sysinfo.freqQE));
+	printf("       QE:%-4s MHz\n", strmhz(buf1, sysinfo.freq_qe));
 #endif
 
 #ifdef CONFIG_SYS_DPAA_FMAN
 	for (i = 0; i < CONFIG_SYS_NUM_FMAN; i++) {
 		printf("       FMAN%d: %s MHz\n", i + 1,
-			strmhz(buf1, sysinfo.freqFMan[i]));
+			strmhz(buf1, sysinfo.freq_fman[i]));
 	}
 #endif
 
 #ifdef CONFIG_SYS_DPAA_QBMAN
-	printf("       QMAN:  %s MHz\n", strmhz(buf1, sysinfo.freqQMAN));
+	printf("       QMAN:  %s MHz\n", strmhz(buf1, sysinfo.freq_qman));
 #endif
 
 #ifdef CONFIG_SYS_DPAA_PME
-	printf("       PME:   %s MHz\n", strmhz(buf1, sysinfo.freqPME));
+	printf("       PME:   %s MHz\n", strmhz(buf1, sysinfo.freq_pme));
 #endif
 
-	puts("L1:    D-cache 32 kB enabled\n       I-cache 32 kB enabled\n");
+	puts("L1:    D-cache 32 KiB enabled\n       I-cache 32 KiB enabled\n");
 
 #ifdef CONFIG_FSL_CORENET
 	/* Display the RCW, so that no one gets confused as to what RCW

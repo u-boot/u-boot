@@ -3090,6 +3090,14 @@ FIT uImage format:
 		Support for NAND boot using simple NAND drivers that
 		expose the cmd_ctrl() interface.
 
+		CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
+		Set for the SPL on PPC mpc8xxx targets, support for
+		arch/powerpc/cpu/mpc8xxx/ddr/libddr.o in SPL binary.
+
+		CONFIG_SPL_COMMON_INIT_DDR
+		Set for common ddr init with serial presence detect in
+		SPL binary.
+
 		CONFIG_SYS_NAND_5_ADDR_CYCLE, CONFIG_SYS_NAND_PAGE_COUNT,
 		CONFIG_SYS_NAND_PAGE_SIZE, CONFIG_SYS_NAND_OOBSIZE,
 		CONFIG_SYS_NAND_BLOCK_SIZE, CONFIG_SYS_NAND_BAD_BLOCK_POS,
@@ -3158,6 +3166,17 @@ FIT uImage format:
 		code to SPL. So this is normally disabled in SPL. Use this
 		option to re-enable it. This will affect the output of the
 		bootm command when booting a FIT image.
+
+- TPL framework
+		CONFIG_TPL
+		Enable building of TPL globally.
+
+		CONFIG_TPL_PAD_TO
+		Image offset to which the TPL should be padded before appending
+		the TPL payload. By default, this is defined as
+                CONFIG_SPL_MAX_SIZE, or 0 if CONFIG_SPL_MAX_SIZE is undefined.
+                CONFIG_SPL_PAD_TO must be either 0, meaning to append the SPL
+                payload without any padding, or >= CONFIG_SPL_MAX_SIZE.
 
 Modem Support:
 --------------
@@ -4195,6 +4214,11 @@ Low Level (hardware related) configuration options:
 		Modifies the behaviour of start.S when compiling a loader
 		that is executed before the actual U-Boot. E.g. when
 		compiling a NAND SPL.
+
+- CONFIG_TPL_BUILD
+		Modifies the behaviour of start.S  when compiling a loader
+		that is executed after the SPL and before the actual U-Boot.
+		It is loaded by the SPL.
 
 - CONFIG_SYS_MPC85XX_NO_RESETVEC
 		Only for 85xx systems. If this variable is specified, the section

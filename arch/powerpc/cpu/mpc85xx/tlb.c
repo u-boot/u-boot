@@ -39,7 +39,8 @@ void init_tlbs(void)
 	return ;
 }
 
-#if !defined(CONFIG_NAND_SPL) && !defined(CONFIG_SPL_BUILD)
+#if !defined(CONFIG_NAND_SPL) && \
+	(!defined(CONFIG_SPL_BUILD) || !defined(CONFIG_SPL_INIT_MINIMAL))
 void read_tlbcam_entry(int idx, u32 *valid, u32 *tsize, unsigned long *epn,
 		       phys_addr_t *rpn)
 {

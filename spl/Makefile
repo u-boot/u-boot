@@ -17,10 +17,22 @@
 CONFIG_SPL_BUILD := y
 export CONFIG_SPL_BUILD
 
+ifeq ($(CONFIG_TPL_BUILD),y)
+export CONFIG_TPL_BUILD
+SPL_BIN := u-boot-tpl
+else
+SPL_BIN := u-boot-spl
+endif
+
 include $(TOPDIR)/config.mk
 
 # We want the final binaries in this directory
+ifeq ($(CONFIG_TPL_BUILD),y)
+obj := $(OBJTREE)/tpl/
+SPLTREE := $(TPLTREE)
+else
 obj := $(OBJTREE)/spl/
+endif
 
 HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(SRCTREE)/board/$(VENDOR)/common/Makefile),y,n)
 
@@ -50,6 +62,9 @@ LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
 endif
 ifeq ($(CPU),mpc85xx)
 LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
+ifdef CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
+LIBS-y += arch/powerpc/cpu/mpc8xxx/ddr/libddr.o
+endif
 endif
 ifeq ($(CPU),mpc86xx)
 LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
@@ -158,7 +173,7 @@ $(OBJTREE)/MLO.byteswap: $(obj)u-boot-spl.bin
 $(OBJTREE)/SPL : $(obj)u-boot-spl.bin depend
 		$(MAKE) -C $(SRCTREE)/arch/arm/imx-common $@
 
-ALL-y	+= $(obj)u-boot-spl.bin
+ALL-y	+= $(obj)$(SPL_BIN).bin
 
 ifdef CONFIG_SAMSUNG
 ALL-y	+= $(obj)$(BOARD)-spl.bin
@@ -172,15 +187,15 @@ $(obj)$(BOARD)-spl.bin: $(obj)u-boot-spl.bin
 		$(obj)u-boot-spl.bin $(obj)$(BOARD)-spl.bin
 endif
 
-$(obj)u-boot-spl.bin:	$(obj)u-boot-spl
+$(obj)$(SPL_BIN).bin:	$(obj)$(SPL_BIN)
 	$(OBJCOPY) $(OBJCFLAGS) -O binary $< $@
 
 GEN_UBOOT = \
 	cd $(obj) && $(LD) $(LDFLAGS) $(LDFLAGS_$(@F)) $(__START) \
 		--start-group $(__LIBS) --end-group $(PLATFORM_LIBS) \
-		-Map u-boot-spl.map -o u-boot-spl
+		-Map $(SPL_BIN).map -o $(SPL_BIN)
 
-$(obj)u-boot-spl:	depend $(START) $(LIBS) $(obj)u-boot-spl.lds
+$(obj)$(SPL_BIN):	depend $(START) $(LIBS) $(obj)u-boot-spl.lds
 	$(GEN_UBOOT)
 
 $(START):	depend

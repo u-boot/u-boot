@@ -136,10 +136,8 @@ static int check_CPU (long clock, uint pvr, uint immr)
 #else
 	printf (" at %s MHz: ", strmhz (buf, clock));
 #endif
-	printf ("%u kB I-Cache %u kB D-Cache",
-		checkicache () >> 10,
-		checkdcache () >> 10
-	);
+	print_size(checkicache(), " I-Cache ");
+	print_size(checkdcache(), " D-Cache");
 
 	/* do we have a FEC (860T/P or 852/859/866/885)? */
 
@@ -204,10 +202,10 @@ static int check_CPU (long clock, uint pvr, uint immr)
 		printf ("unknown MPC857 (0x%08x)", k);
 #endif
 
-	printf (" at %s MHz:", strmhz (buf, clock));
+	printf(" at %s MHz: ", strmhz(buf, clock));
 
-	printf (" %u kB I-Cache", checkicache () >> 10);
-	printf (" %u kB D-Cache", checkdcache () >> 10);
+	print_size(checkicache(), " I-Cache ");
+	print_size(checkdcache(), " D-Cache");
 
 	/* lets check and see if we're running on a 862T (or P?) */
 
@@ -265,10 +263,10 @@ static int check_CPU (long clock, uint pvr, uint immr)
 	if (suf)
 		printf ("PPC823ZTnn%s", suf);
 
-	printf (" at %s MHz:", strmhz (buf, clock));
+	printf(" at %s MHz: ", strmhz(buf, clock));
 
-	printf (" %u kB I-Cache", checkicache () >> 10);
-	printf (" %u kB D-Cache", checkdcache () >> 10);
+	print_size(checkicache(), " I-Cache ");
+	print_size(checkdcache(), " D-Cache");
 
 	/* lets check and see if we're running on a 860T (or P?) */
 
@@ -321,10 +319,10 @@ static int check_CPU (long clock, uint pvr, uint immr)
 	default:
 		printf ("unknown MPC850 (0x%08x)", k);
 	}
-	printf (" at %s MHz:", strmhz (buf, clock));
+	printf(" at %s MHz: ", strmhz(buf, clock));
 
-	printf (" %u kB I-Cache", checkicache () >> 10);
-	printf (" %u kB D-Cache", checkdcache () >> 10);
+	print_size(checkicache(), " I-Cache ");
+	print_size(checkdcache(), " D-Cache");
 
 	/* lets check and see if we're running on a 850T (or P?) */
 
