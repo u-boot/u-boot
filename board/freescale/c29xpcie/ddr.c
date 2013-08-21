@@ -62,7 +62,7 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 				unsigned int ctrl_num)
 {
 	int i;
-	popts->clk_adjust = 2;
+	popts->clk_adjust = 4;
 	popts->cpo_override = 0x1f;
 	popts->write_data_delay = 4;
 	popts->half_strength_driver_enable = 1;
