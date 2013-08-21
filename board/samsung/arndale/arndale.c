@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <asm/arch/pinmux.h>
+#include <asm/arch/dwmmc.h>
 #include <asm/arch/power.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -47,6 +48,19 @@ void dram_init_banksize(void)
 		gd->bd->bi_dram[i].size = size;
 	}
 }
+
+#ifdef CONFIG_GENERIC_MMC
+int board_mmc_init(bd_t *bis)
+{
+	int ret;
+	/* dwmmc initializattion for available channels */
+	ret = exynos_dwmmc_init(gd->fdt_blob);
+	if (ret)
+		debug("dwmmc init failed\n");
+
+	return ret;
+}
+#endif
 
 static int board_uart_init(void)
 {

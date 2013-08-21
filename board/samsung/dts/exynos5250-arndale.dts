@@ -18,4 +18,22 @@
 		serial0 = "/serial@12C20000";
 		console = "/serial@12C20000";
 	};
+
+	mmc@12200000 {
+		samsung,bus-width = <8>;
+		samsung,timing = <1 3 3>;
+	};
+
+	mmc@12210000 {
+		status = "disabled";
+	};
+
+	mmc@12220000 {
+		samsung,bus-width = <4>;
+		samsung,timing = <1 2 3>;
+	};
+
+	mmc@12230000 {
+		status = "disabled";
+	};
 };
