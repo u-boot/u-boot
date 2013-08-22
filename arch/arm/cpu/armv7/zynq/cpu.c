@@ -11,6 +11,10 @@
 
 void lowlevel_init(void)
 {
+}
+
+int arch_cpu_init(void)
+{
 	zynq_slcr_unlock();
 	/* remap DDR to zero, FILTERSTART */
 	writel(0, &scu_base->filter_start);
@@ -31,6 +35,8 @@ void lowlevel_init(void)
 	writel(0xC, &slcr_base->ddr_urgent);
 
 	zynq_slcr_lock();
+
+	return 0;
 }
 
 void reset_cpu(ulong addr)
