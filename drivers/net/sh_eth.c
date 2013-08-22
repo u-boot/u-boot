@@ -25,9 +25,10 @@
 #ifndef CONFIG_SH_ETHER_PHY_ADDR
 # error "Please define CONFIG_SH_ETHER_PHY_ADDR"
 #endif
+
 #ifdef CONFIG_SH_ETHER_CACHE_WRITEBACK
 #define flush_cache_wback(addr, len)	\
-			dcache_wback_range((u32)addr, (u32)(addr + len - 1))
+			flush_dcache_range((u32)addr, (u32)(addr + len - 1))
 #else
 #define flush_cache_wback(...)
 #endif
