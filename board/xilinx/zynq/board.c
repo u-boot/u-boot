@@ -79,15 +79,6 @@ int board_init(void)
 	 */
 	writel(0x26d, 0xe0001014);
 
-	/* temporary hack to take USB out of reset til the is fixed
-	 * in Linux
-	 */
-	writel(0x80, 0xe000a204);
-	writel(0x80, 0xe000a208);
-	writel(0x80, 0xe000a040);
-	writel(0x00, 0xe000a040);
-	writel(0x80, 0xe000a040);
-
 #ifdef CONFIG_FPGA
 	fpga_init();
 	fpga_add(fpga_xilinx, &fpga);
