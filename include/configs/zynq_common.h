@@ -298,7 +298,6 @@
 #define CONFIG_BOOTDELAY		3 /* -1 to Disable autoboot */
 #define CONFIG_SYS_LOAD_ADDR		0 /* default? */
 
-#define CONFIG_SYS_DCACHE_OFF
 #define CONFIG_CMD_CACHE
 
 /* Keep L2 Cache Disabled */
