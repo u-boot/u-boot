@@ -26,11 +26,28 @@
 # error "Please define CONFIG_SH_ETHER_PHY_ADDR"
 #endif
 
-#ifdef CONFIG_SH_ETHER_CACHE_WRITEBACK
-#define flush_cache_wback(addr, len)	\
-			flush_dcache_range((u32)addr, (u32)(addr + len - 1))
+#if defined(CONFIG_SH_ETHER_CACHE_WRITEBACK) && !defined(CONFIG_SYS_DCACHE_OFF)
+#define flush_cache_wback(addr, len)    \
+		flush_dcache_range((u32)addr, (u32)(addr + len - 1))
 #else
 #define flush_cache_wback(...)
+#endif
+
+#if defined(CONFIG_SH_ETHER_CACHE_INVALIDATE) && defined(CONFIG_ARM)
+#define invalidate_cache(addr, len)		\
+	{	\
+		u32 line_size = CONFIG_SH_ETHER_ALIGNE_SIZE;	\
+		u32 start, end;	\
+		\
+		start = (u32)addr;	\
+		end = start + len;	\
+		start &= ~(line_size - 1);	\
+		end = ((end + line_size - 1) & ~(line_size - 1));	\
+		\
+		invalidate_dcache_range(start, end);	\
+	}
+#else
+#define invalidate_cache(...)
 #endif
 
 #define TIMEOUT_CNT 1000
@@ -70,8 +87,11 @@ int sh_eth_send(struct eth_device *dev, void *packet, int len)
 
 	/* Wait until packet is transmitted */
 	timeout = TIMEOUT_CNT;
-	while (port_info->tx_desc_cur->td0 & TD_TACT && timeout--)
+	do {
+		invalidate_cache(port_info->tx_desc_cur,
+				 sizeof(struct tx_desc_s));
 		udelay(100);
+	} while (port_info->tx_desc_cur->td0 & TD_TACT && timeout--);
 
 	if (timeout < 0) {
 		printf(SHETHER_NAME ": transmit timeout\n");
@@ -95,12 +115,14 @@ int sh_eth_recv(struct eth_device *dev)
 	uchar *packet;
 
 	/* Check if the rx descriptor is ready */
+	invalidate_cache(port_info->rx_desc_cur, sizeof(struct rx_desc_s));
 	if (!(port_info->rx_desc_cur->rd0 & RD_RACT)) {
 		/* Check for errors */
 		if (!(port_info->rx_desc_cur->rd0 & RD_RFE)) {
 			len = port_info->rx_desc_cur->rd1 & 0xffff;
 			packet = (uchar *)
 				ADDR_TO_P2(port_info->rx_desc_cur->rd2);
+			invalidate_cache(packet, len);
 			NetReceive(packet, len);
 		}
 
@@ -109,7 +131,6 @@ int sh_eth_recv(struct eth_device *dev)
 			port_info->rx_desc_cur->rd0 = RD_RACT | RD_RDLE;
 		else
 			port_info->rx_desc_cur->rd0 = RD_RACT;
-
 		/* Point to the next descriptor */
 		port_info->rx_desc_cur++;
 		if (port_info->rx_desc_cur >=
