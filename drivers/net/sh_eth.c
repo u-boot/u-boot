@@ -238,15 +238,17 @@ static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
 	 * Allocate rx data buffers. They must be 32 bytes aligned  and in
 	 * P2 area
 	 */
-	port_info->rx_buf_malloc = malloc(NUM_RX_DESC * MAX_BUF_SIZE + 31);
+	port_info->rx_buf_malloc = malloc(
+		NUM_RX_DESC * MAX_BUF_SIZE + RX_BUF_ALIGNE_SIZE - 1);
 	if (!port_info->rx_buf_malloc) {
 		printf(SHETHER_NAME ": malloc failed\n");
 		ret = -ENOMEM;
 		goto err_buf_malloc;
 	}
 
-	tmp_addr = (u32)(((int)port_info->rx_buf_malloc + (32 - 1)) &
-			  ~(32 - 1));
+	tmp_addr = (u32)(((int)port_info->rx_buf_malloc
+			  + (RX_BUF_ALIGNE_SIZE - 1)) &
+			  ~(RX_BUF_ALIGNE_SIZE - 1));
 	port_info->rx_buf_base = (u8 *)ADDR_TO_P2(tmp_addr);
 
 	/* Initialize all descriptors */
@@ -352,8 +354,9 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 	struct phy_device *phy;
 
 	/* Configure e-dmac registers */
-	sh_eth_write(eth, (sh_eth_read(eth, EDMR) & ~EMDR_DESC_R) | EDMR_EL,
-		     EDMR);
+	sh_eth_write(eth, (sh_eth_read(eth, EDMR) & ~EMDR_DESC_R) |
+			(EMDR_DESC | EDMR_EL), EDMR);
+
 	sh_eth_write(eth, 0, EESIPR);
 	sh_eth_write(eth, 0, TRSCER);
 	sh_eth_write(eth, 0, TFTR);

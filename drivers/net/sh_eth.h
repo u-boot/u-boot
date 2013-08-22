@@ -31,6 +31,11 @@
 #define ADDR_TO_P2(addr)	(addr)
 #endif /* defined(CONFIG_SH) */
 
+/* base padding size is 16 */
+#ifndef CONFIG_SH_ETHER_ALIGNE_SIZE
+#define CONFIG_SH_ETHER_ALIGNE_SIZE 16
+#endif
+
 /* Number of supported ports */
 #define MAX_PORT_NUM	2
 
@@ -45,15 +50,16 @@
 
 /* The size of the tx descriptor is determined by how much padding is used.
    4, 20, or 52 bytes of padding can be used */
-#define TX_DESC_PADDING		4
-#define TX_DESC_SIZE		(12 + TX_DESC_PADDING)
+#define TX_DESC_PADDING	(CONFIG_SH_ETHER_ALIGNE_SIZE - 12)
+/* same as CONFIG_SH_ETHER_ALIGNE_SIZE */
+#define TX_DESC_SIZE	(12 + TX_DESC_PADDING)
 
 /* Tx descriptor. We always use 3 bytes of padding */
 struct tx_desc_s {
 	volatile u32 td0;
 	u32 td1;
 	u32 td2;		/* Buffer start */
-	u32 padding;
+	u8 padding[TX_DESC_PADDING];	/* aligned cache line size */
 };
 
 /* There is no limitation in the number of rx descriptors */
@@ -61,15 +67,18 @@ struct tx_desc_s {
 
 /* The size of the rx descriptor is determined by how much padding is used.
    4, 20, or 52 bytes of padding can be used */
-#define RX_DESC_PADDING		4
+#define RX_DESC_PADDING	(CONFIG_SH_ETHER_ALIGNE_SIZE - 12)
+/* same as CONFIG_SH_ETHER_ALIGNE_SIZE */
 #define RX_DESC_SIZE		(12 + RX_DESC_PADDING)
+/* aligned cache line size */
+#define RX_BUF_ALIGNE_SIZE	(CONFIG_SH_ETHER_ALIGNE_SIZE > 32 ? 64 : 32)
 
 /* Rx descriptor. We always use 4 bytes of padding */
 struct rx_desc_s {
 	volatile u32 rd0;
 	volatile u32 rd1;
 	u32 rd2;		/* Buffer start */
-	u32 padding;
+	u8 padding[TX_DESC_PADDING];	/* aligned cache line size */
 };
 
 struct sh_eth_info {
@@ -319,6 +328,14 @@ enum DMAC_M_BIT {
 	EDMR_SRST = 0x01,
 #endif
 };
+
+#if CONFIG_SH_ETHER_ALIGNE_SIZE == 64
+# define EMDR_DESC EDMR_DL1
+#elif CONFIG_SH_ETHER_ALIGNE_SIZE == 32
+# define EMDR_DESC EDMR_DL0
+#elif CONFIG_SH_ETHER_ALIGNE_SIZE == 16 /* Default */
+# define EMDR_DESC 0
+#endif
 
 /* RFLR */
 #define RFLR_RFL_MIN	0x05EE	/* Recv Frame length 1518 byte */
