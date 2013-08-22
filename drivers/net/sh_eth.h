@@ -166,6 +166,7 @@ enum {
 	TLFRCR,
 	CERCR,
 	CEECR,
+	RMIIMR, /* R8A7790 */
 	MAFCR,
 	RTRATE,
 	CSMR,
@@ -272,6 +273,7 @@ static const u16 sh_eth_offset_fast_sh4[SH_ETH_MAX_REGISTER_OFFSET] = {
 	[RMCR]	= 0x0058,
 	[TFUCR]	= 0x0064,
 	[RFOCR]	= 0x0068,
+	[RMIIMR] = 0x006C,
 	[FCFTR]	= 0x0070,
 	[RPADIR]	= 0x0078,
 	[TRIMD]	= 0x007c,
@@ -299,6 +301,9 @@ static const u16 sh_eth_offset_fast_sh4[SH_ETH_MAX_REGISTER_OFFSET] = {
 #elif defined(CONFIG_R8A7740)
 #define SH_ETH_TYPE_GETHER
 #define BASE_IO_ADDR	0xE9A00000
+#elif defined(CONFIG_R8A7790)
+#define SH_ETH_TYPE_ETHER
+#define BASE_IO_ADDR	0xEE700200
 #endif
 
 /*
@@ -502,6 +507,8 @@ enum FELIC_MODE_BIT {
 	ECMR_PRM = 0x00000001,
 #ifdef CONFIG_CPU_SH7724
 	ECMR_RTM = 0x00000010,
+#elif defined(CONFIG_R8A7790)
+	ECMR_RTM = 0x00000004,
 #endif
 
 };
