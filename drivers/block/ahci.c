@@ -107,6 +107,27 @@ static int waiting_for_cmd_completed(volatile u8 *offset,
 	return (i < timeout_msec) ? 0 : -1;
 }
 
+int __weak ahci_link_up(struct ahci_probe_ent *probe_ent, u8 port)
+{
+	u32 tmp;
+	int j = 0;
+	u8 *port_mmio = (u8 *)probe_ent->port[port].port_mmio;
+
+	/* 
+	 * Bring up SATA link.
+	 * SATA link bringup time is usually less than 1 ms; only very
+	 * rarely has it taken between 1-2 ms. Never seen it above 2 ms.
+	 */
+	while (j < WAIT_MS_LINKUP) {
+		tmp = readl(port_mmio + PORT_SCR_STAT);
+		tmp &= PORT_SCR_STAT_DET_MASK;
+		if (tmp == PORT_SCR_STAT_DET_PHYRDY)
+			return 0;
+		udelay(1000);
+		j++;
+	}
+	return 1;
+}
 
 static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 {
@@ -117,7 +138,7 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 #endif
 	volatile u8 *mmio = (volatile u8 *)probe_ent->mmio_base;
 	u32 tmp, cap_save, cmd;
-	int i, j;
+	int i, j, ret;
 	volatile u8 *port_mmio;
 	u32 port_map;
 
@@ -200,20 +221,9 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 		cmd |= PORT_CMD_SPIN_UP;
 		writel_with_flush(cmd, port_mmio + PORT_CMD);
 
-		/* Bring up SATA link.
-		 * SATA link bringup time is usually less than 1 ms; only very
-		 * rarely has it taken between 1-2 ms. Never seen it above 2 ms.
-		 */
-		j = 0;
-		while (j < WAIT_MS_LINKUP) {
-			tmp = readl(port_mmio + PORT_SCR_STAT);
-			tmp &= PORT_SCR_STAT_DET_MASK;
-			if (tmp == PORT_SCR_STAT_DET_PHYRDY)
-				break;
-			udelay(1000);
-			j++;
-		}
-		if (j == WAIT_MS_LINKUP) {
+		/* Bring up SATA link. */
+		ret = ahci_link_up(probe_ent, i);
+		if (ret) {
 			printf("SATA link %d timeout.\n", i);
 			continue;
 		} else {
