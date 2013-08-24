@@ -243,8 +243,20 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 			if (!(tmp & (ATA_STAT_BUSY | ATA_STAT_DRQ)))
 				break;
 			udelay(1000);
+			tmp = readl(port_mmio + PORT_SCR_STAT);
+			tmp &= PORT_SCR_STAT_DET_MASK;
+			if (tmp == PORT_SCR_STAT_DET_PHYRDY)
+				break;
 			j++;
 		}
+
+		tmp = readl(port_mmio + PORT_SCR_STAT) & PORT_SCR_STAT_DET_MASK;
+		if (tmp == PORT_SCR_STAT_DET_COMINIT) {
+			debug("SATA link %d down (COMINIT received), retrying...\n", i);
+			i--;
+			continue;
+		}
+
 		printf("Target spinup took %d ms.\n", j);
 		if (j == WAIT_MS_SPINUP)
 			debug("timeout.\n");
