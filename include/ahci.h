@@ -108,29 +108,6 @@
 
 #define AHCI_MAX_PORTS		32
 
-/* SETFEATURES stuff */
-#define SETFEATURES_XFER	0x03
-#define XFER_UDMA_7		0x47
-#define XFER_UDMA_6		0x46
-#define XFER_UDMA_5		0x45
-#define XFER_UDMA_4		0x44
-#define XFER_UDMA_3		0x43
-#define XFER_UDMA_2		0x42
-#define XFER_UDMA_1		0x41
-#define XFER_UDMA_0		0x40
-#define XFER_MW_DMA_2		0x22
-#define XFER_MW_DMA_1		0x21
-#define XFER_MW_DMA_0		0x20
-#define XFER_SW_DMA_2		0x12
-#define XFER_SW_DMA_1		0x11
-#define XFER_SW_DMA_0		0x10
-#define XFER_PIO_4		0x0C
-#define XFER_PIO_3		0x0B
-#define XFER_PIO_2		0x0A
-#define XFER_PIO_1		0x09
-#define XFER_PIO_0		0x08
-#define XFER_PIO_SLOW		0x00
-
 #define ATA_FLAG_SATA		(1 << 3)
 #define ATA_FLAG_NO_LEGACY	(1 << 4) /* no legacy mode check */
 #define ATA_FLAG_MMIO		(1 << 6) /* use MMIO, not PIO */

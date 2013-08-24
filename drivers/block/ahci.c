@@ -16,14 +16,14 @@
 #include <asm/io.h>
 #include <malloc.h>
 #include <scsi.h>
-#include <ata.h>
+#include <libata.h>
 #include <linux/ctype.h>
 #include <ahci.h>
 
 static int ata_io_flush(u8 port);
 
 struct ahci_probe_ent *probe_ent = NULL;
-hd_driveid_t *ataid[AHCI_MAX_PORTS];
+u16 *ataid[AHCI_MAX_PORTS];
 
 #define writel_with_flush(a,b)	do { writel(a,b); readl(b); } while (0)
 
@@ -240,7 +240,7 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 		j = 0;
 		while (j < WAIT_MS_SPINUP) {
 			tmp = readl(port_mmio + PORT_TFDATA);
-			if (!(tmp & (ATA_STAT_BUSY | ATA_STAT_DRQ)))
+			if (!(tmp & (ATA_BUSY | ATA_DRQ)))
 				break;
 			udelay(1000);
 			tmp = readl(port_mmio + PORT_SCR_STAT);
@@ -378,8 +378,6 @@ static int ahci_init_one(pci_dev_t pdev)
 	u16 vendor;
 	int rc;
 
-	memset((void *)ataid, 0, sizeof(hd_driveid_t *) * AHCI_MAX_PORTS);
-
 	probe_ent = malloc(sizeof(struct ahci_probe_ent));
 	memset(probe_ent, 0, sizeof(struct ahci_probe_ent));
 	probe_ent->dev = pdev;
@@ -469,7 +467,7 @@ static void ahci_set_feature(u8 port)
 	memset(fis, 0, sizeof(fis));
 	fis[0] = 0x27;
 	fis[1] = 1 << 7;
-	fis[2] = ATA_CMD_SETF;
+	fis[2] = ATA_CMD_SET_FEATURES;
 	fis[3] = SETFEATURES_XFER;
 	fis[12] = __ilog2(probe_ent->udma_mask + 1) + 0x40 - 0x01;
 
@@ -607,27 +605,6 @@ static char *ata_id_strcpy(u16 *target, u16 *src, int len)
 	return (char *)target;
 }
 
-
-static void dump_ataid(hd_driveid_t *ataid)
-{
-	debug("(49)ataid->capability = 0x%x\n", ataid->capability);
-	debug("(53)ataid->field_valid =0x%x\n", ataid->field_valid);
-	debug("(63)ataid->dma_mword = 0x%x\n", ataid->dma_mword);
-	debug("(64)ataid->eide_pio_modes = 0x%x\n", ataid->eide_pio_modes);
-	debug("(75)ataid->queue_depth = 0x%x\n", ataid->queue_depth);
-	debug("(80)ataid->major_rev_num = 0x%x\n", ataid->major_rev_num);
-	debug("(81)ataid->minor_rev_num = 0x%x\n", ataid->minor_rev_num);
-	debug("(82)ataid->command_set_1 = 0x%x\n", ataid->command_set_1);
-	debug("(83)ataid->command_set_2 = 0x%x\n", ataid->command_set_2);
-	debug("(84)ataid->cfsse = 0x%x\n", ataid->cfsse);
-	debug("(85)ataid->cfs_enable_1 = 0x%x\n", ataid->cfs_enable_1);
-	debug("(86)ataid->cfs_enable_2 = 0x%x\n", ataid->cfs_enable_2);
-	debug("(87)ataid->csf_default = 0x%x\n", ataid->csf_default);
-	debug("(88)ataid->dma_ultra = 0x%x\n", ataid->dma_ultra);
-	debug("(93)ataid->hw_config = 0x%x\n", ataid->hw_config);
-}
-
-
 /*
  * SCSI INQUIRY command operation.
  */
@@ -641,7 +618,7 @@ static int ata_scsiop_inquiry(ccb *pccb)
 		95 - 4,
 	};
 	u8 fis[20];
-	u8 *tmpid;
+	u16 *tmpid;
 	u8 port;
 
 	/* Clean ccb data buffer */
@@ -656,15 +633,16 @@ static int ata_scsiop_inquiry(ccb *pccb)
 	/* Construct the FIS */
 	fis[0] = 0x27;		/* Host to device FIS. */
 	fis[1] = 1 << 7;	/* Command FIS. */
-	fis[2] = ATA_CMD_IDENT;	/* Command byte. */
+	fis[2] = ATA_CMD_ID_ATA; /* Command byte. */
 
 	/* Read id from sata */
 	port = pccb->target;
-	if (!(tmpid = malloc(sizeof(hd_driveid_t))))
+	tmpid = malloc(ATA_ID_WORDS * 2);
+	if (!tmpid)
 		return -ENOMEM;
 
-	if (ahci_device_data_io(port, (u8 *) &fis, sizeof(fis), tmpid,
-				sizeof(hd_driveid_t), 0)) {
+	if (ahci_device_data_io(port, (u8 *) &fis, sizeof(fis), (u8 *)tmpid,
+				ATA_ID_WORDS * 2, 0)) {
 		debug("scsi_ahci: SCSI inquiry command failure.\n");
 		free(tmpid);
 		return -EIO;
@@ -672,13 +650,16 @@ static int ata_scsiop_inquiry(ccb *pccb)
 
 	if (ataid[port])
 		free(ataid[port]);
-	ataid[port] = (hd_driveid_t *) tmpid;
+	ataid[port] = tmpid;
+	ata_swap_buf_le16(tmpid, ATA_ID_WORDS);
 
 	memcpy(&pccb->pdata[8], "ATA     ", 8);
-	ata_id_strcpy((u16 *) &pccb->pdata[16], (u16 *)ataid[port]->model, 16);
-	ata_id_strcpy((u16 *) &pccb->pdata[32], (u16 *)ataid[port]->fw_rev, 4);
+	ata_id_strcpy((u16 *) &pccb->pdata[16], &tmpid[ATA_ID_PROD], 16);
+	ata_id_strcpy((u16 *) &pccb->pdata[32], &tmpid[ATA_ID_FW_REV], 4);
 
-	dump_ataid(ataid[port]);
+#ifdef DEBUG
+	ata_dump_id(tmpid);
+#endif
 	return 0;
 }
 
@@ -726,7 +707,7 @@ static int ata_scsiop_read_write(ccb *pccb, u8 is_write)
 
 		now_blocks = min(MAX_SATA_BLOCKS_READ_WRITE, blocks);
 
-		transfer_size = ATA_BLOCKSIZE * now_blocks;
+		transfer_size = ATA_SECT_SIZE * now_blocks;
 		if (transfer_size > user_buffer_size) {
 			printf("scsi_ahci: Error: buffer too small.\n");
 			return -EIO;
@@ -781,6 +762,7 @@ static int ata_scsiop_read_write(ccb *pccb, u8 is_write)
 static int ata_scsiop_read_capacity10(ccb *pccb)
 {
 	u32 cap;
+	u64 cap64;
 	u32 block_size;
 
 	if (!ataid[pccb->target]) {
@@ -790,18 +772,11 @@ static int ata_scsiop_read_capacity10(ccb *pccb)
 		return -EPERM;
 	}
 
-	cap = le32_to_cpu(ataid[pccb->target]->lba_capacity);
-	if (cap == 0xfffffff) {
-		unsigned short *cap48 = ataid[pccb->target]->lba48_capacity;
-		if (cap48[2] || cap48[3]) {
-			cap = 0xffffffff;
-		} else {
-			cap = (le16_to_cpu(cap48[1]) << 16) |
-			      (le16_to_cpu(cap48[0]));
-		}
-	}
+	cap64 = ata_id_n_sectors(ataid[pccb->target]);
+	if (cap64 > 0x100000000ULL)
+		cap64 = 0xffffffff;
 
-	cap = cpu_to_be32(cap);
+	cap = cpu_to_be32(cap64);
 	memcpy(pccb->pdata, &cap, sizeof(cap));
 
 	block_size = cpu_to_be32((u32)512);
@@ -826,12 +801,7 @@ static int ata_scsiop_read_capacity16(ccb *pccb)
 		return -EPERM;
 	}
 
-	cap = le32_to_cpu(ataid[pccb->target]->lba_capacity);
-	if (cap == 0xfffffff) {
-		memcpy(&cap, ataid[pccb->target]->lba48_capacity, sizeof(cap));
-		cap = le64_to_cpu(cap);
-	}
-
+	cap = ata_id_n_sectors(ataid[pccb->target]);
 	cap = cpu_to_be64(cap);
 	memcpy(pccb->pdata, &cap, sizeof(cap));
 
@@ -917,8 +887,6 @@ int ahci_init(u32 base)
 {
 	int i, rc = 0;
 	u32 linkmap;
-
-	memset(ataid, 0, sizeof(ataid));
 
 	probe_ent = malloc(sizeof(struct ahci_probe_ent));
 	memset(probe_ent, 0, sizeof(struct ahci_probe_ent));
