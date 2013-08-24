@@ -38,7 +38,7 @@ hd_driveid_t *ataid[AHCI_MAX_PORTS];
 #endif
 
 /* Maximum timeouts for each event */
-#define WAIT_MS_SPINUP	10000
+#define WAIT_MS_SPINUP	20000
 #define WAIT_MS_DATAIO	5000
 #define WAIT_MS_FLUSH	5000
 #define WAIT_MS_LINKUP	4
