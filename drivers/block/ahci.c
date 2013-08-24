@@ -610,7 +610,7 @@ static void dump_ataid(hd_driveid_t *ataid)
  */
 static int ata_scsiop_inquiry(ccb *pccb)
 {
-	u8 hdr[] = {
+	static const u8 hdr[] = {
 		0,
 		0,
 		0x5,		/* claim SPC-3 version compatibility */
