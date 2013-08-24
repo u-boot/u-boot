@@ -94,7 +94,11 @@ PLATFORM_RELFLAGS += -fno-optimize-sibling-calls
 endif
 endif
 
-# check that only R_ARM_RELATIVE relocations are generated
 ifneq ($(CONFIG_SPL_BUILD),y)
-ALL-y	+= checkarmreloc
+# Check that only R_ARM_RELATIVE relocations are generated.
+ALL-y += checkarmreloc
+# The movt / movw can hardcode 16 bit parts of the addresses in the
+# instruction. Relocation is not supported for that case, so disable
+# such usage by requiring word relocations.
+PLATFORM_CPPFLAGS += $(call cc-option, -mword-relocations)
 endif
