@@ -643,6 +643,7 @@ static int ata_scsiop_inquiry(ccb *pccb)
 	if (ahci_device_data_io(port, (u8 *) &fis, sizeof(fis), tmpid,
 				sizeof(hd_driveid_t), 0)) {
 		debug("scsi_ahci: SCSI inquiry command failure.\n");
+		free(tmpid);
 		return -EIO;
 	}
 
