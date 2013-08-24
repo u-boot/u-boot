@@ -87,6 +87,11 @@
 				| PORT_IRQ_DMAS_FIS | PORT_IRQ_PIOS_FIS	\
 				| PORT_IRQ_D2H_REG_FIS
 
+/* PORT_SCR_STAT bits */
+#define PORT_SCR_STAT_DET_MASK	0x3
+#define PORT_SCR_STAT_DET_COMINIT 0x1
+#define PORT_SCR_STAT_DET_PHYRDY 0x3
+
 /* PORT_CMD bits */
 #define PORT_CMD_ATAPI		(1 << 24) /* Device is ATAPI */
 #define PORT_CMD_LIST_ON	(1 << 15) /* cmd list DMA engine running */
