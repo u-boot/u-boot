@@ -119,6 +119,7 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 	u32 tmp, cap_save, cmd;
 	int i, j;
 	volatile u8 *port_mmio;
+	u32 port_map;
 
 	debug("ahci_host_init: start\n");
 
@@ -160,6 +161,7 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 #endif
 	probe_ent->cap = readl(mmio + HOST_CAP);
 	probe_ent->port_map = readl(mmio + HOST_PORTS_IMPL);
+	port_map = probe_ent->port_map;
 	probe_ent->n_ports = (probe_ent->cap & 0x1f) + 1;
 
 	debug("cap 0x%x  port_map 0x%x  n_ports %d\n",
@@ -169,6 +171,8 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 		probe_ent->n_ports = CONFIG_SYS_SCSI_MAX_SCSI_ID;
 
 	for (i = 0; i < probe_ent->n_ports; i++) {
+		if (!(port_map & (1 << i)))
+			continue;
 		probe_ent->port[i].port_mmio = ahci_port_base((u32) mmio, i);
 		port_mmio = (u8 *) probe_ent->port[i].port_mmio;
 		ahci_setup_port(&probe_ent->port[i], (unsigned long)mmio, i);
