@@ -527,6 +527,9 @@ void spl_board_init(void)
 	 */
 	board_early_init_f();
 
+	/* enable the LSB transmitter */
+	gpio_write_bit(CONFIG_SYS_GPIO_LSB_ENABLE, 1);
+
 	/*
 	 * Clear resets
 	 */
