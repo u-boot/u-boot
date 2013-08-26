@@ -354,6 +354,16 @@ static int usb_kbd_testc(void)
 	struct usb_device *usb_kbd_dev;
 	struct usb_kbd_pdata *data;
 
+#ifdef CONFIG_CMD_NET
+	/*
+	 * If net_busy_flag is 1, NET transfer is running,
+	 * then we check key-pressed every second (first check may be
+	 * less than 1 second) to improve TFTP booting performance.
+	 */
+	if (net_busy_flag && (get_timer(kbd_testc_tms) < CONFIG_SYS_HZ))
+		return 0;
+	kbd_testc_tms = get_timer(0);
+#endif
 	dev = stdio_get_by_name(DEVNAME);
 	usb_kbd_dev = (struct usb_device *)dev->priv;
 	data = usb_kbd_dev->privptr;
@@ -370,16 +380,6 @@ static int usb_kbd_getc(void)
 	struct usb_device *usb_kbd_dev;
 	struct usb_kbd_pdata *data;
 
-#ifdef CONFIG_CMD_NET
-	/*
-	 * If net_busy_flag is 1, NET transfer is running,
-	 * then we check key-pressed every second (first check may be
-	 * less than 1 second) to improve TFTP booting performance.
-	 */
-	if (net_busy_flag && (get_timer(kbd_testc_tms) < CONFIG_SYS_HZ))
-		return 0;
-	kbd_testc_tms = get_timer(0);
-#endif
 	dev = stdio_get_by_name(DEVNAME);
 	usb_kbd_dev = (struct usb_device *)dev->priv;
 	data = usb_kbd_dev->privptr;
