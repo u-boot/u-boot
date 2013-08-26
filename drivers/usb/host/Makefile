@@ -45,6 +45,7 @@ COBJS-$(CONFIG_USB_EHCI_VCT) += ehci-vct.o
 # xhci
 COBJS-$(CONFIG_USB_XHCI) += xhci.o xhci-mem.o xhci-ring.o
 COBJS-$(CONFIG_USB_XHCI_EXYNOS) += xhci-exynos5.o
+COBJS-$(CONFIG_USB_XHCI_OMAP) += xhci-omap.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
