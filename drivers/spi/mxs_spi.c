@@ -56,8 +56,6 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 				  unsigned int max_hz, unsigned int mode)
 {
 	struct mxs_spi_slave *mxs_slave;
-	struct mxs_ssp_regs *ssp_regs;
-	int reg;
 
 	if (!spi_cs_is_valid(bus, cs)) {
 		printf("mxs_spi: invalid bus %d / chip select %d\n", bus, cs);
@@ -74,13 +72,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	mxs_slave->max_khz = max_hz / 1000;
 	mxs_slave->mode = mode;
 	mxs_slave->regs = mxs_ssp_regs_by_bus(bus);
-	ssp_regs = mxs_slave->regs;
 
-	reg = readl(&ssp_regs->hw_ssp_ctrl0);
-	reg &= ~(MXS_SSP_CHIPSELECT_MASK);
-	reg |= cs << MXS_SSP_CHIPSELECT_SHIFT;
-
-	writel(reg, &ssp_regs->hw_ssp_ctrl0);
 	return &mxs_slave->slave;
 
 err_init:
@@ -102,7 +94,9 @@ int spi_claim_bus(struct spi_slave *slave)
 
 	mxs_reset_block(&ssp_regs->hw_ssp_ctrl0_reg);
 
-	writel(SSP_CTRL0_BUS_WIDTH_ONE_BIT, &ssp_regs->hw_ssp_ctrl0);
+	writel((slave->cs << MXS_SSP_CHIPSELECT_SHIFT) |
+	       SSP_CTRL0_BUS_WIDTH_ONE_BIT,
+	       &ssp_regs->hw_ssp_ctrl0);
 
 	reg = SSP_CTRL1_SSP_MODE_SPI | SSP_CTRL1_WORD_LENGTH_EIGHT_BITS;
 	reg |= (mxs_slave->mode & SPI_CPOL) ? SSP_CTRL1_POLARITY : 0;
