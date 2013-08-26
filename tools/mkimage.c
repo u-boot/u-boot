@@ -145,6 +145,8 @@ main (int argc, char **argv)
 	init_kwb_image_type ();
 	/* Init Freescale imx Boot image generation/list support */
 	init_imx_image_type ();
+	/* Init Freescale mxs Boot image generation/list support */
+	init_mxs_image_type();
 	/* Init FIT image generation/list support */
 	init_fit_image_type ();
 	/* Init TI OMAP Boot image generation/list support */

@@ -83,6 +83,7 @@ NOPED_OBJ_FILES-y += aisimage.o
 NOPED_OBJ_FILES-y += kwbimage.o
 NOPED_OBJ_FILES-y += pblimage.o
 NOPED_OBJ_FILES-y += imximage.o
+NOPED_OBJ_FILES-y += mxsimage.o
 NOPED_OBJ_FILES-y += image-host.o
 NOPED_OBJ_FILES-y += omapimage.o
 NOPED_OBJ_FILES-y += mkenvimage.o
@@ -209,6 +210,7 @@ $(obj)mkimage$(SFX):	$(obj)aisimage.o \
 			$(obj)image-host.o \
 			$(FIT_SIG_OBJS) \
 			$(obj)imximage.o \
+			$(obj)mxsimage.o \
 			$(obj)kwbimage.o \
 			$(obj)pblimage.o \
 			$(obj)md5.o \
