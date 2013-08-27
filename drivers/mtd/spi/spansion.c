@@ -117,6 +117,15 @@ static const struct spansion_spi_flash_params spansion_spi_flash_table[] = {
 		.name = "S25FL256S_64K",
 	},
 	{
+		.idcode1 = 0x0219,
+		.idcode2 = 0x4d00,
+		.pages_per_sector = 512,
+		.nr_sectors = 128,
+		.rd_cmd = READ_CMD_FULL,
+		.wr_cmd = PAGE_PROGRAM | QUAD_PAGE_PROGRAM,
+		.name = "S25FL256S_256K",
+	},
+	{
 		.idcode1 = 0x0220,
 		.idcode2 = 0x4d01,
 		.pages_per_sector = 256,
@@ -180,8 +189,8 @@ struct spi_flash *spi_flash_probe_spansion(struct spi_slave *spi, u8 *idcode)
 		flash->write_cmd = cmd;
 	}
 
-	flash->page_size = 256;
-	flash->sector_size = 256 * params->pages_per_sector;
+	flash->page_size = (ext_jedec == 0x4d00) ? 512 : 256;
+	flash->sector_size = flash->page_size * params->pages_per_sector;
 
 	if (flash->spi->is_dual == MODE_DUAL_PARALLEL) {
 		flash->page_size *= 2;
