@@ -31,8 +31,10 @@
 
 #define STRING_MANUFACTURER 25
 #define STRING_PRODUCT 2
+/* Index of String Descriptor describing this configuration */
 #define STRING_USBDOWN 2
-#define CONFIG_USBDOWNLOADER 2
+/* Number of supported configurations */
+#define CONFIGURATION_NUMBER 1
 
 #define DRIVER_VERSION		"usb_dnl 2.0"
 
@@ -54,11 +56,14 @@ static struct usb_device_descriptor device_desc = {
 	.bNumConfigurations = 1,
 };
 
-/* static strings, in UTF-8 */
+/*
+ * static strings, in UTF-8
+ * IDs for those strings are assigned dynamically at g_dnl_bind()
+ */
 static struct usb_string g_dnl_string_defs[] = {
-	{ 0, manufacturer, },
-	{ 1, product, },
-	{  }		/* end of list */
+	{.s = manufacturer},
+	{.s = product},
+	{ }		/* end of list */
 };
 
 static struct usb_gadget_strings g_dnl_string_tab = {
@@ -104,7 +109,7 @@ static int g_dnl_config_register(struct usb_composite_dev *cdev)
 	static struct usb_configuration config = {
 		.label = "usb_dnload",
 		.bmAttributes =	USB_CONFIG_ATT_ONE | USB_CONFIG_ATT_SELFPOWER,
-		.bConfigurationValue =	CONFIG_USBDOWNLOADER,
+		.bConfigurationValue =	CONFIGURATION_NUMBER,
 		.iConfiguration =	STRING_USBDOWN,
 
 		.bind = g_dnl_do_config,

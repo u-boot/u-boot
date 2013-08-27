@@ -14,10 +14,22 @@
 
 #include "mux_data.h"
 
+#ifdef CONFIG_USB_EHCI
+#include <usb.h>
+#include <asm/gpio.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/ehci.h>
+#include <asm/ehci-omap.h>
+
+#define DIE_ID_REG_BASE     (OMAP54XX_L4_CORE_BASE + 0x2000)
+#define DIE_ID_REG_OFFSET	0x200
+
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 const struct omap_sysinfo sysinfo = {
-	"Board: OMAP5430 EVM\n"
+	"Board: OMAP5432 uEVM\n"
 };
 
 /**
@@ -107,5 +119,87 @@ int board_mmc_init(bd_t *bis)
 	omap_mmc_init(0, 0, 0, -1, -1);
 	omap_mmc_init(1, 0, 0, -1, -1);
 	return 0;
+}
+#endif
+
+#ifdef CONFIG_USB_EHCI
+static struct omap_usbhs_board_data usbhs_bdata = {
+	.port_mode[0] = OMAP_USBHS_PORT_MODE_UNUSED,
+	.port_mode[1] = OMAP_EHCI_PORT_MODE_HSIC,
+	.port_mode[2] = OMAP_EHCI_PORT_MODE_HSIC,
+};
+
+static void enable_host_clocks(void)
+{
+	int hs_clk_ctrl_val = (OPTFCLKEN_HSIC60M_P3_CLK |
+				OPTFCLKEN_HSIC480M_P3_CLK |
+				OPTFCLKEN_HSIC60M_P2_CLK |
+				OPTFCLKEN_HSIC480M_P2_CLK |
+				OPTFCLKEN_UTMI_P3_CLK | OPTFCLKEN_UTMI_P2_CLK);
+
+	/* Enable port 2 and 3 clocks*/
+	setbits_le32((*prcm)->cm_l3init_hsusbhost_clkctrl, hs_clk_ctrl_val);
+
+	/* Enable port 2 and 3 usb host ports tll clocks*/
+	setbits_le32((*prcm)->cm_l3init_hsusbtll_clkctrl,
+			(OPTFCLKEN_USB_CH1_CLK_ENABLE | OPTFCLKEN_USB_CH2_CLK_ENABLE));
+}
+
+int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+{
+	int ret;
+	int auxclk;
+	int reg;
+	uint8_t device_mac[6];
+
+	enable_host_clocks();
+
+	if (!getenv("usbethaddr")) {
+		reg = DIE_ID_REG_BASE + DIE_ID_REG_OFFSET;
+
+		/*
+		 * create a fake MAC address from the processor ID code.
+		 * first byte is 0x02 to signify locally administered.
+		 */
+		device_mac[0] = 0x02;
+		device_mac[1] = readl(reg + 0x10) & 0xff;
+		device_mac[2] = readl(reg + 0xC) & 0xff;
+		device_mac[3] = readl(reg + 0x8) & 0xff;
+		device_mac[4] = readl(reg) & 0xff;
+		device_mac[5] = (readl(reg) >> 8) & 0xff;
+
+		eth_setenv_enetaddr("usbethaddr", device_mac);
+	}
+
+	auxclk = readl((*prcm)->scrm_auxclk1);
+	/* Request auxilary clock */
+	auxclk |= AUXCLK_ENABLE_MASK;
+	writel(auxclk, (*prcm)->scrm_auxclk1);
+
+	ret = omap_ehci_hcd_init(&usbhs_bdata, hccr, hcor);
+	if (ret < 0) {
+		puts("Failed to initialize ehci\n");
+		return ret;
+	}
+
+	return 0;
+}
+
+int ehci_hcd_stop(void)
+{
+	int ret;
+
+	ret = omap_ehci_hcd_stop();
+	return ret;
+}
+
+void usb_hub_reset_devices(int port)
+{
+	/* The LAN9730 needs to be reset after the port power has been set. */
+	if (port == 3) {
+		gpio_direction_output(CONFIG_OMAP_EHCI_PHY3_RESET_GPIO, 0);
+		udelay(10);
+		gpio_direction_output(CONFIG_OMAP_EHCI_PHY3_RESET_GPIO, 1);
+	}
 }
 #endif

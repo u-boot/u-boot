@@ -104,6 +104,11 @@ struct usb_kbd_pdata {
 	uint8_t		flags;
 };
 
+extern int __maybe_unused net_busy_flag;
+
+/* The period of time between two calls of usb_kbd_testc(). */
+static unsigned long __maybe_unused kbd_testc_tms;
+
 /* Generic keyboard event polling. */
 void usb_kbd_generic_poll(void)
 {
@@ -349,6 +354,16 @@ static int usb_kbd_testc(void)
 	struct usb_device *usb_kbd_dev;
 	struct usb_kbd_pdata *data;
 
+#ifdef CONFIG_CMD_NET
+	/*
+	 * If net_busy_flag is 1, NET transfer is running,
+	 * then we check key-pressed every second (first check may be
+	 * less than 1 second) to improve TFTP booting performance.
+	 */
+	if (net_busy_flag && (get_timer(kbd_testc_tms) < CONFIG_SYS_HZ))
+		return 0;
+	kbd_testc_tms = get_timer(0);
+#endif
 	dev = stdio_get_by_name(DEVNAME);
 	usb_kbd_dev = (struct usb_device *)dev->priv;
 	data = usb_kbd_dev->privptr;

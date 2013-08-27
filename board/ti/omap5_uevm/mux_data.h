@@ -42,7 +42,8 @@ const struct pad_conf_entry core_padconf_array_essential[] = {
 	{USBD0_SS_RX, (IEN | M0)},	/*  USBD0_SS_RX */
 	{I2C5_SCL, (IEN | M0)}, /* I2C5_SCL */
 	{I2C5_SDA, (IEN | M0)}, /* I2C5_SDA */
-
+	{HSI2_ACWAKE, (PTU | M6)},    /*  HSI2_ACWAKE */
+	{HSI2_CAFLAG, (PTU | M6)},    /*  HSI2_CAFLAG */
 };
 
 const struct pad_conf_entry wkup_padconf_array_essential[] = {
@@ -50,6 +51,7 @@ const struct pad_conf_entry wkup_padconf_array_essential[] = {
 	{SR_PMIC_SCL, (PTU | IEN | M0)}, /* SR_PMIC_SCL */
 	{SR_PMIC_SDA, (PTU | IEN | M0)}, /* SR_PMIC_SDA */
 	{SYS_32K, (IEN | M0)}, /*  SYS_32K     */
+	{FREF_CLK1_OUT, (PTD | IEN | M0)},    /*  FREF_CLK1_OUT  */
 
 };
 

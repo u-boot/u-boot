@@ -44,6 +44,10 @@
 static struct usb_hub_device hub_dev[USB_MAX_HUB];
 static int usb_hub_index;
 
+__weak void usb_hub_reset_devices(int port)
+{
+	return;
+}
 
 static int usb_get_hub_descriptor(struct usb_device *dev, void *data, int size)
 {
@@ -302,7 +306,7 @@ void usb_hub_port_connect_change(struct usb_device *dev, int port)
 
 static int usb_hub_configure(struct usb_device *dev)
 {
-	int i;
+	int i, length;
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, USB_BUFSIZ);
 	unsigned char *bitmap;
 	short hubCharacteristics;
@@ -323,20 +327,14 @@ static int usb_hub_configure(struct usb_device *dev)
 	}
 	descriptor = (struct usb_hub_descriptor *)buffer;
 
-	/* silence compiler warning if USB_BUFSIZ is > 256 [= sizeof(char)] */
-	i = descriptor->bLength;
-	if (i > USB_BUFSIZ) {
-		debug("usb_hub_configure: failed to get hub " \
-		      "descriptor - too long: %d\n", descriptor->bLength);
-		return -1;
-	}
+	length = min(descriptor->bLength, sizeof(struct usb_hub_descriptor));
 
-	if (usb_get_hub_descriptor(dev, buffer, descriptor->bLength) < 0) {
+	if (usb_get_hub_descriptor(dev, buffer, length) < 0) {
 		debug("usb_hub_configure: failed to get hub " \
 		      "descriptor 2nd giving up %lX\n", dev->status);
 		return -1;
 	}
-	memcpy((unsigned char *)&hub->desc, buffer, descriptor->bLength);
+	memcpy((unsigned char *)&hub->desc, buffer, length);
 	/* adjust 16bit values */
 	put_unaligned(le16_to_cpu(get_unaligned(
 			&descriptor->wHubCharacteristics)),
@@ -425,6 +423,14 @@ static int usb_hub_configure(struct usb_device *dev)
 	      (le16_to_cpu(hubsts->wHubStatus) & HUB_STATUS_OVERCURRENT) ? \
 	      "" : "no ");
 	usb_hub_power_on(hub);
+
+	/*
+	 * Reset any devices that may be in a bad state when applying
+	 * the power.  This is a __weak function.  Resetting of the devices
+	 * should occur in the board file of the device.
+	 */
+	for (i = 0; i < dev->maxchild; i++)
+		usb_hub_reset_devices(i + 1);
 
 	for (i = 0; i < dev->maxchild; i++) {
 		ALLOC_CACHE_ALIGN_BUFFER(struct usb_port_status, portsts, 1);

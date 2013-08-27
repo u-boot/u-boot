@@ -221,21 +221,12 @@ void __weak board_ehci_hcd_postinit(struct usb_ehci *ehci, int port)
 int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	struct usb_ehci *ehci;
-#ifdef CONFIG_MX53
-	struct clkctl *sc_regs = (struct clkctl *)CCM_BASE_ADDR;
-	u32 reg;
-
-	reg = __raw_readl(&sc_regs->cscmr1) & ~(1 << 26);
-	/* derive USB PHY clock multiplexer from PLL3 */
-	reg |= 1 << 26;
-	__raw_writel(reg, &sc_regs->cscmr1);
-#endif
 
 	set_usboh3_clk();
-	enable_usboh3_clk(1);
+	enable_usboh3_clk(true);
 	set_usb_phy_clk();
-	enable_usb_phy1_clk(1);
-	enable_usb_phy2_clk(1);
+	enable_usb_phy1_clk(true);
+	enable_usb_phy2_clk(true);
 	mdelay(1);
 
 	/* Do board specific initialization */

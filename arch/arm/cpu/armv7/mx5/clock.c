@@ -85,7 +85,7 @@ void set_usboh3_clk(void)
 			MXC_CCM_CSCDR1_USBOH3_CLK_PODF(1));
 }
 
-void enable_usboh3_clk(unsigned char enable)
+void enable_usboh3_clk(bool enable)
 {
 	unsigned int cg = enable ? MXC_CCM_CCGR_CG_ON : MXC_CCM_CCGR_CG_OFF;
 
@@ -122,7 +122,7 @@ void set_usb_phy_clk(void)
 }
 
 #if defined(CONFIG_MX51)
-void enable_usb_phy1_clk(unsigned char enable)
+void enable_usb_phy1_clk(bool enable)
 {
 	unsigned int cg = enable ? MXC_CCM_CCGR_CG_ON : MXC_CCM_CCGR_CG_OFF;
 
@@ -131,12 +131,12 @@ void enable_usb_phy1_clk(unsigned char enable)
 			MXC_CCM_CCGR2_USB_PHY(cg));
 }
 
-void enable_usb_phy2_clk(unsigned char enable)
+void enable_usb_phy2_clk(bool enable)
 {
 	/* i.MX51 has a single USB PHY clock, so do nothing here. */
 }
 #elif defined(CONFIG_MX53)
-void enable_usb_phy1_clk(unsigned char enable)
+void enable_usb_phy1_clk(bool enable)
 {
 	unsigned int cg = enable ? MXC_CCM_CCGR_CG_ON : MXC_CCM_CCGR_CG_OFF;
 
@@ -145,7 +145,7 @@ void enable_usb_phy1_clk(unsigned char enable)
 			MXC_CCM_CCGR4_USB_PHY1(cg));
 }
 
-void enable_usb_phy2_clk(unsigned char enable)
+void enable_usb_phy2_clk(bool enable)
 {
 	unsigned int cg = enable ? MXC_CCM_CCGR_CG_ON : MXC_CCM_CCGR_CG_OFF;
 
