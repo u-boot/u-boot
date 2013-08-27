@@ -17,6 +17,8 @@
 	"uuid_disk=${uuid_gpt_disk};" \
 	"name=rootfs,start=2MiB,size=-,uuid=${uuid_gpt_rootfs}"
 
+#include <configs/omap5_common.h>
+
 #define CONFIG_CONS_INDEX		3
 #define CONFIG_SYS_NS16550_COM3		UART3_BASE
 #define CONFIG_BAUDRATE			115200
@@ -53,7 +55,6 @@
 #define CONFIG_OMAP_EHCI_PHY3_RESET_GPIO 79
 
 /* Enabled commands */
-#define CONFIG_NET_MULTI
 #define CONFIG_CMD_DHCP		/* DHCP Support			*/
 #define CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
 #define CONFIG_CMD_NFS		/* NFS support			*/
@@ -62,11 +63,7 @@
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_SMSC95XX
 
-#define CONFIG_SYS_PROMPT		"OMAP5432 uEVM # "
-
 #define CONSOLEDEV		"ttyO2"
 #define CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC	16296
-
-#include <configs/omap5_common.h>
 
 #endif /* __CONFIG_OMAP5_EVM_H */
