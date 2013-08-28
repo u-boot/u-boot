@@ -75,6 +75,7 @@ static const struct spi_flash_params spi_flash_params_table[] = {
 	{"S25FL032P",	   0x010215, 0x4d00,    64 * 1024,    64,	             0},
 	{"S25FL064P",	   0x010216, 0x4d00,    64 * 1024,   128,	             0},
 	{"S25FL128S_64K",  0x012018, 0x4d01,    64 * 1024,   256,		     0},
+	{"S25FL256S_256K", 0x010219, 0x4d00,    64 * 1024,   512,	             0},
 	{"S25FL256S_64K",  0x010219, 0x4d01,    64 * 1024,   512,	             0},
 	{"S25FL512S_64K",  0x010220, 0x4d01,    64 * 1024,  1024,	             0},
 #endif
@@ -195,7 +196,7 @@ struct spi_flash *spi_flash_validate_ids(struct spi_slave *spi, u8 *idcode)
 	flash->read = spi_flash_cmd_read_fast;
 
 	/* Compute the flash size */
-	flash->page_size = 256;
+	flash->page_size = (ext_jedec == 0x4d00) ? 512 : 256;
 	flash->sector_size = params->sector_size;
 	flash->size = flash->sector_size * params->nr_sectors;
 
