@@ -57,7 +57,7 @@ int timer_init(void)
 			SCUTIMER_CONTROL_ENABLE_MASK;
 
 	/* Load the timer counter register */
-	writel(0xFFFFFFFF, &timer_base->counter);
+	writel(0xFFFFFFFF, &timer_base->load);
 
 	/*
 	 * Start the A9Timer device
