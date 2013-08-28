@@ -447,9 +447,7 @@
 #endif
 #endif
 
-#ifndef CONFIG_SPL_BUILD
 #define CONFIG_OMAP_GPIO
-#endif
 
 /* Watchdog */
 #define CONFIG_HW_WATCHDOG
