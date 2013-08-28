@@ -64,6 +64,7 @@ static const struct spi_flash_params spi_flash_params_table[] = {
 	{"MX25L6405D",	   0xc22017, 0x0,	64 * 1024,   128,	             0},
 	{"MX25L12805",	   0xc22018, 0x0,	64 * 1024,   256,	             0},
 	{"MX25L25635F",	   0xc22019, 0x0,	64 * 1024,   512,	             0},
+	{"MX25L51235F",	   0xc2201A, 0x0,	64 * 1024,  1024,	             0},
 	{"MX25L12855E",	   0xc22618, 0x0,	64 * 1024,   256,	             0},
 #endif
 #ifdef CONFIG_SPI_FLASH_SPANSION	/* SPANSION */
