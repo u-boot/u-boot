@@ -1178,7 +1178,11 @@ int atmel_nand_chip_init(int devnum, ulong base_addr)
 	mtd->priv = nand;
 	nand->IO_ADDR_R = nand->IO_ADDR_W = (void  __iomem *)base_addr;
 
+#ifdef CONFIG_NAND_ECC_BCH
+	nand->ecc.mode = NAND_ECC_SOFT_BCH;
+#else
 	nand->ecc.mode = NAND_ECC_SOFT;
+#endif
 #ifdef CONFIG_SYS_NAND_DBW_16
 	nand->options = NAND_BUSWIDTH_16;
 #endif
