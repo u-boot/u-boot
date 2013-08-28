@@ -94,11 +94,6 @@ static inline int spi_flash_cmd_write_disable(struct spi_flash *flash)
 /* Program the status register. */
 int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr);
 
-#ifdef CONFIG_SPI_FLASH_BAR
-/* Program the bank address register */
-int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 bank_sel);
-#endif
-
 /*
  * Same as spi_flash_cmd_read() except it also claims/releases the SPI
  * bus. Used as common part of the ->read() operation.

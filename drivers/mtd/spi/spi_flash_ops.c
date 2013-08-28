@@ -39,7 +39,7 @@ int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr)
 }
 
 #ifdef CONFIG_SPI_FLASH_BAR
-int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 bank_sel)
+static int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 bank_sel)
 {
 	u8 cmd;
 	int ret;
