@@ -8,7 +8,7 @@
 #include <command.h>
 #include <rtc.h>
 #include <asm/io.h>
-#include <asm/arch/hardware.h>
+#include <asm/davinci_rtc.h>
 
 #if defined(CONFIG_CMD_DATE)
 int rtc_get(struct rtc_time *tmp)

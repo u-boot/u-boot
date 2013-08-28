@@ -6,8 +6,7 @@
  */
 
 #include <bootcount.h>
-#include <asm/arch/da850_lowlevel.h>
-#include <asm/arch/davinci_misc.h>
+#include <asm/davinci_rtc.h>
 
 void bootcount_store(ulong a)
 {

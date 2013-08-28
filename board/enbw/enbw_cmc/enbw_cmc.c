@@ -36,6 +36,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/sdmmc_defs.h>
 #include <asm/arch/timer_defs.h>
+#include <asm/davinci_rtc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

@@ -32,6 +32,7 @@
 #include <linux/usb/gadget.h>
 #include <linux/usb/musb.h>
 #include <asm/omap_musb.h>
+#include <asm/davinci_rtc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -150,15 +151,15 @@ __weak void am33xx_spl_board_init(void)
 
 static void rtc32k_enable(void)
 {
-	struct rtc_regs *rtc = (struct rtc_regs *)RTC_BASE;
+	struct davinci_rtc *rtc = (struct davinci_rtc *)RTC_BASE;
 
 	/*
 	 * Unlock the RTC's registers.  For more details please see the
 	 * RTC_SS section of the TRM.  In order to unlock we need to
 	 * write these specific values (keys) in this order.
 	 */
-	writel(0x83e70b13, &rtc->kick0r);
-	writel(0x95a4f1e0, &rtc->kick1r);
+	writel(RTC_KICK0R_WE, &rtc->kick0r);
+	writel(RTC_KICK1R_WE, &rtc->kick1r);
 
 	/* Enable the RTC 32K OSC by setting bits 3 and 6. */
 	writel((1 << 3) | (1 << 6), &rtc->osc);
