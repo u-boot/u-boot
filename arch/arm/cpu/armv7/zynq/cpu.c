@@ -16,12 +16,14 @@ void lowlevel_init(void)
 int arch_cpu_init(void)
 {
 	zynq_slcr_unlock();
-	/* remap DDR to zero, FILTERSTART */
-	writel(0, &scu_base->filter_start);
 
 	/* Device config APB, unlock the PCAP */
 	writel(0x757BDF0D, &devcfg_base->unlock);
 	writel(0xFFFFFFFF, &devcfg_base->rom_shadow);
+
+#if (CONFIG_SYS_SDRAM_BASE == 0)
+	/* remap DDR to zero, FILTERSTART */
+	writel(0, &scu_base->filter_start);
 
 	/* OCM_CFG, Mask out the ROM, map ram into upper addresses */
 	writel(0x1F, &slcr_base->ocm_cfg);
@@ -33,6 +35,7 @@ int arch_cpu_init(void)
 	writel(0x0, &slcr_base->ddr_urgent_sel);
 	/* Urgent write, ports S2/S3 */
 	writel(0xC, &slcr_base->ddr_urgent);
+#endif
 
 	zynq_slcr_lock();
 
