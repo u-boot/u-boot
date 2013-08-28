@@ -41,6 +41,13 @@
 #define CONFIG_MII			/* Required in net/eth.c */
 
 /*
+ * RTC related defines. To use bootcount you must set bootlimit in the
+ * environment to a non-zero value.
+ */
+#define CONFIG_BOOTCOUNT_LIMIT
+#define CONFIG_SYS_BOOTCOUNT_ADDR	0x44E3E000
+
+/*
  * SPL related defines.  The Public RAM memory map the ROM defines the
  * area between 0x402F0400 and 0x4030B800 as a download area and
  * 0x4030B800 to 0x4030CE00 as a public stack area.  The ROM also
