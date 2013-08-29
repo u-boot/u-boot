@@ -699,7 +699,7 @@ delete_temp_tlbs:
 
 #endif /* #if (CONFIG_SYS_CCSRBAR_DEFAULT != CONFIG_SYS_CCSRBAR_PHYS) */
 
-#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+#if defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2) && defined(CONFIG_E6500)
 create_ccsr_l2_tlb:
 	/*
 	 * Create a TLB for the MMR location of CCSR
