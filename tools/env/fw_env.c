@@ -1136,6 +1136,9 @@ int fw_env_open(void)
 		} else if (DEVTYPE(dev_current) == MTD_UBIVOLUME &&
 			   DEVTYPE(!dev_current) == MTD_UBIVOLUME) {
 			environment.flag_scheme = FLAG_INCREMENTAL;
+		} else if (DEVTYPE(dev_current) == MTD_ABSENT &&
+			   DEVTYPE(!dev_current) == MTD_ABSENT) {
+			environment.flag_scheme = FLAG_INCREMENTAL;
 		} else {
 			fprintf (stderr, "Incompatible flash types!\n");
 			return -1;
