@@ -18,14 +18,6 @@ ifdef CONFIG_CMD_SF
 COBJS-y        += spi_flash.o
 endif
 COBJS-$(CONFIG_SPI_FLASH)	+= spi_flash_probe.o spi_flash_ops.o
-COBJS-$(CONFIG_SPI_FLASH_ATMEL)	+= atmel.o
-COBJS-$(CONFIG_SPI_FLASH_EON)	+= eon.o
-COBJS-$(CONFIG_SPI_FLASH_GIGADEVICE)	+= gigadevice.o
-COBJS-$(CONFIG_SPI_FLASH_MACRONIX)	+= macronix.o
-COBJS-$(CONFIG_SPI_FLASH_SPANSION)	+= spansion.o
-COBJS-$(CONFIG_SPI_FLASH_SST)	+= sst.o
-COBJS-$(CONFIG_SPI_FLASH_STMICRO)	+= stmicro.o
-COBJS-$(CONFIG_SPI_FLASH_WINBOND)	+= winbond.o
 COBJS-$(CONFIG_SPI_FRAM_RAMTRON)	+= ramtron.o
 COBJS-$(CONFIG_SPI_M95XXX) += eeprom_m95xxx.o
 
