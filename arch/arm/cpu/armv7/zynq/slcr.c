@@ -21,14 +21,18 @@ static int slcr_lock = 1; /* 1 means locked, 0 means unlocked */
 
 void zynq_slcr_lock(void)
 {
-	if (!slcr_lock)
+	if (!slcr_lock) {
 		writel(SLCR_LOCK_MAGIC, &slcr_base->slcr_lock);
+		slcr_lock = 1;
+	}
 }
 
 void zynq_slcr_unlock(void)
 {
-	if (slcr_lock)
+	if (slcr_lock) {
 		writel(SLCR_UNLOCK_MAGIC, &slcr_base->slcr_unlock);
+		slcr_lock = 0;
+	}
 }
 
 /* Reset the entire system */
