@@ -42,4 +42,5 @@ u32 wait_on_value(u32, u32, void *, u32);
 #ifdef CONFIG_NOR_BOOT
 void enable_norboot_pin_mux(void);
 #endif
+void am33xx_spl_board_init(void);
 #endif
