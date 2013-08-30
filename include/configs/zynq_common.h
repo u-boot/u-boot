@@ -237,11 +237,16 @@
 	"devicetree_image=devicetree.dtb\0"	\
 	"bitstream_image=system.bit.bin\0"	\
 	"loadbit_addr=0x100000\0"	\
+	"loadbootenv_addr=0x2000000\0" \
 	"kernel_size=0x500000\0"	\
 	"devicetree_size=0x20000\0"	\
 	"ramdisk_size=0x5E0000\0"	\
 	"fdt_high=0x20000000\0"	\
 	"initrd_high=0x20000000\0"	\
+	"bootenv=uEnv.txt\0" \
+	"loadbootenv=fatload mmc 0 ${loadbootenv_addr} ${bootenv}\0" \
+	"importbootenv=echo Importing environment from SD ...; " \
+		"env import -t ${loadbootenv_addr} $filesize\0" \
 	"mmc_loadbit_fat=echo Loading bitstream from SD/MMC/eMMC to RAM.. && " \
 		"mmcinfo && " \
 		"fatload mmc 0 ${loadbit_addr} ${bitstream_image} && " \
@@ -259,12 +264,23 @@
 		"echo Copying ramdisk... && " \
 		"sf read 0x2000000 0x620000 ${ramdisk_size} && " \
 		"bootm 0x3000000 0x2000000 0x2A00000\0" \
-	"sdboot=echo Copying Linux from SD to RAM... && " \
-		"mmcinfo && " \
-		"fatload mmc 0 0x3000000 ${kernel_image} && " \
-		"fatload mmc 0 0x2A00000 ${devicetree_image} && " \
-		"fatload mmc 0 0x2000000 ${ramdisk_image} && " \
-		"bootm 0x3000000 0x2000000 0x2A00000\0" \
+	"uenvboot=" \
+		"if run loadbootenv; then " \
+			"echo Loaded environment from ${bootenv}; " \
+			"run importbootenv; " \
+		"fi; " \
+		"if test -n $uenvcmd; then " \
+			"echo Running uenvcmd ...; " \
+			"run uenvcmd; " \
+		"fi\0" \
+	"sdboot=if mmcinfo; then " \
+			"run uenvboot; " \
+			"echo Copying Linux from SD to RAM... && " \
+			"fatload mmc 0 0x3000000 ${kernel_image} && " \
+			"fatload mmc 0 0x2A00000 ${devicetree_image} && " \
+			"fatload mmc 0 0x2000000 ${ramdisk_image} && " \
+			"bootm 0x3000000 0x2000000 0x2A00000; " \
+		"fi\0" \
 	"nandboot=echo Copying Linux from NAND flash to RAM... && " \
 		"nand read 0x3000000 0x100000 ${kernel_size} && " \
 		"nand read 0x2A00000 0x600000 ${devicetree_size} && " \
