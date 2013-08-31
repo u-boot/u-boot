@@ -981,6 +981,7 @@ Marek Vasut <marek.vasut@gmail.com>
 	zipitz2		xscale/pxa
 	mx23_olinuxino	i.MX23
 	xfi3		i.MX23
+	sansa_fuze_plus	i.MX23
 	m28evk		i.MX28
 	sc_sps_1	i.MX28
 	m53evk		i.MX53
