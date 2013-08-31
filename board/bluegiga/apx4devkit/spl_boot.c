@@ -132,9 +132,9 @@ const iomux_cfg_t iomux_setup[] = {
 	MX28_PAD_EMI_CKE__EMI_CKE | MUX_CONFIG_EMI,
 };
 
-void board_init_ll(void)
+void board_init_ll(const uint32_t arg, const uint32_t *resptr)
 {
-	mxs_common_spl_init(iomux_setup, ARRAY_SIZE(iomux_setup));
+	mxs_common_spl_init(arg, resptr, iomux_setup, ARRAY_SIZE(iomux_setup));
 
 	/* switch LED on */
 	gpio_direction_output(MX28_PAD_PWM3__GPIO_3_28, 0);

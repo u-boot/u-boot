@@ -138,9 +138,9 @@ const iomux_cfg_t iomux_setup[] = {
 	MX28_PAD_GPMI_D06__GPIO_0_6 | MUX_CONFIG_LED,
 };
 
-void board_init_ll(void)
+void board_init_ll(const uint32_t arg, const uint32_t *resptr)
 {
-	mxs_common_spl_init(iomux_setup, ARRAY_SIZE(iomux_setup));
+	mxs_common_spl_init(arg, resptr, iomux_setup, ARRAY_SIZE(iomux_setup));
 }
 
 void mxs_adjust_memory_params(uint32_t *dram_vals)
