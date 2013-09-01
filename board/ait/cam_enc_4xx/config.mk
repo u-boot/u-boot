@@ -7,8 +7,6 @@
 # (mem base + reserved)
 #
 
-#Provide at least 16MB spacing between us and the Linux Kernel image
-CONFIG_SPL_PAD_TO := 12320
 UBL_CONFIG = $(SRCTREE)/board/$(BOARDDIR)/ublimage.cfg
 ifndef CONFIG_SPL_BUILD
 ALL-y += $(obj)u-boot.ubl
