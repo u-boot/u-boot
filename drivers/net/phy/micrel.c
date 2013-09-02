@@ -174,7 +174,7 @@ int ksz9031_phy_extended_read(struct phy_device *phydev, int devaddr,
 static struct phy_driver ksz9031_driver = {
 	.name = "Micrel ksz9031",
 	.uid  = 0x221620,
-	.mask = 0xfffffe,
+	.mask = 0xfffff0,
 	.features = PHY_GBIT_FEATURES,
 	.config   = &genphy_config,
 	.startup  = &ksz90xx_startup,
