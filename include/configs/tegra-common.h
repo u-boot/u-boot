@@ -17,8 +17,6 @@
 #define CONFIG_TEGRA			/* which is a Tegra generic machine */
 #define CONFIG_SYS_L2CACHE_OFF		/* No L2 cache */
 
-#define CONFIG_SYS_CACHELINE_SIZE	32
-
 #include <asm/arch/tegra.h>		/* get chip and board defs */
 
 /*
@@ -135,6 +133,7 @@
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_ENTERRCM
 #define CONFIG_CMD_BOOTZ
+#define CONFIG_SUPPORT_RAW_INITRD
 
 /* Defines for SPL */
 #define CONFIG_SPL
