@@ -2016,20 +2016,13 @@ typedef struct ccsr_clk {
 		u8  res_004[0x0c];
 		u32 clkcgnhwacsr;/* clock generator n hardware accelerator */
 		u8  res_014[0x0c];
-	} clkcsr[8];
-	u8	res_100[0x700]; /* 0x100 */
-	u32	pllc1gsr;	/* 0x800 Cluster PLL 1 General Status */
-	u8	res10[0x1c];
-	u32	pllc2gsr;	/* 0x820 Cluster PLL 2 General Status */
-	u8	res11[0x1c];
-	u32	pllc3gsr;	/* 0x840 Cluster PLL 3 General Status */
-	u8	res12[0x1c];
-	u32	pllc4gsr;	/* 0x860 Cluster PLL 4 General Status */
-	u8	res13[0x1c];
-	u32	pllc5gsr;	/* 0x880 Cluster PLL 5 General Status */
-	u8	res14[0x1c];
-	u32	pllc6gsr;	/* 0x8a0 Cluster PLL 6 General Status */
-	u8	res15[0x35c];
+	} clkcsr[12];
+	u8	res_100[0x680]; /* 0x100 */
+	struct {
+		u32 pllcngsr;
+		u8 res10[0x1c];
+	} pllcgsr[12];
+	u8	res21[0x280];
 	u32	pllpgsr;	/* 0xc00 Platform PLL General Status */
 	u8	res16[0x1c];
 	u32	plldgsr;	/* 0xc20 DDR PLL General Status */
