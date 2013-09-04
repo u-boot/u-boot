@@ -132,7 +132,9 @@
 				"echo Running uenvcmd ...;" \
 				"run uenvcmd;" \
 			"fi;" \
-			"run mmcloados;" \
+			"if run loaduimage; then " \
+				"run mmcloados;" \
+			"fi;" \
 		"fi;\0" \
 	"spiboot=echo Booting from spi ...; " \
 		"run spiargs; " \
