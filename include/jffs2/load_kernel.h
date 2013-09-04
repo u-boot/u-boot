@@ -32,8 +32,8 @@ struct part_info {
 	struct list_head link;
 	char *name;			/* partition name */
 	u8 auto_name;			/* set to 1 for generated name */
-	u32 size;			/* total size of the partition */
-	u32 offset;			/* offset within device */
+	u64 size;			/* total size of the partition */
+	u64 offset;			/* offset within device */
 	void *jffs2_priv;		/* used internaly by jffs2 */
 	u32 mask_flags;			/* kernel MTD mask flags */
 	u32 sector_size;		/* size of sector */
@@ -44,7 +44,7 @@ struct mtdids {
 	struct list_head link;
 	u8 type;			/* device type */
 	u8 num;				/* device number */
-	u32 size;			/* device size */
+	u64 size;			/* device size */
 	char *mtd_id;			/* linux kernel device id */
 };
 
