@@ -167,7 +167,7 @@ bad:
 	return err;
 }
 
-static int ubi_create_vol(char *volume, int size, int dynamic)
+static int ubi_create_vol(char *volume, int64_t size, int dynamic)
 {
 	struct ubi_mkvol_req req;
 	int err;
@@ -191,7 +191,7 @@ static int ubi_create_vol(char *volume, int size, int dynamic)
 		printf("verify_mkvol_req failed %d\n", err);
 		return err;
 	}
-	printf("Creating %s volume %s of size %d\n",
+	printf("Creating %s volume %s of size %lld\n",
 		dynamic ? "dynamic" : "static", volume, size);
 	/* Call real ubi create volume */
 	return ubi_create_volume(ubi, &req);
@@ -498,7 +498,7 @@ int ubi_part(char *part_name, const char *vid_header_offset)
 
 static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	size_t size = 0;
+	int64_t size = 0;
 	ulong addr = 0;
 
 	if (argc < 2)
@@ -558,13 +558,13 @@ static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		}
 		/* E.g., create volume size */
 		if (argc == 4) {
-			size = simple_strtoul(argv[3], NULL, 16);
+			size = simple_strtoull(argv[3], NULL, 16);
 			argc--;
 		}
 		/* Use maximum available size */
 		if (!size) {
-			size = ubi->avail_pebs * ubi->leb_size;
-			printf("No size specified -> Using max size (%u)\n", size);
+			size = (int64_t)ubi->avail_pebs * ubi->leb_size;
+			printf("No size specified -> Using max size (%lld)\n", size);
 		}
 		/* E.g., create volume */
 		if (argc == 3)
@@ -590,7 +590,7 @@ static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 		ret = ubi_volume_write(argv[3], (void *)addr, size);
 		if (!ret) {
-			printf("%d bytes written to volume %s\n", size,
+			printf("%lld bytes written to volume %s\n", size,
 			       argv[3]);
 		}
 
@@ -613,7 +613,7 @@ static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		}
 
 		if (argc == 3) {
-			printf("Read %d bytes from volume %s to %lx\n", size,
+			printf("Read %lld bytes from volume %s to %lx\n", size,
 			       argv[3], addr);
 
 			return ubi_volume_read(argv[3], (char *)addr, size);
