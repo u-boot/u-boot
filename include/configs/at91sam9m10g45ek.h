@@ -13,6 +13,8 @@
 
 #include <asm/hardware.h>
 
+#define CONFIG_SYS_TEXT_BASE		0x73f00000
+
 #define CONFIG_AT91_LEGACY
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
 

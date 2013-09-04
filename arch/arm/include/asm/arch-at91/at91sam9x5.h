@@ -162,6 +162,12 @@
 #define ATMEL_ID_UHP		ATMEL_ID_UHPHS
 
 /*
+ * PMECC table in ROM
+ */
+#define ATMEL_PMECC_INDEX_OFFSET_512	0x8000
+#define ATMEL_PMECC_INDEX_OFFSET_1024	0x10000
+
+/*
  * at91sam9x5 specific prototypes
  */
 #ifndef __ASSEMBLY__

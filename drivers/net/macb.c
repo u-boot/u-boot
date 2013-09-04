@@ -36,6 +36,7 @@
 #include <asm/io.h>
 #include <asm/dma-mapping.h>
 #include <asm/arch/clk.h>
+#include <asm-generic/errno.h>
 
 #include "macb.h"
 
@@ -397,9 +398,14 @@ static int macb_phy_init(struct macb_device *macb)
 	}
 
 #ifdef CONFIG_PHYLIB
-	phydev->bus = macb->bus;
-	phydev->dev = netdev;
-	phydev->addr = macb->phy_addr;
+	/* need to consider other phy interface mode */
+	phydev = phy_connect(macb->bus, macb->phy_addr, netdev,
+			     PHY_INTERFACE_MODE_RGMII);
+	if (!phydev) {
+		printf("phy_connect failed\n");
+		return -ENODEV;
+	}
+
 	phy_config(phydev);
 #endif
 

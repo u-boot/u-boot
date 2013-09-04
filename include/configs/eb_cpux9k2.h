@@ -39,6 +39,7 @@
 #define CONFIG_SYS_TEXT_BASE		0x21f00000
 #endif
 #define CONFIG_SYS_LOAD_ADDR		0x21000000  /* default load address */
+#define CONFIG_STANDALONE_LOAD_ADDR	0x21000000
 
 #define CONFIG_SYS_BOOT_SIZE		0x00 /* 0 KBytes */
 #define CONFIG_SYS_U_BOOT_BASE		PHYS_FLASH_1
@@ -123,41 +124,40 @@
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_I2C
-#define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PING
-#define CONFIG_I2C_CMD_NO_FLAT
 #define CONFIG_I2C_CMD_TREE
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_FAT
-
+#define CONFIG_CMD_UBI
+#define CONFIG_CMD_MTDPARTS
+#define CONFIG_CMD_UBIFS
 #define CONFIG_SYS_LONGHELP
 
 /*
- * Filesystems
+ * MTD defines
  */
 
-#define CONFIG_JFFS2_NAND		1
+#define CONFIG_FLASH_CFI_MTD
+#define CONFIG_MTD_DEVICE
+#define CONFIG_MTD_PARTITIONS
+#define CONFIG_RBTREE
+#define CONFIG_LZO
 
-#ifndef CONFIG_JFFS2_CMDLINE
-#define CONFIG_JFFS2_DEV 		"nand0"
-#define CONFIG_JFFS2_PART_OFFSET 	0
-#define CONFIG_JFFS2_PART_SIZE		0xFFFFFFFF
-#else
-#define MTDIDS_DEFAULT		"nor0=0,nand0=1"
+#define MTDIDS_DEFAULT		"nor0=physmap-flash.0,nand0=atmel_nand"
 #define MTDPARTS_DEFAULT	"mtdparts="				\
-					"0:"				\
-					"384k(U-Boot),"			\
-					"128k(Env),"			\
-					"128k(Splash)," 		\
-					"4M(Kernel),"			\
-					"-(FS)"				\
+					"physmap-flash.0:"		\
+						"512k(U-Boot),"		\
+						"128k(Env),"		\
+						"128k(Splash),"		\
+						"4M(Kernel),"		\
+						"384k(MiniFS),"		\
+						"-(FS)"			\
 					";"				\
-					"1:"				\
-					"-(jffs2)"
-#endif /* CONFIG_JFFS2_CMDLINE */
-
+					"atmel_nand:"			\
+						"1M(emergency),"	\
+						"-(data)"
 /*
  * Hardware drivers
  */
@@ -328,7 +328,7 @@
 #define CONFIG_BOOTDELAY		5
 
 #define CONFIG_ENV_IS_IN_FLASH		1
-#define CONFIG_ENV_ADDR			(PHYS_FLASH_1 + 0x60000)
+#define CONFIG_ENV_ADDR			(PHYS_FLASH_1 + 0x80000)
 #define CONFIG_ENV_SIZE			0x20000 /* sectors are 128K here */
 
 #define CONFIG_BAUDRATE 		115200
@@ -347,12 +347,14 @@
 	"displayheight=512\0"						\
 	"displaybsteps=1023\0"						\
 	"ubootaddr=10000000\0"						\
-	"splashimage=10080000\0"					\
-	"kerneladdr=100A0000\0"						\
+	"splashimage=100A0000\0"					\
+	"kerneladdr=100C0000\0"						\
 	"kernelsize=00400000\0"						\
-	"rootfsaddr=104A0000\0"						\
+	"rootfsaddr=10520000\0"						\
 	"copy_addr=21200000\0"						\
-	"rootfssize=00B60000\0"						\
+	"rootfssize=00AE0000\0"						\
+	"mtdids=" MTDIDS_DEFAULT "\0"					\
+	"mtdparts=" MTDPARTS_DEFAULT "\0"				\
 	"bootargsdefaults=set bootargs "				\
 		"console=ttyS0,115200 "					\
 		"video=vcxk_fb:xres:${displaywidth},"			\
@@ -373,15 +375,15 @@
 		"erase $(rootfsaddr) +$(rootfssize);"			\
 		"cp.b $(fileaddr) $(rootfsaddr) $(filesize);"		\
 		"\0"							\
-	"update_uboot=protect off 10000000 1005FFFF;"			\
+	"update_uboot=protect off 10000000 1007FFFF;"			\
 		"dhcp $(copy_addr) u-boot_eb_cpux9k2;"			\
-		"erase 10000000 1005FFFF;"				\
+		"erase 10000000 1007FFFF;"				\
 		"cp.b $(fileaddr) $(ubootaddr) $(filesize);"		\
-		"protect on 10000000 1005FFFF;reset\0"			\
+		"protect on 10000000 1007FFFF;reset\0"			\
 	"update_splash=protect off $(splashimage) +20000;"		\
 		"dhcp $(copy_addr) splash_eb_cpux9k2.bmp;"		\
 		"erase $(splashimage) +20000;"				\
-		"cp.b $(fileaddr) 10080000 $(filesize);"		\
+		"cp.b $(fileaddr) $(splashimage) $(filesize);"		\
 		"protect on $(splashimage) +20000;reset\0"		\
 	"emergency=run bootargsdefaults;"				\
 		"set bootargs $(bootargs) root=initramfs boot=emergency " \
