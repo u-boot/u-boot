@@ -9,7 +9,6 @@
 #include <common.h>
 #include <spl.h>
 #include <asm/u-boot.h>
-#include <asm/utils.h>
 #include <mmc.h>
 #include <fat.h>
 #include <version.h>
