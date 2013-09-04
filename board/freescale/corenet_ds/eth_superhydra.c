@@ -449,6 +449,8 @@ int board_eth_init(bd_t *bis)
 				"SUPER_HYDRA_FM1_SGMII_MDIO");
 	super_hydra_mdio_init(DEFAULT_FM_MDIO_NAME,
 				"SUPER_HYDRA_FM2_SGMII_MDIO");
+	super_hydra_mdio_init(DEFAULT_FM_MDIO_NAME,
+			      "SUPER_HYDRA_FM3_SGMII_MDIO");
 	super_hydra_mdio_init(DEFAULT_FM_TGEC_MDIO_NAME,
 				"SUPER_HYDRA_FM1_TGEC_MDIO");
 	super_hydra_mdio_init(DEFAULT_FM_TGEC_MDIO_NAME,
@@ -638,10 +640,22 @@ int board_eth_init(bd_t *bis)
 				break;
 			};
 
-			super_hydra_mdio_set_mux("SUPER_HYDRA_FM2_SGMII_MDIO",
-					mdio_mux[i].mask, mdio_mux[i].val);
-			fm_info_set_mdio(i,
-			miiphy_get_dev_by_name("SUPER_HYDRA_FM2_SGMII_MDIO"));
+			if (i == FM2_DTSEC1 || i == FM2_DTSEC2) {
+				super_hydra_mdio_set_mux(
+						"SUPER_HYDRA_FM3_SGMII_MDIO",
+						mdio_mux[i].mask,
+						mdio_mux[i].val);
+				fm_info_set_mdio(i, miiphy_get_dev_by_name(
+						"SUPER_HYDRA_FM3_SGMII_MDIO"));
+			} else {
+				super_hydra_mdio_set_mux(
+						"SUPER_HYDRA_FM2_SGMII_MDIO",
+						mdio_mux[i].mask,
+						mdio_mux[i].val);
+				fm_info_set_mdio(i, miiphy_get_dev_by_name(
+						"SUPER_HYDRA_FM2_SGMII_MDIO"));
+			}
+
 			break;
 		case PHY_INTERFACE_MODE_RGMII:
 			/*
