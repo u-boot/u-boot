@@ -28,23 +28,27 @@
 #define CONFIG_SYS_NS16550_CLK		48000000
 
 /* Network defines. */
-#define CONFIG_CMD_NET
+#define CONFIG_CMD_NET			/* 'bootp' and 'tftp' */
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_PING
-#define CONFIG_DRIVER_TI_CPSW
-#define CONFIG_MII
-#define CONFIG_BOOTP_DEFAULT
-#define CONFIG_BOOTP_DNS
+#define CONFIG_BOOTP_DNS		/* Configurable parts of CMD_DHCP */
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_NET_RETRY_COUNT         10
+#define CONFIG_CMD_PING
+#define CONFIG_DRIVER_TI_CPSW		/* Driver for IP block */
+#define CONFIG_MII			/* Required in net/eth.c */
 
-/* SPL defines. */
+/*
+ * SPL related defines.  The Public RAM memory map the ROM defines the
+ * area between 0x402F0400 and 0x4030B800 as a download area and
+ * 0x4030B800 to 0x4030CE00 as a public stack area.  The ROM also
+ * supports X-MODEM loading via UART, and we leverage this and then use
+ * Y-MODEM to load u-boot.img, when booted over UART.
+ */
 #define CONFIG_SPL_TEXT_BASE		0x402F0400
-#define CONFIG_SPL_MAX_SIZE		(0x4030C000 - CONFIG_SPL_TEXT_BASE)
-#define CONFIG_SPL_YMODEM_SUPPORT
+#define CONFIG_SPL_MAX_SIZE		(0x4030B800 - CONFIG_SPL_TEXT_BASE)
 
 /*
  * Since SPL did pll and ddr initialization for us,

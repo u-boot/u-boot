@@ -622,6 +622,7 @@ static inline u8 is_omap54xx(void)
 #define OMAP4430_ES2_3	0x44300230
 #define OMAP4460_ES1_0	0x44600100
 #define OMAP4460_ES1_1	0x44600110
+#define OMAP4470_ES1_0	0x44700100
 
 /* omap5 */
 #define OMAP5430_SILICON_ID_INVALID	0

@@ -27,9 +27,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* MII mode defines */
-#define RMII_MODE_ENABLE	0x4D
-
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
 #ifdef CONFIG_SPL_BUILD
@@ -158,7 +155,8 @@ int board_eth_init(bd_t *bis)
 			eth_setenv_enetaddr("ethaddr", mac_addr);
 	}
 
-	writel(RMII_MODE_ENABLE, &cdev->miisel);
+	writel((GMII1_SEL_RMII | RMII1_IO_CLK_EN),
+	       &cdev->miisel);
 
 	rv = cpsw_register(&cpsw_data);
 	if (rv < 0)

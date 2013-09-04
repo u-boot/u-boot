@@ -183,8 +183,7 @@ static void dpll3_init_34xx(u32 sil_index, u32 clk_index)
 		 * if running from flash, jump to small relocated code
 		 * area in SRAM.
 		 */
-		f_lock_pll = (void *) ((u32) &_end_vect - (u32) &_start +
-				SRAM_VECT_CODE);
+		f_lock_pll = (void *) (SRAM_CLK_CODE);
 
 		p0 = readl(&prcm_base->clken_pll);
 		sr32(&p0, 0, 3, PLL_FAST_RELOCK_BYPASS);
@@ -401,8 +400,7 @@ static void dpll3_init_36xx(u32 sil_index, u32 clk_index)
 		 * if running from flash, jump to small relocated code
 		 * area in SRAM.
 		 */
-		f_lock_pll = (void *) ((u32) &_end_vect - (u32) &_start +
-				SRAM_VECT_CODE);
+		f_lock_pll = (void *) (SRAM_CLK_CODE);
 
 		p0 = readl(&prcm_base->clken_pll);
 		sr32(&p0, 0, 3, PLL_FAST_RELOCK_BYPASS);
