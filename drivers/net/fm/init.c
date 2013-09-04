@@ -274,3 +274,47 @@ void fdt_fixup_fman_ethernet(void *blob)
 	}
 #endif
 }
+
+/*QSGMII Riser Card can work in SGMII mode, but the PHY address is different.
+ *This function scans which Riser Card being used(QSGMII or SGMII Riser Card),
+ *then set the correct PHY address
+ */
+void set_sgmii_phy(struct mii_dev *bus, enum fm_port base_port,
+		unsigned int port_num, int phy_base_addr)
+{
+	unsigned int regnum = 0;
+	int qsgmii;
+	int i;
+	int phy_real_addr;
+
+	qsgmii = is_qsgmii_riser_card(bus, phy_base_addr, port_num, regnum);
+
+	if (!qsgmii)
+		return;
+
+	for (i = base_port; i < base_port + port_num; i++) {
+		if (fm_info_get_enet_if(i) == PHY_INTERFACE_MODE_SGMII) {
+			phy_real_addr = phy_base_addr + i - base_port;
+			fm_info_set_phy_address(i, phy_real_addr);
+		}
+	}
+}
+
+/*to check whether qsgmii riser card is used*/
+int is_qsgmii_riser_card(struct mii_dev *bus, int phy_base_addr,
+		unsigned int port_num, unsigned regnum)
+{
+	int i;
+	int val;
+
+	if (!bus)
+		return 0;
+
+	for (i = phy_base_addr; i < phy_base_addr + port_num; i++) {
+		val = bus->read(bus, i, MDIO_DEVAD_NONE, regnum);
+		if (val != MIIM_TIMEOUT)
+			return 1;
+	}
+
+	return 0;
+}

@@ -76,6 +76,8 @@
 
 #define BRDCFG2_REG_GPIO_SEL	0x20
 
+#define PHY_BASE_ADDR		0x00
+
 /*
  * BRDCFG1 mask and value for each MAC
  *
@@ -365,6 +367,7 @@ int board_eth_init(bd_t *bis)
 	struct tgec_mdio_info tgec_mdio_info;
 	unsigned int i, slot;
 	int lane;
+	struct mii_dev *bus;
 
 	printf("Initializing Fman\n");
 
@@ -469,6 +472,9 @@ int board_eth_init(bd_t *bis)
 			break;
 		}
 	}
+
+	bus = miiphy_get_dev_by_name("HYDRA_SGMII_MDIO");
+	set_sgmii_phy(bus, FM1_DTSEC1, CONFIG_SYS_NUM_FM1_DTSEC, PHY_BASE_ADDR);
 
 	/*
 	 * For 10G, we only support one XAUI card per Fman.  If present, then we

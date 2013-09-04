@@ -149,5 +149,9 @@ void fm_info_set_phy_address(enum fm_port port, int address);
 int fm_info_get_phy_address(enum fm_port port);
 void fm_info_set_mdio(enum fm_port port, struct mii_dev *bus);
 void fm_disable_port(enum fm_port port);
+void set_sgmii_phy(struct mii_dev *bus, enum fm_port base_port,
+		unsigned int port_num, int phy_base_addr);
+int is_qsgmii_riser_card(struct mii_dev *bus, int phy_base_addr,
+		unsigned int port_num, unsigned regnum);
 
 #endif

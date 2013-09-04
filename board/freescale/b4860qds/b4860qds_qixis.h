@@ -21,4 +21,9 @@
 
 #define QIXIS_SRDS1CLK_122		0x5a
 #define QIXIS_SRDS1CLK_125		0x5e
+
+/* SGMII */
+#define PHY_BASE_ADDR		0x18
+#define PORT_NUM		0x04
+#define REGNUM			0x00
 #endif

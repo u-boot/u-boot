@@ -21,6 +21,7 @@
 #define TX_PORT_1G_BASE		0x28
 #define MAX_NUM_TX_PORT_1G	CONFIG_SYS_NUM_FM1_DTSEC
 #define TX_PORT_10G_BASE	0x30
+#define MIIM_TIMEOUT    0xFFFF
 
 struct fm_muram {
 	u32 base;
