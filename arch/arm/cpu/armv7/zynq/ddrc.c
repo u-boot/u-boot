@@ -44,7 +44,4 @@ void zynq_ddrc_init(void)
 	} else {
 		puts("Memory: ECC disabled\n");
 	}
-
-	if (width == ZYNQ_DDRC_CTRLREG_BUSWIDTH_16BIT)
-		gd->ram_size /= 2;
 }
