@@ -849,9 +849,10 @@ static struct usb_gadget_strings	stringtab = {
 };
 
 /*============================================================================*/
-static u8 control_req[USB_BUFSIZ];
+DEFINE_CACHE_ALIGN_BUFFER(u8, control_req, USB_BUFSIZ);
+
 #if defined(CONFIG_USB_ETH_CDC) || defined(CONFIG_USB_ETH_RNDIS)
-static u8 status_req[STATUS_BYTECOUNT] __attribute__ ((aligned(4)));
+DEFINE_CACHE_ALIGN_BUFFER(u8, status_req, STATUS_BYTECOUNT);
 #endif
 
 
