@@ -568,8 +568,13 @@ static void cpsw_set_slave_mac(struct cpsw_slave *slave,
 static void cpsw_slave_update_link(struct cpsw_slave *slave,
 				   struct cpsw_priv *priv, int *link)
 {
-	struct phy_device *phy = priv->phydev;
+	struct phy_device *phy;
 	u32 mac_control = 0;
+
+	phy = priv->phydev;
+
+	if (!phy)
+		return;
 
 	phy_startup(phy);
 	*link = phy->link;
@@ -946,6 +951,9 @@ static int cpsw_phy_init(struct eth_device *dev, struct cpsw_slave *slave)
 			CONFIG_PHY_ADDR,
 			dev,
 			slave->data->phy_if);
+
+	if (!phydev)
+		return -1;
 
 	phydev->supported &= supported;
 	phydev->advertising = phydev->supported;
