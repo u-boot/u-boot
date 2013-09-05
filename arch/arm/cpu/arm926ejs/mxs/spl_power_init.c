@@ -36,7 +36,7 @@ static void mxs_power_clock2pll(void)
 			CLKCTRL_CLKSEQ_BYPASS_CPU);
 }
 
-static void mxs_power_clear_auto_restart(void)
+static void mxs_power_set_auto_restart(void)
 {
 	struct mxs_rtc_regs *rtc_regs =
 		(struct mxs_rtc_regs *)MXS_RTC_BASE;
@@ -49,10 +49,7 @@ static void mxs_power_clear_auto_restart(void)
 	while (readl(&rtc_regs->hw_rtc_ctrl) & RTC_CTRL_CLKGATE)
 		;
 
-	/*
-	 * Due to the hardware design bug of mx28 EVK-A
-	 * we need to set the AUTO_RESTART bit.
-	 */
+	/* Do nothing if flag already set */
 	if (readl(&rtc_regs->hw_rtc_persistent0) & RTC_PERSISTENT0_AUTO_RESTART)
 		return;
 
@@ -911,7 +908,7 @@ void mxs_power_init(void)
 	mxs_ungate_power();
 
 	mxs_power_clock2xtal();
-	mxs_power_clear_auto_restart();
+	mxs_power_set_auto_restart();
 	mxs_power_set_linreg();
 	mxs_power_setup_5v_detect();
 

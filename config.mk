@@ -220,6 +220,15 @@ LDFLAGS_FINAL += --gc-sections
 endif
 
 # TODO(sjg@chromium.org): Is this correct on Mac OS?
+
+# MXSImage needs LibSSL
+ifneq ($(CONFIG_MX23)$(CONFIG_MX28),)
+HOSTLIBS	+= -lssl -lcrypto
+# Add CONFIG_MXS into host CFLAGS, so we can check whether or not register
+# the mxsimage support within tools/mxsimage.c .
+HOSTCFLAGS	+= -DCONFIG_MXS
+endif
+
 ifdef CONFIG_FIT_SIGNATURE
 HOSTLIBS	+= -lssl -lcrypto
 
