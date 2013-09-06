@@ -144,8 +144,11 @@
 
 #define CONFIG_BOOTDELAY		3
 
+/* the loadaddr is the same as CONFIG_SYS_LOAD_ADDR, unfortunately the defiend
+ * value can not be used here! */
+#define CONFIG_LOADADDR		0x82000000
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"loadaddr=0x82000000\0" \
 	"console=ttyO2,115200n8\0" \
 	"mmcdev=0\0" \
 	"vram=3M\0" \
