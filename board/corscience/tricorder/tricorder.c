@@ -118,9 +118,9 @@ int misc_init_r(void)
 	print_hwversion(&eeprom);
 
 	twl4030_power_init();
-#ifdef CONFIG_TWL4030_LED
-	twl4030_led_init(TWL4030_LED_LEDEN_LEDAON | TWL4030_LED_LEDEN_LEDBON);
-#endif
+	status_led_set(0, STATUS_LED_ON);
+	status_led_set(1, STATUS_LED_ON);
+	status_led_set(2, STATUS_LED_ON);
 
 	dieid_num_r();
 

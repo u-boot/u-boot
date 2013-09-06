@@ -60,6 +60,20 @@
 /* GPIO support */
 #define CONFIG_OMAP_GPIO
 
+/* LED support */
+#define CONFIG_STATUS_LED
+#define CONFIG_BOARD_SPECIFIC_LED
+#define CONFIG_CMD_LED			/* LED command */
+#define STATUS_LED_BIT			(1 << 0)
+#define STATUS_LED_STATE		STATUS_LED_ON
+#define STATUS_LED_PERIOD		(CONFIG_SYS_HZ / 2)
+#define STATUS_LED_BIT1			(1 << 1)
+#define STATUS_LED_STATE1		STATUS_LED_ON
+#define STATUS_LED_PERIOD1		(CONFIG_SYS_HZ / 2)
+#define STATUS_LED_BIT2			(1 << 2)
+#define STATUS_LED_STATE2		STATUS_LED_ON
+#define STATUS_LED_PERIOD2		(CONFIG_SYS_HZ / 2)
+
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
