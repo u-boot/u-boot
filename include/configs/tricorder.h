@@ -147,14 +147,12 @@
 	"loadaddr=0x82000000\0" \
 	"console=ttyO2,115200n8\0" \
 	"mmcdev=0\0" \
-	"vram=12M\0" \
-	"lcdmode=800x600\0" \
+	"vram=3M\0" \
 	"defaultdisplay=lcd\0" \
 	"kernelopts=rw rootwait\0" \
 	"commonargs=" \
 		"setenv bootargs console=${console} " \
 		"vram=${vram} " \
-		"omapfb.mode=lcd:${lcdmode} " \
 		"omapdss.def_disp=${defaultdisplay}\0" \
 	"mmcargs=" \
 		"run commonargs; " \
@@ -164,7 +162,6 @@
 	"nandargs=" \
 		"run commonargs; " \
 		"setenv bootargs ${bootargs} " \
-		"omapfb.mode=lcd:${lcdmode} " \
 		"omapdss.def_disp=${defaultdisplay} " \
 		"root=ubi0:root " \
 		"ubi.mtd=4 " \
