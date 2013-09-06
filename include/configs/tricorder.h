@@ -139,39 +139,86 @@
 #define CONFIG_MTD_DEVICE       /* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS
 
-/* Environment information */
-#define CONFIG_ENV_OVERWRITE /* allow to overwrite serial and ethaddr */
+/* Environment information (this is the common part) */
 
 #define CONFIG_BOOTDELAY		3
+
+/* environment placement (for NAND), is different for FLASHCARD but does not
+ * harm there */
+#define CONFIG_ENV_OFFSET		0x120000    /* env start */
+#define CONFIG_ENV_OFFSET_REDUND	0x2A0000    /* redundant env start */
+#define CONFIG_ENV_SIZE			(16 << 10)  /* use 16KiB for env */
+#define CONFIG_ENV_RANGE		(384 << 10) /* allow badblocks in env */
 
 /* the loadaddr is the same as CONFIG_SYS_LOAD_ADDR, unfortunately the defiend
  * value can not be used here! */
 #define CONFIG_LOADADDR		0x82000000
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
+#define CONFIG_COMMON_ENV_SETTINGS \
 	"console=ttyO2,115200n8\0" \
 	"mmcdev=0\0" \
 	"vram=3M\0" \
 	"defaultdisplay=lcd\0" \
-	"kernelopts=rw rootwait\0" \
+	"kernelopts=mtdoops.mtddev=3\0" \
 	"commonargs=" \
 		"setenv bootargs console=${console} " \
 		"${mtdparts} " \
+		"${kernelopts} " \
+		"vt.global_cursor_default=0 " \
 		"vram=${vram} " \
-		"omapdss.def_disp=${defaultdisplay}\0" \
+		"omapdss.def_disp=${defaultdisplay}\0"
+
+#define CONFIG_BOOTCOMMAND "run autoboot"
+
+/* specific environment settings for different use cases
+ * FLASHCARD: used to run a rdimage from sdcard to program the device
+ * 'NORMAL': used to boot kernel from sdcard, nand, ...
+ *
+ * The main aim for the FLASHCARD skin is to have an embedded environment
+ * which will not be influenced by any data already on the device.
+ */
+#ifdef CONFIG_FLASHCARD
+
+#define CONFIG_ENV_IS_NOWHERE
+
+/* the rdaddr is 16 MiB before the loadaddr */
+#define CONFIG_ENV_RDADDR	"rdaddr=0x81000000\0"
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	CONFIG_COMMON_ENV_SETTINGS \
+	CONFIG_ENV_RDADDR \
+	"autoboot=" \
+	"mtdparts default; " \
+	"run commonargs; " \
+	"setenv bootargs ${bootargs} " \
+		"flashy_updateimg=/dev/mmcblk0p1:corscience_update.img " \
+		"rdinit=/sbin/init; " \
+	"mmc dev ${mmcdev}; mmc rescan; " \
+	"fatload mmc ${mmcdev} ${loadaddr} uImage; " \
+	"fatload mmc ${mmcdev} ${rdaddr} uRamdisk; " \
+	"bootm ${loadaddr} ${rdaddr}\0"
+
+#else /* CONFIG_FLASHCARD */
+
+#define CONFIG_ENV_OVERWRITE /* allow to overwrite serial and ethaddr */
+
+#define CONFIG_ENV_IS_IN_NAND
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	CONFIG_COMMON_ENV_SETTINGS \
 	"mmcargs=" \
 		"run commonargs; " \
 		"setenv bootargs ${bootargs} " \
 		"root=/dev/mmcblk0p2 " \
-		"${kernelopts}\0" \
+		"rootwait " \
+		"rw\0" \
 	"nandargs=" \
 		"run commonargs; " \
 		"setenv bootargs ${bootargs} " \
-		"omapdss.def_disp=${defaultdisplay} " \
 		"root=ubi0:root " \
 		"ubi.mtd=7 " \
 		"rootfstype=ubifs " \
-		"${kernelopts}\0" \
+		"ro\0" \
 	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source ${loadaddr}\0" \
@@ -199,11 +246,12 @@
 			"fi; " \
 		"else run nandboot; fi\0"
 
-#define CONFIG_BOOTCOMMAND "run autoboot"
+#endif /* CONFIG_FLASHCARD */
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
+#define CONFIG_CMDLINE_EDITING		/* enable cmdline history */
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_PROMPT		"OMAP3 Tricorder # "
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
@@ -239,12 +287,6 @@
 #define PISMO1_NAND_SIZE		GPMC_SIZE_128M
 
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
-
-#define CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_OFFSET		0x120000    /* env start */
-#define CONFIG_ENV_OFFSET_REDUND	0x2A0000    /* redundant env start */
-#define CONFIG_ENV_SIZE			(16 << 10)  /* use 16KiB for env */
-#define CONFIG_ENV_RANGE		(384 << 10) /* allow badblocks in env */
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800
