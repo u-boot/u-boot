@@ -260,9 +260,10 @@
 	"loaduimage_ubi=ubi part ubi; " \
 		"ubifsmount ubi:root; " \
 		"ubifsload ${loadaddr} /boot/uImage\0" \
+	"loaduimage_nand=nand read ${loadaddr} kernel 0x500000\0" \
 	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
-		"run loaduimage_ubi; " \
+		"run loaduimage_nand; " \
 		"bootm ${loadaddr}\0" \
 	"autoboot=mmc dev ${mmcdev}; if mmc rescan; then " \
 			"if run loadbootscript; then " \
