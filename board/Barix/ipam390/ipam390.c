@@ -264,7 +264,7 @@ void show_boot_progress(int status)
 	static int green;
 
 	if (red == 0)
-		red = init_led(CONFIG_IPAM390_GPIO_LED_RED, "red", LED_OFF);
+		red = init_led(CONFIG_IPAM390_GPIO_LED_RED, "red", LED_ON);
 	if (red != CONFIG_IPAM390_GPIO_LED_RED)
 		return;
 	if (green == 0)
@@ -277,10 +277,10 @@ void show_boot_progress(int status)
 	case BOOTSTAGE_ID_RUN_OS:
 		/*
 		 * set normal state
-		 * LED Red  : off
+		 * LED Red  : on
 		 * LED green: off
 		 */
-		gpio_set_value(red, LED_OFF);
+		gpio_set_value(red, LED_ON);
 		gpio_set_value(green, LED_OFF);
 		break;
 	case BOOTSTAGE_ID_MAIN_LOOP:
@@ -326,23 +326,12 @@ int spl_start_uboot(void)
 	if (!bootmode)
 		if (ret == 0)
 			bootmode = 1;
-	if (bootmode) {
-		/*
-		 * Booting U-Boot
-		 * LED Red  : on
-		 * LED green: off
-		 */
-		init_led(CONFIG_IPAM390_GPIO_LED_RED, "red", LED_ON);
-		init_led(CONFIG_IPAM390_GPIO_LED_GREEN, "green", LED_OFF);
-	} else {
-		/*
-		 * Booting Linux
-		 * LED Red  : off
-		 * LED green: off
-		 */
-		init_led(CONFIG_IPAM390_GPIO_LED_RED, "red", LED_OFF);
-		init_led(CONFIG_IPAM390_GPIO_LED_GREEN, "green", LED_OFF);
-	}
+	/*
+	 * LED red  : on
+	 * LED green: off
+	 */
+	init_led(CONFIG_IPAM390_GPIO_LED_RED, "red", LED_ON);
+	init_led(CONFIG_IPAM390_GPIO_LED_GREEN, "green", LED_OFF);
 	return bootmode;
 }
 #endif
