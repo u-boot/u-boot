@@ -154,12 +154,43 @@ int board_mmc_init(bd_t *bis)
  */
 void get_board_mem_timings(struct board_sdrc_timings *timings)
 {
-	/* General SDRC config */
-	timings->mcfg = MICRON_V_MCFG_165(128 << 20);
-	timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+	struct tricorder_eeprom eeprom;
+	get_eeprom(&eeprom);
 
-	/* AC timings */
-	timings->ctrla = MICRON_V_ACTIMA_165;
-	timings->ctrlb = MICRON_V_ACTIMB_165;
-	timings->mr = MICRON_V_MR_165;
+	/* General SDRC config */
+	if (eeprom.board_version[0] > 'D') {
+		/* use optimized timings for our SDRAM device */
+		timings->mcfg = MCFG((256 << 20), 14);
+#define MT46H64M32_TDAL  6	/* Twr/Tck + Trp/tck		*/
+				/* 15/6 + 18/6 = 5.5 -> 6	*/
+#define MT46H64M32_TDPL  3	/* 15/6 = 2.5 -> 3 (Twr)	*/
+#define MT46H64M32_TRRD  2	/* 12/6 = 2			*/
+#define MT46H64M32_TRCD  3	/* 18/6 = 3			*/
+#define MT46H64M32_TRP   3	/* 18/6 = 3			*/
+#define MT46H64M32_TRAS  7	/* 42/6 = 7			*/
+#define MT46H64M32_TRC  10	/* 60/6 = 10			*/
+#define MT46H64M32_TRFC 12	/* 72/6 = 12			*/
+		timings->ctrla = ACTIM_CTRLA(MT46H64M32_TRFC, MT46H64M32_TRC,
+					     MT46H64M32_TRAS, MT46H64M32_TRP,
+					     MT46H64M32_TRCD, MT46H64M32_TRRD,
+					     MT46H64M32_TDPL,
+					     MT46H64M32_TDAL);
+
+#define MT46H64M32_TWTR 1
+#define MT46H64M32_TCKE 1
+#define MT46H64M32_XSR 19	/* 112.5/6 = 18.75 => ~19	*/
+#define MT46H64M32_TXP 1
+		timings->ctrlb = ACTIM_CTRLB(MT46H64M32_TWTR, MT46H64M32_TCKE,
+					     MT46H64M32_TXP, MT46H64M32_XSR);
+
+		timings->mr = MICRON_V_MR_165;
+		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+	} else {
+		/* use conservative beagleboard timings as default */
+		timings->mcfg = MICRON_V_MCFG_165(128 << 20);
+		timings->ctrla = MICRON_V_ACTIMA_165;
+		timings->ctrlb = MICRON_V_ACTIMB_165;
+		timings->mr = MICRON_V_MR_165;
+		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+	}
 }
