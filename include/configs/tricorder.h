@@ -57,6 +57,9 @@
 
 /* Hardware drivers */
 
+/* GPIO support */
+#define CONFIG_OMAP_GPIO
+
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
@@ -149,6 +152,9 @@
 /* Environment information (this is the common part) */
 
 #define CONFIG_BOOTDELAY		3
+
+/* hang() the board on panic() */
+#define CONFIG_PANIC_HANG
 
 /* environment placement (for NAND), is different for FLASHCARD but does not
  * harm there */
@@ -311,6 +317,7 @@
 #define CONFIG_SPL_NAND_SIMPLE
 
 #define CONFIG_SPL_BOARD_INIT
+#define CONFIG_SPL_GPIO_SUPPORT
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBDISK_SUPPORT
 #define CONFIG_SPL_I2C_SUPPORT
