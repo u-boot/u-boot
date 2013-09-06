@@ -83,12 +83,21 @@ void board_init_r(gd_t *gd, ulong dest_addr)
 	mem_malloc_init(CONFIG_SPL_RELOC_MALLOC_ADDR,
 			CONFIG_SPL_RELOC_MALLOC_SIZE);
 
+#ifndef CONFIG_SPL_NAND_BOOT
 	env_init();
+#endif
 #ifdef CONFIG_SPL_MMC_BOOT
 	mmc_initialize(bd);
 #endif
 	/* relocate environment function pointers etc. */
+#ifdef CONFIG_SPL_NAND_BOOT
+	nand_spl_load_image(CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE,
+			    (uchar *)CONFIG_ENV_ADDR);
+	gd->env_addr  = (ulong)(CONFIG_ENV_ADDR);
+	gd->env_valid = 1;
+#else
 	env_relocate();
+#endif
 
 #ifdef CONFIG_SYS_I2C
 	i2c_init_all();
@@ -97,11 +106,17 @@ void board_init_r(gd_t *gd, ulong dest_addr)
 #endif
 
 	gd->ram_size = initdram(0);
+#ifdef CONFIG_SPL_NAND_BOOT
+	puts("Tertiary program loader running in sram...");
+#else
 	puts("Second program loader running in sram...\n");
+#endif
 
 #ifdef CONFIG_SPL_MMC_BOOT
 	mmc_boot();
 #elif defined(CONFIG_SPL_SPI_BOOT)
 	spi_boot();
+#elif defined(CONFIG_SPL_NAND_BOOT)
+	nand_boot();
 #endif
 }
