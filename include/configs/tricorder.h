@@ -160,6 +160,8 @@
 	"vram=3M\0" \
 	"defaultdisplay=lcd\0" \
 	"kernelopts=mtdoops.mtddev=3\0" \
+	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"mtdids=" MTDIDS_DEFAULT "\0" \
 	"commonargs=" \
 		"setenv bootargs console=${console} " \
 		"${mtdparts} " \
@@ -188,7 +190,6 @@
 	CONFIG_COMMON_ENV_SETTINGS \
 	CONFIG_ENV_RDADDR \
 	"autoboot=" \
-	"mtdparts default; " \
 	"run commonargs; " \
 	"setenv bootargs ${bootargs} " \
 		"flashy_updateimg=/dev/mmcblk0p1:corscience_update.img " \
@@ -226,16 +227,14 @@
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"bootm ${loadaddr}\0" \
-	"loaduimage_ubi=mtd default; " \
-		"ubi part ubi; " \
+	"loaduimage_ubi=ubi part ubi; " \
 		"ubifsmount ubi:root; " \
 		"ubifsload ${loadaddr} /boot/uImage\0" \
 	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
 		"run loaduimage_ubi; " \
 		"bootm ${loadaddr}\0" \
-	"autoboot=mtdparts default;" \
-			"mmc dev ${mmcdev}; if mmc rescan; then " \
+	"autoboot=mmc dev ${mmcdev}; if mmc rescan; then " \
 			"if run loadbootscript; then " \
 				"run bootscript; " \
 			"else " \
