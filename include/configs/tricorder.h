@@ -53,8 +53,6 @@
 #define CONFIG_OF_LIBFDT
 
 /* Size of malloc() pool */
-#define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
-						/* Sector */
 #define CONFIG_SYS_MALLOC_LEN		(1024*1024)
 
 /* Hardware drivers */
@@ -92,13 +90,16 @@
 /* Board NAND Info */
 #define CONFIG_SYS_NO_FLASH		/* no NOR flash */
 #define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
-#define MTDIDS_DEFAULT			"nand0=nand"
-#define MTDPARTS_DEFAULT		"mtdparts=nand:" \
-						"512k(u-boot-spl)," \
-						"1920k(u-boot)," \
-						"128k(u-boot-env)," \
-						"4m(kernel)," \
-						"-(fs)"
+#define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
+#define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:" \
+						"128k(SPL)," \
+						"1m(u-boot)," \
+						"384k(u-boot-env1)," \
+						"1152k(mtdoops)," \
+						"384k(u-boot-env2)," \
+						"5m(kernel)," \
+						"2m(fdt)," \
+						"-(ubi)"
 
 #define CONFIG_NAND_OMAP_GPMC
 #define CONFIG_SYS_NAND_ADDR		NAND_BASE	/* physical address */
@@ -152,6 +153,7 @@
 	"kernelopts=rw rootwait\0" \
 	"commonargs=" \
 		"setenv bootargs console=${console} " \
+		"${mtdparts} " \
 		"vram=${vram} " \
 		"omapdss.def_disp=${defaultdisplay}\0" \
 	"mmcargs=" \
@@ -164,26 +166,26 @@
 		"setenv bootargs ${bootargs} " \
 		"omapdss.def_disp=${defaultdisplay} " \
 		"root=ubi0:root " \
-		"ubi.mtd=4 " \
+		"ubi.mtd=7 " \
 		"rootfstype=ubifs " \
 		"${kernelopts}\0" \
 	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source ${loadaddr}\0" \
 	"loaduimage=fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
-	"eraseenv=nand unlock 0x260000 0x20000; nand erase 0x260000 0x20000\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"bootm ${loadaddr}\0" \
 	"loaduimage_ubi=mtd default; " \
-		"ubi part fs; " \
+		"ubi part ubi; " \
 		"ubifsmount ubi:root; " \
 		"ubifsload ${loadaddr} /boot/uImage\0" \
 	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
 		"run loaduimage_ubi; " \
 		"bootm ${loadaddr}\0" \
-	"autoboot=mmc dev ${mmcdev}; if mmc rescan; then " \
+	"autoboot=mtdparts default;" \
+			"mmc dev ${mmcdev}; if mmc rescan; then " \
 			"if run loadbootscript; then " \
 				"run bootscript; " \
 			"else " \
@@ -193,7 +195,6 @@
 				"fi; " \
 			"fi; " \
 		"else run nandboot; fi\0"
-
 
 #define CONFIG_BOOTCOMMAND "run autoboot"
 
@@ -236,8 +237,11 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
 
-#define CONFIG_ENV_IS_IN_NAND		1
-#define CONFIG_ENV_OFFSET		0x260000 /* environment starts here */
+#define CONFIG_ENV_IS_IN_NAND
+#define CONFIG_ENV_OFFSET		0x120000    /* env start */
+#define CONFIG_ENV_OFFSET_REDUND	0x2A0000    /* redundant env start */
+#define CONFIG_ENV_SIZE			(16 << 10)  /* use 16KiB for env */
+#define CONFIG_ENV_RANGE		(384 << 10) /* allow badblocks in env */
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800
@@ -298,8 +302,8 @@
 
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
-#define CONFIG_SYS_NAND_U_BOOT_SIZE	0x200000
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x20000
+#define CONFIG_SYS_NAND_U_BOOT_SIZE	0x100000
 
 #define CONFIG_SYS_SPL_MALLOC_START	0x80208000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000	/* 1 MB */
