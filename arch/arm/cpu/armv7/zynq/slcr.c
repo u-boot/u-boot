@@ -70,7 +70,7 @@ void zynq_slcr_gem_clk_setup(u32 gem_id, u32 rclk, u32 clk)
 		/* Configure GEM_RCLK_CTRL */
 		writel(rclk, &slcr_base->gem0_rclk_ctrl);
 	}
-
+	udelay(100000);
 out:
 	zynq_slcr_lock();
 }

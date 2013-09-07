@@ -11,10 +11,11 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(SOC).o
 
-COBJS	= soc.o clock.o
+COBJS-y	= soc.o clock.o
+COBJS-$(CONFIG_SECURE_BOOT)	+= hab.o
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS-y))
 
 all:	$(obj).depend $(LIB)
 

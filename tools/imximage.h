@@ -13,14 +13,14 @@
 #define APP_CODE_BARKER	0xB1
 #define DCD_BARKER	0xB17219E9
 
-#define HEADER_OFFSET	0x400
-
 /*
  * NOTE: This file must be kept in sync with arch/arm/include/asm/\
  *       imx-common/imximage.cfg because tools/imximage.c can not
  *       cross-include headers from arch/arm/ and vice-versa.
  */
 #define CMD_DATA_STR	"DATA"
+
+/* Initial Vector Table Offset */
 #define FLASH_OFFSET_UNDEFINED	0xFFFFFFFF
 #define FLASH_OFFSET_STANDARD	0x400
 #define FLASH_OFFSET_NAND	FLASH_OFFSET_STANDARD
@@ -29,6 +29,16 @@
 #define FLASH_OFFSET_ONENAND	0x100
 #define FLASH_OFFSET_NOR	0x1000
 #define FLASH_OFFSET_SATA	FLASH_OFFSET_STANDARD
+
+/* Initial Load Region Size */
+#define FLASH_LOADSIZE_UNDEFINED	0xFFFFFFFF
+#define FLASH_LOADSIZE_STANDARD		0x1000
+#define FLASH_LOADSIZE_NAND		FLASH_LOADSIZE_STANDARD
+#define FLASH_LOADSIZE_SD		FLASH_LOADSIZE_STANDARD
+#define FLASH_LOADSIZE_SPI		FLASH_LOADSIZE_STANDARD
+#define FLASH_LOADSIZE_ONENAND		0x400
+#define FLASH_LOADSIZE_NOR		0x0 /* entire image */
+#define FLASH_LOADSIZE_SATA		FLASH_LOADSIZE_STANDARD
 
 #define IVT_HEADER_TAG 0xD1
 #define IVT_VERSION 0x40
@@ -42,7 +52,8 @@ enum imximage_cmd {
 	CMD_IMAGE_VERSION,
 	CMD_BOOT_FROM,
 	CMD_BOOT_OFFSET,
-	CMD_DATA
+	CMD_DATA,
+	CMD_CSF,
 };
 
 enum imximage_fld_types {
@@ -147,8 +158,7 @@ struct imx_header {
 		imx_header_v1_t hdr_v1;
 		imx_header_v2_t hdr_v2;
 	} header;
-	uint32_t flash_offset;
-} __attribute__((aligned(4096)));
+};
 
 typedef void (*set_dcd_val_t)(struct imx_header *imxhdr,
 					char *name, int lineno,

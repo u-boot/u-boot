@@ -132,7 +132,10 @@ struct image_type_params {
 	/*
 	 * This callback function will be executed for variable size record
 	 * It is expected to build this header in memory and return its length
-	 * and a pointer to it
+	 * and a pointer to it by using image_type_params.header_size and
+	 * image_type_params.hdr. The return value shall indicate if an
+	 * additional padding should be used when copying the data image
+	 * by returning the padding length.
 	 */
 	int (*vrec_header) (struct mkimage_params *,
 		struct image_type_params *);
@@ -158,6 +161,7 @@ void init_pbl_image_type(void);
 void init_ais_image_type(void);
 void init_kwb_image_type (void);
 void init_imx_image_type (void);
+void init_mxs_image_type(void);
 void init_default_image_type (void);
 void init_fit_image_type (void);
 void init_ubl_image_type(void);

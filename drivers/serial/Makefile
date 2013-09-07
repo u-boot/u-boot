@@ -38,6 +38,7 @@ COBJS-$(CONFIG_SCIF_CONSOLE) += serial_sh.o
 COBJS-$(CONFIG_ZYNQ_SERIAL) += serial_zynq.o
 COBJS-$(CONFIG_BFIN_SERIAL) += serial_bfin.o
 COBJS-$(CONFIG_FSL_LPUART) += serial_lpuart.o
+COBJS-$(CONFIG_MXS_AUART) += mxs_auart.o
 
 ifndef CONFIG_SPL_BUILD
 COBJS-$(CONFIG_USB_TTY) += usbtty.o

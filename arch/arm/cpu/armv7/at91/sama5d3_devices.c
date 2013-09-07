@@ -144,6 +144,30 @@ void at91_macb_hw_init(void)
 	/* Enable clock */
 	at91_periph_clk_enable(ATMEL_ID_EMAC);
 }
+
+void at91_gmac_hw_init(void)
+{
+	at91_set_a_periph(AT91_PIO_PORTB, 0, 0);	/* GTX0 */
+	at91_set_a_periph(AT91_PIO_PORTB, 1, 0);	/* GTX1 */
+	at91_set_a_periph(AT91_PIO_PORTB, 2, 0);	/* GTX2 */
+	at91_set_a_periph(AT91_PIO_PORTB, 3, 0);	/* GTX3 */
+	at91_set_a_periph(AT91_PIO_PORTB, 4, 0);	/* GRX0 */
+	at91_set_a_periph(AT91_PIO_PORTB, 5, 0);	/* GRX1 */
+	at91_set_a_periph(AT91_PIO_PORTB, 6, 0);	/* GRX2 */
+	at91_set_a_periph(AT91_PIO_PORTB, 7, 0);	/* GRX3 */
+	at91_set_a_periph(AT91_PIO_PORTB, 8, 0);	/* GTXCK */
+	at91_set_a_periph(AT91_PIO_PORTB, 9, 0);	/* GTXEN */
+
+	at91_set_a_periph(AT91_PIO_PORTB, 11, 0);	/* GRXCK */
+	at91_set_a_periph(AT91_PIO_PORTB, 13, 0);	/* GRXER */
+
+	at91_set_a_periph(AT91_PIO_PORTB, 16, 0);	/* GMDC */
+	at91_set_a_periph(AT91_PIO_PORTB, 17, 0);	/* GMDIO */
+	at91_set_a_periph(AT91_PIO_PORTB, 18, 0);	/* G125CK */
+
+	/* Enable clock */
+	at91_periph_clk_enable(ATMEL_ID_GMAC);
+}
 #endif
 
 #ifdef CONFIG_LCD

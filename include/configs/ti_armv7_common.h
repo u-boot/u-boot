@@ -60,12 +60,12 @@
 
 /* I2C IP block */
 #define CONFIG_I2C
-#define CONFIG_CMD_I2C
 #define CONFIG_HARD_I2C
 #define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_SYS_I2C_SLAVE		1
 #define CONFIG_I2C_MULTI_BUS
 #define CONFIG_DRIVER_OMAP24XX_I2C
+#define CONFIG_CMD_I2C
 
 /* MMC/SD IP block */
 #define CONFIG_MMC
@@ -87,10 +87,10 @@
  * access CS0 at is 0x8000000.
  */
 #ifdef CONFIG_NAND
-#define CONFIG_CMD_NAND
 #define CONFIG_NAND_OMAP_GPMC
 #define CONFIG_SYS_NAND_BASE		0x8000000
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
+#define CONFIG_CMD_NAND
 #endif
 
 /*
@@ -103,14 +103,18 @@
  * console baudrate of 115200 and use the default baud rate table.
  */
 #define CONFIG_SYS_MALLOC_LEN		(1024 << 10)
-#define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_HUSH_PARSER
+#define CONFIG_SYS_PROMPT		"U-Boot# "
+#define CONFIG_SYS_CONSOLE_INFO_QUIET
+#define CONFIG_BAUDRATE			115200
+#define CONFIG_ENV_VARS_UBOOT_CONFIG	/* Strongly encouraged */
+#define CONFIG_ENV_OVERWRITE		/* Overwrite ethaddr / serial# */
+
+/* As stated above, the following choices are optional. */
+#define CONFIG_SYS_LONGHELP
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
-#define CONFIG_SYS_PROMPT		"U-Boot# "
 #define CONFIG_VERSION_VARIABLE
-#define CONFIG_ENV_VARS_UBOOT_CONFIG
-#define CONFIG_BAUDRATE			115200
 
 /* We set the max number of command args high to avoid HUSH bugs. */
 #define CONFIG_SYS_MAXARGS		64
@@ -122,9 +126,6 @@
 					+ sizeof(CONFIG_SYS_PROMPT) + 16)
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-
-#define CONFIG_ENV_OVERWRITE
-#define CONFIG_SYS_CONSOLE_INFO_QUIET
 
 /*
  * When we have SPI, NOR or NAND flash we expect to be making use of
@@ -141,7 +142,8 @@
  * useful commands.  Note that we must have set CONFIG_SYS_NO_FLASH
  * prior to this include, in order to skip a few commands.  When we do
  * have flash, if we expect these commands they must be enabled in that
- * config.
+ * config.  If desired, a specific list of desired commands can be used
+ * instead.
  */
 #include <config_cmd_default.h>
 #define CONFIG_CMD_ASKENV
@@ -223,14 +225,14 @@
 #endif
 
 #ifdef CONFIG_MMC
+#define CONFIG_SPL_LIBDISK_SUPPORT
 #define CONFIG_SPL_MMC_SUPPORT
 #define CONFIG_SPL_FAT_SUPPORT
 #endif
 
-/* General parts of the framework. */
+/* General parts of the framework, required. */
 #define CONFIG_SPL_I2C_SUPPORT
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
-#define CONFIG_SPL_LIBDISK_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_GPIO_SUPPORT

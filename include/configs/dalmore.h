@@ -21,9 +21,6 @@
 
 #include "tegra114-common.h"
 
-/* Must be off for Dalmore to boot !?!? FIXME */
-#define CONFIG_SYS_DCACHE_OFF
-
 /* Enable fdt support for Dalmore. Flash the image in u-boot-dtb.bin */
 #define CONFIG_DEFAULT_DEVICE_TREE	tegra114-dalmore
 #define CONFIG_OF_CONTROL

@@ -63,6 +63,4 @@ extern dpll_param *get_36x_core_dpll_param(void);
 extern dpll_param *get_36x_per_dpll_param(void);
 extern dpll_param *get_36x_per2_dpll_param(void);
 
-extern void *_end_vect, *_start;
-
 #endif

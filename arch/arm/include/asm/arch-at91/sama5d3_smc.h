@@ -17,7 +17,6 @@
 #define AT91_ASM_SMC_MODE0	(ATMEL_BASE_SMC + 0x60C)
 #else
 struct at91_cs {
-	u32	reserved[96];
 	u32	setup;		/* 0x600 SMC Setup Register */
 	u32	pulse;		/* 0x604 SMC Pulse Register */
 	u32	cycle;		/* 0x608 SMC Cycle Register */
@@ -26,6 +25,7 @@ struct at91_cs {
 };
 
 struct at91_smc {
+	u32 reserved[384];
 	struct at91_cs cs[4];
 };
 #endif /*  __ASSEMBLY__ */

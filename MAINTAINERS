@@ -1094,6 +1094,11 @@ Sergey Yanovich <ynvich@gmail.com>
 
 	lp8x4x		xscale/pxa
 
+Roger Meier <r.meier@siemens.com>
+	dxr2			ARM ARMV7 (AM335x SoC)
+	pxm2			ARM ARMV7 (AM335x SoC)
+	rut			ARM ARMV7 (AM335x SoC)
+
 -------------------------------------------------------------------------
 
 Unknown / orphaned boards:

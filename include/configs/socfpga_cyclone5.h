@@ -11,6 +11,8 @@
 /*
  * High level configuration
  */
+/* Virtual target or real hardware */
+#define CONFIG_SOCFPGA_VIRTUAL_TARGET
 
 #define CONFIG_ARMV7
 #define CONFIG_L2_OFF
@@ -21,11 +23,12 @@
 #define CONFIG_SINGLE_BOOTLOADER
 #define CONFIG_SOCFPGA
 
+/* base address for .text section */
+#ifdef CONFIG_SOCFPGA_VIRTUAL_TARGET
 #define CONFIG_SYS_TEXT_BASE		0x08000040
-#define V_NS16550_CLK			1000000
-#define CONFIG_BAUDRATE			57600
-#define CONFIG_SYS_HZ			1000
-#define CONFIG_TIMER_CLOCK_KHZ		2400
+#else
+#define CONFIG_SYS_TEXT_BASE		0x01000040
+#endif
 #define CONFIG_SYS_LOAD_ADDR		0x7fc0
 
 /* Console I/O Buffer Size */
@@ -154,7 +157,7 @@
 /* SDRAM Bank #1 */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 /* SDRAM memory size */
-#define PHYS_SDRAM_1_SIZE		0x80000000
+#define PHYS_SDRAM_1_SIZE		0x40000000
 
 #define PHYS_SDRAM_1			CONFIG_SYS_SDRAM_BASE
 #define CONFIG_SYS_MEMTEST_START	0x00000000
@@ -170,8 +173,13 @@
 #define CONFIG_SYS_NS16550_CLK          V_NS16550_CLK
 #define CONFIG_CONS_INDEX               1
 #define CONFIG_SYS_NS16550_COM1		UART0_BASE
-
 #define CONFIG_SYS_BAUDRATE_TABLE {4800, 9600, 19200, 38400, 57600, 115200}
+#ifdef CONFIG_SOCFPGA_VIRTUAL_TARGET
+#define V_NS16550_CLK			1000000
+#else
+#define V_NS16550_CLK			100000000
+#endif
+#define CONFIG_BAUDRATE			115200
 
 /*
  * FLASH
@@ -184,9 +192,15 @@
 /* This timer use eosc1 where the clock frequency is fixed
  * throughout any condition */
 #define CONFIG_SYS_TIMERBASE		SOCFPGA_OSC1TIMER0_ADDRESS
-
 /* reload value when timer count to zero */
 #define TIMER_LOAD_VAL			0xFFFFFFFF
+/* Timer info */
+#define CONFIG_SYS_HZ			1000
+#ifdef CONFIG_SOCFPGA_VIRTUAL_TARGET
+#define CONFIG_TIMER_CLOCK_KHZ		2400
+#else
+#define CONFIG_TIMER_CLOCK_KHZ		25000
+#endif
 
 #define CONFIG_ENV_IS_NOWHERE
 

@@ -28,14 +28,14 @@
  *
  * TWEAK this if you have different kind of NAND chip.
  */
-uint32_t nand_writesize = 2048;
-uint32_t nand_oobsize = 64;
-uint32_t nand_erasesize = 128 * 1024;
+static uint32_t nand_writesize = 2048;
+static uint32_t nand_oobsize = 64;
+static uint32_t nand_erasesize = 128 * 1024;
 
 /*
  * Sector on which the SigmaTel boot partition (0x53) starts.
  */
-uint32_t sd_sector = 2048;
+static uint32_t sd_sector = 2048;
 
 /*
  * Each of the U-Boot bootstreams is at maximum 1MB big.
@@ -434,7 +434,7 @@ static int mx28_nand_write_firmware(struct mx28_nand_fcb *fcb, int infd,
 	return 0;
 }
 
-void usage(void)
+static void usage(void)
 {
 	printf(
 		"Usage: mxsboot [ops] <type> <infile> <outfile>\n"
@@ -575,7 +575,7 @@ err0:
 	return ret;
 }
 
-int parse_ops(int argc, char **argv)
+static int parse_ops(int argc, char **argv)
 {
 	int i;
 	int tmp;

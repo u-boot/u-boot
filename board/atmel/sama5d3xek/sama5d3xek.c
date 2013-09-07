@@ -17,6 +17,7 @@
 #include <lcd.h>
 #include <atmel_lcdc.h>
 #include <atmel_mci.h>
+#include <micrel.h>
 #include <net.h>
 #include <netdev.h>
 
@@ -178,6 +179,8 @@ int board_init(void)
 #ifdef CONFIG_MACB
 	if (has_emac())
 		at91_macb_hw_init();
+	if (has_gmac())
+		at91_gmac_hw_init();
 #endif
 #ifdef CONFIG_LCD
 	if (has_lcdc())
@@ -193,6 +196,21 @@ int dram_init(void)
 	return 0;
 }
 
+int board_phy_config(struct phy_device *phydev)
+{
+	/* rx data delay */
+	ksz9021_phy_extended_write(phydev,
+				   MII_KSZ9021_EXT_RGMII_RX_DATA_SKEW, 0x2222);
+	/* tx data delay */
+	ksz9021_phy_extended_write(phydev,
+				   MII_KSZ9021_EXT_RGMII_TX_DATA_SKEW, 0x2222);
+	/* rx/tx clock delay */
+	ksz9021_phy_extended_write(phydev,
+				   MII_KSZ9021_EXT_RGMII_CLOCK_SKEW, 0xf2f4);
+
+	return 0;
+}
+
 int board_eth_init(bd_t *bis)
 {
 	int rc = 0;
@@ -200,6 +218,8 @@ int board_eth_init(bd_t *bis)
 #ifdef CONFIG_MACB
 	if (has_emac())
 		rc = macb_eth_initialize(0, (void *)ATMEL_BASE_EMAC, 0x00);
+	if (has_gmac())
+		rc = macb_eth_initialize(0, (void *)ATMEL_BASE_GMAC, 0x00);
 #endif
 
 	return rc;

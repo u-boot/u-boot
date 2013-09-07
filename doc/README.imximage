@@ -15,9 +15,6 @@ Booting from NOR flash does not require to use this image type.
 For more details refer Chapter 2 - System Boot and section 2.14
 (flash header description) of the processor's manual.
 
-This implementation does not use at the moment the secure boot feature
-of the processor. The image is generated disabling all security fields.
-
 Command syntax:
 --------------
 ./tools/mkimage -l <mx u-boot_file>
@@ -85,6 +82,33 @@ Configuration command line syntax:
 
 				Example:
 				BOOT_FROM spi
+
+	CSF			value
+
+				Total size of CSF (Command Sequence File)
+				used for Secure Boot/ High Assurance Boot
+				(HAB).
+
+				Using this command will populate the IVT
+				(Initial Vector Table) CSF pointer and adjust
+				the length fields only. The CSF itself needs
+				to be generated with Freescale tools and
+				'manually' appended to the u-boot.imx file.
+
+				The CSF is then simply concatenated
+				to the u-boot image, making a signed bootloader,
+				that the processor can verify
+				if the fuses for the keys are burned.
+
+				Further infos how to configure the SOC to verify
+				the bootloader can be found in the "High
+				Assurance Boot Version Application Programming
+				Interface Reference Manual" as part of the
+				Freescale Code Signing Tool, available on the
+				manufacturer's website.
+
+				Example:
+				CSF 0x2000
 
 	DATA			type address value
 
