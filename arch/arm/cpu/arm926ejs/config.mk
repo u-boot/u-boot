@@ -5,8 +5,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-PLATFORM_RELFLAGS += -fno-common -ffixed-r8 -msoft-float
-
 PLATFORM_CPPFLAGS += -march=armv5te
 # =========================================================================
 #

@@ -4,7 +4,6 @@
 #
 # SPDX-License-Identifier:	GPL-2.0+
 #
-PLATFORM_RELFLAGS += -fno-common -ffixed-r8 -msoft-float
 
 # If armv7-a is not supported by GCC fall-back to armv5, which is
 # supported by more tool-chains

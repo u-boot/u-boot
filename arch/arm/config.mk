@@ -16,7 +16,8 @@ endif
 endif
 
 LDFLAGS_FINAL += --gc-sections
-PLATFORM_RELFLAGS += -ffunction-sections -fdata-sections
+PLATFORM_RELFLAGS += -ffunction-sections -fdata-sections \
+                     -fno-common -ffixed-r8 -msoft-float
 
 # Support generic board on ARM
 __HAVE_ARCH_GENERIC_BOARD := y
