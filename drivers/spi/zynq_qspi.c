@@ -248,6 +248,10 @@ static void zynq_qspi_init_hw(int is_dual, unsigned int cs)
 	/* Disable linear mode as the boot loader may have used it */
 	writel(0x0, &zynq_qspi_base->lcr);
 
+	/* Clear the TX and RX threshold reg */
+	writel(0x1, &zynq_qspi_base->txftr);
+	writel(0x1, &zynq_qspi_base->rxftr);
+
 	/* Clear the RX FIFO */
 	while (readl(&zynq_qspi_base->isr) & ZYNQ_QSPI_IXR_RXNEMTY_MASK)
 		readl(&zynq_qspi_base->drxr);
