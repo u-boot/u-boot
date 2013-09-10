@@ -64,7 +64,7 @@ static struct emif_regs ddr3_emif_reg_data = {
 
 #define OSC    (V_OSCK/1000000)
 const struct dpll_params dpll_ddr = {
-		303, OSC-1, 1, -1, -1, -1, -1};
+		400, OSC-1, 1, -1, -1, -1, -1};
 
 const struct dpll_params *get_dpll_ddr_params(void)
 {
@@ -83,7 +83,7 @@ void set_mux_conf_regs(void)
 
 void sdram_init(void)
 {
-	config_ddr(303, K4B2G1646EBIH9_IOCTRL_VALUE, &ddr3_data,
+	config_ddr(400, K4B2G1646EBIH9_IOCTRL_VALUE, &ddr3_data,
 		   &ddr3_cmd_ctrl_data, &ddr3_emif_reg_data, 0);
 }
 #endif
