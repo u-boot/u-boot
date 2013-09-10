@@ -19,6 +19,7 @@
 #include <asm/errno.h>
 #include "apf27.h"
 #include "crc.h"
+#include "fpga.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -174,6 +175,10 @@ int board_init(void)
 	apf27_setup_port();
 	apf27_iomux_init();
 	apf27_devices_init();
+#if defined(CONFIG_FPGA)
+	APF27_init_fpga();
+#endif
+
 
 	return 0;
 }

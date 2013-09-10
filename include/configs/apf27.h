@@ -293,6 +293,20 @@
 #define CONFIG_MII				/* MII PHY management	*/
 
 /*
+ * FPGA
+ */
+#ifndef CONFIG_SPL_BUILD
+#define CONFIG_FPGA
+#endif
+#define CONFIG_FPGA_COUNT		1
+#define CONFIG_FPGA_XILINX
+#define CONFIG_FPGA_SPARTAN3
+#define CONFIG_SYS_FPGA_WAIT		250 /* 250 ms */
+#define CONFIG_SYS_FPGA_PROG_FEEDBACK
+#define CONFIG_SYS_FPGA_CHECK_CTRLC
+#define CONFIG_SYS_FPGA_CHECK_ERROR
+
+/*
  * Fuses - IIM
  */
 #ifdef CONFIG_CMD_IMX_FUSE

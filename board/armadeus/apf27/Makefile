@@ -13,6 +13,9 @@ LIB	= $(obj)lib$(BOARD).o
 
 COBJS	:= apf27.o
 SOBJS	:= lowlevel_init.o
+ifdef CONFIG_FPGA
+COBJS	+= fpga.o
+endif
 
 SRCS	:= $(COBJS:.o=.c) $(SOBJS:.o=.S)
 OBJS	:= $(addprefix $(obj),$(COBJS))
