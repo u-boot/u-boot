@@ -153,8 +153,8 @@ int dfu_write(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 
 	/* we should be in buffer now (if not then size too large) */
 	if ((dfu->i_buf + size) > dfu->i_buf_end) {
-		printf("%s: Wrong size! [%d] [%d] - %d\n",
-		       __func__, dfu->i_blk_seq_num, blk_seq_num, size);
+		error("Buffer overflow! (0x%p + 0x%x > 0x%p)\n", dfu->i_buf,
+		      size, dfu->i_buf_end);
 		return -1;
 	}
 
