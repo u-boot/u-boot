@@ -164,8 +164,9 @@ int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 
 	if (part > le32_to_cpu(gpt_head->num_partition_entries) ||
 	    !is_pte_valid(&gpt_pte[part - 1])) {
-		printf("%s: *** ERROR: Invalid partition number %d ***\n",
+		debug("%s: *** ERROR: Invalid partition number %d ***\n",
 			__func__, part);
+		free(gpt_pte);
 		return -1;
 	}
 
