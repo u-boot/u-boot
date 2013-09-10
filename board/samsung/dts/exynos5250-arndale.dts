@@ -8,7 +8,7 @@
 */
 
 /dts-v1/;
-/include/ ARCH_CPU_DTS
+#include "exynos5250.dtsi"
 
 / {
 	model = "SAMSUNG Arndale board based on EXYNOS5250";
