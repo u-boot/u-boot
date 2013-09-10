@@ -724,6 +724,11 @@ Ilko Iliev <iliev@ronetix.at>
 	PM9263		AT91SAM9263
 	PM9G45		ARM926EJS (AT91SAM9G45 SoC)
 
+Eric Jarrige <eric.jarrige@armadeus.org>
+Philippe Reynes <tremyfr@yahoo.fr>
+
+	apf27		ARM926EJS (i.MX27 SoC)
+
 Michael Jones <michael.jones@matrix-vision.de>
 
 	omap3_mvblx	ARM ARMV7 (OMAP3xx SoC)
