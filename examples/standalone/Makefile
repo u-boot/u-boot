@@ -52,18 +52,7 @@ ELF	:= $(addprefix $(obj),$(ELF))
 BIN	:= $(addprefix $(obj),$(BIN))
 SREC	:= $(addprefix $(obj),$(SREC))
 
-# Add GCC lib
-ifdef USE_PRIVATE_LIBGCC
-ifeq ("$(USE_PRIVATE_LIBGCC)", "yes")
-PLATFORM_LIBGCC = $(OBJTREE)/arch/$(ARCH)/lib/libgcc.o
-else
-PLATFORM_LIBGCC = -L $(USE_PRIVATE_LIBGCC) -lgcc
-endif
-else
-PLATFORM_LIBGCC := -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -lgcc
-endif
-PLATFORM_LIBS += $(PLATFORM_LIBGCC)
-export PLATFORM_LIBS
+gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
 
 CPPFLAGS += -I..
 
@@ -93,7 +82,7 @@ $(ELF):
 $(obj)%:	$(obj)%.o $(LIB)
 		$(LD) $(LDFLAGS) -g -Ttext $(CONFIG_STANDALONE_LOAD_ADDR) \
 			-o $@ -e $(SYM_PREFIX)$(notdir $(<:.o=)) $< $(LIB) \
-			$(PLATFORM_LIBS)
+			-L$(gcclibdir) -lgcc
 
 $(SREC):
 $(obj)%.srec:	$(obj)%
