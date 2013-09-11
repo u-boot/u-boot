@@ -18,6 +18,7 @@ endif
 
 # new USB gadget layer dependencies
 ifdef CONFIG_USB_GADGET
+COBJS-$(CONFIG_USB_GADGET_ATMEL_USBA) += atmel_usba_udc.o
 COBJS-$(CONFIG_USB_GADGET_S3C_UDC_OTG) += s3c_udc_otg.o
 COBJS-$(CONFIG_USB_GADGET_FOTG210) += fotg210.o
 COBJS-$(CONFIG_USBDOWNLOAD_GADGET) += g_dnl.o
