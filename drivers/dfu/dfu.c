@@ -41,6 +41,29 @@ static int dfu_find_alt_num(const char *s)
 	return ++i;
 }
 
+int dfu_init_env_entities(char *interface, int dev)
+{
+	const char *str_env;
+	char *env_bkp;
+	int ret;
+
+	str_env = getenv("dfu_alt_info");
+	if (!str_env) {
+		error("\"dfu_alt_info\" env variable not defined!\n");
+		return -EINVAL;
+	}
+
+	env_bkp = strdup(str_env);
+	ret = dfu_config_entities(env_bkp, interface, dev);
+	if (ret) {
+		error("DFU entities configuration failed!\n");
+		return ret;
+	}
+
+	free(env_bkp);
+	return 0;
+}
+
 static unsigned char *dfu_buf;
 static unsigned long dfu_buf_size = CONFIG_SYS_DFU_DATA_BUF_SIZE;
 
