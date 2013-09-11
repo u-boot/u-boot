@@ -65,7 +65,6 @@ static void i2s_txctrl(struct i2s_reg *i2s_reg, int on)
 	if (on) {
 		con |= CON_ACTIVE;
 		con &= ~CON_TXCH_PAUSE;
-
 	} else {
 		con |=  CON_TXCH_PAUSE;
 		con &= ~CON_ACTIVE;
@@ -300,18 +299,29 @@ int i2s_tx_init(struct i2stx_info *pi2s_tx)
 	int ret;
 	struct i2s_reg *i2s_reg =
 				(struct i2s_reg *)pi2s_tx->base_address;
+	if (pi2s_tx->id == 0) {
+		/* Initialize GPIO for I2S-0 */
+		exynos_pinmux_config(PERIPH_ID_I2S0, 0);
 
-	/* Initialize GPIO for I2s */
-	exynos_pinmux_config(PERIPH_ID_I2S1, 0);
+		/* Set EPLL Clock */
+		ret = set_epll_clk(pi2s_tx->samplingrate * pi2s_tx->rfs * 4);
+	} else if (pi2s_tx->id == 1) {
+		/* Initialize GPIO for I2S-1 */
+		exynos_pinmux_config(PERIPH_ID_I2S1, 0);
 
-	/* Set EPLL Clock */
-	ret = set_epll_clk(pi2s_tx->audio_pll_clk);
-	if (ret != 0) {
-		debug("%s: epll clock set rate falied\n", __func__);
+		/* Set EPLL Clock */
+		ret = set_epll_clk(pi2s_tx->audio_pll_clk);
+	} else {
+		debug("%s: unsupported i2s-%d bus\n", __func__, pi2s_tx->id);
 		return -1;
 	}
 
-	/* Select Clk Source for Audio1 */
+	if (ret != 0) {
+		debug("%s: epll clock set rate failed\n", __func__);
+		return -1;
+	}
+
+	/* Select Clk Source for Audio 0 or 1 */
 	ret = set_i2s_clk_source(pi2s_tx->id);
 	if (ret == -1) {
 		debug("%s: unsupported clock for i2s-%d\n", __func__,
@@ -319,10 +329,19 @@ int i2s_tx_init(struct i2stx_info *pi2s_tx)
 		return -1;
 	}
 
-	/* Set Prescaler to get MCLK */
-	ret = set_i2s_clk_prescaler(pi2s_tx->audio_pll_clk,
-			      (pi2s_tx->samplingrate * (pi2s_tx->rfs)),
-			      pi2s_tx->id);
+	if (pi2s_tx->id == 0) {
+		/*Reset the i2s module */
+		writel(CON_RESET, &i2s_reg->con);
+
+		writel(MOD_OP_CLK | MOD_RCLKSRC, &i2s_reg->mod);
+		/* set i2s prescaler */
+		writel(PSREN | PSVAL, &i2s_reg->psr);
+	} else {
+		/* Set Prescaler to get MCLK */
+		ret = set_i2s_clk_prescaler(pi2s_tx->audio_pll_clk,
+				(pi2s_tx->samplingrate * (pi2s_tx->rfs)),
+				pi2s_tx->id);
+	}
 	if (ret == -1) {
 		debug("%s: unsupported prescalar for i2s-%d\n", __func__,
 		      pi2s_tx->id);
@@ -331,7 +350,7 @@ int i2s_tx_init(struct i2stx_info *pi2s_tx)
 
 	/* Configure I2s format */
 	ret = i2s_set_fmt(i2s_reg, (SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
-				SND_SOC_DAIFMT_CBM_CFM));
+			  SND_SOC_DAIFMT_CBM_CFM));
 	if (ret == 0) {
 		i2s_set_lr_framesize(i2s_reg, pi2s_tx->rfs);
 		ret = i2s_set_samplesize(i2s_reg, pi2s_tx->bitspersample);

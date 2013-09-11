@@ -8,10 +8,12 @@
 #ifndef __I2S_REGS_H__
 #define __I2S_REGS_H__
 
+#define CON_RESET		(1 << 31)
 #define CON_TXFIFO_FULL		(1 << 8)
 #define CON_TXCH_PAUSE		(1 << 4)
 #define CON_ACTIVE		(1 << 0)
 
+#define MOD_OP_CLK		(3 << 30)
 #define MOD_BLCP_SHIFT		24
 #define MOD_BLCP_16BIT		(0 << MOD_BLCP_SHIFT)
 #define MOD_BLCP_8BIT		(1 << MOD_BLCP_SHIFT)
@@ -24,6 +26,7 @@
 #define MOD_BLC_MASK		(3 << 13)
 
 #define MOD_SLAVE		(1 << 11)
+#define MOD_RCLKSRC		(0 << 10)
 #define MOD_MASK		(3 << 8)
 #define MOD_LR_LLOW		(0 << 7)
 #define MOD_LR_RLOW		(1 << 7)
@@ -46,5 +49,8 @@
 
 #define FIC_TXFLUSH		(1 << 15)
 #define FIC_RXFLUSH		(1 << 7)
+
+#define PSREN			(1 << 15)
+#define PSVAL			(3 << 8)
 
 #endif /* __I2S_REGS_H__ */
