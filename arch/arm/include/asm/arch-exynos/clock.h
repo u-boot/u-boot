@@ -876,8 +876,12 @@ struct set_epll_con_val {
 #define AUDIO_0_RATIO_MASK		0x0f
 #define AUDIO_1_RATIO_MASK		0x0f
 
+#define AUDIO0_SEL_MASK			0xf
 #define AUDIO1_SEL_MASK			0xf
+
 #define CLK_SRC_SCLK_EPLL		0x7
+#define CLK_SRC_MOUT_EPLL		(1<<12)
+#define AUDIO_CLKMUX_ASS		(1<<0)
 
 /* CON0 bit-fields */
 #define EPLL_CON0_MDIV_MASK		0x1ff

@@ -67,7 +67,6 @@ static void i2s_txctrl(struct i2s_reg *i2s_reg, int on)
 		con &= ~CON_TXCH_PAUSE;
 
 	} else {
-
 		con |=  CON_TXCH_PAUSE;
 		con &= ~CON_ACTIVE;
 	}
@@ -172,7 +171,7 @@ int i2s_set_fmt(struct i2s_reg *i2s_reg, unsigned int fmt)
 		break;
 	default:
 		debug("%s: Invalid format priority [0x%x]\n", __func__,
-			(fmt & SND_SOC_DAIFMT_FORMAT_MASK));
+		      (fmt & SND_SOC_DAIFMT_FORMAT_MASK));
 		return -1;
 	}
 
@@ -191,7 +190,7 @@ int i2s_set_fmt(struct i2s_reg *i2s_reg, unsigned int fmt)
 		break;
 	default:
 		debug("%s: Invalid clock ploarity input [0x%x]\n", __func__,
-			(fmt & SND_SOC_DAIFMT_INV_MASK));
+		      (fmt & SND_SOC_DAIFMT_INV_MASK));
 		return -1;
 	}
 
@@ -209,7 +208,7 @@ int i2s_set_fmt(struct i2s_reg *i2s_reg, unsigned int fmt)
 		break;
 	default:
 		debug("%s: Invalid master selection [0x%x]\n", __func__,
-			(fmt & SND_SOC_DAIFMT_MASTER_MASK));
+		      (fmt & SND_SOC_DAIFMT_MASTER_MASK));
 		return -1;
 	}
 
@@ -250,7 +249,7 @@ int i2s_set_samplesize(struct i2s_reg *i2s_reg, unsigned int blc)
 		break;
 	default:
 		debug("%s: Invalid sample size input [0x%x]\n",
-			__func__, blc);
+		      __func__, blc);
 		return -1;
 	}
 	writel(mod, &i2s_reg->mod);
@@ -313,11 +312,22 @@ int i2s_tx_init(struct i2stx_info *pi2s_tx)
 	}
 
 	/* Select Clk Source for Audio1 */
-	set_i2s_clk_source();
+	ret = set_i2s_clk_source(pi2s_tx->id);
+	if (ret == -1) {
+		debug("%s: unsupported clock for i2s-%d\n", __func__,
+		      pi2s_tx->id);
+		return -1;
+	}
 
 	/* Set Prescaler to get MCLK */
-	set_i2s_clk_prescaler(pi2s_tx->audio_pll_clk,
-				(pi2s_tx->samplingrate * (pi2s_tx->rfs)));
+	ret = set_i2s_clk_prescaler(pi2s_tx->audio_pll_clk,
+			      (pi2s_tx->samplingrate * (pi2s_tx->rfs)),
+			      pi2s_tx->id);
+	if (ret == -1) {
+		debug("%s: unsupported prescalar for i2s-%d\n", __func__,
+		      pi2s_tx->id);
+		return -1;
+	}
 
 	/* Configure I2s format */
 	ret = i2s_set_fmt(i2s_reg, (SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |

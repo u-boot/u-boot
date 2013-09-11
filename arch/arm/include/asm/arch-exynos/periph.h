@@ -34,6 +34,7 @@ enum periph_id {
 	PERIPH_ID_SDMMC1,
 	PERIPH_ID_SDMMC2,
 	PERIPH_ID_SDMMC3,
+	PERIPH_ID_I2S0 = 98,
 	PERIPH_ID_I2S1 = 99,
 
 	/* Since following peripherals do
