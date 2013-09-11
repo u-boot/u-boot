@@ -313,7 +313,7 @@ int board_video_skip(void)
 	if (!panel) {
 		for (i = 0; i < ARRAY_SIZE(displays); i++) {
 			struct display_info_t const *dev = displays+i;
-			if (dev->detect(dev)) {
+			if (dev->detect && dev->detect(dev)) {
 				panel = dev->mode.name;
 				printf("auto-detected panel %s\n", panel);
 				break;
