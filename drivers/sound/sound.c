@@ -36,8 +36,7 @@ static int get_sound_i2s_values(struct i2stx_info *i2s, const void *blob)
 	int error = 0;
 	int base;
 
-	node = fdtdec_next_compatible(blob, 0,
-					COMPAT_SAMSUNG_EXYNOS5_SOUND);
+	node = fdt_path_offset(blob, "i2s");
 	if (node <= 0) {
 		debug("EXYNOS_SOUND: No node for sound in device tree\n");
 		return -1;
@@ -80,6 +79,11 @@ static int get_sound_i2s_values(struct i2stx_info *i2s, const void *blob)
 				node, "samsung,i2s-bit-clk-framesize", -1);
 	error |= i2s->bfs;
 	debug("bfs = %d\n", i2s->bfs);
+
+	i2s->id = fdtdec_get_int(blob, node, "samsung,i2s-id", -1);
+	error |= i2s->id;
+	debug("id = %d\n", i2s->id);
+
 	if (error == -1) {
 		debug("fail to get sound i2s node properties\n");
 		return -1;
@@ -92,6 +96,7 @@ static int get_sound_i2s_values(struct i2stx_info *i2s, const void *blob)
 	i2s->channels = I2S_CHANNELS;
 	i2s->rfs = I2S_RFS;
 	i2s->bfs = I2S_BFS;
+	i2s->id = 0;
 #endif
 	return 0;
 }
@@ -130,10 +135,10 @@ static int codec_init(const void *blob, struct i2stx_info *pi2s_tx)
 #endif
 	if (!strcmp(codectype, "wm8994")) {
 		/* Check the codec type and initialise the same */
-		ret = wm8994_init(blob, WM8994_AIF2,
-			pi2s_tx->samplingrate,
-			(pi2s_tx->samplingrate * (pi2s_tx->rfs)),
-			pi2s_tx->bitspersample, pi2s_tx->channels);
+		ret = wm8994_init(blob, pi2s_tx->id + 1,
+				pi2s_tx->samplingrate,
+				(pi2s_tx->samplingrate * (pi2s_tx->rfs)),
+				pi2s_tx->bitspersample, pi2s_tx->channels);
 	} else if (!strcmp(codectype, "max98095")) {
 		ret = max98095_init(blob, pi2s_tx->samplingrate,
 				(pi2s_tx->samplingrate * (pi2s_tx->rfs)),

@@ -85,6 +85,7 @@ struct i2stx_info {
 	unsigned int bitspersample;	/* bits per sample */
 	unsigned int channels;		/* audio channels */
 	unsigned int base_address;	/* I2S Register Base */
+	unsigned int id;		/* I2S controller id */
 };
 
 /*
