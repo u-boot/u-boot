@@ -19,6 +19,7 @@ void at91_serial2_hw_init(void);
 void at91_seriald_hw_init(void);
 void at91_spi0_hw_init(unsigned long cs_mask);
 void at91_spi1_hw_init(unsigned long cs_mask);
+void at91_udp_hw_init(void);
 void at91_uhp_hw_init(void);
 void at91_lcd_hw_init(void);
 

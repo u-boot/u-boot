@@ -202,3 +202,15 @@ void at91_lcd_hw_init(void)
 	at91_periph_clk_enable(ATMEL_ID_LCDC);
 }
 #endif
+
+#ifdef CONFIG_USB_GADGET_ATMEL_USBA
+void at91_udp_hw_init(void)
+{
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
+
+	/* Enable UPLL clock */
+	writel(AT91_PMC_UPLLEN | AT91_PMC_BIASEN, &pmc->uckr);
+	/* Enable UDPHS clock */
+	at91_periph_clk_enable(ATMEL_ID_UDPHS);
+}
+#endif

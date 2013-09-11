@@ -21,6 +21,10 @@
 #include <net.h>
 #include <netdev.h>
 
+#ifdef CONFIG_USB_GADGET_ATMEL_USBA
+#include <asm/arch/atmel_usba_udc.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 /* ------------------------------------------------------------------------- */
@@ -170,6 +174,9 @@ int board_init(void)
 #ifdef CONFIG_CMD_USB
 	sama5d3xek_usb_hw_init();
 #endif
+#ifdef CONFIG_USB_GADGET_ATMEL_USBA
+	at91_udp_hw_init();
+#endif
 #ifdef CONFIG_GENERIC_ATMEL_MCI
 	sama5d3xek_mci_hw_init();
 #endif
@@ -220,6 +227,12 @@ int board_eth_init(bd_t *bis)
 		rc = macb_eth_initialize(0, (void *)ATMEL_BASE_EMAC, 0x00);
 	if (has_gmac())
 		rc = macb_eth_initialize(0, (void *)ATMEL_BASE_GMAC, 0x00);
+#endif
+#ifdef CONFIG_USB_GADGET_ATMEL_USBA
+	usba_udc_probe(&pdata);
+#ifdef CONFIG_USB_ETH_RNDIS
+	usb_eth_initialize(bis);
+#endif
 #endif
 
 	return rc;
