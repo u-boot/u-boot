@@ -11,6 +11,12 @@
 #ifndef _MAX98095_H
 #define _MAX98095_H
 
+/*  Available audio interface ports in wm8994 codec */
+enum en_max_audio_interface {
+	AIF1 = 1,
+	AIF2,
+};
+
 /*
  * MAX98095 Registers Definition
  */
@@ -305,7 +311,7 @@
  *
  * @returns -1 for error and 0 Success.
  */
-int max98095_init(const void *blob, int sampling_rate, int mclk_freq,
-			int bits_per_sample);
+int max98095_init(const void *blob, enum en_max_audio_interface aif_id,
+		  int sampling_rate, int mclk_freq, int bits_per_sample);
 
 #endif

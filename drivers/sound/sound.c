@@ -116,7 +116,7 @@ static int codec_init(const void *blob, struct i2stx_info *pi2s_tx)
 	int node;
 
 	/* Get the node from FDT for sound */
-	node = fdtdec_next_compatible(blob, 0, COMPAT_SAMSUNG_EXYNOS5_SOUND);
+	node = fdt_path_offset(blob, "i2s");
 	if (node <= 0) {
 		debug("EXYNOS_SOUND: No node for sound in device tree\n");
 		debug("node = %d\n", node);
@@ -136,13 +136,14 @@ static int codec_init(const void *blob, struct i2stx_info *pi2s_tx)
 	if (!strcmp(codectype, "wm8994")) {
 		/* Check the codec type and initialise the same */
 		ret = wm8994_init(blob, pi2s_tx->id + 1,
-				pi2s_tx->samplingrate,
-				(pi2s_tx->samplingrate * (pi2s_tx->rfs)),
-				pi2s_tx->bitspersample, pi2s_tx->channels);
+				  pi2s_tx->samplingrate,
+				  (pi2s_tx->samplingrate * (pi2s_tx->rfs)),
+				  pi2s_tx->bitspersample, pi2s_tx->channels);
 	} else if (!strcmp(codectype, "max98095")) {
-		ret = max98095_init(blob, pi2s_tx->samplingrate,
-				(pi2s_tx->samplingrate * (pi2s_tx->rfs)),
-				pi2s_tx->bitspersample);
+		ret = max98095_init(blob, pi2s_tx->id + 1,
+				    pi2s_tx->samplingrate,
+				    (pi2s_tx->samplingrate * (pi2s_tx->rfs)),
+				    pi2s_tx->bitspersample);
 	} else {
 		debug("%s: Unknown codec type %s\n", __func__, codectype);
 		return -1;
@@ -235,7 +236,7 @@ int sound_play(uint32_t msec, uint32_t frequency)
 	}
 
 	sound_prepare_buffer((unsigned short *)data,
-				data_size / sizeof(unsigned short), frequency);
+			     data_size / sizeof(unsigned short), frequency);
 
 	while (msec >= 1000) {
 		ret = i2s_transfer_tx_data(&g_i2stx_pri, data,

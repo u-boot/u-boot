@@ -52,7 +52,7 @@ int rate_table[] = {0, 8000, 11025, 16000, 22050, 24000, 32000, 44100, 48000,
 static int max98095_i2c_write(unsigned int reg, unsigned char data)
 {
 	debug("%s: Write Addr : 0x%02X, Data :  0x%02X\n",
-		__func__, reg, data);
+	      __func__, reg, data);
 	return i2c_write(g_max98095_i2c_dev_addr, reg, 1, &data, 1);
 }
 
@@ -71,7 +71,7 @@ static unsigned int max98095_i2c_read(unsigned int reg, unsigned char *data)
 	ret = i2c_read(g_max98095_i2c_dev_addr, reg, 1, data, 1);
 	if (ret != 0) {
 		debug("%s: Error while reading register %#04x\n",
-			__func__, reg);
+		      __func__, reg);
 		return -1;
 	}
 
@@ -138,43 +138,57 @@ static int rate_value(int rate, u8 *value)
  * @return -1 for error  and 0  Success.
  */
 static int max98095_hw_params(struct max98095_priv *max98095,
-		unsigned int rate, unsigned int bits_per_sample)
+			      enum en_max_audio_interface aif_id,
+			      unsigned int rate, unsigned int bits_per_sample)
 {
 	u8 regval;
 	int error;
+	unsigned short M98095_DAI_CLKMODE;
+	unsigned short M98095_DAI_FORMAT;
+	unsigned short M98095_DAI_FILTERS;
+
+	if (aif_id == AIF1) {
+		M98095_DAI_CLKMODE = M98095_027_DAI1_CLKMODE;
+		M98095_DAI_FORMAT = M98095_02A_DAI1_FORMAT;
+		M98095_DAI_FILTERS = M98095_02E_DAI1_FILTERS;
+	} else {
+		M98095_DAI_CLKMODE = M98095_031_DAI2_CLKMODE;
+		M98095_DAI_FORMAT = M98095_034_DAI2_FORMAT;
+		M98095_DAI_FILTERS = M98095_038_DAI2_FILTERS;
+	}
 
 	switch (bits_per_sample) {
 	case 16:
-		error = max98095_update_bits(M98095_034_DAI2_FORMAT,
-			M98095_DAI_WS, 0);
+		error = max98095_update_bits(M98095_DAI_FORMAT,
+					     M98095_DAI_WS, 0);
 		break;
 	case 24:
-		error = max98095_update_bits(M98095_034_DAI2_FORMAT,
-			M98095_DAI_WS, M98095_DAI_WS);
+		error = max98095_update_bits(M98095_DAI_FORMAT,
+					     M98095_DAI_WS, M98095_DAI_WS);
 		break;
 	default:
 		debug("%s: Illegal bits per sample %d.\n",
-			__func__, bits_per_sample);
+		      __func__, bits_per_sample);
 		return -1;
 	}
 
 	if (rate_value(rate, &regval)) {
 		debug("%s: Failed to set sample rate to %d.\n",
-			__func__, rate);
+		      __func__, rate);
 		return -1;
 	}
 	max98095->rate = rate;
 
-	error |= max98095_update_bits(M98095_031_DAI2_CLKMODE,
-		M98095_CLKMODE_MASK, regval);
+	error |= max98095_update_bits(M98095_DAI_CLKMODE,
+				      M98095_CLKMODE_MASK, regval);
 
 	/* Update sample rate mode */
 	if (rate < 50000)
-		error |= max98095_update_bits(M98095_038_DAI2_FILTERS,
-			M98095_DAI_DHF, 0);
+		error |= max98095_update_bits(M98095_DAI_FILTERS,
+					      M98095_DAI_DHF, 0);
 	else
-		error |= max98095_update_bits(M98095_038_DAI2_FILTERS,
-			M98095_DAI_DHF, M98095_DAI_DHF);
+		error |= max98095_update_bits(M98095_DAI_FILTERS,
+					      M98095_DAI_DHF, M98095_DAI_DHF);
 
 	if (error < 0) {
 		debug("%s: Error setting hardware params.\n", __func__);
@@ -193,7 +207,7 @@ static int max98095_hw_params(struct max98095_priv *max98095,
  * @return -1 for error and 0 success.
  */
 static int max98095_set_sysclk(struct max98095_priv *max98095,
-				unsigned int freq)
+			       unsigned int freq)
 {
 	int error = 0;
 
@@ -235,22 +249,39 @@ static int max98095_set_sysclk(struct max98095_priv *max98095,
  *
  * @return -1 for error and 0  Success.
  */
-static int max98095_set_fmt(struct max98095_priv *max98095, int fmt)
+static int max98095_set_fmt(struct max98095_priv *max98095, int fmt,
+			    enum en_max_audio_interface aif_id)
 {
 	u8 regval = 0;
 	int error = 0;
+	unsigned short M98095_DAI_CLKCFG_HI;
+	unsigned short M98095_DAI_CLKCFG_LO;
+	unsigned short M98095_DAI_FORMAT;
+	unsigned short M98095_DAI_CLOCK;
 
 	if (fmt == max98095->fmt)
 		return 0;
 
 	max98095->fmt = fmt;
 
+	if (aif_id == AIF1) {
+		M98095_DAI_CLKCFG_HI = M98095_028_DAI1_CLKCFG_HI;
+		M98095_DAI_CLKCFG_LO = M98095_029_DAI1_CLKCFG_LO;
+		M98095_DAI_FORMAT = M98095_02A_DAI1_FORMAT;
+		M98095_DAI_CLOCK = M98095_02B_DAI1_CLOCK;
+	} else {
+		M98095_DAI_CLKCFG_HI = M98095_032_DAI2_CLKCFG_HI;
+		M98095_DAI_CLKCFG_LO = M98095_033_DAI2_CLKCFG_LO;
+		M98095_DAI_FORMAT = M98095_034_DAI2_FORMAT;
+		M98095_DAI_CLOCK = M98095_035_DAI2_CLOCK;
+	}
+
 	switch (fmt & SND_SOC_DAIFMT_MASTER_MASK) {
 	case SND_SOC_DAIFMT_CBS_CFS:
 		/* Slave mode PLL */
-		error |= max98095_i2c_write(M98095_032_DAI2_CLKCFG_HI,
+		error |= max98095_i2c_write(M98095_DAI_CLKCFG_HI,
 					0x80);
-		error |= max98095_i2c_write(M98095_033_DAI2_CLKCFG_LO,
+		error |= max98095_i2c_write(M98095_DAI_CLKCFG_LO,
 					0x00);
 		break;
 	case SND_SOC_DAIFMT_CBM_CFM:
@@ -292,12 +323,13 @@ static int max98095_set_fmt(struct max98095_priv *max98095, int fmt)
 		return -1;
 	}
 
-	error |= max98095_update_bits(M98095_034_DAI2_FORMAT,
-		M98095_DAI_MAS | M98095_DAI_DLY | M98095_DAI_BCI |
-		M98095_DAI_WCI, regval);
+	error |= max98095_update_bits(M98095_DAI_FORMAT,
+				      M98095_DAI_MAS | M98095_DAI_DLY |
+				      M98095_DAI_BCI | M98095_DAI_WCI,
+				      regval);
 
-	error |= max98095_i2c_write(M98095_035_DAI2_CLOCK,
-		M98095_DAI_BSEL64);
+	error |= max98095_i2c_write(M98095_DAI_CLOCK,
+				    M98095_DAI_BSEL64);
 
 	if (error < 0) {
 		debug("%s: Error setting i2s format.\n", __func__);
@@ -354,7 +386,8 @@ static int max98095_reset(void)
  *
  * @returns -1 for error  and 0 Success.
  */
-static int max98095_device_init(struct max98095_priv *max98095)
+static int max98095_device_init(struct max98095_priv *max98095,
+				enum en_max_audio_interface aif_id)
 {
 	unsigned char id;
 	int error = 0;
@@ -374,7 +407,7 @@ static int max98095_device_init(struct max98095_priv *max98095)
 	error = max98095_i2c_read(M98095_0FF_REV_ID, &id);
 	if (error < 0) {
 		debug("%s: Failure reading hardware revision: %d\n",
-			__func__, id);
+		      __func__, id);
 		goto err_access;
 	}
 	debug("%s: Hardware revision: %c\n", __func__, (id - 0x40) + 'A');
@@ -385,26 +418,28 @@ static int max98095_device_init(struct max98095_priv *max98095)
 	 * initialize registers to hardware default configuring audio
 	 * interface2 to DAC
 	 */
-	error |= max98095_i2c_write(M98095_048_MIX_DAC_LR,
-		M98095_DAI2M_TO_DACL|M98095_DAI2M_TO_DACR);
+	if (aif_id == AIF1)
+		error |= max98095_i2c_write(M98095_048_MIX_DAC_LR,
+					    M98095_DAI1L_TO_DACL |
+					    M98095_DAI1R_TO_DACR);
+	else
+		error |= max98095_i2c_write(M98095_048_MIX_DAC_LR,
+					    M98095_DAI2M_TO_DACL |
+					    M98095_DAI2M_TO_DACR);
 
 	error |= max98095_i2c_write(M98095_092_PWR_EN_OUT,
-			M98095_SPK_SPREADSPECTRUM);
-	error |= max98095_i2c_write(M98095_045_CFG_DSP, M98095_DSPNORMAL);
+				    M98095_SPK_SPREADSPECTRUM);
 	error |= max98095_i2c_write(M98095_04E_CFG_HP, M98095_HPNORMAL);
-
-	error |= max98095_i2c_write(M98095_02C_DAI1_IOCFG,
-			M98095_S1NORMAL|M98095_SDATA);
-
-	error |= max98095_i2c_write(M98095_036_DAI2_IOCFG,
-			M98095_S2NORMAL|M98095_SDATA);
-
-	error |= max98095_i2c_write(M98095_040_DAI3_IOCFG,
-			M98095_S3NORMAL|M98095_SDATA);
+	if (aif_id == AIF1)
+		error |= max98095_i2c_write(M98095_02C_DAI1_IOCFG,
+					    M98095_S1NORMAL | M98095_SDATA);
+	else
+		error |= max98095_i2c_write(M98095_036_DAI2_IOCFG,
+					    M98095_S2NORMAL | M98095_SDATA);
 
 	/* take the codec out of the shut down */
 	error |= max98095_update_bits(M98095_097_PWR_SYS, M98095_SHDNRUN,
-			M98095_SHDNRUN);
+				      M98095_SHDNRUN);
 	/* route DACL and DACR output to HO and Spekers */
 	error |= max98095_i2c_write(M98095_050_MIX_SPK_LEFT, 0x01); /* DACL */
 	error |= max98095_i2c_write(M98095_051_MIX_SPK_RIGHT, 0x01);/* DACR */
@@ -422,7 +457,10 @@ static int max98095_device_init(struct max98095_priv *max98095)
 
 	/* Enable DAIs */
 	error |= max98095_i2c_write(M98095_093_BIAS_CTRL, 0x30);
-	error |= max98095_i2c_write(M98095_096_PWR_DAC_CK, 0x07);
+	if (aif_id == AIF1)
+		error |= max98095_i2c_write(M98095_096_PWR_DAC_CK, 0x01);
+	else
+		error |= max98095_i2c_write(M98095_096_PWR_DAC_CK, 0x07);
 
 err_access:
 	if (error < 0)
@@ -432,8 +470,9 @@ err_access:
 }
 
 static int max98095_do_init(struct sound_codec_info *pcodec_info,
-			int sampling_rate, int mclk_freq,
-			int bits_per_sample)
+			    enum en_max_audio_interface aif_id,
+			    int sampling_rate, int mclk_freq,
+			    int bits_per_sample)
 {
 	int ret = 0;
 
@@ -443,15 +482,15 @@ static int max98095_do_init(struct sound_codec_info *pcodec_info,
 	/* shift the device address by 1 for 7 bit addressing */
 	g_max98095_i2c_dev_addr = pcodec_info->i2c_dev_addr >> 1;
 
-	if (pcodec_info->codec_type == CODEC_MAX_98095)
+	if (pcodec_info->codec_type == CODEC_MAX_98095) {
 		g_max98095_info.devtype = MAX98095;
-	else {
+	} else {
 		debug("%s: Codec id [%d] not defined\n", __func__,
-				pcodec_info->codec_type);
+		      pcodec_info->codec_type);
 		return -1;
 	}
 
-	ret = max98095_device_init(&g_max98095_info);
+	ret = max98095_device_init(&g_max98095_info, aif_id);
 	if (ret < 0) {
 		debug("%s: max98095 codec chip init failed\n", __func__);
 		return ret;
@@ -463,14 +502,15 @@ static int max98095_do_init(struct sound_codec_info *pcodec_info,
 		return ret;
 	}
 
-	ret = max98095_hw_params(&g_max98095_info, sampling_rate,
-				bits_per_sample);
+	ret = max98095_hw_params(&g_max98095_info, aif_id, sampling_rate,
+				 bits_per_sample);
 
 	if (ret == 0) {
 		ret = max98095_set_fmt(&g_max98095_info,
-					SND_SOC_DAIFMT_I2S |
-					SND_SOC_DAIFMT_NB_NF |
-					SND_SOC_DAIFMT_CBS_CFS);
+				       SND_SOC_DAIFMT_I2S |
+				       SND_SOC_DAIFMT_NB_NF |
+				       SND_SOC_DAIFMT_CBS_CFS,
+				       aif_id);
 	}
 
 	return ret;
@@ -529,8 +569,9 @@ static int get_max98095_codec_values(struct sound_codec_info *pcodec_info,
 }
 
 /* max98095 Device Initialisation */
-int max98095_init(const void *blob, int sampling_rate, int mclk_freq,
-			int bits_per_sample)
+int max98095_init(const void *blob, enum en_max_audio_interface aif_id,
+		  int sampling_rate, int mclk_freq,
+		  int bits_per_sample)
 {
 	int ret;
 	int old_bus = i2c_get_bus_num();
@@ -538,12 +579,12 @@ int max98095_init(const void *blob, int sampling_rate, int mclk_freq,
 
 	if (get_max98095_codec_values(pcodec_info, blob) < 0) {
 		debug("FDT Codec values failed\n");
-		 return -1;
+		return -1;
 	}
 
 	i2c_set_bus_num(pcodec_info->i2c_bus);
-	ret = max98095_do_init(pcodec_info, sampling_rate, mclk_freq,
-				bits_per_sample);
+	ret = max98095_do_init(pcodec_info, aif_id, sampling_rate, mclk_freq,
+			       bits_per_sample);
 	i2c_set_bus_num(old_bus);
 
 	return ret;
