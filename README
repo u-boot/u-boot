@@ -35,7 +35,7 @@ Makefile have been tested to some extent and can be considered
 "working". In fact, many of them are used in production systems.
 
 In case of problems see the CHANGELOG and CREDITS files to find out
-who contributed the specific port. The MAINTAINERS file lists board
+who contributed the specific port. The boards.cfg file lists board
 maintainers.
 
 Note: There is no CHANGELOG file in the actual U-Boot source tree;
@@ -5833,8 +5833,8 @@ it:
 
 * For major contributions, your entry to the CREDITS file
 
-* When you add support for a new board, don't forget to add this
-  board to the MAINTAINERS file, too.
+* When you add support for a new board, don't forget to add a
+  maintainer e-mail address to the boards.cfg file, too.
 
 * If your patch adds new configuration options, don't forget to
   document these in the README file.

@@ -63,7 +63,7 @@ class Boards:
                 for upto in range(len(fields)):
                     if fields[upto] == '-':
                         fields[upto] = ''
-                while len(fields) < 7:
+                while len(fields) < 9:
                     fields.append('')
 
                 board = Board(*fields)
