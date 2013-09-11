@@ -139,6 +139,32 @@ enum {
 	EN_LDO = (0x3 << 6),
 };
 
+enum {
+	OPMODE_OFF = 0,
+	OPMODE_STANDBY,
+	OPMODE_LPM,
+	OPMODE_ON,
+};
+
+int max77686_set_ldo_voltage(struct pmic *p, int ldo, ulong uV);
+int max77686_set_ldo_mode(struct pmic *p, int ldo, char opmode);
+int max77686_set_buck_mode(struct pmic *p, int buck, char opmode);
+
+#define MAX77686_LDO_VOLT_MAX_HEX	0x3f
+#define MAX77686_LDO_VOLT_MASK		0x3f
+#define MAX77686_LDO_MODE_MASK		0xc0
+#define MAX77686_LDO_MODE_OFF		(0x00 << 0x06)
+#define MAX77686_LDO_MODE_STANDBY	(0x01 << 0x06)
+#define MAX77686_LDO_MODE_LPM		(0x02 << 0x06)
+#define MAX77686_LDO_MODE_ON		(0x03 << 0x06)
+#define MAX77686_BUCK_MODE_MASK		0x03
+#define MAX77686_BUCK_MODE_SHIFT_1	0x00
+#define MAX77686_BUCK_MODE_SHIFT_2	0x04
+#define MAX77686_BUCK_MODE_OFF		0x00
+#define MAX77686_BUCK_MODE_STANDBY	0x01
+#define MAX77686_BUCK_MODE_LPM		0x02
+#define MAX77686_BUCK_MODE_ON		0x03
+
 /* Buck1 1 volt value */
 #define MAX77686_BUCK1OUT_1V	0x5
 /* Buck1 1.05 volt value */

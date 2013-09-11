@@ -72,7 +72,7 @@ int checkboard(void)
 #ifdef CONFIG_GENERIC_MMC
 int board_mmc_init(bd_t *bis)
 {
-	int i;
+	int i, ret, ret_sd = 0;
 
 	/* MASSMEMORY_EN: XMSMDATA7: GPJ2[7] output high */
 	s5p_gpio_direction_output(&s5pc110_gpio->j2, 7, 1);
@@ -95,7 +95,36 @@ int board_mmc_init(bd_t *bis)
 		s5p_gpio_set_drv(&s5pc110_gpio->g0, i, GPIO_DRV_4X);
 	}
 
-	return s5p_mmc_init(0, 4);
+	ret = s5p_mmc_init(0, 4);
+	if (ret)
+		error("MMC: Failed to init MMC:0.\n");
+
+	/*
+	 * SD card (T_FLASH) detect and init
+	 * T_FLASH_DETECT: EINT28: GPH3[4] input mode
+	 */
+	s5p_gpio_cfg_pin(&s5pc110_gpio->h3, 4, GPIO_INPUT);
+	s5p_gpio_set_pull(&s5pc110_gpio->h3, 4, GPIO_PULL_UP);
+
+	if (!s5p_gpio_get_value(&s5pc110_gpio->h3, 4)) {
+		for (i = 0; i < 7; i++) {
+			if (i == 2)
+				continue;
+
+			/* GPG2[0:6] special function 2 */
+			s5p_gpio_cfg_pin(&s5pc110_gpio->g2, i, 0x2);
+			/* GPG2[0:6] pull disable */
+			s5p_gpio_set_pull(&s5pc110_gpio->g2, i, GPIO_PULL_NONE);
+			/* GPG2[0:6] drv 4x */
+			s5p_gpio_set_drv(&s5pc110_gpio->g2, i, GPIO_DRV_4X);
+		}
+
+		ret_sd = s5p_mmc_init(2, 4);
+		if (ret_sd)
+			error("MMC: Failed to init SD card (MMC:2).\n");
+	}
+
+	return ret & ret_sd;
 }
 #endif
 
