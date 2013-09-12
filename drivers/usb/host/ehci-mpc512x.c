@@ -38,7 +38,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	volatile struct usb_ehci *ehci;
 
 	/* Hook the memory mapped registers for EHCI-Controller */
-	ehci = (struct usb_ehci *)CONFIG_SYS_FSL_USB_ADDR;
+	ehci = (struct usb_ehci *)CONFIG_SYS_FSL_USB1_ADDR;
 	*hccr = (struct ehci_hccr *)((uint32_t)&(ehci->caplength));
 	*hcor = (struct ehci_hcor *)((uint32_t) *hccr +
 				HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
@@ -82,7 +82,7 @@ int ehci_hcd_stop(int index)
 	int exit_status = 0;
 
 	/* Reset the USB controller */
-	ehci = (struct usb_ehci *)CONFIG_SYS_FSL_USB_ADDR;
+	ehci = (struct usb_ehci *)CONFIG_SYS_FSL_USB1_ADDR;
 	exit_status = reset_usb_controller(ehci);
 
 	return exit_status;

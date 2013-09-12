@@ -1255,9 +1255,9 @@ static inline u32 get_pata_base (void)
 }
 #endif	/* __ASSEMBLY__ */
 
-#define CONFIG_SYS_MPC512x_USB_OFFSET   0x4000
-#define CONFIG_SYS_MPC512x_USB_ADDR \
-			(CONFIG_SYS_IMMR + CONFIG_SYS_MPC512x_USB_OFFSET)
+#define CONFIG_SYS_MPC512x_USB1_OFFSET   0x4000
+#define CONFIG_SYS_MPC512x_USB1_ADDR \
+			(CONFIG_SYS_IMMR + CONFIG_SYS_MPC512x_USB1_OFFSET)
 
 #define IIM_BASE_ADDR	(CONFIG_SYS_IMMR + offsetof(immap_t, iim))
 

@@ -764,9 +764,11 @@ typedef struct immap {
 } immap_t;
 
 #ifdef CONFIG_HAS_FSL_MPH_USB
-#define CONFIG_SYS_MPC83xx_USB_OFFSET  0x22000	/* use the MPH controller */
+#define CONFIG_SYS_MPC83xx_USB1_OFFSET  0x22000	/* use the MPH controller */
+#define CONFIG_SYS_MPC83xx_USB2_OFFSET	0
 #else
-#define CONFIG_SYS_MPC83xx_USB_OFFSET  0x23000	/* use the DR controller */
+#define CONFIG_SYS_MPC83xx_USB1_OFFSET	0
+#define CONFIG_SYS_MPC83xx_USB2_OFFSET  0x23000	/* use the DR controller */
 #endif
 
 #elif defined(CONFIG_MPC8313)
@@ -1031,11 +1033,15 @@ typedef struct immap {
 #define CONFIG_SYS_MPC83xx_ESDHC_ADDR \
 			(CONFIG_SYS_IMMR + CONFIG_SYS_MPC83xx_ESDHC_OFFSET)
 
-#ifndef CONFIG_SYS_MPC83xx_USB_OFFSET
-#define CONFIG_SYS_MPC83xx_USB_OFFSET  0x23000
+#ifndef CONFIG_SYS_MPC83xx_USB1_OFFSET
+#define CONFIG_SYS_MPC83xx_USB1_OFFSET  0x23000
 #endif
-#define CONFIG_SYS_MPC83xx_USB_ADDR \
-			(CONFIG_SYS_IMMR + CONFIG_SYS_MPC83xx_USB_OFFSET)
+#define CONFIG_SYS_MPC83xx_USB1_ADDR \
+			(CONFIG_SYS_IMMR + CONFIG_SYS_MPC83xx_USB1_OFFSET)
+#if defined(CONFIG_MPC834x)
+#define CONFIG_SYS_MPC83xx_USB2_ADDR \
+			(CONFIG_SYS_IMMR + CONFIG_SYS_MPC83xx_USB2_OFFSET)
+#endif
 #define CONFIG_SYS_LBC_ADDR (&((immap_t *)CONFIG_SYS_IMMR)->im_lbc)
 
 #define CONFIG_SYS_TSEC1_OFFSET		0x24000
