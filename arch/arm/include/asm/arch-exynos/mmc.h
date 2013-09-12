@@ -8,6 +8,8 @@
 #ifndef __ASM_ARCH_MMC_H_
 #define __ASM_ARCH_MMC_H_
 
+#define S5P_MMC_DEV_OFFSET	0x10000
+
 #define SDHCI_CONTROL2		0x80
 #define SDHCI_CONTROL3		0x84
 #define SDHCI_CONTROL4		0x8C
@@ -55,7 +57,9 @@ int s5p_sdhci_init(u32 regbase, int index, int bus_width);
 
 static inline unsigned int s5p_mmc_init(int index, int bus_width)
 {
-	unsigned int base = samsung_get_base_mmc() + (0x10000 * index);
+	unsigned int base = samsung_get_base_mmc() +
+				(S5P_MMC_DEV_OFFSET * index);
+
 	return s5p_sdhci_init(base, index, bus_width);
 }
 #endif

@@ -290,10 +290,19 @@ static inline unsigned int s5p_gpio_part_max(int nr)
 			return EXYNOS5_GPIO_PART2_MAX;
 
 	} else if (cpu_is_exynos4()) {
-		if (nr < EXYNOS4_GPIO_PART1_MAX)
-			return 0;
-		else
-			return EXYNOS4_GPIO_PART1_MAX;
+		if (proid_is_exynos4412()) {
+			if (nr < EXYNOS4X12_GPIO_PART1_MAX)
+				return 0;
+			else if (nr < EXYNOS4X12_GPIO_PART2_MAX)
+				return EXYNOS4X12_GPIO_PART1_MAX;
+			else
+				return EXYNOS4X12_GPIO_PART2_MAX;
+		} else {
+			if (nr < EXYNOS4_GPIO_PART1_MAX)
+				return 0;
+			else
+				return EXYNOS4_GPIO_PART1_MAX;
+		}
 	}
 
 	return 0;
