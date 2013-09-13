@@ -152,10 +152,7 @@
 #define CONFIG_DDR_CLK_FREQ	66666666 /* DDRCLK on P1010 RDB */
 #define CONFIG_SYS_CLK_FREQ	66666666 /* SYSCLK for P1010 RDB */
 
-#ifndef CONFIG_SDCARD
 #define CONFIG_MISC_INIT_R
-#endif
-
 #define CONFIG_HWCONFIG
 /*
  * These can be toggled for performance analysis, otherwise use default.
@@ -256,10 +253,6 @@ extern unsigned long get_sdram_size(void);
  * 0xffe0_0000	0xffef_ffff	CCSR			1M non-cacheable
  */
 
-/* In case of SD card boot, IFC interface is not available because of muxing */
-#ifdef CONFIG_SDCARD
-#define CONFIG_SYS_NO_FLASH
-#else
 /*
  * IFC Definitions
  */
@@ -410,7 +403,6 @@ extern unsigned long get_sdram_size(void);
 					FTIM2_GPCM_TCH(0x0) | \
 					FTIM2_GPCM_TWP(0x1f))
 #define CONFIG_SYS_CS3_FTIM3		0x0
-#endif	/* CONFIG_SDCARD */
 
 #if defined(CONFIG_RAMBOOT_SDCARD) || defined(CONFIG_RAMBOOT_SPIFLASH)
 #define CONFIG_SYS_RAMBOOT
@@ -482,6 +474,8 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_FSL_I2C2_SPEED	400000
 #define CONFIG_SYS_FSL_I2C2_SLAVE	0x7F
 #define CONFIG_SYS_FSL_I2C2_OFFSET	0x3100
+#define I2C_PCA9557_ADDR1		0x18
+#define I2C_PCA9557_BUS_NUM		0
 
 /* I2C EEPROM */
 #undef CONFIG_ID_EEPROM
@@ -567,12 +561,7 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_LBA48
 #endif /* #ifdef CONFIG_FSL_SATA  */
 
-/*  SD interface will only be available in case of SD boot */
-#ifdef CONFIG_SDCARD
 #define CONFIG_MMC
-#define CONFIG_DEF_HWCONFIG		esdhc
-#endif
-
 #ifdef CONFIG_MMC
 #define CONFIG_CMD_MMC
 #define CONFIG_DOS_PARTITION
