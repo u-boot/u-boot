@@ -18,7 +18,11 @@
 #endif
 
 #ifdef CONFIG_SYS_I2C_EEPROM_NXID
+/* some boards with non-256-bytes EEPROM have special define */
+/* for MAX_NUM_PORTS in board-specific file */
+#ifndef MAX_NUM_PORTS
 #define MAX_NUM_PORTS	23
+#endif
 #define NXID_VERSION	1
 #endif
 
