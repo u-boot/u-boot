@@ -170,7 +170,7 @@ bootm 200000
 
 In case of the new uImage argument syntax, the address portion of any argument
 can be omitted. If <addr3> is omitted, then it is assumed that image at
-<addr2> should be used. Similarly, when <addr2> is omitted, is is assumed that
+<addr2> should be used. Similarly, when <addr2> is omitted, it is assumed that
 image at <addr1> should be used. If <addr1> is omitted, it is assumed that the
 current image address is to be used. For example, consider the following
 commands:
