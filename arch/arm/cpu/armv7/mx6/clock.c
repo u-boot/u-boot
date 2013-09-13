@@ -282,6 +282,36 @@ static u32 get_mmdc_ch0_clk(void)
 	return freq / (podf + 1);
 
 }
+
+int enable_fec_anatop_clock(void)
+{
+	u32 reg = 0;
+	s32 timeout = 100000;
+
+	struct anatop_regs __iomem *anatop =
+		(struct anatop_regs __iomem *)ANATOP_BASE_ADDR;
+
+	reg = readl(&anatop->pll_enet);
+	if ((reg & BM_ANADIG_PLL_ENET_POWERDOWN) ||
+	    (!(reg & BM_ANADIG_PLL_ENET_LOCK))) {
+		reg &= ~BM_ANADIG_PLL_ENET_POWERDOWN;
+		writel(reg, &anatop->pll_enet);
+		while (timeout--) {
+			if (readl(&anatop->pll_enet) & BM_ANADIG_PLL_ENET_LOCK)
+				break;
+		}
+		if (timeout < 0)
+			return -ETIMEDOUT;
+	}
+
+	/* Enable FEC clock */
+	reg |= BM_ANADIG_PLL_ENET_ENABLE;
+	reg &= ~BM_ANADIG_PLL_ENET_BYPASS;
+	writel(reg, &anatop->pll_enet);
+
+	return 0;
+}
+
 #else
 static u32 get_mmdc_ch0_clk(void)
 {
