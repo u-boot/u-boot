@@ -52,41 +52,6 @@ struct cpld_data {
 	u8 por2; /* POR Options */
 	u8 por3; /* POR Options */
 };
-
-void cpld_show(void)
-{
-	struct cpld_data *cpld_data = (void *)(CONFIG_SYS_CPLD_BASE);
-
-	printf("CPLD: V%x.%x PCBA: V%x.0\n",
-		in_8(&cpld_data->cpld_ver) & 0xF0,
-		in_8(&cpld_data->cpld_ver) & 0x0F,
-		in_8(&cpld_data->pcba_ver) & 0x0F);
-
-#ifdef CONFIG_DEBUG
-	printf("twindie_ddr =%x\n",
-		in_8(&cpld_data->twindie_ddr3));
-	printf("bank_sel =%x\n",
-		in_8(&cpld_data->bank_sel));
-	printf("usb2_sel =%x\n",
-		in_8(&cpld_data->usb2_sel));
-	printf("porsw_sel =%x\n",
-		in_8(&cpld_data->porsw_sel));
-	printf("tdm_can_sel =%x\n",
-		in_8(&cpld_data->tdm_can_sel));
-	printf("tdm_can_sel =%x\n",
-		in_8(&cpld_data->tdm_can_sel));
-	printf("spi_cs0_sel =%x\n",
-		in_8(&cpld_data->spi_cs0_sel));
-	printf("bcsr0 =%x\n",
-		in_8(&cpld_data->bcsr0));
-	printf("bcsr1 =%x\n",
-		in_8(&cpld_data->bcsr1));
-	printf("bcsr2 =%x\n",
-		in_8(&cpld_data->bcsr2));
-	printf("bcsr3 =%x\n",
-		in_8(&cpld_data->bcsr3));
-#endif
-}
 #endif
 
 int board_early_init_f(void)
