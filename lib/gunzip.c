@@ -89,13 +89,13 @@ int zunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp,
 	s.avail_out = dstlen;
 	do {
 		r = inflate(&s, Z_FINISH);
-		if (r != Z_STREAM_END && r != Z_BUF_ERROR && stoponerr == 1) {
+		if (stoponerr == 1 && r != Z_STREAM_END &&
+		    (s.avail_out == 0 || r != Z_BUF_ERROR)) {
 			printf("Error: inflate() returned %d\n", r);
 			inflateEnd(&s);
 			return -1;
 		}
 		s.avail_in = *lenp - offset - (int)(s.next_out - (unsigned char*)dst);
-		s.avail_out = dstlen;
 	} while (r == Z_BUF_ERROR);
 	*lenp = s.next_out - (unsigned char *) dst;
 	inflateEnd(&s);

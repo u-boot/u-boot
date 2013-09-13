@@ -1,0 +1,39 @@
+/*
+ * SAMSUNG Arndale board device tree source
+ *
+ * Copyright (c) 2013 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+*/
+
+/dts-v1/;
+#include "exynos5250.dtsi"
+
+/ {
+	model = "SAMSUNG Arndale board based on EXYNOS5250";
+	compatible = "samsung,arndale", "samsung,exynos5250";
+
+	aliases {
+		serial0 = "/serial@12C20000";
+		console = "/serial@12C20000";
+	};
+
+	mmc@12200000 {
+		samsung,bus-width = <8>;
+		samsung,timing = <1 3 3>;
+	};
+
+	mmc@12210000 {
+		status = "disabled";
+	};
+
+	mmc@12220000 {
+		samsung,bus-width = <4>;
+		samsung,timing = <1 2 3>;
+	};
+
+	mmc@12230000 {
+		status = "disabled";
+	};
+};

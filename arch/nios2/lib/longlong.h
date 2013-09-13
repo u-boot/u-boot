@@ -3,6 +3,7 @@
    2005  Free Software Foundation, Inc.
 
  * SPDX-License-Identifier:	GPL-2.0+
+ */
 
 /* You have to define the following before including this file:
 

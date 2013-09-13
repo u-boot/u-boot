@@ -399,7 +399,8 @@ int get_clocks (void)
 	 * AN2919.
 	 */
 #if defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || \
-	defined(CONFIG_MPC8560) || defined(CONFIG_MPC8555)
+	defined(CONFIG_MPC8560) || defined(CONFIG_MPC8555) || \
+	defined(CONFIG_P1022)
 	gd->arch.i2c1_clk = sys_info.freq_systembus;
 #elif defined(CONFIG_MPC8544)
 	/*

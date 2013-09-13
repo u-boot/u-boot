@@ -727,27 +727,39 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 				   MEMGETBADBLOCK needs 64 bits */
 	int rc;
 
-	blocklen = DEVESIZE (dev);
-
-	top_of_range = ((DEVOFFSET(dev) / blocklen) +
-					ENVSECTORS (dev)) * blocklen;
-
-	erase_offset = (offset / blocklen) * blocklen;
-
-	/* Maximum area we may use */
-	erase_len = top_of_range - erase_offset;
-
-	blockstart = erase_offset;
-	/* Offset inside a block */
-	block_seek = offset - erase_offset;
-
 	/*
-	 * Data size we actually have to write: from the start of the block
-	 * to the start of the data, then count bytes of data, and to the
-	 * end of the block
+	 * For mtd devices only offset and size of the environment do matter
 	 */
-	write_total = ((block_seek + count + blocklen - 1) /
-						blocklen) * blocklen;
+	if (mtd_type == MTD_ABSENT) {
+		blocklen = count;
+		top_of_range = offset + count;
+		erase_len = blocklen;
+		blockstart = offset;
+		block_seek = 0;
+		write_total = blocklen;
+	} else {
+		blocklen = DEVESIZE(dev);
+
+		top_of_range = ((DEVOFFSET(dev) / blocklen) +
+					ENVSECTORS(dev)) * blocklen;
+
+		erase_offset = (offset / blocklen) * blocklen;
+
+		/* Maximum area we may use */
+		erase_len = top_of_range - erase_offset;
+
+		blockstart = erase_offset;
+		/* Offset inside a block */
+		block_seek = offset - erase_offset;
+
+		/*
+		 * Data size we actually write: from the start of the block
+		 * to the start of the data, then count bytes of data, and
+		 * to the end of the block
+		 */
+		write_total = ((block_seek + count + blocklen - 1) /
+							blocklen) * blocklen;
+	}
 
 	/*
 	 * Support data anywhere within erase sectors: read out the complete
@@ -818,17 +830,18 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 			continue;
 		}
 
-		erase.start = blockstart;
-		ioctl (fd, MEMUNLOCK, &erase);
-		/* These do not need an explicit erase cycle */
-		if (mtd_type != MTD_ABSENT &&
-		    mtd_type != MTD_DATAFLASH)
-			if (ioctl (fd, MEMERASE, &erase) != 0) {
-				fprintf (stderr, "MTD erase error on %s: %s\n",
-					 DEVNAME (dev),
-					 strerror (errno));
-				return -1;
-			}
+		if (mtd_type != MTD_ABSENT) {
+			erase.start = blockstart;
+			ioctl(fd, MEMUNLOCK, &erase);
+			/* These do not need an explicit erase cycle */
+			if (mtd_type != MTD_DATAFLASH)
+				if (ioctl(fd, MEMERASE, &erase) != 0) {
+					fprintf(stderr,
+						"MTD erase error on %s: %s\n",
+						DEVNAME(dev), strerror(errno));
+					return -1;
+				}
+		}
 
 		if (lseek (fd, blockstart, SEEK_SET) == -1) {
 			fprintf (stderr,
@@ -847,7 +860,8 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 			return -1;
 		}
 
-		ioctl (fd, MEMLOCK, &erase);
+		if (mtd_type != MTD_ABSENT)
+			ioctl(fd, MEMLOCK, &erase);
 
 		processed  += blocklen;
 		block_seek = 0;
@@ -1135,6 +1149,9 @@ int fw_env_open(void)
 			environment.flag_scheme = FLAG_BOOLEAN;
 		} else if (DEVTYPE(dev_current) == MTD_UBIVOLUME &&
 			   DEVTYPE(!dev_current) == MTD_UBIVOLUME) {
+			environment.flag_scheme = FLAG_INCREMENTAL;
+		} else if (DEVTYPE(dev_current) == MTD_ABSENT &&
+			   DEVTYPE(!dev_current) == MTD_ABSENT) {
 			environment.flag_scheme = FLAG_INCREMENTAL;
 		} else {
 			fprintf (stderr, "Incompatible flash types!\n");

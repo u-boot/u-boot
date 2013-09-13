@@ -216,6 +216,8 @@
 #define CONFIG_SPL_STACK		(0x00010000 + 0x7f00)
 
 #define CONFIG_SPL_TEXT_BASE		0x00000020 /*CONFIG_SYS_SRAM_START*/
+/* Provide at least 16MB spacing between us and the Linux Kernel image */
+#define CONFIG_SPL_PAD_TO		12320
 #define CONFIG_SPL_MAX_FOOTPRINT	12288
 
 #ifndef CONFIG_SPL_BUILD

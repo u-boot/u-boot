@@ -368,7 +368,7 @@ static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 
 	const char *type_name = genimg_get_type_name(os.type);
 
-	load_buf = map_sysmem(load, image_len);
+	load_buf = map_sysmem(load, unc_len);
 	image_buf = map_sysmem(image_start, image_len);
 	switch (comp) {
 	case IH_COMP_NONE:
@@ -436,11 +436,12 @@ static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 	}
 #endif /* CONFIG_LZMA */
 #ifdef CONFIG_LZO
-	case IH_COMP_LZO:
+	case IH_COMP_LZO: {
+		size_t size;
+
 		printf("   Uncompressing %s ... ", type_name);
 
-		ret = lzop_decompress(image_buf, image_len, load_buf,
-				      &unc_len);
+		ret = lzop_decompress(image_buf, image_len, load_buf, &size);
 		if (ret != LZO_E_OK) {
 			printf("LZO: uncompress or overwrite error %d "
 			      "- must RESET board to recover\n", ret);
@@ -449,8 +450,9 @@ static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 			return BOOTM_ERR_RESET;
 		}
 
-		*load_end = load + unc_len;
+		*load_end = load + size;
 		break;
+	}
 #endif /* CONFIG_LZO */
 	default:
 		printf("Unimplemented compression type %d\n", comp);

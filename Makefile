@@ -398,6 +398,7 @@ ALL-y += $(obj)u-boot.srec $(obj)u-boot.bin $(obj)System.map
 ALL-$(CONFIG_NAND_U_BOOT) += $(obj)u-boot-nand.bin
 ALL-$(CONFIG_ONENAND_U_BOOT) += $(obj)u-boot-onenand.bin
 ALL-$(CONFIG_SPL) += $(obj)spl/u-boot-spl.bin
+ALL-$(CONFIG_SPL_FRAMEWORK) += $(obj)u-boot.img
 ALL-$(CONFIG_TPL) += $(obj)tpl/u-boot-tpl.bin
 ALL-$(CONFIG_OF_SEPARATE) += $(obj)u-boot.dtb $(obj)u-boot-dtb.bin
 ifneq ($(CONFIG_SPL_TARGET),)
@@ -837,7 +838,7 @@ unconfig:
 
 sinclude $(obj).boards.depend
 $(obj).boards.depend:	boards.cfg
-	@awk '(NF && $$1 !~ /^#/) { print $$1 ": " $$1 "_config; $$(MAKE)" }' $< > $@
+	@awk '(NF && $$1 !~ /^#/) { print $$7 ": " $$7 "_config; $$(MAKE) -d" }' $< > $@
 
 #
 # Functions to generate common board directory names
@@ -866,7 +867,7 @@ clean:
 	       $(obj)tools/gdb/{astest,gdbcont,gdbsend}			  \
 	       $(obj)tools/gen_eth_addr    $(obj)tools/img2srec		  \
 	       $(obj)tools/mk{env,}image   $(obj)tools/mpc86x_clk	  \
-	       $(obj)tools/mk{smdk5250,}spl				  \
+	       $(obj)tools/mk{$(BOARD),}spl				  \
 	       $(obj)tools/mxsboot					  \
 	       $(obj)tools/ncb		   $(obj)tools/ubsha1		  \
 	       $(obj)tools/kernel-doc/docproc				  \
