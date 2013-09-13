@@ -49,6 +49,10 @@
 #undef CONFIG_BOOTDELAY
 #undef CONFIG_SYS_MALLOC_LEN
 #undef CONFIG_ENV_SIZE
+#undef CONFIG_CMDLINE_EDITING
+#undef CONFIG_AUTO_COMPLETE
+#undef CONFIG_ZLIB
+#undef CONFIG_GZIP
 
 /* Define needed configs */
 #define CONFIG_CMD_MEMORY
