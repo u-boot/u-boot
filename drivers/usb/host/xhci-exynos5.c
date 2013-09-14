@@ -22,6 +22,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/power.h>
 #include <asm/arch/xhci-exynos.h>
+#include <asm/gpio.h>
 #include <asm-generic/errno.h>
 #include <linux/compat.h>
 #include <linux/usb/dwc3.h>
@@ -39,6 +40,7 @@ struct exynos_xhci {
 	struct exynos_usb3_phy *usb3_phy;
 	struct xhci_hccr *hcd;
 	struct dwc3 *dwc3_reg;
+	struct fdt_gpio_state vbus_gpio;
 };
 
 static struct exynos_xhci exynos;
@@ -65,6 +67,9 @@ static int exynos_usb3_parse_dt(const void *blob, struct exynos_xhci *exynos)
 		return -ENXIO;
 	}
 	exynos->hcd = (struct xhci_hccr *)addr;
+
+	/* Vbus gpio */
+	fdtdec_decode_gpio(blob, node, "samsung,vbus-gpio", &exynos->vbus_gpio);
 
 	depth = 0;
 	node = fdtdec_next_compatible_subnode(blob, node,
@@ -290,6 +295,12 @@ int xhci_hcd_init(int index, struct xhci_hccr **hccr, struct xhci_hcor **hcor)
 #endif
 
 	ctx->dwc3_reg = (struct dwc3 *)((char *)(ctx->hcd) + DWC3_REG_OFFSET);
+
+#ifdef CONFIG_OF_CONTROL
+	/* setup the Vbus gpio here */
+	if (!fdtdec_setup_gpio(&ctx->vbus_gpio))
+		gpio_direction_output(ctx->vbus_gpio.gpio, 1);
+#endif
 
 	ret = exynos_xhci_core_init(ctx);
 	if (ret) {
