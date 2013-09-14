@@ -63,6 +63,25 @@
 #define USB_DIR_OUT           0
 #define USB_DIR_IN            0x80
 
+/*
+ * bmRequestType: USB Device Requests, table 9.2 USB 2.0 spec.
+ * (shifted) direction/type/recipient.
+ */
+#define DeviceRequest \
+	((USB_DIR_IN | USB_TYPE_STANDARD | USB_RECIP_DEVICE) << 8)
+
+#define DeviceOutRequest \
+	((USB_DIR_OUT | USB_TYPE_STANDARD | USB_RECIP_DEVICE) << 8)
+
+#define InterfaceRequest \
+	((USB_DIR_IN | USB_TYPE_STANDARD | USB_RECIP_INTERFACE) << 8)
+
+#define EndpointRequest \
+	((USB_DIR_IN | USB_TYPE_STANDARD | USB_RECIP_INTERFACE) << 8)
+
+#define EndpointOutRequest \
+	((USB_DIR_OUT | USB_TYPE_STANDARD | USB_RECIP_INTERFACE) << 8)
+
 /* Descriptor types */
 #define USB_DT_DEVICE        0x01
 #define USB_DT_CONFIG        0x02

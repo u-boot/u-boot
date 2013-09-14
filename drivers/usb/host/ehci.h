@@ -28,22 +28,6 @@
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	2
 #endif
 
-/* (shifted) direction/type/recipient from the USB 2.0 spec, table 9.2 */
-#define DeviceRequest \
-	((USB_DIR_IN | USB_TYPE_STANDARD | USB_RECIP_DEVICE) << 8)
-
-#define DeviceOutRequest \
-	((USB_DIR_OUT | USB_TYPE_STANDARD | USB_RECIP_DEVICE) << 8)
-
-#define InterfaceRequest \
-	((USB_DIR_IN | USB_TYPE_STANDARD | USB_RECIP_INTERFACE) << 8)
-
-#define EndpointRequest \
-	((USB_DIR_IN | USB_TYPE_STANDARD | USB_RECIP_INTERFACE) << 8)
-
-#define EndpointOutRequest \
-	((USB_DIR_OUT | USB_TYPE_STANDARD | USB_RECIP_INTERFACE) << 8)
-
 /*
  * Register Space.
  */
