@@ -847,6 +847,11 @@ void set_hw_thermal_trip(void);
 #define POWER_USB_HOST_PHY_CTRL_EN		(1 << 0)
 #define POWER_USB_HOST_PHY_CTRL_DISABLE		(0 << 0)
 
+void set_usbdrd_phy_ctrl(unsigned int enable);
+
+#define POWER_USB_DRD_PHY_CTRL_EN		(1 << 0)
+#define POWER_USB_DRD_PHY_CTRL_DISABLE		(0 << 0)
+
 void set_dp_phy_ctrl(unsigned int enable);
 
 #define EXYNOS_DP_PHY_ENABLE		(1 << 0)
