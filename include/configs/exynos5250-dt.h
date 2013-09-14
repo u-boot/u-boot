@@ -37,6 +37,8 @@
 /* Keep L2 Cache Disabled */
 #define CONFIG_SYS_DCACHE_OFF
 
+#define CONFIG_SYS_CACHELINE_SIZE	64
+
 /* Enable ACE acceleration for SHA1 and SHA256 */
 #define CONFIG_EXYNOS_ACE_SHA
 #define CONFIG_SHA_HW_ACCEL
