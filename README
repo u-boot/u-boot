@@ -153,9 +153,6 @@ Directory Hierarchy:
   /blackfin		Files generic to Analog Devices Blackfin architecture
     /cpu		CPU specific files
     /lib		Architecture specific library files
-  /x86			Files generic to x86 architecture
-    /cpu		CPU specific files
-    /lib		Architecture specific library files
   /m68k			Files generic to m68k architecture
     /cpu		CPU specific files
       /mcf52x2		Files specific to Freescale ColdFire MCF52x2 CPUs
@@ -177,6 +174,9 @@ Directory Hierarchy:
       /n1213		Files specific to Andes Technology N1213 CPUs
     /lib		Architecture specific library files
   /nios2		Files generic to Altera NIOS2 architecture
+    /cpu		CPU specific files
+    /lib		Architecture specific library files
+  /openrisc		Files generic to OpenRISC architecture
     /cpu		CPU specific files
     /lib		Architecture specific library files
   /powerpc		Files generic to PowerPC architecture
@@ -201,12 +201,16 @@ Directory Hierarchy:
       /leon2		Files specific to Gaisler LEON2 SPARC CPU
       /leon3		Files specific to Gaisler LEON3 SPARC CPU
     /lib		Architecture specific library files
+  /x86			Files generic to x86 architecture
+    /cpu		CPU specific files
+    /lib		Architecture specific library files
 /api			Machine/arch independent API for external apps
 /board			Board dependent files
 /common			Misc architecture independent functions
 /disk			Code for disk drive partition handling
 /doc			Documentation (don't expect too much)
 /drivers		Commonly used device drivers
+/dts			Contains Makefile for building internal U-Boot fdt.
 /examples		Example code for standalone applications, etc.
 /fs			Filesystem code (cramfs, ext2, jffs2, etc.)
 /include		Header Files
@@ -216,7 +220,7 @@ Directory Hierarchy:
   /lzo			Library files to support LZO decompression
 /net			Networking code
 /post			Power On Self Test
-/rtc			Real Time Clock drivers
+/spl			Secondary Program Loader framework
 /tools			Tools to build S-Record or U-Boot images, etc.
 
 Software Configuration:
