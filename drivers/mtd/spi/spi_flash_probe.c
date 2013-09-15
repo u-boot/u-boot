@@ -325,7 +325,8 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 #endif
 #ifndef CONFIG_SPL_BUILD
 	printf("SF: Detected %s with page size ", flash->name);
-	print_size(flash->page_size, ", total ");
+	print_size(flash->page_size, ", erase size ");
+	print_size(flash->erase_size, ", total ");
 	print_size(flash->size, "");
 	if (flash->memory_map)
 		printf(", mapped at %p", flash->memory_map);
