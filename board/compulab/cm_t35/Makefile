@@ -11,8 +11,6 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).o
 
-COBJS-$(CONFIG_LCD) += display.o
-
 COBJS	:= cm_t35.o leds.o $(COBJS-y)
 
 SRCS	:= $(COBJS:.o=.c)

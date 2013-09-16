@@ -15,6 +15,7 @@ endif
 LIB	= $(obj)lib$(VENDOR).o
 
 COBJS-$(CONFIG_DRIVER_OMAP34XX_I2C) += eeprom.o
+COBJS-$(CONFIG_LCD) += omap3_display.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
