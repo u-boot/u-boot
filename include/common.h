@@ -383,7 +383,7 @@ int setenv_hex(const char *varname, ulong value);
 /**
  * setenv_addr - Set an environment variable to an address in hex
  *
- * @varname:	Environmet variable to set
+ * @varname:	Environment variable to set
  * @addr:	Value to set it to
  * @return 0 if ok, 1 on error
  */

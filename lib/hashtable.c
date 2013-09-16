@@ -817,7 +817,7 @@ int himport_r(struct hsearch_data *htab,
 	 * size of 8 per entry (= safety factor of ~5) should provide enough
 	 * safety margin for any existing environment definitions and still
 	 * allow for more than enough dynamic additions. Note that the
-	 * "size" argument is supposed to give the maximum enviroment size
+	 * "size" argument is supposed to give the maximum environment size
 	 * (CONFIG_ENV_SIZE).  This heuristics will result in
 	 * unreasonably large numbers (and thus memory footprint) for
 	 * big flash environments (>8,000 entries for 64 KB

@@ -3364,7 +3364,7 @@ Configuration Settings:
 		the Linux kernel; all data that must be processed by
 		the Linux kernel (bd_info, boot arguments, FDT blob if
 		used) must be put below this limit, unless "bootm_low"
-		enviroment variable is defined and non-zero. In such case
+		environment variable is defined and non-zero. In such case
 		all data for the Linux kernel must be between "bootm_low"
 		and "bootm_low" + CONFIG_SYS_BOOTMAPSZ.	 The environment
 		variable "bootm_mapsize" will override the value of
@@ -3477,7 +3477,7 @@ Configuration Settings:
 
 - CONFIG_ENV_FLAGS_LIST_DEFAULT
 - CONFIG_ENV_FLAGS_LIST_STATIC
-	Enable validation of the values given to enviroment variables when
+	Enable validation of the values given to environment variables when
 	calling env set.  Variables can be restricted to only decimal,
 	hexadecimal, or boolean.  If CONFIG_CMD_NET is also defined,
 	the variables can also be restricted to IP address or MAC address.

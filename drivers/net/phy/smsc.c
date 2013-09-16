@@ -7,7 +7,7 @@
  *   Copyright 2010-2011 Freescale Semiconductor, Inc.
  *   author Andy Fleming
  *
- * Some code get from linux kenrel
+ * Some code copied from linux kernel
  * Copyright (c) 2006 Herbert Valerio Riedel <hvr@gnu.org>
  */
 #include <miiphy.h>

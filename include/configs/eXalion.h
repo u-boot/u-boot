@@ -119,7 +119,7 @@
 
 #define CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_SECT_SIZE	0x20000 /* Size of one Flash sector */
-#define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE	/* Use one Flash sector for enviroment	*/
+#define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE	/* Use one Flash sector for environment	*/
 #define CONFIG_ENV_ADDR		0xFFFC0000
 #define CONFIG_ENV_OFFSET		0	/* starting right at the beginning  */
 

@@ -302,7 +302,7 @@ int arch_cpu_init(void)
 	/*
 	 * Configures the I/O voltage of the pads connected to Egigabit
 	 * Ethernet interface to 1.8V
-	 * By defult it is set to 3.3V
+	 * By default it is set to 3.3V
 	 */
 	reg = readl(KW_REG_MPP_OUT_DRV_REG);
 	reg |= (1 << 7);

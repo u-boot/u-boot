@@ -28,7 +28,7 @@
  * by u-Boot commands.
  *
  * Note: Redundant environment will not work in this flash since
- * it does use partial page writes. Make sure the environent spans
+ * it does use partial page writes. Make sure the environment spans
  * whole pages!
  */
 

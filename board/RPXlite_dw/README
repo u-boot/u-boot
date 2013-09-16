@@ -87,9 +87,9 @@ u-boot>
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A word on the U-Boot enviroment variable setting and usage :
+A word on the U-Boot environment variable setting and usage :
 
-In the beginning, you could just need very simple defult environment variable setting,
+In the beginning, you could just need very simple default environment variable setting,
 like[include/configs/RPXlite.h] :
 
 #define CONFIG_BOOTCOMMAND                                                      \

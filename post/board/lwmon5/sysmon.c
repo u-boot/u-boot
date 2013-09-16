@@ -22,7 +22,7 @@
  *
  * LCD backlight is not enabled if temperature values are not within
  * allowed ranges (-30 .. + 80). The brightness of backlite can be
- * controlled by setting "brightness" enviroment variable. Default value is 50%
+ * controlled by setting "brightness" environment variable. Default value is 50%
  *
  * See the list of all parameters in the sysmon_table below
  */

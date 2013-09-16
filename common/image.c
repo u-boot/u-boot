@@ -965,7 +965,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
  * @initrd_end: pointer to a ulong variable, will hold final init ramdisk
  *      end address (after possible relocation)
  *
- * boot_ramdisk_high() takes a relocation hint from "initrd_high" environement
+ * boot_ramdisk_high() takes a relocation hint from "initrd_high" environment
  * variable and if requested ramdisk data is moved to a specified location.
  *
  * Initrd_start and initrd_end are set to final (after relocation) ramdisk
