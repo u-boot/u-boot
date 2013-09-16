@@ -247,7 +247,10 @@
 /* FIXME: hack for zynq */
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_ECHO
-#define CONFIG_CMD_GPIO
+
+#ifdef XILINX_GPIO_BASEADDR
+# define CONFIG_CMD_GPIO
+#endif
 
 #undef CONFIG_CMD_NFS
 #undef CONFIG_CMD_JFFS2
