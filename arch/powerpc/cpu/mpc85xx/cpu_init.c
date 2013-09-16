@@ -19,6 +19,7 @@
 #include <asm/io.h>
 #include <asm/cache.h>
 #include <asm/mmu.h>
+#include <asm/fsl_errata.h>
 #include <asm/fsl_law.h>
 #include <asm/fsl_serdes.h>
 #include <asm/fsl_srio.h>
@@ -159,6 +160,12 @@ static void enable_cpc(void)
 #endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_A006593
 		setbits_be32(&cpc->cpchdbcr0, 1 << (31 - 21));
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A006379
+		if (has_erratum_a006379()) {
+			setbits_be32(&cpc->cpchdbcr0,
+				     CPC_HDBCR0_SPLRU_LEVEL_EN);
+		}
 #endif
 
 		out_be32(&cpc->cpccsr0, CPC_CSR0_CE | CPC_CSR0_PE);
