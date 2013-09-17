@@ -152,8 +152,10 @@ static const char *spi_flash_update_block(struct spi_flash *flash, u32 offset,
 {
 	debug("offset=%#x, sector_size=%#x, len=%#zx\n",
 	      offset, flash->sector_size, len);
-	if (spi_flash_read(flash, offset, len, cmp_buf))
+	/* Read the entire sector so to allow for rewriting */
+	if (spi_flash_read(flash, offset, flash->sector_size, cmp_buf))
 		return "read";
+	/* Compare only what is meaningful (len) */
 	if (memcmp(cmp_buf, buf, len) == 0) {
 		debug("Skip region %x size %zx: no change\n",
 		      offset, len);
@@ -163,8 +165,17 @@ static const char *spi_flash_update_block(struct spi_flash *flash, u32 offset,
 	/* Erase the entire sector */
 	if (spi_flash_erase(flash, offset, flash->sector_size))
 		return "erase";
+	/* Write the initial part of the block from the source */
 	if (spi_flash_write(flash, offset, len, buf))
 		return "write";
+	/* If it's a partial sector, rewrite the existing part */
+	if (len != flash->sector_size) {
+		/* Rewrite the original data to the end of the sector */
+		if (spi_flash_write(flash, offset + len,
+				    flash->sector_size - len, &cmp_buf[len]))
+			return "write";
+	}
+
 	return NULL;
 }
 
