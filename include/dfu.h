@@ -29,6 +29,11 @@ enum dfu_layout {
 	DFU_FS_EXT4,
 };
 
+enum dfu_op {
+	DFU_OP_READ = 1,
+	DFU_OP_WRITE,
+};
+
 struct mmc_internal_data {
 	/* RAW programming */
 	unsigned int lba_start;

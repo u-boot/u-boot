@@ -13,16 +13,11 @@
 #include <div64.h>
 #include <dfu.h>
 
-enum dfu_mmc_op {
-	DFU_OP_READ = 1,
-	DFU_OP_WRITE,
-};
-
 static unsigned char __aligned(CONFIG_SYS_CACHELINE_SIZE)
 				dfu_file_buf[CONFIG_SYS_DFU_MAX_FILE_SIZE];
 static long dfu_file_buf_len;
 
-static int mmc_block_op(enum dfu_mmc_op op, struct dfu_entity *dfu,
+static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
 			u64 offset, void *buf, long *len)
 {
 	char cmd_buf[DFU_CMD_BUF_SIZE];
@@ -65,7 +60,7 @@ static int mmc_file_buffer(struct dfu_entity *dfu, void *buf, long *len)
 	return 0;
 }
 
-static int mmc_file_op(enum dfu_mmc_op op, struct dfu_entity *dfu,
+static int mmc_file_op(enum dfu_op op, struct dfu_entity *dfu,
 			void *buf, long *len)
 {
 	char cmd_buf[DFU_CMD_BUF_SIZE];
