@@ -19,6 +19,7 @@ enum dfu_device_type {
 	DFU_DEV_MMC = 1,
 	DFU_DEV_ONENAND,
 	DFU_DEV_NAND,
+	DFU_DEV_RAM,
 };
 
 enum dfu_layout {
@@ -27,6 +28,7 @@ enum dfu_layout {
 	DFU_FS_EXT2,
 	DFU_FS_EXT3,
 	DFU_FS_EXT4,
+	DFU_RAM_ADDR,
 };
 
 enum dfu_op {
@@ -56,6 +58,11 @@ struct nand_internal_data {
 	unsigned int ubi;
 };
 
+struct ram_internal_data {
+	void		*start;
+	unsigned int	size;
+};
+
 static inline unsigned int get_mmc_blk_size(int dev)
 {
 	return find_mmc_device(dev)->read_bl_len;
@@ -81,6 +88,7 @@ struct dfu_entity {
 	union {
 		struct mmc_internal_data mmc;
 		struct nand_internal_data nand;
+		struct ram_internal_data ram;
 	} data;
 
 	int (*read_medium)(struct dfu_entity *dfu,
@@ -139,6 +147,16 @@ extern int dfu_fill_entity_nand(struct dfu_entity *dfu, char *s);
 static inline int dfu_fill_entity_nand(struct dfu_entity *dfu, char *s)
 {
 	puts("NAND support not available!\n");
+	return -1;
+}
+#endif
+
+#ifdef CONFIG_DFU_RAM
+extern int dfu_fill_entity_ram(struct dfu_entity *dfu, char *s);
+#else
+static inline int dfu_fill_entity_ram(struct dfu_entity *dfu, char *s)
+{
+	puts("RAM support not available!\n");
 	return -1;
 }
 #endif

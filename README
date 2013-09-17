@@ -1409,6 +1409,12 @@ The following options need to be configured:
 		CONFIG_DFU_NAND
 		This enables support for exposing NAND devices via DFU.
 
+		CONFIG_DFU_RAM
+		This enables support for exposing RAM via DFU.
+		Note: DFU spec refer to non-volatile memory usage, but
+		allow usages beyond the scope of spec - here RAM usage,
+		one that would help mostly the developer.
+
 		CONFIG_SYS_DFU_DATA_BUF_SIZE
 		Dfu transfer uses a buffer before writing data to the
 		raw storage device. Make the size (in bytes) of this buffer

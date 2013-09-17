@@ -348,6 +348,9 @@ static int dfu_fill_entity(struct dfu_entity *dfu, char *s, int alt,
 	} else if (strcmp(interface, "nand") == 0) {
 		if (dfu_fill_entity_nand(dfu, s))
 			return -1;
+	} else if (strcmp(interface, "ram") == 0) {
+		if (dfu_fill_entity_ram(dfu, s))
+			return -1;
 	} else {
 		printf("%s: Device %s not (yet) supported!\n",
 		       __func__,  interface);
@@ -397,14 +400,14 @@ int dfu_config_entities(char *env, char *interface, int num)
 
 const char *dfu_get_dev_type(enum dfu_device_type t)
 {
-	const char *dev_t[] = {NULL, "eMMC", "OneNAND", "NAND" };
+	const char *dev_t[] = {NULL, "eMMC", "OneNAND", "NAND", "RAM" };
 	return dev_t[t];
 }
 
 const char *dfu_get_layout(enum dfu_layout l)
 {
 	const char *dfu_layout[] = {NULL, "RAW_ADDR", "FAT", "EXT2",
-					   "EXT3", "EXT4" };
+					   "EXT3", "EXT4", "RAM_ADDR" };
 	return dfu_layout[l];
 }
 
