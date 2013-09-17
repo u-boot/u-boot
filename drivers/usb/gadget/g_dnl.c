@@ -15,7 +15,7 @@
 
 #include <g_dnl.h>
 #include <usb_mass_storage.h>
-#include "f_dfu.h"
+#include <dfu.h>
 
 #include "gadget_chips.h"
 #include "composite.c"

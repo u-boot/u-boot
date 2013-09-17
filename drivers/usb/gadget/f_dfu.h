@@ -82,7 +82,4 @@ struct dfu_function_descriptor {
 	__le16				wTransferSize;
 	__le16				bcdDFUVersion;
 } __packed;
-
-/* configuration-specific linkup */
-int dfu_add(struct usb_configuration *c);
 #endif /* __F_DFU_H_ */

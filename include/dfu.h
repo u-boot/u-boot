@@ -14,6 +14,7 @@
 #include <common.h>
 #include <linux/list.h>
 #include <mmc.h>
+#include <linux/usb/composite.h>
 
 enum dfu_device_type {
 	DFU_DEV_MMC = 1,
@@ -161,4 +162,12 @@ static inline int dfu_fill_entity_ram(struct dfu_entity *dfu, char *s)
 }
 #endif
 
+#ifdef CONFIG_DFU_FUNCTION
+int dfu_add(struct usb_configuration *c);
+#else
+int dfu_add(struct usb_configuration *c)
+{
+	return 0;
+}
+#endif
 #endif /* __DFU_ENTITY_H_ */
