@@ -9,10 +9,7 @@
  */
 
 #include <common.h>
-#include <command.h>
-#include <malloc.h>
 #include <dfu.h>
-#include <asm/errno.h>
 #include <g_dnl.h>
 
 static int do_dfu(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
