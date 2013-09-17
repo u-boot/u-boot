@@ -15,11 +15,11 @@
 #include <part.h>
 
 #include <g_dnl.h>
+#include <usb_mass_storage.h>
 #include "f_dfu.h"
 
 #include "gadget_chips.h"
 #include "composite.c"
-#include "f_mass_storage.c"
 
 /*
  * One needs to define the following:
