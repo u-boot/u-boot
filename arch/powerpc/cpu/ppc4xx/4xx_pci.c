@@ -1,5 +1,5 @@
 /*
- * SPDX-License-Identifier:	GPL-2.0	ibm-pibs
+ * SPDX-License-Identifier:	GPL-2.0	IBM-pibs
  *
  *  File Name:   405gp_pci.c
  *

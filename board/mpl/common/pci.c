@@ -1,5 +1,5 @@
 /*
- * SPDX-License-Identifier:	GPL-2.0	ibm-pibs
+ * SPDX-License-Identifier:	GPL-2.0	IBM-pibs
  */
 /*
  * Adapted for PIP405 03.07.01

@@ -6,7 +6,7 @@
  *  Copyright (c) 2008 Nuovation System Designs, LLC
  *    Grant Erickson <gerickson@nuovations.com>
  *
- * SPDX-License-Identifier:	GPL-2.0	ibm-pibs
+ * SPDX-License-Identifier:	GPL-2.0	IBM-pibs
  */
 
 /*

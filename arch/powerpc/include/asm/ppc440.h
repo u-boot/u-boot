@@ -9,7 +9,7 @@
  * (C) Copyright 2010
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
- * SPDX-License-Identifier:	GPL-2.0	ibm-pibs
+ * SPDX-License-Identifier:	GPL-2.0	IBM-pibs
  */
 
 #ifndef __PPC440_H__

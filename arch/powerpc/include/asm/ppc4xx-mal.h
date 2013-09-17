@@ -1,6 +1,6 @@
 /* include/mal.h, openbios_walnut, walnut_bios 8/6/99 08:48:40 */
 /*
- * SPDX-License-Identifier:	GPL-2.0	ibm-pibs
+ * SPDX-License-Identifier:	GPL-2.0	IBM-pibs
  */
 /*----------------------------------------------------------------------------+
 |
