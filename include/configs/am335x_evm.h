@@ -100,6 +100,7 @@
 	"loadbootenv=load mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
 	"importbootenv=echo Importing environment from mmc ...; " \
 		"env import -t $loadaddr $filesize\0" \
+	"dfu_alt_info_ram=" DFU_ALT_INFO_RAM "\0" \
 	"ramargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"root=${ramroot} " \
@@ -321,6 +322,11 @@
 	"kernel part 0 8;" \
 	"rootfs part 0 9"
 #endif
+#define CONFIG_DFU_RAM
+#define DFU_ALT_INFO_RAM \
+	"kernel ram 0x80200000 0xD80000;" \
+	"fdt ram 0x80F80000 0x80000;" \
+	"ramdisk ram 0x81000000 0x4000000"
 
 /*
  * Default to using SPI for environment, etc.
