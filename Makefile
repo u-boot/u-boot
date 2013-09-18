@@ -838,7 +838,7 @@ unconfig:
 
 sinclude $(obj).boards.depend
 $(obj).boards.depend:	boards.cfg
-	@awk '(NF && $$1 !~ /^#/) { print $$7 ": " $$7 "_config; $$(MAKE) -d" }' $< > $@
+	@awk '(NF && $$1 !~ /^#/) { print $$7 ": " $$7 "_config; $$(MAKE)" }' $< > $@
 
 #
 # Functions to generate common board directory names
