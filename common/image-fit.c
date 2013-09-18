@@ -58,7 +58,7 @@ static int fit_parse_spec(const char *spec, char sepc, ulong addr_curr,
  * @conf_name double pointer to a char, will hold pointer to a configuration
  * unit name
  *
- * fit_parse_conf() expects configuration spec in the for of [<addr>]#<conf>,
+ * fit_parse_conf() expects configuration spec in the form of [<addr>]#<conf>,
  * where <addr> is a FIT image address that contains configuration
  * with a <conf> unit name.
  *
@@ -84,7 +84,7 @@ int fit_parse_conf(const char *spec, ulong addr_curr,
  * subimage
  * @image_name: double pointer to a char, will hold pointer to a subimage name
  *
- * fit_parse_subimage() expects subimage spec in the for of
+ * fit_parse_subimage() expects subimage spec in the form of
  * [<addr>]:<subimage>, where <addr> is a FIT image address that contains
  * subimage with a <subimg> unit name.
  *
