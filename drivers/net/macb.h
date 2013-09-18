@@ -58,6 +58,9 @@
 #define MACB_WOL				0x00c4
 #define MACB_MID				0x00fc
 
+/* GEM specific register offsets */
+#define GEM_DCFG1				0x0280
+
 /* Bitfields in NCR */
 #define MACB_LB_OFFSET				0
 #define MACB_LB_SIZE				1
@@ -242,6 +245,14 @@
 #define MACB_IDNUM_SIZE				16
 
 /* Bitfields in DCFG1 */
+#define GEM_DBWDEF_OFFSET			25
+#define GEM_DBWDEF_SIZE				3
+
+/* constants for data bus width */
+#define GEM_DBW32				0
+#define GEM_DBW64				1
+#define GEM_DBW128				2
+
 /* Constants for CLK */
 #define MACB_CLK_DIV8				0
 #define MACB_CLK_DIV16				1
