@@ -22,6 +22,10 @@
 #include <asm/bootm.h>
 #include <linux/compiler.h>
 
+#ifdef CONFIG_ARMV7_NONSEC
+#include <asm/armv7.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 static struct tag *params;
@@ -181,6 +185,14 @@ static void setup_end_tag(bd_t *bd)
 
 __weak void setup_board_tags(struct tag **in_params) {}
 
+static void do_nonsec_virt_switch(void)
+{
+#if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV7_VIRT)
+	if (armv7_switch_nonsec() == 0)
+		debug("entered non-secure state\n");
+#endif
+}
+
 /* Subcommand: PREP */
 static void boot_prep_linux(bootm_headers_t *images)
 {
@@ -217,6 +229,7 @@ static void boot_prep_linux(bootm_headers_t *images)
 		printf("FDT and ATAGS support not compiled in - hanging\n");
 		hang();
 	}
+	do_nonsec_virt_switch();
 }
 
 /* Subcommand: GO */
