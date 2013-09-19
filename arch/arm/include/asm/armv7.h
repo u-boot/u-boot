@@ -76,14 +76,16 @@ void v7_outer_cache_inval_all(void);
 void v7_outer_cache_flush_range(u32 start, u32 end);
 void v7_outer_cache_inval_range(u32 start, u32 end);
 
-#ifdef CONFIG_ARMV7_NONSEC
+#if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV7_VIRT)
 
 int armv7_switch_nonsec(void);
+int armv7_switch_hyp(void);
 
 /* defined in assembly file */
 unsigned int _nonsec_init(void);
 void _smp_pen(void);
-#endif /* CONFIG_ARMV7_NONSEC */
+void _switch_to_hyp(void);
+#endif /* CONFIG_ARMV7_NONSEC || CONFIG_ARMV7_VIRT */
 
 #endif /* ! __ASSEMBLY__ */
 

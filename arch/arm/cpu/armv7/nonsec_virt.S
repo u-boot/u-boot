@@ -1,5 +1,5 @@
 /*
- * code for switching cores into non-secure state
+ * code for switching cores into non-secure state and into HYP mode
  *
  * Copyright (c) 2013	Andre Przywara <andre.przywara@linaro.org>
  *
@@ -28,15 +28,16 @@
 #include <asm/armv7.h>
 
 .arch_extension sec
+.arch_extension virt
 
-/* the vector table for secure state */
+/* the vector table for secure state and HYP mode */
 _monitor_vectors:
 	.word 0	/* reset */
 	.word 0 /* undef */
 	adr pc, _secure_monitor
 	.word 0
 	.word 0
-	.word 0
+	adr pc, _hyp_trap
 	.word 0
 	.word 0
 
@@ -53,9 +54,26 @@ _secure_monitor:
 	bic	r1, r1, #0x4e			@ clear IRQ, FIQ, EA, nET bits
 	orr	r1, r1, #0x31			@ enable NS, AW, FW bits
 
+#ifdef CONFIG_ARMV7_VIRT
+	mrc	p15, 0, r0, c0, c1, 1		@ read ID_PFR1
+	and	r0, r0, #CPUID_ARM_VIRT_MASK	@ mask virtualization bits
+	cmp	r0, #(1 << CPUID_ARM_VIRT_SHIFT)
+	orreq	r1, r1, #0x100			@ allow HVC instruction
+#endif
+
 	mcr	p15, 0, r1, c1, c1, 0		@ write SCR (with NS bit set)
 
+#ifdef CONFIG_ARMV7_VIRT
+	mrceq	p15, 0, r0, c12, c0, 1		@ get MVBAR value
+	mcreq	p15, 4, r0, c12, c0, 0		@ write HVBAR
+#endif
+
 	movs	pc, lr				@ return to non-secure SVC
+
+_hyp_trap:
+	mrs	lr, elr_hyp	@ for older asm: .byte 0x00, 0xe3, 0x0e, 0xe1
+	mov pc, lr				@ do no switch modes, but
+						@ return to caller
 
 /*
  * Secondary CPUs start here and call the code for the core specific parts
@@ -71,9 +89,13 @@ ENTRY(_smp_pen)
 	mcr	p15, 0, r1, c12, c0, 0		@ set VBAR
 
 	bl	_nonsec_init
+	mov	r12, r0				@ save GICC address
+#ifdef CONFIG_ARMV7_VIRT
+	bl	_switch_to_hyp
+#endif
 
-	ldr	r1, [r0, #GICC_IAR]		@ acknowledge IPI
-	str	r1, [r0, #GICC_EOIR]		@ signal end of interrupt
+	ldr	r1, [r12, #GICC_IAR]		@ acknowledge IPI
+	str	r1, [r12, #GICC_EOIR]		@ signal end of interrupt
 
 	adr	r0, _smp_pen			@ do not use this address again
 	b	smp_waitloop			@ wait for IPIs, board specific
@@ -173,3 +195,14 @@ ENTRY(smp_waitloop)
 ENDPROC(smp_waitloop)
 .weak smp_waitloop
 #endif
+
+ENTRY(_switch_to_hyp)
+	mov	r0, lr
+	mov	r1, sp				@ save SVC copy of LR and SP
+	isb
+	hvc #0			 @ for older asm: .byte 0x70, 0x00, 0x40, 0xe1
+	mov	sp, r1
+	mov	lr, r0				@ restore SVC copy of LR and SP
+
+	bx	lr
+ENDPROC(_switch_to_hyp)
