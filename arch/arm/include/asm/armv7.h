@@ -7,7 +7,6 @@
  */
 #ifndef ARMV7_H
 #define ARMV7_H
-#include <linux/types.h>
 
 /* Cortex-A9 revisions */
 #define MIDR_CORTEX_A9_R0P1	0x410FC091
@@ -41,6 +40,9 @@
 #define ARMV7_CLIDR_CTYPE_INSTRUCTION_DATA	3
 #define ARMV7_CLIDR_CTYPE_UNIFIED		4
 
+#ifndef __ASSEMBLY__
+#include <linux/types.h>
+
 /*
  * CP15 Barrier instructions
  * Please note that we have separate barrier instructions in ARMv7
@@ -57,5 +59,7 @@ void v7_outer_cache_flush_all(void);
 void v7_outer_cache_inval_all(void);
 void v7_outer_cache_flush_range(u32 start, u32 end);
 void v7_outer_cache_inval_range(u32 start, u32 end);
+
+#endif /* ! __ASSEMBLY__ */
 
 #endif
