@@ -77,6 +77,9 @@ void v7_outer_cache_flush_range(u32 start, u32 end);
 void v7_outer_cache_inval_range(u32 start, u32 end);
 
 #ifdef CONFIG_ARMV7_NONSEC
+
+int armv7_switch_nonsec(void);
+
 /* defined in assembly file */
 unsigned int _nonsec_init(void);
 #endif /* CONFIG_ARMV7_NONSEC */
