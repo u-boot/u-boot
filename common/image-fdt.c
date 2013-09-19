@@ -55,7 +55,7 @@ static const image_header_t *image_get_fdt(ulong fdt_addr)
 		fdt_error("uImage is compressed");
 		return NULL;
 	}
-	if (fdt_check_header((char *)image_get_data(fdt_hdr)) != 0) {
+	if (fdt_check_header((void *)image_get_data(fdt_hdr)) != 0) {
 		fdt_error("uImage data is not a fdt");
 		return NULL;
 	}

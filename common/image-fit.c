@@ -1596,7 +1596,7 @@ int fit_image_load(bootm_headers_t *images, const char *prop_name, ulong addr,
 	len = (ulong)size;
 
 	/* verify that image data is a proper FDT blob */
-	if (image_type == IH_TYPE_FLATDT && fdt_check_header((char *)buf)) {
+	if (image_type == IH_TYPE_FLATDT && fdt_check_header(buf)) {
 		puts("Subimage data is not a FDT");
 		return -ENOEXEC;
 	}

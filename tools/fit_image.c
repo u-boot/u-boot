@@ -23,7 +23,7 @@ static image_header_t header;
 static int fit_verify_header (unsigned char *ptr, int image_size,
 			struct mkimage_params *params)
 {
-	return fdt_check_header ((void *)ptr);
+	return fdt_check_header(ptr);
 }
 
 static int fit_check_image_types (uint8_t type)

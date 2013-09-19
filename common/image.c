@@ -652,17 +652,13 @@ int genimg_get_format(const void *img_addr)
 {
 	ulong format = IMAGE_FORMAT_INVALID;
 	const image_header_t *hdr;
-#if defined(CONFIG_FIT) || defined(CONFIG_OF_LIBFDT)
-	char *fit_hdr;
-#endif
 
 	hdr = (const image_header_t *)img_addr;
 	if (image_check_magic(hdr))
 		format = IMAGE_FORMAT_LEGACY;
 #if defined(CONFIG_FIT) || defined(CONFIG_OF_LIBFDT)
 	else {
-		fit_hdr = (char *)img_addr;
-		if (fdt_check_header(fit_hdr) == 0)
+		if (fdt_check_header(img_addr) == 0)
 			format = IMAGE_FORMAT_FIT;
 	}
 #endif
