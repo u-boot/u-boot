@@ -13,5 +13,7 @@
 #define GIC_CPU_OFFSET_A15	0x2000
 #define GICC_CTLR		0x0000
 #define GICC_PMR		0x0004
+#define GICC_IAR		0x000C
+#define GICC_EOIR		0x0010
 
 #endif

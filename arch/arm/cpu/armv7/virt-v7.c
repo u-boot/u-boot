@@ -79,6 +79,17 @@ static unsigned long get_gicd_base_address(void)
 #endif
 }
 
+static void kick_secondary_cpus_gic(unsigned long gicdaddr)
+{
+	/* kick all CPUs (except this one) by writing to GICD_SGIR */
+	writel(1U << 24, gicdaddr + GICD_SGIR);
+}
+
+void __weak smp_kick_all_cpus(void)
+{
+	kick_secondary_cpus_gic(gic_dist_addr);
+}
+
 int armv7_switch_nonsec(void)
 {
 	unsigned int reg;
@@ -115,7 +126,10 @@ int armv7_switch_nonsec(void)
 	for (i = 1; i <= itlinesnr; i++)
 		writel((unsigned)-1, gic_dist_addr + GICD_IGROUPRn + 4 * i);
 
-	/* call the non-sec switching code on this CPU */
+	smp_set_core_boot_addr((unsigned long)_smp_pen, -1);
+	smp_kick_all_cpus();
+
+	/* call the non-sec switching code on this CPU also */
 	_nonsec_init();
 
 	return 0;
