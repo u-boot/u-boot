@@ -15,6 +15,4 @@
 #include "vexpress_common.h"
 #define CONFIG_BOOTP_VCI_STRING     "U-boot.armv7.vexpress_ca15x2_tc2"
 
-#define CONFIG_SYS_CLK_FREQ 24000000
-
 #endif
