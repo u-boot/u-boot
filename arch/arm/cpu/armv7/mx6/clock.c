@@ -100,6 +100,32 @@ static u32 decode_pll(enum pll_clocks pll, u32 infreq)
 	}
 	/* NOTREACHED */
 }
+static u32 mxc_get_pll_pfd(enum pll_clocks pll, int pfd_num)
+{
+	u32 div;
+	u64 freq;
+
+	switch (pll) {
+	case PLL_BUS:
+		if (pfd_num == 3) {
+			/* No PFD3 on PPL2 */
+			return 0;
+		}
+		div = __raw_readl(&imx_ccm->analog_pfd_528);
+		freq = (u64)decode_pll(PLL_BUS, MXC_HCLK);
+		break;
+	case PLL_USBOTG:
+		div = __raw_readl(&imx_ccm->analog_pfd_480);
+		freq = (u64)decode_pll(PLL_USBOTG, MXC_HCLK);
+		break;
+	default:
+		/* No PFD on other PLL					     */
+		return 0;
+	}
+
+	return (freq * 18) / ((div & ANATOP_PFD_FRAC_MASK(pfd_num)) >>
+			      ANATOP_PFD_FRAC_SHIFT(pfd_num));
+}
 
 static u32 get_mcu_main_clk(void)
 {
@@ -144,13 +170,14 @@ u32 get_periph_clk(void)
 			freq = decode_pll(PLL_BUS, MXC_HCLK);
 			break;
 		case 1:
-			freq = PLL2_PFD2_FREQ;
+			freq = mxc_get_pll_pfd(PLL_BUS, 2);
 			break;
 		case 2:
-			freq = PLL2_PFD0_FREQ;
+			freq = mxc_get_pll_pfd(PLL_BUS, 0);
 			break;
 		case 3:
-			freq = PLL2_PFD2_DIV_FREQ;
+			/* static / 2 divider */
+			freq = mxc_get_pll_pfd(PLL_BUS, 2) / 2;
 			break;
 		default:
 			break;
@@ -184,7 +211,7 @@ static u32 get_ipg_per_clk(void)
 static u32 get_uart_clk(void)
 {
 	u32 reg, uart_podf;
-	u32 freq = PLL3_80M;
+	u32 freq = decode_pll(PLL_USBOTG, MXC_HCLK) / 6; /* static divider */
 	reg = __raw_readl(&imx_ccm->cscdr1);
 #ifdef CONFIG_MX6SL
 	if (reg & MXC_CCM_CSCDR1_UART_CLK_SEL)
@@ -204,7 +231,7 @@ static u32 get_cspi_clk(void)
 	reg &= MXC_CCM_CSCDR2_ECSPI_CLK_PODF_MASK;
 	cspi_podf = reg >> MXC_CCM_CSCDR2_ECSPI_CLK_PODF_OFFSET;
 
-	return	PLL3_60M / (cspi_podf + 1);
+	return	decode_pll(PLL_USBOTG, MXC_HCLK) / (8 * (cspi_podf + 1));
 }
 
 static u32 get_axi_clk(void)
@@ -217,9 +244,9 @@ static u32 get_axi_clk(void)
 
 	if (cbcdr & MXC_CCM_CBCDR_AXI_SEL) {
 		if (cbcdr & MXC_CCM_CBCDR_AXI_ALT_SEL)
-			root_freq = PLL2_PFD2_FREQ;
+			root_freq = mxc_get_pll_pfd(PLL_BUS, 2);
 		else
-			root_freq = PLL3_PFD1_FREQ;
+			root_freq = mxc_get_pll_pfd(PLL_USBOTG, 1);
 	} else
 		root_freq = get_periph_clk();
 
@@ -244,10 +271,10 @@ static u32 get_emi_slow_clk(void)
 		root_freq = decode_pll(PLL_USBOTG, MXC_HCLK);
 		break;
 	case 2:
-		root_freq = PLL2_PFD2_FREQ;
+		root_freq =  mxc_get_pll_pfd(PLL_BUS, 2);
 		break;
 	case 3:
-		root_freq = PLL2_PFD0_FREQ;
+		root_freq =  mxc_get_pll_pfd(PLL_BUS, 0);
 		break;
 	}
 
@@ -270,13 +297,14 @@ static u32 get_mmdc_ch0_clk(void)
 		freq = decode_pll(PLL_BUS, MXC_HCLK);
 		break;
 	case 1:
-		freq = PLL2_PFD2_FREQ;
+		freq = mxc_get_pll_pfd(PLL_BUS, 2);
 		break;
 	case 2:
-		freq = PLL2_PFD0_FREQ;
+		freq = mxc_get_pll_pfd(PLL_BUS, 0);
 		break;
 	case 3:
-		freq = PLL2_PFD2_DIV_FREQ;
+		/* static / 2 divider */
+		freq =  mxc_get_pll_pfd(PLL_BUS, 2) / 2;
 	}
 
 	return freq / (podf + 1);
@@ -359,9 +387,9 @@ static u32 get_usdhc_clk(u32 port)
 	}
 
 	if (clk_sel)
-		root_freq = PLL2_PFD0_FREQ;
+		root_freq = mxc_get_pll_pfd(PLL_BUS, 0);
 	else
-		root_freq = PLL2_PFD2_FREQ;
+		root_freq = mxc_get_pll_pfd(PLL_BUS, 2);
 
 	return root_freq / (usdhc_podf + 1);
 }
