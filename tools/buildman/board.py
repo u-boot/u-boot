@@ -5,16 +5,17 @@
 
 class Board:
     """A particular board that we can build"""
-    def __init__(self, target, arch, cpu, board_name, vendor, soc, options):
+    def __init__(self, status, arch, cpu, soc, vendor, board_name, target, options):
         """Create a new board type.
 
         Args:
-            target: Target name (use make <target>_config to configure)
+            status: define whether the board is 'Active' or 'Orphaned'
             arch: Architecture name (e.g. arm)
             cpu: Cpu name (e.g. arm1136)
-            board_name: Name of board (e.g. integrator)
-            vendor: Name of vendor (e.g. armltd)
             soc: Name of SOC, or '' if none (e.g. mx31)
+            vendor: Name of vendor (e.g. armltd)
+            board_name: Name of board (e.g. integrator)
+            target: Target name (use make <target>_config to configure)
             options: board-specific options (e.g. integratorcp:CM1136)
         """
         self.target = target
@@ -63,8 +64,10 @@ class Boards:
                 for upto in range(len(fields)):
                     if fields[upto] == '-':
                         fields[upto] = ''
-                while len(fields) < 9:
+                while len(fields) < 8:
                     fields.append('')
+                if len(fields) > 8:
+                    fields = fields[:8]
 
                 board = Board(*fields)
                 self.AddBoard(board)
