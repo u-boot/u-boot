@@ -256,3 +256,18 @@ ulong get_tbclk(void)
 {
 	return (ulong)CONFIG_SYS_HZ;
 }
+
+#if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV7_VIRT)
+/* Setting the address at which secondary cores start from.
+ * Versatile Express uses one address for all cores, so ignore corenr
+ */
+void smp_set_core_boot_addr(unsigned long addr, int corenr)
+{
+	/* The SYSFLAGS register on VExpress needs to be cleared first
+	 * by writing to the next address, since any writes to the address
+	 * at offset 0 will only be ORed in
+	 */
+	writel(~0, CONFIG_SYSFLAGS_ADDR + 4);
+	writel(addr, CONFIG_SYSFLAGS_ADDR);
+}
+#endif
