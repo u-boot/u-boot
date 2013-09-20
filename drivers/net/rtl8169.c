@@ -246,6 +246,7 @@ static struct {
 	{"RTL-8169sc/8110sc",	0x18, 0xff7e1880,},
 	{"RTL-8168b/8111sb",	0x30, 0xff7e1880,},
 	{"RTL-8168b/8111sb",	0x38, 0xff7e1880,},
+	{"RTL-8168d/8111d",	0x28, 0xff7e1880,},
 	{"RTL-8168evl/8111evl",	0x2e, 0xff7e1880,},
 	{"RTL-8101e",		0x34, 0xff7e1880,},
 	{"RTL-8100e",		0x32, 0xff7e1880,},
@@ -315,6 +316,7 @@ static const unsigned int rtl8169_rx_config =
 
 static struct pci_device_id supported[] = {
 	{PCI_VENDOR_ID_REALTEK, 0x8167},
+	{PCI_VENDOR_ID_REALTEK, 0x8168},
 	{PCI_VENDOR_ID_REALTEK, 0x8169},
 	{}
 };
@@ -915,11 +917,25 @@ int rtl8169_initialize(bd_t *bis)
 	int idx=0;
 
 	while(1){
+		unsigned int region;
+		u16 device;
+
 		/* Find RTL8169 */
 		if ((devno = pci_find_devices(supported, idx++)) < 0)
 			break;
 
-		pci_read_config_dword(devno, PCI_BASE_ADDRESS_1, &iobase);
+		pci_read_config_word(devno, PCI_DEVICE_ID, &device);
+		switch (device) {
+		case 0x8168:
+			region = 2;
+			break;
+
+		default:
+			region = 1;
+			break;
+		}
+
+		pci_read_config_dword(devno, PCI_BASE_ADDRESS_0 + (region * 4), &iobase);
 		iobase &= ~0xf;
 
 		debug ("rtl8169: REALTEK RTL8169 @0x%x\n", iobase);
