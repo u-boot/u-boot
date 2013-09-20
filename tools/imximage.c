@@ -259,7 +259,7 @@ static void set_imx_hdr_v2(struct imx_header *imxhdr, uint32_t dcd_len,
 	csf_ptr = &fhdr_v2->csf;
 }
 
-static void set_hdr_func(struct imx_header *imxhdr)
+static void set_hdr_func(void)
 {
 	switch (imximage_version) {
 	case IMXIMAGE_V1:
@@ -358,7 +358,7 @@ static void parse_cfg_cmd(struct imx_header *imxhdr, int32_t cmd, char *token,
 			exit(EXIT_FAILURE);
 		}
 		cmd_ver_first = 1;
-		set_hdr_func(imxhdr);
+		set_hdr_func();
 		break;
 	case CMD_BOOT_FROM:
 		imximage_ivt_offset = get_table_entry_id(imximage_boot_offset,
@@ -563,7 +563,7 @@ static void imximage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	/* Be able to detect if the cfg file has no BOOT_FROM tag */
 	imximage_ivt_offset = FLASH_OFFSET_UNDEFINED;
 	imximage_csf_size = 0;
-	set_hdr_func(imxhdr);
+	set_hdr_func();
 
 	/* Parse dcd configuration file */
 	dcd_len = parse_cfg_file(imxhdr, params->imagename);
@@ -631,7 +631,7 @@ static int imximage_generate(struct mkimage_params *params,
 	/* Be able to detect if the cfg file has no BOOT_FROM tag */
 	imximage_ivt_offset = FLASH_OFFSET_UNDEFINED;
 	imximage_csf_size = 0;
-	set_hdr_func(imxhdr);
+	set_hdr_func();
 
 	/* Parse dcd configuration file */
 	parse_cfg_file(&imximage_header, params->imagename);
