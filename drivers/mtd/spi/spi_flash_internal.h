@@ -30,6 +30,28 @@
 #define CMD_ERASE_64K			0xd8
 #define CMD_ERASE_CHIP			0xc7
 
+/* Write commands */
+#define CMD_QUAD_PAGE_PROGRAM		0x32
+
+static const u32 spi_write_cmds_array[] = {
+	CMD_PAGE_PROGRAM,
+	CMD_QUAD_PAGE_PROGRAM,
+};
+
+/* Read commands */
+#define CMD_READ_ARRAY_SLOW		0x03
+#define CMD_READ_DUAL_OUTPUT_FAST	0x3b
+#define CMD_READ_DUAL_IO_FAST		0xbb
+#define CMD_READ_QUAD_OUTPUT_FAST	0x6b
+
+static const u32 spi_read_cmds_array[] = {
+	CMD_READ_ARRAY_SLOW,
+	CMD_READ_ARRAY_FAST,
+	CMD_READ_DUAL_OUTPUT_FAST,
+	CMD_READ_DUAL_IO_FAST,
+	CMD_READ_QUAD_OUTPUT_FAST,
+};
+
 #define SPI_FLASH_16MB_BOUN		0x1000000
 
 /* Manufacture ID's */

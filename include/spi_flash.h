@@ -35,33 +35,13 @@ enum spi_con_topology {
 	MODE_DUAL_PARALLEL,
 };
 
-/* Write commands */
+/* Default read and write commands */
 #define CMD_PAGE_PROGRAM		0x02
-#define CMD_QUAD_PAGE_PROGRAM		0x32
-
-static u32 spi_write_cmds_array[] = {
-	CMD_PAGE_PROGRAM,
-	CMD_QUAD_PAGE_PROGRAM,
-};
+#define CMD_READ_ARRAY_FAST		0x0b
 
 enum spi_write_cmds {
 	PAGE_PROGRAM = 1 << 0,
 	QUAD_PAGE_PROGRAM = 1 << 1,
-};
-
-/* Read commands */
-#define CMD_READ_ARRAY_SLOW		0x03
-#define CMD_READ_ARRAY_FAST		0x0b
-#define CMD_READ_DUAL_OUTPUT_FAST	0x3b
-#define CMD_READ_DUAL_IO_FAST		0xbb
-#define CMD_READ_QUAD_OUTPUT_FAST	0x6b
-
-static u32 spi_read_cmds_array[] = {
-	CMD_READ_ARRAY_SLOW,
-	CMD_READ_ARRAY_FAST,
-	CMD_READ_DUAL_OUTPUT_FAST,
-	CMD_READ_DUAL_IO_FAST,
-	CMD_READ_QUAD_OUTPUT_FAST,
 };
 
 enum spi_read_cmds {
