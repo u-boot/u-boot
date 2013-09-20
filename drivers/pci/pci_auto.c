@@ -297,7 +297,7 @@ void pciauto_config_init(struct pci_controller *hose)
 {
 	int i;
 
-	hose->pci_io = hose->pci_mem = NULL;
+	hose->pci_io = hose->pci_mem = hose->pci_prefetch = NULL;
 
 	for (i = 0; i < hose->region_count; i++) {
 		switch(hose->regions[i].flags) {
