@@ -246,6 +246,7 @@ static struct {
 	{"RTL-8169sc/8110sc",	0x18, 0xff7e1880,},
 	{"RTL-8168b/8111sb",	0x30, 0xff7e1880,},
 	{"RTL-8168b/8111sb",	0x38, 0xff7e1880,},
+	{"RTL-8168evl/8111evl",	0x2e, 0xff7e1880,},
 	{"RTL-8101e",		0x34, 0xff7e1880,},
 	{"RTL-8100e",		0x32, 0xff7e1880,},
 };
