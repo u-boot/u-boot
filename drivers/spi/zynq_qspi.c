@@ -34,6 +34,12 @@
  * This register contains various control bits that effect the operation
  * of the QSPI controller
  */
+#define ZYNQ_QSPI_CONFIG_IFMODE_MASK	(1 << 31)  /* Flash intrface mode*/
+#define ZYNQ_QSPI_CONFIG_MSA_MASK	(1 << 15)  /* Manual start enb */
+#define ZYNQ_QSPI_CONFIG_MCS_MASK	(1 << 14)  /* Manual chip select */
+#define ZYNQ_QSPI_CONFIG_PCS_MASK	(1 << 10)  /* Peri chip select */
+#define ZYNQ_QSPI_CONFIG_FW_MASK	(0x3 << 6) /* FIFO width */
+#define ZYNQ_QSPI_CONFIG_MSTREN_MASK	(1 << 0)   /* Mode select */
 #define ZYNQ_QSPI_CONFIG_MANSRT_MASK	0x00010000 /* Manual TX Start */
 #define ZYNQ_QSPI_CONFIG_CPHA_MASK	0x00000004 /* Clock Phase Control */
 #define ZYNQ_QSPI_CONFIG_CPOL_MASK	0x00000002 /* Clock Polarity Control */
@@ -258,8 +264,10 @@ static void zynq_qspi_init_hw(int is_dual, unsigned int cs)
 
 	writel(0x7F, &zynq_qspi_base->isr);
 	config_reg = readl(&zynq_qspi_base->confr);
-	config_reg &= 0xFBFFFFFF; /* Set little endian mode of TX FIFO */
-	config_reg |= 0x8000FCC1;
+	config_reg |= ZYNQ_QSPI_CONFIG_IFMODE_MASK |
+		ZYNQ_QSPI_CONFIG_MSA_MASK | ZYNQ_QSPI_CONFIG_MCS_MASK |
+		ZYNQ_QSPI_CONFIG_PCS_MASK | ZYNQ_QSPI_CONFIG_FW_MASK |
+		ZYNQ_QSPI_CONFIG_MSTREN_MASK;
 	if (is_dual == MODE_DUAL_STACKED)
 		config_reg |= 0x10;
 	writel(config_reg, &zynq_qspi_base->confr);
