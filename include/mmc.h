@@ -335,7 +335,11 @@ int mmc_start_init(struct mmc *mmc);
 void mmc_set_preinit(struct mmc *mmc, int preinit);
 
 #ifdef CONFIG_GENERIC_MMC
+#ifdef CONFIG_MMC_SPI
 #define mmc_host_is_spi(mmc)	((mmc)->host_caps & MMC_MODE_SPI)
+#else
+#define mmc_host_is_spi(mmc)	0
+#endif
 struct mmc *mmc_spi_init(uint bus, uint cs, uint speed, uint mode);
 #else
 int mmc_legacy_init(int verbose);
