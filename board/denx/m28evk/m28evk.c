@@ -116,6 +116,8 @@ int board_eth_init(bd_t *bis)
 	int ret;
 
 	ret = cpu_eth_init(bis);
+	if (ret)
+		return ret;
 
 	clrsetbits_le32(&clkctrl_regs->hw_clkctrl_enet,
 		CLKCTRL_ENET_TIME_SEL_MASK | CLKCTRL_ENET_CLK_OUT_EN,
