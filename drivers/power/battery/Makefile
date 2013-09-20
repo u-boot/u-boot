@@ -10,6 +10,7 @@ include $(TOPDIR)/config.mk
 LIB	:= $(obj)libbattery.o
 
 COBJS-$(CONFIG_POWER_BATTERY_TRATS) += bat_trats.o
+COBJS-$(CONFIG_POWER_BATTERY_TRATS2) += bat_trats2.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
