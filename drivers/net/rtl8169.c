@@ -395,6 +395,50 @@ match:
 	return 0;
 }
 
+/*
+ * Cache maintenance functions. These are simple wrappers around the more
+ * general purpose flush_cache() and invalidate_dcache_range() functions.
+ */
+
+static void rtl_inval_rx_desc(struct RxDesc *desc)
+{
+	unsigned long start = (unsigned long)desc & ~(ARCH_DMA_MINALIGN - 1);
+	unsigned long end = ALIGN(start + sizeof(*desc), ARCH_DMA_MINALIGN);
+
+	invalidate_dcache_range(start, end);
+}
+
+static void rtl_flush_rx_desc(struct RxDesc *desc)
+{
+	flush_cache((unsigned long)desc, sizeof(*desc));
+}
+
+static void rtl_inval_tx_desc(struct TxDesc *desc)
+{
+	unsigned long start = (unsigned long)desc & ~(ARCH_DMA_MINALIGN - 1);
+	unsigned long end = ALIGN(start + sizeof(*desc), ARCH_DMA_MINALIGN);
+
+	invalidate_dcache_range(start, end);
+}
+
+static void rtl_flush_tx_desc(struct TxDesc *desc)
+{
+	flush_cache((unsigned long)desc, sizeof(*desc));
+}
+
+static void rtl_inval_buffer(void *buf, size_t size)
+{
+	unsigned long start = (unsigned long)buf & ~(ARCH_DMA_MINALIGN - 1);
+	unsigned long end = ALIGN(start + size, ARCH_DMA_MINALIGN);
+
+	invalidate_dcache_range(start, end);
+}
+
+static void rtl_flush_buffer(void *buf, size_t size)
+{
+	flush_cache((unsigned long)buf, size);
+}
+
 /**************************************************************************
 RECV - Receive a frame
 ***************************************************************************/
@@ -412,14 +456,16 @@ static int rtl_recv(struct eth_device *dev)
 	ioaddr = dev->iobase;
 
 	cur_rx = tpc->cur_rx;
-	flush_cache((unsigned long)&tpc->RxDescArray[cur_rx],
-			sizeof(struct RxDesc));
+
+	rtl_inval_rx_desc(&tpc->RxDescArray[cur_rx]);
+
 	if ((le32_to_cpu(tpc->RxDescArray[cur_rx].status) & OWNbit) == 0) {
 		if (!(le32_to_cpu(tpc->RxDescArray[cur_rx].status) & RxRES)) {
 			unsigned char rxdata[RX_BUF_LEN];
 			length = (int) (le32_to_cpu(tpc->RxDescArray[cur_rx].
 						status) & 0x00001FFF) - 4;
 
+			rtl_inval_buffer(tpc->RxBufferRing[cur_rx], length);
 			memcpy(rxdata, tpc->RxBufferRing[cur_rx], length);
 			NetReceive(rxdata, length);
 
@@ -431,8 +477,7 @@ static int rtl_recv(struct eth_device *dev)
 					cpu_to_le32(OWNbit + RX_BUF_SIZE);
 			tpc->RxDescArray[cur_rx].buf_addr =
 				cpu_to_le32(bus_to_phys(tpc->RxBufferRing[cur_rx]));
-			flush_cache((unsigned long)tpc->RxBufferRing[cur_rx],
-					RX_BUF_SIZE);
+			rtl_flush_rx_desc(&tpc->RxDescArray[cur_rx]);
 		} else {
 			puts("Error Rx");
 		}
@@ -474,7 +519,7 @@ static int rtl_send(struct eth_device *dev, void *packet, int length)
 	/* point to the current txb incase multiple tx_rings are used */
 	ptxb = tpc->Tx_skbuff[entry * MAX_ETH_FRAME_SIZE];
 	memcpy(ptxb, (char *)packet, (int)length);
-	flush_cache((unsigned long)ptxb, length);
+	rtl_flush_buffer(ptxb, length);
 
 	while (len < ETH_ZLEN)
 		ptxb[len++] = '\0';
@@ -490,13 +535,13 @@ static int rtl_send(struct eth_device *dev, void *packet, int length)
 			cpu_to_le32((OWNbit | EORbit | FSbit | LSbit) |
 				    ((len > ETH_ZLEN) ? len : ETH_ZLEN));
 	}
+	rtl_flush_tx_desc(&tpc->TxDescArray[entry]);
 	RTL_W8(TxPoll, 0x40);	/* set polling bit */
 
 	tpc->cur_tx++;
 	to = currticks() + TX_TIMEOUT;
 	do {
-		flush_cache((unsigned long)&tpc->TxDescArray[entry],
-				sizeof(struct TxDesc));
+		rtl_inval_tx_desc(&tpc->TxDescArray[entry]);
 	} while ((le32_to_cpu(tpc->TxDescArray[entry].status) & OWNbit)
 				&& (currticks() < to));	/* wait */
 
@@ -639,7 +684,7 @@ static void rtl8169_init_ring(struct eth_device *dev)
 		tpc->RxBufferRing[i] = &rxb[i * RX_BUF_SIZE];
 		tpc->RxDescArray[i].buf_addr =
 			cpu_to_le32(bus_to_phys(tpc->RxBufferRing[i]));
-		flush_cache((unsigned long)tpc->RxBufferRing[i], RX_BUF_SIZE);
+		rtl_flush_rx_desc(&tpc->RxDescArray[i]);
 	}
 
 #ifdef DEBUG_RTL8169
