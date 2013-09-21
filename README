@@ -5587,15 +5587,17 @@ On ARM, the following registers are used:
 
 	R0:	function argument word/integer result
 	R1-R3:	function argument word
-	R9:	GOT pointer
-	R10:	stack limit (used only if stack checking if enabled)
+	R9:	platform specific
+	R10:	stack limit (used only if stack checking is enabled)
 	R11:	argument (frame) pointer
 	R12:	temporary workspace
 	R13:	stack pointer
 	R14:	link register
 	R15:	program counter
 
-    ==> U-Boot will use R8 to hold a pointer to the global data
+    ==> U-Boot will use R9 to hold a pointer to the global data
+
+    Note: on ARM, only R_ARM_RELATIVE relocations are supported.
 
 On Nios II, the ABI is documented here:
 	http://www.altera.com/literature/hb/nios2/n2cpu_nii51016.pdf
