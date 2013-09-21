@@ -48,7 +48,7 @@ void enable_usboh3_clk(unsigned char enable)
 
 }
 
-#ifdef CONFIG_I2C_MXC
+#ifdef CONFIG_SYS_I2C_MXC
 /* i2c_num can be from 0 - 2 */
 int enable_i2c_clk(unsigned char enable, unsigned i2c_num)
 {

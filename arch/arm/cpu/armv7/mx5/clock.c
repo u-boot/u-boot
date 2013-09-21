@@ -94,7 +94,7 @@ void enable_usboh3_clk(bool enable)
 			MXC_CCM_CCGR2_USBOH3_60M(cg));
 }
 
-#ifdef CONFIG_I2C_MXC
+#ifdef CONFIG_SYS_I2C_MXC
 /* i2c_num can be from 0, to 1 for i.MX51 and 2 for i.MX53 */
 int enable_i2c_clk(unsigned char enable, unsigned i2c_num)
 {

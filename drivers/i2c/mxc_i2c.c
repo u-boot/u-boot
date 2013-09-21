@@ -102,6 +102,28 @@ static u16 i2c_clk_div[50][2] = {
 };
 #endif
 
+
+#ifndef CONFIG_SYS_MXC_I2C1_SPEED
+#define CONFIG_SYS_MXC_I2C1_SPEED 100000
+#endif
+#ifndef CONFIG_SYS_MXC_I2C2_SPEED
+#define CONFIG_SYS_MXC_I2C2_SPEED 100000
+#endif
+#ifndef CONFIG_SYS_MXC_I2C3_SPEED
+#define CONFIG_SYS_MXC_I2C3_SPEED 100000
+#endif
+
+#ifndef CONFIG_SYS_MXC_I2C1_SLAVE
+#define CONFIG_SYS_MXC_I2C1_SLAVE 0
+#endif
+#ifndef CONFIG_SYS_MXC_I2C2_SLAVE
+#define CONFIG_SYS_MXC_I2C2_SLAVE 0
+#endif
+#ifndef CONFIG_SYS_MXC_I2C3_SLAVE
+#define CONFIG_SYS_MXC_I2C3_SLAVE 0
+#endif
+
+
 /*
  * Calculate and set proper clock divider
  */
@@ -151,21 +173,6 @@ static int bus_i2c_set_bus_speed(void *base, int speed)
 	writeb(I2CR_IDIS, &i2c_regs->i2cr);
 	writeb(0, &i2c_regs->i2sr);
 	return 0;
-}
-
-/*
- * Get I2C Speed
- */
-static unsigned int bus_i2c_get_bus_speed(void *base)
-{
-	struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)base;
-	u8 clk_idx = readb(&i2c_regs->ifdr);
-	u8 clk_div;
-
-	for (clk_div = 0; i2c_clk_div[clk_div][1] != clk_idx; clk_div++)
-		;
-
-	return mxc_get_clock(MXC_I2C_CLK) / i2c_clk_div[clk_div][0];
 }
 
 #define ST_BUS_IDLE (0 | (I2SR_IBB << 8))
@@ -410,20 +417,30 @@ struct sram_data {
  */
 static struct sram_data __attribute__((section(".data"))) srdata;
 
-void *get_base(void)
-{
-#ifdef CONFIG_SYS_I2C_BASE
-#ifdef CONFIG_I2C_MULTI_BUS
-	void *ret = srdata.i2c_data[srdata.curr_i2c_bus].base;
-	if (ret)
-		return ret;
-#endif
-	return (void *)CONFIG_SYS_I2C_BASE;
-#elif defined(CONFIG_I2C_MULTI_BUS)
-	return srdata.i2c_data[srdata.curr_i2c_bus].base;
+static void * const i2c_bases[] = {
+#if defined(CONFIG_MX25)
+	(void *)IMX_I2C_BASE,
+	(void *)IMX_I2C2_BASE,
+	(void *)IMX_I2C3_BASE
+#elif defined(CONFIG_MX27)
+	(void *)IMX_I2C1_BASE,
+	(void *)IMX_I2C2_BASE
+#elif defined(CONFIG_MX31) || defined(CONFIG_MX35) || \
+	defined(CONFIG_MX51) || defined(CONFIG_MX53) ||	\
+	defined(CONFIG_MX6)
+	(void *)I2C1_BASE_ADDR,
+	(void *)I2C2_BASE_ADDR,
+	(void *)I2C3_BASE_ADDR
+#elif defined(CONFIG_VF610)
+	(void *)I2C0_BASE_ADDR
 #else
-	return srdata.i2c_data[0].base;
+#error "architecture not supported"
 #endif
+};
+
+void *i2c_get_base(struct i2c_adapter *adap)
+{
+	return i2c_bases[adap->hwadapnr];
 }
 
 static struct i2c_parms *i2c_get_parms(void *base)
@@ -448,39 +465,26 @@ static int i2c_idle_bus(void *base)
 	return 0;
 }
 
-#ifdef CONFIG_I2C_MULTI_BUS
-unsigned int i2c_get_bus_num(void)
+static int mxc_i2c_read(struct i2c_adapter *adap, uint8_t chip,
+				uint addr, int alen, uint8_t *buffer,
+				int len)
 {
-	return srdata.curr_i2c_bus;
+	return bus_i2c_read(i2c_get_base(adap), chip, addr, alen, buffer, len);
 }
 
-int i2c_set_bus_num(unsigned bus_idx)
+static int mxc_i2c_write(struct i2c_adapter *adap, uint8_t chip,
+				uint addr, int alen, uint8_t *buffer,
+				int len)
 {
-	if (bus_idx >= ARRAY_SIZE(srdata.i2c_data))
-		return -1;
-	if (!srdata.i2c_data[bus_idx].base)
-		return -1;
-	srdata.curr_i2c_bus = bus_idx;
-	return 0;
-}
-#endif
-
-int i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
-{
-	return bus_i2c_read(get_base(), chip, addr, alen, buf, len);
-}
-
-int i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len)
-{
-	return bus_i2c_write(get_base(), chip, addr, alen, buf, len);
+	return bus_i2c_write(i2c_get_base(adap), chip, addr, alen, buffer, len);
 }
 
 /*
  * Test if a chip at a given address responds (probe the chip)
  */
-int i2c_probe(uchar chip)
+static int mxc_i2c_probe(struct i2c_adapter *adap, uint8_t chip)
 {
-	return bus_i2c_write(get_base(), chip, 0, 0, NULL, 0);
+	return bus_i2c_write(i2c_get_base(adap), chip, 0, 0, NULL, 0);
 }
 
 void bus_i2c_init(void *base, int speed, int unused,
@@ -510,23 +514,38 @@ void bus_i2c_init(void *base, int speed, int unused,
 /*
  * Init I2C Bus
  */
-void i2c_init(int speed, int unused)
+static void mxc_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
 {
-	bus_i2c_init(get_base(), speed, unused, NULL, NULL);
+	bus_i2c_init(i2c_get_base(adap), speed, slaveaddr, NULL, NULL);
 }
 
 /*
  * Set I2C Speed
  */
-int i2c_set_bus_speed(unsigned int speed)
+static uint mxc_i2c_set_bus_speed(struct i2c_adapter *adap, uint speed)
 {
-	return bus_i2c_set_bus_speed(get_base(), speed);
+	return bus_i2c_set_bus_speed(i2c_get_base(adap), speed);
 }
 
 /*
- * Get I2C Speed
+ * Register mxc i2c adapters
  */
-unsigned int i2c_get_bus_speed(void)
-{
-	return bus_i2c_get_bus_speed(get_base());
-}
+U_BOOT_I2C_ADAP_COMPLETE(mxc0, mxc_i2c_init, mxc_i2c_probe,
+			 mxc_i2c_read, mxc_i2c_write,
+			 mxc_i2c_set_bus_speed,
+			 CONFIG_SYS_MXC_I2C1_SPEED,
+			 CONFIG_SYS_MXC_I2C1_SLAVE, 0)
+U_BOOT_I2C_ADAP_COMPLETE(mxc1, mxc_i2c_init, mxc_i2c_probe,
+			 mxc_i2c_read, mxc_i2c_write,
+			 mxc_i2c_set_bus_speed,
+			 CONFIG_SYS_MXC_I2C2_SPEED,
+			 CONFIG_SYS_MXC_I2C2_SLAVE, 1)
+#if defined(CONFIG_MX31) || defined(CONFIG_MX35) ||\
+	defined(CONFIG_MX51) || defined(CONFIG_MX53) ||\
+	defined(CONFIG_MX6)
+U_BOOT_I2C_ADAP_COMPLETE(mxc2, mxc_i2c_init, mxc_i2c_probe,
+			 mxc_i2c_read, mxc_i2c_write,
+			 mxc_i2c_set_bus_speed,
+			 CONFIG_SYS_MXC_I2C3_SPEED,
+			 CONFIG_SYS_MXC_I2C3_SLAVE, 2)
+#endif
