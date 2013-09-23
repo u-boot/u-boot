@@ -11,7 +11,8 @@ easily if here is something they might want to dig for...
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
-CANBT            powerpc     405CR          -           -           Matthias Fuchs <matthias.fuchs@esd.eu>
+omap1510inn      arm         arm925t        -           -           Kshitij Gupta <kshitij@ti.com>
+CANBT            powerpc     405CR          fb8f4fd     2013-08-07  Matthias Fuchs <matthias.fuchs@esd.eu>
 Alaska8220       powerpc     mpc8220        d6ed322     2013-05-11
 Yukon8220        powerpc     mpc8220        d6ed322     2013-05-11
 sorcery          powerpc     mpc8220        d6ed322     2013-05-11

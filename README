@@ -139,7 +139,6 @@ Directory Hierarchy:
 	/at91		Files specific to Atmel AT91RM9200 CPU
 	/imx		Files specific to Freescale MC9328 i.MX CPUs
 	/s3c24x0	Files specific to Samsung S3C24X0 CPUs
-      /arm925t		Files specific to ARM 925 CPUs
       /arm926ejs	Files specific to ARM 926 CPUs
       /arm1136		Files specific to ARM 1136 CPUs
       /ixp		Files specific to Intel XScale IXP CPUs

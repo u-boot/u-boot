@@ -353,7 +353,6 @@ LIST_ARM7="$(boards_by_cpu arm720t)"
 
 LIST_ARM9="$(boards_by_cpu arm920t)	\
 	$(boards_by_cpu arm926ejs)	\
-	$(boards_by_cpu arm925t)	\
 	$(boards_by_cpu arm946es)	\
 "
 
