@@ -32,6 +32,19 @@ import toolchain
 
 def RunTests():
     import test
+    import doctest
+
+    result = unittest.TestResult()
+    for module in ['toolchain']:
+        suite = doctest.DocTestSuite(module)
+        suite.run(result)
+
+    # TODO: Surely we can just 'print' result?
+    print result
+    for test, err in result.errors:
+        print err
+    for test, err in result.failures:
+        print err
 
     sys.argv = [sys.argv[0]]
     suite = unittest.TestLoader().loadTestsFromTestCase(test.TestBuild)

@@ -36,9 +36,6 @@ def GetItems(section):
         return settings.items(section)
     except ConfigParser.NoSectionError as e:
         print e
-        print ("Warning: No tool chains - please add a [toolchain] section "
-                "to your buildman config file %s. See README for details" %
-                config_fname)
         return []
     except:
         raise
