@@ -138,6 +138,11 @@ static int i2c_mux_set(struct i2c_adapter *adap, int mux_id, int chip,
 			return -1;
 		buf = (uint8_t)((channel & 0x07) | (1 << 3));
 		break;
+	case I2C_MUX_PCA9548_ID:
+		if (channel > 7)
+			return -1;
+		buf = (uint8_t)(0x01 << channel);
+		break;
 	default:
 		printf("%s: wrong mux id: %d\n", __func__, mux_id);
 		return -1;
