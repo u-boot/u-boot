@@ -25,14 +25,15 @@ $(LIB):	$(OBJS)
 	$(call cmd_link_o_target, $(OBJS))
 
 # Specify the target for use in elftosb call
-ELFTOSB_TARGET-$(CONFIG_MX23) = imx23
-ELFTOSB_TARGET-$(CONFIG_MX28) = imx28
+MKIMAGE_TARGET-$(CONFIG_MX23) = mx23
+MKIMAGE_TARGET-$(CONFIG_MX28) = mx28
 
-$(OBJTREE)/u-boot.bd: $(SRCTREE)/$(CPUDIR)/$(SOC)/u-boot-$(ELFTOSB_TARGET-y).bd
+$(OBJTREE)/mxsimage.cfg: $(SRCTREE)/$(CPUDIR)/$(SOC)/mxsimage.$(MKIMAGE_TARGET-y).cfg
 	sed "s@OBJTREE@$(OBJTREE)@g" $^ > $@
 
-$(OBJTREE)/u-boot.sb: $(OBJTREE)/u-boot.bin $(OBJTREE)/spl/u-boot-spl.bin $(OBJTREE)/u-boot.bd
-		elftosb -zf $(ELFTOSB_TARGET-y) -c $(OBJTREE)/u-boot.bd -o $(OBJTREE)/u-boot.sb
+$(OBJTREE)/u-boot.sb: $(OBJTREE)/u-boot.bin $(OBJTREE)/spl/u-boot-spl.bin $(OBJTREE)/mxsimage.cfg
+	$(OBJTREE)/tools/mkimage -n $(OBJTREE)/mxsimage.cfg -T mxsimage $@
+
 
 #########################################################################
 
