@@ -572,7 +572,7 @@ static int label_localboot(struct pxe_label *label)
  * If the label specifies an 'append' line, its contents will overwrite that
  * of the 'bootargs' environment variable.
  */
-static int label_boot(struct pxe_label *label)
+static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 {
 	char *bootm_argv[] = { "bootm", NULL, NULL, NULL, NULL };
 	char initrd_str[22];
@@ -684,11 +684,11 @@ static int label_boot(struct pxe_label *label)
 	if (bootm_argv[3])
 		bootm_argc = 4;
 
-	do_bootm(NULL, 0, bootm_argc, bootm_argv);
+	do_bootm(cmdtp, 0, bootm_argc, bootm_argv);
 
 #ifdef CONFIG_CMD_BOOTZ
 	/* Try booting a zImage if do_bootm returns */
-	do_bootz(NULL, 0, bootm_argc, bootm_argv);
+	do_bootz(cmdtp, 0, bootm_argc, bootm_argv);
 #endif
 	return 1;
 }
@@ -1355,7 +1355,7 @@ static struct menu *pxe_menu_to_menu(struct pxe_menu *cfg)
 /*
  * Try to boot any labels we have yet to attempt to boot.
  */
-static void boot_unattempted_labels(struct pxe_menu *cfg)
+static void boot_unattempted_labels(cmd_tbl_t *cmdtp, struct pxe_menu *cfg)
 {
 	struct list_head *pos;
 	struct pxe_label *label;
@@ -1364,7 +1364,7 @@ static void boot_unattempted_labels(struct pxe_menu *cfg)
 		label = list_entry(pos, struct pxe_label, list);
 
 		if (!label->attempted)
-			label_boot(label);
+			label_boot(cmdtp, label);
 	}
 }
 
@@ -1380,7 +1380,7 @@ static void boot_unattempted_labels(struct pxe_menu *cfg)
  * If this function returns, there weren't any labels that successfully
  * booted, or the user interrupted the menu selection via ctrl+c.
  */
-static void handle_pxe_menu(struct pxe_menu *cfg)
+static void handle_pxe_menu(cmd_tbl_t *cmdtp, struct pxe_menu *cfg)
 {
 	void *choice;
 	struct menu *m;
@@ -1406,14 +1406,14 @@ static void handle_pxe_menu(struct pxe_menu *cfg)
 	 */
 
 	if (err == 1) {
-		err = label_boot(choice);
+		err = label_boot(cmdtp, choice);
 		if (!err)
 			return;
 	} else if (err != -ENOENT) {
 		return;
 	}
 
-	boot_unattempted_labels(cfg);
+	boot_unattempted_labels(cmdtp, cfg);
 }
 
 /*
@@ -1453,7 +1453,7 @@ do_pxe_boot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 1;
 	}
 
-	handle_pxe_menu(cfg);
+	handle_pxe_menu(cmdtp, cfg);
 
 	destroy_pxe_menu(cfg);
 
@@ -1559,7 +1559,7 @@ int do_sysboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (prompt)
 		cfg->prompt = 1;
 
-	handle_pxe_menu(cfg);
+	handle_pxe_menu(cmdtp, cfg);
 
 	destroy_pxe_menu(cfg);
 
