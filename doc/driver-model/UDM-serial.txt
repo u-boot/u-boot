@@ -84,16 +84,8 @@ III) Analysis of in-tree drivers
   during conversion. This driver is implemented in very universal manner,
   therefore it'll be necessary to properly design it's platform_data.
 
-  ns9750_serial.c
-  ---------------
-  Unmaintained port. Code got removed.
-
   opencores_yanu.c
   ----------------
-  No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
-
-  s3c4510b_uart.c
-  ---------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
   sandbox.c
@@ -103,10 +95,6 @@ III) Analysis of in-tree drivers
   serial.c
   --------
   This is a complementary part of NS16550 UART driver, see above.
-
-  serial_clps7111.c
-  -----------------
-  No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
   serial_imx.c
   ------------
@@ -127,10 +115,6 @@ III) Analysis of in-tree drivers
 
   serial_mxc.c
   ------------
-  No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
-
-  serial_netarm.c
-  ---------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
   serial_pl01x.c
