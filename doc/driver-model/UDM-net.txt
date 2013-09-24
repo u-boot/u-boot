@@ -338,12 +338,6 @@ III) Analysis of in-tree drivers
   This file implements external functions necessary for native NE2000 compatible
   networking card to work.
 
-  drivers/net/netarm_eth.c
-  ------------------------
-
-  This driver uses the old, legacy, network API and will either have to be
-  converted or removed.
-
   drivers/net/netconsole.c
   ------------------------
 
