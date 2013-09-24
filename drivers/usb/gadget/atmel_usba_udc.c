@@ -1240,11 +1240,12 @@ int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
 {
 	struct usba_udc *udc = &controller;
 
-	if (!driver || !driver->bind || !driver->setup) {
+	if (!driver || !driver->unbind || !driver->disconnect) {
 		error("bad paramter\n");
 		return -EINVAL;
 	}
 
+	driver->disconnect(&udc->gadget);
 	driver->unbind(&udc->gadget);
 	udc->driver = NULL;
 
