@@ -18,6 +18,98 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/*
+ * struct spi_flash_params - SPI/QSPI flash device params structure
+ *
+ * @name:		Device name ([MANUFLETTER][DEVTYPE][DENSITY][EXTRAINFO])
+ * @jedec:		Device jedec ID (0x[1byte_manuf_id][2byte_dev_id])
+ * @ext_jedec:		Device ext_jedec ID
+ * @sector_size:	Sector size of this device
+ * @nr_sectors:	No.of sectors on this device
+ */
+struct spi_flash_params {
+	const char *name;
+	u32 jedec;
+	u16 ext_jedec;
+	u32 sector_size;
+	u32 nr_sectors;
+};
+
+static const struct spi_flash_params spi_flash_params_table[] = {
+#ifdef CONFIG_SPI_FLASH_STMICRO		/* STMICRO */
+	{"N25Q32",		0x20ba16, 0x0,     64 * 1024,	  64},
+	{"N25Q32A",		0x20bb16, 0x0,     64 * 1024,	  64},
+	{"N25Q64",		0x20ba17, 0x0,     64 * 1024,	 128},
+	{"N25Q64A",		0x20bb17, 0x0,     64 * 1024,	 128},
+	{"N25Q128",		0x20ba18, 0x0,     64 * 1024,	 256},
+	{"N25Q128A",		0x20bb18, 0x0,     64 * 1024,	 256},
+	{"N25Q256",		0x20ba19, 0x0,     64 * 1024,	 512},
+	{"N25Q256A",		0x20bb19, 0x0,     64 * 1024,	 512},
+	{"N25Q512",		0x20ba20, 0x0,     64 * 1024,	1024},
+	{"N25Q512A",		0x20bb20, 0x0,     64 * 1024,	1024},
+	{"N25Q1024",		0x20ba21, 0x0,     64 * 1024,	2048},
+	{"N25Q1024A",		0x20bb21, 0x0,     64 * 1024,	2048},
+#endif
+	/*
+	 * TODO:
+	 * ATMEL
+	 * EON
+	 * GIGADEVICE
+	 * MACRONIX
+	 * RAMTRON
+	 * SPANSION
+	 * SST
+	 * STMICRO (M25*)
+	 * WINBOND
+	 */
+};
+
+struct spi_flash *spi_flash_validate_ids(struct spi_slave *spi, u8 *idcode)
+{
+	const struct spi_flash_params *params;
+	struct spi_flash *flash;
+	int i;
+	u16 jedec = idcode[1] << 8 | idcode[2];
+
+	/* Get the flash id (jedec = manuf_id + dev_id) */
+	for (i = 0; i < ARRAY_SIZE(spi_flash_params_table); i++) {
+		params = &spi_flash_params_table[i];
+		if ((params->jedec >> 16) == idcode[0]) {
+			if ((params->jedec & 0xFFFF) == jedec)
+				break;
+		}
+	}
+
+	if (i == ARRAY_SIZE(spi_flash_params_table)) {
+		printf("SF: Unsupported flash ID: manuf %02x, jedec %04x\n",
+		       idcode[0], jedec);
+		return NULL;
+	}
+
+	flash = malloc(sizeof(*flash));
+	if (!flash) {
+		debug("SF: Failed to allocate spi_flash\n");
+		return NULL;
+	}
+	memset(flash, '\0', sizeof(*flash));
+
+	flash->spi = spi;
+	flash->name = params->name;
+	flash->poll_cmd = CMD_READ_STATUS;
+
+	/* Assign spi_flash ops */
+	flash->write = spi_flash_cmd_write_multi;
+	flash->erase = spi_flash_cmd_erase;
+	flash->read = spi_flash_cmd_read_fast;
+
+	/* Compute the flash size */
+	flash->page_size = 256;
+	flash->sector_size = params->sector_size;
+	flash->size = flash->sector_size * params->nr_sectors;
+
+	return flash;
+}
+
 #ifdef CONFIG_SPI_FLASH_BAR
 int spi_flash_bank_config(struct spi_flash *flash, u8 idcode0)
 {
@@ -84,89 +176,22 @@ int spi_flash_decode_fdt(const void *blob, struct spi_flash *flash)
 }
 #endif /* CONFIG_OF_CONTROL */
 
-/*
- * The following table holds all device probe functions
- *
- * shift:  number of continuation bytes before the ID
- * idcode: the expected IDCODE or 0xff for non JEDEC devices
- * probe:  the function to call
- *
- * Non JEDEC devices should be ordered in the table such that
- * the probe functions with best detection algorithms come first.
- *
- * Several matching entries are permitted, they will be tried
- * in sequence until a probe function returns non NULL.
- *
- * IDCODE_CONT_LEN may be redefined if a device needs to declare a
- * larger "shift" value.  IDCODE_PART_LEN generally shouldn't be
- * changed.  This is the max number of bytes probe functions may
- * examine when looking up part-specific identification info.
- *
- * Probe functions will be given the idcode buffer starting at their
- * manu id byte (the "idcode" in the table below).  In other words,
- * all of the continuation bytes will be skipped (the "shift" below).
- */
-#define IDCODE_CONT_LEN 0
-#define IDCODE_PART_LEN 5
-static const struct {
-	const u8 shift;
-	const u8 idcode;
-	struct spi_flash *(*probe) (struct spi_slave *spi, u8 *idcode);
-} flashes[] = {
-	/* Keep it sorted by define name */
-#ifdef CONFIG_SPI_FLASH_ATMEL
-	{ 0, 0x1f, spi_flash_probe_atmel, },
-#endif
-#ifdef CONFIG_SPI_FLASH_EON
-	{ 0, 0x1c, spi_flash_probe_eon, },
-#endif
-#ifdef CONFIG_SPI_FLASH_GIGADEVICE
-	{ 0, 0xc8, spi_flash_probe_gigadevice, },
-#endif
-#ifdef CONFIG_SPI_FLASH_MACRONIX
-	{ 0, 0xc2, spi_flash_probe_macronix, },
-#endif
-#ifdef CONFIG_SPI_FLASH_SPANSION
-	{ 0, 0x01, spi_flash_probe_spansion, },
-#endif
-#ifdef CONFIG_SPI_FLASH_SST
-	{ 0, 0xbf, spi_flash_probe_sst, },
-#endif
-#ifdef CONFIG_SPI_FLASH_STMICRO
-	{ 0, 0x20, spi_flash_probe_stmicro, },
-#endif
-#ifdef CONFIG_SPI_FLASH_WINBOND
-	{ 0, 0xef, spi_flash_probe_winbond, },
-#endif
-#ifdef CONFIG_SPI_FRAM_RAMTRON
-	{ 6, 0xc2, spi_fram_probe_ramtron, },
-# undef IDCODE_CONT_LEN
-# define IDCODE_CONT_LEN 6
-#endif
-	/* Keep it sorted by best detection */
-#ifdef CONFIG_SPI_FLASH_STMICRO
-	{ 0, 0xff, spi_flash_probe_stmicro, },
-#endif
-#ifdef CONFIG_SPI_FRAM_RAMTRON_NON_JEDEC
-	{ 0, 0xff, spi_fram_probe_ramtron, },
-#endif
-};
-#define IDCODE_LEN (IDCODE_CONT_LEN + IDCODE_PART_LEN)
-
 struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 		unsigned int max_hz, unsigned int spi_mode)
 {
 	struct spi_slave *spi;
 	struct spi_flash *flash = NULL;
-	int ret, i, shift;
-	u8 idcode[IDCODE_LEN], *idp;
+	u8 idcode[5], *idp;
+	int ret;
 
+	/* Setup spi_slave */
 	spi = spi_setup_slave(bus, cs, max_hz, spi_mode);
 	if (!spi) {
 		printf("SF: Failed to set up slave\n");
 		return NULL;
 	}
 
+	/* Claim spi bus */
 	ret = spi_claim_bus(spi);
 	if (ret) {
 		debug("SF: Failed to claim SPI bus: %d\n", ret);
@@ -175,45 +200,33 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 
 	/* Read the ID codes */
 	ret = spi_flash_cmd(spi, CMD_READ_ID, idcode, sizeof(idcode));
-	if (ret)
+	if (ret) {
+		printf("SF: Failed to get idcodes\n");
 		goto err_read_id;
+	}
 
 #ifdef DEBUG
 	printf("SF: Got idcodes\n");
 	print_buffer(0, idcode, 1, sizeof(idcode), 0);
 #endif
 
-	/* count the number of continuation bytes */
-	for (shift = 0, idp = idcode;
-	     shift < IDCODE_CONT_LEN && *idp == 0x7f;
-	     ++shift, ++idp)
-		continue;
-
-	/* search the table for matches in shift and id */
-	for (i = 0; i < ARRAY_SIZE(flashes); ++i)
-		if (flashes[i].shift == shift && flashes[i].idcode == *idp) {
-			/* we have a match, call probe */
-			flash = flashes[i].probe(spi, idp);
-			if (flash)
-				break;
-		}
-
-	if (!flash) {
-		printf("SF: Unsupported manufacturer %02x\n", *idp);
-		goto err_manufacturer_probe;
-	}
+	/* Validate ID's from flash dev table */
+	idp = idcode;
+	flash = spi_flash_validate_ids(spi, idp);
+	if (!flash)
+		goto err_read_id;
 
 #ifdef CONFIG_SPI_FLASH_BAR
-	/* Configure the BAR - disover bank cmds and read current bank  */
+	/* Configure the BAR - discover bank cmds and read current bank  */
 	ret = spi_flash_bank_config(flash, *idp);
 	if (ret < 0)
-		goto err_manufacturer_probe;
+		goto err_read_id;
 #endif
 
 #ifdef CONFIG_OF_CONTROL
 	if (spi_flash_decode_fdt(gd->fdt_blob, flash)) {
 		debug("SF: FDT decode error\n");
-		goto err_manufacturer_probe;
+		goto err_read_id;
 	}
 #endif
 #ifndef CONFIG_SPL_BUILD
@@ -231,42 +244,16 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 	}
 #endif
 
+	/* Release spi bus */
 	spi_release_bus(spi);
 
 	return flash;
 
-err_manufacturer_probe:
 err_read_id:
 	spi_release_bus(spi);
 err_claim_bus:
 	spi_free_slave(spi);
 	return NULL;
-}
-
-void *spi_flash_do_alloc(int offset, int size, struct spi_slave *spi,
-			 const char *name)
-{
-	struct spi_flash *flash;
-	void *ptr;
-
-	ptr = malloc(size);
-	if (!ptr) {
-		debug("SF: Failed to allocate memory\n");
-		return NULL;
-	}
-	memset(ptr, '\0', size);
-	flash = (struct spi_flash *)(ptr + offset);
-
-	/* Set up some basic fields - caller will sort out sizes */
-	flash->spi = spi;
-	flash->name = name;
-	flash->poll_cmd = CMD_READ_STATUS;
-
-	flash->read = spi_flash_cmd_read_fast;
-	flash->write = spi_flash_cmd_write_multi;
-	flash->erase = spi_flash_cmd_erase;
-
-	return flash;
 }
 
 void spi_flash_free(struct spi_flash *flash)
