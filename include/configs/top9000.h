@@ -120,7 +120,6 @@
 #define CONFIG_ATMEL_SPI0		/* SPI used for FRAM is SPI0 */
 #define FRAM_SPI_BUS		0
 #define FRAM_CS_NUM		0
-#define CONFIG_SPI_FLASH		/* RAMTRON FRAM on SPI bus */
 #define CONFIG_SPI_FRAM_RAMTRON
 #define CONFIG_SF_DEFAULT_SPEED	1000000	/* be conservative here... */
 #define CONFIG_SF_DEFAULT_MODE	SPI_MODE_0

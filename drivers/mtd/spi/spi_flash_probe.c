@@ -144,10 +144,6 @@ static const struct spi_flash_params spi_flash_params_table[] = {
 	 * (W25Q64DW, W25Q64FV_QPI)
 	 * (W25Q128FW, W25Q128FV_QPI)
 	 */
-	/*
-	 * TODO:
-	 * RAMTRON
-	 */
 };
 
 struct spi_flash *spi_flash_validate_ids(struct spi_slave *spi, u8 *idcode)

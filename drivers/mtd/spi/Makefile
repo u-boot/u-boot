@@ -14,7 +14,10 @@ COBJS-$(CONFIG_SPL_SPI_LOAD)	+= spi_spl_load.o
 COBJS-$(CONFIG_SPL_SPI_BOOT)	+= fsl_espi_spl.o
 endif
 
-COBJS-$(CONFIG_SPI_FLASH) += spi_flash_probe_legacy.o spi_flash_ops.o spi_flash.o
+ifdef CONFIG_CMD_SF
+COBJS-y        += spi_flash.o
+endif
+COBJS-$(CONFIG_SPI_FLASH)	+= spi_flash_probe.o spi_flash_ops.o
 COBJS-$(CONFIG_SPI_FLASH_ATMEL)	+= atmel.o
 COBJS-$(CONFIG_SPI_FLASH_EON)	+= eon.o
 COBJS-$(CONFIG_SPI_FLASH_GIGADEVICE)	+= gigadevice.o
