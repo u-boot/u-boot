@@ -120,136 +120,136 @@ III) Analysis of in-tree drivers
   A) drivers in drivers/pci/
   --------------------------
 
-    1) pci_indirect.c
-    -----------------
+    pci_indirect.c
+    --------------
       Shared driver for indirect PCI bridges, several CONFIG macros - will
       require significant cleanup.
 
-    2) pci_ixp.c
-    ------------
+    pci_ixp.c
+    ---------
       Standard driver, specifies all read/write functions separately.
 
-    3) pci_sh4.c
-    ------------
+    pci_sh4.c
+    ---------
       Shared init function for SH4 drivers, uses dword for read/write ops.
 
-    4) pci_sh7751.c
-    ---------------
+    pci_sh7751.c
+    ------------
       Standard driver, uses SH4 shared init.
 
-    5) pci_sh7780.c
-    ---------------
+    pci_sh7780.c
+    ------------
       Standard driver, uses SH4 shared init.
 
-    6) tsi108_pci.c
-    ---------------
+    tsi108_pci.c
+    ------------
       Standard driver, uses dword for read/write ops.
 
-    7) fsl_pci_init.c
-    -----------------
+    fsl_pci_init.c
+    --------------
       Driver for PCI and PCI-e, uses indirect functions.
 
-    8) pci_ftpci100.c
-    -----------------
+    pci_ftpci100.c
+    --------------
       Standard driver, uses indirect functions, has separate scan/setup
       functions.
 
   B) driver in arch/
   ------------------
 
-    1) x86/lib/pci_type1.c
-    ----------------------
+    x86/lib/pci_type1.c
+    -------------------
       Standard driver, specifies all read/write functions separately.
 
-    2) m68k/cpu/mcf5445x/pci.c
-    --------------------------
+    m68k/cpu/mcf5445x/pci.c
+    -----------------------
       Standard driver, specifies all read/write functions separately.
 
-    3) m68k/cpu/mcf547x_8x/pci.c
-    ----------------------------
+    m68k/cpu/mcf547x_8x/pci.c
+    -------------------------
       Standard driver, specifies all read/write functions separately.
 
-    4) powerpc/cpu/mpc824x/pci.c
-    ----------------------------
+    powerpc/cpu/mpc824x/pci.c
+    -------------------------
       Standard driver, uses indirect functions, does not setup HW.
 
-    5) powerpc/cpu/mpc8260/pci.c
+    powerpc/cpu/mpc8260/pci.c
+    -------------------------
+      Standard driver, uses indirect functions.
+
+    powerpc/cpu/ppc4xx/4xx_pci.c
     ----------------------------
       Standard driver, uses indirect functions.
 
-    6) powerpc/cpu/ppc4xx/4xx_pci.c
-    -------------------------------
-      Standard driver, uses indirect functions.
-
-    7) powerpc/cpu/ppc4xx/4xx_pcie.c
-    --------------------------------
-      PCI-e driver, specifies all read/write functions separately.
-
-    8) powerpc/cpu/mpc83xx/pci.c
-    ----------------------------
-      Standard driver, uses indirect functions.
-
-    9) powerpc/cpu/mpc83xx/pcie.c
+    powerpc/cpu/ppc4xx/4xx_pcie.c
     -----------------------------
       PCI-e driver, specifies all read/write functions separately.
 
-    10) powerpc/cpu/mpc5xxx/pci_mpc5200.c
-    -------------------------------------
+    powerpc/cpu/mpc83xx/pci.c
+    -------------------------
+      Standard driver, uses indirect functions.
+
+    powerpc/cpu/mpc83xx/pcie.c
+    --------------------------
+      PCI-e driver, specifies all read/write functions separately.
+
+    powerpc/cpu/mpc5xxx/pci_mpc5200.c
+    ---------------------------------
       Standard driver, uses dword for read/write ops.
 
-    11) powerpc/cpu/mpc512x/pci.c
-    -----------------------------
+    powerpc/cpu/mpc512x/pci.c
+    -------------------------
       Standard driver, uses indirect functions.
 
-    12) powerpc/cpu/mpc85xx/pci.c
-    -----------------------------
+    powerpc/cpu/mpc85xx/pci.c
+    -------------------------
       Standard driver, uses indirect functions, has two busses.
 
   C) drivers in board/
   --------------------
 
-    1) eltec/elppc/pci.c
-    --------------------
+    eltec/elppc/pci.c
+    -----------------
       Standard driver, uses indirect functions.
 
-    2) amirix/ap1000/pci.c
-    ----------------------
+    amirix/ap1000/pci.c
+    -------------------
       Standard driver, specifies all read/write functions separately.
 
-    3) prodrive/p3mx/pci.c
-    ----------------------
-      Standard driver, uses dword for read/write ops, has two busses.
-
-    4) esd/cpci750/pci.c
-    --------------------
-      Standard driver, uses dword for read/write ops, has two busses.
-
-    5) esd/common/pci.c
+    prodrive/p3mx/pci.c
     -------------------
-      Standard driver, uses dword for read/write ops.
+      Standard driver, uses dword for read/write ops, has two busses.
 
-    6) dave/common/pci.c
-    --------------------
-      Standard driver, uses dword for read/write ops.
+    esd/cpci750/pci.c
+    -----------------
+      Standard driver, uses dword for read/write ops, has two busses.
 
-    7) ppmc7xx/pci.c
+    esd/common/pci.c
     ----------------
+      Standard driver, uses dword for read/write ops.
+
+    dave/common/pci.c
+    -----------------
+      Standard driver, uses dword for read/write ops.
+
+    ppmc7xx/pci.c
+    -------------
       Standard driver, uses indirect functions.
 
-    9) Marvell/db64360/pci.c
-    ------------------------
+    Marvell/db64360/pci.c
+    ---------------------
       Standard driver, uses dword for read/write ops, has two busses.
 
-    10) Marvell/db64460/pci.c
-    -------------------------
+    Marvell/db64460/pci.c
+    ---------------------
       Standard driver, uses dword for read/write ops, has two busses.
 
-    11) evb64260/pci.c
-    ------------------
+    evb64260/pci.c
+    --------------
       Standard driver, uses dword for read/write ops, has two busses.
 
-    12) armltd/integrator/pci.c
-    ---------------------------
+    armltd/integrator/pci.c
+    -----------------------
       Standard driver, specifies all read/write functions separately.
 
   All drivers will be moved to drivers/pci. Several drivers seem

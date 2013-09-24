@@ -103,98 +103,98 @@ II) Approach
 III) Analysis of in-tree drivers
 --------------------------------
 
-  1) altera_spi.c
+  altera_spi.c
+  ------------
+  All methods have designated structure. Simple conversion possible.
+
+  andes_spi.c
+  -----------
+  All methods have designated structure. Simple conversion possible.
+
+  andes_spi.h
+  -----------
+  Support file for andes_spi.c. No conversion is needed.
+
+  armada100_spi.c
   ---------------
   All methods have designated structure. Simple conversion possible.
 
-  2) andes_spi.c
-  --------------
-  All methods have designated structure. Simple conversion possible.
-
-  3) andes_spi.h
-  --------------
-  Support file for andes_spi.c. No conversion is needed.
-
-  4) armada100_spi.c
-  ------------------
-  All methods have designated structure. Simple conversion possible.
-
-  5) atmel_dataflash_spi.c
-  ------------------------
+  atmel_dataflash_spi.c
+  ---------------------
   Wrong placement. Will be moved to another location.
 
-  6) atmel_spi.c
-  --------------
+  atmel_spi.c
+  -----------
   Supports more than one bus. Need some minor change.
 
-  7) atmel_spi.h
-  --------------
+  atmel_spi.h
+  -----------
   Support file for andes_spi.c. No conversion is needed.
 
-  8) bfin_spi.c
-  -------------
+  bfin_spi.c
+  ----------
   Supports more than one bus. Need some minor change.
 
-  9) cf_spi.c
-  -----------
+  cf_spi.c
+  --------
   Cooperate with some cpu specific methods from other files. Hard conversion.
 
-  10) davinci_spi.c
-  -----------------
+  davinci_spi.c
+  -------------
   All methods have designated structure. Simple conversion possible.
 
-  11) davinci_spi.h
-  -----------------
+  davinci_spi.h
+  -------------
   Support file for davinci_spi.h. No conversion is needed.
 
-  12) fsl_espi.c
+  fsl_espi.c
+  ----------
+  All methods have designated structure. Simple conversion possible.
+
+  kirkwood_spi.c
   --------------
   All methods have designated structure. Simple conversion possible.
 
-  13) kirkwood_spi.c
-  ------------------
-  All methods have designated structure. Simple conversion possible.
-
-  14) mpc8xxx_spi.c
-  -----------------
-  All methods have designated structure. Simple conversion possible.
-
-  15) mpc52xx_spi.c
-  -----------------
-  All methods have designated structure. Simple conversion possible.
-
-  16) mxc_spi.c
+  mpc8xxx_spi.c
   -------------
   All methods have designated structure. Simple conversion possible.
 
-  17) mxs_spi.c
+  mpc52xx_spi.c
   -------------
   All methods have designated structure. Simple conversion possible.
 
-  18) oc_tiny_spi.c
-  -----------------
+  mxc_spi.c
+  ---------
+  All methods have designated structure. Simple conversion possible.
+
+  mxs_spi.c
+  ---------
+  All methods have designated structure. Simple conversion possible.
+
+  oc_tiny_spi.c
+  -------------
   Supports more than one bus. Need some minor change.
 
-  19) omap3_spi.c
-  ---------------
+  omap3_spi.c
+  -----------
   Supports more than one bus. Need some minor change.
 
-  20) omap3_spi.h
-  ---------------
+  omap3_spi.h
+  -----------
   Support file for omap3_spi.c. No conversion is needed.
 
-  21) sh_spi.c
-  ------------
+  sh_spi.c
+  --------
   All methods have designated structure. Simple conversion possible.
 
-  22) sh_spi.h
-  ------------
+  sh_spi.h
+  --------
   Support file for sh_spi.h. No conversion is needed.
 
-  23) soft_spi.c
-  --------------
+  soft_spi.c
+  ----------
   Use many board specific method linked from other files. Need careful debugging.
 
-  24) tegra2_spi.c
-  ----------------
+  tegra2_spi.c
+  ------------
   Some hardware specific problem when releasing bus.

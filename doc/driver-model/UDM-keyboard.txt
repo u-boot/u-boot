@@ -28,18 +28,18 @@ be converted into driver's private data.
 III) Analysis of in-tree drivers
 --------------------------------
 
-  1) board/mpl/common/kbd.c
-  -------------------------
+  board/mpl/common/kbd.c
+  ----------------------
   This driver is a classic STDIO driver, no problem with conversion is expected.
   Only necessary change will be to move this driver to a proper location.
 
-  2) board/rbc823/kbd.c
-  ---------------------
+  board/rbc823/kbd.c
+  ------------------
   This driver is a classic STDIO driver, no problem with conversion is expected.
   Only necessary change will be to move this driver to a proper location.
 
-  3) drivers/input/keyboard.c
-  ---------------------------
+  drivers/input/keyboard.c
+  ------------------------
   This driver is special in many ways. Firstly because this is a universal stub
   driver for converting scancodes from i8042 and the likes. Secondly because the
   buffer is filled by various other ad-hoc implementations of keyboard input by

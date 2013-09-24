@@ -220,100 +220,100 @@ As for the legacy drivers, these will either be converted or removed altogether.
 III) Analysis of in-tree drivers
 --------------------------------
 
-  1) arm_pl180_mmci.c
-  -------------------
-  Follows the new API and also has a good encapsulation of the whole driver. The
-  conversion here will be simple.
-
-  2) atmel_mci.c
-  --------------
-  This driver uses the legacy API and should be removed unless converted. It is
-  probably possbible to replace this driver with gen_atmel_mci.c . No conversion
-  will be done on this driver.
-
-  3) bfin_sdh.c
-  -------------
-  Follows the new API and also has a good encapsulation of the whole driver. The
-  conversion here will be simple.
-
-  4) davinci_mmc.c
+  arm_pl180_mmci.c
   ----------------
   Follows the new API and also has a good encapsulation of the whole driver. The
   conversion here will be simple.
 
-  5) fsl_esdhc.c
-  --------------
+  atmel_mci.c
+  -----------
+  This driver uses the legacy API and should be removed unless converted. It is
+  probably possbible to replace this driver with gen_atmel_mci.c . No conversion
+  will be done on this driver.
+
+  bfin_sdh.c
+  ----------
+  Follows the new API and also has a good encapsulation of the whole driver. The
+  conversion here will be simple.
+
+  davinci_mmc.c
+  -------------
+  Follows the new API and also has a good encapsulation of the whole driver. The
+  conversion here will be simple.
+
+  fsl_esdhc.c
+  -----------
   Follows the new API and also has a good encapsulation of the whole driver. The
   conversion here will be simple, unless some problem appears due to the FDT
   component of the driver.
 
-  6) ftsdc010_esdhc.c
-  -------------------
+  ftsdc010_esdhc.c
+  ----------------
   Follows the new API and also has a good encapsulation of the whole driver. The
   conversion here will be simple.
 
-  7) gen_atmel_mci.c
-  ------------------
+  gen_atmel_mci.c
+  ---------------
   Follows the new API and also has a good encapsulation of the whole driver. The
   conversion here will be simple.
 
-  8) mmc_spi.c
-  ------------
+  mmc_spi.c
+  ---------
   Follows the new API and also has a good encapsulation of the whole driver. The
   conversion here will be simple.
 
-  9) mv_sdhci.c
-  -------------
+  mv_sdhci.c
+  ----------
   This is a component of the SDHCI support, allowing it to run on Marvell
   Kirkwood chip. It is probable the SDHCI support will have to be modified to
   allow calling functions from this file based on information passed via
   platform_data.
 
-  10) mxcmmc.c
+  mxcmmc.c
+  --------
+  Follows the new API and also has a good encapsulation of the whole driver. The
+  conversion here will be simple.
+
+  mxsmmc.c
+  --------
+  Follows the new API and also has a good encapsulation of the whole driver. The
+  conversion here will be simple.
+
+  omap_hsmmc.c
   ------------
   Follows the new API and also has a good encapsulation of the whole driver. The
   conversion here will be simple.
 
-  11) mxsmmc.c
-  ------------
-  Follows the new API and also has a good encapsulation of the whole driver. The
-  conversion here will be simple.
-
-  12) omap_hsmmc.c
-  ----------------
-  Follows the new API and also has a good encapsulation of the whole driver. The
-  conversion here will be simple.
-
-  13) pxa_mmc.c
-  -------------
+  pxa_mmc.c
+  ---------
   This driver uses the legacy API and is written in a severely ad-hoc manner.
   This driver will be removed in favor of pxa_mmc_gen.c, which is proved to work
   better and is already well tested. No conversion will be done on this driver
   anymore.
 
-  14) pxa_mmc_gen.c
-  -----------------
-  Follows the new API and also has a good encapsulation of the whole driver. The
-  conversion here will be simple.
-
-  15) s5p_mmc.c
+  pxa_mmc_gen.c
   -------------
   Follows the new API and also has a good encapsulation of the whole driver. The
   conversion here will be simple.
 
-  16) sdhci.c
-  -----------
+  s5p_mmc.c
+  ---------
+  Follows the new API and also has a good encapsulation of the whole driver. The
+  conversion here will be simple.
+
+  sdhci.c
+  -------
   Follows the new API and also has a good encapsulation of the whole driver. The
   conversion here will be simple, though it'd be necessary to modify this driver
   to also support the Kirkwood series and probably also Tegra series of CPUs.
   See the respective parts of this section for details.
 
-  17) sh_mmcif.c
-  --------------
+  sh_mmcif.c
+  ----------
   Follows the new API and also has a good encapsulation of the whole driver. The
   conversion here will be simple.
 
-  18) tegra2_mmc.c
-  ----------------
+  tegra2_mmc.c
+  ------------
   Follows the new API and also has a good encapsulation of the whole driver. The
   conversion here will be simple.
