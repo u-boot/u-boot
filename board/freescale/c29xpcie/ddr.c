@@ -26,20 +26,20 @@ dimm_params_t ddr_raw_timing = {
 	.edc_config = 2,
 	.burst_lengths_bitmask = 0x0c,
 
-	.tCKmin_X_ps = 1650,
-	.caslat_X = 0x7e << 4,	/* 5,6,7,8,9,10 */
-	.tAA_ps = 14050,
-	.tWR_ps = 15000,
-	.tRCD_ps = 13500,
-	.tRRD_ps = 75000,
-	.tRP_ps = 13500,
-	.tRAS_ps = 40000,
-	.tRC_ps = 49500,
-	.tRFC_ps = 160000,
-	.tWTR_ps = 75000,
-	.tRTP_ps = 75000,
+	.tckmin_x_ps = 1650,
+	.caslat_x = 0x7e << 4,	/* 5,6,7,8,9,10 */
+	.taa_ps = 14050,
+	.twr_ps = 15000,
+	.trcd_ps = 13500,
+	.trrd_ps = 75000,
+	.trp_ps = 13500,
+	.tras_ps = 40000,
+	.trc_ps = 49500,
+	.trfc_ps = 160000,
+	.twtr_ps = 75000,
+	.trtp_ps = 75000,
 	.refresh_rate_ps = 7800000,
-	.tFAW_ps = 30000,
+	.tfaw_ps = 30000,
 };
 
 int fsl_ddr_get_dimm_params(dimm_params_t *pdimm,

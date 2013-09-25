@@ -353,14 +353,14 @@ static void set_timing_cfg_3(fsl_ddr_cfg_regs_t *ddr,
 	/* Control Adjust */
 	unsigned int cntl_adj = 0;
 
-	ext_pretoact = picos_to_mclk(common_dimm->tRP_ps) >> 4;
-	ext_acttopre = picos_to_mclk(common_dimm->tRAS_ps) >> 4;
-	ext_acttorw = picos_to_mclk(common_dimm->tRCD_ps) >> 4;
+	ext_pretoact = picos_to_mclk(common_dimm->trp_ps) >> 4;
+	ext_acttopre = picos_to_mclk(common_dimm->tras_ps) >> 4;
+	ext_acttorw = picos_to_mclk(common_dimm->trcd_ps) >> 4;
 	ext_caslat = (2 * cas_latency - 1) >> 4;
-	ext_refrec = (picos_to_mclk(common_dimm->tRFC_ps) - 8) >> 4;
+	ext_refrec = (picos_to_mclk(common_dimm->trfc_ps) - 8) >> 4;
 	/* ext_wrrec only deals with 16 clock and above, or 14 with OTF */
-	ext_wrrec = (picos_to_mclk(common_dimm->tWR_ps) +
-		(popts->OTF_burst_chop_en ? 2 : 0)) >> 4;
+	ext_wrrec = (picos_to_mclk(common_dimm->twr_ps) +
+		(popts->otf_burst_chop_en ? 2 : 0)) >> 4;
 
 	ddr->timing_cfg_3 = (0
 		| ((ext_pretoact & 0x1) << 28)
@@ -400,9 +400,9 @@ static void set_timing_cfg_1(fsl_ddr_cfg_regs_t *ddr,
 	static const u8 wrrec_table[] = {
 		1, 2, 3, 4, 5, 6, 7, 8, 10, 10, 12, 12, 14, 14, 0, 0};
 
-	pretoact_mclk = picos_to_mclk(common_dimm->tRP_ps);
-	acttopre_mclk = picos_to_mclk(common_dimm->tRAS_ps);
-	acttorw_mclk = picos_to_mclk(common_dimm->tRCD_ps);
+	pretoact_mclk = picos_to_mclk(common_dimm->trp_ps);
+	acttopre_mclk = picos_to_mclk(common_dimm->tras_ps);
+	acttorw_mclk = picos_to_mclk(common_dimm->trcd_ps);
 
 	/*
 	 * Translate CAS Latency to a DDR controller field value:
@@ -433,17 +433,17 @@ static void set_timing_cfg_1(fsl_ddr_cfg_regs_t *ddr,
 	caslat_ctrl = 2 * cas_latency - 1;
 #endif
 
-	refrec_ctrl = picos_to_mclk(common_dimm->tRFC_ps) - 8;
-	wrrec_mclk = picos_to_mclk(common_dimm->tWR_ps);
+	refrec_ctrl = picos_to_mclk(common_dimm->trfc_ps) - 8;
+	wrrec_mclk = picos_to_mclk(common_dimm->twr_ps);
 
 	if (wrrec_mclk > 16)
 		printf("Error: WRREC doesn't support more than 16 clocks\n");
 	else
 		wrrec_mclk = wrrec_table[wrrec_mclk - 1];
-	if (popts->OTF_burst_chop_en)
+	if (popts->otf_burst_chop_en)
 		wrrec_mclk += 2;
 
-	acttoact_mclk = picos_to_mclk(common_dimm->tRRD_ps);
+	acttoact_mclk = picos_to_mclk(common_dimm->trrd_ps);
 	/*
 	 * JEDEC has min requirement for tRRD
 	 */
@@ -451,7 +451,7 @@ static void set_timing_cfg_1(fsl_ddr_cfg_regs_t *ddr,
 	if (acttoact_mclk < 4)
 		acttoact_mclk = 4;
 #endif
-	wrtord_mclk = picos_to_mclk(common_dimm->tWTR_ps);
+	wrtord_mclk = picos_to_mclk(common_dimm->twtr_ps);
 	/*
 	 * JEDEC has some min requirements for tWTR
 	 */
@@ -462,7 +462,7 @@ static void set_timing_cfg_1(fsl_ddr_cfg_regs_t *ddr,
 	if (wrtord_mclk < 4)
 		wrtord_mclk = 4;
 #endif
-	if (popts->OTF_burst_chop_en)
+	if (popts->otf_burst_chop_en)
 		wrtord_mclk += 2;
 
 	ddr->timing_cfg_1 = (0
@@ -518,7 +518,7 @@ static void set_timing_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 	wr_lat = compute_cas_write_latency();
 #endif
 
-	rd_to_pre = picos_to_mclk(common_dimm->tRTP_ps);
+	rd_to_pre = picos_to_mclk(common_dimm->trtp_ps);
 	/*
 	 * JEDEC has some min requirements for tRTP
 	 */
@@ -531,12 +531,12 @@ static void set_timing_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 #endif
 	if (additive_latency)
 		rd_to_pre += additive_latency;
-	if (popts->OTF_burst_chop_en)
+	if (popts->otf_burst_chop_en)
 		rd_to_pre += 2; /* according to UM */
 
 	wr_data_delay = popts->write_data_delay;
-	cke_pls = picos_to_mclk(popts->tCKE_clock_pulse_width_ps);
-	four_act = picos_to_mclk(popts->tFAW_window_four_activates_ps);
+	cke_pls = picos_to_mclk(popts->tcke_clock_pulse_width_ps);
+	four_act = picos_to_mclk(popts->tfaw_window_four_activates_ps);
 
 	ddr->timing_cfg_2 = (0
 		| ((add_lat_mclk & 0xf) << 28)
@@ -555,8 +555,8 @@ static void set_ddr_sdram_rcw(fsl_ddr_cfg_regs_t *ddr,
 			       const memctl_options_t *popts,
 			       const common_timing_params_t *common_dimm)
 {
-	if (common_dimm->all_DIMMs_registered
-		&& !common_dimm->all_DIMMs_unbuffered) {
+	if (common_dimm->all_dimms_registered &&
+	    !common_dimm->all_dimms_unbuffered)	{
 		if (popts->rcw_override) {
 			ddr->ddr_sdram_rcw_1 = popts->rcw_1;
 			ddr->ddr_sdram_rcw_2 = popts->rcw_2;
@@ -599,8 +599,8 @@ static void set_ddr_sdram_cfg(fsl_ddr_cfg_regs_t *ddr,
 	unsigned int dbw;		/* DRAM dta bus width */
 	unsigned int eight_be = 0;	/* 8-beat burst enable, DDR2 is zero */
 	unsigned int ncap = 0;		/* Non-concurrent auto-precharge */
-	unsigned int threeT_en;		/* Enable 3T timing */
-	unsigned int twoT_en;		/* Enable 2T timing */
+	unsigned int threet_en;		/* Enable 3T timing */
+	unsigned int twot_en;		/* Enable 2T timing */
 	unsigned int ba_intlv_ctl;	/* Bank (CS) interleaving control */
 	unsigned int x32_en = 0;	/* x32 enable */
 	unsigned int pchb8 = 0;		/* precharge bit 8 enable */
@@ -610,20 +610,20 @@ static void set_ddr_sdram_cfg(fsl_ddr_cfg_regs_t *ddr,
 
 	mem_en = 1;
 	sren = popts->self_refresh_in_sleep;
-	if (common_dimm->all_DIMMs_ECC_capable) {
+	if (common_dimm->all_dimms_ecc_capable) {
 		/* Allow setting of ECC only if all DIMMs are ECC. */
-		ecc_en = popts->ECC_mode;
+		ecc_en = popts->ecc_mode;
 	} else {
 		ecc_en = 0;
 	}
 
-	if (common_dimm->all_DIMMs_registered
-		&& !common_dimm->all_DIMMs_unbuffered) {
+	if (common_dimm->all_dimms_registered &&
+	    !common_dimm->all_dimms_unbuffered)	{
 		rd_en = 1;
-		twoT_en = 0;
+		twot_en = 0;
 	} else {
 		rd_en = 0;
-		twoT_en = popts->twoT_en;
+		twot_en = popts->twot_en;
 	}
 
 	sdram_type = CONFIG_FSL_SDRAM_TYPE;
@@ -643,7 +643,7 @@ static void set_ddr_sdram_cfg(fsl_ddr_cfg_regs_t *ddr,
 			eight_be = 1;
 	}
 
-	threeT_en = popts->threeT_en;
+	threet_en = popts->threet_en;
 	ba_intlv_ctl = popts->ba_intlv_ctl;
 	hse = popts->half_strength_driver_enable;
 
@@ -657,8 +657,8 @@ static void set_ddr_sdram_cfg(fsl_ddr_cfg_regs_t *ddr,
 			| ((dbw & 0x3) << 19)
 			| ((eight_be & 0x1) << 18)
 			| ((ncap & 0x1) << 17)
-			| ((threeT_en & 0x1) << 16)
-			| ((twoT_en & 0x1) << 15)
+			| ((threet_en & 0x1) << 16)
+			| ((twot_en & 0x1) << 15)
 			| ((ba_intlv_ctl & 0x7F) << 8)
 			| ((x32_en & 0x1) << 5)
 			| ((pchb8 & 0x1) << 4)
@@ -691,7 +691,7 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 	int i;
 
 	dll_rst_dis = 1;	/* Make this configurable */
-	dqs_cfg = popts->DQS_config;
+	dqs_cfg = popts->dqs_config;
 	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
 		if (popts->cs_local_opts[i].odt_rd_cfg
 			|| popts->cs_local_opts[i].odt_wr_cfg) {
@@ -710,7 +710,7 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 	 *      << DDR_SDRAM_INTERVAL[REFINT]
 	 */
 #if defined(CONFIG_FSL_DDR3)
-	obc_cfg = popts->OTF_burst_chop_en;
+	obc_cfg = popts->otf_burst_chop_en;
 #else
 	obc_cfg = 0;
 #endif
@@ -730,7 +730,7 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 
 #if defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 	/* Use the DDR controller to auto initialize memory. */
-	d_init = popts->ECC_init_using_memctl;
+	d_init = popts->ecc_init_using_memctl;
 	ddr->ddr_data_init = CONFIG_MEM_INIT_VALUE;
 	debug("DDR: ddr_data_init = 0x%08x\n", ddr->ddr_data_init);
 #else
@@ -939,7 +939,7 @@ static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
 	 */
 	dll_on = 1;
 
-	wr_mclk = (common_dimm->tWR_ps + mclk_ps - 1) / mclk_ps;
+	wr_mclk = (common_dimm->twr_ps + mclk_ps - 1) / mclk_ps;
 	if (wr_mclk <= 16) {
 		wr = wr_table[wr_mclk - 5];
 	} else {
@@ -1101,7 +1101,7 @@ static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
 #if defined(CONFIG_FSL_DDR2)
 	const unsigned int mclk_ps = get_memory_clk_period_ps();
 #endif
-	dqs_en = !popts->DQS_config;
+	dqs_en = !popts->dqs_config;
 	rtt = fsl_ddr_get_rtt();
 
 	al = additive_latency;
@@ -1130,7 +1130,7 @@ static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
 #if defined(CONFIG_FSL_DDR1)
 	wr = 0;       /* Historical */
 #elif defined(CONFIG_FSL_DDR2)
-	wr = (common_dimm->tWR_ps + mclk_ps - 1) / mclk_ps - 1;
+	wr = (common_dimm->twr_ps + mclk_ps - 1) / mclk_ps - 1;
 #endif
 	dll_res = 0;
 	mode = 0;

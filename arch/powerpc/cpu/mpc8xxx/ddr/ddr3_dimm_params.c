@@ -210,12 +210,12 @@ ddr_compute_dimm_parameters(const ddr3_spd_eeprom_t *spd,
 	 * sdram minimum cycle time
 	 * we assume the MTB is 0.125ns
 	 * eg:
-	 * tCK_min=15 MTB (1.875ns) ->DDR3-1066
+	 * tck_min=15 MTB (1.875ns) ->DDR3-1066
 	 *        =12 MTB (1.5ns) ->DDR3-1333
 	 *        =10 MTB (1.25ns) ->DDR3-1600
 	 */
-	pdimm->tCKmin_X_ps = spd->tCK_min * mtb_ps +
-		(spd->fine_tCK_min * ftb_10th_ps) / 10;
+	pdimm->tckmin_x_ps = spd->tck_min * mtb_ps +
+		(spd->fine_tck_min * ftb_10th_ps) / 10;
 
 	/*
 	 * CAS latency supported
@@ -223,55 +223,55 @@ ddr_compute_dimm_parameters(const ddr3_spd_eeprom_t *spd,
 	 * bit5 - CL5
 	 * bit18 - CL18
 	 */
-	pdimm->caslat_X  = ((spd->caslat_msb << 8) | spd->caslat_lsb) << 4;
+	pdimm->caslat_x  = ((spd->caslat_msb << 8) | spd->caslat_lsb) << 4;
 
 	/*
 	 * min CAS latency time
-	 * eg: tAA_min =
+	 * eg: taa_min =
 	 * DDR3-800D	100 MTB (12.5ns)
 	 * DDR3-1066F	105 MTB (13.125ns)
 	 * DDR3-1333H	108 MTB (13.5ns)
 	 * DDR3-1600H	90 MTB (11.25ns)
 	 */
-	pdimm->tAA_ps = spd->tAA_min * mtb_ps +
-		(spd->fine_tAA_min * ftb_10th_ps) / 10;
+	pdimm->taa_ps = spd->taa_min * mtb_ps +
+		(spd->fine_taa_min * ftb_10th_ps) / 10;
 
 	/*
 	 * min write recovery time
 	 * eg:
-	 * tWR_min = 120 MTB (15ns) -> all speed grades.
+	 * twr_min = 120 MTB (15ns) -> all speed grades.
 	 */
-	pdimm->tWR_ps = spd->tWR_min * mtb_ps;
+	pdimm->twr_ps = spd->twr_min * mtb_ps;
 
 	/*
 	 * min RAS to CAS delay time
-	 * eg: tRCD_min =
+	 * eg: trcd_min =
 	 * DDR3-800	100 MTB (12.5ns)
 	 * DDR3-1066F	105 MTB (13.125ns)
 	 * DDR3-1333H	108 MTB (13.5ns)
 	 * DDR3-1600H	90 MTB (11.25)
 	 */
-	pdimm->tRCD_ps = spd->tRCD_min * mtb_ps +
-		(spd->fine_tRCD_min * ftb_10th_ps) / 10;
+	pdimm->trcd_ps = spd->trcd_min * mtb_ps +
+		(spd->fine_trcd_min * ftb_10th_ps) / 10;
 
 	/*
 	 * min row active to row active delay time
-	 * eg: tRRD_min =
+	 * eg: trrd_min =
 	 * DDR3-800(1KB page)	80 MTB (10ns)
 	 * DDR3-1333(1KB page)	48 MTB (6ns)
 	 */
-	pdimm->tRRD_ps = spd->tRRD_min * mtb_ps;
+	pdimm->trrd_ps = spd->trrd_min * mtb_ps;
 
 	/*
 	 * min row precharge delay time
-	 * eg: tRP_min =
+	 * eg: trp_min =
 	 * DDR3-800D	100 MTB (12.5ns)
 	 * DDR3-1066F	105 MTB (13.125ns)
 	 * DDR3-1333H	108 MTB (13.5ns)
 	 * DDR3-1600H	90 MTB (11.25ns)
 	 */
-	pdimm->tRP_ps = spd->tRP_min * mtb_ps +
-		(spd->fine_tRP_min * ftb_10th_ps) / 10;
+	pdimm->trp_ps = spd->trp_min * mtb_ps +
+		(spd->fine_trp_min * ftb_10th_ps) / 10;
 
 	/* min active to precharge delay time
 	 * eg: tRAS_min =
@@ -280,7 +280,7 @@ ddr_compute_dimm_parameters(const ddr3_spd_eeprom_t *spd,
 	 * DDR3-1333H	288 MTB (36ns)
 	 * DDR3-1600H	280 MTB (35ns)
 	 */
-	pdimm->tRAS_ps = (((spd->tRAS_tRC_ext & 0xf) << 8) | spd->tRAS_min_lsb)
+	pdimm->tras_ps = (((spd->tras_trc_ext & 0xf) << 8) | spd->tras_min_lsb)
 			* mtb_ps;
 	/*
 	 * min active to actice/refresh delay time
@@ -290,8 +290,8 @@ ddr_compute_dimm_parameters(const ddr3_spd_eeprom_t *spd,
 	 * DDR3-1333H	396 MTB (49.5ns)
 	 * DDR3-1600H	370 MTB (46.25ns)
 	 */
-	pdimm->tRC_ps = (((spd->tRAS_tRC_ext & 0xf0) << 4) | spd->tRC_min_lsb)
-			* mtb_ps + (spd->fine_tRC_min * ftb_10th_ps) / 10;
+	pdimm->trc_ps = (((spd->tras_trc_ext & 0xf0) << 4) | spd->trc_min_lsb)
+			* mtb_ps + (spd->fine_trc_min * ftb_10th_ps) / 10;
 	/*
 	 * min refresh recovery delay time
 	 * eg: tRFC_min =
@@ -299,21 +299,21 @@ ddr_compute_dimm_parameters(const ddr3_spd_eeprom_t *spd,
 	 * 1Gb		880 MTB (110ns)
 	 * 2Gb		1280 MTB (160ns)
 	 */
-	pdimm->tRFC_ps = ((spd->tRFC_min_msb << 8) | spd->tRFC_min_lsb)
+	pdimm->trfc_ps = ((spd->trfc_min_msb << 8) | spd->trfc_min_lsb)
 			* mtb_ps;
 	/*
 	 * min internal write to read command delay time
-	 * eg: tWTR_min = 40 MTB (7.5ns) - all speed bins.
+	 * eg: twtr_min = 40 MTB (7.5ns) - all speed bins.
 	 * tWRT is at least 4 mclk independent of operating freq.
 	 */
-	pdimm->tWTR_ps = spd->tWTR_min * mtb_ps;
+	pdimm->twtr_ps = spd->twtr_min * mtb_ps;
 
 	/*
 	 * min internal read to precharge command delay time
-	 * eg: tRTP_min = 40 MTB (7.5ns) - all speed bins.
+	 * eg: trtp_min = 40 MTB (7.5ns) - all speed bins.
 	 * tRTP is at least 4 mclk independent of operating freq.
 	 */
-	pdimm->tRTP_ps = spd->tRTP_min * mtb_ps;
+	pdimm->trtp_ps = spd->trtp_min * mtb_ps;
 
 	/*
 	 * Average periodic refresh interval
@@ -324,13 +324,13 @@ ddr_compute_dimm_parameters(const ddr3_spd_eeprom_t *spd,
 
 	/*
 	 * min four active window delay time
-	 * eg: tFAW_min =
+	 * eg: tfaw_min =
 	 * DDR3-800(1KB page)	320 MTB (40ns)
 	 * DDR3-1066(1KB page)	300 MTB (37.5ns)
 	 * DDR3-1333(1KB page)	240 MTB (30ns)
 	 * DDR3-1600(1KB page)	240 MTB (30ns)
 	 */
-	pdimm->tFAW_ps = (((spd->tFAW_msb & 0xf) << 8) | spd->tFAW_min)
+	pdimm->tfaw_ps = (((spd->tfaw_msb & 0xf) << 8) | spd->tfaw_min)
 			* mtb_ps;
 
 	return 0;

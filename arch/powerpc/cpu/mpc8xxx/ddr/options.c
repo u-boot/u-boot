@@ -499,7 +499,7 @@ static inline unsigned int auto_bank_intlv(dimm_params_t *pdimm)
 	return 0;
 }
 
-unsigned int populate_memctl_options(int all_DIMMs_registered,
+unsigned int populate_memctl_options(int all_dimms_registered,
 			memctl_options_t *popts,
 			dimm_params_t *pdimm,
 			unsigned int ctrl_num)
@@ -635,20 +635,20 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	popts->ba_intlv_ctl = 0;
 
 	/* Memory Organization Parameters */
-	popts->registered_dimm_en = all_DIMMs_registered;
+	popts->registered_dimm_en = all_dimms_registered;
 
 	/* Operational Mode Paramters */
 
 	/* Pick ECC modes */
-	popts->ECC_mode = 0;		  /* 0 = disabled, 1 = enabled */
+	popts->ecc_mode = 0;		  /* 0 = disabled, 1 = enabled */
 #ifdef CONFIG_DDR_ECC
 	if (hwconfig_sub_f("fsl_ddr", "ecc", buf)) {
 		if (hwconfig_subarg_cmp_f("fsl_ddr", "ecc", "on", buf))
-			popts->ECC_mode = 1;
+			popts->ecc_mode = 1;
 	} else
-		popts->ECC_mode = 1;
+		popts->ecc_mode = 1;
 #endif
-	popts->ECC_init_using_memctl = 1; /* 0 = use DMA, 1 = use memctl */
+	popts->ecc_init_using_memctl = 1; /* 0 = use DMA, 1 = use memctl */
 
 	/*
 	 * Choose DQS config
@@ -656,9 +656,9 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	 * 1 for DDR2
 	 */
 #if defined(CONFIG_FSL_DDR1)
-	popts->DQS_config = 0;
+	popts->dqs_config = 0;
 #elif defined(CONFIG_FSL_DDR2) || defined(CONFIG_FSL_DDR3)
-	popts->DQS_config = 1;
+	popts->dqs_config = 1;
 #endif
 
 	/* Choose self-refresh during sleep. */
@@ -705,15 +705,15 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	/* Choose burst length. */
 #if defined(CONFIG_FSL_DDR3)
 #if defined(CONFIG_E500MC)
-	popts->OTF_burst_chop_en = 0;	/* on-the-fly burst chop disable */
+	popts->otf_burst_chop_en = 0;	/* on-the-fly burst chop disable */
 	popts->burst_length = DDR_BL8;	/* Fixed 8-beat burst len */
 #else
 	if ((popts->data_bus_width == 1) || (popts->data_bus_width == 2)) {
 		/* 32-bit or 16-bit bus */
-		popts->OTF_burst_chop_en = 0;
+		popts->otf_burst_chop_en = 0;
 		popts->burst_length = DDR_BL8;
 	} else {
-		popts->OTF_burst_chop_en = 1;	/* on-the-fly burst chop */
+		popts->otf_burst_chop_en = 1;	/* on-the-fly burst chop */
 		popts->burst_length = DDR_OTF;	/* on-the-fly BC4 and BL8 */
 	}
 #endif
@@ -756,8 +756,8 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	 *	- number of components, number of active ranks
 	 *	- how much time you want to spend playing around
 	 */
-	popts->twoT_en = 0;
-	popts->threeT_en = 0;
+	popts->twot_en = 0;
+	popts->threet_en = 0;
 
 	/* for RDIMM, address parity enable */
 	popts->ap_en = 1;
@@ -775,7 +775,7 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	popts->bstopre = 0x100;
 
 	/* Minimum CKE pulse width -- tCKE(MIN) */
-	popts->tCKE_clock_pulse_width_ps
+	popts->tcke_clock_pulse_width_ps
 		= mclk_to_picos(FSL_DDR_MIN_TCKE_PULSE_WIDTH_DDR);
 
 	/*
@@ -786,17 +786,17 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	 * FIXME: width, was considering looking at pdimm->primary_sdram_width
 	 */
 #if defined(CONFIG_FSL_DDR1)
-	popts->tFAW_window_four_activates_ps = mclk_to_picos(1);
+	popts->tfaw_window_four_activates_ps = mclk_to_picos(1);
 
 #elif defined(CONFIG_FSL_DDR2)
 	/*
 	 * x4/x8;  some datasheets have 35000
 	 * x16 wide columns only?  Use 50000?
 	 */
-	popts->tFAW_window_four_activates_ps = 37500;
+	popts->tfaw_window_four_activates_ps = 37500;
 
 #elif defined(CONFIG_FSL_DDR3)
-	popts->tFAW_window_four_activates_ps = pdimm[0].tFAW_ps;
+	popts->tfaw_window_four_activates_ps = pdimm[0].tfaw_ps;
 #endif
 	popts->zq_en = 0;
 	popts->wrlvl_en = 0;

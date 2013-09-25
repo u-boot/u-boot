@@ -286,57 +286,57 @@ ddr_compute_dimm_parameters(const ddr2_spd_eeprom_t *spd,
 	 * The SPD clk_cycle field (tCKmin) is measured in tenths of
 	 * nanoseconds and represented as BCD.
 	 */
-	pdimm->tCKmin_X_ps
+	pdimm->tckmin_x_ps
 		= convert_bcd_tenths_to_cycle_time_ps(spd->clk_cycle);
-	pdimm->tCKmin_X_minus_1_ps
+	pdimm->tckmin_x_minus_1_ps
 		= convert_bcd_tenths_to_cycle_time_ps(spd->clk_cycle2);
-	pdimm->tCKmin_X_minus_2_ps
+	pdimm->tckmin_x_minus_2_ps
 		= convert_bcd_tenths_to_cycle_time_ps(spd->clk_cycle3);
 
-	pdimm->tCKmax_ps = convert_bcd_tenths_to_cycle_time_ps(spd->tckmax);
+	pdimm->tckmax_ps = convert_bcd_tenths_to_cycle_time_ps(spd->tckmax);
 
 	/*
 	 * Compute CAS latencies defined by SPD
-	 * The SPD caslat_X should have at least 1 and at most 3 bits set.
+	 * The SPD caslat_x should have at least 1 and at most 3 bits set.
 	 *
 	 * If cas_lat after masking is 0, the __ilog2 function returns
 	 * 255 into the variable.   This behavior is abused once.
 	 */
-	pdimm->caslat_X  = __ilog2(spd->cas_lat);
-	pdimm->caslat_X_minus_1 = __ilog2(spd->cas_lat
-					  & ~(1 << pdimm->caslat_X));
-	pdimm->caslat_X_minus_2 = __ilog2(spd->cas_lat
-					  & ~(1 << pdimm->caslat_X)
-					  & ~(1 << pdimm->caslat_X_minus_1));
+	pdimm->caslat_x  = __ilog2(spd->cas_lat);
+	pdimm->caslat_x_minus_1 = __ilog2(spd->cas_lat
+					  & ~(1 << pdimm->caslat_x));
+	pdimm->caslat_x_minus_2 = __ilog2(spd->cas_lat
+					  & ~(1 << pdimm->caslat_x)
+					  & ~(1 << pdimm->caslat_x_minus_1));
 
 	/* Compute CAS latencies below that defined by SPD */
 	pdimm->caslat_lowest_derated
 		= compute_derated_DDR2_CAS_latency(get_memory_clk_period_ps());
 
 	/* Compute timing parameters */
-	pdimm->tRCD_ps = spd->trcd * 250;
-	pdimm->tRP_ps = spd->trp * 250;
-	pdimm->tRAS_ps = spd->tras * 1000;
+	pdimm->trcd_ps = spd->trcd * 250;
+	pdimm->trp_ps = spd->trp * 250;
+	pdimm->tras_ps = spd->tras * 1000;
 
-	pdimm->tWR_ps = spd->twr * 250;
-	pdimm->tWTR_ps = spd->twtr * 250;
-	pdimm->tRFC_ps = compute_trfc_ps_from_spd(spd->trctrfc_ext, spd->trfc);
+	pdimm->twr_ps = spd->twr * 250;
+	pdimm->twtr_ps = spd->twtr * 250;
+	pdimm->trfc_ps = compute_trfc_ps_from_spd(spd->trctrfc_ext, spd->trfc);
 
-	pdimm->tRRD_ps = spd->trrd * 250;
-	pdimm->tRC_ps = compute_trc_ps_from_spd(spd->trctrfc_ext, spd->trc);
+	pdimm->trrd_ps = spd->trrd * 250;
+	pdimm->trc_ps = compute_trc_ps_from_spd(spd->trctrfc_ext, spd->trc);
 
 	pdimm->refresh_rate_ps = determine_refresh_rate_ps(spd->refresh);
 
-	pdimm->tIS_ps = convert_bcd_hundredths_to_cycle_time_ps(spd->ca_setup);
-	pdimm->tIH_ps = convert_bcd_hundredths_to_cycle_time_ps(spd->ca_hold);
-	pdimm->tDS_ps
+	pdimm->tis_ps = convert_bcd_hundredths_to_cycle_time_ps(spd->ca_setup);
+	pdimm->tih_ps = convert_bcd_hundredths_to_cycle_time_ps(spd->ca_hold);
+	pdimm->tds_ps
 		= convert_bcd_hundredths_to_cycle_time_ps(spd->data_setup);
-	pdimm->tDH_ps
+	pdimm->tdh_ps
 		= convert_bcd_hundredths_to_cycle_time_ps(spd->data_hold);
 
-	pdimm->tRTP_ps = spd->trtp * 250;
-	pdimm->tDQSQ_max_ps = spd->tdqsq * 10;
-	pdimm->tQHS_ps = spd->tqhs * 10;
+	pdimm->trtp_ps = spd->trtp * 250;
+	pdimm->tdqsq_max_ps = spd->tdqsq * 10;
+	pdimm->tqhs_ps = spd->tqhs * 10;
 
 	return 0;
 }

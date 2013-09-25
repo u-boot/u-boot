@@ -45,48 +45,48 @@ typedef struct dimm_params_s {
 
 	unsigned int mtb_ps;	/* medium timebase ps, only for ddr3 */
 	unsigned int ftb_10th_ps; /* fine timebase, in 1/10 ps, only for ddr3 */
-	unsigned int tAA_ps;	/* minimum CAS latency time, only for ddr3 */
-	unsigned int tFAW_ps;	/* four active window delay, only for ddr3 */
+	unsigned int taa_ps;	/* minimum CAS latency time, only for ddr3 */
+	unsigned int tfaw_ps;	/* four active window delay, only for ddr3 */
 
 	/*
 	 * SDRAM clock periods
 	 * The range for these are 1000-10000 so a short should be sufficient
 	 */
-	unsigned int tCKmin_X_ps;
-	unsigned int tCKmin_X_minus_1_ps;
-	unsigned int tCKmin_X_minus_2_ps;
-	unsigned int tCKmax_ps;
+	unsigned int tckmin_x_ps;
+	unsigned int tckmin_x_minus_1_ps;
+	unsigned int tckmin_x_minus_2_ps;
+	unsigned int tckmax_ps;
 
 	/* SPD-defined CAS latencies */
-	unsigned int caslat_X;
-	unsigned int caslat_X_minus_1;
-	unsigned int caslat_X_minus_2;
+	unsigned int caslat_x;
+	unsigned int caslat_x_minus_1;
+	unsigned int caslat_x_minus_2;
 
 	unsigned int caslat_lowest_derated;	/* Derated CAS latency */
 
 	/* basic timing parameters */
-	unsigned int tRCD_ps;
-	unsigned int tRP_ps;
-	unsigned int tRAS_ps;
+	unsigned int trcd_ps;
+	unsigned int trp_ps;
+	unsigned int tras_ps;
 
-	unsigned int tWR_ps;	/* maximum = 63750 ps */
-	unsigned int tWTR_ps;	/* maximum = 63750 ps */
-	unsigned int tRFC_ps;   /* max = 255 ns + 256 ns + .75 ns
+	unsigned int twr_ps;	/* maximum = 63750 ps */
+	unsigned int twtr_ps;	/* maximum = 63750 ps */
+	unsigned int trfc_ps;   /* max = 255 ns + 256 ns + .75 ns
 				       = 511750 ps */
 
-	unsigned int tRRD_ps;	/* maximum = 63750 ps */
-	unsigned int tRC_ps;	/* maximum = 254 ns + .75 ns = 254750 ps */
+	unsigned int trrd_ps;	/* maximum = 63750 ps */
+	unsigned int trc_ps;	/* maximum = 254 ns + .75 ns = 254750 ps */
 
 	unsigned int refresh_rate_ps;
 
 	/* DDR3 doesn't need these as below */
-	unsigned int tIS_ps;	/* byte 32, spd->ca_setup */
-	unsigned int tIH_ps;	/* byte 33, spd->ca_hold */
-	unsigned int tDS_ps;	/* byte 34, spd->data_setup */
-	unsigned int tDH_ps;	/* byte 35, spd->data_hold */
-	unsigned int tRTP_ps;	/* byte 38, spd->trtp */
-	unsigned int tDQSQ_max_ps;	/* byte 44, spd->tdqsq */
-	unsigned int tQHS_ps;	/* byte 45, spd->tqhs */
+	unsigned int tis_ps;	/* byte 32, spd->ca_setup */
+	unsigned int tih_ps;	/* byte 33, spd->ca_hold */
+	unsigned int tds_ps;	/* byte 34, spd->data_setup */
+	unsigned int tdh_ps;	/* byte 35, spd->data_hold */
+	unsigned int trtp_ps;	/* byte 38, spd->trtp */
+	unsigned int tdqsq_max_ps;	/* byte 44, spd->tdqsq */
+	unsigned int tqhs_ps;	/* byte 45, spd->tqhs */
 
 	/* DDR3 RDIMM */
 	unsigned char rcw[16];	/* Register Control Word 0-15 */

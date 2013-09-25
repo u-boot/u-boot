@@ -18,8 +18,8 @@ compute_cas_latency_ddr3(const dimm_params_t *dimm_params,
 			 unsigned int number_of_dimms)
 {
 	unsigned int i;
-	unsigned int tAAmin_ps = 0;
-	unsigned int tCKmin_X_ps = 0;
+	unsigned int taamin_ps = 0;
+	unsigned int tckmin_x_ps = 0;
 	unsigned int common_caslat;
 	unsigned int caslat_actual;
 	unsigned int retry = 16;
@@ -27,26 +27,26 @@ compute_cas_latency_ddr3(const dimm_params_t *dimm_params,
 	const unsigned int mclk_ps = get_memory_clk_period_ps();
 
 	/* compute the common CAS latency supported between slots */
-	tmp = dimm_params[0].caslat_X;
+	tmp = dimm_params[0].caslat_x;
 	for (i = 1; i < number_of_dimms; i++) {
 		if (dimm_params[i].n_ranks)
-			tmp &= dimm_params[i].caslat_X;
+			tmp &= dimm_params[i].caslat_x;
 	}
 	common_caslat = tmp;
 
 	/* compute the max tAAmin tCKmin between slots */
 	for (i = 0; i < number_of_dimms; i++) {
-		tAAmin_ps = max(tAAmin_ps, dimm_params[i].tAA_ps);
-		tCKmin_X_ps = max(tCKmin_X_ps, dimm_params[i].tCKmin_X_ps);
+		taamin_ps = max(taamin_ps, dimm_params[i].taa_ps);
+		tckmin_x_ps = max(tckmin_x_ps, dimm_params[i].tckmin_x_ps);
 	}
 	/* validate if the memory clk is in the range of dimms */
-	if (mclk_ps < tCKmin_X_ps) {
+	if (mclk_ps < tckmin_x_ps) {
 		printf("DDR clock (MCLK cycle %u ps) is faster than "
 			"the slowest DIMM(s) (tCKmin %u ps) can support.\n",
-			mclk_ps, tCKmin_X_ps);
+			mclk_ps, tckmin_x_ps);
 	}
 	/* determine the acutal cas latency */
-	caslat_actual = (tAAmin_ps + mclk_ps - 1) / mclk_ps;
+	caslat_actual = (taamin_ps + mclk_ps - 1) / mclk_ps;
 	/* check if the dimms support the CAS latency */
 	while (!(common_caslat & (1 << caslat_actual)) && retry > 0) {
 		caslat_actual++;
@@ -80,25 +80,25 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 {
 	unsigned int i, j;
 
-	unsigned int tCKmin_X_ps = 0;
-	unsigned int tCKmax_ps = 0xFFFFFFFF;
-	unsigned int tCKmax_max_ps = 0;
-	unsigned int tRCD_ps = 0;
-	unsigned int tRP_ps = 0;
-	unsigned int tRAS_ps = 0;
-	unsigned int tWR_ps = 0;
-	unsigned int tWTR_ps = 0;
-	unsigned int tRFC_ps = 0;
-	unsigned int tRRD_ps = 0;
-	unsigned int tRC_ps = 0;
+	unsigned int tckmin_x_ps = 0;
+	unsigned int tckmax_ps = 0xFFFFFFFF;
+	unsigned int tckmax_max_ps = 0;
+	unsigned int trcd_ps = 0;
+	unsigned int trp_ps = 0;
+	unsigned int tras_ps = 0;
+	unsigned int twr_ps = 0;
+	unsigned int twtr_ps = 0;
+	unsigned int trfc_ps = 0;
+	unsigned int trrd_ps = 0;
+	unsigned int trc_ps = 0;
 	unsigned int refresh_rate_ps = 0;
-	unsigned int tIS_ps = 0;
-	unsigned int tIH_ps = 0;
-	unsigned int tDS_ps = 0;
-	unsigned int tDH_ps = 0;
-	unsigned int tRTP_ps = 0;
-	unsigned int tDQSQ_max_ps = 0;
-	unsigned int tQHS_ps = 0;
+	unsigned int tis_ps = 0;
+	unsigned int tih_ps = 0;
+	unsigned int tds_ps = 0;
+	unsigned int tdh_ps = 0;
+	unsigned int trtp_ps = 0;
+	unsigned int tdqsq_max_ps = 0;
+	unsigned int tqhs_ps = 0;
 
 	unsigned int temp1, temp2;
 	unsigned int additive_latency = 0;
@@ -141,39 +141,39 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 		}
 #endif
 		/*
-		 * Find minimum tCKmax_ps to find fastest slow speed,
+		 * Find minimum tckmax_ps to find fastest slow speed,
 		 * i.e., this is the slowest the whole system can go.
 		 */
-		tCKmax_ps = min(tCKmax_ps, dimm_params[i].tCKmax_ps);
+		tckmax_ps = min(tckmax_ps, dimm_params[i].tckmax_ps);
 
 		/* Either find maximum value to determine slowest
 		 * speed, delay, time, period, etc */
-		tCKmin_X_ps = max(tCKmin_X_ps, dimm_params[i].tCKmin_X_ps);
-		tCKmax_max_ps = max(tCKmax_max_ps, dimm_params[i].tCKmax_ps);
-		tRCD_ps = max(tRCD_ps, dimm_params[i].tRCD_ps);
-		tRP_ps = max(tRP_ps, dimm_params[i].tRP_ps);
-		tRAS_ps = max(tRAS_ps, dimm_params[i].tRAS_ps);
-		tWR_ps = max(tWR_ps, dimm_params[i].tWR_ps);
-		tWTR_ps = max(tWTR_ps, dimm_params[i].tWTR_ps);
-		tRFC_ps = max(tRFC_ps, dimm_params[i].tRFC_ps);
-		tRRD_ps = max(tRRD_ps, dimm_params[i].tRRD_ps);
-		tRC_ps = max(tRC_ps, dimm_params[i].tRC_ps);
-		tIS_ps = max(tIS_ps, dimm_params[i].tIS_ps);
-		tIH_ps = max(tIH_ps, dimm_params[i].tIH_ps);
-		tDS_ps = max(tDS_ps, dimm_params[i].tDS_ps);
-		tDH_ps = max(tDH_ps, dimm_params[i].tDH_ps);
-		tRTP_ps = max(tRTP_ps, dimm_params[i].tRTP_ps);
-		tQHS_ps = max(tQHS_ps, dimm_params[i].tQHS_ps);
+		tckmin_x_ps = max(tckmin_x_ps, dimm_params[i].tckmin_x_ps);
+		tckmax_max_ps = max(tckmax_max_ps, dimm_params[i].tckmax_ps);
+		trcd_ps = max(trcd_ps, dimm_params[i].trcd_ps);
+		trp_ps = max(trp_ps, dimm_params[i].trp_ps);
+		tras_ps = max(tras_ps, dimm_params[i].tras_ps);
+		twr_ps = max(twr_ps, dimm_params[i].twr_ps);
+		twtr_ps = max(twtr_ps, dimm_params[i].twtr_ps);
+		trfc_ps = max(trfc_ps, dimm_params[i].trfc_ps);
+		trrd_ps = max(trrd_ps, dimm_params[i].trrd_ps);
+		trc_ps = max(trc_ps, dimm_params[i].trc_ps);
+		tis_ps = max(tis_ps, dimm_params[i].tis_ps);
+		tih_ps = max(tih_ps, dimm_params[i].tih_ps);
+		tds_ps = max(tds_ps, dimm_params[i].tds_ps);
+		tdh_ps = max(tdh_ps, dimm_params[i].tdh_ps);
+		trtp_ps = max(trtp_ps, dimm_params[i].trtp_ps);
+		tqhs_ps = max(tqhs_ps, dimm_params[i].tqhs_ps);
 		refresh_rate_ps = max(refresh_rate_ps,
 				      dimm_params[i].refresh_rate_ps);
 
 		/*
-		 * Find maximum tDQSQ_max_ps to find slowest.
+		 * Find maximum tdqsq_max_ps to find slowest.
 		 *
 		 * FIXME: is finding the slowest value the correct
 		 * strategy for this parameter?
 		 */
-		tDQSQ_max_ps = max(tDQSQ_max_ps, dimm_params[i].tDQSQ_max_ps);
+		tdqsq_max_ps = max(tdqsq_max_ps, dimm_params[i].tdqsq_max_ps);
 	}
 
 	outpdimm->ndimms_present = number_of_dimms - temp1;
@@ -183,25 +183,25 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 		return 0;
 	}
 
-	outpdimm->tCKmin_X_ps = tCKmin_X_ps;
-	outpdimm->tCKmax_ps = tCKmax_ps;
-	outpdimm->tCKmax_max_ps = tCKmax_max_ps;
-	outpdimm->tRCD_ps = tRCD_ps;
-	outpdimm->tRP_ps = tRP_ps;
-	outpdimm->tRAS_ps = tRAS_ps;
-	outpdimm->tWR_ps = tWR_ps;
-	outpdimm->tWTR_ps = tWTR_ps;
-	outpdimm->tRFC_ps = tRFC_ps;
-	outpdimm->tRRD_ps = tRRD_ps;
-	outpdimm->tRC_ps = tRC_ps;
+	outpdimm->tckmin_x_ps = tckmin_x_ps;
+	outpdimm->tckmax_ps = tckmax_ps;
+	outpdimm->tckmax_max_ps = tckmax_max_ps;
+	outpdimm->trcd_ps = trcd_ps;
+	outpdimm->trp_ps = trp_ps;
+	outpdimm->tras_ps = tras_ps;
+	outpdimm->twr_ps = twr_ps;
+	outpdimm->twtr_ps = twtr_ps;
+	outpdimm->trfc_ps = trfc_ps;
+	outpdimm->trrd_ps = trrd_ps;
+	outpdimm->trc_ps = trc_ps;
 	outpdimm->refresh_rate_ps = refresh_rate_ps;
-	outpdimm->tIS_ps = tIS_ps;
-	outpdimm->tIH_ps = tIH_ps;
-	outpdimm->tDS_ps = tDS_ps;
-	outpdimm->tDH_ps = tDH_ps;
-	outpdimm->tRTP_ps = tRTP_ps;
-	outpdimm->tDQSQ_max_ps = tDQSQ_max_ps;
-	outpdimm->tQHS_ps = tQHS_ps;
+	outpdimm->tis_ps = tis_ps;
+	outpdimm->tih_ps = tih_ps;
+	outpdimm->tds_ps = tds_ps;
+	outpdimm->tdh_ps = tdh_ps;
+	outpdimm->trtp_ps = trtp_ps;
+	outpdimm->tdqsq_max_ps = tdqsq_max_ps;
+	outpdimm->tqhs_ps = tqhs_ps;
 
 	/* Determine common burst length for all DIMMs. */
 	temp1 = 0xff;
@@ -210,7 +210,7 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 			temp1 &= dimm_params[i].burst_lengths_bitmask;
 		}
 	}
-	outpdimm->all_DIMMs_burst_lengths_bitmask = temp1;
+	outpdimm->all_dimms_burst_lengths_bitmask = temp1;
 
 	/* Determine if all DIMMs registered buffered. */
 	temp1 = temp2 = 0;
@@ -232,19 +232,19 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 		}
 	}
 
-	outpdimm->all_DIMMs_registered = 0;
-	outpdimm->all_DIMMs_unbuffered = 0;
+	outpdimm->all_dimms_registered = 0;
+	outpdimm->all_dimms_unbuffered = 0;
 	if (temp1 && !temp2) {
-		outpdimm->all_DIMMs_registered = 1;
+		outpdimm->all_dimms_registered = 1;
 	} else if (!temp1 && temp2) {
-		outpdimm->all_DIMMs_unbuffered = 1;
+		outpdimm->all_dimms_unbuffered = 1;
 	} else {
 		printf("ERROR:  Mix of registered buffered and unbuffered "
 				"DIMMs detected!\n");
 	}
 
 	temp1 = 0;
-	if (outpdimm->all_DIMMs_registered)
+	if (outpdimm->all_dimms_registered)
 		for (j = 0; j < 16; j++) {
 			outpdimm->rcw[j] = dimm_params[0].rcw[j];
 			for (i = 1; i < number_of_dimms; i++) {
@@ -279,13 +279,13 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	for (i = 0; i < number_of_dimms; i++) {
 		if (dimm_params[i].n_ranks) {
 			temp2 = 0;
-			temp2 |= 1 << dimm_params[i].caslat_X;
-			temp2 |= 1 << dimm_params[i].caslat_X_minus_1;
-			temp2 |= 1 << dimm_params[i].caslat_X_minus_2;
+			temp2 |= 1 << dimm_params[i].caslat_x;
+			temp2 |= 1 << dimm_params[i].caslat_x_minus_1;
+			temp2 |= 1 << dimm_params[i].caslat_x_minus_2;
 			/*
 			 * FIXME: If there was no entry for X-2 (X-1) in
-			 * the SPD, then caslat_X_minus_2
-			 * (caslat_X_minus_1) contains either 255 or
+			 * the SPD, then caslat_x_minus_2
+			 * (caslat_x_minus_1) contains either 255 or
 			 * 0xFFFFFFFF because that's what the glorious
 			 * __ilog2 function returns for an input of 0.
 			 * On 32-bit PowerPC, left shift counts with bit
@@ -313,42 +313,42 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 			if (!dimm_params[i].n_ranks) {
 				continue;
 			}
-			if (dimm_params[i].caslat_X == temp2) {
-				if (mclk_ps >= dimm_params[i].tCKmin_X_ps) {
+			if (dimm_params[i].caslat_x == temp2) {
+				if (mclk_ps >= dimm_params[i].tckmin_x_ps) {
 					debug("CL = %u ok on DIMM %u at tCK=%u"
 					    " ps with its tCKmin_X_ps of %u\n",
 					       temp2, i, mclk_ps,
-					       dimm_params[i].tCKmin_X_ps);
+					       dimm_params[i].tckmin_x_ps);
 					continue;
 				} else {
 					not_ok++;
 				}
 			}
 
-			if (dimm_params[i].caslat_X_minus_1 == temp2) {
-				unsigned int tCKmin_X_minus_1_ps
-					= dimm_params[i].tCKmin_X_minus_1_ps;
-				if (mclk_ps >= tCKmin_X_minus_1_ps) {
+			if (dimm_params[i].caslat_x_minus_1 == temp2) {
+				unsigned int tckmin_x_minus_1_ps
+					= dimm_params[i].tckmin_x_minus_1_ps;
+				if (mclk_ps >= tckmin_x_minus_1_ps) {
 					debug("CL = %u ok on DIMM %u at "
 						"tCK=%u ps with its "
-						"tCKmin_X_minus_1_ps of %u\n",
+						"tckmin_x_minus_1_ps of %u\n",
 					       temp2, i, mclk_ps,
-					       tCKmin_X_minus_1_ps);
+					       tckmin_x_minus_1_ps);
 					continue;
 				} else {
 					not_ok++;
 				}
 			}
 
-			if (dimm_params[i].caslat_X_minus_2 == temp2) {
-				unsigned int tCKmin_X_minus_2_ps
-					= dimm_params[i].tCKmin_X_minus_2_ps;
-				if (mclk_ps >= tCKmin_X_minus_2_ps) {
+			if (dimm_params[i].caslat_x_minus_2 == temp2) {
+				unsigned int tckmin_x_minus_2_ps
+					= dimm_params[i].tckmin_x_minus_2_ps;
+				if (mclk_ps >= tckmin_x_minus_2_ps) {
 					debug("CL = %u ok on DIMM %u at "
 						"tCK=%u ps with its "
-						"tCKmin_X_minus_2_ps of %u\n",
+						"tckmin_x_minus_2_ps of %u\n",
 					       temp2, i, mclk_ps,
-					       tCKmin_X_minus_2_ps);
+					       tckmin_x_minus_2_ps);
 					continue;
 				} else {
 					not_ok++;
@@ -397,11 +397,11 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	} else {
 		debug("Warning: not all DIMMs ECC capable, cant enable ECC\n");
 	}
-	outpdimm->all_DIMMs_ECC_capable = temp1;
+	outpdimm->all_dimms_ecc_capable = temp1;
 
 #ifndef CONFIG_FSL_DDR3
 	/* FIXME: move to somewhere else to validate. */
-	if (mclk_ps > tCKmax_max_ps) {
+	if (mclk_ps > tckmax_max_ps) {
 		printf("Warning: some of the installed DIMMs "
 				"can not operate this slowly.\n");
 		return 1;
@@ -464,10 +464,10 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 
 #if defined(CONFIG_FSL_DDR2)
 	if (lowest_good_caslat < 4) {
-		additive_latency = (picos_to_mclk(tRCD_ps) > lowest_good_caslat)
-			? picos_to_mclk(tRCD_ps) - lowest_good_caslat : 0;
-		if (mclk_to_picos(additive_latency) > tRCD_ps) {
-			additive_latency = picos_to_mclk(tRCD_ps);
+		additive_latency = (picos_to_mclk(trcd_ps) > lowest_good_caslat)
+			? picos_to_mclk(trcd_ps) - lowest_good_caslat : 0;
+		if (mclk_to_picos(additive_latency) > trcd_ps) {
+			additive_latency = picos_to_mclk(trcd_ps);
 			debug("setting additive_latency to %u because it was "
 				" greater than tRCD_ps\n", additive_latency);
 		}
@@ -487,7 +487,7 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	 *
 	 * AL <= tRCD(min)
 	 */
-	if (mclk_to_picos(additive_latency) > tRCD_ps) {
+	if (mclk_to_picos(additive_latency) > trcd_ps) {
 		printf("Error: invalid additive latency exceeds tRCD(min).\n");
 		return 1;
 	}
@@ -507,15 +507,15 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	 */
 	outpdimm->additive_latency = additive_latency;
 
-	debug("tCKmin_ps = %u\n", outpdimm->tCKmin_X_ps);
-	debug("tRCD_ps   = %u\n", outpdimm->tRCD_ps);
-	debug("tRP_ps    = %u\n", outpdimm->tRP_ps);
-	debug("tRAS_ps   = %u\n", outpdimm->tRAS_ps);
-	debug("tWR_ps    = %u\n", outpdimm->tWR_ps);
-	debug("tWTR_ps   = %u\n", outpdimm->tWTR_ps);
-	debug("tRFC_ps   = %u\n", outpdimm->tRFC_ps);
-	debug("tRRD_ps   = %u\n", outpdimm->tRRD_ps);
-	debug("tRC_ps    = %u\n", outpdimm->tRC_ps);
+	debug("tCKmin_ps = %u\n", outpdimm->tckmin_x_ps);
+	debug("trcd_ps   = %u\n", outpdimm->trcd_ps);
+	debug("trp_ps    = %u\n", outpdimm->trp_ps);
+	debug("tras_ps   = %u\n", outpdimm->tras_ps);
+	debug("twr_ps    = %u\n", outpdimm->twr_ps);
+	debug("twtr_ps   = %u\n", outpdimm->twtr_ps);
+	debug("trfc_ps   = %u\n", outpdimm->trfc_ps);
+	debug("trrd_ps   = %u\n", outpdimm->trrd_ps);
+	debug("trc_ps    = %u\n", outpdimm->trc_ps);
 
 	return 0;
 }

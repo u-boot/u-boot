@@ -72,7 +72,7 @@ unsigned int compute_lowest_common_dimm_parameters(
 				const dimm_params_t *dimm_params,
 				common_timing_params_t *outpdimm,
 				unsigned int number_of_dimms);
-unsigned int populate_memctl_options(int all_DIMMs_registered,
+unsigned int populate_memctl_options(int all_dimms_registered,
 				memctl_options_t *popts,
 				dimm_params_t *pdimm,
 				unsigned int ctrl_num);

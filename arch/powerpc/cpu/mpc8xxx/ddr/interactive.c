@@ -150,33 +150,33 @@ static void lowest_common_dimm_parameters_edit(fsl_ddr_info_t *pinfo,
 	common_timing_params_t *p = &pinfo->common_timing_params[ctrl_num];
 
 	static const struct options_string options[] = {
-		COMMON_TIMING(tCKmin_X_ps),
-		COMMON_TIMING(tCKmax_ps),
-		COMMON_TIMING(tCKmax_max_ps),
-		COMMON_TIMING(tRCD_ps),
-		COMMON_TIMING(tRP_ps),
-		COMMON_TIMING(tRAS_ps),
-		COMMON_TIMING(tWR_ps),
-		COMMON_TIMING(tWTR_ps),
-		COMMON_TIMING(tRFC_ps),
-		COMMON_TIMING(tRRD_ps),
-		COMMON_TIMING(tRC_ps),
+		COMMON_TIMING(tckmin_x_ps),
+		COMMON_TIMING(tckmax_ps),
+		COMMON_TIMING(tckmax_max_ps),
+		COMMON_TIMING(trcd_ps),
+		COMMON_TIMING(trp_ps),
+		COMMON_TIMING(tras_ps),
+		COMMON_TIMING(twr_ps),
+		COMMON_TIMING(twtr_ps),
+		COMMON_TIMING(trfc_ps),
+		COMMON_TIMING(trrd_ps),
+		COMMON_TIMING(trc_ps),
 		COMMON_TIMING(refresh_rate_ps),
-		COMMON_TIMING(tIS_ps),
-		COMMON_TIMING(tIH_ps),
-		COMMON_TIMING(tDS_ps),
-		COMMON_TIMING(tDH_ps),
-		COMMON_TIMING(tRTP_ps),
-		COMMON_TIMING(tDQSQ_max_ps),
-		COMMON_TIMING(tQHS_ps),
+		COMMON_TIMING(tis_ps),
+		COMMON_TIMING(tih_ps),
+		COMMON_TIMING(tds_ps),
+		COMMON_TIMING(tdh_ps),
+		COMMON_TIMING(trtp_ps),
+		COMMON_TIMING(tdqsq_max_ps),
+		COMMON_TIMING(tqhs_ps),
 		COMMON_TIMING(ndimms_present),
 		COMMON_TIMING(lowest_common_SPD_caslat),
 		COMMON_TIMING(highest_common_derated_caslat),
 		COMMON_TIMING(additive_latency),
-		COMMON_TIMING(all_DIMMs_burst_lengths_bitmask),
-		COMMON_TIMING(all_DIMMs_registered),
-		COMMON_TIMING(all_DIMMs_unbuffered),
-		COMMON_TIMING(all_DIMMs_ECC_capable),
+		COMMON_TIMING(all_dimms_burst_lengths_bitmask),
+		COMMON_TIMING(all_dimms_registered),
+		COMMON_TIMING(all_dimms_unbuffered),
+		COMMON_TIMING(all_dimms_ecc_capable),
 		COMMON_TIMING(total_mem),
 		COMMON_TIMING(base_address),
 	};
@@ -214,34 +214,34 @@ static void fsl_ddr_dimm_parameters_edit(fsl_ddr_info_t *pinfo,
 		DIMM_PARM(burst_lengths_bitmask),
 		DIMM_PARM(row_density),
 
-		DIMM_PARM(tCKmin_X_ps),
-		DIMM_PARM(tCKmin_X_minus_1_ps),
-		DIMM_PARM(tCKmin_X_minus_2_ps),
-		DIMM_PARM(tCKmax_ps),
+		DIMM_PARM(tckmin_x_ps),
+		DIMM_PARM(tckmin_x_minus_1_ps),
+		DIMM_PARM(tckmin_x_minus_2_ps),
+		DIMM_PARM(tckmax_ps),
 
-		DIMM_PARM(caslat_X),
-		DIMM_PARM(caslat_X_minus_1),
-		DIMM_PARM(caslat_X_minus_2),
+		DIMM_PARM(caslat_x),
+		DIMM_PARM(caslat_x_minus_1),
+		DIMM_PARM(caslat_x_minus_2),
 
 		DIMM_PARM(caslat_lowest_derated),
 
-		DIMM_PARM(tRCD_ps),
-		DIMM_PARM(tRP_ps),
-		DIMM_PARM(tRAS_ps),
-		DIMM_PARM(tWR_ps),
-		DIMM_PARM(tWTR_ps),
-		DIMM_PARM(tRFC_ps),
-		DIMM_PARM(tRRD_ps),
-		DIMM_PARM(tRC_ps),
+		DIMM_PARM(trcd_ps),
+		DIMM_PARM(trp_ps),
+		DIMM_PARM(tras_ps),
+		DIMM_PARM(twr_ps),
+		DIMM_PARM(twtr_ps),
+		DIMM_PARM(trfc_ps),
+		DIMM_PARM(trrd_ps),
+		DIMM_PARM(trc_ps),
 		DIMM_PARM(refresh_rate_ps),
 
-		DIMM_PARM(tIS_ps),
-		DIMM_PARM(tIH_ps),
-		DIMM_PARM(tDS_ps),
-		DIMM_PARM(tDH_ps),
-		DIMM_PARM(tRTP_ps),
-		DIMM_PARM(tDQSQ_max_ps),
-		DIMM_PARM(tQHS_ps),
+		DIMM_PARM(tis_ps),
+		DIMM_PARM(tih_ps),
+		DIMM_PARM(tds_ps),
+		DIMM_PARM(tdh_ps),
+		DIMM_PARM(trtp_ps),
+		DIMM_PARM(tdqsq_max_ps),
+		DIMM_PARM(tqhs_ps),
 
 		DIMM_PARM(rank_density),
 		DIMM_PARM(capacity),
@@ -271,34 +271,34 @@ static void print_dimm_parameters(const dimm_params_t *pdimm)
 		DIMM_PARM(edc_config),
 		DIMM_PARM(n_banks_per_sdram_device),
 
-		DIMM_PARM(tCKmin_X_ps),
-		DIMM_PARM(tCKmin_X_minus_1_ps),
-		DIMM_PARM(tCKmin_X_minus_2_ps),
-		DIMM_PARM(tCKmax_ps),
+		DIMM_PARM(tckmin_x_ps),
+		DIMM_PARM(tckmin_x_minus_1_ps),
+		DIMM_PARM(tckmin_x_minus_2_ps),
+		DIMM_PARM(tckmax_ps),
 
-		DIMM_PARM(caslat_X),
-		DIMM_PARM(tAA_ps),
-		DIMM_PARM(caslat_X_minus_1),
-		DIMM_PARM(caslat_X_minus_2),
+		DIMM_PARM(caslat_x),
+		DIMM_PARM(taa_ps),
+		DIMM_PARM(caslat_x_minus_1),
+		DIMM_PARM(caslat_x_minus_2),
 		DIMM_PARM(caslat_lowest_derated),
 
-		DIMM_PARM(tRCD_ps),
-		DIMM_PARM(tRP_ps),
-		DIMM_PARM(tRAS_ps),
-		DIMM_PARM(tWR_ps),
-		DIMM_PARM(tWTR_ps),
-		DIMM_PARM(tRFC_ps),
-		DIMM_PARM(tRRD_ps),
-		DIMM_PARM(tRC_ps),
+		DIMM_PARM(trcd_ps),
+		DIMM_PARM(trp_ps),
+		DIMM_PARM(tras_ps),
+		DIMM_PARM(twr_ps),
+		DIMM_PARM(twtr_ps),
+		DIMM_PARM(trfc_ps),
+		DIMM_PARM(trrd_ps),
+		DIMM_PARM(trc_ps),
 		DIMM_PARM(refresh_rate_ps),
 
-		DIMM_PARM(tIS_ps),
-		DIMM_PARM(tIH_ps),
-		DIMM_PARM(tDS_ps),
-		DIMM_PARM(tDH_ps),
-		DIMM_PARM(tRTP_ps),
-		DIMM_PARM(tDQSQ_max_ps),
-		DIMM_PARM(tQHS_ps),
+		DIMM_PARM(tis_ps),
+		DIMM_PARM(tih_ps),
+		DIMM_PARM(tds_ps),
+		DIMM_PARM(tdh_ps),
+		DIMM_PARM(trtp_ps),
+		DIMM_PARM(tdqsq_max_ps),
+		DIMM_PARM(tqhs_ps),
 	};
 	static const unsigned int n_opts = ARRAY_SIZE(options);
 
@@ -325,41 +325,41 @@ static void print_lowest_common_dimm_parameters(
 		const common_timing_params_t *plcd_dimm_params)
 {
 	static const struct options_string options[] = {
-		COMMON_TIMING(tCKmax_max_ps),
-		COMMON_TIMING(tRCD_ps),
-		COMMON_TIMING(tRP_ps),
-		COMMON_TIMING(tRAS_ps),
-		COMMON_TIMING(tWR_ps),
-		COMMON_TIMING(tWTR_ps),
-		COMMON_TIMING(tRFC_ps),
-		COMMON_TIMING(tRRD_ps),
-		COMMON_TIMING(tRC_ps),
+		COMMON_TIMING(tckmax_max_ps),
+		COMMON_TIMING(trcd_ps),
+		COMMON_TIMING(trp_ps),
+		COMMON_TIMING(tras_ps),
+		COMMON_TIMING(twr_ps),
+		COMMON_TIMING(twtr_ps),
+		COMMON_TIMING(trfc_ps),
+		COMMON_TIMING(trrd_ps),
+		COMMON_TIMING(trc_ps),
 		COMMON_TIMING(refresh_rate_ps),
-		COMMON_TIMING(tIS_ps),
-		COMMON_TIMING(tDS_ps),
-		COMMON_TIMING(tDH_ps),
-		COMMON_TIMING(tRTP_ps),
-		COMMON_TIMING(tDQSQ_max_ps),
-		COMMON_TIMING(tQHS_ps),
+		COMMON_TIMING(tis_ps),
+		COMMON_TIMING(tds_ps),
+		COMMON_TIMING(tdh_ps),
+		COMMON_TIMING(trtp_ps),
+		COMMON_TIMING(tdqsq_max_ps),
+		COMMON_TIMING(tqhs_ps),
 		COMMON_TIMING(lowest_common_SPD_caslat),
 		COMMON_TIMING(highest_common_derated_caslat),
 		COMMON_TIMING(additive_latency),
 		COMMON_TIMING(ndimms_present),
-		COMMON_TIMING(all_DIMMs_registered),
-		COMMON_TIMING(all_DIMMs_unbuffered),
-		COMMON_TIMING(all_DIMMs_ECC_capable),
+		COMMON_TIMING(all_dimms_registered),
+		COMMON_TIMING(all_dimms_unbuffered),
+		COMMON_TIMING(all_dimms_ecc_capable),
 	};
 	static const unsigned int n_opts = ARRAY_SIZE(options);
 
 	/* Clock frequencies */
-	printf("tCKmin_X_ps = %u (%u MHz)\n",
-	       plcd_dimm_params->tCKmin_X_ps,
-	       picos_to_mhz(plcd_dimm_params->tCKmin_X_ps));
-	printf("tCKmax_ps = %u (%u MHz)\n",
-	       plcd_dimm_params->tCKmax_ps,
-	       picos_to_mhz(plcd_dimm_params->tCKmax_ps));
-	printf("all_DIMMs_burst_lengths_bitmask = %02X\n",
-	       plcd_dimm_params->all_DIMMs_burst_lengths_bitmask);
+	printf("tckmin_x_ps = %u (%u MHz)\n",
+	       plcd_dimm_params->tckmin_x_ps,
+	       picos_to_mhz(plcd_dimm_params->tckmin_x_ps));
+	printf("tckmax_ps = %u (%u MHz)\n",
+	       plcd_dimm_params->tckmax_ps,
+	       picos_to_mhz(plcd_dimm_params->tckmax_ps));
+	printf("all_dimms_burst_lengths_bitmask = %02X\n",
+	       plcd_dimm_params->all_dimms_burst_lengths_bitmask);
 
 	print_option_table(options, n_opts, plcd_dimm_params);
 
@@ -421,9 +421,9 @@ static void fsl_ddr_options_edit(fsl_ddr_info_t *pinfo,
 		CTRL_OPTIONS(memctl_interleaving),
 		CTRL_OPTIONS(memctl_interleaving_mode),
 		CTRL_OPTIONS(ba_intlv_ctl),
-		CTRL_OPTIONS(ECC_mode),
-		CTRL_OPTIONS(ECC_init_using_memctl),
-		CTRL_OPTIONS(DQS_config),
+		CTRL_OPTIONS(ecc_mode),
+		CTRL_OPTIONS(ecc_init_using_memctl),
+		CTRL_OPTIONS(dqs_config),
 		CTRL_OPTIONS(self_refresh_in_sleep),
 		CTRL_OPTIONS(dynamic_power),
 		CTRL_OPTIONS(data_bus_width),
@@ -442,8 +442,8 @@ static void fsl_ddr_options_edit(fsl_ddr_info_t *pinfo,
 		 * These can probably be changed to 2T_EN and 3T_EN
 		 * (using a leading numerical character) without problem
 		 */
-		CTRL_OPTIONS(twoT_en),
-		CTRL_OPTIONS(threeT_en),
+		CTRL_OPTIONS(twot_en),
+		CTRL_OPTIONS(threet_en),
 		CTRL_OPTIONS(ap_en),
 		CTRL_OPTIONS(x4_en),
 		CTRL_OPTIONS(bstopre),
@@ -455,8 +455,8 @@ static void fsl_ddr_options_edit(fsl_ddr_info_t *pinfo,
 		CTRL_OPTIONS(rcw_2),
 		CTRL_OPTIONS(ddr_cdr1),
 		CTRL_OPTIONS(ddr_cdr2),
-		CTRL_OPTIONS(tCKE_clock_pulse_width_ps),
-		CTRL_OPTIONS(tFAW_window_four_activates_ps),
+		CTRL_OPTIONS(tcke_clock_pulse_width_ps),
+		CTRL_OPTIONS(tfaw_window_four_activates_ps),
 		CTRL_OPTIONS(trwt_override),
 		CTRL_OPTIONS(trwt),
 	};
@@ -666,9 +666,9 @@ static void print_memctl_options(const memctl_options_t *popts)
 		CTRL_OPTIONS(memctl_interleaving),
 		CTRL_OPTIONS(memctl_interleaving_mode),
 		CTRL_OPTIONS_HEX(ba_intlv_ctl),
-		CTRL_OPTIONS(ECC_mode),
-		CTRL_OPTIONS(ECC_init_using_memctl),
-		CTRL_OPTIONS(DQS_config),
+		CTRL_OPTIONS(ecc_mode),
+		CTRL_OPTIONS(ecc_init_using_memctl),
+		CTRL_OPTIONS(dqs_config),
 		CTRL_OPTIONS(self_refresh_in_sleep),
 		CTRL_OPTIONS(dynamic_power),
 		CTRL_OPTIONS(data_bus_width),
@@ -686,8 +686,8 @@ static void print_memctl_options(const memctl_options_t *popts)
 		 * These can probably be changed to 2T_EN and 3T_EN
 		 * (using a leading numerical character) without problem
 		 */
-		CTRL_OPTIONS(twoT_en),
-		CTRL_OPTIONS(threeT_en),
+		CTRL_OPTIONS(twot_en),
+		CTRL_OPTIONS(threet_en),
 		CTRL_OPTIONS(registered_dimm_en),
 		CTRL_OPTIONS(ap_en),
 		CTRL_OPTIONS(x4_en),
@@ -700,8 +700,8 @@ static void print_memctl_options(const memctl_options_t *popts)
 		CTRL_OPTIONS(rcw_2),
 		CTRL_OPTIONS_HEX(ddr_cdr1),
 		CTRL_OPTIONS_HEX(ddr_cdr2),
-		CTRL_OPTIONS(tCKE_clock_pulse_width_ps),
-		CTRL_OPTIONS(tFAW_window_four_activates_ps),
+		CTRL_OPTIONS(tcke_clock_pulse_width_ps),
+		CTRL_OPTIONS(tfaw_window_four_activates_ps),
 		CTRL_OPTIONS(trwt_override),
 		CTRL_OPTIONS(trwt),
 	};
@@ -958,10 +958,10 @@ void ddr2_spd_dump(const ddr2_spd_eeprom_t *spd)
 	       " spd->tqhs,        * 45 Max Read DataHold skew tQHS *");
 	printf("%-3d    : %02x %s\n", 46, spd->pll_relock,
 	       " spd->pll_relock,  * 46 PLL Relock time *");
-	printf("%-3d    : %02x %s\n", 47, spd->Tcasemax,
-	       " spd->Tcasemax,    * 47 Tcasemax *");
-	printf("%-3d    : %02x %s\n", 48, spd->psiTAdram,
-	       " spd->psiTAdram,   * 48 Thermal Resistance of DRAM Package "
+	printf("%-3d    : %02x %s\n", 47, spd->t_casemax,
+	       " spd->t_casemax,    * 47 t_casemax *");
+	printf("%-3d    : %02x %s\n", 48, spd->psi_ta_dram,
+	       " spd->psi_ta_dram,   * 48 Thermal Resistance of DRAM Package "
 	       "from Top (Case) to Ambient (Psi T-A DRAM) *");
 	printf("%-3d    : %02x %s\n", 49, spd->dt0_mode,
 	       " spd->dt0_mode,    * 49 DRAM Case Temperature Rise from "
@@ -996,11 +996,11 @@ void ddr2_spd_dump(const ddr2_spd_eeprom_t *spd)
 	       " spd->dt7,         * 57 DRAM Case Temperature Rise from "
 	       "Ambient due to Bank Interleave Reads with "
 	       "Auto-Precharge (DT7) *");
-	printf("%-3d    : %02x %s\n", 58, spd->psiTApll,
-	       " spd->psiTApll,    * 58 Thermal Resistance of PLL Package form"
+	printf("%-3d    : %02x %s\n", 58, spd->psi_ta_pll,
+	       " spd->psi_ta_pll,    * 58 Thermal Resistance of PLL Package form"
 	       " Top (Case) to Ambient (Psi T-A PLL) *");
-	printf("%-3d    : %02x %s\n", 59, spd->psiTAreg,
-	       " spd->psiTAreg,    * 59 Thermal Reisitance of Register Package"
+	printf("%-3d    : %02x %s\n", 59, spd->psi_ta_reg,
+	       " spd->psi_ta_reg,    * 59 Thermal Reisitance of Register Package"
 	       " from Top (Case) to Ambient (Psi T-A Register) *");
 	printf("%-3d    : %02x %s\n", 60, spd->dtpllactive,
 	       " spd->dtpllactive, * 60 PLL Case Temperature Rise from "
@@ -1087,43 +1087,43 @@ void ddr3_spd_dump(const ddr3_spd_eeprom_t *spd)
 		"mtb_dividend   Medium Timebase (MTB) Dividend");
 	PRINT_NXS(11, spd->mtb_divisor,
 		"mtb_divisor    Medium Timebase (MTB) Divisor");
-	PRINT_NXS(12, spd->tCK_min,
-		"tCK_min        SDRAM Minimum Cycle Time");
+	PRINT_NXS(12, spd->tck_min,
+		  "tck_min        SDRAM Minimum Cycle Time");
 	PRINT_NXS(13, spd->res_13,
 		"res_13         Reserved");
 	PRINT_NXS(14, spd->caslat_lsb,
 		"caslat_lsb     CAS Latencies Supported, LSB");
 	PRINT_NXS(15, spd->caslat_msb,
 		"caslat_msb     CAS Latencies Supported, MSB");
-	PRINT_NXS(16, spd->tAA_min,
-		"tAA_min        Min CAS Latency Time");
-	PRINT_NXS(17, spd->tWR_min,
-		"tWR_min        Min Write REcovery Time");
-	PRINT_NXS(18, spd->tRCD_min,
-		"tRCD_min       Min RAS# to CAS# Delay Time");
-	PRINT_NXS(19, spd->tRRD_min,
-		"tRRD_min       Min Row Active to Row Active Delay Time");
-	PRINT_NXS(20, spd->tRP_min,
-		"tRP_min        Min Row Precharge Delay Time");
-	PRINT_NXS(21, spd->tRAS_tRC_ext,
-		"tRAS_tRC_ext   Upper Nibbles for tRAS and tRC");
-	PRINT_NXS(22, spd->tRAS_min_lsb,
-		"tRAS_min_lsb   Min Active to Precharge Delay Time, LSB");
-	PRINT_NXS(23, spd->tRC_min_lsb,
-		"tRC_min_lsb    Min Active to Active/Refresh Delay Time, LSB");
-	PRINT_NXS(24, spd->tRFC_min_lsb,
-		"tRFC_min_lsb   Min Refresh Recovery Delay Time LSB");
-	PRINT_NXS(25, spd->tRFC_min_msb,
-		"tRFC_min_msb   Min Refresh Recovery Delay Time MSB");
-	PRINT_NXS(26, spd->tWTR_min,
-		"tWTR_min       Min Internal Write to Read Command Delay Time");
-	PRINT_NXS(27, spd->tRTP_min,
-		"tRTP_min "
-		"Min Internal Read to Precharge Command Delay Time");
-	PRINT_NXS(28, spd->tFAW_msb,
-		"tFAW_msb       Upper Nibble for tFAW");
-	PRINT_NXS(29, spd->tFAW_min,
-		"tFAW_min       Min Four Activate Window Delay Time");
+	PRINT_NXS(16, spd->taa_min,
+		  "taa_min        Min CAS Latency Time");
+	PRINT_NXS(17, spd->twr_min,
+		  "twr_min        Min Write REcovery Time");
+	PRINT_NXS(18, spd->trcd_min,
+		  "trcd_min       Min RAS# to CAS# Delay Time");
+	PRINT_NXS(19, spd->trrd_min,
+		  "trrd_min       Min Row Active to Row Active Delay Time");
+	PRINT_NXS(20, spd->trp_min,
+		  "trp_min        Min Row Precharge Delay Time");
+	PRINT_NXS(21, spd->tras_trc_ext,
+		  "tras_trc_ext   Upper Nibbles for tRAS and tRC");
+	PRINT_NXS(22, spd->tras_min_lsb,
+		  "tras_min_lsb   Min Active to Precharge Delay Time, LSB");
+	PRINT_NXS(23, spd->trc_min_lsb,
+		  "trc_min_lsb Min Active to Active/Refresh Delay Time, LSB");
+	PRINT_NXS(24, spd->trfc_min_lsb,
+		  "trfc_min_lsb   Min Refresh Recovery Delay Time LSB");
+	PRINT_NXS(25, spd->trfc_min_msb,
+		  "trfc_min_msb   Min Refresh Recovery Delay Time MSB");
+	PRINT_NXS(26, spd->twtr_min,
+		  "twtr_min Min Internal Write to Read Command Delay Time");
+	PRINT_NXS(27, spd->trtp_min,
+		  "trtp_min "
+		  "Min Internal Read to Precharge Command Delay Time");
+	PRINT_NXS(28, spd->tfaw_msb,
+		  "tfaw_msb       Upper Nibble for tFAW");
+	PRINT_NXS(29, spd->tfaw_min,
+		  "tfaw_min       Min Four Activate Window Delay Time");
 	PRINT_NXS(30, spd->opt_features,
 		"opt_features   SDRAM Optional Features");
 	PRINT_NXS(31, spd->therm_ref_opt,
@@ -1132,16 +1132,16 @@ void ddr3_spd_dump(const ddr3_spd_eeprom_t *spd)
 		"therm_sensor  SDRAM Thermal Sensor");
 	PRINT_NXS(33, spd->device_type,
 		"device_type  SDRAM Device Type");
-	PRINT_NXS(34, spd->fine_tCK_min,
-		"fine_tCK_min  Fine offset for tCKmin");
-	PRINT_NXS(35, spd->fine_tAA_min,
-		"fine_tAA_min  Fine offset for tAAmin");
-	PRINT_NXS(36, spd->fine_tRCD_min,
-		"fine_tRCD_min Fine offset for tRCDmin");
-	PRINT_NXS(37, spd->fine_tRP_min,
-		"fine_tRP_min  Fine offset for tRPmin");
-	PRINT_NXS(38, spd->fine_tRC_min,
-		"fine_tRC_min  Fine offset for tRCmin");
+	PRINT_NXS(34, spd->fine_tck_min,
+		  "fine_tck_min  Fine offset for tCKmin");
+	PRINT_NXS(35, spd->fine_taa_min,
+		  "fine_taa_min  Fine offset for tAAmin");
+	PRINT_NXS(36, spd->fine_trcd_min,
+		  "fine_trcd_min Fine offset for tRCDmin");
+	PRINT_NXS(37, spd->fine_trp_min,
+		  "fine_trp_min  Fine offset for tRPmin");
+	PRINT_NXS(38, spd->fine_trc_min,
+		  "fine_trc_min  Fine offset for tRCmin");
 
 	printf("%-3d-%3d: ",  39, 59);  /* Reserved, General Section */
 

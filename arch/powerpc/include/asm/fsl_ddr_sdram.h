@@ -219,13 +219,13 @@ typedef struct fsl_ddr_cfg_regs_s {
 } fsl_ddr_cfg_regs_t;
 
 typedef struct memctl_options_partial_s {
-	unsigned int all_DIMMs_ECC_capable;
-	unsigned int all_DIMMs_tCKmax_ps;
-	unsigned int all_DIMMs_burst_lengths_bitmask;
-	unsigned int all_DIMMs_registered;
-	unsigned int all_DIMMs_unbuffered;
+	unsigned int all_dimms_ecc_capable;
+	unsigned int all_dimms_tckmax_ps;
+	unsigned int all_dimms_burst_lengths_bitmask;
+	unsigned int all_dimms_registered;
+	unsigned int all_dimms_unbuffered;
 	/*	unsigned int lowest_common_SPD_caslat; */
-	unsigned int all_DIMMs_minimum_tRCD_ps;
+	unsigned int all_dimms_minimum_trcd_ps;
 } memctl_options_partial_t;
 
 #define DDR_DATA_BUS_WIDTH_64 0
@@ -261,10 +261,10 @@ typedef struct memctl_options_s {
 	unsigned int addr_hash;
 
 	/* Operational mode parameters */
-	unsigned int ECC_mode;	 /* Use ECC? */
+	unsigned int ecc_mode;	 /* Use ECC? */
 	/* Initialize ECC using memory controller? */
-	unsigned int ECC_init_using_memctl;
-	unsigned int DQS_config;	/* Use DQS? maybe only with DDR2? */
+	unsigned int ecc_init_using_memctl;
+	unsigned int dqs_config;	/* Use DQS? maybe only with DDR2? */
 	/* SREN - self-refresh during sleep */
 	unsigned int self_refresh_in_sleep;
 	unsigned int dynamic_power;	/* DYN_PWR */
@@ -272,7 +272,7 @@ typedef struct memctl_options_s {
 	unsigned int data_bus_width;
 	unsigned int burst_length;	/* BL4, OTF and BL8 */
 	/* On-The-Fly Burst Chop enable */
-	unsigned int OTF_burst_chop_en;
+	unsigned int otf_burst_chop_en;
 	/* mirrior DIMMs for DDR3 */
 	unsigned int mirrored_dimm;
 	unsigned int quad_rank_present;
@@ -297,11 +297,11 @@ typedef struct memctl_options_s {
 	unsigned int wrlvl_ctl_3;
 
 	unsigned int half_strength_driver_enable;
-	unsigned int twoT_en;
-	unsigned int threeT_en;
+	unsigned int twot_en;
+	unsigned int threet_en;
 	unsigned int bstopre;
-	unsigned int tCKE_clock_pulse_width_ps;	/* tCKE */
-	unsigned int tFAW_window_four_activates_ps;	/* tFAW --  FOUR_ACT */
+	unsigned int tcke_clock_pulse_width_ps;	/* tCKE */
+	unsigned int tfaw_window_four_activates_ps;	/* tFAW --  FOUR_ACT */
 
 	/* Rtt impedance */
 	unsigned int rtt_override;		/* rtt_override enable */

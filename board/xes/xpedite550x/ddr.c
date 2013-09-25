@@ -108,7 +108,7 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 		    ddr_freq <= pbsp->datarate_mhz_high) {
 			popts->clk_adjust = pbsp->clk_adjust;
 			popts->cpo_override = pbsp->cpo;
-			popts->twoT_en = 0;
+			popts->twot_en = 0;
 			break;
 		}
 		pbsp++;

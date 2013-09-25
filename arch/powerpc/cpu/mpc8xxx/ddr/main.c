@@ -457,7 +457,7 @@ fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step,
 			 * which is currently STEP_ASSIGN_ADDRESSES.
 			 */
 			populate_memctl_options(
-					timing_params[i].all_DIMMs_registered,
+					timing_params[i].all_dimms_registered,
 					&pinfo->memctl_opts[i],
 					pinfo->dimm_params[i], i);
 			/*
@@ -466,7 +466,7 @@ fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step,
 			 * using fixed parameters, this function should be
 			 * be called from board init file.
 			 */
-			if (timing_params[i].all_DIMMs_registered)
+			if (timing_params[i].all_dimms_registered)
 				assert_reset = 1;
 		}
 		if (assert_reset) {
@@ -589,7 +589,7 @@ phys_size_t fsl_ddr_sdram(void)
 	 */
 	deassert_reset = board_need_mem_reset();
 	for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
-		if (info.common_timing_params[i].all_DIMMs_registered)
+		if (info.common_timing_params[i].all_dimms_registered)
 			deassert_reset = 1;
 	}
 	for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
