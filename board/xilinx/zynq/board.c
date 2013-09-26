@@ -18,6 +18,7 @@ Xilinx_desc fpga;
 
 /* It can be done differently */
 Xilinx_desc fpga010 = XILINX_XC7Z010_DESC(0x10);
+Xilinx_desc fpga015 = XILINX_XC7Z015_DESC(0x15);
 Xilinx_desc fpga020 = XILINX_XC7Z020_DESC(0x20);
 Xilinx_desc fpga030 = XILINX_XC7Z030_DESC(0x30);
 Xilinx_desc fpga045 = XILINX_XC7Z045_DESC(0x45);
@@ -34,6 +35,9 @@ int board_init(void)
 	switch (idcode) {
 	case XILINX_ZYNQ_7010:
 		fpga = fpga010;
+		break;
+	case XILINX_ZYNQ_7015:
+		fpga = fpga015;
 		break;
 	case XILINX_ZYNQ_7020:
 		fpga = fpga020;
