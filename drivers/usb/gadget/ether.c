@@ -1536,6 +1536,8 @@ static int rx_submit(struct eth_dev *dev, struct usb_request *req,
 	 */
 
 	debug("%s\n", __func__);
+	if (!req)
+		return -EINVAL;
 
 	size = (ETHER_HDR_SIZE + dev->mtu + RX_EXTRA);
 	size += dev->out_ep->maxpacket - 1;
