@@ -626,6 +626,7 @@ static int mvudc_probe(void)
 		free(controller.epts);
 		return -ENOMEM;
 	}
+	memset(controller.items_mem, 0, ilist_sz);
 
 	for (i = 0; i < 2 * NUM_ENDPOINTS; i++) {
 		/*
