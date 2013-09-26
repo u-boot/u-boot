@@ -13,7 +13,7 @@
 #include <spi_flash.h>
 #include <watchdog.h>
 
-#include "spi_flash_internal.h"
+#include "sf_internal.h"
 
 static void spi_flash_addr(u32 addr, u8 *cmd)
 {

@@ -14,7 +14,7 @@
 #include <spi.h>
 #include <spi_flash.h>
 
-#include "spi_flash_internal.h"
+#include "sf_internal.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
