@@ -245,6 +245,9 @@ static int mv_ep_enable(struct usb_ep *ep,
 
 static int mv_ep_disable(struct usb_ep *ep)
 {
+	struct mv_ep *mv_ep = container_of(ep, struct mv_ep, ep);
+
+	mv_ep->desc = NULL;
 	return 0;
 }
 
