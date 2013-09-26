@@ -635,6 +635,7 @@ fs_source_desc = {
 
 	.bEndpointAddress =	USB_DIR_IN,
 	.bmAttributes =		USB_ENDPOINT_XFER_BULK,
+	.wMaxPacketSize =	__constant_cpu_to_le16(64),
 };
 
 static struct usb_endpoint_descriptor
@@ -644,6 +645,7 @@ fs_sink_desc = {
 
 	.bEndpointAddress =	USB_DIR_OUT,
 	.bmAttributes =		USB_ENDPOINT_XFER_BULK,
+	.wMaxPacketSize =	__constant_cpu_to_le16(64),
 };
 
 static const struct usb_descriptor_header *fs_eth_function[11] = {
