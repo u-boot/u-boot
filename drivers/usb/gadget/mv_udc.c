@@ -335,20 +335,19 @@ static int mv_ep_queue(struct usb_ep *ep,
 	item->info = INFO_BYTES(len) | INFO_IOC | INFO_ACTIVE;
 	item->page0 = (uint32_t)mv_ep->b_buf;
 	item->page1 = ((uint32_t)mv_ep->b_buf & 0xfffff000) + 0x1000;
+	mv_flush_qtd(num);
 
 	head->next = (unsigned) item;
 	head->info = 0;
 
 	DBG("ept%d %s queue len %x, buffer %p\n",
 	    num, in ? "in" : "out", len, mv_ep->b_buf);
+	mv_flush_qh(num);
 
 	if (in)
 		bit = EPT_TX(num);
 	else
 		bit = EPT_RX(num);
-
-	mv_flush_qh(num);
-	mv_flush_qtd(num);
 
 	writel(bit, &udc->epprime);
 
