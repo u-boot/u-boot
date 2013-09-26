@@ -203,6 +203,13 @@ struct spi_flash *spi_flash_validate_ids(struct spi_slave *spi, u8 *idcode)
 	flash->sector_size = params->sector_size;
 	flash->size = flash->sector_size * params->nr_sectors;
 
+	/* Flash powers up read-only, so clear BP# bits */
+#if defined(CONFIG_SPI_FLASH_ATMEL) || \
+	defined(CONFIG_SPI_FLASH_MACRONIX) || \
+	defined(CONFIG_SPI_FLASH_SST)
+		spi_flash_cmd_write_status(flash, 0);
+#endif
+
 	return flash;
 }
 
