@@ -107,6 +107,7 @@ static struct mv_drv controller = {
 	.gadget	= {
 		.name	= "mv_udc",
 		.ops	= &mv_udc_ops,
+		.is_dualspeed = 1,
 	},
 };
 
