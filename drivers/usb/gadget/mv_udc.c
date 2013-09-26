@@ -366,8 +366,8 @@ static void handle_ep_complete(struct mv_ep *ep)
 	mv_invalidate_qtd(num);
 
 	if (item->info & 0xff)
-		printf("EP%d/%s FAIL nfo=%x pg0=%x\n",
-			num, in ? "in" : "out", item->info, item->page0);
+		printf("EP%d/%s FAIL info=%x pg0=%x\n",
+		       num, in ? "in" : "out", item->info, item->page0);
 
 	len = (item->info >> 16) & 0x7fff;
 
