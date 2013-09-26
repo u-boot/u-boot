@@ -433,6 +433,8 @@
 
 #define CONFIG_BAUDRATE		115200
 
+#define CONFIG_DEF_HWCONFIG	fsl_ddr:ecc=on
+
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"hwconfig=" __stringify(CONFIG_DEF_HWCONFIG)  "\0"	\
 	"netdev=eth0\0"						\
