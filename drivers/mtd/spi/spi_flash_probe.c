@@ -221,6 +221,26 @@ struct spi_flash *spi_flash_validate_ids(struct spi_slave *spi, u8 *idcode)
 		flash->poll_cmd = CMD_FLAG_STATUS;
 #endif
 
+#ifdef CONFIG_SPI_FLASH_BAR
+	/* Configure the BAR - discover bank cmds and read current bank  */
+	u8 curr_bank = 0;
+	if (flash->size > SPI_FLASH_16MB_BOUN) {
+		flash->bank_read_cmd = (idcode[0] == 0x01) ?
+					CMD_BANKADDR_BRRD : CMD_EXTNADDR_RDEAR;
+		flash->bank_write_cmd = (idcode[0] == 0x01) ?
+					CMD_BANKADDR_BRWR : CMD_EXTNADDR_WREAR;
+
+		if (spi_flash_read_common(flash, &flash->bank_read_cmd, 1,
+					  &curr_bank, 1)) {
+			debug("SF: fail to read bank addr register\n");
+			return NULL;
+		}
+		flash->bank_curr = curr_bank;
+	} else {
+		flash->bank_curr = curr_bank;
+	}
+#endif
+
 	/* Flash powers up read-only, so clear BP# bits */
 #if defined(CONFIG_SPI_FLASH_ATMEL) || \
 	defined(CONFIG_SPI_FLASH_MACRONIX) || \
@@ -230,44 +250,6 @@ struct spi_flash *spi_flash_validate_ids(struct spi_slave *spi, u8 *idcode)
 
 	return flash;
 }
-
-#ifdef CONFIG_SPI_FLASH_BAR
-int spi_flash_bank_config(struct spi_flash *flash, u8 idcode0)
-{
-	u8 cmd;
-	u8 curr_bank = 0;
-
-	/* discover bank cmds */
-	switch (idcode0) {
-	case SPI_FLASH_SPANSION_IDCODE0:
-		flash->bank_read_cmd = CMD_BANKADDR_BRRD;
-		flash->bank_write_cmd = CMD_BANKADDR_BRWR;
-		break;
-	case SPI_FLASH_STMICRO_IDCODE0:
-	case SPI_FLASH_WINBOND_IDCODE0:
-		flash->bank_read_cmd = CMD_EXTNADDR_RDEAR;
-		flash->bank_write_cmd = CMD_EXTNADDR_WREAR;
-		break;
-	default:
-		printf("SF: Unsupported bank commands %02x\n", idcode0);
-		return -1;
-	}
-
-	/* read the bank reg - on which bank the flash is in currently */
-	cmd = flash->bank_read_cmd;
-	if (flash->size > SPI_FLASH_16MB_BOUN) {
-		if (spi_flash_read_common(flash, &cmd, 1, &curr_bank, 1)) {
-			debug("SF: fail to read bank addr register\n");
-			return -1;
-		}
-		flash->bank_curr = curr_bank;
-	} else {
-		flash->bank_curr = curr_bank;
-	}
-
-	return 0;
-}
-#endif
 
 #ifdef CONFIG_OF_CONTROL
 int spi_flash_decode_fdt(const void *blob, struct spi_flash *flash)
@@ -302,7 +284,7 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 {
 	struct spi_slave *spi;
 	struct spi_flash *flash = NULL;
-	u8 idcode[5], *idp;
+	u8 idcode[5];
 	int ret;
 
 	/* Setup spi_slave */
@@ -332,17 +314,9 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 #endif
 
 	/* Validate ID's from flash dev table */
-	idp = idcode;
-	flash = spi_flash_validate_ids(spi, idp);
+	flash = spi_flash_validate_ids(spi, idcode);
 	if (!flash)
 		goto err_read_id;
-
-#ifdef CONFIG_SPI_FLASH_BAR
-	/* Configure the BAR - discover bank cmds and read current bank  */
-	ret = spi_flash_bank_config(flash, *idp);
-	if (ret < 0)
-		goto err_read_id;
-#endif
 
 #ifdef CONFIG_OF_CONTROL
 	if (spi_flash_decode_fdt(gd->fdt_blob, flash)) {

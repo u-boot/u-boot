@@ -31,11 +31,6 @@
 
 #define SPI_FLASH_16MB_BOUN		0x1000000
 
-/* Manufacture ID's */
-#define SPI_FLASH_SPANSION_IDCODE0	0x01
-#define SPI_FLASH_STMICRO_IDCODE0	0x20
-#define SPI_FLASH_WINBOND_IDCODE0	0xef
-
 #ifdef CONFIG_SPI_FLASH_BAR
 /* Bank addr access commands */
 # define CMD_BANKADDR_BRWR		0x17
@@ -102,9 +97,6 @@ int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr);
 #ifdef CONFIG_SPI_FLASH_BAR
 /* Program the bank address register */
 int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 bank_sel);
-
-/* Configure the BAR - discover the bank cmds */
-int spi_flash_bank_config(struct spi_flash *flash, u8 idcode0);
 #endif
 
 /*
