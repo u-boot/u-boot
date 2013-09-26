@@ -184,18 +184,21 @@ int do_pmic(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (argc < 4)
 			return CMD_RET_USAGE;
 
+		if (!p->pbat) {
+			printf("%s is not a battery\n", p->name);
+			return CMD_RET_FAILURE;
+		}
+
 		if (strcmp(argv[3], "state") == 0)
 			p->fg->fg_battery_check(p->pbat->fg, p);
 
 		if (strcmp(argv[3], "charge") == 0) {
-			if (p->pbat) {
-				printf("BAT: %s charging (ctrl+c to break)\n",
-				       p->name);
-				if (p->low_power_mode)
-					p->low_power_mode();
-				if (p->pbat->battery_charge)
-					p->pbat->battery_charge(p);
-			}
+			printf("BAT: %s charging (ctrl+c to break)\n",
+			       p->name);
+			if (p->low_power_mode)
+				p->low_power_mode();
+			if (p->pbat->battery_charge)
+				p->pbat->battery_charge(p);
 		}
 
 		return CMD_RET_SUCCESS;
