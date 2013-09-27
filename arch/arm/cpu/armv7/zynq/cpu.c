@@ -45,8 +45,6 @@ int arch_cpu_init(void)
 	writel(0x1F, &slcr_base->ocm_cfg);
 	/* FPGA_RST_CTRL, clear resets on AXI fabric ports */
 	writel(0x0, &slcr_base->fpga_rst_ctrl);
-	/* TZ_DDR_RAM, Set DDR trust zone non-secure */
-	writel(0xFFFFFFFF, &slcr_base->trust_zone);
 	/* Set urgent bits with register */
 	writel(0x0, &slcr_base->ddr_urgent_sel);
 	/* Urgent write, ports S2/S3 */
