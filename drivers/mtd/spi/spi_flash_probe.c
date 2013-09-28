@@ -75,13 +75,44 @@ static const struct spi_flash_params spi_flash_params_table[] = {
 	{"N25Q1024",		0x20ba21, 0x0,     64 * 1024,	2048},
 	{"N25Q1024A",		0x20bb21, 0x0,     64 * 1024,	2048},
 #endif
+#ifdef CONFIG_SPI_FLASH_WINBOND		/* WINBOND */
+	{"W25P80",		0xef2014, 0x0,	   64 * 1024,	  16},
+	{"W25P16",		0xef2015, 0x0,	   64 * 1024,	  32},
+	{"W25P32",		0xef2016, 0x0,	   64 * 1024,	  64},
+	{"W25X40",		0xef3013, 0x0,	   64 * 1024,	   8},
+	{"W25X16",		0xef3015, 0x0,	   64 * 1024,	  32},
+	{"W25X32",		0xef3016, 0x0,	   64 * 1024,	  64},
+	{"W25X64",		0xef3017, 0x0,	   64 * 1024,	 128},
+	{"W25Q80BL",		0xef4014, 0x0,	   64 * 1024,	  16},
+	{"W25Q16CL",		0xef4015, 0x0,	   64 * 1024,	  32},
+	{"W25Q32BV",		0xef4016, 0x0,	   64 * 1024,	  64},
+	{"W25Q64CV",		0xef4017, 0x0,	   64 * 1024,	 128},
+	{"W25Q128BV",		0xef4018, 0x0,	   64 * 1024,	 256},
+	{"W25Q256",		0xef4019, 0x0,	   64 * 1024,	 512},
+	{"W25Q80BW",		0xef5014, 0x0,	   64 * 1024,	  16},
+	{"W25Q16DW",		0xef6015, 0x0,	   64 * 1024,	  32},
+	{"W25Q32DW",		0xef6016, 0x0,	   64 * 1024,	  64},
+	{"W25Q64DW",		0xef6017, 0x0,	   64 * 1024,	 128},
+	{"W25Q128FW",		0xef6018, 0x0,	   64 * 1024,	 256},
+#endif
+	/*
+	 * Note:
+	 * Below paired flash devices has similar spi_flash_params params.
+	 * (W25Q80BL, W25Q80BV)
+	 * (W25Q16CL, W25Q16DV)
+	 * (W25Q32BV, W25Q32FV_SPI)
+	 * (W25Q64CV, W25Q64FV_SPI)
+	 * (W25Q128BV, W25Q128FV_SPI)
+	 * (W25Q32DW, W25Q32FV_QPI)
+	 * (W25Q64DW, W25Q64FV_QPI)
+	 * (W25Q128FW, W25Q128FV_QPI)
+	 */
 	/*
 	 * TODO:
 	 * ATMEL
 	 * RAMTRON
 	 * SPANSION
 	 * SST
-	 * WINBOND
 	 */
 };
 
