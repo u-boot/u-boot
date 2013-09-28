@@ -53,6 +53,19 @@ static const struct spi_flash_params spi_flash_params_table[] = {
 	{"MX25L12805",		0xc22018, 0x0,	   64 * 1024,	 256},
 	{"MX25L12855E",		0xc22618, 0x0,	   64 * 1024,	 256},
 #endif
+#ifdef CONFIG_SPI_FLASH_SPANSION	/* SPANSION */
+	{"S25FL008A",		0x010213, 0x0,	   64 * 1024,	  16},
+	{"S25FL016A",		0x010214, 0x0,	   64 * 1024,	  32},
+	{"S25FL032A",		0x010215, 0x0,	   64 * 1024,	  64},
+	{"S25FL064A",		0x010216, 0x0,	   64 * 1024,	 128},
+	{"S25FL128P_256K",	0x012018, 0x0300, 256 * 1024,	  64},
+	{"S25FL128P_64K",	0x012018, 0x0301,  64 * 1024,	 256},
+	{"S25FL032P",		0x010215, 0x4d00,  64 * 1024,	  64},
+	{"S25FL064P",		0x010216, 0x4d00,  64 * 1024,	 128},
+	{"S25FL128S_64K",	0x012018, 0x4d01,  64 * 1024,	 256},
+	{"S25FL256S_64K",	0x010219, 0x4d01,  64 * 1024,	 512},
+	{"S25FL512S_64K",	0x010220, 0x4d01,  64 * 1024,	1024},
+#endif
 #ifdef CONFIG_SPI_FLASH_STMICRO		/* STMICRO */
 	{"M25P10",		0x202011, 0x0,     32 * 1024,	   4},
 	{"M25P20",		0x202012, 0x0,     64 * 1024,	   4},
@@ -98,6 +111,7 @@ static const struct spi_flash_params spi_flash_params_table[] = {
 	/*
 	 * Note:
 	 * Below paired flash devices has similar spi_flash_params params.
+	 * (S25FL129P_64K, S25FL128S_64K)
 	 * (W25Q80BL, W25Q80BV)
 	 * (W25Q16CL, W25Q16DV)
 	 * (W25Q32BV, W25Q32FV_SPI)
@@ -111,7 +125,6 @@ static const struct spi_flash_params spi_flash_params_table[] = {
 	 * TODO:
 	 * ATMEL
 	 * RAMTRON
-	 * SPANSION
 	 * SST
 	 */
 };
@@ -122,19 +135,25 @@ struct spi_flash *spi_flash_validate_ids(struct spi_slave *spi, u8 *idcode)
 	struct spi_flash *flash;
 	int i;
 	u16 jedec = idcode[1] << 8 | idcode[2];
+	u16 ext_jedec = idcode[3] << 8 | idcode[4];
 
-	/* Get the flash id (jedec = manuf_id + dev_id) */
+	/* Get the flash id (jedec = manuf_id + dev_id, ext_jedec) */
 	for (i = 0; i < ARRAY_SIZE(spi_flash_params_table); i++) {
 		params = &spi_flash_params_table[i];
 		if ((params->jedec >> 16) == idcode[0]) {
-			if ((params->jedec & 0xFFFF) == jedec)
-				break;
+			if ((params->jedec & 0xFFFF) == jedec) {
+				if (params->ext_jedec == 0)
+					break;
+				else if (params->ext_jedec == ext_jedec)
+					break;
+			}
 		}
 	}
 
 	if (i == ARRAY_SIZE(spi_flash_params_table)) {
-		printf("SF: Unsupported flash ID: manuf %02x, jedec %04x\n",
-		       idcode[0], jedec);
+		printf("SF: Unsupported flash IDs: ");
+		printf("manuf %02x, jedec %04x, ext_jedec %04x\n",
+		       idcode[0], jedec, ext_jedec);
 		return NULL;
 	}
 
