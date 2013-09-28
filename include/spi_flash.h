@@ -29,39 +29,50 @@
 # define CMD_SST_AAI_WP		0xAD	/* Auto Address Incr Word Program */
 #endif
 
+/**
+ * struct spi_flash - SPI flash structure
+ *
+ * @spi:		SPI slave
+ * @name:		Name of SPI flash
+ * @size:		Total flash size
+ * @page_size:		Write (page) size
+ * @sector_size:	Sector size
+ * @erase_size:	Erase size
+ * @bank_read_cmd:	Bank read cmd
+ * @bank_write_cmd:	Bank write cmd
+ * @bank_curr:		Current flash bank
+ * @poll_cmd:		Poll cmd - for flash erase/program
+ * @erase_cmd:		Erase cmd 4K, 32K, 64K
+ * @memory_map:	Address of read-only SPI flash access
+ * @read:		Flash read ops: Read len bytes at offset into buf
+ *			Supported cmds: Fast Array Read
+ * @write:		Flash write ops: Write len bytes from buf into offeset
+ *			Supported cmds: Page Program
+ * @erase:		Flash erase ops: Erase len bytes from offset
+ *			Supported cmds: Sector erase 4K, 32K, 64K
+ * return 0 - Sucess, 1 - Failure
+ */
 struct spi_flash {
 	struct spi_slave *spi;
+	const char *name;
 
-	const char	*name;
-
-	/* Total flash size */
-	u32		size;
-	/* Write (page) size */
-	u32		page_size;
-	/* Sector size */
-	u32		sector_size;
-	/* Erase size */
-	u32		erase_size;
+	u32 size;
+	u32 page_size;
+	u32 sector_size;
+	u32 erase_size;
 #ifdef CONFIG_SPI_FLASH_BAR
-	/* Bank read cmd */
-	u8		bank_read_cmd;
-	/* Bank write cmd */
-	u8		bank_write_cmd;
-	/* Current flash bank */
-	u8		bank_curr;
+	u8 bank_read_cmd;
+	u8 bank_write_cmd;
+	u8 bank_curr;
 #endif
-	/* Poll cmd - for flash erase/program */
-	u8		poll_cmd;
-	/* Erase cmd 4K, 32K, 64K */
-	u8		erase_cmd;
+	u8 poll_cmd;
+	u8 erase_cmd;
 
-	void *memory_map;	/* Address of read-only SPI flash access */
-	int		(*read)(struct spi_flash *flash, u32 offset,
-				size_t len, void *buf);
-	int		(*write)(struct spi_flash *flash, u32 offset,
-				size_t len, const void *buf);
-	int		(*erase)(struct spi_flash *flash, u32 offset,
-				size_t len);
+	void *memory_map;
+	int (*read)(struct spi_flash *flash, u32 offset, size_t len, void *buf);
+	int (*write)(struct spi_flash *flash, u32 offset, size_t len,
+			const void *buf);
+	int (*erase)(struct spi_flash *flash, u32 offset, size_t len);
 };
 
 /**
