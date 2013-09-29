@@ -417,8 +417,12 @@ static int ctrlreq_out_data_phase(struct usb_device *dev, u32 len, void *buffer)
 
 		/* Set TXPKTRDY bit */
 		csr = readw(&musbr->txcsr);
-		writew(csr | MUSB_CSR0_H_DIS_PING | MUSB_CSR0_TXPKTRDY,
-					&musbr->txcsr);
+			
+		csr |= MUSB_CSR0_TXPKTRDY;
+#if !defined(CONFIG_SOC_DM365)
+		csr |= MUSB_CSR0_H_DIS_PING;
+#endif
+		writew(csr, &musbr->txcsr);
 		result = wait_until_ep0_ready(dev, MUSB_CSR0_TXPKTRDY);
 		if (result < 0)
 			break;
@@ -439,8 +443,10 @@ static int ctrlreq_out_status_phase(struct usb_device *dev)
 
 	/* Set the StatusPkt bit */
 	csr = readw(&musbr->txcsr);
-	csr |= (MUSB_CSR0_H_DIS_PING | MUSB_CSR0_TXPKTRDY |
-			MUSB_CSR0_H_STATUSPKT);
+	csr |= (MUSB_CSR0_TXPKTRDY | MUSB_CSR0_H_STATUSPKT);
+#if !defined(CONFIG_SOC_DM365)
+	csr |= MUSB_CSR0_H_DIS_PING;
+#endif
 	writew(csr, &musbr->txcsr);
 
 	/* Wait until TXPKTRDY bit is cleared */
@@ -457,7 +463,10 @@ static int ctrlreq_in_status_phase(struct usb_device *dev)
 	int result;
 
 	/* Set the StatusPkt bit and ReqPkt bit */
-	csr = MUSB_CSR0_H_DIS_PING | MUSB_CSR0_H_REQPKT | MUSB_CSR0_H_STATUSPKT;
+	csr = MUSB_CSR0_H_REQPKT | MUSB_CSR0_H_STATUSPKT;
+#if !defined(CONFIG_SOC_DM365)
+	csr |= MUSB_CSR0_H_DIS_PING;
+#endif
 	writew(csr, &musbr->txcsr);
 	result = wait_until_ep0_ready(dev, MUSB_CSR0_H_REQPKT);
 
