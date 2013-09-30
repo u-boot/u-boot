@@ -120,14 +120,14 @@ static void tsec_configure_serdes(struct tsec_private *priv)
  * for PowerPC (tm) is usually the case) in the tregister holds
  * the entry. */
 static int
-tsec_mcast_addr (struct eth_device *dev, u8 mcast_mac, u8 set)
+tsec_mcast_addr(struct eth_device *dev, const u8 *mcast_mac, u8 set)
 {
 	struct tsec_private *priv = privlist[1];
 	volatile tsec_t *regs = priv->regs;
 	volatile u32  *reg_array, value;
 	u8 result, whichbit, whichreg;
 
-	result = (u8)((ether_crc(MAC_ADDR_LEN,mcast_mac) >> 24) & 0xff);
+	result = (u8)((ether_crc(MAC_ADDR_LEN, mcast_mac) >> 24) & 0xff);
 	whichbit = result & 0x1f;	/* the 5 LSB = which bit to set */
 	whichreg = result >> 5;		/* the 3 MSB = which reg to set it in */
 	value = (1 << (31-whichbit));
