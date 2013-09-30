@@ -375,12 +375,6 @@ setup_pll_func:
 #endif	/* CONFIG_MX53 */
 .endm
 
-.macro setup_wdog
-	ldr r0, =WDOG1_BASE_ADDR
-	mov r1, #0x30
-	strh r1, [r0]
-.endm
-
 ENTRY(lowlevel_init)
 	mov r10, lr
 	mov r4, #0	/* Fix R4 to 0 */
