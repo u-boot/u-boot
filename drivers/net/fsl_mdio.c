@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2010 Freescale Semiconductor, Inc.
+ * Copyright 2009-2010, 2013 Freescale Semiconductor, Inc.
  *	Jun-jie Zhang <b18070@freescale.com>
  *	Mingkai Hu <Mingkai.hu@freescale.com>
  *
@@ -13,7 +13,7 @@
 #include <asm/errno.h>
 #include <asm/fsl_enet.h>
 
-void tsec_local_mdio_write(struct tsec_mii_mng *phyregs, int port_addr,
+void tsec_local_mdio_write(struct tsec_mii_mng __iomem *phyregs, int port_addr,
 		int dev_addr, int regnum, int value)
 {
 	int timeout = 1000000;
@@ -26,7 +26,7 @@ void tsec_local_mdio_write(struct tsec_mii_mng *phyregs, int port_addr,
 		;
 }
 
-int tsec_local_mdio_read(struct tsec_mii_mng *phyregs, int port_addr,
+int tsec_local_mdio_read(struct tsec_mii_mng __iomem *phyregs, int port_addr,
 		int dev_addr, int regnum)
 {
 	int value;
@@ -57,7 +57,8 @@ int tsec_local_mdio_read(struct tsec_mii_mng *phyregs, int port_addr,
 
 static int fsl_pq_mdio_reset(struct mii_dev *bus)
 {
-	struct tsec_mii_mng *regs = bus->priv;
+	struct tsec_mii_mng __iomem *regs =
+		(struct tsec_mii_mng __iomem *)bus->priv;
 
 	/* Reset MII (due to new addresses) */
 	out_be32(&regs->miimcfg, MIIMCFG_RESET_MGMT);
@@ -72,7 +73,8 @@ static int fsl_pq_mdio_reset(struct mii_dev *bus)
 
 int tsec_phy_read(struct mii_dev *bus, int addr, int dev_addr, int regnum)
 {
-	struct tsec_mii_mng *phyregs = bus->priv;
+	struct tsec_mii_mng __iomem *phyregs =
+		(struct tsec_mii_mng __iomem *)bus->priv;
 
 	return tsec_local_mdio_read(phyregs, addr, dev_addr, regnum);
 }
@@ -80,7 +82,8 @@ int tsec_phy_read(struct mii_dev *bus, int addr, int dev_addr, int regnum)
 int tsec_phy_write(struct mii_dev *bus, int addr, int dev_addr, int regnum,
 			u16 value)
 {
-	struct tsec_mii_mng *phyregs = bus->priv;
+	struct tsec_mii_mng __iomem *phyregs =
+		(struct tsec_mii_mng __iomem *)bus->priv;
 
 	tsec_local_mdio_write(phyregs, addr, dev_addr, regnum, value);
 
@@ -101,7 +104,7 @@ int fsl_pq_mdio_init(bd_t *bis, struct fsl_pq_mdio_info *info)
 	bus->reset = fsl_pq_mdio_reset;
 	sprintf(bus->name, info->name);
 
-	bus->priv = info->regs;
+	bus->priv = (void *)info->regs;
 
 	return mdio_register(bus);
 }
