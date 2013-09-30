@@ -33,11 +33,6 @@ typedef volatile struct rtxbd {
 	rxbd8_t rxbd[PKTBUFSRX];
 } RTXBD;
 
-#define MAXCONTROLLERS	(8)
-
-static struct tsec_private *privlist[MAXCONTROLLERS];
-static int num_tsecs = 0;
-
 #ifdef __GNUC__
 static RTXBD rtx __attribute__ ((aligned(8)));
 #else
@@ -122,7 +117,7 @@ static void tsec_configure_serdes(struct tsec_private *priv)
 static int
 tsec_mcast_addr(struct eth_device *dev, const u8 *mcast_mac, u8 set)
 {
-	struct tsec_private *priv = privlist[1];
+	struct tsec_private *priv = (struct tsec_private *)dev->priv;
 	struct tsec __iomem *regs = priv->regs;
 	u32 result, value;
 	u8 whichbit, whichreg;
@@ -625,7 +620,6 @@ static int tsec_initialize(bd_t *bis, struct tsec_info_struct *tsec_info)
 	if (NULL == priv)
 		return 0;
 
-	privlist[num_tsecs++] = priv;
 	priv->regs = tsec_info->regs;
 	priv->phyregs_sgmii = tsec_info->miiregs_sgmii;
 
