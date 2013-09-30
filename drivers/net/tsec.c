@@ -473,11 +473,9 @@ static void tsec_halt(struct eth_device *dev)
  */
 static int tsec_init(struct eth_device *dev, bd_t * bd)
 {
-	uint tempval;
-	char tmpbuf[MAC_ADDR_LEN];
-	int i;
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
 	struct tsec __iomem *regs = priv->regs;
+	u32 tempval;
 	int ret;
 
 	/* Make sure the controller is stopped */
@@ -490,16 +488,16 @@ static int tsec_init(struct eth_device *dev, bd_t * bd)
 	out_be32(&regs->ecntrl, ECNTRL_INIT_SETTINGS);
 
 	/* Copy the station address into the address registers.
-	 * Backwards, because little endian MACS are dumb */
-	for (i = 0; i < MAC_ADDR_LEN; i++)
-		tmpbuf[MAC_ADDR_LEN - 1 - i] = dev->enetaddr[i];
-
-	tempval = (tmpbuf[0] << 24) | (tmpbuf[1] << 16) | (tmpbuf[2] << 8) |
-		  tmpbuf[3];
+	 * For a station address of 0x12345678ABCD in transmission
+	 * order (BE), MACnADDR1 is set to 0xCDAB7856 and
+	 * MACnADDR2 is set to 0x34120000.
+	 */
+	tempval = (dev->enetaddr[5] << 24) | (dev->enetaddr[4] << 16) |
+		  (dev->enetaddr[3] << 8)  |  dev->enetaddr[2];
 
 	out_be32(&regs->macstnaddr1, tempval);
 
-	tempval = *((uint *) (tmpbuf + 4));
+	tempval = (dev->enetaddr[1] << 24) | (dev->enetaddr[0] << 16);
 
 	out_be32(&regs->macstnaddr2, tempval);
 
