@@ -10,7 +10,8 @@
 #include <asm/fsl_law.h>
 #include <div64.h>
 
-#include "ddr.h"
+#include <fsl_ddr.h>
+#include <asm/io.h>
 
 /* To avoid 64-bit full-divides, we factor this here */
 #define ULL_2E12 2000000000000ULL
@@ -133,7 +134,7 @@ u32 fsl_ddr_get_intl3r(void)
 
 void board_add_ram_info(int use_default)
 {
-	ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC8xxx_DDR_ADDR);
+	ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_FSL_DDR_ADDR);
 
 #if	defined(CONFIG_E6500) && (CONFIG_NUM_DDR_CONTROLLERS == 3)
 	u32 *mcintl3r = (void *) (CONFIG_SYS_IMMR + 0x18004);
@@ -146,13 +147,13 @@ void board_add_ram_info(int use_default)
 
 #if CONFIG_NUM_DDR_CONTROLLERS >= 2
 	if (!(sdram_cfg & SDRAM_CFG_MEM_EN)) {
-		ddr = (void __iomem *)CONFIG_SYS_MPC8xxx_DDR2_ADDR;
+		ddr = (void __iomem *)CONFIG_SYS_FSL_DDR2_ADDR;
 		sdram_cfg = in_be32(&ddr->sdram_cfg);
 	}
 #endif
 #if CONFIG_NUM_DDR_CONTROLLERS >= 3
 	if (!(sdram_cfg & SDRAM_CFG_MEM_EN)) {
-		ddr = (void __iomem *)CONFIG_SYS_MPC8xxx_DDR3_ADDR;
+		ddr = (void __iomem *)CONFIG_SYS_FSL_DDR3_ADDR;
 		sdram_cfg = in_be32(&ddr->sdram_cfg);
 	}
 #endif

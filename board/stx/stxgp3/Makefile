@@ -9,4 +9,4 @@ obj-y	+= stxgp3.o
 obj-y	+= law.o
 obj-y	+= tlb.o
 obj-y	+= flash.o
-obj-$(CONFIG_FSL_DDR1) += ddr.o
+obj-$(CONFIG_SYS_FSL_DDR1) += ddr.o

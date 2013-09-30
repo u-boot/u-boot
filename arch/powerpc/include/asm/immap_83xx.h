@@ -279,7 +279,7 @@ typedef struct qesba83xx {
 /*
  * DDR Memory Controller Memory Map
  */
-#if defined(CONFIG_FSL_DDR2) || defined(CONFIG_FSL_DDR3)
+#if defined(CONFIG_SYS_FSL_DDR2) || defined(CONFIG_SYS_FSL_DDR3)
 typedef struct ccsr_ddr {
 	u32	cs0_bnds;		/* Chip Select 0 Memory Bounds */
 	u8	res1[4];
@@ -739,7 +739,7 @@ typedef struct immap {
 	u8			dll_ddr[0x100];
 	u8			dll_lbc[0x100];
 	u8			res1[0xE00];
-#if defined(CONFIG_FSL_DDR2) || defined(CONFIG_FSL_DDR3)
+#if defined(CONFIG_SYS_FSL_DDR2) || defined(CONFIG_SYS_FSL_DDR3)
 	ccsr_ddr_t		ddr;	/* DDR Memory Controller Memory */
 #else
 	ddr83xx_t		ddr;	/* DDR Memory Controller Memory */
@@ -1029,7 +1029,7 @@ typedef struct immap {
 #endif
 
 #define CONFIG_SYS_MPC8xxx_DDR_OFFSET	(0x2000)
-#define CONFIG_SYS_MPC8xxx_DDR_ADDR \
+#define CONFIG_SYS_FSL_DDR_ADDR \
 			(CONFIG_SYS_IMMR + CONFIG_SYS_MPC8xxx_DDR_OFFSET)
 #define CONFIG_SYS_MPC83xx_DMA_OFFSET	(0x8000)
 #define CONFIG_SYS_MPC83xx_DMA_ADDR \

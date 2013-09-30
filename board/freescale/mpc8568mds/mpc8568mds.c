@@ -12,7 +12,7 @@
 #include <asm/mmu.h>
 #include <asm/immap_85xx.h>
 #include <asm/fsl_pci.h>
-#include <asm/fsl_ddr_sdram.h>
+#include <fsl_ddr_sdram.h>
 #include <asm/fsl_serdes.h>
 #include <spd_sdram.h>
 #include <i2c.h>

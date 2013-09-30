@@ -15,7 +15,7 @@
 void ecc_print_status(void)
 {
 	immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-#ifdef CONFIG_FSL_DDR2
+#ifdef CONFIG_SYS_FSL_DDR2
 	ccsr_ddr_t *ddr = &immap->ddr;
 #else
 	ddr83xx_t *ddr = &immap->ddr;
@@ -99,7 +99,7 @@ void ecc_print_status(void)
 int do_ecc(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-#ifdef CONFIG_FSL_DDR2
+#ifdef CONFIG_SYS_FSL_DDR2
 	ccsr_ddr_t *ddr = &immap->ddr;
 #else
 	ddr83xx_t *ddr = &immap->ddr;

@@ -40,7 +40,7 @@
 /*
  * DDR config
  */
-#define CONFIG_FSL_DDR2
+#define CONFIG_SYS_FSL_DDR2
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup */
 #define CONFIG_DDR_SPD
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef

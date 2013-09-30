@@ -8,7 +8,7 @@
 #include <common.h>
 #include <asm/processor.h>
 #include <asm/immap_85xx.h>
-#include <asm/fsl_ddr_sdram.h>
+#include <fsl_ddr_sdram.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <spd_sdram.h>
@@ -24,7 +24,7 @@
  */
 phys_size_t fixed_sdram(void)
 {
-	volatile ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC8xxx_DDR_ADDR);
+	volatile ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_FSL_DDR_ADDR);
 
 	/*
 	 * Disable memory controller.

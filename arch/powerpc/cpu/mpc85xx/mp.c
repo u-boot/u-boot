@@ -11,7 +11,7 @@
 #include <asm/io.h>
 #include <asm/mmu.h>
 #include <asm/fsl_law.h>
-#include <asm/fsl_ddr_sdram.h>
+#include <fsl_ddr_sdram.h>
 #include "mp.h"
 
 DECLARE_GLOBAL_DATA_PTR;

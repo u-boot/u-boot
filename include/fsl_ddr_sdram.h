@@ -36,25 +36,25 @@
 #define DDR2_RTT_150_OHM	2
 #define DDR2_RTT_50_OHM		3
 
-#if defined(CONFIG_FSL_DDR1)
+#if defined(CONFIG_SYS_FSL_DDR1)
 #define FSL_DDR_MIN_TCKE_PULSE_WIDTH_DDR	(1)
 typedef ddr1_spd_eeprom_t generic_spd_eeprom_t;
 #ifndef CONFIG_FSL_SDRAM_TYPE
 #define CONFIG_FSL_SDRAM_TYPE	SDRAM_TYPE_DDR1
 #endif
-#elif defined(CONFIG_FSL_DDR2)
+#elif defined(CONFIG_SYS_FSL_DDR2)
 #define FSL_DDR_MIN_TCKE_PULSE_WIDTH_DDR	(3)
 typedef ddr2_spd_eeprom_t generic_spd_eeprom_t;
 #ifndef CONFIG_FSL_SDRAM_TYPE
 #define CONFIG_FSL_SDRAM_TYPE	SDRAM_TYPE_DDR2
 #endif
-#elif defined(CONFIG_FSL_DDR3)
+#elif defined(CONFIG_SYS_FSL_DDR3)
 #define FSL_DDR_MIN_TCKE_PULSE_WIDTH_DDR	(3)	/* FIXME */
 typedef ddr3_spd_eeprom_t generic_spd_eeprom_t;
 #ifndef CONFIG_FSL_SDRAM_TYPE
 #define CONFIG_FSL_SDRAM_TYPE	SDRAM_TYPE_DDR3
 #endif
-#endif	/* #if defined(CONFIG_FSL_DDR1) */
+#endif	/* #if defined(CONFIG_SYS_FSL_DDR1) */
 
 #define FSL_DDR_ODT_NEVER		0x0
 #define FSL_DDR_ODT_CS			0x1

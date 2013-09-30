@@ -8,7 +8,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/fsl_ddr_sdram.h>
+#include <fsl_ddr_sdram.h>
 
 #if (CONFIG_CHIP_SELECTS_PER_CTRL > 4)
 #error Invalid setting for CONFIG_CHIP_SELECTS_PER_CTRL
@@ -18,9 +18,16 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 			     unsigned int ctrl_num, int step)
 {
 	unsigned int i;
-	volatile ccsr_ddr_t *ddr = (void *)CONFIG_SYS_MPC8xxx_DDR_ADDR;
+	volatile ccsr_ddr_t *ddr;
 
-	if (ctrl_num != 0) {
+	switch (ctrl_num) {
+	case 0:
+		ddr = (void *)CONFIG_SYS_FSL_DDR_ADDR;
+		break;
+	case 1:
+		ddr = (void *)CONFIG_SYS_FSL_DDR2_ADDR;
+		break;
+	default:
 		printf("%s unexpected ctrl_num = %u\n", __FUNCTION__, ctrl_num);
 		return;
 	}
@@ -44,13 +51,21 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 		}
 	}
 
+	out_be32(&ddr->timing_cfg_3, regs->timing_cfg_3);
+	out_be32(&ddr->timing_cfg_0, regs->timing_cfg_0);
 	out_be32(&ddr->timing_cfg_1, regs->timing_cfg_1);
 	out_be32(&ddr->timing_cfg_2, regs->timing_cfg_2);
+	out_be32(&ddr->sdram_cfg_2, regs->ddr_sdram_cfg_2);
 	out_be32(&ddr->sdram_mode, regs->ddr_sdram_mode);
+	out_be32(&ddr->sdram_mode_2, regs->ddr_sdram_mode_2);
+	out_be32(&ddr->sdram_mode_cntl, regs->ddr_sdram_md_cntl);
 	out_be32(&ddr->sdram_interval, regs->ddr_sdram_interval);
-#if defined(CONFIG_MPC8555) || defined(CONFIG_MPC8541)
+	out_be32(&ddr->sdram_data_init, regs->ddr_data_init);
 	out_be32(&ddr->sdram_clk_cntl, regs->ddr_sdram_clk_cntl);
-#endif
+	out_be32(&ddr->init_addr, regs->ddr_init_addr);
+	out_be32(&ddr->init_ext_addr, regs->ddr_init_ext_addr);
+
+	debug("before go\n");
 
 	/*
 	 * 200 painful micro-seconds must elapse between
@@ -61,29 +76,10 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 
 	out_be32(&ddr->sdram_cfg, regs->ddr_sdram_cfg);
 
-	asm("sync;isync;msync");
-	udelay(500);
-}
-
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
-/*
- * Initialize all of memory for ECC, then enable errors.
- */
-
-void
-ddr_enable_ecc(unsigned int dram_size)
-{
-	volatile ccsr_ddr_t *ddr= (void *)(CONFIG_SYS_MPC8xxx_DDR_ADDR);
-
-	dma_meminit(CONFIG_MEM_INIT_VALUE, dram_size);
-
 	/*
-	 * Enable errors for ECC.
+	 * Poll DDR_SDRAM_CFG_2[D_INIT] bit until auto-data init is done
 	 */
-	debug("DMA DDR: err_disable = 0x%08x\n", ddr->err_disable);
-	ddr->err_disable = 0x00000000;
-	asm("sync;isync;msync");
-	debug("DMA DDR: err_disable = 0x%08x\n", ddr->err_disable);
+	while (in_be32(&ddr->sdram_cfg_2) & 0x10) {
+		udelay(10000);		/* throttle polling rate */
+	}
 }
-
-#endif	/* CONFIG_DDR_ECC  && ! CONFIG_ECC_INIT_VIA_DDRCONTROLLER */

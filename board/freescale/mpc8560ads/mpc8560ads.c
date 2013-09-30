@@ -14,7 +14,7 @@
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <asm/immap_85xx.h>
-#include <asm/fsl_ddr_sdram.h>
+#include <fsl_ddr_sdram.h>
 #include <ioports.h>
 #include <spd_sdram.h>
 #include <miiphy.h>
@@ -373,7 +373,7 @@ void lbc_sdram_init(void)
 phys_size_t fixed_sdram(void)
 {
   #ifndef CONFIG_SYS_RAMBOOT
-	volatile ccsr_ddr_t *ddr= (void *)(CONFIG_SYS_MPC8xxx_DDR_ADDR);
+	volatile ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_FSL_DDR_ADDR);
 
 	ddr->cs0_bnds = CONFIG_SYS_DDR_CS0_BNDS;
 	ddr->cs0_config = CONFIG_SYS_DDR_CS0_CONFIG;

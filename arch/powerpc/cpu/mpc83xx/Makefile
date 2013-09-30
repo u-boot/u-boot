@@ -38,11 +38,11 @@ obj-$(CONFIG_OF_LIBFDT) += fdt.o
 # Stub implementations of cache management functions for USB
 obj-y += cache.o
 
-ifdef CONFIG_FSL_DDR2
-obj-$(CONFIG_MPC8349) += ../mpc85xx/ddr-gen2.o
+ifdef CONFIG_SYS_FSL_DDR2
+obj-$(CONFIG_MPC8349) += $(SRCTREE)/drivers/ddr/fsl/mpc85xx_ddr_gen2.o
 else
 obj-y += spd_sdram.o
 endif
-obj-$(CONFIG_FSL_DDR2) += law.o
+obj-$(CONFIG_SYS_FSL_DDR2) += law.o
 
 endif # not minimal

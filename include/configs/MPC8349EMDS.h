@@ -62,11 +62,11 @@
 #define CONFIG_SPD_EEPROM		/* use SPD EEPROM for DDR setup*/
 
 /*
- * define CONFIG_FSL_DDR2 to use unified DDR driver
+ * define CONFIG_SYS_FSL_DDR2 to use unified DDR driver
  * undefine it to use old spd_sdram.c
  */
-#define CONFIG_FSL_DDR2
-#ifdef CONFIG_FSL_DDR2
+#define CONFIG_SYS_FSL_DDR2
+#ifdef CONFIG_SYS_FSL_DDR2
 #define CONFIG_SYS_SPD_BUS_NUM	0
 #define SPD_EEPROM_ADDRESS1	0x52
 #define SPD_EEPROM_ADDRESS2	0x51

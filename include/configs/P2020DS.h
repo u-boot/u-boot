@@ -109,9 +109,9 @@
 /* DDR Setup */
 #define CONFIG_VERY_BIG_RAM
 #ifdef CONFIG_DDR2
-#define CONFIG_FSL_DDR2
+#define CONFIG_SYS_FSL_DDR2
 #else
-#define CONFIG_FSL_DDR3		1
+#define CONFIG_SYS_FSL_DDR3		1
 #endif
 
 /* ECC will be enabled based on perf_mode environment variable */

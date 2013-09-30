@@ -8,8 +8,8 @@
 
 #include <common.h>
 
-#include <asm/fsl_ddr_sdram.h>
-#include <asm/fsl_ddr_dimm_params.h>
+#include <fsl_ddr_sdram.h>
+#include <fsl_ddr_dimm_params.h>
 
 struct board_specific_parameters {
 	u32 n_ranks;
@@ -37,7 +37,7 @@ static const struct board_specific_parameters dimm0[] = {
 	 *   num|  hi|  clk| cpo|wrdata|2T
 	 * ranks| mhz|adjst|    | delay|
 	 */
-#ifdef CONFIG_FSL_DDR2
+#ifdef CONFIG_SYS_FSL_DDR2
 	{2,  549,    4,   0x1f,    2,  0},
 	{2,  680,    4,   0x1f,    3,  0},
 	{2,  850,    4,   0x1f,    4,  0},

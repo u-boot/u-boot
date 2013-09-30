@@ -7,11 +7,11 @@
  */
 
 #include <common.h>
-#include <asm/fsl_ddr_sdram.h>
+#include <fsl_ddr_sdram.h>
 
-#include "ddr.h"
+#include <fsl_ddr.h>
 
-#if defined(CONFIG_FSL_DDR3)
+#if defined(CONFIG_SYS_FSL_DDR3)
 static unsigned int
 compute_cas_latency_ddr3(const dimm_params_t *dimm_params,
 			 common_timing_params_t *outpdimm,
@@ -103,7 +103,7 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 
 	unsigned int temp1, temp2;
 	unsigned int additive_latency = 0;
-#if !defined(CONFIG_FSL_DDR3)
+#if !defined(CONFIG_SYS_FSL_DDR3)
 	const unsigned int mclk_ps = get_memory_clk_period_ps();
 	unsigned int lowest_good_caslat;
 	unsigned int not_ok;
@@ -265,7 +265,7 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	if (temp1 != 0)
 		printf("ERROR: Mix different RDIMM detected!\n");
 
-#if defined(CONFIG_FSL_DDR3)
+#if defined(CONFIG_SYS_FSL_DDR3)
 	if (compute_cas_latency_ddr3(dimm_params, outpdimm, number_of_dimms))
 		return 1;
 #else
@@ -386,7 +386,7 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	}
 	outpdimm->highest_common_derated_caslat = temp1;
 	debug("highest common dereated CAS latency = %u\n", temp1);
-#endif /* #if defined(CONFIG_FSL_DDR3) */
+#endif /* #if defined(CONFIG_SYS_FSL_DDR3) */
 
 	/* Determine if all DIMMs ECC capable. */
 	temp1 = 1;
@@ -404,7 +404,7 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	}
 	outpdimm->all_dimms_ecc_capable = temp1;
 
-#ifndef CONFIG_FSL_DDR3
+#ifndef CONFIG_SYS_FSL_DDR3
 	/* FIXME: move to somewhere else to validate. */
 	if (mclk_ps > tckmax_max_ps) {
 		printf("Warning: some of the installed DIMMs "
@@ -467,7 +467,7 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 
 	additive_latency = 0;
 
-#if defined(CONFIG_FSL_DDR2)
+#if defined(CONFIG_SYS_FSL_DDR2)
 	if (lowest_good_caslat < 4) {
 		additive_latency = (picos_to_mclk(trcd_ps) > lowest_good_caslat)
 			? picos_to_mclk(trcd_ps) - lowest_good_caslat : 0;
@@ -478,7 +478,7 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 		}
 	}
 
-#elif defined(CONFIG_FSL_DDR3)
+#elif defined(CONFIG_SYS_FSL_DDR3)
 	/*
 	 * The system will not use the global auto-precharge mode.
 	 * However, it uses the page mode, so we set AL=0

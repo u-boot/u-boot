@@ -14,10 +14,10 @@
 
 #include <common.h>
 #include <i2c.h>
-#include <asm/fsl_ddr_sdram.h>
+#include <fsl_ddr_sdram.h>
 #include <asm/fsl_law.h>
 
-#include "ddr.h"
+#include <fsl_ddr.h>
 
 void fsl_ddr_set_lawbar(
 		const common_timing_params_t *memctl_common_params,

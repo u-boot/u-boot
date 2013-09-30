@@ -31,9 +31,3 @@ obj-$(CONFIG_SYS_SRIO) += srio.o
 obj-$(CONFIG_FSL_LAW) += law.o
 
 endif
-
-ifdef CONFIG_SPL_BUILD
-obj-$(CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT) += ddr/
-else
-obj-y += ddr/
-endif
