@@ -113,32 +113,31 @@ static void tsec_configure_serdes(struct tsec_private *priv)
  * result.
  * 2) Use the 8 most significant bits as a hash into a 256-entry
  * table.  The table is controlled through 8 32-bit registers:
- * gaddr0-7.  gaddr0's MSB is entry 0, and gaddr7's LSB is
- * gaddr7.  This means that the 3 most significant bits in the
+ * gaddr0-7.  gaddr0's MSB is entry 0, and gaddr7's LSB is entry
+ * 255.  This means that the 3 most significant bits in the
  * hash index which gaddr register to use, and the 5 other bits
  * indicate which bit (assuming an IBM numbering scheme, which
- * for PowerPC (tm) is usually the case) in the tregister holds
+ * for PowerPC (tm) is usually the case) in the register holds
  * the entry. */
 static int
 tsec_mcast_addr(struct eth_device *dev, const u8 *mcast_mac, u8 set)
 {
 	struct tsec_private *priv = privlist[1];
-	volatile tsec_t *regs = priv->regs;
-	volatile u32  *reg_array, value;
-	u8 result, whichbit, whichreg;
+	struct tsec __iomem *regs = priv->regs;
+	u32 result, value;
+	u8 whichbit, whichreg;
 
-	result = (u8)((ether_crc(MAC_ADDR_LEN, mcast_mac) >> 24) & 0xff);
-	whichbit = result & 0x1f;	/* the 5 LSB = which bit to set */
-	whichreg = result >> 5;		/* the 3 MSB = which reg to set it in */
-	value = (1 << (31-whichbit));
+	result = ether_crc(MAC_ADDR_LEN, mcast_mac);
+	whichbit = (result >> 24) & 0x1f; /* the 5 LSB = which bit to set */
+	whichreg = result >> 29; /* the 3 MSB = which reg to set it in */
 
-	reg_array = &(regs->hash.gaddr0);
+	value = 1 << (31-whichbit);
 
-	if (set) {
-		reg_array[whichreg] |= value;
-	} else {
-		reg_array[whichreg] &= ~value;
-	}
+	if (set)
+		setbits_be32(&regs->hash.gaddr0 + whichreg, value);
+	else
+		clrbits_be32(&regs->hash.gaddr0 + whichreg, value);
+
 	return 0;
 }
 #endif /* Multicast TFTP ? */
