@@ -71,45 +71,56 @@ int spi_flash_cmd_write(struct spi_slave *spi, const u8 *cmd, size_t cmd_len,
 	return spi_flash_read_write(spi, cmd, cmd_len, data, NULL, data_len);
 }
 
-int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
+static int spi_flash_get_status(struct spi_flash *flash, u8 cmd, u8 *resp)
 {
-	struct spi_slave *spi = flash->spi;
-	unsigned long timebase;
 	int ret;
-	u8 status;
-	u8 check_status = 0x0;
-	u8 poll_bit = STATUS_WIP;
-	u8 cmd = flash->poll_cmd;
-
-	if (cmd == CMD_FLAG_STATUS) {
-		poll_bit = STATUS_PEC;
-		check_status = poll_bit;
-	}
+	struct spi_slave *spi = flash->spi;
 
 	ret = spi_xfer(spi, 8, &cmd, NULL, SPI_XFER_BEGIN);
 	if (ret) {
 		debug("SF: fail to read %s status register\n",
-			cmd == CMD_READ_STATUS ? "read" : "flag");
+		      cmd == CMD_READ_STATUS ? "read" : "flag");
 		return ret;
 	}
 
-	timebase = get_timer(0);
-	do {
-		WATCHDOG_RESET();
+	WATCHDOG_RESET();
 
-		ret = spi_xfer(spi, 8, NULL, &status, 0);
-		if (ret)
-			return -1;
-
-		if ((status & poll_bit) == check_status)
-			break;
-
-	} while (get_timer(timebase) < timeout);
+	ret = spi_xfer(spi, 8, NULL, resp, 0);
+	if (ret)
+		return -1;
 
 	spi_xfer(spi, 0, NULL, NULL, SPI_XFER_END);
 
-	if ((status & poll_bit) == check_status)
-		return 0;
+	return 0;
+}
+
+int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
+{
+	unsigned long timebase;
+	u8 status;
+	int ret;
+
+	timebase = get_timer(0);
+	do {
+		ret = spi_flash_get_status(flash, CMD_READ_STATUS, &status);
+		if (ret)
+			return -1;
+
+		if ((status & STATUS_WIP) == 0) {
+#ifdef CONFIG_SPI_FLASH_STMICRO
+			if (flash->poll_cmd == CMD_FLAG_STATUS) {
+				ret = spi_flash_get_status(flash,
+						CMD_FLAG_STATUS, &status);
+				if (ret)
+					return -1;
+
+				if ((status & STATUS_PEC) == STATUS_PEC)
+					return 0;
+			}
+#endif
+			return 0;
+		}
+	} while (get_timer(timebase) < timeout);
 
 	/* Timed out */
 	debug("SF: time out!\n");
@@ -708,7 +719,6 @@ void *spi_flash_do_alloc(int offset, int size, struct spi_slave *spi,
 	/* Set up some basic fields - caller will sort out sizes */
 	flash->spi = spi;
 	flash->name = name;
-	flash->poll_cmd = CMD_READ_STATUS;
 
 	flash->read = spi_flash_cmd_read_fast;
 	flash->write = spi_flash_cmd_write_multi;

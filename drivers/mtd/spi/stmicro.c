@@ -252,5 +252,9 @@ struct spi_flash *spi_flash_probe_stmicro(struct spi_slave *spi, u8 * idcode)
 	if (flash->spi->is_dual == MODE_DUAL_STACKED)
 		flash->size *= 2;
 
+	/* Poll for flag status, for 256MB devices onwards */
+	if (flash->size >= 0x2000000)
+		flash->poll_cmd = CMD_FLAG_STATUS;
+
 	return flash;
 }
