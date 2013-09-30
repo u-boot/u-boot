@@ -254,7 +254,7 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 #ifdef CONFIG_SPI_FLASH_BAR
 		u8 bank_sel;
 
-		bank_sel = offset / SPI_FLASH_16MB_BOUN;
+		bank_sel = write_addr / SPI_FLASH_16MB_BOUN;
 		if ((is_dual == MODE_DUAL_STACKED) && (flash->spi->u_page == 1))
 			bank_sel -= ((flash->size / 2) / SPI_FLASH_16MB_BOUN);
 
