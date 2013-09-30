@@ -45,6 +45,12 @@
 #endif
 
 	mcr 15, 1, r0, c9, c0, 2
+
+	/* enable L2 cache */
+	mrc 15, 0, r0, c1, c0, 1
+	orr r0, r0, #2
+	mcr 15, 0, r0, c1, c0, 1
+
 .endm /* init_l2cc */
 
 /* AIPS setup - Only setup MPROTx registers.
