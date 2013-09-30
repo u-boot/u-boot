@@ -357,7 +357,7 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 		if ((is_dual == MODE_DUAL_STACKED) && (flash->spi->u_page == 1))
 			bank_sel += ((flash->size / 2) / bank_boun);
 #endif
-		remain_len = (bank_boun * (bank_sel + 1) - read_addr);
+		remain_len = (bank_boun * (bank_sel + 1)) - offset;
 		if (len < remain_len)
 			read_len = len;
 		else
