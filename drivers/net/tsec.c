@@ -166,7 +166,7 @@ static void init_registers(struct tsec __iomem *regs)
 	out_be32(&regs->rctrl, 0x00000000);
 
 	/* Init RMON mib registers */
-	memset((void *)&(regs->rmon), 0, sizeof(rmon_mib_t));
+	memset((void *)&regs->rmon, 0, sizeof(regs->rmon));
 
 	out_be32(&regs->rmon.cam1, 0xffffffff);
 	out_be32(&regs->rmon.cam2, 0xffffffff);
