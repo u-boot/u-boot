@@ -7,7 +7,7 @@
  *  terms of the GNU Public License, Version 2, incorporated
  *  herein by reference.
  *
- * Copyright 2004, 2007, 2009, 2011  Freescale Semiconductor, Inc.
+ * Copyright 2004, 2007, 2009, 2011, 2013 Freescale Semiconductor, Inc.
  * (C) Copyright 2003, Motorola, Inc.
  * maintained by Xianghua Xiao (x.xiao@motorola.com)
  * author Andy Fleming
@@ -27,13 +27,26 @@
 
 #define CONFIG_SYS_MDIO_BASE_ADDR (MDIO_BASE_ADDR + 0x520)
 
+#define TSEC_GET_REGS(num, offset) \
+	(struct tsec __iomem *)\
+	(TSEC_BASE_ADDR + (((num) - 1) * (offset)))
+
+#define TSEC_GET_REGS_BASE(num) \
+	TSEC_GET_REGS((num), TSEC_SIZE)
+
+#define TSEC_GET_MDIO_REGS(num, offset) \
+	(struct tsec_mii_mng __iomem *)\
+	(CONFIG_SYS_MDIO_BASE_ADDR  + ((num) - 1) * (offset))
+
+#define TSEC_GET_MDIO_REGS_BASE(num) \
+	TSEC_GET_MDIO_REGS((num), TSEC_MDIO_OFFSET)
+
 #define DEFAULT_MII_NAME "FSL_MDIO"
 
 #define STD_TSEC_INFO(num) \
 {			\
-	.regs = (tsec_t *)(TSEC_BASE_ADDR + ((num - 1) * TSEC_SIZE)), \
-	.miiregs_sgmii = (struct tsec_mii_mng *)(CONFIG_SYS_MDIO_BASE_ADDR \
-					 + (num - 1) * TSEC_MDIO_OFFSET), \
+	.regs = TSEC_GET_REGS_BASE(num), \
+	.miiregs_sgmii = TSEC_GET_MDIO_REGS_BASE(num), \
 	.devname = CONFIG_TSEC##num##_NAME, \
 	.phyaddr = TSEC##num##_PHY_ADDR, \
 	.flags = TSEC##num##_FLAGS, \
@@ -42,9 +55,8 @@
 
 #define SET_STD_TSEC_INFO(x, num) \
 {			\
-	x.regs = (tsec_t *)(TSEC_BASE_ADDR + ((num - 1) * TSEC_SIZE)); \
-	x.miiregs_sgmii = (struct tsec_mii_mng *)(CONFIG_SYS_MDIO_BASE_ADDR \
-					  + (num - 1) * TSEC_MDIO_OFFSET); \
+	x.regs = TSEC_GET_REGS_BASE(num); \
+	x.miiregs_sgmii = TSEC_GET_MDIO_REGS_BASE(num); \
 	x.devname = CONFIG_TSEC##num##_NAME; \
 	x.phyaddr = TSEC##num##_PHY_ADDR; \
 	x.flags = TSEC##num##_FLAGS;\
@@ -281,8 +293,7 @@ typedef struct tsec_hash_regs
 	uint	res2[24];
 } tsec_hash_t;
 
-typedef struct tsec
-{
+struct tsec {
 	/* General Control and Status Registers (0x2_n000) */
 	uint	res000[4];
 
@@ -374,7 +385,7 @@ typedef struct tsec
 
 	/* TSEC Future Expansion Space (0x2_nc00-0x2_nffc) */
 	uint	resc00[256];
-} tsec_t;
+};
 
 #define TSEC_GIGABIT (1 << 0)
 
@@ -383,8 +394,8 @@ typedef struct tsec
 #define TSEC_SGMII	(1 << 2)	/* MAC-PHY interface uses SGMII */
 
 struct tsec_private {
-	tsec_t *regs;
-	struct tsec_mii_mng *phyregs_sgmii;
+	struct tsec __iomem *regs;
+	struct tsec_mii_mng __iomem *phyregs_sgmii;
 	struct phy_device *phydev;
 	phy_interface_t interface;
 	struct mii_dev *bus;
@@ -394,8 +405,8 @@ struct tsec_private {
 };
 
 struct tsec_info_struct {
-	tsec_t *regs;
-	struct tsec_mii_mng *miiregs_sgmii;
+	struct tsec __iomem *regs;
+	struct tsec_mii_mng __iomem *miiregs_sgmii;
 	char *devname;
 	char *mii_devname;
 	phy_interface_t interface;

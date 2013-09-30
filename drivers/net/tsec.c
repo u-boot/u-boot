@@ -5,7 +5,7 @@
  * terms of the GNU Public License, Version 2, incorporated
  * herein by reference.
  *
- * Copyright 2004-2011 Freescale Semiconductor, Inc.
+ * Copyright 2004-2011, 2013 Freescale Semiconductor, Inc.
  * (C) Copyright 2003, Motorola, Inc.
  * author Andy Fleming
  *
@@ -52,7 +52,7 @@ static struct tsec_info_struct tsec_info[] = {
 #endif
 #ifdef CONFIG_MPC85XX_FEC
 	{
-		.regs = (tsec_t *)(TSEC_BASE_ADDR + 0x2000),
+		.regs = TSEC_GET_REGS(2, 0x2000),
 		.devname = CONFIG_MPC85XX_FEC_NAME,
 		.phyaddr = FEC_PHY_ADDR,
 		.flags = FEC_FLAGS,
@@ -141,7 +141,7 @@ tsec_mcast_addr(struct eth_device *dev, const u8 *mcast_mac, u8 set)
  * those we don't care about (unless zero is bad, in which case,
  * choose a more appropriate value)
  */
-static void init_registers(tsec_t *regs)
+static void init_registers(struct tsec __iomem *regs)
 {
 	/* Clear IEVENT */
 	out_be32(&regs->ievent, IEVENT_INIT_CLEAR);
@@ -188,7 +188,7 @@ static void init_registers(tsec_t *regs)
  */
 static void adjust_link(struct tsec_private *priv, struct phy_device *phydev)
 {
-	tsec_t *regs = priv->regs;
+	struct tsec __iomem *regs = priv->regs;
 	u32 ecntrl, maccfg2;
 
 	if (!phydev->link) {
@@ -242,7 +242,7 @@ static void adjust_link(struct tsec_private *priv, struct phy_device *phydev)
 void redundant_init(struct eth_device *dev)
 {
 	struct tsec_private *priv = dev->priv;
-	tsec_t *regs = priv->regs;
+	struct tsec __iomem *regs = priv->regs;
 	uint t, count = 0;
 	int fail = 1;
 	static const u8 pkt[] = {
@@ -321,7 +321,7 @@ static void startup_tsec(struct eth_device *dev)
 {
 	int i;
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	tsec_t *regs = priv->regs;
+	struct tsec __iomem *regs = priv->regs;
 
 	/* reset the indices to zero */
 	rxIdx = 0;
@@ -375,7 +375,7 @@ static int tsec_send(struct eth_device *dev, void *packet, int length)
 	int i;
 	int result = 0;
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	tsec_t *regs = priv->regs;
+	struct tsec __iomem *regs = priv->regs;
 
 	/* Find an empty buffer descriptor */
 	for (i = 0; rtx.txbd[txIdx].status & TXBD_READY; i++) {
@@ -411,7 +411,7 @@ static int tsec_recv(struct eth_device *dev)
 {
 	int length;
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	tsec_t *regs = priv->regs;
+	struct tsec __iomem *regs = priv->regs;
 
 	while (!(rtx.rxbd[rxIdx].status & RXBD_EMPTY)) {
 
@@ -447,7 +447,7 @@ static int tsec_recv(struct eth_device *dev)
 static void tsec_halt(struct eth_device *dev)
 {
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	tsec_t *regs = priv->regs;
+	struct tsec __iomem *regs = priv->regs;
 
 	clrbits_be32(&regs->dmactrl, DMACTRL_GRS | DMACTRL_GTS);
 	setbits_be32(&regs->dmactrl, DMACTRL_GRS | DMACTRL_GTS);
@@ -473,7 +473,7 @@ static int tsec_init(struct eth_device *dev, bd_t * bd)
 	char tmpbuf[MAC_ADDR_LEN];
 	int i;
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	tsec_t *regs = priv->regs;
+	struct tsec __iomem *regs = priv->regs;
 	int ret;
 
 	/* Make sure the controller is stopped */
@@ -521,7 +521,7 @@ static int tsec_init(struct eth_device *dev, bd_t * bd)
 
 static phy_interface_t tsec_get_interface(struct tsec_private *priv)
 {
-	tsec_t *regs = priv->regs;
+	struct tsec __iomem *regs = priv->regs;
 	u32 ecntrl;
 
 	ecntrl = in_be32(&regs->ecntrl);
@@ -570,7 +570,7 @@ static int init_phy(struct eth_device *dev)
 {
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
 	struct phy_device *phydev;
-	tsec_t *regs = priv->regs;
+	struct tsec __iomem *regs = priv->regs;
 	u32 supported = (SUPPORTED_10baseT_Half |
 			SUPPORTED_10baseT_Full |
 			SUPPORTED_100baseT_Half |
@@ -677,7 +677,7 @@ int tsec_standard_init(bd_t *bis)
 {
 	struct fsl_pq_mdio_info info;
 
-	info.regs = (struct tsec_mii_mng *)CONFIG_SYS_MDIO_BASE_ADDR;
+	info.regs = TSEC_GET_MDIO_REGS_BASE(1);
 	info.name = DEFAULT_MII_NAME;
 
 	fsl_pq_mdio_init(bis, &info);
