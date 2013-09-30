@@ -31,4 +31,4 @@ obj-$(CONFIG_SYS_FSL_DDRC_GEN1)	+= mpc85xx_ddr_gen1.o
 obj-$(CONFIG_SYS_FSL_DDRC_GEN2)	+= mpc85xx_ddr_gen2.o
 obj-$(CONFIG_SYS_FSL_DDRC_GEN3)	+= mpc85xx_ddr_gen3.o
 obj-$(CONFIG_SYS_FSL_DDR_86XX)		+= mpc86xx_ddr.o
-obj-$(CONFIG_FSL_DDR_INTERACTIVE)	+= interactive.o
+obj-$(CONFIG_SYS_FSL_DDRC_ARM_GEN3)	+= arm_ddr_gen3.o

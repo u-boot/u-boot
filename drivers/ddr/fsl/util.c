@@ -7,7 +7,9 @@
  */
 
 #include <common.h>
+#ifdef CONFIG_PPC
 #include <asm/fsl_law.h>
+#endif
 #include <div64.h>
 
 #include <fsl_ddr.h>
@@ -79,6 +81,7 @@ unsigned int mclk_to_picos(unsigned int mclk)
 	return get_memory_clk_period_ps() * mclk;
 }
 
+#ifdef CONFIG_PPC
 void
 __fsl_ddr_set_lawbar(const common_timing_params_t *memctl_common_params,
 			   unsigned int law_memctl,
@@ -113,6 +116,7 @@ __attribute__((weak, alias("__fsl_ddr_set_lawbar"))) void
 fsl_ddr_set_lawbar(const common_timing_params_t *memctl_common_params,
 			 unsigned int memctl_interleaved,
 			 unsigned int ctrl_num);
+#endif
 
 void fsl_ddr_set_intl3r(const unsigned int granule_size)
 {

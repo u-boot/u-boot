@@ -450,6 +450,9 @@ The following options need to be configured:
 		CONFIG_SYS_FSL_DDRC_GEN3
 		Freescale DDR3 controller.
 
+		CONFIG_SYS_FSL_DDRC_ARM_GEN3
+		Freescale DDR3 controller for ARM-based SoCs.
+
 		CONFIG_SYS_FSL_DDR1
 		Board config to use DDR1. It can be enabled for SoCs with
 		Freescale DDR1 or DDR2 controllers, depending on the board
