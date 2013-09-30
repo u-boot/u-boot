@@ -463,7 +463,6 @@
 #define CONFIG_SUPPORT_VFAT
 
 #define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
-#define CONFIG_SYS_PROMPT	        "=> "	/* Monitor Command Prompt	*/
 
 #define CONFIG_SYS_HUSH_PARSER		1	/* Use the HUSH parser		*/
 

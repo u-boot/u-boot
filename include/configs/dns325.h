@@ -52,7 +52,6 @@
 
 /* Remove or override few declarations from mv-common.h */
 #undef CONFIG_SYS_PROMPT
-#define CONFIG_SYS_PROMPT		"=> "
 
 /*
  * Ethernet Driver configuration

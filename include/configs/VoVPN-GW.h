@@ -203,7 +203,6 @@
 #define	CONFIG_SYS_LONGHELP
 
 /* monitor command prompt */
-#define	CONFIG_SYS_PROMPT			"=> "
 
 /* console i/o buffer size */
 #if defined(CONFIG_CMD_KGDB)

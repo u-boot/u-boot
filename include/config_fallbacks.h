@@ -53,4 +53,8 @@
 #define HAVE_BLOCK_DEVICE
 #endif
 
+#ifndef CONFIG_SYS_PROMPT
+#define CONFIG_SYS_PROMPT	"=> "
+#endif
+
 #endif	/* __CONFIG_FALLBACKS_H */

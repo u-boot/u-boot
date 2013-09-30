@@ -148,7 +148,6 @@
 #define CONFIG_SYS_LONGHELP
 
 /* Monitor Command Prompt       */
-#define CONFIG_SYS_PROMPT              "=> "
 
 
 /*

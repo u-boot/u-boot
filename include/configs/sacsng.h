@@ -475,7 +475,6 @@
 #define CONFIG_SYS_LONGHELP
 
 /* Monitor Command Prompt */
-#define CONFIG_SYS_PROMPT		"=> "
 
 #undef  CONFIG_SYS_HUSH_PARSER
 #ifdef  CONFIG_SYS_HUSH_PARSER

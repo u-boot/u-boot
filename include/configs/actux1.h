@@ -64,7 +64,6 @@
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_PROMPT			"=> "
 /* Console I/O Buffer Size */
 #define CONFIG_SYS_CBSIZE			256
 /* Print Buffer Size */

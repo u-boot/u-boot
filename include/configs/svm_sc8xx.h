@@ -140,7 +140,6 @@
  * Miscellaneous configurable options
  */
 #define	CONFIG_SYS_LONGHELP			/* undef to save memory		*/
-#define	CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt	*/
 
 #ifdef  CONFIG_SYS_HUSH_PARSER
 #endif

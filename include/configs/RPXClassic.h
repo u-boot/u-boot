@@ -101,7 +101,6 @@
  */
 #define CONFIG_SYS_RESET_ADDRESS	0x80000000
 #define	CONFIG_SYS_LONGHELP			/* undef to save memory		*/
-#define	CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt	*/
 #if defined(CONFIG_CMD_KGDB)
 #define	CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else

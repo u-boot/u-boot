@@ -98,7 +98,6 @@
 #ifdef CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT		"$ "		/* Monitor Command Prompt */
 #else
-#define CONFIG_SYS_PROMPT		"=> "		/* Monitor Command Prompt */
 #endif
 #define CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size	*/
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */

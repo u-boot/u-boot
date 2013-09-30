@@ -75,7 +75,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP                    /* undef to save memory */
-#define CONFIG_SYS_PROMPT              "=> "   /* Monitor Command Prompt */
 
 /*
  * choose between COM1 and COM2 as serial console

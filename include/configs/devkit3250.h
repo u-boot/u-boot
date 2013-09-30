@@ -61,7 +61,6 @@
  * U-Boot General Configurations
  */
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_PROMPT		"=> "
 #define CONFIG_SYS_CBSIZE		1024
 #define CONFIG_SYS_PBSIZE		\
 	(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)

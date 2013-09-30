@@ -76,7 +76,6 @@
 #define CONFIG_SYS_ATA_ALT_OFFSET	0xC0	/* Offset for alternate registers */
 #define CONFIG_SYS_ATA_STRIDE		4	/* Interval between registers */
 
-#define CONFIG_SYS_PROMPT		"=> "
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 
 #if defined(CONFIG_CMD_KGDB)

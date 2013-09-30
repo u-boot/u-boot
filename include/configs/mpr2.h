@@ -31,7 +31,6 @@
 
 /* U-Boot internals */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
-#define CONFIG_SYS_PROMPT		"=> "	/* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		256	/* Buffer size for input from the Console */
 #define CONFIG_SYS_PBSIZE		256	/* Buffer size for Console output */
 #define CONFIG_SYS_MAXARGS		16	/* max args accepted for monitor commands */

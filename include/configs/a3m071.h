@@ -245,7 +245,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_PROMPT		"=> "
 
 #define CONFIG_CMDLINE_EDITING
 #define	CONFIG_SYS_HUSH_PARSER

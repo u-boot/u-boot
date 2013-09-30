@@ -56,7 +56,6 @@
  * Miscellaneous configurable options
  */
 #undef CONFIG_SYS_LONGHELP			/* undef to save memory		*/
-#define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt	*/
 #define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size	*/
 
 /* Print Buffer Size

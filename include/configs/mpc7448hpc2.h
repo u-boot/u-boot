@@ -169,7 +169,6 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1	/* Bytes of address */
 
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_PROMPT	"=> "	/* Monitor Command Prompt */
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */

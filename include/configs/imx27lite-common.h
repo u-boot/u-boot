@@ -160,7 +160,6 @@
 /*
  * U-Boot general configuration
  */
-#define CONFIG_SYS_PROMPT	"=> "	/* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size  */
 /* Print buffer sz */
 #define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE + \

@@ -255,7 +255,6 @@ ip=${ipaddr}:${serverip}${bootargs_end}; bootm 0x400000;\0"
 
 /* #define CONFIG_SYS_GT_DUAL_CPU	 also for JTAG even with one cpu */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
-#define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt	*/
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
