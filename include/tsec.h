@@ -202,14 +202,14 @@ typedef struct txbd8
 {
 	ushort	     status;	     /* Status Fields */
 	ushort	     length;	     /* Buffer length */
-	uint	     bufPtr;	     /* Buffer Pointer */
+	uint	     bufptr;	     /* Buffer Pointer */
 } txbd8_t;
 
 typedef struct rxbd8
 {
 	ushort	     status;	     /* Status Fields */
 	ushort	     length;	     /* Buffer Length */
-	uint	     bufPtr;	     /* Buffer Pointer */
+	uint	     bufptr;	     /* Buffer Pointer */
 } rxbd8_t;
 
 typedef struct rmon_mib

@@ -25,8 +25,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define TX_BUF_CNT		2
 
-static uint rxIdx;		/* index of the current RX buffer */
-static uint txIdx;		/* index of the current TX buffer */
+static uint rx_idx;		/* index of the current RX buffer */
+static uint tx_idx;		/* index of the current TX buffer */
 
 typedef volatile struct rtxbd {
 	txbd8_t txbd[TX_BUF_CNT];
@@ -278,20 +278,20 @@ void redundant_init(struct eth_device *dev)
 		tsec_send(dev, (void *)pkt, sizeof(pkt));
 
 		/* Wait for buffer to be received */
-		for (t = 0; rtx.rxbd[rxIdx].status & RXBD_EMPTY; t++) {
+		for (t = 0; rtx.rxbd[rx_idx].status & RXBD_EMPTY; t++) {
 			if (t >= 10 * TOUT_LOOP) {
 				printf("%s: tsec: rx error\n", dev->name);
 				break;
 			}
 		}
 
-		if (!memcmp(pkt, (void *)NetRxPackets[rxIdx], sizeof(pkt)))
+		if (!memcmp(pkt, (void *)NetRxPackets[rx_idx], sizeof(pkt)))
 			fail = 0;
 
-		rtx.rxbd[rxIdx].length = 0;
-		rtx.rxbd[rxIdx].status =
-		    RXBD_EMPTY | (((rxIdx + 1) == PKTBUFSRX) ? RXBD_WRAP : 0);
-		rxIdx = (rxIdx + 1) % PKTBUFSRX;
+		rtx.rxbd[rx_idx].length = 0;
+		rtx.rxbd[rx_idx].status =
+		    RXBD_EMPTY | (((rx_idx + 1) == PKTBUFSRX) ? RXBD_WRAP : 0);
+		rx_idx = (rx_idx + 1) % PKTBUFSRX;
 
 		if (in_be32(&regs->ievent) & IEVENT_BSY) {
 			out_be32(&regs->ievent, IEVENT_BSY);
@@ -324,21 +324,21 @@ static void startup_tsec(struct eth_device *dev)
 	struct tsec __iomem *regs = priv->regs;
 
 	/* reset the indices to zero */
-	rxIdx = 0;
-	txIdx = 0;
+	rx_idx = 0;
+	tx_idx = 0;
 #ifdef CONFIG_SYS_FSL_ERRATUM_NMG_ETSEC129
 	uint svr;
 #endif
 
 	/* Point to the buffer descriptors */
-	out_be32(&regs->tbase, (unsigned int)(&rtx.txbd[txIdx]));
-	out_be32(&regs->rbase, (unsigned int)(&rtx.rxbd[rxIdx]));
+	out_be32(&regs->tbase, (unsigned int)(&rtx.txbd[tx_idx]));
+	out_be32(&regs->rbase, (unsigned int)(&rtx.rxbd[rx_idx]));
 
 	/* Initialize the Rx Buffer descriptors */
 	for (i = 0; i < PKTBUFSRX; i++) {
 		rtx.rxbd[i].status = RXBD_EMPTY;
 		rtx.rxbd[i].length = 0;
-		rtx.rxbd[i].bufPtr = (uint) NetRxPackets[i];
+		rtx.rxbd[i].bufptr = (uint) NetRxPackets[i];
 	}
 	rtx.rxbd[PKTBUFSRX - 1].status |= RXBD_WRAP;
 
@@ -346,7 +346,7 @@ static void startup_tsec(struct eth_device *dev)
 	for (i = 0; i < TX_BUF_CNT; i++) {
 		rtx.txbd[i].status = 0;
 		rtx.txbd[i].length = 0;
-		rtx.txbd[i].bufPtr = 0;
+		rtx.txbd[i].bufptr = 0;
 	}
 	rtx.txbd[TX_BUF_CNT - 1].status |= TXBD_WRAP;
 
@@ -378,31 +378,31 @@ static int tsec_send(struct eth_device *dev, void *packet, int length)
 	struct tsec __iomem *regs = priv->regs;
 
 	/* Find an empty buffer descriptor */
-	for (i = 0; rtx.txbd[txIdx].status & TXBD_READY; i++) {
+	for (i = 0; rtx.txbd[tx_idx].status & TXBD_READY; i++) {
 		if (i >= TOUT_LOOP) {
 			debug("%s: tsec: tx buffers full\n", dev->name);
 			return result;
 		}
 	}
 
-	rtx.txbd[txIdx].bufPtr = (uint) packet;
-	rtx.txbd[txIdx].length = length;
-	rtx.txbd[txIdx].status |=
+	rtx.txbd[tx_idx].bufptr = (uint) packet;
+	rtx.txbd[tx_idx].length = length;
+	rtx.txbd[tx_idx].status |=
 	    (TXBD_READY | TXBD_LAST | TXBD_CRC | TXBD_INTERRUPT);
 
 	/* Tell the DMA to go */
 	out_be32(&regs->tstat, TSTAT_CLEAR_THALT);
 
 	/* Wait for buffer to be transmitted */
-	for (i = 0; rtx.txbd[txIdx].status & TXBD_READY; i++) {
+	for (i = 0; rtx.txbd[tx_idx].status & TXBD_READY; i++) {
 		if (i >= TOUT_LOOP) {
 			debug("%s: tsec: tx error\n", dev->name);
 			return result;
 		}
 	}
 
-	txIdx = (txIdx + 1) % TX_BUF_CNT;
-	result = rtx.txbd[txIdx].status & TXBD_STATS;
+	tx_idx = (tx_idx + 1) % TX_BUF_CNT;
+	result = rtx.txbd[tx_idx].status & TXBD_STATS;
 
 	return result;
 }
@@ -413,25 +413,25 @@ static int tsec_recv(struct eth_device *dev)
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
 	struct tsec __iomem *regs = priv->regs;
 
-	while (!(rtx.rxbd[rxIdx].status & RXBD_EMPTY)) {
+	while (!(rtx.rxbd[rx_idx].status & RXBD_EMPTY)) {
 
-		length = rtx.rxbd[rxIdx].length;
+		length = rtx.rxbd[rx_idx].length;
 
 		/* Send the packet up if there were no errors */
-		if (!(rtx.rxbd[rxIdx].status & RXBD_STATS)) {
-			NetReceive(NetRxPackets[rxIdx], length - 4);
+		if (!(rtx.rxbd[rx_idx].status & RXBD_STATS)) {
+			NetReceive(NetRxPackets[rx_idx], length - 4);
 		} else {
 			printf("Got error %x\n",
-			       (rtx.rxbd[rxIdx].status & RXBD_STATS));
+			       (rtx.rxbd[rx_idx].status & RXBD_STATS));
 		}
 
-		rtx.rxbd[rxIdx].length = 0;
+		rtx.rxbd[rx_idx].length = 0;
 
 		/* Set the wrap bit if this is the last element in the list */
-		rtx.rxbd[rxIdx].status =
-		    RXBD_EMPTY | (((rxIdx + 1) == PKTBUFSRX) ? RXBD_WRAP : 0);
+		rtx.rxbd[rx_idx].status =
+		    RXBD_EMPTY | (((rx_idx + 1) == PKTBUFSRX) ? RXBD_WRAP : 0);
 
-		rxIdx = (rxIdx + 1) % PKTBUFSRX;
+		rx_idx = (rx_idx + 1) % PKTBUFSRX;
 	}
 
 	if (in_be32(&regs->ievent) & IEVENT_BSY) {
