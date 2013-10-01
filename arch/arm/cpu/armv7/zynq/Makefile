@@ -33,10 +33,14 @@ COBJS-y	+= cpu.o
 COBJS-y	+= ddrc.o
 COBJS-y	+= slcr.o
 
+SOBJS-y	+= lowlevel_init.o
+
 COBJS	:= $(COBJS-y)
 
-SRCS	:= $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(SOBJS-y)
+
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 
 all:	$(obj).depend $(LIB)
 
