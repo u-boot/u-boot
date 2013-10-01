@@ -135,6 +135,7 @@ void adjust_pllp_out_freqs(void)
 int pllx_set_rate(struct clk_pll_simple *pll , u32 divn, u32 divm,
 		u32 divp, u32 cpcon)
 {
+	int chip = tegra_get_chip();
 	u32 reg;
 
 	/* If PLLX is already enabled, just return */
@@ -151,7 +152,10 @@ int pllx_set_rate(struct clk_pll_simple *pll , u32 divn, u32 divm,
 	writel(reg, &pll->pll_base);
 
 	/* Set cpcon to PLLX_MISC */
-	reg = (cpcon << PLL_CPCON_SHIFT);
+	if (chip == CHIPID_TEGRA20 || chip == CHIPID_TEGRA30)
+		reg = (cpcon << PLL_CPCON_SHIFT);
+	else
+		reg = 0;
 
 	/* Set dccon to PLLX_MISC if freq > 600MHz */
 	if (divn > 600)
