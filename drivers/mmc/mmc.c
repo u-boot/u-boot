@@ -960,15 +960,24 @@ static int mmc_startup(struct mmc *mmc)
 		}
 
 		/*
-		 * Check whether GROUP_DEF is set, if yes, read out
-		 * group size from ext_csd directly, or calculate
-		 * the group size from the csd value.
+		 * Host needs to enable ERASE_GRP_DEF bit if device is
+		 * partitioned. This bit will be lost every time after a reset
+		 * or power off. This will affect erase size.
 		 */
-		if (ext_csd[EXT_CSD_ERASE_GROUP_DEF]) {
+		if ((ext_csd[EXT_CSD_PARTITIONING_SUPPORT] & PART_SUPPORT) &&
+		    (ext_csd[EXT_CSD_PARTITIONS_ATTRIBUTE] & PART_ENH_ATTRIB)) {
+			err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
+				EXT_CSD_ERASE_GROUP_DEF, 1);
+
+			if (err)
+				return err;
+
+			/* Read out group size from ext_csd */
 			mmc->erase_grp_size =
 				ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE] *
 					MMC_MAX_BLOCK_LEN * 1024;
 		} else {
+			/* Calculate the group size from the csd value. */
 			int erase_gsz, erase_gmul;
 			erase_gsz = (mmc->csd[2] & 0x00007c00) >> 10;
 			erase_gmul = (mmc->csd[2] & 0x000003e0) >> 5;
