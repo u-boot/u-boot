@@ -94,10 +94,10 @@ static const struct spi_flash_params spi_flash_params_table[] = {
 	{"N25Q128A",	   0x20bb18, 0x0,       64 * 1024,   256,	       SECT_4K},
 	{"N25Q256",	   0x20ba19, 0x0,       64 * 1024,   512,	       SECT_4K},
 	{"N25Q256A",	   0x20bb19, 0x0,       64 * 1024,   512,	       SECT_4K},
-	{"N25Q512",	   0x20ba20, 0x0,       64 * 1024,  1024,	       SECT_4K},
-	{"N25Q512A",	   0x20bb20, 0x0,       64 * 1024,  1024,	       SECT_4K},
-	{"N25Q1024",	   0x20ba21, 0x0,       64 * 1024,  2048,	       SECT_4K},
-	{"N25Q1024A",	   0x20bb21, 0x0,       64 * 1024,  2048,	       SECT_4K},
+	{"N25Q512",	   0x20ba20, 0x0,       64 * 1024,  1024,      E_FSR | SECT_4K},
+	{"N25Q512A",	   0x20bb20, 0x0,       64 * 1024,  1024,      E_FSR | SECT_4K},
+	{"N25Q1024",	   0x20ba21, 0x0,       64 * 1024,  2048,      E_FSR | SECT_4K},
+	{"N25Q1024A",	   0x20bb21, 0x0,       64 * 1024,  2048,      E_FSR | SECT_4K},
 #endif
 #ifdef CONFIG_SPI_FLASH_SST		/* SST */
 	{"SST25VF040B",	   0xbf258d, 0x0,	64 * 1024,     8,     SECT_4K | SST_WP},
@@ -187,7 +187,6 @@ struct spi_flash *spi_flash_validate_ids(struct spi_slave *spi, u8 *idcode)
 
 	flash->spi = spi;
 	flash->name = params->name;
-	flash->poll_cmd = CMD_READ_STATUS;
 
 	/* Assign spi_flash ops */
 	flash->write = spi_flash_cmd_write_multi;
@@ -214,6 +213,13 @@ struct spi_flash *spi_flash_validate_ids(struct spi_slave *spi, u8 *idcode)
 		flash->erase_cmd = CMD_ERASE_64K;
 		flash->erase_size = flash->sector_size;
 	}
+
+	/* Poll cmd seclection */
+	flash->poll_cmd = CMD_READ_STATUS;
+#ifdef CONFIG_SPI_FLASH_STMICRO
+	if (params->flags & E_FSR)
+		flash->poll_cmd = CMD_FLAG_STATUS;
+#endif
 
 	/* Flash powers up read-only, so clear BP# bits */
 #if defined(CONFIG_SPI_FLASH_ATMEL) || \

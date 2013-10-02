@@ -20,6 +20,7 @@
 /* SECT flags */
 #define SECT_4K		(1 << 1)
 #define SECT_32K		(1 << 2)
+#define E_FSR			(1 << 3)
 
 /* SST specific macros */
 #ifdef CONFIG_SPI_FLASH_SST
