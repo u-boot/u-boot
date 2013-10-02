@@ -148,32 +148,28 @@ III) Analysis of in-tree drivers
   --------------------
   This driver, being quite ad-hoc might need some work to bring back to shape.
 
-  22) serial_s3c44b0.c
-  --------------------
-  No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
-
-  23) serial_s5p.c
+  22) serial_s5p.c
   ----------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
-  24) serial_sa1100.c
+  23) serial_sa1100.c
   -------------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
-  25) serial_sh.c
+  24) serial_sh.c
   ---------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
-  26) serial_xuartlite.c
+  25) serial_xuartlite.c
   ----------------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
 
-  27) usbtty.c
+  26) usbtty.c
   ------------
   This driver seems very complicated and entangled with USB framework. The
   conversion might be complicated here.
 
-  28) arch/powerpc/cpu/mpc512x/serial.c
+  27) arch/powerpc/cpu/mpc512x/serial.c
   -------------------------------------
   This driver supports CONFIG_SERIAL_MULTI. This driver will need to be moved to
   proper place.

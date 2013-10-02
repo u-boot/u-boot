@@ -83,7 +83,7 @@
  * Size of malloc() pool
  */
 
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 520*1024)
+#define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
 
 /*
  * sdram

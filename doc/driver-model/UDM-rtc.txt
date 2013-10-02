@@ -228,31 +228,26 @@ III) Analysis of in-tree drivers
   The driver is standard rtc. Simple conversion is possible.
 
 
-  34) drivers/rtc/s3c44b0_rtc.c
-  -----------------------------
-  The driver is standard rtc. Simple conversion is possible.
-
-
-  35) drivers/rtc/ds1337.c
+  34) drivers/rtc/ds1337.c
   ------------------------
   The driver is standard rtc. Simple conversion is possible.
 
 
-  36) drivers/rtc/isl1208.c
+  35) drivers/rtc/isl1208.c
   -------------------------
   The driver is standard rtc. Simple conversion is possible.
 
 
-  37) drivers/rtc/max6900.c
+  36) drivers/rtc/max6900.c
   -------------------------
   The driver is standard rtc. Simple conversion is possible.
 
 
-  38) drivers/rtc/mc146818.c
+  37) drivers/rtc/mc146818.c
   --------------------------
   The driver is standard rtc. Simple conversion is possible.
 
 
-  39) drivers/rtc/at91sam9_rtt.c
+  38) drivers/rtc/at91sam9_rtt.c
   ------------------------------
   The driver is standard rtc. Simple conversion is possible.

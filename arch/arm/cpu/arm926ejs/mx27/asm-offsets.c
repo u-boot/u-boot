@@ -38,5 +38,10 @@ int main(void)
 	DEFINE(ESDCFG1_ROF, offsetof(struct esdramc_regs, esdcfg1));
 	DEFINE(ESDMISC_ROF, offsetof(struct esdramc_regs, esdmisc));
 
+	DEFINE(GPCR, IMX_SYSTEM_CTL_BASE +
+		offsetof(struct system_control_regs, gpcr));
+	DEFINE(FMCR, IMX_SYSTEM_CTL_BASE +
+		offsetof(struct system_control_regs, fmcr));
+
 	return 0;
 }

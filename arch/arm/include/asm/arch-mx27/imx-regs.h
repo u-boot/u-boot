@@ -169,7 +169,7 @@ struct iim_regs {
 	struct fuse_bank {
 		u32 fuse_regs[0x20];
 		u32 fuse_rsvd[0xe0];
-	} bank[1];
+	} bank[2];
 };
 
 struct fuse_bank0_regs {
@@ -209,8 +209,12 @@ struct fuse_bank0_regs {
 #define IIM_BASE_ADDR		IMX_IIM_BASE
 #define IMX_FEC_BASE		(0x2b000 + IMX_IO_BASE)
 
+#define IMX_NFC_BASE		(0xD8000000)
 #define IMX_ESD_BASE		(0xD8001000)
 #define IMX_WEIM_BASE		(0xD8002000)
+
+#define NFC_BASE_ADDR		IMX_NFC_BASE
+
 
 /* FMCR System Control bit definition*/
 #define UART4_RXD_CTL	(1 << 25)

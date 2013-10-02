@@ -129,7 +129,7 @@ void mxs_adjust_memory_params(uint32_t *dram_vals)
 	dram_vals[HW_DRAM_CTL14] = HW_DRAM_CTL14_CONFIG;
 }
 
-void board_init_ll(void)
+void board_init_ll(const uint32_t arg, const uint32_t *resptr)
 {
-	mxs_common_spl_init(iomux_setup, ARRAY_SIZE(iomux_setup));
+	mxs_common_spl_init(arg, resptr, iomux_setup, ARRAY_SIZE(iomux_setup));
 }

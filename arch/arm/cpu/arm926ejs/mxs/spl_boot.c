@@ -102,8 +102,9 @@ static uint8_t mxs_get_bootmode_index(void)
 	return i;
 }
 
-void mxs_common_spl_init(const iomux_cfg_t *iomux_setup,
-			const unsigned int iomux_size)
+void mxs_common_spl_init(const uint32_t arg, const uint32_t *resptr,
+			 const iomux_cfg_t *iomux_setup,
+			 const unsigned int iomux_size)
 {
 	struct mxs_spl_data *data = (struct mxs_spl_data *)
 		((CONFIG_SYS_TEXT_BASE - sizeof(struct mxs_spl_data)) & ~0xf);
