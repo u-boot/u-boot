@@ -1,7 +1,8 @@
 /*
- * Interface to SPI flash
+ * Common SPI flash Interface
  *
  * Copyright (C) 2008 Atmel Corporation
+ * Copyright (C) 2013 Jagannadha Sutradharudu Teki, Xilinx Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -10,24 +11,13 @@
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation. 
  */
+
 #ifndef _SPI_FLASH_H_
 #define _SPI_FLASH_H_
 
 #include <spi.h>
 #include <linux/types.h>
 #include <linux/compiler.h>
-
-/* SECT flags */
-#define SECT_4K		(1 << 1)
-#define SECT_32K		(1 << 2)
-#define E_FSR			(1 << 3)
-
-/* SST specific macros */
-#ifdef CONFIG_SPI_FLASH_SST
-# define SST_WP			0x01	/* Supports AAI word program */
-# define CMD_SST_BP			0x02    /* Byte Program */
-# define CMD_SST_AAI_WP		0xAD	/* Auto Address Incr Word Program */
-#endif
 
 /**
  * struct spi_flash - SPI flash structure

@@ -18,7 +18,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/*
+/**
  * struct spi_flash_params - SPI/QSPI flash device params structure
  *
  * @name:		Device name ([MANUFLETTER][DEVTYPE][DENSITY][EXTRAINFO])
@@ -151,7 +151,7 @@ static const struct spi_flash_params spi_flash_params_table[] = {
 	 */
 };
 
-struct spi_flash *spi_flash_validate_ids(struct spi_slave *spi, u8 *idcode)
+struct spi_flash *spi_flash_validate_params(struct spi_slave *spi, u8 *idcode)
 {
 	const struct spi_flash_params *params;
 	struct spi_flash *flash;
@@ -190,13 +190,13 @@ struct spi_flash *spi_flash_validate_ids(struct spi_slave *spi, u8 *idcode)
 	flash->name = params->name;
 
 	/* Assign spi_flash ops */
-	flash->write = spi_flash_cmd_write_multi;
+	flash->write = spi_flash_cmd_write_ops;
 #ifdef CONFIG_SPI_FLASH_SST
 	if (params->flags & SST_WP)
 		flash->write = sst_write_wp;
 #endif
-	flash->erase = spi_flash_cmd_erase;
-	flash->read = spi_flash_cmd_read_fast;
+	flash->erase = spi_flash_cmd_erase_ops;
+	flash->read = spi_flash_cmd_read_ops;
 
 	/* Compute the flash size */
 	flash->page_size = (ext_jedec == 0x4d00) ? 512 : 256;
@@ -314,8 +314,8 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 	print_buffer(0, idcode, 1, sizeof(idcode), 0);
 #endif
 
-	/* Validate ID's from flash dev table */
-	flash = spi_flash_validate_ids(spi, idcode);
+	/* Validate params from spi_flash_params table */
+	flash = spi_flash_validate_params(spi, idcode);
 	if (!flash)
 		goto err_read_id;
 

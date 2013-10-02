@@ -147,7 +147,7 @@ int spi_flash_write_common(struct spi_flash *flash, const u8 *cmd,
 	return ret;
 }
 
-int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
+int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 {
 	u32 erase_size;
 	u8 cmd[4];
@@ -190,7 +190,7 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 	return ret;
 }
 
-int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
+int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 		size_t len, const void *buf)
 {
 	unsigned long byte_addr, page_size;
@@ -260,7 +260,7 @@ int spi_flash_read_common(struct spi_flash *flash, const u8 *cmd,
 	return ret;
 }
 
-int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
+int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 		size_t len, void *data)
 {
 	u8 cmd[5], bank_sel = 0;

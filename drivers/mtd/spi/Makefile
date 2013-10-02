@@ -17,8 +17,8 @@ endif
 ifdef CONFIG_CMD_SF
 COBJS-y        += spi_flash.o
 endif
-COBJS-$(CONFIG_SPI_FLASH)	+= spi_flash_probe.o spi_flash_ops.o
-COBJS-$(CONFIG_SPI_FRAM_RAMTRON)	+= ramtron.o
+COBJS-$(CONFIG_SPI_FLASH) += spi_flash_probe.o spi_flash_ops.o
+COBJS-$(CONFIG_SPI_FRAM_RAMTRON) += ramtron.o
 COBJS-$(CONFIG_SPI_M95XXX) += eeprom_m95xxx.o
 
 COBJS	:= $(COBJS-y)
