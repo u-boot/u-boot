@@ -312,3 +312,96 @@ int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
 
 	return ret;
 }
+
+#ifdef CONFIG_SPI_FLASH_SST
+static int sst_byte_write(struct spi_flash *flash, u32 offset, const void *buf)
+{
+	int ret;
+	u8 cmd[4] = {
+		CMD_SST_BP,
+		offset >> 16,
+		offset >> 8,
+		offset,
+	};
+
+	debug("BP[%02x]: 0x%p => cmd = { 0x%02x 0x%06x }\n",
+	      spi_w8r8(flash->spi, CMD_READ_STATUS), buf, cmd[0], offset);
+
+	ret = spi_flash_cmd_write_enable(flash);
+	if (ret)
+		return ret;
+
+	ret = spi_flash_cmd_write(flash->spi, cmd, sizeof(cmd), buf, 1);
+	if (ret)
+		return ret;
+
+	return spi_flash_cmd_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
+}
+
+int sst_write_wp(struct spi_flash *flash, u32 offset, size_t len,
+		const void *buf)
+{
+	size_t actual, cmd_len;
+	int ret;
+	u8 cmd[4];
+
+	ret = spi_claim_bus(flash->spi);
+	if (ret) {
+		debug("SF: Unable to claim SPI bus\n");
+		return ret;
+	}
+
+	/* If the data is not word aligned, write out leading single byte */
+	actual = offset % 2;
+	if (actual) {
+		ret = sst_byte_write(flash, offset, buf);
+		if (ret)
+			goto done;
+	}
+	offset += actual;
+
+	ret = spi_flash_cmd_write_enable(flash);
+	if (ret)
+		goto done;
+
+	cmd_len = 4;
+	cmd[0] = CMD_SST_AAI_WP;
+	cmd[1] = offset >> 16;
+	cmd[2] = offset >> 8;
+	cmd[3] = offset;
+
+	for (; actual < len - 1; actual += 2) {
+		debug("WP[%02x]: 0x%p => cmd = { 0x%02x 0x%06x }\n",
+		      spi_w8r8(flash->spi, CMD_READ_STATUS), buf + actual,
+		      cmd[0], offset);
+
+		ret = spi_flash_cmd_write(flash->spi, cmd, cmd_len,
+					buf + actual, 2);
+		if (ret) {
+			debug("SF: sst word program failed\n");
+			break;
+		}
+
+		ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
+		if (ret)
+			break;
+
+		cmd_len = 1;
+		offset += 2;
+	}
+
+	if (!ret)
+		ret = spi_flash_cmd_write_disable(flash);
+
+	/* If there is a single trailing byte, write it out */
+	if (!ret && actual != len)
+		ret = sst_byte_write(flash, offset, buf + actual);
+
+ done:
+	debug("SF: sst: program %s %zu bytes @ 0x%zx\n",
+	      ret ? "failure" : "success", len, offset - actual);
+
+	spi_release_bus(flash->spi);
+	return ret;
+}
+#endif

@@ -17,6 +17,13 @@
 #include <linux/types.h>
 #include <linux/compiler.h>
 
+/* SST specific macros */
+#ifdef CONFIG_SPI_FLASH_SST
+# define SST_WP			0x01	/* Supports AAI word program */
+# define CMD_SST_BP			0x02    /* Byte Program */
+# define CMD_SST_AAI_WP		0xAD	/* Auto Address Incr Word Program */
+#endif
+
 struct spi_flash {
 	struct spi_slave *spi;
 

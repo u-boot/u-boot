@@ -75,6 +75,11 @@ int spi_flash_cmd_write(struct spi_slave *spi, const u8 *cmd, size_t cmd_len,
 int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 		size_t len, const void *buf);
 
+#ifdef CONFIG_SPI_FLASH_SST
+int sst_write_wp(struct spi_flash *flash, u32 offset, size_t len,
+		const void *buf);
+#endif
+
 /*
  * Enable writing on the SPI flash.
  */
