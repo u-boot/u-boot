@@ -253,6 +253,7 @@ class BuilderThread(threading.Thread):
                     args.extend(['-j', str(self.builder.num_jobs)])
                 config_args = ['%s_config' % brd.target]
                 config_out = ''
+                args.extend(self.builder.toolchains.GetMakeArguments(brd))
 
                 # If we need to reconfigure, do that now
                 if do_config:

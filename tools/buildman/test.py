@@ -60,11 +60,11 @@ commits = [
 ]
 
 boards = [
-    ['board0', 'arm', 'armv7', 'ARM Board 1', 'Tester', '', ''],
-    ['board1', 'arm', 'armv7', 'ARM Board 2', 'Tester', '', ''],
-    ['board2', 'powerpc', 'powerpc', 'PowerPC board 1', 'Tester', '', ''],
-    ['board3', 'powerpc', 'mpc5xx', 'PowerPC board 2', 'Tester', '', ''],
-    ['board4', 'sandbox', 'sandbox', 'Sandbox board', 'Tester', '', '']
+    ['Active', 'arm', 'armv7', '', 'Tester', 'ARM Board 1', 'board0',  ''],
+    ['Active', 'arm', 'armv7', '', 'Tester', 'ARM Board 2', 'board1', ''],
+    ['Active', 'powerpc', 'powerpc', '', 'Tester', 'PowerPC board 1', 'board2', ''],
+    ['Active', 'powerpc', 'mpc5xx', '', 'Tester', 'PowerPC board 2', 'board3', ''],
+    ['Active', 'sandbox', 'sandbox', '', 'Tester', 'Sandbox board', 'board4', ''],
 ]
 
 class Options:
