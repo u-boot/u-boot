@@ -28,8 +28,9 @@ int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int), int (*cd)(int));
 #include <asm/arch/iomux-mx28.h>
 #endif
 
-void mxs_common_spl_init(const iomux_cfg_t *iomux_setup,
-			const unsigned int iomux_size);
+void mxs_common_spl_init(const uint32_t arg, const uint32_t *resptr,
+			 const iomux_cfg_t *iomux_setup,
+			 const unsigned int iomux_size);
 #endif
 
 struct mxs_pair {

@@ -155,6 +155,9 @@ static inline uint32_t mxs_nand_get_ecc_strength(uint32_t page_data_size,
 
 		if (page_oob_size == 218)
 			return 16;
+
+		if (page_oob_size == 224)
+			return 16;
 	}
 
 	return 0;

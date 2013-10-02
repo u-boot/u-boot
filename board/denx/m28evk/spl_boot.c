@@ -200,7 +200,7 @@ const iomux_cfg_t iomux_setup[] = {
 		(MXS_PAD_3V3 | MXS_PAD_8MA | MXS_PAD_PULLUP),
 };
 
-void board_init_ll(void)
+void board_init_ll(const uint32_t arg, const uint32_t *resptr)
 {
-	mxs_common_spl_init(iomux_setup, ARRAY_SIZE(iomux_setup));
+	mxs_common_spl_init(arg, resptr, iomux_setup, ARRAY_SIZE(iomux_setup));
 }

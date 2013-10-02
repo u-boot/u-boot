@@ -63,6 +63,11 @@ copy the binary by hand:
 Make sure the "elftosb" binary can be found in your $PATH, in this case this
 means "/usr/local/bin/" has to be in your $PATH.
 
+Install the 'libssl-dev' package as well. On a Debian-based distribution, this
+package can be installed as follows:
+
+	$ sudo apt-get install libssl-dev
+
 2) Compiling U-Boot for a MXS based board
 -------------------------------------------
 
