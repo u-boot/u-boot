@@ -201,6 +201,7 @@
 /* Defines for SPL */
 #define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
+#define CONFIG_SPL_BOARD_INIT
 /*
  * Place the image at the start of the ROM defined image space.
  * We limit our size to the ROM-defined downloaded image area, and use the

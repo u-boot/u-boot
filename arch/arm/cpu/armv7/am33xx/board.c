@@ -27,6 +27,7 @@
 #include <miiphy.h>
 #include <cpsw.h>
 #include <asm/errno.h>
+#include <linux/compiler.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
 #include <linux/usb/musb.h>
@@ -137,6 +138,16 @@ int arch_misc_init(void)
 }
 
 #if defined(CONFIG_SPL_BUILD) || defined(CONFIG_NOR_BOOT)
+/*
+ * This function is the place to do per-board things such as ramp up the
+ * MPU clock frequency.
+ */
+__weak void am33xx_spl_board_init(void)
+{
+	do_setup_dpll(&dpll_core_regs, &dpll_core_opp100);
+	do_setup_dpll(&dpll_mpu_regs, &dpll_mpu_opp100);
+}
+
 static void rtc32k_enable(void)
 {
 	struct rtc_regs *rtc = (struct rtc_regs *)RTC_BASE;

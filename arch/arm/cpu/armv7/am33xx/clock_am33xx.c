@@ -51,10 +51,14 @@ const struct dpll_regs dpll_ddr_regs = {
 	.cm_div_m2_dpll		= CM_WKUP + 0xA0,
 };
 
-const struct dpll_params dpll_mpu = {
+struct dpll_params dpll_mpu_opp100 = {
 		CONFIG_SYS_MPUCLK, OSC-1, 1, -1, -1, -1, -1};
-const struct dpll_params dpll_core = {
+const struct dpll_params dpll_core_opp100 = {
 		1000, OSC-1, -1, -1, 10, 8, 4};
+const struct dpll_params dpll_mpu = {
+		MPUPLL_M_300, OSC-1, 1, -1, -1, -1, -1};
+const struct dpll_params dpll_core = {
+		50, OSC-1, -1, -1, 1, 1, 1};
 const struct dpll_params dpll_per = {
 		960, OSC-1, 5, -1, -1, -1, -1};
 

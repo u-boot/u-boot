@@ -170,6 +170,7 @@
 	"run mmcboot;" \
 	"setenv mmcdev 1; " \
 	"setenv bootpart 1:2; " \
+	"setenv mmcroot /dev/mmcblk1p2 ro; " \
 	"run mmcboot;" \
 	"run nandboot;"
 
@@ -189,8 +190,13 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
 #define CONFIG_SYS_I2C_MULTI_EEPROMS
 
+/* PMIC support */
+#define CONFIG_POWER_TPS65217
+#define CONFIG_POWER_TPS65910
+
 /* SPL */
 #ifndef CONFIG_NOR_BOOT
+#define CONFIG_SPL_POWER_SUPPORT
 #define CONFIG_SPL_YMODEM_SUPPORT
 
 /* CPSW support */

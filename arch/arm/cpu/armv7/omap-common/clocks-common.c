@@ -589,13 +589,6 @@ void scale_vcores(struct vcores_data const *vcores)
 
 	val = optimize_vcore_voltage(&vcores->iva);
 	do_scale_vcore(vcores->iva.addr, val, vcores->iva.pmic);
-
-	 if (emif_sdram_type() == EMIF_SDRAM_TYPE_DDR3) {
-		/* Configure LDO SRAM "magic" bits */
-		writel(2, (*prcm)->prm_sldo_core_setup);
-		writel(2, (*prcm)->prm_sldo_mpu_setup);
-		writel(2, (*prcm)->prm_sldo_mm_setup);
-	}
 }
 
 static inline void enable_clock_domain(u32 const clkctrl_reg, u32 enable_mode)

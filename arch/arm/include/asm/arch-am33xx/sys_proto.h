@@ -10,6 +10,7 @@
 
 #ifndef _SYS_PROTO_H_
 #define _SYS_PROTO_H_
+#include <asm/arch/cpu.h>
 
 #define BOARD_REV_ID	0x0
 
@@ -42,4 +43,7 @@ u32 wait_on_value(u32, u32, void *, u32);
 #ifdef CONFIG_NOR_BOOT
 void enable_norboot_pin_mux(void);
 #endif
+void am33xx_spl_board_init(void);
+int am335x_get_efuse_mpu_max_freq(struct ctrl_dev *cdev);
+int am335x_get_tps65910_mpu_vdd(int sil_rev, int frequency);
 #endif

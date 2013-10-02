@@ -38,6 +38,16 @@
 #define AM335X				0xB944
 #define TI81XX				0xB81E
 #define DEVICE_ID			(CTRL_BASE + 0x0600)
+#define DEVICE_ID_MASK			0x1FFF
+
+/* MPU max frequencies */
+#define AM335X_ZCZ_300			0x1FEF
+#define AM335X_ZCZ_600			0x1FAF
+#define AM335X_ZCZ_720			0x1F2F
+#define AM335X_ZCZ_800			0x1E2F
+#define AM335X_ZCZ_1000			0x1C2F
+#define AM335X_ZCE_300			0x1FDF
+#define AM335X_ZCE_600			0x1F9F
 
 /* This gives the status of the boot mode pins on the evm */
 #define SYSBOOT_MASK			(BIT(0) | BIT(1) | BIT(2)\
@@ -509,6 +519,8 @@ struct ctrl_dev {
 	unsigned int macid1h;		/* offset 0x3c */
 	unsigned int resv4[4];
 	unsigned int miisel;		/* offset 0x50 */
+	unsigned int resv5[106];
+	unsigned int efuse_sma;		/* offset 0x1FC */
 };
 
 /* gmii_sel register defines */

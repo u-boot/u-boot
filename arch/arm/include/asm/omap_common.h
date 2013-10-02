@@ -310,12 +310,6 @@ struct prcm_regs {
 	u32 prm_vc_val_bypass;
 	u32 prm_vc_cfg_i2c_mode;
 	u32 prm_vc_cfg_i2c_clk;
-	u32 prm_sldo_core_setup;
-	u32 prm_sldo_core_ctrl;
-	u32 prm_sldo_mpu_setup;
-	u32 prm_sldo_mpu_ctrl;
-	u32 prm_sldo_mm_setup;
-	u32 prm_sldo_mm_ctrl;
 	u32 prm_abbldo_mpu_setup;
 	u32 prm_abbldo_mpu_ctrl;
 
