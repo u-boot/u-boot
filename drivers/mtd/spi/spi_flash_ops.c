@@ -153,17 +153,13 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u32 offset, size_t len)
 	u8 cmd[4];
 	int ret = -1;
 
-	erase_size = flash->sector_size;
+	erase_size = flash->erase_size;
 	if (offset % erase_size || len % erase_size) {
 		debug("SF: Erase offset/length not multiple of erase size\n");
 		return -1;
 	}
 
-	if (erase_size == 4096)
-		cmd[0] = CMD_ERASE_4K;
-	else
-		cmd[0] = CMD_ERASE_64K;
-
+	cmd[0] = flash->erase_cmd;
 	while (len) {
 #ifdef CONFIG_SPI_FLASH_BAR
 		u8 bank_sel;

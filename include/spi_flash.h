@@ -17,6 +17,10 @@
 #include <linux/types.h>
 #include <linux/compiler.h>
 
+/* SECT flags */
+#define SECT_4K		(1 << 1)
+#define SECT_32K		(1 << 2)
+
 /* SST specific macros */
 #ifdef CONFIG_SPI_FLASH_SST
 # define SST_WP			0x01	/* Supports AAI word program */
@@ -33,8 +37,10 @@ struct spi_flash {
 	u32		size;
 	/* Write (page) size */
 	u32		page_size;
-	/* Erase (sector) size */
+	/* Sector size */
 	u32		sector_size;
+	/* Erase size */
+	u32		erase_size;
 #ifdef CONFIG_SPI_FLASH_BAR
 	/* Bank read cmd */
 	u8		bank_read_cmd;
@@ -45,6 +51,8 @@ struct spi_flash {
 #endif
 	/* Poll cmd - for flash erase/program */
 	u8		poll_cmd;
+	/* Erase cmd 4K, 32K, 64K */
+	u8		erase_cmd;
 
 	void *memory_map;	/* Address of read-only SPI flash access */
 	int		(*read)(struct spi_flash *flash, u32 offset,
