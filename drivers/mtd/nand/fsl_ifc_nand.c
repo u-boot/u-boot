@@ -428,20 +428,27 @@ static void fsl_ifc_cmdfunc(struct mtd_info *mtd, unsigned int command,
 		if (mtd->writesize > 512) {
 			nand_fcr0 =
 				(NAND_CMD_SEQIN << IFC_NAND_FCR0_CMD0_SHIFT) |
-				(NAND_CMD_PAGEPROG << IFC_NAND_FCR0_CMD1_SHIFT);
+				(NAND_CMD_STATUS << IFC_NAND_FCR0_CMD1_SHIFT) |
+				(NAND_CMD_PAGEPROG << IFC_NAND_FCR0_CMD2_SHIFT);
 
 			out_be32(&ifc->ifc_nand.nand_fir0,
 				 (IFC_FIR_OP_CW0 << IFC_NAND_FIR0_OP0_SHIFT) |
 				 (IFC_FIR_OP_CA0 << IFC_NAND_FIR0_OP1_SHIFT) |
 				 (IFC_FIR_OP_RA0 << IFC_NAND_FIR0_OP2_SHIFT) |
 				 (IFC_FIR_OP_WBCD  << IFC_NAND_FIR0_OP3_SHIFT) |
-				 (IFC_FIR_OP_CW1 << IFC_NAND_FIR0_OP4_SHIFT));
-			out_be32(&ifc->ifc_nand.nand_fir1, 0);
+				 (IFC_FIR_OP_CMD2 << IFC_NAND_FIR0_OP4_SHIFT));
+			out_be32(&ifc->ifc_nand.nand_fir1,
+				 (IFC_FIR_OP_CW1 << IFC_NAND_FIR1_OP5_SHIFT) |
+				 (IFC_FIR_OP_RDSTAT <<
+					IFC_NAND_FIR1_OP6_SHIFT) |
+				 (IFC_FIR_OP_NOP << IFC_NAND_FIR1_OP7_SHIFT));
 		} else {
 			nand_fcr0 = ((NAND_CMD_PAGEPROG <<
 					IFC_NAND_FCR0_CMD1_SHIFT) |
 				    (NAND_CMD_SEQIN <<
-					IFC_NAND_FCR0_CMD2_SHIFT));
+					IFC_NAND_FCR0_CMD2_SHIFT) |
+				    (NAND_CMD_STATUS <<
+					IFC_NAND_FCR0_CMD3_SHIFT));
 
 			out_be32(&ifc->ifc_nand.nand_fir0,
 				 (IFC_FIR_OP_CW0 << IFC_NAND_FIR0_OP0_SHIFT) |
@@ -450,7 +457,11 @@ static void fsl_ifc_cmdfunc(struct mtd_info *mtd, unsigned int command,
 				 (IFC_FIR_OP_RA0 << IFC_NAND_FIR0_OP3_SHIFT) |
 				 (IFC_FIR_OP_WBCD << IFC_NAND_FIR0_OP4_SHIFT));
 			out_be32(&ifc->ifc_nand.nand_fir1,
-				 (IFC_FIR_OP_CW1 << IFC_NAND_FIR1_OP5_SHIFT));
+				 (IFC_FIR_OP_CMD1 << IFC_NAND_FIR1_OP5_SHIFT) |
+				 (IFC_FIR_OP_CW3 << IFC_NAND_FIR1_OP6_SHIFT) |
+				 (IFC_FIR_OP_RDSTAT <<
+					IFC_NAND_FIR1_OP7_SHIFT) |
+				 (IFC_FIR_OP_NOP << IFC_NAND_FIR1_OP8_SHIFT));
 
 			if (column >= mtd->writesize)
 				nand_fcr0 |=
