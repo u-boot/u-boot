@@ -381,10 +381,9 @@ static int part_validate_eraseblock(struct mtdids *id, struct part_info *part)
 
 
 /**
- * Performs sanity check for supplied partition. Offset and size are verified
- * to be within valid range. Partition type is checked and either
- * parts_validate_nor() or parts_validate_nand() is called with the argument
- * of part.
+ * Performs sanity check for supplied partition. Offset and size are
+ * verified to be within valid range. Partition type is checked and
+ * part_validate_eraseblock() is called with the argument of part.
  *
  * @param id of the parent device
  * @param part partition to validate
