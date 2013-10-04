@@ -578,4 +578,3 @@ TODO
   - U-boot command that will write a new image to the bootloader partition in
     flash.
   - Linux FTD support.
-

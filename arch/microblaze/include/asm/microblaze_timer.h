@@ -25,4 +25,3 @@ typedef volatile struct microblaze_timer_t {
 } microblaze_timer_t;
 
 int timer_init(void);
-

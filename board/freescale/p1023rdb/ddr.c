@@ -86,4 +86,3 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 		popts->cs_local_opts[i].odt_wr_cfg = FSL_DDR_ODT_CS;
 	}
 }
-

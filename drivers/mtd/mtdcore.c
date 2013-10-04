@@ -388,4 +388,3 @@ int mtd_block_markbad(struct mtd_info *mtd, loff_t ofs)
 		return -EROFS;
 	return mtd->_block_markbad(mtd, ofs);
 }
-

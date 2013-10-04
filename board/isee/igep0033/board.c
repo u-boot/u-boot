@@ -168,4 +168,3 @@ int board_eth_init(bd_t *bis)
 	return ret;
 }
 #endif
-

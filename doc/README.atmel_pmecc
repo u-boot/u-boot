@@ -27,4 +27,3 @@ Take AT91SAM9X5EK as an example, the board definition file likes:
 #define CONFIG_ATMEL_NAND_HW_PMECC	1
 #define CONFIG_PMECC_CAP		2
 #define CONFIG_PMECC_SECTOR_SIZE	512
-

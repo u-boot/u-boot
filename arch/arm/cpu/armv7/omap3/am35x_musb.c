@@ -59,4 +59,3 @@ void am35x_musb_clear_irq(void)
 			0, USBOTGSS_INT_CLR);
 	readl(&am35x_scm_general_regs->lvl_intr_clr);
 }
-

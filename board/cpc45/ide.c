@@ -126,4 +126,3 @@ void ide_led(uchar led, uchar status)
 
 	writeb(val, BCSR_BASE + 0x04);
 }
-
