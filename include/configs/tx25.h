@@ -15,6 +15,9 @@
  */
 #define CONFIG_MX25
 #define CONFIG_MX25_CLK32		32000	/* OSC32K frequency */
+#define CONFIG_SYS_TIMER_RATE		CONFIG_MX25_CLK32
+#define CONFIG_SYS_TIMER_COUNTER	\
+	(&((struct gpt_regs *)IMX_GPT1_BASE)->counter)
 
 #define	CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* 256 kB for U-Boot */
 
