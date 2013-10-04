@@ -26,6 +26,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <zynqpl.h>
+#include <asm/sizes.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 
@@ -190,6 +191,12 @@ int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 	if (diff) {
 		printf("%s: Bitstream is not validated yet (diff %x)\n",
 		       __func__, diff);
+		return FPGA_FAIL;
+	}
+
+	if ((u32)buf < SZ_1M) {
+		printf("%s: Bitstream has to be placed up to 1MB (%x)\n",
+		       __func__, (u32)buf);
 		return FPGA_FAIL;
 	}
 
