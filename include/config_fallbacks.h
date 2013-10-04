@@ -48,6 +48,7 @@
 	defined(CONFIG_CMD_SCSI) || \
 	defined(CONFIG_CMD_USB) || \
 	defined(CONFIG_CMD_PART) || \
+	defined(CONFIG_CMD_GPT) || \
 	defined(CONFIG_MMC) || \
 	defined(CONFIG_SYSTEMACE)
 #define HAVE_BLOCK_DEVICE
