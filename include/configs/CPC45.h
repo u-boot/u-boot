@@ -179,7 +179,6 @@
  */
 
 #define CONFIG_SYS_CLK_FREQ	33000000
-#define CONFIG_SYS_HZ			1000
 
 
 /* Bit-field values for MCCR1.

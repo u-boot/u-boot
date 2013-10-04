@@ -53,8 +53,6 @@
 
 /* Enable IRQs and watchdog with a 1000Hz system decrementer */
 #define CONFIG_CMD_IRQ
-#define CONFIG_SYS_HZ 1000
-
 
 /* -------------------------------------------------------------------- */
 

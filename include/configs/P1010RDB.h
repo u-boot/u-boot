@@ -713,7 +713,6 @@ extern unsigned long get_sdram_size(void);
 						/* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS	16		/* max number of command args */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE/* Boot Argument Buffer Size */
-#define CONFIG_SYS_HZ		1000		/* dec freq: 1ms ticks */
 
 /*
  * Internal Definitions

@@ -162,8 +162,6 @@
 #define CONFIG_SYS_MEMTEST_END		0x00C0000	/* 4 ... 12 MB in DRAM	*/
 #define CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address */
 
-#define CONFIG_SYS_HZ		1000		/* decrementer freq: 1 ms ticks */
-
 /*
  * Low Level Configuration Settings
  * (address mappings, register initial values, etc.)

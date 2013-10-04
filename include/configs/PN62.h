@@ -91,7 +91,6 @@
 #define CONFIG_SYS_MAXARGS		16		/* max number of command args	*/
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 #define CONFIG_SYS_LOAD_ADDR		0x00100000	/* default load address		*/
-#define CONFIG_SYS_HZ			1000		/* decrementer freq: 1 ms ticks */
 
 #define CONFIG_PRAM		1024		/* reserve 1 MB protected RAM	*/
 

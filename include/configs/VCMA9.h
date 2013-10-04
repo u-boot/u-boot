@@ -162,7 +162,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x30800000
 
 /* we configure PWM Timer 4 to 1ms 1000Hz  */
-#define CONFIG_SYS_HZ			1000
 
 /* support additional compression methods */
 #define CONFIG_BZIP2

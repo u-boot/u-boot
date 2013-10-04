@@ -102,8 +102,6 @@
 
 #define CONFIG_SYS_PC_IDE_RESET	((ushort)0x0008)	/* PC 12	*/
 
-#define	CONFIG_SYS_HZ		1000		/* decrementer freq: 1 ms ticks	*/
-
 /*
  * Low Level Configuration Settings
  * (address mappings, register initial values, etc.)

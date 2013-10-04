@@ -152,7 +152,6 @@
 
 #define CONFIG_SYS_CLK_FREQ  33000000	/* external frequency to pll */
 #define CONFIG_PLL_PCI_TO_MEM_MULTIPLIER  2
-#define CONFIG_SYS_HZ               1000
 
 #define CONFIG_SYS_ETH_DEV_FN       0x00
 #define CONFIG_SYS_ETH_IOBASE       0x00104000

@@ -76,8 +76,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0x400000	/* Default load address		*/
 
-#define CONFIG_SYS_HZ			1000		/* Decrementer freq: 1 ms ticks	*/
-
 /*-----------------------------------------------------------------------
  * RAM configuration (note that CONFIG_SYS_SDRAM_BASE must be zero)
  */

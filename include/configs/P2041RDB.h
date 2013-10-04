@@ -666,7 +666,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_MAXARGS	16		/* max number of command args */
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-#define CONFIG_SYS_HZ		1000		/* decrementer freq 1ms ticks */
 
 /*
  * For booting Linux, the board info and command line data

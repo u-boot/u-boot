@@ -168,7 +168,6 @@
  */
 
 #define CONFIG_SYS_CLK_FREQ  33333333	/* external frequency to pll */
-#define CONFIG_SYS_HZ		     1000
 
 	/* Bit-field values for MCCR1.
 	 */

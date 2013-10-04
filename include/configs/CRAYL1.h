@@ -70,7 +70,6 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1
 #define CONFIG_IDENT_STRING     "Cray L1"
 #define CONFIG_ENV_OVERWRITE     1
-#define	CONFIG_SYS_HZ		             1000	/* decrementer freq: 1 ms ticks	*/
 #define CONFIG_SYS_HUSH_PARSER			1
 #define CONFIG_SOURCE			1
 

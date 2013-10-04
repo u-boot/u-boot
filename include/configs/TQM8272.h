@@ -310,8 +310,6 @@
 
 #define	CONFIG_SYS_LOAD_ADDR	0x300000	/* default load address	*/
 
-#define	CONFIG_SYS_HZ		1000		/* decrementer freq: 1 ms ticks	*/
-
 #define	CONFIG_SYS_RESET_ADDRESS 0x40000104	/* "bad" address		*/
 
 /*

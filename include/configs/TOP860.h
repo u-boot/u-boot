@@ -68,7 +68,6 @@
 #define	CONFIG_SYS_CPUCLOCK	CONFIG_SYSCLK
 #define	CONFIG_SYS_BRGCLOCK	CONFIG_SYSCLK
 #define	CONFIG_SYS_BUSCLOCK	(CONFIG_SYSCLK >> CONFIG_EBDF)
-#define CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks */
 #define	CONFIG_8xx_GCLK_FREQ	CONFIG_SYSCLK
 
 /*-----------------------------------------------------------------------

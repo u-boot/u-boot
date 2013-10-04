@@ -140,8 +140,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0x100000	/* Default load address		*/
 
-#define CONFIG_SYS_HZ			1000		/* Decrementer freq: 1 ms ticks	*/
-
 #define CONFIG_SYS_RESET_ADDRESS	0x09900000
 
 #define CONFIG_MISC_INIT_R			/* We need misc_init_r()	*/

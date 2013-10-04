@@ -172,8 +172,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x400000	/* default load address */
 #define CONFIG_SYS_EXTBDINFO		1	/* To use extended board_into (bd_t) */
 
-#define CONFIG_SYS_HZ		1000		/* decrementer freq: 1 ms ticks */
-
 /*-----------------------------------------------------------------------
  * PCI stuff
  *-----------------------------------------------------------------------
