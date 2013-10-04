@@ -140,6 +140,8 @@
 							/* devices */
 #define CONFIG_NAND_OMAP_BCH8
 #define CONFIG_BCH
+#define CONFIG_SYS_NAND_MAX_OOBFREE	2
+#define CONFIG_SYS_NAND_MAX_ECCPOS	56
 
 /* commands to include */
 #include <config_cmd_default.h>

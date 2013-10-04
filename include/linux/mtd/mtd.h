@@ -96,6 +96,29 @@ struct mtd_oob_ops {
 	uint8_t		*oobbuf;
 };
 
+#ifdef CONFIG_SYS_NAND_MAX_OOBFREE
+#define MTD_MAX_OOBFREE_ENTRIES_LARGE	CONFIG_SYS_NAND_MAX_OOBFREE
+#else
+#define MTD_MAX_OOBFREE_ENTRIES_LARGE	32
+#endif
+
+#ifdef CONFIG_SYS_NAND_MAX_ECCPOS
+#define MTD_MAX_ECCPOS_ENTRIES_LARGE	CONFIG_SYS_NAND_MAX_ECCPOS
+#else
+#define MTD_MAX_ECCPOS_ENTRIES_LARGE	640
+#endif
+
+/*
+ * ECC layout control structure. Exported to userspace for
+ * diagnosis and to allow creation of raw images
+ */
+struct nand_ecclayout {
+	uint32_t eccbytes;
+	uint32_t eccpos[MTD_MAX_ECCPOS_ENTRIES_LARGE];
+	uint32_t oobavail;
+	struct nand_oobfree oobfree[MTD_MAX_OOBFREE_ENTRIES_LARGE];
+};
+
 struct mtd_info {
 	u_char type;
 	u_int32_t flags;
