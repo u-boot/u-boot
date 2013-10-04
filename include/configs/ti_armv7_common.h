@@ -56,7 +56,6 @@
 
 /* Timer information. */
 #define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
-#define CONFIG_SYS_HZ			1000	/* 1ms clock */
 
 /* I2C IP block */
 #define CONFIG_I2C

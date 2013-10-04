@@ -17,7 +17,6 @@
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_MAIN_CLOCK		18429952	/* from 18.432 MHz crystal */
 #define CONFIG_SYS_AT91_SLOW_CLOCK		32768
-#define CONFIG_SYS_HZ				1000
 
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_DISPLAY_CPUINFO

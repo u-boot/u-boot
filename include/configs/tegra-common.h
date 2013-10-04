@@ -109,8 +109,6 @@
 #define CONFIG_SYS_MEMTEST_START	(NV_PA_SDRC_CS0 + 0x600000)
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x100000)
 
-#define CONFIG_SYS_HZ			1000
-
 /*-----------------------------------------------------------------------
  * Physical Memory Map
  */

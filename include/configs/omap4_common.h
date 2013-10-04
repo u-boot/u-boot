@@ -220,7 +220,6 @@
 /* Use General purpose timer 1 */
 #define CONFIG_SYS_TIMERBASE		GPT2_BASE
 #define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
-#define CONFIG_SYS_HZ			1000
 
 /*
  * SDRAM Memory Map

@@ -40,12 +40,6 @@
 /*
  * Timer
  */
-
-/*
- * According to the discussion in u-boot mailing list before,
- * CONFIG_SYS_HZ at 1000 is mandatory.
- */
-#define CONFIG_SYS_HZ		1000
 #define CONFIG_SYS_CLK_FREQ	48000000
 #define VERSION_CLOCK		CONFIG_SYS_CLK_FREQ
 

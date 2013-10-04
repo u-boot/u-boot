@@ -122,7 +122,6 @@
 					+ PHYS_DRAM_1_SIZE - (8 << 12))
 
 #define CONFIG_SYS_LOAD_ADDR		0x81000000	/* Default */
-#define CONFIG_SYS_HZ			1000		/* 1ms clock */
 
 #define CONFIG_OMAP_GPIO
 #define CONFIG_MMC
@@ -149,7 +148,6 @@
  */
 #define CONFIG_SYS_TIMERBASE		0x4802E000
 #define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
-#define CONFIG_SYS_HZ			1000
 
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550

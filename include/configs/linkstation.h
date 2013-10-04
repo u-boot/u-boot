@@ -305,7 +305,6 @@
 /* FIXME: 32.768 MHz is the crystal frequency but */
 /* the real frequency is lower by about 0.75%     */
 #define CONFIG_SYS_CLK_FREQ	32768000
-#define CONFIG_SYS_HZ			1000
 
 /* Bit-field values for MCCR1.  */
 #define CONFIG_SYS_ROMNAL      0

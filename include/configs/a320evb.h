@@ -37,7 +37,6 @@
 /*
  * Timer
  */
-#define CONFIG_SYS_HZ		1000	/* timer ticks per second */
 
 /*
  * Real Time Clock

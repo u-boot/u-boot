@@ -379,8 +379,6 @@ extern void __led_set(led_id_t id, int state);
 
 #define CONFIG_SYS_LOAD_ADDR		0x200000	/* default kernel load addr */
 
-#define CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks */
-
 /*
  * Various low-level settings
  */

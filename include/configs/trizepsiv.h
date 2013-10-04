@@ -149,7 +149,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0xa1000000	/* default load address */
 
-#define CONFIG_SYS_HZ			1000
 #define CONFIG_SYS_CPUSPEED		0x207		/* need to look more closely, I think this is Turbo = 2x, L=91Mhz */
 
 #ifdef CONFIG_MMC

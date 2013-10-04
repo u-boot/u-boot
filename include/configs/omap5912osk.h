@@ -118,7 +118,6 @@
  */
 #define CONFIG_SYS_TIMERBASE	0xFFFEC500	/* use timer 1 */
 #define CONFIG_SYS_PTV		7	/* 2^(PTV+1), divide by 256 */
-#define CONFIG_SYS_HZ		1000
 
 /*-----------------------------------------------------------------------
  * Physical Memory Map

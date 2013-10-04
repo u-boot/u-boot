@@ -15,7 +15,6 @@
  */
 #define CONFIG_MX25
 #define CONFIG_MX25_CLK32		32000	/* OSC32K frequency */
-#define CONFIG_SYS_HZ			1000
 
 #define	CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* 256 kB for U-Boot */
 

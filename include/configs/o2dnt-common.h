@@ -331,7 +331,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x100000
 
 /* decrementer freq: 1 ms ticks */
-#define CONFIG_SYS_HZ			1000
 
 /*
  * Various low-level settings

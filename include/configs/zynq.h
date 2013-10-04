@@ -12,7 +12,6 @@
 
 /* CPU clock */
 #define CONFIG_CPU_FREQ_HZ	800000000
-#define CONFIG_SYS_HZ		1000
 
 /* Ram */
 #define CONFIG_NR_DRAM_BANKS		1

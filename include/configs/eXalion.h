@@ -216,7 +216,6 @@
  * (address mappings, register initial values, etc.)
  * You should know what you are doing if you make changes here.
  */
-#define CONFIG_SYS_HZ			1000
 
 #define CONFIG_SYS_CLK_FREQ	33333333	/* external frequency to pll	*/
 #define CONFIG_PLL_PCI_TO_MEM_MULTIPLIER  2	/* for MPC8240 only		*/

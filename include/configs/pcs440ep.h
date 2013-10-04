@@ -292,8 +292,6 @@
 #define CONFIG_SYS_EXTBDINFO		1	/* To use extended board_into (bd_t) */
 #define CONFIG_LYNXKDI          1       /* support kdi files            */
 
-#define CONFIG_SYS_HZ		        1000	/* decrementer freq: 1 ms ticks */
-
 /*-----------------------------------------------------------------------
  * PCI stuff
  *-----------------------------------------------------------------------

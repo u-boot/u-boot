@@ -28,7 +28,6 @@
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	18432000	/* main clock xtal */
-#define CONFIG_SYS_HZ			1000
 
 /* Define actual evaluation board type from used processor type */
 #ifdef CONFIG_AT91SAM9G20

@@ -18,7 +18,6 @@
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	12000000	/* main clock xtal */
-#define CONFIG_SYS_HZ			1000
 
 #define CONFIG_AT91SAM9RLEK		1	/* It's an AT91SAM9RLEK Board */
 

@@ -98,7 +98,6 @@
 /*----------------------------------------------------------------------*
  * Clock and PLL Configuration						*
  *----------------------------------------------------------------------*/
-#define CONFIG_SYS_HZ			1000
 #define	CONFIG_SYS_CLK			80000000      /* 8MHz * 8 */
 
 /* PLL Configuration: Ext Clock * 8 (see table 9-4 of MCF user manual) */

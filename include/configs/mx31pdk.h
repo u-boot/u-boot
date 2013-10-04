@@ -137,8 +137,6 @@
 /* default load address */
 #define CONFIG_SYS_LOAD_ADDR		0x81000000
 
-#define CONFIG_SYS_HZ			1000
-
 #define CONFIG_CMDLINE_EDITING
 
 /*-----------------------------------------------------------------------

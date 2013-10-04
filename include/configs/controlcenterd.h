@@ -439,7 +439,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_HZ		1000
 #define CONFIG_HW_WATCHDOG
 #define CONFIG_LOADS_ECHO
 #define CONFIG_SYS_LOADS_BAUD_CHANGE

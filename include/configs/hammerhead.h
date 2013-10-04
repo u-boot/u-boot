@@ -13,8 +13,6 @@
 #define CONFIG_AT32AP7000
 #define CONFIG_HAMMERHEAD
 
-#define CONFIG_SYS_HZ				1000
-
 /*
  * Set up the PLL to run at 125 MHz, the CPU to run at the PLL
  * frequency, the HSB and PBB busses to run at 1/2 the PLL frequency

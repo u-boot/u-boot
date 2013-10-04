@@ -208,7 +208,6 @@ protect on ${u-boot_startaddr} ${u-boot_endaddr}"
  *------------------------------------------------------------------*/
 
 #define CONFIG_SYS_CLK_FREQ  33000000
-#define CONFIG_SYS_HZ				1000
 
 /*#define CONFIG_SYS_ETH_DEV_FN	     0x7800 */
 /*#define CONFIG_SYS_ETH_IOBASE	     0x00104000 */

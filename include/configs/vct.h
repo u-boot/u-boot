@@ -28,7 +28,6 @@
 #define CONFIG_MIPS32				/* MIPS 4Kc CPU core	*/
 #define CPU_CLOCK_RATE			324000000 /* Clock for the MIPS core */
 #define CONFIG_SYS_MIPS_TIMER_FREQ	(CPU_CLOCK_RATE / 2)
-#define CONFIG_SYS_HZ			1000
 
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* SDRAM is initialized by the bootstrap code */
 

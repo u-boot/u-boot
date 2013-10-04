@@ -198,7 +198,6 @@
 
 /* clocks */
 
-#define CONFIG_SYS_HZ			1000
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock */
 
 #define MHZ180

@@ -362,7 +362,6 @@
  */
 
 #define CONFIG_SYS_BUS_CLK		CONFIG_BUS_CLK
-#define CONFIG_SYS_HZ			1000
 
 
 /*

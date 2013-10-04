@@ -283,8 +283,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0x08000000	/* default load address */
 
-#define CONFIG_SYS_HZ		        1000	/* decrementer freq: 1 ms ticks */
-
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
 #define CONFIG_LOOPW            1       /* enable loopw command         */
 #define CONFIG_MX_CYCLIC        1       /* enable mdc/mwc commands      */

@@ -15,9 +15,6 @@
 
 #define CONFIG_NR_DRAM_BANKS_MAX	2
 
-/* 1KHz clock tick */
-#define CONFIG_SYS_HZ			1000
-
 /* UART configuration */
 #if (CONFIG_SYS_LPC32XX_UART >= 3) && (CONFIG_SYS_LPC32XX_UART <= 6)
 #define CONFIG_SYS_NS16550_SERIAL

@@ -116,11 +116,6 @@
 #define	CONFIG_AUTO_COMPLETE		1
 
 /*
- * Clock Configuration
- */
-#define	CONFIG_SYS_HZ			1000		/* Timer @ 3250000 Hz */
-
-/*
  * DRAM Map
  */
 #define	CONFIG_NR_DRAM_BANKS		1		/* 1 bank of DRAM */

@@ -278,8 +278,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address */
 
-#define CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks */
-
 /***** Gaisler GRLIB IP-Cores Config ********/
 
 /* AMBA Plug & Play info display on startup */

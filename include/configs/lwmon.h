@@ -212,8 +212,6 @@
 
 #define CONFIG_SYS_PIO_MODE		0	/* IDE interface in PIO Mode 0	*/
 
-#define CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks */
-
 /*
  * When the watchdog is enabled, output must be fast enough in Linux.
  */

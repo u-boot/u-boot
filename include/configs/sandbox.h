@@ -65,8 +65,6 @@
 #define CONFIG_ENV_SIZE		8192
 #define CONFIG_ENV_IS_NOWHERE
 
-#define CONFIG_SYS_HZ			1000
-
 /* Memory things - we don't really want a memory test */
 #define CONFIG_SYS_LOAD_ADDR		0x00000000
 #define CONFIG_SYS_MEMTEST_START	0x00100000

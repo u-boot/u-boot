@@ -16,11 +16,6 @@
 #define CONFIG_ATSTK1006
 #define CONFIG_ATSTK1000
 
-/*
- * Timer clock frequency. We're using the CPU-internal COUNT register
- * for this, so this is equivalent to the CPU core clock frequency
- */
-#define CONFIG_SYS_HZ				1000
 
 /*
  * Set up the PLL to run at 140 MHz, the CPU to run at the PLL

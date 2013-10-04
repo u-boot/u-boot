@@ -196,7 +196,6 @@
 /* reload value when timer count to zero */
 #define TIMER_LOAD_VAL			0xFFFFFFFF
 /* Timer info */
-#define CONFIG_SYS_HZ			1000
 #ifdef CONFIG_SOCFPGA_VIRTUAL_TARGET
 #define CONFIG_TIMER_CLOCK_KHZ		2400
 #else

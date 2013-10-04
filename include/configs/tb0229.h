@@ -109,8 +109,6 @@
 
 #define CONFIG_SYS_MIPS_TIMER_FREQ	(CPU_TCLOCK_RATE/4)
 
-#define CONFIG_SYS_HZ			1000
-
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 
 #define CONFIG_SYS_LOAD_ADDR		0x80400000	/* default load address */

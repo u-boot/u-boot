@@ -39,7 +39,6 @@
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768	/* 32.768 kHz crystal */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	16000000/* 16.0 MHz crystal */
-#define CONFIG_SYS_HZ			1000	/* decrementer freq */
 
 /* Misc CPU related */
 #define CONFIG_SKIP_LOWLEVEL_INIT

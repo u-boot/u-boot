@@ -440,9 +440,6 @@
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 
-/* decrementer freq: 1ms ticks */
-#define CONFIG_SYS_HZ		1000
-
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is

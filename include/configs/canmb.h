@@ -188,8 +188,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0x200000	/* default load address */
 
-#define CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks */
-
 #define CONFIG_RTC_MPC5200	1	/* use internal MPC5200 RTC */
 
 #define CONFIG_SYS_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */

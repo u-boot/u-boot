@@ -35,7 +35,6 @@
  */
 #define CONFIG_SYS_TIMERBASE		OMAP34XX_GPT2
 #define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
-#define CONFIG_SYS_HZ			1000
 
 /* Size of environment - 128KB */
 #define CONFIG_ENV_SIZE			(128 << 10)

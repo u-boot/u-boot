@@ -99,7 +99,6 @@
 #define CONFIG_SYS_LOAD_ADDR           0x00010000      /* default load address */
 
 #define CONFIG_IXP425_TIMER_CLK		66666666
-#define CONFIG_SYS_HZ			1000		/* decrementer freq: 1 ms ticks */
 
 /***************************************************************
  * Platform/Board specific defines start here.

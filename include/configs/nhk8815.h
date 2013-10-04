@@ -76,7 +76,6 @@
 #define CONFIG_BOARD_LATE_INIT	/* call board_late_init during start up */
 
 /* timing informazion */
-#define CONFIG_SYS_HZ		1000 /* Mandatory... */
 #define CONFIG_SYS_TIMERBASE	0x101E2000
 
 /* serial port (PL011) configuration */

@@ -100,7 +100,6 @@
 /*
  * Clock Configuration
  */
-#define	CONFIG_SYS_HZ			1000		/* Timer @ 3250000 Hz */
 #define	CONFIG_SYS_CPUSPEED		0x290		/* 520MHz */
 
 /*

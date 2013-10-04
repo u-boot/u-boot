@@ -185,7 +185,6 @@
 #define CONFIG_SYS_MEMTEST_SCRATCH     0x10800000
 
 #define CONFIG_SYS_LOAD_ADDR           CONFIG_LOADADDR
-#define CONFIG_SYS_HZ                  1000
 
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_STACKSIZE               (128 * 1024)

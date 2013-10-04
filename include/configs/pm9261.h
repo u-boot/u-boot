@@ -28,8 +28,6 @@
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	18432000
 
-#define CONFIG_SYS_HZ		1000
-
 #define CONFIG_SYS_AT91_CPU_NAME	"AT91SAM9261"
 #define CONFIG_PM9261		1	/* on a Ronetix PM9261 Board	*/
 #define CONFIG_ARCH_CPU_INIT

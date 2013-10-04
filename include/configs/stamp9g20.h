@@ -35,7 +35,6 @@
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	18432000	/* 18.432MHz crystal */
-#define CONFIG_SYS_HZ			1000		/* 1ms resolution */
 
 /* misc settings */
 #define CONFIG_CMDLINE_TAG		/* pass commandline to Kernel */

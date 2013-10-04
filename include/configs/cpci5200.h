@@ -267,8 +267,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address */
 
-#define CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks */
-
 #define CONFIG_SYS_VXWORKS_MAC_PTR	0x00000000	/* Pass Ethernet MAC to VxWorks */
 
 #define CONFIG_SYS_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */

@@ -120,7 +120,6 @@
 #define CONFIG_SYS_MEMTEST_START	0x0400000 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x0C00000 /* 4 ... 12 MB in DRAM */
 
-#define	CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks	*/
 #define CONFIG_SYS_EXTBDINFO		1	/* To use extended board_info (bd_t) */
 #define CONFIG_SYS_LOAD_ADDR		0x100000 /* default load address */
 

@@ -173,8 +173,6 @@
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0x5000000)
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x4000000)
 
-#define CONFIG_SYS_HZ			1000
-
 /* Goni has 3 banks of DRAM, but swap the bank */
 #define CONFIG_NR_DRAM_BANKS	3
 #define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE	/* OneDRAM Bank #0 */

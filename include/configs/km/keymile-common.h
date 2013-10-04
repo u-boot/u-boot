@@ -54,8 +54,6 @@
 
 #define CONFIG_SYS_ALT_MEMTEST		/* memory test, takes time */
 
-#define CONFIG_SYS_HZ			1000	/* decr. freq: 1 ms ticks */
-
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE { 9600, 19200, 38400, 57600, 115200, 230400 }
 

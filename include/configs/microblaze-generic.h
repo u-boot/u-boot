@@ -399,7 +399,6 @@
 
 /* architecture dependent code */
 #define	CONFIG_SYS_USR_EXCEP	/* user exception */
-#define CONFIG_SYS_HZ	1000
 
 #define	CONFIG_PREBOOT	"echo U-BOOT for ${hostname};setenv preboot;echo"
 

@@ -41,9 +41,6 @@
  * CPU specifics
  */
 
-/* Ticks per second */
-#define CONFIG_SYS_HZ		1000
-
 /* MXS uses FDT */
 #define CONFIG_OF_LIBFDT
 

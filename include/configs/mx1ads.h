@@ -114,7 +114,6 @@
 #define CONFIG_SYS_MEMTEST_END		0x0AF00000	/* 63 MB in DRAM	*/
 
 #define CONFIG_SYS_LOAD_ADDR		0x08800000	/* default load address */
-/*#define	CONFIG_SYS_HZ			1000 */
 #define CONFIG_SYS_HZ			3686400
 #define CONFIG_SYS_CPUSPEED		0x141
 

@@ -24,7 +24,6 @@
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	16000000	/* main clock xtal */
-#define CONFIG_SYS_HZ			1000
 
 /* Misc CPU related */
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */

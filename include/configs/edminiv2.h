@@ -34,8 +34,6 @@
  * CLKs configurations
  */
 
-#define CONFIG_SYS_HZ		1000
-
 /*
  * Board-specific values for Orion5x MPP low level init:
  * - MPPs 12 to 15 are SATA LEDs (mode 5)

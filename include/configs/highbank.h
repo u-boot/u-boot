@@ -12,8 +12,6 @@
 #define CONFIG_SYS_THUMB_BUILD
 
 #define CONFIG_SYS_NO_FLASH
-#define CFG_HZ				1000
-#define CONFIG_SYS_HZ			CFG_HZ
 
 #define CONFIG_OF_LIBFDT
 #define CONFIG_OF_BOARD_SETUP

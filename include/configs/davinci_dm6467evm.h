@@ -27,7 +27,6 @@ extern unsigned int davinci_arm_clk_get(void);
 /* Timer Input clock freq */
 #define CONFIG_SYS_HZ_CLOCK		(CONFIG_SYS_CLK_FREQ/2)
 #define CONFIG_SYS_TIMERBASE		0x01c21400	/* use timer 0 */
-#define CONFIG_SYS_HZ			1000
 #define CONFIG_SOC_DM646X
 
 /* EEPROM definitions for EEPROM */
