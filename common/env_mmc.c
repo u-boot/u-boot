@@ -192,11 +192,12 @@ void env_relocate_spec(void)
 	u32 offset1, offset2;
 	int read1_fail = 0, read2_fail = 0;
 	int crc1_ok = 0, crc2_ok = 0;
-	env_t *ep, *tmp_env1, *tmp_env2;
+	env_t *ep;
 	int ret;
 
-	tmp_env1 = (env_t *)malloc(CONFIG_ENV_SIZE);
-	tmp_env2 = (env_t *)malloc(CONFIG_ENV_SIZE);
+	ALLOC_CACHE_ALIGN_BUFFER(env_t, tmp_env1, 1);
+	ALLOC_CACHE_ALIGN_BUFFER(env_t, tmp_env2, 1);
+
 	if (tmp_env1 == NULL || tmp_env2 == NULL) {
 		puts("Can't allocate buffers for environment\n");
 		ret = 1;
@@ -266,8 +267,6 @@ err:
 	if (ret)
 		set_default_env(NULL);
 
-	free(tmp_env1);
-	free(tmp_env2);
 #endif
 }
 #else /* ! CONFIG_ENV_OFFSET_REDUND */
