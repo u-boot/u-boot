@@ -8,4 +8,4 @@
 #
 
 obj-y += lowlevel_init.o
-obj-y	+= ap.o board.o sys_info.o timer.o clock.o cache.o
+obj-y	+= ap.o board.o sys_info.o clock.o cache.o

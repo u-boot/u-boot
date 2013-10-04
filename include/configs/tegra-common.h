@@ -19,6 +19,9 @@
 
 #include <asm/arch/tegra.h>		/* get chip and board defs */
 
+#define CONFIG_SYS_TIMER_RATE		1000000
+#define CONFIG_SYS_TIMER_COUNTER	NV_PA_TMRUS_BASE
+
 /*
  * Display CPU and Board information
  */
