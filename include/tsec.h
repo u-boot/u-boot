@@ -198,19 +198,17 @@
 #define RXBD_TRUNCATED		0x0001
 #define RXBD_STATS		0x003f
 
-typedef struct txbd8
-{
-	ushort	     status;	     /* Status Fields */
-	ushort	     length;	     /* Buffer length */
-	uint	     bufptr;	     /* Buffer Pointer */
-} txbd8_t;
+struct txbd8 {
+	uint16_t     status;	     /* Status Fields */
+	uint16_t     length;	     /* Buffer length */
+	uint32_t     bufptr;	     /* Buffer Pointer */
+};
 
-typedef struct rxbd8
-{
-	ushort	     status;	     /* Status Fields */
-	ushort	     length;	     /* Buffer Length */
-	uint	     bufptr;	     /* Buffer Pointer */
-} rxbd8_t;
+struct rxbd8 {
+	uint16_t     status;	     /* Status Fields */
+	uint16_t     length;	     /* Buffer Length */
+	uint32_t     bufptr;	     /* Buffer Pointer */
+};
 
 typedef struct rmon_mib
 {

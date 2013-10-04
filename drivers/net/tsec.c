@@ -28,13 +28,10 @@ DECLARE_GLOBAL_DATA_PTR;
 static uint rx_idx;		/* index of the current RX buffer */
 static uint tx_idx;		/* index of the current TX buffer */
 
-typedef volatile struct rtxbd {
-	txbd8_t txbd[TX_BUF_CNT];
-	rxbd8_t rxbd[PKTBUFSRX];
-} RTXBD;
-
 #ifdef __GNUC__
-static RTXBD rtx __attribute__ ((aligned(8)));
+static struct txbd8 __iomem txbd[TX_BUF_CNT] __aligned(8);
+static struct rxbd8 __iomem rxbd[PKTBUFSRX] __aligned(8);
+
 #else
 #error "rtx must be 64-bit aligned"
 #endif
@@ -275,10 +272,11 @@ void redundant_init(struct eth_device *dev)
 	clrbits_be32(&regs->dmactrl, DMACTRL_GRS | DMACTRL_GTS);
 
 	do {
+		uint16_t status;
 		tsec_send(dev, (void *)pkt, sizeof(pkt));
 
 		/* Wait for buffer to be received */
-		for (t = 0; rtx.rxbd[rx_idx].status & RXBD_EMPTY; t++) {
+		for (t = 0; in_be16(&rxbd[rx_idx].status) & RXBD_EMPTY; t++) {
 			if (t >= 10 * TOUT_LOOP) {
 				printf("%s: tsec: rx error\n", dev->name);
 				break;
@@ -288,9 +286,11 @@ void redundant_init(struct eth_device *dev)
 		if (!memcmp(pkt, (void *)NetRxPackets[rx_idx], sizeof(pkt)))
 			fail = 0;
 
-		rtx.rxbd[rx_idx].length = 0;
-		rtx.rxbd[rx_idx].status =
-		    RXBD_EMPTY | (((rx_idx + 1) == PKTBUFSRX) ? RXBD_WRAP : 0);
+		out_be16(&rxbd[rx_idx].length, 0);
+		status = RXBD_EMPTY;
+		if ((rx_idx + 1) == PKTBUFSRX)
+			status |= RXBD_WRAP;
+		out_be16(&rxbd[rx_idx].status, status);
 		rx_idx = (rx_idx + 1) % PKTBUFSRX;
 
 		if (in_be32(&regs->ievent) & IEVENT_BSY) {
@@ -319,9 +319,10 @@ void redundant_init(struct eth_device *dev)
  */
 static void startup_tsec(struct eth_device *dev)
 {
-	int i;
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
 	struct tsec __iomem *regs = priv->regs;
+	uint16_t status;
+	int i;
 
 	/* reset the indices to zero */
 	rx_idx = 0;
@@ -331,24 +332,26 @@ static void startup_tsec(struct eth_device *dev)
 #endif
 
 	/* Point to the buffer descriptors */
-	out_be32(&regs->tbase, (unsigned int)(&rtx.txbd[tx_idx]));
-	out_be32(&regs->rbase, (unsigned int)(&rtx.rxbd[rx_idx]));
+	out_be32(&regs->tbase, (u32)&txbd[0]);
+	out_be32(&regs->rbase, (u32)&rxbd[0]);
 
 	/* Initialize the Rx Buffer descriptors */
 	for (i = 0; i < PKTBUFSRX; i++) {
-		rtx.rxbd[i].status = RXBD_EMPTY;
-		rtx.rxbd[i].length = 0;
-		rtx.rxbd[i].bufptr = (uint) NetRxPackets[i];
+		out_be16(&rxbd[i].status, RXBD_EMPTY);
+		out_be16(&rxbd[i].length, 0);
+		out_be32(&rxbd[i].bufptr, (u32)NetRxPackets[i]);
 	}
-	rtx.rxbd[PKTBUFSRX - 1].status |= RXBD_WRAP;
+	status = in_be16(&rxbd[PKTBUFSRX - 1].status);
+	out_be16(&rxbd[PKTBUFSRX - 1].status, status | RXBD_WRAP);
 
 	/* Initialize the TX Buffer Descriptors */
 	for (i = 0; i < TX_BUF_CNT; i++) {
-		rtx.txbd[i].status = 0;
-		rtx.txbd[i].length = 0;
-		rtx.txbd[i].bufptr = 0;
+		out_be16(&txbd[i].status, 0);
+		out_be16(&txbd[i].length, 0);
+		out_be32(&txbd[i].bufptr, 0);
 	}
-	rtx.txbd[TX_BUF_CNT - 1].status |= TXBD_WRAP;
+	status = in_be16(&txbd[TX_BUF_CNT - 1].status);
+	out_be16(&txbd[TX_BUF_CNT - 1].status, status | TXBD_WRAP);
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_NMG_ETSEC129
 	svr = get_svr();
@@ -372,29 +375,31 @@ static void startup_tsec(struct eth_device *dev)
  */
 static int tsec_send(struct eth_device *dev, void *packet, int length)
 {
-	int i;
-	int result = 0;
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
 	struct tsec __iomem *regs = priv->regs;
+	uint16_t status;
+	int result = 0;
+	int i;
 
 	/* Find an empty buffer descriptor */
-	for (i = 0; rtx.txbd[tx_idx].status & TXBD_READY; i++) {
+	for (i = 0; in_be16(&txbd[tx_idx].status) & TXBD_READY; i++) {
 		if (i >= TOUT_LOOP) {
 			debug("%s: tsec: tx buffers full\n", dev->name);
 			return result;
 		}
 	}
 
-	rtx.txbd[tx_idx].bufptr = (uint) packet;
-	rtx.txbd[tx_idx].length = length;
-	rtx.txbd[tx_idx].status |=
-	    (TXBD_READY | TXBD_LAST | TXBD_CRC | TXBD_INTERRUPT);
+	out_be32(&txbd[tx_idx].bufptr, (u32)packet);
+	out_be16(&txbd[tx_idx].length, length);
+	status = in_be16(&txbd[tx_idx].status);
+	out_be16(&txbd[tx_idx].status, status |
+		(TXBD_READY | TXBD_LAST | TXBD_CRC | TXBD_INTERRUPT));
 
 	/* Tell the DMA to go */
 	out_be32(&regs->tstat, TSTAT_CLEAR_THALT);
 
 	/* Wait for buffer to be transmitted */
-	for (i = 0; rtx.txbd[tx_idx].status & TXBD_READY; i++) {
+	for (i = 0; in_be16(&txbd[tx_idx].status) & TXBD_READY; i++) {
 		if (i >= TOUT_LOOP) {
 			debug("%s: tsec: tx error\n", dev->name);
 			return result;
@@ -402,34 +407,33 @@ static int tsec_send(struct eth_device *dev, void *packet, int length)
 	}
 
 	tx_idx = (tx_idx + 1) % TX_BUF_CNT;
-	result = rtx.txbd[tx_idx].status & TXBD_STATS;
+	result = in_be16(&txbd[tx_idx].status) & TXBD_STATS;
 
 	return result;
 }
 
 static int tsec_recv(struct eth_device *dev)
 {
-	int length;
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
 	struct tsec __iomem *regs = priv->regs;
 
-	while (!(rtx.rxbd[rx_idx].status & RXBD_EMPTY)) {
-
-		length = rtx.rxbd[rx_idx].length;
+	while (!(in_be16(&rxbd[rx_idx].status) & RXBD_EMPTY)) {
+		int length = in_be16(&rxbd[rx_idx].length);
+		uint16_t status = in_be16(&rxbd[rx_idx].status);
 
 		/* Send the packet up if there were no errors */
-		if (!(rtx.rxbd[rx_idx].status & RXBD_STATS)) {
+		if (!(status & RXBD_STATS))
 			NetReceive(NetRxPackets[rx_idx], length - 4);
-		} else {
-			printf("Got error %x\n",
-			       (rtx.rxbd[rx_idx].status & RXBD_STATS));
-		}
+		else
+			printf("Got error %x\n", (status & RXBD_STATS));
 
-		rtx.rxbd[rx_idx].length = 0;
+		out_be16(&rxbd[rx_idx].length, 0);
 
+		status = RXBD_EMPTY;
 		/* Set the wrap bit if this is the last element in the list */
-		rtx.rxbd[rx_idx].status =
-		    RXBD_EMPTY | (((rx_idx + 1) == PKTBUFSRX) ? RXBD_WRAP : 0);
+		if ((rx_idx + 1) == PKTBUFSRX)
+			status |= RXBD_WRAP;
+		out_be16(&rxbd[rx_idx].status, status);
 
 		rx_idx = (rx_idx + 1) % PKTBUFSRX;
 	}
