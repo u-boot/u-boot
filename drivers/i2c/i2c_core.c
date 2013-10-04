@@ -283,20 +283,22 @@ unsigned int i2c_get_bus_num(void)
  */
 int i2c_set_bus_num(unsigned int bus)
 {
-	int max = ll_entry_count(struct i2c_adapter, i2c);
+	int max;
 
-	if (I2C_ADAPTER(bus) >= max) {
-		printf("Error, wrong i2c adapter %d max %d possible\n",
-		       I2C_ADAPTER(bus), max);
-		return -2;
-	}
+	if ((bus == I2C_BUS) && (I2C_ADAP->init_done > 0))
+		return 0;
+
 #ifndef CONFIG_SYS_I2C_DIRECT_BUS
 	if (bus >= CONFIG_SYS_NUM_I2C_BUSES)
 		return -1;
 #endif
 
-	if ((bus == I2C_BUS) && (I2C_ADAP->init_done > 0))
-		return 0;
+	max = ll_entry_count(struct i2c_adapter, i2c);
+	if (I2C_ADAPTER(bus) >= max) {
+		printf("Error, wrong i2c adapter %d max %d possible\n",
+		       I2C_ADAPTER(bus), max);
+		return -2;
+	}
 
 #ifndef CONFIG_SYS_I2C_DIRECT_BUS
 	i2c_mux_disconnet_all();
