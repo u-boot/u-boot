@@ -15,8 +15,6 @@ tkoeller@gmx.net.
 Thomas Koeller
 
 
-
-
 The port was tested on a Sandpoint 8240 X3 board, with U-Boot
 installed in the flash memory of the CPU card. Please use the
 following DIP switch settings:

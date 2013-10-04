@@ -9,7 +9,6 @@
  * SPDX-License-Identifier: GPL-2.0+	BSD-3-Clause
  */
 
-
 /*
  * The Mass Storage Function acts as a USB Mass Storage device,
  * appearing to the host as a disk drive or as a CD-ROM drive.  In
@@ -153,7 +152,6 @@
  * <http://www.usb.org/developers/devclass_docs/usbmass-ufi10.pdf>.
  */
 
-
 /*
  *				Driver Design
  *
@@ -263,7 +261,6 @@
 #define FSG_DRIVER_VERSION	"2012/06/5"
 
 static const char fsg_string_interface[] = "Mass Storage";
-
 
 #define FSG_NO_INTR_EP 1
 #define FSG_NO_DEVICE_STRINGS    1
@@ -2628,8 +2625,6 @@ usb_copy_descriptors(struct usb_descriptor_header **src)
 
 	return ret;
 }
-
-
 
 static void fsg_unbind(struct usb_configuration *c, struct usb_function *f)
 {

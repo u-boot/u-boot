@@ -328,8 +328,6 @@ static int get_clk(struct dpll_regs *dpll_regs)
 	return f;
 };
 
-
-
 int clk_get(int clk)
 {
 	return get_clk(&dpll_lcd_regs);
@@ -426,7 +424,5 @@ static int board_video_init(void)
 
 	return 0;
 }
-
-
 #endif /* ifdef CONFIG_VIDEO */
 #include "../common/board.c"

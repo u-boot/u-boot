@@ -185,7 +185,6 @@ Switch from NAND to NOR boot with Core/CCB/DDR (800/400/667 MHz):
 	=> reset
 
 
-
 Boot Linux from network using TFTP on P1010RDB
 ==============================================
 Place uImage, p1010rdb.dtb and rootfs files in the TFTP disk area.

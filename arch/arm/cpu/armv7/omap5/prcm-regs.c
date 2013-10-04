@@ -526,8 +526,6 @@ struct prcm_regs const omap5_es2_prcm = {
 	.cm1_abe_timer8_clkctrl = 0x4a004580,
 	.cm1_abe_wdt3_clkctrl = 0x4a004588,
 
-
-
 	/* cm2.ckgen */
 	.cm_clksel_mpu_m3_iss_root = 0x4a008100,
 	.cm_clksel_usb_60mhz = 0x4a008104,
