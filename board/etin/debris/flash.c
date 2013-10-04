@@ -323,7 +323,7 @@ int flash_erase (flash_info_t *flash, int s_first, int s_last)
 
 	if (prot)
 		printf ("- Warning: %d protected sectors will not be erased!\n",
-					                        prot);
+								prot);
 	else
 		printf ("\n");
 
@@ -365,7 +365,7 @@ static const struct jedec_flash_info jedec_table[] = {
 		DevSize: SIZE_1MiB,
 		NumEraseRegions: 4,
 		regions: {ERASEINFO(0x10000,15),
-		          ERASEINFO(0x08000,1),
+			  ERASEINFO(0x08000,1),
 			  ERASEINFO(0x02000,2),
 			  ERASEINFO(0x04000,1)
 		}
@@ -376,7 +376,7 @@ static const struct jedec_flash_info jedec_table[] = {
 		DevSize: SIZE_2MiB,
 		NumEraseRegions: 4,
 		regions: {ERASEINFO(0x10000,31),
-		          ERASEINFO(0x08000,1),
+			  ERASEINFO(0x08000,1),
 			  ERASEINFO(0x02000,2),
 			  ERASEINFO(0x04000,1)
 		}
@@ -387,7 +387,7 @@ static const struct jedec_flash_info jedec_table[] = {
 		DevSize: SIZE_2MiB,
 		NumEraseRegions: 4,
 		regions: {ERASEINFO(0x04000,1),
-		          ERASEINFO(0x02000,2),
+			  ERASEINFO(0x02000,2),
 			  ERASEINFO(0x08000,1),
 			  ERASEINFO(0x10000,31)
 		}
@@ -398,7 +398,7 @@ static const struct jedec_flash_info jedec_table[] = {
 		DevSize: SIZE_4MiB,
 		NumEraseRegions: 2,
 		regions: {ERASEINFO(0x10000,63),
-		          ERASEINFO(0x02000,8)
+			  ERASEINFO(0x02000,8)
 		}
 
 	}, {
@@ -408,7 +408,7 @@ static const struct jedec_flash_info jedec_table[] = {
 		DevSize: SIZE_4MiB,
 		NumEraseRegions: 2,
 		regions: {ERASEINFO(0x02000,8),
-		          ERASEINFO(0x10000,63)
+			  ERASEINFO(0x10000,63)
 		}
 	}
 };

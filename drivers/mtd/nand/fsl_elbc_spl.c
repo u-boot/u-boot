@@ -59,20 +59,20 @@ static int nand_load_image(uint32_t offs, unsigned int uboot_size, void *vdst)
 	if (large) {
 		fmr |= FMR_ECCM;
 		out_be32(&regs->fcr, (NAND_CMD_READ0 << FCR_CMD0_SHIFT) |
-		                     (NAND_CMD_READSTART << FCR_CMD1_SHIFT));
+				     (NAND_CMD_READSTART << FCR_CMD1_SHIFT));
 		out_be32(&regs->fir,
-		         (FIR_OP_CW0 << FIR_OP0_SHIFT) |
-		         (FIR_OP_CA  << FIR_OP1_SHIFT) |
-		         (FIR_OP_PA  << FIR_OP2_SHIFT) |
-		         (FIR_OP_CW1 << FIR_OP3_SHIFT) |
-		         (FIR_OP_RBW << FIR_OP4_SHIFT));
+			 (FIR_OP_CW0 << FIR_OP0_SHIFT) |
+			 (FIR_OP_CA  << FIR_OP1_SHIFT) |
+			 (FIR_OP_PA  << FIR_OP2_SHIFT) |
+			 (FIR_OP_CW1 << FIR_OP3_SHIFT) |
+			 (FIR_OP_RBW << FIR_OP4_SHIFT));
 	} else {
 		out_be32(&regs->fcr, NAND_CMD_READ0 << FCR_CMD0_SHIFT);
 		out_be32(&regs->fir,
-		         (FIR_OP_CW0 << FIR_OP0_SHIFT) |
-		         (FIR_OP_CA  << FIR_OP1_SHIFT) |
-		         (FIR_OP_PA  << FIR_OP2_SHIFT) |
-		         (FIR_OP_RBW << FIR_OP3_SHIFT));
+			 (FIR_OP_CW0 << FIR_OP0_SHIFT) |
+			 (FIR_OP_CA  << FIR_OP1_SHIFT) |
+			 (FIR_OP_PA  << FIR_OP2_SHIFT) |
+			 (FIR_OP_RBW << FIR_OP3_SHIFT));
 	}
 
 	out_be32(&regs->fbcr, 0);

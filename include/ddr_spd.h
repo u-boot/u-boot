@@ -39,7 +39,7 @@ typedef struct ddr1_spd_eeprom_s {
 	unsigned char dev_attr;    /* 22 SDRAM Device Attributes */
 	unsigned char clk_cycle2;  /* 23 Min SDRAM Cycle time @ CL=X-0.5 */
 	unsigned char clk_access2; /* 24 SDRAM Access from
-				         Clk @ CL=X-0.5 (tAC) */
+					 Clk @ CL=X-0.5 (tAC) */
 	unsigned char clk_cycle3;  /* 25 Min SDRAM Cycle time @ CL=X-1 */
 	unsigned char clk_access3; /* 26 Max Access from Clk @ CL=X-1 (tAC) */
 	unsigned char trp;         /* 27 Min Row Precharge Time (tRP)*/
@@ -112,9 +112,9 @@ typedef struct ddr2_spd_eeprom_s {
 	unsigned char ca_setup;    /* 32 Addr+Cmd Setup Time Before Clk (tIS) */
 	unsigned char ca_hold;     /* 33 Addr+Cmd Hold Time After Clk (tIH) */
 	unsigned char data_setup;  /* 34 Data Input Setup Time
-				         Before Strobe (tDS) */
+					 Before Strobe (tDS) */
 	unsigned char data_hold;   /* 35 Data Input Hold Time
-				         After Strobe (tDH) */
+					 After Strobe (tDH) */
 	unsigned char twr;         /* 36 Write Recovery time tWR */
 	unsigned char twtr;        /* 37 Int write to read delay tWTR */
 	unsigned char trtp;        /* 38 Int read to precharge delay tRTP */
@@ -128,40 +128,40 @@ typedef struct ddr2_spd_eeprom_s {
 	unsigned char pll_relock;  /* 46 PLL Relock time */
 	unsigned char Tcasemax;    /* 47 Tcasemax */
 	unsigned char psiTAdram;   /* 48 Thermal Resistance of DRAM Package from
-				         Top (Case) to Ambient (Psi T-A DRAM) */
+					 Top (Case) to Ambient (Psi T-A DRAM) */
 	unsigned char dt0_mode;    /* 49 DRAM Case Temperature Rise from Ambient
-				         due to Activate-Precharge/Mode Bits
+					 due to Activate-Precharge/Mode Bits
 					 (DT0/Mode Bits) */
 	unsigned char dt2n_dt2q;   /* 50 DRAM Case Temperature Rise from Ambient
-				         due to Precharge/Quiet Standby
+					 due to Precharge/Quiet Standby
 					 (DT2N/DT2Q) */
 	unsigned char dt2p;        /* 51 DRAM Case Temperature Rise from Ambient
-				         due to Precharge Power-Down (DT2P) */
+					 due to Precharge Power-Down (DT2P) */
 	unsigned char dt3n;        /* 52 DRAM Case Temperature Rise from Ambient
-				         due to Active Standby (DT3N) */
+					 due to Active Standby (DT3N) */
 	unsigned char dt3pfast;    /* 53 DRAM Case Temperature Rise from Ambient
-				         due to Active Power-Down with
+					 due to Active Power-Down with
 					 Fast PDN Exit (DT3Pfast) */
 	unsigned char dt3pslow;    /* 54 DRAM Case Temperature Rise from Ambient
-				         due to Active Power-Down with Slow
+					 due to Active Power-Down with Slow
 					 PDN Exit (DT3Pslow) */
 	unsigned char dt4r_dt4r4w; /* 55 DRAM Case Temperature Rise from Ambient
-				         due to Page Open Burst Read/DT4R4W
+					 due to Page Open Burst Read/DT4R4W
 					 Mode Bit (DT4R/DT4R4W Mode Bit) */
 	unsigned char dt5b;        /* 56 DRAM Case Temperature Rise from Ambient
-				         due to Burst Refresh (DT5B) */
+					 due to Burst Refresh (DT5B) */
 	unsigned char dt7;         /* 57 DRAM Case Temperature Rise from Ambient
-				         due to Bank Interleave Reads with
+					 due to Bank Interleave Reads with
 					 Auto-Precharge (DT7) */
 	unsigned char psiTApll;    /* 58 Thermal Resistance of PLL Package form
-				         Top (Case) to Ambient (Psi T-A PLL) */
+					 Top (Case) to Ambient (Psi T-A PLL) */
 	unsigned char psiTAreg;    /* 59 Thermal Reisitance of Register Package
-				         from Top (Case) to Ambient
+					 from Top (Case) to Ambient
 					 (Psi T-A Register) */
 	unsigned char dtpllactive; /* 60 PLL Case Temperature Rise from Ambient
-				         due to PLL Active (DT PLL Active) */
+					 due to PLL Active (DT PLL Active) */
 	unsigned char dtregact;    /* 61 Register Case Temperature Rise from
-				         Ambient due to Register Active/Mode Bit
+					 Ambient due to Register Active/Mode Bit
 					 (DT Register Active/Mode Bit) */
 	unsigned char spd_rev;     /* 62 SPD Data Revision Code */
 	unsigned char cksum;       /* 63 Checksum for bytes 0-62 */

@@ -112,64 +112,64 @@
 
 #define ASM_0(opcode)			(opcode)
 #define ASM_1(opcode, rd)		((opcode) +		\
-	                                 ((rd) << 21))
+					 ((rd) << 21))
 #define ASM_1C(opcode, cr)		((opcode) +		\
-	                                 ((cr) << 23))
+					 ((cr) << 23))
 #define ASM_11(opcode, rd, rs)		((opcode) +		\
-	                                 ((rd) << 21) +		\
+					 ((rd) << 21) +		\
 					 ((rs) << 16))
 #define ASM_11C(opcode, cd, cs)		((opcode) +		\
-	                                 ((cd) << 23) +		\
+					 ((cd) << 23) +		\
 					 ((cs) << 18))
 #define ASM_11X(opcode, rd, rs)		((opcode) +		\
-	                                 ((rs) << 21) +		\
+					 ((rs) << 21) +		\
 					 ((rd) << 16))
 #define ASM_11I(opcode, rd, rs, simm)	((opcode) +		\
-	                                 ((rd) << 21) +		\
+					 ((rd) << 21) +		\
 					 ((rs) << 16) +		\
 					 ((simm) & 0xffff))
 #define ASM_11IF(opcode, rd, rs, simm)	((opcode) +		\
-	                                 ((rd) << 21) +		\
+					 ((rd) << 21) +		\
 					 ((rs) << 16) +		\
 					 ((simm) << 11))
 #define ASM_11S(opcode, rd, rs, sh)	((opcode) +		\
-	                                 ((rs) << 21) +		\
+					 ((rs) << 21) +		\
 					 ((rd) << 16) +		\
 					 ((sh) << 11))
 #define ASM_11IX(opcode, rd, rs, imm)	((opcode) +		\
-	                                 ((rs) << 21) +		\
+					 ((rs) << 21) +		\
 					 ((rd) << 16) +		\
 					 ((imm) & 0xffff))
 #define ASM_12(opcode, rd, rs1, rs2)	((opcode) +		\
-	                                 ((rd) << 21) +		\
+					 ((rd) << 21) +		\
 					 ((rs1) << 16) +	\
 					 ((rs2) << 11))
 #define ASM_12F(opcode, fd, fs1, fs2)	((opcode) +		\
-	                                 ((fd) << 21) +		\
+					 ((fd) << 21) +		\
 					 ((fs1) << 16) +	\
 					 ((fs2) << 11))
 #define ASM_12X(opcode, rd, rs1, rs2)	((opcode) +		\
-	                                 ((rs1) << 21) +	\
+					 ((rs1) << 21) +	\
 					 ((rd) << 16) +		\
 					 ((rs2) << 11))
 #define ASM_2C(opcode, cr, rs1, rs2)	((opcode) +		\
-	                                 ((cr) << 23) +		\
+					 ((cr) << 23) +		\
 					 ((rs1) << 16) +	\
 					 ((rs2) << 11))
 #define ASM_1IC(opcode, cr, rs, imm)	((opcode) +		\
-	                                 ((cr) << 23) +		\
+					 ((cr) << 23) +		\
 					 ((rs) << 16) +		\
 					 ((imm) & 0xffff))
 #define ASM_122(opcode, rd, rs1, rs2, imm1, imm2)		\
 					((opcode) +		\
-	                                 ((rs1) << 21) +	\
+					 ((rs1) << 21) +	\
 					 ((rd) << 16) +		\
 					 ((rs2) << 11) +	\
 					 ((imm1) << 6) +	\
 					 ((imm2) << 1))
 #define ASM_113(opcode, rd, rs, imm1, imm2, imm3)		\
 					((opcode) +		\
-	                                 ((rs) << 21) +		\
+					 ((rs) << 21) +		\
 					 ((rd) << 16) +		\
 					 ((imm1) << 11) +	\
 					 ((imm2) << 6) +	\

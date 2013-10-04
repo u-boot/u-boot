@@ -49,7 +49,7 @@ try:
 		["ignore-case","default","split="])
 except getopt.GetoptError as err:
 	print str(err) # will print something like "option -a not recognized"
-        sys.exit(2)
+	sys.exit(2)
 
 for o, a in opts:
 	if o in ("-s", "--split"):

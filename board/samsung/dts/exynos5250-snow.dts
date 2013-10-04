@@ -71,9 +71,9 @@
 		codec-enable-gpio = <&gpio 0xb7 0>;
 	};
 
-        sound@12d60000 {
-                status = "disabled";
-        };
+	sound@12d60000 {
+		status = "disabled";
+	};
 
 	i2c@12cd0000 {
 		soundcodec@22 {

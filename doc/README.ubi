@@ -188,8 +188,8 @@ ubifsls [directory]
 For example:
 
 => ubifsls
-            17442  Thu Jan 01 02:57:38 1970  imx28-evk.dtb
-          2998146  Thu Jan 01 02:57:43 1970  zImage
+	    17442  Thu Jan 01 02:57:38 1970  imx28-evk.dtb
+	  2998146  Thu Jan 01 02:57:43 1970  zImage
 
 
 And the ubifsload command allows you to load a file from a UBI

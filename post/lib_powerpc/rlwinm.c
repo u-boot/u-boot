@@ -107,7 +107,7 @@ int cpu_post_test_rlwinm (void)
 
 		if (ret != 0)
 		{
-	            post_log ("Error at rlwinm test %d !\n", i);
+		    post_log ("Error at rlwinm test %d !\n", i);
 		}
 	    }
 
@@ -120,8 +120,8 @@ int cpu_post_test_rlwinm (void)
 
 		if (ret != 0)
 		{
-	            post_log ("Error at rlwinm test %d !\n", i);
-	        }
+		    post_log ("Error at rlwinm test %d !\n", i);
+		}
 	    }
 	}
     }

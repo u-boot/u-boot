@@ -322,7 +322,7 @@
 		" ramdisk_size=${ramdisk_size}\0"			\
 	"addip=setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
-	        ":${hostname}:${netdev}:off panic=1\0"			\
+		":${hostname}:${netdev}:off panic=1\0"			\
 	"addtty=setenv bootargs ${bootargs} console=ttyS0,"		\
 		"${baudrate}\0"						\
 	"net_nfs=tftp ${kernel_mem_addr} ${file_kernel};"		\
@@ -352,7 +352,7 @@
 	"file_fs=/zeus/rootfs_ba.img\0"					\
 	"tftp_fs=tftp 100000 ${file_fs}\0"				\
 	"update_fs=protect off ff300000 ff87ffff;era ff300000 ff87ffff;"\
-	        "cp.b 100000 ff300000 580000\0"				\
+		"cp.b 100000 ff300000 580000\0"				\
 	"upd_fs=run tftp_fs;run update_fs\0"				\
 	"bootcmd=chkreset;run ramargs addip addtty addmisc;"		\
 		"bootm ${kernel_fl_addr} ${ramdisk_fl_addr}\0"		\

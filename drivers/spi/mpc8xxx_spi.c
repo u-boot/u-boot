@@ -110,10 +110,10 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		if (bitlen <= 16) {
 			if (bitlen <= 4)
 				spi->mode = (spi->mode & 0xff0fffff) |
-				            (3 << 20);
+					    (3 << 20);
 			else
 				spi->mode = (spi->mode & 0xff0fffff) |
-				            ((bitlen - 1) << 20);
+					    ((bitlen - 1) << 20);
 		} else {
 			spi->mode = (spi->mode & 0xff0fffff);
 			/* Set up the next iteration if sending > 32 bits */

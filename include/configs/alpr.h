@@ -148,7 +148,7 @@
 	"flash_self=run ramargs addip addtty;"				\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"     \
-	        "bootm\0"						\
+		"bootm\0"						\
 	"net_nfs_fdt=tftp 200000 ${bootfile};"				\
 		"tftp ${fdt_addr} ${fdt_file};"				\
 		"run nfsargs addip addtty;"				\

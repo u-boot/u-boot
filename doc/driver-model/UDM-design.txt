@@ -87,7 +87,7 @@ III) The drivers
   of the cores.
 
   FIXME: Should *cores[] be really struct driver, pointing to drivers that
-         represent the cores? Shouldn't it be core instance pointer?
+	 represent the cores? Shouldn't it be core instance pointer?
 
   2) Instantiation of a driver
   ----------------------------
@@ -101,7 +101,7 @@ III) The drivers
   functions.
 
   FIXME: We need some functions that will return list of busses of certain type
-         registered with the system so the user can find proper instance even if
+	 registered with the system so the user can find proper instance even if
 	 he has no bus pointer (this will come handy if the user isn't
 	 registering the driver from board init function, but somewhere else).
 
@@ -183,12 +183,12 @@ III) The drivers
   int driver_bind(struct instance *in)
   {
 	...
-        core_bind(&core_i2c_static_instance, in, i2c_bus_funcs);
-        ...
+	core_bind(&core_i2c_static_instance, in, i2c_bus_funcs);
+	...
   }
 
   FIXME: What if we need to run-time determine, depending on some hardware
-         register, what kind of i2c_bus_funcs to pass?
+	 register, what kind of i2c_bus_funcs to pass?
 
   This makes the i2c core aware of a new bus. The i2c_bus_funcs is a constant
   structure of functions any i2c bus driver must provide to work. This will
@@ -196,7 +196,7 @@ III) The drivers
   the pointer to the instance of a core this driver provides function to.
 
   FIXME: Maybe replace "core-i2c" with CORE_I2C global pointer to an instance of
-         the core?
+	 the core?
 
   4) The instantiation of a core driver
   -------------------------------------

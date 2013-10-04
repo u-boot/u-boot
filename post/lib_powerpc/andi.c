@@ -89,7 +89,7 @@ int cpu_post_test_andi (void)
 
 	    if (ret != 0)
 	    {
-	        post_log ("Error at andi test %d !\n", i);
+		post_log ("Error at andi test %d !\n", i);
 	    }
 	}
     }

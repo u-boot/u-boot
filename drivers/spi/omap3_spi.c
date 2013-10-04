@@ -50,7 +50,7 @@ static void omap3_spi_write_chconf(struct omap3_spi_slave *ds, int val)
 static void omap3_spi_set_enable(struct omap3_spi_slave *ds, int enable)
 {
 	writel(enable, &ds->regs->channel[ds->slave.cs].chctrl);
-        /* Flash post writes to make immediate effect */
+	/* Flash post writes to make immediate effect */
 	readl(&ds->regs->channel[ds->slave.cs].chctrl);
 }
 
@@ -253,9 +253,9 @@ int omap3_spi_write(struct spi_slave *slave, unsigned int len, const u8 *txp,
 		writel(txp[i], &ds->regs->channel[ds->slave.cs].tx);
 	}
 
-        /* wait to finish of transfer */
-        while (!(readl(&ds->regs->channel[ds->slave.cs].chstat) &
-                         OMAP3_MCSPI_CHSTAT_EOT));
+	/* wait to finish of transfer */
+	while (!(readl(&ds->regs->channel[ds->slave.cs].chstat) &
+			 OMAP3_MCSPI_CHSTAT_EOT));
 
 	/* Disable the channel otherwise the next immediate RX will get affected */
 	omap3_spi_set_enable(ds,OMAP3_MCSPI_CHCTRL_DIS);
@@ -359,7 +359,7 @@ int omap3_spi_txrx(struct spi_slave *slave,
 		rxp[i] = readl(&ds->regs->channel[ds->slave.cs].rx);
 	}
 	/* Disable the channel */
-        omap3_spi_set_enable(ds,OMAP3_MCSPI_CHCTRL_DIS);
+	omap3_spi_set_enable(ds,OMAP3_MCSPI_CHCTRL_DIS);
 
 	/*if transfer must be terminated disable the channel*/
 	if (flags & SPI_XFER_END) {

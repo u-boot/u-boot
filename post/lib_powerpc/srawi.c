@@ -108,7 +108,7 @@ int cpu_post_test_srawi (void)
 
 		if (ret != 0)
 		{
-	            post_log ("Error at srawi test %d !\n", i);
+		    post_log ("Error at srawi test %d !\n", i);
 		}
 	    }
 
@@ -121,8 +121,8 @@ int cpu_post_test_srawi (void)
 
 		if (ret != 0)
 		{
-	            post_log ("Error at srawi test %d !\n", i);
-	        }
+		    post_log ("Error at srawi test %d !\n", i);
+		}
 	    }
 	}
     }

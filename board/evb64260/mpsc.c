@@ -785,7 +785,7 @@ galmpsc_shutdown(int mpsc)
 
 	GT_REG_WRITE(GALSDMA_0_COM_REG + CHANNEL * GALSDMA_REG_DIFF, 0);
 	GT_REG_WRITE(GALSDMA_0_COM_REG + CHANNEL * GALSDMA_REG_DIFF,
-	             SDMA_TX_ABORT | SDMA_RX_ABORT);
+		     SDMA_TX_ABORT | SDMA_RX_ABORT);
 
 	/* shut down the MPSC */
 	GT_REG_WRITE(GALMPSC_MCONF_LOW, 0);
@@ -797,7 +797,7 @@ galmpsc_shutdown(int mpsc)
 	/* shut down the sdma engines. */
 	/* reset config to default */
 	GT_REG_WRITE(GALSDMA_0_CONF_REG + CHANNEL * GALSDMA_REG_DIFF,
-	             0x000000fc);
+		     0x000000fc);
 
 	udelay(100);
 

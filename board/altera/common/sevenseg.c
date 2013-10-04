@@ -87,10 +87,10 @@ static inline void __sevenseg_set (unsigned int value)
 
 #if (SEVENSEG_ACTIVE == 0)
 	sevenseg_portval = (sevenseg_portval &   SEVENDEG_MASK_DP)
-		         | ((~value)         & (~SEVENDEG_MASK_DP));
+			 | ((~value)         & (~SEVENDEG_MASK_DP));
 #else
 	sevenseg_portval = (sevenseg_portval & SEVENDEG_MASK_DP)
-		         | (value);
+			 | (value);
 #endif
 
 	piop->data = sevenseg_portval;

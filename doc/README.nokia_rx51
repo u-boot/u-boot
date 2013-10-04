@@ -62,7 +62,7 @@ Available additional commands/variables:
  * run trymmcscriptboot - Try to load and boot script ${mmcscriptfile}
  * run trymmckernboot - Try to load and boot kernel image ${mmckernfile}
  * run trymmckerninitrdboot - Try to load and boot kernel image ${mmckernfile}
-                              with initrd image ${mmcinitrdfile}
+			      with initrd image ${mmcinitrdfile}
 
 Additional variables for loading files from mmc:
 

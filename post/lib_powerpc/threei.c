@@ -103,7 +103,7 @@ int cpu_post_test_threei (void)
 
 	    if (ret != 0)
 	    {
-	        post_log ("Error at threei test %d !\n", i);
+		post_log ("Error at threei test %d !\n", i);
 	    }
 	}
     }

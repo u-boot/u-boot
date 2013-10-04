@@ -139,6 +139,6 @@ phys_size_t initdram (int board_type)
 #if defined(CONFIG_CMD_DOC)
 void doc_init (void)
 {
-	        doc_probe (CONFIG_SYS_DOC_BASE);
+		doc_probe (CONFIG_SYS_DOC_BASE);
 }
 #endif

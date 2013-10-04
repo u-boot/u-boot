@@ -131,7 +131,7 @@
 	"flash_self=run ramargs addip addtty;"				\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"     \
-	        "bootm\0"						\
+		"bootm\0"						\
 	"rootpath=/opt/buildroot\0"					\
 	"bootfile=/tftpboot/netbox/uImage\0"				\
 	"kernel_addr=50080000\0"					\
@@ -280,7 +280,7 @@
 #define I2C_TRISTATE	GPIO_OUTPUT_DISABLE(CONFIG_SYS_GPIO_I2C_SDA)
 #define I2C_READ	((*IXP425_GPIO_GPINR & PB_SDA) != 0)
 #define I2C_SDA(bit)	if (bit) GPIO_OUTPUT_SET(CONFIG_SYS_GPIO_I2C_SDA);	\
-	                else     GPIO_OUTPUT_CLEAR(CONFIG_SYS_GPIO_I2C_SDA)
+			else     GPIO_OUTPUT_CLEAR(CONFIG_SYS_GPIO_I2C_SDA)
 #define I2C_SCL(bit)	if (bit) GPIO_OUTPUT_SET(CONFIG_SYS_GPIO_I2C_SCL);	\
 			else     GPIO_OUTPUT_CLEAR(CONFIG_SYS_GPIO_I2C_SCL)
 #define I2C_DELAY	udelay(3)	/* 1/4 I2C clock duration */

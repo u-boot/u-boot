@@ -19,7 +19,7 @@ OBJS    := $(addprefix $(obj),$(COBJS))
 SOBJS   := $(addprefix $(obj),$(SOBJS))
 
 $(LIB): $(obj).depend $(OBJS)
-	        $(call cmd_link_o_target, $(OBJS))
+		$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

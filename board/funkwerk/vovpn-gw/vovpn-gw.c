@@ -270,9 +270,9 @@ int misc_init_r (void)
 	for (i = 0; i < 64; i++) {
 		c = *dummy;
 		printf( "UPMA[%02d]: 0x%08lx,0x%08lx: 0x%08lx\n",i,
-		        memctl->memc_mamr,
-		        memctl->memc_mar,
-		        memctl->memc_mdr );
+			memctl->memc_mamr,
+			memctl->memc_mar,
+			memctl->memc_mdr );
 	}
 	memctl->memc_mamr = 0x00044440;
 #endif

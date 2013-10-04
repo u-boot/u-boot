@@ -407,7 +407,7 @@ static int flash_full_status_check(flash_info_t * info, ulong sector, ulong tout
 			printf("Command Sequence Error.\n");
 		} else if(flash_isset(info, sector, 0, FLASH_STATUS_ECLBS)){
 			printf("Block Erase Error.\n");
-		        retcode = ERR_NOT_ERASED;
+			retcode = ERR_NOT_ERASED;
 		} else if (flash_isset(info, sector, 0, FLASH_STATUS_PSLBS)) {
 			printf("Locking Error\n");
 		}

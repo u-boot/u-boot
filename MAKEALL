@@ -38,8 +38,8 @@ usage()
 	  BUILD_NCPUS      number of parallel make jobs (default: auto)
 	  CROSS_COMPILE    cross-compiler toolchain prefix (default: "")
 	  CROSS_COMPILE_<ARCH> cross-compiler toolchain prefix for
-	                   architecture "ARCH".  Substitute "ARCH" for any
-	                   supported architecture (default: "")
+			   architecture "ARCH".  Substitute "ARCH" for any
+			   supported architecture (default: "")
 	  MAKEALL_LOGDIR   output all logs to here (default: ./LOG/)
 	  BUILD_DIR        output build directory (default: ./)
 	  BUILD_NBUILDS	   number of parallel targets (default: 1)

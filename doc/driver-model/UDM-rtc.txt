@@ -12,15 +12,15 @@ U-Boot currently implements one common API for RTC devices. The interface
 is defined in include/rtc.h and comprises of functions and structures:
 
     struct rtc_time {
-        int tm_sec;
-        int tm_min;
-        int tm_hour;
-        int tm_mday;
-        int tm_mon;
-        int tm_year;
-        int tm_wday;
-        int tm_yday;
-        int tm_isdst;
+	int tm_sec;
+	int tm_min;
+	int tm_hour;
+	int tm_mday;
+	int tm_mon;
+	int tm_year;
+	int tm_wday;
+	int tm_yday;
+	int tm_isdst;
     };
 
     int rtc_get (struct rtc_time *);
@@ -42,14 +42,14 @@ II) Approach
   In the UDM each rtc driver would register itself by a function
 
     int rtc_device_register(struct instance *i,
-                            struct rtc_device_ops *o);
+			    struct rtc_device_ops *o);
 
   The structure being defined as follows:
 
     struct rtc_device_ops {
-        int  (*get_time)(struct instance *i, struct rtc_time *t);
-        int  (*set_time)(struct instance *i, struct rtc_time *t);
-        int  (*reset)(struct instance *i);
+	int  (*get_time)(struct instance *i, struct rtc_time *t);
+	int  (*set_time)(struct instance *i, struct rtc_time *t);
+	int  (*reset)(struct instance *i);
     };
 
 

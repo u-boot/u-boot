@@ -746,7 +746,7 @@ static int gt_read_config_dword (struct pci_controller *hose,
 	int bus = PCI_BUS (dev);
 
 	if ((bus == local_buses[0]) || (bus == local_buses[1])) {
-	        *value = pciReadConfigReg ((PCI_HOST) hose->cfg_addr,
+		*value = pciReadConfigReg ((PCI_HOST) hose->cfg_addr,
 					   offset | (PCI_FUNC(dev) << 8),
 					   PCI_DEV (dev));
 	} else {

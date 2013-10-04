@@ -487,7 +487,7 @@ flash_erase(flash_info_t *info, int s_first, int s_last)
 
 	if (haderr > 0) {
 		printf (" failed\n");
-	        rcode = 1;
+		rcode = 1;
 	}
 	else
 		printf (" done\n");

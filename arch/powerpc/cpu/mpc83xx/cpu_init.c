@@ -425,15 +425,15 @@ static int print_83xx_arb_event(int force)
 	};
 
 	int etype = (gd->arch.arbiter_event_attributes & AEATR_EVENT)
-	            >> AEATR_EVENT_SHIFT;
+		    >> AEATR_EVENT_SHIFT;
 	int mstr_id = (gd->arch.arbiter_event_attributes & AEATR_MSTR_ID)
-	              >> AEATR_MSTR_ID_SHIFT;
+		      >> AEATR_MSTR_ID_SHIFT;
 	int tbst = (gd->arch.arbiter_event_attributes & AEATR_TBST)
-	           >> AEATR_TBST_SHIFT;
+		   >> AEATR_TBST_SHIFT;
 	int tsize = (gd->arch.arbiter_event_attributes & AEATR_TSIZE)
-	            >> AEATR_TSIZE_SHIFT;
+		    >> AEATR_TSIZE_SHIFT;
 	int ttype = (gd->arch.arbiter_event_attributes & AEATR_TTYPE)
-	            >> AEATR_TTYPE_SHIFT;
+		    >> AEATR_TTYPE_SHIFT;
 
 	if (!force && !gd->arch.arbiter_event_address)
 		return 0;

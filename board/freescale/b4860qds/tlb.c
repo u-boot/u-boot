@@ -68,7 +68,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      0, 3, BOOKE_PAGESZ_256M, 1),
 
 	SET_TLB_ENTRY(1, CONFIG_SYS_PCIE1_MEM_VIRT + 0x10000000,
-                      CONFIG_SYS_PCIE1_MEM_PHYS + 0x10000000,
+		      CONFIG_SYS_PCIE1_MEM_PHYS + 0x10000000,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 4, BOOKE_PAGESZ_256M, 1),
 

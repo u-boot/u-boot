@@ -63,10 +63,10 @@ int main (int argc, char **argv)
 		sha1_csum ((unsigned char *) data, len, (unsigned char *)output);
 
 		printf ("U-Boot sum:\n");
-	        for (i = 0; i < 20 ; i++) {
-	            printf ("%02X ", output[i]);
-	        }
-	        printf ("\n");
+		for (i = 0; i < 20 ; i++) {
+		    printf ("%02X ", output[i]);
+		}
+		printf ("\n");
 		/* overwrite the sum in the bin file, with the actual */
 		lseek (ifd, SHA1_SUM_POS, SEEK_END);
 		if (write (ifd, output, SHA1_SUM_LEN) != SHA1_SUM_LEN) {

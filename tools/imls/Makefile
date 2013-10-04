@@ -39,7 +39,7 @@ LIBFDT_OBJS	:= $(addprefix $(obj),$(LIBFDT_OBJ_FILES-y))
 HOSTCPPFLAGS  = -idirafter $(SRCTREE)/include \
 		-idirafter $(OBJTREE)/include2 \
 		-idirafter $(OBJTREE)/include \
-	        -I $(SRCTREE)/lib/libfdt \
+		-I $(SRCTREE)/lib/libfdt \
 		-I $(SRCTREE)/tools \
 		-DUSE_HOSTCC -D__KERNEL_STRICT_NAMES
 

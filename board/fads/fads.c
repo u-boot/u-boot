@@ -434,7 +434,7 @@ static int _initsdram(uint base, uint noMbytes)
 	*/
 
 	memctl->memc_mcr = 0x80808111;   /* run umpb cs4 1 count 1, addr 0x11 ??? (50MHz) */
-	                                 /* run umpb cs4 1 count 1, addr 0x11 precharge+MRS (100MHz) */
+					 /* run umpb cs4 1 count 1, addr 0x11 precharge+MRS (100MHz) */
 	udelay(200);
 
 	/* Run 8 refresh cycles */
@@ -567,7 +567,7 @@ static int initsdram(uint base, uint *noMbytes)
 
 	if(!_initsdram(base, m))
 	{
-	        *noMbytes += m;
+		*noMbytes += m;
 		return 0;
 	}
 	else

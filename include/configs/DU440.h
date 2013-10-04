@@ -223,7 +223,7 @@
 	"flash_self=run ramargs addip addtty optargs;"			\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 200000 ${img};run nfsargs addip addtty optargs;"	\
-	        "bootm\0"						\
+		"bootm\0"						\
 	"rootpath=/tftpboot/du440/target_root_du440\0"			\
 	"img=/tftpboot/du440/uImage\0"					\
 	"kernel_addr=FFC00000\0"					\

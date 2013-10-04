@@ -260,7 +260,7 @@ static int plb2800_eth_recv(struct eth_device *dev)
 			printf("Received %d bytes\n", length);
 #endif
 			NetReceive((void*)(NetRxPackets[rx_new]),
-			            length - 4);
+				    length - 4);
 		}
 		else
 		{

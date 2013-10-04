@@ -50,7 +50,7 @@ TFTP from server 192.168.1.1; our IP address is 192.168.20.71
 Filename '/tftpboot/ipam390/u-boot.ais'.
 Load address: 0xc0000000
 Loading: ##################################
-         1.5 MiB/s
+	 1.5 MiB/s
 done
 Bytes transferred = 493716 (78894 hex)
 

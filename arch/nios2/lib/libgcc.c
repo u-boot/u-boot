@@ -548,7 +548,7 @@ __mulsi3 (SItype a, SItype b)
   while (cnt)
     {
       if (cnt & 1)
-        {
+	{
 	  res += b;
 	}
       b <<= 1;

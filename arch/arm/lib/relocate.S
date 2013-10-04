@@ -66,9 +66,9 @@ relocate_done:
 	/* ARMv4- don't know bx lr but the assembler fails to see that */
 
 #ifdef __ARM_ARCH_4__
-        mov        pc, lr
+	mov        pc, lr
 #else
-        bx        lr
+	bx        lr
 #endif
 
 ENDPROC(relocate_code)

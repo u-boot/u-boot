@@ -17,7 +17,7 @@ V0.11	06/20/2001	REG_0A bit3=1, default enable BP with DA match
 		R17 = (R17 & 0xfff0) | NF
 
 v1.00			modify by simon 2001.9.5
-	                change for kernel 2.4.x
+			change for kernel 2.4.x
 
 v1.1   11/09/2001	fix force mode bug
 

@@ -9,7 +9,7 @@
  * Neutralize little endians.
  */
 #define SWAP_LONG(data) ((unsigned long)                                  \
-		         (((unsigned long)(data) >> 24)                 | \
+			 (((unsigned long)(data) >> 24)                 | \
 			  ((unsigned long)(data)  << 24)                | \
 			  (((unsigned long)(data) >> 8) & 0x0000ff00 )  | \
 			   (((unsigned long)(data) << 8) & 0x00ff0000 )))

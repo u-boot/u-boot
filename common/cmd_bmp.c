@@ -121,9 +121,9 @@ static int do_bmp_display(cmd_tbl_t * cmdtp, int flag, int argc, char * const ar
 		break;
 	case 4:
 		addr = simple_strtoul(argv[1], NULL, 16);
-	        x = simple_strtoul(argv[2], NULL, 10);
-	        y = simple_strtoul(argv[3], NULL, 10);
-	        break;
+		x = simple_strtoul(argv[2], NULL, 10);
+		y = simple_strtoul(argv[3], NULL, 10);
+		break;
 	default:
 		return CMD_RET_USAGE;
 	}

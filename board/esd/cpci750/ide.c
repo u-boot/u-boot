@@ -43,7 +43,7 @@ int ide_preinit (void)
 	if (devbusfn != -1) {
 		cpci_hd_type = 1;
 	} else {
-	        devbusfn = pci_find_device (0x1095, 0x3114, 0);
+		devbusfn = pci_find_device (0x1095, 0x3114, 0);
 		if (devbusfn != -1) {
 			cpci_hd_type = 2;
 		}

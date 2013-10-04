@@ -3,8 +3,8 @@
 /include/ "coreboot.dtsi"
 
 / {
-        #address-cells = <1>;
-        #size-cells = <1>;
+	#address-cells = <1>;
+	#size-cells = <1>;
 	model = "Google Alex";
 	compatible = "google,alex", "intel,atom-pineview";
 
@@ -12,13 +12,13 @@
 	       silent_console = <0>;
 	};
 
-        gpio: gpio {};
+	gpio: gpio {};
 
 	serial {
 		reg = <0x3f8 8>;
 		clock-frequency = <115200>;
 	};
 
-        chosen { };
-        memory { device_type = "memory"; reg = <0 0>; };
+	chosen { };
+	memory { device_type = "memory"; reg = <0 0>; };
 };

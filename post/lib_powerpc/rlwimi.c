@@ -114,7 +114,7 @@ int cpu_post_test_rlwimi (void)
 
 		if (ret != 0)
 		{
-	            post_log ("Error at rlwimi test %d !\n", i);
+		    post_log ("Error at rlwimi test %d !\n", i);
 		}
 	    }
 
@@ -127,8 +127,8 @@ int cpu_post_test_rlwimi (void)
 
 		if (ret != 0)
 		{
-	            post_log ("Error at rlwimi test %d !\n", i);
-	        }
+		    post_log ("Error at rlwimi test %d !\n", i);
+		}
 	    }
 	}
     }

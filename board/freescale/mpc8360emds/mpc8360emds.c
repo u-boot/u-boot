@@ -427,7 +427,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 			if (prop) {
 				path = fdt_path_offset(blob, prop);
 				prop = fdt_getprop(blob, path,
-				                   "phy-connection-type", 0);
+						   "phy-connection-type", 0);
 				if (prop && (strcmp(prop, "rgmii-id") == 0))
 					fdt_fixup_phy_connection(blob, path,
 						PHY_INTERFACE_MODE_RGMII_RXID);
@@ -439,7 +439,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 			if (prop) {
 				path = fdt_path_offset(blob, prop);
 				prop = fdt_getprop(blob, path,
-				                   "phy-connection-type", 0);
+						   "phy-connection-type", 0);
 				if (prop && (strcmp(prop, "rgmii-id") == 0))
 					fdt_fixup_phy_connection(blob, path,
 						PHY_INTERFACE_MODE_RGMII_RXID);

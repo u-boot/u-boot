@@ -475,7 +475,7 @@ void do_epcs_info (struct epcs_devinfo_t *dev, int argc, char * const argv[])
 	printf ("status: 0x%02x (WIP:%d, WEL:%d, PROT:%s)\n",
 		stat,
 		(stat & EPCS_STATUS_WIP) ? 1 : 0,
-	        (stat & EPCS_STATUS_WEL) ? 1 : 0,
+		(stat & EPCS_STATUS_WEL) ? 1 : 0,
 		(stat & dev->prot_mask) ? "on" : "off" );
 
 	/* Configuration  */

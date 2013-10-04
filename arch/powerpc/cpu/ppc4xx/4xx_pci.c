@@ -143,14 +143,14 @@ void pci_405gp_init(struct pci_controller *hose)
 	ptmla_str = getenv("ptm1la");
 	ptmms_str = getenv("ptm1ms");
 	if(NULL != ptmla_str && NULL != ptmms_str ) {
-	        ptmla[0] = simple_strtoul (ptmla_str, NULL, 16);
+		ptmla[0] = simple_strtoul (ptmla_str, NULL, 16);
 		ptmms[0] = simple_strtoul (ptmms_str, NULL, 16);
 	}
 
 	ptmla_str = getenv("ptm2la");
 	ptmms_str = getenv("ptm2ms");
 	if(NULL != ptmla_str && NULL != ptmms_str ) {
-	        ptmla[1] = simple_strtoul (ptmla_str, NULL, 16);
+		ptmla[1] = simple_strtoul (ptmla_str, NULL, 16);
 		ptmms[1] = simple_strtoul (ptmms_str, NULL, 16);
 	}
 #endif

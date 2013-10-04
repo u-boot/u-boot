@@ -60,7 +60,7 @@ flash_init (void)
 #define CONFIG_SYS_BOOT_FLASH_WIDTH	1
 #endif
 	size_b0 = flash_get_size(CONFIG_SYS_BOOT_FLASH_WIDTH, (vu_long *)base,
-	                         &flash_info[0]);
+				 &flash_info[0]);
 
 #ifndef CONFIG_P3G4
 	printf("[");
@@ -97,17 +97,17 @@ flash_init (void)
 #if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
 	/* monitor protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-	              CONFIG_SYS_MONITOR_BASE,
-	              CONFIG_SYS_MONITOR_BASE + monitor_flash_len - 1,
-	              flash_get_info(CONFIG_SYS_MONITOR_BASE));
+		      CONFIG_SYS_MONITOR_BASE,
+		      CONFIG_SYS_MONITOR_BASE + monitor_flash_len - 1,
+		      flash_get_info(CONFIG_SYS_MONITOR_BASE));
 #endif
 
 #ifdef  CONFIG_ENV_IS_IN_FLASH
 	/* ENV protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-	              CONFIG_ENV_ADDR,
-	              CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1,
-	              flash_get_info(CONFIG_ENV_ADDR));
+		      CONFIG_ENV_ADDR,
+		      CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1,
+		      flash_get_info(CONFIG_ENV_ADDR));
 #endif
 
 	flash_size = size_b0 + size_b1;

@@ -142,8 +142,8 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 			ops.mode = MTD_OPS_AUTO_OOB;
 
 			result = mtd_write_oob(meminfo,
-			                            erase.addr,
-			                            &ops);
+						    erase.addr,
+						    &ops);
 			if (result != 0) {
 				printf("\n%s: MTD writeoob failure: %d\n",
 				       mtd_device, result);

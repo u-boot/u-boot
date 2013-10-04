@@ -194,7 +194,7 @@
 	"flash_self=run ramargs addip addtty;"				\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"     \
-	        "bootm\0"						\
+		"bootm\0"						\
 	"rootpath=/opt/eldk/ppc_6xx\0"					\
 	"u-boot=p3mx/u-boot/u-boot.bin\0"				\
 	"load=tftp 100000 ${u-boot}\0"					\

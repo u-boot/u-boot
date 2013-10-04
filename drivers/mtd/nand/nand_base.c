@@ -3282,7 +3282,7 @@ int nand_scan_tail(struct mtd_info *mtd)
 
 	case NAND_ECC_NONE:
 		pr_warn("NAND_ECC_NONE selected by board driver. "
-		        "This is not recommended !!\n");
+			"This is not recommended !!\n");
 		chip->ecc.read_page = nand_read_page_raw;
 		chip->ecc.write_page = nand_write_page_raw;
 		chip->ecc.read_oob = nand_read_oob_std;

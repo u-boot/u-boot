@@ -211,7 +211,7 @@ int cpu_post_test_three (void)
 
 		if (ret != 0)
 		{
-	            post_log ("Error at three test %d !\n", i);
+		    post_log ("Error at three test %d !\n", i);
 		}
 	    }
 
@@ -224,8 +224,8 @@ int cpu_post_test_three (void)
 
 		if (ret != 0)
 		{
-	            post_log ("Error at three test %d !\n", i);
-	        }
+		    post_log ("Error at three test %d !\n", i);
+		}
 	    }
 	}
     }

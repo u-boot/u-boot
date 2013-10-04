@@ -134,7 +134,7 @@ build_main_index = rm -rf $(main_idx); \
 quiet_cmd_db2html = HTML    $@
       cmd_db2html = xmlto html $(XMLTOFLAGS) -o $(patsubst %.html,%,$@) $< && \
 		echo '<a HREF="$(patsubst %.html,%,$(notdir $@))/index.html"> \
-        $(patsubst %.html,%,$(notdir $@))</a><p>' > $@
+	$(patsubst %.html,%,$(notdir $@))</a><p>' > $@
 
 %.html:	%.xml
 	@(which xmlto > /dev/null 2>&1) || \
@@ -143,7 +143,7 @@ quiet_cmd_db2html = HTML    $@
 	@rm -rf $@ $(patsubst %.html,%,$@)
 	$(call cmd_db2html)
 	@if [ ! -z "$(PNG-$(basename $(notdir $@)))" ]; then \
-            cp $(PNG-$(basename $(notdir $@))) $(patsubst %.html,%,$@); fi
+	    cp $(PNG-$(basename $(notdir $@))) $(patsubst %.html,%,$@); fi
 
 quiet_cmd_db2man = MAN     $@
       cmd_db2man = if grep -q refentry $<; then xmlto man $(XMLTOFLAGS) -o $(obj)/man $< ; gzip -f $(obj)/man/*.9; fi

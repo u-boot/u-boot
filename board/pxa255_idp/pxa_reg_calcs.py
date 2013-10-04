@@ -21,7 +21,7 @@ class gpio:
 		self.clr = clr
 		self.alt = alt
 		self.desc = desc
-
+		
 
 # the following is a dictionary of all GPIOs in the system
 # the key is the GPIO number
@@ -280,8 +280,8 @@ for reg in registers:
 
 # print define to past right into U-Boot source code
 
-print
-print
+print 
+print 
 
 for reg in registers:
 	print '#define %s	0x%x' % (uboot_reg_names[reg], pxa_regs[reg])

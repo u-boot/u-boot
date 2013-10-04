@@ -365,7 +365,7 @@ static void process_boot_delay(void)
 #ifdef CONFIG_BOOTCOUNT_LIMIT
 	if (bootlimit && (bootcount > bootlimit)) {
 		printf ("Warning: Bootlimit (%u) exceeded. Using altbootcmd.\n",
-		        (unsigned)bootlimit);
+			(unsigned)bootlimit);
 		s = getenv ("altbootcmd");
 	}
 	else

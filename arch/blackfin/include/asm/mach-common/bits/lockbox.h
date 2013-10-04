@@ -16,7 +16,7 @@ typedef struct SESR_args {
 	unsigned long   ulMessageSize;      /* message length in bytes            */
 	unsigned long   ulSFEntryPoint;     /* entry point of secure function     */
 	unsigned long   ulMessagePtr;       /* pointer to the buffer containing
-	                                       the digital signature and message  */
+					       the digital signature and message  */
 	unsigned long   ulReserved1;        /* reserved                           */
 	unsigned long   ulReserved2;        /* reserved                           */
 } tSESR_args;

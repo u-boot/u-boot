@@ -320,7 +320,7 @@ endif
 
 # Linus' kernel sanity checking tool
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
-                  -Wbitwise -Wno-return-void -D__CHECK_ENDIAN__ $(CF)
+		  -Wbitwise -Wno-return-void -D__CHECK_ENDIAN__ $(CF)
 
 # Location of a usable BFD library, where we define "usable" as
 # "built for ${HOST}, supports ${TARGET}".  Sensible values are

@@ -127,8 +127,8 @@ static int uncompress_using_gzip(void *in, unsigned long in_size,
 }
 
 static int compress_using_bzip2(void *in, unsigned long in_size,
-			        void *out, unsigned long out_max,
-			        unsigned long *out_size)
+				void *out, unsigned long out_max,
+				unsigned long *out_size)
 {
 	/* There is no bzip2 compression in u-boot, so fake it. */
 	assert(in_size == strlen(plain));

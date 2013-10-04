@@ -182,7 +182,7 @@ flash_get_offsets (ulong base, flash_info_t *info)
 
 		default:
 			printf ("Don't know sector offsets for FLASH"
-			        " type 0x%lx\n", info->flash_id);
+				" type 0x%lx\n", info->flash_id);
 	    return;
 	}
 }
