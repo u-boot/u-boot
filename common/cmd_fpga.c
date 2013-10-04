@@ -160,9 +160,25 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 				image_header_t *hdr =
 						(image_header_t *)fpga_data;
 				ulong data;
+				uint8_t comp;
 
-				data = (ulong)image_get_data(hdr);
-				data_size = image_get_data_size(hdr);
+				comp = image_get_comp(hdr);
+				if (comp == IH_COMP_GZIP) {
+					ulong image_buf = image_get_data(hdr);
+					data = image_get_load(hdr);
+					ulong image_size = ~0UL;
+
+					if (gunzip((void *)data, ~0UL,
+						   (void *)image_buf,
+						   &image_size) != 0) {
+						puts("GUNZIP: error\n");
+						return 1;
+					}
+					data_size = image_size;
+				} else {
+					data = (ulong)image_get_data(hdr);
+					data_size = image_get_data_size(hdr);
+				}
 				rc = fpga_load(dev, (void *)data, data_size);
 			}
 			break;
