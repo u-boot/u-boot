@@ -184,7 +184,7 @@ int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 		eth_setenv_enetaddr("usbethaddr", device_mac);
 	}
 
-	ret = omap_ehci_hcd_init(&usbhs_bdata, hccr, hcor);
+	ret = omap_ehci_hcd_init(index, &usbhs_bdata, hccr, hcor);
 	if (ret < 0) {
 		puts("Failed to initialize ehci\n");
 		return ret;

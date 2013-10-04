@@ -26,6 +26,7 @@
 #include <power/max8997_muic.h>
 #include <power/battery.h>
 #include <power/max17042_fg.h>
+#include <usb.h>
 #include <usb_mass_storage.h>
 
 #include "setup.h"
@@ -495,10 +496,10 @@ struct s3c_plat_otg_data s5pc210_otg_data = {
 	.usb_flags	= PHY0_SLEEP,
 };
 
-void board_usb_init(void)
+int board_usb_init(int index, enum board_usb_init_type init)
 {
 	debug("USB_udc_probe\n");
-	s3c_udc_probe(&s5pc210_otg_data);
+	return s3c_udc_probe(&s5pc210_otg_data);
 }
 #endif
 

@@ -279,7 +279,7 @@ int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 	utmi_clk |= HSUSBHOST_CLKCTRL_CLKSEL_UTMI_P1_MASK;
 	sr32((void *)CM_L3INIT_HSUSBHOST_CLKCTRL, 0, 32, utmi_clk);
 
-	ret = omap_ehci_hcd_init(&usbhs_bdata, hccr, hcor);
+	ret = omap_ehci_hcd_init(index, &usbhs_bdata, hccr, hcor);
 	if (ret < 0)
 		return ret;
 

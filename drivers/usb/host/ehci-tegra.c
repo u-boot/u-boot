@@ -699,7 +699,7 @@ static int process_usb_nodes(const void *blob, int node_list[], int count)
 	return 0;
 }
 
-int board_usb_init(const void *blob)
+int usb_process_devicetree(const void *blob)
 {
 	int node_list[USB_PORTS_MAX];
 	int count, err = 0;

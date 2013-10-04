@@ -27,6 +27,7 @@
 #endif
 #include <serial.h>
 #include <asm/4xx_pci.h>
+#include <usb.h>
 
 #include "fpga.h"
 #include "pmc440.h"
@@ -821,7 +822,7 @@ int bootstrap_eeprom_read (unsigned dev_addr, unsigned offset,
 }
 
 #if defined(CONFIG_USB_OHCI_NEW) && defined(CONFIG_SYS_USB_OHCI_BOARD_INIT)
-int usb_board_init(void)
+int board_usb_init(int index, enum board_usb_init_type init)
 {
 	char *act = getenv("usbact");
 	int i;
@@ -845,10 +846,9 @@ int usb_board_stop(void)
 	return 0;
 }
 
-int usb_board_init_fail(void)
+int board_usb_cleanup(int index, enum board_usb_init_type init)
 {
-	usb_board_stop();
-	return 0;
+	return usb_board_stop();
 }
 #endif /* defined(CONFIG_USB_OHCI) && defined(CONFIG_SYS_USB_OHCI_BOARD_INIT) */
 

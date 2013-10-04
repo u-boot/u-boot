@@ -591,7 +591,7 @@ int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, offset, 0xC0);
 	udelay(1);
 
-	return omap_ehci_hcd_init(&usbhs_bdata, hccr, hcor);
+	return omap_ehci_hcd_init(index, &usbhs_bdata, hccr, hcor);
 }
 
 int ehci_hcd_stop(void)

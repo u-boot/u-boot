@@ -523,7 +523,7 @@ static struct omap_usbhs_board_data usbhs_bdata = {
 
 int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
-	return omap_ehci_hcd_init(&usbhs_bdata, hccr, hcor);
+	return omap_ehci_hcd_init(index, &usbhs_bdata, hccr, hcor);
 }
 
 int ehci_hcd_stop(int index)

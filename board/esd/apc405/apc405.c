@@ -17,6 +17,7 @@
 #include <mtd/cfi_flash.h>
 #include <asm/4xx_pci.h>
 #include <pci.h>
+#include <usb.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -428,7 +429,7 @@ void reset_phy(void)
 }
 
 #if defined(CONFIG_USB_OHCI_NEW) && defined(CONFIG_SYS_USB_OHCI_BOARD_INIT)
-int usb_board_init(void)
+int board_usb_init(int index, enum board_usb_init_type init)
 {
 	return 0;
 }
@@ -453,9 +454,8 @@ int usb_board_stop(void)
 	return 0;
 }
 
-int usb_board_init_fail(void)
+int board_usb_cleanup(int index, enum board_usb_init_type init)
 {
-	usb_board_stop();
-	return 0;
+	return usb_board_stop();
 }
 #endif /* defined(CONFIG_USB_OHCI) && defined(CONFIG_SYS_USB_OHCI_BOARD_INIT) */

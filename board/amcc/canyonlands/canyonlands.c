@@ -16,6 +16,7 @@
 #include <asm/4xx_pcie.h>
 #include <asm/ppc4xx-gpio.h>
 #include <asm/errno.h>
+#include <usb.h>
 
 extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
@@ -188,7 +189,7 @@ int board_early_init_f(void)
 }
 
 #if defined(CONFIG_USB_OHCI_NEW) && defined(CONFIG_SYS_USB_OHCI_BOARD_INIT)
-int usb_board_init(void)
+int board_usb_init(int index, enum board_usb_init_type init)
 {
 	struct board_bcsr *bcsr_data =
 		(struct board_bcsr *)CONFIG_SYS_BCSR_BASE;
@@ -229,7 +230,7 @@ int usb_board_stop(void)
 	return 0;
 }
 
-int usb_board_init_fail(void)
+int board_usb_cleanup(int index, enum board_usb_init_type init)
 {
 	return usb_board_stop();
 }

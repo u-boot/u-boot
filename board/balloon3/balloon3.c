@@ -13,6 +13,7 @@
 #include <asm/io.h>
 #include <spartan3.h>
 #include <command.h>
+#include <usb.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -59,7 +60,7 @@ void dram_init_banksize(void)
 }
 
 #ifdef	CONFIG_CMD_USB
-int usb_board_init(void)
+int board_usb_init(int index, enum board_usb_init_type init)
 {
 	writel((readl(UHCHR) | UHCHR_PCPL | UHCHR_PSPL) &
 		~(UHCHR_SSEP0 | UHCHR_SSEP1 | UHCHR_SSEP2 | UHCHR_SSE),
@@ -90,9 +91,9 @@ int usb_board_init(void)
 	return 0;
 }
 
-void usb_board_init_fail(void)
+int board_usb_cleanup(int index, enum board_usb_init_type init)
 {
-	return;
+	return 0;
 }
 
 void usb_board_stop(void)

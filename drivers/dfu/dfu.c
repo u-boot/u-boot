@@ -330,7 +330,7 @@ int dfu_read(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 }
 
 static int dfu_fill_entity(struct dfu_entity *dfu, char *s, int alt,
-			    char *interface, int num)
+			   char *interface, int num)
 {
 	char *st;
 

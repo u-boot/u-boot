@@ -167,9 +167,35 @@ int submit_int_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 
 extern void udc_disconnect(void);
 
-#else
-#error USB Lowlevel not defined
 #endif
+
+/*
+ * You can initialize platform's USB host or device
+ * ports by passing this enum as an argument to
+ * board_usb_init().
+ */
+enum board_usb_init_type {
+	USB_INIT_HOST,
+	USB_INIT_DEVICE
+};
+
+/*
+ * board-specific hardware initialization, called by
+ * usb drivers and u-boot commands
+ *
+ * @param index USB controller number
+ * @param init initializes controller as USB host or device
+ */
+int board_usb_init(int index, enum board_usb_init_type init);
+
+/*
+ * can be used to clean up after failed USB initialization attempt
+ * vide: board_usb_init()
+ *
+ * @param index USB controller number for selective cleanup
+ * @param init board_usb_init_type passed to board_usb_init()
+ */
+int board_usb_cleanup(int index, enum board_usb_init_type init);
 
 #ifdef CONFIG_USB_STORAGE
 
