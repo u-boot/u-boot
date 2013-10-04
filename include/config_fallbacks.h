@@ -57,4 +57,8 @@
 #define CONFIG_SYS_PROMPT	"=> "
 #endif
 
+#ifndef CONFIG_SYS_HZ
+#define CONFIG_SYS_HZ		1000
+#endif
+
 #endif	/* __CONFIG_FALLBACKS_H */
