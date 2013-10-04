@@ -627,6 +627,8 @@ void ft_pci_setup(void *blob, bd_t *bd);
 #endif
 #endif
 
+void smp_set_core_boot_addr(unsigned long addr, int corenr);
+void smp_kick_all_cpus(void);
 
 /* $(CPU)/serial.c */
 int	serial_init   (void);
