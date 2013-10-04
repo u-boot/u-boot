@@ -44,6 +44,10 @@
 #define CONFIG_SANDBOX_GPIO
 #define CONFIG_SANDBOX_GPIO_COUNT	20
 
+#define CONFIG_CMD_GPT
+#define CONFIG_PARTITION_UUIDS
+#define CONFIG_EFI_PARTITION
+
 /*
  * Size of malloc() pool, although we don't actually use this yet.
  */
