@@ -22,7 +22,7 @@
 
 int do_load_wrapper(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	return do_load(cmdtp, flag, argc, argv, FS_TYPE_ANY, 0);
+	return do_load(cmdtp, flag, argc, argv, FS_TYPE_ANY);
 }
 
 U_BOOT_CMD(
@@ -34,9 +34,7 @@ U_BOOT_CMD(
 	"      'bytes' gives the size to load in bytes.\n"
 	"      If 'bytes' is 0 or omitted, the file is read until the end.\n"
 	"      'pos' gives the file byte position to start reading from.\n"
-	"      If 'pos' is 0 or omitted, the file is read from the start.\n"
-	"      All numeric parameters are assumed to be decimal,\n"
-	"      unless specified otherwise using a leading \"0x\"."
+	"      If 'pos' is 0 or omitted, the file is read from the start."
 );
 
 int do_ls_wrapper(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
