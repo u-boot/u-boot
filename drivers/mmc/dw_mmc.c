@@ -220,12 +220,12 @@ static int dwmci_setup_bus(struct dwmci_host *host, u32 freq)
 	if ((freq == host->clock) || (freq == 0))
 		return 0;
 	/*
-	 * If host->mmc_clk didn't define,
+	 * If host->get_mmc_clk didn't define,
 	 * then assume that host->bus_hz is source clock value.
 	 * host->bus_hz should be set from user.
 	 */
-	if (host->mmc_clk)
-		sclk = host->mmc_clk(host->dev_index);
+	if (host->get_mmc_clk)
+		sclk = host->get_mmc_clk(host->dev_index);
 	else if (host->bus_hz)
 		sclk = host->bus_hz;
 	else {

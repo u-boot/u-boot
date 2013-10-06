@@ -74,7 +74,7 @@ int exynos_dwmci_add_port(int index, u32 regbase, int bus_width, u32 clksel)
 
 	host->clksel = exynos_dwmci_clksel;
 	host->dev_index = index;
-	host->mmc_clk = exynos_dwmci_get_clk;
+	host->get_mmc_clk = exynos_dwmci_get_clk;
 	/* Add the mmc channel to be registered with mmc core */
 	if (add_dwmci(host, DWMMC_MAX_FREQ, DWMMC_MIN_FREQ)) {
 		debug("dwmmc%d registration failed\n", index);

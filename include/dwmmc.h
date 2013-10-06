@@ -138,7 +138,7 @@ struct dwmci_host {
 	struct mmc *mmc;
 
 	void (*clksel)(struct dwmci_host *host);
-	unsigned int (*mmc_clk)(int dev_index);
+	unsigned int (*get_mmc_clk)(int dev_index);
 };
 
 struct dwmci_idmac {
