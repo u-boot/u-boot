@@ -27,13 +27,13 @@
  * @size:		Total flash size
  * @page_size:		Write (page) size
  * @sector_size:	Sector size
- * @erase_size:	Erase size
+ * @erase_size:		Erase size
  * @bank_read_cmd:	Bank read cmd
  * @bank_write_cmd:	Bank write cmd
  * @bank_curr:		Current flash bank
  * @poll_cmd:		Poll cmd - for flash erase/program
  * @erase_cmd:		Erase cmd 4K, 32K, 64K
- * @memory_map:	Address of read-only SPI flash access
+ * @memory_map:		Address of read-only SPI flash access
  * @read:		Flash read ops: Read len bytes at offset into buf
  *			Supported cmds: Fast Array Read
  * @write:		Flash write ops: Write len bytes from buf into offeset

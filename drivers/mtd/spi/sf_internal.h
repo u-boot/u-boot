@@ -13,7 +13,7 @@
 #define SPI_FLASH_16MB_BOUN		0x1000000
 
 /* SECT flags */
-#define SECT_4K			(1 << 1)
+#define SECT_4K				(1 << 1)
 #define SECT_32K			(1 << 2)
 #define E_FSR				(1 << 3)
 
@@ -29,8 +29,8 @@
 #define CMD_WRITE_DISABLE		0x04
 #define CMD_READ_STATUS			0x05
 #define CMD_WRITE_ENABLE		0x06
-#define CMD_READ_CONFIG		0x35
-#define CMD_FLAG_STATUS		0x70
+#define CMD_READ_CONFIG			0x35
+#define CMD_FLAG_STATUS			0x70
 
 /* Read commands */
 #define CMD_READ_ARRAY_SLOW		0x03
@@ -57,7 +57,7 @@
 /* SST specific */
 #ifdef CONFIG_SPI_FLASH_SST
 # define SST_WP			0x01	/* Supports AAI word program */
-# define CMD_SST_BP			0x02    /* Byte Program */
+# define CMD_SST_BP		0x02    /* Byte Program */
 # define CMD_SST_AAI_WP		0xAD	/* Auto Address Incr Word Program */
 
 int sst_write_wp(struct spi_flash *flash, u32 offset, size_t len,

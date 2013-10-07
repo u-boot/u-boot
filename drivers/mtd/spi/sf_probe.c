@@ -152,7 +152,8 @@ static const struct spi_flash_params spi_flash_params_table[] = {
 	 */
 };
 
-struct spi_flash *spi_flash_validate_params(struct spi_slave *spi, u8 *idcode)
+static struct spi_flash *spi_flash_validate_params(struct spi_slave *spi,
+		u8 *idcode)
 {
 	const struct spi_flash_params *params;
 	struct spi_flash *flash;
@@ -189,6 +190,7 @@ struct spi_flash *spi_flash_validate_params(struct spi_slave *spi, u8 *idcode)
 
 	flash->spi = spi;
 	flash->name = params->name;
+	flash->memory_map = spi->memory_map;
 
 	/* Assign spi_flash ops */
 	flash->write = spi_flash_cmd_write_ops;
@@ -203,7 +205,6 @@ struct spi_flash *spi_flash_validate_params(struct spi_slave *spi, u8 *idcode)
 	flash->page_size = (ext_jedec == 0x4d00) ? 512 : 256;
 	flash->sector_size = params->sector_size;
 	flash->size = flash->sector_size * params->nr_sectors;
-	flash->memory_map = spi->memory_map;
 
 	/* Compute erase sector and command */
 	if (params->flags & SECT_4K) {
@@ -224,8 +225,8 @@ struct spi_flash *spi_flash_validate_params(struct spi_slave *spi, u8 *idcode)
 		flash->poll_cmd = CMD_FLAG_STATUS;
 #endif
 
+	/* Configure the BAR - discover bank cmds and read current bank */
 #ifdef CONFIG_SPI_FLASH_BAR
-	/* Configure the BAR - discover bank cmds and read current bank  */
 	u8 curr_bank = 0;
 	if (flash->size > SPI_FLASH_16MB_BOUN) {
 		flash->bank_read_cmd = (idcode[0] == 0x01) ?

@@ -25,24 +25,24 @@
 #define	SPI_PREAMBLE	0x80			/* Skip preamble bytes */
 
 /* SPI transfer flags */
-#define SPI_XFER_BEGIN	0x01			/* Assert CS before transfer */
-#define SPI_XFER_END	0x02			/* Deassert CS after transfer */
-#define SPI_XFER_MMAP	0x08			/* Memory Mapped start */
-#define SPI_XFER_MMAP_END	0x10		/* Memory Mapped End */
+#define SPI_XFER_BEGIN		0x01	/* Assert CS before transfer */
+#define SPI_XFER_END		0x02	/* Deassert CS after transfer */
+#define SPI_XFER_MMAP		0x08	/* Memory Mapped start */
+#define SPI_XFER_MMAP_END	0x10	/* Memory Mapped End */
 
 /* Header byte that marks the start of the message */
-#define SPI_PREAMBLE_END_BYTE		0xec
+#define SPI_PREAMBLE_END_BYTE	0xec
 
 /**
- * struct spi_slave: Representation of a SPI slave,
- *		      i.e. what we're communicating with.
+ * struct spi_slave - Representation of a SPI slave
  *
  * Drivers are expected to extend this with controller-specific data.
  *
- *   bus:	ID of the bus that the slave is attached to.
- *   cs:	ID of the chip select connected to the slave.
- *   max_write_size:	If non-zero, the maximum number of bytes which can
- *		be written at once, excluding command bytes.
+ * @bus:		ID of the bus that the slave is attached to.
+ * @cs:			ID of the chip select connected to the slave.
+ * @max_write_size:	If non-zero, the maximum number of bytes which can
+ *			be written at once, excluding command bytes.
+ * @memory_map:		Address of read-only SPI flash access.
  */
 struct spi_slave {
 	unsigned int bus;

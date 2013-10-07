@@ -36,7 +36,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <spi_flash.h>
-#include "spi_flash_internal.h"
+#include "sf_internal.h"
 
 /*
  * Properties of supported FRAMs
@@ -383,8 +383,6 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 	printf("SF: Detected %s with page size ", flash->name);
 	print_size(flash->sector_size, ", total ");
 	print_size(flash->size, "");
-	if (flash->memory_map)
-		printf(", mapped at %p", flash->memory_map);
 	puts("\n");
 
 	spi_release_bus(spi);
