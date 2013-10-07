@@ -10,8 +10,6 @@
 #ifndef __ASM_PROC_SYSTEM_H
 #define __ASM_PROC_SYSTEM_H
 
-#include <linux/config.h>
-
 /*
  * Save the current interrupt enable state & disable IRQs
  */

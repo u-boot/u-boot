@@ -10,8 +10,6 @@
 #ifndef __ASM_PROC_PTRACE_H
 #define __ASM_PROC_PTRACE_H
 
-#include <linux/config.h>
-
 #define USR26_MODE	0x00
 #define FIQ26_MODE	0x01
 #define IRQ26_MODE	0x02

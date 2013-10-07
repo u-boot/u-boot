@@ -18,7 +18,6 @@
 #ifndef __ASM_ARCH_HARDWARE_H
 #define __ASM_ARCH_HARDWARE_H
 
-#include <linux/config.h>
 #include <asm/mach-types.h>
 
 /*

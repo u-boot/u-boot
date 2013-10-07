@@ -13,7 +13,6 @@
  * Copyright 1992, Linus Torvalds.
  */
 
-#include <linux/config.h>
 #include <asm/byteorder.h>
 #include <asm/system.h>
 

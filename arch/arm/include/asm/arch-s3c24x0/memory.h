@@ -32,9 +32,6 @@
  */
 #define PHYS_OFFSET	(0x0c000000UL)
 
-#include <linux/config.h>
-
-
 /* Modified for S3C2400, by chc, 20010509 */
 #define RAM_IN_BANK_0  32*1024*1024
 #define RAM_IN_BANK_1  0
