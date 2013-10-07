@@ -43,7 +43,7 @@
 #define CONFIG_SYS_KWD_CONFIG \
 		$(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage_128M16_1.cfg
 #define CONFIG_KM_DISABLE_PCIE
-#define KM_IVM_BUS			"pca9544a:70:9"	/* I2C2 (Mux-Port 1)*/
+#define CONFIG_KM_IVM_BUS		1	/* I2C2 (Mux-Port 1)*/
 
 /* KM_NUSA */
 #elif defined(CONFIG_KM_NUSA)
