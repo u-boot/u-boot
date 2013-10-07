@@ -169,7 +169,7 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of NAND */
 							/* devices */
 /* Environment information */
-#define CONFIG_BOOTDELAY		10
+#define CONFIG_BOOTDELAY		3
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
