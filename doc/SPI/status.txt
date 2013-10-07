@@ -9,13 +9,15 @@ SPI FLASH (drivers/mtd/spi):
 - sf_ops.c: SPI flash operations code.
 - sf.c: SPI flash interface, which interacts controller driver.
 - Bank Address Register (Accessing flashes > 16Mbytes in 3-byte addressing)
+- Added memory_mapped support for read operations.
 - Common probe support for all supported flash vendors except, ramtron.
 
 SPI DRIVERS (drivers/spi):
 -
 
 TODO:
-- Runtime detection of spi_flash params(if possible)
+- Runtime detection of spi_flash params, SFDP(if possible)
+- Add support for multibus build/accessing.
 - Extended read commands support(dual read, dual IO read)
 - Quad Page Program support.
 - Quad Read support(quad fast read, quad IO read)
@@ -26,3 +28,4 @@ TODO:
 --
 Jagannadha Sutradharudu Teki <jagannadh.teki@gmail.com>
 18-09-2013.
+07-10-2013.
