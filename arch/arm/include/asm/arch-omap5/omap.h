@@ -61,6 +61,9 @@
 /* GPMC */
 #define OMAP54XX_GPMC_BASE	0x50000000
 
+/* QSPI */
+#define QSPI_BASE		0x4B300000
+
 /*
  * Hardware Register Details
  */

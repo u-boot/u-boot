@@ -921,6 +921,7 @@ struct prcm_regs const dra7xx_prcm = {
 	.cm_l4per_gpio8_clkctrl			= 0x4a009818,
 	.cm_l4per_mmcsd3_clkctrl		= 0x4a009820,
 	.cm_l4per_mmcsd4_clkctrl		= 0x4a009828,
+	.cm_l4per_qspi_clkctrl			= 0x4a009838,
 	.cm_l4per_uart1_clkctrl			= 0x4a009840,
 	.cm_l4per_uart2_clkctrl			= 0x4a009848,
 	.cm_l4per_uart3_clkctrl			= 0x4a009850,

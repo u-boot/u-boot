@@ -426,6 +426,10 @@ void enable_basic_clocks(void)
 #ifdef CONFIG_DRIVER_TI_CPSW
 		(*prcm)->cm_gmac_gmac_clkctrl,
 #endif
+
+#ifdef CONFIG_TI_QSPI
+		(*prcm)->cm_l4per_qspi_clkctrl,
+#endif
 		0
 	};
 
@@ -453,6 +457,10 @@ void enable_basic_clocks(void)
 			 clk_modules_hw_auto_essential,
 			 clk_modules_explicit_en_essential,
 			 1);
+
+#ifdef CONFIG_TI_QSPI
+	setbits_le32((*prcm)->cm_l4per_qspi_clkctrl, (1<<24));
+#endif
 
 	/* Enable SCRM OPT clocks for PER and CORE dpll */
 	setbits_le32((*prcm)->cm_wkupaon_scrm_clkctrl,
