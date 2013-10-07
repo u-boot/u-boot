@@ -27,6 +27,8 @@
 /* SPI transfer flags */
 #define SPI_XFER_BEGIN	0x01			/* Assert CS before transfer */
 #define SPI_XFER_END	0x02			/* Deassert CS after transfer */
+#define SPI_XFER_MMAP	0x08			/* Memory Mapped start */
+#define SPI_XFER_MMAP_END	0x10		/* Memory Mapped End */
 
 /* Header byte that marks the start of the message */
 #define SPI_PREAMBLE_END_BYTE		0xec
@@ -46,6 +48,7 @@ struct spi_slave {
 	unsigned int bus;
 	unsigned int cs;
 	unsigned int max_write_size;
+	void *memory_map;
 };
 
 /**

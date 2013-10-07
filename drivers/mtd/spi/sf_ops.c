@@ -269,7 +269,9 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 
 	/* Handle memory-mapped SPI */
 	if (flash->memory_map) {
+		spi_xfer(flash->spi, 0, NULL, NULL, SPI_XFER_MMAP);
 		memcpy(data, flash->memory_map + offset, len);
+		spi_xfer(flash->spi, 0, NULL, NULL, SPI_XFER_MMAP_END);
 		return 0;
 	}
 
