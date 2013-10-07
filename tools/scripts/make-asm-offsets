@@ -22,6 +22,6 @@ SED_CMD="/^->/{s:->#\(.*\):/* \1 */:; \
  echo " *"
  echo " */"
  echo ""
- sed -ne "${SED_CMD}" $1 
+ sed -ne "${SED_CMD}" $1
  echo ""
  echo "#endif" ) > $2

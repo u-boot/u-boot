@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2011 The Chromium OS Authors.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ASM_SANDBOX_PTRACE_H

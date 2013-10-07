@@ -1,7 +1,7 @@
 /*
  * Copyright (C) Sheldon Instruments, Inc. 2008
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 /*
  * simpc8313 board configuration file

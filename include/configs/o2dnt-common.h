@@ -7,7 +7,7 @@
  * (C) Copyright 2012
  * DENX Software Engineering, Anatolij Gustschin <agust@denx.de>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __O2D_CONFIG_H

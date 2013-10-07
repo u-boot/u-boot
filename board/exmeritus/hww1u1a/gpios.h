@@ -1,7 +1,7 @@
 /*
  * Copyright 2010 eXMeritus, A Boeing Company
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/mpc85xx_gpio.h>

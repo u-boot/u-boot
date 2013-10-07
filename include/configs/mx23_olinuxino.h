@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2013 Marek Vasut <marex@denx.de>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __CONFIGS_MX23_OLINUXINO_H__
 #define __CONFIGS_MX23_OLINUXINO_H__

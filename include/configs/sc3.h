@@ -6,7 +6,7 @@
  * (C) Copyright 2003
  * Juergen Beisert, EuroDesign embedded technologies, jbeisert@eurodsn.de
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

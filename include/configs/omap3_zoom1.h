@@ -7,7 +7,7 @@
  *
  * Configuration settings for the TI OMAP3430 Zoom MDK board.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

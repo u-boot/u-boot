@@ -4,7 +4,7 @@
  *
  * Provides support for USB console on the Analogue & Micro Adder87x
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ADDERUSB__

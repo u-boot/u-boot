@@ -2,7 +2,7 @@
  * (C) Copyright 2000-2009
  * Vipin Kumar, ST Microelectronics, vipin.kumar@st.com
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

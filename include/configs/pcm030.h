@@ -8,7 +8,7 @@
  * (C) Copyright 2009
  * Jon Smirl <jonsmirl@gmail.com>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

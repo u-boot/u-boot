@@ -2,7 +2,7 @@
  * Copyright (C) 2012 Nobuhiro Iwamatsu <nobuhiro.Iwamatsu.yj@renesas.com>
  * Copyright (C) 2012 Renesas Solutions Corp.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2003 Josef Baumgartner <josef.baumgartner@telex.de>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __IMMAP_5282__

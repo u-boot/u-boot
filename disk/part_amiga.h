@@ -3,7 +3,7 @@
  * Hans-Joerg Frieden, Hyperion Entertainment
  * Hans-JoergF@hyperion-entertainment.com
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _DISK_PART_AMIGA_H

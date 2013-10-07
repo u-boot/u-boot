@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2011, Stefan Kristiansson, stefan.kristianssons@saunalahti.fi
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

@@ -4,7 +4,7 @@
  *
  * Configuration settings for Freescale MX53 low cost board.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

@@ -3,7 +3,7 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  * David Updegraff, Cray, Inc.  dave@cray.com: our 405 is walnut-lite..
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 /*
  * board/config.h - configuration options, board specific

@@ -5,7 +5,7 @@ The B4860QDS is a Freescale reference board that hosts the B4860 SoC (and varian
 B4860 Overview
 -------------
 The B4860 QorIQ Qonverge device is a Freescale high-end, multicore SoC based on
-StarCore and Power Architecture® cores. It targets the broadband wireless 
+StarCore and Power Architecture® cores. It targets the broadband wireless
 infrastructure and builds upon the proven success of the existing multicore
 DSPs and Power CPUs. It is designed to bolster the rapidly changing and
 expanding wireless markets, such as 3GLTE (FDD and TDD), LTE-Advanced, and UMTS.
@@ -99,11 +99,11 @@ B4420 Personality
 B4420 Personality
 --------------------
 B4420 is a reduced personality of B4860 with less core/clusters(both SC3900 and e6500), less DDR
-controllers, less serdes lanes, less SGMII interfaces and reduced target frequencies. 
+controllers, less serdes lanes, less SGMII interfaces and reduced target frequencies.
 
 Key differences between B4860 and B4420
 ----------------------------------------
- 
+
 B4420 has:
 1. Less e6500 cores: 1 cluster with 2 e6500 cores
 2. Less SC3900 cores/clusters: 1 cluster with 2 SC3900 cores per cluster.
@@ -130,7 +130,7 @@ Note: Boot location: NOR flash.
 SysClk/Core(e6500)/CCB/DDR/FMan/DDRCLK/StarCore/CPRI-Maple/eTVPE-Maple/ULB-Maple
 66MHz/1.6GHz/667MHz/1.6GHz data rate/667MHz/133MHz/1200MHz/500MHz/800MHz/667MHz
 
-a) NAND boot	
+a) NAND boot
 	SW1 [1.1] = 0
 	SW2 [1.1] = 1
 	SW3 [1:4] = 0001
@@ -155,7 +155,7 @@ Note: Boot location: NOR flash.
 SysClk/Core(e6500)/CCB/DDR/FMan/DDRCLK/StarCore/CPRI-Maple/eTVPE-Maple/ULB-Maple
 66MHz/1.6GHz/667MHz/1.6GHz data rate/667MHz/133MHz/1200MHz/500MHz/800MHz/667MHz
 
-a) NAND boot	
+a) NAND boot
 	SW1 [1.1] = 0
 	SW2 [1.1] = 1
 	SW3 [1:4] = 0001
@@ -246,7 +246,7 @@ Various Software configurations/environment variables/commands
 --------------------------------------------------------------
 The below commands apply to both B4860QDS and B4420QDS.
 
-1. U-boot environment variable hwconfig 
+1. U-boot environment variable hwconfig
    The default hwconfig is:
 	hwconfig=fsl_ddr:ctlr_intlv=null,bank_intlv=cs0_cs1;usb1:
 					dr_mode=host,phy_type=ulpi
@@ -258,7 +258,7 @@ The below commands apply to both B4860QDS and B4420QDS.
 3. Switching to alternate bank
    Commands for switching to alternate bank.
 
-	1. To change from vbank0 to vbank2 
+	1. To change from vbank0 to vbank2
 		=> qixis_reset altbank (it will boot using vbank2)
 
 	2.To change from vbank2 to vbank0
@@ -269,7 +269,7 @@ The below commands apply to both B4860QDS and B4420QDS.
 	1)Boot from vbank0
 	2)Flash vbank2 with b4420 rcw and u-boot
 	3)Give following commands to uboot prompt
-	   => mw.b ffdf0040 0x30; 
+	   => mw.b ffdf0040 0x30;
 	   => mw.b ffdf0010 0x00;
 	   => mw.b ffdf0062 0x02;
 	   => mw.b ffdf0050 0x02;
@@ -283,32 +283,32 @@ The below commands apply to both B4860QDS and B4420QDS.
 
    To change from NOR to NAND boot give following command on uboot prompt
 	=> mw.b ffdf0040 0x30
-	=> mw.b ffdf0010 0x00 
+	=> mw.b ffdf0010 0x00
 	=> mw.b 0xffdf0050 0x08
 	=> mw.b 0xffdf0060 0x82
 	=> mw.b ffdf0061 0x00
-	=> mw.b ffdf0010 0x30   
+	=> mw.b ffdf0010 0x30
 	=> reset
 
    To change from NAND to NOR boot give following command on uboot prompt:
 	=> mw.b ffdf0040 0x30
-	=> mw.b ffdf0010 0x00 
+	=> mw.b ffdf0010 0x00
 	=> mw.b 0xffdf0050 0x00(for vbank0) or (mw.b 0xffdf0050 0x02 for vbank2)
 	=> mw.b 0xffdf0060 0x12
 	=> mw.b ffdf0061 0x01
-	=> mw.b ffdf0010 0x30   
+	=> mw.b ffdf0010 0x30
 	=> reset
 
    Note: Power off cycle will lead to default switch settings.
    Note: 0xffdf0000 is the address of the QIXIS FPGA.
 
-6.  Ethernet interfaces for B4860QDS 
+6.  Ethernet interfaces for B4860QDS
    Serdes protocosl tested:
    0x2a, 0x8d (serdes1, serdes2) [DEFAULT]
    0x2a, 0xb2 (serdes1, serdes2)
 
    When using [DEFAULT] RCW, which including 2 * 1G SGMII on board and 2 * 1G
-   SGMII on SGMII riser card. 
+   SGMII on SGMII riser card.
    Under U-boot these network interfaces are recognized as:
    FM1@DTSEC3, FM1@DTSEC4, FM1@DTSEC5 and FM1@DTSEC6.
 
@@ -318,7 +318,7 @@ The below commands apply to both B4860QDS and B4420QDS.
 	. eth4 -> fm1-gb4
 	. eth5 -> fm1-gb5
 
-7. RCW and Ethernet interfaces for B4420QDS 
+7. RCW and Ethernet interfaces for B4420QDS
    Serdes protocosl tested:
    0x18, 0x9e (serdes1, serdes2)
 

@@ -6,7 +6,7 @@
  * Configuration settings for the TI EVM5430 board.
  * See omap5_common.h for omap5 common settings.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_OMAP5_EVM_H

@@ -2,7 +2,7 @@
  * Copyright Rob Taylor, Flying Pig Systems Ltd. 2000.
  * Copyright (C) 2001, James Dougherty, jfd@cs.stanford.edu
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __MPC824X_H__

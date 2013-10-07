@@ -13,7 +13,7 @@
  *
  * Configuration settings for the Nokia RX-51 aka N900.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

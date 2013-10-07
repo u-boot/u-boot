@@ -8,7 +8,7 @@
  * Intel IXP4xx Programmer's Guide and past u-boot Start.S
  * samples.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm-offsets.h>

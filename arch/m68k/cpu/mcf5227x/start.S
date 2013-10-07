@@ -2,7 +2,7 @@
  * Copyright (C) 2003	Josef Baumgartner <josef.baumgartner@telex.de>
  * Based on code from Bernhard Kuhn <bkuhn@metrowerks.com>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm-offsets.h>

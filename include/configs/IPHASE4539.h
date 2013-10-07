@@ -4,7 +4,7 @@
  * This file is based on similar values for other boards found in
  * other U-Boot config files, mainly tqm8260.h and mpc8260ads.h.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

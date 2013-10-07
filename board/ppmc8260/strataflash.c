@@ -2,7 +2,7 @@
  * (C) Copyright 2002
  * Brad Kemp, Seranoa Networks, Brad.Kemp@seranoa.com
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

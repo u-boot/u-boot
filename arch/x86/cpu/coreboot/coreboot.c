@@ -3,7 +3,7 @@
  * (C) Copyright 2008
  * Graeme Russ, graeme.russ@gmail.com.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

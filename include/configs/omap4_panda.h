@@ -6,7 +6,7 @@
  * Configuration settings for the TI OMAP4 Panda board.
  * See omap4_common.h for OMAP4 common part
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_PANDA_H

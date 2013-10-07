@@ -14,7 +14,7 @@
  * Internal regs are at 0xf0000000
  * Reset jumps to 0x00000100
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

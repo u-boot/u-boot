@@ -3,7 +3,7 @@
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  * Klaus Heydeck, Kieback & Peter GmbH & Co KG, heydeck@kieback-peter.de
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

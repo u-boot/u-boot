@@ -5,7 +5,7 @@
  * (C) Copyright 2001
  * James F. Dougherty (jfd@cs.stanford.edu)
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

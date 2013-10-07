@@ -7,7 +7,7 @@
  *
  * Adapted for Interphase 4539 by Wolfgang Grandegger <wg@denx.de>.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

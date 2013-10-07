@@ -5,7 +5,7 @@
  * Support for Embedded Planet EP88x boards.
  * Tested on EP88xC with MPC885 CPU, 64MB SDRAM and 16MB flash.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

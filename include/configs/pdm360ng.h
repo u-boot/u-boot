@@ -2,7 +2,7 @@
  * (C) Copyright 2009-2010
  * Michael Weiß, ifm ecomatic gmbh, michael.weiss@ifm.com
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

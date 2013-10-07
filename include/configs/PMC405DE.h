@@ -2,7 +2,7 @@
  * (C) Copyright 2009
  * Matthias Fuchs, esd gmbh germany, matthias.fuchs@esd.eu
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

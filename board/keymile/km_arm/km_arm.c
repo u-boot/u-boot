@@ -343,7 +343,7 @@ void reset_phy(void)
 #if defined(CONFIG_KM_NUSA)
 struct mv88e_sw_reg extsw_conf[] = {
 	/*
-	 * port 0, PIGGY4, autoneg 
+	 * port 0, PIGGY4, autoneg
 	 * first the fix for the 1000Mbits Autoneg, this is from
 	 * a Marvell errata, the regs are undocumented
 	 */

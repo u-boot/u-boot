@@ -2,7 +2,7 @@
  * (C) Copyright 2010
  * Dirk Eibach,  Guntermann & Drunck GmbH, eibach@gdsys.de
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __GDSYS_FPGA_H

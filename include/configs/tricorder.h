@@ -10,7 +10,7 @@
  *
  * Configuration settings for the Tricorder board.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

@@ -47,7 +47,7 @@ else
 	echo no kernel to boot from $flash_krl, need tftp
 fi
 
-# Have a rootfs in flash? 
+# Have a rootfs in flash?
 echo test for SQUASHfs at $flash_rfs
 
 if imi $flash_rfs
@@ -69,7 +69,7 @@ fi
 
 # TFTP down a kernel
 if printenv bootfile
-then 
+then
 	tftp $tftp_addr $bootfile
 	setenv kernel $tftp_addr
 	echo I will boot the TFTP kernel
@@ -90,7 +90,7 @@ if printenv rootpath
 then
 	echo rootpath is $rootpath
 	if printenv initrd
-	then 
+	then
 		echo initrd is also specified, so use $initrd
 		tftp $tftp2_addr $initrd
 		setenv bootargs root=/dev/ram0 rw cwsroot=$serverip:$rootpath $bootargs

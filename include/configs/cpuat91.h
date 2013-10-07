@@ -4,7 +4,7 @@
  *
  * Configuration settings for the CPUAT91 board.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _CONFIG_CPUAT91_H

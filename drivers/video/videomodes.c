@@ -3,7 +3,7 @@
  * Pierre Aubert, Staubli Faverges , <p.aubert@staubli.com>
  * Copyright 2011 Freescale Semiconductor, Inc.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /************************************************************************

@@ -4,7 +4,7 @@
  * Kshitij Gupta <kshitij@ti.com>
  * Configuation settings for the TI OMAP Innovator board.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

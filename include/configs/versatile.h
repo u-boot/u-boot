@@ -9,7 +9,7 @@
  * Philippe Robin, <philippe.robin@arm.com>
  * Configuration for Versatile PB.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

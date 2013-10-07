@@ -2,7 +2,7 @@
  * Copyright 2009-2011 eXMeritus, A Boeing Company
  * Copyright 2007-2009 Freescale Semiconductor, Inc.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

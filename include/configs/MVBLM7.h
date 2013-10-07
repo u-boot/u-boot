@@ -4,7 +4,7 @@
  * Matrix Vision mvBlueLYNX-M7 configuration file
  * based on Freescale's MPC8349ITX.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 

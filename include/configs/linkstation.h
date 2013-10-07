@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2006 Mihai Georgian <u-boot@linuxnotincluded.org.uk>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

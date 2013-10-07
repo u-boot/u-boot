@@ -9,7 +9,7 @@
  * (C) Copyright 2008
  * Daniel Hellstrom, Gaisler Research, daniel@gaisler.com.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H__

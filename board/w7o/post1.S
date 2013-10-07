@@ -4,7 +4,7 @@
  *  and
  * Erik Theisen, Wave 7 Optics, etheisen@mindspring.com
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 /*
  * Description:

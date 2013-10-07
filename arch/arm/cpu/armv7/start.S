@@ -10,7 +10,7 @@
  * Copyright (c) 2003	Kshitij <kshitij@ti.com>
  * Copyright (c) 2006-2008 Syed Mohammed Khasim <x0khasim@ti.com>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm-offsets.h>

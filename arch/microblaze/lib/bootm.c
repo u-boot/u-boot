@@ -5,7 +5,7 @@
  * Michal  SIMEK <monstr@monstr.eu>
  * Yasushi SHOJI <yashi@atmark-techno.com>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

@@ -1,11 +1,11 @@
 #
 # GDB Init script for the Coldfire 5272 processor.
 #
-# The main purpose of this script is to configure the 
+# The main purpose of this script is to configure the
 # DRAM controller so code can be loaded.
 #
 # This file was changed to suite the senTec COBRA5272 board.
-# 
+#
 
 define addresses
 

@@ -7,7 +7,7 @@
  *   - code clean-up
  *   - bugfix for overwriting bootargs by user
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

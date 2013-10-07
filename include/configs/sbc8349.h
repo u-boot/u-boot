@@ -5,7 +5,7 @@
  * Paul Gortmaker <paul.gortmaker@windriver.com>
  * Based on the MPC8349EMDS config.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

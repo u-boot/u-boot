@@ -4,7 +4,7 @@
  * Author: Bartlomiej Sieka <tur@semihalf.com>
  * Author: Grzegorz Bernacki <gjb@semihalf.com>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _CM5200_H

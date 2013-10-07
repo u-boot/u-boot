@@ -13,7 +13,7 @@
  * Cliff Brake <cliff.brake@gmail.com>
  * Configuation settings for the Accelent/Vibren PXA255 IDP
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

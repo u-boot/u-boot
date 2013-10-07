@@ -5,7 +5,7 @@
  * Support for Analogue&Micro Adder boards family.
  * Tested on AdderII and Adder87x.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

@@ -8,7 +8,7 @@
  * (C) Copyright 2006
  * Matthias Fuchs, esd GmbH, matthias.fuchs@esd-electronics.com
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

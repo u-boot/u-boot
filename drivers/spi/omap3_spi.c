@@ -83,7 +83,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		regs = (struct mcspi *)OMAP3_MCSPI2_BASE;
 		break;
 #endif
-#ifdef OMAP3_MCSPI3_BASE 
+#ifdef OMAP3_MCSPI3_BASE
 	case 2:
 		regs = (struct mcspi *)OMAP3_MCSPI3_BASE;
 		break;

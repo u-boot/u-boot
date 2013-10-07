@@ -3,7 +3,7 @@
  * Greg Ungerer <greg.ungerer@opengear.com>.
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __CONFIG_H
 #define __CONFIG_H

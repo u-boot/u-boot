@@ -18,7 +18,7 @@
  *
  * Copyright (C) 2007 Sergey Kubushyn <ksi@koi8.net>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

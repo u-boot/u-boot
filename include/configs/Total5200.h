@@ -5,7 +5,7 @@
  * (C) Copyright 2004
  * Mark Jonas, Freescale Semiconductor, mark.jonas@freescale.com.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

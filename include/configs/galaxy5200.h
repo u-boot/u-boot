@@ -11,7 +11,7 @@
  * (C) Copyright 2009
  * Eric Millbrandt, DEKA Research and Development Corporation
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

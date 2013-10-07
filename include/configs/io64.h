@@ -6,7 +6,7 @@
  * by Stefan Roese, DENX Software Engineering, sr@denx.de.
  * and Grant Erickson <gerickson@nuovations.com>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /************************************************************************

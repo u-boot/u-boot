@@ -8,7 +8,7 @@
  * Derived from iSPAN 4539 port (iphase4539) by
  * Wolfgang Grandegger <wg@denx.de>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __CONFIG_H
 #define __CONFIG_H

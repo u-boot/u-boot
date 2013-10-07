@@ -5,7 +5,7 @@
  * based on - Driver for MV64460X ethernet ports
  * Copyright (C) 2002 rabeeh@galileo.co.il
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /********************************************************************************

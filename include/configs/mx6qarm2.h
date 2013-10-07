@@ -3,7 +3,7 @@
  *
  * Configuration settings for the Freescale i.MX6Q Armadillo2 board.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

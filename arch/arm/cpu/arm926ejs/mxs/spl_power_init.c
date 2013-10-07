@@ -56,7 +56,7 @@ static void mxs_power_clock2pll(void)
  * This function ungates the RTC block and sets the AUTO_RESTART
  * bit to work around a design bug on MX28EVK Rev. A .
  */
- 
+
 static void mxs_power_set_auto_restart(void)
 {
 	struct mxs_rtc_regs *rtc_regs =

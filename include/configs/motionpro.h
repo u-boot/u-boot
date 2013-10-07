@@ -4,7 +4,7 @@
  *
  * Based on Motion-PRO board config file by Robert McCullough, rob@promessinc.com
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

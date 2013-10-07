@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2007-2009 DENX Software Engineering
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

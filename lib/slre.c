@@ -688,7 +688,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "Error compiling slre: %s\n", slre.err_str);
 		return 1;
 	}
-	
+
 	slre_dump(&slre, stderr);
 
 	while (fgets(data, sizeof(data), fp) != NULL) {

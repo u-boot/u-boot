@@ -5,7 +5,7 @@
  * (C) Copyright 2002 Jun Gu <jung@artesyncp.com>
  * Add support for Am29F016D and dynamic switch setting.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 /*
  * Ported from Ebony flash support

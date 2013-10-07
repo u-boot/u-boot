@@ -3,7 +3,7 @@
  *
  * Author: Michel Marti <mma@objectxp.com>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __FW_UPDATE_H

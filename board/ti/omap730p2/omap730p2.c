@@ -10,7 +10,7 @@
  * Texas Instruments, <www.ti.com>
  * Kshitij Gupta <Kshitij@ti.com>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

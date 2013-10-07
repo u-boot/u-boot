@@ -8,7 +8,7 @@
  *
  * Configuration settings for the Freescale i.MX31 PDK board.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

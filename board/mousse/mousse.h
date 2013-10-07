@@ -8,7 +8,7 @@
  * (C) Copyright 2001
  * James Dougherty (jfd@cs.stanford.edu)
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __MOUSSE_H

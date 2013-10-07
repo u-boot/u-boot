@@ -2,7 +2,7 @@
  * (C) Copyright 2002 ELTEC Elektronik AG
  * Frank Gottschling <fgottschling@eltec.de>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

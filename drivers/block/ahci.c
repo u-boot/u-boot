@@ -113,7 +113,7 @@ int __weak ahci_link_up(struct ahci_probe_ent *probe_ent, u8 port)
 	int j = 0;
 	u8 *port_mmio = (u8 *)probe_ent->port[port].port_mmio;
 
-	/* 
+	/*
 	 * Bring up SATA link.
 	 * SATA link bringup time is usually less than 1 ms; only very
 	 * rarely has it taken between 1-2 ms. Never seen it above 2 ms.

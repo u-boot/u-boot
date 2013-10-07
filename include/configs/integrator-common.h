@@ -4,7 +4,7 @@
  * Linus Walleij <linus.walleij@linaro.org>
  * Common ARM Integrator configuration settings
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #define CONFIG_INTEGRATOR

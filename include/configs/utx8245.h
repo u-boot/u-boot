@@ -7,7 +7,7 @@
  * Matthew E. Karger, karger@arlut.utexas.edu
  * Applied Research Laboratories, The University of Texas at Austin
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

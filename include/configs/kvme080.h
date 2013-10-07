@@ -2,7 +2,7 @@
  * (C) Copyright 2005
  * Sangmoon Kim, dogoil@etinsys.com.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

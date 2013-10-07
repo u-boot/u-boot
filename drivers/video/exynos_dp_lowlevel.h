@@ -3,7 +3,7 @@
  *
  * Author: Donghwa Lee <dh09.lee@samsung.com>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _EXYNOS_EDP_LOWLEVEL_H

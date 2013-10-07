@@ -5,7 +5,7 @@
  * (C) Copyright 2005-2007
  * Beijing UD Technology Co., Ltd., taihusupport@amcc.com
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

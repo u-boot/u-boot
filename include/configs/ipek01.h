@@ -5,7 +5,7 @@
  * (C) Copyright 2009
  * Wolfgang Grandegger, DENX Software Engineering, wg@denx.de.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

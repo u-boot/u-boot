@@ -16,7 +16,7 @@
  *	2.Original SL811 driver (hc_sl811.o) by Pei Liu <pbl@cypress.com>
  *	3.Rewrited as sl811.o by Yin Aihua <yinah:couragetech.com.cn>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

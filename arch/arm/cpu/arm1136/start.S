@@ -9,7 +9,7 @@
  *  Copyright (c) 2003	Richard Woodruff <r-woodruff2@ti.com>
  *  Copyright (c) 2003	Kshitij <kshitij@ti.com>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm-offsets.h>

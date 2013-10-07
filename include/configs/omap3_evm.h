@@ -11,7 +11,7 @@
  *
  * Manikandan Pillai <mani.pillai@ti.com>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __OMAP3EVM_CONFIG_H

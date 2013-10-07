@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2012 Michal Simek <monstr@monstr.eu>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

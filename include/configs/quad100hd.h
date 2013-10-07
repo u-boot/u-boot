@@ -2,7 +2,7 @@
  * (C) Copyright 2008
  * Gary Jennejohn, DENX Software Engineering GmbH, garyj@denx.de.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /************************************************************************

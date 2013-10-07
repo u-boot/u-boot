@@ -2,7 +2,7 @@
  * Copyright (C) 2012 Michal Simek <monstr@monstr.eu>
  * Copyright (C) 2012 Xilinx, Inc. All rights reserved.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <asm/io.h>

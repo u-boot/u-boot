@@ -5,7 +5,7 @@
  * Configuration for Versatile Express. Parts were derived from other ARM
  *   configurations.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __VEXPRESS_CA5X2_h

@@ -4,7 +4,7 @@
  *
  * Configuation settings for the SPC1920 board.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __H

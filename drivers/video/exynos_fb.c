@@ -4,7 +4,7 @@
  * Author: InKi Dae <inki.dae@samsung.com>
  * Author: Donghwa Lee <dh09.lee@samsung.com>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

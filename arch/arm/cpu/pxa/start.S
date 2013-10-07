@@ -16,7 +16,7 @@
  *  Copyright (C) 2004	Texas Instruments <r-woodruff2@ti.com>
  *  Copyright (C) 2010	Marek Vasut <marek.vasut@gmail.com>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm-offsets.h>

@@ -21,7 +21,7 @@
  *
  * ------------------------------------------------------------------------
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <twl4030.h>

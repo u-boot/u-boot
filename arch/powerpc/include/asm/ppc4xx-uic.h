@@ -4,7 +4,7 @@
  * (C) Copyright 2008-2009
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _PPC4xx_UIC_H_

@@ -2,7 +2,7 @@
  * (C) Copyright 2003
  * Masami Komiya <mkomiya@sonare.it>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

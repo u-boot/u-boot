@@ -3,7 +3,7 @@
  * (C) Copyright 2004 eslab.whut.edu.cn
  * Yue Hu(huyue_whut@yahoo.com.cn), Ligong Xue(lgxue@hotmail.com)
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _IXP425PCI_H

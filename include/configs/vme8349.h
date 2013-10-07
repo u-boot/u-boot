@@ -8,7 +8,7 @@
  * reinhard.arlt@esd-electronics.de
  * Based on the MPC8349EMDS config.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

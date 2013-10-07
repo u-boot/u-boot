@@ -5,7 +5,7 @@
  * (C) Copyright 2004-2005
  * Martin Krause, TQ-Systems GmbH, martin.krause@tqs.de
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

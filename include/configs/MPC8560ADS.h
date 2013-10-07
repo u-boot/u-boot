@@ -3,7 +3,7 @@
  * (C) Copyright 2002,2003 Motorola,Inc.
  * Xianghua Xiao <X.Xiao@motorola.com>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

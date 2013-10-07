@@ -4,7 +4,7 @@
  * Pantelis Antoniou <panto@intracom.gr>
  * Intracom S.A.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

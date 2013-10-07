@@ -11,7 +11,7 @@
  * (C) Copyright 2006
  * Stefan Strobl, GERSYS GmbH, stefan.strobl@gersys.de
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

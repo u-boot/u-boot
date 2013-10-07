@@ -13,7 +13,7 @@
  * History:
  *	1.1 - add define CONFIG_ZERO_BOOTDELAY_CHECK
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

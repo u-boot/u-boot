@@ -4,7 +4,7 @@
  *  Copyright (c) 2001	Marius Gröger <mag@sysgo.de>
  *  Copyright (c) 2002	Alex Züpke <azu@sysgo.de>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm-offsets.h>

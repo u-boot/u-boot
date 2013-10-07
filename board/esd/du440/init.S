@@ -2,7 +2,7 @@
  * (C) Copyright 2008
  * Matthias Fuchs, esd gmbh, matthias.fuchs@esd-electronics.com
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm-offsets.h>

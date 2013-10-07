@@ -5,7 +5,7 @@
  * U-Boot configuration for Zephyr Engineering ZPC.1900 board.
  * This port was developed and tested on Revision C board.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

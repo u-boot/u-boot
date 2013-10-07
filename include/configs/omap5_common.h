@@ -8,7 +8,7 @@
  *
  * TI OMAP5 AND DRA7XX common configuration settings
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  *
  * For more details, please see the technical documents listed at
  * http://www.ti.com/product/omap5432

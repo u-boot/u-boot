@@ -2,7 +2,7 @@
  * (C) Copyright 2004
  * Tolunay Orkun, Nextio Inc., torkun@nextio.com
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

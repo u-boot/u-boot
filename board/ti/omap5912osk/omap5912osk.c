@@ -14,7 +14,7 @@
  * Texas Instruments, <www.ti.com>
  * Rishi Bhattacharya <rishi@ti.com>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

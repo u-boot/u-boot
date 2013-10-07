@@ -2,7 +2,7 @@
  * (C) Copyright 2004 Intracom S.A.
  * Pantelis Antoniou <panto@intracom.gr>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

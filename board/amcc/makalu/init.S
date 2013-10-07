@@ -7,7 +7,7 @@
  *
  * Originally based on code provided from Senao and AMCC
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 	.globl  ext_bus_cntlr_init

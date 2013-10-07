@@ -3,7 +3,7 @@
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  * John Otken, jotken@softadvances.com
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /************************************************************************

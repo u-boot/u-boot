@@ -36,7 +36,7 @@ int board_early_init_f(void)
 		MPP5_NF_IO7,
 		MPP6_SYSRST_OUTn,	/* Reset signal */
 		MPP7_GPO,
-		MPP8_TW_SDA,		/* I2C */	
+		MPP8_TW_SDA,		/* I2C */
 		MPP9_TW_SCK,		/* I2C */
 		MPP10_UART0_TXD,
 		MPP11_UART0_RXD,

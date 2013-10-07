@@ -4,7 +4,7 @@
  *
  * Copyright (C) 2012 Stefan Roese <sr@denx.de>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

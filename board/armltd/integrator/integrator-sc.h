@@ -6,7 +6,7 @@
  * the similar "CP Controller" found in the ARM Integrator/AP and
  * Integrator/CP reference designs
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ARM_SC_H

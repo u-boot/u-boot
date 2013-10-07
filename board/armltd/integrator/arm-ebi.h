@@ -5,7 +5,7 @@
  * Register definitions for the External Bus Interface (EBI)
  * found in the ARM Integrator AP and CP reference designs
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ARM_EBI_H

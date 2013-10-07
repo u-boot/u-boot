@@ -2,7 +2,7 @@
  * (C) Copyright 2009-2010
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <ppc_asm.tmpl>

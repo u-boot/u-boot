@@ -7,7 +7,7 @@
  * Note: my board is a PILOT rev.
  * Note: the mpc8260ads doesn't come with a proper Ethernet MAC address.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

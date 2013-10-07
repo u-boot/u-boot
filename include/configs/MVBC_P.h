@@ -5,7 +5,7 @@
  * (C) Copyright 2004-2008
  * Matrix-Vision GmbH, andre.schwarz@matrix-vision.de
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

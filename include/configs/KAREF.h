@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2004 Sandburst Corporation
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /************************************************************************

@@ -1,7 +1,7 @@
 /*
  * Copyright 2008 Extreme Engineering Solutions, Inc.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __FSL_8XXX_MISC_H___

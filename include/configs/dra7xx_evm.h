@@ -6,7 +6,7 @@
  * Configuration settings for the TI DRA7XX board.
  * See omap5_common.h for omap5 common settings.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_DRA7XX_EVM_H

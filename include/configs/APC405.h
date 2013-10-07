@@ -5,7 +5,7 @@
  * (C) Copyright 2001-2004
  * Stefan Roese, esd gmbh germany, stefan.roese@esd-electronics.com
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

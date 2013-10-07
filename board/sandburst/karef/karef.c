@@ -2,7 +2,7 @@
  *  Copyright (C) 2005 Sandburst Corporation
  *  Travis B. Sawyer
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

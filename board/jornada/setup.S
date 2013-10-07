@@ -5,7 +5,7 @@
  *		       Jan-Derk Bakker (J.D.Bakker@its.tudelft.nl)
  * 2004 (c) MontaVista Software, Inc.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 

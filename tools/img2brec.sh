@@ -3,11 +3,11 @@
 # This script converts binary files (u-boot.bin) into so called
 # bootstrap records that are accepted by Motorola's MC9328MX1/L
 # (a.k.a. DragaonBall i.MX) in "Bootstrap Mode"
-# 
+#
 # The code for the SynchFlash programming routines is taken from
 # Bootloader\Bin\SyncFlash\programBoot_b.txt contained in
-# Motorolas LINUX_BSP_0_3_8.tar.gz 
-# 
+# Motorolas LINUX_BSP_0_3_8.tar.gz
+#
 # The script could easily extended for AMD flash routines.
 #
 # 2004-06-23	-	steven.scholz@imc-berlin.de
@@ -15,34 +15,34 @@
 #################################################################################
 # From the posting to the U-Boot-Users mailing list, 23 Jun 2004:
 # ===============================================================
-# I just hacked a simple script that converts u-boot.bin into a text file 
-# containg processor init code, SynchFlash programming code and U-Boot data in 
+# I just hacked a simple script that converts u-boot.bin into a text file
+# containg processor init code, SynchFlash programming code and U-Boot data in
 # form of so called b-records.
-# 
-# This can be used to programm U-Boot into (Synch)Flash using the Bootstrap 
+#
+# This can be used to programm U-Boot into (Synch)Flash using the Bootstrap
 # Mode of the MC9328MX1/L
-# 
+#
 # 0AFE1F3410202E2E2E000000002073756363656564/
 # 0AFE1F44102E0A0000206661696C656420210A0000/
 # 0AFE100000
 # ...
 # MX1ADS Sync-flash Programming Utility v0.5 2002/08/21
-# 
+#
 # Source address (stored in 0x0AFE0000): 0x0A000000
 # Target address (stored in 0x0AFE0004): 0x0C000000
 # Size           (stored in 0x0AFE0008): 0x0001A320
-# 
+#
 # Press any key to start programming ...
 # Erasing ...
 # Blank checking ...
 # Programming ...
 # Verifying flash ... succeed.
-# 
+#
 # Programming finished.
-# 
+#
 # So no need for a BDI2000 anymore... ;-)
-# 
-# This is working on my MX1ADS eval board. Hope this could be useful for 
+#
+# This is working on my MX1ADS eval board. Hope this could be useful for
 # someone.
 #################################################################################
 

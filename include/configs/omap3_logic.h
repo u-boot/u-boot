@@ -5,7 +5,7 @@
  * Configuration settings for the Logic OMAP35x/DM37x SOM LV/Torpedo
  * reference boards.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

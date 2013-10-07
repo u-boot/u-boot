@@ -3,7 +3,7 @@
  *
  *  Copyright (c) 2003	Wolfgang Denk <wd@denx.de>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>

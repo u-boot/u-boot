@@ -7,7 +7,7 @@
  *
  * Configuration settings for the 3430 TI SDP3430 board.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

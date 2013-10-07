@@ -5,7 +5,7 @@
  * Based on original work by
  *      Roel Loeffen, (C) Copyright 2006 Prodrive B.V.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /************************************************************************

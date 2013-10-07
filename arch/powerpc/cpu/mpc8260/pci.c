@@ -6,7 +6,7 @@
  * Vitaly Bordug <vbordug@ru.mvista.com>
  * Added support for PCI bridge on MPC8272ADS
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

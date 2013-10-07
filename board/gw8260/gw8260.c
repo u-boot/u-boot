@@ -11,7 +11,7 @@
  * Advent Networks, Inc. <http://www.adventnetworks.com>
  * Oliver Brown <oliverb@alumni.utexas.net>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*********************************************************************/

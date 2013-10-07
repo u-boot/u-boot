@@ -4,7 +4,7 @@
  *
  * Configuration settings for the OMAP3 Pandora.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

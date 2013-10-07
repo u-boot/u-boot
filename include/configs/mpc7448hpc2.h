@@ -5,7 +5,7 @@
  * Alex Bounine , Tundra Semiconductor Corp.
  * Roy Zang	, <tie-fei.zang@freescale.com> Freescale Corp.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

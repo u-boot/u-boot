@@ -2,7 +2,7 @@
  * (C) Copyright 2009 Wolfgang Denk <wd@denx.de>
  * (C) Copyright 2009, DAVE Srl <www.dave.eu>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

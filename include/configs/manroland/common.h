@@ -2,7 +2,7 @@
  * (C) Copyright 2009
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __MANROLAND_COMMON_H

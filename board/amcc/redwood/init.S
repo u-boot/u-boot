@@ -2,7 +2,7 @@
  * (C) Copyright 2008
  * Feng Kan, Applied Micro Circuits Corp., fkan@amcc.com.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <ppc_asm.tmpl>

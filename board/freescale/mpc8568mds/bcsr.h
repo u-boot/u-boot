@@ -1,7 +1,7 @@
 /*
  * Copyright 2007 Freescale Semiconductor.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __BCSR_H_

@@ -4,7 +4,7 @@
  * Configuration settings for the "Nomadik Hardware Kit" NHK-8815,
  * the evaluation board for the Nomadik 8815 System on Chip.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

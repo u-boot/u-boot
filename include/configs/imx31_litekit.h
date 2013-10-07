@@ -6,7 +6,7 @@
  *
  * Configuration settings for the LogicPD i.MX31 Litekit board.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H

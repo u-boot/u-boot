@@ -60,7 +60,7 @@
 	// CPU types
 	$cputyp_vals = array('','MPC8260(HIP3)','MPC8260A(HIP4)','MPC8280(HIP7)','MPC8560');
 
-	// CPU/BUS/CPM clock speeds 
+	// CPU/BUS/CPM clock speeds
 	$clk_vals = array('','33MHZ','66MHZ','100MHZ','133MHZ','166MHZ','200MHZ','233MHZ','266MHZ','300MHZ','333MHZ','366MHZ','400MHZ','433MHZ','466MHZ','500MHZ','533MHZ','566MHZ','600MHZ','633MHZ','666MHZ','700MHZ','733MHZ','766MHZ','800MHZ','833MHZ','866MHZ','900MHZ','933MHZ','966MHZ','1000MHZ','1033MHZ','1066MHZ','1100MHZ','1133MHZ','1166MHZ','1200MHZ','1233MHZ','1266MHZ','1300MHZ','1333MHZ');
 
 	// sdram sizes (nbits array is for eeprom config file)

@@ -2,7 +2,7 @@
  * (C) Copyright 2002-2008
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /* Pull in the current config to define the default environment */

@@ -1,7 +1,7 @@
 /*
  *  Copyright (C) 2002 Scott McNutt <smcnutt@artesyncp.com>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <ppc_asm.tmpl>

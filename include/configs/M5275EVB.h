@@ -7,7 +7,7 @@
  * Based off of M5272C3 board code by Josef Baumgartner
  * <josef.baumgartner@telex.de>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*

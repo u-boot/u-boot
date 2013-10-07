@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2010 Marek Vasut <marek.vasut@gmail.com>
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef	__CONFIG_PXA_COMMON_H__

@@ -6,7 +6,7 @@
  * No standalonw port yet available
  * - this file is included by both integratorap.h & integratorcp.h
  *
- * SPDX-License-Identifier:	GPL-2.0+ 
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ARMCOREMODULE_H
