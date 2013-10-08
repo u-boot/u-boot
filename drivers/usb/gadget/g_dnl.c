@@ -79,6 +79,8 @@ static int g_dnl_unbind(struct usb_composite_dev *cdev)
 {
 	struct usb_gadget *gadget = cdev->gadget;
 
+	free(cdev->config);
+	cdev->config = NULL;
 	debug("%s: calling usb_gadget_disconnect for "
 			"controller '%s'\n", shortname, gadget->name);
 	usb_gadget_disconnect(gadget);
@@ -105,16 +107,22 @@ static int g_dnl_do_config(struct usb_configuration *c)
 
 static int g_dnl_config_register(struct usb_composite_dev *cdev)
 {
-	static struct usb_configuration config = {
-		.label = "usb_dnload",
-		.bmAttributes =	USB_CONFIG_ATT_ONE | USB_CONFIG_ATT_SELFPOWER,
-		.bConfigurationValue =	CONFIGURATION_NUMBER,
-		.iConfiguration =	STRING_USBDOWN,
+	struct usb_configuration *config;
+	const char *name = "usb_dnload";
 
-		.bind = g_dnl_do_config,
-	};
+	config = memalign(CONFIG_SYS_CACHELINE_SIZE, sizeof(*config));
+	if (!config)
+		return -ENOMEM;
 
-	return usb_add_config(cdev, &config);
+	memset(config, 0, sizeof(*config));
+
+	config->label = name;
+	config->bmAttributes = USB_CONFIG_ATT_ONE | USB_CONFIG_ATT_SELFPOWER;
+	config->bConfigurationValue = CONFIGURATION_NUMBER;
+	config->iConfiguration = STRING_USBDOWN;
+	config->bind = g_dnl_do_config;
+
+	return usb_add_config(cdev, config);
 }
 
 __weak
