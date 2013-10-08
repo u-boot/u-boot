@@ -171,7 +171,6 @@
 	"run mmcboot;" \
 	"setenv mmcdev 1; " \
 	"setenv bootpart 1:2; " \
-	"setenv mmcroot /dev/mmcblk1p2 ro; " \
 	"run mmcboot;" \
 	"run nandboot;"
 
