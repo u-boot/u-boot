@@ -16,6 +16,7 @@
 #include <g_dnl.h>
 #include <usb_mass_storage.h>
 #include <dfu.h>
+#include <thor.h>
 
 #include "gadget_chips.h"
 #include "composite.c"
@@ -101,6 +102,8 @@ static int g_dnl_do_config(struct usb_configuration *c)
 		ret = dfu_add(c);
 	else if (!strcmp(s, "usb_dnl_ums"))
 		ret = fsg_add(c);
+	else if (!strcmp(s, "usb_dnl_thor"))
+		ret = thor_add(c);
 
 	return ret;
 }
@@ -191,14 +194,17 @@ static struct usb_composite_driver g_dnl_driver = {
 
 int g_dnl_register(const char *type)
 {
-	/* We only allow "dfu" atm, so 3 should be enough */
-	static char name[sizeof(shortname) + 3];
+	/* The largest function name is 4 */
+	static char name[sizeof(shortname) + 4];
 	int ret;
 
 	if (!strcmp(type, "dfu")) {
 		strcpy(name, shortname);
 		strcat(name, type);
 	} else if (!strcmp(type, "ums")) {
+		strcpy(name, shortname);
+		strcat(name, type);
+	} else if (!strcmp(type, "thor")) {
 		strcpy(name, shortname);
 		strcat(name, type);
 	} else {
