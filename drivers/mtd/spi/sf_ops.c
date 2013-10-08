@@ -59,6 +59,22 @@ static int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 bank_sel)
 
 	return 0;
 }
+
+static int spi_flash_bank(struct spi_flash *flash, u32 offset)
+{
+	u8 bank_sel;
+	int ret;
+
+	bank_sel = offset / SPI_FLASH_16MB_BOUN;
+
+	ret = spi_flash_cmd_bankaddr_write(flash, bank_sel);
+	if (ret) {
+		debug("SF: fail to set bank%d\n", bank_sel);
+		return ret;
+	}
+
+	return 0;
+}
 #endif
 
 int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
@@ -162,15 +178,9 @@ int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 	cmd[0] = flash->erase_cmd;
 	while (len) {
 #ifdef CONFIG_SPI_FLASH_BAR
-		u8 bank_sel;
-
-		bank_sel = offset / SPI_FLASH_16MB_BOUN;
-
-		ret = spi_flash_cmd_bankaddr_write(flash, bank_sel);
-		if (ret) {
-			debug("SF: fail to set bank%d\n", bank_sel);
+		ret = spi_flash_bank(flash, offset);
+		if (ret < 0)
 			return ret;
-		}
 #endif
 		spi_flash_addr(offset, cmd);
 
@@ -203,15 +213,9 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 	cmd[0] = CMD_PAGE_PROGRAM;
 	for (actual = 0; actual < len; actual += chunk_len) {
 #ifdef CONFIG_SPI_FLASH_BAR
-		u8 bank_sel;
-
-		bank_sel = offset / SPI_FLASH_16MB_BOUN;
-
-		ret = spi_flash_cmd_bankaddr_write(flash, bank_sel);
-		if (ret) {
-			debug("SF: fail to set bank%d\n", bank_sel);
+		ret = spi_flash_bank(flash, offset);
+		if (ret < 0)
 			return ret;
-		}
 #endif
 		byte_addr = offset % page_size;
 		chunk_len = min(len - actual, page_size - byte_addr);
