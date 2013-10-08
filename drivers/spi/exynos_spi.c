@@ -247,24 +247,27 @@ static int spi_rx_tx(struct exynos_spi_slave *spi_slave, int todo,
 
 		/* Keep the fifos full/empty. */
 		spi_get_fifo_levels(regs, &rx_lvl, &tx_lvl);
-		if (tx_lvl < spi_slave->fifo_size && out_bytes) {
+		while (tx_lvl < spi_slave->fifo_size/2 && out_bytes) {
 			temp = txp ? *txp++ : 0xff;
 			writel(temp, &regs->tx_data);
 			out_bytes--;
+			tx_lvl++;
 		}
 		if (rx_lvl > 0) {
-			temp = readl(&regs->rx_data);
-			if (spi_slave->skip_preamble) {
-				if (temp == SPI_PREAMBLE_END_BYTE) {
-					spi_slave->skip_preamble = 0;
-					stopping = 0;
+			while (rx_lvl > 0) {
+				temp = readl(&regs->rx_data);
+				if (spi_slave->skip_preamble) {
+					if (temp == SPI_PREAMBLE_END_BYTE) {
+						spi_slave->skip_preamble = 0;
+						stopping = 0;
+					}
+				} else {
+					if (rxp || stopping)
+						*rxp++ = temp;
+					in_bytes--;
 				}
-			} else {
-				if (rxp || stopping)
-					*rxp++ = temp;
-				in_bytes--;
-			}
-			toread--;
+				toread--;
+				rx_lvl--;
 		} else if (!toread) {
 			/*
 			 * We have run out of input data, but haven't read
