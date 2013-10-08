@@ -26,6 +26,7 @@ struct spi_bus {
 	struct exynos_spi *regs;
 	int inited;		/* 1 if this bus is ready for use */
 	int node;
+	uint deactivate_delay_us;	/* Delay to wait after deactivate */
 };
 
 /* A list of spi buses that we know about */
@@ -40,6 +41,8 @@ struct exynos_spi_slave {
 	enum periph_id periph_id;	/* Peripheral ID for this device */
 	unsigned int fifo_size;
 	int skip_preamble;
+	struct spi_bus *bus;		/* Pointer to our SPI bus info */
+	ulong last_transaction_us;	/* Time of last transaction end */
 };
 
 static struct spi_bus *spi_get_bus(unsigned dev_index)
@@ -85,6 +88,7 @@ struct spi_slave *spi_setup_slave(unsigned int busnum, unsigned int cs,
 	}
 
 	bus = &spi_bus[busnum];
+	spi_slave->bus = bus;
 	spi_slave->regs = bus->regs;
 	spi_slave->mode = mode;
 	spi_slave->periph_id = bus->periph_id;
@@ -95,6 +99,7 @@ struct spi_slave *spi_setup_slave(unsigned int busnum, unsigned int cs,
 		spi_slave->fifo_size = 256;
 
 	spi_slave->skip_preamble = 0;
+	spi_slave->last_transaction_us = timer_get_us();
 
 	spi_slave->freq = bus->frequency;
 	if (max_hz)
@@ -359,9 +364,22 @@ void spi_cs_activate(struct spi_slave *slave)
 {
 	struct exynos_spi_slave *spi_slave = to_exynos_spi(slave);
 
+	/* If it's too soon to do another transaction, wait */
+	if (spi_slave->bus->deactivate_delay_us &&
+	    spi_slave->last_transaction_us) {
+		ulong delay_us;		/* The delay completed so far */
+		delay_us = timer_get_us() - spi_slave->last_transaction_us;
+		if (delay_us < spi_slave->bus->deactivate_delay_us)
+			udelay(spi_slave->bus->deactivate_delay_us - delay_us);
+	}
+
 	clrbits_le32(&spi_slave->regs->cs_reg, SPI_SLAVE_SIG_INACT);
 	debug("Activate CS, bus %d\n", spi_slave->slave.bus);
 	spi_slave->skip_preamble = spi_slave->mode & SPI_PREAMBLE;
+
+	/* Remember time of this transaction so we can honour the bus delay */
+	if (spi_slave->bus->deactivate_delay_us)
+		spi_slave->last_transaction_us = timer_get_us();
 }
 
 /**
@@ -411,6 +429,8 @@ static int spi_get_config(const void *blob, int node, struct spi_bus *bus)
 	/* Use 500KHz as a suitable default */
 	bus->frequency = fdtdec_get_int(blob, node, "spi-max-frequency",
 					500000);
+	bus->deactivate_delay_us = fdtdec_get_int(blob, node,
+					"spi-deactivate-delay", 0);
 
 	return 0;
 }
