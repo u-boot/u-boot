@@ -10,8 +10,10 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).o
 
-COBJS	:= socfpga_cyclone5.o
+COBJS-y	:= socfpga_cyclone5.o
+COBJS-$(CONFIG_SPL_BUILD) += pinmux_config.o
 
+COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 

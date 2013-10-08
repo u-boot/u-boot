@@ -7,6 +7,7 @@
 #define __CONFIG_H
 
 #include <asm/arch/socfpga_base_addrs.h>
+#include "../../board/altera/socfpga/pinmux_config.h"
 
 /*
  * High level configuration

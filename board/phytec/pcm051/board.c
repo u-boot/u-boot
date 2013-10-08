@@ -150,6 +150,7 @@ static struct cpsw_platform_data cpsw_data = {
 	.ale_entries		= 1024,
 	.host_port_reg_ofs	= 0x108,
 	.hw_stats_reg_ofs	= 0x900,
+	.bd_ram_ofs		= 0x2000,
 	.mac_control		= (1 << 5),
 	.control		= cpsw_control,
 	.host_port_num		= 0,

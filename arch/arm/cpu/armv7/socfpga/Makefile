@@ -13,7 +13,7 @@ include $(TOPDIR)/config.mk
 LIB	=  $(obj)lib$(SOC).o
 
 SOBJS	:= lowlevel_init.o
-COBJS-y	:= misc.o timer.o reset_manager.o
+COBJS-y	:= misc.o timer.o reset_manager.o system_manager.o
 COBJS-$(CONFIG_SPL_BUILD) += spl.o
 
 COBJS	:= $(COBJS-y)
