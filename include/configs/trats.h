@@ -49,8 +49,9 @@
 #define MACH_TYPE_TRATS			3928
 #define CONFIG_MACH_TYPE		MACH_TYPE_TRATS
 
+#include <asm/sizes.h>
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (16 << 20))
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (80 * SZ_1M))
 
 /* select serial console configuration */
 #define CONFIG_SERIAL2			/* use SERIAL 2 */
@@ -91,12 +92,20 @@
 
 /* USB Composite download gadget - g_dnl */
 #define CONFIG_USBDOWNLOAD_GADGET
+
+/* TIZEN THOR downloader support */
+#define CONFIG_CMD_THOR_DOWNLOAD
+#define CONFIG_THOR_FUNCTION
+
+#define CONFIG_SYS_DFU_DATA_BUF_SIZE SZ_32M
 #define CONFIG_DFU_FUNCTION
 #define CONFIG_DFU_MMC
 
 /* USB Samsung's IDs */
 #define CONFIG_G_DNL_VENDOR_NUM 0x04E8
 #define CONFIG_G_DNL_PRODUCT_NUM 0x6601
+#define CONFIG_G_DNL_THOR_VENDOR_NUM CONFIG_G_DNL_VENDOR_NUM
+#define CONFIG_G_DNL_THOR_PRODUCT_NUM 0x685D
 #define CONFIG_G_DNL_MANUFACTURER "Samsung"
 
 #define CONFIG_BOOTDELAY		1
@@ -131,7 +140,8 @@
 #define CONFIG_DFU_ALT \
 	"u-boot mmc 80 400;" \
 	"uImage ext4 0 2;" \
-	"exynos4210-trats.dtb ext4 0 2\0"
+	"exynos4210-trats.dtb ext4 0 2;" \
+	""PARTS_ROOT" part 0 5\0"
 
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
