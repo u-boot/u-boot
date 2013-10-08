@@ -564,7 +564,7 @@ static int match_entry(ENTRY *ep, int flag,
 	int arg;
 	void *priv = NULL;
 
-	for (arg = 1; arg < argc; ++arg) {
+	for (arg = 0; arg < argc; ++arg) {
 #ifdef CONFIG_REGEX
 		struct slre slre;
 

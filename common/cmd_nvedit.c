@@ -157,10 +157,8 @@ static int do_env_grep(cmd_tbl_t *cmdtp, int flag,
 	grep_how  = H_MATCH_SUBSTR;	/* default: substring search	*/
 	grep_what = H_MATCH_BOTH;	/* default: grep names and values */
 
-	while (argc > 1 && **(argv + 1) == '-') {
-		char *arg = *++argv;
-
-		--argc;
+	while (--argc > 0 && **++argv == '-') {
+		char *arg = *argv;
 		while (*++arg) {
 			switch (*arg) {
 #ifdef CONFIG_REGEX
