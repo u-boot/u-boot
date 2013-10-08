@@ -596,6 +596,12 @@ void ddr_enable_ecc(unsigned int dram_size);
 #endif
 #endif
 
+/*
+ * Return the current value of a monotonically increasing microsecond timer.
+ * Granularity may be larger than 1us if hardware does not support this.
+ */
+ulong timer_get_us(void);
+
 /* $(CPU)/cpu.c */
 static inline int cpumask_next(int cpu, unsigned int mask)
 {
