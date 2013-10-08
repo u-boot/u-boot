@@ -126,6 +126,7 @@ const char *dfu_get_layout(enum dfu_layout l);
 struct dfu_entity *dfu_get_entity(int alt);
 char *dfu_extract_token(char** e, int *n);
 void dfu_trigger_reset(void);
+int dfu_get_alt(char *name);
 bool dfu_reset(void);
 int dfu_init_env_entities(char *interface, int dev);
 

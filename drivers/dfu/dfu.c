@@ -440,3 +440,15 @@ struct dfu_entity *dfu_get_entity(int alt)
 
 	return NULL;
 }
+
+int dfu_get_alt(char *name)
+{
+	struct dfu_entity *dfu;
+
+	list_for_each_entry(dfu, &dfu_list, list) {
+		if (!strncmp(dfu->name, name, strlen(dfu->name)))
+			return dfu->alt;
+	}
+
+	return -ENODEV;
+}
