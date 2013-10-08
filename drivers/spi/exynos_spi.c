@@ -204,12 +204,29 @@ static void spi_get_fifo_levels(struct exynos_spi *regs,
  *
  * @param regs	SPI peripheral registers
  * @param count	Number of bytes to transfer
+ * @param step	Number of bytes to transfer in each packet (1 or 4)
  */
-static void spi_request_bytes(struct exynos_spi *regs, int count)
+static void spi_request_bytes(struct exynos_spi *regs, int count, int step)
 {
+	/* For word address we need to swap bytes */
+	if (step == 4) {
+		setbits_le32(&regs->mode_cfg,
+			     SPI_MODE_CH_WIDTH_WORD | SPI_MODE_BUS_WIDTH_WORD);
+		count /= 4;
+		setbits_le32(&regs->swap_cfg, SPI_TX_SWAP_EN | SPI_RX_SWAP_EN |
+			SPI_TX_BYTE_SWAP | SPI_RX_BYTE_SWAP |
+			SPI_TX_HWORD_SWAP | SPI_RX_HWORD_SWAP);
+	} else {
+		/* Select byte access and clear the swap configuration */
+		clrbits_le32(&regs->mode_cfg,
+			     SPI_MODE_CH_WIDTH_WORD | SPI_MODE_BUS_WIDTH_WORD);
+		writel(0, &regs->swap_cfg);
+	}
+
 	assert(count && count < (1 << 16));
 	setbits_le32(&regs->ch_cfg, SPI_CH_RST);
 	clrbits_le32(&regs->ch_cfg, SPI_CH_RST);
+
 	writel(count | SPI_PACKET_CNT_EN, &regs->pkt_cnt);
 }
 
@@ -224,6 +241,7 @@ static int spi_rx_tx(struct exynos_spi_slave *spi_slave, int todo,
 	int toread;
 	unsigned start = get_timer(0);
 	int stopping;
+	int step;
 
 	out_bytes = in_bytes = todo;
 
@@ -231,10 +249,19 @@ static int spi_rx_tx(struct exynos_spi_slave *spi_slave, int todo,
 					!(spi_slave->mode & SPI_SLAVE);
 
 	/*
+	 * Try to transfer words if we can. This helps read performance at
+	 * SPI clock speeds above about 20MHz.
+	 */
+	step = 1;
+	if (!((todo | (uintptr_t)rxp | (uintptr_t)txp) & 3) &&
+	    !spi_slave->skip_preamble)
+		step = 4;
+
+	/*
 	 * If there's something to send, do a software reset and set a
 	 * transaction size.
 	 */
-	spi_request_bytes(regs, todo);
+	spi_request_bytes(regs, todo, step);
 
 	/*
 	 * Bytes are transmitted/received in pairs. Wait to receive all the
@@ -247,14 +274,26 @@ static int spi_rx_tx(struct exynos_spi_slave *spi_slave, int todo,
 
 		/* Keep the fifos full/empty. */
 		spi_get_fifo_levels(regs, &rx_lvl, &tx_lvl);
+
+		/*
+		 * Don't completely fill the txfifo, since we don't want our
+		 * rxfifo to overflow, and it may already contain data.
+		 */
 		while (tx_lvl < spi_slave->fifo_size/2 && out_bytes) {
-			temp = txp ? *txp++ : 0xff;
+			if (!txp)
+				temp = -1;
+			else if (step == 4)
+				temp = *(uint32_t *)txp;
+			else
+				temp = *txp;
 			writel(temp, &regs->tx_data);
-			out_bytes--;
-			tx_lvl++;
+			out_bytes -= step;
+			if (txp)
+				txp += step;
+			tx_lvl += step;
 		}
-		if (rx_lvl > 0) {
-			while (rx_lvl > 0) {
+		if (rx_lvl >= step) {
+			while (rx_lvl >= step) {
 				temp = readl(&regs->rx_data);
 				if (spi_slave->skip_preamble) {
 					if (temp == SPI_PREAMBLE_END_BYTE) {
@@ -262,12 +301,15 @@ static int spi_rx_tx(struct exynos_spi_slave *spi_slave, int todo,
 						stopping = 0;
 					}
 				} else {
-					if (rxp || stopping)
-						*rxp++ = temp;
-					in_bytes--;
+					if (rxp || stopping) {
+						*rxp = temp;
+						rxp += step;
+					}
+					in_bytes -= step;
 				}
-				toread--;
-				rx_lvl--;
+				toread -= step;
+				rx_lvl -= step;
+			}
 		} else if (!toread) {
 			/*
 			 * We have run out of input data, but haven't read
@@ -279,7 +321,7 @@ static int spi_rx_tx(struct exynos_spi_slave *spi_slave, int todo,
 			out_bytes = in_bytes;
 			toread = in_bytes;
 			txp = NULL;
-			spi_request_bytes(regs, toread);
+			spi_request_bytes(regs, toread, step);
 		}
 		if (spi_slave->skip_preamble && get_timer(start) > 100) {
 			printf("SPI timeout: in_bytes=%d, out_bytes=%d, ",
@@ -323,10 +365,14 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	if ((flags & SPI_XFER_BEGIN))
 		spi_cs_activate(slave);
 
-	/* Exynos SPI limits each transfer to 65535 bytes */
+	/*
+	 * Exynos SPI limits each transfer to 65535 transfers. To keep
+	 * things simple, allow a maximum of 65532 bytes. We could allow
+	 * more in word mode, but the performance difference is small.
+	 */
 	bytelen =  bitlen / 8;
 	for (upto = 0; !ret && upto < bytelen; upto += todo) {
-		todo = min(bytelen - upto, (1 << 16) - 1);
+		todo = min(bytelen - upto, (1 << 16) - 4);
 		ret = spi_rx_tx(spi_slave, todo, &din, &dout, flags);
 		if (ret)
 			break;
