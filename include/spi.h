@@ -25,29 +25,33 @@
 #define	SPI_PREAMBLE	0x80			/* Skip preamble bytes */
 
 /* SPI transfer flags */
-#define SPI_XFER_BEGIN	0x01			/* Assert CS before transfer */
-#define SPI_XFER_END	0x02			/* Deassert CS after transfer */
+#define SPI_XFER_BEGIN		0x01	/* Assert CS before transfer */
+#define SPI_XFER_END		0x02	/* Deassert CS after transfer */
+#define SPI_XFER_MMAP		0x08	/* Memory Mapped start */
+#define SPI_XFER_MMAP_END	0x10	/* Memory Mapped End */
 
 /* Header byte that marks the start of the message */
 #define SPI_PREAMBLE_END_BYTE	0xec
 
-/*-----------------------------------------------------------------------
- * Representation of a SPI slave, i.e. what we're communicating with.
+/**
+ * struct spi_slave - Representation of a SPI slave
  *
  * Drivers are expected to extend this with controller-specific data.
  *
- *   bus:	ID of the bus that the slave is attached to.
- *   cs:	ID of the chip select connected to the slave.
- *   max_write_size:	If non-zero, the maximum number of bytes which can
- *		be written at once, excluding command bytes.
+ * @bus:		ID of the bus that the slave is attached to.
+ * @cs:			ID of the chip select connected to the slave.
+ * @max_write_size:	If non-zero, the maximum number of bytes which can
+ *			be written at once, excluding command bytes.
+ * @memory_map:		Address of read-only SPI flash access.
  */
 struct spi_slave {
-	unsigned int	bus;
-	unsigned int	cs;
+	unsigned int bus;
+	unsigned int cs;
 	unsigned int max_write_size;
+	void *memory_map;
 };
 
-/*-----------------------------------------------------------------------
+/**
  * Initialization, must be called once on start up.
  *
  * TODO: I don't think we really need this.
@@ -60,10 +64,10 @@ void spi_init(void);
  * Allocate and zero all fields in the spi slave, and set the bus/chip
  * select. Use the helper macro spi_alloc_slave() to call this.
  *
- * @offset: Offset of struct spi_slave within slave structure
- * @size: Size of slave structure
- * @bus: Bus ID of the slave chip.
- * @cs: Chip select ID of the slave chip on the specified bus.
+ * @offset:	Offset of struct spi_slave within slave structure.
+ * @size:	Size of slave structure.
+ * @bus:	Bus ID of the slave chip.
+ * @cs:		Chip select ID of the slave chip on the specified bus.
  */
 void *spi_do_alloc_slave(int offset, int size, unsigned int bus,
 			 unsigned int cs);
@@ -74,10 +78,10 @@ void *spi_do_alloc_slave(int offset, int size, unsigned int bus,
  * Allocate and zero all fields in the spi slave, and set the bus/chip
  * select.
  *
- * @_struct: Name of structure to allocate (e.g. struct tegra_spi). This
- *	structure must contain a member 'struct spi_slave *slave'.
- * @bus: Bus ID of the slave chip.
- * @cs: Chip select ID of the slave chip on the specified bus.
+ * @_struct:	Name of structure to allocate (e.g. struct tegra_spi).
+ *		This structure must contain a member 'struct spi_slave *slave'.
+ * @bus:	Bus ID of the slave chip.
+ * @cs:		Chip select ID of the slave chip on the specified bus.
  */
 #define spi_alloc_slave(_struct, bus, cs) \
 	spi_do_alloc_slave(offsetof(_struct, slave), \
@@ -89,13 +93,13 @@ void *spi_do_alloc_slave(int offset, int size, unsigned int bus,
  * Allocate and zero all fields in the spi slave, and set the bus/chip
  * select.
  *
- * @bus: Bus ID of the slave chip.
- * @cs: Chip select ID of the slave chip on the specified bus.
+ * @bus:	Bus ID of the slave chip.
+ * @cs:		Chip select ID of the slave chip on the specified bus.
  */
 #define spi_alloc_slave_base(bus, cs) \
 	spi_do_alloc_slave(0, sizeof(struct spi_slave), bus, cs)
 
-/*-----------------------------------------------------------------------
+/**
  * Set up communications parameters for a SPI slave.
  *
  * This must be called once for each slave. Note that this function
@@ -103,10 +107,10 @@ void *spi_do_alloc_slave(int offset, int size, unsigned int bus,
  * contents of spi_slave so that the hardware can be easily
  * initialized later.
  *
- *   bus:     Bus ID of the slave chip.
- *   cs:      Chip select ID of the slave chip on the specified bus.
- *   max_hz:  Maximum SCK rate in Hz.
- *   mode:    Clock polarity, clock phase and other parameters.
+ * @bus:	Bus ID of the slave chip.
+ * @cs:		Chip select ID of the slave chip on the specified bus.
+ * @max_hz:	Maximum SCK rate in Hz.
+ * @mode:	Clock polarity, clock phase and other parameters.
  *
  * Returns: A spi_slave reference that can be used in subsequent SPI
  * calls, or NULL if one or more of the parameters are not supported.
@@ -114,14 +118,14 @@ void *spi_do_alloc_slave(int offset, int size, unsigned int bus,
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		unsigned int max_hz, unsigned int mode);
 
-/*-----------------------------------------------------------------------
+/**
  * Free any memory associated with a SPI slave.
  *
- *   slave:	The SPI slave
+ * @slave:	The SPI slave
  */
 void spi_free_slave(struct spi_slave *slave);
 
-/*-----------------------------------------------------------------------
+/**
  * Claim the bus and prepare it for communication with a given slave.
  *
  * This must be called before doing any transfers with a SPI slave. It
@@ -130,25 +134,25 @@ void spi_free_slave(struct spi_slave *slave);
  * allowed to claim the same bus for several slaves without releasing
  * the bus in between.
  *
- *   slave:	The SPI slave
+ * @slave:	The SPI slave
  *
  * Returns: 0 if the bus was claimed successfully, or a negative value
  * if it wasn't.
  */
 int spi_claim_bus(struct spi_slave *slave);
 
-/*-----------------------------------------------------------------------
+/**
  * Release the SPI bus
  *
  * This must be called once for every call to spi_claim_bus() after
  * all transfers have finished. It may disable any SPI hardware as
  * appropriate.
  *
- *   slave:	The SPI slave
+ * @slave:	The SPI slave
  */
 void spi_release_bus(struct spi_slave *slave);
 
-/*-----------------------------------------------------------------------
+/**
  * SPI transfer
  *
  * This writes "bitlen" bits out the SPI MOSI port and simultaneously clocks
@@ -161,19 +165,19 @@ void spi_release_bus(struct spi_slave *slave);
  * temporary variables, this is OK).
  *
  * spi_xfer() interface:
- *   slave:	The SPI slave which will be sending/receiving the data.
- *   bitlen:	How many bits to write and read.
- *   dout:	Pointer to a string of bits to send out.  The bits are
+ * @slave:	The SPI slave which will be sending/receiving the data.
+ * @bitlen:	How many bits to write and read.
+ * @dout:	Pointer to a string of bits to send out.  The bits are
  *		held in a byte array and are sent MSB first.
- *   din:	Pointer to a string of bits that will be filled in.
- *   flags:	A bitwise combination of SPI_XFER_* flags.
+ * @din:	Pointer to a string of bits that will be filled in.
+ * @flags:	A bitwise combination of SPI_XFER_* flags.
  *
- *   Returns: 0 on success, not 0 on failure
+ * Returns: 0 on success, not 0 on failure
  */
 int  spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		void *din, unsigned long flags);
 
-/*-----------------------------------------------------------------------
+/**
  * Determine if a SPI chipselect is valid.
  * This function is provided by the board if the low-level SPI driver
  * needs it to determine if a given chipselect is actually valid.
@@ -183,7 +187,7 @@ int  spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
  */
 int  spi_cs_is_valid(unsigned int bus, unsigned int cs);
 
-/*-----------------------------------------------------------------------
+/**
  * Activate a SPI chipselect.
  * This function is provided by the board code when using a driver
  * that can't control its chipselects automatically (e.g.
@@ -192,7 +196,7 @@ int  spi_cs_is_valid(unsigned int bus, unsigned int cs);
  */
 void spi_cs_activate(struct spi_slave *slave);
 
-/*-----------------------------------------------------------------------
+/**
  * Deactivate a SPI chipselect.
  * This function is provided by the board code when using a driver
  * that can't control its chipselects automatically (e.g.
@@ -201,18 +205,18 @@ void spi_cs_activate(struct spi_slave *slave);
  */
 void spi_cs_deactivate(struct spi_slave *slave);
 
-/*-----------------------------------------------------------------------
+/**
  * Set transfer speed.
  * This sets a new speed to be applied for next spi_xfer().
- *   slave:	The SPI slave
- *   hz:	The transfer speed
+ * @slave:	The SPI slave
+ * @hz:		The transfer speed
  */
 void spi_set_speed(struct spi_slave *slave, uint hz);
 
-/*-----------------------------------------------------------------------
+/**
  * Write 8 bits, then read 8 bits.
- *   slave:	The SPI slave we're communicating with
- *   byte:	Byte to be written
+ * @slave:	The SPI slave we're communicating with
+ * @byte:	Byte to be written
  *
  * Returns: The value that was read, or a negative value on error.
  *

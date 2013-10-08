@@ -266,6 +266,7 @@ struct prcm_regs {
 	u32 cm_l4per_mmcsd4_clkctrl;
 	u32 cm_l4per_msprohg_clkctrl;
 	u32 cm_l4per_slimbus2_clkctrl;
+	u32 cm_l4per_qspi_clkctrl;
 	u32 cm_l4per_uart1_clkctrl;
 	u32 cm_l4per_uart2_clkctrl;
 	u32 cm_l4per_uart3_clkctrl;

@@ -170,7 +170,7 @@ static const struct dpll_params per_dpll_params_768mhz_es2[NUM_SYS_CLKS] = {
 
 static const struct dpll_params per_dpll_params_768mhz_dra7xx[NUM_SYS_CLKS] = {
 	{32, 0, 4, 1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 12 MHz   */
-	{96, 4, 4, 1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 20 MHz   */
+	{96, 4, 4, 1, 3, 4, 4, 2, -1, -1, -1, -1},		/* 20 MHz   */
 	{160, 6, 4, 1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 16.8 MHz */
 	{20, 0, 4, 1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 19.2 MHz */
 	{192, 12, 4, 1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 26 MHz   */
@@ -426,6 +426,10 @@ void enable_basic_clocks(void)
 #ifdef CONFIG_DRIVER_TI_CPSW
 		(*prcm)->cm_gmac_gmac_clkctrl,
 #endif
+
+#ifdef CONFIG_TI_QSPI
+		(*prcm)->cm_l4per_qspi_clkctrl,
+#endif
 		0
 	};
 
@@ -453,6 +457,10 @@ void enable_basic_clocks(void)
 			 clk_modules_hw_auto_essential,
 			 clk_modules_explicit_en_essential,
 			 1);
+
+#ifdef CONFIG_TI_QSPI
+	setbits_le32((*prcm)->cm_l4per_qspi_clkctrl, (1<<24));
+#endif
 
 	/* Enable SCRM OPT clocks for PER and CORE dpll */
 	setbits_le32((*prcm)->cm_wkupaon_scrm_clkctrl,

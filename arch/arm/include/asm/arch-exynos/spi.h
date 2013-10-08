@@ -22,7 +22,7 @@ struct exynos_spi {
 	unsigned int		rx_data;	/* 0x1c */
 	unsigned int		pkt_cnt;	/* 0x20 */
 	unsigned char		reserved2[4];
-	unsigned char		reserved3[4];
+	unsigned int		swap_cfg;	/* 0x28 */
 	unsigned int		fb_clk;		/* 0x2c */
 	unsigned char		padding[0xffd0];
 };
@@ -61,6 +61,15 @@ struct exynos_spi {
 
 /* Packet Count */
 #define SPI_PACKET_CNT_EN	(1 << 16)
+
+/* Swap config */
+#define SPI_TX_SWAP_EN		(1 << 0)
+#define SPI_TX_BYTE_SWAP	(1 << 2)
+#define SPI_TX_HWORD_SWAP	(1 << 3)
+#define SPI_TX_BYTE_SWAP	(1 << 2)
+#define SPI_RX_SWAP_EN		(1 << 4)
+#define SPI_RX_BYTE_SWAP	(1 << 6)
+#define SPI_RX_HWORD_SWAP	(1 << 7)
 
 #endif /* __ASSEMBLY__ */
 #endif
