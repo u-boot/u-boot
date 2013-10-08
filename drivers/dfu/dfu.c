@@ -67,14 +67,14 @@ int dfu_init_env_entities(char *interface, int dev)
 static unsigned char *dfu_buf;
 static unsigned long dfu_buf_size = CONFIG_SYS_DFU_DATA_BUF_SIZE;
 
-static unsigned char *dfu_free_buf(void)
+unsigned char *dfu_free_buf(void)
 {
 	free(dfu_buf);
 	dfu_buf = NULL;
 	return dfu_buf;
 }
 
-static unsigned char *dfu_get_buf(void)
+unsigned char *dfu_get_buf(void)
 {
 	char *s;
 

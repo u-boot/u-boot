@@ -129,6 +129,8 @@ void dfu_trigger_reset(void);
 int dfu_get_alt(char *name);
 bool dfu_reset(void);
 int dfu_init_env_entities(char *interface, int dev);
+unsigned char *dfu_get_buf(void);
+unsigned char *dfu_free_buf(void);
 
 int dfu_read(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
 int dfu_write(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
