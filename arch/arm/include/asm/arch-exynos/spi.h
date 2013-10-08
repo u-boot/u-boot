@@ -30,6 +30,7 @@ struct exynos_spi {
 #define EXYNOS_SPI_MAX_FREQ	50000000
 
 #define SPI_TIMEOUT_MS		10
+#define SF_READ_DATA_CMD	0x3
 
 /* SPI_CHCFG */
 #define SPI_CH_HS_EN		(1 << 6)

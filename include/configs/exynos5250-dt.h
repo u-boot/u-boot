@@ -157,6 +157,7 @@
 #define COPY_BL2_FNPTR_ADDR	0x02020030
 
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
+#define CONFIG_SPL_GPIO_SUPPORT
 
 /* specific .lds file */
 #define CONFIG_SPL_LDSCRIPT	"board/samsung/common/exynos-uboot-spl.lds"
@@ -266,6 +267,7 @@
 /* SPI */
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_SPI_FLASH
+#define CONFIG_ENV_SPI_BASE	0x12D30000
 
 #ifdef CONFIG_SPI_FLASH
 #define CONFIG_EXYNOS_SPI
