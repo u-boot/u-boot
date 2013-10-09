@@ -17,7 +17,7 @@ if ${fs}load ${dtype} ${disk}:1 12000000 u-boot.imx || ${fs}load ${dtype} ${disk
 			sleep 1 ;
 		   done
 		   echo "erasing" ;
-		   sf erase 0 0x50000 ;
+		   sf erase 0 0xC0000 ;
 		   # two steps to prevent bricking
 		   echo "programming" ;
 		   sf write 0x12000000 $offset $filesize ;
