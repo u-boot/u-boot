@@ -141,7 +141,7 @@ int do_reiserload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	filelen = reiserfs_open(filename);
 	if (filelen < 0) {
-		printf("** File not found %s\n", filename);
+		printf("** File not found %s **\n", filename);
 		return 1;
 	}
 	if ((count < filelen) && (count != 0)) {
