@@ -95,7 +95,7 @@ static int do_zfs_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	memset(&zfile, 0, sizeof(zfile));
 	zfile.device = &vdev;
 	if (zfs_open(&zfile, filename)) {
-		printf("** File not found %s\n", filename);
+		printf("** File not found %s **\n", filename);
 		return 1;
 	}
 
