@@ -83,7 +83,7 @@
 	"partitions=" PARTS_DEFAULT "\0" \
 	"optargs=\0" \
 	"mmcdev=0\0" \
-	"mmcroot=/dev/mmcblk0p2 rw\0" \
+	"mmcroot=/dev/mmcblk1p2 rw\0" \
 	"mmcrootfstype=ext4 rootwait\0" \
 	"mmcargs=setenv bootargs console=${console} " \
 		"${optargs} " \
@@ -97,9 +97,24 @@
 	"importbootenv=echo Importing environment from mmc${mmcdev} ...; " \
 		"env import -t ${loadaddr} ${filesize}\0" \
 	"loadimage=load mmc ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
-	"mmcboot=echo Booting from mmc${mmcdev} ...; " \
-		"run mmcargs; " \
-		"bootz ${loadaddr} - ${fdtaddr}\0" \
+	"mmcboot=mmc dev ${mmcdev}; " \
+		"if mmc rescan; then " \
+			"echo SD/MMC found on device ${mmcdev};" \
+			"if run loadbootenv; then " \
+				"echo Loaded environment from ${bootenv};" \
+				"run importbootenv;" \
+			"fi;" \
+			"if test -n $uenvcmd; then " \
+				"echo Running uenvcmd ...;" \
+				"run uenvcmd;" \
+			"fi;" \
+			"if run loadimage; then " \
+				"run loadfdt; " \
+				"echo Booting from mmc${mmcdev} ...; " \
+				"run mmcargs; " \
+				"bootz ${loadaddr} - ${fdtaddr}; " \
+			"fi;" \
+		"fi;\0" \
 	"findfdt="\
 		"if test $board_name = omap5_uevm; then " \
 			"setenv fdtfile omap5-uevm.dtb; fi; " \
@@ -111,23 +126,11 @@
 
 #define CONFIG_BOOTCOMMAND \
 	"run findfdt; " \
-	"mmc dev ${mmcdev}; if mmc rescan; then " \
-		"if run loadbootscript; then " \
-			"run bootscript; " \
-		"else " \
-			"if run loadbootenv; then " \
-				"run importbootenv; " \
-			"fi;" \
-			"if test -n ${uenvcmd}; then " \
-				"echo Running uenvcmd ...;" \
-				"run uenvcmd;" \
-			"fi;" \
-		"fi;" \
-		"if run loadimage; then " \
-			"run loadfdt; " \
-			"run mmcboot; " \
-		"fi; " \
-	"fi"
+	"run mmcboot;" \
+	"setenv mmcdev 1; " \
+	"setenv bootpart 1:2; " \
+	"setenv mmcroot /dev/mmcblk0p2 rw; " \
+	"run mmcboot;" \
 
 
 /*
