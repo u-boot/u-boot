@@ -226,7 +226,7 @@ U_BOOT_CMD(km_setboardid, 1, 0, do_setboardid, "setboardid", "read out bid and "
  *				application and in the init scripts (?)
  *	return 0 in case of match, 1 if not match or error
  */
-int do_checkboardidhwk(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_checkboardidhwk(cmd_tbl_t *cmdtp, int flag, int argc,
 			char *const argv[])
 {
 	unsigned long ivmbid = 0, ivmhwkey = 0;
@@ -367,7 +367,7 @@ U_BOOT_CMD(km_checkbidhwk, 2, 0, do_checkboardidhwk,
  *  if the testpin of the board is asserted, return 1
  *  *	else return 0
  */
-int do_checktestboot(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_checktestboot(cmd_tbl_t *cmdtp, int flag, int argc,
 			char *const argv[])
 {
 	int testpin = 0;

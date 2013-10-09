@@ -10,7 +10,7 @@
 #include <i2c.h>
 #include "common.h"
 
-int ivm_calc_crc(unsigned char *buf, int len)
+static int ivm_calc_crc(unsigned char *buf, int len)
 {
 	const unsigned short crc_tab[16] = {
 		0x0000, 0xCC01, 0xD801, 0x1400,
@@ -236,7 +236,7 @@ static int ivm_analyze_block2(unsigned char *buf, int len)
 	return 0;
 }
 
-int ivm_analyze_eeprom(unsigned char *buf, int len)
+static int ivm_analyze_eeprom(unsigned char *buf, int len)
 {
 	unsigned short	val;
 	unsigned char	valbuf[CONFIG_SYS_IVM_EEPROM_PAGE_LEN];

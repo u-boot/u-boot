@@ -28,7 +28,7 @@
 
 #include "../common/common.h"
 
-const qe_iop_conf_t qe_iop_conf_tab[] = {
+static const qe_iop_conf_t qe_iop_conf_tab[] = {
 	/* port pin dir open_drain assign */
 #if defined(CONFIG_MPC8360)
 	/* MDIO */
@@ -225,6 +225,11 @@ static struct mv88e_sw_reg extsw_conf[] = {
 	{ PORT(5), 0x1A, 0xADB1 },
 	/* port 6, unused, this port has no phy */
 	{ PORT(6), PORT_CTRL, PORT_DIS },
+	/*
+	 * Errata Fix: 1.9V Output from Internal 1.8V Regulator,
+	 * acc . MV-S300889-00D.pdf , clause 4.5
+	 */
+	{ PORT(5), 0x1A, 0xADB1 },
 };
 #endif
 
@@ -277,7 +282,7 @@ int last_stage_init(void)
 	return 0;
 }
 
-int fixed_sdram(void)
+static int fixed_sdram(void)
 {
 	immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	u32 msize = 0;
