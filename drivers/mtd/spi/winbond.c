@@ -164,5 +164,13 @@ struct spi_flash *spi_flash_probe_winbond(struct spi_slave *spi, u8 *idcode)
 	flash->sector_size = (idcode[1] == 0x20) ? 65536 : 4096;
 	flash->size = 4096 * 16 * params->nr_blocks;
 
+	if (flash->spi->is_dual == MODE_DUAL_PARALLEL) {
+		flash->page_size *= 2;
+		flash->sector_size *= 2;
+	}
+
+	if (flash->spi->is_dual > MODE_SINGLE)
+		flash->size *= 2;
+
 	return flash;
 }
