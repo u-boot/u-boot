@@ -261,7 +261,7 @@ static int mv_ep_disable(struct usb_ep *ep)
 	return 0;
 }
 
-static int mv_bounce(struct mv_ep *ep)
+static int mv_bounce(struct mv_ep *ep, int in)
 {
 	uint32_t addr = (uint32_t)ep->req.buf;
 	uint32_t ba;
@@ -290,8 +290,8 @@ align:
 		if (!ep->b_buf)
 			return -ENOMEM;
 	}
-
-	memcpy(ep->b_buf, ep->req.buf, ep->req.length);
+	if (in)
+		memcpy(ep->b_buf, ep->req.buf, ep->req.length);
 
 flush:
 	ba = (uint32_t)ep->b_buf;
@@ -300,29 +300,25 @@ flush:
 	return 0;
 }
 
-static void mv_debounce(struct mv_ep *ep)
+static void mv_debounce(struct mv_ep *ep, int in)
 {
 	uint32_t addr = (uint32_t)ep->req.buf;
 	uint32_t ba = (uint32_t)ep->b_buf;
 
+	if (in) {
+		if (addr == ba)
+			return;		/* not a bounce */
+		goto free;
+	}
 	invalidate_dcache_range(ba, ba + ep->b_len);
 
-	/* Input buffer address is not aligned. */
-	if (addr & (ARCH_DMA_MINALIGN - 1))
-		goto copy;
+	if (addr == ba)
+		return;		/* not a bounce */
 
-	/* Input buffer length is not aligned. */
-	if (ep->req.length & (ARCH_DMA_MINALIGN - 1))
-		goto copy;
-
-	/* The buffer is well aligned, only invalidate cache. */
-	return;
-
-copy:
 	memcpy(ep->req.buf, ep->b_buf, ep->req.length);
-
+free:
 	/* Large payloads use allocated buffer, free it. */
-	if (ep->req.length > 64)
+	if (ep->b_buf != ep->b_fast)
 		free(ep->b_buf);
 }
 
@@ -340,7 +336,7 @@ static int mv_ep_queue(struct usb_ep *ep,
 	head = mv_get_qh(num, in);
 	len = req->length;
 
-	ret = mv_bounce(mv_ep);
+	ret = mv_bounce(mv_ep, in);
 	if (ret)
 		return ret;
 
@@ -383,10 +379,9 @@ static void handle_ep_complete(struct mv_ep *ep)
 		       num, in ? "in" : "out", item->info, item->page0);
 
 	len = (item->info >> 16) & 0x7fff;
-
-	mv_debounce(ep);
-
 	ep->req.length -= len;
+	mv_debounce(ep, in);
+
 	DBG("ept%d %s complete %x\n",
 			num, in ? "in" : "out", len);
 	ep->req.complete(&ep->ep, &ep->req);
