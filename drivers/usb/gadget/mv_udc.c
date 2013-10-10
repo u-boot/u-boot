@@ -17,10 +17,6 @@
 #include <linux/types.h>
 #include <usb/mv_udc.h>
 
-#if CONFIG_USB_MAX_CONTROLLER_COUNT > 1
-#error This driver only supports one single controller.
-#endif
-
 /*
  * Check if the system has too long cachelines. If the cachelines are
  * longer then 128b, the driver will not be able flush/invalidate data
