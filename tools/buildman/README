@@ -89,10 +89,16 @@ a few commits or boards, it will be pretty slow. As a tip, if you don't
 plan to use your machine for anything else, you can use -T to increase the
 number of threads beyond the default.
 
-Buildman lets you build all boards, or a subset. Specify the subset using
-the board name, architecture name, SOC name, or anything else in the
-boards.cfg file. So 'at91' will build all AT91 boards (arm), powerpc will
-build all PowerPC boards.
+Buildman lets you build all boards, or a subset. Specify the subset by passing
+command-line arguments that list the desired board name, architecture name,
+SOC name, or anything else in the boards.cfg file. Multiple arguments are
+allowed. Each argument will be interpreted as a regular expression, so
+behaviour is a superset of exact or substring matching. Examples are:
+
+* 'tegra20'      All boards with a Tegra20 SoC
+* 'tegra'        All boards with any Tegra Soc (Tegra20, Tegra30, Tegra114...)
+* '^tegra[23]0$' All boards with either Tegra20 or Tegra30 SoC
+* 'powerpc'      All PowerPC boards
 
 Buildman does not store intermediate object files. It optionally copies
 the binary output into a directory when a build is successful. Size

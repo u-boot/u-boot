@@ -3,6 +3,8 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+import re
+
 class Board:
     """A particular board that we can build"""
     def __init__(self, status, arch, cpu, soc, vendor, board_name, target, options):
@@ -135,14 +137,22 @@ class Boards:
             due to each argument, arranged by argument.
         """
         result = {}
+        argres = {}
         for arg in args:
             result[arg] = 0
+            argres[arg] = re.compile(arg)
         result['all'] = 0
 
         for board in self._boards:
             if args:
                 for arg in args:
-                    if arg in board.props:
+                    argre = argres[arg]
+                    match = False
+                    for prop in board.props:
+                        match = argre.match(prop)
+                        if match:
+                            break
+                    if match:
                         if not board.build_it:
                             board.build_it = True
                             result[arg] += 1
