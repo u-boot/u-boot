@@ -13,10 +13,16 @@
 #include <config.h>
 #include <net.h>
 #include <malloc.h>
+#include <asm/byteorder.h>
+#include <asm/errno.h>
 #include <asm/io.h>
 #include <asm/unaligned.h>
 #include <linux/types.h>
+#include <linux/usb/ch9.h>
+#include <linux/usb/gadget.h>
 #include <usb/mv_udc.h>
+#include "../host/ehci.h"
+#include "mv_udc.h"
 
 /*
  * Check if the system has too long cachelines. If the cachelines are
