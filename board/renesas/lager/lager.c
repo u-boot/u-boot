@@ -19,6 +19,7 @@
 #include <asm/gpio.h>
 #include <asm/arch/rmobile.h>
 #include <miiphy.h>
+#include <i2c.h>
 #include "qos.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -354,4 +355,11 @@ int board_late_init(void)
 
 void reset_cpu(ulong addr)
 {
+	u8 val;
+
+	i2c_set_bus_num(3); /* PowerIC connected to ch3 */
+	i2c_init(400000, 0);
+	i2c_read(CONFIG_SYS_I2C_POWERIC_ADDR, 0x13, 1, &val, 1);
+	val |= 0x02;
+	i2c_write(CONFIG_SYS_I2C_POWERIC_ADDR, 0x13, 1, &val, 1);
 }
