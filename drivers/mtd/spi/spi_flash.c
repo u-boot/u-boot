@@ -75,8 +75,12 @@ static int spi_flash_get_status(struct spi_flash *flash, u8 cmd, u8 *resp)
 {
 	int ret;
 	struct spi_slave *spi = flash->spi;
+	unsigned long flags = SPI_XFER_BEGIN;
 
-	ret = spi_xfer(spi, 8, &cmd, NULL, SPI_XFER_BEGIN);
+	if ((spi->is_dual == MODE_DUAL_STACKED) && (spi->u_page == 1))
+		flags |= SPI_FLASH_U_PAGE;
+
+	ret = spi_xfer(spi, 8, &cmd, NULL, flags);
 	if (ret) {
 		debug("SF: fail to read %s status register\n",
 		      cmd == CMD_READ_STATUS ? "read" : "flag");
