@@ -47,6 +47,7 @@
 #include <commproc.h>
 #include <usbdevice.h>
 #include <usb/mpc8xx_udc.h>
+#include <usb/udc.h>
 
 #include "ep0.h"
 

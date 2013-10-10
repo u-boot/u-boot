@@ -162,32 +162,13 @@
 #define UDC_VBUS_MODE	    (1 << 18)
 
 /* OMAP Endpoint parameters */
-#define EP0_MAX_PACKET_SIZE 64
-#define UDC_OUT_ENDPOINT 2
-#define UDC_OUT_PACKET_SIZE 64
-#define UDC_IN_ENDPOINT	1
-#define UDC_IN_PACKET_SIZE 64
-#define UDC_INT_ENDPOINT 5
+#define UDC_OUT_PACKET_SIZE	64
+#define UDC_IN_PACKET_SIZE	64
 #define UDC_INT_PACKET_SIZE	16
-#define UDC_BULK_PACKET_SIZE 16
+#define UDC_BULK_PACKET_SIZE	16
 
-void udc_irq (void);
-/* Flow control */
-void udc_set_nak(int epid);
-void udc_unset_nak (int epid);
-
-/* Higher level functions for abstracting away from specific device */
-int udc_endpoint_write(struct usb_endpoint_instance *endpoint);
-
-int  udc_init (void);
-
-void udc_enable(struct usb_device_instance *device);
-void udc_disable(void);
-
-void udc_connect(void);
-void udc_disconnect(void);
-
-void udc_startup_events(struct usb_device_instance *device);
-void udc_setup_ep(struct usb_device_instance *device, unsigned int ep, struct usb_endpoint_instance *endpoint);
+#define UDC_INT_ENDPOINT 5
+#define UDC_OUT_ENDPOINT 2
+#define UDC_IN_ENDPOINT	1
 
 #endif

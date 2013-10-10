@@ -20,6 +20,7 @@
 #endif
 #include <usbdevice.h>
 #include <usb/omap1510_udc.h>
+#include <usb/udc.h>
 
 #include "ep0.h"
 
