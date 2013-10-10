@@ -14,6 +14,7 @@
 #include <net.h>
 #include <malloc.h>
 #include <asm/io.h>
+#include <asm/unaligned.h>
 #include <linux/types.h>
 #include <usb/mv_udc.h>
 
@@ -207,7 +208,7 @@ static void mv_ep_free_request(struct usb_ep *ep, struct usb_request *_req)
 	return;
 }
 
-static void ep_enable(int num, int in)
+static void ep_enable(int num, int in, int maxpacket)
 {
 	struct ept_queue_head *head;
 	struct mv_udc *udc = (struct mv_udc *)controller.ctrl->hcor;
@@ -221,7 +222,7 @@ static void ep_enable(int num, int in)
 		n |= (CTRL_RXE | CTRL_RXR | CTRL_RXT_BULK);
 
 	if (num != 0) {
-		head->config = CONFIG_MAX_PKT(EP_MAX_PACKET_SIZE) | CONFIG_ZLT;
+		head->config = CONFIG_MAX_PKT(maxpacket) | CONFIG_ZLT;
 		mv_flush_qh(num);
 	}
 	writel(n, &udc->epctrl[num]);
@@ -234,8 +235,21 @@ static int mv_ep_enable(struct usb_ep *ep,
 	int num, in;
 	num = desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
 	in = (desc->bEndpointAddress & USB_DIR_IN) != 0;
-	ep_enable(num, in);
 	mv_ep->desc = desc;
+
+	if (num) {
+		int max = get_unaligned_le16(&desc->wMaxPacketSize);
+
+		if ((max > 64) && (controller.gadget.speed == USB_SPEED_FULL))
+			max = 64;
+		if (ep->maxpacket != max) {
+			DBG("%s: from %d to %d\n", __func__,
+			    ep->maxpacket, max);
+			ep->maxpacket = max;
+		}
+	}
+	ep_enable(num, in, ep->maxpacket);
+	DBG("%s: num=%d maxpacket=%d\n", __func__, num, ep->maxpacket);
 	return 0;
 }
 
@@ -410,14 +424,16 @@ static void handle_setup(void)
 		if ((r.wValue == 0) && (r.wLength == 0)) {
 			req->length = 0;
 			for (i = 0; i < NUM_ENDPOINTS; i++) {
-				if (!controller.ep[i].desc)
+				struct mv_ep *ep = &controller.ep[i];
+
+				if (!ep->desc)
 					continue;
-				num = controller.ep[i].desc->bEndpointAddress
+				num = ep->desc->bEndpointAddress
 						& USB_ENDPOINT_NUMBER_MASK;
-				in = (controller.ep[i].desc->bEndpointAddress
+				in = (ep->desc->bEndpointAddress
 						& USB_DIR_IN) != 0;
 				if ((num == _num) && (in == _in)) {
-					ep_enable(num, in);
+					ep_enable(num, in, ep->ep.maxpacket);
 					usb_ep_queue(controller.gadget.ep0,
 							req, 0);
 					break;
@@ -501,15 +517,19 @@ void udc_irq(void)
 		DBG("-- suspend --\n");
 
 	if (n & STS_PCI) {
-		DBG("-- portchange --\n");
+		int max = 64;
+		int speed = USB_SPEED_FULL;
+
 		bit = (readl(&udc->portsc) >> 26) & 3;
+		DBG("-- portchange %x %s\n", bit, (bit == 2) ? "High" : "Full");
 		if (bit == 2) {
-			controller.gadget.speed = USB_SPEED_HIGH;
-			for (i = 1; i < NUM_ENDPOINTS && n; i++)
-				if (controller.ep[i].desc)
-					controller.ep[i].ep.maxpacket = 512;
-		} else {
-			controller.gadget.speed = USB_SPEED_FULL;
+			speed = USB_SPEED_HIGH;
+			max = 512;
+		}
+		controller.gadget.speed = speed;
+		for (i = 1; i < NUM_ENDPOINTS; i++) {
+			if (controller.ep[i].ep.maxpacket > max)
+				controller.ep[i].ep.maxpacket = max;
 		}
 	}
 
