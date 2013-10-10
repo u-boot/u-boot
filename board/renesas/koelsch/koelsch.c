@@ -357,4 +357,10 @@ int board_late_init(void)
 
 void reset_cpu(ulong addr)
 {
+	u8 val;
+
+	i2c_set_bus_num(2); /* PowerIC connected to ch2 */
+	i2c_read(CONFIG_SYS_I2C_POWERIC_ADDR, 0x13, 1, &val, 1);
+	val |= 0x02;
+	i2c_write(CONFIG_SYS_I2C_POWERIC_ADDR, 0x13, 1, &val, 1);
 }
