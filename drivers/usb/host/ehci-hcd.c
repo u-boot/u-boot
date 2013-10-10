@@ -919,7 +919,7 @@ int usb_lowlevel_stop(int index)
 	return ehci_hcd_stop(index);
 }
 
-int usb_lowlevel_init(int index, void **controller)
+int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 {
 	uint32_t reg;
 	uint32_t cmd;

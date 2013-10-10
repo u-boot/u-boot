@@ -75,7 +75,7 @@ int usb_init(void)
 	for (i = 0; i < CONFIG_USB_MAX_CONTROLLER_COUNT; i++) {
 		/* init low_level USB */
 		printf("USB%d:   ", i);
-		if (usb_lowlevel_init(i, &ctrl)) {
+		if (usb_lowlevel_init(i, USB_INIT_HOST, &ctrl)) {
 			puts("lowlevel init failed\n");
 			continue;
 		}

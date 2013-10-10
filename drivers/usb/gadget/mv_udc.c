@@ -692,7 +692,7 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 	if (driver->speed != USB_SPEED_FULL && driver->speed != USB_SPEED_HIGH)
 		return -EINVAL;
 
-	ret = usb_lowlevel_init(0, (void **)&controller.ctrl);
+	ret = usb_lowlevel_init(0, USB_INIT_DEVICE, (void **)&controller.ctrl);
 	if (ret)
 		return ret;
 

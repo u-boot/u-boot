@@ -584,7 +584,7 @@ void handle_usb_interrupt(void)
 
 /* init uhci
  */
-int usb_lowlevel_init(int index, void **controller)
+int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 {
 	unsigned char temp;
 	int	busdevfunc;

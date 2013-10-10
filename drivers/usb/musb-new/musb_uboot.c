@@ -112,7 +112,7 @@ int submit_int_msg(struct usb_device *dev, unsigned long pipe,
 	return submit_urb(&hcd, urb);
 }
 
-int usb_lowlevel_init(int index, void **controller)
+int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 {
 	u8 power;
 	void *mbase;

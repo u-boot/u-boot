@@ -936,7 +936,7 @@ submit_control_msg(struct usb_device *udev, unsigned long pipe, void *buffer,
  * @param index	index to the host controller data structure
  * @return pointer to the intialised controller
  */
-int usb_lowlevel_init(int index, void **controller)
+int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 {
 	uint32_t val;
 	uint32_t val2;

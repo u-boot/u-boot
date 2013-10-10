@@ -1549,7 +1549,7 @@ static void hc_release_ohci (ohci_t *ohci)
  */
 static char ohci_inited = 0;
 
-int usb_lowlevel_init(int index, void **controller)
+int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 {
 	memset (&gohci, 0, sizeof (ohci_t));
 	memset (&urb_priv, 0, sizeof (urb_priv_t));

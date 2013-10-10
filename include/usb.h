@@ -152,7 +152,7 @@ enum usb_init_type {
 	defined(CONFIG_USB_MUSB_DSPS) || defined(CONFIG_USB_MUSB_AM35X) || \
 	defined(CONFIG_USB_MUSB_OMAP2PLUS) || defined(CONFIG_USB_XHCI)
 
-int usb_lowlevel_init(int index, void **controller);
+int usb_lowlevel_init(int index, enum usb_init_type init, void **controller);
 int usb_lowlevel_stop(int index);
 
 int submit_bulk_msg(struct usb_device *dev, unsigned long pipe,
