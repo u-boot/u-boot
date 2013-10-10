@@ -5,7 +5,7 @@
  * Copyright (C) 2010 Reinhard Meyer, EMK Elektronik
  * Copyright (C) 2013 Jagannadha Sutradharudu Teki, Xilinx Inc.
  *
- * Licensed under the GPL-2 or later.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

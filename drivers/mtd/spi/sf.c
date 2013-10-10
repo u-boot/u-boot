@@ -4,7 +4,7 @@
  * Copyright (C) 2008 Atmel Corporation
  * Copyright (C) 2010 Reinhard Meyer, EMK Elektronik
  *
- * Licensed under the GPL-2 or later.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

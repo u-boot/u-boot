@@ -2,7 +2,8 @@
  * Command for accessing SPI flash.
  *
  * Copyright (C) 2008 Atmel Corporation
- * Licensed under the GPL-2 or later.
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

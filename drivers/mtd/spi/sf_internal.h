@@ -4,7 +4,7 @@
  * Copyright (C) 2008 Atmel Corporation
  * Copyright (C) 2013 Jagannadha Sutradharudu Teki, Xilinx Inc.
  *
- * Licensed under the GPL-2 or later.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _SF_INTERNAL_H_
