@@ -565,7 +565,8 @@ struct omap_usbhs_board_data usbhs_bdata = {
 };
 
 #define SB_T35_USB_HUB_RESET_GPIO	167
-int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+int ehci_hcd_init(int index, enum usb_init_type init,
+		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	u8 val;
 	int offset;

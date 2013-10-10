@@ -250,7 +250,8 @@ struct ehci_ctrl {
 };
 
 /* Low level init functions */
-int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor);
+int ehci_hcd_init(int index, enum usb_init_type init,
+		struct ehci_hccr **hccr, struct ehci_hcor **hcor);
 int ehci_hcd_stop(int index);
 
 #endif /* USB_EHCI_H */

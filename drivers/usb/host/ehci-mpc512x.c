@@ -32,7 +32,8 @@ static void usb_platform_dr_init(volatile struct usb_ehci *ehci);
  * This code is derived from EHCI FSL USB Linux driver for MPC5121
  *
  */
-int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+int ehci_hcd_init(int index, enum usb_init_type init,
+		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	volatile struct usb_ehci *ehci;
 

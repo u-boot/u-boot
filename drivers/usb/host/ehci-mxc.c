@@ -208,7 +208,8 @@ static int mxc_set_usbcontrol(int port, unsigned int flags)
 	return 0;
 }
 
-int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+int ehci_hcd_init(int index, enum usb_init_type init,
+		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	struct usb_ehci *ehci;
 #ifdef CONFIG_MX31
