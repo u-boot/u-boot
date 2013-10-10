@@ -210,10 +210,8 @@ static void mv_ep_free_request(struct usb_ep *ep, struct usb_request *_req)
 
 static void ep_enable(int num, int in, int maxpacket)
 {
-	struct ept_queue_head *head;
 	struct mv_udc *udc = (struct mv_udc *)controller.ctrl->hcor;
 	unsigned n;
-	head = mv_get_qh(num, in);
 
 	n = readl(&udc->epctrl[num]);
 	if (in)
@@ -222,6 +220,8 @@ static void ep_enable(int num, int in, int maxpacket)
 		n |= (CTRL_RXE | CTRL_RXR | CTRL_RXT_BULK);
 
 	if (num != 0) {
+		struct ept_queue_head *head = mv_get_qh(num, in);
+
 		head->config = CONFIG_MAX_PKT(maxpacket) | CONFIG_ZLT;
 		mv_flush_qh(num);
 	}
