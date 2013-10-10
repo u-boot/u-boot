@@ -575,27 +575,32 @@ static int zynq_qspi_irq_poll(struct zynq_qspi *zqspi)
 		 * is empty
 		 */
 		u32 config_reg;
+		while (!(readl(&zynq_qspi_base->isr) &
+			ZYNQ_QSPI_IXR_TXNFULL_MASK) ||
+			(readl(&zynq_qspi_base->isr) &
+			ZYNQ_QSPI_IXR_RXNEMTY_MASK)) {
+			/* Read out the data from the RX FIFO */
+			while (readl(&zynq_qspi_base->isr) &
+					ZYNQ_QSPI_IXR_RXNEMTY_MASK) {
+				u32 data;
 
-		/* Read out the data from the RX FIFO */
-		while (readl(&zynq_qspi_base->isr) &
-				ZYNQ_QSPI_IXR_RXNEMTY_MASK) {
-			u32 data;
+				data = readl(&zynq_qspi_base->drxr);
 
-			data = readl(&zynq_qspi_base->drxr);
-
-			if ((zqspi->inst_response) &&
-			    (!((zqspi->curr_inst->opcode ==
-				ZYNQ_QSPI_FLASH_OPCODE_RDSR1) ||
-			       (zqspi->curr_inst->opcode ==
-				ZYNQ_QSPI_FLASH_OPCODE_RDSR2)))) {
-				zqspi->inst_response = 0;
-				zynq_qspi_copy_read_data(zqspi, data,
+				if ((zqspi->inst_response) &&
+				    (!((zqspi->curr_inst->opcode ==
+				    ZYNQ_QSPI_FLASH_OPCODE_RDSR1) ||
+				    (zqspi->curr_inst->opcode ==
+				    ZYNQ_QSPI_FLASH_OPCODE_RDSR2)))) {
+					zqspi->inst_response = 0;
+					zynq_qspi_copy_read_data(zqspi, data,
 						zqspi->curr_inst->inst_size);
-			} else if (zqspi->bytes_to_receive < 4) {
-				zynq_qspi_copy_read_data(zqspi, data,
-						       zqspi->bytes_to_receive);
-			} else {
-				zynq_qspi_copy_read_data(zqspi, data, 4);
+				} else if (zqspi->bytes_to_receive < 4) {
+					zynq_qspi_copy_read_data(zqspi, data,
+						zqspi->bytes_to_receive);
+				} else {
+					zynq_qspi_copy_read_data(zqspi, data,
+								4);
+				}
 			}
 		}
 
