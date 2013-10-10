@@ -7,8 +7,8 @@
  * Licensed under the GPL-2 or later.
  */
 
-#ifndef _SPI_FLASH_INTERNAL_H_
-#define _SPI_FLASH_INTERNAL_H_
+#ifndef _SF_INTERNAL_H_
+#define _SF_INTERNAL_H_
 
 #define SPI_FLASH_16MB_BOUN		0x1000000
 
@@ -139,4 +139,4 @@ int spi_flash_read_common(struct spi_flash *flash, const u8 *cmd,
 int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 		size_t len, void *data);
 
-#endif /* _SPI_FLASH_INTERNAL_H_ */
+#endif /* _SF_INTERNAL_H_ */

@@ -25,7 +25,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * @jedec:		Device jedec ID (0x[1byte_manuf_id][2byte_dev_id])
  * @ext_jedec:		Device ext_jedec ID
  * @sector_size:	Sector size of this device
- * @nr_sectors:	No.of sectors on this device
+ * @nr_sectors:		No.of sectors on this device
  * @flags:		Importent param, for flash specific behaviour
  */
 struct spi_flash_params {
@@ -139,7 +139,7 @@ static const struct spi_flash_params spi_flash_params_table[] = {
 #endif
 	/*
 	 * Note:
-	 * Below paired flash devices has similar spi_flash_params params.
+	 * Below paired flash devices has similar spi_flash params.
 	 * (S25FL129P_64K, S25FL128S_64K)
 	 * (W25Q80BL, W25Q80BV)
 	 * (W25Q16CL, W25Q16DV)
@@ -188,6 +188,7 @@ static struct spi_flash *spi_flash_validate_params(struct spi_slave *spi,
 	}
 	memset(flash, '\0', sizeof(*flash));
 
+	/* Assign spi data */
 	flash->spi = spi;
 	flash->name = params->name;
 	flash->memory_map = spi->memory_map;
