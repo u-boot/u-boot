@@ -429,7 +429,7 @@ void reset_phy(void)
 }
 
 #if defined(CONFIG_USB_OHCI_NEW) && defined(CONFIG_SYS_USB_OHCI_BOARD_INIT)
-int board_usb_init(int index, enum board_usb_init_type init)
+int board_usb_init(int index, enum usb_init_type init)
 {
 	return 0;
 }
@@ -454,7 +454,7 @@ int usb_board_stop(void)
 	return 0;
 }
 
-int board_usb_cleanup(int index, enum board_usb_init_type init)
+int board_usb_cleanup(int index, enum usb_init_type init)
 {
 	return usb_board_stop();
 }

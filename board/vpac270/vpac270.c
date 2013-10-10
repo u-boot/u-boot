@@ -67,7 +67,7 @@ int board_mmc_init(bd_t *bis)
 #endif
 
 #ifdef	CONFIG_CMD_USB
-int board_usb_init(int index, enum board_usb_init_type init)
+int board_usb_init(int index, enum usb_init_type init)
 {
 	writel((UHCHR | UHCHR_PCPL | UHCHR_PSPL) &
 		~(UHCHR_SSEP0 | UHCHR_SSEP1 | UHCHR_SSEP2 | UHCHR_SSE),
@@ -98,7 +98,7 @@ int board_usb_init(int index, enum board_usb_init_type init)
 	return 0;
 }
 
-int board_usb_cleanup(int index, enum board_usb_init_type init)
+int board_usb_cleanup(int index, enum usb_init_type init)
 {
 	return 0;
 }

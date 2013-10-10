@@ -1068,7 +1068,7 @@ int usb_new_device(struct usb_device *dev)
 }
 
 __weak
-int board_usb_init(int index, enum board_usb_init_type init)
+int board_usb_init(int index, enum usb_init_type init)
 {
 	return 0;
 }

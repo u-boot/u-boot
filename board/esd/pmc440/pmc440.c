@@ -822,7 +822,7 @@ int bootstrap_eeprom_read (unsigned dev_addr, unsigned offset,
 }
 
 #if defined(CONFIG_USB_OHCI_NEW) && defined(CONFIG_SYS_USB_OHCI_BOARD_INIT)
-int board_usb_init(int index, enum board_usb_init_type init)
+int board_usb_init(int index, enum usb_init_type init)
 {
 	char *act = getenv("usbact");
 	int i;
@@ -846,7 +846,7 @@ int usb_board_stop(void)
 	return 0;
 }
 
-int board_usb_cleanup(int index, enum board_usb_init_type init)
+int board_usb_cleanup(int index, enum usb_init_type init)
 {
 	return usb_board_stop();
 }

@@ -43,7 +43,7 @@ extern struct serial_device serial_stuart_device;
  * Miscelaneous platform dependent initialisations
  */
 
-int board_usb_init(int index, enum board_usb_init_type init)
+int board_usb_init(int index, enum usb_init_type init)
 {
 	writel((readl(UHCHR) | UHCHR_PCPL | UHCHR_PSPL) &
 		~(UHCHR_SSEP0 | UHCHR_SSEP1 | UHCHR_SSEP2 | UHCHR_SSE),
@@ -70,7 +70,7 @@ int board_usb_init(int index, enum board_usb_init_type init)
 	return 0;
 }
 
-int board_usb_cleanup(int index, enum board_usb_init_type init)
+int board_usb_cleanup(int index, enum usb_init_type init)
 {
 	return 0;
 }
