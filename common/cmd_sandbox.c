@@ -10,7 +10,7 @@
 static int do_sandbox_load(cmd_tbl_t *cmdtp, int flag, int argc,
 			   char * const argv[])
 {
-	return do_load(cmdtp, flag, argc, argv, FS_TYPE_SANDBOX, 16);
+	return do_load(cmdtp, flag, argc, argv, FS_TYPE_SANDBOX);
 }
 
 static int do_sandbox_ls(cmd_tbl_t *cmdtp, int flag, int argc,
@@ -22,7 +22,7 @@ static int do_sandbox_ls(cmd_tbl_t *cmdtp, int flag, int argc,
 static int do_sandbox_save(cmd_tbl_t *cmdtp, int flag, int argc,
 			   char * const argv[])
 {
-	return do_save(cmdtp, flag, argc, argv, FS_TYPE_SANDBOX, 16);
+	return do_save(cmdtp, flag, argc, argv, FS_TYPE_SANDBOX);
 }
 
 static cmd_tbl_t cmd_sandbox_sub[] = {
