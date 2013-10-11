@@ -110,9 +110,29 @@ static void enable_host_clocks(void)
  */
 int misc_init_r(void)
 {
+	int reg;
+	uint8_t device_mac[6];
+
 #ifdef CONFIG_PALMAS_POWER
 	palmas_init_settings();
 #endif
+
+	if (!getenv("usbethaddr")) {
+		reg = DIE_ID_REG_BASE + DIE_ID_REG_OFFSET;
+
+		/*
+		 * create a fake MAC address from the processor ID code.
+		 * first byte is 0x02 to signify locally administered.
+		 */
+		device_mac[0] = 0x02;
+		device_mac[1] = readl(reg + 0x10) & 0xff;
+		device_mac[2] = readl(reg + 0xC) & 0xff;
+		device_mac[3] = readl(reg + 0x8) & 0xff;
+		device_mac[4] = readl(reg) & 0xff;
+		device_mac[5] = (readl(reg) >> 8) & 0xff;
+
+		eth_setenv_enetaddr("usbethaddr", device_mac);
+	}
 
 	return 0;
 }
@@ -162,27 +182,8 @@ static struct omap_usbhs_board_data usbhs_bdata = {
 int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	int ret;
-	int reg;
-	uint8_t device_mac[6];
 
 	enable_host_clocks();
-
-	if (!getenv("usbethaddr")) {
-		reg = DIE_ID_REG_BASE + DIE_ID_REG_OFFSET;
-
-		/*
-		 * create a fake MAC address from the processor ID code.
-		 * first byte is 0x02 to signify locally administered.
-		 */
-		device_mac[0] = 0x02;
-		device_mac[1] = readl(reg + 0x10) & 0xff;
-		device_mac[2] = readl(reg + 0xC) & 0xff;
-		device_mac[3] = readl(reg + 0x8) & 0xff;
-		device_mac[4] = readl(reg) & 0xff;
-		device_mac[5] = (readl(reg) >> 8) & 0xff;
-
-		eth_setenv_enetaddr("usbethaddr", device_mac);
-	}
 
 	ret = omap_ehci_hcd_init(index, &usbhs_bdata, hccr, hcor);
 	if (ret < 0) {
