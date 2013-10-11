@@ -22,6 +22,7 @@
 
 #include "../host/xhci.h"
 
+#ifdef CONFIG_OMAP_USB3PHY1_HOST
 struct usb_dpll_params {
 	u16	m;
 	u8	n;
@@ -99,7 +100,7 @@ static void usb3_phy_partial_powerup(struct omap_usb3_phy *phy_regs)
 	writel(val, (*ctrl)->control_phy_power_usb);
 }
 
-void usb3_phy_power(int on)
+void usb_phy_power(int on)
 {
 	u32 val;
 
@@ -128,7 +129,7 @@ void omap_usb3_phy_init(struct omap_usb3_phy *phy_regs)
 	usb3_phy_power(1);
 }
 
-void omap_enable_phy_clocks(struct omap_xhci *omap)
+static void omap_enable_usb3_phy(struct omap_xhci *omap)
 {
 	u32	val;
 
@@ -176,6 +177,35 @@ void omap_enable_phy_clocks(struct omap_xhci *omap)
 	setbits_le32((*prcm)->cm_l3init_usb_otg_ss_clkctrl, val);
 
 };
+#endif /* CONFIG_OMAP_USB3PHY1_HOST */
+
+#ifdef CONFIG_OMAP_USB2PHY2_HOST
+static void omap_enable_usb2_phy2(struct omap_xhci *omap)
+{
+	u32 reg, val;
+
+	val = (~USB2PHY_AUTORESUME_EN & USB2PHY_DISCHGDET);
+	writel(val, (*ctrl)->control_srcomp_north_side);
+
+	setbits_le32((*prcm)->cm_coreaon_usb_phy2_core_clkctrl,
+			USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K);
+
+	setbits_le32((*prcm)->cm_l3init_hsusbhost_clkctrl,
+					(USBPHY_CORE_CLKCTRL_OPTFCLKEN_CLK32K |
+					 OTG_SS_CLKCTRL_MODULEMODE_HW));
+
+	/* This is an undocumented Reserved register */
+	reg = 0x4a0086c0;
+	val = readl(reg);
+	val |= 0x100;
+	setbits_le32(reg, val);
+}
+
+void usb_phy_power(int on)
+{
+	return;
+}
+#endif /* CONFIG_OMAP_USB2PHY2_HOST */
 
 void omap_reset_usb_phy(struct dwc3 *dwc3_reg)
 {
@@ -195,3 +225,14 @@ void omap_reset_usb_phy(struct dwc3 *dwc3_reg)
 
 }
 
+void omap_enable_phy(struct omap_xhci *omap)
+{
+#ifdef CONFIG_OMAP_USB2PHY2_HOST
+	omap_enable_usb2_phy2(omap);
+#endif
+
+#ifdef CONFIG_OMAP_USB3PHY1_HOST
+	omap_enable_usb3_phy(omap);
+	omap_usb3_phy_init(omap->usb3_phy);
+#endif
+}

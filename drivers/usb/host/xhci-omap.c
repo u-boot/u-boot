@@ -98,9 +98,7 @@ static int omap_xhci_core_init(struct omap_xhci *omap)
 {
 	int ret = 0;
 
-	omap_enable_phy_clocks(omap);
-
-	omap_usb3_phy_init(omap->usb3_phy);
+	omap_enable_phy(omap);
 
 	ret = dwc3_core_init(omap->dwc3_reg);
 	if (ret) {
@@ -116,7 +114,7 @@ static int omap_xhci_core_init(struct omap_xhci *omap)
 
 static void omap_xhci_core_exit(struct omap_xhci *omap)
 {
-	usb3_phy_power(0);
+	usb_phy_power(0);
 }
 
 int xhci_hcd_init(int index, struct xhci_hccr **hccr, struct xhci_hcor **hcor)

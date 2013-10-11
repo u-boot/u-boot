@@ -10,9 +10,16 @@
 #ifndef _ASM_ARCH_XHCI_OMAP_H_
 #define _ASM_ARCH_XHCI_OMAP_H_
 
+#ifdef CONFIG_DRA7XX
+#define OMAP_XHCI_BASE 0x488d0000
+#define OMAP_OCP1_SCP_BASE 0x4A081000
+#define OMAP_OTG_WRAPPER_BASE 0x488c0000
+#else
+/* Default to the OMAP5 XHCI defines */
 #define OMAP_XHCI_BASE 0x4a030000
 #define OMAP_OCP1_SCP_BASE 0x4a084c00
 #define OMAP_OTG_WRAPPER_BASE 0x4A020000
+#endif
 
 /* Phy register MACRO definitions */
 #define	PLL_REGM_MASK		0x001FFE00
@@ -122,9 +129,8 @@ struct omap_xhci {
 };
 
 /* USB PHY functions */
-void omap_enable_phy_clocks(struct omap_xhci *omap);
-void omap_usb3_phy_init(struct omap_usb3_phy *phy_regs);
+void omap_enable_phy(struct omap_xhci *omap);
 void omap_reset_usb_phy(struct dwc3 *dwc3_reg);
-void usb3_phy_power(int on);
+void usb_phy_power(int on);
 
 #endif /* _ASM_ARCH_XHCI_OMAP_H_ */
