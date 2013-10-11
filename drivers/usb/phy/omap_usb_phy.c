@@ -207,6 +207,25 @@ void usb_phy_power(int on)
 }
 #endif /* CONFIG_OMAP_USB2PHY2_HOST */
 
+#ifdef CONFIG_AM437X_USB2PHY2_HOST
+static void am437x_enable_usb2_phy2(struct omap_xhci *omap)
+{
+	const u32 usb_otg_ss_clk_val = (USBOTGSSX_CLKCTRL_MODULE_EN |
+				USBOTGSSX_CLKCTRL_OPTFCLKEN_REFCLK960);
+
+	writel(usb_otg_ss_clk_val, PRM_PER_USB_OTG_SS0_CLKCTRL);
+	writel(usb_otg_ss_clk_val, PRM_PER_USB_OTG_SS1_CLKCTRL);
+
+	writel(USBPHYOCPSCP_MODULE_EN, PRM_PER_USBPHYOCP2SCP0_CLKCTRL);
+	writel(USBPHYOCPSCP_MODULE_EN, PRM_PER_USBPHYOCP2SCP1_CLKCTRL);
+}
+
+void usb_phy_power(int on)
+{
+	return;
+}
+#endif /* CONFIG_AM437X_USB2PHY2_HOST */
+
 void omap_reset_usb_phy(struct dwc3 *dwc3_reg)
 {
 	/* Assert USB3 PHY reset */
@@ -229,6 +248,10 @@ void omap_enable_phy(struct omap_xhci *omap)
 {
 #ifdef CONFIG_OMAP_USB2PHY2_HOST
 	omap_enable_usb2_phy2(omap);
+#endif
+
+#ifdef CONFIG_AM437X_USB2PHY2_HOST
+	am437x_enable_usb2_phy2(omap);
 #endif
 
 #ifdef CONFIG_OMAP_USB3PHY1_HOST
