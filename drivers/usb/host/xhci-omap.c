@@ -182,11 +182,12 @@ static void omap_enable_phy_clocks(struct omap_xhci *omap)
 
 };
 
-inline int __board_usb_init(void)
+inline int __board_usb_init(int index, enum board_usb_init_type init)
 {
 	return 0;
 }
-int board_usb_init(void) __attribute__((weak, alias("__board_usb_init")));
+int board_usb_init(int index, enum board_usb_init_type init) \
+	__attribute__((weak, alias("__board_usb_init")));
 
 static void dwc3_set_mode(struct dwc3 *dwc3_reg, u32 mode)
 {
@@ -295,7 +296,7 @@ int xhci_hcd_init(int index, struct xhci_hccr **hccr, struct xhci_hcor **hcor)
 	ctx->usb3_phy = (struct omap_usb3_phy *)OMAP_OCP1_SCP_BASE;
 	ctx->otg_wrapper = (struct omap_dwc_wrapper *)OMAP_OTG_WRAPPER_BASE;
 
-	ret = board_usb_init();
+	ret = board_usb_init(index, USB_INIT_HOST);
 	if (ret != 0) {
 		puts("Failed to initialize board for USB\n");
 		return ret;

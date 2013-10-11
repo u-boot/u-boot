@@ -219,7 +219,7 @@ void usb_hub_reset_devices(int port)
  *
  * @return 0
  */
-int board_usb_init(void)
+int board_usb_init(int index, enum board_usb_init_type init)
 {
 	int ret;
 #ifdef CONFIG_PALMAS_USB_SS_PWR
