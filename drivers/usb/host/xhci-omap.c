@@ -15,10 +15,10 @@
 #include <asm/omap_common.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/arch/xhci-omap.h>
 
 #include <linux/compat.h>
 #include <linux/usb/dwc3.h>
+#include <linux/usb/xhci-omap.h>
 
 #include "xhci.h"
 
