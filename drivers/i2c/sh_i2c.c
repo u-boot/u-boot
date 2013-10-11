@@ -1,12 +1,14 @@
 /*
- * Copyright (C) 2011 Renesas Solutions Corp.
- * Copyright (C) 2011 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
+ * Copyright (C) 2011, 2013 Renesas Solutions Corp.
+ * Copyright (C) 2011, 2013 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <asm/io.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /* Every register is 32bit aligned, but only 8bits in size */
 #define ureg(name) u8 name; u8 __pad_##name##0; u16 __pad_##name##1;
@@ -239,6 +241,10 @@ unsigned int i2c_get_bus_num(void)
 void i2c_init(int speed, int slaveaddr)
 {
 	int num, denom, tmp;
+
+	/* No i2c support prior to relocation */
+	if (!(gd->flags & GD_FLG_RELOC))
+		return;
 
 #ifdef CONFIG_I2C_MULTI_BUS
 	current_bus = 0;
