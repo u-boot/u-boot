@@ -253,6 +253,12 @@ int board_early_init_f(void)
 	return 0;
 }
 
+void arch_preboot_os(void)
+{
+	/* Disable TMU0 */
+	mstp_setbits_le32(MSTPSR1, SMSTPCR1, TMU0_MSTP125);
+}
+
 /* LSI pin pull-up control */
 #define PUPR5 0xe6060114
 #define PUPR5_ETH 0x3FFC0000
