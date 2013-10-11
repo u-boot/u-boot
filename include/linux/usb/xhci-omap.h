@@ -121,4 +121,10 @@ struct omap_xhci {
 	struct dwc3 *dwc3_reg;
 };
 
+/* USB PHY functions */
+void omap_enable_phy_clocks(struct omap_xhci *omap);
+void omap_usb3_phy_init(struct omap_usb3_phy *phy_regs);
+void omap_reset_usb_phy(struct dwc3 *dwc3_reg);
+void usb3_phy_power(int on);
+
 #endif /* _ASM_ARCH_XHCI_OMAP_H_ */
