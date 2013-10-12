@@ -410,6 +410,9 @@
 #define PCI_MAX_PCI_DEVICES	32
 #define PCI_MAX_PCI_FUNCTIONS	8
 
+#define PCI_FIND_CAP_TTL 0x48
+#define CAP_START_POS 0x40
+
 /* Include the ID list */
 
 #include <pci_ids.h>
@@ -646,6 +649,13 @@ extern int pci_hose_config_device(struct pci_controller *hose,
 				  unsigned long io,
 				  pci_addr_t mem,
 				  unsigned long command);
+
+extern int pci_hose_find_capability(struct pci_controller *hose, pci_dev_t dev,
+				    int cap);
+extern int pci_hose_find_cap_start(struct pci_controller *hose, pci_dev_t dev,
+				   u8 hdr_type);
+extern int pci_find_cap(struct pci_controller *hose, pci_dev_t dev, int pos,
+			int cap);
 
 const char * pci_class_str(u8 class);
 int pci_last_busno(void);
