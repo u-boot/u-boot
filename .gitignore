@@ -60,6 +60,8 @@
 /reloc_off
 
 /include/generated/
+/include/spl-autoconf.mk
+/include/tpl-autoconf.mk
 asm-offsets.s
 
 # stgit generated dirs
