@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2005-2010 Analog Devices Inc.
  *
- * Licensed under the GPL-2 or later.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*#define DEBUG*/

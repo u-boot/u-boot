@@ -9,7 +9,7 @@
  * Copyright (c) 2010 Graeme Smecher <graeme.smecher@mail.mcgill.ca>
  * Copyright (c) 2012 Stephan Linz <linz@li-pro.net>
  *
- * Licensed under the GPL-2 or later.
+ * SPDX-License-Identifier:	GPL-2.0+
  *
  * [0]: http://www.xilinx.com/support/documentation
  *
