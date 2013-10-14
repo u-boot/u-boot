@@ -1,16 +1,17 @@
 #
-# Copyright (C) 2012 Samsung Electronics
-# Lukasz Majewski <l.majewski@samsung.com>
+# Copyright (C) 2013 Samsung Electronics
+# Piotr Wilczek <p.wilczek@samsung.com>
 #
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libbattery.o
+LIB	:= $(obj)libmfd.o
 
-COBJS-$(CONFIG_POWER_BATTERY_TRATS) += bat_trats.o
-COBJS-$(CONFIG_POWER_BATTERY_TRATS2) += bat_trats2.o
+COBJS-$(CONFIG_POWER_PMIC_MAX77693) += pmic_max77693.o
+COBJS-$(CONFIG_POWER_MUIC_MAX77693) += muic_max77693.o
+COBJS-$(CONFIG_POWER_FG_MAX77693) += fg_max77693.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
