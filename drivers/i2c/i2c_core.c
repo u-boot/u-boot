@@ -53,10 +53,6 @@ void i2c_reloc_fixup(void)
 		return;
 
 	for (i = 0; i < max; i++) {
-		/* adapter itself */
-		addr = (unsigned long)i2c_adap_p;
-		addr += gd->reloc_off;
-		i2c_adap_p = (struct i2c_adapter *)addr;
 		/* i2c_init() */
 		addr = (unsigned long)i2c_adap_p->init;
 		addr += gd->reloc_off;
