@@ -16,6 +16,7 @@ struct s3c24x0_i2c {
 };
 
 struct s3c24x0_i2c_bus {
+	bool active;	/* port is active and available */
 	int node;	/* device tree node */
 	int bus_num;	/* i2c bus number */
 	struct s3c24x0_i2c *regs;
