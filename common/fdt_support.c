@@ -766,11 +766,11 @@ int fdt_node_set_part_info(void *blob, int parent_offset,
 
 		part = list_entry(pentry, struct part_info, link);
 
-		debug("%2d: %-20s0x%08x\t0x%08x\t%d\n",
+		debug("%2d: %-20s0x%08llx\t0x%08llx\t%d\n",
 			part_num, part->name, part->size,
 			part->offset, part->mask_flags);
 
-		sprintf(buf, "partition@%x", part->offset);
+		sprintf(buf, "partition@%llx", part->offset);
 add_sub:
 		ret = fdt_add_subnode(blob, parent_offset, buf);
 		if (ret == -FDT_ERR_NOSPACE) {
