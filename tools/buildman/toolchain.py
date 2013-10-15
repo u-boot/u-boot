@@ -39,7 +39,8 @@ class Toolchain:
         # As a basic sanity check, run the C compiler with --version
         cmd = [fname, '--version']
         if test:
-            result = command.RunPipe([cmd], capture=True, env=env)
+            result = command.RunPipe([cmd], capture=True, env=env,
+                                     raise_on_error=False)
             self.ok = result.return_code == 0
             if verbose:
                 print 'Tool chain test: ',
