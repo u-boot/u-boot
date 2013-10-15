@@ -40,7 +40,7 @@ static struct mxs_uartapp_regs *get_uartapp_registers(void)
  * Sets the baud rate and settings.
  * The settings are: 8 data bits, no parit and 1 stop bit.
  */
-void mxs_auart_setbrg(void)
+static void mxs_auart_setbrg(void)
 {
 	u32 div;
 	u32 linectrl = 0;
@@ -77,7 +77,7 @@ void mxs_auart_setbrg(void)
 	writel(linectrl, &regs->hw_uartapp_linectrl);
 }
 
-int mxs_auart_init(void)
+static int mxs_auart_init(void)
 {
 	struct mxs_uartapp_regs *regs = get_uartapp_registers();
 	/* Reset everything */
@@ -99,7 +99,7 @@ int mxs_auart_init(void)
 	return 0;
 }
 
-void mxs_auart_putc(const char c)
+static void mxs_auart_putc(const char c)
 {
 	struct mxs_uartapp_regs *regs = get_uartapp_registers();
 	/* Wait in loop while the transmit FIFO is full */
@@ -112,14 +112,14 @@ void mxs_auart_putc(const char c)
 		mxs_auart_putc('\r');
 }
 
-int mxs_auart_tstc(void)
+static int mxs_auart_tstc(void)
 {
 	struct mxs_uartapp_regs *regs = get_uartapp_registers();
 	/* Checks if receive FIFO is empty */
 	return !(readl(&regs->hw_uartapp_stat) & UARTAPP_STAT_RXFE_MASK);
 }
 
-int mxs_auart_getc(void)
+static int mxs_auart_getc(void)
 {
 	struct mxs_uartapp_regs *regs = get_uartapp_registers();
 	/* Wait until a character is available to read */
