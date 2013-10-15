@@ -255,8 +255,8 @@ int spi_xchg_single(struct spi_slave *slave, unsigned int bitlen,
 			} else {
 				data = *(u32 *)dout;
 				data = cpu_to_be32(data);
+				dout += 4;
 			}
-			dout += 4;
 		}
 		debug("Sending SPI 0x%x\n", data);
 		reg_write(&regs->txdata, data);
