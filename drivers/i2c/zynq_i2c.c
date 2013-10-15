@@ -189,20 +189,22 @@ static int zynq_i2c_read(struct i2c_adapter *adap, u8 dev, uint addr,
 	 * Temporarily disable restart (by clearing hold)
 	 * It doesn't seem to work.
 	 */
-	clrbits_le32(&zynq_i2c->control, ZYNQ_I2C_CONTROL_RW |
-		ZYNQ_I2C_CONTROL_HOLD);
+	clrbits_le32(&zynq_i2c->control, ZYNQ_I2C_CONTROL_HOLD);
 	writel(0xFF, &zynq_i2c->interrupt_status);
-	while (alen--)
-		writel(addr >> (8*alen), &zynq_i2c->data);
-	writel(dev, &zynq_i2c->address);
+	if (alen) {
+		clrbits_le32(&zynq_i2c->control, ZYNQ_I2C_CONTROL_RW);
+		writel(dev, &zynq_i2c->address);
+		while (alen--)
+			writel(addr >> (8 * alen), &zynq_i2c->data);
 
-	/* Wait for the address to be sent */
-	if (!zynq_i2c_wait(ZYNQ_I2C_INTERRUPT_COMP)) {
-		/* Release the bus */
-		clrbits_le32(&zynq_i2c->control, ZYNQ_I2C_CONTROL_HOLD);
-		return -ETIMEDOUT;
+		/* Wait for the address to be sent */
+		if (!zynq_i2c_wait(ZYNQ_I2C_INTERRUPT_COMP)) {
+			/* Release the bus */
+			clrbits_le32(&zynq_i2c->control, ZYNQ_I2C_CONTROL_HOLD);
+			return -ETIMEDOUT;
+		}
+		debug("Device acked address\n");
 	}
-	debug("Device acked address\n");
 
 	setbits_le32(&zynq_i2c->control, ZYNQ_I2C_CONTROL_CLR_FIFO |
 		ZYNQ_I2C_CONTROL_RW);
@@ -247,17 +249,19 @@ static int zynq_i2c_write(struct i2c_adapter *adap, u8 dev, uint addr,
 		ZYNQ_I2C_CONTROL_HOLD);
 	clrbits_le32(&zynq_i2c->control, ZYNQ_I2C_CONTROL_RW);
 	writel(0xFF, &zynq_i2c->interrupt_status);
-	while (alen--)
-		writel(addr >> (8*alen), &zynq_i2c->data);
-	/* Start the tranfer */
 	writel(dev, &zynq_i2c->address);
-	if (!zynq_i2c_wait(ZYNQ_I2C_INTERRUPT_COMP)) {
-		/* Release the bus */
-		clrbits_le32(&zynq_i2c->control, ZYNQ_I2C_CONTROL_HOLD);
-		return -ETIMEDOUT;
+	if (alen) {
+		while (alen--)
+			writel(addr >> (8 * alen), &zynq_i2c->data);
+		/* Start the tranfer */
+		if (!zynq_i2c_wait(ZYNQ_I2C_INTERRUPT_COMP)) {
+			/* Release the bus */
+			clrbits_le32(&zynq_i2c->control, ZYNQ_I2C_CONTROL_HOLD);
+			return -ETIMEDOUT;
+		}
+		debug("Device acked address\n");
 	}
 
-	debug("Device acked address\n");
 	while (length--) {
 		writel(*(cur_data++), &zynq_i2c->data);
 		if (readl(&zynq_i2c->transfer_size) == ZYNQ_I2C_FIFO_DEPTH) {
