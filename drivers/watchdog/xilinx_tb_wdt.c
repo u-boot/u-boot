@@ -54,7 +54,7 @@ static void hw_watchdog_isr(void *arg)
 	hw_watchdog_reset();
 }
 
-int hw_watchdog_init(void)
+void hw_watchdog_init(void)
 {
 	int ret;
 
@@ -65,7 +65,5 @@ int hw_watchdog_init(void)
 	ret = install_interrupt_handler(CONFIG_WATCHDOG_IRQ,
 						hw_watchdog_isr, NULL);
 	if (ret)
-		return 1;
-
-	return 0;
+		puts("Watchdog IRQ registration failed.");
 }

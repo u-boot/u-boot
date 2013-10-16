@@ -46,9 +46,6 @@ init_fnc_t *init_sequence[] = {
 	serial_init,
 	console_init_f,
 	interrupts_init,
-#ifdef CONFIG_XILINX_TB_WATCHDOG
-	hw_watchdog_init,
-#endif
 	timer_init,
 	NULL,
 };
@@ -97,6 +94,9 @@ void board_init_f(ulong not_used)
 
 	serial_initialize();
 
+#ifdef CONFIG_XILINX_TB_WATCHDOG
+	hw_watchdog_init();
+#endif
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
 		WATCHDOG_RESET();
 		if ((*init_fnc_ptr) () != 0)

@@ -16,7 +16,6 @@ extern char __text_start[];
 void board_init(void);
 
 /* Watchdog functions */
-extern int hw_watchdog_init(void);
 extern void hw_watchdog_disable(void);
 
 #endif /* __ASM_MICROBLAZE_PROCESSOR_H */
