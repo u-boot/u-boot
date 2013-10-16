@@ -325,5 +325,8 @@
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_CMD_BMP
 #define CONFIG_BMP_16BPP
+#define CONFIG_SCF0403_LCD
+
+#define CONFIG_OMAP3_SPI
 
 #endif /* __CONFIG_H */

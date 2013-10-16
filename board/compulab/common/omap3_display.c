@@ -14,6 +14,7 @@
 #include <stdio_dev.h>
 #include <asm/arch/dss.h>
 #include <lcd.h>
+#include <scf0403_lcd.h>
 #include <asm/arch-omap3/dss.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -22,6 +23,7 @@ enum display_type {
 	NONE,
 	DVI,
 	DVI_CUSTOM,
+	DATA_IMAGE, /* #define CONFIG_SCF0403_LCD to use */
 };
 
 #define CMAP_ADDR	0x80100000
@@ -119,6 +121,18 @@ static const struct panel_config preset_dvi_1280X1024 = {
 	.gfx_format	= GFXFORMAT_RGB16,
 };
 
+static const struct panel_config preset_dataimage_480X800 = {
+	.lcd_size	= PANEL_LCD_SIZE(480, 800),
+	.timing_h	= DSS_HBP(2) | DSS_HFP(2) | DSS_HSW(2),
+	.timing_v	= DSS_VBP(17) | DSS_VFP(20) | DSS_VSW(3),
+	.pol_freq	= DSS_IVS | DSS_IHS | DSS_IPC | DSS_ONOFF,
+	.divisor	= 10 | (1 << 10),
+	.data_lines	= LCD_INTERFACE_18_BIT,
+	.panel_type	= ACTIVE_DISPLAY,
+	.load_mode	= 2,
+	.gfx_format	= GFXFORMAT_RGB16,
+};
+
 /*
  * set_resolution_params()
  *
@@ -144,6 +158,13 @@ static enum display_type set_dvi_preset(const struct panel_config preset,
 {
 	set_preset(preset, x_res, y_res);
 	return DVI;
+}
+
+static enum display_type set_dataimage_preset(const struct panel_config preset,
+		int x_res, int y_res)
+{
+	set_preset(preset, x_res, y_res);
+	return DATA_IMAGE;
 }
 
 /*
@@ -369,6 +390,8 @@ static enum display_type env_parse_displaytype(char *displaytype)
 		return set_dvi_preset(preset_dvi_1280X960, 1280, 960);
 	else if (!strncmp(displaytype, "dvi1280x1024", 12))
 		return set_dvi_preset(preset_dvi_1280X1024, 1280, 1024);
+	else if (!strncmp(displaytype, "dataimage480x800", 16))
+		return set_dataimage_preset(preset_dataimage_480X800, 480, 800);
 
 	return NONE;
 }
@@ -401,12 +424,31 @@ void lcd_ctrl_init(void *lcdbase)
 	clrsetbits_le32(&prcm->clksel_dss, 0xF, 3);
 }
 
+#ifdef CONFIG_SCF0403_LCD
+static void scf0403_enable(void)
+{
+	gpio_direction_output(58, 1);
+	scf0403_init(157);
+}
+#else
+static inline void scf0403_enable(void) {}
+#endif
+
 void lcd_enable(void)
 {
-	if (lcd_def == DVI || lcd_def == DVI_CUSTOM) {
+	switch (lcd_def) {
+	case NONE:
+		return;
+	case DVI:
+	case DVI_CUSTOM:
 		gpio_direction_output(54, 0); /* Turn on DVI */
-		omap3_dss_enable();
+		break;
+	case DATA_IMAGE:
+		scf0403_enable();
+		break;
 	}
+
+	omap3_dss_enable();
 }
 
 void lcd_setcolreg(ushort regno, ushort red, ushort green, ushort blue) {}

@@ -268,6 +268,9 @@ static void cm_t3x_set_common_muxconf(void)
 	/* DVI enable */
 	MUX_VAL(CP(GPMC_NCS3),		(IDIS  | PTU | DIS  | M4));/*GPMC_nCS3*/
 
+	/* DataImage backlight */
+	MUX_VAL(CP(GPMC_NCS7),		(IDIS  | PTU | DIS  | M4));/*GPIO_58*/
+
 	/* CM-T3x Ethernet */
 	MUX_VAL(CP(GPMC_NCS5),		(IDIS | PTU | DIS | M0)); /*GPMC_nCS5*/
 	MUX_VAL(CP(GPMC_CLK),		(IEN  | PTD | DIS | M4)); /*GPIO_59*/
@@ -374,6 +377,15 @@ static void cm_t3x_set_common_muxconf(void)
 	MUX_VAL(CP(MMC1_DAT1),		(IEN  | PTU | EN  | M0)); /*MMC1_DAT1*/
 	MUX_VAL(CP(MMC1_DAT2),		(IEN  | PTU | EN  | M0)); /*MMC1_DAT2*/
 	MUX_VAL(CP(MMC1_DAT3),		(IEN  | PTU | EN  | M0)); /*MMC1_DAT3*/
+
+	/* SPI */
+	MUX_VAL(CP(MCBSP1_CLKR),	(IEN | PTD | DIS | M1)); /*MCSPI4_CLK*/
+	MUX_VAL(CP(MCBSP1_DX),		(IEN | PTD | DIS | M1)); /*MCSPI4_SIMO*/
+	MUX_VAL(CP(MCBSP1_DR),		(IEN | PTD | DIS | M1)); /*MCSPI4_SOMI*/
+	MUX_VAL(CP(MCBSP1_FSX),		(IEN | PTU | EN  | M1)); /*MCSPI4_CS0*/
+
+	/* display controls */
+	MUX_VAL(CP(MCBSP1_FSR),		(IDIS | PTU | DIS | M4)); /*GPIO_157*/
 }
 
 static void cm_t35_set_muxconf(void)
