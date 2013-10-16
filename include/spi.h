@@ -29,6 +29,7 @@
 #define SPI_XFER_END		0x02	/* Deassert CS after transfer */
 #define SPI_XFER_MMAP		0x08	/* Memory Mapped start */
 #define SPI_XFER_MMAP_END	0x10	/* Memory Mapped End */
+#define SPI_XFER_ONCE		(SPI_XFER_BEGIN | SPI_XFER_END)
 
 /* Header byte that marks the start of the message */
 #define SPI_PREAMBLE_END_BYTE	0xec
