@@ -21,7 +21,7 @@
 #include "omap3_spi.h"
 
 #define WORD_LEN	8
-#define SPI_WAIT_TIMEOUT 3000000;
+#define SPI_WAIT_TIMEOUT 3000000
 
 static void spi_reset(struct omap3_spi_slave *ds)
 {
