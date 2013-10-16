@@ -229,6 +229,7 @@ static int dfu_read_buffer_fill(struct dfu_entity *dfu, void *buf, int size)
 			dfu->crc = crc32(dfu->crc, buf, chunk);
 			dfu->i_buf += chunk;
 			dfu->b_left -= chunk;
+			dfu->r_left -= chunk;
 			size -= chunk;
 			buf += chunk;
 			readn += chunk;
