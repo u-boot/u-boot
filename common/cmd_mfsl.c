@@ -1,7 +1,7 @@
-ve received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * who contributed to this
- * project.
+/*
+ * (C) Copyright 2007 Michal Simek
+ *
+ * Michal  SIMEK <monstr@monstr.eu>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
