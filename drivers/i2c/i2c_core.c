@@ -56,25 +56,23 @@ void i2c_reloc_fixup(void)
 		/* i2c_init() */
 		addr = (unsigned long)i2c_adap_p->init;
 		addr += gd->reloc_off;
-		i2c_adap_p->init = (void (*)(int, int))addr;
+		i2c_adap_p->init = (void *)addr;
 		/* i2c_probe() */
 		addr = (unsigned long)i2c_adap_p->probe;
 		addr += gd->reloc_off;
-		i2c_adap_p->probe = (int (*)(uint8_t))addr;
+		i2c_adap_p->probe = (void *)addr;
 		/* i2c_read() */
 		addr = (unsigned long)i2c_adap_p->read;
 		addr += gd->reloc_off;
-		i2c_adap_p->read = (int (*)(uint8_t, uint, int, uint8_t *,
-					int))addr;
+		i2c_adap_p->read = (void *)addr;
 		/* i2c_write() */
 		addr = (unsigned long)i2c_adap_p->write;
 		addr += gd->reloc_off;
-		i2c_adap_p->write = (int (*)(uint8_t, uint, int, uint8_t *,
-					int))addr;
+		i2c_adap_p->write = (void *)addr;
 		/* i2c_set_bus_speed() */
 		addr = (unsigned long)i2c_adap_p->set_bus_speed;
 		addr += gd->reloc_off;
-		i2c_adap_p->set_bus_speed = (uint (*)(uint))addr;
+		i2c_adap_p->set_bus_speed = (void *)addr;
 		/* name */
 		addr = (unsigned long)i2c_adap_p->name;
 		addr += gd->reloc_off;
