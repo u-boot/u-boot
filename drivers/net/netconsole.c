@@ -184,7 +184,9 @@ static void nc_send_packet(const char *buf, int len)
 			return;	/* inside net loop */
 		output_packet = buf;
 		output_packet_len = len;
+		input_recursion = 1;
 		NetLoop(NETCONS); /* wait for arp reply and send packet */
+		input_recursion = 0;
 		output_packet_len = 0;
 		return;
 	}
