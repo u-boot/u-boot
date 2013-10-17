@@ -7,26 +7,5 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-include $(TOPDIR)/config.mk
-
-LIB	= $(obj)libtegra-common.o
-
-COBJS-$(CONFIG_SPL_BUILD) += spl.o
-COBJS-y	+= cpu.o
-
-SRCS	:= $(COBJS-y:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS-y))
-
-all:	$(obj).depend $(LIB)
-
-$(LIB):	$(OBJS)
-	$(call cmd_link_o_target, $(OBJS))
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+obj-$(CONFIG_SPL_BUILD) += spl.o
+obj-y	+= cpu.o
