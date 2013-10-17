@@ -5,35 +5,11 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-include $(TOPDIR)/config.mk
+extra-y	= start.o
 
-LIB	= $(obj)lib$(CPU).o
+obj-$(CONFIG_CPU_PXA25X)	+= pxa2xx.o
+obj-$(CONFIG_CPU_PXA27X)	+= pxa2xx.o
 
-START	= start.o
-
-COBJS-$(CONFIG_CPU_PXA25X)	= pxa2xx.o
-COBJS-$(CONFIG_CPU_PXA27X)	= pxa2xx.o
-
-COBJS-y	+= cpuinfo.o
-
-COBJS	= $(COBJS-y)
-COBJS	+= timer.o
-COBJS	+= usb.o
-
-SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
-START	:= $(addprefix $(obj),$(START))
-
-all:	$(obj).depend $(START) $(LIB)
-
-$(LIB):	$(OBJS)
-	$(call cmd_link_o_target, $(OBJS))
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+obj-y	+= cpuinfo.o
+obj-y	+= timer.o
+obj-y	+= usb.o
