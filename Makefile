@@ -416,6 +416,8 @@ ALL-y += $(obj)u-boot-nodtb-tegra.bin
 endif
 endif
 
+build := -f $(TOPDIR)/scripts/Makefile.build -C
+
 all:		$(ALL-y) $(SUBDIR_EXAMPLES)
 
 $(obj)u-boot.dtb:	checkdtc $(obj)u-boot
@@ -463,7 +465,7 @@ $(obj)u-boot.img:	$(obj)u-boot.bin
 		-d $< $@
 
 $(obj)u-boot.imx: $(obj)u-boot.bin depend
-		$(MAKE) -C $(SRCTREE)/arch/arm/imx-common $(OBJTREE)/u-boot.imx
+		$(MAKE) $(build) $(SRCTREE)/arch/arm/imx-common $(OBJTREE)/u-boot.imx
 
 $(obj)u-boot.kwb:       $(obj)u-boot.bin
 		$(obj)tools/mkimage -n $(CONFIG_SYS_KWD_CONFIG) -T kwbimage \
@@ -501,11 +503,11 @@ $(obj)tpl/u-boot-with-tpl.bin: $(obj)tpl/u-boot-tpl.bin $(obj)u-boot.bin
 		$(call SPL_PAD_APPEND,$<,$(obj)u-boot.bin,tpl/u-boot-tpl-pad.bin,$(CONFIG_TPL_PAD_TO))
 
 $(obj)u-boot-with-spl.imx: $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
-		$(MAKE) -C $(SRCTREE)/arch/arm/imx-common \
+		$(MAKE) $(build) $(SRCTREE)/arch/arm/imx-common \
 			$(OBJTREE)/u-boot-with-spl.imx
 
 $(obj)u-boot-with-nand-spl.imx: $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
-		$(MAKE) -C $(SRCTREE)/arch/arm/imx-common \
+		$(MAKE) $(build) $(SRCTREE)/arch/arm/imx-common \
 			$(OBJTREE)/u-boot-with-nand-spl.imx
 
 $(obj)u-boot.ubl:       $(obj)u-boot-with-spl.bin

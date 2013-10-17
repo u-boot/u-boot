@@ -154,6 +154,8 @@ ifeq ($(wildcard $(LDSCRIPT)),)
 $(error could not find linker script)
 endif
 
+build := -f $(TOPDIR)/scripts/Makefile.build -C
+
 # Special flags for CPP when processing the linker script.
 # Pass the version down so we can handle backwards compatibility
 # on the fly.
@@ -173,7 +175,7 @@ $(OBJTREE)/MLO.byteswap: $(obj)u-boot-spl.bin
 		-a $(CONFIG_SPL_TEXT_BASE) -d $< $@
 
 $(OBJTREE)/SPL : $(obj)u-boot-spl.bin depend
-		$(MAKE) -C $(SRCTREE)/arch/arm/imx-common $@
+		$(MAKE) $(build) $(SRCTREE)/arch/arm/imx-common $@
 
 ALL-y	+= $(obj)$(SPL_BIN).bin
 
