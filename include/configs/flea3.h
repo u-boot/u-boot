@@ -50,11 +50,10 @@
 /*
  * Hardware drivers
  */
-#define CONFIG_HARD_I2C
-#define CONFIG_I2C_MXC
-#define CONFIG_SYS_I2C_BASE		I2C3_BASE_ADDR
-#define CONFIG_SYS_I2C_SPEED		100000
-#define CONFIG_SYS_I2C_SLAVE		0xfe
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_SPD_BUS_NUM		2 /* I2C3 */
+#define CONFIG_SYS_MXC_I2C3_SLAVE	0xfe
 #define CONFIG_MXC_SPI
 #define CONFIG_MXC_GPIO
 
