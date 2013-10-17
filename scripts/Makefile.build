@@ -19,6 +19,11 @@ obj-y := $(sort $(obj-y))
 extra-y := $(sort $(extra-y))
 lib-y := $(sort $(lib-y))
 
+subdir-y 	:= $(patsubst %/,%,$(filter %/, $(obj-y)))
+obj-y		:= $(patsubst %/, %/built-in.o, $(obj-y))
+subdir-obj-y	:= $(filter %/built-in.o, $(obj-y))
+subdir-obj-y	:= $(addprefix $(obj),$(subdir-obj-y))
+
 SRCS	+= $(COBJS:.o=.c) $(SOBJS:.o=.S) \
  $(wildcard $(obj-y:.o=.c) $(obj-y:.o=.S) $(lib-y:.o=.c) $(lib-y:.o=.S) $(extra-y:.o=.c) $(extra-y:.o=.S))
 OBJS	:= $(addprefix $(obj),$(COBJS) $(SOBJS) $(obj-y))
@@ -37,6 +42,14 @@ $(LIBGCC): $(obj).depend $(LGOBJS)
 	$(call cmd_link_o_target, $(LGOBJS))
 endif
 
+ifneq ($(subdir-obj-y),)
+# Descending
+$(subdir-obj-y): $(subdir-y)
+
+$(subdir-y): FORCE
+	$(MAKE) -C $@ -f $(TOPDIR)/scripts/Makefile.build
+endif
+
 #########################################################################
 
 # defines $(obj).depend target
@@ -46,3 +59,5 @@ include $(TOPDIR)/rules.mk
 sinclude $(obj).depend
 
 #########################################################################
+
+.PHONY: FORCE
