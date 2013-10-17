@@ -248,17 +248,7 @@ endif
 LIBS-$(CONFIG_OF_EMBED) += dts/libdts.o
 LIBS-y += arch/$(ARCH)/lib/lib$(ARCH).o
 LIBS-y += fs/libfs.o \
-	fs/cbfs/libcbfs.o \
-	fs/cramfs/libcramfs.o \
-	fs/ext4/libext4fs.o \
-	fs/fat/libfat.o \
-	fs/fdos/libfdos.o \
-	fs/jffs2/libjffs2.o \
-	fs/reiserfs/libreiserfs.o \
-	fs/sandbox/libsandboxfs.o \
-	fs/ubifs/libubifs.o \
-	fs/yaffs2/libyaffs2.o \
-	fs/zfs/libzfs.o
+	fs/fat/libfat.o
 LIBS-y += net/libnet.o
 LIBS-y += disk/libdisk.o
 LIBS-y += drivers/libdrivers.o
