@@ -1,0 +1,48 @@
+# our default target
+.PHONY: all
+all:
+
+include $(TOPDIR)/config.mk
+
+LIB := $(obj)built-in.o
+LIBGCC = $(obj)libgcc.o
+SRCS :=
+
+include Makefile
+
+# Backward compatible: obj-y is preferable
+COBJS := $(sort $(COBJS) $(COBJS-y))
+SOBJS := $(sort $(SOBJS) $(SOBJS-y))
+
+# Going forward use the following
+obj-y := $(sort $(obj-y))
+extra-y := $(sort $(extra-y))
+lib-y := $(sort $(lib-y))
+
+SRCS	+= $(COBJS:.o=.c) $(SOBJS:.o=.S) \
+ $(wildcard $(obj-y:.o=.c) $(obj-y:.o=.S) $(lib-y:.o=.c) $(lib-y:.o=.S) $(extra-y:.o=.c) $(extra-y:.o=.S))
+OBJS	:= $(addprefix $(obj),$(COBJS) $(SOBJS) $(obj-y))
+
+LGOBJS := $(addprefix $(obj),$(sort $(GLSOBJS) $(GLCOBJS)) $(lib-y))
+
+all: $(LIB) $(addprefix $(obj),$(extra-y))
+
+$(LIB):	$(obj).depend $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
+
+ifneq ($(strip $(lib-y)),)
+all: $(LIBGCC)
+
+$(LIBGCC): $(obj).depend $(LGOBJS)
+	$(call cmd_link_o_target, $(LGOBJS))
+endif
+
+#########################################################################
+
+# defines $(obj).depend target
+
+include $(TOPDIR)/rules.mk
+
+sinclude $(obj).depend
+
+#########################################################################

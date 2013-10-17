@@ -595,14 +595,32 @@ ifeq ($(CONFIG_KALLSYMS),y)
 		$(GEN_UBOOT) $(obj)common/system_map.o
 endif
 
+# Tentative step for Kbuild-style makefiles coexist with conventional U-Boot style makefiles
+#  U-Boot conventional sub makefiles always include some other makefiles.
+#  So, the build system searches a line beginning with "include" before entering into the sub makefile
+#  in order to distinguish which style it is.
+#  If the Makefile include a "include" line, we assume it is an U-Boot style makefile.
+#  Otherwise, it is treated as a Kbuild-style makefile.
+select_makefile = \
+	+if grep -q "^include" $1/Makefile; then				\
+		$(MAKE) -C $1;						\
+	else								\
+		$(MAKE) -C $1 -f $(TOPDIR)/scripts/Makefile.build;	\
+		mv $(dir $@)built-in.o $@;				\
+	fi
+
+# We do not need to build $(OBJS) explicitly.
+# It is built while we are at $(CPUDIR)/lib$(CPU).o build.
 $(OBJS):	depend
-		$(MAKE) -C $(CPUDIR) $(if $(REMOTE_BUILD),$@,$(notdir $@))
+		if grep -q "^include" $(CPUDIR)/Makefile; then \
+			$(MAKE) -C $(CPUDIR) $(if $(REMOTE_BUILD),$@,$(notdir $@)); \
+		fi
 
 $(LIBS):	depend $(SUBDIR_TOOLS)
-		$(MAKE) -C $(dir $(subst $(obj),,$@))
+		+$(call select_makefile, $(dir $(subst $(obj),,$@)))
 
 $(LIBBOARD):	depend $(LIBS)
-		$(MAKE) -C $(dir $(subst $(obj),,$@))
+		+$(call select_makefile, $(dir $(subst $(obj),,$@)))
 
 $(SUBDIRS):	depend
 		$(MAKE) -C $@ all
@@ -630,6 +648,13 @@ $(obj)tpl/u-boot-tpl.bin:	$(SUBDIR_TOOLS) depend
 updater:
 		$(MAKE) -C tools/updater all
 
+select_makefile2 = \
+	if grep -q "^include" $1/Makefile; then					\
+		$(MAKE) -C $1 _depend;						\
+	else									\
+		$(MAKE) -C $1 -f $(TOPDIR)/scripts/Makefile.build _depend;	\
+	fi
+
 # Explicitly make _depend in subdirs containing multiple targets to prevent
 # parallel sub-makes creating .depend files simultaneously.
 depend dep:	$(TIMESTAMP_FILE) $(VERSION_FILE) \
@@ -638,8 +663,9 @@ depend dep:	$(TIMESTAMP_FILE) $(VERSION_FILE) \
 		$(obj)include/autoconf.mk \
 		$(obj)include/generated/generic-asm-offsets.h \
 		$(obj)include/generated/asm-offsets.h
-		for dir in $(SUBDIRS) $(CPUDIR) $(LDSCRIPT_MAKEFILE_DIR) ; do \
-			$(MAKE) -C $$dir _depend ; done
+		+for dir in $(SUBDIRS) $(CPUDIR) $(LDSCRIPT_MAKEFILE_DIR) ; do \
+			$(call select_makefile2, $$dir); \
+		done
 
 TAG_SUBDIRS = $(SUBDIRS)
 TAG_SUBDIRS += $(dir $(__LIBS))

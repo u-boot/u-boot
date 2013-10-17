@@ -200,11 +200,29 @@ GEN_UBOOT = \
 $(obj)$(SPL_BIN):	depend $(START) $(LIBS) $(obj)u-boot-spl.lds
 	$(GEN_UBOOT)
 
+# Tentative step for Kbuild-style makefiles coexist with conventional U-Boot style makefiles
+#  U-Boot conventional sub makefiles always include some other makefiles.
+#  So, the build system searches a line beginning with "include" before entering into the sub makefile
+#  in order to distinguish which style it is.
+#  If the Makefile include a "include" line, we assume it is an U-Boot style makefile.
+#  Otherwise, it is treated as a Kbuild-style makefile.
+select_makefile = \
+	if grep -q "^include" $1/Makefile; then				\
+		$(MAKE) -C $1;						\
+	else								\
+		$(MAKE) -C $1 -f $(TOPDIR)/scripts/Makefile.build;	\
+		mv $(dir $@)built-in.o $@;				\
+	fi
+
+# We do not need to build $(START) explicitly.
+# It is built while we are at $(CPUDIR)/lib$(CPU).o build.
 $(START):	depend
-	$(MAKE) -C $(SRCTREE)/$(START_PATH) $@
+	if grep -q "^include" $(SRCTREE)$(dir $(subst $(SPLTREE),,$@))Makefile; then \
+		$(MAKE) -C $(SRCTREE)/$(START_PATH) $@; \
+	fi
 
 $(LIBS):	depend
-	$(MAKE) -C $(SRCTREE)$(dir $(subst $(SPLTREE),,$@))
+	+$(call select_makefile, $(SRCTREE)$(dir $(subst $(SPLTREE),,$@)))
 
 $(obj)u-boot-spl.lds: $(LDSCRIPT) depend
 	$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -I$(obj). -ansi -D__ASSEMBLY__ -P - < $< > $@
