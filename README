@@ -1,24 +1,8 @@
 #
-# (C) Copyright 2000 - 2012
+# (C) Copyright 2000 - 2013
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
-# See file CREDITS for list of people who contributed to this
-# project.
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 2 of
-# the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA 02111-1307 USA
+# SPDX-License-Identifier:	GPL-2.0+
 #
 
 Summary:
@@ -51,7 +35,7 @@ Makefile have been tested to some extent and can be considered
 "working". In fact, many of them are used in production systems.
 
 In case of problems see the CHANGELOG and CREDITS files to find out
-who contributed the specific port. The MAINTAINERS file lists board
+who contributed the specific port. The boards.cfg file lists board
 maintainers.
 
 Note: There is no CHANGELOG file in the actual U-Boot source tree;
@@ -155,21 +139,16 @@ Directory Hierarchy:
 	/at91		Files specific to Atmel AT91RM9200 CPU
 	/imx		Files specific to Freescale MC9328 i.MX CPUs
 	/s3c24x0	Files specific to Samsung S3C24X0 CPUs
-      /arm925t		Files specific to ARM 925 CPUs
       /arm926ejs	Files specific to ARM 926 CPUs
       /arm1136		Files specific to ARM 1136 CPUs
       /ixp		Files specific to Intel XScale IXP CPUs
       /pxa		Files specific to Intel XScale PXA CPUs
-      /s3c44b0		Files specific to Samsung S3C44B0 CPUs
       /sa1100		Files specific to Intel StrongARM SA1100 CPUs
     /lib		Architecture specific library files
   /avr32		Files generic to AVR32 architecture
     /cpu		CPU specific files
     /lib		Architecture specific library files
   /blackfin		Files generic to Analog Devices Blackfin architecture
-    /cpu		CPU specific files
-    /lib		Architecture specific library files
-  /x86			Files generic to x86 architecture
     /cpu		CPU specific files
     /lib		Architecture specific library files
   /m68k			Files generic to m68k architecture
@@ -195,6 +174,9 @@ Directory Hierarchy:
   /nios2		Files generic to Altera NIOS2 architecture
     /cpu		CPU specific files
     /lib		Architecture specific library files
+  /openrisc		Files generic to OpenRISC architecture
+    /cpu		CPU specific files
+    /lib		Architecture specific library files
   /powerpc		Files generic to PowerPC architecture
     /cpu		CPU specific files
       /74xx_7xx		Files specific to Freescale MPC74xx and 7xx CPUs
@@ -217,12 +199,16 @@ Directory Hierarchy:
       /leon2		Files specific to Gaisler LEON2 SPARC CPU
       /leon3		Files specific to Gaisler LEON3 SPARC CPU
     /lib		Architecture specific library files
+  /x86			Files generic to x86 architecture
+    /cpu		CPU specific files
+    /lib		Architecture specific library files
 /api			Machine/arch independent API for external apps
 /board			Board dependent files
 /common			Misc architecture independent functions
 /disk			Code for disk drive partition handling
 /doc			Documentation (don't expect too much)
 /drivers		Commonly used device drivers
+/dts			Contains Makefile for building internal U-Boot fdt.
 /examples		Example code for standalone applications, etc.
 /fs			Filesystem code (cramfs, ext2, jffs2, etc.)
 /include		Header Files
@@ -232,7 +218,7 @@ Directory Hierarchy:
   /lzo			Library files to support LZO decompression
 /net			Networking code
 /post			Power On Self Test
-/rtc			Real Time Clock drivers
+/spl			Secondary Program Loader framework
 /tools			Tools to build S-Record or U-Boot images, etc.
 
 Software Configuration:
@@ -422,12 +408,24 @@ The following options need to be configured:
 		This is the value to write into CCSR offset 0x18600
 		according to the A004510 workaround.
 
+		CONFIG_SYS_FSL_DSP_DDR_ADDR
+		This value denotes start offset of DDR memory which is
+		connected exclusively to the DSP cores.
+
 		CONFIG_SYS_FSL_DSP_M2_RAM_ADDR
 		This value denotes start offset of M2 memory
 		which is directly connected to the DSP core.
 
+		CONFIG_SYS_FSL_DSP_M3_RAM_ADDR
+		This value denotes start offset of M3 memory which is directly
+		connected to the DSP core.
+
 		CONFIG_SYS_FSL_DSP_CCSRBAR_DEFAULT
 		This value denotes start offset of DSP CCSR space.
+
+		CONFIG_SYS_FSL_DDR_EMU
+		Specify emulator support for DDR. Some DDR features such as
+		deskew training are not available.
 
 - Generic CPU options:
 		CONFIG_SYS_BIG_ENDIAN, CONFIG_SYS_LITTLE_ENDIAN
@@ -946,10 +944,10 @@ The following options need to be configured:
 
 - Regular expression support:
 		CONFIG_REGEX
-                If this variable is defined, U-Boot is linked against
-                the SLRE (Super Light Regular Expression) library,
-                which adds regex support to some commands, as for
-                example "env grep" and "setexpr".
+		If this variable is defined, U-Boot is linked against
+		the SLRE (Super Light Regular Expression) library,
+		which adds regex support to some commands, as for
+		example "env grep" and "setexpr".
 
 - Device tree:
 		CONFIG_OF_CONTROL
@@ -1098,8 +1096,8 @@ The following options need to be configured:
 		devices.
 		CONFIG_SYS_SCSI_SYM53C8XX_CCF to fix clock timing (80Mhz)
 
-                The environment variable 'scsidevs' is set to the number of
-                SCSI devices found during the last scan.
+		The environment variable 'scsidevs' is set to the number of
+		SCSI devices found during the last scan.
 
 - NETWORK Support (PCI):
 		CONFIG_E1000
@@ -1409,6 +1407,12 @@ The following options need to be configured:
 		CONFIG_DFU_NAND
 		This enables support for exposing NAND devices via DFU.
 
+		CONFIG_DFU_RAM
+		This enables support for exposing RAM via DFU.
+		Note: DFU spec refer to non-volatile memory usage, but
+		allow usages beyond the scope of spec - here RAM usage,
+		one that would help mostly the developer.
+
 		CONFIG_SYS_DFU_DATA_BUF_SIZE
 		Dfu transfer uses a buffer before writing data to the
 		raw storage device. Make the size (in bytes) of this buffer
@@ -1684,6 +1688,10 @@ CBFS (Coreboot Filesystem) support
 		to compress the specified memory at its best effort.
 
 - Compression support:
+		CONFIG_GZIP
+
+		Enabled by default to support gzip compressed images.
+
 		CONFIG_BZIP2
 
 		If this option is set, support for bzip2 compressed
@@ -1716,6 +1724,11 @@ CBFS (Coreboot Filesystem) support
 		Use the lzmainfo tool to determinate the lc and lp values and
 		then calculate the amount of needed dynamic memory (ensuring
 		the appropriate CONFIG_SYS_MALLOC_LEN value).
+
+		CONFIG_LZO
+
+		If this option is set, support for LZO compressed images
+		is included.
 
 - MII/PHY support:
 		CONFIG_PHY_ADDR
@@ -1944,11 +1957,114 @@ CBFS (Coreboot Filesystem) support
 		on those systems that support this (optional)
 		feature, like the TQM8xxL modules.
 
-- I2C Support:	CONFIG_HARD_I2C | CONFIG_SOFT_I2C
+- I2C Support:	CONFIG_SYS_I2C
 
-		These enable I2C serial bus commands. Defining either of
-		(but not both of) CONFIG_HARD_I2C or CONFIG_SOFT_I2C will
-		include the appropriate I2C driver for the selected CPU.
+		This enable the NEW i2c subsystem, and will allow you to use
+		i2c commands at the u-boot command line (as long as you set
+		CONFIG_CMD_I2C in CONFIG_COMMANDS) and communicate with i2c
+		based realtime clock chips or other i2c devices. See
+		common/cmd_i2c.c for a description of the command line
+		interface.
+
+		ported i2c driver to the new framework:
+		- drivers/i2c/soft_i2c.c:
+		  - activate first bus with CONFIG_SYS_I2C_SOFT define
+		    CONFIG_SYS_I2C_SOFT_SPEED and CONFIG_SYS_I2C_SOFT_SLAVE
+		    for defining speed and slave address
+		  - activate second bus with I2C_SOFT_DECLARATIONS2 define
+		    CONFIG_SYS_I2C_SOFT_SPEED_2 and CONFIG_SYS_I2C_SOFT_SLAVE_2
+		    for defining speed and slave address
+		  - activate third bus with I2C_SOFT_DECLARATIONS3 define
+		    CONFIG_SYS_I2C_SOFT_SPEED_3 and CONFIG_SYS_I2C_SOFT_SLAVE_3
+		    for defining speed and slave address
+		  - activate fourth bus with I2C_SOFT_DECLARATIONS4 define
+		    CONFIG_SYS_I2C_SOFT_SPEED_4 and CONFIG_SYS_I2C_SOFT_SLAVE_4
+		    for defining speed and slave address
+
+		- drivers/i2c/fsl_i2c.c:
+		  - activate i2c driver with CONFIG_SYS_I2C_FSL
+		    define CONFIG_SYS_FSL_I2C_OFFSET for setting the register
+		    offset CONFIG_SYS_FSL_I2C_SPEED for the i2c speed and
+		    CONFIG_SYS_FSL_I2C_SLAVE for the slave addr of the first
+		    bus.
+		  - If your board supports a second fsl i2c bus, define
+		    CONFIG_SYS_FSL_I2C2_OFFSET for the register offset
+		    CONFIG_SYS_FSL_I2C2_SPEED for the speed and
+		    CONFIG_SYS_FSL_I2C2_SLAVE for the slave address of the
+		    second bus.
+
+		- drivers/i2c/tegra_i2c.c:
+		 - activate this driver with CONFIG_SYS_I2C_TEGRA
+		 - This driver adds 4 i2c buses with a fix speed from
+		   100000 and the slave addr 0!
+
+		- drivers/i2c/ppc4xx_i2c.c
+		  - activate this driver with CONFIG_SYS_I2C_PPC4XX
+		  - CONFIG_SYS_I2C_PPC4XX_CH0 activate hardware channel 0
+		  - CONFIG_SYS_I2C_PPC4XX_CH1 activate hardware channel 1
+
+		additional defines:
+
+		CONFIG_SYS_NUM_I2C_BUSES
+		Hold the number of i2c busses you want to use. If you
+		don't use/have i2c muxes on your i2c bus, this
+		is equal to CONFIG_SYS_NUM_I2C_ADAPTERS, and you can
+		omit this define.
+
+		CONFIG_SYS_I2C_DIRECT_BUS
+		define this, if you don't use i2c muxes on your hardware.
+		if CONFIG_SYS_I2C_MAX_HOPS is not defined or == 0 you can
+		omit this define.
+
+		CONFIG_SYS_I2C_MAX_HOPS
+		define how many muxes are maximal consecutively connected
+		on one i2c bus. If you not use i2c muxes, omit this
+		define.
+
+		CONFIG_SYS_I2C_BUSES
+		hold a list of busses you want to use, only used if
+		CONFIG_SYS_I2C_DIRECT_BUS is not defined, for example
+		a board with CONFIG_SYS_I2C_MAX_HOPS = 1 and
+		CONFIG_SYS_NUM_I2C_BUSES = 9:
+
+		 CONFIG_SYS_I2C_BUSES	{{0, {I2C_NULL_HOP}}, \
+					{0, {{I2C_MUX_PCA9547, 0x70, 1}}}, \
+					{0, {{I2C_MUX_PCA9547, 0x70, 2}}}, \
+					{0, {{I2C_MUX_PCA9547, 0x70, 3}}}, \
+					{0, {{I2C_MUX_PCA9547, 0x70, 4}}}, \
+					{0, {{I2C_MUX_PCA9547, 0x70, 5}}}, \
+					{1, {I2C_NULL_HOP}}, \
+					{1, {{I2C_MUX_PCA9544, 0x72, 1}}}, \
+					{1, {{I2C_MUX_PCA9544, 0x72, 2}}}, \
+					}
+
+		which defines
+			bus 0 on adapter 0 without a mux
+			bus 1 on adapter 0 with a PCA9547 on address 0x70 port 1
+			bus 2 on adapter 0 with a PCA9547 on address 0x70 port 2
+			bus 3 on adapter 0 with a PCA9547 on address 0x70 port 3
+			bus 4 on adapter 0 with a PCA9547 on address 0x70 port 4
+			bus 5 on adapter 0 with a PCA9547 on address 0x70 port 5
+			bus 6 on adapter 1 without a mux
+			bus 7 on adapter 1 with a PCA9544 on address 0x72 port 1
+			bus 8 on adapter 1 with a PCA9544 on address 0x72 port 2
+
+		If you do not have i2c muxes on your board, omit this define.
+
+- Legacy I2C Support:	CONFIG_HARD_I2C
+
+		NOTE: It is intended to move drivers to CONFIG_SYS_I2C which
+		provides the following compelling advantages:
+
+		- more than one i2c adapter is usable
+		- approved multibus support
+		- better i2c mux support
+
+		** Please consider updating your I2C driver now. **
+
+		These enable legacy I2C serial bus commands. Defining
+		CONFIG_HARD_I2C will include the appropriate I2C driver
+		for the selected CPU.
 
 		This will allow you to use i2c commands at the u-boot
 		command line (as long as you set CONFIG_CMD_I2C in
@@ -1958,12 +2074,8 @@ CBFS (Coreboot Filesystem) support
 
 		CONFIG_HARD_I2C selects a hardware I2C controller.
 
-		CONFIG_SOFT_I2C configures u-boot to use a software (aka
-		bit-banging) driver instead of CPM or similar hardware
-		support for I2C.
-
 		There are several other quantities that must also be
-		defined when you define CONFIG_HARD_I2C or CONFIG_SOFT_I2C.
+		defined when you define CONFIG_HARD_I2C.
 
 		In both cases you will need to define CONFIG_SYS_I2C_SPEED
 		to be the frequency (in Hz) at which you wish your i2c bus
@@ -1985,7 +2097,7 @@ CBFS (Coreboot Filesystem) support
 
 		That's all that's required for CONFIG_HARD_I2C.
 
-		If you use the software i2c interface (CONFIG_SOFT_I2C)
+		If you use the software i2c interface (CONFIG_SYS_I2C_SOFT)
 		then the following macros need to be defined (examples are
 		from include/configs/lwmon.h):
 
@@ -2135,58 +2247,6 @@ CBFS (Coreboot Filesystem) support
 		If defined, specifies the I2C address of the DTT device.
 		If not defined, then U-Boot uses predefined value for
 		specified DTT device.
-
-		CONFIG_FSL_I2C
-
-		Define this option if you want to use Freescale's I2C driver in
-		drivers/i2c/fsl_i2c.c.
-
-		CONFIG_I2C_MUX
-
-		Define this option if you have I2C devices reached over 1 .. n
-		I2C Muxes like the pca9544a. This option addes a new I2C
-		Command "i2c bus [muxtype:muxaddr:muxchannel]" which adds a
-		new I2C Bus to the existing I2C Busses. If you select the
-		new Bus with "i2c dev", u-bbot sends first the commandos for
-		the muxes to activate this new "bus".
-
-		CONFIG_I2C_MULTI_BUS must be also defined, to use this
-		feature!
-
-		Example:
-		Adding a new I2C Bus reached over 2 pca9544a muxes
-			The First mux with address 70 and channel 6
-			The Second mux with address 71 and channel 4
-
-		=> i2c bus pca9544a:70:6:pca9544a:71:4
-
-		Use the "i2c bus" command without parameter, to get a list
-		of I2C Busses with muxes:
-
-		=> i2c bus
-		Busses reached over muxes:
-		Bus ID: 2
-		  reached over Mux(es):
-		    pca9544a@70 ch: 4
-		Bus ID: 3
-		  reached over Mux(es):
-		    pca9544a@70 ch: 6
-		    pca9544a@71 ch: 4
-		=>
-
-		If you now switch to the new I2C Bus 3 with "i2c dev 3"
-		u-boot first sends the command to the mux@70 to enable
-		channel 6, and then the command to the mux@71 to enable
-		the channel 4.
-
-		After that, you can use the "normal" i2c commands as
-		usual to communicate with your I2C devices behind
-		the 2 muxes.
-
-		This option is actually implemented for the bitbanging
-		algorithm in common/soft_i2c.c and for the Hardware I2C
-		Bus on the MPC8260. But it should be not so difficult
-		to add this option to other architectures.
 
 		CONFIG_SOFT_I2C_READ_REPEATED_START
 
@@ -2597,6 +2657,21 @@ CBFS (Coreboot Filesystem) support
 
 		Note: There is also a sha1sum command, which should perhaps
 		be deprecated in favour of 'hash sha1'.
+
+- Freescale i.MX specific commands:
+		CONFIG_CMD_HDMIDETECT
+		This enables 'hdmidet' command which returns true if an
+		HDMI monitor is detected.  This command is i.MX 6 specific.
+
+		CONFIG_CMD_BMODE
+		This enables the 'bmode' (bootmode) command for forcing
+		a boot from specific media.
+
+		This is useful for forcing the ROM's usb downloader to
+		activate upon a watchdog reset which is nice when iterating
+		on U-Boot.  Using the reset button or running bmode normal
+		will set it back to normal.  This command currently
+		supports i.MX53 and i.MX6.
 
 - Signing support:
 		CONFIG_RSA
@@ -3032,6 +3107,14 @@ FIT uImage format:
 		Support for NAND boot using simple NAND drivers that
 		expose the cmd_ctrl() interface.
 
+		CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
+		Set for the SPL on PPC mpc8xxx targets, support for
+		arch/powerpc/cpu/mpc8xxx/ddr/libddr.o in SPL binary.
+
+		CONFIG_SPL_COMMON_INIT_DDR
+		Set for common ddr init with serial presence detect in
+		SPL binary.
+
 		CONFIG_SYS_NAND_5_ADDR_CYCLE, CONFIG_SYS_NAND_PAGE_COUNT,
 		CONFIG_SYS_NAND_PAGE_SIZE, CONFIG_SYS_NAND_OOBSIZE,
 		CONFIG_SYS_NAND_BLOCK_SIZE, CONFIG_SYS_NAND_BAD_BLOCK_POS,
@@ -3100,6 +3183,17 @@ FIT uImage format:
 		code to SPL. So this is normally disabled in SPL. Use this
 		option to re-enable it. This will affect the output of the
 		bootm command when booting a FIT image.
+
+- TPL framework
+		CONFIG_TPL
+		Enable building of TPL globally.
+
+		CONFIG_TPL_PAD_TO
+		Image offset to which the TPL should be padded before appending
+		the TPL payload. By default, this is defined as
+		CONFIG_SPL_MAX_SIZE, or 0 if CONFIG_SPL_MAX_SIZE is undefined.
+		CONFIG_SPL_PAD_TO must be either 0, meaning to append the SPL
+		payload without any padding, or >= CONFIG_SPL_MAX_SIZE.
 
 Modem Support:
 --------------
@@ -3274,7 +3368,7 @@ Configuration Settings:
 		the Linux kernel; all data that must be processed by
 		the Linux kernel (bd_info, boot arguments, FDT blob if
 		used) must be put below this limit, unless "bootm_low"
-		enviroment variable is defined and non-zero. In such case
+		environment variable is defined and non-zero. In such case
 		all data for the Linux kernel must be between "bootm_low"
 		and "bootm_low" + CONFIG_SYS_BOOTMAPSZ.	 The environment
 		variable "bootm_mapsize" will override the value of
@@ -3387,7 +3481,7 @@ Configuration Settings:
 
 - CONFIG_ENV_FLAGS_LIST_DEFAULT
 - CONFIG_ENV_FLAGS_LIST_STATIC
-	Enable validation of the values given to enviroment variables when
+	Enable validation of the values given to environment variables when
 	calling env set.  Variables can be restricted to only decimal,
 	hexadecimal, or boolean.  If CONFIG_CMD_NET is also defined,
 	the variables can also be restricted to IP address or MAC address.
@@ -3604,7 +3698,7 @@ to save the current settings.
 	  I2C muxes, you can define here, how to reach this
 	  EEPROM. For example:
 
-	  #define CONFIG_I2C_ENV_EEPROM_BUS	  "pca9547:70:d\0"
+	  #define CONFIG_I2C_ENV_EEPROM_BUS	  1
 
 	  EEPROM which holds the environment, is reached over
 	  a pca9547 i2c mux with address 0x70, channel 3.
@@ -4138,6 +4232,11 @@ Low Level (hardware related) configuration options:
 		that is executed before the actual U-Boot. E.g. when
 		compiling a NAND SPL.
 
+- CONFIG_TPL_BUILD
+		Modifies the behaviour of start.S  when compiling a loader
+		that is executed after the SPL and before the actual U-Boot.
+		It is loaded by the SPL.
+
 - CONFIG_SYS_MPC85XX_NO_RESETVEC
 		Only for 85xx systems. If this variable is specified, the section
 		.resetvec is not kept and the section .bootpg is placed in the
@@ -4583,6 +4682,12 @@ List of environment variables (most likely not complete):
 		  themselves.
 
   npe_ucode	- set load address for the NPE microcode
+
+  silent_linux  - If set then linux will be told to boot silently, by
+		  changing the console to be empty. If "yes" it will be
+		  made silent. If "no" it will not be made silent. If
+		  unset, then it will be made silent if the U-Boot console
+		  is silent.
 
   tftpsrcport	- If this is set, the value is used for TFTP's
 		  UDP source port.
@@ -5491,15 +5596,17 @@ On ARM, the following registers are used:
 
 	R0:	function argument word/integer result
 	R1-R3:	function argument word
-	R9:	GOT pointer
-	R10:	stack limit (used only if stack checking if enabled)
+	R9:	platform specific
+	R10:	stack limit (used only if stack checking is enabled)
 	R11:	argument (frame) pointer
 	R12:	temporary workspace
 	R13:	stack pointer
 	R14:	link register
 	R15:	program counter
 
-    ==> U-Boot will use R8 to hold a pointer to the global data
+    ==> U-Boot will use R9 to hold a pointer to the global data
+
+    Note: on ARM, only R_ARM_RELATIVE relocations are supported.
 
 On Nios II, the ABI is documented here:
 	http://www.altera.com/literature/hb/nios2/n2cpu_nii51016.pdf
@@ -5736,8 +5843,8 @@ it:
 
 * For major contributions, your entry to the CREDITS file
 
-* When you add support for a new board, don't forget to add this
-  board to the MAINTAINERS file, too.
+* When you add support for a new board, don't forget to add a
+  maintainer e-mail address to the boards.cfg file, too.
 
 * If your patch adds new configuration options, don't forget to
   document these in the README file.

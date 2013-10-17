@@ -4,20 +4,7 @@
  * Author: InKi Dae <inki.dae@samsung.com>
  * Author: Donghwa Lee <dh09.lee@samsung.com>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -63,7 +50,7 @@ static unsigned int dpll_table[15] = {
 };
 
 static void exynos_mipi_dsi_long_data_wr(struct mipi_dsim_device *dsim,
-		unsigned int data0, unsigned int data1)
+		const unsigned char *data0, unsigned int data1)
 {
 	unsigned int data_cnt = 0, payload = 0;
 
@@ -75,42 +62,40 @@ static void exynos_mipi_dsi_long_data_wr(struct mipi_dsim_device *dsim,
 		 */
 		if ((data1 - data_cnt) < 4) {
 			if ((data1 - data_cnt) == 3) {
-				payload = *(u8 *)(data0 + data_cnt) |
-					(*(u8 *)(data0 + (data_cnt + 1))) << 8 |
-					(*(u8 *)(data0 + (data_cnt + 2))) << 16;
+				payload = data0[data_cnt] |
+					data0[data_cnt + 1] << 8 |
+					data0[data_cnt + 2] << 16;
 			debug("count = 3 payload = %x, %x %x %x\n",
-				payload, *(u8 *)(data0 + data_cnt),
-				*(u8 *)(data0 + (data_cnt + 1)),
-				*(u8 *)(data0 + (data_cnt + 2)));
+				payload, data0[data_cnt],
+				data0[data_cnt + 1],
+				data0[data_cnt + 2]);
 			} else if ((data1 - data_cnt) == 2) {
-				payload = *(u8 *)(data0 + data_cnt) |
-					(*(u8 *)(data0 + (data_cnt + 1))) << 8;
+				payload = data0[data_cnt] |
+					data0[data_cnt + 1] << 8;
 			debug("count = 2 payload = %x, %x %x\n", payload,
-				*(u8 *)(data0 + data_cnt),
-				*(u8 *)(data0 + (data_cnt + 1)));
+				data0[data_cnt], data0[data_cnt + 1]);
 			} else if ((data1 - data_cnt) == 1) {
-				payload = *(u8 *)(data0 + data_cnt);
+				payload = data0[data_cnt];
 			}
 		} else {
 			/* send 4bytes per one time. */
-			payload = *(u8 *)(data0 + data_cnt) |
-				(*(u8 *)(data0 + (data_cnt + 1))) << 8 |
-				(*(u8 *)(data0 + (data_cnt + 2))) << 16 |
-				(*(u8 *)(data0 + (data_cnt + 3))) << 24;
+			payload = data0[data_cnt] |
+				data0[data_cnt + 1] << 8 |
+				data0[data_cnt + 2] << 16 |
+				data0[data_cnt + 3] << 24;
 
 			debug("count = 4 payload = %x, %x %x %x %x\n",
 				payload, *(u8 *)(data0 + data_cnt),
-				*(u8 *)(data0 + (data_cnt + 1)),
-				*(u8 *)(data0 + (data_cnt + 2)),
-				*(u8 *)(data0 + (data_cnt + 3)));
-
+				data0[data_cnt + 1],
+				data0[data_cnt + 2],
+				data0[data_cnt + 3]);
 		}
 		exynos_mipi_dsi_wr_tx_data(dsim, payload);
 	}
 }
 
 int exynos_mipi_dsi_wr_data(struct mipi_dsim_device *dsim, unsigned int data_id,
-	unsigned int data0, unsigned int data1)
+	const unsigned char *data0, unsigned int data1)
 {
 	unsigned int timeout = TRY_GET_FIFO_TIMEOUT;
 	unsigned long delay_val, delay;
@@ -149,8 +134,8 @@ int exynos_mipi_dsi_wr_data(struct mipi_dsim_device *dsim, unsigned int data_id,
 	case MIPI_DSI_DCS_SHORT_WRITE_PARAM:
 	case MIPI_DSI_SET_MAXIMUM_RETURN_PACKET_SIZE:
 		debug("data0 = %x data1 = %x\n",
-				data0, data1);
-		exynos_mipi_dsi_wr_tx_header(dsim, data_id, data0, data1);
+				data0[0], data0[1]);
+		exynos_mipi_dsi_wr_tx_header(dsim, data_id, data0[0], data0[1]);
 		if (check_rx_ack) {
 			/* process response func should be implemented */
 			return 0;
@@ -163,7 +148,7 @@ int exynos_mipi_dsi_wr_data(struct mipi_dsim_device *dsim, unsigned int data_id,
 	case MIPI_DSI_COLOR_MODE_ON:
 	case MIPI_DSI_SHUTDOWN_PERIPHERAL:
 	case MIPI_DSI_TURN_ON_PERIPHERAL:
-		exynos_mipi_dsi_wr_tx_header(dsim, data_id, data0, data1);
+		exynos_mipi_dsi_wr_tx_header(dsim, data_id, data0[0], data0[1]);
 		if (check_rx_ack) {
 			/* process response func should be implemented. */
 			return 0;
@@ -185,7 +170,7 @@ int exynos_mipi_dsi_wr_data(struct mipi_dsim_device *dsim, unsigned int data_id,
 	case MIPI_DSI_GENERIC_READ_REQUEST_2_PARAM:
 	case MIPI_DSI_DCS_READ:
 		exynos_mipi_dsi_clear_all_interrupt(dsim);
-		exynos_mipi_dsi_wr_tx_header(dsim, data_id, data0, data1);
+		exynos_mipi_dsi_wr_tx_header(dsim, data_id, data0[0], data0[1]);
 		/* process response func should be implemented. */
 		return 0;
 
@@ -196,21 +181,19 @@ int exynos_mipi_dsi_wr_data(struct mipi_dsim_device *dsim, unsigned int data_id,
 	case MIPI_DSI_GENERIC_LONG_WRITE:
 	case MIPI_DSI_DCS_LONG_WRITE:
 	{
-		unsigned int data_cnt = 0, payload = 0;
+		unsigned int payload = 0;
 
 		/* if data count is less then 4, then send 3bytes data.  */
 		if (data1 < 4) {
-			payload = *(u8 *)(data0) |
-				*(u8 *)(data0 + 1) << 8 |
-				*(u8 *)(data0 + 2) << 16;
+			payload = data0[0] |
+				data0[1] << 8 |
+				data0[2] << 16;
 
 			exynos_mipi_dsi_wr_tx_data(dsim, payload);
 
 			debug("count = %d payload = %x,%x %x %x\n",
-				data1, payload,
-				*(u8 *)(data0 + data_cnt),
-				*(u8 *)(data0 + (data_cnt + 1)),
-				*(u8 *)(data0 + (data_cnt + 2)));
+				data1, payload, data0[0],
+				data0[1], data0[2]);
 		} else {
 			/* in case that data count is more then 4 */
 			exynos_mipi_dsi_long_data_wr(dsim, data0, data1);

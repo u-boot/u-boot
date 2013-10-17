@@ -62,7 +62,7 @@ c) Image building procedure
 The following picture shows how the new uImage is prepared. Input consists of
 image source file (.its) and a set of data files. Image is created with the
 help of standard U-boot mkimage tool which in turn uses dtc (device tree
-compiler) to produce image tree blob (.itb).  Resulting .itb file is is the
+compiler) to produce image tree blob (.itb).  Resulting .itb file is the
 actual binary of a new uImage.
 
 

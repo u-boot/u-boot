@@ -1,23 +1,7 @@
 #
 # Copyright (c) 2011 The Chromium OS Authors.
 #
-# See file CREDITS for list of people who contributed to this
-# project.
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundatio; either version 2 of
-# the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA 02111-1307 USA
+# SPDX-License-Identifier:	GPL-2.0+
 #
 
 # This Makefile builds the internal U-Boot fdt if CONFIG_OF_CONTROL is
@@ -33,15 +17,15 @@ $(error Please define CONFIG_DEFAULT_DEVICE_TREE in your board header file))
 DEVICE_TREE = $(subst ",,$(CONFIG_DEFAULT_DEVICE_TREE))
 endif
 
-$(if $(CONFIG_ARCH_DEVICE_TREE),,\
-$(error Your architecture does not have device tree support enabled. \
-Please define CONFIG_ARCH_DEVICE_TREE))
+DTS_INCDIRS =  $(SRCTREE)/board/$(VENDOR)/$(BOARD)/dts
+DTS_INCDIRS += $(SRCTREE)/board/$(VENDOR)/dts
+DTS_INCDIRS += $(SRCTREE)/arch/$(ARCH)/dts
 
-# We preprocess the device tree file provide a useful define
-DTS_CPPFLAGS := -x assembler-with-cpp \
-		-DARCH_CPU_DTS=\"$(SRCTREE)/arch/$(ARCH)/dts/$(CONFIG_ARCH_DEVICE_TREE).dtsi\" \
-		-DBOARD_DTS=\"$(SRCTREE)/board/$(VENDOR)/$(BOARD)/dts/$(DEVICE_TREE).dts\" \
-		-I$(SRCTREE)/board/$(VENDOR)/dts -I$(SRCTREE)/arch/$(ARCH)/dts
+DTS_CPPFLAGS := -x assembler-with-cpp -undef -D__DTS__ \
+		-nostdinc $(addprefix -I,$(DTS_INCDIRS))
+
+DTC_FLAGS := -R 4 -p 0x1000 \
+	$(addprefix -i ,$(DTS_INCDIRS))
 
 all:	$(obj).depend $(LIB)
 
@@ -51,13 +35,8 @@ all:	$(obj).depend $(LIB)
 DT_BIN	:= $(obj)dt.dtb
 
 $(DT_BIN): $(TOPDIR)/board/$(VENDOR)/dts/$(DEVICE_TREE).dts
-	rc=$$( \
-		cat $< | $(CPP) -P $(DTS_CPPFLAGS) - | \
-		{ { $(DTC) -R 4 -p 0x1000 -O dtb -o ${DT_BIN} - 2>&1 ; \
-		    echo $$? >&3 ; } | \
-		  grep -v '^DTC: dts->dtb  on file' ; \
-	        } 3>&1 1>&2 ) ; \
-	exit $$rc
+	$(CPP) $(DTS_CPPFLAGS) $< -o $(DT_BIN).dts.tmp
+	$(DTC) $(DTC_FLAGS) -O dtb -o ${DT_BIN} $(DT_BIN).dts.tmp
 
 process_lds = \
 	$(1) | sed -r -n 's/^OUTPUT_$(2)[ ("]*([^")]*).*/\1/p'

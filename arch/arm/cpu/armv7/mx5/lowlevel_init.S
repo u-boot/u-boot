@@ -3,20 +3,7 @@
  *
  * (C) Copyright 2009 Freescale Semiconductor, Inc.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>
@@ -44,10 +31,10 @@
 
 	/* reconfigure L2 cache aux control reg */
 	ldr r0, =0xC0 |			/* tag RAM */ \
-	         0x4 |			/* data RAM */ \
-	         1 << 24 |		/* disable write allocate delay */ \
-	         1 << 23 |		/* disable write allocate combine */ \
-	         1 << 22		/* disable write allocate */
+		 0x4 |			/* data RAM */ \
+		 1 << 24 |		/* disable write allocate delay */ \
+		 1 << 23 |		/* disable write allocate combine */ \
+		 1 << 22		/* disable write allocate */
 
 #if defined(CONFIG_MX51)
 	ldr r3, [r4, #ROM_SI_REV]
@@ -303,20 +290,20 @@ setup_pll_func:
 
 	setup_pll PLL1_BASE_ADDR, 800
 
-        setup_pll PLL3_BASE_ADDR, 400
+	setup_pll PLL3_BASE_ADDR, 400
 
-        /* Switch peripheral to PLL3 */
-        ldr r0, =CCM_BASE_ADDR
-        ldr r1, =0x00015154
-        str r1, [r0, #CLKCTL_CBCMR]
-        ldr r1, =0x02898945
-        str r1, [r0, #CLKCTL_CBCDR]
-        /* make sure change is effective */
+	/* Switch peripheral to PLL3 */
+	ldr r0, =CCM_BASE_ADDR
+	ldr r1, =0x00015154
+	str r1, [r0, #CLKCTL_CBCMR]
+	ldr r1, =0x02898945
+	str r1, [r0, #CLKCTL_CBCDR]
+	/* make sure change is effective */
 1:      ldr r1, [r0, #CLKCTL_CDHIPR]
-        cmp r1, #0x0
-        bne 1b
+	cmp r1, #0x0
+	bne 1b
 
-        setup_pll PLL2_BASE_ADDR, 400
+	setup_pll PLL2_BASE_ADDR, 400
 
 	/* Switch peripheral to PLL2 */
 	ldr r0, =CCM_BASE_ADDR
@@ -337,7 +324,7 @@ setup_pll_func:
 	cmp r1, #0x0
 	bne 1b
 
-        setup_pll PLL3_BASE_ADDR, 216
+	setup_pll PLL3_BASE_ADDR, 216
 
 	setup_pll PLL4_BASE_ADDR, 455
 
@@ -371,13 +358,13 @@ setup_pll_func:
 	str r1, [r0, #CLKCTL_CCGR6]
 	str r1, [r0, #CLKCTL_CCGR7]
 
-        mov r1, #0x00000
-        str r1, [r0, #CLKCTL_CCDR]
+	mov r1, #0x00000
+	str r1, [r0, #CLKCTL_CCDR]
 
-        /* for cko - for ARM div by 8 */
-        mov r1, #0x000A0000
-        add r1, r1, #0x00000F0
-        str r1, [r0, #CLKCTL_CCOSR]
+	/* for cko - for ARM div by 8 */
+	mov r1, #0x000A0000
+	add r1, r1, #0x00000F0
+	str r1, [r0, #CLKCTL_CCOSR]
 
 #endif	/* CONFIG_MX53 */
 .endm

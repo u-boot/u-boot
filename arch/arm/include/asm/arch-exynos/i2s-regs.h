@@ -2,32 +2,18 @@
  * Copyright (C) 2012 Samsung Electronics
  * R. Chandrasekar <rcsekar@samsung.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __I2S_REGS_H__
 #define __I2S_REGS_H__
 
+#define CON_RESET		(1 << 31)
 #define CON_TXFIFO_FULL		(1 << 8)
 #define CON_TXCH_PAUSE		(1 << 4)
 #define CON_ACTIVE		(1 << 0)
 
+#define MOD_OP_CLK		(3 << 30)
 #define MOD_BLCP_SHIFT		24
 #define MOD_BLCP_16BIT		(0 << MOD_BLCP_SHIFT)
 #define MOD_BLCP_8BIT		(1 << MOD_BLCP_SHIFT)
@@ -40,6 +26,7 @@
 #define MOD_BLC_MASK		(3 << 13)
 
 #define MOD_SLAVE		(1 << 11)
+#define MOD_RCLKSRC		(0 << 10)
 #define MOD_MASK		(3 << 8)
 #define MOD_LR_LLOW		(0 << 7)
 #define MOD_LR_RLOW		(1 << 7)
@@ -62,5 +49,8 @@
 
 #define FIC_TXFLUSH		(1 << 15)
 #define FIC_RXFLUSH		(1 << 7)
+
+#define PSREN			(1 << 15)
+#define PSVAL			(3 << 8)
 
 #endif /* __I2S_REGS_H__ */

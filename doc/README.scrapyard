@@ -11,9 +11,11 @@ easily if here is something they might want to dig for...
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
-Alaska8220       powerpc     mpc8220        -           -
-Yukon8220        powerpc     mpc8220        -           -
-sorcery          powerpc     mpc8220        -           -
+omap1510inn      arm         arm925t        -           -           Kshitij Gupta <kshitij@ti.com>
+CANBT            powerpc     405CR          fb8f4fd     2013-08-07  Matthias Fuchs <matthias.fuchs@esd.eu>
+Alaska8220       powerpc     mpc8220        d6ed322     2013-05-11
+Yukon8220        powerpc     mpc8220        d6ed322     2013-05-11
+sorcery          powerpc     mpc8220        d6ed322     2013-05-11
 smdk6400         arm         arm1176        52587f1	2013-04-12  Zhong Hongbo <bocui107@gmail.com>
 ns9750dev        arm         arm926ejs      4cfc611	2013-02-28  Markus Pietrek <mpietrek@fsforth.de>
 AMX860           powerpc     mpc860         1b0757e     2012-10-28  Wolfgang Denk <wd@denx.de>

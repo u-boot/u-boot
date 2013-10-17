@@ -180,4 +180,3 @@ const struct nand_manufacturers nand_manuf_ids[] = {
 	{NAND_MFR_EON, "Eon"},
 	{0x0, "Unknown"}
 };
-

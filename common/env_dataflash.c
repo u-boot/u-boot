@@ -2,20 +2,7 @@
  * LowLevel function for DataFlash environment support
  * Author : Gilles Gastaldi (Atmel)
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <command.h>
@@ -42,11 +29,25 @@ uchar env_get_char_spec(int index)
 
 void env_relocate_spec(void)
 {
+	ulong crc, new = 0;
+	unsigned off;
 	char buf[CONFIG_ENV_SIZE];
 
+	/* Read old CRC */
+	read_dataflash(CONFIG_ENV_ADDR + offsetof(env_t, crc),
+		       sizeof(ulong), (char *)&crc);
+
+	/* Read whole environment */
 	read_dataflash(CONFIG_ENV_ADDR, CONFIG_ENV_SIZE, buf);
 
-	env_import(buf, 1);
+	/* Calculate the CRC */
+	off = offsetof(env_t, data);
+	new = crc32(new, (unsigned char *)(buf + off), ENV_SIZE);
+
+	if (crc == new)
+		env_import(buf, 1);
+	else
+		set_default_env("!bad CRC");
 }
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
@@ -80,37 +81,9 @@ int saveenv(void)
  */
 int env_init(void)
 {
-	ulong crc, len = ENV_SIZE, new = 0;
-	unsigned off;
-	uchar buf[64];
-
-	if (gd->env_valid)
-		return 0;
-
-	AT91F_DataflashInit();	/* prepare for DATAFLASH read/write */
-
-	/* read old CRC */
-	read_dataflash(CONFIG_ENV_ADDR + offsetof(env_t, crc),
-		sizeof(ulong), (char *)&crc);
-
-	off = offsetof(env_t, data);
-	while (len > 0) {
-		int n = (len > sizeof(buf)) ? sizeof(buf) : len;
-
-		read_dataflash(CONFIG_ENV_ADDR + off, n, (char *)buf);
-
-		new = crc32(new, buf, n);
-		len -= n;
-		off += n;
-	}
-
-	if (crc == new) {
-		gd->env_addr	= offsetof(env_t, data);
-		gd->env_valid	= 1;
-	} else {
-		gd->env_addr	= (ulong)&default_environment[0];
-		gd->env_valid	= 0;
-	}
+	/* use default */
+	gd->env_addr = (ulong)&default_environment[0];
+	gd->env_valid = 1;
 
 	return 0;
 }

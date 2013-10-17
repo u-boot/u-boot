@@ -23,14 +23,14 @@ Overview
       ECC), up to 1333 MHz data rate
     - Dedicated security engine featuring trusted boot
     - Two DMA controllers
-         - OCNDMA with four bidirectional channels
-         - SysDMA with sixteen bidirectional channels
+	 - OCNDMA with four bidirectional channels
+	 - SysDMA with sixteen bidirectional channels
     - Interfaces
-        - Four-lane SerDes PHY
+	- Four-lane SerDes PHY
 	    - PCI Express controller complies with the PEX Specification-Rev 2.0
-        - Two Common Public Radio Interface (CPRI) controller lanes
+	- Two Common Public Radio Interface (CPRI) controller lanes
 	    - High-speed USB 2.0 host and device controller with ULPI interface
-        - Enhanced secure digital (SD/MMC) host controller (eSDHC)
+	- Enhanced secure digital (SD/MMC) host controller (eSDHC)
 	    - Antenna interface controller (AIC), supporting four industry
 		standard JESD207/four custom ADI RF interfaces
        - ADI lanes support both full duplex FDD support & half duplex TDD

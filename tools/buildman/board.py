@@ -1,36 +1,21 @@
 # Copyright (c) 2012 The Chromium OS Authors.
 #
-# See file CREDITS for list of people who contributed to this
-# project.
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 2 of
-# the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA 02111-1307 USA
+# SPDX-License-Identifier:	GPL-2.0+
 #
 
 class Board:
     """A particular board that we can build"""
-    def __init__(self, target, arch, cpu, board_name, vendor, soc, options):
+    def __init__(self, status, arch, cpu, soc, vendor, board_name, target, options):
         """Create a new board type.
 
         Args:
-            target: Target name (use make <target>_config to configure)
+            status: define whether the board is 'Active' or 'Orphaned'
             arch: Architecture name (e.g. arm)
             cpu: Cpu name (e.g. arm1136)
-            board_name: Name of board (e.g. integrator)
-            vendor: Name of vendor (e.g. armltd)
             soc: Name of SOC, or '' if none (e.g. mx31)
+            vendor: Name of vendor (e.g. armltd)
+            board_name: Name of board (e.g. integrator)
+            target: Target name (use make <target>_config to configure)
             options: board-specific options (e.g. integratorcp:CM1136)
         """
         self.target = target
@@ -79,8 +64,10 @@ class Boards:
                 for upto in range(len(fields)):
                     if fields[upto] == '-':
                         fields[upto] = ''
-                while len(fields) < 7:
+                while len(fields) < 8:
                     fields.append('')
+                if len(fields) > 8:
+                    fields = fields[:8]
 
                 board = Board(*fields)
                 self.AddBoard(board)

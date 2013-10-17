@@ -5,15 +5,7 @@
  *
  * Copyright (C) 2011, Texas Instruments, Incorporated - http://www.ti.com/
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR /PURPOSE.  See the
- * GNU General Public License for more details.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _DDR_DEFS_H
@@ -118,20 +110,20 @@
 #define MT41J512M8RH125_IOCTRL_VALUE		0x18B
 
 /* Samsung K4B2G1646E-BIH9 */
-#define K4B2G1646EBIH9_EMIF_READ_LATENCY	0x06
-#define K4B2G1646EBIH9_EMIF_TIM1		0x0888A39B
-#define K4B2G1646EBIH9_EMIF_TIM2		0x2A04011A
-#define K4B2G1646EBIH9_EMIF_TIM3		0x501F820F
-#define K4B2G1646EBIH9_EMIF_SDCFG		0x61C24AB2
-#define K4B2G1646EBIH9_EMIF_SDREF		0x0000093B
+#define K4B2G1646EBIH9_EMIF_READ_LATENCY	0x07
+#define K4B2G1646EBIH9_EMIF_TIM1		0x0AAAE51B
+#define K4B2G1646EBIH9_EMIF_TIM2		0x2A1D7FDA
+#define K4B2G1646EBIH9_EMIF_TIM3		0x501F83FF
+#define K4B2G1646EBIH9_EMIF_SDCFG		0x61C052B2
+#define K4B2G1646EBIH9_EMIF_SDREF		0x00000C30
 #define K4B2G1646EBIH9_ZQ_CFG			0x50074BE4
 #define K4B2G1646EBIH9_DLL_LOCK_DIFF		0x1
-#define K4B2G1646EBIH9_RATIO			0x40
-#define K4B2G1646EBIH9_INVERT_CLKOUT		0x1
-#define K4B2G1646EBIH9_RD_DQS			0x3B
-#define K4B2G1646EBIH9_WR_DQS			0x85
-#define K4B2G1646EBIH9_PHY_FIFO_WE		0x100
-#define K4B2G1646EBIH9_PHY_WR_DATA		0xC1
+#define K4B2G1646EBIH9_RATIO			0x80
+#define K4B2G1646EBIH9_INVERT_CLKOUT		0x0
+#define K4B2G1646EBIH9_RD_DQS			0x35
+#define K4B2G1646EBIH9_WR_DQS			0x3A
+#define K4B2G1646EBIH9_PHY_FIFO_WE		0x97
+#define K4B2G1646EBIH9_PHY_WR_DATA		0x76
 #define K4B2G1646EBIH9_IOCTRL_VALUE		0x18B
 
 /**
@@ -200,37 +192,46 @@ struct ddr_data_regs {
  * correspond to DATA1 registers defined here.
  */
 struct ddr_regs {
-	unsigned int resv0[7];
-	unsigned int cm0csratio;	/* offset 0x01C */
+	unsigned int resv0[3];
+	unsigned int cm0config;		/* offset 0x00C */
+	unsigned int cm0configclk;	/* offset 0x010 */
 	unsigned int resv1[2];
+	unsigned int cm0csratio;	/* offset 0x01C */
+	unsigned int resv2[2];
 	unsigned int cm0dldiff;		/* offset 0x028 */
 	unsigned int cm0iclkout;	/* offset 0x02C */
-	unsigned int resv2[8];
+	unsigned int resv3[4];
+	unsigned int cm1config;		/* offset 0x040 */
+	unsigned int cm1configclk;	/* offset 0x044 */
+	unsigned int resv4[2];
 	unsigned int cm1csratio;	/* offset 0x050 */
-	unsigned int resv3[2];
+	unsigned int resv5[2];
 	unsigned int cm1dldiff;		/* offset 0x05C */
 	unsigned int cm1iclkout;	/* offset 0x060 */
-	unsigned int resv4[8];
+	unsigned int resv6[4];
+	unsigned int cm2config;		/* offset 0x074 */
+	unsigned int cm2configclk;	/* offset 0x078 */
+	unsigned int resv7[2];
 	unsigned int cm2csratio;	/* offset 0x084 */
-	unsigned int resv5[2];
+	unsigned int resv8[2];
 	unsigned int cm2dldiff;		/* offset 0x090 */
 	unsigned int cm2iclkout;	/* offset 0x094 */
-	unsigned int resv6[12];
+	unsigned int resv9[12];
 	unsigned int dt0rdsratio0;	/* offset 0x0C8 */
-	unsigned int resv7[4];
+	unsigned int resv10[4];
 	unsigned int dt0wdsratio0;	/* offset 0x0DC */
-	unsigned int resv8[4];
+	unsigned int resv11[4];
 	unsigned int dt0wiratio0;	/* offset 0x0F0 */
-	unsigned int resv9;
+	unsigned int resv12;
 	unsigned int dt0wimode0;	/* offset 0x0F8 */
 	unsigned int dt0giratio0;	/* offset 0x0FC */
-	unsigned int resv10;
+	unsigned int resv13;
 	unsigned int dt0gimode0;	/* offset 0x104 */
 	unsigned int dt0fwsratio0;	/* offset 0x108 */
-	unsigned int resv11[4];
+	unsigned int resv14[4];
 	unsigned int dt0dqoffset;	/* offset 0x11C */
 	unsigned int dt0wrsratio0;	/* offset 0x120 */
-	unsigned int resv12[4];
+	unsigned int resv15[4];
 	unsigned int dt0rdelays0;	/* offset 0x134 */
 	unsigned int dt0dldiff0;	/* offset 0x138 */
 };

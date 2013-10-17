@@ -4,20 +4,7 @@
  *
  * Common configuration options for all AMCC boards
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __AMCC_COMMON_H
@@ -42,9 +29,10 @@
 /*
  * I2C
  */
-#define CONFIG_HARD_I2C			/* I2C with hardware support	*/
-#define CONFIG_PPC4XX_I2C		/* use PPC4xx driver		*/
-#define CONFIG_SYS_I2C_SLAVE		0x7F
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_PPC4XX
+#define CONFIG_SYS_I2C_PPC4XX_CH0
+#define CONFIG_SYS_I2C_PPC4XX_SLAVE_0		0x7F
 
 /*
  * Ethernet/EMAC/PHY

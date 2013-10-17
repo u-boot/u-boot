@@ -94,10 +94,15 @@
 /*
  * I2C Settings
  */
-#define CONFIG_SOFT_I2C
+#define CONFIG_SYS_I2C_SOFT
+#ifdef CONFIG_SYS_I2C_SOFT
+#define CONFIG_SYS_I2C
 #define CONFIG_SOFT_I2C_GPIO_SCL GPIO_PF0
 #define CONFIG_SOFT_I2C_GPIO_SDA GPIO_PF1
-
+#define CONFIG_SYS_I2C_SOFT_SPEED	50000
+#define CONFIG_SYS_I2C_SOFT_SLAVE	0
+#define I2C_DELAY              udelay(5)       /* 1/4 I2C clock duration */
+#endif
 
 /*
  * Misc Settings

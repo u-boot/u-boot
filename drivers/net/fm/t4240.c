@@ -2,20 +2,7 @@
  * Copyright 2012 Freescale Semiconductor, Inc.
  *	Roy Zang <tie-fei.zang@freescale.com>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <phy.h>
@@ -127,7 +114,45 @@ phy_interface_t fman_port_enet_if(enum fm_port port)
 			return PHY_INTERFACE_MODE_SGMII;
 		break;
 	default:
-		return PHY_INTERFACE_MODE_NONE;
+		break;
+	}
+
+	/* handle QSGMII */
+	switch (port) {
+	case FM1_DTSEC1:
+	case FM1_DTSEC2:
+	case FM1_DTSEC3:
+	case FM1_DTSEC4:
+		/* check lane G on SerDes1 */
+		if (is_serdes_configured(QSGMII_FM1_A))
+			return PHY_INTERFACE_MODE_QSGMII;
+		break;
+	case FM1_DTSEC5:
+	case FM1_DTSEC6:
+	case FM1_DTSEC9:
+	case FM1_DTSEC10:
+		/* check lane C on SerDes1 */
+		if (is_serdes_configured(QSGMII_FM1_B))
+			return PHY_INTERFACE_MODE_QSGMII;
+		break;
+	case FM2_DTSEC1:
+	case FM2_DTSEC2:
+	case FM2_DTSEC3:
+	case FM2_DTSEC4:
+		/* check lane G on SerDes2 */
+		if (is_serdes_configured(QSGMII_FM2_A))
+			return PHY_INTERFACE_MODE_QSGMII;
+		break;
+	case FM2_DTSEC5:
+	case FM2_DTSEC6:
+	case FM2_DTSEC9:
+	case FM2_DTSEC10:
+		/* check lane C on SerDes2 */
+		if (is_serdes_configured(QSGMII_FM2_B))
+			return PHY_INTERFACE_MODE_QSGMII;
+		break;
+	default:
+		break;
 	}
 
 	return PHY_INTERFACE_MODE_NONE;

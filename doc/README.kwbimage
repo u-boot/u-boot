@@ -40,9 +40,9 @@ Board specific configuration file specifications:
 ------------------------------------------------
 1. This file must present in the $(BOARDDIR).  The default name is
 	kwbimage.cfg.  The name can be set as part of the full path
-        to the file using CONFIG_SYS_KWD_CONFIG (probably in
-        include/configs/<yourboard>.h).   The path should look like:
-        $(SRCTREE)/$(CONFIG_BOARDDIR)/<yourkwbimagename>.cfg
+	to the file using CONFIG_SYS_KWD_CONFIG (probably in
+	include/configs/<yourboard>.h).   The path should look like:
+	$(SRCTREE)/$(CONFIG_BOARDDIR)/<yourkwbimagename>.cfg
 2. This file can have empty lines and lines starting with "#" as first
 	character to put comments
 3. This file can have configuration command lines as mentioned below,

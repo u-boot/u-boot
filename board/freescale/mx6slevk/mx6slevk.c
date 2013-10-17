@@ -3,10 +3,7 @@
  *
  * Author: Fabio Estevam <fabio.estevam@freescale.com>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/arch/clock.h>
@@ -21,6 +18,7 @@
 #include <common.h>
 #include <fsl_esdhc.h>
 #include <mmc.h>
+#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -31,6 +29,12 @@ DECLARE_GLOBAL_DATA_PTR;
 #define USDHC_PAD_CTRL (PAD_CTL_PUS_22K_UP |			\
 	PAD_CTL_SPEED_LOW | PAD_CTL_DSE_80ohm |			\
 	PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
+
+#define ENET_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE |             \
+	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED   |             \
+	PAD_CTL_DSE_40ohm   | PAD_CTL_HYS)
+
+#define ETH_PHY_RESET	IMX_GPIO_NR(4, 21)
 
 int dram_init(void)
 {
@@ -53,9 +57,33 @@ static iomux_v3_cfg_t const usdhc2_pads[] = {
 	MX6_PAD_SD2_DAT3__USDHC2_DAT3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 };
 
+static iomux_v3_cfg_t const fec_pads[] = {
+	MX6_PAD_FEC_MDC__FEC_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_FEC_MDIO__FEC_MDIO | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_FEC_CRS_DV__FEC_RX_DV | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_FEC_RXD0__FEC_RX_DATA0 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_FEC_RXD1__FEC_RX_DATA1 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_FEC_TX_EN__FEC_TX_EN | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_FEC_TXD0__FEC_TX_DATA0 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_FEC_TXD1__FEC_TX_DATA1 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_FEC_REF_CLK__FEC_REF_OUT | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_FEC_RX_ER__GPIO_4_19 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_FEC_TX_CLK__GPIO_4_21 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
 static void setup_iomux_uart(void)
 {
 	imx_iomux_v3_setup_multiple_pads(uart1_pads, ARRAY_SIZE(uart1_pads));
+}
+
+static void setup_iomux_fec(void)
+{
+	imx_iomux_v3_setup_multiple_pads(fec_pads, ARRAY_SIZE(fec_pads));
+
+	/* Reset LAN8720 PHY */
+	gpio_direction_output(ETH_PHY_RESET , 0);
+	udelay(1000);
+	gpio_set_value(ETH_PHY_RESET, 1);
 }
 
 static struct fsl_esdhc_cfg usdhc_cfg[1] = {
@@ -75,6 +103,40 @@ int board_mmc_init(bd_t *bis)
 	return fsl_esdhc_initialize(bis, &usdhc_cfg[0]);
 }
 
+#ifdef CONFIG_FEC_MXC
+int board_eth_init(bd_t *bis)
+{
+	int ret;
+
+	setup_iomux_fec();
+
+	ret = cpu_eth_init(bis);
+	if (ret) {
+		printf("FEC MXC: %s:failed\n", __func__);
+		return ret;
+	}
+
+	return 0;
+}
+
+static int setup_fec(void)
+{
+	struct iomuxc_base_regs *iomuxc_regs =
+				(struct iomuxc_base_regs *)IOMUXC_BASE_ADDR;
+	int ret;
+
+	/* clear gpr1[14], gpr1[18:17] to select anatop clock */
+	clrsetbits_le32(&iomuxc_regs->gpr[1], IOMUX_GPR1_FEC_MASK, 0);
+
+	ret = enable_fec_anatop_clock();
+	if (ret)
+		return ret;
+
+	return 0;
+}
+#endif
+
+
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
@@ -86,6 +148,9 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
+#ifdef	CONFIG_FEC_MXC
+	setup_fec();
+#endif
 	return 0;
 }
 

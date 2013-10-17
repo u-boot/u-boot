@@ -2,23 +2,7 @@
  * (C) Copyright 2001
  * Josh Huber <huber@mclx.com>, Mission Critical Linux, Inc.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -76,7 +60,7 @@ flash_init (void)
 #define CONFIG_SYS_BOOT_FLASH_WIDTH	1
 #endif
 	size_b0 = flash_get_size(CONFIG_SYS_BOOT_FLASH_WIDTH, (vu_long *)base,
-	                         &flash_info[0]);
+				 &flash_info[0]);
 
 #ifndef CONFIG_P3G4
 	printf("[");
@@ -113,17 +97,17 @@ flash_init (void)
 #if CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE
 	/* monitor protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-	              CONFIG_SYS_MONITOR_BASE,
-	              CONFIG_SYS_MONITOR_BASE + monitor_flash_len - 1,
-	              flash_get_info(CONFIG_SYS_MONITOR_BASE));
+		      CONFIG_SYS_MONITOR_BASE,
+		      CONFIG_SYS_MONITOR_BASE + monitor_flash_len - 1,
+		      flash_get_info(CONFIG_SYS_MONITOR_BASE));
 #endif
 
 #ifdef  CONFIG_ENV_IS_IN_FLASH
 	/* ENV protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
-	              CONFIG_ENV_ADDR,
-	              CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1,
-	              flash_get_info(CONFIG_ENV_ADDR));
+		      CONFIG_ENV_ADDR,
+		      CONFIG_ENV_ADDR + CONFIG_ENV_SIZE - 1,
+		      flash_get_info(CONFIG_ENV_ADDR));
 #endif
 
 	flash_size = size_b0 + size_b1;

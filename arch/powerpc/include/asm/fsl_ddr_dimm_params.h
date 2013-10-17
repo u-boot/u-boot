@@ -26,6 +26,7 @@ typedef struct dimm_params_s {
 	unsigned int primary_sdram_width;
 	unsigned int ec_sdram_width;
 	unsigned int registered_dimm;
+	unsigned int device_width;	/* x4, x8, x16 components */
 
 	/* SDRAM device parameters */
 	unsigned int n_row_addr;

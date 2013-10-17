@@ -9,23 +9,7 @@
  *	Richard Woodruff <r-woodruff2@ti.com>
  *	Syed Mohammed Khasim <x0khasim@ti.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _OMAP4_H_
@@ -49,6 +33,10 @@
 
 /* CONTROL_ID_CODE */
 #define CONTROL_ID_CODE		0x4A002204
+#define STD_FUSE_DIE_ID_0	0x4A002200
+#define STD_FUSE_DIE_ID_1	0x4A002208
+#define STD_FUSE_DIE_ID_2	0x4A00220c
+#define STD_FUSE_DIE_ID_3	0x4A002210
 
 #define OMAP4_CONTROL_ID_CODE_ES1_0	0x0B85202F
 #define OMAP4_CONTROL_ID_CODE_ES2_0	0x1B85202F
@@ -57,6 +45,7 @@
 #define OMAP4_CONTROL_ID_CODE_ES2_3	0x6B95C02F
 #define OMAP4460_CONTROL_ID_CODE_ES1_0	0x0B94E02F
 #define OMAP4460_CONTROL_ID_CODE_ES1_1	0x2B94E02F
+#define OMAP4470_CONTROL_ID_CODE_ES1_0	0x0B97502F
 
 /* UART */
 #define UART1_BASE		(OMAP44XX_L4_PER_BASE + 0x6a000)

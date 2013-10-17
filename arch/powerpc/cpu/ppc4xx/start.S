@@ -6,46 +6,7 @@
  *  Copyright (c) 2008 Nuovation System Designs, LLC
  *    Grant Erickson <gerickson@nuovations.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
- */
-/*------------------------------------------------------------------------------+
- *   This source code is dual-licensed.  You may use it under the terms of the
- *   GNU General Public License version 2, or under the license below.
- *
- *	 This source code has been made available to you by IBM on an AS-IS
- *	 basis.	 Anyone receiving this source is licensed under IBM
- *	 copyrights to use it in any way he or she deems fit, including
- *	 copying it, modifying it, compiling it, and redistributing it either
- *	 with or without modifications.	 No license under IBM patents or
- *	 patent applications is to be implied by the copyright license.
- *
- *	 Any user of this software should understand that IBM cannot provide
- *	 technical support for this software and will not be responsible for
- *	 any consequences resulting from the use of this software.
- *
- *	 Any person who transfers this source code or any derivative work
- *	 must include the IBM copyright notice, this paragraph, and the
- *	 preceding two paragraphs in the transferred software.
- *
- *	 COPYRIGHT   I B M   CORPORATION 1995
- *	 LICENSED MATERIAL  -  PROGRAM PROPERTY OF I B M
- *-------------------------------------------------------------------------------
+ * SPDX-License-Identifier:	GPL-2.0	IBM-pibs
  */
 
 /*
@@ -833,7 +794,7 @@ _start:
 #endif /* CONFIG_440 */
 
 /*****************************************************************************/
-#if defined(CONFIG_405GP) || defined(CONFIG_405CR) || \
+#if defined(CONFIG_405GP) || \
     defined(CONFIG_405EP) || defined(CONFIG_405EZ) || \
     defined(CONFIG_405EX) || defined(CONFIG_405)
 	/*----------------------------------------------------------------------- */
@@ -1103,7 +1064,7 @@ _start:
 
 #endif /* CONFIG_NAND_SPL */
 
-#endif	/* CONFIG_405GP || CONFIG_405CR || CONFIG_405 || CONFIG_405EP */
+#endif	/* CONFIG_405GP || CONFIG_405 || CONFIG_405EP */
 	/*----------------------------------------------------------------------- */
 
 

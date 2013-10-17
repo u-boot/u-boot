@@ -1,22 +1,6 @@
 # Copyright (c) 2013 The Chromium OS Authors.
 #
-# See file CREDITS for list of people who contributed to this
-# project.
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 2 of
-# the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA 02111-1307 USA
+# SPDX-License-Identifier:	GPL-2.0+
 #
 
 What is this?
@@ -645,6 +629,28 @@ It is common when refactoring code for the rodata to decrease as the text size
 increases, and vice versa.
 
 
+Providing 'make' flags
+======================
+
+U-Boot's build system supports a few flags (such as BUILD_TAG) which affect
+the build product. These flags can be specified in the buildman settings
+file. They can also be useful when building U-Boot against other open source
+software.
+
+[make-flags]
+at91-boards=ENABLE_AT91_TEST=1
+snapper9260=${at91-boards} BUILD_TAG=442
+snapper9g45=${at91-boards} BUILD_TAG=443
+
+This will use 'make ENABLE_AT91_TEST=1 BUILD_TAG=442' for snapper9260
+and 'make ENABLE_AT91_TEST=1 BUILD_TAG=442' for snapper9g45. A special
+variable ${target} is available to access the target name (snapper9260 and
+snapper9g20 in this case). Variables are resolved recursively.
+
+It is expected that any variables added are dealt with in U-Boot's
+config.mk file and documented in the README.
+
+
 Other options
 =============
 
@@ -669,7 +675,6 @@ Credits
 Thanks to Grant Grundler <grundler@chromium.org> for his ideas for improving
 the build speed by building all commits for a board instead of the other
 way around.
-
 
 
 Simon Glass

@@ -11,23 +11,7 @@
  *	Santosh Shilimkar <santosh.shilimkar@ti.com>
  *	Rajendra Nayak <rnayak@ti.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <i2c.h>
@@ -211,6 +195,18 @@ static const struct dpll_params *get_ddr_dpll_params
 		return NULL;
 	return &dpll_data->ddr[sysclk_ind];
 }
+
+#ifdef CONFIG_DRIVER_TI_CPSW
+static const struct dpll_params *get_gmac_dpll_params
+			(struct dplls const *dpll_data)
+{
+	u32 sysclk_ind = get_sys_clk_index();
+
+	if (!dpll_data->gmac)
+		return NULL;
+	return &dpll_data->gmac[sysclk_ind];
+}
+#endif
 
 static void do_setup_dpll(u32 const base, const struct dpll_params *params,
 				u8 lock, char *dpll)
@@ -414,6 +410,12 @@ static void setup_dplls(void)
 	params = get_ddr_dpll_params(*dplls_data);
 	do_setup_dpll((*prcm)->cm_clkmode_dpll_ddrphy,
 		      params, DPLL_LOCK, "ddr");
+
+#ifdef CONFIG_DRIVER_TI_CPSW
+	params = get_gmac_dpll_params(*dplls_data);
+	do_setup_dpll((*prcm)->cm_clkmode_dpll_gmac, params,
+		      DPLL_LOCK, "gmac");
+#endif
 }
 
 #ifdef CONFIG_SYS_CLOCKS_ENABLE_ALL
@@ -587,13 +589,6 @@ void scale_vcores(struct vcores_data const *vcores)
 
 	val = optimize_vcore_voltage(&vcores->iva);
 	do_scale_vcore(vcores->iva.addr, val, vcores->iva.pmic);
-
-	 if (emif_sdram_type() == EMIF_SDRAM_TYPE_DDR3) {
-		/* Configure LDO SRAM "magic" bits */
-		writel(2, (*prcm)->prm_sldo_core_setup);
-		writel(2, (*prcm)->prm_sldo_mpu_setup);
-		writel(2, (*prcm)->prm_sldo_mm_setup);
-	}
 }
 
 static inline void enable_clock_domain(u32 const clkctrl_reg, u32 enable_mode)

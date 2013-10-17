@@ -4,20 +4,7 @@
  * (C) Copyright 2012
  * ISEE 2007 SL, <www.iseebcn.com>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __IGEP00X0_H
@@ -31,6 +18,7 @@
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
 #define CONFIG_OMAP34XX		1	/* which is a 34XX */
 #define CONFIG_OMAP_GPIO
+#define CONFIG_OMAP_COMMON
 
 #define CONFIG_SDRC	/* The chip has SDRC controller */
 
@@ -57,6 +45,7 @@
 
 #define CONFIG_OF_LIBFDT
 #define CONFIG_CMD_BOOTZ
+#define CONFIG_SUPPORT_RAW_INITRD
 
 /*
  * NS16550 Configuration
@@ -110,8 +99,9 @@
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_CACHE
-#define CONFIG_CMD_EXT2		/* EXT2 Support			*/
+#define CONFIG_CMD_EXT4
 #define CONFIG_CMD_FAT		/* FAT support			*/
+#define CONFIG_CMD_FS_GENERIC
 #define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MMC		/* MMC support			*/
 #ifdef CONFIG_BOOT_ONENAND
@@ -149,6 +139,9 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"usbtty=cdc_acm\0" \
 	"loadaddr=0x82000000\0" \
+	"dtbaddr=0x81600000\0" \
+	"bootdir=/boot\0" \
+	"bootfile=zImage\0" \
 	"usbtty=cdc_acm\0" \
 	"console=ttyO2,115200n8\0" \
 	"mpurate=auto\0" \
@@ -176,17 +169,20 @@
 		"omapdss.def_disp=${defaultdisplay} " \
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype}\0" \
-	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} uEnv.txt\0" \
+	"loadbootenv=load mmc ${mmcdev} ${loadaddr} uEnv.txt\0" \
 	"importbootenv=echo Importing environment from mmc ...; " \
 		"env import -t $loadaddr $filesize\0" \
-	"loaduimage=fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
+	"loadzimage=load mmc ${mmcdev}:2 ${loadaddr} ${bootdir}/${bootfile}\0" \
+	"loadfdt=load mmc ${mmcdev}:2 ${dtbaddr} ${bootdir}/${dtbfile}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
-		"bootm ${loadaddr}\0" \
+		"bootz ${loadaddr}\0" \
+	"mmcbootfdt=echo Booting with DT from mmc ...; " \
+		"bootz ${loadaddr} - ${dtbaddr}\0" \
 	"nandboot=echo Booting from onenand ...; " \
 		"run nandargs; " \
 		"onenand read ${loadaddr} 280000 400000; " \
-		"bootm ${loadaddr}\0" \
+		"bootz ${loadaddr}\0" \
 
 #define CONFIG_BOOTCOMMAND \
 	"mmc dev ${mmcdev}; if mmc rescan; then " \
@@ -198,7 +194,12 @@
 			"echo Running uenvcmd ...;" \
 			"run uenvcmd;" \
 		"fi;" \
-		"if run loaduimage; then " \
+		"if run loadzimage; then " \
+			"if test -n $dtbfile; then " \
+				"if run loadfdt; then " \
+					"run mmcbootfdt;" \
+				"fi;" \
+			"fi;" \
 			"run mmcboot;" \
 		"fi;" \
 	"fi;" \

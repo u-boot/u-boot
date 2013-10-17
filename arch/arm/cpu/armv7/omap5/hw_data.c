@@ -7,23 +7,7 @@
  *
  * Sricharan R <r.sricharan@ti.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <palmas.h>
@@ -186,7 +170,7 @@ static const struct dpll_params per_dpll_params_768mhz_es2[NUM_SYS_CLKS] = {
 
 static const struct dpll_params per_dpll_params_768mhz_dra7xx[NUM_SYS_CLKS] = {
 	{32, 0, 4, 1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 12 MHz   */
-	{96, 4, 4, 1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 20 MHz   */
+	{96, 4, 4, 1, 3, 4, 4, 2, -1, -1, -1, -1},		/* 20 MHz   */
 	{160, 6, 4, 1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 16.8 MHz */
 	{20, 0, 4, 1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 19.2 MHz */
 	{192, 12, 4, 1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 26 MHz   */
@@ -263,6 +247,16 @@ static const struct dpll_params ddr_dpll_params_2128mhz[NUM_SYS_CLKS] = {
 	{665, 23, 2, 1, 8, -1, -1, -1, -1, -1, -1, -1},		/* 38.4 MHz */
 };
 
+static const struct dpll_params gmac_dpll_params_2000mhz[NUM_SYS_CLKS] = {
+	{250, 2, 4, 10, 40, 8, 10, -1, -1, -1, -1, -1},		/* 12 MHz   */
+	{250, 4, 4, 10, 40, 8, 10, -1, -1, -1, -1, -1},		/* 20 MHz   */
+	{119, 1, 4, 10, 40, 8, 10, -1, -1, -1, -1, -1},		/* 16.8 MHz */
+	{625, 11, 4, 10, 40, 8, 10, -1, -1, -1, -1, -1},	/* 19.2 MHz */
+	{500, 12, 4, 10, 40, 8, 10, -1, -1, -1, -1, -1},	/* 26 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
+	{625, 23, 4, 10, 40, 8, 10, -1, -1, -1, -1, -1},	/* 38.4 MHz */
+};
+
 struct dplls omap5_dplls_es1 = {
 	.mpu = mpu_dpll_params_800mhz,
 	.core = core_dpll_params_2128mhz_ddr532,
@@ -299,6 +293,7 @@ struct dplls dra7xx_dplls = {
 	.iva = iva_dpll_params_2330mhz_dra7xx,
 	.usb = usb_dpll_params_1920mhz,
 	.ddr = ddr_dpll_params_2128mhz,
+	.gmac = gmac_dpll_params_2000mhz,
 };
 
 struct pmic_data palmas = {
@@ -398,6 +393,9 @@ void enable_basic_clocks(void)
 		(*prcm)->cm_l3init_clkstctrl,
 		(*prcm)->cm_memif_clkstctrl,
 		(*prcm)->cm_l4cfg_clkstctrl,
+#ifdef CONFIG_DRIVER_TI_CPSW
+		(*prcm)->cm_gmac_clkstctrl,
+#endif
 		0
 	};
 
@@ -425,6 +423,13 @@ void enable_basic_clocks(void)
 		(*prcm)->cm_wkup_wdtimer2_clkctrl,
 		(*prcm)->cm_l4per_uart3_clkctrl,
 		(*prcm)->cm_l4per_i2c1_clkctrl,
+#ifdef CONFIG_DRIVER_TI_CPSW
+		(*prcm)->cm_gmac_gmac_clkctrl,
+#endif
+
+#ifdef CONFIG_TI_QSPI
+		(*prcm)->cm_l4per_qspi_clkctrl,
+#endif
 		0
 	};
 
@@ -452,6 +457,10 @@ void enable_basic_clocks(void)
 			 clk_modules_hw_auto_essential,
 			 clk_modules_explicit_en_essential,
 			 1);
+
+#ifdef CONFIG_TI_QSPI
+	setbits_le32((*prcm)->cm_l4per_qspi_clkctrl, (1<<24));
+#endif
 
 	/* Enable SCRM OPT clocks for PER and CORE dpll */
 	setbits_le32((*prcm)->cm_wkupaon_scrm_clkctrl,
@@ -481,7 +490,6 @@ void enable_basic_uboot_clocks(void)
 		(*prcm)->cm_l3init_fsusb_clkctrl,
 		0
 	};
-
 	do_enable_clocks(clk_domains_essential,
 			 clk_modules_hw_auto_essential,
 			 clk_modules_explicit_en_essential,

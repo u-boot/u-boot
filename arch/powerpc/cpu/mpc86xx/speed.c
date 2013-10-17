@@ -6,23 +6,7 @@
  * (C) Copyright 2000-2002
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -35,7 +19,7 @@ DECLARE_GLOBAL_DATA_PTR;
 /* used in some defintiions of CONFIG_SYS_CLK_FREQ */
 extern unsigned long get_board_sys_clk(unsigned long dummy);
 
-void get_sys_info(sys_info_t *sysInfo)
+void get_sys_info(sys_info_t *sys_info)
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
@@ -47,7 +31,7 @@ void get_sys_info(sys_info_t *sysInfo)
 
 	switch (plat_ratio) {
 	case 0x0:
-		sysInfo->freqSystemBus = 16 * CONFIG_SYS_CLK_FREQ;
+		sys_info->freq_systembus = 16 * CONFIG_SYS_CLK_FREQ;
 		break;
 	case 0x02:
 	case 0x03:
@@ -59,10 +43,10 @@ void get_sys_info(sys_info_t *sysInfo)
 	case 0x0a:
 	case 0x0c:
 	case 0x10:
-		sysInfo->freqSystemBus = plat_ratio * CONFIG_SYS_CLK_FREQ;
+		sys_info->freq_systembus = plat_ratio * CONFIG_SYS_CLK_FREQ;
 		break;
 	default:
-		sysInfo->freqSystemBus = 0;
+		sys_info->freq_systembus = 0;
 		break;
 	}
 
@@ -71,25 +55,26 @@ void get_sys_info(sys_info_t *sysInfo)
 
 	switch (e600_ratio) {
 	case 0x10:
-		sysInfo->freqProcessor = 2 * sysInfo->freqSystemBus;
+		sys_info->freq_processor = 2 * sys_info->freq_systembus;
 		break;
 	case 0x19:
-		sysInfo->freqProcessor = 5 * sysInfo->freqSystemBus / 2;
+		sys_info->freq_processor = 5 * sys_info->freq_systembus / 2;
 		break;
 	case 0x20:
-		sysInfo->freqProcessor = 3 * sysInfo->freqSystemBus;
+		sys_info->freq_processor = 3 * sys_info->freq_systembus;
 		break;
 	case 0x39:
-		sysInfo->freqProcessor = 7 * sysInfo->freqSystemBus / 2;
+		sys_info->freq_processor = 7 * sys_info->freq_systembus / 2;
 		break;
 	case 0x28:
-		sysInfo->freqProcessor = 4 * sysInfo->freqSystemBus;
+		sys_info->freq_processor = 4 * sys_info->freq_systembus;
 		break;
 	case 0x1d:
-		sysInfo->freqProcessor = 9 * sysInfo->freqSystemBus / 2;
+		sys_info->freq_processor = 9 * sys_info->freq_systembus / 2;
 		break;
 	default:
-		sysInfo->freqProcessor = e600_ratio + sysInfo->freqSystemBus;
+		sys_info->freq_processor = e600_ratio +
+						sys_info->freq_systembus;
 		break;
 	}
 
@@ -100,10 +85,11 @@ void get_sys_info(sys_info_t *sysInfo)
 	lcrr_div = in_be32(&immap->im_lbc.lcrr) & LCRR_CLKDIV;
 #endif
 	if (lcrr_div == 2 || lcrr_div == 4 || lcrr_div == 8) {
-		sysInfo->freqLocalBus = sysInfo->freqSystemBus / (lcrr_div * 2);
+		sys_info->freq_localbus = sys_info->freq_systembus
+							/ (lcrr_div * 2);
 	} else {
 		/* In case anyone cares what the unknown value is */
-		sysInfo->freqLocalBus = lcrr_div;
+		sys_info->freq_localbus = lcrr_div;
 	}
 }
 
@@ -118,9 +104,9 @@ int get_clocks(void)
 	sys_info_t sys_info;
 
 	get_sys_info(&sys_info);
-	gd->cpu_clk = sys_info.freqProcessor;
-	gd->bus_clk = sys_info.freqSystemBus;
-	gd->arch.lbc_clk = sys_info.freqLocalBus;
+	gd->cpu_clk = sys_info.freq_processor;
+	gd->bus_clk = sys_info.freq_systembus;
+	gd->arch.lbc_clk = sys_info.freq_localbus;
 
 	/*
 	 * The base clock for I2C depends on the actual SOC.  Unfortunately,
@@ -130,9 +116,9 @@ int get_clocks(void)
 	 * AN2919.
 	 */
 #ifdef CONFIG_MPC8610
-	gd->arch.i2c1_clk = sys_info.freqSystemBus;
+	gd->arch.i2c1_clk = sys_info.freq_systembus;
 #else
-	gd->arch.i2c1_clk = sys_info.freqSystemBus / 2;
+	gd->arch.i2c1_clk = sys_info.freq_systembus / 2;
 #endif
 	gd->arch.i2c2_clk = gd->arch.i2c1_clk;
 
@@ -154,7 +140,7 @@ ulong get_bus_freq(ulong dummy)
 	sys_info_t sys_info;
 
 	get_sys_info(&sys_info);
-	val = sys_info.freqSystemBus;
+	val = sys_info.freq_systembus;
 
 	return val;
 }

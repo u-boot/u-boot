@@ -1,23 +1,7 @@
 /*
  * Copyright 2011-2012 Freescale Semiconductor, Inc.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -37,12 +21,14 @@
 
 #include "../common/qixis.h"
 #include "../common/vsc3316_3308.h"
+#include "../common/idt8t49n222a_serdes_clk.h"
 #include "b4860qds.h"
 #include "b4860qds_qixis.h"
 #include "b4860qds_crossbar_con.h"
 
 #define CLK_MUX_SEL_MASK	0x4
 #define ETH_PHY_CLK_OUT		0x4
+#define PLL_NUM			2
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -51,8 +37,6 @@ int checkboard(void)
 	char buf[64];
 	u8 sw;
 	struct cpu_type *cpu = gd->arch.cpu;
-	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
-	unsigned int i;
 	static const char *const freq[] = {"100", "125", "156.25", "161.13",
 						"122.88", "122.88", "122.88"};
 	int clock;
@@ -76,19 +60,6 @@ int checkboard(void)
 		(int)qixis_read_minor());
 	/* the timestamp string contains "\n" at the end */
 	printf(" on %s", qixis_read_time(buf));
-
-	/* Display the RCW, so that no one gets confused as to what RCW
-	 * we're actually using for this boot.
-	 */
-	puts("Reset Configuration Word (RCW):");
-	for (i = 0; i < ARRAY_SIZE(gur->rcwsr); i++) {
-		u32 rcw = in_be32(&gur->rcwsr[i]);
-
-		if ((i % 4) == 0)
-			printf("\n       %08x:", i * 4);
-		printf(" %08x", rcw);
-	}
-	puts("\n");
 
 	/*
 	 * Display the actual SERDES reference clocks as configured by the
@@ -268,6 +239,106 @@ int configure_vsc3316_3308(void)
 	return 0;
 }
 
+int config_serdes1_refclks(void)
+{
+	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	serdes_corenet_t *srds_regs =
+		(void *)CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
+	u32 serdes1_prtcl, lane;
+	unsigned int flag_sgmii_prtcl = 0;
+	int ret, i;
+
+	serdes1_prtcl = in_be32(&gur->rcwsr[4]) &
+			FSL_CORENET2_RCWSR4_SRDS1_PRTCL;
+	if (!serdes1_prtcl) {
+		printf("SERDES1 is not enabled\n");
+		return -1;
+	}
+	serdes1_prtcl >>= FSL_CORENET2_RCWSR4_SRDS1_PRTCL_SHIFT;
+	debug("Using SERDES1 Protocol: 0x%x:\n", serdes1_prtcl);
+
+	/* Clear SRDS_RSTCTL_RST bit for both PLLs before changing refclks
+	 */
+	for (i = 0; i < PLL_NUM; i++)
+		clrbits_be32(&srds_regs->bank[i].rstctl, SRDS_RSTCTL_RST);
+	/* Reconfigure IDT idt8t49n222a device for CPRI to work
+	 * For this SerDes1's Refclk1 and refclk2 need to be set
+	 * to 122.88MHz
+	 */
+	switch (serdes1_prtcl) {
+	case 0x2A:
+	case 0x2C:
+	case 0x2D:
+	case 0x2E:
+		debug("Configuring idt8t49n222a for CPRI SerDes clks:"
+			" for srds_prctl:%x\n", serdes1_prtcl);
+		ret = select_i2c_ch_pca(I2C_CH_IDT);
+		if (!ret) {
+			ret = set_serdes_refclk(IDT_SERDES1_ADDRESS, 1,
+					SERDES_REFCLK_122_88,
+					SERDES_REFCLK_122_88, 0);
+			if (ret) {
+				printf("IDT8T49N222A configuration failed.\n");
+				return ret;
+			} else
+				printf("IDT8T49N222A configured.\n");
+		} else {
+			return ret;
+		}
+		select_i2c_ch_pca(I2C_CH_DEFAULT);
+
+		/* Change SerDes1's Refclk1 to 125MHz for on board
+		 * SGMIIs to work
+		 */
+		for (lane = 0; lane < SRDS_MAX_LANES; lane++) {
+			enum srds_prtcl lane_prtcl = serdes_get_prtcl
+						(0, serdes1_prtcl, lane);
+			switch (lane_prtcl) {
+			case SGMII_FM1_DTSEC1:
+			case SGMII_FM1_DTSEC2:
+			case SGMII_FM1_DTSEC3:
+			case SGMII_FM1_DTSEC4:
+			case SGMII_FM1_DTSEC5:
+			case SGMII_FM1_DTSEC6:
+				flag_sgmii_prtcl++;
+				break;
+			default:
+				break;
+			}
+		}
+
+		if (flag_sgmii_prtcl)
+			QIXIS_WRITE(brdcfg[4], QIXIS_SRDS1CLK_125);
+
+		/* Steps For SerDes PLLs reset and reconfiguration after
+		 * changing SerDes's refclks
+		 */
+		for (i = 0; i < PLL_NUM; i++) {
+			debug("For PLL%d reset and reconfiguration after"
+			       " changing refclks\n", i+1);
+			clrbits_be32(&srds_regs->bank[i].rstctl,
+					SRDS_RSTCTL_SDRST_B);
+			udelay(10);
+			clrbits_be32(&srds_regs->bank[i].rstctl,
+				(SRDS_RSTCTL_SDEN | SRDS_RSTCTL_PLLRST_B));
+			udelay(10);
+			setbits_be32(&srds_regs->bank[i].rstctl,
+					SRDS_RSTCTL_RST);
+			setbits_be32(&srds_regs->bank[i].rstctl,
+				(SRDS_RSTCTL_SDEN | SRDS_RSTCTL_PLLRST_B
+				| SRDS_RSTCTL_SDRST_B));
+		}
+		break;
+	default:
+		printf("WARNING:IDT8T49N222A configuration not"
+			" supported for:%x SerDes1 Protocol.\n",
+			serdes1_prtcl);
+		return -1;
+	}
+
+	return 0;
+}
+
 int board_early_init_r(void)
 {
 	const unsigned int flashbase = CONFIG_SYS_FLASH_BASE;
@@ -293,6 +364,16 @@ int board_early_init_r(void)
 #ifdef CONFIG_SYS_DPAA_QBMAN
 	setup_portals();
 #endif
+	/* SerDes1 refclks need to be set again, as default clks
+	 * are not suitable for CPRI and onboard SGMIIs to work
+	 * simultaneously.
+	 * This function will set SerDes1's Refclk1 and refclk2
+	 * as per SerDes1 protocols
+	 */
+	if (config_serdes1_refclks())
+		printf("SerDes1 Refclks couldn't set properly.\n");
+	else
+		printf("SerDes1 Refclks have been set.\n");
 
 	/* Configure VSC3316 and VSC3308 crossbar switches */
 	if (configure_vsc3316_3308())

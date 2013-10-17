@@ -1238,6 +1238,7 @@ static int nand_do_read_ops(struct mtd_info *mtd, loff_t from,
 		mtd->oobavail : mtd->oobsize;
 
 	uint8_t *bufpoi, *oob, *buf;
+	unsigned int max_bitflips = 0;
 
 	stats = mtd->ecc_stats;
 
@@ -1265,7 +1266,10 @@ static int nand_do_read_ops(struct mtd_info *mtd, loff_t from,
 
 			chip->cmdfunc(mtd, NAND_CMD_READ0, 0x00, page);
 
-			/* Now read the page into the buffer */
+			/*
+			 * Now read the page into the buffer.  Absent an error,
+			 * the read methods return max bitflips per ecc step.
+			 */
 			if (unlikely(ops->mode == MTD_OPS_RAW))
 				ret = chip->ecc.read_page_raw(mtd, chip, bufpoi,
 							      oob_required,
@@ -1284,15 +1288,19 @@ static int nand_do_read_ops(struct mtd_info *mtd, loff_t from,
 				break;
 			}
 
+			max_bitflips = max_t(unsigned int, max_bitflips, ret);
+
 			/* Transfer not aligned data */
 			if (!aligned) {
 				if (!NAND_HAS_SUBPAGE_READ(chip) && !oob &&
 				    !(mtd->ecc_stats.failed - stats.failed) &&
-				    (ops->mode != MTD_OPS_RAW))
+				    (ops->mode != MTD_OPS_RAW)) {
 					chip->pagebuf = realpage;
-				else
+					chip->pagebuf_bitflips = ret;
+				} else {
 					/* Invalidate page cache */
 					chip->pagebuf = -1;
+				}
 				memcpy(buf, chip->buffers->databuf + col, bytes);
 			}
 
@@ -1310,6 +1318,8 @@ static int nand_do_read_ops(struct mtd_info *mtd, loff_t from,
 		} else {
 			memcpy(buf, chip->buffers->databuf + col, bytes);
 			buf += bytes;
+			max_bitflips = max_t(unsigned int, max_bitflips,
+					     chip->pagebuf_bitflips);
 		}
 
 		readlen -= bytes;
@@ -1341,7 +1351,7 @@ static int nand_do_read_ops(struct mtd_info *mtd, loff_t from,
 	if (mtd->ecc_stats.failed - stats.failed)
 		return -EBADMSG;
 
-	return  mtd->ecc_stats.corrected - stats.corrected ? -EUCLEAN : 0;
+	return max_bitflips;
 }
 
 /**
@@ -3272,7 +3282,7 @@ int nand_scan_tail(struct mtd_info *mtd)
 
 	case NAND_ECC_NONE:
 		pr_warn("NAND_ECC_NONE selected by board driver. "
-		        "This is not recommended !!\n");
+			"This is not recommended !!\n");
 		chip->ecc.read_page = nand_read_page_raw;
 		chip->ecc.write_page = nand_write_page_raw;
 		chip->ecc.read_oob = nand_read_oob_std;

@@ -2,23 +2,7 @@
  * (C) Copyright 2001
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -50,8 +34,13 @@ static int do_date(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int old_bus;
 
 	/* switch to correct I2C bus */
+#ifdef CONFIG_SYS_I2C
+	old_bus = i2c_get_bus_num();
+	i2c_set_bus_num(CONFIG_SYS_RTC_BUS_NUM);
+#else
 	old_bus = I2C_GET_BUS();
 	I2C_SET_BUS(CONFIG_SYS_RTC_BUS_NUM);
+#endif
 
 	switch (argc) {
 	case 2:			/* set date & time */
@@ -97,7 +86,11 @@ static int do_date(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	/* switch back to original I2C bus */
+#ifdef CONFIG_SYS_I2C
+	i2c_set_bus_num(old_bus);
+#else
 	I2C_SET_BUS(old_bus);
+#endif
 
 	return rcode;
 }

@@ -47,9 +47,6 @@ struct pca953x_chip_ngpio {
 static struct pca953x_chip_ngpio pca953x_chip_ngpios[] =
     CONFIG_SYS_I2C_PCA953X_WIDTH;
 
-#define NUM_CHIP_GPIOS (sizeof(pca953x_chip_ngpios) / \
-			sizeof(struct pca953x_chip_ngpio))
-
 /*
  * Determine the number of GPIO pins supported. If we don't know we assume
  * 8 pins.
@@ -58,7 +55,7 @@ static int pca953x_ngpio(uint8_t chip)
 {
 	int i;
 
-	for (i = 0; i < NUM_CHIP_GPIOS; i++)
+	for (i = 0; i < ARRAY_SIZE(pca953x_chip_ngpios); i++)
 		if (pca953x_chip_ngpios[i].chip == chip)
 			return pca953x_chip_ngpios[i].ngpio;
 

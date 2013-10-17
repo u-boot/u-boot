@@ -2,20 +2,7 @@
  * (C) Copyright 2010 Samsung Electronics
  * Minkyu Kang <mk7.kang@samsung.com>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ASM_ARCH_GPIO_H
@@ -303,10 +290,19 @@ static inline unsigned int s5p_gpio_part_max(int nr)
 			return EXYNOS5_GPIO_PART2_MAX;
 
 	} else if (cpu_is_exynos4()) {
-		if (nr < EXYNOS4_GPIO_PART1_MAX)
-			return 0;
-		else
-			return EXYNOS4_GPIO_PART1_MAX;
+		if (proid_is_exynos4412()) {
+			if (nr < EXYNOS4X12_GPIO_PART1_MAX)
+				return 0;
+			else if (nr < EXYNOS4X12_GPIO_PART2_MAX)
+				return EXYNOS4X12_GPIO_PART1_MAX;
+			else
+				return EXYNOS4X12_GPIO_PART2_MAX;
+		} else {
+			if (nr < EXYNOS4_GPIO_PART1_MAX)
+				return 0;
+			else
+				return EXYNOS4_GPIO_PART1_MAX;
+		}
 	}
 
 	return 0;

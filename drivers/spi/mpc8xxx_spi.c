@@ -2,23 +2,7 @@
  * Copyright (c) 2006 Ben Warren, Qstreams Networks Inc.
  * With help from the common/soft_spi and arch/powerpc/cpu/mpc8260 drivers
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -93,7 +77,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 {
 	volatile spi8xxx_t *spi = &((immap_t *) (CONFIG_SYS_IMMR))->spi;
 	unsigned int tmpdout, tmpdin, event;
-	int numBlks = bitlen / 32 + (bitlen % 32 ? 1 : 0);
+	int numBlks = DIV_ROUND_UP(bitlen, 32);
 	int tm, isRead = 0;
 	unsigned char charSize = 32;
 
@@ -126,10 +110,10 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		if (bitlen <= 16) {
 			if (bitlen <= 4)
 				spi->mode = (spi->mode & 0xff0fffff) |
-				            (3 << 20);
+					    (3 << 20);
 			else
 				spi->mode = (spi->mode & 0xff0fffff) |
-				            ((bitlen - 1) << 20);
+					    ((bitlen - 1) << 20);
 		} else {
 			spi->mode = (spi->mode & 0xff0fffff);
 			/* Set up the next iteration if sending > 32 bits */

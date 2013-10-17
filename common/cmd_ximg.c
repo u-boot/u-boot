@@ -5,23 +5,7 @@
  * (C) Copyright 2003
  * Kai-Uwe Bloem, Auerswald GmbH & Co KG, <linux-development@auerswald.de>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 
@@ -36,6 +20,7 @@
 #include <bzlib.h>
 #endif
 #include <asm/byteorder.h>
+#include <asm/io.h>
 
 #ifndef CONFIG_SYS_XIMG_LEN
 /* use 8MByte as default max gunzip size */
@@ -50,7 +35,7 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	ulong		data, len, count;
 	int		verify;
 	int		part = 0;
-	image_header_t	*hdr;
+	image_header_t	*hdr = NULL;
 #if defined(CONFIG_FIT)
 	const char	*uname = NULL;
 	const void*	fit_hdr;
@@ -238,7 +223,7 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 				 * which requires at most 2300 KB of memory.
 				 */
 				i = BZ2_bzBuffToBuffDecompress(
-					(char *)ntohl(hdr->ih_load),
+					map_sysmem(ntohl(hdr->ih_load), 0),
 					&unc_len, (char *)data, len,
 					CONFIG_SYS_MALLOC_LEN < (4096 * 1024),
 					0);

@@ -3,27 +3,10 @@
  * Texas Instruments, <www.ti.com>
  * Aneesh V <aneesh@ti.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef ARMV7_H
 #define ARMV7_H
-#include <linux/types.h>
 
 /* Cortex-A9 revisions */
 #define MIDR_CORTEX_A9_R0P1	0x410FC091
@@ -34,6 +17,22 @@
 /* Cortex-A15 revisions */
 #define MIDR_CORTEX_A15_R0P0	0x410FC0F0
 #define MIDR_CORTEX_A15_R2P2	0x412FC0F2
+
+/* Cortex-A7 revisions */
+#define MIDR_CORTEX_A7_R0P0	0x410FC070
+
+#define MIDR_PRIMARY_PART_MASK	0xFF0FFFF0
+
+/* ID_PFR1 feature fields */
+#define CPUID_ARM_SEC_SHIFT		4
+#define CPUID_ARM_SEC_MASK		(0xF << CPUID_ARM_SEC_SHIFT)
+#define CPUID_ARM_VIRT_SHIFT		12
+#define CPUID_ARM_VIRT_MASK		(0xF << CPUID_ARM_VIRT_SHIFT)
+#define CPUID_ARM_GENTIMER_SHIFT	16
+#define CPUID_ARM_GENTIMER_MASK		(0xF << CPUID_ARM_GENTIMER_SHIFT)
+
+/* valid bits in CBAR register / PERIPHBASE value */
+#define CBAR_MASK			0xFFFF8000
 
 /* CCSIDR */
 #define CCSIDR_LINE_SIZE_OFFSET		0
@@ -57,6 +56,9 @@
 #define ARMV7_CLIDR_CTYPE_INSTRUCTION_DATA	3
 #define ARMV7_CLIDR_CTYPE_UNIFIED		4
 
+#ifndef __ASSEMBLY__
+#include <linux/types.h>
+
 /*
  * CP15 Barrier instructions
  * Please note that we have separate barrier instructions in ARMv7
@@ -73,5 +75,18 @@ void v7_outer_cache_flush_all(void);
 void v7_outer_cache_inval_all(void);
 void v7_outer_cache_flush_range(u32 start, u32 end);
 void v7_outer_cache_inval_range(u32 start, u32 end);
+
+#if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV7_VIRT)
+
+int armv7_switch_nonsec(void);
+int armv7_switch_hyp(void);
+
+/* defined in assembly file */
+unsigned int _nonsec_init(void);
+void _smp_pen(void);
+void _switch_to_hyp(void);
+#endif /* CONFIG_ARMV7_NONSEC || CONFIG_ARMV7_VIRT */
+
+#endif /* ! __ASSEMBLY__ */
 
 #endif

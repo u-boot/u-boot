@@ -4,15 +4,7 @@
 	A Davicom DM9000 ISA NIC fast Ethernet driver for Linux.
 	Copyright (C) 1997  Sten Wang
 
-	This program is free software; you can redistribute it and/or
-	modify it under the terms of the GNU General Public License
-	as published by the Free Software Foundation; either version 2
-	of the License, or (at your option) any later version.
-
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+ * SPDX-License-Identifier:	GPL-2.0+
 
   (C)Copyright 1997-1998 DAVICOM Semiconductor,Inc. All Rights Reserved.
 
@@ -25,7 +17,7 @@ V0.11	06/20/2001	REG_0A bit3=1, default enable BP with DA match
 		R17 = (R17 & 0xfff0) | NF
 
 v1.00			modify by simon 2001.9.5
-	                change for kernel 2.4.x
+			change for kernel 2.4.x
 
 v1.1   11/09/2001	fix force mode bug
 

@@ -5,7 +5,9 @@
 #
 # Parameters:  Target  Architecture  CPU  Board [VENDOR] [SOC]
 #
-# (C) 2002-2010 DENX Software Engineering, Wolfgang Denk <wd@denx.de>
+# (C) 2002-2013 DENX Software Engineering, Wolfgang Denk <wd@denx.de>
+#
+# SPDX-License-Identifier:	GPL-2.0+
 #
 
 APPEND=no	# Default: Create new config file
@@ -21,10 +23,11 @@ options=""
 
 if [ \( $# -eq 2 \) -a \( "$1" = "-A" \) ] ; then
 	# Automatic mode
-	line=`egrep -i "^[[:space:]]*${2}[[:space:]]" boards.cfg` || {
+	line=`awk '($0 !~ /^#/ && $7 ~ /^'"$2"'$/) { print $1, $2, $3, $4, $5, $6, $7, $8 }' boards.cfg`
+	if [ -z "$line" ] ; then
 		echo "make: *** No rule to make target \`$2_config'.  Stop." >&2
 		exit 1
-	}
+	fi
 
 	set ${line}
 	# add default board name if needed
@@ -35,44 +38,44 @@ while [ $# -gt 0 ] ; do
 	case "$1" in
 	--) shift ; break ;;
 	-a) shift ; APPEND=yes ;;
-	-n) shift ; BOARD_NAME="${1%_config}" ; shift ;;
+	-n) shift ; BOARD_NAME="${7%_config}" ; shift ;;
 	-t) shift ; TARGETS="`echo $1 | sed 's:_: :g'` ${TARGETS}" ; shift ;;
 	*)  break ;;
 	esac
 done
 
-[ $# -lt 4 ] && exit 1
-[ $# -gt 7 ] && exit 1
+[ $# -lt 7 ] && exit 1
+[ $# -gt 8 ] && exit 1
 
 # Strip all options and/or _config suffixes
-CONFIG_NAME="${1%_config}"
+CONFIG_NAME="${7%_config}"
 
-[ "${BOARD_NAME}" ] || BOARD_NAME="${1%_config}"
+[ "${BOARD_NAME}" ] || BOARD_NAME="${7%_config}"
 
 arch="$2"
 cpu=`echo $3 | awk 'BEGIN {FS = ":"} ; {print $1}'`
 spl_cpu=`echo $3 | awk 'BEGIN {FS = ":"} ; {print $2}'`
-if [ "$4" = "-" ] ; then
+if [ "$6" = "-" ] ; then
 	board=${BOARD_NAME}
 else
-	board="$4"
+	board="$6"
 fi
-[ $# -gt 4 ] && [ "$5" != "-" ] && vendor="$5"
-[ $# -gt 5 ] && [ "$6" != "-" ] && soc="$6"
-[ $# -gt 6 ] && [ "$7" != "-" ] && {
+[ "$5" != "-" ] && vendor="$5"
+[ "$4" != "-" ] && soc="$4"
+[ $# -gt 7 ] && [ "$8" != "-" ] && {
 	# check if we have a board config name in the options field
 	# the options field mave have a board config name and a list
 	# of options, both separated by a colon (':'); the options are
 	# separated by commas (',').
 	#
 	# Check for board name
-	tmp="${7%:*}"
+	tmp="${8%:*}"
 	if [ "$tmp" ] ; then
 		CONFIG_NAME="$tmp"
 	fi
 	# Check if we only have a colon...
-	if [ "${tmp}" != "$7" ] ; then
-		options=${7#*:}
+	if [ "${tmp}" != "$8" ] ; then
+		options=${8#*:}
 		TARGETS="`echo ${options} | sed 's:,: :g'` ${TARGETS}"
 	fi
 }

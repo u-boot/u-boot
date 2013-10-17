@@ -3,10 +3,7 @@
  *
  * Configuration settings for the Wandboard.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -100,19 +97,19 @@
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_IPUV3_CLK 260000000
+#define CONFIG_IMX_HDMI
 
-#if defined(CONFIG_MX6DL)
+#if defined(CONFIG_MX6DL) || defined(CONFIG_MX6S)
 #define CONFIG_DEFAULT_FDT_FILE		"imx6dl-wandboard.dtb"
 #elif defined(CONFIG_MX6Q)
 #define CONFIG_DEFAULT_FDT_FILE		"imx6q-wandboard.dtb"
-#elif defined(CONFIG_MX6S)
-#define CONFIG_DEFAULT_FDT_FILE		"imx6s-wandboard.dtb"
 #endif
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"uimage=uImage\0" \
 	"console=ttymxc0\0" \
+	"splashpos=m,m\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \

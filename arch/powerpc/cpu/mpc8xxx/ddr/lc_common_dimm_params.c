@@ -218,12 +218,16 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 		if (dimm_params[i].n_ranks) {
 			if (dimm_params[i].registered_dimm) {
 				temp1 = 1;
+#ifndef CONFIG_SPL_BUILD
 				printf("Detected RDIMM %s\n",
 					dimm_params[i].mpart);
+#endif
 			} else {
 				temp2 = 1;
+#ifndef CONFIG_SPL_BUILD
 				printf("Detected UDIMM %s\n",
 					dimm_params[i].mpart);
+#endif
 			}
 		}
 	}

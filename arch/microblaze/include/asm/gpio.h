@@ -12,4 +12,3 @@ extern int gpio_alloc(u32 baseaddr, const char *name, u32 gpio_no);
 extern void gpio_info(void);
 
 #endif
-

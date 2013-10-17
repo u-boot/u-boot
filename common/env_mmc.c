@@ -1,23 +1,7 @@
 /*
  * (C) Copyright 2008-2011 Freescale Semiconductor, Inc.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /* #define DEBUG */
@@ -208,11 +192,12 @@ void env_relocate_spec(void)
 	u32 offset1, offset2;
 	int read1_fail = 0, read2_fail = 0;
 	int crc1_ok = 0, crc2_ok = 0;
-	env_t *ep, *tmp_env1, *tmp_env2;
+	env_t *ep;
 	int ret;
 
-	tmp_env1 = (env_t *)malloc(CONFIG_ENV_SIZE);
-	tmp_env2 = (env_t *)malloc(CONFIG_ENV_SIZE);
+	ALLOC_CACHE_ALIGN_BUFFER(env_t, tmp_env1, 1);
+	ALLOC_CACHE_ALIGN_BUFFER(env_t, tmp_env2, 1);
+
 	if (tmp_env1 == NULL || tmp_env2 == NULL) {
 		puts("Can't allocate buffers for environment\n");
 		ret = 1;
@@ -282,8 +267,6 @@ err:
 	if (ret)
 		set_default_env(NULL);
 
-	free(tmp_env1);
-	free(tmp_env2);
 #endif
 }
 #else /* ! CONFIG_ENV_OFFSET_REDUND */

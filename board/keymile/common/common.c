@@ -5,23 +5,7 @@
  * (C) Copyright 2011
  * Holger Brunck, Keymile GmbH Hannover, holger.brunck@keymile.com
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -242,7 +226,7 @@ U_BOOT_CMD(km_setboardid, 1, 0, do_setboardid, "setboardid", "read out bid and "
  *				application and in the init scripts (?)
  *	return 0 in case of match, 1 if not match or error
  */
-int do_checkboardidhwk(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_checkboardidhwk(cmd_tbl_t *cmdtp, int flag, int argc,
 			char *const argv[])
 {
 	unsigned long ivmbid = 0, ivmhwkey = 0;
@@ -383,7 +367,7 @@ U_BOOT_CMD(km_checkbidhwk, 2, 0, do_checkboardidhwk,
  *  if the testpin of the board is asserted, return 1
  *  *	else return 0
  */
-int do_checktestboot(cmd_tbl_t *cmdtp, int flag, int argc,
+static int do_checktestboot(cmd_tbl_t *cmdtp, int flag, int argc,
 			char *const argv[])
 {
 	int testpin = 0;

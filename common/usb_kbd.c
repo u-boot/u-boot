@@ -5,24 +5,7 @@
  * Part of this source has been derived from the Linux USB
  * project.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
- *
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <malloc.h>
@@ -120,6 +103,11 @@ struct usb_kbd_pdata {
 
 	uint8_t		flags;
 };
+
+extern int __maybe_unused net_busy_flag;
+
+/* The period of time between two calls of usb_kbd_testc(). */
+static unsigned long __maybe_unused kbd_testc_tms;
 
 /* Generic keyboard event polling. */
 void usb_kbd_generic_poll(void)
@@ -366,6 +354,16 @@ static int usb_kbd_testc(void)
 	struct usb_device *usb_kbd_dev;
 	struct usb_kbd_pdata *data;
 
+#ifdef CONFIG_CMD_NET
+	/*
+	 * If net_busy_flag is 1, NET transfer is running,
+	 * then we check key-pressed every second (first check may be
+	 * less than 1 second) to improve TFTP booting performance.
+	 */
+	if (net_busy_flag && (get_timer(kbd_testc_tms) < CONFIG_SYS_HZ))
+		return 0;
+	kbd_testc_tms = get_timer(0);
+#endif
 	dev = stdio_get_by_name(DEVNAME);
 	usb_kbd_dev = (struct usb_device *)dev->priv;
 	data = usb_kbd_dev->privptr;

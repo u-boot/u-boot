@@ -7,23 +7,7 @@
  * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -38,6 +22,7 @@
 #include <asm/fsl_law.h>
 #include <asm/fsl_serdes.h>
 #include <asm/fsl_srio.h>
+#include <fsl_usb.h>
 #include <hwconfig.h>
 #include <linux/compiler.h>
 #include "mp.h"
@@ -182,7 +167,8 @@ static void enable_cpc(void)
 
 	}
 
-	printf("Corenet Platform Cache: %d KB enabled\n", size);
+	puts("Corenet Platform Cache: ");
+	print_size(size * 1024, " enabled\n");
 }
 
 static void invalidate_cpc(void)
@@ -371,7 +357,9 @@ int cpu_init_r(void)
 	extern int spin_table_compat;
 	const char *spin;
 #endif
-
+#ifdef CONFIG_SYS_FSL_ERRATUM_SEC_A003571
+	ccsr_sec_t __iomem *sec = (void *)CONFIG_SYS_FSL_SEC_ADDR;
+#endif
 #if defined(CONFIG_SYS_P4080_ERRATUM_CPU22) || \
 	defined(CONFIG_SYS_FSL_ERRATUM_NMG_CPU_A011)
 	/*
@@ -414,6 +402,14 @@ int cpu_init_r(void)
 		mtspr(L1CSR2, (mfspr(L1CSR2) | L1CSR2_DCWS));
 		sync();
 	}
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A005812
+	/*
+	 * A-005812 workaround sets bit 32 of SPR 976 for SoCs running
+	 * in write shadow mode. Checking DCWS before setting SPR 976.
+	 */
+	if (mfspr(L1CSR2) & L1CSR2_DCWS)
+		mtspr(SPRN_HDBCR0, (mfspr(SPRN_HDBCR0) | 0x80000000));
 #endif
 
 #if defined(CONFIG_PPC_SPINTABLE_COMPATIBLE) && defined(CONFIG_MP)
@@ -464,28 +460,28 @@ int cpu_init_r(void)
 	case 0x1:
 		if (ver == SVR_8540 || ver == SVR_8560   ||
 		    ver == SVR_8541 || ver == SVR_8555) {
-			puts("128 KB ");
-			/* set L2E=1, L2I=1, & L2BLKSZ=1 (128 Kbyte) */
+			puts("128 KiB ");
+			/* set L2E=1, L2I=1, & L2BLKSZ=1 (128 KiBibyte) */
 			cache_ctl = 0xc4000000;
 		} else {
-			puts("256 KB ");
+			puts("256 KiB ");
 			cache_ctl = 0xc0000000; /* set L2E=1, L2I=1, & L2SRAM=0 */
 		}
 		break;
 	case 0x2:
 		if (ver == SVR_8540 || ver == SVR_8560   ||
 		    ver == SVR_8541 || ver == SVR_8555) {
-			puts("256 KB ");
-			/* set L2E=1, L2I=1, & L2BLKSZ=2 (256 Kbyte) */
+			puts("256 KiB ");
+			/* set L2E=1, L2I=1, & L2BLKSZ=2 (256 KiBibyte) */
 			cache_ctl = 0xc8000000;
 		} else {
-			puts ("512 KB ");
+			puts("512 KiB ");
 			/* set L2E=1, L2I=1, & L2SRAM=0 */
 			cache_ctl = 0xc0000000;
 		}
 		break;
 	case 0x3:
-		puts("1024 KB ");
+		puts("1024 KiB ");
 		/* set L2E=1, L2I=1, & L2SRAM=0 */
 		cache_ctl = 0xc0000000;
 		break;
@@ -533,13 +529,14 @@ int cpu_init_r(void)
 	if (CONFIG_SYS_INIT_L2CSR0 & L2CSR0_L2E) {
 		while (!(mfspr(SPRN_L2CSR0) & L2CSR0_L2E))
 			;
-		printf("%d KB enabled\n", (l2cfg0 & 0x3fff) * 64);
+		print_size((l2cfg0 & 0x3fff) * 64 * 1024, " enabled\n");
 	}
 
 skip_l2:
 #elif defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2)
 	if (l2cache->l2csr0 & L2CSR0_L2E)
-		printf("%d KB enabled\n", (l2cache->l2cfg0 & 0x3fff) * 64);
+		print_size((l2cache->l2cfg0 & 0x3fff) * 64 * 1024,
+			   " enabled\n");
 
 	enable_cluster_l2();
 #else
@@ -548,8 +545,16 @@ skip_l2:
 
 	enable_cpc();
 
+#ifndef CONFIG_SYS_FSL_NO_SERDES
 	/* needs to be in ram since code uses global static vars */
 	fsl_serdes_init();
+#endif
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_SEC_A003571
+#define MCFGR_AXIPIPE 0x000000f0
+	if (IS_SVR_REV(svr, 1, 0))
+		clrbits_be32(&sec->mcfgr, MCFGR_AXIPIPE);
+#endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A005871
 	if (IS_SVR_REV(svr, 1, 0)) {
@@ -611,7 +616,7 @@ skip_l2:
 
 #ifdef CONFIG_SYS_FSL_USB1_PHY_ENABLE
 	{
-		ccsr_usb_phy_t *usb_phy1 =
+		struct ccsr_usb_phy __iomem *usb_phy1 =
 			(void *)CONFIG_SYS_MPC85xx_USB1_PHY_ADDR;
 		out_be32(&usb_phy1->usb_enable_override,
 				CONFIG_SYS_FSL_USB_ENABLE_OVERRIDE);
@@ -619,7 +624,7 @@ skip_l2:
 #endif
 #ifdef CONFIG_SYS_FSL_USB2_PHY_ENABLE
 	{
-		ccsr_usb_phy_t *usb_phy2 =
+		struct ccsr_usb_phy __iomem *usb_phy2 =
 			(void *)CONFIG_SYS_MPC85xx_USB2_PHY_ADDR;
 		out_be32(&usb_phy2->usb_enable_override,
 				CONFIG_SYS_FSL_USB_ENABLE_OVERRIDE);
@@ -641,7 +646,7 @@ skip_l2:
 #endif
 
 #if defined(CONFIG_SYS_FSL_USB_DUAL_PHY_ENABLE)
-		ccsr_usb_phy_t *usb_phy =
+		struct ccsr_usb_phy __iomem *usb_phy =
 			(void *)CONFIG_SYS_MPC85xx_USB1_PHY_ADDR;
 		setbits_be32(&usb_phy->pllprg[1],
 			     CONFIG_SYS_FSL_USB_PLLPRG2_PHY2_CLK_EN |

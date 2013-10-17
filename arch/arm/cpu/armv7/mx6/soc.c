@@ -4,23 +4,7 @@
  *
  * (C) Copyright 2009 Freescale Semiconductor, Inc.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -32,6 +16,8 @@
 #include <asm/imx-common/boot_mode.h>
 #include <asm/imx-common/dma.h>
 #include <stdbool.h>
+#include <asm/arch/mxc_hdmi.h>
+#include <asm/arch/crm_regs.h>
 
 struct scu_regs {
 	u32	ctrl;
@@ -227,4 +213,73 @@ const struct boot_mode soc_boot_modes[] = {
 
 void s_init(void)
 {
+	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
+	int is_6q = is_cpu_type(MXC_CPU_MX6Q);
+	u32 mask480;
+	u32 mask528;
+
+	/* Due to hardware limitation, on MX6Q we need to gate/ungate all PFDs
+	 * to make sure PFD is working right, otherwise, PFDs may
+	 * not output clock after reset, MX6DL and MX6SL have added 396M pfd
+	 * workaround in ROM code, as bus clock need it
+	 */
+
+	mask480 = ANATOP_PFD_CLKGATE_MASK(0) |
+		ANATOP_PFD_CLKGATE_MASK(1) |
+		ANATOP_PFD_CLKGATE_MASK(2) |
+		ANATOP_PFD_CLKGATE_MASK(3);
+	mask528 = ANATOP_PFD_CLKGATE_MASK(0) |
+		ANATOP_PFD_CLKGATE_MASK(1) |
+		ANATOP_PFD_CLKGATE_MASK(3);
+
+	/*
+	 * Don't reset PFD2 on DL/S
+	 */
+	if (is_6q)
+		mask528 |= ANATOP_PFD_CLKGATE_MASK(2);
+	writel(mask480, &anatop->pfd_480_set);
+	writel(mask528, &anatop->pfd_528_set);
+	writel(mask480, &anatop->pfd_480_clr);
+	writel(mask528, &anatop->pfd_528_clr);
 }
+
+#ifdef CONFIG_IMX_HDMI
+void imx_enable_hdmi_phy(void)
+{
+	struct hdmi_regs *hdmi = (struct hdmi_regs *)HDMI_ARB_BASE_ADDR;
+	u8 reg;
+	reg = readb(&hdmi->phy_conf0);
+	reg |= HDMI_PHY_CONF0_PDZ_MASK;
+	writeb(reg, &hdmi->phy_conf0);
+	udelay(3000);
+	reg |= HDMI_PHY_CONF0_ENTMDS_MASK;
+	writeb(reg, &hdmi->phy_conf0);
+	udelay(3000);
+	reg |= HDMI_PHY_CONF0_GEN2_TXPWRON_MASK;
+	writeb(reg, &hdmi->phy_conf0);
+	writeb(HDMI_MC_PHYRSTZ_ASSERT, &hdmi->mc_phyrstz);
+}
+
+void imx_setup_hdmi(void)
+{
+	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	struct hdmi_regs *hdmi  = (struct hdmi_regs *)HDMI_ARB_BASE_ADDR;
+	int reg;
+
+	/* Turn on HDMI PHY clock */
+	reg = readl(&mxc_ccm->CCGR2);
+	reg |=  MXC_CCM_CCGR2_HDMI_TX_IAHBCLK_MASK|
+		 MXC_CCM_CCGR2_HDMI_TX_ISFRCLK_MASK;
+	writel(reg, &mxc_ccm->CCGR2);
+	writeb(HDMI_MC_PHYRSTZ_DEASSERT, &hdmi->mc_phyrstz);
+	reg = readl(&mxc_ccm->chsccdr);
+	reg &= ~(MXC_CCM_CHSCCDR_IPU1_DI0_PRE_CLK_SEL_MASK|
+		 MXC_CCM_CHSCCDR_IPU1_DI0_PODF_MASK|
+		 MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_MASK);
+	reg |= (CHSCCDR_PODF_DIVIDE_BY_3
+		 << MXC_CCM_CHSCCDR_IPU1_DI0_PODF_OFFSET)
+		 |(CHSCCDR_IPU_PRE_CLK_540M_PFD
+		 << MXC_CCM_CHSCCDR_IPU1_DI0_PRE_CLK_SEL_OFFSET);
+	writel(reg, &mxc_ccm->chsccdr);
+}
+#endif

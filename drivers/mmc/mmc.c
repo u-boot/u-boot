@@ -4,23 +4,7 @@
  *
  * Based vaguely on the Linux code
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>
@@ -31,6 +15,7 @@
 #include <malloc.h>
 #include <linux/list.h>
 #include <div64.h>
+#include "mmc_private.h"
 
 /* Set block count limit because of 16 bit register limit on some hardware*/
 #ifndef CONFIG_SYS_MMC_MAX_BLK_COUNT
@@ -68,13 +53,9 @@ int __board_mmc_getcd(struct mmc *mmc) {
 int board_mmc_getcd(struct mmc *mmc)__attribute__((weak,
 	alias("__board_mmc_getcd")));
 
-static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
-			struct mmc_data *data)
+int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 {
-	struct mmc_data backup;
 	int ret;
-
-	memset(&backup, 0, sizeof(backup));
 
 #ifdef CONFIG_MMC_TRACE
 	int i;
@@ -130,7 +111,7 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	return ret;
 }
 
-static int mmc_send_status(struct mmc *mmc, int timeout)
+int mmc_send_status(struct mmc *mmc, int timeout)
 {
 	struct mmc_cmd cmd;
 	int err, retries = 5;
@@ -151,8 +132,10 @@ static int mmc_send_status(struct mmc *mmc, int timeout)
 			     MMC_STATE_PRG)
 				break;
 			else if (cmd.response[0] & MMC_STATUS_MASK) {
+#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 				printf("Status Error: 0x%08X\n",
 					cmd.response[0]);
+#endif
 				return COMM_ERR;
 			}
 		} else if (--retries < 0)
@@ -167,14 +150,16 @@ static int mmc_send_status(struct mmc *mmc, int timeout)
 	printf("CURR STATE:%d\n", status);
 #endif
 	if (timeout <= 0) {
+#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 		printf("Timeout waiting card ready\n");
+#endif
 		return TIMEOUT;
 	}
 
 	return 0;
 }
 
-static int mmc_set_blocklen(struct mmc *mmc, int len)
+int mmc_set_blocklen(struct mmc *mmc, int len)
 {
 	struct mmc_cmd cmd;
 
@@ -197,177 +182,11 @@ struct mmc *find_mmc_device(int dev_num)
 			return m;
 	}
 
+#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 	printf("MMC Device %d not found\n", dev_num);
+#endif
 
 	return NULL;
-}
-
-static ulong mmc_erase_t(struct mmc *mmc, ulong start, lbaint_t blkcnt)
-{
-	struct mmc_cmd cmd;
-	ulong end;
-	int err, start_cmd, end_cmd;
-
-	if (mmc->high_capacity)
-		end = start + blkcnt - 1;
-	else {
-		end = (start + blkcnt - 1) * mmc->write_bl_len;
-		start *= mmc->write_bl_len;
-	}
-
-	if (IS_SD(mmc)) {
-		start_cmd = SD_CMD_ERASE_WR_BLK_START;
-		end_cmd = SD_CMD_ERASE_WR_BLK_END;
-	} else {
-		start_cmd = MMC_CMD_ERASE_GROUP_START;
-		end_cmd = MMC_CMD_ERASE_GROUP_END;
-	}
-
-	cmd.cmdidx = start_cmd;
-	cmd.cmdarg = start;
-	cmd.resp_type = MMC_RSP_R1;
-
-	err = mmc_send_cmd(mmc, &cmd, NULL);
-	if (err)
-		goto err_out;
-
-	cmd.cmdidx = end_cmd;
-	cmd.cmdarg = end;
-
-	err = mmc_send_cmd(mmc, &cmd, NULL);
-	if (err)
-		goto err_out;
-
-	cmd.cmdidx = MMC_CMD_ERASE;
-	cmd.cmdarg = SECURE_ERASE;
-	cmd.resp_type = MMC_RSP_R1b;
-
-	err = mmc_send_cmd(mmc, &cmd, NULL);
-	if (err)
-		goto err_out;
-
-	return 0;
-
-err_out:
-	puts("mmc erase failed\n");
-	return err;
-}
-
-static unsigned long
-mmc_berase(int dev_num, lbaint_t start, lbaint_t blkcnt)
-{
-	int err = 0;
-	struct mmc *mmc = find_mmc_device(dev_num);
-	lbaint_t blk = 0, blk_r = 0;
-	int timeout = 1000;
-
-	if (!mmc)
-		return -1;
-
-	if ((start % mmc->erase_grp_size) || (blkcnt % mmc->erase_grp_size))
-		printf("\n\nCaution! Your devices Erase group is 0x%x\n"
-		       "The erase range would be change to "
-		       "0x" LBAF "~0x" LBAF "\n\n",
-		       mmc->erase_grp_size, start & ~(mmc->erase_grp_size - 1),
-		       ((start + blkcnt + mmc->erase_grp_size)
-		       & ~(mmc->erase_grp_size - 1)) - 1);
-
-	while (blk < blkcnt) {
-		blk_r = ((blkcnt - blk) > mmc->erase_grp_size) ?
-			mmc->erase_grp_size : (blkcnt - blk);
-		err = mmc_erase_t(mmc, start + blk, blk_r);
-		if (err)
-			break;
-
-		blk += blk_r;
-
-		/* Waiting for the ready status */
-		if (mmc_send_status(mmc, timeout))
-			return 0;
-	}
-
-	return blk;
-}
-
-static ulong
-mmc_write_blocks(struct mmc *mmc, lbaint_t start, lbaint_t blkcnt, const void*src)
-{
-	struct mmc_cmd cmd;
-	struct mmc_data data;
-	int timeout = 1000;
-
-	if ((start + blkcnt) > mmc->block_dev.lba) {
-		printf("MMC: block number 0x" LBAF " exceeds max(0x" LBAF ")\n",
-			start + blkcnt, mmc->block_dev.lba);
-		return 0;
-	}
-
-	if (blkcnt == 0)
-		return 0;
-	else if (blkcnt == 1)
-		cmd.cmdidx = MMC_CMD_WRITE_SINGLE_BLOCK;
-	else
-		cmd.cmdidx = MMC_CMD_WRITE_MULTIPLE_BLOCK;
-
-	if (mmc->high_capacity)
-		cmd.cmdarg = start;
-	else
-		cmd.cmdarg = start * mmc->write_bl_len;
-
-	cmd.resp_type = MMC_RSP_R1;
-
-	data.src = src;
-	data.blocks = blkcnt;
-	data.blocksize = mmc->write_bl_len;
-	data.flags = MMC_DATA_WRITE;
-
-	if (mmc_send_cmd(mmc, &cmd, &data)) {
-		printf("mmc write failed\n");
-		return 0;
-	}
-
-	/* SPI multiblock writes terminate using a special
-	 * token, not a STOP_TRANSMISSION request.
-	 */
-	if (!mmc_host_is_spi(mmc) && blkcnt > 1) {
-		cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
-		cmd.cmdarg = 0;
-		cmd.resp_type = MMC_RSP_R1b;
-		if (mmc_send_cmd(mmc, &cmd, NULL)) {
-			printf("mmc fail to send stop cmd\n");
-			return 0;
-		}
-	}
-
-	/* Waiting for the ready status */
-	if (mmc_send_status(mmc, timeout))
-		return 0;
-
-	return blkcnt;
-}
-
-static ulong
-mmc_bwrite(int dev_num, lbaint_t start, lbaint_t blkcnt, const void*src)
-{
-	lbaint_t cur, blocks_todo = blkcnt;
-
-	struct mmc *mmc = find_mmc_device(dev_num);
-	if (!mmc)
-		return 0;
-
-	if (mmc_set_blocklen(mmc, mmc->write_bl_len))
-		return 0;
-
-	do {
-		cur = (blocks_todo > mmc->b_max) ?  mmc->b_max : blocks_todo;
-		if(mmc_write_blocks(mmc, start, cur, src) != cur)
-			return 0;
-		blocks_todo -= cur;
-		start += cur;
-		src += cur * mmc->write_bl_len;
-	} while (blocks_todo > 0);
-
-	return blkcnt;
 }
 
 static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
@@ -401,7 +220,9 @@ static int mmc_read_blocks(struct mmc *mmc, void *dst, lbaint_t start,
 		cmd.cmdarg = 0;
 		cmd.resp_type = MMC_RSP_R1b;
 		if (mmc_send_cmd(mmc, &cmd, NULL)) {
+#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 			printf("mmc fail to send stop cmd\n");
+#endif
 			return 0;
 		}
 	}
@@ -421,8 +242,10 @@ static ulong mmc_bread(int dev_num, lbaint_t start, lbaint_t blkcnt, void *dst)
 		return 0;
 
 	if ((start + blkcnt) > mmc->block_dev.lba) {
+#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 		printf("MMC: block number 0x" LBAF " exceeds max(0x" LBAF ")\n",
 			start + blkcnt, mmc->block_dev.lba);
+#endif
 		return 0;
 	}
 
@@ -1284,6 +1107,7 @@ static int mmc_startup(struct mmc *mmc)
 	mmc->block_dev.blksz = mmc->read_bl_len;
 	mmc->block_dev.log2blksz = LOG2(mmc->block_dev.blksz);
 	mmc->block_dev.lba = lldiv(mmc->capacity, mmc->read_bl_len);
+#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 	sprintf(mmc->block_dev.vendor, "Man %06x Snr %04x%04x",
 		mmc->cid[0] >> 24, (mmc->cid[2] & 0xffff),
 		(mmc->cid[3] >> 16) & 0xffff);
@@ -1293,6 +1117,11 @@ static int mmc_startup(struct mmc *mmc)
 		(mmc->cid[2] >> 24) & 0xff);
 	sprintf(mmc->block_dev.revision, "%d.%d", (mmc->cid[2] >> 20) & 0xf,
 		(mmc->cid[2] >> 16) & 0xf);
+#else
+	mmc->block_dev.vendor[0] = 0;
+	mmc->block_dev.product[0] = 0;
+	mmc->block_dev.revision[0] = 0;
+#endif
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBDISK_SUPPORT)
 	init_part(&mmc->block_dev);
 #endif
@@ -1359,7 +1188,9 @@ int mmc_start_init(struct mmc *mmc)
 
 	if (mmc_getcd(mmc) == 0) {
 		mmc->has_init = 0;
+#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 		printf("MMC: no card present\n");
+#endif
 		return NO_CARD_ERR;
 	}
 
@@ -1394,7 +1225,9 @@ int mmc_start_init(struct mmc *mmc)
 		err = mmc_send_op_cond(mmc);
 
 		if (err && err != IN_PROGRESS) {
+#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 			printf("Card did not respond to voltage select!\n");
+#endif
 			return UNUSABLE_ERR;
 		}
 	}
@@ -1450,6 +1283,8 @@ static int __def_mmc_init(bd_t *bis)
 int cpu_mmc_init(bd_t *bis) __attribute__((weak, alias("__def_mmc_init")));
 int board_mmc_init(bd_t *bis) __attribute__((weak, alias("__def_mmc_init")));
 
+#if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
+
 void print_mmc_devices(char separator)
 {
 	struct mmc *m;
@@ -1466,6 +1301,10 @@ void print_mmc_devices(char separator)
 
 	printf("\n");
 }
+
+#else
+void print_mmc_devices(char separator) { }
+#endif
 
 int get_mmc_num(void)
 {
@@ -1499,7 +1338,9 @@ int mmc_initialize(bd_t *bis)
 	if (board_mmc_init(bis) < 0)
 		cpu_mmc_init(bis);
 
+#ifndef CONFIG_SPL_BUILD
 	print_mmc_devices(',');
+#endif
 
 	do_preinit();
 	return 0;

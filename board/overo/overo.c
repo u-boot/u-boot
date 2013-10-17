@@ -10,23 +10,7 @@
  * (C) Copyright 2004-2008
  * Texas Instruments, <www.ti.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <netdev.h>
@@ -158,16 +142,22 @@ void get_board_mem_timings(struct board_sdrc_timings *timings)
 		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
 		break;
 	case REVISION_1: /* Micron 256MB/512MB, 1/2 banks of 256MB */
-		timings->mcfg = MICRON_V_MCFG_165(256 << 20);
-		timings->ctrla = MICRON_V_ACTIMA_165;
-		timings->ctrlb = MICRON_V_ACTIMB_165;
-		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+		timings->mcfg = MICRON_V_MCFG_200(256 << 20);
+		timings->ctrla = MICRON_V_ACTIMA_200;
+		timings->ctrlb = MICRON_V_ACTIMB_200;
+		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
 		break;
 	case REVISION_2: /* Hynix 256MB/512MB, 1/2 banks of 256MB */
-		timings->mcfg = HYNIX_V_MCFG_165(256 << 20);
-		timings->ctrla = HYNIX_V_ACTIMA_165;
-		timings->ctrlb = HYNIX_V_ACTIMB_165;
-		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+		timings->mcfg = HYNIX_V_MCFG_200(256 << 20);
+		timings->ctrla = HYNIX_V_ACTIMA_200;
+		timings->ctrlb = HYNIX_V_ACTIMB_200;
+		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
+		break;
+	case REVISION_3: /* Micron 512MB/1024MB, 1/2 banks of 512MB */
+		timings->mcfg = MCFG(512 << 20, 15);
+		timings->ctrla = MICRON_V_ACTIMA_200;
+		timings->ctrlb = MICRON_V_ACTIMB_200;
+		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
 		break;
 	default:
 		timings->mcfg = MICRON_V_MCFG_165(128 << 20);

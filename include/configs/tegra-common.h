@@ -2,23 +2,7 @@
  *  (C) Copyright 2010-2012
  *  NVIDIA Corporation <www.nvidia.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _TEGRA_COMMON_H_
@@ -32,8 +16,6 @@
 #define CONFIG_ARMCORTEXA9		/* This is an ARM V7 CPU core */
 #define CONFIG_TEGRA			/* which is a Tegra generic machine */
 #define CONFIG_SYS_L2CACHE_OFF		/* No L2 cache */
-
-#define CONFIG_SYS_CACHELINE_SIZE	32
 
 #include <asm/arch/tegra.h>		/* get chip and board defs */
 
@@ -151,6 +133,7 @@
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_ENTERRCM
 #define CONFIG_CMD_BOOTZ
+#define CONFIG_SUPPORT_RAW_INITRD
 
 /* Defines for SPL */
 #define CONFIG_SPL

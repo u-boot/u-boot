@@ -2,23 +2,7 @@
  * Copyright (C) 2012-2013 Atmel Corporation
  * Bo Shen <voice.shen@atmel.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -160,6 +144,30 @@ void at91_macb_hw_init(void)
 	/* Enable clock */
 	at91_periph_clk_enable(ATMEL_ID_EMAC);
 }
+
+void at91_gmac_hw_init(void)
+{
+	at91_set_a_periph(AT91_PIO_PORTB, 0, 0);	/* GTX0 */
+	at91_set_a_periph(AT91_PIO_PORTB, 1, 0);	/* GTX1 */
+	at91_set_a_periph(AT91_PIO_PORTB, 2, 0);	/* GTX2 */
+	at91_set_a_periph(AT91_PIO_PORTB, 3, 0);	/* GTX3 */
+	at91_set_a_periph(AT91_PIO_PORTB, 4, 0);	/* GRX0 */
+	at91_set_a_periph(AT91_PIO_PORTB, 5, 0);	/* GRX1 */
+	at91_set_a_periph(AT91_PIO_PORTB, 6, 0);	/* GRX2 */
+	at91_set_a_periph(AT91_PIO_PORTB, 7, 0);	/* GRX3 */
+	at91_set_a_periph(AT91_PIO_PORTB, 8, 0);	/* GTXCK */
+	at91_set_a_periph(AT91_PIO_PORTB, 9, 0);	/* GTXEN */
+
+	at91_set_a_periph(AT91_PIO_PORTB, 11, 0);	/* GRXCK */
+	at91_set_a_periph(AT91_PIO_PORTB, 13, 0);	/* GRXER */
+
+	at91_set_a_periph(AT91_PIO_PORTB, 16, 0);	/* GMDC */
+	at91_set_a_periph(AT91_PIO_PORTB, 17, 0);	/* GMDIO */
+	at91_set_a_periph(AT91_PIO_PORTB, 18, 0);	/* G125CK */
+
+	/* Enable clock */
+	at91_periph_clk_enable(ATMEL_ID_GMAC);
+}
 #endif
 
 #ifdef CONFIG_LCD
@@ -192,5 +200,17 @@ void at91_lcd_hw_init(void)
 
 	/* Enable clock */
 	at91_periph_clk_enable(ATMEL_ID_LCDC);
+}
+#endif
+
+#ifdef CONFIG_USB_GADGET_ATMEL_USBA
+void at91_udp_hw_init(void)
+{
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
+
+	/* Enable UPLL clock */
+	writel(AT91_PMC_UPLLEN | AT91_PMC_BIASEN, &pmc->uckr);
+	/* Enable UDPHS clock */
+	at91_periph_clk_enable(ATMEL_ID_UDPHS);
 }
 #endif

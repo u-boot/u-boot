@@ -5,23 +5,7 @@
  * Sricharan R	<r.sricharan@ti.com>
  * Nishant Kamat <nskamat@ti.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _MUX_DATA_DRA7XX_H_
 #define _MUX_DATA_DRA7XX_H_
@@ -53,5 +37,29 @@ const struct pad_conf_entry core_padconf_array_essential[] = {
 	{UART1_RTSN, (IEN | PTU | PDIS | M3)},	/* UART1_RTSN */
 	{I2C1_SDA, (IEN | PTU | PDIS | M0)},	/* I2C1_SDA */
 	{I2C1_SCL, (IEN | PTU | PDIS | M0)},	/* I2C1_SCL */
+	{MDIO_MCLK, (PTU | PEN | M0)},		/* MDIO_MCLK  */
+	{MDIO_D, (IEN | PTU | PEN | M0)},	/* MDIO_D  */
+	{RGMII0_TXC, (M0) },
+	{RGMII0_TXCTL, (M0) },
+	{RGMII0_TXD3, (M0) },
+	{RGMII0_TXD2, (M0) },
+	{RGMII0_TXD1, (M0) },
+	{RGMII0_TXD0, (M0) },
+	{RGMII0_RXC, (IEN | M0) },
+	{RGMII0_RXCTL, (IEN | M0) },
+	{RGMII0_RXD3, (IEN | M0) },
+	{RGMII0_RXD2, (IEN | M0) },
+	{RGMII0_RXD1, (IEN | M0) },
+	{RGMII0_RXD0, (IEN | M0) },
+	{GPMC_A13, (IEN | PDIS | M1)},  /* QSPI1_RTCLK */
+	{GPMC_A14, (IEN | PDIS | M1)},  /* QSPI1_D[3] */
+	{GPMC_A15, (IEN | PDIS | M1)},  /* QSPI1_D[2] */
+	{GPMC_A16, (IEN | PDIS | M1)},  /* QSPI1_D[1] */
+	{GPMC_A17, (IEN | PDIS | M1)},  /* QSPI1_D[0] */
+	{GPMC_A18, (M1)},  /* QSPI1_SCLK */
+	{GPMC_A3, (IEN | PDIS | M1)},   /* QSPI1_CS2 */
+	{GPMC_A4, (IEN | PDIS | M1)},   /* QSPI1_CS3 */
+	{GPMC_CS2, (IEN | PTU | PDIS | M1)},    /* QSPI1_CS0 */
+	{GPMC_CS3, (IEN | PTU | PDIS | M1)},    /* QSPI1_CS1*/
 };
 #endif /* _MUX_DATA_DRA7XX_H_ */

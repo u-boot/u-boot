@@ -4,19 +4,7 @@
  * Copyright (C) 2012 Samsung Electronics
  * author: Lukasz Majewski <l.majewski@samsung.com>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -28,8 +16,19 @@
 #include <linux/list.h>
 #include <linux/compiler.h>
 
+static bool dfu_reset_request;
 static LIST_HEAD(dfu_list);
 static int dfu_alt_num;
+
+bool dfu_reset(void)
+{
+	return dfu_reset_request;
+}
+
+void dfu_trigger_reset()
+{
+	dfu_reset_request = true;
+}
 
 static int dfu_find_alt_num(const char *s)
 {
@@ -40,6 +39,29 @@ static int dfu_find_alt_num(const char *s)
 			i++;
 
 	return ++i;
+}
+
+int dfu_init_env_entities(char *interface, int dev)
+{
+	const char *str_env;
+	char *env_bkp;
+	int ret;
+
+	str_env = getenv("dfu_alt_info");
+	if (!str_env) {
+		error("\"dfu_alt_info\" env variable not defined!\n");
+		return -EINVAL;
+	}
+
+	env_bkp = strdup(str_env);
+	ret = dfu_config_entities(env_bkp, interface, dev);
+	if (ret) {
+		error("DFU entities configuration failed!\n");
+		return ret;
+	}
+
+	free(env_bkp);
+	return 0;
 }
 
 static unsigned char *dfu_buf;
@@ -154,8 +176,8 @@ int dfu_write(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 
 	/* we should be in buffer now (if not then size too large) */
 	if ((dfu->i_buf + size) > dfu->i_buf_end) {
-		printf("%s: Wrong size! [%d] [%d] - %d\n",
-		       __func__, dfu->i_blk_seq_num, blk_seq_num, size);
+		error("Buffer overflow! (0x%p + 0x%x > 0x%p)\n", dfu->i_buf,
+		      size, dfu->i_buf_end);
 		return -1;
 	}
 
@@ -326,6 +348,9 @@ static int dfu_fill_entity(struct dfu_entity *dfu, char *s, int alt,
 	} else if (strcmp(interface, "nand") == 0) {
 		if (dfu_fill_entity_nand(dfu, s))
 			return -1;
+	} else if (strcmp(interface, "ram") == 0) {
+		if (dfu_fill_entity_ram(dfu, s))
+			return -1;
 	} else {
 		printf("%s: Device %s not (yet) supported!\n",
 		       __func__,  interface);
@@ -375,14 +400,14 @@ int dfu_config_entities(char *env, char *interface, int num)
 
 const char *dfu_get_dev_type(enum dfu_device_type t)
 {
-	const char *dev_t[] = {NULL, "eMMC", "OneNAND", "NAND" };
+	const char *dev_t[] = {NULL, "eMMC", "OneNAND", "NAND", "RAM" };
 	return dev_t[t];
 }
 
 const char *dfu_get_layout(enum dfu_layout l)
 {
 	const char *dfu_layout[] = {NULL, "RAW_ADDR", "FAT", "EXT2",
-					   "EXT3", "EXT4" };
+					   "EXT3", "EXT4", "RAM_ADDR" };
 	return dfu_layout[l];
 }
 

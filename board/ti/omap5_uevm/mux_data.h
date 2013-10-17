@@ -4,23 +4,7 @@
  *
  *	Sricharan R		<r.sricharan@ti.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _EVM5430_MUX_DATA_H
 #define _EVM5430_MUX_DATA_H
@@ -56,7 +40,10 @@ const struct pad_conf_entry core_padconf_array_essential[] = {
 	{USBD0_HS_DP, (IEN | M0)},	/*  USBD0_HS_DP */
 	{USBD0_HS_DM, (IEN | M0)},	/*  USBD0_HS_DM */
 	{USBD0_SS_RX, (IEN | M0)},	/*  USBD0_SS_RX */
-
+	{I2C5_SCL, (IEN | M0)}, /* I2C5_SCL */
+	{I2C5_SDA, (IEN | M0)}, /* I2C5_SDA */
+	{HSI2_ACWAKE, (PTU | M6)},    /*  HSI2_ACWAKE */
+	{HSI2_CAFLAG, (PTU | M6)},    /*  HSI2_CAFLAG */
 };
 
 const struct pad_conf_entry wkup_padconf_array_essential[] = {
@@ -64,6 +51,7 @@ const struct pad_conf_entry wkup_padconf_array_essential[] = {
 	{SR_PMIC_SCL, (PTU | IEN | M0)}, /* SR_PMIC_SCL */
 	{SR_PMIC_SDA, (PTU | IEN | M0)}, /* SR_PMIC_SDA */
 	{SYS_32K, (IEN | M0)}, /*  SYS_32K     */
+	{FREF_CLK1_OUT, (PTD | IEN | M0)},    /*  FREF_CLK1_OUT  */
 
 };
 

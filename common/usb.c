@@ -1,5 +1,4 @@
 /*
- *
  * Most of this source has been derived from the Linux USB
  * project:
  * (C) Copyright Linus Torvalds 1999
@@ -15,24 +14,7 @@
  * Adapted for U-Boot:
  * (C) Copyright 2001 Denis Peter, MPL AG Switzerland
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
- *
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -341,6 +323,7 @@ static int usb_set_maxpacket(struct usb_device *dev)
 /*******************************************************************************
  * Parse the config, located in buffer, and fills the dev->config structure.
  * Note that all little/big endian swapping are done automatically.
+ * (wTotalLength has already been swapped and sanitized when it was read.)
  */
 static int usb_parse_config(struct usb_device *dev,
 			unsigned char *buffer, int cfgno)
@@ -361,24 +344,43 @@ static int usb_parse_config(struct usb_device *dev,
 			head->bDescriptorType);
 		return -1;
 	}
-	memcpy(&dev->config, buffer, buffer[0]);
-	le16_to_cpus(&(dev->config.desc.wTotalLength));
+	if (head->bLength != USB_DT_CONFIG_SIZE) {
+		printf("ERROR: Invalid USB CFG length (%d)\n", head->bLength);
+		return -1;
+	}
+	memcpy(&dev->config, head, USB_DT_CONFIG_SIZE);
 	dev->config.no_of_if = 0;
 
 	index = dev->config.desc.bLength;
 	/* Ok the first entry must be a configuration entry,
 	 * now process the others */
 	head = (struct usb_descriptor_header *) &buffer[index];
-	while (index + 1 < dev->config.desc.wTotalLength) {
+	while (index + 1 < dev->config.desc.wTotalLength && head->bLength) {
 		switch (head->bDescriptorType) {
 		case USB_DT_INTERFACE:
+			if (head->bLength != USB_DT_INTERFACE_SIZE) {
+				printf("ERROR: Invalid USB IF length (%d)\n",
+					head->bLength);
+				break;
+			}
+			if (index + USB_DT_INTERFACE_SIZE >
+			    dev->config.desc.wTotalLength) {
+				puts("USB IF descriptor overflowed buffer!\n");
+				break;
+			}
 			if (((struct usb_interface_descriptor *) \
-			     &buffer[index])->bInterfaceNumber != curr_if_num) {
+			     head)->bInterfaceNumber != curr_if_num) {
 				/* this is a new interface, copy new desc */
 				ifno = dev->config.no_of_if;
+				if (ifno >= USB_MAXINTERFACES) {
+					puts("Too many USB interfaces!\n");
+					/* try to go on with what we have */
+					return 1;
+				}
 				if_desc = &dev->config.if_desc[ifno];
 				dev->config.no_of_if++;
-				memcpy(if_desc,	&buffer[index], buffer[index]);
+				memcpy(if_desc, head,
+					USB_DT_INTERFACE_SIZE);
 				if_desc->no_of_ep = 0;
 				if_desc->num_altsetting = 1;
 				curr_if_num =
@@ -392,12 +394,31 @@ static int usb_parse_config(struct usb_device *dev,
 			}
 			break;
 		case USB_DT_ENDPOINT:
+			if (head->bLength != USB_DT_ENDPOINT_SIZE) {
+				printf("ERROR: Invalid USB EP length (%d)\n",
+					head->bLength);
+				break;
+			}
+			if (index + USB_DT_ENDPOINT_SIZE >
+			    dev->config.desc.wTotalLength) {
+				puts("USB EP descriptor overflowed buffer!\n");
+				break;
+			}
+			if (ifno < 0) {
+				puts("Endpoint descriptor out of order!\n");
+				break;
+			}
 			epno = dev->config.if_desc[ifno].no_of_ep;
 			if_desc = &dev->config.if_desc[ifno];
+			if (epno > USB_MAXENDPOINTS) {
+				printf("Interface %d has too many endpoints!\n",
+					if_desc->desc.bInterfaceNumber);
+				return 1;
+			}
 			/* found an endpoint */
 			if_desc->no_of_ep++;
-			memcpy(&if_desc->ep_desc[epno],
-				&buffer[index], buffer[index]);
+			memcpy(&if_desc->ep_desc[epno], head,
+				USB_DT_ENDPOINT_SIZE);
 			ep_wMaxPacketSize = get_unaligned(&dev->config.\
 							if_desc[ifno].\
 							ep_desc[epno].\
@@ -410,9 +431,23 @@ static int usb_parse_config(struct usb_device *dev,
 			debug("if %d, ep %d\n", ifno, epno);
 			break;
 		case USB_DT_SS_ENDPOINT_COMP:
+			if (head->bLength != USB_DT_SS_EP_COMP_SIZE) {
+				printf("ERROR: Invalid USB EPC length (%d)\n",
+					head->bLength);
+				break;
+			}
+			if (index + USB_DT_SS_EP_COMP_SIZE >
+			    dev->config.desc.wTotalLength) {
+				puts("USB EPC descriptor overflowed buffer!\n");
+				break;
+			}
+			if (ifno < 0 || epno < 0) {
+				puts("EPC descriptor out of order!\n");
+				break;
+			}
 			if_desc = &dev->config.if_desc[ifno];
-			memcpy(&if_desc->ss_ep_comp_desc[epno],
-				&buffer[index], buffer[index]);
+			memcpy(&if_desc->ss_ep_comp_desc[epno], head,
+				USB_DT_SS_EP_COMP_SIZE);
 			break;
 		default:
 			if (head->bLength == 0)
@@ -491,7 +526,7 @@ int usb_get_configuration_no(struct usb_device *dev,
 			     unsigned char *buffer, int cfgno)
 {
 	int result;
-	unsigned int tmp;
+	unsigned int length;
 	struct usb_config_descriptor *config;
 
 	config = (struct usb_config_descriptor *)&buffer[0];
@@ -505,16 +540,18 @@ int usb_get_configuration_no(struct usb_device *dev,
 				"(expected %i, got %i)\n", 9, result);
 		return -1;
 	}
-	tmp = le16_to_cpu(config->wTotalLength);
+	length = le16_to_cpu(config->wTotalLength);
 
-	if (tmp > USB_BUFSIZ) {
-		printf("usb_get_configuration_no: failed to get " \
-		       "descriptor - too long: %d\n", tmp);
+	if (length > USB_BUFSIZ) {
+		printf("%s: failed to get descriptor - too long: %d\n",
+			__func__, length);
 		return -1;
 	}
 
-	result = usb_get_descriptor(dev, USB_DT_CONFIG, cfgno, buffer, tmp);
-	debug("get_conf_no %d Result %d, wLength %d\n", cfgno, result, tmp);
+	result = usb_get_descriptor(dev, USB_DT_CONFIG, cfgno, buffer, length);
+	debug("get_conf_no %d Result %d, wLength %d\n", cfgno, result, length);
+	config->wTotalLength = length; /* validated, with CPU byte order */
+
 	return result;
 }
 

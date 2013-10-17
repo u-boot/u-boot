@@ -1,7 +1,8 @@
 /*
- * Interface to SPI flash
+ * Common SPI flash Interface
  *
  * Copyright (C) 2008 Atmel Corporation
+ * Copyright (C) 2013 Jagannadha Sutradharudu Teki, Xilinx Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -9,17 +10,8 @@
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * version 2 as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
  */
+
 #ifndef _SPI_FLASH_H_
 #define _SPI_FLASH_H_
 
@@ -55,24 +47,41 @@ enum spi_read_cmds {
 #define READ_CMD_FULL	ARRAY_SLOW | ARRAY_FAST | DUAL_OUTPUT_FAST | \
 			DUAL_IO_FAST | QUAD_OUTPUT_FAST
 
+/**
+ * struct spi_flash - SPI flash structure
+ *
+ * @spi:		SPI slave
+ * @name:		Name of SPI flash
+ * @size:		Total flash size
+ * @page_size:		Write (page) size
+ * @sector_size:	Sector size
+ * @erase_size:		Erase size
+ * @bank_read_cmd:	Bank read cmd
+ * @bank_write_cmd:	Bank write cmd
+ * @bank_curr:		Current flash bank
+ * @poll_cmd:		Poll cmd - for flash erase/program
+ * @erase_cmd:		Erase cmd 4K, 32K, 64K
+ * @memory_map:		Address of read-only SPI flash access
+ * @read:		Flash read ops: Read len bytes at offset into buf
+ *			Supported cmds: Fast Array Read
+ * @write:		Flash write ops: Write len bytes from buf into offeset
+ *			Supported cmds: Page Program
+ * @erase:		Flash erase ops: Erase len bytes from offset
+ *			Supported cmds: Sector erase 4K, 32K, 64K
+ * return 0 - Sucess, 1 - Failure
+ */
 struct spi_flash {
 	struct spi_slave *spi;
+	const char *name;
 
-	const char	*name;
-
-	/* Total flash size */
-	u32		size;
-	/* Write (page) size */
-	u32		page_size;
-	/* Erase (sector) size */
-	u32		sector_size;
+	u32 size;
+	u32 page_size;
+	u32 sector_size;
+	u32 erase_size;
 #ifdef CONFIG_SPI_FLASH_BAR
-	/* Bank read cmd */
-	u8		bank_read_cmd;
-	/* Bank write cmd */
-	u8		bank_write_cmd;
-	/* Current flash bank */
-	u8		bank_curr;
+	u8 bank_read_cmd;
+	u8 bank_write_cmd;
+	u8 bank_curr;
 #endif
 	/* Poll cmd - for flash erase/program */
 	u8		poll_cmd;
@@ -80,53 +89,14 @@ struct spi_flash {
 	u8		read_cmd;
 	/* Write command */
 	u8		write_cmd;
+	u8 erase_cmd;
 
-	void *memory_map;	/* Address of read-only SPI flash access */
-	int		(*read)(struct spi_flash *flash, u32 offset,
-				size_t len, void *buf);
-	int		(*write)(struct spi_flash *flash, u32 offset,
-				size_t len, const void *buf);
-	int		(*erase)(struct spi_flash *flash, u32 offset,
-				size_t len);
+	void *memory_map;
+	int (*read)(struct spi_flash *flash, u32 offset, size_t len, void *buf);
+	int (*write)(struct spi_flash *flash, u32 offset, size_t len,
+			const void *buf);
+	int (*erase)(struct spi_flash *flash, u32 offset, size_t len);
 };
-
-/**
- * spi_flash_do_alloc - Allocate a new spi flash structure
- *
- * The structure is allocated and cleared with default values for
- * read, write and erase, which the caller can modify. The caller must set
- * up size, page_size and sector_size.
- *
- * Use the helper macro spi_flash_alloc() to call this.
- *
- * @offset: Offset of struct spi_slave within slave structure
- * @size: Size of slave structure
- * @spi: SPI slave
- * @name: Name of SPI flash device
- */
-void *spi_flash_do_alloc(int offset, int size, struct spi_slave *spi,
-			 const char *name);
-
-/**
- * spi_flash_alloc - Allocate a new SPI flash structure
- *
- * @_struct: Name of structure to allocate (e.g. struct ramtron_spi_fram). This
- *	structure must contain a member 'struct spi_flash *flash'.
- * @spi: SPI slave
- * @name: Name of SPI flash device
- */
-#define spi_flash_alloc(_struct, spi, name) \
-	spi_flash_do_alloc(offsetof(_struct, flash), sizeof(_struct), \
-				spi, name)
-
-/**
- * spi_flash_alloc_base - Allocate a new SPI flash structure with no private data
- *
- * @spi: SPI slave
- * @name: Name of SPI flash device
- */
-#define spi_flash_alloc_base(spi, name) \
-	spi_flash_do_alloc(0, sizeof(struct spi_flash), spi, name)
 
 struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 		unsigned int max_hz, unsigned int spi_mode);

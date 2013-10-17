@@ -6,20 +6,7 @@
  * Copyright (C) 2011
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -52,7 +39,7 @@ void spl_spi_load_image(void)
 
 	/* Load u-boot, mkimage header is 64 bytes. */
 	spi_flash_read(flash, CONFIG_SYS_SPI_U_BOOT_OFFS, 0x40,
-			(void *) header);
+		       (void *)header);
 	spl_parse_image_header(header);
 	spi_flash_read(flash, CONFIG_SYS_SPI_U_BOOT_OFFS,
 		       spl_image.size, (void *)spl_image.load_addr);

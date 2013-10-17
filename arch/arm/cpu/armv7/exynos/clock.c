@@ -2,23 +2,7 @@
  * Copyright (C) 2010 Samsung Electronics
  * Minkyu Kang <mk7.kang@samsung.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -298,6 +282,9 @@ static unsigned long exynos5_get_periph_rate(int peripheral)
 		src = readl(&clk->src_peric0);
 		div = readl(&clk->div_peric3);
 		break;
+	case PERIPH_ID_I2S0:
+		src = readl(&clk->src_mau);
+		div = readl(&clk->div_mau);
 	case PERIPH_ID_SPI0:
 	case PERIPH_ID_SPI1:
 		src = readl(&clk->src_peric1);
@@ -1162,17 +1149,29 @@ int exynos5_set_epll_clk(unsigned long rate)
 	return 0;
 }
 
-void exynos5_set_i2s_clk_source(void)
+int exynos5_set_i2s_clk_source(unsigned int i2s_id)
 {
 	struct exynos5_clock *clk =
 		(struct exynos5_clock *)samsung_get_base_clock();
+	unsigned int *audio_ass = (unsigned int *)samsung_get_base_audio_ass();
 
-	clrsetbits_le32(&clk->src_peric1, AUDIO1_SEL_MASK,
-			(CLK_SRC_SCLK_EPLL));
+	if (i2s_id == 0) {
+		setbits_le32(&clk->src_top2, CLK_SRC_MOUT_EPLL);
+		clrsetbits_le32(&clk->src_mau, AUDIO0_SEL_MASK,
+				(CLK_SRC_SCLK_EPLL));
+		setbits_le32(audio_ass, AUDIO_CLKMUX_ASS);
+	} else if (i2s_id == 1) {
+		clrsetbits_le32(&clk->src_peric1, AUDIO1_SEL_MASK,
+				(CLK_SRC_SCLK_EPLL));
+	} else {
+		return -1;
+	}
+	return 0;
 }
 
 int exynos5_set_i2s_clk_prescaler(unsigned int src_frq,
-					unsigned int dst_frq)
+				  unsigned int dst_frq,
+				  unsigned int i2s_id)
 {
 	struct exynos5_clock *clk =
 		(struct exynos5_clock *)samsung_get_base_clock();
@@ -1185,13 +1184,27 @@ int exynos5_set_i2s_clk_prescaler(unsigned int src_frq,
 	}
 
 	div = (src_frq / dst_frq);
-	if (div > AUDIO_1_RATIO_MASK) {
-		debug("%s: Frequency ratio is out of range\n", __func__);
-		debug("src frq = %d des frq = %d ", src_frq, dst_frq);
+	if (i2s_id == 0) {
+		if (div > AUDIO_0_RATIO_MASK) {
+			debug("%s: Frequency ratio is out of range\n",
+			      __func__);
+			debug("src frq = %d des frq = %d ", src_frq, dst_frq);
+			return -1;
+		}
+		clrsetbits_le32(&clk->div_mau, AUDIO_0_RATIO_MASK,
+				(div & AUDIO_0_RATIO_MASK));
+	} else if(i2s_id == 1) {
+		if (div > AUDIO_1_RATIO_MASK) {
+			debug("%s: Frequency ratio is out of range\n",
+			      __func__);
+			debug("src frq = %d des frq = %d ", src_frq, dst_frq);
+			return -1;
+		}
+		clrsetbits_le32(&clk->div_peric4, AUDIO_1_RATIO_MASK,
+				(div & AUDIO_1_RATIO_MASK));
+	} else {
 		return -1;
 	}
-	clrsetbits_le32(&clk->div_peric4, AUDIO_1_RATIO_MASK,
-				(div & AUDIO_1_RATIO_MASK));
 	return 0;
 }
 
@@ -1431,19 +1444,21 @@ int set_spi_clk(int periph_id, unsigned int rate)
 		return 0;
 }
 
-int set_i2s_clk_prescaler(unsigned int src_frq, unsigned int dst_frq)
+int set_i2s_clk_prescaler(unsigned int src_frq, unsigned int dst_frq,
+			  unsigned int i2s_id)
 {
-
 	if (cpu_is_exynos5())
-		return exynos5_set_i2s_clk_prescaler(src_frq, dst_frq);
+		return exynos5_set_i2s_clk_prescaler(src_frq, dst_frq, i2s_id);
 	else
 		return 0;
 }
 
-void set_i2s_clk_source(void)
+int set_i2s_clk_source(unsigned int i2s_id)
 {
 	if (cpu_is_exynos5())
-		exynos5_set_i2s_clk_source();
+		return exynos5_set_i2s_clk_source(i2s_id);
+	else
+		return 0;
 }
 
 int set_epll_clk(unsigned long rate)

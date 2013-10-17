@@ -8,21 +8,7 @@
  * Description:   header for load kernel modules
  *-----------------------------------------------------------------------*/
 /*
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <linux/list.h>
@@ -46,8 +32,8 @@ struct part_info {
 	struct list_head link;
 	char *name;			/* partition name */
 	u8 auto_name;			/* set to 1 for generated name */
-	u32 size;			/* total size of the partition */
-	u32 offset;			/* offset within device */
+	u64 size;			/* total size of the partition */
+	u64 offset;			/* offset within device */
 	void *jffs2_priv;		/* used internaly by jffs2 */
 	u32 mask_flags;			/* kernel MTD mask flags */
 	u32 sector_size;		/* size of sector */
@@ -58,7 +44,7 @@ struct mtdids {
 	struct list_head link;
 	u8 type;			/* device type */
 	u8 num;				/* device number */
-	u32 size;			/* device size */
+	u64 size;			/* device size */
 	char *mtd_id;			/* linux kernel device id */
 };
 

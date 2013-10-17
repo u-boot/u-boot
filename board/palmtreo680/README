@@ -30,7 +30,6 @@ go wrong, but please tell me what happened exactly.  For that matter, I'd love
 to hear from you if you succeed.
 
 
-
 Details on the SPL
 ==================
 
@@ -49,7 +48,6 @@ a concatenated spl + u-boot image, and because the SPL is placed before u-boot
 proper, the IPL jumps to the SPL, which copies the portion of u-boot that the
 IPL has already loaded to its correct SDRAM address, and then loads the
 remainder of u-boot and jumps to it.
-
 
 
 The docg4's "reliable mode"
@@ -79,7 +77,6 @@ module parameter), but not reading.  However, the u-boot docg4_spl driver does
 read in reliable mode, in the same fashion as the IPL.
 
 
-
 Details on the IPL and its data format
 ======================================
 
@@ -105,7 +102,6 @@ For the sake of simplicity and uniformity, the u-boot SPL mimics the operation
 of the IPL, and expects the image to be stored in the same format.
 
 
-
 Instructions on Programming u-boot to flash
 ===========================================
 
@@ -115,7 +111,6 @@ running Linux on your Treo (cross-compiling, creating a root filesystem,
 configuring the kernel, etc) are beyond the scope of this document.  The
 remainder of this document describes in detail how to program u-boot to the
 flash using Linux running on the Treo.
-
 
 
 Hardware Prerequisites
@@ -136,7 +131,6 @@ A Linux desktop PC.
   to flash, you'll really want to use a Linux PC.
 
 
-
 Treo-side Software Prerequisites
 ================================
 
@@ -150,7 +144,6 @@ Linux bootloader for PalmOS:
   partition of the card, mount the partition, and extract the tar file to it.
   You will probably need to edit the cocoboot.conf file to customize the
   parameters passed to the kernel.
-
 
 
 Linux kernel:
@@ -200,7 +193,6 @@ Linux kernel:
   and /dev/mtd2 for these partitions, respectively.  Ensure that your root file
   system at least has /dev/mtd1 if you are not running udev or mdev.
 
-
 Userspace Utilities:
 
   In addition to everything necessary to provide a useful userspace environment
@@ -221,17 +213,14 @@ Userspace Utilities:
   from the mtd-utils package.
 
 
-
 Desktop PC-side Software Prerequisites
 ======================================
 
 Terminal emulator application:
   minicom, kermit, etc.
 
-
 Linux kernel:
   Compiled with CONFIG_USB_SERIAL enabled.  Build this as a module.
-
 
 
 Recommended (Not directly related to u-boot)
@@ -273,7 +262,6 @@ call switch_root.  (You can not use the kernel nfsroot feature because the
 network will not be up when the kernel expects it to be; i.e., not until you
 configure the usb0 interface on the desktop.)  Use the nfs 'nolock' option when
 mounting to avoid the need to run a portmapper like rpcbind.
-
 
 
 Preliminaries
@@ -397,7 +385,6 @@ forget to copy the file to permanent storage, such as an mmc card.
 If all of the above went well, you can now program u-boot.
 
 
-
 Programming u-boot
 ==================
 
@@ -436,7 +423,6 @@ time, "BIPO" should be seen in the first four oob bytes of the first page of all
 four blocks in /dev/mtd1; i.e., at offsets 0x00000, 0x40000, 0x80000, 0xc0000.
 
 Shutdown linux, remove and re-insert the battery, hold your breath...
-
 
 
 Enjoying u-boot
@@ -478,7 +464,6 @@ support for reliable mode in u-boot's docg4 flash driver.  This should be
 corrected soon.
 
 
-
 Customizing
 ===========
 
@@ -509,7 +494,6 @@ to the flash_u-boot utility.
 The u-boot built-in default environment is used because a writable environment
 in flash did not seem worth the cost of a 256k flash block.  But adding this
 should be straightforward.
-
 
 
 Restoring PalmOS
@@ -568,7 +552,6 @@ modprobe docg4 ignore_badblocks=1 || exit 1
 dd if=$1 bs=1 skip=$file_ofs count=540672 | nandwrite -o -n -s 0x80000 $2 - || exit 1
 modprobe -r docg4
 
-
 TODO
 ====
 
@@ -578,4 +561,3 @@ TODO
   - U-boot command that will write a new image to the bootloader partition in
     flash.
   - Linux FTD support.
-

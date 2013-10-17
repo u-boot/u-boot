@@ -4,23 +4,7 @@
  * This file is derived from arch/powerpc/cpu/mpc85xx/cpu.c and
  * arch/powerpc/cpu/mpc86xx/cpu.c. Basically this file contains
  * cpu specific common code for 85xx/86xx processors.
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -137,11 +121,8 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 {
 	const char *modes[] = { "host", "peripheral", "otg" };
 	const char *phys[] = { "ulpi", "utmi" };
-	const char *mode = NULL;
-	const char *phy_type = NULL;
 	const char *dr_mode_type = NULL;
 	const char *dr_phy_type = NULL;
-	char usb1_defined = 0;
 	int usb_mode_off = -1;
 	int usb_phy_off = -1;
 	char str[5];
@@ -175,12 +156,6 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 			dr_mode_type = modes[mode_idx];
 			dr_phy_type = phys[phy_idx];
 
-			/* use usb_dr_mode and usb_phy_type if
-			   usb1_defined = 0; these variables are to
-			   be deprecated */
-			if (!strcmp(str, "usb1"))
-				usb1_defined = 1;
-
 			if (mode_idx < 0 && phy_idx < 0) {
 				printf("WARNING: invalid phy or mode\n");
 				return;
@@ -198,19 +173,6 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 
 		if (usb_phy_off < 0)
 			return;
-	}
-
-	if (!usb1_defined) {
-		int usb_off = -1;
-		mode = getenv("usb_dr_mode");
-		phy_type = getenv("usb_phy_type");
-		if (mode || phy_type) {
-			printf("WARNING: usb_dr_mode and usb_phy_type "
-				"are to be deprecated soon. Use "
-				"hwconfig to set these values instead!!\n");
-			fdt_fixup_usb_mode_phy_type(blob, mode,
-				phy_type, usb_off);
-		}
 	}
 }
 #endif /* defined(CONFIG_HAS_FSL_DR_USB) || defined(CONFIG_HAS_FSL_MPH_USB) */

@@ -2,23 +2,7 @@
  * (C) Copyright 2007
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /************************************************************************
@@ -168,11 +152,11 @@
 /*-----------------------------------------------------------------------
  * I2C
  *----------------------------------------------------------------------*/
-#define CONFIG_HARD_I2C		1		/* I2C with hardware support	*/
-#undef	CONFIG_SOFT_I2C				/* I2C bit-banged		*/
-#define CONFIG_PPC4XX_I2C		/* use PPC4xx driver		*/
-#define CONFIG_SYS_I2C_SPEED		400000		/* I2C speed and slave address	*/
-#define CONFIG_SYS_I2C_SLAVE		0x7F
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_PPC4XX
+#define CONFIG_SYS_I2C_PPC4XX_CH0
+#define CONFIG_SYS_I2C_PPC4XX_SPEED_0		400000
+#define CONFIG_SYS_I2C_PPC4XX_SLAVE_0		0x7F
 
 /* these are for the ST M24C02 2kbit serial i2c eeprom */
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50		/* base address */
@@ -338,7 +322,7 @@
 		" ramdisk_size=${ramdisk_size}\0"			\
 	"addip=setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
-	        ":${hostname}:${netdev}:off panic=1\0"			\
+		":${hostname}:${netdev}:off panic=1\0"			\
 	"addtty=setenv bootargs ${bootargs} console=ttyS0,"		\
 		"${baudrate}\0"						\
 	"net_nfs=tftp ${kernel_mem_addr} ${file_kernel};"		\
@@ -368,7 +352,7 @@
 	"file_fs=/zeus/rootfs_ba.img\0"					\
 	"tftp_fs=tftp 100000 ${file_fs}\0"				\
 	"update_fs=protect off ff300000 ff87ffff;era ff300000 ff87ffff;"\
-	        "cp.b 100000 ff300000 580000\0"				\
+		"cp.b 100000 ff300000 580000\0"				\
 	"upd_fs=run tftp_fs;run update_fs\0"				\
 	"bootcmd=chkreset;run ramargs addip addtty addmisc;"		\
 		"bootm ${kernel_fl_addr} ${ramdisk_fl_addr}\0"		\

@@ -1,11 +1,10 @@
 /*
  * Faraday 10/100Mbps Ethernet Controller
  *
- * (C) Copyright 2010 Faraday Technology
+ * (C) Copyright 2013 Faraday Technology
  * Dante Su <dantesu@faraday-tech.com>
  *
- * This file is released under the terms of GPL v2 and any later version.
- * See the file COPYING in the root directory of the source tree for details.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -55,11 +54,11 @@ struct ftmac110_chip {
 	uint32_t lnkup;
 	uint32_t phy_addr;
 
-	struct ftmac110_rxd *rxd;
+	struct ftmac110_desc *rxd;
 	ulong                rxd_dma;
 	uint32_t             rxd_idx;
 
-	struct ftmac110_txd *txd;
+	struct ftmac110_desc *txd;
 	ulong                txd_dma;
 	uint32_t             txd_idx;
 };
@@ -70,7 +69,7 @@ static uint16_t mdio_read(struct eth_device *dev,
 	uint8_t phyaddr, uint8_t phyreg)
 {
 	struct ftmac110_chip *chip = dev->priv;
-	struct ftmac110_regs __iomem *regs = chip->regs;
+	struct ftmac110_regs *regs = chip->regs;
 	uint32_t tmp, ts;
 	uint16_t ret = 0xffff;
 
@@ -99,7 +98,7 @@ static void mdio_write(struct eth_device *dev,
 	uint8_t phyaddr, uint8_t phyreg, uint16_t phydata)
 {
 	struct ftmac110_chip *chip = dev->priv;
-	struct ftmac110_regs __iomem *regs = chip->regs;
+	struct ftmac110_regs *regs = chip->regs;
 	uint32_t tmp, ts;
 
 	tmp = PHYCR_WRITE
@@ -196,7 +195,7 @@ static int ftmac110_reset(struct eth_device *dev)
 	uint8_t *a;
 	uint32_t i, maccr;
 	struct ftmac110_chip *chip = dev->priv;
-	struct ftmac110_regs __iomem *regs = chip->regs;
+	struct ftmac110_regs *regs = chip->regs;
 
 	/* 1. MAC reset */
 	writel(MACCR_RESET, &regs->maccr);
@@ -213,14 +212,15 @@ static int ftmac110_reset(struct eth_device *dev)
 	/* 1-1. Init tx ring */
 	for (i = 0; i < CFG_TXDES_NUM; ++i) {
 		/* owned by SW */
-		chip->txd[i].ct[0] = 0;
+		chip->txd[i].ctrl &= cpu_to_le64(FTMAC110_TXD_CLRMASK);
 	}
 	chip->txd_idx = 0;
 
 	/* 1-2. Init rx ring */
 	for (i = 0; i < CFG_RXDES_NUM; ++i) {
 		/* owned by HW */
-		chip->rxd[i].ct[0] = cpu_to_le32(FTMAC110_RXCT0_OWNER);
+		chip->rxd[i].ctrl &= cpu_to_le64(FTMAC110_RXD_CLRMASK);
+		chip->rxd[i].ctrl |= cpu_to_le64(FTMAC110_RXD_OWNER);
 	}
 	chip->rxd_idx = 0;
 
@@ -269,7 +269,7 @@ static int ftmac110_probe(struct eth_device *dev, bd_t *bis)
 static void ftmac110_halt(struct eth_device *dev)
 {
 	struct ftmac110_chip *chip = dev->priv;
-	struct ftmac110_regs __iomem *regs = chip->regs;
+	struct ftmac110_regs *regs = chip->regs;
 
 	writel(0, &regs->imr);
 	writel(0, &regs->maccr);
@@ -280,8 +280,9 @@ static void ftmac110_halt(struct eth_device *dev)
 static int ftmac110_send(struct eth_device *dev, void *pkt, int len)
 {
 	struct ftmac110_chip *chip = dev->priv;
-	struct ftmac110_regs __iomem *regs = chip->regs;
-	struct ftmac110_txd *des;
+	struct ftmac110_regs *regs = chip->regs;
+	struct ftmac110_desc *txd;
+	uint64_t ctrl;
 
 	if (!chip->lnkup)
 		return 0;
@@ -293,24 +294,26 @@ static int ftmac110_send(struct eth_device *dev, void *pkt, int len)
 
 	len = max(60, len);
 
-	des = &chip->txd[chip->txd_idx];
-	if (le32_to_cpu(des->ct[0]) & FTMAC110_TXCT0_OWNER) {
+	txd = &chip->txd[chip->txd_idx];
+	ctrl = le64_to_cpu(txd->ctrl);
+	if (ctrl & FTMAC110_TXD_OWNER) {
 		/* kick-off Tx DMA */
 		writel(0xffffffff, &regs->txpd);
 		printf("ftmac110: out of txd\n");
 		return 0;
 	}
 
-	memcpy(des->vbuf, (void *)pkt, len);
-	dma_map_single(des->vbuf, len, DMA_TO_DEVICE);
+	memcpy(txd->vbuf, (void *)pkt, len);
+	dma_map_single(txd->vbuf, len, DMA_TO_DEVICE);
 
-	/* update len, fts and lts */
-	des->ct[1] &= cpu_to_le32(FTMAC110_TXCT1_END);
-	des->ct[1] |= cpu_to_le32(FTMAC110_TXCT1_LEN(len)
-		| FTMAC110_TXCT1_FTS | FTMAC110_TXCT1_LTS);
-
-	/* set owner bit and clear others */
-	des->ct[0] = cpu_to_le32(FTMAC110_TXCT0_OWNER);
+	/* clear control bits */
+	ctrl &= FTMAC110_TXD_CLRMASK;
+	/* set len, fts and lts */
+	ctrl |= FTMAC110_TXD_LEN(len) | FTMAC110_TXD_FTS | FTMAC110_TXD_LTS;
+	/* set owner bit */
+	ctrl |= FTMAC110_TXD_OWNER;
+	/* write back to descriptor */
+	txd->ctrl = cpu_to_le64(ctrl);
 
 	/* kick-off Tx DMA */
 	writel(0xffffffff, &regs->txpd);
@@ -323,23 +326,24 @@ static int ftmac110_send(struct eth_device *dev, void *pkt, int len)
 static int ftmac110_recv(struct eth_device *dev)
 {
 	struct ftmac110_chip *chip = dev->priv;
-	struct ftmac110_rxd *des;
-	uint32_t ct0, len, rlen = 0;
+	struct ftmac110_desc *rxd;
+	uint32_t len, rlen = 0;
+	uint64_t ctrl;
 	uint8_t *buf;
 
 	if (!chip->lnkup)
 		return 0;
 
 	do {
-		des = &chip->rxd[chip->rxd_idx];
-		ct0 = le32_to_cpu(des->ct[0]);
-		if (ct0 & FTMAC110_RXCT0_OWNER)
+		rxd = &chip->rxd[chip->rxd_idx];
+		ctrl = le64_to_cpu(rxd->ctrl);
+		if (ctrl & FTMAC110_RXD_OWNER)
 			break;
 
-		len = FTMAC110_RXCT0_LEN(ct0);
-		buf = des->vbuf;
+		len = (uint32_t)FTMAC110_RXD_LEN(ctrl);
+		buf = rxd->vbuf;
 
-		if (ct0 & FTMAC110_RXCT0_ERRMASK) {
+		if (ctrl & FTMAC110_RXD_ERRMASK) {
 			printf("ftmac110: rx error\n");
 		} else {
 			dma_map_single(buf, len, DMA_FROM_DEVICE);
@@ -348,7 +352,9 @@ static int ftmac110_recv(struct eth_device *dev)
 		}
 
 		/* owned by hardware */
-		des->ct[0] = cpu_to_le32(FTMAC110_RXCT0_OWNER);
+		ctrl &= FTMAC110_RXD_CLRMASK;
+		ctrl |= FTMAC110_RXD_OWNER;
+		rxd->ctrl |= cpu_to_le64(ctrl);
 
 		chip->rxd_idx = (chip->rxd_idx + 1) % CFG_RXDES_NUM;
 	} while (0);
@@ -423,42 +429,43 @@ int ftmac110_initialize(bd_t *bis)
 
 	/* allocate tx descriptors (it must be 16 bytes aligned) */
 	chip->txd = dma_alloc_coherent(
-		sizeof(struct ftmac110_txd) * CFG_TXDES_NUM, &chip->txd_dma);
+		sizeof(struct ftmac110_desc) * CFG_TXDES_NUM, &chip->txd_dma);
 	if (!chip->txd)
 		panic("ftmac110: out of memory 3\n");
 	memset(chip->txd, 0,
-	       sizeof(struct ftmac110_txd) * CFG_TXDES_NUM);
+	       sizeof(struct ftmac110_desc) * CFG_TXDES_NUM);
 	for (i = 0; i < CFG_TXDES_NUM; ++i) {
 		void *va = memalign(ARCH_DMA_MINALIGN, CFG_XBUF_SIZE);
+
 		if (!va)
 			panic("ftmac110: out of memory 4\n");
-		chip->txd[i].vbuf  = va;
-		chip->txd[i].buf   = cpu_to_le32(virt_to_phys(va));
-		chip->txd[i].ct[1] = 0;
-		chip->txd[i].ct[0] = 0; /* owned by SW */
+		chip->txd[i].vbuf = va;
+		chip->txd[i].pbuf = cpu_to_le32(virt_to_phys(va));
+		chip->txd[i].ctrl = 0;	/* owned by SW */
 	}
-	chip->txd[i - 1].ct[1] |= cpu_to_le32(FTMAC110_TXCT1_END);
+	chip->txd[i - 1].ctrl |= cpu_to_le64(FTMAC110_TXD_END);
 	chip->txd_idx = 0;
 
 	/* allocate rx descriptors (it must be 16 bytes aligned) */
 	chip->rxd = dma_alloc_coherent(
-		sizeof(struct ftmac110_rxd) * CFG_RXDES_NUM, &chip->rxd_dma);
+		sizeof(struct ftmac110_desc) * CFG_RXDES_NUM, &chip->rxd_dma);
 	if (!chip->rxd)
 		panic("ftmac110: out of memory 4\n");
 	memset((void *)chip->rxd, 0,
-	       sizeof(struct ftmac110_rxd) * CFG_RXDES_NUM);
+	       sizeof(struct ftmac110_desc) * CFG_RXDES_NUM);
 	for (i = 0; i < CFG_RXDES_NUM; ++i) {
 		void *va = memalign(ARCH_DMA_MINALIGN, CFG_XBUF_SIZE + 2);
+
 		if (!va)
 			panic("ftmac110: out of memory 5\n");
 		/* it needs to be exactly 2 bytes aligned */
 		va = ((uint8_t *)va + 2);
-		chip->rxd[i].vbuf  = va;
-		chip->rxd[i].buf   = cpu_to_le32(virt_to_phys(va));
-		chip->rxd[i].ct[1] = cpu_to_le32(CFG_XBUF_SIZE);
-		chip->rxd[i].ct[0] = cpu_to_le32(FTMAC110_RXCT0_OWNER);
+		chip->rxd[i].vbuf = va;
+		chip->rxd[i].pbuf = cpu_to_le32(virt_to_phys(va));
+		chip->rxd[i].ctrl = cpu_to_le64(FTMAC110_RXD_OWNER
+			| FTMAC110_RXD_BUFSZ(CFG_XBUF_SIZE));
 	}
-	chip->rxd[i - 1].ct[1] |= cpu_to_le32(FTMAC110_RXCT1_END);
+	chip->rxd[i - 1].ctrl |= cpu_to_le64(FTMAC110_RXD_END);
 	chip->rxd_idx = 0;
 
 	eth_register(dev);

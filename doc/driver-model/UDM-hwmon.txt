@@ -36,15 +36,15 @@ II) Approach
   In the UDM each hwmon driver would register itself by a function
 
     int hwmon_device_register(struct instance *i,
-                              struct hwmon_device_ops *o);
+			      struct hwmon_device_ops *o);
 
   The structure being defined as follows:
 
     struct hwmon_device_ops {
-        int  (*read)(struct instance *i, int sensor, int reg);
-        int  (*write)(struct instance *i, int sensor, int reg,
-                      int val);
-        int  (*get_temp)(struct instance *i, int sensor);
+	int  (*read)(struct instance *i, int sensor, int reg);
+	int  (*write)(struct instance *i, int sensor, int reg,
+		      int val);
+	int  (*get_temp)(struct instance *i, int sensor);
     };
 
 

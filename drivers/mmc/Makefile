@@ -2,23 +2,7 @@
 # (C) Copyright 2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
-# See file CREDITS for list of people who contributed to this
-# project.
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 2 of
-# the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA 02111-1307 USA
+# SPDX-License-Identifier:	GPL-2.0+
 #
 
 include $(TOPDIR)/config.mk
@@ -48,6 +32,11 @@ COBJS-$(CONFIG_TEGRA_MMC) += tegra_mmc.o
 COBJS-$(CONFIG_DWMMC) += dw_mmc.o
 COBJS-$(CONFIG_EXYNOS_DWMMC) += exynos_dw_mmc.o
 COBJS-$(CONFIG_ZYNQ_SDHCI) += zynq_sdhci.o
+ifdef CONFIG_SPL_BUILD
+COBJS-$(CONFIG_SPL_MMC_BOOT) += fsl_esdhc_spl.o
+else
+COBJS-$(CONFIG_GENERIC_MMC) += mmc_write.o
+endif
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)

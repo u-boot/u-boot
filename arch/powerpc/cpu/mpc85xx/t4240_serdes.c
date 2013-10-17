@@ -1,23 +1,7 @@
 /*
  * Copyright 2012 Freescale Semiconductor, Inc.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -122,25 +106,25 @@ static const struct serdes_config serdes2_cfg_tbl[] = {
 		SGMII_FM2_DTSEC1, SGMII_FM2_DTSEC2,
 		SGMII_FM2_DTSEC3, SGMII_FM2_DTSEC4}},
 	{38, {NONE, NONE, QSGMII_FM2_B, NONE,
-		NONE, NONE, QSGMII_FM1_A, NONE}},
+		NONE, NONE, QSGMII_FM2_A, NONE} },
 	{40, {SGMII_FM2_DTSEC5, SGMII_FM2_DTSEC6,
 		SGMII_FM2_DTSEC10, SGMII_FM2_DTSEC9,
-		NONE, NONE, QSGMII_FM1_A, NONE}},
+		NONE, NONE, QSGMII_FM2_A, NONE} },
 	{46, {SGMII_FM2_DTSEC5, SGMII_FM2_DTSEC6,
 		SGMII_FM2_DTSEC10, SGMII_FM2_DTSEC9,
-		NONE, NONE, QSGMII_FM1_A, NONE}},
+		NONE, NONE, QSGMII_FM2_A, NONE} },
 	{48, {SGMII_FM2_DTSEC5, SGMII_FM2_DTSEC6,
 		SGMII_FM2_DTSEC10, SGMII_FM2_DTSEC9,
-		NONE, NONE, QSGMII_FM1_A, NONE}},
+		NONE, NONE, QSGMII_FM2_A, NONE} },
 	{50, {XAUI_FM2_MAC9, XAUI_FM2_MAC9,
 		XAUI_FM2_MAC9, XAUI_FM2_MAC9,
-		NONE, NONE, QSGMII_FM1_A, NONE}},
+		NONE, NONE, QSGMII_FM2_A, NONE} },
 	{52, {HIGIG_FM2_MAC9, HIGIG_FM2_MAC9,
 		HIGIG_FM2_MAC9, HIGIG_FM2_MAC9,
-		NONE, NONE, QSGMII_FM1_A, NONE}},
+		NONE, NONE, QSGMII_FM2_A, NONE} },
 	{54, {HIGIG_FM2_MAC9, HIGIG_FM2_MAC9,
 		HIGIG_FM2_MAC9, HIGIG_FM2_MAC9,
-		NONE, NONE, QSGMII_FM1_A, NONE}},
+		NONE, NONE, QSGMII_FM2_A, NONE} },
 	{56, {XFI_FM1_MAC9, XFI_FM1_MAC10,
 		XFI_FM2_MAC10, XFI_FM2_MAC9,
 		SGMII_FM2_DTSEC1, SGMII_FM2_DTSEC2,

@@ -9,15 +9,7 @@
  *      Richard Woodruff <r-woodruff2@ti.com>
  *      Syed Mohammed Khasim <khasim@ti.com>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR /PURPOSE.  See the
- * GNU General Public License for more details.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -25,6 +17,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/clock.h>
+#include <power/tps65910.h>
 
 struct ctrl_stat *cstat = (struct ctrl_stat *)CTRL_BASE;
 
@@ -127,3 +120,59 @@ int print_cpuinfo(void)
 	return 0;
 }
 #endif	/* CONFIG_DISPLAY_CPUINFO */
+
+#ifdef CONFIG_AM33XX
+int am335x_get_efuse_mpu_max_freq(struct ctrl_dev *cdev)
+{
+	int sil_rev;
+
+	sil_rev = readl(&cdev->deviceid) >> 28;
+
+	if (sil_rev == 1)
+		/* PG 2.0, efuse may not be set. */
+		return MPUPLL_M_800;
+	else if (sil_rev >= 2) {
+		/* Check what the efuse says our max speed is. */
+		int efuse_arm_mpu_max_freq;
+		efuse_arm_mpu_max_freq = readl(&cdev->efuse_sma);
+		switch ((efuse_arm_mpu_max_freq & DEVICE_ID_MASK)) {
+		case AM335X_ZCZ_1000:
+			return MPUPLL_M_1000;
+		case AM335X_ZCZ_800:
+			return MPUPLL_M_800;
+		case AM335X_ZCZ_720:
+			return MPUPLL_M_720;
+		case AM335X_ZCZ_600:
+		case AM335X_ZCE_600:
+			return MPUPLL_M_600;
+		case AM335X_ZCZ_300:
+		case AM335X_ZCE_300:
+			return MPUPLL_M_300;
+		}
+	}
+
+	/* PG 1.0 or otherwise unknown, use the PG1.0 max */
+	return MPUPLL_M_720;
+}
+
+int am335x_get_tps65910_mpu_vdd(int sil_rev, int frequency)
+{
+	/* For PG2.1 and later, we have one set of values. */
+	if (sil_rev >= 2) {
+		switch (frequency) {
+		case MPUPLL_M_1000:
+			return TPS65910_OP_REG_SEL_1_3_2_5;
+		case MPUPLL_M_800:
+			return TPS65910_OP_REG_SEL_1_2_6;
+		case MPUPLL_M_720:
+			return TPS65910_OP_REG_SEL_1_2_0;
+		case MPUPLL_M_600:
+		case MPUPLL_M_300:
+			return TPS65910_OP_REG_SEL_1_1_3;
+		}
+	}
+
+	/* Default to PG1.0/PG2.0 values. */
+	return TPS65910_OP_REG_SEL_1_1_3;
+}
+#endif

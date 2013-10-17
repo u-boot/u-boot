@@ -2,23 +2,7 @@
  * Copyright 2011, Marvell Semiconductor Inc.
  * Lei Wen <leiwen@marvell.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  *
  * Back ported to the 8xx platform (from the 8260 platform) by
  * Murray.Jensen@cmst.csiro.au, 27-Jan-01.
@@ -84,10 +68,9 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data,
 	unsigned int stat, rdy, mask, timeout, block = 0;
 #ifdef CONFIG_MMC_SDMA
 	unsigned char ctrl;
-	ctrl = sdhci_readl(host, SDHCI_HOST_CONTROL);
+	ctrl = sdhci_readb(host, SDHCI_HOST_CONTROL);
 	ctrl &= ~SDHCI_CTRL_DMA_MASK;
-	ctrl |= SDHCI_CTRL_SDMA;
-	sdhci_writel(host, ctrl, SDHCI_HOST_CONTROL);
+	sdhci_writeb(host, ctrl, SDHCI_HOST_CONTROL);
 #endif
 
 	timeout = 1000000;
@@ -270,7 +253,7 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 	if (clock == 0)
 		return 0;
 
-	if ((host->version & SDHCI_SPEC_VER_MASK) >= SDHCI_SPEC_300) {
+	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
 		/* Version 3.00 divisors must be a multiple of 2. */
 		if (mmc->f_max <= clock)
 			div = 1;
@@ -363,10 +346,11 @@ void sdhci_set_ios(struct mmc *mmc)
 	ctrl = sdhci_readb(host, SDHCI_HOST_CONTROL);
 	if (mmc->bus_width == 8) {
 		ctrl &= ~SDHCI_CTRL_4BITBUS;
-		if ((host->version & SDHCI_SPEC_VER_MASK) >= SDHCI_SPEC_300)
+		if ((SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) ||
+				(host->quirks & SDHCI_QUIRK_USE_WIDE8))
 			ctrl |= SDHCI_CTRL_8BITBUS;
 	} else {
-		if ((host->version & SDHCI_SPEC_VER_MASK) >= SDHCI_SPEC_300)
+		if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300)
 			ctrl &= ~SDHCI_CTRL_8BITBUS;
 		if (mmc->bus_width == 4)
 			ctrl |= SDHCI_CTRL_4BITBUS;
@@ -453,7 +437,7 @@ int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 	if (max_clk)
 		mmc->f_max = max_clk;
 	else {
-		if ((host->version & SDHCI_SPEC_VER_MASK) >= SDHCI_SPEC_300)
+		if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300)
 			mmc->f_max = (caps & SDHCI_CLOCK_V3_BASE_MASK)
 				>> SDHCI_CLOCK_BASE_SHIFT;
 		else
@@ -468,7 +452,7 @@ int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 	if (min_clk)
 		mmc->f_min = min_clk;
 	else {
-		if ((host->version & SDHCI_SPEC_VER_MASK) >= SDHCI_SPEC_300)
+		if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300)
 			mmc->f_min = mmc->f_max / SDHCI_MAX_DIV_SPEC_300;
 		else
 			mmc->f_min = mmc->f_max / SDHCI_MAX_DIV_SPEC_200;
@@ -486,7 +470,7 @@ int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 		mmc->voltages |= host->voltages;
 
 	mmc->host_caps = MMC_MODE_HS | MMC_MODE_HS_52MHz | MMC_MODE_4BIT;
-	if ((host->version & SDHCI_SPEC_VER_MASK) >= SDHCI_SPEC_300) {
+	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
 		if (caps & SDHCI_CAN_DO_8BIT)
 			mmc->host_caps |= MMC_MODE_8BIT;
 	}

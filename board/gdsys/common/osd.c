@@ -2,28 +2,12 @@
  * (C) Copyright 2010
  * Dirk Eibach,  Guntermann & Drunck GmbH, eibach@gdsys.de
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
 #include <i2c.h>
-#include <asm/io.h>
+#include <malloc.h>
 
 #include <gdsys_fpga.h>
 
@@ -41,10 +25,6 @@
 #define SIL1178_SLAVE_I2C_ADDRESS 0x39
 
 #define PIXCLK_640_480_60 25180000
-
-#define BASE_WIDTH 32
-#define BASE_HEIGHT 16
-#define BUFSIZE (BASE_WIDTH * BASE_HEIGHT)
 
 enum {
 	CH7301_CM = 0x1c,		/* Clock Mode Register */
@@ -67,37 +47,55 @@ enum {
 	CH7301_DSP = 0x56,		/* DVI Sync polarity Register */
 };
 
+unsigned int base_width;
+unsigned int base_height;
+size_t bufsize;
+u16 *buf;
+
+unsigned int max_osd_screen = CONFIG_SYS_OSD_SCREENS - 1;
+
+#ifdef CONFIG_SYS_CH7301
+int ch7301_i2c[] = CONFIG_SYS_CH7301_I2C;
+#endif
+
 #if defined(CONFIG_SYS_ICS8N3QV01) || defined(CONFIG_SYS_SIL1178)
 static void fpga_iic_write(unsigned screen, u8 slave, u8 reg, u8 data)
 {
-	struct ihs_fpga *fpga = (struct ihs_fpga *)CONFIG_SYS_FPGA_BASE(screen);
-	struct ihs_i2c *i2c = &fpga->i2c;
+	u16 val;
 
-	while (in_le16(&fpga->extended_interrupt) & (1 << 12))
-		;
-	out_le16(&i2c->write_mailbox_ext, reg | (data << 8));
-	out_le16(&i2c->write_mailbox, 0xc400 | (slave << 1));
+	do {
+		FPGA_GET_REG(screen, extended_interrupt, &val);
+	} while (val & (1 << 12));
+
+	FPGA_SET_REG(screen, i2c.write_mailbox_ext, reg | (data << 8));
+	FPGA_SET_REG(screen, i2c.write_mailbox, 0xc400 | (slave << 1));
 }
 
 static u8 fpga_iic_read(unsigned screen, u8 slave, u8 reg)
 {
-	struct ihs_fpga *fpga = (struct ihs_fpga *)CONFIG_SYS_FPGA_BASE(screen);
-	struct ihs_i2c *i2c = &fpga->i2c;
 	unsigned int ctr = 0;
+	u16 val;
 
-	while (in_le16(&fpga->extended_interrupt) & (1 << 12))
-		;
-	out_le16(&fpga->extended_interrupt, 1 << 14);
-	out_le16(&i2c->write_mailbox_ext, reg);
-	out_le16(&i2c->write_mailbox, 0xc000 | (slave << 1));
-	while (!(in_le16(&fpga->extended_interrupt) & (1 << 14))) {
+	do {
+		FPGA_GET_REG(screen, extended_interrupt, &val);
+	} while (val & (1 << 12));
+
+	FPGA_SET_REG(screen, extended_interrupt, 1 << 14);
+	FPGA_SET_REG(screen, i2c.write_mailbox_ext, reg);
+	FPGA_SET_REG(screen, i2c.write_mailbox, 0xc000 | (slave << 1));
+
+	FPGA_GET_REG(screen, extended_interrupt, &val);
+	while (!(val & (1 << 14))) {
 		udelay(100000);
 		if (ctr++ > 5) {
 			printf("iic receive timeout\n");
 			break;
 		}
+		FPGA_GET_REG(screen, extended_interrupt, &val);
 	}
-	return in_le16(&i2c->read_mailbox_ext) >> 8;
+
+	FPGA_GET_REG(screen, i2c.read_mailbox_ext, &val);
+	return val >> 8;
 }
 #endif
 
@@ -129,7 +127,6 @@ static void mpc92469ac_calc_parameters(unsigned int fout,
 
 static void mpc92469ac_set(unsigned screen, unsigned int fout)
 {
-	struct ihs_fpga *fpga = (struct ihs_fpga *)CONFIG_SYS_FPGA_BASE(screen);
 	unsigned int n;
 	unsigned int m;
 	unsigned int bitval = 0;
@@ -150,7 +147,7 @@ static void mpc92469ac_set(unsigned screen, unsigned int fout)
 		break;
 	}
 
-	out_le16(&fpga->mpc3w_control, (bitval << 9) | m);
+	FPGA_SET_REG(screen, mpc3w_control, (bitval << 9) | m);
 }
 #endif
 
@@ -265,14 +262,12 @@ static void ics8n3qv01_set(unsigned screen, unsigned int fout)
 static int osd_write_videomem(unsigned screen, unsigned offset,
 	u16 *data, size_t charcount)
 {
-	struct ihs_fpga *fpga =
-		(struct ihs_fpga *) CONFIG_SYS_FPGA_BASE(screen);
 	unsigned int k;
 
 	for (k = 0; k < charcount; ++k) {
-		if (offset + k >= BUFSIZE)
+		if (offset + k >= bufsize)
 			return -1;
-		out_le16(&fpga->videomem + offset + k, data[k]);
+		FPGA_SET_REG(screen, videomem[offset + k], data[k]);
 	}
 
 	return charcount;
@@ -282,14 +277,13 @@ static int osd_print(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned screen;
 
-	for (screen = 0; screen < CONFIG_SYS_OSD_SCREENS; ++screen) {
+	for (screen = 0; screen <= max_osd_screen; ++screen) {
 		unsigned x;
 		unsigned y;
 		unsigned charcount;
 		unsigned len;
 		u8 color;
 		unsigned int k;
-		u16 buf[BUFSIZE];
 		char *text;
 		int res;
 
@@ -303,12 +297,12 @@ static int osd_print(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		color = simple_strtoul(argv[3], NULL, 16);
 		text = argv[4];
 		charcount = strlen(text);
-		len = (charcount > BUFSIZE) ? BUFSIZE : charcount;
+		len = (charcount > bufsize) ? bufsize : charcount;
 
 		for (k = 0; k < len; ++k)
 			buf[k] = (text[k] << 8) | color;
 
-		res = osd_write_videomem(screen, y * BASE_WIDTH + x, buf, len);
+		res = osd_write_videomem(screen, y * base_width + x, buf, len);
 		if (res < 0)
 			return res;
 	}
@@ -318,24 +312,32 @@ static int osd_print(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 int osd_probe(unsigned screen)
 {
-	struct ihs_fpga *fpga = (struct ihs_fpga *)CONFIG_SYS_FPGA_BASE(screen);
-	struct ihs_osd *osd = &fpga->osd;
-	u16 version = in_le16(&osd->version);
-	u16 features = in_le16(&osd->features);
-	unsigned width;
-	unsigned height;
+	u16 version;
+	u16 features;
 	u8 value;
+#ifdef CONFIG_SYS_CH7301
+	int old_bus = i2c_get_bus_num();
+#endif
 
-	width = ((features & 0x3f00) >> 8) + 1;
-	height = (features & 0x001f) + 1;
+	FPGA_GET_REG(0, osd.version, &version);
+	FPGA_GET_REG(0, osd.features, &features);
+
+	base_width = ((features & 0x3f00) >> 8) + 1;
+	base_height = (features & 0x001f) + 1;
+	bufsize = base_width * base_height;
+	buf = malloc(sizeof(u16) * bufsize);
+	if (!buf)
+		return -1;
 
 	printf("OSD%d:  Digital-OSD version %01d.%02d, %d" "x%d characters\n",
-		screen, version/100, version%100, width, height);
+		screen, version/100, version%100, base_width, base_height);
 
 #ifdef CONFIG_SYS_CH7301
+	i2c_set_bus_num(ch7301_i2c[screen]);
 	value = i2c_reg_read(CH7301_I2C_ADDR, CH7301_DID);
 	if (value != 0x17) {
 		printf("       Probing CH7301 failed, DID %02x\n", value);
+		i2c_set_bus_num(old_bus);
 		return -1;
 	}
 	i2c_reg_write(CH7301_I2C_ADDR, CH7301_TPCP, 0x08);
@@ -343,6 +345,7 @@ int osd_probe(unsigned screen)
 	i2c_reg_write(CH7301_I2C_ADDR, CH7301_TPF, 0x60);
 	i2c_reg_write(CH7301_I2C_ADDR, CH7301_DC, 0x09);
 	i2c_reg_write(CH7301_I2C_ADDR, CH7301_PM, 0xc0);
+	i2c_set_bus_num(old_bus);
 #endif
 
 #ifdef CONFIG_SYS_MPC92469AC
@@ -372,12 +375,15 @@ int osd_probe(unsigned screen)
 	fpga_iic_write(screen, SIL1178_MASTER_I2C_ADDRESS, 0x08, 0x37);
 #endif
 
-	out_le16(&fpga->videocontrol, 0x0002);
-	out_le16(&osd->control, 0x0049);
+	FPGA_SET_REG(screen, videocontrol, 0x0002);
+	FPGA_SET_REG(screen, osd.control, 0x0049);
 
-	out_le16(&osd->xy_size, ((32 - 1) << 8) | (16 - 1));
-	out_le16(&osd->x_pos, 0x007f);
-	out_le16(&osd->y_pos, 0x005f);
+	FPGA_SET_REG(screen, osd.xy_size, ((32 - 1) << 8) | (16 - 1));
+	FPGA_SET_REG(screen, osd.x_pos, 0x007f);
+	FPGA_SET_REG(screen, osd.y_pos, 0x005f);
+
+	if (screen > max_osd_screen)
+		max_osd_screen = screen;
 
 	return 0;
 }
@@ -386,11 +392,11 @@ int osd_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned screen;
 
-	for (screen = 0; screen < CONFIG_SYS_OSD_SCREENS; ++screen) {
+	for (screen = 0; screen <= max_osd_screen; ++screen) {
 		unsigned x;
 		unsigned y;
 		unsigned k;
-		u16 buffer[BASE_WIDTH];
+		u16 buffer[base_width];
 		char *rp;
 		u16 *wp = buffer;
 		unsigned count = (argc > 4) ?
@@ -415,13 +421,13 @@ int osd_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 			rp += 4;
 			wp++;
-			if (wp - buffer > BASE_WIDTH)
+			if (wp - buffer > base_width)
 				break;
 		}
 
 		for (k = 0; k < count; ++k) {
 			unsigned offset =
-				y * BASE_WIDTH + x + k * (wp - buffer);
+				y * base_width + x + k * (wp - buffer);
 			osd_write_videomem(screen, offset, buffer,
 				wp - buffer);
 		}

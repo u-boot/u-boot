@@ -2,23 +2,7 @@
  *  Copyright (C) 2012 Samsung Electronics
  *  Rajeshwari Shinde <rajeshwari.s@samsung.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __MAX77686_H_
@@ -52,7 +36,7 @@ enum {
 	MAX77686_REG_PMIC_BUCK2DVS7,
 	MAX77686_REG_PMIC_BUCK2DVS8,
 	MAX77686_REG_PMIC_BUCK3CTRL,
-	MAX77686_REG_PMIC_BUCK3DVS1,
+	MAX77686_REG_PMIC_BUCK3DVS1	= 0x1e,
 	MAX77686_REG_PMIC_BUCK3DVS2,
 	MAX77686_REG_PMIC_BUCK3DVS3,
 	MAX77686_REG_PMIC_BUCK3DVS4,
@@ -154,6 +138,32 @@ enum {
 	DIS_LDO = (0x00 << 6),
 	EN_LDO = (0x3 << 6),
 };
+
+enum {
+	OPMODE_OFF = 0,
+	OPMODE_STANDBY,
+	OPMODE_LPM,
+	OPMODE_ON,
+};
+
+int max77686_set_ldo_voltage(struct pmic *p, int ldo, ulong uV);
+int max77686_set_ldo_mode(struct pmic *p, int ldo, char opmode);
+int max77686_set_buck_mode(struct pmic *p, int buck, char opmode);
+
+#define MAX77686_LDO_VOLT_MAX_HEX	0x3f
+#define MAX77686_LDO_VOLT_MASK		0x3f
+#define MAX77686_LDO_MODE_MASK		0xc0
+#define MAX77686_LDO_MODE_OFF		(0x00 << 0x06)
+#define MAX77686_LDO_MODE_STANDBY	(0x01 << 0x06)
+#define MAX77686_LDO_MODE_LPM		(0x02 << 0x06)
+#define MAX77686_LDO_MODE_ON		(0x03 << 0x06)
+#define MAX77686_BUCK_MODE_MASK		0x03
+#define MAX77686_BUCK_MODE_SHIFT_1	0x00
+#define MAX77686_BUCK_MODE_SHIFT_2	0x04
+#define MAX77686_BUCK_MODE_OFF		0x00
+#define MAX77686_BUCK_MODE_STANDBY	0x01
+#define MAX77686_BUCK_MODE_LPM		0x02
+#define MAX77686_BUCK_MODE_ON		0x03
 
 /* Buck1 1 volt value */
 #define MAX77686_BUCK1OUT_1V	0x5

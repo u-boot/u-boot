@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2005-2010 Analog Devices Inc.
  *
- * Licensed under the GPL-2 or later.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*#define DEBUG*/
@@ -144,10 +144,8 @@ void spi_set_speed(struct spi_slave *slave, uint hz)
 	u32 baud;
 
 	sclk = get_sclk();
-	baud = sclk / (2 * hz);
 	/* baud should be rounded up */
-	if (sclk % (2 * hz))
-		baud += 1;
+	baud = DIV_ROUND_UP(sclk, 2 * hz);
 	if (baud < 2)
 		baud = 2;
 	else if (baud > (u16)-1)

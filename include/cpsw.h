@@ -39,6 +39,7 @@ struct cpsw_platform_data {
 	int	ale_entries;	/* ale table size			*/
 	u32	host_port_reg_ofs;	/* cpdma host port registers	*/
 	u32	hw_stats_reg_ofs;	/* cpsw hw stats counters	*/
+	u32	bd_ram_ofs;		/* Buffer Descriptor RAM offset */
 	u32	mac_control;
 	struct cpsw_slave_data	*slave_data;
 	void	(*control)(int enabled);

@@ -14,7 +14,7 @@ controlling it is very much based on this. The API is very simple:
   int tis_open(void);
   int tis_close(void);
   int tis_sendrecv(const u8 *sendbuf, size_t send_size,
-                         u8 *recvbuf, size_t *recv_len);
+			 u8 *recvbuf, size_t *recv_len);
 
 The command operating the TPM chip only provides operations to send and receive
 bytes from the chip.

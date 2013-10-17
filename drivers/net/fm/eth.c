@@ -2,20 +2,7 @@
  * Copyright 2009-2012 Freescale Semiconductor, Inc.
  *	Dave Liu <daveliu@freescale.com>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <asm/io.h>
@@ -354,7 +341,9 @@ static int fm_eth_startup(struct fm_eth *fm_eth)
 	mac->init_mac(mac);
 
 	/* For some reason we need to set SPEED_100 */
-	if ((fm_eth->enet_if == PHY_INTERFACE_MODE_SGMII) && mac->set_if_mode)
+	if (((fm_eth->enet_if == PHY_INTERFACE_MODE_SGMII) ||
+	     (fm_eth->enet_if == PHY_INTERFACE_MODE_QSGMII)) &&
+	      mac->set_if_mode)
 		mac->set_if_mode(mac, fm_eth->enet_if, SPEED_100);
 
 	/* init bmi rx port, IM mode and disable */

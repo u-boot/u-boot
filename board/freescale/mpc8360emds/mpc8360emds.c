@@ -2,13 +2,7 @@
  * Copyright (C) 2006,2010-2011 Freescale Semiconductor, Inc.
  * Dave Liu <daveliu@freescale.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -433,7 +427,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 			if (prop) {
 				path = fdt_path_offset(blob, prop);
 				prop = fdt_getprop(blob, path,
-				                   "phy-connection-type", 0);
+						   "phy-connection-type", 0);
 				if (prop && (strcmp(prop, "rgmii-id") == 0))
 					fdt_fixup_phy_connection(blob, path,
 						PHY_INTERFACE_MODE_RGMII_RXID);
@@ -445,7 +439,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 			if (prop) {
 				path = fdt_path_offset(blob, prop);
 				prop = fdt_getprop(blob, path,
-				                   "phy-connection-type", 0);
+						   "phy-connection-type", 0);
 				if (prop && (strcmp(prop, "rgmii-id") == 0))
 					fdt_fixup_phy_connection(blob, path,
 						PHY_INTERFACE_MODE_RGMII_RXID);

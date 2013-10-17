@@ -4,20 +4,7 @@
  *
  * Support for the Elmeg VoVPN Gateway Module
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -283,9 +270,9 @@ int misc_init_r (void)
 	for (i = 0; i < 64; i++) {
 		c = *dummy;
 		printf( "UPMA[%02d]: 0x%08lx,0x%08lx: 0x%08lx\n",i,
-		        memctl->memc_mamr,
-		        memctl->memc_mar,
-		        memctl->memc_mdr );
+			memctl->memc_mamr,
+			memctl->memc_mar,
+			memctl->memc_mdr );
 	}
 	memctl->memc_mamr = 0x00044440;
 #endif

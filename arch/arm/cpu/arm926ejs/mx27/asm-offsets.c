@@ -9,10 +9,7 @@
  * compile this file to assembler, and then extract the
  * #defines from the assembly-language output.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version
- * 2 of the License, or (at your option) any later version.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -40,6 +37,11 @@ int main(void)
 	DEFINE(ESDCTL1_ROF, offsetof(struct esdramc_regs, esdctl1));
 	DEFINE(ESDCFG1_ROF, offsetof(struct esdramc_regs, esdcfg1));
 	DEFINE(ESDMISC_ROF, offsetof(struct esdramc_regs, esdmisc));
+
+	DEFINE(GPCR, IMX_SYSTEM_CTL_BASE +
+		offsetof(struct system_control_regs, gpcr));
+	DEFINE(FMCR, IMX_SYSTEM_CTL_BASE +
+		offsetof(struct system_control_regs, fmcr));
 
 	return 0;
 }

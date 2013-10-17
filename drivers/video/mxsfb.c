@@ -3,20 +3,7 @@
  *
  * Copyright (C) 2011-2013 Marek Vasut <marex@denx.de>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <malloc.h>
@@ -28,11 +15,25 @@
 #include <asm/errno.h>
 #include <asm/io.h>
 
+#include <asm/imx-common/dma.h>
+
 #include "videomodes.h"
 
 #define	PS2KHZ(ps)	(1000000000UL / (ps))
 
 static GraphicDevice panel;
+struct mxs_dma_desc desc;
+
+/**
+ * mxsfb_system_setup() - Fine-tune LCDIF configuration
+ *
+ * This function is used to adjust the LCDIF configuration. This is usually
+ * needed when driving the controller in System-Mode to operate an 8080 or
+ * 6800 connected SmartLCD.
+ */
+__weak void mxsfb_system_setup(void)
+{
+}
 
 /*
  * DENX M28EVK:
@@ -88,6 +89,9 @@ static void mxs_lcd_init(GraphicDevice *panel,
 
 	writel(valid_data << LCDIF_CTRL1_BYTE_PACKING_FORMAT_OFFSET,
 		&regs->hw_lcdif_ctrl1);
+
+	mxsfb_system_setup();
+
 	writel((mode->yres << LCDIF_TRANSFER_COUNT_V_COUNT_OFFSET) | mode->xres,
 		&regs->hw_lcdif_transfer_count);
 
@@ -115,8 +119,10 @@ static void mxs_lcd_init(GraphicDevice *panel,
 	/* Flush FIFO first */
 	writel(LCDIF_CTRL1_FIFO_CLEAR, &regs->hw_lcdif_ctrl1_set);
 
+#ifndef CONFIG_VIDEO_MXS_MODE_SYSTEM
 	/* Sync signals ON */
 	setbits_le32(&regs->hw_lcdif_vdctrl4, LCDIF_VDCTRL4_SYNC_SIGNALS_ON);
+#endif
 
 	/* FIFO cleared */
 	writel(LCDIF_CTRL1_FIFO_CLEAR, &regs->hw_lcdif_ctrl1_clr);
@@ -174,7 +180,8 @@ void *video_hw_init(void)
 	panel.memSize = mode.xres * mode.yres * panel.gdfBytesPP;
 
 	/* Allocate framebuffer */
-	fb = malloc(panel.memSize);
+	fb = memalign(ARCH_DMA_MINALIGN,
+		      roundup(panel.memSize, ARCH_DMA_MINALIGN));
 	if (!fb) {
 		printf("MXSFB: Error allocating framebuffer!\n");
 		return NULL;
@@ -189,6 +196,29 @@ void *video_hw_init(void)
 
 	/* Start framebuffer */
 	mxs_lcd_init(&panel, &mode, bpp);
+
+#ifdef CONFIG_VIDEO_MXS_MODE_SYSTEM
+	/*
+	 * If the LCD runs in system mode, the LCD refresh has to be triggered
+	 * manually by setting the RUN bit in HW_LCDIF_CTRL register. To avoid
+	 * having to set this bit manually after every single change in the
+	 * framebuffer memory, we set up specially crafted circular DMA, which
+	 * sets the RUN bit, then waits until it gets cleared and repeats this
+	 * infinitelly. This way, we get smooth continuous updates of the LCD.
+	 */
+	struct mxs_lcdif_regs *regs = (struct mxs_lcdif_regs *)MXS_LCDIF_BASE;
+
+	memset(&desc, 0, sizeof(struct mxs_dma_desc));
+	desc.address = (dma_addr_t)&desc;
+	desc.cmd.data = MXS_DMA_DESC_COMMAND_NO_DMAXFER | MXS_DMA_DESC_CHAIN |
+			MXS_DMA_DESC_WAIT4END |
+			(1 << MXS_DMA_DESC_PIO_WORDS_OFFSET);
+	desc.cmd.pio_words[0] = readl(&regs->hw_lcdif_ctrl) | LCDIF_CTRL_RUN;
+	desc.cmd.next = (uint32_t)&desc.cmd;
+
+	/* Execute the DMA chain. */
+	mxs_dma_circ_start(MXS_DMA_CHANNEL_AHB_APBH_LCDIF, &desc);
+#endif
 
 	return (void *)&panel;
 }

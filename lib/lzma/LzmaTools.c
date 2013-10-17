@@ -6,23 +6,7 @@
  *
  * Copyright (C) 1999-2005 Igor Pavlov
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+ 
  */
 
 /*
@@ -113,15 +97,19 @@ int lzmaBuffToBuffDecompress (unsigned char *outStream, SizeT *uncompressedSize,
     g_Alloc.Alloc = SzAlloc;
     g_Alloc.Free = SzFree;
 
+    /* Short-circuit early if we know the buffer can't hold the results. */
+    if (outSizeFull != (SizeT)-1 && *uncompressedSize < outSizeFull)
+        return SZ_ERROR_OUTPUT_EOF;
+
     /* Decompress */
-    outProcessed = outSizeFull;
+    outProcessed = *uncompressedSize;
 
     WATCHDOG_RESET();
 
     res = LzmaDecode(
         outStream, &outProcessed,
         inStream + LZMA_DATA_OFFSET, &compressedSize,
-        inStream, LZMA_PROPS_SIZE, LZMA_FINISH_ANY, &state, &g_Alloc);
+        inStream, LZMA_PROPS_SIZE, LZMA_FINISH_END, &state, &g_Alloc);
     *uncompressedSize = outProcessed;
     if (res != SZ_OK)  {
         return res;

@@ -5,23 +5,7 @@
  * (C) Copyright 2002
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * aloong with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _PCI_H
@@ -425,13 +409,6 @@
 
 #define PCI_MAX_PCI_DEVICES	32
 #define PCI_MAX_PCI_FUNCTIONS	8
-
-#define PCI_DCR		0x54    /* PCIe Device Control Register */
-#define PCI_DSR		0x56    /* PCIe Device Status Register */
-#define PCI_LSR		0x5e    /* PCIe Link Status Register */
-#define PCI_LCR		0x5c    /* PCIe Link Control Register */
-#define PCI_LTSSM	0x404   /* PCIe Link Training, Status State Machine */
-#define  PCI_LTSSM_L0	0x16    /* L0 state */
 
 /* Include the ID list */
 

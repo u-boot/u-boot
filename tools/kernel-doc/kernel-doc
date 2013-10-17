@@ -432,7 +432,7 @@ sub dump_doc_section {
     my $contents = join "\n", @_;
 
     if ($no_doc_sections) {
-        return;
+	return;
     }
 
     if (($function_only == 0) ||

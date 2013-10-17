@@ -1,19 +1,7 @@
 /*
  * Copyright (C) 2005-2006 Atmel Corporation
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 
@@ -48,6 +36,7 @@
 #include <asm/io.h>
 #include <asm/dma-mapping.h>
 #include <asm/arch/clk.h>
+#include <asm-generic/errno.h>
 
 #include "macb.h"
 
@@ -409,9 +398,14 @@ static int macb_phy_init(struct macb_device *macb)
 	}
 
 #ifdef CONFIG_PHYLIB
-	phydev->bus = macb->bus;
-	phydev->dev = netdev;
-	phydev->addr = macb->phy_addr;
+	/* need to consider other phy interface mode */
+	phydev = phy_connect(macb->bus, macb->phy_addr, netdev,
+			     PHY_INTERFACE_MODE_RGMII);
+	if (!phydev) {
+		printf("phy_connect failed\n");
+		return -ENODEV;
+	}
+
 	phy_config(phydev);
 #endif
 

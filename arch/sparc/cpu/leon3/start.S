@@ -1,54 +1,31 @@
-/* This is where the SPARC/LEON3 starts
- * Copyright (C) 2007,
- * Daniel Hellstrom, daniel@gaisler.com
- *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
- */
+TRAP ta 0; nop; nop; nop;
 
-#include <asm-offsets.h>
-#include <config.h>
-#include <asm/asmmacro.h>
-#include <asm/winmacro.h>
-#include <asm/psr.h>
-#include <asm/stack.h>
-#include <asm/leon.h>
-#include <version.h>
+/* Software trap. Treat as BAD_TRAP for the time being... */
+#define SOFT_TRAP TRAP(_hwerr)
 
-/* Entry for traps which jump to a programmer-specified trap handler.  */
-#define TRAPR(H)  \
-	wr	%g0, 0xfe0, %psr; \
-	mov	%g0, %tbr; \
-	ba	(H); \
-	mov	%g0, %wim;
+#define PSR_INIT   0x1FC0	/* Disable traps, set s and ps */
+#define WIM_INIT   2
 
-#define TRAP(H) \
-	mov	%psr, %l0; \
-	ba	(H); \
-	nop; nop;
+/* All traps low-level code here must end with this macro. */
+#define RESTORE_ALL b ret_trap_entry; clr %l6;
 
-#define TRAPI(ilevel) \
-	mov	ilevel, %l7; \
-	mov	%psr, %l0; \
-	b	_irq_entry; \
-	mov	%wim, %l3
+#define WRITE_PAUSE nop;nop;nop
 
-/* Unexcpected trap will halt the processor by forcing it to error state */
+WINDOWSIZE = (16 * 4)
+ARGPUSHSIZE = (6 * 4)
+ARGPUSH = (WINDOWSIZE + 4)
+MINFRAME = (WINDOWSIZE + ARGPUSHSIZE + 4)
+
+/* Number of register windows */
+#ifndef CONFIG_SYS_SPARC_NWINDOWS
+#error Must define number of SPARC register windows, default is 8
+#endif
+
+#define STACK_ALIGN	8
+#define SA(X)	(((X)+(STACK_ALIGN-1)) & ~(STACK_ALIGN-1))
+
+	.section ".start", "ax"
+	.globl	_starttate */
 #undef BAD_TRAP
 #define BAD_TRAP ta 0; nop; nop; nop;
 

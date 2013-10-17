@@ -4,10 +4,7 @@
  * Copyright (C) 2007 MontaVista Software, Inc.
  *                    Anton Vorontsov <avorontsov@ru.mvista.com>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <config.h>
@@ -115,10 +112,10 @@ static void fun_cmd_ctrl(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 	fsl_upm_run_pattern(&fun->upm, fun->width, io_addr, mar);
 
 	/*
-         * Some boards/chips needs this.  At least the MPC8360E-RDK
-         * needs it.  Probably weird chip, because I don't see any
-         * need for this on MPC8555E + Samsung K9F1G08U0A.  Usually
-         * here are 0-2 unexpected busy states per block read.
+	 * Some boards/chips needs this.  At least the MPC8360E-RDK
+	 * needs it.  Probably weird chip, because I don't see any
+	 * need for this on MPC8555E + Samsung K9F1G08U0A.  Usually
+	 * here are 0-2 unexpected busy states per block read.
 	 */
 	if (fun->wait_flags & FSL_UPM_WAIT_RUN_PATTERN)
 		fun_wait(fun);

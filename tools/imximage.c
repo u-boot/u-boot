@@ -6,31 +6,14 @@
  * Marvell Semiconductor <www.marvell.com>
  * Written-by: Prafulla Wadaskar <prafulla@marvell.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
-
-/* Required to obtain the getline prototype from stdio.h */
-#define _GNU_SOURCE
 
 #include "mkimage.h"
 #include <image.h>
 #include "imximage.h"
+
+#define UNDEFINED 0xFFFFFFFF
 
 /*
  * Supported commands for configuration file
@@ -39,6 +22,7 @@ static table_entry_t imximage_cmds[] = {
 	{CMD_BOOT_FROM,         "BOOT_FROM",            "boot command",	  },
 	{CMD_BOOT_OFFSET,       "BOOT_OFFSET",          "Boot offset",	  },
 	{CMD_DATA,              "DATA",                 "Reg Write Data", },
+	{CMD_CSF,               "CSF",           "Command Sequence File", },
 	{CMD_IMAGE_VERSION,     "IMAGE_VERSION",        "image version",  },
 	{-1,                    "",                     "",	          },
 };
@@ -47,7 +31,7 @@ static table_entry_t imximage_cmds[] = {
  * Supported Boot options for configuration file
  * this is needed to set the correct flash offset
  */
-static table_entry_t imximage_bootops[] = {
+static table_entry_t imximage_boot_offset[] = {
 	{FLASH_OFFSET_ONENAND,	"onenand",	"OneNAND Flash",},
 	{FLASH_OFFSET_NAND,	"nand",		"NAND Flash",	},
 	{FLASH_OFFSET_NOR,	"nor",		"NOR Flash",	},
@@ -55,6 +39,20 @@ static table_entry_t imximage_bootops[] = {
 	{FLASH_OFFSET_SD,	"sd",		"SD Card",	},
 	{FLASH_OFFSET_SPI,	"spi",		"SPI Flash",	},
 	{-1,			"",		"Invalid",	},
+};
+
+/*
+ * Supported Boot options for configuration file
+ * this is needed to determine the initial load size
+ */
+static table_entry_t imximage_boot_loadsize[] = {
+	{FLASH_LOADSIZE_ONENAND,	"onenand",	"OneNAND Flash",},
+	{FLASH_LOADSIZE_NAND,		"nand",		"NAND Flash",	},
+	{FLASH_LOADSIZE_NOR,		"nor",		"NOR Flash",	},
+	{FLASH_LOADSIZE_SATA,		"sata",		"SATA Disk",	},
+	{FLASH_LOADSIZE_SD,		"sd",		"SD Card",	},
+	{FLASH_LOADSIZE_SPI,		"spi",		"SPI Flash",	},
+	{-1,				"",		"Invalid",	},
 };
 
 /*
@@ -68,12 +66,22 @@ static table_entry_t imximage_versions[] = {
 
 static struct imx_header imximage_header;
 static uint32_t imximage_version;
+/*
+ * Image Vector Table Offset
+ * Initialized to a wrong not 4-bytes aligned address to
+ * check if it is was set by the cfg file.
+ */
+static uint32_t imximage_ivt_offset = UNDEFINED;
+static uint32_t imximage_csf_size = UNDEFINED;
+/* Initial Load Region Size */
+static uint32_t imximage_init_loadsize;
 
 static set_dcd_val_t set_dcd_val;
 static set_dcd_rst_t set_dcd_rst;
 static set_imx_hdr_t set_imx_hdr;
 static uint32_t max_dcd_entries;
 static uint32_t *header_size_ptr;
+static uint32_t *csf_ptr;
 
 static uint32_t get_cfg_value(char *token, char *name,  int linenr)
 {
@@ -209,7 +217,8 @@ static void set_imx_hdr_v1(struct imx_header *imxhdr, uint32_t dcd_len,
 	/* Set magic number */
 	fhdr_v1->app_code_barker = APP_CODE_BARKER;
 
-	hdr_base = entry_point - sizeof(struct imx_header);
+	/* TODO: check i.MX image V1 handling, for now use 'old' style */
+	hdr_base = entry_point - 4096;
 	fhdr_v1->app_dest_ptr = hdr_base - flash_offset;
 	fhdr_v1->app_code_jump_vector = entry_point;
 
@@ -236,19 +245,21 @@ static void set_imx_hdr_v2(struct imx_header *imxhdr, uint32_t dcd_len,
 
 	fhdr_v2->entry = entry_point;
 	fhdr_v2->reserved1 = fhdr_v2->reserved2 = 0;
-	fhdr_v2->self = hdr_base = entry_point - sizeof(struct imx_header);
-
+	hdr_base = entry_point - imximage_init_loadsize +
+		flash_offset;
+	fhdr_v2->self = hdr_base;
 	fhdr_v2->dcd_ptr = hdr_base + offsetof(imx_header_v2_t, dcd_table);
 	fhdr_v2->boot_data_ptr = hdr_base
 			+ offsetof(imx_header_v2_t, boot_data);
-	hdr_v2->boot_data.start = hdr_base - flash_offset;
+	hdr_v2->boot_data.start = entry_point - imximage_init_loadsize;
 
-	/* Security feature are not supported */
 	fhdr_v2->csf = 0;
+
 	header_size_ptr = &hdr_v2->boot_data.size;
+	csf_ptr = &fhdr_v2->csf;
 }
 
-static void set_hdr_func(struct imx_header *imxhdr)
+static void set_hdr_func(void)
 {
 	switch (imximage_version) {
 	case IMXIMAGE_V1:
@@ -322,6 +333,13 @@ static void print_hdr_v2(struct imx_header *imx_hdr)
 	genimg_print_size(hdr_v2->boot_data.size);
 	printf("Load Address: %08x\n", (uint32_t)fhdr_v2->boot_data_ptr);
 	printf("Entry Point:  %08x\n", (uint32_t)fhdr_v2->entry);
+	if (fhdr_v2->csf && (imximage_ivt_offset != UNDEFINED) &&
+	    (imximage_csf_size != UNDEFINED)) {
+		printf("HAB Blocks:   %08x %08x %08x\n",
+		       (uint32_t)fhdr_v2->self, 0,
+		       hdr_v2->boot_data.size - imximage_ivt_offset -
+		       imximage_csf_size);
+	}
 }
 
 static void parse_cfg_cmd(struct imx_header *imxhdr, int32_t cmd, char *token,
@@ -340,27 +358,56 @@ static void parse_cfg_cmd(struct imx_header *imxhdr, int32_t cmd, char *token,
 			exit(EXIT_FAILURE);
 		}
 		cmd_ver_first = 1;
-		set_hdr_func(imxhdr);
+		set_hdr_func();
 		break;
 	case CMD_BOOT_FROM:
-		imxhdr->flash_offset = get_table_entry_id(imximage_bootops,
+		imximage_ivt_offset = get_table_entry_id(imximage_boot_offset,
 					"imximage boot option", token);
-		if (imxhdr->flash_offset == -1) {
+		if (imximage_ivt_offset == -1) {
 			fprintf(stderr, "Error: %s[%d] -Invalid boot device"
 				"(%s)\n", name, lineno, token);
 			exit(EXIT_FAILURE);
 		}
+
+		imximage_init_loadsize =
+			get_table_entry_id(imximage_boot_loadsize,
+					   "imximage boot option", token);
+
+		if (imximage_init_loadsize == -1) {
+			fprintf(stderr,
+				"Error: %s[%d] -Invalid boot device(%s)\n",
+				name, lineno, token);
+			exit(EXIT_FAILURE);
+		}
+
+		/*
+		 * The SOC loads from the storage starting at address 0
+		 * then ensures that the load size contains the offset
+		 */
+		if (imximage_init_loadsize < imximage_ivt_offset)
+			imximage_init_loadsize = imximage_ivt_offset;
 		if (unlikely(cmd_ver_first != 1))
 			cmd_ver_first = 0;
 		break;
 	case CMD_BOOT_OFFSET:
-		imxhdr->flash_offset = get_cfg_value(token, name, lineno);
+		imximage_ivt_offset = get_cfg_value(token, name, lineno);
 		if (unlikely(cmd_ver_first != 1))
 			cmd_ver_first = 0;
 		break;
 	case CMD_DATA:
 		value = get_cfg_value(token, name, lineno);
 		(*set_dcd_val)(imxhdr, name, lineno, fld, value, dcd_len);
+		if (unlikely(cmd_ver_first != 1))
+			cmd_ver_first = 0;
+		break;
+	case CMD_CSF:
+		if (imximage_version != 2) {
+			fprintf(stderr,
+				"Error: %s[%d] - CSF only supported for VERSION 2(%s)\n",
+				name, lineno, token);
+			exit(EXIT_FAILURE);
+		}
+		imximage_csf_size = get_cfg_value(token, name, lineno);
 		if (unlikely(cmd_ver_first != 1))
 			cmd_ver_first = 0;
 		break;
@@ -424,7 +471,8 @@ static uint32_t parse_cfg_file(struct imx_header *imxhdr, char *name)
 		exit(EXIT_FAILURE);
 	}
 
-	/* Very simple parsing, line starting with # are comments
+	/*
+	 * Very simple parsing, line starting with # are comments
 	 * and are dropped
 	 */
 	while ((getline(&line, &len, fd)) > 0) {
@@ -455,7 +503,7 @@ static uint32_t parse_cfg_file(struct imx_header *imxhdr, char *name)
 	fclose(fd);
 
 	/* Exit if there is no BOOT_FROM field specifying the flash_offset */
-	if (imxhdr->flash_offset == FLASH_OFFSET_UNDEFINED) {
+	if (imximage_ivt_offset == FLASH_OFFSET_UNDEFINED) {
 		fprintf(stderr, "Error: No BOOT_FROM tag in %s\n", name);
 		exit(EXIT_FAILURE);
 	}
@@ -513,14 +561,15 @@ static void imximage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	 */
 	imximage_version = IMXIMAGE_V1;
 	/* Be able to detect if the cfg file has no BOOT_FROM tag */
-	imxhdr->flash_offset = FLASH_OFFSET_UNDEFINED;
-	set_hdr_func(imxhdr);
+	imximage_ivt_offset = FLASH_OFFSET_UNDEFINED;
+	imximage_csf_size = 0;
+	set_hdr_func();
 
 	/* Parse dcd configuration file */
 	dcd_len = parse_cfg_file(imxhdr, params->imagename);
 
 	/* Set the imx header */
-	(*set_imx_hdr)(imxhdr, dcd_len, params->ep, imxhdr->flash_offset);
+	(*set_imx_hdr)(imxhdr, dcd_len, params->ep, imximage_ivt_offset);
 
 	/*
 	 * ROM bug alert
@@ -531,7 +580,13 @@ static void imximage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	 *
 	 * The remaining fraction of a block bytes would not be loaded!
 	 */
-	*header_size_ptr = ROUND(sbuf->st_size + imxhdr->flash_offset, 4096);
+	*header_size_ptr = ROUND(sbuf->st_size, 4096);
+
+	if (csf_ptr && imximage_csf_size) {
+		*csf_ptr = params->ep - imximage_init_loadsize +
+			*header_size_ptr;
+		*header_size_ptr += imximage_csf_size;
+	}
 }
 
 int imximage_check_params(struct mkimage_params *params)
@@ -556,18 +611,92 @@ int imximage_check_params(struct mkimage_params *params)
 		(params->xflag) || !(strlen(params->imagename));
 }
 
+static int imximage_generate(struct mkimage_params *params,
+	struct image_type_params *tparams)
+{
+	struct imx_header *imxhdr;
+	size_t alloc_len;
+	struct stat sbuf;
+	char *datafile = params->datafile;
+	uint32_t pad_len;
+
+	memset(&imximage_header, 0, sizeof(imximage_header));
+
+	/*
+	 * In order to not change the old imx cfg file
+	 * by adding VERSION command into it, here need
+	 * set up function ptr group to V1 by default.
+	 */
+	imximage_version = IMXIMAGE_V1;
+	/* Be able to detect if the cfg file has no BOOT_FROM tag */
+	imximage_ivt_offset = FLASH_OFFSET_UNDEFINED;
+	imximage_csf_size = 0;
+	set_hdr_func();
+
+	/* Parse dcd configuration file */
+	parse_cfg_file(&imximage_header, params->imagename);
+
+	/* TODO: check i.MX image V1 handling, for now use 'old' style */
+	if (imximage_version == IMXIMAGE_V1) {
+		alloc_len = 4096;
+	} else {
+		if (imximage_init_loadsize < imximage_ivt_offset +
+			sizeof(imx_header_v2_t))
+				imximage_init_loadsize = imximage_ivt_offset +
+					sizeof(imx_header_v2_t);
+		alloc_len = imximage_init_loadsize - imximage_ivt_offset;
+	}
+
+	if (alloc_len < sizeof(struct imx_header)) {
+		fprintf(stderr, "%s: header error\n",
+			params->cmdname);
+		exit(EXIT_FAILURE);
+	}
+
+	imxhdr = malloc(alloc_len);
+
+	if (!imxhdr) {
+		fprintf(stderr, "%s: malloc return failure: %s\n",
+			params->cmdname, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	memset(imxhdr, 0, alloc_len);
+
+	tparams->header_size = alloc_len;
+	tparams->hdr         = imxhdr;
+
+	/* determine data image file length */
+
+	if (stat(datafile, &sbuf) < 0) {
+		fprintf(stderr, "%s: Can't stat %s: %s\n",
+			params->cmdname, datafile, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
+	pad_len = ROUND(sbuf.st_size, 4096) - sbuf.st_size;
+
+	/* TODO: check i.MX image V1 handling, for now use 'old' style */
+	if (imximage_version == IMXIMAGE_V1)
+		return 0;
+	else
+		return pad_len;
+}
+
+
 /*
  * imximage parameters
  */
 static struct image_type_params imximage_params = {
 	.name		= "Freescale i.MX Boot Image support",
-	.header_size	= sizeof(struct imx_header),
-	.hdr		= (void *)&imximage_header,
+	.header_size	= 0,
+	.hdr		= NULL,
 	.check_image_type = imximage_check_image_types,
 	.verify_header	= imximage_verify_header,
 	.print_header	= imximage_print_header,
 	.set_header	= imximage_set_header,
 	.check_params	= imximage_check_params,
+	.vrec_header	= imximage_generate,
 };
 
 void init_imx_image_type(void)

@@ -3,20 +3,7 @@
  * Jaehoon Chung <jh80.chung@samsung.com>
  * Rajeshawari Shinde <rajeshwari.s@samsung.com>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,  MA 02111-1307 USA
- *
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -54,12 +41,11 @@ static void dwmci_set_idma_desc(struct dwmci_idmac *idmac,
 }
 
 static void dwmci_prepare_data(struct dwmci_host *host,
-		struct mmc_data *data)
+		struct mmc_data *data, struct dwmci_idmac *cur_idmac)
 {
 	unsigned long ctrl;
 	unsigned int i = 0, flags, cnt, blk_cnt;
 	ulong data_start, data_end, start_addr;
-	ALLOC_CACHE_ALIGN_BUFFER(struct dwmci_idmac, cur_idmac, data->blocks);
 
 
 	blk_cnt = data->blocks;
@@ -86,7 +72,7 @@ static void dwmci_prepare_data(struct dwmci_host *host,
 		dwmci_set_idma_desc(cur_idmac, flags, cnt,
 				start_addr + (i * PAGE_SIZE));
 
-		if(blk_cnt < 8)
+		if (blk_cnt <= 8)
 			break;
 		blk_cnt -= 8;
 		cur_idmac++;
@@ -124,6 +110,8 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		struct mmc_data *data)
 {
 	struct dwmci_host *host = (struct dwmci_host *)mmc->priv;
+	ALLOC_CACHE_ALIGN_BUFFER(struct dwmci_idmac, cur_idmac,
+				 data ? DIV_ROUND_UP(data->blocks, 8) : 0);
 	int flags = 0, i;
 	unsigned int timeout = 100000;
 	u32 retry = 10000;
@@ -140,7 +128,7 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	dwmci_writel(host, DWMCI_RINTSTS, DWMCI_INTMSK_ALL);
 
 	if (data)
-		dwmci_prepare_data(host, data);
+		dwmci_prepare_data(host, data, cur_idmac);
 
 	dwmci_writel(host, DWMCI_CMDARG, cmd->cmdarg);
 

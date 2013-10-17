@@ -167,7 +167,7 @@ bad:
 	return err;
 }
 
-static int ubi_create_vol(char *volume, int size, int dynamic)
+static int ubi_create_vol(char *volume, int64_t size, int dynamic)
 {
 	struct ubi_mkvol_req req;
 	int err;
@@ -191,7 +191,7 @@ static int ubi_create_vol(char *volume, int size, int dynamic)
 		printf("verify_mkvol_req failed %d\n", err);
 		return err;
 	}
-	printf("Creating %s volume %s of size %d\n",
+	printf("Creating %s volume %s of size %lld\n",
 		dynamic ? "dynamic" : "static", volume, size);
 	/* Call real ubi create volume */
 	return ubi_create_volume(ubi, &req);
@@ -266,27 +266,14 @@ out_err:
 	return err;
 }
 
-int ubi_volume_write(char *volume, void *buf, size_t size)
+int ubi_volume_continue_write(char *volume, void *buf, size_t size)
 {
 	int err = 1;
-	int rsvd_bytes = 0;
 	struct ubi_volume *vol;
 
 	vol = ubi_find_volume(volume);
 	if (vol == NULL)
 		return ENODEV;
-
-	rsvd_bytes = vol->reserved_pebs * (ubi->leb_size - vol->data_pad);
-	if (size < 0 || size > rsvd_bytes) {
-		printf("size > volume size! Aborting!\n");
-		return EINVAL;
-	}
-
-	err = ubi_start_update(ubi, vol, size);
-	if (err < 0) {
-		printf("Cannot start volume update\n");
-		return -err;
-	}
 
 	err = ubi_more_update_data(ubi, vol, buf, size);
 	if (err < 0) {
@@ -312,6 +299,37 @@ int ubi_volume_write(char *volume, void *buf, size_t size)
 	}
 
 	return 0;
+}
+
+int ubi_volume_begin_write(char *volume, void *buf, size_t size,
+	size_t full_size)
+{
+	int err = 1;
+	int rsvd_bytes = 0;
+	struct ubi_volume *vol;
+
+	vol = ubi_find_volume(volume);
+	if (vol == NULL)
+		return ENODEV;
+
+	rsvd_bytes = vol->reserved_pebs * (ubi->leb_size - vol->data_pad);
+	if (size < 0 || size > rsvd_bytes) {
+		printf("size > volume size! Aborting!\n");
+		return EINVAL;
+	}
+
+	err = ubi_start_update(ubi, vol, full_size);
+	if (err < 0) {
+		printf("Cannot start volume update\n");
+		return -err;
+	}
+
+	return ubi_volume_continue_write(volume, buf, size);
+}
+
+int ubi_volume_write(char *volume, void *buf, size_t size)
+{
+	return ubi_volume_begin_write(volume, buf, size, size);
 }
 
 int ubi_volume_read(char *volume, char *buf, size_t size)
@@ -498,7 +516,7 @@ int ubi_part(char *part_name, const char *vid_header_offset)
 
 static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	size_t size = 0;
+	int64_t size = 0;
 	ulong addr = 0;
 
 	if (argc < 2)
@@ -558,13 +576,13 @@ static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		}
 		/* E.g., create volume size */
 		if (argc == 4) {
-			size = simple_strtoul(argv[3], NULL, 16);
+			size = simple_strtoull(argv[3], NULL, 16);
 			argc--;
 		}
 		/* Use maximum available size */
 		if (!size) {
-			size = ubi->avail_pebs * ubi->leb_size;
-			printf("No size specified -> Using max size (%u)\n", size);
+			size = (int64_t)ubi->avail_pebs * ubi->leb_size;
+			printf("No size specified -> Using max size (%lld)\n", size);
 		}
 		/* E.g., create volume */
 		if (argc == 3)
@@ -588,9 +606,22 @@ static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		addr = simple_strtoul(argv[2], NULL, 16);
 		size = simple_strtoul(argv[4], NULL, 16);
 
-		ret = ubi_volume_write(argv[3], (void *)addr, size);
+		if (strlen(argv[1]) == 10 &&
+		    strncmp(argv[1] + 5, ".part", 5) == 0) {
+			if (argc < 6) {
+				ret = ubi_volume_continue_write(argv[3],
+						(void *)addr, size);
+			} else {
+				size_t full_size;
+				full_size = simple_strtoul(argv[5], NULL, 16);
+				ret = ubi_volume_begin_write(argv[3],
+						(void *)addr, size, full_size);
+			}
+		} else {
+			ret = ubi_volume_write(argv[3], (void *)addr, size);
+		}
 		if (!ret) {
-			printf("%d bytes written to volume %s\n", size,
+			printf("%lld bytes written to volume %s\n", size,
 			       argv[3]);
 		}
 
@@ -613,7 +644,7 @@ static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		}
 
 		if (argc == 3) {
-			printf("Read %d bytes from volume %s to %lx\n", size,
+			printf("Read %lld bytes from volume %s to %lx\n", size,
 			       argv[3], addr);
 
 			return ubi_volume_read(argv[3], (char *)addr, size);
@@ -636,6 +667,8 @@ U_BOOT_CMD(
 		" - create volume name with size\n"
 	"ubi write[vol] address volume size"
 		" - Write volume from address with size\n"
+	"ubi write.part address volume size [fullsize]\n"
+		" - Write part of a volume from address\n"
 	"ubi read[vol] address volume [size]"
 		" - Read volume to address with size\n"
 	"ubi remove[vol] volume"

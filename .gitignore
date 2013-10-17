@@ -16,6 +16,7 @@
 *.patch
 *.bin
 *.cfgtmp
+*.dts.tmp
 
 # Build tree
 /build-*
@@ -24,7 +25,7 @@
 # Top-level generic files
 #
 
-/MLO
+/MLO*
 /SPL
 /System.map
 /u-boot
@@ -59,6 +60,8 @@
 /reloc_off
 
 /include/generated/
+/include/spl-autoconf.mk
+/include/tpl-autoconf.mk
 asm-offsets.s
 
 # stgit generated dirs

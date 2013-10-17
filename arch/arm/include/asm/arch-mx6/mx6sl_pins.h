@@ -1,10 +1,7 @@
 /*
  * Copyright (C) 2013 Freescale Semiconductor, Inc. All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ASM_ARCH_MX6_MX6SL_PINS_H__
@@ -21,5 +18,17 @@ enum {
 	MX6_PAD_SD2_DAT3__USDHC2_DAT3				= IOMUX_PAD(0x0570, 0x0268, 0, 0x0000, 0, 0),
 	MX6_PAD_UART1_RXD__UART1_RXD				= IOMUX_PAD(0x05A0, 0x0298, 0, 0x07FC, 0, 0),
 	MX6_PAD_UART1_TXD__UART1_TXD				= IOMUX_PAD(0x05A4, 0x029C, 0, 0x0000, 0, 0),
+
+	MX6_PAD_FEC_MDC__FEC_MDC				= IOMUX_PAD(0x41c, 0x12c, 0, 0x000, 0, 0),
+	MX6_PAD_FEC_MDIO__FEC_MDIO				= IOMUX_PAD(0x420, 0x130, 0, 0x6f4, 1, 0),
+	MX6_PAD_FEC_CRS_DV__FEC_RX_DV				= IOMUX_PAD(0x418, 0x128, 0, 0x704, 1, 0),
+	MX6_PAD_FEC_RXD0__FEC_RX_DATA0				= IOMUX_PAD(0x42c, 0x13c, 0, 0x6f8, 0, 0),
+	MX6_PAD_FEC_RXD1__FEC_RX_DATA1				= IOMUX_PAD(0x430, 0x140, 0, 0x6fc, 1, 0),
+	MX6_PAD_FEC_TX_EN__FEC_TX_EN				= IOMUX_PAD(0x438, 0x148, 0, 0x000, 0, 0),
+	MX6_PAD_FEC_TXD0__FEC_TX_DATA0				= IOMUX_PAD(0x43c, 0x14c, 0, 0x000, 0, 0),
+	MX6_PAD_FEC_TXD1__FEC_TX_DATA1				= IOMUX_PAD(0x440, 0x150, 0, 0x000, 0, 0),
+	MX6_PAD_FEC_REF_CLK__FEC_REF_OUT			= IOMUX_PAD(0x424, 0x134, 0x10, 0x000, 0, 0),
+	MX6_PAD_FEC_RX_ER__GPIO_4_19				= IOMUX_PAD(0x0428, 0x0138, 5, 0x0000, 0, 0),
+	MX6_PAD_FEC_TX_CLK__GPIO_4_21				= IOMUX_PAD(0x0434, 0x0144, 5, 0x0000, 0, 0),
 };
 #endif	/* __ASM_ARCH_MX6_MX6SL_PINS_H__ */

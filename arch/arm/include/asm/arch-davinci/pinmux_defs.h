@@ -3,19 +3,7 @@
  *
  * Copyright (C) 2011 OMICRON electronics GmbH
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ASM_ARCH_PINMUX_DEFS_H
@@ -35,12 +23,13 @@ extern const struct pinmux_config spi1_pins_scs0[1];
 
 /* UART pin muxer settings */
 extern const struct pinmux_config uart0_pins_txrx[2];
+extern const struct pinmux_config uart0_pins_rtscts[2];
 extern const struct pinmux_config uart1_pins_txrx[2];
 extern const struct pinmux_config uart2_pins_txrx[2];
 extern const struct pinmux_config uart2_pins_rtscts[2];
 
 /* EMAC pin muxer settings*/
-extern const struct pinmux_config emac_pins_rmii[7];
+extern const struct pinmux_config emac_pins_rmii[8];
 extern const struct pinmux_config emac_pins_rmii_clk_source[1];
 extern const struct pinmux_config emac_pins_mii[15];
 extern const struct pinmux_config emac_pins_mdio[2];

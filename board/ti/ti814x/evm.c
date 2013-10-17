@@ -5,15 +5,7 @@
  *
  * Copyright (C) 2011, Texas Instruments, Incorporated - http://www.ti.com/
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR /PURPOSE.  See the
- * GNU General Public License for more details.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -35,30 +27,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_SPL_BUILD
-static struct wd_timer *wdtimer = (struct wd_timer *)WDT_BASE;
-#endif
-
 static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
 /* UART Defines */
 #ifdef CONFIG_SPL_BUILD
-static void uart_enable(void)
-{
-	/* UART softreset */
-	uart_soft_reset();
-}
-
-static void wdt_disable(void)
-{
-	writel(0xAAAA, &wdtimer->wdtwspr);
-	while (readl(&wdtimer->wdtwwps) != 0x0)
-		;
-	writel(0x5555, &wdtimer->wdtwspr);
-	while (readl(&wdtimer->wdtwwps) != 0x0)
-		;
-}
-
 static const struct cmd_control evm_ddr2_cctrl_data = {
 	.cmd0csratio	= 0x80,
 	.cmd0dldiff	= 0x04,
@@ -108,68 +80,39 @@ static const struct ddr_data evm_ddr2_data = {
 	.datauserank0delay	= 1,
 	.datadldiff0		= 0x4,
 };
-#endif
 
-/*
- * early system init of muxing and clocks.
- */
-void s_init(void)
+void set_uart_mux_conf(void)
 {
-#ifdef CONFIG_SPL_BUILD
-	/*
-	 * Save the boot parameters passed from romcode.
-	 * We cannot delay the saving further than this,
-	 * to prevent overwrites.
-	 */
-#ifdef CONFIG_SPL_BUILD
-	save_omap_boot_params();
-#endif
-
-	/* WDT1 is already running when the bootloader gets control
-	 * Disable it to avoid "random" resets
-	 */
-	wdt_disable();
-
-	/* Enable timer */
-	timer_init();
-
-	/* Setup the PLLs and the clocks for the peripherals */
-	pll_init();
-
-	/* Enable RTC32K clock */
-	rtc32k_enable();
-
 	/* Set UART pins */
 	enable_uart0_pin_mux();
+}
 
+void set_mux_conf_regs(void)
+{
 	/* Set MMC pins */
 	enable_mmc1_pin_mux();
 
 	/* Set Ethernet pins */
 	enable_enet_pin_mux();
+}
 
-	/* Enable UART */
-	uart_enable();
-
-	gd = &gdata;
-
-	preloader_console_init();
-
+void sdram_init(void)
+{
 	config_dmm(&evm_lisa_map_regs);
 
 	config_ddr(0, 0, &evm_ddr2_data, &evm_ddr2_cctrl_data,
 		   &evm_ddr2_emif0_regs, 0);
 	config_ddr(0, 0, &evm_ddr2_data, &evm_ddr2_cctrl_data,
 		   &evm_ddr2_emif1_regs, 1);
-#endif
 }
+#endif
 
 /*
  * Basic board specific setup.  Pinmux has been handled already.
  */
 int board_init(void)
 {
-	gd->bd->bi_boot_params = PHYS_DRAM_1 + 0x100;
+	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 	return 0;
 }
 
@@ -215,6 +158,7 @@ static struct cpsw_platform_data cpsw_data = {
 	.ale_entries		= 1024,
 	.host_port_reg_ofs	= 0x28,
 	.hw_stats_reg_ofs	= 0x400,
+	.bd_ram_ofs		= 0x2000,
 	.mac_control		= (1 << 5),
 	.control		= cpsw_control,
 	.host_port_num		= 0,

@@ -1,17 +1,5 @@
 /*
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301, USA.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ASM_ARCH_IOMUX_H__
@@ -38,6 +26,11 @@
 #define IOMUXC_GPR13_SATA_PHY_3_MASK	(0x1f<<7)
 #define IOMUXC_GPR13_SATA_PHY_2_MASK	(0x1f<<2)
 #define IOMUXC_GPR13_SATA_PHY_1_MASK	(3<<0)
+
+#define IOMUX_GPR1_FEC_CLOCK_MUX1_SEL_MASK (0x3 << 17)
+#define IOMUX_GPR1_FEC_CLOCK_MUX2_SEL_MASK (0x1 << 14)
+#define IOMUX_GPR1_FEC_MASK    (IOMUX_GPR1_FEC_CLOCK_MUX1_SEL_MASK \
+				| IOMUX_GPR1_FEC_CLOCK_MUX2_SEL_MASK)
 
 #define IOMUXC_GPR13_SATA_PHY_8_RXEQ_0P5DB	(0<<24)
 #define IOMUXC_GPR13_SATA_PHY_8_RXEQ_1P0DB	(1<<24)

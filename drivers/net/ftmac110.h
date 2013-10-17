@@ -1,11 +1,10 @@
 /*
  * Faraday 10/100Mbps Ethernet Controller
  *
- * (C) Copyright 2010 Faraday Technology
+ * (C) Copyright 2013 Faraday Technology
  * Dante Su <dantesu@faraday-tech.com>
  *
- * This file is released under the terms of GPL v2 and any later version.
- * See the file COPYING in the root directory of the source tree for details.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _FTMAC110_H
@@ -136,42 +135,42 @@ struct ftmac110_regs {
 /*
  * descriptor structure
  */
-struct ftmac110_rxd {
-	uint32_t ct[2];
-	uint32_t buf;
-	void    *vbuf; /* reserved */
+struct ftmac110_desc {
+	uint64_t ctrl;
+	uint32_t pbuf;
+	void    *vbuf;
 };
 
-#define FTMAC110_RXCT0_OWNER       BIT_MASK(31) /* owner: 1=HW, 0=SW */
-#define FTMAC110_RXCT0_FRS         BIT_MASK(29) /* first pkt desc */
-#define FTMAC110_RXCT0_LRS         BIT_MASK(28) /* last pkt desc */
-#define FTMAC110_RXCT0_ODDNB       BIT_MASK(22) /* odd nibble */
-#define FTMAC110_RXCT0_RUNT        BIT_MASK(21) /* runt pkt */
-#define FTMAC110_RXCT0_FTL         BIT_MASK(20) /* frame too long */
-#define FTMAC110_RXCT0_CRC         BIT_MASK(19) /* pkt crc error */
-#define FTMAC110_RXCT0_ERR         BIT_MASK(18) /* bus error */
-#define FTMAC110_RXCT0_ERRMASK     (0x1f << 18) /* all errors */
-#define FTMAC110_RXCT0_BCST        BIT_MASK(17) /* Bcst pkt */
-#define FTMAC110_RXCT0_MCST        BIT_MASK(16) /* Mcst pkt */
-#define FTMAC110_RXCT0_LEN(x)      ((x) & 0x7ff)
+#define FTMAC110_RXD_END        ((uint64_t)1 << 63)
+#define FTMAC110_RXD_BUFSZ(x)   (((uint64_t)(x) & 0x7ff) << 32)
 
-#define FTMAC110_RXCT1_END         BIT_MASK(31)
-#define FTMAC110_RXCT1_BUFSZ(x)    ((x) & 0x7ff)
+#define FTMAC110_RXD_OWNER      ((uint64_t)1 << 31) /* owner: 1=HW, 0=SW */
+#define FTMAC110_RXD_FRS        ((uint64_t)1 << 29) /* first pkt desc */
+#define FTMAC110_RXD_LRS        ((uint64_t)1 << 28) /* last pkt desc */
+#define FTMAC110_RXD_ODDNB      ((uint64_t)1 << 22) /* odd nibble */
+#define FTMAC110_RXD_RUNT       ((uint64_t)1 << 21) /* runt pkt */
+#define FTMAC110_RXD_FTL        ((uint64_t)1 << 20) /* frame too long */
+#define FTMAC110_RXD_CRC        ((uint64_t)1 << 19) /* pkt crc error */
+#define FTMAC110_RXD_ERR        ((uint64_t)1 << 18) /* bus error */
+#define FTMAC110_RXD_ERRMASK    ((uint64_t)0x1f << 18)
+#define FTMAC110_RXD_BCST       ((uint64_t)1 << 17) /* Bcst pkt */
+#define FTMAC110_RXD_MCST       ((uint64_t)1 << 16) /* Mcst pkt */
+#define FTMAC110_RXD_LEN(x)     ((uint64_t)((x) & 0x7ff))
 
-struct ftmac110_txd {
-	uint32_t ct[2];
-	uint32_t buf;
-	void    *vbuf; /* reserved */
-};
+#define FTMAC110_RXD_CLRMASK	\
+	(FTMAC110_RXD_END | FTMAC110_RXD_BUFSZ(0x7ff))
 
-#define FTMAC110_TXCT0_OWNER       BIT_MASK(31) /* owner: 1=HW, 0=SW */
-#define FTMAC110_TXCT0_COL         0x00000003   /* collision */
+#define FTMAC110_TXD_END    ((uint64_t)1 << 63) /* end of ring */
+#define FTMAC110_TXD_TXIC   ((uint64_t)1 << 62) /* tx done interrupt */
+#define FTMAC110_TXD_TX2FIC ((uint64_t)1 << 61) /* tx fifo interrupt */
+#define FTMAC110_TXD_FTS    ((uint64_t)1 << 60) /* first pkt desc */
+#define FTMAC110_TXD_LTS    ((uint64_t)1 << 59) /* last pkt desc */
+#define FTMAC110_TXD_LEN(x) ((uint64_t)((x) & 0x7ff) << 32)
 
-#define FTMAC110_TXCT1_END         BIT_MASK(31) /* end of ring */
-#define FTMAC110_TXCT1_TXIC        BIT_MASK(30) /* tx done interrupt */
-#define FTMAC110_TXCT1_TX2FIC      BIT_MASK(29) /* tx fifo interrupt */
-#define FTMAC110_TXCT1_FTS         BIT_MASK(28) /* first pkt desc */
-#define FTMAC110_TXCT1_LTS         BIT_MASK(27) /* last pkt desc */
-#define FTMAC110_TXCT1_LEN(x)      ((x) & 0x7ff)
+#define FTMAC110_TXD_OWNER  ((uint64_t)1 << 31)	/* owner: 1=HW, 0=SW */
+#define FTMAC110_TXD_COL    ((uint64_t)3)		/* collision */
+
+#define FTMAC110_TXD_CLRMASK    \
+	(FTMAC110_TXD_END)
 
 #endif  /* FTMAC110_H */

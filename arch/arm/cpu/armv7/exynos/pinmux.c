@@ -2,23 +2,7 @@
  * Copyright (c) 2012 Samsung Electronics.
  * Abhilash Kesavan <a.kesavan@samsung.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -236,10 +220,20 @@ static void exynos5_i2s_config(int peripheral)
 {
 	int i;
 	struct exynos5_gpio_part1 *gpio1 =
-		(struct exynos5_gpio_part1 *) samsung_get_base_gpio_part1();
+		(struct exynos5_gpio_part1 *)samsung_get_base_gpio_part1();
+	struct exynos5_gpio_part4 *gpio4 =
+		(struct exynos5_gpio_part4 *)samsung_get_base_gpio_part4();
 
-	for (i = 0; i < 5; i++)
-		s5p_gpio_cfg_pin(&gpio1->b0, i, GPIO_FUNC(0x02));
+	switch (peripheral) {
+	case PERIPH_ID_I2S0:
+		for (i = 0; i < 5; i++)
+			s5p_gpio_cfg_pin(&gpio4->z, i, GPIO_FUNC(0x02));
+		break;
+	case PERIPH_ID_I2S1:
+		for (i = 0; i < 5; i++)
+			s5p_gpio_cfg_pin(&gpio1->b0, i, GPIO_FUNC(0x02));
+		break;
+	}
 }
 
 void exynos5_spi_config(int peripheral)
@@ -312,6 +306,7 @@ static int exynos5_pinmux_config(int peripheral, int flags)
 	case PERIPH_ID_I2C7:
 		exynos5_i2c_config(peripheral, flags);
 		break;
+	case PERIPH_ID_I2S0:
 	case PERIPH_ID_I2S1:
 		exynos5_i2s_config(peripheral);
 		break;
@@ -479,11 +474,11 @@ static int exynos4_pinmux_config(int peripheral, int flags)
 
 int exynos_pinmux_config(int peripheral, int flags)
 {
-	if (cpu_is_exynos5())
+	if (cpu_is_exynos5()) {
 		return exynos5_pinmux_config(peripheral, flags);
-	else if (cpu_is_exynos4())
+	} else if (cpu_is_exynos4()) {
 		return exynos4_pinmux_config(peripheral, flags);
-	else {
+	} else {
 		debug("pinmux functionality not supported\n");
 		return -1;
 	}

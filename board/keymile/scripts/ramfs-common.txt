@@ -1,5 +1,5 @@
 addramfs=setenv bootargs "${bootargs} phram.phram=rootfs${boot_bank},${rootfsaddr},${rootfssize}"
-actual_bank=-1
+boot_bank=-1
 altbootcmd=run ${subbootcmds}
 bootcmd=run ${subbootcmds}
 subbootcmds=tftpfdt tftpkernel setrootfsaddr tftpramfs flashargs add_default addpanic addramfs boot

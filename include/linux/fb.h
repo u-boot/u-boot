@@ -2,6 +2,7 @@
 #define _LINUX_FB_H
 
 #include <linux/types.h>
+#include <linux/list.h>
 
 /* Definitions of frame buffers						*/
 

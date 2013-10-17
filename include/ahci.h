@@ -3,24 +3,7 @@
  * Author: Jason Jin<Jason.jin@freescale.com>
  *         Zhang Wei<wei.zhang@freescale.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
- *
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _AHCI_H_
 #define _AHCI_H_
@@ -104,6 +87,11 @@
 				| PORT_IRQ_DMAS_FIS | PORT_IRQ_PIOS_FIS	\
 				| PORT_IRQ_D2H_REG_FIS
 
+/* PORT_SCR_STAT bits */
+#define PORT_SCR_STAT_DET_MASK	0x3
+#define PORT_SCR_STAT_DET_COMINIT 0x1
+#define PORT_SCR_STAT_DET_PHYRDY 0x3
+
 /* PORT_CMD bits */
 #define PORT_CMD_ATAPI		(1 << 24) /* Device is ATAPI */
 #define PORT_CMD_LIST_ON	(1 << 15) /* cmd list DMA engine running */
@@ -119,29 +107,6 @@
 #define PORT_CMD_ICC_SLUMBER	(0x6 << 28) /* Put i/f in slumber state */
 
 #define AHCI_MAX_PORTS		32
-
-/* SETFEATURES stuff */
-#define SETFEATURES_XFER	0x03
-#define XFER_UDMA_7		0x47
-#define XFER_UDMA_6		0x46
-#define XFER_UDMA_5		0x45
-#define XFER_UDMA_4		0x44
-#define XFER_UDMA_3		0x43
-#define XFER_UDMA_2		0x42
-#define XFER_UDMA_1		0x41
-#define XFER_UDMA_0		0x40
-#define XFER_MW_DMA_2		0x22
-#define XFER_MW_DMA_1		0x21
-#define XFER_MW_DMA_0		0x20
-#define XFER_SW_DMA_2		0x12
-#define XFER_SW_DMA_1		0x11
-#define XFER_SW_DMA_0		0x10
-#define XFER_PIO_4		0x0C
-#define XFER_PIO_3		0x0B
-#define XFER_PIO_2		0x0A
-#define XFER_PIO_1		0x09
-#define XFER_PIO_0		0x08
-#define XFER_PIO_SLOW		0x00
 
 #define ATA_FLAG_SATA		(1 << 3)
 #define ATA_FLAG_NO_LEGACY	(1 << 4) /* no legacy mode check */

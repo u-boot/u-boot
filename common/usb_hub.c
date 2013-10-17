@@ -1,5 +1,4 @@
 /*
- *
  * Most of this source has been derived from the Linux USB
  * project:
  * (C) Copyright Linus Torvalds 1999
@@ -15,24 +14,7 @@
  * Adapted for U-Boot:
  * (C) Copyright 2001 Denis Peter, MPL AG Switzerland
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
- *
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /****************************************************************************
@@ -62,6 +44,10 @@
 static struct usb_hub_device hub_dev[USB_MAX_HUB];
 static int usb_hub_index;
 
+__weak void usb_hub_reset_devices(int port)
+{
+	return;
+}
 
 static int usb_get_hub_descriptor(struct usb_device *dev, void *data, int size)
 {
@@ -128,7 +114,7 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
 		ret = usb_get_port_status(dev, i + 1, portsts);
 		if (ret < 0) {
 			debug("port %d: get_port_status failed\n", i + 1);
-			return;
+			continue;
 		}
 
 		/*
@@ -143,7 +129,7 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
 		portstatus = le16_to_cpu(portsts->wPortStatus);
 		if (portstatus & (USB_PORT_STAT_POWER << 1)) {
 			debug("port %d: Port power change failed\n", i + 1);
-			return;
+			continue;
 		}
 	}
 
@@ -320,7 +306,7 @@ void usb_hub_port_connect_change(struct usb_device *dev, int port)
 
 static int usb_hub_configure(struct usb_device *dev)
 {
-	int i;
+	int i, length;
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, USB_BUFSIZ);
 	unsigned char *bitmap;
 	short hubCharacteristics;
@@ -341,20 +327,14 @@ static int usb_hub_configure(struct usb_device *dev)
 	}
 	descriptor = (struct usb_hub_descriptor *)buffer;
 
-	/* silence compiler warning if USB_BUFSIZ is > 256 [= sizeof(char)] */
-	i = descriptor->bLength;
-	if (i > USB_BUFSIZ) {
-		debug("usb_hub_configure: failed to get hub " \
-		      "descriptor - too long: %d\n", descriptor->bLength);
-		return -1;
-	}
+	length = min(descriptor->bLength, sizeof(struct usb_hub_descriptor));
 
-	if (usb_get_hub_descriptor(dev, buffer, descriptor->bLength) < 0) {
+	if (usb_get_hub_descriptor(dev, buffer, length) < 0) {
 		debug("usb_hub_configure: failed to get hub " \
 		      "descriptor 2nd giving up %lX\n", dev->status);
 		return -1;
 	}
-	memcpy((unsigned char *)&hub->desc, buffer, descriptor->bLength);
+	memcpy((unsigned char *)&hub->desc, buffer, length);
 	/* adjust 16bit values */
 	put_unaligned(le16_to_cpu(get_unaligned(
 			&descriptor->wHubCharacteristics)),
@@ -443,6 +423,14 @@ static int usb_hub_configure(struct usb_device *dev)
 	      (le16_to_cpu(hubsts->wHubStatus) & HUB_STATUS_OVERCURRENT) ? \
 	      "" : "no ");
 	usb_hub_power_on(hub);
+
+	/*
+	 * Reset any devices that may be in a bad state when applying
+	 * the power.  This is a __weak function.  Resetting of the devices
+	 * should occur in the board file of the device.
+	 */
+	for (i = 0; i < dev->maxchild; i++)
+		usb_hub_reset_devices(i + 1);
 
 	for (i = 0; i < dev->maxchild; i++) {
 		ALLOC_CACHE_ALIGN_BUFFER(struct usb_port_status, portsts, 1);

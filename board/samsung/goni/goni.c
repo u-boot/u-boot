@@ -3,23 +3,7 @@
  *  Minkyu Kang <mk7.kang@samsung.com>
  *  Kyungmin Park <kyungmin.park@samsung.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -48,7 +32,11 @@ int power_init_board(void)
 {
 	int ret;
 
-	ret = pmic_init(I2C_5);
+	/*
+	 * For PMIC the I2C bus is named as I2C5, but it is connected
+	 * to logical I2C adapter 0
+	 */
+	ret = pmic_init(I2C_0);
 	if (ret)
 		return ret;
 
@@ -84,7 +72,7 @@ int checkboard(void)
 #ifdef CONFIG_GENERIC_MMC
 int board_mmc_init(bd_t *bis)
 {
-	int i;
+	int i, ret, ret_sd = 0;
 
 	/* MASSMEMORY_EN: XMSMDATA7: GPJ2[7] output high */
 	s5p_gpio_direction_output(&s5pc110_gpio->j2, 7, 1);
@@ -107,7 +95,36 @@ int board_mmc_init(bd_t *bis)
 		s5p_gpio_set_drv(&s5pc110_gpio->g0, i, GPIO_DRV_4X);
 	}
 
-	return s5p_mmc_init(0, 4);
+	ret = s5p_mmc_init(0, 4);
+	if (ret)
+		error("MMC: Failed to init MMC:0.\n");
+
+	/*
+	 * SD card (T_FLASH) detect and init
+	 * T_FLASH_DETECT: EINT28: GPH3[4] input mode
+	 */
+	s5p_gpio_cfg_pin(&s5pc110_gpio->h3, 4, GPIO_INPUT);
+	s5p_gpio_set_pull(&s5pc110_gpio->h3, 4, GPIO_PULL_UP);
+
+	if (!s5p_gpio_get_value(&s5pc110_gpio->h3, 4)) {
+		for (i = 0; i < 7; i++) {
+			if (i == 2)
+				continue;
+
+			/* GPG2[0:6] special function 2 */
+			s5p_gpio_cfg_pin(&s5pc110_gpio->g2, i, 0x2);
+			/* GPG2[0:6] pull disable */
+			s5p_gpio_set_pull(&s5pc110_gpio->g2, i, GPIO_PULL_NONE);
+			/* GPG2[0:6] drv 4x */
+			s5p_gpio_set_drv(&s5pc110_gpio->g2, i, GPIO_DRV_4X);
+		}
+
+		ret_sd = s5p_mmc_init(2, 4);
+		if (ret_sd)
+			error("MMC: Failed to init SD card (MMC:2).\n");
+	}
+
+	return ret & ret_sd;
 }
 #endif
 

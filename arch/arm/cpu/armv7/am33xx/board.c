@@ -5,15 +5,7 @@
  *
  * Copyright (C) 2011, Texas Instruments, Incorporated - http://www.ti.com/
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR /PURPOSE.  See the
- * GNU General Public License for more details.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -35,6 +27,7 @@
 #include <miiphy.h>
 #include <cpsw.h>
 #include <asm/errno.h>
+#include <linux/compiler.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
 #include <linux/usb/musb.h>
@@ -63,12 +56,6 @@ int cpu_mmc_init(bd_t *bis)
 	return omap_mmc_init(1, 0, 0, -1, -1);
 }
 #endif
-
-void setup_clocks_for_console(void)
-{
-	/* Not yet implemented */
-	return;
-}
 
 /* AM33XX has two MUSB controllers which can be host or gadget */
 #if (defined(CONFIG_MUSB_GADGET) || defined(CONFIG_MUSB_HOST)) && \
@@ -150,8 +137,18 @@ int arch_misc_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
-void rtc32k_enable(void)
+#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_NOR_BOOT)
+/*
+ * This function is the place to do per-board things such as ramp up the
+ * MPU clock frequency.
+ */
+__weak void am33xx_spl_board_init(void)
+{
+	do_setup_dpll(&dpll_core_regs, &dpll_core_opp100);
+	do_setup_dpll(&dpll_mpu_regs, &dpll_mpu_opp100);
+}
+
+static void rtc32k_enable(void)
 {
 	struct rtc_regs *rtc = (struct rtc_regs *)RTC_BASE;
 
@@ -167,11 +164,7 @@ void rtc32k_enable(void)
 	writel((1 << 3) | (1 << 6), &rtc->osc);
 }
 
-#define UART_RESET		(0x1 << 1)
-#define UART_CLK_RUNNING_MASK	0x1
-#define UART_SMART_IDLE_EN	(0x1 << 0x3)
-
-void uart_soft_reset(void)
+static void uart_soft_reset(void)
 {
 	struct uart_sys *uart_base = (struct uart_sys *)DEFAULT_UART_BASE;
 	u32 regval;
@@ -188,4 +181,58 @@ void uart_soft_reset(void)
 	regval |= UART_SMART_IDLE_EN;
 	writel(regval, &uart_base->uartsyscfg);
 }
+
+static void watchdog_disable(void)
+{
+	struct wd_timer *wdtimer = (struct wd_timer *)WDT_BASE;
+
+	writel(0xAAAA, &wdtimer->wdtwspr);
+	while (readl(&wdtimer->wdtwwps) != 0x0)
+		;
+	writel(0x5555, &wdtimer->wdtwspr);
+	while (readl(&wdtimer->wdtwwps) != 0x0)
+		;
+}
 #endif
+
+void s_init(void)
+{
+	/*
+	 * The ROM will only have set up sufficient pinmux to allow for the
+	 * first 4KiB NOR to be read, we must finish doing what we know of
+	 * the NOR mux in this space in order to continue.
+	 */
+#ifdef CONFIG_NOR_BOOT
+	enable_norboot_pin_mux();
+#endif
+	/*
+	 * Save the boot parameters passed from romcode.
+	 * We cannot delay the saving further than this,
+	 * to prevent overwrites.
+	 */
+#ifdef CONFIG_SPL_BUILD
+	save_omap_boot_params();
+#endif
+#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_NOR_BOOT)
+	watchdog_disable();
+	timer_init();
+	set_uart_mux_conf();
+	setup_clocks_for_console();
+	uart_soft_reset();
+#endif
+#ifdef CONFIG_NOR_BOOT
+	gd->baudrate = CONFIG_BAUDRATE;
+	serial_init();
+	gd->have_console = 1;
+#else
+	gd = &gdata;
+	preloader_console_init();
+#endif
+#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_NOR_BOOT)
+	prcm_init();
+	set_mux_conf_regs();
+	/* Enable RTC32K clock */
+	rtc32k_enable();
+	sdram_init();
+#endif
+}

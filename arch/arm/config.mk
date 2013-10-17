@@ -2,29 +2,13 @@
 # (C) Copyright 2000-2002
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
-# See file CREDITS for list of people who contributed to this
-# project.
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 2 of
-# the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA 02111-1307 USA
+# SPDX-License-Identifier:	GPL-2.0+
 #
 
 CROSS_COMPILE ?= arm-linux-
 
 ifndef CONFIG_STANDALONE_LOAD_ADDR
-ifneq ($(CONFIG_AM33XX)$(CONFIG_OMAP34XX)$(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX)$(CONFIG_TI814X),)
+ifneq ($(CONFIG_OMAP_COMMON),)
 CONFIG_STANDALONE_LOAD_ADDR = 0x80300000
 else
 CONFIG_STANDALONE_LOAD_ADDR = 0xc100000
@@ -32,7 +16,8 @@ endif
 endif
 
 LDFLAGS_FINAL += --gc-sections
-PLATFORM_RELFLAGS += -ffunction-sections -fdata-sections
+PLATFORM_RELFLAGS += -ffunction-sections -fdata-sections \
+		     -fno-common -ffixed-r9 -msoft-float
 
 # Support generic board on ARM
 __HAVE_ARCH_GENERIC_BOARD := y
@@ -110,7 +95,11 @@ PLATFORM_RELFLAGS += -fno-optimize-sibling-calls
 endif
 endif
 
-# check that only R_ARM_RELATIVE relocations are generated
 ifneq ($(CONFIG_SPL_BUILD),y)
-ALL-y	+= checkarmreloc
+# Check that only R_ARM_RELATIVE relocations are generated.
+ALL-y += checkarmreloc
+# The movt / movw can hardcode 16 bit parts of the addresses in the
+# instruction. Relocation is not supported for that case, so disable
+# such usage by requiring word relocations.
+PLATFORM_CPPFLAGS += $(call cc-option, -mword-relocations)
 endif

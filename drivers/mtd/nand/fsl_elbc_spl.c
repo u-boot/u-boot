@@ -7,20 +7,7 @@
  * Copyright (c) 2008 Freescale Semiconductor, Inc.
  * Author: Scott Wood <scottwood@freescale.com>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -47,7 +34,11 @@ static void nand_wait(void)
 	}
 }
 
+#ifdef CONFIG_TPL_BUILD
+int nand_spl_load_image(uint32_t offs, unsigned int uboot_size, void *vdst)
+#else
 static int nand_load_image(uint32_t offs, unsigned int uboot_size, void *vdst)
+#endif
 {
 	fsl_lbc_t *regs = LBC_BASE_ADDR;
 	uchar *buf = (uchar *)CONFIG_SYS_NAND_BASE;
@@ -68,20 +59,20 @@ static int nand_load_image(uint32_t offs, unsigned int uboot_size, void *vdst)
 	if (large) {
 		fmr |= FMR_ECCM;
 		out_be32(&regs->fcr, (NAND_CMD_READ0 << FCR_CMD0_SHIFT) |
-		                     (NAND_CMD_READSTART << FCR_CMD1_SHIFT));
+				     (NAND_CMD_READSTART << FCR_CMD1_SHIFT));
 		out_be32(&regs->fir,
-		         (FIR_OP_CW0 << FIR_OP0_SHIFT) |
-		         (FIR_OP_CA  << FIR_OP1_SHIFT) |
-		         (FIR_OP_PA  << FIR_OP2_SHIFT) |
-		         (FIR_OP_CW1 << FIR_OP3_SHIFT) |
-		         (FIR_OP_RBW << FIR_OP4_SHIFT));
+			 (FIR_OP_CW0 << FIR_OP0_SHIFT) |
+			 (FIR_OP_CA  << FIR_OP1_SHIFT) |
+			 (FIR_OP_PA  << FIR_OP2_SHIFT) |
+			 (FIR_OP_CW1 << FIR_OP3_SHIFT) |
+			 (FIR_OP_RBW << FIR_OP4_SHIFT));
 	} else {
 		out_be32(&regs->fcr, NAND_CMD_READ0 << FCR_CMD0_SHIFT);
 		out_be32(&regs->fir,
-		         (FIR_OP_CW0 << FIR_OP0_SHIFT) |
-		         (FIR_OP_CA  << FIR_OP1_SHIFT) |
-		         (FIR_OP_PA  << FIR_OP2_SHIFT) |
-		         (FIR_OP_RBW << FIR_OP3_SHIFT));
+			 (FIR_OP_CW0 << FIR_OP0_SHIFT) |
+			 (FIR_OP_CA  << FIR_OP1_SHIFT) |
+			 (FIR_OP_PA  << FIR_OP2_SHIFT) |
+			 (FIR_OP_RBW << FIR_OP3_SHIFT));
 	}
 
 	out_be32(&regs->fbcr, 0);
@@ -127,6 +118,15 @@ static int nand_load_image(uint32_t offs, unsigned int uboot_size, void *vdst)
 }
 
 /*
+ * Defines a static function nand_load_image() here, because non-static makes
+ * the code too large for certain SPLs(minimal SPL, maximum size <= 4Kbytes)
+ */
+#ifndef CONFIG_TPL_BUILD
+#define nand_spl_load_image(offs, uboot_size, vdst) \
+	nand_load_image(offs, uboot_size, vdst)
+#endif
+
+/*
  * The main entry for NAND booting. It's necessary that SDRAM is already
  * configured and available since this code loads the main U-Boot image
  * from NAND into SDRAM and starts it from there.
@@ -137,17 +137,17 @@ void nand_boot(void)
 	/*
 	 * Load U-Boot image from NAND into RAM
 	 */
-	nand_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
-			CONFIG_SYS_NAND_U_BOOT_SIZE,
-			(void *)CONFIG_SYS_NAND_U_BOOT_DST);
+	nand_spl_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
+			    CONFIG_SYS_NAND_U_BOOT_SIZE,
+			    (void *)CONFIG_SYS_NAND_U_BOOT_DST);
 
 #ifdef CONFIG_NAND_ENV_DST
-	nand_load_image(CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE,
-			(void *)CONFIG_NAND_ENV_DST);
+	nand_spl_load_image(CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE,
+			    (void *)CONFIG_NAND_ENV_DST);
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
-	nand_load_image(CONFIG_ENV_OFFSET_REDUND, CONFIG_ENV_SIZE,
-			(void *)CONFIG_NAND_ENV_DST + CONFIG_ENV_SIZE);
+	nand_spl_load_image(CONFIG_ENV_OFFSET_REDUND, CONFIG_ENV_SIZE,
+			    (void *)CONFIG_NAND_ENV_DST + CONFIG_ENV_SIZE);
 #endif
 #endif
 

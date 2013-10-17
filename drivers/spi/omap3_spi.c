@@ -11,24 +11,7 @@
  *
  * Modified by Ruslan Araslanov <ruslan.araslanov@vitecmm.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
- *
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -67,7 +50,7 @@ static void omap3_spi_write_chconf(struct omap3_spi_slave *ds, int val)
 static void omap3_spi_set_enable(struct omap3_spi_slave *ds, int enable)
 {
 	writel(enable, &ds->regs->channel[ds->slave.cs].chctrl);
-        /* Flash post writes to make immediate effect */
+	/* Flash post writes to make immediate effect */
 	readl(&ds->regs->channel[ds->slave.cs].chctrl);
 }
 
@@ -100,7 +83,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		regs = (struct mcspi *)OMAP3_MCSPI2_BASE;
 		break;
 #endif
-#ifdef OMAP3_MCSPI3_BASE 
+#ifdef OMAP3_MCSPI3_BASE
 	case 2:
 		regs = (struct mcspi *)OMAP3_MCSPI3_BASE;
 		break;
@@ -270,9 +253,9 @@ int omap3_spi_write(struct spi_slave *slave, unsigned int len, const u8 *txp,
 		writel(txp[i], &ds->regs->channel[ds->slave.cs].tx);
 	}
 
-        /* wait to finish of transfer */
-        while (!(readl(&ds->regs->channel[ds->slave.cs].chstat) &
-                         OMAP3_MCSPI_CHSTAT_EOT));
+	/* wait to finish of transfer */
+	while (!(readl(&ds->regs->channel[ds->slave.cs].chstat) &
+			 OMAP3_MCSPI_CHSTAT_EOT));
 
 	/* Disable the channel otherwise the next immediate RX will get affected */
 	omap3_spi_set_enable(ds,OMAP3_MCSPI_CHCTRL_DIS);
@@ -376,7 +359,7 @@ int omap3_spi_txrx(struct spi_slave *slave,
 		rxp[i] = readl(&ds->regs->channel[ds->slave.cs].rx);
 	}
 	/* Disable the channel */
-        omap3_spi_set_enable(ds,OMAP3_MCSPI_CHCTRL_DIS);
+	omap3_spi_set_enable(ds,OMAP3_MCSPI_CHCTRL_DIS);
 
 	/*if transfer must be terminated disable the channel*/
 	if (flags & SPI_XFER_END) {

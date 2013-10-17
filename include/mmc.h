@@ -4,23 +4,7 @@
  *
  * Based (loosely) on the Linux code
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _MMC_H_
@@ -351,7 +335,11 @@ int mmc_start_init(struct mmc *mmc);
 void mmc_set_preinit(struct mmc *mmc, int preinit);
 
 #ifdef CONFIG_GENERIC_MMC
+#ifdef CONFIG_MMC_SPI
 #define mmc_host_is_spi(mmc)	((mmc)->host_caps & MMC_MODE_SPI)
+#else
+#define mmc_host_is_spi(mmc)	0
+#endif
 struct mmc *mmc_spi_init(uint bus, uint cs, uint speed, uint mode);
 #else
 int mmc_legacy_init(int verbose);

@@ -1,10 +1,10 @@
 /dts-v1/;
 
-/include/ ARCH_CPU_DTS
+/include/ "coreboot.dtsi"
 
 / {
-        #address-cells = <1>;
-        #size-cells = <1>;
+	#address-cells = <1>;
+	#size-cells = <1>;
 	model = "Google Link";
 	compatible = "google,link", "intel,celeron-ivybridge";
 
@@ -12,15 +12,15 @@
 	       silent_console = <0>;
 	};
 
-        gpio: gpio {};
+	gpio: gpio {};
 
 	serial {
 		reg = <0x3f8 8>;
 		clock-frequency = <115200>;
 	};
 
-        chosen { };
-        memory { device_type = "memory"; reg = <0 0>; };
+	chosen { };
+	memory { device_type = "memory"; reg = <0 0>; };
 
 	spi {
 		#address-cells = <1>;

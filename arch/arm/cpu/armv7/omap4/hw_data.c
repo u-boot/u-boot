@@ -7,23 +7,7 @@
  *
  * Sricharan R <r.sricharan@ti.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <asm/arch/omap.h>
@@ -66,6 +50,7 @@ static const struct dpll_params mpu_dpll_params_1400mhz[NUM_SYS_CLKS] = {
 /*
  * dpll locked at 1600 MHz - MPU clk at 800 MHz(OPP Turbo 4430)
  * OMAP4430 OPP_TURBO frequency
+ * OMAP4470 OPP_NOM frequency
  */
 static const struct dpll_params mpu_dpll_params_1600mhz[NUM_SYS_CLKS] = {
 	{200, 2, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 12 MHz   */
@@ -92,6 +77,7 @@ static const struct dpll_params mpu_dpll_params_1200mhz[NUM_SYS_CLKS] = {
 };
 
 /* OMAP4460 OPP_NOM frequency */
+/* OMAP4470 OPP_NOM (Low Power) frequency */
 static const struct dpll_params core_dpll_params_1600mhz[NUM_SYS_CLKS] = {
 	{200, 2, 1, 5, 8, 4, 6, 5, -1, -1, -1, -1},	/* 12 MHz   */
 	{800, 12, 1, 5, 8, 4, 6, 5, -1, -1, -1, -1},	/* 13 MHz   */
@@ -214,6 +200,20 @@ struct dplls omap4460_dplls = {
 	.ddr = NULL
 };
 
+struct dplls omap4470_dplls = {
+	.mpu = mpu_dpll_params_1600mhz,
+	.core = core_dpll_params_1600mhz,
+	.per = per_dpll_params_1536mhz,
+	.iva = iva_dpll_params_1862mhz,
+#ifdef CONFIG_SYS_OMAP_ABE_SYSCK
+	.abe = abe_dpll_params_sysclk_196608khz,
+#else
+	.abe = &abe_dpll_params_32k_196608khz,
+#endif
+	.usb = usb_dpll_params_1920mhz,
+	.ddr = NULL
+};
+
 struct pmic_data twl6030_4430es1 = {
 	.base_offset = PHOENIX_SMPS_BASE_VOLT_STD_MODE_UV,
 	.step = 12660, /* 12.66 mV represented in uV */
@@ -224,6 +224,7 @@ struct pmic_data twl6030_4430es1 = {
 	.pmic_write	= omap_vc_bypass_send_value,
 };
 
+/* twl6030 struct is used for TWL6030 and TWL6032 PMIC */
 struct pmic_data twl6030 = {
 	.base_offset = PHOENIX_SMPS_BASE_VOLT_STD_MODE_WITH_OFFSET_UV,
 	.step = 12660, /* 12.66 mV represented in uV */
@@ -284,6 +285,20 @@ struct vcores_data omap4460_volts = {
 
 	.mm.value = 1200,
 	.mm.addr = SMPS_REG_ADDR_VCORE2,
+	.mm.pmic = &twl6030,
+};
+
+struct vcores_data omap4470_volts = {
+	.mpu.value = 1200,
+	.mpu.addr = SMPS_REG_ADDR_SMPS1,
+	.mpu.pmic = &twl6030,
+
+	.core.value = 1126,
+	.core.addr = SMPS_REG_ADDR_SMPS1,
+	.core.pmic = &twl6030,
+
+	.mm.value = 1137,
+	.mm.addr = SMPS_REG_ADDR_SMPS1,
 	.mm.pmic = &twl6030,
 };
 
@@ -490,6 +505,11 @@ void hw_data_init(void)
 	case OMAP4460_ES1_1:
 	*dplls_data = &omap4460_dplls;
 	*omap_vcores = &omap4460_volts;
+	break;
+
+	case OMAP4470_ES1_0:
+	*dplls_data = &omap4470_dplls;
+	*omap_vcores = &omap4470_volts;
 	break;
 
 	default:

@@ -8,23 +8,9 @@
  *	Shashi Ranjan <shashiranjanmca05@gmail.com>
  *
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
+
 #include <common.h>
 #include <usb.h>
 #include <usb/ulpi.h>
@@ -42,18 +28,21 @@ static struct omap_ehci *const ehci = (struct omap_ehci *)OMAP_EHCI_BASE;
 
 static int omap_uhh_reset(void)
 {
-	unsigned long init = get_timer(0);
-
-	/* perform UHH soft reset, and wait until reset is complete */
-	writel(OMAP_UHH_SYSCONFIG_SOFTRESET, &uhh->sysc);
-
-	/* Wait for UHH reset to complete */
-	while (!(readl(&uhh->syss) & OMAP_UHH_SYSSTATUS_EHCI_RESETDONE))
-		if (get_timer(init) > CONFIG_SYS_HZ) {
-			debug("OMAP UHH error: timeout resetting ehci\n");
-			return -EL3RST;
-		}
-
+/*
+ * Soft resetting the UHH module causes instability issues on
+ * all OMAPs so we just avoid it.
+ *
+ * See OMAP36xx Errata
+ *  i571: USB host EHCI may stall when entering smart-standby mode
+ *  i660: USBHOST Configured In Smart-Idle Can Lead To a Deadlock
+ *
+ * On OMAP4/5, soft-resetting the UHH module will put it into
+ * Smart-Idle mode and lead to a deadlock.
+ *
+ * On OMAP3, this doesn't seem to be the case but still instabilities
+ * are observed on beagle (3530 ES1.0) if soft-reset is used.
+ * e.g. NFS root failures with Linux kernel.
+ */
 	return 0;
 }
 
@@ -90,6 +79,7 @@ static void omap_usbhs_hsic_init(int port)
 	writel(reg, &usbtll->channel_conf + port);
 }
 
+#ifdef CONFIG_USB_ULPI
 static void omap_ehci_soft_phy_reset(int port)
 {
 	struct ulpi_viewport ulpi_vp;
@@ -99,6 +89,12 @@ static void omap_ehci_soft_phy_reset(int port)
 
 	ulpi_reset(&ulpi_vp);
 }
+#else
+static void omap_ehci_soft_phy_reset(int port)
+{
+	return;
+}
+#endif
 
 inline int __board_usb_init(void)
 {
@@ -107,7 +103,8 @@ inline int __board_usb_init(void)
 int board_usb_init(void) __attribute__((weak, alias("__board_usb_init")));
 
 #if defined(CONFIG_OMAP_EHCI_PHY1_RESET_GPIO) || \
-	defined(CONFIG_OMAP_EHCI_PHY2_RESET_GPIO)
+	defined(CONFIG_OMAP_EHCI_PHY2_RESET_GPIO) || \
+	defined(CONFIG_OMAP_EHCI_PHY3_RESET_GPIO)
 /* controls PHY(s) reset signal(s) */
 static inline void omap_ehci_phy_reset(int on, int delay)
 {
@@ -125,6 +122,10 @@ static inline void omap_ehci_phy_reset(int on, int delay)
 #ifdef CONFIG_OMAP_EHCI_PHY2_RESET_GPIO
 	gpio_request(CONFIG_OMAP_EHCI_PHY2_RESET_GPIO, "USB PHY2 reset");
 	gpio_direction_output(CONFIG_OMAP_EHCI_PHY2_RESET_GPIO, !on);
+#endif
+#ifdef CONFIG_OMAP_EHCI_PHY3_RESET_GPIO
+	gpio_request(CONFIG_OMAP_EHCI_PHY3_RESET_GPIO, "USB PHY3 reset");
+	gpio_direction_output(CONFIG_OMAP_EHCI_PHY3_RESET_GPIO, !on);
 #endif
 
 	/* Hold the PHY in RESET for enough time till DIR is high */
@@ -209,10 +210,27 @@ int omap_ehci_hcd_init(struct omap_usbhs_board_data *usbhs_pdata,
 		else
 			setbits_le32(&reg, OMAP_UHH_HOSTCONFIG_ULPI_P3_BYPASS);
 	} else if (rev == OMAP_USBHS_REV2) {
+
 		clrsetbits_le32(&reg, (OMAP_P1_MODE_CLEAR | OMAP_P2_MODE_CLEAR),
 					OMAP4_UHH_HOSTCONFIG_APP_START_CLK);
 
-		/* Clear port mode fields for PHY mode*/
+		/* Clear port mode fields for PHY mode */
+
+		if (is_ehci_hsic_mode(usbhs_pdata->port_mode[0]))
+			setbits_le32(&reg, OMAP_P1_MODE_HSIC);
+
+		if (is_ehci_hsic_mode(usbhs_pdata->port_mode[1]))
+			setbits_le32(&reg, OMAP_P2_MODE_HSIC);
+
+	} else if (rev == OMAP_USBHS_REV2_1) {
+
+		clrsetbits_le32(&reg,
+				(OMAP_P1_MODE_CLEAR |
+				 OMAP_P2_MODE_CLEAR |
+				 OMAP_P3_MODE_CLEAR),
+				OMAP4_UHH_HOSTCONFIG_APP_START_CLK);
+
+		/* Clear port mode fields for PHY mode */
 
 		if (is_ehci_hsic_mode(usbhs_pdata->port_mode[0]))
 			setbits_le32(&reg, OMAP_P1_MODE_HSIC);

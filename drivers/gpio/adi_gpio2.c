@@ -352,8 +352,8 @@ void special_gpio_free(unsigned gpio)
 		return;
 	}
 
-	reserve(special_gpio, gpio);
-	reserve(peri, gpio);
+	unreserve(special_gpio, gpio);
+	unreserve(peri, gpio);
 	set_label(gpio, "free");
 }
 #endif

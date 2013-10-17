@@ -398,7 +398,7 @@ sub top_of_kernel_tree {
 	my ($root) = @_;
 
 	my @tree_check = (
-		"COPYING", "CREDITS", "Kbuild", "MAINTAINERS", "Makefile",
+		"COPYING", "CREDITS", "Kbuild", "Makefile",
 		"README", "Documentation", "arch", "include", "drivers",
 		"fs", "init", "ipc", "kernel", "lib", "scripts",
 	);
@@ -3701,7 +3701,7 @@ sub process {
 $vname has style problems, please review.
 
 If any of these errors are false positives, please report
-them to the maintainer, see CHECKPATCH in MAINTAINERS.
+them to the maintainer, see boards.cfg.
 EOM
 	}
 

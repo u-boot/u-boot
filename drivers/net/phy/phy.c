@@ -1,21 +1,7 @@
 /*
  * Generic PHY Management code
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
- *
+ * SPDX-License-Identifier:	GPL-2.0+
  *
  * Copyright 2011 Freescale Semiconductor, Inc.
  * author Andy Fleming
@@ -291,7 +277,7 @@ int genphy_parse_link(struct phy_device *phydev)
 	/* We're using autonegotiation */
 	if (mii_reg & BMSR_ANEGCAPABLE) {
 		u32 lpa = 0;
-		u32 gblpa = 0;
+		int gblpa = 0;
 		u32 estatus = 0;
 
 		/* Check for gigabit capability */
@@ -300,6 +286,10 @@ int genphy_parse_link(struct phy_device *phydev)
 			 * both PHYs in the link
 			 */
 			gblpa = phy_read(phydev, MDIO_DEVAD_NONE, MII_STAT1000);
+			if (gblpa < 0) {
+				debug("Could not read MII_STAT1000. Ignoring gigabit capability\n");
+				gblpa = 0;
+			}
 			gblpa &= phy_read(phydev,
 					MDIO_DEVAD_NONE, MII_CTRL1000) << 2;
 		}

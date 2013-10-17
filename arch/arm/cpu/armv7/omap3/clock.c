@@ -9,20 +9,7 @@
  *      Richard Woodruff <r-woodruff2@ti.com>
  *      Syed Mohammed Khasim <khasim@ti.com>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -196,8 +183,7 @@ static void dpll3_init_34xx(u32 sil_index, u32 clk_index)
 		 * if running from flash, jump to small relocated code
 		 * area in SRAM.
 		 */
-		f_lock_pll = (void *) ((u32) &_end_vect - (u32) &_start +
-				SRAM_VECT_CODE);
+		f_lock_pll = (void *) (SRAM_CLK_CODE);
 
 		p0 = readl(&prcm_base->clken_pll);
 		sr32(&p0, 0, 3, PLL_FAST_RELOCK_BYPASS);
@@ -414,8 +400,7 @@ static void dpll3_init_36xx(u32 sil_index, u32 clk_index)
 		 * if running from flash, jump to small relocated code
 		 * area in SRAM.
 		 */
-		f_lock_pll = (void *) ((u32) &_end_vect - (u32) &_start +
-				SRAM_VECT_CODE);
+		f_lock_pll = (void *) (SRAM_CLK_CODE);
 
 		p0 = readl(&prcm_base->clken_pll);
 		sr32(&p0, 0, 3, PLL_FAST_RELOCK_BYPASS);
@@ -489,6 +474,24 @@ static void dpll4_init_36xx(u32 sil_index, u32 clk_index)
 	/* LOCK MODE (EN_PERIPH_DPLL): CM_CLKEN_PLL[16:18] */
 	sr32(&prcm_base->clken_pll, 16, 3, PLL_LOCK);
 	wait_on_value(ST_PERIPH_CLK, 2, &prcm_base->idlest_ckgen, LDELAY);
+}
+
+static void dpll5_init_36xx(u32 sil_index, u32 clk_index)
+{
+	struct prcm *prcm_base = (struct prcm *)PRCM_BASE;
+	dpll_param *ptr = (dpll_param *) get_36x_per2_dpll_param();
+
+	/* Moving it to the right sysclk base */
+	ptr = ptr + clk_index;
+
+	/* PER2 DPLL (DPLL5) */
+	sr32(&prcm_base->clken2_pll, 0, 3, PLL_STOP);
+	wait_on_value(1, 0, &prcm_base->idlest2_ckgen, LDELAY);
+	sr32(&prcm_base->clksel5_pll, 0, 5, ptr->m2); /* set M2 (usbtll_fck) */
+	sr32(&prcm_base->clksel4_pll, 8, 11, ptr->m); /* set m (11-bit multiplier) */
+	sr32(&prcm_base->clksel4_pll, 0, 7, ptr->n); /* set n (7-bit divider)*/
+	sr32(&prcm_base->clken2_pll, 0, 3, PLL_LOCK);   /* lock mode */
+	wait_on_value(1, 1, &prcm_base->idlest2_ckgen, LDELAY);
 }
 
 static void mpu_init_36xx(u32 sil_index, u32 clk_index)
@@ -595,7 +598,7 @@ void prcm_init(void)
 
 		dpll3_init_36xx(0, clk_index);
 		dpll4_init_36xx(0, clk_index);
-		dpll5_init_34xx(0, clk_index);
+		dpll5_init_36xx(0, clk_index);
 		iva_init_36xx(0, clk_index);
 		mpu_init_36xx(0, clk_index);
 

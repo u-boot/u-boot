@@ -102,7 +102,7 @@ u32 crc32_le(u32 crc, unsigned char const *p, size_t len)
 	if((len >= 4)){
 		/* load data 32 bits wide, xor data 32 bits wide. */
 		size_t save_len = len & 3;
-	        len = len >> 2;
+		len = len >> 2;
 		--b; /* use pre increment below(*++b) for speed */
 		do {
 			crc ^= *++b;
@@ -200,7 +200,7 @@ u32 __attribute_pure__ crc32_be(u32 crc, unsigned char const *p, size_t len)
 	if(likely(len >= 4)){
 		/* load data 32 bits wide, xor data 32 bits wide. */
 		size_t save_len = len & 3;
-	        len = len >> 2;
+		len = len >> 2;
 		--b; /* use pre increment below(*++b) for speed */
 		do {
 			crc ^= *++b;

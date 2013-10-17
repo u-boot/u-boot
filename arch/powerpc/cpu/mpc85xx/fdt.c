@@ -4,23 +4,7 @@
  * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -419,22 +403,22 @@ static void ft_fixup_dpaa_clks(void *blob)
 	get_sys_info(&sysinfo);
 #ifdef CONFIG_SYS_DPAA_FMAN
 	ft_fixup_clks(blob, "fsl,fman", CONFIG_SYS_FSL_FM1_OFFSET,
-			sysinfo.freqFMan[0]);
+			sysinfo.freq_fman[0]);
 
 #if (CONFIG_SYS_NUM_FMAN == 2)
 	ft_fixup_clks(blob, "fsl,fman", CONFIG_SYS_FSL_FM2_OFFSET,
-			sysinfo.freqFMan[1]);
+			sysinfo.freq_fman[1]);
 #endif
 #endif
 
 #ifdef CONFIG_SYS_DPAA_QBMAN
 	do_fixup_by_compat_u32(blob, "fsl,qman",
-			"clock-frequency", sysinfo.freqQMAN, 1);
+			"clock-frequency", sysinfo.freq_qman, 1);
 #endif
 
 #ifdef CONFIG_SYS_DPAA_PME
 	do_fixup_by_compat_u32(blob, "fsl,pme",
-		"clock-frequency", sysinfo.freqPME, 1);
+		"clock-frequency", sysinfo.freq_pme, 1);
 #endif
 }
 #else
@@ -492,7 +476,7 @@ void fdt_fixup_fman_firmware(void *blob)
 	if (!p)
 		return;
 
-	fmanfw = (struct qe_firmware *) simple_strtoul(p, NULL, 0);
+	fmanfw = (struct qe_firmware *) simple_strtoul(p, NULL, 16);
 	if (!fmanfw)
 		return;
 
@@ -620,15 +604,19 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 
 	fdt_add_enet_stashing(blob);
 
+#ifndef CONFIG_FSL_TBCLK_EXTRA_DIV
+#define CONFIG_FSL_TBCLK_EXTRA_DIV 1
+#endif
 	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
-		"timebase-frequency", get_tbclk(), 1);
+		"timebase-frequency", get_tbclk() / CONFIG_FSL_TBCLK_EXTRA_DIV,
+		1);
 	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
 		"bus-frequency", bd->bi_busfreq, 1);
 	get_sys_info(&sysinfo);
 	off = fdt_node_offset_by_prop_value(blob, -1, "device_type", "cpu", 4);
 	while (off != -FDT_ERR_NOTFOUND) {
 		u32 *reg = (u32 *)fdt_getprop(blob, off, "reg", 0);
-		val = cpu_to_fdt32(sysinfo.freqProcessor[*reg]);
+		val = cpu_to_fdt32(sysinfo.freq_processor[*reg]);
 		fdt_setprop(blob, off, "clock-frequency", &val, 4);
 		off = fdt_node_offset_by_prop_value(blob, off, "device_type",
 							"cpu", 4);

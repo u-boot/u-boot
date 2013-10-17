@@ -1,22 +1,7 @@
 /*
  * Copyright 2011 Freescale Semiconductor, Inc.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
- *
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <mpc85xx.h>
@@ -41,7 +26,7 @@ void sdram_init(void)
 
 	ddr_ratio = in_be32(&gur->porpllsr) & MPC85xx_PORPLLSR_DDR_RATIO;
 	ddr_ratio = ddr_ratio >> MPC85xx_PORPLLSR_DDR_RATIO_SHIFT;
-	ddr_freq_mhz = (CONFIG_SYS_CLK_FREQ * ddr_ratio) / 0x1000000;
+	ddr_freq_mhz = (CONFIG_SYS_CLK_FREQ * ddr_ratio) / 1000000;
 
 	/* mask off E bit */
 	u32 svr = SVR_SOC_VER(mfspr(SPRN_SVR));

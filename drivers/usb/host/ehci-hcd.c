@@ -36,16 +36,13 @@
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 1
 #endif
 
-static struct ehci_ctrl {
-	struct ehci_hccr *hccr;	/* R/O registers, not need for volatile */
-	struct ehci_hcor *hcor;
-	int rootdev;
-	uint16_t portreset;
-	struct QH qh_list __aligned(USB_DMA_MINALIGN);
-	struct QH periodic_queue __aligned(USB_DMA_MINALIGN);
-	uint32_t *periodic_list;
-	int ntds;
-} ehcic[CONFIG_USB_MAX_CONTROLLER_COUNT];
+/*
+ * EHCI spec page 20 says that the HC may take up to 16 uFrames (= 4ms) to halt.
+ * Let's time out after 8 to have a little safety margin on top of that.
+ */
+#define HCHALT_TIMEOUT (8 * 1000)
+
+static struct ehci_ctrl ehcic[CONFIG_USB_MAX_CONTROLLER_COUNT];
 
 #define ALIGN_END_ADDR(type, ptr, size)			\
 	((uint32_t)(ptr) + roundup((size) * sizeof(type), USB_DMA_MINALIGN))
@@ -196,6 +193,36 @@ static int ehci_reset(int index)
 	ehci_writel(&ehcic[index].hcor->or_txfilltuning, cmd);
 #endif
 out:
+	return ret;
+}
+
+static int ehci_shutdown(struct ehci_ctrl *ctrl)
+{
+	int i, ret = 0;
+	uint32_t cmd, reg;
+
+	cmd = ehci_readl(&ctrl->hcor->or_usbcmd);
+	cmd &= ~(CMD_PSE | CMD_ASE);
+	ehci_writel(&ctrl->hcor->or_usbcmd, cmd);
+	ret = handshake(&ctrl->hcor->or_usbsts, STS_ASS | STS_PSS, 0,
+		100 * 1000);
+
+	if (!ret) {
+		for (i = 0; i < CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS; i++) {
+			reg = ehci_readl(&ctrl->hcor->or_portsc[i]);
+			reg |= EHCI_PS_SUSP;
+			ehci_writel(&ctrl->hcor->or_portsc[i], reg);
+		}
+
+		cmd &= ~CMD_RUN;
+		ehci_writel(&ctrl->hcor->or_usbcmd, cmd);
+		ret = handshake(&ctrl->hcor->or_usbsts, STS_HALT, STS_HALT,
+			HCHALT_TIMEOUT);
+	}
+
+	if (ret)
+		puts("EHCI failed to shut down host controller.\n");
+
 	return ret;
 }
 
@@ -817,6 +844,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 			}
 			break;
 		case USB_PORT_FEAT_TEST:
+			ehci_shutdown(ctrl);
 			reg &= ~(0xf << 16);
 			reg |= ((le16_to_cpu(req->index) >> 8) & 0xf) << 16;
 			ehci_writel(status_reg, reg);
@@ -887,6 +915,7 @@ unknown:
 
 int usb_lowlevel_stop(int index)
 {
+	ehci_shutdown(&ehcic[index]);
 	return ehci_hcd_stop(index);
 }
 
@@ -954,7 +983,9 @@ int usb_lowlevel_init(int index, void **controller)
 	 *         Split Transactions will be spread across microframes using
 	 *         S-mask and C-mask.
 	 */
-	ehcic[index].periodic_list = memalign(4096, 1024*4);
+	if (ehcic[index].periodic_list == NULL)
+		ehcic[index].periodic_list = memalign(4096, 1024 * 4);
+
 	if (!ehcic[index].periodic_list)
 		return -ENOMEM;
 	for (i = 0; i < 1024; i++) {

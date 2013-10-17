@@ -50,7 +50,7 @@ is a summary of that information:
     trying to preserve your old environment settings and user flash).
   - Set the start address of the erase/flash process to FF80_0000
   - Set the target RAM required to 64kB.
-  - Select sectors for erasing (see note on enviroment below)
+  - Select sectors for erasing (see note on environment below)
   - Select Erase and Reprogram.
 
 Note that some versions of the register files used with Workbench

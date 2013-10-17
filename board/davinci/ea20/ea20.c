@@ -11,19 +11,7 @@
  * Copyright (C) 2009 Nick Thompson, GE Fanuc, Ltd. <nick.thompson@gefanuc.com>
  * Copyright (C) 2007 Sergey Kubushyn <ksi@koi8.net>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -36,7 +24,7 @@
 #include <asm/io.h>
 #include <asm/arch/davinci_misc.h>
 #include <asm/gpio.h>
-#include <asm/arch/da8xx-fb.h>
+#include "../../../drivers/video/da8xx-fb.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -53,6 +41,30 @@ static const struct da8xx_panel lcd_panel = {
 	.vsw = 3,
 	.pxl_clk = 25000000,
 	.invert_pxl_clk = 0,
+};
+
+static const struct display_panel disp_panel = {
+	QVGA,
+	16,
+	16,
+	COLOR_ACTIVE,
+};
+
+static const struct lcd_ctrl_config lcd_cfg = {
+	&disp_panel,
+	.ac_bias		= 255,
+	.ac_bias_intrpt		= 0,
+	.dma_burst_sz		= 16,
+	.bpp			= 16,
+	.fdd			= 255,
+	.tft_alt_mode		= 0,
+	.stn_565_mode		= 0,
+	.mono_8bit_mode		= 0,
+	.invert_line_clock	= 1,
+	.invert_frm_clock	= 1,
+	.sync_edge		= 0,
+	.sync_ctrl		= 1,
+	.raster_order		= 0,
 };
 
 /* SPI0 pin muxer settings */
@@ -271,7 +283,7 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = LINUX_BOOT_PARAM_ADDR;
 
-	da8xx_video_init(&lcd_panel, 16);
+	da8xx_video_init(&lcd_panel, &lcd_cfg, 16);
 
 	return 0;
 }

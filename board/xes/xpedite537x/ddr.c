@@ -2,23 +2,7 @@
  * Copyright 2008 Extreme Engineering Solutions, Inc.
  * Copyright 2008 Freescale Semiconductor, Inc.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -226,7 +210,7 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	unsigned int datarate;
 
 	get_sys_info(&sysinfo);
-	datarate = sysinfo.freqDDRBus / 1000 / 1000;
+	datarate = sysinfo.freq_ddrbus / 1000 / 1000;
 
 	for (i = 0; i < ARRAY_SIZE(bopts_ctrl[ctrl_num]); i++) {
 		if ((bopts[i].datarate_mhz_low <= datarate) &&

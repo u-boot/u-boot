@@ -1,23 +1,7 @@
 /*
  * Copyright 2012 Freescale Semiconductor, Inc.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -29,8 +13,12 @@
 #include <asm/errno.h>
 #include "fsl_corenet2_serdes.h"
 
+#ifdef CONFIG_SYS_FSL_SRDS_1
 static u64 serdes1_prtcl_map;
+#endif
+#ifdef CONFIG_SYS_FSL_SRDS_2
 static u64 serdes2_prtcl_map;
+#endif
 #ifdef CONFIG_SYS_FSL_SRDS_3
 static u64 serdes3_prtcl_map;
 #endif
@@ -94,8 +82,12 @@ int is_serdes_configured(enum srds_prtcl device)
 {
 	u64 ret = 0;
 
+#ifdef CONFIG_SYS_FSL_SRDS_1
 	ret |= (1ULL << device) & serdes1_prtcl_map;
+#endif
+#ifdef CONFIG_SYS_FSL_SRDS_2
 	ret |= (1ULL << device) & serdes2_prtcl_map;
+#endif
 #ifdef CONFIG_SYS_FSL_SRDS_3
 	ret |= (1ULL << device) & serdes3_prtcl_map;
 #endif
@@ -113,14 +105,18 @@ int serdes_get_first_lane(u32 sd, enum srds_prtcl device)
 	int i;
 
 	switch (sd) {
+#ifdef CONFIG_SYS_FSL_SRDS_1
 	case FSL_SRDS_1:
 		cfg &= FSL_CORENET2_RCWSR4_SRDS1_PRTCL;
 		cfg >>= FSL_CORENET2_RCWSR4_SRDS1_PRTCL_SHIFT;
 		break;
+#endif
+#ifdef CONFIG_SYS_FSL_SRDS_2
 	case FSL_SRDS_2:
 		cfg &= FSL_CORENET2_RCWSR4_SRDS2_PRTCL;
 		cfg >>= FSL_CORENET2_RCWSR4_SRDS2_PRTCL_SHIFT;
 		break;
+#endif
 #ifdef CONFIG_SYS_FSL_SRDS_3
 	case FSL_SRDS_3:
 		cfg &= FSL_CORENET2_RCWSR4_SRDS3_PRTCL;
@@ -179,14 +175,18 @@ u64 serdes_init(u32 sd, u32 sd_addr, u32 sd_prctl_mask, u32 sd_prctl_shift)
 void fsl_serdes_init(void)
 {
 
+#ifdef CONFIG_SYS_FSL_SRDS_1
 	serdes1_prtcl_map = serdes_init(FSL_SRDS_1,
 		CONFIG_SYS_FSL_CORENET_SERDES_ADDR,
 		FSL_CORENET2_RCWSR4_SRDS1_PRTCL,
 		FSL_CORENET2_RCWSR4_SRDS1_PRTCL_SHIFT);
+#endif
+#ifdef CONFIG_SYS_FSL_SRDS_2
 	serdes2_prtcl_map = serdes_init(FSL_SRDS_2,
 		CONFIG_SYS_FSL_CORENET_SERDES_ADDR + FSL_SRDS_2 * 0x1000,
 		FSL_CORENET2_RCWSR4_SRDS2_PRTCL,
 		FSL_CORENET2_RCWSR4_SRDS2_PRTCL_SHIFT);
+#endif
 #ifdef CONFIG_SYS_FSL_SRDS_3
 	serdes3_prtcl_map = serdes_init(FSL_SRDS_3,
 		CONFIG_SYS_FSL_CORENET_SERDES_ADDR + FSL_SRDS_3 * 0x1000,

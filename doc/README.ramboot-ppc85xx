@@ -23,11 +23,11 @@ methods could be handy.
    the board.And then execute the bootloader from DDR.
    Some usecases where this may be used:
       - While developing some new feature of u-boot, for example USB driver or
-        SPI driver.
-        Suppose the board already has a working bootloader on it. And you would
-        prefer to keep it intact, at the same time want to test your bootloader.
-        In this case you can get your test bootloader binary into DDR via tftp
-        for example. Then execute the test bootloader.
+	SPI driver.
+	Suppose the board already has a working bootloader on it. And you would
+	prefer to keep it intact, at the same time want to test your bootloader.
+	In this case you can get your test bootloader binary into DDR via tftp
+	for example. Then execute the test bootloader.
      - Suppose a platform already has a propreitery bootloader which does not
        support for example AMP boot. In this case also RAM boot loader can be
        utilized.

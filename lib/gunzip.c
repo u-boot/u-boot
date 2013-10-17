@@ -2,23 +2,7 @@
  * (C) Copyright 2000-2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -105,13 +89,13 @@ int zunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp,
 	s.avail_out = dstlen;
 	do {
 		r = inflate(&s, Z_FINISH);
-		if (r != Z_STREAM_END && r != Z_BUF_ERROR && stoponerr == 1) {
+		if (stoponerr == 1 && r != Z_STREAM_END &&
+		    (s.avail_out == 0 || r != Z_BUF_ERROR)) {
 			printf("Error: inflate() returned %d\n", r);
 			inflateEnd(&s);
 			return -1;
 		}
 		s.avail_in = *lenp - offset - (int)(s.next_out - (unsigned char*)dst);
-		s.avail_out = dstlen;
 	} while (r == Z_BUF_ERROR);
 	*lenp = s.next_out - (unsigned char *) dst;
 	inflateEnd(&s);

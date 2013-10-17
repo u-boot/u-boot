@@ -40,7 +40,6 @@
 #define SHARED_RESOURCES	1
 
 /* Is I2C bit-banged? */
-#undef CONFIG_SOFT_I2
 
 /*
  * Clock Settings
@@ -115,7 +114,7 @@
 # undef CONFIG_CMD_NET
 #endif
 
-#ifdef CONFIG_SOFT_I2C
+#ifdef CONFIG_SYS_I2C_SOFT
 # define CONFIG_CMD_I2C
 #endif
 
@@ -204,11 +203,11 @@
  * Note these pins are arbitrarily chosen because we aren't using
  * them yet. You can (and probably should) change these values!
  */
-#ifdef CONFIG_SOFT_I2C
+#ifdef CONFIG_SYS_I2C_SOFT
 #define CONFIG_SOFT_I2C_GPIO_SCL GPIO_PF9
 #define CONFIG_SOFT_I2C_GPIO_SDA GPIO_PF8
-#define CONFIG_SYS_I2C_SPEED		50000
-#define CONFIG_SYS_I2C_SLAVE		0xFE
+#define CONFIG_SYS_I2C_SOFT_SPEED	50000
+#define CONFIG_SYS_I2C_SOFT_SLAVE	0xFE
 #endif
 
 /*

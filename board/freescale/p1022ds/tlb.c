@@ -3,10 +3,7 @@
  * Authors: Srikanth Srinivasan <srikanth.srinivasan@freescale.com>
  *          Timur Tabi <timur@freescale.com>
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 2 of the License, or (at your option)
- * any later version.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -74,25 +71,32 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 7, BOOKE_PAGESZ_4K, 1),
 
-#if defined(CONFIG_SYS_RAMBOOT) || defined(CONFIG_SPL)
+#if defined(CONFIG_SYS_RAMBOOT) || \
+	(defined(CONFIG_SPL) && !defined(CONFIG_SPL_COMMON_INIT_DDR))
 	/* **** - eSDHC/eSPI/NAND boot */
 	SET_TLB_ENTRY(1, CONFIG_SYS_DDR_SDRAM_BASE, CONFIG_SYS_DDR_SDRAM_BASE,
-			MAS3_SX|MAS3_SW|MAS3_SR, 0,
-			0, 8, BOOKE_PAGESZ_1G, 1),
+		      MAS3_SX|MAS3_SW|MAS3_SR, 0,
+		      0, 8, BOOKE_PAGESZ_1G, 1),
 	/* **** - eSDHC/eSPI/NAND boot - second 1GB of memory */
 	SET_TLB_ENTRY(1, CONFIG_SYS_DDR_SDRAM_BASE + 0x40000000,
-			CONFIG_SYS_DDR_SDRAM_BASE + 0x40000000,
-			MAS3_SX|MAS3_SW|MAS3_SR, 0,
-			0, 9, BOOKE_PAGESZ_1G, 1),
+		      CONFIG_SYS_DDR_SDRAM_BASE + 0x40000000,
+		      MAS3_SX|MAS3_SW|MAS3_SR, 0,
+		      0, 9, BOOKE_PAGESZ_1G, 1),
 #endif
 
 #ifdef CONFIG_SYS_NAND_BASE
 	/* *I*G - NAND */
 	SET_TLB_ENTRY(1, CONFIG_SYS_NAND_BASE, CONFIG_SYS_NAND_BASE_PHYS,
-			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
-			0, 10, BOOKE_PAGESZ_16K, 1),
+		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
+		      0, 10, BOOKE_PAGESZ_16K, 1),
 #endif
 
+#ifdef CONFIG_SYS_INIT_L2_ADDR
+	/* *I*G - L2SRAM */
+	SET_TLB_ENTRY(1, CONFIG_SYS_INIT_L2_ADDR, CONFIG_SYS_INIT_L2_ADDR_PHYS,
+		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_G,
+		      0, 11, BOOKE_PAGESZ_256K, 1)
+#endif
 };
 
 int num_tlb_entries = ARRAY_SIZE(tlb_table);

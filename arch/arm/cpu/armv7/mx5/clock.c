@@ -4,23 +4,7 @@
  *
  * (C) Copyright 2009 Freescale Semiconductor, Inc.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -101,7 +85,7 @@ void set_usboh3_clk(void)
 			MXC_CCM_CSCDR1_USBOH3_CLK_PODF(1));
 }
 
-void enable_usboh3_clk(unsigned char enable)
+void enable_usboh3_clk(bool enable)
 {
 	unsigned int cg = enable ? MXC_CCM_CCGR_CG_ON : MXC_CCM_CCGR_CG_OFF;
 
@@ -138,7 +122,7 @@ void set_usb_phy_clk(void)
 }
 
 #if defined(CONFIG_MX51)
-void enable_usb_phy1_clk(unsigned char enable)
+void enable_usb_phy1_clk(bool enable)
 {
 	unsigned int cg = enable ? MXC_CCM_CCGR_CG_ON : MXC_CCM_CCGR_CG_OFF;
 
@@ -147,12 +131,12 @@ void enable_usb_phy1_clk(unsigned char enable)
 			MXC_CCM_CCGR2_USB_PHY(cg));
 }
 
-void enable_usb_phy2_clk(unsigned char enable)
+void enable_usb_phy2_clk(bool enable)
 {
 	/* i.MX51 has a single USB PHY clock, so do nothing here. */
 }
 #elif defined(CONFIG_MX53)
-void enable_usb_phy1_clk(unsigned char enable)
+void enable_usb_phy1_clk(bool enable)
 {
 	unsigned int cg = enable ? MXC_CCM_CCGR_CG_ON : MXC_CCM_CCGR_CG_OFF;
 
@@ -161,7 +145,7 @@ void enable_usb_phy1_clk(unsigned char enable)
 			MXC_CCM_CCGR4_USB_PHY1(cg));
 }
 
-void enable_usb_phy2_clk(unsigned char enable)
+void enable_usb_phy2_clk(bool enable)
 {
 	unsigned int cg = enable ? MXC_CCM_CCGR_CG_ON : MXC_CCM_CCGR_CG_OFF;
 

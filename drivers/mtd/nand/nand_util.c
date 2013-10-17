@@ -14,29 +14,7 @@
  * Copyright (C) 2008 Nokia Corporation: drop_ffs() function by
  * Artem Bityutskiy <dedekind1@gmail.com> from mtd-utils
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License version
- * 2 as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
- *
- * Copyright 2010 Freescale Semiconductor
- * The portions of this file whose copyright is held by Freescale and which
- * are not considered a derived work of GPL v2-only code may be distributed
- * and/or modified under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -73,7 +51,6 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 	struct jffs2_unknown_node cleanmarker;
 	erase_info_t erase;
 	unsigned long erase_length, erased_length; /* in blocks */
-	int bbtest = 1;
 	int result;
 	int percent_complete = -1;
 	const char *mtd_device = meminfo->name;
@@ -124,7 +101,7 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 			puts("Size of erase exceeds limit\n");
 			return -EFBIG;
 		}
-		if (!opts->scrub && bbtest) {
+		if (!opts->scrub) {
 			int ret = mtd_block_isbad(meminfo, erase.addr);
 			if (ret > 0) {
 				if (!opts->quiet)
@@ -165,8 +142,8 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 			ops.mode = MTD_OPS_AUTO_OOB;
 
 			result = mtd_write_oob(meminfo,
-			                            erase.addr,
-			                            &ops);
+						    erase.addr,
+						    &ops);
 			if (result != 0) {
 				printf("\n%s: MTD writeoob failure: %d\n",
 				       mtd_device, result);

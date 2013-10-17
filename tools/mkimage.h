@@ -3,20 +3,7 @@
  * DENX Software Engineering
  * Wolfgang Denk, wd@denx.de
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _MKIIMAGE_H_
@@ -145,7 +132,10 @@ struct image_type_params {
 	/*
 	 * This callback function will be executed for variable size record
 	 * It is expected to build this header in memory and return its length
-	 * and a pointer to it
+	 * and a pointer to it by using image_type_params.header_size and
+	 * image_type_params.hdr. The return value shall indicate if an
+	 * additional padding should be used when copying the data image
+	 * by returning the padding length.
 	 */
 	int (*vrec_header) (struct mkimage_params *,
 		struct image_type_params *);
@@ -171,6 +161,7 @@ void init_pbl_image_type(void);
 void init_ais_image_type(void);
 void init_kwb_image_type (void);
 void init_imx_image_type (void);
+void init_mxs_image_type(void);
 void init_default_image_type (void);
 void init_fit_image_type (void);
 void init_ubl_image_type(void);

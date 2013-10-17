@@ -261,7 +261,7 @@ static void decode_address(char *buf, unsigned long address)
 	if (!address)
 		sprintf(buf, "<0x%p> /* Maybe null pointer? */", paddr);
 	else if (address >= CONFIG_SYS_MONITOR_BASE &&
-	         address < CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
+		 address < CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
 		sprintf(buf, "<0x%p> /* somewhere in u-boot */", paddr);
 	else
 		sprintf(buf, "<0x%p> /* unknown address */", paddr);

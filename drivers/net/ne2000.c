@@ -228,7 +228,7 @@ int get_prom(u8* mac_addr, u8* base_addr)
 
 	mdelay (10);
 
-	for (i = 0; i < sizeof (program_seq) / sizeof (program_seq[0]); i++)
+	for (i = 0; i < ARRAY_SIZE(program_seq); i++)
 		n2k_outb (program_seq[i].value, program_seq[i].offset);
 
 	PRINTK ("PROM:");

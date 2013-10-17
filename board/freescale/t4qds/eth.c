@@ -1,23 +1,7 @@
 /*
  * Copyright 2012 Freescale Semiconductor, Inc.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -188,7 +172,10 @@ static int t4240qds_mdio_init(char *realbusname, u8 muxval)
 void board_ft_fman_fixup_port(void *blob, char * prop, phys_addr_t pa,
 				enum fm_port port, int offset)
 {
-	if (fm_info_get_enet_if(port) == PHY_INTERFACE_MODE_SGMII) {
+	int interface = fm_info_get_enet_if(port);
+
+	if (interface == PHY_INTERFACE_MODE_SGMII ||
+	    interface == PHY_INTERFACE_MODE_QSGMII) {
 		switch (port) {
 		case FM1_DTSEC1:
 			if (qsgmiiphy_fix[port])
@@ -288,6 +275,7 @@ void fdt_fixup_board_enet(void *fdt)
 	for (i = FM1_DTSEC1; i < NUM_FM_PORTS; i++) {
 		switch (fm_info_get_enet_if(i)) {
 		case PHY_INTERFACE_MODE_SGMII:
+		case PHY_INTERFACE_MODE_QSGMII:
 			switch (mdio_mux[i]) {
 			case EMI1_SLOT1:
 				fdt_status_okay_by_alias(fdt, "emi1_slot1");
@@ -409,7 +397,7 @@ static void initialize_qsgmiiphy_fix(void)
 int board_eth_init(bd_t *bis)
 {
 #if defined(CONFIG_FMAN_ENET)
-	int i, idx, lane, slot;
+	int i, idx, lane, slot, interface;
 	struct memac_mdio_info dtsec_mdio_info;
 	struct memac_mdio_info tgec_mdio_info;
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
@@ -486,9 +474,9 @@ int board_eth_init(bd_t *bis)
 		fm_info_set_phy_address(FM1_DTSEC6, slot_qsgmii_phyaddr[1][1]);
 		if ((srds_prtcl_s2 != 56) && (srds_prtcl_s2 != 57)) {
 			fm_info_set_phy_address(FM1_DTSEC9,
-						slot_qsgmii_phyaddr[1][3]);
-			fm_info_set_phy_address(FM1_DTSEC10,
 						slot_qsgmii_phyaddr[1][2]);
+			fm_info_set_phy_address(FM1_DTSEC10,
+						slot_qsgmii_phyaddr[1][3]);
 		}
 		break;
 	case 40:
@@ -498,9 +486,9 @@ int board_eth_init(bd_t *bis)
 		fm_info_set_phy_address(FM1_DTSEC6, slot_qsgmii_phyaddr[1][1]);
 		if ((srds_prtcl_s2 != 56) && (srds_prtcl_s2 != 57)) {
 			fm_info_set_phy_address(FM1_DTSEC10,
-						slot_qsgmii_phyaddr[1][3]);
-			fm_info_set_phy_address(FM1_DTSEC9,
 						slot_qsgmii_phyaddr[1][2]);
+			fm_info_set_phy_address(FM1_DTSEC9,
+						slot_qsgmii_phyaddr[1][3]);
 		}
 		fm_info_set_phy_address(FM1_DTSEC1, slot_qsgmii_phyaddr[2][0]);
 		fm_info_set_phy_address(FM1_DTSEC2, slot_qsgmii_phyaddr[2][1]);
@@ -514,15 +502,31 @@ int board_eth_init(bd_t *bis)
 
 	for (i = FM1_DTSEC1; i < FM1_DTSEC1 + CONFIG_SYS_NUM_FM1_DTSEC; i++) {
 		idx = i - FM1_DTSEC1;
-		switch (fm_info_get_enet_if(i)) {
+		interface = fm_info_get_enet_if(i);
+		switch (interface) {
 		case PHY_INTERFACE_MODE_SGMII:
-			lane = serdes_get_first_lane(FSL_SRDS_1,
+		case PHY_INTERFACE_MODE_QSGMII:
+			if (interface == PHY_INTERFACE_MODE_QSGMII) {
+				if (idx <= 3)
+					lane = serdes_get_first_lane(FSL_SRDS_1,
+							QSGMII_FM1_A);
+				else
+					lane = serdes_get_first_lane(FSL_SRDS_1,
+							QSGMII_FM1_B);
+				if (lane < 0)
+					break;
+				slot = lane_to_slot_fsm1[lane];
+				debug("FM1@DTSEC%u expects QSGMII in slot %u\n",
+				      idx + 1, slot);
+			} else {
+				lane = serdes_get_first_lane(FSL_SRDS_1,
 						SGMII_FM1_DTSEC1 + idx);
-			if (lane < 0)
-				break;
-			slot = lane_to_slot_fsm1[lane];
-			debug("FM1@DTSEC%u expects SGMII in slot %u\n",
-				idx + 1, slot);
+				if (lane < 0)
+					break;
+				slot = lane_to_slot_fsm1[lane];
+				debug("FM1@DTSEC%u expects SGMII in slot %u\n",
+				      idx + 1, slot);
+			}
 			if (QIXIS_READ(present2) & (1 << (slot - 1)))
 				fm_disable_port(i);
 			switch (slot) {
@@ -616,8 +620,8 @@ int board_eth_init(bd_t *bis)
 		fm_info_set_phy_address(FM2_DTSEC4, slot_qsgmii_phyaddr[4][3]);
 		fm_info_set_phy_address(FM2_DTSEC5, slot_qsgmii_phyaddr[3][0]);
 		fm_info_set_phy_address(FM2_DTSEC6, slot_qsgmii_phyaddr[3][1]);
-		fm_info_set_phy_address(FM2_DTSEC9, slot_qsgmii_phyaddr[3][3]);
-		fm_info_set_phy_address(FM2_DTSEC10, slot_qsgmii_phyaddr[3][2]);
+		fm_info_set_phy_address(FM2_DTSEC9, slot_qsgmii_phyaddr[3][2]);
+		fm_info_set_phy_address(FM2_DTSEC10, slot_qsgmii_phyaddr[3][3]);
 		break;
 	case 40:
 	case 46:
@@ -657,15 +661,31 @@ int board_eth_init(bd_t *bis)
 
 	for (i = FM2_DTSEC1; i < FM2_DTSEC1 + CONFIG_SYS_NUM_FM2_DTSEC; i++) {
 		idx = i - FM2_DTSEC1;
-		switch (fm_info_get_enet_if(i)) {
+		interface = fm_info_get_enet_if(i);
+		switch (interface) {
 		case PHY_INTERFACE_MODE_SGMII:
-			lane = serdes_get_first_lane(FSL_SRDS_2,
+		case PHY_INTERFACE_MODE_QSGMII:
+			if (interface == PHY_INTERFACE_MODE_QSGMII) {
+				if (idx <= 3)
+					lane = serdes_get_first_lane(FSL_SRDS_2,
+							QSGMII_FM2_A);
+				else
+					lane = serdes_get_first_lane(FSL_SRDS_2,
+							QSGMII_FM2_B);
+				if (lane < 0)
+					break;
+				slot = lane_to_slot_fsm2[lane];
+				debug("FM2@DTSEC%u expects QSGMII in slot %u\n",
+				      idx + 1, slot);
+			} else {
+				lane = serdes_get_first_lane(FSL_SRDS_2,
 						SGMII_FM2_DTSEC1 + idx);
-			if (lane < 0)
-				break;
-			slot = lane_to_slot_fsm2[lane];
-			debug("FM2@DTSEC%u expects SGMII in slot %u\n",
-				idx + 1, slot);
+				if (lane < 0)
+					break;
+				slot = lane_to_slot_fsm2[lane];
+				debug("FM2@DTSEC%u expects SGMII in slot %u\n",
+				      idx + 1, slot);
+			}
 			if (QIXIS_READ(present2) & (1 << (slot - 1)))
 				fm_disable_port(i);
 			switch (slot) {

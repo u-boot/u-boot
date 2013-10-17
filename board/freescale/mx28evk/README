@@ -29,11 +29,11 @@ Environment Storage
 
 There are two targets for mx28evk:
 
-"make mx28evk_config"		- store enviroment variables into MMC
+"make mx28evk_config"		- store environment variables into MMC
 
 or
 
-"make mx28evk_nand_config"	- store enviroment variables into NAND flash
+"make mx28evk_nand_config"	- store environment variables into NAND flash
 
 Choose the target accordingly.
 

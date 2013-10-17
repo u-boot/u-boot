@@ -2,23 +2,7 @@
  * Copyright (C) 2012 Samsung Electronics
  * R. Chandrasekar <rcsekar@samsung.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <malloc.h>
@@ -52,8 +36,7 @@ static int get_sound_i2s_values(struct i2stx_info *i2s, const void *blob)
 	int error = 0;
 	int base;
 
-	node = fdtdec_next_compatible(blob, 0,
-					COMPAT_SAMSUNG_EXYNOS5_SOUND);
+	node = fdt_path_offset(blob, "i2s");
 	if (node <= 0) {
 		debug("EXYNOS_SOUND: No node for sound in device tree\n");
 		return -1;
@@ -96,6 +79,11 @@ static int get_sound_i2s_values(struct i2stx_info *i2s, const void *blob)
 				node, "samsung,i2s-bit-clk-framesize", -1);
 	error |= i2s->bfs;
 	debug("bfs = %d\n", i2s->bfs);
+
+	i2s->id = fdtdec_get_int(blob, node, "samsung,i2s-id", -1);
+	error |= i2s->id;
+	debug("id = %d\n", i2s->id);
+
 	if (error == -1) {
 		debug("fail to get sound i2s node properties\n");
 		return -1;
@@ -108,6 +96,7 @@ static int get_sound_i2s_values(struct i2stx_info *i2s, const void *blob)
 	i2s->channels = I2S_CHANNELS;
 	i2s->rfs = I2S_RFS;
 	i2s->bfs = I2S_BFS;
+	i2s->id = 0;
 #endif
 	return 0;
 }
@@ -127,7 +116,7 @@ static int codec_init(const void *blob, struct i2stx_info *pi2s_tx)
 	int node;
 
 	/* Get the node from FDT for sound */
-	node = fdtdec_next_compatible(blob, 0, COMPAT_SAMSUNG_EXYNOS5_SOUND);
+	node = fdt_path_offset(blob, "i2s");
 	if (node <= 0) {
 		debug("EXYNOS_SOUND: No node for sound in device tree\n");
 		debug("node = %d\n", node);
@@ -146,14 +135,15 @@ static int codec_init(const void *blob, struct i2stx_info *pi2s_tx)
 #endif
 	if (!strcmp(codectype, "wm8994")) {
 		/* Check the codec type and initialise the same */
-		ret = wm8994_init(blob, WM8994_AIF2,
-			pi2s_tx->samplingrate,
-			(pi2s_tx->samplingrate * (pi2s_tx->rfs)),
-			pi2s_tx->bitspersample, pi2s_tx->channels);
+		ret = wm8994_init(blob, pi2s_tx->id + 1,
+				  pi2s_tx->samplingrate,
+				  (pi2s_tx->samplingrate * (pi2s_tx->rfs)),
+				  pi2s_tx->bitspersample, pi2s_tx->channels);
 	} else if (!strcmp(codectype, "max98095")) {
-		ret = max98095_init(blob, pi2s_tx->samplingrate,
-				(pi2s_tx->samplingrate * (pi2s_tx->rfs)),
-				pi2s_tx->bitspersample);
+		ret = max98095_init(blob, pi2s_tx->id + 1,
+				    pi2s_tx->samplingrate,
+				    (pi2s_tx->samplingrate * (pi2s_tx->rfs)),
+				    pi2s_tx->bitspersample);
 	} else {
 		debug("%s: Unknown codec type %s\n", __func__, codectype);
 		return -1;
@@ -246,7 +236,7 @@ int sound_play(uint32_t msec, uint32_t frequency)
 	}
 
 	sound_prepare_buffer((unsigned short *)data,
-				data_size / sizeof(unsigned short), frequency);
+			     data_size / sizeof(unsigned short), frequency);
 
 	while (msec >= 1000) {
 		ret = i2s_transfer_tx_data(&g_i2stx_pri, data,

@@ -2,7 +2,8 @@
  * Command for accessing SPI flash.
  *
  * Copyright (C) 2008 Atmel Corporation
- * Licensed under the GPL-2 or later.
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -151,19 +152,31 @@ static const char *spi_flash_update_block(struct spi_flash *flash, u32 offset,
 		size_t len, const char *buf, char *cmp_buf, size_t *skipped)
 {
 	debug("offset=%#x, sector_size=%#x, len=%#zx\n",
-		offset, flash->sector_size, len);
-	if (spi_flash_read(flash, offset, len, cmp_buf))
+	      offset, flash->sector_size, len);
+	/* Read the entire sector so to allow for rewriting */
+	if (spi_flash_read(flash, offset, flash->sector_size, cmp_buf))
 		return "read";
+	/* Compare only what is meaningful (len) */
 	if (memcmp(cmp_buf, buf, len) == 0) {
 		debug("Skip region %x size %zx: no change\n",
-			offset, len);
+		      offset, len);
 		*skipped += len;
 		return NULL;
 	}
-	if (spi_flash_erase(flash, offset, len))
+	/* Erase the entire sector */
+	if (spi_flash_erase(flash, offset, flash->sector_size))
 		return "erase";
+	/* Write the initial part of the block from the source */
 	if (spi_flash_write(flash, offset, len, buf))
 		return "write";
+	/* If it's a partial sector, rewrite the existing part */
+	if (len != flash->sector_size) {
+		/* Rewrite the original data to the end of the sector */
+		if (spi_flash_write(flash, offset + len,
+				    flash->sector_size - len, &cmp_buf[len]))
+			return "write";
+	}
+
 	return NULL;
 }
 
@@ -200,7 +213,7 @@ static int spi_flash_update(struct spi_flash *flash, u32 offset,
 			todo = min(end - buf, flash->sector_size);
 			if (get_timer(last_update) > 100) {
 				printf("   \rUpdating, %zu%% %lu B/s",
-					100 - (end - buf) / scale,
+				       100 - (end - buf) / scale,
 					bytes_per_second(buf - start_buf,
 							 start_time));
 				last_update = get_timer(0);
@@ -220,9 +233,9 @@ static int spi_flash_update(struct spi_flash *flash, u32 offset,
 
 	delta = get_timer(start_time);
 	printf("%zu bytes written, %zu bytes skipped", len - skipped,
-		skipped);
+	       skipped);
 	printf(" in %ld.%lds, speed %ld B/s\n",
-		delta / 1000, delta % 1000, bytes_per_second(len, start_time));
+	       delta / 1000, delta % 1000, bytes_per_second(len, start_time));
 
 	return 0;
 }
@@ -252,7 +265,7 @@ static int do_spi_flash_read_write(int argc, char * const argv[])
 	/* Consistency checking */
 	if (offset + len > flash->size) {
 		printf("ERROR: attempting %s past flash size (%#x)\n",
-			argv[0], flash->size);
+		       argv[0], flash->size);
 		return 1;
 	}
 
@@ -262,9 +275,9 @@ static int do_spi_flash_read_write(int argc, char * const argv[])
 		return 1;
 	}
 
-	if (strcmp(argv[0], "update") == 0)
+	if (strcmp(argv[0], "update") == 0) {
 		ret = spi_flash_update(flash, offset, len, buf);
-	else if (strncmp(argv[0], "read", 4) == 0 ||
+	} else if (strncmp(argv[0], "read", 4) == 0 ||
 			strncmp(argv[0], "write", 5) == 0) {
 		int read;
 
@@ -275,7 +288,7 @@ static int do_spi_flash_read_write(int argc, char * const argv[])
 			ret = spi_flash_write(flash, offset, len, buf);
 
 		printf("SF: %zu bytes @ %#x %s: %s\n", (size_t)len, (u32)offset,
-			read ? "Read" : "Written", ret ? "ERROR" : "OK");
+		       read ? "Read" : "Written", ret ? "ERROR" : "OK");
 	}
 
 	unmap_physmem(buf, len);
@@ -304,13 +317,13 @@ static int do_spi_flash_erase(int argc, char * const argv[])
 	/* Consistency checking */
 	if (offset + len > flash->size) {
 		printf("ERROR: attempting %s past flash size (%#x)\n",
-			argv[0], flash->size);
+		       argv[0], flash->size);
 		return 1;
 	}
 
 	ret = spi_flash_erase(flash, offset, len);
 	printf("SF: %zu bytes @ %#x Erased: %s\n", (size_t)len, (u32)offset,
-			ret ? "ERROR" : "OK");
+	       ret ? "ERROR" : "OK");
 
 	return ret == 0 ? 0 : 1;
 }
@@ -470,7 +483,8 @@ static int do_spi_flash_test(int argc, char * const argv[])
 }
 #endif /* CONFIG_CMD_SF_TEST */
 
-static int do_spi_flash(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_spi_flash(cmd_tbl_t *cmdtp, int flag, int argc,
+			char * const argv[])
 {
 	const char *cmd;
 	int ret;
@@ -526,7 +540,7 @@ U_BOOT_CMD(
 	"SPI flash sub-system",
 	"probe [[bus:]cs] [hz] [mode]	- init flash device on given SPI bus\n"
 	"				  and chip select\n"
-	"sf read addr offset len 	- read `len' bytes starting at\n"
+	"sf read addr offset len	- read `len' bytes starting at\n"
 	"				  `offset' to memory at `addr'\n"
 	"sf write addr offset len	- write `len' bytes from memory\n"
 	"				  at `addr' to flash at `offset'\n"

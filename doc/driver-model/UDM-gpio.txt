@@ -56,11 +56,11 @@ II) Approach
 
   struct gpio_driver_ops {
     int  (*gpio_request)(struct instance *i, unsigned gpio,
-                         const char *label);
+			 const char *label);
     int  (*gpio_free)(struct instance *i, unsigned gpio);
     int  (*gpio_direction_input)(struct instance *i, unsigned gpio);
     int  (*gpio_direction_output)(struct instance *i, unsigned gpio,
-                                  int value);
+				  int value);
     int  (*gpio_get_value)(struct instance *i, unsigned gpio);
     void (*gpio_set_value)(struct instance *i, unsigned gpio, int value);
   }

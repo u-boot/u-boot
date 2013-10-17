@@ -14,6 +14,8 @@ ubi part [part] [offset]
 ubi info [l[ayout]] - Display volume and ubi layout information
 ubi create[vol] volume [size] [type] - create volume name with size
 ubi write[vol] address volume size - Write volume from address with size
+ubi write.part address volume size [fullsize]
+ - Write part of a volume from address
 ubi read[vol] address volume [size] - Read volume to address with size
 ubi remove[vol] volume - Remove volume
 [Legends]
@@ -77,6 +79,7 @@ ubi createvol	Create UBI volume on UBI device
 ubi removevol	Remove UBI volume from UBI device
 ubi read	Read data from UBI volume to memory
 ubi write	Write data from memory to UBI volume
+ubi write.part	Write data from memory to UBI volume, in parts
 
 
 Here a few examples on the usage:
@@ -185,8 +188,8 @@ ubifsls [directory]
 For example:
 
 => ubifsls
-            17442  Thu Jan 01 02:57:38 1970  imx28-evk.dtb
-          2998146  Thu Jan 01 02:57:43 1970  zImage
+	    17442  Thu Jan 01 02:57:38 1970  imx28-evk.dtb
+	  2998146  Thu Jan 01 02:57:43 1970  zImage
 
 
 And the ubifsload command allows you to load a file from a UBI

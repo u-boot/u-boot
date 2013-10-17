@@ -107,7 +107,7 @@ struct mmc {
 
   /* DRIVER: Function used to submit command to the card */
   int (*send_cmd)(struct mmc *mmc,
-                  struct mmc_cmd *cmd, struct mmc_data *data);
+		  struct mmc_cmd *cmd, struct mmc_data *data);
 
   /* DRIVER: Function used to configure the host */
   void (*set_ios)(struct mmc *mmc);
@@ -139,7 +139,7 @@ provided by the MMC driver:
 struct mmc_driver_ops {
   /* Function used to submit command to the card */
   int  (*send_cmd)(struct mmc *mmc,
-                  struct mmc_cmd *cmd, struct mmc_data *data);
+		  struct mmc_cmd *cmd, struct mmc_data *data);
   /* DRIVER: Function used to configure the host */
   void (*set_ios)(struct mmc *mmc);
   /* Function used to initialize the host */
@@ -206,7 +206,7 @@ struct mmc_card_props {
 The probe() function will then register the MMC driver by calling:
 
   mmc_device_register(struct instance *i, struct mmc_driver_ops *o,
-                                          struct mmc_driver_params *p);
+					  struct mmc_driver_params *p);
 
 The struct mmc_driver_params will have to be dynamic in some cases, but the
 driver shouldn't modify it's contents elsewhere than in probe() call.

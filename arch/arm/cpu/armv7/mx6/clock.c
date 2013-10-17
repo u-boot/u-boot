@@ -1,23 +1,7 @@
 /*
  * Copyright (C) 2010-2011 Freescale Semiconductor, Inc.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -244,13 +228,13 @@ static u32 get_axi_clk(void)
 
 static u32 get_emi_slow_clk(void)
 {
-	u32 emi_clk_sel, emi_slow_pof, cscmr1, root_freq = 0;
+	u32 emi_clk_sel, emi_slow_podf, cscmr1, root_freq = 0;
 
 	cscmr1 =  __raw_readl(&imx_ccm->cscmr1);
 	emi_clk_sel = cscmr1 & MXC_CCM_CSCMR1_ACLK_EMI_SLOW_MASK;
 	emi_clk_sel >>= MXC_CCM_CSCMR1_ACLK_EMI_SLOW_OFFSET;
-	emi_slow_pof = cscmr1 & MXC_CCM_CSCMR1_ACLK_EMI_SLOW_PODF_MASK;
-	emi_slow_pof >>= MXC_CCM_CSCMR1_ACLK_EMI_PODF_OFFSET;
+	emi_slow_podf = cscmr1 & MXC_CCM_CSCMR1_ACLK_EMI_SLOW_PODF_MASK;
+	emi_slow_podf >>= MXC_CCM_CSCMR1_ACLK_EMI_SLOW_PODF_OFFSET;
 
 	switch (emi_clk_sel) {
 	case 0:
@@ -267,7 +251,7 @@ static u32 get_emi_slow_clk(void)
 		break;
 	}
 
-	return root_freq / (emi_slow_pof + 1);
+	return root_freq / (emi_slow_podf + 1);
 }
 
 #ifdef CONFIG_MX6SL
@@ -298,6 +282,36 @@ static u32 get_mmdc_ch0_clk(void)
 	return freq / (podf + 1);
 
 }
+
+int enable_fec_anatop_clock(void)
+{
+	u32 reg = 0;
+	s32 timeout = 100000;
+
+	struct anatop_regs __iomem *anatop =
+		(struct anatop_regs __iomem *)ANATOP_BASE_ADDR;
+
+	reg = readl(&anatop->pll_enet);
+	if ((reg & BM_ANADIG_PLL_ENET_POWERDOWN) ||
+	    (!(reg & BM_ANADIG_PLL_ENET_LOCK))) {
+		reg &= ~BM_ANADIG_PLL_ENET_POWERDOWN;
+		writel(reg, &anatop->pll_enet);
+		while (timeout--) {
+			if (readl(&anatop->pll_enet) & BM_ANADIG_PLL_ENET_LOCK)
+				break;
+		}
+		if (timeout < 0)
+			return -ETIMEDOUT;
+	}
+
+	/* Enable FEC clock */
+	reg |= BM_ANADIG_PLL_ENET_ENABLE;
+	reg &= ~BM_ANADIG_PLL_ENET_BYPASS;
+	writel(reg, &anatop->pll_enet);
+
+	return 0;
+}
+
 #else
 static u32 get_mmdc_ch0_clk(void)
 {
@@ -468,6 +482,14 @@ int do_mx6_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
+void enable_ipu_clock(void)
+{
+	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	int reg;
+	reg = readl(&mxc_ccm->CCGR3);
+	reg |= MXC_CCM_CCGR3_IPU1_IPU_MASK;
+	writel(reg, &mxc_ccm->CCGR3);
+}
 /***************************************************/
 
 U_BOOT_CMD(

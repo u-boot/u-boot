@@ -14,24 +14,7 @@
  *
  * COPYRIGHT   AMCC   CORPORATION 2004
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
- *
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /* define DEBUG for debugging output (obviously ;-)) */
@@ -459,8 +442,7 @@ phys_size_t initdram(int board_type)
 	 */
 
 	/* switch to correct I2C bus */
-	I2C_SET_BUS(CONFIG_SYS_SPD_BUS_NUM);
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+	i2c_set_bus_num(CONFIG_SYS_SPD_BUS_NUM);
 
 	/*------------------------------------------------------------------
 	 * Clear out the serial presence detect buffers.

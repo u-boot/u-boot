@@ -4,20 +4,7 @@
  * Author: InKi Dae <inki.dae@samsung.com>
  * Author: Donghwa Lee <dh09.lee@samsung.com>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _DSIM_H
@@ -304,7 +291,7 @@ struct exynos_platform_mipi_dsim {
  */
 struct mipi_dsim_master_ops {
 	int (*cmd_write)(struct mipi_dsim_device *dsim, unsigned int data_id,
-		unsigned int data0, unsigned int data1);
+		const unsigned char *data0, unsigned int data1);
 	int (*cmd_read)(struct mipi_dsim_device *dsim, unsigned int data_id,
 		unsigned int data0, unsigned int data1);
 	int (*get_dsim_frame_done)(struct mipi_dsim_device *dsim);

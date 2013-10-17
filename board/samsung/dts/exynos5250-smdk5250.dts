@@ -10,7 +10,7 @@
 */
 
 /dts-v1/;
-/include/ ARCH_CPU_DTS
+/include/ "exynos5250.dtsi"
 
 / {
 	model = "SAMSUNG SMDK5250 board based on EXYNOS5250";
@@ -36,6 +36,7 @@
 		mmc3 = "/mmc@12230000";
 		serial0 = "/serial@12C30000";
 		console = "/serial@12C30000";
+		i2s = "/sound@3830000";
 	};
 
 	sromc@12250000 {
@@ -49,14 +50,12 @@
 		};
 	};
 
-	sound@12d60000 {
-		samsung,i2s-epll-clock-frequency = <192000000>;
-		samsung,i2s-sampling-rate = <48000>;
-		samsung,i2s-bits-per-sample = <16>;
-		samsung,i2s-channels = <2>;
-		samsung,i2s-lr-clk-framesize = <256>;
-		samsung,i2s-bit-clk-framesize = <32>;
+	sound@3830000 {
 		samsung,codec-type = "wm8994";
+	};
+
+	sound@12d60000 {
+		status = "disabled";
 	};
 
 	i2c@12c70000 {

@@ -1,10 +1,7 @@
 /*
  * Copyright 2008-2012 Freescale Semiconductor, Inc.
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 2 of the License, or (at your option)
- * any later version.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -367,7 +364,7 @@ static void set_timing_cfg_3(fsl_ddr_cfg_regs_t *ddr,
 
 	ddr->timing_cfg_3 = (0
 		| ((ext_pretoact & 0x1) << 28)
-		| ((ext_acttopre & 0x2) << 24)
+		| ((ext_acttopre & 0x3) << 24)
 		| ((ext_acttorw & 0x1) << 22)
 		| ((ext_refrec & 0x1F) << 16)
 		| ((ext_caslat & 0x3) << 12)
@@ -684,6 +681,7 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 	unsigned int odt_cfg = 0;	/* ODT configuration */
 	unsigned int num_pr;		/* Number of posted refreshes */
 	unsigned int slow = 0;		/* DDR will be run less than 1250 */
+	unsigned int x4_en = 0;		/* x4 DRAM enable */
 	unsigned int obc_cfg;		/* On-The-Fly Burst Chop Cfg */
 	unsigned int ap_en;		/* Address Parity Enable */
 	unsigned int d_init;		/* DRAM data initialization */
@@ -728,6 +726,8 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 		ap_en = 0;
 	}
 
+	x4_en = popts->x4_en ? 1 : 0;
+
 #if defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 	/* Use the DDR controller to auto initialize memory. */
 	d_init = popts->ECC_init_using_memctl;
@@ -750,6 +750,7 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 		| ((odt_cfg & 0x3) << 21)
 		| ((num_pr & 0xf) << 12)
 		| ((slow & 1) << 11)
+		| (x4_en << 10)
 		| (qd_en << 9)
 		| (unq_mrs_en << 8)
 		| ((obc_cfg & 0x1) << 6)
@@ -1588,8 +1589,8 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 				| ((ea & 0xFFF) << 0)	/* ending address MSB */
 				);
 		} else {
-			debug("FSLDDR: setting bnds to 0 for inactive CS\n");
-			ddr->cs[i].bnds = 0;
+			/* setting bnds to 0xffffffff for inactive CS */
+			ddr->cs[i].bnds = 0xffffffff;
 		}
 
 		debug("FSLDDR: cs[%d]_bnds = 0x%08x\n", i, ddr->cs[i].bnds);
@@ -1641,5 +1642,10 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 
 	set_ddr_sdram_rcw(ddr, popts, common_dimm);
 
+#ifdef CONFIG_SYS_FSL_DDR_EMU
+	/* disble DDR training for emulator */
+	ddr->debug[2] = 0x00000400;
+	ddr->debug[4] = 0xff800000;
+#endif
 	return check_fsl_memctl_config_regs(ddr);
 }

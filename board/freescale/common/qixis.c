@@ -2,13 +2,9 @@
  * Copyright 2011 Freescale Semiconductor
  * Author: Shengzhou Liu <Shengzhou.Liu@freescale.com>
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 2 of the License, or (at your option)
- * any later version.
+ * SPDX-License-Identifier:	GPL-2.0+
  *
  * This file provides support for the QIXIS of some Freescale reference boards.
- *
  */
 
 #include <common.h>
@@ -110,6 +106,26 @@ const char *byte_to_binary_mask(u8 val, u8 mask, char *buf)
 
 	return buf;
 }
+
+#ifdef QIXIS_RST_FORCE_MEM
+void board_assert_mem_reset(void)
+{
+	u8 rst;
+
+	rst = QIXIS_READ(rst_frc[0]);
+	if (!(rst & QIXIS_RST_FORCE_MEM))
+		QIXIS_WRITE(rst_frc[0], rst | QIXIS_RST_FORCE_MEM);
+}
+
+void board_deassert_mem_reset(void)
+{
+	u8 rst;
+
+	rst = QIXIS_READ(rst_frc[0]);
+	if (rst & QIXIS_RST_FORCE_MEM)
+		QIXIS_WRITE(rst_frc[0], rst & ~QIXIS_RST_FORCE_MEM);
+}
+#endif
 
 void qixis_reset(void)
 {

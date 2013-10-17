@@ -9,18 +9,7 @@
  * Copyright (C) 2011 Marek Vasut <marek.vasut@gmail.com>
  * on behalf of DENX Software Engineering GmbH
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -114,10 +103,12 @@ int board_eth_init(bd_t *bis)
 	int ret;
 
 	ret = cpu_eth_init(bis);
+	if (ret)
+		return ret;
 
 	/* MX28EVK uses ENET_CLK PAD to drive FEC clock */
 	writel(CLKCTRL_ENET_TIME_SEL_RMII_CLK | CLKCTRL_ENET_CLK_OUT_EN,
-					&clkctrl_regs->hw_clkctrl_enet);
+	       &clkctrl_regs->hw_clkctrl_enet);
 
 	/* Power-on FECs */
 	gpio_direction_output(MX28_PAD_SSP1_DATA3__GPIO_2_15, 0);

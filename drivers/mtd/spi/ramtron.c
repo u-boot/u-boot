@@ -2,23 +2,7 @@
  * (C) Copyright 2010
  * Reinhard Meyer, EMK Elektronik, reinhard.meyer@emk-elektronik.de
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -52,7 +36,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <spi_flash.h>
-#include "spi_flash_internal.h"
+#include "sf_internal.h"
 
 /*
  * Properties of supported FRAMs
@@ -230,7 +214,8 @@ static int ramtron_erase(struct spi_flash *flash, u32 offset, size_t len)
  * nore: we are called here with idcode pointing to the first non-0x7f byte
  * already!
  */
-struct spi_flash *spi_fram_probe_ramtron(struct spi_slave *spi, u8 *idcode)
+static struct spi_flash *spi_fram_probe_ramtron(struct spi_slave *spi,
+		u8 *idcode)
 {
 	const struct ramtron_spi_fram_params *params;
 	struct ramtron_spi_fram *sn;
@@ -246,7 +231,8 @@ struct spi_flash *spi_fram_probe_ramtron(struct spi_slave *spi, u8 *idcode)
 		/* JEDEC conformant RAMTRON id */
 		for (i = 0; i < ARRAY_SIZE(ramtron_spi_fram_table); i++) {
 			params = &ramtron_spi_fram_table[i];
-			if (idcode[1] == params->id1 && idcode[2] == params->id2)
+			if (idcode[1] == params->id1 &&
+			    idcode[2] == params->id2)
 				goto found;
 		}
 		break;
@@ -267,7 +253,8 @@ struct spi_flash *spi_fram_probe_ramtron(struct spi_slave *spi, u8 *idcode)
 		/* now find the device */
 		for (i = 0; i < ARRAY_SIZE(ramtron_spi_fram_table); i++) {
 			params = &ramtron_spi_fram_table[i];
-			if (!strcmp(params->name, CONFIG_SPI_FRAM_RAMTRON_NON_JEDEC))
+			if (!strcmp(params->name,
+				    CONFIG_SPI_FRAM_RAMTRON_NON_JEDEC))
 				goto found;
 		}
 		debug("SF: Unsupported non-JEDEC RAMTRON device "
@@ -280,11 +267,11 @@ struct spi_flash *spi_fram_probe_ramtron(struct spi_slave *spi, u8 *idcode)
 
 	/* arriving here means no method has found a device we can handle */
 	debug("SF/ramtron: unsupported device id0=%02x id1=%02x id2=%02x\n",
-		idcode[0], idcode[1], idcode[2]);
+	      idcode[0], idcode[1], idcode[2]);
 	return NULL;
 
 found:
-	sn = spi_flash_alloc(struct ramtron_spi_fram, spi, params->name);
+	sn = malloc(sizeof(*sn));
 	if (!sn) {
 		debug("SF: Failed to allocate memory\n");
 		return NULL;
@@ -298,4 +285,119 @@ found:
 	sn->flash.size = params->size;
 
 	return &sn->flash;
+}
+
+/*
+ * The following table holds all device probe functions
+ * (All flashes are removed and implemented a common probe at
+ *  spi_flash_probe.c)
+ *
+ * shift:  number of continuation bytes before the ID
+ * idcode: the expected IDCODE or 0xff for non JEDEC devices
+ * probe:  the function to call
+ *
+ * Non JEDEC devices should be ordered in the table such that
+ * the probe functions with best detection algorithms come first.
+ *
+ * Several matching entries are permitted, they will be tried
+ * in sequence until a probe function returns non NULL.
+ *
+ * IDCODE_CONT_LEN may be redefined if a device needs to declare a
+ * larger "shift" value.  IDCODE_PART_LEN generally shouldn't be
+ * changed.  This is the max number of bytes probe functions may
+ * examine when looking up part-specific identification info.
+ *
+ * Probe functions will be given the idcode buffer starting at their
+ * manu id byte (the "idcode" in the table below).  In other words,
+ * all of the continuation bytes will be skipped (the "shift" below).
+ */
+#define IDCODE_CONT_LEN 0
+#define IDCODE_PART_LEN 5
+static const struct {
+	const u8 shift;
+	const u8 idcode;
+	struct spi_flash *(*probe) (struct spi_slave *spi, u8 *idcode);
+} flashes[] = {
+	/* Keep it sorted by define name */
+#ifdef CONFIG_SPI_FRAM_RAMTRON
+	{ 6, 0xc2, spi_fram_probe_ramtron, },
+# undef IDCODE_CONT_LEN
+# define IDCODE_CONT_LEN 6
+#endif
+#ifdef CONFIG_SPI_FRAM_RAMTRON_NON_JEDEC
+	{ 0, 0xff, spi_fram_probe_ramtron, },
+#endif
+};
+#define IDCODE_LEN (IDCODE_CONT_LEN + IDCODE_PART_LEN)
+
+struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
+		unsigned int max_hz, unsigned int spi_mode)
+{
+	struct spi_slave *spi;
+	struct spi_flash *flash = NULL;
+	int ret, i, shift;
+	u8 idcode[IDCODE_LEN], *idp;
+
+	spi = spi_setup_slave(bus, cs, max_hz, spi_mode);
+	if (!spi) {
+		printf("SF: Failed to set up slave\n");
+		return NULL;
+	}
+
+	ret = spi_claim_bus(spi);
+	if (ret) {
+		debug("SF: Failed to claim SPI bus: %d\n", ret);
+		goto err_claim_bus;
+	}
+
+	/* Read the ID codes */
+	ret = spi_flash_cmd(spi, CMD_READ_ID, idcode, sizeof(idcode));
+	if (ret)
+		goto err_read_id;
+
+#ifdef DEBUG
+	printf("SF: Got idcodes\n");
+	print_buffer(0, idcode, 1, sizeof(idcode), 0);
+#endif
+
+	/* count the number of continuation bytes */
+	for (shift = 0, idp = idcode;
+	     shift < IDCODE_CONT_LEN && *idp == 0x7f;
+	     ++shift, ++idp)
+		continue;
+
+	/* search the table for matches in shift and id */
+	for (i = 0; i < ARRAY_SIZE(flashes); ++i)
+		if (flashes[i].shift == shift && flashes[i].idcode == *idp) {
+			/* we have a match, call probe */
+			flash = flashes[i].probe(spi, idp);
+			if (flash)
+				break;
+		}
+
+	if (!flash) {
+		printf("SF: Unsupported manufacturer %02x\n", *idp);
+		goto err_manufacturer_probe;
+	}
+
+	printf("SF: Detected %s with total size ", flash->name);
+	print_size(flash->size, "");
+	puts("\n");
+
+	spi_release_bus(spi);
+
+	return flash;
+
+err_manufacturer_probe:
+err_read_id:
+	spi_release_bus(spi);
+err_claim_bus:
+	spi_free_slave(spi);
+	return NULL;
+}
+
+void spi_flash_free(struct spi_flash *flash)
+{
+	spi_free_slave(flash->spi);
+	free(flash);
 }

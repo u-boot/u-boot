@@ -9,23 +9,7 @@
  * (C) Copyright 2010
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -63,7 +47,7 @@ static const u32 kwmpp_config[] = {
 	MPP5_NF_IO7,
 	MPP6_SYSRST_OUTn,
 	MPP7_PEX_RST_OUTn,
-#if defined(CONFIG_SOFT_I2C)
+#if defined(CONFIG_SYS_I2C_SOFT)
 	MPP8_GPIO,		/* SDA */
 	MPP9_GPIO,		/* SCL */
 #endif
@@ -234,7 +218,7 @@ int misc_init_r(void)
 
 int board_early_init_f(void)
 {
-#if defined(CONFIG_SOFT_I2C)
+#if defined(CONFIG_SYS_I2C_SOFT)
 	u32 tmp;
 
 	/* set the 2 bitbang i2c pins as output gpios */
@@ -260,7 +244,7 @@ int board_init(void)
 	kw_gpio_set_valid(KM_FLASH_GPIO_PIN, 1);
 	kw_gpio_direction_output(KM_FLASH_GPIO_PIN, 1);
 
-#if defined(CONFIG_SOFT_I2C)
+#if defined(CONFIG_SYS_I2C_SOFT)
 	/*
 	 * Reinit the GPIO for I2C Bitbang driver so that the now
 	 * available gpio framework is consistent. The calls to
@@ -359,7 +343,7 @@ void reset_phy(void)
 #if defined(CONFIG_KM_NUSA)
 struct mv88e_sw_reg extsw_conf[] = {
 	/*
-	 * port 0, PIGGY4, autoneg 
+	 * port 0, PIGGY4, autoneg
 	 * first the fix for the 1000Mbits Autoneg, this is from
 	 * a Marvell errata, the regs are undocumented
 	 */
@@ -440,7 +424,7 @@ int hush_init_var(void)
 }
 #endif
 
-#if defined(CONFIG_SOFT_I2C)
+#if defined(CONFIG_SYS_I2C_SOFT)
 void set_sda(int state)
 {
 	I2C_ACTIVE;

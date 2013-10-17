@@ -2,23 +2,7 @@
  * (C) Copyright 2009
  * Stefano Babic, DENX Software Engineering, sbabic@denx.de.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _SYS_PROTO_H_
@@ -35,6 +19,13 @@
 
 #define is_soc_rev(rev)	((get_cpu_rev() & 0xFF) - rev)
 u32 get_cpu_rev(void);
+
+/* returns MXC_CPU_ value */
+#define cpu_type(rev) (((rev) >> 12)&0xff)
+
+/* use with MXC_CPU_ constants */
+#define is_cpu_type(cpu) (cpu_type(get_cpu_rev()) == cpu)
+
 const char *get_imx_type(u32 imxtype);
 unsigned imx_ddr_size(void);
 

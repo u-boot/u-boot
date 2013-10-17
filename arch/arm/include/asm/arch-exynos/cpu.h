@@ -2,21 +2,7 @@
  * (C) Copyright 2010 Samsung Electronics
  * Minkyu Kang <mk7.kang@samsung.com>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
- *
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _EXYNOS4_CPU_H
@@ -64,6 +50,7 @@
 #define EXYNOS4_SPI_ISP_BASE		DEVICE_NOT_AVAILABLE
 #define EXYNOS4_ACE_SFR_BASE		DEVICE_NOT_AVAILABLE
 #define EXYNOS4_DMC_PHY_BASE		DEVICE_NOT_AVAILABLE
+#define EXYNOS4_AUDIOSS_BASE		DEVICE_NOT_AVAILABLE
 
 /* EXYNOS4X12 */
 #define EXYNOS4X12_GPIO_PART3_BASE	0x03860000
@@ -99,10 +86,12 @@
 #define EXYNOS4X12_SPI_ISP_BASE		DEVICE_NOT_AVAILABLE
 #define EXYNOS4X12_ACE_SFR_BASE		DEVICE_NOT_AVAILABLE
 #define EXYNOS4X12_DMC_PHY_BASE		DEVICE_NOT_AVAILABLE
+#define EXYNOS4X12_AUDIOSS_BASE		DEVICE_NOT_AVAILABLE
 
 /* EXYNOS5 Common*/
 #define EXYNOS5_I2C_SPACING		0x10000
 
+#define EXYNOS5_AUDIOSS_BASE		0x03810000
 #define EXYNOS5_GPIO_PART4_BASE		0x03860000
 #define EXYNOS5_PRO_ID			0x10000000
 #define EXYNOS5_CLOCK_BASE		0x10010000
@@ -240,6 +229,7 @@ SAMSUNG_BASE(spi_isp, SPI_ISP_BASE)
 SAMSUNG_BASE(tzpc, TZPC_BASE)
 SAMSUNG_BASE(dmc_ctrl, DMC_CTRL_BASE)
 SAMSUNG_BASE(dmc_phy, DMC_PHY_BASE)
+SAMSUNG_BASE(audio_ass, AUDIOSS_BASE)
 #endif
 
 #endif	/* _EXYNOS4_CPU_H */

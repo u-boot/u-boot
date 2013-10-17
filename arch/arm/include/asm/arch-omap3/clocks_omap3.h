@@ -3,20 +3,7 @@
  * Texas Instruments, <www.ti.com>
  * Richard Woodruff <r-woodruff2@ti.com>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR /PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef _CLOCKS_OMAP3_H_
 #define _CLOCKS_OMAP3_H_
@@ -335,5 +322,27 @@
 #define PER_36XX_N_38P4		0x13
 #define PER_36XX_FSEL_38P4	0x07
 #define PER_36XX_M2_38P4	0x09
+
+/* 36XX PER2 DPLL */
+
+#define PER2_36XX_M_12		0x50
+#define PER2_36XX_N_12		0x00
+#define PER2_36XX_M2_12		0x08
+
+#define PER2_36XX_M_13		0x1BB
+#define PER2_36XX_N_13		0x05
+#define PER2_36XX_M2_13		0x08
+
+#define PER2_36XX_M_19P2		0x32
+#define PER2_36XX_N_19P2		0x00
+#define PER2_36XX_M2_19P2		0x08
+
+#define PER2_36XX_M_26		0x1BB
+#define PER2_36XX_N_26		0x0B
+#define PER2_36XX_M2_26		0x08
+
+#define PER2_36XX_M_38P4		0x19
+#define PER2_36XX_N_38P4		0x00
+#define PER2_36XX_M2_38P4		0x08
 
 #endif	/* endif _CLOCKS_OMAP3_H_ */

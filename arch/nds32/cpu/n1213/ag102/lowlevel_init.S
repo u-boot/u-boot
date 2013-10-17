@@ -2,23 +2,7 @@
  * Copyright (C) 2011 Andes Technology Corporation
  * Macpaul Lin, Andes Technology Corporation <macpaul@andestech.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 .text
@@ -113,6 +97,11 @@ lowlevel_init:
 
 	led	0x20
 	jal	remap
+
+#if (defined(NDS32_EXT_FPU_DP) || defined(NDS32_EXT_FPU_SP))
+	led	0x2f
+	jal	enable_fpu
+#endif
 
 	led	0x30
 	ret	$r10
@@ -288,6 +277,27 @@ relo_base:
 	move	$lp, $r11
 2:
 	ret
+
+	/*
+	 * enable_fpu:
+	 *  Some of Andes CPU version support FPU coprocessor, if so,
+	 *  and toolchain support FPU instruction set, we should enable it.
+	 */
+#if (defined(NDS32_EXT_FPU_DP) || defined(NDS32_EXT_FPU_SP))
+enable_fpu:
+	mfsr    $r0, $CPU_VER     /* enable FPU if it exists */
+	srli    $r0, $r0, 3
+	andi    $r0, $r0, 1
+	beqz    $r0, 1f           /* skip if no COP */
+	mfsr    $r0, $FUCOP_EXIST
+	srli    $r0, $r0, 31
+	beqz    $r0, 1f           /* skip if no FPU */
+	mfsr    $r0, $FUCOP_CTL
+	ori     $r0, $r0, 1
+	mtsr    $r0, $FUCOP_CTL
+1:
+	ret
+#endif
 
 .globl show_led
 show_led:

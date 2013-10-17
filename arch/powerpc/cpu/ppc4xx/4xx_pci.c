@@ -1,26 +1,5 @@
-/*-----------------------------------------------------------------------------+
- *       This source code is dual-licensed.  You may use it under the terms of
- *       the GNU General Public license version 2, or under the license below.
- *
- *       This source code has been made available to you by IBM on an AS-IS
- *       basis.  Anyone receiving this source is licensed under IBM
- *       copyrights to use it in any way he or she deems fit, including
- *       copying it, modifying it, compiling it, and redistributing it either
- *       with or without modifications.  No license under IBM patents or
- *       patent applications is to be implied by the copyright license.
- *
- *       Any user of this software should understand that IBM cannot provide
- *       technical support for this software and will not be responsible for
- *       any consequences resulting from the use of this software.
- *
- *       Any person who transfers this source code or any derivative work
- *       must include the IBM copyright notice, this paragraph, and the
- *       preceding two paragraphs in the transferred software.
- *
- *       COPYRIGHT   I B M   CORPORATION 1995
- *       LICENSED MATERIAL  -  PROGRAM PROPERTY OF I B M
- *-----------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------+
+/*
+ * SPDX-License-Identifier:	GPL-2.0	IBM-pibs
  *
  *  File Name:   405gp_pci.c
  *
@@ -164,14 +143,14 @@ void pci_405gp_init(struct pci_controller *hose)
 	ptmla_str = getenv("ptm1la");
 	ptmms_str = getenv("ptm1ms");
 	if(NULL != ptmla_str && NULL != ptmms_str ) {
-	        ptmla[0] = simple_strtoul (ptmla_str, NULL, 16);
+		ptmla[0] = simple_strtoul (ptmla_str, NULL, 16);
 		ptmms[0] = simple_strtoul (ptmms_str, NULL, 16);
 	}
 
 	ptmla_str = getenv("ptm2la");
 	ptmms_str = getenv("ptm2ms");
 	if(NULL != ptmla_str && NULL != ptmms_str ) {
-	        ptmla[1] = simple_strtoul (ptmla_str, NULL, 16);
+		ptmla[1] = simple_strtoul (ptmla_str, NULL, 16);
 		ptmms[1] = simple_strtoul (ptmms_str, NULL, 16);
 	}
 #endif

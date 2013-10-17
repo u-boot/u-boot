@@ -2,23 +2,7 @@
  * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -34,7 +18,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_CMD_LOADB)
-static ulong load_serial_ymodem(ulong offset);
+static ulong load_serial_ymodem(ulong offset, int mode);
 #endif
 
 #if defined(CONFIG_CMD_LOADS)
@@ -478,7 +462,15 @@ static int do_load_serial_bin(cmd_tbl_t *cmdtp, int flag, int argc,
 			offset,
 			load_baudrate);
 
-		addr = load_serial_ymodem(offset);
+		addr = load_serial_ymodem(offset, xyzModem_ymodem);
+
+	} else if (strcmp(argv[0],"loadx")==0) {
+		printf("## Ready for binary (xmodem) download "
+			"to 0x%08lX at %d bps...\n",
+			offset,
+			load_baudrate);
+
+		addr = load_serial_ymodem(offset, xyzModem_xmodem);
 
 	} else {
 
@@ -958,7 +950,7 @@ static int getcxmodem(void) {
 		return (getc());
 	return -1;
 }
-static ulong load_serial_ymodem(ulong offset)
+static ulong load_serial_ymodem(ulong offset, int mode)
 {
 	int size;
 	int err;
@@ -969,7 +961,7 @@ static ulong load_serial_ymodem(ulong offset)
 	ulong addr = 0;
 
 	size = 0;
-	info.mode = xyzModem_ymodem;
+	info.mode = mode;
 	res = xyzModem_stream_open(&info, &err);
 	if (!res) {
 
@@ -1066,6 +1058,14 @@ U_BOOT_CMD(
 U_BOOT_CMD(
 	loadb, 3, 0,	do_load_serial_bin,
 	"load binary file over serial line (kermit mode)",
+	"[ off ] [ baud ]\n"
+	"    - load binary file over serial line"
+	" with offset 'off' and baudrate 'baud'"
+);
+
+U_BOOT_CMD(
+	loadx, 3, 0,	do_load_serial_bin,
+	"load binary file over serial line (xmodem mode)",
 	"[ off ] [ baud ]\n"
 	"    - load binary file over serial line"
 	" with offset 'off' and baudrate 'baud'"

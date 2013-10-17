@@ -2,19 +2,7 @@
  * (C) Copyright 2012 SAMSUNG Electronics
  * Jaehoon Chung <jh80.chung@samsung.com>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -84,7 +72,7 @@ int s5p_sdhci_init(u32 regbase, int index, int bus_width)
 
 	host->quirks = SDHCI_QUIRK_NO_HISPD_BIT | SDHCI_QUIRK_BROKEN_VOLTAGE |
 		SDHCI_QUIRK_BROKEN_R1B | SDHCI_QUIRK_32BIT_DMA_ADDR |
-		SDHCI_QUIRK_WAIT_SEND_CMD;
+		SDHCI_QUIRK_WAIT_SEND_CMD | SDHCI_QUIRK_USE_WIDE8;
 	host->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
 	host->version = sdhci_readw(host, SDHCI_HOST_VERSION);
 
@@ -93,6 +81,8 @@ int s5p_sdhci_init(u32 regbase, int index, int bus_width)
 	host->index = index;
 
 	host->host_caps = MMC_MODE_HC;
+	if (bus_width == 8)
+		host->host_caps |= MMC_MODE_8BIT;
 
 	return add_sdhci(host, 52000000, 400000);
 }

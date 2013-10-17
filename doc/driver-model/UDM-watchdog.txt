@@ -41,13 +41,13 @@ II) Approach
   In the UDM each watchdog driver would register itself by a function
 
     int watchdog_device_register(struct instance *i,
-                                 const struct watchdog_device_ops *o);
+				 const struct watchdog_device_ops *o);
 
   The structure being defined as follows:
 
     struct watchdog_device_ops {
-        int (*disable)(struct instance *i);
-        void (*reset)(struct instance *i);
+	int (*disable)(struct instance *i);
+	void (*reset)(struct instance *i);
     };
 
   The watchdog_init() function will be dissolved into probe() function.

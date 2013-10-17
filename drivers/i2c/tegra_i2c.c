@@ -3,23 +3,7 @@
  * Copyright (c) 2010-2011 NVIDIA Corporation
  *  NVIDIA Corporation <www.nvidia.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -34,8 +18,6 @@
 #include <asm/arch-tegra/tegra_i2c.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-static unsigned int i2c_bus_num;
 
 /* Information about i2c controller */
 struct i2c_bus {
@@ -284,7 +266,8 @@ exit:
 	return error;
 }
 
-static int tegra_i2c_write_data(u32 addr, u8 *data, u32 len)
+static int tegra_i2c_write_data(struct i2c_bus *bus, u32 addr, u8 *data,
+				u32 len)
 {
 	int error;
 	struct i2c_trans_info trans_info;
@@ -295,14 +278,15 @@ static int tegra_i2c_write_data(u32 addr, u8 *data, u32 len)
 	trans_info.num_bytes = len;
 	trans_info.is_10bit_address = 0;
 
-	error = send_recv_packets(&i2c_controllers[i2c_bus_num], &trans_info);
+	error = send_recv_packets(bus, &trans_info);
 	if (error)
 		debug("tegra_i2c_write_data: Error (%d) !!!\n", error);
 
 	return error;
 }
 
-static int tegra_i2c_read_data(u32 addr, u8 *data, u32 len)
+static int tegra_i2c_read_data(struct i2c_bus *bus, u32 addr, u8 *data,
+			       u32 len)
 {
 	int error;
 	struct i2c_trans_info trans_info;
@@ -313,7 +297,7 @@ static int tegra_i2c_read_data(u32 addr, u8 *data, u32 len)
 	trans_info.num_bytes = len;
 	trans_info.is_10bit_address = 0;
 
-	error = send_recv_packets(&i2c_controllers[i2c_bus_num], &trans_info);
+	error = send_recv_packets(bus, &trans_info);
 	if (error)
 		debug("tegra_i2c_read_data: Error (%d) !!!\n", error);
 
@@ -324,18 +308,35 @@ static int tegra_i2c_read_data(u32 addr, u8 *data, u32 len)
 #error "Please enable device tree support to use this driver"
 #endif
 
-unsigned int i2c_get_bus_speed(void)
+/**
+ * Check that a bus number is valid and return a pointer to it
+ *
+ * @param bus_num	Bus number to check / return
+ * @return pointer to bus, if valid, else NULL
+ */
+static struct i2c_bus *tegra_i2c_get_bus(struct i2c_adapter *adap)
 {
-	return i2c_controllers[i2c_bus_num].speed;
+	struct i2c_bus *bus;
+
+	bus = &i2c_controllers[adap->hwadapnr];
+	if (!bus->inited) {
+		debug("%s: Bus %u not available\n", __func__, adap->hwadapnr);
+		return NULL;
+	}
+
+	return bus;
 }
 
-int i2c_set_bus_speed(unsigned int speed)
+static unsigned int tegra_i2c_set_bus_speed(struct i2c_adapter *adap,
+			unsigned int speed)
 {
-	struct i2c_bus *i2c_bus;
+	struct i2c_bus *bus;
 
-	i2c_bus = &i2c_controllers[i2c_bus_num];
-	i2c_bus->speed = speed;
-	i2c_init_controller(i2c_bus);
+	bus = tegra_i2c_get_bus(adap);
+	if (!bus)
+		return 0;
+	bus->speed = speed;
+	i2c_init_controller(bus);
 
 	return 0;
 }
@@ -450,15 +451,19 @@ void i2c_init_board(void)
 		return;
 }
 
-void i2c_init(int speed, int slaveaddr)
+static void tegra_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
 {
+	/* No i2c support prior to relocation */
+	if (!(gd->flags & GD_FLG_RELOC))
+		return;
+
 	/* This will override the speed selected in the fdt for that port */
 	debug("i2c_init(speed=%u, slaveaddr=0x%x)\n", speed, slaveaddr);
 	i2c_set_bus_speed(speed);
 }
 
 /* i2c write version without the register address */
-int i2c_write_data(uchar chip, uchar *buffer, int len)
+int i2c_write_data(struct i2c_bus *bus, uchar chip, uchar *buffer, int len)
 {
 	int rc;
 
@@ -470,7 +475,7 @@ int i2c_write_data(uchar chip, uchar *buffer, int len)
 	debug("\n");
 
 	/* Shift 7-bit address over for lower-level i2c functions */
-	rc = tegra_i2c_write_data(chip << 1, buffer, len);
+	rc = tegra_i2c_write_data(bus, chip << 1, buffer, len);
 	if (rc)
 		debug("i2c_write_data(): rc=%d\n", rc);
 
@@ -478,13 +483,13 @@ int i2c_write_data(uchar chip, uchar *buffer, int len)
 }
 
 /* i2c read version without the register address */
-int i2c_read_data(uchar chip, uchar *buffer, int len)
+int i2c_read_data(struct i2c_bus *bus, uchar chip, uchar *buffer, int len)
 {
 	int rc;
 
 	debug("inside i2c_read_data():\n");
 	/* Shift 7-bit address over for lower-level i2c functions */
-	rc = tegra_i2c_read_data(chip << 1, buffer, len);
+	rc = tegra_i2c_read_data(bus, chip << 1, buffer, len);
 	if (rc) {
 		debug("i2c_read_data(): rc=%d\n", rc);
 		return rc;
@@ -500,14 +505,18 @@ int i2c_read_data(uchar chip, uchar *buffer, int len)
 }
 
 /* Probe to see if a chip is present. */
-int i2c_probe(uchar chip)
+static int tegra_i2c_probe(struct i2c_adapter *adap, uchar chip)
 {
+	struct i2c_bus *bus;
 	int rc;
 	uchar reg;
 
 	debug("i2c_probe: addr=0x%x\n", chip);
+	bus = tegra_i2c_get_bus(adap);
+	if (!bus)
+		return 1;
 	reg = 0;
-	rc = i2c_write_data(chip, &reg, 1);
+	rc = i2c_write_data(bus, chip, &reg, 1);
 	if (rc) {
 		debug("Error probing 0x%x.\n", chip);
 		return 1;
@@ -522,13 +531,18 @@ static int i2c_addr_ok(const uint addr, const int alen)
 }
 
 /* Read bytes */
-int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
+static int tegra_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
+			int alen, uchar *buffer, int len)
 {
+	struct i2c_bus *bus;
 	uint offset;
 	int i;
 
 	debug("i2c_read: chip=0x%x, addr=0x%x, len=0x%x\n",
 				chip, addr, len);
+	bus = tegra_i2c_get_bus(adap);
+	if (!bus)
+		return 1;
 	if (!i2c_addr_ok(addr, alen)) {
 		debug("i2c_read: Bad address %x.%d.\n", addr, alen);
 		return 1;
@@ -540,13 +554,13 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 				data[alen - i - 1] =
 					(addr + offset) >> (8 * i);
 			}
-			if (i2c_write_data(chip, data, alen)) {
+			if (i2c_write_data(bus, chip, data, alen)) {
 				debug("i2c_read: error sending (0x%x)\n",
 					addr);
 				return 1;
 			}
 		}
-		if (i2c_read_data(chip, buffer + offset, 1)) {
+		if (i2c_read_data(bus, chip, buffer + offset, 1)) {
 			debug("i2c_read: error reading (0x%x)\n", addr);
 			return 1;
 		}
@@ -556,13 +570,18 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 }
 
 /* Write bytes */
-int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
+static int tegra_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
+			int alen, uchar *buffer, int len)
 {
+	struct i2c_bus *bus;
 	uint offset;
 	int i;
 
 	debug("i2c_write: chip=0x%x, addr=0x%x, len=0x%x\n",
 				chip, addr, len);
+	bus = tegra_i2c_get_bus(adap);
+	if (!bus)
+		return 1;
 	if (!i2c_addr_ok(addr, alen)) {
 		debug("i2c_write: Bad address %x.%d.\n", addr, alen);
 		return 1;
@@ -572,7 +591,7 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 		for (i = 0; i < alen; i++)
 			data[alen - i - 1] = (addr + offset) >> (8 * i);
 		data[alen] = buffer[offset];
-		if (i2c_write_data(chip, data, alen + 1)) {
+		if (i2c_write_data(bus, chip, data, alen + 1)) {
 			debug("i2c_write: error sending (0x%x)\n", addr);
 			return 1;
 		}
@@ -581,30 +600,11 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	return 0;
 }
 
-#if defined(CONFIG_I2C_MULTI_BUS)
-/*
- * Functions for multiple I2C bus handling
- */
-unsigned int i2c_get_bus_num(void)
-{
-	return i2c_bus_num;
-}
-
-int i2c_set_bus_num(unsigned int bus)
-{
-	if (bus >= TEGRA_I2C_NUM_CONTROLLERS || !i2c_controllers[bus].inited)
-		return -1;
-	i2c_bus_num = bus;
-
-	return 0;
-}
-#endif
-
 int tegra_i2c_get_dvc_bus_num(void)
 {
 	int i;
 
-	for (i = 0; i < CONFIG_SYS_MAX_I2C_BUS; i++) {
+	for (i = 0; i < TEGRA_I2C_NUM_CONTROLLERS; i++) {
 		struct i2c_bus *bus = &i2c_controllers[i];
 
 		if (bus->inited && bus->is_dvc)
@@ -613,3 +613,19 @@ int tegra_i2c_get_dvc_bus_num(void)
 
 	return -1;
 }
+
+/*
+ * Register soft i2c adapters
+ */
+U_BOOT_I2C_ADAP_COMPLETE(tegra0, tegra_i2c_init, tegra_i2c_probe,
+			 tegra_i2c_read, tegra_i2c_write,
+			 tegra_i2c_set_bus_speed, 100000, 0, 0)
+U_BOOT_I2C_ADAP_COMPLETE(tegra1, tegra_i2c_init, tegra_i2c_probe,
+			 tegra_i2c_read, tegra_i2c_write,
+			 tegra_i2c_set_bus_speed, 100000, 0, 1)
+U_BOOT_I2C_ADAP_COMPLETE(tegra2, tegra_i2c_init, tegra_i2c_probe,
+			 tegra_i2c_read, tegra_i2c_write,
+			 tegra_i2c_set_bus_speed, 100000, 0, 2)
+U_BOOT_I2C_ADAP_COMPLETE(tegra3, tegra_i2c_init, tegra_i2c_probe,
+			 tegra_i2c_read, tegra_i2c_write,
+			 tegra_i2c_set_bus_speed, 100000, 0, 3)

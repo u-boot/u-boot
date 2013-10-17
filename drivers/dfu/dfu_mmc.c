@@ -4,19 +4,7 @@
  * Copyright (C) 2012 Samsung Electronics
  * author: Lukasz Majewski <l.majewski@samsung.com>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -25,16 +13,11 @@
 #include <div64.h>
 #include <dfu.h>
 
-enum dfu_mmc_op {
-	DFU_OP_READ = 1,
-	DFU_OP_WRITE,
-};
-
 static unsigned char __aligned(CONFIG_SYS_CACHELINE_SIZE)
 				dfu_file_buf[CONFIG_SYS_DFU_MAX_FILE_SIZE];
 static long dfu_file_buf_len;
 
-static int mmc_block_op(enum dfu_mmc_op op, struct dfu_entity *dfu,
+static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
 			u64 offset, void *buf, long *len)
 {
 	char cmd_buf[DFU_CMD_BUF_SIZE];
@@ -77,7 +60,7 @@ static int mmc_file_buffer(struct dfu_entity *dfu, void *buf, long *len)
 	return 0;
 }
 
-static int mmc_file_op(enum dfu_mmc_op op, struct dfu_entity *dfu,
+static int mmc_file_op(enum dfu_op op, struct dfu_entity *dfu,
 			void *buf, long *len)
 {
 	char cmd_buf[DFU_CMD_BUF_SIZE];

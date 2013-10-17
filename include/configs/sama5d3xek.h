@@ -7,23 +7,7 @@
  * Stelian Pop <stelian@popies.net>
  * Lead Tech Design <www.leadtechdesign.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -72,7 +56,6 @@
 #define LCD_BPP				LCD_COLOR16
 #define LCD_OUTPUT_BPP                  24
 #define CONFIG_LCD_LOGO
-#undef LCD_TEST_PATTERN
 #define CONFIG_LCD_INFO
 #define CONFIG_LCD_INFO_BELOW_LOGO
 #define CONFIG_SYS_WHITE_ON_BLACK
@@ -128,7 +111,6 @@
 #define CONFIG_CMD_NAND
 
 #ifdef CONFIG_CMD_NAND
-#define CONFIG_NAND_MAX_CHIPS		1
 #define CONFIG_NAND_ATMEL
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		ATMEL_BASE_CS3
@@ -142,16 +124,19 @@
 #define CONFIG_ATMEL_NAND_HW_PMECC
 #define CONFIG_PMECC_CAP		4
 #define CONFIG_PMECC_SECTOR_SIZE	512
-#define CONFIG_PMECC_INDEX_TABLE_OFFSET	ATMEL_PMECC_INDEX_OFFSET_512
 #define CONFIG_CMD_NAND_TRIMFFS
 #endif
 
 /* Ethernet Hardware */
 #define CONFIG_MACB
 #define CONFIG_RMII
-#define CONFIG_NET_MULTI
 #define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_MACB_SEARCH_PHY
+#define CONFIG_RGMII
+#define CONFIG_CMD_MII
+#define CONFIG_PHYLIB
+#define CONFIG_PHY_MICREL
+#define CONFIG_PHY_MICREL_KSZ9021
 
 /* MMC */
 #define CONFIG_CMD_MMC
@@ -176,6 +161,14 @@
 #define CONFIG_DOS_PARTITION
 #define CONFIG_USB_STORAGE
 #endif
+
+/* USB device */
+#define CONFIG_USB_GADGET
+#define CONFIG_USB_GADGET_DUALSPEED
+#define CONFIG_USB_GADGET_ATMEL_USBA
+#define CONFIG_USB_ETHER
+#define CONFIG_USB_ETH_RNDIS
+#define CONFIG_USBNET_MANUFACTURER      "Atmel SAMA5D3xEK"
 
 #if defined(CONFIG_CMD_USB) || defined(CONFIG_CMD_MMC)
 #define CONFIG_CMD_FAT
@@ -211,7 +204,7 @@
 				"bootm 0x22000000 - 0x21000000"
 #define CONFIG_SYS_MMC_ENV_DEV	0
 #else
-#define CONIG_ENV_IS_NOWHERE
+#define CONFIG_ENV_IS_NOWHERE
 #endif
 
 #ifdef CONFIG_SYS_USE_MMC

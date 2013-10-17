@@ -6,23 +6,7 @@
  * (C) Copyright 2000-2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifdef USE_HOSTCC
@@ -74,7 +58,7 @@ static int fit_parse_spec(const char *spec, char sepc, ulong addr_curr,
  * @conf_name double pointer to a char, will hold pointer to a configuration
  * unit name
  *
- * fit_parse_conf() expects configuration spec in the for of [<addr>]#<conf>,
+ * fit_parse_conf() expects configuration spec in the form of [<addr>]#<conf>,
  * where <addr> is a FIT image address that contains configuration
  * with a <conf> unit name.
  *
@@ -100,7 +84,7 @@ int fit_parse_conf(const char *spec, ulong addr_curr,
  * subimage
  * @image_name: double pointer to a char, will hold pointer to a subimage name
  *
- * fit_parse_subimage() expects subimage spec in the for of
+ * fit_parse_subimage() expects subimage spec in the form of
  * [<addr>]:<subimage>, where <addr> is a FIT image address that contains
  * subimage with a <subimg> unit name.
  *
@@ -358,6 +342,17 @@ void fit_image_print(const void *fit, int image_noffset, const char *p)
 		printf("unavailable\n");
 	else
 		printf("%s\n", desc);
+
+	if (IMAGE_ENABLE_TIMESTAMP) {
+		time_t timestamp;
+
+		ret = fit_get_timestamp(fit, 0, &timestamp);
+		printf("%s  Created:      ", p);
+		if (ret)
+			printf("unavailable\n");
+		else
+			genimg_print_time(timestamp);
+	}
 
 	fit_image_get_type(fit, image_noffset, &type);
 	printf("%s  Type:         %s\n", p, genimg_get_type_name(type));
@@ -1336,7 +1331,7 @@ int fit_conf_find_compat(const void *fit, const void *fdt)
  *
  * When NULL is provided in second argument fit_conf_get_node() will search
  * for a default configuration node instead. Default configuration node unit
- * name is retrived from FIT_DEFAULT_PROP property of the '/configurations'
+ * name is retrieved from FIT_DEFAULT_PROP property of the '/configurations'
  * node.
  *
  * returns:
@@ -1601,7 +1596,7 @@ int fit_image_load(bootm_headers_t *images, const char *prop_name, ulong addr,
 	len = (ulong)size;
 
 	/* verify that image data is a proper FDT blob */
-	if (image_type == IH_TYPE_FLATDT && fdt_check_header((char *)buf)) {
+	if (image_type == IH_TYPE_FLATDT && fdt_check_header(buf)) {
 		puts("Subimage data is not a FDT");
 		return -ENOEXEC;
 	}

@@ -1,20 +1,7 @@
 /*
  * Copyright (C) 2006 Freescale Semiconductor, Inc.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -326,13 +313,12 @@
 #define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
 /* I2C */
-#define CONFIG_HARD_I2C		/* I2C with hardware support */
-#undef CONFIG_SOFT_I2C		/* I2C bit-banged */
-#define CONFIG_FSL_I2C
-#define CONFIG_SYS_I2C_SPEED	400000	/* I2C speed and slave address */
-#define CONFIG_SYS_I2C_SLAVE	0x7F
-#define CONFIG_SYS_I2C_NOPROBES	{0x51}	/* Don't probe these addrs */
-#define CONFIG_SYS_I2C_OFFSET	0x3000
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_FSL
+#define CONFIG_SYS_FSL_I2C_SPEED	400000
+#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
+#define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
+#define CONFIG_SYS_I2C_NOPROBES		{ {0, 0x51} }
 
 /*
  * Config on-board RTC

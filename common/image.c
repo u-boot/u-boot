@@ -4,23 +4,7 @@
  * (C) Copyright 2000-2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef USE_HOSTCC
@@ -151,6 +135,7 @@ static const table_entry_t uimage_type[] = {
 	{	IH_TYPE_SCRIPT,     "script",	  "Script",		},
 	{	IH_TYPE_STANDALONE, "standalone", "Standalone Program", },
 	{	IH_TYPE_UBLIMAGE,   "ublimage",   "Davinci UBL image",},
+	{	IH_TYPE_MXSIMAGE,   "mxsimage",   "Freescale MXS Boot Image",},
 	{	-1,		    "",		  "",			},
 };
 
@@ -667,17 +652,13 @@ int genimg_get_format(const void *img_addr)
 {
 	ulong format = IMAGE_FORMAT_INVALID;
 	const image_header_t *hdr;
-#if defined(CONFIG_FIT) || defined(CONFIG_OF_LIBFDT)
-	char *fit_hdr;
-#endif
 
 	hdr = (const image_header_t *)img_addr;
 	if (image_check_magic(hdr))
 		format = IMAGE_FORMAT_LEGACY;
 #if defined(CONFIG_FIT) || defined(CONFIG_OF_LIBFDT)
 	else {
-		fit_hdr = (char *)img_addr;
-		if (fdt_check_header(fit_hdr) == 0)
+		if (fdt_check_header(img_addr) == 0)
 			format = IMAGE_FORMAT_FIT;
 	}
 #endif
@@ -980,7 +961,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
  * @initrd_end: pointer to a ulong variable, will hold final init ramdisk
  *      end address (after possible relocation)
  *
- * boot_ramdisk_high() takes a relocation hint from "initrd_high" environement
+ * boot_ramdisk_high() takes a relocation hint from "initrd_high" environment
  * variable and if requested ramdisk data is moved to a specified location.
  *
  * Initrd_start and initrd_end are set to final (after relocation) ramdisk

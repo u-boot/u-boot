@@ -154,10 +154,10 @@ The MAC address can be stored in four locations:
 
 -Boot environmental variable in Flash <- can not change, without
 					  re-flashing U-boot.
-U-Boot environental variable	       <- can not change, without
+U-Boot environmental variable	       <- can not change, without
 					  resetting board/U-Boot
-LAN91C111 Registers		       <- volitle
-LAN91C111 EEPROM		       <- Non Volitle
+LAN91C111 Registers		       <- volatile
+LAN91C111 EEPROM		       <- Non-volatile
 
 If you have not activated the network, and do not have a hardcoded
 or pre-assigned MAC address in U-boot, the environmental variables

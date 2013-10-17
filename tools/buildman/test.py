@@ -1,23 +1,7 @@
 #
 # Copyright (c) 2012 The Chromium OS Authors.
 #
-# See file CREDITS for list of people who contributed to this
-# project.
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 2 of
-# the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA 02111-1307 USA
+# SPDX-License-Identifier:	GPL-2.0+
 #
 
 import os
@@ -76,11 +60,11 @@ commits = [
 ]
 
 boards = [
-    ['board0', 'arm', 'armv7', 'ARM Board 1', 'Tester', '', ''],
-    ['board1', 'arm', 'armv7', 'ARM Board 2', 'Tester', '', ''],
-    ['board2', 'powerpc', 'powerpc', 'PowerPC board 1', 'Tester', '', ''],
-    ['board3', 'powerpc', 'mpc5xx', 'PowerPC board 2', 'Tester', '', ''],
-    ['board4', 'sandbox', 'sandbox', 'Sandbox board', 'Tester', '', '']
+    ['Active', 'arm', 'armv7', '', 'Tester', 'ARM Board 1', 'board0',  ''],
+    ['Active', 'arm', 'armv7', '', 'Tester', 'ARM Board 2', 'board1', ''],
+    ['Active', 'powerpc', 'powerpc', '', 'Tester', 'PowerPC board 1', 'board2', ''],
+    ['Active', 'powerpc', 'mpc5xx', '', 'Tester', 'PowerPC board 2', 'board3', ''],
+    ['Active', 'sandbox', 'sandbox', '', 'Tester', 'Sandbox board', 'board4', ''],
 ]
 
 class Options:

@@ -10,20 +10,7 @@
  *     Richard Woodruff <r-woodruff2@ti.com>
  *     Syed Mohammed Khasim <khasim@ti.com>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -82,9 +69,13 @@ void gpmc_init(void)
 #endif
 	/* global settings */
 	writel(0x00000008, &gpmc_cfg->sysconfig);
-	writel(0x00000100, &gpmc_cfg->irqstatus);
-	writel(0x00000100, &gpmc_cfg->irqenable);
+	writel(0x00000000, &gpmc_cfg->irqstatus);
+	writel(0x00000000, &gpmc_cfg->irqenable);
+#ifdef CONFIG_NOR
+	writel(0x00000200, &gpmc_cfg->config);
+#else
 	writel(0x00000012, &gpmc_cfg->config);
+#endif
 	/*
 	 * Disable the GPMC0 config set by ROM code
 	 */

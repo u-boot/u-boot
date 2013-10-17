@@ -12,15 +12,15 @@ U-Boot currently implements one common API for RTC devices. The interface
 is defined in include/rtc.h and comprises of functions and structures:
 
     struct rtc_time {
-        int tm_sec;
-        int tm_min;
-        int tm_hour;
-        int tm_mday;
-        int tm_mon;
-        int tm_year;
-        int tm_wday;
-        int tm_yday;
-        int tm_isdst;
+	int tm_sec;
+	int tm_min;
+	int tm_hour;
+	int tm_mday;
+	int tm_mon;
+	int tm_year;
+	int tm_wday;
+	int tm_yday;
+	int tm_isdst;
     };
 
     int rtc_get (struct rtc_time *);
@@ -42,14 +42,14 @@ II) Approach
   In the UDM each rtc driver would register itself by a function
 
     int rtc_device_register(struct instance *i,
-                            struct rtc_device_ops *o);
+			    struct rtc_device_ops *o);
 
   The structure being defined as follows:
 
     struct rtc_device_ops {
-        int  (*get_time)(struct instance *i, struct rtc_time *t);
-        int  (*set_time)(struct instance *i, struct rtc_time *t);
-        int  (*reset)(struct instance *i);
+	int  (*get_time)(struct instance *i, struct rtc_time *t);
+	int  (*set_time)(struct instance *i, struct rtc_time *t);
+	int  (*reset)(struct instance *i);
     };
 
 
@@ -228,31 +228,26 @@ III) Analysis of in-tree drivers
   The driver is standard rtc. Simple conversion is possible.
 
 
-  34) drivers/rtc/s3c44b0_rtc.c
-  -----------------------------
-  The driver is standard rtc. Simple conversion is possible.
-
-
-  35) drivers/rtc/ds1337.c
+  34) drivers/rtc/ds1337.c
   ------------------------
   The driver is standard rtc. Simple conversion is possible.
 
 
-  36) drivers/rtc/isl1208.c
+  35) drivers/rtc/isl1208.c
   -------------------------
   The driver is standard rtc. Simple conversion is possible.
 
 
-  37) drivers/rtc/max6900.c
+  36) drivers/rtc/max6900.c
   -------------------------
   The driver is standard rtc. Simple conversion is possible.
 
 
-  38) drivers/rtc/mc146818.c
+  37) drivers/rtc/mc146818.c
   --------------------------
   The driver is standard rtc. Simple conversion is possible.
 
 
-  39) drivers/rtc/at91sam9_rtt.c
+  38) drivers/rtc/at91sam9_rtt.c
   ------------------------------
   The driver is standard rtc. Simple conversion is possible.

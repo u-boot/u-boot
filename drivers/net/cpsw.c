@@ -51,8 +51,6 @@
 #define CPDMA_RXCP_VER1		0x160
 #define CPDMA_RXCP_VER2		0x260
 
-#define CPDMA_RAM_ADDR		0x4a102000
-
 /* Descriptor mode bits */
 #define CPDMA_DESC_SOP		BIT(31)
 #define CPDMA_DESC_EOP		BIT(30)
@@ -489,7 +487,7 @@ static inline void wait_for_idle(void)
 static int cpsw_mdio_read(struct mii_dev *bus, int phy_id,
 				int dev_addr, int phy_reg)
 {
-	unsigned short data;
+	int data;
 	u32 reg;
 
 	if (phy_reg & ~PHY_REG_MASK || phy_id & ~PHY_ID_MASK)
@@ -570,8 +568,13 @@ static void cpsw_set_slave_mac(struct cpsw_slave *slave,
 static void cpsw_slave_update_link(struct cpsw_slave *slave,
 				   struct cpsw_priv *priv, int *link)
 {
-	struct phy_device *phy = priv->phydev;
+	struct phy_device *phy;
 	u32 mac_control = 0;
+
+	phy = priv->phydev;
+
+	if (!phy)
+		return;
 
 	phy_startup(phy);
 	*link = phy->link;
@@ -774,6 +777,7 @@ static int cpsw_init(struct eth_device *dev, bd_t *bis)
 
 	/* enable statistics collection only on the host port */
 	__raw_writel(BIT(priv->host_port), &priv->regs->stat_port_en);
+	__raw_writel(0x7, &priv->regs->stat_port_en);
 
 	cpsw_ale_port_state(priv, priv->host_port, ALE_PORT_STATE_FORWARD);
 
@@ -948,6 +952,9 @@ static int cpsw_phy_init(struct eth_device *dev, struct cpsw_slave *slave)
 			dev,
 			slave->data->phy_if);
 
+	if (!phydev)
+		return -1;
+
 	phydev->supported &= supported;
 	phydev->advertising = phydev->supported;
 
@@ -984,12 +991,12 @@ int cpsw_register(struct cpsw_platform_data *data)
 		return -ENOMEM;
 	}
 
-	priv->descs		= (void *)CPDMA_RAM_ADDR;
 	priv->host_port		= data->host_port_num;
 	priv->regs		= regs;
 	priv->host_port_regs	= regs + data->host_port_reg_ofs;
 	priv->dma_regs		= regs + data->cpdma_reg_ofs;
 	priv->ale_regs		= regs + data->ale_reg_ofs;
+	priv->descs		= (void *)regs + data->bd_ram_ofs;
 
 	int idx = 0;
 

@@ -1,20 +1,7 @@
 /*
  * Copyright (C) 2012 Freescale Semiconductor, Inc. All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
-
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
-
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ASM_ARCH_MX6_MX6DL_PINS_H__
@@ -248,7 +235,7 @@ enum {
 	MX6_PAD_DISP0_DAT1__GPIO_4_22		= IOMUX_PAD(0x03C8, 0x00B4, 5, 0x0000, 0, 0),
 	MX6_PAD_DISP0_DAT1__MMDC_MMDC_DEBUG_6	= IOMUX_PAD(0x03C8, 0x00B4, 6, 0x0000, 0, 0),
 	MX6_PAD_DISP0_DAT1__PL301_SIM_MX6DL_PER1_HADDR_12	= IOMUX_PAD(0x03C8, 0x00B4, 7, 0x0000, 0, 0),
-	MX6_PAD_DISP0_DAT10__IPU1_DISP0_DAT_10	= IOMUX_PAD(0x03CC, 0x00B8, 0, 0x0000, 0, 0),
+	MX6_PAD_DISP0_DAT10__IPU1_DISP0_DAT_10	= IOMUX_PAD(0x03CC, 0x00B8, 0, 0x0000, 0, PAD_CTL_DSE_120ohm),
 	MX6_PAD_DISP0_DAT10__LCDIF_DAT_10	= IOMUX_PAD(0x03CC, 0x00B8, 1, 0x0000, 0, PAD_CTL_DSE_120ohm),
 	MX6_PAD_DISP0_DAT10__USDHC1_USDHC_DEBUG_6	= IOMUX_PAD(0x03CC, 0x00B8, 3, 0x0000, 0, 0),
 	MX6_PAD_DISP0_DAT10__SDMA_DEBUG_EVENT_CHANNEL_3	= IOMUX_PAD(0x03CC, 0x00B8, 4, 0x0000, 0, 0),
@@ -322,7 +309,7 @@ enum {
 	MX6_PAD_DISP0_DAT19__GPIO_5_13		= IOMUX_PAD(0x03F0, 0x00DC, 5, 0x0000, 0, 0),
 	MX6_PAD_DISP0_DAT19__MMDC_MMDC_DEBUG_24	= IOMUX_PAD(0x03F0, 0x00DC, 6, 0x0000, 0, 0),
 	MX6_PAD_DISP0_DAT19__WEIM_WEIM_CS_3	= IOMUX_PAD(0x03F0, 0x00DC, 7, 0x0000, 0, 0),
-	MX6_PAD_DISP0_DAT2__IPU1_DISP0_DAT_2	= IOMUX_PAD(0x03F4, 0x00E0, 0, 0x0000, 0, 0),
+	MX6_PAD_DISP0_DAT2__IPU1_DISP0_DAT_2	= IOMUX_PAD(0x03F4, 0x00E0, 0, 0x0000, 0, PAD_CTL_DSE_120ohm),
 	MX6_PAD_DISP0_DAT2__LCDIF_DAT_2		= IOMUX_PAD(0x03F4, 0x00E0, 1, 0x0000, 0, 0),
 	MX6_PAD_DISP0_DAT2__ECSPI3_MISO		= IOMUX_PAD(0x03F4, 0x00E0, 2, 0x0000, 0, 0),
 	MX6_PAD_DISP0_DAT2__USDHC1_USDHC_DEBUG_2	= IOMUX_PAD(0x03F4, 0x00E0, 3, 0x0000, 0, 0),
@@ -1056,7 +1043,7 @@ enum {
 	MX6_PAD_GPIO_1__ESAI1_SCKR		= IOMUX_PAD(0x05E0, 0x0210, 0, 0x083C, 1, 0),
 	MX6_PAD_GPIO_1__WDOG2_WDOG_B		= IOMUX_PAD(0x05E0, 0x0210, 1, 0x0000, 0, 0),
 	MX6_PAD_GPIO_1__KPP_ROW_5		= IOMUX_PAD(0x05E0, 0x0210, 2, 0x08CC, 1, 0),
-	MX6_PAD_GPIO_1__USBOTG_ID		= IOMUX_PAD(0x05E0, 0x0210, 3, 0x0790, 1, 0),
+	MX6_PAD_GPIO_1__USB_OTG_ID		= IOMUX_PAD(0x05E0, 0x0210, 3, 0x0790, 1, 0),
 	MX6_PAD_GPIO_1__PWM2_PWMO		= IOMUX_PAD(0x05E0, 0x0210, 4, 0x0000, 0, 0),
 	MX6_PAD_GPIO_1__GPIO_1_1		= IOMUX_PAD(0x05E0, 0x0210, 5, 0x0000, 0, 0),
 	MX6_PAD_GPIO_1__USDHC1_CD		= IOMUX_PAD(0x05E0, 0x0210, 6, 0x0000, 0, 0),

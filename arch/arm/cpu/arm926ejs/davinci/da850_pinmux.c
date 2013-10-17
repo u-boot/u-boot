@@ -3,19 +3,7 @@
  *
  * Copyright (C) 2011 OMICRON electronics GmbH
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -38,6 +26,11 @@ const struct pinmux_config spi1_pins_scs0[] = {
 const struct pinmux_config uart0_pins_txrx[] = {
 	{ pinmux(3), 2, 4 }, /* UART0_RXD */
 	{ pinmux(3), 2, 5 }, /* UART0_TXD */
+};
+
+const struct pinmux_config uart0_pins_rtscts[] = {
+	{ pinmux(3), 2, 6 },
+	{ pinmux(3), 2, 7 },
 };
 
 const struct pinmux_config uart1_pins_txrx[] = {
@@ -63,6 +56,7 @@ const struct pinmux_config emac_pins_rmii[] = {
 	{ pinmux(14), 8, 5 }, /* RMII_RXD[1] */
 	{ pinmux(14), 8, 6 }, /* RMII_RXD[0] */
 	{ pinmux(14), 8, 7 }, /* RMII_RXER */
+	{ pinmux(15), 0, 0 }, /* RMII_MHz_50_CLK */
 	{ pinmux(15), 8, 1 }, /* RMII_CRS_DV */
 };
 

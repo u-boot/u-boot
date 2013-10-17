@@ -1,6 +1,6 @@
 JFFS2 NAND support:
 
-To ebable, use the following #define in the board configuration file:
+To enable, use the following #define in the board configuration file:
 
 #define CONFIG_JFFS2_NAND 1
 

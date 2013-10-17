@@ -3,20 +3,7 @@
  *
  * Copyright (c) 2008 Texas Instruments
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  *
  * Author: Thomas Abraham t-abraham@ti.com, Texas Instruments
  */
@@ -280,7 +267,7 @@ static int wait_until_ep0_ready(struct usb_device *dev, u32 bit_mask)
 /*
  * waits until tx ep is ready. Returns 1 when ep is ready and 0 on error.
  */
-static u8 wait_until_txep_ready(struct usb_device *dev, u8 ep)
+static int wait_until_txep_ready(struct usb_device *dev, u8 ep)
 {
 	u16 csr;
 	int timeout = CONFIG_MUSB_TIMEOUT;
@@ -312,7 +299,7 @@ static u8 wait_until_txep_ready(struct usb_device *dev, u8 ep)
 /*
  * waits until rx ep is ready. Returns 1 when ep is ready and 0 on error.
  */
-static u8 wait_until_rxep_ready(struct usb_device *dev, u8 ep)
+static int wait_until_rxep_ready(struct usb_device *dev, u8 ep)
 {
 	u16 csr;
 	int timeout = CONFIG_MUSB_TIMEOUT;
@@ -430,8 +417,12 @@ static int ctrlreq_out_data_phase(struct usb_device *dev, u32 len, void *buffer)
 
 		/* Set TXPKTRDY bit */
 		csr = readw(&musbr->txcsr);
-		writew(csr | MUSB_CSR0_H_DIS_PING | MUSB_CSR0_TXPKTRDY,
-					&musbr->txcsr);
+			
+		csr |= MUSB_CSR0_TXPKTRDY;
+#if !defined(CONFIG_SOC_DM365)
+		csr |= MUSB_CSR0_H_DIS_PING;
+#endif
+		writew(csr, &musbr->txcsr);
 		result = wait_until_ep0_ready(dev, MUSB_CSR0_TXPKTRDY);
 		if (result < 0)
 			break;
@@ -452,8 +443,10 @@ static int ctrlreq_out_status_phase(struct usb_device *dev)
 
 	/* Set the StatusPkt bit */
 	csr = readw(&musbr->txcsr);
-	csr |= (MUSB_CSR0_H_DIS_PING | MUSB_CSR0_TXPKTRDY |
-			MUSB_CSR0_H_STATUSPKT);
+	csr |= (MUSB_CSR0_TXPKTRDY | MUSB_CSR0_H_STATUSPKT);
+#if !defined(CONFIG_SOC_DM365)
+	csr |= MUSB_CSR0_H_DIS_PING;
+#endif
 	writew(csr, &musbr->txcsr);
 
 	/* Wait until TXPKTRDY bit is cleared */
@@ -470,7 +463,10 @@ static int ctrlreq_in_status_phase(struct usb_device *dev)
 	int result;
 
 	/* Set the StatusPkt bit and ReqPkt bit */
-	csr = MUSB_CSR0_H_DIS_PING | MUSB_CSR0_H_REQPKT | MUSB_CSR0_H_STATUSPKT;
+	csr = MUSB_CSR0_H_REQPKT | MUSB_CSR0_H_STATUSPKT;
+#if !defined(CONFIG_SOC_DM365)
+	csr |= MUSB_CSR0_H_DIS_PING;
+#endif
 	writew(csr, &musbr->txcsr);
 	result = wait_until_ep0_ready(dev, MUSB_CSR0_H_REQPKT);
 
@@ -1022,7 +1018,7 @@ int submit_bulk_msg(struct usb_device *dev, unsigned long pipe,
 			writew(csr | MUSB_TXCSR_TXPKTRDY, &musbr->txcsr);
 
 			/* Wait until the TxPktRdy bit is cleared */
-			if (!wait_until_txep_ready(dev, MUSB_BULK_EP)) {
+			if (wait_until_txep_ready(dev, MUSB_BULK_EP) != 1) {
 				readw(&musbr->txcsr);
 				usb_settoggle(dev, ep, dir_out,
 				(csr >> MUSB_TXCSR_H_DATATOGGLE_SHIFT) & 1);
@@ -1057,7 +1053,7 @@ int submit_bulk_msg(struct usb_device *dev, unsigned long pipe,
 			writew(csr | MUSB_RXCSR_H_REQPKT, &musbr->rxcsr);
 
 			/* Wait until the RxPktRdy bit is set */
-			if (!wait_until_rxep_ready(dev, MUSB_BULK_EP)) {
+			if (wait_until_rxep_ready(dev, MUSB_BULK_EP) != 1) {
 				csr = readw(&musbr->rxcsr);
 				usb_settoggle(dev, ep, dir_out,
 				(csr >> MUSB_S_RXCSR_H_DATATOGGLE) & 1);
@@ -1230,7 +1226,7 @@ int submit_int_msg(struct usb_device *dev, unsigned long pipe,
 			writew(csr | MUSB_RXCSR_H_REQPKT, &musbr->rxcsr);
 
 			/* Wait until the RxPktRdy bit is set */
-			if (!wait_until_rxep_ready(dev, MUSB_INTR_EP)) {
+			if (wait_until_rxep_ready(dev, MUSB_INTR_EP) != 1) {
 				csr = readw(&musbr->rxcsr);
 				usb_settoggle(dev, ep, dir_out,
 				(csr >> MUSB_S_RXCSR_H_DATATOGGLE) & 1);

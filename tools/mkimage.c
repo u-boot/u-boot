@@ -5,20 +5,7 @@
  * DENX Software Engineering
  * Wolfgang Denk, wd@denx.de
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include "mkimage.h"
@@ -150,6 +137,7 @@ main (int argc, char **argv)
 	char *ptr;
 	int retval = 0;
 	struct image_type_params *tparams = NULL;
+	int pad_len = 0;
 
 	/* Init Freescale PBL Boot image generation/list support */
 	init_pbl_image_type();
@@ -157,6 +145,8 @@ main (int argc, char **argv)
 	init_kwb_image_type ();
 	/* Init Freescale imx Boot image generation/list support */
 	init_imx_image_type ();
+	/* Init Freescale mxs Boot image generation/list support */
+	init_mxs_image_type();
 	/* Init FIT image generation/list support */
 	init_fit_image_type ();
 	/* Init TI OMAP Boot image generation/list support */
@@ -404,7 +394,7 @@ NXTARG:		;
 	 * allocate memory for the header itself.
 	 */
 	if (tparams->vrec_header)
-		tparams->vrec_header(&params, tparams);
+		pad_len = tparams->vrec_header(&params, tparams);
 	else
 		memset(tparams->hdr, 0, tparams->header_size);
 
@@ -476,7 +466,7 @@ NXTARG:		;
 			/* PBL has special Image format, implements its' own */
 			pbl_load_uboot(ifd, &params);
 		} else {
-			copy_file (ifd, params.datafile, 0);
+			copy_file(ifd, params.datafile, pad_len);
 		}
 	}
 
@@ -550,9 +540,18 @@ copy_file (int ifd, const char *datafile, int pad)
 	unsigned char *ptr;
 	int tail;
 	int zero = 0;
+	uint8_t zeros[4096];
 	int offset = 0;
 	int size;
 	struct image_type_params *tparams = mkimage_get_type (params.type);
+
+	if (pad >= sizeof(zeros)) {
+		fprintf(stderr, "%s: Can't pad to %d\n",
+			params.cmdname, pad);
+		exit(EXIT_FAILURE);
+	}
+
+	memset(zeros, 0, sizeof(zeros));
 
 	if (params.vflag) {
 		fprintf (stderr, "Adding Image %s\n", datafile);
@@ -611,13 +610,21 @@ copy_file (int ifd, const char *datafile, int pad)
 		exit (EXIT_FAILURE);
 	}
 
-	if (pad && ((tail = size % 4) != 0)) {
+	tail = size % 4;
+	if ((pad == 1) && (tail != 0)) {
 
 		if (write(ifd, (char *)&zero, 4-tail) != 4-tail) {
 			fprintf (stderr, "%s: Write error on %s: %s\n",
 				params.cmdname, params.imagefile,
 				strerror(errno));
 			exit (EXIT_FAILURE);
+		}
+	} else if (pad > 1) {
+		if (write(ifd, (char *)&zeros, pad) != pad) {
+			fprintf(stderr, "%s: Write error on %s: %s\n",
+				params.cmdname, params.imagefile,
+				strerror(errno));
+			exit(EXIT_FAILURE);
 		}
 	}
 

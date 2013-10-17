@@ -15,7 +15,6 @@ recent qemu versions. When using emulated flash, launch with
 -pflash <filename> and erase mips_bios.bin.
 
 
-
 Notes for the Qemu MIPS port
 ----------------------------
 

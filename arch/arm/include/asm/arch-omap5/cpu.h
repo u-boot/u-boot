@@ -4,24 +4,7 @@
  *
  *	Aneesh V <aneesh@ti.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
- *
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _CPU_H
@@ -116,6 +99,8 @@ struct watchdog {
 #endif /* __ASSEMBLY__ */
 #endif /* __KERNEL_STRICT_NAMES */
 
+#define BIT(x)				(1 << (x))
+
 #define WD_UNLOCK1		0xAAAA
 #define WD_UNLOCK2		0x5555
 
@@ -174,5 +159,9 @@ struct watchdog {
 #define PRM_RSTCTRL_RESET	0x01
 #define PRM_RSTST		(PRM_DEVICE_BASE + 0x4)
 #define PRM_RSTST_WARM_RESET_MASK	0x7FEA
+
+/* DRA7XX CPSW Config space */
+#define CPSW_BASE			0x48484000
+#define CPSW_MDIO_BASE			0x48485000
 
 #endif /* _CPU_H */

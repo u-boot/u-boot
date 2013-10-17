@@ -15,12 +15,12 @@ I) Overview
 
   void spi_init(void);
   struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
-                                    unsigned int max_hz, unsigned int mode);
+				    unsigned int max_hz, unsigned int mode);
   void spi_free_slave(struct spi_slave *slave);
   int  spi_claim_bus(struct spi_slave *slave);
   void spi_release_bus(struct spi_slave *slave);
   int  spi_xfer(struct spi_slave *slave, unsigned int bitlen,
-                const void *dout, void *din, unsigned long flags);
+		const void *dout, void *din, unsigned long flags);
   int  spi_cs_is_valid(unsigned int bus, unsigned int cs);
   void spi_cs_activate(struct spi_slave *slave);
   void spi_cs_deactivate(struct spi_slave *slave);
@@ -69,13 +69,13 @@ II) Approach
 
   struct ops {
     int  (*spi_request_bus)(struct instance *i, unsigned int bus,
-                            unsigned int cs, unsigned int max_hz,
-                            unsigned int mode);
+			    unsigned int cs, unsigned int max_hz,
+			    unsigned int mode);
     void (*spi_release_bus)(struct instance *i);
     int  (*spi_xfer) (struct instance *i, unsigned int bitlen,
-                      const void *dout, void *din, unsigned long flags);
+		      const void *dout, void *din, unsigned long flags);
     int  (*spi_cs_is_valid)(struct instance *i, unsigned int bus,
-                            unsigned int cs);
+			    unsigned int cs);
     void (*spi_cs_activate)(struct instance *i);
     void (*spi_cs_deactivate)(struct instance *i);
     void (*spi_set_speed)(struct instance *i, uint hz);

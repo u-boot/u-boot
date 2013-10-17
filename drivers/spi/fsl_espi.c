@@ -4,20 +4,7 @@
  * Copyright 2010-2011 Freescale Semiconductor, Inc.
  * Author: Mingkai Hu (Mingkai.hu@freescale.com)
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -88,7 +75,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 	/* Set eSPI BRG clock source */
 	get_sys_info(&sysinfo);
-	spibrg = sysinfo.freqSystemBus / 2;
+	spibrg = sysinfo.freq_systembus / 2;
 	fsl->div16 = 0;
 	if ((spibrg / max_hz) > 32) {
 		fsl->div16 = ESPI_CSMODE_DIV16;
@@ -234,15 +221,13 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *data_out,
 	      slave->bus, slave->cs, *(uint *) dout,
 	      dout, *(uint *) din, din, len);
 
-	num_chunks = data_len / max_tran_len +
-		(data_len % max_tran_len ? 1 : 0);
+	num_chunks = DIV_ROUND_UP(data_len, max_tran_len);
 	while (num_chunks--) {
 		if (data_in)
 			din = buffer + rx_offset;
 		dout = buffer;
 		tran_len = min(data_len , max_tran_len);
-		num_blks = (tran_len + cmd_len) / 4 +
-			((tran_len + cmd_len) % 4 ? 1 : 0);
+		num_blks = DIV_ROUND_UP(tran_len + cmd_len, 4);
 		num_bytes = (tran_len + cmd_len) % 4;
 		fsl->data_len = tran_len + cmd_len;
 		spi_cs_activate(slave);

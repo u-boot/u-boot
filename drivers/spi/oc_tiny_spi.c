@@ -7,7 +7,7 @@
  * Copyright (c) 2005-2008 Analog Devices Inc.
  * Copyright (C) 2010 Thomas Chou <thomas@wytron.com.tw>
  *
- * Licensed under the GPL-2 or later.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>

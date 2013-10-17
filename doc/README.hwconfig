@@ -18,7 +18,7 @@ Current implementation details/limitations:
    U-Boot. But I haven't bothered yet.
 
 2. Since we don't implement a hwconfig command, i.e. we're working
-   with the environement directly, there is no way to tell that
+   with the environment directly, there is no way to tell that
    toggling a particular option will need a reboot to take
    effect. So, for now it's advised to always reboot the
    target after modifying the hwconfig variable.

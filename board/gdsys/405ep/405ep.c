@@ -2,23 +2,7 @@
  * (C) Copyright 2010
  * Dirk Eibach,  Guntermann & Drunck GmbH, eibach@gdsys.de
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -33,6 +17,12 @@
 
 #define REFLECTION_TESTPATTERN 0xdede
 #define REFLECTION_TESTPATTERN_INV (~REFLECTION_TESTPATTERN & 0xffff)
+
+#ifdef CONFIG_SYS_FPGA_NO_RFL_HI
+#define REFLECTION_TESTREG reflection_low
+#else
+#define REFLECTION_TESTREG reflection_high
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -106,23 +96,17 @@ int board_early_init_r(void)
 	gd405ep_set_fpga_reset(0);
 
 	for (k = 0; k < CONFIG_SYS_FPGA_COUNT; ++k) {
-		struct ihs_fpga *fpga =
-			(struct ihs_fpga *)CONFIG_SYS_FPGA_BASE(k);
-#ifdef CONFIG_SYS_FPGA_NO_RFL_HI
-		u16 *reflection_target = &fpga->reflection_low;
-#else
-		u16 *reflection_target = &fpga->reflection_high;
-#endif
 		/*
 		 * wait for fpga out of reset
 		 */
 		ctr = 0;
 		while (1) {
-			out_le16(&fpga->reflection_low,
-				REFLECTION_TESTPATTERN);
+			u16 val;
 
-			if (in_le16(reflection_target) ==
-				REFLECTION_TESTPATTERN_INV)
+			FPGA_SET_REG(k, reflection_low, REFLECTION_TESTPATTERN);
+
+			FPGA_GET_REG(k, REFLECTION_TESTREG, &val);
+			if (val == REFLECTION_TESTPATTERN_INV)
 				break;
 
 			udelay(100000);

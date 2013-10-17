@@ -17,29 +17,29 @@ Each device that wants to register with STDIO subsystem has to define struct
 stdio_dev, defined in include/stdio_dev.h and containing the following fields:
 
 struct stdio_dev {
-        int     flags;                  /* Device flags: input/output/system */
-        int     ext;                    /* Supported extensions              */
-        char    name[16];               /* Device name                       */
+	int     flags;                  /* Device flags: input/output/system */
+	int     ext;                    /* Supported extensions              */
+	char    name[16];               /* Device name                       */
 
 /* GENERAL functions */
 
-        int (*start) (void);            /* To start the device               */
-        int (*stop) (void);             /* To stop the device                */
+	int (*start) (void);            /* To start the device               */
+	int (*stop) (void);             /* To stop the device                */
 
 /* OUTPUT functions */
 
-        void (*putc) (const char c);    /* To put a char                     */
-        void (*puts) (const char *s);   /* To put a string (accelerator)     */
+	void (*putc) (const char c);    /* To put a char                     */
+	void (*puts) (const char *s);   /* To put a string (accelerator)     */
 
 /* INPUT functions */
 
-        int (*tstc) (void);             /* To test if a char is ready...     */
-        int (*getc) (void);             /* To get that char                  */
+	int (*tstc) (void);             /* To test if a char is ready...     */
+	int (*getc) (void);             /* To get that char                  */
 
 /* Other functions */
 
-        void *priv;                     /* Private extensions                */
-        struct list_head list;
+	void *priv;                     /* Private extensions                */
+	struct list_head list;
 };
 
 Currently used flags are DEV_FLAGS_INPUT, DEV_FLAGS_OUTPUT and DEV_FLAGS_SYSTEM,
@@ -139,13 +139,13 @@ II) Approach
   purpose. The following flags will be defined:
 
     STDIO_FLG_STDIN ..... This device will be used as an input device. All input
-                          from all devices with this flag set will be received
+			  from all devices with this flag set will be received
 			  and passed to the upper layers.
     STDIO_FLG_STDOUT .... This device will be used as an output device. All
-                          output sent to stdout will be routed to all devices
+			  output sent to stdout will be routed to all devices
 			  with this flag set.
     STDIO_FLG_STDERR .... This device will be used as an standard error output
-                          device. All output sent to stderr will be routed to
+			  device. All output sent to stderr will be routed to
 			  all devices with this flag set.
 
   The "list" member of this structure allows to have a linked list of all

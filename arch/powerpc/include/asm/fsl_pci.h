@@ -1,21 +1,7 @@
 /*
- * Copyright 2007,2009-2011 Freescale Semiconductor, Inc.
+ * Copyright 2007,2009-2012 Freescale Semiconductor, Inc.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
- *
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __FSL_PCI_H_
@@ -27,6 +13,34 @@
 
 #define PEX_IP_BLK_REV_2_2	0x02080202
 #define PEX_IP_BLK_REV_2_3	0x02080203
+#define PEX_IP_BLK_REV_3_0	0x02080300
+
+/* Freescale-specific PCI config registers */
+#define FSL_PCI_PBFR		0x44
+
+#ifdef CONFIG_SYS_FSL_PCI_VER_3_X
+/* Currently only the PCIe capability is used, so hardcode the offset.
+ * if more capabilities need to be justified, the capability link method
+ * should be applied here
+ */
+#define FSL_PCIE_CAP_ID		0x70
+#define PCI_DCR		0x78    /* PCIe Device Control Register */
+#define PCI_DSR		0x7a    /* PCIe Device Status Register */
+#define PCI_LSR		0x82    /* PCIe Link Status Register */
+#define PCI_LCR		0x80    /* PCIe Link Control Register */
+#else
+#define FSL_PCIE_CAP_ID		0x4c
+#define PCI_DCR		0x54    /* PCIe Device Control Register */
+#define PCI_DSR		0x56    /* PCIe Device Status Register */
+#define PCI_LSR		0x5e    /* PCIe Link Status Register */
+#define PCI_LCR		0x5c    /* PCIe Link Control Register */
+#endif
+
+#define FSL_PCIE_CFG_RDY	0x4b0
+#define FSL_PROG_IF_AGENT	0x1
+
+#define PCI_LTSSM	0x404   /* PCIe Link Training, Status State Machine */
+#define  PCI_LTSSM_L0	0x16    /* L0 state */
 
 int fsl_setup_hose(struct pci_controller *hose, unsigned long addr);
 int fsl_is_pci_agent(struct pci_controller *hose);
@@ -163,7 +177,10 @@ typedef struct ccsr_pci {
 	u32	perr_cap3;	/* 0xe34 - PCIE Error Capture Register 3 */
 	char	res23[200];
 	u32	pdb_stat;	/* 0xf00 - PCIE Debug Status */
-	char	res24[252];
+	char	res24[16];
+	u32	pex_csr0;	/* 0xf14 - PEX Control/Status register 0*/
+	u32	pex_csr1;	/* 0xf18 - PEX Control/Status register 1*/
+	char	res25[228];
 } ccsr_fsl_pci_t;
 #define PCIE_CONFIG_PC	0x00020000
 #define PCIE_CONFIG_OB_CK	0x00002000

@@ -6,23 +6,7 @@
  *	Aneesh V <aneesh@ti.com>
  *	Sricharan R <r.sricharan@ti.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef _OMAP5_H_
@@ -76,6 +60,9 @@
 
 /* GPMC */
 #define OMAP54XX_GPMC_BASE	0x50000000
+
+/* QSPI */
+#define QSPI_BASE		0x4B300000
 
 /*
  * Hardware Register Details
@@ -169,6 +156,15 @@ struct s32ktimer {
 #define EFUSE_4 0x45145100
 #endif /* __ASSEMBLY__ */
 
+/*
+ * In all cases, the TRM defines the RAM Memory Map for the processor
+ * and indicates the area for the downloaded image.  We use all of that
+ * space for download and once up and running may use other parts of the
+ * map for our needs.  We set a scratch space that is at the end of the
+ * OMAP5 download area, but within the DRA7xx download area (as it is
+ * much larger) and do not, at this time, make use of the additional
+ * space.
+ */
 #ifdef CONFIG_DRA7XX
 #define NON_SECURE_SRAM_START	0x40300000
 #define NON_SECURE_SRAM_END	0x40380000	/* Not inclusive */
@@ -176,7 +172,7 @@ struct s32ktimer {
 #define NON_SECURE_SRAM_START	0x40300000
 #define NON_SECURE_SRAM_END	0x40320000	/* Not inclusive */
 #endif
-#define SRAM_SCRATCH_SPACE_ADDR	NON_SECURE_SRAM_START
+#define SRAM_SCRATCH_SPACE_ADDR	0x4031E000
 
 /* base address for indirect vectors (internal boot mode) */
 #define SRAM_ROM_VECT_BASE	0x4031F000
@@ -208,6 +204,27 @@ struct s32ktimer {
 #define OMAP5_ABB_LDOVBBMPU_MUX_CTRL_MASK	(0x1 << 10)
 #define OMAP5_ABB_LDOVBBMPU_VSET_OUT_MASK	(0x1f << 0)
 
+/* IO Delay module defines */
+#define CFG_IO_DELAY_BASE		0x4844A000
+#define CFG_IO_DELAY_LOCK		(CFG_IO_DELAY_BASE + 0x02C)
+
+/* CPSW IO Delay registers*/
+#define CFG_RGMII0_TXCTL		(CFG_IO_DELAY_BASE + 0x74C)
+#define CFG_RGMII0_TXD0			(CFG_IO_DELAY_BASE + 0x758)
+#define CFG_RGMII0_TXD1			(CFG_IO_DELAY_BASE + 0x764)
+#define CFG_RGMII0_TXD2			(CFG_IO_DELAY_BASE + 0x770)
+#define CFG_RGMII0_TXD3			(CFG_IO_DELAY_BASE + 0x77C)
+#define CFG_VIN2A_D13			(CFG_IO_DELAY_BASE + 0xA7C)
+#define CFG_VIN2A_D17			(CFG_IO_DELAY_BASE + 0xAAC)
+#define CFG_VIN2A_D16			(CFG_IO_DELAY_BASE + 0xAA0)
+#define CFG_VIN2A_D15			(CFG_IO_DELAY_BASE + 0xA94)
+#define CFG_VIN2A_D14			(CFG_IO_DELAY_BASE + 0xA88)
+
+#define CFG_IO_DELAY_UNLOCK_KEY		0x0000AAAA
+#define CFG_IO_DELAY_LOCK_KEY		0x0000AAAB
+#define CFG_IO_DELAY_ACCESS_PATTERN	0x00029000
+#define CFG_IO_DELAY_LOCK_MASK		0x400
+
 #ifndef __ASSEMBLY__
 struct srcomp_params {
 	s8 divide_factor;
@@ -223,6 +240,11 @@ struct ctrl_ioregs {
 	u32 ctrl_ddrio_2;
 	u32 ctrl_emif_sdram_config_ext;
 	u32 ctrl_ddr_ctrl_ext_0;
+};
+
+struct io_delay {
+	u32 addr;
+	u32 dly;
 };
 #endif /* __ASSEMBLY__ */
 #endif

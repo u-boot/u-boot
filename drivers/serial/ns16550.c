@@ -57,7 +57,8 @@ void NS16550_init(NS16550_t com_port, int baud_divisor)
 
 	serial_out(CONFIG_SYS_NS16550_IER, &com_port->ier);
 #if (defined(CONFIG_OMAP) && !defined(CONFIG_OMAP3_ZOOM2)) || \
-			defined(CONFIG_AM33XX) || defined(CONFIG_TI814X)
+			defined(CONFIG_AM33XX) || defined(CONFIG_TI81XX) || \
+			defined(CONFIG_AM43XX)
 	serial_out(0x7, &com_port->mdr1);	/* mode select reset TL16C750*/
 #endif
 	serial_out(UART_LCR_BKSE | UART_LCRVAL, &com_port->lcr);
@@ -72,7 +73,7 @@ void NS16550_init(NS16550_t com_port, int baud_divisor)
 	serial_out(UART_LCRVAL, &com_port->lcr);
 #if (defined(CONFIG_OMAP) && !defined(CONFIG_OMAP3_ZOOM2)) || \
 	defined(CONFIG_AM33XX) || defined(CONFIG_SOC_DA8XX) || \
-	defined(CONFIG_TI814X)
+	defined(CONFIG_TI81XX) || defined(CONFIG_AM43XX)
 
 	/* /16 is proper to hit 115200 with 48MHz */
 	serial_out(0, &com_port->mdr1);

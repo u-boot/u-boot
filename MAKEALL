@@ -2,6 +2,8 @@
 # Tool mainly for U-Boot Quality Assurance: build one or more board
 # configurations with minimal verbosity, showing only warnings and
 # errors.
+#
+# SPDX-License-Identifier:	GPL-2.0+
 
 usage()
 {
@@ -36,8 +38,8 @@ usage()
 	  BUILD_NCPUS      number of parallel make jobs (default: auto)
 	  CROSS_COMPILE    cross-compiler toolchain prefix (default: "")
 	  CROSS_COMPILE_<ARCH> cross-compiler toolchain prefix for
-	                   architecture "ARCH".  Substitute "ARCH" for any
-	                   supported architecture (default: "")
+			   architecture "ARCH".  Substitute "ARCH" for any
+			   supported architecture (default: "")
 	  MAKEALL_LOGDIR   output all logs to here (default: ./LOG/)
 	  BUILD_DIR        output build directory (default: ./)
 	  BUILD_NBUILDS	   number of parallel targets (default: 1)
@@ -104,9 +106,9 @@ while true ; do
 	-s|--soc)
 		# echo "Option SoC: argument \`$2'"
 		if [ "$opt_s" ] ; then
-			opt_s="${opt_s%)} || \$6 == \"$2\" || \$6 ~ /$2/)"
+			opt_s="${opt_s%)} || \$4 == \"$2\" || \$4 ~ /$2/)"
 		else
-			opt_s="(\$6 == \"$2\" || \$6 ~ /$2/)"
+			opt_s="(\$4 == \"$2\" || \$4 ~ /$2/)"
 		fi
 		SELECTED='y'
 		shift 2 ;;
@@ -158,7 +160,7 @@ FILTER="\$1 !~ /^#/"
 [ "$opt_v" ] && FILTER="${FILTER} && $opt_v"
 
 if [ "$SELECTED" ] ; then
-	SELECTED=$(awk '('"$FILTER"') { print $1 }' boards.cfg)
+	SELECTED=$(awk '('"$FILTER"') { print $7 }' boards.cfg)
 
 	# Make sure some boards from boards.cfg are actually found
 	if [ -z "$SELECTED" ] ; then
@@ -230,12 +232,12 @@ boards_by_field()
 		-v field="$1" \
 		-v select="$2" \
 		-F "$FS" \
-		'($1 !~ /^#/ && $field == select) { print $1 }' \
+		'($1 !~ /^#/ && $field == select) { print $7 }' \
 		boards.cfg
 }
 boards_by_arch() { boards_by_field 2 "$@" ; }
 boards_by_cpu()  { boards_by_field 3 "$@" "[: \t]+" ; }
-boards_by_soc()  { boards_by_field 6 "$@" ; }
+boards_by_soc()  { boards_by_field 4 "$@" ; }
 
 #########################################################################
 ## MPC5xx Systems
@@ -351,7 +353,6 @@ LIST_ARM7="$(boards_by_cpu arm720t)"
 
 LIST_ARM9="$(boards_by_cpu arm920t)	\
 	$(boards_by_cpu arm926ejs)	\
-	$(boards_by_cpu arm925t)	\
 	$(boards_by_cpu arm946es)	\
 "
 
@@ -517,56 +518,53 @@ get_target_location() {
 	local vendor=""
 
 	# Automatic mode
-	local line=`egrep -i "^[[:space:]]*${target}[[:space:]]" boards.cfg`
-
+	local line=`awk -F '\ +' '\$7 == "'"$target"'" { print \$0 }' boards.cfg`
 	if [ -z "${line}" ] ; then echo "" ; return ; fi
 
 	set ${line}
 
-	# add default board name if needed
-	[ $# = 3 ] && set ${line} ${1}
+	CONFIG_NAME="${7%_config}"
 
-	CONFIG_NAME="${1%_config}"
+	[ "${BOARD_NAME}" ] || BOARD_NAME="${7%_config}"
 
-	[ "${BOARD_NAME}" ] || BOARD_NAME="${1%_config}"
-
-	if [ "$4" = "-" ] ; then
-		board=${BOARD_NAME}
-	else
-		board="$4"
+	if [ $# -gt 5 ]; then
+		if [ "$6" = "-" ] ; then
+			board=${BOARD_NAME}
+		else
+			board="$6"
+		fi
 	fi
 
 	[ $# -gt 4 ] && [ "$5" != "-" ] && vendor="$5"
-	[ $# -gt 6 ] && [ "$7" != "-" ] && {
-		tmp="${7%:*}"
+	[ $# -gt 6 ] && [ "$8" != "-" ] && {
+		tmp="${8%:*}"
 		if [ "$tmp" ] ; then
 			CONFIG_NAME="$tmp"
 		fi
 	}
 
 	# Assign board directory to BOARDIR variable
-	if [ -z "${vendor}" ] ; then
+	if [ "${vendor}" == "-" ] ; then
 	    BOARDDIR=${board}
 	else
 	    BOARDDIR=${vendor}/${board}
 	fi
 
-	echo "${CONFIG_NAME}:${BOARDDIR}"
+	echo "${CONFIG_NAME}:${BOARDDIR}:${BOARD_NAME}"
 }
 
 get_target_maintainers() {
-	local name=`echo $1 | cut -d : -f 1`
+	local name=`echo $1 | cut -d : -f 3`
 
-	if ! grep -qsi "[[:blank:]]${name}[[:blank:]]" MAINTAINERS ; then
+	local line=`awk -F '\ +' '\$7 == "'"$target"'" { print \$0 }' boards.cfg`
+	if [ -z "${line}" ]; then
 		echo ""
 		return ;
 	fi
 
-	local line=`tac MAINTAINERS | grep -ni "[[:blank:]]${name}[[:blank:]]" | cut -d : -f 1`
-	local mail=`tac MAINTAINERS | tail -n +${line} | \
-		sed -n ":start /.*@.*/ { b mail } ; n ; b start ; :mail /.*@.*/ { p ; n ; b mail } ; q" | \
-		sed "s/^.*<//;s/>.*$//"`
-	echo "$mail"
+	local mails=`echo ${line} | cut -d ' ' -f 9- | sed -e 's/[^<]*<//' -e 's/>.*</ /' -e 's/>[^>]*$//'`
+	[ "$mails" == "-" ] && mails=""
+	echo "$mails"
 }
 
 get_target_arch() {

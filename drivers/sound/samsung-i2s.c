@@ -2,23 +2,7 @@
  * Copyright (C) 2012 Samsung Electronics
  * R. Chandrasekar <rcsekar@samsung.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/arch/clk.h>
@@ -81,9 +65,7 @@ static void i2s_txctrl(struct i2s_reg *i2s_reg, int on)
 	if (on) {
 		con |= CON_ACTIVE;
 		con &= ~CON_TXCH_PAUSE;
-
 	} else {
-
 		con |=  CON_TXCH_PAUSE;
 		con &= ~CON_ACTIVE;
 	}
@@ -188,7 +170,7 @@ int i2s_set_fmt(struct i2s_reg *i2s_reg, unsigned int fmt)
 		break;
 	default:
 		debug("%s: Invalid format priority [0x%x]\n", __func__,
-			(fmt & SND_SOC_DAIFMT_FORMAT_MASK));
+		      (fmt & SND_SOC_DAIFMT_FORMAT_MASK));
 		return -1;
 	}
 
@@ -207,7 +189,7 @@ int i2s_set_fmt(struct i2s_reg *i2s_reg, unsigned int fmt)
 		break;
 	default:
 		debug("%s: Invalid clock ploarity input [0x%x]\n", __func__,
-			(fmt & SND_SOC_DAIFMT_INV_MASK));
+		      (fmt & SND_SOC_DAIFMT_INV_MASK));
 		return -1;
 	}
 
@@ -225,7 +207,7 @@ int i2s_set_fmt(struct i2s_reg *i2s_reg, unsigned int fmt)
 		break;
 	default:
 		debug("%s: Invalid master selection [0x%x]\n", __func__,
-			(fmt & SND_SOC_DAIFMT_MASTER_MASK));
+		      (fmt & SND_SOC_DAIFMT_MASTER_MASK));
 		return -1;
 	}
 
@@ -266,7 +248,7 @@ int i2s_set_samplesize(struct i2s_reg *i2s_reg, unsigned int blc)
 		break;
 	default:
 		debug("%s: Invalid sample size input [0x%x]\n",
-			__func__, blc);
+		      __func__, blc);
 		return -1;
 	}
 	writel(mod, &i2s_reg->mod);
@@ -317,27 +299,58 @@ int i2s_tx_init(struct i2stx_info *pi2s_tx)
 	int ret;
 	struct i2s_reg *i2s_reg =
 				(struct i2s_reg *)pi2s_tx->base_address;
+	if (pi2s_tx->id == 0) {
+		/* Initialize GPIO for I2S-0 */
+		exynos_pinmux_config(PERIPH_ID_I2S0, 0);
 
-	/* Initialize GPIO for I2s */
-	exynos_pinmux_config(PERIPH_ID_I2S1, 0);
+		/* Set EPLL Clock */
+		ret = set_epll_clk(pi2s_tx->samplingrate * pi2s_tx->rfs * 4);
+	} else if (pi2s_tx->id == 1) {
+		/* Initialize GPIO for I2S-1 */
+		exynos_pinmux_config(PERIPH_ID_I2S1, 0);
 
-	/* Set EPLL Clock */
-	ret = set_epll_clk(pi2s_tx->audio_pll_clk);
-	if (ret != 0) {
-		debug("%s: epll clock set rate falied\n", __func__);
+		/* Set EPLL Clock */
+		ret = set_epll_clk(pi2s_tx->audio_pll_clk);
+	} else {
+		debug("%s: unsupported i2s-%d bus\n", __func__, pi2s_tx->id);
 		return -1;
 	}
 
-	/* Select Clk Source for Audio1 */
-	set_i2s_clk_source();
+	if (ret != 0) {
+		debug("%s: epll clock set rate failed\n", __func__);
+		return -1;
+	}
 
-	/* Set Prescaler to get MCLK */
-	set_i2s_clk_prescaler(pi2s_tx->audio_pll_clk,
-				(pi2s_tx->samplingrate * (pi2s_tx->rfs)));
+	/* Select Clk Source for Audio 0 or 1 */
+	ret = set_i2s_clk_source(pi2s_tx->id);
+	if (ret == -1) {
+		debug("%s: unsupported clock for i2s-%d\n", __func__,
+		      pi2s_tx->id);
+		return -1;
+	}
+
+	if (pi2s_tx->id == 0) {
+		/*Reset the i2s module */
+		writel(CON_RESET, &i2s_reg->con);
+
+		writel(MOD_OP_CLK | MOD_RCLKSRC, &i2s_reg->mod);
+		/* set i2s prescaler */
+		writel(PSREN | PSVAL, &i2s_reg->psr);
+	} else {
+		/* Set Prescaler to get MCLK */
+		ret = set_i2s_clk_prescaler(pi2s_tx->audio_pll_clk,
+				(pi2s_tx->samplingrate * (pi2s_tx->rfs)),
+				pi2s_tx->id);
+	}
+	if (ret == -1) {
+		debug("%s: unsupported prescalar for i2s-%d\n", __func__,
+		      pi2s_tx->id);
+		return -1;
+	}
 
 	/* Configure I2s format */
 	ret = i2s_set_fmt(i2s_reg, (SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF |
-				SND_SOC_DAIFMT_CBM_CFM));
+			  SND_SOC_DAIFMT_CBM_CFM));
 	if (ret == 0) {
 		i2s_set_lr_framesize(i2s_reg, pi2s_tx->rfs);
 		ret = i2s_set_samplesize(i2s_reg, pi2s_tx->bitspersample);

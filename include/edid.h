@@ -4,27 +4,10 @@
  * (C) Copyright 2010
  * Petr Stetiar <ynezz@true.cz>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  *
  * Contains stolen code from ddcprobe project which is:
  * Copyright (C) Nalin Dahyabhai <bigfun@pobox.com>
- *
  */
 
 #ifndef __EDID_H_
@@ -71,7 +54,7 @@ struct edid_detailed_timing {
 	 (_x).vertical_blanking)
 	unsigned char hsync_offset;
 	unsigned char hsync_pulse_width;
-	unsigned char sync_offset_pulse_width;
+	unsigned char vsync_offset_pulse_width;
 	unsigned char hsync_vsync_offset_pulse_width_hi;
 #define EDID_DETAILED_TIMING_HSYNC_OFFSET(_x) \
 	((GET_BITS((_x).hsync_vsync_offset_pulse_width_hi, 7, 6) << 8) + \

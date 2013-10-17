@@ -178,7 +178,7 @@
 	function enum_to_index($name, $vals) {
 		$index = array_search($GLOBALS[$name], $vals);
 		if ($vals[0] != '')
-		        $index++;
+			$index++;
 		return $index;
 	}
 

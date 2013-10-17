@@ -4,23 +4,7 @@
  * (C) Copyright 2002
  * Wolfgang Denk, wd@denx.de
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /* #define DEBUG */
@@ -125,7 +109,6 @@ DECLARE_GLOBAL_DATA_PTR;
 /************************************************************************/
 
 #include <video_font.h>			/* Get font data, width and height */
-#include <video_font_data.h>
 
 #ifdef CONFIG_VIDEO_LOGO
 #include <video_logo.h>			/* Get logo data, width and height */
@@ -809,7 +792,11 @@ static void video_encoder_init (void)
 
 	/* Initialize the I2C */
 	debug ("[VIDEO ENCODER] Initializing I2C bus...\n");
+#ifdef CONFIG_SYS_I2C
+	i2c_init_all();
+#else
 	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+#endif
 
 #ifdef CONFIG_FADS
 	/* Reset ADV7176 chip */
@@ -1189,7 +1176,7 @@ static void *video_logo (void)
 #ifndef CONFIG_FADS		/* all normal boards */
 	/* leave one blank line */
 
-	sprintf (info, "MPC823 CPU at %s MHz, %ld MB RAM, %ld MB Flash",
+	sprintf(info, "MPC823 CPU at %s MHz, %ld MiB RAM, %ld MiB Flash",
 		strmhz(temp, gd->cpu_clk),
 		gd->ram_size >> 20,
 		gd->bd->bi_flashsize >> 20 );
@@ -1200,7 +1187,7 @@ static void *video_logo (void)
 	video_drawstring (VIDEO_INFO_X, VIDEO_INFO_Y + VIDEO_FONT_HEIGHT,
 					  info);
 
-	sprintf (info, "2MB FLASH - 8MB DRAM - 4MB SRAM");
+	sprintf(info, "2MiB FLASH - 8MiB DRAM - 4MiB SRAM");
 	video_drawstring (VIDEO_INFO_X, VIDEO_INFO_Y + VIDEO_FONT_HEIGHT * 2,
 					  info);
 #endif

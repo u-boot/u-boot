@@ -5,20 +5,7 @@
  * (C) Copyright 2007 Pengutronix, Sascha Hauer <s.hauer@pengutronix.de>
  * (C) Copyright 2007 Pengutronix, Juergen Beisert <j.beisert@pengutronix.de>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -466,7 +453,7 @@ static int fec_open(struct eth_device *edev)
 	 */
 	writel(readl(&fec->eth->ecntrl) | FEC_ECNTRL_ETHER_EN,
 		&fec->eth->ecntrl);
-#if defined(CONFIG_MX25) || defined(CONFIG_MX53)
+#if defined(CONFIG_MX25) || defined(CONFIG_MX53) || defined(CONFIG_MX6SL)
 	udelay(100);
 	/*
 	 * setup the MII gasket for RMII mode
@@ -807,7 +794,7 @@ static int fec_recv(struct eth_device *dev)
 	uint16_t bd_status;
 	uint32_t addr, size, end;
 	int i;
-	uchar buff[FEC_MAX_PKT_SIZE] __aligned(ARCH_DMA_MINALIGN);
+	ALLOC_CACHE_ALIGN_BUFFER(uchar, buff, FEC_MAX_PKT_SIZE);
 
 	/*
 	 * Check if any critical events have happened
@@ -993,6 +980,8 @@ static int fec_probe(bd_t *bd, int dev_id, uint32_t base_addr,
 	if (fec_get_hwaddr(edev, dev_id, ethaddr) == 0) {
 		debug("got MAC%d address from fuse: %pM\n", dev_id, ethaddr);
 		memcpy(edev->enetaddr, ethaddr, 6);
+		if (!getenv("ethaddr"))
+			eth_setenv_enetaddr("ethaddr", ethaddr);
 	}
 	return ret;
 err3:

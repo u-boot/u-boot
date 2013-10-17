@@ -1,23 +1,7 @@
 /*
  *  Copyright (C) 2005 Sandburst Corporation
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <config.h>
 #include <common.h>
@@ -26,7 +10,6 @@
 #include <asm/io.h>
 #include <spd_sdram.h>
 #include <i2c.h>
-#include "ppc440gx_i2c.h"
 #include "sb_common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -84,7 +67,7 @@ unsigned short sbcommon_get_serial_number(void)
 
 	/* Get the board serial number from eeprom */
 	/* Initialize I2C */
-	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+	i2c_set_bus_num(0);
 
 	/* Read 256 bytes in EEPROM */
 	i2c_read (0x50, 0, 1, buff, 0x100);
@@ -110,85 +93,87 @@ void sbcommon_fans(void)
 	 * Attempt to turn on 2 of the fans...
 	 * Need to go through the bridge
 	 */
+	i2c_set_bus_num(1);
 	puts ("FANS:  ");
 
 	/* select fan4 through the bridge */
-	i2c_reg_write1(0x73, /* addr */
-		       0x00, /* reg */
-		       0x08); /* val = bus 4 */
+	i2c_reg_write(0x73, /* addr */
+		      0x00, /* reg */
+		      0x08); /* val = bus 4 */
 
 	/* Turn on FAN 4 */
-	i2c_reg_write1(0x2e,
-		       1,
-		       0x80);
+	i2c_reg_write(0x2e,
+		      1,
+		      0x80);
 
-	i2c_reg_write1(0x2e,
-		       0,
-		       0x19);
+	i2c_reg_write(0x2e,
+		      0,
+		      0x19);
 
 	/* Deselect bus 4 on the bridge */
-	i2c_reg_write1(0x73,
-		       0x00,
-		       0x00);
+	i2c_reg_write(0x73,
+		      0x00,
+		      0x00);
 
 	/* select fan3 through the bridge */
-	i2c_reg_write1(0x73, /* addr */
-		       0x00, /* reg */
-		       0x04); /* val = bus 3 */
+	i2c_reg_write(0x73, /* addr */
+		      0x00, /* reg */
+		      0x04); /* val = bus 3 */
 
 	/* Turn on FAN 3 */
-	i2c_reg_write1(0x2e,
-		       1,
-		       0x80);
+	i2c_reg_write(0x2e,
+		      1,
+		      0x80);
 
-	i2c_reg_write1(0x2e,
-		       0,
-		       0x19);
+	i2c_reg_write(0x2e,
+		      0,
+		      0x19);
 
 	/* Deselect bus 3 on the bridge */
-	i2c_reg_write1(0x73,
-		       0x00,
-		       0x00);
+	i2c_reg_write(0x73,
+		      0x00,
+		      0x00);
 
 	/* select fan2 through the bridge */
-	i2c_reg_write1(0x73, /* addr */
-		       0x00, /* reg */
-		       0x02); /* val = bus 4 */
+	i2c_reg_write(0x73, /* addr */
+		      0x00, /* reg */
+		      0x02); /* val = bus 4 */
 
 	/* Turn on FAN 2 */
-	i2c_reg_write1(0x2e,
-		       1,
-		       0x80);
+	i2c_reg_write(0x2e,
+		      1,
+		      0x80);
 
-	i2c_reg_write1(0x2e,
-		       0,
-		       0x19);
+	i2c_reg_write(0x2e,
+		      0,
+		      0x19);
 
 	/* Deselect bus 2 on the bridge */
-	i2c_reg_write1(0x73,
-		       0x00,
-		       0x00);
+	i2c_reg_write(0x73,
+		      0x00,
+		      0x00);
 
 	/* select fan1 through the bridge */
-	i2c_reg_write1(0x73, /* addr */
-		       0x00, /* reg */
-		       0x01); /* val = bus 0 */
+	i2c_reg_write(0x73, /* addr */
+		      0x00, /* reg */
+		      0x01); /* val = bus 0 */
 
 	/* Turn on FAN 1 */
-	i2c_reg_write1(0x2e,
-		       1,
-		       0x80);
+	i2c_reg_write(0x2e,
+		      1,
+		      0x80);
 
-	i2c_reg_write1(0x2e,
-		       0,
-		       0x19);
+	i2c_reg_write(0x2e,
+		      0,
+		      0x19);
 
 	/* Deselect bus 1 on the bridge */
-	i2c_reg_write1(0x73,
-		       0x00,
-		       0x00);
+	i2c_reg_write(0x73,
+		      0x00,
+		      0x00);
 
 	puts ("on\n");
+	i2c_set_bus_num(0);
 
 	return;
 
@@ -319,7 +304,7 @@ void board_get_enetaddr(int macaddr_idx, uchar *enet)
 	if (0 == macaddr_idx) {
 
 		/* Initialize I2C */
-		i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+		i2c_set_bus_num(0);
 
 		/* Read 256 bytes in EEPROM */
 		i2c_read (0x50, 0, 1, buff, 0x100);

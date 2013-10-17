@@ -277,6 +277,7 @@ typedef struct memctl_options_s {
 	unsigned int mirrored_dimm;
 	unsigned int quad_rank_present;
 	unsigned int ap_en;	/* address parity enable for RDIMM */
+	unsigned int x4_en;	/* enable x4 devices */
 
 	/* Global Timing Parameters */
 	unsigned int cas_latency_override;
@@ -330,8 +331,30 @@ extern phys_size_t fsl_ddr_sdram(void);
 extern phys_size_t fsl_ddr_sdram_size(void);
 extern int fsl_use_spd(void);
 extern void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
-					unsigned int ctrl_num);
+					unsigned int ctrl_num, int step);
 u32 fsl_ddr_get_intl3r(void);
+
+static void __board_assert_mem_reset(void)
+{
+}
+
+static void __board_deassert_mem_reset(void)
+{
+}
+
+void board_assert_mem_reset(void)
+	__attribute__((weak, alias("__board_assert_mem_reset")));
+
+void board_deassert_mem_reset(void)
+	__attribute__((weak, alias("__board_deassert_mem_reset")));
+
+static int __board_need_mem_reset(void)
+{
+	return 0;
+}
+
+int board_need_mem_reset(void)
+	__attribute__((weak, alias("__board_need_mem_reset")));
 
 /*
  * The 85xx boards have a common prototype for fixed_sdram so put the

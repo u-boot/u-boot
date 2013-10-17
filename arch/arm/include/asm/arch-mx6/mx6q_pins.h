@@ -1,22 +1,9 @@
 /*
  * Copyright (C) 2011-2013 Freescale Semiconductor, Inc. All Rights Reserved.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
-
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
-
- * You should have received a copy of the GNU General Public License along
- * with this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * SPDX-License-Identifier:	GPL-2.0+
  *
  * Auto Generate file, please don't edit it
- *
  */
 
 #ifndef __ASM_ARCH_MX6_MX6Q_PINS_H__
@@ -997,6 +984,7 @@ enum {
 	MX6_PAD_GPIO_1__ESAI1_SCKR		= IOMUX_PAD(0x05F4, 0x0224, 0, 0x086C, 1, 0),
 	MX6_PAD_GPIO_1__WDOG2_WDOG_B		= IOMUX_PAD(0x05F4, 0x0224, 1, 0x0000, 0, 0),
 	MX6_PAD_GPIO_1__KPP_ROW_5		= IOMUX_PAD(0x05F4, 0x0224, 2, 0x08F4, 0, 0),
+	MX6_PAD_GPIO_1__USB_OTG_ID		= IOMUX_PAD(0x05F4, 0x0224, 3, 0x0000, 0, 0),
 	MX6_PAD_GPIO_1__PWM2_PWMO		= IOMUX_PAD(0x05F4, 0x0224, 4, 0x0000, 0, 0),
 	MX6_PAD_GPIO_1__GPIO_1_1		= IOMUX_PAD(0x05F4, 0x0224, 5, 0x0000, 0, 0),
 	MX6_PAD_GPIO_1__USDHC1_CD		= IOMUX_PAD(0x05F4, 0x0224, 6, 0x0000, 0, 0),

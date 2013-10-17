@@ -4,24 +4,7 @@
 #  Lukasz Majewski <l.majewski@samsung.com>
 #
 #
-# See file CREDITS for list of people who contributed to this
-# project.
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 2 of
-# the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA 02111-1307 USA
-
+# SPDX-License-Identifier:	GPL-2.0+
 
 Glossary:
 ========
@@ -37,7 +20,6 @@ Introduction:
 =============
 This document describes the GPT partition table format and usage of
 the gpt command in u-boot.
-
 
 UUID introduction:
 ====================
@@ -94,7 +76,6 @@ GPT brief explanation:
 	LBA -1         |Secondary GPT Header             |
 	----------------------------------------------------------
 
-
 For a legacy reasons, GPT's LBA 0 sector has a MBR structure. It is called
 "protective MBR".
 Its first partition entry ID has 0xEE value, and disk software, which is not
@@ -130,7 +111,6 @@ Offset  Size    Description
 TOTAL: 512 B
 
 
-
 IMPORTANT:
 
 GPT headers and partition entries are protected by CRC32 (the POSIX CRC32).
@@ -148,7 +128,6 @@ sizeof(partition_entry_size (usually 128)))
 Observe, how Secondary GPT is placed in the memory. It is NOT a mirror reflect
 of the Primary.
 
-
 	   Partition Entry Format:
 	   ----------------------
 	   Offset  Size    Description
@@ -165,7 +144,6 @@ of the Primary.
 	   Bit 60 - Read-only
 	   Bit 62 - Hidden
 	   Bit 63 - Not mount
-
 
 Creating GPT partitions in U-Boot:
 ==============
@@ -186,7 +164,6 @@ To restore GUID partition table one needs to:
 
 2. From u-boot prompt type:
    gpt write mmc 0 $partitions
-
 
 Useful info:
 ============

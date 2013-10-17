@@ -1,23 +1,7 @@
 /*
  * Copyright (C) Freescale Semiconductor, Inc. 2006.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -90,7 +74,7 @@
 
 #define CONFIG_PCI
 #define CONFIG_RTC_DS1337
-#define CONFIG_HARD_I2C
+#define CONFIG_SYS_I2C
 #define CONFIG_TSEC_ENET		/* TSEC Ethernet support */
 
 /*
@@ -98,12 +82,15 @@
  */
 
 /* I2C */
-#ifdef CONFIG_HARD_I2C
+#ifdef CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_FSL
+#define CONFIG_SYS_FSL_I2C_SPEED	400000
+#define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
+#define CONFIG_SYS_FSL_I2C_OFFSET	0x3000
+#define CONFIG_SYS_FSL_I2C2_SPEED	400000
+#define CONFIG_SYS_FSL_I2C2_SLAVE	0x7F
+#define CONFIG_SYS_FSL_I2C2_OFFSET	0x3100
 
-#define CONFIG_FSL_I2C
-#define CONFIG_I2C_MULTI_BUS
-#define CONFIG_SYS_I2C_OFFSET		0x3000
-#define CONFIG_SYS_I2C2_OFFSET		0x3100
 #define CONFIG_SYS_SPD_BUS_NUM		1	/* The I2C bus for SPD */
 #define CONFIG_SYS_RTC_BUS_NUM		1	/* The I2C bus for RTC */
 
@@ -114,9 +101,6 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* I2C0, Board EEPROM */
 #define CONFIG_SYS_I2C_RTC_ADDR		0x68	/* I2C1, DS1339 RTC*/
 #define SPD_EEPROM_ADDRESS		0x51	/* I2C1, DDR */
-
-#define CONFIG_SYS_I2C_SPEED	400000	/* I2C speed and slave address */
-#define CONFIG_SYS_I2C_SLAVE	0x7F
 
 /* Don't probe these addresses: */
 #define CONFIG_SYS_I2C_NOPROBES	{ {1, CONFIG_SYS_I2C_8574_ADDR1}, \
@@ -130,8 +114,6 @@
 #define I2C_8574_MPCICLKRN	0x10	/* MiniPCI Clk Run */
 #define I2C_8574_PCI66		0x20	/* 0=33MHz PCI, 1=66MHz PCI */
 #define I2C_8574_FLASHSIDE	0x40	/* 0=Reset vector from U4, 1=from U7*/
-
-#undef CONFIG_SOFT_I2C
 
 #endif
 
@@ -199,7 +181,7 @@
 #define CONFIG_VERY_BIG_RAM
 #define CONFIG_MAX_MEM_MAPPED   ((phys_size_t)256 << 20)
 
-#ifdef CONFIG_HARD_I2C
+#ifdef CONFIG_SYS_I2C
 #define CONFIG_SPD_EEPROM		/* use SPD EEPROM for DDR setup*/
 #endif
 
@@ -545,7 +527,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 	#define CONFIG_CMD_PCI
 #endif
 
-#ifdef CONFIG_HARD_I2C
+#ifdef CONFIG_SYS_I2C
 	#define CONFIG_CMD_I2C
 #endif
 

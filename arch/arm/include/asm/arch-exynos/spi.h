@@ -2,19 +2,7 @@
  * (C) Copyright 2012 SAMSUNG Electronics
  * Padmavathi Venna <padma.v@samsung.com>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __ASM_ARCH_EXYNOS_COMMON_SPI_H_
@@ -34,7 +22,7 @@ struct exynos_spi {
 	unsigned int		rx_data;	/* 0x1c */
 	unsigned int		pkt_cnt;	/* 0x20 */
 	unsigned char		reserved2[4];
-	unsigned char		reserved3[4];
+	unsigned int		swap_cfg;	/* 0x28 */
 	unsigned int		fb_clk;		/* 0x2c */
 	unsigned char		padding[0xffd0];
 };
@@ -73,6 +61,15 @@ struct exynos_spi {
 
 /* Packet Count */
 #define SPI_PACKET_CNT_EN	(1 << 16)
+
+/* Swap config */
+#define SPI_TX_SWAP_EN		(1 << 0)
+#define SPI_TX_BYTE_SWAP	(1 << 2)
+#define SPI_TX_HWORD_SWAP	(1 << 3)
+#define SPI_TX_BYTE_SWAP	(1 << 2)
+#define SPI_RX_SWAP_EN		(1 << 4)
+#define SPI_RX_BYTE_SWAP	(1 << 6)
+#define SPI_RX_HWORD_SWAP	(1 << 7)
 
 #endif /* __ASSEMBLY__ */
 #endif

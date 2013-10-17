@@ -4,23 +4,7 @@
  * Kyungmin Park <kyungmin.park@samsung.com>
  * Donghwa Lee <dh09.lee@samsung.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -77,10 +61,10 @@ void i2c_init_board(void)
 	struct exynos4_gpio_part2 *gpio2 =
 		(struct exynos4_gpio_part2 *)samsung_get_base_gpio_part2();
 
-	/* I2C_5 -> PMIC */
+	/* I2C_5 -> PMIC -> Adapter 0 */
 	s5p_gpio_direction_output(&gpio1->b, 7, 1);
 	s5p_gpio_direction_output(&gpio1->b, 6, 1);
-	/* I2C_9 -> FG */
+	/* I2C_9 -> FG -> Adapter 1 */
 	s5p_gpio_direction_output(&gpio2->y4, 0, 1);
 	s5p_gpio_direction_output(&gpio2->y4, 1, 1);
 }
@@ -298,10 +282,17 @@ int power_init_board(void)
 	struct power_battery *pb;
 	struct pmic *p_fg, *p_chrg, *p_muic, *p_bat;
 
-	ret = pmic_init(I2C_5);
+	/*
+	 * For PMIC/MUIC the I2C bus is named as I2C5, but it is connected
+	 * to logical I2C adapter 0
+	 *
+	 * The FUEL_GAUGE is marked as I2C9 on the schematic, but connected
+	 * to logical I2C adapter 1
+	 */
+	ret = pmic_init(I2C_0);
 	ret |= pmic_init_max8997();
-	ret |= power_fg_init(I2C_9);
-	ret |= power_muic_init(I2C_5);
+	ret |= power_fg_init(I2C_1);
+	ret |= power_muic_init(I2C_0);
 	ret |= power_bat_init(0);
 	if (ret)
 		return ret;

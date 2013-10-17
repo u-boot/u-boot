@@ -27,6 +27,9 @@
 #if defined(CONFIG_TI814X)
 #undef MMC_CLOCK_REFERENCE
 #define MMC_CLOCK_REFERENCE	192 /* MHz */
+#elif defined(CONFIG_TI816X)
+#undef MMC_CLOCK_REFERENCE
+#define MMC_CLOCK_REFERENCE	48 /* MHz */
 #endif
 
 #endif /* MMC_HOST_DEF_H */

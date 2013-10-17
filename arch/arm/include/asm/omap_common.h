@@ -4,23 +4,7 @@
  *
  * Aneesh V <aneesh@ti.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef	_OMAP_COMMON_H_
 #define	_OMAP_COMMON_H_
@@ -89,6 +73,7 @@ struct prcm_regs {
 	u32 cm_ssc_deltamstep_dpll_ddrphy;
 	u32 cm_clkmode_dpll_dsp;
 	u32 cm_shadow_freq_config1;
+	u32 cm_clkmode_dpll_gmac;
 	u32 cm_mpu_mpu_clkctrl;
 
 	/* cm1.dsp */
@@ -281,6 +266,7 @@ struct prcm_regs {
 	u32 cm_l4per_mmcsd4_clkctrl;
 	u32 cm_l4per_msprohg_clkctrl;
 	u32 cm_l4per_slimbus2_clkctrl;
+	u32 cm_l4per_qspi_clkctrl;
 	u32 cm_l4per_uart1_clkctrl;
 	u32 cm_l4per_uart2_clkctrl;
 	u32 cm_l4per_uart3_clkctrl;
@@ -325,12 +311,6 @@ struct prcm_regs {
 	u32 prm_vc_val_bypass;
 	u32 prm_vc_cfg_i2c_mode;
 	u32 prm_vc_cfg_i2c_clk;
-	u32 prm_sldo_core_setup;
-	u32 prm_sldo_core_ctrl;
-	u32 prm_sldo_mpu_setup;
-	u32 prm_sldo_mpu_ctrl;
-	u32 prm_sldo_mm_setup;
-	u32 prm_sldo_mm_ctrl;
 	u32 prm_abbldo_mpu_setup;
 	u32 prm_abbldo_mpu_ctrl;
 
@@ -355,10 +335,18 @@ struct prcm_regs {
 	/* SCRM stuff, used by some boards */
 	u32 scrm_auxclk0;
 	u32 scrm_auxclk1;
+
+	/* GMAC Clk Ctrl */
+	u32 cm_gmac_gmac_clkctrl;
+	u32 cm_gmac_clkstctrl;
 };
 
 struct omap_sys_ctrl_regs {
 	u32 control_status;
+	u32 control_core_mac_id_0_lo;
+	u32 control_core_mac_id_0_hi;
+	u32 control_core_mac_id_1_lo;
+	u32 control_core_mac_id_1_hi;
 	u32 control_std_fuse_opp_vdd_mpu_2;
 	u32 control_core_mmr_lock1;
 	u32 control_core_mmr_lock2;
@@ -499,6 +487,7 @@ struct dplls {
 	const struct dpll_params *iva;
 	const struct dpll_params *usb;
 	const struct dpll_params *ddr;
+	const struct dpll_params *gmac;
 };
 
 struct pmic_data {
@@ -628,6 +617,7 @@ static inline u8 is_omap54xx(void)
 #define OMAP4430_ES2_3	0x44300230
 #define OMAP4460_ES1_0	0x44600100
 #define OMAP4460_ES1_1	0x44600110
+#define OMAP4470_ES1_0	0x44700100
 
 /* omap5 */
 #define OMAP5430_SILICON_ID_INVALID	0

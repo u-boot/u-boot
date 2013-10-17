@@ -2,23 +2,7 @@
  * (C) Copyright 2002 ELTEC Elektronik AG
  * Frank Gottschling <fgottschling@eltec.de>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -213,7 +197,6 @@
 #include <linux/types.h>
 #include <stdio_dev.h>
 #include <video_font.h>
-#include <video_font_data.h>
 
 #if defined(CONFIG_CMD_DATE)
 #include <rtc.h>
@@ -447,6 +430,16 @@ static const int video_font_draw_table32[16][4] = {
 	{0x00ffffff, 0x00ffffff, 0x00ffffff, 0x00ffffff}
 };
 
+/*
+ * Implement a weak default function for boards that optionally
+ * need to skip the cfb initialization.
+ */
+__weak int board_cfb_skip(void)
+{
+	/* As default, don't skip cfb init */
+	return 0;
+}
+
 static void video_drawchars(int xx, int yy, unsigned char *s, int count)
 {
 	u8 *cdat, *dest, *dest0;
@@ -468,6 +461,10 @@ static void video_drawchars(int xx, int yy, unsigned char *s, int count)
 				((u32 *) dest)[0] =
 					(video_font_draw_table8[bits >> 4] &
 					 eorx) ^ bgx;
+
+				if (VIDEO_FONT_WIDTH == 4)
+					continue;
+
 				((u32 *) dest)[1] =
 					(video_font_draw_table8[bits & 15] &
 					 eorx) ^ bgx;
@@ -493,6 +490,10 @@ static void video_drawchars(int xx, int yy, unsigned char *s, int count)
 					SHORTSWAP32((video_font_draw_table15
 						     [bits >> 4 & 3] & eorx) ^
 						    bgx);
+
+				if (VIDEO_FONT_WIDTH == 4)
+					continue;
+
 				((u32 *) dest)[2] =
 					SHORTSWAP32((video_font_draw_table15
 						     [bits >> 2 & 3] & eorx) ^
@@ -523,6 +524,10 @@ static void video_drawchars(int xx, int yy, unsigned char *s, int count)
 					SHORTSWAP32((video_font_draw_table16
 						     [bits >> 4 & 3] & eorx) ^
 						    bgx);
+
+				if (VIDEO_FONT_WIDTH == 4)
+					continue;
+
 				((u32 *) dest)[2] =
 					SHORTSWAP32((video_font_draw_table16
 						     [bits >> 2 & 3] & eorx) ^
@@ -557,6 +562,11 @@ static void video_drawchars(int xx, int yy, unsigned char *s, int count)
 				((u32 *) dest)[3] =
 					SWAP32((video_font_draw_table32
 						[bits >> 4][3] & eorx) ^ bgx);
+
+
+				if (VIDEO_FONT_WIDTH == 4)
+					continue;
+
 				((u32 *) dest)[4] =
 					SWAP32((video_font_draw_table32
 						[bits & 15][0] & eorx) ^ bgx);
@@ -592,6 +602,10 @@ static void video_drawchars(int xx, int yy, unsigned char *s, int count)
 				((u32 *) dest)[2] =
 					(video_font_draw_table24[bits >> 4][2]
 					 & eorx) ^ bgx;
+
+				if (VIDEO_FONT_WIDTH == 4)
+					continue;
+
 				((u32 *) dest)[3] =
 					(video_font_draw_table24[bits & 15][0]
 					 & eorx) ^ bgx;
@@ -2012,6 +2026,8 @@ static void *video_logo(void)
 		return video_fb_address + video_logo_height * VIDEO_LINE_LEN;
 	}
 #endif
+	if (board_cfb_skip())
+		return 0;
 
 	sprintf(info, " %s", version_string);
 
@@ -2220,6 +2236,9 @@ int drv_video_init(void)
 
 	/* Init video chip - returns with framebuffer cleared */
 	skip_dev_init = (video_init() == -1);
+
+	if (board_cfb_skip())
+		return 0;
 
 #if !defined(CONFIG_VGA_AS_SINGLE_DEVICE)
 	debug("KBD: Keyboard init ...\n");

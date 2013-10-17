@@ -16,23 +16,7 @@
  * Copyright (c) 2011 Marek Vasut <marek.vasut@gmail.com>
  * on behalf of DENX Software Engineering GmbH
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm-offsets.h>
@@ -168,39 +152,49 @@ _reset:
 	/*
 	 * Store all registers on old stack pointer, this will allow us later to
 	 * return to the BootROM and let the BootROM load U-Boot into RAM.
+	 *
+	 * WARNING: Register r0 and r1 are used by the BootROM to pass data
+	 *          to the called code. Register r0 will contain arbitrary
+	 *          data that are set in the BootStream. In case this code
+	 *          was started with CALL instruction, register r1 will contain
+	 *          pointer to the return value this function can then set.
+	 *          The code below MUST NOT CHANGE register r0 and r1 !
 	 */
 	push	{r0-r12,r14}
 
-	/* save control register c1 */
-	mrc	p15, 0, r0, c1, c0, 0
-	push	{r0}
+	/* Save control register c1 */
+	mrc	p15, 0, r2, c1, c0, 0
+	push	{r2}
 
-	/*
-	 * set the cpu to SVC32 mode and store old CPSR register content
-	 */
-	mrs	r0,cpsr
-	push	{r0}
-	bic	r0,r0,#0x1f
-	orr	r0,r0,#0xd3
-	msr	cpsr,r0
+	/* Set the cpu to SVC32 mode and store old CPSR register content. */
+	mrs	r2, cpsr
+	push	{r2}
+	bic	r2, r2, #0x1f
+	orr	r2, r2, #0xd3
+	msr	cpsr, r2
 
 	bl	board_init_ll
 
-	/*
-	 * restore bootrom's cpu mode (especially FIQ)
-	 */
-	pop	{r0}
-	msr	cpsr,r0
+	/* Restore BootROM's CPU mode (especially FIQ). */
+	pop	{r2}
+	msr	cpsr,r2
 
 	/*
-	 * restore c1 register
-	 * (especially set exception vector location back to
-	 * bootrom space which is required by bootrom for USB boot)
+	 * Restore c1 register. Especially set exception vector location
+	 * back to BootROM space which is required by bootrom for USB boot.
 	 */
-	pop	{r0}
-	mcr	p15, 0, r0, c1, c0, 0
+	pop	{r2}
+	mcr	p15, 0, r2, c1, c0, 0
 
 	pop	{r0-r12,r14}
+
+	/*
+	 * In case this code was started by the CALL instruction, the register
+	 * r0 is examined by the BootROM after this code returns. The value in
+	 * r0 must be set to 0 to indicate successful return.
+	 */
+	mov r0, #0
+
 	bx	lr
 
 _hang:

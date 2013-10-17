@@ -2,23 +2,7 @@
  * Copyright 2008-2012 Freescale Semiconductor, Inc.
  * Kumar Gala <kumar.gala@freescale.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm-offsets.h>
@@ -240,6 +224,21 @@ __secondary_start_page:
 	oris	r3,r3,(L1CSR2_DCWS)@h
 	mtspr	L1CSR2,r3
 2:
+#endif
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_A005812
+	/*
+	 * A-005812 workaround sets bit 32 of SPR 976 for SoCs running in
+	 * write shadow mode. This code should run after other code setting
+	 * DCWS.
+	 */
+	mfspr	r3,L1CSR2
+	andis.	r3,r3,(L1CSR2_DCWS)@h
+	beq	1f
+	mfspr	r3, SPRN_HDBCR0
+	oris	r3, r3, 0x8000
+	mtspr	SPRN_HDBCR0, r3
+1:
 #endif
 
 #ifdef CONFIG_BACKSIDE_L2_CACHE

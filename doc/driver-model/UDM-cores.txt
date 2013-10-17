@@ -94,12 +94,12 @@ Pavel Herrmann <morpheus.ibis@gmail.com>
     driver_activate(instance *inst);
       This call will recursively activate all devices necessary for using the
       specified device. the code could be simplified as:
-        {
-        if (is_activated(inst))
-          return;
-        driver_activate(inst->bus);
-        get_driver(inst)->probe(inst);
-        }
+	{
+	if (is_activated(inst))
+	  return;
+	driver_activate(inst->bus);
+	get_driver(inst)->probe(inst);
+	}
 
       The case with multiple parents will need to be handled here as well.
       get_driver is an accessor to available drivers, which will get struct
@@ -107,12 +107,12 @@ Pavel Herrmann <morpheus.ibis@gmail.com>
 
     i2c_write(instance *inst, ...);
       An actual call to some method of the driver. This code will look like:
-        {
-        driver_activate(inst);
-        struct instance *core = get_core_instance(CORE_I2C);
-        device_ops = get_ops(inst);
-        device_ops->write(...);
-        }
+	{
+	driver_activate(inst);
+	struct instance *core = get_core_instance(CORE_I2C);
+	device_ops = get_ops(inst);
+	device_ops->write(...);
+	}
 
       get_ops will not be an exported function, it will be internal and specific
       to the core, as it needs to know how are the ops stored, and what type

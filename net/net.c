@@ -207,6 +207,8 @@ static int net_check_prereq(enum proto_t protocol);
 
 static int NetTryCount;
 
+int __maybe_unused net_busy_flag;
+
 /**********************************************************************/
 
 static int on_bootfile(const char *name, const char *value, enum env_op op,
@@ -342,6 +344,9 @@ int NetLoop(enum proto_t protocol)
 		eth_init_state_only(bd);
 
 restart:
+#ifdef CONFIG_USB_KEYBOARD
+	net_busy_flag = 0;
+#endif
 	net_set_state(NETLOOP_CONTINUE);
 
 	/*
@@ -454,6 +459,9 @@ restart:
 		status_led_set(STATUS_LED_RED, STATUS_LED_ON);
 #endif /* CONFIG_SYS_FAULT_ECHO_LINK_DOWN, ... */
 #endif /* CONFIG_MII, ... */
+#ifdef CONFIG_USB_KEYBOARD
+	net_busy_flag = 1;
+#endif
 
 	/*
 	 *	Main packet reception loop.  Loop receiving packets until
@@ -559,6 +567,9 @@ restart:
 	}
 
 done:
+#ifdef CONFIG_USB_KEYBOARD
+	net_busy_flag = 0;
+#endif
 #ifdef CONFIG_CMD_TFTPPUT
 	/* Clear out the handlers */
 	net_set_udp_handler(NULL);

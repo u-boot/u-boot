@@ -3,23 +3,7 @@
  * Texas Instruments Incorporated, <www.ti.com>
  * Steve Sakoman  <steve@sakoman.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
 #include <asm/arch/sys_proto.h>
@@ -149,6 +133,7 @@ int misc_init_r(void)
 {
 	int phy_type;
 	u32 auxclk, altclksrc;
+	uint8_t device_mac[6];
 
 	/* EHCI is not supported on ES1.0 */
 	if (omap_revision() == OMAP4430_ES1_0)
@@ -201,6 +186,21 @@ int misc_init_r(void)
 	altclksrc |= ALTCLKSRC_ENABLE_INT_MASK | ALTCLKSRC_ENABLE_EXT_MASK;
 
 	writel(altclksrc, &scrm->altclksrc);
+
+	if (!getenv("usbethaddr")) {
+		/*
+		 * create a fake MAC address from the processor ID code.
+		 * first byte is 0x02 to signify locally administered.
+		 */
+		device_mac[0] = 0x02;
+		device_mac[1] = readl(STD_FUSE_DIE_ID_3) & 0xff;
+		device_mac[2] = readl(STD_FUSE_DIE_ID_2) & 0xff;
+		device_mac[3] = readl(STD_FUSE_DIE_ID_1) & 0xff;
+		device_mac[4] = readl(STD_FUSE_DIE_ID_0) & 0xff;
+		device_mac[5] = (readl(STD_FUSE_DIE_ID_0) >> 8) & 0xff;
+
+		eth_setenv_enetaddr("usbethaddr", device_mac);
+	}
 
 	return 0;
 }

@@ -4,23 +4,7 @@
  *
  * Configuation settings for the SAMSUNG TRATS (EXYNOS4210) board.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -275,10 +259,15 @@
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_CACHELINE_SIZE       32
 
-#define CONFIG_SOFT_I2C
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
+#define CONFIG_SYS_I2C_SOFT_SPEED	50000
+#define CONFIG_SYS_I2C_SOFT_SLAVE	0xFE
+#define I2C_SOFT_DECLARATIONS2
+#define CONFIG_SYS_I2C_SOFT_SPEED_2     50000
+#define CONFIG_SYS_I2C_SOFT_SLAVE_2     0x7F
 #define CONFIG_SOFT_I2C_READ_REPEATED_START
 #define CONFIG_SYS_I2C_INIT_BOARD
-#define CONFIG_SYS_I2C_SPEED	50000
 #define CONFIG_I2C_MULTI_BUS
 #define CONFIG_SOFT_I2C_MULTI_BUS
 #define CONFIG_SYS_MAX_I2C_BUS	15

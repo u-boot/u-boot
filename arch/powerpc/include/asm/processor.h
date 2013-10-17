@@ -847,7 +847,7 @@
 /* System-On-Chip Version Register (SVR) field extraction */
 
 #define SVR_VER(svr)	(((svr) >> 16) & 0xFFFF) /* Version field */
-#define SVR_REV(svr)	(((svr) >>  0) & 0xFFFF) /* Revision field */
+#define SVR_REV(svr)	(((svr) >>  0) & 0xFF)	 /* Revision field */
 
 #define SVR_CID(svr)	(((svr) >> 28) & 0x0F)	 /* Company or manufacturer ID */
 #define SVR_SOCOP(svr)	(((svr) >> 22) & 0x3F)	 /* SOC integration options */
@@ -894,9 +894,6 @@
 #define PVR_405GP_RC	0x40110082
 #define PVR_405GP_RD	0x401100C4
 #define PVR_405GP_RE	0x40110145  /* same as pc405cr rev c */
-#define PVR_405CR_RA	0x40110041
-#define PVR_405CR_RB	0x401100C5
-#define PVR_405CR_RC	0x40110145  /* same as pc405gp rev e */
 #define PVR_405EP_RA	0x51210950
 #define PVR_405GPR_RB	0x50910951
 #define PVR_405EZ_RA	0x41511460
@@ -1043,9 +1040,6 @@
 
 /* System Version Register (SVR) field extraction */
 
-#define SVR_VER(svr)	(((svr) >>  16) & 0xFFFF)	/* Version field */
-#define SVR_REV(svr)	(((svr) >>   0) & 0xFFFF)	/* Revison field */
-
 #define SVR_SUBVER(svr)	(((svr) >>  8) & 0xFF)	/* Process/MFG sub-version */
 
 #define SVR_FAM(svr)	(((svr) >> 20) & 0xFFF)	/* Family field */
@@ -1119,6 +1113,9 @@
 #define SVR_T4240	0x824000
 #define SVR_T4120	0x824001
 #define SVR_T4160	0x824100
+#define SVR_C291	0x850000
+#define SVR_C292	0x850020
+#define SVR_C293	0x850030
 #define SVR_B4860	0X868000
 #define SVR_G4860	0x868001
 #define SVR_G4060	0x868003

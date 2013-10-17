@@ -2,23 +2,7 @@
  * (C) Copyright 2000-2007
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -336,25 +320,9 @@ int checkcpu (void)
 		puts("405GP Rev. D");
 		break;
 
-#ifdef CONFIG_405GP
-	case PVR_405GP_RE: /* 405GP rev E and 405CR rev C have same PVR */
+	case PVR_405GP_RE:
 		puts("405GP Rev. E");
 		break;
-#endif
-
-	case PVR_405CR_RA:
-		puts("405CR Rev. A");
-		break;
-
-	case PVR_405CR_RB:
-		puts("405CR Rev. B");
-		break;
-
-#ifdef CONFIG_405CR
-	case PVR_405CR_RC: /* 405GP rev E and 405CR rev C have same PVR */
-		puts("405CR Rev. C");
-		break;
-#endif
 
 	case PVR_405GPR_RB:
 		puts("405GPr Rev. B");
@@ -663,12 +631,12 @@ int checkcpu (void)
 #endif
 
 #if defined(CONFIG_405EP) || defined(CONFIG_405EZ) || defined(CONFIG_405EX)
-	printf ("       16 kB I-Cache 16 kB D-Cache");
+	printf("       16 KiB I-Cache 16 KiB D-Cache");
 #elif defined(CONFIG_440)
-	printf ("       32 kB I-Cache 32 kB D-Cache");
+	printf("       32 KiB I-Cache 32 KiB D-Cache");
 #else
-	printf ("       16 kB I-Cache %d kB D-Cache",
-		((pvr | 0x00000001) == PVR_405GPR_RB) ? 16 : 8);
+	printf("       16 KiB I-Cache %d KiB D-Cache",
+	       ((pvr | 0x00000001) == PVR_405GPR_RB) ? 16 : 8);
 #endif
 
 #endif /* !defined(CONFIG_405) */

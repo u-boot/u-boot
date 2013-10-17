@@ -68,7 +68,7 @@ int rtc_set(struct rtc_time *tmp)
 
 	/* Calculate number of seconds this incoming time represents */
 	remain = mktime(tmp->tm_year, tmp->tm_mon, tmp->tm_mday,
-	                tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+			tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
 
 	/* Figure out how many days since epoch */
 	days = remain / NUM_SECS_IN_DAY;

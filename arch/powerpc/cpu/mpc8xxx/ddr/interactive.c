@@ -1,9 +1,7 @@
 /*
  * Copyright 2010-2012 Freescale Semiconductor, Inc.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * Version 2 or any later versionas published by the Free Software Foundation.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 /*
@@ -207,6 +205,7 @@ static void fsl_ddr_dimm_parameters_edit(fsl_ddr_info_t *pinfo,
 		DIMM_PARM(primary_sdram_width),
 		DIMM_PARM(ec_sdram_width),
 		DIMM_PARM(registered_dimm),
+		DIMM_PARM(device_width),
 
 		DIMM_PARM(n_row_addr),
 		DIMM_PARM(n_col_addr),
@@ -265,6 +264,7 @@ static void print_dimm_parameters(const dimm_params_t *pdimm)
 		DIMM_PARM(primary_sdram_width),
 		DIMM_PARM(ec_sdram_width),
 		DIMM_PARM(registered_dimm),
+		DIMM_PARM(device_width),
 
 		DIMM_PARM(n_row_addr),
 		DIMM_PARM(n_col_addr),
@@ -445,6 +445,7 @@ static void fsl_ddr_options_edit(fsl_ddr_info_t *pinfo,
 		CTRL_OPTIONS(twoT_en),
 		CTRL_OPTIONS(threeT_en),
 		CTRL_OPTIONS(ap_en),
+		CTRL_OPTIONS(x4_en),
 		CTRL_OPTIONS(bstopre),
 		CTRL_OPTIONS(wrlvl_override),
 		CTRL_OPTIONS(wrlvl_sample),
@@ -689,6 +690,7 @@ static void print_memctl_options(const memctl_options_t *popts)
 		CTRL_OPTIONS(threeT_en),
 		CTRL_OPTIONS(registered_dimm_en),
 		CTRL_OPTIONS(ap_en),
+		CTRL_OPTIONS(x4_en),
 		CTRL_OPTIONS(bstopre),
 		CTRL_OPTIONS(wrlvl_override),
 		CTRL_OPTIONS(wrlvl_sample),

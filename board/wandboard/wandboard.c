@@ -3,10 +3,7 @@
  *
  * Author: Fabio Estevam <fabio.estevam@freescale.com>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <asm/arch/clock.h>
@@ -211,23 +208,6 @@ int board_phy_config(struct phy_device *phydev)
 }
 
 #if defined(CONFIG_VIDEO_IPUV3)
-static void enable_hdmi(void)
-{
-	struct hdmi_regs *hdmi	= (struct hdmi_regs *)HDMI_ARB_BASE_ADDR;
-	u8 reg;
-	reg = readb(&hdmi->phy_conf0);
-	reg |= HDMI_PHY_CONF0_PDZ_MASK;
-	writeb(reg, &hdmi->phy_conf0);
-
-	udelay(3000);
-	reg |= HDMI_PHY_CONF0_ENTMDS_MASK;
-	writeb(reg, &hdmi->phy_conf0);
-	udelay(3000);
-	reg |= HDMI_PHY_CONF0_GEN2_TXPWRON_MASK;
-	writeb(reg, &hdmi->phy_conf0);
-	writeb(HDMI_MC_PHYRSTZ_ASSERT, &hdmi->mc_phyrstz);
-}
-
 static struct fb_videomode const hdmi = {
 	.name           = "HDMI",
 	.refresh        = 60,
@@ -253,7 +233,7 @@ int board_video_skip(void)
 	if (ret)
 		printf("HDMI cannot be configured: %d\n", ret);
 
-	enable_hdmi();
+	imx_enable_hdmi_phy();
 
 	return ret;
 }
@@ -261,33 +241,14 @@ int board_video_skip(void)
 static void setup_display(void)
 {
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
-	struct hdmi_regs *hdmi	= (struct hdmi_regs *)HDMI_ARB_BASE_ADDR;
 	int reg;
 
-	/* Turn on IPU clock */
-	reg = readl(&mxc_ccm->CCGR3);
-	reg |= MXC_CCM_CCGR3_IPU1_IPU_DI0_OFFSET;
-	writel(reg, &mxc_ccm->CCGR3);
-
-	/* Turn on HDMI PHY clock */
-	reg = readl(&mxc_ccm->CCGR2);
-	reg |=  MXC_CCM_CCGR2_HDMI_TX_IAHBCLK_MASK
-		| MXC_CCM_CCGR2_HDMI_TX_ISFRCLK_MASK;
-	writel(reg, &mxc_ccm->CCGR2);
-
-	/* clear HDMI PHY reset */
-	writeb(HDMI_MC_PHYRSTZ_DEASSERT, &hdmi->mc_phyrstz);
+	enable_ipu_clock();
+	imx_setup_hdmi();
 
 	reg = readl(&mxc_ccm->chsccdr);
-	reg &= ~(MXC_CCM_CHSCCDR_IPU1_DI0_PRE_CLK_SEL_MASK
-		| MXC_CCM_CHSCCDR_IPU1_DI0_PODF_MASK
-		| MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_MASK);
 	reg |= (CHSCCDR_CLK_SEL_LDB_DI0
-		<< MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_OFFSET)
-	      | (CHSCCDR_PODF_DIVIDE_BY_3
-		<< MXC_CCM_CHSCCDR_IPU1_DI0_PODF_OFFSET)
-	      | (CHSCCDR_IPU_PRE_CLK_540M_PFD
-		<< MXC_CCM_CHSCCDR_IPU1_DI0_PRE_CLK_SEL_OFFSET);
+		<< MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_OFFSET);
 	writel(reg, &mxc_ccm->chsccdr);
 }
 #endif /* CONFIG_VIDEO_IPUV3 */

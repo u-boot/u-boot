@@ -2,23 +2,7 @@
  * (C) Copyright 2007-2008
  * Dirk Eibach,  Guntermann & Drunck GmbH, eibach@gdsys.de
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #ifndef __CONFIG_H
@@ -35,7 +19,7 @@
  * Include common defines/options for all AMCC eval boards
  */
 #define CONFIG_HOSTNAME		neo
-#define CONFIG_IDENT_STRING	" neo 0.01"
+#define CONFIG_IDENT_STRING	" neo 0.02"
 #include "amcc-common.h"
 
 #define CONFIG_BOARD_EARLY_INIT_F
@@ -117,7 +101,7 @@
 /*
  * I2C stuff
  */
-#define CONFIG_SYS_I2C_SPEED		100000	/* I2C speed and slave address	*/
+#define CONFIG_SYS_I2C_PPC4XX_SPEED_0		100000
 
 /* RTC */
 #define CONFIG_RTC_DS1337
@@ -146,7 +130,6 @@
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster)	*/
-#define CONFIG_SYS_FLASH_PROTECTION	1	/* use hardware flash protection	*/
 
 #define CONFIG_SYS_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 #define CONFIG_SYS_FLASH_QUIET_TEST	1	/* don't warn upon unknown flash	*/
@@ -237,6 +220,11 @@
 #define CONFIG_SYS_FPGA_BASE(k)		CONFIG_SYS_FPGA0_BASE
 
 #define CONFIG_SYS_FPGA_COUNT		1
+
+#define CONFIG_SYS_FPGA_PTR \
+	{ (struct ihs_fpga *)CONFIG_SYS_FPGA0_BASE }
+
+#define CONFIG_SYS_FPGA_COMMON
 
 /* Memory Bank 3 (Latches) initialization                      */
 #define CONFIG_SYS_LATCH_BASE		0x7f200000

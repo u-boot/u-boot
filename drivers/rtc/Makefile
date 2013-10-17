@@ -2,23 +2,7 @@
 # (C) Copyright 2001-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
-# See file CREDITS for list of people who contributed to this
-# project.
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 2 of
-# the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA 02111-1307 USA
+# SPDX-License-Identifier:	GPL-2.0+
 #
 
 include $(TOPDIR)/config.mk
@@ -69,7 +53,6 @@ COBJS-$(CONFIG_RTC_RTC4543) += rtc4543.o
 COBJS-$(CONFIG_RTC_RV3029) += rv3029.o
 COBJS-$(CONFIG_RTC_RX8025) += rx8025.o
 COBJS-$(CONFIG_RTC_S3C24X0) += s3c24x0_rtc.o
-COBJS-$(CONFIG_RTC_S3C44B0) += s3c44b0_rtc.o
 COBJS-$(CONFIG_RTC_X1205) += x1205.o
 
 COBJS	:= $(sort $(COBJS-y))

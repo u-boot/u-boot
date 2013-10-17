@@ -157,7 +157,7 @@ static void ax88180_mac_reset (struct eth_device *dev)
 	OUTW (dev, MISC_RESET_MAC, MISC);
 	tmpval = INW (dev, MISC);
 
-	for (i = 0; i < (sizeof (program_seq) / sizeof (program_seq[0])); i++)
+	for (i = 0; i < ARRAY_SIZE(program_seq); i++)
 		OUTW (dev, program_seq[i].value, program_seq[i].offset);
 }
 

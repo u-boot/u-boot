@@ -5,23 +5,7 @@
  * Michal  SIMEK <monstr@monstr.eu>
  * Yasushi SHOJI <yashi@atmark-techno.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -32,6 +16,7 @@
 #include <stdio_dev.h>
 #include <serial.h>
 #include <net.h>
+#include <spi.h>
 #include <linux/compiler.h>
 #include <asm/processor.h>
 #include <asm/microblaze_intc.h>
@@ -61,9 +46,6 @@ init_fnc_t *init_sequence[] = {
 	serial_init,
 	console_init_f,
 	interrupts_init,
-#ifdef CONFIG_XILINX_TB_WATCHDOG
-	hw_watchdog_init,
-#endif
 	timer_init,
 	NULL,
 };
@@ -112,6 +94,9 @@ void board_init_f(ulong not_used)
 
 	serial_initialize();
 
+#ifdef CONFIG_XILINX_TB_WATCHDOG
+	hw_watchdog_init();
+#endif
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
 		WATCHDOG_RESET();
 		if ((*init_fnc_ptr) () != 0)
@@ -161,6 +146,10 @@ void board_init_f(ulong not_used)
 		bd->bi_flashsize = 0;
 		bd->bi_flashoffset = 0;
 	}
+#endif
+
+#ifdef CONFIG_SPI
+	spi_init();
 #endif
 
 	/* relocate environment function pointers etc. */

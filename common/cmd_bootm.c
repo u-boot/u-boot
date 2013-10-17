@@ -2,23 +2,7 @@
  * (C) Copyright 2000-2009
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 
@@ -384,7 +368,7 @@ static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 
 	const char *type_name = genimg_get_type_name(os.type);
 
-	load_buf = map_sysmem(load, image_len);
+	load_buf = map_sysmem(load, unc_len);
 	image_buf = map_sysmem(image_start, image_len);
 	switch (comp) {
 	case IH_COMP_NONE:
@@ -452,11 +436,12 @@ static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 	}
 #endif /* CONFIG_LZMA */
 #ifdef CONFIG_LZO
-	case IH_COMP_LZO:
+	case IH_COMP_LZO: {
+		size_t size;
+
 		printf("   Uncompressing %s ... ", type_name);
 
-		ret = lzop_decompress(image_buf, image_len, load_buf,
-				      &unc_len);
+		ret = lzop_decompress(image_buf, image_len, load_buf, &size);
 		if (ret != LZO_E_OK) {
 			printf("LZO: uncompress or overwrite error %d "
 			      "- must RESET board to recover\n", ret);
@@ -465,8 +450,9 @@ static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 			return BOOTM_ERR_RESET;
 		}
 
-		*load_end = load + unc_len;
+		*load_end = load + size;
 		break;
+	}
 #endif /* CONFIG_LZO */
 	default:
 		printf("Unimplemented compression type %d\n", comp);
@@ -572,6 +558,7 @@ static ulong bootm_disable_interrupts(void)
 #ifdef CONFIG_NETCONSOLE
 	/* Stop the ethernet stack if NetConsole could have left it up */
 	eth_halt();
+	eth_unregister(eth_get_dev());
 #endif
 
 #if defined(CONFIG_CMD_USB)
@@ -652,7 +639,7 @@ static int do_bootm_states(cmd_tbl_t *cmdtp, int flag, int argc,
 			goto err;
 		else if (ret == BOOTM_ERR_OVERLAP)
 			ret = 0;
-#ifdef CONFIG_SILENT_CONSOLE
+#if defined(CONFIG_SILENT_CONSOLE) && !defined(CONFIG_SILENT_U_BOOT_ONLY)
 		if (images->os.os == IH_OS_LINUX)
 			fixup_silent_linux();
 #endif
@@ -813,8 +800,12 @@ int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	return do_bootm_states(cmdtp, flag, argc, argv, BOOTM_STATE_START |
 		BOOTM_STATE_FINDOS | BOOTM_STATE_FINDOTHER |
-		BOOTM_STATE_LOADOS | BOOTM_STATE_OS_PREP |
-		BOOTM_STATE_OS_FAKE_GO | BOOTM_STATE_OS_GO, &images, 1);
+		BOOTM_STATE_LOADOS |
+#if defined(CONFIG_PPC) || defined(CONFIG_MIPS)
+		BOOTM_STATE_OS_CMDLINE |
+#endif
+		BOOTM_STATE_OS_PREP | BOOTM_STATE_OS_FAKE_GO |
+		BOOTM_STATE_OS_GO, &images, 1);
 }
 
 int bootm_maybe_autostart(cmd_tbl_t *cmdtp, const char *cmd)
@@ -1400,9 +1391,19 @@ static void fixup_silent_linux(void)
 	char *buf;
 	const char *env_val;
 	char *cmdline = getenv("bootargs");
+	int want_silent;
 
-	/* Only fix cmdline when requested */
-	if (!(gd->flags & GD_FLG_SILENT))
+	/*
+	 * Only fix cmdline when requested. The environment variable can be:
+	 *
+	 *	no - we never fixup
+	 *	yes - we always fixup
+	 *	unset - we rely on the console silent flag
+	 */
+	want_silent = getenv_yesno("silent_linux");
+	if (want_silent == 0)
+		return;
+	else if (want_silent == -1 && !(gd->flags & GD_FLG_SILENT))
 		return;
 
 	debug("before silent fix-up: %s\n", cmdline);

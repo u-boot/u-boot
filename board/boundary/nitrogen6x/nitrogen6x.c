@@ -2,23 +2,7 @@
  * Copyright (C) 2010-2013 Freescale Semiconductor, Inc.
  * Copyright (C) 2013, Boundary Devices <info@boundarydevices.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -477,25 +461,12 @@ struct display_info_t {
 static int detect_hdmi(struct display_info_t const *dev)
 {
 	struct hdmi_regs *hdmi	= (struct hdmi_regs *)HDMI_ARB_BASE_ADDR;
-	return readb(&hdmi->phy_stat0) & HDMI_PHY_HPD;
+	return readb(&hdmi->phy_stat0) & HDMI_DVI_STAT;
 }
 
-static void enable_hdmi(struct display_info_t const *dev)
+static void do_enable_hdmi(struct display_info_t const *dev)
 {
-	struct hdmi_regs *hdmi	= (struct hdmi_regs *)HDMI_ARB_BASE_ADDR;
-	u8 reg;
-	printf("%s: setup HDMI monitor\n", __func__);
-	reg = readb(&hdmi->phy_conf0);
-	reg |= HDMI_PHY_CONF0_PDZ_MASK;
-	writeb(reg, &hdmi->phy_conf0);
-
-	udelay(3000);
-	reg |= HDMI_PHY_CONF0_ENTMDS_MASK;
-	writeb(reg, &hdmi->phy_conf0);
-	udelay(3000);
-	reg |= HDMI_PHY_CONF0_GEN2_TXPWRON_MASK;
-	writeb(reg, &hdmi->phy_conf0);
-	writeb(HDMI_MC_PHYRSTZ_ASSERT, &hdmi->mc_phyrstz);
+	imx_enable_hdmi_phy();
 }
 
 static int detect_i2c(struct display_info_t const *dev)
@@ -528,7 +499,7 @@ static struct display_info_t const displays[] = {{
 	.addr	= 0,
 	.pixfmt	= IPU_PIX_FMT_RGB24,
 	.detect	= detect_hdmi,
-	.enable	= enable_hdmi,
+	.enable	= do_enable_hdmi,
 	.mode	= {
 		.name           = "HDMI",
 		.refresh        = 60,
@@ -622,6 +593,7 @@ int board_video_skip(void)
 		if (!panel) {
 			panel = displays[0].mode.name;
 			printf("No panel detected: default to %s\n", panel);
+			i = 0;
 		}
 	} else {
 		for (i = 0; i < ARRAY_SIZE(displays); i++) {
@@ -638,9 +610,10 @@ int board_video_skip(void)
 			       displays[i].mode.name,
 			       displays[i].mode.xres,
 			       displays[i].mode.yres);
-		} else
+		} else {
 			printf("LCD %s cannot be configured: %d\n",
 			       displays[i].mode.name, ret);
+		}
 	} else {
 		printf("unsupported panel %s\n", panel);
 		ret = -EINVAL;
@@ -651,30 +624,15 @@ int board_video_skip(void)
 static void setup_display(void)
 {
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
-	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
 	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
-	struct hdmi_regs *hdmi	= (struct hdmi_regs *)HDMI_ARB_BASE_ADDR;
-
 	int reg;
 
+	enable_ipu_clock();
+	imx_setup_hdmi();
 	/* Turn on LDB0,IPU,IPU DI0 clocks */
 	reg = __raw_readl(&mxc_ccm->CCGR3);
-	reg |=   MXC_CCM_CCGR3_IPU1_IPU_DI0_OFFSET
-		|MXC_CCM_CCGR3_LDB_DI0_MASK;
+	reg |=  MXC_CCM_CCGR3_LDB_DI0_MASK;
 	writel(reg, &mxc_ccm->CCGR3);
-
-	/* Turn on HDMI PHY clock */
-	reg = __raw_readl(&mxc_ccm->CCGR2);
-	reg |=  MXC_CCM_CCGR2_HDMI_TX_IAHBCLK_MASK
-	       |MXC_CCM_CCGR2_HDMI_TX_ISFRCLK_MASK;
-	writel(reg, &mxc_ccm->CCGR2);
-
-	/* clear HDMI PHY reset */
-	writeb(HDMI_MC_PHYRSTZ_DEASSERT, &hdmi->mc_phyrstz);
-
-	/* set PFD1_FRAC to 0x13 == 455 MHz (480*18)/0x13 */
-	writel(ANATOP_PFD_480_PFD1_FRAC_MASK, &anatop->pfd_480_clr);
-	writel(0x13<<ANATOP_PFD_480_PFD1_FRAC_SHIFT, &anatop->pfd_480_set);
 
 	/* set LDB0, LDB1 clk select to 011/011 */
 	reg = readl(&mxc_ccm->cs2cdr);
@@ -689,15 +647,8 @@ static void setup_display(void)
 	writel(reg, &mxc_ccm->cscmr2);
 
 	reg = readl(&mxc_ccm->chsccdr);
-	reg &= ~(MXC_CCM_CHSCCDR_IPU1_DI0_PRE_CLK_SEL_MASK
-		|MXC_CCM_CHSCCDR_IPU1_DI0_PODF_MASK
-		|MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_MASK);
 	reg |= (CHSCCDR_CLK_SEL_LDB_DI0
-		<<MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_OFFSET)
-	      |(CHSCCDR_PODF_DIVIDE_BY_3
-		<<MXC_CCM_CHSCCDR_IPU1_DI0_PODF_OFFSET)
-	      |(CHSCCDR_IPU_PRE_CLK_540M_PFD
-		<<MXC_CCM_CHSCCDR_IPU1_DI0_PRE_CLK_SEL_OFFSET);
+		<<MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_OFFSET);
 	writel(reg, &mxc_ccm->chsccdr);
 
 	reg = IOMUXC_GPR2_BGREF_RRMODE_EXTERNAL_RES
@@ -712,7 +663,8 @@ static void setup_display(void)
 	writel(reg, &iomux->gpr[2]);
 
 	reg = readl(&iomux->gpr[3]);
-	reg = (reg & ~IOMUXC_GPR3_LVDS0_MUX_CTL_MASK)
+	reg = (reg & ~(IOMUXC_GPR3_LVDS0_MUX_CTL_MASK
+			|IOMUXC_GPR3_HDMI_MUX_CTL_MASK))
 	    | (IOMUXC_GPR3_MUX_SRC_IPU1_DI0
 	       <<IOMUXC_GPR3_LVDS0_MUX_CTL_OFFSET);
 	writel(reg, &iomux->gpr[3]);

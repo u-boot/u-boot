@@ -2,23 +2,7 @@
  * Copyright (C) 2012 - 2013 Atmel Corporation
  * Bo Shen <voice.shen@atmel.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
 #include <common.h>
@@ -33,8 +17,13 @@
 #include <lcd.h>
 #include <atmel_lcdc.h>
 #include <atmel_mci.h>
+#include <micrel.h>
 #include <net.h>
 #include <netdev.h>
+
+#ifdef CONFIG_USB_GADGET_ATMEL_USBA
+#include <asm/arch/atmel_usba_udc.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -185,6 +174,9 @@ int board_init(void)
 #ifdef CONFIG_CMD_USB
 	sama5d3xek_usb_hw_init();
 #endif
+#ifdef CONFIG_USB_GADGET_ATMEL_USBA
+	at91_udp_hw_init();
+#endif
 #ifdef CONFIG_GENERIC_ATMEL_MCI
 	sama5d3xek_mci_hw_init();
 #endif
@@ -194,6 +186,8 @@ int board_init(void)
 #ifdef CONFIG_MACB
 	if (has_emac())
 		at91_macb_hw_init();
+	if (has_gmac())
+		at91_gmac_hw_init();
 #endif
 #ifdef CONFIG_LCD
 	if (has_lcdc())
@@ -209,6 +203,21 @@ int dram_init(void)
 	return 0;
 }
 
+int board_phy_config(struct phy_device *phydev)
+{
+	/* rx data delay */
+	ksz9021_phy_extended_write(phydev,
+				   MII_KSZ9021_EXT_RGMII_RX_DATA_SKEW, 0x2222);
+	/* tx data delay */
+	ksz9021_phy_extended_write(phydev,
+				   MII_KSZ9021_EXT_RGMII_TX_DATA_SKEW, 0x2222);
+	/* rx/tx clock delay */
+	ksz9021_phy_extended_write(phydev,
+				   MII_KSZ9021_EXT_RGMII_CLOCK_SKEW, 0xf2f4);
+
+	return 0;
+}
+
 int board_eth_init(bd_t *bis)
 {
 	int rc = 0;
@@ -216,6 +225,14 @@ int board_eth_init(bd_t *bis)
 #ifdef CONFIG_MACB
 	if (has_emac())
 		rc = macb_eth_initialize(0, (void *)ATMEL_BASE_EMAC, 0x00);
+	if (has_gmac())
+		rc = macb_eth_initialize(0, (void *)ATMEL_BASE_GMAC, 0x00);
+#endif
+#ifdef CONFIG_USB_GADGET_ATMEL_USBA
+	usba_udc_probe(&pdata);
+#ifdef CONFIG_USB_ETH_RNDIS
+	usb_eth_initialize(bis);
+#endif
 #endif
 
 	return rc;
