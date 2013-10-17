@@ -20,3 +20,5 @@ ifneq ($(CONFIG_ARMV7_NONSEC)$(CONFIG_ARMV7_VIRT),)
 obj-y	+= nonsec_virt.o
 obj-y	+= virt-v7.o
 endif
+
+obj-$(CONFIG_TEGRA) += tegra-common/
