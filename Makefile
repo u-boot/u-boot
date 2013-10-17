@@ -304,12 +304,6 @@ ifneq (,$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35 mxs vf610))
 LIBS-y += arch/$(ARCH)/imx-common/libimx-common.o
 endif
 
-ifeq ($(SOC),s5pc1xx)
-LIBS-y += $(CPUDIR)/s5p-common/libs5p-common.o
-endif
-ifeq ($(SOC),exynos)
-LIBS-y += $(CPUDIR)/s5p-common/libs5p-common.o
-endif
 LIBS-$(CONFIG_ARM) += arch/arm/cpu/libcpu.o
 
 LIBS := $(addprefix $(obj),$(sort $(LIBS-y)))

@@ -25,3 +25,7 @@ endif
 
 obj-$(CONFIG_OMAP_COMMON) += omap-common/
 obj-$(CONFIG_TEGRA) += tegra-common/
+
+ifneq (,$(filter s5pc1xx exynos,$(SOC)))
+obj-y += s5p-common/
+endif
