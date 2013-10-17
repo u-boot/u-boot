@@ -300,10 +300,6 @@ LIBS-y += api/libapi.o
 LIBS-y += post/libpost.o
 LIBS-y += test/libtest.o
 
-ifneq ($(CONFIG_OMAP_COMMON),)
-LIBS-y += $(CPUDIR)/omap-common/libomap-common.o
-endif
-
 ifneq (,$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35 mxs vf610))
 LIBS-y += arch/$(ARCH)/imx-common/libimx-common.o
 endif

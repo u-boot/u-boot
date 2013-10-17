@@ -101,10 +101,6 @@ LIBS-$(CONFIG_SPL_MUSB_NEW_SUPPORT) += drivers/usb/musb-new/libusb_musb-new.o
 LIBS-$(CONFIG_SPL_USBETH_SUPPORT) += drivers/usb/gadget/libusb_gadget.o
 LIBS-$(CONFIG_SPL_WATCHDOG_SUPPORT) += drivers/watchdog/libwatchdog.o
 
-ifneq ($(CONFIG_OMAP_COMMON),)
-LIBS-y += $(CPUDIR)/omap-common/libomap-common.o
-endif
-
 ifneq (,$(CONFIG_MX23)$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35))
 LIBS-y += arch/$(ARCH)/imx-common/libimx-common.o
 endif
