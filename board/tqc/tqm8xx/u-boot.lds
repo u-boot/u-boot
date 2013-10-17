@@ -23,8 +23,8 @@ SECTIONS
     board/tqc/tqm8xx/libtqm8xx.o	(.text*)
     disk/libdisk.o			(.text*)
     drivers/net/libnet.o		(.text*)
-    drivers/pcmcia/libpcmcia.o		(.text.pcmcia_on)
-    drivers/pcmcia/libpcmcia.o		(.text.pcmcia_hardware_enable)
+    drivers/libdrivers.o		(.text.pcmcia_on)
+    drivers/libdrivers.o		(.text.pcmcia_hardware_enable)
 
     . = DEFINED(env_offset) ? env_offset : .;
     common/env_embedded.o	(.ppcenv*)

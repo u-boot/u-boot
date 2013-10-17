@@ -261,17 +261,11 @@ LIBS-y += fs/libfs.o \
 	fs/zfs/libzfs.o
 LIBS-y += net/libnet.o
 LIBS-y += disk/libdisk.o
-LIBS-y += drivers/bios_emulator/libatibiosemu.o
-LIBS-y += drivers/block/libblock.o
-LIBS-$(CONFIG_BOOTCOUNT_LIMIT) += drivers/bootcount/libbootcount.o
-LIBS-y += drivers/crypto/libcrypto.o
+LIBS-y += drivers/libdrivers.o
 LIBS-y += drivers/dma/libdma.o
-LIBS-y += drivers/fpga/libfpga.o
 LIBS-y += drivers/gpio/libgpio.o
-LIBS-y += drivers/hwmon/libhwmon.o
 LIBS-y += drivers/i2c/libi2c.o
 LIBS-y += drivers/input/libinput.o
-LIBS-y += drivers/misc/libmisc.o
 LIBS-y += drivers/mmc/libmmc.o
 LIBS-y += drivers/mtd/libmtd.o
 LIBS-y += drivers/mtd/nand/libnand.o
@@ -281,14 +275,12 @@ LIBS-y += drivers/mtd/spi/libspi_flash.o
 LIBS-y += drivers/net/libnet.o
 LIBS-y += drivers/net/phy/libphy.o
 LIBS-y += drivers/pci/libpci.o
-LIBS-y += drivers/pcmcia/libpcmcia.o
 LIBS-y += drivers/power/libpower.o \
 	drivers/power/fuel_gauge/libfuel_gauge.o \
 	drivers/power/mfd/libmfd.o \
 	drivers/power/pmic/libpmic.o \
 	drivers/power/battery/libbattery.o
 LIBS-y += drivers/spi/libspi.o
-LIBS-y += drivers/dfu/libdfu.o
 ifeq ($(CPU),mpc83xx)
 LIBS-y += drivers/qe/libqe.o
 LIBS-y += arch/powerpc/cpu/mpc8xxx/ddr/libddr.o
@@ -304,11 +296,7 @@ ifeq ($(CPU),mpc86xx)
 LIBS-y += arch/powerpc/cpu/mpc8xxx/ddr/libddr.o
 LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
 endif
-LIBS-y += drivers/rtc/librtc.o
 LIBS-y += drivers/serial/libserial.o
-LIBS-y += drivers/sound/libsound.o
-LIBS-y += drivers/tpm/libtpm.o
-LIBS-y += drivers/twserial/libtws.o
 LIBS-y += drivers/usb/eth/libusb_eth.o
 LIBS-y += drivers/usb/gadget/libusb_gadget.o
 LIBS-y += drivers/usb/host/libusb_host.o
@@ -316,8 +304,6 @@ LIBS-y += drivers/usb/musb/libusb_musb.o
 LIBS-y += drivers/usb/musb-new/libusb_musb-new.o
 LIBS-y += drivers/usb/phy/libusb_phy.o
 LIBS-y += drivers/usb/ulpi/libusb_ulpi.o
-LIBS-y += drivers/video/libvideo.o
-LIBS-y += drivers/watchdog/libwatchdog.o
 LIBS-y += common/libcommon.o
 LIBS-y += lib/libfdt/libfdt.o
 LIBS-y += api/libapi.o

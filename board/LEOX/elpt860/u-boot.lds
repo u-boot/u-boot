@@ -34,7 +34,6 @@ SECTIONS
     arch/powerpc/cpu/mpc8xx/libmpc8xx.o	(.text*)
     board/LEOX/elpt860/libelpt860.o	(.text*)
     arch/powerpc/lib/libpowerpc.o	(.text*)
-/*    drivers/rtc/librtc.o		(.text*)	*/
 
     . = env_offset;
     common/env_embedded.o		(.text*)

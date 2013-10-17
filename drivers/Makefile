@@ -1,0 +1,15 @@
+obj-y += bios_emulator/
+obj-y += block/
+obj-$(CONFIG_BOOTCOUNT_LIMIT) += bootcount/
+obj-y += crypto/
+obj-y += fpga/
+obj-y += hwmon/
+obj-y += misc/
+obj-y += pcmcia/
+obj-y += dfu/
+obj-y += rtc/
+obj-y += sound/
+obj-y += tpm/
+obj-y += twserial/
+obj-y += video/
+obj-y += watchdog/
