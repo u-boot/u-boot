@@ -457,22 +457,6 @@ static int serdes_refclock(u8 sw, u8 sdclk)
 	return ret;
 }
 
-static const char *serdes_clock_to_string(u32 clock)
-{
-	switch (clock) {
-	case SRDS_PLLCR0_RFCK_SEL_100:
-		return "100";
-	case SRDS_PLLCR0_RFCK_SEL_125:
-		return "125";
-	case SRDS_PLLCR0_RFCK_SEL_156_25:
-		return "156.25";
-	case SRDS_PLLCR0_RFCK_SEL_161_13:
-		return "161.13";
-	default:
-		return "122.88";
-	}
-}
-
 #define NUM_SRDS_BANKS	2
 
 int misc_init_r(void)

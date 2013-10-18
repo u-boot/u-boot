@@ -86,6 +86,7 @@ enum srds {
 
 int is_serdes_configured(enum srds_prtcl device);
 void fsl_serdes_init(void);
+const char *serdes_clock_to_string(u32 clock);
 
 #ifdef CONFIG_FSL_CORENET
 #ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
