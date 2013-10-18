@@ -827,6 +827,7 @@ static int atmel_pmecc_nand_init_params(struct nand_chip *nand,
 	switch (mtd->writesize) {
 	case 2048:
 	case 4096:
+	case 8192:
 		host->pmecc_degree = (sector_size == 512) ?
 			PMECC_GF_DIMENSION_13 : PMECC_GF_DIMENSION_14;
 		host->pmecc_cw_len = (1 << host->pmecc_degree) - 1;
@@ -840,6 +841,13 @@ static int atmel_pmecc_nand_init_params(struct nand_chip *nand,
 		nand->ecc.steps = 1;
 		nand->ecc.bytes = host->pmecc_bytes_per_sector *
 				       host->pmecc_sector_number;
+
+		if (nand->ecc.bytes > MTD_MAX_ECCPOS_ENTRIES_LARGE) {
+			dev_err(host->dev, "too large eccpos entries. max support ecc.bytes is %d\n",
+					MTD_MAX_ECCPOS_ENTRIES_LARGE);
+			return -EINVAL;
+		}
+
 		if (nand->ecc.bytes > mtd->oobsize - 2) {
 			printk(KERN_ERR "No room for ECC bytes\n");
 			return -EINVAL;
@@ -1190,7 +1198,7 @@ int atmel_nand_chip_init(int devnum, ulong base_addr)
 #ifdef CONFIG_SYS_NAND_READY_PIN
 	nand->dev_ready = at91_nand_ready;
 #endif
-	nand->chip_delay = 20;
+	nand->chip_delay = 75;
 
 	ret = nand_scan_ident(mtd, CONFIG_SYS_NAND_MAX_CHIPS, NULL);
 	if (ret)
