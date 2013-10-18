@@ -176,10 +176,9 @@
 #undef CONFIG_I2C_MVTWSI
 #define CONFIG_SYS_I2C
 #define	CONFIG_SYS_I2C_SOFT	/* I2C bit-banged	*/
+#define CONFIG_SYS_I2C_INIT_BOARD
 
 #define	CONFIG_KIRKWOOD_GPIO		/* Enable GPIO Support */
-#if defined(CONFIG_SYS_I2C_SOFT)
-
 #define CONFIG_SYS_NUM_I2C_BUSES	6
 #define CONFIG_SYS_I2C_MAX_HOPS		1
 #define CONFIG_SYS_I2C_BUSES	{	{0, {I2C_NULL_HOP} }, \
@@ -214,7 +213,6 @@ int get_scl(void);
 
 #define	CONFIG_SYS_I2C_SOFT_SLAVE	0x0
 #define	CONFIG_SYS_I2C_SOFT_SPEED	100000
-#endif
 
 /* EEprom support 24C128, 24C256 valid for environment eeprom */
 #define CONFIG_SYS_I2C_MULTI_EEPROMS
