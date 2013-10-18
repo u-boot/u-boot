@@ -674,7 +674,8 @@
 #define CONFIG_NUM_DDR_CONTROLLERS	1
 #endif
 
-#elif defined(CONFIG_PPC_T1040)
+#elif defined(CONFIG_PPC_T1040) || defined(CONFIG_PPC_T1042) ||\
+defined(CONFIG_PPC_T1020) || defined(CONFIG_PPC_T1022)
 #define CONFIG_E5500
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_SYS_FSL_QORIQ_CHASSIS2	/* Freescale Chassis generation 2 */
