@@ -54,6 +54,9 @@
 #define CONFIG_ENV_SPI_MODE		SPI_MODE_3
 #endif
 
+/* Reserve 4 MB for malloc */
+#define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
+
 #include "asm/arch/config.h"
 
 #define CONFIG_SYS_TEXT_BASE	0x07d00000	/* code address before reloc */

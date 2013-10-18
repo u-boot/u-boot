@@ -32,6 +32,9 @@
 
 #define CONFIG_SYS_LOAD_ADDR	0x100000	/* default load address */
 
+/* Reserve 4 MB for malloc */
+#define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
+
 /******************************************************************************
  * (PRAM usage)
  * ... -------------------------------------------------------

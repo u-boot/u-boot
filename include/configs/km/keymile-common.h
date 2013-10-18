@@ -80,8 +80,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 
-#define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
-
 /* UBI Support for all Keymile boards */
 #define CONFIG_CMD_UBI
 #define CONFIG_RBTREE
