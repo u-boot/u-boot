@@ -759,8 +759,12 @@ static int fsl_elbc_chip_init(int devnum, u8 *addr)
 		nand->ecc.steps = 1;
 		nand->ecc.strength = 1;
 	} else {
-		/* otherwise fall back to default software ECC */
+		/* otherwise fall back to software ECC */
+#if defined(CONFIG_NAND_ECC_BCH)
+		nand->ecc.mode = NAND_ECC_SOFT_BCH;
+#else
 		nand->ecc.mode = NAND_ECC_SOFT;
+#endif
 	}
 
 	ret = nand_scan_ident(mtd, 1, NULL);
