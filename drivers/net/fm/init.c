@@ -145,6 +145,14 @@ void fm_disable_port(enum fm_port port)
 	fman_disable_port(port);
 }
 
+void fm_enable_port(enum fm_port port)
+{
+	int i = fm_port_to_index(port);
+
+	fm_info[i].enabled = 1;
+	fman_enable_port(port);
+}
+
 void fm_info_set_mdio(enum fm_port port, struct mii_dev *bus)
 {
 	int i = fm_port_to_index(port);

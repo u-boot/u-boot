@@ -99,6 +99,7 @@ int fm_init_common(int index, struct ccsr_fman *reg);
 int fm_eth_initialize(struct ccsr_fman *reg, struct fm_eth_info *info);
 phy_interface_t fman_port_enet_if(enum fm_port port);
 void fman_disable_port(enum fm_port port);
+void fman_enable_port(enum fm_port port);
 
 struct fsl_enet_mac {
 	void *base; /* MAC controller registers base address */
