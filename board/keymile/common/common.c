@@ -142,6 +142,7 @@ void i2c_init_board(void)
 }
 #endif
 
+#if defined(CONFIG_KM_COMMON_ETH_INIT)
 int board_eth_init(bd_t *bis)
 {
 	if (ethernet_present())
@@ -149,6 +150,7 @@ int board_eth_init(bd_t *bis)
 
 	return -1;
 }
+#endif
 
 /*
  * do_setboardid command

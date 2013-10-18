@@ -17,6 +17,9 @@
 #define CONFIG_CMD_DTT
 #define CONFIG_JFFS2_CMDLINE
 
+/* standard km ethernet_present for piggy */
+#define CONFIG_KM_COMMON_ETH_INIT
+
 /* EEprom support 24C08, 24C16, 24C64 */
 #define CONFIG_SYS_I2C_MULTI_EEPROMS
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_ENABLE
