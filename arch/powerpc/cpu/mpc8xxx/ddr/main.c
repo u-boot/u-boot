@@ -69,7 +69,11 @@ u8 spd_i2c_addr[CONFIG_NUM_DDR_CONTROLLERS][CONFIG_DIMM_SLOTS_PER_CTLR] = {
 
 static void __get_spd(generic_spd_eeprom_t *spd, u8 i2c_address)
 {
-	int ret = i2c_read(i2c_address, 0, 1, (uchar *)spd,
+	int ret;
+
+	i2c_set_bus_num(CONFIG_SYS_SPD_BUS_NUM);
+
+	ret = i2c_read(i2c_address, 0, 1, (uchar *)spd,
 				sizeof(generic_spd_eeprom_t));
 
 	if (ret) {
