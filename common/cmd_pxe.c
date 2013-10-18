@@ -25,6 +25,8 @@ const char *pxe_default_paths[] = {
 	NULL
 };
 
+static bool is_pxe;
+
 /*
  * Like getenv, but prints an error if envvar isn't defined in the
  * environment.  It always returns what getenv does, so it can be used in
@@ -84,7 +86,8 @@ static int get_bootfile_path(const char *file_path, char *bootfile_path,
 	char *bootfile, *last_slash;
 	size_t path_len = 0;
 
-	if (file_path[0] == '/')
+	/* Only syslinux allows absolute paths */
+	if (file_path[0] == '/' && !is_pxe)
 		goto ret;
 
 	bootfile = from_env("bootfile");
@@ -1472,6 +1475,8 @@ int do_pxe(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (argc < 2)
 		return CMD_RET_USAGE;
 
+	is_pxe = true;
+
 	/* drop initial "pxe" arg */
 	argc--;
 	argv++;
@@ -1503,6 +1508,8 @@ int do_sysboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char *pxefile_addr_str;
 	char *filename;
 	int prompt = 0;
+
+	is_pxe = false;
 
 	if (strstr(argv[1], "-p")) {
 		prompt = 1;
