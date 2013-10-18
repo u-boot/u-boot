@@ -412,7 +412,7 @@ static int pmecc_err_location(struct mtd_info *mtd)
 	}
 
 	if (!timeout) {
-		printk(KERN_ERR "atmel_nand : Timeout to calculate PMECC error location\n");
+		dev_err(host->dev, "atmel_nand : Timeout to calculate PMECC error location\n");
 		return -1;
 	}
 
@@ -500,7 +500,7 @@ normal_check:
 
 			err_nbr = pmecc_err_location(mtd);
 			if (err_nbr == -1) {
-				printk(KERN_ERR "PMECC: Too many errors\n");
+				dev_err(host->dev, "PMECC: Too many errors\n");
 				mtd->ecc_stats.failed++;
 				return -EIO;
 			} else {
@@ -544,7 +544,7 @@ static int atmel_nand_pmecc_read_page(struct mtd_info *mtd,
 	}
 
 	if (!timeout) {
-		printk(KERN_ERR "atmel_nand : Timeout to read PMECC page\n");
+		dev_err(host->dev, "atmel_nand : Timeout to read PMECC page\n");
 		return -1;
 	}
 
@@ -584,7 +584,7 @@ static int atmel_nand_pmecc_write_page(struct mtd_info *mtd,
 	}
 
 	if (!timeout) {
-		printk(KERN_ERR "atmel_nand : Timeout to read PMECC status, fail to write PMECC in oob\n");
+		dev_err(host->dev, "atmel_nand : Timeout to read PMECC status, fail to write PMECC in oob\n");
 		goto out;
 	}
 
@@ -849,7 +849,7 @@ static int atmel_pmecc_nand_init_params(struct nand_chip *nand,
 		}
 
 		if (nand->ecc.bytes > mtd->oobsize - 2) {
-			printk(KERN_ERR "No room for ECC bytes\n");
+			dev_err(host->dev, "No room for ECC bytes\n");
 			return -EINVAL;
 		}
 		pmecc_config_ecc_layout(&atmel_pmecc_oobinfo,
@@ -860,7 +860,7 @@ static int atmel_pmecc_nand_init_params(struct nand_chip *nand,
 	case 512:
 	case 1024:
 		/* TODO */
-		printk(KERN_ERR "Unsupported page size for PMECC, use Software ECC\n");
+		dev_err(host->dev, "Unsupported page size for PMECC, use Software ECC\n");
 	default:
 		/* page size not handled by HW ECC */
 		/* switching back to soft ECC */
@@ -1043,7 +1043,7 @@ static int atmel_nand_correct(struct mtd_info *mtd, u_char *dat,
 		/* it doesn't seems to be a freshly
 		 * erased block.
 		 * We can't correct so many errors */
-		printk(KERN_WARNING "atmel_nand : multiple errors detected."
+		dev_warn(host->dev, "atmel_nand : multiple errors detected."
 				" Unable to correct.\n");
 		return -EIO;
 	}
@@ -1053,12 +1053,12 @@ static int atmel_nand_correct(struct mtd_info *mtd, u_char *dat,
 		/* there's nothing much to do here.
 		 * the bit error is on the ECC itself.
 		 */
-		printk(KERN_WARNING "atmel_nand : one bit error on ECC code."
+		dev_warn(host->dev, "atmel_nand : one bit error on ECC code."
 				" Nothing to correct\n");
 		return 0;
 	}
 
-	printk(KERN_WARNING "atmel_nand : one bit error on data."
+	dev_warn(host->dev, "atmel_nand : one bit error on data."
 			" (word offset in the page :"
 			" 0x%x bit offset : 0x%x)\n",
 			ecc_word, ecc_bit);
@@ -1070,7 +1070,7 @@ static int atmel_nand_correct(struct mtd_info *mtd, u_char *dat,
 		/* 8 bits words */
 		dat[ecc_word] ^= (1 << ecc_bit);
 	}
-	printk(KERN_WARNING "atmel_nand : error corrected\n");
+	dev_warn(host->dev, "atmel_nand : error corrected\n");
 	return 1;
 }
 
@@ -1226,6 +1226,6 @@ void board_nand_init(void)
 	int i;
 	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
 		if (atmel_nand_chip_init(i, base_addr[i]))
-			printk(KERN_ERR "atmel_nand: Fail to initialize #%d chip",
+			dev_err(host->dev, "atmel_nand: Fail to initialize #%d chip",
 				i);
 }
