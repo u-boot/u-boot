@@ -165,7 +165,7 @@
 	"add_default="							\
 		"setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
-		":${hostname}:${netdev}:off3"				\
+		":${hostname}:${netdev}:off:"				\
 		" console=" CONFIG_KM_CONSOLE_TTY ",${baudrate}"	\
 		" mem=${kernelmem} init=${init}"			\
 		CONFIG_KM_ECC_MODE					\
