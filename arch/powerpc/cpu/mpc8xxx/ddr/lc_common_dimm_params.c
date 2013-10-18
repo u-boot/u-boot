@@ -92,6 +92,7 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	unsigned int trrd_ps = 0;
 	unsigned int trc_ps = 0;
 	unsigned int refresh_rate_ps = 0;
+	unsigned int extended_op_srt = 1;
 	unsigned int tis_ps = 0;
 	unsigned int tih_ps = 0;
 	unsigned int tds_ps = 0;
@@ -166,6 +167,9 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 		tqhs_ps = max(tqhs_ps, dimm_params[i].tqhs_ps);
 		refresh_rate_ps = max(refresh_rate_ps,
 				      dimm_params[i].refresh_rate_ps);
+		/* extended_op_srt is either 0 or 1, 0 having priority */
+		extended_op_srt = min(extended_op_srt,
+				      dimm_params[i].extended_op_srt);
 
 		/*
 		 * Find maximum tdqsq_max_ps to find slowest.
@@ -195,6 +199,7 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	outpdimm->trrd_ps = trrd_ps;
 	outpdimm->trc_ps = trc_ps;
 	outpdimm->refresh_rate_ps = refresh_rate_ps;
+	outpdimm->extended_op_srt = extended_op_srt;
 	outpdimm->tis_ps = tis_ps;
 	outpdimm->tih_ps = tih_ps;
 	outpdimm->tds_ps = tds_ps;

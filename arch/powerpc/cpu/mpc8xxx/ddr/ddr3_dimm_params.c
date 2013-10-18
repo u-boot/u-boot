@@ -321,6 +321,10 @@ ddr_compute_dimm_parameters(const ddr3_spd_eeprom_t *spd,
 	 *       = 3.9 us at ext temperature range
 	 */
 	pdimm->refresh_rate_ps = 7800000;
+	if ((spd->therm_ref_opt & 0x1) && !(spd->therm_ref_opt & 0x2)) {
+		pdimm->refresh_rate_ps = 3900000;
+		pdimm->extended_op_srt = 1;
+	}
 
 	/*
 	 * min four active window delay time

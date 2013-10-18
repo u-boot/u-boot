@@ -28,6 +28,7 @@ typedef struct {
 	unsigned int trc_ps;	/* maximum = 254 ns + .75 ns = 254750 ps */
 
 	unsigned int refresh_rate_ps;
+	unsigned int extended_op_srt;
 
 	unsigned int tis_ps;	/* byte 32, spd->ca_setup */
 	unsigned int tih_ps;	/* byte 33, spd->ca_hold */

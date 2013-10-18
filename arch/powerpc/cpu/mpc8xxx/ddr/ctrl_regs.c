@@ -765,6 +765,7 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 /* DDR SDRAM Mode configuration 2 (DDR_SDRAM_MODE_2) */
 static void set_ddr_sdram_mode_2(fsl_ddr_cfg_regs_t *ddr,
 				const memctl_options_t *popts,
+				const common_timing_params_t *common_dimm,
 				const unsigned int unq_mrs_en)
 {
 	unsigned short esdmode2 = 0;	/* Extended SDRAM mode 2 */
@@ -782,6 +783,10 @@ static void set_ddr_sdram_mode_2(fsl_ddr_cfg_regs_t *ddr,
 		rtt_wr = popts->rtt_wr_override_value;
 	else
 		rtt_wr = popts->cs_local_opts[0].odt_rtt_wr;
+
+	if (common_dimm->extended_op_srt)
+		srt = common_dimm->extended_op_srt;
+
 	esdmode2 = (0
 		| ((rtt_wr & 0x3) << 9)
 		| ((srt & 0x1) << 7)
@@ -1626,7 +1631,7 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 	set_ddr_sdram_cfg_2(ddr, popts, unq_mrs_en);
 	set_ddr_sdram_mode(ddr, popts, common_dimm,
 				cas_latency, additive_latency, unq_mrs_en);
-	set_ddr_sdram_mode_2(ddr, popts, unq_mrs_en);
+	set_ddr_sdram_mode_2(ddr, popts, common_dimm, unq_mrs_en);
 	set_ddr_sdram_interval(ddr, popts, common_dimm);
 	set_ddr_data_init(ddr);
 	set_ddr_sdram_clk_cntl(ddr, popts);
