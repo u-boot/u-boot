@@ -763,12 +763,17 @@ typedef struct immap {
 	u8			res7[0xC0000];
 } immap_t;
 
+#ifndef	CONFIG_MPC834x
 #ifdef CONFIG_HAS_FSL_MPH_USB
 #define CONFIG_SYS_MPC83xx_USB1_OFFSET  0x22000	/* use the MPH controller */
 #define CONFIG_SYS_MPC83xx_USB2_OFFSET	0
 #else
 #define CONFIG_SYS_MPC83xx_USB1_OFFSET	0
 #define CONFIG_SYS_MPC83xx_USB2_OFFSET  0x23000	/* use the DR controller */
+#endif
+#else
+#define CONFIG_SYS_MPC83xx_USB1_OFFSET	0x22000
+#define CONFIG_SYS_MPC83xx_USB2_OFFSET  0x23000
 #endif
 
 #elif defined(CONFIG_MPC8313)
