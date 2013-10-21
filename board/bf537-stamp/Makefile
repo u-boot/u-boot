@@ -9,26 +9,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-include $(TOPDIR)/config.mk
-
-LIB	= $(obj)lib$(BOARD).o
-
-COBJS-y	:= $(BOARD).o
-COBJS-$(CONFIG_BFIN_IDE)   += ide-cf.o
-COBJS-$(CONFIG_HAS_POST)   += post-memory.o
-
-SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS-y))
-SOBJS	:= $(addprefix $(obj),$(SOBJS-y))
-
-$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
-	$(call cmd_link_o_target, $(OBJS) $(SOBJS))
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+obj-y	:= bf537-stamp.o
+obj-$(CONFIG_BFIN_IDE)   += ide-cf.o
+obj-$(CONFIG_HAS_POST)   += post-memory.o
