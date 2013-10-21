@@ -383,7 +383,7 @@ build := -f $(TOPDIR)/scripts/Makefile.build -C
 all:		$(ALL-y) $(SUBDIR_EXAMPLES)
 
 $(obj)u-boot.dtb:	checkdtc $(obj)u-boot
-		$(MAKE) -C dts binary
+		$(MAKE) $(build) dts binary
 		mv $(obj)dts/dt.dtb $@
 
 $(obj)u-boot-dtb.bin:	$(obj)u-boot.bin $(obj)u-boot.dtb
