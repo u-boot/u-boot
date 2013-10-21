@@ -226,17 +226,15 @@ RC=0
 # Helper funcs for parsing boards.cfg
 boards_by_field()
 {
-	FS="[ \t]+"
-	[ -n "$3" ] && FS="$3"
-	awk \
-		-v field="$1" \
-		-v select="$2" \
-		-F "$FS" \
-		'($1 !~ /^#/ && $field == select) { print $7 }' \
-		boards.cfg
+	field=$1
+	regexp=$2
+
+	awk '($1 !~ /^#/ && $'"$field"' ~ /^'"$regexp"'$/) { print $7 }' \
+								boards.cfg
 }
+
 boards_by_arch() { boards_by_field 2 "$@" ; }
-boards_by_cpu()  { boards_by_field 3 "$@" "[: \t]+" ; }
+boards_by_cpu()  { boards_by_field 3 "$@" ; boards_by_field 3 "$@:.*" ; }
 boards_by_soc()  { boards_by_field 4 "$@" ; }
 
 #########################################################################
