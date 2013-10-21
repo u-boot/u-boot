@@ -14,6 +14,8 @@ SOBJS	=
 COBJS	= board.o cache.o interrupts.o time.o
 COBJS-$(CONFIG_CMD_BOOTM) += bootm.o
 
+COBJS := $(COBJS) $(COBJS-y)
+
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 
