@@ -109,6 +109,14 @@
 		status = "disabled";
 	};
 
+	ehci@12110000 {
+		samsung,vbus-gpio = <&gpio 0xb1 0>; /* X11 */
+	};
+
+	xhci@12000000 {
+		samsung,vbus-gpio = <&gpio 0xbf 0>; /* X27 */
+	};
+
 	tmu@10060000 {
 		samsung,min-temp	= <25>;
 		samsung,max-temp	= <125>;

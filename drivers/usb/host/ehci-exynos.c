@@ -16,6 +16,7 @@
 #include <asm/arch/ehci.h>
 #include <asm/arch/system.h>
 #include <asm/arch/power.h>
+#include <asm/gpio.h>
 #include <asm-generic/errno.h>
 #include <linux/compat.h>
 #include "ehci.h"
@@ -30,6 +31,7 @@ DECLARE_GLOBAL_DATA_PTR;
 struct exynos_ehci {
 	struct exynos_usb_phy *usb;
 	struct ehci_hccr *hcd;
+	struct fdt_gpio_state vbus_gpio;
 };
 
 static struct exynos_ehci exynos;
@@ -57,6 +59,9 @@ static int exynos_usb_parse_dt(const void *blob, struct exynos_ehci *exynos)
 	}
 
 	exynos->hcd = (struct ehci_hccr *)addr;
+
+	/* Vbus gpio */
+	fdtdec_decode_gpio(blob, node, "samsung,vbus-gpio", &exynos->vbus_gpio);
 
 	depth = 0;
 	node = fdtdec_next_compatible_subnode(blob, node,
@@ -136,7 +141,8 @@ static void reset_usb_phy(struct exynos_usb_phy *usb)
  * Create the appropriate control structures to manage
  * a new EHCI host controller.
  */
-int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+int ehci_hcd_init(int index, enum usb_init_type init,
+		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	struct exynos_ehci *ctx = &exynos;
 
@@ -148,6 +154,12 @@ int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 #else
 	ctx->usb = (struct exynos_usb_phy *)samsung_get_base_usb_phy();
 	ctx->hcd = (struct ehci_hccr *)samsung_get_base_usb_ehci();
+#endif
+
+#ifdef CONFIG_OF_CONTROL
+	/* setup the Vbus gpio here */
+	if (!fdtdec_setup_gpio(&ctx->vbus_gpio))
+		gpio_direction_output(ctx->vbus_gpio.gpio, 1);
 #endif
 
 	setup_usb_phy(ctx->usb);

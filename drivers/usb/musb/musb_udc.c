@@ -39,7 +39,8 @@
  */
 
 #include <common.h>
-#include <usb/musb_udc.h>
+#include <usbdevice.h>
+#include <usb/udc.h>
 #include "../gadget/ep0.h"
 #include "musb_core.h"
 #if defined(CONFIG_USB_OMAP3)

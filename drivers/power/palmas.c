@@ -127,6 +127,21 @@ int twl603x_audio_power(u8 on)
 }
 #endif
 
+#ifdef CONFIG_PALMAS_USB_SS_PWR
+/**
+ * @brief palmas_enable_ss_ldo - Configure EVM board specific configurations
+ * for the USB Super speed SMPS10 regulator.
+ *
+ * @return 0
+ */
+int palmas_enable_ss_ldo(void)
+{
+	/* Enable smps10 regulator  */
+	return palmas_i2c_write_u8(TWL603X_CHIP_P1, SMPS10_CTRL,
+				SMPS10_MODE_ACTIVE_D);
+}
+#endif
+
 /*
  * Enable/disable back-up battery (or super cap) charging on TWL6035/37.
  * Please use defined BB_xxx values.

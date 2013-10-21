@@ -16,6 +16,7 @@
 #include <g_dnl.h>
 #include <usb_mass_storage.h>
 #include <dfu.h>
+#include <thor.h>
 
 #include "gadget_chips.h"
 #include "composite.c"
@@ -79,6 +80,8 @@ static int g_dnl_unbind(struct usb_composite_dev *cdev)
 {
 	struct usb_gadget *gadget = cdev->gadget;
 
+	free(cdev->config);
+	cdev->config = NULL;
 	debug("%s: calling usb_gadget_disconnect for "
 			"controller '%s'\n", shortname, gadget->name);
 	usb_gadget_disconnect(gadget);
@@ -99,26 +102,34 @@ static int g_dnl_do_config(struct usb_configuration *c)
 		ret = dfu_add(c);
 	else if (!strcmp(s, "usb_dnl_ums"))
 		ret = fsg_add(c);
+	else if (!strcmp(s, "usb_dnl_thor"))
+		ret = thor_add(c);
 
 	return ret;
 }
 
 static int g_dnl_config_register(struct usb_composite_dev *cdev)
 {
-	static struct usb_configuration config = {
-		.label = "usb_dnload",
-		.bmAttributes =	USB_CONFIG_ATT_ONE | USB_CONFIG_ATT_SELFPOWER,
-		.bConfigurationValue =	CONFIGURATION_NUMBER,
-		.iConfiguration =	STRING_USBDOWN,
+	struct usb_configuration *config;
+	const char *name = "usb_dnload";
 
-		.bind = g_dnl_do_config,
-	};
+	config = memalign(CONFIG_SYS_CACHELINE_SIZE, sizeof(*config));
+	if (!config)
+		return -ENOMEM;
 
-	return usb_add_config(cdev, &config);
+	memset(config, 0, sizeof(*config));
+
+	config->label = name;
+	config->bmAttributes = USB_CONFIG_ATT_ONE | USB_CONFIG_ATT_SELFPOWER;
+	config->bConfigurationValue = CONFIGURATION_NUMBER;
+	config->iConfiguration = STRING_USBDOWN;
+	config->bind = g_dnl_do_config;
+
+	return usb_add_config(cdev, config);
 }
 
 __weak
-int g_dnl_bind_fixup(struct usb_device_descriptor *dev)
+int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
 {
 	return 0;
 }
@@ -145,7 +156,7 @@ static int g_dnl_bind(struct usb_composite_dev *cdev)
 	g_dnl_string_defs[1].id = id;
 	device_desc.iProduct = id;
 
-	g_dnl_bind_fixup(&device_desc);
+	g_dnl_bind_fixup(&device_desc, cdev->driver->name);
 	ret = g_dnl_config_register(cdev);
 	if (ret)
 		goto error;
@@ -183,14 +194,17 @@ static struct usb_composite_driver g_dnl_driver = {
 
 int g_dnl_register(const char *type)
 {
-	/* We only allow "dfu" atm, so 3 should be enough */
-	static char name[sizeof(shortname) + 3];
+	/* The largest function name is 4 */
+	static char name[sizeof(shortname) + 4];
 	int ret;
 
 	if (!strcmp(type, "dfu")) {
 		strcpy(name, shortname);
 		strcat(name, type);
 	} else if (!strcmp(type, "ums")) {
+		strcpy(name, shortname);
+		strcat(name, type);
+	} else if (!strcmp(type, "thor")) {
 		strcpy(name, shortname);
 		strcat(name, type);
 	} else {

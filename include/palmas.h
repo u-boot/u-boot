@@ -31,6 +31,7 @@
 /* LDOUSB control/voltage */
 #define LDOUSB_CTRL		0x64
 #define LDOUSB_VOLTAGE		0x65
+#define LDO_CTRL		0x6a
 
 /* Control of 32 kHz audio clock */
 #define CLK32KGAUDIO_CTRL	0xd5
@@ -61,6 +62,10 @@
 /* SMPS9_CTRL */
 #define SMPS9_CTRL		0x38
 #define SMPS9_VOLTAGE		0x3b
+
+/* SMPS10_CTRL */
+#define SMPS10_CTRL		0x3c
+#define SMPS10_MODE_ACTIVE_D	0x0d
 
 /* Bit field definitions for SMPSx_CTRL */
 #define SMPS_MODE_ACT_AUTO	1
@@ -114,5 +119,6 @@ int palmas_mmc1_poweron_ldo(void);
 int twl603x_mmc1_set_ldo9(u8 vsel);
 int twl603x_audio_power(u8 on);
 int twl603x_enable_bb_charge(u8 bb_fields);
+int palmas_enable_ss_ldo(void);
 
 #endif /* PALMAS_H */

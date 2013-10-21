@@ -117,7 +117,8 @@ static int setdma_rx(struct s3c_ep *ep, struct s3c_request *req)
 
 	invalidate_dcache_range((unsigned long) ep->dev->dma_buf[ep_num],
 				(unsigned long) ep->dev->dma_buf[ep_num]
-				+ DMA_BUFFER_SIZE);
+				+ ROUND(ep->ep.maxpacket,
+					CONFIG_SYS_CACHELINE_SIZE));
 
 	if (length == 0)
 		pktcnt = 1;

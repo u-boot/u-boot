@@ -69,8 +69,8 @@ static pci_dev_t ehci_find_class(int index)
  * Create the appropriate control structures to manage
  * a new EHCI host controller.
  */
-int ehci_hcd_init(int index, struct ehci_hccr **ret_hccr,
-		struct ehci_hcor **ret_hcor)
+int ehci_hcd_init(int index, enum usb_init_type init,
+		struct ehci_hccr **ret_hccr, struct ehci_hcor **ret_hcor)
 {
 	pci_dev_t pdev;
 	uint32_t cmd;

@@ -14,6 +14,12 @@
 
 /* SMSC LAN95xx based USB 2.0 Ethernet Devices */
 
+/* LED defines */
+#define LED_GPIO_CFG			(0x24)
+#define LED_GPIO_CFG_SPD_LED		(0x01000000)
+#define LED_GPIO_CFG_LNK_LED		(0x00100000)
+#define LED_GPIO_CFG_FDX_LED		(0x00010000)
+
 /* Tx command words */
 #define TX_CMD_A_FIRST_SEG_		0x00002000
 #define TX_CMD_A_LAST_SEG_		0x00001000
@@ -590,6 +596,14 @@ static int smsc95xx_init(struct eth_device *eth, bd_t *bd)
 	if (ret < 0)
 		return ret;
 	debug("ID_REV = 0x%08x\n", read_buf);
+
+	/* Configure GPIO pins as LED outputs */
+	write_buf = LED_GPIO_CFG_SPD_LED | LED_GPIO_CFG_LNK_LED |
+		LED_GPIO_CFG_FDX_LED;
+	ret = smsc95xx_write_reg(dev, LED_GPIO_CFG, write_buf);
+	if (ret < 0)
+		return ret;
+	debug("LED_GPIO_CFG set\n");
 
 	/* Init Tx */
 	write_buf = 0;

@@ -144,4 +144,8 @@
 	mmc@12230000 {
 		status = "disabled";
 	};
+
+	ehci@12110000 {
+		samsung,vbus-gpio = <&gpio 0xbe 0>; /* X26 */
+	};
 };

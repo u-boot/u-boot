@@ -17,12 +17,6 @@
 
 #include "mux_data.h"
 
-#ifdef CONFIG_USB_EHCI
-#include <usb.h>
-#include <asm/arch/ehci.h>
-#include <asm/ehci-omap.h>
-#endif
-
 #ifdef CONFIG_DRIVER_TI_CPSW
 #include <cpsw.h>
 #endif

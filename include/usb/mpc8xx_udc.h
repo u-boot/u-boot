@@ -111,11 +111,9 @@
 
 /* UDC device defines */
 #define EP0_MAX_PACKET_SIZE	EP_MAX_PKT
-#define UDC_OUT_ENDPOINT	0x02
+
 #define UDC_OUT_PACKET_SIZE	EP_MIN_PACKET_SIZE
-#define UDC_IN_ENDPOINT		0x03
 #define UDC_IN_PACKET_SIZE	EP_MIN_PACKET_SIZE
-#define UDC_INT_ENDPOINT	0x01
 #define UDC_INT_PACKET_SIZE	UDC_IN_PACKET_SIZE
 #define UDC_BULK_PACKET_SIZE	EP_MIN_PACKET_SIZE
 
@@ -178,18 +176,3 @@ typedef enum mpc8xx_udc_state{
 	STATE_READY,
 }mpc8xx_udc_state_t;
 
-/* Declarations */
-int udc_init(void);
-void udc_irq(void);
-int udc_endpoint_write(struct usb_endpoint_instance *endpoint);
-void udc_setup_ep(struct usb_device_instance *device, unsigned int ep,
-		  struct usb_endpoint_instance *endpoint);
-void udc_connect(void);
-void udc_disconnect(void);
-void udc_enable(struct usb_device_instance *device);
-void udc_disable(void);
-void udc_startup_events(struct usb_device_instance *device);
-
-/* Flow control */
-void udc_set_nak(int epid);
-void udc_unset_nak (int epid);

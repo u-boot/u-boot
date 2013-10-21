@@ -31,14 +31,11 @@ struct ums_board_info {
 	struct ums_device ums_dev;
 };
 
-extern void board_usb_init(void);
-
-extern int fsg_init(struct ums_board_info *);
-extern void fsg_cleanup(void);
-extern struct ums_board_info *board_ums_init(unsigned int,
-					     unsigned int, unsigned int);
-extern int usb_gadget_handle_interrupts(void);
-extern int fsg_main_thread(void *);
+int fsg_init(struct ums_board_info *);
+void fsg_cleanup(void);
+struct ums_board_info *board_ums_init(unsigned int, unsigned int,
+				      unsigned int);
+int fsg_main_thread(void *);
 
 #ifdef CONFIG_USB_GADGET_MASS_STORAGE
 int fsg_add(struct usb_configuration *c);

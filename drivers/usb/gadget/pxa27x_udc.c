@@ -16,6 +16,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/io.h>
 #include <usb/pxa27x_udc.h>
+#include <usb/udc.h>
 
 #include "ep0.h"
 

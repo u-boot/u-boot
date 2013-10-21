@@ -295,6 +295,7 @@ struct prcm_regs const omap5_es1_prcm = {
 struct omap_sys_ctrl_regs const omap5_ctrl = {
 	.control_status				= 0x4A002134,
 	.control_std_fuse_opp_vdd_mpu_2		= 0x4A0021B4,
+	.control_phy_power_usb 			= 0x4A002370,
 	.control_padconf_core_base		= 0x4A002800,
 	.control_paconf_global			= 0x4A002DA0,
 	.control_paconf_mode			= 0x4A002DA4,
@@ -567,6 +568,7 @@ struct prcm_regs const omap5_es2_prcm = {
 	.cm_div_m2_dpll_unipro = 0x4a0081d0,
 	.cm_ssc_deltamstep_dpll_unipro = 0x4a0081e8,
 	.cm_ssc_modfreqdiv_dpll_unipro = 0x4a0081ec,
+	.cm_coreaon_usb_phy_core_clkctrl = 0x4A008640,
 	.cm_coreaon_bandgap_clkctrl = 0x4a008648,
 	.cm_coreaon_io_srcomp_clkctrl = 0x4a008650,
 
@@ -698,6 +700,8 @@ struct prcm_regs const omap5_es2_prcm = {
 	.cm_l3init_p1500_clkctrl = 0x4a009678,
 	.cm_l3init_fsusb_clkctrl = 0x4a0096d0,
 	.cm_l3init_ocp2scp1_clkctrl = 0x4a0096e0,
+	.cm_l3init_ocp2scp3_clkctrl = 0x4a0096e8,
+	.cm_l3init_usb_otg_ss_clkctrl = 0x4a0096f0,
 
 	/* prm irqstatus regs */
 	.prm_irqstatus_mpu_2 = 0x4ae06014,
@@ -789,6 +793,7 @@ struct prcm_regs const dra7xx_prcm = {
 	.cm_clkmode_dpll_dsp			= 0x4a005234,
 	.cm_shadow_freq_config1			= 0x4a005260,
 	.cm_clkmode_dpll_gmac			= 0x4a0052a8,
+	.cm_coreaon_usb_phy2_core_clkctrl = 0x4a008688,
 
 	/* cm1.mpu */
 	.cm_mpu_mpu_clkctrl			= 0x4a005320,

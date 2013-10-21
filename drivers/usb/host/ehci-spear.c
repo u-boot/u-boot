@@ -20,7 +20,8 @@
  * Create the appropriate control structures to manage
  * a new EHCI host controller.
  */
-int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+int ehci_hcd_init(int index, enum usb_init_type init,
+		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	*hccr = (struct ehci_hccr *)(CONFIG_SYS_UHC0_EHCI_BASE + 0x100);
 	*hcor = (struct ehci_hcor *)((uint32_t)*hccr

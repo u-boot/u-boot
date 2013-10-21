@@ -14,6 +14,7 @@
 #include <usbdevice.h>
 #include "ep0.h"
 #include <usb/designware_udc.h>
+#include <usb/udc.h>
 #include <asm/arch/hardware.h>
 
 #define UDC_INIT_MDELAY		80	/* Device settle delay */

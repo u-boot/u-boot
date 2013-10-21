@@ -131,8 +131,7 @@
 /* USB3_IF_USB_PHY_VBUS_SENSORS_0 */
 #define VBUS_VLD_STS			(1 << 26)
 
-
 /* Setup USB on the board */
-int board_usb_init(const void *blob);
+int usb_process_devicetree(const void *blob);
 
 #endif	/* _TEGRA_USB_H_ */

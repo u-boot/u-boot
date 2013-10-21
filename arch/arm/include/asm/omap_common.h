@@ -143,6 +143,8 @@ struct prcm_regs {
 	u32 cm_div_m2_dpll_unipro;
 	u32 cm_ssc_deltamstep_dpll_unipro;
 	u32 cm_ssc_modfreqdiv_dpll_unipro;
+	u32 cm_coreaon_usb_phy_core_clkctrl;
+	u32 cm_coreaon_usb_phy2_core_clkctrl;
 
 	/* cm2.core */
 	u32 cm_coreaon_bandgap_clkctrl;
@@ -226,6 +228,8 @@ struct prcm_regs {
 	u32 cm_l3init_p1500_clkctrl;
 	u32 cm_l3init_fsusb_clkctrl;
 	u32 cm_l3init_ocp2scp1_clkctrl;
+	u32 cm_l3init_ocp2scp3_clkctrl;
+	u32 cm_l3init_usb_otg_ss_clkctrl;
 
 	u32 prm_irqstatus_mpu_2;
 
@@ -348,6 +352,7 @@ struct omap_sys_ctrl_regs {
 	u32 control_core_mac_id_1_lo;
 	u32 control_core_mac_id_1_hi;
 	u32 control_std_fuse_opp_vdd_mpu_2;
+	u32 control_phy_power_usb;
 	u32 control_core_mmr_lock1;
 	u32 control_core_mmr_lock2;
 	u32 control_core_mmr_lock3;

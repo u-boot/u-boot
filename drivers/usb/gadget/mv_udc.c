@@ -13,13 +13,16 @@
 #include <config.h>
 #include <net.h>
 #include <malloc.h>
+#include <asm/byteorder.h>
+#include <asm/errno.h>
 #include <asm/io.h>
+#include <asm/unaligned.h>
 #include <linux/types.h>
+#include <linux/usb/ch9.h>
+#include <linux/usb/gadget.h>
 #include <usb/mv_udc.h>
-
-#if CONFIG_USB_MAX_CONTROLLER_COUNT > 1
-#error This driver only supports one single controller.
-#endif
+#include "../host/ehci.h"
+#include "mv_udc.h"
 
 /*
  * Check if the system has too long cachelines. If the cachelines are
@@ -107,6 +110,7 @@ static struct mv_drv controller = {
 	.gadget	= {
 		.name	= "mv_udc",
 		.ops	= &mv_udc_ops,
+		.is_dualspeed = 1,
 	},
 };
 
@@ -210,12 +214,10 @@ static void mv_ep_free_request(struct usb_ep *ep, struct usb_request *_req)
 	return;
 }
 
-static void ep_enable(int num, int in)
+static void ep_enable(int num, int in, int maxpacket)
 {
-	struct ept_queue_head *head;
 	struct mv_udc *udc = (struct mv_udc *)controller.ctrl->hcor;
 	unsigned n;
-	head = mv_get_qh(num, in);
 
 	n = readl(&udc->epctrl[num]);
 	if (in)
@@ -224,7 +226,9 @@ static void ep_enable(int num, int in)
 		n |= (CTRL_RXE | CTRL_RXR | CTRL_RXT_BULK);
 
 	if (num != 0) {
-		head->config = CONFIG_MAX_PKT(EP_MAX_PACKET_SIZE) | CONFIG_ZLT;
+		struct ept_queue_head *head = mv_get_qh(num, in);
+
+		head->config = CONFIG_MAX_PKT(maxpacket) | CONFIG_ZLT;
 		mv_flush_qh(num);
 	}
 	writel(n, &udc->epctrl[num]);
@@ -237,17 +241,33 @@ static int mv_ep_enable(struct usb_ep *ep,
 	int num, in;
 	num = desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
 	in = (desc->bEndpointAddress & USB_DIR_IN) != 0;
-	ep_enable(num, in);
 	mv_ep->desc = desc;
+
+	if (num) {
+		int max = get_unaligned_le16(&desc->wMaxPacketSize);
+
+		if ((max > 64) && (controller.gadget.speed == USB_SPEED_FULL))
+			max = 64;
+		if (ep->maxpacket != max) {
+			DBG("%s: from %d to %d\n", __func__,
+			    ep->maxpacket, max);
+			ep->maxpacket = max;
+		}
+	}
+	ep_enable(num, in, ep->maxpacket);
+	DBG("%s: num=%d maxpacket=%d\n", __func__, num, ep->maxpacket);
 	return 0;
 }
 
 static int mv_ep_disable(struct usb_ep *ep)
 {
+	struct mv_ep *mv_ep = container_of(ep, struct mv_ep, ep);
+
+	mv_ep->desc = NULL;
 	return 0;
 }
 
-static int mv_bounce(struct mv_ep *ep)
+static int mv_bounce(struct mv_ep *ep, int in)
 {
 	uint32_t addr = (uint32_t)ep->req.buf;
 	uint32_t ba;
@@ -276,8 +296,8 @@ align:
 		if (!ep->b_buf)
 			return -ENOMEM;
 	}
-
-	memcpy(ep->b_buf, ep->req.buf, ep->req.length);
+	if (in)
+		memcpy(ep->b_buf, ep->req.buf, ep->req.length);
 
 flush:
 	ba = (uint32_t)ep->b_buf;
@@ -286,29 +306,25 @@ flush:
 	return 0;
 }
 
-static void mv_debounce(struct mv_ep *ep)
+static void mv_debounce(struct mv_ep *ep, int in)
 {
 	uint32_t addr = (uint32_t)ep->req.buf;
 	uint32_t ba = (uint32_t)ep->b_buf;
 
+	if (in) {
+		if (addr == ba)
+			return;		/* not a bounce */
+		goto free;
+	}
 	invalidate_dcache_range(ba, ba + ep->b_len);
 
-	/* Input buffer address is not aligned. */
-	if (addr & (ARCH_DMA_MINALIGN - 1))
-		goto copy;
+	if (addr == ba)
+		return;		/* not a bounce */
 
-	/* Input buffer length is not aligned. */
-	if (ep->req.length & (ARCH_DMA_MINALIGN - 1))
-		goto copy;
-
-	/* The buffer is well aligned, only invalidate cache. */
-	return;
-
-copy:
 	memcpy(ep->req.buf, ep->b_buf, ep->req.length);
-
+free:
 	/* Large payloads use allocated buffer, free it. */
-	if (ep->req.length > 64)
+	if (ep->b_buf != ep->b_fast)
 		free(ep->b_buf);
 }
 
@@ -326,7 +342,7 @@ static int mv_ep_queue(struct usb_ep *ep,
 	head = mv_get_qh(num, in);
 	len = req->length;
 
-	ret = mv_bounce(mv_ep);
+	ret = mv_bounce(mv_ep, in);
 	if (ret)
 		return ret;
 
@@ -334,20 +350,19 @@ static int mv_ep_queue(struct usb_ep *ep,
 	item->info = INFO_BYTES(len) | INFO_IOC | INFO_ACTIVE;
 	item->page0 = (uint32_t)mv_ep->b_buf;
 	item->page1 = ((uint32_t)mv_ep->b_buf & 0xfffff000) + 0x1000;
+	mv_flush_qtd(num);
 
 	head->next = (unsigned) item;
 	head->info = 0;
 
 	DBG("ept%d %s queue len %x, buffer %p\n",
 	    num, in ? "in" : "out", len, mv_ep->b_buf);
+	mv_flush_qh(num);
 
 	if (in)
 		bit = EPT_TX(num);
 	else
 		bit = EPT_RX(num);
-
-	mv_flush_qh(num);
-	mv_flush_qtd(num);
 
 	writel(bit, &udc->epprime);
 
@@ -366,14 +381,13 @@ static void handle_ep_complete(struct mv_ep *ep)
 	mv_invalidate_qtd(num);
 
 	if (item->info & 0xff)
-		printf("EP%d/%s FAIL nfo=%x pg0=%x\n",
-			num, in ? "in" : "out", item->info, item->page0);
+		printf("EP%d/%s FAIL info=%x pg0=%x\n",
+		       num, in ? "in" : "out", item->info, item->page0);
 
 	len = (item->info >> 16) & 0x7fff;
-
-	mv_debounce(ep);
-
 	ep->req.length -= len;
+	mv_debounce(ep, in);
+
 	DBG("ept%d %s complete %x\n",
 			num, in ? "in" : "out", len);
 	ep->req.complete(&ep->ep, &ep->req);
@@ -411,14 +425,16 @@ static void handle_setup(void)
 		if ((r.wValue == 0) && (r.wLength == 0)) {
 			req->length = 0;
 			for (i = 0; i < NUM_ENDPOINTS; i++) {
-				if (!controller.ep[i].desc)
+				struct mv_ep *ep = &controller.ep[i];
+
+				if (!ep->desc)
 					continue;
-				num = controller.ep[i].desc->bEndpointAddress
+				num = ep->desc->bEndpointAddress
 						& USB_ENDPOINT_NUMBER_MASK;
-				in = (controller.ep[i].desc->bEndpointAddress
+				in = (ep->desc->bEndpointAddress
 						& USB_DIR_IN) != 0;
 				if ((num == _num) && (in == _in)) {
-					ep_enable(num, in);
+					ep_enable(num, in, ep->ep.maxpacket);
 					usb_ep_queue(controller.gadget.ep0,
 							req, 0);
 					break;
@@ -502,15 +518,19 @@ void udc_irq(void)
 		DBG("-- suspend --\n");
 
 	if (n & STS_PCI) {
-		DBG("-- portchange --\n");
+		int max = 64;
+		int speed = USB_SPEED_FULL;
+
 		bit = (readl(&udc->portsc) >> 26) & 3;
+		DBG("-- portchange %x %s\n", bit, (bit == 2) ? "High" : "Full");
 		if (bit == 2) {
-			controller.gadget.speed = USB_SPEED_HIGH;
-			for (i = 1; i < NUM_ENDPOINTS && n; i++)
-				if (controller.ep[i].desc)
-					controller.ep[i].ep.maxpacket = 512;
-		} else {
-			controller.gadget.speed = USB_SPEED_FULL;
+			speed = USB_SPEED_HIGH;
+			max = 512;
+		}
+		controller.gadget.speed = speed;
+		for (i = 1; i < NUM_ENDPOINTS; i++) {
+			if (controller.ep[i].ep.maxpacket > max)
+				controller.ep[i].ep.maxpacket = max;
 		}
 	}
 
@@ -626,6 +646,7 @@ static int mvudc_probe(void)
 		free(controller.epts);
 		return -ENOMEM;
 	}
+	memset(controller.items_mem, 0, ilist_sz);
 
 	for (i = 0; i < 2 * NUM_ENDPOINTS; i++) {
 		/*
@@ -688,7 +709,7 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 	if (driver->speed != USB_SPEED_FULL && driver->speed != USB_SPEED_HIGH)
 		return -EINVAL;
 
-	ret = usb_lowlevel_init(0, (void **)&controller.ctrl);
+	ret = usb_lowlevel_init(0, USB_INIT_DEVICE, (void **)&controller.ctrl);
 	if (ret)
 		return ret;
 

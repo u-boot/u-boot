@@ -145,8 +145,8 @@ struct omap_ehci {
 struct ehci_hccr;
 struct ehci_hcor;
 
-int omap_ehci_hcd_init(struct omap_usbhs_board_data *usbhs_pdata,
-		struct ehci_hccr **hccr, struct ehci_hcor **hcor);
+int omap_ehci_hcd_init(int index, struct omap_usbhs_board_data *usbhs_pdata,
+		       struct ehci_hccr **hccr, struct ehci_hcor **hcor);
 int omap_ehci_hcd_stop(void);
 
 #endif /* _OMAP_COMMON_EHCI_H_ */

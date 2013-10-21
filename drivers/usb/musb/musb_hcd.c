@@ -1089,7 +1089,7 @@ int submit_bulk_msg(struct usb_device *dev, unsigned long pipe,
 /*
  * This function initializes the usb controller module.
  */
-int usb_lowlevel_init(int index, void **controller)
+int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 {
 	u8  power;
 	u32 timeout;

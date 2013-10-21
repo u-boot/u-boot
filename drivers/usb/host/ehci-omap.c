@@ -96,12 +96,6 @@ static void omap_ehci_soft_phy_reset(int port)
 }
 #endif
 
-inline int __board_usb_init(void)
-{
-	return 0;
-}
-int board_usb_init(void) __attribute__((weak, alias("__board_usb_init")));
-
 #if defined(CONFIG_OMAP_EHCI_PHY1_RESET_GPIO) || \
 	defined(CONFIG_OMAP_EHCI_PHY2_RESET_GPIO) || \
 	defined(CONFIG_OMAP_EHCI_PHY3_RESET_GPIO)
@@ -157,15 +151,15 @@ int omap_ehci_hcd_stop(void)
  * Based on "drivers/usb/host/ehci-omap.c" from Linux 3.1
  * See there for additional Copyrights.
  */
-int omap_ehci_hcd_init(struct omap_usbhs_board_data *usbhs_pdata,
-		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+int omap_ehci_hcd_init(int index, struct omap_usbhs_board_data *usbhs_pdata,
+		       struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	int ret;
 	unsigned int i, reg = 0, rev = 0;
 
 	debug("Initializing OMAP EHCI\n");
 
-	ret = board_usb_init();
+	ret = board_usb_init(index, USB_INIT_HOST);
 	if (ret < 0)
 		return ret;
 

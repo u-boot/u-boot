@@ -275,7 +275,7 @@ int factoryset_setenv(void)
 	return ret;
 }
 
-int g_dnl_bind_fixup(struct usb_device_descriptor *dev)
+int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
 {
 	put_unaligned(factory_dat.usb_vendor_id, &dev->idVendor);
 	put_unaligned(factory_dat.usb_product_id, &dev->idProduct);

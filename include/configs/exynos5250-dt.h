@@ -37,6 +37,8 @@
 /* Keep L2 Cache Disabled */
 #define CONFIG_SYS_DCACHE_OFF
 
+#define CONFIG_SYS_CACHELINE_SIZE	64
+
 /* Enable ACE acceleration for SHA1 and SHA256 */
 #define CONFIG_EXYNOS_ACE_SHA
 #define CONFIG_SHA_HW_ACCEL
@@ -132,8 +134,9 @@
 
 /* USB */
 #define CONFIG_CMD_USB
-#define CONFIG_USB_EHCI
-#define CONFIG_USB_EHCI_EXYNOS
+#define CONFIG_USB_XHCI
+#define CONFIG_USB_XHCI_EXYNOS
+#define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	2
 #define CONFIG_USB_STORAGE
 
 /* USB boot mode */

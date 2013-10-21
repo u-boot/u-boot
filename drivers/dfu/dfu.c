@@ -67,14 +67,14 @@ int dfu_init_env_entities(char *interface, int dev)
 static unsigned char *dfu_buf;
 static unsigned long dfu_buf_size = CONFIG_SYS_DFU_DATA_BUF_SIZE;
 
-static unsigned char *dfu_free_buf(void)
+unsigned char *dfu_free_buf(void)
 {
 	free(dfu_buf);
 	dfu_buf = NULL;
 	return dfu_buf;
 }
 
-static unsigned char *dfu_get_buf(void)
+unsigned char *dfu_get_buf(void)
 {
 	char *s;
 
@@ -330,7 +330,7 @@ int dfu_read(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 }
 
 static int dfu_fill_entity(struct dfu_entity *dfu, char *s, int alt,
-			    char *interface, int num)
+			   char *interface, int num)
 {
 	char *st;
 
@@ -439,4 +439,16 @@ struct dfu_entity *dfu_get_entity(int alt)
 	}
 
 	return NULL;
+}
+
+int dfu_get_alt(char *name)
+{
+	struct dfu_entity *dfu;
+
+	list_for_each_entry(dfu, &dfu_list, list) {
+		if (!strncmp(dfu->name, name, strlen(dfu->name)))
+			return dfu->alt;
+	}
+
+	return -ENODEV;
 }
