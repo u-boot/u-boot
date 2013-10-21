@@ -4,10 +4,7 @@
 #
 # SPDX-License-Identifier:	GPL-2.0+
 #
-include $(OBJTREE)/include/autoconf.mk
 
-LIB	= libpostpdm360ng.o
+CPPFLAGS += -I$(TOPDIR)
 
-COBJS-$(CONFIG_HAS_POST)	+= coproc_com.o
-
-include $(TOPDIR)/post/rules.mk
+obj-$(CONFIG_HAS_POST)	+= coproc_com.o

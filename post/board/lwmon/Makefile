@@ -4,10 +4,7 @@
 #
 # SPDX-License-Identifier:	GPL-2.0+
 #
-include $(OBJTREE)/include/autoconf.mk
 
-LIB	= libpostlwmon.o
+CPPFLAGS += -I$(TOPDIR)
 
-COBJS-$(CONFIG_HAS_POST)	+= sysmon.o
-
-include $(TOPDIR)/post/rules.mk
+obj-$(CONFIG_HAS_POST)	+= sysmon.o

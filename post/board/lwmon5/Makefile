@@ -4,10 +4,7 @@
 # Developed for DENX Software Engineering GmbH
 #
 # SPDX-License-Identifier:	GPL-2.0+
-include $(OBJTREE)/include/autoconf.mk
 
-LIB	= libpostlwmon5.o
+CPPFLAGS += -I$(TOPDIR)
 
-COBJS-$(CONFIG_HAS_POST)	+= sysmon.o watchdog.o dspic.o fpga.o dsp.o gdc.o
-
-include $(TOPDIR)/post/rules.mk
+obj-$(CONFIG_HAS_POST)	+= sysmon.o watchdog.o dspic.o fpga.o dsp.o gdc.o
