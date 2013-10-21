@@ -20,6 +20,7 @@ smdk6400         arm         arm1176        52587f1     2013-04-12  Zhong Hongbo
 ns9750dev        arm         arm926ejs      4cfc611     2013-02-28  Markus Pietrek <mpietrek@fsforth.de>
 AMX860           powerpc     mpc860         1b0757e     2012-10-28  Wolfgang Denk <wd@denx.de>
 c2mon            powerpc     mpc855         1b0757e     2012-10-28  Wolfgang Denk <wd@denx.de>
+EP88x            powerpc     mpc885         1b0757e     2012-10-28
 ETX094           powerpc     mpc850         1b0757e     2012-10-28  Wolfgang Denk <wd@denx.de>
 IAD210           powerpc     mpc860         1b0757e     2012-10-28  -
 LANTEC           powerpc     mpc850         1b0757e     2012-10-28  Wolfgang Denk <wd@denx.de>
