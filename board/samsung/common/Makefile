@@ -5,24 +5,5 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-include $(TOPDIR)/config.mk
-
-LIB	= $(obj)libsamsung.o
-
-COBJS-$(CONFIG_SOFT_I2C_MULTI_BUS) += multi_i2c.o
-COBJS-$(CONFIG_THOR_FUNCTION) += thor.o
-
-SRCS    := $(COBJS-y:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS-y))
-
-$(LIB):	$(obj).depend $(OBJS)
-	$(call cmd_link_o_target, $(OBJS))
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+obj-$(CONFIG_SOFT_I2C_MULTI_BUS) += multi_i2c.o
+obj-$(CONFIG_THOR_FUNCTION) += thor.o
