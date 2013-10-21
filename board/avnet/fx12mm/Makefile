@@ -6,6 +6,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-COBJS	+= $(BOARD).o
+obj-y	+= fx12mm.o
 
 include $(SRCTREE)/board/xilinx/ppc405-generic/Makefile

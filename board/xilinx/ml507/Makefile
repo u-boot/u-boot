@@ -6,6 +6,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-COBJS	+= $(BOARD).o
+obj-y	+= ml507.o
 
 include $(SRCTREE)/board/xilinx/ppc440-generic/Makefile
