@@ -12,12 +12,14 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(CPU).o
 
-SOBJS	= start.o
+START	= start.o
 COBJS	= cpu.o interrupts.o watchdog.o cache.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
+
+all:    $(START) $(LIB)
 
 $(LIB):	$(OBJS) $(SOBJS)
 	$(call cmd_link_o_target, $(OBJS) $(SOBJS))
