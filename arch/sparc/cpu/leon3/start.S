@@ -1,3 +1,5 @@
+#include <config.h>
+
 TRAP ta 0; nop; nop; nop;
 
 /* Software trap. Treat as BAD_TRAP for the time being... */
