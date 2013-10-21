@@ -518,7 +518,7 @@ get_target_location() {
 	local vendor=""
 
 	# Automatic mode
-	local line=`awk -F '\ +' '\$7 == "'"$target"'" { print \$0 }' boards.cfg`
+	local line=`awk '\$7 == "'"$target"'" { print \$0 }' boards.cfg`
 	if [ -z "${line}" ] ; then echo "" ; return ; fi
 
 	set ${line}
@@ -556,7 +556,7 @@ get_target_location() {
 get_target_maintainers() {
 	local name=`echo $1 | cut -d : -f 3`
 
-	local line=`awk -F '\ +' '\$7 == "'"$target"'" { print \$0 }' boards.cfg`
+	local line=`awk '\$7 == "'"$target"'" { print \$0 }' boards.cfg`
 	if [ -z "${line}" ]; then
 		echo ""
 		return ;
