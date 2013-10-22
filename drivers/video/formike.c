@@ -27,10 +27,11 @@ static int spi_write_tag_val(struct spi_slave *spi, unsigned char tag,
 	int ret;
 
 	buf[0] = tag;
-	buf[1] = val;
-	flags |= SPI_XFER_END;
+	ret = spi_xfer(spi, 8, buf, NULL, flags);
+	buf[0] = val;
+	flags = SPI_XFER_END;
+	ret = spi_xfer(spi, 8, buf, NULL, flags);
 
-	ret = spi_xfer(spi, 16, buf, NULL, flags);
 #ifdef KWH043ST20_F01_SPI_DEBUG
 	printf("spi_write_tag_val: tag=%02X, val=%02X ret: %d\n",
 	       tag, val, ret);
