@@ -15,7 +15,7 @@
 #include <asm/types.h>
 #include <asm/fsl_dma.h>
 #include <asm/fsl_i2c.h>
-#include <asm/fsl_ifc.h>
+#include <fsl_ifc.h>
 #include <asm/fsl_lbc.h>
 #include <asm/fsl_fman.h>
 #include <fsl_immap.h>

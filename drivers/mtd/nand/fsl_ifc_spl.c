@@ -9,7 +9,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/fsl_ifc.h>
+#include <fsl_ifc.h>
 #include <linux/mtd/nand.h>
 
 static inline int is_blank(uchar *addr, int page_size)

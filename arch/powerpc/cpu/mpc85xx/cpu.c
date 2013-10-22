@@ -17,7 +17,7 @@
 #include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/mmu.h>
-#include <asm/fsl_ifc.h>
+#include <fsl_ifc.h>
 #include <asm/fsl_law.h>
 #include <asm/fsl_lbc.h>
 #include <post.h>

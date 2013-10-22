@@ -6,7 +6,7 @@
  */
 
 #include <common.h>
-#include <asm/fsl_ifc.h>
+#include <fsl_ifc.h>
 
 void print_ifc_regs(void)
 {

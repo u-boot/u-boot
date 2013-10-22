@@ -17,7 +17,7 @@
 #include <tsec.h>
 #include <mmc.h>
 #include <netdev.h>
-#include <asm/fsl_ifc.h>
+#include <fsl_ifc.h>
 #include <hwconfig.h>
 #include <i2c.h>
 #include <fsl_ddr_sdram.h>

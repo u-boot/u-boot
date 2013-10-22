@@ -17,7 +17,7 @@
 
 #include <asm/io.h>
 #include <asm/errno.h>
-#include <asm/fsl_ifc.h>
+#include <fsl_ifc.h>
 
 #define FSL_IFC_V1_1_0	0x01010000
 #define MAX_BANKS	4
