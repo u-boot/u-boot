@@ -705,6 +705,11 @@ The following options need to be configured:
 		the "silent" environment variable. See
 		doc/README.silent for more information.
 
+		CONFIG_SYS_CONSOLE_BG_COL: define the backgroundcolor, default
+			is 0x00.
+		CONFIG_SYS_CONSOLE_FG_COL: define the foregroundcolor, default
+			is 0xa0.
+
 - Console Baudrate:
 		CONFIG_BAUDRATE - in bps
 		Select one of the baudrates listed in
