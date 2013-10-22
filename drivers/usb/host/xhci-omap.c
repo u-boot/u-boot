@@ -27,11 +27,11 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static struct omap_xhci omap;
 
-inline int __board_usb_init(int index, enum board_usb_init_type init)
+inline int __board_usb_init(int index, enum usb_init_type init)
 {
 	return 0;
 }
-int board_usb_init(int index, enum board_usb_init_type init) \
+int board_usb_init(int index, enum usb_init_type init)
 	__attribute__((weak, alias("__board_usb_init")));
 
 static void dwc3_set_mode(struct dwc3 *dwc3_reg, u32 mode)
