@@ -1,5 +1,6 @@
 /*
  * SuperH SCIF device driver.
+ * Copyright (C) 2013  Renesas Electronics Corporation
  * Copyright (C) 2007,2008,2010 Nobuhiro Iwamatsu
  * Copyright (C) 2002 - 2008  Paul Mundt
  *
@@ -48,7 +49,9 @@ static struct uart_port sh_sci = {
 static void sh_serial_setbrg(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	sci_out(&sh_sci, SCBRR, SCBRR_VALUE(gd->baudrate, CONFIG_SYS_CLK_FREQ));
+
+	sci_out(&sh_sci, SCBRR,
+		SCBRR_VALUE(gd->baudrate, CONFIG_SH_SCIF_CLK_FREQ));
 }
 
 static int sh_serial_init(void)

@@ -17,15 +17,17 @@
 #include <asm/io.h>
 #include <sh_tmu.h>
 
+#define TCR_TPSC 0x07
+
 static struct tmu_regs *tmu = (struct tmu_regs *)TMU_BASE;
 
-static u16 bit;
 static unsigned long last_tcnt;
 static unsigned long long overflow_ticks;
 
 unsigned long get_tbclk(void)
 {
-	return get_tmu0_clk_rate() >> ((bit + 1) * 2);
+	u16 tmu_bit = (ffs(CONFIG_SYS_TMU_CLK_DIV) >> 1) - 1;
+	return get_tmu0_clk_rate() >> ((tmu_bit + 1) * 2);
 }
 
 static inline unsigned long long tick_to_time(unsigned long long tick)
@@ -60,8 +62,8 @@ static void tmu_timer_stop(unsigned int timer)
 
 int timer_init(void)
 {
-	bit = (ffs(CONFIG_SYS_TMU_CLK_DIV) >> 1) - 1;
-	writew(readw(&tmu->tcr0) | bit, &tmu->tcr0);
+	u16 tmu_bit = (ffs(CONFIG_SYS_TMU_CLK_DIV) >> 1) - 1;
+	writew((readw(&tmu->tcr0) & ~TCR_TPSC) | tmu_bit, &tmu->tcr0);
 
 	tmu_timer_stop(0);
 	tmu_timer_start(0);

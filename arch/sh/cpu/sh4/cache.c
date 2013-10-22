@@ -91,7 +91,7 @@ int cache_control(unsigned int cmd)
 	return 0;
 }
 
-void dcache_wback_range(u32 start, u32 end)
+void flush_dcache_range(unsigned long start, unsigned long end)
 {
 	u32 v;
 
@@ -102,7 +102,7 @@ void dcache_wback_range(u32 start, u32 end)
 	}
 }
 
-void dcache_invalid_range(u32 start, u32 end)
+void invalidate_dcache_range(unsigned long start, unsigned long end)
 {
 	u32 v;
 

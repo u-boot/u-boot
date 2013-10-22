@@ -41,7 +41,7 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 void flush_cache (unsigned long addr, unsigned long size)
 {
-	dcache_invalid_range( addr , addr + size );
+	invalidate_dcache_range(addr , addr + size);
 }
 
 void icache_enable (void)
