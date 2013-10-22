@@ -2058,6 +2058,19 @@ CBFS (Coreboot Filesystem) support
 		  - CONFIG_SYS_I2C_SH_SPEED5 for for the speed channel 5
 		  - CONFIF_SYS_I2C_SH_NUM_CONTROLLERS for nummber of i2c buses
 
+		- drivers/i2c/omap24xx_i2c.c
+		  - activate this driver with CONFIG_SYS_I2C_OMAP24XX
+		  - CONFIG_SYS_OMAP24_I2C_SPEED speed channel 0
+		  - CONFIG_SYS_OMAP24_I2C_SLAVE slave addr channel 0
+		  - CONFIG_SYS_OMAP24_I2C_SPEED1 speed channel 1
+		  - CONFIG_SYS_OMAP24_I2C_SLAVE1 slave addr channel 1
+		  - CONFIG_SYS_OMAP24_I2C_SPEED2 speed channel 2
+		  - CONFIG_SYS_OMAP24_I2C_SLAVE2 slave addr channel 2
+		  - CONFIG_SYS_OMAP24_I2C_SPEED3 speed channel 3
+		  - CONFIG_SYS_OMAP24_I2C_SLAVE3 slave addr channel 3
+		  - CONFIG_SYS_OMAP24_I2C_SPEED4 speed channel 4
+		  - CONFIG_SYS_OMAP24_I2C_SLAVE4 slave addr channel 4
+
 		additional defines:
 
 		CONFIG_SYS_NUM_I2C_BUSES

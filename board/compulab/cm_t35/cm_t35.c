@@ -482,7 +482,7 @@ static void setup_net_chip_gmpc(void)
 		&ctrl_base->gpmc_nadv_ale);
 }
 
-#ifdef CONFIG_DRIVER_OMAP34XX_I2C
+#ifdef CONFIG_SYS_I2C_OMAP34XX
 /*
  * Routine: reset_net_chip
  * Description: reset the Ethernet controller via TPS65930 GPIO

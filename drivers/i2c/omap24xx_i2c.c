@@ -35,6 +35,7 @@
  */
 
 #include <common.h>
+#include <i2c.h>
 
 #include <asm/arch/i2c.h>
 #include <asm/io.h>
@@ -48,22 +49,14 @@ DECLARE_GLOBAL_DATA_PTR;
 /* Absolutely safe for status update at 100 kHz I2C: */
 #define I2C_WAIT	200
 
-static int wait_for_bb(void);
-static u16 wait_for_event(void);
-static void flush_fifo(void);
+static int wait_for_bb(struct i2c_adapter *adap);
+static struct i2c *omap24_get_base(struct i2c_adapter *adap);
+static u16 wait_for_event(struct i2c_adapter *adap);
+static void flush_fifo(struct i2c_adapter *adap);
 
-/*
- * For SPL boot some boards need i2c before SDRAM is initialised so force
- * variables to live in SRAM
- */
-static struct i2c __attribute__((section (".data"))) *i2c_base =
-					(struct i2c *)I2C_DEFAULT_BASE;
-static unsigned int __attribute__((section (".data"))) bus_initialized[I2C_BUS_MAX] =
-					{ [0 ... (I2C_BUS_MAX-1)] = 0 };
-static unsigned int __attribute__((section (".data"))) current_bus = 0;
-
-void i2c_init(int speed, int slaveadd)
+static void omap24_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
 {
+	struct i2c *i2c_base = omap24_get_base(adap);
 	int psc, fsscll, fssclh;
 	int hsscll = 0, hssclh = 0;
 	u32 scll, sclh;
@@ -163,16 +156,15 @@ void i2c_init(int speed, int slaveadd)
 	       I2C_IE_NACK_IE | I2C_IE_AL_IE, &i2c_base->ie);
 #endif
 	udelay(1000);
-	flush_fifo();
+	flush_fifo(adap);
 	writew(0xFFFF, &i2c_base->stat);
 	writew(0, &i2c_base->cnt);
-
-	if (gd->flags & GD_FLG_RELOC)
-		bus_initialized[current_bus] = 1;
 }
 
-static void flush_fifo(void)
-{	u16 stat;
+static void flush_fifo(struct i2c_adapter *adap)
+{
+	struct i2c *i2c_base = omap24_get_base(adap);
+	u16 stat;
 
 	/* note: if you try and read data when its not there or ready
 	 * you get a bus error
@@ -192,8 +184,9 @@ static void flush_fifo(void)
  * i2c_probe: Use write access. Allows to identify addresses that are
  *            write-only (like the config register of dual-port EEPROMs)
  */
-int i2c_probe(uchar chip)
+static int omap24_i2c_probe(struct i2c_adapter *adap, uchar chip)
 {
+	struct i2c *i2c_base = omap24_get_base(adap);
 	u16 status;
 	int res = 1; /* default = fail */
 
@@ -201,7 +194,7 @@ int i2c_probe(uchar chip)
 		return res;
 
 	/* Wait until bus is free */
-	if (wait_for_bb())
+	if (wait_for_bb(adap))
 		return res;
 
 	/* No data transfer, slave addr only */
@@ -212,7 +205,7 @@ int i2c_probe(uchar chip)
 	writew(I2C_CON_EN | I2C_CON_MST | I2C_CON_STT | I2C_CON_TRX |
 	       I2C_CON_STP, &i2c_base->con);
 
-	status = wait_for_event();
+	status = wait_for_event(adap);
 
 	if ((status & ~I2C_STAT_XRDY) == 0 || (status & I2C_STAT_AL)) {
 		/*
@@ -223,7 +216,7 @@ int i2c_probe(uchar chip)
 		 */
 		if (status == I2C_STAT_XRDY)
 			printf("i2c_probe: pads on bus %d probably not configured (status=0x%x)\n",
-			       current_bus, status);
+			       adap->hwadapnr, status);
 
 		goto pr_exit;
 	}
@@ -239,7 +232,7 @@ int i2c_probe(uchar chip)
 		       I2C_CON_STP, &i2c_base->con);		/* STP */
 	}
 pr_exit:
-	flush_fifo();
+	flush_fifo(adap);
 	writew(0xFFFF, &i2c_base->stat);
 	writew(0, &i2c_base->cnt);
 	return res;
@@ -258,8 +251,10 @@ pr_exit:
  *           or that do not need a register address at all (such as some clock
  *           distributors).
  */
-int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
+static int omap24_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
+			   int alen, uchar *buffer, int len)
 {
+	struct i2c *i2c_base = omap24_get_base(adap);
 	int i2c_error = 0;
 	u16 status;
 
@@ -287,7 +282,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	}
 
 	/* Wait until bus not busy */
-	if (wait_for_bb())
+	if (wait_for_bb(adap))
 		return 1;
 
 	/* Zero, one or two bytes reg address (offset) */
@@ -308,12 +303,12 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 #endif
 		/* Send register offset */
 		while (1) {
-			status = wait_for_event();
+			status = wait_for_event(adap);
 			/* Try to identify bus that is not padconf'd for I2C */
 			if (status == I2C_STAT_XRDY) {
 				i2c_error = 2;
 				printf("i2c_read (addr phase): pads on bus %d probably not configured (status=0x%x)\n",
-				       current_bus, status);
+				       adap->hwadapnr, status);
 				goto rd_exit;
 			}
 			if (status == 0 || status & I2C_STAT_NACK) {
@@ -348,7 +343,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 
 	/* Receive data */
 	while (1) {
-		status = wait_for_event();
+		status = wait_for_event(adap);
 		/*
 		 * Try to identify bus that is not padconf'd for I2C. This
 		 * state could be left over from previous transactions if
@@ -357,7 +352,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 		if (status == I2C_STAT_XRDY) {
 			i2c_error = 2;
 			printf("i2c_read (data phase): pads on bus %d probably not configured (status=0x%x)\n",
-			       current_bus, status);
+			       adap->hwadapnr, status);
 			goto rd_exit;
 		}
 		if (status == 0 || status & I2C_STAT_NACK) {
@@ -375,15 +370,17 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	}
 
 rd_exit:
-	flush_fifo();
+	flush_fifo(adap);
 	writew(0xFFFF, &i2c_base->stat);
 	writew(0, &i2c_base->cnt);
 	return i2c_error;
 }
 
 /* i2c_write: Address (reg offset) may be 0, 1 or 2 bytes long. */
-int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
+static int omap24_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
+			    int alen, uchar *buffer, int len)
 {
+	struct i2c *i2c_base = omap24_get_base(adap);
 	int i;
 	u16 status;
 	int i2c_error = 0;
@@ -415,7 +412,7 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	}
 
 	/* Wait until bus not busy */
-	if (wait_for_bb())
+	if (wait_for_bb(adap))
 		return 1;
 
 	/* Start address phase - will write regoffset + len bytes data */
@@ -428,12 +425,12 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 
 	while (alen) {
 		/* Must write reg offset (one or two bytes) */
-		status = wait_for_event();
+		status = wait_for_event(adap);
 		/* Try to identify bus that is not padconf'd for I2C */
 		if (status == I2C_STAT_XRDY) {
 			i2c_error = 2;
 			printf("i2c_write: pads on bus %d probably not configured (status=0x%x)\n",
-			       current_bus, status);
+			       adap->hwadapnr, status);
 			goto wr_exit;
 		}
 		if (status == 0 || status & I2C_STAT_NACK) {
@@ -455,7 +452,7 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	}
 	/* Address phase is over, now write data */
 	for (i = 0; i < len; i++) {
-		status = wait_for_event();
+		status = wait_for_event(adap);
 		if (status == 0 || status & I2C_STAT_NACK) {
 			i2c_error = 1;
 			printf("i2c_write: error waiting for data ACK (status=0x%x)\n",
@@ -474,7 +471,7 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	}
 
 wr_exit:
-	flush_fifo();
+	flush_fifo(adap);
 	writew(0xFFFF, &i2c_base->stat);
 	writew(0, &i2c_base->cnt);
 	return i2c_error;
@@ -484,8 +481,9 @@ wr_exit:
  * Wait for the bus to be free by checking the Bus Busy (BB)
  * bit to become clear
  */
-static int wait_for_bb(void)
+static int wait_for_bb(struct i2c_adapter *adap)
 {
+	struct i2c *i2c_base = omap24_get_base(adap);
 	int timeout = I2C_TIMEOUT;
 	u16 stat;
 
@@ -514,8 +512,9 @@ static int wait_for_bb(void)
  * Wait for the I2C controller to complete current action
  * and update status
  */
-static u16 wait_for_event(void)
+static u16 wait_for_event(struct i2c_adapter *adap)
 {
+	struct i2c *i2c_base = omap24_get_base(adap);
 	u16 status;
 	int timeout = I2C_TIMEOUT;
 
@@ -540,7 +539,7 @@ static u16 wait_for_event(void)
 		 * not been configured for I2C, and/or pull-ups are missing.
 		 */
 		printf("Check if pads/pull-ups of bus %d are properly configured\n",
-		       current_bus);
+		       adap->hwadapnr);
 		writew(0xFFFF, &i2c_base->stat);
 		status = 0;
 	}
@@ -548,48 +547,93 @@ static u16 wait_for_event(void)
 	return status;
 }
 
-int i2c_set_bus_num(unsigned int bus)
+static struct i2c *omap24_get_base(struct i2c_adapter *adap)
 {
-	if (bus >= I2C_BUS_MAX) {
-		printf("Bad bus: %x\n", bus);
-		return -1;
-	}
-
-	switch (bus) {
-	default:
-		bus = 0;	/* Fall through */
+	switch (adap->hwadapnr) {
 	case 0:
-		i2c_base = (struct i2c *)I2C_BASE1;
+		return (struct i2c *)I2C_BASE1;
 		break;
 	case 1:
-		i2c_base = (struct i2c *)I2C_BASE2;
+		return (struct i2c *)I2C_BASE2;
 		break;
 #if (I2C_BUS_MAX > 2)
 	case 2:
-		i2c_base = (struct i2c *)I2C_BASE3;
+		return (struct i2c *)I2C_BASE3;
 		break;
 #if (I2C_BUS_MAX > 3)
 	case 3:
-		i2c_base = (struct i2c *)I2C_BASE4;
+		return (struct i2c *)I2C_BASE4;
 		break;
 #if (I2C_BUS_MAX > 4)
 	case 4:
-		i2c_base = (struct i2c *)I2C_BASE5;
+		return (struct i2c *)I2C_BASE5;
 		break;
 #endif
 #endif
 #endif
+	default:
+		printf("wrong hwadapnr: %d\n", adap->hwadapnr);
+		break;
 	}
-
-	current_bus = bus;
-
-	if (!bus_initialized[current_bus])
-		i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-
-	return 0;
+	return NULL;
 }
 
-int i2c_get_bus_num(void)
-{
-	return (int) current_bus;
-}
+#if !defined(CONFIG_SYS_OMAP24_I2C_SPEED1)
+#define CONFIG_SYS_OMAP24_I2C_SPEED1 CONFIG_SYS_OMAP24_I2C_SPEED
+#endif
+#if !defined(CONFIG_SYS_OMAP24_I2C_SLAVE1)
+#define CONFIG_SYS_OMAP24_I2C_SLAVE1 CONFIG_SYS_OMAP24_I2C_SLAVE
+#endif
+
+U_BOOT_I2C_ADAP_COMPLETE(omap24_0, omap24_i2c_init, omap24_i2c_probe,
+			 omap24_i2c_read, omap24_i2c_write, NULL,
+			 CONFIG_SYS_OMAP24_I2C_SPEED,
+			 CONFIG_SYS_OMAP24_I2C_SLAVE,
+			 0)
+U_BOOT_I2C_ADAP_COMPLETE(omap24_1, omap24_i2c_init, omap24_i2c_probe,
+			 omap24_i2c_read, omap24_i2c_write, NULL,
+			 CONFIG_SYS_OMAP24_I2C_SPEED1,
+			 CONFIG_SYS_OMAP24_I2C_SLAVE1,
+			 1)
+#if (I2C_BUS_MAX > 2)
+#if !defined(CONFIG_SYS_OMAP24_I2C_SPEED2)
+#define CONFIG_SYS_OMAP24_I2C_SPEED2 CONFIG_SYS_OMAP24_I2C_SPEED
+#endif
+#if !defined(CONFIG_SYS_OMAP24_I2C_SLAVE2)
+#define CONFIG_SYS_OMAP24_I2C_SLAVE2 CONFIG_SYS_OMAP24_I2C_SLAVE
+#endif
+
+U_BOOT_I2C_ADAP_COMPLETE(omap24_2, omap24_i2c_init, omap24_i2c_probe,
+			 omap24_i2c_read, omap24_i2c_write, NULL,
+			 CONFIG_SYS_OMAP24_I2C_SPEED2,
+			 CONFIG_SYS_OMAP24_I2C_SLAVE2,
+			 2)
+#if (I2C_BUS_MAX > 3)
+#if !defined(CONFIG_SYS_OMAP24_I2C_SPEED3)
+#define CONFIG_SYS_OMAP24_I2C_SPEED3 CONFIG_SYS_OMAP24_I2C_SPEED
+#endif
+#if !defined(CONFIG_SYS_OMAP24_I2C_SLAVE3)
+#define CONFIG_SYS_OMAP24_I2C_SLAVE3 CONFIG_SYS_OMAP24_I2C_SLAVE
+#endif
+
+U_BOOT_I2C_ADAP_COMPLETE(omap24_3, omap24_i2c_init, omap24_i2c_probe,
+			 omap24_i2c_read, omap24_i2c_write, NULL,
+			 CONFIG_SYS_OMAP24_I2C_SPEED3,
+			 CONFIG_SYS_OMAP24_I2C_SLAVE3,
+			 3)
+#if (I2C_BUS_MAX > 4)
+#if !defined(CONFIG_SYS_OMAP24_I2C_SPEED4)
+#define CONFIG_SYS_OMAP24_I2C_SPEED4 CONFIG_SYS_OMAP24_I2C_SPEED
+#endif
+#if !defined(CONFIG_SYS_OMAP24_I2C_SLAVE4)
+#define CONFIG_SYS_OMAP24_I2C_SLAVE4 CONFIG_SYS_OMAP24_I2C_SLAVE
+#endif
+
+U_BOOT_I2C_ADAP_COMPLETE(omap24_4, omap24_i2c_init, omap24_i2c_probe,
+			 omap24_i2c_read, omap24_i2c_write, NULL,
+			 CONFIG_SYS_OMAP24_I2C_SPEED4,
+			 CONFIG_SYS_OMAP24_I2C_SLAVE4,
+			 4)
+#endif
+#endif
+#endif
