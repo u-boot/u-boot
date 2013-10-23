@@ -282,7 +282,9 @@ typedef struct ccsr_pcix {
 	u32	int_ack;	/* PCIX IRQ Acknowledge */
 	u8	res000c[52];
 	u32	liodn_base;	/* PCIX LIODN base register */
-	u8	res0044[3004];
+	u8	res0044[2996];
+	u32	ipver1;		/* PCIX IP block revision register 1 */
+	u32	ipver2;		/* PCIX IP block revision register 2 */
 	u32	potar0;		/* PCIX Outbound Transaction Addr 0 */
 	u32	potear0;	/* PCIX Outbound Translation Extended Addr 0 */
 	u32	powbar0;	/* PCIX Outbound Window Base Addr 0 */
