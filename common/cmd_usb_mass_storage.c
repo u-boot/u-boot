@@ -5,6 +5,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <errno.h>
 #include <common.h>
 #include <command.h>
 #include <g_dnl.h>
@@ -42,16 +43,20 @@ int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
 	g_dnl_register("ums");
 
 	while (1) {
-		/* Handle control-c and timeouts */
-		if (ctrlc()) {
-			error("The remote end did not respond in time.");
+		usb_gadget_handle_interrupts();
+
+		rc = fsg_main_thread(NULL);
+		if (rc) {
+			/* Check I/O error */
+			if (rc == -EIO)
+				printf("\rCheck USB cable connection\n");
+
+			/* Check CTRL+C */
+			if (rc == -EPIPE)
+				printf("\rCTRL+C - Operation aborted\n");
+
 			goto exit;
 		}
-
-		usb_gadget_handle_interrupts();
-		/* Check if USB cable has been detached */
-		if (fsg_main_thread(NULL) == EIO)
-			goto exit;
 	}
 exit:
 	g_dnl_unregister();
