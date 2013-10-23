@@ -849,6 +849,9 @@ TftpStartServer(void)
 
 	TftpState = STATE_RECV_WRQ;
 	net_set_udp_handler(TftpHandler);
+
+	/* zero out server ether in case the server ip has changed */
+	memset(NetServerEther, 0, 6);
 }
 #endif /* CONFIG_CMD_TFTPSRV */
 
