@@ -778,7 +778,7 @@ static int ums_read_sector(struct ums *ums_dev,
 			   ulong start, lbaint_t blkcnt, void *buf)
 {
 	block_dev_desc_t *block_dev = &ums_dev->mmc->block_dev;
-	lbaint_t blkstart = start + ums_dev->offset;
+	lbaint_t blkstart = start + ums_dev->start_sector;
 	int dev_num = block_dev->dev;
 
 	return block_dev->block_read(dev_num, blkstart, blkcnt, buf);
@@ -788,29 +788,46 @@ static int ums_write_sector(struct ums *ums_dev,
 			    ulong start, lbaint_t blkcnt, const void *buf)
 {
 	block_dev_desc_t *block_dev = &ums_dev->mmc->block_dev;
-	lbaint_t blkstart = start + ums_dev->offset;
+	lbaint_t blkstart = start + ums_dev->start_sector;
 	int dev_num = block_dev->dev;
 
 	return block_dev->block_write(dev_num, blkstart, blkcnt, buf);
 }
 
-static void ums_get_capacity(struct ums *ums_dev, long long int *capacity)
-{
-	long long int tmp_capacity;
-
-	tmp_capacity = (long long int)((ums_dev->offset + ums_dev->part_size)
-				       * SECTOR_SIZE);
-	*capacity = ums_dev->mmc->capacity - tmp_capacity;
-}
-
 static struct ums ums_dev = {
 	.read_sector = ums_read_sector,
 	.write_sector = ums_write_sector,
-	.get_capacity = ums_get_capacity,
 	.name = "UMS disk",
-	.offset = UMS_START_SECTOR,
-	.part_size = UMS_NUM_SECTORS,
 };
+
+static struct ums *ums_disk_init(struct mmc *mmc)
+{
+	uint64_t mmc_end_sector = mmc->capacity / SECTOR_SIZE;
+	uint64_t ums_end_sector = UMS_NUM_SECTORS + UMS_START_SECTOR;
+
+	if (!mmc_end_sector) {
+		error("MMC capacity is not valid");
+		return NULL;
+	}
+
+	ums_dev.mmc = mmc;
+
+	if (ums_end_sector <= mmc_end_sector) {
+		ums_dev.start_sector = UMS_START_SECTOR;
+		if (UMS_NUM_SECTORS)
+			ums_dev.num_sectors = UMS_NUM_SECTORS;
+		else
+			ums_dev.num_sectors = mmc_end_sector - UMS_START_SECTOR;
+	} else {
+		ums_dev.num_sectors = mmc_end_sector;
+		puts("UMS: defined bad disk parameters. Using default.\n");
+	}
+
+	printf("UMS: disk start sector: %#x, count: %#x\n",
+	       ums_dev.start_sector, ums_dev.num_sectors);
+
+	return &ums_dev;
+}
 
 struct ums *ums_init(unsigned int dev_num)
 {
@@ -820,8 +837,6 @@ struct ums *ums_init(unsigned int dev_num)
 	if (!mmc)
 		return NULL;
 
-	ums_dev.mmc = mmc;
-
-	return &ums_dev;
+	return ums_disk_init(mmc);
 }
 #endif

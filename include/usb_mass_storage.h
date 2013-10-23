@@ -25,12 +25,10 @@ struct ums {
 			   ulong start, lbaint_t blkcnt, void *buf);
 	int (*write_sector)(struct ums *ums_dev,
 			    ulong start, lbaint_t blkcnt, const void *buf);
-	void (*get_capacity)(struct ums *ums_dev,
-			     long long int *capacity);
+	unsigned int start_sector;
+	unsigned int num_sectors;
 	const char *name;
 	struct mmc *mmc;
-	int offset;
-	int part_size;
 };
 
 extern struct ums *ums;
