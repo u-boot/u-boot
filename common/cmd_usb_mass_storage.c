@@ -22,28 +22,26 @@ int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
 
 	unsigned int dev_num = (unsigned int)(simple_strtoul(mmc_devstring,
 				NULL, 0));
-	if (dev_num) {
-		error("Set eMMC device to 0! - e.g. ums 0");
-		goto fail;
-	}
+	if (dev_num)
+		return CMD_RET_USAGE;
 
 	unsigned int controller_index = (unsigned int)(simple_strtoul(
 					usb_controller,	NULL, 0));
 	if (board_usb_init(controller_index, USB_INIT_DEVICE)) {
 		error("Couldn't init USB controller.");
-		goto fail;
+		return CMD_RET_FAILURE;
 	}
 
-	struct ums_board_info *ums_info = board_ums_init(dev_num, 0, 0);
-	if (!ums_info) {
-		error("MMC: %d -> NOT available", dev_num);
-		goto fail;
+	struct ums *ums = ums_init(dev_num);
+	if (!ums) {
+		printf("MMC: %u no such device\n", dev_num);
+		return CMD_RET_FAILURE;
 	}
 
-	int rc = fsg_init(ums_info);
+	int rc = fsg_init(ums);
 	if (rc) {
 		error("fsg_init failed");
-		goto fail;
+		return CMD_RET_FAILURE;
 	}
 
 	g_dnl_register("ums");
@@ -62,13 +60,10 @@ int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
 	}
 exit:
 	g_dnl_unregister();
-	return 0;
-
-fail:
-	return -1;
+	return CMD_RET_SUCCESS;
 }
 
 U_BOOT_CMD(ums, CONFIG_SYS_MAXARGS, 1, do_usb_mass_storage,
 	"Use the UMS [User Mass Storage]",
-	"<USB_controller> <mmc_dev>"
+	"ums <USB_controller> <mmc_dev>  e.g. ums 0 0"
 );

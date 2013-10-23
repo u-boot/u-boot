@@ -774,63 +774,54 @@ void init_panel_info(vidinfo_t *vid)
 }
 
 #ifdef CONFIG_USB_GADGET_MASS_STORAGE
-static int ums_read_sector(struct ums_device *ums_dev,
+static int ums_read_sector(struct ums *ums_dev,
 			   ulong start, lbaint_t blkcnt, void *buf)
 {
-	if (ums_dev->mmc->block_dev.block_read(ums_dev->dev_num,
-			start + ums_dev->offset, blkcnt, buf) != blkcnt)
-		return -1;
+	block_dev_desc_t *block_dev = &ums_dev->mmc->block_dev;
+	lbaint_t blkstart = start + ums_dev->offset;
+	int dev_num = block_dev->dev;
 
-	return 0;
+	return block_dev->block_read(dev_num, blkstart, blkcnt, buf);
 }
 
-static int ums_write_sector(struct ums_device *ums_dev,
+static int ums_write_sector(struct ums *ums_dev,
 			    ulong start, lbaint_t blkcnt, const void *buf)
 {
-	if (ums_dev->mmc->block_dev.block_write(ums_dev->dev_num,
-			start + ums_dev->offset, blkcnt, buf) != blkcnt)
-		return -1;
+	block_dev_desc_t *block_dev = &ums_dev->mmc->block_dev;
+	lbaint_t blkstart = start + ums_dev->offset;
+	int dev_num = block_dev->dev;
 
-	return 0;
+	return block_dev->block_write(dev_num, blkstart, blkcnt, buf);
 }
 
-static void ums_get_capacity(struct ums_device *ums_dev,
-			     long long int *capacity)
+static void ums_get_capacity(struct ums *ums_dev, long long int *capacity)
 {
 	long long int tmp_capacity;
 
-	tmp_capacity = (long long int) ((ums_dev->offset + ums_dev->part_size)
-					* SECTOR_SIZE);
+	tmp_capacity = (long long int)((ums_dev->offset + ums_dev->part_size)
+				       * SECTOR_SIZE);
 	*capacity = ums_dev->mmc->capacity - tmp_capacity;
 }
 
-static struct ums_board_info ums_board = {
+static struct ums ums_dev = {
 	.read_sector = ums_read_sector,
 	.write_sector = ums_write_sector,
 	.get_capacity = ums_get_capacity,
-	.name = "TRATS UMS disk",
-	.ums_dev = {
-		.mmc = NULL,
-		.dev_num = 0,
-		.offset = 0,
-		.part_size = 0.
-	},
+	.name = "UMS disk",
+	.offset = UMS_START_SECTOR,
+	.part_size = UMS_NUM_SECTORS,
 };
 
-struct ums_board_info *board_ums_init(unsigned int dev_num, unsigned int offset,
-				      unsigned int part_size)
+struct ums *ums_init(unsigned int dev_num)
 {
-	struct mmc *mmc;
+	struct mmc *mmc = NULL;
 
 	mmc = find_mmc_device(dev_num);
 	if (!mmc)
 		return NULL;
 
-	ums_board.ums_dev.mmc = mmc;
-	ums_board.ums_dev.dev_num = dev_num;
-	ums_board.ums_dev.offset = offset;
-	ums_board.ums_dev.part_size = part_size;
+	ums_dev.mmc = mmc;
 
-	return &ums_board;
+	return &ums_dev;
 }
 #endif

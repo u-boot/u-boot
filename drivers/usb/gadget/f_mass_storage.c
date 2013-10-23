@@ -441,7 +441,7 @@ static void set_bulk_out_req_length(struct fsg_common *common,
 
 /*-------------------------------------------------------------------------*/
 
-struct ums_board_info			*ums_info;
+struct ums *ums;
 struct fsg_common *the_fsg_common;
 
 static int fsg_set_halt(struct fsg_dev *fsg, struct usb_ep *ep)
@@ -757,14 +757,14 @@ static int do_read(struct fsg_common *common)
 		}
 
 		/* Perform the read */
-		nread = 0;
-		rc = ums_info->read_sector(&(ums_info->ums_dev),
-					   file_offset / SECTOR_SIZE,
-					   amount / SECTOR_SIZE,
-					   (char __user *)bh->buf);
-		if (rc)
+		rc = ums->read_sector(ums,
+				      file_offset / SECTOR_SIZE,
+				      amount / SECTOR_SIZE,
+				      (char __user *)bh->buf);
+		if (!rc)
 			return -EIO;
-		nread = amount;
+
+		nread = rc * SECTOR_SIZE;
 
 		VLDBG(curlun, "file read %u @ %llu -> %d\n", amount,
 				(unsigned long long) file_offset,
@@ -931,13 +931,13 @@ static int do_write(struct fsg_common *common)
 			amount = bh->outreq->actual;
 
 			/* Perform the write */
-			rc = ums_info->write_sector(&(ums_info->ums_dev),
+			rc = ums->write_sector(ums,
 					       file_offset / SECTOR_SIZE,
 					       amount / SECTOR_SIZE,
 					       (char __user *)bh->buf);
-			if (rc)
+			if (!rc)
 				return -EIO;
-			nwritten = amount;
+			nwritten = rc * SECTOR_SIZE;
 
 			VLDBG(curlun, "file write %u @ %llu -> %d\n", amount,
 					(unsigned long long) file_offset,
@@ -959,6 +959,8 @@ static int do_write(struct fsg_common *common)
 
 			/* If an error occurred, report it and its position */
 			if (nwritten < amount) {
+				printf("nwritten:%d amount:%d\n", nwritten,
+				       amount);
 				curlun->sense_data = SS_WRITE_ERROR;
 				curlun->info_valid = 1;
 				break;
@@ -1045,14 +1047,13 @@ static int do_verify(struct fsg_common *common)
 		}
 
 		/* Perform the read */
-		nread = 0;
-		rc = ums_info->read_sector(&(ums_info->ums_dev),
-					   file_offset / SECTOR_SIZE,
-					   amount / SECTOR_SIZE,
-					   (char __user *)bh->buf);
-		if (rc)
+		rc = ums->read_sector(ums,
+				      file_offset / SECTOR_SIZE,
+				      amount / SECTOR_SIZE,
+				      (char __user *)bh->buf);
+		if (!rc)
 			return -EIO;
-		nread = amount;
+		nread = rc * SECTOR_SIZE;
 
 		VLDBG(curlun, "file read %u @ %llu -> %d\n", amount,
 				(unsigned long long) file_offset,
@@ -1100,7 +1101,7 @@ static int do_inquiry(struct fsg_common *common, struct fsg_buffhd *bh)
 	buf[4] = 31;		/* Additional length */
 				/* No special options */
 	sprintf((char *) (buf + 8), "%-8s%-16s%04x", (char*) vendor_id ,
-			ums_info->name, (u16) 0xffff);
+			ums->name, (u16) 0xffff);
 
 	return 36;
 }
@@ -2753,9 +2754,9 @@ int fsg_add(struct usb_configuration *c)
 	return fsg_bind_config(c->cdev, c, fsg_common);
 }
 
-int fsg_init(struct ums_board_info *ums)
+int fsg_init(struct ums *ums_dev)
 {
-	ums_info = ums;
+	ums = ums_dev;
 
 	return 0;
 }

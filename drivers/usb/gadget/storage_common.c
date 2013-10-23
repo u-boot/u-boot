@@ -275,7 +275,6 @@ struct rw_semaphore { int i; };
 #define ETOOSMALL	525
 
 #include <usb_mass_storage.h>
-extern struct ums_board_info		*ums_info;
 
 /*-------------------------------------------------------------------------*/
 
@@ -581,7 +580,7 @@ static int fsg_lun_open(struct fsg_lun *curlun, const char *filename)
 	/* R/W if we can, R/O if we must */
 	ro = curlun->initially_ro;
 
-	ums_info->get_capacity(&(ums_info->ums_dev), &size);
+	ums->get_capacity(ums, &size);
 	if (size < 0) {
 		printf("unable to find file size: %s\n", filename);
 		rc = (int) size;
