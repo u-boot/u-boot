@@ -1548,7 +1548,7 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	}
 
 	dev->status = stat;
-	dev->act_len = transfer_len;
+	dev->act_len = urb->actual_length;
 
 #ifdef DEBUG
 	pkt_print(urb, dev, pipe, buffer, transfer_len,
