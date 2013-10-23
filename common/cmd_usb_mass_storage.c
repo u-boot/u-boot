@@ -20,21 +20,16 @@ int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
 	const char *usb_controller = argv[1];
 	const char *mmc_devstring  = argv[2];
 
-	unsigned int dev_num = (unsigned int)(simple_strtoul(mmc_devstring,
-				NULL, 0));
-	if (dev_num)
-		return CMD_RET_USAGE;
+	unsigned int dev_num = simple_strtoul(mmc_devstring, NULL, 0);
+
+	struct ums *ums = ums_init(dev_num);
+	if (!ums)
+		return CMD_RET_FAILURE;
 
 	unsigned int controller_index = (unsigned int)(simple_strtoul(
 					usb_controller,	NULL, 0));
 	if (board_usb_init(controller_index, USB_INIT_DEVICE)) {
 		error("Couldn't init USB controller.");
-		return CMD_RET_FAILURE;
-	}
-
-	struct ums *ums = ums_init(dev_num);
-	if (!ums) {
-		printf("MMC: %u no such device\n", dev_num);
 		return CMD_RET_FAILURE;
 	}
 
