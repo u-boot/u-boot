@@ -7,3 +7,4 @@
 
 obj-$(CONFIG_SOFT_I2C_MULTI_BUS) += multi_i2c.o
 obj-$(CONFIG_THOR_FUNCTION) += thor.o
+obj-$(CONFIG_CMD_USB_MASS_STORAGE) += ums.o
