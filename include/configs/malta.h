@@ -15,6 +15,8 @@
  */
 #define CONFIG_MALTA
 
+#define CONFIG_MEMSIZE_IN_BYTES
+
 #define CONFIG_PCI
 #define CONFIG_PCI_GT64120
 #define CONFIG_PCI_MSC01
