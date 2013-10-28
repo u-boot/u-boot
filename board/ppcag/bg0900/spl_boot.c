@@ -118,6 +118,19 @@ const iomux_cfg_t iomux_setup[] = {
 
 void mxs_adjust_memory_params(uint32_t *dram_vals)
 {
+	/*
+	 * DDR Controller Registers
+	 * Manufacturer:	Winbond
+	 * Device Part Number:	W972GG6JB-25I
+	 * Clock Freq.:		200MHz
+	 * Density:		2Gb
+	 * Chip Selects:	1
+	 * Number of Banks:	8
+	 * Row address:		14
+	 * Column address:	10
+	 */
+
+	dram_vals[0x74 / 4] = 0x0102010A;
 	dram_vals[0x98 / 4] = 0x04005003;
 	dram_vals[0x9c / 4] = 0x090000c8;
 
