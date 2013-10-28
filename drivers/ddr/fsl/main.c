@@ -255,7 +255,7 @@ static unsigned long long __step_assign_addresses(fsl_ddr_info_t *pinfo,
 		debug("dbw_cap_adj[%d]=%d\n", i, dbw_cap_adj[i]);
 	}
 
-	current_mem_base = 0ull;
+	current_mem_base = CONFIG_SYS_DDR_SDRAM_BASE;
 	total_mem = 0;
 	if (pinfo->memctl_opts[0].memctl_interleaving) {
 		rank_density = pinfo->dimm_params[0][0].rank_density >>
@@ -535,8 +535,8 @@ fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step,
 			}
 		}
 
-		total_mem = 1 + (((unsigned long long)max_end << 24ULL)
-				    | 0xFFFFFFULL);
+		total_mem = 1 + (((unsigned long long)max_end << 24ULL) |
+			    0xFFFFFFULL) - CONFIG_SYS_DDR_SDRAM_BASE;
 	}
 
 	return total_mem;
