@@ -62,6 +62,9 @@ int exynos_dwmci_add_port(int index, u32 regbase, int bus_width, u32 clksel)
 	host->name = "EXYNOS DWMMC";
 	host->ioaddr = (void *)regbase;
 	host->buswidth = bus_width;
+#ifdef CONFIG_EXYNOS5420
+	host->quirks = DWMCI_QUIRK_DISABLE_SMU;
+#endif
 
 	if (clksel) {
 		host->clksel_val = clksel;

@@ -123,6 +123,9 @@
 #define DWMCI_BMOD_IDMAC_FB	(1 << 1)
 #define DWMCI_BMOD_IDMAC_EN	(1 << 7)
 
+/* quirks */
+#define DWMCI_QUIRK_DISABLE_SMU		(1 << 0)
+
 struct dwmci_host {
 	char *name;
 	void *ioaddr;
