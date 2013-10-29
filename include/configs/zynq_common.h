@@ -203,7 +203,9 @@
 # endif
 
 # define CONFIG_ENV_SECT_SIZE		CONFIG_ENV_SIZE
-# define CONFIG_ENV_OFFSET		0xE0000
+# ifndef CONFIG_ENV_OFFSET
+#  define CONFIG_ENV_OFFSET		0xE0000
+# endif
 # define CONFIG_CMD_SAVEENV	/* Command to save ENV to Flash */
 #endif
 
