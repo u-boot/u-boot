@@ -2040,6 +2040,24 @@ CBFS (Coreboot Filesystem) support
 		  - CONFIG_SYS_RCAR_I2C3_SPEED for for the speed channel 3
 		  - CONFIF_SYS_RCAR_I2C_NUM_CONTROLLERS for number of i2c buses
 
+		- drivers/i2c/sh_i2c.c:
+		  - activate this driver with CONFIG_SYS_I2C_SH
+		  - This driver adds from 2 to 5 i2c buses
+
+		  - CONFIG_SYS_I2C_SH_BASE0 for setting the register channel 0
+		  - CONFIG_SYS_I2C_SH_SPEED0 for for the speed channel 0
+		  - CONFIG_SYS_I2C_SH_BASE1 for setting the register channel 1
+		  - CONFIG_SYS_I2C_SH_SPEED1 for for the speed channel 1
+		  - CONFIG_SYS_I2C_SH_BASE2 for setting the register channel 2
+		  - CONFIG_SYS_I2C_SH_SPEED2 for for the speed channel 2
+		  - CONFIG_SYS_I2C_SH_BASE3 for setting the register channel 3
+		  - CONFIG_SYS_I2C_SH_SPEED3 for for the speed channel 3
+		  - CONFIG_SYS_I2C_SH_BASE4 for setting the register channel 4
+		  - CONFIG_SYS_I2C_SH_SPEED4 for for the speed channel 4
+		  - CONFIG_SYS_I2C_SH_BASE5 for setting the register channel 5
+		  - CONFIG_SYS_I2C_SH_SPEED5 for for the speed channel 5
+		  - CONFIF_SYS_I2C_SH_NUM_CONTROLLERS for nummber of i2c buses
+
 		additional defines:
 
 		CONFIG_SYS_NUM_I2C_BUSES

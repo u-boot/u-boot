@@ -57,8 +57,7 @@ int board_late_init(void)
 
 	outl(inl(MSTPCR2) & ~0x10000000, MSTPCR2);
 
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-	i2c_set_bus_num(CONFIG_SYS_I2C_MODULE); /* Use I2C 1 */
+	i2c_set_bus_num(1); /* Use I2C 1 */
 
 	/* Read MAC address */
 	i2c_read(0x50, 0x10, 0, mac, 6);
