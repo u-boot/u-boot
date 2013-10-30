@@ -10,19 +10,10 @@
 
 #include <common.h>
 #include <asm/io.h>
-#ifndef CONFIG_AT91_LEGACY
 #include <asm/arch/hardware.h>
 #include <asm/arch/at91_emac.h>
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_pio.h>
-#else
-/* remove next 5 lines, if all RM9200 boards convert to at91 arch */
-#include <asm/arch-at91/at91rm9200.h>
-#include <asm/arch-at91/hardware.h>
-#include <asm/arch-at91/at91_emac.h>
-#include <asm/arch-at91/at91_pmc.h>
-#include <asm/arch-at91/at91_pio.h>
-#endif
 #include <net.h>
 #include <netdev.h>
 #include <malloc.h>
