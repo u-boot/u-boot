@@ -74,7 +74,6 @@
 #define CONFIG_USB_STORAGE
 
 /* GPIOs and IO expander */
-#define CONFIG_AT91_LEGACY
 #define CONFIG_ATMEL_LEGACY
 #define CONFIG_AT91_GPIO
 #define CONFIG_AT91_GPIO_PULLUP		1
