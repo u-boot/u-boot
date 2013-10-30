@@ -20,7 +20,6 @@ vu_long  *vcxk_bws_long = ((vu_long *) (CONFIG_SYS_VCXK_BASE));
 	#ifndef VCBITMASK
 		#define VCBITMASK(bitno)	(0x0001 << (bitno % 16))
 	#endif
-#ifndef CONFIG_AT91_LEGACY
 at91_pio_t *pio = (at91_pio_t *) AT91_PIO_BASE;
 #define VCXK_INIT_PIN(PORT, PIN, DDR, I0O1) \
 	do { \
@@ -37,20 +36,6 @@ at91_pio_t *pio = (at91_pio_t *) AT91_PIO_BASE;
 #define VCXK_ACKNOWLEDGE	\
 	(!(readl(&pio->CONFIG_SYS_VCXK_ACKNOWLEDGE_PORT.pdsr) & \
 			CONFIG_SYS_VCXK_ACKNOWLEDGE_PIN))
-#else
-	#define VCXK_INIT_PIN(PORT, PIN, DDR, I0O1) \
-		((AT91PS_PIO) PORT)->PIO_PER = PIN; \
-		((AT91PS_PIO) PORT)->DDR = PIN; \
-		((AT91PS_PIO) PORT)->PIO_MDDR = PIN; \
-		if (!I0O1) ((AT91PS_PIO) PORT)->PIO_PPUER = PIN;
-
-	#define VCXK_SET_PIN(PORT, PIN)	((AT91PS_PIO) PORT)->PIO_SODR  = PIN;
-	#define VCXK_CLR_PIN(PORT, PIN)	((AT91PS_PIO) PORT)->PIO_CODR  = PIN;
-
-	#define VCXK_ACKNOWLEDGE	\
-		(!(((AT91PS_PIO) CONFIG_SYS_VCXK_ACKNOWLEDGE_PORT)->\
-			PIO_PDSR & CONFIG_SYS_VCXK_ACKNOWLEDGE_PIN))
-#endif
 #elif defined(CONFIG_MCF52x2)
 	#include <asm/m5282.h>
 	#ifndef VCBITMASK
