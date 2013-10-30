@@ -21,10 +21,6 @@
 
 #define ZYNQ_UART_MR_PARITY_NONE	0x00000020  /* No parity mode */
 
-/* Some clock/baud constants */
-#define ZYNQ_UART_BDIV	15 /* Default/reset BDIV value */
-#define ZYNQ_UART_BASECLK	3125000L /* master / (bdiv + 1) */
-
 struct uart_zynq {
 	u32 control; /* Control Register [8:0] */
 	u32 mode; /* Mode Register [10:0] */
