@@ -24,43 +24,43 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 struct fsl_esdhc {
-	uint	dsaddr;
-	uint	blkattr;
-	uint	cmdarg;
-	uint	xfertyp;
-	uint	cmdrsp0;
-	uint	cmdrsp1;
-	uint	cmdrsp2;
-	uint	cmdrsp3;
-	uint	datport;
-	uint	prsstat;
-	uint	proctl;
-	uint	sysctl;
-	uint	irqstat;
-	uint	irqstaten;
-	uint	irqsigen;
-	uint	autoc12err;
-	uint	hostcapblt;
-	uint	wml;
-	uint    mixctrl;
-	char    reserved1[4];
-	uint	fevt;
-	uint	admaes;
-	uint	adsaddr;
-	char	reserved2[160];
-	uint	hostver;
-	char	reserved3[4];
-	uint	dmaerraddr;
-	char	reserved4[4];
-	uint	dmaerrattr;
-	char	reserved5[4];
-	uint	hostcapblt2;
-	char	reserved6[8];
-	uint	tcr;
-	char	reserved7[28];
-	uint	sddirctl;
-	char	reserved8[712];
-	uint	scr;
+	uint    dsaddr;		/* SDMA system address register */
+	uint    blkattr;	/* Block attributes register */
+	uint    cmdarg;		/* Command argument register */
+	uint    xfertyp;	/* Transfer type register */
+	uint    cmdrsp0;	/* Command response 0 register */
+	uint    cmdrsp1;	/* Command response 1 register */
+	uint    cmdrsp2;	/* Command response 2 register */
+	uint    cmdrsp3;	/* Command response 3 register */
+	uint    datport;	/* Buffer data port register */
+	uint    prsstat;	/* Present state register */
+	uint    proctl;		/* Protocol control register */
+	uint    sysctl;		/* System Control Register */
+	uint    irqstat;	/* Interrupt status register */
+	uint    irqstaten;	/* Interrupt status enable register */
+	uint    irqsigen;	/* Interrupt signal enable register */
+	uint    autoc12err;	/* Auto CMD error status register */
+	uint    hostcapblt;	/* Host controller capabilities register */
+	uint    wml;		/* Watermark level register */
+	uint    mixctrl;	/* For USDHC */
+	char    reserved1[4];	/* reserved */
+	uint    fevt;		/* Force event register */
+	uint    admaes;		/* ADMA error status register */
+	uint    adsaddr;	/* ADMA system address register */
+	char    reserved2[160];	/* reserved */
+	uint    hostver;	/* Host controller version register */
+	char    reserved3[4];	/* reserved */
+	uint    dmaerraddr;	/* DMA error address register */
+	char    reserved4[4];	/* reserved */
+	uint    dmaerrattr;	/* DMA error attribute register */
+	char    reserved5[4];	/* reserved */
+	uint    hostcapblt2;	/* Host controller capabilities register 2 */
+	char    reserved6[8];	/* reserved */
+	uint    tcr;		/* Tuning control register */
+	char    reserved7[28];	/* reserved */
+	uint    sddirctl;	/* SD direction control register */
+	char    reserved8[712];	/* reserved */
+	uint    scr;		/* eSDHC control register */
 };
 
 /* Return the XFERTYP flags for a given command and data packet */
