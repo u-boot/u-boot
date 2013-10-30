@@ -39,3 +39,10 @@ The method for updating
 3. add new structures for SoC access
 4. Convert arch, driver and boards file to new SoC
 5. remove legacy code, if all boards and drives are ready
+
+2013-10-30 Andreas Bießmann <andreas.devel@googlemail.com>:
+
+The goal is almost reached, we could remove the CONFIG_AT91_LEGACY switch but
+remain the CONFIG_ATMEL_LEGACY switch until the GPIO disaster is fixed. The
+AT91 spi driver has also some CONFIG_ATMEL_LEGACY stuff left, so another point
+to fix until this README can be removed.

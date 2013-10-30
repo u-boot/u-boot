@@ -118,6 +118,6 @@ typedef struct at91_spi {
 
 #define AT91_SPI_PTSR		0x0124			/* PDC Transfer Status Register */
 
-#endif /* CONFIG_AT91_LEGACY */
+#endif /* CONFIG_ATMEL_LEGACY */
 
 #endif
