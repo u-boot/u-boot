@@ -45,9 +45,21 @@ struct fsl_esdhc {
 	uint    mixctrl;
 	char    reserved1[4];
 	uint	fevt;
-	char	reserved2[168];
+	uint	admaes;
+	uint	adsaddr;
+	char	reserved2[160];
 	uint	hostver;
-	char	reserved3[780];
+	char	reserved3[4];
+	uint	dmaerraddr;
+	char	reserved4[4];
+	uint	dmaerrattr;
+	char	reserved5[4];
+	uint	hostcapblt2;
+	char	reserved6[8];
+	uint	tcr;
+	char	reserved7[28];
+	uint	sddirctl;
+	char	reserved8[712];
 	uint	scr;
 };
 
