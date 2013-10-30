@@ -2108,6 +2108,24 @@ defined(CONFIG_SANDBOX) || defined(CONFIG_X86)
 	return 0;
 }
 
+void video_clear(void)
+{
+	if (!video_fb_address)
+		return;
+#ifdef VIDEO_HW_RECTFILL
+	video_hw_rectfill(VIDEO_PIXEL_SIZE,	/* bytes per pixel */
+			  0,			/* dest pos x */
+			  0,			/* dest pos y */
+			  VIDEO_VISIBLE_COLS,	/* frame width */
+			  VIDEO_VISIBLE_ROWS,	/* frame height */
+			  bgx			/* fill color */
+	);
+#else
+	memsetl(video_fb_address,
+		(VIDEO_VISIBLE_ROWS * VIDEO_LINE_LEN) / sizeof(int), bgx);
+#endif
+}
+
 static int video_init(void)
 {
 	unsigned char color8;
@@ -2193,6 +2211,8 @@ static int video_init(void)
 		break;
 	}
 	eorx = fgx ^ bgx;
+
+	video_clear();
 
 #ifdef CONFIG_VIDEO_LOGO
 	/* Plot the logo and get start point of console */
@@ -2296,22 +2316,4 @@ int video_get_screen_rows(void)
 int video_get_screen_columns(void)
 {
 	return CONSOLE_COLS;
-}
-
-void video_clear(void)
-{
-	if (!video_fb_address)
-		return;
-#ifdef VIDEO_HW_RECTFILL
-	video_hw_rectfill(VIDEO_PIXEL_SIZE,	/* bytes per pixel */
-			  0,			/* dest pos x */
-			  0,			/* dest pos y */
-			  VIDEO_VISIBLE_COLS,	/* frame width */
-			  VIDEO_VISIBLE_ROWS,	/* frame height */
-			  bgx			/* fill color */
-	);
-#else
-	memsetl(video_fb_address,
-		(VIDEO_VISIBLE_ROWS * VIDEO_LINE_LEN) / sizeof(int), bgx);
-#endif
 }
