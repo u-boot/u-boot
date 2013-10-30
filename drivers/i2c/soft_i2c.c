@@ -25,7 +25,7 @@
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/at91_pio.h>
-#ifdef CONFIG_AT91_LEGACY
+#ifdef CONFIG_ATMEL_LEGACY
 #include <asm/arch/gpio.h>
 #endif
 #endif

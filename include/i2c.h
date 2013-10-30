@@ -147,7 +147,7 @@ extern struct i2c_bus_hose	i2c_bus[];
 
 # elif (defined(CONFIG_AT91RM9200) || \
 	defined(CONFIG_AT91SAM9260) ||  defined(CONFIG_AT91SAM9261) || \
-	defined(CONFIG_AT91SAM9263)) && !defined(CONFIG_AT91_LEGACY)
+	defined(CONFIG_AT91SAM9263))
 #  define I2C_SOFT_DECLARATIONS	at91_pio_t *pio	= (at91_pio_t *) ATMEL_BASE_PIOA;
 # else
 #  define I2C_SOFT_DECLARATIONS
