@@ -65,7 +65,7 @@
 #define CONFIG_SYS_MMC_ENV_DEV 0
 
 /* U-Boot general configuration */
-#define CONFIG_SYS_PROMPT	"MX25PDK U-Boot > "
+#define CONFIG_SYS_PROMPT	"=> "
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE	256	/* Console I/O Buffer Size  */
 /* Print buffer sz */
