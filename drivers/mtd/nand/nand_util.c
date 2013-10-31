@@ -14,7 +14,9 @@
  * Copyright (C) 2008 Nokia Corporation: drop_ffs() function by
  * Artem Bityutskiy <dedekind1@gmail.com> from mtd-utils
  *
- * SPDX-License-Identifier:	GPL-2.0+
+ * Copyright 2010 Freescale Semiconductor
+ *
+ * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>
