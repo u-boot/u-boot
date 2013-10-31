@@ -557,6 +557,12 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 	caps = caps & ~(ESDHC_HOSTCAPBLT_SRS |
 			ESDHC_HOSTCAPBLT_VS18 | ESDHC_HOSTCAPBLT_VS30);
 #endif
+
+/* T4240 host controller capabilities register should have VS33 bit */
+#ifdef CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
+	caps = caps | ESDHC_HOSTCAPBLT_VS33;
+#endif
+
 	if (caps & ESDHC_HOSTCAPBLT_VS18)
 		voltage_caps |= MMC_VDD_165_195;
 	if (caps & ESDHC_HOSTCAPBLT_VS30)
