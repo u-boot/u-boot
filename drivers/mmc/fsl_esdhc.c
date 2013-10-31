@@ -533,6 +533,7 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 	if (!mmc)
 		return -ENOMEM;
 
+	memset(mmc, 0, sizeof(struct mmc));
 	sprintf(mmc->name, "FSL_SDHC");
 	regs = (struct fsl_esdhc *)cfg->esdhc_base;
 
