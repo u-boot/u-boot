@@ -257,10 +257,10 @@ endif
 endif
 
 ifneq ($(OBJTREE),$(SRCTREE))
-CPPFLAGS += -I$(OBJTREE)/include2 -I$(OBJTREE)/include
+CPPFLAGS += -I$(OBJTREE)/include
 endif
 
-CPPFLAGS += -I$(TOPDIR)/include
+CPPFLAGS += -I$(TOPDIR)/include -I$(SRCTREE)/arch/$(ARCH)/include
 CPPFLAGS += -fno-builtin -ffreestanding -nostdinc	\
 	-isystem $(gccincdir) -pipe $(PLATFORM_CPPFLAGS)
 

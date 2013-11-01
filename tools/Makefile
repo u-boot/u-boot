@@ -160,7 +160,7 @@ NOPEDOBJS := $(addprefix $(obj),$(NOPED_OBJ_FILES-y))
 #
 HOSTCPPFLAGS =	-include $(SRCTREE)/include/libfdt_env.h \
 		-idirafter $(SRCTREE)/include \
-		-idirafter $(OBJTREE)/include2 \
+		-idirafter $(SRCTREE)/arch/$(ARCH)/include \
 		-idirafter $(OBJTREE)/include \
 		-I $(SRCTREE)/lib/libfdt \
 		-I $(SRCTREE)/tools \
