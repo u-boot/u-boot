@@ -14,7 +14,7 @@
 /* System configurations */
 #define CONFIG_MX28				/* i.MX28 SoC */
 #define CONFIG_MACH_TYPE	MACH_TYPE_MX28EVK
-#define CONFIG_SYS_PROMPT	"=> "
+#define CONFIG_SYS_PROMPT	"MX28EVK U-Boot > "
 
 /* U-Boot Commands */
 #define CONFIG_SYS_NO_FLASH
