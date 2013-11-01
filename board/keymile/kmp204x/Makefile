@@ -21,28 +21,9 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
 ifneq ($(OBJTREE),$(SRCTREE))
 $(shell mkdir -p $(obj)../common)
 endif
 
-LIB	= $(obj)lib$(BOARD).o
-
-COBJS	:= $(BOARD).o ddr.o eth.o tlb.o pci.o law.o \
+obj-y	:= $(BOARD).o ddr.o eth.o tlb.o pci.o law.o \
 	../common/common.o ../common/ivm.o
-
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
-
-$(LIB):	$(obj).depend $(OBJS)
-	$(call cmd_link_o_target, $(OBJS))
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
