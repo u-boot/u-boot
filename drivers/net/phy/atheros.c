@@ -40,7 +40,7 @@ static int ar8035_config(struct phy_device *phydev)
 static struct phy_driver AR8021_driver =  {
 	.name = "AR8021",
 	.uid = 0x4dd040,
-	.mask = 0xfffff0,
+	.mask = 0x4fffff,
 	.features = PHY_GBIT_FEATURES,
 	.config = ar8021_config,
 	.startup = genphy_startup,
