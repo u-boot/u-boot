@@ -8,3 +8,4 @@ obj-$(CONFIG_BLACKFIN)		+= bootcount_blackfin.o
 obj-$(CONFIG_SOC_DA8XX)		+= bootcount_davinci.o
 obj-$(CONFIG_AM33XX)		+= bootcount_davinci.o
 obj-$(CONFIG_BOOTCOUNT_RAM)	+= bootcount_ram.o
+obj-$(CONFIG_BOOTCOUNT_ENV)	+= bootcount_env.o
