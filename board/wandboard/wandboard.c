@@ -230,8 +230,10 @@ int board_video_skip(void)
 
 	ret = ipuv3_fb_init(&hdmi, 0, IPU_PIX_FMT_RGB24);
 
-	if (ret)
+	if (ret) {
 		printf("HDMI cannot be configured: %d\n", ret);
+		return ret;
+	}
 
 	imx_enable_hdmi_phy();
 
