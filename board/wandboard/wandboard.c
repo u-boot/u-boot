@@ -265,7 +265,7 @@ int board_eth_init(bd_t *bis)
 	if (ret)
 		printf("FEC MXC: %s:failed\n", __func__);
 
-	return 0;
+	return ret;
 }
 
 int board_early_init_f(void)
