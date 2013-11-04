@@ -147,6 +147,23 @@ int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
 	return 0;
 }
 
+__weak int g_dnl_get_board_bcd_device_number(int gcnum)
+{
+	return gcnum;
+}
+
+static int g_dnl_get_bcd_device_number(struct usb_composite_dev *cdev)
+{
+	struct usb_gadget *gadget = cdev->gadget;
+	int gcnum;
+
+	gcnum = usb_gadget_controller_number(gadget);
+	if (gcnum > 0)
+		gcnum += 0x200;
+
+	return g_dnl_get_board_bcd_device_number(gcnum);
+}
+
 static int g_dnl_bind(struct usb_composite_dev *cdev)
 {
 	struct usb_gadget *gadget = cdev->gadget;
@@ -181,11 +198,9 @@ static int g_dnl_bind(struct usb_composite_dev *cdev)
 	if (ret)
 		goto error;
 
-	gcnum = usb_gadget_controller_number(gadget);
-
-	debug("gcnum: %d\n", gcnum);
+	gcnum = g_dnl_get_bcd_device_number(cdev);
 	if (gcnum >= 0)
-		device_desc.bcdDevice = cpu_to_le16(0x0200 + gcnum);
+		device_desc.bcdDevice = cpu_to_le16(gcnum);
 	else {
 		debug("%s: controller '%s' not recognized\n",
 			shortname, gadget->name);
