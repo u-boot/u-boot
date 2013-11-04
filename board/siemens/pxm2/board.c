@@ -413,8 +413,7 @@ static int conf_disp_pll(int m, int n)
 
 static int board_video_init(void)
 {
-	/* set 300 MHz */
-	conf_disp_pll(25, 2);
+	conf_disp_pll(24, 1);
 	if (factory_dat.pxm50)
 		da8xx_video_init(&lcd_panels[0], &lcd_cfg, lcd_cfg.bpp);
 	else

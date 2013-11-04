@@ -38,11 +38,11 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_SPL_BUILD
 static struct dxr2_baseboard_id __attribute__((section(".data"))) settings;
-
+/* @303MHz-i0 */
 const struct ddr3_data ddr3_default = {
-	0x33524444, 0x56312e33, 0x0100, 0x0001, 0x003A, 0x008A, 0x010B,
-	0x00C4, 0x0888A39B, 0x26247FDA, 0x501F821F, 0x0006, 0x61C04AB2,
-	0x00000618,
+	0x33524444, 0x56312e34, 0x0080, 0x0000, 0x0038, 0x003E, 0x00A4,
+	0x0075, 0x0888A39B, 0x26247FDA, 0x501F821F, 0x00100206, 0x61A44A32,
+	0x00000618, 0x0000014A,
 };
 
 static void set_default_ddr3_timings(void)
@@ -73,6 +73,7 @@ static void print_ddr3_timings(void)
 
 	PRINTARGS(sdram_config);
 	PRINTARGS(ref_ctrl);
+	PRINTARGS(ioctr_val);
 }
 
 static void print_chip_data(void)
@@ -168,7 +169,7 @@ struct cmd_control dxr2_ddr3_cmd_ctrl_data = {
 	dxr2_ddr3_cmd_ctrl_data.cmd2csratio = settings.ddr3.ddr3_sratio;
 	dxr2_ddr3_cmd_ctrl_data.cmd2iclkout = settings.ddr3.iclkout;
 
-	config_ddr(DDR_PLL_FREQ, DXR2_IOCTRL_VAL, &dxr2_ddr3_data,
+	config_ddr(DDR_PLL_FREQ, settings.ddr3.ioctr_val, &dxr2_ddr3_data,
 		   &dxr2_ddr3_cmd_ctrl_data, &dxr2_ddr3_emif_reg_data, 0);
 }
 
