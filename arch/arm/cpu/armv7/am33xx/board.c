@@ -149,6 +149,7 @@ __weak void am33xx_spl_board_init(void)
 	do_setup_dpll(&dpll_mpu_regs, &dpll_mpu_opp100);
 }
 
+#if defined(CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC)
 static void rtc32k_enable(void)
 {
 	struct davinci_rtc *rtc = (struct davinci_rtc *)RTC_BASE;
@@ -164,6 +165,7 @@ static void rtc32k_enable(void)
 	/* Enable the RTC 32K OSC by setting bits 3 and 6. */
 	writel((1 << 3) | (1 << 6), &rtc->osc);
 }
+#endif
 
 static void uart_soft_reset(void)
 {
@@ -232,8 +234,10 @@ void s_init(void)
 #if defined(CONFIG_SPL_BUILD) || defined(CONFIG_NOR_BOOT)
 	prcm_init();
 	set_mux_conf_regs();
+#if defined(CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC)
 	/* Enable RTC32K clock */
 	rtc32k_enable();
+#endif
 	sdram_init();
 #endif
 }
