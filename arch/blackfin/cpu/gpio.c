@@ -12,6 +12,7 @@
 #include <asm/gpio.h>
 #include <asm/portmux.h>
 
+#ifdef CONFIG_ADI_GPIO1
 #if ANOMALY_05000311 || ANOMALY_05000323
 enum {
 	AWA_data = SYSCR,
@@ -774,3 +775,19 @@ void gpio_labels(void)
 			continue;
 	}
 }
+#else
+struct gpio_port_t * const gpio_array[] = {
+	(struct gpio_port_t *)PORTA_FER,
+	(struct gpio_port_t *)PORTB_FER,
+	(struct gpio_port_t *)PORTC_FER,
+	(struct gpio_port_t *)PORTD_FER,
+	(struct gpio_port_t *)PORTE_FER,
+	(struct gpio_port_t *)PORTF_FER,
+	(struct gpio_port_t *)PORTG_FER,
+#if defined(CONFIG_BF54x)
+	(struct gpio_port_t *)PORTH_FER,
+	(struct gpio_port_t *)PORTI_FER,
+	(struct gpio_port_t *)PORTJ_FER,
+#endif
+};
+#endif

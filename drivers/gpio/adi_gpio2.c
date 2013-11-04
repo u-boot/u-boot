@@ -10,22 +10,6 @@
 #include <common.h>
 #include <asm/errno.h>
 #include <asm/gpio.h>
-#include <asm/portmux.h>
-
-static struct gpio_port_t * const gpio_array[] = {
-	(struct gpio_port_t *)PORTA_FER,
-	(struct gpio_port_t *)PORTB_FER,
-	(struct gpio_port_t *)PORTC_FER,
-	(struct gpio_port_t *)PORTD_FER,
-	(struct gpio_port_t *)PORTE_FER,
-	(struct gpio_port_t *)PORTF_FER,
-	(struct gpio_port_t *)PORTG_FER,
-#if defined(CONFIG_BF54x)
-	(struct gpio_port_t *)PORTH_FER,
-	(struct gpio_port_t *)PORTI_FER,
-	(struct gpio_port_t *)PORTJ_FER,
-#endif
-};
 
 #define RESOURCE_LABEL_SIZE	16
 
@@ -98,7 +82,6 @@ static void port_setup(unsigned gpio, unsigned short usage)
 	else
 		gpio_array[gpio_bank(gpio)]->port_fer_set = gpio_bit(gpio);
 #endif
-	SSYNC();
 }
 
 inline void portmux_setup(unsigned short per)
