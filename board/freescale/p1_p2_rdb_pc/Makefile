@@ -18,7 +18,7 @@ obj-y	+= spl_minimal.o tlb.o law.o
 
 else
 ifdef CONFIG_SPL_BUILD
-COBJS-y += spl.o
+obj-y += spl.o
 endif
 
 obj-y        += p1_p2_rdb_pc.o
