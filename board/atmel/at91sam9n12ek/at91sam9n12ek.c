@@ -199,6 +199,13 @@ void at91sam9n12ek_ks8851_hw_init(void)
 }
 #endif
 
+#ifdef CONFIG_USB_ATMEL
+void at91sam9n12ek_usb_hw_init(void)
+{
+	at91_set_pio_output(AT91_PIO_PORTB, 7, 0);
+}
+#endif
+
 int board_early_init_f(void)
 {
 	/* Enable clocks for all PIOs */
@@ -228,6 +235,10 @@ int board_init(void)
 
 #ifdef CONFIG_KS8851_MLL
 	at91sam9n12ek_ks8851_hw_init();
+#endif
+
+#ifdef CONFIG_USB_ATMEL
+	at91sam9n12ek_usb_hw_init();
 #endif
 
 	return 0;
