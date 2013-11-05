@@ -643,7 +643,7 @@ snapper9260=${at91-boards} BUILD_TAG=442
 snapper9g45=${at91-boards} BUILD_TAG=443
 
 This will use 'make ENABLE_AT91_TEST=1 BUILD_TAG=442' for snapper9260
-and 'make ENABLE_AT91_TEST=1 BUILD_TAG=442' for snapper9g45. A special
+and 'make ENABLE_AT91_TEST=1 BUILD_TAG=443' for snapper9g45. A special
 variable ${target} is available to access the target name (snapper9260 and
 snapper9g20 in this case). Variables are resolved recursively.
 
