@@ -275,13 +275,14 @@ int genphy_parse_link(struct phy_device *phydev)
 	int mii_reg = phy_read(phydev, MDIO_DEVAD_NONE, MII_BMSR);
 
 	/* We're using autonegotiation */
-	if (mii_reg & BMSR_ANEGCAPABLE) {
+	if (phydev->supported & SUPPORTED_Autoneg) {
 		u32 lpa = 0;
 		int gblpa = 0;
 		u32 estatus = 0;
 
 		/* Check for gigabit capability */
-		if (mii_reg & BMSR_ERCAP) {
+		if (phydev->supported & (SUPPORTED_1000baseT_Full |
+					SUPPORTED_1000baseT_Half)) {
 			/* We want a list of states supported by
 			 * both PHYs in the link
 			 */
