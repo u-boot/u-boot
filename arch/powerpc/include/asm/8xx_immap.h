@@ -1,4 +1,3 @@
-
 /*
  * MPC8xx Internal Memory Map
  * Copyright (c) 1997 Dan Malek (dmalek@jlc.net)

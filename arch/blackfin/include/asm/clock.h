@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2012 Analog Devices Inc.
  * Licensed under the GPL-2 or later.

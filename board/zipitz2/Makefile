@@ -1,4 +1,3 @@
-
 #
 # Copyright (C) 2009
 # Marek Vasut <marek.vasut@gmail.com>

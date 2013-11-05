@@ -1,4 +1,3 @@
-
 #
 # Author: Grzegorz Bernacki, Semihalf, gjb@semihalf.com
 #

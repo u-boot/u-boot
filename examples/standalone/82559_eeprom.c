@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1998-2001 by Donald Becker.
  * This software may be used and distributed according to the terms of

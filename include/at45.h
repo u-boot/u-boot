@@ -1,4 +1,3 @@
-
 #ifndef	_AT45_H_
 #define	_AT45_H_
 #ifdef	CONFIG_DATAFLASH_MMC_SELECT

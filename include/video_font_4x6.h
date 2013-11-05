@@ -1,4 +1,3 @@
-
 /* Hand composed "Minuscule" 4x6 font, with binary data generated using
  * Perl stub.
  *

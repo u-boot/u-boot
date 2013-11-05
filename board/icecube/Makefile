@@ -1,4 +1,3 @@
-
 #
 # (C) Copyright 2003-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
