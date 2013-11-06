@@ -10,6 +10,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <zynqpl.h>
+#include <asm/sizes.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 
@@ -177,8 +178,14 @@ int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 		return FPGA_FAIL;
 	}
 
-	if ((u32)buf_start & 0x3) {
-		u32 *new_buf = (u32 *)((u32)buf & ~0x3);
+	if ((u32)buf < SZ_1M) {
+		printf("%s: Bitstream has to be placed up to 1MB (%x)\n",
+		       __func__, (u32)buf);
+		return FPGA_FAIL;
+	}
+
+	if ((u32)buf != ALIGN((u32)buf, ARCH_DMA_MINALIGN)) {
+		u32 *new_buf = (u32 *)ALIGN((u32)buf, ARCH_DMA_MINALIGN);
 
 		printf("%s: Align buffer at %x to %x(swap %d)\n", __func__,
 		       (u32)buf_start, (u32)new_buf, swap);
@@ -283,6 +290,10 @@ int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 
 	debug("%s: Source = 0x%08X\n", __func__, (u32)buf);
 	debug("%s: Size = %zu\n", __func__, bsize);
+
+	/* flush(clean & invalidate) d-cache range buf */
+	flush_dcache_range((u32)buf, (u32)buf +
+			   roundup(bsize, ARCH_DMA_MINALIGN));
 
 	/* Set up the transfer */
 	writel((u32)buf | 1, &devcfg_base->dma_src_addr);
