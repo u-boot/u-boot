@@ -1,4 +1,4 @@
-TABILITY or FITNESS FO04-2007 Freescale Semiconductor, Inc.
+/* Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
  * Hayden Fraser (Hayden.Fraser@freescale.com)
  *
  * SPDX-License-Identifier:	GPL-2.0+
