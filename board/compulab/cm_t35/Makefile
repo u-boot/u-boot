@@ -7,4 +7,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	+= cm_t35.o leds.o
+obj-y	+= cm_t35.o
