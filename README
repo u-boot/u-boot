@@ -1963,6 +1963,14 @@ CBFS (Coreboot Filesystem) support
 		kernel). Defining CONFIG_STATUS_LED enables this
 		feature in U-Boot.
 
+		Additional options:
+
+		CONFIG_GPIO_LED
+		The status LED can be connected to a GPIO pin.
+		In such cases, the gpio_led driver can be used as a
+		status LED backend implementation. Define CONFIG_GPIO_LED
+		to include the gpio_led driver in the U-Boot binary.
+
 - CAN Support:	CONFIG_CAN_DRIVER
 
 		Defining CONFIG_CAN_DRIVER enables CAN driver support
