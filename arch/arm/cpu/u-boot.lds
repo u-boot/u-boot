@@ -91,12 +91,14 @@ SECTIONS
 		KEEP(*(.__bss_end));
 	}
 
-	/DISCARD/ : { *(.dynsym) }
-	/DISCARD/ : { *(.dynstr*) }
-	/DISCARD/ : { *(.dynamic*) }
-	/DISCARD/ : { *(.plt*) }
-	/DISCARD/ : { *(.interp*) }
-	/DISCARD/ : { *(.gnu*) }
-	/DISCARD/ : { *(.ARM.exidx*) }
-	/DISCARD/ : { *(.gnu.linkonce.armexidx.*) }
+	.dynsym _end : { *(.dynsym) }
+	.hash : { *(.hash) }
+	.got.plt : { *(.got.plt) }
+	.dynbss : { *(.dynbss) }
+	.dynstr : { *(.dynstr*) }
+	.dynamic : { *(.dynamic*) }
+	.plt : { *(.plt*) }
+	.interp : { *(.interp*) }
+	.gnu : { *(.gnu*) }
+	.ARM.exidx : { *(.ARM.exidx*) }
 }

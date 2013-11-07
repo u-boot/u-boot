@@ -103,3 +103,6 @@ ALL-y += checkarmreloc
 # such usage by requiring word relocations.
 PLATFORM_CPPFLAGS += $(call cc-option, -mword-relocations)
 endif
+
+# limit ourselves to the sections we want in the .bin.
+OBJCFLAGS += -j .text -j .rodata -j .data -j .u_boot_list -j .rel.dyn
