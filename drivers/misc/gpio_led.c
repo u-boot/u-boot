@@ -11,7 +11,11 @@
 
 void __led_init(led_id_t mask, int state)
 {
-	gpio_request(mask, "gpio_led");
+	if (gpio_request(mask, "gpio_led") != 0) {
+		printf("%s: failed requesting GPIO%lu!\n", __func__, mask);
+		return;
+	}
+
 	gpio_direction_output(mask, state == STATUS_LED_ON);
 }
 
