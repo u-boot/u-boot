@@ -151,7 +151,19 @@ void i2c_init(int speed, int slaveadd)
  */
 static void i2c_setaddress(unsigned int i2c_addr)
 {
+	unsigned int enbl;
+
+	/* Disable i2c */
+	enbl = readl(&i2c_regs_p->ic_enable);
+	enbl &= ~IC_ENABLE_0B;
+	writel(enbl, &i2c_regs_p->ic_enable);
+
 	writel(i2c_addr, &i2c_regs_p->ic_tar);
+
+	/* Enable i2c */
+	enbl = readl(&i2c_regs_p->ic_enable);
+	enbl |= IC_ENABLE_0B;
+	writel(enbl, &i2c_regs_p->ic_enable);
 }
 
 /*
