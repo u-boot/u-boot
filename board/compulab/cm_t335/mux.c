@@ -94,6 +94,11 @@ static struct module_pin_mux eth_phy_rst_pin_mux[] = {
 	{-1},
 };
 
+static struct module_pin_mux status_led_pin_mux[] = {
+	{OFFSET(gpmc_csn3), (MODE(7) | PULLUDEN)},	/* GPIO2_0 */
+	{-1},
+};
+
 void set_uart_mux_conf(void)
 {
 	configure_module_pin_mux(uart0_pin_mux);
@@ -108,4 +113,5 @@ void set_mux_conf_regs(void)
 	configure_module_pin_mux(eth_phy_rst_pin_mux);
 	configure_module_pin_mux(mmc0_pin_mux);
 	configure_module_pin_mux(nand_pin_mux);
+	configure_module_pin_mux(status_led_pin_mux);
 }

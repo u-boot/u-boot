@@ -31,6 +31,9 @@ int board_init(void)
 
 	gpmc_init();
 
+#if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
+	status_led_set(STATUS_LED_BOOT, STATUS_LED_OFF);
+#endif
 	return 0;
 }
 
