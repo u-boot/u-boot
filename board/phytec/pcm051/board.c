@@ -55,20 +55,16 @@ static const struct ddr_data ddr3_data = {
 	.datawdsratio0 = MT41J256M8HX15E_WR_DQS,
 	.datafwsratio0 = MT41J256M8HX15E_PHY_FIFO_WE,
 	.datawrsratio0 = MT41J256M8HX15E_PHY_WR_DATA,
-	.datadldiff0 = PHY_DLL_LOCK_DIFF,
 };
 
 static const struct cmd_control ddr3_cmd_ctrl_data = {
 	.cmd0csratio = MT41J256M8HX15E_RATIO,
-	.cmd0dldiff = MT41J256M8HX15E_DLL_LOCK_DIFF,
 	.cmd0iclkout = MT41J256M8HX15E_INVERT_CLKOUT,
 
 	.cmd1csratio = MT41J256M8HX15E_RATIO,
-	.cmd1dldiff = MT41J256M8HX15E_DLL_LOCK_DIFF,
 	.cmd1iclkout = MT41J256M8HX15E_INVERT_CLKOUT,
 
 	.cmd2csratio = MT41J256M8HX15E_RATIO,
-	.cmd2dldiff = MT41J256M8HX15E_DLL_LOCK_DIFF,
 	.cmd2iclkout = MT41J256M8HX15E_INVERT_CLKOUT,
 };
 
@@ -94,20 +90,16 @@ static const struct ddr_data ddr3_data = {
 	.datawdsratio0 = MT41K256M16HA125E_WR_DQS,
 	.datafwsratio0 = MT41K256M16HA125E_PHY_FIFO_WE,
 	.datawrsratio0 = MT41K256M16HA125E_PHY_WR_DATA,
-	.datadldiff0 = PHY_DLL_LOCK_DIFF,
 };
 
 static const struct cmd_control ddr3_cmd_ctrl_data = {
 	.cmd0csratio = MT41K256M16HA125E_RATIO,
-	.cmd0dldiff = MT41K256M16HA125E_DLL_LOCK_DIFF,
 	.cmd0iclkout = MT41K256M16HA125E_INVERT_CLKOUT,
 
 	.cmd1csratio = MT41K256M16HA125E_RATIO,
-	.cmd1dldiff = MT41K256M16HA125E_DLL_LOCK_DIFF,
 	.cmd1iclkout = MT41K256M16HA125E_INVERT_CLKOUT,
 
 	.cmd2csratio = MT41K256M16HA125E_RATIO,
-	.cmd2dldiff = MT41K256M16HA125E_DLL_LOCK_DIFF,
 	.cmd2iclkout = MT41K256M16HA125E_INVERT_CLKOUT,
 };
 

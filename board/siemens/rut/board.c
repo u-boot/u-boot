@@ -63,19 +63,14 @@ struct ddr_data rut_ddr3_data = {
 	.datawdsratio0 = 0x85,
 	.datafwsratio0 = 0x100,
 	.datawrsratio0 = 0xc1,
-	.datauserank0delay = 1,
-	.datadldiff0 = PHY_DLL_LOCK_DIFF,
 };
 
 struct cmd_control rut_ddr3_cmd_ctrl_data = {
 	.cmd0csratio = 0x40,
-	.cmd0dldiff = 0,
 	.cmd0iclkout = 1,
 	.cmd1csratio = 0x40,
-	.cmd1dldiff = 0,
 	.cmd1iclkout = 1,
 	.cmd2csratio = 0x40,
-	.cmd2dldiff = 0,
 	.cmd2iclkout = 1,
 };
 

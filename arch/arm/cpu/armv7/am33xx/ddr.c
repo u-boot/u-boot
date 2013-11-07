@@ -89,15 +89,12 @@ void config_ddr_phy(const struct emif_regs *regs, int nr)
 void config_cmd_ctrl(const struct cmd_control *cmd, int nr)
 {
 	writel(cmd->cmd0csratio, &ddr_cmd_reg[nr]->cm0csratio);
-	writel(cmd->cmd0dldiff, &ddr_cmd_reg[nr]->cm0dldiff);
 	writel(cmd->cmd0iclkout, &ddr_cmd_reg[nr]->cm0iclkout);
 
 	writel(cmd->cmd1csratio, &ddr_cmd_reg[nr]->cm1csratio);
-	writel(cmd->cmd1dldiff, &ddr_cmd_reg[nr]->cm1dldiff);
 	writel(cmd->cmd1iclkout, &ddr_cmd_reg[nr]->cm1iclkout);
 
 	writel(cmd->cmd2csratio, &ddr_cmd_reg[nr]->cm2csratio);
-	writel(cmd->cmd2dldiff, &ddr_cmd_reg[nr]->cm2dldiff);
 	writel(cmd->cmd2iclkout, &ddr_cmd_reg[nr]->cm2iclkout);
 }
 
@@ -121,10 +118,6 @@ void config_ddr_data(const struct ddr_data *data, int nr)
 			&(ddr_data_reg[nr]+i)->dt0fwsratio0);
 		writel(data->datawrsratio0,
 			&(ddr_data_reg[nr]+i)->dt0wrsratio0);
-		writel(data->datauserank0delay,
-			&(ddr_data_reg[nr]+i)->dt0rdelays0);
-		writel(data->datadldiff0,
-			&(ddr_data_reg[nr]+i)->dt0dldiff0);
 	}
 }
 
