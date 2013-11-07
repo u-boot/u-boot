@@ -249,9 +249,6 @@ static int i2c_xfer_finish(void)
 
 	i2c_flush_rxfifo();
 
-	/* Wait for read/write operation to complete on actual memory */
-	udelay(10000);
-
 	return 0;
 }
 
