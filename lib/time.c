@@ -37,7 +37,7 @@ unsigned long notrace timer_read_counter(void)
 #endif
 }
 #else
-extern unsigned long timer_read_counter(void);
+extern unsigned long __weak timer_read_counter(void);
 #endif
 
 unsigned long long __weak notrace get_ticks(void)
