@@ -427,10 +427,10 @@ static int pcnet_send(struct eth_device *dev, void *packet, int pkt_len)
 	 * set the status with the "ownership" bits last.
 	 */
 	status = 0x8300;
-	entry->length = le16_to_cpu(-pkt_len);
+	entry->length = cpu_to_le16(-pkt_len);
 	entry->misc = 0x00000000;
 	entry->base = PCI_TO_MEM_LE(dev, packet);
-	entry->status = le16_to_cpu(status);
+	entry->status = cpu_to_le16(status);
 
 	/* Trigger an immediate send poll. */
 	pcnet_write_csr(dev, 0, 0x0008);
