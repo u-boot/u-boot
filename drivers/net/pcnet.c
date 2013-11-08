@@ -364,6 +364,7 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 					       RX_RING_LEN_BITS);
 	lp->init_block.rx_ring = PCI_TO_MEM_LE(dev, lp->rx_ring);
 	lp->init_block.tx_ring = PCI_TO_MEM_LE(dev, lp->tx_ring);
+	flush_dcache_range((unsigned long)lp, (unsigned long)&lp->rx_buf);
 
 	PCNET_DEBUG1("\ntlen_rlen=0x%x rx_ring=0x%x tx_ring=0x%x\n",
 		     lp->init_block.tlen_rlen,
@@ -407,8 +408,13 @@ static int pcnet_send(struct eth_device *dev, void *packet, int pkt_len)
 	PCNET_DEBUG2("Tx%d: %d bytes from 0x%p ", lp->cur_tx, pkt_len,
 		     packet);
 
+	flush_dcache_range((unsigned long)packet,
+			   (unsigned long)packet + pkt_len);
+
 	/* Wait for completion by testing the OWN bit */
 	for (i = 1000; i > 0; i--) {
+		invalidate_dcache_range((unsigned long)entry,
+					(unsigned long)entry + sizeof(*entry));
 		status = le16_to_cpu(entry->status);
 		if ((status & 0x8000) == 0)
 			break;
@@ -431,6 +437,8 @@ static int pcnet_send(struct eth_device *dev, void *packet, int pkt_len)
 	entry->misc = 0x00000000;
 	entry->base = PCI_TO_MEM_LE(dev, packet);
 	entry->status = cpu_to_le16(status);
+	flush_dcache_range((unsigned long)entry,
+			   (unsigned long)entry + sizeof(*entry));
 
 	/* Trigger an immediate send poll. */
 	pcnet_write_csr(dev, 0, 0x0008);
@@ -451,6 +459,8 @@ static int pcnet_recv (struct eth_device *dev)
 
 	while (1) {
 		entry = &lp->rx_ring[lp->cur_rx];
+		invalidate_dcache_range((unsigned long)entry,
+					(unsigned long)entry + sizeof(*entry));
 		/*
 		 * If we own the next entry, it's a new packet. Send it up.
 		 */
@@ -479,6 +489,10 @@ static int pcnet_recv (struct eth_device *dev)
 				printf("%s: Rx%d: invalid packet length %d\n",
 				       dev->name, lp->cur_rx, pkt_len);
 			} else {
+				invalidate_dcache_range(
+					(unsigned long)lp->rx_buf[lp->cur_rx],
+					(unsigned long)lp->rx_buf[lp->cur_rx] +
+					pkt_len);
 				NetReceive(lp->rx_buf[lp->cur_rx], pkt_len);
 				PCNET_DEBUG2("Rx%d: %d bytes from 0x%p\n",
 					     lp->cur_rx, pkt_len,
@@ -486,6 +500,8 @@ static int pcnet_recv (struct eth_device *dev)
 			}
 		}
 		entry->status |= cpu_to_le16(0x8000);
+		flush_dcache_range((unsigned long)entry,
+				   (unsigned long)entry + sizeof(*entry));
 
 		if (++lp->cur_rx >= RX_RING_SIZE)
 			lp->cur_rx = 0;
