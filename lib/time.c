@@ -51,7 +51,7 @@ unsigned long long __weak notrace get_ticks(void)
 	return ((unsigned long long)gd->timebase_h << 32) | gd->timebase_l;
 }
 
-static unsigned long long notrace tick_to_time(unsigned long long tick)
+static unsigned long long notrace tick_to_time(uint64_t tick)
 {
 	unsigned int div = get_tbclk();
 
@@ -71,7 +71,7 @@ unsigned long __weak notrace timer_get_us(void)
 }
 static unsigned long long usec_to_tick(unsigned long usec)
 {
-	unsigned long long tick = usec * get_tbclk();
+	uint64_t tick = usec * get_tbclk();
 	usec *= get_tbclk();
 	do_div(tick, 1000000);
 	return tick;
