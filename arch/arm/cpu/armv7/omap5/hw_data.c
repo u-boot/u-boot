@@ -600,6 +600,7 @@ const struct ctrl_ioregs ioregs_omap5432_es1 = {
 	.ctrl_ddrio_1 = DDR_IO_1_VREF_CELLS_DDR3_VALUE,
 	.ctrl_ddrio_2 = DDR_IO_2_VREF_CELLS_DDR3_VALUE,
 	.ctrl_emif_sdram_config_ext = SDRAM_CONFIG_EXT_RD_LVL_11_SAMPLES,
+	.ctrl_emif_sdram_config_ext_final = SDRAM_CONFIG_EXT_RD_LVL_4_SAMPLES,
 };
 
 const struct ctrl_ioregs ioregs_omap5432_es2 = {
@@ -610,16 +611,18 @@ const struct ctrl_ioregs ioregs_omap5432_es2 = {
 	.ctrl_ddrio_1 = DDR_IO_1_VREF_CELLS_DDR3_VALUE_ES2,
 	.ctrl_ddrio_2 = DDR_IO_2_VREF_CELLS_DDR3_VALUE_ES2,
 	.ctrl_emif_sdram_config_ext = SDRAM_CONFIG_EXT_RD_LVL_11_SAMPLES,
+	.ctrl_emif_sdram_config_ext_final = SDRAM_CONFIG_EXT_RD_LVL_4_SAMPLES,
 };
 
 const struct ctrl_ioregs ioregs_dra7xx_es1 = {
 	.ctrl_ddrch = 0x40404040,
 	.ctrl_lpddr2ch = 0x40404040,
 	.ctrl_ddr3ch = 0x80808080,
-	.ctrl_ddrio_0 = 0xbae8c631,
-	.ctrl_ddrio_1 = 0xb46318d8,
+	.ctrl_ddrio_0 = 0xA2084210,
+	.ctrl_ddrio_1 = 0x84210840,
 	.ctrl_ddrio_2 = 0x84210000,
-	.ctrl_emif_sdram_config_ext = 0xb2c00000,
+	.ctrl_emif_sdram_config_ext = 0x0001C1A7,
+	.ctrl_emif_sdram_config_ext_final = 0x000101A7,
 	.ctrl_ddr_ctrl_ext_0 = 0xA2000000,
 };
 
