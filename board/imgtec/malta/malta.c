@@ -9,6 +9,7 @@
 #include <netdev.h>
 #include <pci_gt64120.h>
 #include <pci_msc01.h>
+#include <rtc.h>
 #include <serial.h>
 
 #include <asm/addrspace.h>
@@ -143,6 +144,13 @@ int board_early_init_f(void)
 
 	/* setup FDC37M817 super I/O controller */
 	malta_superio_init(io_base);
+
+	return 0;
+}
+
+int misc_init_r(void)
+{
+	rtc_reset();
 
 	return 0;
 }

@@ -15,7 +15,7 @@
 #include <command.h>
 #include <rtc.h>
 
-#ifdef __I386__
+#if defined(__I386__) || defined(CONFIG_MALTA)
 #include <asm/io.h>
 #define in8(p) inb(p)
 #define out8(p, v) outb(v, p)

@@ -23,6 +23,10 @@
 #define CONFIG_PCNET_79C973
 #define PCNET_HAS_PROM
 
+#define CONFIG_MISC_INIT_R
+#define CONFIG_RTC_MC146818
+#define CONFIG_SYS_ISA_IO_BASE_ADDRESS	0
+
 /*
  * CPU Configuration
  */
@@ -105,6 +109,7 @@
 #undef CONFIG_CMD_LOADS
 #undef CONFIG_CMD_NFS
 
+#define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
