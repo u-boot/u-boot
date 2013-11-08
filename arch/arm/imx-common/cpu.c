@@ -51,9 +51,9 @@ char *get_reset_cause(void)
 
 #if defined(CONFIG_MX53) || defined(CONFIG_MX6)
 #if defined(CONFIG_MX53)
-#define MEMCTL_BASE	ESDCTL_BASE_ADDR;
+#define MEMCTL_BASE	ESDCTL_BASE_ADDR
 #else
-#define MEMCTL_BASE	MMDC_P0_BASE_ADDR;
+#define MEMCTL_BASE	MMDC_P0_BASE_ADDR
 #endif
 static const unsigned char col_lookup[] = {9, 10, 11, 8, 12, 9, 9, 9};
 static const unsigned char bank_lookup[] = {3, 2};
