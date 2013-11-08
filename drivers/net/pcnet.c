@@ -312,6 +312,21 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 	pcnet_write_bcr(dev, 32, val);
 
 	/*
+	 * Enable NOUFLO on supported controllers, with the transmit
+	 * start point set to the full packet. This will cause entire
+	 * packets to be buffered by the ethernet controller before
+	 * transmission, eliminating underflows which are common on
+	 * slower devices. Controllers which do not support NOUFLO will
+	 * simply be left with a larger transmit FIFO threshold.
+	 */
+	val = pcnet_read_bcr(dev, 18);
+	val |= 1 << 11;
+	pcnet_write_bcr(dev, 18, val);
+	val = pcnet_read_csr(dev, 80);
+	val |= 0x3 << 10;
+	pcnet_write_csr(dev, 80, val);
+
+	/*
 	 * We only maintain one structure because the drivers will never
 	 * be used concurrently. In 32bit mode the RX and TX ring entries
 	 * must be aligned on 16-byte boundaries.
