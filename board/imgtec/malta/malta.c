@@ -29,6 +29,24 @@ enum sys_con {
 	SYSCON_MSC01,
 };
 
+static void malta_lcd_puts(const char *str)
+{
+	int i;
+	void *reg = (void *)CKSEG1ADDR(MALTA_ASCIIPOS0);
+
+	/* print up to 8 characters of the string */
+	for (i = 0; i < min(strlen(str), 8); i++) {
+		__raw_writel(str[i], reg);
+		reg += MALTA_ASCIIPOS1 - MALTA_ASCIIPOS0;
+	}
+
+	/* fill the rest of the display with spaces */
+	for (; i < 8; i++) {
+		__raw_writel(' ', reg);
+		reg += MALTA_ASCIIPOS1 - MALTA_ASCIIPOS0;
+	}
+}
+
 static enum core_card malta_core_card(void)
 {
 	u32 corid, rev;
@@ -71,6 +89,7 @@ int checkboard(void)
 {
 	enum core_card core;
 
+	malta_lcd_puts("U-boot");
 	puts("Board: MIPS Malta");
 
 	core = malta_core_card();
