@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <netdev.h>
+#include <pci.h>
 #include <pci_gt64120.h>
 #include <pci_msc01.h>
 #include <rtc.h>
@@ -169,6 +170,8 @@ struct serial_device *default_serial_console(void)
 
 void pci_init_board(void)
 {
+	pci_dev_t bdf;
+
 	switch (malta_sys_con()) {
 	case SYSCON_GT64120:
 		set_io_port_base(CKSEG1ADDR(MALTA_GT_PCIIO_BASE));
@@ -191,4 +194,15 @@ void pci_init_board(void)
 			       0x00000000, MALTA_MSC01_PCIIO_SIZE);
 		break;
 	}
+
+	bdf = pci_find_device(PCI_VENDOR_ID_INTEL,
+			      PCI_DEVICE_ID_INTEL_82371AB_0, 0);
+	if (bdf == -1)
+		panic("Failed to find PIIX4 PCI bridge\n");
+
+	/* setup PCI interrupt routing */
+	pci_write_config_byte(bdf, PCI_CFG_PIIX4_PIRQRCA, 10);
+	pci_write_config_byte(bdf, PCI_CFG_PIIX4_PIRQRCB, 10);
+	pci_write_config_byte(bdf, PCI_CFG_PIIX4_PIRQRCC, 11);
+	pci_write_config_byte(bdf, PCI_CFG_PIIX4_PIRQRCD, 11);
 }
