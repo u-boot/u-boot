@@ -2071,6 +2071,11 @@ CBFS (Coreboot Filesystem) support
 		  - CONFIG_SYS_OMAP24_I2C_SPEED4 speed channel 4
 		  - CONFIG_SYS_OMAP24_I2C_SLAVE4 slave addr channel 4
 
+		- drivers/i2c/zynq_i2c.c
+		  - activate this driver with CONFIG_SYS_I2C_ZYNQ
+		  - set CONFIG_SYS_I2C_ZYNQ_SPEED for speed setting
+		  - set CONFIG_SYS_I2C_ZYNQ_SLAVE for slave addr
+
 		additional defines:
 
 		CONFIG_SYS_NUM_I2C_BUSES
