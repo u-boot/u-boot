@@ -12,6 +12,7 @@
 #include <asm/addrspace.h>
 #include <asm/regdef.h>
 #include <asm/malta.h>
+#include <asm/mipsregs.h>
 
 #ifdef CONFIG_SYS_BIG_ENDIAN
 #define CPU_TO_GT32(_x)		((_x))
@@ -27,6 +28,12 @@
 
 	.globl	lowlevel_init
 lowlevel_init:
+	/* disable any L2 cache for now */
+	sync
+	mfc0	t0, CP0_CONFIG, 2
+	ori	t0, t0, 0x1 << 12
+	mtc0	t0, CP0_CONFIG, 2
+
 	/* detect the core card */
 	li	t0, KSEG1ADDR(MALTA_REVISION)
 	lw	t0, 0(t0)
