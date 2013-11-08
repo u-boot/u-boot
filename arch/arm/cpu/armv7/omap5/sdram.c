@@ -569,6 +569,74 @@ static const struct lpddr2_device_timings dev_4G_S4_timings = {
 	.min_tck	= &min_tck,
 };
 
+/*
+ * List of status registers to be controlled back to control registers
+ * after initial leveling
+ * readreg, writereg
+ */
+const struct read_write_regs omap5_bug_00339_regs[] = {
+	{ 8,  5 },
+	{ 9,  6 },
+	{ 10, 7 },
+	{ 14, 8 },
+	{ 15, 9 },
+	{ 16, 10 },
+	{ 11, 2 },
+	{ 12, 3 },
+	{ 13, 4 },
+	{ 17, 11 },
+	{ 18, 12 },
+	{ 19, 13 },
+};
+
+const struct read_write_regs dra_bug_00339_regs[] = {
+	{ 7,  7 },
+	{ 8,  8 },
+	{ 9,  9 },
+	{ 10, 10 },
+	{ 11, 11 },
+	{ 12, 2 },
+	{ 13, 3 },
+	{ 14, 4 },
+	{ 15, 5 },
+	{ 16, 6 },
+	{ 17, 12 },
+	{ 18, 13 },
+	{ 19, 14 },
+	{ 20, 15 },
+	{ 21, 16 },
+	{ 22, 17 },
+	{ 23, 18 },
+	{ 24, 19 },
+	{ 25, 20 },
+	{ 26, 21}
+};
+
+const struct read_write_regs *get_bug_regs(u32 *iterations)
+{
+	const struct read_write_regs *bug_00339_regs_ptr = NULL;
+
+	switch (omap_revision()) {
+	case OMAP5430_ES1_0:
+	case OMAP5430_ES2_0:
+	case OMAP5432_ES1_0:
+	case OMAP5432_ES2_0:
+		bug_00339_regs_ptr = omap5_bug_00339_regs;
+		*iterations = sizeof(omap5_bug_00339_regs)/
+			     sizeof(omap5_bug_00339_regs[0]);
+		break;
+	case DRA752_ES1_0:
+		bug_00339_regs_ptr = dra_bug_00339_regs;
+		*iterations = sizeof(dra_bug_00339_regs)/
+			     sizeof(dra_bug_00339_regs[0]);
+		break;
+	default:
+		printf("\n Error: UnKnown SOC");
+	}
+
+	return bug_00339_regs_ptr;
+}
+
 void emif_get_device_timings_sdp(u32 emif_nr,
 		const struct lpddr2_device_timings **cs0_device_timings,
 		const struct lpddr2_device_timings **cs1_device_timings)

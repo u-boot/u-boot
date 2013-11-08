@@ -1286,6 +1286,42 @@ void dmm_init(u32 base)
 
 }
 
+static void do_bug0039_workaround(u32 base)
+{
+	u32 val, i, clkctrl;
+	struct emif_reg_struct *emif_base = (struct emif_reg_struct *)base;
+	const struct read_write_regs *bug_00339_regs;
+	u32 iterations;
+	u32 *phy_status_base = &emif_base->emif_ddr_phy_status[0];
+	u32 *phy_ctrl_base = &emif_base->emif_ddr_ext_phy_ctrl_1;
+
+	if (is_dra7xx())
+		phy_status_base++;
+
+	bug_00339_regs = get_bug_regs(&iterations);
+
+	/* Put EMIF in to idle */
+	clkctrl = __raw_readl((*prcm)->cm_memif_clkstctrl);
+	__raw_writel(0x0, (*prcm)->cm_memif_clkstctrl);
+
+	/* Copy the phy status registers in to phy ctrl shadow registers */
+	for (i = 0; i < iterations; i++) {
+		val = __raw_readl(phy_status_base +
+				  bug_00339_regs[i].read_reg - 1);
+
+		__raw_writel(val, phy_ctrl_base +
+			     ((bug_00339_regs[i].write_reg - 1) << 1));
+
+		__raw_writel(val, phy_ctrl_base +
+			     (bug_00339_regs[i].write_reg << 1) - 1);
+	}
+
+	/* Disable leveling */
+	writel(0x0, &emif_base->emif_rd_wr_lvl_rmp_ctl);
+
+	__raw_writel(clkctrl,  (*prcm)->cm_memif_clkstctrl);
+}
+
 /*
  * SDRAM initialization:
  * SDRAM initialization has two parts:
@@ -1359,6 +1395,12 @@ void sdram_init(void)
 				size_prog);
 		} else
 			debug("get_ram_size() successful");
+	}
+
+	if (sdram_type == EMIF_SDRAM_TYPE_DDR3 &&
+	    (!in_sdram && !warm_reset())) {
+		do_bug0039_workaround(EMIF1_BASE);
+		do_bug0039_workaround(EMIF2_BASE);
 	}
 
 	debug("<<sdram_init()\n");

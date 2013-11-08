@@ -640,7 +640,9 @@ struct emif_reg_struct {
 	u32 emif_ddr_phy_ctrl_2;
 	u32 padding7[12];
 	u32 emif_rd_wr_exec_thresh;
-	u32 padding8[55];
+	u32 padding8[7];
+	u32 emif_ddr_phy_status[21];
+	u32 padding9[27];
 	u32 emif_ddr_ext_phy_ctrl_1;
 	u32 emif_ddr_ext_phy_ctrl_1_shdw;
 	u32 emif_ddr_ext_phy_ctrl_2;
@@ -1141,6 +1143,11 @@ struct lpddr2_mr_regs {
 	s8 mr16;
 };
 
+struct read_write_regs {
+	u32 read_reg;
+	u32 write_reg;
+};
+
 /* assert macros */
 #if defined(DEBUG)
 #define emif_assert(c)	({ if (!(c)) for (;;); })
@@ -1169,4 +1176,5 @@ extern u32 *const T_den;
 
 void config_data_eye_leveling_samples(u32 emif_base);
 u32 emif_sdram_type(void);
+const struct read_write_regs *get_bug_regs(u32 *iterations);
 #endif

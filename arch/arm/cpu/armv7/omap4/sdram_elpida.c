@@ -321,3 +321,8 @@ void get_lpddr2_mr_regs(const struct lpddr2_mr_regs **regs)
 {
 	*regs = &mr_regs;
 }
+
+__weak const struct read_write_regs *get_bug_regs(u32 *iterations)
+{
+	return 0;
+}
