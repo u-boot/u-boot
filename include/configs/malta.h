@@ -20,6 +20,8 @@
 #define CONFIG_PCI_MSC01
 #define CONFIG_PCI_PNP
 #define CONFIG_PCNET
+#define CONFIG_PCNET_79C973
+#define PCNET_HAS_PROM
 
 /*
  * CPU Configuration
@@ -107,6 +109,7 @@
 #undef CONFIG_CMD_LOADS
 #undef CONFIG_CMD_NFS
 
+#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
 
