@@ -12,6 +12,8 @@
 #include <asm/malta.h>
 #include <pci_gt64120.h>
 
+#include "superio.h"
+
 phys_size_t initdram(int board_type)
 {
 	return CONFIG_SYS_MEM_SIZE;
@@ -34,6 +36,14 @@ void _machine_restart(void)
 
 	reset_base = (void __iomem *)CKSEG1ADDR(MALTA_RESET_BASE);
 	__raw_writel(GORESET, reset_base);
+}
+
+int board_early_init_f(void)
+{
+	/* setup FDC37M817 super I/O controller */
+	malta_superio_init((void *)CKSEG1ADDR(MALTA_IO_PORT_BASE));
+
+	return 0;
 }
 
 void pci_init_board(void)

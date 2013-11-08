@@ -7,3 +7,4 @@
 
 obj-y	= malta.o
 obj-y	+= lowlevel_init.o
+obj-y	+= superio.o
