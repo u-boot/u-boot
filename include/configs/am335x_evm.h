@@ -199,6 +199,10 @@
 #define CONFIG_SPL_POWER_SUPPORT
 #define CONFIG_SPL_YMODEM_SUPPORT
 
+/* Bootcount using the RTC block */
+#define CONFIG_BOOTCOUNT_LIMIT
+#define CONFIG_BOOTCOUNT_AM33XX
+
 /* CPSW support */
 #define CONFIG_SPL_ETH_SUPPORT
 
