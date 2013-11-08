@@ -275,7 +275,6 @@ struct rw_semaphore { int i; };
 #define ETOOSMALL	525
 
 #include <usb_mass_storage.h>
-extern struct ums_board_info		*ums_info;
 
 /*-------------------------------------------------------------------------*/
 
@@ -573,36 +572,16 @@ static struct usb_gadget_strings	fsg_stringtab = {
 static int fsg_lun_open(struct fsg_lun *curlun, const char *filename)
 {
 	int				ro;
-	int				rc = -EINVAL;
-	loff_t				size;
-	loff_t				num_sectors;
-	loff_t				min_sectors;
 
 	/* R/W if we can, R/O if we must */
 	ro = curlun->initially_ro;
 
-	ums_info->get_capacity(&(ums_info->ums_dev), &size);
-	if (size < 0) {
-		printf("unable to find file size: %s\n", filename);
-		rc = (int) size;
-		goto out;
-	}
-	num_sectors = size >> 9;	/* File size in 512-byte blocks */
-	min_sectors = 1;
-	if (num_sectors < min_sectors) {
-		printf("file too small: %s\n", filename);
-		rc = -ETOOSMALL;
-		goto out;
-	}
-
 	curlun->ro = ro;
-	curlun->file_length = size;
-	curlun->num_sectors = num_sectors;
+	curlun->file_length = ums->num_sectors << 9;
+	curlun->num_sectors = ums->num_sectors;
 	debug("open backing file: %s\n", filename);
-	rc = 0;
 
-out:
-	return rc;
+	return 0;
 }
 
 static void fsg_lun_close(struct fsg_lun *curlun)

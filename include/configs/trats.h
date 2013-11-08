@@ -321,9 +321,7 @@
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE ((500 * 120 * 4) + (1 << 12))
 
 #define CONFIG_CMD_USB_MASS_STORAGE
-#if defined(CONFIG_CMD_USB_MASS_STORAGE)
 #define CONFIG_USB_GADGET_MASS_STORAGE
-#endif
 
 /* Pass open firmware flat tree */
 #define CONFIG_OF_LIBFDT    1

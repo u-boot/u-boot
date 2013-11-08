@@ -121,6 +121,7 @@ static int dfu_read_medium_nand(struct dfu_entity *dfu, u64 offset, void *buf,
 
 	switch (dfu->layout) {
 	case DFU_RAW_ADDR:
+		*len = dfu->data.nand.size;
 		ret = nand_block_read(dfu, offset, buf, len);
 		break;
 	default:

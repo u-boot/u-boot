@@ -9,32 +9,33 @@
 #define __USB_MASS_STORAGE_H__
 
 #define SECTOR_SIZE		0x200
-
 #include <mmc.h>
 #include <linux/usb/composite.h>
 
-struct ums_device {
-	struct mmc *mmc;
-	int dev_num;
-	int offset;
-	int part_size;
-};
+#ifndef UMS_START_SECTOR
+#define UMS_START_SECTOR	0
+#endif
 
-struct ums_board_info {
-	int (*read_sector)(struct ums_device *ums_dev,
+#ifndef UMS_NUM_SECTORS
+#define UMS_NUM_SECTORS		0
+#endif
+
+struct ums {
+	int (*read_sector)(struct ums *ums_dev,
 			   ulong start, lbaint_t blkcnt, void *buf);
-	int (*write_sector)(struct ums_device *ums_dev,
+	int (*write_sector)(struct ums *ums_dev,
 			    ulong start, lbaint_t blkcnt, const void *buf);
-	void (*get_capacity)(struct ums_device *ums_dev,
-			     long long int *capacity);
+	unsigned int start_sector;
+	unsigned int num_sectors;
 	const char *name;
-	struct ums_device ums_dev;
+	struct mmc *mmc;
 };
 
-int fsg_init(struct ums_board_info *);
+extern struct ums *ums;
+
+int fsg_init(struct ums *);
 void fsg_cleanup(void);
-struct ums_board_info *board_ums_init(unsigned int, unsigned int,
-				      unsigned int);
+struct ums *ums_init(unsigned int);
 int fsg_main_thread(void *);
 
 #ifdef CONFIG_USB_GADGET_MASS_STORAGE
