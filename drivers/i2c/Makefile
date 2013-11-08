@@ -31,7 +31,7 @@ COBJS-$(CONFIG_SYS_I2C_FTI2C010) += fti2c010.o
 COBJS-$(CONFIG_SYS_I2C_PPC4XX) += ppc4xx_i2c.o
 COBJS-$(CONFIG_SYS_I2C_SOFT) += soft_i2c.o
 COBJS-$(CONFIG_SYS_I2C_TEGRA) += tegra_i2c.o
-COBJS-$(CONFIG_ZYNQ_I2C) += zynq_i2c.o
+COBJS-$(CONFIG_SYS_I2C_ZYNQ) += zynq_i2c.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
