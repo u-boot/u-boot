@@ -29,10 +29,6 @@
 #define CONFIG_SYS_MHZ			250	/* arbitrary value */
 #define CONFIG_SYS_MIPS_TIMER_FREQ	(CONFIG_SYS_MHZ * 1000000)
 
-#define CONFIG_SYS_DCACHE_SIZE		16384	/* arbitrary value */
-#define CONFIG_SYS_ICACHE_SIZE		16384	/* arbitrary value */
-#define CONFIG_SYS_CACHELINE_SIZE	32	/* arbitrary value */
-
 #define CONFIG_SWAP_IO_SPACE
 
 /*
