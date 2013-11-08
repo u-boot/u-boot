@@ -84,12 +84,6 @@
 #define CONFIG_CONS_INDEX		1
 
 /*
- * Environment
- */
-#define CONFIG_ENV_IS_NOWHERE
-#define CONFIG_ENV_SIZE			0x10000
-
-/*
  * Flash configuration
  */
 #define CONFIG_SYS_FLASH_BASE		(KSEG1 | MALTA_FLASH_BASE)
@@ -98,6 +92,15 @@
 #define CONFIG_SYS_FLASH_CFI
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
+
+/*
+ * Environment
+ */
+#define CONFIG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_SECT_SIZE		0x20000
+#define CONFIG_ENV_SIZE			CONFIG_ENV_SECT_SIZE
+#define CONFIG_ENV_ADDR \
+	(CONFIG_SYS_FLASH_BASE + (4 << 20) - CONFIG_ENV_SIZE)
 
 /*
  * Commands
