@@ -11,7 +11,6 @@ obj-$(CONFIG_DW_I2C) += designware_i2c.o
 obj-$(CONFIG_I2C_MVTWSI) += mvtwsi.o
 obj-$(CONFIG_I2C_MV) += mv_i2c.o
 obj-$(CONFIG_I2C_MXS) += mxs_i2c.o
-obj-$(CONFIG_DRIVER_OMAP1510_I2C) += omap1510_i2c.o
 obj-$(CONFIG_PCA9564_I2C) += pca9564_i2c.o
 obj-$(CONFIG_DRIVER_S3C24X0_I2C) += s3c24x0_i2c.o
 obj-$(CONFIG_TSI108_I2C) += tsi108_i2c.o
