@@ -18,19 +18,9 @@ void flush_cache(unsigned long start, unsigned long size)
 {
 }
 
-ulong get_tbclk(void)
+unsigned long timer_read_counter(void)
 {
-	return CONFIG_SYS_HZ;
-}
-
-unsigned long long get_ticks(void)
-{
-	return get_timer(0);
-}
-
-ulong get_timer(ulong base)
-{
-	return (os_get_nsec() / 1000000) - base;
+	return os_get_nsec() / 1000;
 }
 
 int timer_init(void)
