@@ -41,6 +41,17 @@
 #define CONFIG_MII			/* Required in net/eth.c */
 
 /*
+ * RTC related defines. To use bootcount you must set bootlimit in the
+ * environment to a non-zero value.
+ */
+#define CONFIG_BOOTCOUNT_LIMIT
+#define CONFIG_SYS_BOOTCOUNT_ADDR	0x44E3E000
+
+/* Enable the HW watchdog, since we can use this with bootcount */
+#define CONFIG_HW_WATCHDOG
+#define CONFIG_OMAP_WATCHDOG
+
+/*
  * SPL related defines.  The Public RAM memory map the ROM defines the
  * area between 0x402F0400 and 0x4030B800 as a download area and
  * 0x4030B800 to 0x4030CE00 as a public stack area.  The ROM also
@@ -49,6 +60,9 @@
  */
 #define CONFIG_SPL_TEXT_BASE		0x402F0400
 #define CONFIG_SPL_MAX_SIZE		(0x4030B800 - CONFIG_SPL_TEXT_BASE)
+
+/* Enable the watchdog inside of SPL */
+#define CONFIG_SPL_WATCHDOG_SUPPORT
 
 /*
  * Since SPL did pll and ddr initialization for us,

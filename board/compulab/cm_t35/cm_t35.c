@@ -33,7 +33,7 @@
 #include <asm/ehci-omap.h>
 #include <asm/gpio.h>
 
-#include "eeprom.h"
+#include "../common/eeprom.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -160,7 +160,7 @@ static u32 cm_t3x_rev;
 u32 get_board_rev(void)
 {
 	if (!cm_t3x_rev)
-		cm_t3x_rev = cm_t3x_eeprom_get_board_rev();
+		cm_t3x_rev = cl_eeprom_get_board_rev();
 
 	return cm_t3x_rev;
 };
@@ -509,7 +509,7 @@ static int handle_mac_address(void)
 	if (rc)
 		return 0;
 
-	rc = cm_t3x_eeprom_read_mac_addr(enetaddr);
+	rc = cl_eeprom_read_mac_addr(enetaddr);
 	if (rc)
 		return rc;
 
@@ -599,5 +599,4 @@ int ehci_hcd_stop(void)
 {
 	return omap_ehci_hcd_stop();
 }
-
 #endif /* CONFIG_USB_EHCI_OMAP */

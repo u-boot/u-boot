@@ -621,6 +621,24 @@ static u32 gem_mdc_clk_div(int id, struct macb_device *macb)
 	return config;
 }
 
+/*
+ * Get the DMA bus width field of the network configuration register that we
+ * should program. We find the width from decoding the design configuration
+ * register to find the maximum supported data bus width.
+ */
+static u32 macb_dbw(struct macb_device *macb)
+{
+	switch (GEM_BFEXT(DBWDEF, gem_readl(macb, DCFG1))) {
+	case 4:
+		return GEM_BF(DBW, GEM_DBW128);
+	case 2:
+		return GEM_BF(DBW, GEM_DBW64);
+	case 1:
+	default:
+		return GEM_BF(DBW, GEM_DBW32);
+	}
+}
+
 int macb_eth_initialize(int id, void *regs, unsigned int phy_addr)
 {
 	struct macb_device *macb;
@@ -665,7 +683,7 @@ int macb_eth_initialize(int id, void *regs, unsigned int phy_addr)
 	 */
 	if (macb_is_gem(macb)) {
 		ncfgr = gem_mdc_clk_div(id, macb);
-		ncfgr |= GEM_BF(DBW, 1);
+		ncfgr |= macb_dbw(macb);
 	} else {
 		ncfgr = macb_mdc_clk_div(id, macb);
 	}

@@ -233,6 +233,8 @@ typedef struct at91_pmc {
 #endif
 #define		AT91_PMC_USBS_USB_PLLA		(0x0)		/* USB Clock Input is PLLA */
 #define		AT91_PMC_USBS_USB_UPLL		(0x1)		/* USB Clock Input is UPLL */
+#define		AT91_PMC_USBS_USB_PLLB		(0x1)		/* USB Clock Input is PLLB, AT91SAM9N12 only */
+#define		AT91_PMC_USB_DIV_2		(0x1 <<  8)	/* USB Clock divided by 2 */
 #define		AT91_PMC_USBDIV_8		(0x7 <<  8)	/* USB Clock divided by 8 */
 #define		AT91_PMC_USBDIV_10		(0x9 <<  8)	/* USB Clock divided by 10 */
 

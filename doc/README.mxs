@@ -27,9 +27,25 @@ Contents
 1) Prerequisites
 ----------------
 
-To make a MXS based board bootable, some tools are necessary. The first one is
-the "elftosb" tool distributed by Freescale Semiconductor. The other one is the
-"mxsboot" tool found in U-Boot source tree.
+To make a MXS based board bootable, some tools are necessary. The only
+mandatory tool is the "mxsboot" tool found in U-Boot source tree. The
+tool is built automatically when compiling U-Boot for i.MX23 or i.MX28.
+
+The production of BootStream image is handled via "mkimage", which is
+also part of the U-Boot source tree. The "mkimage" requires OpenSSL
+development libraries to be installed. In case of Debian and derivates,
+this is installed by running:
+
+	$ sudo apt-get install libssl-dev
+
+NOTE: The "elftosb" tool distributed by Freescale Semiconductor is no
+      longer necessary for general use of U-Boot on i.MX23 and i.MX28.
+      The mkimage supports generation of BootStream images encrypted
+      with a zero key, which is the vast majority of use-cases. In
+      case you do need to produce image encrypted with non-zero key
+      or other special features, please use the "elftosb" tool,
+      otherwise continue to section 2). The installation procedure of
+      the "elftosb" is outlined below:
 
 Firstly, obtain the elftosb archive from the following location:
 
@@ -62,11 +78,6 @@ copy the binary by hand:
 
 Make sure the "elftosb" binary can be found in your $PATH, in this case this
 means "/usr/local/bin/" has to be in your $PATH.
-
-Install the 'libssl-dev' package as well. On a Debian-based distribution, this
-package can be installed as follows:
-
-	$ sudo apt-get install libssl-dev
 
 2) Compiling U-Boot for a MXS based board
 -------------------------------------------
@@ -111,6 +122,18 @@ HINT: To speed-up the build process, you can add -j<N>, where N is number of
 The code produces "u-boot.sb" file. This file needs to be augmented with a
 proper header to allow successful boot from SD or NAND. Adding the header is
 discussed in the following chapters.
+
+NOTE: The process that produces u-boot.sb uses the mkimage to generate the
+      BootStream. The BootStream is encrypted with zero key. In case you need
+      some special features of the BootStream and plan on using the "elftosb"
+      tool instead, the invocation to produce a compatible BootStream with the
+      one produced by mkimage is outlined below. For further details, refer to
+      the documentation bundled with the "elftosb" package.
+
+	$ elftosb -zf imx23 -c arch/arm/cpu/arm926ejs/mxs/u-boot-imx23.bd \
+		-o u-boot.sb
+	$ elftosb -zf imx28 -c arch/arm/cpu/arm926ejs/mxs/u-boot-imx28.bd \
+		-o u-boot.sb
 
 3) Installation of U-Boot for a MXS based board to SD card
 ----------------------------------------------------------

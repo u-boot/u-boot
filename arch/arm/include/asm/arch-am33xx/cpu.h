@@ -457,15 +457,6 @@ struct gptimer {
 	unsigned int tcar2;		/* offset 0x58 */
 };
 
-/* RTC Registers */
-struct rtc_regs {
-	unsigned int res[21];
-	unsigned int osc;		/* offset 0x54 */
-	unsigned int res2[5];
-	unsigned int kick0r;		/* offset 0x6c */
-	unsigned int kick1r;		/* offset 0x70 */
-};
-
 /* UART Registers */
 struct uart_sys {
 	unsigned int resv1[21];

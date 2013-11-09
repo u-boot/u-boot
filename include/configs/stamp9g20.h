@@ -164,6 +164,7 @@
 
 /* USB configuration */
 #define CONFIG_USB_ATMEL
+#define CONFIG_USB_ATMEL_CLK_SEL_PLLB
 #define CONFIG_USB_OHCI_NEW
 #define CONFIG_USB_STORAGE
 #define CONFIG_DOS_PARTITION

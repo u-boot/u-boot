@@ -8,4 +8,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	:= tricorder.o
+obj-y	:= tricorder.o tricorder-eeprom.o led.o
