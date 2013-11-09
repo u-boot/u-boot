@@ -51,7 +51,7 @@ _start:
 	 */
 	.word CONFIG_SYS_XWAY_EBU_BOOTCFG
 	.word 0x0
-#elif defined(CONFIG_QEMU_MALTA)
+#elif defined(CONFIG_MALTA)
 	/*
 	 * Linux expects the Board ID here.
 	 */

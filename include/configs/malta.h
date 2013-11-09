@@ -4,8 +4,8 @@
  * SPDX-License-Identifier:	GPL-2.0
  */
 
-#ifndef _QEMU_MALTA_CONFIG_H
-#define _QEMU_MALTA_CONFIG_H
+#ifndef _MALTA_CONFIG_H
+#define _MALTA_CONFIG_H
 
 #include <asm/addrspace.h>
 #include <asm/malta.h>
@@ -13,7 +13,7 @@
 /*
  * System configuration
  */
-#define CONFIG_QEMU_MALTA
+#define CONFIG_MALTA
 
 #define CONFIG_PCI
 #define CONFIG_PCI_GT64120
@@ -54,9 +54,9 @@
  * Console configuration
  */
 #if defined(CONFIG_SYS_LITTLE_ENDIAN)
-#define CONFIG_SYS_PROMPT		"qemu-maltael # "
+#define CONFIG_SYS_PROMPT		"maltael # "
 #else
-#define CONFIG_SYS_PROMPT		"qemu-malta # "
+#define CONFIG_SYS_PROMPT		"malta # "
 #endif
 
 #define CONFIG_SYS_CBSIZE		256
@@ -110,4 +110,4 @@
 
 #define CONFIG_SYS_LONGHELP		/* verbose help, undef to save memory */
 
-#endif /* _QEMU_MALTA_CONFIG_H */
+#endif /* _MALTA_CONFIG_H */
