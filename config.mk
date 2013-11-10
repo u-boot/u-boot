@@ -250,11 +250,16 @@ Please undefined CONFIG_SYS_GENERIC_BOARD in your board config file)
 endif
 endif
 
+# Sandbox needs the base flags and includes, so keep them around
+BASE_CPPFLAGS := $(CPPFLAGS)
+
 ifneq ($(OBJTREE),$(SRCTREE))
-CPPFLAGS += -I$(OBJTREE)/include
+BASE_INCLUDE_DIRS := $(OBJTREE)/include
 endif
 
-CPPFLAGS += -I$(TOPDIR)/include -I$(SRCTREE)/arch/$(ARCH)/include
+BASE_INCLUDE_DIRS += $(TOPDIR)/include $(SRCTREE)/arch/$(ARCH)/include
+
+CPPFLAGS += $(patsubst %, -I%, $(BASE_INCLUDE_DIRS))
 CPPFLAGS += -fno-builtin -ffreestanding -nostdinc	\
 	-isystem $(gccincdir) -pipe $(PLATFORM_CPPFLAGS)
 
