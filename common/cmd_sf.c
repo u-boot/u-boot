@@ -358,7 +358,8 @@ static void show_time(struct test_info *test, int stage)
 	int bps;	/* Bits per second */
 
 	speed = (long long)test->bytes * 1000;
-	do_div(speed, test->time_ms[stage] * 1024);
+	if (test->time_ms[stage])
+		do_div(speed, test->time_ms[stage] * 1024);
 	bps = speed * 8;
 
 	printf("%d %s: %d ticks, %d KiB/s %d.%03d Mbps\n", stage,
@@ -446,11 +447,13 @@ static int do_spi_flash_test(int argc, char * const argv[])
 {
 	unsigned long offset;
 	unsigned long len;
-	uint8_t *buf = (uint8_t *)CONFIG_SYS_TEXT_BASE;
+	uint8_t *buf, *from;
 	char *endp;
 	uint8_t *vbuf;
 	int ret;
 
+	if (argc < 3)
+		return -1;
 	offset = simple_strtoul(argv[1], &endp, 16);
 	if (*argv[1] == 0 || *endp != 0)
 		return -1;
@@ -460,17 +463,18 @@ static int do_spi_flash_test(int argc, char * const argv[])
 
 	vbuf = malloc(len);
 	if (!vbuf) {
-		printf("Cannot allocate memory\n");
+		printf("Cannot allocate memory (%lu bytes)\n", len);
 		return 1;
 	}
 	buf = malloc(len);
 	if (!buf) {
 		free(vbuf);
-		printf("Cannot allocate memory\n");
+		printf("Cannot allocate memory (%lu bytes)\n", len);
 		return 1;
 	}
 
-	memcpy(buf, (char *)CONFIG_SYS_TEXT_BASE, len);
+	from = map_sysmem(CONFIG_SYS_TEXT_BASE, 0);
+	memcpy(buf, from, len);
 	ret = spi_flash_test(flash, buf, len, offset, vbuf);
 	free(vbuf);
 	free(buf);
