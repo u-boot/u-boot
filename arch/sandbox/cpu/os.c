@@ -27,6 +27,10 @@
 
 /* Operating System Interface */
 
+struct os_mem_hdr {
+	size_t length;		/* number of bytes in the block */
+};
+
 ssize_t os_read(int fd, void *buf, size_t count)
 {
 	return read(fd, buf, count);
@@ -128,8 +132,45 @@ void os_tty_raw(int fd)
 
 void *os_malloc(size_t length)
 {
-	return mmap(NULL, length, PROT_READ | PROT_WRITE,
-			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	struct os_mem_hdr *hdr;
+
+	hdr = mmap(NULL, length + sizeof(*hdr), PROT_READ | PROT_WRITE,
+		   MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	if (hdr == MAP_FAILED)
+		return NULL;
+	hdr->length = length;
+
+	return hdr + 1;
+}
+
+void *os_free(void *ptr)
+{
+	struct os_mem_hdr *hdr = ptr;
+
+	hdr--;
+	if (ptr)
+		munmap(hdr, hdr->length + sizeof(*hdr));
+}
+
+void *os_realloc(void *ptr, size_t length)
+{
+	struct os_mem_hdr *hdr = ptr;
+	void *buf = NULL;
+
+	hdr--;
+	if (length != 0) {
+		buf = os_malloc(length);
+		if (!buf)
+			return buf;
+		if (ptr) {
+			if (length > hdr->length)
+				length = hdr->length;
+			memcpy(buf, ptr, length);
+		}
+	}
+	os_free(ptr);
+
+	return buf;
 }
 
 void os_usleep(unsigned long usec)
