@@ -43,6 +43,9 @@ static const struct block_drvr block_drvr[] = {
 #if defined(CONFIG_SYSTEMACE)
 	{ .name = "ace", .get_dev = systemace_get_dev, },
 #endif
+#if defined(CONFIG_SANDBOX)
+	{ .name = "host", .get_dev = host_get_dev, },
+#endif
 	{ },
 };
 
@@ -285,6 +288,9 @@ static void print_part_header (const char *type, block_dev_desc_t * dev_desc)
 		break;
 	case IF_TYPE_MMC:
 		puts ("MMC");
+		break;
+	case IF_TYPE_HOST:
+		puts("HOST");
 		break;
 	default:
 		puts ("UNKNOWN");

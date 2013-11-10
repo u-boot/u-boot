@@ -18,5 +18,6 @@ obj-$(CONFIG_SATA_DWC) += sata_dwc.o
 obj-$(CONFIG_SATA_SIL3114) += sata_sil3114.o
 obj-$(CONFIG_SATA_SIL) += sata_sil.o
 obj-$(CONFIG_IDE_SIL680) += sil680.o
+obj-$(CONFIG_SANDBOX) += sandbox.o
 obj-$(CONFIG_SCSI_SYM53C8XX) += sym53c8xx.o
 obj-$(CONFIG_SYSTEMACE) += systemace.o
