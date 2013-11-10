@@ -50,9 +50,9 @@ int sandbox_early_getopt_check(void)
 
 		/* then the long flag */
 		if (opt->has_arg)
-			printf("--%-*s", max_noarg_len, opt->flag);
-		else
 			printf("--%-*s <arg> ", max_arg_len, opt->flag);
+		else
+			printf("--%-*s", max_noarg_len, opt->flag);
 
 		/* finally the help text */
 		printf("  %s\n", opt->help);
