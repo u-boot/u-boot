@@ -129,4 +129,6 @@
 #define CONFIG_LZO
 #define CONFIG_LZMA
 
+#define CONFIG_TPM_TIS_SANDBOX
+
 #endif
