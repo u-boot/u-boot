@@ -347,9 +347,10 @@ done:
 #ifdef CONFIG_SANDBOX
 static int setup_ram_buf(void)
 {
-	gd->arch.ram_buf = os_malloc(CONFIG_SYS_SDRAM_SIZE);
-	assert(gd->arch.ram_buf);
-	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+	struct sandbox_state *state = state_get_current();
+
+	gd->arch.ram_buf = state->ram_buf;
+	gd->ram_size = state->ram_size;
 
 	return 0;
 }

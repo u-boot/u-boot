@@ -4,6 +4,7 @@
  */
 
 #include <common.h>
+#include <os.h>
 #include <asm/state.h>
 
 /* Main state record for the sandbox */
@@ -25,11 +26,32 @@ int state_init(void)
 {
 	state = &main_state;
 
+	state->ram_size = CONFIG_SYS_SDRAM_SIZE;
+	state->ram_buf = os_malloc(state->ram_size);
+	assert(state->ram_buf);
+
 	/*
 	 * Example of how to use GPIOs:
 	 *
 	 * sandbox_gpio_set_direction(170, 0);
 	 * sandbox_gpio_set_value(170, 0);
 	 */
+	return 0;
+}
+
+int state_uninit(void)
+{
+	int err;
+
+	state = &main_state;
+
+	if (state->write_ram_buf) {
+		err = os_write_ram_buf(state->ram_buf_fname);
+		if (err) {
+			printf("Failed to write RAM buffer\n");
+			return err;
+		}
+	}
+
 	return 0;
 }

@@ -229,4 +229,20 @@ void os_putc(int ch);
  */
 void os_puts(const char *str);
 
+/**
+ * Write the sandbox RAM buffer to a existing file
+ *
+ * @param fname		Filename to write memory to (simple binary format)
+ * @return 0 if OK, -ve on error
+ */
+int os_write_ram_buf(const char *fname);
+
+/**
+ * Read the sandbox RAM buffer from an existing file
+ *
+ * @param fname		Filename containing memory (simple binary format)
+ * @return 0 if OK, -ve on error
+ */
+int os_read_ram_buf(const char *fname);
+
 #endif

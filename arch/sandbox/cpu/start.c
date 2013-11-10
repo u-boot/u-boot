@@ -4,11 +4,10 @@
  */
 
 #include <common.h>
+#include <os.h>
 #include <asm/getopt.h>
 #include <asm/sections.h>
 #include <asm/state.h>
-
-#include <os.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -107,6 +106,25 @@ static int sandbox_cmdline_cb_interactive(struct sandbox_state *state,
 }
 
 SANDBOX_CMDLINE_OPT_SHORT(interactive, 'i', 0, "Enter interactive mode");
+
+static int sandbox_cmdline_cb_memory(struct sandbox_state *state,
+				     const char *arg)
+{
+	int err;
+
+	/* For now assume we always want to write it */
+	state->write_ram_buf = true;
+	state->ram_buf_fname = arg;
+
+	if (os_read_ram_buf(arg)) {
+		printf("Failed to read RAM buffer\n");
+		return err;
+	}
+
+	return 0;
+}
+SANDBOX_CMDLINE_OPT_SHORT(memory, 'm', 1,
+			  "Read/write ram_buf memory contents from file");
 
 int main(int argc, char *argv[])
 {

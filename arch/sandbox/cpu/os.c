@@ -399,3 +399,42 @@ void os_puts(const char *str)
 	while (*str)
 		os_putc(*str++);
 }
+
+int os_write_ram_buf(const char *fname)
+{
+	struct sandbox_state *state = state_get_current();
+	int fd, ret;
+
+	fd = open(fname, O_CREAT | O_WRONLY, 0777);
+	if (fd < 0)
+		return -ENOENT;
+	ret = write(fd, state->ram_buf, state->ram_size);
+	close(fd);
+	if (ret != state->ram_size)
+		return -EIO;
+
+	return 0;
+}
+
+int os_read_ram_buf(const char *fname)
+{
+	struct sandbox_state *state = state_get_current();
+	int fd, ret;
+	int size;
+
+	size = os_get_filesize(fname);
+	if (size < 0)
+		return -ENOENT;
+	if (size != state->ram_size)
+		return -ENOSPC;
+	fd = open(fname, O_RDONLY);
+	if (fd < 0)
+		return -ENOENT;
+
+	ret = read(fd, state->ram_buf, state->ram_size);
+	close(fd);
+	if (ret != state->ram_size)
+		return -EIO;
+
+	return 0;
+}

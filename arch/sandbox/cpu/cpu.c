@@ -5,11 +5,15 @@
 
 #include <common.h>
 #include <os.h>
+#include <asm/state.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 void reset_cpu(ulong ignored)
 {
+	if (state_uninit())
+		os_exit(2);
+
 	/* This is considered normal termination for now */
 	os_exit(0);
 }

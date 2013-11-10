@@ -30,6 +30,10 @@ struct sandbox_state {
 	const char *parse_err;		/* Error to report from parsing */
 	int argc;			/* Program arguments */
 	char **argv;
+	uint8_t *ram_buf;		/* Emulated RAM buffer */
+	unsigned int ram_size;		/* Size of RAM buffer */
+	const char *ram_buf_fname;	/* Filename to use for RAM buffer */
+	bool write_ram_buf;		/* Write RAM buffer on exit */
 
 	/* Pointer to information for each SPI bus/cs */
 	struct sandbox_spi_info spi[CONFIG_SANDBOX_SPI_MAX_BUS]
@@ -54,5 +58,13 @@ struct sandbox_state *state_get_current(void);
  * Initialize the test system state
  */
 int state_init(void);
+
+/**
+ * Uninitialize the test system state, writing out state if configured to
+ * do so.
+ *
+ * @return 0 if OK, -ve on error
+ */
+int state_uninit(void);
 
 #endif
