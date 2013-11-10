@@ -190,9 +190,7 @@ int tis_sendrecv(const u8 *sendbuf, size_t send_size,
 		if (seq < 0)
 			return -1;
 		printf("tpm: nvwrite index=%#02x, len=%#02x\n", index, length);
-		memcpy(&tpm->nvdata[seq],
-		       recvbuf + TPM_RESPONSE_HEADER_LENGTH + sizeof(uint32_t),
-		       length);
+		memcpy(&tpm->nvdata[seq], sendbuf + 22, length);
 		*recv_len = 12;
 		memset(recvbuf, '\0', *recv_len);
 		break;
