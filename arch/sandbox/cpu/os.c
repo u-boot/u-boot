@@ -388,3 +388,14 @@ ssize_t os_get_filesize(const char *fname)
 		return ret;
 	return buf.st_size;
 }
+
+void os_putc(int ch)
+{
+	putchar(ch);
+}
+
+void os_puts(const char *str)
+{
+	while (*str)
+		os_putc(*str++);
+}
