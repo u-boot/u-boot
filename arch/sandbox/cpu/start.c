@@ -126,18 +126,55 @@ static int sandbox_cmdline_cb_memory(struct sandbox_state *state,
 SANDBOX_CMDLINE_OPT_SHORT(memory, 'm', 1,
 			  "Read/write ram_buf memory contents from file");
 
+static int sandbox_cmdline_cb_state(struct sandbox_state *state,
+				    const char *arg)
+{
+	state->state_fname = arg;
+	return 0;
+}
+SANDBOX_CMDLINE_OPT_SHORT(state, 's', 1, "Specify the sandbox state FDT");
+
+static int sandbox_cmdline_cb_read(struct sandbox_state *state,
+				   const char *arg)
+{
+	state->read_state = true;
+	return 0;
+}
+SANDBOX_CMDLINE_OPT_SHORT(read, 'r', 0, "Read the state FDT on startup");
+
+static int sandbox_cmdline_cb_write(struct sandbox_state *state,
+				    const char *arg)
+{
+	state->write_state = true;
+	return 0;
+}
+SANDBOX_CMDLINE_OPT_SHORT(write, 'w', 0, "Write state FDT on exit");
+
+static int sandbox_cmdline_cb_ignore_missing(struct sandbox_state *state,
+					     const char *arg)
+{
+	state->ignore_missing_state_on_read = true;
+	return 0;
+}
+SANDBOX_CMDLINE_OPT_SHORT(ignore_missing, 'n', 0,
+			  "Ignore missing state on read");
+
 int main(int argc, char *argv[])
 {
 	struct sandbox_state *state;
-	int err;
+	int ret;
 
-	err = state_init();
-	if (err)
-		return err;
+	ret = state_init();
+	if (ret)
+		goto err;
 
 	state = state_get_current();
 	if (os_parse_args(state, argc, argv))
 		return 1;
+
+	ret = sandbox_read_state(state, state->state_fname);
+	if (ret)
+		goto err;
 
 	/* Do pre- and post-relocation init */
 	board_init_f(0);
@@ -146,4 +183,8 @@ int main(int argc, char *argv[])
 
 	/* NOTREACHED - board_init_r() does not return */
 	return 0;
+
+err:
+	printf("Error %d\n", ret);
+	return 1;
 }
