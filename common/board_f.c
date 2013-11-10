@@ -772,7 +772,7 @@ static int setup_reloc(void)
 }
 
 /* ARM calls relocate_code from its crt0.S */
-#if !defined(CONFIG_ARM)
+#if !defined(CONFIG_ARM) && !defined(CONFIG_SANDBOX)
 
 static int jump_to_copy(void)
 {
@@ -792,8 +792,6 @@ static int jump_to_copy(void)
 	 * (CPU cache)
 	 */
 	board_init_f_r_trampoline(gd->start_addr_sp);
-#elif defined(CONFIG_SANDBOX)
-	board_init_r(gd->new_gd, 0);
 #else
 	relocate_code(gd->start_addr_sp, gd->new_gd, gd->relocaddr);
 #endif
@@ -995,7 +993,7 @@ static init_fnc_t init_sequence_f[] = {
 	INIT_FUNC_WATCHDOG_RESET
 	reloc_fdt,
 	setup_reloc,
-#ifndef CONFIG_ARM
+#if !defined(CONFIG_ARM) && !defined(CONFIG_SANDBOX)
 	jump_to_copy,
 #endif
 	NULL,
@@ -1015,7 +1013,7 @@ void board_init_f(ulong boot_flags)
 	if (initcall_run_list(init_sequence_f))
 		hang();
 
-#ifndef CONFIG_ARM
+#if !defined(CONFIG_ARM) && !defined(CONFIG_SANDBOX)
 	/* NOTREACHED - jump_to_copy() does not return */
 	hang();
 #endif

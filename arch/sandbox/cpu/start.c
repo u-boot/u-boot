@@ -10,6 +10,8 @@
 
 #include <os.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 int sandbox_early_getopt_check(void)
 {
 	struct sandbox_state *state = state_get_current();
@@ -109,12 +111,11 @@ int main(int argc, char *argv[])
 	if (os_parse_args(state, argc, argv))
 		return 1;
 
-	/*
-	 * Do pre- and post-relocation init, then start up U-Boot. This will
-	 * never return.
-	 */
+	/* Do pre- and post-relocation init */
 	board_init_f(0);
 
-	/* NOTREACHED - board_init_f() does not return */
+	board_init_r(gd->new_gd, 0);
+
+	/* NOTREACHED - board_init_r() does not return */
 	return 0;
 }
