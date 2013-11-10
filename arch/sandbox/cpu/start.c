@@ -77,7 +77,8 @@ int sandbox_main_loop_init(void)
 	/* Execute command if required */
 	if (state->cmd) {
 		run_command_list(state->cmd, -1, 0);
-		os_exit(state->exit_type);
+		if (!state->interactive)
+			os_exit(state->exit_type);
 	}
 
 	return 0;
@@ -97,6 +98,15 @@ static int sandbox_cmdline_cb_fdt(struct sandbox_state *state, const char *arg)
 	return 0;
 }
 SANDBOX_CMDLINE_OPT_SHORT(fdt, 'd', 1, "Specify U-Boot's control FDT");
+
+static int sandbox_cmdline_cb_interactive(struct sandbox_state *state,
+					  const char *arg)
+{
+	state->interactive = true;
+	return 0;
+}
+
+SANDBOX_CMDLINE_OPT_SHORT(interactive, 'i', 0, "Enter interactive mode");
 
 int main(int argc, char *argv[])
 {

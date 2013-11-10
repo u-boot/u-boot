@@ -7,6 +7,7 @@
 #define __SANDBOX_STATE_H
 
 #include <config.h>
+#include <stdbool.h>
 
 /* How we exited U-Boot */
 enum exit_type_id {
@@ -23,6 +24,7 @@ struct sandbox_spi_info {
 /* The complete state of the test system */
 struct sandbox_state {
 	const char *cmd;		/* Command to execute */
+	bool interactive;		/* Enable cmdline after execute */
 	const char *fdt_fname;		/* Filename of FDT binary */
 	enum exit_type_id exit_type;	/* How we exited U-Boot */
 	const char *parse_err;		/* Error to report from parsing */
