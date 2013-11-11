@@ -10,7 +10,7 @@ CFLAGS  += $(LOCAL_CFLAGS)
 CPPFLAGS  += $(LOCAL_CFLAGS) # needed for depend
 HOSTCFLAGS  += $(LOCAL_CFLAGS)
 
-obj-$(CONFIG_IXP4XX_NPE) := npe.o \
+obj-y := npe.o \
 	miiphy.o \
 	IxOsalBufferMgt.o \
 	IxOsalIoMem.o \

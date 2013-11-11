@@ -242,9 +242,7 @@ LIBS-y += $(CPUDIR)/lib$(CPU).o
 ifdef SOC
 LIBS-y += $(CPUDIR)/$(SOC)/lib$(SOC).o
 endif
-ifeq ($(CPU),ixp)
-LIBS-y += drivers/net/npe/libnpe.o
-endif
+LIBS-$(CONFIG_IXP4XX_NPE) += drivers/net/npe/libnpe.o
 LIBS-$(CONFIG_OF_EMBED) += dts/libdts.o
 LIBS-y += arch/$(ARCH)/lib/lib$(ARCH).o
 LIBS-y += fs/libfs.o \
