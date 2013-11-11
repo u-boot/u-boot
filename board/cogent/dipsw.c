@@ -1,5 +1,5 @@
 #include <common.h>
-#include <board/cogent/dipsw.h>
+#include "dipsw.h"
 
 unsigned char
 dipsw_raw(void)

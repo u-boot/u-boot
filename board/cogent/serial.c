@@ -4,7 +4,7 @@
  */
 
 #include <common.h>
-#include <board/cogent/serial.h>
+#include "serial.h"
 #include <serial.h>
 #include <linux/compiler.h>
 
