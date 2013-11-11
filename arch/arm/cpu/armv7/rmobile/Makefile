@@ -15,10 +15,4 @@ obj-$(CONFIG_R8A7740) += cpu_info-r8a7740.o
 obj-$(CONFIG_R8A7740) += pfc-r8a7740.o
 obj-$(CONFIG_SH73A0) += cpu_info-sh73a0.o
 obj-$(CONFIG_SH73A0) += pfc-sh73a0.o
-obj-$(CONFIG_TMU_TIMER) += sh_timer.o
-
-SRCS += $(obj)sh_timer.c
-# from arch/sh/lib/ directory
-$(obj)sh_timer.c:
-	@rm -f $(obj)sh_timer.c
-	ln -s $(SRCTREE)/arch/sh/lib/time.c $(obj)sh_timer.c
+obj-$(CONFIG_TMU_TIMER) += ../../../../sh/lib/time.o
