@@ -860,7 +860,6 @@ clobber:	tidy
 	@rm -f $(obj)MLO MLO.byteswap
 	@rm -f $(obj)SPL
 	@rm -f $(obj)tools/xway-swap-bytes
-	@rm -f $(obj)arch/powerpc/cpu/mpc824x/bedbug_603e.c
 	@rm -fr $(obj)include/asm/proc $(obj)include/asm/arch $(obj)include/asm
 	@rm -fr $(obj)include/generated
 	@[ ! -d $(obj)nand_spl ] || find $(obj)nand_spl -name "*" -type l -print | xargs rm -f
