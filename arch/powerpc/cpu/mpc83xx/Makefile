@@ -39,14 +39,10 @@ obj-$(CONFIG_OF_LIBFDT) += fdt.o
 obj-y += cache.o
 
 ifdef CONFIG_FSL_DDR2
-obj-$(CONFIG_MPC8349) += ddr-gen2.o
-SRCS += $(obj)ddr-gen2.c
+obj-$(CONFIG_MPC8349) += ../mpc85xx/ddr-gen2.o
 else
 obj-y += spd_sdram.o
 endif
 obj-$(CONFIG_FSL_DDR2) += law.o
 
 endif # not minimal
-
-$(obj)ddr-gen2.c:
-	ln -sf $(SRCTREE)/arch/powerpc/cpu/mpc85xx/ddr-gen2.c $(obj)ddr-gen2.c
