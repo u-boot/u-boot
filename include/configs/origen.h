@@ -22,8 +22,6 @@
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_BOARD_EARLY_INIT_F
 
-/* Keep L2 Cache Disabled */
-#define CONFIG_L2_OFF			1
 #define CONFIG_SYS_DCACHE_OFF		1
 
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
