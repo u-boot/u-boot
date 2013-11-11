@@ -5,5 +5,5 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-$(CONFIG_CMD_CRAMFS) := cramfs.o
-obj-$(CONFIG_CMD_CRAMFS) += uncompress.o
+obj-y := cramfs.o
+obj-y += uncompress.o

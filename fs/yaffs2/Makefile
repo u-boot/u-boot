@@ -16,7 +16,7 @@
 #
 # $Id: Makefile,v 1.15 2007/07/18 19:40:38 charles Exp $
 
-obj-$(CONFIG_YAFFS2) := \
+obj-y := \
 	yaffs_allocator.o yaffs_attribs.o yaffs_bitmap.o yaffs_uboot_glue.o\
 	yaffs_checkptrw.o yaffs_ecc.o yaffs_error.o \
 	yaffsfs.o yaffs_guts.o yaffs_nameval.o yaffs_nand.o\

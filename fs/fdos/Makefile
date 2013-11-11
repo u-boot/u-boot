@@ -10,4 +10,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-$(CONFIG_CMD_FDOS) := fat.o vfat.o dev.o fdos.o fs.o subdir.o
+obj-y := fat.o vfat.o dev.o fdos.o fs.o subdir.o

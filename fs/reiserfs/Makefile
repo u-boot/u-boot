@@ -9,4 +9,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-$(CONFIG_CMD_REISER) := reiserfs.o dev.o mode_string.o
+obj-y := reiserfs.o dev.o mode_string.o
