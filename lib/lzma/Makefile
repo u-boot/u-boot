@@ -10,4 +10,4 @@
 
 CFLAGS += -D_LZMA_PROB32
 
-obj-$(CONFIG_LZMA) += LzmaDec.o LzmaTools.o
+obj-y += LzmaDec.o LzmaTools.o

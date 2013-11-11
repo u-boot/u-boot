@@ -5,4 +5,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-$(CONFIG_LZO) += lzo1x_decompress.o
+obj-y += lzo1x_decompress.o

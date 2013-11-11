@@ -232,10 +232,10 @@ OBJS := $(addprefix $(obj),$(OBJS))
 HAVE_VENDOR_COMMON_LIB = $(if $(wildcard board/$(VENDOR)/common/Makefile),y,n)
 
 LIBS-y += lib/libgeneric.o
-LIBS-y += lib/rsa/librsa.o
-LIBS-y += lib/lzma/liblzma.o
-LIBS-y += lib/lzo/liblzo.o
-LIBS-y += lib/zlib/libz.o
+LIBS-$(CONFIG_RSA) += lib/rsa/librsa.o
+LIBS-$(CONFIG_LZMA) += lib/lzma/liblzma.o
+LIBS-$(CONFIG_LZO) += lib/lzo/liblzo.o
+LIBS-$(CONFIG_ZLIB) += lib/zlib/libz.o
 LIBS-$(CONFIG_TIZEN) += lib/tizen/libtizen.o
 LIBS-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/lib$(VENDOR).o
 LIBS-y += $(CPUDIR)/lib$(CPU).o
