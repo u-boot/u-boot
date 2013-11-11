@@ -784,12 +784,6 @@ sinclude $(obj).boards.depend
 $(obj).boards.depend:	boards.cfg
 	@awk '(NF && $$1 !~ /^#/) { print $$7 ": " $$7 "_config; $$(MAKE)" }' $< > $@
 
-#
-# Functions to generate common board directory names
-#
-lcname	= $(shell echo $(1) | sed -e 's/\(.*\)_config/\L\1/')
-ucname	= $(shell echo $(1) | sed -e 's/\(.*\)_config/\U\1/')
-
 #########################################################################
 #########################################################################
 
