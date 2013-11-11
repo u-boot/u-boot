@@ -17,6 +17,10 @@ obj-y	+= vc.o
 obj-y	+= abb.o
 endif
 
+ifneq ($(CONFIG_OMAP54XX),)
+COBJS	+= pipe3-phy.o
+endif
+
 ifeq ($(CONFIG_OMAP34XX),)
 obj-y	+= boot-common.o
 obj-y	+= lowlevel_init.o
