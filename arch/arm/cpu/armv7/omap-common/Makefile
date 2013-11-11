@@ -19,6 +19,7 @@ endif
 
 ifneq ($(CONFIG_OMAP54XX),)
 COBJS	+= pipe3-phy.o
+obj-$(CONFIG_SCSI_AHCI_PLAT) += sata.o
 endif
 
 ifeq ($(CONFIG_OMAP34XX),)
