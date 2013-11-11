@@ -13,8 +13,8 @@ SECTIONS
   .text      :
   {
     arch/m68k/cpu/mcf5227x/start.o	(.text*)
-    arch/m68k/cpu/mcf5227x/libmcf5227x.o	(.text*)
-    arch/m68k/lib/libm68k.o		(.text*)
+    arch/m68k/cpu/mcf5227x/built-in.o	(.text*)
+    arch/m68k/lib/built-in.o		(.text*)
 
     *(.text*)
   }

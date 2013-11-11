@@ -231,68 +231,69 @@ OBJS := $(addprefix $(obj),$(OBJS))
 
 HAVE_VENDOR_COMMON_LIB = $(if $(wildcard board/$(VENDOR)/common/Makefile),y,n)
 
-LIBS-y += lib/libgeneric.o
-LIBS-$(CONFIG_RSA) += lib/rsa/librsa.o
-LIBS-$(CONFIG_LZMA) += lib/lzma/liblzma.o
-LIBS-$(CONFIG_LZO) += lib/lzo/liblzo.o
-LIBS-$(CONFIG_ZLIB) += lib/zlib/libz.o
-LIBS-$(CONFIG_TIZEN) += lib/tizen/libtizen.o
-LIBS-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/lib$(VENDOR).o
-LIBS-y += $(CPUDIR)/lib$(CPU).o
+LIBS-y += lib/
+LIBS-$(CONFIG_RSA) += lib/rsa/
+LIBS-$(CONFIG_LZMA) += lib/lzma/
+LIBS-$(CONFIG_LZO) += lib/lzo/
+LIBS-$(CONFIG_ZLIB) += lib/zlib/
+LIBS-$(CONFIG_TIZEN) += lib/tizen/
+LIBS-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/
+LIBS-y += $(CPUDIR)/
 ifdef SOC
-LIBS-y += $(CPUDIR)/$(SOC)/lib$(SOC).o
+LIBS-y += $(CPUDIR)/$(SOC)/
 endif
-LIBS-$(CONFIG_IXP4XX_NPE) += drivers/net/npe/libnpe.o
-LIBS-$(CONFIG_OF_EMBED) += dts/libdts.o
-LIBS-y += arch/$(ARCH)/lib/lib$(ARCH).o
-LIBS-y += fs/libfs.o \
-	fs/fat/libfat.o
-LIBS-y += net/libnet.o
-LIBS-y += disk/libdisk.o
-LIBS-y += drivers/libdrivers.o
-LIBS-y += drivers/dma/libdma.o
-LIBS-y += drivers/gpio/libgpio.o
-LIBS-y += drivers/i2c/libi2c.o
-LIBS-y += drivers/input/libinput.o
-LIBS-y += drivers/mmc/libmmc.o
-LIBS-y += drivers/mtd/libmtd.o
-LIBS-y += drivers/mtd/nand/libnand.o
-LIBS-y += drivers/mtd/onenand/libonenand.o
-LIBS-y += drivers/mtd/ubi/libubi.o
-LIBS-y += drivers/mtd/spi/libspi_flash.o
-LIBS-y += drivers/net/libnet.o
-LIBS-y += drivers/net/phy/libphy.o
-LIBS-y += drivers/pci/libpci.o
-LIBS-y += drivers/power/libpower.o \
-	drivers/power/fuel_gauge/libfuel_gauge.o \
-	drivers/power/mfd/libmfd.o \
-	drivers/power/pmic/libpmic.o \
-	drivers/power/battery/libbattery.o
-LIBS-y += drivers/spi/libspi.o
-LIBS-$(CONFIG_FMAN_ENET) += drivers/net/fm/libfm.o
-LIBS-y += drivers/serial/libserial.o
-LIBS-y += drivers/usb/eth/libusb_eth.o
-LIBS-y += drivers/usb/gadget/libusb_gadget.o
-LIBS-y += drivers/usb/host/libusb_host.o
-LIBS-y += drivers/usb/musb/libusb_musb.o
-LIBS-y += drivers/usb/musb-new/libusb_musb-new.o
-LIBS-y += drivers/usb/phy/libusb_phy.o
-LIBS-y += drivers/usb/ulpi/libusb_ulpi.o
-LIBS-y += common/libcommon.o
-LIBS-y += lib/libfdt/libfdt.o
-LIBS-y += api/libapi.o
-LIBS-y += post/libpost.o
-LIBS-y += test/libtest.o
+LIBS-$(CONFIG_IXP4XX_NPE) += drivers/net/npe/
+LIBS-$(CONFIG_OF_EMBED) += dts/
+LIBS-y += arch/$(ARCH)/lib/
+LIBS-y += fs/ \
+	fs/fat/
+LIBS-y += net/
+LIBS-y += disk/
+LIBS-y += drivers/
+LIBS-y += drivers/dma/
+LIBS-y += drivers/gpio/
+LIBS-y += drivers/i2c/
+LIBS-y += drivers/input/
+LIBS-y += drivers/mmc/
+LIBS-y += drivers/mtd/
+LIBS-y += drivers/mtd/nand/
+LIBS-y += drivers/mtd/onenand/
+LIBS-y += drivers/mtd/ubi/
+LIBS-y += drivers/mtd/spi/
+LIBS-y += drivers/net/
+LIBS-y += drivers/net/phy/
+LIBS-y += drivers/pci/
+LIBS-y += drivers/power/ \
+	drivers/power/fuel_gauge/ \
+	drivers/power/mfd/ \
+	drivers/power/pmic/ \
+	drivers/power/battery/
+LIBS-y += drivers/spi/
+LIBS-$(CONFIG_FMAN_ENET) += drivers/net/fm/
+LIBS-y += drivers/serial/
+LIBS-y += drivers/usb/eth/
+LIBS-y += drivers/usb/gadget/
+LIBS-y += drivers/usb/host/
+LIBS-y += drivers/usb/musb/
+LIBS-y += drivers/usb/musb-new/
+LIBS-y += drivers/usb/phy/
+LIBS-y += drivers/usb/ulpi/
+LIBS-y += common/
+LIBS-y += lib/libfdt/
+LIBS-y += api/
+LIBS-y += post/
+LIBS-y += test/
 
 ifneq (,$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35 mxs vf610))
-LIBS-y += arch/$(ARCH)/imx-common/libimx-common.o
+LIBS-y += arch/$(ARCH)/imx-common/
 endif
 
-LIBS-$(CONFIG_ARM) += arch/arm/cpu/libcpu.o
-LIBS-$(CONFIG_PPC) += arch/powerpc/cpu/libcpu.o
+LIBS-$(CONFIG_ARM) += arch/arm/cpu/
+LIBS-$(CONFIG_PPC) += arch/powerpc/cpu/
 
-LIBS-y += board/$(BOARDDIR)/lib$(BOARD).o
+LIBS-y += board/$(BOARDDIR)/
 
+LIBS-y := $(patsubst %/, %/built-in.o, $(LIBS-y))
 LIBS := $(addprefix $(obj),$(sort $(LIBS-y)))
 .PHONY : $(LIBS)
 
@@ -548,7 +549,6 @@ $(OBJS):
 
 $(LIBS):	depend $(SUBDIR_TOOLS)
 		$(MAKE) $(build) $(dir $(subst $(obj),,$@))
-		mv $(dir $@)built-in.o $@
 
 $(SUBDIRS):	depend
 		$(MAKE) -C $@ all

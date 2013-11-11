@@ -16,10 +16,10 @@ SECTIONS
 	.text : {
 		*(.__image_copy_start)
 		arch/arm/cpu/ixp/start.o(.text*)
-		net/libnet.o(.text*)
-		board/dvlhost/libdvlhost.o(.text*)
-		arch/arm/cpu/ixp/libixp.o(.text*)
-		drivers/serial/libserial.o(.text*)
+		net/built-in.o(.text*)
+		board/dvlhost/built-in.o(.text*)
+		arch/arm/cpu/ixp/built-in.o(.text*)
+		drivers/serial/built-in.o(.text*)
 
 		. = env_offset;
 		common/env_embedded.o(.ppcenv)

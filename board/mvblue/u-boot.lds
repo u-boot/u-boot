@@ -14,12 +14,12 @@ SECTIONS
   .text      :
   {
     arch/powerpc/cpu/mpc824x/start.o		(.text*)
-    lib/libgeneric.o				(.text*)
-    net/libnet.o				(.text*)
-    drivers/pci/libpci.o			(.text*)
-    arch/powerpc/cpu/mpc824x/libmpc824x.o	(.text*)
-    board/mvblue/libmvblue.o			(.text*)
-    arch/powerpc/lib/libpowerpc.o		(.text*)
+    lib/built-in.o				(.text*)
+    net/built-in.o				(.text*)
+    drivers/pci/built-in.o			(.text*)
+    arch/powerpc/cpu/mpc824x/built-in.o		(.text*)
+    board/mvblue/built-in.o			(.text*)
+    arch/powerpc/lib/built-in.o			(.text*)
 
     . = DEFINED(env_offset) ? env_offset : .;
     common/env_embedded.o	(.ppcenv*)

@@ -18,7 +18,7 @@ SECTIONS
     /* the first two sectors (=8KB) of our S29GL flash chip */
     arch/powerpc/cpu/mpc5xxx/start.o	(.text*)
     arch/powerpc/cpu/mpc5xxx/traps.o	(.text*)
-    board/matrix_vision/common/libmatrix_vision.o (.text*)
+    board/matrix_vision/common/built-in.o	(.text*)
 
     /* This is only needed to force failure if size of above code will ever */
     /* increase and grow into reserved space. */

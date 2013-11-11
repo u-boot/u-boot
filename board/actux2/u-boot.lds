@@ -16,10 +16,10 @@ SECTIONS
 	.text : {
 		*(.__image_copy_start)
 		arch/arm/cpu/ixp/start.o(.text*)
-		net/libnet.o(.text*)
-		board/actux2/libactux2.o(.text*)
-		arch/arm/cpu/ixp/libixp.o(.text*)
-		drivers/input/libinput.o(.text*)
+		net/built-in.o(.text*)
+		board/actux2/built-in.o(.text*)
+		arch/arm/cpu/ixp/built-in.o(.text*)
+		drivers/input/built-in.o(.text*)
 
 		. = env_offset;
 		common/env_embedded.o(.ppcenv)
