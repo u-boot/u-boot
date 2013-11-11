@@ -271,11 +271,7 @@ LIBS-y += drivers/power/libpower.o \
 	drivers/power/pmic/libpmic.o \
 	drivers/power/battery/libbattery.o
 LIBS-y += drivers/spi/libspi.o
-ifeq ($(CPU),mpc83xx)
-LIBS-y += drivers/qe/libqe.o
-endif
 ifeq ($(CPU),mpc85xx)
-LIBS-y += drivers/qe/libqe.o
 LIBS-y += drivers/net/fm/libfm.o
 endif
 LIBS-y += drivers/serial/libserial.o
