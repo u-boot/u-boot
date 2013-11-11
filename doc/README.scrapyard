@@ -103,3 +103,4 @@ CPCI440          powerpc     440GP          b568fd2     2007-12-27  Matthias Fuc
 PCIPPC2          powerpc     MPC740/MPC750  7c9e89b     2013-02-07  Wolfgang Denk <wd@denx.de>
 PCIPPC6          powerpc     MPC740/MPC750  -           -           Wolfgang Denk <wd@denx.de>
 omap2420h4       arm         omap24xx       -           2013-06-04  Richard Woodruff <r-woodruff2@ti.com>
+eNET             x86         x86            7e8c53d     2013-02-14  Graeme Russ <graeme.russ@gmail.com>
