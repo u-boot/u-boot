@@ -623,7 +623,7 @@ static int ata_scsiop_inquiry(ccb *pccb)
 		95 - 4,
 	};
 	u8 fis[20];
-	u16 *tmpid;
+	ALLOC_CACHE_ALIGN_BUFFER(u16, tmpid, ATA_ID_WORDS);
 	u8 port;
 
 	/* Clean ccb data buffer */
@@ -642,16 +642,10 @@ static int ata_scsiop_inquiry(ccb *pccb)
 
 	/* Read id from sata */
 	port = pccb->target;
-	tmpid = malloc(ATA_ID_WORDS * 2);
-	if (!tmpid) {
-		printf("%s: No memory for tmpid\n", __func__);
-		return -ENOMEM;
-	}
 
 	if (ahci_device_data_io(port, (u8 *) &fis, sizeof(fis), (u8 *)tmpid,
 				ATA_ID_WORDS * 2, 0)) {
 		debug("scsi_ahci: SCSI inquiry command failure.\n");
-		free(tmpid);
 		return -EIO;
 	}
 
