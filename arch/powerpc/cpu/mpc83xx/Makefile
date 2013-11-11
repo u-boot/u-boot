@@ -48,11 +48,5 @@ obj-$(CONFIG_FSL_DDR2) += law.o
 
 endif # not minimal
 
-$(obj)ddr-gen1.c:
-	ln -sf $(SRCTREE)/arch/powerpc/cpu/mpc85xx/ddr-gen1.c $(obj)ddr-gen1.c
-
 $(obj)ddr-gen2.c:
 	ln -sf $(SRCTREE)/arch/powerpc/cpu/mpc85xx/ddr-gen2.c $(obj)ddr-gen2.c
-
-$(obj)ddr-gen3.c:
-	ln -sf $(SRCTREE)/arch/powerpc/cpu/mpc85xx/ddr-gen3.c $(obj)ddr-gen3.c
