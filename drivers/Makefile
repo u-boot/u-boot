@@ -1,8 +1,8 @@
-obj-y += bios_emulator/
+obj-$(CONFIG_BIOSEMU) += bios_emulator/
 obj-y += block/
 obj-$(CONFIG_BOOTCOUNT_LIMIT) += bootcount/
 obj-y += crypto/
-obj-y += fpga/
+obj-$(CONFIG_FPGA) += fpga/
 obj-y += hwmon/
 obj-y += misc/
 obj-y += pcmcia/
