@@ -64,6 +64,9 @@
 /* QSPI */
 #define QSPI_BASE		0x4B300000
 
+/* SATA */
+#define DWC_AHSATA_BASE		0x4A140000
+
 /*
  * Hardware Register Details
  */

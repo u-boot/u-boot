@@ -226,6 +226,7 @@ struct prcm_regs {
 	u32 cm_l3init_hsusbotg_clkctrl;
 	u32 cm_l3init_hsusbtll_clkctrl;
 	u32 cm_l3init_p1500_clkctrl;
+	u32 cm_l3init_sata_clkctrl;
 	u32 cm_l3init_fsusb_clkctrl;
 	u32 cm_l3init_ocp2scp1_clkctrl;
 	u32 cm_l3init_ocp2scp3_clkctrl;
@@ -366,6 +367,7 @@ struct omap_sys_ctrl_regs {
 	u32 control_ldosram_mpu_voltage_ctrl;
 	u32 control_ldosram_core_voltage_ctrl;
 	u32 control_usbotghs_ctrl;
+	u32 control_phy_power_sata;
 	u32 control_padconf_core_base;
 	u32 control_paconf_global;
 	u32 control_paconf_mode;
