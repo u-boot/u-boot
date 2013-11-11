@@ -5,5 +5,5 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	:= $(BOARD).o
+obj-y	:= beagle.o
 obj-$(CONFIG_STATUS_LED) += led.o
