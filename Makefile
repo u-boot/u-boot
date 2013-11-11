@@ -65,10 +65,8 @@ endif
 # the object files are placed in the source directory.
 #
 
-ifdef O
 ifeq ("$(origin O)", "command line")
 BUILD_DIR := $(O)
-endif
 endif
 
 # Call a source code checker (by default, "sparse") as part of the
@@ -614,7 +612,7 @@ SYSTEM_MAP = \
 		grep -v '\(compiled\)\|\(\.o$$\)\|\( [aUw] \)\|\(\.\.ng$$\)\|\(LASH[RL]DI\)' | \
 		LC_ALL=C sort
 $(obj)System.map:	$(obj)u-boot
-		@$(call SYSTEM_MAP,$<) > $(obj)System.map
+		@$(call SYSTEM_MAP,$<) > $@
 
 checkthumb:
 	@if test $(call cc-version) -lt 0404; then \
