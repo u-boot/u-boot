@@ -4,8 +4,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-$(shell mkdir -p $(OBJTREE)/board/freescale/common)
-
 extra-y	= start.o
 obj-y	:= cpu.o
 obj-y	+= traps.o

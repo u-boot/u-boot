@@ -5,10 +5,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)../common/xilinx_jtag)
-endif
-
 # Objects for Xilinx JTAG programming (CPLD)
 CPLD    = ../common/xilinx_jtag/lenval.o \
 	  ../common/xilinx_jtag/micro.o \

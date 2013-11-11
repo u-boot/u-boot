@@ -9,10 +9,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)../common)
-endif
-
 obj-y	:= net2big_v2.o ../common/common.o
 ifneq ($(and $(CONFIG_KIRKWOOD_GPIO),$(CONFIG_NET2BIG_V2)),)
 obj-y	+= ../common/cpld-gpio-bus.o
