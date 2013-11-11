@@ -417,6 +417,8 @@
 
 #include <pci_ids.h>
 
+#ifndef __ASSEMBLY__
+
 #ifdef CONFIG_SYS_PCI_64BIT
 typedef u64 pci_addr_t;
 typedef u64 pci_size_t;
@@ -667,4 +669,6 @@ extern void pci_mpc824x_init (struct pci_controller *hose);
 #ifdef CONFIG_MPC85xx
 extern void pci_mpc85xx_init (struct pci_controller *hose);
 #endif
-#endif	/* _PCI_H */
+
+#endif /* __ASSEMBLY__ */
+#endif /* _PCI_H */
