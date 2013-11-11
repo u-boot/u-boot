@@ -73,7 +73,7 @@ LIBS-$(CONFIG_SPL_MMC_SUPPORT) += drivers/mmc/
 LIBS-$(CONFIG_SPL_SERIAL_SUPPORT) += drivers/serial/
 LIBS-$(CONFIG_SPL_SPI_FLASH_SUPPORT) += drivers/mtd/spi/
 LIBS-$(CONFIG_SPL_SPI_SUPPORT) += drivers/spi/
-LIBS-$(CONFIG_SPL_FAT_SUPPORT) += fs/fat/
+LIBS-y += fs/
 LIBS-$(CONFIG_SPL_LIBGENERIC_SUPPORT) += lib/
 LIBS-$(CONFIG_SPL_POWER_SUPPORT) += drivers/power/ \
 	drivers/power/pmic/

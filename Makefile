@@ -243,8 +243,7 @@ endif
 LIBS-$(CONFIG_IXP4XX_NPE) += drivers/net/npe/
 LIBS-$(CONFIG_OF_EMBED) += dts/
 LIBS-y += arch/$(ARCH)/lib/
-LIBS-y += fs/ \
-	fs/fat/
+LIBS-y += fs/
 LIBS-y += net/
 LIBS-y += disk/
 LIBS-y += drivers/
