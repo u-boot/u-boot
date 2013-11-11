@@ -306,11 +306,10 @@ endif
 
 LIBS-$(CONFIG_ARM) += arch/arm/cpu/libcpu.o
 
+LIBS-y += board/$(BOARDDIR)/lib$(BOARD).o
+
 LIBS := $(addprefix $(obj),$(sort $(LIBS-y)))
 .PHONY : $(LIBS)
-
-LIBBOARD = board/$(BOARDDIR)/lib$(BOARD).o
-LIBBOARD := $(addprefix $(obj),$(LIBBOARD))
 
 # Add GCC lib
 ifdef USE_PRIVATE_LIBGCC
@@ -335,7 +334,7 @@ LDPPFLAGS += \
 	  sed -ne 's/GNU ld version \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/-DLD_MAJOR=\1 -DLD_MINOR=\2/p')
 
 __OBJS := $(subst $(obj),,$(OBJS))
-__LIBS := $(subst $(obj),,$(LIBS)) $(subst $(obj),,$(LIBBOARD))
+__LIBS := $(subst $(obj),,$(LIBS))
 
 #########################################################################
 #########################################################################
@@ -549,7 +548,7 @@ GEN_UBOOT = \
 endif
 
 $(obj)u-boot:	depend \
-		$(SUBDIR_TOOLS) $(OBJS) $(LIBBOARD) $(LIBS) $(LDSCRIPT) $(obj)u-boot.lds
+		$(SUBDIR_TOOLS) $(OBJS) $(LIBS) $(LDSCRIPT) $(obj)u-boot.lds
 		$(GEN_UBOOT)
 ifeq ($(CONFIG_KALLSYMS),y)
 		smap=`$(call SYSTEM_MAP,$(obj)u-boot) | \
@@ -563,10 +562,6 @@ $(OBJS):
 	@:
 
 $(LIBS):	depend $(SUBDIR_TOOLS)
-		$(MAKE) $(build) $(dir $(subst $(obj),,$@))
-		mv $(dir $@)built-in.o $@
-
-$(LIBBOARD):	depend $(LIBS)
 		$(MAKE) $(build) $(dir $(subst $(obj),,$@))
 		mv $(dir $@)built-in.o $@
 
