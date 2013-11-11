@@ -4,7 +4,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-ifdef CONFIG_FMAN_ENET
 obj-y += dtsec.o
 obj-y += eth.o
 obj-y += fm.o
@@ -33,4 +32,3 @@ obj-$(CONFIG_PPC_T4240) += t4240.o
 obj-$(CONFIG_PPC_T4160) += t4240.o
 obj-$(CONFIG_PPC_B4420) += b4860.o
 obj-$(CONFIG_PPC_B4860) += b4860.o
-endif
