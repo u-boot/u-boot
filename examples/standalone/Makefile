@@ -8,7 +8,6 @@
 include $(TOPDIR)/config.mk
 
 ELF-$(ARCH)  :=
-ELF-$(BOARD) :=
 ELF-$(CPU)   :=
 ELF-y        := hello_world
 
@@ -20,14 +19,13 @@ ELF-mpc5xxx                      += interrupt
 ELF-mpc8xx                       += test_burst timer
 ELF-mpc8260                      += mem_to_mem_idma2intr
 ELF-ppc                          += sched
-ELF-oxc                          += eepro100_eeprom
 
 #
 # Some versions of make do not handle trailing white spaces properly;
 # leading to build failures. The problem was found with GNU Make 3.80.
 # Using 'strip' as a workaround for the problem.
 #
-ELF := $(strip $(ELF-y) $(ELF-$(ARCH)) $(ELF-$(BOARD)) $(ELF-$(CPU)))
+ELF := $(strip $(ELF-y) $(ELF-$(ARCH)) $(ELF-$(CPU)))
 
 SREC := $(addsuffix .srec,$(ELF))
 BIN  := $(addsuffix .bin,$(ELF))
