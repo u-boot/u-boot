@@ -291,16 +291,6 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 	/* Switch pcnet to 32bit mode */
 	pcnet_write_bcr(dev, 20, 2);
 
-#ifdef CONFIG_PN62
-	/* Setup LED registers */
-	val = pcnet_read_bcr(dev, 2) | 0x1000;
-	pcnet_write_bcr(dev, 2, val);	/* enable LEDPE */
-	pcnet_write_bcr(dev, 4, 0x5080);	/* 100MBit */
-	pcnet_write_bcr(dev, 5, 0x40c0);	/* LNKSE */
-	pcnet_write_bcr(dev, 6, 0x4090);	/* TX Activity */
-	pcnet_write_bcr(dev, 7, 0x4084);	/* RX Activity */
-#endif
-
 	/* Set/reset autoselect bit */
 	val = pcnet_read_bcr(dev, 2) & ~2;
 	val |= 2;

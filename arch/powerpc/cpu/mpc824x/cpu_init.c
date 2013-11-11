@@ -52,7 +52,7 @@ cpu_init_f (void)
     CONFIG_WRITE_HALFWORD(PCICR, 0x06); /* Bus Master, respond to PCI memory space acesses*/
 /*    CONFIG_WRITE_HALFWORD(PCISR, 0xffff); */ /*reset PCISR*/
 
-#if defined(CONFIG_MUSENKI) || defined(CONFIG_PN62)
+#if defined(CONFIG_MUSENKI)
 /* Why is this here, you ask?  Try, just try setting 0x8000
  * in PCIACR with CONFIG_WRITE_HALFWORD()
  * this one was a stumper, and we are annoyed
@@ -142,9 +142,7 @@ cpu_init_f (void)
 
 	CONFIG_READ_WORD(PICR2, val);
 	val= val & ~ (PICR2_CF_SNOOP_WS_MASK | PICR2_CF_APHASE_WS_MASK); /*mask off waitstate bits*/
-#ifndef CONFIG_PN62
 	val |= PICR2_CF_SNOOP_WS_1WS | PICR2_CF_APHASE_WS_1WS; /*1 wait state*/
-#endif
 	CONFIG_WRITE_WORD(PICR2, val);
 
 	CONFIG_WRITE_WORD(EUMBBAR, CONFIG_SYS_EUMB_ADDR);
@@ -186,7 +184,7 @@ cpu_init_f (void)
  *  should define CONFIG_SYS_ACTORW to 0 if they don't want to set it, or even, if
  *  its not set, we define it to zero in this file
  */
-#if defined(CONFIG_CU824) || defined(CONFIG_PN62)
+#if defined(CONFIG_CU824)
 	CONFIG_WRITE_WORD(MCCR4,
 	(CONFIG_SYS_PRETOACT << MCCR4_PRETOACT_SHIFT) |
 	(CONFIG_SYS_ACTTOPRE << MCCR4_ACTTOPRE_SHIFT) |

@@ -11,6 +11,7 @@ easily if here is something they might want to dig for...
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+pn62             powerpc     mpc824x        -           2013-11-11  Wolfgang Grandegger <wg@grandegger.com>
 pdnb3            arm         ixp            -           2013-09-24  Stefan Roese <sr@denx.de>
 scpu             arm         ixp            -           2013-09-24  Stefan Roese <sr@denx.de>
 omap1510inn      arm         arm925t        0610a16     2013-09-23  Kshitij Gupta <kshitij@ti.com>
