@@ -273,18 +273,10 @@ LIBS-y += drivers/power/libpower.o \
 LIBS-y += drivers/spi/libspi.o
 ifeq ($(CPU),mpc83xx)
 LIBS-y += drivers/qe/libqe.o
-LIBS-y += arch/powerpc/cpu/mpc8xxx/ddr/libddr.o
-LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
 endif
 ifeq ($(CPU),mpc85xx)
 LIBS-y += drivers/qe/libqe.o
 LIBS-y += drivers/net/fm/libfm.o
-LIBS-y += arch/powerpc/cpu/mpc8xxx/ddr/libddr.o
-LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
-endif
-ifeq ($(CPU),mpc86xx)
-LIBS-y += arch/powerpc/cpu/mpc8xxx/ddr/libddr.o
-LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
 endif
 LIBS-y += drivers/serial/libserial.o
 LIBS-y += drivers/usb/eth/libusb_eth.o
@@ -305,6 +297,7 @@ LIBS-y += arch/$(ARCH)/imx-common/libimx-common.o
 endif
 
 LIBS-$(CONFIG_ARM) += arch/arm/cpu/libcpu.o
+LIBS-$(CONFIG_PPC) += arch/powerpc/cpu/libcpu.o
 
 LIBS-y += board/$(BOARDDIR)/lib$(BOARD).o
 

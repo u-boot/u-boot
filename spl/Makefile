@@ -57,18 +57,6 @@ endif
 LIBS-y += arch/$(ARCH)/lib/lib$(ARCH).o
 
 LIBS-y += $(CPUDIR)/lib$(CPU).o
-ifeq ($(CPU),mpc83xx)
-LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
-endif
-ifeq ($(CPU),mpc85xx)
-LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
-ifdef CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
-LIBS-y += arch/powerpc/cpu/mpc8xxx/ddr/libddr.o
-endif
-endif
-ifeq ($(CPU),mpc86xx)
-LIBS-y += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
-endif
 
 ifdef SOC
 LIBS-y += $(CPUDIR)/$(SOC)/lib$(SOC).o
@@ -106,6 +94,7 @@ LIBS-y += arch/$(ARCH)/imx-common/libimx-common.o
 endif
 
 LIBS-$(CONFIG_ARM) += arch/arm/cpu/libcpu.o
+LIBS-$(CONFIG_PPC) += arch/powerpc/cpu/libcpu.o
 
 ifneq ($(CONFIG_MX23)$(CONFIG_MX35),)
 LIBS-y += arch/$(ARCH)/imx-common/libimx-common.o
