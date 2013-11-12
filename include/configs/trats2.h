@@ -65,10 +65,9 @@
 
 #define CONFIG_DISPLAY_CPUINFO
 
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (2 << 20))
+#include <asm/sizes.h>
+/* Size of malloc() pool */
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (80 * SZ_1M))
 
 /* select serial console configuration */
 #define CONFIG_SERIAL2
@@ -100,6 +99,7 @@
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MMC
+#define CONFIG_CMD_DFU
 #define CONFIG_CMD_GPT
 #define CONFIG_CMD_PMIC
 
@@ -115,12 +115,19 @@
 
 /* USB Composite download gadget - g_dnl */
 #define CONFIG_USBDOWNLOAD_GADGET
+#define CONFIG_SYS_DFU_DATA_BUF_SIZE SZ_32M
 #define CONFIG_DFU_FUNCTION
 #define CONFIG_DFU_MMC
+
+/* TIZEN THOR downloader support */
+#define CONFIG_CMD_THOR_DOWNLOAD
+#define CONFIG_THOR_FUNCTION
 
 /* USB Samsung's IDs */
 #define CONFIG_G_DNL_VENDOR_NUM 0x04E8
 #define CONFIG_G_DNL_PRODUCT_NUM 0x6601
+#define CONFIG_G_DNL_THOR_VENDOR_NUM CONFIG_G_DNL_VENDOR_NUM
+#define CONFIG_G_DNL_THOR_PRODUCT_NUM 0x685D
 #define CONFIG_G_DNL_MANUFACTURER "Samsung"
 
 /* To use the TFTPBOOT over USB, Please enable the CONFIG_CMD_NET */
@@ -165,6 +172,12 @@
 	"name="PARTS_CSC",size=150MiB,uuid=${uuid_gpt_"PARTS_CSC"};" \
 	"name="PARTS_UMS",size=-,uuid=${uuid_gpt_"PARTS_UMS"}\0" \
 
+#define CONFIG_DFU_ALT \
+	"u-boot mmc 80 800;" \
+	"uImage ext4 0 2;" \
+	"exynos4412-trats2.dtb ext4 0 2;" \
+	""PARTS_ROOT" part 0 5\0"
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootk=" \
 		"run loaddtb; run loaduimage; bootm 0x40007FC0 - ${fdtaddr}\0" \
@@ -197,6 +210,7 @@
 	"mmcrootpart=5\0" \
 	"opts=always_resume=1\0" \
 	"partitions=" PARTS_DEFAULT \
+	"dfu_alt_info=" CONFIG_DFU_ALT \
 	"uartpath=ap\0" \
 	"usbpath=ap\0" \
 	"consoleon=set console console=ttySAC2,115200n8; save; reset\0" \
