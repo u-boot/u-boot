@@ -7,7 +7,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/arch/mx6q_pins.h>
+#include <asm/arch/mx6-pins.h>
 #include <asm/arch/clock.h>
 #include <asm/errno.h>
 #include <asm/gpio.h>
