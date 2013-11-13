@@ -629,3 +629,8 @@ U_BOOT_I2C_ADAP_COMPLETE(tegra2, tegra_i2c_init, tegra_i2c_probe,
 U_BOOT_I2C_ADAP_COMPLETE(tegra3, tegra_i2c_init, tegra_i2c_probe,
 			 tegra_i2c_read, tegra_i2c_write,
 			 tegra_i2c_set_bus_speed, 100000, 0, 3)
+#if TEGRA_I2C_NUM_CONTROLLERS > 4
+U_BOOT_I2C_ADAP_COMPLETE(tegra4, tegra_i2c_init, tegra_i2c_probe,
+			 tegra_i2c_read, tegra_i2c_write,
+			 tegra_i2c_set_bus_speed, 100000, 0, 4)
+#endif
