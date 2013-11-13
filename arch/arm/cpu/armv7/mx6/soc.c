@@ -150,6 +150,8 @@ int arch_cpu_init(void)
 #ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)
 {
+	/* Avoid random hang when download by usb */
+	invalidate_dcache_all();
 	/* Enable D-cache. I-cache is already enabled in start.S */
 	dcache_enable();
 }
