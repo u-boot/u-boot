@@ -1,0 +1,69 @@
+#include "tegra30.dtsi"
+
+/ {
+	model = "Avionic Design Tamonten NG";
+	compatible = "ad,tamonten-ng", "nvidia,tegra30";
+
+	memory {
+		reg = <0x80000000 0x40000000>;
+	};
+
+	aliases {
+		i2c0 = "/i2c@7000c000";
+		i2c1 = "/i2c@7000c700";
+		i2c2 = "/i2c@7000c400";
+		i2c3 = "/i2c@7000c500";
+		i2c4 = "/i2c@7000d000";
+		sdhci0 = "/sdhci@78000600";
+		sdhci1 = "/sdhci@78000400";
+		sdhci2 = "/sdhci@78000000";
+		usb0 = "/usb@7d008000";
+	};
+
+	/* GEN1 */
+	i2c@7000c000 {
+		status = "okay";
+		clock-frequency = <100000>;
+	};
+
+	/* GEN2 */
+	i2c@7000c400 {
+		clock-frequency = <100000>;
+	};
+
+	/* CAM */
+	i2c@7000c500 {
+		status = "okay";
+		clock-frequency = <100000>;
+	};
+
+	/* DDC */
+	i2c@7000c700 {
+		status = "okay";
+		clock-frequency = <100000>;
+	};
+
+	/* PWR */
+	i2c@7000d000 {
+		status = "okay";
+		clock-frequency = <100000>;
+	};
+
+	/* SD slot on the base board */
+	sdhci@78000400 {
+		cd-gpios = <&gpio 69 1>; /* gpio PI5 */
+		wp-gpios = <&gpio 67 0>; /* gpio PI3 */
+		bus-width = <4>;
+	};
+
+	/* EMMC on the COM module */
+	sdhci@78000600 {
+		status = "okay";
+		bus-width = <8>;
+	};
+
+	usb@7d008000 {
+		status = "okay";
+	};
+
+};
