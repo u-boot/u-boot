@@ -282,7 +282,9 @@ typedef struct ccsr_pcix {
 	u32	int_ack;	/* PCIX IRQ Acknowledge */
 	u8	res000c[52];
 	u32	liodn_base;	/* PCIX LIODN base register */
-	u8	res0044[3004];
+	u8	res0044[2996];
+	u32	ipver1;		/* PCIX IP block revision register 1 */
+	u32	ipver2;		/* PCIX IP block revision register 2 */
 	u32	potar0;		/* PCIX Outbound Transaction Addr 0 */
 	u32	potear0;	/* PCIX Outbound Translation Extended Addr 0 */
 	u32	powbar0;	/* PCIX Outbound Window Base Addr 0 */
@@ -1847,7 +1849,8 @@ typedef struct ccsr_gur {
 #define FSL_CORENET2_RCWSR4_SRDS2_PRTCL	0x00ff0000
 #define FSL_CORENET2_RCWSR4_SRDS2_PRTCL_SHIFT	16
 #define FSL_CORENET_RCWSR6_BOOT_LOC	0x0f800000
-#elif defined(CONFIG_PPC_T1040)
+#elif defined(CONFIG_PPC_T1040) || defined(CONFIG_PPC_T1042) ||\
+defined(CONFIG_PPC_T1020) || defined(CONFIG_PPC_T1022)
 #define FSL_CORENET2_RCWSR4_SRDS1_PRTCL	0xff000000
 #define FSL_CORENET2_RCWSR4_SRDS1_PRTCL_SHIFT	24
 #define FSL_CORENET2_RCWSR4_SRDS2_PRTCL	0x00fe0000

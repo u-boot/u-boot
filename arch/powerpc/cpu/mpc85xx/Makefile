@@ -70,6 +70,9 @@ obj-$(CONFIG_PPC_B4860)	+= ddr-gen3.o
 obj-$(CONFIG_BSC9131)		+= ddr-gen3.o
 obj-$(CONFIG_BSC9132)		+= ddr-gen3.o
 obj-$(CONFIG_PPC_T1040)	+= ddr-gen3.o
+obj-$(CONFIG_PPC_T1042)	+= ddr-gen3.o
+obj-$(CONFIG_PPC_T1020)	+= ddr-gen3.o
+obj-$(CONFIG_PPC_T1022)	+= ddr-gen3.o
 
 obj-$(CONFIG_CPM2)	+= ether_fcc.o
 obj-$(CONFIG_OF_LIBFDT) += fdt.o
@@ -89,6 +92,10 @@ obj-$(CONFIG_PPC_T4160) += t4240_ids.o
 obj-$(CONFIG_PPC_B4420) += b4860_ids.o
 obj-$(CONFIG_PPC_B4860) += b4860_ids.o
 obj-$(CONFIG_PPC_T1040) += t1040_ids.o
+obj-$(CONFIG_PPC_T1042)	+= t1040_ids.o
+obj-$(CONFIG_PPC_T1020)	+= t1040_ids.o
+obj-$(CONFIG_PPC_T1022)	+= t1040_ids.o
+
 
 obj-$(CONFIG_QE)	+= qe_io.o
 obj-$(CONFIG_CPM2)	+= serial_scc.o
@@ -128,6 +135,9 @@ obj-$(CONFIG_PPC_B4420) += b4860_serdes.o
 obj-$(CONFIG_PPC_B4860) += b4860_serdes.o
 obj-$(CONFIG_BSC9132) += bsc9132_serdes.o
 obj-$(CONFIG_PPC_T1040) += t1040_serdes.o
+obj-$(CONFIG_PPC_T1042)	+= t1040_serdes.o
+obj-$(CONFIG_PPC_T1020)	+= t1040_serdes.o
+obj-$(CONFIG_PPC_T1022)	+= t1040_serdes.o
 
 obj-y	+= cpu.o
 obj-y	+= cpu_init.o

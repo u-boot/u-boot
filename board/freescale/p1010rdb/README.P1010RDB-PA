@@ -23,27 +23,26 @@ Interfaces:
 		- Lane0: x1 mini-PCIe slot
 		- Lane1: x1 PCIe standard slot
 	- SATA:
-		- 1 internal SATA connector to 2.5" 160G SATA2 HDD
+		- 1 internal SATA connector to 2.5” 160G SATA2 HDD
 		- 1 eSATA connector to rear panel
 	- 10/100/1000 BaseT Ethernet ports:
 		- eTSEC1, RGMII: one 10/100/1000 port using Vitesse VSC8641XKO
 		- eTSEC2, SGMII: one 10/100/1000 port using Vitesse VSC8221
 		- eTSEC3, SGMII: one 10/100/1000 port using Vitesse VSC8221
 	- USB 2.0 port:
-		- x1 USB2.0 port: via an ULPI PHY to micro-AB connector
-		- x1 USB2.0 poort via an internal PHY to micro-AB connector
+		- x1 USB2.0 port via an external ULPI PHY to micro-AB connector
+		- x1 USB2.0 port via an internal UTMI PHY to micro-AB connector
 	- FlexCAN ports:
-		- x2 DB-9 female connectors for FlexCAN bus(revision 2.0B)
-		   interface;
+		- 2 DB-9 female connectors for FlexCAN bus(revision 2.0B)
+		  interface;
 	- DUART interface:
 		- DUART interface: supports two UARTs up to 115200 bps for
-		  console display
-		- J45 connectors are used for these 2 UART ports.
+		   console display
+		- RJ45 connectors are used for these 2 UART ports.
 	- TDM
-		- 2 FXS ports connected via an external SLIC to the TDM
-		   interface. SLIC is controllled via SPI.
-		- 1 FXO port connected via a relay to FXS for switchover to
-		   POTS
+		- 2 FXS ports connected via an external SLIC to the TDM interface.
+		  SLIC is controllled via SPI.
+		- 1 FXO port connected via a relay to FXS for switchover to POTS
 Board connectors:
 	- Mini-ITX power supply connector
 	- JTAG/COP for debugging
@@ -53,6 +52,19 @@ POR
 	- support critical POR setting changed via switch on board
 PCB
 	- 6-layer routing (4-layer signals, 2-layer power and ground)
+
+
+Physical Memory Map on P1010RDB
+===============================
+Address Start   Address End   Memory type	Attributes
+0x0000_0000	0x3fff_ffff   DDR		1G Cacheable
+0xa000_0000	0xdfff_ffff   PCI Express Mem	1G non-cacheable
+0xee00_0000	0xefff_ffff   NOR Flash		32M non-cacheable
+0xffc2_0000	0xffc5_ffff   PCI IO range	256K non-cacheable
+0xffa0_0000	0xffaf_ffff   NAND Flash	1M cacheable
+0xffb0_0000	0xffbf_ffff   Board CPLD	1M non-cacheable
+0xffd0_0000	0xffd0_3fff   L1 for Stack	16K Cacheable TLB0
+0xffe0_0000	0xffef_ffff   CCSR		1M non-cacheable
 
 
 Serial Port Configuration on P1010RDB
@@ -100,7 +112,7 @@ Build and burn u-boot to NOR flash
 
 
 Alternate NOR bank
-============================
+==================
 1. Burn u-boot.bin into alternate NOR bank
 	=> tftp $loadaddr $uboot
 	=> protect off eef80000 +$filesize
@@ -134,7 +146,6 @@ Build and burn u-boot to NAND flash
 3. Check SW4[1:4]= 1000 and SW6[4]=1, then power on.
 
 
-
 Build and burn u-boot to SPI flash
 ==================================
 1. Build u-boot-spi.bin image
@@ -152,7 +163,6 @@ Build and burn u-boot to SPI flash
 	=> sf write $loadaddr 0 $filesize
 
 3. Check SW4[1:4]= 0110 and SW6[4]=0, then power on.
-
 
 
 CPLD POR setting registers
@@ -194,5 +204,5 @@ Place uImage, p1010rdb.dtb and rootfs files in the TFTP disk area.
 	=> bootm 1000000 3000000 2000000
 
 
-Please contact your local field applications engineer or sales representative
-to obtain related documents, such as P1010-RDB User Guide for details.
+For more details, please refer to P1010RDB User Guide and access website
+www.freescale.com
