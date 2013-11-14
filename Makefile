@@ -570,9 +570,6 @@ $(obj)spl/u-boot-spl.bin:	$(SUBDIR_TOOLS) depend
 $(obj)tpl/u-boot-tpl.bin:	$(SUBDIR_TOOLS) depend
 		$(MAKE) -C spl all CONFIG_TPL_BUILD=y
 
-updater:
-		$(MAKE) -C tools/updater all
-
 # Explicitly make _depend in subdirs containing multiple targets to prevent
 # parallel sub-makes creating .depend files simultaneously.
 depend dep:	$(TIMESTAMP_FILE) $(VERSION_FILE) \
@@ -715,7 +712,7 @@ else	# !config.mk
 all $(obj)u-boot.hex $(obj)u-boot.srec $(obj)u-boot.bin \
 $(obj)u-boot.img $(obj)u-boot.dis $(obj)u-boot \
 $(filter-out tools,$(SUBDIRS)) \
-updater depend dep tags ctags etags cscope $(obj)System.map:
+depend dep tags ctags etags cscope $(obj)System.map:
 	@echo "System not configured - see README" >&2
 	@ exit 1
 
