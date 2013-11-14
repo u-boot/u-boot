@@ -168,12 +168,6 @@ void do_io_settings(void)
 		io_settings_lpddr2();
 	else
 		io_settings_ddr3();
-
-	/* Efuse settings */
-	writel(EFUSE_1, (*ctrl)->control_efuse_1);
-	writel(EFUSE_2, (*ctrl)->control_efuse_2);
-	writel(EFUSE_3, (*ctrl)->control_efuse_3);
-	writel(EFUSE_4, (*ctrl)->control_efuse_4);
 }
 
 static const struct srcomp_params srcomp_parameters[NUM_SYS_CLKS] = {
