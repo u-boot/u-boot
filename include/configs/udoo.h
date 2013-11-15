@@ -34,6 +34,22 @@
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART2_BASE
 
+/* Network support */
+
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_NET
+#define CONFIG_FEC_MXC
+#define CONFIG_MII
+#define IMX_FEC_BASE                    ENET_BASE_ADDR
+#define CONFIG_FEC_XCV_TYPE             RGMII
+#define CONFIG_ETHPRIME                 "FEC"
+#define CONFIG_FEC_MXC_PHYADDR          6
+#define CONFIG_PHYLIB
+#define CONFIG_PHY_MICREL
+#define CONFIG_PHY_MICREL_KSZ9031
+
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_CONS_INDEX		1
