@@ -168,6 +168,7 @@ static void setup_iomux_wdog(void)
 	imx_iomux_v3_setup_multiple_pads(wdog_pads, ARRAY_SIZE(wdog_pads));
 	gpio_direction_output(WDT_TRG, 0);
 	gpio_direction_output(WDT_EN, 1);
+	gpio_direction_input(WDT_TRG);
 }
 
 static struct fsl_esdhc_cfg usdhc_cfg = { USDHC3_BASE_ADDR };
