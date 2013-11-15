@@ -22,5 +22,9 @@ void at91_spi1_hw_init(unsigned long cs_mask);
 void at91_udp_hw_init(void);
 void at91_uhp_hw_init(void);
 void at91_lcd_hw_init(void);
+void at91_plla_init(u32 pllar);
+void at91_mck_init(u32 mckr);
+void at91_pmc_init(void);
+void mem_init(void);
 
 #endif /* AT91_COMMON_H */

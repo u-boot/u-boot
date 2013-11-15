@@ -8,4 +8,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-$(CONFIG_SPL_BUILD) += mpddrc.o
+obj-$(CONFIG_SPL_BUILD) += mpddrc.o spl.o
