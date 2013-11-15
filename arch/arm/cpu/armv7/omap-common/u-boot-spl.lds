@@ -34,8 +34,9 @@ SECTIONS
 
 	. = ALIGN(4);
 	.u_boot_list : {
-		KEEP(*(SORT(.u_boot_list*)));
+		KEEP(*(SORT(.u_boot_list*_i2c_*)));
 	} >.sram
+
 	. = ALIGN(4);
 	__image_copy_end = .;
 	_end = .;
