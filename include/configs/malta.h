@@ -40,8 +40,8 @@
 /*
  * Memory map
  */
-#define CONFIG_SYS_TEXT_BASE		0xbfc00000 /* Rom version */
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
+#define CONFIG_SYS_TEXT_BASE		0xbe000000 /* Rom version */
+#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 
 #define CONFIG_SYS_SDRAM_BASE		0x80000000 /* Cached addr */
 #define CONFIG_SYS_MEM_SIZE		(256 * 1024 * 1024)
