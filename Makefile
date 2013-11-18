@@ -136,7 +136,6 @@ unexport CDPATH
 # The "examples" conditionally depend on U-Boot (say, when USE_PRIVATE_LIBGCC
 # is "yes"), so compile examples after U-Boot is compiled.
 SUBDIR_TOOLS = tools
-SUBDIR_EXAMPLES = examples/standalone examples/api
 SUBDIRS = $(SUBDIR_TOOLS)
 
 .PHONY : $(SUBDIRS) $(VERSION_FILE) $(TIMESTAMP_FILE)
@@ -150,8 +149,10 @@ all:
 sinclude $(obj)include/autoconf.mk.dep
 sinclude $(obj)include/autoconf.mk
 
+SUBDIR_EXAMPLES-y := examples/standalone
+SUBDIR_EXAMPLES-$(CONFIG_API) += examples/api
 ifndef CONFIG_SANDBOX
-SUBDIRS += $(SUBDIR_EXAMPLES)
+SUBDIRS += $(SUBDIR_EXAMPLES-y)
 endif
 
 # load ARCH, BOARD, and CPU configuration
@@ -277,7 +278,7 @@ LIBS-y += drivers/usb/phy/
 LIBS-y += drivers/usb/ulpi/
 LIBS-y += common/
 LIBS-y += lib/libfdt/
-LIBS-y += api/
+LIBS-$(CONFIG_API) += api/
 LIBS-y += post/
 LIBS-y += test/
 
@@ -362,7 +363,7 @@ endif
 
 build := -f $(TOPDIR)/scripts/Makefile.build -C
 
-all:		$(ALL-y) $(SUBDIR_EXAMPLES)
+all:		$(ALL-y) $(SUBDIR_EXAMPLES-y)
 
 $(obj)u-boot.dtb:	checkdtc $(obj)u-boot
 		$(MAKE) $(build) dts binary
@@ -550,7 +551,7 @@ $(LIBS):	depend $(SUBDIR_TOOLS)
 $(SUBDIRS):	depend
 		$(MAKE) -C $@ all
 
-$(SUBDIR_EXAMPLES): $(obj)u-boot
+$(SUBDIR_EXAMPLES-y): $(obj)u-boot
 
 $(LDSCRIPT):	depend
 		$(MAKE) -C $(dir $@) $(notdir $@)
