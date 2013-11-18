@@ -26,5 +26,6 @@ void at91_plla_init(u32 pllar);
 void at91_mck_init(u32 mckr);
 void at91_pmc_init(void);
 void mem_init(void);
+void at91_phy_reset(void);
 
 #endif /* AT91_COMMON_H */
