@@ -29,7 +29,7 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 			     unsigned int ctrl_num, int step)
 {
 	unsigned int i, bus_width;
-	volatile ccsr_ddr_t *ddr;
+	struct ccsr_ddr __iomem *ddr;
 	u32 temp_sdram_cfg;
 	u32 total_gb_size_per_controller;
 	int timeout;

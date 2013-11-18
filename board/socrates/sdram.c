@@ -24,7 +24,8 @@
  */
 phys_size_t fixed_sdram(void)
 {
-	volatile ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_FSL_DDR_ADDR);
+	struct ccsr_ddr __iomem *ddr =
+		(struct ccsr_ddr __iomem *)(CONFIG_SYS_FSL_DDR_ADDR);
 
 	/*
 	 * Disable memory controller.

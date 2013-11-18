@@ -416,7 +416,7 @@ static void dump_spd_ddr_reg(void)
 	int i, j, k, m;
 	u8 *p_8;
 	u32 *p_32;
-	ccsr_ddr_t *ddr[CONFIG_NUM_DDR_CONTROLLERS];
+	struct ccsr_ddr __iomem *ddr[CONFIG_NUM_DDR_CONTROLLERS];
 	generic_spd_eeprom_t
 		spd[CONFIG_NUM_DDR_CONTROLLERS][CONFIG_DIMM_SLOTS_PER_CTLR];
 
@@ -482,7 +482,7 @@ static void dump_spd_ddr_reg(void)
 	for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++)
 		printf("     Base + 0x%04x", (u32)ddr[i] & 0xFFFF);
 	puts("\n");
-	for (k = 0; k < sizeof(ccsr_ddr_t)/4; k++) {
+	for (k = 0; k < sizeof(struct ccsr_ddr)/4; k++) {
 		m = 0;
 		printf("%6d (0x%04x)", k * 4, k * 4);
 		for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {

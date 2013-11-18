@@ -231,7 +231,8 @@ int checkboard (void)
 #if !defined(CONFIG_SPD_EEPROM)
 phys_size_t fixed_sdram(void)
 {
-	volatile ccsr_ddr_t *ddr = (ccsr_ddr_t *)CONFIG_SYS_FSL_DDR_ADDR;
+	struct ccsr_ddr __iomem *ddr =
+		(struct ccsr_ddr __iomem *)CONFIG_SYS_FSL_DDR_ADDR;
 	uint d_init;
 
 	out_be32(&ddr->cs0_bnds, CONFIG_SYS_DDR_CS0_BNDS);

@@ -37,6 +37,7 @@ int checkboard(void)
 	unsigned int gpio_low  = 0;
 	unsigned int gpio_in   = 0;
 	unsigned int i;
+	struct ccsr_ddr __iomem *ddr;
 
 	puts("Board: HWW-1U-1A ");
 
@@ -89,7 +90,7 @@ int checkboard(void)
 	 * and delay a while before we continue.
 	 */
 	if (mpc85xx_gpio_get(GPIO_RESETS)) {
-		ccsr_ddr_t *ddr = (ccsr_ddr_t *)CONFIG_SYS_FSL_DDR_ADDR;
+		ddr = (struct ccsr_ddr __iomem *)CONFIG_SYS_FSL_DDR_ADDR;
 
 		puts("Debugger detected... extra device reset enabled!\n");
 

@@ -14,13 +14,14 @@
 #include <fsl_ddr_sdram.h>
 
 #include <fsl_ddr.h>
+#include <fsl_immap.h>
 #include <asm/io.h>
 
 #define _DDR_ADDR CONFIG_SYS_FSL_DDR_ADDR
 
 static u32 fsl_ddr_get_version(void)
 {
-	ccsr_ddr_t *ddr;
+	struct ccsr_ddr __iomem *ddr;
 	u32 ver_major_minor_errata;
 
 	ddr = (void *)_DDR_ADDR;

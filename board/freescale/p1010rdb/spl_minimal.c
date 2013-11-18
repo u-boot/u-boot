@@ -19,7 +19,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void sdram_init(void)
 {
-	ccsr_ddr_t *ddr = (ccsr_ddr_t *)CONFIG_SYS_FSL_DDR_ADDR;
+	struct ccsr_ddr __iomem *ddr =
+		(struct ccsr_ddr __iomem *)CONFIG_SYS_FSL_DDR_ADDR;
 	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
 	u32 ddr_ratio;
 	unsigned long ddr_freq_mhz;

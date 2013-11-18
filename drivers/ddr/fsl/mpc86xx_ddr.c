@@ -18,7 +18,7 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 			     unsigned int ctrl_num, int step)
 {
 	unsigned int i;
-	volatile ccsr_ddr_t *ddr;
+	struct ccsr_ddr __iomem *ddr;
 
 	switch (ctrl_num) {
 	case 0:
@@ -58,7 +58,7 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	out_be32(&ddr->sdram_cfg_2, regs->ddr_sdram_cfg_2);
 	out_be32(&ddr->sdram_mode, regs->ddr_sdram_mode);
 	out_be32(&ddr->sdram_mode_2, regs->ddr_sdram_mode_2);
-	out_be32(&ddr->sdram_mode_cntl, regs->ddr_sdram_md_cntl);
+	out_be32(&ddr->sdram_md_cntl, regs->ddr_sdram_md_cntl);
 	out_be32(&ddr->sdram_interval, regs->ddr_sdram_interval);
 	out_be32(&ddr->sdram_data_init, regs->ddr_data_init);
 	out_be32(&ddr->sdram_clk_cntl, regs->ddr_sdram_clk_cntl);
