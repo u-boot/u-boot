@@ -5,8 +5,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-CPPFLAGS += -I$(TOPDIR)
-
 obj-$(CONFIG_HAS_POST) += asm.o
 obj-$(CONFIG_HAS_POST) += cpu.o cmp.o cmpi.o two.o twox.o three.o threex.o
 obj-$(CONFIG_HAS_POST) += threei.o andi.o srawi.o rlwnm.o rlwinm.o rlwimi.o

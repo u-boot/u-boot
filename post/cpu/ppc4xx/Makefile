@@ -5,8 +5,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-CPPFLAGS += -I$(TOPDIR)
-
 obj-$(CONFIG_HAS_POST)	+= cache_4xx.o
 obj-$(CONFIG_HAS_POST)	+= cache.o
 obj-$(CONFIG_HAS_POST)	+= denali_ecc.o
