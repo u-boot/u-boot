@@ -1004,18 +1004,13 @@ int board_nand_init(struct nand_chip *nand)
 	nand->ecc.layout = &omap_ecclayout;
 
 	/* select ECC scheme */
-#if defined(CONFIG_NAND_OMAP_ELM)
-	err = omap_select_ecc_scheme(nand, OMAP_ECC_BCH8_CODE_HW,
+#if defined(CONFIG_NAND_OMAP_ECCSCHEME)
+	err = omap_select_ecc_scheme(nand, CONFIG_NAND_OMAP_ECCSCHEME,
 			CONFIG_SYS_NAND_PAGE_SIZE, CONFIG_SYS_NAND_OOBSIZE);
-#elif defined(CONFIG_NAND_OMAP_BCH8)
-	err = omap_select_ecc_scheme(nand, OMAP_ECC_BCH8_CODE_HW_DETECTION_SW,
-			CONFIG_SYS_NAND_PAGE_SIZE, CONFIG_SYS_NAND_OOBSIZE);
-#elif !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_NAND_SOFTECC)
+#else
+	/* pagesize and oobsize are not required to configure sw ecc-scheme */
 	err = omap_select_ecc_scheme(nand, OMAP_ECC_HAM1_CODE_SW,
 			0, 0);
-#else
-	err = omap_select_ecc_scheme(nand, OMAP_ECC_HAM1_CODE_HW,
-			CONFIG_SYS_NAND_PAGE_SIZE, CONFIG_SYS_NAND_OOBSIZE);
 #endif
 	if (err)
 		return err;
