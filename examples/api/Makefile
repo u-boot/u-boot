@@ -46,8 +46,6 @@ OBJS	+= $(addprefix $(obj),$(COBJ_FILES-y))
 OBJS	+= $(addprefix $(obj),$(notdir $(EXT_COBJ_FILES-y)))
 OBJS	+= $(addprefix $(obj),$(notdir $(EXT_SOBJ_FILES-y)))
 
-CPPFLAGS += -I..
-
 all:	$(obj).depend $(OUTPUT)
 
 #########################################################################

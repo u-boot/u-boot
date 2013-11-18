@@ -52,8 +52,6 @@ SREC	:= $(addprefix $(obj),$(SREC))
 
 gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
 
-CPPFLAGS += -I..
-
 # For PowerPC there's no need to compile standalone applications as a
 # relocatable executable.  The relocation data is not needed, and
 # also causes the entry point of the standalone application to be
