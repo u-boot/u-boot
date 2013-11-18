@@ -6,6 +6,13 @@
 #
 
 ifndef CONFIG_SPL_BUILD
+
+obj-$(CONFIG_RSA) += rsa/
+obj-$(CONFIG_LZMA) += lzma/
+obj-$(CONFIG_LZO) += lzo/
+obj-$(CONFIG_ZLIB) += zlib/
+obj-$(CONFIG_TIZEN) += tizen/
+
 obj-$(CONFIG_AES) += aes.o
 obj-$(CONFIG_BZIP2) += bzlib.o
 obj-$(CONFIG_BZIP2) += bzlib_crctable.o
