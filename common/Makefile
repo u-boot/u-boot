@@ -232,13 +232,10 @@ obj-y += stdio.o
 
 CPPFLAGS += -I..
 
-$(obj)env_embedded.o: $(src)env_embedded.c $(obj)../tools/envcrc
+$(obj)env_embedded.o: $(src)env_embedded.c
 	$(CC) $(AFLAGS) -Wa,--no-warn \
 		-DENV_CRC=$(shell $(obj)../tools/envcrc) \
 		-c -o $@ $(src)env_embedded.c
-
-$(obj)../tools/envcrc:
-	$(MAKE) -C ../tools
 
 # SEE README.arm-unaligned-accesses
 $(obj)hush.o: CFLAGS += $(PLATFORM_NO_UNALIGNED)
