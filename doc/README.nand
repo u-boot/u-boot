@@ -179,6 +179,25 @@ Configuration Options:
       Please convert your driver even if you don't need the extra
       flexibility, so that one day we can eliminate the old mechanism.
 
+
+Platform specific options
+=========================
+   CONFIG_NAND_OMAP_GPMC
+	Enables omap_gpmc.c driver for OMAPx and AMxxxx platforms.
+	GPMC controller is used for parallel NAND flash devices, and can
+	do ECC calculation (not ECC error detection) for HAM1, BCH4, BCH8
+	and BCH16 ECC algorithms.
+
+   CONFIG_NAND_OMAP_ELM
+	Enables omap_elm.c driver for OMAPx and AMxxxx platforms.
+	ELM controller is used for ECC error detection (not ECC calculation)
+	of BCH4, BCH8 and BCH16 ECC algorithms.
+	Some legacy platforms like OMAP3xx do not have in-built ELM h/w engine,
+	thus such SoC platforms need to depend on software library for ECC error
+	detection. However ECC calculation on such plaforms would still be
+	done by GPMC controller.
+
+
 NOTE:
 =====
 

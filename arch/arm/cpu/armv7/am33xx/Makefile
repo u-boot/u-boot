@@ -19,4 +19,3 @@ obj-y	+= ddr.o
 obj-y	+= emif4.o
 obj-y	+= board.o
 obj-y	+= mux.o
-obj-$(CONFIG_NAND_OMAP_GPMC)	+= elm.o

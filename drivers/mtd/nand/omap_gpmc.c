@@ -16,7 +16,7 @@
 #include <linux/compiler.h>
 #include <nand.h>
 #ifdef CONFIG_AM33XX
-#include <asm/arch/elm.h>
+#include <asm/omap_elm.h>
 #endif
 
 static uint8_t cs;
