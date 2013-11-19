@@ -19,6 +19,8 @@
 
 #define BADBLOCK_MARKER_LENGTH	2
 #define SECTOR_BYTES		512
+#define ECCCLEAR		(0x1 << 8)
+#define ECCRESULTREG1		(0x1 << 0)
 
 static uint8_t cs;
 static __maybe_unused struct nand_ecclayout omap_ecclayout;
@@ -60,21 +62,6 @@ int omap_spl_dev_ready(struct mtd_info *mtd)
 }
 #endif
 
-/*
- * omap_hwecc_init - Initialize the Hardware ECC for NAND flash in
- *                   GPMC controller
- * @mtd:        MTD device structure
- *
- */
-static void __maybe_unused omap_hwecc_init(struct nand_chip *chip)
-{
-	/*
-	 * Init ECC Control Register
-	 * Clear all ECC | Enable Reg1
-	 */
-	writel(ECCCLEAR | ECCRESULTREG1, &gpmc_cfg->ecc_control);
-	writel(ECCSIZE1 | ECCSIZE0 | ECCSIZE0SEL, &gpmc_cfg->ecc_size_config);
-}
 
 /*
  * gen_true_ecc - This function will generate true ECC value, which
@@ -192,38 +179,6 @@ static int __maybe_unused omap_calculate_ecc(struct mtd_info *mtd,
 }
 
 /*
- * omap_enable_ecc - This function enables the hardware ecc functionality
- * @mtd:        MTD device structure
- * @mode:       Read/Write mode
- */
-static void __maybe_unused omap_enable_hwecc(struct mtd_info *mtd, int32_t mode)
-{
-	struct nand_chip *chip = mtd->priv;
-	uint32_t val, dev_width = (chip->options & NAND_BUSWIDTH_16) >> 1;
-
-	switch (mode) {
-	case NAND_ECC_READ:
-	case NAND_ECC_WRITE:
-		/* Clear the ecc result registers, select ecc reg as 1 */
-		writel(ECCCLEAR | ECCRESULTREG1, &gpmc_cfg->ecc_control);
-
-		/*
-		 * Size 0 = 0xFF, Size1 is 0xFF - both are 512 bytes
-		 * tell all regs to generate size0 sized regs
-		 * we just have a single ECC engine for all CS
-		 */
-		writel(ECCSIZE1 | ECCSIZE0 | ECCSIZE0SEL,
-			&gpmc_cfg->ecc_size_config);
-		val = (dev_width << 7) | (cs << 1) | (0x1);
-		writel(val, &gpmc_cfg->ecc_config);
-		break;
-	default:
-		printf("Error: Unrecognized Mode[%d]!\n", mode);
-		break;
-	}
-}
-
-/*
  * Generic BCH interface
  */
 struct nand_bch_priv {
@@ -263,105 +218,65 @@ static __maybe_unused struct nand_bch_priv bch_priv = {
 };
 
 /*
- * omap_hwecc_init_bch - Initialize the BCH Hardware ECC for NAND flash in
- *				GPMC controller
+ * omap_enable_hwecc - configures GPMC as per ECC scheme before read/write
  * @mtd:	MTD device structure
  * @mode:	Read/Write mode
  */
 __maybe_unused
-static void omap_hwecc_init_bch(struct nand_chip *chip, int32_t mode)
+static void omap_enable_hwecc(struct mtd_info *mtd, int32_t mode)
 {
-	uint32_t val;
-	uint32_t dev_width = (chip->options & NAND_BUSWIDTH_16) >> 1;
-	uint32_t unused_length = 0;
-	uint32_t wr_mode = BCH_WRAPMODE_6;
-	struct nand_bch_priv *bch = chip->priv;
+	struct nand_chip	*nand	= mtd->priv;
+	struct nand_bch_priv	*bch	= nand->priv;
+	unsigned int dev_width = (nand->options & NAND_BUSWIDTH_16) ? 1 : 0;
+	unsigned int ecc_algo = 0;
+	unsigned int bch_type = 0;
+	unsigned int eccsize1 = 0x00, eccsize0 = 0x00, bch_wrapmode = 0x00;
+	u32 ecc_size_config_val = 0;
+	u32 ecc_config_val = 0;
 
-	/* Clear the ecc result registers, select ecc reg as 1 */
-	writel(ECCCLEAR | ECCRESULTREG1, &gpmc_cfg->ecc_control);
-
-	if (bch->ecc_scheme == OMAP_ECC_BCH8_CODE_HW) {
-		wr_mode = BCH_WRAPMODE_1;
-
-		switch (bch->nibbles) {
-		case ECC_BCH4_NIBBLES:
-			unused_length = 3;
-			break;
-		case ECC_BCH8_NIBBLES:
-			unused_length = 2;
-			break;
-		case ECC_BCH16_NIBBLES:
-			unused_length = 0;
-			break;
+	/* configure GPMC for specific ecc-scheme */
+	switch (bch->ecc_scheme) {
+	case OMAP_ECC_HAM1_CODE_SW:
+		return;
+	case OMAP_ECC_HAM1_CODE_HW:
+		ecc_algo = 0x0;
+		bch_type = 0x0;
+		bch_wrapmode = 0x00;
+		eccsize0 = 0xFF;
+		eccsize1 = 0xFF;
+		break;
+	case OMAP_ECC_BCH8_CODE_HW_DETECTION_SW:
+	case OMAP_ECC_BCH8_CODE_HW:
+		ecc_algo = 0x1;
+		bch_type = 0x1;
+		if (mode == NAND_ECC_WRITE) {
+			bch_wrapmode = 0x01;
+			eccsize0 = 0;  /* extra bits in nibbles per sector */
+			eccsize1 = 28; /* OOB bits in nibbles per sector */
+		} else {
+			bch_wrapmode = 0x01;
+			eccsize0 = 26; /* ECC bits in nibbles per sector */
+			eccsize1 = 2;  /* non-ECC bits in nibbles per sector */
 		}
-
-		/*
-		 * This is ecc_size_config for ELM mode.  Here we are using
-		 * different settings for read and write access and also
-		 * depending on BCH strength.
-		 */
-		switch (mode) {
-		case NAND_ECC_WRITE:
-			/* write access only setup eccsize1 config */
-			val = ((unused_length + bch->nibbles) << 22);
-			break;
-
-		case NAND_ECC_READ:
-		default:
-			/*
-			 * by default eccsize0 selected for ecc1resultsize
-			 * eccsize0 config.
-			 */
-			val  = (bch->nibbles << 12);
-			/* eccsize1 config */
-			val |= (unused_length << 22);
-			break;
-		}
-	} else {
-		/*
-		 * This ecc_size_config setting is for BCH sw library.
-		 *
-		 * Note: we only support BCH8 currently with BCH sw library!
-		 * Should be really easy to adobt to BCH4, however some omap3
-		 * have flaws with BCH4.
-		 *
-		 * Here we are using wrapping mode 6 both for reading and
-		 * writing, with:
-		 *  size0 = 0  (no additional protected byte in spare area)
-		 *  size1 = 32 (skip 32 nibbles = 16 bytes per sector in
-		 *		spare area)
-		 */
-		val = (32 << 22) | (0 << 12);
+		break;
+	default:
+		return;
 	}
-	/* ecc size configuration */
-	writel(val, &gpmc_cfg->ecc_size_config);
+	/* Clear ecc and enable bits */
+	writel(ECCCLEAR | ECCRESULTREG1, &gpmc_cfg->ecc_control);
+	/* Configure ecc size for BCH */
+	ecc_size_config_val = (eccsize1 << 22) | (eccsize0 << 12);
+	writel(ecc_size_config_val, &gpmc_cfg->ecc_size_config);
 
-	/*
-	 * Configure the ecc engine in gpmc
-	 * We assume 512 Byte sector pages for access to NAND.
-	 */
-	val  = (1 << 16);		/* enable BCH mode */
-	val |= (bch->type << 12);	/* setup BCH type */
-	val |= (wr_mode << 8);		/* setup wrapping mode */
-	val |= (dev_width << 7);	/* setup device width (16 or 8 bit) */
-	val |= (cs << 1);		/* setup chip select to work on */
-	debug("set ECC_CONFIG=0x%08x\n", val);
-	writel(val, &gpmc_cfg->ecc_config);
-}
-
-/*
- * omap_enable_ecc_bch - This function enables the bch h/w ecc functionality
- * @mtd:	MTD device structure
- * @mode:	Read/Write mode
- */
-__maybe_unused
-static void omap_enable_ecc_bch(struct mtd_info *mtd, int32_t mode)
-{
-	struct nand_chip *chip = mtd->priv;
-
-	omap_hwecc_init_bch(chip, mode);
-	/* enable ecc */
-	writel((readl(&gpmc_cfg->ecc_config) | 0x1), &gpmc_cfg->ecc_config);
+	/* Configure device details for BCH engine */
+	ecc_config_val = ((ecc_algo << 16)	| /* HAM1 | BCHx */
+			(bch_type << 12)	| /* BCH4/BCH8/BCH16 */
+			(bch_wrapmode << 8)	| /* wrap mode */
+			(dev_width << 7)	| /* bus width */
+			(0x0 << 4)		| /* number of sectors */
+			(cs <<  1)		| /* ECC CS */
+			(0x1));			  /* enable ECC */
+	writel(ecc_config_val, &gpmc_cfg->ecc_config);
 }
 
 /*
@@ -835,7 +750,7 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 		nand->ecc.strength	= 8;
 		nand->ecc.size		= SECTOR_BYTES;
 		nand->ecc.bytes		= 13;
-		nand->ecc.hwctl		= omap_enable_ecc_bch;
+		nand->ecc.hwctl		= omap_enable_hwecc;
 		nand->ecc.correct	= omap_correct_data_bch_sw;
 		nand->ecc.calculate	= omap_calculate_ecc_bch_sw;
 		/* define ecc-layout */
@@ -852,7 +767,6 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 		ecclayout->oobfree[0].offset = i + BADBLOCK_MARKER_LENGTH;
 		ecclayout->oobfree[0].length = oobsize - ecclayout->eccbytes -
 						BADBLOCK_MARKER_LENGTH;
-		omap_hwecc_init_bch(nand, NAND_ECC_READ);
 		bch->ecc_scheme		= OMAP_ECC_BCH8_CODE_HW_DETECTION_SW;
 		break;
 #else
@@ -878,7 +792,7 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 		nand->ecc.strength	= 8;
 		nand->ecc.size		= SECTOR_BYTES;
 		nand->ecc.bytes		= 14;
-		nand->ecc.hwctl		= omap_enable_ecc_bch;
+		nand->ecc.hwctl		= omap_enable_hwecc;
 		nand->ecc.correct	= omap_correct_data_bch;
 		nand->ecc.calculate	= omap_calculate_ecc_bch;
 		nand->ecc.read_page	= omap_read_page_bch;

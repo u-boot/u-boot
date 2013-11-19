@@ -14,13 +14,6 @@
 #define GPMC_BUF_EMPTY	0
 #define GPMC_BUF_FULL	1
 
-#define ECCCLEAR	(0x1 << 8)
-#define ECCRESULTREG1	(0x1 << 0)
-#define ECCSIZE512BYTE	0xFF
-#define ECCSIZE1	(ECCSIZE512BYTE << 22)
-#define ECCSIZE0	(ECCSIZE512BYTE << 12)
-#define ECCSIZE0SEL	(0x000 << 0)
-
 /* Generic ECC Layouts */
 /* Large Page x8 NAND device Layout */
 #ifdef GPMC_NAND_ECC_LP_x8_LAYOUT
