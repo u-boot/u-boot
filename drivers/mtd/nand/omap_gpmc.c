@@ -21,6 +21,9 @@
 #define SECTOR_BYTES		512
 #define ECCCLEAR		(0x1 << 8)
 #define ECCRESULTREG1		(0x1 << 0)
+/* 4 bit padding to make byte aligned, 56 = 52 + 4 */
+#define BCH4_BIT_PAD		4
+
 #ifdef CONFIG_BCH
 static u8  bch8_polynomial[] = {0xef, 0x51, 0x2e, 0x09, 0xed, 0x93, 0x9a, 0xc2,
 				0x97, 0x79, 0xe5, 0x24, 0xb5};
@@ -179,6 +182,23 @@ static __maybe_unused struct nand_bch_priv bch_priv = {
 };
 
 /*
+ * omap_reverse_list - re-orders list elements in reverse order [internal]
+ * @list:	pointer to start of list
+ * @length:	length of list
+*/
+void omap_reverse_list(u8 *list, unsigned int length)
+{
+	unsigned int i, j;
+	unsigned int half_length = length / 2;
+	u8 tmp;
+	for (i = 0, j = length - 1; i < half_length; i++, j--) {
+		tmp = list[i];
+		list[i] = list[j];
+		list[j] = tmp;
+	}
+}
+
+/*
  * omap_enable_hwecc - configures GPMC as per ECC scheme before read/write
  * @mtd:	MTD device structure
  * @mode:	Read/Write mode
@@ -312,77 +332,6 @@ static int omap_calculate_ecc(struct mtd_info *mtd, const uint8_t *dat,
 
 #ifdef CONFIG_NAND_OMAP_ELM
 /*
- * omap_rotate_ecc_bch - Rotate the syndrome bytes
- *
- * @mtd:	MTD device structure
- * @calc_ecc:	ECC read from ECC registers
- * @syndrome:	Rotated syndrome will be retuned in this array
- *
- */
-static void omap_rotate_ecc_bch(struct mtd_info *mtd, uint8_t *calc_ecc,
-		uint8_t *syndrome)
-{
-	struct nand_chip *chip = mtd->priv;
-	struct nand_bch_priv *bch = chip->priv;
-	uint8_t n_bytes = 0;
-	int8_t i, j;
-
-	switch (bch->type) {
-	case ECC_BCH4:
-		n_bytes = 8;
-		break;
-
-	case ECC_BCH16:
-		n_bytes = 28;
-		break;
-
-	case ECC_BCH8:
-	default:
-		n_bytes = 13;
-		break;
-	}
-
-	for (i = 0, j = (n_bytes-1); i < n_bytes; i++, j--)
-		syndrome[i] =  calc_ecc[j];
-}
-
-/*
- * omap_fix_errors_bch - Correct bch error in the data
- *
- * @mtd:	MTD device structure
- * @data:	Data read from flash
- * @error_count:Number of errors in data
- * @error_loc:	Locations of errors in the data
- *
- */
-static void omap_fix_errors_bch(struct mtd_info *mtd, uint8_t *data,
-		uint32_t error_count, uint32_t *error_loc)
-{
-	struct nand_chip *chip = mtd->priv;
-	struct nand_bch_priv *bch = chip->priv;
-	uint8_t count = 0;
-	uint32_t error_byte_pos;
-	uint32_t error_bit_mask;
-	uint32_t last_bit = (bch->nibbles * 4) - 1;
-
-	/* Flip all bits as specified by the error location array. */
-	/* FOR( each found error location flip the bit ) */
-	for (count = 0; count < error_count; count++) {
-		if (error_loc[count] > last_bit) {
-			/* Remove the ECC spare bits from correction. */
-			error_loc[count] -= (last_bit + 1);
-			/* Offset bit in data region */
-			error_byte_pos = ((512 * 8) -
-					(error_loc[count]) - 1) / 8;
-			/* Error Bit mask */
-			error_bit_mask = 0x1 << (error_loc[count] % 8);
-			/* Toggle the error bit to make the correction. */
-			data[error_byte_pos] ^= error_bit_mask;
-		}
-	}
-}
-
-/*
  * omap_correct_data_bch - Compares the ecc read from nand spare area
  * with ECC registers values and corrects one bit error if it has occured
  *
@@ -398,40 +347,72 @@ static int omap_correct_data_bch(struct mtd_info *mtd, uint8_t *dat,
 {
 	struct nand_chip *chip = mtd->priv;
 	struct nand_bch_priv *bch = chip->priv;
-	uint8_t syndrome[28];
-	uint32_t error_count = 0;
+	uint32_t eccbytes = chip->ecc.bytes;
+	uint32_t error_count = 0, error_max;
 	uint32_t error_loc[8];
-	uint32_t i, ecc_flag;
+	uint32_t i, ecc_flag = 0;
+	uint8_t count, err = 0;
+	uint32_t byte_pos, bit_pos;
 
-	ecc_flag = 0;
-	for (i = 0; i < chip->ecc.bytes; i++)
-		if (read_ecc[i] != 0xff)
+	/* check calculated ecc */
+	for (i = 0; i < chip->ecc.bytes && !ecc_flag; i++) {
+		if (calc_ecc[i] != 0x00)
 			ecc_flag = 1;
-
+	}
 	if (!ecc_flag)
 		return 0;
 
-	elm_reset();
-	elm_config((enum bch_level)(bch->type));
+	/* check for whether its a erased-page */
+	ecc_flag = 0;
+	for (i = 0; i < chip->ecc.bytes && !ecc_flag; i++) {
+		if (read_ecc[i] != 0xff)
+			ecc_flag = 1;
+	}
+	if (!ecc_flag)
+		return 0;
 
 	/*
 	 * while reading ECC result we read it in big endian.
 	 * Hence while loading to ELM we have rotate to get the right endian.
 	 */
-	omap_rotate_ecc_bch(mtd, calc_ecc, syndrome);
-
-	/* use elm module to check for errors */
-	if (elm_check_error(syndrome, bch->nibbles, &error_count,
-				error_loc) != 0) {
-		printf("ECC: uncorrectable.\n");
-		return -1;
+	switch (bch->ecc_scheme) {
+	case OMAP_ECC_BCH8_CODE_HW:
+		omap_reverse_list(calc_ecc, eccbytes - 1);
+		break;
+	default:
+		return -EINVAL;
 	}
-
+	/* use elm module to check for errors */
+	elm_config((enum bch_level)(bch->type));
+	if (elm_check_error(calc_ecc, bch->nibbles, &error_count, error_loc)) {
+		printf("nand: error: uncorrectable ECC errors\n");
+		return -EINVAL;
+	}
 	/* correct bch error */
-	if (error_count > 0)
-		omap_fix_errors_bch(mtd, dat, error_count, error_loc);
-
-	return 0;
+	for (count = 0; count < error_count; count++) {
+		switch (bch->type) {
+		case ECC_BCH8:
+			/* 14th byte in ECC is reserved to match ROM layout */
+			error_max = SECTOR_BYTES + (eccbytes - 1);
+			break;
+		default:
+			return -EINVAL;
+		}
+		byte_pos = error_max - (error_loc[count] / 8) - 1;
+		bit_pos  = error_loc[count] % 8;
+		if (byte_pos < SECTOR_BYTES) {
+			dat[byte_pos] ^= 1 << bit_pos;
+			printf("nand: bit-flip corrected @data=%d\n", byte_pos);
+		} else if (byte_pos < error_max) {
+			read_ecc[byte_pos - SECTOR_BYTES] = 1 << bit_pos;
+			printf("nand: bit-flip corrected @oob=%d\n", byte_pos -
+								SECTOR_BYTES);
+		} else {
+			err = -EBADMSG;
+			printf("nand: error: invalid bit-flip location\n");
+		}
+	}
+	return (err) ? err : error_count;
 }
 
 /**
