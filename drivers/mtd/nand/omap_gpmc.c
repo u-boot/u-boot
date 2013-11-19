@@ -21,7 +21,10 @@
 #define SECTOR_BYTES		512
 #define ECCCLEAR		(0x1 << 8)
 #define ECCRESULTREG1		(0x1 << 0)
-
+#ifdef CONFIG_BCH
+static u8  bch8_polynomial[] = {0xef, 0x51, 0x2e, 0x09, 0xed, 0x93, 0x9a, 0xc2,
+				0x97, 0x79, 0xe5, 0x24, 0xb5};
+#endif
 static uint8_t cs;
 static __maybe_unused struct nand_ecclayout omap_ecclayout;
 
@@ -143,42 +146,6 @@ static int __maybe_unused omap_correct_data(struct mtd_info *mtd, uint8_t *dat,
 }
 
 /*
- *  omap_calculate_ecc - Generate non-inverted ECC bytes.
- *
- *  Using noninverted ECC can be considered ugly since writing a blank
- *  page ie. padding will clear the ECC bytes. This is no problem as
- *  long nobody is trying to write data on the seemingly unused page.
- *  Reading an erased page will produce an ECC mismatch between
- *  generated and read ECC bytes that has to be dealt with separately.
- *  E.g. if page is 0xFF (fresh erased), and if HW ECC engine within GPMC
- *  is used, the result of read will be 0x0 while the ECC offsets of the
- *  spare area will be 0xFF which will result in an ECC mismatch.
- *  @mtd:	MTD structure
- *  @dat:	unused
- *  @ecc_code:	ecc_code buffer
- */
-static int __maybe_unused omap_calculate_ecc(struct mtd_info *mtd,
-		const uint8_t *dat, uint8_t *ecc_code)
-{
-	u_int32_t val;
-
-	/* Start Reading from HW ECC1_Result = 0x200 */
-	val = readl(&gpmc_cfg->ecc1_result);
-
-	ecc_code[0] = val & 0xFF;
-	ecc_code[1] = (val >> 16) & 0xFF;
-	ecc_code[2] = ((val >> 8) & 0x0F) | ((val >> 20) & 0xF0);
-
-	/*
-	 * Stop reading anymore ECC vals and clear old results
-	 * enable will be called if more reads are required
-	 */
-	writel(0x000, &gpmc_cfg->ecc_config);
-
-	return 0;
-}
-
-/*
  * Generic BCH interface
  */
 struct nand_bch_priv {
@@ -194,12 +161,7 @@ struct nand_bch_priv {
 #define ECC_BCH8	1
 #define ECC_BCH16	2
 
-/* GPMC ecc engine settings */
-#define BCH_WRAPMODE_1		1	/* BCH wrap mode 1 */
-#define BCH_WRAPMODE_6		6	/* BCH wrap mode 6 */
-
 /* BCH nibbles for diff bch levels */
-#define NAND_ECC_HW_BCH ((uint8_t)(NAND_ECC_HW_OOB_FIRST) + 1)
 #define ECC_BCH4_NIBBLES	13
 #define ECC_BCH8_NIBBLES	26
 #define ECC_BCH16_NIBBLES	52
@@ -211,7 +173,6 @@ struct nand_bch_priv {
  * When some users with other BCH strength will exists this have to change!
  */
 static __maybe_unused struct nand_bch_priv bch_priv = {
-	.mode = NAND_ECC_HW_BCH,
 	.type = ECC_BCH8,
 	.nibbles = ECC_BCH8_NIBBLES,
 	.control = NULL
@@ -280,57 +241,76 @@ static void omap_enable_hwecc(struct mtd_info *mtd, int32_t mode)
 }
 
 /*
- * omap_ecc_disable - Disable H/W ECC calculation
- *
- * @mtd:	MTD device structure
+ *  omap_calculate_ecc - Read ECC result
+ *  @mtd:	MTD structure
+ *  @dat:	unused
+ *  @ecc_code:	ecc_code buffer
+ *  Using noninverted ECC can be considered ugly since writing a blank
+ *  page ie. padding will clear the ECC bytes. This is no problem as
+ *  long nobody is trying to write data on the seemingly unused page.
+ *  Reading an erased page will produce an ECC mismatch between
+ *  generated and read ECC bytes that has to be dealt with separately.
+ *  E.g. if page is 0xFF (fresh erased), and if HW ECC engine within GPMC
+ *  is used, the result of read will be 0x0 while the ECC offsets of the
+ *  spare area will be 0xFF which will result in an ECC mismatch.
  */
-static void __maybe_unused omap_ecc_disable(struct mtd_info *mtd)
-{
-	writel((readl(&gpmc_cfg->ecc_config) & ~0x1), &gpmc_cfg->ecc_config);
-}
-
-/*
- * BCH support using ELM module
- */
-#ifdef CONFIG_NAND_OMAP_ELM
-/*
- * omap_read_bch8_result - Read BCH result for BCH8 level
- *
- * @mtd:	MTD device structure
- * @big_endian:	When set read register 3 first
- * @ecc_code:	Read syndrome from BCH result registers
- */
-static void omap_read_bch8_result(struct mtd_info *mtd, uint8_t big_endian,
+static int omap_calculate_ecc(struct mtd_info *mtd, const uint8_t *dat,
 				uint8_t *ecc_code)
 {
-	uint32_t *ptr;
+	struct nand_chip *chip = mtd->priv;
+	struct nand_bch_priv *bch = chip->priv;
+	uint32_t *ptr, val = 0;
 	int8_t i = 0, j;
 
-	if (big_endian) {
+	switch (bch->ecc_scheme) {
+	case OMAP_ECC_HAM1_CODE_HW:
+		val = readl(&gpmc_cfg->ecc1_result);
+		ecc_code[0] = val & 0xFF;
+		ecc_code[1] = (val >> 16) & 0xFF;
+		ecc_code[2] = ((val >> 8) & 0x0F) | ((val >> 20) & 0xF0);
+		break;
+#ifdef CONFIG_BCH
+	case OMAP_ECC_BCH8_CODE_HW_DETECTION_SW:
+#endif
+	case OMAP_ECC_BCH8_CODE_HW:
 		ptr = &gpmc_cfg->bch_result_0_3[0].bch_result_x[3];
-		ecc_code[i++] = readl(ptr) & 0xFF;
+		val = readl(ptr);
+		ecc_code[i++] = (val >>  0) & 0xFF;
 		ptr--;
 		for (j = 0; j < 3; j++) {
-			ecc_code[i++] = (readl(ptr) >> 24) & 0xFF;
-			ecc_code[i++] = (readl(ptr) >> 16) & 0xFF;
-			ecc_code[i++] = (readl(ptr) >>  8) & 0xFF;
-			ecc_code[i++] = readl(ptr) & 0xFF;
+			val = readl(ptr);
+			ecc_code[i++] = (val >> 24) & 0xFF;
+			ecc_code[i++] = (val >> 16) & 0xFF;
+			ecc_code[i++] = (val >>  8) & 0xFF;
+			ecc_code[i++] = (val >>  0) & 0xFF;
 			ptr--;
 		}
-	} else {
-		ptr = &gpmc_cfg->bch_result_0_3[0].bch_result_x[0];
-		for (j = 0; j < 3; j++) {
-			ecc_code[i++] = readl(ptr) & 0xFF;
-			ecc_code[i++] = (readl(ptr) >>  8) & 0xFF;
-			ecc_code[i++] = (readl(ptr) >> 16) & 0xFF;
-			ecc_code[i++] = (readl(ptr) >> 24) & 0xFF;
-			ptr++;
-		}
-		ecc_code[i++] = readl(ptr) & 0xFF;
-		ecc_code[i++] = 0;	/* 14th byte is always zero */
+		break;
+	default:
+		return -EINVAL;
 	}
+	/* ECC scheme specific syndrome customizations */
+	switch (bch->ecc_scheme) {
+	case OMAP_ECC_HAM1_CODE_HW:
+		break;
+#ifdef CONFIG_BCH
+	case OMAP_ECC_BCH8_CODE_HW_DETECTION_SW:
+
+		for (i = 0; i < chip->ecc.bytes; i++)
+			*(ecc_code + i) = *(ecc_code + i) ^
+						bch8_polynomial[i];
+		break;
+#endif
+	case OMAP_ECC_BCH8_CODE_HW:
+		ecc_code[chip->ecc.bytes - 1] = 0x00;
+		break;
+	default:
+		return -EINVAL;
+	}
+	return 0;
 }
 
+#ifdef CONFIG_NAND_OMAP_ELM
 /*
  * omap_rotate_ecc_bch - Rotate the syndrome bytes
  *
@@ -364,35 +344,6 @@ static void omap_rotate_ecc_bch(struct mtd_info *mtd, uint8_t *calc_ecc,
 
 	for (i = 0, j = (n_bytes-1); i < n_bytes; i++, j--)
 		syndrome[i] =  calc_ecc[j];
-}
-
-/*
- *  omap_calculate_ecc_bch - Read BCH ECC result
- *
- *  @mtd:	MTD structure
- *  @dat:	unused
- *  @ecc_code:	ecc_code buffer
- */
-static int omap_calculate_ecc_bch(struct mtd_info *mtd, const uint8_t *dat,
-				uint8_t *ecc_code)
-{
-	struct nand_chip *chip = mtd->priv;
-	struct nand_bch_priv *bch = chip->priv;
-	uint8_t big_endian = 1;
-	int8_t ret = 0;
-
-	if (bch->type == ECC_BCH8)
-		omap_read_bch8_result(mtd, big_endian, ecc_code);
-	else /* BCH4 and BCH16 currently not supported */
-		ret = -1;
-
-	/*
-	 * Stop reading anymore ECC vals and clear old results
-	 * enable will be called if more reads are required
-	 */
-	omap_ecc_disable(mtd);
-
-	return ret;
 }
 
 /*
@@ -551,57 +502,6 @@ static int omap_read_page_bch(struct mtd_info *mtd, struct nand_chip *chip,
  * OMAP3 BCH8 support (with BCH library)
  */
 #ifdef CONFIG_BCH
-/*
- *  omap_calculate_ecc_bch_sw - Read BCH ECC result
- *
- *  @mtd:	MTD device structure
- *  @dat:	The pointer to data on which ecc is computed (unused here)
- *  @ecc:	The ECC output buffer
- */
-static int omap_calculate_ecc_bch_sw(struct mtd_info *mtd, const uint8_t *dat,
-				uint8_t *ecc)
-{
-	int ret = 0;
-	size_t i;
-	unsigned long nsectors, val1, val2, val3, val4;
-
-	nsectors = ((readl(&gpmc_cfg->ecc_config) >> 4) & 0x7) + 1;
-
-	for (i = 0; i < nsectors; i++) {
-		/* Read hw-computed remainder */
-		val1 = readl(&gpmc_cfg->bch_result_0_3[i].bch_result_x[0]);
-		val2 = readl(&gpmc_cfg->bch_result_0_3[i].bch_result_x[1]);
-		val3 = readl(&gpmc_cfg->bch_result_0_3[i].bch_result_x[2]);
-		val4 = readl(&gpmc_cfg->bch_result_0_3[i].bch_result_x[3]);
-
-		/*
-		 * Add constant polynomial to remainder, in order to get an ecc
-		 * sequence of 0xFFs for a buffer filled with 0xFFs.
-		 */
-		*ecc++ = 0xef ^ (val4 & 0xFF);
-		*ecc++ = 0x51 ^ ((val3 >> 24) & 0xFF);
-		*ecc++ = 0x2e ^ ((val3 >> 16) & 0xFF);
-		*ecc++ = 0x09 ^ ((val3 >> 8) & 0xFF);
-		*ecc++ = 0xed ^ (val3 & 0xFF);
-		*ecc++ = 0x93 ^ ((val2 >> 24) & 0xFF);
-		*ecc++ = 0x9a ^ ((val2 >> 16) & 0xFF);
-		*ecc++ = 0xc2 ^ ((val2 >> 8) & 0xFF);
-		*ecc++ = 0x97 ^ (val2 & 0xFF);
-		*ecc++ = 0x79 ^ ((val1 >> 24) & 0xFF);
-		*ecc++ = 0xe5 ^ ((val1 >> 16) & 0xFF);
-		*ecc++ = 0x24 ^ ((val1 >> 8) & 0xFF);
-		*ecc++ = 0xb5 ^ (val1 & 0xFF);
-	}
-
-	/*
-	 * Stop reading anymore ECC vals and clear old results
-	 * enable will be called if more reads are required
-	 */
-	omap_ecc_disable(mtd);
-
-	return ret;
-}
-
 /**
  * omap_correct_data_bch_sw - Decode received data and correct errors
  * @mtd: MTD device structure
@@ -752,7 +652,7 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 		nand->ecc.bytes		= 13;
 		nand->ecc.hwctl		= omap_enable_hwecc;
 		nand->ecc.correct	= omap_correct_data_bch_sw;
-		nand->ecc.calculate	= omap_calculate_ecc_bch_sw;
+		nand->ecc.calculate	= omap_calculate_ecc;
 		/* define ecc-layout */
 		ecclayout->eccbytes	= nand->ecc.bytes * eccsteps;
 		ecclayout->eccpos[0]	= BADBLOCK_MARKER_LENGTH;
@@ -794,7 +694,7 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 		nand->ecc.bytes		= 14;
 		nand->ecc.hwctl		= omap_enable_hwecc;
 		nand->ecc.correct	= omap_correct_data_bch;
-		nand->ecc.calculate	= omap_calculate_ecc_bch;
+		nand->ecc.calculate	= omap_calculate_ecc;
 		nand->ecc.read_page	= omap_read_page_bch;
 		/* define ecc-layout */
 		ecclayout->eccbytes	= nand->ecc.bytes * eccsteps;
