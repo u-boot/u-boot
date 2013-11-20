@@ -24,10 +24,8 @@ OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 __OBJS	:= $(SOBJS) $(COBJS)
 LNDIR	:= $(nandobj)board/$(BOARDDIR)
 
-ALL	= $(nandobj)u-boot-spl $(nandobj)u-boot-spl.bin $(nandobj)u-boot-spl-16k.bin \
+all: $(nandobj)u-boot-spl.bin $(nandobj)u-boot-spl-16k.bin \
 	$(nandobj)System.map
-
-all:	$(obj).depend $(ALL)
 
 $(nandobj)u-boot-spl-16k.bin: $(nandobj)u-boot-spl
 	$(OBJCOPY) ${OBJCFLAGS} --pad-to=$(PAD_TO) -O binary $< $@
@@ -37,13 +35,12 @@ $(nandobj)u-boot-spl.bin:	$(nandobj)u-boot-spl
 
 $(nandobj)u-boot-spl:	$(OBJS) $(nandobj)u-boot.lds
 	cd $(LNDIR) && $(LD) $(LDFLAGS) $(__OBJS) $(PLATFORM_LIBS) \
-		-Map $(nandobj)u-boot-spl.map \
-		-o $(nandobj)u-boot-spl
+		-Map $(nandobj)u-boot-spl.map -o $@
 
 $(nandobj)System.map:	$(nandobj)u-boot-spl
 		@$(NM) $< | \
 		grep -v '\(compiled\)\|\(\.o$$\)\|\( [aUw] \)\|\(\.\.ng$$\)\|\(LASH[RL]DI\)' | \
-		sort > $(nandobj)System.map
+		sort > $@
 
 $(nandobj)u-boot.lds: $(LDSCRIPT)
 	$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ -P - <$^ >$@
@@ -52,43 +49,43 @@ $(nandobj)u-boot.lds: $(LDSCRIPT)
 
 # from cpu directory
 $(obj)cache.S:
-	@rm -f $(obj)cache.S
-	ln -s $(SRCTREE)/arch/powerpc/cpu/ppc4xx/cache.S $(obj)cache.S
+	@rm -f $@
+	ln -s $(SRCTREE)/arch/powerpc/cpu/ppc4xx/cache.S $@
 
 $(obj)gpio.c:
-	@rm -f $(obj)gpio.c
-	ln -s $(SRCTREE)/arch/powerpc/cpu/ppc4xx/gpio.c $(obj)gpio.c
+	@rm -f $@
+	ln -s $(SRCTREE)/arch/powerpc/cpu/ppc4xx/gpio.c $@
 
 $(obj)ndfc.c:
-	@rm -f $(obj)ndfc.c
-	ln -s $(SRCTREE)/drivers/mtd/nand/ndfc.c $(obj)ndfc.c
+	@rm -f $@
+	ln -s $(SRCTREE)/drivers/mtd/nand/ndfc.c $@
 
 $(obj)resetvec.S:
-	@rm -f $(obj)resetvec.S
-	ln -s $(SRCTREE)/arch/powerpc/cpu/ppc4xx/resetvec.S $(obj)resetvec.S
+	@rm -f $@
+	ln -s $(SRCTREE)/arch/powerpc/cpu/ppc4xx/resetvec.S $@
 
 $(obj)start.S:
-	@rm -f $(obj)start.S
-	ln -s $(SRCTREE)/arch/powerpc/cpu/ppc4xx/start.S $(obj)start.S
+	@rm -f $@
+	ln -s $(SRCTREE)/arch/powerpc/cpu/ppc4xx/start.S $@
 
 # from board directory
 $(obj)memory.c:
-	@rm -f $(obj)memory.c
-	ln -s $(SRCTREE)/board/amcc/acadia/memory.c $(obj)memory.c
+	@rm -f $@
+	ln -s $(SRCTREE)/board/amcc/acadia/memory.c $@
 
 $(obj)pll.c:
-	@rm -f $(obj)pll.c
-	ln -s $(SRCTREE)/board/amcc/acadia/pll.c $(obj)pll.c
+	@rm -f $@
+	ln -s $(SRCTREE)/board/amcc/acadia/pll.c $@
 
 # from nand_spl directory
 $(obj)nand_boot.c:
-	@rm -f $(obj)nand_boot.c
-	ln -s $(SRCTREE)/nand_spl/nand_boot.c $(obj)nand_boot.c
+	@rm -f $@
+	ln -s $(SRCTREE)/nand_spl/nand_boot.c $@
 
 # from drivers/mtd/nand directory
 $(obj)nand_ecc.c:
-	@rm -f $(obj)nand_ecc.c
-	ln -s $(SRCTREE)/drivers/mtd/nand/nand_ecc.c $(obj)nand_ecc.c
+	@rm -f $@
+	ln -s $(SRCTREE)/drivers/mtd/nand/nand_ecc.c $@
 
 #########################################################################
 
