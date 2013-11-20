@@ -85,7 +85,7 @@ int board_late_init(void)
 	struct pmic *p;
 	int ret;
 
-	ret = pmic_init(I2C_PMIC);
+	ret = pmic_init(CONFIG_FSL_PMIC_BUS);
 	if (ret)
 		return ret;
 
