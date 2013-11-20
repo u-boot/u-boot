@@ -260,30 +260,25 @@
 #include <asm/arch/gpio.h>
 
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
+#define CONFIG_SYS_I2C_S3C24X0
+#define CONFIG_SYS_I2C_S3C24X0_SPEED	100000
+#define CONFIG_SYS_I2C_S3C24X0_SLAVE	0
+#define CONFIG_MAX_I2C_NUM		8
+#define CONFIG_SYS_I2C_SOFT
 #define CONFIG_SYS_I2C_SOFT_SPEED	50000
 #define CONFIG_SYS_I2C_SOFT_SLAVE	0x00
 #define I2C_SOFT_DECLARATIONS2
 #define CONFIG_SYS_I2C_SOFT_SPEED_2     50000
 #define CONFIG_SYS_I2C_SOFT_SLAVE_2     0x00
-#define I2C_SOFT_DECLARATIONS3
-#define CONFIG_SYS_I2C_SOFT_SPEED_3     50000
-#define CONFIG_SYS_I2C_SOFT_SLAVE_3     0x00
 #define CONFIG_SOFT_I2C_READ_REPEATED_START
 #define CONFIG_SYS_I2C_INIT_BOARD
-#define CONFIG_I2C_MULTI_BUS
-#define CONFIG_SOFT_I2C_MULTI_BUS
-#define CONFIG_SYS_MAX_I2C_BUS		15
 
-#define CONFIG_SOFT_I2C_I2C5_SCL exynos4x12_gpio_part1_get_nr(d0, 3)
-#define CONFIG_SOFT_I2C_I2C5_SDA exynos4x12_gpio_part1_get_nr(d0, 2)
-#define CONFIG_SOFT_I2C_I2C9_SCL exynos4x12_gpio_part1_get_nr(f1, 4)
-#define CONFIG_SOFT_I2C_I2C9_SDA exynos4x12_gpio_part1_get_nr(f1, 5)
-#define CONFIG_SOFT_I2C_I2C10_SCL exynos4x12_gpio_part2_get_nr(m2, 1)
-#define CONFIG_SOFT_I2C_I2C10_SDA exynos4x12_gpio_part2_get_nr(m2, 0)
-#define CONFIG_SOFT_I2C_GPIO_SCL get_multi_scl_pin()
-#define CONFIG_SOFT_I2C_GPIO_SDA get_multi_sda_pin()
-#define I2C_INIT multi_i2c_init()
+#ifndef __ASSEMBLY__
+int get_soft_i2c_scl_pin(void);
+int get_soft_i2c_sda_pin(void);
+#endif
+#define CONFIG_SOFT_I2C_GPIO_SCL	get_soft_i2c_scl_pin()
+#define CONFIG_SOFT_I2C_GPIO_SDA	get_soft_i2c_sda_pin()
 
 /* POWER */
 #define CONFIG_POWER
