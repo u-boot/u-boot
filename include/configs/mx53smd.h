@@ -36,7 +36,6 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_SPD_BUS_NUM		1 /* I2C2 */
 
 /* MMC Configs */
 #define CONFIG_FSL_ESDHC

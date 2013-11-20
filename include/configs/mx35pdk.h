@@ -42,7 +42,6 @@
  */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_SPD_BUS_NUM		0 /* I2C1 */
 #define CONFIG_MXC_SPI
 #define CONFIG_MXC_GPIO
 

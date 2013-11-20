@@ -115,7 +115,6 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_SPD_BUS_NUM		0 /* I2C1 */
 
 /* RTC */
 #define CONFIG_RTC_IMXDI
