@@ -86,6 +86,11 @@
 #define ZYNQ_GEM_TXBUF_EXHAUSTED	0x08000000
 #define ZYNQ_GEM_TXBUF_UNDERRUN		0x10000000
 
+/* Clock frequencies for different speeds */
+#define ZYNQ_GEM_FREQUENCY_10	2500000UL
+#define ZYNQ_GEM_FREQUENCY_100	25000000UL
+#define ZYNQ_GEM_FREQUENCY_1000	125000000UL
+
 /* Device registers */
 struct zynq_gem_regs {
 	u32 nwctrl; /* Network Control reg */
@@ -289,7 +294,8 @@ static int zynq_gem_setup_mac(struct eth_device *dev)
 
 static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 {
-	u32 i, clk = 0;
+	u32 i;
+	unsigned long clk_rate = 0;
 	struct phy_device *phydev;
 	const u32 stat_size = (sizeof(struct zynq_gem_regs) -
 				offsetof(struct zynq_gem_regs, stat)) / 4;
@@ -368,23 +374,22 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 	case SPEED_1000:
 		writel(ZYNQ_GEM_NWCFG_INIT | ZYNQ_GEM_NWCFG_SPEED1000,
 		       &regs->nwcfg);
-		clk = (1 << 20) | (8 << 8) | (0 << 4) | (1 << 0);
+		clk_rate = ZYNQ_GEM_FREQUENCY_1000;
 		break;
 	case SPEED_100:
 		clrsetbits_le32(&regs->nwcfg, ZYNQ_GEM_NWCFG_SPEED1000,
 				ZYNQ_GEM_NWCFG_INIT | ZYNQ_GEM_NWCFG_SPEED100);
-		clk = (5 << 20) | (8 << 8) | (0 << 4) | (1 << 0);
+		clk_rate = ZYNQ_GEM_FREQUENCY_100;
 		break;
 	case SPEED_10:
-		/* FIXME untested */
-		clk = (5 << 20) | (8 << 8) | (0 << 4) | (1 << 0);
+		clk_rate = ZYNQ_GEM_FREQUENCY_10;
 		break;
 	}
 
 	/* Change the rclk and clk only not using EMIO interface */
 	if (!priv->emio)
 		zynq_slcr_gem_clk_setup(dev->iobase !=
-					ZYNQ_GEM_BASEADDR0, clk);
+					ZYNQ_GEM_BASEADDR0, clk_rate);
 
 #else
 	/* PHY Setup */
