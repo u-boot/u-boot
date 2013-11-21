@@ -63,6 +63,11 @@ int print_cpuinfo(void)
 		       rmobile_get_cpu_rev_integer());
 		break;
 
+	case 0x47:
+		printf("CPU: Renesas Electronics R8A7791 rev %d\n",
+			rmobile_get_cpu_rev_integer());
+		break;
+
 	default:
 		printf("CPU: Renesas Electronics CPU rev %d.%d\n",
 		       rmobile_get_cpu_rev_integer(),
