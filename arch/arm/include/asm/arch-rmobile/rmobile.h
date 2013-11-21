@@ -6,6 +6,8 @@
 #include <asm/arch/sh73a0.h>
 #elif defined(CONFIG_R8A7740)
 #include <asm/arch/r8a7740.h>
+#elif defined(CONFIG_R8A7790)
+#include <asm/arch/r8a7790.h>
 #else
 #error "SOC Name not defined"
 #endif
