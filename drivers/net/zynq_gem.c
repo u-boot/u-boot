@@ -289,7 +289,7 @@ static int zynq_gem_setup_mac(struct eth_device *dev)
 
 static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 {
-	u32 i, rclk, clk = 0;
+	u32 i, clk = 0;
 	struct phy_device *phydev;
 	const u32 stat_size = (sizeof(struct zynq_gem_regs) -
 				offsetof(struct zynq_gem_regs, stat)) / 4;
@@ -368,17 +368,14 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 	case SPEED_1000:
 		writel(ZYNQ_GEM_NWCFG_INIT | ZYNQ_GEM_NWCFG_SPEED1000,
 		       &regs->nwcfg);
-		rclk = (0 << 4) | (1 << 0);
 		clk = (1 << 20) | (8 << 8) | (0 << 4) | (1 << 0);
 		break;
 	case SPEED_100:
 		clrsetbits_le32(&regs->nwcfg, ZYNQ_GEM_NWCFG_SPEED1000,
 				ZYNQ_GEM_NWCFG_INIT | ZYNQ_GEM_NWCFG_SPEED100);
-		rclk = 1 << 0;
 		clk = (5 << 20) | (8 << 8) | (0 << 4) | (1 << 0);
 		break;
 	case SPEED_10:
-		rclk = 1 << 0;
 		/* FIXME untested */
 		clk = (5 << 20) | (8 << 8) | (0 << 4) | (1 << 0);
 		break;
@@ -387,7 +384,7 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 	/* Change the rclk and clk only not using EMIO interface */
 	if (!priv->emio)
 		zynq_slcr_gem_clk_setup(dev->iobase !=
-					ZYNQ_GEM_BASEADDR0, rclk, clk);
+					ZYNQ_GEM_BASEADDR0, clk);
 
 #else
 	/* PHY Setup */
