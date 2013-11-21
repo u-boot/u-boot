@@ -167,8 +167,13 @@ void otg_phy_init(struct s3c_udc *dev)
 		writel((readl(&phy->phypwr) &~(OTG_DISABLE_0 | ANALOG_PWRDOWN)
 			&~FORCE_SUSPEND_0), &phy->phypwr);
 
-	writel((readl(&phy->phyclk) &~(ID_PULLUP0 | COMMON_ON_N0)) |
-	       CLK_SEL_24MHZ, &phy->phyclk); /* PLL 24Mhz */
+	if (s5p_cpu_id == 0x4412)
+		writel((readl(&phy->phyclk) & ~(EXYNOS4X12_ID_PULLUP0 |
+			EXYNOS4X12_COMMON_ON_N0)) | EXYNOS4X12_CLK_SEL_24MHZ,
+		       &phy->phyclk); /* PLL 24Mhz */
+	else
+		writel((readl(&phy->phyclk) & ~(ID_PULLUP0 | COMMON_ON_N0)) |
+		       CLK_SEL_24MHZ, &phy->phyclk); /* PLL 24Mhz */
 
 	writel((readl(&phy->rstcon) &~(LINK_SW_RST | PHYLNK_SW_RST))
 	       | PHY_SW_RST0, &phy->rstcon);
