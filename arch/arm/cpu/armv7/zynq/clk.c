@@ -6,6 +6,7 @@
  */
 #include <common.h>
 #include <errno.h>
+#include <clk.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/clk.h>
@@ -635,4 +636,24 @@ int zynq_clk_set_rate(enum zynq_clk clk, unsigned long rate)
 const char *zynq_clk_get_name(enum zynq_clk clk)
 {
 	return clks[clk].name;
+}
+
+/**
+ * soc_clk_dump() - Print clock frequencies
+ * Returns zero on success
+ *
+ * Implementation for the clk dump command.
+ */
+int soc_clk_dump(void)
+{
+	int i;
+
+	printf("clk\t\tfrequency\n");
+	for (i = 0; i < clk_max; i++) {
+		const char *name = zynq_clk_get_name(i);
+		if (name)
+			printf("%10s%20lu\n", name, zynq_clk_get_rate(i));
+	}
+
+	return 0;
 }
