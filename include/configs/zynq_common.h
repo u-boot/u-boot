@@ -62,9 +62,6 @@
 # define CONFIG_SYS_ENET
 #endif
 
-#ifndef CONFIG_CPU_FREQ_HZ
-#define CONFIG_CPU_FREQ_HZ		800000000
-#endif
 #define CONFIG_SYS_HZ			1000
 
 /* Miscellaneous configurable options */

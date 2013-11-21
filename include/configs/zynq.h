@@ -10,8 +10,6 @@
 #define CONFIG_ARMV7 /* This is an ARM V7 CPU core */
 #define CONFIG_ZYNQ
 
-/* CPU clock */
-#define CONFIG_CPU_FREQ_HZ	800000000
 #define CONFIG_SYS_HZ		1000
 
 /* Ram */
