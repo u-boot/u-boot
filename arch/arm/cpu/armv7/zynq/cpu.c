@@ -8,7 +8,7 @@
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/hardware.h>
-
+#include <asm/arch/clk.h>
 
 int arch_cpu_init(void)
 {
@@ -32,6 +32,7 @@ int arch_cpu_init(void)
 	writel(0xC, &slcr_base->ddr_urgent);
 #endif
 
+	zynq_clk_early_init();
 	zynq_slcr_lock();
 
 	return 0;

@@ -16,6 +16,7 @@ COBJS-y	:= timer.o
 COBJS-y	+= cpu.o
 COBJS-y	+= ddrc.o
 COBJS-y	+= slcr.o
+COBJS-y	+= clk.o
 
 SOBJS-y	+= lowlevel_init.o
 
