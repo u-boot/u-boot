@@ -50,7 +50,7 @@ void zynq_slcr_cpu_reset(void)
 }
 
 /* Setup clk for network */
-void zynq_slcr_gem_clk_setup(u32 gem_id, u32 rclk, u32 clk)
+void zynq_slcr_gem_clk_setup(u32 gem_id, u32 clk)
 {
 	zynq_slcr_unlock();
 
@@ -63,12 +63,12 @@ void zynq_slcr_gem_clk_setup(u32 gem_id, u32 rclk, u32 clk)
 		/* Set divisors for appropriate frequency in GEM_CLK_CTRL */
 		writel(clk, &slcr_base->gem1_clk_ctrl);
 		/* Configure GEM_RCLK_CTRL */
-		writel(rclk, &slcr_base->gem1_rclk_ctrl);
+		writel(1, &slcr_base->gem1_rclk_ctrl);
 	} else {
 		/* Set divisors for appropriate frequency in GEM_CLK_CTRL */
 		writel(clk, &slcr_base->gem0_clk_ctrl);
 		/* Configure GEM_RCLK_CTRL */
-		writel(rclk, &slcr_base->gem0_rclk_ctrl);
+		writel(1, &slcr_base->gem0_rclk_ctrl);
 	}
 	udelay(100000);
 out:
