@@ -11,6 +11,7 @@
 #include <linux/compiler.h>
 #include <serial.h>
 #include <asm/arch/clk.h>
+#include <asm/arch/hardware.h>
 
 #define ZYNQ_UART_SR_TXFULL	0x00000010 /* TX FIFO full */
 #define ZYNQ_UART_SR_RXEMPTY	0x00000002 /* RX FIFO empty */
@@ -34,25 +35,24 @@ struct uart_zynq {
 };
 
 static struct uart_zynq *uart_zynq_ports[2] = {
-#ifdef CONFIG_ZYNQ_SERIAL_BASEADDR0
-	[0] = (struct uart_zynq *)CONFIG_ZYNQ_SERIAL_BASEADDR0,
-#endif
-#ifdef CONFIG_ZYNQ_SERIAL_BASEADDR1
-	[1] = (struct uart_zynq *)CONFIG_ZYNQ_SERIAL_BASEADDR1,
-#endif
+	[0] = (struct uart_zynq *)ZYNQ_SERIAL_BASEADDR0,
+	[1] = (struct uart_zynq *)ZYNQ_SERIAL_BASEADDR1,
 };
+
+#if !defined(CONFIG_ZYNQ_SERIAL_BAUDRATE0)
+# define CONFIG_ZYNQ_SERIAL_BAUDRATE0	CONFIG_BAUDRATE
+#endif
+#if !defined(CONFIG_ZYNQ_SERIAL_BAUDRATE1)
+# define CONFIG_ZYNQ_SERIAL_BAUDRATE1	CONFIG_BAUDRATE
+#endif
 
 struct uart_zynq_params {
 	u32 baudrate;
 };
 
 static struct uart_zynq_params uart_zynq_ports_param[2] = {
-#if defined(CONFIG_ZYNQ_SERIAL_BAUDRATE0)
 	[0].baudrate = CONFIG_ZYNQ_SERIAL_BAUDRATE0,
-#endif
-#if defined(CONFIG_ZYNQ_SERIAL_BAUDRATE1)
 	[1].baudrate = CONFIG_ZYNQ_SERIAL_BAUDRATE1,
-#endif
 };
 
 /* Set up the baud rate in gd struct */
@@ -184,20 +184,19 @@ struct serial_device uart_zynq_serial1_device =
 
 __weak struct serial_device *default_serial_console(void)
 {
+#if defined(CONFIG_ZYNQ_SERIAL_UART0)
 	if (uart_zynq_ports[0])
 		return &uart_zynq_serial0_device;
+#endif
+#if defined(CONFIG_ZYNQ_SERIAL_UART1)
 	if (uart_zynq_ports[1])
 		return &uart_zynq_serial1_device;
-
+#endif
 	return NULL;
 }
 
 void zynq_serial_initalize(void)
 {
-#ifdef CONFIG_ZYNQ_SERIAL_BASEADDR0
 	serial_register(&uart_zynq_serial0_device);
-#endif
-#ifdef CONFIG_ZYNQ_SERIAL_BASEADDR1
 	serial_register(&uart_zynq_serial1_device);
-#endif
 }
