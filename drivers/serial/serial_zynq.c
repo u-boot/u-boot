@@ -10,6 +10,7 @@
 #include <asm/io.h>
 #include <linux/compiler.h>
 #include <serial.h>
+#include <asm/arch/clk.h>
 
 #define ZYNQ_UART_SR_TXFULL	0x00000010 /* TX FIFO full */
 #define ZYNQ_UART_SR_RXEMPTY	0x00000002 /* RX FIFO empty */
@@ -43,17 +44,14 @@ static struct uart_zynq *uart_zynq_ports[2] = {
 
 struct uart_zynq_params {
 	u32 baudrate;
-	u32 clock;
 };
 
 static struct uart_zynq_params uart_zynq_ports_param[2] = {
-#if defined(CONFIG_ZYNQ_SERIAL_BAUDRATE0) && defined(CONFIG_ZYNQ_SERIAL_CLOCK0)
+#if defined(CONFIG_ZYNQ_SERIAL_BAUDRATE0)
 	[0].baudrate = CONFIG_ZYNQ_SERIAL_BAUDRATE0,
-	[0].clock = CONFIG_ZYNQ_SERIAL_CLOCK0,
 #endif
-#if defined(CONFIG_ZYNQ_SERIAL_BAUDRATE1) && defined(CONFIG_ZYNQ_SERIAL_CLOCK1)
+#if defined(CONFIG_ZYNQ_SERIAL_BAUDRATE1)
 	[1].baudrate = CONFIG_ZYNQ_SERIAL_BAUDRATE1,
-	[1].clock = CONFIG_ZYNQ_SERIAL_CLOCK1,
 #endif
 };
 
@@ -64,7 +62,7 @@ static void uart_zynq_serial_setbrg(const int port)
 	unsigned int calc_bauderror, bdiv, bgen;
 	unsigned long calc_baud = 0;
 	unsigned long baud = uart_zynq_ports_param[port].baudrate;
-	unsigned long clock = uart_zynq_ports_param[port].clock;
+	unsigned long clock = get_uart_clk(port);
 	struct uart_zynq *regs = uart_zynq_ports[port];
 
 	/*                master clock
