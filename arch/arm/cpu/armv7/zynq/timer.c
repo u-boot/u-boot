@@ -29,6 +29,7 @@
 #include <div64.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/clk.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -48,13 +49,14 @@ static struct scu_timer *timer_base =
 
 #define TIMER_LOAD_VAL 0xFFFFFFFF
 #define TIMER_PRESCALE 255
-#define TIMER_TICK_HZ  (CONFIG_CPU_FREQ_HZ / 2 / TIMER_PRESCALE)
 
 int timer_init(void)
 {
 	const u32 emask = SCUTIMER_CONTROL_AUTO_RELOAD_MASK |
 			(TIMER_PRESCALE << SCUTIMER_CONTROL_PRESCALER_SHIFT) |
 			SCUTIMER_CONTROL_ENABLE_MASK;
+
+	gd->arch.timer_rate_hz = (gd->cpu_clk / 2) / TIMER_PRESCALE;
 
 	/* Load the timer counter register */
 	writel(0xFFFFFFFF, &timer_base->load);
@@ -69,7 +71,7 @@ int timer_init(void)
 
 	/* Reset time */
 	gd->arch.lastinc = readl(&timer_base->counter) /
-					(TIMER_TICK_HZ / CONFIG_SYS_HZ);
+				(gd->arch.timer_rate_hz / CONFIG_SYS_HZ);
 	gd->arch.tbl = 0;
 
 	return 0;
@@ -83,7 +85,8 @@ ulong get_timer_masked(void)
 {
 	ulong now;
 
-	now = readl(&timer_base->counter) / (TIMER_TICK_HZ / CONFIG_SYS_HZ);
+	now = readl(&timer_base->counter) /
+			(gd->arch.timer_rate_hz / CONFIG_SYS_HZ);
 
 	if (gd->arch.lastinc >= now) {
 		/* Normal mode */
@@ -107,7 +110,7 @@ void __udelay(unsigned long usec)
 	if (usec == 0)
 		return;
 
-	countticks = lldiv(TIMER_TICK_HZ * usec, 1000000);
+	countticks = lldiv(gd->arch.timer_rate_hz * usec, 1000000);
 
 	/* decrementing timer */
 	timeend = readl(&timer_base->counter) - countticks;
