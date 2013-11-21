@@ -164,6 +164,7 @@
 #define CONFIG_BOARD_LATE_INIT
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CLOCKS
+#define CONFIG_CMD_CLK
 #define CONFIG_SYS_MAXARGS		15 /* max number of command args */
 #define CONFIG_SYS_CBSIZE		256 /* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
