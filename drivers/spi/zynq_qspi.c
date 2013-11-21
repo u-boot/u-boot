@@ -14,6 +14,7 @@
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch/clk.h>
 
 /* QSPI Transmit Data Register */
 #define ZYNQ_QSPI_TXD_00_00_OFFSET	0x1C /* Transmit 4-byte inst, WO */
@@ -869,7 +870,6 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		unsigned int max_hz, unsigned int mode)
 {
 	int is_dual;
-	unsigned long lqspi_clk_ctrl_reg;
 	unsigned long lqspi_frequency;
 	struct zynq_qspi_slave *qspi;
 
@@ -895,13 +895,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		return NULL;
 	}
 
-	/*
-	 * Read the lqspi_clk_ctrl_reg register and calculate the frequency.
-	 * If failure revert to 200Mhz
-	 */
-	lqspi_clk_ctrl_reg = zynq_slcr_get_lqspi_clk_ctrl();
-	lqspi_frequency = (CONFIG_CPU_FREQ_HZ / ((lqspi_clk_ctrl_reg & 0x3F00)>>
-				8));
+	lqspi_frequency = zynq_clk_get_rate(lqspi_clk);
 	if (!lqspi_frequency) {
 		debug("Defaulting to 200000000 Hz qspi clk");
 		qspi->qspi.master.input_clk_hz = 200000000;
@@ -920,9 +914,6 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	qspi->qspi.chip_select = 0;
 	qspi->qspi.bits_per_word = 32;
 	zynq_qspi_setup_transfer(&qspi->qspi, NULL);
-
-	debug("%s: lqspi_clk_ctrl_reg: %ld CONFIG_CPU_FREQ_HZ %d\n",
-	      __func__, lqspi_clk_ctrl_reg, CONFIG_CPU_FREQ_HZ);
 
 	return &qspi->slave;
 }
