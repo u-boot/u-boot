@@ -272,6 +272,11 @@ static int setup_phy(struct eth_device *dev)
 	phy_config(phydev);
 	phy_startup(phydev);
 
+	if (!phydev->link) {
+		printf("%s: No link.\n", phydev->dev->name);
+		return 0;
+	}
+
 	/* Do not setup anything */
 	return 1;
 }
@@ -330,7 +335,8 @@ static int emaclite_init(struct eth_device *dev, bd_t *bis)
 	out_be32((u32 *)(dev->iobase + XEL_MDIOCTRL_OFFSET), XEL_MDIOCTRL_MDIOEN_MASK);
 	temp = in_be32((u32 *)(dev->iobase + XEL_MDIOCTRL_OFFSET));
 	if (temp & XEL_MDIOCTRL_MDIOEN_MASK)
-		setup_phy(dev);
+		if (!setup_phy(dev))
+			return -1;
 #endif
 
 	debug("EmacLite Initialization complete\n");
