@@ -327,7 +327,6 @@ static int emaclite_init(struct eth_device *dev, bd_t *bis)
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) || defined(CONFIG_PHYLIB)
 	/* Enable MII PHY */
-	/* Enable MII PHY */
 	out_be32((u32 *)(dev->iobase + XEL_MDIOCTRL_OFFSET), XEL_MDIOCTRL_MDIOEN_MASK);
 	temp = in_be32((u32 *)(dev->iobase + XEL_MDIOCTRL_OFFSET));
 	if (temp & XEL_MDIOCTRL_MDIOEN_MASK)
