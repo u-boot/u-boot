@@ -12,53 +12,6 @@
 #define GPMC_BUF_EMPTY	0
 #define GPMC_BUF_FULL	1
 
-/* Generic ECC Layouts */
-/* Large Page x8 NAND device Layout */
-#ifdef GPMC_NAND_ECC_LP_x8_LAYOUT
-#define GPMC_NAND_HW_ECC_LAYOUT {\
-	.eccbytes = 12,\
-	.eccpos = {1, 2, 3, 4, 5, 6, 7, 8,\
-		9, 10, 11, 12},\
-	.oobfree = {\
-		{.offset = 13,\
-		 .length = 51 } } \
-}
-#endif
-
-/* Large Page x16 NAND device Layout */
-#ifdef GPMC_NAND_ECC_LP_x16_LAYOUT
-#define GPMC_NAND_HW_ECC_LAYOUT {\
-	.eccbytes = 12,\
-	.eccpos = {2, 3, 4, 5, 6, 7, 8, 9,\
-		10, 11, 12, 13},\
-	.oobfree = {\
-		{.offset = 14,\
-		 .length = 50 } } \
-}
-#endif
-
-/* Small Page x8 NAND device Layout */
-#ifdef GPMC_NAND_ECC_SP_x8_LAYOUT
-#define GPMC_NAND_HW_ECC_LAYOUT {\
-	.eccbytes = 3,\
-	.eccpos = {1, 2, 3},\
-	.oobfree = {\
-		{.offset = 4,\
-		 .length = 12 } } \
-}
-#endif
-
-/* Small Page x16 NAND device Layout */
-#ifdef GPMC_NAND_ECC_SP_x16_LAYOUT
-#define GPMC_NAND_HW_ECC_LAYOUT {\
-	.eccbytes = 3,\
-	.eccpos = {2, 3, 4},\
-	.oobfree = {\
-		{.offset = 5,\
-		 .length = 11 } } \
-}
-#endif
-
 enum omap_ecc {
 	/* 1-bit  ECC calculation by Software, Error detection by Software */
 	OMAP_ECC_HAM1_CODE_SW = 1, /* avoid un-initialized int can be 0x0 */

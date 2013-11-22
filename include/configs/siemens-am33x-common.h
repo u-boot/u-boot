@@ -457,7 +457,6 @@
 
 #define CONFIG_NAND_OMAP_GPMC
 #define CONFIG_NAND_OMAP_ELM
-#define GPMC_NAND_ECC_LP_x16_LAYOUT	1
 #define CONFIG_SYS_NAND_BASE		(0x08000000)	/* physical address */
 							/* to access nand at */
 							/* CS0 */
