@@ -419,6 +419,16 @@ enum {
 #define NET_GPMC_CONFIG6	0x00000FCF
 #define NET_GPMC_CONFIG7	0x00000f6c
 
+/* GPMC CS configuration for an SMSC LAN9221 ethernet controller */
+#define NET_LAN9221_GPMC_CONFIG1    0x00001000
+#define NET_LAN9221_GPMC_CONFIG2    0x00060700
+#define NET_LAN9221_GPMC_CONFIG3    0x00020201
+#define NET_LAN9221_GPMC_CONFIG4    0x06000700
+#define NET_LAN9221_GPMC_CONFIG5    0x0006090A
+#define NET_LAN9221_GPMC_CONFIG6    0x87030000
+#define NET_LAN9221_GPMC_CONFIG7    0x00000f6c
+
+
 /* max number of GPMC Chip Selects */
 #define GPMC_MAX_CS	8
 /* max number of GPMC regs */

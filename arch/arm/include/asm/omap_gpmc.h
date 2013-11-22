@@ -9,8 +9,6 @@
 #ifndef __ASM_OMAP_GPMC_H
 #define __ASM_OMAP_GPMC_H
 
-#include <asm/arch/omap_gpmc.h>
-
 #define GPMC_BUF_EMPTY	0
 #define GPMC_BUF_FULL	1
 
