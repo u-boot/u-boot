@@ -62,6 +62,8 @@ enum srds_prtcl {
 	QSGMII_FM1_B,		/* B indicates MACs 5,6,9,10 */
 	QSGMII_FM2_A,
 	QSGMII_FM2_B,
+	XFI_FM1_MAC1,
+	XFI_FM1_MAC2,
 	XFI_FM1_MAC9,
 	XFI_FM1_MAC10,
 	XFI_FM2_MAC9,
