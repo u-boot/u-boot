@@ -487,4 +487,9 @@
 
 #define CONFIG_BOOTCOUNT_LIMIT
 #define CONFIG_BOOTCOUNT_ENV
+
+/* Enable Device-Tree (FDT) support */
+#define CONFIG_OF_LIBFDT
+#define CONFIG_CMD_FDT
+
 #endif	/* ! __CONFIG_SIEMENS_AM33X_COMMON_H */
