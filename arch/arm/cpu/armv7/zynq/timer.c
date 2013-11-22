@@ -56,7 +56,7 @@ int timer_init(void)
 			(TIMER_PRESCALE << SCUTIMER_CONTROL_PRESCALER_SHIFT) |
 			SCUTIMER_CONTROL_ENABLE_MASK;
 
-	gd->arch.timer_rate_hz = (gd->cpu_clk / 2) / TIMER_PRESCALE;
+	gd->arch.timer_rate_hz = (gd->cpu_clk / 2) / (TIMER_PRESCALE + 1);
 
 	/* Load the timer counter register */
 	writel(0xFFFFFFFF, &timer_base->load);
@@ -93,7 +93,7 @@ ulong get_timer_masked(void)
 		gd->arch.tbl += gd->arch.lastinc - now;
 	} else {
 		/* We have an overflow ... */
-		gd->arch.tbl += gd->arch.lastinc + TIMER_LOAD_VAL - now;
+		gd->arch.tbl += gd->arch.lastinc + TIMER_LOAD_VAL - now + 1;
 	}
 	gd->arch.lastinc = now;
 
