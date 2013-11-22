@@ -16,7 +16,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/errno.h>
-#include <asm/omap_gpmc.h>
+#include <linux/mtd/omap_gpmc.h>
 #include <asm/omap_elm.h>
 #include <asm/arch/hardware.h>
 
