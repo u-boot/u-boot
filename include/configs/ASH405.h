@@ -143,6 +143,8 @@
 
 #define CONFIG_SYS_NAND_SKIP_BAD_DOT_I	1	/* ".i" read skips bad blocks   */
 #define CONFIG_SYS_NAND_QUIET		1
+#define CONFIG_SYS_NAND_MAX_OOBFREE	2
+#define CONFIG_SYS_NAND_MAX_ECCPOS	56
 
 /*-----------------------------------------------------------------------
  * PCI stuff

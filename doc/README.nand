@@ -104,6 +104,16 @@ Configuration Options:
    CONFIG_SYS_MAX_NAND_DEVICE
       The maximum number of NAND devices you want to support.
 
+   CONFIG_SYS_NAND_MAX_ECCPOS
+      If specified, overrides the maximum number of ECC bytes
+      supported.  Useful for reducing image size, especially with SPL.
+      This must be at least 48 if nand_base.c is used.
+
+   CONFIG_SYS_NAND_MAX_OOBFREE
+      If specified, overrides the maximum number of free OOB regions
+      supported.  Useful for reducing image size, especially with SPL.
+      This must be at least 2 if nand_base.c is used.
+
    CONFIG_SYS_NAND_MAX_CHIPS
       The maximum number of NAND chips per device to be supported.
 
@@ -168,6 +178,59 @@ Configuration Options:
 
       Please convert your driver even if you don't need the extra
       flexibility, so that one day we can eliminate the old mechanism.
+
+
+   CONFIG_SYS_NAND_ONFI_DETECTION
+	Enables detection of ONFI compliant devices during probe.
+	And fetching device parameters flashed on device, by parsing
+	ONFI parameter page.
+
+   CONFIG_BCH
+	Enables software based BCH ECC algorithm present in lib/bch.c
+	This is used by SoC platforms which do not have built-in ELM
+	hardware engine required for BCH ECC correction.
+
+
+Platform specific options
+=========================
+   CONFIG_NAND_OMAP_GPMC
+	Enables omap_gpmc.c driver for OMAPx and AMxxxx platforms.
+	GPMC controller is used for parallel NAND flash devices, and can
+	do ECC calculation (not ECC error detection) for HAM1, BCH4, BCH8
+	and BCH16 ECC algorithms.
+
+   CONFIG_NAND_OMAP_ELM
+	Enables omap_elm.c driver for OMAPx and AMxxxx platforms.
+	ELM controller is used for ECC error detection (not ECC calculation)
+	of BCH4, BCH8 and BCH16 ECC algorithms.
+	Some legacy platforms like OMAP3xx do not have in-built ELM h/w engine,
+	thus such SoC platforms need to depend on software library for ECC error
+	detection. However ECC calculation on such plaforms would still be
+	done by GPMC controller.
+
+   CONFIG_NAND_OMAP_ECCSCHEME
+	On OMAP platforms, this CONFIG specifies NAND ECC scheme.
+	It can take following values:
+	OMAP_ECC_HAM1_CODE_SW
+		1-bit Hamming code using software lib.
+		(for legacy devices only)
+	OMAP_ECC_HAM1_CODE_HW
+		1-bit Hamming code using GPMC hardware.
+		(for legacy devices only)
+	OMAP_ECC_BCH4_CODE_HW_DETECTION_SW
+		4-bit BCH code (unsupported)
+	OMAP_ECC_BCH4_CODE_HW
+		4-bit BCH code (unsupported)
+	OMAP_ECC_BCH8_CODE_HW_DETECTION_SW
+		8-bit BCH code with
+		- ecc calculation using GPMC hardware engine,
+		- error detection using software library.
+		- requires CONFIG_BCH to enable software BCH library
+		(For legacy device which do not have ELM h/w engine)
+	OMAP_ECC_BCH8_CODE_HW
+		8-bit BCH code with
+		- ecc calculation using GPMC hardware engine,
+		- error detection using ELM hardware engine.
 
 NOTE:
 =====

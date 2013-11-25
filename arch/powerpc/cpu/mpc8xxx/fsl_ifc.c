@@ -34,6 +34,9 @@ void init_early_memctl_regs(void)
 #ifdef CONFIG_SYS_CSPR0_EXT
 	set_ifc_cspr_ext(IFC_CS0, CONFIG_SYS_CSPR0_EXT);
 #endif
+#ifdef CONFIG_SYS_CSOR0_EXT
+	set_ifc_csor_ext(IFC_CS0, CONFIG_SYS_CSOR0_EXT);
+#endif
 	set_ifc_cspr(IFC_CS0, CONFIG_SYS_CSPR0);
 	set_ifc_amask(IFC_CS0, CONFIG_SYS_AMASK0);
 	set_ifc_csor(IFC_CS0, CONFIG_SYS_CSOR0);
@@ -42,6 +45,9 @@ void init_early_memctl_regs(void)
 
 #ifdef CONFIG_SYS_CSPR1_EXT
 	set_ifc_cspr_ext(IFC_CS1, CONFIG_SYS_CSPR1_EXT);
+#endif
+#ifdef CONFIG_SYS_CSOR1_EXT
+	set_ifc_csor_ext(IFC_CS1, CONFIG_SYS_CSOR1_EXT);
 #endif
 #if defined(CONFIG_SYS_CSPR1) && defined(CONFIG_SYS_CSOR1)
 	set_ifc_ftim(IFC_CS1, IFC_FTIM0, CONFIG_SYS_CS1_FTIM0);
@@ -57,6 +63,9 @@ void init_early_memctl_regs(void)
 #ifdef CONFIG_SYS_CSPR2_EXT
 	set_ifc_cspr_ext(IFC_CS2, CONFIG_SYS_CSPR2_EXT);
 #endif
+#ifdef CONFIG_SYS_CSOR2_EXT
+	set_ifc_csor_ext(IFC_CS2, CONFIG_SYS_CSOR2_EXT);
+#endif
 #if defined(CONFIG_SYS_CSPR2) && defined(CONFIG_SYS_CSOR2)
 	set_ifc_ftim(IFC_CS2, IFC_FTIM0, CONFIG_SYS_CS2_FTIM0);
 	set_ifc_ftim(IFC_CS2, IFC_FTIM1, CONFIG_SYS_CS2_FTIM1);
@@ -70,6 +79,9 @@ void init_early_memctl_regs(void)
 
 #ifdef CONFIG_SYS_CSPR3_EXT
 	set_ifc_cspr_ext(IFC_CS3, CONFIG_SYS_CSPR3_EXT);
+#endif
+#ifdef CONFIG_SYS_CSOR3_EXT
+	set_ifc_csor_ext(IFC_CS3, CONFIG_SYS_CSOR3_EXT);
 #endif
 #if defined(CONFIG_SYS_CSPR3) && defined(CONFIG_SYS_CSOR3)
 	set_ifc_ftim(IFC_CS3, IFC_FTIM0, CONFIG_SYS_CS3_FTIM0);
@@ -85,6 +97,9 @@ void init_early_memctl_regs(void)
 #ifdef CONFIG_SYS_CSPR4_EXT
 	set_ifc_cspr_ext(IFC_CS4, CONFIG_SYS_CSPR4_EXT);
 #endif
+#ifdef CONFIG_SYS_CSOR4_EXT
+	set_ifc_csor_ext(IFC_CS4, CONFIG_SYS_CSOR4_EXT);
+#endif
 #if defined(CONFIG_SYS_CSPR4) && defined(CONFIG_SYS_CSOR4)
 	set_ifc_ftim(IFC_CS4, IFC_FTIM0, CONFIG_SYS_CS4_FTIM0);
 	set_ifc_ftim(IFC_CS4, IFC_FTIM1, CONFIG_SYS_CS4_FTIM1);
@@ -98,6 +113,9 @@ void init_early_memctl_regs(void)
 
 #ifdef CONFIG_SYS_CSPR5_EXT
 	set_ifc_cspr_ext(IFC_CS5, CONFIG_SYS_CSPR5_EXT);
+#endif
+#ifdef CONFIG_SYS_CSOR5_EXT
+	set_ifc_csor_ext(IFC_CS5, CONFIG_SYS_CSOR5_EXT);
 #endif
 #if defined(CONFIG_SYS_CSPR5) && defined(CONFIG_SYS_CSOR5)
 	set_ifc_ftim(IFC_CS5, IFC_FTIM0, CONFIG_SYS_CS5_FTIM0);
@@ -113,6 +131,9 @@ void init_early_memctl_regs(void)
 #ifdef CONFIG_SYS_CSPR6_EXT
 	set_ifc_cspr_ext(IFC_CS6, CONFIG_SYS_CSPR6_EXT);
 #endif
+#ifdef CONFIG_SYS_CSOR6_EXT
+	set_ifc_csor_ext(IFC_CS6, CONFIG_SYS_CSOR6_EXT);
+#endif
 #if defined(CONFIG_SYS_CSPR6) && defined(CONFIG_SYS_CSOR6)
 	set_ifc_ftim(IFC_CS6, IFC_FTIM0, CONFIG_SYS_CS6_FTIM0);
 	set_ifc_ftim(IFC_CS6, IFC_FTIM1, CONFIG_SYS_CS6_FTIM1);
@@ -126,6 +147,9 @@ void init_early_memctl_regs(void)
 
 #ifdef CONFIG_SYS_CSPR7_EXT
 	set_ifc_cspr_ext(IFC_CS7, CONFIG_SYS_CSPR7_EXT);
+#endif
+#ifdef CONFIG_SYS_CSOR7_EXT
+	set_ifc_csor_ext(IFC_CS7, CONFIG_SYS_CSOR7_EXT);
 #endif
 #if defined(CONFIG_SYS_CSPR7) && defined(CONFIG_SYS_CSOR7)
 	set_ifc_ftim(IFC_CS7, IFC_FTIM0, CONFIG_SYS_CS7_FTIM0);

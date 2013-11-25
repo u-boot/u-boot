@@ -68,9 +68,4 @@
 #define PISMO2_NAND_CS0		7
 #define PISMO2_NAND_CS1		8
 
-/* make it readable for the gpmc_init */
-#define PISMO1_NOR_BASE	FLASH_BASE
-#define PISMO1_NAND_BASE	CONFIG_SYS_NAND_BASE
-#define PISMO1_NAND_SIZE	GPMC_SIZE_256M
-
 #endif /* endif _MEM_H_ */

@@ -18,7 +18,7 @@
 #include <asm/errno.h>
 #include <asm/arch/cpu.h>
 #include <asm/omap_gpmc.h>
-#include <asm/arch/elm.h>
+#include <asm/omap_elm.h>
 
 #define ELM_DEFAULT_POLY (0)
 
@@ -127,7 +127,7 @@ int elm_check_error(u8 *syndrome, u32 nibbles, u32 *error_count,
 
 	for (i = 0; i < *error_count; i++) {
 		error_locations[i] =
-			readl(&elm_cfg->error_location[poly].error_location_x[i]);
+		     readl(&elm_cfg->error_location[poly].error_location_x[i]);
 	}
 
 	return 0;
@@ -175,7 +175,7 @@ void elm_reset(void)
 {
 	/* initiate reset */
 	writel((readl(&elm_cfg->sysconfig) | ELM_SYSCONFIG_SOFTRESET),
-				&elm_cfg->sysconfig);
+			&elm_cfg->sysconfig);
 
 	/* wait for reset complete and normal operation */
 	while ((readl(&elm_cfg->sysstatus) & ELM_SYSSTATUS_RESETDONE) !=
