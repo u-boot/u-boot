@@ -86,10 +86,10 @@ fdt_addr_t fdtdec_get_addr_size(const void *blob, int node,
 			size = (fdt_size_t *)((char *)cell +
 					sizeof(fdt_addr_t));
 			*sizep = fdt_size_to_cpu(*size);
-			debug("addr=%p, size=%p\n", (void *)addr,
-			      (void *)*sizep);
+			debug("addr=%08lx, size=%08x\n",
+			      (ulong)addr, *sizep);
 		} else {
-			debug("%p\n", (void *)addr);
+			debug("%08lx\n", (ulong)addr);
 		}
 		return addr;
 	}
@@ -611,7 +611,7 @@ int fdtdec_decode_region(const void *blob, int node,
 	if (!cell || (len != sizeof(fdt_addr_t) * 2))
 		return -1;
 
-	*ptrp = (void *)fdt_addr_to_cpu(*cell);
+	*ptrp = map_sysmem(fdt_addr_to_cpu(*cell), *size);
 	*size = fdt_size_to_cpu(cell[1]);
 	debug("%s: size=%zx\n", __func__, *size);
 	return 0;

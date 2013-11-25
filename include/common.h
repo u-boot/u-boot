@@ -923,7 +923,7 @@ static inline void unmap_sysmem(const void *vaddr)
 {
 }
 
-static inline phys_addr_t map_to_sysmem(void *ptr)
+static inline phys_addr_t map_to_sysmem(const void *ptr)
 {
 	return (phys_addr_t)(uintptr_t)ptr;
 }

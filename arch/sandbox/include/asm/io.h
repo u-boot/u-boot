@@ -38,6 +38,6 @@ static inline void unmap_sysmem(const void *vaddr)
 }
 
 /* Map from a pointer to our RAM buffer */
-phys_addr_t map_to_sysmem(void *ptr);
+phys_addr_t map_to_sysmem(const void *ptr);
 
 #endif
