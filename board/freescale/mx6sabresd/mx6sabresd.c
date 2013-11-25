@@ -249,8 +249,22 @@ static int detect_hdmi(struct display_info_t const *dev)
 	return readb(&hdmi->phy_stat0) & HDMI_DVI_STAT;
 }
 
+
+static void disable_lvds(struct display_info_t const *dev)
+{
+	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
+
+	int reg = readl(&iomux->gpr[2]);
+
+	reg &= ~(IOMUXC_GPR2_LVDS_CH0_MODE_MASK |
+		 IOMUXC_GPR2_LVDS_CH1_MODE_MASK);
+
+	writel(reg, &iomux->gpr[2]);
+}
+
 static void do_enable_hdmi(struct display_info_t const *dev)
 {
+	disable_lvds(dev);
 	imx_enable_hdmi_phy();
 }
 
@@ -263,14 +277,15 @@ static void enable_lvds(struct display_info_t const *dev)
 	       IOMUXC_GPR2_DATA_WIDTH_CH1_24BIT;
 	writel(reg, &iomux->gpr[2]);
 }
+
 static struct display_info_t const displays[] = {{
 	.bus	= -1,
 	.addr	= 0,
-	.pixfmt	= IPU_PIX_FMT_RGB24,
-	.detect	= detect_hdmi,
-	.enable	= do_enable_hdmi,
+	.pixfmt	= IPU_PIX_FMT_LVDS666,
+	.detect	= NULL,
+	.enable	= enable_lvds,
 	.mode	= {
-		.name           = "HDMI",
+		.name           = "Hannstar-XGA",
 		.refresh        = 60,
 		.xres           = 1024,
 		.yres           = 768,
@@ -286,11 +301,11 @@ static struct display_info_t const displays[] = {{
 } }, {
 	.bus	= -1,
 	.addr	= 0,
-	.pixfmt	= IPU_PIX_FMT_LVDS666,
-	.detect	= NULL,
-	.enable	= enable_lvds,
+	.pixfmt	= IPU_PIX_FMT_RGB24,
+	.detect	= detect_hdmi,
+	.enable	= do_enable_hdmi,
 	.mode	= {
-		.name           = "Hannstar-XGA",
+		.name           = "HDMI",
 		.refresh        = 60,
 		.xres           = 1024,
 		.yres           = 768,
