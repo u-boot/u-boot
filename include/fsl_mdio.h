@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2012 Freescale Semiconductor, Inc.
+ * Copyright 2009-2012, 2013 Freescale Semiconductor, Inc.
  *	Jun-jie Zhang <b18070@freescale.com>
  *	Mingkai Hu <Mingkai.hu@freescale.com>
  *
@@ -31,9 +31,9 @@
 #define MIIMIND_BUSY		0x00000001
 #define MIIMIND_NOTVALID	0x00000004
 
-void tsec_local_mdio_write(struct tsec_mii_mng *phyregs, int port_addr,
+void tsec_local_mdio_write(struct tsec_mii_mng __iomem *phyregs, int port_addr,
 		int dev_addr, int reg, int value);
-int tsec_local_mdio_read(struct tsec_mii_mng *phyregs, int port_addr,
+int tsec_local_mdio_read(struct tsec_mii_mng __iomem *phyregs, int port_addr,
 		int dev_addr, int regnum);
 int tsec_phy_read(struct mii_dev *bus, int addr, int dev_addr, int regnum);
 int tsec_phy_write(struct mii_dev *bus, int addr, int dev_addr, int regnum,
@@ -44,7 +44,7 @@ int memac_mdio_read(struct mii_dev *bus, int port_addr, int dev_addr,
 		int regnum);
 
 struct fsl_pq_mdio_info {
-	struct tsec_mii_mng *regs;
+	struct tsec_mii_mng __iomem *regs;
 	char *name;
 };
 int fsl_pq_mdio_init(bd_t *bis, struct fsl_pq_mdio_info *info);

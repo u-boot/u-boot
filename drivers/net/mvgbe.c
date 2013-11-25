@@ -420,8 +420,9 @@ static int mvgbe_init(struct eth_device *dev)
 {
 	struct mvgbe_device *dmvgbe = to_mvgbe(dev);
 	struct mvgbe_registers *regs = dmvgbe->regs;
-#if (defined (CONFIG_MII) || defined (CONFIG_CMD_MII)) \
-	 && defined (CONFIG_SYS_FAULT_ECHO_LINK_DOWN)
+#if (defined(CONFIG_MII) || defined(CONFIG_CMD_MII)) &&  \
+	!defined(CONFIG_PHYLIB) &&			 \
+	defined(CONFIG_SYS_FAULT_ECHO_LINK_DOWN)
 	int i;
 #endif
 	/* setup RX rings */

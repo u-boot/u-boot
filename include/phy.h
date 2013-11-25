@@ -125,6 +125,9 @@ struct phy_driver {
 	/* Called when bringing down the controller */
 	int (*shutdown)(struct phy_device *phydev);
 
+	int (*readext)(struct phy_device *phydev, int addr, int devad, int reg);
+	int (*writeext)(struct phy_device *phydev, int addr, int devad, int reg,
+			u16 val);
 	struct list_head list;
 };
 

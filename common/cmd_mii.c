@@ -78,9 +78,9 @@ static const MII_field_desc_t reg_3_desc_tbl[] = {
 
 static const MII_field_desc_t reg_4_desc_tbl[] = {
 	{ 15, 15, 0x01, "next page able"               },
-	{ 14, 14, 0x01, "reserved"                     },
+	{ 14, 14, 0x01, "(reserved)"                   },
 	{ 13, 13, 0x01, "remote fault"                 },
-	{ 12, 12, 0x01, "reserved"                     },
+	{ 12, 12, 0x01, "(reserved)"                   },
 	{ 11, 11, 0x01, "asymmetric pause"             },
 	{ 10, 10, 0x01, "pause enable"                 },
 	{  9,  9, 0x01, "100BASE-T4 able"              },

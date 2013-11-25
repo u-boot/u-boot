@@ -5,7 +5,7 @@
  * terms of the GNU Public License, Version 2, incorporated
  * herein by reference.
  *
- * Copyright 2004-2011 Freescale Semiconductor, Inc.
+ * Copyright 2004-2011, 2013 Freescale Semiconductor, Inc.
  * (C) Copyright 2003, Motorola, Inc.
  * author Andy Fleming
  *
@@ -25,21 +25,13 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define TX_BUF_CNT		2
 
-static uint rxIdx;		/* index of the current RX buffer */
-static uint txIdx;		/* index of the current TX buffer */
-
-typedef volatile struct rtxbd {
-	txbd8_t txbd[TX_BUF_CNT];
-	rxbd8_t rxbd[PKTBUFSRX];
-} RTXBD;
-
-#define MAXCONTROLLERS	(8)
-
-static struct tsec_private *privlist[MAXCONTROLLERS];
-static int num_tsecs = 0;
+static uint rx_idx;		/* index of the current RX buffer */
+static uint tx_idx;		/* index of the current TX buffer */
 
 #ifdef __GNUC__
-static RTXBD rtx __attribute__ ((aligned(8)));
+static struct txbd8 __iomem txbd[TX_BUF_CNT] __aligned(8);
+static struct rxbd8 __iomem rxbd[PKTBUFSRX] __aligned(8);
+
 #else
 #error "rtx must be 64-bit aligned"
 #endif
@@ -57,7 +49,7 @@ static struct tsec_info_struct tsec_info[] = {
 #endif
 #ifdef CONFIG_MPC85XX_FEC
 	{
-		.regs = (tsec_t *)(TSEC_BASE_ADDR + 0x2000),
+		.regs = TSEC_GET_REGS(2, 0x2000),
 		.devname = CONFIG_MPC85XX_FEC_NAME,
 		.phyaddr = FEC_PHY_ADDR,
 		.flags = FEC_FLAGS,
@@ -113,32 +105,31 @@ static void tsec_configure_serdes(struct tsec_private *priv)
  * result.
  * 2) Use the 8 most significant bits as a hash into a 256-entry
  * table.  The table is controlled through 8 32-bit registers:
- * gaddr0-7.  gaddr0's MSB is entry 0, and gaddr7's LSB is
- * gaddr7.  This means that the 3 most significant bits in the
+ * gaddr0-7.  gaddr0's MSB is entry 0, and gaddr7's LSB is entry
+ * 255.  This means that the 3 most significant bits in the
  * hash index which gaddr register to use, and the 5 other bits
  * indicate which bit (assuming an IBM numbering scheme, which
- * for PowerPC (tm) is usually the case) in the tregister holds
+ * for PowerPC (tm) is usually the case) in the register holds
  * the entry. */
 static int
-tsec_mcast_addr (struct eth_device *dev, u8 mcast_mac, u8 set)
+tsec_mcast_addr(struct eth_device *dev, const u8 *mcast_mac, u8 set)
 {
-	struct tsec_private *priv = privlist[1];
-	volatile tsec_t *regs = priv->regs;
-	volatile u32  *reg_array, value;
-	u8 result, whichbit, whichreg;
+	struct tsec_private *priv = (struct tsec_private *)dev->priv;
+	struct tsec __iomem *regs = priv->regs;
+	u32 result, value;
+	u8 whichbit, whichreg;
 
-	result = (u8)((ether_crc(MAC_ADDR_LEN,mcast_mac) >> 24) & 0xff);
-	whichbit = result & 0x1f;	/* the 5 LSB = which bit to set */
-	whichreg = result >> 5;		/* the 3 MSB = which reg to set it in */
-	value = (1 << (31-whichbit));
+	result = ether_crc(MAC_ADDR_LEN, mcast_mac);
+	whichbit = (result >> 24) & 0x1f; /* the 5 LSB = which bit to set */
+	whichreg = result >> 29; /* the 3 MSB = which reg to set it in */
 
-	reg_array = &(regs->hash.gaddr0);
+	value = 1 << (31-whichbit);
 
-	if (set) {
-		reg_array[whichreg] |= value;
-	} else {
-		reg_array[whichreg] &= ~value;
-	}
+	if (set)
+		setbits_be32(&regs->hash.gaddr0 + whichreg, value);
+	else
+		clrbits_be32(&regs->hash.gaddr0 + whichreg, value);
+
 	return 0;
 }
 #endif /* Multicast TFTP ? */
@@ -147,7 +138,7 @@ tsec_mcast_addr (struct eth_device *dev, u8 mcast_mac, u8 set)
  * those we don't care about (unless zero is bad, in which case,
  * choose a more appropriate value)
  */
-static void init_registers(tsec_t *regs)
+static void init_registers(struct tsec __iomem *regs)
 {
 	/* Clear IEVENT */
 	out_be32(&regs->ievent, IEVENT_INIT_CLEAR);
@@ -175,7 +166,7 @@ static void init_registers(tsec_t *regs)
 	out_be32(&regs->rctrl, 0x00000000);
 
 	/* Init RMON mib registers */
-	memset((void *)&(regs->rmon), 0, sizeof(rmon_mib_t));
+	memset((void *)&regs->rmon, 0, sizeof(regs->rmon));
 
 	out_be32(&regs->rmon.cam1, 0xffffffff);
 	out_be32(&regs->rmon.cam2, 0xffffffff);
@@ -194,7 +185,7 @@ static void init_registers(tsec_t *regs)
  */
 static void adjust_link(struct tsec_private *priv, struct phy_device *phydev)
 {
-	tsec_t *regs = priv->regs;
+	struct tsec __iomem *regs = priv->regs;
 	u32 ecntrl, maccfg2;
 
 	if (!phydev->link) {
@@ -248,7 +239,7 @@ static void adjust_link(struct tsec_private *priv, struct phy_device *phydev)
 void redundant_init(struct eth_device *dev)
 {
 	struct tsec_private *priv = dev->priv;
-	tsec_t *regs = priv->regs;
+	struct tsec __iomem *regs = priv->regs;
 	uint t, count = 0;
 	int fail = 1;
 	static const u8 pkt[] = {
@@ -281,23 +272,26 @@ void redundant_init(struct eth_device *dev)
 	clrbits_be32(&regs->dmactrl, DMACTRL_GRS | DMACTRL_GTS);
 
 	do {
+		uint16_t status;
 		tsec_send(dev, (void *)pkt, sizeof(pkt));
 
 		/* Wait for buffer to be received */
-		for (t = 0; rtx.rxbd[rxIdx].status & RXBD_EMPTY; t++) {
+		for (t = 0; in_be16(&rxbd[rx_idx].status) & RXBD_EMPTY; t++) {
 			if (t >= 10 * TOUT_LOOP) {
 				printf("%s: tsec: rx error\n", dev->name);
 				break;
 			}
 		}
 
-		if (!memcmp(pkt, (void *)NetRxPackets[rxIdx], sizeof(pkt)))
+		if (!memcmp(pkt, (void *)NetRxPackets[rx_idx], sizeof(pkt)))
 			fail = 0;
 
-		rtx.rxbd[rxIdx].length = 0;
-		rtx.rxbd[rxIdx].status =
-		    RXBD_EMPTY | (((rxIdx + 1) == PKTBUFSRX) ? RXBD_WRAP : 0);
-		rxIdx = (rxIdx + 1) % PKTBUFSRX;
+		out_be16(&rxbd[rx_idx].length, 0);
+		status = RXBD_EMPTY;
+		if ((rx_idx + 1) == PKTBUFSRX)
+			status |= RXBD_WRAP;
+		out_be16(&rxbd[rx_idx].status, status);
+		rx_idx = (rx_idx + 1) % PKTBUFSRX;
 
 		if (in_be32(&regs->ievent) & IEVENT_BSY) {
 			out_be32(&regs->ievent, IEVENT_BSY);
@@ -325,36 +319,39 @@ void redundant_init(struct eth_device *dev)
  */
 static void startup_tsec(struct eth_device *dev)
 {
-	int i;
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	tsec_t *regs = priv->regs;
+	struct tsec __iomem *regs = priv->regs;
+	uint16_t status;
+	int i;
 
 	/* reset the indices to zero */
-	rxIdx = 0;
-	txIdx = 0;
+	rx_idx = 0;
+	tx_idx = 0;
 #ifdef CONFIG_SYS_FSL_ERRATUM_NMG_ETSEC129
 	uint svr;
 #endif
 
 	/* Point to the buffer descriptors */
-	out_be32(&regs->tbase, (unsigned int)(&rtx.txbd[txIdx]));
-	out_be32(&regs->rbase, (unsigned int)(&rtx.rxbd[rxIdx]));
+	out_be32(&regs->tbase, (u32)&txbd[0]);
+	out_be32(&regs->rbase, (u32)&rxbd[0]);
 
 	/* Initialize the Rx Buffer descriptors */
 	for (i = 0; i < PKTBUFSRX; i++) {
-		rtx.rxbd[i].status = RXBD_EMPTY;
-		rtx.rxbd[i].length = 0;
-		rtx.rxbd[i].bufPtr = (uint) NetRxPackets[i];
+		out_be16(&rxbd[i].status, RXBD_EMPTY);
+		out_be16(&rxbd[i].length, 0);
+		out_be32(&rxbd[i].bufptr, (u32)NetRxPackets[i]);
 	}
-	rtx.rxbd[PKTBUFSRX - 1].status |= RXBD_WRAP;
+	status = in_be16(&rxbd[PKTBUFSRX - 1].status);
+	out_be16(&rxbd[PKTBUFSRX - 1].status, status | RXBD_WRAP);
 
 	/* Initialize the TX Buffer Descriptors */
 	for (i = 0; i < TX_BUF_CNT; i++) {
-		rtx.txbd[i].status = 0;
-		rtx.txbd[i].length = 0;
-		rtx.txbd[i].bufPtr = 0;
+		out_be16(&txbd[i].status, 0);
+		out_be16(&txbd[i].length, 0);
+		out_be32(&txbd[i].bufptr, 0);
 	}
-	rtx.txbd[TX_BUF_CNT - 1].status |= TXBD_WRAP;
+	status = in_be16(&txbd[TX_BUF_CNT - 1].status);
+	out_be16(&txbd[TX_BUF_CNT - 1].status, status | TXBD_WRAP);
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_NMG_ETSEC129
 	svr = get_svr();
@@ -378,66 +375,67 @@ static void startup_tsec(struct eth_device *dev)
  */
 static int tsec_send(struct eth_device *dev, void *packet, int length)
 {
-	int i;
-	int result = 0;
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	tsec_t *regs = priv->regs;
+	struct tsec __iomem *regs = priv->regs;
+	uint16_t status;
+	int result = 0;
+	int i;
 
 	/* Find an empty buffer descriptor */
-	for (i = 0; rtx.txbd[txIdx].status & TXBD_READY; i++) {
+	for (i = 0; in_be16(&txbd[tx_idx].status) & TXBD_READY; i++) {
 		if (i >= TOUT_LOOP) {
 			debug("%s: tsec: tx buffers full\n", dev->name);
 			return result;
 		}
 	}
 
-	rtx.txbd[txIdx].bufPtr = (uint) packet;
-	rtx.txbd[txIdx].length = length;
-	rtx.txbd[txIdx].status |=
-	    (TXBD_READY | TXBD_LAST | TXBD_CRC | TXBD_INTERRUPT);
+	out_be32(&txbd[tx_idx].bufptr, (u32)packet);
+	out_be16(&txbd[tx_idx].length, length);
+	status = in_be16(&txbd[tx_idx].status);
+	out_be16(&txbd[tx_idx].status, status |
+		(TXBD_READY | TXBD_LAST | TXBD_CRC | TXBD_INTERRUPT));
 
 	/* Tell the DMA to go */
 	out_be32(&regs->tstat, TSTAT_CLEAR_THALT);
 
 	/* Wait for buffer to be transmitted */
-	for (i = 0; rtx.txbd[txIdx].status & TXBD_READY; i++) {
+	for (i = 0; in_be16(&txbd[tx_idx].status) & TXBD_READY; i++) {
 		if (i >= TOUT_LOOP) {
 			debug("%s: tsec: tx error\n", dev->name);
 			return result;
 		}
 	}
 
-	txIdx = (txIdx + 1) % TX_BUF_CNT;
-	result = rtx.txbd[txIdx].status & TXBD_STATS;
+	tx_idx = (tx_idx + 1) % TX_BUF_CNT;
+	result = in_be16(&txbd[tx_idx].status) & TXBD_STATS;
 
 	return result;
 }
 
 static int tsec_recv(struct eth_device *dev)
 {
-	int length;
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	tsec_t *regs = priv->regs;
+	struct tsec __iomem *regs = priv->regs;
 
-	while (!(rtx.rxbd[rxIdx].status & RXBD_EMPTY)) {
-
-		length = rtx.rxbd[rxIdx].length;
+	while (!(in_be16(&rxbd[rx_idx].status) & RXBD_EMPTY)) {
+		int length = in_be16(&rxbd[rx_idx].length);
+		uint16_t status = in_be16(&rxbd[rx_idx].status);
 
 		/* Send the packet up if there were no errors */
-		if (!(rtx.rxbd[rxIdx].status & RXBD_STATS)) {
-			NetReceive(NetRxPackets[rxIdx], length - 4);
-		} else {
-			printf("Got error %x\n",
-			       (rtx.rxbd[rxIdx].status & RXBD_STATS));
-		}
+		if (!(status & RXBD_STATS))
+			NetReceive(NetRxPackets[rx_idx], length - 4);
+		else
+			printf("Got error %x\n", (status & RXBD_STATS));
 
-		rtx.rxbd[rxIdx].length = 0;
+		out_be16(&rxbd[rx_idx].length, 0);
 
+		status = RXBD_EMPTY;
 		/* Set the wrap bit if this is the last element in the list */
-		rtx.rxbd[rxIdx].status =
-		    RXBD_EMPTY | (((rxIdx + 1) == PKTBUFSRX) ? RXBD_WRAP : 0);
+		if ((rx_idx + 1) == PKTBUFSRX)
+			status |= RXBD_WRAP;
+		out_be16(&rxbd[rx_idx].status, status);
 
-		rxIdx = (rxIdx + 1) % PKTBUFSRX;
+		rx_idx = (rx_idx + 1) % PKTBUFSRX;
 	}
 
 	if (in_be32(&regs->ievent) & IEVENT_BSY) {
@@ -453,7 +451,7 @@ static int tsec_recv(struct eth_device *dev)
 static void tsec_halt(struct eth_device *dev)
 {
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	tsec_t *regs = priv->regs;
+	struct tsec __iomem *regs = priv->regs;
 
 	clrbits_be32(&regs->dmactrl, DMACTRL_GRS | DMACTRL_GTS);
 	setbits_be32(&regs->dmactrl, DMACTRL_GRS | DMACTRL_GTS);
@@ -475,11 +473,9 @@ static void tsec_halt(struct eth_device *dev)
  */
 static int tsec_init(struct eth_device *dev, bd_t * bd)
 {
-	uint tempval;
-	char tmpbuf[MAC_ADDR_LEN];
-	int i;
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	tsec_t *regs = priv->regs;
+	struct tsec __iomem *regs = priv->regs;
+	u32 tempval;
 	int ret;
 
 	/* Make sure the controller is stopped */
@@ -492,16 +488,16 @@ static int tsec_init(struct eth_device *dev, bd_t * bd)
 	out_be32(&regs->ecntrl, ECNTRL_INIT_SETTINGS);
 
 	/* Copy the station address into the address registers.
-	 * Backwards, because little endian MACS are dumb */
-	for (i = 0; i < MAC_ADDR_LEN; i++)
-		tmpbuf[MAC_ADDR_LEN - 1 - i] = dev->enetaddr[i];
-
-	tempval = (tmpbuf[0] << 24) | (tmpbuf[1] << 16) | (tmpbuf[2] << 8) |
-		  tmpbuf[3];
+	 * For a station address of 0x12345678ABCD in transmission
+	 * order (BE), MACnADDR1 is set to 0xCDAB7856 and
+	 * MACnADDR2 is set to 0x34120000.
+	 */
+	tempval = (dev->enetaddr[5] << 24) | (dev->enetaddr[4] << 16) |
+		  (dev->enetaddr[3] << 8)  |  dev->enetaddr[2];
 
 	out_be32(&regs->macstnaddr1, tempval);
 
-	tempval = *((uint *) (tmpbuf + 4));
+	tempval = (dev->enetaddr[1] << 24) | (dev->enetaddr[0] << 16);
 
 	out_be32(&regs->macstnaddr2, tempval);
 
@@ -527,7 +523,7 @@ static int tsec_init(struct eth_device *dev, bd_t * bd)
 
 static phy_interface_t tsec_get_interface(struct tsec_private *priv)
 {
-	tsec_t *regs = priv->regs;
+	struct tsec __iomem *regs = priv->regs;
 	u32 ecntrl;
 
 	ecntrl = in_be32(&regs->ecntrl);
@@ -576,7 +572,7 @@ static int init_phy(struct eth_device *dev)
 {
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
 	struct phy_device *phydev;
-	tsec_t *regs = priv->regs;
+	struct tsec __iomem *regs = priv->regs;
 	u32 supported = (SUPPORTED_10baseT_Half |
 			SUPPORTED_10baseT_Full |
 			SUPPORTED_100baseT_Half |
@@ -626,7 +622,6 @@ static int tsec_initialize(bd_t *bis, struct tsec_info_struct *tsec_info)
 	if (NULL == priv)
 		return 0;
 
-	privlist[num_tsecs++] = priv;
 	priv->regs = tsec_info->regs;
 	priv->phyregs_sgmii = tsec_info->miiregs_sgmii;
 
@@ -684,7 +679,7 @@ int tsec_standard_init(bd_t *bis)
 {
 	struct fsl_pq_mdio_info info;
 
-	info.regs = (struct tsec_mii_mng *)CONFIG_SYS_MDIO_BASE_ADDR;
+	info.regs = TSEC_GET_MDIO_REGS_BASE(1);
 	info.name = DEFAULT_MII_NAME;
 
 	fsl_pq_mdio_init(bis, &info);

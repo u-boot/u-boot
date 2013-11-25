@@ -43,11 +43,6 @@
 #define ZYNQ_GEM_TXBUF_WRAP_MASK	0x40000000
 #define ZYNQ_GEM_TXBUF_LAST_MASK	0x00008000 /* Last buffer */
 
-#define ZYNQ_GEM_TXSR_HRESPNOK_MASK	0x00000100 /* Transmit hresp not OK */
-#define ZYNQ_GEM_TXSR_URUN_MASK		0x00000040 /* Transmit underrun */
-/* Transmit buffs exhausted mid frame */
-#define ZYNQ_GEM_TXSR_BUFEXH_MASK	0x00000010
-
 #define ZYNQ_GEM_NWCTRL_TXEN_MASK	0x00000008 /* Enable transmit */
 #define ZYNQ_GEM_NWCTRL_RXEN_MASK	0x00000004 /* Enable receive */
 #define ZYNQ_GEM_NWCTRL_MDEN_MASK	0x00000010 /* Enable MDIO port */
@@ -90,6 +85,11 @@
  */
 #define PHY_DETECT_MASK 0x1808
 
+/* TX BD status masks */
+#define ZYNQ_GEM_TXBUF_FRMLEN_MASK	0x000007ff
+#define ZYNQ_GEM_TXBUF_EXHAUSTED	0x08000000
+#define ZYNQ_GEM_TXBUF_UNDERRUN		0x10000000
+
 /* Device registers */
 struct zynq_gem_regs {
 	u32 nwctrl; /* Network Control reg */
@@ -123,12 +123,18 @@ struct emac_bd {
 };
 
 #define RX_BUF 3
+/* Page table entries are set to 1MB, or multiples of 1MB
+ * (not < 1MB). driver uses less bd's so use 1MB bdspace.
+ */
+#define BD_SPACE	0x100000
+/* BD separation space */
+#define BD_SEPRN_SPACE	64
 
 /* Initialized, rxbd_current, rx_first_buf must be 0 after init */
 struct zynq_gem_priv {
-	struct emac_bd tx_bd;
-	struct emac_bd rx_bd[RX_BUF];
-	char rxbuffers[RX_BUF * PKTSIZE_ALIGN];
+	struct emac_bd *tx_bd;
+	struct emac_bd *rx_bd;
+	char *rxbuffers;
 	u32 rxbd_current;
 	u32 rx_first_buf;
 	int phyaddr;
@@ -299,20 +305,18 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 			readl(&regs->stat[i]);
 
 		/* Setup RxBD space */
-		memset(&(priv->rx_bd), 0, sizeof(priv->rx_bd));
-		/* Create the RxBD ring */
-		memset(&(priv->rxbuffers), 0, sizeof(priv->rxbuffers));
+		memset(priv->rx_bd, 0, RX_BUF * sizeof(struct emac_bd));
 
 		for (i = 0; i < RX_BUF; i++) {
 			priv->rx_bd[i].status = 0xF0000000;
 			priv->rx_bd[i].addr =
-					(u32)((char *)&(priv->rxbuffers) +
+					((u32)(priv->rxbuffers) +
 							(i * PKTSIZE_ALIGN));
 		}
 		/* WRAP bit to last BD */
 		priv->rx_bd[--i].addr |= ZYNQ_GEM_RXBUF_WRAP_MASK;
 		/* Write RxBDs to IP */
-		writel((u32)&(priv->rx_bd), &regs->rxqbase);
+		writel((u32)priv->rx_bd, &regs->rxqbase);
 
 		/* Setup for DMA Configuration register */
 		writel(ZYNQ_GEM_DMACR_INIT, &regs->dmacr);
@@ -368,32 +372,35 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 
 static int zynq_gem_send(struct eth_device *dev, void *ptr, int len)
 {
-	u32 status;
+	u32 addr, size;
 	struct zynq_gem_priv *priv = dev->priv;
 	struct zynq_gem_regs *regs = (struct zynq_gem_regs *)dev->iobase;
-	const u32 mask = ZYNQ_GEM_TXSR_HRESPNOK_MASK | \
-			ZYNQ_GEM_TXSR_URUN_MASK | ZYNQ_GEM_TXSR_BUFEXH_MASK;
 
 	/* setup BD */
-	writel((u32)&(priv->tx_bd), &regs->txqbase);
+	writel((u32)priv->tx_bd, &regs->txqbase);
 
 	/* Setup Tx BD */
-	memset((void *)&(priv->tx_bd), 0, sizeof(struct emac_bd));
+	memset(priv->tx_bd, 0, sizeof(struct emac_bd));
 
-	priv->tx_bd.addr = (u32)ptr;
-	priv->tx_bd.status = len | ZYNQ_GEM_TXBUF_LAST_MASK;
+	priv->tx_bd->addr = (u32)ptr;
+	priv->tx_bd->status = (len & ZYNQ_GEM_TXBUF_FRMLEN_MASK) |
+				ZYNQ_GEM_TXBUF_LAST_MASK;
+
+	addr = (u32) ptr;
+	addr &= ~(ARCH_DMA_MINALIGN - 1);
+	size = roundup(len, ARCH_DMA_MINALIGN);
+	flush_dcache_range(addr, addr + size);
+	barrier();
 
 	/* Start transmit */
 	setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_STARTTX_MASK);
 
-	/* Read the stat register to know if the packet has been transmitted */
-	status = readl(&regs->txsr);
-	if (status & mask)
-		printf("Something has gone wrong here!? Status is 0x%x.\n",
-		       status);
+	/* Read TX BD status */
+	if (priv->tx_bd->status & ZYNQ_GEM_TXBUF_UNDERRUN)
+		printf("TX underrun\n");
+	if (priv->tx_bd->status & ZYNQ_GEM_TXBUF_EXHAUSTED)
+		printf("TX buffers exhausted in mid frame\n");
 
-	/* Clear Tx status register before leaving . */
-	writel(status, &regs->txsr);
 	return 0;
 }
 
@@ -416,8 +423,12 @@ static int zynq_gem_recv(struct eth_device *dev)
 
 	frame_len = current_bd->status & ZYNQ_GEM_RXBUF_LEN_MASK;
 	if (frame_len) {
-		NetReceive((u8 *) (current_bd->addr &
-					ZYNQ_GEM_RXBUF_ADD_MASK), frame_len);
+		u32 addr = current_bd->addr & ZYNQ_GEM_RXBUF_ADD_MASK;
+		addr &= ~(ARCH_DMA_MINALIGN - 1);
+		u32 size = roundup(frame_len, ARCH_DMA_MINALIGN);
+		invalidate_dcache_range(addr, addr + size);
+
+		NetReceive((u8 *)addr, frame_len);
 
 		if (current_bd->status & ZYNQ_GEM_RXBUF_SOF_MASK)
 			priv->rx_first_buf = priv->rxbd_current;
@@ -471,6 +482,7 @@ int zynq_gem_initialize(bd_t *bis, int base_addr, int phy_addr, u32 emio)
 {
 	struct eth_device *dev;
 	struct zynq_gem_priv *priv;
+	void *bd_space;
 
 	dev = calloc(1, sizeof(*dev));
 	if (dev == NULL)
@@ -482,6 +494,18 @@ int zynq_gem_initialize(bd_t *bis, int base_addr, int phy_addr, u32 emio)
 		return -1;
 	}
 	priv = dev->priv;
+
+	/* Align rxbuffers to ARCH_DMA_MINALIGN */
+	priv->rxbuffers = memalign(ARCH_DMA_MINALIGN, RX_BUF * PKTSIZE_ALIGN);
+	memset(priv->rxbuffers, 0, RX_BUF * PKTSIZE_ALIGN);
+
+	/* Align bd_space to 1MB */
+	bd_space = memalign(1 << MMU_SECTION_SHIFT, BD_SPACE);
+	mmu_set_region_dcache_behaviour((u32)bd_space, BD_SPACE, DCACHE_OFF);
+
+	/* Initialize the bd spaces for tx and rx bd's */
+	priv->tx_bd = (struct emac_bd *)bd_space;
+	priv->rx_bd = (struct emac_bd *)((u32)bd_space + BD_SEPRN_SPACE);
 
 	priv->phyaddr = phy_addr;
 	priv->emio = emio;
