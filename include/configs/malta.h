@@ -54,6 +54,7 @@
 
 #define CONFIG_SYS_MALLOC_LEN		(128 * 1024)
 #define CONFIG_SYS_BOOTPARAMS_LEN	(128 * 1024)
+#define CONFIG_SYS_BOOTM_LEN		(64 * 1024 * 1024)
 
 /*
  * Console configuration
