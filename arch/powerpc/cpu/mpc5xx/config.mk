@@ -5,6 +5,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-PLATFORM_RELFLAGS +=	-meabi
-
-PLATFORM_CPPFLAGS +=	-DCONFIG_5xx -ffixed-r2 -mpowerpc -msoft-float
+PLATFORM_CPPFLAGS += -DCONFIG_5xx -mpowerpc -msoft-float
