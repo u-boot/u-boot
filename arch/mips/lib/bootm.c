@@ -196,8 +196,10 @@ static void boot_prep_linux(bootm_headers_t *images)
 	if (cp)
 		linux_env_set("eth1addr", cp);
 
-	if (mips_boot_malta)
-		linux_env_set("modetty0", "38400n8r");
+	if (mips_boot_malta) {
+		sprintf(env_buf, "%un8r", gd->baudrate);
+		linux_env_set("modetty0", env_buf);
+	}
 }
 
 static void boot_jump_linux(bootm_headers_t *images)
