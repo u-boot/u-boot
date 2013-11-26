@@ -96,6 +96,8 @@
 /* Definitions for the status of queue */
 #define ZYNQ_QSPI_QUEUE_STOPPED		0
 #define ZYNQ_QSPI_QUEUE_RUNNING		1
+#define ZYNQ_QSPI_RXFIFO_THRESHOLD	32
+#define ZYNQ_QSPI_FIFO_DEPTH		63
 
 /* QSPI MIO's count for different connection topologies */
 #define ZYNQ_QSPI_MIO_NUM_QSPI0		6
@@ -265,7 +267,7 @@ static void zynq_qspi_init_hw(int is_dual, unsigned int cs)
 
 	/* Clear the TX and RX threshold reg */
 	writel(0x1, &zynq_qspi_base->txftr);
-	writel(0x1, &zynq_qspi_base->rxftr);
+	writel(ZYNQ_QSPI_RXFIFO_THRESHOLD, &zynq_qspi_base->rxftr);
 
 	/* Clear the RX FIFO */
 	while (readl(&zynq_qspi_base->isr) & ZYNQ_QSPI_IXR_RXNEMTY_MASK)
@@ -276,9 +278,8 @@ static void zynq_qspi_init_hw(int is_dual, unsigned int cs)
 	/* Clear all the bits before setting required configuration */
 	config_reg &= ~ZYNQ_QSPI_CONFIG_CLR_ALL_MASK;
 	config_reg |= ZYNQ_QSPI_CONFIG_IFMODE_MASK |
-		ZYNQ_QSPI_CONFIG_MSA_MASK | ZYNQ_QSPI_CONFIG_MCS_MASK |
-		ZYNQ_QSPI_CONFIG_PCS_MASK | ZYNQ_QSPI_CONFIG_FW_MASK |
-		ZYNQ_QSPI_CONFIG_MSTREN_MASK;
+		ZYNQ_QSPI_CONFIG_MCS_MASK | ZYNQ_QSPI_CONFIG_PCS_MASK |
+		ZYNQ_QSPI_CONFIG_FW_MASK | ZYNQ_QSPI_CONFIG_MSTREN_MASK;
 	if (is_dual == MODE_DUAL_STACKED)
 		config_reg |= 0x10;
 	writel(config_reg, &zynq_qspi_base->confr);
@@ -496,18 +497,28 @@ static int zynq_qspi_setup_transfer(struct spi_device *qspi,
  * zynq_qspi_fill_tx_fifo - Fills the TX FIFO with as many bytes as possible
  * @zqspi:	Pointer to the zynq_qspi structure
  */
-static void zynq_qspi_fill_tx_fifo(struct zynq_qspi *zqspi)
+static void zynq_qspi_fill_tx_fifo(struct zynq_qspi *zqspi, u32 size)
 {
 	u32 data = 0;
+	u32 fifocount = 0;
 	unsigned len, offset;
 	static const unsigned offsets[4] = {
 		ZYNQ_QSPI_TXD_00_00_OFFSET, ZYNQ_QSPI_TXD_00_01_OFFSET,
 		ZYNQ_QSPI_TXD_00_10_OFFSET, ZYNQ_QSPI_TXD_00_11_OFFSET };
 
-	while ((!(readl(&zynq_qspi_base->isr) &
-			ZYNQ_QSPI_IXR_TXFULL_MASK)) &&
+	while ((fifocount < size) &&
 			(zqspi->bytes_to_transfer > 0)) {
-		if (zqspi->bytes_to_transfer < 4) {
+		if (zqspi->bytes_to_transfer >= 4) {
+			if (zqspi->txbuf) {
+				memcpy(&data, zqspi->txbuf, 4);
+				zqspi->txbuf += 4;
+			} else {
+				data = 0;
+			}
+			writel(data, &zynq_qspi_base->txd0r);
+			zqspi->bytes_to_transfer -= 4;
+			fifocount++;
+		} else {
 			/* Write TXD1, TXD2, TXD3 only if TxFIFO is empty. */
 			if (!(readl(&zynq_qspi_base->isr)
 					& ZYNQ_QSPI_IXR_TXNFULL_MASK) &&
@@ -517,9 +528,6 @@ static void zynq_qspi_fill_tx_fifo(struct zynq_qspi *zqspi)
 			zynq_qspi_copy_write_data(zqspi, &data, len);
 			offset = (zqspi->rxbuf) ? offsets[0] : offsets[len];
 			writel(data, &zynq_qspi_base->confr + (offset / 4));
-		} else {
-			zynq_qspi_copy_write_data(zqspi, &data, 4);
-			writel(data, &zynq_qspi_base->txd0r);
 		}
 	}
 }
@@ -542,6 +550,8 @@ static int zynq_qspi_irq_poll(struct zynq_qspi *zqspi)
 {
 	int max_loop;
 	u32 intr_status;
+	u32 rxindex = 0;
+	u32 rxcount;
 
 	debug("%s: zqspi: 0x%08x\n", __func__, (u32)zqspi);
 
@@ -568,14 +578,11 @@ static int zynq_qspi_irq_poll(struct zynq_qspi *zqspi)
 		 * the THRESHOLD value set to 1, so this bit indicates Tx FIFO
 		 * is empty
 		 */
-		u32 config_reg;
-		while (!(readl(&zynq_qspi_base->isr) &
-			ZYNQ_QSPI_IXR_TXNFULL_MASK) ||
-			(readl(&zynq_qspi_base->isr) &
-			ZYNQ_QSPI_IXR_RXNEMTY_MASK)) {
+		rxcount = zqspi->bytes_to_receive - zqspi->bytes_to_transfer;
+		rxcount = (rxcount % 4) ? ((rxcount/4)+1) : (rxcount/4);
+		while ((rxindex < rxcount) &&
+				(rxindex < ZYNQ_QSPI_RXFIFO_THRESHOLD)) {
 			/* Read out the data from the RX FIFO */
-			while (readl(&zynq_qspi_base->isr) &
-					ZYNQ_QSPI_IXR_RXNEMTY_MASK) {
 				u32 data;
 
 				data = readl(&zynq_qspi_base->drxr);
@@ -592,22 +599,21 @@ static int zynq_qspi_irq_poll(struct zynq_qspi *zqspi)
 					zynq_qspi_copy_read_data(zqspi, data,
 						zqspi->bytes_to_receive);
 				} else {
-					zynq_qspi_copy_read_data(zqspi, data,
-								4);
+				if (zqspi->rxbuf) {
+					memcpy(zqspi->rxbuf, &data, 4);
+					zqspi->rxbuf += 4;
 				}
+				zqspi->bytes_to_receive -= 4;
 			}
+			rxindex++;
 		}
 
 		if (zqspi->bytes_to_transfer) {
 			/* There is more data to send */
-			zynq_qspi_fill_tx_fifo(zqspi);
+			zynq_qspi_fill_tx_fifo(zqspi,
+					       ZYNQ_QSPI_RXFIFO_THRESHOLD);
 
 			writel(ZYNQ_QSPI_IXR_ALL_MASK, &zynq_qspi_base->ier);
-
-			config_reg = readl(&zynq_qspi_base->confr);
-
-			config_reg |= ZYNQ_QSPI_CONFIG_MANSRT_MASK;
-			writel(config_reg, &zynq_qspi_base->confr);
 		} else {
 			/*
 			 * If transfer and receive is completed then only send
@@ -641,7 +647,6 @@ static int zynq_qspi_start_transfer(struct spi_device *qspi,
 {
 	struct zynq_qspi *zqspi = &qspi->master;
 	static u8 current_u_page;
-	u32 config_reg;
 	u32 data = 0;
 	u8 instruction = 0;
 	u8 index;
@@ -739,13 +744,10 @@ xfer_data:
 	     (instruction != ZYNQ_QSPI_FLASH_OPCODE_DR) &&
 	     (instruction != ZYNQ_QSPI_FLASH_OPCODE_QR) &&
 	     (instruction != ZYNQ_QSPI_FLASH_OPCODE_DIOR)))
-		zynq_qspi_fill_tx_fifo(zqspi);
+		zynq_qspi_fill_tx_fifo(zqspi, ZYNQ_QSPI_FIFO_DEPTH);
 
 	writel(ZYNQ_QSPI_IXR_ALL_MASK, &zynq_qspi_base->ier);
 	/* Start the transfer by enabling manual start bit */
-	config_reg = readl(&zynq_qspi_base->confr) |
-			ZYNQ_QSPI_CONFIG_MANSRT_MASK;
-	writel(config_reg, &zynq_qspi_base->confr);
 
 	/* wait for completion */
 	do {
