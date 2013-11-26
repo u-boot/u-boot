@@ -171,6 +171,8 @@ struct serial_device *default_serial_console(void)
 void pci_init_board(void)
 {
 	pci_dev_t bdf;
+	u32 val32;
+	u8 val8;
 
 	switch (malta_sys_con()) {
 	case SYSCON_GT64120:
@@ -205,4 +207,14 @@ void pci_init_board(void)
 	pci_write_config_byte(bdf, PCI_CFG_PIIX4_PIRQRCB, 10);
 	pci_write_config_byte(bdf, PCI_CFG_PIIX4_PIRQRCC, 11);
 	pci_write_config_byte(bdf, PCI_CFG_PIIX4_PIRQRCD, 11);
+
+	/* mux SERIRQ onto SERIRQ pin */
+	pci_read_config_dword(bdf, PCI_CFG_PIIX4_GENCFG, &val32);
+	val32 |= PCI_CFG_PIIX4_GENCFG_SERIRQ;
+	pci_write_config_dword(bdf, PCI_CFG_PIIX4_GENCFG, val32);
+
+	/* enable SERIRQ - Linux currently depends upon this */
+	pci_read_config_byte(bdf, PCI_CFG_PIIX4_SERIRQC, &val8);
+	val8 |= PCI_CFG_PIIX4_SERIRQC_EN | PCI_CFG_PIIX4_SERIRQC_CONT;
+	pci_write_config_byte(bdf, PCI_CFG_PIIX4_SERIRQC, val8);
 }
