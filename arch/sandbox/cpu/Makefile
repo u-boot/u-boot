@@ -10,7 +10,7 @@
 obj-y	:= cpu.o os.o start.o state.o
 
 # os.c is build in the system environment, so needs standard includes
-$(obj)os.o: ALL_CFLAGS := $(BASE_CPPFLAGS) \
-	$(patsubst %, -idirafter %, $(BASE_INCLUDE_DIRS))
-$(obj).depend.os: CPPFLAGS := $(BASE_CPPFLAGS) \
-	$(patsubst %, -idirafter %, $(BASE_INCLUDE_DIRS))
+$(obj)os.o: CFLAGS := $(filter-out -nostdinc,\
+	$(patsubst -I%,-idirafter%,$(CFLAGS)))
+$(obj).depend.os: CPPFLAGS := $(filter-out -nostdinc,\
+	$(patsubst -I%,-idirafter%,$(CPPFLAGS)))
