@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <i2c.h>
 #include <asm/fsl_law.h>
 #include <fsl_ddr_sdram.h>
 #include <fsl_ddr_dimm_params.h>
@@ -90,5 +91,17 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
 		popts->cs_local_opts[i].odt_rd_cfg = FSL_DDR_ODT_NEVER;
 		popts->cs_local_opts[i].odt_wr_cfg = FSL_DDR_ODT_CS;
+	}
+}
+
+void get_spd(generic_spd_eeprom_t *spd, u8 i2c_address)
+{
+	int ret = i2c_read(i2c_address, 0, 2, (uint8_t *)spd,
+				sizeof(generic_spd_eeprom_t));
+
+	if (ret) {
+		printf("DDR: failed to read SPD from address %u\n",
+				i2c_address);
+		memset(spd, 0, sizeof(generic_spd_eeprom_t));
 	}
 }
