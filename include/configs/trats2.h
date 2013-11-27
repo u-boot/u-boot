@@ -20,8 +20,6 @@
 #define CONFIG_EXYNOS4		/* which is in a EXYNOS4XXX */
 #define CONFIG_TIZEN		/* TIZEN lib */
 
-#define PLATFORM_NO_UNALIGNED
-
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 
 #define CONFIG_ARCH_CPU_INIT
@@ -256,8 +254,6 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_LOAD_ADDR \
 					- GENERATED_GBL_DATA_SIZE)
-
-#define CONFIG_SYS_HZ			1000
 
 /* valid baudrates */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
