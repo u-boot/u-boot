@@ -16,6 +16,10 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+extern const struct emif_regs emif_regs_elpida_200_mhz_2cs;
+extern const struct emif_regs emif_regs_elpida_380_mhz_1cs;
+extern const struct emif_regs emif_regs_elpida_400_mhz_1cs;
+extern const struct emif_regs emif_regs_elpida_400_mhz_2cs;
 struct omap_sysinfo {
 	char *board_string;
 };
