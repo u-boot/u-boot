@@ -43,7 +43,7 @@ static void check_hw_revision(void)
 	int modelrev = 0;
 	int i;
 
-	gpio2 = (struct exynos4x12_gpio_part2 *)EXYNOS4X12_GPIO_PART2_BASE;
+	gpio2 = (struct exynos4x12_gpio_part2 *)samsung_get_base_gpio_part2();
 
 	/*
 	 * GPM1[1:0]: MODEL_REV[1:0]
@@ -93,7 +93,7 @@ static inline u32 get_model_rev(void)
 
 static void board_external_gpio_init(void)
 {
-	gpio2 = (struct exynos4x12_gpio_part2 *)EXYNOS4X12_GPIO_PART2_BASE;
+	gpio2 = (struct exynos4x12_gpio_part2 *)samsung_get_base_gpio_part2();
 
 	/*
 	 * some pins which in alive block are connected with external pull-up
@@ -118,8 +118,8 @@ static void board_external_gpio_init(void)
 #ifdef CONFIG_SYS_I2C_INIT_BOARD
 static void board_init_i2c(void)
 {
-	gpio1 = (struct exynos4x12_gpio_part1 *)EXYNOS4X12_GPIO_PART1_BASE;
-	gpio2 = (struct exynos4x12_gpio_part2 *)EXYNOS4X12_GPIO_PART2_BASE;
+	gpio1 = (struct exynos4x12_gpio_part1 *)samsung_get_base_gpio_part1();
+	gpio2 = (struct exynos4x12_gpio_part2 *)samsung_get_base_gpio_part2();
 
 	/* I2C_7 */
 	s5p_gpio_direction_output(&gpio1->d0, 2, 1);
@@ -150,7 +150,7 @@ static int pmic_init_max77686(void);
 int board_init(void)
 {
 	struct exynos4_power *pwr =
-		(struct exynos4_power *)EXYNOS4X12_POWER_BASE;
+		(struct exynos4_power *)samsung_get_base_power();
 
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
@@ -257,7 +257,7 @@ int board_mmc_init(bd_t *bis)
 {
 	int err0, err2 = 0;
 
-	gpio2 = (struct exynos4x12_gpio_part2 *)EXYNOS4X12_GPIO_PART2_BASE;
+	gpio2 = (struct exynos4x12_gpio_part2 *)samsung_get_base_gpio_part2();
 
 	/* eMMC_EN: SD_0_CDn: GPK0[2] Output High */
 	s5p_gpio_direction_output(&gpio2->k0, 2, 1);
@@ -513,7 +513,7 @@ void exynos_lcd_power_on(void)
 {
 	struct pmic *p = pmic_get("MAX77686_PMIC");
 
-	gpio1 = (struct exynos4x12_gpio_part1 *)EXYNOS4X12_GPIO_PART1_BASE;
+	gpio1 = (struct exynos4x12_gpio_part1 *)samsung_get_base_gpio_part1();
 
 	/* LCD_2.2V_EN: GPC0[1] */
 	s5p_gpio_set_pull(&gpio1->c0, 1, GPIO_PULL_UP);
@@ -527,7 +527,7 @@ void exynos_lcd_power_on(void)
 
 void exynos_reset_lcd(void)
 {
-	gpio1 = (struct exynos4x12_gpio_part1 *)EXYNOS4X12_GPIO_PART1_BASE;
+	gpio1 = (struct exynos4x12_gpio_part1 *)samsung_get_base_gpio_part1();
 
 	/* reset lcd */
 	s5p_gpio_direction_output(&gpio1->f2, 1, 0);
