@@ -229,6 +229,9 @@ void get_sys_info(sys_info_t *sys_info)
 	case 4:
 		sys_info->freq_fman[1] = freq_c_pll[CONFIG_SYS_FM2_CLK + 1] / 4;
 		break;
+	case 5:
+		sys_info->freq_fman[1] = sys_info->freq_systembus;
+		break;
 	case 6:
 		sys_info->freq_fman[1] = freq_c_pll[CONFIG_SYS_FM2_CLK] / 2;
 		break;
