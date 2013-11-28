@@ -86,6 +86,14 @@ void get_sys_info(sys_info_t *sys_info)
 	mem_pll_rat = (in_be32(&gur->rcwsr[0]) >>
 			FSL_CORENET_RCWSR0_MEM_PLL_RAT_SHIFT)
 			& FSL_CORENET_RCWSR0_MEM_PLL_RAT_MASK;
+	/* T4240/T4160 Rev2.0 MEM_PLL_RAT uses a value which is half of
+	 * T4240/T4160 Rev1.0. eg. It's 12 in Rev1.0, however, for Rev2.0
+	 * it uses 6.
+	 */
+#if defined(CONFIG_PPC_T4240) || defined(CONFIG_PPC_T4160)
+	if (SVR_MAJ(get_svr()) >= 2)
+		mem_pll_rat *= 2;
+#endif
 	if (mem_pll_rat > 2)
 		sys_info->freq_ddrbus *= mem_pll_rat;
 	else
