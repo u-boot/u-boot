@@ -213,15 +213,11 @@ endif
 #########################################################################
 # U-Boot objects....order is important (i.e. start must be first)
 
-OBJS  = $(CPUDIR)/start.o
-ifeq ($(CPU),ppc4xx)
-OBJS += $(CPUDIR)/resetvec.o
-endif
-ifeq ($(CPU),mpc85xx)
-OBJS += $(CPUDIR)/resetvec.o
-endif
+head-y := $(CPUDIR)/start.o
+head-$(CONFIG_4xx) += arch/powerpc/cpu/ppc4xx/resetvec.o
+head-$(CONFIG_MPC85xx) += arch/powerpc/cpu/mpc85xx/resetvec.o
 
-OBJS := $(addprefix $(obj),$(OBJS))
+OBJS := $(addprefix $(obj),$(head-y))
 
 HAVE_VENDOR_COMMON_LIB = $(if $(wildcard board/$(VENDOR)/common/Makefile),y,n)
 

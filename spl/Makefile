@@ -42,17 +42,10 @@ else
 START_PATH := $(CPUDIR)
 endif
 
-START := $(START_PATH)/start.o
-ifeq ($(CPU),x86)
-START += $(START_PATH)/start16.o
-START += $(START_PATH)/resetvec.o
-endif
-ifeq ($(CPU),ppc4xx)
-START += $(START_PATH)/resetvec.o
-endif
-ifeq ($(CPU),mpc85xx)
-START += $(START_PATH)/resetvec.o
-endif
+head-y := $(START_PATH)/start.o
+head-$(CONFIG_X86) += $(START_PATH)/start16.o $(START_PATH)/resetvec.o
+head-$(CONFIG_4xx) += $(START_PATH)/resetvec.o
+head-$(CONFIG_MPC85xx) += $(START_PATH)/resetvec.o
 
 LIBS-y += arch/$(ARCH)/lib/
 
@@ -105,7 +98,7 @@ PLATFORM_LIBGCC = $(SPLTREE)/arch/$(ARCH)/lib/libgcc.o
 PLATFORM_LIBS := $(filter-out %/libgcc.o, $(filter-out -lgcc, $(PLATFORM_LIBS))) $(PLATFORM_LIBGCC)
 endif
 
-START := $(addprefix $(SPLTREE)/,$(START))
+START := $(addprefix $(SPLTREE)/,$(head-y))
 LIBS := $(addprefix $(SPLTREE)/,$(sort $(LIBS-y)))
 
 __START := $(subst $(obj),,$(START))
