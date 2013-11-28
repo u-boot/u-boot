@@ -42,6 +42,10 @@ void __noreturn mmc_boot(void)
 		hang();
 	}
 
+#ifdef CONFIG_FSL_CORENET
+	offset = CONFIG_SYS_MMC_U_BOOT_OFFS;
+	code_len = CONFIG_SYS_MMC_U_BOOT_SIZE;
+#else
 	blklen = mmc->read_bl_len;
 	tmp_buf = malloc(blklen);
 	if (!tmp_buf) {
@@ -91,6 +95,7 @@ void __noreturn mmc_boot(void)
 	/*
 	* Load U-Boot image from mmc into RAM
 	*/
+#endif
 	blk_start = ALIGN(offset, mmc->read_bl_len) / mmc->read_bl_len;
 	blk_cnt = ALIGN(code_len, mmc->read_bl_len) / mmc->read_bl_len;
 	err = mmc->block_dev.block_read(0, blk_start, blk_cnt,
