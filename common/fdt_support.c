@@ -400,10 +400,11 @@ int fdt_fixup_memory_banks(void *blob, u64 start[], u64 size[], int banks)
 	nodeoffset = fdt_path_offset(blob, "/memory");
 	if (nodeoffset < 0) {
 		nodeoffset = fdt_add_subnode(blob, 0, "memory");
-		if (nodeoffset < 0)
+		if (nodeoffset < 0) {
 			printf("WARNING: could not create /memory: %s.\n",
 					fdt_strerror(nodeoffset));
-		return nodeoffset;
+			return nodeoffset;
+		}
 	}
 	err = fdt_setprop(blob, nodeoffset, "device_type", "memory",
 			sizeof("memory"));
