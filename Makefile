@@ -528,7 +528,7 @@ GEN_UBOOT = \
 endif
 
 $(obj)u-boot:	depend \
-		$(SUBDIR_TOOLS) $(OBJS) $(LIBS) $(LDSCRIPT) $(obj)u-boot.lds
+		$(SUBDIR_TOOLS) $(OBJS) $(LIBS) $(obj)u-boot.lds
 		$(GEN_UBOOT)
 ifeq ($(CONFIG_KALLSYMS),y)
 		smap=`$(call SYSTEM_MAP,$(obj)u-boot) | \
@@ -549,10 +549,7 @@ $(SUBDIRS):	depend
 
 $(SUBDIR_EXAMPLES-y): $(obj)u-boot
 
-$(LDSCRIPT):	depend
-		$(MAKE) -C $(dir $@) $(notdir $@)
-
-$(obj)u-boot.lds: $(LDSCRIPT)
+$(obj)u-boot.lds: $(LDSCRIPT) depend
 		$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ -P - <$< >$@
 
 nand_spl:	$(TIMESTAMP_FILE) $(VERSION_FILE) depend
