@@ -23,6 +23,11 @@
 #include <asm/io.h>
 #include <linux/compiler.h>
 
+#if defined(CONFIG_BOOTM_VXWORKS) && \
+	(defined(CONFIG_PPC) || defined(CONFIG_ARM))
+#include <vxworks.h>
+#endif
+
 #if defined(CONFIG_CMD_USB)
 #include <usb.h>
 #endif
@@ -120,7 +125,8 @@ static boot_os_fn do_bootm_ose;
 #if defined(CONFIG_BOOTM_PLAN9)
 static boot_os_fn do_bootm_plan9;
 #endif
-#if defined(CONFIG_BOOTM_VXWORKS)
+#if defined(CONFIG_BOOTM_VXWORKS) && \
+	(defined(CONFIG_PPC) || defined(CONFIG_ARM))
 static boot_os_fn do_bootm_vxworks;
 #endif
 #if defined(CONFIG_CMD_ELF)
@@ -151,7 +157,8 @@ static boot_os_fn *boot_os[] = {
 #if defined(CONFIG_BOOTM_PLAN9)
 	[IH_OS_PLAN9] = do_bootm_plan9,
 #endif
-#if defined(CONFIG_BOOTM_VXWORKS)
+#if defined(CONFIG_BOOTM_VXWORKS) && \
+	(defined(CONFIG_PPC) || defined(CONFIG_ARM))
 	[IH_OS_VXWORKS] = do_bootm_vxworks,
 #endif
 #if defined(CONFIG_CMD_ELF)
@@ -337,7 +344,8 @@ static int bootm_find_other(cmd_tbl_t *cmdtp, int flag, int argc,
 	if (((images.os.type == IH_TYPE_KERNEL) ||
 	     (images.os.type == IH_TYPE_KERNEL_NOLOAD) ||
 	     (images.os.type == IH_TYPE_MULTI)) &&
-	    (images.os.os == IH_OS_LINUX)) {
+	    (images.os.os == IH_OS_LINUX ||
+		 images.os.os == IH_OS_VXWORKS)) {
 		if (bootm_find_ramdisk(flag, argc, argv))
 			return 1;
 
@@ -1682,12 +1690,66 @@ static int do_bootm_plan9(int flag, int argc, char * const argv[],
 }
 #endif /* CONFIG_BOOTM_PLAN9 */
 
-#if defined(CONFIG_BOOTM_VXWORKS)
+#if defined(CONFIG_BOOTM_VXWORKS) && \
+	(defined(CONFIG_PPC) || defined(CONFIG_ARM))
+
+void do_bootvx_fdt(bootm_headers_t *images)
+{
+#if defined(CONFIG_OF_LIBFDT)
+	int ret;
+	char *bootline;
+	ulong of_size = images->ft_len;
+	char **of_flat_tree = &images->ft_addr;
+	struct lmb *lmb = &images->lmb;
+
+	if (*of_flat_tree) {
+		boot_fdt_add_mem_rsv_regions(lmb, *of_flat_tree);
+
+		ret = boot_relocate_fdt(lmb, of_flat_tree, &of_size);
+		if (ret)
+			return;
+
+		ret = fdt_add_subnode(*of_flat_tree, 0, "chosen");
+		if ((ret >= 0 || ret == -FDT_ERR_EXISTS)) {
+			bootline = getenv("bootargs");
+			if (bootline) {
+				ret = fdt_find_and_setprop(*of_flat_tree,
+						"/chosen", "bootargs",
+						bootline,
+						strlen(bootline) + 1, 1);
+				if (ret < 0) {
+					printf("## ERROR: %s : %s\n", __func__,
+					       fdt_strerror(ret));
+					return;
+				}
+			}
+		} else {
+			printf("## ERROR: %s : %s\n", __func__,
+			       fdt_strerror(ret));
+			return;
+		}
+	}
+#endif
+
+	boot_prep_vxworks(images);
+
+	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
+
+#if defined(CONFIG_OF_LIBFDT)
+	printf("## Starting vxWorks at 0x%08lx, device tree at 0x%08lx ...\n",
+	       (ulong)images->ep, (ulong)*of_flat_tree);
+#else
+	printf("## Starting vxWorks at 0x%08lx\n", (ulong)images->ep);
+#endif
+
+	boot_jump_vxworks(images);
+
+	puts("## vxWorks terminated\n");
+}
+
 static int do_bootm_vxworks(int flag, int argc, char * const argv[],
 			     bootm_headers_t *images)
 {
-	char str[80];
-
 	if (flag != BOOTM_STATE_OS_GO)
 		return 0;
 
@@ -1698,12 +1760,7 @@ static int do_bootm_vxworks(int flag, int argc, char * const argv[],
 	}
 #endif
 
-	sprintf(str, "%lx", images->ep); /* write entry-point into string */
-	setenv("loadaddr", str);
-
-#if defined(CONFIG_CMD_ELF)
-	do_bootvx(NULL, 0, 0, NULL);
-#endif
+	do_bootvx_fdt(images);
 
 	return 1;
 }

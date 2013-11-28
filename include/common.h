@@ -698,6 +698,10 @@ ulong get_ddr_freq(ulong);
 #if defined(CONFIG_MPC85xx)
 typedef MPC85xx_SYS_INFO sys_info_t;
 void	get_sys_info  ( sys_info_t * );
+#  if defined(CONFIG_OF_LIBFDT)
+	void ft_fixup_cpu(void *, u64);
+	void ft_fixup_num_cores(void *);
+#  endif
 #endif
 #if defined(CONFIG_MPC86xx)
 typedef MPC86xx_SYS_INFO sys_info_t;
