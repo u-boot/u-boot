@@ -120,8 +120,10 @@ static boot_os_fn do_bootm_ose;
 #if defined(CONFIG_BOOTM_PLAN9)
 static boot_os_fn do_bootm_plan9;
 #endif
-#if defined(CONFIG_CMD_ELF)
+#if defined(CONFIG_BOOTM_VXWORKS)
 static boot_os_fn do_bootm_vxworks;
+#endif
+#if defined(CONFIG_CMD_ELF)
 static boot_os_fn do_bootm_qnxelf;
 int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 int do_bootelf(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
@@ -149,8 +151,10 @@ static boot_os_fn *boot_os[] = {
 #if defined(CONFIG_BOOTM_PLAN9)
 	[IH_OS_PLAN9] = do_bootm_plan9,
 #endif
-#if defined(CONFIG_CMD_ELF)
+#if defined(CONFIG_BOOTM_VXWORKS)
 	[IH_OS_VXWORKS] = do_bootm_vxworks,
+#endif
+#if defined(CONFIG_CMD_ELF)
 	[IH_OS_QNX] = do_bootm_qnxelf,
 #endif
 #ifdef CONFIG_INTEGRITY
@@ -1678,7 +1682,7 @@ static int do_bootm_plan9(int flag, int argc, char * const argv[],
 }
 #endif /* CONFIG_BOOTM_PLAN9 */
 
-#if defined(CONFIG_CMD_ELF)
+#if defined(CONFIG_BOOTM_VXWORKS)
 static int do_bootm_vxworks(int flag, int argc, char * const argv[],
 			     bootm_headers_t *images)
 {
@@ -1696,11 +1700,16 @@ static int do_bootm_vxworks(int flag, int argc, char * const argv[],
 
 	sprintf(str, "%lx", images->ep); /* write entry-point into string */
 	setenv("loadaddr", str);
+
+#if defined(CONFIG_CMD_ELF)
 	do_bootvx(NULL, 0, 0, NULL);
+#endif
 
 	return 1;
 }
+#endif
 
+#if defined(CONFIG_CMD_ELF)
 static int do_bootm_qnxelf(int flag, int argc, char * const argv[],
 			    bootm_headers_t *images)
 {
