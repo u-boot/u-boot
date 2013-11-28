@@ -230,8 +230,6 @@ obj-$(CONFIG_FIT_SIGNATURE) += image-sig.o
 obj-y += memsize.o
 obj-y += stdio.o
 
-CPPFLAGS += -I..
-
 $(obj)env_embedded.o: $(src)env_embedded.c
 	$(CC) $(AFLAGS) -Wa,--no-warn \
 		-DENV_CRC=$(shell $(obj)../tools/envcrc) \
