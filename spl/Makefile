@@ -78,7 +78,7 @@ LIBS-y += fs/
 LIBS-$(CONFIG_SPL_LIBGENERIC_SUPPORT) += lib/
 LIBS-$(CONFIG_SPL_POWER_SUPPORT) += drivers/power/ \
 	drivers/power/pmic/
-LIBS-$(CONFIG_SPL_NAND_SUPPORT) += drivers/mtd/nand/
+LIBS-$(if $(CONFIG_CMD_NAND),$(CONFIG_SPL_NAND_SUPPORT)) += drivers/mtd/nand/
 LIBS-$(CONFIG_SPL_ONENAND_SUPPORT) += drivers/mtd/onenand/
 LIBS-$(CONFIG_SPL_DMA_SUPPORT) += drivers/dma/
 LIBS-$(CONFIG_SPL_POST_MEM_SUPPORT) += post/drivers/

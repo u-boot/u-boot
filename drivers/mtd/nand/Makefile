@@ -5,8 +5,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-ifdef CONFIG_CMD_NAND
-
 ifdef CONFIG_SPL_BUILD
 
 ifdef CONFIG_SPL_NAND_DRIVERS
@@ -69,4 +67,3 @@ obj-$(CONFIG_NAND_FSL_IFC) += fsl_ifc_spl.o
 obj-$(CONFIG_NAND_MXC) += mxc_nand_spl.o
 
 endif # drivers
-endif # nand
