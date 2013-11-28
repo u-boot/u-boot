@@ -31,6 +31,10 @@ void spi_boot(void)
 		hang();
 	}
 
+#ifdef CONFIG_FSL_CORENET
+	offset = CONFIG_SYS_SPI_FLASH_U_BOOT_OFFS;
+	code_len = CONFIG_SYS_SPI_FLASH_U_BOOT_SIZE;
+#else
 	/*
 	* Load U-Boot image from SPI flash into RAM
 	*/
@@ -50,6 +54,7 @@ void spi_boot(void)
 	code_len = *(u32 *)(buf + ESPI_BOOT_IMAGE_SIZE);
 	/* Skip spl code */
 	code_len = code_len - CONFIG_SPL_MAX_SIZE;
+#endif
 	/* copy code to DDR */
 	spi_flash_read(flash, offset, code_len,
 		       (void *)CONFIG_SYS_SPI_FLASH_U_BOOT_DST);
