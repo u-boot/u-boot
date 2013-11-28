@@ -583,7 +583,7 @@ FINDFLAGS := -L
 checkstack:
 		$(CROSS_COMPILE)objdump -d $(obj)u-boot \
 			`$(FIND) $(obj) -name u-boot-spl -print` | \
-			perl $(src)tools/checkstack.pl $(ARCH)
+			perl $(src)scripts/checkstack.pl $(ARCH)
 
 tags ctags:
 		ctags -w -o $(obj)ctags `$(FIND) $(FINDFLAGS) $(TAG_SUBDIRS) \
@@ -709,7 +709,7 @@ checkarmreloc: $(obj)u-boot
 
 $(VERSION_FILE):
 		@mkdir -p $(dir $(VERSION_FILE))
-		@( localvers='$(shell $(TOPDIR)/tools/setlocalversion $(TOPDIR))' ; \
+		@( localvers='$(shell $(TOPDIR)/scripts/setlocalversion $(TOPDIR))' ; \
 		   printf '#define PLAIN_VERSION "%s%s"\n' \
 			"$(U_BOOT_VERSION)" "$${localvers}" ; \
 		   printf '#define U_BOOT_VERSION "U-Boot %s%s"\n' \

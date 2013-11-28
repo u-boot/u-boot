@@ -125,9 +125,9 @@ endif
 
 # cc-version
 # Usage gcc-ver := $(call cc-version)
-cc-version = $(shell $(SHELL) $(SRCTREE)/tools/gcc-version.sh $(CC))
-binutils-version = $(shell $(SHELL) $(SRCTREE)/tools/binutils-version.sh $(AS))
-dtc-version = $(shell $(SHELL) $(SRCTREE)/tools/dtc-version.sh $(DTC))
+cc-version = $(shell $(SHELL) $(SRCTREE)/scripts/gcc-version.sh $(CC))
+binutils-version = $(shell $(SHELL) $(SRCTREE)/scripts/binutils-version.sh $(AS))
+dtc-version = $(shell $(SHELL) $(SRCTREE)/scripts/dtc-version.sh $(DTC))
 
 #
 # Include the make variables (CC, etc...)
