@@ -275,7 +275,7 @@ LIBS-y += drivers/usb/ulpi/
 LIBS-y += common/
 LIBS-y += lib/libfdt/
 LIBS-$(CONFIG_API) += api/
-LIBS-y += post/
+LIBS-$(CONFIG_HAS_POST) += post/
 LIBS-y += test/
 
 ifneq (,$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35 mxs vf610))

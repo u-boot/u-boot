@@ -5,4 +5,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-$(CONFIG_HAS_POST)	+= ecc.o
+obj-y += ecc.o

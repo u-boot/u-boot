@@ -5,4 +5,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-$(CONFIG_HAS_POST)	+= flash.o i2c.o memory.o rtc.o
+obj-y += flash.o i2c.o memory.o rtc.o
