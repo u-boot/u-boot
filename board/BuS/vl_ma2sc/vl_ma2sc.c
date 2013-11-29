@@ -10,6 +10,7 @@
 #include <common.h>
 #include <asm/sizes.h>
 #include <asm/io.h>
+#include <asm/gpio.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/at91_matrix.h>
@@ -65,10 +66,10 @@ static void vl_ma2sc_nand_hw_init(void)
 
 	/* Configure RDY/BSY */
 #ifdef CONFIG_SYS_NAND_READY_PIN
-	at91_set_pio_input(CONFIG_SYS_NAND_READY_PIN, 1);
+	gpio_direction_input(CONFIG_SYS_NAND_READY_PIN);
 #endif
 	/* Enable NandFlash */
-	at91_set_pio_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
+	gpio_direction_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
 }
 #endif
 

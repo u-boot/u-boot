@@ -71,6 +71,7 @@
 #include <asm/arch/at91_spi.h>
 #include <asm/arch/gpio.h>
 #include <asm/io.h>
+#include <asm/gpio.h>
 
 #include "ethernut5_pwrman.h"
 
@@ -141,7 +142,7 @@ static void ethernut5_nand_hw_init(void)
 	/* Ready pin is optional. */
 	at91_set_pio_input(CONFIG_SYS_NAND_READY_PIN, 1);
 #endif
-	at91_set_pio_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
+	gpio_direction_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
 }
 #endif
 
