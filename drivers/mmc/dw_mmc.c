@@ -11,7 +11,6 @@
 #include <mmc.h>
 #include <dwmmc.h>
 #include <asm-generic/errno.h>
-#include <asm/arch/dwmmc.h>
 
 #define PAGE_SIZE 4096
 
@@ -302,15 +301,8 @@ static int dwmci_init(struct mmc *mmc)
 	struct dwmci_host *host = (struct dwmci_host *)mmc->priv;
 	u32 fifo_size;
 
-	if (host->quirks & DWMCI_QUIRK_DISABLE_SMU) {
-		dwmci_writel(host, EMMCP_MPSBEGIN0, 0);
-		dwmci_writel(host, EMMCP_SEND0, 0);
-		dwmci_writel(host, EMMCP_CTRL0,
-			     MPSCTRL_SECURE_READ_BIT |
-			     MPSCTRL_SECURE_WRITE_BIT |
-			     MPSCTRL_NON_SECURE_READ_BIT |
-			     MPSCTRL_NON_SECURE_WRITE_BIT | MPSCTRL_VALID);
-	}
+	if (host->board_init)
+		host->board_init(host);
 
 	dwmci_writel(host, DWMCI_PWREN, 1);
 
