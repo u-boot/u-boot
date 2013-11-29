@@ -109,11 +109,6 @@ export	TOPDIR SRCTREE OBJTREE SPLTREE TPLTREE
 MKCONFIG	:= $(SRCTREE)/mkconfig
 export MKCONFIG
 
-ifneq ($(OBJTREE),$(SRCTREE))
-REMOTE_BUILD	:= 1
-export REMOTE_BUILD
-endif
-
 # $(obj) and (src) are defined in config.mk but here in main Makefile
 # we also need them before config.mk is included which is the case for
 # some targets like unconfig, clean, clobber, distclean, etc.
