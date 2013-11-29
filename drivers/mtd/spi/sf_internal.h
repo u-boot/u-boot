@@ -17,6 +17,10 @@
 #define SECT_32K			(1 << 2)
 #define E_FSR				(1 << 3)
 
+/* QUAD flags */
+#define WR_QPP				(1 << 4)
+#define RD_QR				(1 << 5)
+
 /* Erase commands */
 #define CMD_ERASE_4K			0x20
 #define CMD_ERASE_32K			0x52
@@ -117,9 +121,6 @@ int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len);
 /* Program the status register */
 int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr);
 
-/* Set quad enbale bit */
-int spi_flash_set_qeb(struct spi_flash *flash);
-
 /* Enable writing on the SPI flash */
 static inline int spi_flash_cmd_write_enable(struct spi_flash *flash)
 {
@@ -131,17 +132,6 @@ static inline int spi_flash_cmd_write_disable(struct spi_flash *flash)
 {
 	return spi_flash_cmd(flash->spi, CMD_WRITE_DISABLE, NULL, 0);
 }
-
-/* Program the status register. */
-int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr);
-
-/* Program the config register */
-int spi_flash_cmd_write_config(struct spi_flash *flash, u8 cr);
-
-#ifdef CONFIG_SPI_FLASH_BAR
-/* Configure the BAR - discover the bank cmds */
-int spi_flash_bank_config(struct spi_flash *flash, u8 idcode0);
-#endif
 
 /*
  * Send the read status command to the device and wait for the wip

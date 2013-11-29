@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <spi.h>
+#include <spi_flash.h>
 
 static int spi_flash_read_write(struct spi_slave *spi,
 				const u8 *cmd, size_t cmd_len,
@@ -18,6 +19,8 @@ static int spi_flash_read_write(struct spi_slave *spi,
 	unsigned long flags = SPI_XFER_BEGIN;
 	int ret;
 
+	if ((spi->is_dual == MODE_DUAL_STACKED) && (spi->u_page == 1))
+		flags |= SPI_FLASH_U_PAGE;
 	if (data_len == 0)
 		flags |= SPI_XFER_END;
 
