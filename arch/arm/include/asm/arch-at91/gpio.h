@@ -16,7 +16,7 @@
 
 #ifdef CONFIG_ATMEL_LEGACY
 
-#define PIN_BASE		32
+#define PIN_BASE		0
 
 #define MAX_GPIO_BANKS		5
 
