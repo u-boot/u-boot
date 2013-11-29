@@ -25,6 +25,7 @@
 #define ZYNQ_SMC_BASEADDR		0xE000E000
 #define ZYNQ_NAND_BASEADDR		0xE1000000
 #define ZYNQ_DDRC_BASEADDR		0xF8006000
+#define ZYNQ_EFUSE_BASEADDR		0xF800D000
 
 /* Reflect slcr offsets */
 struct slcr_regs {
@@ -126,5 +127,13 @@ struct ddrc_regs {
 	u32 ecc_scrub; /* 0xF4 */
 };
 #define ddrc_base ((struct ddrc_regs *)ZYNQ_DDRC_BASEADDR)
+
+struct efuse_reg {
+	u32 reserved1[4];
+	u32 status;
+	u32 reserved2[3];
+};
+
+#define efuse_base ((struct efuse_reg *)ZYNQ_EFUSE_BASEADDR)
 
 #endif /* _ASM_ARCH_HARDWARE_H */
