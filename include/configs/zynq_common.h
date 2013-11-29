@@ -45,6 +45,11 @@
 #define CONFIG_ZYNQ_SERIAL
 #endif
 
+#if defined(CONFIG_CMD_ZYNQ_RSA)
+#define CONFIG_SHA256
+#define CONFIG_CMD_ZYNQ_AES
+#endif
+
 /* DCC driver */
 #if defined(CONFIG_ZYNQ_DCC)
 # define CONFIG_ARM_DCC
@@ -209,11 +214,13 @@
 	"ramdisk_image=uramdisk.image.gz\0"	\
 	"devicetree_image=devicetree.dtb\0"	\
 	"bitstream_image=system.bit.bin\0"	\
+	"boot_image=BOOT.bin\0"	\
 	"loadbit_addr=0x100000\0"	\
 	"loadbootenv_addr=0x2000000\0" \
 	"kernel_size=0x500000\0"	\
 	"devicetree_size=0x20000\0"	\
 	"ramdisk_size=0x5E0000\0"	\
+	"boot_size=0xF00000\0"	\
 	"fdt_high=0x20000000\0"	\
 	"initrd_high=0x20000000\0"	\
 	"bootenv=uEnv.txt\0" \
@@ -264,10 +271,35 @@
 		"tftp 0x3000000 ${kernel_image} && " \
 		"tftp 0x2A00000 ${devicetree_image} && " \
 		"tftp 0x2000000 ${ramdisk_image} && " \
+		"bootm 0x3000000 0x2000000 0x2A00000\0" \
+	"rsa_norboot=echo Copying Image from NOR flash to RAM... && " \
+		"cp.b 0xE2100000 0x100000 ${boot_size} && " \
+		"zynqrsa 0x100000 && " \
+		"bootm 0x3000000 0x2000000 0x2A00000\0" \
+	"rsa_nandboot=echo Copying Image from NAND flash to RAM... && " \
+		"nand read 0x100000 0x0 ${boot_size} && " \
+		"zynqrsa 0x100000 && " \
+		"bootm 0x3000000 0x2000000 0x2A00000\0" \
+	"rsa_qspiboot=echo Copying Image from QSPI flash to RAM... && " \
+		"sf probe 0 0 0 && " \
+		"sf read 0x100000 0x0 ${boot_size} && " \
+		"zynqrsa 0x100000 && " \
+		"bootm 0x3000000 0x2000000 0x2A00000\0" \
+	"rsa_sdboot=echo Copying Image from SD to RAM... && " \
+		"fatload mmc 0 0x100000 ${boot_image} && " \
+		"zynqrsa 0x100000 && " \
+		"bootm 0x3000000 0x2000000 0x2A00000\0" \
+	"rsa_jtagboot=echo TFTPing Image to RAM... && " \
+		"tftp 0x100000 ${boot_image} && " \
+		"zynqrsa 0x100000 && " \
 		"bootm 0x3000000 0x2000000 0x2A00000\0"
 
 /* default boot is according to the bootmode switch settings */
+#if defined(CONFIG_CMD_ZYNQ_RSA)
+#define CONFIG_BOOTCOMMAND		"run rsa_$modeboot"
+#else
 #define CONFIG_BOOTCOMMAND		"run $modeboot"
+#endif
 #define CONFIG_BOOTDELAY		3 /* -1 to Disable autoboot */
 #define CONFIG_SYS_LOAD_ADDR		0 /* default? */
 
