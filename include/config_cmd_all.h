@@ -97,5 +97,6 @@
 #define CONFIG_CMD_USB		/* USB Support			*/
 #define CONFIG_CMD_XIMG		/* Load part of Multi Image	*/
 #define CONFIG_CMD_ZFS		/* ZFS Support			*/
+#define CONFIG_CMD_ZYNQ_AES	/* AES support for Zynq		*/
 
 #endif	/* _CONFIG_CMD_ALL_H */

@@ -15,6 +15,7 @@
 #include <asm/arch/sys_proto.h>
 
 #define DEVCFG_CTRL_PCFG_PROG_B		0x40000000
+#define DEVCFG_CTRL_PCAP_RATE_EN_MASK	0x02000000
 #define DEVCFG_ISR_FATAL_ERROR_MASK	0x00740040
 #define DEVCFG_ISR_ERROR_FLAGS_MASK	0x00340840
 #define DEVCFG_ISR_RX_FIFO_OV		0x00040000
@@ -362,3 +363,166 @@ int zynq_dump(Xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	return FPGA_FAIL;
 }
+
+#ifdef CONFIG_CMD_ZYNQ_AES
+/*
+ * Load the encrypted image from src addr and decrypt the image and
+ * place it back the decrypted image into dstaddr.
+ */
+int zynq_decrypt_load(u32 srcaddr, u32 srclen, u32 dstaddr, u32 dstlen)
+{
+	unsigned long ts; /* Timestamp */
+	u32 isr_status, status;
+
+	if ((srcaddr < SZ_1M) || (dstaddr < SZ_1M)) {
+		printf("%s: src and dst addr should be > 1M\n",
+		       __func__);
+		return FPGA_FAIL;
+	}
+
+	isr_status = readl(&devcfg_base->int_sts);
+
+	/* Clear it all, so if Boot ROM comes back, it can proceed */
+	writel(0xFFFFFFFF, &devcfg_base->int_sts);
+
+	if (isr_status & DEVCFG_ISR_FATAL_ERROR_MASK) {
+		debug("%s: Fatal errors in PCAP 0x%X\n", __func__, isr_status);
+
+		/* If RX FIFO overflow, need to flush RX FIFO first */
+		if (isr_status & DEVCFG_ISR_RX_FIFO_OV) {
+			writel(DEVCFG_MCTRL_RFIFO_FLUSH, &devcfg_base->mctrl);
+			writel(0xFFFFFFFF, &devcfg_base->int_sts);
+		}
+		return FPGA_FAIL;
+	}
+
+	status = readl(&devcfg_base->status);
+
+	debug("%s: Status = 0x%08X\n", __func__, status);
+
+	if (status & DEVCFG_STATUS_DMA_CMD_Q_F) {
+		printf("%s: Error: device busy\n", __func__);
+		return FPGA_FAIL;
+	}
+
+	debug("%s: Device ready\n", __func__);
+
+	if (!(status & DEVCFG_STATUS_DMA_CMD_Q_E)) {
+		if (!(readl(&devcfg_base->int_sts) & DEVCFG_ISR_DMA_DONE)) {
+			/* Error state, transfer cannot occur */
+			printf("%s: ISR indicates error\n", __func__);
+			return FPGA_FAIL;
+		} else {
+			/* Clear out the status */
+			writel(DEVCFG_ISR_DMA_DONE, &devcfg_base->int_sts);
+		}
+	}
+
+	if (status & DEVCFG_STATUS_DMA_DONE_CNT_MASK) {
+		/* Clear the count of completed DMA transfers */
+		writel(DEVCFG_STATUS_DMA_DONE_CNT_MASK, &devcfg_base->status);
+	}
+
+	clrbits_le32(&devcfg_base->mctrl, DEVCFG_MCTRL_PCAP_LPBK);
+	writel((readl(&devcfg_base->ctrl) | DEVCFG_CTRL_PCAP_RATE_EN_MASK),
+	       &devcfg_base->ctrl);
+
+	debug("%s: Source = 0x%08X\n", __func__, (u32)srcaddr);
+	debug("%s: Size = %zu\n", __func__, srclen);
+
+	dcache_disable();
+
+	/* Set up the transfer */
+	writel((u32)srcaddr | 1, &devcfg_base->dma_src_addr);
+	writel(dstaddr | 1, &devcfg_base->dma_dst_addr);
+	writel(srclen, &devcfg_base->dma_src_len);
+	writel(dstlen, &devcfg_base->dma_dst_len);
+
+	isr_status = readl(&devcfg_base->int_sts);
+
+	/* Polling the PCAP_INIT status for Set */
+	ts = get_timer(0);
+	while (!(isr_status & DEVCFG_ISR_DMA_DONE)) {
+		if (isr_status & DEVCFG_ISR_ERROR_FLAGS_MASK) {
+			debug("%s: Error: isr = 0x%08X\n", __func__,
+			      isr_status);
+			debug("%s: Write count = 0x%08X\n", __func__,
+			      readl(&devcfg_base->write_count));
+			debug("%s: Read count = 0x%08X\n", __func__,
+			      readl(&devcfg_base->read_count));
+
+			return FPGA_FAIL;
+		}
+		if (get_timer(ts) > CONFIG_SYS_FPGA_PROG_TIME) {
+			printf("%s: Timeout wait for DMA to complete\n",
+			       __func__);
+			return FPGA_FAIL;
+		}
+		isr_status = readl(&devcfg_base->int_sts);
+	}
+
+	isr_status = readl(&devcfg_base->int_sts);
+	if (isr_status & DEVCFG_ISR_ERROR_FLAGS_MASK) {
+		printf("%s: Error: isr = 0x%08X\n", __func__,
+		       isr_status);
+	}
+
+	debug("%s: DMA transfer is done = 0x%08x\n", __func__, isr_status);
+
+	dcache_enable();
+	/* Clear out the DMA status */
+	writel(DEVCFG_ISR_DMA_DONE, &devcfg_base->int_sts);
+
+	return FPGA_SUCCESS;
+}
+
+
+static int do_zynq_decrypt_image(cmd_tbl_t *cmdtp, int flag, int argc,
+				 char * const argv[])
+{
+	char *endp;
+	u32 srcaddr;
+	u32 srclen;
+	u32 dstaddr;
+	u32 dstlen;
+	int status;
+
+	if (argc < 5)
+		goto usage;
+
+	srcaddr = simple_strtoul(argv[1], &endp, 16);
+	if (*argv[1] == 0 || *endp != 0)
+		return -1;
+	dstaddr = simple_strtoul(argv[2], &endp, 16);
+	if (*argv[2] == 0 || *endp != 0)
+		return -1;
+	srclen = simple_strtoul(argv[3], &endp, 16);
+	if (*argv[3] == 0 || *endp != 0)
+		return -1;
+	dstlen = simple_strtoul(argv[4], &endp, 16);
+	if (*argv[4] == 0 || *endp != 0)
+		return -1;
+
+	status = zynq_decrypt_load(srcaddr, dstaddr, srclen, dstlen);
+	if (status != 0)
+		return -1;
+
+	return 0;
+
+usage:
+	return CMD_RET_USAGE;
+}
+
+#ifdef CONFIG_SYS_LONGHELP
+static char zynqaes_help_text[] =
+"zynqaes <srcaddr> <srclen> <dstaddr> <dstlen>  -\n"
+"Decrypts the encrypted image present in source address\n"
+"and places the decrypted image at destination address\n";
+#endif
+
+U_BOOT_CMD(
+	zynqaes,        5,      0,      do_zynq_decrypt_image,
+	"Zynq AES decryption ", zynqaes_help_text
+);
+
+#endif

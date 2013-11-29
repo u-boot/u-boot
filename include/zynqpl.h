@@ -15,6 +15,9 @@
 extern int zynq_load(Xilinx_desc *desc, const void *image, size_t size);
 extern int zynq_dump(Xilinx_desc *desc, const void *buf, size_t bsize);
 extern int zynq_info(Xilinx_desc *desc);
+#ifdef CONFIG_CMD_ZYNQ_AES
+extern int zynq_decrypt_load(u32 srcaddr, u32 dstaddr, u32 srclen, u32 dstlen);
+#endif
 
 #define XILINX_ZYNQ_7010	0x2
 #define XILINX_ZYNQ_7020	0x7
