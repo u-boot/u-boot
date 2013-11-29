@@ -179,8 +179,8 @@
 
 /* LED */
 #define CONFIG_AT91_LED
-#define	CONFIG_RED_LED		AT91_PIO_PORTB, 7	/* this is the power led */
-#define	CONFIG_GREEN_LED	AT91_PIO_PORTB, 8	/* this is the user1 led */
+#define CONFIG_RED_LED		GPIO_PIN_PB(7) /* this is the power led */
+#define CONFIG_GREEN_LED	GPIO_PIN_PB(8) /* this is the user1 led */
 
 #define CONFIG_BOOTDELAY	3
 
