@@ -15,6 +15,8 @@ ifdef CONFIG_FIT_SIGNATURE
 COBJS-$(CONFIG_RSA) += rsa-verify.o
 endif
 
+COBJS-$(CONFIG_CMD_ZYNQ_RSA) += rsa-verify.o
+
 COBJS	:= $(sort $(COBJS-y))
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))

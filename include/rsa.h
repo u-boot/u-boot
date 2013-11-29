@@ -89,4 +89,6 @@ static inline int rsa_verify(struct image_sign_info *info,
 }
 #endif
 
+int zynq_pow_mod(uint32_t *keyptr, uint32_t *inout);
+
 #endif
