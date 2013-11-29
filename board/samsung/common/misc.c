@@ -24,6 +24,7 @@ void draw_logo(void)
 
 	if (panel_info.vl_width >= panel_info.logo_width) {
 		x = ((panel_info.vl_width - panel_info.logo_width) >> 1);
+		x += panel_info.logo_x_offset; /* For X center align */
 	} else {
 		x = 0;
 		printf("Warning: image width is bigger than display width\n");
@@ -31,6 +32,7 @@ void draw_logo(void)
 
 	if (panel_info.vl_height >= panel_info.logo_height) {
 		y = ((panel_info.vl_height - panel_info.logo_height) >> 1);
+		y += panel_info.logo_y_offset; /* For Y center align */
 	} else {
 		y = 0;
 		printf("Warning: image height is bigger than display height\n");
