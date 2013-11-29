@@ -921,6 +921,8 @@ The following options need to be configured:
 		CONFIG_CMD_MFSL		* Microblaze FSL support
 		CONFIG_CMD_XIMG		  Load part of Multi Image
 		CONFIG_CMD_ZYNQ_AES	* Support decryption of encrypted images for zynq
+		CONFIG_CMD_ZYNQ_RSA	* Support RSA-AES for zynq. This enables
+					  CONFIG_CMD_ZYNQ_AES too.
 
 
 		EXAMPLE: If you want all functions except of network
