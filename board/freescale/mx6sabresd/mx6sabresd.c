@@ -390,7 +390,7 @@ static void setup_display(void)
 	imx_setup_hdmi();
 
 	/* Turn on LDB0, LDB1, IPU,IPU DI0 clocks */
-	reg = __raw_readl(&mxc_ccm->CCGR3);
+	reg = readl(&mxc_ccm->CCGR3);
 	reg |=  MXC_CCM_CCGR3_LDB_DI0_MASK | MXC_CCM_CCGR3_LDB_DI1_MASK;
 	writel(reg, &mxc_ccm->CCGR3);
 
