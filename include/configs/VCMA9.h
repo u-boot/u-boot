@@ -138,8 +138,6 @@
 #if defined(CONFIG_CMD_KGDB)
 /* speed to run kgdb serial port */
 #define CONFIG_KGDB_BAUDRATE		115200
-/* what's this ? it's not used anywhere */
-#define CONFIG_KGDB_SER_INDEX		2	/* which serial port to use */
 #endif
 
 /* Miscellaneous configurable options */
