@@ -632,8 +632,7 @@ copy_file (int ifd, const char *datafile, int pad)
 	(void) close (dfd);
 }
 
-void
-usage ()
+static void usage(void)
 {
 	fprintf (stderr, "Usage: %s -l image\n"
 			 "          -l ==> list image header information\n",
