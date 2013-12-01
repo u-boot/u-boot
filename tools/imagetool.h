@@ -34,7 +34,9 @@ struct image_tool_params {
 	int dflag;
 	int eflag;
 	int fflag;
+	int iflag;
 	int lflag;
+	int pflag;
 	int vflag;
 	int xflag;
 	int skipcpy;
@@ -50,6 +52,7 @@ struct image_tool_params {
 	char *datafile;
 	char *imagefile;
 	char *cmdname;
+	const char *outfile;	/* Output filename */
 	const char *keydir;	/* Directory holding private keys */
 	const char *keydest;	/* Destination .dtb for public key */
 	const char *comment;	/* Comment to add to signature node */
@@ -96,6 +99,15 @@ struct image_type_params {
 	 */
 	void (*set_header) (void *, struct stat *, int,
 					struct image_tool_params *);
+	/*
+	 * This function is used by the command to retrieve a data file from
+	 * the image (i.e. dumpimage -i <image> -p <position> <data_file>).
+	 * Thus the code to extract a file from an image must be put here.
+	 *
+	 * Returns 0 if the file was successfully retrieved from the image,
+	 * or a negative value on error.
+	 */
+	int (*extract_datafile) (void *, struct image_tool_params *);
 	/*
 	 * Some image generation support for ex (default image type) supports
 	 * more than one type_ids, this callback function is used to check

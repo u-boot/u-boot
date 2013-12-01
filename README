@@ -5252,6 +5252,15 @@ when your kernel is intended to use an initial ramdisk:
 	Load Address: 0x00000000
 	Entry Point:  0x00000000
 
+The "dumpimage" is a tool to disassemble images built by mkimage. Its "-i"
+option performs the converse operation of the mkimage's second form (the "-d"
+option). Given an image built by mkimage, the dumpimage extracts a "data file"
+from the image:
+
+	tools/dumpimage -i image -p position data_file
+	  -i ==> extract from the 'image' a specific 'data_file', \
+	   indexed by 'position'
+
 
 Installing a Linux Image:
 -------------------------

@@ -3,6 +3,7 @@
 /gen_eth_addr
 /img2srec
 /kwboot
+/dumpimage
 /mkenvimage
 /mkimage
 /mpc86x_clk
