@@ -17,7 +17,7 @@
 
 #include <openssl/evp.h>
 
-#include "mkimage.h"
+#include "imagetool.h"
 #include "mxsimage.h"
 #include <image.h>
 
@@ -2148,11 +2148,11 @@ static int mxsimage_check_image_types(uint8_t type)
 }
 
 static void mxsimage_set_header(void *ptr, struct stat *sbuf, int ifd,
-				struct mkimage_params *params)
+				struct image_tool_params *params)
 {
 }
 
-int mxsimage_check_params(struct mkimage_params *params)
+int mxsimage_check_params(struct image_tool_params *params)
 {
 	if (!params)
 		return -1;
@@ -2193,7 +2193,7 @@ static int mxsimage_verify_print_header(char *file, int silent)
 
 char *imagefile;
 static int mxsimage_verify_header(unsigned char *ptr, int image_size,
-			struct mkimage_params *params)
+			struct image_tool_params *params)
 {
 	struct sb_boot_image_header *hdr;
 
@@ -2291,7 +2291,7 @@ static int sb_build_image(struct sb_image_ctx *ictx,
 	return 0;
 }
 
-static int mxsimage_generate(struct mkimage_params *params,
+static int mxsimage_generate(struct image_tool_params *params,
 	struct image_type_params *tparams)
 {
 	int ret;
@@ -2337,7 +2337,7 @@ static struct image_type_params mxsimage_params = {
 
 void init_mxs_image_type(void)
 {
-	mkimage_register(&mxsimage_params);
+	register_image_type(&mxsimage_params);
 }
 
 #else

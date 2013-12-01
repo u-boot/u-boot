@@ -76,6 +76,7 @@ NOPED_OBJ_FILES-y += fit_image.o
 NOPED_OBJ_FILES-y += image-host.o
 NOPED_OBJ_FILES-y += imximage.o
 NOPED_OBJ_FILES-y += kwbimage.o
+NOPED_OBJ_FILES-y += imagetool.o
 NOPED_OBJ_FILES-y += mkenvimage.o
 NOPED_OBJ_FILES-y += mkimage.o
 NOPED_OBJ_FILES-y += mxsimage.o
@@ -212,6 +213,7 @@ $(obj)mkimage$(SFX):	$(obj)aisimage.o \
 			$(obj)image-fit.o \
 			$(obj)image-host.o \
 			$(obj)image.o \
+			$(obj)imagetool.o \
 			$(obj)imximage.o \
 			$(obj)kwbimage.o \
 			$(obj)md5.o \
