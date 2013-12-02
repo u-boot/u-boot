@@ -37,6 +37,7 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SATA
 #define CONFIG_CMD_USB
+#define CONFIG_VIDEO
 
 /*
  * Memory configurations
@@ -198,6 +199,21 @@
 #define CONFIG_DWC_AHSATA_BASE_ADDR	SATA_BASE_ADDR
 #define CONFIG_LBA48
 #define CONFIG_LIBATA
+#endif
+
+/*
+ * LCD
+ */
+#ifdef CONFIG_VIDEO
+#define CONFIG_VIDEO_IPUV3
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define CONFIG_VIDEO_BMP_RLE8
+#define CONFIG_SPLASH_SCREEN
+#define CONFIG_BMP_16BPP
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_IPUV3_CLK	200000000
 #endif
 
 /*
