@@ -179,6 +179,22 @@ static int fti2c010_probe(struct i2c_adapter *adap, u8 dev)
 	return ret;
 }
 
+static void to_i2c_addr(u8 *buf, uint32_t addr, int alen)
+{
+	int i, shift;
+
+	if (!buf || alen <= 0)
+		return;
+
+	/* MSB first */
+	i = 0;
+	shift = (alen - 1) * 8;
+	while (alen-- > 0) {
+		buf[i] = (u8)(addr >> shift);
+		shift -= 8;
+	}
+}
+
 static int fti2c010_read(struct i2c_adapter *adap,
 			u8 dev, uint addr, int alen, uchar *buf, int len)
 {
@@ -187,10 +203,7 @@ static int fti2c010_read(struct i2c_adapter *adap,
 	int ret, pos;
 	uchar paddr[4];
 
-	paddr[0] = (addr >> 0)  & 0xFF;
-	paddr[1] = (addr >> 8)  & 0xFF;
-	paddr[2] = (addr >> 16) & 0xFF;
-	paddr[3] = (addr >> 24) & 0xFF;
+	to_i2c_addr(paddr, addr, alen);
 
 	/*
 	 * Phase A. Set register address
@@ -252,10 +265,7 @@ static int fti2c010_write(struct i2c_adapter *adap,
 	int ret, pos;
 	uchar paddr[4];
 
-	paddr[0] = (addr >> 0)  & 0xFF;
-	paddr[1] = (addr >> 8)  & 0xFF;
-	paddr[2] = (addr >> 16) & 0xFF;
-	paddr[3] = (addr >> 24) & 0xFF;
+	to_i2c_addr(paddr, addr, alen);
 
 	/*
 	 * Phase A. Set register address
