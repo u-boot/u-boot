@@ -106,7 +106,7 @@
 /* Ethernet */
 #define CONFIG_MACB
 #define CONFIG_RESET_PHY_R
-
+#define CONFIG_AT91_WANTS_COMMON_PHY
 #define CONFIG_NET_RETRY_COUNT		20
 
 /* USB */

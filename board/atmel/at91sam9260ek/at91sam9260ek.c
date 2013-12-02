@@ -12,7 +12,6 @@
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/at91_pmc.h>
-#include <asm/arch/at91_rstc.h>
 #include <asm/arch/gpio.h>
 #include <atmel_mci.h>
 
@@ -73,8 +72,6 @@ static void at91sam9260ek_macb_hw_init(void)
 {
 	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 	struct at91_port *pioa = (struct at91_port *)ATMEL_BASE_PIOA;
-	struct at91_rstc *rstc = (struct at91_rstc *)ATMEL_BASE_RSTC;
-	unsigned long erstl;
 
 	/* Enable EMAC clock */
 	writel(1 << ATMEL_ID_EMAC0, &pmc->pcer);
@@ -98,21 +95,7 @@ static void at91sam9260ek_macb_hw_init(void)
 		pin_to_mask(AT91_PIN_PA28),
 		&pioa->pudr);
 
-	erstl = readl(&rstc->mr) & AT91_RSTC_MR_ERSTL_MASK;
-
-	/* Need to reset PHY -> 500ms reset */
-	writel(AT91_RSTC_KEY | AT91_RSTC_MR_ERSTL(13) |
-		AT91_RSTC_MR_URSTEN, &rstc->mr);
-
-	writel(AT91_RSTC_KEY | AT91_RSTC_CR_EXTRST, &rstc->cr);
-
-	/* Wait for end hardware reset */
-	while (!(readl(&rstc->sr) & AT91_RSTC_SR_NRSTL))
-		;
-
-	/* Restore NRST value */
-	writel(AT91_RSTC_KEY | erstl | AT91_RSTC_MR_URSTEN,
-		&rstc->mr);
+	at91_phy_reset();
 
 	/* Re-enable pull-up */
 	writel(pin_to_mask(AT91_PIN_PA14) |

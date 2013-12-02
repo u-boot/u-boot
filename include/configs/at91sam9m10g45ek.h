@@ -15,7 +15,6 @@
 
 #define CONFIG_SYS_TEXT_BASE		0x73f00000
 
-#define CONFIG_AT91_LEGACY
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
 
 /* ARM asynchronous clock */
@@ -77,6 +76,10 @@
 /*
  * Command line configuration.
  */
+
+/* No NOR flash */
+#define CONFIG_SYS_NO_FLASH
+
 #include <config_cmd_default.h>
 #undef CONFIG_CMD_BDI
 #undef CONFIG_CMD_FPGA
@@ -96,9 +99,6 @@
 
 #define CONFIG_SYS_INIT_SP_ADDR \
 	(CONFIG_SYS_SDRAM_BASE + 4 * 1024 - GENERATED_GBL_DATA_SIZE)
-
-/* No NOR flash */
-#define CONFIG_SYS_NO_FLASH
 
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND
@@ -120,6 +120,7 @@
 #define CONFIG_RMII
 #define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_RESET_PHY_R
+#define CONFIG_AT91_WANTS_COMMON_PHY
 
 /* USB */
 #define CONFIG_USB_EHCI

@@ -17,7 +17,6 @@
 #include <asm/arch/at91_common.h>
 #include <asm/arch/at91_matrix.h>
 #include <asm/arch/at91_pmc.h>
-#include <asm/arch/at91_rstc.h>
 #include <asm/arch/at91_pio.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/hardware.h>
@@ -89,29 +88,14 @@ static void cpu9260_nand_hw_init(void)
 #ifdef CONFIG_MACB
 static void cpu9260_macb_hw_init(void)
 {
-	unsigned long rstcmr;
 	at91_pmc_t *pmc = (at91_pmc_t *) ATMEL_BASE_PMC;
-	at91_rstc_t *rstc = (at91_rstc_t *) ATMEL_BASE_RSTC;
 
 	/* Enable clock */
 	writel(1 << ATMEL_ID_EMAC0, &pmc->pcer);
 
 	at91_set_pio_pullup(AT91_PIO_PORTA, 17, 1);
 
-	rstcmr = readl(&rstc->mr) & AT91_RSTC_MR_ERSTL_MASK;
-
-	/* Need to reset PHY -> 500ms reset */
-	writel(AT91_RSTC_KEY | AT91_RSTC_MR_ERSTL(0xD) |
-				AT91_RSTC_MR_URSTEN, &rstc->mr);
-
-	writel(AT91_RSTC_KEY | AT91_RSTC_CR_EXTRST, &rstc->cr);
-
-	/* Wait for end hardware reset */
-	while (!(readl(&rstc->sr) & AT91_RSTC_SR_NRSTL))
-		;
-
-	/* Restore NRST value */
-	writel(AT91_RSTC_KEY | rstcmr | AT91_RSTC_MR_URSTEN, &rstc->mr);
+	at91_phy_reset();
 
 	at91_macb_hw_init();
 }
