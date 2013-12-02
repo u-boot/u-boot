@@ -18,22 +18,23 @@
 #endif
 
 #ifndef CONFIG_SYS_I2C_SPEED
-#define CONFIG_SYS_I2C_SPEED    50000
+#define CONFIG_SYS_I2C_SPEED    5000
 #endif
 
-#ifndef CONFIG_FTI2C010_FREQ
-#define CONFIG_FTI2C010_FREQ    clk_get_rate("I2C")
+#ifndef CONFIG_FTI2C010_CLOCK
+#define CONFIG_FTI2C010_CLOCK   clk_get_rate("I2C")
 #endif
 
-/* command timeout */
-#define CFG_CMD_TIMEOUT         10 /* ms */
+#ifndef CONFIG_FTI2C010_TIMEOUT
+#define CONFIG_FTI2C010_TIMEOUT 10 /* ms */
+#endif
 
-/* 7-bit chip address + 1-bit read/write */
-#define I2C_RD(chip)            ((((chip) << 1) & 0xff) | 1)
-#define I2C_WR(chip)            (((chip) << 1) & 0xff)
+/* 7-bit dev address + 1-bit read/write */
+#define I2C_RD(dev)             ((((dev) << 1) & 0xfe) | 1)
+#define I2C_WR(dev)             (((dev) << 1) & 0xfe)
 
 struct fti2c010_chip {
-	void __iomem *regs;
+	struct fti2c010_regs *regs;
 	uint bus;
 	uint speed;
 };
@@ -41,25 +42,25 @@ struct fti2c010_chip {
 static struct fti2c010_chip chip_list[] = {
 	{
 		.bus  = 0,
-		.regs = (void __iomem *)CONFIG_FTI2C010_BASE,
+		.regs = (struct fti2c010_regs *)CONFIG_FTI2C010_BASE,
 	},
 #ifdef CONFIG_I2C_MULTI_BUS
 # ifdef CONFIG_FTI2C010_BASE1
 	{
 		.bus  = 1,
-		.regs = (void __iomem *)CONFIG_FTI2C010_BASE1,
+		.regs = (struct fti2c010_regs *)CONFIG_FTI2C010_BASE1,
 	},
 # endif
 # ifdef CONFIG_FTI2C010_BASE2
 	{
 		.bus  = 2,
-		.regs = (void __iomem *)CONFIG_FTI2C010_BASE2,
+		.regs = (struct fti2c010_regs *)CONFIG_FTI2C010_BASE2,
 	},
 # endif
 # ifdef CONFIG_FTI2C010_BASE3
 	{
 		.bus  = 3,
-		.regs = (void __iomem *)CONFIG_FTI2C010_BASE3,
+		.regs = (struct fti2c010_regs *)CONFIG_FTI2C010_BASE3,
 	},
 # endif
 #endif  /* #ifdef CONFIG_I2C_MULTI_BUS */
@@ -73,7 +74,7 @@ static int fti2c010_wait(uint32_t mask)
 	uint32_t stat, ts;
 	struct fti2c010_regs *regs = curr->regs;
 
-	for (ts = get_timer(0); get_timer(ts) < CFG_CMD_TIMEOUT; ) {
+	for (ts = get_timer(0); get_timer(ts) < CONFIG_FTI2C010_TIMEOUT; ) {
 		stat = readl(&regs->sr);
 		if ((stat & mask) == mask) {
 			ret = 0;
@@ -324,7 +325,7 @@ uint i2c_get_bus_num(void)
 int i2c_set_bus_speed(uint speed)
 {
 	struct fti2c010_regs *regs = curr->regs;
-	uint clk = CONFIG_FTI2C010_FREQ;
+	uint clk = CONFIG_FTI2C010_CLOCK;
 	uint gsr = 0, tsr = 32;
 	uint spd, div;
 
