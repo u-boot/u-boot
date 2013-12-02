@@ -263,6 +263,7 @@ LIBS-y += drivers/power/ \
 	drivers/power/battery/
 LIBS-y += drivers/spi/
 LIBS-$(CONFIG_FMAN_ENET) += drivers/net/fm/
+LIBS-$(CONFIG_SYS_FSL_DDR) += drivers/ddr/fsl/
 LIBS-y += drivers/serial/
 LIBS-y += drivers/usb/eth/
 LIBS-y += drivers/usb/gadget/

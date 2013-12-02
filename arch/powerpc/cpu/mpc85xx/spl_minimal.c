@@ -7,7 +7,7 @@
 #include <common.h>
 #include <asm/processor.h>
 #include <asm/global_data.h>
-#include <asm/fsl_ifc.h>
+#include <fsl_ifc.h>
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;

@@ -18,7 +18,7 @@
 #include <asm/processor.h>
 #include <asm/immap_86xx.h>
 #include <asm/fsl_pci.h>
-#include <asm/fsl_ddr_sdram.h>
+#include <fsl_ddr_sdram.h>
 #include <asm/fsl_serdes.h>
 #include <libfdt.h>
 #include <fdt_support.h>
@@ -93,7 +93,7 @@ long int fixed_sdram (void)
 {
 #if !defined(CONFIG_SYS_RAMBOOT)
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-	volatile ccsr_ddr_t *ddr = &immap->im_ddr1;
+	volatile struct ccsr_ddr *ddr = &immap->im_ddr1;
 
 	ddr->cs0_bnds = CONFIG_SYS_DDR_CS0_BNDS;
 	ddr->cs1_bnds = CONFIG_SYS_DDR_CS1_BNDS;
@@ -111,7 +111,7 @@ long int fixed_sdram (void)
 	ddr->sdram_cfg_2 = CONFIG_SYS_DDR_CFG_2;
 	ddr->sdram_mode = CONFIG_SYS_DDR_MODE_1;
 	ddr->sdram_mode_2 = CONFIG_SYS_DDR_MODE_2;
-	ddr->sdram_mode_cntl = CONFIG_SYS_DDR_MODE_CTL;
+	ddr->sdram_md_cntl = CONFIG_SYS_DDR_MODE_CTL;
 	ddr->sdram_interval = CONFIG_SYS_DDR_INTERVAL;
 	ddr->sdram_data_init = CONFIG_SYS_DDR_DATA_INIT;
 	ddr->sdram_clk_cntl = CONFIG_SYS_DDR_CLK_CTRL;
@@ -142,7 +142,7 @@ long int fixed_sdram (void)
 	ddr->sdram_cfg_2 = CONFIG_SYS_DDR2_CFG_2;
 	ddr->sdram_mode = CONFIG_SYS_DDR2_MODE_1;
 	ddr->sdram_mode_2 = CONFIG_SYS_DDR2_MODE_2;
-	ddr->sdram_mode_cntl = CONFIG_SYS_DDR2_MODE_CTL;
+	ddr->sdram_md_cntl = CONFIG_SYS_DDR2_MODE_CTL;
 	ddr->sdram_interval = CONFIG_SYS_DDR2_INTERVAL;
 	ddr->sdram_data_init = CONFIG_SYS_DDR2_DATA_INIT;
 	ddr->sdram_clk_cntl = CONFIG_SYS_DDR2_CLK_CTRL;

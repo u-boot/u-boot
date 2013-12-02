@@ -16,9 +16,6 @@ obj-$(CONFIG_MP) += release.o
 
 obj-y	+= cpu.o
 obj-y	+= cpu_init.o
-# 8610 & 8641 are identical w/regards to DDR
-obj-$(CONFIG_MPC8610) += ddr-8641.o
-obj-$(CONFIG_MPC8641) += ddr-8641.o
 obj-$(CONFIG_OF_LIBFDT) += fdt.o
 obj-y	+= interrupts.o
 obj-$(CONFIG_MP) += mp.o

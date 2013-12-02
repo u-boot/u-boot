@@ -423,15 +423,49 @@ The following options need to be configured:
 		CONFIG_SYS_FSL_DSP_CCSRBAR_DEFAULT
 		This value denotes start offset of DSP CCSR space.
 
-		CONFIG_SYS_FSL_DDR_EMU
-		Specify emulator support for DDR. Some DDR features such as
-		deskew training are not available.
-
 - Generic CPU options:
 		CONFIG_SYS_BIG_ENDIAN, CONFIG_SYS_LITTLE_ENDIAN
 
 		Defines the endianess of the CPU. Implementation of those
 		values is arch specific.
+
+		CONFIG_SYS_FSL_DDR
+		Freescale DDR driver in use. This type of DDR controller is
+		found in mpc83xx, mpc85xx, mpc86xx as well as some ARM core
+		SoCs.
+
+		CONFIG_SYS_FSL_DDR_ADDR
+		Freescale DDR memory-mapped register base.
+
+		CONFIG_SYS_FSL_DDR_EMU
+		Specify emulator support for DDR. Some DDR features such as
+		deskew training are not available.
+
+		CONFIG_SYS_FSL_DDRC_GEN1
+		Freescale DDR1 controller.
+
+		CONFIG_SYS_FSL_DDRC_GEN2
+		Freescale DDR2 controller.
+
+		CONFIG_SYS_FSL_DDRC_GEN3
+		Freescale DDR3 controller.
+
+		CONFIG_SYS_FSL_DDRC_ARM_GEN3
+		Freescale DDR3 controller for ARM-based SoCs.
+
+		CONFIG_SYS_FSL_DDR1
+		Board config to use DDR1. It can be enabled for SoCs with
+		Freescale DDR1 or DDR2 controllers, depending on the board
+		implemetation.
+
+		CONFIG_SYS_FSL_DDR2
+		Board config to use DDR2. It can be eanbeld for SoCs with
+		Freescale DDR2 or DDR3 controllers, depending on the board
+		implementation.
+
+		CONFIG_SYS_FSL_DDR3
+		Board config to use DDR3. It can be enabled for SoCs with
+		Freescale DDR3 controllers.
 
 - Intel Monahans options:
 		CONFIG_SYS_MONAHANS_RUN_MODE_OSC_RATIO
@@ -3197,7 +3231,7 @@ FIT uImage format:
 
 		CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
 		Set for the SPL on PPC mpc8xxx targets, support for
-		arch/powerpc/cpu/mpc8xxx/ddr/libddr.o in SPL binary.
+		drivers/ddr/fsl/libddr.o in SPL binary.
 
 		CONFIG_SPL_COMMON_INIT_DDR
 		Set for common ddr init with serial presence detect in

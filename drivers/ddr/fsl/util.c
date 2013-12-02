@@ -7,10 +7,14 @@
  */
 
 #include <common.h>
+#ifdef CONFIG_PPC
 #include <asm/fsl_law.h>
+#endif
 #include <div64.h>
 
-#include "ddr.h"
+#include <fsl_ddr.h>
+#include <fsl_immap.h>
+#include <asm/io.h>
 
 /* To avoid 64-bit full-divides, we factor this here */
 #define ULL_2E12 2000000000000ULL
@@ -77,6 +81,7 @@ unsigned int mclk_to_picos(unsigned int mclk)
 	return get_memory_clk_period_ps() * mclk;
 }
 
+#ifdef CONFIG_PPC
 void
 __fsl_ddr_set_lawbar(const common_timing_params_t *memctl_common_params,
 			   unsigned int law_memctl,
@@ -111,6 +116,7 @@ __attribute__((weak, alias("__fsl_ddr_set_lawbar"))) void
 fsl_ddr_set_lawbar(const common_timing_params_t *memctl_common_params,
 			 unsigned int memctl_interleaved,
 			 unsigned int ctrl_num);
+#endif
 
 void fsl_ddr_set_intl3r(const unsigned int granule_size)
 {
@@ -133,7 +139,8 @@ u32 fsl_ddr_get_intl3r(void)
 
 void board_add_ram_info(int use_default)
 {
-	ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC8xxx_DDR_ADDR);
+	struct ccsr_ddr __iomem *ddr =
+		(struct ccsr_ddr __iomem *)(CONFIG_SYS_FSL_DDR_ADDR);
 
 #if	defined(CONFIG_E6500) && (CONFIG_NUM_DDR_CONTROLLERS == 3)
 	u32 *mcintl3r = (void *) (CONFIG_SYS_IMMR + 0x18004);
@@ -146,13 +153,13 @@ void board_add_ram_info(int use_default)
 
 #if CONFIG_NUM_DDR_CONTROLLERS >= 2
 	if (!(sdram_cfg & SDRAM_CFG_MEM_EN)) {
-		ddr = (void __iomem *)CONFIG_SYS_MPC8xxx_DDR2_ADDR;
+		ddr = (void __iomem *)CONFIG_SYS_FSL_DDR2_ADDR;
 		sdram_cfg = in_be32(&ddr->sdram_cfg);
 	}
 #endif
 #if CONFIG_NUM_DDR_CONTROLLERS >= 3
 	if (!(sdram_cfg & SDRAM_CFG_MEM_EN)) {
-		ddr = (void __iomem *)CONFIG_SYS_MPC8xxx_DDR3_ADDR;
+		ddr = (void __iomem *)CONFIG_SYS_FSL_DDR3_ADDR;
 		sdram_cfg = in_be32(&ddr->sdram_cfg);
 	}
 #endif

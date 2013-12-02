@@ -17,12 +17,12 @@
 #include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/mmu.h>
-#include <asm/fsl_ifc.h>
+#include <fsl_ifc.h>
 #include <asm/fsl_law.h>
 #include <asm/fsl_lbc.h>
 #include <post.h>
 #include <asm/processor.h>
-#include <asm/fsl_ddr_sdram.h>
+#include <fsl_ddr_sdram.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -416,7 +416,7 @@ static void dump_spd_ddr_reg(void)
 	int i, j, k, m;
 	u8 *p_8;
 	u32 *p_32;
-	ccsr_ddr_t *ddr[CONFIG_NUM_DDR_CONTROLLERS];
+	struct ccsr_ddr __iomem *ddr[CONFIG_NUM_DDR_CONTROLLERS];
 	generic_spd_eeprom_t
 		spd[CONFIG_NUM_DDR_CONTROLLERS][CONFIG_DIMM_SLOTS_PER_CTLR];
 
@@ -453,21 +453,21 @@ static void dump_spd_ddr_reg(void)
 	for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
 		switch (i) {
 		case 0:
-			ddr[i] = (void *)CONFIG_SYS_MPC8xxx_DDR_ADDR;
+			ddr[i] = (void *)CONFIG_SYS_FSL_DDR_ADDR;
 			break;
-#if defined(CONFIG_SYS_MPC8xxx_DDR2_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 1)
+#if defined(CONFIG_SYS_FSL_DDR2_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 1)
 		case 1:
-			ddr[i] = (void *)CONFIG_SYS_MPC8xxx_DDR2_ADDR;
+			ddr[i] = (void *)CONFIG_SYS_FSL_DDR2_ADDR;
 			break;
 #endif
-#if defined(CONFIG_SYS_MPC8xxx_DDR3_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 2)
+#if defined(CONFIG_SYS_FSL_DDR3_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 2)
 		case 2:
-			ddr[i] = (void *)CONFIG_SYS_MPC8xxx_DDR3_ADDR;
+			ddr[i] = (void *)CONFIG_SYS_FSL_DDR3_ADDR;
 			break;
 #endif
-#if defined(CONFIG_SYS_MPC8xxx_DDR4_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 3)
+#if defined(CONFIG_SYS_FSL_DDR4_ADDR) && (CONFIG_NUM_DDR_CONTROLLERS > 3)
 		case 3:
-			ddr[i] = (void *)CONFIG_SYS_MPC8xxx_DDR4_ADDR;
+			ddr[i] = (void *)CONFIG_SYS_FSL_DDR4_ADDR;
 			break;
 #endif
 		default:
@@ -482,7 +482,7 @@ static void dump_spd_ddr_reg(void)
 	for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++)
 		printf("     Base + 0x%04x", (u32)ddr[i] & 0xFFFF);
 	puts("\n");
-	for (k = 0; k < sizeof(ccsr_ddr_t)/4; k++) {
+	for (k = 0; k < sizeof(struct ccsr_ddr)/4; k++) {
 		m = 0;
 		printf("%6d (0x%04x)", k * 4, k * 4);
 		for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {

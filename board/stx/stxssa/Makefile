@@ -8,4 +8,4 @@
 obj-y	+= stxssa.o
 obj-y	+= law.o
 obj-y	+= tlb.o
-obj-$(CONFIG_FSL_DDR1) += ddr.o
+obj-$(CONFIG_SYS_FSL_DDR1) += ddr.o

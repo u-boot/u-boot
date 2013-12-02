@@ -14,9 +14,10 @@
 #include <common.h>
 #include <linux/ctype.h>
 #include <asm/types.h>
+#include <asm/io.h>
 
-#include <asm/fsl_ddr_sdram.h>
-#include "ddr.h"
+#include <fsl_ddr_sdram.h>
+#include <fsl_ddr.h>
 
 /* Option parameter Structures */
 struct options_string {
@@ -402,7 +403,7 @@ static void fsl_ddr_options_edit(fsl_ddr_info_t *pinfo,
 		CTRL_OPTIONS_CS(3, odt_rd_cfg),
 		CTRL_OPTIONS_CS(3, odt_wr_cfg),
 #endif
-#if defined(CONFIG_FSL_DDR3)
+#if defined(CONFIG_SYS_FSL_DDR3)
 		CTRL_OPTIONS_CS(0, odt_rtt_norm),
 		CTRL_OPTIONS_CS(0, odt_rtt_wr),
 #if (CONFIG_CHIP_SELECTS_PER_CTRL > 1)
@@ -647,7 +648,7 @@ static void print_memctl_options(const memctl_options_t *popts)
 		CTRL_OPTIONS_CS(3, odt_rd_cfg),
 		CTRL_OPTIONS_CS(3, odt_wr_cfg),
 #endif
-#if defined(CONFIG_FSL_DDR3)
+#if defined(CONFIG_SYS_FSL_DDR3)
 		CTRL_OPTIONS_CS(0, odt_rtt_norm),
 		CTRL_OPTIONS_CS(0, odt_rtt_wr),
 #if (CONFIG_CHIP_SELECTS_PER_CTRL > 1)
@@ -710,7 +711,7 @@ static void print_memctl_options(const memctl_options_t *popts)
 	print_option_table(options, n_opts, popts);
 }
 
-#ifdef CONFIG_FSL_DDR1
+#ifdef CONFIG_SYS_FSL_DDR1
 void ddr1_spd_dump(const ddr1_spd_eeprom_t *spd)
 {
 	unsigned int i;
@@ -859,7 +860,7 @@ void ddr1_spd_dump(const ddr1_spd_eeprom_t *spd)
 }
 #endif
 
-#ifdef CONFIG_FSL_DDR2
+#ifdef CONFIG_SYS_FSL_DDR2
 void ddr2_spd_dump(const ddr2_spd_eeprom_t *spd)
 {
 	unsigned int i;
@@ -1051,7 +1052,7 @@ void ddr2_spd_dump(const ddr2_spd_eeprom_t *spd)
 }
 #endif
 
-#ifdef CONFIG_FSL_DDR3
+#ifdef CONFIG_SYS_FSL_DDR3
 void ddr3_spd_dump(const ddr3_spd_eeprom_t *spd)
 {
 	unsigned int i;
@@ -1246,11 +1247,11 @@ void ddr3_spd_dump(const ddr3_spd_eeprom_t *spd)
 
 static inline void generic_spd_dump(const generic_spd_eeprom_t *spd)
 {
-#if defined(CONFIG_FSL_DDR1)
+#if defined(CONFIG_SYS_FSL_DDR1)
 	ddr1_spd_dump(spd);
-#elif defined(CONFIG_FSL_DDR2)
+#elif defined(CONFIG_SYS_FSL_DDR2)
 	ddr2_spd_dump(spd);
-#elif defined(CONFIG_FSL_DDR3)
+#elif defined(CONFIG_SYS_FSL_DDR3)
 	ddr3_spd_dump(spd);
 #endif
 }

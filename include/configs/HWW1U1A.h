@@ -255,7 +255,7 @@
 /* -------------------------------------------------------------------- */
 
 /* FreeScale DDR2/3 SDRAM Controller */
-#define CONFIG_FSL_DDR2		/* Our SDRAM slot is DDR2		*/
+#define CONFIG_SYS_FSL_DDR2		/* Our SDRAM slot is DDR2		*/
 #define CONFIG_DDR_ECC		/* Enable ECC by default		*/
 #define CONFIG_DDR_SPD		/* Detect DDR config from SPD EEPROM	*/
 #define CONFIG_SPD_EEPROM	/* ...why 2 config variables for this?	*/

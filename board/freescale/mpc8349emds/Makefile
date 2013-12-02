@@ -7,4 +7,4 @@
 
 obj-y += mpc8349emds.o
 obj-$(CONFIG_PCI) += pci.o
-obj-$(CONFIG_FSL_DDR2) += ddr.o
+obj-$(CONFIG_SYS_FSL_DDR2) += ddr.o

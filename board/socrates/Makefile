@@ -12,4 +12,4 @@ obj-y	+= law.o
 obj-y	+= tlb.o
 obj-y	+= nand.o
 obj-y	+= sdram.o
-obj-$(CONFIG_FSL_DDR2) += ddr.o
+obj-$(CONFIG_SYS_FSL_DDR2) += ddr.o

@@ -10,7 +10,7 @@
 #include <nand.h>
 #include <asm/mmu.h>
 #include <asm/immap_85xx.h>
-#include <asm/fsl_ddr_sdram.h>
+#include <fsl_ddr_sdram.h>
 #include <asm/fsl_law.h>
 
 #define SYSCLK_66       66666666

@@ -9,11 +9,11 @@
 #include <common.h>
 #include <i2c.h>
 #include <hwconfig.h>
+#include <fsl_ddr.h>
 #include <asm/mmu.h>
-#include <asm/fsl_ddr_sdram.h>
-#include <asm/fsl_ddr_dimm_params.h>
+#include <fsl_ddr_sdram.h>
+#include <fsl_ddr_dimm_params.h>
 #include <asm/fsl_law.h>
-#include <../arch/powerpc/cpu/mpc8xxx/ddr/ddr.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

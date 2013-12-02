@@ -5,8 +5,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __ASM_PPC_FSL_IFC_H
-#define __ASM_PPC_FSL_IFC_H
+#ifndef __FSL_IFC_H
+#define __FSL_IFC_H
 
 #ifdef CONFIG_FSL_IFC
 #include <config.h>
@@ -985,4 +985,4 @@ struct fsl_ifc {
 #endif /* CONFIG_FSL_IFC */
 
 #endif /* __ASSEMBLY__ */
-#endif /* __ASM_PPC_FSL_IFC_H */
+#endif /* __FSL_IFC_H */

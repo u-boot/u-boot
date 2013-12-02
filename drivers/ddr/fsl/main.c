@@ -14,17 +14,19 @@
 
 #include <common.h>
 #include <i2c.h>
-#include <asm/fsl_ddr_sdram.h>
-#include <asm/fsl_law.h>
+#include <fsl_ddr_sdram.h>
+#include <fsl_ddr.h>
 
-#include "ddr.h"
+#ifdef CONFIG_PPC
+#include <asm/fsl_law.h>
 
 void fsl_ddr_set_lawbar(
 		const common_timing_params_t *memctl_common_params,
 		unsigned int memctl_interleaved,
 		unsigned int ctrl_num);
-void fsl_ddr_set_intl3r(const unsigned int granule_size);
+#endif
 
+void fsl_ddr_set_intl3r(const unsigned int granule_size);
 #if defined(SPD_EEPROM_ADDRESS) || \
     defined(SPD_EEPROM_ADDRESS1) || defined(SPD_EEPROM_ADDRESS2) || \
     defined(SPD_EEPROM_ADDRESS3) || defined(SPD_EEPROM_ADDRESS4)
@@ -253,7 +255,7 @@ static unsigned long long __step_assign_addresses(fsl_ddr_info_t *pinfo,
 		debug("dbw_cap_adj[%d]=%d\n", i, dbw_cap_adj[i]);
 	}
 
-	current_mem_base = 0ull;
+	current_mem_base = CONFIG_SYS_DDR_SDRAM_BASE;
 	total_mem = 0;
 	if (pinfo->memctl_opts[0].memctl_interleaving) {
 		rank_density = pinfo->dimm_params[0][0].rank_density >>
@@ -533,8 +535,8 @@ fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step,
 			}
 		}
 
-		total_mem = 1 + (((unsigned long long)max_end << 24ULL)
-				    | 0xFFFFFFULL);
+		total_mem = 1 + (((unsigned long long)max_end << 24ULL) |
+			    0xFFFFFFULL) - CONFIG_SYS_DDR_SDRAM_BASE;
 	}
 
 	return total_mem;
@@ -549,7 +551,9 @@ fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step,
 phys_size_t fsl_ddr_sdram(void)
 {
 	unsigned int i;
+#ifdef CONFIG_PPC
 	unsigned int law_memctl = LAW_TRGT_IF_DDR_1;
+#endif
 	unsigned long long total_memory;
 	fsl_ddr_info_t info;
 	int deassert_reset;
@@ -621,6 +625,7 @@ phys_size_t fsl_ddr_sdram(void)
 		}
 	}
 
+#ifdef CONFIG_PPC
 	/* program LAWs */
 	for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
 		if (info.memctl_opts[i].memctl_interleaving) {
@@ -681,6 +686,7 @@ phys_size_t fsl_ddr_sdram(void)
 					law_memctl, i);
 		}
 	}
+#endif
 
 	debug("total_memory by %s = %llu\n", __func__, total_memory);
 

@@ -9,10 +9,10 @@
 #ifndef FSL_DDR_MAIN_H
 #define FSL_DDR_MAIN_H
 
-#include <asm/fsl_ddr_sdram.h>
-#include <asm/fsl_ddr_dimm_params.h>
+#include <fsl_ddr_sdram.h>
+#include <fsl_ddr_dimm_params.h>
 
-#include "common_timing_params.h"
+#include <common_timing_params.h>
 
 #if defined(CONFIG_DDR_SPD) || defined(CONFIG_SPD_EEPROM)
 /*

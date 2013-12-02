@@ -19,7 +19,7 @@
 #include <netdev.h>
 #include <pci.h>
 #include <asm/fsl_serdes.h>
-#include <asm/fsl_ifc.h>
+#include <fsl_ifc.h>
 #include <asm/fsl_pci.h>
 #include <hwconfig.h>
 #include <i2c.h>

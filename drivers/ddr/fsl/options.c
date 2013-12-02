@@ -6,9 +6,9 @@
 
 #include <common.h>
 #include <hwconfig.h>
-#include <asm/fsl_ddr_sdram.h>
+#include <fsl_ddr_sdram.h>
 
-#include "ddr.h"
+#include <fsl_ddr.h>
 
 /*
  * Use our own stack based buffer before relocation to allow accessing longer
@@ -29,7 +29,7 @@ struct dynamic_odt {
 	unsigned int odt_rtt_wr;
 };
 
-#ifdef CONFIG_FSL_DDR3
+#ifdef CONFIG_SYS_FSL_DDR3
 static const struct dynamic_odt single_Q[4] = {
 	{	/* cs0 */
 		FSL_DDR_ODT_NEVER,
@@ -259,7 +259,7 @@ static const struct dynamic_odt odt_unknown[4] = {
 		DDR3_RTT_OFF
 	}
 };
-#else	/* CONFIG_FSL_DDR3 */
+#else	/* CONFIG_SYS_FSL_DDR3 */
 static const struct dynamic_odt single_Q[4] = {
 	{0, 0, 0, 0},
 	{0, 0, 0, 0},
@@ -507,7 +507,7 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 	unsigned int i;
 	char buffer[HWCONFIG_BUFFER_SIZE];
 	char *buf = NULL;
-#if defined(CONFIG_FSL_DDR3) || defined(CONFIG_FSL_DDR2)
+#if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR2)
 	const struct dynamic_odt *pdodt = odt_unknown;
 #endif
 	ulong ddr_freq;
@@ -519,7 +519,7 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 	if (getenv_f("hwconfig", buffer, sizeof(buffer)) > 0)
 		buf = buffer;
 
-#if defined(CONFIG_FSL_DDR3) || defined(CONFIG_FSL_DDR2)
+#if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR2)
 	/* Chip select options. */
 	if (CONFIG_DIMM_SLOTS_PER_CTLR == 1) {
 		switch (pdimm[0].n_ranks) {
@@ -585,7 +585,7 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 
 	/* Pick chip-select local options. */
 	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
-#if defined(CONFIG_FSL_DDR3) || defined(CONFIG_FSL_DDR2)
+#if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR2)
 		popts->cs_local_opts[i].odt_rd_cfg = pdodt[i].odt_rd_cfg;
 		popts->cs_local_opts[i].odt_wr_cfg = pdodt[i].odt_wr_cfg;
 		popts->cs_local_opts[i].odt_rtt_norm = pdodt[i].odt_rtt_norm;
@@ -655,9 +655,9 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 	 * 0 for DDR1
 	 * 1 for DDR2
 	 */
-#if defined(CONFIG_FSL_DDR1)
+#if defined(CONFIG_SYS_FSL_DDR1)
 	popts->dqs_config = 0;
-#elif defined(CONFIG_FSL_DDR2) || defined(CONFIG_FSL_DDR3)
+#elif defined(CONFIG_SYS_FSL_DDR2) || defined(CONFIG_SYS_FSL_DDR3)
 	popts->dqs_config = 1;
 #endif
 
@@ -672,7 +672,7 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 	 * presuming all dimms are similar
 	 * 0 = 64-bit, 1 = 32-bit, 2 = 16-bit
 	 */
-#if defined(CONFIG_FSL_DDR1) || defined(CONFIG_FSL_DDR2)
+#if defined(CONFIG_SYS_FSL_DDR1) || defined(CONFIG_SYS_FSL_DDR2)
 	if (pdimm[0].n_ranks != 0) {
 		if ((pdimm[0].data_width >= 64) && \
 			(pdimm[0].data_width <= 72))
@@ -703,7 +703,7 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 	popts->x4_en = (pdimm[0].device_width == 4) ? 1 : 0;
 
 	/* Choose burst length. */
-#if defined(CONFIG_FSL_DDR3)
+#if defined(CONFIG_SYS_FSL_DDR3)
 #if defined(CONFIG_E500MC)
 	popts->otf_burst_chop_en = 0;	/* on-the-fly burst chop disable */
 	popts->burst_length = DDR_BL8;	/* Fixed 8-beat burst len */
@@ -722,7 +722,7 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 #endif
 
 	/* Choose ddr controller address mirror mode */
-#if defined(CONFIG_FSL_DDR3)
+#if defined(CONFIG_SYS_FSL_DDR3)
 	popts->mirrored_dimm = pdimm[0].mirrored_dimm;
 #endif
 
@@ -785,22 +785,22 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 	 * FIXME: varies depending upon number of column addresses or data
 	 * FIXME: width, was considering looking at pdimm->primary_sdram_width
 	 */
-#if defined(CONFIG_FSL_DDR1)
+#if defined(CONFIG_SYS_FSL_DDR1)
 	popts->tfaw_window_four_activates_ps = mclk_to_picos(1);
 
-#elif defined(CONFIG_FSL_DDR2)
+#elif defined(CONFIG_SYS_FSL_DDR2)
 	/*
 	 * x4/x8;  some datasheets have 35000
 	 * x16 wide columns only?  Use 50000?
 	 */
 	popts->tfaw_window_four_activates_ps = 37500;
 
-#elif defined(CONFIG_FSL_DDR3)
+#elif defined(CONFIG_SYS_FSL_DDR3)
 	popts->tfaw_window_four_activates_ps = pdimm[0].tfaw_ps;
 #endif
 	popts->zq_en = 0;
 	popts->wrlvl_en = 0;
-#if defined(CONFIG_FSL_DDR3)
+#if defined(CONFIG_SYS_FSL_DDR3)
 	/*
 	 * due to ddr3 dimm is fly-by topology
 	 * we suggest to enable write leveling to

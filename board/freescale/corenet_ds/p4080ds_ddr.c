@@ -7,7 +7,7 @@
  */
 
 #include <common.h>
-#include <asm/fsl_ddr_sdram.h>
+#include <fsl_ddr_sdram.h>
 
 #define CONFIG_SYS_DDR_TIMING_3_1200	0x01030000
 #define CONFIG_SYS_DDR_TIMING_0_1200	0xCC550104

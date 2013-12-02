@@ -163,6 +163,14 @@ struct phy_device {
 	u32 flags;
 };
 
+struct fixed_link {
+	int phy_id;
+	int duplex;
+	int link_speed;
+	int pause;
+	int asym_pause;
+};
+
 static inline int phy_read(struct phy_device *phydev, int devad, int regnum)
 {
 	struct mii_dev *bus = phydev->bus;

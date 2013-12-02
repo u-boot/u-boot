@@ -29,51 +29,6 @@ obj-$(CONFIG_MP)	+= release.o
 obj-$(CONFIG_CMD_ERRATA) += cmd_errata.o
 obj-$(CONFIG_CPM2)	+= commproc.o
 
-# supports ddr1
-obj-$(CONFIG_MPC8540) += ddr-gen1.o
-obj-$(CONFIG_MPC8560) += ddr-gen1.o
-obj-$(CONFIG_MPC8541) += ddr-gen1.o
-obj-$(CONFIG_MPC8555) += ddr-gen1.o
-
-# supports ddr1/2
-obj-$(CONFIG_MPC8548) += ddr-gen2.o
-obj-$(CONFIG_MPC8568) += ddr-gen2.o
-obj-$(CONFIG_MPC8544) += ddr-gen2.o
-
-# supports ddr1/2/3
-obj-$(CONFIG_PPC_C29X)	+= ddr-gen3.o
-obj-$(CONFIG_MPC8572) += ddr-gen3.o
-obj-$(CONFIG_MPC8536) += ddr-gen3.o
-obj-$(CONFIG_MPC8569)	+= ddr-gen3.o
-obj-$(CONFIG_P1010)	+= ddr-gen3.o
-obj-$(CONFIG_P1011)	+= ddr-gen3.o
-obj-$(CONFIG_P1012)	+= ddr-gen3.o
-obj-$(CONFIG_P1013)	+= ddr-gen3.o
-obj-$(CONFIG_P1014)	+= ddr-gen3.o
-obj-$(CONFIG_P1020)	+= ddr-gen3.o
-obj-$(CONFIG_P1021)	+= ddr-gen3.o
-obj-$(CONFIG_P1022)	+= ddr-gen3.o
-obj-$(CONFIG_P1023)	+= ddr-gen3.o
-obj-$(CONFIG_P1024)	+= ddr-gen3.o
-obj-$(CONFIG_P1025)	+= ddr-gen3.o
-obj-$(CONFIG_P2010)	+= ddr-gen3.o
-obj-$(CONFIG_P2020)	+= ddr-gen3.o
-obj-$(CONFIG_PPC_P2041)	+= ddr-gen3.o
-obj-$(CONFIG_PPC_P3041)	+= ddr-gen3.o
-obj-$(CONFIG_PPC_P4080)	+= ddr-gen3.o
-obj-$(CONFIG_PPC_P5020)	+= ddr-gen3.o
-obj-$(CONFIG_PPC_P5040)	+= ddr-gen3.o
-obj-$(CONFIG_PPC_T4240)	+= ddr-gen3.o
-obj-$(CONFIG_PPC_T4160)	+= ddr-gen3.o
-obj-$(CONFIG_PPC_B4420)	+= ddr-gen3.o
-obj-$(CONFIG_PPC_B4860)	+= ddr-gen3.o
-obj-$(CONFIG_BSC9131)		+= ddr-gen3.o
-obj-$(CONFIG_BSC9132)		+= ddr-gen3.o
-obj-$(CONFIG_PPC_T1040)	+= ddr-gen3.o
-obj-$(CONFIG_PPC_T1042)	+= ddr-gen3.o
-obj-$(CONFIG_PPC_T1020)	+= ddr-gen3.o
-obj-$(CONFIG_PPC_T1022)	+= ddr-gen3.o
-
 obj-$(CONFIG_CPM2)	+= ether_fcc.o
 obj-$(CONFIG_OF_LIBFDT) += fdt.o
 obj-$(CONFIG_FSL_CORENET) += liodn.o
@@ -95,6 +50,8 @@ obj-$(CONFIG_PPC_T1040) += t1040_ids.o
 obj-$(CONFIG_PPC_T1042)	+= t1040_ids.o
 obj-$(CONFIG_PPC_T1020)	+= t1040_ids.o
 obj-$(CONFIG_PPC_T1022)	+= t1040_ids.o
+obj-$(CONFIG_PPC_T2080) += t2080_ids.o
+obj-$(CONFIG_PPC_T2081) += t2080_ids.o
 
 
 obj-$(CONFIG_QE)	+= qe_io.o
@@ -138,6 +95,8 @@ obj-$(CONFIG_PPC_T1040) += t1040_serdes.o
 obj-$(CONFIG_PPC_T1042)	+= t1040_serdes.o
 obj-$(CONFIG_PPC_T1020)	+= t1040_serdes.o
 obj-$(CONFIG_PPC_T1022)	+= t1040_serdes.o
+obj-$(CONFIG_PPC_T2080) += t2080_serdes.o
+obj-$(CONFIG_PPC_T2081) += t2080_serdes.o
 
 obj-y	+= cpu.o
 obj-y	+= cpu_init.o

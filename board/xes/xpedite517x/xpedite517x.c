@@ -6,7 +6,7 @@
 
 #include <common.h>
 #include <asm/processor.h>
-#include <asm/fsl_ddr_sdram.h>
+#include <fsl_ddr_sdram.h>
 #include <asm/mmu.h>
 #include <asm/io.h>
 #include <fdt_support.h>
