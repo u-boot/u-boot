@@ -13,7 +13,7 @@
 int sandbox_early_getopt_check(void)
 {
 	struct sandbox_state *state = state_get_current();
-	struct sb_cmdline_option **sb_opt = __u_boot_sandbox_option_start;
+	struct sandbox_cmdline_option **sb_opt = __u_boot_sandbox_option_start;
 	size_t num_options = __u_boot_sandbox_option_count();
 	size_t i;
 	int max_arg_len, max_noarg_len;
@@ -40,7 +40,7 @@ int sandbox_early_getopt_check(void)
 	max_noarg_len = max_arg_len + 7;
 
 	for (i = 0; i < num_options; ++i) {
-		struct sb_cmdline_option *opt = sb_opt[i];
+		struct sandbox_cmdline_option *opt = sb_opt[i];
 
 		/* first output the short flag if it has one */
 		if (opt->flag_short >= 0x100)
@@ -61,12 +61,12 @@ int sandbox_early_getopt_check(void)
 	os_exit(0);
 }
 
-static int sb_cmdline_cb_help(struct sandbox_state *state, const char *arg)
+static int sandbox_cmdline_cb_help(struct sandbox_state *state, const char *arg)
 {
 	/* just flag to sandbox_early_getopt_check to show usage */
 	return 1;
 }
-SB_CMDLINE_OPT_SHORT(help, 'h', 0, "Display help");
+SANDBOX_CMDLINE_OPT_SHORT(help, 'h', 0, "Display help");
 
 int sandbox_main_loop_init(void)
 {
@@ -81,19 +81,20 @@ int sandbox_main_loop_init(void)
 	return 0;
 }
 
-static int sb_cmdline_cb_command(struct sandbox_state *state, const char *arg)
+static int sandbox_cmdline_cb_command(struct sandbox_state *state,
+				      const char *arg)
 {
 	state->cmd = arg;
 	return 0;
 }
-SB_CMDLINE_OPT_SHORT(command, 'c', 1, "Execute U-Boot command");
+SANDBOX_CMDLINE_OPT_SHORT(command, 'c', 1, "Execute U-Boot command");
 
-static int sb_cmdline_cb_fdt(struct sandbox_state *state, const char *arg)
+static int sandbox_cmdline_cb_fdt(struct sandbox_state *state, const char *arg)
 {
 	state->fdt_fname = arg;
 	return 0;
 }
-SB_CMDLINE_OPT_SHORT(fdt, 'd', 1, "Specify U-Boot's control FDT");
+SANDBOX_CMDLINE_OPT_SHORT(fdt, 'd', 1, "Specify U-Boot's control FDT");
 
 int main(int argc, char *argv[])
 {
