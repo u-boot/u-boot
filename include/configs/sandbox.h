@@ -71,6 +71,16 @@
 #define CONFIG_ENV_SIZE		8192
 #define CONFIG_ENV_IS_NOWHERE
 
+/* SPI */
+#define CONFIG_SANDBOX_SPI
+#define CONFIG_CMD_SF
+#define CONFIG_CMD_SF_TEST
+#define CONFIG_CMD_SPI
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_SANDBOX
+#define CONFIG_SPI_FLASH_STMICRO
+#define CONFIG_SPI_FLASH_WINBOND
+
 /* Memory things - we don't really want a memory test */
 #define CONFIG_SYS_LOAD_ADDR		0x00000000
 #define CONFIG_SYS_MEMTEST_START	0x00100000
