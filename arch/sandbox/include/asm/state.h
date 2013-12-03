@@ -15,6 +15,11 @@ enum exit_type_id {
 	STATE_EXIT_POWER_OFF,
 };
 
+struct sandbox_spi_info {
+	const char *spec;
+	const struct sandbox_spi_emu_ops *ops;
+};
+
 /* The complete state of the test system */
 struct sandbox_state {
 	const char *cmd;		/* Command to execute */
@@ -23,6 +28,10 @@ struct sandbox_state {
 	const char *parse_err;		/* Error to report from parsing */
 	int argc;			/* Program arguments */
 	char **argv;
+
+	/* Pointer to information for each SPI bus/cs */
+	struct sandbox_spi_info spi[CONFIG_SANDBOX_SPI_MAX_BUS]
+					[CONFIG_SANDBOX_SPI_MAX_CS];
 };
 
 /**
