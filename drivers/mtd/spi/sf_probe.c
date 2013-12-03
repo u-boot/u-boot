@@ -13,6 +13,7 @@
 #include <malloc.h>
 #include <spi.h>
 #include <spi_flash.h>
+#include <asm/io.h>
 
 #include "sf_internal.h"
 
@@ -279,7 +280,7 @@ int spi_flash_decode_fdt(const void *blob, struct spi_flash *flash)
 		debug("%s: Memory map must cover entire device\n", __func__);
 		return -1;
 	}
-	flash->memory_map = (void *)addr;
+	flash->memory_map = map_sysmem(addr, size);
 
 	return 0;
 }
