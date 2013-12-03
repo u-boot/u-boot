@@ -285,16 +285,13 @@ int spi_flash_decode_fdt(const void *blob, struct spi_flash *flash)
 }
 #endif /* CONFIG_OF_CONTROL */
 
-struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
-		unsigned int max_hz, unsigned int spi_mode)
+static struct spi_flash *spi_flash_probe_slave(struct spi_slave *spi)
 {
-	struct spi_slave *spi;
 	struct spi_flash *flash = NULL;
 	u8 idcode[5];
 	int ret;
 
 	/* Setup spi_slave */
-	spi = spi_setup_slave(bus, cs, max_hz, spi_mode);
 	if (!spi) {
 		printf("SF: Failed to set up slave\n");
 		return NULL;
@@ -357,6 +354,26 @@ err_claim_bus:
 	spi_free_slave(spi);
 	return NULL;
 }
+
+struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
+		unsigned int max_hz, unsigned int spi_mode)
+{
+	struct spi_slave *spi;
+
+	spi = spi_setup_slave(bus, cs, max_hz, spi_mode);
+	return spi_flash_probe_slave(spi);
+}
+
+#ifdef CONFIG_OF_SPI_FLASH
+struct spi_flash *spi_flash_probe_fdt(const void *blob, int slave_node,
+				      int spi_node)
+{
+	struct spi_slave *spi;
+
+	spi = spi_setup_slave_fdt(blob, slave_node, spi_node);
+	return spi_flash_probe_slave(spi);
+}
+#endif
 
 void spi_flash_free(struct spi_flash *flash)
 {

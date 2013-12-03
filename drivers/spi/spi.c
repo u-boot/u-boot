@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <fdtdec.h>
 #include <malloc.h>
 #include <spi.h>
 
@@ -37,3 +38,21 @@ void *spi_do_alloc_slave(int offset, int size, unsigned int bus,
 
 	return ptr;
 }
+
+#ifdef CONFIG_OF_SPI
+struct spi_slave *spi_base_setup_slave_fdt(const void *blob, int busnum,
+					   int node)
+{
+	int cs, max_hz, mode = 0;
+
+	cs = fdtdec_get_int(blob, node, "reg", -1);
+	max_hz = fdtdec_get_int(blob, node, "spi-max-frequency", 100000);
+	if (fdtdec_get_bool(blob, node, "spi-cpol"))
+		mode |= SPI_CPOL;
+	if (fdtdec_get_bool(blob, node, "spi-cpha"))
+		mode |= SPI_CPHA;
+	if (fdtdec_get_bool(blob, node, "spi-cs-high"))
+		mode |= SPI_CS_HIGH;
+	return spi_setup_slave(busnum, cs, max_hz, mode);
+}
+#endif

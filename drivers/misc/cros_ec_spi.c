@@ -135,8 +135,7 @@ int cros_ec_spi_decode_fdt(struct cros_ec_dev *dev, const void *blob)
  */
 int cros_ec_spi_init(struct cros_ec_dev *dev, const void *blob)
 {
-	dev->spi = spi_setup_slave_fdt(blob, dev->parent_node,
-				       dev->cs, dev->max_frequency, 0);
+	dev->spi = spi_setup_slave_fdt(blob, dev->parent_node, dev->node);
 	if (!dev->spi) {
 		debug("%s: Could not setup SPI slave\n", __func__);
 		return -1;
