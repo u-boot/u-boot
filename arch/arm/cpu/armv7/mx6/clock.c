@@ -94,7 +94,7 @@ static u32 decode_pll(enum pll_clocks pll, u32 infreq)
 		div = __raw_readl(&imx_ccm->analog_pll_enet);
 		div &= BM_ANADIG_PLL_ENET_DIV_SELECT;
 
-		return (div == 3 ? 125000000 : 25000000 * (div << 1));
+		return 25000000 * (div + (div >> 1) + 1);
 	default:
 		return 0;
 	}
