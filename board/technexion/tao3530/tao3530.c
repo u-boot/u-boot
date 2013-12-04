@@ -75,6 +75,18 @@ out:
  */
 void get_board_mem_timings(struct board_sdrc_timings *timings)
 {
+#if defined(CONFIG_SYS_BOARD_OMAP3_HA)
+	/*
+	 * Switch baseboard LED to red upon power-on
+	 */
+	MUX_OMAP3_HA();
+
+	/* Request a gpio before using it */
+	gpio_request(111, "");
+	/* Sets the gpio as output and its value to 1, switch LED to red */
+	gpio_direction_output(111, 1);
+#endif
+
 	if (tao3530_revision() < 3) {
 		/* 256MB / Bank */
 		timings->mcfg = MCFG(256 << 20, 14);	/* RAS-width 14 */
@@ -162,6 +174,9 @@ int misc_init_r(void)
 void set_muxconf_regs(void)
 {
 	MUX_TAO3530();
+#if defined(CONFIG_SYS_BOARD_OMAP3_HA)
+	MUX_OMAP3_HA();
+#endif
 }
 
 #if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)

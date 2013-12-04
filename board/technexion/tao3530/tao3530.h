@@ -9,7 +9,11 @@
 
 const omap3_sysinfo sysinfo = {
 	DDR_STACKED,
+#if defined(CONFIG_SYS_BOARD_OMAP3_HA)
+	"HEAD acoustics OMAP3-HA",
+#else
 	"OMAP3 TAO-3530 board",
+#endif
 	"NAND",
 };
 
@@ -360,5 +364,8 @@ const omap3_sysinfo sysinfo = {
 	MUX_VAL(CP(D2D_SBUSFLAG), (IEN  | PTD | DIS | M0)) \
 	MUX_VAL(CP(SDRC_CKE0),	(IDIS | PTU | EN  | M0)) \
 	MUX_VAL(CP(SDRC_CKE1),	(IDIS | PTU | EN  | M0))
+
+#define MUX_OMAP3_HA() \
+	MUX_VAL(CP(CAM_XCLKB),	(IDIS | PTD | DIS | M4)) /* GPIO_111 */
 
 #endif
