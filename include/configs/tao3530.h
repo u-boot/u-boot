@@ -146,21 +146,18 @@
 	"video_mode=omapdss.def_disp=lcd vram=6M omapfb.vram=0:2M,1:2M,2:2M\0" \
 	"lcd_mode=omapfb.mode=lcd:800x480@60 \0" \
 	"extra_options= \0" \
-	"mem_size=mem=128M \0" \
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \
 	"mmcrootfstype=ext3 rootwait\0" \
 	"nandroot=ubi0:rootfs ubi.mtd=4\0" \
 	"nandrootfstype=ubifs\0" \
 	"mmcargs=setenv bootargs console=${console} " \
-		"${mem_size} " \
 		"mpurate=${mpurate} " \
 		"${video_mode} " \
 		"root=${mmcroot} " \
 		"rootfstype=${mmcrootfstype} " \
 		"${extra_options}\0" \
 	"nandargs=setenv bootargs console=${console} " \
-		"${mem_size} " \
 		"mpurate=${mpurate} " \
 		"${video_mode} " \
 		"${network_setting} " \

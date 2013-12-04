@@ -133,18 +133,6 @@ int misc_init_r(void)
 
 	dieid_num_r();
 
-	/* Set memory size environment variable, depending on revision */
-	switch (tao3530_revision()) {
-	case 0x2:  /* Rev C1 -- 256MB */
-		 setenv("mem_size", "mem=256M");
-		 break;
-	case 0x3: /* Rev A2/B2 -- 128MB */
-		 setenv("mem_size", "mem=128M");
-		 break;
-	default:
-		 printf("Warning: Unknown TAO3530 rev, setting mem=128M\n");
-	}
-
 	return 0;
 }
 
