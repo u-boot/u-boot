@@ -105,6 +105,22 @@ static inline int splash_load_from_nand(void)
 }
 #endif /* CONFIG_CMD_NAND */
 
+#ifdef CONFIG_SPL_BUILD
+/*
+ * Routine: get_board_mem_timings
+ * Description: If we use SPL then there is no x-loader nor config header
+ * so we have to setup the DDR timings ourself on both banks.
+ */
+void get_board_mem_timings(struct board_sdrc_timings *timings)
+{
+	timings->mr = MICRON_V_MR_165;
+	timings->mcfg = MICRON_V_MCFG_200(256 << 20); /* raswidth 14 needed */
+	timings->ctrla = MICRON_V_ACTIMA_165;
+	timings->ctrlb = MICRON_V_ACTIMB_165;
+	timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+}
+#endif
+
 int splash_screen_prepare(void)
 {
 	char *env_splashimage_value;
@@ -440,7 +456,7 @@ void set_muxconf_regs(void)
 		cm_t3730_set_muxconf();
 }
 
-#ifdef CONFIG_GENERIC_MMC
+#if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
 int board_mmc_getcd(struct mmc *mmc)
 {
 	u8 val;
