@@ -131,6 +131,23 @@ int misc_init_r(void)
 	writel(GPIO31 | GPIO30 | GPIO29 | GPIO28 | GPIO22 | GPIO21 |
 	       GPIO15 | GPIO14 | GPIO13 | GPIO12, &gpio5_base->setdataout);
 
+	switch (tao3530_revision()) {
+	case 0:
+		puts("TAO-3530 REV Reserve 1\n");
+		break;
+	case 1:
+		puts("TAO-3530 REV Reserve 2\n");
+		break;
+	case 2:
+		puts("TAO-3530 REV Cx\n");
+		break;
+	case 3:
+		puts("TAO-3530 REV Ax/Bx\n");
+		break;
+	default:
+		puts("Unknown board revision\n");
+	}
+
 	dieid_num_r();
 
 	return 0;
