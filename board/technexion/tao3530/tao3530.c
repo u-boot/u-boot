@@ -67,6 +67,31 @@ out:
 	return ret;
 }
 
+#ifdef CONFIG_SPL_BUILD
+/*
+ * Routine: get_board_mem_timings
+ * Description: If we use SPL then there is no x-loader nor config header
+ * so we have to setup the DDR timings ourself on both banks.
+ */
+void get_board_mem_timings(struct board_sdrc_timings *timings)
+{
+	if (tao3530_revision() < 3) {
+		/* 256MB / Bank */
+		timings->mcfg = MCFG(256 << 20, 14);	/* RAS-width 14 */
+		timings->ctrla = HYNIX_V_ACTIMA_165;
+		timings->ctrlb = HYNIX_V_ACTIMB_165;
+	} else {
+		/* 128MB / Bank */
+		timings->mcfg = MCFG(128 << 20, 13);	/* RAS-width 13 */
+		timings->ctrla = MICRON_V_ACTIMA_165;
+		timings->ctrlb = MICRON_V_ACTIMB_165;
+	}
+
+	timings->mr = MICRON_V_MR_165;
+	timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+}
+#endif
+
 /*
  * Routine: board_init
  * Description: Early hardware init.
@@ -134,7 +159,7 @@ void set_muxconf_regs(void)
 	MUX_TAO3530();
 }
 
-#ifdef CONFIG_GENERIC_MMC
+#if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
 int board_mmc_init(bd_t *bis)
 {
 	omap_mmc_init(0, 0, 0, -1, -1);

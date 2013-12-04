@@ -5,6 +5,8 @@
  * Edward Lin <linuxfae@technexion.com>
  * Tapani Utriainen <linuxfae@technexion.com>
  *
+ * Copyright (C) 2013 Stefan Roese <sr@denx.de>
+ *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
@@ -297,5 +299,68 @@
 #define CONFIG_USB_ETHER_RNDIS
 #define CONFIG_USB_STORAGE
 #define CONGIG_CMD_STORAGE
+
+/* Defines for SPL */
+#define CONFIG_SPL
+#define CONFIG_SPL_FRAMEWORK
+#define CONFIG_SPL_NAND_SIMPLE
+
+#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	0x300 /* address 0x60000 */
+#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	0x200 /* 256 KB */
+#define CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION	1
+#define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME	"u-boot.img"
+
+#define CONFIG_SPL_BOARD_INIT
+#define CONFIG_SPL_LIBCOMMON_SUPPORT
+#define CONFIG_SPL_LIBDISK_SUPPORT
+#define CONFIG_SPL_I2C_SUPPORT
+#define CONFIG_SPL_LIBGENERIC_SUPPORT
+#define CONFIG_SPL_MMC_SUPPORT
+#define CONFIG_SPL_FAT_SUPPORT
+#define CONFIG_SPL_SERIAL_SUPPORT
+#define CONFIG_SPL_NAND_SUPPORT
+#define CONFIG_SPL_NAND_BASE
+#define CONFIG_SPL_NAND_DRIVERS
+#define CONFIG_SPL_NAND_ECC
+#define CONFIG_SPL_GPIO_SUPPORT
+#define CONFIG_SPL_POWER_SUPPORT
+#define CONFIG_SPL_OMAP3_ID_NAND
+#define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
+
+/* NAND boot config */
+#define CONFIG_SYS_NAND_5_ADDR_CYCLE
+#define CONFIG_SYS_NAND_PAGE_COUNT	64
+#define CONFIG_SYS_NAND_PAGE_SIZE	2048
+#define CONFIG_SYS_NAND_OOBSIZE		64
+#define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
+#define CONFIG_SYS_NAND_BAD_BLOCK_POS	NAND_LARGE_BADBLOCK_POS
+/*
+ * Use the ECC/OOB layout from omap_gpmc.h that matches your chip:
+ * SP vs LP, 8bit vs 16bit: GPMC_NAND_HW_ECC_LAYOUT
+ */
+#define CONFIG_SYS_NAND_ECCPOS		{ 2, 3, 4, 5, 6, 7, 8, 9, \
+					 10, 11, 12, 13 }
+#define CONFIG_SYS_NAND_ECCSIZE		512
+#define CONFIG_SYS_NAND_ECCBYTES	3
+#define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_HAM1_CODE_HW
+
+#define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
+
+#define CONFIG_SPL_TEXT_BASE		0x40200800
+#define CONFIG_SPL_MAX_SIZE		(54 * 1024)	/* 8 KB for stack */
+#define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
+
+/*
+ * Use 0x80008000 as TEXT_BASE here for compatibility reasons with the
+ * older x-loader implementations. And move the BSS area so that it
+ * doesn't overlap with TEXT_BASE.
+ */
+#define CONFIG_SYS_TEXT_BASE		0x80008000
+#define CONFIG_SPL_BSS_START_ADDR	0x80100000
+#define CONFIG_SPL_BSS_MAX_SIZE		0x80000		/* 512 KB */
+
+#define CONFIG_SYS_SPL_MALLOC_START	0x80208000
+#define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000
 
 #endif /* __CONFIG_H */
