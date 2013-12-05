@@ -666,32 +666,21 @@ $(obj)include/spl-autoconf.mk: $(obj)include/config.h
 		sed -n -f tools/scripts/define2mk.sed $@.tmp > $@; \
 	rm $@.tmp
 
-$(obj)include/generated/generic-asm-offsets.h:	$(obj)include/autoconf.mk.dep \
-	$(obj)include/spl-autoconf.mk \
-	$(obj)include/tpl-autoconf.mk \
-	$(obj)lib/asm-offsets.s
+$(obj)include/generated/generic-asm-offsets.h: $(obj)lib/asm-offsets.s
 	@$(XECHO) Generating $@
 	tools/scripts/make-asm-offsets $(obj)lib/asm-offsets.s $@
 
-$(obj)lib/asm-offsets.s:	$(obj)include/autoconf.mk.dep \
-	$(obj)include/spl-autoconf.mk \
-	$(obj)include/tpl-autoconf.mk \
-	$(src)lib/asm-offsets.c
+$(obj)lib/asm-offsets.s: $(obj)include/config.h $(src)lib/asm-offsets.c
 	@mkdir -p $(obj)lib
 	$(CC) -DDO_DEPS_ONLY \
 		$(CFLAGS) $(CFLAGS_$(BCURDIR)/$(@F)) $(CFLAGS_$(BCURDIR)) \
 		-o $@ $(src)lib/asm-offsets.c -c -S
 
-$(obj)include/generated/asm-offsets.h:	$(obj)include/autoconf.mk.dep \
-	$(obj)include/spl-autoconf.mk \
-	$(obj)include/tpl-autoconf.mk \
-	$(obj)$(CPUDIR)/$(SOC)/asm-offsets.s
+$(obj)include/generated/asm-offsets.h: $(obj)$(CPUDIR)/$(SOC)/asm-offsets.s
 	@$(XECHO) Generating $@
 	tools/scripts/make-asm-offsets $(obj)$(CPUDIR)/$(SOC)/asm-offsets.s $@
 
-$(obj)$(CPUDIR)/$(SOC)/asm-offsets.s:	$(obj)include/autoconf.mk.dep \
-	$(obj)include/spl-autoconf.mk \
-	$(obj)include/tpl-autoconf.mk
+$(obj)$(CPUDIR)/$(SOC)/asm-offsets.s: $(obj)include/config.h
 	@mkdir -p $(obj)$(CPUDIR)/$(SOC)
 	if [ -f $(src)$(CPUDIR)/$(SOC)/asm-offsets.c ];then \
 		$(CC) -DDO_DEPS_ONLY \
