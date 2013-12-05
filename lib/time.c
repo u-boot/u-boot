@@ -71,8 +71,8 @@ unsigned long __weak notrace timer_get_us(void)
 }
 static unsigned long long usec_to_tick(unsigned long usec)
 {
-	uint64_t tick = usec * get_tbclk();
-	usec *= get_tbclk();
+	uint64_t tick = usec;
+	tick *= get_tbclk();
 	do_div(tick, 1000000);
 	return tick;
 }
