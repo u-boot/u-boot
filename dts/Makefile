@@ -10,7 +10,7 @@
 ifeq ($(DEVICE_TREE),)
 $(if $(CONFIG_DEFAULT_DEVICE_TREE),,\
 $(error Please define CONFIG_DEFAULT_DEVICE_TREE in your board header file))
-DEVICE_TREE = $(subst ",,$(CONFIG_DEFAULT_DEVICE_TREE))
+DEVICE_TREE = $(CONFIG_DEFAULT_DEVICE_TREE:"%"=%)
 endif
 
 DTS_INCDIRS =  $(SRCTREE)/board/$(VENDOR)/$(BOARD)/dts

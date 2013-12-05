@@ -187,7 +187,7 @@ ifndef LDSCRIPT
 	#LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot.lds.debug
 	ifdef CONFIG_SYS_LDSCRIPT
 		# need to strip off double quotes
-		LDSCRIPT := $(subst ",,$(CONFIG_SYS_LDSCRIPT))
+		LDSCRIPT := $(CONFIG_SYS_LDSCRIPT:"%"=%)
 	endif
 endif
 
@@ -345,7 +345,7 @@ ALL-$(CONFIG_SPL_FRAMEWORK) += $(obj)u-boot.img
 ALL-$(CONFIG_TPL) += $(obj)tpl/u-boot-tpl.bin
 ALL-$(CONFIG_OF_SEPARATE) += $(obj)u-boot.dtb $(obj)u-boot-dtb.bin
 ifneq ($(CONFIG_SPL_TARGET),)
-ALL-$(CONFIG_SPL) += $(obj)$(subst ",,$(CONFIG_SPL_TARGET))
+ALL-$(CONFIG_SPL) += $(obj)$(CONFIG_SPL_TARGET:"%"=%)
 endif
 
 # enable combined SPL/u-boot/dtb rules for tegra

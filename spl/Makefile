@@ -37,7 +37,7 @@ endif
 HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(SRCTREE)/board/$(VENDOR)/common/Makefile),y,n)
 
 ifdef	CONFIG_SPL_START_S_PATH
-START_PATH := $(subst ",,$(CONFIG_SPL_START_S_PATH))
+START_PATH := $(CONFIG_SPL_START_S_PATH:"%"=%)
 else
 START_PATH := $(CPUDIR)
 endif
@@ -118,7 +118,7 @@ __LIBS := $(subst $(obj),,$(LIBS))
 # Linker Script
 ifdef CONFIG_SPL_LDSCRIPT
 # need to strip off double quotes
-LDSCRIPT := $(addprefix $(SRCTREE)/,$(subst ",,$(CONFIG_SPL_LDSCRIPT)))
+LDSCRIPT := $(addprefix $(SRCTREE)/,$(CONFIG_SPL_LDSCRIPT:"%"=%))
 endif
 
 ifeq ($(wildcard $(LDSCRIPT)),)
