@@ -283,53 +283,55 @@ static void omap_hwecc_init_bch(struct nand_chip *chip, int32_t mode)
 	if (bch->ecc_scheme == OMAP_ECC_BCH8_CODE_HW) {
 		wr_mode = BCH_WRAPMODE_1;
 
-	switch (bch->nibbles) {
-	case ECC_BCH4_NIBBLES:
-		unused_length = 3;
-		break;
-	case ECC_BCH8_NIBBLES:
-		unused_length = 2;
-		break;
-	case ECC_BCH16_NIBBLES:
-		unused_length = 0;
-		break;
-	}
+		switch (bch->nibbles) {
+		case ECC_BCH4_NIBBLES:
+			unused_length = 3;
+			break;
+		case ECC_BCH8_NIBBLES:
+			unused_length = 2;
+			break;
+		case ECC_BCH16_NIBBLES:
+			unused_length = 0;
+			break;
+		}
 
-	/*
-	 * This is ecc_size_config for ELM mode.
-	 * Here we are using different settings for read and write access and
-	 * also depending on BCH strength.
-	 */
-	switch (mode) {
-	case NAND_ECC_WRITE:
-		/* write access only setup eccsize1 config */
-		val = ((unused_length + bch->nibbles) << 22);
-		break;
-
-	case NAND_ECC_READ:
-	default:
 		/*
-		 * by default eccsize0 selected for ecc1resultsize
-		 * eccsize0 config.
+		 * This is ecc_size_config for ELM mode.  Here we are using
+		 * different settings for read and write access and also
+		 * depending on BCH strength.
 		 */
-		val  = (bch->nibbles << 12);
-		/* eccsize1 config */
-		val |= (unused_length << 22);
-		break;
-	}
+		switch (mode) {
+		case NAND_ECC_WRITE:
+			/* write access only setup eccsize1 config */
+			val = ((unused_length + bch->nibbles) << 22);
+			break;
+
+		case NAND_ECC_READ:
+		default:
+			/*
+			 * by default eccsize0 selected for ecc1resultsize
+			 * eccsize0 config.
+			 */
+			val  = (bch->nibbles << 12);
+			/* eccsize1 config */
+			val |= (unused_length << 22);
+			break;
+		}
 	} else {
-	/*
-	 * This ecc_size_config setting is for BCH sw library.
-	 *
-	 * Note: we only support BCH8 currently with BCH sw library!
-	 * Should be really easy to adobt to BCH4, however some omap3 have
-	 * flaws with BCH4.
-	 *
-	 * Here we are using wrapping mode 6 both for reading and writing, with:
-	 *  size0 = 0  (no additional protected byte in spare area)
-	 *  size1 = 32 (skip 32 nibbles = 16 bytes per sector in spare area)
-	 */
-	val = (32 << 22) | (0 << 12);
+		/*
+		 * This ecc_size_config setting is for BCH sw library.
+		 *
+		 * Note: we only support BCH8 currently with BCH sw library!
+		 * Should be really easy to adobt to BCH4, however some omap3
+		 * have flaws with BCH4.
+		 *
+		 * Here we are using wrapping mode 6 both for reading and
+		 * writing, with:
+		 *  size0 = 0  (no additional protected byte in spare area)
+		 *  size1 = 32 (skip 32 nibbles = 16 bytes per sector in
+		 *		spare area)
+		 */
+		val = (32 << 22) | (0 << 12);
 	}
 	/* ecc size configuration */
 	writel(val, &gpmc_cfg->ecc_size_config);
