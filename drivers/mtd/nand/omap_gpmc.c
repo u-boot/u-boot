@@ -798,8 +798,12 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 		nand->ecc.calculate	= omap_calculate_ecc;
 		/* define ecc-layout */
 		ecclayout->eccbytes	= nand->ecc.bytes * eccsteps;
-		for (i = 0; i < ecclayout->eccbytes; i++)
-			ecclayout->eccpos[i] = i + BADBLOCK_MARKER_LENGTH;
+		for (i = 0; i < ecclayout->eccbytes; i++) {
+			if (nand->options & NAND_BUSWIDTH_16)
+				ecclayout->eccpos[i] = i + 2;
+			else
+				ecclayout->eccpos[i] = i + 1;
+		}
 		ecclayout->oobfree[0].offset = i + BADBLOCK_MARKER_LENGTH;
 		ecclayout->oobfree[0].length = oobsize - ecclayout->eccbytes -
 						BADBLOCK_MARKER_LENGTH;
