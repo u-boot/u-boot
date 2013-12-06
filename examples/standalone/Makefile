@@ -12,11 +12,6 @@ ELF-y        := hello_world
 ELF-$(CONFIG_SMC91111)           += smc91111_eeprom
 ELF-$(CONFIG_SMC911X)            += smc911x_eeprom
 ELF-$(CONFIG_SPI_FLASH_ATMEL)    += atmel_df_pow2
-# TODO:
-#   - Fix the warning of 82559_eeprom.c and uncomment the following
-# or
-#   - Delete 82559_eeprom.c and the following line
-#ELF-$(CONFIG_X86)                += 82559_eeprom
 ELF-$(CONFIG_MPC5xxx)            += interrupt
 ELF-$(CONFIG_8xx)                += test_burst timer
 ELF-$(CONFIG_8260)               += mem_to_mem_idma2intr
