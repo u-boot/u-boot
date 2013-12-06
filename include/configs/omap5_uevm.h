@@ -4,7 +4,7 @@
  * Sricharan R	  <r.sricharan@ti.com>
  *
  * Configuration settings for the TI EVM5430 board.
- * See omap5_common.h for omap5 common settings.
+ * See ti_omap5_common.h for omap5 common settings.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -17,7 +17,7 @@
 	"uuid_disk=${uuid_gpt_disk};" \
 	"name=rootfs,start=2MiB,size=-,uuid=${uuid_gpt_rootfs}"
 
-#include <configs/omap5_common.h>
+#include <configs/ti_omap5_common.h>
 
 #define CONFIG_CONS_INDEX		3
 #define CONFIG_SYS_NS16550_COM3		UART3_BASE

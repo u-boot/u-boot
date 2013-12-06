@@ -4,7 +4,7 @@
  * Lokesh Vutla	  <lokeshvutla@ti.com>
  *
  * Configuration settings for the TI DRA7XX board.
- * See omap5_common.h for omap5 common settings.
+ * See ti_omap5_common.h for omap5 common settings.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -34,7 +34,7 @@
 
 #define CONFIG_SYS_OMAP_ABE_SYSCK
 
-#include <configs/omap5_common.h>
+#include <configs/ti_omap5_common.h>
 
 /* CPSW Ethernet */
 #define CONFIG_CMD_NET			/* 'bootp' and 'tftp' */

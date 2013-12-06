@@ -14,8 +14,8 @@
  * http://www.ti.com/product/omap5432
  */
 
-#ifndef __CONFIG_OMAP5_COMMON_H
-#define __CONFIG_OMAP5_COMMON_H
+#ifndef __CONFIG_TI_OMAP5_COMMON_H
+#define __CONFIG_TI_OMAP5_COMMON_H
 
 #define CONFIG_OMAP54XX
 #define CONFIG_DISPLAY_CPUINFO
@@ -146,4 +146,4 @@
 #define CONFIG_SPL_DISPLAY_PRINT
 #define CONFIG_SPL_LDSCRIPT "$(CPUDIR)/omap-common/u-boot-spl.lds"
 
-#endif /* __CONFIG_OMAP5_COMMON_H */
+#endif /* __CONFIG_TI_OMAP5_COMMON_H */
