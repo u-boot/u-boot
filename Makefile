@@ -756,7 +756,6 @@ $(obj).boards.depend:	boards.cfg
 
 clean:
 	@rm -f $(obj)examples/standalone/atmel_df_pow2			  \
-	       $(obj)examples/standalone/eepro100_eeprom		  \
 	       $(obj)examples/standalone/hello_world			  \
 	       $(obj)examples/standalone/interrupt			  \
 	       $(obj)examples/standalone/mem_to_mem_idma2intr		  \
@@ -766,9 +765,9 @@ clean:
 	       $(obj)examples/standalone/timer
 	@rm -f $(obj)examples/api/demo{,.bin}
 	@rm -f $(obj)tools/bmp_logo	   $(obj)tools/easylogo/easylogo  \
-	       $(obj)tools/env/{fw_printenv,fw_setenv}			  \
+	       $(obj)tools/env/fw_printenv				  \
 	       $(obj)tools/envcrc					  \
-	       $(obj)tools/gdb/{astest,gdbcont,gdbsend}			  \
+	       $(obj)tools/gdb/{gdbcont,gdbsend}			  \
 	       $(obj)tools/gen_eth_addr    $(obj)tools/img2srec		  \
 	       $(obj)tools/dump{env,}image		  \
 	       $(obj)tools/mk{env,}image   $(obj)tools/mpc86x_clk	  \
@@ -779,7 +778,6 @@ clean:
 	       $(obj)tools/proftool
 	@rm -f $(obj)board/cray/L1/{bootscript.c,bootscript.image}	  \
 	       $(obj)board/matrix_vision/*/bootscript.img		  \
-	       $(obj)board/voiceblue/eeprom 				  \
 	       $(obj)u-boot.lds						  \
 	       $(obj)arch/blackfin/cpu/init.{lds,elf}
 	@rm -f $(obj)include/bmp_logo.h
@@ -815,7 +813,6 @@ clobber:	tidy
 	@rm -f $(obj)u-boot.ais
 	@rm -f $(obj)u-boot.dtb
 	@rm -f $(obj)u-boot.sb
-	@rm -f $(obj)u-boot.bd
 	@rm -f $(obj)u-boot.spr
 	@rm -f $(obj)nand_spl/{u-boot.{lds,lst},System.map}
 	@rm -f $(obj)nand_spl/{u-boot-nand_spl.lds,u-boot-spl,u-boot-spl.map}
