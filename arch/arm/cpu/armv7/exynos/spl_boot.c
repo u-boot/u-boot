@@ -62,6 +62,7 @@ static int config_branch_prediction(int set_cr_z)
 }
 #endif
 
+#ifdef CONFIG_SPI_BOOTING
 static void spi_rx_tx(struct exynos_spi *regs, int todo,
 			void *dinp, void const *doutp, int i)
 {
@@ -174,6 +175,7 @@ static void exynos_spi_copy(unsigned int uboot_size, unsigned int uboot_addr)
 	clrbits_le32(&regs->ch_cfg, SPI_CH_RST);
 	clrbits_le32(&regs->ch_cfg, SPI_TX_CH_ON | SPI_RX_CH_ON);
 }
+#endif
 
 /*
 * Copy U-boot from mmc to RAM:
@@ -186,7 +188,9 @@ void copy_uboot_to_ram(void)
 
 	u32 (*copy_bl2)(u32 offset, u32 nblock, u32 dst) = NULL;
 	u32 offset = 0, size = 0;
+#ifdef CONFIG_SPI_BOOTING
 	struct spl_machine_param *param = spl_get_machine_params();
+#endif
 #ifdef CONFIG_SUPPORT_EMMC_BOOT
 	u32 (*copy_bl2_from_emmc)(u32 nblock, u32 dst);
 	void (*end_bootop_from_emmc)(void);
