@@ -807,7 +807,6 @@ clean:
 	       $(obj)board/matrix_vision/*/bootscript.img		  \
 	       $(obj)board/voiceblue/eeprom 				  \
 	       $(obj)u-boot.lds						  \
-	       $(obj)arch/blackfin/cpu/bootrom-asm-offsets.[chs]	  \
 	       $(obj)arch/blackfin/cpu/init.{lds,elf}
 	@rm -f $(obj)include/bmp_logo.h
 	@rm -f $(obj)include/bmp_logo_data.h

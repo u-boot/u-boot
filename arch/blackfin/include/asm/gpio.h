@@ -72,7 +72,7 @@
 
 #ifndef __ASSEMBLY__
 
-#ifdef CONFIG_ADI_GPIO1
+#ifndef CONFIG_ADI_GPIO2
 void set_gpio_dir(unsigned, unsigned short);
 void set_gpio_inen(unsigned, unsigned short);
 void set_gpio_polar(unsigned, unsigned short);

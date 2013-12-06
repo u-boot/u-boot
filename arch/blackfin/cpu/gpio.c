@@ -12,7 +12,7 @@
 #include <asm/gpio.h>
 #include <asm/portmux.h>
 
-#ifdef CONFIG_ADI_GPIO1
+#ifndef CONFIG_ADI_GPIO2
 #if ANOMALY_05000311 || ANOMALY_05000323
 enum {
 	AWA_data = SYSCR,

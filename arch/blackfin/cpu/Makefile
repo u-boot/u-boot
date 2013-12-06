@@ -23,16 +23,6 @@ obj-y  += traps.o
 
 extra-y += check_initcode
 
-extra-y += bootrom-asm-offsets.h
-$(obj)bootrom-asm-offsets.c: bootrom-asm-offsets.c.in bootrom-asm-offsets.awk
-	echo '#include <asm/mach-common/bits/bootrom.h>' | $(CPP) $(CPPFLAGS) - | gawk -f ./bootrom-asm-offsets.awk > $@.tmp
-	mv $@.tmp $@
-$(obj)bootrom-asm-offsets.s: $(obj)bootrom-asm-offsets.c
-	$(CC) $(CFLAGS) -S $^ -o $@.tmp
-	mv $@.tmp $@
-$(obj)bootrom-asm-offsets.h: $(obj)bootrom-asm-offsets.s
-	sed -ne "/^->/{s:^->\([^ ]*\) [\$$#]*\([^ ]*\) \(.*\):#define \1 \2 /* \3 */:; s:->::; p;}" $^ > $@
-
 # make sure our initcode (which goes into LDR) does not
 # have relocs or external references
 $(obj)initcode.o: CFLAGS += -fno-function-sections -fno-data-sections

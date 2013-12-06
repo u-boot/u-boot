@@ -85,6 +85,7 @@
 #define CONFIG_UART_CONSOLE	0
 
 #define CONFIG_BAUDRATE		115200
+#define CONFIG_BFIN_SERIAL
 #define CONFIG_BOOTARGS		"root=/dev/mtdblock0 rw"
 #define CONFIG_BOOTCOMMAND	"run sfboot"
 #define CONFIG_BOOTDELAY	5

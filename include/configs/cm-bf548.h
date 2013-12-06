@@ -118,6 +118,8 @@
 #define CONFIG_BOOTCOMMAND	"run flashboot"
 #define FLASHBOOT_ENV_SETTINGS	"flashboot=bootm 0x20040000\0"
 
+#define CONFIG_ADI_GPIO2
+
 #ifndef __ADSPBF542__
 /* Don't waste time transferring a logo over the UART */
 # if (CONFIG_BFIN_BOOT_MODE != BFIN_BOOT_UART)
