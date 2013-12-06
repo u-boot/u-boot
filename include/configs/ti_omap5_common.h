@@ -146,4 +146,8 @@
 #define CONFIG_SPL_DISPLAY_PRINT
 #define CONFIG_SPL_LDSCRIPT "$(CPUDIR)/omap-common/u-boot-spl.lds"
 
+#ifdef CONFIG_NAND
+#define CONFIG_SPL_NAND_AM33XX_BCH	/* ELM support */
+#endif
+
 #endif /* __CONFIG_TI_OMAP5_COMMON_H */
