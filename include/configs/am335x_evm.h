@@ -42,12 +42,11 @@
 	"dfu_alt_info_nand=" DFU_ALT_INFO_NAND "\0" \
 	"nandroot=ubi0:rootfs rw ubi.mtd=7,2048\0" \
 	"nandrootfstype=ubifs rootwait=1\0" \
-	"nandsrcaddr=0x280000\0" \
-		"nandboot=echo Booting from nand ...; " \
+	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
-		"nand read ${loadaddr} ${nandsrcaddr} ${nandimgsize}; " \
-		"bootz ${loadaddr}\0" \
-	"nandimgsize=0x500000\0"
+		"nand read ${fdtaddr} u-boot-spl-os; " \
+		"nand read ${loadaddr} kernel; " \
+		"bootz ${loadaddr} - ${fdtaddr}\0"
 #else
 #define NANDARGS ""
 #endif

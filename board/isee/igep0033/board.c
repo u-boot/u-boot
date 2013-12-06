@@ -35,20 +35,16 @@ static const struct ddr_data ddr3_data = {
 	.datawdsratio0 = K4B2G1646EBIH9_WR_DQS,
 	.datafwsratio0 = K4B2G1646EBIH9_PHY_FIFO_WE,
 	.datawrsratio0 = K4B2G1646EBIH9_PHY_WR_DATA,
-	.datadldiff0 = PHY_DLL_LOCK_DIFF,
 };
 
 static const struct cmd_control ddr3_cmd_ctrl_data = {
 	.cmd0csratio = K4B2G1646EBIH9_RATIO,
-	.cmd0dldiff = K4B2G1646EBIH9_DLL_LOCK_DIFF,
 	.cmd0iclkout = K4B2G1646EBIH9_INVERT_CLKOUT,
 
 	.cmd1csratio = K4B2G1646EBIH9_RATIO,
-	.cmd1dldiff = K4B2G1646EBIH9_DLL_LOCK_DIFF,
 	.cmd1iclkout = K4B2G1646EBIH9_INVERT_CLKOUT,
 
 	.cmd2csratio = K4B2G1646EBIH9_RATIO,
-	.cmd2dldiff = K4B2G1646EBIH9_DLL_LOCK_DIFF,
 	.cmd2iclkout = K4B2G1646EBIH9_INVERT_CLKOUT,
 };
 

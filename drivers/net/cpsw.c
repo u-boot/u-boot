@@ -914,7 +914,7 @@ static int cpsw_recv(struct eth_device *dev)
 	void *buffer;
 	int len;
 
-	cpsw_update_link(priv);
+	cpsw_check_link(priv);
 
 	while (cpdma_process(priv, &priv->rx_chan, &buffer, &len) >= 0) {
 		invalidate_dcache_range((unsigned long)buffer,

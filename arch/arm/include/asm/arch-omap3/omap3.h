@@ -55,6 +55,7 @@ struct control_prog_io {
 #define OMAP34XX_UART1			(OMAP34XX_L4_IO_BASE + 0x6a000)
 #define OMAP34XX_UART2			(OMAP34XX_L4_IO_BASE + 0x6c000)
 #define OMAP34XX_UART3			(OMAP34XX_L4_PER + 0x20000)
+#define OMAP34XX_UART4			(OMAP34XX_L4_PER + 0x42000)
 
 /* General Purpose Timers */
 #define OMAP34XX_GPT1			0x48318000

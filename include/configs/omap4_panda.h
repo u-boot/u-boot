@@ -36,9 +36,6 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 
-#define CONFIG_USB_ULPI
-#define CONFIG_USB_ULPI_VIEWPORT_OMAP
-
 #include <configs/omap4_common.h>
 #define CONFIG_CMD_NET
 

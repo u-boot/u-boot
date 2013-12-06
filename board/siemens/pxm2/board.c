@@ -58,19 +58,14 @@ struct ddr_data pxm2_ddr3_data = {
 	.datawdsratio0 = 0,
 	.datafwsratio0 = 0x8020080,
 	.datawrsratio0 = 0x4010040,
-	.datauserank0delay = 1,
-	.datadldiff0 = PHY_DLL_LOCK_DIFF,
 };
 
 struct cmd_control pxm2_ddr3_cmd_ctrl_data = {
 	.cmd0csratio = 0x80,
-	.cmd0dldiff = 0,
 	.cmd0iclkout = 0,
 	.cmd1csratio = 0x80,
-	.cmd1dldiff = 0,
 	.cmd1iclkout = 0,
 	.cmd2csratio = 0x80,
-	.cmd2dldiff = 0,
 	.cmd2iclkout = 0,
 };
 

@@ -28,21 +28,48 @@ static struct omap_ehci *const ehci = (struct omap_ehci *)OMAP_EHCI_BASE;
 
 static int omap_uhh_reset(void)
 {
-/*
- * Soft resetting the UHH module causes instability issues on
- * all OMAPs so we just avoid it.
- *
- * See OMAP36xx Errata
- *  i571: USB host EHCI may stall when entering smart-standby mode
- *  i660: USBHOST Configured In Smart-Idle Can Lead To a Deadlock
- *
- * On OMAP4/5, soft-resetting the UHH module will put it into
- * Smart-Idle mode and lead to a deadlock.
- *
- * On OMAP3, this doesn't seem to be the case but still instabilities
- * are observed on beagle (3530 ES1.0) if soft-reset is used.
- * e.g. NFS root failures with Linux kernel.
- */
+	int timeout = 0;
+	u32 rev;
+
+	rev = readl(&uhh->rev);
+
+	/* Soft RESET */
+	writel(OMAP_UHH_SYSCONFIG_SOFTRESET, &uhh->sysc);
+
+	switch (rev) {
+	case OMAP_USBHS_REV1:
+		/* Wait for soft RESET to complete */
+		while (!(readl(&uhh->syss) & 0x1)) {
+			if (timeout > 100) {
+				printf("%s: RESET timeout\n", __func__);
+				return -1;
+			}
+			udelay(10);
+			timeout++;
+		}
+
+		/* Set No-Idle, No-Standby */
+		writel(OMAP_UHH_SYSCONFIG_VAL, &uhh->sysc);
+		break;
+
+	default:	/* Rev. 2 onwards */
+
+		udelay(2); /* Need to wait before accessing SYSCONFIG back */
+
+		/* Wait for soft RESET to complete */
+		while ((readl(&uhh->sysc) & 0x1)) {
+			if (timeout > 100) {
+				printf("%s: RESET timeout\n", __func__);
+				return -1;
+			}
+			udelay(10);
+			timeout++;
+		}
+
+		writel(OMAP_UHH_SYSCONFIG_VAL, &uhh->sysc);
+		break;
+	}
+
 	return 0;
 }
 
