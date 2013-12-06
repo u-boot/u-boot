@@ -462,7 +462,7 @@ static int exynos4_pinmux_config(int peripheral, int flags)
 	case PERIPH_ID_SDMMC1:
 	case PERIPH_ID_SDMMC3:
 	case PERIPH_ID_SDMMC4:
-		printf("SDMMC device %d not implemented\n", peripheral);
+		debug("SDMMC device %d not implemented\n", peripheral);
 		return -1;
 	default:
 		debug("%s: invalid peripheral %d", __func__, peripheral);
