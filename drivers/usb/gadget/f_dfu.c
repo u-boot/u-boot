@@ -755,8 +755,8 @@ static int dfu_bind_config(struct usb_configuration *c)
 	f_dfu->usb_function.unbind = dfu_unbind;
 	f_dfu->usb_function.set_alt = dfu_set_alt;
 	f_dfu->usb_function.disable = dfu_disable;
-	f_dfu->usb_function.strings = dfu_generic_strings,
-	f_dfu->usb_function.setup = dfu_handle,
+	f_dfu->usb_function.strings = dfu_generic_strings;
+	f_dfu->usb_function.setup = dfu_handle;
 	f_dfu->poll_timeout = DFU_DEFAULT_POLL_TIMEOUT;
 
 	status = usb_add_function(c, &f_dfu->usb_function);
