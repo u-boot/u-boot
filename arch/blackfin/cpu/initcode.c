@@ -18,8 +18,6 @@
 #include <asm/mach-common/bits/core.h>
 #include <asm/serial.h>
 
-#define BUG() while (1) asm volatile("emuexcpt;");
-
 #ifndef __ADSPBF60x__
 #include <asm/mach-common/bits/ebiu.h>
 #include <asm/mach-common/bits/pll.h>
@@ -147,8 +145,6 @@ static struct ddr_config ddr_config_table[] = {
 __attribute__((always_inline))
 static inline void serial_init(void)
 {
-	uint32_t uart_base = UART_BASE;
-
 #if defined(__ADSPBF54x__) || defined(__ADSPBF60x__)
 # ifdef BFIN_BOOT_UART_USE_RTS
 #  define BFIN_UART_USE_RTS 1
@@ -156,6 +152,7 @@ static inline void serial_init(void)
 #  define BFIN_UART_USE_RTS 0
 # endif
 	if (BFIN_UART_USE_RTS && CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_UART) {
+		uint32_t uart_base = UART_BASE;
 		size_t i;
 
 		/* force RTS rather than relying on auto RTS */
@@ -195,8 +192,8 @@ static inline void serial_init(void)
 
 #if CONFIG_BFIN_BOOT_MODE != BFIN_BOOT_BYPASS
 	if (BFIN_DEBUG_EARLY_SERIAL) {
-		serial_early_init(uart_base);
-		serial_early_set_baud(uart_base, CONFIG_BAUDRATE);
+		serial_early_init(UART_BASE);
+		serial_early_set_baud(UART_BASE, CONFIG_BAUDRATE);
 	}
 #endif
 }
@@ -547,7 +544,7 @@ maybe_self_refresh(ADI_BOOT_DATA *bs)
 __attribute__((always_inline)) static inline u16
 program_clocks(ADI_BOOT_DATA *bs, bool put_into_srfs)
 {
-	u16 vr_ctl;
+	u16 vr_ctl = 0;
 
 	serial_putc('a');
 
@@ -731,6 +728,8 @@ update_serial_clocks(ADI_BOOT_DATA *bs, uint sdivB, uint divB, uint vcoB)
 
 	serial_putc('a');
 
+	if (BFIN_DEBUG_EARLY_SERIAL ||
+		CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_UART) {
 #ifdef __ADSPBF60x__
 	sdivR = bfin_read_CGU_DIV();
 	sdivR = ((sdivR >> 8) & 0x1f) * ((sdivR >> 5) & 0x7);
@@ -744,6 +743,8 @@ update_serial_clocks(ADI_BOOT_DATA *bs, uint sdivB, uint divB, uint vcoB)
 	divisor = vcoB * sdivR;
 	quotient = early_division(dividend, divisor);
 	serial_early_put_div(quotient - ANOMALY_05000230);
+	}
+
 	serial_putc('c');
 }
 
@@ -913,7 +914,8 @@ check_hibernation(ADI_BOOT_DATA *bs, u16 vr_ctl, bool put_into_srfs)
 			continue;
 
 		serial_putc('z');
-		uint32_t *hibernate_magic = bfin_read32(DPM0_RESTORE4);
+		uint32_t *hibernate_magic =
+			(uint32_t *)bfin_read32(DPM0_RESTORE4);
 		SSYNC(); /* make sure memory controller is done */
 		if (hibernate_magic[0] == 0xDEADBEEF) {
 			serial_putc('c');
