@@ -16,6 +16,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/ddr_defs.h>
+#include <asm/arch/gpio.h>
 #include <asm/emif.h>
 #include "board.h"
 
@@ -179,10 +180,70 @@ const u32 ext_phy_ctrl_const_base_lpddr2[] = {
 	0x08102040
 };
 
+const struct ctrl_ioregs ioregs_ddr3 = {
+	.cm0ioctl		= DDR3_ADDRCTRL_IOCTRL_VALUE,
+	.cm1ioctl		= DDR3_ADDRCTRL_WD0_IOCTRL_VALUE,
+	.cm2ioctl		= DDR3_ADDRCTRL_WD1_IOCTRL_VALUE,
+	.dt0ioctl		= DDR3_DATA0_IOCTRL_VALUE,
+	.dt1ioctl		= DDR3_DATA0_IOCTRL_VALUE,
+	.dt2ioctrl		= DDR3_DATA0_IOCTRL_VALUE,
+	.dt3ioctrl		= DDR3_DATA0_IOCTRL_VALUE,
+	.emif_sdram_config_ext	= 0x0043,
+};
+
+const struct emif_regs ddr3_emif_regs_400Mhz = {
+	.sdram_config			= 0x638413B2,
+	.ref_ctrl			= 0x00000C30,
+	.sdram_tim1			= 0xEAAAD4DB,
+	.sdram_tim2			= 0x266B7FDA,
+	.sdram_tim3			= 0x107F8678,
+	.read_idle_ctrl			= 0x00050000,
+	.zq_config			= 0x50074BE4,
+	.temp_alert_config		= 0x0,
+	.emif_ddr_phy_ctlr_1		= 0x0E084008,
+	.emif_ddr_ext_phy_ctrl_1	= 0x08020080,
+	.emif_ddr_ext_phy_ctrl_2	= 0x00400040,
+	.emif_ddr_ext_phy_ctrl_3	= 0x00400040,
+	.emif_ddr_ext_phy_ctrl_4	= 0x00400040,
+	.emif_ddr_ext_phy_ctrl_5	= 0x00400040,
+	.emif_rd_wr_lvl_rmp_win		= 0x0,
+	.emif_rd_wr_lvl_rmp_ctl		= 0x0,
+	.emif_rd_wr_lvl_ctl		= 0x0,
+	.emif_rd_wr_exec_thresh		= 0x00000405
+};
+
+const u32 ext_phy_ctrl_const_base_ddr3[] = {
+	0x00400040,
+	0x00350035,
+	0x00350035,
+	0x00350035,
+	0x00350035,
+	0x00350035,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00340034,
+	0x00340034,
+	0x00340034,
+	0x00340034,
+	0x00340034,
+	0x0,
+	0x0,
+	0x40000000,
+	0x08102040
+};
+
 void emif_get_ext_phy_ctrl_const_regs(const u32 **regs, u32 *size)
 {
-	*regs = ext_phy_ctrl_const_base_lpddr2;
-	*size = ARRAY_SIZE(ext_phy_ctrl_const_base_lpddr2);
+	if (board_is_eposevm()) {
+		*regs = ext_phy_ctrl_const_base_lpddr2;
+		*size = ARRAY_SIZE(ext_phy_ctrl_const_base_lpddr2);
+	} else if (board_is_gpevm()) {
+		*regs = ext_phy_ctrl_const_base_ddr3;
+		*size = ARRAY_SIZE(ext_phy_ctrl_const_base_ddr3);
+	}
 
 	return;
 }
@@ -280,9 +341,35 @@ void set_mux_conf_regs(void)
 	enable_board_pin_mux();
 }
 
+static void enable_vtt_regulator(void)
+{
+	u32 temp;
+
+	/* enable module */
+	writel(GPIO_CTRL_ENABLEMODULE, AM33XX_GPIO0_BASE + OMAP_GPIO_CTRL);
+
+	/* enable output for GPIO0_22 */
+	writel(GPIO_SETDATAOUT(GPIO_22),
+	       AM33XX_GPIO0_BASE + OMAP_GPIO_SETDATAOUT);
+	temp = readl(AM33XX_GPIO0_BASE + OMAP_GPIO_OE);
+	temp = temp & ~(GPIO_OE_ENABLE(GPIO_22));
+	writel(temp, AM33XX_GPIO0_BASE + OMAP_GPIO_OE);
+}
+
 void sdram_init(void)
 {
-	config_ddr(0, &ioregs_lpddr2, NULL, NULL, &emif_regs_lpddr2, 0);
+	/*
+	 * EPOS EVM has 1GB LPDDR2 connected to EMIF.
+	 * GP EMV has 1GB DDR3 connected to EMIF
+	 * along with VTT regulator.
+	 */
+	if (board_is_eposevm()) {
+		config_ddr(0, &ioregs_lpddr2, NULL, NULL, &emif_regs_lpddr2, 0);
+	} else if (board_is_gpevm()) {
+		enable_vtt_regulator();
+		config_ddr(0, &ioregs_ddr3, NULL, NULL,
+			   &ddr3_emif_regs_400Mhz, 0);
+	}
 }
 #endif
 

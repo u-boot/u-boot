@@ -97,8 +97,10 @@ void config_sdram_emif4d5(const struct emif_regs *regs, int nr)
 	writel(regs->ref_ctrl, &emif_reg[nr]->emif_sdram_ref_ctrl);
 	writel(regs->sdram_config, &emif_reg[nr]->emif_sdram_config);
 
-	configure_mr(nr, 0);
-	configure_mr(nr, 1);
+	if (emif_sdram_type() == EMIF_SDRAM_TYPE_LPDDR2) {
+		configure_mr(nr, 0);
+		configure_mr(nr, 1);
+	}
 }
 
 /**

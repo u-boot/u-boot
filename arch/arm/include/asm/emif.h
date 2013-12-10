@@ -1160,6 +1160,20 @@ static inline u32 get_emif_rev(u32 base)
 		>> EMIF_REG_MAJOR_REVISION_SHIFT;
 }
 
+/*
+ * Get SDRAM type connected to EMIF.
+ * Assuming similar SDRAM parts are connected to both EMIF's
+ * which is typically the case. So it is sufficient to get
+ * SDRAM type from EMIF1.
+ */
+static inline u32 emif_sdram_type(void)
+{
+	struct emif_reg_struct *emif = (struct emif_reg_struct *)EMIF1_BASE;
+
+	return (readl(&emif->emif_sdram_config) &
+		EMIF_REG_SDRAM_TYPE_MASK) >> EMIF_REG_SDRAM_TYPE_SHIFT;
+}
+
 /* assert macros */
 #if defined(DEBUG)
 #define emif_assert(c)	({ if (!(c)) for (;;); })
