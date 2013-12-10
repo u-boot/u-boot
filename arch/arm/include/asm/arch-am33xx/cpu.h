@@ -401,6 +401,11 @@ struct cm_perpll {
 	unsigned int cpgmac0clkctrl;	/* offset 0xB20 */
 };
 
+struct cm_device_inst {
+	unsigned int cm_clkout1_ctrl;
+	unsigned int cm_dll_ctrl;
+};
+
 struct cm_dpll {
 	unsigned int resv1;
 	unsigned int clktimer2clk;	/* offset 0x04 */

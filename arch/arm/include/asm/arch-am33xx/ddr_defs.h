@@ -18,7 +18,11 @@
 #define VTP_CTRL_READY		(0x1 << 5)
 #define VTP_CTRL_ENABLE		(0x1 << 6)
 #define VTP_CTRL_START_EN	(0x1)
+#ifdef CONFIG_AM43XX
+#define DDR_CKE_CTRL_NORMAL	0x3
+#else
 #define DDR_CKE_CTRL_NORMAL	0x1
+#endif
 #define PHY_EN_DYN_PWRDN	(0x1 << 20)
 
 /* Micron MT47H128M16RT-25E */
@@ -124,6 +128,14 @@
 #define K4B2G1646EBIH9_PHY_WR_DATA		0x76
 #define K4B2G1646EBIH9_IOCTRL_VALUE		0x18B
 
+#define  LPDDR2_ADDRCTRL_IOCTRL_VALUE   0x294
+#define  LPDDR2_ADDRCTRL_WD0_IOCTRL_VALUE 0x00000000
+#define  LPDDR2_ADDRCTRL_WD1_IOCTRL_VALUE 0x00000000
+#define  LPDDR2_DATA0_IOCTRL_VALUE   0x20000294
+#define  LPDDR2_DATA1_IOCTRL_VALUE   0x20000294
+#define  LPDDR2_DATA2_IOCTRL_VALUE   0x20000294
+#define  LPDDR2_DATA3_IOCTRL_VALUE   0x20000294
+
 /**
  * Configure DMM
  */
@@ -133,6 +145,7 @@ void config_dmm(const struct dmm_lisa_map_regs *regs);
  * Configure SDRAM
  */
 void config_sdram(const struct emif_regs *regs, int nr);
+void config_sdram_emif4d5(const struct emif_regs *regs, int nr);
 
 /**
  * Set SDRAM timings
@@ -278,12 +291,27 @@ struct ddr_cmdtctrl {
 	unsigned int resv2[12];
 	unsigned int dt0ioctl;
 	unsigned int dt1ioctl;
+	unsigned int dt2ioctrl;
+	unsigned int dt3ioctrl;
+	unsigned int resv3[4];
+	unsigned int emif_sdram_config_ext;
+};
+
+struct ctrl_ioregs {
+	unsigned int cm0ioctl;
+	unsigned int cm1ioctl;
+	unsigned int cm2ioctl;
+	unsigned int dt0ioctl;
+	unsigned int dt1ioctl;
+	unsigned int dt2ioctrl;
+	unsigned int dt3ioctrl;
+	unsigned int emif_sdram_config_ext;
 };
 
 /**
  * Configure DDR io control registers
  */
-void config_io_ctrl(unsigned long val);
+void config_io_ctrl(const struct ctrl_ioregs *ioregs);
 
 struct ddr_ctrl {
 	unsigned int ddrioctrl;
@@ -291,8 +319,9 @@ struct ddr_ctrl {
 	unsigned int ddrckectrl;
 };
 
-void config_ddr(unsigned int pll, unsigned int ioctrl,
+void config_ddr(unsigned int pll, const struct ctrl_ioregs *ioregs,
 		const struct ddr_data *data, const struct cmd_control *ctrl,
 		const struct emif_regs *regs, int nr);
+void emif_get_ext_phy_ctrl_const_regs(const u32 **regs, u32 *size);
 
 #endif  /* _DDR_DEFS_H */

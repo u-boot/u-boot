@@ -36,6 +36,71 @@ static struct ddr_data_regs *ddr_data_reg[2] = {
 static struct ddr_cmdtctrl *ioctrl_reg = {
 			(struct ddr_cmdtctrl *)DDR_CONTROL_BASE_ADDR};
 
+static inline u32 get_mr(int nr, u32 cs, u32 mr_addr)
+{
+	u32 mr;
+
+	mr_addr |= cs << EMIF_REG_CS_SHIFT;
+	writel(mr_addr, &emif_reg[nr]->emif_lpddr2_mode_reg_cfg);
+
+	mr = readl(&emif_reg[nr]->emif_lpddr2_mode_reg_data);
+	debug("get_mr: EMIF1 cs %d mr %08x val 0x%x\n", cs, mr_addr, mr);
+	if (((mr & 0x0000ff00) >>  8) == (mr & 0xff) &&
+	    ((mr & 0x00ff0000) >> 16) == (mr & 0xff) &&
+	    ((mr & 0xff000000) >> 24) == (mr & 0xff))
+		return mr & 0xff;
+	else
+		return mr;
+}
+
+static inline void set_mr(int nr, u32 cs, u32 mr_addr, u32 mr_val)
+{
+	mr_addr |= cs << EMIF_REG_CS_SHIFT;
+	writel(mr_addr, &emif_reg[nr]->emif_lpddr2_mode_reg_cfg);
+	writel(mr_val, &emif_reg[nr]->emif_lpddr2_mode_reg_data);
+}
+
+static void configure_mr(int nr, u32 cs)
+{
+	u32 mr_addr;
+
+	while (get_mr(nr, cs, LPDDR2_MR0) & LPDDR2_MR0_DAI_MASK)
+		;
+	set_mr(nr, cs, LPDDR2_MR10, 0x56);
+
+	set_mr(nr, cs, LPDDR2_MR1, 0x43);
+	set_mr(nr, cs, LPDDR2_MR2, 0x2);
+
+	mr_addr = LPDDR2_MR2 | EMIF_REG_REFRESH_EN_MASK;
+	set_mr(nr, cs, mr_addr, 0x2);
+}
+
+/*
+ * Configure EMIF4D5 registers and MR registers
+ */
+void config_sdram_emif4d5(const struct emif_regs *regs, int nr)
+{
+	writel(0x0, &emif_reg[nr]->emif_pwr_mgmt_ctrl);
+	writel(0x0, &emif_reg[nr]->emif_pwr_mgmt_ctrl_shdw);
+	writel(0x1, &emif_reg[nr]->emif_iodft_tlgc);
+	writel(regs->zq_config, &emif_reg[nr]->emif_zq_config);
+
+	writel(regs->temp_alert_config, &emif_reg[nr]->emif_temp_alert_config);
+	writel(regs->emif_rd_wr_lvl_rmp_win,
+	       &emif_reg[nr]->emif_rd_wr_lvl_rmp_win);
+	writel(regs->emif_rd_wr_lvl_rmp_ctl,
+	       &emif_reg[nr]->emif_rd_wr_lvl_rmp_ctl);
+	writel(regs->emif_rd_wr_lvl_ctl, &emif_reg[nr]->emif_rd_wr_lvl_ctl);
+	writel(regs->emif_rd_wr_exec_thresh,
+	       &emif_reg[nr]->emif_rd_wr_exec_thresh);
+
+	writel(regs->ref_ctrl, &emif_reg[nr]->emif_sdram_ref_ctrl);
+	writel(regs->sdram_config, &emif_reg[nr]->emif_sdram_config);
+
+	configure_mr(nr, 0);
+	configure_mr(nr, 1);
+}
+
 /**
  * Configure SDRAM
  */
@@ -72,15 +137,67 @@ void set_sdram_timings(const struct emif_regs *regs, int nr)
 	writel(regs->sdram_tim3, &emif_reg[nr]->emif_sdram_tim_3_shdw);
 }
 
+void __weak emif_get_ext_phy_ctrl_const_regs(const u32 **regs, u32 *size)
+{
+}
+
+/*
+ * Configure EXT PHY registers
+ */
+static void ext_phy_settings(const struct emif_regs *regs, int nr)
+{
+	u32 *ext_phy_ctrl_base = 0;
+	u32 *emif_ext_phy_ctrl_base = 0;
+	const u32 *ext_phy_ctrl_const_regs;
+	u32 i = 0;
+	u32 size;
+
+	ext_phy_ctrl_base = (u32 *)&(regs->emif_ddr_ext_phy_ctrl_1);
+	emif_ext_phy_ctrl_base =
+			(u32 *)&(emif_reg[nr]->emif_ddr_ext_phy_ctrl_1);
+
+	/* Configure external phy control timing registers */
+	for (i = 0; i < EMIF_EXT_PHY_CTRL_TIMING_REG; i++) {
+		writel(*ext_phy_ctrl_base, emif_ext_phy_ctrl_base++);
+		/* Update shadow registers */
+		writel(*ext_phy_ctrl_base++, emif_ext_phy_ctrl_base++);
+	}
+
+	/*
+	 * external phy 6-24 registers do not change with
+	 * ddr frequency
+	 */
+	emif_get_ext_phy_ctrl_const_regs(&ext_phy_ctrl_const_regs, &size);
+
+	if (!size)
+		return;
+
+	for (i = 0; i < size; i++) {
+		writel(ext_phy_ctrl_const_regs[i], emif_ext_phy_ctrl_base++);
+		/* Update shadow registers */
+		writel(ext_phy_ctrl_const_regs[i], emif_ext_phy_ctrl_base++);
+	}
+}
+
 /**
  * Configure DDR PHY
  */
 void config_ddr_phy(const struct emif_regs *regs, int nr)
 {
+	/*
+	 * disable initialization and refreshes for now until we
+	 * finish programming EMIF regs.
+	 */
+	setbits_le32(&emif_reg[nr]->emif_sdram_ref_ctrl,
+		     EMIF_REG_INITREF_DIS_MASK);
+
 	writel(regs->emif_ddr_phy_ctlr_1,
 		&emif_reg[nr]->emif_ddr_phy_ctrl_1);
 	writel(regs->emif_ddr_phy_ctlr_1,
 		&emif_reg[nr]->emif_ddr_phy_ctrl_1_shdw);
+
+	if (get_emif_rev((u32)emif_reg[nr]) == EMIF_4D5)
+		ext_phy_settings(regs, nr);
 }
 
 /**

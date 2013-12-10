@@ -14,10 +14,14 @@
 #define _EMIF_H_
 #include <asm/types.h>
 #include <common.h>
+#include <asm/io.h>
 
 /* Base address */
 #define EMIF1_BASE				0x4c000000
 #define EMIF2_BASE				0x4d000000
+
+#define EMIF_4D					0x4
+#define EMIF_4D5				0x5
 
 /* Registers shifts, masks and values */
 
@@ -1147,6 +1151,14 @@ struct read_write_regs {
 	u32 read_reg;
 	u32 write_reg;
 };
+
+static inline u32 get_emif_rev(u32 base)
+{
+	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
+
+	return (readl(&emif->emif_mod_id_rev) & EMIF_REG_MAJOR_REVISION_MASK)
+		>> EMIF_REG_MAJOR_REVISION_SHIFT;
+}
 
 /* assert macros */
 #if defined(DEBUG)

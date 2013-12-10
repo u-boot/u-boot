@@ -48,6 +48,11 @@ static struct vtp_reg *vtpreg[2] = {
 #ifdef CONFIG_AM33XX
 static struct ddr_ctrl *ddrctrl = (struct ddr_ctrl *)DDR_CTRL_ADDR;
 #endif
+#ifdef CONFIG_AM43XX
+static struct ddr_ctrl *ddrctrl = (struct ddr_ctrl *)DDR_CTRL_ADDR;
+static struct cm_device_inst *cm_device =
+				(struct cm_device_inst *)CM_DEVICE_INST;
+#endif
 
 #ifdef CONFIG_TI81XX
 void config_dmm(const struct dmm_lisa_map_regs *regs)
@@ -104,9 +109,24 @@ void config_ddr(unsigned int pll, const struct ctrl_ioregs *ioregs,
 	/* Set CKE to be controlled by EMIF/DDR PHY */
 	writel(DDR_CKE_CTRL_NORMAL, &ddrctrl->ddrckectrl);
 #endif
+#ifdef CONFIG_AM43XX
+	writel(readl(&cm_device->cm_dll_ctrl) & ~0x1, &cm_device->cm_dll_ctrl);
+	while ((readl(&cm_device->cm_dll_ctrl) && CM_DLL_READYST) == 0)
+		;
+	writel(0x0, &ddrctrl->ddrioctrl);
+
+	config_io_ctrl(ioregs);
+
+	/* Set CKE to be controlled by EMIF/DDR PHY */
+	writel(DDR_CKE_CTRL_NORMAL, &ddrctrl->ddrckectrl);
+#endif
+
 	/* Program EMIF instance */
 	config_ddr_phy(regs, nr);
 	set_sdram_timings(regs, nr);
-	config_sdram(regs, nr);
+	if (get_emif_rev(EMIF1_BASE) == EMIF_4D5)
+		config_sdram_emif4d5(regs, nr);
+	else
+		config_sdram(regs, nr);
 }
 #endif

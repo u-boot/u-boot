@@ -15,6 +15,8 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mux.h>
+#include <asm/arch/ddr_defs.h>
+#include <asm/emif.h>
 #include "board.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -122,6 +124,69 @@ const struct dpll_params epos_evm_dpll_ddr = {
 const struct dpll_params gp_evm_dpll_ddr = {
 		400, 23, 1, -1, 1, -1, -1};
 
+const struct ctrl_ioregs ioregs_lpddr2 = {
+	.cm0ioctl		= LPDDR2_ADDRCTRL_IOCTRL_VALUE,
+	.cm1ioctl		= LPDDR2_ADDRCTRL_WD0_IOCTRL_VALUE,
+	.cm2ioctl		= LPDDR2_ADDRCTRL_WD1_IOCTRL_VALUE,
+	.dt0ioctl		= LPDDR2_DATA0_IOCTRL_VALUE,
+	.dt1ioctl		= LPDDR2_DATA0_IOCTRL_VALUE,
+	.dt2ioctrl		= LPDDR2_DATA0_IOCTRL_VALUE,
+	.dt3ioctrl		= LPDDR2_DATA0_IOCTRL_VALUE,
+	.emif_sdram_config_ext	= 0x1,
+};
+
+const struct emif_regs emif_regs_lpddr2 = {
+	.sdram_config			= 0x808012BA,
+	.ref_ctrl			= 0x0000040D,
+	.sdram_tim1			= 0xEA86B411,
+	.sdram_tim2			= 0x103A094A,
+	.sdram_tim3			= 0x0F6BA37F,
+	.read_idle_ctrl			= 0x00050000,
+	.zq_config			= 0x50074BE4,
+	.temp_alert_config		= 0x0,
+	.emif_rd_wr_lvl_rmp_win		= 0x0,
+	.emif_rd_wr_lvl_rmp_ctl		= 0x0,
+	.emif_rd_wr_lvl_ctl		= 0x0,
+	.emif_ddr_phy_ctlr_1		= 0x0E084006,
+	.emif_rd_wr_exec_thresh		= 0x00000405,
+	.emif_ddr_ext_phy_ctrl_1	= 0x04010040,
+	.emif_ddr_ext_phy_ctrl_2	= 0x00500050,
+	.emif_ddr_ext_phy_ctrl_3	= 0x00500050,
+	.emif_ddr_ext_phy_ctrl_4	= 0x00500050,
+	.emif_ddr_ext_phy_ctrl_5	= 0x00500050
+};
+
+const u32 ext_phy_ctrl_const_base_lpddr2[] = {
+	0x00500050,
+	0x00350035,
+	0x00350035,
+	0x00350035,
+	0x00350035,
+	0x00350035,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x40001000,
+	0x08102040
+};
+
+void emif_get_ext_phy_ctrl_const_regs(const u32 **regs, u32 *size)
+{
+	*regs = ext_phy_ctrl_const_base_lpddr2;
+	*size = ARRAY_SIZE(ext_phy_ctrl_const_base_lpddr2);
+
+	return;
+}
+
 const struct dpll_params *get_dpll_ddr_params(void)
 {
 	struct am43xx_board_id header;
@@ -217,6 +282,7 @@ void set_mux_conf_regs(void)
 
 void sdram_init(void)
 {
+	config_ddr(0, &ioregs_lpddr2, NULL, NULL, &emif_regs_lpddr2, 0);
 }
 #endif
 

@@ -62,6 +62,7 @@
 #define PRM_PER_USBPHYOCP2SCP0_CLKCTRL (CM_PER + 0x5b8)
 #define PRM_PER_USBPHYOCP2SCP1_CLKCTRL (CM_PER + 0x5c0)
 #define USBPHYOCPSCP_MODULE_EN	(1 << 1)
+#define CM_DEVICE_INST			0x44df4100
 
 /* Control status register */
 #define CTRL_CRYSTAL_FREQ_SRC_MASK		(1 << 31)
