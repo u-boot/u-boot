@@ -107,21 +107,16 @@ static const struct ddr_data ddr2_data = {
 			  (MT47H128M16RT25E_PHY_WR_DATA<<20) |
 			  (MT47H128M16RT25E_PHY_WR_DATA<<10) |
 			  (MT47H128M16RT25E_PHY_WR_DATA<<0)),
-	.datauserank0delay = MT47H128M16RT25E_PHY_RANK0_DELAY,
-	.datadldiff0 = PHY_DLL_LOCK_DIFF,
 };
 
 static const struct cmd_control ddr2_cmd_ctrl_data = {
 	.cmd0csratio = MT47H128M16RT25E_RATIO,
-	.cmd0dldiff = MT47H128M16RT25E_DLL_LOCK_DIFF,
 	.cmd0iclkout = MT47H128M16RT25E_INVERT_CLKOUT,
 
 	.cmd1csratio = MT47H128M16RT25E_RATIO,
-	.cmd1dldiff = MT47H128M16RT25E_DLL_LOCK_DIFF,
 	.cmd1iclkout = MT47H128M16RT25E_INVERT_CLKOUT,
 
 	.cmd2csratio = MT47H128M16RT25E_RATIO,
-	.cmd2dldiff = MT47H128M16RT25E_DLL_LOCK_DIFF,
 	.cmd2iclkout = MT47H128M16RT25E_INVERT_CLKOUT,
 };
 
@@ -139,7 +134,6 @@ static const struct ddr_data ddr3_data = {
 	.datawdsratio0 = MT41J128MJT125_WR_DQS,
 	.datafwsratio0 = MT41J128MJT125_PHY_FIFO_WE,
 	.datawrsratio0 = MT41J128MJT125_PHY_WR_DATA,
-	.datadldiff0 = PHY_DLL_LOCK_DIFF,
 };
 
 static const struct ddr_data ddr3_beagleblack_data = {
@@ -147,7 +141,6 @@ static const struct ddr_data ddr3_beagleblack_data = {
 	.datawdsratio0 = MT41K256M16HA125E_WR_DQS,
 	.datafwsratio0 = MT41K256M16HA125E_PHY_FIFO_WE,
 	.datawrsratio0 = MT41K256M16HA125E_PHY_WR_DATA,
-	.datadldiff0 = PHY_DLL_LOCK_DIFF,
 };
 
 static const struct ddr_data ddr3_evm_data = {
@@ -155,48 +148,38 @@ static const struct ddr_data ddr3_evm_data = {
 	.datawdsratio0 = MT41J512M8RH125_WR_DQS,
 	.datafwsratio0 = MT41J512M8RH125_PHY_FIFO_WE,
 	.datawrsratio0 = MT41J512M8RH125_PHY_WR_DATA,
-	.datadldiff0 = PHY_DLL_LOCK_DIFF,
 };
 
 static const struct cmd_control ddr3_cmd_ctrl_data = {
 	.cmd0csratio = MT41J128MJT125_RATIO,
-	.cmd0dldiff = MT41J128MJT125_DLL_LOCK_DIFF,
 	.cmd0iclkout = MT41J128MJT125_INVERT_CLKOUT,
 
 	.cmd1csratio = MT41J128MJT125_RATIO,
-	.cmd1dldiff = MT41J128MJT125_DLL_LOCK_DIFF,
 	.cmd1iclkout = MT41J128MJT125_INVERT_CLKOUT,
 
 	.cmd2csratio = MT41J128MJT125_RATIO,
-	.cmd2dldiff = MT41J128MJT125_DLL_LOCK_DIFF,
 	.cmd2iclkout = MT41J128MJT125_INVERT_CLKOUT,
 };
 
 static const struct cmd_control ddr3_beagleblack_cmd_ctrl_data = {
 	.cmd0csratio = MT41K256M16HA125E_RATIO,
-	.cmd0dldiff = MT41K256M16HA125E_DLL_LOCK_DIFF,
 	.cmd0iclkout = MT41K256M16HA125E_INVERT_CLKOUT,
 
 	.cmd1csratio = MT41K256M16HA125E_RATIO,
-	.cmd1dldiff = MT41K256M16HA125E_DLL_LOCK_DIFF,
 	.cmd1iclkout = MT41K256M16HA125E_INVERT_CLKOUT,
 
 	.cmd2csratio = MT41K256M16HA125E_RATIO,
-	.cmd2dldiff = MT41K256M16HA125E_DLL_LOCK_DIFF,
 	.cmd2iclkout = MT41K256M16HA125E_INVERT_CLKOUT,
 };
 
 static const struct cmd_control ddr3_evm_cmd_ctrl_data = {
 	.cmd0csratio = MT41J512M8RH125_RATIO,
-	.cmd0dldiff = MT41J512M8RH125_DLL_LOCK_DIFF,
 	.cmd0iclkout = MT41J512M8RH125_INVERT_CLKOUT,
 
 	.cmd1csratio = MT41J512M8RH125_RATIO,
-	.cmd1dldiff = MT41J512M8RH125_DLL_LOCK_DIFF,
 	.cmd1iclkout = MT41J512M8RH125_INVERT_CLKOUT,
 
 	.cmd2csratio = MT41J512M8RH125_RATIO,
-	.cmd2dldiff = MT41J512M8RH125_DLL_LOCK_DIFF,
 	.cmd2iclkout = MT41J512M8RH125_INVERT_CLKOUT,
 };
 

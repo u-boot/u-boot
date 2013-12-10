@@ -110,8 +110,46 @@
 #define CTRL_P2_EOCP2	(1 << 1)
 #define CTRL_P2_BUSY	(1 << 0)
 
+#define TWL6032_CTRL_P1	0x36
+#define CTRL_P1_SP1	(1 << 3)
+
 #define GPCH0_LSB	0x57
 #define GPCH0_MSB	0x58
+
+#define TWL6032_GPCH0_LSB	0x3b
+
+#define TWL6032_GPSELECT_ISB	0x35
+
+#define USB_PRODUCT_ID_LSB	0x02
+
+#define TWL6030_GPADC_VBAT_CHNL	0x07
+#define TWL6032_GPADC_VBAT_CHNL	0x12
+
+#define TWL6030_GPADC_CTRL	0x2e
+#define TWL6032_GPADC_CTRL2	0x2f
+#define GPADC_CTRL2_CH18_SCALER_EN	(1 << 2)
+#define GPADC_CTRL_SCALER_DIV4		(1 << 3)
+
+#define TWL6030_VBAT_MULT	40 * 1000
+#define TWL6032_VBAT_MULT	25 * 1000
+
+#define TWL6030_VBAT_SHIFT	(10 + 3)
+#define TWL6032_VBAT_SHIFT	(12 + 2)
+
+enum twl603x_chip_type{
+	chip_TWL6030,
+	chip_TWL6032,
+	chip_TWL603X_cnt
+};
+
+struct twl6030_data{
+	u8 chip_type;
+	u8 adc_rbase;
+	u8 adc_ctrl;
+	u8 adc_enable;
+	int vbat_mult;
+	int vbat_shift;
+};
 
 /* Functions to read and write from TWL6030 */
 static inline int twl6030_i2c_write_u8(u8 chip_no, u8 reg, u8 val)

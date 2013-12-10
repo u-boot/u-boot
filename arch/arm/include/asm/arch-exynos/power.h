@@ -16,7 +16,7 @@ struct exynos4_power {
 	unsigned int	gnss_rtc_out_ctrl;
 	unsigned char	res2[0x1ec];
 	unsigned int	system_power_down_ctrl;
-	unsigned char	res3[0x1];
+	unsigned int	res3;
 	unsigned int	system_power_down_option;
 	unsigned char	res4[0x1f4];
 	unsigned int	swreset;

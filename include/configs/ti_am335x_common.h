@@ -18,6 +18,7 @@
 #define CONFIG_SYS_CACHELINE_SIZE       64
 #define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1GB */
 #define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
+#define CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC
 
 #include <asm/arch/omap.h>
 
@@ -42,9 +43,9 @@
 
 /*
  * RTC related defines. To use bootcount you must set bootlimit in the
- * environment to a non-zero value.
+ * environment to a non-zero value and enable CONFIG_BOOTCOUNT_LIMIT
+ * in the board config.
  */
-#define CONFIG_BOOTCOUNT_LIMIT
 #define CONFIG_SYS_BOOTCOUNT_ADDR	0x44E3E000
 
 /* Enable the HW watchdog, since we can use this with bootcount */

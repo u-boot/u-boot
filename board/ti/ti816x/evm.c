@@ -59,21 +59,16 @@ static struct ddr_data ddr2_data = {
 	.datagiratio0		= ((0x0<<10) | (0x0<<0)),
 	.datafwsratio0		= ((0x13A<<10) | (0x13A<<0)),
 	.datawrsratio0		= ((0x8A<<10) | (0x8A<<0)),
-	.datauserank0delay	= 0x1,
-	.datadldiff0		= 0x0, /* depend on cpu rev, set later */
 };
 
 static struct cmd_control ddr2_ctrl = {
 	.cmd0csratio	= 0x80,
-	.cmd0dldiff	= 0x04, /* reset value is 0x4 */
 	.cmd0iclkout	= 0x00,
 
 	.cmd1csratio	= 0x80,
-	.cmd1dldiff	= 0x04, /* reset value is 0x4 */
 	.cmd1iclkout	= 0x00,
 
 	.cmd2csratio	= 0x80,
-	.cmd2dldiff	= 0x04, /* reset value is 0x4 */
 	.cmd2iclkout	= 0x00,
 
 };
@@ -150,21 +145,16 @@ static struct ddr_data ddr3_data = {
 	.datagiratio0		= ((0x20<<10) | 0x20<<0),
 	.datafwsratio0		= ((RD_DQS_GATE<<10) | (RD_DQS_GATE<<0)),
 	.datawrsratio0		= (((WR_DQS+0x40)<<10) | ((WR_DQS+0x40)<<0)),
-	.datauserank0delay	= 0x1,
-	.datadldiff0		= 0x0, /* depend on cpu rev, set later */
 };
 
 static const struct cmd_control ddr3_ctrl = {
 	.cmd0csratio	= 0x100,
-	.cmd0dldiff	= 0x004, /* reset value is 0x4 */
 	.cmd0iclkout	= 0x001,
 
 	.cmd1csratio	= 0x100,
-	.cmd1dldiff	= 0x004, /* reset value is 0x4 */
 	.cmd1iclkout	= 0x001,
 
 	.cmd2csratio	= 0x100,
-	.cmd2dldiff	= 0x004, /* reset value is 0x4 */
 	.cmd2iclkout	= 0x001,
 };
 
@@ -198,11 +188,6 @@ void sdram_init(void)
 	config_dmm(&evm_lisa_map_regs);
 
 #ifdef CONFIG_TI816X_EVM_DDR2
-	ddr2_data.datadldiff0 = (get_cpu_rev() == 0x1 ? 0x0 : 0xF);
-	ddr2_ctrl.cmd0dldiff = (get_cpu_rev() == 0x1 ? 0x0 : 0xF);
-	ddr2_ctrl.cmd1dldiff = (get_cpu_rev() == 0x1 ? 0x0 : 0xF);
-	ddr2_ctrl.cmd2dldiff = (get_cpu_rev() == 0x1 ? 0x0 : 0xF);
-
 	if (CONFIG_TI816X_USE_EMIF0) {
 		ddr2_emif0_regs.emif_ddr_phy_ctlr_1 =
 			(get_cpu_rev() == 0x1 ? 0x0000010B : 0x0000030B);
@@ -217,8 +202,6 @@ void sdram_init(void)
 #endif
 
 #ifdef CONFIG_TI816X_EVM_DDR3
-	ddr3_data.datadldiff0 = (get_cpu_rev() == 0x1 ? 0x0 : 0xF);
-
 	if (CONFIG_TI816X_USE_EMIF0)
 		config_ddr(0, 0, &ddr3_data, &ddr3_ctrl, &ddr3_emif0_regs, 0);
 

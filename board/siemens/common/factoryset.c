@@ -15,7 +15,8 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/unaligned.h>
 #include <net.h>
-#include <usbdescriptors.h>
+#include <errno.h>
+#include <g_dnl.h>
 #include "factoryset.h"
 
 #define EEPR_PG_SZ		0x80
@@ -224,8 +225,20 @@ int factoryset_read_eeprom(int i2c_addr)
 					MAX_STRING_LENGTH)) {
 		debug("display name: %s\n", factory_dat.disp_name);
 	}
-
 #endif
+	if (0 <= get_factory_record_val(cp, size, (uchar *)"DEV",
+					(uchar *)"num", factory_dat.serial,
+					MAX_STRING_LENGTH)) {
+		debug("serial number: %s\n", factory_dat.serial);
+	}
+	if (0 <= get_factory_record_val(cp, size, (uchar *)"DEV",
+					(uchar *)"ver", buf,
+					MAX_STRING_LENGTH)) {
+		factory_dat.version = simple_strtoul((char *)buf,
+							    NULL, 16);
+		debug("version number: %d\n", factory_dat.version);
+	}
+
 	return 0;
 
 err:
@@ -279,6 +292,13 @@ int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
 {
 	put_unaligned(factory_dat.usb_vendor_id, &dev->idVendor);
 	put_unaligned(factory_dat.usb_product_id, &dev->idProduct);
+	g_dnl_set_serialnumber((char *)factory_dat.serial);
+
 	return 0;
+}
+
+int g_dnl_get_board_bcd_device_number(int gcnum)
+{
+	return factory_dat.version;
 }
 #endif /* defined(CONFIG_SPL_BUILD) */

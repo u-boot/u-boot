@@ -168,12 +168,6 @@ void do_io_settings(void)
 		io_settings_lpddr2();
 	else
 		io_settings_ddr3();
-
-	/* Efuse settings */
-	writel(EFUSE_1, (*ctrl)->control_efuse_1);
-	writel(EFUSE_2, (*ctrl)->control_efuse_2);
-	writel(EFUSE_3, (*ctrl)->control_efuse_3);
-	writel(EFUSE_4, (*ctrl)->control_efuse_4);
 }
 
 static const struct srcomp_params srcomp_parameters[NUM_SYS_CLKS] = {
@@ -297,13 +291,17 @@ void srcomp_enable(void)
 
 void config_data_eye_leveling_samples(u32 emif_base)
 {
+	const struct ctrl_ioregs *ioregs;
+
+	get_ioregs(&ioregs);
+
 	/*EMIF_SDRAM_CONFIG_EXT-Read data eye leveling no of samples =4*/
 	if (emif_base == EMIF1_BASE)
-		writel(SDRAM_CONFIG_EXT_RD_LVL_4_SAMPLES,
-			(*ctrl)->control_emif1_sdram_config_ext);
+		writel(ioregs->ctrl_emif_sdram_config_ext_final,
+		       (*ctrl)->control_emif1_sdram_config_ext);
 	else if (emif_base == EMIF2_BASE)
-		writel(SDRAM_CONFIG_EXT_RD_LVL_4_SAMPLES,
-			(*ctrl)->control_emif2_sdram_config_ext);
+		writel(ioregs->ctrl_emif_sdram_config_ext_final,
+		       (*ctrl)->control_emif2_sdram_config_ext);
 }
 
 void init_omap_revision(void)

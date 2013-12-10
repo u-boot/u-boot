@@ -17,6 +17,11 @@ obj-y	+= vc.o
 obj-y	+= abb.o
 endif
 
+ifneq ($(CONFIG_OMAP54XX),)
+obj-y	+= pipe3-phy.o
+obj-$(CONFIG_SCSI_AHCI_PLAT) += sata.o
+endif
+
 ifeq ($(CONFIG_OMAP34XX),)
 obj-y	+= boot-common.o
 obj-y	+= lowlevel_init.o

@@ -54,8 +54,8 @@
 
 /* LED */
 #define CONFIG_AT91_LED
-#define	CONFIG_RED_LED		AT91_PIO_PORTD, 31 /* this is the user1 led */
-#define	CONFIG_GREEN_LED	AT91_PIO_PORTD, 0 /* this is the user2 led */
+#define CONFIG_RED_LED		GPIO_PIN_PD(31) /* this is the user1 led */
+#define CONFIG_GREEN_LED	GPIO_PIN_PD(0)  /* this is the user2 led */
 
 #define CONFIG_BOOTDELAY	3
 
@@ -106,8 +106,8 @@
 #define CONFIG_SYS_NAND_MASK_ALE	(1 << 21)
 /* our CLE is AD22 */
 #define CONFIG_SYS_NAND_MASK_CLE	(1 << 22)
-#define CONFIG_SYS_NAND_ENABLE_PIN	AT91_PIO_PORTC, 14
-#define CONFIG_SYS_NAND_READY_PIN	AT91_PIO_PORTD, 3
+#define CONFIG_SYS_NAND_ENABLE_PIN	GPIO_PIN_PC(14)
+#define CONFIG_SYS_NAND_READY_PIN	GPIO_PIN_PD(3)
 
 #endif
 

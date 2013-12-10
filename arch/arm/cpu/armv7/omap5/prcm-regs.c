@@ -203,8 +203,10 @@ struct prcm_regs const omap5_es1_prcm = {
 	.cm_l3init_hsusbotg_clkctrl = 0x4a009360,
 	.cm_l3init_hsusbtll_clkctrl = 0x4a009368,
 	.cm_l3init_p1500_clkctrl = 0x4a009378,
+	.cm_l3init_sata_clkctrl = 0x4a009388,
 	.cm_l3init_fsusb_clkctrl = 0x4a0093d0,
 	.cm_l3init_ocp2scp1_clkctrl = 0x4a0093e0,
+	.cm_l3init_ocp2scp3_clkctrl = 0x4a0093e8,
 
 	/* cm2.l4per */
 	.cm_l4per_clkstctrl = 0x4a009400,
@@ -296,6 +298,7 @@ struct omap_sys_ctrl_regs const omap5_ctrl = {
 	.control_status				= 0x4A002134,
 	.control_std_fuse_opp_vdd_mpu_2		= 0x4A0021B4,
 	.control_phy_power_usb 			= 0x4A002370,
+	.control_phy_power_sata			= 0x4A002374,
 	.control_padconf_core_base		= 0x4A002800,
 	.control_paconf_global			= 0x4A002DA0,
 	.control_paconf_mode			= 0x4A002DA4,
@@ -373,6 +376,7 @@ struct omap_sys_ctrl_regs const omap5_ctrl = {
 
 struct omap_sys_ctrl_regs const dra7xx_ctrl = {
 	.control_status				= 0x4A002134,
+	.control_phy_power_sata			= 0x4A002374,
 	.control_core_mac_id_0_lo		= 0x4A002514,
 	.control_core_mac_id_0_hi		= 0x4A002518,
 	.control_core_mac_id_1_lo		= 0x4A00251C,
@@ -698,6 +702,7 @@ struct prcm_regs const omap5_es2_prcm = {
 	.cm_l3init_hsusbotg_clkctrl = 0x4a009660,
 	.cm_l3init_hsusbtll_clkctrl = 0x4a009668,
 	.cm_l3init_p1500_clkctrl = 0x4a009678,
+	.cm_l3init_sata_clkctrl = 0x4a009688,
 	.cm_l3init_fsusb_clkctrl = 0x4a0096d0,
 	.cm_l3init_ocp2scp1_clkctrl = 0x4a0096e0,
 	.cm_l3init_ocp2scp3_clkctrl = 0x4a0096e8,
@@ -891,9 +896,11 @@ struct prcm_regs const dra7xx_prcm = {
 	.cm_l3init_hsusbhost_clkctrl		= 0x4a009340,
 	.cm_l3init_hsusbotg_clkctrl		= 0x4a009348,
 	.cm_l3init_hsusbtll_clkctrl		= 0x4a009350,
+	.cm_l3init_sata_clkctrl			= 0x4a009388,
 	.cm_gmac_clkstctrl			= 0x4a0093c0,
 	.cm_gmac_gmac_clkctrl			= 0x4a0093d0,
 	.cm_l3init_ocp2scp1_clkctrl		= 0x4a0093e0,
+	.cm_l3init_ocp2scp3_clkctrl		= 0x4a0093e8,
 
 	/* cm2.l4per */
 	.cm_l4per_clkstctrl			= 0x4a009700,

@@ -478,8 +478,9 @@ struct davinci_syscfg_regs {
 	dv_reg	rsvd[13];
 	dv_reg	kick0;
 	dv_reg	kick1;
-	dv_reg	rsvd1[53];
+	dv_reg	rsvd1[52];
 	dv_reg	mstpri[3];
+	dv_reg  rsvd2;
 	dv_reg	pinmux[20];
 	dv_reg	suspsrc;
 	dv_reg	chipsig;

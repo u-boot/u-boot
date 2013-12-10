@@ -69,4 +69,14 @@
 /* Max time to hold reset on this board, see doc/README.omap-reset-time */
 #define CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC	16296
 
+#define CONFIG_BOARD_LATE_INIT
+#define CONFIG_CMD_SCSI
+#define CONFIG_LIBATA
+#define CONFIG_SCSI_AHCI
+#define CONFIG_SCSI_AHCI_PLAT
+#define CONFIG_SYS_SCSI_MAX_SCSI_ID	1
+#define CONFIG_SYS_SCSI_MAX_LUN		1
+#define CONFIG_SYS_SCSI_MAX_DEVICE	(CONFIG_SYS_SCSI_MAX_SCSI_ID * \
+						CONFIG_SYS_SCSI_MAX_LUN)
+
 #endif /* __CONFIG_OMAP5_EVM_H */

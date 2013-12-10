@@ -20,6 +20,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/ehci.h>
 #include <asm/ehci-omap.h>
+#include <asm/arch/sata.h>
 
 #define DIE_ID_REG_BASE     (OMAP54XX_L4_CORE_BASE + 0x2000)
 #define DIE_ID_REG_OFFSET	0x200
@@ -64,6 +65,12 @@ int board_init(void)
 
 	tca642x_set_inital_state(CONFIG_SYS_I2C_TCA642X_ADDR, tca642x_init);
 
+	return 0;
+}
+
+int board_late_init(void)
+{
+	omap_sata_init();
 	return 0;
 }
 

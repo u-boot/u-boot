@@ -226,6 +226,11 @@ struct s3c_usbotg_reg {
 #define CLK_SEL_12MHZ                   (0x2 << 0)
 #define CLK_SEL_48MHZ                   (0x0 << 0)
 
+#define EXYNOS4X12_ID_PULLUP0		(0x01 << 3)
+#define EXYNOS4X12_COMMON_ON_N0	(0x01 << 4)
+#define EXYNOS4X12_CLK_SEL_12MHZ	(0x02 << 0)
+#define EXYNOS4X12_CLK_SEL_24MHZ	(0x05 << 0)
+
 /* Device Configuration Register DCFG */
 #define DEV_SPEED_HIGH_SPEED_20         (0x0 << 0)
 #define DEV_SPEED_FULL_SPEED_20         (0x1 << 0)

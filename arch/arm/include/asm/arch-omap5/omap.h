@@ -64,6 +64,9 @@
 /* QSPI */
 #define QSPI_BASE		0x4B300000
 
+/* SATA */
+#define DWC_AHSATA_BASE		0x4A140000
+
 /*
  * Hardware Register Details
  */
@@ -239,6 +242,7 @@ struct ctrl_ioregs {
 	u32 ctrl_ddrio_1;
 	u32 ctrl_ddrio_2;
 	u32 ctrl_emif_sdram_config_ext;
+	u32 ctrl_emif_sdram_config_ext_final;
 	u32 ctrl_ddr_ctrl_ext_0;
 };
 

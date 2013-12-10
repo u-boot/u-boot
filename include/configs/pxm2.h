@@ -70,6 +70,7 @@
 	"hostname=pxm2\0" \
 	"nand_img_size=0x500000\0" \
 	"optargs=\0" \
+	"splashpos=m,m\0"	\
 	CONFIG_COMMON_ENV_SETTINGS \
 	"mmc_dev=0\0" \
 	"mmc_root=/dev/mmcblk0p2 rw\0" \
@@ -118,9 +119,7 @@
 		"fi;" \
 	"fi;" \
 	"run nand_boot;" \
-	"if ping ${serverip}; then " \
-		"run net_nfs; " \
-	"fi; "
+	"reset;"
 
 #else
 #define CONFIG_BOOTDELAY		0
@@ -148,6 +147,8 @@
 #define DA8XX_LCD_CNTL_BASE	LCD_CNTL_BASE
 #define PWM_TICKS	0x1388
 #define PWM_DUTY	0x200
+#define CONFIG_SYS_CONSOLE_BG_COL	0xff
+#define CONFIG_SYS_CONSOLE_FG_COL	0x00
 #endif
 
 #endif	/* ! __CONFIG_PXM2_H */

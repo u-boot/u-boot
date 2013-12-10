@@ -123,6 +123,66 @@ int get_board_revision(void)
 }
 
 /**
+ * is_panda_es_rev_b3() - Detect if we are running on rev B3 of panda board ES
+ *
+ *
+ * Detect if we are running on B3 version of ES panda board,
+ * This can be done by reading the level of GPIO 171 and checking the
+ * processor revisions.
+ * GPIO171: 1 => Panda ES Rev B3
+ *
+ * Return : return 1 if Panda ES Rev B3 , else return 0
+ */
+u8 is_panda_es_rev_b3(void)
+{
+        int processor_rev = omap_revision();
+        int ret = 0;
+
+        if ((processor_rev >= OMAP4460_ES1_0 &&
+             processor_rev <= OMAP4460_ES1_1)) {
+
+                /* Setup the mux for the common board ID pins (gpio 171) */
+                writew((IEN | M3),
+			(*ctrl)->control_padconf_core_base + UNIPRO_TX0);
+
+                /* if processor_rev is panda ES and GPIO171 is 1,it is rev b3 */
+                ret = gpio_get_value(PANDA_BOARD_ID_2_GPIO);
+        }
+        return ret;
+}
+
+#ifdef CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS
+/*
+ * emif_get_reg_dump() - emif_get_reg_dump strong function
+ *
+ * @emif_nr - emif base
+ * @regs - reg dump of timing values
+ *
+ * Strong function to override emif_get_reg_dump weak function in sdram_elpida.c
+ */
+void emif_get_reg_dump(u32 emif_nr, const struct emif_regs **regs)
+{
+	u32 omap4_rev = omap_revision();
+
+	/* Same devices and geometry on both EMIFs */
+	if (omap4_rev == OMAP4430_ES1_0)
+		*regs = &emif_regs_elpida_380_mhz_1cs;
+	else if (omap4_rev == OMAP4430_ES2_0)
+		*regs = &emif_regs_elpida_200_mhz_2cs;
+	else if (omap4_rev == OMAP4430_ES2_3)
+		*regs = &emif_regs_elpida_400_mhz_1cs;
+	else if (omap4_rev < OMAP4470_ES1_0) {
+		if(is_panda_es_rev_b3())
+			*regs = &emif_regs_elpida_400_mhz_1cs;
+		else
+			*regs = &emif_regs_elpida_400_mhz_2cs;
+	}
+	else
+		*regs = &emif_regs_elpida_400_mhz_1cs;
+}
+#endif
+
+/**
  * @brief misc_init_r - Configure Panda board specific configurations
  * such as power configurations, ethernet initialization as phase2 of
  * boot sequence

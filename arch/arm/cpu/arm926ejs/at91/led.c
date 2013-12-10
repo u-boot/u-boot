@@ -7,43 +7,41 @@
  */
 
 #include <common.h>
-#include <asm/io.h>
-#include <asm/arch/at91_pmc.h>
-#include <asm/arch/at91_pio.h>
+#include <asm/gpio.h>
 #include <asm/arch/gpio.h>
 
 #ifdef CONFIG_RED_LED
 void red_led_on(void)
 {
-	at91_set_gpio_value(CONFIG_RED_LED, 1);
+	gpio_set_value(CONFIG_RED_LED, 1);
 }
 
 void red_led_off(void)
 {
-	at91_set_gpio_value(CONFIG_RED_LED, 0);
+	gpio_set_value(CONFIG_RED_LED, 0);
 }
 #endif
 
 #ifdef CONFIG_GREEN_LED
 void green_led_on(void)
 {
-	at91_set_gpio_value(CONFIG_GREEN_LED, 0);
+	gpio_set_value(CONFIG_GREEN_LED, 0);
 }
 
 void green_led_off(void)
 {
-	at91_set_gpio_value(CONFIG_GREEN_LED, 1);
+	gpio_set_value(CONFIG_GREEN_LED, 1);
 }
 #endif
 
 #ifdef CONFIG_YELLOW_LED
 void yellow_led_on(void)
 {
-	at91_set_gpio_value(CONFIG_YELLOW_LED, 0);
+	gpio_set_value(CONFIG_YELLOW_LED, 0);
 }
 
 void yellow_led_off(void)
 {
-	at91_set_gpio_value(CONFIG_YELLOW_LED, 1);
+	gpio_set_value(CONFIG_YELLOW_LED, 1);
 }
 #endif

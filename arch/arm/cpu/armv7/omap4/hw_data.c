@@ -288,17 +288,21 @@ struct vcores_data omap4460_volts = {
 	.mm.pmic = &twl6030,
 };
 
+/*
+ * Take closest integer part of the mV value corresponding to a TWL6032 SMPS
+ * voltage selection code. Aligned with OMAP4470 ES1.0 OCA V.0.7.
+ */
 struct vcores_data omap4470_volts = {
-	.mpu.value = 1200,
+	.mpu.value = 1202,
 	.mpu.addr = SMPS_REG_ADDR_SMPS1,
 	.mpu.pmic = &twl6030,
 
 	.core.value = 1126,
-	.core.addr = SMPS_REG_ADDR_SMPS1,
+	.core.addr = SMPS_REG_ADDR_SMPS2,
 	.core.pmic = &twl6030,
 
-	.mm.value = 1137,
-	.mm.addr = SMPS_REG_ADDR_SMPS1,
+	.mm.value = 1139,
+	.mm.addr = SMPS_REG_ADDR_SMPS5,
 	.mm.pmic = &twl6030,
 };
 

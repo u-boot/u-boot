@@ -730,8 +730,6 @@ void per_clocks_enable(void)
 		sr32(&prcm_base->fclken_cam, 0, 32, FCK_CAM_ON);
 		sr32(&prcm_base->iclken_cam, 0, 32, ICK_CAM_ON);
 	}
-	sr32(&prcm_base->fclken_per, 0, 32, FCK_PER_ON);
-	sr32(&prcm_base->iclken_per, 0, 32, ICK_PER_ON);
 
 	sdelay(1000);
 }

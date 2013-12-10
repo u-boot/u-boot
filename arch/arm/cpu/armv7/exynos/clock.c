@@ -1410,7 +1410,8 @@ void set_mmc_clk(int dev_index, unsigned int div)
 	else {
 		if (proid_is_exynos4412())
 			exynos4x12_set_mmc_clk(dev_index, div);
-		exynos4_set_mmc_clk(dev_index, div);
+		else
+			exynos4_set_mmc_clk(dev_index, div);
 	}
 }
 

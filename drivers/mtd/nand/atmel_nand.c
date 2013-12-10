@@ -12,9 +12,8 @@
  */
 
 #include <common.h>
-#include <asm/arch/hardware.h>
+#include <asm/gpio.h>
 #include <asm/arch/gpio.h>
-#include <asm/arch/at91_pio.h>
 
 #include <malloc.h>
 #include <nand.h>
@@ -1154,8 +1153,7 @@ static void at91_nand_hwcontrol(struct mtd_info *mtd,
 			IO_ADDR_W |= CONFIG_SYS_NAND_MASK_ALE;
 
 #ifdef CONFIG_SYS_NAND_ENABLE_PIN
-		at91_set_gpio_value(CONFIG_SYS_NAND_ENABLE_PIN,
-				    !(ctrl & NAND_NCE));
+		gpio_set_value(CONFIG_SYS_NAND_ENABLE_PIN, !(ctrl & NAND_NCE));
 #endif
 		this->IO_ADDR_W = (void *) IO_ADDR_W;
 	}
@@ -1167,7 +1165,7 @@ static void at91_nand_hwcontrol(struct mtd_info *mtd,
 #ifdef CONFIG_SYS_NAND_READY_PIN
 static int at91_nand_ready(struct mtd_info *mtd)
 {
-	return at91_get_gpio_value(CONFIG_SYS_NAND_READY_PIN);
+	return gpio_get_value(CONFIG_SYS_NAND_READY_PIN);
 }
 #endif
 
