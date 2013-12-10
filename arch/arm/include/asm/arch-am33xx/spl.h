@@ -13,11 +13,18 @@
 #define BOOT_DEVICE_MMC1	6
 #define BOOT_DEVICE_MMC2	5
 #define BOOT_DEVICE_UART	0x43
-#define BOOT_DEVICE_MMC2_2	0xFF
+#elif defined(CONFIG_AM43XX)
+#define BOOT_DEVICE_NOR		1
+#define BOOT_DEVICE_NAND	5
+#define BOOT_DEVICE_MMC1	7
+#define BOOT_DEVICE_MMC2	8
+#define BOOT_DEVICE_SPI		10
+#define BOOT_DEVICE_UART	65
+#define BOOT_DEVICE_CPGMAC	71
 #else
 #define BOOT_DEVICE_XIP       	2
 #define BOOT_DEVICE_NAND	5
-#if defined(CONFIG_AM33XX) || defined(CONFIG_AM43XX)
+#if defined(CONFIG_AM33XX)
 #define BOOT_DEVICE_MMC1	8
 #define BOOT_DEVICE_MMC2	9	/* eMMC or daughter card */
 #elif defined(CONFIG_TI814X)
@@ -28,8 +35,8 @@
 #define BOOT_DEVICE_UART	65
 #define BOOT_DEVICE_USBETH	68
 #define BOOT_DEVICE_CPGMAC	70
-#define BOOT_DEVICE_MMC2_2      0xFF
 #endif
+#define BOOT_DEVICE_MMC2_2      0xFF
 
 #if defined(CONFIG_AM33XX) || defined(CONFIG_AM43XX)
 #define MMC_BOOT_DEVICES_START	BOOT_DEVICE_MMC1
