@@ -18,6 +18,7 @@
 
 struct cm_perpll *const cmper = (struct cm_perpll *)CM_PER;
 struct cm_wkuppll *const cmwkup = (struct cm_wkuppll *)CM_WKUP;
+struct cm_dpll *const cmdpll = (struct cm_dpll *)CM_DPLL;
 
 const struct dpll_regs dpll_mpu_regs = {
 	.cm_clkmode_dpll	= CM_WKUP + 0x560,
@@ -107,4 +108,7 @@ void enable_basic_clocks(void)
 	};
 
 	do_enable_clocks(clk_domains, clk_modules_explicit_en, 1);
+
+	/* Select the Master osc clk as Timer2 clock source */
+	writel(0x1, &cmdpll->clktimer2clk);
 }
