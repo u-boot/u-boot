@@ -16,6 +16,7 @@
  */
 #define CONFIG_SAMSUNG		/* in a SAMSUNG core */
 #define CONFIG_S5P		/* which is in a S5P Family */
+#define CONFIG_EXYNOS4		/* which is in a EXYNOS4XXX */
 #define CONFIG_EXYNOS4210	/* which is in a EXYNOS4210 */
 #define CONFIG_TRATS		/* working with TRATS */
 #define CONFIG_TIZEN		/* TIZEN lib */
@@ -268,31 +269,21 @@
 #define CONFIG_SYS_CACHELINE_SIZE       32
 
 #define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_S3C24X0
+#define CONFIG_SYS_I2C_S3C24X0_SPEED	100000
+#define CONFIG_SYS_I2C_S3C24X0_SLAVE	0xFE
+#define CONFIG_MAX_I2C_NUM		8
 #define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
 #define CONFIG_SYS_I2C_SOFT_SPEED	50000
-#define CONFIG_SYS_I2C_SOFT_SLAVE	0xFE
-#define I2C_SOFT_DECLARATIONS2
-#define CONFIG_SYS_I2C_SOFT_SPEED_2     50000
-#define CONFIG_SYS_I2C_SOFT_SLAVE_2     0x7F
+#define CONFIG_SYS_I2C_SOFT_SLAVE	0x7F
 #define CONFIG_SOFT_I2C_READ_REPEATED_START
 #define CONFIG_SYS_I2C_INIT_BOARD
-#define CONFIG_I2C_MULTI_BUS
-#define CONFIG_SOFT_I2C_MULTI_BUS
-#define CONFIG_SYS_MAX_I2C_BUS	15
 
 #include <asm/arch/gpio.h>
 
-/* I2C PMIC */
-#define CONFIG_SOFT_I2C_I2C5_SCL exynos4_gpio_part1_get_nr(b, 7)
-#define CONFIG_SOFT_I2C_I2C5_SDA exynos4_gpio_part1_get_nr(b, 6)
-
 /* I2C FG */
-#define CONFIG_SOFT_I2C_I2C9_SCL exynos4_gpio_part2_get_nr(y4, 1)
-#define CONFIG_SOFT_I2C_I2C9_SDA exynos4_gpio_part2_get_nr(y4, 0)
-
-#define CONFIG_SOFT_I2C_GPIO_SCL get_multi_scl_pin()
-#define CONFIG_SOFT_I2C_GPIO_SDA get_multi_sda_pin()
-#define I2C_INIT multi_i2c_init()
+#define CONFIG_SOFT_I2C_GPIO_SCL exynos4_gpio_part2_get_nr(y4, 1)
+#define CONFIG_SOFT_I2C_GPIO_SDA exynos4_gpio_part2_get_nr(y4, 0)
 
 #define CONFIG_POWER
 #define CONFIG_POWER_I2C

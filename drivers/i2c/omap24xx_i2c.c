@@ -158,7 +158,6 @@ static void omap24_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
 	udelay(1000);
 	flush_fifo(adap);
 	writew(0xFFFF, &i2c_base->stat);
-	writew(0, &i2c_base->cnt);
 }
 
 static void flush_fifo(struct i2c_adapter *adap)
@@ -198,8 +197,6 @@ static int omap24_i2c_probe(struct i2c_adapter *adap, uchar chip)
 		return res;
 
 	/* No data transfer, slave addr only */
-	writew(0, &i2c_base->cnt);
-	/* Set slave address */
 	writew(chip, &i2c_base->sa);
 	/* Stop bit needed here */
 	writew(I2C_CON_EN | I2C_CON_MST | I2C_CON_STT | I2C_CON_TRX |
@@ -234,7 +231,6 @@ static int omap24_i2c_probe(struct i2c_adapter *adap, uchar chip)
 pr_exit:
 	flush_fifo(adap);
 	writew(0xFFFF, &i2c_base->stat);
-	writew(0, &i2c_base->cnt);
 	return res;
 }
 
@@ -372,7 +368,6 @@ static int omap24_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
 rd_exit:
 	flush_fifo(adap);
 	writew(0xFFFF, &i2c_base->stat);
-	writew(0, &i2c_base->cnt);
 	return i2c_error;
 }
 
@@ -473,7 +468,6 @@ static int omap24_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 wr_exit:
 	flush_fifo(adap);
 	writew(0xFFFF, &i2c_base->stat);
-	writew(0, &i2c_base->cnt);
 	return i2c_error;
 }
 

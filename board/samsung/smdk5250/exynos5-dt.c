@@ -150,8 +150,6 @@ int power_init_board(void)
 
 	set_ps_hold_ctrl();
 
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-
 	if (pmic_init(I2C_PMIC))
 		return -1;
 

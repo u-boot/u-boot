@@ -2125,6 +2125,12 @@ CBFS (Coreboot Filesystem) support
 		  - set CONFIG_SYS_I2C_ZYNQ_SPEED for speed setting
 		  - set CONFIG_SYS_I2C_ZYNQ_SLAVE for slave addr
 
+		- drivers/i2c/s3c24x0_i2c.c:
+		  - activate this driver with CONFIG_SYS_I2C_S3C24X0
+		  - This driver adds i2c buses (11 for Exynos5250, Exynos5420
+		    9 i2c buses for Exynos4 and 1 for S3C24X0 SoCs from Samsung)
+		    with a fix speed from 100000 and the slave addr 0!
+
 		additional defines:
 
 		CONFIG_SYS_NUM_I2C_BUSES

@@ -23,8 +23,6 @@
 #include <i2c.h>
 #include "s3c24x0_i2c.h"
 
-#ifdef CONFIG_HARD_I2C
-
 #define	I2C_WRITE	0
 #define I2C_READ	1
 
@@ -127,7 +125,6 @@
  * For SPL boot some boards need i2c before SDRAM is initialised so force
  * variables to live in SRAM
  */
-static unsigned int g_current_bus __attribute__((section(".data")));
 static struct s3c24x0_i2c_bus i2c_bus[CONFIG_MAX_I2C_NUM]
 			__attribute__((section(".data")));
 
@@ -254,17 +251,17 @@ static void ReadWriteByte(struct s3c24x0_i2c *i2c)
 	writel(readl(&i2c->iiccon) & ~I2CCON_IRPND, &i2c->iiccon);
 }
 
-static struct s3c24x0_i2c *get_base_i2c(void)
+static struct s3c24x0_i2c *get_base_i2c(int bus)
 {
 #ifdef CONFIG_EXYNOS4
 	struct s3c24x0_i2c *i2c = (struct s3c24x0_i2c *)(samsung_get_base_i2c()
 							+ (EXYNOS4_I2C_SPACING
-							* g_current_bus));
+							* bus));
 	return i2c;
 #elif defined CONFIG_EXYNOS5
 	struct s3c24x0_i2c *i2c = (struct s3c24x0_i2c *)(samsung_get_base_i2c()
 							+ (EXYNOS5_I2C_SPACING
-							* g_current_bus));
+							* bus));
 	return i2c;
 #else
 	return s3c24x0_get_base_i2c();
@@ -298,7 +295,6 @@ static void i2c_ch_init(struct s3c24x0_i2c *i2c, int speed, int slaveadd)
 	writel(I2C_MODE_MT | I2C_TXRX_ENA, &i2c->iicstat);
 }
 
-#ifdef CONFIG_I2C_MULTI_BUS
 static int hsi2c_get_clk_details(struct s3c24x0_i2c_bus *i2c_bus)
 {
 	struct exynos5_hsi2c *hsregs = i2c_bus->hsregs;
@@ -307,8 +303,10 @@ static int hsi2c_get_clk_details(struct s3c24x0_i2c_bus *i2c_bus)
 	unsigned int i = 0, utemp0 = 0, utemp1 = 0;
 	unsigned int t_ftl_cycle;
 
-#if defined CONFIG_EXYNOS5
+#if (defined CONFIG_EXYNOS4 || defined CONFIG_EXYNOS5)
 	clkin = get_i2c_clk();
+#else
+	clkin = get_PCLK();
 #endif
 	/* FPCLK / FI2C =
 	 * (CLK_DIV + 1) * (TSCLK_L + TSCLK_H + 2) + 8 + 2 * FLT_CYCLE
@@ -330,7 +328,6 @@ static int hsi2c_get_clk_details(struct s3c24x0_i2c_bus *i2c_bus)
 	}
 	return -1;
 }
-#endif
 
 static void hsi2c_ch_init(struct s3c24x0_i2c_bus *i2c_bus)
 {
@@ -401,49 +398,18 @@ static void exynos5_i2c_reset(struct s3c24x0_i2c_bus *i2c_bus)
 	hsi2c_ch_init(i2c_bus);
 }
 
-/*
- * MULTI BUS I2C support
- */
-
-#ifdef CONFIG_I2C_MULTI_BUS
-int i2c_set_bus_num(unsigned int bus)
-{
-	struct s3c24x0_i2c_bus *i2c_bus;
-
-	i2c_bus = get_bus(bus);
-	if (!i2c_bus)
-		return -1;
-	g_current_bus = bus;
-
-	if (i2c_bus->is_highspeed) {
-		if (hsi2c_get_clk_details(i2c_bus))
-			return -1;
-		hsi2c_ch_init(i2c_bus);
-	} else {
-		i2c_ch_init(i2c_bus->regs, i2c_bus->clock_frequency,
-						CONFIG_SYS_I2C_SLAVE);
-	}
-
-	return 0;
-}
-
-unsigned int i2c_get_bus_num(void)
-{
-	return g_current_bus;
-}
-#endif
-
-void i2c_init(int speed, int slaveadd)
+static void s3c24x0_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
 {
 	struct s3c24x0_i2c *i2c;
+	struct s3c24x0_i2c_bus *bus;
+
 #if !(defined CONFIG_EXYNOS4 || defined CONFIG_EXYNOS5)
 	struct s3c24x0_gpio *gpio = s3c24x0_get_base_gpio();
 #endif
 	ulong start_time = get_timer(0);
 
 	/* By default i2c channel 0 is the current bus */
-	g_current_bus = 0;
-	i2c = get_base_i2c();
+	i2c = get_base_i2c(adap->hwadapnr);
 
 	/*
 	 * In case the previous transfer is still going, wait to give it a
@@ -505,6 +471,10 @@ void i2c_init(int speed, int slaveadd)
 	}
 #endif /* #if !(defined CONFIG_EXYNOS4 || defined CONFIG_EXYNOS5) */
 	i2c_ch_init(i2c, speed, slaveadd);
+
+	bus = &i2c_bus[adap->hwadapnr];
+	bus->active = true;
+	bus->regs = i2c;
 }
 
 /*
@@ -728,6 +698,40 @@ static int hsi2c_read(struct exynos5_hsi2c *i2c,
 	return rv;
 }
 
+static unsigned int s3c24x0_i2c_set_bus_speed(struct i2c_adapter *adap,
+					  unsigned int speed)
+{
+	struct s3c24x0_i2c_bus *i2c_bus;
+
+	i2c_bus = get_bus(adap->hwadapnr);
+	if (!i2c_bus)
+		return -1;
+
+	i2c_bus->clock_frequency = speed;
+
+	if (i2c_bus->is_highspeed) {
+		if (hsi2c_get_clk_details(i2c_bus))
+			return -1;
+		hsi2c_ch_init(i2c_bus);
+	} else {
+		i2c_ch_init(i2c_bus->regs, i2c_bus->clock_frequency,
+			    CONFIG_SYS_I2C_S3C24X0_SLAVE);
+	}
+
+	return 0;
+}
+
+#ifdef CONFIG_EXYNOS5
+static void exynos_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
+{
+	/* This will override the speed selected in the fdt for that port */
+	debug("i2c_init(speed=%u, slaveaddr=0x%x)\n", speed, slaveaddr);
+	if (i2c_set_bus_speed(speed))
+		printf("i2c_init: failed to init bus %d for speed = %d\n",
+						adap->hwadapnr, speed);
+}
+#endif
+
 /*
  * cmd_type is 0 for write, 1 for read.
  *
@@ -840,13 +844,13 @@ bailout:
 	return result;
 }
 
-int i2c_probe(uchar chip)
+static int s3c24x0_i2c_probe(struct i2c_adapter *adap, uchar chip)
 {
 	struct s3c24x0_i2c_bus *i2c_bus;
 	uchar buf[1];
 	int ret;
 
-	i2c_bus = get_bus(g_current_bus);
+	i2c_bus = get_bus(adap->hwadapnr);
 	if (!i2c_bus)
 		return -1;
 	buf[0] = 0;
@@ -864,11 +868,11 @@ int i2c_probe(uchar chip)
 				I2C_READ, chip << 1, 0, 0, buf, 1);
 	}
 
-
 	return ret != I2C_OK;
 }
 
-int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
+static int s3c24x0_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
+			    int alen, uchar *buffer, int len)
 {
 	struct s3c24x0_i2c_bus *i2c_bus;
 	uchar xaddr[4];
@@ -902,7 +906,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 		chip |= ((addr >> (alen * 8)) &
 			 CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW);
 #endif
-	i2c_bus = get_bus(g_current_bus);
+	i2c_bus = get_bus(adap->hwadapnr);
 	if (!i2c_bus)
 		return -1;
 
@@ -922,7 +926,8 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	return 0;
 }
 
-int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
+static int s3c24x0_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
+			 int alen, uchar *buffer, int len)
 {
 	struct s3c24x0_i2c_bus *i2c_bus;
 	uchar xaddr[4];
@@ -955,7 +960,7 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 		chip |= ((addr >> (alen * 8)) &
 			 CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW);
 #endif
-	i2c_bus = get_bus(g_current_bus);
+	i2c_bus = get_bus(adap->hwadapnr);
 	if (!i2c_bus)
 		return -1;
 
@@ -1001,8 +1006,8 @@ static void process_nodes(const void *blob, int node_list[], int count,
 
 		bus->id = pinmux_decode_periph_id(blob, node);
 		bus->clock_frequency = fdtdec_get_int(blob, node,
-						      "clock-frequency",
-						      CONFIG_SYS_I2C_SPEED);
+						"clock-frequency",
+						CONFIG_SYS_I2C_S3C24X0_SPEED);
 		bus->node = node;
 		bus->bus_num = i;
 		exynos_pinmux_config(bus->id, 0);
@@ -1044,7 +1049,6 @@ int i2c_get_bus_num_fdt(int node)
 	return -1;
 }
 
-#ifdef CONFIG_I2C_MULTI_BUS
 int i2c_reset_port_fdt(const void *blob, int node)
 {
 	struct s3c24x0_i2c_bus *i2c_bus;
@@ -1068,12 +1072,178 @@ int i2c_reset_port_fdt(const void *blob, int node)
 		hsi2c_ch_init(i2c_bus);
 	} else {
 		i2c_ch_init(i2c_bus->regs, i2c_bus->clock_frequency,
-						CONFIG_SYS_I2C_SLAVE);
+			    CONFIG_SYS_I2C_S3C24X0_SLAVE);
 	}
 
 	return 0;
 }
 #endif
-#endif
 
-#endif /* CONFIG_HARD_I2C */
+/*
+ * Register s3c24x0 i2c adapters
+ */
+#if defined(CONFIG_EXYNOS5420)
+U_BOOT_I2C_ADAP_COMPLETE(i2c00, s3c24x0_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 0)
+U_BOOT_I2C_ADAP_COMPLETE(i2c01, s3c24x0_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 1)
+U_BOOT_I2C_ADAP_COMPLETE(i2c02, s3c24x0_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 2)
+U_BOOT_I2C_ADAP_COMPLETE(i2c03, exynos_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 3)
+U_BOOT_I2C_ADAP_COMPLETE(i2c04, exynos_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 4)
+U_BOOT_I2C_ADAP_COMPLETE(i2c05, exynos_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 5)
+U_BOOT_I2C_ADAP_COMPLETE(i2c06, exynos_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 6)
+U_BOOT_I2C_ADAP_COMPLETE(i2c07, exynos_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 7)
+U_BOOT_I2C_ADAP_COMPLETE(i2c08, exynos_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 8)
+U_BOOT_I2C_ADAP_COMPLETE(i2c09, exynos_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 9)
+U_BOOT_I2C_ADAP_COMPLETE(i2c10, exynos_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 10)
+#elif defined(CONFIG_EXYNOS5250)
+U_BOOT_I2C_ADAP_COMPLETE(i2c00, exynos_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 0)
+U_BOOT_I2C_ADAP_COMPLETE(i2c01, exynos_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 1)
+U_BOOT_I2C_ADAP_COMPLETE(i2c02, exynos_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 2)
+U_BOOT_I2C_ADAP_COMPLETE(i2c03, exynos_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 3)
+U_BOOT_I2C_ADAP_COMPLETE(i2c04, s3c24x0_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 4)
+U_BOOT_I2C_ADAP_COMPLETE(i2c05, s3c24x0_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 5)
+U_BOOT_I2C_ADAP_COMPLETE(i2c06, s3c24x0_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 6)
+U_BOOT_I2C_ADAP_COMPLETE(i2c07, s3c24x0_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 7)
+U_BOOT_I2C_ADAP_COMPLETE(i2c08, s3c24x0_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 8)
+U_BOOT_I2C_ADAP_COMPLETE(i2c09, s3c24x0_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 9)
+U_BOOT_I2C_ADAP_COMPLETE(s3c10, s3c24x0_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 10)
+#elif defined(CONFIG_EXYNOS4)
+U_BOOT_I2C_ADAP_COMPLETE(i2c00, s3c24x0_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 0)
+U_BOOT_I2C_ADAP_COMPLETE(i2c01, s3c24x0_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 1)
+U_BOOT_I2C_ADAP_COMPLETE(i2c02, s3c24x0_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 2)
+U_BOOT_I2C_ADAP_COMPLETE(i2c03, s3c24x0_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 3)
+U_BOOT_I2C_ADAP_COMPLETE(i2c04, s3c24x0_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 4)
+U_BOOT_I2C_ADAP_COMPLETE(i2c05, s3c24x0_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 5)
+U_BOOT_I2C_ADAP_COMPLETE(i2c06, s3c24x0_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 6)
+U_BOOT_I2C_ADAP_COMPLETE(i2c07, s3c24x0_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 7)
+U_BOOT_I2C_ADAP_COMPLETE(i2c08, s3c24x0_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 8)
+#else
+U_BOOT_I2C_ADAP_COMPLETE(s3c0, s3c24x0_i2c_init, s3c24x0_i2c_probe,
+			s3c24x0_i2c_read, s3c24x0_i2c_write,
+			s3c24x0_i2c_set_bus_speed,
+			CONFIG_SYS_I2C_S3C24X0_SPEED,
+			CONFIG_SYS_I2C_S3C24X0_SLAVE, 0)
+#endif

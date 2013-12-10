@@ -115,12 +115,17 @@ static void board_external_gpio_init(void)
 #ifdef CONFIG_SYS_I2C_INIT_BOARD
 static void board_init_i2c(void)
 {
+	int err;
+
 	gpio1 = (struct exynos4x12_gpio_part1 *)EXYNOS4X12_GPIO_PART1_BASE;
 	gpio2 = (struct exynos4x12_gpio_part2 *)EXYNOS4X12_GPIO_PART2_BASE;
 
 	/* I2C_7 */
-	s5p_gpio_direction_output(&gpio1->d0, 2, 1);
-	s5p_gpio_direction_output(&gpio1->d0, 3, 1);
+	err = exynos_pinmux_config(PERIPH_ID_I2C7, PINMUX_FLAG_NONE);
+	if (err) {
+		debug("I2C%d not configured\n", (I2C_7));
+		return;
+	}
 
 	/* I2C_8 */
 	s5p_gpio_direction_output(&gpio1->f1, 4, 1);
@@ -129,6 +134,24 @@ static void board_init_i2c(void)
 	/* I2C_9 */
 	s5p_gpio_direction_output(&gpio2->m2, 1, 1);
 	s5p_gpio_direction_output(&gpio2->m2, 0, 1);
+}
+#endif
+
+#ifdef CONFIG_SYS_I2C_SOFT
+int get_soft_i2c_scl_pin(void)
+{
+	if (I2C_ADAP_HWNR)
+		return exynos4x12_gpio_part2_get_nr(m2, 1); /* I2C9 */
+	else
+		return exynos4x12_gpio_part1_get_nr(f1, 4); /* I2C8 */
+}
+
+int get_soft_i2c_sda_pin(void)
+{
+	if (I2C_ADAP_HWNR)
+		return exynos4x12_gpio_part2_get_nr(m2, 0); /* I2C9 */
+	else
+		return exynos4x12_gpio_part1_get_nr(f1, 5); /* I2C8 */
 }
 #endif
 
@@ -167,11 +190,11 @@ int power_init_board(void)
 #ifdef CONFIG_SYS_I2C_INIT_BOARD
 	board_init_i2c();
 #endif
-	pmic_init(I2C_0);		/* I2C adapter 0 - bus name I2C_5 */
+	pmic_init(I2C_7);		/* I2C adapter 7 - bus name s3c24x0_7 */
 	pmic_init_max77686();
-	pmic_init_max77693(I2C_2);	/* I2C adapter 2 - bus name I2C_10 */
-	power_muic_init(I2C_2);		/* I2C adapter 2 - bus name I2C_10 */
-	power_fg_init(I2C_1);		/* I2C adapter 1 - bus name I2C_9 */
+	pmic_init_max77693(I2C_9);	/* I2C adapter 9 - bus name soft1 */
+	power_muic_init(I2C_9);		/* I2C adapter 9 - bus name soft1 */
+	power_fg_init(I2C_8);		/* I2C adapter 8 - bus name soft0 */
 	power_bat_init(0);
 
 	p_chrg = pmic_get("MAX77693_PMIC");
