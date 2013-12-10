@@ -401,7 +401,7 @@
 	"dfu_args=run bootargs_defaults;" \
 		"setenv bootargs ${bootargs} ;" \
 		"mtdparts default; " \
-		"dfu nand 0; \0" \
+		"dfu 0 nand 0; \0" \
 		"dfu_alt_info=" DFU_ALT_INFO_NAND "\0" \
 	"net_args=run bootargs_defaults;" \
 		"mtdparts default;" \
