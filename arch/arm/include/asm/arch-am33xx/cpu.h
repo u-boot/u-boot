@@ -480,6 +480,8 @@ struct ctrl_stat {
 	unsigned int statusreg;		/* ofset 0x40 */
 	unsigned int resv2[51];
 	unsigned int secure_emif_sdram_config;	/* offset 0x0110 */
+	unsigned int resv3[319];
+	unsigned int dev_attr;
 };
 
 /* AM33XX GPIO registers */

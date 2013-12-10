@@ -98,13 +98,12 @@ extern const struct dpll_regs dpll_mpu_regs;
 extern const struct dpll_regs dpll_core_regs;
 extern const struct dpll_regs dpll_per_regs;
 extern const struct dpll_regs dpll_ddr_regs;
-extern const struct dpll_params dpll_mpu;
-extern const struct dpll_params dpll_core;
-extern const struct dpll_params dpll_per;
-extern const struct dpll_params dpll_ddr;
 
 extern struct cm_wkuppll *const cmwkup;
 
+const struct dpll_params *get_dpll_mpu_params(void);
+const struct dpll_params *get_dpll_core_params(void);
+const struct dpll_params *get_dpll_per_params(void);
 const struct dpll_params *get_dpll_ddr_params(void);
 void do_setup_dpll(const struct dpll_regs *, const struct dpll_params *);
 void prcm_init(void);

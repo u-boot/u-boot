@@ -25,6 +25,9 @@ static char *const am43xx_board_name = (char *)AM4372_BOARD_NAME_START;
 #define HDR_ETH_ALEN		6
 #define HDR_NAME_LEN		8
 
+#define DEV_ATTR_MAX_OFFSET	5
+#define DEV_ATTR_MIN_OFFSET	0
+
 struct am43xx_board_id {
 	unsigned int  magic;
 	char name[HDR_NAME_LEN];
@@ -46,4 +49,5 @@ static inline int board_is_gpevm(void)
 
 void enable_uart0_pin_mux(void);
 void enable_board_pin_mux(void);
+void enable_i2c0_pin_mux(void);
 #endif
