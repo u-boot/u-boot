@@ -11,7 +11,6 @@
 #include <mmc.h>
 #include <dwmmc.h>
 #include <asm-generic/errno.h>
-#include <asm/arch/dwmmc.h>
 
 #define PAGE_SIZE 4096
 
@@ -300,17 +299,9 @@ static void dwmci_set_ios(struct mmc *mmc)
 static int dwmci_init(struct mmc *mmc)
 {
 	struct dwmci_host *host = (struct dwmci_host *)mmc->priv;
-	u32 fifo_size;
 
-	if (host->quirks & DWMCI_QUIRK_DISABLE_SMU) {
-		dwmci_writel(host, EMMCP_MPSBEGIN0, 0);
-		dwmci_writel(host, EMMCP_SEND0, 0);
-		dwmci_writel(host, EMMCP_CTRL0,
-			     MPSCTRL_SECURE_READ_BIT |
-			     MPSCTRL_SECURE_WRITE_BIT |
-			     MPSCTRL_NON_SECURE_READ_BIT |
-			     MPSCTRL_NON_SECURE_WRITE_BIT | MPSCTRL_VALID);
-	}
+	if (host->board_init)
+		host->board_init(host);
 
 	dwmci_writel(host, DWMCI_PWREN, 1);
 
@@ -330,13 +321,9 @@ static int dwmci_init(struct mmc *mmc)
 	dwmci_writel(host, DWMCI_IDINTEN, 0);
 	dwmci_writel(host, DWMCI_BMOD, 1);
 
-	if (!host->fifoth_val) {
-		fifo_size = dwmci_readl(host, DWMCI_FIFOTH);
-		fifo_size = ((fifo_size & RX_WMARK_MASK) >> RX_WMARK_SHIFT) + 1;
-		host->fifoth_val = MSIZE(0x2) | RX_WMARK(fifo_size / 2 - 1) |
-			TX_WMARK(fifo_size / 2);
+	if (host->fifoth_val) {
+		dwmci_writel(host, DWMCI_FIFOTH, host->fifoth_val);
 	}
-	dwmci_writel(host, DWMCI_FIFOTH, host->fifoth_val);
 
 	dwmci_writel(host, DWMCI_CLKENA, 0);
 	dwmci_writel(host, DWMCI_CLKSRC, 0);
