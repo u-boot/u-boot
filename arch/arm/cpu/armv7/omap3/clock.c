@@ -708,7 +708,7 @@ void per_clocks_enable(void)
 	sr32(&prcm_base->iclken_per, 17, 1, 1);
 #endif
 
-#ifdef CONFIG_DRIVER_OMAP34XX_I2C
+#ifdef CONFIG_SYS_I2C_OMAP34XX
 	/* Turn on all 3 I2C clocks */
 	sr32(&prcm_base->fclken1_core, 15, 3, 0x7);
 	sr32(&prcm_base->iclken1_core, 15, 3, 0x7);	/* I2C1,2,3 = on */

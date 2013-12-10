@@ -25,9 +25,7 @@ OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 __OBJS	:= $(SOBJS) $(COBJS)
 LNDIR	:= $(nandobj)board/$(BOARDDIR)
 
-ALL	= $(nandobj)u-boot-spl $(nandobj)u-boot-spl.bin $(nandobj)u-boot-spl-16k.bin
-
-all:	$(obj).depend $(ALL)
+all: $(nandobj)u-boot-spl.bin $(nandobj)u-boot-spl-16k.bin
 
 $(nandobj)u-boot-spl-16k.bin: $(nandobj)u-boot-spl
 	$(OBJCOPY) ${OBJCFLAGS} --pad-to=$(PAD_TO) -O binary $< $@
@@ -37,8 +35,7 @@ $(nandobj)u-boot-spl.bin:	$(nandobj)u-boot-spl
 
 $(nandobj)u-boot-spl:	$(OBJS) $(nandobj)u-boot-nand_spl.lds
 	cd $(LNDIR) && $(LD) $(LDFLAGS) $(__OBJS) $(PLATFORM_LIBS) \
-		-Map $(nandobj)u-boot-spl.map \
-		-o $(nandobj)u-boot-spl
+		-Map $(nandobj)u-boot-spl.map -o $@
 
 $(nandobj)u-boot-nand_spl.lds: $(LDSCRIPT)
 	$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -I$(nandobj)/board/$(BOARDDIR) \
@@ -47,58 +44,57 @@ $(nandobj)u-boot-nand_spl.lds: $(LDSCRIPT)
 # create symbolic links for common files
 
 $(obj)cache.c:
-	@rm -f $(obj)cache.c
-	ln -sf $(SRCTREE)/arch/powerpc/lib/cache.c $(obj)cache.c
+	@rm -f $@
+	ln -sf $(SRCTREE)/arch/powerpc/lib/cache.c $@
 
 $(obj)cpu_init_early.c:
-	@rm -f $(obj)cpu_init_early.c
-	ln -sf $(SRCTREE)/$(CPUDIR)/cpu_init_early.c $(obj)cpu_init_early.c
+	@rm -f $@
+	ln -sf $(SRCTREE)/$(CPUDIR)/cpu_init_early.c $@
 
 $(obj)spl_minimal.c:
-	@rm -f $(obj)spl_minimal.c
-	ln -sf $(SRCTREE)/$(CPUDIR)/spl_minimal.c $(obj)spl_minimal.c
+	@rm -f $@
+	ln -sf $(SRCTREE)/$(CPUDIR)/spl_minimal.c $@
 
 $(obj)fsl_law.c:
-	@rm -f $(obj)fsl_law.c
-	ln -sf $(SRCTREE)/arch/powerpc/cpu/mpc8xxx/law.c $(obj)fsl_law.c
+	@rm -f $@
+	ln -sf $(SRCTREE)/arch/powerpc/cpu/mpc8xxx/law.c $@
 
 $(obj)law.c:
-	@rm -f $(obj)law.c
-	ln -sf $(SRCTREE)/board/$(BOARDDIR)/law.c $(obj)law.c
+	@rm -f $@
+	ln -sf $(SRCTREE)/board/$(BOARDDIR)/law.c $@
 
 $(obj)nand_boot_fsl_elbc.c:
-	@rm -f $(obj)nand_boot_fsl_elbc.c
-	ln -sf $(SRCTREE)/nand_spl/nand_boot_fsl_elbc.c \
-	       $(obj)nand_boot_fsl_elbc.c
+	@rm -f $@
+	ln -sf $(SRCTREE)/nand_spl/nand_boot_fsl_elbc.c $@
 
 $(obj)ns16550.c:
-	@rm -f $(obj)ns16550.c
-	ln -sf $(SRCTREE)/drivers/serial/ns16550.c $(obj)ns16550.c
+	@rm -f $@
+	ln -sf $(SRCTREE)/drivers/serial/ns16550.c $@
 
 $(obj)resetvec.S:
-	@rm -f $(obj)resetvec.S
-	ln -s $(SRCTREE)/$(CPUDIR)/resetvec.S $(obj)resetvec.S
+	@rm -f $@
+	ln -s $(SRCTREE)/$(CPUDIR)/resetvec.S $@
 
 $(obj)fixed_ivor.S:
-	@rm -f $(obj)fixed_ivor.S
-	ln -sf $(SRCTREE)/$(CPUDIR)/fixed_ivor.S $(obj)fixed_ivor.S
+	@rm -f $@
+	ln -sf $(SRCTREE)/$(CPUDIR)/fixed_ivor.S $@
 
 $(obj)start.S: $(obj)fixed_ivor.S
-	@rm -f $(obj)start.S
-	ln -sf $(SRCTREE)/$(CPUDIR)/start.S $(obj)start.S
+	@rm -f $@
+	ln -sf $(SRCTREE)/$(CPUDIR)/start.S $@
 
 $(obj)tlb.c:
-	@rm -f $(obj)tlb.c
-	ln -sf $(SRCTREE)/$(CPUDIR)/tlb.c $(obj)tlb.c
+	@rm -f $@
+	ln -sf $(SRCTREE)/$(CPUDIR)/tlb.c $@
 
 $(obj)tlb_table.c:
-	@rm -f $(obj)tlb_table.c
-	ln -sf $(SRCTREE)/board/$(BOARDDIR)/tlb.c $(obj)tlb_table.c
+	@rm -f $@
+	ln -sf $(SRCTREE)/board/$(BOARDDIR)/tlb.c $@
 
 ifneq ($(OBJTREE), $(SRCTREE))
 $(obj)nand_boot.c:
-	@rm -f $(obj)nand_boot.c
-	ln -s $(SRCTREE)/nand_spl/board/$(BOARDDIR)/nand_boot.c $(obj)nand_boot.c
+	@rm -f $@
+	ln -s $(SRCTREE)/nand_spl/board/$(BOARDDIR)/nand_boot.c $@
 endif
 
 #########################################################################

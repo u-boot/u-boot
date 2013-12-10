@@ -96,7 +96,7 @@ static int mac_reset(struct eth_device *dev)
 	ulong start;
 	int timeout = CONFIG_MACRESET_TIMEOUT;
 
-	writel(DMAMAC_SRST, &dma_p->busmode);
+	writel(readl(&dma_p->busmode) | DMAMAC_SRST, &dma_p->busmode);
 
 	if (priv->interface != PHY_INTERFACE_MODE_RGMII)
 		writel(MII_PORTSELECT, &mac_p->conf);

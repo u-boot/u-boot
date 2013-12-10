@@ -17,6 +17,12 @@
 #define CONFIG_MMC
 #define CONFIG_PCIE3
 
+#define CONFIG_CMD_SATA
+#define CONFIG_SATA_SIL
+#define CONFIG_SYS_SATA_MAX_DEVICE  2
+#define CONFIG_LIBATA
+#define CONFIG_LBA48
+
 #define CONFIG_SYS_SRIO
 #define CONFIG_SRIO1			/* SRIO port 1 */
 #define CONFIG_SRIO2			/* SRIO port 2 */

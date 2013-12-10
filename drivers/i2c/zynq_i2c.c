@@ -74,7 +74,8 @@ static struct zynq_i2c_registers *zynq_i2c =
 	(struct zynq_i2c_registers *)ZYNQ_I2C_BASE;
 
 /* I2C init called by cmd_i2c when doing 'i2c reset'. */
-void i2c_init(int requested_speed, int slaveadd)
+static void zynq_i2c_init(struct i2c_adapter *adap, int requested_speed,
+			  int slaveadd)
 {
 	/* 111MHz / ( (3 * 17) * 22 ) = ~100KHz */
 	writel((16 << ZYNQ_I2C_CONTROL_DIV_B_SHIFT) |
@@ -151,7 +152,7 @@ static u32 zynq_i2c_wait(u32 mask)
  * I2C probe called by cmd_i2c when doing 'i2c probe'.
  * Begin read, nak data byte, end.
  */
-int i2c_probe(u8 dev)
+static int zynq_i2c_probe(struct i2c_adapter *adap, u8 dev)
 {
 	/* Attempt to read a byte */
 	setbits_le32(&zynq_i2c->control, ZYNQ_I2C_CONTROL_CLR_FIFO |
@@ -170,7 +171,8 @@ int i2c_probe(u8 dev)
  * I2C read called by cmd_i2c when doing 'i2c read' and by cmd_eeprom.c
  * Begin write, send address byte(s), begin read, receive data bytes, end.
  */
-int i2c_read(u8 dev, uint addr, int alen, u8 *data, int length)
+static int zynq_i2c_read(struct i2c_adapter *adap, u8 dev, uint addr,
+			 int alen, u8 *data, int length)
 {
 	u32 status;
 	u32 i = 0;
@@ -235,7 +237,8 @@ int i2c_read(u8 dev, uint addr, int alen, u8 *data, int length)
  * I2C write called by cmd_i2c when doing 'i2c write' and by cmd_eeprom.c
  * Begin write, send address byte(s), send data bytes, end.
  */
-int i2c_write(u8 dev, uint addr, int alen, u8 *data, int length)
+static int zynq_i2c_write(struct i2c_adapter *adap, u8 dev, uint addr,
+			  int alen, u8 *data, int length)
 {
 	u8 *cur_data = data;
 
@@ -275,16 +278,16 @@ int i2c_write(u8 dev, uint addr, int alen, u8 *data, int length)
 	return 0;
 }
 
-int i2c_set_bus_num(unsigned int bus)
+static unsigned int zynq_i2c_set_bus_speed(struct i2c_adapter *adap,
+			unsigned int speed)
 {
-	/* Only support bus 0 */
-	if (bus > 0)
-		return -1;
+	if (speed != 1000000)
+		return -EINVAL;
+
 	return 0;
 }
 
-unsigned int i2c_get_bus_num(void)
-{
-	/* Only support bus 0 */
-	return 0;
-}
+U_BOOT_I2C_ADAP_COMPLETE(zynq_0, zynq_i2c_init, zynq_i2c_probe, zynq_i2c_read,
+			 zynq_i2c_write, zynq_i2c_set_bus_speed,
+			 CONFIG_SYS_I2C_ZYNQ_SPEED, CONFIG_SYS_I2C_ZYNQ_SLAVE,
+			 0)

@@ -10,10 +10,6 @@ SRCS :=
 
 include Makefile
 
-# Backward compatible: obj-y is preferable
-COBJS := $(sort $(COBJS) $(COBJS-y))
-SOBJS := $(sort $(SOBJS) $(SOBJS-y))
-
 # Going forward use the following
 obj-y := $(sort $(obj-y))
 extra-y := $(sort $(extra-y))
@@ -24,11 +20,18 @@ obj-y		:= $(patsubst %/, %/built-in.o, $(obj-y))
 subdir-obj-y	:= $(filter %/built-in.o, $(obj-y))
 subdir-obj-y	:= $(addprefix $(obj),$(subdir-obj-y))
 
-SRCS	+= $(COBJS:.o=.c) $(SOBJS:.o=.S) \
- $(wildcard $(obj-y:.o=.c) $(obj-y:.o=.S) $(lib-y:.o=.c) $(lib-y:.o=.S) $(extra-y:.o=.c) $(extra-y:.o=.S))
-OBJS	:= $(addprefix $(obj),$(COBJS) $(SOBJS) $(obj-y))
+SRCS	+= $(wildcard $(obj-y:.o=.c) $(obj-y:.o=.S) $(lib-y:.o=.c) \
+	$(lib-y:.o=.S) $(extra-y:.o=.c) $(extra-y:.o=.S))
+OBJS	:= $(addprefix $(obj),$(obj-y))
 
-LGOBJS := $(addprefix $(obj),$(sort $(GLSOBJS) $(GLCOBJS)) $(lib-y))
+# $(obj-dirs) is a list of directories that contain object files
+obj-dirs := $(dir $(OBJS))
+
+# Create directories for object files if directory does not exist
+# Needed when obj-y := dir/file.o syntax is used
+_dummy := $(foreach d,$(obj-dirs), $(shell [ -d $(d) ] || mkdir -p $(d)))
+
+LGOBJS := $(addprefix $(obj),$(sort $(lib-y)))
 
 all: $(LIB) $(addprefix $(obj),$(extra-y))
 

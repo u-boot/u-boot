@@ -18,7 +18,7 @@ obj-y	+= abb.o
 endif
 
 ifneq ($(CONFIG_OMAP54XX),)
-COBJS	+= pipe3-phy.o
+obj-y	+= pipe3-phy.o
 obj-$(CONFIG_SCSI_AHCI_PLAT) += sata.o
 endif
 

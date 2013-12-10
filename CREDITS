@@ -143,7 +143,7 @@ W: www.freescale.com
 
 N: Dr. Wolfgang Grandegger
 E: wg@denx.de
-D: Support for Interphase 4539 T1/E1/J1 PMC, PN62, CCM, SCM boards
+D: Support for Interphase 4539 T1/E1/J1 PMC, CCM, SCM boards
 W: www.denx.de
 
 N: Peter Figuli

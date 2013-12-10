@@ -5,10 +5,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)../common)
-endif
-
 obj-y	= plu405.o flash.o \
 	../common/misc.o \
 	../common/esd405ep_nand.o \

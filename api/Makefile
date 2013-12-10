@@ -4,5 +4,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-$(CONFIG_API) += api.o api_display.o api_net.o api_storage.o \
-		       api_platform-$(ARCH).o
+obj-y += api.o api_display.o api_net.o api_storage.o
+obj-$(CONFIG_ARM) += api_platform-arm.o
+obj-$(CONFIG_PPC) += api_platform-powerpc.o

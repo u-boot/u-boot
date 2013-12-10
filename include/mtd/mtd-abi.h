@@ -155,18 +155,6 @@ struct nand_oobfree {
 	uint32_t length;
 };
 
-#define MTD_MAX_OOBFREE_ENTRIES	8
-/*
- * ECC layout control structure. Exported to userspace for
- * diagnosis and to allow creation of raw images
- */
-struct nand_ecclayout {
-	uint32_t eccbytes;
-	uint32_t eccpos[128];
-	uint32_t oobavail;
-	struct nand_oobfree oobfree[MTD_MAX_OOBFREE_ENTRIES];
-};
-
 /**
  * struct mtd_ecc_stats - error correction stats
  *

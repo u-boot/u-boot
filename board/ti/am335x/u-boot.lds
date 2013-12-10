@@ -35,7 +35,7 @@ SECTIONS
 	{
 		*(.__image_copy_start)
 		CPUDIR/start.o (.text*)
-		board/ti/am335x/libam335x.o (.text*)
+		board/ti/am335x/built-in.o (.text*)
 		*(.text*)
 	}
 

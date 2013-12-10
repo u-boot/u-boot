@@ -5,6 +5,4 @@
 #
 # SPDX-License-Identifier:	GPL-2.0+
 
-CPPFLAGS += -I$(TOPDIR)
-
 obj-$(CONFIG_HAS_POST)	+= sysmon.o watchdog.o dspic.o fpga.o dsp.o gdc.o

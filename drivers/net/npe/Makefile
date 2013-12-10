@@ -8,9 +8,8 @@
 LOCAL_CFLAGS  += -I$(TOPDIR)/drivers/net/npe/include -DCONFIG_IXP425_COMPONENT_ETHDB -D__linux
 CFLAGS  += $(LOCAL_CFLAGS)
 CPPFLAGS  += $(LOCAL_CFLAGS) # needed for depend
-HOSTCFLAGS  += $(LOCAL_CFLAGS)
 
-obj-$(CONFIG_IXP4XX_NPE) := npe.o \
+obj-y := npe.o \
 	miiphy.o \
 	IxOsalBufferMgt.o \
 	IxOsalIoMem.o \

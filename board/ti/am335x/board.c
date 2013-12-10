@@ -380,7 +380,7 @@ const struct dpll_params *get_dpll_ddr_params(void)
 	struct am335x_baseboard_id header;
 
 	enable_i2c0_pin_mux();
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
 	if (read_eeprom(&header) < 0)
 		puts("Could not get board ID.\n");
 
@@ -464,26 +464,14 @@ void sdram_init(void)
  */
 int board_init(void)
 {
-#ifdef CONFIG_NOR
-	const u32 gpmc_nor[GPMC_MAX_REG] = { STNOR_GPMC_CONFIG1,
-		STNOR_GPMC_CONFIG2, STNOR_GPMC_CONFIG3, STNOR_GPMC_CONFIG4,
-		STNOR_GPMC_CONFIG5, STNOR_GPMC_CONFIG6, STNOR_GPMC_CONFIG7 };
-#endif
-
 #if defined(CONFIG_HW_WATCHDOG)
 	hw_watchdog_init();
 #endif
 
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
-
+#if defined(CONFIG_NOR) || defined(CONFIG_NAND)
 	gpmc_init();
-
-#ifdef CONFIG_NOR
-	/* Reconfigure CS0 for NOR instead of NAND. */
-	enable_gpmc_cs_config(gpmc_nor, &gpmc_cfg->cs[0],
-			      CONFIG_SYS_FLASH_BASE, GPMC_SIZE_16M);
 #endif
-
 	return 0;
 }
 

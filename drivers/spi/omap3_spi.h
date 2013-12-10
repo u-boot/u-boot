@@ -99,11 +99,11 @@ static inline struct omap3_spi_slave *to_omap3_spi(struct spi_slave *slave)
 	return container_of(slave, struct omap3_spi_slave, slave);
 }
 
-int omap3_spi_txrx(struct spi_slave *slave, unsigned int len, const u8 *txp,
-			u8 *rxp, unsigned long flags);
-int omap3_spi_write(struct spi_slave *slave, unsigned int len, const u8 *txp,
+int omap3_spi_txrx(struct spi_slave *slave, unsigned int len, const void *txp,
+			void *rxp, unsigned long flags);
+int omap3_spi_write(struct spi_slave *slave, unsigned int len, const void *txp,
 		    unsigned long flags);
-int omap3_spi_read(struct spi_slave *slave, unsigned int len, u8 *rxp,
+int omap3_spi_read(struct spi_slave *slave, unsigned int len, void *rxp,
 		   unsigned long flags);
 
 #endif /* _OMAP3_SPI_H_ */

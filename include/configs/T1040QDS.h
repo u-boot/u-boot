@@ -32,6 +32,8 @@
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
+#define CONFIG_PBLPBI_CONFIG $(SRCTREE)/board/freescale/t1040qds/t1040_pbi.cfg
+#define CONFIG_PBLRCW_CONFIG $(SRCTREE)/board/freescale/t1040qds/t1040_rcw.cfg
 #endif
 
 /* High Level Configuration Options */
@@ -168,7 +170,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CHIP_SELECTS_PER_CTRL	(4 * CONFIG_DIMM_SLOTS_PER_CTLR)
 
 #define CONFIG_DDR_SPD
-#define CONFIG_FSL_DDR3
+#define CONFIG_SYS_FSL_DDR3
 #define CONFIG_FSL_DDR_INTERACTIVE
 
 #define CONFIG_SYS_SPD_BUS_NUM	0

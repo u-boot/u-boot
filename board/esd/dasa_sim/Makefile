@@ -5,8 +5,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)../common)
-endif
-
 obj-y	= dasa_sim.o flash.o cmd_dasa_sim.o eeprom.o ../common/pci.o

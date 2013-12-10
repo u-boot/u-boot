@@ -324,6 +324,8 @@
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE + 0, CONFIG_SYS_NAND_BASE + 2,	\
 				  CONFIG_SYS_NAND_BASE + 4, CONFIG_SYS_NAND_BASE + 6 }
 #define CONFIG_SYS_NAND_QUIET_TEST	1	/* don't warn upon unknown NAND flash	*/
+#define CONFIG_SYS_NAND_MAX_OOBFREE	2
+#define CONFIG_SYS_NAND_MAX_ECCPOS	56
 
 /*-----------------------------------------------------------------------
  * External Bus Controller (EBC) Setup

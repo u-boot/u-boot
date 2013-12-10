@@ -6,11 +6,11 @@
  */
 
 #include <common.h>
-#include <board/cogent/dipsw.h>
-#include <board/cogent/lcd.h>
-#include <board/cogent/rtc.h>
-#include <board/cogent/par.h>
-#include <board/cogent/pci.h>
+#include "dipsw.h"
+#include "lcd.h"
+#include "rtc.h"
+#include "par.h"
+#include "pci.h"
 
 /* ------------------------------------------------------------------------- */
 

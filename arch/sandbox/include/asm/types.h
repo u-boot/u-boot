@@ -48,8 +48,8 @@ typedef unsigned long long u64;
 #define BITS_PER_LONG	CONFIG_SANDBOX_BITS_PER_LONG
 
 typedef unsigned long dma_addr_t;
-typedef unsigned long phys_addr_t;
-typedef unsigned long phys_size_t;
+typedef u32 phys_addr_t;
+typedef u32 phys_size_t;
 
 #endif /* __KERNEL__ */
 

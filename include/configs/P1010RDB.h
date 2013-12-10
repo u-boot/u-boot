@@ -178,7 +178,7 @@
 #define CONFIG_PANIC_HANG		/* do not reset board on panic */
 
 /* DDR Setup */
-#define CONFIG_FSL_DDR3
+#define CONFIG_SYS_FSL_DDR3
 #define CONFIG_SYS_DDR_RAW_TIMING
 #define CONFIG_DDR_SPD
 #define CONFIG_SYS_SPD_BUS_NUM		1
@@ -312,6 +312,13 @@ extern unsigned long get_sdram_size(void);
 #else
 #define CONFIG_SYS_NAND_BASE_PHYS	CONFIG_SYS_NAND_BASE
 #endif
+
+#define CONFIG_MTD_DEVICE
+#define CONFIG_MTD_PARTITION
+#define CONFIG_CMD_MTDPARTS
+#define MTDIDS_DEFAULT			"nand0=ff800000.flash"
+#define MTDPARTS_DEFAULT		\
+	"mtdparts=ff800000.flash:2m(uboot-env),1m(dtb),5m(kernel),56m(fs),-(usr)"
 
 #define CONFIG_SYS_NAND_CSPR	(CSPR_PHYS_ADDR(CONFIG_SYS_NAND_BASE_PHYS) \
 				| CSPR_PORT_SIZE_8	\

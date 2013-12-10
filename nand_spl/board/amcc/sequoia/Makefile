@@ -24,9 +24,7 @@ OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 __OBJS	:= $(SOBJS) $(COBJS)
 LNDIR	:= $(nandobj)board/$(BOARDDIR)
 
-ALL	= $(nandobj)u-boot-spl $(nandobj)u-boot-spl.bin $(nandobj)u-boot-spl-16k.bin
-
-all:	$(obj).depend $(ALL)
+all: $(nandobj)u-boot-spl.bin $(nandobj)u-boot-spl-16k.bin
 
 $(nandobj)u-boot-spl-16k.bin: $(nandobj)u-boot-spl
 	$(OBJCOPY) ${OBJCFLAGS} --pad-to=$(PAD_TO) -O binary $< $@
@@ -36,8 +34,7 @@ $(nandobj)u-boot-spl.bin:	$(nandobj)u-boot-spl
 
 $(nandobj)u-boot-spl:	$(OBJS) $(nandobj)u-boot.lds
 	cd $(LNDIR) && $(LD) $(LDFLAGS) $(__OBJS) $(PLATFORM_LIBS) \
-		-Map $(nandobj)u-boot-spl.map \
-		-o $(nandobj)u-boot-spl
+		-Map $(nandobj)u-boot-spl.map -o $@
 
 $(nandobj)u-boot.lds: $(LDSCRIPT)
 	$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ -P - <$^ >$@
@@ -46,41 +43,41 @@ $(nandobj)u-boot.lds: $(LDSCRIPT)
 
 # from cpu directory
 $(obj)denali_data_eye.c:
-	@rm -f $(obj)denali_data_eye.c
-	ln -s $(SRCTREE)/arch/powerpc/cpu/ppc4xx/denali_data_eye.c $(obj)denali_data_eye.c
+	@rm -f $@
+	ln -s $(SRCTREE)/arch/powerpc/cpu/ppc4xx/denali_data_eye.c $@
 
 $(obj)ndfc.c:
-	@rm -f $(obj)ndfc.c
-	ln -s $(SRCTREE)/drivers/mtd/nand/ndfc.c $(obj)ndfc.c
+	@rm -f $@
+	ln -s $(SRCTREE)/drivers/mtd/nand/ndfc.c $@
 
 $(obj)resetvec.S:
-	@rm -f $(obj)resetvec.S
-	ln -s $(SRCTREE)/arch/powerpc/cpu/ppc4xx/resetvec.S $(obj)resetvec.S
+	@rm -f $@
+	ln -s $(SRCTREE)/arch/powerpc/cpu/ppc4xx/resetvec.S $@
 
 $(obj)start.S:
-	@rm -f $(obj)start.S
-	ln -s $(SRCTREE)/arch/powerpc/cpu/ppc4xx/start.S $(obj)start.S
+	@rm -f $@
+	ln -s $(SRCTREE)/arch/powerpc/cpu/ppc4xx/start.S $@
 
 # from board directory
 $(obj)init.S:
-	@rm -f $(obj)init.S
-	ln -s $(SRCTREE)/board/amcc/sequoia/init.S $(obj)init.S
+	@rm -f $@
+	ln -s $(SRCTREE)/board/amcc/sequoia/init.S $@
 
 $(obj)sdram.c:
-	@rm -f $(obj)sdram.c
+	@rm -f $@
 	@rm -f $(obj)sdram.h
-	ln -s $(SRCTREE)/board/amcc/sequoia/sdram.c $(obj)sdram.c
+	ln -s $(SRCTREE)/board/amcc/sequoia/sdram.c $@
 	ln -s $(SRCTREE)/board/amcc/sequoia/sdram.h $(obj)sdram.h
 
 # from nand_spl directory
 $(obj)nand_boot.c:
-	@rm -f $(obj)nand_boot.c
-	ln -s $(SRCTREE)/nand_spl/nand_boot.c $(obj)nand_boot.c
+	@rm -f $@
+	ln -s $(SRCTREE)/nand_spl/nand_boot.c $@
 
 # from drivers/mtd/nand directory
 $(obj)nand_ecc.c:
-	@rm -f $(obj)nand_ecc.c
-	ln -s $(SRCTREE)/drivers/mtd/nand/nand_ecc.c $(obj)nand_ecc.c
+	@rm -f $@
+	ln -s $(SRCTREE)/drivers/mtd/nand/nand_ecc.c $@
 
 #########################################################################
 

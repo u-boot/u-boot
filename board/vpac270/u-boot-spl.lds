@@ -20,8 +20,8 @@ SECTIONS
 	.text.0	:
 	{
 		arch/arm/cpu/pxa/start.o		(.text*)
-		board/vpac270/libvpac270.o		(.text*)
-		drivers/mtd/onenand/libonenand.o	(.text*)
+		board/vpac270/built-in.o		(.text*)
+		drivers/mtd/onenand/built-in.o		(.text*)
 	}
 
 

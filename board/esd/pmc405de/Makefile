@@ -5,10 +5,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)../common)
-endif
-
 obj-y	= pmc405de.o
 obj-$(CONFIG_CMD_CHIP_CONFIG) += chip_config.o
 obj-y += ../common/cmd_loadpci.o

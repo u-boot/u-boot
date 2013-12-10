@@ -60,10 +60,10 @@
 /* I2C */
 #if defined(CONFIG_ZYNQ_I2C0) || defined(CONFIG_ZYNQ_I2C1)
 # define CONFIG_CMD_I2C
-# define CONFIG_ZYNQ_I2C
-# define CONFIG_HARD_I2C
-# define CONFIG_SYS_I2C_SPEED		100000
-# define CONFIG_SYS_I2C_SLAVE		1
+# define CONFIG_SYS_I2C
+# define CONFIG_SYS_I2C_ZYNQ
+# define CONFIG_SYS_I2C_ZYNQ_SPEED		100000
+# define CONFIG_SYS_I2C_ZYNQ_SLAVE		1
 #endif
 
 #if defined(CONFIG_ZYNQ_DCC)

@@ -19,7 +19,7 @@ SECTIONS
 	{
 		*(.__image_copy_start)
 		CPUDIR/start.o (.text*)
-		board/compulab/cm_t335/libcm_t335.o (.text*)
+		board/compulab/cm_t335/built-in.o (.text*)
 		*(.text*)
 	}
 

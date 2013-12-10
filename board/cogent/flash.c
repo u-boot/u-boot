@@ -6,7 +6,7 @@
  */
 
 #include <common.h>
-#include <board/cogent/flash.h>
+#include "flash.h"
 #include <linux/compiler.h>
 
 flash_info_t	flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/

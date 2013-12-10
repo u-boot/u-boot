@@ -14,6 +14,4 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-$(shell mkdir -p $(obj)../cardhu)
-
 obj-y	= ../cardhu/cardhu.o

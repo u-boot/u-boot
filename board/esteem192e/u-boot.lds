@@ -18,8 +18,8 @@ SECTIONS
 
     arch/powerpc/cpu/mpc8xx/start.o	(.text*)
     arch/powerpc/cpu/mpc8xx/traps.o	(.text*)
-    net/libnet.o			(.text*)
-    board/esteem192e/libesteem192e.o	(.text*)
+    net/built-in.o			(.text*)
+    board/esteem192e/built-in.o		(.text*)
 
     . = env_offset;
     common/env_embedded.o		(.text*)

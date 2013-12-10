@@ -6,6 +6,3 @@
 #
 
 obj-y	:= tqm5200.o cmd_stk52xx.o cmd_tb5200.o cam5200_flash.o
-
-$(obj)cam5200_flash.o:	cam5200_flash.c
-	$(CC) $(CFLAGS) -c -o $@ $<

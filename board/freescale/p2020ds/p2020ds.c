@@ -12,7 +12,7 @@
 #include <asm/cache.h>
 #include <asm/immap_85xx.h>
 #include <asm/fsl_pci.h>
-#include <asm/fsl_ddr_sdram.h>
+#include <fsl_ddr_sdram.h>
 #include <asm/io.h>
 #include <asm/fsl_serdes.h>
 #include <miiphy.h>
@@ -68,7 +68,8 @@ int checkboard(void)
 
 phys_size_t fixed_sdram(void)
 {
-	volatile ccsr_ddr_t *ddr = (ccsr_ddr_t *)CONFIG_SYS_MPC8xxx_DDR_ADDR;
+	struct ccsr_ddr __iomem *ddr =
+		(struct ccsr_ddr __iomem *)CONFIG_SYS_FSL_DDR_ADDR;
 	uint d_init;
 
 	ddr->cs0_config = CONFIG_SYS_DDR_CS0_CONFIG;

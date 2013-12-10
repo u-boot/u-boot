@@ -22,6 +22,8 @@ enum fm_port {
 	FM1_DTSEC10,
 	FM1_10GEC1,
 	FM1_10GEC2,
+	FM1_10GEC3,
+	FM1_10GEC4,
 	FM2_DTSEC1,
 	FM2_DTSEC2,
 	FM2_DTSEC3,
@@ -85,6 +87,22 @@ enum fm_eth_type {
 	.compat_offset	= CONFIG_SYS_FSL_FM##idx##_OFFSET +		\
 				offsetof(struct ccsr_fman, memac[n-1+8]),\
 }
+
+#if (CONFIG_SYS_NUM_FM1_10GEC >= 3)
+#define FM_TGEC_INFO_INITIALIZER2(idx, n) \
+{									\
+	FM_ETH_INFO_INITIALIZER(idx, CONFIG_SYS_FM1_TGEC_MDIO_ADDR)	\
+	.index		= idx,						\
+	.num		= n - 1,					\
+	.type		= FM_ETH_10G_E,					\
+	.port		= FM##idx##_10GEC##n,				\
+	.rx_port_id	= RX_PORT_10G_BASE2 + n - 3,			\
+	.tx_port_id	= TX_PORT_10G_BASE2 + n - 3,			\
+	.compat_offset	= CONFIG_SYS_FSL_FM##idx##_OFFSET +		\
+				offsetof(struct ccsr_fman, memac[n-1-2]),\
+}
+#endif
+
 #else
 #define FM_DTSEC_INFO_INITIALIZER(idx, n) \
 {									\

@@ -43,8 +43,8 @@ int board_init(void)
  */
 int misc_init_r(void)
 {
-#ifdef CONFIG_DRIVER_OMAP34XX_I2C
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+#ifdef CONFIG_SYS_I2C_OMAP34XX
+	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
 #endif
 
 	dieid_num_r();

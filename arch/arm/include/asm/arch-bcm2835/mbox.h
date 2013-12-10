@@ -350,6 +350,7 @@ struct bcm2835_mbox_tag_overscan {
 			u32 top;
 			u32 bottom;
 			u32 left;
+			u32 right;
 		} resp;
 	} body;
 };

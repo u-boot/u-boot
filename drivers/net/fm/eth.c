@@ -557,8 +557,16 @@ static int fm_eth_init_mac(struct fm_eth *fm_eth, struct ccsr_fman *reg)
 	num = fm_eth->num;
 
 #ifdef CONFIG_SYS_FMAN_V3
-	if (fm_eth->type == FM_ETH_10G_E)
-		num += 8;
+	if (fm_eth->type == FM_ETH_10G_E) {
+		/* 10GEC1/10GEC2 use mEMAC9/mEMAC10
+		 * 10GEC3/10GEC4 use mEMAC1/mEMAC2
+		 * so it needs to change the num.
+		 */
+		if (fm_eth->num >= 2)
+			num -= 2;
+		else
+			num += 8;
+	}
 	base = &reg->memac[num].fm_memac;
 	phyregs = &reg->memac[num].fm_memac_mdio;
 #else

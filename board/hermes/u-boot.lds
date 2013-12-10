@@ -17,7 +17,7 @@ SECTIONS
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
     arch/powerpc/cpu/mpc8xx/start.o	(.text*)
     arch/powerpc/cpu/mpc8xx/traps.o	(.text*)
-    board/hermes/libhermes.o		(.text*)
+    board/hermes/built-in.o		(.text*)
 
     . = env_offset;
     common/env_embedded.o		(.text*)

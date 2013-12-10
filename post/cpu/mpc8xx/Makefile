@@ -5,7 +5,5 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-CPPFLAGS += -I$(TOPDIR)
-
 obj-$(CONFIG_HAS_POST)	+= cache_8xx.o
 obj-$(CONFIG_HAS_POST)	+= cache.o ether.o spr.o uart.o usb.o watchdog.o

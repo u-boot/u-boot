@@ -10,7 +10,7 @@
 #include <asm/io.h>
 #include <nand.h>
 #include <asm/fsl_law.h>
-#include <asm/fsl_ddr_sdram.h>
+#include <fsl_ddr_sdram.h>
 #include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -18,7 +18,8 @@ DECLARE_GLOBAL_DATA_PTR;
 /* Fixed sdram init -- doesn't use serial presence detect. */
 void sdram_init(void)
 {
-	ccsr_ddr_t *ddr = (ccsr_ddr_t *)CONFIG_SYS_MPC8xxx_DDR_ADDR;
+	struct ccsr_ddr __iomem *ddr =
+		(struct ccsr_ddr __iomem *)CONFIG_SYS_FSL_DDR_ADDR;
 
 	set_next_law(0, LAW_SIZE_2G, LAW_TRGT_IF_DDR_1);
 

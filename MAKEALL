@@ -18,6 +18,7 @@ usage()
 	  -c CPU,    --cpu CPU         Build all boards with cpu CPU
 	  -v VENDOR, --vendor VENDOR   Build all boards with vendor VENDOR
 	  -s SOC,    --soc SOC         Build all boards with soc SOC
+	  -b BOARD,  --board BOARD     Build all boards with board name BOARD
 	  -l,        --list            List all targets to be built
 	  -m,        --maintainers     List all targets and maintainer email
 	  -M,        --mails           List all targets and all affilated emails
@@ -59,8 +60,8 @@ usage()
 	exit ${ret}
 }
 
-SHORT_OPTS="ha:c:v:s:lmMCnr"
-LONG_OPTS="help,arch:,cpu:,vendor:,soc:,list,maintainers,mails,check,continue,rebuild-errors"
+SHORT_OPTS="ha:c:v:s:b:lmMCnr"
+LONG_OPTS="help,arch:,cpu:,vendor:,soc:,board:,list,maintainers,mails,check,continue,rebuild-errors"
 
 # Option processing based on util-linux-2.13/getopt-parse.bash
 
@@ -121,6 +122,17 @@ while true ; do
 		fi
 		SELECTED='y'
 		shift 2 ;;
+	-b|--board)
+		# echo "Option BOARD: argument \`$2'"
+		if [ "$opt_b" ] ; then
+			opt_b="${opt_b%)} || \$6 == \"$2\" || \$7 == \"$2\")"
+		else
+			# We need to check the 7th field too
+			# for boards whose 6th field is "-"
+			opt_b="(\$6 == \"$2\" || \$7 == \"$2\")"
+		fi
+		SELECTED='y'
+		shift 2 ;;
 	-C|--check)
 		CHECK='C=1'
 		shift ;;
@@ -158,6 +170,7 @@ FILTER="\$1 !~ /^#/"
 [ "$opt_c" ] && FILTER="${FILTER} && $opt_c"
 [ "$opt_s" ] && FILTER="${FILTER} && $opt_s"
 [ "$opt_v" ] && FILTER="${FILTER} && $opt_v"
+[ "$opt_b" ] && FILTER="${FILTER} && $opt_b"
 
 if [ "$SELECTED" ] ; then
 	SELECTED=$(awk '('"$FILTER"') { print $7 }' boards.cfg)

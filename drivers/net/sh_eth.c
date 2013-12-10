@@ -4,6 +4,7 @@
  * Copyright (C) 2008, 2011 Renesas Solutions Corp.
  * Copyright (c) 2008, 2011 Nobuhiro Iwamatsu
  * Copyright (c) 2007 Carlos Munoz <carlos@kenati.com>
+ * Copyright (C) 2013  Renesas Electronics Corporation
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -25,11 +26,29 @@
 #ifndef CONFIG_SH_ETHER_PHY_ADDR
 # error "Please define CONFIG_SH_ETHER_PHY_ADDR"
 #endif
-#ifdef CONFIG_SH_ETHER_CACHE_WRITEBACK
-#define flush_cache_wback(addr, len)	\
-			dcache_wback_range((u32)addr, (u32)(addr + len - 1))
+
+#if defined(CONFIG_SH_ETHER_CACHE_WRITEBACK) && !defined(CONFIG_SYS_DCACHE_OFF)
+#define flush_cache_wback(addr, len)    \
+		flush_dcache_range((u32)addr, (u32)(addr + len - 1))
 #else
 #define flush_cache_wback(...)
+#endif
+
+#if defined(CONFIG_SH_ETHER_CACHE_INVALIDATE) && defined(CONFIG_ARM)
+#define invalidate_cache(addr, len)		\
+	{	\
+		u32 line_size = CONFIG_SH_ETHER_ALIGNE_SIZE;	\
+		u32 start, end;	\
+		\
+		start = (u32)addr;	\
+		end = start + len;	\
+		start &= ~(line_size - 1);	\
+		end = ((end + line_size - 1) & ~(line_size - 1));	\
+		\
+		invalidate_dcache_range(start, end);	\
+	}
+#else
+#define invalidate_cache(...)
 #endif
 
 #define TIMEOUT_CNT 1000
@@ -69,8 +88,11 @@ int sh_eth_send(struct eth_device *dev, void *packet, int len)
 
 	/* Wait until packet is transmitted */
 	timeout = TIMEOUT_CNT;
-	while (port_info->tx_desc_cur->td0 & TD_TACT && timeout--)
+	do {
+		invalidate_cache(port_info->tx_desc_cur,
+				 sizeof(struct tx_desc_s));
 		udelay(100);
+	} while (port_info->tx_desc_cur->td0 & TD_TACT && timeout--);
 
 	if (timeout < 0) {
 		printf(SHETHER_NAME ": transmit timeout\n");
@@ -94,12 +116,14 @@ int sh_eth_recv(struct eth_device *dev)
 	uchar *packet;
 
 	/* Check if the rx descriptor is ready */
+	invalidate_cache(port_info->rx_desc_cur, sizeof(struct rx_desc_s));
 	if (!(port_info->rx_desc_cur->rd0 & RD_RACT)) {
 		/* Check for errors */
 		if (!(port_info->rx_desc_cur->rd0 & RD_RFE)) {
 			len = port_info->rx_desc_cur->rd1 & 0xffff;
 			packet = (uchar *)
 				ADDR_TO_P2(port_info->rx_desc_cur->rd2);
+			invalidate_cache(packet, len);
 			NetReceive(packet, len);
 		}
 
@@ -108,7 +132,6 @@ int sh_eth_recv(struct eth_device *dev)
 			port_info->rx_desc_cur->rd0 = RD_RACT | RD_RDLE;
 		else
 			port_info->rx_desc_cur->rd0 = RD_RACT;
-
 		/* Point to the next descriptor */
 		port_info->rx_desc_cur++;
 		if (port_info->rx_desc_cur >=
@@ -237,15 +260,17 @@ static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
 	 * Allocate rx data buffers. They must be 32 bytes aligned  and in
 	 * P2 area
 	 */
-	port_info->rx_buf_malloc = malloc(NUM_RX_DESC * MAX_BUF_SIZE + 31);
+	port_info->rx_buf_malloc = malloc(
+		NUM_RX_DESC * MAX_BUF_SIZE + RX_BUF_ALIGNE_SIZE - 1);
 	if (!port_info->rx_buf_malloc) {
 		printf(SHETHER_NAME ": malloc failed\n");
 		ret = -ENOMEM;
 		goto err_buf_malloc;
 	}
 
-	tmp_addr = (u32)(((int)port_info->rx_buf_malloc + (32 - 1)) &
-			  ~(32 - 1));
+	tmp_addr = (u32)(((int)port_info->rx_buf_malloc
+			  + (RX_BUF_ALIGNE_SIZE - 1)) &
+			  ~(RX_BUF_ALIGNE_SIZE - 1));
 	port_info->rx_buf_base = (u8 *)ADDR_TO_P2(tmp_addr);
 
 	/* Initialize all descriptors */
@@ -351,8 +376,9 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 	struct phy_device *phy;
 
 	/* Configure e-dmac registers */
-	sh_eth_write(eth, (sh_eth_read(eth, EDMR) & ~EMDR_DESC_R) | EDMR_EL,
-		     EDMR);
+	sh_eth_write(eth, (sh_eth_read(eth, EDMR) & ~EMDR_DESC_R) |
+			(EMDR_DESC | EDMR_EL), EDMR);
+
 	sh_eth_write(eth, 0, EESIPR);
 	sh_eth_write(eth, 0, TRSCER);
 	sh_eth_write(eth, 0, TFTR);
@@ -384,6 +410,8 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 
 #if defined(CONFIG_CPU_SH7734) || defined(CONFIG_R8A7740)
 	sh_eth_write(eth, CONFIG_SH_ETHER_SH7734_MII, RMII_MII);
+#elif defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791)
+	sh_eth_write(eth, sh_eth_read(eth, RMIIMR) | 0x1, RMIIMR);
 #endif
 	/* Configure phy */
 	ret = sh_eth_phy_config(eth);
@@ -407,7 +435,8 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 		sh_eth_write(eth, GECMR_100B, GECMR);
 #elif defined(CONFIG_CPU_SH7757) || defined(CONFIG_CPU_SH7752)
 		sh_eth_write(eth, 1, RTRATE);
-#elif defined(CONFIG_CPU_SH7724)
+#elif defined(CONFIG_CPU_SH7724) || defined(CONFIG_R8A7790) || \
+		defined(CONFIG_R8A7791)
 		val = ECMR_RTM;
 #endif
 	} else if (phy->speed == 10) {

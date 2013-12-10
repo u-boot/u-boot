@@ -18,7 +18,7 @@
 #include <mmc.h>
 #include <netdev.h>
 #include <pci.h>
-#include <asm/fsl_ifc.h>
+#include <fsl_ifc.h>
 #include <asm/fsl_pci.h>
 
 #include "cpld.h"

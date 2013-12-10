@@ -4,8 +4,8 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
-#ifndef _I2C_H_
-#define _I2C_H_
+#ifndef _I2C_AM33XX_H_
+#define _I2C_AM33XX_H_
 
 #define  I2C_BASE1		0x44E0B000
 #define  I2C_BASE2		0x4802A000
@@ -62,4 +62,4 @@ struct i2c {
 #define I2C_IP_CLK			48000000
 #define I2C_INTERNAL_SAMPLING_CLK	12000000
 
-#endif /* _I2C_H_ */
+#endif /* _I2C_AM33XX_H_ */

@@ -11,10 +11,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)../common)
-endif
-
 ifdef CONFIG_SPL_BUILD
 obj-y	:= mux.o
 endif

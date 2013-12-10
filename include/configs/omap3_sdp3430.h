@@ -114,10 +114,10 @@
 /*
  * I2C for power management setup
  */
-#define CONFIG_HARD_I2C			1
-#define CONFIG_SYS_I2C_SPEED		100000
-#define CONFIG_SYS_I2C_SLAVE		1
-#define CONFIG_DRIVER_OMAP34XX_I2C	1
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_OMAP24_I2C_SPEED	100000
+#define CONFIG_SYS_OMAP24_I2C_SLAVE	1
+#define CONFIG_SYS_I2C_OMAP34XX
 
 /* OMITTED:  single 1 Gbit MT29F1G NAND flash */
 

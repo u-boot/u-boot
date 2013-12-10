@@ -25,9 +25,6 @@
 /* Mach Type */
 #define CONFIG_MACH_TYPE		MACH_TYPE_SMDKV310
 
-/* Keep L2 Cache Disabled */
-#define CONFIG_L2_OFF			1
-
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 #define CONFIG_SYS_TEXT_BASE		0x43E00000
 

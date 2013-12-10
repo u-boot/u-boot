@@ -229,6 +229,8 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_NAND
 
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
+#define CONFIG_SYS_NAND_MAX_OOBFREE	2
+#define CONFIG_SYS_NAND_MAX_ECCPOS	256
 
 #if defined(CONFIG_NAND)
 #define CONFIG_SYS_CSPR0_EXT		CONFIG_SYS_NAND_CSPR_EXT

@@ -5,10 +5,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)../../Marvell/common)
-endif
-
 obj-y	= misc.o
 obj-y	+= p3mx.o mpsc.o mv_eth.o pci.o sdram_init.o serial.o \
 		../../Marvell/common/i2c.o ../../Marvell/common/memory.o

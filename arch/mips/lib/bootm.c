@@ -17,10 +17,10 @@ DECLARE_GLOBAL_DATA_PTR;
 #define	LINUX_MAX_ENVS		256
 #define	LINUX_MAX_ARGS		256
 
-#if defined(CONFIG_QEMU_MALTA)
-#define mips_boot_qemu_malta	1
+#if defined(CONFIG_MALTA)
+#define mips_boot_malta		1
 #else
-#define mips_boot_qemu_malta	0
+#define mips_boot_malta		0
 #endif
 
 static int linux_argc;
@@ -139,7 +139,7 @@ static void linux_env_set(const char *env_name, const char *env_val)
 		strcpy(linux_env_p, env_name);
 		linux_env_p += strlen(env_name);
 
-		if (mips_boot_qemu_malta) {
+		if (mips_boot_malta) {
 			linux_env_p++;
 			linux_env[++linux_env_idx] = linux_env_p;
 		} else {
@@ -196,8 +196,10 @@ static void boot_prep_linux(bootm_headers_t *images)
 	if (cp)
 		linux_env_set("eth1addr", cp);
 
-	if (mips_boot_qemu_malta)
-		linux_env_set("modetty0", "38400n8r");
+	if (mips_boot_malta) {
+		sprintf(env_buf, "%un8r", gd->baudrate);
+		linux_env_set("modetty0", env_buf);
+	}
 }
 
 static void boot_jump_linux(bootm_headers_t *images)
@@ -210,7 +212,7 @@ static void boot_jump_linux(bootm_headers_t *images)
 
 	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
 
-	if (mips_boot_qemu_malta)
+	if (mips_boot_malta)
 		linux_extra = gd->ram_size;
 
 	/* we assume that the kernel is in place */

@@ -8,7 +8,6 @@
 #define __CONFIG_H
 
 #define CONFIG_SYS_DCACHE_OFF
-#define CONFIG_L2_OFF
 #define CONFIG_SYS_THUMB_BUILD
 
 #define CONFIG_SYS_NO_FLASH

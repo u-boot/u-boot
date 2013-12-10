@@ -10,7 +10,7 @@
 #include <nand.h>
 #include <linux/compiler.h>
 #include <asm/fsl_law.h>
-#include <asm/fsl_ddr_sdram.h>
+#include <fsl_ddr_sdram.h>
 #include <asm/global_data.h>
 
 DECLARE_GLOBAL_DATA_PTR;

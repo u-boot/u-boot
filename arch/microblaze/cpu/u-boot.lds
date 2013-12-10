@@ -30,7 +30,7 @@ SECTIONS
 	{
 		__data_start = .;
 #ifdef CONFIG_OF_EMBED
-		dts/libdts.o (.data)
+		dts/built-in.o (.data)
 #endif
 		*(.data)
 		__data_end = .;

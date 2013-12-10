@@ -10,8 +10,8 @@
 #include <i2c.h>
 #include <hwconfig.h>
 #include <asm/mmu.h>
-#include <asm/fsl_ddr_sdram.h>
-#include <asm/fsl_ddr_dimm_params.h>
+#include <fsl_ddr_sdram.h>
+#include <fsl_ddr_dimm_params.h>
 #include <asm/fsl_law.h>
 
 DECLARE_GLOBAL_DATA_PTR;

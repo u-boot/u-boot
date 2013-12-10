@@ -9,10 +9,10 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-$(CONFIG_CMD_UBIFS) := ubifs.o io.o super.o sb.o master.o lpt.o
-obj-$(CONFIG_CMD_UBIFS) += lpt_commit.o scan.o lprops.o
-obj-$(CONFIG_CMD_UBIFS) += tnc.o tnc_misc.o debug.o crc16.o budget.o
-obj-$(CONFIG_CMD_UBIFS) += log.o orphan.o recovery.o replay.o
+obj-y := ubifs.o io.o super.o sb.o master.o lpt.o
+obj-y += lpt_commit.o scan.o lprops.o
+obj-y += tnc.o tnc_misc.o debug.o crc16.o budget.o
+obj-y += log.o orphan.o recovery.o replay.o
 
 # SEE README.arm-unaligned-accesses
 $(obj)super.o: CFLAGS += $(PLATFORM_NO_UNALIGNED)

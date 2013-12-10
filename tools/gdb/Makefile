@@ -23,8 +23,6 @@ BINS	:= $(addprefix $(obj),$(BINS))
 #
 HOSTCPPFLAGS = -I$(BFD_ROOT_DIR)/include
 
-HOSTOS := $(shell uname -s | sed -e 's/\([Cc][Yy][Gg][Ww][Ii][Nn]\).*/cygwin/')
-
 ifeq ($(HOSTOS),cygwin)
 
 all:

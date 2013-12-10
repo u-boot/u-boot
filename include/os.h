@@ -11,6 +11,8 @@
 #ifndef __OS_H__
 #define __OS_H__
 
+#include <linux/types.h>
+
 struct sandbox_state;
 
 /**
@@ -116,7 +118,7 @@ void os_usleep(unsigned long usec);
  *
  * \return A monotonic increasing time scaled in nano seconds
  */
-u64 os_get_nsec(void);
+uint64_t os_get_nsec(void);
 
 /**
  * Parse arguments and update sandbox state.

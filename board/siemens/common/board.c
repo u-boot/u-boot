@@ -42,7 +42,7 @@ void set_mux_conf_regs(void)
 {
 	/* Initalize the board header */
 	enable_i2c0_pin_mux();
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+	i2c_set_bus_num(0);
 	if (read_eeprom() < 0)
 		puts("Could not get board ID.\n");
 
@@ -67,7 +67,7 @@ int board_init(void)
 #if defined(CONFIG_HW_WATCHDOG)
 	hw_watchdog_init();
 #endif /* defined(CONFIG_HW_WATCHDOG) */
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+	i2c_set_bus_num(0);
 	if (read_eeprom() < 0)
 		puts("Could not get board ID.\n");
 

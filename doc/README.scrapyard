@@ -12,6 +12,7 @@ easily if here is something they might want to dig for...
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
 omap730p2        arm         arm926ejs      -           2013-11-11
+pn62             powerpc     mpc824x        -           2013-11-11  Wolfgang Grandegger <wg@grandegger.com>
 pdnb3            arm         ixp            304db0b     2013-09-24  Stefan Roese <sr@denx.de>
 scpu             arm         ixp            304db0b     2013-09-24  Stefan Roese <sr@denx.de>
 omap1510inn      arm         arm925t        0610a16     2013-09-23  Kshitij Gupta <kshitij@ti.com>
@@ -103,3 +104,4 @@ CPCI440          powerpc     440GP          b568fd2     2007-12-27  Matthias Fuc
 PCIPPC2          powerpc     MPC740/MPC750  7c9e89b     2013-02-07  Wolfgang Denk <wd@denx.de>
 PCIPPC6          powerpc     MPC740/MPC750  -           -           Wolfgang Denk <wd@denx.de>
 omap2420h4       arm         omap24xx       -           2013-06-04  Richard Woodruff <r-woodruff2@ti.com>
+eNET             x86         x86            7e8c53d     2013-02-14  Graeme Russ <graeme.russ@gmail.com>

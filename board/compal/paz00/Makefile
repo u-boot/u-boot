@@ -14,8 +14,6 @@
 # more details.
 #
 
-$(shell mkdir -p $(obj)../../nvidia/common)
-
 obj-y	:= paz00.o
 
 include ../../nvidia/common/common.mk

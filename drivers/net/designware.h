@@ -112,7 +112,7 @@ struct dmamacdescr {
 	u32 dmamac_cntl;
 	void *dmamac_addr;
 	struct dmamacdescr *dmamac_next;
-};
+} __aligned(16);
 
 /*
  * txrx_status definitions
@@ -224,8 +224,7 @@ struct dw_eth_dev {
 	u32 tx_currdescnum;
 	u32 rx_currdescnum;
 	u32 phy_configured;
-	int link_printed;
-	u32 padding;
+	u32 link_printed;
 
 	struct dmamacdescr tx_mac_descrtable[CONFIG_TX_DESCR_NUM];
 	struct dmamacdescr rx_mac_descrtable[CONFIG_RX_DESCR_NUM];
@@ -237,7 +236,7 @@ struct dw_eth_dev {
 	struct eth_dma_regs *dma_regs_p;
 
 	struct eth_device *dev;
-} __attribute__ ((aligned(8)));
+};
 
 /* Speed specific definitions */
 #define SPEED_10M		1

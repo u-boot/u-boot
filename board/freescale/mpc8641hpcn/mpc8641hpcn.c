@@ -9,7 +9,7 @@
 #include <asm/processor.h>
 #include <asm/immap_86xx.h>
 #include <asm/fsl_pci.h>
-#include <asm/fsl_ddr_sdram.h>
+#include <fsl_ddr_sdram.h>
 #include <asm/fsl_serdes.h>
 #include <asm/io.h>
 #include <libfdt.h>
@@ -64,7 +64,7 @@ fixed_sdram(void)
 {
 #if !defined(CONFIG_SYS_RAMBOOT)
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-	volatile ccsr_ddr_t *ddr = &immap->im_ddr1;
+	struct ccsr_ddr __iomem *ddr = &immap->im_ddr1;
 
 	ddr->cs0_bnds = CONFIG_SYS_DDR_CS0_BNDS;
 	ddr->cs0_config = CONFIG_SYS_DDR_CS0_CONFIG;

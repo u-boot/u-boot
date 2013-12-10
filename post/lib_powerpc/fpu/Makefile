@@ -5,8 +5,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-CPPFLAGS += -I$(TOPDIR)
-
 obj-$(CONFIG_HAS_POST)	+= 20001122-1.o
 obj-$(CONFIG_HAS_POST)	+= 20010114-2.o
 obj-$(CONFIG_HAS_POST)	+= 20010226-1.o

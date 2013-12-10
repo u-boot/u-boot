@@ -6,8 +6,8 @@
 
 #include <common.h>
 #include <asm/fsl_law.h>
-#include <asm/fsl_ddr_sdram.h>
-#include <asm/fsl_ddr_dimm_params.h>
+#include <fsl_ddr_sdram.h>
+#include <fsl_ddr_dimm_params.h>
 
 #include "cpld.h"
 

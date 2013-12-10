@@ -9,9 +9,5 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)../../xilinx/ppc440-generic)
-endif
-
 obj-y	+= ../../xilinx/ppc440-generic/xilinx_ppc440_generic.o
 extra-y 	+= ../../xilinx/ppc440-generic/init.o

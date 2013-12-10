@@ -6,10 +6,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)../common)
-endif
-
 obj-y	:= nios2-generic.o
 obj-$(CONFIG_CMD_IDE) += ../common/cfide.o
 obj-$(CONFIG_EPLED) += ../common/epled.o

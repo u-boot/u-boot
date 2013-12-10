@@ -51,7 +51,7 @@ extern u_long get_dclk(void);
 
 # define bfin_revid() (bfin_read_CHIPID() >> 28)
 
-extern bool bfin_os_log_check(void);
+extern int bfin_os_log_check(void);
 extern void bfin_os_log_dump(void);
 
 extern void blackfin_icache_flush_range(const void *, const void *);

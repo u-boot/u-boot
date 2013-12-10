@@ -63,11 +63,14 @@ struct e1000_hw_stats;
 
 /* Internal E1000 helper functions */
 struct e1000_hw *e1000_find_card(unsigned int cardnum);
+
+#ifndef CONFIG_E1000_NO_NVM
 int32_t e1000_acquire_eeprom(struct e1000_hw *hw);
 void e1000_standby_eeprom(struct e1000_hw *hw);
 void e1000_release_eeprom(struct e1000_hw *hw);
 void e1000_raise_ee_clk(struct e1000_hw *hw, uint32_t *eecd);
 void e1000_lower_ee_clk(struct e1000_hw *hw, uint32_t *eecd);
+#endif
 
 #ifdef CONFIG_E1000_SPI
 int do_e1000_spi(cmd_tbl_t *cmdtp, struct e1000_hw *hw,
@@ -1019,6 +1022,7 @@ struct e1000_hw_stats {
 	uint64_t tsctfc;
 };
 
+#ifndef CONFIG_E1000_NO_NVM
 struct e1000_eeprom_info {
 e1000_eeprom_type type;
 	uint16_t word_size;
@@ -1029,6 +1033,7 @@ e1000_eeprom_type type;
 	bool use_eerd;
 	bool use_eewr;
 };
+#endif
 
 typedef enum {
     e1000_smart_speed_default = 0,
@@ -1081,10 +1086,14 @@ struct e1000_hw {
 	uint32_t io_base;
 #endif
 	uint32_t		asf_firmware_present;
+#ifndef CONFIG_E1000_NO_NVM
 	uint32_t		eeprom_semaphore_present;
+#endif
 	uint32_t		swfw_sync_present;
 	uint32_t		swfwhw_semaphore_present;
+#ifndef CONFIG_E1000_NO_NVM
 	struct e1000_eeprom_info eeprom;
+#endif
 	e1000_ms_type		master_slave;
 	e1000_ms_type		original_master_slave;
 	e1000_ffe_config	ffe_config_state;

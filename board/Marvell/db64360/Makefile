@@ -8,10 +8,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)../common)
-endif
-
 obj-y	= db64360.o ../common/flash.o ../common/serial.o ../common/memory.o pci.o \
 	  mv_eth.o ../common/ns16550.o mpsc.o ../common/i2c.o \
 	  sdram_init.o ../common/intel_flash.o ../common/misc.o

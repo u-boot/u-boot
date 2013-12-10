@@ -18,8 +18,8 @@ SECTIONS
 
     arch/powerpc/cpu/mpc8xx/start.o	(.text*)
     arch/powerpc/cpu/mpc8xx/traps.o	(.text*)
-    net/libnet.o			(.text*)
-    arch/powerpc/cpu/mpc8xx/libmpc8xx.o	(.text*)
+    net/built-in.o			(.text*)
+    arch/powerpc/cpu/mpc8xx/built-in.o	(.text*)
     *(.text.v*printf)
 
     . = DEFINED(env_offset) ? env_offset : .;

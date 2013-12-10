@@ -22,11 +22,11 @@ SECTIONS
 	  /* WARNING - the following is hand-optimized to fit within	*/
 	  /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
-	  arch/arm/cpu/arm1136/start.o			(.text*)
-	  board/freescale/mx31ads/libmx31ads.o	(.text*)
-	  arch/arm/lib/libarm.o			(.text*)
-	  net/libnet.o				(.text*)
-	  drivers/mtd/libmtd.o			(.text*)
+	  arch/arm/cpu/arm1136/start.o		(.text*)
+	  board/freescale/mx31ads/built-in.o	(.text*)
+	  arch/arm/lib/built-in.o		(.text*)
+	  net/built-in.o			(.text*)
+	  drivers/mtd/built-in.o		(.text*)
 
 	  . = DEFINED(env_offset) ? env_offset : .;
 	  common/env_embedded.o(.text*)

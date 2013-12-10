@@ -25,7 +25,6 @@ obj-y	+= cpu.o
 endif
 
 obj-$(CONFIG_OF_LIBFDT) += fdt.o
-obj-$(CONFIG_FSL_IFC) += fsl_ifc.o
 obj-$(CONFIG_FSL_LBC) += fsl_lbc.o
 obj-$(CONFIG_SYS_SRIO) += srio.o
 obj-$(CONFIG_FSL_LAW) += law.o

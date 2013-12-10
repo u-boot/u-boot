@@ -8,8 +8,8 @@
 
 #include <common.h>
 
-#include <asm/fsl_ddr_sdram.h>
-#include <asm/fsl_ddr_dimm_params.h>
+#include <fsl_ddr_sdram.h>
+#include <fsl_ddr_dimm_params.h>
 
 void fsl_ddr_board_options(memctl_options_t *popts,
 				dimm_params_t *pdimm,

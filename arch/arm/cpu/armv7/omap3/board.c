@@ -98,7 +98,7 @@ void spl_board_init(void)
 	gpmc_init();
 #endif
 #ifdef CONFIG_SPL_I2C_SUPPORT
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
 #endif
 }
 #endif /* CONFIG_SPL_BUILD */

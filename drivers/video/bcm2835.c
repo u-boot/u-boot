@@ -14,6 +14,8 @@ DECLARE_GLOBAL_DATA_PTR;
 /* Global variables that lcd.c expects to exist */
 vidinfo_t panel_info;
 
+static u32 bcm2835_pitch;
+
 struct msg_query {
 	struct bcm2835_mbox_hdr hdr;
 	struct bcm2835_mbox_tag_physical_w_h physical_w_h;
@@ -30,6 +32,7 @@ struct msg_setup {
 	struct bcm2835_mbox_tag_virtual_offset virtual_offset;
 	struct bcm2835_mbox_tag_overscan overscan;
 	struct bcm2835_mbox_tag_allocate_buffer allocate_buffer;
+	struct bcm2835_mbox_tag_pitch pitch;
 	u32 end_tag;
 };
 
@@ -80,6 +83,7 @@ void lcd_ctrl_init(void *lcdbase)
 	msg_setup->overscan.body.req.right = 0;
 	BCM2835_MBOX_INIT_TAG(&msg_setup->allocate_buffer, ALLOCATE_BUFFER);
 	msg_setup->allocate_buffer.body.req.alignment = 0x100;
+	BCM2835_MBOX_INIT_TAG_NO_REQ(&msg_setup->pitch, GET_PITCH);
 
 	ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN, &msg_setup->hdr);
 	if (ret) {
@@ -90,6 +94,7 @@ void lcd_ctrl_init(void *lcdbase)
 
 	w = msg_setup->physical_w_h.body.resp.width;
 	h = msg_setup->physical_w_h.body.resp.height;
+	bcm2835_pitch = msg_setup->pitch.body.resp.pitch;
 
 	debug("bcm2835: Final resolution is %d x %d\n", w, h);
 
@@ -102,4 +107,10 @@ void lcd_ctrl_init(void *lcdbase)
 
 void lcd_enable(void)
 {
+}
+
+int lcd_get_size(int *line_length)
+{
+	*line_length = bcm2835_pitch;
+	return *line_length * panel_info.vl_row;
 }
