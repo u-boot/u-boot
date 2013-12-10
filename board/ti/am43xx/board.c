@@ -9,6 +9,8 @@
  */
 
 #include <common.h>
+#include <i2c.h>
+#include <asm/errno.h>
 #include <spl.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
@@ -16,6 +18,50 @@
 #include "board.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
+/*
+ * Read header information from EEPROM into global structure.
+ */
+static int read_eeprom(struct am43xx_board_id *header)
+{
+	/* Check if baseboard eeprom is available */
+	if (i2c_probe(CONFIG_SYS_I2C_EEPROM_ADDR)) {
+		printf("Could not probe the EEPROM at 0x%x\n",
+		       CONFIG_SYS_I2C_EEPROM_ADDR);
+		return -ENODEV;
+	}
+
+	/* read the eeprom using i2c */
+	if (i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0, 2, (uchar *)header,
+		     sizeof(struct am43xx_board_id))) {
+		printf("Could not read the EEPROM\n");
+		return -EIO;
+	}
+
+	if (header->magic != 0xEE3355AA) {
+		/*
+		 * read the eeprom using i2c again,
+		 * but use only a 1 byte address
+		 */
+		if (i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0, 1, (uchar *)header,
+			     sizeof(struct am43xx_board_id))) {
+			printf("Could not read the EEPROM at 0x%x\n",
+			       CONFIG_SYS_I2C_EEPROM_ADDR);
+			return -EIO;
+		}
+
+		if (header->magic != 0xEE3355AA) {
+			printf("Incorrect magic number (0x%x) in EEPROM\n",
+			       header->magic);
+			return -EINVAL;
+		}
+	}
+
+	strncpy(am43xx_board_name, (char *)header->name, sizeof(header->name));
+	am43xx_board_name[sizeof(header->name)] = 0;
+
+	return 0;
+}
 
 #ifdef CONFIG_SPL_BUILD
 
