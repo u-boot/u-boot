@@ -99,10 +99,8 @@ static const struct spi_flash_params spi_flash_params_table[] = {
 	 SECT_4K},
 	{"N25Q64",	   0x20ba17, 0x0,     64 * 1024,  128,	       SECT_4K},
 	{"N25Q64A",	   0x20bb17, 0x0,     64 * 1024,  128,	       SECT_4K},
-	{"N25Q128",	   0x20ba18, 0x0,     64 * 1024,  256,	RD_QR | WR_QPP |
-	 SECT_4K},
-	{"N25Q128A",	   0x20bb18, 0x0,     64 * 1024,  256,	RD_QR | WR_QPP |
-	 SECT_4K},
+	{"N25Q128",	   0x20ba18, 0x0,     64 * 1024,  256,	RD_QR | WR_QPP},
+	{"N25Q128A",	   0x20bb18, 0x0,     64 * 1024,  256,	RD_QR | WR_QPP},
 	{"N25Q256",	   0x20ba19, 0x0,     64 * 1024,  512,	RD_QR | WR_QPP |
 	 SECT_4K},
 	{"N25Q256A",	   0x20bb19, 0x0,     64 * 1024,  512,	RD_QR | WR_QPP |
