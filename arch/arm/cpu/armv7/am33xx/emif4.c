@@ -87,7 +87,7 @@ void __weak ddr_pll_config(unsigned int ddrpll_m)
 {
 }
 
-void config_ddr(unsigned int pll, unsigned int ioctrl,
+void config_ddr(unsigned int pll, const struct ctrl_ioregs *ioregs,
 		const struct ddr_data *data, const struct cmd_control *ctrl,
 		const struct emif_regs *regs, int nr)
 {
@@ -99,12 +99,11 @@ void config_ddr(unsigned int pll, unsigned int ioctrl,
 
 	config_ddr_data(data, nr);
 #ifdef CONFIG_AM33XX
-	config_io_ctrl(ioctrl);
+	config_io_ctrl(ioregs);
 
 	/* Set CKE to be controlled by EMIF/DDR PHY */
 	writel(DDR_CKE_CTRL_NORMAL, &ddrctrl->ddrckectrl);
 #endif
-
 	/* Program EMIF instance */
 	config_ddr_phy(regs, nr);
 	set_sdram_timings(regs, nr);

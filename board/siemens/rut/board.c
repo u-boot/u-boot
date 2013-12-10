@@ -74,7 +74,15 @@ struct cmd_control rut_ddr3_cmd_ctrl_data = {
 	.cmd2iclkout = 1,
 };
 
-	config_ddr(DDR_PLL_FREQ, RUT_IOCTRL_VAL, &rut_ddr3_data,
+const struct ctrl_ioregs ioregs = {
+	.cm0ioctl		= RUT_IOCTRL_VAL,
+	.cm1ioctl		= RUT_IOCTRL_VAL,
+	.cm2ioctl		= RUT_IOCTRL_VAL,
+	.dt0ioctl		= RUT_IOCTRL_VAL,
+	.dt1ioctl		= RUT_IOCTRL_VAL,
+};
+
+	config_ddr(DDR_PLL_FREQ, &ioregs, &rut_ddr3_data,
 		   &rut_ddr3_cmd_ctrl_data, &rut_ddr3_emif_reg_data, 0);
 }
 

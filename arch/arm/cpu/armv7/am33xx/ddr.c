@@ -88,6 +88,9 @@ void config_ddr_phy(const struct emif_regs *regs, int nr)
  */
 void config_cmd_ctrl(const struct cmd_control *cmd, int nr)
 {
+	if (!cmd)
+		return;
+
 	writel(cmd->cmd0csratio, &ddr_cmd_reg[nr]->cm0csratio);
 	writel(cmd->cmd0iclkout, &ddr_cmd_reg[nr]->cm0iclkout);
 
@@ -105,6 +108,9 @@ void config_ddr_data(const struct ddr_data *data, int nr)
 {
 	int i;
 
+	if (!data)
+		return;
+
 	for (i = 0; i < DDR_DATA_REGS_NR; i++) {
 		writel(data->datardsratio0,
 			&(ddr_data_reg[nr]+i)->dt0rdsratio0);
@@ -121,11 +127,20 @@ void config_ddr_data(const struct ddr_data *data, int nr)
 	}
 }
 
-void config_io_ctrl(unsigned long val)
+void config_io_ctrl(const struct ctrl_ioregs *ioregs)
 {
-	writel(val, &ioctrl_reg->cm0ioctl);
-	writel(val, &ioctrl_reg->cm1ioctl);
-	writel(val, &ioctrl_reg->cm2ioctl);
-	writel(val, &ioctrl_reg->dt0ioctl);
-	writel(val, &ioctrl_reg->dt1ioctl);
+	if (!ioregs)
+		return;
+
+	writel(ioregs->cm0ioctl, &ioctrl_reg->cm0ioctl);
+	writel(ioregs->cm1ioctl, &ioctrl_reg->cm1ioctl);
+	writel(ioregs->cm2ioctl, &ioctrl_reg->cm2ioctl);
+	writel(ioregs->dt0ioctl, &ioctrl_reg->dt0ioctl);
+	writel(ioregs->dt1ioctl, &ioctrl_reg->dt1ioctl);
+#ifdef CONFIG_AM43XX
+	writel(ioregs->dt2ioctrl, &ioctrl_reg->dt2ioctrl);
+	writel(ioregs->dt3ioctrl, &ioctrl_reg->dt3ioctrl);
+	writel(ioregs->emif_sdram_config_ext,
+	       &ioctrl_reg->emif_sdram_config_ext);
+#endif
 }

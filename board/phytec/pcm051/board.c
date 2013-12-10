@@ -50,6 +50,14 @@ const struct dpll_params *get_dpll_ddr_params(void)
 }
 
 #ifdef CONFIG_REV1
+const struct ctrl_ioregs ioregs = {
+	.cm0ioctl		= MT41J256M8HX15E_IOCTRL_VALUE,
+	.cm1ioctl		= MT41J256M8HX15E_IOCTRL_VALUE,
+	.cm2ioctl		= MT41J256M8HX15E_IOCTRL_VALUE,
+	.dt0ioctl		= MT41J256M8HX15E_IOCTRL_VALUE,
+	.dt1ioctl		= MT41J256M8HX15E_IOCTRL_VALUE,
+};
+
 static const struct ddr_data ddr3_data = {
 	.datardsratio0 = MT41J256M8HX15E_RD_DQS,
 	.datawdsratio0 = MT41J256M8HX15E_WR_DQS,
@@ -81,10 +89,18 @@ static struct emif_regs ddr3_emif_reg_data = {
 
 void sdram_init(void)
 {
-	config_ddr(DDR_CLK_MHZ, MT41J256M8HX15E_IOCTRL_VALUE, &ddr3_data,
+	config_ddr(DDR_CLK_MHZ, &ioregs, &ddr3_data,
 		   &ddr3_cmd_ctrl_data, &ddr3_emif_reg_data, 0);
 }
 #else
+const struct ctrl_ioregs ioregs = {
+	.cm0ioctl		= MT41K256M16HA125E_IOCTRL_VALUE,
+	.cm1ioctl		= MT41K256M16HA125E_IOCTRL_VALUE,
+	.cm2ioctl		= MT41K256M16HA125E_IOCTRL_VALUE,
+	.dt0ioctl		= MT41K256M16HA125E_IOCTRL_VALUE,
+	.dt1ioctl		= MT41K256M16HA125E_IOCTRL_VALUE,
+};
+
 static const struct ddr_data ddr3_data = {
 	.datardsratio0 = MT41K256M16HA125E_RD_DQS,
 	.datawdsratio0 = MT41K256M16HA125E_WR_DQS,
@@ -116,7 +132,7 @@ static struct emif_regs ddr3_emif_reg_data = {
 
 void sdram_init(void)
 {
-	config_ddr(DDR_CLK_MHZ, MT41K256M16HA125E_IOCTRL_VALUE, &ddr3_data,
+	config_ddr(DDR_CLK_MHZ, &ioregs, &ddr3_data,
 		   &ddr3_cmd_ctrl_data, &ddr3_emif_reg_data, 0);
 }
 #endif

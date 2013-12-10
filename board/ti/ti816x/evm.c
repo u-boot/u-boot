@@ -191,22 +191,26 @@ void sdram_init(void)
 	if (CONFIG_TI816X_USE_EMIF0) {
 		ddr2_emif0_regs.emif_ddr_phy_ctlr_1 =
 			(get_cpu_rev() == 0x1 ? 0x0000010B : 0x0000030B);
-		config_ddr(0, 0, &ddr2_data, &ddr2_ctrl, &ddr2_emif0_regs, 0);
+		config_ddr(0, NULL, &ddr2_data, &ddr2_ctrl, &ddr2_emif0_regs,
+			   0);
 	}
 
 	if (CONFIG_TI816X_USE_EMIF1) {
 		ddr2_emif1_regs.emif_ddr_phy_ctlr_1 =
 			(get_cpu_rev() == 0x1 ? 0x0000010B : 0x0000030B);
-		config_ddr(1, 0, &ddr2_data, &ddr2_ctrl, &ddr2_emif1_regs, 1);
+		config_ddr(1, NULL, &ddr2_data, &ddr2_ctrl, &ddr2_emif1_regs,
+			   1);
 	}
 #endif
 
 #ifdef CONFIG_TI816X_EVM_DDR3
 	if (CONFIG_TI816X_USE_EMIF0)
-		config_ddr(0, 0, &ddr3_data, &ddr3_ctrl, &ddr3_emif0_regs, 0);
+		config_ddr(0, NULL, &ddr3_data, &ddr3_ctrl, &ddr3_emif0_regs,
+			   0);
 
 	if (CONFIG_TI816X_USE_EMIF1)
-		config_ddr(1, 0, &ddr3_data, &ddr3_ctrl, &ddr3_emif1_regs, 1);
+		config_ddr(1, NULL, &ddr3_data, &ddr3_ctrl, &ddr3_emif1_regs,
+			   1);
 #endif
 }
 #endif /* CONFIG_SPL_BUILD */
