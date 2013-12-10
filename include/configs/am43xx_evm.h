@@ -30,6 +30,11 @@
 #define CONFIG_SPL_MAX_SIZE		(0x40337C00 - CONFIG_SPL_TEXT_BASE)
 #define CONFIG_SPL_YMODEM_SUPPORT
 
+/* Enabling L2 Cache */
+#define CONFIG_SYS_L2_PL310
+#define CONFIG_SYS_PL310_BASE	0x48242000
+#define CONFIG_SYS_CACHELINE_SIZE	32
+
 /*
  * Since SPL did pll and ddr initialization for us,
  * we don't need to do it twice.
