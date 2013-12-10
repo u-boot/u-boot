@@ -237,6 +237,14 @@ struct cm_perpll {
 	unsigned int cpswclkstctrl;	/* offset 0x144 */
 	unsigned int lcdcclkstctrl;	/* offset 0x148 */
 };
+
+/* Encapsulating Display pll registers */
+struct cm_dpll {
+	unsigned int resv1[2];
+	unsigned int clktimer2clk;	/* offset 0x08 */
+	unsigned int resv2[10];
+	unsigned int clklcdcpixelclk;	/* offset 0x34 */
+};
 #else
 /* Encapsulating core pll registers */
 struct cm_wkuppll {
@@ -392,15 +400,12 @@ struct cm_perpll {
 	unsigned int resv40[7];
 	unsigned int cpgmac0clkctrl;	/* offset 0xB20 */
 };
-#endif /* CONFIG_AM43XX */
 
-/* Encapsulating Display pll registers */
 struct cm_dpll {
-	unsigned int resv1[2];
-	unsigned int clktimer2clk;	/* offset 0x08 */
-	unsigned int resv2[10];
-	unsigned int clklcdcpixelclk;	/* offset 0x34 */
+	unsigned int resv1;
+	unsigned int clktimer2clk;	/* offset 0x04 */
 };
+#endif /* CONFIG_AM43XX */
 
 /* Control Module RTC registers */
 struct cm_rtc {

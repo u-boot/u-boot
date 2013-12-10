@@ -30,6 +30,8 @@
 #define PRCM_BASE			0x44DF0000
 #define	CM_WKUP				0x44DF2800
 #define	CM_PER				0x44DF8800
+#define CM_DPLL				0x44DF4200
+#define CM_RTC				0x44DF8500
 
 #define PRM_RSTCTRL			(PRCM_BASE + 0x4000)
 #define PRM_RSTST			(PRM_RSTCTRL + 4)
