@@ -259,13 +259,24 @@ static inline int spi_w8r8(struct spi_slave *slave, unsigned char byte)
  * spi_free_slave() to free it later.
  *
  * @param blob:		Device tree blob
- * @param node:		SPI peripheral node to use
- * @param cs:		Chip select to use
- * @param max_hz:	Maximum SCK rate in Hz (0 for default)
- * @param mode:		Clock polarity, clock phase and other parameters
+ * @param slave_node:	Slave node to use
+ * @param spi_node:	SPI peripheral node to use
  * @return pointer to new spi_slave structure
  */
-struct spi_slave *spi_setup_slave_fdt(const void *blob, int node,
-		unsigned int cs, unsigned int max_hz, unsigned int mode);
+struct spi_slave *spi_setup_slave_fdt(const void *blob, int slave_node,
+				      int spi_node);
+
+/**
+ * spi_base_setup_slave_fdt() - helper function to set up a SPI slace
+ *
+ * This decodes SPI properties from the slave node to determine the
+ * chip select and SPI parameters.
+ *
+ * @blob:	Device tree blob
+ * @busnum:	Bus number to use
+ * @node:	Device tree node for the SPI bus
+ */
+struct spi_slave *spi_base_setup_slave_fdt(const void *blob, int busnum,
+					   int node);
 
 #endif	/* _SPI_H_ */

@@ -11,9 +11,9 @@
 
 #include <asm-generic/sections.h>
 
-struct sb_cmdline_option;
+struct sandbox_cmdline_option;
 
-extern struct sb_cmdline_option *__u_boot_sandbox_option_start[],
+extern struct sandbox_cmdline_option *__u_boot_sandbox_option_start[],
 	*__u_boot_sandbox_option_end[];
 
 static inline size_t __u_boot_sandbox_option_count(void)
