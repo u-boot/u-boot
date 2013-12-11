@@ -90,16 +90,12 @@ LIBS-$(CONFIG_SPL_MUSB_NEW_SUPPORT) += drivers/usb/musb-new/
 LIBS-$(CONFIG_SPL_USBETH_SUPPORT) += drivers/usb/gadget/
 LIBS-$(CONFIG_SPL_WATCHDOG_SUPPORT) += drivers/watchdog/
 
-ifneq (,$(CONFIG_MX23)$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35))
+ifneq (,$(CONFIG_MX23)$(CONFIG_MX35)$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35))
 LIBS-y += arch/$(ARCH)/imx-common/
 endif
 
 LIBS-$(CONFIG_ARM) += arch/arm/cpu/
 LIBS-$(CONFIG_PPC) += arch/powerpc/cpu/
-
-ifneq ($(CONFIG_MX23)$(CONFIG_MX35),)
-LIBS-y += arch/$(ARCH)/imx-common/
-endif
 
 LIBS-y := $(patsubst %/, %/built-in.o, $(LIBS-y))
 
