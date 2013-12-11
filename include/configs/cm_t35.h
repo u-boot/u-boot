@@ -102,8 +102,6 @@
 #define CONFIG_USB_OMAP3
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_OMAP
-#define CONFIG_USB_ULPI
-#define CONFIG_USB_ULPI_VIEWPORT_OMAP
 #define CONFIG_USB_STORAGE
 #define CONFIG_MUSB_UDC
 #define CONFIG_TWL4030_USB
@@ -113,6 +111,8 @@
 #define CONFIG_USB_DEVICE
 #define CONFIG_USB_TTY
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
+/* This delay is really for slow-to-power-on USB sticks, not the hub */
+#define CONFIG_USB_HUB_MIN_POWER_ON_DELAY 500
 
 /* commands to include */
 #include <config_cmd_default.h>
@@ -174,7 +174,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
 	"usbtty=cdc_acm\0" \
-	"console=ttyS2,115200n8\0" \
+	"console=ttyO2,115200n8\0" \
 	"mpurate=500\0" \
 	"vram=12M\0" \
 	"dvimode=1024x768MR-16@60\0" \
@@ -188,7 +188,6 @@
 		"mpurate=${mpurate} " \
 		"vram=${vram} " \
 		"omapfb.mode=dvi:${dvimode} " \
-		"omapfb.debug=y " \
 		"omapdss.def_disp=${defaultdisplay} " \
 		"root=${mmcroot} " \
 		"rootfstype=${mmcrootfstype}\0" \
@@ -196,7 +195,6 @@
 		"mpurate=${mpurate} " \
 		"vram=${vram} " \
 		"omapfb.mode=dvi:${dvimode} " \
-		"omapfb.debug=y " \
 		"omapdss.def_disp=${defaultdisplay} " \
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype}\0" \
@@ -212,6 +210,7 @@
 		"nand read ${loadaddr} 2a0000 400000; " \
 		"bootm ${loadaddr}\0" \
 
+#define CONFIG_CMD_BOOTZ
 #define CONFIG_BOOTCOMMAND \
 	"mmc dev ${mmcdev}; if mmc rescan; then " \
 		"if run loadbootscript; then " \
