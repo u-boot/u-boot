@@ -547,7 +547,9 @@ KBUILD_CFLAGS	+= -g
 KBUILD_AFLAGS	+= -g
 
 # Report stack usage if supported
-KBUILD_CFLAGS += $(call cc-option,-fstack-usage)
+ifeq ($(shell $(CONFIG_SHELL) $(srctree)/scripts/gcc-stack-usage.sh $(CC)),y)
+	KBUILD_CFLAGS += -fstack-usage
+endif
 
 KBUILD_CFLAGS += $(call cc-option,-Wno-format-nonliteral)
 
