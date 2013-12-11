@@ -3267,6 +3267,9 @@ FIT uImage format:
 		Defines the size and behavior of the NAND that SPL uses
 		to read U-Boot
 
+		CONFIG_SPL_NAND_BOOT
+		Add support NAND boot
+
 		CONFIG_SYS_NAND_U_BOOT_OFFS
 		Location in NAND to read U-Boot from
 
