@@ -22,6 +22,7 @@
 #include <asm/arch/musb.h>
 #include <asm/mach-types.h>
 #include <asm/errno.h>
+#include <asm/gpio.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
 #include <linux/usb/musb.h>
@@ -30,6 +31,9 @@
 #include "am3517evm.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#define AM3517_IP_SW_RESET	0x48002598
+#define CPGMACSS_SW_RST		(1 << 1)
 
 /*
  * Routine: board_init
@@ -98,6 +102,9 @@ static void am3517_evm_musb_init(void)
  */
 int misc_init_r(void)
 {
+	volatile unsigned int ctr;
+	u32 reset;
+
 #ifdef CONFIG_SYS_I2C_OMAP34XX
 	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
 #endif
@@ -105,6 +112,31 @@ int misc_init_r(void)
 	dieid_num_r();
 
 	am3517_evm_musb_init();
+
+	/* activate PHY reset */
+	gpio_direction_output(30, 0);
+	gpio_set_value(30, 0);
+
+	ctr  = 0;
+	do {
+		udelay(1000);
+		ctr++;
+	} while (ctr < 300);
+
+	/* deactivate PHY reset */
+	gpio_set_value(30, 1);
+
+	/* allow the PHY to stabilize and settle down */
+	ctr = 0;
+	do {
+		udelay(1000);
+		ctr++;
+	} while (ctr < 300);
+
+	/* ensure that the module is out of reset */
+	reset = readl(AM3517_IP_SW_RESET);
+	reset &= (~CPGMACSS_SW_RST);
+	writel(reset,AM3517_IP_SW_RESET);
 
 	return 0;
 }
