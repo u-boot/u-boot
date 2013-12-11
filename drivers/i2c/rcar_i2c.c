@@ -119,6 +119,8 @@ rcar_i2c_raw_read(struct rcar_i2c *dev, u8 chip, uint addr)
 
 	/* set slave address, receive */
 	writel((chip << 1) | 1, &dev->icmar);
+	/* clear status */
+	writel(0, &dev->icmsr);
 	/* start master receive */
 	writel(MCR_MDBS | MCR_MIE | MCR_ESG, &dev->icmcr);
 
