@@ -39,17 +39,6 @@ static const struct dpll_params mpu_dpll_params_1_5ghz[NUM_SYS_CLKS] = {
 	{625, 15, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1}	/* 38.4 MHz */
 };
 
-/* OPP NOM FREQUENCY for ES2.0, OPP HIGH for ES1.0 */
-static const struct dpll_params mpu_dpll_params_1100mhz[NUM_SYS_CLKS] = {
-	{275, 2, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 12 MHz   */
-	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 13 MHz   */
-	{1375, 20, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 16.8 MHz */
-	{1375, 23, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 19.2 MHz */
-	{550, 12, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 26 MHz   */
-	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
-	{1375, 47, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1}	/* 38.4 MHz */
-};
-
 /* OPP NOM FREQUENCY for ES1.0 */
 static const struct dpll_params mpu_dpll_params_800mhz[NUM_SYS_CLKS] = {
 	{200, 2, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 12 MHz   */
@@ -83,6 +72,7 @@ static const struct dpll_params mpu_dpll_params_499mhz[NUM_SYS_CLKS] = {
 	{493, 37, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1}	/* 38.4 MHz */
 };
 
+/* OPP NOM FREQUENCY for OMAP5 ES2.0, and DRA7 ES1.0 */
 static const struct dpll_params mpu_dpll_params_1ghz[NUM_SYS_CLKS] = {
 	{250, 2, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1},		/* 12 MHz   */
 	{500, 9, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1},		/* 20 MHz   */
@@ -272,7 +262,7 @@ struct dplls omap5_dplls_es1 = {
 };
 
 struct dplls omap5_dplls_es2 = {
-	.mpu = mpu_dpll_params_1100mhz,
+	.mpu = mpu_dpll_params_1ghz,
 	.core = core_dpll_params_2128mhz_ddr532_es2,
 	.per = per_dpll_params_768mhz_es2,
 	.iva = iva_dpll_params_2330mhz,
