@@ -776,7 +776,7 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 		bch_priv.type		= 0;
 		nand->ecc.mode		= NAND_ECC_SOFT;
 		nand->ecc.layout	= NULL;
-		nand->ecc.size		= pagesize;
+		nand->ecc.size		= 0;
 		bch->ecc_scheme		= OMAP_ECC_HAM1_CODE_SW;
 		break;
 
