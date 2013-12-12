@@ -1531,10 +1531,10 @@ static int do_bootm_netbsd(int flag, int argc, char * const argv[],
 
 	/*
 	 * NetBSD Stage-2 Loader Parameters:
-	 *   r3: ptr to board info data
-	 *   r4: image address
-	 *   r5: console device
-	 *   r6: boot args string
+	 *   arg[0]: pointer to board info data
+	 *   arg[1]: image load address
+	 *   arg[2]: char pointer to the console device to use
+	 *   arg[3]: char pointer to the boot arguments
 	 */
 	(*loader)(gd->bd, os_hdr, consdev, cmdline);
 
