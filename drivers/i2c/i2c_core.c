@@ -349,7 +349,7 @@ unsigned int i2c_set_bus_speed(unsigned int speed)
 		return 0;
 	ret = I2C_ADAP->set_bus_speed(I2C_ADAP, speed);
 	if (gd->flags & GD_FLG_RELOC)
-		I2C_ADAP->speed = ret;
+		I2C_ADAP->speed = (ret == 0) ? speed : 0;
 
 	return ret;
 }
