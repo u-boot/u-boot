@@ -462,7 +462,7 @@ static int reserve_round_4k(void)
 static int reserve_mmu(void)
 {
 	/* reserve TLB table */
-	gd->arch.tlb_size = 4096 * 4;
+	gd->arch.tlb_size = PGTABLE_SIZE;
 	gd->relocaddr -= gd->arch.tlb_size;
 
 	/* round down to next 64 kB limit */
@@ -614,7 +614,7 @@ static int reserve_stacks(void)
 	 * TODO(sjg@chromium.org): Perhaps create arch_reserve_stack()
 	 * to handle this and put in arch/xxx/lib/stack.c
 	 */
-# ifdef CONFIG_ARM
+# if defined(CONFIG_ARM) && !defined(CONFIG_ARM64)
 #  ifdef CONFIG_USE_IRQ
 	gd->start_addr_sp -= (CONFIG_STACKSIZE_IRQ + CONFIG_STACKSIZE_FIQ);
 	debug("Reserving %zu Bytes for IRQ stack at: %08lx\n",
@@ -811,11 +811,6 @@ static int mark_bootstage(void)
 }
 
 static init_fnc_t init_sequence_f[] = {
-#if !defined(CONFIG_CPM2) && !defined(CONFIG_MPC512X) && \
-		!defined(CONFIG_MPC83xx) && !defined(CONFIG_MPC85xx) && \
-		!defined(CONFIG_MPC86xx) && !defined(CONFIG_X86)
-	zero_global_data,
-#endif
 #ifdef CONFIG_SANDBOX
 	setup_ram_buf,
 #endif
@@ -1007,6 +1002,17 @@ void board_init_f(ulong boot_flags)
 	gd_t data;
 
 	gd = &data;
+#endif
+
+	/*
+	 * Clear global data before it is accessed at debug print
+	 * in initcall_run_list. Otherwise the debug print probably
+	 * get the wrong vaule of gd->have_console.
+	 */
+#if !defined(CONFIG_CPM2) && !defined(CONFIG_MPC512X) && \
+		!defined(CONFIG_MPC83xx) && !defined(CONFIG_MPC85xx) && \
+		!defined(CONFIG_MPC86xx) && !defined(CONFIG_X86)
+	zero_global_data();
 #endif
 
 	gd->flags = boot_flags;
