@@ -55,6 +55,7 @@ unsigned int mxc_get_clock(enum mxc_clock clk);
 void enable_ocotp_clk(unsigned char enable);
 void enable_usboh3_clk(unsigned char enable);
 int enable_sata_clock(void);
+int enable_pcie_clock(void);
 int enable_i2c_clk(unsigned char enable, unsigned i2c_num);
 void enable_ipu_clock(void);
 int enable_fec_anatop_clock(enum enet_freq freq);
