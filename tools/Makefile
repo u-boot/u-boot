@@ -60,6 +60,7 @@ BIN_FILES-$(CONFIG_NETCONSOLE) += ncb$(SFX)
 BIN_FILES-$(CONFIG_SHA1_CHECK_UB_IMG) += ubsha1$(SFX)
 BIN_FILES-$(CONFIG_KIRKWOOD) += kwboot$(SFX)
 BIN_FILES-y += proftool(SFX)
+BIN_FILES-$(CONFIG_STATIC_RELA) += relocate-rela$(SFX)
 
 # Source files which exist outside the tools directory
 EXT_OBJ_FILES-$(CONFIG_BUILD_ENVCRC) += common/env_embedded.o
@@ -85,6 +86,7 @@ NOPED_OBJ_FILES-y += os_support.o
 NOPED_OBJ_FILES-y += pblimage.o
 NOPED_OBJ_FILES-y += proftool.o
 NOPED_OBJ_FILES-y += ublimage.o
+NOPED_OBJ_FILES-y += relocate-rela.o
 OBJ_FILES-$(CONFIG_BUILD_ENVCRC) += envcrc.o
 OBJ_FILES-$(CONFIG_CMD_LOADS) += img2srec.o
 OBJ_FILES-$(CONFIG_CMD_NET) += gen_eth_addr.o
@@ -248,6 +250,10 @@ $(obj)ubsha1$(SFX):	$(obj)os_support.o $(obj)sha1.o $(obj)ubsha1.o
 	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
 
 $(obj)kwboot$(SFX): $(obj)kwboot.o
+	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
+	$(HOSTSTRIP) $@
+
+$(obj)relocate-rela$(SFX): $(obj)relocate-rela.o
 	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
 	$(HOSTSTRIP) $@
 

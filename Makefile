@@ -334,6 +334,17 @@ else
 BOARD_SIZE_CHECK =
 endif
 
+# Statically apply RELA-style relocations (currently arm64 only)
+ifneq ($(CONFIG_STATIC_RELA),)
+# $(1) is u-boot ELF, $(2) is u-boot bin, $(3) is text base
+DO_STATIC_RELA = \
+	start=$$($(NM) $(1) | grep __rel_dyn_start | cut -f 1 -d ' '); \
+	end=$$($(NM) $(1) | grep __rel_dyn_end | cut -f 1 -d ' '); \
+	$(obj)tools/relocate-rela $(2) $(3) $$start $$end
+else
+DO_STATIC_RELA =
+endif
+
 # Always append ALL so that arch config.mk's can add custom ones
 ALL-y += $(obj)u-boot.srec $(obj)u-boot.bin $(obj)System.map
 
@@ -378,6 +389,7 @@ $(obj)u-boot.srec:	$(obj)u-boot
 
 $(obj)u-boot.bin:	$(obj)u-boot
 		$(OBJCOPY) ${OBJCFLAGS} -O binary $< $@
+		$(call DO_STATIC_RELA,$<,$@,$(CONFIG_SYS_TEXT_BASE))
 		$(BOARD_SIZE_CHECK)
 
 $(obj)u-boot.ldr:	$(obj)u-boot
