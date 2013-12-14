@@ -358,6 +358,7 @@ ALL-$(CONFIG_OF_SEPARATE) += $(obj)u-boot.dtb $(obj)u-boot-dtb.bin
 ifneq ($(CONFIG_SPL_TARGET),)
 ALL-$(CONFIG_SPL) += $(obj)$(subst ",,$(CONFIG_SPL_TARGET))
 endif
+ALL-$(CONFIG_REMAKE_ELF) += $(obj)u-boot.elf
 
 # enable combined SPL/u-boot/dtb rules for tegra
 ifneq ($(CONFIG_TEGRA),)
@@ -527,6 +528,18 @@ $(obj)u-boot-img-spl-at-end.bin: $(obj)spl/u-boot-spl.bin $(obj)u-boot.img
 		dd if=$(obj)u-boot.img of=$(obj)u-boot-pad.img \
 			conv=notrunc 2>/dev/null
 		cat $(obj)u-boot-pad.img $(obj)spl/u-boot-spl.bin > $@
+
+# Create a new ELF from a raw binary file.  This is useful for arm64
+# where static relocation needs to be performed on the raw binary,
+# but certain simulators only accept an ELF file (but don't do the
+# relocation).
+# FIXME refactor dts/Makefile to share target/arch detection
+$(obj)u-boot.elf: $(obj)u-boot.bin
+	@$(OBJCOPY)  -B aarch64 -I binary -O elf64-littleaarch64 \
+		$< $(obj)u-boot-elf.o
+	@$(LD) $(obj)u-boot-elf.o -o $@ \
+		--defsym=_start=$(CONFIG_SYS_TEXT_BASE) \
+		-Ttext=$(CONFIG_SYS_TEXT_BASE)
 
 ifeq ($(CONFIG_SANDBOX),y)
 GEN_UBOOT = \
