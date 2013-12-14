@@ -744,12 +744,16 @@ tools: $(VERSION_FILE) $(TIMESTAMP_FILE)
 	$(MAKE) -C $@ all
 endif	# config.mk
 
-# ARM relocations should all be R_ARM_RELATIVE.
+# ARM relocations should all be R_ARM_RELATIVE (32-bit) or
+# R_AARCH64_RELATIVE (64-bit).
 checkarmreloc: $(obj)u-boot
-	@if test "R_ARM_RELATIVE" != \
-		"`$(CROSS_COMPILE)readelf -r $< | cut -d ' ' -f 4 | grep R_ARM | sort -u`"; \
-		then echo "$< contains relocations other than \
-		R_ARM_RELATIVE"; false; fi
+	@RELOC="`$(CROSS_COMPILE)readelf -r -W $< | cut -d ' ' -f 4 | \
+		grep R_A | sort -u`"; \
+	if test "$$RELOC" != "R_ARM_RELATIVE" -a \
+		 "$$RELOC" != "R_AARCH64_RELATIVE"; then \
+		echo "$< contains unexpected relocations: $$RELOC"; \
+		false; \
+	fi
 
 $(VERSION_FILE):
 		@mkdir -p $(dir $(VERSION_FILE))
