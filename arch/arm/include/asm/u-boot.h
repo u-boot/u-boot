@@ -44,6 +44,10 @@ typedef struct bd_info {
 #endif /* !CONFIG_SYS_GENERIC_BOARD */
 
 /* For image.h:image_check_target_arch() */
+#ifndef CONFIG_ARM64
 #define IH_ARCH_DEFAULT IH_ARCH_ARM
+#else
+#define IH_ARCH_DEFAULT IH_ARCH_ARM64
+#endif
 
 #endif	/* _U_BOOT_H_ */

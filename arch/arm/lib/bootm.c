@@ -196,6 +196,14 @@ static void do_nonsec_virt_switch(void)
 		debug("entered non-secure state\n");
 #endif
 #endif
+
+#ifdef CONFIG_ARM64
+	smp_kick_all_cpus();
+	armv8_switch_to_el2();
+#ifdef CONFIG_ARMV8_SWITCH_TO_EL1
+	armv8_switch_to_el1();
+#endif
+#endif
 }
 
 /* Subcommand: PREP */
@@ -240,6 +248,21 @@ static void boot_prep_linux(bootm_headers_t *images)
 /* Subcommand: GO */
 static void boot_jump_linux(bootm_headers_t *images, int flag)
 {
+#ifdef CONFIG_ARM64
+	void (*kernel_entry)(void *fdt_addr);
+	int fake = (flag & BOOTM_STATE_OS_FAKE_GO);
+
+	kernel_entry = (void (*)(void *fdt_addr))images->ep;
+
+	debug("## Transferring control to Linux (at address %lx)...\n",
+		(ulong) kernel_entry);
+	bootstage_mark(BOOTSTAGE_ID_RUN_OS);
+
+	announce_and_cleanup(fake);
+
+	if (!fake)
+		kernel_entry(images->ft_addr);
+#else
 	unsigned long machid = gd->bd->bi_arch_number;
 	char *s;
 	void (*kernel_entry)(int zero, int arch, uint params);
@@ -266,6 +289,7 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 
 	if (!fake)
 		kernel_entry(0, machid, r2);
+#endif
 }
 
 /* Main Entry point for arm bootm implementation

@@ -23,10 +23,22 @@
 #  define __SWAB_64_THRU_32__
 #endif
 
+#ifdef	CONFIG_ARM64
+
+#ifdef __AARCH64EB__
+#include <linux/byteorder/big_endian.h>
+#else
+#include <linux/byteorder/little_endian.h>
+#endif
+
+#else	/* CONFIG_ARM64 */
+
 #ifdef __ARMEB__
 #include <linux/byteorder/big_endian.h>
 #else
 #include <linux/byteorder/little_endian.h>
 #endif
+
+#endif	/* CONFIG_ARM64 */
 
 #endif
