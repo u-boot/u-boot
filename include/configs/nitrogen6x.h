@@ -352,4 +352,15 @@
 #define CONFIG_SUPPORT_RAW_INITRD
 #define CONFIG_CMD_FS_GENERIC
 
+/*
+ * PCI express
+ */
+#define CONFIG_CMD_PCI
+#ifdef CONFIG_CMD_PCI
+#define CONFIG_PCI
+#define CONFIG_PCI_PNP
+#define CONFIG_PCI_SCAN_SHOW
+#define CONFIG_PCIE_IMX
+#endif
+
 #endif	       /* __CONFIG_H */
