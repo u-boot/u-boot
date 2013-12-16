@@ -160,6 +160,7 @@
 
 /* Extra Environment */
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"ubifs_file=filesystem.ubifs\0" \
 	"update_nand_full_filename=u-boot.nand\0" \
 	"update_nand_firmware_filename=u-boot.sb\0"	\
 	"update_nand_firmware_maxsz=0x100000\0"	\
@@ -170,7 +171,7 @@
 		"nand info ; " \
 		"setexpr fcb_sz ${update_nand_stride} * ${update_nand_count};" \
 		"setexpr update_nand_fcb ${fcb_sz} * ${nand_writesize}\0" \
-	"update_nand_full="		    /* Update FCB, DBBT and FW */ \
+	"update_nand_firmware_full=" /* Update FCB, DBBT and FW */ \
 		"if tftp ${update_nand_full_filename} ; then " \
 		"run update_nand_get_fcb_size ; " \
 		"nand scrub -y 0x0 ${filesize} ; " \
@@ -189,6 +190,38 @@
 		"nand write ${loadaddr} ${fcb_sz} ${filesize} ; " \
 		"nand write ${loadaddr} ${fw_off} ${filesize} ; " \
 		"fi\0" \
+	"update_nand_kernel="		/* Update kernel */ \
+		"mtdparts default; " \
+		"nand erase.part kernel; " \
+		"if test ${ip_dyn} = yes; then " \
+			"setenv get_cmd dhcp; " \
+		"else " \
+			"setenv get_cmd tftp; " \
+		"fi; " \
+		"${get_cmd} ${uimage}; " \
+		"nand write ${loadaddr} kernel ${filesize}\0" \
+	"update_nand_fdt="		/* Update fdt */ \
+		"mtdparts default; " \
+		"nand erase.part fdt; " \
+		"if test ${ip_dyn} = yes; then " \
+			"setenv get_cmd dhcp; " \
+		"else " \
+			"setenv get_cmd tftp; " \
+		"fi; " \
+		"${get_cmd} ${fdt_file}; " \
+		"nand write ${loadaddr} fdt ${filesize}\0" \
+	"update_nand_filesystem="		/* Update filesystem */ \
+		"mtdparts default; " \
+		"nand erase.part filesystem; " \
+		"if test ${ip_dyn} = yes; then " \
+			"setenv get_cmd dhcp; " \
+		"else " \
+			"setenv get_cmd tftp; " \
+		"fi; " \
+		"${get_cmd} ${ubifs_file}; " \
+		"ubi part filesystem; " \
+		"ubi create filesystem; " \
+		"ubi write ${loadaddr} filesystem ${filesize}\0" \
 	"nandargs=setenv bootargs console=${console_mainline},${baudrate} " \
 		"rootfstype=ubifs ubi.mtd=6 root=ubi0_0 ${mtdparts}\0" \
 	"nandboot="		/* Boot from NAND */ \
