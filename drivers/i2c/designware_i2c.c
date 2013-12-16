@@ -266,6 +266,25 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 {
 	unsigned long start_time_rx;
 
+#ifdef CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW
+	/*
+	 * EEPROM chips that implement "address overflow" are ones
+	 * like Catalyst 24WC04/08/16 which has 9/10/11 bits of
+	 * address and the extra bits end up in the "chip address"
+	 * bit slots. This makes a 24WC08 (1Kbyte) chip look like
+	 * four 256 byte chips.
+	 *
+	 * Note that we consider the length of the address field to
+	 * still be one byte because the extra address bits are
+	 * hidden in the chip address.
+	 */
+	chip |= ((addr >> (alen * 8)) & CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW);
+	addr &= ~(CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW << (alen * 8));
+
+	debug("%s: fix addr_overflow: chip %02x addr %02x\n", __func__, chip,
+	      addr);
+#endif
+
 	if (check_params(addr, alen, buffer, len))
 		return 1;
 
@@ -306,6 +325,25 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 {
 	int nb = len;
 	unsigned long start_time_tx;
+
+#ifdef CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW
+	/*
+	 * EEPROM chips that implement "address overflow" are ones
+	 * like Catalyst 24WC04/08/16 which has 9/10/11 bits of
+	 * address and the extra bits end up in the "chip address"
+	 * bit slots. This makes a 24WC08 (1Kbyte) chip look like
+	 * four 256 byte chips.
+	 *
+	 * Note that we consider the length of the address field to
+	 * still be one byte because the extra address bits are
+	 * hidden in the chip address.
+	 */
+	chip |= ((addr >> (alen * 8)) & CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW);
+	addr &= ~(CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW << (alen * 8));
+
+	debug("%s: fix addr_overflow: chip %02x addr %02x\n", __func__, chip,
+	      addr);
+#endif
 
 	if (check_params(addr, alen, buffer, len))
 		return 1;
