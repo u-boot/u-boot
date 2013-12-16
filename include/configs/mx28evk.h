@@ -96,7 +96,7 @@
 		"512k(environment),"		\
 		"512k(redundant-environment),"	\
 		"4m(kernel),"			\
-		"128k(fdt),"			\
+		"512k(fdt),"			\
 		"8m(ramdisk),"			\
 		"-(filesystem)"
 #endif
