@@ -763,7 +763,7 @@ static void __maybe_unused omap_free_bch(struct mtd_info *mtd)
 static int omap_select_ecc_scheme(struct nand_chip *nand,
 	enum omap_ecc ecc_scheme, unsigned int pagesize, unsigned int oobsize) {
 	struct nand_bch_priv	*bch		= nand->priv;
-	struct nand_ecclayout	*ecclayout	= nand->ecc.layout;
+	struct nand_ecclayout	*ecclayout	= &omap_ecclayout;
 	int eccsteps = pagesize / SECTOR_BYTES;
 	int i;
 
@@ -897,6 +897,11 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 		debug("nand: error: ecc scheme not enabled or supported\n");
 		return -EINVAL;
 	}
+
+	/* nand_scan_tail() sets ham1 sw ecc; hw ecc layout is set by driver */
+	if (ecc_scheme != OMAP_ECC_HAM1_CODE_SW)
+		nand->ecc.layout = ecclayout;
+
 	return 0;
 }
 
