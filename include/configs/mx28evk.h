@@ -162,7 +162,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"update_nand_full_filename=u-boot.nand\0" \
 	"update_nand_firmware_filename=u-boot.sb\0"	\
-	"update_sd_firmware_filename=u-boot.sd\0" \
 	"update_nand_firmware_maxsz=0x100000\0"	\
 	"update_nand_stride=0x40\0"	/* MX28 datasheet ch. 12.12 */ \
 	"update_nand_count=0x4\0"	/* MX28 datasheet ch. 12.12 */ \
@@ -190,6 +189,23 @@
 		"nand write ${loadaddr} ${fcb_sz} ${filesize} ; " \
 		"nand write ${loadaddr} ${fw_off} ${filesize} ; " \
 		"fi\0" \
+	"nandargs=setenv bootargs console=${console_mainline},${baudrate} " \
+		"rootfstype=ubifs ubi.mtd=6 root=ubi0_0 ${mtdparts}\0" \
+	"nandboot="		/* Boot from NAND */ \
+		"mtdparts default; " \
+		"run nandargs; " \
+		"nand read ${loadaddr} kernel 0x00400000; " \
+		"if test ${boot_fdt} = yes; then " \
+			"nand read ${fdt_addr} fdt 0x00080000; " \
+			"bootm ${loadaddr} - ${fdt_addr}; " \
+		"else " \
+			"if test ${boot_fdt} = no; then " \
+				"bootm; " \
+			"else " \
+				"echo \"ERROR: Set boot_fdt to yes or no.\"; " \
+			"fi; " \
+		"fi\0" \
+	"update_sd_firmware_filename=u-boot.sd\0" \
 	"update_sd_firmware="		/* Update the SD firmware partition */ \
 		"if mmc rescan ; then "	\
 		"if tftp ${update_sd_firmware_filename} ; then " \
