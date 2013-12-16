@@ -310,7 +310,18 @@ static u32 get_mmdc_ch0_clk(void)
 	return freq / (podf + 1);
 
 }
+#else
+static u32 get_mmdc_ch0_clk(void)
+{
+	u32 cbcdr = __raw_readl(&imx_ccm->cbcdr);
+	u32 mmdc_ch0_podf = (cbcdr & MXC_CCM_CBCDR_MMDC_CH0_PODF_MASK) >>
+				MXC_CCM_CBCDR_MMDC_CH0_PODF_OFFSET;
 
+	return get_periph_clk() / (mmdc_ch0_podf + 1);
+}
+#endif
+
+#ifdef CONFIG_FEC_MXC
 int enable_fec_anatop_clock(void)
 {
 	u32 reg = 0;
@@ -338,16 +349,6 @@ int enable_fec_anatop_clock(void)
 	writel(reg, &anatop->pll_enet);
 
 	return 0;
-}
-
-#else
-static u32 get_mmdc_ch0_clk(void)
-{
-	u32 cbcdr = __raw_readl(&imx_ccm->cbcdr);
-	u32 mmdc_ch0_podf = (cbcdr & MXC_CCM_CBCDR_MMDC_CH0_PODF_MASK) >>
-				MXC_CCM_CBCDR_MMDC_CH0_PODF_OFFSET;
-
-	return get_periph_clk() / (mmdc_ch0_podf + 1);
 }
 #endif
 
