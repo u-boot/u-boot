@@ -163,7 +163,7 @@ endif
 include $(TOPDIR)/config.mk
 
 # Targets which don't build the source code
-NON_BUILD_TARGETS = backup clean clobber distclean mkproper tidy unconfig
+NON_BUILD_TARGETS = backup clean clobber distclean mrproper tidy unconfig
 
 # Only do the generic board check when actually building, not configuring
 ifeq ($(filter $(NON_BUILD_TARGETS),$(MAKECMDGOALS)),)
