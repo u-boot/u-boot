@@ -55,7 +55,7 @@
 #define CONFIG_EBIU_AMBCTL0_VAL	(B1WAT_7 | B1RAT_11 | B1HT_2 | B1ST_3 | B0WAT_7 | B0RAT_11 | B0HT_2 | B0ST_3)
 #define CONFIG_EBIU_AMBCTL1_VAL	(B3WAT_7 | B3RAT_11 | B3HT_2 | B3ST_3 | B2WAT_7 | B2RAT_11 | B2HT_2 | B2ST_3)
 
-#define CONFIG_SYS_MONITOR_LEN	(512 * 1024)
+#define CONFIG_SYS_MONITOR_LEN	(768 * 1024)
 #define CONFIG_SYS_MALLOC_LEN	(128 * 1024)
 
 
@@ -145,7 +145,7 @@
 #define FLASHBOOT_ENV_SETTINGS \
 	"flashboot=flread 20040000 1000000 3c0000;" \
 	"bootm 0x1000000\0"
-
+#define CONFIG_BOARD_SIZE_LIMIT $$((384 * 1024))
 
 /*
  * Pull in common ADI header for remaining command/environment setup
