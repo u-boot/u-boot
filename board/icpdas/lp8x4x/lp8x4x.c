@@ -121,25 +121,8 @@ int board_usb_cleanup(int index, enum usb_init_type init)
 #endif
 
 #ifdef CONFIG_DRIVER_DM9000
-void lp8x4x_eth1_mac_init(void)
-{
-	u8 eth1addr[8];
-	int i;
-	u8 reg;
-
-	eth_getenv_enetaddr_by_index("eth", 1, eth1addr);
-	if (!is_valid_ether_addr(eth1addr))
-		return;
-
-	for (i = 0, reg = 0x10; i < 6; i++, reg++) {
-		writeb(reg, (u8 *)(DM9000_IO_2));
-		writeb(eth1addr[i], (u8 *)(DM9000_DATA_2));
-	}
-}
-
 int board_eth_init(bd_t *bis)
 {
-	lp8x4x_eth1_mac_init();
 	return dm9000_initialize(bis);
 }
 #endif
