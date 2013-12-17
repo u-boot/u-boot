@@ -791,6 +791,7 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 		bch_priv.control	= NULL;
 		bch_priv.type		= 0;
 		/* populate ecc specific fields */
+		memset(&nand->ecc, 0, sizeof(struct nand_ecc_ctrl));
 		nand->ecc.mode		= NAND_ECC_HW;
 		nand->ecc.strength	= 1;
 		nand->ecc.size		= SECTOR_BYTES;
@@ -829,6 +830,7 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 		}
 		bch_priv.type = ECC_BCH8;
 		/* populate ecc specific fields */
+		memset(&nand->ecc, 0, sizeof(struct nand_ecc_ctrl));
 		nand->ecc.mode		= NAND_ECC_HW;
 		nand->ecc.strength	= 8;
 		nand->ecc.size		= SECTOR_BYTES;
@@ -871,6 +873,7 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 		elm_init();
 		bch_priv.type		= ECC_BCH8;
 		/* populate ecc specific fields */
+		memset(&nand->ecc, 0, sizeof(struct nand_ecc_ctrl));
 		nand->ecc.mode		= NAND_ECC_HW;
 		nand->ecc.strength	= 8;
 		nand->ecc.size		= SECTOR_BYTES;
