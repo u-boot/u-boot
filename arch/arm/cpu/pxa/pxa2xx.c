@@ -279,6 +279,7 @@ void reset_cpu(ulong ignored)
 	tmp = readl(OSCR);
 	tmp += 0x1000;
 	writel(tmp, OSMR3);
+	writel(MDREFR_SLFRSH, MDREFR);
 
 	for (;;)
 		;
