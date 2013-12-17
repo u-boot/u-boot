@@ -20,18 +20,18 @@
 #define	CONFIG_SYS_MALLOC_LEN		(128*1024)
 #define	CONFIG_ARCH_CPU_INIT
 #define	CONFIG_BOOTCOMMAND		\
-	"bootm 80000;"
+	"bootm 80000 - 240000;"
 
 #define	CONFIG_BOOTARGS			\
-	"console=ttySA0,115200 mem=128M root=/dev/mmcblk0p1 rw" \
-	"init=/sbin/init rootfstype=ext3"
+	"console=ttyS0,115200 mem=128M root=/dev/mmcblk0p1 rw" \
+	"init=/sbin/init rootfstype=ext4 rootwait"
 
 #define	CONFIG_TIMESTAMP
 #define	CONFIG_BOOTDELAY		2	/* Autoboot delay */
 #define	CONFIG_CMDLINE_TAG
 #define	CONFIG_SETUP_MEMORY_TAGS
 #define	CONFIG_LZMA			/* LZMA compression support */
-#undef	CONFIG_OF_LIBFDT
+#define	CONFIG_OF_LIBFDT
 
 /*
  * Serial Console Configuration
@@ -101,7 +101,7 @@
  */
 #define	CONFIG_SYS_HUSH_PARSER		1
 
-#undef	CONFIG_SYS_LONGHELP
+#define	CONFIG_SYS_LONGHELP
 #ifdef	CONFIG_SYS_HUSH_PARSER
 #define	CONFIG_SYS_PROMPT		"$ "
 #else
