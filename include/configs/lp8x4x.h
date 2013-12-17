@@ -144,7 +144,7 @@
 #define	CONFIG_ENV_SECT_SIZE		0x40000
 
 #define	PHYS_FLASH_1			0x00000000	/* Flash Bank #1 */
-#define	PHYS_FLASH_2			0x02000000	/* Flash Bank #2 */
+#define	PHYS_FLASH_2			0x04000000	/* Flash Bank #2 */
 
 #define	CONFIG_SYS_FLASH_CFI
 #define	CONFIG_FLASH_CFI_DRIVER		1
