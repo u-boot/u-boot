@@ -336,9 +336,9 @@ int add_dwmci(struct dwmci_host *host, u32 max_clk, u32 min_clk)
 	struct mmc *mmc;
 	int err = 0;
 
-	mmc = malloc(sizeof(struct mmc));
+	mmc = calloc(sizeof(struct mmc), 1);
 	if (!mmc) {
-		printf("mmc malloc fail!\n");
+		printf("mmc calloc fail!\n");
 		return -1;
 	}
 
