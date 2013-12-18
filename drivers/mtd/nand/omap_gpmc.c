@@ -283,53 +283,55 @@ static void omap_hwecc_init_bch(struct nand_chip *chip, int32_t mode)
 	if (bch->ecc_scheme == OMAP_ECC_BCH8_CODE_HW) {
 		wr_mode = BCH_WRAPMODE_1;
 
-	switch (bch->nibbles) {
-	case ECC_BCH4_NIBBLES:
-		unused_length = 3;
-		break;
-	case ECC_BCH8_NIBBLES:
-		unused_length = 2;
-		break;
-	case ECC_BCH16_NIBBLES:
-		unused_length = 0;
-		break;
-	}
+		switch (bch->nibbles) {
+		case ECC_BCH4_NIBBLES:
+			unused_length = 3;
+			break;
+		case ECC_BCH8_NIBBLES:
+			unused_length = 2;
+			break;
+		case ECC_BCH16_NIBBLES:
+			unused_length = 0;
+			break;
+		}
 
-	/*
-	 * This is ecc_size_config for ELM mode.
-	 * Here we are using different settings for read and write access and
-	 * also depending on BCH strength.
-	 */
-	switch (mode) {
-	case NAND_ECC_WRITE:
-		/* write access only setup eccsize1 config */
-		val = ((unused_length + bch->nibbles) << 22);
-		break;
-
-	case NAND_ECC_READ:
-	default:
 		/*
-		 * by default eccsize0 selected for ecc1resultsize
-		 * eccsize0 config.
+		 * This is ecc_size_config for ELM mode.  Here we are using
+		 * different settings for read and write access and also
+		 * depending on BCH strength.
 		 */
-		val  = (bch->nibbles << 12);
-		/* eccsize1 config */
-		val |= (unused_length << 22);
-		break;
-	}
+		switch (mode) {
+		case NAND_ECC_WRITE:
+			/* write access only setup eccsize1 config */
+			val = ((unused_length + bch->nibbles) << 22);
+			break;
+
+		case NAND_ECC_READ:
+		default:
+			/*
+			 * by default eccsize0 selected for ecc1resultsize
+			 * eccsize0 config.
+			 */
+			val  = (bch->nibbles << 12);
+			/* eccsize1 config */
+			val |= (unused_length << 22);
+			break;
+		}
 	} else {
-	/*
-	 * This ecc_size_config setting is for BCH sw library.
-	 *
-	 * Note: we only support BCH8 currently with BCH sw library!
-	 * Should be really easy to adobt to BCH4, however some omap3 have
-	 * flaws with BCH4.
-	 *
-	 * Here we are using wrapping mode 6 both for reading and writing, with:
-	 *  size0 = 0  (no additional protected byte in spare area)
-	 *  size1 = 32 (skip 32 nibbles = 16 bytes per sector in spare area)
-	 */
-	val = (32 << 22) | (0 << 12);
+		/*
+		 * This ecc_size_config setting is for BCH sw library.
+		 *
+		 * Note: we only support BCH8 currently with BCH sw library!
+		 * Should be really easy to adobt to BCH4, however some omap3
+		 * have flaws with BCH4.
+		 *
+		 * Here we are using wrapping mode 6 both for reading and
+		 * writing, with:
+		 *  size0 = 0  (no additional protected byte in spare area)
+		 *  size1 = 32 (skip 32 nibbles = 16 bytes per sector in
+		 *		spare area)
+		 */
+		val = (32 << 22) | (0 << 12);
 	}
 	/* ecc size configuration */
 	writel(val, &gpmc_cfg->ecc_size_config);
@@ -761,7 +763,7 @@ static void __maybe_unused omap_free_bch(struct mtd_info *mtd)
 static int omap_select_ecc_scheme(struct nand_chip *nand,
 	enum omap_ecc ecc_scheme, unsigned int pagesize, unsigned int oobsize) {
 	struct nand_bch_priv	*bch		= nand->priv;
-	struct nand_ecclayout	*ecclayout	= nand->ecc.layout;
+	struct nand_ecclayout	*ecclayout	= &omap_ecclayout;
 	int eccsteps = pagesize / SECTOR_BYTES;
 	int i;
 
@@ -774,7 +776,7 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 		bch_priv.type		= 0;
 		nand->ecc.mode		= NAND_ECC_SOFT;
 		nand->ecc.layout	= NULL;
-		nand->ecc.size		= pagesize;
+		nand->ecc.size		= 0;
 		bch->ecc_scheme		= OMAP_ECC_HAM1_CODE_SW;
 		break;
 
@@ -789,6 +791,7 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 		bch_priv.control	= NULL;
 		bch_priv.type		= 0;
 		/* populate ecc specific fields */
+		memset(&nand->ecc, 0, sizeof(struct nand_ecc_ctrl));
 		nand->ecc.mode		= NAND_ECC_HW;
 		nand->ecc.strength	= 1;
 		nand->ecc.size		= SECTOR_BYTES;
@@ -798,8 +801,12 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 		nand->ecc.calculate	= omap_calculate_ecc;
 		/* define ecc-layout */
 		ecclayout->eccbytes	= nand->ecc.bytes * eccsteps;
-		for (i = 0; i < ecclayout->eccbytes; i++)
-			ecclayout->eccpos[i] = i + BADBLOCK_MARKER_LENGTH;
+		for (i = 0; i < ecclayout->eccbytes; i++) {
+			if (nand->options & NAND_BUSWIDTH_16)
+				ecclayout->eccpos[i] = i + 2;
+			else
+				ecclayout->eccpos[i] = i + 1;
+		}
 		ecclayout->oobfree[0].offset = i + BADBLOCK_MARKER_LENGTH;
 		ecclayout->oobfree[0].length = oobsize - ecclayout->eccbytes -
 						BADBLOCK_MARKER_LENGTH;
@@ -823,6 +830,7 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 		}
 		bch_priv.type = ECC_BCH8;
 		/* populate ecc specific fields */
+		memset(&nand->ecc, 0, sizeof(struct nand_ecc_ctrl));
 		nand->ecc.mode		= NAND_ECC_HW;
 		nand->ecc.strength	= 8;
 		nand->ecc.size		= SECTOR_BYTES;
@@ -865,6 +873,7 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 		elm_init();
 		bch_priv.type		= ECC_BCH8;
 		/* populate ecc specific fields */
+		memset(&nand->ecc, 0, sizeof(struct nand_ecc_ctrl));
 		nand->ecc.mode		= NAND_ECC_HW;
 		nand->ecc.strength	= 8;
 		nand->ecc.size		= SECTOR_BYTES;
@@ -891,6 +900,11 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 		debug("nand: error: ecc scheme not enabled or supported\n");
 		return -EINVAL;
 	}
+
+	/* nand_scan_tail() sets ham1 sw ecc; hw ecc layout is set by driver */
+	if (ecc_scheme != OMAP_ECC_HAM1_CODE_SW)
+		nand->ecc.layout = ecclayout;
+
 	return 0;
 }
 
