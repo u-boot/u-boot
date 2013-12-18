@@ -295,7 +295,7 @@ int power_init_board(void)
 	 */
 	ret = pmic_init(I2C_5);
 	ret |= pmic_init_max8997();
-	ret |= power_fg_init(I2C_8);
+	ret |= power_fg_init(I2C_9);
 	ret |= power_muic_init(I2C_5);
 	ret |= power_bat_init(0);
 	if (ret)
