@@ -350,10 +350,12 @@ endif
 
 # enable combined SPL/u-boot/dtb rules for tegra
 ifneq ($(CONFIG_TEGRA),)
+ifeq ($(CONFIG_SPL),y)
 ifeq ($(CONFIG_OF_SEPARATE),y)
 ALL-y += $(obj)u-boot-dtb-tegra.bin
 else
 ALL-y += $(obj)u-boot-nodtb-tegra.bin
+endif
 endif
 endif
 
