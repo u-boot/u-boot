@@ -61,14 +61,23 @@ int board_mmc_init(bd_t *bis)
 #ifdef	CONFIG_CMD_USB
 int board_usb_init(int index, enum usb_init_type init)
 {
-	writel((UHCHR | UHCHR_PCPL | UHCHR_PSPL) &
-		~(UHCHR_SSEP0 | UHCHR_SSEP1 | UHCHR_SSEP2 | UHCHR_SSE),
-		UHCHR);
+	if (index !=0 || init != USB_INIT_HOST)
+		return -1;
+
+	writel(readl(CKEN) | CKEN10_USBHOST, CKEN);
+
+	writel(readl(UHCHR) | UHCHR_FHR, UHCHR);
+	udelay(11);
+	writel(readl(UHCHR) & ~UHCHR_FHR, UHCHR);
 
 	writel(readl(UHCHR) | UHCHR_FSBIR, UHCHR);
 
 	while (readl(UHCHR) & UHCHR_FSBIR)
 		continue; /* required by checkpath.pl */
+
+	writel(readl(UHCHR) & ~UHCHR_SSEP0, UHCHR);
+	writel(readl(UHCRHDA) & ~(0x1000), UHCRHDA);
+	writel(readl(UHCRHDA) | 0x800, UHCRHDA);
 
 	writel(readl(UHCHR) & ~UHCHR_SSE, UHCHR);
 	writel((UHCHIE_UPRIE | UHCHIE_RWIE), UHCHIE);
@@ -83,19 +92,10 @@ int board_usb_init(int index, enum usb_init_type init)
 	/* Set port power control mask bits, only 3 ports. */
 	writel(readl(UHCRHDB) | (0x7<<17), UHCRHDB);
 
-	/* enable port 2 */
-	writel(readl(UP2OCR) | UP2OCR_HXOE | UP2OCR_HXS |
-		UP2OCR_DMPDE | UP2OCR_DPPDE, UP2OCR);
-
 	return 0;
 }
 
-int board_usb_cleanup(int index, enum usb_init_type init)
-{
-	return 0;
-}
-
-void usb_board_stop(void)
+int usb_board_stop(void)
 {
 	writel(readl(UHCHR) | UHCHR_FHR, UHCHR);
 	udelay(11);
@@ -104,9 +104,19 @@ void usb_board_stop(void)
 	writel(readl(UHCCOMS) | 1, UHCCOMS);
 	udelay(10);
 
+	writel(readl(UHCHR) | UHCHR_SSEP0 | UHCHR_SSE, UHCHR);
+
 	writel(readl(CKEN) & ~CKEN10_USBHOST, CKEN);
 
-	return;
+	return 0;
+}
+
+int board_usb_cleanup(int index, enum usb_init_type init)
+{
+	if (index !=0 || init != USB_INIT_HOST)
+		return -1;
+
+	return usb_board_stop();
 }
 #endif
 
