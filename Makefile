@@ -471,12 +471,10 @@ $(obj)u-boot.sb:       $(obj)u-boot.bin $(obj)spl/u-boot-spl.bin
 $(obj)u-boot.spr:	$(obj)u-boot.img $(obj)spl/u-boot-spl.bin
 		$(obj)tools/mkimage -A $(ARCH) -T firmware -C none \
 		-a $(CONFIG_SPL_TEXT_BASE) -e $(CONFIG_SPL_TEXT_BASE) -n XLOADER \
-		-d $(obj)spl/u-boot-spl.bin $(obj)spl/u-boot-spl.img
-		tr "\000" "\377" < /dev/zero | dd ibs=1 count=$(CONFIG_SPL_PAD_TO) \
-			of=$(obj)spl/u-boot-spl-pad.img 2>/dev/null
-		dd if=$(obj)spl/u-boot-spl.img of=$(obj)spl/u-boot-spl-pad.img \
-			conv=notrunc 2>/dev/null
-		cat $(obj)spl/u-boot-spl-pad.img $(obj)u-boot.img > $@
+		-d $(obj)spl/u-boot-spl.bin $@
+		$(OBJCOPY) -I binary -O binary \
+			--pad-to=$(CONFIG_SPL_PAD_TO) --gap-fill=0xff $@
+		cat $(obj)u-boot.img >> $@
 
 ifneq ($(CONFIG_TEGRA),)
 $(obj)u-boot-nodtb-tegra.bin: $(obj)spl/u-boot-spl.bin $(obj)u-boot.bin
@@ -499,11 +497,9 @@ $(obj)u-boot-img.bin: $(obj)spl/u-boot-spl.bin $(obj)u-boot.img
 # at the start padded up to the start of the SPL image. And then concat
 # the SPL image to the end.
 $(obj)u-boot-img-spl-at-end.bin: $(obj)spl/u-boot-spl.bin $(obj)u-boot.img
-		tr "\000" "\377" < /dev/zero | dd ibs=1 count=$(CONFIG_UBOOT_PAD_TO) \
-			of=$(obj)u-boot-pad.img 2>/dev/null
-		dd if=$(obj)u-boot.img of=$(obj)u-boot-pad.img \
-			conv=notrunc 2>/dev/null
-		cat $(obj)u-boot-pad.img $(obj)spl/u-boot-spl.bin > $@
+		$(OBJCOPY) -I binary -O binary --pad-to=$(CONFIG_UBOOT_PAD_TO) \
+			 --gap-fill=0xff $(obj)u-boot.img $@
+		cat $(obj)spl/u-boot-spl.bin >> $@
 
 ifeq ($(CONFIG_SANDBOX),y)
 GEN_UBOOT = \
