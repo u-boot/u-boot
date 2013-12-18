@@ -54,9 +54,31 @@ static pci_dev_t ehci_find_class(int index)
 					bdf += PCI_BDF(0, 0, 1)) {
 				pci_read_config_dword(bdf, PCI_CLASS_REVISION,
 						      &class);
-				if ((class >> 8 == PCI_CLASS_SERIAL_USB_EHCI)
-						&& !index--)
-					return bdf;
+				class >>= 8;
+				/*
+				 * Here be dragons! In case we have multiple
+				 * PCI EHCI controllers, this function will
+				 * be called multiple times as well. This
+				 * function will scan the PCI busses, always
+				 * starting from bus 0, device 0, function 0,
+				 * until it finds an USB controller. The USB
+				 * stack gives us an 'index' of a controller
+				 * that is currently being registered, which
+				 * is a number, starting from 0 and growing
+				 * in ascending order as controllers are added.
+				 * To avoid probing the same controller in tne
+				 * subsequent runs of this function, we will
+				 * skip 'index - 1' detected controllers and
+				 * report the index'th controller.
+				 */
+				if (class != PCI_CLASS_SERIAL_USB_EHCI)
+					continue;
+				if (index) {
+					index--;
+					continue;
+				}
+				/* Return index'th controller. */
+				return bdf;
 			}
 		}
 	}

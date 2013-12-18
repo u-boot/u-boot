@@ -40,6 +40,7 @@ struct f_dfu {
 
 	/* Send/received block number is handy for data integrity check */
 	int                             blk_seq_num;
+	unsigned int                    poll_timeout;
 };
 
 typedef int (*dfu_state_fn) (struct f_dfu *,
@@ -128,6 +129,33 @@ static struct usb_gadget_strings *dfu_strings[] = {
 	NULL,
 };
 
+static void dfu_set_poll_timeout(struct dfu_status *dstat, unsigned int ms)
+{
+	/*
+	 * The bwPollTimeout DFU_GETSTATUS request payload provides information
+	 * about minimum time, in milliseconds, that the host should wait before
+	 * sending a subsequent DFU_GETSTATUS request
+	 *
+	 * This permits the device to vary the delay depending on its need to
+	 * erase or program the memory
+	 *
+	 */
+
+	unsigned char *p = (unsigned char *)&ms;
+
+	if (!ms || (ms & ~DFU_POLL_TIMEOUT_MASK)) {
+		dstat->bwPollTimeout[0] = 0;
+		dstat->bwPollTimeout[1] = 0;
+		dstat->bwPollTimeout[2] = 0;
+
+		return;
+	}
+
+	dstat->bwPollTimeout[0] = *p++;
+	dstat->bwPollTimeout[1] = *p++;
+	dstat->bwPollTimeout[2] = *p;
+}
+
 /*-------------------------------------------------------------------------*/
 
 static void dnload_request_complete(struct usb_ep *ep, struct usb_request *req)
@@ -157,11 +185,15 @@ static void handle_getstatus(struct usb_request *req)
 		break;
 	}
 
+	dfu_set_poll_timeout(dstat, 0);
+
+	if (f_dfu->poll_timeout)
+		if (!(f_dfu->blk_seq_num %
+		      (dfu_get_buf_size() / DFU_USB_BUFSIZ)))
+			dfu_set_poll_timeout(dstat, f_dfu->poll_timeout);
+
 	/* send status response */
 	dstat->bStatus = f_dfu->dfu_status;
-	dstat->bwPollTimeout[0] = 0;
-	dstat->bwPollTimeout[1] = 0;
-	dstat->bwPollTimeout[2] = 0;
 	dstat->bState = f_dfu->dfu_state;
 	dstat->iString = 0;
 }
@@ -723,8 +755,9 @@ static int dfu_bind_config(struct usb_configuration *c)
 	f_dfu->usb_function.unbind = dfu_unbind;
 	f_dfu->usb_function.set_alt = dfu_set_alt;
 	f_dfu->usb_function.disable = dfu_disable;
-	f_dfu->usb_function.strings = dfu_generic_strings,
-	f_dfu->usb_function.setup = dfu_handle,
+	f_dfu->usb_function.strings = dfu_generic_strings;
+	f_dfu->usb_function.setup = dfu_handle;
+	f_dfu->poll_timeout = DFU_DEFAULT_POLL_TIMEOUT;
 
 	status = usb_add_function(c, &f_dfu->usb_function);
 	if (status)
