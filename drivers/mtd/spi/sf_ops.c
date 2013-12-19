@@ -273,9 +273,15 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 
 	/* Handle memory-mapped SPI */
 	if (flash->memory_map) {
+		ret = spi_claim_bus(flash->spi);
+		if (ret) {
+			debug("SF: unable to claim SPI bus\n");
+			return ret;
+		}
 		spi_xfer(flash->spi, 0, NULL, NULL, SPI_XFER_MMAP);
 		memcpy(data, flash->memory_map + offset, len);
 		spi_xfer(flash->spi, 0, NULL, NULL, SPI_XFER_MMAP_END);
+		spi_release_bus(flash->spi);
 		return 0;
 	}
 
