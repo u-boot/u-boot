@@ -7,6 +7,7 @@
 #include <asm/imx-common/iomux-v3.h>
 #include <asm/arch/iomux.h>
 #include <asm/io.h>
+#include <asm/arch/clock.h>
 
 int setup_sata(void)
 {
