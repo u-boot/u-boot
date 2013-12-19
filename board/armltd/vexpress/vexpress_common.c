@@ -119,11 +119,6 @@ void dram_init_banksize(void)
 			get_ram_size((long *)PHYS_SDRAM_2, PHYS_SDRAM_2_SIZE);
 }
 
-int timer_init(void)
-{
-	return 0;
-}
-
 /*
  * Start timer:
  *    Setup a 32 bit timer, running at 1KHz
