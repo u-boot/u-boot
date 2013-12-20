@@ -245,6 +245,7 @@ static int fotg210_dma(struct fotg210_ep *ep, struct fotg210_request *req)
 		if (ep->id == 0) {
 			/* Wait until cx/ep0 fifo empty */
 			fotg210_cxwait(chip, CXFIFO_CXFIFOE);
+			udelay(1);
 			writel(DMAFIFO_CX, &regs->dma_fifo);
 		} else {
 			/* Wait until epx fifo empty */
