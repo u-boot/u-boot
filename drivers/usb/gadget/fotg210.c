@@ -847,6 +847,13 @@ int usb_gadget_handle_interrupts(void)
 	/* CX interrupts */
 	if (gisr & GISR_GRP0) {
 		st = readl(&regs->gisr0);
+		/*
+		 * Write 1 and then 0 works for both W1C & RW.
+		 *
+		 * HW v1.11.0+: It's a W1C register (write 1 clear)
+		 * HW v1.10.0-: It's a R/W register (write 0 clear)
+		 */
+		writel(st & GISR0_CXABORT, &regs->gisr0);
 		writel(0, &regs->gisr0);
 
 		if (st & GISR0_CXERR)
@@ -873,6 +880,13 @@ int usb_gadget_handle_interrupts(void)
 	/* Device Status Interrupts */
 	if (gisr & GISR_GRP2) {
 		st = readl(&regs->gisr2);
+		/*
+		 * Write 1 and then 0 works for both W1C & RW.
+		 *
+		 * HW v1.11.0+: It's a W1C register (write 1 clear)
+		 * HW v1.10.0-: It's a R/W register (write 0 clear)
+		 */
+		writel(st, &regs->gisr2);
 		writel(0, &regs->gisr2);
 
 		if (st & GISR2_RESET)
