@@ -19,6 +19,7 @@ obj-$(CONFIG_CF_SPI) += cf_spi.o
 obj-$(CONFIG_CF_QSPI) += cf_qspi.o
 obj-$(CONFIG_DAVINCI_SPI) += davinci_spi.o
 obj-$(CONFIG_EXYNOS_SPI) += exynos_spi.o
+obj-$(CONFIG_FTSSP010_SPI) += ftssp010_spi.o
 obj-$(CONFIG_ICH_SPI) +=  ich.o
 obj-$(CONFIG_KIRKWOOD_SPI) += kirkwood_spi.o
 obj-$(CONFIG_MPC52XX_SPI) += mpc52xx_spi.o
