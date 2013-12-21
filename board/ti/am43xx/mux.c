@@ -38,6 +38,16 @@ static struct module_pin_mux gpio0_22_pin_mux[] = {
 	{-1},
 };
 
+static struct module_pin_mux qspi_pin_mux[] = {
+	{OFFSET(gpmc_csn0), (MODE(3) | PULLUP_EN | RXACTIVE)}, /* QSPI_CS0 */
+	{OFFSET(gpmc_csn3), (MODE(2) | PULLUP_EN | RXACTIVE)}, /* QSPI_CLK */
+	{OFFSET(gpmc_advn_ale), (MODE(3) | PULLUP_EN | RXACTIVE)}, /* QSPI_D0 */
+	{OFFSET(gpmc_oen_ren), (MODE(3) | PULLUP_EN | RXACTIVE)}, /* QSPI_D1 */
+	{OFFSET(gpmc_wen), (MODE(3) | PULLUP_EN | RXACTIVE)}, /* QSPI_D2 */
+	{OFFSET(gpmc_be0n_cle), (MODE(3) | PULLUP_EN | RXACTIVE)}, /* QSPI_D3 */
+	{-1},
+};
+
 void enable_uart0_pin_mux(void)
 {
 	configure_module_pin_mux(uart0_pin_mux);
@@ -50,6 +60,7 @@ void enable_board_pin_mux(void)
 
 	if (board_is_gpevm())
 		configure_module_pin_mux(gpio0_22_pin_mux);
+	configure_module_pin_mux(qspi_pin_mux);
 }
 
 void enable_i2c0_pin_mux(void)
