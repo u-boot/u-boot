@@ -332,7 +332,9 @@ struct cm_perpll {
 	unsigned int mcasp1clkctrl;	/* offset 0x240 */
 	unsigned int resv11;
 	unsigned int mmc2clkctrl;	/* offset 0x248 */
-	unsigned int resv12[5];
+	unsigned int resv12[3];
+	unsigned int qspiclkctrl;       /* offset 0x258 */
+	unsigned int resv121;
 	unsigned int usb0clkctrl;	/* offset 0x260 */
 	unsigned int resv13[103];
 	unsigned int l4lsclkstctrl;	/* offset 0x400 */

@@ -98,6 +98,7 @@ void enable_basic_clocks(void)
 		&cmper->emiffwclkctrl,
 		&cmper->emifclkctrl,
 		&cmper->otfaemifclkctrl,
+		&cmper->qspiclkctrl,
 		0
 	};
 
