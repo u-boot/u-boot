@@ -285,6 +285,13 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		qslave->cmd |= QSPI_3_PIN;
 	qslave->cmd |= 0xfff;
 
+/* FIXME: This delay is required for successfull
+ * completion of read/write/erase. Once its root
+ * caused, it will be remove from the driver.
+ */
+#ifdef CONFIG_AM43XX
+	udelay(100);
+#endif
 	while (words--) {
 		if (txp) {
 			debug("tx cmd %08x dc %08x data %02x\n",
