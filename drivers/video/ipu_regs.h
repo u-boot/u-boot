@@ -171,7 +171,7 @@ struct ipu_cm {
 	u32 gpr;
 	u32 reserved0[26];
 	u32 ch_db_mode_sel[2];
-	u32 reserved1[16];
+	u32 reserved1[4];
 	u32 alt_ch_db_mode_sel[2];
 	u32 reserved2[2];
 	u32 ch_trb_mode_sel[2];
