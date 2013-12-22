@@ -188,7 +188,7 @@ struct ipu_idmac {
 	u32 sub_addr[5];
 	u32 bndm_en[2];
 	u32 sc_cord[2];
-	u32 reserved[45];
+	u32 reserved[44];
 	u32 ch_busy[2];
 };
 
