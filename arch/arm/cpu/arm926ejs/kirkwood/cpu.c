@@ -181,7 +181,7 @@ static void kw_sysrst_check(void)
 #if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo(void)
 {
-	char *rev;
+	char *rev = "??";
 	u16 devid = (readl(KW_REG_PCIE_DEVID) >> 16) & 0xffff;
 	u8 revid = readl(KW_REG_PCIE_REVID) & 0xff;
 
@@ -192,7 +192,13 @@ int print_cpuinfo(void)
 
 	switch (revid) {
 	case 0:
-		rev = "Z0";
+		if (devid == 0x6281)
+			rev = "Z0";
+		else if (devid == 0x6282)
+			rev = "A0";
+		break;
+	case 1:
+		rev = "A1";
 		break;
 	case 2:
 		rev = "A0";
@@ -201,7 +207,6 @@ int print_cpuinfo(void)
 		rev = "A1";
 		break;
 	default:
-		rev = "??";
 		break;
 	}
 
