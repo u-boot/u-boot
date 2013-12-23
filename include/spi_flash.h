@@ -33,6 +33,29 @@ enum spi_read_cmds {
 #define RD_FULL		RD_EXTN | QUAD_OUTPUT_FAST
 
 /**
+ * struct spi_flash_params - SPI/QSPI flash device params structure
+ *
+ * @name:		Device name ([MANUFLETTER][DEVTYPE][DENSITY][EXTRAINFO])
+ * @jedec:		Device jedec ID (0x[1byte_manuf_id][2byte_dev_id])
+ * @ext_jedec:		Device ext_jedec ID
+ * @sector_size:	Sector size of this device
+ * @nr_sectors:		No.of sectors on this device
+ * @e_rd_cmd:		Enum list for read commands
+ * @flags:		Importent param, for flash specific behaviour
+ */
+struct spi_flash_params {
+	const char *name;
+	u32 jedec;
+	u16 ext_jedec;
+	u32 sector_size;
+	u32 nr_sectors;
+	u8 e_rd_cmd;
+	u16 flags;
+};
+
+extern const struct spi_flash_params spi_flash_params_table[];
+
+/**
  * struct spi_flash - SPI flash structure
  *
  * @spi:		SPI slave
