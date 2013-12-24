@@ -39,8 +39,10 @@
 #define SPI_OPM_RX_DOUT		1 << 1
 #define SPI_OPM_RX_DIO		1 << 2
 #define SPI_OPM_RX_QOF		1 << 3
+#define SPI_OPM_RX_QIOF		1 << 4
 #define SPI_OPM_RX_EXTN		SPI_OPM_RX_AS | SPI_OPM_RX_DOUT | \
-				SPI_OPM_RX_DIO | SPI_OPM_RX_QOF
+				SPI_OPM_RX_DIO | SPI_OPM_RX_QOF | \
+				SPI_OPM_RX_QIOF
 
 /* Header byte that marks the start of the message */
 #define SPI_PREAMBLE_END_BYTE	0xec

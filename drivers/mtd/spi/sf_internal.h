@@ -45,6 +45,7 @@
 #define CMD_READ_DUAL_OUTPUT_FAST	0x3b
 #define CMD_READ_DUAL_IO_FAST		0xbb
 #define CMD_READ_QUAD_OUTPUT_FAST	0x6b
+#define CMD_READ_QUAD_IO_FAST		0xeb
 #define CMD_READ_ID			0x9f
 
 /* Bank addr access commands */

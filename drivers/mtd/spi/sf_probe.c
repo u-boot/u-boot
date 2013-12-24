@@ -25,6 +25,7 @@ static u8 spi_read_cmds_array[] = {
 	CMD_READ_DUAL_OUTPUT_FAST,
 	CMD_READ_DUAL_IO_FAST,
 	CMD_READ_QUAD_OUTPUT_FAST,
+	CMD_READ_QUAD_IO_FAST,
 };
 
 static int spi_flash_set_qeb(struct spi_flash *flash, u8 idcode0)
@@ -131,6 +132,7 @@ static struct spi_flash *spi_flash_validate_params(struct spi_slave *spi,
 
 	/* Set the quad enable bit - only for quad commands */
 	if ((flash->read_cmd == CMD_READ_QUAD_OUTPUT_FAST) ||
+	    (flash->read_cmd == CMD_READ_QUAD_IO_FAST) ||
 	    (flash->write_cmd == CMD_QUAD_PAGE_PROGRAM)) {
 		if (spi_flash_set_qeb(flash, idcode[0])) {
 			debug("SF: Fail to set QEB for %02x\n", idcode[0]);

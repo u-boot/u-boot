@@ -28,9 +28,10 @@ enum spi_read_cmds {
 	DUAL_OUTPUT_FAST = 1 << 1,
 	DUAL_IO_FAST = 1 << 2,
 	QUAD_OUTPUT_FAST = 1 << 3,
+	QUAD_IO_FAST = 1 << 4,
 };
 #define RD_EXTN		ARRAY_SLOW | DUAL_OUTPUT_FAST | DUAL_IO_FAST
-#define RD_FULL		RD_EXTN | QUAD_OUTPUT_FAST
+#define RD_FULL		RD_EXTN | QUAD_OUTPUT_FAST | QUAD_IO_FAST
 
 /**
  * struct spi_flash_params - SPI/QSPI flash device params structure
