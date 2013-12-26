@@ -101,7 +101,7 @@ void init_aips(void)
  * Possible values are from 0.725V to 1.450V in steps of
  * 0.025V (25mV).
  */
-void set_vddsoc(u32 mv)
+static void set_vddsoc(u32 mv)
 {
 	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
 	u32 val, reg = readl(&anatop->reg_core);
