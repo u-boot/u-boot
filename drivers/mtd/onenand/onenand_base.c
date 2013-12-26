@@ -91,7 +91,13 @@ static struct nand_ecclayout onenand_oob_32 = {
 	.oobfree	= { {2, 3}, {14, 2}, {18, 3}, {30, 2} }
 };
 
-static const unsigned char ffchars[] = {
+/*
+ * Warning! This array is used with the memcpy_16() function, thus
+ * it must be aligned to 2 bytes. GCC can make this array unaligned
+ * as the array is made of unsigned char, which memcpy16() doesn't
+ * like and will cause unaligned access.
+ */
+static const unsigned char __aligned(2) ffchars[] = {
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,	/* 16 */
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
