@@ -19,6 +19,8 @@
 
 #define CONFIG_ARCH_DEVICE_TREE		exynos5420
 
+#define CONFIG_VAR_SIZE_SPL
+
 #define CONFIG_SYS_SDRAM_BASE		0x20000000
 #define CONFIG_SYS_TEXT_BASE		0x23E00000
 
@@ -31,7 +33,11 @@
 /* select serial console configuration */
 #define CONFIG_SERIAL3			/* use SERIAL 3 */
 
+#ifdef CONFIG_VAR_SIZE_SPL
+#define CONFIG_SPL_TEXT_BASE		0x02024410
+#else
 #define CONFIG_SPL_TEXT_BASE	0x02024400
+#endif
 
 #define CONFIG_BOOTCOMMAND	"mmc read 20007000 451 2000; bootm 20007000"
 
