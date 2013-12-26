@@ -93,6 +93,20 @@ void init_aips(void)
 	writel(0x00000000, &aips2->opacr4);
 }
 
+static void clear_ldo_ramp(void)
+{
+	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
+	int reg;
+
+	/* ROM may modify LDO ramp up time according to fuse setting, so in
+	 * order to be in the safe side we neeed to reset these settings to
+	 * match the reset value: 0'b00
+	 */
+	reg = readl(&anatop->ana_misc2);
+	reg &= ~(0x3f << 24);
+	writel(reg, &anatop->ana_misc2);
+}
+
 /*
  * Set the VDDSOC
  *
@@ -112,6 +126,8 @@ static void set_vddsoc(u32 mv)
 		val = 0x1F;	/* Power FET switched full on. No regulation */
 	else
 		val = (mv - 700) / 25;
+
+	clear_ldo_ramp();
 
 	/*
 	 * Mask out the REG_CORE[22:18] bits (REG2_TRIG)
