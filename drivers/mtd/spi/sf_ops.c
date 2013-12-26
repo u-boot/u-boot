@@ -38,6 +38,7 @@ int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr)
 	return 0;
 }
 
+#if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND)
 static int spi_flash_cmd_write_config(struct spi_flash *flash, u8 cr)
 {
 	u8 data[2];
@@ -61,6 +62,31 @@ static int spi_flash_cmd_write_config(struct spi_flash *flash, u8 cr)
 
 	return 0;
 }
+
+int spi_flash_set_qeb_winspan(struct spi_flash *flash)
+{
+	u8 qeb_status;
+	u8 cmd;
+	int ret;
+
+	cmd = CMD_READ_CONFIG;
+	ret = spi_flash_read_common(flash, &cmd, 1, &qeb_status, 1);
+	if (ret < 0) {
+		debug("SF: fail to read config register\n");
+		return ret;
+	}
+
+	if (qeb_status & STATUS_QEB_WINSPAN) {
+		debug("SF: Quad enable bit is already set\n");
+	} else {
+		ret = spi_flash_cmd_write_config(flash, STATUS_QEB_WINSPAN);
+		if (ret < 0)
+			return ret;
+	}
+
+	return ret;
+}
+#endif
 
 #ifdef CONFIG_SPI_FLASH_BAR
 static int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 bank_sel)
