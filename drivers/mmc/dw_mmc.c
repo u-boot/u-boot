@@ -6,6 +6,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <bouncebuf.h>
 #include <common.h>
 #include <malloc.h>
 #include <mmc.h>
@@ -41,11 +42,13 @@ static void dwmci_set_idma_desc(struct dwmci_idmac *idmac,
 }
 
 static void dwmci_prepare_data(struct dwmci_host *host,
-		struct mmc_data *data, struct dwmci_idmac *cur_idmac)
+			       struct mmc_data *data,
+			       struct dwmci_idmac *cur_idmac,
+			       void *bounce_buffer)
 {
 	unsigned long ctrl;
 	unsigned int i = 0, flags, cnt, blk_cnt;
-	ulong data_start, data_end, start_addr;
+	ulong data_start, data_end;
 
 
 	blk_cnt = data->blocks;
@@ -54,11 +57,6 @@ static void dwmci_prepare_data(struct dwmci_host *host,
 
 	data_start = (ulong)cur_idmac;
 	dwmci_writel(host, DWMCI_DBADDR, (unsigned int)cur_idmac);
-
-	if (data->flags == MMC_DATA_READ)
-		start_addr = (unsigned int)data->dest;
-	else
-		start_addr = (unsigned int)data->src;
 
 	do {
 		flags = DWMCI_IDMAC_OWN | DWMCI_IDMAC_CH ;
@@ -70,7 +68,7 @@ static void dwmci_prepare_data(struct dwmci_host *host,
 			cnt = data->blocksize * 8;
 
 		dwmci_set_idma_desc(cur_idmac, flags, cnt,
-				start_addr + (i * PAGE_SIZE));
+				    (u32)bounce_buffer + (i * PAGE_SIZE));
 
 		if (blk_cnt <= 8)
 			break;
@@ -117,6 +115,7 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	u32 retry = 10000;
 	u32 mask, ctrl;
 	ulong start = get_timer(0);
+	struct bounce_buffer bbstate;
 
 	while (dwmci_readl(host, DWMCI_STATUS) & DWMCI_BUSY) {
 		if (get_timer(start) > timeout) {
@@ -127,8 +126,19 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 
 	dwmci_writel(host, DWMCI_RINTSTS, DWMCI_INTMSK_ALL);
 
-	if (data)
-		dwmci_prepare_data(host, data, cur_idmac);
+	if (data) {
+		if (data->flags == MMC_DATA_READ) {
+			bounce_buffer_start(&bbstate, (void*)data->dest,
+					    data->blocksize *
+					    data->blocks, GEN_BB_WRITE);
+		} else {
+			bounce_buffer_start(&bbstate, (void*)data->src,
+					    data->blocksize *
+					    data->blocks, GEN_BB_READ);
+		}
+		dwmci_prepare_data(host, data, cur_idmac,
+				   bbstate.bounce_buffer);
+	}
 
 	dwmci_writel(host, DWMCI_CMDARG, cmd->cmdarg);
 
@@ -204,6 +214,8 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		ctrl = dwmci_readl(host, DWMCI_CTRL);
 		ctrl &= ~(DWMCI_DMA_EN);
 		dwmci_writel(host, DWMCI_CTRL, ctrl);
+
+		bounce_buffer_stop(&bbstate);
 	}
 
 	udelay(100);
