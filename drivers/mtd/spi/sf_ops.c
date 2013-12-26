@@ -39,6 +39,32 @@ int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr)
 	return 0;
 }
 
+#ifdef CONFIG_SPI_FLASH_MACRONIX
+int spi_flash_set_qeb_mxic(struct spi_flash *flash)
+{
+	u8 qeb_status;
+	u8 cmd;
+	int ret;
+
+	cmd = CMD_READ_STATUS;
+	ret = spi_flash_read_common(flash, &cmd, 1, &qeb_status, 1);
+	if (ret < 0) {
+		debug("SF: fail to read status register\n");
+		return ret;
+	}
+
+	if (qeb_status & STATUS_QEB_MXIC) {
+		debug("SF: Quad enable bit is already set\n");
+	} else {
+		ret = spi_flash_cmd_write_status(flash, STATUS_QEB_MXIC);
+		if (ret < 0)
+			return ret;
+	}
+
+	return ret;
+}
+#endif
+
 #if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND)
 static int spi_flash_cmd_write_config(struct spi_flash *flash, u8 cr)
 {

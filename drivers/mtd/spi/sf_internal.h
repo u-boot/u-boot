@@ -17,6 +17,7 @@
 /* CFI Manufacture ID's */
 #define SPI_FLASH_CFI_MFR_SPANSION	0x01
 #define SPI_FLASH_CFI_MFR_STMICRO	0x20
+#define SPI_FLASH_CFI_MFR_MACRONIX	0xc2
 #define SPI_FLASH_CFI_MFR_WINBOND	0xef
 
 /* SECT flags */
@@ -61,6 +62,7 @@
 /* Common status */
 #define STATUS_WIP			0x01
 #define STATUS_QEB_WINSPAN		(1 << 1)
+#define STATUS_QEB_MXIC			(1 << 6)
 #define STATUS_PEC			0x80
 
 /* Flash timeout values */
@@ -101,6 +103,9 @@ int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len);
 
 /* Program the status register */
 int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr);
+
+/* Set quad enbale bit for macronix flashes */
+int spi_flash_set_qeb_mxic(struct spi_flash *flash);
 
 /* Set quad enbale bit for winbond and spansion flashes */
 int spi_flash_set_qeb_winspan(struct spi_flash *flash);

@@ -31,6 +31,10 @@ static u8 spi_read_cmds_array[] = {
 static int spi_flash_set_qeb(struct spi_flash *flash, u8 idcode0)
 {
 	switch (idcode0) {
+#ifdef CONFIG_SPI_FLASH_MACRONIX
+	case SPI_FLASH_CFI_MFR_MACRONIX:
+		return spi_flash_set_qeb_mxic(flash);
+#endif
 #if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND)
 	case SPI_FLASH_CFI_MFR_SPANSION:
 	case SPI_FLASH_CFI_MFR_WINBOND:
