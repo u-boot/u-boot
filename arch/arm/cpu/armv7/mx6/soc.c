@@ -124,7 +124,7 @@ static void clear_ldo_ramp(void)
 static int set_ldo_voltage(enum ldo_reg ldo, u32 mv)
 {
 	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
-	u32 val, reg = readl(&anatop->reg_core);
+	u32 val, step, old, reg = readl(&anatop->reg_core);
 	u8 shift;
 
 	if (mv < 725)
@@ -150,8 +150,19 @@ static int set_ldo_voltage(enum ldo_reg ldo, u32 mv)
 		return -EINVAL;
 	}
 
+	old = (reg & (0x1F << shift)) >> shift;
+	step = abs(val - old);
+	if (step == 0)
+		return 0;
+
 	reg = (reg & ~(0x1F << shift)) | (val << shift);
 	writel(reg, &anatop->reg_core);
+
+	/*
+	 * The LDO ramp-up is based on 64 clock cycles of 24 MHz = 2.6 us per
+	 * step
+	 */
+	udelay(3 * step);
 
 	return 0;
 }
@@ -170,14 +181,19 @@ int arch_cpu_init(void)
 {
 	init_aips();
 
-	set_ldo_voltage(LDO_SOC, 1175);	/* Set VDDSOC to 1.175V */
-
 	imx_set_wdog_powerdown(false); /* Disable PDE bit of WMCR register */
 
 #ifdef CONFIG_APBH_DMA
 	/* Start APBH DMA */
 	mxs_dma_init();
 #endif
+
+	return 0;
+}
+
+int board_postclk_init(void)
+{
+	set_ldo_voltage(LDO_SOC, 1175);	/* Set VDDSOC to 1.175V */
 
 	return 0;
 }
