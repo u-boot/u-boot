@@ -890,4 +890,5 @@ struct mxc_ccm_reg {
 #define BF_ANADIG_PFD_528_PFD0_FRAC(v)  \
 	(((v) << 0) & BM_ANADIG_PFD_528_PFD0_FRAC)
 
+#define ANADIG_ANA_MISC2_REG1_BO_EN	(1 << 13)
 #endif /*__ARCH_ARM_MACH_MX6_CCM_REGS_H__ */
