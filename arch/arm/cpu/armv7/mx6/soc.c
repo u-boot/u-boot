@@ -151,7 +151,7 @@ int arch_cpu_init(void)
 {
 	init_aips();
 
-	set_vddsoc(1200);	/* Set VDDSOC to 1.2V */
+	set_vddsoc(1175);	/* Set VDDSOC to 1.175V */
 
 	imx_set_wdog_powerdown(false); /* Disable PDE bit of WMCR register */
 
