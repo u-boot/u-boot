@@ -21,6 +21,8 @@
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
+#define CONFIG_BOARD_COMMON
+#define CONFIG_ARCH_EARLY_INIT_R
 
 /* Enable fdt support for Exynos5250 */
 #define CONFIG_OF_CONTROL
