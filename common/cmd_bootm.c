@@ -82,6 +82,9 @@ static int do_imls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 static void fixup_silent_linux(void);
 #endif
 
+static int do_bootm_standalone(int flag, int argc, char * const argv[],
+			       bootm_headers_t *images);
+
 static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 				char * const argv[], bootm_headers_t *images,
 				ulong *os_data, ulong *os_len);
@@ -139,6 +142,7 @@ static boot_os_fn do_bootm_integrity;
 #endif
 
 static boot_os_fn *boot_os[] = {
+	[IH_OS_U_BOOT] = do_bootm_standalone,
 #ifdef CONFIG_BOOTM_LINUX
 	[IH_OS_LINUX] = do_bootm_linux,
 #endif
@@ -499,17 +503,18 @@ static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 	return 0;
 }
 
-static int bootm_start_standalone(int argc, char * const argv[])
+static int do_bootm_standalone(int flag, int argc, char * const argv[],
+			       bootm_headers_t *images)
 {
 	char  *s;
 	int   (*appl)(int, char * const []);
 
 	/* Don't start if "autostart" is set to "no" */
 	if (((s = getenv("autostart")) != NULL) && (strcmp(s, "no") == 0)) {
-		setenv_hex("filesize", images.os.image_len);
+		setenv_hex("filesize", images->os.image_len);
 		return 0;
 	}
-	appl = (int (*)(int, char * const []))(ulong)ntohl(images.ep);
+	appl = (int (*)(int, char * const []))(ulong)ntohl(images->ep);
 	(*appl)(argc, argv);
 	return 0;
 }
@@ -535,14 +540,12 @@ static cmd_tbl_t cmd_bootm_sub[] = {
 static int boot_selected_os(int argc, char * const argv[], int state,
 		bootm_headers_t *images, boot_os_fn *boot_fn)
 {
-	if (images->os.type == IH_TYPE_STANDALONE) {
-		/* This may return when 'autostart' is 'no' */
-		bootm_start_standalone(argc, argv);
-		return 0;
-	}
 	arch_preboot_os();
 	boot_fn(state, argc, argv, images);
-	if (state == BOOTM_STATE_OS_FAKE_GO) /* We expect to return */
+
+	/* Stand-alone may return when 'autostart' is 'no' */
+	if (images->os.type == IH_TYPE_STANDALONE ||
+	    state == BOOTM_STATE_OS_FAKE_GO) /* We expect to return */
 		return 0;
 	bootstage_error(BOOTSTAGE_ID_BOOT_OS_RETURNED);
 #ifdef DEBUG
