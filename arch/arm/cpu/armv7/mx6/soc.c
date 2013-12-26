@@ -19,6 +19,12 @@
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/crm_regs.h>
 
+enum ldo_reg {
+	LDO_ARM,
+	LDO_SOC,
+	LDO_PU,
+};
+
 struct scu_regs {
 	u32	ctrl;
 	u32	config;
@@ -115,10 +121,11 @@ static void clear_ldo_ramp(void)
  * Possible values are from 0.725V to 1.450V in steps of
  * 0.025V (25mV).
  */
-static void set_vddsoc(u32 mv)
+static int set_ldo_voltage(enum ldo_reg ldo, u32 mv)
 {
 	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
 	u32 val, reg = readl(&anatop->reg_core);
+	u8 shift;
 
 	if (mv < 725)
 		val = 0x00;	/* Power gated off */
@@ -129,12 +136,24 @@ static void set_vddsoc(u32 mv)
 
 	clear_ldo_ramp();
 
-	/*
-	 * Mask out the REG_CORE[22:18] bits (REG2_TRIG)
-	 * and set them to the calculated value (0.7V + val * 0.25V)
-	 */
-	reg = (reg & ~(0x1F << 18)) | (val << 18);
+	switch (ldo) {
+	case LDO_SOC:
+		shift = 18;
+		break;
+	case LDO_PU:
+		shift = 9;
+		break;
+	case LDO_ARM:
+		shift = 0;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	reg = (reg & ~(0x1F << shift)) | (val << shift);
 	writel(reg, &anatop->reg_core);
+
+	return 0;
 }
 
 static void imx_set_wdog_powerdown(bool enable)
@@ -151,7 +170,7 @@ int arch_cpu_init(void)
 {
 	init_aips();
 
-	set_vddsoc(1175);	/* Set VDDSOC to 1.175V */
+	set_ldo_voltage(LDO_SOC, 1175);	/* Set VDDSOC to 1.175V */
 
 	imx_set_wdog_powerdown(false); /* Disable PDE bit of WMCR register */
 
