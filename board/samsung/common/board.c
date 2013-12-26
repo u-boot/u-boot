@@ -149,6 +149,7 @@ struct cros_ec_dev *board_get_cros_ec_dev(void)
 	return local.cros_ec_dev;
 }
 
+#ifdef CONFIG_CROS_EC
 static int board_init_cros_ec_devices(const void *blob)
 {
 	local.cros_ec_err = cros_ec_init(blob, &local.cros_ec_dev);
@@ -157,6 +158,7 @@ static int board_init_cros_ec_devices(const void *blob)
 
 	return 0;
 }
+#endif
 
 #if defined(CONFIG_POWER)
 #ifdef CONFIG_POWER_MAX77686
