@@ -696,6 +696,7 @@
 #define CLK_DIV_CPERI1_VAL	NOT_AVAILABLE
 
 #else
+#define PAD_RETENTION_DRAM_COREBLK_VAL	0x10000000
 
 /* APLL_CON1 */
 #define APLL_CON1_VAL	(0x0020F300)
@@ -907,37 +908,38 @@ void lpddr3_mem_ctrl_init(void);
  * Configure ZQ I/O interface
  *
  * @param mem		Memory timings for this memory type.
- * @param phy0_ctrl	Pointer to struct containing PHY0 control reg
- * @param phy1_ctrl	Pointer to struct containing PHY1 control reg
+ * @param phy0_con16	Register address for dmc_phy0->phy_con16
+ * @param phy1_con16	Register address for dmc_phy1->phy_con16
+ * @param phy0_con17	Register address for dmc_phy0->phy_con17
+ * @param phy1_con17	Register address for dmc_phy1->phy_con17
  * @return 0 if ok, -1 on error
  */
-int dmc_config_zq(struct mem_timings *mem,
-		  struct exynos5_phy_control *phy0_ctrl,
-		  struct exynos5_phy_control *phy1_ctrl);
-
+int dmc_config_zq(struct mem_timings *mem, uint32_t *phy0_con16,
+			uint32_t *phy1_con16, uint32_t *phy0_con17,
+			uint32_t *phy1_con17);
 /*
  * Send NOP and MRS/EMRS Direct commands
  *
  * @param mem		Memory timings for this memory type.
- * @param dmc		Pointer to struct of DMC registers
+ * @param directcmd	Register address for dmc_phy->directcmd
  */
-void dmc_config_mrs(struct mem_timings *mem, struct exynos5_dmc *dmc);
+void dmc_config_mrs(struct mem_timings *mem, uint32_t *directcmd);
 
 /*
  * Send PALL Direct commands
  *
  * @param mem		Memory timings for this memory type.
- * @param dmc		Pointer to struct of DMC registers
+ * @param directcmd	Register address for dmc_phy->directcmd
  */
-void dmc_config_prech(struct mem_timings *mem, struct exynos5_dmc *dmc);
+void dmc_config_prech(struct mem_timings *mem, uint32_t *directcmd);
 
 /*
  * Reset the DLL. This function is common between DDR3 and LPDDR2.
  * However, the reset value is different. So we are passing a flag
  * ddr_mode to distinguish between LPDDR2 and DDR3.
  *
- * @param exynos5_dmc	Pointer to struct of DMC registers
+ * @param phycontrol0	Register address for dmc_phy->phycontrol0
  * @param ddr_mode	Type of DDR memory
  */
-void update_reset_dll(struct exynos5_dmc *, enum ddr_mode);
+void update_reset_dll(uint32_t *phycontrol0, enum ddr_mode);
 #endif

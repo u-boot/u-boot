@@ -1,5 +1,5 @@
 /*
- * Mem setup common file for different types of DDR present on SMDK5250 boards.
+ * Mem setup common file for different types of DDR present on Exynos boards.
  *
  * Copyright (C) 2012 Samsung Electronics
  *
@@ -15,9 +15,9 @@
 
 #define ZQ_INIT_TIMEOUT	10000
 
-int dmc_config_zq(struct mem_timings *mem,
-		  struct exynos5_phy_control *phy0_ctrl,
-		  struct exynos5_phy_control *phy1_ctrl)
+int dmc_config_zq(struct mem_timings *mem, uint32_t *phy0_con16,
+			uint32_t *phy1_con16, uint32_t *phy0_con17,
+			uint32_t *phy1_con17)
 {
 	unsigned long val = 0;
 	int i;
@@ -31,19 +31,19 @@ int dmc_config_zq(struct mem_timings *mem,
 	val |= mem->zq_mode_dds << PHY_CON16_ZQ_MODE_DDS_SHIFT;
 	val |= mem->zq_mode_term << PHY_CON16_ZQ_MODE_TERM_SHIFT;
 	val |= ZQ_CLK_DIV_EN;
-	writel(val, &phy0_ctrl->phy_con16);
-	writel(val, &phy1_ctrl->phy_con16);
+	writel(val, phy0_con16);
+	writel(val, phy1_con16);
 
 	/* Disable termination */
 	if (mem->zq_mode_noterm)
 		val |= PHY_CON16_ZQ_MODE_NOTERM_MASK;
-	writel(val, &phy0_ctrl->phy_con16);
-	writel(val, &phy1_ctrl->phy_con16);
+	writel(val, phy0_con16);
+	writel(val, phy1_con16);
 
 	/* ZQ_MANUAL_START: Enable */
 	val |= ZQ_MANUAL_STR;
-	writel(val, &phy0_ctrl->phy_con16);
-	writel(val, &phy1_ctrl->phy_con16);
+	writel(val, phy0_con16);
+	writel(val, phy1_con16);
 
 	/* ZQ_MANUAL_START: Disable */
 	val &= ~ZQ_MANUAL_STR;
@@ -53,47 +53,47 @@ int dmc_config_zq(struct mem_timings *mem,
 	 * we are looping for the ZQ_init to complete.
 	 */
 	i = ZQ_INIT_TIMEOUT;
-	while ((readl(&phy0_ctrl->phy_con17) & ZQ_DONE) != ZQ_DONE && i > 0) {
+	while ((readl(phy0_con17) & ZQ_DONE) != ZQ_DONE && i > 0) {
 		sdelay(100);
 		i--;
 	}
 	if (!i)
 		return -1;
-	writel(val, &phy0_ctrl->phy_con16);
+	writel(val, phy0_con16);
 
 	i = ZQ_INIT_TIMEOUT;
-	while ((readl(&phy1_ctrl->phy_con17) & ZQ_DONE) != ZQ_DONE && i > 0) {
+	while ((readl(phy1_con17) & ZQ_DONE) != ZQ_DONE && i > 0) {
 		sdelay(100);
 		i--;
 	}
 	if (!i)
 		return -1;
-	writel(val, &phy1_ctrl->phy_con16);
+	writel(val, phy1_con16);
 
 	return 0;
 }
 
-void update_reset_dll(struct exynos5_dmc *dmc, enum ddr_mode mode)
+void update_reset_dll(uint32_t *phycontrol0, enum ddr_mode mode)
 {
 	unsigned long val;
 
 	if (mode == DDR_MODE_DDR3) {
 		val = MEM_TERM_EN | PHY_TERM_EN | DMC_CTRL_SHGATE;
-		writel(val, &dmc->phycontrol0);
+		writel(val, phycontrol0);
 	}
 
 	/* Update DLL Information: Force DLL Resyncronization */
-	val = readl(&dmc->phycontrol0);
+	val = readl(phycontrol0);
 	val |= FP_RSYNC;
-	writel(val, &dmc->phycontrol0);
+	writel(val, phycontrol0);
 
 	/* Reset Force DLL Resyncronization */
-	val = readl(&dmc->phycontrol0);
+	val = readl(phycontrol0);
 	val &= ~FP_RSYNC;
-	writel(val, &dmc->phycontrol0);
+	writel(val, phycontrol0);
 }
 
-void dmc_config_mrs(struct mem_timings *mem, struct exynos5_dmc *dmc)
+void dmc_config_mrs(struct mem_timings *mem, uint32_t *directcmd)
 {
 	int channel, chip;
 
@@ -107,7 +107,7 @@ void dmc_config_mrs(struct mem_timings *mem, struct exynos5_dmc *dmc)
 			mask |= chip << DIRECT_CMD_CHIP_SHIFT;
 
 			/* Sending NOP command */
-			writel(DIRECT_CMD_NOP | mask, &dmc->directcmd);
+			writel(DIRECT_CMD_NOP | mask, directcmd);
 
 			/*
 			 * TODO(alim.akhtar@samsung.com): Do we need these
@@ -119,14 +119,14 @@ void dmc_config_mrs(struct mem_timings *mem, struct exynos5_dmc *dmc)
 			/* Sending EMRS/MRS commands */
 			for (i = 0; i < MEM_TIMINGS_MSR_COUNT; i++) {
 				writel(mem->direct_cmd_msr[i] | mask,
-				       &dmc->directcmd);
+				       directcmd);
 				sdelay(0x10000);
 			}
 
 			if (mem->send_zq_init) {
 				/* Sending ZQINIT command */
 				writel(DIRECT_CMD_ZQINIT | mask,
-				       &dmc->directcmd);
+				       directcmd);
 
 				sdelay(10000);
 			}
@@ -134,7 +134,7 @@ void dmc_config_mrs(struct mem_timings *mem, struct exynos5_dmc *dmc)
 	}
 }
 
-void dmc_config_prech(struct mem_timings *mem, struct exynos5_dmc *dmc)
+void dmc_config_prech(struct mem_timings *mem, uint32_t *directcmd)
 {
 	int channel, chip;
 
@@ -146,18 +146,10 @@ void dmc_config_prech(struct mem_timings *mem, struct exynos5_dmc *dmc)
 			mask |= chip << DIRECT_CMD_CHIP_SHIFT;
 
 			/* PALL (all banks precharge) CMD */
-			writel(DIRECT_CMD_PALL | mask, &dmc->directcmd);
+			writel(DIRECT_CMD_PALL | mask, directcmd);
 			sdelay(0x10000);
 		}
 	}
-}
-
-void dmc_config_memory(struct mem_timings *mem, struct exynos5_dmc *dmc)
-{
-	writel(mem->memconfig, &dmc->memconfig0);
-	writel(mem->memconfig, &dmc->memconfig1);
-	writel(DMC_MEMBASECONFIG0_VAL, &dmc->membaseconfig0);
-	writel(DMC_MEMBASECONFIG1_VAL, &dmc->membaseconfig1);
 }
 
 void mem_ctrl_init(int reset)

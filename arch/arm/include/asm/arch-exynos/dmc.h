@@ -419,6 +419,15 @@ struct exynos5420_phy_control {
 	unsigned int phy_con42;
 };
 
+struct exynos5420_tzasc {
+	unsigned char res1[0xf00];
+	unsigned int membaseconfig0;
+	unsigned int membaseconfig1;
+	unsigned char res2[0x8];
+	unsigned int memconfig0;
+	unsigned int memconfig1;
+};
+
 enum ddr_mode {
 	DDR_MODE_DDR2,
 	DDR_MODE_DDR3,
@@ -453,6 +462,7 @@ enum mem_manuf {
 #define PHY_CON0_T_WRRDCMD_SHIFT	17
 #define PHY_CON0_T_WRRDCMD_MASK		(0x7 << PHY_CON0_T_WRRDCMD_SHIFT)
 #define PHY_CON0_CTRL_DDR_MODE_SHIFT	11
+#define PHY_CON0_CTRL_DDR_MODE_MASK	0x3
 
 /* PHY_CON1 register fields */
 #define PHY_CON1_RDLVL_RDDATA_ADJ_SHIFT	0
