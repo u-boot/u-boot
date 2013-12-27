@@ -184,10 +184,10 @@ static int complete_cmdv(int argc, char * const argv[], char last_char, int maxv
 		/* output full list of commands */
 		for (; cmdtp != cmdend; cmdtp++) {
 			if (n_found >= maxv - 2) {
-				cmdv[n_found] = "...";
+				cmdv[n_found++] = "...";
 				break;
 			}
-			cmdv[n_found] = cmdtp->name;
+			cmdv[n_found++] = cmdtp->name;
 		}
 		cmdv[n_found] = NULL;
 		return n_found;
