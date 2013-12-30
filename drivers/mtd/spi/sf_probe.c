@@ -28,6 +28,50 @@ static u8 spi_read_cmds_array[] = {
 	CMD_READ_QUAD_IO_FAST,
 };
 
+#ifdef CONFIG_SPI_FLASH_MACRONIX
+static int spi_flash_set_qeb_mxic(struct spi_flash *flash)
+{
+	u8 qeb_status;
+	int ret;
+
+	ret = spi_flash_cmd_read_status(flash, &qeb_status);
+	if (ret < 0)
+		return ret;
+
+	if (qeb_status & STATUS_QEB_MXIC) {
+		debug("SF: mxic: QEB is already set\n");
+	} else {
+		ret = spi_flash_cmd_write_status(flash, STATUS_QEB_MXIC);
+		if (ret < 0)
+			return ret;
+	}
+
+	return ret;
+}
+#endif
+
+#if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND)
+static int spi_flash_set_qeb_winspan(struct spi_flash *flash)
+{
+	u8 qeb_status;
+	int ret;
+
+	ret = spi_flash_cmd_read_config(flash, &qeb_status);
+	if (ret < 0)
+		return ret;
+
+	if (qeb_status & STATUS_QEB_WINSPAN) {
+		debug("SF: winspan: QEB is already set\n");
+	} else {
+		ret = spi_flash_cmd_write_config(flash, STATUS_QEB_WINSPAN);
+		if (ret < 0)
+			return ret;
+	}
+
+	return ret;
+}
+#endif
+
 static int spi_flash_set_qeb(struct spi_flash *flash, u8 idcode0)
 {
 	switch (idcode0) {

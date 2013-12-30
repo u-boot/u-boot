@@ -24,6 +24,21 @@ static void spi_flash_addr(u32 addr, u8 *cmd)
 	cmd[3] = addr >> 0;
 }
 
+int spi_flash_cmd_read_status(struct spi_flash *flash, u8 *rs)
+{
+	int ret;
+	u8 cmd;
+
+	cmd = CMD_READ_STATUS;
+	ret = spi_flash_read_common(flash, &cmd, 1, rs, 1);
+	if (ret < 0) {
+		debug("SF: fail to read status register\n");
+		return ret;
+	}
+
+	return 0;
+}
+
 int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr)
 {
 	u8 cmd;
@@ -39,48 +54,34 @@ int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr)
 	return 0;
 }
 
-#ifdef CONFIG_SPI_FLASH_MACRONIX
-int spi_flash_set_qeb_mxic(struct spi_flash *flash)
+#if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND)
+int spi_flash_cmd_read_config(struct spi_flash *flash, u8 *rc)
 {
-	u8 qeb_status;
-	u8 cmd;
 	int ret;
+	u8 cmd;
 
-	cmd = CMD_READ_STATUS;
-	ret = spi_flash_read_common(flash, &cmd, 1, &qeb_status, 1);
+	cmd = CMD_READ_CONFIG;
+	ret = spi_flash_read_common(flash, &cmd, 1, rc, 1);
 	if (ret < 0) {
-		debug("SF: fail to read status register\n");
+		debug("SF: fail to read config register\n");
 		return ret;
 	}
 
-	if (qeb_status & STATUS_QEB_MXIC) {
-		debug("SF: Quad enable bit is already set\n");
-	} else {
-		ret = spi_flash_cmd_write_status(flash, STATUS_QEB_MXIC);
-		if (ret < 0)
-			return ret;
-	}
-
-	return ret;
+	return 0;
 }
-#endif
 
-#if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND)
-static int spi_flash_cmd_write_config(struct spi_flash *flash, u8 cr)
+int spi_flash_cmd_write_config(struct spi_flash *flash, u8 wc)
 {
 	u8 data[2];
 	u8 cmd;
 	int ret;
 
-	cmd = CMD_READ_STATUS;
-	ret = spi_flash_read_common(flash, &cmd, 1, &data[0], 1);
-	if (ret < 0) {
-		debug("SF: fail to read status register\n");
+	ret = spi_flash_cmd_read_status(flash, &data[0]);
+	if (ret < 0)
 		return ret;
-	}
 
 	cmd = CMD_WRITE_STATUS;
-	data[1] = cr;
+	data[1] = wc;
 	ret = spi_flash_write_common(flash, &cmd, 1, &data, 2);
 	if (ret) {
 		debug("SF: fail to write config register\n");
@@ -88,30 +89,6 @@ static int spi_flash_cmd_write_config(struct spi_flash *flash, u8 cr)
 	}
 
 	return 0;
-}
-
-int spi_flash_set_qeb_winspan(struct spi_flash *flash)
-{
-	u8 qeb_status;
-	u8 cmd;
-	int ret;
-
-	cmd = CMD_READ_CONFIG;
-	ret = spi_flash_read_common(flash, &cmd, 1, &qeb_status, 1);
-	if (ret < 0) {
-		debug("SF: fail to read config register\n");
-		return ret;
-	}
-
-	if (qeb_status & STATUS_QEB_WINSPAN) {
-		debug("SF: Quad enable bit is already set\n");
-	} else {
-		ret = spi_flash_cmd_write_config(flash, STATUS_QEB_WINSPAN);
-		if (ret < 0)
-			return ret;
-	}
-
-	return ret;
 }
 #endif
 

@@ -101,14 +101,17 @@ int spi_flash_cmd_write(struct spi_slave *spi, const u8 *cmd, size_t cmd_len,
 /* Flash erase(sectors) operation, support all possible erase commands */
 int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len);
 
+/* Read the status register */
+int spi_flash_cmd_read_status(struct spi_flash *flash, u8 *rs);
+
 /* Program the status register */
 int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr);
 
-/* Set quad enbale bit for macronix flashes */
-int spi_flash_set_qeb_mxic(struct spi_flash *flash);
+/* Read the config register */
+int spi_flash_cmd_read_config(struct spi_flash *flash, u8 *rc);
 
-/* Set quad enbale bit for winbond and spansion flashes */
-int spi_flash_set_qeb_winspan(struct spi_flash *flash);
+/* Program the config register */
+int spi_flash_cmd_write_config(struct spi_flash *flash, u8 wc);
 
 /* Enable writing on the SPI flash */
 static inline int spi_flash_cmd_write_enable(struct spi_flash *flash)
