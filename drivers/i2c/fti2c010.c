@@ -201,7 +201,7 @@ static int fti2c010_read(struct i2c_adapter *adap,
 	struct fti2c010_chip *chip = chip_list + adap->hwadapnr;
 	struct fti2c010_regs *regs = chip->regs;
 	int ret, pos;
-	uchar paddr[4];
+	uchar paddr[4] = { 0 };
 
 	to_i2c_addr(paddr, addr, alen);
 
@@ -263,7 +263,7 @@ static int fti2c010_write(struct i2c_adapter *adap,
 	struct fti2c010_chip *chip = chip_list + adap->hwadapnr;
 	struct fti2c010_regs *regs = chip->regs;
 	int ret, pos;
-	uchar paddr[4];
+	uchar paddr[4] = { 0 };
 
 	to_i2c_addr(paddr, addr, alen);
 
