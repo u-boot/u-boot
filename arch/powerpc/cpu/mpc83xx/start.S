@@ -120,6 +120,11 @@ disable_addr_trans:
 	mtspr	SRR1, r3
 	rfi
 
+	.globl get_svr
+get_svr:
+	mfspr	r3, SVR
+	blr
+
 	.globl get_pvr
 get_pvr:
 	mfspr	r3, PVR
