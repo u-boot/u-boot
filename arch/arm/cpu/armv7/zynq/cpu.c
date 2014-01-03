@@ -46,3 +46,11 @@ void reset_cpu(ulong addr)
 	while (1)
 		;
 }
+
+#ifndef CONFIG_SYS_DCACHE_OFF
+void enable_caches(void)
+{
+	/* Enable D-cache. I-cache is already enabled in start.S */
+	dcache_enable();
+}
+#endif
