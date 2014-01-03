@@ -40,6 +40,11 @@ int checkboard(void)
 	printf("Sys ID: 0x%02x, Board Arch: V%d, ", QIXIS_READ(id), sw >> 4);
 	printf("Board Version: %c, boot from ", (sw & 0xf) + 'A' - 1);
 
+#ifdef CONFIG_SDCARD
+	puts("SD/MMC\n");
+#elif CONFIG_SPIFLASH
+	puts("SPI\n");
+#else
 	sw = QIXIS_READ(brdcfg[0]);
 	sw = (sw & QIXIS_LBMAP_MASK) >> QIXIS_LBMAP_SHIFT;
 
@@ -51,6 +56,7 @@ int checkboard(void)
 		puts("NAND\n");
 	else
 		printf("invalid setting of SW%u\n", QIXIS_LBMAP_SWITCH);
+#endif
 
 	printf("FPGA: v%d (%s), build %d", (int)QIXIS_READ(scver),
 	       qixis_read_tag(buf), (int)qixis_read_minor());
@@ -97,13 +103,25 @@ int brd_mux_lane_to_slot(void)
 		/* SerDes1 is not enabled */
 		break;
 	case 0x1c:
-	case 0x95:
 	case 0xa2:
-	case 0x94:
 		/* SD1(A:D) => SLOT3 SGMII
 		 * SD1(G:H) => SLOT1 SGMII
 		 */
-		QIXIS_WRITE(brdcfg[12], 0x58);
+		QIXIS_WRITE(brdcfg[12], 0x1a);
+		break;
+	case 0x94:
+	case 0x95:
+		/* SD1(A:B) => SLOT3 SGMII@1.25bps
+		 * SD1(C:D) => SFP Module, SGMII@3.125bps
+		 * SD1(E:H) => SLOT1 SGMII@1.25bps
+		 */
+	case 0x96:
+		/* SD1(A:B) => SLOT3 SGMII@1.25bps
+		 * SD1(C)   => SFP Module, SGMII@3.125bps
+		 * SD1(D)   => SFP Module, SGMII@1.25bps
+		 * SD1(E:H) => SLOT1 PCIe4 x4
+		 */
+		QIXIS_WRITE(brdcfg[12], 0x3a);
 		break;
 	case 0x51:
 		/* SD1(A:D) => SLOT3 XAUI
@@ -134,6 +152,34 @@ int brd_mux_lane_to_slot(void)
 		 */
 		QIXIS_WRITE(brdcfg[12], 0xda);
 		break;
+	case 0x6e:
+		/* SD1(A:B) => SFP Module, XFI
+		 * SD1(C:D) => SLOT3 SGMII
+		 * SD1(E:F) => SLOT1 PCIe4 x2
+		 * SD1(G:H) => SLOT2 SGMII
+		 */
+		QIXIS_WRITE(brdcfg[12], 0xd9);
+		break;
+	case 0xda:
+		/* SD1(A:H) => SLOT3 PCIe3 x8
+		 */
+		 QIXIS_WRITE(brdcfg[12], 0x0);
+		 break;
+	case 0xc8:
+		/* SD1(A)   => SLOT3 PCIe3 x1
+		 * SD1(B)   => SFP Module, SGMII@1.25bps
+		 * SD1(C:D) => SFP Module, SGMII@3.125bps
+		 * SD1(E:F) => SLOT1 PCIe4 x2
+		 * SD1(G:H) => SLOT2 SGMII
+		 */
+		 QIXIS_WRITE(brdcfg[12], 0x79);
+		 break;
+	case 0xab:
+		/* SD1(A:D) => SLOT3 PCIe3 x4
+		 * SD1(E:H) => SLOT1 PCIe4 x4
+		 */
+		 QIXIS_WRITE(brdcfg[12], 0x1a);
+		 break;
 	default:
 		printf("WARNING: unsupported for SerDes1 Protocol %d\n",
 		       srds_prtcl_s1);
@@ -147,7 +193,7 @@ int brd_mux_lane_to_slot(void)
 	case 0x01:
 	case 0x02:
 		/* SD2(A:H) => SLOT4 PCIe1 */
-		QIXIS_WRITE(brdcfg[13], 0x20);
+		QIXIS_WRITE(brdcfg[13], 0x10);
 		break;
 	case 0x15:
 	case 0x16:
@@ -164,7 +210,7 @@ int brd_mux_lane_to_slot(void)
 		 * SD2(E:F) => SLOT5 Aurora
 		 * SD2(G:H) => SATA1,SATA2
 		 */
-		QIXIS_WRITE(brdcfg[13], 0x70);
+		QIXIS_WRITE(brdcfg[13], 0x78);
 		break;
 	case 0x1f:
 		/*
@@ -180,7 +226,15 @@ int brd_mux_lane_to_slot(void)
 		 * SD2(A:D) => SLOT4 SRIO2
 		 * SD2(E:H) => SLOT5 SRIO1
 		 */
-		QIXIS_WRITE(brdcfg[13], 0x50);
+		QIXIS_WRITE(brdcfg[13], 0xa0);
+		break;
+	case 0x36:
+		/*
+		 * SD2(A:D) => SLOT4 SRIO2
+		 * SD2(E:F) => Aurora
+		 * SD2(G:H) => SATA1,SATA2
+		 */
+		QIXIS_WRITE(brdcfg[13], 0x78);
 		break;
 	default:
 		printf("WARNING: unsupported for SerDes2 Protocol %d\n",
