@@ -167,7 +167,7 @@ unsigned long get_board_ddr_clk(void);
 
 /* CONFIG_NUM_DDR_CONTROLLERS is defined in include/asm/config_mpc85xx.h */
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
-#define CONFIG_CHIP_SELECTS_PER_CTRL	(4 * CONFIG_DIMM_SLOTS_PER_CTLR)
+#define CONFIG_CHIP_SELECTS_PER_CTRL	(2 * CONFIG_DIMM_SLOTS_PER_CTLR)
 
 #define CONFIG_DDR_SPD
 #define CONFIG_SYS_FSL_DDR3
@@ -414,9 +414,9 @@ unsigned long get_board_ddr_clk(void);
 /* I2C */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_FSL		/* Use FSL common I2C driver */
-#define CONFIG_SYS_FSL_I2C_SPEED	400000	/* I2C speed in Hz */
+#define CONFIG_SYS_FSL_I2C_SPEED	50000	/* I2C speed in Hz */
 #define CONFIG_SYS_FSL_I2C_SLAVE	0x7F
-#define CONFIG_SYS_FSL_I2C2_SPEED	400000	/* I2C speed in Hz */
+#define CONFIG_SYS_FSL_I2C2_SPEED	50000	/* I2C speed in Hz */
 #define CONFIG_SYS_FSL_I2C2_SLAVE	0x7F
 #define CONFIG_SYS_FSL_I2C_OFFSET	0x118000
 #define CONFIG_SYS_FSL_I2C2_OFFSET	0x119000
