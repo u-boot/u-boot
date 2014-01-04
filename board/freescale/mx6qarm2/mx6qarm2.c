@@ -186,13 +186,10 @@ int fecmxc_mii_postcall(int phy)
 int board_eth_init(bd_t *bis)
 {
 	struct eth_device *dev;
-	int ret;
+	int ret = cpu_eth_init(bis);
 
-	ret = cpu_eth_init(bis);
-	if (ret) {
-		printf("FEC MXC: %s:failed\n", __func__);
+	if (ret)
 		return ret;
-	}
 
 	dev = eth_get_dev_by_name("FEC");
 	if (!dev) {
