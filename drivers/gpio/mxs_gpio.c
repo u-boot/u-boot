@@ -95,9 +95,9 @@ int gpio_direction_output(unsigned gpio, int value)
 	struct mxs_register_32 *reg =
 		(struct mxs_register_32 *)(MXS_PINCTRL_BASE + offset);
 
-	writel(1 << PAD_PIN(gpio), &reg->reg_set);
-
 	gpio_set_value(gpio, value);
+
+	writel(1 << PAD_PIN(gpio), &reg->reg_set);
 
 	return 0;
 }

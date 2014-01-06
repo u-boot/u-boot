@@ -659,5 +659,28 @@ struct wdog_regs {
 	u16	wmcr;	/* Miscellaneous Control */
 };
 
+struct gpc_regs {
+	u32	ctrl;		/* 0x000 */
+	u32	pgr;		/* 0x004 */
+	u32	imr1;		/* 0x008 */
+	u32	imr2;		/* 0x00c */
+	u32	imr3;		/* 0x010 */
+	u32	imr4;		/* 0x014 */
+	u32	isr1;		/* 0x018 */
+	u32	isr2;		/* 0x01c */
+	u32	isr3;		/* 0x020 */
+	u32	isr4;		/* 0x024 */
+	u32	reserved1[0x86];
+	u32	gpu_ctrl;	/* 0x260 */
+	u32	gpu_pupscr;	/* 0x264 */
+	u32	gpu_pdnscr;	/* 0x268 */
+	u32	gpu_sr;		/* 0x26c */
+	u32	reserved2[0xc];
+	u32	cpu_ctrl;	/* 0x2a0 */
+	u32	cpu_pupscr;	/* 0x2a4 */
+	u32	cpu_pdnscr;	/* 0x2a8 */
+	u32	cpu_sr;		/* 0x2ac */
+};
+
 #endif /* __ASSEMBLER__*/
 #endif /* __ASM_ARCH_MX6_IMX_REGS_H__ */

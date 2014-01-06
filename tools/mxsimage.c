@@ -502,6 +502,7 @@ static int sb_token_to_long(char *tok, uint32_t *rid)
 
 	tok += 2;
 
+	errno = 0;
 	id = strtoul(tok, &endptr, 16);
 	if ((errno == ERANGE && id == ULONG_MAX) || (errno != 0 && id == 0)) {
 		fprintf(stderr, "ERR: Value can't be decoded!\n");

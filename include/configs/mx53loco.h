@@ -73,7 +73,6 @@
 /* I2C Configs */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_SPD_BUS_NUM		0 /* I2C1 */
 
 /* PMIC Controller */
 #define CONFIG_POWER
@@ -177,7 +176,6 @@
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
-#define CONFIG_SYS_PROMPT		"MX53LOCO U-Boot > "
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 

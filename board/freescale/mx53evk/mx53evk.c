@@ -81,7 +81,7 @@ void power_init(void)
 	struct pmic *p;
 	int ret;
 
-	ret = pmic_init(I2C_PMIC);
+	ret = pmic_init(I2C_0);
 	if (ret)
 		return;
 

@@ -9,6 +9,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include "mx6_common.h"
 #include <asm/arch/imx-regs.h>
 #include <asm/imx-common/gpio.h>
 #include <asm/sizes.h>
@@ -33,6 +34,34 @@
 
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART2_BASE
+
+/* SATA Configs */
+
+#define CONFIG_CMD_SATA
+#ifdef CONFIG_CMD_SATA
+#define CONFIG_DWC_AHSATA
+#define CONFIG_SYS_SATA_MAX_DEVICE	1
+#define CONFIG_DWC_AHSATA_PORT_ID	0
+#define CONFIG_DWC_AHSATA_BASE_ADDR	SATA_ARB_BASE_ADDR
+#define CONFIG_LBA48
+#define CONFIG_LIBATA
+#endif
+
+/* Network support */
+
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_NET
+#define CONFIG_FEC_MXC
+#define CONFIG_MII
+#define IMX_FEC_BASE                    ENET_BASE_ADDR
+#define CONFIG_FEC_XCV_TYPE             RGMII
+#define CONFIG_ETHPRIME                 "FEC"
+#define CONFIG_FEC_MXC_PHYADDR          6
+#define CONFIG_PHYLIB
+#define CONFIG_PHY_MICREL
+#define CONFIG_PHY_MICREL_KSZ9031
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -77,7 +106,7 @@
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
-	"fdt_addr=0x11000000\0" \
+	"fdt_addr=0x18000000\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
 	"mmcdev=0\0" \

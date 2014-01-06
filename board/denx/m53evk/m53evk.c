@@ -13,6 +13,7 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/iomux-mx53.h>
+#include <asm/imx-common/mx5_video.h>
 #include <asm/arch/spl.h>
 #include <asm/errno.h>
 #include <netdev.h>
@@ -22,6 +23,11 @@
 #include <fsl_esdhc.h>
 #include <asm/gpio.h>
 #include <usb/ehci-fsl.h>
+#include <linux/fb.h>
+#include <ipu_pixfmt.h>
+
+/* Special MXCFB sync flags are here. */
+#include "../drivers/video/mxcfb.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -166,6 +172,32 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
+#ifdef CONFIG_VIDEO
+static struct fb_videomode const ampire_wvga = {
+	.name		= "Ampire",
+	.refresh	= 60,
+	.xres		= 800,
+	.yres		= 480,
+	.pixclock	= 29851, /* picosecond (33.5 MHz) */
+	.left_margin	= 89,
+	.right_margin	= 164,
+	.upper_margin	= 23,
+	.lower_margin	= 10,
+	.hsync_len	= 10,
+	.vsync_len	= 10,
+	.sync		= FB_SYNC_CLK_LAT_FALL,
+};
+
+int board_video_skip(void)
+{
+	int ret;
+	ret = ipuv3_fb_init(&ampire_wvga, 1, IPU_PIX_FMT_RGB666);
+	if (ret)
+		printf("Ampire LCD cannot be configured: %d\n", ret);
+	return ret;
+}
+#endif
+
 #define I2C_PAD_CTRL	(PAD_CTL_SRE_FAST | PAD_CTL_DSE_HIGH | \
 			 PAD_CTL_PUS_100K_UP | PAD_CTL_ODE)
 
@@ -177,6 +209,46 @@ static void setup_iomux_i2c(void)
 	};
 
 	imx_iomux_v3_setup_multiple_pads(i2c_pads, ARRAY_SIZE(i2c_pads));
+}
+
+static void setup_iomux_video(void)
+{
+	static const iomux_v3_cfg_t lcd_pads[] = {
+		MX53_PAD_EIM_DA9__IPU_DISP1_DAT_0,
+		MX53_PAD_EIM_DA8__IPU_DISP1_DAT_1,
+		MX53_PAD_EIM_DA7__IPU_DISP1_DAT_2,
+		MX53_PAD_EIM_DA6__IPU_DISP1_DAT_3,
+		MX53_PAD_EIM_DA5__IPU_DISP1_DAT_4,
+		MX53_PAD_EIM_DA4__IPU_DISP1_DAT_5,
+		MX53_PAD_EIM_DA3__IPU_DISP1_DAT_6,
+		MX53_PAD_EIM_DA2__IPU_DISP1_DAT_7,
+		MX53_PAD_EIM_DA1__IPU_DISP1_DAT_8,
+		MX53_PAD_EIM_DA0__IPU_DISP1_DAT_9,
+		MX53_PAD_EIM_EB1__IPU_DISP1_DAT_10,
+		MX53_PAD_EIM_EB0__IPU_DISP1_DAT_11,
+		MX53_PAD_EIM_A17__IPU_DISP1_DAT_12,
+		MX53_PAD_EIM_A18__IPU_DISP1_DAT_13,
+		MX53_PAD_EIM_A19__IPU_DISP1_DAT_14,
+		MX53_PAD_EIM_A20__IPU_DISP1_DAT_15,
+		MX53_PAD_EIM_A21__IPU_DISP1_DAT_16,
+		MX53_PAD_EIM_A22__IPU_DISP1_DAT_17,
+		MX53_PAD_EIM_A23__IPU_DISP1_DAT_18,
+		MX53_PAD_EIM_A24__IPU_DISP1_DAT_19,
+		MX53_PAD_EIM_D31__IPU_DISP1_DAT_20,
+		MX53_PAD_EIM_D30__IPU_DISP1_DAT_21,
+		MX53_PAD_EIM_D26__IPU_DISP1_DAT_22,
+		MX53_PAD_EIM_D27__IPU_DISP1_DAT_23,
+		MX53_PAD_EIM_A16__IPU_DI1_DISP_CLK,
+		MX53_PAD_EIM_DA13__IPU_DI1_D0_CS,
+		MX53_PAD_EIM_DA14__IPU_DI1_D1_CS,
+		MX53_PAD_EIM_DA15__IPU_DI1_PIN1,
+		MX53_PAD_EIM_DA11__IPU_DI1_PIN2,
+		MX53_PAD_EIM_DA12__IPU_DI1_PIN3,
+		MX53_PAD_EIM_A25__IPU_DI1_PIN12,
+		MX53_PAD_EIM_DA10__IPU_DI1_PIN15,
+	};
+
+	imx_iomux_v3_setup_multiple_pads(lcd_pads, ARRAY_SIZE(lcd_pads));
 }
 
 static void setup_iomux_nand(void)
@@ -269,6 +341,7 @@ int board_early_init_f(void)
 	setup_iomux_fec();
 	setup_iomux_i2c();
 	setup_iomux_nand();
+	setup_iomux_video();
 
 	m53_set_clock();
 
