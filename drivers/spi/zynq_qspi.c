@@ -910,7 +910,8 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	qspi->slave.rd_cmd = READ_CMD_FULL;
 	qspi->slave.wr_cmd = PAGE_PROGRAM | QUAD_PAGE_PROGRAM;
 	qspi->qspi.master.speed_hz = qspi->qspi.master.input_clk_hz / 2;
-	qspi->qspi.max_speed_hz = qspi->qspi.master.speed_hz;
+	qspi->qspi.max_speed_hz = (max_hz < qspi->qspi.master.speed_hz) ?
+								max_hz : qspi->qspi.master.speed_hz;
 	qspi->qspi.master.is_dual = is_dual;
 	qspi->qspi.mode = mode;
 	qspi->qspi.chip_select = 0;
