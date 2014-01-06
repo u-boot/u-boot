@@ -146,19 +146,20 @@ static struct spi_flash *spi_flash_validate_params(struct spi_slave *spi,
 	flash->read = spi_flash_cmd_read_ops;
 
 	/* Compute the flash size */
-	flash->page_size = (ext_jedec == 0x4d00) ? 512 : 256;
-	flash->sector_size = params->sector_size;
-	flash->size = flash->sector_size * params->nr_sectors;
+	flash->shift = (flash->dual_flash & SF_DUAL_PARALLEL_FLASH) ? 1 : 0;
+	flash->page_size = ((ext_jedec == 0x4d00) ? 512 : 256) << flash->shift;
+	flash->sector_size = params->sector_size << flash->shift;
+	flash->size = flash->sector_size * params->nr_sectors << flash->shift;
 	if (flash->dual_flash & SF_DUAL_STACKED_FLASH)
 		flash->size <<= 1;
 
 	/* Compute erase sector and command */
 	if (params->flags & SECT_4K) {
 		flash->erase_cmd = CMD_ERASE_4K;
-		flash->erase_size = 4096;
+		flash->erase_size = 4096 << flash->shift;
 	} else if (params->flags & SECT_32K) {
 		flash->erase_cmd = CMD_ERASE_32K;
-		flash->erase_size = 32768;
+		flash->erase_size = 32768 << flash->shift;
 	} else {
 		flash->erase_cmd = CMD_ERASE_64K;
 		flash->erase_size = flash->sector_size;

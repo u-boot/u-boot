@@ -119,7 +119,7 @@ static int spi_flash_bank(struct spi_flash *flash, u32 offset)
 	u8 bank_sel;
 	int ret;
 
-	bank_sel = offset / SPI_FLASH_16MB_BOUN;
+	bank_sel = offset / (SPI_FLASH_16MB_BOUN << flash->shift);
 
 	ret = spi_flash_cmd_bankaddr_write(flash, bank_sel);
 	if (ret) {
@@ -141,6 +141,9 @@ static void spi_flash_dual_flash(struct spi_flash *flash, u32 *addr)
 		} else {
 			flash->spi->flags &= ~SPI_XFER_U_PAGE;
 		}
+		break;
+	case SF_DUAL_PARALLEL_FLASH:
+		*addr >>= flash->shift;
 		break;
 	default:
 		debug("SF: Unsupported dual_flash=%d\n", flash->dual_flash);
@@ -388,7 +391,8 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 		if (bank_sel < 0)
 			return ret;
 #endif
-		remain_len = (SPI_FLASH_16MB_BOUN * (bank_sel + 1)) - offset;
+		remain_len = ((SPI_FLASH_16MB_BOUN << flash->shift) *
+				(bank_sel + 1)) - offset;
 		if (len < remain_len)
 			read_len = len;
 		else

@@ -40,6 +40,7 @@ enum spi_read_cmds {
 enum spi_dual_flash {
 	SF_SINGLE_FLASH = 0,
 	SF_DUAL_STACKED_FLASH = 1 << 0,
+	SF_DUAL_PARALLEL_FLASH = 1 << 1,
 };
 
 /**
@@ -70,7 +71,8 @@ extern const struct spi_flash_params spi_flash_params_table[];
  *
  * @spi:		SPI slave
  * @name:		Name of SPI flash
- * @dual_flash:		Indicates dual flash memories - dual stacked
+ * @dual_flash:		Indicates dual flash memories - dual stacked, parallel
+ * @shift:		Flash shift useful in dual parallel
  * @size:		Total flash size
  * @page_size:		Write (page) size
  * @sector_size:	Sector size
@@ -96,6 +98,7 @@ struct spi_flash {
 	struct spi_slave *spi;
 	const char *name;
 	u8 dual_flash;
+	u8 shift;
 
 	u32 size;
 	u32 page_size;
