@@ -10,7 +10,6 @@
 
 #include <asm/arch/hardware.h>
 
-#define CONFIG_AVR32
 #define CONFIG_AT32AP
 #define CONFIG_AT32AP7001
 #define CONFIG_ATSTK1003
