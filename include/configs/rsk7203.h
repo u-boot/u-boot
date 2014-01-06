@@ -11,7 +11,6 @@
 #define __RSK7203_H
 
 #undef DEBUG
-#define CONFIG_SH		1
 #define CONFIG_SH2		1
 #define CONFIG_SH2A		1
 #define CONFIG_CPU_SH7203	1

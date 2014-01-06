@@ -9,7 +9,6 @@
 #ifndef __SHMIN_H
 #define __SHMIN_H
 
-#define CONFIG_SH		1
 #define CONFIG_SH3		1
 #define CONFIG_CPU_SH7706	1
 /* T-SH7706LAN */

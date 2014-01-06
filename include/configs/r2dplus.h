@@ -3,7 +3,6 @@
 
 #undef DEBUG
 
-#define CONFIG_SH		1
 #define CONFIG_SH4		1
 #define CONFIG_CPU_SH7751	1
 #define CONFIG_CPU_SH_TYPE_R	1
