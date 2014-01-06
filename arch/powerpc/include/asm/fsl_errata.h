@@ -15,7 +15,11 @@ static inline bool has_erratum_a006379(void)
 {
 	u32 svr = get_svr();
 	if (((SVR_SOC_VER(svr) == SVR_T4240) && SVR_MAJ(svr) <= 1) ||
-	    ((SVR_SOC_VER(svr) == SVR_B4860) && SVR_MAJ(svr) <= 2))
+	    ((SVR_SOC_VER(svr) == SVR_T4160) && SVR_MAJ(svr) <= 1) ||
+	    ((SVR_SOC_VER(svr) == SVR_B4860) && SVR_MAJ(svr) <= 2) ||
+	    ((SVR_SOC_VER(svr) == SVR_B4420) && SVR_MAJ(svr) <= 2) ||
+	    ((SVR_SOC_VER(svr) == SVR_T2080) && SVR_MAJ(svr) <= 1) ||
+	    ((SVR_SOC_VER(svr) == SVR_T2081) && SVR_MAJ(svr) <= 1))
 		return true;
 
 	return false;
