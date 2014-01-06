@@ -195,9 +195,9 @@ int power_init_board(void)
 #endif
 	pmic_init(I2C_7);		/* I2C adapter 7 - bus name s3c24x0_7 */
 	pmic_init_max77686();
-	pmic_init_max77693(I2C_9);	/* I2C adapter 9 - bus name soft1 */
-	power_muic_init(I2C_9);		/* I2C adapter 9 - bus name soft1 */
-	power_fg_init(I2C_8);		/* I2C adapter 8 - bus name soft0 */
+	pmic_init_max77693(I2C_10);	/* I2C adapter 10 - bus name soft1 */
+	power_muic_init(I2C_10);	/* I2C adapter 10 - bus name soft1 */
+	power_fg_init(I2C_9);		/* I2C adapter 9 - bus name soft0 */
 	power_bat_init(0);
 
 	p_chrg = pmic_get("MAX77693_PMIC");

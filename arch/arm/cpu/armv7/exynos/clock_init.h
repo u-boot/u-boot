@@ -10,7 +10,11 @@
 #define __EXYNOS_CLOCK_INIT_H
 
 enum {
+#ifdef CONFIG_EXYNOS5420
+	MEM_TIMINGS_MSR_COUNT	= 5,
+#else
 	MEM_TIMINGS_MSR_COUNT	= 4,
+#endif
 };
 
 /* These are the ratio's for configuring ARM clock */
@@ -59,6 +63,18 @@ struct mem_timings {
 	unsigned bpll_mdiv;
 	unsigned bpll_pdiv;
 	unsigned bpll_sdiv;
+	unsigned kpll_mdiv;
+	unsigned kpll_pdiv;
+	unsigned kpll_sdiv;
+	unsigned dpll_mdiv;
+	unsigned dpll_pdiv;
+	unsigned dpll_sdiv;
+	unsigned ipll_mdiv;
+	unsigned ipll_pdiv;
+	unsigned ipll_sdiv;
+	unsigned spll_mdiv;
+	unsigned spll_pdiv;
+	unsigned spll_sdiv;
 	unsigned pclk_cdrex_ratio;
 	unsigned direct_cmd_msr[MEM_TIMINGS_MSR_COUNT];
 
@@ -115,6 +131,7 @@ struct mem_timings {
 	uint8_t send_zq_init;		/* 1 to send this command */
 	unsigned impedance;		/* drive strength impedeance */
 	uint8_t gate_leveling_enable;	/* check gate leveling is enabled */
+	uint8_t read_leveling_enable;	/* check h/w read leveling is enabled */
 };
 
 /**

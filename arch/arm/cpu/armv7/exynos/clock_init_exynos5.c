@@ -24,6 +24,24 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 struct arm_clk_ratios arm_clk_ratios[] = {
+#ifdef CONFIG_EXYNOS5420
+	{
+		.arm_freq_mhz = 900,
+
+		.apll_mdiv = 0x96,
+		.apll_pdiv = 0x2,
+		.apll_sdiv = 0x1,
+
+		.arm2_ratio = 0x0,
+		.apll_ratio = 0x3,
+		.pclk_dbg_ratio = 0x6,
+		.atb_ratio = 0x6,
+		.periph_ratio = 0x7,
+		.acp_ratio = 0x0,
+		.cpud_ratio = 0x2,
+		.arm_ratio = 0x0,
+	}
+#else
 	{
 		.arm_freq_mhz = 600,
 
@@ -115,8 +133,133 @@ struct arm_clk_ratios arm_clk_ratios[] = {
 		.cpud_ratio = 0x3,
 		.arm_ratio = 0x0,
 	}
+#endif
 };
+
 struct mem_timings mem_timings[] = {
+#ifdef CONFIG_EXYNOS5420
+	{
+		.mem_manuf = MEM_MANUF_SAMSUNG,
+		.mem_type = DDR_MODE_DDR3,
+		.frequency_mhz = 800,
+
+		/* MPLL @800MHz*/
+		.mpll_mdiv = 0xc8,
+		.mpll_pdiv = 0x3,
+		.mpll_sdiv = 0x1,
+		/* CPLL @666MHz */
+		.cpll_mdiv = 0xde,
+		.cpll_pdiv = 0x4,
+		.cpll_sdiv = 0x1,
+		/* EPLL @600MHz */
+		.epll_mdiv = 0x64,
+		.epll_pdiv = 0x2,
+		.epll_sdiv = 0x1,
+		/* VPLL @430MHz */
+		.vpll_mdiv = 0xd7,
+		.vpll_pdiv = 0x3,
+		.vpll_sdiv = 0x2,
+		/* BPLL @800MHz */
+		.bpll_mdiv = 0xc8,
+		.bpll_pdiv = 0x3,
+		.bpll_sdiv = 0x1,
+		/* KPLL @600MHz */
+		.kpll_mdiv = 0x190,
+		.kpll_pdiv = 0x4,
+		.kpll_sdiv = 0x2,
+		/* DPLL @600MHz */
+		.dpll_mdiv = 0x190,
+		.dpll_pdiv = 0x4,
+		.dpll_sdiv = 0x2,
+		/* IPLL @370MHz */
+		.ipll_mdiv = 0xb9,
+		.ipll_pdiv = 0x3,
+		.ipll_sdiv = 0x2,
+		/* SPLL @400MHz */
+		.spll_mdiv = 0xc8,
+		.spll_pdiv = 0x3,
+		.spll_sdiv = 0x2,
+
+		.direct_cmd_msr = {
+			0x00020018, 0x00030000, 0x00010046, 0x00000d70,
+			0x00000c70
+		},
+		.timing_ref = 0x000000bb,
+		.timing_row = 0x6836650f,
+		.timing_data = 0x3630580b,
+		.timing_power = 0x41000a26,
+		.phy0_dqs = 0x08080808,
+		.phy1_dqs = 0x08080808,
+		.phy0_dq = 0x08080808,
+		.phy1_dq = 0x08080808,
+		.phy0_tFS = 0x8,
+		.phy1_tFS = 0x8,
+		.phy0_pulld_dqs = 0xf,
+		.phy1_pulld_dqs = 0xf,
+
+		.lpddr3_ctrl_phy_reset = 0x1,
+		.ctrl_start_point = 0x10,
+		.ctrl_inc = 0x10,
+		.ctrl_start = 0x1,
+		.ctrl_dll_on = 0x1,
+		.ctrl_ref = 0x8,
+
+		.ctrl_force = 0x1a,
+		.ctrl_rdlat = 0x0b,
+		.ctrl_bstlen = 0x08,
+
+		.fp_resync = 0x8,
+		.iv_size = 0x7,
+		.dfi_init_start = 1,
+		.aref_en = 1,
+
+		.rd_fetch = 0x3,
+
+		.zq_mode_dds = 0x7,
+		.zq_mode_term = 0x1,
+		.zq_mode_noterm = 1,
+
+		/*
+		* Dynamic Clock: Always Running
+		* Memory Burst length: 8
+		* Number of chips: 1
+		* Memory Bus width: 32 bit
+		* Memory Type: DDR3
+		* Additional Latancy for PLL: 0 Cycle
+		*/
+		.memcontrol = DMC_MEMCONTROL_CLK_STOP_DISABLE |
+			DMC_MEMCONTROL_DPWRDN_DISABLE |
+			DMC_MEMCONTROL_DPWRDN_ACTIVE_PRECHARGE |
+			DMC_MEMCONTROL_TP_DISABLE |
+			DMC_MEMCONTROL_DSREF_DISABLE |
+			DMC_MEMCONTROL_ADD_LAT_PALL_CYCLE(0) |
+			DMC_MEMCONTROL_MEM_TYPE_DDR3 |
+			DMC_MEMCONTROL_MEM_WIDTH_32BIT |
+			DMC_MEMCONTROL_NUM_CHIP_1 |
+			DMC_MEMCONTROL_BL_8 |
+			DMC_MEMCONTROL_PZQ_DISABLE |
+			DMC_MEMCONTROL_MRR_BYTE_7_0,
+		.memconfig = DMC_MEMCONFIG_CHIP_MAP_SPLIT |
+			DMC_MEMCONFIGX_CHIP_COL_10 |
+			DMC_MEMCONFIGX_CHIP_ROW_15 |
+			DMC_MEMCONFIGX_CHIP_BANK_8,
+		.prechconfig_tp_cnt = 0xff,
+		.dpwrdn_cyc = 0xff,
+		.dsref_cyc = 0xffff,
+		.concontrol = DMC_CONCONTROL_DFI_INIT_START_DISABLE |
+			DMC_CONCONTROL_TIMEOUT_LEVEL0 |
+			DMC_CONCONTROL_RD_FETCH_DISABLE |
+			DMC_CONCONTROL_EMPTY_DISABLE |
+			DMC_CONCONTROL_AREF_EN_DISABLE |
+			DMC_CONCONTROL_IO_PD_CON_DISABLE,
+		.dmc_channels = 1,
+		.chips_per_channel = 1,
+		.chips_to_configure = 1,
+		.send_zq_init = 1,
+		.gate_leveling_enable = 1,
+		.read_leveling_enable = 0,
+	}
+#else
 	{
 		.mem_manuf = MEM_MANUF_ELPIDA,
 		.mem_type = DDR_MODE_DDR3,
@@ -324,6 +467,7 @@ struct mem_timings mem_timings[] = {
 		.impedance = IMP_OUTPUT_DRV_40_OHM,
 		.gate_leveling_enable = 1,
 	}
+#endif
 };
 
 /**
@@ -399,7 +543,7 @@ struct mem_timings *clock_get_mem_timings(void)
 	return NULL;
 }
 
-void system_clock_init()
+static void exynos5250_system_clock_init(void)
 {
 	struct exynos5_clock *clk =
 		(struct exynos5_clock *)samsung_get_base_clock();
@@ -436,19 +580,13 @@ void system_clock_init()
 	} while ((val | MUX_BPLL_SEL_MASK) != val);
 
 	/* PLL locktime */
-	writel(APLL_LOCK_VAL, &clk->apll_lock);
-
-	writel(MPLL_LOCK_VAL, &clk->mpll_lock);
-
-	writel(BPLL_LOCK_VAL, &clk->bpll_lock);
-
-	writel(CPLL_LOCK_VAL, &clk->cpll_lock);
-
-	writel(GPLL_LOCK_VAL, &clk->gpll_lock);
-
-	writel(EPLL_LOCK_VAL, &clk->epll_lock);
-
-	writel(VPLL_LOCK_VAL, &clk->vpll_lock);
+	writel(mem->apll_pdiv * PLL_LOCK_FACTOR, &clk->apll_lock);
+	writel(mem->mpll_pdiv * PLL_LOCK_FACTOR, &clk->mpll_lock);
+	writel(mem->bpll_pdiv * PLL_LOCK_FACTOR, &clk->bpll_lock);
+	writel(mem->cpll_pdiv * PLL_LOCK_FACTOR, &clk->cpll_lock);
+	writel(mem->gpll_pdiv * PLL_X_LOCK_FACTOR, &clk->gpll_lock);
+	writel(mem->epll_pdiv * PLL_X_LOCK_FACTOR, &clk->epll_lock);
+	writel(mem->vpll_pdiv * PLL_X_LOCK_FACTOR, &clk->vpll_lock);
 
 	writel(CLK_REG_DISABLE, &clk->pll_div2_sel);
 
@@ -638,6 +776,192 @@ void system_clock_init()
 		| MMC3_PRE_RATIO_VAL << MMC3_PRE_RATIO_OFFSET
 		| MMC3_RATIO_VAL << MMC3_RATIO_OFFSET;
 	writel(val, &clk->div_fsys2);
+}
+
+static void exynos5420_system_clock_init(void)
+{
+	struct exynos5420_clock *clk =
+		(struct exynos5420_clock *)samsung_get_base_clock();
+	struct mem_timings *mem;
+	struct arm_clk_ratios *arm_clk_ratio;
+	u32 val;
+
+	mem = clock_get_mem_timings();
+	arm_clk_ratio = get_arm_ratios();
+
+	/* PLL locktime */
+	writel(arm_clk_ratio->apll_pdiv * PLL_LOCK_FACTOR, &clk->apll_lock);
+	writel(mem->mpll_pdiv * PLL_LOCK_FACTOR, &clk->mpll_lock);
+	writel(mem->bpll_pdiv * PLL_LOCK_FACTOR, &clk->bpll_lock);
+	writel(mem->cpll_pdiv * PLL_LOCK_FACTOR, &clk->cpll_lock);
+	writel(mem->dpll_pdiv * PLL_LOCK_FACTOR, &clk->dpll_lock);
+	writel(mem->epll_pdiv * PLL_X_LOCK_FACTOR, &clk->epll_lock);
+	writel(mem->vpll_pdiv * PLL_LOCK_FACTOR, &clk->vpll_lock);
+	writel(mem->ipll_pdiv * PLL_LOCK_FACTOR, &clk->ipll_lock);
+	writel(mem->spll_pdiv * PLL_LOCK_FACTOR, &clk->spll_lock);
+	writel(mem->kpll_pdiv * PLL_LOCK_FACTOR, &clk->kpll_lock);
+
+	setbits_le32(&clk->src_cpu, MUX_HPM_SEL_MASK);
+
+	writel(0, &clk->src_top6);
+
+	writel(0, &clk->src_cdrex);
+	writel(SRC_KFC_HPM_SEL, &clk->src_kfc);
+	writel(HPM_RATIO,  &clk->div_cpu1);
+	writel(CLK_DIV_CPU0_VAL,  &clk->div_cpu0);
+
+	/* switch A15 clock source to OSC clock before changing APLL */
+	clrbits_le32(&clk->src_cpu, APLL_FOUT);
+
+	/* Set APLL */
+	writel(APLL_CON1_VAL, &clk->apll_con1);
+	val = set_pll(arm_clk_ratio->apll_mdiv,
+		      arm_clk_ratio->apll_pdiv,
+		      arm_clk_ratio->apll_sdiv);
+	writel(val, &clk->apll_con0);
+	while ((readl(&clk->apll_con0) & PLL_LOCKED) == 0)
+		;
+
+	/* now it is safe to switch to APLL */
+	setbits_le32(&clk->src_cpu, APLL_FOUT);
+
+	writel(SRC_KFC_HPM_SEL, &clk->src_kfc);
+	writel(CLK_DIV_KFC_VAL, &clk->div_kfc0);
+
+	/* switch A7 clock source to OSC clock before changing KPLL */
+	clrbits_le32(&clk->src_kfc, KPLL_FOUT);
+
+	/* Set KPLL*/
+	writel(KPLL_CON1_VAL, &clk->kpll_con1);
+	val = set_pll(mem->kpll_mdiv, mem->kpll_pdiv, mem->kpll_sdiv);
+	writel(val, &clk->kpll_con0);
+	while ((readl(&clk->kpll_con0) & PLL_LOCKED) == 0)
+		;
+
+	/* now it is safe to switch to KPLL */
+	setbits_le32(&clk->src_kfc, KPLL_FOUT);
+
+	/* Set MPLL */
+	writel(MPLL_CON1_VAL, &clk->mpll_con1);
+	val = set_pll(mem->mpll_mdiv, mem->mpll_pdiv, mem->mpll_sdiv);
+	writel(val, &clk->mpll_con0);
+	while ((readl(&clk->mpll_con0) & PLL_LOCKED) == 0)
+		;
+
+	/* Set DPLL */
+	writel(DPLL_CON1_VAL, &clk->dpll_con1);
+	val = set_pll(mem->dpll_mdiv, mem->dpll_pdiv, mem->dpll_sdiv);
+	writel(val, &clk->dpll_con0);
+	while ((readl(&clk->dpll_con0) & PLL_LOCKED) == 0)
+		;
+
+	/* Set EPLL */
+	writel(EPLL_CON2_VAL, &clk->epll_con2);
+	writel(EPLL_CON1_VAL, &clk->epll_con1);
+	val = set_pll(mem->epll_mdiv, mem->epll_pdiv, mem->epll_sdiv);
+	writel(val, &clk->epll_con0);
+	while ((readl(&clk->epll_con0) & PLL_LOCKED) == 0)
+		;
+
+	/* Set CPLL */
+	writel(CPLL_CON1_VAL, &clk->cpll_con1);
+	val = set_pll(mem->cpll_mdiv, mem->cpll_pdiv, mem->cpll_sdiv);
+	writel(val, &clk->cpll_con0);
+	while ((readl(&clk->cpll_con0) & PLL_LOCKED) == 0)
+		;
+
+	/* Set IPLL */
+	writel(IPLL_CON1_VAL, &clk->ipll_con1);
+	val = set_pll(mem->ipll_mdiv, mem->ipll_pdiv, mem->ipll_sdiv);
+	writel(val, &clk->ipll_con0);
+	while ((readl(&clk->ipll_con0) & PLL_LOCKED) == 0)
+		;
+
+	/* Set VPLL */
+	writel(VPLL_CON1_VAL, &clk->vpll_con1);
+	val = set_pll(mem->vpll_mdiv, mem->vpll_pdiv, mem->vpll_sdiv);
+	writel(val, &clk->vpll_con0);
+	while ((readl(&clk->vpll_con0) & PLL_LOCKED) == 0)
+		;
+
+	/* Set BPLL */
+	writel(BPLL_CON1_VAL, &clk->bpll_con1);
+	val = set_pll(mem->bpll_mdiv, mem->bpll_pdiv, mem->bpll_sdiv);
+	writel(val, &clk->bpll_con0);
+	while ((readl(&clk->bpll_con0) & PLL_LOCKED) == 0)
+		;
+
+	/* Set SPLL */
+	writel(SPLL_CON1_VAL, &clk->spll_con1);
+	val = set_pll(mem->spll_mdiv, mem->spll_pdiv, mem->spll_sdiv);
+	writel(val, &clk->spll_con0);
+	while ((readl(&clk->spll_con0) & PLL_LOCKED) == 0)
+		;
+
+	writel(CLK_DIV_CDREX0_VAL, &clk->div_cdrex0);
+	writel(CLK_DIV_CDREX1_VAL, &clk->div_cdrex1);
+
+	writel(CLK_SRC_TOP0_VAL, &clk->src_top0);
+	writel(CLK_SRC_TOP1_VAL, &clk->src_top1);
+	writel(CLK_SRC_TOP2_VAL, &clk->src_top2);
+	writel(CLK_SRC_TOP7_VAL, &clk->src_top7);
+
+	writel(CLK_DIV_TOP0_VAL, &clk->div_top0);
+	writel(CLK_DIV_TOP1_VAL, &clk->div_top1);
+	writel(CLK_DIV_TOP2_VAL, &clk->div_top2);
+
+	writel(0, &clk->src_top10);
+	writel(0, &clk->src_top11);
+	writel(0, &clk->src_top12);
+
+	writel(CLK_SRC_TOP3_VAL, &clk->src_top3);
+	writel(CLK_SRC_TOP4_VAL, &clk->src_top4);
+	writel(CLK_SRC_TOP5_VAL, &clk->src_top5);
+
+	/* DISP1 BLK CLK SELECTION */
+	writel(CLK_SRC_DISP1_0_VAL, &clk->src_disp10);
+	writel(CLK_DIV_DISP1_0_VAL, &clk->div_disp10);
+
+	/* AUDIO BLK */
+	writel(AUDIO0_SEL_EPLL, &clk->src_mau);
+	writel(DIV_MAU_VAL, &clk->div_mau);
+
+	/* FSYS */
+	writel(CLK_SRC_FSYS0_VAL, &clk->src_fsys);
+	writel(CLK_DIV_FSYS0_VAL, &clk->div_fsys0);
+	writel(CLK_DIV_FSYS1_VAL, &clk->div_fsys1);
+	writel(CLK_DIV_FSYS2_VAL, &clk->div_fsys2);
+
+	writel(CLK_SRC_ISP_VAL, &clk->src_isp);
+	writel(CLK_DIV_ISP0_VAL, &clk->div_isp0);
+	writel(CLK_DIV_ISP1_VAL, &clk->div_isp1);
+
+	writel(CLK_SRC_PERIC0_VAL, &clk->src_peric0);
+	writel(CLK_SRC_PERIC1_VAL, &clk->src_peric1);
+
+	writel(CLK_DIV_PERIC0_VAL, &clk->div_peric0);
+	writel(CLK_DIV_PERIC1_VAL, &clk->div_peric1);
+	writel(CLK_DIV_PERIC2_VAL, &clk->div_peric2);
+	writel(CLK_DIV_PERIC3_VAL, &clk->div_peric3);
+	writel(CLK_DIV_PERIC4_VAL, &clk->div_peric4);
+
+	writel(CLK_DIV_CPERI1_VAL, &clk->div_cperi1);
+
+	writel(CLK_DIV2_RATIO, &clk->clkdiv2_ratio);
+	writel(CLK_DIV4_RATIO, &clk->clkdiv4_ratio);
+	writel(CLK_DIV_G2D, &clk->div_g2d);
+
+	writel(CLK_SRC_TOP6_VAL, &clk->src_top6);
+	writel(CLK_SRC_CDREX_VAL, &clk->src_cdrex);
+	writel(CLK_SRC_KFC_VAL, &clk->src_kfc);
+}
+
+void system_clock_init(void)
+{
+	if (proid_is_exynos5420())
+		exynos5420_system_clock_init();
+	else
+		exynos5250_system_clock_init();
 }
 
 void clock_init_dp_clock(void)

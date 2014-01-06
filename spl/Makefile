@@ -166,8 +166,13 @@ endif
 all:	$(ALL-y)
 
 ifdef CONFIG_SAMSUNG
+ifdef CONFIG_VAR_SIZE_SPL
+VAR_SIZE_PARAM = --vs
+else
+VAR_SIZE_PARAM =
+endif
 $(obj)$(BOARD)-spl.bin: $(obj)u-boot-spl.bin
-	$(OBJTREE)/tools/mk$(BOARD)spl $< $@
+	$(OBJTREE)/tools/mk$(BOARD)spl $(VAR_SIZE_PARAM) $< $@
 endif
 
 $(obj)$(SPL_BIN).bin:	$(obj)$(SPL_BIN)

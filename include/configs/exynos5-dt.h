@@ -1,19 +1,18 @@
 /*
  * Copyright (C) 2013 Samsung Electronics
  *
- * SPDX-License-Identifier:	GPL-2.0+
+ * Configuration settings for the SAMSUNG EXYNOS5 board.
  *
- * Configuration settings for the SAMSUNG Arndale board.
+ * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __CONFIG_ARNDALE_H
-#define __CONFIG_ARNDALE_H
+#ifndef __CONFIG_H
+#define __CONFIG_H
 
 /* High Level Configuration Options */
 #define CONFIG_SAMSUNG			/* in a SAMSUNG core */
 #define CONFIG_S5P			/* S5P Family */
 #define CONFIG_EXYNOS5			/* which is in a Exynos5 Family */
-#define CONFIG_EXYNOS5250
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 
@@ -21,9 +20,11 @@
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
+#define CONFIG_BOARD_COMMON
+#define CONFIG_ARCH_EARLY_INIT_R
+#define CONFIG_EXYNOS_SPL
 
 /* Enable fdt support for Exynos5250 */
-#define CONFIG_ARCH_DEVICE_TREE		exynos5250
 #define CONFIG_OF_CONTROL
 #define CONFIG_OF_SEPARATE
 
@@ -37,9 +38,11 @@
 
 /* Keep L2 Cache Disabled */
 #define CONFIG_SYS_DCACHE_OFF
+#define CONFIG_SYS_CACHELINE_SIZE	64
 
-#define CONFIG_SYS_SDRAM_BASE		0x40000000
-#define CONFIG_SYS_TEXT_BASE		0x43E00000
+/* Enable ACE acceleration for SHA1 and SHA256 */
+#define CONFIG_EXYNOS_ACE_SHA
+#define CONFIG_SHA_HW_ACCEL
 
 /* input clock of PLL: SMDK5250 has 24MHz input clock */
 #define CONFIG_SYS_CLK_FREQ		24000000
@@ -57,6 +60,8 @@
 /* Offset for inform registers */
 #define INFORM0_OFFSET			0x800
 #define INFORM1_OFFSET			0x804
+#define INFORM2_OFFSET			0x808
+#define INFORM3_OFFSET			0x80c
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (4 << 20))
@@ -66,13 +71,21 @@
 #define EXYNOS5_DEFAULT_UART_OFFSET	0x010000
 #define CONFIG_SILENT_CONSOLE
 
+/* Enable keyboard */
+#define CONFIG_CROS_EC		/* CROS_EC protocol */
+#define CONFIG_CROS_EC_SPI		/* Support CROS_EC over SPI */
+#define CONFIG_CROS_EC_I2C		/* Support CROS_EC over I2C */
+#define CONFIG_CROS_EC_KEYB	/* CROS_EC keyboard input */
+#define CONFIG_CMD_CROS_EC
+#define CONFIG_KEYBOARD
+
 /* Console configuration */
 #define CONFIG_CONSOLE_MUX
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define EXYNOS_DEVICE_SETTINGS \
-		"stdin=serial\0" \
-		"stdout=serial\0" \
-		"stderr=serial\0"
+		"stdin=serial,cros-ec-keyb\0" \
+		"stdout=serial,lcd\0" \
+		"stderr=serial,lcd\0"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	EXYNOS_DEVICE_SETTINGS
@@ -85,7 +98,6 @@
 #define CONFIG_DWMMC
 #define CONFIG_EXYNOS_DWMMC
 #define CONFIG_SUPPORT_EMMC_BOOT
-
 
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_SKIP_LOWLEVEL_INIT
@@ -110,34 +122,37 @@
 #define CONFIG_BOOTDELAY		3
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 
-/* USB */
-#define CONFIG_CMD_USB
-#define CONFIG_USB_EHCI
-#define CONFIG_USB_EHCI_EXYNOS
-#define CONFIG_USB_STORAGE
+/* Thermal Management Unit */
+#define CONFIG_EXYNOS_TMU
+#define CONFIG_CMD_DTT
+#define CONFIG_TMU_CMD_DTT
+
+/* TPM */
+#define CONFIG_TPM
+#define CONFIG_CMD_TPM
+#define CONFIG_TPM_TIS_I2C
+#define CONFIG_TPM_TIS_I2C_BUS_NUMBER	3
+#define CONFIG_TPM_TIS_I2C_SLAVE_ADDR	0x20
 
 /* MMC SPL */
-#define CONFIG_EXYNOS_SPL
 #define CONFIG_SPL
 #define COPY_BL2_FNPTR_ADDR	0x02020030
 
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
+#define CONFIG_SPL_GPIO_SUPPORT
 
 /* specific .lds file */
 #define CONFIG_SPL_LDSCRIPT	"board/samsung/common/exynos-uboot-spl.lds"
-#define CONFIG_SPL_TEXT_BASE	0x02023400
 #define CONFIG_SPL_MAX_FOOTPRINT	(14 * 1024)
 
-#define CONFIG_BOOTCOMMAND	"mmc read 40007000 451 2000; bootm 40007000"
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser	*/
-#define CONFIG_SYS_PROMPT		"ARNDALE # "
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE		384	/* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS		16	/* max number of command args */
-#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC2,115200n8\0"
+#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 /* memtest works on */
@@ -171,25 +186,23 @@
 /* FLASH and environment organization */
 #define CONFIG_SYS_NO_FLASH
 #undef CONFIG_CMD_IMLS
-#define CONFIG_IDENT_STRING		" for ARNDALE"
 
 #define CONFIG_SYS_MMC_ENV_DEV		0
 
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SECURE_BL1_ONLY
 
 /* Secure FW size configuration */
-#ifdef	CONFIG_SECURE_BL1_ONLY
-#define	CONFIG_SEC_FW_SIZE		(8 << 10)	/* 8KB */
+#ifdef CONFIG_SECURE_BL1_ONLY
+#define CONFIG_SEC_FW_SIZE (8 << 10) /* 8KB */
 #else
-#define	CONFIG_SEC_FW_SIZE		0
+#define CONFIG_SEC_FW_SIZE 0
 #endif
 
 /* Configuration of BL1, BL2, ENV Blocks on mmc */
 #define CONFIG_RES_BLOCK_SIZE	(512)
-#define CONFIG_BL1_SIZE		(16 << 10) /*16 K reserved for BL1*/
-#define	CONFIG_BL2_SIZE		(512UL << 10UL)	/* 512 KB */
-#define CONFIG_ENV_SIZE		(16 << 10)	/* 16 KB */
+#define CONFIG_BL1_SIZE	(16 << 10) /*16 K reserved for BL1*/
+#define CONFIG_BL2_SIZE	(512UL << 10UL) /* 512 KB */
+#define CONFIG_ENV_SIZE	(16 << 10) /* 16 KB */
 
 #define CONFIG_BL1_OFFSET	(CONFIG_RES_BLOCK_SIZE + CONFIG_SEC_FW_SIZE)
 #define CONFIG_BL2_OFFSET	(CONFIG_BL1_OFFSET + CONFIG_BL1_SIZE)
@@ -199,15 +212,14 @@
 #define BL2_START_OFFSET	(CONFIG_BL2_OFFSET/512)
 #define BL2_SIZE_BLOC_COUNT	(CONFIG_BL2_SIZE/512)
 
+#define CONFIG_SPI_BOOTING
+#define EXYNOS_COPY_SPI_FNPTR_ADDR	0x02020058
+#define SPI_FLASH_UBOOT_POS	(CONFIG_SEC_FW_SIZE + CONFIG_BL1_SIZE)
+
 #define CONFIG_DOS_PARTITION
 #define CONFIG_EFI_PARTITION
 #define CONFIG_CMD_PART
 #define CONFIG_PARTITION_UUIDS
-
-
-#define CONFIG_IRAM_STACK	0x02050000
-
-#define CONFIG_SYS_INIT_SP_ADDR	CONFIG_IRAM_STACK
 
 /* I2C */
 #define CONFIG_SYS_I2C_INIT_BOARD
@@ -215,16 +227,37 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C_S3C24X0_SPEED	100000		/* 100 Kbps */
 #define CONFIG_SYS_I2C_S3C24X0
-#define CONFIG_MAX_I2C_NUM	8
+#define CONFIG_I2C_MULTI_BUS
 #define CONFIG_SYS_I2C_S3C24X0_SLAVE    0x0
 #define CONFIG_I2C_EDID
 
-/* PMIC */
-#define CONFIG_PMIC
-#define CONFIG_PMIC_I2C
-#define CONFIG_PMIC_MAX77686
+/* SPI */
+#define CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_SPI_FLASH
+#define CONFIG_ENV_SPI_BASE	0x12D30000
 
-#define CONFIG_DEFAULT_DEVICE_TREE	exynos5250-arndale
+#ifdef CONFIG_SPI_FLASH
+#define CONFIG_EXYNOS_SPI
+#define CONFIG_CMD_SF
+#define CONFIG_CMD_SPI
+#define CONFIG_SPI_FLASH_WINBOND
+#define CONFIG_SPI_FLASH_GIGADEVICE
+#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
+#define CONFIG_SF_DEFAULT_SPEED		50000000
+#define EXYNOS5_SPI_NUM_CONTROLLERS	5
+#define CONFIG_OF_SPI
+#endif
+
+#ifdef CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_ENV_SPI_MODE	SPI_MODE_0
+#define CONFIG_ENV_SECT_SIZE	CONFIG_ENV_SIZE
+#define CONFIG_ENV_SPI_BUS	1
+#define CONFIG_ENV_SPI_MAX_HZ	50000000
+#endif
+
+/* PMIC */
+#define CONFIG_POWER
+#define CONFIG_POWER_I2C
 
 /* Ethernet Controllor Driver */
 #ifdef CONFIG_CMD_NET
@@ -243,7 +276,15 @@
 /* Enable devicetree support */
 #define CONFIG_OF_LIBFDT
 
+/* SHA hashing */
+#define CONFIG_CMD_HASH
+#define CONFIG_HASH_VERIFY
+#define CONFIG_SHA1
+#define CONFIG_SHA256
+
 /* Enable Time Command */
 #define CONFIG_CMD_TIME
+
+#define CONFIG_CMD_BOOTZ
 
 #endif	/* __CONFIG_H */
