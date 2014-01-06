@@ -95,6 +95,28 @@
 #define CONFIG_LOADADDR                        0x12000000
 #define CONFIG_SYS_TEXT_BASE           0x17800000
 
+#ifdef CONFIG_SUPPORT_EMMC_BOOT
+#define EMMC_ENV \
+	"emmcdev=2\0" \
+	"update_emmc_firmware=" \
+		"if test ${ip_dyn} = yes; then " \
+			"setenv get_cmd dhcp; " \
+		"else " \
+			"setenv get_cmd tftp; " \
+		"fi; " \
+		"if ${get_cmd} ${update_sd_firmware_filename}; then " \
+			"if mmc dev ${emmcdev} && " \
+				"mmc open ${emmcdev} 1; then "	\
+				"setexpr fw_sz ${filesize} / 0x200; " \
+				"setexpr fw_sz ${fw_sz} + 1; "	\
+				"mmc write ${loadaddr} 0x2 ${fw_sz}; " \
+				"mmc close ${emmcdev} 1; " \
+			"fi; "	\
+		"fi\0"
+#else
+#define EMMC_ENV ""
+#endif
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"uimage=uImage\0" \
@@ -121,6 +143,7 @@
 				"mmc write ${loadaddr} 0x2 ${fw_sz}; " \
 			"fi; "	\
 		"fi\0" \
+	EMMC_ENV	  \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=${mmcroot}\0" \
 	"loadbootscript=" \
