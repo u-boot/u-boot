@@ -233,6 +233,7 @@ unsigned long get_board_ddr_clk(void);
 #define QIXIS_RCFG_CTL_RECONFIG_IDLE	0x20
 #define QIXIS_RCFG_CTL_RECONFIG_START	0x21
 #define QIXIS_RCFG_CTL_WATCHDOG_ENBLE	0x08
+#define	QIXIS_RST_FORCE_MEM		0x01
 
 #define CONFIG_SYS_CSPR3_EXT	(0xf)
 #define CONFIG_SYS_CSPR3	(CSPR_PHYS_ADDR(QIXIS_BASE_PHYS) \
@@ -248,7 +249,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_CS3_FTIM1		(FTIM1_GPCM_TACO(0xff) | \
 					FTIM1_GPCM_TRAD(0x3f))
 #define CONFIG_SYS_CS3_FTIM2		(FTIM2_GPCM_TCS(0x0e) | \
-					FTIM2_GPCM_TCH(0x0) | \
+					FTIM2_GPCM_TCH(0x8) | \
 					FTIM2_GPCM_TWP(0x1f))
 #define CONFIG_SYS_CS3_FTIM3		0x0
 

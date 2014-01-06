@@ -239,3 +239,8 @@ void qixis_dump_switch(void)
 		printf("SW%d = (0x%02x)\n", i, QIXIS_READ(cms[1]));
 	}
 }
+
+int board_need_mem_reset(void)
+{
+	return 1;
+}
