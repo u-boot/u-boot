@@ -132,7 +132,28 @@
 /* Environment */
 #define CONFIG_ENV_SIZE		0x10000 /* Env. sector size */
 #define CONFIG_ENV_IS_NOWHERE
-#define CONFIG_SYS_LOAD_ADDR	0
+
+/* Default environment */
+#define CONFIG_EXTRA_ENV_SETTINGS	\
+	"fit_image=fit.itb\0"		\
+	"load_addr=0x2000000\0"		\
+	"fit_size=0x800000\0"		\
+	"flash_off=0x100000\0"		\
+	"nor_flash_off=0xE2100000\0"	\
+	"fdt_high=0x20000000\0"		\
+	"initrd_high=0x20000000\0"	\
+	"norboot=echo Copying FIT from NOR flash to RAM... && " \
+		"cp.b ${nor_flash_off} ${load_addr} ${fit_size} && " \
+		"bootm ${load_addr}\0" \
+	"sdboot=echo Copying FIT from SD to RAM... && " \
+		"fatload mmc 0 ${load_addr} ${fit_image} && " \
+		"bootm ${load_addr}\0" \
+	"jtagboot=echo TFTPing FIT to RAM... && " \
+		"tftp ${load_addr} ${fit_image} && " \
+		"bootm ${load_addr}\0"
+#define CONFIG_BOOTCOMMAND		"run $modeboot"
+#define CONFIG_BOOTDELAY		3 /* -1 to Disable autoboot */
+#define CONFIG_SYS_LOAD_ADDR		0 /* default? */
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_PROMPT		"zynq-uboot> "
