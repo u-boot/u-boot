@@ -84,5 +84,5 @@ void __udelay(unsigned long usec)
 
 unsigned long get_tbclk(void)
 {
-	return CONFIG_SYS_HZ;
+	return CONFIG_SH_CMT_CLK_FREQ;
 }
