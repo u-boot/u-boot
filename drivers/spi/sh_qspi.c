@@ -10,6 +10,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <spi.h>
+#include <asm/arch/rmobile.h>
 #include <asm/io.h>
 
 /* SH QSPI register bit masks <REG>_<BIT> */
@@ -170,7 +171,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		return NULL;
 	}
 
-	ss->regs = (struct sh_qspi_regs *)CONFIG_SH_QSPI_BASE;
+	ss->regs = (struct sh_qspi_regs *)SH_QSPI_BASE;
 
 	/* Init SH QSPI */
 	sh_qspi_init(ss);
