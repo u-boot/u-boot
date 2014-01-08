@@ -130,6 +130,13 @@
 #define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
 #define CONFIG_OF_LIBFDT
 
+/* Boot FreeBSD/vxWorks from an ELF image */
+#if defined(CONFIG_ZYNQ_BOOT_FREEBSD)
+# define CONFIG_API
+# define CONFIG_CMD_ELF
+# define CONFIG_SYS_MMC_MAX_DEVICE	1
+#endif
+
 /* Commands */
 #include <config_cmd_default.h>
 
