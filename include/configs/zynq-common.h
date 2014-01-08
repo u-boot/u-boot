@@ -212,6 +212,11 @@
 #define CONFIG_FIT
 #define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
 
+/* FDT support */
+#define CONFIG_OF_CONTROL
+#define CONFIG_OF_SEPARATE
+#define CONFIG_DISPLAY_BOARDINFO_LATE
+
 /* Boot FreeBSD/vxWorks from an ELF image */
 #if defined(CONFIG_ZYNQ_BOOT_FREEBSD)
 # define CONFIG_API

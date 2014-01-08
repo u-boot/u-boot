@@ -1,0 +1,13 @@
+/*
+ * Xilinx Zynq 7000 DTSI
+ * Describes the hardware common to all Zynq 7000-based boards.
+ *
+ * Copyright (C) 2013 Xilinx, Inc.
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+/include/ "skeleton.dtsi"
+
+/ {
+	compatible = "xlnx,zynq-7000";
+};
