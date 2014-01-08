@@ -203,6 +203,8 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 
 	setup_usb_phy(ctx->usb);
 
+	board_usb_init(index, init);
+
 	*hccr = ctx->hcd;
 	*hcor = (struct ehci_hcor *)((uint32_t) *hccr
 				+ HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
