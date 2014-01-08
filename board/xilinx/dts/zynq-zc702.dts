@@ -1,0 +1,14 @@
+/*
+ * Xilinx ZC702 board DTS
+ *
+ * Copyright (C) 2013 Xilinx, Inc.
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+/dts-v1/;
+#include "zynq-7000.dtsi"
+
+/ {
+	model = "Zynq ZC702 Board";
+	compatible = "xlnx,zynq-zc702", "xlnx,zynq-7000";
+};
