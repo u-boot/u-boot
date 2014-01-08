@@ -133,7 +133,17 @@
 #define CONFIG_ENV_SIZE			(128 << 10)
 
 /* Environment */
-#define CONFIG_ENV_IS_NOWHERE
+#ifndef CONFIG_ENV_IS_NOWHERE
+# ifndef CONFIG_SYS_NO_FLASH
+#  define CONFIG_ENV_IS_IN_FLASH
+# elif defined(CONFIG_SYS_NO_FLASH)
+#  define CONFIG_ENV_IS_NOWHERE
+# endif
+
+# define CONFIG_ENV_SECT_SIZE		CONFIG_ENV_SIZE
+# define CONFIG_ENV_OFFSET		0xE0000
+# define CONFIG_CMD_SAVEENV
+#endif
 
 /* Default environment */
 #define CONFIG_EXTRA_ENV_SETTINGS	\
