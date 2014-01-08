@@ -57,10 +57,16 @@
 #endif
 
 /* Ethernet driver */
-#define CONFIG_NET_MULTI
-#define CONFIG_ZYNQ_GEM
 #define CONFIG_ZYNQ_GEM0
 #define CONFIG_ZYNQ_GEM_PHY_ADDR0	7
+#if defined(CONFIG_ZYNQ_GEM0) || defined(CONFIG_ZYNQ_GEM1)
+# define CONFIG_NET_MULTI
+# define CONFIG_ZYNQ_GEM
+# define CONFIG_MII
+# define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
+# define CONFIG_PHYLIB
+# define CONFIG_PHY_MARVELL
+#endif
 
 #define CONFIG_ZYNQ_SPI
 /* SPI */
@@ -102,12 +108,6 @@
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
 #define CONFIG_BOOTP_MAY_FAIL
-
-/* MII and Phylib */
-#define CONFIG_MII
-#define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
-#define CONFIG_PHYLIB
-#define CONFIG_PHY_MARVELL
 
 /* Environment */
 #define CONFIG_ENV_SIZE		0x10000 /* Env. sector size */
