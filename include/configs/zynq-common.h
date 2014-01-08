@@ -36,7 +36,6 @@
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
 
 /* Zynq Serial driver */
-#define CONFIG_ZYNQ_SERIAL_UART1
 #ifdef CONFIG_ZYNQ_SERIAL_UART0
 # define CONFIG_ZYNQ_SERIAL_BASEADDR0	0xE0000000
 # define CONFIG_ZYNQ_SERIAL_BAUDRATE0	CONFIG_BAUDRATE
@@ -60,8 +59,6 @@
 #endif
 
 /* Ethernet driver */
-#define CONFIG_ZYNQ_GEM0
-#define CONFIG_ZYNQ_GEM_PHY_ADDR0	7
 #if defined(CONFIG_ZYNQ_GEM0) || defined(CONFIG_ZYNQ_GEM1)
 # define CONFIG_NET_MULTI
 # define CONFIG_ZYNQ_GEM
@@ -71,7 +68,6 @@
 # define CONFIG_PHY_MARVELL
 #endif
 
-#define CONFIG_ZYNQ_SPI
 /* SPI */
 #ifdef CONFIG_ZYNQ_SPI
 # define CONFIG_SPI_FLASH
@@ -79,10 +75,6 @@
 # define CONFIG_CMD_SF
 #endif
 
-/* NOR */
-#define CONFIG_SYS_NO_FLASH
-
-#define CONFIG_ZYNQ_SDHCI0
 /* MMC */
 #if defined(CONFIG_ZYNQ_SDHCI0) || defined(CONFIG_ZYNQ_SDHCI1)
 # define CONFIG_MMC
@@ -96,7 +88,6 @@
 # define CONFIG_DOS_PARTITION
 #endif
 
-#define CONFIG_ZYNQ_I2C0
 /* I2C */
 #if defined(CONFIG_ZYNQ_I2C0) || defined(CONFIG_ZYNQ_I2C1)
 # define CONFIG_CMD_I2C
