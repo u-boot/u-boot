@@ -111,19 +111,20 @@
 						CONFIG_SYS_INIT_RAM_SIZE - \
 						GENERATED_GBL_DATA_SIZE)
 
-#define CONFIG_SYS_PROMPT	"U-Boot> "
-#define CONFIG_SYS_CBSIZE	256 /* Console I/O Buffer Size */
-#define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE + \
+/* Miscellaneous configurable options */
+#define CONFIG_SYS_PROMPT		"zynq-uboot> "
+#define CONFIG_SYS_HUSH_PARSER
+
+#define CONFIG_CMDLINE_EDITING
+#define CONFIG_AUTO_COMPLETE
+#define CONFIG_SYS_LONGHELP
+#define CONFIG_SYS_MAXARGS		15 /* max number of command args */
+#define CONFIG_SYS_CBSIZE		256 /* Console I/O Buffer Size */
+#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
 
 #define CONFIG_SYS_LOAD_ADDR	0
-#define CONFIG_SYS_MAXARGS	15 /* max number of command args */
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_AUTO_COMPLETE
-#define CONFIG_CMDLINE_EDITING
 
-#define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 /* OF */
 #define CONFIG_FIT
