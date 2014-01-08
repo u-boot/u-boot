@@ -129,8 +129,10 @@
 #define CONFIG_BOOTP_HOSTNAME
 #define CONFIG_BOOTP_MAY_FAIL
 
+/* Total Size of Environment Sector */
+#define CONFIG_ENV_SIZE			(128 << 10)
+
 /* Environment */
-#define CONFIG_ENV_SIZE		0x10000 /* Env. sector size */
 #define CONFIG_ENV_IS_NOWHERE
 
 /* Default environment */
