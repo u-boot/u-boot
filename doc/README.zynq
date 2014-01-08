@@ -28,7 +28,27 @@ and I/O programmability.
   - zc770-xm012 (nor)
   - zc770-xm013 (dual parallel qspi, gem1)
 
-3. Mainline status
+3. Bootmode
+
+Zynq has a facility to read the bootmode from the slcr bootmode register
+once user is setting through jumpers on the board - see page no:1546 on [5]
+
+All possible bootmode values are defined in Table 6-2:Boot_Mode MIO Pins
+on [5].
+
+board_late_init() will read the bootmode values using slcr bootmode register
+at runtime and assign the modeboot variable to specific bootmode string which
+is intern used in autoboot.
+
+SLCR bootmode register Bit[3:0] values
+#define ZYNQ_BM_NOR		0x02
+#define ZYNQ_BM_SD		0x05
+#define ZYNQ_BM_JTAG		0x0
+
+"modeboot" variable can assign any of "norboot", "sdboot" or "jtagboot"
+bootmode strings at runtime.
+
+4. Mainline status
 
 - Added basic board configurations support.
 - Added zynq u-boot bsp code - arch/arm/cpu/armv7/zynq
@@ -41,7 +61,7 @@ and I/O programmability.
   spi-  drivers/spi/zynq_spi.c
   i2c - drivers/i2c/zynq_i2c.c
 
-4. TODO
+5. TODO
 
 - Add zynq boards support - zc70x, zed, microzed, zc770
 - Add zynq qspi controller driver
@@ -54,6 +74,7 @@ and I/O programmability.
 [2] http://www.xilinx.com/products/boards-and-kits/EK-Z7-ZC706-G.htm
 [3] http://zedboard.org/product/zedboard
 [4] http://zedboard.org/product/microzed
+[5] http://www.xilinx.com/support/documentation/user_guides/ug585-Zynq-7000-TRM.pdf
 
 --
 Jagannadha Sutradharudu Teki <jaganna@xilinx.com>
