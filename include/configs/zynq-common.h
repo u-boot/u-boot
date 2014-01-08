@@ -121,7 +121,7 @@
 					sizeof(CONFIG_SYS_PROMPT) + 16)
 
 /* Physical Memory map */
-#define CONFIG_SYS_TEXT_BASE		0
+#define CONFIG_SYS_TEXT_BASE		0x4000000
 
 #define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_BASE		0
