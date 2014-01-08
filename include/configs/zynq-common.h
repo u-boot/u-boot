@@ -217,6 +217,10 @@
 #define CONFIG_OF_SEPARATE
 #define CONFIG_DISPLAY_BOARDINFO_LATE
 
+/* RSA support */
+#define CONFIG_FIT_SIGNATURE
+#define CONFIG_RSA
+
 /* Boot FreeBSD/vxWorks from an ELF image */
 #if defined(CONFIG_ZYNQ_BOOT_FREEBSD)
 # define CONFIG_API
