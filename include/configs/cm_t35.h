@@ -316,6 +316,7 @@
 
 /* Display Configuration */
 #define CONFIG_OMAP3_GPIO_2
+#define CONFIG_OMAP3_GPIO_5
 #define CONFIG_VIDEO_OMAP3
 #define LCD_BPP		LCD_COLOR16
 
