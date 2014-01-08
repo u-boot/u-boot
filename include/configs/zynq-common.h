@@ -132,6 +132,9 @@
 /* Total Size of Environment Sector */
 #define CONFIG_ENV_SIZE			(128 << 10)
 
+/* Allow to overwrite serial and ethaddr */
+#define CONFIG_ENV_OVERWRITE
+
 /* Environment */
 #ifndef CONFIG_ENV_IS_NOWHERE
 # ifndef CONFIG_SYS_NO_FLASH
