@@ -127,6 +127,7 @@
 
 /* OF */
 #define CONFIG_FIT
+#define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
 #define CONFIG_OF_LIBFDT
 
 /* Commands */
