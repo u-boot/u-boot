@@ -1,11 +1,14 @@
 /*
  * (C) Copyright 2012 Michal Simek <monstr@monstr.eu>
+ * (C) Copyright 2013 Xilinx, Inc.
+ *
+ * Common configuration options for all Zynq boards.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __CONFIG_ZYNQ_H
-#define __CONFIG_ZYNQ_H
+#ifndef __CONFIG_ZYNQ_COMMON_H
+#define __CONFIG_ZYNQ_COMMON_H
 
 /* High Level configuration Options */
 #define CONFIG_ARMV7
@@ -170,4 +173,4 @@
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
 
-#endif /* __CONFIG_ZYNQ_H */
+#endif /* __CONFIG_ZYNQ_COMMON_H */
