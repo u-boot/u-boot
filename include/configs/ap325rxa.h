@@ -11,8 +11,6 @@
 #define __AP325RXA_H
 
 #undef DEBUG
-#define CONFIG_SH		1
-#define CONFIG_SH4		1
 #define CONFIG_CPU_SH7723	1
 #define CONFIG_AP325RXA	1
 

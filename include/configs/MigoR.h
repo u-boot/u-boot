@@ -10,8 +10,6 @@
 #define __MIGO_R_H
 
 #undef DEBUG
-#define CONFIG_SH		1
-#define CONFIG_SH4		1
 #define CONFIG_CPU_SH7722	1
 #define CONFIG_MIGO_R		1
 

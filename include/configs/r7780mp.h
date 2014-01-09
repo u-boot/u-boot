@@ -11,8 +11,6 @@
 #define __R7780RP_H
 
 #undef DEBUG
-#define CONFIG_SH		1
-#define CONFIG_SH4A		1
 #define CONFIG_CPU_SH7780	1
 #define CONFIG_R7780MP		1
 #define CONFIG_SYS_R7780MP_OLD_FLASH	1

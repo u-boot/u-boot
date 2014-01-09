@@ -9,8 +9,6 @@
 #ifndef __MS7720SE_H
 #define __MS7720SE_H
 
-#define CONFIG_SH		1
-#define CONFIG_SH3		1
 #define CONFIG_CPU_SH7720	1
 #define CONFIG_MS7720SE		1
 
