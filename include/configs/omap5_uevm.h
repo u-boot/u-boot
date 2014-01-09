@@ -36,6 +36,7 @@
 #define CONFIG_EFI_PARTITION
 #define CONFIG_PARTITION_UUIDS
 #define CONFIG_CMD_PART
+#define CONFIG_HSMMC2_8BIT
 
 /* Required support for the TCA642X GPIO we have on the uEVM */
 #define CONFIG_TCA642X

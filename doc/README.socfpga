@@ -1,0 +1,53 @@
+
+--------------------------------------------
+SOCFPGA Documentation for U-Boot and SPL
+--------------------------------------------
+
+This README is about U-Boot and SPL support for Altera's ARM Cortex-A9MPCore
+based SOCFPGA. To know more about the hardware itself, please refer to
+www.altera.com.
+
+
+--------------------------------------------
+socfpga_dw_mmc
+--------------------------------------------
+Here are macro and detailed configuration required to enable DesignWare SDMMC
+controller support within SOCFPGA
+
+#define CONFIG_MMC
+-> To enable the SD MMC framework support
+
+#define CONFIG_SDMMC_BASE		(SOCFPGA_SDMMC_ADDRESS)
+-> The base address of CSR register for DesignWare SDMMC controller
+
+#define CONFIG_GENERIC_MMC
+-> Enable the generic MMC driver
+
+#define CONFIG_SYS_MMC_MAX_BLK_COUNT	256
+-> Using smaller max blk cnt to avoid flooding the limited stack in OCRAM
+
+#define CONFIG_DWMMC
+-> Enable the common DesignWare SDMMC controller framework
+
+#define CONFIG_SOCFPGA_DWMMC
+-> Enable the SOCFPGA specific driver for DesignWare SDMMC controller
+
+#define CONFIG_SOCFPGA_DWMMC_FIFO_DEPTH		1024
+-> The FIFO depth for SOCFPGA DesignWare SDMMC controller
+
+#define CONFIG_SOCFPGA_DWMMC_DRVSEL	3
+-> Phase-shifted clock of sdmmc_clk for controller to drive command and data to
+the card to meet hold time requirements. SD clock is running at 50MHz and
+drvsel is set to shift 135 degrees (3 * 45 degrees). With that, the hold time
+is 135 / 360 * 20ns = 7.5ns.
+
+#define CONFIG_SOCFPGA_DWMMC_SMPSEL	0
+-> Phase-shifted clock of sdmmc_clk used to sample the command and data from
+the card
+
+#define CONFIG_SOCFPGA_DWMMC_BUS_WIDTH	4
+-> Bus width of data line which either 1, 4 or 8 and based on board routing.
+
+#define CONFIG_SOCFPGA_DWMMC_BUS_HZ	50000000
+-> The clock rate to controller. Do note the controller have a wrapper which
+divide the clock from PLL by 4.
