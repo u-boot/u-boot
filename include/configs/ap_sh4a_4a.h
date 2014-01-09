@@ -10,7 +10,6 @@
 #define __AP_SH4A_4A_H
 
 #undef DEBUG
-#define CONFIG_SH4A		1
 #define CONFIG_CPU_SH7734	1
 #define CONFIG_AP_SH4A_4A	1
 #define CONFIG_400MHZ_MODE	1

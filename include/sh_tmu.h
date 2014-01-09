@@ -47,7 +47,7 @@ struct tmu_regs {
 };
 #endif /* CONFIG_SH3 */
 
-#if defined(CONFIG_SH4) || defined(CONFIG_SH4A) || defined(CONFIG_RMOBILE)
+#if defined(CONFIG_SH4) || defined(CONFIG_RMOBILE)
 struct tmu_regs {
 	u32 reserved;
 	u8  tstr;
