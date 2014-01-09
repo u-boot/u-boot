@@ -13,8 +13,6 @@
 #ifndef __ARCH_ARM_POSIX_TYPES_H
 #define __ARCH_ARM_POSIX_TYPES_H
 
-#include <config.h>
-
 /*
  * This file is generally used by user-level software, so you need to
  * be a little careful about namespace pollution etc.  Also, we cannot
@@ -31,15 +29,15 @@ typedef unsigned short		__kernel_ipc_pid_t;
 typedef unsigned short		__kernel_uid_t;
 typedef unsigned short		__kernel_gid_t;
 
-#ifdef	CONFIG_ARM64
+#ifdef	__aarch64__
 typedef unsigned long		__kernel_size_t;
 typedef long			__kernel_ssize_t;
 typedef long			__kernel_ptrdiff_t;
-#else	/* CONFIG_ARM64 */
+#else
 typedef unsigned int		__kernel_size_t;
 typedef int			__kernel_ssize_t;
 typedef int			__kernel_ptrdiff_t;
-#endif	/* CONFIG_ARM64 */
+#endif
 
 typedef long			__kernel_time_t;
 typedef long			__kernel_suseconds_t;
