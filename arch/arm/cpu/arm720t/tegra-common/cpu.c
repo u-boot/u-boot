@@ -49,33 +49,68 @@ int get_num_cpus(void)
  * Timing tables for each SOC for all four oscillator options.
  */
 struct clk_pll_table tegra_pll_x_table[TEGRA_SOC_CNT][CLOCK_OSC_FREQ_COUNT] = {
-	/* T20: 1 GHz */
-	/*  n,  m, p, cpcon */
-	{{ 1000, 13, 0, 12},	/* OSC 13M */
-	 { 625,  12, 0, 8},	/* OSC 19.2M */
-	 { 1000, 12, 0, 12},	/* OSC 12M */
-	 { 1000, 26, 0, 12},	/* OSC 26M */
+	/*
+	 * T20: 1 GHz
+	 *
+	 * Register   Field  Bits   Width
+	 * ------------------------------
+	 * PLLX_BASE  p      22:20    3
+	 * PLLX_BASE  n      17: 8   10
+	 * PLLX_BASE  m       4: 0    5
+	 * PLLX_MISC  cpcon  11: 8    4
+	 */
+	{
+		{ .n = 1000, .m = 13, .p = 0, .cpcon = 12 }, /* OSC: 13.0 MHz */
+		{ .n =  625, .m = 12, .p = 0, .cpcon =  8 }, /* OSC: 19.2 MHz */
+		{ .n = 1000, .m = 12, .p = 0, .cpcon = 12 }, /* OSC: 12.0 MHz */
+		{ .n = 1000, .m = 26, .p = 0, .cpcon = 12 }, /* OSC: 26.0 MHz */
 	},
-
-	/* T25: 1.2 GHz */
-	{{ 923, 10, 0, 12},
-	 { 750, 12, 0, 8},
-	 { 600,  6, 0, 12},
-	 { 600, 13, 0, 12},
+	/*
+	 * T25: 1.2 GHz
+	 *
+	 * Register   Field  Bits   Width
+	 * ------------------------------
+	 * PLLX_BASE  p      22:20    3
+	 * PLLX_BASE  n      17: 8   10
+	 * PLLX_BASE  m       4: 0    5
+	 * PLLX_MISC  cpcon  11: 8    4
+	 */
+	{
+		{ .n = 923, .m = 10, .p = 0, .cpcon = 12 }, /* OSC: 13.0 MHz */
+		{ .n = 750, .m = 12, .p = 0, .cpcon =  8 }, /* OSC: 19.2 MHz */
+		{ .n = 600, .m =  6, .p = 0, .cpcon = 12 }, /* OSC: 12.0 MHz */
+		{ .n = 600, .m = 13, .p = 0, .cpcon = 12 }, /* OSC: 26.0 MHz */
 	},
-
-	/* T30: 1.4 GHz */
-	{{ 862, 8, 0, 8},
-	 { 583, 8, 0, 4},
-	 { 700, 6, 0, 8},
-	 { 700, 13, 0, 8},
+	/*
+	 * T30: 1.4 GHz
+	 *
+	 * Register   Field  Bits   Width
+	 * ------------------------------
+	 * PLLX_BASE  p      22:20    3
+	 * PLLX_BASE  n      17: 8   10
+	 * PLLX_BASE  m       4: 0    5
+	 * PLLX_MISC  cpcon  11: 8    4
+	 */
+	{
+		{ .n = 862, .m =  8, .p = 0, .cpcon = 8 }, /* OSC: 13.0 MHz */
+		{ .n = 583, .m =  8, .p = 0, .cpcon = 4 }, /* OSC: 19.2 MHz */
+		{ .n = 700, .m =  6, .p = 0, .cpcon = 8 }, /* OSC: 12.0 MHz */
+		{ .n = 700, .m = 13, .p = 0, .cpcon = 8 }, /* OSC: 26.0 MHz */
 	},
-
-	/* T114: 1.4 GHz */
-	{{ 862, 8, 0, 8},
-	 { 583, 8, 0, 4},
-	 { 696, 12, 0, 8},
-	 { 700, 13, 0, 8},
+	/*
+	 * T114: 700 MHz
+	 *
+	 * Register   Field  Bits   Width
+	 * ------------------------------
+	 * PLLX_BASE  p      23:20    4
+	 * PLLX_BASE  n      15: 8    8
+	 * PLLX_BASE  m       7: 0    8
+	 */
+	{
+		{ .n = 108, .m = 1, .p = 1 }, /* OSC: 13.0 MHz */
+		{ .n =  73, .m = 1, .p = 1 }, /* OSC: 19.2 MHz */
+		{ .n = 116, .m = 1, .p = 1 }, /* OSC: 12.0 MHz */
+		{ .n = 108, .m = 2, .p = 1 }, /* OSC: 26.0 MHz */
 	},
 };
 
@@ -100,6 +135,7 @@ void adjust_pllp_out_freqs(void)
 int pllx_set_rate(struct clk_pll_simple *pll , u32 divn, u32 divm,
 		u32 divp, u32 cpcon)
 {
+	int chip = tegra_get_chip();
 	u32 reg;
 
 	/* If PLLX is already enabled, just return */
@@ -116,7 +152,10 @@ int pllx_set_rate(struct clk_pll_simple *pll , u32 divn, u32 divm,
 	writel(reg, &pll->pll_base);
 
 	/* Set cpcon to PLLX_MISC */
-	reg = (cpcon << PLL_CPCON_SHIFT);
+	if (chip == CHIPID_TEGRA20 || chip == CHIPID_TEGRA30)
+		reg = (cpcon << PLL_CPCON_SHIFT);
+	else
+		reg = 0;
 
 	/* Set dccon to PLLX_MISC if freq > 600MHz */
 	if (divn > 600)

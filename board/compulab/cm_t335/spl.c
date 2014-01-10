@@ -20,6 +20,14 @@
 #include <asm/arch/hardware_am33xx.h>
 #include <asm/sizes.h>
 
+const struct ctrl_ioregs ioregs = {
+	.cm0ioctl		= MT41J128MJT125_IOCTRL_VALUE,
+	.cm1ioctl		= MT41J128MJT125_IOCTRL_VALUE,
+	.cm2ioctl		= MT41J128MJT125_IOCTRL_VALUE,
+	.dt0ioctl		= MT41J128MJT125_IOCTRL_VALUE,
+	.dt1ioctl		= MT41J128MJT125_IOCTRL_VALUE,
+};
+
 static const struct ddr_data ddr3_data = {
 	.datardsratio0		= MT41J128MJT125_RD_DQS,
 	.datawdsratio0		= MT41J128MJT125_WR_DQS,
@@ -89,7 +97,7 @@ static void probe_sdram_size(long size)
 		reset_cpu(0);
 	}
 	debug("%s: setting DRAM size to %ldM\n", __func__, size >> 20);
-	config_ddr(303, MT41J128MJT125_IOCTRL_VALUE, &ddr3_data,
+	config_ddr(303, &ioregs, &ddr3_data,
 		   &ddr3_cmd_ctrl_data, &ddr3_emif_reg_data, 0);
 }
 

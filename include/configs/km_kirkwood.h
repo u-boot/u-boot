@@ -35,6 +35,16 @@
 #define CONFIG_KM_IVM_BUS		1	/* I2C2 (Mux-Port 1)*/
 #define CONFIG_KM_FPGA_CONFIG
 
+/* KM_KIRKWOOD_128M16 */
+#elif defined(CONFIG_KM_KIRKWOOD_128M16)
+#define CONFIG_IDENT_STRING		"\nKeymile Kirkwood 128M16"
+#define CONFIG_HOSTNAME			km_kirkwood_128m16
+#undef CONFIG_SYS_KWD_CONFIG
+#define CONFIG_SYS_KWD_CONFIG \
+		$(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage_128M16_1.cfg
+#define CONFIG_KM_DISABLE_PCIE
+#define CONFIG_KM_IVM_BUS		1	/* I2C2 (Mux-Port 1)*/
+
 /* KM_NUSA */
 #elif defined(CONFIG_KM_NUSA)
 #define CONFIG_KM_IVM_BUS		1	/* I2C2 (Mux-Port 1)*/

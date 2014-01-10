@@ -18,6 +18,8 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/arch/rmobile.h>
+#include <miiphy.h>
+#include <i2c.h>
 #include "qos.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -207,6 +209,10 @@ void s_init(void)
 #define SMSTPCR7	0xE615014C
 #define SCIF0_MSTP721	(1 << 21)
 
+#define MSTPSR8	0xE61509A0
+#define SMSTPCR8	0xE6150990
+#define ETHER_MSTP813	(1 << 13)
+
 #define PMMR	0xE6060000
 #define GPSR4	0xE6060014
 #define IPSR14	0xE6060058
@@ -242,6 +248,9 @@ int board_early_init_f(void)
 
 	mstp_clrbits_le32(MSTPSR7, SMSTPCR7, SCIF0_MSTP721);
 
+	/* ETHER */
+	mstp_clrbits_le32(MSTPSR8, SMSTPCR8, ETHER_MSTP813);
+
 	return 0;
 }
 
@@ -255,6 +264,68 @@ int board_init(void)
 
 	/* Init PFC controller */
 	r8a7790_pinmux_init();
+
+	/* ETHER Enable */
+	gpio_request(GPIO_FN_ETH_CRS_DV, NULL);
+	gpio_request(GPIO_FN_ETH_RX_ER, NULL);
+	gpio_request(GPIO_FN_ETH_RXD0, NULL);
+	gpio_request(GPIO_FN_ETH_RXD1, NULL);
+	gpio_request(GPIO_FN_ETH_LINK, NULL);
+	gpio_request(GPIO_FN_ETH_REF_CLK, NULL);
+	gpio_request(GPIO_FN_ETH_MDIO, NULL);
+	gpio_request(GPIO_FN_ETH_TXD1, NULL);
+	gpio_request(GPIO_FN_ETH_TX_EN, NULL);
+	gpio_request(GPIO_FN_ETH_MAGIC, NULL);
+	gpio_request(GPIO_FN_ETH_TXD0, NULL);
+	gpio_request(GPIO_FN_ETH_MDC, NULL);
+	gpio_request(GPIO_FN_IRQ0, NULL);
+
+	gpio_request(GPIO_GP_5_31, NULL);	/* PHY_RST */
+	gpio_direction_output(GPIO_GP_5_31, 0);
+	mdelay(20);
+	gpio_set_value(GPIO_GP_5_31, 1);
+	udelay(1);
+
+	return 0;
+}
+
+#define CXR24 0xEE7003C0 /* MAC address high register */
+#define CXR25 0xEE7003C8 /* MAC address low register */
+int board_eth_init(bd_t *bis)
+{
+	int ret = -ENODEV;
+
+#ifdef CONFIG_SH_ETHER
+	u32 val;
+	unsigned char enetaddr[6];
+
+	ret = sh_eth_initialize(bis);
+	if (!eth_getenv_enetaddr("ethaddr", enetaddr))
+		return ret;
+
+	/* Set Mac address */
+	val = enetaddr[0] << 24 | enetaddr[1] << 16 |
+	    enetaddr[2] << 8 | enetaddr[3];
+	writel(val, CXR24);
+
+	val = enetaddr[4] << 8 | enetaddr[5];
+	writel(val, CXR25);
+
+#endif
+
+	return ret;
+}
+
+/* lager has KSZ8041NL/RNL */
+#define PHY_CONTROL1	0x1E
+#define PHY_LED_MODE	0xC0000
+#define PHY_LED_MODE_ACK	0x4000
+int board_phy_config(struct phy_device *phydev)
+{
+	int ret = phy_read(phydev, MDIO_DEVAD_NONE, PHY_CONTROL1);
+	ret &= ~PHY_LED_MODE;
+	ret |= PHY_LED_MODE_ACK;
+	ret = phy_write(phydev, MDIO_DEVAD_NONE, PHY_CONTROL1, (u16)ret);
 
 	return 0;
 }
@@ -284,4 +355,11 @@ int board_late_init(void)
 
 void reset_cpu(ulong addr)
 {
+	u8 val;
+
+	i2c_set_bus_num(3); /* PowerIC connected to ch3 */
+	i2c_init(400000, 0);
+	i2c_read(CONFIG_SYS_I2C_POWERIC_ADDR, 0x13, 1, &val, 1);
+	val |= 0x02;
+	i2c_write(CONFIG_SYS_I2C_POWERIC_ADDR, 0x13, 1, &val, 1);
 }

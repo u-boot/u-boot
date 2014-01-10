@@ -17,6 +17,9 @@ endif
 ifeq ($(SOC),$(filter $(SOC),mx6 mxs))
 obj-y	+= misc.o
 endif
+ifeq ($(SOC),$(filter $(SOC),mx6))
+obj-$(CONFIG_CMD_SATA) += sata.o
+endif
 obj-$(CONFIG_CMD_BMODE) += cmd_bmode.o
 obj-$(CONFIG_CMD_HDMIDETECT) += cmd_hdmidet.o
 

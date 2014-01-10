@@ -50,20 +50,6 @@ inline u32 emif_num(u32 base)
 		return 0;
 }
 
-/*
- * Get SDRAM type connected to EMIF.
- * Assuming similar SDRAM parts are connected to both EMIF's
- * which is typically the case. So it is sufficient to get
- * SDRAM type from EMIF1.
- */
-u32 emif_sdram_type()
-{
-	struct emif_reg_struct *emif = (struct emif_reg_struct *)EMIF1_BASE;
-
-	return (readl(&emif->emif_sdram_config) &
-		EMIF_REG_SDRAM_TYPE_MASK) >> EMIF_REG_SDRAM_TYPE_SHIFT;
-}
-
 static inline u32 get_mr(u32 base, u32 cs, u32 mr_addr)
 {
 	u32 mr;

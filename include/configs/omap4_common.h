@@ -148,9 +148,14 @@
 		"fi; " \
 	"fi"
 
-/* Defines for SPL */
-#define CONFIG_SPL_TEXT_BASE		0x40304350
-#define CONFIG_SPL_MAX_SIZE		(38 * 1024)
+/*
+ * Defines for SPL
+ * It is known that this will break HS devices. Since the current size of
+ * SPL is overlapped with public stack and breaking non HS devices to boot.
+ * So moving TEXT_BASE down to non-HS limit.
+ */
+#define CONFIG_SPL_TEXT_BASE		0x40300000
+#define CONFIG_SPL_MAX_SIZE		(0x4030C000 - CONFIG_SPL_TEXT_BASE)
 #define CONFIG_SPL_DISPLAY_PRINT
 #define CONFIG_SPL_LDSCRIPT "$(CPUDIR)/omap-common/u-boot-spl.lds"
 

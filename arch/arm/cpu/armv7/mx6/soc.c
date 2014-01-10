@@ -19,6 +19,14 @@
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/crm_regs.h>
 
+#define VDDPU_MASK	(0x1f << 9)
+
+enum ldo_reg {
+	LDO_ARM,
+	LDO_SOC,
+	LDO_PU,
+};
+
 struct scu_regs {
 	u32	ctrl;
 	u32	config;
@@ -93,6 +101,20 @@ void init_aips(void)
 	writel(0x00000000, &aips2->opacr4);
 }
 
+static void clear_ldo_ramp(void)
+{
+	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
+	int reg;
+
+	/* ROM may modify LDO ramp up time according to fuse setting, so in
+	 * order to be in the safe side we neeed to reset these settings to
+	 * match the reset value: 0'b00
+	 */
+	reg = readl(&anatop->ana_misc2);
+	reg &= ~(0x3f << 24);
+	writel(reg, &anatop->ana_misc2);
+}
+
 /*
  * Set the VDDSOC
  *
@@ -101,10 +123,11 @@ void init_aips(void)
  * Possible values are from 0.725V to 1.450V in steps of
  * 0.025V (25mV).
  */
-void set_vddsoc(u32 mv)
+static int set_ldo_voltage(enum ldo_reg ldo, u32 mv)
 {
 	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
-	u32 val, reg = readl(&anatop->reg_core);
+	u32 val, step, old, reg = readl(&anatop->reg_core);
+	u8 shift;
 
 	if (mv < 725)
 		val = 0x00;	/* Power gated off */
@@ -113,12 +136,37 @@ void set_vddsoc(u32 mv)
 	else
 		val = (mv - 700) / 25;
 
-	/*
-	 * Mask out the REG_CORE[22:18] bits (REG2_TRIG)
-	 * and set them to the calculated value (0.7V + val * 0.25V)
-	 */
-	reg = (reg & ~(0x1F << 18)) | (val << 18);
+	clear_ldo_ramp();
+
+	switch (ldo) {
+	case LDO_SOC:
+		shift = 18;
+		break;
+	case LDO_PU:
+		shift = 9;
+		break;
+	case LDO_ARM:
+		shift = 0;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	old = (reg & (0x1F << shift)) >> shift;
+	step = abs(val - old);
+	if (step == 0)
+		return 0;
+
+	reg = (reg & ~(0x1F << shift)) | (val << shift);
 	writel(reg, &anatop->reg_core);
+
+	/*
+	 * The LDO ramp-up is based on 64 clock cycles of 24 MHz = 2.6 us per
+	 * step
+	 */
+	udelay(3 * step);
+
+	return 0;
 }
 
 static void imx_set_wdog_powerdown(bool enable)
@@ -131,13 +179,50 @@ static void imx_set_wdog_powerdown(bool enable)
 	writew(enable, &wdog2->wmcr);
 }
 
+static void imx_set_vddpu_power_down(void)
+{
+	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
+	struct gpc_regs *gpc = (struct gpc_regs *)GPC_BASE_ADDR;
+
+	u32 reg;
+
+	/*
+	 * Disable the brown out detection since we are going to be
+	 * disabling the LDO.
+	 */
+	reg = readl(&anatop->ana_misc2);
+	reg &= ~ANADIG_ANA_MISC2_REG1_BO_EN;
+	writel(reg, &anatop->ana_misc2);
+
+	/* need to power down xPU in GPC before turning off PU LDO */
+	reg = readl(&gpc->gpu_ctrl);
+	writel(reg | 0x1, &gpc->gpu_ctrl);
+
+	reg = readl(&gpc->ctrl);
+	writel(reg | 0x1, &gpc->ctrl);
+	while (readl(&gpc->ctrl) & 0x1)
+		;
+
+	/* Mask the ANATOP brown out interrupt in the GPC. */
+	reg = readl(&gpc->imr4);
+	reg |= 0x80000000;
+	writel(reg, &gpc->imr4);
+
+	/* disable VDDPU */
+	writel(VDDPU_MASK, &anatop->reg_core_clr);
+
+	/* Clear the BO interrupt in the ANATOP. */
+	reg = readl(&anatop->ana_misc1);
+	reg |= 0x80000000;
+	writel(reg, &anatop->ana_misc1);
+}
+
 int arch_cpu_init(void)
 {
 	init_aips();
 
-	set_vddsoc(1200);	/* Set VDDSOC to 1.2V */
-
 	imx_set_wdog_powerdown(false); /* Disable PDE bit of WMCR register */
+	imx_set_vddpu_power_down();
 
 #ifdef CONFIG_APBH_DMA
 	/* Start APBH DMA */
@@ -147,9 +232,18 @@ int arch_cpu_init(void)
 	return 0;
 }
 
+int board_postclk_init(void)
+{
+	set_ldo_voltage(LDO_SOC, 1175);	/* Set VDDSOC to 1.175V */
+
+	return 0;
+}
+
 #ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)
 {
+	/* Avoid random hang when download by usb */
+	invalidate_dcache_all();
 	/* Enable D-cache. I-cache is already enabled in start.S */
 	dcache_enable();
 }

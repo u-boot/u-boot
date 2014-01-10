@@ -123,6 +123,9 @@
 #define CONFIG_USB_ETHER_SMSC95XX
 #define CONFIG_USB_ETHER_ASIX
 
+/* GPIO banks */
+#define CONFIG_OMAP3_GPIO_5		/* GPIO128..159 is in GPIO bank 5 */
+#define CONFIG_OMAP3_GPIO_6		/* GPIO160..191 is in GPIO bank 6 */
 
 /* commands to include */
 #include <config_cmd_default.h>

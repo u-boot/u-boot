@@ -113,9 +113,9 @@ void reset_set_enable(enum periph_id periph_id, int enable);
 enum crc_reset_id {
 	/* Things we can hold in reset for each CPU */
 	crc_rst_cpu = 1,
-	crc_rst_de = 1 << 2,	/* What is de? */
-	crc_rst_watchdog = 1 << 3,
-	crc_rst_debug = 1 << 4,
+	crc_rst_de = 1 << 4,	/* What is de? */
+	crc_rst_watchdog = 1 << 8,
+	crc_rst_debug = 1 << 12,
 };
 
 /**

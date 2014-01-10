@@ -160,6 +160,7 @@
 #define PARTS_UMS		"ums"
 
 #define PARTS_DEFAULT \
+	"uuid_disk=${uuid_gpt_disk};" \
 	"name="PARTS_CSA",start=5MiB,size=8MiB,uuid=${uuid_gpt_"PARTS_CSA"};" \
 	"name="PARTS_BOOT",size=64MiB,uuid=${uuid_gpt_"PARTS_BOOT"};" \
 	"name="PARTS_MODEM",size=100MiB,uuid=${uuid_gpt_"PARTS_MODEM"};" \
@@ -201,7 +202,7 @@
 		"${kernelname}\0" \
 	"loaddtb=ext4load mmc ${mmcdev}:${mmcbootpart} ${fdtaddr} " \
 		"${fdtfile}\0" \
-	"mmcdev=CONFIG_MMC_DEFAULT_DEV\0" \
+	"mmcdev=" __stringify(CONFIG_MMC_DEFAULT_DEV) "\0" \
 	"mmcbootpart=2\0" \
 	"mmcrootpart=5\0" \
 	"opts=always_resume=1\0" \

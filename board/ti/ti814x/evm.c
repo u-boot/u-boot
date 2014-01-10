@@ -95,9 +95,9 @@ void sdram_init(void)
 {
 	config_dmm(&evm_lisa_map_regs);
 
-	config_ddr(0, 0, &evm_ddr2_data, &evm_ddr2_cctrl_data,
+	config_ddr(0, NULL, &evm_ddr2_data, &evm_ddr2_cctrl_data,
 		   &evm_ddr2_emif0_regs, 0);
-	config_ddr(0, 0, &evm_ddr2_data, &evm_ddr2_cctrl_data,
+	config_ddr(0, NULL, &evm_ddr2_data, &evm_ddr2_cctrl_data,
 		   &evm_ddr2_emif1_regs, 1);
 }
 #endif

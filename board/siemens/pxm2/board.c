@@ -69,7 +69,15 @@ struct cmd_control pxm2_ddr3_cmd_ctrl_data = {
 	.cmd2iclkout = 0,
 };
 
-	config_ddr(DDR_PLL_FREQ, DXR2_IOCTRL_VAL, &pxm2_ddr3_data,
+const struct ctrl_ioregs ioregs = {
+	.cm0ioctl		= DXR2_IOCTRL_VAL,
+	.cm1ioctl		= DXR2_IOCTRL_VAL,
+	.cm2ioctl		= DXR2_IOCTRL_VAL,
+	.dt0ioctl		= DXR2_IOCTRL_VAL,
+	.dt1ioctl		= DXR2_IOCTRL_VAL,
+};
+
+	config_ddr(DDR_PLL_FREQ, &ioregs, &pxm2_ddr3_data,
 		   &pxm2_ddr3_cmd_ctrl_data, &pxm2_ddr3_emif_reg_data, 0);
 }
 

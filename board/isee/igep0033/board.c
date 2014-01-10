@@ -77,9 +77,17 @@ void set_mux_conf_regs(void)
 	enable_board_pin_mux();
 }
 
+const struct ctrl_ioregs ioregs = {
+	.cm0ioctl		= K4B2G1646EBIH9_IOCTRL_VALUE,
+	.cm1ioctl		= K4B2G1646EBIH9_IOCTRL_VALUE,
+	.cm2ioctl		= K4B2G1646EBIH9_IOCTRL_VALUE,
+	.dt0ioctl		= K4B2G1646EBIH9_IOCTRL_VALUE,
+	.dt1ioctl		= K4B2G1646EBIH9_IOCTRL_VALUE,
+};
+
 void sdram_init(void)
 {
-	config_ddr(400, K4B2G1646EBIH9_IOCTRL_VALUE, &ddr3_data,
+	config_ddr(400, &ioregs, &ddr3_data,
 		   &ddr3_cmd_ctrl_data, &ddr3_emif_reg_data, 0);
 }
 #endif

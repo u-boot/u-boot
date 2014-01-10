@@ -138,7 +138,7 @@ int board_late_init(void)
 
 	mx25pdk_fec_init();
 
-	ret = pmic_init(I2C_PMIC);
+	ret = pmic_init(I2C_0);
 	if (ret)
 		return ret;
 

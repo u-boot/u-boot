@@ -1,0 +1,70 @@
+/*
+ * (C) Copyright 2013 SAMSUNG Electronics
+ * SAMSUNG EXYNOS5420 SoC device tree source
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/include/ "exynos5.dtsi"
+
+/ {
+	config {
+		machine-arch-id = <4151>;
+	};
+
+	i2c@12ca0000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,exynos5-hsi2c";
+		reg = <0x12CA0000 0x100>;
+		interrupts = <0 60 0>;
+	};
+
+	i2c@12cb0000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,exynos5-hsi2c";
+		reg = <0x12CB0000 0x100>;
+		interrupts = <0 61 0>;
+	};
+
+	i2c@12cc0000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,exynos5-hsi2c";
+		reg = <0x12CC0000 0x100>;
+		interrupts = <0 62 0>;
+	};
+
+	i2c@12cd0000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,exynos5-hsi2c";
+		reg = <0x12CD0000 0x100>;
+		interrupts = <0 63 0>;
+	};
+
+	i2c@12e00000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,exynos5-hsi2c";
+		reg = <0x12E00000 0x100>;
+		interrupts = <0 87 0>;
+	};
+
+	i2c@12e10000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,exynos5-hsi2c";
+		reg = <0x12E10000 0x100>;
+		interrupts = <0 88 0>;
+	};
+
+	i2c@12e20000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,exynos5-hsi2c";
+		reg = <0x12E20000 0x100>;
+		interrupts = <0 203 0>;
+	};
+};

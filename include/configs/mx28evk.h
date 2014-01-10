@@ -14,7 +14,6 @@
 /* System configurations */
 #define CONFIG_MX28				/* i.MX28 SoC */
 #define CONFIG_MACH_TYPE	MACH_TYPE_MX28EVK
-#define CONFIG_SYS_PROMPT	"MX28EVK U-Boot > "
 
 /* U-Boot Commands */
 #define CONFIG_SYS_NO_FLASH
@@ -97,7 +96,7 @@
 		"512k(environment),"		\
 		"512k(redundant-environment),"	\
 		"4m(kernel),"			\
-		"128k(fdt),"			\
+		"512k(fdt),"			\
 		"8m(ramdisk),"			\
 		"-(filesystem)"
 #endif
@@ -161,9 +160,9 @@
 
 /* Extra Environment */
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"ubifs_file=filesystem.ubifs\0" \
 	"update_nand_full_filename=u-boot.nand\0" \
 	"update_nand_firmware_filename=u-boot.sb\0"	\
-	"update_sd_firmware_filename=u-boot.sd\0" \
 	"update_nand_firmware_maxsz=0x100000\0"	\
 	"update_nand_stride=0x40\0"	/* MX28 datasheet ch. 12.12 */ \
 	"update_nand_count=0x4\0"	/* MX28 datasheet ch. 12.12 */ \
@@ -172,7 +171,7 @@
 		"nand info ; " \
 		"setexpr fcb_sz ${update_nand_stride} * ${update_nand_count};" \
 		"setexpr update_nand_fcb ${fcb_sz} * ${nand_writesize}\0" \
-	"update_nand_full="		    /* Update FCB, DBBT and FW */ \
+	"update_nand_firmware_full=" /* Update FCB, DBBT and FW */ \
 		"if tftp ${update_nand_full_filename} ; then " \
 		"run update_nand_get_fcb_size ; " \
 		"nand scrub -y 0x0 ${filesize} ; " \
@@ -191,6 +190,55 @@
 		"nand write ${loadaddr} ${fcb_sz} ${filesize} ; " \
 		"nand write ${loadaddr} ${fw_off} ${filesize} ; " \
 		"fi\0" \
+	"update_nand_kernel="		/* Update kernel */ \
+		"mtdparts default; " \
+		"nand erase.part kernel; " \
+		"if test ${ip_dyn} = yes; then " \
+			"setenv get_cmd dhcp; " \
+		"else " \
+			"setenv get_cmd tftp; " \
+		"fi; " \
+		"${get_cmd} ${uimage}; " \
+		"nand write ${loadaddr} kernel ${filesize}\0" \
+	"update_nand_fdt="		/* Update fdt */ \
+		"mtdparts default; " \
+		"nand erase.part fdt; " \
+		"if test ${ip_dyn} = yes; then " \
+			"setenv get_cmd dhcp; " \
+		"else " \
+			"setenv get_cmd tftp; " \
+		"fi; " \
+		"${get_cmd} ${fdt_file}; " \
+		"nand write ${loadaddr} fdt ${filesize}\0" \
+	"update_nand_filesystem="		/* Update filesystem */ \
+		"mtdparts default; " \
+		"nand erase.part filesystem; " \
+		"if test ${ip_dyn} = yes; then " \
+			"setenv get_cmd dhcp; " \
+		"else " \
+			"setenv get_cmd tftp; " \
+		"fi; " \
+		"${get_cmd} ${ubifs_file}; " \
+		"ubi part filesystem; " \
+		"ubi create filesystem; " \
+		"ubi write ${loadaddr} filesystem ${filesize}\0" \
+	"nandargs=setenv bootargs console=${console_mainline},${baudrate} " \
+		"rootfstype=ubifs ubi.mtd=6 root=ubi0_0 ${mtdparts}\0" \
+	"nandboot="		/* Boot from NAND */ \
+		"mtdparts default; " \
+		"run nandargs; " \
+		"nand read ${loadaddr} kernel 0x00400000; " \
+		"if test ${boot_fdt} = yes; then " \
+			"nand read ${fdt_addr} fdt 0x00080000; " \
+			"bootm ${loadaddr} - ${fdt_addr}; " \
+		"else " \
+			"if test ${boot_fdt} = no; then " \
+				"bootm; " \
+			"else " \
+				"echo \"ERROR: Set boot_fdt to yes or no.\"; " \
+			"fi; " \
+		"fi\0" \
+	"update_sd_firmware_filename=u-boot.sd\0" \
 	"update_sd_firmware="		/* Update the SD firmware partition */ \
 		"if mmc rescan ; then "	\
 		"if tftp ${update_sd_firmware_filename} ; then " \

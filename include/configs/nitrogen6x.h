@@ -10,6 +10,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include "mx6_common.h"
 #define CONFIG_MX6
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
@@ -61,16 +62,6 @@
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_SPEED		100000
-
-/* OCOTP Configs */
-#define CONFIG_CMD_IMXOTP
-#ifdef CONFIG_CMD_IMXOTP
-#define CONFIG_IMX_OTP
-#define IMX_OTP_BASE			OCOTP_BASE_ADDR
-#define IMX_OTP_ADDR_MAX		0x7F
-#define IMX_OTP_DATA_ERROR_VAL		0xBADABADA
-#define IMX_OTPWRITE_ENABLED
-#endif
 
 /* MMC Configs */
 #define CONFIG_FSL_ESDHC
@@ -189,7 +180,7 @@
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"fdt_file=imx6q-sabrelite.dtb\0" \
-	"fdt_addr=0x11000000\0" \
+	"fdt_addr=0x18000000\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
 	"mmcdev=0\0" \

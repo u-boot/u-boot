@@ -749,6 +749,18 @@ void enable_nfc_clk(unsigned char enable)
 		MXC_CCM_CCGR5_EMI_ENFC(cg));
 }
 
+#ifdef CONFIG_FSL_IIM
+void enable_efuse_prog_supply(bool enable)
+{
+	if (enable)
+		setbits_le32(&mxc_ccm->cgpr,
+			     MXC_CCM_CGPR_EFUSE_PROG_SUPPLY_GATE);
+	else
+		clrbits_le32(&mxc_ccm->cgpr,
+			     MXC_CCM_CGPR_EFUSE_PROG_SUPPLY_GATE);
+}
+#endif
+
 /* Config main_bus_clock for periphs */
 static int config_periph_clk(u32 ref, u32 freq)
 {

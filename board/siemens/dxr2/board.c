@@ -144,6 +144,10 @@ struct ddr_data dxr2_ddr3_data = {
 
 struct cmd_control dxr2_ddr3_cmd_ctrl_data = {
 };
+
+struct ctrl_ioregs dxr2_ddr3_ioregs = {
+};
+
 	/* pass values from eeprom */
 	dxr2_ddr3_emif_reg_data.sdram_tim1 = settings.ddr3.sdram_tim1;
 	dxr2_ddr3_emif_reg_data.sdram_tim2 = settings.ddr3.sdram_tim2;
@@ -165,7 +169,13 @@ struct cmd_control dxr2_ddr3_cmd_ctrl_data = {
 	dxr2_ddr3_cmd_ctrl_data.cmd2csratio = settings.ddr3.ddr3_sratio;
 	dxr2_ddr3_cmd_ctrl_data.cmd2iclkout = settings.ddr3.iclkout;
 
-	config_ddr(DDR_PLL_FREQ, settings.ddr3.ioctr_val, &dxr2_ddr3_data,
+	dxr2_ddr3_ioregs.cm0ioctl = settings.ddr3.ioctr_val,
+	dxr2_ddr3_ioregs.cm1ioctl = settings.ddr3.ioctr_val,
+	dxr2_ddr3_ioregs.cm2ioctl = settings.ddr3.ioctr_val,
+	dxr2_ddr3_ioregs.dt0ioctl = settings.ddr3.ioctr_val,
+	dxr2_ddr3_ioregs.dt1ioctl = settings.ddr3.ioctr_val,
+
+	config_ddr(DDR_PLL_FREQ, &dxr2_ddr3_ioregs, &dxr2_ddr3_data,
 		   &dxr2_ddr3_cmd_ctrl_data, &dxr2_ddr3_emif_reg_data, 0);
 }
 

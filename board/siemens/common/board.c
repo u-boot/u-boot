@@ -159,13 +159,4 @@ U_BOOT_CMD(
 	"Sends U-Boot into infinite loop",
 	""
 );
-
-#ifndef CONFIG_SYS_DCACHE_OFF
-void enable_caches(void)
-{
-	printf("Enable d-cache\n");
-	/* Enable D-cache. I-cache is already enabled in start.S */
-	dcache_enable();
-}
-#endif /* CONFIG_SYS_DCACHE_OFF */
 #endif /* !CONFIG_SPL_BUILD */

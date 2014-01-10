@@ -62,6 +62,21 @@ const struct dpll_params dpll_core = {
 const struct dpll_params dpll_per = {
 		960, OSC-1, 5, -1, -1, -1, -1};
 
+const struct dpll_params *get_dpll_mpu_params(void)
+{
+	return &dpll_mpu;
+}
+
+const struct dpll_params *get_dpll_core_params(void)
+{
+	return &dpll_core;
+}
+
+const struct dpll_params *get_dpll_per_params(void)
+{
+	return &dpll_per;
+}
+
 void setup_clocks_for_console(void)
 {
 	clrsetbits_le32(&cmwkup->wkclkstctrl, CD_CLKCTRL_CLKTRCTRL_MASK,

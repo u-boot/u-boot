@@ -305,6 +305,9 @@ struct mxc_ccm_reg {
 /* Define the bits in register CCDR */
 #define MXC_CCM_CCDR_IPU_HS_MASK			(0x1 << 17)
 
+/* Define the bits in register CGPR */
+#define MXC_CCM_CGPR_EFUSE_PROG_SUPPLY_GATE		(1 << 4)
+
 /* Define the bits in register CCGRx */
 #define MXC_CCM_CCGR_CG_MASK				0x3
 #define MXC_CCM_CCGR_CG_OFF				0x0

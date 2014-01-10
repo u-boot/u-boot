@@ -325,6 +325,17 @@ else
 BOARD_SIZE_CHECK =
 endif
 
+# Statically apply RELA-style relocations (currently arm64 only)
+ifneq ($(CONFIG_STATIC_RELA),)
+# $(1) is u-boot ELF, $(2) is u-boot bin, $(3) is text base
+DO_STATIC_RELA = \
+	start=$$($(NM) $(1) | grep __rel_dyn_start | cut -f 1 -d ' '); \
+	end=$$($(NM) $(1) | grep __rel_dyn_end | cut -f 1 -d ' '); \
+	$(obj)tools/relocate-rela $(2) $(3) $$start $$end
+else
+DO_STATIC_RELA =
+endif
+
 # Always append ALL so that arch config.mk's can add custom ones
 ALL-y += $(obj)u-boot.srec $(obj)u-boot.bin $(obj)System.map
 
@@ -338,13 +349,16 @@ ALL-$(CONFIG_OF_SEPARATE) += $(obj)u-boot.dtb $(obj)u-boot-dtb.bin
 ifneq ($(CONFIG_SPL_TARGET),)
 ALL-$(CONFIG_SPL) += $(obj)$(CONFIG_SPL_TARGET:"%"=%)
 endif
+ALL-$(CONFIG_REMAKE_ELF) += $(obj)u-boot.elf
 
 # enable combined SPL/u-boot/dtb rules for tegra
 ifneq ($(CONFIG_TEGRA),)
+ifeq ($(CONFIG_SPL),y)
 ifeq ($(CONFIG_OF_SEPARATE),y)
 ALL-y += $(obj)u-boot-dtb-tegra.bin
 else
 ALL-y += $(obj)u-boot-nodtb-tegra.bin
+endif
 endif
 endif
 
@@ -367,6 +381,7 @@ $(obj)u-boot.srec:	$(obj)u-boot
 
 $(obj)u-boot.bin:	$(obj)u-boot
 		$(OBJCOPY) ${OBJCFLAGS} -O binary $< $@
+		$(call DO_STATIC_RELA,$<,$@,$(CONFIG_SYS_TEXT_BASE))
 		$(BOARD_SIZE_CHECK)
 
 $(obj)u-boot.ldr:	$(obj)u-boot
@@ -500,6 +515,18 @@ $(obj)u-boot-img-spl-at-end.bin: $(obj)spl/u-boot-spl.bin $(obj)u-boot.img
 		$(OBJCOPY) -I binary -O binary --pad-to=$(CONFIG_UBOOT_PAD_TO) \
 			 --gap-fill=0xff $(obj)u-boot.img $@
 		cat $(obj)spl/u-boot-spl.bin >> $@
+
+# Create a new ELF from a raw binary file.  This is useful for arm64
+# where static relocation needs to be performed on the raw binary,
+# but certain simulators only accept an ELF file (but don't do the
+# relocation).
+# FIXME refactor dts/Makefile to share target/arch detection
+$(obj)u-boot.elf: $(obj)u-boot.bin
+	@$(OBJCOPY)  -B aarch64 -I binary -O elf64-littleaarch64 \
+		$< $(obj)u-boot-elf.o
+	@$(LD) $(obj)u-boot-elf.o -o $@ \
+		--defsym=_start=$(CONFIG_SYS_TEXT_BASE) \
+		-Ttext=$(CONFIG_SYS_TEXT_BASE)
 
 ifeq ($(CONFIG_SANDBOX),y)
 GEN_UBOOT = \
@@ -687,12 +714,16 @@ tools: $(VERSION_FILE) $(TIMESTAMP_FILE)
 	$(MAKE) -C $@ all
 endif	# config.mk
 
-# ARM relocations should all be R_ARM_RELATIVE.
+# ARM relocations should all be R_ARM_RELATIVE (32-bit) or
+# R_AARCH64_RELATIVE (64-bit).
 checkarmreloc: $(obj)u-boot
-	@if test "R_ARM_RELATIVE" != \
-		"`$(CROSS_COMPILE)readelf -r $< | cut -d ' ' -f 4 | grep R_ARM | sort -u`"; \
-		then echo "$< contains relocations other than \
-		R_ARM_RELATIVE"; false; fi
+	@RELOC="`$(CROSS_COMPILE)readelf -r -W $< | cut -d ' ' -f 4 | \
+		grep R_A | sort -u`"; \
+	if test "$$RELOC" != "R_ARM_RELATIVE" -a \
+		 "$$RELOC" != "R_AARCH64_RELATIVE"; then \
+		echo "$< contains unexpected relocations: $$RELOC"; \
+		false; \
+	fi
 
 $(VERSION_FILE):
 		@mkdir -p $(dir $(VERSION_FILE))

@@ -8,7 +8,7 @@
 /*
  * Select endianness
  */
-#ifndef __ARMEB__
+#if __BYTE_ORDER == __LITTLE_ENDIAN
 #define get_unaligned	__get_unaligned_le
 #define put_unaligned	__put_unaligned_le
 #else

@@ -48,6 +48,10 @@
 	.globl SYMBOL_NAME(name); \
 	LENTRY(name)
 
+#define WEAK(name) \
+	.weak SYMBOL_NAME(name); \
+	LENTRY(name)
+
 #ifndef END
 #define END(name) \
 	.size name, .-name
