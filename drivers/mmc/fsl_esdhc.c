@@ -500,6 +500,10 @@ static int esdhc_getcd(struct mmc *mmc)
 	struct fsl_esdhc *regs = (struct fsl_esdhc *)cfg->esdhc_base;
 	int timeout = 1000;
 
+#ifdef CONFIG_ESDHC_DETECT_QUIRK
+	if (CONFIG_ESDHC_DETECT_QUIRK)
+		return 1;
+#endif
 	while (!(esdhc_read32(&regs->prsstat) & PRSSTAT_CINS) && --timeout)
 		udelay(1000);
 
