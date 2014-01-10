@@ -596,6 +596,11 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 	if (caps & ESDHC_HOSTCAPBLT_HSS)
 		mmc->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
 
+#ifdef CONFIG_ESDHC_DETECT_8_BIT_QUIRK
+	if (CONFIG_ESDHC_DETECT_8_BIT_QUIRK)
+		mmc->host_caps &= ~MMC_MODE_8BIT;
+#endif
+
 	mmc->f_min = 400000;
 	mmc->f_max = MIN(gd->arch.sdhc_clk, 52000000);
 

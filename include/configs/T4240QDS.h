@@ -167,6 +167,7 @@ unsigned long get_board_ddr_clk(void);
 #define QIXIS_RCFG_CTL_WATCHDOG_ENBLE	0x08
 #define QIXIS_BRDCFG5			0x55
 #define QIXIS_MUX_SDHC			2
+#define QIXIS_MUX_SDHC_WIDTH8		1
 #define QIXIS_BASE_PHYS		(0xf00000000ull | QIXIS_BASE)
 
 #define CONFIG_SYS_CSPR3_EXT	(0xf)
@@ -471,6 +472,8 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_ESDHC_DETECT_QUIRK \
 	(!(readb(QIXIS_BASE + QIXIS_BRDCFG5) & QIXIS_MUX_SDHC) || \
 	IS_SVR_REV(get_svr(), 1, 0))
+#define CONFIG_ESDHC_DETECT_8_BIT_QUIRK \
+	(!(readb(QIXIS_BASE + QIXIS_BRDCFG5) & QIXIS_MUX_SDHC_WIDTH8))
 #endif
 
 #define CONFIG_BOOTDELAY	10	/* -1 disables auto-boot */
