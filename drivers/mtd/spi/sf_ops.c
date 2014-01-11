@@ -285,7 +285,7 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 		return 0;
 	}
 
-	cmd[0] = CMD_READ_ARRAY_FAST;
+	cmd[0] = flash->read_cmd;
 	cmd[4] = 0x00;
 
 	while (len) {

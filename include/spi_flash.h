@@ -19,6 +19,14 @@
 #include <linux/types.h>
 #include <linux/compiler.h>
 
+/* Enum list - Extended read commands */
+enum spi_read_cmds {
+	ARRAY_SLOW = 1 << 0,
+	DUAL_OUTPUT_FAST = 1 << 1,
+	DUAL_IO_FAST = 1 << 2,
+};
+#define RD_EXTN		ARRAY_SLOW | DUAL_OUTPUT_FAST | DUAL_IO_FAST
+
 /**
  * struct spi_flash - SPI flash structure
  *
@@ -33,6 +41,7 @@
  * @bank_curr:		Current flash bank
  * @poll_cmd:		Poll cmd - for flash erase/program
  * @erase_cmd:		Erase cmd 4K, 32K, 64K
+ * @read_cmd:		Read cmd - Array Fast and Extn read
  * @memory_map:		Address of read-only SPI flash access
  * @read:		Flash read ops: Read len bytes at offset into buf
  *			Supported cmds: Fast Array Read
@@ -57,6 +66,7 @@ struct spi_flash {
 #endif
 	u8 poll_cmd;
 	u8 erase_cmd;
+	u8 read_cmd;
 
 	void *memory_map;
 	int (*read)(struct spi_flash *flash, u32 offset, size_t len, void *buf);

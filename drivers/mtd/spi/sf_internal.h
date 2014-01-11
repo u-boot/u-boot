@@ -36,6 +36,8 @@
 /* Read commands */
 #define CMD_READ_ARRAY_SLOW		0x03
 #define CMD_READ_ARRAY_FAST		0x0b
+#define CMD_READ_DUAL_OUTPUT_FAST	0x3b
+#define CMD_READ_DUAL_IO_FAST		0xbb
 #define CMD_READ_ID			0x9f
 
 /* Bank addr access commands */

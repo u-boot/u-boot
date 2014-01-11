@@ -31,6 +31,12 @@
 #define SPI_XFER_MMAP_END	0x10	/* Memory Mapped End */
 #define SPI_XFER_ONCE		(SPI_XFER_BEGIN | SPI_XFER_END)
 
+/* SPI RX operation modes */
+#define SPI_OPM_RX_AS		1 << 0
+#define SPI_OPM_RX_DOUT		1 << 1
+#define SPI_OPM_RX_DIO		1 << 2
+#define SPI_OPM_RX_EXTN		SPI_OPM_RX_AS | SPI_OPM_RX_DOUT | SPI_OPM_RX_DIO
+
 /* Header byte that marks the start of the message */
 #define SPI_PREAMBLE_END_BYTE	0xec
 
@@ -43,6 +49,7 @@
  *
  * @bus:		ID of the bus that the slave is attached to.
  * @cs:			ID of the chip select connected to the slave.
+ * @op_mode_rx:		SPI RX operation mode.
  * @wordlen:		Size of SPI word in number of bits
  * @max_write_size:	If non-zero, the maximum number of bytes which can
  *			be written at once, excluding command bytes.
@@ -51,6 +58,7 @@
 struct spi_slave {
 	unsigned int bus;
 	unsigned int cs;
+	u8 op_mode_rx;
 	unsigned int wordlen;
 	unsigned int max_write_size;
 	void *memory_map;
