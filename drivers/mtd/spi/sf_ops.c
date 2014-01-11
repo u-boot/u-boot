@@ -131,6 +131,7 @@ static int spi_flash_bank(struct spi_flash *flash, u32 offset)
 }
 #endif
 
+#ifdef CONFIG_SF_DUAL_FLASH
 static void spi_flash_dual_flash(struct spi_flash *flash, u32 *addr)
 {
 	switch (flash->dual_flash) {
@@ -150,6 +151,7 @@ static void spi_flash_dual_flash(struct spi_flash *flash, u32 *addr)
 		break;
 	}
 }
+#endif
 
 int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
 {
@@ -167,9 +169,10 @@ int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
 		check_status = poll_bit;
 	}
 
+#ifdef CONFIG_SF_DUAL_FLASH
 	if (spi->flags & SPI_XFER_U_PAGE)
 		flags |= SPI_XFER_U_PAGE;
-
+#endif
 	ret = spi_xfer(spi, 8, &cmd, NULL, flags);
 	if (ret) {
 		debug("SF: fail to read %s status register\n",
@@ -257,9 +260,10 @@ int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 	while (len) {
 		erase_addr = offset;
 
+#ifdef CONFIG_SF_DUAL_FLASH
 		if (flash->dual_flash > SF_SINGLE_FLASH)
 			spi_flash_dual_flash(flash, &erase_addr);
-
+#endif
 #ifdef CONFIG_SPI_FLASH_BAR
 		ret = spi_flash_bank(flash, erase_addr);
 		if (ret < 0)
@@ -298,9 +302,10 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 	for (actual = 0; actual < len; actual += chunk_len) {
 		write_addr = offset;
 
+#ifdef CONFIG_SF_DUAL_FLASH
 		if (flash->dual_flash > SF_SINGLE_FLASH)
 			spi_flash_dual_flash(flash, &write_addr);
-
+#endif
 #ifdef CONFIG_SPI_FLASH_BAR
 		ret = spi_flash_bank(flash, write_addr);
 		if (ret < 0)
@@ -383,9 +388,10 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 	while (len) {
 		read_addr = offset;
 
+#ifdef CONFIG_SF_DUAL_FLASH
 		if (flash->dual_flash > SF_SINGLE_FLASH)
 			spi_flash_dual_flash(flash, &read_addr);
-
+#endif
 #ifdef CONFIG_SPI_FLASH_BAR
 		bank_sel = spi_flash_bank(flash, read_addr);
 		if (bank_sel < 0)
