@@ -127,7 +127,7 @@ static int spi_flash_bank(struct spi_flash *flash, u32 offset)
 		return ret;
 	}
 
-	return 0;
+	return bank_sel;
 }
 #endif
 
@@ -321,8 +321,9 @@ int spi_flash_read_common(struct spi_flash *flash, const u8 *cmd,
 int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 		size_t len, void *data)
 {
-	u8 *cmd, cmdsz, bank_sel = 0;
+	u8 *cmd, cmdsz;
 	u32 remain_len, read_len;
+	int bank_sel = 0;
 	int ret = -1;
 
 	/* Handle memory-mapped SPI */
@@ -346,13 +347,9 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 	cmd[0] = flash->read_cmd;
 	while (len) {
 #ifdef CONFIG_SPI_FLASH_BAR
-		bank_sel = offset / SPI_FLASH_16MB_BOUN;
-
-		ret = spi_flash_cmd_bankaddr_write(flash, bank_sel);
-		if (ret) {
-			debug("SF: fail to set bank%d\n", bank_sel);
+		bank_sel = spi_flash_bank(flash, offset);
+		if (bank_sel < 0)
 			return ret;
-		}
 #endif
 		remain_len = (SPI_FLASH_16MB_BOUN * (bank_sel + 1)) - offset;
 		if (len < remain_len)
