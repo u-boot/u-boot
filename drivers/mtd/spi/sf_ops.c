@@ -210,7 +210,7 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 
 	page_size = flash->page_size;
 
-	cmd[0] = CMD_PAGE_PROGRAM;
+	cmd[0] = flash->write_cmd;
 	for (actual = 0; actual < len; actual += chunk_len) {
 #ifdef CONFIG_SPI_FLASH_BAR
 		ret = spi_flash_bank(flash, offset);

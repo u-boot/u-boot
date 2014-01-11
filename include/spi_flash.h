@@ -19,13 +19,18 @@
 #include <linux/types.h>
 #include <linux/compiler.h>
 
-/* Enum list - Extended read commands */
+/* No enum list for write commands only QPP */
+#define WR_QPP		1 << 4
+
+/* Enum list - Full read commands */
 enum spi_read_cmds {
 	ARRAY_SLOW = 1 << 0,
 	DUAL_OUTPUT_FAST = 1 << 1,
 	DUAL_IO_FAST = 1 << 2,
+	QUAD_OUTPUT_FAST = 1 << 3,
 };
 #define RD_EXTN		ARRAY_SLOW | DUAL_OUTPUT_FAST | DUAL_IO_FAST
+#define RD_FULL		RD_EXTN | QUAD_OUTPUT_FAST
 
 /**
  * struct spi_flash - SPI flash structure
@@ -41,7 +46,8 @@ enum spi_read_cmds {
  * @bank_curr:		Current flash bank
  * @poll_cmd:		Poll cmd - for flash erase/program
  * @erase_cmd:		Erase cmd 4K, 32K, 64K
- * @read_cmd:		Read cmd - Array Fast and Extn read
+ * @read_cmd:		Read cmd - Array Fast, Extn read and quad read.
+ * @write_cmd:		Write cmd - page and quad program.
  * @memory_map:		Address of read-only SPI flash access
  * @read:		Flash read ops: Read len bytes at offset into buf
  *			Supported cmds: Fast Array Read
@@ -67,6 +73,7 @@ struct spi_flash {
 	u8 poll_cmd;
 	u8 erase_cmd;
 	u8 read_cmd;
+	u8 write_cmd;
 
 	void *memory_map;
 	int (*read)(struct spi_flash *flash, u32 offset, size_t len, void *buf);

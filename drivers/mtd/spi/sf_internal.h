@@ -28,6 +28,7 @@
 #define CMD_PAGE_PROGRAM		0x02
 #define CMD_WRITE_DISABLE		0x04
 #define CMD_READ_STATUS			0x05
+#define CMD_QUAD_PAGE_PROGRAM		0x32
 #define CMD_READ_STATUS1		0x35
 #define CMD_WRITE_ENABLE		0x06
 #define CMD_READ_CONFIG			0x35
@@ -38,6 +39,7 @@
 #define CMD_READ_ARRAY_FAST		0x0b
 #define CMD_READ_DUAL_OUTPUT_FAST	0x3b
 #define CMD_READ_DUAL_IO_FAST		0xbb
+#define CMD_READ_QUAD_OUTPUT_FAST	0x6b
 #define CMD_READ_ID			0x9f
 
 /* Bank addr access commands */
