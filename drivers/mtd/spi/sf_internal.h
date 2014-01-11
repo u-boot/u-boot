@@ -10,6 +10,8 @@
 #ifndef _SF_INTERNAL_H_
 #define _SF_INTERNAL_H_
 
+#define SPI_FLASH_3B_ADDR_LEN		3
+#define SPI_FLASH_CMD_LEN		(1 + SPI_FLASH_3B_ADDR_LEN)
 #define SPI_FLASH_16MB_BOUN		0x1000000
 
 /* CFI Manufacture ID's */

@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <malloc.h>
 #include <spi.h>
 #include <spi_flash.h>
 #include <watchdog.h>
@@ -216,7 +217,7 @@ int spi_flash_write_common(struct spi_flash *flash, const u8 *cmd,
 int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 {
 	u32 erase_size;
-	u8 cmd[4];
+	u8 cmd[SPI_FLASH_CMD_LEN];
 	int ret = -1;
 
 	erase_size = flash->erase_size;
@@ -255,7 +256,7 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 {
 	unsigned long byte_addr, page_size;
 	size_t chunk_len, actual;
-	u8 cmd[4];
+	u8 cmd[SPI_FLASH_CMD_LEN];
 	int ret = -1;
 
 	page_size = flash->page_size;
@@ -317,7 +318,7 @@ int spi_flash_read_common(struct spi_flash *flash, const u8 *cmd,
 int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 		size_t len, void *data)
 {
-	u8 cmd[5], bank_sel = 0;
+	u8 *cmd, cmdsz, bank_sel = 0;
 	u32 remain_len, read_len;
 	int ret = -1;
 
@@ -335,9 +336,11 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 		return 0;
 	}
 
-	cmd[0] = flash->read_cmd;
-	cmd[4] = 0x00;
+	cmdsz = SPI_FLASH_CMD_LEN + flash->dummy_byte;
+	cmd = malloc(cmdsz);
+	memset(cmd, 0, cmdsz);
 
+	cmd[0] = flash->read_cmd;
 	while (len) {
 #ifdef CONFIG_SPI_FLASH_BAR
 		bank_sel = offset / SPI_FLASH_16MB_BOUN;
@@ -356,8 +359,7 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 
 		spi_flash_addr(offset, cmd);
 
-		ret = spi_flash_read_common(flash, cmd, sizeof(cmd),
-							data, read_len);
+		ret = spi_flash_read_common(flash, cmd, cmdsz, data, read_len);
 		if (ret < 0) {
 			debug("SF: read failed\n");
 			break;

@@ -140,6 +140,25 @@ static struct spi_flash *spi_flash_validate_params(struct spi_slave *spi,
 		}
 	}
 
+	/* Read dummy_byte: dummy byte is determined based on the
+	 * dummy cycles of a particular command.
+	 * Fast commands - dummy_byte = dummy_cycles/8
+	 * I/O commands- dummy_byte = (dummy_cycles * no.of lines)/8
+	 * For I/O commands except cmd[0] everything goes on no.of lines
+	 * based on particular command but incase of fast commands except
+	 * data all go on single line irrespective of command.
+	 */
+	switch (flash->read_cmd) {
+	case CMD_READ_QUAD_IO_FAST:
+		flash->dummy_byte = 2;
+		break;
+	case CMD_READ_ARRAY_SLOW:
+		flash->dummy_byte = 0;
+		break;
+	default:
+		flash->dummy_byte = 1;
+	}
+
 	/* Poll cmd seclection */
 	flash->poll_cmd = CMD_READ_STATUS;
 #ifdef CONFIG_SPI_FLASH_STMICRO

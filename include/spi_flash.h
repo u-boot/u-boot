@@ -72,6 +72,7 @@ extern const struct spi_flash_params spi_flash_params_table[];
  * @erase_cmd:		Erase cmd 4K, 32K, 64K
  * @read_cmd:		Read cmd - Array Fast, Extn read and quad read.
  * @write_cmd:		Write cmd - page and quad program.
+ * @dummy_byte:		Dummy cycles for read operation.
  * @memory_map:		Address of read-only SPI flash access
  * @read:		Flash read ops: Read len bytes at offset into buf
  *			Supported cmds: Fast Array Read
@@ -98,6 +99,7 @@ struct spi_flash {
 	u8 erase_cmd;
 	u8 read_cmd;
 	u8 write_cmd;
+	u8 dummy_byte;
 
 	void *memory_map;
 	int (*read)(struct spi_flash *flash, u32 offset, size_t len, void *buf);
