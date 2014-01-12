@@ -36,6 +36,12 @@ enum spi_read_cmds {
 #define RD_EXTN		ARRAY_SLOW | DUAL_OUTPUT_FAST | DUAL_IO_FAST
 #define RD_FULL		RD_EXTN | QUAD_OUTPUT_FAST | QUAD_IO_FAST
 
+/* Dual SPI flash memories */
+enum spi_dual_flash {
+	SF_SINGLE_FLASH = 0,
+	SF_DUAL_STACKED_FLASH = 1 << 0,
+};
+
 /**
  * struct spi_flash_params - SPI/QSPI flash device params structure
  *
@@ -64,6 +70,7 @@ extern const struct spi_flash_params spi_flash_params_table[];
  *
  * @spi:		SPI slave
  * @name:		Name of SPI flash
+ * @dual_flash:		Indicates dual flash memories - dual stacked
  * @size:		Total flash size
  * @page_size:		Write (page) size
  * @sector_size:	Sector size
@@ -88,6 +95,7 @@ extern const struct spi_flash_params spi_flash_params_table[];
 struct spi_flash {
 	struct spi_slave *spi;
 	const char *name;
+	u8 dual_flash;
 
 	u32 size;
 	u32 page_size;

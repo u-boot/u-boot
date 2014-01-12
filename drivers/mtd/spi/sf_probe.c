@@ -134,6 +134,7 @@ static struct spi_flash *spi_flash_validate_params(struct spi_slave *spi,
 	flash->spi = spi;
 	flash->name = params->name;
 	flash->memory_map = spi->memory_map;
+	flash->dual_flash = flash->spi->option;
 
 	/* Assign spi_flash ops */
 	flash->write = spi_flash_cmd_write_ops;
@@ -148,6 +149,8 @@ static struct spi_flash *spi_flash_validate_params(struct spi_slave *spi,
 	flash->page_size = (ext_jedec == 0x4d00) ? 512 : 256;
 	flash->sector_size = params->sector_size;
 	flash->size = flash->sector_size * params->nr_sectors;
+	if (flash->dual_flash & SF_DUAL_STACKED_FLASH)
+		flash->size <<= 1;
 
 	/* Compute erase sector and command */
 	if (params->flags & SECT_4K) {
@@ -324,7 +327,10 @@ static struct spi_flash *spi_flash_probe_slave(struct spi_slave *spi)
 	puts("\n");
 #endif
 #ifndef CONFIG_SPI_FLASH_BAR
-	if (flash->size > SPI_FLASH_16MB_BOUN) {
+	if (((flash->dual_flash == SF_SINGLE_FLASH) &&
+	     (flash->size > SPI_FLASH_16MB_BOUN)) ||
+	     ((flash->dual_flash > SF_SINGLE_FLASH) &&
+	     (flash->size > SPI_FLASH_16MB_BOUN << 1))) {
 		puts("SF: Warning - Only lower 16MiB accessible,");
 		puts(" Full access #define CONFIG_SPI_FLASH_BAR\n");
 	}

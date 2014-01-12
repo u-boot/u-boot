@@ -30,6 +30,7 @@
 #define SPI_XFER_MMAP		0x08	/* Memory Mapped start */
 #define SPI_XFER_MMAP_END	0x10	/* Memory Mapped End */
 #define SPI_XFER_ONCE		(SPI_XFER_BEGIN | SPI_XFER_END)
+#define SPI_XFER_U_PAGE		(1 << 5)
 
 /* SPI TX operation modes */
 #define SPI_OPM_TX_QPP		1 << 0
@@ -43,6 +44,9 @@
 #define SPI_OPM_RX_EXTN		SPI_OPM_RX_AS | SPI_OPM_RX_DOUT | \
 				SPI_OPM_RX_DIO | SPI_OPM_RX_QOF | \
 				SPI_OPM_RX_QIOF
+
+/* SPI bus connection options */
+#define SPI_CONN_DUAL_SHARED	1 << 0
 
 /* Header byte that marks the start of the message */
 #define SPI_PREAMBLE_END_BYTE	0xec
@@ -62,6 +66,8 @@
  * @max_write_size:	If non-zero, the maximum number of bytes which can
  *			be written at once, excluding command bytes.
  * @memory_map:		Address of read-only SPI flash access.
+ * @option:		Varies SPI bus options - separate bus.
+ * @flags:		Indication of SPI flags.
  */
 struct spi_slave {
 	unsigned int bus;
@@ -71,6 +77,8 @@ struct spi_slave {
 	unsigned int wordlen;
 	unsigned int max_write_size;
 	void *memory_map;
+	u8 option;
+	u8 flags;
 };
 
 /**

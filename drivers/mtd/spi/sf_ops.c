@@ -131,10 +131,28 @@ static int spi_flash_bank(struct spi_flash *flash, u32 offset)
 }
 #endif
 
+static void spi_flash_dual_flash(struct spi_flash *flash, u32 *addr)
+{
+	switch (flash->dual_flash) {
+	case SF_DUAL_STACKED_FLASH:
+		if (*addr >= (flash->size >> 1)) {
+			*addr -= flash->size >> 1;
+			flash->spi->flags |= SPI_XFER_U_PAGE;
+		} else {
+			flash->spi->flags &= ~SPI_XFER_U_PAGE;
+		}
+		break;
+	default:
+		debug("SF: Unsupported dual_flash=%d\n", flash->dual_flash);
+		break;
+	}
+}
+
 int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
 {
 	struct spi_slave *spi = flash->spi;
 	unsigned long timebase;
+	unsigned long flags = SPI_XFER_BEGIN;
 	int ret;
 	u8 status;
 	u8 check_status = 0x0;
@@ -146,7 +164,10 @@ int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
 		check_status = poll_bit;
 	}
 
-	ret = spi_xfer(spi, 8, &cmd, NULL, SPI_XFER_BEGIN);
+	if (spi->flags & SPI_XFER_U_PAGE)
+		flags |= SPI_XFER_U_PAGE;
+
+	ret = spi_xfer(spi, 8, &cmd, NULL, flags);
 	if (ret) {
 		debug("SF: fail to read %s status register\n",
 		      cmd == CMD_READ_STATUS ? "read" : "flag");
@@ -219,7 +240,7 @@ int spi_flash_write_common(struct spi_flash *flash, const u8 *cmd,
 
 int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 {
-	u32 erase_size;
+	u32 erase_size, erase_addr;
 	u8 cmd[SPI_FLASH_CMD_LEN];
 	int ret = -1;
 
@@ -231,15 +252,20 @@ int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 
 	cmd[0] = flash->erase_cmd;
 	while (len) {
+		erase_addr = offset;
+
+		if (flash->dual_flash > SF_SINGLE_FLASH)
+			spi_flash_dual_flash(flash, &erase_addr);
+
 #ifdef CONFIG_SPI_FLASH_BAR
-		ret = spi_flash_bank(flash, offset);
+		ret = spi_flash_bank(flash, erase_addr);
 		if (ret < 0)
 			return ret;
 #endif
-		spi_flash_addr(offset, cmd);
+		spi_flash_addr(erase_addr, cmd);
 
 		debug("SF: erase %2x %2x %2x %2x (%x)\n", cmd[0], cmd[1],
-		      cmd[2], cmd[3], offset);
+		      cmd[2], cmd[3], erase_addr);
 
 		ret = spi_flash_write_common(flash, cmd, sizeof(cmd), NULL, 0);
 		if (ret < 0) {
@@ -258,6 +284,7 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 		size_t len, const void *buf)
 {
 	unsigned long byte_addr, page_size;
+	u32 write_addr;
 	size_t chunk_len, actual;
 	u8 cmd[SPI_FLASH_CMD_LEN];
 	int ret = -1;
@@ -266,8 +293,13 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 
 	cmd[0] = flash->write_cmd;
 	for (actual = 0; actual < len; actual += chunk_len) {
+		write_addr = offset;
+
+		if (flash->dual_flash > SF_SINGLE_FLASH)
+			spi_flash_dual_flash(flash, &write_addr);
+
 #ifdef CONFIG_SPI_FLASH_BAR
-		ret = spi_flash_bank(flash, offset);
+		ret = spi_flash_bank(flash, write_addr);
 		if (ret < 0)
 			return ret;
 #endif
@@ -277,7 +309,7 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 		if (flash->spi->max_write_size)
 			chunk_len = min(chunk_len, flash->spi->max_write_size);
 
-		spi_flash_addr(offset, cmd);
+		spi_flash_addr(write_addr, cmd);
 
 		debug("SF: 0x%p => cmd = { 0x%02x 0x%02x%02x%02x } chunk_len = %zu\n",
 		      buf + actual, cmd[0], cmd[1], cmd[2], cmd[3], chunk_len);
@@ -322,7 +354,7 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 		size_t len, void *data)
 {
 	u8 *cmd, cmdsz;
-	u32 remain_len, read_len;
+	u32 remain_len, read_len, read_addr;
 	int bank_sel = 0;
 	int ret = -1;
 
@@ -346,8 +378,13 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 
 	cmd[0] = flash->read_cmd;
 	while (len) {
+		read_addr = offset;
+
+		if (flash->dual_flash > SF_SINGLE_FLASH)
+			spi_flash_dual_flash(flash, &read_addr);
+
 #ifdef CONFIG_SPI_FLASH_BAR
-		bank_sel = spi_flash_bank(flash, offset);
+		bank_sel = spi_flash_bank(flash, read_addr);
 		if (bank_sel < 0)
 			return ret;
 #endif
@@ -357,7 +394,7 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 		else
 			read_len = remain_len;
 
-		spi_flash_addr(offset, cmd);
+		spi_flash_addr(read_addr, cmd);
 
 		ret = spi_flash_read_common(flash, cmd, cmdsz, data, read_len);
 		if (ret < 0) {
