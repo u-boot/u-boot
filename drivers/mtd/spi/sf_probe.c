@@ -167,7 +167,7 @@ static struct spi_flash *spi_flash_validate_params(struct spi_slave *spi,
 		cmd = spi_read_cmds_array[cmd - 1];
 		flash->read_cmd = cmd;
 	} else {
-		/* Go for for default supported read cmd */
+		/* Go for default supported read cmd */
 		flash->read_cmd = CMD_READ_ARRAY_FAST;
 	}
 
@@ -207,7 +207,7 @@ static struct spi_flash *spi_flash_validate_params(struct spi_slave *spi,
 		flash->dummy_byte = 1;
 	}
 
-	/* Poll cmd seclection */
+	/* Poll cmd selection */
 	flash->poll_cmd = CMD_READ_STATUS;
 #ifdef CONFIG_SPI_FLASH_STMICRO
 	if (params->flags & E_FSR)

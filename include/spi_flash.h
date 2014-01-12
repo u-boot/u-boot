@@ -19,7 +19,10 @@
 #include <linux/types.h>
 #include <linux/compiler.h>
 
-/* No enum list for write commands only QPP */
+/* sf param flags */
+#define SECT_4K		1 << 1
+#define SECT_32K	1 << 2
+#define E_FSR		1 << 3
 #define WR_QPP		1 << 4
 
 /* Enum list - Full read commands */

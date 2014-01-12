@@ -39,13 +39,13 @@ int spi_flash_cmd_read_status(struct spi_flash *flash, u8 *rs)
 	return 0;
 }
 
-int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr)
+int spi_flash_cmd_write_status(struct spi_flash *flash, u8 ws)
 {
 	u8 cmd;
 	int ret;
 
 	cmd = CMD_WRITE_STATUS;
-	ret = spi_flash_write_common(flash, &cmd, 1, &sr, 1);
+	ret = spi_flash_write_common(flash, &cmd, 1, &ws, 1);
 	if (ret < 0) {
 		debug("SF: fail to write status register\n");
 		return ret;
@@ -279,7 +279,7 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 
 		spi_flash_addr(offset, cmd);
 
-		debug("PP: 0x%p => cmd = { 0x%02x 0x%02x%02x%02x } chunk_len = %zu\n",
+		debug("SF: 0x%p => cmd = { 0x%02x 0x%02x%02x%02x } chunk_len = %zu\n",
 		      buf + actual, cmd[0], cmd[1], cmd[2], cmd[3], chunk_len);
 
 		ret = spi_flash_write_common(flash, cmd, sizeof(cmd),

@@ -20,11 +20,6 @@
 #define SPI_FLASH_CFI_MFR_MACRONIX	0xc2
 #define SPI_FLASH_CFI_MFR_WINBOND	0xef
 
-/* SECT flags */
-#define SECT_4K				(1 << 1)
-#define SECT_32K			(1 << 2)
-#define E_FSR				(1 << 3)
-
 /* Erase commands */
 #define CMD_ERASE_4K			0x20
 #define CMD_ERASE_32K			0x52
@@ -60,10 +55,10 @@
 #endif
 
 /* Common status */
-#define STATUS_WIP			0x01
+#define STATUS_WIP			(1 << 0)
 #define STATUS_QEB_WINSPAN		(1 << 1)
 #define STATUS_QEB_MXIC			(1 << 6)
-#define STATUS_PEC			0x80
+#define STATUS_PEC			(1 << 7)
 
 /* Flash timeout values */
 #define SPI_FLASH_PROG_TIMEOUT		(2 * CONFIG_SYS_HZ)
@@ -105,7 +100,7 @@ int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len);
 int spi_flash_cmd_read_status(struct spi_flash *flash, u8 *rs);
 
 /* Program the status register */
-int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr);
+int spi_flash_cmd_write_status(struct spi_flash *flash, u8 ws);
 
 /* Read the config register */
 int spi_flash_cmd_read_config(struct spi_flash *flash, u8 *rc);
