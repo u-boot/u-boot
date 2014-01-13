@@ -109,5 +109,5 @@ endif
 ifdef CONFIG_ARM64
 OBJCFLAGS += -j .text -j .rodata -j .data -j .u_boot_list -j .rela.dyn
 else
-OBJCFLAGS += -j .text -j .rodata -j .data -j .u_boot_list -j .rel.dyn
+OBJCFLAGS += -j .text -j .rodata -j .hash -j .data -j .got.plt -j .u_boot_list -j .rel.dyn
 endif

@@ -165,7 +165,7 @@ $(obj)$(BOARD)-spl.bin: $(obj)u-boot-spl.bin
 endif
 
 $(obj)$(SPL_BIN).bin:	$(obj)$(SPL_BIN)
-	$(OBJCOPY) $(OBJCFLAGS) -O binary $< $@
+	$(OBJCOPY) $(OBJCFLAGS) $(SPL_OBJCFLAGS) -O binary $< $@
 
 GEN_UBOOT = \
 	cd $(obj) && $(LD) $(LDFLAGS) $(LDFLAGS_$(@F)) $(__START) \
