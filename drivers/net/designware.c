@@ -52,6 +52,7 @@ static void tx_descs_init(struct eth_device *dev)
 	desc_p->dmamac_next = &desc_table_p[0];
 
 	writel((ulong)&desc_table_p[0], &dma_p->txdesclistaddr);
+	priv->tx_currdescnum = 0;
 }
 
 static void rx_descs_init(struct eth_device *dev)
@@ -79,6 +80,7 @@ static void rx_descs_init(struct eth_device *dev)
 	desc_p->dmamac_next = &desc_table_p[0];
 
 	writel((ulong)&desc_table_p[0], &dma_p->rxdesclistaddr);
+	priv->rx_currdescnum = 0;
 }
 
 static void descs_init(struct eth_device *dev)
