@@ -10,12 +10,15 @@
 #ifndef _SF_INTERNAL_H_
 #define _SF_INTERNAL_H_
 
+#define SPI_FLASH_3B_ADDR_LEN		3
+#define SPI_FLASH_CMD_LEN		(1 + SPI_FLASH_3B_ADDR_LEN)
 #define SPI_FLASH_16MB_BOUN		0x1000000
 
-/* SECT flags */
-#define SECT_4K				(1 << 1)
-#define SECT_32K			(1 << 2)
-#define E_FSR				(1 << 3)
+/* CFI Manufacture ID's */
+#define SPI_FLASH_CFI_MFR_SPANSION	0x01
+#define SPI_FLASH_CFI_MFR_STMICRO	0x20
+#define SPI_FLASH_CFI_MFR_MACRONIX	0xc2
+#define SPI_FLASH_CFI_MFR_WINBOND	0xef
 
 /* Erase commands */
 #define CMD_ERASE_4K			0x20
@@ -28,6 +31,7 @@
 #define CMD_PAGE_PROGRAM		0x02
 #define CMD_WRITE_DISABLE		0x04
 #define CMD_READ_STATUS			0x05
+#define CMD_QUAD_PAGE_PROGRAM		0x32
 #define CMD_READ_STATUS1		0x35
 #define CMD_WRITE_ENABLE		0x06
 #define CMD_READ_CONFIG			0x35
@@ -36,6 +40,10 @@
 /* Read commands */
 #define CMD_READ_ARRAY_SLOW		0x03
 #define CMD_READ_ARRAY_FAST		0x0b
+#define CMD_READ_DUAL_OUTPUT_FAST	0x3b
+#define CMD_READ_DUAL_IO_FAST		0xbb
+#define CMD_READ_QUAD_OUTPUT_FAST	0x6b
+#define CMD_READ_QUAD_IO_FAST		0xeb
 #define CMD_READ_ID			0x9f
 
 /* Bank addr access commands */
@@ -47,8 +55,10 @@
 #endif
 
 /* Common status */
-#define STATUS_WIP			0x01
-#define STATUS_PEC			0x80
+#define STATUS_WIP			(1 << 0)
+#define STATUS_QEB_WINSPAN		(1 << 1)
+#define STATUS_QEB_MXIC			(1 << 6)
+#define STATUS_PEC			(1 << 7)
 
 /* Flash timeout values */
 #define SPI_FLASH_PROG_TIMEOUT		(2 * CONFIG_SYS_HZ)
@@ -86,11 +96,17 @@ int spi_flash_cmd_write(struct spi_slave *spi, const u8 *cmd, size_t cmd_len,
 /* Flash erase(sectors) operation, support all possible erase commands */
 int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len);
 
-/* Program the status register */
-int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr);
+/* Read the status register */
+int spi_flash_cmd_read_status(struct spi_flash *flash, u8 *rs);
 
-/* Set quad enbale bit */
-int spi_flash_set_qeb(struct spi_flash *flash);
+/* Program the status register */
+int spi_flash_cmd_write_status(struct spi_flash *flash, u8 ws);
+
+/* Read the config register */
+int spi_flash_cmd_read_config(struct spi_flash *flash, u8 *rc);
+
+/* Program the config register */
+int spi_flash_cmd_write_config(struct spi_flash *flash, u8 wc);
 
 /* Enable writing on the SPI flash */
 static inline int spi_flash_cmd_write_enable(struct spi_flash *flash)
