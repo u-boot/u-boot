@@ -276,64 +276,13 @@ static void ft_fixup_port(void *blob, struct fm_eth_info *info, char *prop)
 		"status", "disabled", strlen("disabled") + 1, 1);
 }
 
-#ifdef CONFIG_SYS_FMAN_V3
-static int ft_fixup_xgec(void *blob, struct fm_eth_info *info)
-{
-	int off, i, ci;
-#define FM1_10GEC3_RX_PORT_ADDR	(CONFIG_SYS_CCSRBAR_PHYS + 0x488000)
-#define FM1_10GEC3_TX_PORT_ADDR	(CONFIG_SYS_CCSRBAR_PHYS + 0x4a8000)
-#define FM1_10GEC3_MAC_ADDR	(CONFIG_SYS_CCSRBAR_PHYS + 0x4e0000)
-
-	if ((info->port == FM1_10GEC3) || (info->port == FM1_10GEC4)) {
-		ci = (info->port == FM1_10GEC3) ? 2 : 3;
-		i = (info->port == FM1_10GEC3) ? 0 : 1;
-
-		off = fdt_node_offset_by_compat_reg(blob, "fsl,fman-port-1g-rx",
-						    FM1_10GEC3_RX_PORT_ADDR +
-						    i * 0x1000);
-		if (off > 0) {
-			fdt_setprop(blob, off, "cell-index", &ci, sizeof(int));
-			fdt_setprop(blob, off, "compatible",
-				    "fsl,fman-port-10g-rx", 20);
-		} else {
-			goto err;
-		}
-
-		off = fdt_node_offset_by_compat_reg(blob, "fsl,fman-port-1g-tx",
-						    FM1_10GEC3_TX_PORT_ADDR +
-						    i * 0x1000);
-		if (off > 0) {
-			fdt_setprop(blob, off, "cell-index", &ci, sizeof(int));
-			fdt_setprop(blob, off, "compatible",
-				    "fsl,fman-port-10g-tx", 20);
-		} else {
-			goto err;
-		}
-
-		off = fdt_node_offset_by_compat_reg(blob, "fsl,fman-memac",
-						    FM1_10GEC3_MAC_ADDR +
-						    i * 0x2000);
-		if (off > 0)
-			fdt_setprop(blob, off, "cell-index", &ci, sizeof(int));
-		else
-			goto err;
-	}
-	return 0;
-err:
-	printf("WARNING: Fail to find the node\n");
-	return -1;
-}
-#endif
-
 void fdt_fixup_fman_ethernet(void *blob)
 {
 	int i;
 
 #ifdef CONFIG_SYS_FMAN_V3
-	for (i = 0; i < ARRAY_SIZE(fm_info); i++) {
+	for (i = 0; i < ARRAY_SIZE(fm_info); i++)
 		ft_fixup_port(blob, &fm_info[i], "fsl,fman-memac");
-		ft_fixup_xgec(blob, &fm_info[i]);
-	}
 #else
 	for (i = 0; i < ARRAY_SIZE(fm_info); i++) {
 		if (fm_info[i].type == FM_ETH_1G_E)
