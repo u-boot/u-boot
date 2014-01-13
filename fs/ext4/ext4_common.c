@@ -1430,7 +1430,7 @@ static struct ext4_extent_header *ext4fs_get_extent_block
 			i++;
 			if (i >= le16_to_cpu(ext_block->eh_entries))
 				break;
-		} while (fileblock > le32_to_cpu(index[i].ei_block));
+		} while (fileblock >= le32_to_cpu(index[i].ei_block));
 
 		if (--i < 0)
 			return 0;
