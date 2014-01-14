@@ -24,7 +24,7 @@ ENTRY(lowlevel_init)
 #ifdef CONFIG_SPL_BUILD
 	ldr	r9, =gdata
 #else
-	sub	sp, #GD_SIZE
+	sub	sp, sp, #GD_SIZE
 	bic	sp, sp, #7
 	mov	r9, sp
 #endif

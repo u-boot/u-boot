@@ -106,17 +106,9 @@ int board_mmc_init(bd_t *bis)
 #ifdef CONFIG_FEC_MXC
 int board_eth_init(bd_t *bis)
 {
-	int ret;
-
 	setup_iomux_fec();
 
-	ret = cpu_eth_init(bis);
-	if (ret) {
-		printf("FEC MXC: %s:failed\n", __func__);
-		return ret;
-	}
-
-	return 0;
+	return cpu_eth_init(bis);
 }
 
 static int setup_fec(void)

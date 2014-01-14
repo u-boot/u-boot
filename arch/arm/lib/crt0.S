@@ -67,7 +67,7 @@ ENTRY(_main)
 	ldr	sp, =(CONFIG_SYS_INIT_SP_ADDR)
 #endif
 	bic	sp, sp, #7	/* 8-byte alignment for ABI compliance */
-	sub	sp, #GD_SIZE	/* allocate one GD above SP */
+	sub	sp, sp, #GD_SIZE	/* allocate one GD above SP */
 	bic	sp, sp, #7	/* 8-byte alignment for ABI compliance */
 	mov	r9, sp		/* GD is above SP */
 	mov	r0, #0
