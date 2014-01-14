@@ -349,4 +349,74 @@
 # define CONFIG_PANIC_HANG
 #endif
 
+/* SPL part */
+#define CONFIG_SPL
+#define CONFIG_SPL_FRAMEWORK
+#define CONFIG_SPL_LIBCOMMON_SUPPORT
+#define CONFIG_SPL_LIBGENERIC_SUPPORT
+#define CONFIG_SPL_SERIAL_SUPPORT
+
+#define CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/armv7/zynq/u-boot-spl.lds"
+
+/* Disable dcache for SPL just for sure */
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_SYS_DCACHE_OFF
+#undef CONFIG_FPGA
+#endif
+
+/* MMC support */
+#ifdef CONFIG_ZYNQ_SDHCI0
+#define CONFIG_SPL_MMC_SUPPORT
+#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR 0x300 /* address 0x60000 */
+#define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS      0x200 /* 256 KB */
+#define CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION    1
+#define CONFIG_SPL_LIBDISK_SUPPORT
+#define CONFIG_SPL_FAT_SUPPORT
+#define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME     "u-boot.img"
+#endif
+
+/* qspi mode is working fine */
+#ifdef CONFIG_ZYNQ_QSPI
+#define CONFIG_SPL_SPI_SUPPORT
+#define CONFIG_SPL_SPI_LOAD
+#define CONFIG_SPL_SPI_FLASH_SUPPORT
+#define CONFIG_SPL_SPI_BUS	0
+#define CONFIG_SYS_SPI_U_BOOT_OFFS	0x100000
+#define CONFIG_SPL_SPI_CS	0
+#endif
+
+#ifdef DEBUG
+#define CONFIG_SPL_RAM_DEVICE
+#define CONFIG_SPL_NET_SUPPORT
+#define CONFIG_SPL_ETH_SUPPORT
+#define CONFIG_SPL_ENV_SUPPORT
+#define CONFIG_SPL_ETH_DEVICE "Gem.e000b000"
+
+/* for booting directly linux */
+#define CONFIG_SPL_OS_BOOT
+#endif
+
+/* SP location before relocation, must use scratch RAM */
+#define CONFIG_SPL_TEXT_BASE	0x0
+
+/* 3 * 64kB blocks of OCM - one is on the top because of bootrom */
+#define CONFIG_SPL_MAX_FOOTPRINT	0x30000
+
+/* The highest 64k OCM address */
+#define OCM_HIGH_ADDR	0xffff0000
+
+/* Just define any reasonable size */
+#define CONFIG_SPL_STACK_SIZE	0x1000
+
+/* SPL stack position - and stack goes down */
+#define CONFIG_SPL_STACK	(OCM_HIGH_ADDR + CONFIG_SPL_STACK_SIZE)
+
+/* On the top of OCM space */
+#define CONFIG_SYS_SPL_MALLOC_START	(CONFIG_SPL_STACK + \
+					 GENERATED_GBL_DATA_SIZE)
+#define CONFIG_SYS_SPL_MALLOC_SIZE	0x1000
+
+/* These two can't be more than 0xffffff2c */
+/* CONFIG_SYS_SPL_MALLOC_START + CONFIG_SYS_SPL_MALLOC_SIZE */
+
 #endif /* __CONFIG_ZYNQ_COMMON_H */

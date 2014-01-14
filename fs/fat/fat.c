@@ -319,6 +319,9 @@ get_cluster(fsdata *mydata, __u32 clustnum, __u8 *buffer, unsigned long size)
  * into 'buffer'.
  * Return the number of bytes read or -1 on fatal errors.
  */
+#if defined(CONFIG_ZYNQ) && defined(CONFIG_SPL_BUILD)
+__section(.ddr)
+#endif
 __u8 get_contents_vfatname_block[MAX_CLUSTSIZE]
 	__aligned(ARCH_DMA_MINALIGN);
 
@@ -571,6 +574,9 @@ static __u8 mkcksum(const char name[8], const char ext[3])
  * Get the directory entry associated with 'filename' from the directory
  * starting at 'startsect'
  */
+#if defined(CONFIG_ZYNQ) && defined(CONFIG_SPL_BUILD)
+__section(.ddr)
+#endif
 __u8 get_dentfromdir_block[MAX_CLUSTSIZE]
 	__aligned(ARCH_DMA_MINALIGN);
 
@@ -803,6 +809,9 @@ exit:
 	return ret;
 }
 
+#if defined(CONFIG_ZYNQ) && defined(CONFIG_SPL_BUILD)
+__section(.ddr)
+#endif
 __u8 do_fat_read_at_block[MAX_CLUSTSIZE]
 	__aligned(ARCH_DMA_MINALIGN);
 

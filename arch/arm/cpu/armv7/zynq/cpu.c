@@ -16,7 +16,7 @@
 int arch_cpu_init(void)
 {
 	zynq_slcr_unlock();
-
+#ifndef CONFIG_SPL_BUILD
 	/* Device config APB, unlock the PCAP */
 	writel(0x757BDF0D, &devcfg_base->unlock);
 	writel(0xFFFFFFFF, &devcfg_base->rom_shadow);
@@ -34,7 +34,7 @@ int arch_cpu_init(void)
 	/* Urgent write, ports S2/S3 */
 	writel(0xC, &slcr_base->ddr_urgent);
 #endif
-
+#endif
 	zynq_clk_early_init();
 	zynq_slcr_lock();
 
