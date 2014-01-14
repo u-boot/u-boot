@@ -16,7 +16,6 @@
  * High Level Configuration Options
  *----------------------------------------------------------------------*/
 #define CONFIG_ACADIA		1		/* Board is Acadia	*/
-#define CONFIG_4xx		1		/* ... PPC4xx family	*/
 #define CONFIG_405EZ		1		/* Specifc 405EZ support*/
 
 #ifndef CONFIG_SYS_TEXT_BASE

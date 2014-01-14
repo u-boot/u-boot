@@ -20,7 +20,6 @@
  * High Level Configuration Options
  *----------------------------------------------------------------------*/
 #define CONFIG_IO64		1		/* Board is Io64 */
-#define CONFIG_4xx		1		/* ... PPC4xx family */
 #define CONFIG_405EX		1		/* Specifc 405EX support*/
 #define CONFIG_SYS_CLK_FREQ	33333333	/* ext frequency to pll */
 

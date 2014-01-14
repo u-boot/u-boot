@@ -43,7 +43,6 @@
  */
 
 #define CONFIG_SC3	1
-#define CONFIG_4xx	1
 #define CONFIG_405GP	1
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFFA0000
