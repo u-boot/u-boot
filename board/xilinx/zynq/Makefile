@@ -6,3 +6,4 @@
 #
 
 obj-y	:= board.o
+obj-$(CONFIG_SPL_BUILD)	+= ps7_init.o
