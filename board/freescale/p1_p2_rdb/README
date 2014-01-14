@@ -20,8 +20,8 @@ Memory Map
 0xef00_0000 - 0xef7f_ffff	Alternate bank		8MB
 0xe800_0000 - 0xefff_ffff	Boot bank		8MB
 
-0xef78_0000 - 0xef7f_ffff	Alternate u-boot address	512KB
-0xeff8_0000 - 0xefff_ffff	Boot u-boot address		512KB
+0xef74_0000 - 0xef7f_ffff	Alternate u-boot address	768KB
+0xeff4_0000 - 0xefff_ffff	Boot u-boot address		768KB
 
 Switch settings to boot from the NOR flash banks
 ------------------------------------------------
@@ -33,16 +33,16 @@ Flashing Images
 To place a new u-boot image in the alternate flash bank and then boot
 with that new image temporarily, use this:
 	tftp 1000000 u-boot.bin
-	erase ef780000 ef7fffff
-	cp.b 1000000 ef780000 80000
+	erase ef740000 ef7fffff
+	cp.b 1000000 ef740000 c0000
 
 Now to boot from the alternate bank change the SW4[8] from 0 to 1.
 
 To program the image in the boot flash bank:
 	tftp 1000000 u-boot.bin
 	protect off all
-	erase eff80000 ffffffff
-	cp.b 1000000 eff80000 80000
+	erase eff40000 ffffffff
+	cp.b 1000000 eff40000 c0000
 
 Using the Device Tree Source File
 ---------------------------------

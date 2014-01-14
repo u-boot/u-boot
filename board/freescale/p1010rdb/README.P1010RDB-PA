@@ -104,9 +104,9 @@ Build and burn u-boot to NOR flash
 
 2. Burn u-boot.bin into NOR flash
 	=> tftp $loadaddr $uboot
-	=> protect off eff80000 +$filesize
-	=> erase eff80000 +$filesize
-	=> cp.b $loadaddr eff80000 $filesize
+	=> protect off eff40000 +$filesize
+	=> erase eff40000 +$filesize
+	=> cp.b $loadaddr eff40000 $filesize
 
 3. Check SW4[1:4]= 1111 and SW6[4]=0, then power on.
 
@@ -115,9 +115,9 @@ Alternate NOR bank
 ==================
 1. Burn u-boot.bin into alternate NOR bank
 	=> tftp $loadaddr $uboot
-	=> protect off eef80000 +$filesize
-	=> erase eef80000 +$filesize
-	=> cp.b $loadaddr eef80000 $filesize
+	=> protect off eef40000 +$filesize
+	=> erase eef40000 +$filesize
+	=> cp.b $loadaddr eef40000 $filesize
 
 2. Switch to alternate NOR bank
 	=> mw.b ffb00009 1

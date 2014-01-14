@@ -18,8 +18,8 @@ Boot from NOR flash
 2. Program image
 	=> tftp 1000000 u-boot.bin
 	=> protect off all
-	=> erase eff80000 efffffff
-	=> cp.b 1000000 eff80000 80000
+	=> erase eff40000 efffffff
+	=> cp.b 1000000 eff40000 c0000
 
 3. Program RCW
 	=> tftp 1000000 rcw.bin
@@ -30,8 +30,8 @@ Boot from NOR flash
 4. Program FMAN Firmware ucode
 	=> tftp 1000000 ucode.bin
 	=> protect off all
-	=> erase ef000000 ef0fffff
-	=> cp.b 1000000 ef000000 2000
+	=> erase eff00000 eff3ffff
+	=> cp.b 1000000 eff00000 2000
 
 5. Change DIP-switch
 	SW1[1-5] = 10110
@@ -50,11 +50,11 @@ Boot from SDCard
 3. Program the PBL image to SDCard
 	=> tftp 1000000 pbl_sd.bin
 	=> mmcinfo
-	=> mmc write 1000000 8 441
+	=> mmc write 1000000 8 672
 
 4. Program FMAN Firmware ucode
 	=> tftp 1000000 ucode.bin
-	=> mmc write 1000000 46a 10
+	=> mmc write 1000000 690 10
 
 5. Change DIP-switch
 	SW1[1-5] = 01100
