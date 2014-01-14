@@ -115,6 +115,7 @@
 /* USB Composite download gadget - g_dnl */
 #define CONFIG_USBDOWNLOAD_GADGET
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE SZ_32M
+#define DFU_DEFAULT_POLL_TIMEOUT 300
 #define CONFIG_DFU_FUNCTION
 #define CONFIG_DFU_MMC
 
