@@ -49,7 +49,7 @@ int power_init_board(void)
 	 * For PMIC the I2C bus is named as I2C5, but it is connected
 	 * to logical I2C adapter 0
 	 */
-	ret = pmic_init(I2C_5);
+	ret = pmic_init(I2C_0);
 	if (ret)
 		return ret;
 
