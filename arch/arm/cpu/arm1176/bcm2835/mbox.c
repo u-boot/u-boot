@@ -8,7 +8,7 @@
 #include <asm/io.h>
 #include <asm/arch/mbox.h>
 
-#define TIMEOUT (100 * 1000) /* 100mS in uS */
+#define TIMEOUT 1000 /* ms */
 
 int bcm2835_mbox_call_raw(u32 chan, u32 send, u32 *recv)
 {
