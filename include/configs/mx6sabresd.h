@@ -23,6 +23,8 @@
 #endif
 #define PHYS_SDRAM_SIZE		(1u * 1024 * 1024 * 1024)
 
+#define CONFIG_SUPPORT_EMMC_BOOT /* eMMC specific */
+
 #include "mx6sabre_common.h"
 
 #define CONFIG_SYS_FSL_USDHC_NUM	3

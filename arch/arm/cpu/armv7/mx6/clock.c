@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <div64.h>
 #include <asm/io.h>
 #include <asm/errno.h>
 #include <asm/arch/imx-regs.h>
@@ -123,7 +124,7 @@ static u32 mxc_get_pll_pfd(enum pll_clocks pll, int pfd_num)
 		return 0;
 	}
 
-	return (freq * 18) / ((div & ANATOP_PFD_FRAC_MASK(pfd_num)) >>
+	return lldiv(freq * 18, (div & ANATOP_PFD_FRAC_MASK(pfd_num)) >>
 			      ANATOP_PFD_FRAC_SHIFT(pfd_num));
 }
 
