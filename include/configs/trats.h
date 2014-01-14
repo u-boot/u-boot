@@ -143,7 +143,10 @@
 	"u-boot mmc 80 400;" \
 	"uImage ext4 0 2;" \
 	"exynos4210-trats.dtb ext4 0 2;" \
-	""PARTS_ROOT" part 0 5\0"
+	""PARTS_BOOT" part 0 2;" \
+	""PARTS_ROOT" part 0 5;" \
+	""PARTS_DATA" part 0 6;" \
+	""PARTS_UMS" part 0 7\0"
 
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_SYS_CONSOLE_INFO_QUIET

@@ -173,7 +173,10 @@
 	"u-boot mmc 80 800;" \
 	"uImage ext4 0 2;" \
 	"exynos4412-trats2.dtb ext4 0 2;" \
-	""PARTS_ROOT" part 0 5\0"
+	""PARTS_BOOT" part 0 2;" \
+	""PARTS_ROOT" part 0 5;" \
+	""PARTS_DATA" part 0 6;" \
+	""PARTS_UMS" part 0 7\0"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootk=" \
