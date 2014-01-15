@@ -265,7 +265,6 @@
 /* High Level Configuration Options */
 #define CONFIG_BOOKE
 #define CONFIG_E500
-#define CONFIG_MPC85xx
 
 #define CONFIG_MP
 

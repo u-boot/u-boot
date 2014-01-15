@@ -13,7 +13,6 @@
 /* High-level system configuration options */
 #define CONFIG_BOOKE		/* Power/PowerPC Book-E			*/
 #define CONFIG_E500		/* e500 (Power ISA v2.03 with SPE)	*/
-#define CONFIG_MPC85xx		/* MPC8540/60/55/41/48 family		*/
 #define CONFIG_FSL_ELBC		/* FreeScale Enhanced LocalBus Cntlr	*/
 #define CONFIG_FSL_LAW		/* FreeScale Local Access Window	*/
 #define CONFIG_P2020		/* FreeScale P2020			*/

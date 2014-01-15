@@ -71,7 +71,6 @@
 /* High Level Configuration Options */
 #define CONFIG_BOOKE			/* BOOKE */
 #define CONFIG_E500			/* BOOKE e500 family */
-#define CONFIG_MPC85xx
 #define CONFIG_FSL_IFC			/* Enable IFC Support */
 #define CONFIG_SYS_HAS_SERDES		/* common SERDES init code */
 

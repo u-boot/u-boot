@@ -41,7 +41,6 @@
 /* High Level Configuration Options */
 #define CONFIG_BOOKE			/* BOOKE */
 #define CONFIG_E500			/* BOOKE e500 family */
-#define CONFIG_MPC85xx			/* MPC8540/60/55/41/48 */
 #define CONFIG_P1022
 #define CONFIG_CONTROLCENTERD
 #define CONFIG_MP			/* support multiple processors */

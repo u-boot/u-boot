@@ -29,7 +29,6 @@
 /* High Level Configuration Options */
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
-#define CONFIG_MPC85xx		1	/* MPC8540/60/55/41/48/P1020/P2020,etc*/
 #define CONFIG_P2020		1
 #define CONFIG_P2020COME	1
 #define CONFIG_FSL_ELBC		1	/* Enable eLBC Support */
