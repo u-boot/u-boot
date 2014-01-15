@@ -123,12 +123,11 @@ static struct spi_flash *spi_flash_validate_params(struct spi_slave *spi,
 		return NULL;
 	}
 
-	flash = malloc(sizeof(*flash));
+	flash = calloc(1, sizeof(*flash));
 	if (!flash) {
 		debug("SF: Failed to allocate spi_flash\n");
 		return NULL;
 	}
-	memset(flash, '\0', sizeof(*flash));
 
 	/* Assign spi data */
 	flash->spi = spi;
