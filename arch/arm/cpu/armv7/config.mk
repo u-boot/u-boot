@@ -10,14 +10,6 @@
 PF_CPPFLAGS_ARMV7 := $(call cc-option, -march=armv7-a, -march=armv5)
 PLATFORM_CPPFLAGS += $(PF_CPPFLAGS_ARMV7)
 
-# =========================================================================
-#
-# Supply options according to compiler version
-#
-# =========================================================================
-PF_RELFLAGS_SLB_AT := $(call cc-option,-mshort-load-bytes,$(call cc-option,-malignment-traps,))
-PLATFORM_RELFLAGS += $(PF_RELFLAGS_SLB_AT)
-
 # SEE README.arm-unaligned-accesses
 PF_NO_UNALIGNED := $(call cc-option, -mno-unaligned-access,)
 PLATFORM_NO_UNALIGNED := $(PF_NO_UNALIGNED)

@@ -18,7 +18,8 @@ endif
 LDFLAGS_FINAL += --gc-sections
 PLATFORM_RELFLAGS += -ffunction-sections -fdata-sections \
 		     -fno-common -ffixed-r9
-PLATFORM_RELFLAGS += $(call cc-option, -msoft-float)
+PLATFORM_RELFLAGS += $(call cc-option, -msoft-float) \
+      $(call cc-option,-mshort-load-bytes,$(call cc-option,-malignment-traps,))
 
 # Support generic board on ARM
 __HAVE_ARCH_GENERIC_BOARD := y
