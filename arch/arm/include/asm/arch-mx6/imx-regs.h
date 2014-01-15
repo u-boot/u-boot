@@ -245,6 +245,10 @@ struct src {
 	u32     gpr10;
 };
 
+/* GPR1 bitfields */
+#define IOMUXC_GPR1_ENET_CLK_SEL_OFFSET		21
+#define IOMUXC_GPR1_ENET_CLK_SEL_MASK		(1 << IOMUXC_GPR1_ENET_CLK_SEL_OFFSET)
+
 /* GPR3 bitfields */
 #define IOMUXC_GPR3_GPU_DBG_OFFSET		29
 #define IOMUXC_GPR3_GPU_DBG_MASK		(3<<IOMUXC_GPR3_GPU_DBG_OFFSET)
