@@ -113,7 +113,7 @@ void *os_malloc(size_t length);
  *
  * \param ptr		Pointer to memory block to free
  */
-void *os_free(void *ptr);
+void os_free(void *ptr);
 
 /**
  * Reallocate previously-allocated memory to increase/decrease space
