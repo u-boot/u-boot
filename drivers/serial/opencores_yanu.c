@@ -8,6 +8,7 @@
 #include <watchdog.h>
 #include <asm/io.h>
 #include <nios2-yanu.h>
+#include <serial.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -154,7 +155,7 @@ static int oc_serial_tstc(void)
 		 ((1 << YANU_RFIFO_CHARS_N) - 1)) > 0);
 }
 
-statoc int oc_serial_getc(void)
+static int oc_serial_getc(void)
 {
 	while (serial_tstc() == 0)
 		WATCHDOG_RESET ();
