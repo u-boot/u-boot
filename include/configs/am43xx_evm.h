@@ -69,6 +69,11 @@
 
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
 
+/* SPL USB Support */
+#define CONFIG_SPL_USB_SUPPORT
+#define CONFIG_SPL_USB_HOST_SUPPORT
+#define CONFIG_SYS_USB_FAT_BOOT_PARTITION		1
+
 #define CONFIG_CMD_USB
 #define CONFIG_USB_HOST
 #define CONFIG_USB_XHCI
@@ -94,26 +99,34 @@
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \
 	"mmcrootfstype=ext4 rootwait\0" \
+	"usbroot=/dev/sda2 rw\0" \
+	"usbrootfstype=ext4 rootwait\0" \
+	"usbdev=0\0" \
 	"ramroot=/dev/ram0 rw ramdisk_size=65536 initrd=${rdaddr},64M\0" \
 	"ramrootfstype=ext2\0" \
 	"mmcargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"root=${mmcroot} " \
 		"rootfstype=${mmcrootfstype}\0" \
+	"usbargs=setenv bootargs console=${console} " \
+		"${optargs} " \
+		"root=${usbroot} " \
+		"rootfstype=${usbrootfstype}\0" \
 	"bootenv=uEnv.txt\0" \
-	"loadbootenv=load mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
+	"loadbootenv=load ${devtype} ${devnum} ${loadaddr} ${bootenv}\0" \
 	"importbootenv=echo Importing environment from mmc ...; " \
 		"env import -t $loadaddr $filesize\0" \
 	"ramargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"root=${ramroot} " \
 		"rootfstype=${ramrootfstype}\0" \
-	"loadramdisk=load mmc ${mmcdev} ${rdaddr} ramdisk.gz\0" \
-	"loadimage=load mmc ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
-	"loadfdt=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
+	"loadramdisk=load ${devtype} ${devnum} ${rdaddr} ramdisk.gz\0" \
+	"loadimage=load ${devtype} ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
+	"loadfdt=load ${devtype} ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
 	"mmcboot=mmc dev ${mmcdev}; " \
+		"setenv devnum ${mmcdev}; " \
 		"if mmc rescan; then " \
-			"echo SD/MMC found on device ${mmcdev};" \
+			"echo SD/MMC found on device ${devnum};" \
 			"if run loadbootenv; then " \
 				"echo Loaded environment from ${bootenv};" \
 				"run importbootenv;" \
@@ -129,6 +142,26 @@
 				"bootz ${loadaddr} - ${fdtaddr}; " \
 			"fi;" \
 		"fi;\0" \
+	"usbboot=" \
+		"setenv devnum ${usbdev}; " \
+		"setenv devtype usb; " \
+		"usb start ${usbdev}; " \
+		"if usb dev ${usbdev}; then " \
+			"if run loadbootenv; then " \
+				"echo Loaded environment from ${bootenv};" \
+				"run importbootenv;" \
+			"fi;" \
+			"if test -n $uenvcmd; then " \
+				"echo Running uenvcmd ...;" \
+				"run uenvcmd;" \
+			"fi;" \
+			"if run loadimage; then " \
+				"run loadfdt; " \
+				"echo Booting from usb ${usbdev}...; " \
+				"run usbargs;" \
+				"bootz ${loadaddr} - ${fdtaddr}; " \
+			"fi;" \
+		"fi\0" \
 	"findfdt="\
 		"if test $board_name = AM43EPOS; then " \
 			"setenv fdtfile am43x-epos-evm.dtb; fi; " \
@@ -139,7 +172,8 @@
 
 #define CONFIG_BOOTCOMMAND \
 	"run findfdt; " \
-	"run mmcboot;"
+	"run mmcboot;" \
+	"run usbboot;"
 
 #endif
 #endif	/* __CONFIG_AM43XX_EVM_H */
