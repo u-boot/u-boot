@@ -16,4 +16,5 @@ obj-$(CONFIG_SPL_NAND_SUPPORT) += spl_nand.o
 obj-$(CONFIG_SPL_ONENAND_SUPPORT) += spl_onenand.o
 obj-$(CONFIG_SPL_NET_SUPPORT) += spl_net.o
 obj-$(CONFIG_SPL_MMC_SUPPORT) += spl_mmc.o
+obj-$(CONFIG_SPL_FAT_SUPPORT) += spl_fat.o
 endif
