@@ -13,14 +13,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* Bootmode setting values */
-#define BOOT_MODES_MASK		0x0000000F
-#define QSPI_MODE		0x00000001
-#define NOR_FLASH_MODE		0x00000002
-#define NAND_FLASH_MODE		0x00000004
-#define SD_MODE			0x00000005
-#define JTAG_MODE		0x00000000
-
 #ifdef CONFIG_FPGA
 Xilinx_desc fpga;
 
