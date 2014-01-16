@@ -14,8 +14,6 @@
 #include <mpc5xxx.h>
 #include <version.h>
 
-#define CONFIG_MPC5xxx 1	/* needed for Linux kernel header files */
-
 #include <ppc_asm.tmpl>
 #include <ppc_defs.h>
 
