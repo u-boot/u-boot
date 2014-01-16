@@ -58,8 +58,8 @@
 /errlog
 /reloc_off
 
-/spl/
 !/spl/Makefile
+/spl/*
 /tpl/
 
 /include/generated/
