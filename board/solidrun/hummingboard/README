@@ -1,0 +1,40 @@
+U-Boot for SolidRun Hummingboard
+--------------------------------
+
+This file contains information for the port of U-Boot to the Hummingboard.
+
+For more details about Hummingboard, please refer to:
+http://imx.solid-run.com/wiki/index.php?title=Carrier-One_Hardware
+
+(Carrier-One was the previous name of Hummingboard).
+
+Building U-boot for Hummingboard
+--------------------------------
+
+To build U-Boot for the Hummingboard Solo version:
+
+$ make hummingboard_solo_config
+$ make
+
+Flashing U-boot into the SD card
+--------------------------------
+
+- After the 'make' command completes, the generated 'u-boot.imx' binary must be
+flashed into the SD card:
+
+$ sudo dd if=u-boot.imx of=/dev/mmcblk0 bs=1k seek=1; sync
+
+(Note - the SD card node may vary, so adjust this as needed).
+
+Also, a more detailed explanation on how to format the SD card is available
+at doc/README.imximage.
+
+- Insert the micro SD card into the slot located in the bottom of the board
+
+- Connect a 3.3V USB to serial converter cable to the host PC. The MX6 UART
+signals are available in the 26 pin connector as shown at:
+http://imx.solid-run.com/wiki/index.php?title=Carrier-One_Hardware
+(Check for "26 pin header layout").
+
+- Power up the board via USB cable (CON201) and U-boot messages will appear in
+the serial console.
