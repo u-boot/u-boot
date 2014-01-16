@@ -28,7 +28,7 @@ static int spl_register_fat_device(block_dev_desc_t *block_dev, int partition)
 	err = fat_register_device(block_dev, partition);
 	if (err) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-		printf("spl: fat register err - %d\n", err);
+		printf("%s: fat register err - %d\n", __func__, err);
 #endif
 		hang();
 	}
@@ -46,7 +46,7 @@ int spl_load_image_fat(block_dev_desc_t *block_dev,
 	struct image_header *header;
 
 	err = spl_register_fat_device(block_dev, partition);
-	if (err <= 0)
+	if (err)
 		goto end;
 
 	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE -
@@ -63,8 +63,8 @@ int spl_load_image_fat(block_dev_desc_t *block_dev,
 end:
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 	if (err <= 0)
-		printf("spl: error reading image %s, err - %d\n",
-		       filename, err);
+		printf("%s: error reading image %s, err - %d\n",
+		       __func__, filename, err);
 #endif
 
 	return (err <= 0);
@@ -76,15 +76,15 @@ int spl_load_image_fat_os(block_dev_desc_t *block_dev, int partition)
 	int err;
 
 	err = spl_register_fat_device(block_dev, partition);
-	if (err <= 0)
-		return -1;
+	if (err)
+		return err;
 
 	err = file_fat_read(CONFIG_SPL_FAT_LOAD_ARGS_NAME,
 			    (void *)CONFIG_SYS_SPL_ARGS_ADDR, 0);
 	if (err <= 0) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-		printf("spl: error reading image %s, err - %d\n",
-		       CONFIG_SPL_FAT_LOAD_ARGS_NAME, err);
+		printf("%s: error reading image %s, err - %d\n",
+		       __func__, CONFIG_SPL_FAT_LOAD_ARGS_NAME, err);
 #endif
 		return -1;
 	}
