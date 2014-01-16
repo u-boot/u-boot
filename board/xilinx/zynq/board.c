@@ -87,7 +87,6 @@ int board_late_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_CMD_NET
 int board_eth_init(bd_t *bis)
 {
 	u32 ret = 0;
@@ -121,7 +120,6 @@ int board_eth_init(bd_t *bis)
 #endif
 	return ret;
 }
-#endif
 
 #ifdef CONFIG_CMD_MMC
 int board_mmc_init(bd_t *bd)
