@@ -102,9 +102,9 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128 * 1024)
 
-/* SMSC9115 Ethernet from SMSC9118 family */
-#define CONFIG_SMC9111			1
-#define CONFIG_SMC9111_BASE		(0x1a000000)
+/* SMSC91C111 Ethernet Configuration */
+#define CONFIG_SMC91111			1
+#define CONFIG_SMC91111_BASE		(0x01A000000)
 
 /* PL011 Serial Configuration */
 #define CONFIG_PL011_SERIAL
