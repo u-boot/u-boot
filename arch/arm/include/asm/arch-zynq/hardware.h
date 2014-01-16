@@ -21,6 +21,12 @@
 #define ZYNQ_SPI_BASEADDR1		0xE0007000
 #define ZYNQ_DDRC_BASEADDR		0xF8006000
 
+/* Bootmode setting values */
+#define ZYNQ_BM_MASK		0xF
+#define ZYNQ_BM_NOR		0x2
+#define ZYNQ_BM_SD		0x5
+#define ZYNQ_BM_JTAG		0x0
+
 /* Reflect slcr offsets */
 struct slcr_regs {
 	u32 scl; /* 0x0 */

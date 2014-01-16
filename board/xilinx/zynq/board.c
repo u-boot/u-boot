@@ -12,12 +12,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* Bootmode setting values */
-#define ZYNQ_BM_MASK		0x0F
-#define ZYNQ_BM_NOR		0x02
-#define ZYNQ_BM_SD		0x05
-#define ZYNQ_BM_JTAG		0x0
-
 #ifdef CONFIG_FPGA
 Xilinx_desc fpga;
 
