@@ -241,6 +241,8 @@
 			"setenv fdtfile omap3-beagle.dtb; fi; " \
 		"if test $beaglerev = Cx; then " \
 			"setenv fdtfile omap3-beagle.dtb; fi; " \
+		"if test $beaglerev = C4; then " \
+			"setenv fdtfile omap3-beagle.dtb; fi; " \
 		"if test $beaglerev = xMAB; then " \
 			"setenv fdtfile omap3-beagle-xm.dtb; fi; " \
 		"if test $beaglerev = xMC; then " \
