@@ -33,6 +33,11 @@ void board_init_f(ulong dummy)
 	board_init_r(NULL, 0);
 }
 
+void spl_board_init(void)
+{
+	board_init();
+}
+
 u32 spl_boot_device(void)
 {
 	u32 mode;

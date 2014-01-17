@@ -38,7 +38,7 @@ static void fpga_no_sup(char *fn, char *msg)
 /* fpga_get_desc
  *	map a device number to a descriptor
  */
-static const fpga_desc *const fpga_get_desc(int devnum)
+const fpga_desc *const fpga_get_desc(int devnum)
 {
 	fpga_desc *desc = (fpga_desc *)NULL;
 

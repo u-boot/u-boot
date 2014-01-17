@@ -356,13 +356,23 @@
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
 #define CONFIG_SPL_SERIAL_SUPPORT
+#define CONFIG_SPL_BOARD_INIT
 
 #define CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/armv7/zynq/u-boot-spl.lds"
 
 /* Disable dcache for SPL just for sure */
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SYS_DCACHE_OFF
-#undef CONFIG_FPGA
+#endif
+
+/* FPGA support */
+#define CONFIG_SPL_FPGA_SUPPORT
+#define CONFIG_SPL_FPGA_LOAD_ADDR      0x1000000
+/* #define CONFIG_SPL_FPGA_BIT */
+#ifdef CONFIG_SPL_FPGA_BIT
+# define CONFIG_SPL_FPGA_LOAD_ARGS_NAME "download.bit"
+#else
+# define CONFIG_SPL_FPGA_LOAD_ARGS_NAME "fpga.bin"
 #endif
 
 /* MMC support */

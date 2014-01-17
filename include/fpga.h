@@ -40,6 +40,7 @@ typedef struct {		/* typedef fpga_desc */
 extern void fpga_init(void);
 extern int fpga_add(fpga_type devtype, void *desc);
 extern int fpga_count(void);
+extern const fpga_desc *const fpga_get_desc(int devnum);
 extern int fpga_load(int devnum, const void *buf, size_t bsize);
 extern int fpga_loadbitstream(int devnum, char *fpgadata, size_t size);
 extern int fpga_dump(int devnum, const void *buf, size_t bsize);

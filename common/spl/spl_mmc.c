@@ -13,6 +13,8 @@
 #include <fat.h>
 #include <version.h>
 #include <image.h>
+#include <fpga.h>
+#include <xilinx.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -66,6 +68,35 @@ static int mmc_load_image_raw_os(struct mmc *mmc)
 	}
 
 	return mmc_load_image_raw(mmc, CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR);
+}
+#endif
+
+#ifdef CONFIG_SPL_FPGA_SUPPORT
+static int mmc_load_fpga_image_fat(struct mmc *mmc)
+{
+	int err;
+	int devnum = 0;
+	const fpga_desc *const desc = fpga_get_desc(devnum);
+	Xilinx_desc *desc_xilinx = desc->devdesc;
+
+	/* FIXME = standard file size + header desc_xilinx->size + 0x6c */
+	err = file_fat_read(CONFIG_SPL_FPGA_LOAD_ARGS_NAME,
+			    (void *)CONFIG_SPL_FPGA_LOAD_ADDR,
+			    0);
+	if (err <= 0) {
+#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
+		printf("spl: error reading image %s, err - %d\n",
+		       CONFIG_SPL_FAT_LOAD_ARGS_NAME, err);
+#endif
+		return -1;
+	}
+#ifdef CONFIG_SPL_FPGA_BIT
+	return fpga_loadbitstream(devnum, (char *)CONFIG_SPL_FPGA_LOAD_ADDR,
+				  desc_xilinx->size);
+#else
+	return fpga_load(devnum, (const void *)CONFIG_SPL_FPGA_LOAD_ADDR,
+			 desc_xilinx->size);
+#endif
 }
 #endif
 
@@ -161,6 +192,9 @@ void spl_mmc_load_image(void)
 #endif
 			hang();
 		}
+#ifdef CONFIG_SPL_FPGA_SUPPORT
+		mmc_load_fpga_image_fat(mmc);
+#endif
 
 #ifdef CONFIG_SPL_OS_BOOT
 		if (spl_start_uboot() || mmc_load_image_fat_os(mmc))
