@@ -472,6 +472,12 @@ The following options need to be configured:
 		Board config to use DDR3. It can be enabled for SoCs with
 		Freescale DDR3 controllers.
 
+		CONFIG_SYS_FSL_IFC_BE
+		Defines the IFC controller register space as Big Endian
+
+		CONFIG_SYS_FSL_IFC_LE
+		Defines the IFC controller register space as Little Endian
+
 		CONFIG_SYS_FSL_PBL_PBI
 		It enables addition of RCW (Power on reset configuration) in built image.
 		Please refer doc/README.pblimage for more details

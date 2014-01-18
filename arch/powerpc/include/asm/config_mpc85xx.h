@@ -22,6 +22,9 @@
 #define FSL_DDR_VER_4_7	47
 #define FSL_DDR_VER_5_0	50
 
+/* IP endianness */
+#define CONFIG_SYS_FSL_IFC_BE
+
 /* Number of TLB CAM entries we have on FSL Book-E chips */
 #if defined(CONFIG_E500MC)
 #define CONFIG_SYS_NUM_TLBCAMS		64
