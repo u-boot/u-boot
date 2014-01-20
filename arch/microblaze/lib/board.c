@@ -24,6 +24,12 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static int display_banner(void)
+{
+	printf("\n\n%s\n\n", version_string);
+	return 0;
+}
+
 /*
  * All attempts to come up with a "common" initialization sequence
  * that works for all boards and architectures failed: some of the
@@ -45,6 +51,7 @@ init_fnc_t *init_sequence[] = {
 #endif
 	serial_init,
 	console_init_f,
+	display_banner,
 	interrupts_init,
 	timer_init,
 	NULL,
