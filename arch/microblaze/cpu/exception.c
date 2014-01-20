@@ -35,6 +35,9 @@ void _hw_exception_handler (void)
 		puts ("Divide by zero exception\n");
 		break;
 #ifdef MICROBLAZE_V5
+	case 0x7:
+		puts("Priviledged or stack protection violation exception\n");
+		break;
 	case 0x1000:
 		puts ("Exception in delay slot\n");
 		break;
