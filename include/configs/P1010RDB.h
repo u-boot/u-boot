@@ -550,8 +550,7 @@ extern unsigned long get_sdram_size(void);
 #endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_IFC_A003399
-#if !defined(CONFIG_SPL) && !defined(CONFIG_SYS_RAMBOOT)\
-	&& !defined(CONFIG_SECURE_BOOT)
+#if !defined(CONFIG_SPL) && !defined(CONFIG_SYS_RAMBOOT)
 #define CONFIG_A003399_NOR_WORKAROUND
 #endif
 #endif
