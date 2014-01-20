@@ -73,3 +73,11 @@ u32 spl_boot_mode(void)
 	return MMCSD_MODE_FAT;
 }
 #endif
+
+#ifdef CONFIG_SPL_OS_BOOT
+int spl_start_uboot(void)
+{
+	/* boot linux */
+	return 0;
+}
+#endif

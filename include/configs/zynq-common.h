@@ -376,6 +376,17 @@
 #define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME     "u-boot.img"
 #endif
 
+/* Address in RAM where the parameters must be copied by SPL. */
+#define CONFIG_SYS_SPL_ARGS_ADDR	0x10000000
+
+#define CONFIG_SPL_FAT_LOAD_ARGS_NAME		"system.dtb"
+#define CONFIG_SPL_FAT_LOAD_KERNEL_NAME		"uImage"
+
+/* Not using MMC raw mode - just for compilation purpose */
+#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTOR	0
+#define CONFIG_SYS_MMCSD_RAW_MODE_ARGS_SECTORS	0
+#define CONFIG_SYS_MMCSD_RAW_MODE_KERNEL_SECTOR	0
+
 /* qspi mode is working fine */
 #ifdef CONFIG_ZYNQ_QSPI
 #define CONFIG_SPL_SPI_SUPPORT
@@ -392,10 +403,10 @@
 #define CONFIG_SPL_ETH_SUPPORT
 #define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_SPL_ETH_DEVICE "Gem.e000b000"
+#endif
 
 /* for booting directly linux */
 #define CONFIG_SPL_OS_BOOT
-#endif
 
 /* SP location before relocation, must use scratch RAM */
 #define CONFIG_SPL_TEXT_BASE	0x0
