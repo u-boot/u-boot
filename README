@@ -2850,7 +2850,7 @@ CBFS (Coreboot Filesystem) support
 		CONFIG_RSA
 
 		This enables the RSA algorithm used for FIT image verification
-		in U-Boot. See doc/uImage/signature for more information.
+		in U-Boot. See doc/uImage.FIT/signature.txt for more information.
 
 		The signing part is build into mkimage regardless of this
 		option.
