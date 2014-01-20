@@ -239,5 +239,6 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
+#define CONFIG_CMD_TFTPPUT
 
 #endif /* __CONFIG_ZYNQ_COMMON_H */
