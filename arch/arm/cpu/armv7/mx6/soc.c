@@ -19,8 +19,6 @@
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/crm_regs.h>
 
-#define VDDPU_MASK	(0x1f << 9)
-
 enum ldo_reg {
 	LDO_ARM,
 	LDO_SOC,
@@ -179,50 +177,11 @@ static void imx_set_wdog_powerdown(bool enable)
 	writew(enable, &wdog2->wmcr);
 }
 
-static void imx_set_vddpu_power_down(void)
-{
-	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
-	struct gpc_regs *gpc = (struct gpc_regs *)GPC_BASE_ADDR;
-
-	u32 reg;
-
-	/*
-	 * Disable the brown out detection since we are going to be
-	 * disabling the LDO.
-	 */
-	reg = readl(&anatop->ana_misc2);
-	reg &= ~ANADIG_ANA_MISC2_REG1_BO_EN;
-	writel(reg, &anatop->ana_misc2);
-
-	/* need to power down xPU in GPC before turning off PU LDO */
-	reg = readl(&gpc->gpu_ctrl);
-	writel(reg | 0x1, &gpc->gpu_ctrl);
-
-	reg = readl(&gpc->ctrl);
-	writel(reg | 0x1, &gpc->ctrl);
-	while (readl(&gpc->ctrl) & 0x1)
-		;
-
-	/* Mask the ANATOP brown out interrupt in the GPC. */
-	reg = readl(&gpc->imr4);
-	reg |= 0x80000000;
-	writel(reg, &gpc->imr4);
-
-	/* disable VDDPU */
-	writel(VDDPU_MASK, &anatop->reg_core_clr);
-
-	/* Clear the BO interrupt in the ANATOP. */
-	reg = readl(&anatop->ana_misc1);
-	reg |= 0x80000000;
-	writel(reg, &anatop->ana_misc1);
-}
-
 int arch_cpu_init(void)
 {
 	init_aips();
 
 	imx_set_wdog_powerdown(false); /* Disable PDE bit of WMCR register */
-	imx_set_vddpu_power_down();
 
 #ifdef CONFIG_APBH_DMA
 	/* Start APBH DMA */
