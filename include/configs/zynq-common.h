@@ -324,6 +324,7 @@
 # define CONFIG_CMD_PING
 # define CONFIG_CMD_DHCP
 # define CONFIG_CMD_MII
+# define CONFIG_CMD_TFTPPUT
 #else
 # undef CONFIG_CMD_NET
 # undef CONFIG_CMD_NFS
