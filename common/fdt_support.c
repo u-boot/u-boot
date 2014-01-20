@@ -204,7 +204,7 @@ int fdt_initrd(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 	if ((path == NULL) || force) {
 		write_cell((u8 *)&tmp, initrd_start, addr_cell_len);
 		err = fdt_setprop(fdt, nodeoffset,
-			"linux,initrd-start", &tmp, sizeof(tmp));
+			"linux,initrd-start", &tmp, addr_cell_len);
 		if (err < 0) {
 			printf("WARNING: "
 				"could not set linux,initrd-start %s.\n",
@@ -213,7 +213,7 @@ int fdt_initrd(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 		}
 		write_cell((u8 *)&tmp, initrd_end, addr_cell_len);
 		err = fdt_setprop(fdt, nodeoffset,
-			"linux,initrd-end", &tmp, sizeof(tmp));
+			"linux,initrd-end", &tmp, addr_cell_len);
 		if (err < 0) {
 			printf("WARNING: could not set linux,initrd-end %s.\n",
 				fdt_strerror(err));
