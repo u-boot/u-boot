@@ -209,7 +209,7 @@
 #define CONFIG_RSA
 
 /* Extend size of kernel image for uncompression */
-#define CONFIG_SYS_BOOTM_LEN	(20 * 1024 * 1024)
+#define CONFIG_SYS_BOOTM_LEN	(60 * 1024 * 1024)
 
 /* Boot FreeBSD/vxWorks from an ELF image */
 #if defined(CONFIG_ZYNQ_BOOT_FREEBSD)
