@@ -54,6 +54,7 @@
 #undef CONFIG_AUTO_COMPLETE
 #undef CONFIG_ZLIB
 #undef CONFIG_GZIP
+#undef CONFIG_CMD_SPL
 
 /* Define needed configs */
 #define CONFIG_CMD_MEMORY
