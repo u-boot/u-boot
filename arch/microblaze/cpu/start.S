@@ -22,6 +22,11 @@ _start:
 	 */
 
 	mts	rmsr, r0	/* disable cache */
+
+#if defined(CONFIG_SPL_BUILD)
+	addi	r1, r0, CONFIG_SPL_STACK_ADDR
+	addi	r1, r1, -4	/* Decrement SP to top of memory */
+#else
 	addi	r1, r0, CONFIG_SYS_INIT_SP_OFFSET
 	addi	r1, r1, -4	/* Decrement SP to top of memory */
 
@@ -115,6 +120,7 @@ _start:
 	sh	r7, r0, r8
 	rsubi	r8, r10, 0x26
 	sh	r6, r0, r8
+#endif /* BUILD_SPL */
 
 	/* Flush cache before enable cache */
 	addik	r5, r0, 0
@@ -139,9 +145,14 @@ clear_bss:
 	cmp     r6, r5, r4 /* check if we have reach the end */
 	bnei    r6, 2b
 3:	/* jumping to board_init */
+#ifndef CONFIG_SPL_BUILD
 	brai	board_init_f
+#else
+	brai	board_init_r
+#endif
 1:	bri	1b
 
+#ifndef CONFIG_SPL_BUILD
 /*
  * Read 16bit little endian
  */
@@ -174,3 +185,4 @@ out16:	bslli	r3, r6, 8
 	rtsd	r15, 8
 	or	r0, r0, r0
 	.end	out16
+#endif
