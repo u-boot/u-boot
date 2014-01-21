@@ -128,9 +128,9 @@
 #define CONFIG_LZO
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
-#define MTDIDS_DEFAULT			"nand0=mxc-nand"
+#define MTDIDS_DEFAULT			"nand0=mxc_nand"
 #define MTDPARTS_DEFAULT			\
-	"mtdparts=mxc-nand:"			\
+	"mtdparts=mxc_nand:"			\
 		"1m(bootloader)ro,"		\
 		"512k(environment),"		\
 		"512k(redundant-environment),"	\
