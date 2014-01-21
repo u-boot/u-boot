@@ -200,7 +200,8 @@
 # define CONFIG_SYS_MAX_FLASH_SECT	512
 /* hardware flash protection */
 # define CONFIG_SYS_FLASH_PROTECTION
-
+/* use buffered writes (20x faster) */
+# define	CONFIG_SYS_FLASH_USE_BUFFER_WRITE	1
 # ifdef	RAMENV
 #  define CONFIG_ENV_IS_NOWHERE	1
 #  define CONFIG_ENV_SIZE	0x1000
