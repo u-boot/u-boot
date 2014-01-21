@@ -185,6 +185,8 @@
 
 	#define	CONFIG_ENV_ADDR		XILINX_FLASH_START
 	#define	CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
+	/* use buffered writes (20x faster) */
+	#define	CONFIG_SYS_FLASH_USE_BUFFER_WRITE	1
 #else /* No flash memory at all */
 	/* ENV in RAM */
 	#define RAMENV
