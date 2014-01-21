@@ -34,7 +34,18 @@
 
 #define CONFIG_SYS_OMAP_ABE_SYSCK
 
+/* Define the default GPT table for eMMC */
+#define PARTS_DEFAULT \
+	"uuid_disk=${uuid_gpt_disk};" \
+	"name=rootfs,start=2MiB,size=-,uuid=${uuid_gpt_rootfs}"
+
 #include <configs/ti_omap5_common.h>
+
+/* Enhance our eMMC support / experience. */
+#define CONFIG_CMD_GPT
+#define CONFIG_EFI_PARTITION
+#define CONFIG_PARTITION_UUIDS
+#define CONFIG_CMD_PART
 
 /* CPSW Ethernet */
 #define CONFIG_CMD_NET			/* 'bootp' and 'tftp' */
