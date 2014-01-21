@@ -9,8 +9,6 @@
 #ifndef __MS7750SE_H
 #define __MS7750SE_H
 
-#define CONFIG_SH		1
-#define CONFIG_SH4		1
 #define CONFIG_CPU_SH7750	1
 /* #define CONFIG_CPU_SH7751	1 */
 /* #define CONFIG_CPU_TYPE_R	1 */
@@ -39,7 +37,6 @@
 #define CONFIG_SYS_SDRAM_SIZE		(64 * 1024 * 1024)
 
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_PROMPT		"=> "
 #define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_PBSIZE		256
 #define CONFIG_SYS_MAXARGS		16
@@ -82,7 +79,8 @@
 
 /* Board Clock */
 #define CONFIG_SYS_CLK_FREQ	33333333
+#define CONFIG_SH_TMU_CLK_FREQ CONFIG_SYS_CLK_FREQ
+#define CONFIG_SH_SCIF_CLK_FREQ CONFIG_SYS_CLK_FREQ
 #define CONFIG_SYS_TMU_CLK_DIV		4
-#define CONFIG_SYS_HZ		1000
 
 #endif /* __MS7750SE_H */

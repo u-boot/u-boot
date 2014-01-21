@@ -62,11 +62,12 @@
 #define CONFIG_SPD_EEPROM		/* use SPD EEPROM for DDR setup*/
 
 /*
- * define CONFIG_FSL_DDR2 to use unified DDR driver
+ * define CONFIG_SYS_FSL_DDR2 to use unified DDR driver
  * undefine it to use old spd_sdram.c
  */
-#define CONFIG_FSL_DDR2
-#ifdef CONFIG_FSL_DDR2
+#define CONFIG_SYS_FSL_DDR2
+#ifdef CONFIG_SYS_FSL_DDR2
+#define CONFIG_SYS_FSL_DDRC_GEN2
 #define CONFIG_SYS_SPD_BUS_NUM	0
 #define SPD_EEPROM_ADDRESS1	0x52
 #define SPD_EEPROM_ADDRESS2	0x51
@@ -507,7 +508,6 @@
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-#define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt */
 
 #if defined(CONFIG_CMD_KGDB)
 	#define CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size */
@@ -520,7 +520,6 @@
 #define CONFIG_SYS_MAXARGS	16	/* max number of command args */
 				/* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-#define CONFIG_SYS_HZ		1000	/* decrementer freq: 1ms ticks */
 
 /*
  * For booting Linux, the board info and command line data
@@ -738,7 +737,6 @@
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed of kgdb serial port */
-#define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
 
 /*

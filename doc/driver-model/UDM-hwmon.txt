@@ -71,48 +71,48 @@ II) Approach
 III) Analysis of in-tree drivers
 --------------------------------
 
-  1) drivers/hwmon/lm81.c
-  -----------------------
+  drivers/hwmon/lm81.c
+  --------------------
   The driver is standard dtt. Simple conversion is possible.
 
 
-  2) drivers/hwmon/ds1722.c
-  -------------------------
+  drivers/hwmon/ds1722.c
+  ----------------------
   The driver is not standard dtt, but interface is similar to dtt.
   The interface has to be changed in order to comply to above mentioned
   specification.
 
 
-  3) drivers/hwmon/ds1775.c
-  -------------------------
+  drivers/hwmon/ds1775.c
+  ----------------------
   The driver is standard dtt. Simple conversion is possible.
 
 
-  4) drivers/hwmon/lm73.c
+  drivers/hwmon/lm73.c
+  --------------------
+  The driver is standard dtt. Simple conversion is possible.
+
+
+  drivers/hwmon/lm63.c
+  --------------------
+  The driver is standard dtt. Simple conversion is possible.
+
+
+  drivers/hwmon/adt7460.c
   -----------------------
   The driver is standard dtt. Simple conversion is possible.
 
 
-  5) drivers/hwmon/lm63.c
+  drivers/hwmon/lm75.c
+  --------------------
+  The driver is standard dtt. Simple conversion is possible.
+
+
+  drivers/hwmon/ds1621.c
+  ----------------------
+  The driver is standard dtt. Simple conversion is possible.
+
+
+  drivers/hwmon/adm1021.c
   -----------------------
-  The driver is standard dtt. Simple conversion is possible.
-
-
-  6) drivers/hwmon/adt7460.c
-  --------------------------
-  The driver is standard dtt. Simple conversion is possible.
-
-
-  7) drivers/hwmon/lm75.c
-  -----------------------
-  The driver is standard dtt. Simple conversion is possible.
-
-
-  8) drivers/hwmon/ds1621.c
-  -------------------------
-  The driver is standard dtt. Simple conversion is possible.
-
-
-  9) drivers/hwmon/adm1021.c
-  --------------------------
   The driver is standard dtt. Simple conversion is possible.

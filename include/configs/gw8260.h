@@ -291,7 +291,6 @@
 #define CONFIG_SYS_LONGHELP
 
 /* Monitor Command Prompt */
-#define CONFIG_SYS_PROMPT      "=> "
 
 
 /*
@@ -352,7 +351,6 @@
 #define CONFIG_CLOCKS_IN_MHZ
 
 #define CONFIG_SYS_LOAD_ADDR   0x100000 /* default load address */
-#define CONFIG_SYS_HZ          1000     /* decrementer freq: 1 ms ticks */
 
 
 /* memtest works from the end of the exception vector table

@@ -60,7 +60,6 @@
 
 #undef  CONFIG_SYS_CLKS_IN_HZ
 #define CONFIG_SYS_LOAD_ADDR		0x81000000 /* Default load address */
-#define CONFIG_SYS_HZ			1000	   /* 1ms clock */
 
 #define CONFIG_CMD_ASKEN
 #define CONFIG_CMD_ECHO

@@ -8,6 +8,7 @@
 #define __ARCH_BLACKFIN_GPIO_H__
 
 #include <asm-generic/gpio.h>
+#include <asm/portmux.h>
 
 #define gpio_bank(x)	((x) >> 4)
 #define gpio_bit(x)	(1<<((x) & 0xF))
@@ -71,7 +72,7 @@
 
 #ifndef __ASSEMBLY__
 
-#ifdef CONFIG_ADI_GPIO1
+#ifndef CONFIG_ADI_GPIO2
 void set_gpio_dir(unsigned, unsigned short);
 void set_gpio_inen(unsigned, unsigned short);
 void set_gpio_polar(unsigned, unsigned short);
@@ -141,6 +142,8 @@ struct gpio_port_t {
 	unsigned short dummy16;
 	unsigned short inen;
 };
+#else
+extern struct gpio_port_t * const gpio_array[];
 #endif
 
 #ifdef ADI_SPECIAL_GPIO_BANKS

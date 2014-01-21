@@ -64,7 +64,6 @@
 					/* default load address       */
 #define CONFIG_SYS_EXTBDINFO		1
 					/* Extended board_into (bd_t) */
-#define CONFIG_SYS_HZ			1000
 					/* decrementer freq: 1 ms ticks */
 #define CONFIG_CMDLINE_EDITING		/* add command line history     */
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support   */

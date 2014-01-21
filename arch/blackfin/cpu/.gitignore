@@ -1,4 +1,2 @@
-bootrom-asm-offsets.[chs]
-
 init.lds
 init.elf

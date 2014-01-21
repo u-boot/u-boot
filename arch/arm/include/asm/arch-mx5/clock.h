@@ -53,5 +53,6 @@ void enable_usboh3_clk(bool enable);
 void mxc_set_sata_internal_clock(void);
 int enable_i2c_clk(unsigned char enable, unsigned i2c_num);
 void enable_nfc_clk(unsigned char enable);
+void enable_efuse_prog_supply(bool enable);
 
 #endif /* __ASM_ARCH_CLOCK_H */

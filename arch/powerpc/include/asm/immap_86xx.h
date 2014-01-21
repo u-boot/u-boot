@@ -10,6 +10,7 @@
 #ifndef __IMMAP_86xx__
 #define __IMMAP_86xx__
 
+#include <fsl_immap.h>
 #include <asm/types.h>
 #include <asm/fsl_dma.h>
 #include <asm/fsl_lbc.h>
@@ -88,75 +89,6 @@ typedef struct ccsr_local_mcm {
 	uint	ehadr;		/* 0x1e14 - MCM Error High Address Capture Register */
 	char	res31[488];
 } ccsr_local_mcm_t;
-
-/* DDR memory controller registers(0x2000-0x3000) and (0x6000-0x7000) */
-
-typedef struct ccsr_ddr {
-	uint	cs0_bnds;		/* 0x2000 - DDR Chip Select 0 Memory Bounds */
-	char	res1[4];
-	uint	cs1_bnds;		/* 0x2008 - DDR Chip Select 1 Memory Bounds */
-	char	res2[4];
-	uint	cs2_bnds;		/* 0x2010 - DDR Chip Select 2 Memory Bounds */
-	char	res3[4];
-	uint	cs3_bnds;		/* 0x2018 - DDR Chip Select 3 Memory Bounds */
-	char	res4[4];
-	uint	cs4_bnds;		/* 0x2020 - DDR Chip Select 4 Memory Bounds */
-	char	res5[4];
-	uint	cs5_bnds;		/* 0x2028 - DDR Chip Select 5 Memory Bounds */
-	char	res6[84];
-	uint	cs0_config;		/* 0x2080 - DDR Chip Select Configuration */
-	uint	cs1_config;		/* 0x2084 - DDR Chip Select Configuration */
-	uint	cs2_config;		/* 0x2088 - DDR Chip Select Configuration */
-	uint	cs3_config;		/* 0x208c - DDR Chip Select Configuration */
-	uint	cs4_config;		/* 0x2090 - DDR Chip Select Configuration */
-	uint	cs5_config;		/* 0x2094 - DDR Chip Select Configuration */
-	char	res7[104];
-	uint	timing_cfg_3;		/* 0x2100 - DDR SDRAM Timing Configuration Register 3 */
-	uint	timing_cfg_0;		/* 0x2104 - DDR SDRAM Timing Configuration Register 0 */
-	uint	timing_cfg_1;		/* 0x2108 - DDR SDRAM Timing Configuration Register 1 */
-	uint	timing_cfg_2;		/* 0x210c - DDR SDRAM Timing Configuration Register 2 */
-	uint	sdram_cfg;		/* 0x2110 - DDR SDRAM Control Configuration 1 */
-	uint    sdram_cfg_2;            /* 0x2114 - DDR SDRAM Control Configuration 2 */
-	uint	sdram_mode;		/* 0x2118 - DDR SDRAM Mode Configuration 1 */
-	uint    sdram_mode_2;		/* 0x211c - DDR SDRAM Mode Configuration 2 */
-	uint    sdram_mode_cntl;        /* 0x2120 - DDR SDRAM Mode Control */
-	uint	sdram_interval;		/* 0x2124 - DDR SDRAM Interval Configuration */
-	uint    sdram_data_init;	/* 0x2128 - DDR SDRAM Data Initialization */
-	char	res8[4];
-	uint	sdram_clk_cntl;		/* 0x2130 - DDR SDRAM Clock Control */
-	char    res9[12];
-	uint    sdram_ocd_cntl;		/* 0x2140 - DDR SDRAM OCD Control */
-	uint    sdram_ocd_status;	/* 0x2144 - DDR SDRAM OCD Status */
-	uint    init_addr;		/* 0x2148 - DDR training initialzation address */
-	uint    init_ext_addr;		/* 0x214C - DDR training initialzation extended address */
-	char    res10[2728];
-	uint    ip_rev1;		/* 0x2BF8 - DDR IP Block Revision 1 */
-	uint    ip_rev2;		/* 0x2BFC - DDR IP Block Revision 2 */
-	char	res11[512];
-	uint	data_err_inject_hi;	/* 0x2e00 - DDR Memory Data Path Error Injection Mask High */
-	uint	data_err_inject_lo;	/* 0x2e04 - DDR Memory Data Path Error Injection Mask Low */
-	uint	ecc_err_inject;		/* 0x2e08 - DDR Memory Data Path Error Injection Mask ECC */
-	char	res12[20];
-	uint	capture_data_hi;	/* 0x2e20 - DDR Memory Data Path Read Capture High */
-	uint	capture_data_lo;	/* 0x2e24 - DDR Memory Data Path Read Capture Low */
-	uint	capture_ecc;		/* 0x2e28 - DDR Memory Data Path Read Capture ECC */
-	char	res13[20];
-	uint	err_detect;		/* 0x2e40 - DDR Memory Error Detect */
-	uint	err_disable;		/* 0x2e44 - DDR Memory Error Disable */
-	uint	err_int_en;		/* 0x2e48 - DDR Memory Error Interrupt Enable */
-	uint	capture_attributes;	/* 0x2e4c - DDR Memory Error Attributes Capture */
-	uint	capture_address;	/* 0x2e50 - DDR Memory Error Address Capture */
-	uint	capture_ext_address;	/* 0x2e54 - DDR Memory Error Extended Address Capture */
-	uint	err_sbe;		/* 0x2e58 - DDR Memory Single-Bit ECC Error Management */
-	char	res14[164];
-	uint	debug_1;		/* 0x2f00 */
-	uint	debug_2;
-	uint	debug_3;
-	uint	debug_4;
-	uint	debug_5;
-	char	res15[236];
-} ccsr_ddr_t;
-
 
 /* Daul I2C Registers(0x3000-0x4000) */
 typedef struct ccsr_i2c {
@@ -1225,11 +1157,11 @@ typedef struct ccsr_wdt {
 
 typedef struct immap {
 	ccsr_local_mcm_t	im_local_mcm;
-	ccsr_ddr_t		im_ddr1;
+	struct ccsr_ddr		im_ddr1;
 	ccsr_i2c_t		im_i2c;
 	ccsr_duart_t		im_duart;
 	fsl_lbc_t		im_lbc;
-	ccsr_ddr_t		im_ddr2;
+	struct ccsr_ddr		im_ddr2;
 	char                    res1[4096];
 	ccsr_pex_t		im_pex1;
 	ccsr_pex_t		im_pex2;
@@ -1253,9 +1185,9 @@ typedef struct immap {
 extern immap_t  *immr;
 
 #define CONFIG_SYS_MPC8xxx_DDR_OFFSET	0x2000
-#define CONFIG_SYS_MPC8xxx_DDR_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC8xxx_DDR_OFFSET)
+#define CONFIG_SYS_FSL_DDR_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC8xxx_DDR_OFFSET)
 #define CONFIG_SYS_MPC8xxx_DDR2_OFFSET	0x6000
-#define CONFIG_SYS_MPC8xxx_DDR2_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC8xxx_DDR2_OFFSET)
+#define CONFIG_SYS_FSL_DDR2_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC8xxx_DDR2_OFFSET)
 #define CONFIG_SYS_MPC86xx_DMA_OFFSET	0x21000
 #define CONFIG_SYS_MPC86xx_DMA_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC86xx_DMA_OFFSET)
 #define CONFIG_SYS_MPC86xx_PIC_OFFSET	0x40000

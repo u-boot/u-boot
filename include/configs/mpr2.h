@@ -24,14 +24,11 @@
 #define CONFIG_VERSION_VARIABLE
 
 /* CPU and platform */
-#define CONFIG_SH		1
-#define CONFIG_SH3		1
 #define CONFIG_CPU_SH7720	1
 #define CONFIG_MPR2		1
 
 /* U-Boot internals */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
-#define CONFIG_SYS_PROMPT		"=> "	/* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		256	/* Buffer size for input from the Console */
 #define CONFIG_SYS_PBSIZE		256	/* Buffer size for Console output */
 #define CONFIG_SYS_MAXARGS		16	/* max args accepted for monitor commands */
@@ -67,8 +64,9 @@
 
 /* Clocks */
 #define CONFIG_SYS_CLK_FREQ	24000000
+#define CONFIG_SH_TMU_CLK_FREQ CONFIG_SYS_CLK_FREQ
+#define CONFIG_SH_SCIF_CLK_FREQ CONFIG_SYS_CLK_FREQ
 #define CONFIG_SYS_TMU_CLK_DIV		4	/* 4 (default), 16, 64, 256 or 1024 */
-#define CONFIG_SYS_HZ		1000
 
 /* UART */
 #define CONFIG_SCIF_CONSOLE	1

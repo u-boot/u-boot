@@ -40,7 +40,6 @@
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768	/* 32.768 kHz crystal */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	16000000/* 16.0 MHz crystal */
-#define CONFIG_SYS_HZ			1000	/* decrementer freq */
 
 /* Misc CPU related */
 #define CONFIG_SKIP_LOWLEVEL_INIT
@@ -144,8 +143,8 @@
 # define CONFIG_SYS_NAND_DBW_8
 # define CONFIG_SYS_NAND_MASK_ALE		(1 << 21)
 # define CONFIG_SYS_NAND_MASK_CLE		(1 << 22)
-# define CONFIG_SYS_NAND_ENABLE_PIN		AT91_PIO_PORTD, 15
-# define CONFIG_SYS_NAND_READY_PIN		AT91_PIO_PORTA, 22
+# define CONFIG_SYS_NAND_ENABLE_PIN		GPIO_PIN_PD(15)
+# define CONFIG_SYS_NAND_READY_PIN		GPIO_PIN_PA(22)
 #endif
 
 /* Ethernet */
@@ -157,6 +156,7 @@
 
 /* USB */
 #define CONFIG_USB_ATMEL
+#define CONFIG_USB_ATMEL_CLK_SEL_PLLB
 #define CONFIG_USB_OHCI_NEW
 #define CONFIG_DOS_PARTITION
 #define CONFIG_SYS_USB_OHCI_CPU_INIT
@@ -190,7 +190,6 @@
 
 #endif
 
-#define CONFIG_SYS_PROMPT		"=> "
 #define CONFIG_SYS_CBSIZE		512
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \

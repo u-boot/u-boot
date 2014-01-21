@@ -39,6 +39,9 @@
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
+#define CONFIG_SILENT_CONSOLE
+#define CONFIG_ZERO_BOOTDELAY_CHECK
+
 /* Clock Defines */
 #define V_OSCK				26000000 /* Clock output from T2 */
 #define V_SCLK				(V_OSCK >> 1)
@@ -53,11 +56,26 @@
 #define CONFIG_OF_LIBFDT
 
 /* Size of malloc() pool */
-#define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
-						/* Sector */
 #define CONFIG_SYS_MALLOC_LEN		(1024*1024)
 
 /* Hardware drivers */
+
+/* GPIO support */
+#define CONFIG_OMAP_GPIO
+
+/* LED support */
+#define CONFIG_STATUS_LED
+#define CONFIG_BOARD_SPECIFIC_LED
+#define CONFIG_CMD_LED			/* LED command */
+#define STATUS_LED_BIT			(1 << 0)
+#define STATUS_LED_STATE		STATUS_LED_ON
+#define STATUS_LED_PERIOD		(CONFIG_SYS_HZ / 2)
+#define STATUS_LED_BIT1			(1 << 1)
+#define STATUS_LED_STATE1		STATUS_LED_ON
+#define STATUS_LED_PERIOD1		(CONFIG_SYS_HZ / 2)
+#define STATUS_LED_BIT2			(1 << 2)
+#define STATUS_LED_STATE2		STATUS_LED_ON
+#define STATUS_LED_PERIOD2		(CONFIG_SYS_HZ / 2)
 
 /* NS16550 Configuration */
 #define CONFIG_SYS_NS16550
@@ -80,10 +98,17 @@
 #define CONFIG_DOS_PARTITION
 
 /* I2C */
-#define CONFIG_HARD_I2C
-#define CONFIG_SYS_I2C_SPEED		100000
-#define CONFIG_SYS_I2C_SLAVE		1
-#define CONFIG_DRIVER_OMAP34XX_I2C	1
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_OMAP24_I2C_SPEED	100000
+#define CONFIG_SYS_OMAP24_I2C_SLAVE	1
+#define CONFIG_SYS_I2C_OMAP34XX
+ 
+
+/* EEPROM */
+#define CONFIG_SYS_I2C_MULTI_EEPROMS
+#define CONFIG_CMD_EEPROM
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
+#define CONFIG_SYS_EEPROM_BUS_NUM	1
 
 /* TWL4030 */
 #define CONFIG_TWL4030_POWER
@@ -92,13 +117,16 @@
 /* Board NAND Info */
 #define CONFIG_SYS_NO_FLASH		/* no NOR flash */
 #define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
-#define MTDIDS_DEFAULT			"nand0=nand"
-#define MTDPARTS_DEFAULT		"mtdparts=nand:" \
-						"512k(u-boot-spl)," \
-						"1920k(u-boot)," \
-						"128k(u-boot-env)," \
-						"4m(kernel)," \
-						"-(fs)"
+#define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
+#define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:" \
+						"128k(SPL)," \
+						"1m(u-boot)," \
+						"384k(u-boot-env1)," \
+						"1152k(mtdoops)," \
+						"384k(u-boot-env2)," \
+						"5m(kernel)," \
+						"2m(fdt)," \
+						"-(ubi)"
 
 #define CONFIG_NAND_OMAP_GPMC
 #define CONFIG_SYS_NAND_ADDR		NAND_BASE	/* physical address */
@@ -110,8 +138,9 @@
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of NAND */
 							/* devices */
-#define CONFIG_NAND_OMAP_BCH8
 #define CONFIG_BCH
+#define CONFIG_SYS_NAND_MAX_OOBFREE	2
+#define CONFIG_SYS_NAND_MAX_ECCPOS	56
 
 /* commands to include */
 #include <config_cmd_default.h>
@@ -138,53 +167,104 @@
 #define CONFIG_MTD_DEVICE       /* needed for mtdparts commands */
 #define CONFIG_MTD_PARTITIONS
 
-/* Environment information */
-#define CONFIG_ENV_OVERWRITE /* allow to overwrite serial and ethaddr */
+/* Environment information (this is the common part) */
 
-#define CONFIG_BOOTDELAY		3
+#define CONFIG_BOOTDELAY		0
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	"loadaddr=0x82000000\0" \
+/* hang() the board on panic() */
+#define CONFIG_PANIC_HANG
+
+/* environment placement (for NAND), is different for FLASHCARD but does not
+ * harm there */
+#define CONFIG_ENV_OFFSET		0x120000    /* env start */
+#define CONFIG_ENV_OFFSET_REDUND	0x2A0000    /* redundant env start */
+#define CONFIG_ENV_SIZE			(16 << 10)  /* use 16KiB for env */
+#define CONFIG_ENV_RANGE		(384 << 10) /* allow badblocks in env */
+
+/* the loadaddr is the same as CONFIG_SYS_LOAD_ADDR, unfortunately the defiend
+ * value can not be used here! */
+#define CONFIG_LOADADDR		0x82000000
+
+#define CONFIG_COMMON_ENV_SETTINGS \
 	"console=ttyO2,115200n8\0" \
 	"mmcdev=0\0" \
-	"vram=12M\0" \
-	"lcdmode=800x600\0" \
+	"vram=3M\0" \
 	"defaultdisplay=lcd\0" \
-	"kernelopts=rw rootwait\0" \
+	"kernelopts=mtdoops.mtddev=3\0" \
+	"mtdparts=" MTDPARTS_DEFAULT "\0" \
+	"mtdids=" MTDIDS_DEFAULT "\0" \
 	"commonargs=" \
 		"setenv bootargs console=${console} " \
+		"${mtdparts} " \
+		"${kernelopts} " \
+		"vt.global_cursor_default=0 " \
 		"vram=${vram} " \
-		"omapfb.mode=lcd:${lcdmode} " \
-		"omapdss.def_disp=${defaultdisplay}\0" \
+		"omapdss.def_disp=${defaultdisplay}\0"
+
+#define CONFIG_BOOTCOMMAND "run autoboot"
+
+/* specific environment settings for different use cases
+ * FLASHCARD: used to run a rdimage from sdcard to program the device
+ * 'NORMAL': used to boot kernel from sdcard, nand, ...
+ *
+ * The main aim for the FLASHCARD skin is to have an embedded environment
+ * which will not be influenced by any data already on the device.
+ */
+#ifdef CONFIG_FLASHCARD
+
+#define CONFIG_ENV_IS_NOWHERE
+
+/* the rdaddr is 16 MiB before the loadaddr */
+#define CONFIG_ENV_RDADDR	"rdaddr=0x81000000\0"
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	CONFIG_COMMON_ENV_SETTINGS \
+	CONFIG_ENV_RDADDR \
+	"autoboot=" \
+	"run commonargs; " \
+	"setenv bootargs ${bootargs} " \
+		"flashy_updateimg=/dev/mmcblk0p1:corscience_update.img " \
+		"rdinit=/sbin/init; " \
+	"mmc dev ${mmcdev}; mmc rescan; " \
+	"fatload mmc ${mmcdev} ${loadaddr} uImage; " \
+	"fatload mmc ${mmcdev} ${rdaddr} uRamdisk; " \
+	"bootm ${loadaddr} ${rdaddr}\0"
+
+#else /* CONFIG_FLASHCARD */
+
+#define CONFIG_ENV_OVERWRITE /* allow to overwrite serial and ethaddr */
+
+#define CONFIG_ENV_IS_IN_NAND
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	CONFIG_COMMON_ENV_SETTINGS \
 	"mmcargs=" \
 		"run commonargs; " \
 		"setenv bootargs ${bootargs} " \
 		"root=/dev/mmcblk0p2 " \
-		"${kernelopts}\0" \
+		"rootwait " \
+		"rw\0" \
 	"nandargs=" \
 		"run commonargs; " \
 		"setenv bootargs ${bootargs} " \
-		"omapfb.mode=lcd:${lcdmode} " \
-		"omapdss.def_disp=${defaultdisplay} " \
 		"root=ubi0:root " \
-		"ubi.mtd=4 " \
+		"ubi.mtd=7 " \
 		"rootfstype=ubifs " \
-		"${kernelopts}\0" \
+		"ro\0" \
 	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source ${loadaddr}\0" \
 	"loaduimage=fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
-	"eraseenv=nand unlock 0x260000 0x20000; nand erase 0x260000 0x20000\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"bootm ${loadaddr}\0" \
-	"loaduimage_ubi=mtd default; " \
-		"ubi part fs; " \
+	"loaduimage_ubi=ubi part ubi; " \
 		"ubifsmount ubi:root; " \
 		"ubifsload ${loadaddr} /boot/uImage\0" \
+	"loaduimage_nand=nand read ${loadaddr} kernel 0x500000\0" \
 	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
-		"run loaduimage_ubi; " \
+		"run loaduimage_nand; " \
 		"bootm ${loadaddr}\0" \
 	"autoboot=mmc dev ${mmcdev}; if mmc rescan; then " \
 			"if run loadbootscript; then " \
@@ -197,12 +277,12 @@
 			"fi; " \
 		"else run nandboot; fi\0"
 
-
-#define CONFIG_BOOTCOMMAND "run autoboot"
+#endif /* CONFIG_FLASHCARD */
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
+#define CONFIG_CMDLINE_EDITING		/* enable cmdline history */
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_PROMPT		"OMAP3 Tricorder # "
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
@@ -214,9 +294,9 @@
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		(CONFIG_SYS_CBSIZE)
 
-#define CONFIG_SYS_MEMTEST_START	(OMAP34XX_SDRC_CS0 + 0x07000000)
+#define CONFIG_SYS_MEMTEST_START	(OMAP34XX_SDRC_CS0 + 0x00000000)
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + \
-					0x01000000) /* 16MB */
+					0x07000000) /* 112 MB */
 
 #define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0 + 0x02000000)
 
@@ -227,7 +307,6 @@
  */
 #define CONFIG_SYS_TIMERBASE		(OMAP34XX_GPT2)
 #define CONFIG_SYS_PTV			2 /* Divisor: 2^(PTV+1) => 8 */
-#define CONFIG_SYS_HZ			1000
 
 /*  Physical Memory Map  */
 #define CONFIG_NR_DRAM_BANKS		2 /* CS1 may or may not be populated */
@@ -238,9 +317,6 @@
 #define PISMO1_NAND_SIZE		GPMC_SIZE_128M
 
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
-
-#define CONFIG_ENV_IS_IN_NAND		1
-#define CONFIG_ENV_OFFSET		0x260000 /* environment starts here */
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800
@@ -259,6 +335,7 @@
 #define CONFIG_SPL_NAND_SIMPLE
 
 #define CONFIG_SPL_BOARD_INIT
+#define CONFIG_SPL_GPIO_SUPPORT
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 #define CONFIG_SPL_LIBDISK_SUPPORT
 #define CONFIG_SPL_I2C_SUPPORT
@@ -277,7 +354,7 @@
 #define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR 0x300 /* address 0x60000 */
 
 #define CONFIG_SPL_TEXT_BASE		0x40200000 /*CONFIG_SYS_SRAM_START*/
-#define CONFIG_SPL_MAX_SIZE		(55 * 1024)	/* 7 KB for stack */
+#define CONFIG_SPL_MAX_SIZE		(57 * 1024)	/* 7 KB for stack */
 #define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 
 #define CONFIG_SPL_BSS_START_ADDR	0x80000000 /*CONFIG_SYS_SDRAM_BASE*/
@@ -298,13 +375,16 @@
 
 #define CONFIG_SYS_NAND_ECCSIZE		512
 #define CONFIG_SYS_NAND_ECCBYTES	13
+#define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_BCH8_CODE_HW_DETECTION_SW
 
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
-#define CONFIG_SYS_NAND_U_BOOT_SIZE	0x200000
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x20000
+#define CONFIG_SYS_NAND_U_BOOT_SIZE	0x100000
 
 #define CONFIG_SYS_SPL_MALLOC_START	0x80208000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x100000	/* 1 MB */
 
+#define CONFIG_SYS_ALT_MEMTEST
+#define CONFIG_SYS_MEMTEST_SCRATCH	0x81000000
 #endif /* __CONFIG_H */

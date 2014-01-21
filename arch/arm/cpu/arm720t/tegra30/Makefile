@@ -17,25 +17,4 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-include $(TOPDIR)/config.mk
-
-LIB	= $(obj)lib$(SOC).o
-
-COBJS-y	+= cpu.o
-
-SRCS	:= $(COBJS-y:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS-y))
-
-all:	$(obj).depend $(LIB)
-
-$(LIB):	$(OBJS)
-	$(call cmd_link_o_target, $(OBJS))
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+obj-y	+= cpu.o

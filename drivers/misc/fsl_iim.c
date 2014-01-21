@@ -16,6 +16,9 @@
 #ifndef CONFIG_MPC512X
 #include <asm/arch/imx-regs.h>
 #endif
+#if defined(CONFIG_MX51) || defined(CONFIG_MX53)
+#include <asm/arch/clock.h>
+#endif
 
 /* FSL IIM-specific constants */
 #define STAT_BUSY		0x80
@@ -92,6 +95,10 @@ struct fsl_iim {
 		u32 word[0x100];
 	} bank[8];
 };
+
+#if !defined(CONFIG_MX51) && !defined(CONFIG_MX53)
+#define enable_efuse_prog_supply(enable)
+#endif
 
 static int prepare_access(struct fsl_iim **regs, u32 bank, u32 word, int assert,
 				const char *caller)
@@ -237,12 +244,16 @@ int fuse_prog(u32 bank, u32 word, u32 val)
 	if (ret)
 		return ret;
 
+	enable_efuse_prog_supply(1);
 	for (bit = 0; val; bit++, val >>= 1)
 		if (val & 0x01) {
 			ret = prog_bit(regs, bank, word, bit);
-			if (ret)
+			if (ret) {
+				enable_efuse_prog_supply(0);
 				return ret;
+			}
 		}
+	enable_efuse_prog_supply(0);
 
 	return 0;
 }

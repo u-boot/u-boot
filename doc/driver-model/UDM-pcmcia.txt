@@ -47,32 +47,32 @@ II) Approach
 III) Analysis of in-tree drivers
 --------------------------------
 
-  1) i82365.c
-  -----------
+  i82365.c
+  --------
     Driver methods have different name i82365_init() and i82365_exit but
     all functionality is the same. Board files board/atc/ti113x.c and
     board/cpc45/pd67290.c use their own implementation of these method.
     In this case all methods in driver behave only as wrappers.
 
-  2) marubun_pcmcia.c
-  -------------------
+  marubun_pcmcia.c
+  ----------------
     Meets standard API behaviour. Simple conversion.
 
-  3) mpc8xx_pcmcia.c
-  ------------------
-    Meets standard API behaviour. Simple conversion.
-
-  4) rpx_pcmcia.c
+  mpc8xx_pcmcia.c
   ---------------
+    Meets standard API behaviour. Simple conversion.
+
+  rpx_pcmcia.c
+  ------------
     Implements only internal API used in other drivers. Non of methods
     implemented here are used outside driver model.
 
-  5) ti_pci1410a.c
-  ----------------
+  ti_pci1410a.c
+  -------------
     Has different API but methods in this file are never called. Probably
     dead code.
 
-  6)tqm8xx_pcmcia.c
-  -----------------
+  tqm8xx_pcmcia.c
+  ---------------
     Implements only internal API used in other drivers. Non of methods
     implemented here are used outside driver model.

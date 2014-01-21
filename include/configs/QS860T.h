@@ -127,7 +127,6 @@ CONFIG_SPI
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP				/* undef to save memory */
-#define CONFIG_SYS_PROMPT		"=> "		/* Monitor Command Prompt */
 
 #define CONFIG_SYS_HUSH_PARSER		1		/* use "hush" command parser */
 
@@ -145,8 +144,6 @@ CONFIG_SPI
 #define CONFIG_SYS_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM */
 
 #define CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address */
-
-#define CONFIG_SYS_HZ			1000		/* decrementer freq: 1 ms ticks */
 
 /*-----------------------------------------------------------------------
  * Low Level Configuration Settings

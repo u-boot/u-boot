@@ -29,6 +29,12 @@ struct msg_get_arm_mem {
 	u32 end_tag;
 };
 
+struct msg_set_power_state {
+	struct bcm2835_mbox_hdr hdr;
+	struct bcm2835_mbox_tag_set_power_state set_power_state;
+	u32 end_tag;
+};
+
 struct msg_get_clock_rate {
 	struct bcm2835_mbox_hdr hdr;
 	struct bcm2835_mbox_tag_get_clock_rate get_clock_rate;
@@ -54,17 +60,43 @@ int dram_init(void)
 	return 0;
 }
 
+static int power_on_module(u32 module)
+{
+	ALLOC_ALIGN_BUFFER(struct msg_set_power_state, msg_pwr, 1, 16);
+	int ret;
+
+	BCM2835_MBOX_INIT_HDR(msg_pwr);
+	BCM2835_MBOX_INIT_TAG(&msg_pwr->set_power_state,
+			      SET_POWER_STATE);
+	msg_pwr->set_power_state.body.req.device_id = module;
+	msg_pwr->set_power_state.body.req.state =
+		BCM2835_MBOX_SET_POWER_STATE_REQ_ON |
+		BCM2835_MBOX_SET_POWER_STATE_REQ_WAIT;
+
+	ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN,
+				     &msg_pwr->hdr);
+	if (ret) {
+		printf("bcm2835: Could not set module %u power state\n",
+		       module);
+		return -1;
+	}
+
+	return 0;
+}
+
 int board_init(void)
 {
 	gd->bd->bi_boot_params = 0x100;
 
-	return 0;
+	return power_on_module(BCM2835_MBOX_POWER_DEVID_USB_HCD);
 }
 
 int board_mmc_init(void)
 {
 	ALLOC_ALIGN_BUFFER(struct msg_get_clock_rate, msg_clk, 1, 16);
 	int ret;
+
+	power_on_module(BCM2835_MBOX_POWER_DEVID_SDHCI);
 
 	BCM2835_MBOX_INIT_HDR(msg_clk);
 	BCM2835_MBOX_INIT_TAG(&msg_clk->get_clock_rate, GET_CLOCK_RATE);

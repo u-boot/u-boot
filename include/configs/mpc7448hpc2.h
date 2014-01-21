@@ -169,7 +169,6 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1	/* Bytes of address */
 
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_PROMPT	"=> "	/* Monitor Command Prompt */
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
@@ -186,8 +185,6 @@
 #define CONFIG_SYS_MEMTEST_END		0x07c00000	/* 4 ... 124 MB in DRAM */
 
 #define CONFIG_SYS_LOAD_ADDR	0x00400000	/* default load address */
-
-#define CONFIG_SYS_HZ		1000		/* decr freq: 1ms ticks */
 
 /*
  * Low Level Configuration Settings

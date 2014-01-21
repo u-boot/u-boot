@@ -5,46 +5,30 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-include $(TOPDIR)/config.mk
-
-LIB	= $(obj)libomap-common.o
-
-COBJS	:= reset.o
-COBJS	+= timer.o
-COBJS	+= utils.o
+obj-y	:= reset.o
+obj-y	+= timer.o
+obj-y	+= utils.o
 
 ifneq ($(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX),)
-COBJS	+= hwinit-common.o
-COBJS	+= clocks-common.o
-COBJS	+= emif-common.o
-COBJS	+= vc.o
-COBJS	+= abb.o
+obj-y	+= hwinit-common.o
+obj-y	+= clocks-common.o
+obj-y	+= emif-common.o
+obj-y	+= vc.o
+obj-y	+= abb.o
+endif
+
+ifneq ($(CONFIG_OMAP54XX),)
+obj-y	+= pipe3-phy.o
+obj-$(CONFIG_SCSI_AHCI_PLAT) += sata.o
 endif
 
 ifeq ($(CONFIG_OMAP34XX),)
-COBJS	+= boot-common.o
-SOBJS	+= lowlevel_init.o
+obj-y	+= boot-common.o
+obj-y	+= lowlevel_init.o
 endif
 
 ifndef CONFIG_SPL_BUILD
 ifneq ($(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX),)
-COBJS	+= mem-common.o
+obj-y	+= mem-common.o
 endif
 endif
-
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
-
-all:	$(obj).depend $(LIB)
-
-$(LIB):	$(OBJS)
-	$(call cmd_link_o_target, $(OBJS))
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################

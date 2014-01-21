@@ -371,7 +371,7 @@ void recover_transaction(int prev_desc_logical_no)
 		blknr = read_allocated_block(&inode_journal, i);
 		ext4fs_devread((lbaint_t)blknr * fs->sect_perblk, 0,
 			       fs->blksz, metadata_buff);
-		put_ext4((uint64_t)(be32_to_cpu(tag->block) * fs->blksz),
+		put_ext4((uint64_t)((uint64_t)be32_to_cpu(tag->block) * (uint64_t)fs->blksz),
 			 metadata_buff, (uint32_t) fs->blksz);
 	} while (!(flags & EXT3_JOURNAL_FLAG_LAST_TAG));
 fail:
@@ -531,7 +531,7 @@ end:
 
 		blknr = read_allocated_block(&inode_journal,
 					 EXT2_JOURNAL_SUPERBLOCK);
-		put_ext4((uint64_t) (blknr * fs->blksz),
+		put_ext4((uint64_t) ((uint64_t)blknr * (uint64_t)fs->blksz),
 			 (struct journal_superblock_t *)temp_buff,
 			 (uint32_t) fs->blksz);
 		ext4fs_free_revoke_blks();
@@ -590,7 +590,7 @@ static void update_descriptor_block(long int blknr)
 	tag.flags = cpu_to_be32(EXT3_JOURNAL_FLAG_LAST_TAG);
 	memcpy(temp - sizeof(struct ext3_journal_block_tag), &tag,
 	       sizeof(struct ext3_journal_block_tag));
-	put_ext4((uint64_t) (blknr * fs->blksz), buf, (uint32_t) fs->blksz);
+	put_ext4((uint64_t) ((uint64_t)blknr * (uint64_t)fs->blksz), buf, (uint32_t) fs->blksz);
 
 	free(temp_buff);
 	free(buf);
@@ -625,7 +625,7 @@ static void update_commit_block(long int blknr)
 		return;
 	}
 	memcpy(buf, &jdb, sizeof(struct journal_header_t));
-	put_ext4((uint64_t) (blknr * fs->blksz), buf, (uint32_t) fs->blksz);
+	put_ext4((uint64_t) ((uint64_t)blknr * (uint64_t)fs->blksz), buf, (uint32_t) fs->blksz);
 
 	free(temp_buff);
 	free(buf);

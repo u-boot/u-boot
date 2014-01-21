@@ -39,17 +39,32 @@ gd_t *global_data;
 "	bctr\n"				\
 	: : "i"(offsetof(gd_t, jt)), "i"(XF_ ## x * sizeof(void *)) : "r11");
 #elif defined(CONFIG_ARM)
+#ifdef CONFIG_ARM64
 /*
- * r8 holds the pointer to the global_data, ip is a call-clobbered
+ * x18 holds the pointer to the global_data, x9 is a call-clobbered
  * register
  */
 #define EXPORT_FUNC(x) \
 	asm volatile (			\
 "	.globl " #x "\n"		\
 #x ":\n"				\
-"	ldr	ip, [r8, %0]\n"		\
+"	ldr	x9, [x18, %0]\n"		\
+"	ldr	x9, [x9, %1]\n"		\
+"	br	x9\n"		\
+	: : "i"(offsetof(gd_t, jt)), "i"(XF_ ## x * sizeof(void *)) : "x9");
+#else
+/*
+ * r9 holds the pointer to the global_data, ip is a call-clobbered
+ * register
+ */
+#define EXPORT_FUNC(x) \
+	asm volatile (			\
+"	.globl " #x "\n"		\
+#x ":\n"				\
+"	ldr	ip, [r9, %0]\n"		\
 "	ldr	pc, [ip, %1]\n"		\
 	: : "i"(offsetof(gd_t, jt)), "i"(XF_ ## x * sizeof(void *)) : "ip");
+#endif
 #elif defined(CONFIG_MIPS)
 /*
  * k0 ($26) holds the pointer to the global_data; t9 ($25) is a call-

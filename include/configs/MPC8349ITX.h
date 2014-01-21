@@ -562,7 +562,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_SYS_MAXARGS	16	/* max number of command args */
 				/* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-#define CONFIG_SYS_HZ		1000	/* decrementer freq: 1ms ticks */
 
 /*
  * For booting Linux, the board info and command line data
@@ -731,7 +730,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed of kgdb serial port */
-#define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
 
 

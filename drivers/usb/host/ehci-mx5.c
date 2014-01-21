@@ -218,7 +218,8 @@ void __weak board_ehci_hcd_postinit(struct usb_ehci *ehci, int port)
 {
 }
 
-int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+int ehci_hcd_init(int index, enum usb_init_type init,
+		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	struct usb_ehci *ehci;
 

@@ -221,58 +221,58 @@ II) Approach
 III) Analysis of in-tree drivers
 --------------------------------
 
-  1) ahci.c
-  ---------
+  ahci.c
+  ------
     SCSI API, will be rewritten for a different API.
 
-  2) ata_piix.c
-  -------------
+  ata_piix.c
+  ----------
     SATA API, easy to port.
 
-  3) fsl_sata.c
-  -------------
+  fsl_sata.c
+  ----------
     SATA API, few CONFIG macros, easy to port.
 
-  4) ftide020.c
-  -------------
+  ftide020.c
+  ----------
     IDE API, defines CONFIG_IDE_AHB and ide_preinit hook functions.
 
-  5) mg_disk.c
-  ------------
+  mg_disk.c
+  ---------
     Single driver with mg_disk API, not much to change, easy to port.
 
-  6) mvsata_ide.c
-  ---------------
-    IDE API, only defines ide_preinit hook function.
-
-  7) mxc_ata.c
+  mvsata_ide.c
   ------------
     IDE API, only defines ide_preinit hook function.
 
-  8) pata_bfin.c
-  --------------
-    SATA API, easy to port.
-
-  9) sata_dwc.c
-  -------------
-    SATA API, easy to port.
-
-  10) sata_sil3114.c
-  ------------------
-    SATA API, easy to port.
-
-  11) sata_sil.c
-  --------------
-    SATA API, easy to port.
-
-  12) sil680.c
-  ------------
+  mxc_ata.c
+  ---------
     IDE API, only defines ide_preinit hook function.
 
-  13) sym53c8xx.c
-  ---------------
+  pata_bfin.c
+  -----------
+    SATA API, easy to port.
+
+  sata_dwc.c
+  ----------
+    SATA API, easy to port.
+
+  sata_sil3114.c
+  --------------
+    SATA API, easy to port.
+
+  sata_sil.c
+  ----------
+    SATA API, easy to port.
+
+  sil680.c
+  --------
+    IDE API, only defines ide_preinit hook function.
+
+  sym53c8xx.c
+  -----------
     SCSI API, may be merged with code from cmd_scsi.
 
-  14) systemace.c
-  ---------------
+  systemace.c
+  -----------
     Single driver with systemace API, not much to change, easy to port.

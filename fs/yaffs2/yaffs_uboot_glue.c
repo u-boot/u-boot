@@ -20,6 +20,7 @@
  */
 
 #include <common.h>
+#include <div64.h>
 
 #include <config.h>
 #include "nand.h"
@@ -184,7 +185,7 @@ void cmd_yaffs_devconfig(char *_mp, int flash_dev,
 	}
 
 	if (end_block == 0)
-		end_block = mtd->size / mtd->erasesize - 1;
+		end_block = lldiv(mtd->size, mtd->erasesize - 1);
 
 	if (end_block < start_block) {
 		printf("Bad start/end\n");

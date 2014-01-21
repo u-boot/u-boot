@@ -28,7 +28,6 @@
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	18432000	/* main clock xtal */
-#define CONFIG_SYS_HZ			1000
 
 /* Define actual evaluation board type from used processor type */
 #ifdef CONFIG_AT91SAM9G20
@@ -182,9 +181,11 @@
 #define CONFIG_RMII			1
 #define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_RESET_PHY_R		1
+#define CONFIG_AT91_WANTS_COMMON_PHY
 
 /* USB */
 #define CONFIG_USB_ATMEL
+#define CONFIG_USB_ATMEL_CLK_SEL_PLLB
 #define CONFIG_USB_OHCI_NEW		1
 #define CONFIG_SYS_USB_OHCI_CPU_INIT		1
 #define CONFIG_SYS_USB_OHCI_REGS_BASE		0x00500000	/* AT91SAM9260_UHP_BASE */

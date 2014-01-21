@@ -30,7 +30,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	SET_TLB_ENTRY(1, 0xfffff000, 0xfffff000,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 0, BOOKE_PAGESZ_4K, 1),
-#ifdef CONFIG_SPL_NAND_MINIMAL
+#ifdef CONFIG_SPL_NAND_BOOT
 	SET_TLB_ENTRY(1, 0xffffe000, 0xffffe000,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 10, BOOKE_PAGESZ_4K, 1),
@@ -42,7 +42,6 @@ struct fsl_e_tlb_entry tlb_table[] = {
 			0, 1, BOOKE_PAGESZ_1M, 1),
 
 #ifndef CONFIG_SPL_BUILD
-#ifndef CONFIG_SDCARD
 	SET_TLB_ENTRY(1, CONFIG_SYS_FLASH_BASE, CONFIG_SYS_FLASH_BASE_PHYS,
 			MAS3_SX|MAS3_SR, MAS2_W|MAS2_G,
 			0, 2, BOOKE_PAGESZ_16M, 1),
@@ -51,7 +50,6 @@ struct fsl_e_tlb_entry tlb_table[] = {
 			CONFIG_SYS_FLASH_BASE_PHYS + 0x1000000,
 			MAS3_SX|MAS3_SR, MAS2_W|MAS2_G,
 			0, 3, BOOKE_PAGESZ_16M, 1),
-#endif
 
 #ifdef CONFIG_PCI
 	/* *I*G* - PCI */
@@ -66,7 +64,6 @@ struct fsl_e_tlb_entry tlb_table[] = {
 #endif
 #endif
 
-#ifndef CONFIG_SDCARD
 	/* *I*G - Board CPLD  */
 	SET_TLB_ENTRY(1, CONFIG_SYS_CPLD_BASE, CONFIG_SYS_CPLD_BASE_PHYS,
 			MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
@@ -75,7 +72,6 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	SET_TLB_ENTRY(1, CONFIG_SYS_NAND_BASE, CONFIG_SYS_NAND_BASE_PHYS,
 			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 			0, 7, BOOKE_PAGESZ_1M, 1),
-#endif
 
 #if defined(CONFIG_SYS_RAMBOOT) || defined(CONFIG_SPL)
 	SET_TLB_ENTRY(1, CONFIG_SYS_DDR_SDRAM_BASE, CONFIG_SYS_DDR_SDRAM_BASE,

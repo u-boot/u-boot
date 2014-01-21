@@ -45,6 +45,12 @@
 #endif
 
 	mcr 15, 1, r0, c9, c0, 2
+
+	/* enable L2 cache */
+	mrc 15, 0, r0, c1, c0, 1
+	orr r0, r0, #2
+	mcr 15, 0, r0, c1, c0, 1
+
 .endm /* init_l2cc */
 
 /* AIPS setup - Only setup MPROTx registers.
@@ -367,12 +373,6 @@ setup_pll_func:
 	str r1, [r0, #CLKCTL_CCOSR]
 
 #endif	/* CONFIG_MX53 */
-.endm
-
-.macro setup_wdog
-	ldr r0, =WDOG1_BASE_ADDR
-	mov r1, #0x30
-	strh r1, [r0]
 .endm
 
 ENTRY(lowlevel_init)

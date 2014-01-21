@@ -62,6 +62,8 @@ enum srds_prtcl {
 	QSGMII_FM1_B,		/* B indicates MACs 5,6,9,10 */
 	QSGMII_FM2_A,
 	QSGMII_FM2_B,
+	XFI_FM1_MAC1,
+	XFI_FM1_MAC2,
 	XFI_FM1_MAC9,
 	XFI_FM1_MAC10,
 	XFI_FM2_MAC9,
@@ -86,6 +88,7 @@ enum srds {
 
 int is_serdes_configured(enum srds_prtcl device);
 void fsl_serdes_init(void);
+const char *serdes_clock_to_string(u32 clock);
 
 #ifdef CONFIG_FSL_CORENET
 #ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2

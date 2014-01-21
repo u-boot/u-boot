@@ -10,6 +10,12 @@
 #define MX6_IOMUXC_GPR7		0x020e001c
 
 /*
+ * IOMUXC_GPR1 bit fields
+ */
+#define IOMUXC_GPR1_OTG_ID_ENET_RX_ERR	(0<<13)
+#define IOMUXC_GPR1_OTG_ID_GPIO1	(1<<13)
+#define IOMUXC_GPR1_OTG_ID_MASK		(1<<13)
+/*
  * IOMUXC_GPR13 bit fields
  */
 #define IOMUXC_GPR13_SDMA_STOP_REQ	(1<<30)

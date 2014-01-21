@@ -13,12 +13,6 @@ SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 
 export	SHELL
 
-ifeq ($(CONFIG_TPL_BUILD),y)
-SPL_BIN := u-boot-tpl
-else
-SPL_BIN := u-boot-spl
-endif
-
 ifeq ($(CURDIR),$(SRCTREE))
 dir :=
 else
@@ -131,9 +125,9 @@ endif
 
 # cc-version
 # Usage gcc-ver := $(call cc-version)
-cc-version = $(shell $(SHELL) $(SRCTREE)/tools/gcc-version.sh $(CC))
-binutils-version = $(shell $(SHELL) $(SRCTREE)/tools/binutils-version.sh $(AS))
-dtc-version = $(shell $(SHELL) $(SRCTREE)/tools/dtc-version.sh $(DTC))
+cc-version = $(shell $(SHELL) $(SRCTREE)/scripts/gcc-version.sh $(CC))
+binutils-version = $(shell $(SHELL) $(SRCTREE)/scripts/binutils-version.sh $(AS))
+dtc-version = $(shell $(SHELL) $(SRCTREE)/scripts/dtc-version.sh $(DTC))
 
 #
 # Include the make variables (CC, etc...)
@@ -256,11 +250,16 @@ Please undefined CONFIG_SYS_GENERIC_BOARD in your board config file)
 endif
 endif
 
+# Sandbox needs the base flags and includes, so keep them around
+BASE_CPPFLAGS := $(CPPFLAGS)
+
 ifneq ($(OBJTREE),$(SRCTREE))
-CPPFLAGS += -I$(OBJTREE)/include2 -I$(OBJTREE)/include
+BASE_INCLUDE_DIRS := $(OBJTREE)/include
 endif
 
-CPPFLAGS += -I$(TOPDIR)/include
+BASE_INCLUDE_DIRS += $(TOPDIR)/include $(SRCTREE)/arch/$(ARCH)/include
+
+CPPFLAGS += $(patsubst %, -I%, $(BASE_INCLUDE_DIRS))
 CPPFLAGS += -fno-builtin -ffreestanding -nostdinc	\
 	-isystem $(gccincdir) -pipe $(PLATFORM_CPPFLAGS)
 

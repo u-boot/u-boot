@@ -103,7 +103,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
-#define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt	*/
 #define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size	*/
 
 #define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
@@ -209,7 +208,6 @@
  */
 
 #define CONFIG_SYS_CLK_FREQ  33000000
-#define CONFIG_SYS_HZ			 10000
 
 /* Bit-field values for MCCR1.  */
 #define CONFIG_SYS_ROMNAL      7

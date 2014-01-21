@@ -14,6 +14,7 @@
 .arch_extension sec
 .arch_extension virt
 
+	.align	5
 /* the vector table for secure state and HYP mode */
 _monitor_vectors:
 	.word 0	/* reset */
@@ -32,7 +33,6 @@ _monitor_vectors:
  * to non-secure state.
  * We use only r0 and r1 here, due to constraints in the caller.
  */
-	.align	5
 _secure_monitor:
 	mrc	p15, 0, r1, c1, c1, 0		@ read SCR
 	bic	r1, r1, #0x4e			@ clear IRQ, FIQ, EA, nET bits

@@ -7,6 +7,7 @@
 #ifndef __FSL_SECURE_BOOT_H
 #define __FSL_SECURE_BOOT_H
 
+#ifdef CONFIG_SECURE_BOOT
 #if defined(CONFIG_FSL_CORENET)
 #define CONFIG_SYS_PBI_FLASH_BASE		0xc0000000
 #else
@@ -14,4 +15,5 @@
 #endif
 #define CONFIG_SYS_PBI_FLASH_WINDOW		0xcff80000
 
+#endif
 #endif

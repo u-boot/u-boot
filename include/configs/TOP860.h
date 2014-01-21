@@ -68,7 +68,6 @@
 #define	CONFIG_SYS_CPUCLOCK	CONFIG_SYSCLK
 #define	CONFIG_SYS_BRGCLOCK	CONFIG_SYSCLK
 #define	CONFIG_SYS_BUSCLOCK	(CONFIG_SYSCLK >> CONFIG_EBDF)
-#define CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks */
 #define	CONFIG_8xx_GCLK_FREQ	CONFIG_SYSCLK
 
 /*-----------------------------------------------------------------------
@@ -118,7 +117,6 @@
 
 
 #define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
-#define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt	*/
 
 #undef	CONFIG_SYS_HUSH_PARSER			/* Hush parse for U-Boot	*/
 

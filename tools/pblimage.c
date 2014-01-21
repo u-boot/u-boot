@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
-#include "mkimage.h"
+#include "imagetool.h"
 #include <image.h>
 #include "pblimage.h"
 
@@ -242,7 +242,7 @@ static void add_end_cmd(void)
 	}
 }
 
-void pbl_load_uboot(int ifd, struct mkimage_params *params)
+void pbl_load_uboot(int ifd, struct image_tool_params *params)
 {
 	FILE *fp_uboot;
 	int size;
@@ -281,7 +281,7 @@ static int pblimage_check_image_types(uint8_t type)
 }
 
 static int pblimage_verify_header(unsigned char *ptr, int image_size,
-			struct mkimage_params *params)
+			struct image_tool_params *params)
 {
 	struct pbl_header *pbl_hdr = (struct pbl_header *) ptr;
 
@@ -308,7 +308,7 @@ static void pblimage_print_header(const void *ptr)
 }
 
 static void pblimage_set_header(void *ptr, struct stat *sbuf, int ifd,
-				struct mkimage_params *params)
+				struct image_tool_params *params)
 {
 	/*nothing need to do, pbl_load_uboot takes care of whole file. */
 }
@@ -327,5 +327,5 @@ static struct image_type_params pblimage_params = {
 void init_pbl_image_type(void)
 {
 	pbl_size = 0;
-	mkimage_register(&pblimage_params);
+	register_image_type(&pblimage_params);
 }

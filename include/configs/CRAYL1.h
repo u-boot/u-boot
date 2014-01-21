@@ -70,7 +70,6 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1
 #define CONFIG_IDENT_STRING     "Cray L1"
 #define CONFIG_ENV_OVERWRITE     1
-#define	CONFIG_SYS_HZ		             1000	/* decrementer freq: 1 ms ticks	*/
 #define CONFIG_SYS_HUSH_PARSER			1
 #define CONFIG_SOURCE			1
 
@@ -130,7 +129,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_PROMPT	"=> "				/* Monitor Command Prompt	*/
 #define	CONFIG_SYS_CBSIZE	256				/* Console I/O Buffer Size	*/
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE			/* Boot Argument Buffer Size	*/
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size */

@@ -14,6 +14,7 @@
 #define HPLL	3
 #define VPLL	4
 #define BPLL	5
+#define RPLL	6
 
 enum pll_src_bit {
 	EXYNOS_SRC_MPLL = 6,

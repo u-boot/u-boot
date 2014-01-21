@@ -20,7 +20,6 @@
 #ifndef __CPM_8XX__
 #define __CPM_8XX__
 
-#include <linux/config.h>
 #include <asm/8xx_immap.h>
 
 /* CPM Command register.

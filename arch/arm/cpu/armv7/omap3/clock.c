@@ -708,7 +708,7 @@ void per_clocks_enable(void)
 	sr32(&prcm_base->iclken_per, 17, 1, 1);
 #endif
 
-#ifdef CONFIG_DRIVER_OMAP34XX_I2C
+#ifdef CONFIG_SYS_I2C_OMAP34XX
 	/* Turn on all 3 I2C clocks */
 	sr32(&prcm_base->fclken1_core, 15, 3, 0x7);
 	sr32(&prcm_base->iclken1_core, 15, 3, 0x7);	/* I2C1,2,3 = on */
@@ -730,8 +730,6 @@ void per_clocks_enable(void)
 		sr32(&prcm_base->fclken_cam, 0, 32, FCK_CAM_ON);
 		sr32(&prcm_base->iclken_cam, 0, 32, ICK_CAM_ON);
 	}
-	sr32(&prcm_base->fclken_per, 0, 32, FCK_PER_ON);
-	sr32(&prcm_base->iclken_per, 0, 32, ICK_PER_ON);
 
 	sdelay(1000);
 }

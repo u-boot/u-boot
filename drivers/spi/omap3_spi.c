@@ -20,8 +20,7 @@
 #include <asm/io.h>
 #include "omap3_spi.h"
 
-#define WORD_LEN	8
-#define SPI_WAIT_TIMEOUT 3000000;
+#define SPI_WAIT_TIMEOUT 3000000
 
 static void spi_reset(struct omap3_spi_slave *ds)
 {
@@ -185,7 +184,7 @@ int spi_claim_bus(struct spi_slave *slave)
 
 	/* wordlength */
 	conf &= ~OMAP3_MCSPI_CHCONF_WL_MASK;
-	conf |= (WORD_LEN - 1) << 7;
+	conf |= (ds->slave.wordlen - 1) << 7;
 
 	/* set chipselect polarity; manage with FORCE */
 	if (!(ds->mode & SPI_CS_HIGH))
@@ -223,7 +222,7 @@ void spi_release_bus(struct spi_slave *slave)
 	spi_reset(ds);
 }
 
-int omap3_spi_write(struct spi_slave *slave, unsigned int len, const u8 *txp,
+int omap3_spi_write(struct spi_slave *slave, unsigned int len, const void *txp,
 		    unsigned long flags)
 {
 	struct omap3_spi_slave *ds = to_omap3_spi(slave);
@@ -234,7 +233,8 @@ int omap3_spi_write(struct spi_slave *slave, unsigned int len, const u8 *txp,
 	/* Enable the channel */
 	omap3_spi_set_enable(ds,OMAP3_MCSPI_CHCTRL_EN);
 
-	chconf &= ~OMAP3_MCSPI_CHCONF_TRM_MASK;
+	chconf &= ~(OMAP3_MCSPI_CHCONF_TRM_MASK | OMAP3_MCSPI_CHCONF_WL_MASK);
+	chconf |= (ds->slave.wordlen - 1) << 7;
 	chconf |= OMAP3_MCSPI_CHCONF_TRM_TX_ONLY;
 	chconf |= OMAP3_MCSPI_CHCONF_FORCE;
 	omap3_spi_write_chconf(ds,chconf);
@@ -250,7 +250,13 @@ int omap3_spi_write(struct spi_slave *slave, unsigned int len, const u8 *txp,
 			}
 		}
 		/* Write the data */
-		writel(txp[i], &ds->regs->channel[ds->slave.cs].tx);
+		unsigned int *tx = &ds->regs->channel[ds->slave.cs].tx;
+		if (ds->slave.wordlen > 16)
+			writel(((u32 *)txp)[i], tx);
+		else if (ds->slave.wordlen > 8)
+			writel(((u16 *)txp)[i], tx);
+		else
+			writel(((u8 *)txp)[i], tx);
 	}
 
 	/* wait to finish of transfer */
@@ -268,7 +274,7 @@ int omap3_spi_write(struct spi_slave *slave, unsigned int len, const u8 *txp,
 	return 0;
 }
 
-int omap3_spi_read(struct spi_slave *slave, unsigned int len, u8 *rxp,
+int omap3_spi_read(struct spi_slave *slave, unsigned int len, void *rxp,
 		   unsigned long flags)
 {
 	struct omap3_spi_slave *ds = to_omap3_spi(slave);
@@ -279,7 +285,8 @@ int omap3_spi_read(struct spi_slave *slave, unsigned int len, u8 *rxp,
 	/* Enable the channel */
 	omap3_spi_set_enable(ds,OMAP3_MCSPI_CHCTRL_EN);
 
-	chconf &= ~OMAP3_MCSPI_CHCONF_TRM_MASK;
+	chconf &= ~(OMAP3_MCSPI_CHCONF_TRM_MASK | OMAP3_MCSPI_CHCONF_WL_MASK);
+	chconf |= (ds->slave.wordlen - 1) << 7;
 	chconf |= OMAP3_MCSPI_CHCONF_TRM_RX_ONLY;
 	chconf |= OMAP3_MCSPI_CHCONF_FORCE;
 	omap3_spi_write_chconf(ds,chconf);
@@ -302,7 +309,13 @@ int omap3_spi_read(struct spi_slave *slave, unsigned int len, u8 *rxp,
 			omap3_spi_set_enable(ds,OMAP3_MCSPI_CHCTRL_DIS);
 
 		/* Read the data */
-		rxp[i] = readl(&ds->regs->channel[ds->slave.cs].rx);
+		unsigned int *rx = &ds->regs->channel[ds->slave.cs].rx;
+		if (ds->slave.wordlen > 16)
+			((u32 *)rxp)[i] = readl(rx);
+		else if (ds->slave.wordlen > 8)
+			((u16 *)rxp)[i] = (u16)readl(rx);
+		else
+			((u8 *)rxp)[i] = (u8)readl(rx);
 	}
 
 	if (flags & SPI_XFER_END) {
@@ -314,8 +327,8 @@ int omap3_spi_read(struct spi_slave *slave, unsigned int len, u8 *rxp,
 }
 
 /*McSPI Transmit Receive Mode*/
-int omap3_spi_txrx(struct spi_slave *slave,
-		unsigned int len, const u8 *txp, u8 *rxp, unsigned long flags)
+int omap3_spi_txrx(struct spi_slave *slave, unsigned int len,
+		   const void *txp, void *rxp, unsigned long flags)
 {
 	struct omap3_spi_slave *ds = to_omap3_spi(slave);
 	int timeout = SPI_WAIT_TIMEOUT;
@@ -327,7 +340,8 @@ int omap3_spi_txrx(struct spi_slave *slave,
 	omap3_spi_set_enable(ds,OMAP3_MCSPI_CHCTRL_EN);
 
 	/*set TRANSMIT-RECEIVE Mode*/
-	chconf &= ~OMAP3_MCSPI_CHCONF_TRM_MASK;
+	chconf &= ~(OMAP3_MCSPI_CHCONF_TRM_MASK | OMAP3_MCSPI_CHCONF_WL_MASK);
+	chconf |= (ds->slave.wordlen - 1) << 7;
 	chconf |= OMAP3_MCSPI_CHCONF_FORCE;
 	omap3_spi_write_chconf(ds,chconf);
 
@@ -344,7 +358,13 @@ int omap3_spi_txrx(struct spi_slave *slave,
 			}
 		}
 		/* Write the data */
-		writel(txp[i], &ds->regs->channel[ds->slave.cs].tx);
+		unsigned int *tx = &ds->regs->channel[ds->slave.cs].tx;
+		if (ds->slave.wordlen > 16)
+			writel(((u32 *)txp)[i], tx);
+		else if (ds->slave.wordlen > 8)
+			writel(((u16 *)txp)[i], tx);
+		else
+			writel(((u8 *)txp)[i], tx);
 
 		/*Read: wait for RX containing data (RXS == 1)*/
 		while (!(readl(&ds->regs->channel[ds->slave.cs].chstat) &
@@ -356,7 +376,13 @@ int omap3_spi_txrx(struct spi_slave *slave,
 			}
 		}
 		/* Read the data */
-		rxp[i] = readl(&ds->regs->channel[ds->slave.cs].rx);
+		unsigned int *rx = &ds->regs->channel[ds->slave.cs].rx;
+		if (ds->slave.wordlen > 16)
+			((u32 *)rxp)[i] = readl(rx);
+		else if (ds->slave.wordlen > 8)
+			((u16 *)rxp)[i] = (u16)readl(rx);
+		else
+			((u8 *)rxp)[i] = (u8)readl(rx);
 	}
 	/* Disable the channel */
 	omap3_spi_set_enable(ds,OMAP3_MCSPI_CHCTRL_DIS);
@@ -375,14 +401,17 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 {
 	struct omap3_spi_slave *ds = to_omap3_spi(slave);
 	unsigned int	len;
-	const u8	*txp = dout;
-	u8		*rxp = din;
 	int ret = -1;
 
-	if (bitlen % 8)
+	if (ds->slave.wordlen < 4 || ds->slave.wordlen > 32) {
+		printf("omap3_spi: invalid wordlen %d\n", ds->slave.wordlen);
+		return -1;
+	}
+
+	if (bitlen % ds->slave.wordlen)
 		return -1;
 
-	len = bitlen / 8;
+	len = bitlen / ds->slave.wordlen;
 
 	if (bitlen == 0) {	 /* only change CS */
 		int chconf = readl(&ds->regs->channel[ds->slave.cs].chconf);
@@ -400,11 +429,11 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 		ret = 0;
 	} else {
 		if (dout != NULL && din != NULL)
-			ret = omap3_spi_txrx(slave, len, txp, rxp, flags);
+			ret = omap3_spi_txrx(slave, len, dout, din, flags);
 		else if (dout != NULL)
-			ret = omap3_spi_write(slave, len, txp, flags);
+			ret = omap3_spi_write(slave, len, dout, flags);
 		else if (din != NULL)
-			ret = omap3_spi_read(slave, len, rxp, flags);
+			ret = omap3_spi_read(slave, len, din, flags);
 	}
 	return ret;
 }

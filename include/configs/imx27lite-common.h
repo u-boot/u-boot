@@ -16,7 +16,6 @@
 #define CONFIG_ARM926EJS			/* arm926ejs CPU core */
 #define CONFIG_MX27
 #define CONFIG_MX27_CLK32	32768		/* OSC32K frequency */
-#define CONFIG_SYS_HZ		1000
 
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_DISPLAY_CPUINFO
@@ -160,7 +159,6 @@
 /*
  * U-Boot general configuration
  */
-#define CONFIG_SYS_PROMPT	"=> "	/* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size  */
 /* Print buffer sz */
 #define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE + \

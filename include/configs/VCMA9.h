@@ -73,12 +73,12 @@
  * the MPL VCMA9 is equipped with an ATMEL 24C256 EEPROM at
  * address 0x50 with 16bit addressing
  */
-#define CONFIG_HARD_I2C				/* I2C with hardware support */
-#define CONFIG_SYS_I2C_SPEED		100000	/* I2C speed */
-#define CONFIG_SYS_I2C_SLAVE		0x7F	/* I2C slave addr */
+#define CONFIG_SYS_I2C
 
 /* we use the built-in I2C controller */
-#define CONFIG_DRIVER_S3C24X0_I2C
+#define CONFIG_SYS_I2C_S3C24X0
+#define CONFIG_SYS_I2C_S3C24X0_SPEED    100000	/* I2C speed */
+#define CONFIG_SYS_I2C_S3C24X0_SLAVE    0x7F	/* I2C slave addr */
 
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
@@ -138,8 +138,6 @@
 #if defined(CONFIG_CMD_KGDB)
 /* speed to run kgdb serial port */
 #define CONFIG_KGDB_BAUDRATE		115200
-/* what's this ? it's not used anywhere */
-#define CONFIG_KGDB_SER_INDEX		2	/* which serial port to use */
 #endif
 
 /* Miscellaneous configurable options */
@@ -162,7 +160,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x30800000
 
 /* we configure PWM Timer 4 to 1ms 1000Hz  */
-#define CONFIG_SYS_HZ			1000
 
 /* support additional compression methods */
 #define CONFIG_BZIP2

@@ -281,7 +281,7 @@ static void update_block_number(void)
 	 * number of 0 this means that there was a wrap
 	 * around of the (16 bit) counter.
 	 */
-	if (TftpBlock == 0) {
+	if (TftpBlock == 0 && TftpLastBlock != 0) {
 		TftpBlockWrap++;
 		TftpBlockWrapOffset += TftpBlkSize * TFTP_SEQUENCE_SIZE;
 		TftpTimeoutCount = 0; /* we've done well, reset thhe timeout */
@@ -849,6 +849,9 @@ TftpStartServer(void)
 
 	TftpState = STATE_RECV_WRQ;
 	net_set_udp_handler(TftpHandler);
+
+	/* zero out server ether in case the server ip has changed */
+	memset(NetServerEther, 0, 6);
 }
 #endif /* CONFIG_CMD_TFTPSRV */
 

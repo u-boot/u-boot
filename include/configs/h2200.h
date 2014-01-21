@@ -17,8 +17,6 @@
 
 #define CONFIG_SYS_NO_FLASH
 
-#define CONFIG_SYS_HZ			1000
-
 #define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM_1			0xa0000000 /* SDRAM Bank #1 */
 #define PHYS_SDRAM_1_SIZE		0x04000000 /* 64 MB */

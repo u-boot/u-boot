@@ -47,7 +47,6 @@
 #define CONFIG_I2C_CHIPADDRESS			0x50
 
 /* Timer, HZ specific defines */
-#define CONFIG_SYS_HZ				1000
 
 /* Flash configuration */
 #if defined(CONFIG_FLASH_PNOR)

@@ -64,20 +64,20 @@ int board_init(void)
 
 int board_late_init(void)
 {
-	switch ((zynq_slcr_get_boot_mode()) & BOOT_MODES_MASK) {
-	case QSPI_MODE:
+	switch ((zynq_slcr_get_boot_mode()) & ZYNQ_BM_MASK) {
+	case ZYNQ_BM_QSPI:
 		setenv("modeboot", "qspiboot");
 		break;
-	case NAND_FLASH_MODE:
+	case ZYNQ_BM_NAND:
 		setenv("modeboot", "nandboot");
 		break;
-	case NOR_FLASH_MODE:
+	case ZYNQ_BM_NOR:
 		setenv("modeboot", "norboot");
 		break;
-	case SD_MODE:
+	case ZYNQ_BM_SD:
 		setenv("modeboot", "sdboot");
 		break;
-	case JTAG_MODE:
+	case ZYNQ_BM_JTAG:
 		setenv("modeboot", "jtagboot");
 		break;
 	default:

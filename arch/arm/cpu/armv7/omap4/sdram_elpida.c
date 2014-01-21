@@ -32,7 +32,7 @@
 
 #ifdef CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS
 
-static const struct emif_regs emif_regs_elpida_200_mhz_2cs = {
+const struct emif_regs emif_regs_elpida_200_mhz_2cs = {
 	.sdram_config_init		= 0x80000eb9,
 	.sdram_config			= 0x80001ab9,
 	.ref_ctrl			= 0x0000030c,
@@ -46,7 +46,7 @@ static const struct emif_regs emif_regs_elpida_200_mhz_2cs = {
 	.emif_ddr_phy_ctlr_1		= 0x049ff808
 };
 
-static const struct emif_regs emif_regs_elpida_380_mhz_1cs = {
+const struct emif_regs emif_regs_elpida_380_mhz_1cs = {
 	.sdram_config_init		= 0x80000eb1,
 	.sdram_config			= 0x80001ab1,
 	.ref_ctrl			= 0x000005cd,
@@ -320,4 +320,9 @@ const struct lpddr2_mr_regs mr_regs = {
 void get_lpddr2_mr_regs(const struct lpddr2_mr_regs **regs)
 {
 	*regs = &mr_regs;
+}
+
+__weak const struct read_write_regs *get_bug_regs(u32 *iterations)
+{
+	return 0;
 }

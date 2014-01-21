@@ -71,10 +71,8 @@
 #define CONFIG_MXC_USB_FLAGS	0
 
 /* I2C Configs */
-#define CONFIG_HARD_I2C
-#define CONFIG_I2C_MXC
-#define CONFIG_SYS_I2C_BASE		I2C1_BASE_ADDR
-#define CONFIG_SYS_I2C_SPEED		100000
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_MXC
 
 /* PMIC Controller */
 #define CONFIG_POWER
@@ -178,7 +176,6 @@
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
-#define CONFIG_SYS_PROMPT		"MX53LOCO U-Boot > "
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 
@@ -192,7 +189,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
-#define CONFIG_SYS_HZ		1000
 #define CONFIG_CMDLINE_EDITING
 
 /* Physical Memory Map */

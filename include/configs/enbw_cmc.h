@@ -33,7 +33,6 @@
 #define CONFIG_SYS_OSCIN_FREQ		24000000
 #define CONFIG_SYS_TIMERBASE		DAVINCI_TIMER0_BASE
 #define CONFIG_SYS_HZ_CLOCK		clk_get(DAVINCI_AUXCLK_CLKID)
-#define CONFIG_SYS_HZ			1000
 #define CONFIG_DA850_LOWLEVEL
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_SYS_DA850_PLL_INIT
@@ -228,7 +227,6 @@
  * U-Boot general configuration
  */
 #define CONFIG_BOOTFILE		"uImage" /* Boot file name */
-#define CONFIG_SYS_PROMPT	"=> " /* Command Prompt */
 #define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size	*/
 #define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
 #define CONFIG_SYS_MAXARGS	16 /* max number of command args */

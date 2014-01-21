@@ -84,7 +84,6 @@
  * Miscellaneous configurable options
  */
 #define	CONFIG_SYS_LONGHELP			/* undef to save memory		*/
-#define	CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt	*/
 #if defined(CONFIG_CMD_KGDB)
 #define	CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
@@ -107,8 +106,6 @@
 
 #define CONFIG_SYS_PC_ETH_RESET	((ushort)0x0010)	/* PC 11	*/
 #define CONFIG_SYS_PC_IDE_RESET	((ushort)0x0020)	/* PC 10	*/
-
-#define	CONFIG_SYS_HZ		1000		/* decrementer freq: 1 ms ticks	*/
 
 /*
  * Low Level Configuration Settings

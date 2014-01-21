@@ -237,6 +237,14 @@ struct cm_perpll {
 	unsigned int cpswclkstctrl;	/* offset 0x144 */
 	unsigned int lcdcclkstctrl;	/* offset 0x148 */
 };
+
+/* Encapsulating Display pll registers */
+struct cm_dpll {
+	unsigned int resv1[2];
+	unsigned int clktimer2clk;	/* offset 0x08 */
+	unsigned int resv2[10];
+	unsigned int clklcdcpixelclk;	/* offset 0x34 */
+};
 #else
 /* Encapsulating core pll registers */
 struct cm_wkuppll {
@@ -392,15 +400,17 @@ struct cm_perpll {
 	unsigned int resv40[7];
 	unsigned int cpgmac0clkctrl;	/* offset 0xB20 */
 };
-#endif /* CONFIG_AM43XX */
 
-/* Encapsulating Display pll registers */
-struct cm_dpll {
-	unsigned int resv1[2];
-	unsigned int clktimer2clk;	/* offset 0x08 */
-	unsigned int resv2[10];
-	unsigned int clklcdcpixelclk;	/* offset 0x34 */
+struct cm_device_inst {
+	unsigned int cm_clkout1_ctrl;
+	unsigned int cm_dll_ctrl;
 };
+
+struct cm_dpll {
+	unsigned int resv1;
+	unsigned int clktimer2clk;	/* offset 0x04 */
+};
+#endif /* CONFIG_AM43XX */
 
 /* Control Module RTC registers */
 struct cm_rtc {
@@ -457,15 +467,6 @@ struct gptimer {
 	unsigned int tcar2;		/* offset 0x58 */
 };
 
-/* RTC Registers */
-struct rtc_regs {
-	unsigned int res[21];
-	unsigned int osc;		/* offset 0x54 */
-	unsigned int res2[5];
-	unsigned int kick0r;		/* offset 0x6c */
-	unsigned int kick1r;		/* offset 0x70 */
-};
-
 /* UART Registers */
 struct uart_sys {
 	unsigned int resv1[21];
@@ -484,6 +485,8 @@ struct ctrl_stat {
 	unsigned int statusreg;		/* ofset 0x40 */
 	unsigned int resv2[51];
 	unsigned int secure_emif_sdram_config;	/* offset 0x0110 */
+	unsigned int resv3[319];
+	unsigned int dev_attr;
 };
 
 /* AM33XX GPIO registers */

@@ -7,29 +7,10 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-include $(TOPDIR)/config.mk
-
-LIB	= $(obj)lib$(CPU).o
-
-COBJS	:= cpu.o os.o start.o state.o
-
-SRCS	:= $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-
-all:	$(obj).depend $(LIB)
-
-$(LIB):	$(OBJS)
-	$(call cmd_link_o_target, $(OBJS))
+obj-y	:= cpu.o os.o start.o state.o
 
 # os.c is build in the system environment, so needs standard includes
-$(obj)os.o: ALL_CFLAGS := $(filter-out -nostdinc,$(ALL_CFLAGS))
-$(obj).depend.os: CPPFLAGS := $(filter-out -nostdinc,$(CPPFLAGS))
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+$(obj)os.o: ALL_CFLAGS := $(BASE_CPPFLAGS) \
+	$(patsubst %, -idirafter %, $(BASE_INCLUDE_DIRS))
+$(obj).depend.os: CPPFLAGS := $(BASE_CPPFLAGS) \
+	$(patsubst %, -idirafter %, $(BASE_INCLUDE_DIRS))

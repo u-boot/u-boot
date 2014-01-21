@@ -20,8 +20,8 @@ www.jdl.com for its latest version. mkimage (together with dtc) takes as input
 an image source file, which describes the contents of the image and defines
 its various properties used during booting. By convention, image source file
 has the ".its" extension, also, the details of its format are given in
-doc/source_file_format.txt. The actual data that is to be included in the
-uImage (kernel, ramdisk, etc.) is specified in the image source file in the
+doc/uImage.FIT/source_file_format.txt. The actual data that is to be included in
+the uImage (kernel, ramdisk, etc.) is specified in the image source file in the
 form of paths to appropriate data files. The outcome of the image creation
 process is a binary file (by convention with the ".itb" extension) that
 contains all the referenced data (kernel, ramdisk, etc.) and other information
@@ -39,7 +39,7 @@ Here's a graphical overview of the image creation and booting process:
 
 image source file     mkimage + dtc		  transfer to target
 	+	     ---------------> image file --------------------> bootm
-image data files(s)
+image data file(s)
 
 
 Example 1 -- old-style (non-FDT) kernel booting

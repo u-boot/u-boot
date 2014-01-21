@@ -16,7 +16,6 @@
 
 #include <asm/sgidefs.h>
 #include <asm/system.h>
-#include <linux/config.h>
 
 /*
  * clear_bit() doesn't provide any barrier for the compiler.

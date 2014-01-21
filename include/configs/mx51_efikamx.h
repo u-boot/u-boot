@@ -29,7 +29,6 @@
 
 #define CONFIG_SYS_TEXT_BASE		0x97800000
 
-#define	CONFIG_L2_OFF
 #define	CONFIG_SYS_ICACHE_OFF
 #define	CONFIG_SYS_DCACHE_OFF
 
@@ -227,7 +226,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
 
-#define CONFIG_SYS_HZ			1000
 #define CONFIG_CMDLINE_EDITING
 
 /*-----------------------------------------------------------------------

@@ -877,6 +877,7 @@ static int mmc_startup(struct mmc *mmc)
 
 	mmc->tran_speed = freq * mult;
 
+	mmc->dsr_imp = ((cmd.response[1] >> 12) & 0x1);
 	mmc->read_bl_len = 1 << ((cmd.response[1] >> 16) & 0xf);
 
 	if (IS_SD(mmc))
@@ -906,6 +907,14 @@ static int mmc_startup(struct mmc *mmc)
 
 	if (mmc->write_bl_len > MMC_MAX_BLOCK_LEN)
 		mmc->write_bl_len = MMC_MAX_BLOCK_LEN;
+
+	if ((mmc->dsr_imp) && (0xffffffff != mmc->dsr)) {
+		cmd.cmdidx = MMC_CMD_SET_DSR;
+		cmd.cmdarg = (mmc->dsr & 0xffff) << 16;
+		cmd.resp_type = MMC_RSP_NONE;
+		if (mmc_send_cmd(mmc, &cmd, NULL))
+			printf("MMC: SET_DSR failed\n");
+	}
 
 	/* Select the card, and put it into Transfer Mode */
 	if (!mmc_host_is_spi(mmc)) { /* cmd not supported in spi */
@@ -960,15 +969,24 @@ static int mmc_startup(struct mmc *mmc)
 		}
 
 		/*
-		 * Check whether GROUP_DEF is set, if yes, read out
-		 * group size from ext_csd directly, or calculate
-		 * the group size from the csd value.
+		 * Host needs to enable ERASE_GRP_DEF bit if device is
+		 * partitioned. This bit will be lost every time after a reset
+		 * or power off. This will affect erase size.
 		 */
-		if (ext_csd[EXT_CSD_ERASE_GROUP_DEF]) {
+		if ((ext_csd[EXT_CSD_PARTITIONING_SUPPORT] & PART_SUPPORT) &&
+		    (ext_csd[EXT_CSD_PARTITIONS_ATTRIBUTE] & PART_ENH_ATTRIB)) {
+			err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
+				EXT_CSD_ERASE_GROUP_DEF, 1);
+
+			if (err)
+				return err;
+
+			/* Read out group size from ext_csd */
 			mmc->erase_grp_size =
 				ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE] *
 					MMC_MAX_BLOCK_LEN * 1024;
 		} else {
+			/* Calculate the group size from the csd value. */
 			int erase_gsz, erase_gmul;
 			erase_gsz = (mmc->csd[2] & 0x00007c00) >> 10;
 			erase_gmul = (mmc->csd[2] & 0x000003e0) >> 5;
@@ -1154,6 +1172,9 @@ static int mmc_send_if_cond(struct mmc *mmc)
 
 int mmc_register(struct mmc *mmc)
 {
+	/* Setup dsr related values */
+	mmc->dsr_imp = 0;
+	mmc->dsr = 0xffffffff;
 	/* Setup the universal parts of the block interface just once */
 	mmc->block_dev.if_type = IF_TYPE_MMC;
 	mmc->block_dev.dev = cur_dev_num++;
@@ -1269,6 +1290,12 @@ int mmc_init(struct mmc *mmc)
 		err = mmc_complete_init(mmc);
 	debug("%s: %d, time %lu\n", __func__, err, get_timer(start));
 	return err;
+}
+
+int mmc_set_dsr(struct mmc *mmc, u16 val)
+{
+	mmc->dsr = val;
+	return 0;
 }
 
 /*

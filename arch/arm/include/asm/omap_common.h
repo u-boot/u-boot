@@ -143,6 +143,8 @@ struct prcm_regs {
 	u32 cm_div_m2_dpll_unipro;
 	u32 cm_ssc_deltamstep_dpll_unipro;
 	u32 cm_ssc_modfreqdiv_dpll_unipro;
+	u32 cm_coreaon_usb_phy_core_clkctrl;
+	u32 cm_coreaon_usb_phy2_core_clkctrl;
 
 	/* cm2.core */
 	u32 cm_coreaon_bandgap_clkctrl;
@@ -224,8 +226,11 @@ struct prcm_regs {
 	u32 cm_l3init_hsusbotg_clkctrl;
 	u32 cm_l3init_hsusbtll_clkctrl;
 	u32 cm_l3init_p1500_clkctrl;
+	u32 cm_l3init_sata_clkctrl;
 	u32 cm_l3init_fsusb_clkctrl;
 	u32 cm_l3init_ocp2scp1_clkctrl;
+	u32 cm_l3init_ocp2scp3_clkctrl;
+	u32 cm_l3init_usb_otg_ss_clkctrl;
 
 	u32 prm_irqstatus_mpu_2;
 
@@ -348,6 +353,7 @@ struct omap_sys_ctrl_regs {
 	u32 control_core_mac_id_1_lo;
 	u32 control_core_mac_id_1_hi;
 	u32 control_std_fuse_opp_vdd_mpu_2;
+	u32 control_phy_power_usb;
 	u32 control_core_mmr_lock1;
 	u32 control_core_mmr_lock2;
 	u32 control_core_mmr_lock3;
@@ -361,6 +367,7 @@ struct omap_sys_ctrl_regs {
 	u32 control_ldosram_mpu_voltage_ctrl;
 	u32 control_ldosram_core_voltage_ctrl;
 	u32 control_usbotghs_ctrl;
+	u32 control_phy_power_sata;
 	u32 control_padconf_core_base;
 	u32 control_paconf_global;
 	u32 control_paconf_mode;
@@ -599,6 +606,14 @@ static inline u8 is_omap54xx(void)
 {
 	extern u32 *const omap_si_rev;
 	return ((*omap_si_rev & 0xFF000000) == OMAP54xx);
+}
+
+#define DRA7XX		0x07000000
+
+static inline u8 is_dra7xx(void)
+{
+	extern u32 *const omap_si_rev;
+	return ((*omap_si_rev & 0xFF000000) == DRA7XX);
 }
 #endif
 

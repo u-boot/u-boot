@@ -120,7 +120,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP	/* undef to save memory */
-#define CONFIG_SYS_PROMPT	"MX31PDK U-Boot > "
 #define CONFIG_SYS_CBSIZE	256	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE + \
@@ -136,8 +135,6 @@
 
 /* default load address */
 #define CONFIG_SYS_LOAD_ADDR		0x81000000
-
-#define CONFIG_SYS_HZ			1000
 
 #define CONFIG_CMDLINE_EDITING
 

@@ -64,6 +64,12 @@ struct fm_eth_info fm_info[] = {
 #if (CONFIG_SYS_NUM_FM1_10GEC >= 2)
 	FM_TGEC_INFO_INITIALIZER(1, 2),
 #endif
+#if (CONFIG_SYS_NUM_FM1_10GEC >= 3)
+	FM_TGEC_INFO_INITIALIZER2(1, 3),
+#endif
+#if (CONFIG_SYS_NUM_FM1_10GEC >= 4)
+	FM_TGEC_INFO_INITIALIZER2(1, 4),
+#endif
 #if (CONFIG_SYS_NUM_FM2_10GEC >= 1)
 	FM_TGEC_INFO_INITIALIZER(2, 1),
 #endif
@@ -143,6 +149,14 @@ void fm_disable_port(enum fm_port port)
 
 	fm_info[i].enabled = 0;
 	fman_disable_port(port);
+}
+
+void fm_enable_port(enum fm_port port)
+{
+	int i = fm_port_to_index(port);
+
+	fm_info[i].enabled = 1;
+	fman_enable_port(port);
 }
 
 void fm_info_set_mdio(enum fm_port port, struct mii_dev *bus)
@@ -231,10 +245,14 @@ static void ft_fixup_port(void *blob, struct fm_eth_info *info, char *prop)
 	 * FM1_10GEC1 is enabled and  FM1_DTSEC9 is disabled, ensure that the
 	 * dual-role MAC is not disabled, ditto for other dual-role MACs.
 	 */
-	if (((info->port == FM1_DTSEC9) && (PORT_IS_ENABLED(FM1_10GEC1)))	||
-	    ((info->port == FM1_DTSEC10) && (PORT_IS_ENABLED(FM1_10GEC2)))	||
-	    ((info->port == FM1_10GEC1) && (PORT_IS_ENABLED(FM1_DTSEC9)))	||
-	    ((info->port == FM1_10GEC2) && (PORT_IS_ENABLED(FM1_DTSEC10)))
+	if (((info->port == FM1_DTSEC9) && (PORT_IS_ENABLED(FM1_10GEC1)))  ||
+	    ((info->port == FM1_DTSEC10) && (PORT_IS_ENABLED(FM1_10GEC2))) ||
+	    ((info->port == FM1_DTSEC1) && (PORT_IS_ENABLED(FM1_10GEC3)))  ||
+	    ((info->port == FM1_DTSEC2) && (PORT_IS_ENABLED(FM1_10GEC4)))  ||
+	    ((info->port == FM1_10GEC1) && (PORT_IS_ENABLED(FM1_DTSEC9)))  ||
+	    ((info->port == FM1_10GEC2) && (PORT_IS_ENABLED(FM1_DTSEC10))) ||
+	    ((info->port == FM1_10GEC3) && (PORT_IS_ENABLED(FM1_DTSEC1)))  ||
+	    ((info->port == FM1_10GEC4) && (PORT_IS_ENABLED(FM1_DTSEC2)))
 #if (CONFIG_SYS_NUM_FMAN == 2)
 										||
 	    ((info->port == FM2_DTSEC9) && (PORT_IS_ENABLED(FM2_10GEC1)))	||
@@ -258,13 +276,64 @@ static void ft_fixup_port(void *blob, struct fm_eth_info *info, char *prop)
 		"status", "disabled", strlen("disabled") + 1, 1);
 }
 
+#ifdef CONFIG_SYS_FMAN_V3
+static int ft_fixup_xgec(void *blob, struct fm_eth_info *info)
+{
+	int off, i, ci;
+#define FM1_10GEC3_RX_PORT_ADDR	(CONFIG_SYS_CCSRBAR_PHYS + 0x488000)
+#define FM1_10GEC3_TX_PORT_ADDR	(CONFIG_SYS_CCSRBAR_PHYS + 0x4a8000)
+#define FM1_10GEC3_MAC_ADDR	(CONFIG_SYS_CCSRBAR_PHYS + 0x4e0000)
+
+	if ((info->port == FM1_10GEC3) || (info->port == FM1_10GEC4)) {
+		ci = (info->port == FM1_10GEC3) ? 2 : 3;
+		i = (info->port == FM1_10GEC3) ? 0 : 1;
+
+		off = fdt_node_offset_by_compat_reg(blob, "fsl,fman-port-1g-rx",
+						    FM1_10GEC3_RX_PORT_ADDR +
+						    i * 0x1000);
+		if (off > 0) {
+			fdt_setprop(blob, off, "cell-index", &ci, sizeof(int));
+			fdt_setprop(blob, off, "compatible",
+				    "fsl,fman-port-10g-rx", 20);
+		} else {
+			goto err;
+		}
+
+		off = fdt_node_offset_by_compat_reg(blob, "fsl,fman-port-1g-tx",
+						    FM1_10GEC3_TX_PORT_ADDR +
+						    i * 0x1000);
+		if (off > 0) {
+			fdt_setprop(blob, off, "cell-index", &ci, sizeof(int));
+			fdt_setprop(blob, off, "compatible",
+				    "fsl,fman-port-10g-tx", 20);
+		} else {
+			goto err;
+		}
+
+		off = fdt_node_offset_by_compat_reg(blob, "fsl,fman-memac",
+						    FM1_10GEC3_MAC_ADDR +
+						    i * 0x2000);
+		if (off > 0)
+			fdt_setprop(blob, off, "cell-index", &ci, sizeof(int));
+		else
+			goto err;
+	}
+	return 0;
+err:
+	printf("WARNING: Fail to find the node\n");
+	return -1;
+}
+#endif
+
 void fdt_fixup_fman_ethernet(void *blob)
 {
 	int i;
 
 #ifdef CONFIG_SYS_FMAN_V3
-	for (i = 0; i < ARRAY_SIZE(fm_info); i++)
+	for (i = 0; i < ARRAY_SIZE(fm_info); i++) {
 		ft_fixup_port(blob, &fm_info[i], "fsl,fman-memac");
+		ft_fixup_xgec(blob, &fm_info[i]);
+	}
 #else
 	for (i = 0; i < ARRAY_SIZE(fm_info); i++) {
 		if (fm_info[i].type == FM_ETH_1G_E)
@@ -273,4 +342,48 @@ void fdt_fixup_fman_ethernet(void *blob)
 			ft_fixup_port(blob, &fm_info[i], "fsl,fman-10g-mac");
 	}
 #endif
+}
+
+/*QSGMII Riser Card can work in SGMII mode, but the PHY address is different.
+ *This function scans which Riser Card being used(QSGMII or SGMII Riser Card),
+ *then set the correct PHY address
+ */
+void set_sgmii_phy(struct mii_dev *bus, enum fm_port base_port,
+		unsigned int port_num, int phy_base_addr)
+{
+	unsigned int regnum = 0;
+	int qsgmii;
+	int i;
+	int phy_real_addr;
+
+	qsgmii = is_qsgmii_riser_card(bus, phy_base_addr, port_num, regnum);
+
+	if (!qsgmii)
+		return;
+
+	for (i = base_port; i < base_port + port_num; i++) {
+		if (fm_info_get_enet_if(i) == PHY_INTERFACE_MODE_SGMII) {
+			phy_real_addr = phy_base_addr + i - base_port;
+			fm_info_set_phy_address(i, phy_real_addr);
+		}
+	}
+}
+
+/*to check whether qsgmii riser card is used*/
+int is_qsgmii_riser_card(struct mii_dev *bus, int phy_base_addr,
+		unsigned int port_num, unsigned regnum)
+{
+	int i;
+	int val;
+
+	if (!bus)
+		return 0;
+
+	for (i = phy_base_addr; i < phy_base_addr + port_num; i++) {
+		val = bus->read(bus, i, MDIO_DEVAD_NONE, regnum);
+		if (val != MIIM_TIMEOUT)
+			return 1;
+	}
+
+	return 0;
 }

@@ -150,6 +150,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 {
 	struct mxs_i2c_regs *i2c_regs = (struct mxs_i2c_regs *)MXS_I2C0_BASE;
 	uint32_t tmp = 0;
+	int timeout = MXS_I2C_MAX_TIMEOUT;
 	int ret;
 	int i;
 
@@ -169,9 +170,17 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 
 	for (i = 0; i < len; i++) {
 		if (!(i & 3)) {
-			while (readl(&i2c_regs->hw_i2c_queuestat) &
-				I2C_QUEUESTAT_RD_QUEUE_EMPTY)
-				;
+			while (--timeout) {
+				tmp = readl(&i2c_regs->hw_i2c_queuestat);
+				if (!(tmp & I2C_QUEUESTAT_RD_QUEUE_EMPTY))
+					break;
+			}
+
+			if (!timeout) {
+				debug("MXS I2C: Failed receiving data!\n");
+				return -ETIMEDOUT;
+			}
+
 			tmp = readl(&i2c_regs->hw_i2c_queuedata);
 		}
 		buffer[i] = tmp & 0xff;

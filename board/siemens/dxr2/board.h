@@ -22,11 +22,11 @@
 #define MAGIC_CHIP	0x50494843
 
 /* Automatic generated definition */
-/* Wed, 19 Jun 2013 10:57:48 +0200 */
-/* From file: draco/ddr3-data-micron.txt */
+/* Wed, 18 Sep 2013 18:58:27 +0200 */
+/* From file: draco/ddr3-data-micron-v2.txt */
 struct ddr3_data {
 	unsigned int magic;			/* 0x33524444 */
-	unsigned int version;			/* 0x56312e33 */
+	unsigned int version;			/* 0x56312e34 */
 	unsigned short int ddr3_sratio;		/* 0x0100 */
 	unsigned short int iclkout;		/* 0x0001 */
 	unsigned short int dt0rdsratio0;	/* 0x003A */
@@ -36,9 +36,10 @@ struct ddr3_data {
 	unsigned int sdram_tim1;		/* 0x0888A39B */
 	unsigned int sdram_tim2;		/* 0x26247FDA */
 	unsigned int sdram_tim3;		/* 0x501F821F */
-	unsigned short int emif_ddr_phy_ctlr_1;	/* 0x0006 */
+	unsigned int emif_ddr_phy_ctlr_1;	/* 0x00100206 */
 	unsigned int sdram_config;		/* 0x61C04AB2 */
 	unsigned int ref_ctrl;			/* 0x00000618 */
+	unsigned int ioctr_val;			/* 0x0000018B */
 };
 
 struct chip_data {

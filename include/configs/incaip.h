@@ -106,8 +106,6 @@
 
 #define CONFIG_SYS_MIPS_TIMER_FREQ	(incaip_get_cpuclk() / 2)
 
-#define CONFIG_SYS_HZ			1000
-
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 
 #define	CONFIG_SYS_LOAD_ADDR		0x80100000	/* default load address	*/

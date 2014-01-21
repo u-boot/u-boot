@@ -41,9 +41,6 @@
  * CPU specifics
  */
 
-/* Ticks per second */
-#define CONFIG_SYS_HZ		1000
-
 /* MXS uses FDT */
 #define CONFIG_OF_LIBFDT
 
@@ -90,7 +87,6 @@
 /* U-Boot general configuration */
 #define CONFIG_SYS_LONGHELP
 #ifndef CONFIG_SYS_PROMPT
-#define CONFIG_SYS_PROMPT	"=> "
 #endif
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O buffer size */
 #define CONFIG_SYS_PBSIZE	\

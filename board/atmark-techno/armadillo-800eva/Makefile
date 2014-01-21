@@ -16,30 +16,5 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 
-include $(TOPDIR)/config.mk
+obj-y	+= armadillo-800eva.o
 
-LIB	= $(obj)lib$(BOARD).o
-
-COBJS-y	+= armadillo-800eva.o
-COBJS   := $(COBJS-y)
-
-SRCS	:= $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-
-$(LIB):	$(obj).depend $(OBJS)
-	$(call cmd_link_o_target, $(OBJS))
-
-clean:
-	rm -f $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak $(obj).depend
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################

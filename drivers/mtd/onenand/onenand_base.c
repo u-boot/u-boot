@@ -91,7 +91,13 @@ static struct nand_ecclayout onenand_oob_32 = {
 	.oobfree	= { {2, 3}, {14, 2}, {18, 3}, {30, 2} }
 };
 
-static const unsigned char ffchars[] = {
+/*
+ * Warning! This array is used with the memcpy_16() function, thus
+ * it must be aligned to 2 bytes. GCC can make this array unaligned
+ * as the array is made of unsigned char, which memcpy16() doesn't
+ * like and will cause unaligned access.
+ */
+static const unsigned char __aligned(2) ffchars[] = {
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,	/* 16 */
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -761,7 +767,8 @@ static int onenand_transfer_auto_oob(struct mtd_info *mtd, uint8_t *buf,
 	uint8_t *oob_buf = this->oob_buf;
 
 	free = this->ecclayout->oobfree;
-	for (i = 0; i < MTD_MAX_OOBFREE_ENTRIES && free->length; i++, free++) {
+	for (i = 0; i < MTD_MAX_OOBFREE_ENTRIES_LARGE && free->length;
+	     i++, free++) {
 		if (readcol >= lastgap)
 			readcol += free->offset - lastgap;
 		if (readend >= lastgap)
@@ -770,7 +777,8 @@ static int onenand_transfer_auto_oob(struct mtd_info *mtd, uint8_t *buf,
 	}
 	this->read_bufferram(mtd, 0, ONENAND_SPARERAM, oob_buf, 0, mtd->oobsize);
 	free = this->ecclayout->oobfree;
-	for (i = 0; i < MTD_MAX_OOBFREE_ENTRIES && free->length; i++, free++) {
+	for (i = 0; i < MTD_MAX_OOBFREE_ENTRIES_LARGE && free->length;
+	     i++, free++) {
 		int free_end = free->offset + free->length;
 		if (free->offset < readend && free_end > readcol) {
 			int st = max_t(int,free->offset,readcol);
@@ -1356,7 +1364,8 @@ static int onenand_fill_auto_oob(struct mtd_info *mtd, u_char *oob_buf,
 	unsigned int i;
 
 	free = this->ecclayout->oobfree;
-	for (i = 0; i < MTD_MAX_OOBFREE_ENTRIES && free->length; i++, free++) {
+	for (i = 0; i < MTD_MAX_OOBFREE_ENTRIES_LARGE && free->length;
+	     i++, free++) {
 		if (writecol >= lastgap)
 			writecol += free->offset - lastgap;
 		if (writeend >= lastgap)
@@ -1364,7 +1373,8 @@ static int onenand_fill_auto_oob(struct mtd_info *mtd, u_char *oob_buf,
 		lastgap = free->offset + free->length;
 	}
 	free = this->ecclayout->oobfree;
-	for (i = 0; i < MTD_MAX_OOBFREE_ENTRIES && free->length; i++, free++) {
+	for (i = 0; i < MTD_MAX_OOBFREE_ENTRIES_LARGE && free->length;
+	     i++, free++) {
 		int free_end = free->offset + free->length;
 		if (free->offset < writeend && free_end > writecol) {
 			int st = max_t(int,free->offset,writecol);
@@ -2750,7 +2760,8 @@ int onenand_scan(struct mtd_info *mtd, int maxchips)
 	 * the out of band area
 	 */
 	this->ecclayout->oobavail = 0;
-	for (i = 0; i < MTD_MAX_OOBFREE_ENTRIES &&
+
+	for (i = 0; i < MTD_MAX_OOBFREE_ENTRIES_LARGE &&
 	    this->ecclayout->oobfree[i].length; i++)
 		this->ecclayout->oobavail +=
 			this->ecclayout->oobfree[i].length;

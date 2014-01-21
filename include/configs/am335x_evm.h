@@ -39,15 +39,13 @@
 		"${optargs} " \
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype}\0" \
-	"dfu_alt_info_nand=" DFU_ALT_INFO_NAND "\0" \
 	"nandroot=ubi0:rootfs rw ubi.mtd=7,2048\0" \
 	"nandrootfstype=ubifs rootwait=1\0" \
-	"nandsrcaddr=0x280000\0" \
-		"nandboot=echo Booting from nand ...; " \
+	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
-		"nand read ${loadaddr} ${nandsrcaddr} ${nandimgsize}; " \
-		"bootz ${loadaddr}\0" \
-	"nandimgsize=0x500000\0"
+		"nand read ${fdtaddr} u-boot-spl-os; " \
+		"nand read ${loadaddr} kernel; " \
+		"bootz ${loadaddr} - ${fdtaddr}\0"
 #else
 #define NANDARGS ""
 #endif
@@ -67,8 +65,6 @@
 	"fdtfile=undefined\0" \
 	"console=ttyO0,115200n8\0" \
 	"optargs=\0" \
-	"dfu_alt_info_mmc=" DFU_ALT_INFO_MMC "\0" \
-	"dfu_alt_info_emmc=rawemmc mmc 0 3751936\0" \
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 ro\0" \
 	"mmcrootfstype=ext4 rootwait\0" \
@@ -100,7 +96,6 @@
 	"loadbootenv=load mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
 	"importbootenv=echo Importing environment from mmc ...; " \
 		"env import -t $loadaddr $filesize\0" \
-	"dfu_alt_info_ram=" DFU_ALT_INFO_RAM "\0" \
 	"ramargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"root=${ramroot} " \
@@ -163,7 +158,8 @@
 			"setenv fdtfile am335x-evmsk.dtb; fi; " \
 		"if test $fdtfile = undefined; then " \
 			"echo WARNING: Could not determine device tree to use; fi; \0" \
-	NANDARGS
+	NANDARGS \
+	DFUARGS
 #endif
 
 #define CONFIG_BOOTCOMMAND \
@@ -183,7 +179,6 @@
 #define CONFIG_SYS_NS16550_COM6		0x481aa000	/* UART5 */
 #define CONFIG_BAUDRATE			115200
 
-/* I2C Configuration */
 #define CONFIG_CMD_EEPROM
 #define CONFIG_ENV_EEPROM_IS_ON_I2C
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* Main EEPROM */
@@ -198,6 +193,10 @@
 #ifndef CONFIG_NOR_BOOT
 #define CONFIG_SPL_POWER_SUPPORT
 #define CONFIG_SPL_YMODEM_SUPPORT
+
+/* Bootcount using the RTC block */
+#define CONFIG_BOOTCOUNT_LIMIT
+#define CONFIG_BOOTCOUNT_AM33XX
 
 /* CPSW support */
 #define CONFIG_SPL_ETH_SUPPORT
@@ -221,6 +220,8 @@
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/am33xx/u-boot-spl.lds"
 
 #ifdef CONFIG_NAND
+#define CONFIG_NAND_OMAP_GPMC
+#define CONFIG_NAND_OMAP_ELM
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_PAGE_COUNT	(CONFIG_SYS_NAND_BLOCK_SIZE / \
 					 CONFIG_SYS_NAND_PAGE_SIZE)
@@ -238,7 +239,8 @@
 
 #define CONFIG_SYS_NAND_ECCSIZE		512
 #define CONFIG_SYS_NAND_ECCBYTES	14
-
+#define CONFIG_SYS_NAND_ONFI_DETECTION
+#define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_BCH8_CODE_HW
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
 #endif
@@ -304,6 +306,7 @@
 #define CONFIG_DFU_MMC
 #define CONFIG_CMD_DFU
 #define DFU_ALT_INFO_MMC \
+	"dfu_alt_info_mmc=" \
 	"boot part 0 1;" \
 	"rootfs part 0 2;" \
 	"MLO fat 0 1;" \
@@ -314,10 +317,11 @@
 	"spl-os-args fat 0 1;" \
 	"spl-os-image fat 0 1;" \
 	"u-boot.img fat 0 1;" \
-	"uEnv.txt fat 0 1"
+	"uEnv.txt fat 0 1\0"
 #ifdef CONFIG_NAND
 #define CONFIG_DFU_NAND
 #define DFU_ALT_INFO_NAND \
+	"dfu_alt_info_nand=" \
 	"SPL part 0 1;" \
 	"SPL.backup1 part 0 2;" \
 	"SPL.backup2 part 0 3;" \
@@ -325,13 +329,21 @@
 	"u-boot part 0 5;" \
 	"u-boot-spl-os part 0 6;" \
 	"kernel part 0 8;" \
-	"rootfs part 0 9"
+	"rootfs part 0 9\0"
+#else
+#define DFU_ALT_INFO_NAND ""
 #endif
 #define CONFIG_DFU_RAM
 #define DFU_ALT_INFO_RAM \
+	"dfu_alt_info_ram=" \
 	"kernel ram 0x80200000 0xD80000;" \
 	"fdt ram 0x80F80000 0x80000;" \
-	"ramdisk ram 0x81000000 0x4000000"
+	"ramdisk ram 0x81000000 0x4000000\0"
+#define DFUARGS \
+	"dfu_alt_info_emmc=rawemmc mmc 0 3751936\0" \
+	DFU_ALT_INFO_MMC \
+	DFU_ALT_INFO_RAM \
+	DFU_ALT_INFO_NAND
 
 /*
  * Default to using SPI for environment, etc.

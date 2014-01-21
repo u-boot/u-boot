@@ -39,7 +39,6 @@
  */
 #define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	  */
-#define CONFIG_SYS_PROMPT		"=> "	/* Monitor Command Prompt */
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 #else
@@ -55,15 +54,11 @@
 
 #define CONFIG_SYS_ALT_MEMTEST		/* memory test, takes time */
 
-#define CONFIG_SYS_HZ			1000	/* decr. freq: 1 ms ticks */
-
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE { 9600, 19200, 38400, 57600, 115200, 230400 }
 
 #define CONFIG_LOADS_ECHO
 #define CONFIG_SYS_LOADS_BAUD_CHANGE
-
-#define CONFIG_SYS_I2C_INIT_BOARD
 
 /* Support the IVM EEprom */
 #define	CONFIG_SYS_IVM_EEPROM_ADR	0x50
@@ -79,8 +74,6 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
-
-#define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
 
 /* UBI Support for all Keymile boards */
 #define CONFIG_CMD_UBI
@@ -167,7 +160,7 @@
 	"add_default="							\
 		"setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
-		":${hostname}:${netdev}:off3"				\
+		":${hostname}:${netdev}:off:"				\
 		" console=" CONFIG_KM_CONSOLE_TTY ",${baudrate}"	\
 		" mem=${kernelmem} init=${init}"			\
 		CONFIG_KM_ECC_MODE					\

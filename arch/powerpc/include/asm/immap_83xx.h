@@ -14,6 +14,7 @@
 #ifndef __IMMAP_83xx__
 #define __IMMAP_83xx__
 
+#include <fsl_immap.h>
 #include <asm/types.h>
 #include <asm/fsl_i2c.h>
 #include <asm/mpc8xxx_spi.h>
@@ -277,107 +278,10 @@ typedef struct qesba83xx {
 } qesba83xx_t;
 
 /*
- * DDR Memory Controller Memory Map
+ * DDR Memory Controller Memory Map for DDR1
+ * The structure of DDR2, or DDR3 is defined in fsl_immap.h
  */
-#if defined(CONFIG_FSL_DDR2) || defined(CONFIG_FSL_DDR3)
-typedef struct ccsr_ddr {
-	u32	cs0_bnds;		/* Chip Select 0 Memory Bounds */
-	u8	res1[4];
-	u32	cs1_bnds;		/* Chip Select 1 Memory Bounds */
-	u8	res2[4];
-	u32	cs2_bnds;		/* Chip Select 2 Memory Bounds */
-	u8	res3[4];
-	u32	cs3_bnds;		/* Chip Select 3 Memory Bounds */
-	u8	res4[100];
-	u32	cs0_config;		/* Chip Select Configuration */
-	u32	cs1_config;		/* Chip Select Configuration */
-	u32	cs2_config;		/* Chip Select Configuration */
-	u32	cs3_config;		/* Chip Select Configuration */
-	u8	res4a[48];
-	u32	cs0_config_2;		/* Chip Select Configuration 2 */
-	u32	cs1_config_2;		/* Chip Select Configuration 2 */
-	u32	cs2_config_2;		/* Chip Select Configuration 2 */
-	u32	cs3_config_2;		/* Chip Select Configuration 2 */
-	u8	res5[48];
-	u32	timing_cfg_3;		/* SDRAM Timing Configuration 3 */
-	u32	timing_cfg_0;		/* SDRAM Timing Configuration 0 */
-	u32	timing_cfg_1;		/* SDRAM Timing Configuration 1 */
-	u32	timing_cfg_2;		/* SDRAM Timing Configuration 2 */
-	u32	sdram_cfg;		/* SDRAM Control Configuration */
-	u32	sdram_cfg_2;		/* SDRAM Control Configuration 2 */
-	u32	sdram_mode;		/* SDRAM Mode Configuration */
-	u32	sdram_mode_2;		/* SDRAM Mode Configuration 2 */
-	u32	sdram_md_cntl;		/* SDRAM Mode Control */
-	u32	sdram_interval;		/* SDRAM Interval Configuration */
-	u32	sdram_data_init;	/* SDRAM Data initialization */
-	u8	res6[4];
-	u32	sdram_clk_cntl;		/* SDRAM Clock Control */
-	u8	res7[20];
-	u32	init_addr;		/* training init addr */
-	u32	init_ext_addr;		/* training init extended addr */
-	u8	res8_1[16];
-	u32	timing_cfg_4;		/* SDRAM Timing Configuration 4 */
-	u32	timing_cfg_5;		/* SDRAM Timing Configuration 5 */
-	u8	reg8_1a[8];
-	u32	ddr_zq_cntl;		/* ZQ calibration control*/
-	u32	ddr_wrlvl_cntl;		/* write leveling control*/
-	u8	reg8_1aa[4];
-	u32	ddr_sr_cntr;		/* self refresh counter */
-	u32	ddr_sdram_rcw_1;	/* Control Words 1 */
-	u32	ddr_sdram_rcw_2;	/* Control Words 2 */
-	u8	reg_1ab[8];
-	u32	ddr_wrlvl_cntl_2;	/* write leveling control 2 */
-	u32	ddr_wrlvl_cntl_3;	/* write leveling control 3 */
-	u8	res8_1b[104];
-	u32	sdram_mode_3;		/* SDRAM Mode Configuration 3 */
-	u32	sdram_mode_4;		/* SDRAM Mode Configuration 4 */
-	u32	sdram_mode_5;		/* SDRAM Mode Configuration 5 */
-	u32	sdram_mode_6;		/* SDRAM Mode Configuration 6 */
-	u32	sdram_mode_7;		/* SDRAM Mode Configuration 7 */
-	u32	sdram_mode_8;		/* SDRAM Mode Configuration 8 */
-	u8	res8_1ba[0x908];
-	u32	ddr_dsr1;		/* Debug Status 1 */
-	u32	ddr_dsr2;		/* Debug Status 2 */
-	u32	ddr_cdr1;		/* Control Driver 1 */
-	u32	ddr_cdr2;		/* Control Driver 2 */
-	u8	res8_1c[200];
-	u32	ip_rev1;		/* IP Block Revision 1 */
-	u32	ip_rev2;		/* IP Block Revision 2 */
-	u32	eor;			/* Enhanced Optimization Register */
-	u8	res8_2[252];
-	u32	mtcr;			/* Memory Test Control Register */
-	u8	res8_3[28];
-	u32	mtp1;			/* Memory Test Pattern 1 */
-	u32	mtp2;			/* Memory Test Pattern 2 */
-	u32	mtp3;			/* Memory Test Pattern 3 */
-	u32	mtp4;			/* Memory Test Pattern 4 */
-	u32	mtp5;			/* Memory Test Pattern 5 */
-	u32	mtp6;			/* Memory Test Pattern 6 */
-	u32	mtp7;			/* Memory Test Pattern 7 */
-	u32	mtp8;			/* Memory Test Pattern 8 */
-	u32	mtp9;			/* Memory Test Pattern 9 */
-	u32	mtp10;			/* Memory Test Pattern 10 */
-	u8	res8_4[184];
-	u32	data_err_inject_hi;	/* Data Path Err Injection Mask High */
-	u32	data_err_inject_lo;	/* Data Path Err Injection Mask Low */
-	u32	ecc_err_inject;		/* Data Path Err Injection Mask ECC */
-	u8	res9[20];
-	u32	capture_data_hi;	/* Data Path Read Capture High */
-	u32	capture_data_lo;	/* Data Path Read Capture Low */
-	u32	capture_ecc;		/* Data Path Read Capture ECC */
-	u8	res10[20];
-	u32	err_detect;		/* Error Detect */
-	u32	err_disable;		/* Error Disable */
-	u32	err_int_en;
-	u32	capture_attributes;	/* Error Attrs Capture */
-	u32	capture_address;	/* Error Addr Capture */
-	u32	capture_ext_address;	/* Error Extended Addr Capture */
-	u32	err_sbe;		/* Single-Bit ECC Error Management */
-	u8	res11[164];
-	u32	debug[32];		/* debug_1 to debug_32 */
-	u8	res12[128];
-} ccsr_ddr_t;
-#else
+#if !defined(CONFIG_SYS_FSL_DDR2) && !defined(CONFIG_SYS_FSL_DDR3)
 typedef struct ddr_cs_bnds {
 	u32 csbnds;
 	u8 res0[4];
@@ -739,8 +643,8 @@ typedef struct immap {
 	u8			dll_ddr[0x100];
 	u8			dll_lbc[0x100];
 	u8			res1[0xE00];
-#if defined(CONFIG_FSL_DDR2) || defined(CONFIG_FSL_DDR3)
-	ccsr_ddr_t		ddr;	/* DDR Memory Controller Memory */
+#if defined(CONFIG_SYS_FSL_DDR2) || defined(CONFIG_SYS_FSL_DDR3)
+	struct ccsr_ddr		ddr;	/* DDR Memory Controller Memory */
 #else
 	ddr83xx_t		ddr;	/* DDR Memory Controller Memory */
 #endif
@@ -763,10 +667,17 @@ typedef struct immap {
 	u8			res7[0xC0000];
 } immap_t;
 
+#ifndef	CONFIG_MPC834x
 #ifdef CONFIG_HAS_FSL_MPH_USB
-#define CONFIG_SYS_MPC83xx_USB_OFFSET  0x22000	/* use the MPH controller */
+#define CONFIG_SYS_MPC83xx_USB1_OFFSET  0x22000	/* use the MPH controller */
+#define CONFIG_SYS_MPC83xx_USB2_OFFSET	0
 #else
-#define CONFIG_SYS_MPC83xx_USB_OFFSET  0x23000	/* use the DR controller */
+#define CONFIG_SYS_MPC83xx_USB1_OFFSET	0
+#define CONFIG_SYS_MPC83xx_USB2_OFFSET  0x23000	/* use the DR controller */
+#endif
+#else
+#define CONFIG_SYS_MPC83xx_USB1_OFFSET	0x22000
+#define CONFIG_SYS_MPC83xx_USB2_OFFSET  0x23000
 #endif
 
 #elif defined(CONFIG_MPC8313)
@@ -1022,7 +933,7 @@ typedef struct immap {
 #endif
 
 #define CONFIG_SYS_MPC8xxx_DDR_OFFSET	(0x2000)
-#define CONFIG_SYS_MPC8xxx_DDR_ADDR \
+#define CONFIG_SYS_FSL_DDR_ADDR \
 			(CONFIG_SYS_IMMR + CONFIG_SYS_MPC8xxx_DDR_OFFSET)
 #define CONFIG_SYS_MPC83xx_DMA_OFFSET	(0x8000)
 #define CONFIG_SYS_MPC83xx_DMA_ADDR \
@@ -1031,11 +942,15 @@ typedef struct immap {
 #define CONFIG_SYS_MPC83xx_ESDHC_ADDR \
 			(CONFIG_SYS_IMMR + CONFIG_SYS_MPC83xx_ESDHC_OFFSET)
 
-#ifndef CONFIG_SYS_MPC83xx_USB_OFFSET
-#define CONFIG_SYS_MPC83xx_USB_OFFSET  0x23000
+#ifndef CONFIG_SYS_MPC83xx_USB1_OFFSET
+#define CONFIG_SYS_MPC83xx_USB1_OFFSET  0x23000
 #endif
-#define CONFIG_SYS_MPC83xx_USB_ADDR \
-			(CONFIG_SYS_IMMR + CONFIG_SYS_MPC83xx_USB_OFFSET)
+#define CONFIG_SYS_MPC83xx_USB1_ADDR \
+			(CONFIG_SYS_IMMR + CONFIG_SYS_MPC83xx_USB1_OFFSET)
+#if defined(CONFIG_MPC834x)
+#define CONFIG_SYS_MPC83xx_USB2_ADDR \
+			(CONFIG_SYS_IMMR + CONFIG_SYS_MPC83xx_USB2_OFFSET)
+#endif
 #define CONFIG_SYS_LBC_ADDR (&((immap_t *)CONFIG_SYS_IMMR)->im_lbc)
 
 #define CONFIG_SYS_TSEC1_OFFSET		0x24000

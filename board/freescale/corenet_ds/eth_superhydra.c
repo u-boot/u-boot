@@ -77,6 +77,12 @@
 
 #define BRDCFG2_REG_GPIO_SEL	0x20
 
+/* SGMII */
+#define PHY_BASE_ADDR		0x00
+#define REGNUM			0x00
+#define PORT_NUM_FM1		0x04
+#define PORT_NUM_FM2		0x02
+
 /*
  * BRDCFG1 mask and value for each MAC
  *
@@ -415,6 +421,9 @@ int board_eth_init(bd_t *bis)
 	struct tgec_mdio_info tgec_mdio_info;
 	unsigned int i, slot;
 	int lane;
+	struct mii_dev *bus;
+	int qsgmii;
+	int phy_real_addr;
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	int srds_prtcl = (in_be32(&gur->rcwsr[4]) &
 				FSL_CORENET_RCWSR4_SRDS_PRTCL) >> 26;
@@ -449,6 +458,8 @@ int board_eth_init(bd_t *bis)
 				"SUPER_HYDRA_FM1_SGMII_MDIO");
 	super_hydra_mdio_init(DEFAULT_FM_MDIO_NAME,
 				"SUPER_HYDRA_FM2_SGMII_MDIO");
+	super_hydra_mdio_init(DEFAULT_FM_MDIO_NAME,
+			      "SUPER_HYDRA_FM3_SGMII_MDIO");
 	super_hydra_mdio_init(DEFAULT_FM_TGEC_MDIO_NAME,
 				"SUPER_HYDRA_FM1_TGEC_MDIO");
 	super_hydra_mdio_init(DEFAULT_FM_TGEC_MDIO_NAME,
@@ -573,6 +584,42 @@ int board_eth_init(bd_t *bis)
 		}
 	}
 
+	bus = miiphy_get_dev_by_name("SUPER_HYDRA_FM1_SGMII_MDIO");
+	qsgmii = is_qsgmii_riser_card(bus, PHY_BASE_ADDR, PORT_NUM_FM1, REGNUM);
+
+	if (qsgmii) {
+		for (i = FM1_DTSEC1; i < FM1_DTSEC1 + PORT_NUM_FM1; i++) {
+			if (fm_info_get_enet_if(i) ==
+					PHY_INTERFACE_MODE_SGMII) {
+				phy_real_addr = PHY_BASE_ADDR + i - FM1_DTSEC1;
+				fm_info_set_phy_address(i, phy_real_addr);
+			}
+		}
+		switch (srds_prtcl) {
+		case 0x00:
+		case 0x03:
+		case 0x04:
+		case 0x06:
+		case 0x11:
+		case 0x2a:
+		case 0x34:
+		case 0x36:
+			fm_info_set_phy_address(FM1_DTSEC3, PHY_BASE_ADDR + 2);
+			fm_info_set_phy_address(FM1_DTSEC4, PHY_BASE_ADDR + 3);
+			break;
+		case 0x01:
+		case 0x02:
+		case 0x05:
+		case 0x07:
+		case 0x35:
+			fm_info_set_phy_address(FM1_DTSEC3, PHY_BASE_ADDR + 0);
+			fm_info_set_phy_address(FM1_DTSEC4, PHY_BASE_ADDR + 1);
+			break;
+		default:
+			break;
+		}
+	}
+
 	/*
 	 * For 10G, we only support one XAUI card per Fman.  If present, then we
 	 * force its routing and never touch those bits again, which removes the
@@ -638,10 +685,22 @@ int board_eth_init(bd_t *bis)
 				break;
 			};
 
-			super_hydra_mdio_set_mux("SUPER_HYDRA_FM2_SGMII_MDIO",
-					mdio_mux[i].mask, mdio_mux[i].val);
-			fm_info_set_mdio(i,
-			miiphy_get_dev_by_name("SUPER_HYDRA_FM2_SGMII_MDIO"));
+			if (i == FM2_DTSEC1 || i == FM2_DTSEC2) {
+				super_hydra_mdio_set_mux(
+						"SUPER_HYDRA_FM3_SGMII_MDIO",
+						mdio_mux[i].mask,
+						mdio_mux[i].val);
+				fm_info_set_mdio(i, miiphy_get_dev_by_name(
+						"SUPER_HYDRA_FM3_SGMII_MDIO"));
+			} else {
+				super_hydra_mdio_set_mux(
+						"SUPER_HYDRA_FM2_SGMII_MDIO",
+						mdio_mux[i].mask,
+						mdio_mux[i].val);
+				fm_info_set_mdio(i, miiphy_get_dev_by_name(
+						"SUPER_HYDRA_FM2_SGMII_MDIO"));
+			}
+
 			break;
 		case PHY_INTERFACE_MODE_RGMII:
 			/*
@@ -671,6 +730,11 @@ int board_eth_init(bd_t *bis)
 			break;
 		}
 	}
+
+	bus = miiphy_get_dev_by_name("SUPER_HYDRA_FM2_SGMII_MDIO");
+	set_sgmii_phy(bus, FM2_DTSEC3, PORT_NUM_FM2, PHY_BASE_ADDR);
+	bus = miiphy_get_dev_by_name("SUPER_HYDRA_FM3_SGMII_MDIO");
+	set_sgmii_phy(bus, FM2_DTSEC1, PORT_NUM_FM2, PHY_BASE_ADDR);
 
 	/*
 	 * For 10G, we only support one XAUI card per Fman.  If present, then we

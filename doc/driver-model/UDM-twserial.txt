@@ -40,8 +40,8 @@ II) Approach
 III) Analysis of in-tree drivers
 --------------------------------
 
-  1) drivers/twserial/soft_tws.c
-  ------------------------------
+  drivers/twserial/soft_tws.c
+  ---------------------------
   The driver is the only TWserial driver. The ad-hoc part in
   include/configs/inka4x0.h and the core soft_tws driver should be consolidated
   to one compact driver and moved to misc/ .

@@ -14,14 +14,9 @@
 #include <palmas.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mmc_host_def.h>
+#include <asm/arch/sata.h>
 
 #include "mux_data.h"
-
-#ifdef CONFIG_USB_EHCI
-#include <usb.h>
-#include <asm/arch/ehci.h>
-#include <asm/ehci-omap.h>
-#endif
 
 #ifdef CONFIG_DRIVER_TI_CPSW
 #include <cpsw.h>
@@ -80,6 +75,12 @@ int board_init(void)
 	gpmc_init();
 	gd->bd->bi_boot_params = (0x80000000 + 0x100); /* boot param addr */
 
+	return 0;
+}
+
+int board_late_init(void)
+{
+	omap_sata_init();
 	return 0;
 }
 
@@ -201,12 +202,12 @@ int board_eth_init(bd_t *bis)
 	/* try reading mac address from efuse */
 	mac_lo = readl((*ctrl)->control_core_mac_id_0_lo);
 	mac_hi = readl((*ctrl)->control_core_mac_id_0_hi);
-	mac_addr[0] = mac_hi & 0xFF;
+	mac_addr[0] = (mac_hi & 0xFF0000) >> 16;
 	mac_addr[1] = (mac_hi & 0xFF00) >> 8;
-	mac_addr[2] = (mac_hi & 0xFF0000) >> 16;
-	mac_addr[3] = mac_lo & 0xFF;
+	mac_addr[2] = mac_hi & 0xFF;
+	mac_addr[3] = (mac_lo & 0xFF0000) >> 16;
 	mac_addr[4] = (mac_lo & 0xFF00) >> 8;
-	mac_addr[5] = (mac_lo & 0xFF0000) >> 16;
+	mac_addr[5] = mac_lo & 0xFF;
 
 	if (!getenv("ethaddr")) {
 		printf("<ethaddr> not set. Validating first E-fuse MAC\n");

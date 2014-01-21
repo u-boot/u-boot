@@ -16,6 +16,7 @@
 #include <asm/arch/ehci.h>
 #include <asm/arch/system.h>
 #include <asm/arch/power.h>
+#include <asm/gpio.h>
 #include <asm-generic/errno.h>
 #include <linux/compat.h>
 #include "ehci.h"
@@ -30,6 +31,7 @@ DECLARE_GLOBAL_DATA_PTR;
 struct exynos_ehci {
 	struct exynos_usb_phy *usb;
 	struct ehci_hccr *hcd;
+	struct fdt_gpio_state vbus_gpio;
 };
 
 static struct exynos_ehci exynos;
@@ -58,6 +60,9 @@ static int exynos_usb_parse_dt(const void *blob, struct exynos_ehci *exynos)
 
 	exynos->hcd = (struct ehci_hccr *)addr;
 
+	/* Vbus gpio */
+	fdtdec_decode_gpio(blob, node, "samsung,vbus-gpio", &exynos->vbus_gpio);
+
 	depth = 0;
 	node = fdtdec_next_compatible_subnode(blob, node,
 					COMPAT_SAMSUNG_EXYNOS_USB_PHY, &depth);
@@ -83,6 +88,8 @@ static int exynos_usb_parse_dt(const void *blob, struct exynos_ehci *exynos)
 /* Setup the EHCI host controller. */
 static void setup_usb_phy(struct exynos_usb_phy *usb)
 {
+	u32 hsic_ctrl;
+
 	set_usbhost_mode(USB20_PHY_CFG_HOST_LINK_EN);
 
 	set_usbhost_phy_ctrl(POWER_USB_HOST_PHY_CTRL_EN);
@@ -107,6 +114,32 @@ static void setup_usb_phy(struct exynos_usb_phy *usb)
 	clrbits_le32(&usb->usbphyctrl0,
 			HOST_CTRL0_LINKSWRST |
 			HOST_CTRL0_UTMISWRST);
+
+	/* HSIC Phy Setting */
+	hsic_ctrl = (HSIC_CTRL_FORCESUSPEND |
+			HSIC_CTRL_FORCESLEEP |
+			HSIC_CTRL_SIDDQ);
+
+	clrbits_le32(&usb->hsicphyctrl1, hsic_ctrl);
+	clrbits_le32(&usb->hsicphyctrl2, hsic_ctrl);
+
+	hsic_ctrl = (((HSIC_CTRL_REFCLKDIV_12 & HSIC_CTRL_REFCLKDIV_MASK)
+				<< HSIC_CTRL_REFCLKDIV_SHIFT)
+			| ((HSIC_CTRL_REFCLKSEL & HSIC_CTRL_REFCLKSEL_MASK)
+				<< HSIC_CTRL_REFCLKSEL_SHIFT)
+			| HSIC_CTRL_UTMISWRST);
+
+	setbits_le32(&usb->hsicphyctrl1, hsic_ctrl);
+	setbits_le32(&usb->hsicphyctrl2, hsic_ctrl);
+
+	udelay(10);
+
+	clrbits_le32(&usb->hsicphyctrl1, HSIC_CTRL_PHYSWRST |
+					HSIC_CTRL_UTMISWRST);
+
+	clrbits_le32(&usb->hsicphyctrl2, HSIC_CTRL_PHYSWRST |
+					HSIC_CTRL_UTMISWRST);
+
 	udelay(20);
 
 	/* EHCI Ctrl setting */
@@ -120,6 +153,8 @@ static void setup_usb_phy(struct exynos_usb_phy *usb)
 /* Reset the EHCI host controller. */
 static void reset_usb_phy(struct exynos_usb_phy *usb)
 {
+	u32 hsic_ctrl;
+
 	/* HOST_PHY reset */
 	setbits_le32(&usb->usbphyctrl0,
 			HOST_CTRL0_PHYSWRST |
@@ -127,6 +162,15 @@ static void reset_usb_phy(struct exynos_usb_phy *usb)
 			HOST_CTRL0_SIDDQ |
 			HOST_CTRL0_FORCESUSPEND |
 			HOST_CTRL0_FORCESLEEP);
+
+	/* HSIC Phy reset */
+	hsic_ctrl = (HSIC_CTRL_FORCESUSPEND |
+			HSIC_CTRL_FORCESLEEP |
+			HSIC_CTRL_SIDDQ |
+			HSIC_CTRL_PHYSWRST);
+
+	setbits_le32(&usb->hsicphyctrl1, hsic_ctrl);
+	setbits_le32(&usb->hsicphyctrl2, hsic_ctrl);
 
 	set_usbhost_phy_ctrl(POWER_USB_HOST_PHY_CTRL_DISABLE);
 }
@@ -136,7 +180,8 @@ static void reset_usb_phy(struct exynos_usb_phy *usb)
  * Create the appropriate control structures to manage
  * a new EHCI host controller.
  */
-int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+int ehci_hcd_init(int index, enum usb_init_type init,
+		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	struct exynos_ehci *ctx = &exynos;
 
@@ -150,7 +195,15 @@ int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 	ctx->hcd = (struct ehci_hccr *)samsung_get_base_usb_ehci();
 #endif
 
+#ifdef CONFIG_OF_CONTROL
+	/* setup the Vbus gpio here */
+	if (!fdtdec_setup_gpio(&ctx->vbus_gpio))
+		gpio_direction_output(ctx->vbus_gpio.gpio, 1);
+#endif
+
 	setup_usb_phy(ctx->usb);
+
+	board_usb_init(index, init);
 
 	*hccr = ctx->hcd;
 	*hcor = (struct ehci_hcor *)((uint32_t) *hccr

@@ -25,6 +25,9 @@
 #include <power/max77693_fg.h>
 #include <libtizen.h>
 #include <errno.h>
+#include <usb.h>
+#include <usb/s3c_udc.h>
+#include <usb_mass_storage.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -40,7 +43,7 @@ static void check_hw_revision(void)
 	int modelrev = 0;
 	int i;
 
-	gpio2 = (struct exynos4x12_gpio_part2 *)EXYNOS4X12_GPIO_PART2_BASE;
+	gpio2 = (struct exynos4x12_gpio_part2 *)samsung_get_base_gpio_part2();
 
 	/*
 	 * GPM1[1:0]: MODEL_REV[1:0]
@@ -90,7 +93,7 @@ static inline u32 get_model_rev(void)
 
 static void board_external_gpio_init(void)
 {
-	gpio2 = (struct exynos4x12_gpio_part2 *)EXYNOS4X12_GPIO_PART2_BASE;
+	gpio2 = (struct exynos4x12_gpio_part2 *)samsung_get_base_gpio_part2();
 
 	/*
 	 * some pins which in alive block are connected with external pull-up
@@ -115,12 +118,17 @@ static void board_external_gpio_init(void)
 #ifdef CONFIG_SYS_I2C_INIT_BOARD
 static void board_init_i2c(void)
 {
-	gpio1 = (struct exynos4x12_gpio_part1 *)EXYNOS4X12_GPIO_PART1_BASE;
-	gpio2 = (struct exynos4x12_gpio_part2 *)EXYNOS4X12_GPIO_PART2_BASE;
+	int err;
+
+	gpio1 = (struct exynos4x12_gpio_part1 *)samsung_get_base_gpio_part1();
+	gpio2 = (struct exynos4x12_gpio_part2 *)samsung_get_base_gpio_part2();
 
 	/* I2C_7 */
-	s5p_gpio_direction_output(&gpio1->d0, 2, 1);
-	s5p_gpio_direction_output(&gpio1->d0, 3, 1);
+	err = exynos_pinmux_config(PERIPH_ID_I2C7, PINMUX_FLAG_NONE);
+	if (err) {
+		debug("I2C%d not configured\n", (I2C_7));
+		return;
+	}
 
 	/* I2C_8 */
 	s5p_gpio_direction_output(&gpio1->f1, 4, 1);
@@ -129,6 +137,24 @@ static void board_init_i2c(void)
 	/* I2C_9 */
 	s5p_gpio_direction_output(&gpio2->m2, 1, 1);
 	s5p_gpio_direction_output(&gpio2->m2, 0, 1);
+}
+#endif
+
+#ifdef CONFIG_SYS_I2C_SOFT
+int get_soft_i2c_scl_pin(void)
+{
+	if (I2C_ADAP_HWNR)
+		return exynos4x12_gpio_part2_get_nr(m2, 1); /* I2C9 */
+	else
+		return exynos4x12_gpio_part1_get_nr(f1, 4); /* I2C8 */
+}
+
+int get_soft_i2c_sda_pin(void)
+{
+	if (I2C_ADAP_HWNR)
+		return exynos4x12_gpio_part2_get_nr(m2, 0); /* I2C9 */
+	else
+		return exynos4x12_gpio_part1_get_nr(f1, 5); /* I2C8 */
 }
 #endif
 
@@ -147,7 +173,7 @@ static int pmic_init_max77686(void);
 int board_init(void)
 {
 	struct exynos4_power *pwr =
-		(struct exynos4_power *)EXYNOS4X12_POWER_BASE;
+		(struct exynos4_power *)samsung_get_base_power();
 
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
@@ -167,11 +193,11 @@ int power_init_board(void)
 #ifdef CONFIG_SYS_I2C_INIT_BOARD
 	board_init_i2c();
 #endif
-	pmic_init(I2C_0);		/* I2C adapter 0 - bus name I2C_5 */
+	pmic_init(I2C_7);		/* I2C adapter 7 - bus name s3c24x0_7 */
 	pmic_init_max77686();
-	pmic_init_max77693(I2C_2);	/* I2C adapter 2 - bus name I2C_10 */
-	power_muic_init(I2C_2);		/* I2C adapter 2 - bus name I2C_10 */
-	power_fg_init(I2C_1);		/* I2C adapter 1 - bus name I2C_9 */
+	pmic_init_max77693(I2C_10);	/* I2C adapter 10 - bus name soft1 */
+	power_muic_init(I2C_10);	/* I2C adapter 10 - bus name soft1 */
+	power_fg_init(I2C_9);		/* I2C adapter 9 - bus name soft0 */
 	power_bat_init(0);
 
 	p_chrg = pmic_get("MAX77693_PMIC");
@@ -254,7 +280,7 @@ int board_mmc_init(bd_t *bis)
 {
 	int err0, err2 = 0;
 
-	gpio2 = (struct exynos4x12_gpio_part2 *)EXYNOS4X12_GPIO_PART2_BASE;
+	gpio2 = (struct exynos4x12_gpio_part2 *)samsung_get_base_gpio_part2();
 
 	/* eMMC_EN: SD_0_CDn: GPK0[2] Output High */
 	s5p_gpio_direction_output(&gpio2->k0, 2, 1);
@@ -307,6 +333,95 @@ int board_mmc_init(bd_t *bis)
 
 	return err0 & err2;
 }
+
+#ifdef CONFIG_USB_GADGET
+static int s5pc210_phy_control(int on)
+{
+	int ret = 0;
+	unsigned int val;
+	struct pmic *p, *p_pmic, *p_muic;
+
+	p_pmic = pmic_get("MAX77686_PMIC");
+	if (!p_pmic)
+		return -ENODEV;
+
+	if (pmic_probe(p_pmic))
+		return -1;
+
+	p_muic = pmic_get("MAX77693_MUIC");
+	if (!p_muic)
+		return -ENODEV;
+
+	if (pmic_probe(p_muic))
+		return -1;
+
+	if (on) {
+		ret = max77686_set_ldo_mode(p_pmic, 12, OPMODE_ON);
+		if (ret)
+			return -1;
+
+		p = pmic_get("MAX77693_PMIC");
+		if (!p)
+			return -ENODEV;
+
+		if (pmic_probe(p))
+			return -1;
+
+		/* SAFEOUT */
+		ret = pmic_reg_read(p, MAX77693_SAFEOUT, &val);
+		if (ret)
+			return -1;
+
+		val |= MAX77693_ENSAFEOUT1;
+		ret = pmic_reg_write(p, MAX77693_SAFEOUT, val);
+		if (ret)
+			return -1;
+
+		/* PATH: USB */
+		ret = pmic_reg_write(p_muic, MAX77693_MUIC_CONTROL1,
+			MAX77693_MUIC_CTRL1_DN1DP2);
+
+	} else {
+		ret = max77686_set_ldo_mode(p_pmic, 12, OPMODE_LPM);
+		if (ret)
+			return -1;
+
+		/* PATH: UART */
+		ret = pmic_reg_write(p_muic, MAX77693_MUIC_CONTROL1,
+			MAX77693_MUIC_CTRL1_UT1UR2);
+	}
+
+	if (ret)
+		return -1;
+
+	return 0;
+}
+
+struct s3c_plat_otg_data s5pc210_otg_data = {
+	.phy_control	= s5pc210_phy_control,
+	.regs_phy	= EXYNOS4X12_USBPHY_BASE,
+	.regs_otg	= EXYNOS4X12_USBOTG_BASE,
+	.usb_phy_ctrl	= EXYNOS4X12_USBPHY_CONTROL,
+	.usb_flags	= PHY0_SLEEP,
+};
+
+int board_usb_init(int index, enum usb_init_type init)
+{
+	debug("USB_udc_probe\n");
+	return s3c_udc_probe(&s5pc210_otg_data);
+}
+
+#ifdef CONFIG_USB_CABLE_CHECK
+int usb_cable_connected(void)
+{
+	struct pmic *muic = pmic_get("MAX77693_MUIC");
+	if (!muic)
+		return 0;
+
+	return !!muic->chrg->chrg_type(muic);
+}
+#endif
+#endif
 
 static int pmic_init_max77686(void)
 {
@@ -421,7 +536,7 @@ void exynos_lcd_power_on(void)
 {
 	struct pmic *p = pmic_get("MAX77686_PMIC");
 
-	gpio1 = (struct exynos4x12_gpio_part1 *)EXYNOS4X12_GPIO_PART1_BASE;
+	gpio1 = (struct exynos4x12_gpio_part1 *)samsung_get_base_gpio_part1();
 
 	/* LCD_2.2V_EN: GPC0[1] */
 	s5p_gpio_set_pull(&gpio1->c0, 1, GPIO_PULL_UP);
@@ -435,7 +550,7 @@ void exynos_lcd_power_on(void)
 
 void exynos_reset_lcd(void)
 {
-	gpio1 = (struct exynos4x12_gpio_part1 *)EXYNOS4X12_GPIO_PART1_BASE;
+	gpio1 = (struct exynos4x12_gpio_part1 *)samsung_get_base_gpio_part1();
 
 	/* reset lcd */
 	s5p_gpio_direction_output(&gpio1->f2, 1, 0);

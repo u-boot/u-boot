@@ -9,7 +9,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/fsl_ifc.h>
+#include <fsl_ifc.h>
 #include <linux/mtd/nand.h>
 
 static inline int is_blank(uchar *addr, int page_size)
@@ -112,10 +112,13 @@ static void nand_load(unsigned int offs, int uboot_size, uchar *dst)
 
 	port_size = (cspr & CSPR_PORT_SIZE_16) ? 16 : 8;
 
-	if (csor & CSOR_NAND_PGS_4K) {
+	if ((csor & CSOR_NAND_PGS_MASK) == CSOR_NAND_PGS_8K) {
+		page_size = 8192;
+		bufnum_mask = 0x0;
+	} else if ((csor & CSOR_NAND_PGS_MASK) == CSOR_NAND_PGS_4K) {
 		page_size = 4096;
 		bufnum_mask = 0x1;
-	} else if (csor & CSOR_NAND_PGS_2K) {
+	} else if ((csor & CSOR_NAND_PGS_MASK) == CSOR_NAND_PGS_2K) {
 		page_size = 2048;
 		bufnum_mask = 0x3;
 	} else {

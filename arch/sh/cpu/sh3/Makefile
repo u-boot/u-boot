@@ -11,25 +11,5 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-include $(TOPDIR)/config.mk
-
-LIB	= $(obj)lib$(CPU).o
-
-SOBJS	= start.o
-COBJS	= cpu.o interrupts.o watchdog.o cache.o
-
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
-
-$(LIB):	$(OBJS) $(SOBJS)
-	$(call cmd_link_o_target, $(OBJS) $(SOBJS))
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+extra-y	= start.o
+obj-y	= cpu.o interrupts.o watchdog.o cache.o

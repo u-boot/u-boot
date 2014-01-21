@@ -10,11 +10,63 @@
 #ifndef __ASM_PROC_SYSTEM_H
 #define __ASM_PROC_SYSTEM_H
 
-#include <linux/config.h>
-
 /*
  * Save the current interrupt enable state & disable IRQs
  */
+#ifdef CONFIG_ARM64
+
+/*
+ * Save the current interrupt enable state
+ * and disable IRQs/FIQs
+ */
+#define local_irq_save(flags)					\
+	({							\
+	asm volatile(						\
+	"mrs	%0, daif"					\
+	"msr	daifset, #3"					\
+	: "=r" (flags)						\
+	:							\
+	: "memory");						\
+	})
+
+/*
+ * restore saved IRQ & FIQ state
+ */
+#define local_irq_restore(flags)				\
+	({							\
+	asm volatile(						\
+	"msr	daif, %0"					\
+	:							\
+	: "r" (flags)						\
+	: "memory");						\
+	})
+
+/*
+ * Enable IRQs/FIQs
+ */
+#define local_irq_enable()					\
+	({							\
+	asm volatile(						\
+	"msr	daifclr, #3"					\
+	:							\
+	:							\
+	: "memory");						\
+	})
+
+/*
+ * Disable IRQs/FIQs
+ */
+#define local_irq_disable()					\
+	({							\
+	asm volatile(						\
+	"msr	daifset, #3"					\
+	:							\
+	:							\
+	: "memory");						\
+	})
+
+#else	/* CONFIG_ARM64 */
+
 #define local_irq_save(x)					\
 	({							\
 		unsigned long temp;				\
@@ -109,7 +161,10 @@
 	: "r" (x)						\
 	: "memory")
 
-#if defined(CONFIG_CPU_SA1100) || defined(CONFIG_CPU_SA110)
+#endif	/* CONFIG_ARM64 */
+
+#if defined(CONFIG_CPU_SA1100) || defined(CONFIG_CPU_SA110) || \
+	defined(CONFIG_ARM64)
 /*
  * On the StrongARM, "swp" is terminally broken since it bypasses the
  * cache totally.  This means that the cache becomes inconsistent, and,

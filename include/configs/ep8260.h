@@ -266,7 +266,6 @@
 #define CONFIG_SYS_LONGHELP
 
 /* Monitor Command Prompt       */
-#define CONFIG_SYS_PROMPT              "=> "
 
 /* Define this variable to enable the "hush" shell (from
    Busybox) as command line interpreter, thus enabling
@@ -358,8 +357,6 @@
 #define	CONFIG_CLOCKS_IN_MHZ	1      /* clocks passsed to Linux in MHz */
 
 #define CONFIG_SYS_LOAD_ADDR     0x00100000   /* default load address */
-
-#define CONFIG_SYS_HZ            1000         /* decrementer freq: 1 ms ticks */
 
 /*
  * Low Level Configuration Settings

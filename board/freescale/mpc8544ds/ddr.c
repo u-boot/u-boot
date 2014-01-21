@@ -8,8 +8,8 @@
 
 #include <common.h>
 
-#include <asm/fsl_ddr_sdram.h>
-#include <asm/fsl_ddr_dimm_params.h>
+#include <fsl_ddr_sdram.h>
+#include <fsl_ddr_dimm_params.h>
 
 void fsl_ddr_board_options(memctl_options_t *popts,
 				dimm_params_t *pdimm,
@@ -49,7 +49,7 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	popts->write_data_delay = 3;
 
 	/* 2T timing enable */
-	popts->twoT_en = 1;
+	popts->twot_en = 1;
 
 	/*
 	 * Factors to consider for half-strength driver enable:

@@ -5,6 +5,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-PLATFORM_RELFLAGS += -meabi
-
-PLATFORM_CPPFLAGS += -DCONFIG_74xx_7xx -ffixed-r2 -mstring
+PLATFORM_CPPFLAGS += -DCONFIG_74xx_7xx -mstring

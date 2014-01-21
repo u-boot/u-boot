@@ -89,7 +89,7 @@ struct eth_device {
 	int  (*recv) (struct eth_device *);
 	void (*halt) (struct eth_device *);
 #ifdef CONFIG_MCAST_TFTP
-	int (*mcast) (struct eth_device *, u32 ip, u8 set);
+	int (*mcast) (struct eth_device *, const u8 *enetaddr, u8 set);
 #endif
 	int  (*write_hwaddr) (struct eth_device *);
 	struct eth_device *next;

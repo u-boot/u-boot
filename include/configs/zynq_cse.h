@@ -2,7 +2,7 @@
  * (C) Copyright 2013 Xilinx.
  *
  * Configuration settings for the Xilinx Zynq CSE board.
- * See zynq_common.h for Zynq common configs
+ * See zynq-common.h for Zynq common configs
  *
  * SPDX-License-Identifier:     GPL-2.0+
  */
@@ -28,7 +28,7 @@
 
 #endif
 
-#include <configs/zynq_common.h>
+#include <configs/zynq-common.h>
 
 /* Undef unneeded configs */
 #undef CONFIG_SYS_SDRAM_BASE
@@ -61,17 +61,17 @@
 #define CONFIG_SYS_MALLOC_LEN	0x4000
 
 #if defined(CONFIG_CSE_QSPI)
-# define PHYS_SDRAM_1_SIZE		(256 * 1024)
+# define CONFIG_SYS_SDRAM_SIZE		(256 * 1024)
 # define CONFIG_SYS_SDRAM_BASE		0xFFFD0000
 # define CONFIG_ENV_SIZE		1400
 
 #elif defined(CONFIG_CSE_NAND)
-# define PHYS_SDRAM_1_SIZE		(4 * 1024 * 1024)
+# define CONFIG_SYS_SDRAM_SIZE		(4 * 1024 * 1024)
 # define CONFIG_SYS_SDRAM_BASE		0
 # define CONFIG_ENV_SIZE		0x10000
 
 #elif defined(CONFIG_CSE_NOR)
-# define PHYS_SDRAM_1_SIZE		(256 * 1024)
+# define CONFIG_SYS_SDRAM_SIZE		(256 * 1024)
 # define CONFIG_SYS_SDRAM_BASE		0xFFFD0000
 # define CONFIG_ENV_SIZE		1400
 

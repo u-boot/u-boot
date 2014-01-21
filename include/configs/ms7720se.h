@@ -9,8 +9,6 @@
 #ifndef __MS7720SE_H
 #define __MS7720SE_H
 
-#define CONFIG_SH		1
-#define CONFIG_SH3		1
 #define CONFIG_CPU_SH7720	1
 #define CONFIG_MS7720SE		1
 
@@ -38,7 +36,6 @@
 
 #define CONFIG_SYS_TEXT_BASE	0x8FFC0000
 #define CONFIG_SYS_LONGHELP		/* undef to save memory	*/
-#define CONFIG_SYS_PROMPT	"=> "	/* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE	256	/* Buffer size for input from the Console */
 #define CONFIG_SYS_PBSIZE	256	/* Buffer size for Console output */
 #define CONFIG_SYS_MAXARGS	16	/* max args accepted for monitor commands */
@@ -85,8 +82,9 @@
 
 /* Board Clock */
 #define CONFIG_SYS_CLK_FREQ	33333333
+#define CONFIG_SH_TMU_CLK_FREQ CONFIG_SYS_CLK_FREQ
+#define CONFIG_SH_SCIF_CLK_FREQ CONFIG_SYS_CLK_FREQ
 #define CONFIG_SYS_TMU_CLK_DIV		4	/* 4 (default), 16, 64, 256 or 1024 */
-#define CONFIG_SYS_HZ		1000
 
 /* PCMCIA */
 #define CONFIG_IDE_PCMCIA	1

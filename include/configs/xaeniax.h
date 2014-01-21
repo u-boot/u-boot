@@ -84,7 +84,6 @@
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	115200			/* speed to run kgdb serial port */
-#define CONFIG_KGDB_SER_INDEX	1			/* which serial port to use */
 #endif
 
 /*
@@ -116,7 +115,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0xa1000000	/* default load address */
 
-#define CONFIG_SYS_HZ			1000
 #define CONFIG_SYS_CPUSPEED		0x141		/* set core clock to 400/200/100 MHz */
 
 /*

@@ -82,4 +82,6 @@ struct dfu_function_descriptor {
 	__le16				wTransferSize;
 	__le16				bcdDFUVersion;
 } __packed;
+
+#define DFU_POLL_TIMEOUT_MASK           (0xFFFFFFUL)
 #endif /* __F_DFU_H_ */

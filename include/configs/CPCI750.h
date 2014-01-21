@@ -174,7 +174,6 @@
 
 #define CONFIG_SYS_GT_DUAL_CPU			/* also for JTAG even with one cpu */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
-#define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt	*/
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
@@ -219,7 +218,6 @@
 
 #define CONFIG_SYS_LOAD_ADDR		0x00300000	/* default load address */
 
-#define CONFIG_SYS_HZ			1000		/* decr freq: 1ms ticks */
 #define CONFIG_SYS_BUS_CLK		133000000	/* 133 MHz (CPU = 5*Bus = 666MHz)		*/
 
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }

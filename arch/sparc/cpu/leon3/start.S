@@ -1,31 +1,41 @@
-TRAP ta 0; nop; nop; nop;
+/* This is where the SPARC/LEON3 starts
+ * Copyright (C) 2007,
+ * Daniel Hellstrom, daniel@gaisler.com
+ *
+ * See file CREDITS for list of people who contributed to this
+ * project.
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
 
-/* Software trap. Treat as BAD_TRAP for the time being... */
-#define SOFT_TRAP TRAP(_hwerr)
+#include <asm-offsets.h>
+#include <config.h>
+#include <asm/asmmacro.h>
+#include <asm/winmacro.h>
+#include <asm/psr.h>
+#include <asm/stack.h>
+#include <asm/leon.h>
+#include <version.h>
 
-#define PSR_INIT   0x1FC0	/* Disable traps, set s and ps */
-#define WIM_INIT   2
+/* Entry for traps which jump to a programmer-specified trap handler.  */
+#define TRAPR(H)  \
+	wr	%g0, 0xfe0, %psr; \
+	mov	%g0, %tbr; \
+	ba	(H); \
+	mov	%g0, %wim;
 
-/* All traps low-level code here must end with this macro. */
-#define RESTORE_ALL b ret_trap_entry; clr %l6;
+#define TRAP(H) \
+	mov	%psr, %l0; \
+	ba	(H); \
+	nop; nop;
 
-#define WRITE_PAUSE nop;nop;nop
+#define TRAPI(ilevel) \
+	mov	ilevel, %l7; \
+	mov	%psr, %l0; \
+	b	_irq_entry; \
+	mov	%wim, %l3
 
-WINDOWSIZE = (16 * 4)
-ARGPUSHSIZE = (6 * 4)
-ARGPUSH = (WINDOWSIZE + 4)
-MINFRAME = (WINDOWSIZE + ARGPUSHSIZE + 4)
-
-/* Number of register windows */
-#ifndef CONFIG_SYS_SPARC_NWINDOWS
-#error Must define number of SPARC register windows, default is 8
-#endif
-
-#define STACK_ALIGN	8
-#define SA(X)	(((X)+(STACK_ALIGN-1)) & ~(STACK_ALIGN-1))
-
-	.section ".start", "ax"
-	.globl	_starttate */
+/* Unexcpected trap will halt the processor by forcing it to error state */
 #undef BAD_TRAP
 #define BAD_TRAP ta 0; nop; nop; nop;
 

@@ -85,8 +85,8 @@
 
 #define ENV_IS_EMBEDDED
 #define LDS_BOARD_TEXT \
-	arch/blackfin/lib/libblackfin.o (.text*); \
-	arch/blackfin/cpu/libblackfin.o (.text*); \
+	arch/blackfin/lib/built-in.o (.text*); \
+	arch/blackfin/cpu/built-in.o (.text*); \
 	. = DEFINED(env_offset) ? env_offset : .; \
 	common/env_embedded.o (.text*);
 
@@ -103,6 +103,7 @@
 #define CONFIG_DNP5370_EXT_WD_DISABLE 1
 
 #define CONFIG_UART_CONSOLE 0
+#define CONFIG_BFIN_SERIAL
 #define CONFIG_BAUDRATE     115200
 #define CONFIG_BOOTCOMMAND  "bootm 0x20030000"
 #define CONFIG_BOOTARGS     "console=ttyBF0,115200 root=/dev/mtdblock3 rootfstype=ext2"

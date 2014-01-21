@@ -54,6 +54,9 @@
 #define CONFIG_ENV_SPI_MODE		SPI_MODE_3
 #endif
 
+/* Reserve 4 MB for malloc */
+#define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
+
 #include "asm/arch/config.h"
 
 #define CONFIG_SYS_TEXT_BASE	0x07d00000	/* code address before reloc */
@@ -161,6 +164,7 @@
 #define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */
 #define CONFIG_PHY_BASE_ADR	0
 #define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
+#define CONFIG_KM_COMMON_ETH_INIT /* standard km ethernet_present for piggy */
 
 /*
  * UBI related stuff
@@ -173,10 +177,9 @@
 #undef CONFIG_I2C_MVTWSI
 #define CONFIG_SYS_I2C
 #define	CONFIG_SYS_I2C_SOFT	/* I2C bit-banged	*/
+#define CONFIG_SYS_I2C_INIT_BOARD
 
 #define	CONFIG_KIRKWOOD_GPIO		/* Enable GPIO Support */
-#if defined(CONFIG_SYS_I2C_SOFT)
-
 #define CONFIG_SYS_NUM_I2C_BUSES	6
 #define CONFIG_SYS_I2C_MAX_HOPS		1
 #define CONFIG_SYS_I2C_BUSES	{	{0, {I2C_NULL_HOP} }, \
@@ -211,7 +214,6 @@ int get_scl(void);
 
 #define	CONFIG_SYS_I2C_SOFT_SLAVE	0x0
 #define	CONFIG_SYS_I2C_SOFT_SPEED	100000
-#endif
 
 /* EEprom support 24C128, 24C256 valid for environment eeprom */
 #define CONFIG_SYS_I2C_MULTI_EEPROMS

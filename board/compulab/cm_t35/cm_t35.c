@@ -33,7 +33,7 @@
 #include <asm/ehci-omap.h>
 #include <asm/gpio.h>
 
-#include "eeprom.h"
+#include "../common/eeprom.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -105,6 +105,22 @@ static inline int splash_load_from_nand(void)
 }
 #endif /* CONFIG_CMD_NAND */
 
+#ifdef CONFIG_SPL_BUILD
+/*
+ * Routine: get_board_mem_timings
+ * Description: If we use SPL then there is no x-loader nor config header
+ * so we have to setup the DDR timings ourself on both banks.
+ */
+void get_board_mem_timings(struct board_sdrc_timings *timings)
+{
+	timings->mr = MICRON_V_MR_165;
+	timings->mcfg = MICRON_V_MCFG_200(256 << 20); /* raswidth 14 needed */
+	timings->ctrla = MICRON_V_ACTIMA_165;
+	timings->ctrlb = MICRON_V_ACTIMB_165;
+	timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+}
+#endif
+
 int splash_screen_prepare(void)
 {
 	char *env_splashimage_value;
@@ -160,7 +176,7 @@ static u32 cm_t3x_rev;
 u32 get_board_rev(void)
 {
 	if (!cm_t3x_rev)
-		cm_t3x_rev = cm_t3x_eeprom_get_board_rev();
+		cm_t3x_rev = cl_eeprom_get_board_rev();
 
 	return cm_t3x_rev;
 };
@@ -268,6 +284,9 @@ static void cm_t3x_set_common_muxconf(void)
 	/* DVI enable */
 	MUX_VAL(CP(GPMC_NCS3),		(IDIS  | PTU | DIS  | M4));/*GPMC_nCS3*/
 
+	/* DataImage backlight */
+	MUX_VAL(CP(GPMC_NCS7),		(IDIS  | PTU | DIS  | M4));/*GPIO_58*/
+
 	/* CM-T3x Ethernet */
 	MUX_VAL(CP(GPMC_NCS5),		(IDIS | PTU | DIS | M0)); /*GPMC_nCS5*/
 	MUX_VAL(CP(GPMC_CLK),		(IEN  | PTD | DIS | M4)); /*GPIO_59*/
@@ -374,6 +393,15 @@ static void cm_t3x_set_common_muxconf(void)
 	MUX_VAL(CP(MMC1_DAT1),		(IEN  | PTU | EN  | M0)); /*MMC1_DAT1*/
 	MUX_VAL(CP(MMC1_DAT2),		(IEN  | PTU | EN  | M0)); /*MMC1_DAT2*/
 	MUX_VAL(CP(MMC1_DAT3),		(IEN  | PTU | EN  | M0)); /*MMC1_DAT3*/
+
+	/* SPI */
+	MUX_VAL(CP(MCBSP1_CLKR),	(IEN | PTD | DIS | M1)); /*MCSPI4_CLK*/
+	MUX_VAL(CP(MCBSP1_DX),		(IEN | PTD | DIS | M1)); /*MCSPI4_SIMO*/
+	MUX_VAL(CP(MCBSP1_DR),		(IEN | PTD | DIS | M1)); /*MCSPI4_SOMI*/
+	MUX_VAL(CP(MCBSP1_FSX),		(IEN | PTU | EN  | M1)); /*MCSPI4_CS0*/
+
+	/* display controls */
+	MUX_VAL(CP(MCBSP1_FSR),		(IDIS | PTU | DIS | M4)); /*GPIO_157*/
 }
 
 static void cm_t35_set_muxconf(void)
@@ -428,7 +456,7 @@ void set_muxconf_regs(void)
 		cm_t3730_set_muxconf();
 }
 
-#ifdef CONFIG_GENERIC_MMC
+#if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
 int board_mmc_getcd(struct mmc *mmc)
 {
 	u8 val;
@@ -470,7 +498,7 @@ static void setup_net_chip_gmpc(void)
 		&ctrl_base->gpmc_nadv_ale);
 }
 
-#ifdef CONFIG_DRIVER_OMAP34XX_I2C
+#ifdef CONFIG_SYS_I2C_OMAP34XX
 /*
  * Routine: reset_net_chip
  * Description: reset the Ethernet controller via TPS65930 GPIO
@@ -509,7 +537,7 @@ static int handle_mac_address(void)
 	if (rc)
 		return 0;
 
-	rc = cm_t3x_eeprom_read_mac_addr(enetaddr);
+	rc = cl_eeprom_read_mac_addr(enetaddr);
 	if (rc)
 		return rc;
 
@@ -565,7 +593,8 @@ struct omap_usbhs_board_data usbhs_bdata = {
 };
 
 #define SB_T35_USB_HUB_RESET_GPIO	167
-int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+int ehci_hcd_init(int index, enum usb_init_type init,
+		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	u8 val;
 	int offset;
@@ -591,12 +620,11 @@ int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 	twl4030_i2c_write_u8(TWL4030_CHIP_GPIO, offset, 0xC0);
 	udelay(1);
 
-	return omap_ehci_hcd_init(&usbhs_bdata, hccr, hcor);
+	return omap_ehci_hcd_init(index, &usbhs_bdata, hccr, hcor);
 }
 
 int ehci_hcd_stop(void)
 {
 	return omap_ehci_hcd_stop();
 }
-
 #endif /* CONFIG_USB_EHCI_OMAP */

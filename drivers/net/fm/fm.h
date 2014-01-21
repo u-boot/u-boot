@@ -18,9 +18,12 @@
 #define RX_PORT_1G_BASE		0x08
 #define MAX_NUM_RX_PORT_1G	CONFIG_SYS_NUM_FM1_DTSEC
 #define RX_PORT_10G_BASE	0x10
+#define RX_PORT_10G_BASE2	0x08
 #define TX_PORT_1G_BASE		0x28
 #define MAX_NUM_TX_PORT_1G	CONFIG_SYS_NUM_FM1_DTSEC
 #define TX_PORT_10G_BASE	0x30
+#define TX_PORT_10G_BASE2	0x28
+#define MIIM_TIMEOUT    0xFFFF
 
 struct fm_muram {
 	u32 base;
@@ -98,6 +101,7 @@ int fm_init_common(int index, struct ccsr_fman *reg);
 int fm_eth_initialize(struct ccsr_fman *reg, struct fm_eth_info *info);
 phy_interface_t fman_port_enet_if(enum fm_port port);
 void fman_disable_port(enum fm_port port);
+void fman_enable_port(enum fm_port port);
 
 struct fsl_enet_mac {
 	void *base; /* MAC controller registers base address */

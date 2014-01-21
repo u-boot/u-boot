@@ -368,7 +368,6 @@ extern void __led_set(led_id_t id, int state);
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory    */
-#define CONFIG_SYS_PROMPT		"=> "	/* Monitor Command Prompt   */
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS		16		/* max number of command args */
@@ -379,8 +378,6 @@ extern void __led_set(led_id_t id, int state);
 #define CONFIG_SYS_ALT_MEMTEST
 
 #define CONFIG_SYS_LOAD_ADDR		0x200000	/* default kernel load addr */
-
-#define CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks */
 
 /*
  * Various low-level settings

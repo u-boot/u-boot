@@ -14,25 +14,22 @@ endif
 include $(TOPDIR)/config.mk
 
 # Resulting ELF and binary exectuables will be named demo and demo.bin
-OUTPUT-$(CONFIG_API) = $(obj)demo
-OUTPUT = $(OUTPUT-y)
+OUTPUT = $(obj)demo
 
 # Source files located in the examples/api directory
-SOBJ_FILES-$(CONFIG_API) += crt0.o
-COBJ_FILES-$(CONFIG_API) += demo.o
-COBJ_FILES-$(CONFIG_API) += glue.o
-COBJ_FILES-$(CONFIG_API) += libgenwrap.o
+SOBJ_FILES-y += crt0.o
+COBJ_FILES-y += demo.o
+COBJ_FILES-y += glue.o
+COBJ_FILES-y += libgenwrap.o
 
 # Source files which exist outside the examples/api directory
-EXT_COBJ_FILES-$(CONFIG_API) += lib/crc32.o
-EXT_COBJ_FILES-$(CONFIG_API) += lib/ctype.o
-EXT_COBJ_FILES-$(CONFIG_API) += lib/div64.o
-EXT_COBJ_FILES-$(CONFIG_API) += lib/string.o
-EXT_COBJ_FILES-$(CONFIG_API) += lib/time.o
-EXT_COBJ_FILES-$(CONFIG_API) += lib/vsprintf.o
-ifeq ($(ARCH),powerpc)
-EXT_SOBJ_FILES-$(CONFIG_API) += arch/powerpc/lib/ppcstring.o
-endif
+EXT_COBJ_FILES-y += lib/crc32.o
+EXT_COBJ_FILES-y += lib/ctype.o
+EXT_COBJ_FILES-y += lib/div64.o
+EXT_COBJ_FILES-y += lib/string.o
+EXT_COBJ_FILES-y += lib/time.o
+EXT_COBJ_FILES-y += lib/vsprintf.o
+EXT_SOBJ_FILES-$(CONFIG_PPC) += arch/powerpc/lib/ppcstring.o
 
 # Create a list of source files so their dependencies can be auto-generated
 SRCS	+= $(addprefix $(SRCTREE)/,$(EXT_COBJ_FILES-y:.o=.c))
@@ -46,14 +43,12 @@ OBJS	+= $(addprefix $(obj),$(COBJ_FILES-y))
 OBJS	+= $(addprefix $(obj),$(notdir $(EXT_COBJ_FILES-y)))
 OBJS	+= $(addprefix $(obj),$(notdir $(EXT_SOBJ_FILES-y)))
 
-CPPFLAGS += -I..
-
 all:	$(obj).depend $(OUTPUT)
 
 #########################################################################
 
 $(OUTPUT):	$(OBJS)
-		$(LD) -Ttext $(LOAD_ADDR) -o $@ $^ $(PLATFORM_LIBS)
+		$(LD) --gc-sections -Ttext $(LOAD_ADDR) -o $@ $^ $(PLATFORM_LIBS)
 		$(OBJCOPY) -O binary $@ $(OUTPUT).bin 2>/dev/null
 
 # Rule to build generic library C files

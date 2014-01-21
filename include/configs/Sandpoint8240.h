@@ -98,13 +98,11 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP		1		/* undef to save memory		*/
-#define CONFIG_SYS_PROMPT		"=> "		/* Monitor Command Prompt	*/
 #define CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size	*/
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size	*/
 #define CONFIG_SYS_MAXARGS		16		/* max number of command args	*/
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 #define CONFIG_SYS_LOAD_ADDR		0x00100000	/* default load address		*/
-#define CONFIG_SYS_HZ			1000		/* decrementer freq: 1 ms ticks */
 
 /*-----------------------------------------------------------------------
  * PCI stuff

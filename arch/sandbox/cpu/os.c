@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <getopt.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <termios.h>
@@ -25,6 +26,10 @@
 #include <os.h>
 
 /* Operating System Interface */
+
+struct os_mem_hdr {
+	size_t length;		/* number of bytes in the block */
+};
 
 ssize_t os_read(int fd, void *buf, size_t count)
 {
@@ -127,8 +132,45 @@ void os_tty_raw(int fd)
 
 void *os_malloc(size_t length)
 {
-	return mmap(NULL, length, PROT_READ | PROT_WRITE,
-			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	struct os_mem_hdr *hdr;
+
+	hdr = mmap(NULL, length + sizeof(*hdr), PROT_READ | PROT_WRITE,
+		   MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	if (hdr == MAP_FAILED)
+		return NULL;
+	hdr->length = length;
+
+	return hdr + 1;
+}
+
+void *os_free(void *ptr)
+{
+	struct os_mem_hdr *hdr = ptr;
+
+	hdr--;
+	if (ptr)
+		munmap(hdr, hdr->length + sizeof(*hdr));
+}
+
+void *os_realloc(void *ptr, size_t length)
+{
+	struct os_mem_hdr *hdr = ptr;
+	void *buf = NULL;
+
+	hdr--;
+	if (length != 0) {
+		buf = os_malloc(length);
+		if (!buf)
+			return buf;
+		if (ptr) {
+			if (length > hdr->length)
+				length = hdr->length;
+			memcpy(buf, ptr, length);
+		}
+	}
+	os_free(ptr);
+
+	return buf;
 }
 
 void os_usleep(unsigned long usec)
@@ -136,7 +178,7 @@ void os_usleep(unsigned long usec)
 	usleep(usec);
 }
 
-u64 __attribute__((no_instrument_function)) os_get_nsec(void)
+uint64_t __attribute__((no_instrument_function)) os_get_nsec(void)
 {
 #if defined(CLOCK_MONOTONIC) && defined(_POSIX_MONOTONIC_CLOCK)
 	struct timespec tp;
@@ -160,7 +202,7 @@ static struct option *long_opts;
 
 int os_parse_args(struct sandbox_state *state, int argc, char *argv[])
 {
-	struct sb_cmdline_option **sb_opt = __u_boot_sandbox_option_start;
+	struct sandbox_cmdline_option **sb_opt = __u_boot_sandbox_option_start;
 	size_t num_options = __u_boot_sandbox_option_count();
 	size_t i;
 
@@ -345,4 +387,54 @@ ssize_t os_get_filesize(const char *fname)
 	if (ret)
 		return ret;
 	return buf.st_size;
+}
+
+void os_putc(int ch)
+{
+	putchar(ch);
+}
+
+void os_puts(const char *str)
+{
+	while (*str)
+		os_putc(*str++);
+}
+
+int os_write_ram_buf(const char *fname)
+{
+	struct sandbox_state *state = state_get_current();
+	int fd, ret;
+
+	fd = open(fname, O_CREAT | O_WRONLY, 0777);
+	if (fd < 0)
+		return -ENOENT;
+	ret = write(fd, state->ram_buf, state->ram_size);
+	close(fd);
+	if (ret != state->ram_size)
+		return -EIO;
+
+	return 0;
+}
+
+int os_read_ram_buf(const char *fname)
+{
+	struct sandbox_state *state = state_get_current();
+	int fd, ret;
+	int size;
+
+	size = os_get_filesize(fname);
+	if (size < 0)
+		return -ENOENT;
+	if (size != state->ram_size)
+		return -ENOSPC;
+	fd = open(fname, O_RDONLY);
+	if (fd < 0)
+		return -ENOENT;
+
+	ret = read(fd, state->ram_buf, state->ram_size);
+	close(fd);
+	if (ret != state->ram_size)
+		return -EIO;
+
+	return 0;
 }

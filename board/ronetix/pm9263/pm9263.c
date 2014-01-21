@@ -11,6 +11,7 @@
 #include <common.h>
 #include <asm/sizes.h>
 #include <asm/io.h>
+#include <asm/gpio.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/at91_pmc.h>
@@ -67,10 +68,10 @@ static void pm9263_nand_hw_init(void)
 		&smc->cs[3].mode);
 
 	/* Configure RDY/BSY */
-	at91_set_pio_input(CONFIG_SYS_NAND_READY_PIN, 1);
+	gpio_direction_input(CONFIG_SYS_NAND_READY_PIN);
 
 	/* Enable NandFlash */
-	at91_set_pio_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
+	gpio_direction_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
 }
 #endif
 

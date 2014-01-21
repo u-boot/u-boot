@@ -19,6 +19,12 @@
 #include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/crm_regs.h>
 
+enum ldo_reg {
+	LDO_ARM,
+	LDO_SOC,
+	LDO_PU,
+};
+
 struct scu_regs {
 	u32	ctrl;
 	u32	config;
@@ -93,6 +99,20 @@ void init_aips(void)
 	writel(0x00000000, &aips2->opacr4);
 }
 
+static void clear_ldo_ramp(void)
+{
+	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
+	int reg;
+
+	/* ROM may modify LDO ramp up time according to fuse setting, so in
+	 * order to be in the safe side we neeed to reset these settings to
+	 * match the reset value: 0'b00
+	 */
+	reg = readl(&anatop->ana_misc2);
+	reg &= ~(0x3f << 24);
+	writel(reg, &anatop->ana_misc2);
+}
+
 /*
  * Set the VDDSOC
  *
@@ -101,10 +121,11 @@ void init_aips(void)
  * Possible values are from 0.725V to 1.450V in steps of
  * 0.025V (25mV).
  */
-void set_vddsoc(u32 mv)
+static int set_ldo_voltage(enum ldo_reg ldo, u32 mv)
 {
 	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
-	u32 val, reg = readl(&anatop->reg_core);
+	u32 val, step, old, reg = readl(&anatop->reg_core);
+	u8 shift;
 
 	if (mv < 725)
 		val = 0x00;	/* Power gated off */
@@ -113,12 +134,37 @@ void set_vddsoc(u32 mv)
 	else
 		val = (mv - 700) / 25;
 
-	/*
-	 * Mask out the REG_CORE[22:18] bits (REG2_TRIG)
-	 * and set them to the calculated value (0.7V + val * 0.25V)
-	 */
-	reg = (reg & ~(0x1F << 18)) | (val << 18);
+	clear_ldo_ramp();
+
+	switch (ldo) {
+	case LDO_SOC:
+		shift = 18;
+		break;
+	case LDO_PU:
+		shift = 9;
+		break;
+	case LDO_ARM:
+		shift = 0;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	old = (reg & (0x1F << shift)) >> shift;
+	step = abs(val - old);
+	if (step == 0)
+		return 0;
+
+	reg = (reg & ~(0x1F << shift)) | (val << shift);
 	writel(reg, &anatop->reg_core);
+
+	/*
+	 * The LDO ramp-up is based on 64 clock cycles of 24 MHz = 2.6 us per
+	 * step
+	 */
+	udelay(3 * step);
+
+	return 0;
 }
 
 static void imx_set_wdog_powerdown(bool enable)
@@ -135,8 +181,6 @@ int arch_cpu_init(void)
 {
 	init_aips();
 
-	set_vddsoc(1200);	/* Set VDDSOC to 1.2V */
-
 	imx_set_wdog_powerdown(false); /* Disable PDE bit of WMCR register */
 
 #ifdef CONFIG_APBH_DMA
@@ -147,9 +191,18 @@ int arch_cpu_init(void)
 	return 0;
 }
 
+int board_postclk_init(void)
+{
+	set_ldo_voltage(LDO_SOC, 1175);	/* Set VDDSOC to 1.175V */
+
+	return 0;
+}
+
 #ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)
 {
+	/* Avoid random hang when download by usb */
+	invalidate_dcache_all();
 	/* Enable D-cache. I-cache is already enabled in start.S */
 	dcache_enable();
 }

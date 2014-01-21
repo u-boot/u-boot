@@ -33,7 +33,6 @@
 #define CONFIG_SYS_OSCIN_FREQ		24000000
 #define CONFIG_SYS_TIMERBASE		DAVINCI_TIMER0_BASE
 #define CONFIG_SYS_HZ_CLOCK		clk_get(DAVINCI_AUXCLK_CLKID)
-#define CONFIG_SYS_HZ			1000
 #define CONFIG_SYS_DA850_PLL_INIT
 #define CONFIG_SYS_DA850_DDR_INIT
 #define CONFIG_SYS_TEXT_BASE		0xc1080000
@@ -122,13 +121,13 @@
 	(3 << DV_DDR_SDCR_IBANK_SHIFT) |	\
 	(2 << DV_DDR_SDCR_PAGESIZE_SHIFT))
 
-#define CONFIG_SYS_DA850_CS3CFG	(DAVINCI_ABCR_WSETUP(2)	| \
+#define CONFIG_SYS_DA850_CS3CFG	(DAVINCI_ABCR_WSETUP(1)	| \
 				DAVINCI_ABCR_WSTROBE(2)	| \
-				DAVINCI_ABCR_WHOLD(1)	| \
+				DAVINCI_ABCR_WHOLD(0)	| \
 				DAVINCI_ABCR_RSETUP(1)	| \
-				DAVINCI_ABCR_RSTROBE(4)	| \
-				DAVINCI_ABCR_RHOLD(0)	| \
-				DAVINCI_ABCR_TA(1)	| \
+				DAVINCI_ABCR_RSTROBE(2)	| \
+				DAVINCI_ABCR_RHOLD(1)	| \
+				DAVINCI_ABCR_TA(0)	| \
 				DAVINCI_ABCR_ASIZE_8BIT)
 
 
@@ -161,6 +160,7 @@
 #undef CONFIG_SYS_NAND_HW_ECC
 #define CONFIG_SYS_MAX_NAND_DEVICE	1 /* Max number of NAND devices */
 #define CONFIG_SYS_NAND_HW_ECC_OOBFIRST
+#define CONFIG_NAND_6BYTES_OOB_FREE_10BYTES_ECC
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_PAGE_SIZE	(2 << 10)
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128 << 10)
@@ -173,11 +173,10 @@
 					CONFIG_SYS_MALLOC_LEN -       \
 					GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_NAND_ECCPOS		{				\
-				24, 25, 26, 27, 28, \
-				29, 30, 31, 32, 33, 34, 35, 36, 37, 38, \
-				39, 40, 41, 42, 43, 44, 45, 46, 47, 48, \
-				49, 50, 51, 52, 53, 54, 55, 56, 57, 58, \
-				59, 60, 61, 62, 63 }
+			6,   7,  8,  9, 10,	11, 12, 13, 14, 15,	\
+			22, 23, 24, 25, 26,	27, 28, 29, 30, 31,	\
+			38, 39, 40, 41, 42,	43, 44, 45, 46, 47,	\
+			54, 55, 56, 57, 58,	59, 60, 61, 62, 63}
 #define CONFIG_SYS_NAND_PAGE_COUNT	64
 #define CONFIG_SYS_NAND_BAD_BLOCK_POS	0
 #define CONFIG_SYS_NAND_ECCSIZE		512
@@ -230,15 +229,24 @@
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_REVISION_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_BOOTARGS		\
-	"mem=128M console=ttyS0,115200n8 root=/dev/mtdblock0p4 rw noinitrd ip=dhcp"
-#define CONFIG_BOOTDELAY	3
+#define CONFIG_BOOTDELAY	2
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"defbootargs=setenv bootargs mem=128M console=ttyS0,115200n8 " \
+		"root=/dev/mtdblock5 rw noinitrd " \
+		"rootfstype=jffs2 noinitrd\0" \
 	"hwconfig=dsp:wake=yes\0" \
+	"bootcmd=nboot kernel;run defbootargs addmtd;bootm 0xc0700000\0" \
+	"bootfile=uImage\0" \
 	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"	\
+	"mtddevname=uboot-env\0" \
+	"mtddevnum=0\0" \
 	"mtdids=" MTDIDS_DEFAULT "\0"				\
 	"mtdparts=" MTDPARTS_DEFAULT "\0"			\
+	"u-boot=/tftpboot/ipam390/u-boot.ais\0"			\
+	"upd_uboot=tftp c0000000 ${u-boot};nand erase.part u-boot;" \
+		"nand write c0000000 20000 ${filesize}\0"	\
 	"setbootparms=nand read c0100000 200000 400000;"	\
+		"run defbootargs addmtd;"			\
 		"spl export atags c0100000;"			\
 		"nand erase.part bootparms;"			\
 		"nand write c0000100 180000 20000\0"		\

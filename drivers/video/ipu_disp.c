@@ -889,7 +889,7 @@ int32_t ipu_init_sync_panel(int disp, uint32_t pixel_clk,
 	debug("panel size = %d x %d\n", width, height);
 
 	if ((v_sync_width == 0) || (h_sync_width == 0))
-		return EINVAL;
+		return -EINVAL;
 
 	adapt_panel_to_ipu_restricitions(&pixel_clk, width, height,
 					 h_start_width, h_end_width,
@@ -1178,7 +1178,7 @@ int32_t ipu_init_sync_panel(int disp, uint32_t pixel_clk,
 		if (sig.Vsync_pol)
 			di_gen |= DI_GEN_POLARITY_3;
 
-		if (sig.clk_pol)
+		if (!sig.clk_pol)
 			di_gen |= DI_GEN_POL_CLK;
 
 	}

@@ -2,7 +2,7 @@
  * (C) Copyright 2013 Xilinx
  *
  * Configuration settings for the Xilinx Zynq CC108 boards
- * See zynq_common.h for Zynq common configs
+ * See zynq-common.h for Zynq common configs
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,7 +18,7 @@
 #ifndef __CONFIG_ZYNQ_CC108_H
 #define __CONFIG_ZYNQ_CC108_H
 
-#define PHYS_SDRAM_1_SIZE (512 * 1024 * 1024)
+#define CONFIG_SYS_SDRAM_SIZE (512 * 1024 * 1024)
 
 /*
  * UART is connected to EMIO, making it very likely that this board uses a
@@ -37,6 +37,6 @@
 #define CONFIG_ZYNQ_QSPI
 #define CONFIG_ZYNQ_BOOT_FREEBSD
 
-#include <configs/zynq_common.h>
+#include <configs/zynq-common.h>
 
 #endif /* __CONFIG_ZYNQ_CC108_H */

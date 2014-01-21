@@ -1,0 +1,66 @@
+# our default target
+.PHONY: all
+all:
+
+include $(TOPDIR)/config.mk
+
+LIB := $(obj)built-in.o
+LIBGCC = $(obj)libgcc.o
+SRCS :=
+
+include Makefile
+
+# Going forward use the following
+obj-y := $(sort $(obj-y))
+extra-y := $(sort $(extra-y))
+lib-y := $(sort $(lib-y))
+
+subdir-y 	:= $(patsubst %/,%,$(filter %/, $(obj-y)))
+obj-y		:= $(patsubst %/, %/built-in.o, $(obj-y))
+subdir-obj-y	:= $(filter %/built-in.o, $(obj-y))
+subdir-obj-y	:= $(addprefix $(obj),$(subdir-obj-y))
+
+SRCS	+= $(wildcard $(obj-y:.o=.c) $(obj-y:.o=.S) $(lib-y:.o=.c) \
+	$(lib-y:.o=.S) $(extra-y:.o=.c) $(extra-y:.o=.S))
+OBJS	:= $(addprefix $(obj),$(obj-y))
+
+# $(obj-dirs) is a list of directories that contain object files
+obj-dirs := $(dir $(OBJS))
+
+# Create directories for object files if directory does not exist
+# Needed when obj-y := dir/file.o syntax is used
+_dummy := $(foreach d,$(obj-dirs), $(shell [ -d $(d) ] || mkdir -p $(d)))
+
+LGOBJS := $(addprefix $(obj),$(sort $(lib-y)))
+
+all: $(LIB) $(addprefix $(obj),$(extra-y))
+
+$(LIB):	$(obj).depend $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
+
+ifneq ($(strip $(lib-y)),)
+all: $(LIBGCC)
+
+$(LIBGCC): $(obj).depend $(LGOBJS)
+	$(call cmd_link_o_target, $(LGOBJS))
+endif
+
+ifneq ($(subdir-obj-y),)
+# Descending
+$(subdir-obj-y): $(subdir-y)
+
+$(subdir-y): FORCE
+	$(MAKE) -C $@ -f $(TOPDIR)/scripts/Makefile.build
+endif
+
+#########################################################################
+
+# defines $(obj).depend target
+
+include $(TOPDIR)/rules.mk
+
+sinclude $(obj).depend
+
+#########################################################################
+
+.PHONY: FORCE

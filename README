@@ -423,15 +423,54 @@ The following options need to be configured:
 		CONFIG_SYS_FSL_DSP_CCSRBAR_DEFAULT
 		This value denotes start offset of DSP CCSR space.
 
-		CONFIG_SYS_FSL_DDR_EMU
-		Specify emulator support for DDR. Some DDR features such as
-		deskew training are not available.
+		CONFIG_SYS_FSL_SINGLE_SOURCE_CLK
+		Single Source Clock is clocking mode present in some of FSL SoC's.
+		In this mode, a single differential clock is used to supply
+		clocks to the sysclock, ddrclock and usbclock.
 
 - Generic CPU options:
 		CONFIG_SYS_BIG_ENDIAN, CONFIG_SYS_LITTLE_ENDIAN
 
 		Defines the endianess of the CPU. Implementation of those
 		values is arch specific.
+
+		CONFIG_SYS_FSL_DDR
+		Freescale DDR driver in use. This type of DDR controller is
+		found in mpc83xx, mpc85xx, mpc86xx as well as some ARM core
+		SoCs.
+
+		CONFIG_SYS_FSL_DDR_ADDR
+		Freescale DDR memory-mapped register base.
+
+		CONFIG_SYS_FSL_DDR_EMU
+		Specify emulator support for DDR. Some DDR features such as
+		deskew training are not available.
+
+		CONFIG_SYS_FSL_DDRC_GEN1
+		Freescale DDR1 controller.
+
+		CONFIG_SYS_FSL_DDRC_GEN2
+		Freescale DDR2 controller.
+
+		CONFIG_SYS_FSL_DDRC_GEN3
+		Freescale DDR3 controller.
+
+		CONFIG_SYS_FSL_DDRC_ARM_GEN3
+		Freescale DDR3 controller for ARM-based SoCs.
+
+		CONFIG_SYS_FSL_DDR1
+		Board config to use DDR1. It can be enabled for SoCs with
+		Freescale DDR1 or DDR2 controllers, depending on the board
+		implemetation.
+
+		CONFIG_SYS_FSL_DDR2
+		Board config to use DDR2. It can be eanbeld for SoCs with
+		Freescale DDR2 or DDR3 controllers, depending on the board
+		implementation.
+
+		CONFIG_SYS_FSL_DDR3
+		Board config to use DDR3. It can be enabled for SoCs with
+		Freescale DDR3 controllers.
 
 - Intel Monahans options:
 		CONFIG_SYS_MONAHANS_RUN_MODE_OSC_RATIO
@@ -705,6 +744,11 @@ The following options need to be configured:
 		the "silent" environment variable. See
 		doc/README.silent for more information.
 
+		CONFIG_SYS_CONSOLE_BG_COL: define the backgroundcolor, default
+			is 0x00.
+		CONFIG_SYS_CONSOLE_FG_COL: define the foregroundcolor, default
+			is 0xa0.
+
 - Console Baudrate:
 		CONFIG_BAUDRATE - in bps
 		Select one of the baudrates listed in
@@ -779,6 +823,22 @@ The following options need to be configured:
 		as a convenience, when switching between booting from
 		RAM and NFS.
 
+- Bootcount:
+		CONFIG_BOOTCOUNT_LIMIT
+		Implements a mechanism for detecting a repeating reboot
+		cycle, see:
+		http://www.denx.de/wiki/view/DULG/UBootBootCountLimit
+
+		CONFIG_BOOTCOUNT_ENV
+		If no softreset save registers are found on the hardware
+		"bootcount" is stored in the environment. To prevent a
+		saveenv on all reboots, the environment variable
+		"upgrade_available" is used. If "upgrade_available" is
+		0, "bootcount" is always 0, if "upgrade_available" is
+		1 "bootcount" is incremented in the environment.
+		So the Userspace Applikation must set the "upgrade_available"
+		and "bootcount" variable to 0, if a boot was successfully.
+
 - Pre-Boot Commands:
 		CONFIG_PREBOOT
 
@@ -844,6 +904,7 @@ The following options need to be configured:
 		CONFIG_CMD_ELF		* bootelf, bootvx
 		CONFIG_CMD_ENV_CALLBACK	* display details about env callbacks
 		CONFIG_CMD_ENV_FLAGS	* display details about env flags
+		CONFIG_CMD_ENV_EXISTS	* check existence of env variable
 		CONFIG_CMD_EXPORTENV	* export the environment
 		CONFIG_CMD_EXT2		* ext2 command support
 		CONFIG_CMD_EXT4		* ext4 command support
@@ -1031,7 +1092,6 @@ The following options need to be configured:
 
 - GPIO Support:
 		CONFIG_PCA953X		- use NXP's PCA953X series I2C GPIO
-		CONFIG_PCA953X_INFO	- enable pca953x info command
 
 		The CONFIG_SYS_I2C_PCA953X_WIDTH option specifies a list of
 		chip-ngpio pairs that tell the PCA953X driver the number of
@@ -1365,6 +1425,13 @@ The following options need to be configured:
 			Define this as the unique Product ID
 			for your device
 			- CONFIG_USBD_PRODUCTID 0xFFFF
+
+		Some USB device drivers may need to check USB cable attachment.
+		In this case you can enable following config in BoardName.h:
+			CONFIG_USB_CABLE_CHECK
+			This enables function definition:
+			- usb_cable_connected() in include/usb.h
+			Implementation of this function is board-specific.
 
 - ULPI Layer Support:
 		The ULPI (UTMI Low Pin (count) Interface) PHYs are supported via
@@ -1955,6 +2022,21 @@ CBFS (Coreboot Filesystem) support
 		kernel). Defining CONFIG_STATUS_LED enables this
 		feature in U-Boot.
 
+		Additional options:
+
+		CONFIG_GPIO_LED
+		The status LED can be connected to a GPIO pin.
+		In such cases, the gpio_led driver can be used as a
+		status LED backend implementation. Define CONFIG_GPIO_LED
+		to include the gpio_led driver in the U-Boot binary.
+
+		CONFIG_GPIO_LED_INVERTED_TABLE
+		Some GPIO connected LEDs may have inverted polarity in which
+		case the GPIO high value corresponds to LED off state and
+		GPIO low value corresponds to LED on state.
+		In such cases CONFIG_GPIO_LED_INVERTED_TABLE may be defined
+		with a list of GPIO LEDs that have inverted polarity.
+
 - CAN Support:	CONFIG_CAN_DRIVER
 
 		Defining CONFIG_CAN_DRIVER enables CAN driver support
@@ -1998,19 +2080,81 @@ CBFS (Coreboot Filesystem) support
 		    second bus.
 
 		- drivers/i2c/tegra_i2c.c:
-		 - activate this driver with CONFIG_SYS_I2C_TEGRA
-		 - This driver adds 4 i2c buses with a fix speed from
-		   100000 and the slave addr 0!
+		  - activate this driver with CONFIG_SYS_I2C_TEGRA
+		  - This driver adds 4 i2c buses with a fix speed from
+		    100000 and the slave addr 0!
 
 		- drivers/i2c/ppc4xx_i2c.c
 		  - activate this driver with CONFIG_SYS_I2C_PPC4XX
 		  - CONFIG_SYS_I2C_PPC4XX_CH0 activate hardware channel 0
 		  - CONFIG_SYS_I2C_PPC4XX_CH1 activate hardware channel 1
 
+		- drivers/i2c/i2c_mxc.c
+		  - activate this driver with CONFIG_SYS_I2C_MXC
+		  - define speed for bus 1 with CONFIG_SYS_MXC_I2C1_SPEED
+		  - define slave for bus 1 with CONFIG_SYS_MXC_I2C1_SLAVE
+		  - define speed for bus 2 with CONFIG_SYS_MXC_I2C2_SPEED
+		  - define slave for bus 2 with CONFIG_SYS_MXC_I2C2_SLAVE
+		  - define speed for bus 3 with CONFIG_SYS_MXC_I2C3_SPEED
+		  - define slave for bus 3 with CONFIG_SYS_MXC_I2C3_SLAVE
+		If thoses defines are not set, default value is 100000
+		for speed, and 0 for slave.
+
+		- drivers/i2c/rcar_i2c.c:
+		  - activate this driver with CONFIG_SYS_I2C_RCAR
+		  - This driver adds 4 i2c buses
+
+		  - CONFIG_SYS_RCAR_I2C0_BASE for setting the register channel 0
+		  - CONFIG_SYS_RCAR_I2C0_SPEED for for the speed channel 0
+		  - CONFIG_SYS_RCAR_I2C1_BASE for setting the register channel 1
+		  - CONFIG_SYS_RCAR_I2C1_SPEED for for the speed channel 1
+		  - CONFIG_SYS_RCAR_I2C2_BASE for setting the register channel 2
+		  - CONFIG_SYS_RCAR_I2C2_SPEED for for the speed channel 2
+		  - CONFIG_SYS_RCAR_I2C3_BASE for setting the register channel 3
+		  - CONFIG_SYS_RCAR_I2C3_SPEED for for the speed channel 3
+		  - CONFIF_SYS_RCAR_I2C_NUM_CONTROLLERS for number of i2c buses
+
+		- drivers/i2c/sh_i2c.c:
+		  - activate this driver with CONFIG_SYS_I2C_SH
+		  - This driver adds from 2 to 5 i2c buses
+
+		  - CONFIG_SYS_I2C_SH_BASE0 for setting the register channel 0
+		  - CONFIG_SYS_I2C_SH_SPEED0 for for the speed channel 0
+		  - CONFIG_SYS_I2C_SH_BASE1 for setting the register channel 1
+		  - CONFIG_SYS_I2C_SH_SPEED1 for for the speed channel 1
+		  - CONFIG_SYS_I2C_SH_BASE2 for setting the register channel 2
+		  - CONFIG_SYS_I2C_SH_SPEED2 for for the speed channel 2
+		  - CONFIG_SYS_I2C_SH_BASE3 for setting the register channel 3
+		  - CONFIG_SYS_I2C_SH_SPEED3 for for the speed channel 3
+		  - CONFIG_SYS_I2C_SH_BASE4 for setting the register channel 4
+		  - CONFIG_SYS_I2C_SH_SPEED4 for for the speed channel 4
+		  - CONFIG_SYS_I2C_SH_BASE5 for setting the register channel 5
+		  - CONFIG_SYS_I2C_SH_SPEED5 for for the speed channel 5
+		  - CONFIF_SYS_I2C_SH_NUM_CONTROLLERS for nummber of i2c buses
+
+		- drivers/i2c/omap24xx_i2c.c
+		  - activate this driver with CONFIG_SYS_I2C_OMAP24XX
+		  - CONFIG_SYS_OMAP24_I2C_SPEED speed channel 0
+		  - CONFIG_SYS_OMAP24_I2C_SLAVE slave addr channel 0
+		  - CONFIG_SYS_OMAP24_I2C_SPEED1 speed channel 1
+		  - CONFIG_SYS_OMAP24_I2C_SLAVE1 slave addr channel 1
+		  - CONFIG_SYS_OMAP24_I2C_SPEED2 speed channel 2
+		  - CONFIG_SYS_OMAP24_I2C_SLAVE2 slave addr channel 2
+		  - CONFIG_SYS_OMAP24_I2C_SPEED3 speed channel 3
+		  - CONFIG_SYS_OMAP24_I2C_SLAVE3 slave addr channel 3
+		  - CONFIG_SYS_OMAP24_I2C_SPEED4 speed channel 4
+		  - CONFIG_SYS_OMAP24_I2C_SLAVE4 slave addr channel 4
+
 		- drivers/i2c/zynq_i2c.c
 		  - activate this driver with CONFIG_SYS_I2C_ZYNQ
 		  - set CONFIG_SYS_I2C_ZYNQ_SPEED for speed setting
 		  - set CONFIG_SYS_I2C_ZYNQ_SLAVE for slave addr
+
+		- drivers/i2c/s3c24x0_i2c.c:
+		  - activate this driver with CONFIG_SYS_I2C_S3C24X0
+		  - This driver adds i2c buses (11 for Exynos5250, Exynos5420
+		    9 i2c buses for Exynos4 and 1 for S3C24X0 SoCs from Samsung)
+		    with a fix speed from 100000 and the slave addr 0!
 
 		additional defines:
 
@@ -2616,6 +2760,12 @@ CBFS (Coreboot Filesystem) support
 		Define this option to use the Bank addr/Extended addr
 		support on SPI flashes which has size > 16Mbytes.
 
+		CONFIG_SF_DUAL_FLASH		Dual flash memories
+
+		Define this option to use dual flash support where two flash
+		memories can be connected with a given cs line.
+		currently Xilinx Zynq qspi support these type of connections.
+
 - SystemACE Support:
 		CONFIG_SYSTEMACE
 
@@ -3118,7 +3268,7 @@ FIT uImage format:
 
 		CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
 		Set for the SPL on PPC mpc8xxx targets, support for
-		arch/powerpc/cpu/mpc8xxx/ddr/libddr.o in SPL binary.
+		drivers/ddr/fsl/libddr.o in SPL binary.
 
 		CONFIG_SPL_COMMON_INIT_DDR
 		Set for common ddr init with serial presence detect in
@@ -3131,6 +3281,9 @@ FIT uImage format:
 		CONFIG_SYS_NAND_ECCBYTES
 		Defines the size and behavior of the NAND that SPL uses
 		to read U-Boot
+
+		CONFIG_SPL_NAND_BOOT
+		Add support NAND boot
 
 		CONFIG_SYS_NAND_U_BOOT_OFFS
 		Location in NAND to read U-Boot from
@@ -4275,6 +4428,9 @@ Low Level (hardware related) configuration options:
 
 		NOTE : currently only supported on AM335x platforms.
 
+- CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC:
+		Enables the RTC32K OSC on AM33xx based plattforms
+
 Freescale QE/FMAN Firmware Support:
 -----------------------------------
 
@@ -5113,6 +5269,15 @@ when your kernel is intended to use an initial ramdisk:
 	Data Size:    566530 Bytes = 553.25 kB = 0.54 MB
 	Load Address: 0x00000000
 	Entry Point:  0x00000000
+
+The "dumpimage" is a tool to disassemble images built by mkimage. Its "-i"
+option performs the converse operation of the mkimage's second form (the "-d"
+option). Given an image built by mkimage, the dumpimage extracts a "data file"
+from the image:
+
+	tools/dumpimage -i image -p position data_file
+	  -i ==> extract from the 'image' a specific 'data_file', \
+	   indexed by 'position'
 
 
 Installing a Linux Image:

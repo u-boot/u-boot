@@ -7,31 +7,21 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-include $(TOPDIR)/config.mk
-
-LIB     = $(obj)libimx-common.o
-
 ifeq ($(SOC),$(filter $(SOC),mx25 mx35 mx5 mx6 vf610))
-COBJS-y	= iomux-v3.o
+obj-y	= iomux-v3.o
 endif
 ifeq ($(SOC),$(filter $(SOC),mx5 mx6))
-COBJS-y	+= timer.o cpu.o speed.o
-COBJS-$(CONFIG_I2C_MXC) += i2c-mxv7.o
+obj-y	+= timer.o cpu.o speed.o
+obj-$(CONFIG_SYS_I2C_MXC) += i2c-mxv7.o
 endif
 ifeq ($(SOC),$(filter $(SOC),mx6 mxs))
-COBJS-y	+= misc.o
+obj-y	+= misc.o
 endif
-COBJS-$(CONFIG_CMD_BMODE) += cmd_bmode.o
-COBJS-$(CONFIG_CMD_HDMIDETECT) += cmd_hdmidet.o
-COBJS	:= $(sort $(COBJS-y))
-
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
-
-all:	$(obj).depend $(LIB)
-
-$(LIB):	$(OBJS)
-	$(call cmd_link_o_target, $(OBJS))
+ifeq ($(SOC),$(filter $(SOC),mx6))
+obj-$(CONFIG_CMD_SATA) += sata.o
+endif
+obj-$(CONFIG_CMD_BMODE) += cmd_bmode.o
+obj-$(CONFIG_CMD_HDMIDETECT) += cmd_hdmidet.o
 
 $(OBJTREE)/$(patsubst "%",%,$(CONFIG_IMX_CONFIG)).cfgtmp: $(OBJTREE)/%.cfgtmp : $(SRCTREE)/%
 	mkdir -p $(dir $@)
@@ -67,13 +57,3 @@ $(OBJTREE)/u-boot-with-nand-spl.imx: $(OBJTREE)/SPL $(OBJTREE)/u-boot.bin
 		$(OBJTREE)/u-boot.uim
 	cat $(OBJTREE)/spl/u-boot-nand-spl-pad.imx $(OBJTREE)/u-boot.uim > $@
 	rm $(OBJTREE)/spl/u-boot-nand-spl-pad.imx $(OBJTREE)/u-boot.uim
-
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################

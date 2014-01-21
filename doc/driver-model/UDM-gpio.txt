@@ -68,39 +68,39 @@ II) Approach
 III) Analysis of in-tree drivers
 --------------------------------
 
-  1) altera_pio.c
-  ---------------
+  altera_pio.c
+  ------------
   Meets standard API. Implements gpio_request() properly. Simple conversion
   possible.
 
-  2) at91_gpio.c
-  --------------
+  at91_gpio.c
+  -----------
   Don't meet standard API. Need some other methods to implement.
 
-  3) da8xx_gpio.c
-  ---------------
+  da8xx_gpio.c
+  ------------
   Meets standard API. Implements gpio_request() properly. Simple conversion
   possible.
 
-  4) kw_gpio.c
-  ------------
+  kw_gpio.c
+  ---------
   Doesn't meet standard API. Needs some other methods to implement and move some
   methods to another file.
 
-  5) mpc83xx_gpio.c
-  -----------------
+  mpc83xx_gpio.c
+  --------------
   Meets standard API. Doesn't implement gpio_request() properly (only checks
   if the pin is valid). Simple conversion possible.
 
-  6) mvgpio.c
-  -----------
+  mvgpio.c
+  --------
   Meets standard API. Doesn't implement gpio_request() properly (only checks
   if the pin is valid). Simple conversion possible.
 
-  7) mvgpio.h
-  -----------
+  mvgpio.h
+  --------
   Wrong placement. Will be moved to another location.
 
-  8) mvmfp.c
-  ----------
+  mvmfp.c
+  -------
   Wrong placement. Will be moved to another location.

@@ -227,6 +227,7 @@
 /* enable I2C and select the hardware/software driver */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
+#define CONFIG_SYS_I2C_INIT_BOARD
 #define CONFIG_SYS_NUM_I2C_BUSES	3
 #define CONFIG_SYS_I2C_MAX_HOPS		1
 #define CONFIG_SYS_I2C_SOFT_SPEED	50000
@@ -237,6 +238,7 @@
 			{0, {{I2C_MUX_PCA9542, 0x70, 1} } } }
 
 #define CONFIG_KM_IVM_BUS		1	/* I2C2 (Mux-Port 1)*/
+#define CONFIG_KM_I2C_ABORT
 
 /*
  * Software (bit-bang) I2C driver configuration

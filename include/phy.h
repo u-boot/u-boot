@@ -125,6 +125,9 @@ struct phy_driver {
 	/* Called when bringing down the controller */
 	int (*shutdown)(struct phy_device *phydev);
 
+	int (*readext)(struct phy_device *phydev, int addr, int devad, int reg);
+	int (*writeext)(struct phy_device *phydev, int addr, int devad, int reg,
+			u16 val);
 	struct list_head list;
 };
 
@@ -158,6 +161,14 @@ struct phy_device {
 	int asym_pause;
 	u32 phy_id;
 	u32 flags;
+};
+
+struct fixed_link {
+	int phy_id;
+	int duplex;
+	int link_speed;
+	int pause;
+	int asym_pause;
 };
 
 static inline int phy_read(struct phy_device *phydev, int devad, int regnum)

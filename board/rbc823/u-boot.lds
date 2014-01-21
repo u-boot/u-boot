@@ -19,10 +19,10 @@ SECTIONS
     arch/powerpc/cpu/mpc8xx/start.o	(.text*)
     arch/powerpc/cpu/mpc8xx/traps.o	(.text*)
 
-    lib/libgeneric.o			(.text*)
-    net/libnet.o			(.text*)
-    arch/powerpc/cpu/mpc8xx/libmpc8xx.o	(.text*)
-    arch/powerpc/lib/libpowerpc.o	(.text*)
+    lib/built-in.o			(.text*)
+    net/built-in.o			(.text*)
+    arch/powerpc/cpu/mpc8xx/built-in.o	(.text*)
+    arch/powerpc/lib/built-in.o		(.text*)
 
     . = env_offset;
     common/env_embedded.o		(.text*)

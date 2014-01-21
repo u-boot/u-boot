@@ -26,7 +26,6 @@
 /* ARM asynchronous clock */
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	12000000	/* 12.000 MHz crystal */
-#define CONFIG_SYS_HZ		        1000
 
 #define CONFIG_ARCH_CPU_INIT
 
@@ -116,9 +115,11 @@
 #define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_RESET_PHY_R
 #define CONFIG_MACB_SEARCH_PHY
+#define CONFIG_AT91_WANTS_COMMON_PHY
 
 /* USB */
 #define CONFIG_USB_ATMEL
+#define CONFIG_USB_ATMEL_CLK_SEL_PLLB
 #define CONFIG_USB_OHCI_NEW
 #define CONFIG_DOS_PARTITION
 #define CONFIG_SYS_USB_OHCI_CPU_INIT

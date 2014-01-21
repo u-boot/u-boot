@@ -6,32 +6,8 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-include $(TOPDIR)/config.mk
-ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)../common)
-endif
-
-LIB	= $(obj)lib$(BOARD).o
-
-COBJS-y	:= $(BOARD).o
-COBJS-$(CONFIG_CMD_IDE) += ../common/cfide.o
-COBJS-$(CONFIG_EPLED) += ../common/epled.o
-COBJS-$(CONFIG_SEVENSEG) += ../common/sevenseg.o
-
-SOBJS-y	:= text_base.o
-
-SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS-y))
-SOBJS	:= $(addprefix $(obj),$(SOBJS-y))
-
-$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
-	$(call cmd_link_o_target, $(OBJS) $(SOBJS))
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+obj-y	:= nios2-generic.o
+obj-$(CONFIG_CMD_IDE) += ../common/cfide.o
+obj-$(CONFIG_EPLED) += ../common/epled.o
+obj-$(CONFIG_SEVENSEG) += ../common/sevenseg.o
+obj-y	+= text_base.o

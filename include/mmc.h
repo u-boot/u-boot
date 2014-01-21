@@ -148,6 +148,7 @@
  * EXT_CSD fields
  */
 #define EXT_CSD_GP_SIZE_MULT		143	/* R/W */
+#define EXT_CSD_PARTITIONS_ATTRIBUTE	156	/* R/W */
 #define EXT_CSD_PARTITIONING_SUPPORT	160	/* RO */
 #define EXT_CSD_RPMB_MULT		168	/* RO */
 #define EXT_CSD_ERASE_GROUP_DEF		175	/* R/W */
@@ -210,6 +211,7 @@
 #define MMCPART_NOAVAILABLE	(0xff)
 #define PART_ACCESS_MASK	(0x7)
 #define PART_SUPPORT		(0x1)
+#define PART_ENH_ATTRIB		(0x1f)
 
 /* Maximum block size for MMC */
 #define MMC_MAX_BLOCK_LEN	512
@@ -260,6 +262,8 @@ struct mmc {
 	uint card_caps;
 	uint host_caps;
 	uint ocr;
+	uint dsr;
+	uint dsr_imp;
 	uint scr[2];
 	uint csd[4];
 	uint cid[4];
@@ -302,7 +306,7 @@ int board_mmc_getcd(struct mmc *mmc);
 int mmc_switch_part(int dev_num, unsigned int part_num);
 int mmc_getcd(struct mmc *mmc);
 int mmc_getwp(struct mmc *mmc);
-void spl_mmc_load(void) __noreturn;
+int mmc_set_dsr(struct mmc *mmc, u16 val);
 /* Function to change the size of boot partition and rpmb partitions */
 int mmc_boot_partition_size_change(struct mmc *mmc, unsigned long bootsize,
 					unsigned long rpmbsize);

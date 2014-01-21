@@ -21,65 +21,8 @@
  */
 
 #include <common.h>
-#include <div64.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/arch/clock.h>
-
-DECLARE_GLOBAL_DATA_PTR;
-
-#define timestamp	(gd->arch.tbl)
-#define lastinc		(gd->arch.lastinc)
-
-/*
- * "time" is measured in 1 / CONFIG_SYS_HZ seconds,
- * "tick" is internal timer period
- */
-#ifdef CONFIG_MX25_TIMER_HIGH_PRECISION
-/* ~0.4% error - measured with stop-watch on 100s boot-delay */
-static inline unsigned long long tick_to_time(unsigned long long tick)
-{
-	tick *= CONFIG_SYS_HZ;
-	do_div(tick, MXC_CLK32);
-	return tick;
-}
-
-static inline unsigned long long time_to_tick(unsigned long long time)
-{
-	time *= MXC_CLK32;
-	do_div(time, CONFIG_SYS_HZ);
-	return time;
-}
-
-static inline unsigned long long us_to_tick(unsigned long long us)
-{
-	us = us * MXC_CLK32 + 999999;
-	do_div(us, 1000000);
-	return us;
-}
-#else
-/* ~2% error */
-#define TICK_PER_TIME	((MXC_CLK32 + CONFIG_SYS_HZ / 2) / CONFIG_SYS_HZ)
-#define US_PER_TICK	(1000000 / MXC_CLK32)
-
-static inline unsigned long long tick_to_time(unsigned long long tick)
-{
-	do_div(tick, TICK_PER_TIME);
-	return tick;
-}
-
-static inline unsigned long long time_to_tick(unsigned long long time)
-{
-	return time * TICK_PER_TIME;
-}
-
-static inline unsigned long long us_to_tick(unsigned long long us)
-{
-	us += US_PER_TICK - 1;
-	do_div(us, US_PER_TICK);
-	return us;
-}
-#endif
 
 /* nothing really to do with interrupts, just starts up a counter. */
 /* The 32KHz 32-bit timer overruns in 134217 seconds */
@@ -103,64 +46,4 @@ int timer_init(void)
 	writel(readl(&gpt->ctrl) | GPT_CTRL_TEN, &gpt->ctrl);
 
 	return 0;
-}
-
-unsigned long long get_ticks(void)
-{
-	struct gpt_regs *gpt = (struct gpt_regs *)IMX_GPT1_BASE;
-	ulong now = readl(&gpt->counter); /* current tick value */
-
-	if (now >= lastinc) {
-		/*
-		 * normal mode (non roll)
-		 * move stamp forward with absolut diff ticks
-		 */
-		timestamp += (now - lastinc);
-	} else {
-		/* we have rollover of incrementer */
-		timestamp += (0xFFFFFFFF - lastinc) + now;
-	}
-	lastinc = now;
-	return timestamp;
-}
-
-ulong get_timer_masked(void)
-{
-	/*
-	 * get_ticks() returns a long long (64 bit), it wraps in
-	 * 2^64 / MXC_CLK32 = 2^64 / 2^15 = 2^49 ~ 5 * 10^14 (s) ~
-	 * 5 * 10^9 days... and get_ticks() * CONFIG_SYS_HZ wraps in
-	 * 5 * 10^6 days - long enough.
-	 */
-	return tick_to_time(get_ticks());
-}
-
-ulong get_timer(ulong base)
-{
-	return get_timer_masked() - base;
-}
-
-/* delay x useconds AND preserve advance timstamp value */
-void __udelay(unsigned long usec)
-{
-	unsigned long long tmp;
-	ulong tmo;
-
-	tmo = us_to_tick(usec);
-	tmp = get_ticks() + tmo;	/* get current timestamp */
-
-	while (get_ticks() < tmp)	/* loop till event */
-		 /*NOP*/;
-}
-
-/*
- * This function is derived from PowerPC code (timebase clock frequency).
- * On ARM it returns the number of timer ticks per second.
- */
-ulong get_tbclk(void)
-{
-	ulong tbclk;
-
-	tbclk = MXC_CLK32;
-	return tbclk;
 }

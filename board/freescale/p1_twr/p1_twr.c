@@ -14,7 +14,7 @@
 #include <asm/cache.h>
 #include <asm/immap_85xx.h>
 #include <asm/fsl_pci.h>
-#include <asm/fsl_ddr_sdram.h>
+#include <fsl_ddr_sdram.h>
 #include <asm/io.h>
 #include <asm/fsl_law.h>
 #include <asm/fsl_lbc.h>

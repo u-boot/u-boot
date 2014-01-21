@@ -494,11 +494,17 @@
 #define MIPS_CONF1_PC		(_ULCAST_(1) <<  4)
 #define MIPS_CONF1_MD		(_ULCAST_(1) <<  5)
 #define MIPS_CONF1_C2		(_ULCAST_(1) <<  6)
+#define MIPS_CONF1_DA_SHIFT	7
 #define MIPS_CONF1_DA		(_ULCAST_(7) <<  7)
+#define MIPS_CONF1_DL_SHIFT	10
 #define MIPS_CONF1_DL		(_ULCAST_(7) << 10)
+#define MIPS_CONF1_DS_SHIFT	13
 #define MIPS_CONF1_DS		(_ULCAST_(7) << 13)
+#define MIPS_CONF1_IA_SHIFT	16
 #define MIPS_CONF1_IA		(_ULCAST_(7) << 16)
+#define MIPS_CONF1_IL_SHIFT	19
 #define MIPS_CONF1_IL		(_ULCAST_(7) << 19)
+#define MIPS_CONF1_IS_SHIFT	22
 #define MIPS_CONF1_IS		(_ULCAST_(7) << 22)
 #define MIPS_CONF1_TLBS		(_ULCAST_(63)<< 25)
 

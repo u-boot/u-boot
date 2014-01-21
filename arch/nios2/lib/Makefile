@@ -5,28 +5,8 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-include $(TOPDIR)/config.mk
-
-LIB	= $(obj)lib$(ARCH).o
-
-SOBJS-y	+= cache.o
-
-COBJS-y	+= board.o
-COBJS-$(CONFIG_CMD_BOOTM) += bootm.o
-COBJS-y	+= libgcc.o
-COBJS-y	+= time.o
-
-SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
-
-$(LIB):	$(obj).depend $(OBJS)
-	$(call cmd_link_o_target, $(OBJS))
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+obj-y	+= cache.o
+obj-y	+= board.o
+obj-$(CONFIG_CMD_BOOTM) += bootm.o
+obj-y	+= libgcc.o
+obj-y	+= time.o

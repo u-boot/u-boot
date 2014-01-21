@@ -23,11 +23,7 @@
 
 int checkcpu(void)
 {
-#if defined(CONFIG_SH2A)
-	puts("CPU: SH2A\n");
-#else
 	puts("CPU: SH2\n");
-#endif
 	return 0;
 }
 

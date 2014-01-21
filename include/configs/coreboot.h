@@ -204,7 +204,6 @@
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE			115200
-#define CONFIG_KGDB_SER_INDEX			2
 #endif
 
 /*
@@ -222,7 +221,6 @@
 #define CONFIG_SYS_MEMTEST_START		0x00100000
 #define CONFIG_SYS_MEMTEST_END			0x01000000
 #define CONFIG_SYS_LOAD_ADDR			0x100000
-#define CONFIG_SYS_HZ				1000
 
 /*-----------------------------------------------------------------------
  * SDRAM Configuration

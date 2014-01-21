@@ -271,7 +271,6 @@ int board_init(void)
 #endif
 
 #ifdef CONFIG_ATMEL_SPI
-	at91_spi0_hw_init(1 << 0);
 	at91_spi0_hw_init(1 << 4);
 #endif
 

@@ -18,6 +18,8 @@ struct factorysetcontainer {
 #if defined(CONFIG_VIDEO)
 	unsigned char disp_name[MAX_STRING_LENGTH];
 #endif
+	unsigned char serial[MAX_STRING_LENGTH];
+	int version;
 };
 
 int factoryset_read_eeprom(int i2c_addr);

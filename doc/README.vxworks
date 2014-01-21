@@ -1,0 +1,19 @@
+From VxWorks 6.9+ (not include 6.9), VxWorks starts adopting device tree as its hardware
+decription mechansim (for PowerPC and ARM), thus requiring boot interface changes.
+This section will describe the new interface.
+
+For PowerPC, the calling convention of the new VxWorks entry point conforms to the ePAPR standard,
+which is shown below (see ePAPR for more details):
+
+    void (*kernel_entry)(fdt_addr,
+              0, 0, EPAPR_MAGIC, boot_IMA, 0, 0)
+
+For ARM, the calling convention is show below:
+
+    void (*kernel_entry)(void *fdt_addr)
+
+When booting new VxWorks kernel (uImage format), the parameters passed to bootm is like below:
+
+    bootm <kernel image address> - <device tree address>
+
+The do_bootvx command still works as it was for older VxWorks kernels.

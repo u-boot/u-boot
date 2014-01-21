@@ -47,7 +47,7 @@ struct tmu_regs {
 };
 #endif /* CONFIG_SH3 */
 
-#if defined(CONFIG_SH4) || defined(CONFIG_SH4A) || defined(CONFIG_RMOBILE)
+#if defined(CONFIG_SH4) || defined(CONFIG_RMOBILE)
 struct tmu_regs {
 	u32 reserved;
 	u8  tstr;
@@ -69,7 +69,7 @@ struct tmu_regs {
 
 static inline unsigned long get_tmu0_clk_rate(void)
 {
-	return CONFIG_SYS_CLK_FREQ;
+	return CONFIG_SH_TMU_CLK_FREQ;
 }
 
 #endif	/* __SH_TMU_H */

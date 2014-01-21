@@ -75,6 +75,8 @@
 #endif
 
 #define CONFIG_NAND_FSL_ELBC
+#define CONFIG_SYS_NAND_MAX_ECCPOS	56
+#define CONFIG_SYS_NAND_MAX_OOBFREE	5
 
 #ifdef CONFIG_NAND
 #define CONFIG_SPL
@@ -177,7 +179,7 @@
 /* DDR Setup */
 #define CONFIG_DDR_SPD
 #define CONFIG_VERY_BIG_RAM
-#define CONFIG_FSL_DDR3
+#define CONFIG_SYS_FSL_DDR3
 
 #ifdef CONFIG_DDR_ECC
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
@@ -705,7 +707,6 @@
 #define CONFIG_CMDLINE_EDITING			/* Command-line editing */
 #define CONFIG_AUTO_COMPLETE			/* add autocompletion support */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-#define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt */
 #ifdef CONFIG_CMD_KGDB
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
 #else
@@ -715,7 +716,6 @@
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_MAXARGS	16
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
-#define CONFIG_SYS_HZ		1000
 
 /*
  * For booting Linux, the board info and command line data
@@ -727,7 +727,6 @@
 
 #ifdef CONFIG_CMD_KGDB
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
-#define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
 
 /*

@@ -28,12 +28,12 @@
 #define ZYNQ_EFUSE_BASEADDR		0xF800D000
 
 /* Bootmode setting values */
-#define BOOT_MODES_MASK		0x0000000F
-#define QSPI_MODE		0x00000001
-#define NOR_FLASH_MODE		0x00000002
-#define NAND_FLASH_MODE		0x00000004
-#define SD_MODE			0x00000005
-#define JTAG_MODE		0x00000000
+#define ZYNQ_BM_MASK		0x0F
+#define ZYNQ_BM_QSPI		0x01
+#define ZYNQ_BM_NOR		0x02
+#define ZYNQ_BM_NAND		0x04
+#define ZYNQ_BM_SD		0x05
+#define ZYNQ_BM_JTAG		0x0
 
 /* Reflect slcr offsets */
 struct slcr_regs {

@@ -20,8 +20,6 @@
 #define CONFIG_EXYNOS4		/* which is in a EXYNOS4XXX */
 #define CONFIG_TIZEN		/* TIZEN lib */
 
-#define PLATFORM_NO_UNALIGNED
-
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 
 #define CONFIG_ARCH_CPU_INIT
@@ -32,6 +30,7 @@
 
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
+#define CONFIG_SYS_L2CACHE_OFF
 #ifndef CONFIG_SYS_L2CACHE_OFF
 #define CONFIG_SYS_L2_PL310
 #define CONFIG_SYS_PL310_BASE	0x10502000
@@ -65,10 +64,9 @@
 
 #define CONFIG_DISPLAY_CPUINFO
 
-/*
- * Size of malloc() pool
- */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (2 << 20))
+#include <asm/sizes.h>
+/* Size of malloc() pool */
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (80 * SZ_1M))
 
 /* select serial console configuration */
 #define CONFIG_SERIAL2
@@ -100,6 +98,7 @@
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MMC
+#define CONFIG_CMD_DFU
 #define CONFIG_CMD_GPT
 #define CONFIG_CMD_PMIC
 
@@ -112,6 +111,24 @@
 /* EXT4 */
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_EXT4_WRITE
+
+/* USB Composite download gadget - g_dnl */
+#define CONFIG_USBDOWNLOAD_GADGET
+#define CONFIG_SYS_DFU_DATA_BUF_SIZE SZ_32M
+#define DFU_DEFAULT_POLL_TIMEOUT 300
+#define CONFIG_DFU_FUNCTION
+#define CONFIG_DFU_MMC
+
+/* TIZEN THOR downloader support */
+#define CONFIG_CMD_THOR_DOWNLOAD
+#define CONFIG_THOR_FUNCTION
+
+/* USB Samsung's IDs */
+#define CONFIG_G_DNL_VENDOR_NUM 0x04E8
+#define CONFIG_G_DNL_PRODUCT_NUM 0x6601
+#define CONFIG_G_DNL_THOR_VENDOR_NUM CONFIG_G_DNL_VENDOR_NUM
+#define CONFIG_G_DNL_THOR_PRODUCT_NUM 0x685D
+#define CONFIG_G_DNL_MANUFACTURER "Samsung"
 
 /* To use the TFTPBOOT over USB, Please enable the CONFIG_CMD_NET */
 #undef CONFIG_CMD_NET
@@ -136,24 +153,32 @@
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 /* Tizen - partitions definitions */
-#define PARTS_CSA		"csa-mmc"
-#define PARTS_BOOTLOADER	"u-boot"
+#define PARTS_CSA		"csa"
 #define PARTS_BOOT		"boot"
+#define PARTS_MODEM		"modem"
+#define PARTS_CSC		"csc"
 #define PARTS_ROOT		"platform"
 #define PARTS_DATA		"data"
-#define PARTS_CSC		"csc"
 #define PARTS_UMS		"ums"
 
 #define PARTS_DEFAULT \
 	"uuid_disk=${uuid_gpt_disk};" \
-	"name="PARTS_CSA",size=8MiB,uuid=${uuid_gpt_"PARTS_CSA"};" \
-	"name="PARTS_BOOTLOADER",size=60MiB," \
-		"uuid=${uuid_gpt_"PARTS_BOOTLOADER"};" \
-	"name="PARTS_BOOT",size=100MiB,uuid=${uuid_gpt_"PARTS_BOOT"};" \
-	"name="PARTS_ROOT",size=1GiB,uuid=${uuid_gpt_"PARTS_ROOT"};" \
-	"name="PARTS_DATA",size=3GiB,uuid=${uuid_gpt_"PARTS_DATA"};" \
+	"name="PARTS_CSA",start=5MiB,size=8MiB,uuid=${uuid_gpt_"PARTS_CSA"};" \
+	"name="PARTS_BOOT",size=64MiB,uuid=${uuid_gpt_"PARTS_BOOT"};" \
+	"name="PARTS_MODEM",size=100MiB,uuid=${uuid_gpt_"PARTS_MODEM"};" \
 	"name="PARTS_CSC",size=150MiB,uuid=${uuid_gpt_"PARTS_CSC"};" \
+	"name="PARTS_ROOT",size=1536MiB,uuid=${uuid_gpt_"PARTS_ROOT"};" \
+	"name="PARTS_DATA",size=512MiB,uuid=${uuid_gpt_"PARTS_DATA"};" \
 	"name="PARTS_UMS",size=-,uuid=${uuid_gpt_"PARTS_UMS"}\0" \
+
+#define CONFIG_DFU_ALT \
+	"u-boot mmc 80 800;" \
+	"uImage ext4 0 2;" \
+	"exynos4412-trats2.dtb ext4 0 2;" \
+	""PARTS_BOOT" part 0 2;" \
+	""PARTS_ROOT" part 0 5;" \
+	""PARTS_DATA" part 0 6;" \
+	""PARTS_UMS" part 0 7\0"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootk=" \
@@ -178,15 +203,16 @@
 	"rootfstype=ext4\0" \
 	"console=" CONFIG_DEFAULT_CONSOLE \
 	"kernelname=uImage\0" \
-	"loaduimage=ext4load mmc ${mmcdev}:${mmcbootpart} 0x40007FC0 uImage\0" \
-		"0x40007FC0 ${kernelname}\0" \
+	"loaduimage=ext4load mmc ${mmcdev}:${mmcbootpart} 0x40007FC0 " \
+		"${kernelname}\0" \
 	"loaddtb=ext4load mmc ${mmcdev}:${mmcbootpart} ${fdtaddr} " \
 		"${fdtfile}\0" \
-	"mmcdev=0\0" \
+	"mmcdev=" __stringify(CONFIG_MMC_DEFAULT_DEV) "\0" \
 	"mmcbootpart=2\0" \
 	"mmcrootpart=5\0" \
 	"opts=always_resume=1\0" \
 	"partitions=" PARTS_DEFAULT \
+	"dfu_alt_info=" CONFIG_DFU_ALT \
 	"uartpath=ap\0" \
 	"usbpath=ap\0" \
 	"consoleon=set console console=ttySAC2,115200n8; save; reset\0" \
@@ -233,8 +259,6 @@
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_LOAD_ADDR \
 					- GENERATED_GBL_DATA_SIZE)
 
-#define CONFIG_SYS_HZ			1000
-
 /* valid baudrates */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
@@ -260,30 +284,25 @@
 #include <asm/arch/gpio.h>
 
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
+#define CONFIG_SYS_I2C_S3C24X0
+#define CONFIG_SYS_I2C_S3C24X0_SPEED	100000
+#define CONFIG_SYS_I2C_S3C24X0_SLAVE	0
+#define CONFIG_MAX_I2C_NUM		8
+#define CONFIG_SYS_I2C_SOFT
 #define CONFIG_SYS_I2C_SOFT_SPEED	50000
 #define CONFIG_SYS_I2C_SOFT_SLAVE	0x00
 #define I2C_SOFT_DECLARATIONS2
 #define CONFIG_SYS_I2C_SOFT_SPEED_2     50000
 #define CONFIG_SYS_I2C_SOFT_SLAVE_2     0x00
-#define I2C_SOFT_DECLARATIONS3
-#define CONFIG_SYS_I2C_SOFT_SPEED_3     50000
-#define CONFIG_SYS_I2C_SOFT_SLAVE_3     0x00
 #define CONFIG_SOFT_I2C_READ_REPEATED_START
 #define CONFIG_SYS_I2C_INIT_BOARD
-#define CONFIG_I2C_MULTI_BUS
-#define CONFIG_SOFT_I2C_MULTI_BUS
-#define CONFIG_SYS_MAX_I2C_BUS		15
 
-#define CONFIG_SOFT_I2C_I2C5_SCL exynos4x12_gpio_part1_get_nr(d0, 3)
-#define CONFIG_SOFT_I2C_I2C5_SDA exynos4x12_gpio_part1_get_nr(d0, 2)
-#define CONFIG_SOFT_I2C_I2C9_SCL exynos4x12_gpio_part1_get_nr(f1, 4)
-#define CONFIG_SOFT_I2C_I2C9_SDA exynos4x12_gpio_part1_get_nr(f1, 5)
-#define CONFIG_SOFT_I2C_I2C10_SCL exynos4x12_gpio_part2_get_nr(m2, 1)
-#define CONFIG_SOFT_I2C_I2C10_SDA exynos4x12_gpio_part2_get_nr(m2, 0)
-#define CONFIG_SOFT_I2C_GPIO_SCL get_multi_scl_pin()
-#define CONFIG_SOFT_I2C_GPIO_SDA get_multi_sda_pin()
-#define I2C_INIT multi_i2c_init()
+#ifndef __ASSEMBLY__
+int get_soft_i2c_scl_pin(void);
+int get_soft_i2c_sda_pin(void);
+#endif
+#define CONFIG_SOFT_I2C_GPIO_SCL	get_soft_i2c_scl_pin()
+#define CONFIG_SOFT_I2C_GPIO_SDA	get_soft_i2c_sda_pin()
 
 /* POWER */
 #define CONFIG_POWER
@@ -293,6 +312,11 @@
 #define CONFIG_POWER_MUIC_MAX77693
 #define CONFIG_POWER_FG_MAX77693
 #define CONFIG_POWER_BATTERY_TRATS2
+#define CONFIG_USB_GADGET
+#define CONFIG_USB_GADGET_S3C_UDC_OTG
+#define CONFIG_USB_GADGET_DUALSPEED
+#define CONFIG_USB_GADGET_VBUS_DRAW	2
+#define CONFIG_USB_CABLE_CHECK
 
 /* LCD */
 #define CONFIG_EXYNOS_FB
@@ -304,6 +328,9 @@
 #define CONFIG_EXYNOS_MIPI_DSIM
 #define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE ((500 * 250 * 4) + (1 << 12))
+
+#define CONFIG_CMD_USB_MASS_STORAGE
+#define CONFIG_USB_GADGET_MASS_STORAGE
 
 /* Pass open firmware flat tree */
 #define CONFIG_OF_LIBFDT    1

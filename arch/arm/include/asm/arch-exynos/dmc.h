@@ -205,6 +205,127 @@ struct exynos5_dmc {
 	unsigned int pmcnt3_ppc_a;
 };
 
+struct exynos5420_dmc {
+	unsigned int concontrol;
+	unsigned int memcontrol;
+	unsigned int cgcontrol;
+	unsigned char res500[0x4];
+	unsigned int directcmd;
+	unsigned int prechconfig0;
+	unsigned int phycontrol0;
+	unsigned int prechconfig1;
+	unsigned char res1[0x8];
+	unsigned int pwrdnconfig;
+	unsigned int timingpzq;
+	unsigned int timingref;
+	unsigned int timingrow0;
+	unsigned int timingdata0;
+	unsigned int timingpower0;
+	unsigned int phystatus;
+	unsigned int etctiming;
+	unsigned int chipstatus;
+	unsigned char res3[0x8];
+	unsigned int mrstatus;
+	unsigned char res4[0x8];
+	unsigned int qoscontrol0;
+	unsigned char resr5[0x4];
+	unsigned int qoscontrol1;
+	unsigned char res6[0x4];
+	unsigned int qoscontrol2;
+	unsigned char res7[0x4];
+	unsigned int qoscontrol3;
+	unsigned char res8[0x4];
+	unsigned int qoscontrol4;
+	unsigned char res9[0x4];
+	unsigned int qoscontrol5;
+	unsigned char res10[0x4];
+	unsigned int qoscontrol6;
+	unsigned char res11[0x4];
+	unsigned int qoscontrol7;
+	unsigned char res12[0x4];
+	unsigned int qoscontrol8;
+	unsigned char res13[0x4];
+	unsigned int qoscontrol9;
+	unsigned char res14[0x4];
+	unsigned int qoscontrol10;
+	unsigned char res15[0x4];
+	unsigned int qoscontrol11;
+	unsigned char res16[0x4];
+	unsigned int qoscontrol12;
+	unsigned char res17[0x4];
+	unsigned int qoscontrol13;
+	unsigned char res18[0x4];
+	unsigned int qoscontrol14;
+	unsigned char res19[0x4];
+	unsigned int qoscontrol15;
+	unsigned char res20[0x4];
+	unsigned int timing_set_sw;
+	unsigned int timingrow1;
+	unsigned int timingdata1;
+	unsigned int timingpower1;
+	unsigned char res300[0x4];
+	unsigned int wrtra_config;
+	unsigned int rdlvl_config;
+	unsigned char res21[0x4];
+	unsigned int brbrsvcontrol;
+	unsigned int brbrsvconfig;
+	unsigned int brbqosconfig;
+	unsigned char res301[0x14];
+	unsigned int wrlvl_config0;
+	unsigned int wrlvl_config1;
+	unsigned int wrlvl_status;
+	unsigned char res23[0x4];
+	unsigned int ppcclockon;
+	unsigned int perevconfig0;
+	unsigned int perevconfig1;
+	unsigned int perevconfig2;
+	unsigned int perevconfig3;
+	unsigned char res24[0xc];
+	unsigned int control_io_rdata;
+	unsigned char res240[0xc];
+	unsigned int cacal_config0;
+	unsigned int cacal_config1;
+	unsigned int cacal_status;
+	unsigned char res302[0xa4];
+	unsigned int bp_control0;
+	unsigned int bp_config0_r;
+	unsigned int bp_config0_w;
+	unsigned char res303[0x4];
+	unsigned int bp_control1;
+	unsigned int bp_config1_r;
+	unsigned int bp_config1_w;
+	unsigned char res304[0x4];
+	unsigned int bp_control2;
+	unsigned int bp_config2_r;
+	unsigned int bp_config2_w;
+	unsigned char res305[0x4];
+	unsigned int bp_control3;
+	unsigned int bp_config3_r;
+	unsigned int bp_config3_w;
+	unsigned char res306[0xddb4];
+	unsigned int pmnc_ppc;
+	unsigned char res25[0xc];
+	unsigned int cntens_ppc;
+	unsigned char res26[0xc];
+	unsigned int cntenc_ppc;
+	unsigned char res27[0xc];
+	unsigned int intens_ppc;
+	unsigned char res28[0xc];
+	unsigned int intenc_ppc;
+	unsigned char res29[0xc];
+	unsigned int flag_ppc;
+	unsigned char res30[0xac];
+	unsigned int ccnt_ppc;
+	unsigned char res31[0xc];
+	unsigned int pmcnt0_ppc;
+	unsigned char res32[0xc];
+	unsigned int pmcnt1_ppc;
+	unsigned char res33[0xc];
+	unsigned int pmcnt2_ppc;
+	unsigned char res34[0xc];
+	unsigned int pmcnt3_ppc;
+};
+
 struct exynos5_phy_control {
 	unsigned int phy_con0;
 	unsigned int phy_con1;
@@ -252,6 +373,61 @@ struct exynos5_phy_control {
 	unsigned int phy_con42;
 };
 
+struct exynos5420_phy_control {
+	unsigned int phy_con0;
+	unsigned int phy_con1;
+	unsigned int phy_con2;
+	unsigned int phy_con3;
+	unsigned int phy_con4;
+	unsigned int phy_con5;
+	unsigned int phy_con6;
+	unsigned char res2[0x4];
+	unsigned int phy_con8;
+	unsigned char res5[0x4];
+	unsigned int phy_con10;
+	unsigned int phy_con11;
+	unsigned int phy_con12;
+	unsigned int phy_con13;
+	unsigned int phy_con14;
+	unsigned int phy_con15;
+	unsigned int phy_con16;
+	unsigned char res4[0x4];
+	unsigned int phy_con17;
+	unsigned int phy_con18;
+	unsigned int phy_con19;
+	unsigned int phy_con20;
+	unsigned int phy_con21;
+	unsigned int phy_con22;
+	unsigned int phy_con23;
+	unsigned int phy_con24;
+	unsigned int phy_con25;
+	unsigned int phy_con26;
+	unsigned int phy_con27;
+	unsigned int phy_con28;
+	unsigned int phy_con29;
+	unsigned int phy_con30;
+	unsigned int phy_con31;
+	unsigned int phy_con32;
+	unsigned int phy_con33;
+	unsigned int phy_con34;
+	unsigned char res6[0x8];
+	unsigned int phy_con37;
+	unsigned char res7[0x4];
+	unsigned int phy_con39;
+	unsigned int phy_con40;
+	unsigned int phy_con41;
+	unsigned int phy_con42;
+};
+
+struct exynos5420_tzasc {
+	unsigned char res1[0xf00];
+	unsigned int membaseconfig0;
+	unsigned int membaseconfig1;
+	unsigned char res2[0x8];
+	unsigned int memconfig0;
+	unsigned int memconfig1;
+};
+
 enum ddr_mode {
 	DDR_MODE_DDR2,
 	DDR_MODE_DDR3,
@@ -286,6 +462,7 @@ enum mem_manuf {
 #define PHY_CON0_T_WRRDCMD_SHIFT	17
 #define PHY_CON0_T_WRRDCMD_MASK		(0x7 << PHY_CON0_T_WRRDCMD_SHIFT)
 #define PHY_CON0_CTRL_DDR_MODE_SHIFT	11
+#define PHY_CON0_CTRL_DDR_MODE_MASK	0x3
 
 /* PHY_CON1 register fields */
 #define PHY_CON1_RDLVL_RDDATA_ADJ_SHIFT	0

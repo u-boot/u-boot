@@ -18,13 +18,13 @@ SECTIONS
 
     arch/powerpc/cpu/mpc8xx/start.o	(.text*)
     arch/powerpc/cpu/mpc8xx/traps.o	(.text*)
-    arch/powerpc/cpu/mpc8xx/libmpc8xx.o (.text*)
-    arch/powerpc/lib/libpowerpc.o	(.text*)
-    board/tqc/tqm8xx/libtqm8xx.o	(.text*)
-    disk/libdisk.o			(.text*)
-    drivers/net/libnet.o		(.text*)
-    drivers/pcmcia/libpcmcia.o		(.text.pcmcia_on)
-    drivers/pcmcia/libpcmcia.o		(.text.pcmcia_hardware_enable)
+    arch/powerpc/cpu/mpc8xx/built-in.o	(.text*)
+    arch/powerpc/lib/built-in.o		(.text*)
+    board/tqc/tqm8xx/built-in.o		(.text*)
+    disk/built-in.o			(.text*)
+    drivers/net/built-in.o		(.text*)
+    drivers/built-in.o			(.text.pcmcia_on)
+    drivers/built-in.o			(.text.pcmcia_hardware_enable)
 
     . = DEFINED(env_offset) ? env_offset : .;
     common/env_embedded.o	(.ppcenv*)

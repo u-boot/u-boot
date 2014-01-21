@@ -118,14 +118,14 @@
 #define CONFIG_USB_EHCI_OMAP
 #define CONFIG_OMAP_EHCI_PHY1_RESET_GPIO	147
 
-#define CONFIG_USB_ULPI
-#define CONFIG_USB_ULPI_VIEWPORT_OMAP
-
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 3
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_SMSC95XX
 #define CONFIG_USB_ETHER_ASIX
 
+/* GPIO banks */
+#define CONFIG_OMAP3_GPIO_5		/* GPIO128..159 is in GPIO bank 5 */
+#define CONFIG_OMAP3_GPIO_6		/* GPIO160..191 is in GPIO bank 6 */
 
 /* commands to include */
 #include <config_cmd_default.h>
@@ -161,11 +161,10 @@
 #undef CONFIG_CMD_IMLS		/* List all found images	*/
 
 #define CONFIG_SYS_NO_FLASH
-#define CONFIG_HARD_I2C			1
-#define CONFIG_SYS_I2C_SPEED		100000
-#define CONFIG_SYS_I2C_SLAVE		1
-#define CONFIG_I2C_MULTI_BUS		1
-#define CONFIG_DRIVER_OMAP34XX_I2C	1
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_OMAP24_I2C_SPEED	100000
+#define CONFIG_SYS_OMAP24_I2C_SLAVE	1
+#define CONFIG_SYS_I2C_OMAP34XX
 #define CONFIG_VIDEO_OMAP3	/* DSS Support			*/
 
 /*
@@ -241,6 +240,8 @@
 		"if test $beaglerev = AxBx; then " \
 			"setenv fdtfile omap3-beagle.dtb; fi; " \
 		"if test $beaglerev = Cx; then " \
+			"setenv fdtfile omap3-beagle.dtb; fi; " \
+		"if test $beaglerev = C4; then " \
 			"setenv fdtfile omap3-beagle.dtb; fi; " \
 		"if test $beaglerev = xMAB; then " \
 			"setenv fdtfile omap3-beagle-xm.dtb; fi; " \
@@ -341,7 +342,6 @@
  */
 #define CONFIG_SYS_TIMERBASE		(OMAP34XX_GPT2)
 #define CONFIG_SYS_PTV			2       /* Divisor: 2^(PTV+1) => 8 */
-#define CONFIG_SYS_HZ			1000
 
 /*-----------------------------------------------------------------------
  * Physical Memory Map
@@ -433,6 +433,7 @@
 						10, 11, 12, 13}
 #define CONFIG_SYS_NAND_ECCSIZE		512
 #define CONFIG_SYS_NAND_ECCBYTES	3
+#define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_HAM1_CODE_HW
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
 

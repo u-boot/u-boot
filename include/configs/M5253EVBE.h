@@ -76,7 +76,6 @@
 #define CONFIG_SYS_ATA_ALT_OFFSET	0xC0	/* Offset for alternate registers */
 #define CONFIG_SYS_ATA_STRIDE		4	/* Interval between registers */
 
-#define CONFIG_SYS_PROMPT		"=> "
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 
 #if defined(CONFIG_CMD_KGDB)
@@ -92,8 +91,6 @@
 
 #define CONFIG_SYS_MEMTEST_START	0x400
 #define CONFIG_SYS_MEMTEST_END		0x380000
-
-#define CONFIG_SYS_HZ			1000
 
 #undef CONFIG_SYS_PLL_BYPASS		/* bypass PLL for test purpose */
 #define CONFIG_SYS_FAST_CLK

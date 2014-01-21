@@ -101,7 +101,6 @@
  * If the default period is acceptable, TMRCNT can be left undefined.
  * TMRMS represents the desired mecs per tick (msecs per interrupt).
  *----------------------------------------------------------------------*/
-#define CONFIG_SYS_HZ			1000	/* Always 1000 */
 #define CONFIG_SYS_LOW_RES_TIMER
 #define CONFIG_SYS_NIOS_TMRBASE	0x00920860	/* Tick timer base addr	*/
 #define CONFIG_SYS_NIOS_TMRIRQ		3	/* Timer IRQ num */
@@ -140,7 +139,6 @@
  * MISC
  *----------------------------------------------------------------------*/
 #define	CONFIG_SYS_LONGHELP				/* Provide extended help*/
-#define	CONFIG_SYS_PROMPT		"==> "		/* Command prompt	*/
 #define	CONFIG_SYS_CBSIZE		256		/* Console I/O buf size	*/
 #define	CONFIG_SYS_MAXARGS		16		/* Max command args	*/
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot arg buf size	*/

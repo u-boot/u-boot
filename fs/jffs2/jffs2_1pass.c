@@ -114,6 +114,7 @@
 #include <common.h>
 #include <config.h>
 #include <malloc.h>
+#include <div64.h>
 #include <linux/stat.h>
 #include <linux/time.h>
 #include <watchdog.h>
@@ -1438,7 +1439,7 @@ jffs2_1pass_build_lists(struct part_info * part)
 {
 	struct b_lists *pL;
 	struct jffs2_unknown_node *node;
-	u32 nr_sectors = part->size/part->sector_size;
+	u32 nr_sectors;
 	u32 i;
 	u32 counter4 = 0;
 	u32 counterF = 0;
@@ -1447,6 +1448,7 @@ jffs2_1pass_build_lists(struct part_info * part)
 	u32 buf_size = DEFAULT_EMPTY_SCAN_SIZE;
 	char *buf;
 
+	nr_sectors = lldiv(part->size, part->sector_size);
 	/* turn off the lcd.  Refreshing the lcd adds 50% overhead to the */
 	/* jffs2 list building enterprise nope.  in newer versions the overhead is */
 	/* only about 5 %.  not enough to inconvenience people for. */

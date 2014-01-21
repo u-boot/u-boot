@@ -16,6 +16,8 @@
 
 #endif
 
+#define CONFIG_SYS_TIMER_RATE		1000000
+
 #define CONFIG_BOOTSTAGE
 #define CONFIG_BOOTSTAGE_REPORT
 
@@ -37,6 +39,9 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_EXT4
 #define CONFIG_CMD_EXT4_WRITE
+#define CONFIG_CMD_PART
+#define CONFIG_DOS_PARTITION
+#define CONFIG_HOST_MAX_DEVICES 4
 
 #define CONFIG_SYS_VSNPRINTF
 
@@ -44,12 +49,15 @@
 #define CONFIG_SANDBOX_GPIO
 #define CONFIG_SANDBOX_GPIO_COUNT	20
 
+#define CONFIG_CMD_GPT
+#define CONFIG_PARTITION_UUIDS
+#define CONFIG_EFI_PARTITION
+
 /*
  * Size of malloc() pool, although we don't actually use this yet.
  */
 #define CONFIG_SYS_MALLOC_LEN		(4 << 20)	/* 4MB  */
 
-#define CONFIG_SYS_PROMPT		"=>"	/* Command Prompt */
 #define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_LONGHELP			/* #undef to save memory */
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
@@ -66,13 +74,20 @@
 #define CONFIG_ENV_SIZE		8192
 #define CONFIG_ENV_IS_NOWHERE
 
-#define CONFIG_SYS_HZ			1000
+/* SPI */
+#define CONFIG_SANDBOX_SPI
+#define CONFIG_CMD_SF
+#define CONFIG_CMD_SF_TEST
+#define CONFIG_CMD_SPI
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_SANDBOX
+#define CONFIG_SPI_FLASH_STMICRO
+#define CONFIG_SPI_FLASH_WINBOND
 
 /* Memory things - we don't really want a memory test */
 #define CONFIG_SYS_LOAD_ADDR		0x00000000
 #define CONFIG_SYS_MEMTEST_START	0x00100000
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 0x1000)
-#define CONFIG_PHYS_64BIT
 #define CONFIG_SYS_FDT_LOAD_ADDR	0x1000000
 
 /* Size of our emulated memory */
@@ -113,5 +128,7 @@
 #define CONFIG_BZIP2
 #define CONFIG_LZO
 #define CONFIG_LZMA
+
+#define CONFIG_TPM_TIS_SANDBOX
 
 #endif

@@ -15,7 +15,9 @@
 #include <phy.h>
 #include <hwconfig.h>
 
-#define FSL_MAX_NUM_USB_CTRLS	2
+#ifndef CONFIG_USB_MAX_CONTROLLER_COUNT
+#define CONFIG_USB_MAX_CONTROLLER_COUNT	1
+#endif
 
 #if defined(CONFIG_MP) && (defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx))
 static int ft_del_cpuhandle(void *blob, int cpuhandle)
@@ -128,7 +130,7 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 	char str[5];
 	int i, j;
 
-	for (i = 1; i <= FSL_MAX_NUM_USB_CTRLS; i++) {
+	for (i = 1; i <= CONFIG_USB_MAX_CONTROLLER_COUNT; i++) {
 		int mode_idx = -1, phy_idx = -1;
 		snprintf(str, 5, "%s%d", "usb", i);
 		if (hwconfig(str)) {

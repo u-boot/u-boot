@@ -28,12 +28,12 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static unsigned long long tick_to_time(unsigned long long tick)
 {
-	return tick * CONFIG_SYS_HZ / TIMER_FREQ_HZ;
+	return lldiv(tick * CONFIG_SYS_HZ, TIMER_FREQ_HZ);
 }
 
 static unsigned long long us_to_tick(unsigned long long us)
 {
-	return (us * TIMER_FREQ_HZ) / 1000000;
+	return lldiv(us * TIMER_FREQ_HZ, 1000000);
 }
 
 int timer_init(void)

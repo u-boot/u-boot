@@ -325,8 +325,8 @@ int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
 		printf("CRC32 for %08lx ... %08lx ==> %08lx\n",
 				addr, addr + len - 1, crc);
 
-		if (argc > 3) {
-			ptr = (ulong *)simple_strtoul(argv[3], NULL, 16);
+		if (argc >= 3) {
+			ptr = (ulong *)simple_strtoul(argv[0], NULL, 16);
 			*ptr = crc;
 		}
 	}

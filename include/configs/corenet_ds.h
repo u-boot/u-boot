@@ -173,7 +173,7 @@
 #define CONFIG_CHIP_SELECTS_PER_CTRL	(4 * CONFIG_DIMM_SLOTS_PER_CTLR)
 
 #define CONFIG_DDR_SPD
-#define CONFIG_FSL_DDR3
+#define CONFIG_SYS_FSL_DDR3
 
 #define CONFIG_SYS_SPD_BUS_NUM	1
 #define SPD_EEPROM_ADDRESS1	0x51
@@ -653,7 +653,6 @@
 #define CONFIG_CMDLINE_EDITING			/* Command-line editing */
 #define CONFIG_AUTO_COMPLETE			/* add autocompletion support */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-#define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt */
 #ifdef CONFIG_CMD_KGDB
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
 #else
@@ -662,7 +661,6 @@
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS	16		/* max number of command args */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
-#define CONFIG_SYS_HZ		1000		/* decrementer freq: 1ms ticks */
 
 /*
  * For booting Linux, the board info and command line data
@@ -674,7 +672,6 @@
 
 #ifdef CONFIG_CMD_KGDB
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
-#define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
 
 /*
@@ -700,8 +697,8 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"hwconfig=fsl_ddr:ctlr_intlv=cacheline,"		\
 	"bank_intlv=cs0_cs1;"					\
-	"usb2:dr_mode=peripheral,phy_type=" __stringify(__USB_PHY_TYPE) ";"\
-	"usb1:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) "\0"\
+	"usb1:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) ";"\
+	"usb2:dr_mode=peripheral,phy_type=" __stringify(__USB_PHY_TYPE) "\0"\
 	"netdev=eth0\0"						\
 	"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"		\
 	"ubootaddr=" __stringify(CONFIG_SYS_TEXT_BASE) "\0"	\
@@ -745,8 +742,6 @@
 
 #define CONFIG_BOOTCOMMAND		CONFIG_HDBOOT
 
-#ifdef CONFIG_SECURE_BOOT
 #include <asm/fsl_secure_boot.h>
-#endif
 
 #endif	/* __CONFIG_H */

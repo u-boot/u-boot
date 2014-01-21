@@ -9,11 +9,11 @@
 #include <common.h>
 #include <i2c.h>
 #include <hwconfig.h>
+#include <fsl_ddr.h>
 #include <asm/mmu.h>
-#include <asm/fsl_ddr_sdram.h>
-#include <asm/fsl_ddr_dimm_params.h>
+#include <fsl_ddr_sdram.h>
+#include <fsl_ddr_dimm_params.h>
 #include <asm/fsl_law.h>
-#include <../arch/powerpc/cpu/mpc8xxx/ddr/ddr.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -31,20 +31,20 @@ dimm_params_t ddr_raw_timing = {
 	.edc_config = 2,	/* ECC */
 	.burst_lengths_bitmask = 0x0c,
 
-	.tCKmin_X_ps = 1071,
-	.caslat_X = 0x2fe << 4,	/* 5,6,7,8,9,10,11,13 */
-	.tAA_ps = 13910,
-	.tWR_ps = 15000,
-	.tRCD_ps = 13910,
-	.tRRD_ps = 6000,
-	.tRP_ps = 13910,
-	.tRAS_ps = 34000,
-	.tRC_ps = 48910,
-	.tRFC_ps = 260000,
-	.tWTR_ps = 7500,
-	.tRTP_ps = 7500,
+	.tckmin_x_ps = 1071,
+	.caslat_x = 0x2fe << 4,	/* 5,6,7,8,9,10,11,13 */
+	.taa_ps = 13910,
+	.twr_ps = 15000,
+	.trcd_ps = 13910,
+	.trrd_ps = 6000,
+	.trp_ps = 13910,
+	.tras_ps = 34000,
+	.trc_ps = 48910,
+	.trfc_ps = 260000,
+	.twtr_ps = 7500,
+	.trtp_ps = 7500,
 	.refresh_rate_ps = 7800000,
-	.tFAW_ps = 35000,
+	.tfaw_ps = 35000,
 };
 
 int fsl_ddr_get_dimm_params(dimm_params_t *pdimm,
@@ -71,7 +71,7 @@ struct board_specific_parameters {
 	u32 wrlvl_ctl_3;
 	u32 cpo;
 	u32 write_data_delay;
-	u32 force_2T;
+	u32 force_2t;
 };
 
 /*
@@ -129,7 +129,7 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 				popts->wrlvl_start = pbsp->wrlvl_start;
 				popts->wrlvl_ctl_2 = pbsp->wrlvl_ctl_2;
 				popts->wrlvl_ctl_3 = pbsp->wrlvl_ctl_3;
-				popts->twoT_en = pbsp->force_2T;
+				popts->twot_en = pbsp->force_2t;
 				goto found;
 			}
 			pbsp_highest = pbsp;
@@ -146,7 +146,7 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 		popts->write_data_delay = pbsp_highest->write_data_delay;
 		popts->clk_adjust = pbsp_highest->clk_adjust;
 		popts->wrlvl_start = pbsp_highest->wrlvl_start;
-		popts->twoT_en = pbsp_highest->force_2T;
+		popts->twot_en = pbsp_highest->force_2t;
 	} else {
 		panic("DIMM is not supported by this board");
 	}

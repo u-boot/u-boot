@@ -201,6 +201,9 @@ static int ehci_shutdown(struct ehci_ctrl *ctrl)
 	int i, ret = 0;
 	uint32_t cmd, reg;
 
+	if (!ctrl || !ctrl->hcor)
+		return -EINVAL;
+
 	cmd = ehci_readl(&ctrl->hcor->or_usbcmd);
 	cmd &= ~(CMD_PSE | CMD_ASE);
 	ehci_writel(&ctrl->hcor->or_usbcmd, cmd);
@@ -919,28 +922,33 @@ int usb_lowlevel_stop(int index)
 	return ehci_hcd_stop(index);
 }
 
-int usb_lowlevel_init(int index, void **controller)
+int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 {
 	uint32_t reg;
 	uint32_t cmd;
 	struct QH *qh_list;
 	struct QH *periodic;
 	int i;
+	int rc;
 
-	if (ehci_hcd_init(index, &ehcic[index].hccr, &ehcic[index].hcor))
-		return -1;
+	rc = ehci_hcd_init(index, init, &ehcic[index].hccr, &ehcic[index].hcor);
+	if (rc)
+		return rc;
+	if (init == USB_INIT_DEVICE)
+		goto done;
 
 	/* EHCI spec section 4.1 */
 	if (ehci_reset(index))
 		return -1;
 
 #if defined(CONFIG_EHCI_HCD_INIT_AFTER_RESET)
-	if (ehci_hcd_init(index, &ehcic[index].hccr, &ehcic[index].hcor))
-		return -1;
+	rc = ehci_hcd_init(index, init, &ehcic[index].hccr, &ehcic[index].hcor);
+	if (rc)
+		return rc;
 #endif
 	/* Set the high address word (aka segment) for 64-bit controller */
 	if (ehci_readl(&ehcic[index].hccr->cr_hccparams) & 1)
-		ehci_writel(ehcic[index].hcor->or_ctrldssegment, 0);
+		ehci_writel(&ehcic[index].hcor->or_ctrldssegment, 0);
 
 	qh_list = &ehcic[index].qh_list;
 
@@ -1037,7 +1045,7 @@ int usb_lowlevel_init(int index, void **controller)
 	printf("USB EHCI %x.%02x\n", reg >> 8, reg & 0xff);
 
 	ehcic[index].rootdev = 0;
-
+done:
 	*controller = &ehcic[index];
 	return 0;
 }

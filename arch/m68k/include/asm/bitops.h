@@ -5,7 +5,6 @@
 #ifndef _M68K_BITOPS_H
 #define _M68K_BITOPS_H
 
-#include <linux/config.h>
 #include <asm/byteorder.h>
 
 extern void set_bit(int nr, volatile void *addr);

@@ -157,10 +157,10 @@
 #undef CONFIG_CMD_SETGETDCR		/* DCR support on 4xx */
 
 #define CONFIG_OMAP3_SPI
-#define CONFIG_HARD_I2C
-#define CONFIG_SYS_I2C_SPEED		100000
-#define CONFIG_SYS_I2C_SLAVE		1
-#define CONFIG_DRIVER_OMAP34XX_I2C
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_OMAP24_I2C_SPEED	100000
+#define CONFIG_SYS_OMAP24_I2C_SLAVE	1
+#define CONFIG_SYS_I2C_OMAP34XX
 
 /*
  * TWL4030
@@ -426,7 +426,6 @@ int rx51_kp_getc(void);
  */
 #define CONFIG_SYS_TIMERBASE		(OMAP34XX_GPT2)
 #define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
-#define CONFIG_SYS_HZ			1000
 
 /*
  * Stack sizes

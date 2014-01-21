@@ -34,6 +34,19 @@ unsigned int exynos_dwmci_get_clk(int dev_index)
 	return get_mmc_clk(dev_index);
 }
 
+static void exynos_dwmci_board_init(struct dwmci_host *host)
+{
+	if (host->quirks & DWMCI_QUIRK_DISABLE_SMU) {
+		dwmci_writel(host, EMMCP_MPSBEGIN0, 0);
+		dwmci_writel(host, EMMCP_SEND0, 0);
+		dwmci_writel(host, EMMCP_CTRL0,
+			     MPSCTRL_SECURE_READ_BIT |
+			     MPSCTRL_SECURE_WRITE_BIT |
+			     MPSCTRL_NON_SECURE_READ_BIT |
+			     MPSCTRL_NON_SECURE_WRITE_BIT | MPSCTRL_VALID);
+	}
+}
+
 /*
  * This function adds the mmc channel to be registered with mmc core.
  * index -	mmc channel number.
@@ -62,6 +75,10 @@ int exynos_dwmci_add_port(int index, u32 regbase, int bus_width, u32 clksel)
 	host->name = "EXYNOS DWMMC";
 	host->ioaddr = (void *)regbase;
 	host->buswidth = bus_width;
+#ifdef CONFIG_EXYNOS5420
+	host->quirks = DWMCI_QUIRK_DISABLE_SMU;
+#endif
+	host->board_init = exynos_dwmci_board_init;
 
 	if (clksel) {
 		host->clksel_val = clksel;
@@ -74,7 +91,7 @@ int exynos_dwmci_add_port(int index, u32 regbase, int bus_width, u32 clksel)
 
 	host->clksel = exynos_dwmci_clksel;
 	host->dev_index = index;
-	host->mmc_clk = exynos_dwmci_get_clk;
+	host->get_mmc_clk = exynos_dwmci_get_clk;
 	/* Add the mmc channel to be registered with mmc core */
 	if (add_dwmci(host, DWMMC_MAX_FREQ, DWMMC_MIN_FREQ)) {
 		debug("dwmmc%d registration failed\n", index);

@@ -13,67 +13,78 @@
 
 #include "fti2c010.h"
 
-#ifndef CONFIG_HARD_I2C
-#error "fti2c010: CONFIG_HARD_I2C is not defined"
-#endif
-
 #ifndef CONFIG_SYS_I2C_SPEED
-#define CONFIG_SYS_I2C_SPEED    50000
+#define CONFIG_SYS_I2C_SPEED    5000
 #endif
 
-#ifndef CONFIG_FTI2C010_FREQ
-#define CONFIG_FTI2C010_FREQ    clk_get_rate("I2C")
+#ifndef CONFIG_SYS_I2C_SLAVE
+#define CONFIG_SYS_I2C_SLAVE    0
 #endif
 
-/* command timeout */
-#define CFG_CMD_TIMEOUT         10 /* ms */
+#ifndef CONFIG_FTI2C010_CLOCK
+#define CONFIG_FTI2C010_CLOCK   clk_get_rate("I2C")
+#endif
 
-/* 7-bit chip address + 1-bit read/write */
-#define I2C_RD(chip)            ((((chip) << 1) & 0xff) | 1)
-#define I2C_WR(chip)            (((chip) << 1) & 0xff)
+#ifndef CONFIG_FTI2C010_TIMEOUT
+#define CONFIG_FTI2C010_TIMEOUT 10 /* ms */
+#endif
+
+/* 7-bit dev address + 1-bit read/write */
+#define I2C_RD(dev)             ((((dev) << 1) & 0xfe) | 1)
+#define I2C_WR(dev)             (((dev) << 1) & 0xfe)
 
 struct fti2c010_chip {
-	void __iomem *regs;
-	uint bus;
-	uint speed;
+	struct fti2c010_regs *regs;
 };
 
 static struct fti2c010_chip chip_list[] = {
 	{
-		.bus  = 0,
-		.regs = (void __iomem *)CONFIG_FTI2C010_BASE,
+		.regs = (struct fti2c010_regs *)CONFIG_FTI2C010_BASE,
 	},
-#ifdef CONFIG_I2C_MULTI_BUS
-# ifdef CONFIG_FTI2C010_BASE1
+#ifdef CONFIG_FTI2C010_BASE1
 	{
-		.bus  = 1,
-		.regs = (void __iomem *)CONFIG_FTI2C010_BASE1,
+		.regs = (struct fti2c010_regs *)CONFIG_FTI2C010_BASE1,
 	},
-# endif
-# ifdef CONFIG_FTI2C010_BASE2
+#endif
+#ifdef CONFIG_FTI2C010_BASE2
 	{
-		.bus  = 2,
-		.regs = (void __iomem *)CONFIG_FTI2C010_BASE2,
+		.regs = (struct fti2c010_regs *)CONFIG_FTI2C010_BASE2,
 	},
-# endif
-# ifdef CONFIG_FTI2C010_BASE3
+#endif
+#ifdef CONFIG_FTI2C010_BASE3
 	{
-		.bus  = 3,
-		.regs = (void __iomem *)CONFIG_FTI2C010_BASE3,
+		.regs = (struct fti2c010_regs *)CONFIG_FTI2C010_BASE3,
 	},
-# endif
-#endif  /* #ifdef CONFIG_I2C_MULTI_BUS */
+#endif
 };
 
-static struct fti2c010_chip *curr = chip_list;
+static int fti2c010_reset(struct fti2c010_chip *chip)
+{
+	ulong ts;
+	int ret = -1;
+	struct fti2c010_regs *regs = chip->regs;
 
-static int fti2c010_wait(uint32_t mask)
+	writel(CR_I2CRST, &regs->cr);
+	for (ts = get_timer(0); get_timer(ts) < CONFIG_FTI2C010_TIMEOUT; ) {
+		if (!(readl(&regs->cr) & CR_I2CRST)) {
+			ret = 0;
+			break;
+		}
+	}
+
+	if (ret)
+		printf("fti2c010: reset timeout\n");
+
+	return ret;
+}
+
+static int fti2c010_wait(struct fti2c010_chip *chip, uint32_t mask)
 {
 	int ret = -1;
 	uint32_t stat, ts;
-	struct fti2c010_regs *regs = curr->regs;
+	struct fti2c010_regs *regs = chip->regs;
 
-	for (ts = get_timer(0); get_timer(ts) < CFG_CMD_TIMEOUT; ) {
+	for (ts = get_timer(0); get_timer(ts) < CONFIG_FTI2C010_TIMEOUT; ) {
 		stat = readl(&regs->sr);
 		if ((stat & mask) == mask) {
 			ret = 0;
@@ -84,88 +95,124 @@ static int fti2c010_wait(uint32_t mask)
 	return ret;
 }
 
-/*
- * u-boot I2C API
- */
+static unsigned int set_i2c_bus_speed(struct fti2c010_chip *chip,
+	unsigned int speed)
+{
+	struct fti2c010_regs *regs = chip->regs;
+	unsigned int clk = CONFIG_FTI2C010_CLOCK;
+	unsigned int gsr = 0;
+	unsigned int tsr = 32;
+	unsigned int div, rate;
+
+	for (div = 0; div < 0x3ffff; ++div) {
+		/* SCLout = PCLK/(2*(COUNT + 2) + GSR) */
+		rate = clk / (2 * (div + 2) + gsr);
+		if (rate <= speed)
+			break;
+	}
+
+	writel(TGSR_GSR(gsr) | TGSR_TSR(tsr), &regs->tgsr);
+	writel(CDR_DIV(div), &regs->cdr);
+
+	return rate;
+}
 
 /*
  * Initialization, must be called once on start up, may be called
  * repeatedly to change the speed and slave addresses.
  */
-void i2c_init(int speed, int slaveaddr)
+static void fti2c010_init(struct i2c_adapter *adap, int speed, int slaveaddr)
 {
-	if (speed || !curr->speed)
-		i2c_set_bus_speed(speed);
+	struct fti2c010_chip *chip = chip_list + adap->hwadapnr;
 
-	/* if slave mode disabled */
-	if (!slaveaddr)
+	if (adap->init_done)
 		return;
 
-	/*
-	 * TODO:
-	 * Implement slave mode, but is it really necessary?
-	 */
+#ifdef CONFIG_SYS_I2C_INIT_BOARD
+	/* Call board specific i2c bus reset routine before accessing the
+	 * environment, which might be in a chip on that bus. For details
+	 * about this problem see doc/I2C_Edge_Conditions.
+	*/
+	i2c_init_board();
+#endif
+
+	/* master init */
+
+	fti2c010_reset(chip);
+
+	set_i2c_bus_speed(chip, speed);
+
+	/* slave init, don't care */
+
+#ifdef CONFIG_SYS_I2C_BOARD_LATE_INIT
+	/* Call board specific i2c bus reset routine AFTER the bus has been
+	 * initialized. Use either this callpoint or i2c_init_board;
+	 * which is called before fti2c010_init operations.
+	 * For details about this problem see doc/I2C_Edge_Conditions.
+	*/
+	i2c_board_late_init();
+#endif
 }
 
 /*
  * Probe the given I2C chip address.  Returns 0 if a chip responded,
  * not 0 on failure.
  */
-int i2c_probe(uchar chip)
+static int fti2c010_probe(struct i2c_adapter *adap, u8 dev)
 {
+	struct fti2c010_chip *chip = chip_list + adap->hwadapnr;
+	struct fti2c010_regs *regs = chip->regs;
 	int ret;
-	struct fti2c010_regs *regs = curr->regs;
-
-	i2c_init(0, 0);
 
 	/* 1. Select slave device (7bits Address + 1bit R/W) */
-	writel(I2C_WR(chip), &regs->dr);
+	writel(I2C_WR(dev), &regs->dr);
 	writel(CR_ENABLE | CR_TBEN | CR_START, &regs->cr);
-	ret = fti2c010_wait(SR_DT);
+	ret = fti2c010_wait(chip, SR_DT);
 	if (ret)
 		return ret;
 
 	/* 2. Select device register */
 	writel(0, &regs->dr);
 	writel(CR_ENABLE | CR_TBEN, &regs->cr);
-	ret = fti2c010_wait(SR_DT);
+	ret = fti2c010_wait(chip, SR_DT);
 
 	return ret;
 }
 
-/*
- * Read/Write interface:
- *   chip:    I2C chip address, range 0..127
- *   addr:    Memory (register) address within the chip
- *   alen:    Number of bytes to use for addr (typically 1, 2 for larger
- *              memories, 0 for register type devices with only one
- *              register)
- *   buffer:  Where to read/write the data
- *   len:     How many bytes to read/write
- *
- *   Returns: 0 on success, not 0 on failure
- */
-int i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
+static void to_i2c_addr(u8 *buf, uint32_t addr, int alen)
 {
+	int i, shift;
+
+	if (!buf || alen <= 0)
+		return;
+
+	/* MSB first */
+	i = 0;
+	shift = (alen - 1) * 8;
+	while (alen-- > 0) {
+		buf[i] = (u8)(addr >> shift);
+		shift -= 8;
+	}
+}
+
+static int fti2c010_read(struct i2c_adapter *adap,
+			u8 dev, uint addr, int alen, uchar *buf, int len)
+{
+	struct fti2c010_chip *chip = chip_list + adap->hwadapnr;
+	struct fti2c010_regs *regs = chip->regs;
 	int ret, pos;
-	uchar paddr[4];
-	struct fti2c010_regs *regs = curr->regs;
+	uchar paddr[4] = { 0 };
 
-	i2c_init(0, 0);
-
-	paddr[0] = (addr >> 0)  & 0xFF;
-	paddr[1] = (addr >> 8)  & 0xFF;
-	paddr[2] = (addr >> 16) & 0xFF;
-	paddr[3] = (addr >> 24) & 0xFF;
+	to_i2c_addr(paddr, addr, alen);
 
 	/*
 	 * Phase A. Set register address
 	 */
 
 	/* A.1 Select slave device (7bits Address + 1bit R/W) */
-	writel(I2C_WR(chip), &regs->dr);
+	writel(I2C_WR(dev), &regs->dr);
 	writel(CR_ENABLE | CR_TBEN | CR_START, &regs->cr);
-	ret = fti2c010_wait(SR_DT);
+	ret = fti2c010_wait(chip, SR_DT);
 	if (ret)
 		return ret;
 
@@ -175,7 +222,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
 
 		writel(paddr[pos], &regs->dr);
 		writel(ctrl, &regs->cr);
-		ret = fti2c010_wait(SR_DT);
+		ret = fti2c010_wait(chip, SR_DT);
 		if (ret)
 			return ret;
 	}
@@ -185,9 +232,9 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
 	 */
 
 	/* B.1 Select slave device (7bits Address + 1bit R/W) */
-	writel(I2C_RD(chip), &regs->dr);
+	writel(I2C_RD(dev), &regs->dr);
 	writel(CR_ENABLE | CR_TBEN | CR_START, &regs->cr);
-	ret = fti2c010_wait(SR_DT);
+	ret = fti2c010_wait(chip, SR_DT);
 	if (ret)
 		return ret;
 
@@ -201,7 +248,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
 			stat |= SR_ACK;
 		}
 		writel(ctrl, &regs->cr);
-		ret = fti2c010_wait(stat);
+		ret = fti2c010_wait(chip, stat);
 		if (ret)
 			break;
 		buf[pos] = (uchar)(readl(&regs->dr) & 0xFF);
@@ -210,39 +257,24 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buf, int len)
 	return ret;
 }
 
-/*
- * Read/Write interface:
- *   chip:    I2C chip address, range 0..127
- *   addr:    Memory (register) address within the chip
- *   alen:    Number of bytes to use for addr (typically 1, 2 for larger
- *              memories, 0 for register type devices with only one
- *              register)
- *   buffer:  Where to read/write the data
- *   len:     How many bytes to read/write
- *
- *   Returns: 0 on success, not 0 on failure
- */
-int i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len)
+static int fti2c010_write(struct i2c_adapter *adap,
+			u8 dev, uint addr, int alen, u8 *buf, int len)
 {
+	struct fti2c010_chip *chip = chip_list + adap->hwadapnr;
+	struct fti2c010_regs *regs = chip->regs;
 	int ret, pos;
-	uchar paddr[4];
-	struct fti2c010_regs *regs = curr->regs;
+	uchar paddr[4] = { 0 };
 
-	i2c_init(0, 0);
-
-	paddr[0] = (addr >> 0)  & 0xFF;
-	paddr[1] = (addr >> 8)  & 0xFF;
-	paddr[2] = (addr >> 16) & 0xFF;
-	paddr[3] = (addr >> 24) & 0xFF;
+	to_i2c_addr(paddr, addr, alen);
 
 	/*
 	 * Phase A. Set register address
 	 *
 	 * A.1 Select slave device (7bits Address + 1bit R/W)
 	 */
-	writel(I2C_WR(chip), &regs->dr);
+	writel(I2C_WR(dev), &regs->dr);
 	writel(CR_ENABLE | CR_TBEN | CR_START, &regs->cr);
-	ret = fti2c010_wait(SR_DT);
+	ret = fti2c010_wait(chip, SR_DT);
 	if (ret)
 		return ret;
 
@@ -252,7 +284,7 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len)
 
 		writel(paddr[pos], &regs->dr);
 		writel(ctrl, &regs->cr);
-		ret = fti2c010_wait(SR_DT);
+		ret = fti2c010_wait(chip, SR_DT);
 		if (ret)
 			return ret;
 	}
@@ -267,7 +299,7 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len)
 			ctrl |= CR_STOP;
 		writel(buf[pos], &regs->dr);
 		writel(ctrl, &regs->cr);
-		ret = fti2c010_wait(SR_DT);
+		ret = fti2c010_wait(chip, SR_DT);
 		if (ret)
 			break;
 	}
@@ -275,94 +307,40 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len)
 	return ret;
 }
 
-/*
- * Functions for setting the current I2C bus and its speed
- */
-#ifdef CONFIG_I2C_MULTI_BUS
-
-/*
- * i2c_set_bus_num:
- *
- *  Change the active I2C bus.  Subsequent read/write calls will
- *  go to this one.
- *
- *    bus - bus index, zero based
- *
- *    Returns: 0 on success, not 0 on failure
- */
-int i2c_set_bus_num(uint bus)
+static unsigned int fti2c010_set_bus_speed(struct i2c_adapter *adap,
+			unsigned int speed)
 {
-	if (bus >= ARRAY_SIZE(chip_list))
-		return -1;
-	curr = chip_list + bus;
-	i2c_init(0, 0);
-	return 0;
+	struct fti2c010_chip *chip = chip_list + adap->hwadapnr;
+	int ret;
+
+	fti2c010_reset(chip);
+	ret = set_i2c_bus_speed(chip, speed);
+
+	return ret;
 }
 
 /*
- * i2c_get_bus_num:
- *
- *  Returns index of currently active I2C bus.  Zero-based.
+ * Register i2c adapters
  */
-
-uint i2c_get_bus_num(void)
-{
-	return curr->bus;
-}
-
-#endif    /* #ifdef CONFIG_I2C_MULTI_BUS */
-
-/*
- * i2c_set_bus_speed:
- *
- *  Change the speed of the active I2C bus
- *
- *    speed - bus speed in Hz
- *
- *    Returns: 0 on success, not 0 on failure
- */
-int i2c_set_bus_speed(uint speed)
-{
-	struct fti2c010_regs *regs = curr->regs;
-	uint clk = CONFIG_FTI2C010_FREQ;
-	uint gsr = 0, tsr = 32;
-	uint spd, div;
-
-	if (!speed)
-		speed = CONFIG_SYS_I2C_SPEED;
-
-	for (div = 0; div < 0x3ffff; ++div) {
-		/* SCLout = PCLK/(2*(COUNT + 2) + GSR) */
-		spd = clk / (2 * (div + 2) + gsr);
-		if (spd <= speed)
-			break;
-	}
-
-	if (curr->speed == spd)
-		return 0;
-
-	writel(CR_I2CRST, &regs->cr);
-	mdelay(100);
-	if (readl(&regs->cr) & CR_I2CRST) {
-		printf("fti2c010: reset timeout\n");
-		return -1;
-	}
-
-	curr->speed = spd;
-
-	writel(TGSR_GSR(gsr) | TGSR_TSR(tsr), &regs->tgsr);
-	writel(CDR_DIV(div), &regs->cdr);
-
-	return 0;
-}
-
-/*
- * i2c_get_bus_speed:
- *
- *  Returns speed of currently active I2C bus in Hz
- */
-
-uint i2c_get_bus_speed(void)
-{
-	return curr->speed;
-}
+U_BOOT_I2C_ADAP_COMPLETE(i2c_0, fti2c010_init, fti2c010_probe, fti2c010_read,
+			fti2c010_write, fti2c010_set_bus_speed,
+			CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE,
+			0)
+#ifdef CONFIG_FTI2C010_BASE1
+U_BOOT_I2C_ADAP_COMPLETE(i2c_1, fti2c010_init, fti2c010_probe, fti2c010_read,
+			fti2c010_write, fti2c010_set_bus_speed,
+			CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE,
+			1)
+#endif
+#ifdef CONFIG_FTI2C010_BASE2
+U_BOOT_I2C_ADAP_COMPLETE(i2c_2, fti2c010_init, fti2c010_probe, fti2c010_read,
+			fti2c010_write, fti2c010_set_bus_speed,
+			CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE,
+			2)
+#endif
+#ifdef CONFIG_FTI2C010_BASE3
+U_BOOT_I2C_ADAP_COMPLETE(i2c_3, fti2c010_init, fti2c010_probe, fti2c010_read,
+			fti2c010_write, fti2c010_set_bus_speed,
+			CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE,
+			3)
+#endif

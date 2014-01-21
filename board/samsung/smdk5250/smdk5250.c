@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <cros_ec.h>
 #include <fdtdec.h>
 #include <asm/io.h>
 #include <errno.h>
@@ -26,7 +27,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_USB_EHCI_EXYNOS
-int board_usb_vbus_init(void)
+static int board_usb_vbus_init(void)
 {
 	struct exynos5_gpio_part1 *gpio1 = (struct exynos5_gpio_part1 *)
 						samsung_get_base_gpio_part1();
@@ -53,13 +54,8 @@ static void  board_enable_audio_codec(void)
 }
 #endif
 
-int board_init(void)
+int exynos_init(void)
 {
-	gd->bd->bi_boot_params = (PHYS_SDRAM_1 + 0x100UL);
-
-#ifdef CONFIG_EXYNOS_SPI
-	spi_init();
-#endif
 #ifdef CONFIG_USB_EHCI_EXYNOS
 	board_usb_vbus_init();
 #endif
@@ -67,147 +63,6 @@ int board_init(void)
 	board_enable_audio_codec();
 #endif
 	return 0;
-}
-
-int dram_init(void)
-{
-	int i;
-	u32 addr;
-
-	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		addr = CONFIG_SYS_SDRAM_BASE + (i * SDRAM_BANK_SIZE);
-		gd->ram_size += get_ram_size((long *)addr, SDRAM_BANK_SIZE);
-	}
-	return 0;
-}
-
-#if defined(CONFIG_POWER)
-static int pmic_reg_update(struct pmic *p, int reg, uint regval)
-{
-	u32 val;
-	int ret = 0;
-
-	ret = pmic_reg_read(p, reg, &val);
-	if (ret) {
-		debug("%s: PMIC %d register read failed\n", __func__, reg);
-		return -1;
-	}
-	val |= regval;
-	ret = pmic_reg_write(p, reg, val);
-	if (ret) {
-		debug("%s: PMIC %d register write failed\n", __func__, reg);
-		return -1;
-	}
-	return 0;
-}
-
-int power_init_board(void)
-{
-	struct pmic *p;
-
-	set_ps_hold_ctrl();
-
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-
-	if (pmic_init(I2C_PMIC))
-		return -1;
-
-	p = pmic_get("MAX77686_PMIC");
-	if (!p)
-		return -ENODEV;
-
-	if (pmic_probe(p))
-		return -1;
-
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_32KHZ, MAX77686_32KHCP_EN))
-		return -1;
-
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_BBAT,
-				MAX77686_BBCHOSTEN | MAX77686_BBCVS_3_5V))
-		return -1;
-
-	/* VDD_MIF */
-	if (pmic_reg_write(p, MAX77686_REG_PMIC_BUCK1OUT,
-						MAX77686_BUCK1OUT_1_05V)) {
-		debug("%s: PMIC %d register write failed\n", __func__,
-						MAX77686_REG_PMIC_BUCK1OUT);
-		return -1;
-	}
-
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_BUCK1CRTL,
-						MAX77686_BUCK1CTRL_EN))
-		return -1;
-
-	/* VDD_ARM */
-	if (pmic_reg_write(p, MAX77686_REG_PMIC_BUCK2DVS1,
-					MAX77686_BUCK2DVS1_1_3V)) {
-		debug("%s: PMIC %d register write failed\n", __func__,
-						MAX77686_REG_PMIC_BUCK2DVS1);
-		return -1;
-	}
-
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_BUCK2CTRL1,
-					MAX77686_BUCK2CTRL_ON))
-		return -1;
-
-	/* VDD_INT */
-	if (pmic_reg_write(p, MAX77686_REG_PMIC_BUCK3DVS1,
-					MAX77686_BUCK3DVS1_1_0125V)) {
-		debug("%s: PMIC %d register write failed\n", __func__,
-						MAX77686_REG_PMIC_BUCK3DVS1);
-		return -1;
-	}
-
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_BUCK3CTRL,
-					MAX77686_BUCK3CTRL_ON))
-		return -1;
-
-	/* VDD_G3D */
-	if (pmic_reg_write(p, MAX77686_REG_PMIC_BUCK4DVS1,
-					MAX77686_BUCK4DVS1_1_2V)) {
-		debug("%s: PMIC %d register write failed\n", __func__,
-						MAX77686_REG_PMIC_BUCK4DVS1);
-		return -1;
-	}
-
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_BUCK4CTRL1,
-					MAX77686_BUCK3CTRL_ON))
-		return -1;
-
-	/* VDD_LDO2 */
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_LDO2CTRL1,
-				MAX77686_LD02CTRL1_1_5V | EN_LDO))
-		return -1;
-
-	/* VDD_LDO3 */
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_LDO3CTRL1,
-				MAX77686_LD03CTRL1_1_8V | EN_LDO))
-		return -1;
-
-	/* VDD_LDO5 */
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_LDO5CTRL1,
-				MAX77686_LD05CTRL1_1_8V | EN_LDO))
-		return -1;
-
-	/* VDD_LDO10 */
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_LDO10CTRL1,
-				MAX77686_LD10CTRL1_1_8V | EN_LDO))
-		return -1;
-
-	return 0;
-}
-#endif
-
-void dram_init_banksize(void)
-{
-	int i;
-	u32 addr, size;
-	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		addr = CONFIG_SYS_SDRAM_BASE + (i * SDRAM_BANK_SIZE);
-		size = get_ram_size((long *)addr, SDRAM_BANK_SIZE);
-		gd->bd->bi_dram[i].start = addr;
-		gd->bd->bi_dram[i].size = size;
-	}
 }
 
 int board_eth_init(bd_t *bis)
@@ -301,21 +156,6 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
-static int board_uart_init(void)
-{
-	int err, uart_id, ret = 0;
-
-	for (uart_id = PERIPH_ID_UART0; uart_id <= PERIPH_ID_UART3; uart_id++) {
-		err = exynos_pinmux_config(uart_id, PINMUX_FLAG_NONE);
-		if (err) {
-			debug("UART%d not configured\n",
-			      (uart_id - PERIPH_ID_UART0));
-			ret |= err;
-		}
-	}
-	return ret;
-}
-
 void board_i2c_init(const void *blob)
 {
 	int i;
@@ -325,22 +165,6 @@ void board_i2c_init(const void *blob)
 				     PINMUX_FLAG_NONE);
 	}
 }
-
-#ifdef CONFIG_BOARD_EARLY_INIT_F
-int board_early_init_f(void)
-{
-	int err;
-	err = board_uart_init();
-	if (err) {
-		debug("UART init failed\n");
-		return err;
-	}
-#ifdef CONFIG_SYS_I2C_INIT_BOARD
-	board_i2c_init(NULL);
-#endif
-	return err;
-}
-#endif
 
 #ifdef CONFIG_LCD
 void exynos_cfg_lcd_gpio(void)

@@ -338,7 +338,6 @@
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE  230400	     /* kgdb serial port baud	*/
-#define CONFIG_KGDB_SER_INDEX 2		     /* kgdb serial port	*/
 #endif
 
 /*-----------------------------------------------------------------------
@@ -347,8 +346,5 @@
 #undef CONFIG_WATCHDOG			     /* watchdog disabled	*/
 #define CONFIG_SYS_LOAD_ADDR	      0x8000000	     /* default load address	*/
 #define CONFIG_SYS_EXTBDINFO	      1		     /* use extended board_info */
-
-#define CONFIG_SYS_HZ		      100	     /* decr freq: 1 ms ticks	*/
-
 
 #endif	/* __CONFIG_H */

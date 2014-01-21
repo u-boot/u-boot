@@ -22,7 +22,8 @@
 /*
  * EHCI host controller init
  */
-int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+int ehci_hcd_init(int index, enum usb_init_type init,
+		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	if (utmi_init() < 0)
 		return -1;

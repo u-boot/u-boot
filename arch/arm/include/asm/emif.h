@@ -14,10 +14,14 @@
 #define _EMIF_H_
 #include <asm/types.h>
 #include <common.h>
+#include <asm/io.h>
 
 /* Base address */
 #define EMIF1_BASE				0x4c000000
 #define EMIF2_BASE				0x4d000000
+
+#define EMIF_4D					0x4
+#define EMIF_4D5				0x5
 
 /* Registers shifts, masks and values */
 
@@ -581,7 +585,6 @@
 	(0xFF << EMIF_SYS_ADDR_SHIFT))
 
 #define EMIF_EXT_PHY_CTRL_TIMING_REG	0x5
-#define EMIF_EXT_PHY_CTRL_CONST_REG	0x14
 
 /* Reg mapping structure */
 struct emif_reg_struct {
@@ -641,7 +644,9 @@ struct emif_reg_struct {
 	u32 emif_ddr_phy_ctrl_2;
 	u32 padding7[12];
 	u32 emif_rd_wr_exec_thresh;
-	u32 padding8[55];
+	u32 padding8[7];
+	u32 emif_ddr_phy_status[21];
+	u32 padding9[27];
 	u32 emif_ddr_ext_phy_ctrl_1;
 	u32 emif_ddr_ext_phy_ctrl_1_shdw;
 	u32 emif_ddr_ext_phy_ctrl_2;
@@ -690,6 +695,9 @@ struct emif_reg_struct {
 	u32 emif_ddr_ext_phy_ctrl_23_shdw;
 	u32 emif_ddr_ext_phy_ctrl_24;
 	u32 emif_ddr_ext_phy_ctrl_24_shdw;
+	u32 padding[22];
+	u32 emif_ddr_fifo_misaligned_clear_1;
+	u32 emif_ddr_fifo_misaligned_clear_2;
 };
 
 struct dmm_lisa_map_regs {
@@ -1139,6 +1147,33 @@ struct lpddr2_mr_regs {
 	s8 mr16;
 };
 
+struct read_write_regs {
+	u32 read_reg;
+	u32 write_reg;
+};
+
+static inline u32 get_emif_rev(u32 base)
+{
+	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
+
+	return (readl(&emif->emif_mod_id_rev) & EMIF_REG_MAJOR_REVISION_MASK)
+		>> EMIF_REG_MAJOR_REVISION_SHIFT;
+}
+
+/*
+ * Get SDRAM type connected to EMIF.
+ * Assuming similar SDRAM parts are connected to both EMIF's
+ * which is typically the case. So it is sufficient to get
+ * SDRAM type from EMIF1.
+ */
+static inline u32 emif_sdram_type(void)
+{
+	struct emif_reg_struct *emif = (struct emif_reg_struct *)EMIF1_BASE;
+
+	return (readl(&emif->emif_sdram_config) &
+		EMIF_REG_SDRAM_TYPE_MASK) >> EMIF_REG_SDRAM_TYPE_SHIFT;
+}
+
 /* assert macros */
 #if defined(DEBUG)
 #define emif_assert(c)	({ if (!(c)) for (;;); })
@@ -1167,4 +1202,5 @@ extern u32 *const T_den;
 
 void config_data_eye_leveling_samples(u32 emif_base);
 u32 emif_sdram_type(void);
+const struct read_write_regs *get_bug_regs(u32 *iterations);
 #endif

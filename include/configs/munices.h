@@ -166,7 +166,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	    */
-#define CONFIG_SYS_PROMPT		"=> "	/* Monitor Command Prompt   */
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size  */
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS		16		/* max number of command args	*/
@@ -176,7 +175,6 @@
 #define CONFIG_SYS_MEMTEST_END		0x00f00000	/* 1 ... 15 MB in DRAM	*/
 
 #define CONFIG_SYS_LOAD_ADDR		0x200000	/* default load address */
-#define CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks */
 
 #define CONFIG_DISPLAY_BOARDINFO 1
 #define CONFIG_CMDLINE_EDITING  1

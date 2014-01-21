@@ -1,4 +1,3 @@
-
 #ifndef _PPC_KERNEL_M8260_PCI_H
 #define _PPC_KERNEL_M8260_PCI_H
 

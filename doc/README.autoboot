@@ -74,6 +74,7 @@ What they do
 	"bootretry" is >= 0.
 
   CONFIG_AUTOBOOT_KEYED
+  CONFIG_AUTOBOOT_KEYED_CTRLC
   CONFIG_AUTOBOOT_PROMPT
   CONFIG_AUTOBOOT_DELAY_STR
   CONFIG_AUTOBOOT_STOP_STR
@@ -134,6 +135,13 @@ What they do
 	CONFIG_AUTOBOOT_STOP_STR2 #define or the "bootstopkey"
 	environment variable you can specify a second, alternate
 	string (which allows you to have two "password" strings).
+
+	The CONFIG_AUTOBOOT_KEYED_CTRLC #define allows for the boot
+	sequence to be interrupted by ctrl-c, in addition to the
+	"bootdelaykey" and "bootstopkey". Setting this variable
+	provides an escape sequence from the limited "password"
+	strings.
+
 
   CONFIG_ZERO_BOOTDELAY_CHECK
 

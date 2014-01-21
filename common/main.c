@@ -392,13 +392,13 @@ static void process_boot_delay(void)
 	debug ("### main_loop: bootcmd=\"%s\"\n", s ? s : "<UNDEFINED>");
 
 	if (bootdelay != -1 && s && !abortboot(bootdelay)) {
-#ifdef CONFIG_AUTOBOOT_KEYED
+#if defined(CONFIG_AUTOBOOT_KEYED) && !defined(CONFIG_AUTOBOOT_KEYED_CTRLC)
 		int prev = disable_ctrlc(1);	/* disable Control C checking */
 #endif
 
 		run_command_list(s, -1, 0);
 
-#ifdef CONFIG_AUTOBOOT_KEYED
+#if defined(CONFIG_AUTOBOOT_KEYED) && !defined(CONFIG_AUTOBOOT_KEYED_CTRLC)
 		disable_ctrlc(prev);	/* restore Control C checking */
 #endif
 	}

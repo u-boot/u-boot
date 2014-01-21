@@ -56,16 +56,14 @@
 
 /* Timer information. */
 #define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
-#define CONFIG_SYS_HZ			1000	/* 1ms clock */
 
 /* I2C IP block */
 #define CONFIG_I2C
-#define CONFIG_HARD_I2C
-#define CONFIG_SYS_I2C_SPEED		100000
-#define CONFIG_SYS_I2C_SLAVE		1
-#define CONFIG_I2C_MULTI_BUS
-#define CONFIG_DRIVER_OMAP24XX_I2C
 #define CONFIG_CMD_I2C
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_OMAP24_I2C_SPEED	100000
+#define CONFIG_SYS_OMAP24_I2C_SLAVE	1
+#define CONFIG_SYS_I2C_OMAP24XX
 
 /* MMC/SD IP block */
 #define CONFIG_MMC
@@ -202,7 +200,7 @@
 #define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME	"u-boot.img"
 
 #ifdef CONFIG_SPL_OS_BOOT
-#define CONFIG_SYS_SPL_ARGS_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x100)
+#define CONFIG_SYS_SPL_ARGS_ADDR		0x80F80000
 
 /* FAT */
 #define CONFIG_SPL_FAT_LOAD_KERNEL_NAME		"uImage"

@@ -19,6 +19,7 @@
 #include <asm/io.h>
 #include <asm/cache.h>
 #include <asm/mmu.h>
+#include <asm/fsl_errata.h>
 #include <asm/fsl_law.h>
 #include <asm/fsl_serdes.h>
 #include <asm/fsl_srio.h>
@@ -160,6 +161,12 @@ static void enable_cpc(void)
 #ifdef CONFIG_SYS_FSL_ERRATUM_A006593
 		setbits_be32(&cpc->cpchdbcr0, 1 << (31 - 21));
 #endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A006379
+		if (has_erratum_a006379()) {
+			setbits_be32(&cpc->cpchdbcr0,
+				     CPC_HDBCR0_SPLRU_LEVEL_EN);
+		}
+#endif
 
 		out_be32(&cpc->cpccsr0, CPC_CSR0_CE | CPC_CSR0_PE);
 		/* Read back to sync write */
@@ -284,7 +291,7 @@ static void __fsl_serdes__init(void)
 }
 __attribute__((weak, alias("__fsl_serdes__init"))) void fsl_serdes_init(void);
 
-#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+#if defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2) && defined(CONFIG_E6500)
 int enable_cluster_l2(void)
 {
 	int i = 0;
@@ -350,7 +357,7 @@ int cpu_init_r(void)
 #endif
 #ifdef CONFIG_L2_CACHE
 	ccsr_l2cache_t *l2cache = (void __iomem *)CONFIG_SYS_MPC85xx_L2_ADDR;
-#elif defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2)
+#elif defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2) && defined(CONFIG_E6500)
 	struct ccsr_cluster_l2 * l2cache = (void __iomem *)CONFIG_SYS_FSL_CLUSTER_1_L2;
 #endif
 #if defined(CONFIG_PPC_SPINTABLE_COMPATIBLE) && defined(CONFIG_MP)
@@ -533,7 +540,7 @@ int cpu_init_r(void)
 	}
 
 skip_l2:
-#elif defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2)
+#elif defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2) && defined(CONFIG_E6500)
 	if (l2cache->l2csr0 & L2CSR0_L2E)
 		print_size((l2cache->l2cfg0 & 0x3fff) * 64 * 1024,
 			   " enabled\n");

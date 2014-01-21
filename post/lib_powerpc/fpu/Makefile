@@ -4,22 +4,16 @@
 #
 # SPDX-License-Identifier:	GPL-2.0+
 #
-include $(TOPDIR)/config.mk
 
-LIB	= libpost$(ARCH)fpu.o
-
-COBJS-$(CONFIG_HAS_POST)	+= 20001122-1.o
-COBJS-$(CONFIG_HAS_POST)	+= 20010114-2.o
-COBJS-$(CONFIG_HAS_POST)	+= 20010226-1.o
-COBJS-$(CONFIG_HAS_POST)	+= 980619-1.o
-COBJS-$(CONFIG_HAS_POST)	+= acc1.o
-COBJS-$(CONFIG_HAS_POST)	+= compare-fp-1.o
-COBJS-$(CONFIG_HAS_POST)	+= fpu.o
-COBJS-$(CONFIG_HAS_POST)	+= mul-subnormal-single-1.o
-
-COBJS-$(CONFIG_HAS_POST)	+= darwin-ldouble.o
-
-include $(TOPDIR)/post/rules.mk
+obj-y	+= 20001122-1.o
+obj-y	+= 20010114-2.o
+obj-y	+= 20010226-1.o
+obj-y	+= 980619-1.o
+obj-y	+= acc1.o
+obj-y	+= compare-fp-1.o
+obj-y	+= fpu.o
+obj-y	+= mul-subnormal-single-1.o
+obj-y	+= darwin-ldouble.o
 
 CFLAGS := $(shell echo $(CFLAGS) | sed s/-msoft-float//)
 CFLAGS += -mhard-float -fkeep-inline-functions

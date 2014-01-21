@@ -4,10 +4,5 @@
 #
 # SPDX-License-Identifier:	GPL-2.0+
 #
-include $(OBJTREE)/include/autoconf.mk
 
-LIB	= libpostnetta.o
-
-COBJS-$(CONFIG_HAS_POST)	+= codec.o dsp.o
-
-include $(TOPDIR)/post/rules.mk
+obj-y += codec.o dsp.o

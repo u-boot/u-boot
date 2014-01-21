@@ -122,7 +122,7 @@
 
 /* DDR Setup */
 #define CONFIG_VERY_BIG_RAM
-#define CONFIG_FSL_DDR2
+#define CONFIG_SYS_FSL_DDR2
 #undef CONFIG_FSL_DDR_INTERACTIVE
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup */
 #define CONFIG_DDR_SPD
@@ -720,7 +720,6 @@
 #define CONFIG_CMDLINE_EDITING			/* Command-line editing */
 #define CONFIG_AUTO_COMPLETE			/* add autocompletion support */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-#define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt */
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
 #else
@@ -730,7 +729,6 @@
 		+ sizeof(CONFIG_SYS_PROMPT) + 16) /* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS	16		/* max number of command args */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE /* Boot Argument Buffer Size */
-#define CONFIG_SYS_HZ		1000		/* decrementer freq: 1ms ticks */
 
 /*
  * For booting Linux, the board info and command line data
@@ -742,7 +740,6 @@
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
-#define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
 
 /*

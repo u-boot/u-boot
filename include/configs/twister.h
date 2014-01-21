@@ -50,4 +50,7 @@
 #define CONFIG_SYS_SPL_ARGS_ADDR	(PHYS_SDRAM_1 + 0x100)
 #define CONFIG_SPL_BOARD_INIT
 
+/* gpio 55 is used as SPL_OS_BOOT_KEY */
+#define CONFIG_OMAP3_GPIO_2
+
 #endif /* __CONFIG_H */

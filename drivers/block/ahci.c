@@ -379,6 +379,11 @@ static int ahci_init_one(pci_dev_t pdev)
 	int rc;
 
 	probe_ent = malloc(sizeof(struct ahci_probe_ent));
+	if (!probe_ent) {
+		printf("%s: No memory for probe_ent\n", __func__);
+		return -ENOMEM;
+	}
+
 	memset(probe_ent, 0, sizeof(struct ahci_probe_ent));
 	probe_ent->dev = pdev;
 
@@ -503,7 +508,7 @@ static int ahci_port_start(u8 port)
 	mem = (u32) malloc(AHCI_PORT_PRIV_DMA_SZ + 2048);
 	if (!mem) {
 		free(pp);
-		printf("No mem for table!\n");
+		printf("%s: No mem for table!\n", __func__);
 		return -ENOMEM;
 	}
 
@@ -618,7 +623,7 @@ static int ata_scsiop_inquiry(ccb *pccb)
 		95 - 4,
 	};
 	u8 fis[20];
-	u16 *tmpid;
+	ALLOC_CACHE_ALIGN_BUFFER(u16, tmpid, ATA_ID_WORDS);
 	u8 port;
 
 	/* Clean ccb data buffer */
@@ -637,14 +642,10 @@ static int ata_scsiop_inquiry(ccb *pccb)
 
 	/* Read id from sata */
 	port = pccb->target;
-	tmpid = malloc(ATA_ID_WORDS * 2);
-	if (!tmpid)
-		return -ENOMEM;
 
 	if (ahci_device_data_io(port, (u8 *) &fis, sizeof(fis), (u8 *)tmpid,
 				ATA_ID_WORDS * 2, 0)) {
 		debug("scsi_ahci: SCSI inquiry command failure.\n");
-		free(tmpid);
 		return -EIO;
 	}
 
@@ -889,6 +890,11 @@ int ahci_init(u32 base)
 	u32 linkmap;
 
 	probe_ent = malloc(sizeof(struct ahci_probe_ent));
+	if (!probe_ent) {
+		printf("%s: No memory for probe_ent\n", __func__);
+		return -ENOMEM;
+	}
+
 	memset(probe_ent, 0, sizeof(struct ahci_probe_ent));
 
 	probe_ent->host_flags = ATA_FLAG_SATA

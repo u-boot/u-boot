@@ -11,15 +11,22 @@ easily if here is something they might want to dig for...
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
-omap1510inn      arm         arm925t        -           -           Kshitij Gupta <kshitij@ti.com>
+mx1ads           arm         arm920t        -           2014-01-13
+mini2440         arm         arm920t        -           2014-01-13  Gabriel Huau <contact@huau-gabriel.fr>
+omap730p2        arm         arm926ejs      79c5c08d    2013-11-11
+pn62             powerpc     mpc824x        649acfe1    2013-11-11  Wolfgang Grandegger <wg@grandegger.com>
+pdnb3            arm         ixp            304db0b     2013-09-24  Stefan Roese <sr@denx.de>
+scpu             arm         ixp            304db0b     2013-09-24  Stefan Roese <sr@denx.de>
+omap1510inn      arm         arm925t        0610a16     2013-09-23  Kshitij Gupta <kshitij@ti.com>
 CANBT            powerpc     405CR          fb8f4fd     2013-08-07  Matthias Fuchs <matthias.fuchs@esd.eu>
 Alaska8220       powerpc     mpc8220        d6ed322     2013-05-11
 Yukon8220        powerpc     mpc8220        d6ed322     2013-05-11
 sorcery          powerpc     mpc8220        d6ed322     2013-05-11
-smdk6400         arm         arm1176        52587f1	2013-04-12  Zhong Hongbo <bocui107@gmail.com>
-ns9750dev        arm         arm926ejs      4cfc611	2013-02-28  Markus Pietrek <mpietrek@fsforth.de>
+smdk6400         arm         arm1176        52587f1     2013-04-12  Zhong Hongbo <bocui107@gmail.com>
+ns9750dev        arm         arm926ejs      4cfc611     2013-02-28  Markus Pietrek <mpietrek@fsforth.de>
 AMX860           powerpc     mpc860         1b0757e     2012-10-28  Wolfgang Denk <wd@denx.de>
 c2mon            powerpc     mpc855         1b0757e     2012-10-28  Wolfgang Denk <wd@denx.de>
+EP88x            powerpc     mpc885         1b0757e     2012-10-28
 ETX094           powerpc     mpc850         1b0757e     2012-10-28  Wolfgang Denk <wd@denx.de>
 IAD210           powerpc     mpc860         1b0757e     2012-10-28  -
 LANTEC           powerpc     mpc850         1b0757e     2012-10-28  Wolfgang Denk <wd@denx.de>
@@ -97,5 +104,6 @@ adsvix           ARM         PXA27x         7610db1     2008-07-30  Adrian Filip
 R5200            ColdFire    -              48ead7a     2008-03-31  Zachary P. Landau <zachary.landau@labxtechnologies.com>
 CPCI440          powerpc     440GP          b568fd2     2007-12-27  Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 PCIPPC2          powerpc     MPC740/MPC750  7c9e89b     2013-02-07  Wolfgang Denk <wd@denx.de>
-PCIPPC6	powerpc	MPC740/MPC750 -	  -		Wolfgang Denk <wd@denx.de>
+PCIPPC6          powerpc     MPC740/MPC750  -           -           Wolfgang Denk <wd@denx.de>
 omap2420h4       arm         omap24xx       -           2013-06-04  Richard Woodruff <r-woodruff2@ti.com>
+eNET             x86         x86            7e8c53d     2013-02-14  Graeme Russ <graeme.russ@gmail.com>

@@ -478,8 +478,9 @@ struct davinci_syscfg_regs {
 	dv_reg	rsvd[13];
 	dv_reg	kick0;
 	dv_reg	kick1;
-	dv_reg	rsvd1[53];
+	dv_reg	rsvd1[52];
 	dv_reg	mstpri[3];
+	dv_reg  rsvd2;
 	dv_reg	pinmux[20];
 	dv_reg	suspsrc;
 	dv_reg	chipsig;
@@ -612,43 +613,5 @@ static inline enum davinci_clk_ids get_async3_src(void)
 #define FLAG_FLGOFF		0x00000010
 
 #endif
-
-struct davinci_rtc {
-	dv_reg	second;
-	dv_reg	minutes;
-	dv_reg	hours;
-	dv_reg	day;
-	dv_reg	month; /* 0x10 */
-	dv_reg	year;
-	dv_reg	dotw;
-	dv_reg	resv1;
-	dv_reg	alarmsecond; /* 0x20 */
-	dv_reg	alarmminute;
-	dv_reg	alarmhour;
-	dv_reg	alarmday;
-	dv_reg	alarmmonth; /* 0x30 */
-	dv_reg	alarmyear;
-	dv_reg	resv2[2];
-	dv_reg	ctrl; /* 0x40 */
-	dv_reg	status;
-	dv_reg	irq;
-	dv_reg	complsb;
-	dv_reg	compmsb; /* 0x50 */
-	dv_reg	osc;
-	dv_reg	resv3[2];
-	dv_reg	scratch0; /* 0x60 */
-	dv_reg	scratch1;
-	dv_reg	scratch2;
-	dv_reg	kick0r;
-	dv_reg	kick1r; /* 0x70 */
-};
-
-#define RTC_STATE_BUSY	0x01
-#define RTC_STATE_RUN	0x02
-
-#define RTC_KICK0R_WE	0x83e70b13
-#define RTC_KICK1R_WE	0x95a4f1e0
-
-#define davinci_rtc_base ((struct davinci_rtc *)DAVINCI_RTC_BASE)
 
 #endif /* __ASM_ARCH_HARDWARE_H */

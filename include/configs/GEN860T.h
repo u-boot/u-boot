@@ -310,11 +310,6 @@
 #define	CONFIG_SYS_LOAD_ADDR		0x01000000
 
 /*
- * Set decrementer frequency (1 ms ticks)
- */
-#define	CONFIG_SYS_HZ				1000
-
-/*
  * Device memory map (after SDRAM remap to 0x0):
  *
  * CS		Device				Base Addr	Size

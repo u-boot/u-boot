@@ -154,10 +154,6 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	if (!spi_cs_is_valid(bus, cs))
 		return NULL;
 
-	if (bus >= ARRAY_SIZE(pins) || pins[bus] == NULL) {
-		debug("%s: invalid bus %u\n", __func__, bus);
-		return NULL;
-	}
 	switch (bus) {
 #ifdef SPI0_REGBASE
 	case 0:
@@ -175,6 +171,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		break;
 #endif
 	default:
+		debug("%s: invalid bus %u\n", __func__, bus);
 		return NULL;
 	}
 

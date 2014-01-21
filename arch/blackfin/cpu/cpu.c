@@ -104,6 +104,9 @@ void cpu_init_f(ulong bootflag, ulong loaded_from_ldr)
 
 	serial_early_puts("Board init flash\n");
 	board_init_f(bootflag);
+
+	/* should not be reached */
+	while (1);
 }
 
 int exception_init(void)

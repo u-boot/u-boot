@@ -21,6 +21,7 @@ class Commit:
         changes: Dict containing a list of changes (single line strings).
             The dict is indexed by change version (an integer)
         cc_list: List of people to aliases/emails to cc on this commit
+        notes: List of lines in the commit (not series) notes
     """
     def __init__(self, hash):
         self.hash = hash
@@ -28,6 +29,7 @@ class Commit:
         self.tags = []
         self.changes = {}
         self.cc_list = []
+        self.notes = []
 
     def AddChange(self, version, info):
         """Add a new change line to the change list for a version.

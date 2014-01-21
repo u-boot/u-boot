@@ -31,7 +31,7 @@ LDFLAGS_FINAL += --gc-sections -pie
 LDFLAGS_FINAL += --wrap=__divdi3 --wrap=__udivdi3
 LDFLAGS_FINAL += --wrap=__moddi3 --wrap=__umoddi3
 
-NORMAL_LIBGCC = $(shell $(CC) $(CFLAGS) -print-libgcc-file-name)
+export NORMAL_LIBGCC = $(shell $(CC) $(CFLAGS) -print-libgcc-file-name)
 PREFIXED_LIBGCC = $(OBJTREE)/arch/$(ARCH)/lib/$(shell basename $(NORMAL_LIBGCC))
 
 export USE_PRIVATE_LIBGCC=$(shell dirname $(PREFIXED_LIBGCC))

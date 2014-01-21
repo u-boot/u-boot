@@ -180,6 +180,14 @@ END
 	together and put after the cover letter. Can appear multiple
 	times.
 
+Commit-notes:
+blah blah
+blah blah
+more blah blah
+END
+	Similar, but for a single commit (patch). These notes will appear
+	immediately below the --- cut in the patch file.
+
  Signed-off-by: Their Name <email>
 	A sign-off is added automatically to your patches (this is
 	probably a bug). If you put this tag in your patches, it will
@@ -227,7 +235,7 @@ TEST=...
 Change-Id:
 Review URL:
 Reviewed-on:
-
+Commit-xxxx: (except Commit-notes)
 
 Exercise for the reader: Try adding some tags to one of your current
 patch series and see how the patches turn out.

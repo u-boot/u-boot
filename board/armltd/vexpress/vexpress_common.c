@@ -26,9 +26,6 @@
 #include <asm/arch/wdt.h>
 #include "../drivers/mmc/arm_pl180_mmci.h"
 
-static ulong timestamp;
-static ulong lastdec;
-
 static struct systimer *systimer_base = (struct systimer *)V2M_TIMER01;
 static struct sysctrl *sysctrl_base = (struct sysctrl *)SCTL_BASE;
 
@@ -152,8 +149,6 @@ static void vexpress_timer_init(void)
 	writel(SYSTIMER_EN | SYSTIMER_32BIT |
 	       readl(&systimer_base->timer0control),
 	       &systimer_base->timer0control);
-
-	reset_timer_masked();
 }
 
 int v2m_cfg_write(u32 devfn, u32 data)
@@ -183,78 +178,12 @@ void reset_cpu(ulong addr)
 		printf("Unable to reboot\n");
 }
 
-/*
- * Delay x useconds AND perserve advance timstamp value
- *     assumes timer is ticking at 1 msec
- */
-void __udelay(ulong usec)
-{
-	ulong tmo, tmp;
-
-	tmo = usec / 1000;
-	tmp = get_timer(0);	/* get current timestamp */
-
-	/*
-	 * If setting this forward will roll time stamp	then
-	 * reset "advancing" timestamp to 0 and set lastdec value
-	 * otherwise set the advancing stamp to the wake up time
-	 */
-	if ((tmo + tmp + 1) < tmp)
-		reset_timer_masked();
-	else
-		tmo += tmp;
-
-	while (get_timer_masked() < tmo)
-		; /* loop till wakeup event */
-}
-
-ulong get_timer(ulong base)
-{
-	return get_timer_masked() - base;
-}
-
-void reset_timer_masked(void)
-{
-	lastdec = readl(&systimer_base->timer0value) / 1000;
-	timestamp = 0;
-}
-
-ulong get_timer_masked(void)
-{
-	ulong now = readl(&systimer_base->timer0value) / 1000;
-
-	if (lastdec >= now) {	/* normal mode (non roll) */
-		timestamp += lastdec - now;
-	} else {		/* count down timer overflowed */
-		/*
-		 * nts = ts + ld - now
-		 * ts = old stamp, ld = time before passing through - 1
-		 * now = amount of time after passing though - 1
-		 * nts = new "advancing time stamp"
-		 */
-		timestamp += lastdec + SYSTIMER_RELOAD - now;
-	}
-	lastdec = now;
-
-	return timestamp;
-}
-
 void lowlevel_init(void)
 {
 }
 
 ulong get_board_rev(void){
 	return readl((u32 *)SYS_ID);
-}
-
-unsigned long long get_ticks(void)
-{
-	return get_timer(0);
-}
-
-ulong get_tbclk(void)
-{
-	return (ulong)CONFIG_SYS_HZ;
 }
 
 #if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV7_VIRT)

@@ -239,8 +239,6 @@
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 
-#define CONFIG_SYS_HZ			1000
-
 #define CONFIG_CMDLINE_EDITING
 
 /* MMC boot support */

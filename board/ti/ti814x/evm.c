@@ -33,15 +33,12 @@ static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 #ifdef CONFIG_SPL_BUILD
 static const struct cmd_control evm_ddr2_cctrl_data = {
 	.cmd0csratio	= 0x80,
-	.cmd0dldiff	= 0x04,
 	.cmd0iclkout	= 0x00,
 
 	.cmd1csratio	= 0x80,
-	.cmd1dldiff	= 0x04,
 	.cmd1iclkout	= 0x00,
 
 	.cmd2csratio	= 0x80,
-	.cmd2dldiff	= 0x04,
 	.cmd2iclkout	= 0x00,
 };
 
@@ -77,8 +74,6 @@ static const struct ddr_data evm_ddr2_data = {
 	.datagiratio0		= ((0<<10) | (0<<0)),
 	.datafwsratio0		= ((0x90<<10) | (0x90<<0)),
 	.datawrsratio0		= ((0x50<<10) | (0x50<<0)),
-	.datauserank0delay	= 1,
-	.datadldiff0		= 0x4,
 };
 
 void set_uart_mux_conf(void)
@@ -100,9 +95,9 @@ void sdram_init(void)
 {
 	config_dmm(&evm_lisa_map_regs);
 
-	config_ddr(0, 0, &evm_ddr2_data, &evm_ddr2_cctrl_data,
+	config_ddr(0, NULL, &evm_ddr2_data, &evm_ddr2_cctrl_data,
 		   &evm_ddr2_emif0_regs, 0);
-	config_ddr(0, 0, &evm_ddr2_data, &evm_ddr2_cctrl_data,
+	config_ddr(0, NULL, &evm_ddr2_data, &evm_ddr2_cctrl_data,
 		   &evm_ddr2_emif1_regs, 1);
 }
 #endif

@@ -273,7 +273,7 @@ static inline void ft_fixup_l2cache(void *blob)
 		if (has_l2) {
 #ifdef CONFIG_SYS_CACHE_STASHING
 			u32 *reg = (u32 *)fdt_getprop(blob, off, "reg", 0);
-#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+#if defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2) && defined(CONFIG_E6500)
 			/* Only initialize every eighth thread */
 			if (reg && !((*reg) % 8))
 #else
@@ -586,6 +586,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 {
 	int off;
 	int val;
+	int len;
 	sys_info_t sysinfo;
 
 	/* delete crypto node if not on an E-processor */
@@ -615,8 +616,8 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	get_sys_info(&sysinfo);
 	off = fdt_node_offset_by_prop_value(blob, -1, "device_type", "cpu", 4);
 	while (off != -FDT_ERR_NOTFOUND) {
-		u32 *reg = (u32 *)fdt_getprop(blob, off, "reg", 0);
-		val = cpu_to_fdt32(sysinfo.freq_processor[*reg]);
+		u32 *reg = (u32 *)fdt_getprop(blob, off, "reg", &len);
+		val = cpu_to_fdt32(sysinfo.freq_processor[(*reg) / (len / 4)]);
 		fdt_setprop(blob, off, "clock-frequency", &val, 4);
 		off = fdt_node_offset_by_prop_value(blob, off, "device_type",
 							"cpu", 4);

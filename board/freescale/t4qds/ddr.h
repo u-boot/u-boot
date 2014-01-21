@@ -16,7 +16,7 @@ struct board_specific_parameters {
 	u32 wrlvl_ctl_3;
 	u32 cpo;
 	u32 write_data_delay;
-	u32 force_2T;
+	u32 force_2t;
 };
 
 /*

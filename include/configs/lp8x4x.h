@@ -20,18 +20,18 @@
 #define	CONFIG_SYS_MALLOC_LEN		(128*1024)
 #define	CONFIG_ARCH_CPU_INIT
 #define	CONFIG_BOOTCOMMAND		\
-	"bootm 80000;"
+	"bootm 80000 - 240000;"
 
 #define	CONFIG_BOOTARGS			\
-	"console=ttySA0,115200 mem=128M root=/dev/mmcblk0p1 rw" \
-	"init=/sbin/init rootfstype=ext3"
+	"console=ttyS0,115200 mem=128M root=/dev/mmcblk0p1 rw" \
+	"init=/sbin/init rootfstype=ext4 rootwait"
 
 #define	CONFIG_TIMESTAMP
 #define	CONFIG_BOOTDELAY		2	/* Autoboot delay */
 #define	CONFIG_CMDLINE_TAG
 #define	CONFIG_SETUP_MEMORY_TAGS
 #define	CONFIG_LZMA			/* LZMA compression support */
-#undef	CONFIG_OF_LIBFDT
+#define	CONFIG_OF_LIBFDT
 
 /*
  * Serial Console Configuration
@@ -93,7 +93,6 @@
  */
 #ifdef	CONFIG_CMD_KGDB
 #define	CONFIG_KGDB_BAUDRATE		230400	/* kgdb serial port speed */
-#define	CONFIG_KGDB_SER_INDEX		2	/* which serial port to use */
 #endif
 
 /*
@@ -101,11 +100,10 @@
  */
 #define	CONFIG_SYS_HUSH_PARSER		1
 
-#undef	CONFIG_SYS_LONGHELP
+#define	CONFIG_SYS_LONGHELP
 #ifdef	CONFIG_SYS_HUSH_PARSER
 #define	CONFIG_SYS_PROMPT		"$ "
 #else
-#define	CONFIG_SYS_PROMPT		"=> "
 #endif
 #define	CONFIG_SYS_CBSIZE		256
 #define	CONFIG_SYS_PBSIZE		\
@@ -115,11 +113,6 @@
 #define	CONFIG_SYS_DEVICE_NULLDEV	1
 #define	CONFIG_CMDLINE_EDITING		1
 #define	CONFIG_AUTO_COMPLETE		1
-
-/*
- * Clock Configuration
- */
-#define	CONFIG_SYS_HZ			1000		/* Timer @ 3250000 Hz */
 
 /*
  * DRAM Map
@@ -150,7 +143,7 @@
 #define	CONFIG_ENV_SECT_SIZE		0x40000
 
 #define	PHYS_FLASH_1			0x00000000	/* Flash Bank #1 */
-#define	PHYS_FLASH_2			0x02000000	/* Flash Bank #2 */
+#define	PHYS_FLASH_2			0x04000000	/* Flash Bank #2 */
 
 #define	CONFIG_SYS_FLASH_CFI
 #define	CONFIG_FLASH_CFI_DRIVER		1
@@ -190,7 +183,7 @@
 #define	CONFIG_SYS_GAFR1_L_VAL	0x999a955a
 #define	CONFIG_SYS_GAFR1_U_VAL	0xaaa5a00a
 #define	CONFIG_SYS_GAFR2_L_VAL	0xaaaaaaaa
-#define	CONFIG_SYS_GAFR2_U_VAL	0x55f0a402
+#define	CONFIG_SYS_GAFR2_U_VAL	0x55f9a402
 #define	CONFIG_SYS_GAFR3_L_VAL	0x540a950c
 #define	CONFIG_SYS_GAFR3_U_VAL	0x00001599
 
@@ -238,7 +231,6 @@
  */
 #ifdef	CONFIG_CMD_USB
 #define	CONFIG_USB_OHCI_NEW
-#define	CONFIG_SYS_USB_OHCI_CPU_INIT
 #define	CONFIG_SYS_USB_OHCI_BOARD_INIT
 #define	CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
 #define	CONFIG_SYS_USB_OHCI_REGS_BASE	0x4C000000

@@ -10,8 +10,8 @@
 #include <asm/mmu.h>
 #include <asm/immap_85xx.h>
 #include <asm/processor.h>
-#include <asm/fsl_ddr_sdram.h>
-#include <asm/fsl_ddr_dimm_params.h>
+#include <fsl_ddr_sdram.h>
+#include <fsl_ddr_dimm_params.h>
 #include <asm/io.h>
 #include <asm/fsl_law.h>
 
@@ -34,20 +34,20 @@ dimm_params_t ddr_raw_timing = {
 	.edc_config = 0,
 	.burst_lengths_bitmask = 0x0c,
 
-	.tCKmin_X_ps = 1870,
-	.caslat_X = 0x1e << 4,	/* 5,6,7,8 */
-	.tAA_ps = 13125,
-	.tWR_ps = 15000,
-	.tRCD_ps = 13125,
-	.tRRD_ps = 7500,
-	.tRP_ps = 13125,
-	.tRAS_ps = 37500,
-	.tRC_ps = 50625,
-	.tRFC_ps = 160000,
-	.tWTR_ps = 7500,
-	.tRTP_ps = 7500,
+	.tckmin_x_ps = 1870,
+	.caslat_x = 0x1e << 4,	/* 5,6,7,8 */
+	.taa_ps = 13125,
+	.twr_ps = 15000,
+	.trcd_ps = 13125,
+	.trrd_ps = 7500,
+	.trp_ps = 13125,
+	.tras_ps = 37500,
+	.trc_ps = 50625,
+	.trfc_ps = 160000,
+	.twtr_ps = 7500,
+	.trtp_ps = 7500,
 	.refresh_rate_ps = 7800000,
-	.tFAW_ps = 37500,
+	.tfaw_ps = 37500,
 };
 #elif defined(CONFIG_P2020RDB)
 /* Micron MT41J128M16_15E */
@@ -65,20 +65,20 @@ dimm_params_t ddr_raw_timing = {
 	.edc_config = 0,
 	.burst_lengths_bitmask = 0x0c,
 
-	.tCKmin_X_ps = 1500,
-	.caslat_X = 0x7e << 4,	/* 5,6,7,8,9,10 */
-	.tAA_ps = 13500,
-	.tWR_ps = 15000,
-	.tRCD_ps = 13500,
-	.tRRD_ps = 6000,
-	.tRP_ps = 13500,
-	.tRAS_ps = 36000,
-	.tRC_ps = 49500,
-	.tRFC_ps = 160000,
-	.tWTR_ps = 7500,
-	.tRTP_ps = 7500,
+	.tckmin_x_ps = 1500,
+	.caslat_x = 0x7e << 4,	/* 5,6,7,8,9,10 */
+	.taa_ps = 13500,
+	.twr_ps = 15000,
+	.trcd_ps = 13500,
+	.trrd_ps = 6000,
+	.trp_ps = 13500,
+	.tras_ps = 36000,
+	.trc_ps = 49500,
+	.trfc_ps = 160000,
+	.twtr_ps = 7500,
+	.trtp_ps = 7500,
 	.refresh_rate_ps = 7800000,
-	.tFAW_ps = 30000,
+	.tfaw_ps = 30000,
 };
 #elif (defined(CONFIG_P1020MBG) || defined(CONFIG_P1020RDB_PD))
 /* Micron MT41J512M8_187E */
@@ -96,20 +96,20 @@ dimm_params_t ddr_raw_timing = {
 	.edc_config = 0,
 	.burst_lengths_bitmask = 0x0c,
 
-	.tCKmin_X_ps = 1870,
-	.caslat_X = 0x1e << 4,	/* 5,6,7,8 */
-	.tAA_ps = 13125,
-	.tWR_ps = 15000,
-	.tRCD_ps = 13125,
-	.tRRD_ps = 7500,
-	.tRP_ps = 13125,
-	.tRAS_ps = 37500,
-	.tRC_ps = 50625,
-	.tRFC_ps = 160000,
-	.tWTR_ps = 7500,
-	.tRTP_ps = 7500,
+	.tckmin_x_ps = 1870,
+	.caslat_x = 0x1e << 4,	/* 5,6,7,8 */
+	.taa_ps = 13125,
+	.twr_ps = 15000,
+	.trcd_ps = 13125,
+	.trrd_ps = 7500,
+	.trp_ps = 13125,
+	.tras_ps = 37500,
+	.trc_ps = 50625,
+	.trfc_ps = 160000,
+	.twtr_ps = 7500,
+	.trtp_ps = 7500,
 	.refresh_rate_ps = 7800000,
-	.tFAW_ps = 37500,
+	.tfaw_ps = 37500,
 };
 #elif defined(CONFIG_P1020RDB_PC)
 /*
@@ -133,20 +133,20 @@ dimm_params_t ddr_raw_timing = {
 	.edc_config = 0,
 	.burst_lengths_bitmask = 0x0c,
 
-	.tCKmin_X_ps = 1875,
-	.caslat_X = 0x1e << 4,	/* 5,6,7,8 */
-	.tAA_ps = 13125,
-	.tWR_ps = 15000,
-	.tRCD_ps = 13125,
-	.tRRD_ps = 7500,
-	.tRP_ps = 13125,
-	.tRAS_ps = 37500,
-	.tRC_ps = 50625,
-	.tRFC_ps = 160000,
-	.tWTR_ps = 7500,
-	.tRTP_ps = 7500,
+	.tckmin_x_ps = 1875,
+	.caslat_x = 0x1e << 4,	/* 5,6,7,8 */
+	.taa_ps = 13125,
+	.twr_ps = 15000,
+	.trcd_ps = 13125,
+	.trrd_ps = 7500,
+	.trp_ps = 13125,
+	.tras_ps = 37500,
+	.trc_ps = 50625,
+	.trfc_ps = 160000,
+	.twtr_ps = 7500,
+	.trtp_ps = 7500,
 	.refresh_rate_ps = 7800000,
-	.tFAW_ps = 37500,
+	.tfaw_ps = 37500,
 };
 #elif	defined(CONFIG_P1024RDB) || \
 	defined(CONFIG_P1025RDB)
@@ -171,20 +171,20 @@ dimm_params_t ddr_raw_timing = {
 	.edc_config = 0,
 	.burst_lengths_bitmask = 0x0c,
 
-	.tCKmin_X_ps = 1500,
-	.caslat_X = 0x3e << 4,	/* 5,6,7,8,9 */
-	.tAA_ps = 13125,
-	.tWR_ps = 15000,
-	.tRCD_ps = 13125,
-	.tRRD_ps = 6000,
-	.tRP_ps = 13125,
-	.tRAS_ps = 36000,
-	.tRC_ps = 49125,
-	.tRFC_ps = 160000,
-	.tWTR_ps = 7500,
-	.tRTP_ps = 7500,
+	.tckmin_x_ps = 1500,
+	.caslat_x = 0x3e << 4,	/* 5,6,7,8,9 */
+	.taa_ps = 13125,
+	.twr_ps = 15000,
+	.trcd_ps = 13125,
+	.trrd_ps = 6000,
+	.trp_ps = 13125,
+	.tras_ps = 36000,
+	.trc_ps = 49125,
+	.trfc_ps = 160000,
+	.twtr_ps = 7500,
+	.trtp_ps = 7500,
 	.refresh_rate_ps = 7800000,
-	.tFAW_ps = 30000,
+	.tfaw_ps = 30000,
 };
 #else
 #error Missing raw timing data for this board

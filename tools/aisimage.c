@@ -5,7 +5,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include "mkimage.h"
+#include "imagetool.h"
 #include "aisimage.h"
 #include <image.h>
 
@@ -176,7 +176,7 @@ static uint32_t *ais_insert_cmd_header(uint32_t cmd, uint32_t nargs,
 
 }
 
-static uint32_t *ais_alloc_buffer(struct mkimage_params *params)
+static uint32_t *ais_alloc_buffer(struct image_tool_params *params)
 {
 	int dfd;
 	struct stat sbuf;
@@ -216,7 +216,7 @@ static uint32_t *ais_alloc_buffer(struct mkimage_params *params)
 	return ptr;
 }
 
-static uint32_t *ais_copy_image(struct mkimage_params *params,
+static uint32_t *ais_copy_image(struct image_tool_params *params,
 	uint32_t *aisptr)
 
 {
@@ -252,7 +252,7 @@ static uint32_t *ais_copy_image(struct mkimage_params *params,
 
 }
 
-static int aisimage_generate(struct mkimage_params *params,
+static int aisimage_generate(struct image_tool_params *params,
 	struct image_type_params *tparams)
 {
 	FILE *fd = NULL;
@@ -370,7 +370,7 @@ static int aisimage_check_image_types(uint8_t type)
 }
 
 static int aisimage_verify_header(unsigned char *ptr, int image_size,
-			struct mkimage_params *params)
+			struct image_tool_params *params)
 {
 	struct ais_header *ais_hdr = (struct ais_header *)ptr;
 
@@ -384,11 +384,11 @@ static int aisimage_verify_header(unsigned char *ptr, int image_size,
 }
 
 static void aisimage_set_header(void *ptr, struct stat *sbuf, int ifd,
-				struct mkimage_params *params)
+				struct image_tool_params *params)
 {
 }
 
-int aisimage_check_params(struct mkimage_params *params)
+int aisimage_check_params(struct image_tool_params *params)
 {
 	if (!params)
 		return CFG_INVALID;
@@ -427,5 +427,5 @@ static struct image_type_params aisimage_params = {
 
 void init_ais_image_type(void)
 {
-	mkimage_register(&aisimage_params);
+	register_image_type(&aisimage_params);
 }

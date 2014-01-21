@@ -81,7 +81,7 @@
 	"console=ttymxc1\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
-	"fdt_addr=0x11000000\0" \
+	"fdt_addr=0x18000000\0" \
 	"boot_fdt=try\0" \
 	"mmcdev=1\0" \
 	"mmcpart=1\0" \
@@ -143,7 +143,6 @@
 #define CONFIG_SYS_MEMTEST_SCRATCH     0x10800000
 
 #define CONFIG_SYS_LOAD_ADDR	       CONFIG_LOADADDR
-#define CONFIG_SYS_HZ		       1000
 
 #define CONFIG_CMDLINE_EDITING
 

@@ -174,7 +174,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_PROMPT		"=> "
 #define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
@@ -188,8 +187,6 @@
 #define CONFIG_SYS_MEMTEST_END		(PHYS_SDRAM_1 + 0xff000000)
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
-
-#define CONFIG_SYS_HZ			1000
 
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_HUSH_PARSER			/* Use the HUSH parser */

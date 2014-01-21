@@ -150,6 +150,15 @@ IRQ_STACK_START_IN:
 
 _reset:
 	/*
+	 * If the CPU is configured in "Wait JTAG connection mode", the stack
+	 * pointer is not configured and is zero. This will cause crash when
+	 * trying to push data onto stack right below here. Load the SP and make
+	 * it point to the end of OCRAM if the SP is zero.
+	 */
+	cmp	sp, #0x00000000
+	ldreq	sp, =CONFIG_SYS_INIT_SP_ADDR
+
+	/*
 	 * Store all registers on old stack pointer, this will allow us later to
 	 * return to the BootROM and let the BootROM load U-Boot into RAM.
 	 *

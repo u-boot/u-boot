@@ -5,7 +5,5 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-PLATFORM_RELFLAGS += -meabi
-
-PLATFORM_CPPFLAGS += -DCONFIG_MPC5xxx -ffixed-r2 \
+PLATFORM_CPPFLAGS += -DCONFIG_MPC5xxx \
 		     -mstring -mcpu=603e -mmultiple

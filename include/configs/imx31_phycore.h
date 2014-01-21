@@ -35,11 +35,9 @@
  * Hardware drivers
  */
 
-#define CONFIG_HARD_I2C
-#define CONFIG_I2C_MXC
-#define CONFIG_SYS_I2C_BASE		I2C2_BASE_ADDR
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_CLK_OFFSET	I2C2_CLK_OFFSET
-#define CONFIG_SYS_I2C_SPEED		100000
 
 #define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE		UART1_BASE
@@ -120,8 +118,6 @@
 #define CONFIG_SYS_MEMTEST_END		0x10000
 
 #define CONFIG_SYS_LOAD_ADDR		0 /* default load address */
-
-#define CONFIG_SYS_HZ			1000
 
 #define CONFIG_CMDLINE_EDITING
 

@@ -135,6 +135,8 @@ extern struct i2c_bus_hose	i2c_bus[];
 #define I2C_MUX_PCA9544		{I2C_MUX_PCA9544_ID, "PCA9544A"}
 #define I2C_MUX_PCA9547_ID	4
 #define I2C_MUX_PCA9547		{I2C_MUX_PCA9547_ID, "PCA9547A"}
+#define I2C_MUX_PCA9548_ID	5
+#define I2C_MUX_PCA9548		{I2C_MUX_PCA9548_ID, "PCA9548"}
 #endif
 
 #ifndef I2C_SOFT_DECLARATIONS
@@ -145,7 +147,7 @@ extern struct i2c_bus_hose	i2c_bus[];
 
 # elif (defined(CONFIG_AT91RM9200) || \
 	defined(CONFIG_AT91SAM9260) ||  defined(CONFIG_AT91SAM9261) || \
-	defined(CONFIG_AT91SAM9263)) && !defined(CONFIG_AT91_LEGACY)
+	defined(CONFIG_AT91SAM9263))
 #  define I2C_SOFT_DECLARATIONS	at91_pio_t *pio	= (at91_pio_t *) ATMEL_BASE_PIOA;
 # else
 #  define I2C_SOFT_DECLARATIONS

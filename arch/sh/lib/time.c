@@ -12,36 +12,23 @@
  */
 
 #include <common.h>
-#include <div64.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <sh_tmu.h>
 
-static struct tmu_regs *tmu = (struct tmu_regs *)TMU_BASE;
+#define TCR_TPSC 0x07
 
-static u16 bit;
-static unsigned long last_tcnt;
-static unsigned long long overflow_ticks;
+static struct tmu_regs *tmu = (struct tmu_regs *)TMU_BASE;
 
 unsigned long get_tbclk(void)
 {
-	return get_tmu0_clk_rate() >> ((bit + 1) * 2);
+	u16 tmu_bit = (ffs(CONFIG_SYS_TMU_CLK_DIV) >> 1) - 1;
+	return get_tmu0_clk_rate() >> ((tmu_bit + 1) * 2);
 }
 
-static inline unsigned long long tick_to_time(unsigned long long tick)
+unsigned long timer_read_counter(void)
 {
-	tick *= CONFIG_SYS_HZ;
-	do_div(tick, get_tbclk());
-
-	return tick;
-}
-
-static inline unsigned long long usec_to_tick(unsigned long long usec)
-{
-	usec *= get_tbclk();
-	do_div(usec, 1000000);
-
-	return usec;
+	return ~readl(&tmu->tcnt0);
 }
 
 static void tmu_timer_start(unsigned int timer)
@@ -60,55 +47,12 @@ static void tmu_timer_stop(unsigned int timer)
 
 int timer_init(void)
 {
-	bit = (ffs(CONFIG_SYS_TMU_CLK_DIV) >> 1) - 1;
-	writew(readw(&tmu->tcr0) | bit, &tmu->tcr0);
+	u16 tmu_bit = (ffs(CONFIG_SYS_TMU_CLK_DIV) >> 1) - 1;
+	writew((readw(&tmu->tcr0) & ~TCR_TPSC) | tmu_bit, &tmu->tcr0);
 
 	tmu_timer_stop(0);
 	tmu_timer_start(0);
-
-	last_tcnt = 0;
-	overflow_ticks = 0;
 
 	return 0;
 }
 
-unsigned long long get_ticks(void)
-{
-	unsigned long tcnt = 0 - readl(&tmu->tcnt0);
-
-	if (last_tcnt > tcnt) /* overflow */
-		overflow_ticks++;
-	last_tcnt = tcnt;
-
-	return (overflow_ticks << 32) | tcnt;
-}
-
-void __udelay(unsigned long usec)
-{
-	unsigned long long tmp;
-	ulong tmo;
-
-	tmo = usec_to_tick(usec);
-	tmp = get_ticks() + tmo;	/* get current timestamp */
-
-	while (get_ticks() < tmp)	/* loop till event */
-		 /*NOP*/;
-}
-
-unsigned long get_timer(unsigned long base)
-{
-	/* return msec */
-	return tick_to_time(get_ticks()) - base;
-}
-
-void set_timer(unsigned long t)
-{
-	writel((0 - t), &tmu->tcnt0);
-}
-
-void reset_timer(void)
-{
-	tmu_timer_stop(0);
-	set_timer(0);
-	tmu_timer_start(0);
-}

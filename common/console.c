@@ -8,6 +8,7 @@
 #include <common.h>
 #include <stdarg.h>
 #include <malloc.h>
+#include <os.h>
 #include <serial.h>
 #include <stdio_dev.h>
 #include <exports.h>
@@ -415,6 +416,12 @@ static inline void print_pre_console_buffer(void) {}
 
 void putc(const char c)
 {
+#ifdef CONFIG_SANDBOX
+	if (!gd) {
+		os_putc(c);
+		return;
+	}
+#endif
 #ifdef CONFIG_SILENT_CONSOLE
 	if (gd->flags & GD_FLG_SILENT)
 		return;
@@ -439,6 +446,13 @@ void putc(const char c)
 
 void puts(const char *s)
 {
+#ifdef CONFIG_SANDBOX
+	if (!gd) {
+		os_puts(s);
+		return;
+	}
+#endif
+
 #ifdef CONFIG_SILENT_CONSOLE
 	if (gd->flags & GD_FLG_SILENT)
 		return;
@@ -467,7 +481,7 @@ int printf(const char *fmt, ...)
 	uint i;
 	char printbuffer[CONFIG_SYS_PBSIZE];
 
-#ifndef CONFIG_PRE_CONSOLE_BUFFER
+#if !defined(CONFIG_SANDBOX) && !defined(CONFIG_PRE_CONSOLE_BUFFER)
 	if (!gd->have_console)
 		return 0;
 #endif

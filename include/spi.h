@@ -27,12 +27,32 @@
 /* SPI transfer flags */
 #define SPI_XFER_BEGIN		0x01	/* Assert CS before transfer */
 #define SPI_XFER_END		0x02	/* Deassert CS after transfer */
-#define SPI_FLASH_U_PAGE	0x04	/* Enable Upper memory page */
 #define SPI_XFER_MMAP		0x08	/* Memory Mapped start */
 #define SPI_XFER_MMAP_END	0x10	/* Memory Mapped End */
+#define SPI_XFER_ONCE		(SPI_XFER_BEGIN | SPI_XFER_END)
+#define SPI_XFER_U_PAGE		(1 << 5)
+
+/* SPI TX operation modes */
+#define SPI_OPM_TX_QPP		1 << 0
+
+/* SPI RX operation modes */
+#define SPI_OPM_RX_AS		1 << 0
+#define SPI_OPM_RX_DOUT		1 << 1
+#define SPI_OPM_RX_DIO		1 << 2
+#define SPI_OPM_RX_QOF		1 << 3
+#define SPI_OPM_RX_QIOF		1 << 4
+#define SPI_OPM_RX_EXTN		SPI_OPM_RX_AS | SPI_OPM_RX_DOUT | \
+				SPI_OPM_RX_DIO | SPI_OPM_RX_QOF | \
+				SPI_OPM_RX_QIOF
+
+/* SPI bus connection options */
+#define SPI_CONN_DUAL_SHARED	1 << 0
+#define SPI_CONN_DUAL_SEPARATED	1 << 1
 
 /* Header byte that marks the start of the message */
 #define SPI_PREAMBLE_END_BYTE	0xec
+
+#define SPI_DEFAULT_WORDLEN 8
 
 /**
  * struct spi_slave - Representation of a SPI slave
@@ -41,23 +61,25 @@
  *
  * @bus:		ID of the bus that the slave is attached to.
  * @cs:			ID of the chip select connected to the slave.
- *   is_dual:	Indicates whether dual memories are used
- *   u_page:	Indicates the upper memory page, in dual stacked connection.
+ * @op_mode_rx:		SPI RX operation mode.
+ * @op_mode_tx:		SPI TX operation mode.
+ * @wordlen:		Size of SPI word in number of bits
  * @max_write_size:	If non-zero, the maximum number of bytes which can
  *			be written at once, excluding command bytes.
  * @memory_map:		Address of read-only SPI flash access.
- *   rd_cmd:	Read command.
- *   wr_cmd:	Write command.
+ * @option:		Varies SPI bus options - separate, shared bus.
+ * @flags:		Indication of SPI flags.
  */
 struct spi_slave {
-	unsigned int	bus;
-	unsigned int	cs;
-	unsigned int	is_dual;
-	unsigned int	u_page;
+	unsigned int bus;
+	unsigned int cs;
+	u8 op_mode_rx;
+	u8 op_mode_tx;
+	unsigned int wordlen;
 	unsigned int max_write_size;
 	void *memory_map;
-	u8 rd_cmd;
-	u8 wr_cmd;
+	u8 option;
+	u8 flags;
 };
 
 /**
@@ -162,6 +184,18 @@ int spi_claim_bus(struct spi_slave *slave);
 void spi_release_bus(struct spi_slave *slave);
 
 /**
+ * Set the word length for SPI transactions
+ *
+ * Set the word length (number of bits per word) for SPI transactions.
+ *
+ * @slave:	The SPI slave
+ * @wordlen:	The number of bits in a word
+ *
+ * Returns: 0 on success, -1 on failure.
+ */
+int spi_set_wordlen(struct spi_slave *slave, unsigned int wordlen);
+
+/**
  * SPI transfer
  *
  * This writes "bitlen" bits out the SPI MOSI port and simultaneously clocks
@@ -251,13 +285,24 @@ static inline int spi_w8r8(struct spi_slave *slave, unsigned char byte)
  * spi_free_slave() to free it later.
  *
  * @param blob:		Device tree blob
- * @param node:		SPI peripheral node to use
- * @param cs:		Chip select to use
- * @param max_hz:	Maximum SCK rate in Hz (0 for default)
- * @param mode:		Clock polarity, clock phase and other parameters
+ * @param slave_node:	Slave node to use
+ * @param spi_node:	SPI peripheral node to use
  * @return pointer to new spi_slave structure
  */
-struct spi_slave *spi_setup_slave_fdt(const void *blob, int node,
-		unsigned int cs, unsigned int max_hz, unsigned int mode);
+struct spi_slave *spi_setup_slave_fdt(const void *blob, int slave_node,
+				      int spi_node);
+
+/**
+ * spi_base_setup_slave_fdt() - helper function to set up a SPI slace
+ *
+ * This decodes SPI properties from the slave node to determine the
+ * chip select and SPI parameters.
+ *
+ * @blob:	Device tree blob
+ * @busnum:	Bus number to use
+ * @node:	Device tree node for the SPI bus
+ */
+struct spi_slave *spi_base_setup_slave_fdt(const void *blob, int busnum,
+					   int node);
 
 #endif	/* _SPI_H_ */

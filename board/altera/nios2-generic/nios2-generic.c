@@ -8,7 +8,9 @@
 
 #include <common.h>
 #include <netdev.h>
+#if defined(CONFIG_CFI_FLASH_MTD)
 #include <mtd/cfi_flash.h>
+#endif
 #include <asm/io.h>
 #include <asm/gpio.h>
 

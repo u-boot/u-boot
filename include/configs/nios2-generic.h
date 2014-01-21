@@ -39,7 +39,6 @@
 #define CONFIG_SYS_LOW_RES_TIMER
 #define CONFIG_SYS_NIOS_TMRBASE	CONFIG_SYS_TIMER_BASE
 #define CONFIG_SYS_NIOS_TMRIRQ		CONFIG_SYS_TIMER_IRQ
-#define CONFIG_SYS_HZ			1000	/* Always 1000 */
 #define CONFIG_SYS_NIOS_TMRMS		10	/* Desired period (msec)*/
 #define CONFIG_SYS_NIOS_TMRCNT \
 	(CONFIG_SYS_NIOS_TMRMS * (CONFIG_SYS_TIMER_FREQ / 1000) - 1)
@@ -120,7 +119,6 @@
  * MISC
  */
 #define CONFIG_SYS_LONGHELP		/* Provide extended help */
-#define CONFIG_SYS_PROMPT		"==> "	/* Command prompt	*/
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O buf size */
 #define CONFIG_SYS_MAXARGS		16	/* Max command args	*/
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE /* Bootarg buf size */

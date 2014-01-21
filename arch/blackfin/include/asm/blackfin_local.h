@@ -51,7 +51,7 @@ extern u_long get_dclk(void);
 
 # define bfin_revid() (bfin_read_CHIPID() >> 28)
 
-extern bool bfin_os_log_check(void);
+extern int bfin_os_log_check(void);
 extern void bfin_os_log_dump(void);
 
 extern void blackfin_icache_flush_range(const void *, const void *);
@@ -80,6 +80,8 @@ extern void blackfin_dcache_flush_invalidate_range(const void *, const void *);
 #else
 # define NOP_PAD_ANOMALY_05000198
 #endif
+
+#define BFIN_BUG() while (1) asm volatile("emuexcpt;");
 
 #define _bfin_readX(addr, size, asm_size, asm_ext) ({ \
 	u32 __v; \
@@ -111,7 +113,7 @@ extern void blackfin_dcache_flush_invalidate_range(const void *, const void *);
 	sizeof(*(addr)) == 1 ? bfin_read8(addr)  : \
 	sizeof(*(addr)) == 2 ? bfin_read16(addr) : \
 	sizeof(*(addr)) == 4 ? bfin_read32(addr) : \
-	({ BUG(); 0; }); \
+	({ BFIN_BUG(); 0; }); \
 })
 #define bfin_write(addr, val) \
 do { \
@@ -119,7 +121,8 @@ do { \
 	case 1: bfin_write8(addr, val);  break; \
 	case 2: bfin_write16(addr, val); break; \
 	case 4: bfin_write32(addr, val); break; \
-	default: BUG(); \
+	default: \
+		BFIN_BUG(); \
 	} \
 } while (0)
 

@@ -386,8 +386,13 @@ static void test_pattern(void)
 /************************************************************************/
 /* ** GENERIC Initialization Routines					*/
 /************************************************************************/
-
-int lcd_get_size(int *line_length)
+/*
+ * With most lcd drivers the line length is set up
+ * by calculating it from panel_info parameters. Some
+ * drivers need to calculate the line length differently,
+ * so make the function weak to allow overriding it.
+ */
+__weak int lcd_get_size(int *line_length)
 {
 	*line_length = (panel_info.vl_col * NBITS(panel_info.vl_bpix)) / 8;
 	return *line_length * panel_info.vl_row;
@@ -495,7 +500,6 @@ static int lcd_init(void *lcdbase)
 	debug("[LCD] Using LCD frambuffer at %p\n", lcd_base);
 
 	lcd_get_size(&lcd_line_length);
-	lcd_line_length = (panel_info.vl_col * NBITS(panel_info.vl_bpix)) / 8;
 	lcd_is_enabled = 1;
 	lcd_clear();
 	lcd_enable();

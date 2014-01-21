@@ -5,55 +5,14 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-include $(TOPDIR)/config.mk
-include $(OBJTREE)/include/autoconf.mk
+obj-y	+= post.o
+obj-$(CONFIG_POST_STD_LIST)	+= tests.o
 
-LIB				= libpost.o
-GPLIB-$(CONFIG_HAS_POST)	+= libgenpost.o
-COBJS-$(CONFIG_HAS_POST)	+= post.o
-COBJS-$(CONFIG_POST_STD_LIST)	+= tests.o
-
-SPLIB-$(CONFIG_HAS_POST) = drivers/libpostdrivers.o
-SPLIB-$(CONFIG_HAS_POST) += $(shell if [ -d lib_$(ARCH) ]; then echo \
-			    "lib_$(ARCH)/libpost$(ARCH).o"; fi)
-SPLIB-$(CONFIG_HAS_POST) += $(shell if [ -d lib_$(ARCH)/fpu ]; then echo \
-			    "lib_$(ARCH)/fpu/libpost$(ARCH)fpu.o"; fi)
-SPLIB-$(CONFIG_HAS_POST) += $(shell if [ -d cpu/$(CPU) ]; then echo \
-			    "cpu/$(CPU)/libpost$(CPU).o"; fi)
-SPLIB-$(CONFIG_HAS_POST) += $(shell if [ -d board/$(BOARD) ]; then echo \
-			    "board/$(BOARD)/libpost$(BOARD).o"; fi)
-
-GPLIB	:= $(addprefix $(obj),$(GPLIB-y))
-SPLIB	:= $(addprefix $(obj),$(SPLIB-y))
-COBJS	:= $(COBJS-y)
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-LIB	:= $(obj)$(LIB)
-
-all:	$(LIB)
-
-postdeps:
-	@for lib in $(SPLIB-y) ; do \
-		$(MAKE) -C `dirname $$lib` all ; \
-	done
-
-# generic POST library
-$(GPLIB): $(obj).depend $(OBJS)
-	$(call cmd_link_o_target, $(OBJS))
-
-# specific POST libraries
-$(SPLIB): $(obj).depend postdeps
-	$(MAKE) -C $(dir $(subst $(obj),,$@))
-
-# the POST lib archive
-$(LIB): $(GPLIB) $(SPLIB)
-	$(call cmd_link_o_target, $^)
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+obj-y += drivers/
+obj-$(CONFIG_PPC) += lib_powerpc/
+obj-$(CONFIG_MPC83xx) += cpu/mpc83xx/
+obj-$(CONFIG_8xx) += cpu/mpc8xx/
+obj-$(CONFIG_4xx) += cpu/ppc4xx/
+ifneq ($(filter lwmon lwmon5 netta pdm360ng,$(BOARD)),)
+obj-y += board/$(BOARD)/
+endif

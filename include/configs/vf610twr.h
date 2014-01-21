@@ -70,10 +70,9 @@
 
 /* I2C Configs */
 #define CONFIG_CMD_I2C
-#define CONFIG_HARD_I2C
-#define CONFIG_I2C_MXC
-#define CONFIG_SYS_I2C_BASE		I2C0_BASE_ADDR
-#define CONFIG_SYS_I2C_SPEED		100000
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_SPD_BUS_NUM		0
 
 #define CONFIG_BOOTDELAY		3
 
@@ -171,7 +170,6 @@
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#define CONFIG_SYS_PROMPT		"=> "
 #undef CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE		\
@@ -184,7 +182,6 @@
 #define CONFIG_SYS_MEMTEST_END		0x87C00000
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
-#define CONFIG_SYS_HZ			1000
 
 /*
  * Stack sizes

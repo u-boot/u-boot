@@ -11,6 +11,7 @@
 
 #include <asm/arch/imx-regs.h>
 #include <asm/sizes.h>
+#include "mx6_common.h"
 
 #define CONFIG_MX6
 #define CONFIG_DISPLAY_CPUINFO
@@ -150,7 +151,6 @@
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT		"=> "
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE		256
 
@@ -163,7 +163,6 @@
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + SZ_512M)
 
 #define CONFIG_SYS_LOAD_ADDR		CONFIG_LOADADDR
-#define CONFIG_SYS_HZ			1000
 
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_STACKSIZE		SZ_128K

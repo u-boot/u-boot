@@ -80,33 +80,8 @@
 /*
  * Software (bit-bang) I2C driver configuration
  */
-#define PF_SCL			PF3
-#define PF_SDA			PF2
-#define I2C_INIT		(*pFIO_DIR |=  PF_SCL); asm("ssync;")
-#define I2C_ACTIVE		(*pFIO_DIR |=  PF_SDA); \
-				*pFIO_INEN &= ~PF_SDA; asm("ssync;")
-#define I2C_TRISTATE		(*pFIO_DIR &= ~PF_SDA); \
-				*pFIO_INEN |= PF_SDA; asm("ssync;")
-#define I2C_READ		((volatile)(*pFIO_FLAG_D & PF_SDA) != 0); \
-				asm("ssync;")
-#define I2C_SDA(bit)	if (bit) { \
-				*pFIO_FLAG_S = PF_SDA; \
-				asm("ssync;"); \
-				} \
-			else	{ \
-				*pFIO_FLAG_C = PF_SDA; \
-				asm("ssync;"); \
-				}
-#define I2C_SCL(bit)	if (bit) { \
-				*pFIO_FLAG_S = PF_SCL; \
-				asm("ssync;"); \
-				} \
-			else	{ \
-				*pFIO_FLAG_C = PF_SCL; \
-				asm("ssync;"); \
-				}
-#define I2C_DELAY		udelay(5)	/* 1/4 I2C clock duration */
-
+#define CONFIG_SOFT_I2C_GPIO_SCL	GPIO_PF3
+#define CONFIG_SOFT_I2C_GPIO_SDA	GPIO_PF2
 
 /*
  * Flash Settings
@@ -155,8 +130,8 @@
  * it linked after the configuration sector.
  */
 # define LDS_BOARD_TEXT \
-	arch/blackfin/lib/libblackfin.o (.text*); \
-	arch/blackfin/cpu/libblackfin.o (.text*); \
+	arch/blackfin/lib/built-in.o (.text*); \
+	arch/blackfin/cpu/built-in.o (.text*); \
 	. = DEFINED(env_offset) ? env_offset : .; \
 	common/env_embedded.o (.text*);
 #endif

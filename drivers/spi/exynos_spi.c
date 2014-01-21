@@ -529,18 +529,18 @@ static int process_nodes(const void *blob, int node_list[], int count)
  * @param node		SPI peripheral node to use
  * @return 0 if ok, -1 on error
  */
-struct spi_slave *spi_setup_slave_fdt(const void *blob, int node,
-		unsigned int cs, unsigned int max_hz, unsigned int mode)
+struct spi_slave *spi_setup_slave_fdt(const void *blob, int slave_node,
+				      int spi_node)
 {
 	struct spi_bus *bus;
 	unsigned int i;
 
 	for (i = 0, bus = spi_bus; i < bus_count; i++, bus++) {
-		if (bus->node == node)
-			return spi_setup_slave(i, cs, max_hz, mode);
+		if (bus->node == spi_node)
+			return spi_base_setup_slave_fdt(blob, i, slave_node);
 	}
 
-	debug("%s: Failed to find bus node %d\n", __func__, node);
+	debug("%s: Failed to find bus node %d\n", __func__, spi_node);
 	return NULL;
 }
 

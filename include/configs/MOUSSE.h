@@ -78,7 +78,6 @@
  * Miscellaneous configurable options
  */
 #undef CONFIG_SYS_LONGHELP                /* undef to save memory     */
-#define CONFIG_SYS_PROMPT      "=>"  /* Monitor Command Prompt   */
 #define CONFIG_SYS_CBSIZE      256        /* Console I/O Buffer Size  */
 #define CONFIG_SYS_PBSIZE      (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_MAXARGS     8           /* Max number of command args   */
@@ -153,7 +152,6 @@
 
 #define CONFIG_SYS_CLK_FREQ  33000000	/* external frequency to pll */
 #define CONFIG_PLL_PCI_TO_MEM_MULTIPLIER  2
-#define CONFIG_SYS_HZ               1000
 
 #define CONFIG_SYS_ETH_DEV_FN       0x00
 #define CONFIG_SYS_ETH_IOBASE       0x00104000

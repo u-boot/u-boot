@@ -281,7 +281,8 @@
 
 /* architecture dependent code */
 #define	CONFIG_SYS_USR_EXCEP	/* user exception */
-#define	CONFIG_SYS_HZ	1000
+
+#define	CONFIG_PREBOOT	"echo U-BOOT for ${hostname};setenv preboot;echo"
 
 #define CONFIG_ENV_OVERWRITE	/* Allow to overwrite the u-boot environment variables */
 #define	CONFIG_IPADDR		192.168.0.90

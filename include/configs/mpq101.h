@@ -52,7 +52,7 @@
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
 
 /* DDR Setup */
-#define CONFIG_FSL_DDR2
+#define CONFIG_SYS_FSL_DDR2
 
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER /* DDR controller or DMA? */
 
@@ -334,7 +334,6 @@
 
 #define CONFIG_SYS_MAXARGS  16                /* max number of command args */
 #define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE /* Boot Argument Buffer Size */
-#define CONFIG_SYS_HZ       1000              /* decrementer freq: 1ms ticks */
 
 /*
  * For booting Linux, the board info and command line data
@@ -346,7 +345,6 @@
 
 #ifdef CONFIG_CMD_KGDB
 # define CONFIG_KGDB_BAUDRATE  230400 /* speed to run kgdb serial port */
-# define CONFIG_KGDB_SER_INDEX 2      /* which serial port to use */
 #endif
 
 /*

@@ -8,8 +8,8 @@
 
 #include <common.h>
 
-#include <asm/fsl_ddr_sdram.h>
-#include <asm/fsl_ddr_dimm_params.h>
+#include <fsl_ddr_sdram.h>
+#include <fsl_ddr_dimm_params.h>
 
 struct board_specific_parameters {
 	u32 n_ranks;
@@ -17,7 +17,7 @@ struct board_specific_parameters {
 	u32 clk_adjust;
 	u32 cpo;
 	u32 write_data_delay;
-	u32 force_2T;
+	u32 force_2t;
 };
 
 
@@ -37,7 +37,7 @@ static const struct board_specific_parameters dimm0[] = {
 	 *   num|  hi|  clk| cpo|wrdata|2T
 	 * ranks| mhz|adjst|    | delay|
 	 */
-#ifdef CONFIG_FSL_DDR2
+#ifdef CONFIG_SYS_FSL_DDR2
 	{2,  549,    4,   0x1f,    2,  0},
 	{2,  680,    4,   0x1f,    3,  0},
 	{2,  850,    4,   0x1f,    4,  0},
@@ -90,7 +90,7 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 				popts->cpo_override = pbsp->cpo;
 				popts->write_data_delay =
 					pbsp->write_data_delay;
-				popts->twoT_en = pbsp->force_2T;
+				popts->twot_en = pbsp->force_2t;
 				goto found;
 			}
 			pbsp_highest = pbsp;
@@ -106,7 +106,7 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 		popts->clk_adjust = pbsp_highest->clk_adjust;
 		popts->cpo_override = pbsp_highest->cpo;
 		popts->write_data_delay = pbsp_highest->write_data_delay;
-		popts->twoT_en = pbsp_highest->force_2T;
+		popts->twot_en = pbsp_highest->force_2t;
 	} else {
 		panic("DIMM is not supported by this board");
 	}

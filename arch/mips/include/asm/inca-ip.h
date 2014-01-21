@@ -1,4 +1,3 @@
-
 /******************************************************************************
        Copyright (c) 2002, Infineon Technologies.  All rights reserved.
 

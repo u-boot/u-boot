@@ -98,7 +98,7 @@
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
 
 /* DDR Setup */
-#define CONFIG_FSL_DDR1
+#define CONFIG_SYS_FSL_DDR1
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
 #define CONFIG_DDR_SPD
 #undef CONFIG_FSL_DDR_INTERACTIVE
@@ -331,7 +331,6 @@
 #define CONFIG_SYS_MAXARGS	16		/* max number of command args	*/
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 #define CONFIG_SYS_LOAD_ADDR	0x1000000	/* default load address */
-#define CONFIG_SYS_HZ		1000		/* decrementer freq: 1 ms ticks */
 
 /*
  * For booting Linux, the board info and command line data
@@ -342,7 +341,6 @@
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
-#define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
 
 /*Note: change below for your network setting!!! */

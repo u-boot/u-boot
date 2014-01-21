@@ -8,18 +8,19 @@
 #define __CONFIG_H
 
 #define CONFIG_SYS_DCACHE_OFF
-#define CONFIG_L2_OFF
 #define CONFIG_SYS_THUMB_BUILD
 
 #define CONFIG_SYS_NO_FLASH
-#define CFG_HZ				1000
-#define CONFIG_SYS_HZ			CFG_HZ
 
 #define CONFIG_OF_LIBFDT
 #define CONFIG_OF_BOARD_SETUP
 #define CONFIG_FIT
 #define CONFIG_SUPPORT_RAW_INITRD
 #define CONFIG_SYS_BOOTMAPSZ		(16 << 20)
+
+#define CONFIG_SYS_TIMER_RATE		(150000000/256)
+#define CONFIG_SYS_TIMER_COUNTER	(0xFFF34000 + 0x4)
+#define CONFIG_SYS_TIMER_COUNTS_DOWN
 
 /*
  * Size of malloc() pool
@@ -80,7 +81,7 @@
 #define CONFIG_RESET_TO_RETRY
 #define CONFIG_AUTOBOOT_KEYED
 #define CONFIG_AUTOBOOT_PROMPT "Autobooting in %d seconds...\nPress <s> to stop or <d> to delay\n", bootdelay
-
+#define CONFIG_AUTOBOOT_KEYED_CTRLC
 /*
  * Miscellaneous configurable options
  */

@@ -49,25 +49,30 @@ const struct dpll_params *get_dpll_ddr_params(void)
 	return &dpll_ddr;
 }
 
+#ifdef CONFIG_REV1
+const struct ctrl_ioregs ioregs = {
+	.cm0ioctl		= MT41J256M8HX15E_IOCTRL_VALUE,
+	.cm1ioctl		= MT41J256M8HX15E_IOCTRL_VALUE,
+	.cm2ioctl		= MT41J256M8HX15E_IOCTRL_VALUE,
+	.dt0ioctl		= MT41J256M8HX15E_IOCTRL_VALUE,
+	.dt1ioctl		= MT41J256M8HX15E_IOCTRL_VALUE,
+};
+
 static const struct ddr_data ddr3_data = {
 	.datardsratio0 = MT41J256M8HX15E_RD_DQS,
 	.datawdsratio0 = MT41J256M8HX15E_WR_DQS,
 	.datafwsratio0 = MT41J256M8HX15E_PHY_FIFO_WE,
 	.datawrsratio0 = MT41J256M8HX15E_PHY_WR_DATA,
-	.datadldiff0 = PHY_DLL_LOCK_DIFF,
 };
 
 static const struct cmd_control ddr3_cmd_ctrl_data = {
 	.cmd0csratio = MT41J256M8HX15E_RATIO,
-	.cmd0dldiff = MT41J256M8HX15E_DLL_LOCK_DIFF,
 	.cmd0iclkout = MT41J256M8HX15E_INVERT_CLKOUT,
 
 	.cmd1csratio = MT41J256M8HX15E_RATIO,
-	.cmd1dldiff = MT41J256M8HX15E_DLL_LOCK_DIFF,
 	.cmd1iclkout = MT41J256M8HX15E_INVERT_CLKOUT,
 
 	.cmd2csratio = MT41J256M8HX15E_RATIO,
-	.cmd2dldiff = MT41J256M8HX15E_DLL_LOCK_DIFF,
 	.cmd2iclkout = MT41J256M8HX15E_INVERT_CLKOUT,
 };
 
@@ -82,6 +87,56 @@ static struct emif_regs ddr3_emif_reg_data = {
 				PHY_EN_DYN_PWRDN,
 };
 
+void sdram_init(void)
+{
+	config_ddr(DDR_CLK_MHZ, &ioregs, &ddr3_data,
+		   &ddr3_cmd_ctrl_data, &ddr3_emif_reg_data, 0);
+}
+#else
+const struct ctrl_ioregs ioregs = {
+	.cm0ioctl		= MT41K256M16HA125E_IOCTRL_VALUE,
+	.cm1ioctl		= MT41K256M16HA125E_IOCTRL_VALUE,
+	.cm2ioctl		= MT41K256M16HA125E_IOCTRL_VALUE,
+	.dt0ioctl		= MT41K256M16HA125E_IOCTRL_VALUE,
+	.dt1ioctl		= MT41K256M16HA125E_IOCTRL_VALUE,
+};
+
+static const struct ddr_data ddr3_data = {
+	.datardsratio0 = MT41K256M16HA125E_RD_DQS,
+	.datawdsratio0 = MT41K256M16HA125E_WR_DQS,
+	.datafwsratio0 = MT41K256M16HA125E_PHY_FIFO_WE,
+	.datawrsratio0 = MT41K256M16HA125E_PHY_WR_DATA,
+};
+
+static const struct cmd_control ddr3_cmd_ctrl_data = {
+	.cmd0csratio = MT41K256M16HA125E_RATIO,
+	.cmd0iclkout = MT41K256M16HA125E_INVERT_CLKOUT,
+
+	.cmd1csratio = MT41K256M16HA125E_RATIO,
+	.cmd1iclkout = MT41K256M16HA125E_INVERT_CLKOUT,
+
+	.cmd2csratio = MT41K256M16HA125E_RATIO,
+	.cmd2iclkout = MT41K256M16HA125E_INVERT_CLKOUT,
+};
+
+static struct emif_regs ddr3_emif_reg_data = {
+	.sdram_config = MT41K256M16HA125E_EMIF_SDCFG,
+	.ref_ctrl = MT41K256M16HA125E_EMIF_SDREF,
+	.sdram_tim1 = MT41K256M16HA125E_EMIF_TIM1,
+	.sdram_tim2 = MT41K256M16HA125E_EMIF_TIM2,
+	.sdram_tim3 = MT41K256M16HA125E_EMIF_TIM3,
+	.zq_config = MT41K256M16HA125E_ZQ_CFG,
+	.emif_ddr_phy_ctlr_1 = MT41K256M16HA125E_EMIF_READ_LATENCY |
+				PHY_EN_DYN_PWRDN,
+};
+
+void sdram_init(void)
+{
+	config_ddr(DDR_CLK_MHZ, &ioregs, &ddr3_data,
+		   &ddr3_cmd_ctrl_data, &ddr3_emif_reg_data, 0);
+}
+#endif
+
 void set_uart_mux_conf(void)
 {
 	enable_uart0_pin_mux();
@@ -91,15 +146,9 @@ void set_mux_conf_regs(void)
 {
 	/* Initalize the board header */
 	enable_i2c0_pin_mux();
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
 
 	enable_board_pin_mux();
-}
-
-void sdram_init(void)
-{
-	config_ddr(DDR_CLK_MHZ, MT41J256M8HX15E_IOCTRL_VALUE, &ddr3_data,
-			&ddr3_cmd_ctrl_data, &ddr3_emif_reg_data, 0);
 }
 #endif
 
@@ -108,7 +157,7 @@ void sdram_init(void)
  */
 int board_init(void)
 {
-	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
 
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 

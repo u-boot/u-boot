@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2011 Freescale Semiconductor, Inc.
+ * Copyright 2010-2011, 2013 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -14,7 +14,7 @@
 #include <asm/cache.h>
 #include <asm/immap_85xx.h>
 #include <asm/fsl_pci.h>
-#include <asm/fsl_ddr_sdram.h>
+#include <fsl_ddr_sdram.h>
 #include <asm/io.h>
 #include <asm/fsl_law.h>
 #include <asm/fsl_lbc.h>
@@ -354,7 +354,7 @@ int board_eth_init(bd_t *bis)
 		puts("No address specified for VSC7385 microcode.\n");
 #endif
 
-	mdio_info.regs = (struct tsec_mii_mng *)CONFIG_SYS_MDIO_BASE_ADDR;
+	mdio_info.regs = TSEC_GET_MDIO_REGS_BASE(1);
 	mdio_info.name = DEFAULT_MII_NAME;
 
 	fsl_pq_mdio_init(bis, &mdio_info);

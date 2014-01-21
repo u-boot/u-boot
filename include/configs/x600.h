@@ -20,7 +20,6 @@
 #include <asm/arch/hardware.h>
 
 /* Timer, HZ specific defines */
-#define CONFIG_SYS_HZ				1000
 #define CONFIG_SYS_HZ_CLOCK			8300000
 
 #define	CONFIG_SYS_TEXT_BASE			0x00800040

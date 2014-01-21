@@ -229,6 +229,8 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_NAND
 
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
+#define CONFIG_SYS_NAND_MAX_OOBFREE	2
+#define CONFIG_SYS_NAND_MAX_ECCPOS	256
 
 #if defined(CONFIG_NAND)
 #define CONFIG_SYS_CSPR0_EXT		CONFIG_SYS_NAND_CSPR_EXT
@@ -463,6 +465,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
+#define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
 #endif
 
 #define CONFIG_BOOTDELAY	10	/* -1 disables auto-boot */
@@ -553,8 +556,6 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_BOOTCOMMAND		CONFIG_LINUX
 
-#ifdef CONFIG_SECURE_BOOT
 #include <asm/fsl_secure_boot.h>
-#endif
 
 #endif	/* __CONFIG_H */

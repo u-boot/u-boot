@@ -155,7 +155,6 @@
  /* Platform/Board specific defs */
 #define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
 #define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
-#define CONFIG_SYS_HZ			1000	/* 1ms clock */
 
 #define CONFIG_CONS_INDEX		1
 /* NS16550 Configuration */
@@ -173,11 +172,10 @@
 /* I2C Configuration */
 #define CONFIG_I2C
 #define CONFIG_CMD_I2C
-#define CONFIG_HARD_I2C
-#define CONFIG_SYS_I2C_SPEED		100000
-#define CONFIG_SYS_I2C_SLAVE		1
-#define CONFIG_I2C_MULTI_BUS
-#define CONFIG_DRIVER_OMAP24XX_I2C
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_OMAP24_I2C_SPEED	100000
+#define CONFIG_SYS_OMAP24_I2C_SLAVE	1
+#define CONFIG_SYS_I2C_OMAP24XX
 #define CONFIG_CMD_EEPROM
 #define CONFIG_ENV_EEPROM_IS_ON_I2C
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50	/* Main EEPROM */

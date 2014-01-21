@@ -16,10 +16,10 @@ SECTIONS
 	.text : {
 		*(.__image_copy_start)
 		arch/arm/cpu/ixp/start.o(.text*)
-		net/libnet.o(.text*)
-		board/dvlhost/libdvlhost.o(.text*)
-		arch/arm/cpu/ixp/libixp.o(.text*)
-		drivers/serial/libserial.o(.text*)
+		net/built-in.o(.text*)
+		board/dvlhost/built-in.o(.text*)
+		arch/arm/cpu/ixp/built-in.o(.text*)
+		drivers/serial/built-in.o(.text*)
 
 		. = env_offset;
 		common/env_embedded.o(.ppcenv)
@@ -87,10 +87,13 @@ SECTIONS
 		KEEP(*(.__bss_end));
 	}
 
-	/DISCARD/ : { *(.dynsym) }
-	/DISCARD/ : { *(.dynstr*) }
-	/DISCARD/ : { *(.dynamic*) }
-	/DISCARD/ : { *(.plt*) }
-	/DISCARD/ : { *(.interp*) }
-	/DISCARD/ : { *(.gnu*) }
+	.dynsym _end : { *(.dynsym) }
+	.dynbss : { *(.dynbss) }
+	.dynstr : { *(.dynstr*) }
+	.dynamic : { *(.dynamic*) }
+	.hash : { *(.hash*) }
+	.plt : { *(.plt*) }
+	.interp : { *(.interp*) }
+	.gnu : { *(.gnu*) }
+	.ARM.exidx : { *(.ARM.exidx*) }
 }

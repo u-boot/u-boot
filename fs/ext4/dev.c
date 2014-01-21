@@ -41,7 +41,7 @@ void ext4fs_set_blk_dev(block_dev_desc_t *rbdd, disk_partition_t *info)
 	get_fs()->dev_desc = rbdd;
 	part_info = info;
 	part_offset = info->start;
-	get_fs()->total_sect = (info->size * info->blksz) >>
+	get_fs()->total_sect = ((uint64_t)info->size * info->blksz) >>
 		get_fs()->dev_desc->log2blksz;
 }
 

@@ -393,7 +393,6 @@
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_AUTO_COMPLETE	1
 #define CONFIG_CMDLINE_EDITING	1
-#define CONFIG_SYS_PROMPT	"=> "
 #define CONFIG_SYS_HUSH_PARSER
 
 #define CONFIG_AUTOBOOT_KEYED
@@ -415,8 +414,6 @@
 #define CONFIG_SYS_MEMTEST_END		0x019fffff
 
 #define CONFIG_SYS_LOAD_ADDR		0x00100000
-
-#define CONFIG_SYS_HZ			1000
 
 /*
  * Various low-level settings

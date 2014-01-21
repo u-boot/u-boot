@@ -14,6 +14,7 @@
 #include <asm/arch/omap.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sys_proto.h>
+#include <watchdog.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -75,6 +76,9 @@ void spl_board_init(void)
 #endif
 #if defined(CONFIG_AM33XX) && defined(CONFIG_SPL_MUSB_NEW_SUPPORT)
 	arch_misc_init();
+#endif
+#if defined(CONFIG_HW_WATCHDOG)
+	hw_watchdog_init();
 #endif
 #ifdef CONFIG_AM33XX
 	am33xx_spl_board_init();

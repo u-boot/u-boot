@@ -65,7 +65,8 @@
 /* Default env settings */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"hostname=rut\0" \
-	"splashpos=488,352\0" \
+	"nand_img_size=0x500000\0" \
+	"splashpos=m,m\0" \
 	"optargs=fixrtc --no-log consoleblank=0 \0" \
 	CONFIG_COMMON_ENV_SETTINGS \
 	"mmc_dev=0\0" \
@@ -111,9 +112,7 @@
 		"fi;" \
 	"fi;" \
 	"run nand_boot;" \
-	"if ping ${serverip}; then " \
-		"run net_nfs; " \
-	"fi; "
+	"reset;"
 
 #else
 #define CONFIG_BOOTDELAY		0
@@ -151,6 +150,9 @@
 #define BOARD_LCD_RESET		115	/* Bank 3 pin 19 */
 #define CONFIG_ARCH_EARLY_INIT_R
 #define CONFIG_FORMIKE
+#define DISPL_PLL_SPREAD_SPECTRUM
+#define CONFIG_SYS_CONSOLE_BG_COL	0xff
+#define CONFIG_SYS_CONSOLE_FG_COL	0x00
 #endif
 
 #endif	/* ! __CONFIG_RUT_H */

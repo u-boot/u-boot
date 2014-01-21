@@ -53,32 +53,26 @@ void i2c_reloc_fixup(void)
 		return;
 
 	for (i = 0; i < max; i++) {
-		/* adapter itself */
-		addr = (unsigned long)i2c_adap_p;
-		addr += gd->reloc_off;
-		i2c_adap_p = (struct i2c_adapter *)addr;
 		/* i2c_init() */
 		addr = (unsigned long)i2c_adap_p->init;
 		addr += gd->reloc_off;
-		i2c_adap_p->init = (void (*)(int, int))addr;
+		i2c_adap_p->init = (void *)addr;
 		/* i2c_probe() */
 		addr = (unsigned long)i2c_adap_p->probe;
 		addr += gd->reloc_off;
-		i2c_adap_p->probe = (int (*)(uint8_t))addr;
+		i2c_adap_p->probe = (void *)addr;
 		/* i2c_read() */
 		addr = (unsigned long)i2c_adap_p->read;
 		addr += gd->reloc_off;
-		i2c_adap_p->read = (int (*)(uint8_t, uint, int, uint8_t *,
-					int))addr;
+		i2c_adap_p->read = (void *)addr;
 		/* i2c_write() */
 		addr = (unsigned long)i2c_adap_p->write;
 		addr += gd->reloc_off;
-		i2c_adap_p->write = (int (*)(uint8_t, uint, int, uint8_t *,
-					int))addr;
+		i2c_adap_p->write = (void *)addr;
 		/* i2c_set_bus_speed() */
 		addr = (unsigned long)i2c_adap_p->set_bus_speed;
 		addr += gd->reloc_off;
-		i2c_adap_p->set_bus_speed = (uint (*)(uint))addr;
+		i2c_adap_p->set_bus_speed = (void *)addr;
 		/* name */
 		addr = (unsigned long)i2c_adap_p->name;
 		addr += gd->reloc_off;
@@ -137,6 +131,11 @@ static int i2c_mux_set(struct i2c_adapter *adap, int mux_id, int chip,
 		if (channel > 7)
 			return -1;
 		buf = (uint8_t)((channel & 0x07) | (1 << 3));
+		break;
+	case I2C_MUX_PCA9548_ID:
+		if (channel > 7)
+			return -1;
+		buf = (uint8_t)(0x01 << channel);
 		break;
 	default:
 		printf("%s: wrong mux id: %d\n", __func__, mux_id);
@@ -278,20 +277,22 @@ unsigned int i2c_get_bus_num(void)
  */
 int i2c_set_bus_num(unsigned int bus)
 {
-	int max = ll_entry_count(struct i2c_adapter, i2c);
+	int max;
 
-	if (I2C_ADAPTER(bus) >= max) {
-		printf("Error, wrong i2c adapter %d max %d possible\n",
-		       I2C_ADAPTER(bus), max);
-		return -2;
-	}
+	if ((bus == I2C_BUS) && (I2C_ADAP->init_done > 0))
+		return 0;
+
 #ifndef CONFIG_SYS_I2C_DIRECT_BUS
 	if (bus >= CONFIG_SYS_NUM_I2C_BUSES)
 		return -1;
 #endif
 
-	if ((bus == I2C_BUS) && (I2C_ADAP->init_done > 0))
-		return 0;
+	max = ll_entry_count(struct i2c_adapter, i2c);
+	if (I2C_ADAPTER(bus) >= max) {
+		printf("Error, wrong i2c adapter %d max %d possible\n",
+		       I2C_ADAPTER(bus), max);
+		return -2;
+	}
 
 #ifndef CONFIG_SYS_I2C_DIRECT_BUS
 	i2c_mux_disconnet_all();
@@ -348,7 +349,7 @@ unsigned int i2c_set_bus_speed(unsigned int speed)
 		return 0;
 	ret = I2C_ADAP->set_bus_speed(I2C_ADAP, speed);
 	if (gd->flags & GD_FLG_RELOC)
-		I2C_ADAP->speed = ret;
+		I2C_ADAP->speed = (ret == 0) ? speed : 0;
 
 	return ret;
 }

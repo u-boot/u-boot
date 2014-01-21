@@ -69,7 +69,7 @@
 #define CONFIG_SYS_MEMTEST_START	0x08100000	      /* memtest test area   */
 #define CONFIG_SYS_MEMTEST_END		0x08F00000
 
-#define CONFIG_SYS_HZ			3686400	     /* incrementer freq: 3.6864 MHz */
+#define CONFIG_SYS_HZ			1000
 #define CONFIG_SYS_CPUSPEED		0x141	     /* core clock - register value  */
 
 #define CONFIG_BAUDRATE 115200
@@ -143,8 +143,8 @@
    now.*/
 #undef	CONFIG_SYS_FLASH_CFI
 
-#define CONFIG_SYS_FLASH_ERASE_TOUT	(2*CONFIG_SYS_HZ)    /* timeout for Erase operation */
-#define CONFIG_SYS_FLASH_WRITE_TOUT	(2*CONFIG_SYS_HZ)    /* timeout for Write operation */
+#define CONFIG_SYS_FLASH_ERASE_TOUT	240000    /* timeout for Erase operation */
+#define CONFIG_SYS_FLASH_WRITE_TOUT	240000    /* timeout for Write operation */
 
 #define CONFIG_SYS_FLASH_BASE		SCB9328_FLASH_BASE
 

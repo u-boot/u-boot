@@ -18,6 +18,7 @@
 #define CONFIG_DISPLAY_BOARDINFO
 
 #include <asm/arch/imx-regs.h>
+#include <asm/imx-common/gpio.h>
 
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
@@ -32,6 +33,11 @@
 #define CONFIG_MXC_GPIO
 
 #define CONFIG_MXC_UART
+
+#define CONFIG_CMD_FUSE
+#ifdef CONFIG_CMD_FUSE
+#define CONFIG_MXC_OCOTP
+#endif
 
 /* MMC Configs */
 #define CONFIG_FSL_ESDHC
@@ -60,6 +66,17 @@
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_ATHEROS
 
+#define CONFIG_CMD_SF
+#ifdef CONFIG_CMD_SF
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_STMICRO
+#define CONFIG_MXC_SPI
+#define CONFIG_SF_DEFAULT_BUS		0
+#define CONFIG_SF_DEFAULT_CS		(0 | (IMX_GPIO_NR(4, 9) << 8))
+#define CONFIG_SF_DEFAULT_SPEED		20000000
+#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
+#endif
+
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_CONS_INDEX              1
@@ -78,11 +95,33 @@
 #define CONFIG_LOADADDR                        0x12000000
 #define CONFIG_SYS_TEXT_BASE           0x17800000
 
+#ifdef CONFIG_SUPPORT_EMMC_BOOT
+#define EMMC_ENV \
+	"emmcdev=2\0" \
+	"update_emmc_firmware=" \
+		"if test ${ip_dyn} = yes; then " \
+			"setenv get_cmd dhcp; " \
+		"else " \
+			"setenv get_cmd tftp; " \
+		"fi; " \
+		"if ${get_cmd} ${update_sd_firmware_filename}; then " \
+			"if mmc dev ${emmcdev} && " \
+				"mmc open ${emmcdev} 1; then "	\
+				"setexpr fw_sz ${filesize} / 0x200; " \
+				"setexpr fw_sz ${fw_sz} + 1; "	\
+				"mmc write ${loadaddr} 0x2 ${fw_sz}; " \
+				"mmc close ${emmcdev} 1; " \
+			"fi; "	\
+		"fi\0"
+#else
+#define EMMC_ENV ""
+#endif
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"uimage=uImage\0" \
 	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
-	"fdt_addr=0x11000000\0" \
+	"fdt_addr=0x18000000\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
 	"console=" CONFIG_CONSOLE_DEV "\0" \
@@ -104,6 +143,7 @@
 				"mmc write ${loadaddr} 0x2 ${fw_sz}; " \
 			"fi; "	\
 		"fi\0" \
+	EMMC_ENV	  \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=${mmcroot}\0" \
 	"loadbootscript=" \
@@ -171,7 +211,6 @@
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT_HUSH_PS2     "> "
-#define CONFIG_SYS_PROMPT              "U-Boot > "
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE              256
 
@@ -185,7 +224,6 @@
 #define CONFIG_SYS_MEMTEST_SCRATCH     0x10800000
 
 #define CONFIG_SYS_LOAD_ADDR           CONFIG_LOADADDR
-#define CONFIG_SYS_HZ                  1000
 
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_STACKSIZE               (128 * 1024)

@@ -26,6 +26,7 @@
 #include <power/max8997_muic.h>
 #include <power/battery.h>
 #include <power/max17042_fg.h>
+#include <usb.h>
 #include <usb_mass_storage.h>
 
 #include "setup.h"
@@ -56,15 +57,18 @@ int board_init(void)
 
 void i2c_init_board(void)
 {
-	struct exynos4_gpio_part1 *gpio1 =
-		(struct exynos4_gpio_part1 *)samsung_get_base_gpio_part1();
+	int err;
 	struct exynos4_gpio_part2 *gpio2 =
 		(struct exynos4_gpio_part2 *)samsung_get_base_gpio_part2();
 
-	/* I2C_5 -> PMIC -> Adapter 0 */
-	s5p_gpio_direction_output(&gpio1->b, 7, 1);
-	s5p_gpio_direction_output(&gpio1->b, 6, 1);
-	/* I2C_9 -> FG -> Adapter 1 */
+	/* I2C_5 -> PMIC */
+	err = exynos_pinmux_config(PERIPH_ID_I2C5, PINMUX_FLAG_NONE);
+	if (err) {
+		debug("I2C%d not configured\n", (I2C_5));
+		return;
+	}
+
+	/* I2C_8 -> FG */
 	s5p_gpio_direction_output(&gpio2->y4, 0, 1);
 	s5p_gpio_direction_output(&gpio2->y4, 1, 1);
 }
@@ -289,10 +293,10 @@ int power_init_board(void)
 	 * The FUEL_GAUGE is marked as I2C9 on the schematic, but connected
 	 * to logical I2C adapter 1
 	 */
-	ret = pmic_init(I2C_0);
+	ret = pmic_init(I2C_5);
 	ret |= pmic_init_max8997();
-	ret |= power_fg_init(I2C_1);
-	ret |= power_muic_init(I2C_0);
+	ret |= power_fg_init(I2C_9);
+	ret |= power_muic_init(I2C_5);
 	ret |= power_bat_init(0);
 	if (ret)
 		return ret;
@@ -495,11 +499,22 @@ struct s3c_plat_otg_data s5pc210_otg_data = {
 	.usb_flags	= PHY0_SLEEP,
 };
 
-void board_usb_init(void)
+int board_usb_init(int index, enum usb_init_type init)
 {
 	debug("USB_udc_probe\n");
-	s3c_udc_probe(&s5pc210_otg_data);
+	return s3c_udc_probe(&s5pc210_otg_data);
 }
+
+#ifdef CONFIG_USB_CABLE_CHECK
+int usb_cable_connected(void)
+{
+	struct pmic *muic = pmic_get("MAX8997_MUIC");
+	if (!muic)
+		return 0;
+
+	return !!muic->chrg->chrg_type(muic);
+}
+#endif
 #endif
 
 static void pmic_reset(void)
@@ -771,65 +786,3 @@ void init_panel_info(vidinfo_t *vid)
 
 	setenv("lcdinfo", "lcd=s6e8ax0");
 }
-
-#ifdef CONFIG_USB_GADGET_MASS_STORAGE
-static int ums_read_sector(struct ums_device *ums_dev,
-			   ulong start, lbaint_t blkcnt, void *buf)
-{
-	if (ums_dev->mmc->block_dev.block_read(ums_dev->dev_num,
-			start + ums_dev->offset, blkcnt, buf) != blkcnt)
-		return -1;
-
-	return 0;
-}
-
-static int ums_write_sector(struct ums_device *ums_dev,
-			    ulong start, lbaint_t blkcnt, const void *buf)
-{
-	if (ums_dev->mmc->block_dev.block_write(ums_dev->dev_num,
-			start + ums_dev->offset, blkcnt, buf) != blkcnt)
-		return -1;
-
-	return 0;
-}
-
-static void ums_get_capacity(struct ums_device *ums_dev,
-			     long long int *capacity)
-{
-	long long int tmp_capacity;
-
-	tmp_capacity = (long long int) ((ums_dev->offset + ums_dev->part_size)
-					* SECTOR_SIZE);
-	*capacity = ums_dev->mmc->capacity - tmp_capacity;
-}
-
-static struct ums_board_info ums_board = {
-	.read_sector = ums_read_sector,
-	.write_sector = ums_write_sector,
-	.get_capacity = ums_get_capacity,
-	.name = "TRATS UMS disk",
-	.ums_dev = {
-		.mmc = NULL,
-		.dev_num = 0,
-		.offset = 0,
-		.part_size = 0.
-	},
-};
-
-struct ums_board_info *board_ums_init(unsigned int dev_num, unsigned int offset,
-				      unsigned int part_size)
-{
-	struct mmc *mmc;
-
-	mmc = find_mmc_device(dev_num);
-	if (!mmc)
-		return NULL;
-
-	ums_board.ums_dev.mmc = mmc;
-	ums_board.ums_dev.dev_num = dev_num;
-	ums_board.ums_dev.offset = offset;
-	ums_board.ums_dev.part_size = part_size;
-
-	return &ums_board;
-}
-#endif

@@ -21,7 +21,8 @@
  */
 #define EN_UPLL_TIMEOUT	500UL
 
-int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+int ehci_hcd_init(int index, enum usb_init_type init,
+		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	at91_pmc_t *pmc = (at91_pmc_t *)ATMEL_BASE_PMC;
 	ulong start_time, tmp_time;

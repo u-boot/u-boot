@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <malloc.h>
 #include <spi.h>
 #include <spi_flash.h>
 #include <watchdog.h>
@@ -23,13 +24,28 @@ static void spi_flash_addr(u32 addr, u8 *cmd)
 	cmd[3] = addr >> 0;
 }
 
-int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr)
+int spi_flash_cmd_read_status(struct spi_flash *flash, u8 *rs)
+{
+	int ret;
+	u8 cmd;
+
+	cmd = CMD_READ_STATUS;
+	ret = spi_flash_read_common(flash, &cmd, 1, rs, 1);
+	if (ret < 0) {
+		debug("SF: fail to read status register\n");
+		return ret;
+	}
+
+	return 0;
+}
+
+int spi_flash_cmd_write_status(struct spi_flash *flash, u8 ws)
 {
 	u8 cmd;
 	int ret;
 
 	cmd = CMD_WRITE_STATUS;
-	ret = spi_flash_write_common(flash, &cmd, 1, &sr, 1);
+	ret = spi_flash_write_common(flash, &cmd, 1, &ws, 1);
 	if (ret < 0) {
 		debug("SF: fail to write status register\n");
 		return ret;
@@ -37,6 +53,44 @@ int spi_flash_cmd_write_status(struct spi_flash *flash, u8 sr)
 
 	return 0;
 }
+
+#if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND)
+int spi_flash_cmd_read_config(struct spi_flash *flash, u8 *rc)
+{
+	int ret;
+	u8 cmd;
+
+	cmd = CMD_READ_CONFIG;
+	ret = spi_flash_read_common(flash, &cmd, 1, rc, 1);
+	if (ret < 0) {
+		debug("SF: fail to read config register\n");
+		return ret;
+	}
+
+	return 0;
+}
+
+int spi_flash_cmd_write_config(struct spi_flash *flash, u8 wc)
+{
+	u8 data[2];
+	u8 cmd;
+	int ret;
+
+	ret = spi_flash_cmd_read_status(flash, &data[0]);
+	if (ret < 0)
+		return ret;
+
+	cmd = CMD_WRITE_STATUS;
+	data[1] = wc;
+	ret = spi_flash_write_common(flash, &cmd, 1, &data, 2);
+	if (ret) {
+		debug("SF: fail to write config register\n");
+		return ret;
+	}
+
+	return 0;
+}
+#endif
 
 #ifdef CONFIG_SPI_FLASH_BAR
 static int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 bank_sel)
@@ -64,18 +118,8 @@ static int spi_flash_bank(struct spi_flash *flash, u32 offset)
 {
 	u8 bank_sel;
 	int ret;
-	int is_dual = flash->spi->is_dual;
 
-	if (is_dual == MODE_DUAL_STACKED) {
-		if (offset >= (flash->size / 2))
-			flash->spi->u_page = 1;
-		else
-			flash->spi->u_page = 0;
-	}
-	bank_sel = offset / SPI_FLASH_16MB_BOUN;
-
-	if ((is_dual == MODE_DUAL_STACKED) && (flash->spi->u_page == 1))
-		bank_sel -= ((flash->size / 2) / SPI_FLASH_16MB_BOUN);
+	bank_sel = offset / (SPI_FLASH_16MB_BOUN << flash->shift);
 
 	ret = spi_flash_cmd_bankaddr_write(flash, bank_sel);
 	if (ret) {
@@ -83,7 +127,29 @@ static int spi_flash_bank(struct spi_flash *flash, u32 offset)
 		return ret;
 	}
 
-	return 0;
+	return bank_sel;
+}
+#endif
+
+#ifdef CONFIG_SF_DUAL_FLASH
+static void spi_flash_dual_flash(struct spi_flash *flash, u32 *addr)
+{
+	switch (flash->dual_flash) {
+	case SF_DUAL_STACKED_FLASH:
+		if (*addr >= (flash->size >> 1)) {
+			*addr -= flash->size >> 1;
+			flash->spi->flags |= SPI_XFER_U_PAGE;
+		} else {
+			flash->spi->flags &= ~SPI_XFER_U_PAGE;
+		}
+		break;
+	case SF_DUAL_PARALLEL_FLASH:
+		*addr >>= flash->shift;
+		break;
+	default:
+		debug("SF: Unsupported dual_flash=%d\n", flash->dual_flash);
+		break;
+	}
 }
 #endif
 
@@ -91,6 +157,7 @@ int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
 {
 	struct spi_slave *spi = flash->spi;
 	unsigned long timebase;
+	unsigned long flags = SPI_XFER_BEGIN;
 	int ret;
 	u8 status;
 	u8 check_status = 0x0;
@@ -102,7 +169,11 @@ int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
 		check_status = poll_bit;
 	}
 
-	ret = spi_xfer(spi, 8, &cmd, NULL, SPI_XFER_BEGIN);
+#ifdef CONFIG_SF_DUAL_FLASH
+	if (spi->flags & SPI_XFER_U_PAGE)
+		flags |= SPI_XFER_U_PAGE;
+#endif
+	ret = spi_xfer(spi, 8, &cmd, NULL, flags);
 	if (ret) {
 		debug("SF: fail to read %s status register\n",
 		      cmd == CMD_READ_STATUS ? "read" : "flag");
@@ -176,9 +247,8 @@ int spi_flash_write_common(struct spi_flash *flash, const u8 *cmd,
 int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 {
 	u32 erase_size, erase_addr;
-	u8 cmd[4];
+	u8 cmd[SPI_FLASH_CMD_LEN];
 	int ret = -1;
-	int is_dual = flash->spi->is_dual;
 
 	erase_size = flash->erase_size;
 	if (offset % erase_size || len % erase_size) {
@@ -189,9 +259,11 @@ int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 	cmd[0] = flash->erase_cmd;
 	while (len) {
 		erase_addr = offset;
-		if (is_dual == MODE_DUAL_PARALLEL)
-			erase_addr /= 2;
 
+#ifdef CONFIG_SF_DUAL_FLASH
+		if (flash->dual_flash > SF_SINGLE_FLASH)
+			spi_flash_dual_flash(flash, &erase_addr);
+#endif
 #ifdef CONFIG_SPI_FLASH_BAR
 		ret = spi_flash_bank(flash, erase_addr);
 		if (ret < 0)
@@ -218,19 +290,22 @@ int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 		size_t len, const void *buf)
 {
-	unsigned long byte_addr, page_size, write_addr;
+	unsigned long byte_addr, page_size;
+	u32 write_addr;
 	size_t chunk_len, actual;
-	u8 cmd[4];
+	u8 cmd[SPI_FLASH_CMD_LEN];
 	int ret = -1;
-	int is_dual = flash->spi->is_dual;
 
 	page_size = flash->page_size;
 
 	cmd[0] = flash->write_cmd;
 	for (actual = 0; actual < len; actual += chunk_len) {
 		write_addr = offset;
-		if (is_dual == MODE_DUAL_PARALLEL)
-			write_addr /= 2;
+
+#ifdef CONFIG_SF_DUAL_FLASH
+		if (flash->dual_flash > SF_SINGLE_FLASH)
+			spi_flash_dual_flash(flash, &write_addr);
+#endif
 #ifdef CONFIG_SPI_FLASH_BAR
 		ret = spi_flash_bank(flash, write_addr);
 		if (ret < 0)
@@ -244,7 +319,7 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 
 		spi_flash_addr(write_addr, cmd);
 
-		debug("PP: 0x%p => cmd = { 0x%02x 0x%02x%02x%02x } chunk_len = %zu\n",
+		debug("SF: 0x%p => cmd = { 0x%02x 0x%02x%02x%02x } chunk_len = %zu\n",
 		      buf + actual, cmd[0], cmd[1], cmd[2], cmd[3], chunk_len);
 
 		ret = spi_flash_write_common(flash, cmd, sizeof(cmd),
@@ -286,48 +361,44 @@ int spi_flash_read_common(struct spi_flash *flash, const u8 *cmd,
 int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 		size_t len, void *data)
 {
-	u8 cmd[5], bank_sel = 0;
-	u32 remain_len, read_len, read_addr, bank_boun;
+	u8 *cmd, cmdsz;
+	u32 remain_len, read_len, read_addr;
+	int bank_sel = 0;
 	int ret = -1;
-	int is_dual = flash->spi->is_dual;
 
 	/* Handle memory-mapped SPI */
 	if (flash->memory_map) {
+		ret = spi_claim_bus(flash->spi);
+		if (ret) {
+			debug("SF: unable to claim SPI bus\n");
+			return ret;
+		}
+		spi_xfer(flash->spi, 0, NULL, NULL, SPI_XFER_MMAP);
 		memcpy(data, flash->memory_map + offset, len);
+		spi_xfer(flash->spi, 0, NULL, NULL, SPI_XFER_MMAP_END);
+		spi_release_bus(flash->spi);
 		return 0;
 	}
 
-	bank_boun = SPI_FLASH_16MB_BOUN;
-	if (is_dual == MODE_DUAL_PARALLEL)
-		bank_boun = SPI_FLASH_16MB_BOUN << 1;
+	cmdsz = SPI_FLASH_CMD_LEN + flash->dummy_byte;
+	cmd = malloc(cmdsz);
+	memset(cmd, 0, cmdsz);
 
 	cmd[0] = flash->read_cmd;
-	cmd[4] = 0x00;
-
 	while (len) {
 		read_addr = offset;
-		if (is_dual == MODE_DUAL_PARALLEL)
-			read_addr /= 2;
-		if (is_dual == MODE_DUAL_STACKED) {
-			if (read_addr >= (flash->size / 2))
-				flash->spi->u_page = 1;
-			else
-				flash->spi->u_page = 0;
-		}
-#ifdef CONFIG_SPI_FLASH_BAR
-		bank_sel = read_addr / SPI_FLASH_16MB_BOUN;
-		if ((is_dual == MODE_DUAL_STACKED) && (flash->spi->u_page == 1))
-			bank_sel -= ((flash->size / 2) / bank_boun);
 
-		ret = spi_flash_cmd_bankaddr_write(flash, bank_sel);
-		if (ret) {
-			debug("SF: fail to set bank%d\n", bank_sel);
-			return ret;
-		}
-		if ((is_dual == MODE_DUAL_STACKED) && (flash->spi->u_page == 1))
-			bank_sel += ((flash->size / 2) / bank_boun);
+#ifdef CONFIG_SF_DUAL_FLASH
+		if (flash->dual_flash > SF_SINGLE_FLASH)
+			spi_flash_dual_flash(flash, &read_addr);
 #endif
-		remain_len = (bank_boun * (bank_sel + 1)) - offset;
+#ifdef CONFIG_SPI_FLASH_BAR
+		bank_sel = spi_flash_bank(flash, read_addr);
+		if (bank_sel < 0)
+			return ret;
+#endif
+		remain_len = ((SPI_FLASH_16MB_BOUN << flash->shift) *
+				(bank_sel + 1)) - offset;
 		if (len < remain_len)
 			read_len = len;
 		else
@@ -335,8 +406,7 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 
 		spi_flash_addr(read_addr, cmd);
 
-		ret = spi_flash_read_common(flash, cmd, sizeof(cmd),
-							data, read_len);
+		ret = spi_flash_read_common(flash, cmd, cmdsz, data, read_len);
 		if (ret < 0) {
 			debug("SF: read failed\n");
 			break;

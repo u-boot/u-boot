@@ -1548,7 +1548,7 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	}
 
 	dev->status = stat;
-	dev->act_len = transfer_len;
+	dev->act_len = urb->actual_length;
 
 #ifdef DEBUG
 	pkt_print(urb, dev, pipe, buffer, transfer_len,
@@ -1847,7 +1847,7 @@ static void hc_release_ohci(ohci_t *ohci)
  */
 static char ohci_inited = 0;
 
-int usb_lowlevel_init(int index, void **controller)
+int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 {
 #ifdef CONFIG_PCI_OHCI
 	pci_dev_t pdev;
@@ -1861,7 +1861,7 @@ int usb_lowlevel_init(int index, void **controller)
 
 #ifdef CONFIG_SYS_USB_OHCI_BOARD_INIT
 	/*  board dependant init */
-	if (usb_board_init())
+	if (board_usb_init(index, USB_INIT_HOST))
 		return -1;
 #endif
 	memset(&gohci, 0, sizeof(ohci_t));
@@ -1918,7 +1918,7 @@ int usb_lowlevel_init(int index, void **controller)
 		err ("can't reset usb-%s", gohci.slot_name);
 #ifdef CONFIG_SYS_USB_OHCI_BOARD_INIT
 		/* board dependant cleanup */
-		usb_board_init_fail();
+		board_usb_cleanup(index, USB_INIT_HOST);
 #endif
 
 #ifdef CONFIG_SYS_USB_OHCI_CPU_INIT

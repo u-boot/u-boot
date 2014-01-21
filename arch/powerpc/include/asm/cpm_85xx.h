@@ -1,4 +1,3 @@
-
 /*
  * MPC85xx Communication Processor Module
  * Copyright (c) 2003,Motorola Inc.

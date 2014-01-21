@@ -57,7 +57,7 @@ static void set_name(dir_entry *dirent, const char *filename)
 	if (len == 0)
 		return;
 
-	memcpy(s_name, filename, len);
+	strcpy(s_name, filename);
 	uppercase(s_name, len);
 
 	period = strchr(s_name, '.');

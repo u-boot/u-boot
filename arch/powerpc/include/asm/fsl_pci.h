@@ -18,24 +18,6 @@
 /* Freescale-specific PCI config registers */
 #define FSL_PCI_PBFR		0x44
 
-#ifdef CONFIG_SYS_FSL_PCI_VER_3_X
-/* Currently only the PCIe capability is used, so hardcode the offset.
- * if more capabilities need to be justified, the capability link method
- * should be applied here
- */
-#define FSL_PCIE_CAP_ID		0x70
-#define PCI_DCR		0x78    /* PCIe Device Control Register */
-#define PCI_DSR		0x7a    /* PCIe Device Status Register */
-#define PCI_LSR		0x82    /* PCIe Link Status Register */
-#define PCI_LCR		0x80    /* PCIe Link Control Register */
-#else
-#define FSL_PCIE_CAP_ID		0x4c
-#define PCI_DCR		0x54    /* PCIe Device Control Register */
-#define PCI_DSR		0x56    /* PCIe Device Status Register */
-#define PCI_LSR		0x5e    /* PCIe Link Status Register */
-#define PCI_LCR		0x5c    /* PCIe Link Control Register */
-#endif
-
 #define FSL_PCIE_CFG_RDY	0x4b0
 #define FSL_PROG_IF_AGENT	0x1
 

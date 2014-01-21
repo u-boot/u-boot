@@ -107,7 +107,6 @@ protect on ${u-boot_startaddr} ${u-boot_endaddr}"
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP				/* undef to save memory		*/
-#define CONFIG_SYS_PROMPT	"=> "			/* Monitor Command Prompt	*/
 #define CONFIG_SYS_CBSIZE	256				/* Console I/O Buffer Size	*/
 
 /* Print Buffer Size */
@@ -209,7 +208,6 @@ protect on ${u-boot_startaddr} ${u-boot_endaddr}"
  *------------------------------------------------------------------*/
 
 #define CONFIG_SYS_CLK_FREQ  33000000
-#define CONFIG_SYS_HZ				1000
 
 /*#define CONFIG_SYS_ETH_DEV_FN	     0x7800 */
 /*#define CONFIG_SYS_ETH_IOBASE	     0x00104000 */

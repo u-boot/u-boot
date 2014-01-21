@@ -2,7 +2,7 @@
  * (C) Copyright 2012 Xilinx
  *
  * Configuration settings for the Xilinx Zynq AFX board.
- * See zynq_common.h for Zynq common configs
+ * See zynq-common.h for Zynq common configs
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -10,7 +10,7 @@
 #ifndef __CONFIG_ZYNQ_AFX_H
 #define __CONFIG_ZYNQ_AFX_H
 
-#define PHYS_SDRAM_1_SIZE (128 * 1024 * 1024)
+#define CONFIG_SYS_SDRAM_SIZE (128 * 1024 * 1024)
 
 #define CONFIG_ZYNQ_SERIAL_UART1
 
@@ -23,6 +23,6 @@
 # define CONFIG_NAND_ZYNQ
 #endif
 
-#include <configs/zynq_common.h>
+#include <configs/zynq-common.h>
 
 #endif /* __CONFIG_ZYNQ_AFX_H */

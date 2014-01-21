@@ -9,8 +9,8 @@
 
 #include <common.h>
 
-#include <asm/fsl_ddr_sdram.h>
-#include <asm/fsl_ddr_dimm_params.h>
+#include <fsl_ddr_sdram.h>
+#include <fsl_ddr_dimm_params.h>
 
 void fsl_ddr_board_options(memctl_options_t *popts,
 				dimm_params_t *pdimm,
@@ -30,5 +30,5 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	popts->clk_adjust = 4;
 	popts->cpo_override = 4;
 	popts->write_data_delay = 2;
-	popts->twoT_en = 0;
+	popts->twot_en = 0;
 }

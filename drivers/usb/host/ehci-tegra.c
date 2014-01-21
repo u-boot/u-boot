@@ -699,7 +699,7 @@ static int process_usb_nodes(const void *blob, int node_list[], int count)
 	return 0;
 }
 
-int board_usb_init(const void *blob)
+int usb_process_devicetree(const void *blob)
 {
 	int node_list[USB_PORTS_MAX];
 	int count, err = 0;
@@ -734,7 +734,8 @@ int board_usb_init(const void *blob)
  * @param hcor		returns start address of EHCI HCOR registers
  * @return 0 if ok, -1 on error (generally invalid port number)
  */
-int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+int ehci_hcd_init(int index, enum usb_init_type init,
+		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	struct fdt_usb *config;
 	struct usb_ctlr *usbctlr;

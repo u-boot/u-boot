@@ -70,7 +70,6 @@
 #define CONFIG_SYS_BARGSIZE		256	/* Boot Argument Buffer Size */
 #define CONFIG_SYS_MEMTEST_START	0xc0040000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0xc2000000	/* 4..128 MB */
-#define CONFIG_SYS_HZ			1000
 #define CONFIG_SYS_CPUSPEED		0x0a /* core clock 206MHz */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 19200, 38400, 57600, 115200 }
 

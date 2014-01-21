@@ -9,8 +9,8 @@
 #include <common.h>
 #include <i2c.h>
 
-#include <asm/fsl_ddr_sdram.h>
-#include <asm/fsl_ddr_dimm_params.h>
+#include <fsl_ddr_sdram.h>
+#include <fsl_ddr_dimm_params.h>
 
 void fsl_ddr_board_options(memctl_options_t *popts,
 				dimm_params_t *pdimm,
@@ -91,7 +91,8 @@ void get_spd(generic_spd_eeprom_t *spd, u8 i2c_address)
  */
 phys_size_t fixed_sdram(void)
 {
-	volatile ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC8xxx_DDR_ADDR);
+	struct ccsr_ddr __iomem *ddr =
+		(struct ccsr_ddr __iomem *)(CONFIG_SYS_FSL_DDR_ADDR);
 
 	out_be32(&ddr->cs0_bnds,	0x0000007f);
 	out_be32(&ddr->cs1_bnds,	0x008000ff);

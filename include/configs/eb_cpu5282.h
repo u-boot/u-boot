@@ -98,7 +98,6 @@
 /*----------------------------------------------------------------------*
  * Clock and PLL Configuration						*
  *----------------------------------------------------------------------*/
-#define CONFIG_SYS_HZ			1000
 #define	CONFIG_SYS_CLK			80000000      /* 8MHz * 8 */
 
 /* PLL Configuration: Ext Clock * 8 (see table 9-4 of MCF user manual) */
@@ -153,7 +152,7 @@
 #define	CONFIG_SYS_SDRAM_SIZE		CONFIG_SYS_SDRAM_SIZE0
 
 #define CONFIG_SYS_MONITOR_LEN		0x20000
-#define CONFIG_SYS_MALLOC_LEN		(256 << 10)
+#define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
 #define CONFIG_SYS_BOOTPARAMS_LEN	64*1024
 
 /*

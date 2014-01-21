@@ -7,14 +7,10 @@
 # This Makefile builds the internal U-Boot fdt if CONFIG_OF_CONTROL is
 # enabled. See doc/README.fdt-control for more details.
 
-include $(TOPDIR)/config.mk
-
-LIB	= $(obj)libdts.o
-
 ifeq ($(DEVICE_TREE),)
 $(if $(CONFIG_DEFAULT_DEVICE_TREE),,\
 $(error Please define CONFIG_DEFAULT_DEVICE_TREE in your board header file))
-DEVICE_TREE = $(subst ",,$(CONFIG_DEFAULT_DEVICE_TREE))
+DEVICE_TREE = $(CONFIG_DEFAULT_DEVICE_TREE:"%"=%)
 endif
 
 DTS_INCDIRS =  $(SRCTREE)/board/$(VENDOR)/$(BOARD)/dts
@@ -26,8 +22,6 @@ DTS_CPPFLAGS := -x assembler-with-cpp -undef -D__DTS__ \
 
 DTC_FLAGS := -R 4 -p 0x1000 \
 	$(addprefix -i ,$(DTS_INCDIRS))
-
-all:	$(obj).depend $(LIB)
 
 # Use a constant name for this so we can access it from C code.
 # objcopy doesn't seem to allow us to set the symbol name independently of
@@ -71,22 +65,6 @@ $(obj)dt.o: $(DT_BIN)
 		$(notdir ${DT_BIN}) $@
 	rm $(DT_BIN)
 
-OBJS-$(CONFIG_OF_EMBED)	:= dt.o
-
-COBJS	:= $(OBJS-y)
-
-OBJS	:= $(addprefix $(obj),$(COBJS))
+obj-$(CONFIG_OF_EMBED)	:= dt.o
 
 binary:	$(DT_BIN)
-
-$(LIB):	$(OBJS) $(DTB)
-	$(call cmd_link_o_target, $(OBJS))
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################

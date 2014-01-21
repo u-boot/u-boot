@@ -28,21 +28,48 @@ static struct omap_ehci *const ehci = (struct omap_ehci *)OMAP_EHCI_BASE;
 
 static int omap_uhh_reset(void)
 {
-/*
- * Soft resetting the UHH module causes instability issues on
- * all OMAPs so we just avoid it.
- *
- * See OMAP36xx Errata
- *  i571: USB host EHCI may stall when entering smart-standby mode
- *  i660: USBHOST Configured In Smart-Idle Can Lead To a Deadlock
- *
- * On OMAP4/5, soft-resetting the UHH module will put it into
- * Smart-Idle mode and lead to a deadlock.
- *
- * On OMAP3, this doesn't seem to be the case but still instabilities
- * are observed on beagle (3530 ES1.0) if soft-reset is used.
- * e.g. NFS root failures with Linux kernel.
- */
+	int timeout = 0;
+	u32 rev;
+
+	rev = readl(&uhh->rev);
+
+	/* Soft RESET */
+	writel(OMAP_UHH_SYSCONFIG_SOFTRESET, &uhh->sysc);
+
+	switch (rev) {
+	case OMAP_USBHS_REV1:
+		/* Wait for soft RESET to complete */
+		while (!(readl(&uhh->syss) & 0x1)) {
+			if (timeout > 100) {
+				printf("%s: RESET timeout\n", __func__);
+				return -1;
+			}
+			udelay(10);
+			timeout++;
+		}
+
+		/* Set No-Idle, No-Standby */
+		writel(OMAP_UHH_SYSCONFIG_VAL, &uhh->sysc);
+		break;
+
+	default:	/* Rev. 2 onwards */
+
+		udelay(2); /* Need to wait before accessing SYSCONFIG back */
+
+		/* Wait for soft RESET to complete */
+		while ((readl(&uhh->sysc) & 0x1)) {
+			if (timeout > 100) {
+				printf("%s: RESET timeout\n", __func__);
+				return -1;
+			}
+			udelay(10);
+			timeout++;
+		}
+
+		writel(OMAP_UHH_SYSCONFIG_VAL, &uhh->sysc);
+		break;
+	}
+
 	return 0;
 }
 
@@ -95,12 +122,6 @@ static void omap_ehci_soft_phy_reset(int port)
 	return;
 }
 #endif
-
-inline int __board_usb_init(void)
-{
-	return 0;
-}
-int board_usb_init(void) __attribute__((weak, alias("__board_usb_init")));
 
 #if defined(CONFIG_OMAP_EHCI_PHY1_RESET_GPIO) || \
 	defined(CONFIG_OMAP_EHCI_PHY2_RESET_GPIO) || \
@@ -157,15 +178,15 @@ int omap_ehci_hcd_stop(void)
  * Based on "drivers/usb/host/ehci-omap.c" from Linux 3.1
  * See there for additional Copyrights.
  */
-int omap_ehci_hcd_init(struct omap_usbhs_board_data *usbhs_pdata,
-		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+int omap_ehci_hcd_init(int index, struct omap_usbhs_board_data *usbhs_pdata,
+		       struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	int ret;
 	unsigned int i, reg = 0, rev = 0;
 
 	debug("Initializing OMAP EHCI\n");
 
-	ret = board_usb_init();
+	ret = board_usb_init(index, USB_INIT_HOST);
 	if (ret < 0)
 		return ret;
 

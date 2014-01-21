@@ -193,7 +193,6 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
-#define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt	*/
 
 #define	CONFIG_SYS_HUSH_PARSER		1	/* use "hush" command parser	*/
 
@@ -212,8 +211,6 @@
 #define CONFIG_SYS_LOAD_ADDR		0x00100000	/* default load address */
 
 #define CONFIG_SYS_PIO_MODE		0	/* IDE interface in PIO Mode 0	*/
-
-#define CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks */
 
 /*
  * When the watchdog is enabled, output must be fast enough in Linux.

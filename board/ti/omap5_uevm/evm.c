@@ -14,12 +14,13 @@
 
 #include "mux_data.h"
 
-#ifdef CONFIG_USB_EHCI
+#if defined(CONFIG_USB_EHCI) || defined(CONFIG_USB_XHCI_OMAP)
 #include <usb.h>
 #include <asm/gpio.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/ehci.h>
 #include <asm/ehci-omap.h>
+#include <asm/arch/sata.h>
 
 #define DIE_ID_REG_BASE     (OMAP54XX_L4_CORE_BASE + 0x2000)
 #define DIE_ID_REG_OFFSET	0x200
@@ -67,10 +68,45 @@ int board_init(void)
 	return 0;
 }
 
+int board_late_init(void)
+{
+	omap_sata_init();
+	return 0;
+}
+
 int board_eth_init(bd_t *bis)
 {
 	return 0;
 }
+
+#if defined(CONFIG_USB_EHCI) || defined(CONFIG_USB_XHCI_OMAP)
+static void enable_host_clocks(void)
+{
+	int auxclk;
+	int hs_clk_ctrl_val = (OPTFCLKEN_HSIC60M_P3_CLK |
+				OPTFCLKEN_HSIC480M_P3_CLK |
+				OPTFCLKEN_HSIC60M_P2_CLK |
+				OPTFCLKEN_HSIC480M_P2_CLK |
+				OPTFCLKEN_UTMI_P3_CLK | OPTFCLKEN_UTMI_P2_CLK);
+
+	/* Enable port 2 and 3 clocks*/
+	setbits_le32((*prcm)->cm_l3init_hsusbhost_clkctrl, hs_clk_ctrl_val);
+
+	/* Enable port 2 and 3 usb host ports tll clocks*/
+	setbits_le32((*prcm)->cm_l3init_hsusbtll_clkctrl,
+			(OPTFCLKEN_USB_CH1_CLK_ENABLE | OPTFCLKEN_USB_CH2_CLK_ENABLE));
+#ifdef CONFIG_USB_XHCI_OMAP
+	/* Enable the USB OTG Super speed clocks */
+	setbits_le32((*prcm)->cm_l3init_usb_otg_ss_clkctrl,
+			(OPTFCLKEN_REFCLK960M | OTG_SS_CLKCTRL_MODULEMODE_HW));
+#endif
+
+	auxclk = readl((*prcm)->scrm_auxclk1);
+	/* Request auxilary clock */
+	auxclk |= AUXCLK_ENABLE_MASK;
+	writel(auxclk, (*prcm)->scrm_auxclk1);
+}
+#endif
 
 /**
  * @brief misc_init_r - Configure EVM board specific configurations
@@ -81,9 +117,30 @@ int board_eth_init(bd_t *bis)
  */
 int misc_init_r(void)
 {
+	int reg;
+	uint8_t device_mac[6];
+
 #ifdef CONFIG_PALMAS_POWER
 	palmas_init_settings();
 #endif
+
+	if (!getenv("usbethaddr")) {
+		reg = DIE_ID_REG_BASE + DIE_ID_REG_OFFSET;
+
+		/*
+		 * create a fake MAC address from the processor ID code.
+		 * first byte is 0x02 to signify locally administered.
+		 */
+		device_mac[0] = 0x02;
+		device_mac[1] = readl(reg + 0x10) & 0xff;
+		device_mac[2] = readl(reg + 0xC) & 0xff;
+		device_mac[3] = readl(reg + 0x8) & 0xff;
+		device_mac[4] = readl(reg) & 0xff;
+		device_mac[5] = (readl(reg) >> 8) & 0xff;
+
+		eth_setenv_enetaddr("usbethaddr", device_mac);
+	}
+
 	return 0;
 }
 
@@ -129,54 +186,14 @@ static struct omap_usbhs_board_data usbhs_bdata = {
 	.port_mode[2] = OMAP_EHCI_PORT_MODE_HSIC,
 };
 
-static void enable_host_clocks(void)
-{
-	int hs_clk_ctrl_val = (OPTFCLKEN_HSIC60M_P3_CLK |
-				OPTFCLKEN_HSIC480M_P3_CLK |
-				OPTFCLKEN_HSIC60M_P2_CLK |
-				OPTFCLKEN_HSIC480M_P2_CLK |
-				OPTFCLKEN_UTMI_P3_CLK | OPTFCLKEN_UTMI_P2_CLK);
-
-	/* Enable port 2 and 3 clocks*/
-	setbits_le32((*prcm)->cm_l3init_hsusbhost_clkctrl, hs_clk_ctrl_val);
-
-	/* Enable port 2 and 3 usb host ports tll clocks*/
-	setbits_le32((*prcm)->cm_l3init_hsusbtll_clkctrl,
-			(OPTFCLKEN_USB_CH1_CLK_ENABLE | OPTFCLKEN_USB_CH2_CLK_ENABLE));
-}
-
-int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+int ehci_hcd_init(int index, enum usb_init_type init,
+		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
 	int ret;
-	int auxclk;
-	int reg;
-	uint8_t device_mac[6];
 
 	enable_host_clocks();
 
-	if (!getenv("usbethaddr")) {
-		reg = DIE_ID_REG_BASE + DIE_ID_REG_OFFSET;
-
-		/*
-		 * create a fake MAC address from the processor ID code.
-		 * first byte is 0x02 to signify locally administered.
-		 */
-		device_mac[0] = 0x02;
-		device_mac[1] = readl(reg + 0x10) & 0xff;
-		device_mac[2] = readl(reg + 0xC) & 0xff;
-		device_mac[3] = readl(reg + 0x8) & 0xff;
-		device_mac[4] = readl(reg) & 0xff;
-		device_mac[5] = (readl(reg) >> 8) & 0xff;
-
-		eth_setenv_enetaddr("usbethaddr", device_mac);
-	}
-
-	auxclk = readl((*prcm)->scrm_auxclk1);
-	/* Request auxilary clock */
-	auxclk |= AUXCLK_ENABLE_MASK;
-	writel(auxclk, (*prcm)->scrm_auxclk1);
-
-	ret = omap_ehci_hcd_init(&usbhs_bdata, hccr, hcor);
+	ret = omap_ehci_hcd_init(index, &usbhs_bdata, hccr, hcor);
 	if (ret < 0) {
 		puts("Failed to initialize ehci\n");
 		return ret;
@@ -201,5 +218,25 @@ void usb_hub_reset_devices(int port)
 		udelay(10);
 		gpio_direction_output(CONFIG_OMAP_EHCI_PHY3_RESET_GPIO, 1);
 	}
+}
+#endif
+
+#ifdef CONFIG_USB_XHCI_OMAP
+/**
+ * @brief board_usb_init - Configure EVM board specific configurations
+ * for the LDO's and clocks for the USB blocks.
+ *
+ * @return 0
+ */
+int board_usb_init(int index, enum usb_init_type init)
+{
+	int ret;
+#ifdef CONFIG_PALMAS_USB_SS_PWR
+	ret = palmas_enable_ss_ldo();
+#endif
+
+	enable_host_clocks();
+
+	return 0;
 }
 #endif

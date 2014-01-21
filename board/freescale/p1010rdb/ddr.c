@@ -8,8 +8,8 @@
 #include <asm/mmu.h>
 #include <asm/immap_85xx.h>
 #include <asm/processor.h>
-#include <asm/fsl_ddr_sdram.h>
-#include <asm/fsl_ddr_dimm_params.h>
+#include <fsl_ddr_sdram.h>
+#include <fsl_ddr_dimm_params.h>
 #include <asm/io.h>
 #include <asm/fsl_law.h>
 
@@ -172,20 +172,20 @@ dimm_params_t ddr_raw_timing = {
 	.edc_config = 0,
 	.burst_lengths_bitmask = 0x0c,
 
-	.tCKmin_X_ps = 1875,
-	.caslat_X = 0x1e << 4,	/* 5,6,7,8 */
-	.tAA_ps = 13125,
-	.tWR_ps = 15000,
-	.tRCD_ps = 13125,
-	.tRRD_ps = 7500,
-	.tRP_ps = 13125,
-	.tRAS_ps = 37500,
-	.tRC_ps = 50625,
-	.tRFC_ps = 160000,
-	.tWTR_ps = 7500,
-	.tRTP_ps = 7500,
+	.tckmin_x_ps = 1875,
+	.caslat_x = 0x1e << 4,	/* 5,6,7,8 */
+	.taa_ps = 13125,
+	.twr_ps = 15000,
+	.trcd_ps = 13125,
+	.trrd_ps = 7500,
+	.trp_ps = 13125,
+	.tras_ps = 37500,
+	.trc_ps = 50625,
+	.trfc_ps = 160000,
+	.twtr_ps = 7500,
+	.trtp_ps = 7500,
 	.refresh_rate_ps = 7800000,
-	.tFAW_ps = 37500,
+	.tfaw_ps = 37500,
 };
 
 int fsl_ddr_get_dimm_params(dimm_params_t *pdimm,

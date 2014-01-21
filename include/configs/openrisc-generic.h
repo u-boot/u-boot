@@ -55,7 +55,6 @@
 /*
  * TIMER
  */
-#define CONFIG_SYS_HZ			1000
 #define CONFIG_SYS_OPENRISC_TMR_HZ	100
 
 /*
@@ -101,7 +100,6 @@
  * MISC
  */
 #define CONFIG_SYS_LONGHELP		/* Provide extended help */
-#define CONFIG_SYS_PROMPT		"==> "	/* Command prompt	*/
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O buf size */
 #define CONFIG_SYS_MAXARGS		16	/* Max command args	*/
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE /* Bootarg buf size */

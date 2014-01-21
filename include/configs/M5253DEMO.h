@@ -1,4 +1,4 @@
-TABILITY or FITNESS FO04-2007 Freescale Semiconductor, Inc.
+/* Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
  * Hayden Fraser (Hayden.Fraser@freescale.com)
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -107,7 +107,6 @@ TABILITY or FITNESS FO04-2007 Freescale Semiconductor, Inc.
 #define CONFIG_SYS_I2C_PINMUX_CLR	(0xFFFFE7FF)
 #define CONFIG_SYS_I2C_PINMUX_SET	(0)
 
-#define CONFIG_SYS_PROMPT		"=> "
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 
 #if defined(CONFIG_CMD_KGDB)
@@ -123,8 +122,6 @@ TABILITY or FITNESS FO04-2007 Freescale Semiconductor, Inc.
 
 #define CONFIG_SYS_MEMTEST_START	0x400
 #define CONFIG_SYS_MEMTEST_END		0x380000
-
-#define CONFIG_SYS_HZ			1000
 
 #undef CONFIG_SYS_PLL_BYPASS		/* bypass PLL for test purpose */
 #define CONFIG_SYS_FAST_CLK

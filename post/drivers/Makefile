@@ -4,10 +4,5 @@
 #
 # SPDX-License-Identifier:	GPL-2.0+
 #
-include $(TOPDIR)/config.mk
 
-LIB	= libpostdrivers.o
-
-COBJS-$(CONFIG_HAS_POST)	+= flash.o i2c.o memory.o rtc.o
-
-include $(TOPDIR)/post/rules.mk
+obj-y += flash.o i2c.o memory.o rtc.o

@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <div64.h>
 #include <asm/io.h>
 #include <asm/arch-armv7/globaltimer.h>
 #include <asm/arch/rmobile.h>
@@ -38,13 +39,16 @@ static u64 get_time_us(void)
 	u64 timer = get_cpu_global_timer();
 
 	timer = ((timer << 2) + (CLK2MHZ(CONFIG_SYS_CPU_CLK) >> 1));
-	timer /= (u64)CLK2MHZ(CONFIG_SYS_CPU_CLK);
+	do_div(timer, CLK2MHZ(CONFIG_SYS_CPU_CLK));
 	return timer;
 }
 
 static ulong get_time_ms(void)
 {
-	return (ulong)(get_time_us() / 1000);
+	u64 us = get_time_us();
+
+	do_div(us, 1000);
+	return us;
 }
 
 int timer_init(void)

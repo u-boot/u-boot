@@ -155,13 +155,6 @@
 #ifndef CONFIG_SYS_MAXARGS
 # define CONFIG_SYS_MAXARGS 16
 #endif
-#if defined(CONFIG_SYS_HZ)
-# if (CONFIG_SYS_HZ != 1000)
-#  warning "CONFIG_SYS_HZ must always be 1000"
-# endif
-# undef CONFIG_SYS_HZ
-#endif
-#define CONFIG_SYS_HZ 1000
 
 /* Blackfin POST tests */
 #ifdef CONFIG_POST_BSPEC1_GPIO_LEDS

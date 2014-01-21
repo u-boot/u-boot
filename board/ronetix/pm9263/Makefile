@@ -10,26 +10,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-include $(TOPDIR)/config.mk
-
-LIB	= $(obj)lib$(BOARD).o
-
-COBJS-y += pm9263.o
-COBJS-y += led.o
-COBJS-$(CONFIG_HAS_DATAFLASH) += partition.o
-
-SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS-y) $(SOBJS-y))
-SOBJS	:= $(addprefix $(obj),$(SOBJS-y))
-
-$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
-	$(call cmd_link_o_target, $(OBJS))
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+obj-y += pm9263.o
+obj-y += led.o
+obj-$(CONFIG_HAS_DATAFLASH) += partition.o

@@ -5,16 +5,11 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-include $(TOPDIR)/config.mk
-
-LIB := $(obj)libnpe.o
-
 LOCAL_CFLAGS  += -I$(TOPDIR)/drivers/net/npe/include -DCONFIG_IXP425_COMPONENT_ETHDB -D__linux
 CFLAGS  += $(LOCAL_CFLAGS)
 CPPFLAGS  += $(LOCAL_CFLAGS) # needed for depend
-HOSTCFLAGS  += $(LOCAL_CFLAGS)
 
-COBJS-$(CONFIG_IXP4XX_NPE) := npe.o \
+obj-y := npe.o \
 	miiphy.o \
 	IxOsalBufferMgt.o \
 	IxOsalIoMem.o \
@@ -63,21 +58,3 @@ COBJS-$(CONFIG_IXP4XX_NPE) := npe.o \
 	IxNpeMhSend.o \
 	IxNpeMhSolicitedCbMgr.o \
 	IxNpeMhUnsolicitedCbMgr.o
-
-SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS-y))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
-
-all:	$(LIB)
-
-$(LIB):	$(obj).depend $(OBJS)
-	$(call cmd_link_o_target, $(OBJS))
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################

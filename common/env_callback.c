@@ -35,6 +35,9 @@ static struct env_clbk_tbl *find_env_callback(const char *name)
 	return NULL;
 }
 
+static int first_call = 1;
+static const char *callback_list;
+
 /*
  * Look for a possible callback for a newly added variable
  * This is called specifically when the variable did not exist in the hash
@@ -43,10 +46,14 @@ static struct env_clbk_tbl *find_env_callback(const char *name)
 void env_callback_init(ENTRY *var_entry)
 {
 	const char *var_name = var_entry->key;
-	const char *callback_list = getenv(ENV_CALLBACK_VAR);
 	char callback_name[256] = "";
 	struct env_clbk_tbl *clbkp;
 	int ret = 1;
+
+	if (first_call) {
+		callback_list = getenv(ENV_CALLBACK_VAR);
+		first_call = 0;
+	}
 
 	/* look in the ".callbacks" var for a reference to this variable */
 	if (callback_list != NULL)

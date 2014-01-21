@@ -14,7 +14,9 @@
  * Copyright (C) 2008 Nokia Corporation: drop_ffs() function by
  * Artem Bityutskiy <dedekind1@gmail.com> from mtd-utils
  *
- * SPDX-License-Identifier:	GPL-2.0+
+ * Copyright 2010 Freescale Semiconductor
+ *
+ * SPDX-License-Identifier:	GPL-2.0
  */
 
 #include <common.h>
@@ -313,7 +315,7 @@ int nand_unlock(struct mtd_info *mtd, loff_t start, size_t length,
 	int page;
 	struct nand_chip *chip = mtd->priv;
 
-	debug("nand_unlock%s: start: %08llx, length: %d!\n",
+	debug("nand_unlock%s: start: %08llx, length: %zd!\n",
 		allexcept ? " (allexcept)" : "", start, length);
 
 	/* select the NAND device */

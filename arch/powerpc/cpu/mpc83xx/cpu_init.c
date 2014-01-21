@@ -315,7 +315,7 @@ void cpu_init_f (volatile immap_t * im)
 #endif
 #if defined(CONFIG_USB_EHCI_FSL) && defined(CONFIG_MPC831x)
 	uint32_t temp;
-	struct usb_ehci *ehci = (struct usb_ehci *)CONFIG_SYS_FSL_USB_ADDR;
+	struct usb_ehci *ehci = (struct usb_ehci *)CONFIG_SYS_FSL_USB1_ADDR;
 
 	/* Configure interface. */
 	setbits_be32(&ehci->control, REFSEL_16MHZ | UTMI_PHY_EN);

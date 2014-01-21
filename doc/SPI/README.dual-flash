@@ -1,0 +1,92 @@
+SPI/QSPI Dual flash connection modes:
+=====================================
+
+This describes how SPI/QSPI flash memories are connected to a given
+controller in a single chip select line.
+
+Current spi_flash framework supports, single flash memory connected
+to a given controller with single chip select line, but there are some
+hw logics(ex: xilinx zynq qspi) that describes two/dual memories are
+connected with a single chip select line from a controller.
+
+"dual_flash" from include/spi.h describes these types of connection mode
+
+Possible connections:
+--------------------
+SF_SINGLE_FLASH:
+       - single spi flash memory connected with single chip select line.
+
+  +------------+             CS         +---------------+
+  |            |----------------------->|               |
+  | Controller |         I0[3:0]        | Flash memory  |
+  | SPI/QSPI   |<======================>| (SPI/QSPI)    |
+  |            |           CLK          |               |
+  |            |----------------------->|               |
+  +------------+                        +---------------+
+
+SF_DUAL_STACKED_FLASH:
+       - dual spi/qspi flash memories are connected with a single chipselect
+         line and these two memories are operating stacked fasion with shared buses.
+       - xilinx zynq qspi controller has implemented this feature [1]
+
+  +------------+        CS             +---------------+
+  |            |---------------------->|               |
+  |            |              I0[3:0]  | Upper Flash   |
+  |            |            +=========>| memory        |
+  |            |            |     CLK  | (SPI/QSPI)    |
+  |            |            |    +---->|               |
+  | Controller |        CS  |    |     +---------------+
+  | SPI/QSPI   |------------|----|---->|               |
+  |            |    I0[3:0] |    |     | Lower Flash   |
+  |            |<===========+====|====>| memory        |
+  |            |          CLK    |     | (SPI/QSPI)    |
+  |            |-----------------+---->|               |
+  +------------+                       +---------------+
+
+       - two memory flash devices should has same hw part attributes (like size,
+         vendor..etc)
+       - Configurations:
+               on LQSPI_CFG register, Enable TWO_MEM[BIT:30] on LQSPI_CFG
+               Enable U_PAGE[BIT:28] if U_PAGE flag set - upper memory
+               Disable U_PAGE[BIT:28] if U_PAGE flag unset - lower memory
+       - Operation:
+               accessing memories serially like one after another.
+               by default, if U_PAGE is unset lower memory should accessible,
+               once user wants to access upper memory need to set U_PAGE.
+
+SPI_FLASH_CONN_DUALPARALLEL:
+	- dual spi/qspi flash memories are connected with a single chipselect
+	  line and these two memories are operating parallel with separate buses.
+	- xilinx zynq qspi controller has implemented this feature [1]
+
+  +-------------+           CS		+---------------+
+  |		|---------------------->|		|
+  | 		|        I0[3:0]	| Upper Flash	|
+  | 		|<=====================>| memory	|
+  |		|	   CLK		| (SPI/QSPI)	|
+  |		|---------------------->|		|
+  | Controller	|	    CS		+---------------+
+  | SPI/QSPI	|---------------------->|		|
+  | 		|        I0[3:0]	| Lower Flash	|
+  | 		|<=====================>| memory	|
+  |		|	   CLK		| (SPI/QSPI)	|
+  |		|---------------------->|		|
+  +-------------+			+---------------+
+
+	- two memory flash devices should has same hw part attributes (like size,
+	  vendor..etc)
+	- Configurations:
+		Need to enable SEP_BUS[BIT:29],TWO_MEM[BIT:30] on LQSPI_CFG register.
+	- Operation:
+		Even bits, i.e. bit 0, 2, 4 ., of a data word is located in the lower memory
+		and odd bits, i.e. bit 1, 3, 5, ., of a data word is located in the upper memory.
+
+Note: Technically there is only one CS line from the controller, but
+zynq qspi controller has an internal hw logic to enable additional CS
+when controller is configured for dual memories.
+
+[1] http://www.xilinx.com/support/documentation/user_guides/ug585-Zynq-7000-TRM.pdf
+
+--
+Jagannadha Sutradharudu Teki <jaganna@xilinx.com>
+05-01-2014.

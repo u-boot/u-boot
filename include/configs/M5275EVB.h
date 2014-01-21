@@ -139,7 +139,6 @@
 	"save\0"				\
 	""
 
-#define CONFIG_SYS_HZ			1000
 #define CONFIG_SYS_CLK			150000000
 
 /*

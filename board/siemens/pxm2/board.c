@@ -58,23 +58,26 @@ struct ddr_data pxm2_ddr3_data = {
 	.datawdsratio0 = 0,
 	.datafwsratio0 = 0x8020080,
 	.datawrsratio0 = 0x4010040,
-	.datauserank0delay = 1,
-	.datadldiff0 = PHY_DLL_LOCK_DIFF,
 };
 
 struct cmd_control pxm2_ddr3_cmd_ctrl_data = {
 	.cmd0csratio = 0x80,
-	.cmd0dldiff = 0,
 	.cmd0iclkout = 0,
 	.cmd1csratio = 0x80,
-	.cmd1dldiff = 0,
 	.cmd1iclkout = 0,
 	.cmd2csratio = 0x80,
-	.cmd2dldiff = 0,
 	.cmd2iclkout = 0,
 };
 
-	config_ddr(DDR_PLL_FREQ, DXR2_IOCTRL_VAL, &pxm2_ddr3_data,
+const struct ctrl_ioregs ioregs = {
+	.cm0ioctl		= DXR2_IOCTRL_VAL,
+	.cm1ioctl		= DXR2_IOCTRL_VAL,
+	.cm2ioctl		= DXR2_IOCTRL_VAL,
+	.dt0ioctl		= DXR2_IOCTRL_VAL,
+	.dt1ioctl		= DXR2_IOCTRL_VAL,
+};
+
+	config_ddr(DDR_PLL_FREQ, &ioregs, &pxm2_ddr3_data,
 		   &pxm2_ddr3_cmd_ctrl_data, &pxm2_ddr3_emif_reg_data, 0);
 }
 
@@ -413,8 +416,7 @@ static int conf_disp_pll(int m, int n)
 
 static int board_video_init(void)
 {
-	/* set 300 MHz */
-	conf_disp_pll(25, 2);
+	conf_disp_pll(24, 1);
 	if (factory_dat.pxm50)
 		da8xx_video_init(&lcd_panels[0], &lcd_cfg, lcd_cfg.bpp);
 	else

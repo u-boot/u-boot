@@ -52,8 +52,8 @@ II) Approach
 III) Analysis of in-tree drivers
 --------------------------------
 
-  1) ftpmu010.c
-  -------------
+  ftpmu010.c
+  ----------
   All methods of this file are moved to another location.
     void ftpmu010_32768osc_enable(void): Move to boards hacks
     void ftpmu010_mfpsr_select_dev(unsigned int dev): Move to board file
@@ -65,8 +65,8 @@ III) Analysis of in-tree drivers
     void ftpmu010_sdramhtc_set(unsigned int val): Move to board file
 						  arch/nds32/lib/board.c
 
-  2) twl4030.c
-  ------------
+  twl4030.c
+  ---------
   All methods of this file are moved to another location.
     void twl4030_power_reset_init(void): Move to board hacks
     void twl4030_pmrecv_vsel_cfg(u8 vsel_reg, u8 vsel_val, u8 dev_grp,
@@ -74,8 +74,8 @@ III) Analysis of in-tree drivers
     void twl4030_power_init(void): Move to board hacks
     void twl4030_power_mmc_init(void): Move to board hacks
 
-  3) twl6030.c
-  ------------
+  twl6030.c
+  ---------
   Some methods are converted to new API and rest are moved to another location.
     void twl6030_stop_usb_charging(void): Convert to new API
     void twl6030_start_usb_charging(void): Convert to new API

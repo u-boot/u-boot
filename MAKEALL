@@ -18,6 +18,7 @@ usage()
 	  -c CPU,    --cpu CPU         Build all boards with cpu CPU
 	  -v VENDOR, --vendor VENDOR   Build all boards with vendor VENDOR
 	  -s SOC,    --soc SOC         Build all boards with soc SOC
+	  -b BOARD,  --board BOARD     Build all boards with board name BOARD
 	  -l,        --list            List all targets to be built
 	  -m,        --maintainers     List all targets and maintainer email
 	  -M,        --mails           List all targets and all affilated emails
@@ -59,8 +60,8 @@ usage()
 	exit ${ret}
 }
 
-SHORT_OPTS="ha:c:v:s:lmMCnr"
-LONG_OPTS="help,arch:,cpu:,vendor:,soc:,list,maintainers,mails,check,continue,rebuild-errors"
+SHORT_OPTS="ha:c:v:s:b:lmMCnr"
+LONG_OPTS="help,arch:,cpu:,vendor:,soc:,board:,list,maintainers,mails,check,continue,rebuild-errors"
 
 # Option processing based on util-linux-2.13/getopt-parse.bash
 
@@ -121,6 +122,17 @@ while true ; do
 		fi
 		SELECTED='y'
 		shift 2 ;;
+	-b|--board)
+		# echo "Option BOARD: argument \`$2'"
+		if [ "$opt_b" ] ; then
+			opt_b="${opt_b%)} || \$6 == \"$2\" || \$7 == \"$2\")"
+		else
+			# We need to check the 7th field too
+			# for boards whose 6th field is "-"
+			opt_b="(\$6 == \"$2\" || \$7 == \"$2\")"
+		fi
+		SELECTED='y'
+		shift 2 ;;
 	-C|--check)
 		CHECK='C=1'
 		shift ;;
@@ -158,6 +170,7 @@ FILTER="\$1 !~ /^#/"
 [ "$opt_c" ] && FILTER="${FILTER} && $opt_c"
 [ "$opt_s" ] && FILTER="${FILTER} && $opt_s"
 [ "$opt_v" ] && FILTER="${FILTER} && $opt_v"
+[ "$opt_b" ] && FILTER="${FILTER} && $opt_b"
 
 if [ "$SELECTED" ] ; then
 	SELECTED=$(awk '('"$FILTER"') { print $7 }' boards.cfg)
@@ -224,86 +237,84 @@ OLDEST_IDX=1
 RC=0
 
 # Helper funcs for parsing boards.cfg
-boards_by_field()
+targets_by_field()
 {
-	FS="[ \t]+"
-	[ -n "$3" ] && FS="$3"
-	awk \
-		-v field="$1" \
-		-v select="$2" \
-		-F "$FS" \
-		'($1 !~ /^#/ && $field == select) { print $7 }' \
-		boards.cfg
+	field=$1
+	regexp=$2
+
+	awk '($1 !~ /^#/ && $'"$field"' ~ /^'"$regexp"'$/) { print $7 }' \
+								boards.cfg
 }
-boards_by_arch() { boards_by_field 2 "$@" ; }
-boards_by_cpu()  { boards_by_field 3 "$@" "[: \t]+" ; }
-boards_by_soc()  { boards_by_field 4 "$@" ; }
+
+targets_by_arch() { targets_by_field 2 "$@" ; }
+targets_by_cpu()  { targets_by_field 3 "$@" ; targets_by_field 3 "$@:.*" ; }
+targets_by_soc()  { targets_by_field 4 "$@" ; }
 
 #########################################################################
 ## MPC5xx Systems
 #########################################################################
 
-LIST_5xx="$(boards_by_cpu mpc5xx)"
+LIST_5xx="$(targets_by_cpu mpc5xx)"
 
 #########################################################################
 ## MPC5xxx Systems
 #########################################################################
 
-LIST_5xxx="$(boards_by_cpu mpc5xxx)"
+LIST_5xxx="$(targets_by_cpu mpc5xxx)"
 
 #########################################################################
 ## MPC512x Systems
 #########################################################################
 
-LIST_512x="$(boards_by_cpu mpc512x)"
+LIST_512x="$(targets_by_cpu mpc512x)"
 
 #########################################################################
 ## MPC8xx Systems
 #########################################################################
 
-LIST_8xx="$(boards_by_cpu mpc8xx)"
+LIST_8xx="$(targets_by_cpu mpc8xx)"
 
 #########################################################################
 ## PPC4xx Systems
 #########################################################################
 
-LIST_4xx="$(boards_by_cpu ppc4xx)"
+LIST_4xx="$(targets_by_cpu ppc4xx)"
 
 #########################################################################
 ## MPC824x Systems
 #########################################################################
 
-LIST_824x="$(boards_by_cpu mpc824x)"
+LIST_824x="$(targets_by_cpu mpc824x)"
 
 #########################################################################
 ## MPC8260 Systems (includes 8250, 8255 etc.)
 #########################################################################
 
-LIST_8260="$(boards_by_cpu mpc8260)"
+LIST_8260="$(targets_by_cpu mpc8260)"
 
 #########################################################################
 ## MPC83xx Systems (includes 8349, etc.)
 #########################################################################
 
-LIST_83xx="$(boards_by_cpu mpc83xx)"
+LIST_83xx="$(targets_by_cpu mpc83xx)"
 
 #########################################################################
 ## MPC85xx Systems (includes 8540, 8560 etc.)
 #########################################################################
 
-LIST_85xx="$(boards_by_cpu mpc85xx)"
+LIST_85xx="$(targets_by_cpu mpc85xx)"
 
 #########################################################################
 ## MPC86xx Systems
 #########################################################################
 
-LIST_86xx="$(boards_by_cpu mpc86xx)"
+LIST_86xx="$(targets_by_cpu mpc86xx)"
 
 #########################################################################
 ## 74xx/7xx Systems
 #########################################################################
 
-LIST_74xx_7xx="$(boards_by_cpu 74xx_7xx)"
+LIST_74xx_7xx="$(targets_by_cpu 74xx_7xx)"
 
 #########################################################################
 ## PowerPC groups
@@ -339,61 +350,71 @@ LIST_ppc="		\
 ## StrongARM Systems
 #########################################################################
 
-LIST_SA="$(boards_by_cpu sa1100)"
+LIST_SA="$(targets_by_cpu sa1100)"
 
 #########################################################################
 ## ARM7 Systems
 #########################################################################
 
-LIST_ARM7="$(boards_by_cpu arm720t)"
+LIST_ARM7="$(targets_by_cpu arm720t)"
 
 #########################################################################
 ## ARM9 Systems
 #########################################################################
 
-LIST_ARM9="$(boards_by_cpu arm920t)	\
-	$(boards_by_cpu arm926ejs)	\
-	$(boards_by_cpu arm946es)	\
+LIST_ARM9="$(targets_by_cpu arm920t)	\
+	$(targets_by_cpu arm926ejs)	\
+	$(targets_by_cpu arm946es)	\
 "
 
 #########################################################################
 ## ARM11 Systems
 #########################################################################
-LIST_ARM11="$(boards_by_cpu arm1136)	\
-	$(boards_by_cpu arm1176)	\
+LIST_ARM11="$(targets_by_cpu arm1136)	\
+	$(targets_by_cpu arm1176)	\
 "
 
 #########################################################################
 ## ARMV7 Systems
 #########################################################################
 
-LIST_ARMV7="$(boards_by_cpu armv7)"
+LIST_ARMV7="$(targets_by_cpu armv7)"
+
+#########################################################################
+## ARMV8 Systems
+#########################################################################
+
+LIST_ARMV8="$(targets_by_cpu armv8)"
 
 #########################################################################
 ## AT91 Systems
 #########################################################################
 
-LIST_at91="$(boards_by_soc at91)"
+LIST_at91="$(targets_by_soc at91)"
 
 #########################################################################
 ## Xscale Systems
 #########################################################################
 
-LIST_pxa="$(boards_by_cpu pxa)"
+LIST_pxa="$(targets_by_cpu pxa)"
 
-LIST_ixp="$(boards_by_cpu ixp)"
+LIST_ixp="$(targets_by_cpu ixp)"
 
 #########################################################################
 ## SPEAr Systems
 #########################################################################
 
-LIST_spear="$(boards_by_soc spear)"
+LIST_spear="$(targets_by_soc spear)"
 
 #########################################################################
 ## ARM groups
 #########################################################################
 
-LIST_arm="$(boards_by_arch arm)"
+LIST_arm="$(targets_by_arch arm |		\
+	for ARMV8_TARGET in $LIST_ARMV8;	\
+		do sed "/$ARMV8_TARGET/d";	\
+	done)					\
+"
 
 #########################################################################
 ## MIPS Systems		(default = big endian)
@@ -447,66 +468,66 @@ LIST_mips_el="			\
 ## OpenRISC Systems
 #########################################################################
 
-LIST_openrisc="$(boards_by_arch openrisc)"
+LIST_openrisc="$(targets_by_arch openrisc)"
 
 #########################################################################
 ## x86 Systems
 #########################################################################
 
-LIST_x86="$(boards_by_arch x86)"
+LIST_x86="$(targets_by_arch x86)"
 
 #########################################################################
 ## Nios-II Systems
 #########################################################################
 
-LIST_nios2="$(boards_by_arch nios2)"
+LIST_nios2="$(targets_by_arch nios2)"
 
 #########################################################################
 ## MicroBlaze Systems
 #########################################################################
 
-LIST_microblaze="$(boards_by_arch microblaze)"
+LIST_microblaze="$(targets_by_arch microblaze)"
 
 #########################################################################
 ## ColdFire Systems
 #########################################################################
 
-LIST_m68k="$(boards_by_arch m68k)"
+LIST_m68k="$(targets_by_arch m68k)"
 LIST_coldfire=${LIST_m68k}
 
 #########################################################################
 ## AVR32 Systems
 #########################################################################
 
-LIST_avr32="$(boards_by_arch avr32)"
+LIST_avr32="$(targets_by_arch avr32)"
 
 #########################################################################
 ## Blackfin Systems
 #########################################################################
 
-LIST_blackfin="$(boards_by_arch blackfin)"
+LIST_blackfin="$(targets_by_arch blackfin)"
 
 #########################################################################
 ## SH Systems
 #########################################################################
 
-LIST_sh2="$(boards_by_cpu sh2)"
-LIST_sh3="$(boards_by_cpu sh3)"
-LIST_sh4="$(boards_by_cpu sh4)"
+LIST_sh2="$(targets_by_cpu sh2)"
+LIST_sh3="$(targets_by_cpu sh3)"
+LIST_sh4="$(targets_by_cpu sh4)"
 
-LIST_sh="$(boards_by_arch sh)"
+LIST_sh="$(targets_by_arch sh)"
 
 #########################################################################
 ## SPARC Systems
 #########################################################################
 
-LIST_sparc="$(boards_by_arch sparc)"
+LIST_sparc="$(targets_by_arch sparc)"
 
 #########################################################################
 ## NDS32 Systems
 #########################################################################
 
-LIST_nds32="$(boards_by_arch nds32)"
+LIST_nds32="$(targets_by_arch nds32)"
 
 #-----------------------------------------------------------------------
 
@@ -518,7 +539,7 @@ get_target_location() {
 	local vendor=""
 
 	# Automatic mode
-	local line=`awk -F '\ +' '\$7 == "'"$target"'" { print \$0 }' boards.cfg`
+	local line=`awk '\$7 == "'"$target"'" { print \$0 }' boards.cfg`
 	if [ -z "${line}" ] ; then echo "" ; return ; fi
 
 	set ${line}
@@ -556,7 +577,7 @@ get_target_location() {
 get_target_maintainers() {
 	local name=`echo $1 | cut -d : -f 3`
 
-	local line=`awk -F '\ +' '\$7 == "'"$target"'" { print \$0 }' boards.cfg`
+	local line=`awk '\$7 == "'"$target"'" { print \$0 }' boards.cfg`
 	if [ -z "${line}" ]; then
 		echo ""
 		return ;
@@ -571,7 +592,7 @@ get_target_arch() {
 	local target=$1
 
 	# Automatic mode
-	local line=`egrep -i "^[[:space:]]*${target}[[:space:]]" boards.cfg`
+	local line=`awk '\$7 == "'"$target"'" { print \$0 }' boards.cfg`
 
 	if [ -z "${line}" ] ; then echo "" ; return ; fi
 

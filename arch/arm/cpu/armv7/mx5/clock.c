@@ -94,7 +94,7 @@ void enable_usboh3_clk(bool enable)
 			MXC_CCM_CCGR2_USBOH3_60M(cg));
 }
 
-#ifdef CONFIG_I2C_MXC
+#ifdef CONFIG_SYS_I2C_MXC
 /* i2c_num can be from 0, to 1 for i.MX51 and 2 for i.MX53 */
 int enable_i2c_clk(unsigned char enable, unsigned i2c_num)
 {
@@ -748,6 +748,18 @@ void enable_nfc_clk(unsigned char enable)
 		MXC_CCM_CCGR5_EMI_ENFC(MXC_CCM_CCGR_CG_MASK),
 		MXC_CCM_CCGR5_EMI_ENFC(cg));
 }
+
+#ifdef CONFIG_FSL_IIM
+void enable_efuse_prog_supply(bool enable)
+{
+	if (enable)
+		setbits_le32(&mxc_ccm->cgpr,
+			     MXC_CCM_CGPR_EFUSE_PROG_SUPPLY_GATE);
+	else
+		clrbits_le32(&mxc_ccm->cgpr,
+			     MXC_CCM_CGPR_EFUSE_PROG_SUPPLY_GATE);
+}
+#endif
 
 /* Config main_bus_clock for periphs */
 static int config_periph_clk(u32 ref, u32 freq)

@@ -95,7 +95,6 @@
  * Miscellaneous configurable options
  */
 #define	CONFIG_SYS_LONGHELP				/* undef to save memory		*/
-#define	CONFIG_SYS_PROMPT		"=>"		/* Monitor Command Prompt	*/
 #define CONFIG_SYS_HUSH_PARSER
 
 #if defined(CONFIG_CMD_KGDB)
@@ -109,8 +108,6 @@
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
 #define CONFIG_SYS_LOAD_ADDR		0x00100000
-
-#define	CONFIG_SYS_HZ		        1000	/* decrementer freq: 1 ms ticks */
 
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 2400, 4800, 9600, 19200 }
 

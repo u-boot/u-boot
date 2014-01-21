@@ -30,11 +30,10 @@ SECTIONS
 
     arch/powerpc/cpu/mpc8xx/start.o	(.text*)
     arch/powerpc/cpu/mpc8xx/traps.o	(.text*)
-    common/libcommon.o			(.text*)
-    arch/powerpc/cpu/mpc8xx/libmpc8xx.o	(.text*)
-    board/LEOX/elpt860/libelpt860.o	(.text*)
-    arch/powerpc/lib/libpowerpc.o	(.text*)
-/*    drivers/rtc/librtc.o		(.text*)	*/
+    common/built-in.o			(.text*)
+    arch/powerpc/cpu/mpc8xx/built-in.o	(.text*)
+    board/LEOX/elpt860/built-in.o	(.text*)
+    arch/powerpc/lib/built-in.o		(.text*)
 
     . = env_offset;
     common/env_embedded.o		(.text*)

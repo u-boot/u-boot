@@ -17,10 +17,10 @@
 #include <tsec.h>
 #include <mmc.h>
 #include <netdev.h>
-#include <asm/fsl_ifc.h>
+#include <fsl_ifc.h>
 #include <hwconfig.h>
 #include <i2c.h>
-#include <asm/fsl_ddr_sdram.h>
+#include <fsl_ddr_sdram.h>
 
 #ifdef CONFIG_PCI
 #include <pci.h>
@@ -133,16 +133,16 @@ void dsp_ddr_configure(void)
 	 *copy the ddr controller settings from PowerPC side DDR controller
 	 *to the DSP DDR controller as connected DDR memories are similar.
 	 */
-	ccsr_ddr_t __iomem *pa_ddr =
-			(ccsr_ddr_t __iomem *)CONFIG_SYS_MPC8xxx_DDR_ADDR;
-	ccsr_ddr_t temp_ddr;
-	ccsr_ddr_t __iomem *dsp_ddr =
-			(ccsr_ddr_t __iomem *)CONFIG_SYS_FSL_DSP_CCSR_DDR_ADDR;
+	struct ccsr_ddr __iomem *pa_ddr =
+			(struct ccsr_ddr __iomem *)CONFIG_SYS_FSL_DDR_ADDR;
+	struct ccsr_ddr temp_ddr;
+	struct ccsr_ddr __iomem *dsp_ddr =
+			(struct ccsr_ddr __iomem *)CONFIG_SYS_FSL_DSP_CCSR_DDR_ADDR;
 
-	memcpy(&temp_ddr, pa_ddr, sizeof(ccsr_ddr_t));
+	memcpy(&temp_ddr, pa_ddr, sizeof(struct ccsr_ddr));
 	temp_ddr.cs0_bnds = CONFIG_SYS_DDR1_CS0_BNDS;
 	temp_ddr.sdram_cfg &= ~SDRAM_CFG_MEM_EN;
-	memcpy(dsp_ddr, &temp_ddr, sizeof(ccsr_ddr_t));
+	memcpy(dsp_ddr, &temp_ddr, sizeof(struct ccsr_ddr));
 	dsp_ddr->sdram_cfg |= SDRAM_CFG_MEM_EN;
 }
 

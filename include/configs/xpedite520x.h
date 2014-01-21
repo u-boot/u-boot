@@ -39,7 +39,7 @@
 /*
  * DDR config
  */
-#define CONFIG_FSL_DDR2
+#define CONFIG_SYS_FSL_DDR2
 #undef CONFIG_FSL_DDR_INTERACTIVE
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup */
 #define CONFIG_DDR_SPD
@@ -337,12 +337,10 @@
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-#define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS	16		/* max number of command args */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
-#define CONFIG_SYS_HZ		1000		/* decrementer freq: 1ms ticks */
 #define CONFIG_CMDLINE_EDITING	1		/* add command line history	*/
 #define CONFIG_AUTO_COMPLETE	1		/* add autocompletion support */
 #define CONFIG_LOADADDR		0x1000000	/* default location for tftp and bootm */

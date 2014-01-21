@@ -39,17 +39,6 @@ static const struct dpll_params mpu_dpll_params_1_5ghz[NUM_SYS_CLKS] = {
 	{625, 15, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1}	/* 38.4 MHz */
 };
 
-/* OPP NOM FREQUENCY for ES2.0, OPP HIGH for ES1.0 */
-static const struct dpll_params mpu_dpll_params_1100mhz[NUM_SYS_CLKS] = {
-	{275, 2, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 12 MHz   */
-	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 13 MHz   */
-	{1375, 20, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 16.8 MHz */
-	{1375, 23, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 19.2 MHz */
-	{550, 12, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 26 MHz   */
-	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
-	{1375, 47, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1}	/* 38.4 MHz */
-};
-
 /* OPP NOM FREQUENCY for ES1.0 */
 static const struct dpll_params mpu_dpll_params_800mhz[NUM_SYS_CLKS] = {
 	{200, 2, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 12 MHz   */
@@ -83,6 +72,7 @@ static const struct dpll_params mpu_dpll_params_499mhz[NUM_SYS_CLKS] = {
 	{493, 37, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1}	/* 38.4 MHz */
 };
 
+/* OPP NOM FREQUENCY for OMAP5 ES2.0, and DRA7 ES1.0 */
 static const struct dpll_params mpu_dpll_params_1ghz[NUM_SYS_CLKS] = {
 	{250, 2, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1},		/* 12 MHz   */
 	{500, 9, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1},		/* 20 MHz   */
@@ -169,13 +159,13 @@ static const struct dpll_params per_dpll_params_768mhz_es2[NUM_SYS_CLKS] = {
 };
 
 static const struct dpll_params per_dpll_params_768mhz_dra7xx[NUM_SYS_CLKS] = {
-	{32, 0, 4, 1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 12 MHz   */
+	{32, 0, 4, 1, 3, 4, 4, 2, -1, -1, -1, -1},		/* 12 MHz   */
 	{96, 4, 4, 1, 3, 4, 4, 2, -1, -1, -1, -1},		/* 20 MHz   */
-	{160, 6, 4, 1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 16.8 MHz */
-	{20, 0, 4, 1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 19.2 MHz */
-	{192, 12, 4, 1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 26 MHz   */
+	{160, 6, 4, 1, 3, 4, 4, 2, -1, -1, -1, -1},		/* 16.8 MHz */
+	{20, 0, 4, 1, 3, 4, 4, 2, -1, -1, -1, -1},		/* 19.2 MHz */
+	{192, 12, 4, 1, 3, 4, 4, 2, -1, -1, -1, -1},		/* 26 MHz   */
 	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
-	{10, 0, 4, 1, 3, 4, 10, 2, -1, -1, -1, -1},		/* 38.4 MHz */
+	{10, 0, 4, 1, 3, 4, 4, 2, -1, -1, -1, -1},		/* 38.4 MHz */
 };
 
 static const struct dpll_params iva_dpll_params_2330mhz[NUM_SYS_CLKS] = {
@@ -272,7 +262,7 @@ struct dplls omap5_dplls_es1 = {
 };
 
 struct dplls omap5_dplls_es2 = {
-	.mpu = mpu_dpll_params_1100mhz,
+	.mpu = mpu_dpll_params_1ghz,
 	.core = core_dpll_params_2128mhz_ddr532_es2,
 	.per = per_dpll_params_768mhz_es2,
 	.iva = iva_dpll_params_2330mhz,
@@ -600,6 +590,7 @@ const struct ctrl_ioregs ioregs_omap5432_es1 = {
 	.ctrl_ddrio_1 = DDR_IO_1_VREF_CELLS_DDR3_VALUE,
 	.ctrl_ddrio_2 = DDR_IO_2_VREF_CELLS_DDR3_VALUE,
 	.ctrl_emif_sdram_config_ext = SDRAM_CONFIG_EXT_RD_LVL_11_SAMPLES,
+	.ctrl_emif_sdram_config_ext_final = SDRAM_CONFIG_EXT_RD_LVL_4_SAMPLES,
 };
 
 const struct ctrl_ioregs ioregs_omap5432_es2 = {
@@ -610,16 +601,18 @@ const struct ctrl_ioregs ioregs_omap5432_es2 = {
 	.ctrl_ddrio_1 = DDR_IO_1_VREF_CELLS_DDR3_VALUE_ES2,
 	.ctrl_ddrio_2 = DDR_IO_2_VREF_CELLS_DDR3_VALUE_ES2,
 	.ctrl_emif_sdram_config_ext = SDRAM_CONFIG_EXT_RD_LVL_11_SAMPLES,
+	.ctrl_emif_sdram_config_ext_final = SDRAM_CONFIG_EXT_RD_LVL_4_SAMPLES,
 };
 
 const struct ctrl_ioregs ioregs_dra7xx_es1 = {
 	.ctrl_ddrch = 0x40404040,
 	.ctrl_lpddr2ch = 0x40404040,
 	.ctrl_ddr3ch = 0x80808080,
-	.ctrl_ddrio_0 = 0xbae8c631,
-	.ctrl_ddrio_1 = 0xb46318d8,
+	.ctrl_ddrio_0 = 0xA2084210,
+	.ctrl_ddrio_1 = 0x84210840,
 	.ctrl_ddrio_2 = 0x84210000,
-	.ctrl_emif_sdram_config_ext = 0xb2c00000,
+	.ctrl_emif_sdram_config_ext = 0x0001C1A7,
+	.ctrl_emif_sdram_config_ext_final = 0x000101A7,
 	.ctrl_ddr_ctrl_ext_0 = 0xA2000000,
 };
 

@@ -32,6 +32,7 @@
 #ifdef CONFIG_USB_EHCI_TEGRA
 #include <asm/arch-tegra/usb.h>
 #include <asm/arch/usb.h>
+#include <usb.h>
 #endif
 #ifdef CONFIG_TEGRA_MMC
 #include <asm/arch-tegra/tegra_mmc.h>
@@ -153,8 +154,9 @@ int board_init(void)
 
 #ifdef CONFIG_USB_EHCI_TEGRA
 	pin_mux_usb();
-	board_usb_init(gd->fdt_blob);
+	usb_process_devicetree(gd->fdt_blob);
 #endif
+
 #ifdef CONFIG_LCD
 	tegra_lcd_check_next_stage(gd->fdt_blob, 0);
 #endif

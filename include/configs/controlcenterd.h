@@ -138,7 +138,7 @@
 #define CONFIG_SYS_SDRAM_SIZE 1024
 #define CONFIG_VERY_BIG_RAM
 
-#define CONFIG_FSL_DDR3
+#define CONFIG_SYS_FSL_DDR3
 #define CONFIG_NUM_DDR_CONTROLLERS	1
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_CHIP_SELECTS_PER_CTRL	(2 * CONFIG_DIMM_SLOTS_PER_CTLR)
@@ -383,7 +383,6 @@
 #endif /* CONFIG_TRAILBLAZER */
 
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-#define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt */
 #ifdef CONFIG_CMD_KGDB
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
 #else
@@ -440,7 +439,6 @@
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_HZ		1000
 #define CONFIG_HW_WATCHDOG
 #define CONFIG_LOADS_ECHO
 #define CONFIG_SYS_LOADS_BAUD_CHANGE

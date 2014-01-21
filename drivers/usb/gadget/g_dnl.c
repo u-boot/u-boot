@@ -16,6 +16,7 @@
 #include <g_dnl.h>
 #include <usb_mass_storage.h>
 #include <dfu.h>
+#include <thor.h>
 
 #include "gadget_chips.h"
 #include "composite.c"
@@ -32,6 +33,9 @@
 #define STRING_PRODUCT 2
 /* Index of String Descriptor describing this configuration */
 #define STRING_USBDOWN 2
+/* Index of String serial */
+#define STRING_SERIAL  3
+#define MAX_STRING_SERIAL	32
 /* Number of supported configurations */
 #define CONFIGURATION_NUMBER 1
 
@@ -39,7 +43,15 @@
 
 static const char shortname[] = "usb_dnl_";
 static const char product[] = "USB download gadget";
+static char g_dnl_serial[MAX_STRING_SERIAL];
 static const char manufacturer[] = CONFIG_G_DNL_MANUFACTURER;
+
+void g_dnl_set_serialnumber(char *s)
+{
+	memset(g_dnl_serial, 0, MAX_STRING_SERIAL);
+	if (strlen(s) < MAX_STRING_SERIAL)
+		strncpy(g_dnl_serial, s, strlen(s));
+}
 
 static struct usb_device_descriptor device_desc = {
 	.bLength = sizeof device_desc,
@@ -52,6 +64,7 @@ static struct usb_device_descriptor device_desc = {
 	.idVendor = __constant_cpu_to_le16(CONFIG_G_DNL_VENDOR_NUM),
 	.idProduct = __constant_cpu_to_le16(CONFIG_G_DNL_PRODUCT_NUM),
 	.iProduct = STRING_PRODUCT,
+	.iSerialNumber = STRING_SERIAL,
 	.bNumConfigurations = 1,
 };
 
@@ -62,6 +75,7 @@ static struct usb_device_descriptor device_desc = {
 static struct usb_string g_dnl_string_defs[] = {
 	{.s = manufacturer},
 	{.s = product},
+	{.s = g_dnl_serial},
 	{ }		/* end of list */
 };
 
@@ -79,6 +93,8 @@ static int g_dnl_unbind(struct usb_composite_dev *cdev)
 {
 	struct usb_gadget *gadget = cdev->gadget;
 
+	free(cdev->config);
+	cdev->config = NULL;
 	debug("%s: calling usb_gadget_disconnect for "
 			"controller '%s'\n", shortname, gadget->name);
 	usb_gadget_disconnect(gadget);
@@ -99,28 +115,53 @@ static int g_dnl_do_config(struct usb_configuration *c)
 		ret = dfu_add(c);
 	else if (!strcmp(s, "usb_dnl_ums"))
 		ret = fsg_add(c);
+	else if (!strcmp(s, "usb_dnl_thor"))
+		ret = thor_add(c);
 
 	return ret;
 }
 
 static int g_dnl_config_register(struct usb_composite_dev *cdev)
 {
-	static struct usb_configuration config = {
-		.label = "usb_dnload",
-		.bmAttributes =	USB_CONFIG_ATT_ONE | USB_CONFIG_ATT_SELFPOWER,
-		.bConfigurationValue =	CONFIGURATION_NUMBER,
-		.iConfiguration =	STRING_USBDOWN,
+	struct usb_configuration *config;
+	const char *name = "usb_dnload";
 
-		.bind = g_dnl_do_config,
-	};
+	config = memalign(CONFIG_SYS_CACHELINE_SIZE, sizeof(*config));
+	if (!config)
+		return -ENOMEM;
 
-	return usb_add_config(cdev, &config);
+	memset(config, 0, sizeof(*config));
+
+	config->label = name;
+	config->bmAttributes = USB_CONFIG_ATT_ONE | USB_CONFIG_ATT_SELFPOWER;
+	config->bConfigurationValue = CONFIGURATION_NUMBER;
+	config->iConfiguration = STRING_USBDOWN;
+	config->bind = g_dnl_do_config;
+
+	return usb_add_config(cdev, config);
 }
 
 __weak
-int g_dnl_bind_fixup(struct usb_device_descriptor *dev)
+int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
 {
 	return 0;
+}
+
+__weak int g_dnl_get_board_bcd_device_number(int gcnum)
+{
+	return gcnum;
+}
+
+static int g_dnl_get_bcd_device_number(struct usb_composite_dev *cdev)
+{
+	struct usb_gadget *gadget = cdev->gadget;
+	int gcnum;
+
+	gcnum = usb_gadget_controller_number(gadget);
+	if (gcnum > 0)
+		gcnum += 0x200;
+
+	return g_dnl_get_board_bcd_device_number(gcnum);
 }
 
 static int g_dnl_bind(struct usb_composite_dev *cdev)
@@ -145,16 +186,21 @@ static int g_dnl_bind(struct usb_composite_dev *cdev)
 	g_dnl_string_defs[1].id = id;
 	device_desc.iProduct = id;
 
-	g_dnl_bind_fixup(&device_desc);
+	id = usb_string_id(cdev);
+	if (id < 0)
+		return id;
+
+	g_dnl_string_defs[2].id = id;
+	device_desc.iSerialNumber = id;
+
+	g_dnl_bind_fixup(&device_desc, cdev->driver->name);
 	ret = g_dnl_config_register(cdev);
 	if (ret)
 		goto error;
 
-	gcnum = usb_gadget_controller_number(gadget);
-
-	debug("gcnum: %d\n", gcnum);
+	gcnum = g_dnl_get_bcd_device_number(cdev);
 	if (gcnum >= 0)
-		device_desc.bcdDevice = cpu_to_le16(0x0200 + gcnum);
+		device_desc.bcdDevice = cpu_to_le16(gcnum);
 	else {
 		debug("%s: controller '%s' not recognized\n",
 			shortname, gadget->name);
@@ -183,14 +229,17 @@ static struct usb_composite_driver g_dnl_driver = {
 
 int g_dnl_register(const char *type)
 {
-	/* We only allow "dfu" atm, so 3 should be enough */
-	static char name[sizeof(shortname) + 3];
+	/* The largest function name is 4 */
+	static char name[sizeof(shortname) + 4];
 	int ret;
 
 	if (!strcmp(type, "dfu")) {
 		strcpy(name, shortname);
 		strcat(name, type);
 	} else if (!strcmp(type, "ums")) {
+		strcpy(name, shortname);
+		strcat(name, type);
+	} else if (!strcmp(type, "thor")) {
 		strcpy(name, shortname);
 		strcat(name, type);
 	} else {

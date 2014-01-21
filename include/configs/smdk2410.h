@@ -101,8 +101,6 @@
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	115200	/* speed to run kgdb serial port */
-/* what's this ? it's not used anywhere */
-#define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
 
 /*
@@ -123,8 +121,6 @@
 #define CONFIG_SYS_MEMTEST_END		0x33F00000	/* 63 MB in DRAM */
 
 #define CONFIG_SYS_LOAD_ADDR		0x30800000
-
-#define CONFIG_SYS_HZ			1000
 
 /* support additional compression methods */
 #define CONFIG_BZIP2

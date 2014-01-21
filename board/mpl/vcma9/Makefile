@@ -5,30 +5,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-include $(TOPDIR)/config.mk
-ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)../common)
-endif
+obj-y	:= ../common/common_util.o
+obj-y	+= vcma9.o cmd_vcma9.o
 
-LIB	= $(obj)lib$(BOARD).o
-
-COBJS	:= ../common/common_util.o
-COBJS	+= $(BOARD).o cmd_$(BOARD).o
-
-SOBJS	:= lowlevel_init.o
-
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
-
-$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
-	$(call cmd_link_o_target, $(OBJS) $(SOBJS))
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+obj-y	+= lowlevel_init.o

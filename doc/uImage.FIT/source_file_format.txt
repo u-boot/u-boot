@@ -159,7 +159,7 @@ the '/images' node should have the following layout:
   - description : Textual description of the component sub-image
   - type : Name of component sub-image type, supported types are:
     "standalone", "kernel", "ramdisk", "firmware", "script", "filesystem",
-    "fdt".
+    "flat_dt".
   - data : Path to the external file which contains this node's binary data.
   - compression : Compression used by included data. Supported compressions
     are "gzip" and "bzip2". If no compression is used compression property

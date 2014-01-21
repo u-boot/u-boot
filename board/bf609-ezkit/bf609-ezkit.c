@@ -10,6 +10,7 @@
 #include <netdev.h>
 #include <asm/blackfin.h>
 #include <asm/io.h>
+#include <asm/sdh.h>
 #include <asm/portmux.h>
 #include "soft_switch.h"
 

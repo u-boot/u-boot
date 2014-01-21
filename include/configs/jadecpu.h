@@ -12,7 +12,6 @@
 
 #define CONFIG_MB86R0x
 #define CONFIG_MB86R0x_IOCLK	get_bus_freq(0)
-#define CONFIG_SYS_HZ		1000
 #define CONFIG_SYS_TEXT_BASE	0x10000000
 
 #define CONFIG_ARM926EJS	1	/* This is an ARM926EJS Core	*/

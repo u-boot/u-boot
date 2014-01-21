@@ -65,7 +65,7 @@ static const int udivslot[] = {
 	0xffdf,
 };
 
-void serial_setbrg_dev(const int dev_index)
+static void serial_setbrg_dev(const int dev_index)
 {
 	struct s5p_uart *const uart = s5p_get_base_uart(dev_index);
 	u32 uclk = get_uart_clk(dev_index);
@@ -96,7 +96,7 @@ void serial_setbrg_dev(const int dev_index)
  * Initialise the serial port with the given baudrate. The settings
  * are always 8 data bits, no parity, 1 stop bit, no start bits.
  */
-int serial_init_dev(const int dev_index)
+static int serial_init_dev(const int dev_index)
 {
 	struct s5p_uart *const uart = s5p_get_base_uart(dev_index);
 
@@ -138,7 +138,7 @@ static int serial_err_check(const int dev_index, int op)
  * otherwise. When the function is succesfull, the character read is
  * written into its argument c.
  */
-int serial_getc_dev(const int dev_index)
+static int serial_getc_dev(const int dev_index)
 {
 	struct s5p_uart *const uart = s5p_get_base_uart(dev_index);
 
@@ -158,7 +158,7 @@ int serial_getc_dev(const int dev_index)
 /*
  * Output a single byte to the serial port.
  */
-void serial_putc_dev(const char c, const int dev_index)
+static void serial_putc_dev(const char c, const int dev_index)
 {
 	struct s5p_uart *const uart = s5p_get_base_uart(dev_index);
 
@@ -181,7 +181,7 @@ void serial_putc_dev(const char c, const int dev_index)
 /*
  * Test whether a character is in the RX buffer
  */
-int serial_tstc_dev(const int dev_index)
+static int serial_tstc_dev(const int dev_index)
 {
 	struct s5p_uart *const uart = s5p_get_base_uart(dev_index);
 
@@ -191,7 +191,7 @@ int serial_tstc_dev(const int dev_index)
 	return (int)(readl(&uart->utrstat) & 0x1);
 }
 
-void serial_puts_dev(const char *s, const int dev_index)
+static void serial_puts_dev(const char *s, const int dev_index)
 {
 	while (*s)
 		serial_putc_dev(*s++, dev_index);
@@ -199,12 +199,12 @@ void serial_puts_dev(const char *s, const int dev_index)
 
 /* Multi serial device functions */
 #define DECLARE_S5P_SERIAL_FUNCTIONS(port) \
-int s5p_serial##port##_init(void) { return serial_init_dev(port); } \
-void s5p_serial##port##_setbrg(void) { serial_setbrg_dev(port); } \
-int s5p_serial##port##_getc(void) { return serial_getc_dev(port); } \
-int s5p_serial##port##_tstc(void) { return serial_tstc_dev(port); } \
-void s5p_serial##port##_putc(const char c) { serial_putc_dev(c, port); } \
-void s5p_serial##port##_puts(const char *s) { serial_puts_dev(s, port); }
+static int s5p_serial##port##_init(void) { return serial_init_dev(port); } \
+static void s5p_serial##port##_setbrg(void) { serial_setbrg_dev(port); } \
+static int s5p_serial##port##_getc(void) { return serial_getc_dev(port); } \
+static int s5p_serial##port##_tstc(void) { return serial_tstc_dev(port); } \
+static void s5p_serial##port##_putc(const char c) { serial_putc_dev(c, port); } \
+static void s5p_serial##port##_puts(const char *s) { serial_puts_dev(s, port); }
 
 #define INIT_S5P_SERIAL_STRUCTURE(port, __name) {	\
 	.name	= __name,				\

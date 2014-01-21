@@ -94,7 +94,6 @@
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	115200	/* speed to run kgdb serial port */
-#define CONFIG_KGDB_SER_INDEX	1	/* which serial port to use */
 #endif
 
 /*
@@ -118,7 +117,6 @@
  */
 #define CONFIG_SYS_TIMERBASE	0xFFFEC500	/* use timer 1 */
 #define CONFIG_SYS_PTV		7	/* 2^(PTV+1), divide by 256 */
-#define CONFIG_SYS_HZ		1000
 
 /*-----------------------------------------------------------------------
  * Physical Memory Map

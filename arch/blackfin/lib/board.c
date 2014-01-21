@@ -19,6 +19,7 @@
 #include <net.h>
 #include <status_led.h>
 #include <version.h>
+#include <watchdog.h>
 
 #include <asm/cplb.h>
 #include <asm/mach-common/bits/mpu.h>

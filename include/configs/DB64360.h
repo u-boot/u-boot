@@ -255,7 +255,6 @@ ip=${ipaddr}:${serverip}${bootargs_end}; bootm 0x400000;\0"
 
 /* #define CONFIG_SYS_GT_DUAL_CPU	 also for JTAG even with one cpu */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory		*/
-#define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt	*/
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
@@ -300,7 +299,6 @@ ip=${ipaddr}:${serverip}${bootargs_end}; bootm 0x400000;\0"
 
 #define CONFIG_SYS_LOAD_ADDR		0x00400000	/* default load address */
 
-#define CONFIG_SYS_HZ			1000		/* decr freq: 1ms ticks */
 /*ronen - this the Sys clock (cpu bus,internal dram and SDRAM) */
 #define CONFIG_SYS_BUS_CLK		133000000	/* 133 MHz (CPU = 5*Bus = 666MHz)		*/
 

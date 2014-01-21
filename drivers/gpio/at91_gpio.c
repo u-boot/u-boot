@@ -14,6 +14,7 @@
 #include <asm/sizes.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/at91_pio.h>
+#include <asm/arch/gpio.h>
 
 static struct at91_port *at91_pio_get_port(unsigned port)
 {
@@ -355,9 +356,6 @@ int at91_get_pio_value(unsigned port, unsigned pin)
 }
 
 /* Common GPIO API */
-
-#define at91_gpio_to_port(gpio)		(gpio / 32)
-#define at91_gpio_to_pin(gpio)		(gpio % 32)
 
 int gpio_request(unsigned gpio, const char *label)
 {

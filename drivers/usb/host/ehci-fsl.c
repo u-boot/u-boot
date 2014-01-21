@@ -35,9 +35,10 @@ static int usb_phy_clk_valid(struct usb_ehci *ehci)
  *
  * Excerpts from linux ehci fsl driver.
  */
-int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
+int ehci_hcd_init(int index, enum usb_init_type init,
+		struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 {
-	struct usb_ehci *ehci;
+	struct usb_ehci *ehci = NULL;
 	const char *phy_type = NULL;
 	size_t len;
 #ifdef CONFIG_SYS_FSL_USB_INTERNAL_UTMI_PHY
@@ -46,7 +47,18 @@ int ehci_hcd_init(int index, struct ehci_hccr **hccr, struct ehci_hcor **hcor)
 	usb_phy[0] = '\0';
 #endif
 
-	ehci = (struct usb_ehci *)CONFIG_SYS_FSL_USB_ADDR;
+	switch (index) {
+	case 0:
+		ehci = (struct usb_ehci *)CONFIG_SYS_FSL_USB1_ADDR;
+		break;
+	case 1:
+		ehci = (struct usb_ehci *)CONFIG_SYS_FSL_USB2_ADDR;
+		break;
+	default:
+		printf("ERROR: wrong controller index!!\n");
+		break;
+	};
+
 	*hccr = (struct ehci_hccr *)((uint32_t)&ehci->caplength);
 	*hcor = (struct ehci_hcor *)((uint32_t) *hccr +
 			HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));

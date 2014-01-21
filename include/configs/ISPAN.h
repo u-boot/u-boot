@@ -128,7 +128,6 @@
 /*-----------------------------------------------------------------------
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_PROMPT		"=> "		/* Monitor Command Prompt	*/
 #define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_LONGHELP				/* #undef to save memory	*/
 #define CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size	*/
@@ -140,8 +139,6 @@
 #define CONFIG_SYS_MEMTEST_END		0x03B00000	/* 1 ... 59 MB in SDRAM		*/
 
 #define CONFIG_SYS_LOAD_ADDR		0x100000	/* Default load address		*/
-
-#define CONFIG_SYS_HZ			1000		/* Decrementer freq: 1 ms ticks	*/
 
 #define CONFIG_SYS_RESET_ADDRESS	0x09900000
 

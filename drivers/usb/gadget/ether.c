@@ -635,6 +635,7 @@ fs_source_desc = {
 
 	.bEndpointAddress =	USB_DIR_IN,
 	.bmAttributes =		USB_ENDPOINT_XFER_BULK,
+	.wMaxPacketSize =	__constant_cpu_to_le16(64),
 };
 
 static struct usb_endpoint_descriptor
@@ -644,6 +645,7 @@ fs_sink_desc = {
 
 	.bEndpointAddress =	USB_DIR_OUT,
 	.bmAttributes =		USB_ENDPOINT_XFER_BULK,
+	.wMaxPacketSize =	__constant_cpu_to_le16(64),
 };
 
 static const struct usb_descriptor_header *fs_eth_function[11] = {
@@ -1534,6 +1536,8 @@ static int rx_submit(struct eth_dev *dev, struct usb_request *req,
 	 */
 
 	debug("%s\n", __func__);
+	if (!req)
+		return -EINVAL;
 
 	size = (ETHER_HDR_SIZE + dev->mtu + RX_EXTRA);
 	size += dev->out_ep->maxpacket - 1;

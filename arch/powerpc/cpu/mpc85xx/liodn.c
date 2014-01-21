@@ -239,9 +239,9 @@ static void fdt_fixup_srio_liodn(void *blob, struct srio_liodn_id_table *tbl)
 #endif
 
 #define CONFIG_SYS_MAX_PCI_EPS		8
-#define CONFIG_SYS_PCI_EP_LIODN_START	256
 
-static void fdt_fixup_pci_liodn_offsets(void *fdt, const char *compat)
+static void fdt_fixup_pci_liodn_offsets(void *fdt, const char *compat,
+					int ep_liodn_start)
 {
 	int off, pci_idx = 0, pci_cnt = 0, i, rc;
 	const uint32_t *base_liodn;
@@ -271,7 +271,7 @@ static void fdt_fixup_pci_liodn_offsets(void *fdt, const char *compat)
 			continue;
 		}
 		for (i = 0; i < CONFIG_SYS_MAX_PCI_EPS; i++)
-			liodn_offs[i + 1] = CONFIG_SYS_PCI_EP_LIODN_START +
+			liodn_offs[i + 1] = ep_liodn_start +
 					i * pci_cnt + pci_idx - *base_liodn;
 		rc = fdt_setprop(fdt, off, "fsl,liodn-offset-list",
 				 liodn_offs, sizeof(liodn_offs));
@@ -338,5 +338,22 @@ void fdt_fixup_liodn(void *blob)
 	fdt_fixup_liodn_tbl(blob, rman_liodn_tbl, rman_liodn_tbl_sz);
 #endif
 
-	fdt_fixup_pci_liodn_offsets(blob, "fsl,qoriq-pcie-v2.4");
+	ccsr_pcix_t *pcix = (ccsr_pcix_t *)CONFIG_SYS_PCIE1_ADDR;
+	int pci_ver = pcix->ipver1 & 0xffff, liodn_base = 0;
+
+	if (pci_ver >= 0x0204) {
+		if (pci_ver >= 0x0300)
+			liodn_base = 1024;
+		else
+			liodn_base = 256;
+	}
+
+	if (liodn_base) {
+		char compat[32];
+
+		sprintf(compat, "fsl,qoriq-pcie-v%d.%d",
+			(pci_ver & 0xff00) >> 8, pci_ver & 0xff);
+		fdt_fixup_pci_liodn_offsets(blob, compat, liodn_base);
+		fdt_fixup_pci_liodn_offsets(blob, "fsl,qoriq-pcie", liodn_base);
+	}
 }

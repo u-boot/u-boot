@@ -23,7 +23,7 @@
 #  define __SWAB_64_THRU_32__
 #endif
 
-#ifdef __ARMEB__
+#if defined(__ARMEB__) || defined(__AARCH64EB__)
 #include <linux/byteorder/big_endian.h>
 #else
 #include <linux/byteorder/little_endian.h>

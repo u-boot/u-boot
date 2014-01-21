@@ -339,7 +339,7 @@ void configure_mpu_dpll(void)
 	debug("MPU DPLL locked\n");
 }
 
-#ifdef CONFIG_USB_EHCI_OMAP
+#if defined(CONFIG_USB_EHCI_OMAP) || defined(CONFIG_USB_XHCI_OMAP)
 static void setup_usb_dpll(void)
 {
 	const struct dpll_params *params;
@@ -404,7 +404,7 @@ static void setup_dplls(void)
 	/* MPU dpll */
 	configure_mpu_dpll();
 
-#ifdef CONFIG_USB_EHCI_OMAP
+#if defined(CONFIG_USB_EHCI_OMAP) || defined(CONFIG_USB_XHCI_OMAP)
 	setup_usb_dpll();
 #endif
 	params = get_ddr_dpll_params(*dplls_data);
@@ -779,7 +779,8 @@ void gpi2c_init(void)
 	static int gpi2c = 1;
 
 	if (gpi2c) {
-		i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+		i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED,
+			 CONFIG_SYS_OMAP24_I2C_SLAVE);
 		gpi2c = 0;
 	}
 }

@@ -35,7 +35,6 @@
 /*
  * CLKs configurations
  */
-#define CONFIG_SYS_HZ		1000
 
 /*
  * NS16550 Configuration

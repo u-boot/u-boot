@@ -99,7 +99,6 @@
  */
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
-#define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
 
 /*
@@ -109,7 +108,6 @@
 #undef	CONFIG_SYS_HUSH_PARSER			/* use "hush" command parser */
 
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
-#define CONFIG_SYS_PROMPT		"=> "	/* Monitor Command Prompt */
 #if defined(CONFIG_CMD_KGDB)
 #define	CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 #else
@@ -121,8 +119,6 @@
 
 #define CONFIG_SYS_MEMTEST_START	0x0400000 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x0C00000 /* 4 ... 12 MB in DRAM */
-
-#define	CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks	*/
 #define CONFIG_SYS_EXTBDINFO		1	/* To use extended board_info (bd_t) */
 #define CONFIG_SYS_LOAD_ADDR		0x100000 /* default load address */
 

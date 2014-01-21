@@ -8,8 +8,8 @@
 
 #include <common.h>
 
-#include <asm/fsl_ddr_sdram.h>
-#include <asm/fsl_ddr_dimm_params.h>
+#include <fsl_ddr_sdram.h>
+#include <fsl_ddr_dimm_params.h>
 
 struct board_specific_parameters {
 	u32 n_ranks;
@@ -106,5 +106,5 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 
 found:
 	/* 2T timing enable */
-	popts->twoT_en = 1;
+	popts->twot_en = 1;
 }

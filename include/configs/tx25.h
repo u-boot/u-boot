@@ -15,7 +15,9 @@
  */
 #define CONFIG_MX25
 #define CONFIG_MX25_CLK32		32000	/* OSC32K frequency */
-#define CONFIG_SYS_HZ			1000
+#define CONFIG_SYS_TIMER_RATE		CONFIG_MX25_CLK32
+#define CONFIG_SYS_TIMER_COUNTER	\
+	(&((struct gpt_regs *)IMX_GPT1_BASE)->counter)
 
 #define	CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* 256 kB for U-Boot */
 
@@ -110,7 +112,6 @@
 #define CONFIG_SYS_NAND_LARGEPAGE
 
 /* U-Boot general configuration */
-#define CONFIG_SYS_PROMPT	"=> "	/* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE	1024	/* Console I/O Buffer Size  */
 /* Print buffer sz */
 #define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE + \
