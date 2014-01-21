@@ -18,10 +18,14 @@
 #define SR_RX_FIFO_VALID_DATA	0x01 /* data in receive FIFO */
 #define SR_RX_FIFO_FULL		0x02 /* receive FIFO full */
 
+#define ULITE_CONTROL_RST_TX	0x01
+#define ULITE_CONTROL_RST_RX	0x02
+
 struct uartlite {
 	unsigned int rx_fifo;
 	unsigned int tx_fifo;
 	unsigned int status;
+	unsigned int control;
 };
 
 static struct uartlite *userial_ports[4] = {
@@ -75,8 +79,16 @@ static int uartlite_serial_tstc(const int port)
 
 static int uartlite_serial_init(const int port)
 {
-	if (userial_ports[port])
+	struct uartlite *regs = userial_ports[port];
+
+	if (regs) {
+		out_be32(&regs->control, 0);
+		out_be32(&regs->control,
+			 ULITE_CONTROL_RST_RX | ULITE_CONTROL_RST_TX);
+		in_be32(&regs->control);
 		return 0;
+	}
+
 	return -1;
 }
 
