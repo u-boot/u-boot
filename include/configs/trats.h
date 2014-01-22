@@ -287,8 +287,8 @@
 #include <asm/arch/gpio.h>
 
 /* I2C FG */
-#define CONFIG_SOFT_I2C_GPIO_SCL exynos4_gpio_part2_get_nr(y4, 1)
-#define CONFIG_SOFT_I2C_GPIO_SDA exynos4_gpio_part2_get_nr(y4, 0)
+#define CONFIG_SOFT_I2C_GPIO_SCL exynos4_gpio_get(2, y4, 1)
+#define CONFIG_SOFT_I2C_GPIO_SDA exynos4_gpio_get(2, y4, 0)
 
 #define CONFIG_POWER
 #define CONFIG_POWER_I2C

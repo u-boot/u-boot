@@ -229,8 +229,8 @@
 /*
  * I2C Settings
  */
-#define CONFIG_SOFT_I2C_GPIO_SCL exynos4_gpio_part1_get_nr(b, 7)
-#define CONFIG_SOFT_I2C_GPIO_SDA exynos4_gpio_part1_get_nr(b, 6)
+#define CONFIG_SOFT_I2C_GPIO_SCL exynos4_gpio_get(1, b, 7)
+#define CONFIG_SOFT_I2C_GPIO_SDA exynos4_gpio_get(1, b, 6)
 
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
@@ -253,10 +253,10 @@
  */
 #define CONFIG_SOFT_SPI
 #define CONFIG_SOFT_SPI_MODE SPI_MODE_3
-#define CONFIG_SOFT_SPI_GPIO_SCLK exynos4_gpio_part2_get_nr(y3, 1)
-#define CONFIG_SOFT_SPI_GPIO_MOSI exynos4_gpio_part2_get_nr(y3, 3)
-#define CONFIG_SOFT_SPI_GPIO_MISO exynos4_gpio_part2_get_nr(y3, 0)
-#define CONFIG_SOFT_SPI_GPIO_CS exynos4_gpio_part2_get_nr(y4, 3)
+#define CONFIG_SOFT_SPI_GPIO_SCLK exynos4_gpio_get(2, y3, 1)
+#define CONFIG_SOFT_SPI_GPIO_MOSI exynos4_gpio_get(2, y3, 3)
+#define CONFIG_SOFT_SPI_GPIO_MISO exynos4_gpio_get(2, y3, 0)
+#define CONFIG_SOFT_SPI_GPIO_CS exynos4_gpio_get(2, y4, 3)
 
 #define SPI_DELAY udelay(1)
 #undef SPI_INIT

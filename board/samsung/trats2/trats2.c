@@ -144,17 +144,17 @@ static void board_init_i2c(void)
 int get_soft_i2c_scl_pin(void)
 {
 	if (I2C_ADAP_HWNR)
-		return exynos4x12_gpio_part2_get_nr(m2, 1); /* I2C9 */
+		return exynos4x12_gpio_get(2, m2, 1); /* I2C9 */
 	else
-		return exynos4x12_gpio_part1_get_nr(f1, 4); /* I2C8 */
+		return exynos4x12_gpio_get(1, f1, 4); /* I2C8 */
 }
 
 int get_soft_i2c_sda_pin(void)
 {
 	if (I2C_ADAP_HWNR)
-		return exynos4x12_gpio_part2_get_nr(m2, 0); /* I2C9 */
+		return exynos4x12_gpio_get(2, m2, 0); /* I2C9 */
 	else
-		return exynos4x12_gpio_part1_get_nr(f1, 5); /* I2C8 */
+		return exynos4x12_gpio_get(1, f1, 5); /* I2C8 */
 }
 #endif
 
