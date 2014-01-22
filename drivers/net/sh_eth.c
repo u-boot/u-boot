@@ -148,7 +148,7 @@ int sh_eth_recv(struct eth_device *dev)
 
 static int sh_eth_reset(struct sh_eth_dev *eth)
 {
-#if defined(SH_ETH_TYPE_GETHER)
+#if defined(SH_ETH_TYPE_GETHER) || defined(SH_ETH_TYPE_RZ)
 	int ret = 0, i;
 
 	/* Start e-dmac transmitter and receiver */
@@ -218,7 +218,7 @@ static int sh_eth_tx_desc_init(struct sh_eth_dev *eth)
 	/* Point the controller to the tx descriptor list. Must use physical
 	   addresses */
 	sh_eth_write(eth, ADDR_TO_PHY(port_info->tx_desc_base), TDLAR);
-#if defined(SH_ETH_TYPE_GETHER)
+#if defined(SH_ETH_TYPE_GETHER) || defined(SH_ETH_TYPE_RZ)
 	sh_eth_write(eth, ADDR_TO_PHY(port_info->tx_desc_base), TDFAR);
 	sh_eth_write(eth, ADDR_TO_PHY(cur_tx_desc), TDFXR);
 	sh_eth_write(eth, 0x01, TDFFR);/* Last discriptor bit */
@@ -288,7 +288,7 @@ static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
 
 	/* Point the controller to the rx descriptor list */
 	sh_eth_write(eth, ADDR_TO_PHY(port_info->rx_desc_base), RDLAR);
-#if defined(SH_ETH_TYPE_GETHER)
+#if defined(SH_ETH_TYPE_GETHER) || defined(SH_ETH_TYPE_RZ)
 	sh_eth_write(eth, ADDR_TO_PHY(port_info->rx_desc_base), RDFAR);
 	sh_eth_write(eth, ADDR_TO_PHY(cur_rx_desc), RDFXR);
 	sh_eth_write(eth, RDFFR_RDLF, RDFFR);
@@ -384,7 +384,7 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 	sh_eth_write(eth, 0, TFTR);
 	sh_eth_write(eth, (FIFO_SIZE_T | FIFO_SIZE_R), FDR);
 	sh_eth_write(eth, RMCR_RST, RMCR);
-#if defined(SH_ETH_TYPE_GETHER)
+#if defined(SH_ETH_TYPE_GETHER) || defined(SH_ETH_TYPE_RZ)
 	sh_eth_write(eth, 0, RPADIR);
 #endif
 	sh_eth_write(eth, (FIFO_F_D_RFF | FIFO_F_D_RFD), FCFTR);
@@ -403,6 +403,8 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 	sh_eth_write(eth, RFLR_RFL_MIN, RFLR);
 #if defined(SH_ETH_TYPE_GETHER)
 	sh_eth_write(eth, 0, PIPR);
+#endif
+#if defined(SH_ETH_TYPE_GETHER) || defined(SH_ETH_TYPE_RZ)
 	sh_eth_write(eth, APR_AP, APR);
 	sh_eth_write(eth, MPR_MP, MPR);
 	sh_eth_write(eth, TPAUSER_TPAUSE, TPAUSER);
