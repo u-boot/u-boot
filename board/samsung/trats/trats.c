@@ -786,3 +786,14 @@ void init_panel_info(vidinfo_t *vid)
 
 	setenv("lcdinfo", "lcd=s6e8ax0");
 }
+
+#ifdef CONFIG_MISC_INIT_R
+int misc_init_r(void)
+{
+#ifdef CONFIG_CMD_BMP
+	if (panel_info.logo_on)
+		draw_logo();
+#endif
+	return 0;
+}
+#endif

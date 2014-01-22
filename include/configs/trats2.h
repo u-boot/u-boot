@@ -277,7 +277,6 @@
 #define CONFIG_EFI_PARTITION
 #define CONFIG_PARTITION_UUIDS
 
-#define CONFIG_MISC_INIT_R
 #define CONFIG_BOARD_EARLY_INIT_F
 
 /* I2C */
@@ -317,6 +316,11 @@ int get_soft_i2c_sda_pin(void);
 #define CONFIG_USB_GADGET_DUALSPEED
 #define CONFIG_USB_GADGET_VBUS_DRAW	2
 #define CONFIG_USB_CABLE_CHECK
+
+/* Common misc for Samsung */
+#define CONFIG_MISC_COMMON
+
+#define CONFIG_MISC_INIT_R
 
 /* LCD */
 #define CONFIG_EXYNOS_FB

@@ -511,3 +511,14 @@ int board_init(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_MISC_INIT_R
+int misc_init_r(void)
+{
+#ifdef CONFIG_CMD_BMP
+	if (panel_info.logo_on)
+		draw_logo();
+#endif
+	return 0;
+}
+#endif

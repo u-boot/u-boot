@@ -306,6 +306,11 @@
 #define CONFIG_USB_GADGET_VBUS_DRAW	2
 #define CONFIG_USB_CABLE_CHECK
 
+/* Common misc for Samsung */
+#define CONFIG_MISC_COMMON
+
+#define CONFIG_MISC_INIT_R
+
 /* LCD */
 #define CONFIG_EXYNOS_FB
 #define CONFIG_LCD
