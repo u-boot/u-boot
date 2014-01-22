@@ -326,7 +326,7 @@ int get_soft_i2c_sda_pin(void);
 #define CONFIG_EXYNOS_FB
 #define CONFIG_LCD
 #define CONFIG_CMD_BMP
-#define CONFIG_BMP_32BPP
+#define CONFIG_BMP_16BPP
 #define CONFIG_FB_ADDR		0x52504000
 #define CONFIG_S6E8AX0
 #define CONFIG_EXYNOS_MIPI_DSIM

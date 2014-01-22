@@ -446,7 +446,7 @@ vidinfo_t panel_info = {
 	.vl_vsp		= CONFIG_SYS_HIGH,
 	.vl_dp		= CONFIG_SYS_HIGH,
 
-	.vl_bpix	= 5,	/* Bits per pixel */
+	.vl_bpix	= 4,	/* Bits per pixel */
 
 	/* LD9040 LCD Panel */
 	.vl_hspw	= 2,

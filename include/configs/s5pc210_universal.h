@@ -280,7 +280,7 @@ int universal_spi_read(void);
 #define CONFIG_EXYNOS_FB
 #define CONFIG_LCD
 #define CONFIG_CMD_BMP
-#define CONFIG_BMP_32BPP
+#define CONFIG_BMP_16BPP
 #define CONFIG_LD9040
 #define CONFIG_EXYNOS_MIPI_DSIM
 #define CONFIG_VIDEO_BMP_GZIP

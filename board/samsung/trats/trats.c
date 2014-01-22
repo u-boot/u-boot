@@ -742,7 +742,7 @@ vidinfo_t panel_info = {
 	.vl_hsp		= CONFIG_SYS_LOW,
 	.vl_vsp		= CONFIG_SYS_LOW,
 	.vl_dp		= CONFIG_SYS_LOW,
-	.vl_bpix	= 5,	/* Bits per pixel, 2^5 = 32 */
+	.vl_bpix	= 4,	/* Bits per pixel, 2^4 = 16 */
 
 	/* s6e8ax0 Panel infomation */
 	.vl_hspw	= 5,
