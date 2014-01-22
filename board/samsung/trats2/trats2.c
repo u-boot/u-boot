@@ -28,6 +28,7 @@
 #include <usb.h>
 #include <usb/s3c_udc.h>
 #include <usb_mass_storage.h>
+#include <samsung/misc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -615,6 +616,10 @@ void init_panel_info(vidinfo_t *vid)
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
+#ifdef CONFIG_LCD_MENU
+	keys_init();
+	check_boot_mode();
+#endif
 #ifdef CONFIG_CMD_BMP
 	if (panel_info.logo_on)
 		draw_logo();

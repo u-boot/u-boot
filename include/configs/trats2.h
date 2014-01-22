@@ -322,6 +322,28 @@ int get_soft_i2c_sda_pin(void);
 
 #define CONFIG_MISC_INIT_R
 
+/* Download menu - Samsung common */
+#define CONFIG_LCD_MENU
+#define CONFIG_LCD_MENU_BOARD
+
+/* Download menu - definitions for check keys */
+#ifndef __ASSEMBLY__
+#include <power/max77686_pmic.h>
+
+#define KEY_PWR_PMIC_NAME		"MAX77686_PMIC"
+#define KEY_PWR_STATUS_REG		MAX77686_REG_PMIC_STATUS1
+#define KEY_PWR_STATUS_MASK		(1 << 0)
+#define KEY_PWR_INTERRUPT_REG		MAX77686_REG_PMIC_INT1
+#define KEY_PWR_INTERRUPT_MASK		(1 << 1)
+
+#define KEY_VOL_UP_GPIO			exynos4x12_gpio_get(2, x2, 2)
+#define KEY_VOL_DOWN_GPIO		exynos4x12_gpio_get(2, x3, 3)
+#endif /* __ASSEMBLY__ */
+
+/* LCD console */
+#define LCD_BPP                 LCD_COLOR16
+#define CONFIG_SYS_WHITE_ON_BLACK
+
 /* LCD */
 #define CONFIG_EXYNOS_FB
 #define CONFIG_LCD
