@@ -274,6 +274,28 @@ int universal_spi_read(void);
 
 #define CONFIG_MISC_INIT_R
 
+/* Download menu - Samsung common */
+#define CONFIG_LCD_MENU
+#define CONFIG_LCD_MENU_BOARD
+
+/* Download menu - definitions for check keys */
+#ifndef __ASSEMBLY__
+#include <power/max8998_pmic.h>
+
+#define KEY_PWR_PMIC_NAME		"MAX8998_PMIC"
+#define KEY_PWR_STATUS_REG		MAX8998_REG_STATUS1
+#define KEY_PWR_STATUS_MASK		(1 << 7)
+#define KEY_PWR_INTERRUPT_REG		MAX8998_REG_IRQ1
+#define KEY_PWR_INTERRUPT_MASK		(1 << 7)
+
+#define KEY_VOL_UP_GPIO			exynos4_gpio_get(2, x2, 0)
+#define KEY_VOL_DOWN_GPIO		exynos4_gpio_get(2, x2, 1)
+#endif /* __ASSEMBLY__ */
+
+/* LCD console */
+#define LCD_BPP			LCD_COLOR16
+#define CONFIG_SYS_WHITE_ON_BLACK
+
 /*
  * LCD Settings
  */

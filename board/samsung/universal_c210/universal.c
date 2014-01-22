@@ -22,6 +22,7 @@
 #include <usb/s3c_udc.h>
 #include <asm/arch/cpu.h>
 #include <power/max8998_pmic.h>
+#include <samsung/misc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -515,6 +516,10 @@ int board_init(void)
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
+#ifdef CONFIG_LCD_MENU
+	keys_init();
+	check_boot_mode();
+#endif
 #ifdef CONFIG_CMD_BMP
 	if (panel_info.logo_on)
 		draw_logo();
