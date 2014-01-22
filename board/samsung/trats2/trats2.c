@@ -72,14 +72,11 @@ static void check_hw_revision(void)
 int checkboard(void)
 {
 	puts("Board:\tTRATS2\n");
+	printf("HW Revision:\t0x%04x\n", board_rev);
+
 	return 0;
 }
 #endif
-
-static void show_hw_revision(void)
-{
-	printf("HW Revision:\t0x%04x\n", board_rev);
-}
 
 u32 get_board_rev(void)
 {
@@ -618,11 +615,6 @@ void init_panel_info(vidinfo_t *vid)
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
-	setenv("model", "GT-I8800");
-	setenv("board", "TRATS2");
-
-	show_hw_revision();
-
 	return 0;
 }
 #endif
