@@ -104,13 +104,13 @@
 # define CONFIG_DOS_PARTITION
 #endif
 
+#define CONFIG_SYS_I2C_ZYNQ
 /* I2C */
-#if defined(CONFIG_ZYNQ_I2C0) || defined(CONFIG_ZYNQ_I2C1)
+#if defined(CONFIG_SYS_I2C_ZYNQ)
 # define CONFIG_CMD_I2C
 # define CONFIG_SYS_I2C
-# define CONFIG_SYS_I2C_ZYNQ
 # define CONFIG_SYS_I2C_ZYNQ_SPEED		100000
-# define CONFIG_SYS_I2C_ZYNQ_SLAVE		1
+# define CONFIG_SYS_I2C_ZYNQ_SLAVE		0
 #endif
 
 /* EEPROM */
