@@ -119,6 +119,11 @@ static void tx_descs_init(struct eth_device *dev)
 	/* Correcting the last pointer of the chain */
 	desc_p->dmamac_next = &desc_table_p[0];
 
+	/* Flush all Tx buffer descriptors at once */
+	flush_dcache_range((unsigned int)priv->tx_mac_descrtable,
+			   (unsigned int)priv->tx_mac_descrtable +
+			   sizeof(priv->tx_mac_descrtable));
+
 	writel((ulong)&desc_table_p[0], &dma_p->txdesclistaddr);
 	priv->tx_currdescnum = 0;
 }
@@ -131,6 +136,15 @@ static void rx_descs_init(struct eth_device *dev)
 	char *rxbuffs = &priv->rxbuffs[0];
 	struct dmamacdescr *desc_p;
 	u32 idx;
+
+	/* Before passing buffers to GMAC we need to make sure zeros
+	 * written there right after "priv" structure allocation were
+	 * flushed into RAM.
+	 * Otherwise there's a chance to get some of them flushed in RAM when
+	 * GMAC is already pushing data to RAM via DMA. This way incoming from
+	 * GMAC data will be corrupted. */
+	flush_dcache_range((unsigned int)rxbuffs, (unsigned int)rxbuffs +
+			   RX_TOTAL_BUFSIZE);
 
 	for (idx = 0; idx < CONFIG_RX_DESCR_NUM; idx++) {
 		desc_p = &desc_table_p[idx];
@@ -146,6 +160,11 @@ static void rx_descs_init(struct eth_device *dev)
 
 	/* Correcting the last pointer of the chain */
 	desc_p->dmamac_next = &desc_table_p[0];
+
+	/* Flush all Rx buffer descriptors at once */
+	flush_dcache_range((unsigned int)priv->rx_mac_descrtable,
+			   (unsigned int)priv->rx_mac_descrtable +
+			   sizeof(priv->rx_mac_descrtable));
 
 	writel((ulong)&desc_table_p[0], &dma_p->rxdesclistaddr);
 	priv->rx_currdescnum = 0;
@@ -261,6 +280,11 @@ static int dw_eth_send(struct eth_device *dev, void *packet, int length)
 	u32 desc_num = priv->tx_currdescnum;
 	struct dmamacdescr *desc_p = &priv->tx_mac_descrtable[desc_num];
 
+	/* Invalidate only "status" field for the following check */
+	invalidate_dcache_range((unsigned long)&desc_p->txrx_status,
+				(unsigned long)&desc_p->txrx_status +
+				sizeof(desc_p->txrx_status));
+
 	/* Check if the descriptor is owned by CPU */
 	if (desc_p->txrx_status & DESC_TXSTS_OWNBYDMA) {
 		printf("CPU not owner of tx frame\n");
@@ -268,6 +292,10 @@ static int dw_eth_send(struct eth_device *dev, void *packet, int length)
 	}
 
 	memcpy((void *)desc_p->dmamac_addr, packet, length);
+
+	/* Flush data to be sent */
+	flush_dcache_range((unsigned long)desc_p->dmamac_addr,
+			   (unsigned long)desc_p->dmamac_addr + length);
 
 #if defined(CONFIG_DW_ALTDESCRIPTOR)
 	desc_p->txrx_status |= DESC_TXSTS_TXFIRST | DESC_TXSTS_TXLAST;
@@ -284,6 +312,10 @@ static int dw_eth_send(struct eth_device *dev, void *packet, int length)
 	desc_p->txrx_status = DESC_TXSTS_OWNBYDMA;
 #endif
 
+	/* Flush modified buffer descriptor */
+	flush_dcache_range((unsigned long)desc_p,
+			   (unsigned long)desc_p + sizeof(struct dmamacdescr));
+
 	/* Test the wrap-around condition. */
 	if (++desc_num >= CONFIG_TX_DESCR_NUM)
 		desc_num = 0;
@@ -299,17 +331,27 @@ static int dw_eth_send(struct eth_device *dev, void *packet, int length)
 static int dw_eth_recv(struct eth_device *dev)
 {
 	struct dw_eth_dev *priv = dev->priv;
-	u32 desc_num = priv->rx_currdescnum;
+	u32 status, desc_num = priv->rx_currdescnum;
 	struct dmamacdescr *desc_p = &priv->rx_mac_descrtable[desc_num];
-
-	u32 status = desc_p->txrx_status;
 	int length = 0;
+
+	/* Invalidate entire buffer descriptor */
+	invalidate_dcache_range((unsigned long)desc_p,
+				(unsigned long)desc_p +
+				sizeof(struct dmamacdescr));
+
+	status = desc_p->txrx_status;
 
 	/* Check  if the owner is the CPU */
 	if (!(status & DESC_RXSTS_OWNBYDMA)) {
 
 		length = (status & DESC_RXSTS_FRMLENMSK) >> \
 			 DESC_RXSTS_FRMLENSHFT;
+
+		/* Invalidate received data */
+		invalidate_dcache_range((unsigned long)desc_p->dmamac_addr,
+					(unsigned long)desc_p->dmamac_addr +
+					length);
 
 		NetReceive(desc_p->dmamac_addr, length);
 
@@ -318,6 +360,11 @@ static int dw_eth_recv(struct eth_device *dev)
 		 * the next one
 		 */
 		desc_p->txrx_status |= DESC_RXSTS_OWNBYDMA;
+
+		/* Flush only status field - others weren't changed */
+		flush_dcache_range((unsigned long)&desc_p->txrx_status,
+				   (unsigned long)&desc_p->txrx_status +
+				   sizeof(desc_p->txrx_status));
 
 		/* Test the wrap-around condition. */
 		if (++desc_num >= CONFIG_RX_DESCR_NUM)
