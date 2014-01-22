@@ -2,7 +2,7 @@
  * (C) Copyright 2013 Xilinx, Inc.
  *
  * Configuration settings for the Xilinx Zynq ZC702 and ZC706 boards
- * See zynq_common.h for Zynq common configs
+ * See zynq-common.h for Zynq common configs
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */

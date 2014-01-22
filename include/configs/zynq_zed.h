@@ -2,7 +2,7 @@
  * (C) Copyright 2013 Xilinx, Inc.
  *
  * Configuration for Zynq Evaluation and Development Board - ZedBoard
- * See zynq_common.h for Zynq common configs
+ * See zynq-common.h for Zynq common configs
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
