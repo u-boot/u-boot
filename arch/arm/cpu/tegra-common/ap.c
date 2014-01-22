@@ -72,6 +72,7 @@ int tegra_get_chip_sku(void)
 		case SKU_ID_T33:
 		case SKU_ID_T30:
 		case SKU_ID_TM30MQS_P_A3:
+		default:
 			return TEGRA_SOC_T30;
 		}
 		break;
@@ -79,6 +80,7 @@ int tegra_get_chip_sku(void)
 		switch (sku_id) {
 		case SKU_ID_T114_ENG:
 		case SKU_ID_T114_1:
+		default:
 			return TEGRA_SOC_T114;
 		}
 		break;
