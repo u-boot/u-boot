@@ -81,7 +81,7 @@
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"fdt_file=imx6sl-evk.dtb\0" \
-	"fdt_addr=0x81000000\0" \
+	"fdt_addr=0x88000000\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
 	"mmcdev=0\0" \
