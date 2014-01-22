@@ -311,6 +311,28 @@
 
 #define CONFIG_MISC_INIT_R
 
+/* Download menu - Samsung common */
+#define CONFIG_LCD_MENU
+#define CONFIG_LCD_MENU_BOARD
+
+/* Download menu - definitions for check keys */
+#ifndef __ASSEMBLY__
+#include <power/max8997_pmic.h>
+
+#define KEY_PWR_PMIC_NAME		"MAX8997_PMIC"
+#define KEY_PWR_STATUS_REG		MAX8997_REG_STATUS1
+#define KEY_PWR_STATUS_MASK		(1 << 0)
+#define KEY_PWR_INTERRUPT_REG		MAX8997_REG_INT1
+#define KEY_PWR_INTERRUPT_MASK		(1 << 0)
+
+#define KEY_VOL_UP_GPIO			exynos4_gpio_get(2, x2, 0)
+#define KEY_VOL_DOWN_GPIO		exynos4_gpio_get(2, x2, 1)
+#endif /* __ASSEMBLY__ */
+
+/* LCD console */
+#define LCD_BPP			LCD_COLOR16
+#define CONFIG_SYS_WHITE_ON_BLACK
+
 /* LCD */
 #define CONFIG_EXYNOS_FB
 #define CONFIG_LCD
