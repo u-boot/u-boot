@@ -192,7 +192,7 @@ int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 		 * This might be dangerous but permits to flash if
 		 * ARCH_DMA_MINALIGN is greater than header size
 		 */
-                if (new_buf > buf_start) {
+		if (new_buf > buf_start) {
 			debug("%s: Aligned buffer is after buffer start\n",
 			      __func__);
 			new_buf -= ARCH_DMA_MINALIGN;
