@@ -1,6 +1,14 @@
 #ifndef __SAMSUNG_MISC_COMMON_H__
 #define __SAMSUNG_MISC_COMMON_H__
 
+#ifdef CONFIG_REVISION_TAG
+u32 get_board_rev(void);
+#endif
+
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+void set_board_info(void);
+#endif
+
 #ifdef CONFIG_LCD_MENU
 enum {
 	BOOT_MODE_INFO,
@@ -9,10 +17,6 @@ enum {
 	BOOT_MODE_DFU,
 	BOOT_MODE_EXIT,
 };
-
-#ifdef CONFIG_REVISION_TAG
-u32 get_board_rev(void);
-#endif
 
 void keys_init(void);
 void check_boot_mode(void);

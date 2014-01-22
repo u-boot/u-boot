@@ -21,6 +21,30 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+void set_board_info(void)
+{
+	char info[64];
+
+	snprintf(info, ARRAY_SIZE(info), "%d.%d", s5p_cpu_rev & 0x0f,
+		 (s5p_cpu_rev & 0xf0) >> 0x04);
+	setenv("soc_rev", info);
+
+	snprintf(info, ARRAY_SIZE(info), "%x", s5p_cpu_id);
+	setenv("soc_id", info);
+
+#ifdef CONFIG_REVISION_TAG
+	snprintf(info, ARRAY_SIZE(info), "%x", get_board_rev());
+	setenv("board_rev", info);
+#endif
+#ifdef CONFIG_OF_LIBFDT
+	snprintf(info, ARRAY_SIZE(info),  "%s%x-%s.dtb",
+		 CONFIG_SYS_SOC, s5p_cpu_id, CONFIG_SYS_BOARD);
+	setenv("fdtfile", info);
+#endif
+}
+#endif /* CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG */
+
 #ifdef CONFIG_LCD_MENU
 static int power_key_pressed(u32 reg)
 {
