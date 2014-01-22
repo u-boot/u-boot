@@ -516,6 +516,9 @@ int board_init(void)
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	set_board_info();
+#endif
 #ifdef CONFIG_LCD_MENU
 	keys_init();
 	check_boot_mode();
