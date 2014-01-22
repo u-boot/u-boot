@@ -152,6 +152,9 @@
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
+#define CONFIG_ENV_VARS_UBOOT_CONFIG
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+
 /* Tizen - partitions definitions */
 #define PARTS_CSA		"csa"
 #define PARTS_BOOT		"boot"
