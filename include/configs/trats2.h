@@ -178,7 +178,8 @@
 	""PARTS_BOOT" part 0 2;" \
 	""PARTS_ROOT" part 0 5;" \
 	""PARTS_DATA" part 0 6;" \
-	""PARTS_UMS" part 0 7\0"
+	""PARTS_UMS" part 0 7;" \
+	"params.bin mmc 0x38 0x8\0"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootk=" \
