@@ -67,7 +67,8 @@ int sh_eth_send(struct eth_device *dev, void *packet, int len)
 
 	/* packet must be a 4 byte boundary */
 	if ((int)packet & 3) {
-		printf(SHETHER_NAME ": %s: packet not 4 byte alligned\n", __func__);
+		printf(SHETHER_NAME ": %s: packet not 4 byte alligned\n"
+				, __func__);
 		ret = -EFAULT;
 		goto err;
 	}
@@ -156,7 +157,7 @@ static int sh_eth_reset(struct sh_eth_dev *eth)
 
 	/* Perform a software reset and wait for it to complete */
 	sh_eth_write(eth, EDMR_SRST, EDMR);
-	for (i = 0; i < TIMEOUT_CNT ; i++) {
+	for (i = 0; i < TIMEOUT_CNT; i++) {
 		if (!(sh_eth_read(eth, EDMR) & EDMR_SRST))
 			break;
 		udelay(1000);
@@ -523,41 +524,41 @@ void sh_eth_halt(struct eth_device *dev)
 
 int sh_eth_initialize(bd_t *bd)
 {
-    int ret = 0;
+	int ret = 0;
 	struct sh_eth_dev *eth = NULL;
-    struct eth_device *dev = NULL;
+	struct eth_device *dev = NULL;
 
-    eth = (struct sh_eth_dev *)malloc(sizeof(struct sh_eth_dev));
+	eth = (struct sh_eth_dev *)malloc(sizeof(struct sh_eth_dev));
 	if (!eth) {
 		printf(SHETHER_NAME ": %s: malloc failed\n", __func__);
 		ret = -ENOMEM;
 		goto err;
 	}
 
-    dev = (struct eth_device *)malloc(sizeof(struct eth_device));
+	dev = (struct eth_device *)malloc(sizeof(struct eth_device));
 	if (!dev) {
 		printf(SHETHER_NAME ": %s: malloc failed\n", __func__);
 		ret = -ENOMEM;
 		goto err;
 	}
-    memset(dev, 0, sizeof(struct eth_device));
-    memset(eth, 0, sizeof(struct sh_eth_dev));
+	memset(dev, 0, sizeof(struct eth_device));
+	memset(eth, 0, sizeof(struct sh_eth_dev));
 
 	eth->port = CONFIG_SH_ETHER_USE_PORT;
 	eth->port_info[eth->port].phy_addr = CONFIG_SH_ETHER_PHY_ADDR;
 
-    dev->priv = (void *)eth;
-    dev->iobase = 0;
-    dev->init = sh_eth_init;
-    dev->halt = sh_eth_halt;
-    dev->send = sh_eth_send;
-    dev->recv = sh_eth_recv;
-    eth->port_info[eth->port].dev = dev;
+	dev->priv = (void *)eth;
+	dev->iobase = 0;
+	dev->init = sh_eth_init;
+	dev->halt = sh_eth_halt;
+	dev->send = sh_eth_send;
+	dev->recv = sh_eth_recv;
+	eth->port_info[eth->port].dev = dev;
 
 	sprintf(dev->name, SHETHER_NAME);
 
-    /* Register Device to EtherNet subsystem  */
-    eth_register(dev);
+	/* Register Device to EtherNet subsystem  */
+	eth_register(dev);
 
 	bb_miiphy_buses[0].priv = eth;
 	miiphy_register(dev->name, bb_miiphy_read, bb_miiphy_write);
