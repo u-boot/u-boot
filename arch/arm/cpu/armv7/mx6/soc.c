@@ -177,9 +177,29 @@ static void imx_set_wdog_powerdown(bool enable)
 	writew(enable, &wdog2->wmcr);
 }
 
+static void set_ahb_rate(u32 val)
+{
+	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	u32 reg, div;
+
+	div = get_periph_clk() / val - 1;
+	reg = readl(&mxc_ccm->cbcdr);
+
+	writel((reg & (~MXC_CCM_CBCDR_AHB_PODF_MASK)) |
+		(div << MXC_CCM_CBCDR_AHB_PODF_OFFSET), &mxc_ccm->cbcdr);
+}
+
 int arch_cpu_init(void)
 {
 	init_aips();
+
+	/*
+	 * When low freq boot is enabled, ROM will not set AHB
+	 * freq, so we need to ensure AHB freq is 132MHz in such
+	 * scenario.
+	 */
+	if (mxc_get_clock(MXC_ARM_CLK) == 396000000)
+		set_ahb_rate(132000000);
 
 	imx_set_wdog_powerdown(false); /* Disable PDE bit of WMCR register */
 
