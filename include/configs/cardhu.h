@@ -30,6 +30,10 @@
 #define V_PROMPT		"Tegra30 (Cardhu) # "
 #define CONFIG_TEGRA_BOARD_STRING	"NVIDIA Cardhu"
 
+#define BOARD_EXTRA_ENV_SETTINGS \
+	"board_name=cardhu-a04\0" \
+	"fdtfile=tegra30-cardhu-a04.dtb\0"
+
 /* Board-specific serial config */
 #define CONFIG_SERIAL_MULTI
 #define CONFIG_TEGRA_ENABLE_UARTA
