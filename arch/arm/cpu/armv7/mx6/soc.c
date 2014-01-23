@@ -189,9 +189,20 @@ static void set_ahb_rate(u32 val)
 		(div << MXC_CCM_CBCDR_AHB_PODF_OFFSET), &mxc_ccm->cbcdr);
 }
 
+static void clear_mmdc_ch_mask(void)
+{
+	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+
+	/* Clear MMDC channel mask */
+	writel(0, &mxc_ccm->ccdr);
+}
+
 int arch_cpu_init(void)
 {
 	init_aips();
+
+	/* Need to clear MMDC_CHx_MASK to make warm reset work. */
+	clear_mmdc_ch_mask();
 
 	/*
 	 * When low freq boot is enabled, ROM will not set AHB
