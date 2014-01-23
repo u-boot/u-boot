@@ -99,6 +99,7 @@
 	BOOTCMDS_DHCP
 
 #define CONFIG_BOOTCOMMAND \
+	"set usb_need_init; " \
 	"for target in ${boot_targets}; do run bootcmd_${target}; done"
 
 #endif
