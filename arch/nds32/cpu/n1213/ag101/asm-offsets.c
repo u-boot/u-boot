@@ -21,6 +21,7 @@ int main(void)
 #endif
 	BLANK();
 #ifdef CONFIG_FTAHBC020S
+	OFFSET(FTAHBC020S_SLAVE_BSR_4,	ftahbc02s, s_bsr[4]);
 	OFFSET(FTAHBC020S_SLAVE_BSR_6,	ftahbc02s, s_bsr[6]);
 	OFFSET(FTAHBC020S_CR,		ftahbc02s, cr);
 #endif
