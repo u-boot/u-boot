@@ -160,6 +160,9 @@ struct clk_rst_ctlr {
 
 #define PLL_BASE_OVRRIDE_MASK	(1U << 28)
 
+#define PLL_LOCK_SHIFT		27
+#define PLL_LOCK_MASK		(1U << PLL_LOCK_SHIFT)
+
 #define PLL_DIVP_SHIFT		20
 #define PLL_DIVP_MASK		(7U << PLL_DIVP_SHIFT)
 

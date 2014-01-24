@@ -68,7 +68,7 @@ static void enable_cpu_clocks(void)
 	/* Wait for PLL-X to lock */
 	do {
 		reg = readl(&clkrst->crc_pll_simple[SIMPLE_PLLX].pll_base);
-	} while ((reg & (1 << 27)) == 0);
+	} while ((reg & PLL_LOCK_MASK) == 0);
 
 	/* Wait until all clocks are stable */
 	udelay(PLL_STABILIZATION_DELAY);
@@ -221,9 +221,7 @@ static void power_partition(u32 status, u32 partid)
 	if (!is_partition_powered(status)) {
 		/* No, toggle the partition power state (OFF -> ON) */
 		debug("power_partition, toggling state\n");
-		clrbits_le32(&pmc->pmc_pwrgate_toggle, 0x1F);
-		setbits_le32(&pmc->pmc_pwrgate_toggle, partid);
-		setbits_le32(&pmc->pmc_pwrgate_toggle, START_CP);
+		writel(START_CP | partid, &pmc->pmc_pwrgate_toggle);
 
 		/* Wait for the power to come up */
 		while (!is_partition_powered(status))
