@@ -1,5 +1,5 @@
 /*
- *  (C) Copyright 2010,2011
+ *  (C) Copyright 2010,2011,2014
  *  NVIDIA Corporation <www.nvidia.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -21,7 +21,11 @@ struct pmc_ctlr {
 	uint pmc_dpd_sample;		/* _DPD_PADS_SAMPLE_0, offset 20 */
 	uint pmc_dpd_enable;		/* _DPD_PADS_ENABLE_0, offset 24 */
 	uint pmc_pwrgate_timer_off;	/* _PWRGATE_TIMER_OFF_0, offset 28 */
+#if defined(CONFIG_TEGRA20) || defined(CONFIG_TEGRA30)
 	uint pmc_pwrgate_timer_on;	/* _PWRGATE_TIMER_ON_0, offset 2C */
+#else
+	uint pmc_clamp_status;		/* _CLAMP_STATUS_0, offset 2C */
+#endif
 	uint pmc_pwrgate_toggle;	/* _PWRGATE_TOGGLE_0, offset 30 */
 	uint pmc_remove_clamping;	/* _REMOVE_CLAMPING_CMD_0, offset 34 */
 	uint pmc_pwrgate_status;	/* _PWRGATE_STATUS_0, offset 38 */

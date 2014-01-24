@@ -219,8 +219,8 @@ static int is_clamp_enabled(u32 mask)
 	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
 	u32 reg;
 
-	/* Get clamp status. TODO: Add pmc_clamp_status alias to pmc.h */
-	reg = readl(&pmc->pmc_pwrgate_timer_on);
+	/* Get clamp status. */
+	reg = readl(&pmc->pmc_clamp_status);
 	return (reg & mask) == mask;
 }
 
