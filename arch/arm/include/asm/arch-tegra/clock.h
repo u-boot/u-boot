@@ -30,7 +30,7 @@ enum clock_osc_freq {
  * them all together and pretends they're all 31:28.
  */
 enum {
-	MASK_BITS_31_30	= 2,	/* num of bits used to specify clock source */
+	MASK_BITS_31_30,
 	MASK_BITS_31_29,
 	MASK_BITS_31_28,
 };
