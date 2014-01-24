@@ -144,18 +144,23 @@ int pllx_set_rate(struct clk_pll_simple *pll , u32 divn, u32 divm,
 		reg |= (1 << PLL_DCCON_SHIFT);
 	writel(reg, &pll->pll_misc);
 
-	/* Enable PLLX */
-	reg = readl(&pll->pll_base);
-	reg |= PLL_ENABLE_MASK;
-
 	/* Disable BYPASS */
+	reg = readl(&pll->pll_base);
 	reg &= ~PLL_BYPASS_MASK;
 	writel(reg, &pll->pll_base);
+	debug("pllx_set_rate: base = 0x%08X\n", reg);
 
 	/* Set lock_enable to PLLX_MISC */
 	reg = readl(&pll->pll_misc);
 	reg |= PLL_LOCK_ENABLE_MASK;
 	writel(reg, &pll->pll_misc);
+	debug("pllx_set_rate: misc = 0x%08X\n", reg);
+
+	/* Enable PLLX last, once it's all configured */
+	reg = readl(&pll->pll_base);
+	reg |= PLL_ENABLE_MASK;
+	writel(reg, &pll->pll_base);
+	debug("pllx_set_rate: base final = 0x%08X\n", reg);
 
 	return 0;
 }
