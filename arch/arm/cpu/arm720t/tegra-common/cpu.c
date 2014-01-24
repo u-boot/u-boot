@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2012, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2010-2014, NVIDIA CORPORATION.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -114,24 +114,6 @@ struct clk_pll_table tegra_pll_x_table[TEGRA_SOC_CNT][CLOCK_OSC_FREQ_COUNT] = {
 	},
 };
 
-void adjust_pllp_out_freqs(void)
-{
-	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
-	struct clk_pll *pll = &clkrst->crc_pll[CLOCK_ID_PERIPH];
-	u32 reg;
-
-	/* Set T30 PLLP_OUT1, 2, 3 & 4 freqs to 9.6, 48, 102 & 204MHz */
-	reg = readl(&pll->pll_out[0]);	/* OUTA, contains OUT2 / OUT1 */
-	reg |= (IN_408_OUT_48_DIVISOR << PLLP_OUT2_RATIO) | PLLP_OUT2_OVR
-		| (IN_408_OUT_9_6_DIVISOR << PLLP_OUT1_RATIO) | PLLP_OUT1_OVR;
-	writel(reg, &pll->pll_out[0]);
-
-	reg = readl(&pll->pll_out[1]);   /* OUTB, contains OUT4 / OUT3 */
-	reg |= (IN_408_OUT_204_DIVISOR << PLLP_OUT4_RATIO) | PLLP_OUT4_OVR
-		| (IN_408_OUT_102_DIVISOR << PLLP_OUT3_RATIO) | PLLP_OUT3_OVR;
-	writel(reg, &pll->pll_out[1]);
-}
-
 int pllx_set_rate(struct clk_pll_simple *pll , u32 divn, u32 divm,
 		u32 divp, u32 cpcon)
 {
@@ -207,12 +189,6 @@ void init_pllx(void)
 	/* set pllx */
 	sel = &tegra_pll_x_table[chip_sku][osc];
 	pllx_set_rate(pll, sel->n, sel->m, sel->p, sel->cpcon);
-
-	/* adjust PLLP_out1-4 on T3x/T114 */
-	if (soc_type >= CHIPID_TEGRA30) {
-		debug("  init_pllx: adjusting PLLP out freqs\n");
-		adjust_pllp_out_freqs();
-	}
 }
 
 void enable_cpu_clock(int enable)

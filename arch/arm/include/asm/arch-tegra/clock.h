@@ -320,4 +320,6 @@ int clock_set_rate(enum clock_id clkid, u32 n, u32 m, u32 p, u32 cpcon);
 /* SoC-specific TSC init */
 void arch_timer_init(void);
 
+void tegra30_set_up_pllp(void);
+
 #endif  /* _TEGRA_CLOCK_H_ */

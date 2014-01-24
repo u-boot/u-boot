@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2013, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2010-2014, NVIDIA CORPORATION.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -581,34 +581,7 @@ enum periph_id clk_id_to_periph_id(int clk_id)
 
 void clock_early_init(void)
 {
-	/*
-	 * PLLP output frequency set to 408Mhz
-	 * PLLC output frequency set to 228Mhz
-	 */
-	switch (clock_get_osc_freq()) {
-	case CLOCK_OSC_FREQ_12_0: /* OSC is 12Mhz */
-		clock_set_rate(CLOCK_ID_PERIPH, 408, 12, 0, 8);
-		clock_set_rate(CLOCK_ID_CGENERAL, 456, 12, 1, 8);
-		break;
-
-	case CLOCK_OSC_FREQ_26_0: /* OSC is 26Mhz */
-		clock_set_rate(CLOCK_ID_PERIPH, 408, 26, 0, 8);
-		clock_set_rate(CLOCK_ID_CGENERAL, 600, 26, 0, 8);
-		break;
-
-	case CLOCK_OSC_FREQ_13_0: /* OSC is 13Mhz */
-		clock_set_rate(CLOCK_ID_PERIPH, 408, 13, 0, 8);
-		clock_set_rate(CLOCK_ID_CGENERAL, 600, 13, 0, 8);
-		break;
-	case CLOCK_OSC_FREQ_19_2:
-	default:
-		/*
-		 * These are not supported. It is too early to print a
-		 * message and the UART likely won't work anyway due to the
-		 * oscillator being wrong.
-		 */
-		break;
-	}
+	tegra30_set_up_pllp();
 }
 
 void arch_timer_init(void)
