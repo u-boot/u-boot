@@ -304,7 +304,7 @@ static int adjust_periph_pll(enum periph_id periph_id, int source,
 	/* work out the source clock and set it */
 	if (source < 0)
 		return -1;
-	if (mux_bits == 4) {
+	if (mux_bits == MASK_BITS_31_28) {
 		clrsetbits_le32(reg, OUT_CLK_SOURCE_31_28_MASK,
 				source << OUT_CLK_SOURCE_31_28_SHIFT);
 	} else {
