@@ -315,7 +315,6 @@ void reset_A9_cpu(int reset)
 void clock_enable_coresight(int enable)
 {
 	u32 rst, src = 2;
-	int soc_type;
 
 	debug("clock_enable_coresight entry\n");
 	clock_set_enable(PERIPH_ID_CORESIGHT, enable);
@@ -328,16 +327,7 @@ void clock_enable_coresight(int enable)
 		 * Clock divider request would setup CSITE clock as 144MHz
 		 * for PLLP base 216MHz and 204MHz for PLLP base 408MHz
 		 */
-
-		soc_type = tegra_get_chip();
-		if (soc_type == CHIPID_TEGRA30 || soc_type == CHIPID_TEGRA114)
-			src = CLK_DIVIDER(NVBL_PLLP_KHZ, 204000);
-		else if (soc_type == CHIPID_TEGRA20)
-			src = CLK_DIVIDER(NVBL_PLLP_KHZ, 144000);
-		else
-			printf("%s: Unknown SoC type %X!\n",
-				 __func__, soc_type);
-
+		src = CLK_DIVIDER(NVBL_PLLP_KHZ, CSITE_KHZ);
 		clock_ll_set_source_divisor(PERIPH_ID_CSI, 0, src);
 
 		/* Unlock the CPU CoreSight interfaces */

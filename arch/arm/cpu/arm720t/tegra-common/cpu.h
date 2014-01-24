@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2010-2011
+ * (C) Copyright 2010-2014
  * NVIDIA Corporation <www.nvidia.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -11,9 +11,11 @@
 #define IO_STABILIZATION_DELAY	(1000)
 
 #if defined(CONFIG_TEGRA20)
-#define NVBL_PLLP_KHZ	(216000)
+#define NVBL_PLLP_KHZ	216000
+#define CSITE_KHZ	144000
 #elif defined(CONFIG_TEGRA30) || defined(CONFIG_TEGRA114)
-#define NVBL_PLLP_KHZ	(408000)
+#define NVBL_PLLP_KHZ	408000
+#define CSITE_KHZ	204000
 #else
 #error "Unknown Tegra chip!"
 #endif
