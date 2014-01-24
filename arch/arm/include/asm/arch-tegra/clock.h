@@ -20,6 +20,12 @@ enum clock_osc_freq {
 	CLOCK_OSC_FREQ_COUNT,
 };
 
+enum {
+	MASK_BITS_31_30	= 2,	/* num of bits used to specify clock source */
+	MASK_BITS_31_29,
+	MASK_BITS_29_28,
+};
+
 #include <asm/arch/clock-tables.h>
 /* PLL stabilization delay in usec */
 #define CLOCK_PLL_STABLE_DELAY_US 300

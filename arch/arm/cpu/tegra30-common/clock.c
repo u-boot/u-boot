@@ -60,12 +60,6 @@ enum {
 	CLOCK_MAX_MUX   = 8     /* number of source options for each clock */
 };
 
-enum {
-	MASK_BITS_31_30 = 2,    /* num of bits used to specify clock source */
-	MASK_BITS_31_29,
-	MASK_BITS_29_28,
-};
-
 /*
  * Clock source mux for each clock type. This just converts our enum into
  * a list of mux sources for use by the code.
