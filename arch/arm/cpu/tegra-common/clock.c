@@ -142,8 +142,8 @@ void clock_ll_set_source_divisor(enum periph_id periph_id, unsigned source,
 
 	value = readl(reg);
 
-	value &= ~OUT_CLK_SOURCE_MASK;
-	value |= source << OUT_CLK_SOURCE_SHIFT;
+	value &= ~OUT_CLK_SOURCE_31_30_MASK;
+	value |= source << OUT_CLK_SOURCE_31_30_SHIFT;
 
 	value &= ~OUT_CLK_DIVISOR_MASK;
 	value |= divisor << OUT_CLK_DIVISOR_SHIFT;
@@ -155,8 +155,8 @@ void clock_ll_set_source(enum periph_id periph_id, unsigned source)
 {
 	u32 *reg = get_periph_source_reg(periph_id);
 
-	clrsetbits_le32(reg, OUT_CLK_SOURCE_MASK,
-			source << OUT_CLK_SOURCE_SHIFT);
+	clrsetbits_le32(reg, OUT_CLK_SOURCE_31_30_MASK,
+			source << OUT_CLK_SOURCE_31_30_SHIFT);
 }
 
 /**
@@ -305,11 +305,11 @@ static int adjust_periph_pll(enum periph_id periph_id, int source,
 	if (source < 0)
 		return -1;
 	if (mux_bits == 4) {
-		clrsetbits_le32(reg, OUT_CLK_SOURCE4_MASK,
-			source << OUT_CLK_SOURCE4_SHIFT);
+		clrsetbits_le32(reg, OUT_CLK_SOURCE_31_28_MASK,
+				source << OUT_CLK_SOURCE_31_28_SHIFT);
 	} else {
-		clrsetbits_le32(reg, OUT_CLK_SOURCE_MASK,
-			source << OUT_CLK_SOURCE_SHIFT);
+		clrsetbits_le32(reg, OUT_CLK_SOURCE_31_30_MASK,
+				source << OUT_CLK_SOURCE_31_30_SHIFT);
 	}
 	udelay(2);
 	return 0;
