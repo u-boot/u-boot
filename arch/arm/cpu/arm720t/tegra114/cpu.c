@@ -192,43 +192,43 @@ void t114_init_clocks(void)
 	debug("t114_init_clocks exit\n");
 }
 
-static int is_partition_powered(u32 mask)
+static bool is_partition_powered(u32 partid)
 {
 	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
 	u32 reg;
 
 	/* Get power gate status */
 	reg = readl(&pmc->pmc_pwrgate_status);
-	return (reg & mask) == mask;
+	return !!(reg & (1 << partid));
 }
 
-static int is_clamp_enabled(u32 mask)
+static bool is_clamp_enabled(u32 partid)
 {
 	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
 	u32 reg;
 
 	/* Get clamp status. */
 	reg = readl(&pmc->pmc_clamp_status);
-	return (reg & mask) == mask;
+	return !!(reg & (1 << partid));
 }
 
-static void power_partition(u32 status, u32 partid)
+static void power_partition(u32 partid)
 {
 	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
 
-	debug("%s: status = %08X, part ID = %08X\n", __func__, status, partid);
+	debug("%s: part ID = %08X\n", __func__, partid);
 	/* Is the partition already on? */
-	if (!is_partition_powered(status)) {
+	if (!is_partition_powered(partid)) {
 		/* No, toggle the partition power state (OFF -> ON) */
 		debug("power_partition, toggling state\n");
 		writel(START_CP | partid, &pmc->pmc_pwrgate_toggle);
 
 		/* Wait for the power to come up */
-		while (!is_partition_powered(status))
+		while (!is_partition_powered(partid))
 			;
 
 		/* Wait for the clamp status to be cleared */
-		while (is_clamp_enabled(status))
+		while (is_clamp_enabled(partid))
 			;
 
 		/* Give I/O signals time to stabilize */
@@ -243,13 +243,13 @@ void powerup_cpus(void)
 	/* We boot to the fast cluster */
 	debug("powerup_cpus entry: G cluster\n");
 	/* Power up the fast cluster rail partition */
-	power_partition(CRAIL, CRAILID);
+	power_partition(CRAIL);
 
 	/* Power up the fast cluster non-CPU partition */
-	power_partition(C0NC, C0NCID);
+	power_partition(C0NC);
 
 	/* Power up the fast cluster CPU0 partition */
-	power_partition(CE0, CE0ID);
+	power_partition(CE0);
 }
 
 void start_cpu(u32 reset_vector)

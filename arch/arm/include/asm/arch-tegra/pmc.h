@@ -118,11 +118,8 @@ struct pmc_ctlr {
 #define CPUPWRREQ_OE	(1 << 16)
 #define CPUPWRREQ_POL	(1 << 15)
 
-#define CRAILID		(0)
-#define CE0ID		(14)
-#define C0NCID		(15)
-#define CRAIL		(1 << CRAILID)
-#define CE0		(1 << CE0ID)
-#define C0NC		(1 << C0NCID)
+#define CRAIL		0
+#define CE0		14
+#define C0NC		15
 
 #endif	/* PMC_H */
