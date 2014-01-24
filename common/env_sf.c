@@ -299,13 +299,16 @@ int saveenv(void)
 
 void env_relocate_spec(void)
 {
-	char buf[CONFIG_ENV_SIZE];
 	int ret;
+	char *buf = NULL;
 
+	buf = (char *)malloc(CONFIG_ENV_SIZE);
 	env_flash = spi_flash_probe(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,
 			CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE);
 	if (!env_flash) {
 		set_default_env("!spi_flash_probe() failed");
+		if (buf)
+			free(buf);
 		return;
 	}
 
@@ -321,6 +324,8 @@ void env_relocate_spec(void)
 		gd->env_valid = 1;
 out:
 	spi_flash_free(env_flash);
+	if (buf)
+		free(buf);
 	env_flash = NULL;
 }
 #endif
