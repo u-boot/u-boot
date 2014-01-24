@@ -112,7 +112,39 @@ struct clk_pll_table tegra_pll_x_table[TEGRA_SOC_CNT][CLOCK_OSC_FREQ_COUNT] = {
 		{ .n = 116, .m = 1, .p = 1 }, /* OSC: 12.0 MHz */
 		{ .n = 108, .m = 2, .p = 1 }, /* OSC: 26.0 MHz */
 	},
+
+	/*
+	 * T124: 700 MHz
+	 *
+	 * Register   Field  Bits   Width
+	 * ------------------------------
+	 * PLLX_BASE  p      23:20    4
+	 * PLLX_BASE  n      15: 8    8
+	 * PLLX_BASE  m       7: 0    8
+	 */
+	{
+		{ .n = 108, .m = 1, .p = 1 }, /* OSC: 13.0 MHz */
+		{ .n =  73, .m = 1, .p = 1 }, /* OSC: 19.2 MHz */
+		{ .n = 116, .m = 1, .p = 1 }, /* OSC: 12.0 MHz */
+		{ .n = 108, .m = 2, .p = 1 }, /* OSC: 26.0 MHz */
+	},
 };
+
+static inline void pllx_set_iddq(void)
+{
+#if defined(CONFIG_TEGRA124)
+	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
+	u32 reg;
+
+	/* Disable IDDQ */
+	reg = readl(&clkrst->crc_pllx_misc3);
+	reg &= ~PLLX_IDDQ_MASK;
+	writel(reg, &clkrst->crc_pllx_misc3);
+	udelay(2);
+	debug("%s: IDDQ: PLLX IDDQ = 0x%08X\n", __func__,
+	      readl(&clkrst->crc_pllx_misc3));
+#endif
+}
 
 int pllx_set_rate(struct clk_pll_simple *pll , u32 divn, u32 divm,
 		u32 divp, u32 cpcon)
@@ -127,6 +159,8 @@ int pllx_set_rate(struct clk_pll_simple *pll , u32 divn, u32 divm,
 	}
 
 	debug(" pllx_set_rate entry\n");
+
+	pllx_set_iddq();
 
 	/* Set BYPASS, m, n and p to PLLX_BASE */
 	reg = PLL_BYPASS_MASK | (divm << PLL_DIVM_SHIFT);
@@ -323,7 +357,7 @@ void clock_enable_coresight(int enable)
 	if (enable) {
 		/*
 		 * Put CoreSight on PLLP_OUT0 and divide it down as per
-		 * PLLP base frequency based on SoC type (T20/T30/T114).
+		 * PLLP base frequency based on SoC type (T20/T30+).
 		 * Clock divider request would setup CSITE clock as 144MHz
 		 * for PLLP base 216MHz and 204MHz for PLLP base 408MHz
 		 */

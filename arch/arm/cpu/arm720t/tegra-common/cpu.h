@@ -13,7 +13,8 @@
 #if defined(CONFIG_TEGRA20)
 #define NVBL_PLLP_KHZ	216000
 #define CSITE_KHZ	144000
-#elif defined(CONFIG_TEGRA30) || defined(CONFIG_TEGRA114)
+#elif defined(CONFIG_TEGRA30) || defined(CONFIG_TEGRA114) || \
+	defined(CONFIG_TEGRA124)
 #define NVBL_PLLP_KHZ	408000
 #define CSITE_KHZ	204000
 #else
@@ -70,3 +71,4 @@ int tegra_get_chip(void);
 int tegra_get_sku_info(void);
 int tegra_get_chip_sku(void);
 void adjust_pllp_out_freqs(void);
+void pmic_enable_cpu_vdd(void);
