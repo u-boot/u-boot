@@ -304,13 +304,27 @@ static int adjust_periph_pll(enum periph_id periph_id, int source,
 	/* work out the source clock and set it */
 	if (source < 0)
 		return -1;
-	if (mux_bits == MASK_BITS_31_28) {
-		clrsetbits_le32(reg, OUT_CLK_SOURCE_31_28_MASK,
-				source << OUT_CLK_SOURCE_31_28_SHIFT);
-	} else {
+
+	switch (mux_bits) {
+	case MASK_BITS_31_30:
 		clrsetbits_le32(reg, OUT_CLK_SOURCE_31_30_MASK,
 				source << OUT_CLK_SOURCE_31_30_SHIFT);
+		break;
+
+	case MASK_BITS_31_29:
+		clrsetbits_le32(reg, OUT_CLK_SOURCE_31_29_MASK,
+				source << OUT_CLK_SOURCE_31_29_SHIFT);
+		break;
+
+	case MASK_BITS_31_28:
+		clrsetbits_le32(reg, OUT_CLK_SOURCE_31_28_MASK,
+				source << OUT_CLK_SOURCE_31_28_SHIFT);
+		break;
+
+	default:
+		return -1;
 	}
+
 	udelay(2);
 	return 0;
 }
