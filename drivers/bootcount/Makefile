@@ -9,3 +9,4 @@ obj-$(CONFIG_SOC_DA8XX)		+= bootcount_davinci.o
 obj-$(CONFIG_BOOTCOUNT_AM33XX)	+= bootcount_davinci.o
 obj-$(CONFIG_BOOTCOUNT_RAM)	+= bootcount_ram.o
 obj-$(CONFIG_BOOTCOUNT_ENV)	+= bootcount_env.o
+obj-$(CONFIG_BOOTCOUNT_I2C)	+= bootcount_i2c.o

@@ -2855,6 +2855,26 @@ CBFS (Coreboot Filesystem) support
 		The signing part is build into mkimage regardless of this
 		option.
 
+- bootcount support:
+		CONFIG_BOOTCOUNT_LIMIT
+
+		This enables the bootcounter support, see:
+		http://www.denx.de/wiki/DULG/UBootBootCountLimit
+
+		CONFIG_AT91SAM9XE
+		enable special bootcounter support on at91sam9xe based boards.
+		CONFIG_BLACKFIN
+		enable special bootcounter support on blackfin based boards.
+		CONFIG_SOC_DA8XX
+		enable special bootcounter support on da850 based boards.
+		CONFIG_BOOTCOUNT_RAM
+		enable support for the bootcounter in RAM
+		CONFIG_BOOTCOUNT_I2C
+		enable support for the bootcounter on an i2c (like RTC) device.
+			CONFIG_SYS_I2C_RTC_ADDR = i2c chip address
+			CONFIG_SYS_BOOTCOUNT_ADDR = i2c addr which is used for
+						    the bootcounter.
+			CONFIG_BOOTCOUNT_ALEN = address len
 
 - Show boot progress:
 		CONFIG_SHOW_BOOT_PROGRESS
