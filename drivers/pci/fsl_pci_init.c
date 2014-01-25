@@ -510,8 +510,8 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 
 		/* Print the negotiated PCIe link width */
 		pci_hose_read_config_word(hose, dev, pci_lsr, &temp16);
-		printf("x%d, regs @ 0x%lx\n", (temp16 & 0x3f0 ) >> 4,
-			pci_info->regs);
+		printf("x%d gen%d, regs @ 0x%lx\n", (temp16 & 0x3f0) >> 4,
+		       (temp16 & 0xf), pci_info->regs);
 
 		hose->current_busno++; /* Start scan with secondary */
 		pciauto_prescan_setup_bridge(hose, dev, hose->current_busno);
