@@ -106,6 +106,8 @@ const char *get_imx_type(u32 imxtype)
 	switch (imxtype) {
 	case MXC_CPU_MX6Q:
 		return "6Q";	/* Quad-core version of the mx6 */
+	case MXC_CPU_MX6D:
+		return "6D";	/* Dual-core version of the mx6 */
 	case MXC_CPU_MX6DL:
 		return "6DL";	/* Dual Lite version of the mx6 */
 	case MXC_CPU_MX6SOLO:

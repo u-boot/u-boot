@@ -41,14 +41,19 @@ u32 get_cpu_rev(void)
 
 	if (type != MXC_CPU_MX6SL) {
 		reg = readl(&anatop->digprog);
+		struct scu_regs *scu = (struct scu_regs *)SCU_BASE_ADDR;
+		u32 cfg = readl(&scu->config) & 3;
 		type = ((reg >> 16) & 0xff);
 		if (type == MXC_CPU_MX6DL) {
-			struct scu_regs *scu = (struct scu_regs *)SCU_BASE_ADDR;
-			u32 cfg = readl(&scu->config) & 3;
-
 			if (!cfg)
 				type = MXC_CPU_MX6SOLO;
 		}
+
+		if (type == MXC_CPU_MX6Q) {
+			if (cfg == 1)
+				type = MXC_CPU_MX6D;
+		}
+
 	}
 	reg &= 0xff;		/* mx6 silicon revision */
 	return (type << 12) | (reg + 0x10);
@@ -61,6 +66,9 @@ u32 __weak get_board_rev(void)
 	u32 type = ((cpurev >> 12) & 0xff);
 	if (type == MXC_CPU_MX6SOLO)
 		cpurev = (MXC_CPU_MX6DL) << 12 | (cpurev & 0xFFF);
+
+	if (type == MXC_CPU_MX6D)
+		cpurev = (MXC_CPU_MX6Q) << 12 | (cpurev & 0xFFF);
 
 	return cpurev;
 }

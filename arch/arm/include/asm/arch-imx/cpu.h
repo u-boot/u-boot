@@ -10,3 +10,4 @@
 #define MXC_CPU_MX6DL		0x61
 #define MXC_CPU_MX6SOLO		0x62
 #define MXC_CPU_MX6Q		0x63
+#define MXC_CPU_MX6D		0x64
