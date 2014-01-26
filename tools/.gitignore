@@ -3,12 +3,12 @@
 /gen_eth_addr
 /img2srec
 /kwboot
+/dumpimage
 /mkenvimage
 /mkimage
 /mpc86x_clk
 /mxsboot
 /ncb
-/ncp
 /proftool
 /ubsha1
 /xway-swap-bytes

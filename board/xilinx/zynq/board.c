@@ -12,6 +12,12 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/* Bootmode setting values */
+#define ZYNQ_BM_MASK		0x0F
+#define ZYNQ_BM_NOR		0x02
+#define ZYNQ_BM_SD		0x05
+#define ZYNQ_BM_JTAG		0x0
+
 #ifdef CONFIG_FPGA
 Xilinx_desc fpga;
 
@@ -59,6 +65,25 @@ int board_init(void)
 	return 0;
 }
 
+int board_late_init(void)
+{
+	switch ((zynq_slcr_get_boot_mode()) & ZYNQ_BM_MASK) {
+	case ZYNQ_BM_NOR:
+		setenv("modeboot", "norboot");
+		break;
+	case ZYNQ_BM_SD:
+		setenv("modeboot", "sdboot");
+		break;
+	case ZYNQ_BM_JTAG:
+		setenv("modeboot", "jtagboot");
+		break;
+	default:
+		setenv("modeboot", "");
+		break;
+	}
+
+	return 0;
+}
 
 #ifdef CONFIG_CMD_NET
 int board_eth_init(bd_t *bis)

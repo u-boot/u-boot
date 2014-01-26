@@ -14,7 +14,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include "mkimage.h"
+#include "imagetool.h"
 #include <image.h>
 #include <u-boot/crc.h>
 
@@ -29,7 +29,7 @@ static int image_check_image_types(uint8_t type)
 		return EXIT_FAILURE;
 }
 
-static int image_check_params(struct mkimage_params *params)
+static int image_check_params(struct image_tool_params *params)
 {
 	return	((params->dflag && (params->fflag || params->lflag)) ||
 		(params->fflag && (params->dflag || params->lflag)) ||
@@ -37,7 +37,7 @@ static int image_check_params(struct mkimage_params *params)
 }
 
 static int image_verify_header(unsigned char *ptr, int image_size,
-			struct mkimage_params *params)
+			struct image_tool_params *params)
 {
 	uint32_t len;
 	const unsigned char *data;
@@ -86,7 +86,7 @@ static int image_verify_header(unsigned char *ptr, int image_size,
 }
 
 static void image_set_header(void *ptr, struct stat *sbuf, int ifd,
-				struct mkimage_params *params)
+				struct image_tool_params *params)
 {
 	uint32_t checksum;
 
@@ -117,6 +117,62 @@ static void image_set_header(void *ptr, struct stat *sbuf, int ifd,
 	image_set_hcrc(hdr, checksum);
 }
 
+static int image_save_datafile(struct image_tool_params *params,
+			       ulong file_data, ulong file_len)
+{
+	int dfd;
+	const char *datafile = params->outfile;
+
+	dfd = open(datafile, O_RDWR | O_CREAT | O_TRUNC | O_BINARY,
+		   S_IRUSR | S_IWUSR);
+	if (dfd < 0) {
+		fprintf(stderr, "%s: Can't open \"%s\": %s\n",
+			params->cmdname, datafile, strerror(errno));
+		return -1;
+	}
+
+	if (write(dfd, (void *)file_data, file_len) != (ssize_t)file_len) {
+		fprintf(stderr, "%s: Write error on \"%s\": %s\n",
+			params->cmdname, datafile, strerror(errno));
+		close(dfd);
+		return -1;
+	}
+
+	close(dfd);
+
+	return 0;
+}
+
+static int image_extract_datafile(void *ptr, struct image_tool_params *params)
+{
+	const image_header_t *hdr = (const image_header_t *)ptr;
+	ulong file_data;
+	ulong file_len;
+
+	if (image_check_type(hdr, IH_TYPE_MULTI)) {
+		ulong idx = params->pflag;
+		ulong count;
+
+		/* get the number of data files present in the image */
+		count = image_multi_count(hdr);
+
+		/* retrieve the "data file" at the idx position */
+		image_multi_getimg(hdr, idx, &file_data, &file_len);
+
+		if ((file_len == 0) || (idx >= count)) {
+			fprintf(stderr, "%s: No such data file %ld in \"%s\"\n",
+				params->cmdname, idx, params->imagefile);
+			return -1;
+		}
+	} else {
+		file_data = image_get_data(hdr);
+		file_len = image_get_size(hdr);
+	}
+
+	/* save the "data file" into the file system */
+	return image_save_datafile(params, file_data, file_len);
+}
+
 /*
  * Default image type parameters definition
  */
@@ -128,10 +184,11 @@ static struct image_type_params defimage_params = {
 	.verify_header = image_verify_header,
 	.print_header = image_print_contents,
 	.set_header = image_set_header,
+	.extract_datafile = image_extract_datafile,
 	.check_params = image_check_params,
 };
 
 void init_default_image_type(void)
 {
-	mkimage_register(&defimage_params);
+	register_image_type(&defimage_params);
 }

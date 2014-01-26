@@ -14,7 +14,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include "mkimage.h"
+#include "imagetool.h"
 #include <image.h>
 #include "omapimage.h"
 
@@ -69,7 +69,7 @@ static int valid_gph_load_addr(uint32_t load_addr)
 }
 
 static int omapimage_verify_header(unsigned char *ptr, int image_size,
-			struct mkimage_params *params)
+			struct image_tool_params *params)
 {
 	struct ch_toc *toc = (struct ch_toc *)ptr;
 	struct gp_header *gph = (struct gp_header *)(ptr+OMAP_CH_HDR_SIZE);
@@ -188,7 +188,7 @@ static int toc_offset(void *hdr, void *member)
 }
 
 static void omapimage_set_header(void *ptr, struct stat *sbuf, int ifd,
-				struct mkimage_params *params)
+				struct image_tool_params *params)
 {
 	struct ch_toc *toc = (struct ch_toc *)ptr;
 	struct ch_settings *chs = (struct ch_settings *)
@@ -224,7 +224,7 @@ static void omapimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	}
 }
 
-int omapimage_check_params(struct mkimage_params *params)
+int omapimage_check_params(struct image_tool_params *params)
 {
 	return	(params->dflag && (params->fflag || params->lflag)) ||
 		(params->fflag && (params->dflag || params->lflag)) ||
@@ -247,5 +247,5 @@ static struct image_type_params omapimage_params = {
 
 void init_omap_image_type(void)
 {
-	mkimage_register(&omapimage_params);
+	register_image_type(&omapimage_params);
 }

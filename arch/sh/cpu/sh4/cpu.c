@@ -13,11 +13,7 @@
 
 int checkcpu(void)
 {
-#ifdef CONFIG_SH4A
-	puts("CPU: SH-4A\n");
-#else
 	puts("CPU: SH4\n");
-#endif
 	return 0;
 }
 

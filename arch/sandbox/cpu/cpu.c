@@ -5,13 +5,23 @@
 
 #include <common.h>
 #include <os.h>
+#include <asm/state.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+void reset_cpu(ulong ignored)
 {
+	if (state_uninit())
+		os_exit(2);
+
 	/* This is considered normal termination for now */
 	os_exit(0);
+}
+
+int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	reset_cpu(0);
+
 	return 0;
 }
 
@@ -28,7 +38,14 @@ unsigned long __attribute__((no_instrument_function)) timer_get_us(void)
 
 int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 {
-	return -1;
+	if (flag & (BOOTM_STATE_OS_GO | BOOTM_STATE_OS_FAKE_GO)) {
+		bootstage_mark(BOOTSTAGE_ID_RUN_OS);
+		printf("## Transferring control to Linux (at address %08lx)...\n",
+		       images->ep);
+		reset_cpu(0);
+	}
+
+	return 0;
 }
 
 int cleanup_before_linux(void)

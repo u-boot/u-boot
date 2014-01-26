@@ -10,8 +10,6 @@
 #define __SH7785LCR_H
 
 #undef DEBUG
-#define CONFIG_SH		1
-#define CONFIG_SH4A		1
 #define CONFIG_CPU_SH7785	1
 #define CONFIG_SH7785LCR	1
 

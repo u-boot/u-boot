@@ -5,4 +5,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-$(CONFIG_HAS_POST)	+= codec.o dsp.o
+obj-y += codec.o dsp.o

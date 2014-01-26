@@ -59,7 +59,7 @@ static int format_mac_pxe(char *outbuf, size_t outbuf_len)
 	uchar ethaddr[6];
 
 	if (outbuf_len < 21) {
-		printf("outbuf is too small (%d < 21)\n", outbuf_len);
+		printf("outbuf is too small (%zd < 21)\n", outbuf_len);
 
 		return -EINVAL;
 	}
@@ -103,7 +103,7 @@ static int get_bootfile_path(const char *file_path, char *bootfile_path,
 	path_len = (last_slash - bootfile) + 1;
 
 	if (bootfile_path_size < path_len) {
-		printf("bootfile_path too small. (%d < %d)\n",
+		printf("bootfile_path too small. (%zd < %zd)\n",
 				bootfile_path_size, path_len);
 
 		return -1;

@@ -30,7 +30,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	SET_TLB_ENTRY(1, 0xfffff000, 0xfffff000,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 0, BOOKE_PAGESZ_4K, 1),
-#ifdef CONFIG_SPL_NAND_MINIMAL
+#ifdef CONFIG_SPL_NAND_BOOT
 	SET_TLB_ENTRY(1, 0xffffe000, 0xffffe000,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 10, BOOKE_PAGESZ_4K, 1),

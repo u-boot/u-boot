@@ -344,7 +344,7 @@ void board_init_f(ulong bootflag)
 
 #if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
 	/* reserve TLB table */
-	gd->arch.tlb_size = 4096 * 4;
+	gd->arch.tlb_size = PGTABLE_SIZE;
 	addr -= gd->arch.tlb_size;
 
 	/* round down to next 64 kB limit */
@@ -419,6 +419,7 @@ void board_init_f(ulong bootflag)
 	}
 #endif
 
+#ifndef CONFIG_ARM64
 	/* setup stackpointer for exeptions */
 	gd->irq_sp = addr_sp;
 #ifdef CONFIG_USE_IRQ
@@ -431,6 +432,10 @@ void board_init_f(ulong bootflag)
 
 	/* 8-byte alignment for ABI compliance */
 	addr_sp &= ~0x07;
+#else	/* CONFIG_ARM64 */
+	/* 16-byte alignment for ABI compliance */
+	addr_sp &= ~0x0f;
+#endif	/* CONFIG_ARM64 */
 #else
 	addr_sp += 128;	/* leave 32 words for abort-stack   */
 	gd->irq_sp = addr_sp;

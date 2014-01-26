@@ -143,7 +143,9 @@ struct uart_port {
 #elif defined(CONFIG_H8S2678)
 # define SCSCR_INIT(port)          0x30 /* TIE=0,RIE=0,TE=1,RE=1 */
 # define H8300_SCI_DR(ch) (*(volatile char *)(P1DR + h8300_sci_pins[ch].port))
-#elif defined(CONFIG_CPU_SH7757) || defined(CONFIG_CPU_SH7752)
+#elif defined(CONFIG_CPU_SH7757) || \
+	defined(CONFIG_CPU_SH7752) || \
+	defined(CONFIG_CPU_SH7753)
 # define SCSPTR0 0xfe4b0020
 # define SCSPTR1 0xfe4b0020
 # define SCSPTR2 0xfe4b0020

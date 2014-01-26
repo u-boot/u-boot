@@ -51,8 +51,6 @@
 
 #if defined(CONFIG_CMD_KGDB)
 # define CONFIG_KGDB_BAUDRATE		230400
-/* which serial port to use */
-# define CONFIG_KGDB_SER_INDEX		1
 #endif
 
 /* Miscellaneous configurable options */

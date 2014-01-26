@@ -204,7 +204,6 @@
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE			115200
-#define CONFIG_KGDB_SER_INDEX			2
 #endif
 
 /*

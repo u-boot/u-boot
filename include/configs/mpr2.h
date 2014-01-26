@@ -24,8 +24,6 @@
 #define CONFIG_VERSION_VARIABLE
 
 /* CPU and platform */
-#define CONFIG_SH		1
-#define CONFIG_SH3		1
 #define CONFIG_CPU_SH7720	1
 #define CONFIG_MPR2		1
 

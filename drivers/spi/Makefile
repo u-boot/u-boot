@@ -30,6 +30,7 @@ obj-$(CONFIG_OMAP3_SPI) += omap3_spi.o
 obj-$(CONFIG_SANDBOX_SPI) += sandbox_spi.o
 obj-$(CONFIG_SOFT_SPI) += soft_spi.o
 obj-$(CONFIG_SH_SPI) += sh_spi.o
+obj-$(CONFIG_SH_QSPI) += sh_qspi.o
 obj-$(CONFIG_FSL_ESPI) += fsl_espi.o
 obj-$(CONFIG_FDT_SPI) += fdt_spi.o
 obj-$(CONFIG_TEGRA20_SFLASH) += tegra20_sflash.o

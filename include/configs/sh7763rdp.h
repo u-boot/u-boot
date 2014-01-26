@@ -10,8 +10,6 @@
 #ifndef __SH7763RDP_H
 #define __SH7763RDP_H
 
-#define CONFIG_SH		1
-#define CONFIG_SH4		1
 #define CONFIG_CPU_SH7763	1
 #define CONFIG_SH7763RDP	1
 #define __LITTLE_ENDIAN		1

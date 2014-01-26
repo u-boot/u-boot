@@ -37,22 +37,15 @@ endif
 HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(SRCTREE)/board/$(VENDOR)/common/Makefile),y,n)
 
 ifdef	CONFIG_SPL_START_S_PATH
-START_PATH := $(subst ",,$(CONFIG_SPL_START_S_PATH))
+START_PATH := $(CONFIG_SPL_START_S_PATH:"%"=%)
 else
 START_PATH := $(CPUDIR)
 endif
 
-START := $(START_PATH)/start.o
-ifeq ($(CPU),x86)
-START += $(START_PATH)/start16.o
-START += $(START_PATH)/resetvec.o
-endif
-ifeq ($(CPU),ppc4xx)
-START += $(START_PATH)/resetvec.o
-endif
-ifeq ($(CPU),mpc85xx)
-START += $(START_PATH)/resetvec.o
-endif
+head-y := $(START_PATH)/start.o
+head-$(CONFIG_X86) += $(START_PATH)/start16.o $(START_PATH)/resetvec.o
+head-$(CONFIG_4xx) += $(START_PATH)/resetvec.o
+head-$(CONFIG_MPC85xx) += $(START_PATH)/resetvec.o
 
 LIBS-y += arch/$(ARCH)/lib/
 
@@ -78,7 +71,7 @@ LIBS-y += fs/
 LIBS-$(CONFIG_SPL_LIBGENERIC_SUPPORT) += lib/
 LIBS-$(CONFIG_SPL_POWER_SUPPORT) += drivers/power/ \
 	drivers/power/pmic/
-LIBS-$(CONFIG_SPL_NAND_SUPPORT) += drivers/mtd/nand/
+LIBS-$(if $(CONFIG_CMD_NAND),$(CONFIG_SPL_NAND_SUPPORT)) += drivers/mtd/nand/
 LIBS-$(CONFIG_SPL_ONENAND_SUPPORT) += drivers/mtd/onenand/
 LIBS-$(CONFIG_SPL_DMA_SUPPORT) += drivers/dma/
 LIBS-$(CONFIG_SPL_POST_MEM_SUPPORT) += post/drivers/
@@ -90,16 +83,12 @@ LIBS-$(CONFIG_SPL_MUSB_NEW_SUPPORT) += drivers/usb/musb-new/
 LIBS-$(CONFIG_SPL_USBETH_SUPPORT) += drivers/usb/gadget/
 LIBS-$(CONFIG_SPL_WATCHDOG_SUPPORT) += drivers/watchdog/
 
-ifneq (,$(CONFIG_MX23)$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35))
+ifneq (,$(CONFIG_MX23)$(CONFIG_MX35)$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35))
 LIBS-y += arch/$(ARCH)/imx-common/
 endif
 
 LIBS-$(CONFIG_ARM) += arch/arm/cpu/
 LIBS-$(CONFIG_PPC) += arch/powerpc/cpu/
-
-ifneq ($(CONFIG_MX23)$(CONFIG_MX35),)
-LIBS-y += arch/$(ARCH)/imx-common/
-endif
 
 LIBS-y := $(patsubst %/, %/built-in.o, $(LIBS-y))
 
@@ -109,7 +98,7 @@ PLATFORM_LIBGCC = $(SPLTREE)/arch/$(ARCH)/lib/libgcc.o
 PLATFORM_LIBS := $(filter-out %/libgcc.o, $(filter-out -lgcc, $(PLATFORM_LIBS))) $(PLATFORM_LIBGCC)
 endif
 
-START := $(addprefix $(SPLTREE)/,$(START))
+START := $(addprefix $(SPLTREE)/,$(head-y))
 LIBS := $(addprefix $(SPLTREE)/,$(sort $(LIBS-y)))
 
 __START := $(subst $(obj),,$(START))
@@ -118,7 +107,7 @@ __LIBS := $(subst $(obj),,$(LIBS))
 # Linker Script
 ifdef CONFIG_SPL_LDSCRIPT
 # need to strip off double quotes
-LDSCRIPT := $(addprefix $(SRCTREE)/,$(subst ",,$(CONFIG_SPL_LDSCRIPT)))
+LDSCRIPT := $(addprefix $(SRCTREE)/,$(CONFIG_SPL_LDSCRIPT:"%"=%))
 endif
 
 ifeq ($(wildcard $(LDSCRIPT)),)
@@ -176,7 +165,7 @@ $(obj)$(BOARD)-spl.bin: $(obj)u-boot-spl.bin
 endif
 
 $(obj)$(SPL_BIN).bin:	$(obj)$(SPL_BIN)
-	$(OBJCOPY) $(OBJCFLAGS) -O binary $< $@
+	$(OBJCOPY) $(OBJCFLAGS) $(SPL_OBJCFLAGS) -O binary $< $@
 
 GEN_UBOOT = \
 	cd $(obj) && $(LD) $(LDFLAGS) $(LDFLAGS_$(@F)) $(__START) \

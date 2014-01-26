@@ -315,7 +315,7 @@ int nand_unlock(struct mtd_info *mtd, loff_t start, size_t length,
 	int page;
 	struct nand_chip *chip = mtd->priv;
 
-	debug("nand_unlock%s: start: %08llx, length: %d!\n",
+	debug("nand_unlock%s: start: %08llx, length: %zd!\n",
 		allexcept ? " (allexcept)" : "", start, length);
 
 	/* select the NAND device */

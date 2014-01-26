@@ -1,0 +1,46 @@
+U-boot for arm64
+
+Summary
+=======
+No hardware platform of arm64 is available now. The u-boot is
+simulated on Foundation Model and Fast Model for ARMv8.
+
+Notes
+=====
+
+1. Currenly, u-boot run at the highest exception level processor
+   supported and jump to EL2 or optionally EL1 before enter OS.
+
+2. U-boot for arm64 is compiled with AArch64-gcc. AArch64-gcc
+   use rela relocation format, a tool(tools/relocate-rela) by Scott Wood
+   is used to encode the initial addend of rela to u-boot.bin. After running,
+   the u-boot will be relocated to destination again.
+
+3. Fdt should be placed at a 2-megabyte boundary and within the first 512
+   megabytes from the start of the kernel image. So, fdt_high should be
+   defined specially.
+   Please reference linux/Documentation/arm64/booting.txt for detail.
+
+4. Spin-table is used to wake up secondary processors. One location
+   (or per processor location) is defined to hold the kernel entry point
+   for secondary processors. It must be ensured that the location is
+   accessible and zero immediately after secondary processor
+   enter slave_cpu branch execution in start.S. The location address
+   is encoded in cpu node of DTS. Linux kernel store the entry point
+   of secondary processors to it and send event to wakeup secondary
+   processors.
+   Please reference linux/Documentation/arm64/booting.txt for detail.
+
+5. Generic board is supported.
+
+6. CONFIG_ARM64 instead of CONFIG_ARMV8 is used to distinguish aarch64 and
+   aarch32 specific codes.
+
+Contributor
+===========
+   Tom Rini       <trini@ti.com>
+   Scott Wood     <scottwood@freescale.com>
+   York Sun       <yorksun@freescale.com>
+   Simon Glass    <sjg@chromium.org>
+   Sharma Bhupesh <bhupesh.sharma@freescale.com>
+   Rob Herring    <robherring2@gmail.com>

@@ -338,7 +338,6 @@
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE  230400	     /* kgdb serial port baud	*/
-#define CONFIG_KGDB_SER_INDEX 2		     /* kgdb serial port	*/
 #endif
 
 /*-----------------------------------------------------------------------

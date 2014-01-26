@@ -1,3 +1,3 @@
-ifneq ($(filter mpc83xx mpc85xx mpc86xx,$(CPU)),)
-obj-y += mpc8xxx/
-endif
+obj-$(CONFIG_MPC83xx) += mpc8xxx/
+obj-$(CONFIG_MPC85xx) += mpc8xxx/
+obj-$(CONFIG_MPC86xx) += mpc8xxx/

@@ -77,6 +77,9 @@ static inline unsigned int get_mmc_blk_size(int dev)
 #ifndef CONFIG_SYS_DFU_MAX_FILE_SIZE
 #define CONFIG_SYS_DFU_MAX_FILE_SIZE CONFIG_SYS_DFU_DATA_BUF_SIZE
 #endif
+#ifndef DFU_DEFAULT_POLL_TIMEOUT
+#define DFU_DEFAULT_POLL_TIMEOUT 0
+#endif
 
 struct dfu_entity {
 	char			name[DFU_NAME_SIZE];
@@ -131,6 +134,7 @@ bool dfu_reset(void);
 int dfu_init_env_entities(char *interface, int dev);
 unsigned char *dfu_get_buf(void);
 unsigned char *dfu_free_buf(void);
+unsigned long dfu_get_buf_size(void);
 
 int dfu_read(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
 int dfu_write(struct dfu_entity *de, void *buf, int size, int blk_seq_num);

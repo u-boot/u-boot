@@ -1,0 +1,14 @@
+/*
+ * Xilinx ZC770 XM013 board DTS
+ *
+ * Copyright (C) 2013 Xilinx, Inc.
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+/dts-v1/;
+#include "zynq-7000.dtsi"
+
+/ {
+	model = "Zynq ZC770 XM013 Board";
+	compatible = "xlnx,zynq-zc770-xm013", "xlnx,zynq-7000";
+};

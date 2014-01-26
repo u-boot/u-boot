@@ -107,6 +107,35 @@ void os_tty_raw(int fd);
 void *os_malloc(size_t length);
 
 /**
+ * Free memory previous allocated with os_malloc()/os_realloc()
+ *
+ * This returns the memory to the OS.
+ *
+ * \param ptr		Pointer to memory block to free
+ */
+void *os_free(void *ptr);
+
+/**
+ * Reallocate previously-allocated memory to increase/decrease space
+ *
+ * This works in a similar way to the C library realloc() function. If
+ * length is 0, then ptr is freed. Otherwise the space used by ptr is
+ * expanded or reduced depending on whether length is larger or smaller
+ * than before.
+ *
+ * If ptr is NULL, then this is similar to calling os_malloc().
+ *
+ * This function may need to move the memory block to make room for any
+ * extra space, in which case the new pointer is returned.
+ *
+ * \param ptr		Pointer to memory block to reallocate
+ * \param length	New length for memory block
+ * \return pointer to new memory block, or NULL on failure or if length
+ *	is 0.
+ */
+void *os_realloc(void *ptr, size_t length);
+
+/**
  * Access to the usleep function of the os
  *
  * \param usec Time to sleep in micro seconds
@@ -179,5 +208,41 @@ const char *os_dirent_get_typename(enum os_dirent_t type);
  * @return size of file, or -1 if an error ocurred
  */
 ssize_t os_get_filesize(const char *fname);
+
+/**
+ * Write a character to the controlling OS terminal
+ *
+ * This bypasses the U-Boot console support and writes directly to the OS
+ * stdout file descriptor.
+ *
+ * @param ch	Character to write
+ */
+void os_putc(int ch);
+
+/**
+ * Write a string to the controlling OS terminal
+ *
+ * This bypasses the U-Boot console support and writes directly to the OS
+ * stdout file descriptor.
+ *
+ * @param str	String to write (note that \n is not appended)
+ */
+void os_puts(const char *str);
+
+/**
+ * Write the sandbox RAM buffer to a existing file
+ *
+ * @param fname		Filename to write memory to (simple binary format)
+ * @return 0 if OK, -ve on error
+ */
+int os_write_ram_buf(const char *fname);
+
+/**
+ * Read the sandbox RAM buffer from an existing file
+ *
+ * @param fname		Filename containing memory (simple binary format)
+ * @return 0 if OK, -ve on error
+ */
+int os_read_ram_buf(const char *fname);
 
 #endif

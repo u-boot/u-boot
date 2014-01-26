@@ -13,7 +13,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include "mkimage.h"
+#include "imagetool.h"
 #include <image.h>
 #include "ublimage.h"
 
@@ -193,7 +193,7 @@ static int ublimage_check_image_types(uint8_t type)
 }
 
 static int ublimage_verify_header(unsigned char *ptr, int image_size,
-			struct mkimage_params *params)
+			struct image_tool_params *params)
 {
 	struct ubl_header *ubl_hdr = (struct ubl_header *)ptr;
 
@@ -211,7 +211,7 @@ static void ublimage_print_header(const void *ptr)
 }
 
 static void ublimage_set_header(void *ptr, struct stat *sbuf, int ifd,
-				struct mkimage_params *params)
+				struct image_tool_params *params)
 {
 	struct ubl_header *ublhdr = (struct ubl_header *)ptr;
 
@@ -219,7 +219,7 @@ static void ublimage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	parse_cfg_file(ublhdr, params->imagename);
 }
 
-int ublimage_check_params(struct mkimage_params *params)
+int ublimage_check_params(struct image_tool_params *params)
 {
 	if (!params)
 		return CFG_INVALID;
@@ -257,5 +257,5 @@ static struct image_type_params ublimage_params = {
 
 void init_ubl_image_type(void)
 {
-	mkimage_register(&ublimage_params);
+	register_image_type(&ublimage_params);
 }

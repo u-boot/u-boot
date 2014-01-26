@@ -101,6 +101,12 @@ void zynq_slcr_devcfg_enable(void)
 	zynq_slcr_lock();
 }
 
+u32 zynq_slcr_get_boot_mode(void)
+{
+	/* Get the bootmode register value */
+	return readl(&slcr_base->boot_mode);
+}
+
 u32 zynq_slcr_get_idcode(void)
 {
 	return (readl(&slcr_base->pss_idcode) & SLCR_IDCODE_MASK) >>

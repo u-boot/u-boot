@@ -7,25 +7,22 @@
 
 include $(TOPDIR)/config.mk
 
-ELF-$(ARCH)  :=
-ELF-$(CPU)   :=
 ELF-y        := hello_world
 
 ELF-$(CONFIG_SMC91111)           += smc91111_eeprom
 ELF-$(CONFIG_SMC911X)            += smc911x_eeprom
 ELF-$(CONFIG_SPI_FLASH_ATMEL)    += atmel_df_pow2
-ELF-i386                         += 82559_eeprom
-ELF-mpc5xxx                      += interrupt
-ELF-mpc8xx                       += test_burst timer
-ELF-mpc8260                      += mem_to_mem_idma2intr
-ELF-ppc                          += sched
+ELF-$(CONFIG_MPC5xxx)            += interrupt
+ELF-$(CONFIG_8xx)                += test_burst timer
+ELF-$(CONFIG_8260)               += mem_to_mem_idma2intr
+ELF-$(CONFIG_PPC)                += sched
 
 #
 # Some versions of make do not handle trailing white spaces properly;
 # leading to build failures. The problem was found with GNU Make 3.80.
 # Using 'strip' as a workaround for the problem.
 #
-ELF := $(strip $(ELF-y) $(ELF-$(ARCH)) $(ELF-$(CPU)))
+ELF := $(strip $(ELF-y))
 
 SREC := $(addsuffix .srec,$(ELF))
 BIN  := $(addsuffix .bin,$(ELF))
@@ -34,11 +31,9 @@ COBJS	:= $(ELF:=.o)
 
 LIB	= $(obj)libstubs.o
 
-LIBAOBJS-$(ARCH)     :=
-LIBAOBJS-$(CPU)      :=
-LIBAOBJS-ppc         += $(ARCH)_longjmp.o $(ARCH)_setjmp.o
-LIBAOBJS-mpc8xx      += test_burst_lib.o
-LIBAOBJS := $(LIBAOBJS-$(ARCH)) $(LIBAOBJS-$(CPU))
+LIBAOBJS-$(CONFIG_PPC) += ppc_longjmp.o ppc_setjmp.o
+LIBAOBJS-$(CONFIG_8xx) += test_burst_lib.o
+LIBAOBJS := $(LIBAOBJS-y)
 
 LIBCOBJS = stubs.o
 

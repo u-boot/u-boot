@@ -92,8 +92,6 @@ SECTIONS
 	}
 
 	.dynsym _end : { *(.dynsym) }
-	.hash : { *(.hash) }
-	.got.plt : { *(.got.plt) }
 	.dynbss : { *(.dynbss) }
 	.dynstr : { *(.dynstr*) }
 	.dynamic : { *(.dynamic*) }
@@ -101,4 +99,5 @@ SECTIONS
 	.interp : { *(.interp*) }
 	.gnu : { *(.gnu*) }
 	.ARM.exidx : { *(.ARM.exidx*) }
+	.gnu.linkonce.armexidx : { *(.gnu.linkonce.armexidx.*) }
 }

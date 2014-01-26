@@ -340,6 +340,28 @@ static int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		}
 #endif /* CONFIG_SUPPORT_EMMC_BOOT */
 	}
+
+	else if (argc == 3 && strcmp(argv[1], "setdsr") == 0) {
+		struct mmc *mmc = find_mmc_device(curr_device);
+		u32 val = simple_strtoul(argv[2], NULL, 16);
+		int ret;
+
+		if (!mmc) {
+			printf("no mmc device at slot %x\n", curr_device);
+			return 1;
+		}
+		ret = mmc_set_dsr(mmc, val);
+		printf("set dsr %s\n", (!ret) ? "OK, force rescan" : "ERROR");
+		if (!ret) {
+			mmc->has_init = 0;
+			if (mmc_init(mmc))
+				return 1;
+			else
+				return 0;
+		}
+		return ret;
+	}
+
 	state = MMC_INVALID;
 	if (argc == 5 && strcmp(argv[1], "read") == 0)
 		state = MMC_READ;
@@ -423,5 +445,6 @@ U_BOOT_CMD(
 	"mmc bootpart <device num> <boot part size MB> <RPMB part size MB>\n"
 	" - change sizes of boot and RPMB partitions of specified device\n"
 #endif
+	"mmc setdsr - set DSR register value\n"
 	);
 #endif /* !CONFIG_GENERIC_MMC */

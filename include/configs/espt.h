@@ -10,8 +10,6 @@
 #ifndef __ESPT_H
 #define __ESPT_H
 
-#define CONFIG_SH		1
-#define CONFIG_SH4		1
 #define CONFIG_CPU_SH7763	1
 #define CONFIG_ESPT	1
 #define __LITTLE_ENDIAN		1

@@ -74,6 +74,11 @@ unsigned char *dfu_free_buf(void)
 	return dfu_buf;
 }
 
+unsigned long dfu_get_buf_size(void)
+{
+	return dfu_buf_size;
+}
+
 unsigned char *dfu_get_buf(void)
 {
 	char *s;

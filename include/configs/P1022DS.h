@@ -75,6 +75,8 @@
 #endif
 
 #define CONFIG_NAND_FSL_ELBC
+#define CONFIG_SYS_NAND_MAX_ECCPOS	56
+#define CONFIG_SYS_NAND_MAX_OOBFREE	5
 
 #ifdef CONFIG_NAND
 #define CONFIG_SPL
@@ -725,7 +727,6 @@
 
 #ifdef CONFIG_CMD_KGDB
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
-#define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
 
 /*

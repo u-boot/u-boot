@@ -38,6 +38,9 @@ static int lpc32xx_serial_getc(void)
 
 static void lpc32xx_serial_putc(const char c)
 {
+	if (c == '\n')
+		serial_putc('\r');
+
 	writel(c, &hsuart->tx);
 
 	/* Wait for character to be sent */

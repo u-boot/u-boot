@@ -156,6 +156,7 @@ struct lmb;
 #define IH_ARCH_SANDBOX		19	/* Sandbox architecture (test only) */
 #define IH_ARCH_NDS32	        20	/* ANDES Technology - NDS32  */
 #define IH_ARCH_OPENRISC        21	/* OpenRISC 1000  */
+#define IH_ARCH_ARM64		22	/* ARM64	*/
 
 /*
  * Image Types

@@ -19,10 +19,8 @@ ifdef MINIMAL
 obj-$(CONFIG_FSL_LAW) += law.o
 
 else
-
-ifneq ($(CPU),mpc83xx)
-obj-y	+= cpu.o
-endif
+obj-$(CONFIG_MPC85xx) += cpu.o
+obj-$(CONFIG_MPC86xx) += cpu.o
 
 obj-$(CONFIG_OF_LIBFDT) += fdt.o
 obj-$(CONFIG_FSL_LBC) += fsl_lbc.o

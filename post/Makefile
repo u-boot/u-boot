@@ -5,16 +5,14 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-$(CONFIG_HAS_POST)	+= post.o
+obj-y	+= post.o
 obj-$(CONFIG_POST_STD_LIST)	+= tests.o
 
-obj-$(CONFIG_HAS_POST) += drivers/
-ifeq ($(ARCH),powerpc)
-obj-$(CONFIG_HAS_POST) += lib_powerpc/
-endif
-ifneq ($(filter mpc83xx mpc8xx ppc4xx,$(CPU)),)
-obj-$(CONFIG_HAS_POST) += cpu/$(CPU)/
-endif
+obj-y += drivers/
+obj-$(CONFIG_PPC) += lib_powerpc/
+obj-$(CONFIG_MPC83xx) += cpu/mpc83xx/
+obj-$(CONFIG_8xx) += cpu/mpc8xx/
+obj-$(CONFIG_4xx) += cpu/ppc4xx/
 ifneq ($(filter lwmon lwmon5 netta pdm360ng,$(BOARD)),)
-obj-$(CONFIG_HAS_POST) += board/$(BOARD)/
+obj-y += board/$(BOARD)/
 endif

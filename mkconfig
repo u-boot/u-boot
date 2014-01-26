@@ -85,6 +85,13 @@ if [ "${ARCH}" -a "${ARCH}" != "${arch}" ]; then
 	exit 1
 fi
 
+#
+# Test above needed aarch64, now we need arm
+#
+if [ "${arch}" = "aarch64" ]; then
+	arch="arm"
+fi
+
 if [ "$options" ] ; then
 	echo "Configuring for ${BOARD_NAME} - Board: ${CONFIG_NAME}, Options: ${options}"
 else

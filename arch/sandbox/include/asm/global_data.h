@@ -12,7 +12,7 @@
 
 /* Architecture-specific global data */
 struct arch_global_data {
-	u8		*ram_buf;	/* emulated RAM buffer */
+	uint8_t		*ram_buf;	/* emulated RAM buffer */
 };
 
 #include <asm-generic/global_data.h>
