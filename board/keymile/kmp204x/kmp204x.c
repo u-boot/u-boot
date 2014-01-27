@@ -77,62 +77,6 @@ unsigned long get_board_sys_clk(unsigned long dummy)
 	return 66666666;
 }
 
-#define WDMASK_OFF	0x16
-
-static void qrio_wdmask(u8 bit, bool wden)
-{
-	u16 wdmask;
-	void __iomem *qrio_base = (void *)CONFIG_SYS_QRIO_BASE;
-
-	wdmask = in_be16(qrio_base + WDMASK_OFF);
-
-	if (wden)
-		wdmask |= (1 << bit);
-	else
-		wdmask &= ~(1 << bit);
-
-	out_be16(qrio_base + WDMASK_OFF, wdmask);
-}
-
-#define PRST_OFF	0x1a
-
-void qrio_prst(u8 bit, bool en, bool wden)
-{
-	u16 prst;
-	void __iomem *qrio_base = (void *)CONFIG_SYS_QRIO_BASE;
-
-	qrio_wdmask(bit, wden);
-
-	prst = in_be16(qrio_base + PRST_OFF);
-
-	if (en)
-		prst &= ~(1 << bit);
-	else
-		prst |= (1 << bit);
-
-	out_be16(qrio_base + PRST_OFF, prst);
-}
-
-#define PRSTCFG_OFF	0x1c
-
-void qrio_prstcfg(u8 bit, u8 mode)
-{
-	u32 prstcfg;
-	u8 i;
-	void __iomem *qrio_base = (void *)CONFIG_SYS_QRIO_BASE;
-
-	prstcfg = in_be32(qrio_base + PRSTCFG_OFF);
-
-	for (i = 0; i < 2; i++) {
-		if (mode & (1<<i))
-			set_bit(2*bit+i, &prstcfg);
-		else
-			clear_bit(2*bit+i, &prstcfg);
-	}
-
-	out_be32(qrio_base + PRSTCFG_OFF, prstcfg);
-}
-
 #define NUM_SRDS_BANKS	2
 #define PHY_RST		15
 
