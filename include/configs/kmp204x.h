@@ -13,6 +13,11 @@
 #define CONFIG_HOSTNAME		kmlion1
 #define CONFIG_KM_BOARD_NAME	"kmlion1"
 
+/* KMCOGE4 */
+#elif defined(CONFIG_KMCOGE4)
+#define CONFIG_HOSTNAME		kmcoge4
+#define CONFIG_KM_BOARD_NAME	"kmcoge4"
+
 #else
 #error ("Board not supported")
 #endif
@@ -42,6 +47,7 @@
 #define CONFIG_SYS_BR2_PRELIM  CONFIG_SYS_LBAPP1_BR_PRELIM
 /* Local bus app1 Options */
 #define CONFIG_SYS_OR2_PRELIM  CONFIG_SYS_LBAPP1_OR_PRELIM
+#endif
 
 /* App2 Local bus */
 #define CONFIG_SYS_LBAPP2_BASE		0xE0000000
@@ -63,6 +69,5 @@
 #define CONFIG_SYS_BR3_PRELIM  CONFIG_SYS_LBAPP2_BR_PRELIM
 /* Local bus app2 Options */
 #define CONFIG_SYS_OR3_PRELIM  CONFIG_SYS_LBAPP2_OR_PRELIM
-#endif
 
 #endif	/* __CONFIG_H */
