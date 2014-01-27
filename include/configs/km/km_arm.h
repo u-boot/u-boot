@@ -70,7 +70,8 @@
 #define CONFIG_KM_PHRAM		0x17F000
 
 #define CONFIG_KM_CRAMFS_ADDR	0x2400000
-#define CONFIG_KM_KERNEL_ADDR	0x2000000	/* 4096KBytes */
+#define CONFIG_KM_KERNEL_ADDR	0x2000000	/* 3098KBytes */
+#define CONFIG_KM_FDT_ADDR	0x23E0000	/*  128KBytes */
 
 /* architecture specific default bootargs */
 #define CONFIG_KM_DEF_BOOT_ARGS_CPU					\
@@ -78,14 +79,15 @@
 		" boardid=0x${IVM_BoardId} hwkey=0x${IVM_HWKey}"
 
 #define CONFIG_KM_DEF_ENV_CPU						\
-	"boot=bootm ${load_addr_r} - -\0"				\
-	"cramfsloadfdt=true\0"						\
 	"u-boot="__stringify(CONFIG_HOSTNAME) "/u-boot.kwb\0"		\
 	CONFIG_KM_UPDATE_UBOOT						\
 	""
 
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 #define CONFIG_MISC_INIT_R
+
+/* Pass open firmware flat tree */
+#define CONFIG_OF_LIBFDT
 
 /*
  * NS16550 Configuration
