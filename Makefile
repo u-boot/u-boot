@@ -227,7 +227,6 @@ LIBS-y += $(CPUDIR)/
 ifdef SOC
 LIBS-y += $(CPUDIR)/$(SOC)/
 endif
-LIBS-$(CONFIG_IXP4XX_NPE) += drivers/net/npe/
 LIBS-$(CONFIG_OF_EMBED) += dts/
 LIBS-y += arch/$(ARCH)/lib/
 LIBS-y += fs/
