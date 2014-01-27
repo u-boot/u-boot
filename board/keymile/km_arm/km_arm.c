@@ -164,7 +164,6 @@ static int initialize_unit_leds(void)
 	return 0;
 }
 
-#if defined(CONFIG_BOOTCOUNT_LIMIT)
 static void set_bootcount_addr(void)
 {
 	uchar buf[32];
@@ -173,7 +172,6 @@ static void set_bootcount_addr(void)
 	sprintf((char *)buf, "0x%x", bootcountaddr);
 	setenv("bootcountaddr", (char *)buf);
 }
-#endif
 
 int misc_init_r(void)
 {
@@ -210,9 +208,7 @@ int misc_init_r(void)
 
 	initialize_unit_leds();
 	set_km_env();
-#if defined(CONFIG_BOOTCOUNT_LIMIT)
 	set_bootcount_addr();
-#endif
 	return 0;
 }
 
