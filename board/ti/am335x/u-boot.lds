@@ -118,6 +118,7 @@ SECTIONS
 	.dynstr : { *(.dynstr*) }
 	.dynamic : { *(.dynamic*) }
 	.hash : { *(.hash*) }
+	.gnu.hash : { *(.gnu.hash) }
 	.plt : { *(.plt*) }
 	.interp : { *(.interp*) }
 	.gnu : { *(.gnu*) }
