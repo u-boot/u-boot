@@ -289,10 +289,15 @@ int get_scl(void);
 		" ${addr} " __stringify(CONFIG_ENV_OFFSET_REDUND) " 4\0"
 #endif
 
+#ifndef CONFIG_KM_BOARD_EXTRA_ENV
+#define CONFIG_KM_BOARD_EXTRA_ENV       ""
+#endif
+
 /*
  * Default environment variables
  */
 #define CONFIG_EXTRA_ENV_SETTINGS					\
+	CONFIG_KM_BOARD_EXTRA_ENV					\
 	CONFIG_KM_DEF_ENV						\
 	CONFIG_KM_NEW_ENV						\
 	"arch=arm\0"							\
