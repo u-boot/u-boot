@@ -101,6 +101,7 @@ int board_early_init_f(void)
 
 int board_early_init_r(void)
 {
+	int ret = 0;
 	/* Flush d-cache and invalidate i-cache of any FLASH data */
 	flush_dcache();
 	invalidate_icache();
@@ -108,7 +109,11 @@ int board_early_init_r(void)
 	set_liodns();
 	setup_portals();
 
-	return 0;
+	ret = trigger_fpga_config();
+	if (ret)
+		printf("error triggering PCIe FPGA config\n");
+
+	return ret;
 }
 
 unsigned long get_board_sys_clk(unsigned long dummy)
