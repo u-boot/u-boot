@@ -11,6 +11,7 @@ easily if here is something they might want to dig for...
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+actux4           arm         ixp            -           2014-01-28  Michael Schwingen <michael@schwingen.org>
 actux3           arm         ixp            -           2014-01-28  Michael Schwingen <michael@schwingen.org>
 actux2           arm         ixp            -           2014-01-28  Michael Schwingen <michael@schwingen.org>
 actux1           arm         ixp            -           2014-01-28  Michael Schwingen <michael@schwingen.org>
