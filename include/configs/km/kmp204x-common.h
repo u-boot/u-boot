@@ -420,6 +420,7 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 	"update="							\
 		"sf probe 0;sf erase 0 +${filesize};"			\
 		"sf write ${load_addr_r} 0 ${filesize};\0"		\
+	"set_fdthigh=true\0"						\
 	""
 
 #define CONFIG_HW_ENV_SETTINGS						\

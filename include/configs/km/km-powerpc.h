@@ -77,6 +77,7 @@
 		"cp.b ${load_addr_r} " __stringify(BOOTFLASH_START)	\
 		"  ${filesize} && "					\
 		"protect on " __stringify(BOOTFLASH_START) "  +${filesize}\0"\
+	"set_fdthigh=true\0"						\
 	""
 
 #endif /* __CONFIG_KEYMILE_POWERPC_H */

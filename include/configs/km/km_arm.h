@@ -81,6 +81,7 @@
 #define CONFIG_KM_DEF_ENV_CPU						\
 	"u-boot="__stringify(CONFIG_HOSTNAME) "/u-boot.kwb\0"		\
 	CONFIG_KM_UPDATE_UBOOT						\
+	"set_fdthigh=setenv fdt_high ${kernelmem}\0"			\
 	""
 
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
