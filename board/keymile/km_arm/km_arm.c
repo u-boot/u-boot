@@ -102,7 +102,7 @@ static const u32 kwmpp_config[] = {
 /*
  * Wait for startup OK from mgcoge3ne
  */
-int startup_allowed(void)
+static int startup_allowed(void)
 {
 	unsigned char buf;
 
