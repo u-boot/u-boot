@@ -15,6 +15,10 @@
 
 #define CONFIG_KM_DEF_NETDEV	"netdev=eth0\0"
 
+/* an additionnal option is required for UBI as subpage access is
+ * supported in u-boot */
+#define CONFIG_KM_UBI_PART_BOOT_OPTS		",2048"
+
 #define CONFIG_NAND_ECC_BCH
 
 /* common KM defines */
