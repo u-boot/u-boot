@@ -148,8 +148,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_KM_KERNEL_ADDR	0x1000000	/* max kernel size 15.5Mbytes */
 #define CONFIG_KM_FDT_ADDR	0x1F80000	/* max dtb    size  0.5Mbytes */
 
-#define CONFIG_BOOTCOUNT_LIMIT
-
 /*
  * Local Bus Definitions
  */
@@ -205,6 +203,10 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 
 #define CONFIG_SYS_BR1_PRELIM  CONFIG_SYS_QRIO_BR_PRELIM /* QRIO Base Address */
 #define CONFIG_SYS_OR1_PRELIM  CONFIG_SYS_QRIO_OR_PRELIM /* QRIO Options */
+
+/* bootcounter in QRIO */
+#define CONFIG_BOOTCOUNT_LIMIT
+#define CONFIG_SYS_BOOTCOUNT_ADDR	(CONFIG_SYS_QRIO_BASE + 0x20)
 
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_EARLY_INIT_R	/* call board_early_init_r function */

@@ -133,26 +133,6 @@ void qrio_prstcfg(u8 bit, u8 mode)
 	out_be32(qrio_base + PRSTCFG_OFF, prstcfg);
 }
 
-
-#define BOOTCOUNT_OFF	0x12
-
-void bootcount_store(ulong counter)
-{
-	u8 val;
-	void __iomem *qrio_base = (void *)CONFIG_SYS_QRIO_BASE;
-
-	val = (counter <= 255) ? (u8)counter : 255;
-	out_8(qrio_base + BOOTCOUNT_OFF, val);
-}
-
-ulong bootcount_load(void)
-{
-	u8 val;
-	void __iomem *qrio_base = (void *)CONFIG_SYS_QRIO_BASE;
-	val = in_8(qrio_base + BOOTCOUNT_OFF);
-	return val;
-}
-
 #define NUM_SRDS_BANKS	2
 #define PHY_RST		15
 
