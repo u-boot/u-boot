@@ -745,6 +745,7 @@ static const struct token keywords[] = {
 	{"append", T_APPEND},
 	{"initrd", T_INITRD},
 	{"include", T_INCLUDE},
+	{"devicetree", T_FDT},
 	{"fdt", T_FDT},
 	{"ontimeout", T_ONTIMEOUT,},
 	{"ipappend", T_IPAPPEND,},
