@@ -68,10 +68,21 @@ static inline uint32_t early_get_uart_clk(void)
 	return uclk;
 }
 
+extern u_long get_vco(void);
+extern u_long get_cclk(void);
+extern u_long get_sclk(void);
+
 #ifdef CGU_DIV
+extern u_long get_sclk0(void);
+extern u_long get_sclk1(void);
+extern u_long get_dclk(void);
 # define get_uart_clk get_sclk0
+# define get_i2c_clk get_sclk0
+# define get_spi_clk get_sclk0
 #else
 # define get_uart_clk get_sclk
+# define get_i2c_clk get_sclk
+# define get_spi_clk get_sclk
 #endif
 
 #endif
