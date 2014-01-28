@@ -52,7 +52,11 @@ int board_early_init_f (void)
 int board_init (void)
 {
 	/* arch number of Versatile Board */
+#ifdef CONFIG_ARCH_VERSATILE_AB
+	gd->bd->bi_arch_number = MACH_TYPE_VERSATILE_AB;
+#else
 	gd->bd->bi_arch_number = MACH_TYPE_VERSATILE_PB;
+#endif
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x00000100;
