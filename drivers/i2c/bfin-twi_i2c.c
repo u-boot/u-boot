@@ -274,7 +274,7 @@ unsigned int i2c_get_bus_speed(void)
  */
 void i2c_init(int speed, int slaveaddr)
 {
-	uint8_t prescale = ((get_sclk() / 1024 / 1024 + 5) / 10) & 0x7F;
+	uint8_t prescale = ((get_sclk() / 1000 / 1000 + 5) / 10) & 0x7F;
 
 	/* Set TWI internal clock as 10MHz */
 	twi->control = prescale;
