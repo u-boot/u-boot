@@ -445,6 +445,7 @@ struct pxe_label {
 	char *append;
 	char *initrd;
 	char *fdt;
+	char *fdtdir;
 	int ipappend;
 	int attempted;
 	int localboot;
@@ -516,6 +517,9 @@ static void label_destroy(struct pxe_label *label)
 
 	if (label->fdt)
 		free(label->fdt);
+
+	if (label->fdtdir)
+		free(label->fdtdir);
 
 	free(label);
 }
@@ -675,13 +679,67 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 	bootm_argv[3] = getenv("fdt_addr_r");
 
 	/* if fdt label is defined then get fdt from server */
-	if (bootm_argv[3] && label->fdt) {
-		if (get_relfile_envaddr(cmdtp, label->fdt, "fdt_addr_r") < 0) {
-			printf("Skipping %s for failure retrieving fdt\n",
-					label->name);
-			return 1;
+	if (bootm_argv[3]) {
+		char *fdtfile = NULL;
+		char *fdtfilefree = NULL;
+
+		if (label->fdt) {
+			fdtfile = label->fdt;
+		} else if (label->fdtdir) {
+			fdtfile = getenv("fdtfile");
+			/*
+			 * For complex cases, it might be worth calling a
+			 * board- or SoC-provided function here to provide a
+			 * better default:
+			 *
+			 * if (!fdtfile)
+			 *     fdtfile = gen_fdtfile();
+			 *
+			 * If this is added, be sure to keep the default below,
+			 * or move it to the default weak implementation of
+			 * gen_fdtfile().
+			 */
+			if (!fdtfile) {
+				char *soc = getenv("soc");
+				char *board = getenv("board");
+				char *slash;
+
+				len = strlen(label->fdtdir);
+				if (!len)
+					slash = "./";
+				else if (label->fdtdir[len - 1] != '/')
+					slash = "/";
+				else
+					slash = "";
+
+				len = strlen(label->fdtdir) + strlen(slash) +
+					strlen(soc) + 1 + strlen(board) + 5;
+				fdtfilefree = malloc(len);
+				if (!fdtfilefree) {
+					printf("malloc fail (FDT filename)\n");
+					return 1;
+				}
+
+				snprintf(fdtfilefree, len, "%s%s%s-%s.dtb",
+					label->fdtdir, slash, soc, board);
+				fdtfile = fdtfilefree;
+			}
 		}
-	} else
+
+		if (fdtfile) {
+			int err = get_relfile_envaddr(cmdtp, fdtfile, "fdt_addr_r");
+			free(fdtfilefree);
+			if (err < 0) {
+				printf("Skipping %s for failure retrieving fdt\n",
+						label->name);
+				return 1;
+			}
+		} else {
+			bootm_argv[3] = NULL;
+		}
+	}
+
+	if (!bootm_argv[3])
 		bootm_argv[3] = getenv("fdt_addr");
 
 	if (bootm_argv[3])
@@ -716,6 +774,7 @@ enum token_type {
 	T_PROMPT,
 	T_INCLUDE,
 	T_FDT,
+	T_FDTDIR,
 	T_ONTIMEOUT,
 	T_IPAPPEND,
 	T_INVALID
@@ -747,6 +806,8 @@ static const struct token keywords[] = {
 	{"include", T_INCLUDE},
 	{"devicetree", T_FDT},
 	{"fdt", T_FDT},
+	{"devicetreedir", T_FDTDIR},
+	{"fdtdir", T_FDTDIR},
 	{"ontimeout", T_ONTIMEOUT,},
 	{"ipappend", T_IPAPPEND,},
 	{NULL, T_INVALID}
@@ -1133,6 +1194,11 @@ static int parse_label(char **c, struct pxe_menu *cfg)
 		case T_FDT:
 			if (!label->fdt)
 				err = parse_sliteral(c, &label->fdt);
+			break;
+
+		case T_FDTDIR:
+			if (!label->fdtdir)
+				err = parse_sliteral(c, &label->fdtdir);
 			break;
 
 		case T_LOCALBOOT:
