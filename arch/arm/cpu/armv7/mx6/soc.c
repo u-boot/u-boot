@@ -8,6 +8,8 @@
  */
 
 #include <common.h>
+#include <asm/armv7.h>
+#include <asm/pl310.h>
 #include <asm/errno.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
@@ -375,3 +377,59 @@ void imx_setup_hdmi(void)
 	writel(reg, &mxc_ccm->chsccdr);
 }
 #endif
+
+#ifndef CONFIG_SYS_L2CACHE_OFF
+#define IOMUXC_GPR11_L2CACHE_AS_OCRAM 0x00000002
+void v7_outer_cache_enable(void)
+{
+	struct pl310_regs *const pl310 = (struct pl310_regs *)L2_PL310_BASE;
+	unsigned int val;
+
+#if defined CONFIG_MX6SL
+	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
+	val = readl(&iomux->gpr[11]);
+	if (val & IOMUXC_GPR11_L2CACHE_AS_OCRAM) {
+		/* L2 cache configured as OCRAM, reset it */
+		val &= ~IOMUXC_GPR11_L2CACHE_AS_OCRAM;
+		writel(val, &iomux->gpr[11]);
+	}
+#endif
+
+	writel(0x132, &pl310->pl310_tag_latency_ctrl);
+	writel(0x132, &pl310->pl310_data_latency_ctrl);
+
+	val = readl(&pl310->pl310_prefetch_ctrl);
+
+	/* Turn on the L2 I/D prefetch */
+	val |= 0x30000000;
+
+	/*
+	 * The L2 cache controller(PL310) version on the i.MX6D/Q is r3p1-50rel0
+	 * The L2 cache controller(PL310) version on the i.MX6DL/SOLO/SL is r3p2
+	 * But according to ARM PL310 errata: 752271
+	 * ID: 752271: Double linefill feature can cause data corruption
+	 * Fault Status: Present in: r3p0, r3p1, r3p1-50rel0. Fixed in r3p2
+	 * Workaround: The only workaround to this erratum is to disable the
+	 * double linefill feature. This is the default behavior.
+	 */
+
+#ifndef CONFIG_MX6Q
+	val |= 0x40800000;
+#endif
+	writel(val, &pl310->pl310_prefetch_ctrl);
+
+	val = readl(&pl310->pl310_power_ctrl);
+	val |= L2X0_DYNAMIC_CLK_GATING_EN;
+	val |= L2X0_STNDBY_MODE_EN;
+	writel(val, &pl310->pl310_power_ctrl);
+
+	setbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
+}
+
+void v7_outer_cache_disable(void)
+{
+	struct pl310_regs *const pl310 = (struct pl310_regs *)L2_PL310_BASE;
+
+	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
+}
+#endif /* !CONFIG_SYS_L2CACHE_OFF */
