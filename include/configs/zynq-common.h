@@ -49,6 +49,7 @@
 # define CONFIG_PHYLIB
 # define CONFIG_PHY_MARVELL
 # define CONFIG_SYS_ENET
+# define CONFIG_BOOTP_MAY_FAIL
 #endif
 
 /* SPI */
