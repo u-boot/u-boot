@@ -55,7 +55,6 @@ enum periph_id {
 	PERIPH_ID_PWM4,
 	PERIPH_ID_I2C10 = 203,
 
-	PERIPH_ID_COUNT,
 	PERIPH_ID_NONE = -1,
 };
 

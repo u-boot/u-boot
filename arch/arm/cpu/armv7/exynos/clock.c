@@ -26,7 +26,7 @@ struct clk_bit_info {
 };
 
 /* src_bit div_bit prediv_bit */
-static struct clk_bit_info clk_bit_info[PERIPH_ID_COUNT] = {
+static struct clk_bit_info clk_bit_info[] = {
 	{0,	0,	-1},
 	{4,	4,	-1},
 	{8,	8,	-1},
