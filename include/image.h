@@ -99,9 +99,9 @@ struct lmb;
 #endif
 
 #ifdef CONFIG_OF_BOARD_SETUP
-# define IMAAGE_OF_BOARD_SETUP		1
+# define IMAGE_OF_BOARD_SETUP		1
 #else
-# define IMAAGE_OF_BOARD_SETUP		0
+# define IMAGE_OF_BOARD_SETUP		0
 #endif
 
 /*
