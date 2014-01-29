@@ -4,7 +4,7 @@
  * Steve Sakoman  <steve@sakoman.com>
  *
  * Configuration settings for the TI OMAP4 Panda board.
- * See omap4_common.h for OMAP4 common part
+ * See ti_omap4_common.h for OMAP4 common part
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -36,7 +36,7 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 
-#include <configs/omap4_common.h>
+#include <configs/ti_omap4_common.h>
 #define CONFIG_CMD_NET
 
 /* GPIO */
