@@ -349,6 +349,8 @@
 # define CONFIG_PANIC_HANG
 #endif
 
+#define CONFIG_SYS_LDSCRIPT  "arch/arm/cpu/armv7/zynq/u-boot.lds"
+
 /* SPL part */
 #define CONFIG_SPL
 #define CONFIG_CMD_SPL
