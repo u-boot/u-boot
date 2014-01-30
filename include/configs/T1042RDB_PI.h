@@ -552,8 +552,11 @@
 #endif
 
 #ifdef CONFIG_FMAN_ENET
+#define CONFIG_SYS_RGMII1_PHY_ADDR		0x01
+#define CONFIG_SYS_RGMII2_PHY_ADDR		0x02
+
 #define CONFIG_MII		/* MII PHY management */
-#define CONFIG_ETHPRIME		"FM1@DTSEC1"
+#define CONFIG_ETHPRIME		"FM1@DTSEC4"
 #define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
 #endif
 

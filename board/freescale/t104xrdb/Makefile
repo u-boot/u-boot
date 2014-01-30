@@ -7,6 +7,7 @@
 
 obj-y	+= t104xrdb.o
 obj-y	+= ddr.o
+obj-y	+= eth.o
 obj-$(CONFIG_PCI)	+= pci.o
 obj-y	+= law.o
 obj-y	+= tlb.o
