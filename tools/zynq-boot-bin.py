@@ -29,15 +29,33 @@ __email__ = "andrey@elphel.com"
 __status__ = "Development"
 import os
 import struct
-import argparse # http://docs.python.org/2/howto/argparse.html
+import sys, getopt
 
+inputfile = ''
+outputfile = ''
+argv = sys.argv[1:]
+try:
+  opts, args = getopt.getopt(argv,"hu:o:",["uboot=","outfile="])
+except getopt.GetoptError:
+  print 'test.py -u <inputfile> -o <outputfile>'
+  sys.exit(2)
 
-parser = argparse.ArgumentParser()
-parser.add_argument('-o', '--outfile',   help='Path to save the generated boot file')
-parser.add_argument('-u', '--uboot',      help='path to the u-boot.bin to get it\'s length (second pass, when u-boot.bin is already generated)')
+if len(argv) == 0:
+  print 'test.py -u <inputfile> -o <outputfile>'
+  sys.exit()
 
-args = parser.parse_args()
-#print args
+for opt, arg in opts:
+  if opt == '-h':
+      print 'test.py -u <inputfile> -o <outputfile>'
+      sys.exit()
+  elif opt in ("-u", "--uboot"):
+      inputfile = arg
+  elif opt in ("-o", "--outfile"):
+      outputfile = arg
+print 'Input file is:', inputfile
+print 'Output file is:', outputfile
+
+exit
 
 ACCESSIBLE_REGISTERS=((0xe0001000,0xe0001fff), # UART1 controller registers
                       (0xe000d000,0xe000efff), # QUAD SPI controller registers
@@ -170,12 +188,13 @@ def image_generator (image,
         image[waddr]=0
         waddr+=1
 
-if (args.uboot):
+if (inputfile):
     try:
-        uboot_image_len=os.path.getsize(args.uboot)
-        print 'Using %s to get image length - it is %i (0x%x) bytes'%(os.path.abspath(args.uboot),uboot_image_len,uboot_image_len)
+        uboot_image_len=os.path.getsize(inputfile)
+        print 'Using %s to get image length - it is %i (0x%x) bytes'%(os.path.abspath(inputfile),uboot_image_len,uboot_image_len)
     except:
-        print 'Specified u-boot.bin file: %s (%s) not found'%(args.uboot,os.path.abspath(args.uboot))
+        print 'Specified u-boot.bin file: %s (%s) not found'%(inputfile,os.path.abspath(inputfile))
+        sys.exit()
 else:
     uboot_image_len=int(raw_options['CONFIG_EZYNQ_BOOT_OCM_IMAGE_LENGTH'],0)
     print 'No u-boot.bin path specified, using provided CONFIG_EZYNQ_BOOT_OCM_IMAGE_LENGTH as image size of %i (0x%x) bytes for the RBL header'%(uboot_image_len,uboot_image_len)
@@ -197,13 +216,13 @@ image_generator (image,
                  uboot_image_len, #ocm_len,
                  0) #start_exec)
 
-if args.outfile:
-    print 'Generating binary output ',os.path.abspath(args.outfile)
-    bf=open(args.outfile,'wb')
+if outputfile:
+    print 'Generating binary output ',os.path.abspath(outputfile)
+    bf=open(outputfile,'wb')
     data=struct.pack('I' * len(image), *image)
     bf.write(data)
 
-    spl=open(args.uboot,'rb')
+    spl=open(inputfile,'rb')
     bf.write(spl.read())
 
     bf.close()
