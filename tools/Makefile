@@ -60,7 +60,7 @@ BIN_FILES-$(CONFIG_MX28) += mxsboot$(SFX)
 BIN_FILES-$(CONFIG_NETCONSOLE) += ncb$(SFX)
 BIN_FILES-$(CONFIG_SHA1_CHECK_UB_IMG) += ubsha1$(SFX)
 BIN_FILES-$(CONFIG_KIRKWOOD) += kwboot$(SFX)
-BIN_FILES-y += proftool(SFX)
+BIN_FILES-y += proftool$(SFX)
 BIN_FILES-$(CONFIG_STATIC_RELA) += relocate-rela$(SFX)
 
 # Source files which exist outside the tools directory
@@ -186,7 +186,7 @@ $(obj)bmp_logo$(SFX):	$(obj)bmp_logo.o
 	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
 	$(HOSTSTRIP) $@
 
-$(obj)proftool(SFX):	$(obj)proftool.o
+$(obj)proftool$(SFX):	$(obj)proftool.o
 	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
 	$(HOSTSTRIP) $@
 
