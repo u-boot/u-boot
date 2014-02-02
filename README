@@ -1465,6 +1465,9 @@ The following options need to be configured:
 		CONFIG_USB_EHCI_TXFIFO_THRESH enables setting of the
 		txfilltuning field in the EHCI controller on reset.
 
+		CONFIG_USB_DWC2_REG_ADDR the physical CPU address of the DWC2
+		HW module registers.
+
 - USB Device:
 		Define the below if you wish to use the USB console.
 		Once firmware is rebuilt from a serial console issue the
