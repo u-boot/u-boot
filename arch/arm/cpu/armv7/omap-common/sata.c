@@ -12,6 +12,7 @@
 #include <scsi.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sata.h>
+#include <sata.h>
 #include <asm/io.h>
 #include "pipe3-phy.h"
 
@@ -31,7 +32,7 @@ struct omap_pipe3 sata_phy = {
 	.dpll_map = dpll_map_sata,
 };
 
-int omap_sata_init(void)
+int init_sata(int dev)
 {
 	int ret;
 	u32 val;

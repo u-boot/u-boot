@@ -15,6 +15,7 @@
 #include "mux_data.h"
 
 #if defined(CONFIG_USB_EHCI) || defined(CONFIG_USB_XHCI_OMAP)
+#include <sata.h>
 #include <usb.h>
 #include <asm/gpio.h>
 #include <asm/arch/clock.h>
@@ -70,7 +71,7 @@ int board_init(void)
 
 int board_late_init(void)
 {
-	omap_sata_init();
+	init_sata(0);
 	return 0;
 }
 

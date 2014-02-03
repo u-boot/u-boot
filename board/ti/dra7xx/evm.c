@@ -12,6 +12,7 @@
  */
 #include <common.h>
 #include <palmas.h>
+#include <sata.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sata.h>
@@ -80,7 +81,7 @@ int board_init(void)
 
 int board_late_init(void)
 {
-	omap_sata_init();
+	init_sata(0);
 	return 0;
 }
 
