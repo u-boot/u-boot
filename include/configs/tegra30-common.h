@@ -23,11 +23,6 @@
  */
 #define V_NS16550_CLK		408000000	/* 408MHz (pllp_out0) */
 
-/*
- * High Level Configuration Options
- */
-#define CONFIG_TEGRA30			/* in a NVidia Tegra30 core */
-
 /* Environment information, boards can override if required */
 #define CONFIG_LOADADDR		0x80408000	/* def. location for kernel */
 

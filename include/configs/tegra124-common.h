@@ -18,11 +18,6 @@
  */
 #define V_NS16550_CLK		408000000	/* 408MHz (pllp_out0) */
 
-/*
- * High Level Configuration Options
- */
-#define CONFIG_TEGRA124			/* is an NVIDIA Tegra124 core */
-
 /* Environment information, boards can override if required */
 #define CONFIG_LOADADDR		0x80408000	/* def. location for kernel */
 
