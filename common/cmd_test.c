@@ -39,10 +39,6 @@ const struct {
 	int op;
 	int adv;
 } op_adv[] = {
-	{0, "-o", OP_OR, 1},
-	{0, "-a", OP_AND, 1},
-	{0, "-z", OP_STR_EMPTY, 2},
-	{0, "-n", OP_STR_NEMPTY, 2},
 	{1, "=", OP_STR_EQ, 3},
 	{1, "!=", OP_STR_NEQ, 3},
 	{1, "<", OP_STR_LT, 3},
@@ -53,6 +49,10 @@ const struct {
 	{1, "-le", OP_INT_LE, 3},
 	{1, "-gt", OP_INT_GT, 3},
 	{1, "-ge", OP_INT_GE, 3},
+	{0, "-o", OP_OR, 1},
+	{0, "-a", OP_AND, 1},
+	{0, "-z", OP_STR_EMPTY, 2},
+	{0, "-n", OP_STR_NEMPTY, 2},
 };
 
 static int do_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
