@@ -114,7 +114,7 @@ static struct fstype_info fstypes[] = {
 		.probe = sandbox_fs_set_blk_dev,
 		.close = sandbox_fs_close,
 		.ls = sandbox_fs_ls,
-		.exists = fs_exists_unsupported,
+		.exists = sandbox_fs_exists,
 		.read = fs_read_sandbox,
 		.write = fs_write_sandbox,
 	},
