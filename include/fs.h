@@ -55,6 +55,16 @@ int fs_ls(const char *dirname);
 int fs_read(const char *filename, ulong addr, int offset, int len);
 
 /*
+ * Write file "filename" to the partition previously set by fs_set_blk_dev(),
+ * from address "addr", starting at byte offset "offset", and writing "len"
+ * bytes. "offset" may be 0 to write to the start of the file. Note that not
+ * all filesystem types support offset!=0.
+ *
+ * Returns number of bytes read on success. Returns <= 0 on error.
+ */
+int fs_write(const char *filename, ulong addr, int offset, int len);
+
+/*
  * Common implementation for various filesystem commands, optionally limited
  * to a specific filesystem type via the fstype parameter.
  */
