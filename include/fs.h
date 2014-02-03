@@ -44,6 +44,13 @@ int fs_set_blk_dev(const char *ifname, const char *dev_part_str, int fstype);
 int fs_ls(const char *dirname);
 
 /*
+ * Determine whether a file exists
+ *
+ * Returns 1 if the file exists, 0 if it doesn't exist.
+ */
+int fs_exists(const char *filename);
+
+/*
  * Read file "filename" from the partition previously set by fs_set_blk_dev(),
  * to address "addr", starting at byte offset "offset", and reading "len"
  * bytes. "offset" may be 0 to read from the start of the file. "len" may be
@@ -71,6 +78,8 @@ int fs_write(const char *filename, ulong addr, int offset, int len);
 int do_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		int fstype);
 int do_ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
+		int fstype);
+int file_exists(const char *dev_type, const char *dev_part, const char *file,
 		int fstype);
 int do_save(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		int fstype);

@@ -41,6 +41,11 @@ static inline int fs_ls_unsupported(const char *dirname)
 	return -1;
 }
 
+static inline int fs_exists_unsupported(const char *filename)
+{
+	return 0;
+}
+
 static inline int fs_read_unsupported(const char *filename, void *buf,
 				      int offset, int len)
 {
@@ -62,6 +67,7 @@ struct fstype_info {
 	int (*probe)(block_dev_desc_t *fs_dev_desc,
 		     disk_partition_t *fs_partition);
 	int (*ls)(const char *dirname);
+	int (*exists)(const char *filename);
 	int (*read)(const char *filename, void *buf, int offset, int len);
 	int (*write)(const char *filename, void *buf, int offset, int len);
 	void (*close)(void);
@@ -74,6 +80,7 @@ static struct fstype_info fstypes[] = {
 		.probe = fat_set_blk_dev,
 		.close = fat_close,
 		.ls = file_fat_ls,
+		.exists = fs_exists_unsupported,
 		.read = fat_read_file,
 		.write = fs_write_unsupported,
 	},
@@ -84,6 +91,7 @@ static struct fstype_info fstypes[] = {
 		.probe = ext4fs_probe,
 		.close = ext4fs_close,
 		.ls = ext4fs_ls,
+		.exists = fs_exists_unsupported,
 		.read = ext4_read_file,
 		.write = fs_write_unsupported,
 	},
@@ -94,6 +102,7 @@ static struct fstype_info fstypes[] = {
 		.probe = sandbox_fs_set_blk_dev,
 		.close = sandbox_fs_close,
 		.ls = sandbox_fs_ls,
+		.exists = fs_exists_unsupported,
 		.read = fs_read_sandbox,
 		.write = fs_write_sandbox,
 	},
@@ -103,6 +112,7 @@ static struct fstype_info fstypes[] = {
 		.probe = fs_probe_unsupported,
 		.close = fs_close_unsupported,
 		.ls = fs_ls_unsupported,
+		.exists = fs_exists_unsupported,
 		.read = fs_read_unsupported,
 		.write = fs_write_unsupported,
 	},
@@ -179,6 +189,19 @@ int fs_ls(const char *dirname)
 	ret = info->ls(dirname);
 
 	fs_type = FS_TYPE_ANY;
+	fs_close();
+
+	return ret;
+}
+
+int fs_exists(const char *filename)
+{
+	int ret;
+
+	struct fstype_info *info = fs_get_info(fs_type);
+
+	ret = info->exists(filename);
+
 	fs_close();
 
 	return ret;
@@ -307,6 +330,15 @@ int do_ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		return 1;
 
 	return 0;
+}
+
+int file_exists(const char *dev_type, const char *dev_part, const char *file,
+		int fstype)
+{
+	if (fs_set_blk_dev(dev_type, dev_part, fstype))
+		return 0;
+
+	return fs_exists(file);
 }
 
 int do_save(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
