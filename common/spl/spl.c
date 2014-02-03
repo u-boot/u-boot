@@ -210,6 +210,11 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 		spl_usb_load_image();
 		break;
 #endif
+#ifdef CONFIG_SPL_SATA_SUPPORT
+	case BOOT_DEVICE_SATA:
+		spl_sata_load_image();
+		break;
+#endif
 	default:
 		debug("SPL: Un-supported Boot Device\n");
 		hang();

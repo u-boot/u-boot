@@ -202,6 +202,9 @@ ifdef CONFIG_SPL_USB_HOST_SUPPORT
 obj-$(CONFIG_SPL_USB_SUPPORT) += usb.o usb_hub.o
 obj-$(CONFIG_USB_STORAGE) += usb_storage.o
 endif
+ifdef CONFIG_SPL_SATA_SUPPORT
+obj-$(CONFIG_CMD_SCSI) += cmd_scsi.o
+endif
 ifneq ($(CONFIG_SPL_NET_SUPPORT),y)
 obj-$(CONFIG_ENV_IS_NOWHERE) += env_nowhere.o
 obj-$(CONFIG_ENV_IS_IN_MMC) += env_mmc.o
