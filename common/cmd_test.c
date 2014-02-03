@@ -77,7 +77,7 @@ static int do_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	left = argc - 1;
 	ap = argv + 1;
-	expr = -1;
+	expr = 0;
 	last_unop = OP_INVALID;
 	last_binop = OP_INVALID;
 	last_expr = -1;
