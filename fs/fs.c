@@ -90,7 +90,7 @@ static struct fstype_info fstypes[] = {
 		.probe = fat_set_blk_dev,
 		.close = fat_close,
 		.ls = file_fat_ls,
-		.exists = fs_exists_unsupported,
+		.exists = fat_exists,
 		.read = fat_read_file,
 		.write = fs_write_unsupported,
 	},
