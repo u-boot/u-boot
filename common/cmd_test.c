@@ -18,6 +18,7 @@
 #include <command.h>
 
 #define OP_INVALID	0
+#define OP_NOT		1
 #define OP_OR		2
 #define OP_AND		3
 #define OP_STR_EMPTY	4
@@ -49,6 +50,7 @@ const struct {
 	{1, "-le", OP_INT_LE, 3},
 	{1, "-gt", OP_INT_GT, 3},
 	{1, "-ge", OP_INT_GE, 3},
+	{0, "!", OP_NOT, 1},
 	{0, "-o", OP_OR, 1},
 	{0, "-a", OP_AND, 1},
 	{0, "-z", OP_STR_EMPTY, 2},
@@ -58,7 +60,7 @@ const struct {
 static int do_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char * const *ap;
-	int i, op, left, adv, expr, last_expr, neg, last_cmp;
+	int i, op, left, adv, expr, last_expr, last_unop, last_binop;
 
 	/* args? */
 	if (argc < 3)
@@ -73,17 +75,11 @@ static int do_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 #endif
 
-	last_expr = 0;
-	left = argc - 1; ap = argv + 1;
-	if (left > 0 && strcmp(ap[0], "!") == 0) {
-		neg = 1;
-		ap++;
-		left--;
-	} else
-		neg = 0;
-
+	left = argc - 1;
+	ap = argv + 1;
 	expr = -1;
-	last_cmp = OP_INVALID;
+	last_unop = OP_INVALID;
+	last_binop = OP_INVALID;
 	last_expr = -1;
 	while (left > 0) {
 		for (i = 0; i < ARRAY_SIZE(op_adv); i++) {
@@ -152,26 +148,35 @@ static int do_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		switch (op) {
 		case OP_OR:
 			last_expr = expr;
-			last_cmp = OP_OR;
+			last_binop = OP_OR;
 			break;
 		case OP_AND:
 			last_expr = expr;
-			last_cmp = OP_AND;
+			last_binop = OP_AND;
+			break;
+		case OP_NOT:
+			if (last_unop == OP_NOT)
+				last_unop = OP_INVALID;
+			else
+				last_unop = OP_NOT;
 			break;
 		default:
-			if (last_cmp == OP_OR)
+			if (last_unop == OP_NOT) {
+				expr = !expr;
+				last_unop = OP_INVALID;
+			}
+
+			if (last_binop == OP_OR)
 				expr = last_expr || expr;
-			else if (last_cmp == OP_AND)
+			else if (last_binop == OP_AND)
 				expr = last_expr && expr;
-			last_cmp = OP_INVALID;
+			last_binop = OP_INVALID;
+
 			break;
 		}
 
 		ap += adv; left -= adv;
 	}
-
-	if (neg)
-		expr = !expr;
 
 	expr = !expr;
 
