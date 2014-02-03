@@ -15,6 +15,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/crm_regs.h>
+#include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/sizes.h>
 #include <errno.h>
@@ -450,6 +451,47 @@ static int imx6_pcie_init_phy(void)
 	return 0;
 }
 
+__weak int imx6_pcie_toggle_reset(void)
+{
+	/*
+	 * See 'PCI EXPRESS BASE SPECIFICATION, REV 3.0, SECTION 6.6.1'
+	 * for detailed understanding of the PCIe CR reset logic.
+	 *
+	 * The PCIe #PERST reset line _MUST_ be connected, otherwise your
+	 * design does not conform to the specification. You must wait at
+	 * least 20 mS after de-asserting the #PERST so the EP device can
+	 * do self-initialisation.
+	 *
+	 * In case your #PERST pin is connected to a plain GPIO pin of the
+	 * CPU, you can define CONFIG_PCIE_IMX_PERST_GPIO in your board's
+	 * configuration file and the condition below will handle the rest
+	 * of the reset toggling.
+	 *
+	 * In case your #PERST toggling logic is more complex, for example
+	 * connected via CPLD or somesuch, you can override this function
+	 * in your board file and implement reset logic as needed. You must
+	 * not forget to wait at least 20 mS after de-asserting #PERST in
+	 * this case either though.
+	 *
+	 * In case your #PERST line of the PCIe EP device is not connected
+	 * at all, your design is broken and you should fix your design,
+	 * otherwise you will observe problems like for example the link
+	 * not coming up after rebooting the system back from running Linux
+	 * that uses the PCIe as well OR the PCIe link might not come up in
+	 * Linux at all in the first place since it's in some non-reset
+	 * state due to being previously used in U-Boot.
+	 */
+#ifdef CONFIG_PCIE_IMX_PERST_GPIO
+	gpio_direction_output(CONFIG_PCIE_IMX_PERST_GPIO, 0);
+	mdelay(20);
+	gpio_set_value(CONFIG_PCIE_IMX_PERST_GPIO, 1);
+	mdelay(20);
+#else
+	puts("WARNING: Make sure the PCIe #PERST line is connected!\n");
+#endif
+	return 0;
+}
+
 static int imx6_pcie_deassert_core_reset(void)
 {
 	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
@@ -466,10 +508,9 @@ static int imx6_pcie_deassert_core_reset(void)
 	 * Wait for the clock to settle a bit, when the clock are sourced
 	 * from the CPU, we need about 30mS to settle.
 	 */
-	mdelay(30);
+	mdelay(50);
 
-	/* FIXME: GPIO reset goes here */
-	mdelay(100);
+	imx6_pcie_toggle_reset();
 
 	return 0;
 }
