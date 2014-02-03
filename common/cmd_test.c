@@ -16,6 +16,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <fs.h>
 
 #define OP_INVALID	0
 #define OP_NOT		1
@@ -33,6 +34,7 @@
 #define OP_INT_LE	13
 #define OP_INT_GT	14
 #define OP_INT_GE	15
+#define OP_FILE_EXISTS	16
 
 const struct {
 	int arg;
@@ -55,6 +57,7 @@ const struct {
 	{0, "-a", OP_AND, 1},
 	{0, "-z", OP_STR_EMPTY, 2},
 	{0, "-n", OP_STR_NEMPTY, 2},
+	{0, "-e", OP_FILE_EXISTS, 4},
 };
 
 static int do_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -142,6 +145,9 @@ static int do_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		case OP_INT_GE:
 			expr = simple_strtol(ap[0], NULL, 10) >=
 					simple_strtol(ap[2], NULL, 10);
+			break;
+		case OP_FILE_EXISTS:
+			expr = file_exists(ap[1], ap[2], ap[3], FS_TYPE_ANY);
 			break;
 		}
 
