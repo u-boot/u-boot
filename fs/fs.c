@@ -102,7 +102,7 @@ static struct fstype_info fstypes[] = {
 		.probe = ext4fs_probe,
 		.close = ext4fs_close,
 		.ls = ext4fs_ls,
-		.exists = fs_exists_unsupported,
+		.exists = ext4fs_exists,
 		.read = ext4_read_file,
 		.write = fs_write_unsupported,
 	},
