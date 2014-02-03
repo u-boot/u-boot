@@ -210,6 +210,7 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_EARLY_INIT_R	/* call board_early_init_r function */
+#define CONFIG_MISC_INIT_F
 #define CONFIG_MISC_INIT_R
 #define CONFIG_LAST_STAGE_INIT
 
@@ -265,7 +266,10 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_FIT_VERBOSE	/* enable fit_format_{error,warning}() */
 
 /* I2C */
+
 #define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_INIT_BOARD
+#define CONFIG_SYS_I2C_SPEED		100000 /* deblocking */
 #define CONFIG_SYS_NUM_I2C_BUSES	3
 #define CONFIG_SYS_I2C_MAX_HOPS		1
 #define CONFIG_SYS_I2C_FSL		/* Use FSL I2C driver */
@@ -278,6 +282,12 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 					{0, {{I2C_MUX_PCA9547, 0x70, 1 } } }, \
 					{0, {{I2C_MUX_PCA9547, 0x70, 2 } } }, \
 				}
+#ifndef __ASSEMBLY__
+void set_sda(int state);
+void set_scl(int state);
+int get_sda(void);
+int get_scl(void);
+#endif
 
 #define CONFIG_KM_IVM_BUS		1	/* I2C1 (Mux-Port 1)*/
 

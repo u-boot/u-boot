@@ -33,11 +33,50 @@ int checkboard(void)
 	return 0;
 }
 
-/* TODO: implement the I2C deblocking function */
-int i2c_make_abort(void)
+/* I2C deblocking uses the algorithm defined in board/keymile/common/common.c
+ * 2 dedicated QRIO GPIOs externally pull the SCL and SDA lines
+ * For I2C only the low state is activly driven and high state is pulled-up
+ * by a resistor. Therefore the deblock GPIOs are used
+ *  -> as an active output to drive a low state
+ *  -> as an open-drain input to have a pulled-up high state
+ */
+
+/* QRIO GPIOs used for deblocking */
+#define DEBLOCK_PORT1	GPIO_A
+#define DEBLOCK_SCL1	20
+#define DEBLOCK_SDA1	21
+
+/* By default deblock GPIOs are floating */
+static void i2c_deblock_gpio_cfg(void)
 {
-	return 1;
+	/* set I2C bus 1 deblocking GPIOs input, but 0 value for open drain */
+	qrio_gpio_direction_input(DEBLOCK_PORT1, DEBLOCK_SCL1);
+	qrio_gpio_direction_input(DEBLOCK_PORT1, DEBLOCK_SDA1);
+
+	qrio_set_gpio(DEBLOCK_PORT1, DEBLOCK_SCL1, 0);
+	qrio_set_gpio(DEBLOCK_PORT1, DEBLOCK_SDA1, 0);
 }
+
+void set_sda(int state)
+{
+	qrio_set_opendrain_gpio(DEBLOCK_PORT1, DEBLOCK_SDA1, state);
+}
+
+void set_scl(int state)
+{
+	qrio_set_opendrain_gpio(DEBLOCK_PORT1, DEBLOCK_SCL1, state);
+}
+
+int get_sda(void)
+{
+	return qrio_get_gpio(DEBLOCK_PORT1, DEBLOCK_SDA1);
+}
+
+int get_scl(void)
+{
+	return qrio_get_gpio(DEBLOCK_PORT1, DEBLOCK_SCL1);
+}
+
 
 #define ZL30158_RST	8
 #define ZL30343_RST	9
@@ -75,6 +114,14 @@ int board_early_init_r(void)
 unsigned long get_board_sys_clk(unsigned long dummy)
 {
 	return 66666666;
+}
+
+int misc_init_f(void)
+{
+	/* configure QRIO pis for i2c deblocking */
+	i2c_deblock_gpio_cfg();
+
+	return 0;
 }
 
 #define NUM_SRDS_BANKS	2
