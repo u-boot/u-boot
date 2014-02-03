@@ -15,7 +15,7 @@ static const char test_cmd[] = "setenv list 1\n setenv list ${list}2; "
 static int do_ut_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	printf("%s: Testing commands\n", __func__);
-	run_command("env default -f", 0);
+	run_command("env default -f -a", 0);
 
 	/* run a single command */
 	run_command("setenv single 1", 0);
