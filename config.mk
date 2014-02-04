@@ -95,20 +95,6 @@ RELFLAGS= $(PLATFORM_RELFLAGS)
 OBJCFLAGS += --gap-fill=0xff
 
 CPPFLAGS = $(KBUILD_CPPFLAGS) $(RELFLAGS)
-
-# Enable garbage collection of un-used sections for SPL
-ifeq ($(CONFIG_SPL_BUILD),y)
-CPPFLAGS += -ffunction-sections -fdata-sections
-LDFLAGS_FINAL += --gc-sections
-endif
-
-ifeq ($(CONFIG_SPL_BUILD),y)
-CPPFLAGS += -DCONFIG_SPL_BUILD
-ifeq ($(CONFIG_TPL_BUILD),y)
-CPPFLAGS += -DCONFIG_TPL_BUILD
-endif
-endif
-
 CPPFLAGS += $(UBOOTINCLUDE)
 CPPFLAGS += $(NOSTDINC_FLAGS) -pipe $(PLATFORM_CPPFLAGS)
 
@@ -128,11 +114,6 @@ AFLAGS := $(KBUILD_AFLAGS) $(CPPFLAGS)
 
 LDFLAGS += $(PLATFORM_LDFLAGS)
 LDFLAGS_FINAL += -Bstatic
-
-LDFLAGS_$(SPL_BIN) += -T $(obj)u-boot-spl.lds $(LDFLAGS_FINAL)
-ifneq ($(CONFIG_SPL_TEXT_BASE),)
-LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_SPL_TEXT_BASE)
-endif
 
 #########################################################################
 

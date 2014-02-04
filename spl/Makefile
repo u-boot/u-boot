@@ -19,6 +19,15 @@ include $(srctree)/scripts/Kbuild.include
 CONFIG_SPL_BUILD := y
 export CONFIG_SPL_BUILD
 
+KBUILD_CPPFLAGS += -DCONFIG_SPL_BUILD
+ifeq ($(CONFIG_TPL_BUILD),y)
+KBUILD_CPPFLAGS += -DCONFIG_TPL_BUILD
+endif
+
+# Enable garbage collection of un-used sections for SPL
+KBUILD_CFLAGS += -ffunction-sections -fdata-sections
+LDFLAGS_FINAL += --gc-sections
+
 ifeq ($(CONFIG_TPL_BUILD),y)
 export CONFIG_TPL_BUILD
 SPL_BIN := u-boot-tpl
@@ -172,6 +181,11 @@ endif
 
 $(obj)$(SPL_BIN).bin:	$(obj)$(SPL_BIN)
 	$(OBJCOPY) $(OBJCFLAGS) $(SPL_OBJCFLAGS) -O binary $< $@
+
+LDFLAGS_$(SPL_BIN) += -T $(obj)u-boot-spl.lds $(LDFLAGS_FINAL)
+ifneq ($(CONFIG_SPL_TEXT_BASE),)
+LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_SPL_TEXT_BASE)
+endif
 
 GEN_UBOOT = \
 	cd $(obj) && $(LD) $(LDFLAGS) $(LDFLAGS_$(@F)) $(__START) \
