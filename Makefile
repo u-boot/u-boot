@@ -102,9 +102,10 @@ OBJTREE		:= $(if $(BUILD_DIR),$(BUILD_DIR),$(CURDIR))
 SPLTREE		:= $(OBJTREE)/spl
 TPLTREE		:= $(OBJTREE)/tpl
 SRCTREE		:= $(CURDIR)
+srctree		:= $(SRCTREE)
 TOPDIR		:= $(SRCTREE)
 LNDIR		:= $(OBJTREE)
-export	TOPDIR SRCTREE OBJTREE SPLTREE TPLTREE
+export	TOPDIR SRCTREE srctree OBJTREE SPLTREE TPLTREE
 
 MKCONFIG	:= $(SRCTREE)/mkconfig
 export MKCONFIG
@@ -125,8 +126,6 @@ export obj src
 unexport CDPATH
 
 #########################################################################
-
-build := -f $(TOPDIR)/scripts/Makefile.build -C
 
 # The "tools" are needed early, so put this first
 # Don't include stuff already done in $(LIBS)
@@ -197,6 +196,10 @@ HOSTCC       = $(call os_x_before, 10, 5, "cc", "gcc")
 HOSTCFLAGS  += $(call os_x_before, 10, 4, "-traditional-cpp")
 HOSTLDFLAGS += $(call os_x_before, 10, 5, "-multiply_defined suppress")
 endif
+
+# We need some generic definitions (do not try to remake the file).
+$(srctree)/scripts/Kbuild.include: ;
+include $(srctree)/scripts/Kbuild.include
 
 # Make variables (CC, etc...)
 

@@ -48,35 +48,6 @@ PLATFORM_CPPFLAGS =
 PLATFORM_LDFLAGS =
 
 #########################################################################
-#
-# Option checker, gcc version (courtesy linux kernel) to ensure
-# only supported compiler options are used
-#
-CC_OPTIONS_CACHE_FILE := $(OBJTREE)/include/generated/cc_options.mk
-CC_TEST_OFILE := $(OBJTREE)/include/generated/cc_test_file.o
-
--include $(CC_OPTIONS_CACHE_FILE)
-
-cc-option-sys = $(shell mkdir -p $(dir $(CC_TEST_OFILE)); \
-		if $(CC) $(CFLAGS) $(1) -S -xc /dev/null -o $(CC_TEST_OFILE) \
-		> /dev/null 2>&1; then \
-		echo 'CC_OPTIONS += $(strip $1)' >> $(CC_OPTIONS_CACHE_FILE); \
-		echo "$(1)"; fi)
-
-ifeq ($(CONFIG_CC_OPT_CACHE_DISABLE),y)
-cc-option = $(strip $(if $(call cc-option-sys,$1),$1,$2))
-else
-cc-option = $(strip $(if $(findstring $1,$(CC_OPTIONS)),$1,\
-		$(if $(call cc-option-sys,$1),$1,$2)))
-endif
-
-# cc-version
-# Usage gcc-ver := $(call cc-version)
-cc-version = $(shell $(CONFIG_SHELL) $(SRCTREE)/scripts/gcc-version.sh $(CC))
-binutils-version = $(shell $(CONFIG_SHELL) $(SRCTREE)/scripts/binutils-version.sh $(AS))
-dtc-version = $(shell $(CONFIG_SHELL) $(SRCTREE)/scripts/dtc-version.sh $(DTC))
-
-#########################################################################
 
 # Load generated board configuration
 ifeq ($(CONFIG_TPL_BUILD),y)

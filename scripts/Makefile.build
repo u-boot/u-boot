@@ -2,6 +2,7 @@
 .PHONY: all
 all:
 
+include $(srctree)/scripts/Kbuild.include
 include $(TOPDIR)/config.mk
 
 # variable LIB is used in examples/standalone/Makefile

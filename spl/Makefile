@@ -14,6 +14,8 @@
 # Based on top-level Makefile.
 #
 
+include $(srctree)/scripts/Kbuild.include
+
 CONFIG_SPL_BUILD := y
 export CONFIG_SPL_BUILD
 
@@ -126,8 +128,6 @@ endif
 ifeq ($(wildcard $(LDSCRIPT)),)
 $(error could not find linker script)
 endif
-
-build := -f $(TOPDIR)/scripts/Makefile.build -C
 
 # Special flags for CPP when processing the linker script.
 # Pass the version down so we can handle backwards compatibility
