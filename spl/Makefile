@@ -50,6 +50,22 @@ endif
 
 include $(TOPDIR)/config.mk
 
+# FIX ME
+c_flags := $(KBUILD_CFLAGS) $(KBUILD_CPPFLAGS) $(CPPFLAGS) $(UBOOTINCLUDE) $(NOSTDINC_FLAGS)
+
+# Auto-generate the spl-autoconf.mk file (which is included by all makefiles for SPL)
+quiet_cmd_autoconf = GEN     $@
+      cmd_autoconf = \
+	$(CPP) $(c_flags) -DDO_DEPS_ONLY -dM $(srctree)/include/common.h > $@.tmp && \
+		sed -n -f $(srctree)/tools/scripts/define2mk.sed $@.tmp > $@; \
+	rm $@.tmp
+
+include/tpl-autoconf.mk: include/config.h
+	$(call cmd,autoconf)
+
+include/spl-autoconf.mk: include/config.h
+	$(call cmd,autoconf)
+
 HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(SRCTREE)/board/$(VENDOR)/common/Makefile),y,n)
 
 ifdef	CONFIG_SPL_START_S_PATH

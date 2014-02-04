@@ -890,9 +890,6 @@ tpl/u-boot-tpl.bin:	$(SUBDIR_TOOLS) depend scripts_basic
 # Explicitly make _depend in subdirs containing multiple targets to prevent
 # parallel sub-makes creating .depend files simultaneously.
 depend dep:	$(TIMESTAMP_FILE) $(VERSION_FILE) \
-		include/spl-autoconf.mk \
-		include/tpl-autoconf.mk \
-		include/autoconf.mk \
 		include/generated/generic-asm-offsets.h \
 		include/generated/asm-offsets.h
 
@@ -973,26 +970,6 @@ quiet_cmd_autoconf = GEN     $@
 
 include/autoconf.mk: include/config.h
 	$(call cmd,autoconf)
-
-# Auto-generate the spl-autoconf.mk file (which is included by all makefiles for SPL)
-quiet_cmd_tpl-autoconf = GEN     $@
-      cmd_tpl-autoconf = \
-	$(CPP) $(c_flags) -DCONFIG_TPL_BUILD  -DCONFIG_SPL_BUILD\
-			-DDO_DEPS_ONLY -dM $(srctree)/include/common.h > $@.tmp && \
-		sed -n -f $(srctree)/tools/scripts/define2mk.sed $@.tmp > $@; \
-	rm $@.tmp
-
-include/tpl-autoconf.mk: include/config.h
-	$(call cmd,tpl-autoconf)
-
-quiet_cmd_spl-autoconf = GEN     $@
-      cmd_spl-autoconf = \
-	$(CPP) $(c_flags) -DCONFIG_SPL_BUILD -DDO_DEPS_ONLY -dM $(srctree)/include/common.h > $@.tmp && \
-		sed -n -f $(srctree)/tools/scripts/define2mk.sed $@.tmp > $@; \
-	rm $@.tmp
-
-include/spl-autoconf.mk: include/config.h
-	$(call cmd,spl-autoconf)
 
 quiet_cmd_offsets = GEN     $@
       cmd_offsets = $(srctree)/tools/scripts/make-asm-offsets $< $@
