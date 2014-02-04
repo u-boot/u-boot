@@ -24,6 +24,9 @@ CONFIG_NETCONSOLE = y
 CONFIG_SHA1_CHECK_UB_IMG = y
 endif
 
+subdir-$(HOST_TOOLS_ALL) += easylogo
+subdir-$(HOST_TOOLS_ALL) += gdb
+
 # Merge all the different vars for envcrc into one
 ENVCRC-$(CONFIG_ENV_IS_EMBEDDED) = y
 ENVCRC-$(CONFIG_ENV_IS_IN_DATAFLASH) = y
@@ -180,10 +183,13 @@ HOST_EXTRACFLAGS += -include $(SRCTREE)/include/libfdt_env.h \
 
 __build:	$(LOGO-y)
 
-subdir-y := kernel-doc
+subdir-y += kernel-doc
 
 $(LOGO_H):	$(obj)/bmp_logo $(LOGO_BMP)
 	$(obj)/bmp_logo --gen-info $(LOGO_BMP) > $@
 
 $(LOGO_DATA_H):	$(obj)/bmp_logo $(LOGO_BMP)
 	$(obj)/bmp_logo --gen-data $(LOGO_BMP) > $@
+
+# Let clean descend into subdirs
+subdir- += env

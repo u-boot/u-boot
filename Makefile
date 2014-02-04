@@ -1092,16 +1092,14 @@ $(TIMESTAMP_FILE):
 		@LC_ALL=C date +'#define U_BOOT_TIME "%T"' >> $@.tmp
 		@cmp -s $@ $@.tmp && rm -f $@.tmp || mv -f $@.tmp $@
 
-easylogo env gdb:
+env: depend scripts_basic
 	$(Q)$(MAKE) $(build)=tools/$@
-
-gdbtools: gdb
 
 xmldocs pdfdocs psdocs htmldocs mandocs: tools/kernel-doc/docproc
 	$(Q)$(MAKE) U_BOOT_VERSION=$(U_BOOT_VERSION) $(build)=doc/DocBook $@
 
-tools-all: easylogo env gdb $(VERSION_FILE) $(TIMESTAMP_FILE)
-	$(Q)$(MAKE) $(build)=tools HOST_TOOLS_ALL=y
+tools-all: HOST_TOOLS_ALL=y
+tools-all: env tools ;
 
 .PHONY : CHANGELOG
 CHANGELOG:
