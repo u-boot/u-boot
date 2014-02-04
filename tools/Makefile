@@ -175,11 +175,9 @@ HOSTSRCS += $(addprefix $(SRCTREE)/lib/libfdt/,$(LIBFDT_OBJ_FILES-y:.o=.c))
 # Define _GNU_SOURCE to obtain the getline prototype from stdio.h
 #
 HOST_EXTRACFLAGS += -include $(SRCTREE)/include/libfdt_env.h \
-		-idirafter $(SRCTREE)/include \
-		-idirafter $(SRCTREE)/arch/$(ARCH)/include \
-		-idirafter $(OBJTREE)/include \
-		-I $(SRCTREE)/lib/libfdt \
-		-I $(SRCTREE)/tools \
+		$(patsubst -I%,-idirafter%, $(UBOOTINCLUDE)) \
+		-I$(SRCTREE)/lib/libfdt \
+		-I$(SRCTREE)/tools \
 		-DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE) \
 		-DUSE_HOSTCC \
 		-D__KERNEL_STRICT_NAMES \

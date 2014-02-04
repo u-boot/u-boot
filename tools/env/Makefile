@@ -6,9 +6,7 @@
 #
 
 # Compile for a hosted environment on the target
-HOST_EXTRACFLAGS  = -idirafter $(SRCTREE)/include \
-		-idirafter $(SRCTREE)/arch/$(ARCH)/include \
-		-idirafter $(OBJTREE)/include \
+HOST_EXTRACFLAGS  = $(patsubst -I%,-idirafter%, $(UBOOTINCLUDE)) \
 		-idirafter $(SRCTREE)/tools/env \
 		-DUSE_HOSTCC \
 		-DTEXT_BASE=$(TEXT_BASE)

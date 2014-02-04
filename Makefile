@@ -226,6 +226,15 @@ CHECK		= sparse
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void -D__CHECK_ENDIAN__ $(CF)
 
+# Use UBOOTINCLUDE when you must reference the include/ directory.
+# Needed to be compatible with the O= option
+UBOOTINCLUDE    :=
+ifneq ($(OBJTREE),$(SRCTREE))
+UBOOTINCLUDE	+= -I$(OBJTREE)/include
+endif
+UBOOTINCLUDE	+= -I$(srctree)/include \
+		-I$(srctree)/arch/$(ARCH)/include
+
 KBUILD_CPPFLAGS := -D__KERNEL__
 
 KBUILD_CFLAGS   := -Wall -Wstrict-prototypes \
@@ -238,7 +247,7 @@ export CPP AR NM LDR STRIP OBJCOPY OBJDUMP
 export MAKE AWK
 export DTC CHECK CHECKFLAGS
 
-export KBUILD_CPPFLAGS
+export KBUILD_CPPFLAGS NOSTDINC_FLAGS UBOOTINCLUDE
 export KBUILD_CFLAGS KBUILD_AFLAGS
 
 KBUILD_CFLAGS += -Os #-fomit-frame-pointer
@@ -253,6 +262,9 @@ KBUILD_CFLAGS	+= -g
 # $(KBUILD_AFLAGS) sets -g, which causes gcc to pass a suitable -g<format>
 # option to the assembler.
 KBUILD_AFLAGS	+= -g
+
+NOSTDINC_FLAGS += -nostdinc -isystem $(shell $(CC) -print-file-name=include)
+CHECKFLAGS     += $(NOSTDINC_FLAGS)
 
 # Report stack usage if supported
 KBUILD_CFLAGS += $(call cc-option,-fstack-usage)

@@ -94,8 +94,6 @@ RELFLAGS= $(PLATFORM_RELFLAGS)
 
 OBJCFLAGS += --gap-fill=0xff
 
-gccincdir := $(shell $(CC) -print-file-name=include)
-
 CPPFLAGS = $(KBUILD_CPPFLAGS) $(RELFLAGS)
 
 # Enable garbage collection of un-used sections for SPL
@@ -123,13 +121,8 @@ Please undefined CONFIG_SYS_GENERIC_BOARD in your board config file)
 endif
 endif
 
-ifneq ($(OBJTREE),$(SRCTREE))
-CPPFLAGS += -I$(OBJTREE)/include
-endif
-
-CPPFLAGS += -I$(TOPDIR)/include -I$(SRCTREE)/arch/$(ARCH)/include
-CPPFLAGS += -nostdinc	\
-	-isystem $(gccincdir) -pipe $(PLATFORM_CPPFLAGS)
+CPPFLAGS += $(UBOOTINCLUDE)
+CPPFLAGS += $(NOSTDINC_FLAGS) -pipe $(PLATFORM_CPPFLAGS)
 
 CFLAGS := $(KBUILD_CFLAGS) $(CPPFLAGS)
 
