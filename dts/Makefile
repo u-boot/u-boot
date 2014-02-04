@@ -7,12 +7,6 @@
 # This Makefile builds the internal U-Boot fdt if CONFIG_OF_CONTROL is
 # enabled. See doc/README.fdt-control for more details.
 
-ifeq ($(DEVICE_TREE),)
-$(if $(CONFIG_DEFAULT_DEVICE_TREE),,\
-$(error Please define CONFIG_DEFAULT_DEVICE_TREE in your board header file))
-DEVICE_TREE = $(CONFIG_DEFAULT_DEVICE_TREE:"%"=%)
-endif
-
 DTS_INCDIRS =  $(SRCTREE)/board/$(VENDOR)/$(BOARD)/dts
 DTS_INCDIRS += $(SRCTREE)/board/$(VENDOR)/dts
 DTS_INCDIRS += $(SRCTREE)/arch/$(ARCH)/dts
@@ -28,9 +22,15 @@ DTC_FLAGS := -R 4 -p 0x1000 \
 # the filename.
 DT_BIN	:= $(obj)/dt.dtb
 
+DEVICE_TREE ?= $(CONFIG_DEFAULT_DEVICE_TREE:"%"=%)
+ifeq ($(DEVICE_TREE),)
+$(DT_BIN): FORCE
+	echo >&2 "Please define CONFIG_DEFAULT_DEVICE_TREE in your board header file"
+else
 $(DT_BIN): $(TOPDIR)/board/$(VENDOR)/dts/$(DEVICE_TREE).dts
 	$(CPP) $(DTS_CPPFLAGS) $< -o $(DT_BIN).dts.tmp
 	$(DTC) $(DTC_FLAGS) -O dtb -o ${DT_BIN} $(DT_BIN).dts.tmp
+endif
 
 process_lds = \
 	$(1) | sed -r -n 's/^OUTPUT_$(2)[ ("]*([^")]*).*/\1/p'

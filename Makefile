@@ -1110,93 +1110,96 @@ include/license.h: tools/bin2header COPYING
 	cat COPYING | gzip -9 -c | ./tools/bin2header license_gzip > include/license.h
 #########################################################################
 
+###
+# Cleaning is done on three levels.
+# make clean     Delete most generated files
+#                Leave enough to build external modules
+# make mrproper  Delete the current configuration, and all generated files
+# make distclean Remove editor backup files, patch leftover files and the like
 
-#########################################################################
+# Directories & files removed with 'make clean'
+CLEAN_DIRS  += $(MODVERDIR)
+CLEAN_FILES += u-boot.lds include/bmp_logo.h include/bmp_logo_data.h \
+	       board/*/config.tmp board/*/*/config.tmp dts/*.tmp \
+	       include/autoconf.mk* include/spl-autoconf.mk \
+	       include/tpl-autoconf.mk
 
-clean:
-	@rm -f examples/standalone/atmel_df_pow2			  \
-	       examples/standalone/hello_world				  \
-	       examples/standalone/interrupt				  \
-	       examples/standalone/mem_to_mem_idma2intr			  \
-	       examples/standalone/sched				  \
-	       $(addprefix examples/standalone/, smc91111_eeprom smc911x_eeprom) \
-	       examples/standalone/test_burst				  \
-	       examples/standalone/timer
-	@rm -f $(addprefix examples/api/, demo demo.bin)
-	@rm -f tools/bmp_logo	   tools/easylogo/easylogo		  \
-	       tools/env/fw_printenv					  \
-	       tools/envcrc						  \
-	       $(addprefix tools/gdb/, gdbcont gdbsend)			  \
-	       tools/gen_eth_addr    tools/img2srec			  \
-	       tools/dumpimage						  \
-	       $(addprefix tools/, mkenvimage mkimage)			  \
-	       tools/mpc86x_clk						  \
-	       $(addprefix tools/, mk$(BOARD)spl mkexynosspl)		  \
-	       tools/mxsboot						  \
-	       tools/ncb		   tools/ubsha1			  \
-	       tools/kernel-doc/docproc					  \
-	       tools/proftool
-	@rm -f $(addprefix board/cray/L1/, bootscript.c bootscript.image) \
-	       board/matrix_vision/*/bootscript.img			  \
-	       spl/board/samsung/$(BOARD)/tools/mk$(BOARD)spl		  \
-	       u-boot.lds						  \
-	       $(addprefix arch/blackfin/cpu/, init.lds init.elf)
-	@rm -f include/bmp_logo.h
-	@rm -f include/bmp_logo_data.h
-	@rm -f lib/asm-offsets.s
-	@rm -f include/generated/asm-offsets.h
-	@rm -f $(CPUDIR)/$(SOC)/asm-offsets.s
-	@rm -f $(TIMESTAMP_FILE) $(VERSION_FILE)
-	@$(MAKE) -f $(srctree)/doc/DocBook/Makefile cleandocs
-	@find $(OBJTREE) -type f \
-		\( -name 'core' -o -name '*.bak' -o -name '*~' -o -name '*.su' \
-		-o -name '*.o'	-o -name '*.a' -o -name '*.exe' -o -name '*.cmd' \
-		-o -name '*.cfgtmp' \) -print \
-		| xargs rm -f
+# Directories & files removed with 'make clobber'
+CLOBBER_DIRS  += $(patsubst %,spl/%, $(filter-out Makefile, \
+		 $(shell ls -1 spl 2>/dev/null))) \
+		 tpl
+CLOBBER_FILES += u-boot* MLO MLO* SPL System.map nand_spl/u-boot*
+
+# Directories & files removed with 'make mrproper'
+MRPROPER_DIRS  += include/config include/generated
+MRPROPER_FILES += .config .config.old \
+		  tags TAGS cscope* GPATH GTAGS GRTAGS GSYMS \
+		  include/config.h include/config.mk
+
+# clean - Delete most, but leave enough to build external modules
+#
+clean: rm-dirs  := $(CLEAN_DIRS)
+clean: rm-files := $(CLEAN_FILES)
+
+clean-dirs	:= $(foreach f,$(u-boot-alldirs),$(if $(wildcard $f/Makefile),$f))
+
+clean-dirs      := $(addprefix _clean_, $(clean-dirs) doc/DocBook)
+
+PHONY += $(clean-dirs) clean archclean
+$(clean-dirs):
+	$(Q)$(MAKE) $(clean)=$(patsubst _clean_%,%,$@)
+
+# TODO: Do not use *.cfgtmp
+clean: $(clean-dirs)
+	$(call cmd,rmdirs)
+	$(call cmd,rmfiles)
+	@find $(if $(KBUILD_EXTMOD), $(KBUILD_EXTMOD), .) $(RCS_FIND_IGNORE) \
+		\( -name '*.[oas]' -o -name '*.ko' -o -name '.*.cmd' \
+		-o -name '*.ko.*' -o -name '*.su' -o -name '*.cfgtmp' \
+		-o -name '.*.d' -o -name '.*.tmp' -o -name '*.mod.c' \
+		-o -name '*.symtypes' -o -name 'modules.order' \
+		-o -name modules.builtin -o -name '.tmp_*.o.*' \
+		-o -name '*.gcno' \) -type f -print | xargs rm -f
+	@find $(if $(KBUILD_EXTMOD), $(KBUILD_EXTMOD), .) $(RCS_FIND_IGNORE) \
+		-path './nand_spl/*' -type l -print | xargs rm -f
+
+# clobber
+#
+clobber: rm-dirs  := $(CLOBBER_DIRS)
+clobber: rm-files := $(CLOBBER_FILES)
+
+PHONY += clobber
 
 clobber: clean
-	@find $(OBJTREE) -type f \( -name '*.srec' \
-		-o -name '*.bin' -o -name u-boot.img \) \
-		-print0 | xargs -0 rm -f
-	@rm -f *.bak ctags etags TAGS \
-		cscope.* *.*~
-	@rm -f u-boot u-boot.map u-boot.hex $(ALL-y)
-	@rm -f u-boot.kwb
-	@rm -f u-boot.pbl
-	@rm -f u-boot.imx
-	@rm -f u-boot-with-spl.imx
-	@rm -f u-boot-with-nand-spl.imx
-	@rm -f u-boot.ubl
-	@rm -f u-boot.ais
-	@rm -f u-boot.dtb
-	@rm -f u-boot.sb
-	@rm -f u-boot.spr
-	@rm -f $(addprefix nand_spl/, u-boot.lds u-boot.lst System.map)
-	@rm -f $(addprefix nand_spl/, u-boot-nand_spl.lds u-boot-spl u-boot-spl.map)
-	@rm -f $(addprefix spl/, u-boot-spl u-boot-spl.bin u-boot-spl.map)
-	@rm -f spl/u-boot-spl.lds
-	@rm -f $(addprefix tpl/, u-boot-tpl u-boot-tpl.bin u-boot-tpl.map)
-	@rm -f tpl/u-boot-spl.lds
-	@rm -f MLO MLO.byteswap
-	@rm -f SPL
-	@rm -f tools/xway-swap-bytes
-	@rm -fr include/asm/proc include/asm/arch include/asm
-	@rm -fr include/generated
-	@[ ! -d nand_spl ] || find nand_spl -name "*" -type l -print | xargs rm -f
-	@rm -f dts/*.tmp
-	@rm -f $(addprefix spl/, u-boot-spl.ais, u-boot-spl-pad.ais)
+	$(call cmd,rmdirs)
+	$(call cmd,rmfiles)
 
-mrproper: clobber
-	@rm -f include/config.h include/config.mk \
-		board/*/config.tmp board/*/*/config.tmp \
-		include/autoconf.mk include/autoconf.mk.dep \
-		include/spl-autoconf.mk \
-		include/tpl-autoconf.mk
+# mrproper - Delete all generated files, including .config
+#
+mrproper: rm-dirs  := $(wildcard $(MRPROPER_DIRS))
+mrproper: rm-files := $(wildcard $(MRPROPER_FILES))
+mrproper-dirs      := $(addprefix _mrproper_,scripts)
+
+PHONY += $(mrproper-dirs) mrproper archmrproper
+$(mrproper-dirs):
+	$(Q)$(MAKE) $(clean)=$(patsubst _mrproper_%,%,$@)
+
+mrproper: clobber $(mrproper-dirs)
+	$(call cmd,rmdirs)
+	$(call cmd,rmfiles)
+	@rm -f arch/*/include/asm/arch arch/*/include/asm/proc
+
+# distclean
+#
+PHONY += distclean
 
 distclean: mrproper
-ifneq ($(OBJTREE),$(SRCTREE))
-	rm -rf *
-endif
+	@find $(srctree) $(RCS_FIND_IGNORE) \
+		\( -name '*.orig' -o -name '*.rej' -o -name '*~' \
+		-o -name '*.bak' -o -name '#*#' -o -name '.*.orig' \
+		-o -name '.*.rej' \
+		-o -name '*%' -o -name '.*.cmd' -o -name 'core' \) \
+		-type f -print | xargs rm -f
 
 backup:
 	F=`basename $(TOPDIR)` ; cd .. ; \
@@ -1206,6 +1209,17 @@ backup:
 
 endif #ifeq ($(config-targets),1)
 endif #ifeq ($(mixed-targets),1)
+
+quiet_cmd_rmdirs = $(if $(wildcard $(rm-dirs)),CLEAN   $(wildcard $(rm-dirs)))
+      cmd_rmdirs = rm -rf $(rm-dirs)
+
+quiet_cmd_rmfiles = $(if $(wildcard $(rm-files)),CLEAN   $(wildcard $(rm-files)))
+      cmd_rmfiles = rm -f $(rm-files)
+
+# Shorthand for $(Q)$(MAKE) -f scripts/Makefile.clean obj=dir
+# Usage:
+# $(Q)$(MAKE) $(clean)=dir
+clean := -f $(if $(KBUILD_SRC),$(srctree)/)scripts/Makefile.clean obj
 
 endif	# skip-makefile
 

@@ -37,6 +37,10 @@ subdir-ymn      := $(sort $(subdir-ym) $(subdir-n) $(subdir-))
 
 subdir-ymn	:= $(addprefix $(obj)/,$(subdir-ymn))
 
+# Temporal work-around for U-Boot
+
+subdir-ymn	:= $(foreach f, $(subdir-ymn), $(if $(wildcard $f/Makefile),$f))
+
 # build a list of files to remove, usually relative to the current
 # directory
 

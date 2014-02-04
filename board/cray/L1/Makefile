@@ -14,3 +14,5 @@ $(obj)/bootscript.c: $(obj)/bootscript.image
 
 $(obj)/bootscript.image: $(src)/bootscript.hush
 	-$(OBJTREE)/tools/mkimage -A ppc -O linux -T script -C none -a 0 -e 0 -n bootscript -d $< $@
+
+clean-files := bootscript.c bootscript.image

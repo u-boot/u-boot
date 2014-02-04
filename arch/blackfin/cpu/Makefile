@@ -22,6 +22,7 @@ obj-y  += reset.o
 obj-y  += traps.o
 
 extra-y += check_initcode
+clean-files := init.lds
 
 # make sure our initcode (which goes into LDR) does not
 # have relocs or external references
