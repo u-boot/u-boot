@@ -106,8 +106,7 @@ LIBS-y := $(patsubst %/, %/built-in.o, $(LIBS-y))
 
 # Add GCC lib
 ifeq ("$(USE_PRIVATE_LIBGCC)", "yes")
-PLATFORM_LIBGCC = $(SPLTREE)/arch/$(ARCH)/lib/libgcc.o
-PLATFORM_LIBS := $(filter-out %/libgcc.o, $(filter-out -lgcc, $(PLATFORM_LIBS))) $(PLATFORM_LIBGCC)
+PLATFORM_LIBS := $(SPLTREE)/arch/$(ARCH)/lib/lib.a
 endif
 
 LIBS-y := $(sort $(LIBS-y))
@@ -155,7 +154,7 @@ $(OBJTREE)/MLO.byteswap: $(obj)/u-boot-spl.bin
 	$(OBJTREE)/tools/mkimage -T omapimage -n byteswap \
 		-a $(CONFIG_SPL_TEXT_BASE) -d $< $@
 
-$(objtree)/SPL : $(obj)/u-boot-spl.bin depend
+$(objtree)/SPL : $(obj)/u-boot-spl.bin
 		$(MAKE) $(build)=spl/arch/arm/imx-common $@
 
 ALL-y	+= $(obj)/$(SPL_BIN).bin
@@ -191,20 +190,24 @@ GEN_UBOOT = \
 		--start-group $(__LIBS) --end-group $(PLATFORM_LIBS) \
 		-Map $(SPL_BIN).map -o $(SPL_BIN)
 
-$(obj)/$(SPL_BIN):	depend $(START) $(LIBS) $(obj)/u-boot-spl.lds
+$(obj)/$(SPL_BIN): $(START) $(LIBS) $(obj)/u-boot-spl.lds
 	$(GEN_UBOOT)
 
 $(START):
 	@:
 
-$(LIBS):	depend
-	$(MAKE) $(build)=$(patsubst %/,%,$(dir $@))
+$(LIBS):
+	$(Q)$(MAKE) $(build)=$(patsubst %/,%,$(dir $@))
 
-$(obj)/u-boot-spl.lds: $(LDSCRIPT) depend
-	$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -I$(obj). -ansi -D__ASSEMBLY__ -P - < $< > $@
+# FIX ME
+cpp_flags := $(KBUILD_CPPFLAGS) $(CPPFLAGS) $(UBOOTINCLUDE) $(NOSTDINC_FLAGS)
 
-depend:	$(obj)/.depend
-.PHONY: depend
+$(obj)/u-boot-spl.lds: $(LDSCRIPT) FORCE
+	$(CPP) $(cpp_flags) $(LDPPFLAGS) -I$(obj). -ansi -D__ASSEMBLY__ -P - < $< > $@
 
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
+PHONY += FORCE
+FORCE:
+
+# Declare the contents of the .PHONY variable as phony.  We keep that
+# information in a variable so we can use it in if_changed and friends.
+.PHONY: $(PHONY)

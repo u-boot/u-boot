@@ -12,7 +12,7 @@
 BUILDUSER := $(shell whoami)
 FORCEBUILD := $(shell rm -f metrobox.o)
 
-CFLAGS += -DBUILDUSER='"$(BUILDUSER)"'
+ccflags-y += -DBUILDUSER='"$(BUILDUSER)"'
 # TBS: end debugging
 
 obj-y	= metrobox.o ../common/flash.o ../common/sb_common.o

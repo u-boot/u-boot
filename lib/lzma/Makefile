@@ -8,6 +8,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-CFLAGS += -D_LZMA_PROB32
+ccflags-y += -D_LZMA_PROB32
 
 obj-y += LzmaDec.o LzmaTools.o

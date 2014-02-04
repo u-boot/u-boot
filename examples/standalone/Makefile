@@ -6,7 +6,7 @@
 #
 
 ifdef FTRACE
-CFLAGS += -finstrument-functions -DFTRACE
+ccflags-y += -finstrument-functions -DFTRACE
 endif
 
 extra-y        := hello_world
@@ -39,10 +39,11 @@ LIBAOBJS := $(LIBAOBJS-y)
 
 LIBCOBJS = stubs.o
 
+.SECONDARY: $(call objectify,$(COBJS))
+targets += $(patsubst $(obj)/%,%,$(LIB)) $(COBJS) $(LIBAOBJS) $(LIBCOBJS)
+
 LIBOBJS	= $(addprefix $(obj)/,$(LIBAOBJS) $(LIBCOBJS))
 
-SRCS	:= $(COBJS:.o=.c) $(LIBCOBJS:.o=.c) $(LIBAOBJS:.o=.S)
-OBJS	:= $(addprefix $(obj)/,$(COBJS))
 ELF	:= $(addprefix $(obj)/,$(ELF))
 
 gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
@@ -52,19 +53,22 @@ gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
 # also causes the entry point of the standalone application to be
 # inconsistent.
 ifeq ($(ARCH),powerpc)
-AFLAGS := $(filter-out $(RELFLAGS),$(AFLAGS))
-CFLAGS := $(filter-out $(RELFLAGS),$(CFLAGS))
-CPPFLAGS := $(filter-out $(RELFLAGS),$(CPPFLAGS))
+# FIX ME
+CPPFLAGS := $(filter-out $(RELFLAGS), $(CPPFLAGS))
 endif
 
 # We don't want gcc reordering functions if possible.  This ensures that an
 # application's entry point will be the first function in the application's
 # source file.
-CFLAGS += $(call cc-option,-fno-toplevel-reorder)
+ccflags-y += $(call cc-option,-fno-toplevel-reorder)
 
 #########################################################################
-$(LIB):	$(LIBOBJS)
-	$(call cmd_link_o_target, $(LIBOBJS))
+
+quiet_cmd_link_lib = LD      $@
+      cmd_link_lib = $(LD) $(ld_flags) -r -o $@ $(filter $(LIBOBJS), $^)
+
+$(LIB):	$(LIBOBJS) FORCE
+	$(call if_changed,link_lib)
 
 $(ELF):
 $(obj)/%:	$(obj)/%.o $(LIB)

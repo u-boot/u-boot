@@ -40,19 +40,19 @@ hostprogs-$(CONFIG_CMD_LICENSE) += bin2header$(SFX)
 
 hostprogs-$(CONFIG_LCD_LOGO) += bmp_logo$(SFX)
 hostprogs-$(CONFIG_VIDEO_LOGO) += bmp_logo$(SFX)
-HOSTCFLAGS_bmp_logo$(SFX) := -pedantic
+HOSTCFLAGS_bmp_logo$(SFX).o := -pedantic
 
 hostprogs-$(CONFIG_BUILD_ENVCRC) += envcrc$(SFX)
 envcrc$(SFX)-objs := crc32.o env_embedded.o envcrc.o sha1.o
 
 hostprogs-$(CONFIG_CMD_NET) += gen_eth_addr$(SFX)
-HOSTCFLAGS_gen_eth_addr$(SFX) := -pedantic
+HOSTCFLAGS_gen_eth_addr$(SFX).o := -pedantic
 
 hostprogs-$(CONFIG_CMD_LOADS) += img2srec$(SFX)
-HOSTCFLAGS_img2srec$(SFX) := -pedantic
+HOSTCFLAGS_img2srec$(SFX).o := -pedantic
 
 hostprogs-$(CONFIG_XWAY_SWAP_BYTES) += xway-swap-bytes$(SFX)
-HOSTCFLAGS_xway-swap-bytes$(SFX) := -pedantic
+HOSTCFLAGS_xway-swap-bytes$(SFX).o := -pedantic
 
 hostprogs-y += mkenvimage$(SFX)
 mkenvimage$(SFX)-objs := crc32.o mkenvimage.o os_support.o
@@ -97,7 +97,7 @@ HOSTLOADLIBES_dumpimage$(SFX) := -lssl -lcrypto
 HOSTLOADLIBES_mkimage$(SFX) := -lssl -lcrypto
 # Add CONFIG_MXS into host CFLAGS, so we can check whether or not register
 # the mxsimage support within tools/mxsimage.c .
-HOSTCFLAGS	+= -DCONFIG_MXS
+HOSTCFLAGS_mxsimage.o += -DCONFIG_MXS
 endif
 
 ifdef CONFIG_FIT_SIGNATURE
@@ -111,11 +111,11 @@ endif
 
 hostprogs-$(CONFIG_EXYNOS5250) += mkexynosspl$(SFX)
 hostprogs-$(CONFIG_EXYNOS5420) += mkexynosspl$(SFX)
-HOSTCFLAGS_mkexynosspl$(SFX) := -pedantic
+HOSTCFLAGS_mkexynosspl$(SFX).o := -pedantic
 
 hostprogs-$(CONFIG_MX23) += mxsboot$(SFX)
 hostprogs-$(CONFIG_MX28) += mxsboot$(SFX)
-HOSTCFLAGS_mxsboot$(SFX) := -pedantic
+HOSTCFLAGS_mxsboot$(SFX).o := -pedantic
 
 hostprogs-$(CONFIG_NETCONSOLE) += ncb$(SFX)
 hostprogs-$(CONFIG_SHA1_CHECK_UB_IMG) += ubsha1$(SFX)
@@ -137,7 +137,7 @@ HOSTCFLAGS_sha1.o := -pedantic
 
 # Don't build by default
 #hostprogs-$(CONFIG_PPC) += mpc86x_clk$(SFX)
-#HOSTCFLAGS_mpc86x_clk$(SFX) := -pedantic
+#HOSTCFLAGS_mpc86x_clk$(SFX).o := -pedantic
 
 always := $(hostprogs-y)
 
@@ -164,11 +164,6 @@ endif
 
 endif # !LOGO_BMP
 
-# now $(obj) is defined
-HOSTSRCS += $(addprefix $(SRCTREE)/,$(EXT_OBJ_FILES-y:.o=.c))
-HOSTSRCS += $(addprefix $(SRCTREE)/tools/,$(OBJ_FILES-y:.o=.c))
-HOSTSRCS += $(addprefix $(SRCTREE)/lib/libfdt/,$(LIBFDT_OBJ_FILES-y:.o=.c))
-
 #
 # Use native tools and options
 # Define __KERNEL_STRICT_NAMES to prevent typedef overlaps
@@ -183,7 +178,7 @@ HOST_EXTRACFLAGS += -include $(SRCTREE)/include/libfdt_env.h \
 		-D__KERNEL_STRICT_NAMES \
 		-D_GNU_SOURCE
 
-all:	$(LOGO-y)
+__build:	$(LOGO-y)
 
 subdir-y := kernel-doc
 

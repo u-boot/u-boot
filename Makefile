@@ -43,6 +43,78 @@ else
 XECHO = :
 endif
 
+# *DOCUMENTATION*
+# To see a list of typical targets execute "make help"
+# More info can be located in ./README
+# Comments in this file are targeted only to the developer, do not
+# expect to learn how to build the kernel reading this file.
+
+# Do not:
+# o  use make's built-in rules and variables
+#    (this increases performance and avoids hard-to-debug behaviour);
+# o  print "Entering directory ...";
+MAKEFLAGS += -rR --no-print-directory
+
+# Avoid funny character set dependencies
+unexport LC_ALL
+LC_COLLATE=C
+LC_NUMERIC=C
+export LC_COLLATE LC_NUMERIC
+
+# We are using a recursive build, so we need to do a little thinking
+# to get the ordering right.
+#
+# Most importantly: sub-Makefiles should only ever modify files in
+# their own directory. If in some directory we have a dependency on
+# a file in another dir (which doesn't happen often, but it's often
+# unavoidable when linking the built-in.o targets which finally
+# turn into vmlinux), we will call a sub make in that other dir, and
+# after that we are sure that everything which is in that other dir
+# is now up to date.
+#
+# The only cases where we need to modify files which have global
+# effects are thus separated out and done before the recursive
+# descending is started. They are now explicitly listed as the
+# prepare rule.
+
+# To put more focus on warnings, be less verbose as default
+# Use 'make V=1' to see the full commands
+
+ifeq ("$(origin V)", "command line")
+  KBUILD_VERBOSE = $(V)
+endif
+ifndef KBUILD_VERBOSE
+  KBUILD_VERBOSE = 0
+endif
+
+# Call a source code checker (by default, "sparse") as part of the
+# C compilation.
+#
+# Use 'make C=1' to enable checking of only re-compiled files.
+# Use 'make C=2' to enable checking of *all* source files, regardless
+# of whether they are re-compiled or not.
+#
+# See the file "Documentation/sparse.txt" for more details, including
+# where to get the "sparse" utility.
+
+ifeq ("$(origin C)", "command line")
+  KBUILD_CHECKSRC = $(C)
+endif
+ifndef KBUILD_CHECKSRC
+  KBUILD_CHECKSRC = 0
+endif
+
+# Use make M=dir to specify directory of external module to build
+# Old syntax make ... SUBDIRS=$PWD is still supported
+# Setting the environment variable KBUILD_EXTMOD take precedence
+ifdef SUBDIRS
+  KBUILD_EXTMOD ?= $(SUBDIRS)
+endif
+
+ifeq ("$(origin M)", "command line")
+  KBUILD_EXTMOD := $(M)
+endif
+
 # kbuild supports saving output files in a separate directory.
 # To locate output files in a separate directory two syntaxes are supported.
 # In both cases the working directory must be the root of the kernel src.
@@ -107,8 +179,14 @@ endif # ifeq ($(KBUILD_SRC),)
 # We process the rest of the Makefile if this is the final invocation of make
 ifeq ($(skip-makefile),)
 
+# If building an external module we do not care about the all: rule
+# but instead _all depend on modules
 PHONY += all
+ifeq ($(KBUILD_EXTMOD),)
 _all: all
+else
+_all: modules
+endif
 
 srctree		:= $(if $(KBUILD_SRC),$(KBUILD_SRC),$(CURDIR))
 objtree		:= $(CURDIR)
@@ -118,24 +196,6 @@ obj		:= $(objtree)
 VPATH		:= $(srctree)$(if $(KBUILD_EXTMOD),:$(KBUILD_EXTMOD))
 
 export srctree objtree VPATH
-
-# Call a source code checker (by default, "sparse") as part of the
-# C compilation.
-#
-# Use 'make C=1' to enable checking of re-compiled files.
-#
-# See the linux kernel file "Documentation/sparse.txt" for more details,
-# including where to get the "sparse" utility.
-
-ifdef C
-ifeq ("$(origin C)", "command line")
-CHECKSRC := $(C)
-endif
-endif
-ifndef CHECKSRC
-  CHECKSRC = 0
-endif
-export CHECKSRC
 
 OBJTREE		:= $(objtree)
 SPLTREE		:= $(OBJTREE)/spl
@@ -222,6 +282,78 @@ HOSTCFLAGS  += $(call os_x_before, 10, 4, "-traditional-cpp")
 HOSTLDFLAGS += $(call os_x_before, 10, 5, "-multiply_defined suppress")
 endif
 
+# Decide whether to build built-in, modular, or both.
+# Normally, just do built-in.
+
+KBUILD_MODULES :=
+KBUILD_BUILTIN := 1
+
+#	If we have only "make modules", don't compile built-in objects.
+#	When we're building modules with modversions, we need to consider
+#	the built-in objects during the descend as well, in order to
+#	make sure the checksums are up to date before we record them.
+
+ifeq ($(MAKECMDGOALS),modules)
+  KBUILD_BUILTIN := $(if $(CONFIG_MODVERSIONS),1)
+endif
+
+#	If we have "make <whatever> modules", compile modules
+#	in addition to whatever we do anyway.
+#	Just "make" or "make all" shall build modules as well
+
+# U-Boot does not need modules
+#ifneq ($(filter all _all modules,$(MAKECMDGOALS)),)
+#  KBUILD_MODULES := 1
+#endif
+
+#ifeq ($(MAKECMDGOALS),)
+#  KBUILD_MODULES := 1
+#endif
+
+export KBUILD_MODULES KBUILD_BUILTIN
+export KBUILD_CHECKSRC KBUILD_SRC KBUILD_EXTMOD
+
+# Beautify output
+# ---------------------------------------------------------------------------
+#
+# Normally, we echo the whole command before executing it. By making
+# that echo $($(quiet)$(cmd)), we now have the possibility to set
+# $(quiet) to choose other forms of output instead, e.g.
+#
+#         quiet_cmd_cc_o_c = Compiling $(RELDIR)/$@
+#         cmd_cc_o_c       = $(CC) $(c_flags) -c -o $@ $<
+#
+# If $(quiet) is empty, the whole command will be printed.
+# If it is set to "quiet_", only the short version will be printed. 
+# If it is set to "silent_", nothing will be printed at all, since
+# the variable $(silent_cmd_cc_o_c) doesn't exist.
+#
+# A simple variant is to prefix commands with $(Q) - that's useful
+# for commands that shall be hidden in non-verbose mode.
+#
+#	$(Q)ln $@ :<
+#
+# If KBUILD_VERBOSE equals 0 then the above command will be hidden.
+# If KBUILD_VERBOSE equals 1 then the above command is displayed.
+
+ifeq ($(KBUILD_VERBOSE),1)
+  quiet =
+  Q =
+else
+  quiet=quiet_
+  Q = @
+endif
+
+# If the user is running make -s (silent mode), suppress echoing of
+# commands
+
+ifneq ($(filter s% -s%,$(MAKEFLAGS)),)
+  quiet=silent_
+endif
+
+export quiet Q KBUILD_VERBOSE
+
+
 # Look for make include files relative to root of kernel src
 MAKEFLAGS += --include-dir=$(srctree)
 
@@ -278,6 +410,31 @@ export DTC CHECK CHECKFLAGS
 export KBUILD_CPPFLAGS NOSTDINC_FLAGS UBOOTINCLUDE
 export KBUILD_CFLAGS KBUILD_AFLAGS
 
+# When compiling out-of-tree modules, put MODVERDIR in the module
+# tree rather than in the kernel tree. The kernel tree might
+# even be read-only.
+export MODVERDIR := $(if $(KBUILD_EXTMOD),$(firstword $(KBUILD_EXTMOD))/).tmp_versions
+
+# Files to ignore in find ... statements
+
+RCS_FIND_IGNORE := \( -name SCCS -o -name BitKeeper -o -name .svn -o -name CVS \
+		   -o -name .pc -o -name .hg -o -name .git \) -prune -o
+export RCS_TAR_IGNORE := --exclude SCCS --exclude BitKeeper --exclude .svn \
+			 --exclude CVS --exclude .pc --exclude .hg --exclude .git
+
+# ===========================================================================
+# Rules shared between *config targets and build targets
+
+# Basic helpers built in scripts/
+PHONY += scripts_basic
+scripts_basic:
+	$(Q)$(MAKE) $(build)=scripts/basic
+	$(Q)rm -f .tmp_quiet_recordmcount
+
+# To avoid any implicit rule to kick in, define an empty command.
+scripts/basic/%: scripts_basic ;
+
+
 KBUILD_CFLAGS += -Os #-fomit-frame-pointer
 
 ifdef BUILD_TAG
@@ -332,6 +489,10 @@ Please undefined CONFIG_SYS_GENERIC_BOARD in your board config file)
 endif
 endif
 endif
+
+# FIX ME
+cpp_flags := $(KBUILD_CPPFLAGS) $(CPPFLAGS) $(UBOOTINCLUDE) $(NOSTDINC_FLAGS)
+c_flags := $(KBUILD_CFLAGS) $(cpp_flags)
 
 # If board code explicitly specified LDSCRIPT or CONFIG_SYS_LDSCRIPT, use
 # that (or fail if absent).  Otherwise, search for a linker script in a
@@ -446,12 +607,12 @@ LIBS := $(sort $(LIBS-y))
 # Add GCC lib
 ifdef USE_PRIVATE_LIBGCC
 ifeq ("$(USE_PRIVATE_LIBGCC)", "yes")
-PLATFORM_LIBGCC = $(OBJTREE)/arch/$(ARCH)/lib/libgcc.o
+PLATFORM_LIBGCC = $(OBJTREE)/arch/$(ARCH)/lib/lib.a
 else
 PLATFORM_LIBGCC = -L $(USE_PRIVATE_LIBGCC) -lgcc
 endif
 else
-PLATFORM_LIBGCC := -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -lgcc
+PLATFORM_LIBGCC := -L $(shell dirname `$(CC) $(c_flags) -print-libgcc-file-name`) -lgcc
 endif
 PLATFORM_LIBS += $(PLATFORM_LIBGCC)
 export PLATFORM_LIBS
@@ -701,7 +862,7 @@ u-boot:	depend $(SUBDIR_TOOLS) $(OBJS) $(LIBS) u-boot.lds
 ifeq ($(CONFIG_KALLSYMS),y)
 		smap=`$(call SYSTEM_MAP,u-boot) | \
 			awk '$$2 ~ /[tTwW]/ {printf $$1 $$3 "\\\\000"}'` ; \
-		$(CC) $(CFLAGS) -DSYSTEM_MAP="\"$${smap}\"" \
+		$(CC) $(c_flags) -DSYSTEM_MAP="\"$${smap}\"" \
 			-c $(srctree)/common/system_map.c -o common/system_map.o
 		$(GEN_UBOOT) common/system_map.o
 endif
@@ -709,27 +870,27 @@ endif
 $(OBJS):
 	@:
 
-$(LIBS):	depend $(SUBDIR_TOOLS)
-		$(MAKE) $(build)=$(patsubst %/,%,$(dir $@))
+$(LIBS):	depend $(SUBDIR_TOOLS) scripts_basic
+		$(Q)$(MAKE) $(build)=$(patsubst %/,%,$(dir $@))
 
-$(SUBDIRS):	depend
-		$(MAKE) $(build)=$@ all
+$(SUBDIRS):	depend scripts_basic
+		$(Q)$(MAKE) $(build)=$@
 
 $(SUBDIR_EXAMPLES-y): u-boot
 
 u-boot.lds: $(LDSCRIPT) depend
-		$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ -P - <$< >$@
+		$(CPP) $(cpp_flags) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ -P - <$< >$@
 
-nand_spl:	$(TIMESTAMP_FILE) $(VERSION_FILE) depend
+nand_spl:	$(TIMESTAMP_FILE) $(VERSION_FILE) depend scripts_basic
 		$(MAKE) $(build)=nand_spl/board/$(BOARDDIR) all
 
 u-boot-nand.bin:	nand_spl u-boot.bin
 		cat nand_spl/u-boot-spl-16k.bin u-boot.bin > u-boot-nand.bin
 
-spl/u-boot-spl.bin:	$(SUBDIR_TOOLS) depend
+spl/u-boot-spl.bin:	$(SUBDIR_TOOLS) depend scripts_basic
 		$(MAKE) obj=spl -f $(srctree)/spl/Makefile all
 
-tpl/u-boot-tpl.bin:	$(SUBDIR_TOOLS) depend
+tpl/u-boot-tpl.bin:	$(SUBDIR_TOOLS) depend scripts_basic
 		$(MAKE) obj=tpl -f $(srctree)/spl/Makefile all CONFIG_TPL_BUILD=y
 
 # Explicitly make _depend in subdirs containing multiple targets to prevent
@@ -804,14 +965,14 @@ checkdtc:
 include/autoconf.mk.dep: include/config.h include/common.h
 	@$(XECHO) Generating $@ ; \
 	: Generate the dependancies ; \
-	$(CC) -x c -DDO_DEPS_ONLY -M $(CFLAGS) $(CPPFLAGS) \
+	$(CC) -x c -DDO_DEPS_ONLY -M $(c_flags) \
 		-MQ include/autoconf.mk $(srctree)/include/common.h > $@ || \
 		rm $@
 
 include/autoconf.mk: include/config.h
 	@$(XECHO) Generating $@ ; \
 	: Extract the config macros ; \
-	$(CPP) $(CFLAGS) -DDO_DEPS_ONLY -dM $(srctree)/include/common.h > $@.tmp && \
+	$(CPP) $(c_flags) -DDO_DEPS_ONLY -dM $(srctree)/include/common.h > $@.tmp && \
 		sed -n -f $(srctree)/tools/scripts/define2mk.sed $@.tmp > $@; \
 	rm $@.tmp
 
@@ -819,7 +980,7 @@ include/autoconf.mk: include/config.h
 include/tpl-autoconf.mk: include/config.h
 	@$(XECHO) Generating $@ ; \
 	: Extract the config macros ; \
-	$(CPP) $(CFLAGS) -DCONFIG_TPL_BUILD  -DCONFIG_SPL_BUILD\
+	$(CPP) $(c_flags) -DCONFIG_TPL_BUILD  -DCONFIG_SPL_BUILD\
 			-DDO_DEPS_ONLY -dM $(srctree)/include/common.h > $@.tmp && \
 		sed -n -f $(srctree)/tools/scripts/define2mk.sed $@.tmp > $@; \
 	rm $@.tmp
@@ -827,7 +988,7 @@ include/tpl-autoconf.mk: include/config.h
 include/spl-autoconf.mk: include/config.h
 	@$(XECHO) Generating $@ ; \
 	: Extract the config macros ; \
-	$(CPP) $(CFLAGS) -DCONFIG_SPL_BUILD -DDO_DEPS_ONLY -dM $(srctree)/include/common.h > $@.tmp && \
+	$(CPP) $(c_flags) -DCONFIG_SPL_BUILD -DDO_DEPS_ONLY -dM $(srctree)/include/common.h > $@.tmp && \
 		sed -n -f $(srctree)/tools/scripts/define2mk.sed $@.tmp > $@; \
 	rm $@.tmp
 
@@ -838,7 +999,7 @@ include/generated/generic-asm-offsets.h: lib/asm-offsets.s
 lib/asm-offsets.s: include/config.h $(srctree)/lib/asm-offsets.c
 	@mkdir -p lib
 	$(CC) -DDO_DEPS_ONLY \
-		$(CFLAGS) $(CFLAGS_$(BCURDIR)/$(@F)) $(CFLAGS_$(BCURDIR)) \
+		$(c_flags) $(CFLAGS_$(BCURDIR)/$(@F)) $(CFLAGS_$(BCURDIR)) \
 		-o $@ $(srctree)/lib/asm-offsets.c -c -S
 
 include/generated/asm-offsets.h: $(CPUDIR)/$(SOC)/asm-offsets.s
@@ -849,7 +1010,7 @@ $(CPUDIR)/$(SOC)/asm-offsets.s:	include/config.h
 	@mkdir -p $(CPUDIR)/$(SOC)
 	if [ -f $(srctree)/$(CPUDIR)/$(SOC)/asm-offsets.c ];then \
 		$(CC) -DDO_DEPS_ONLY \
-		$(CFLAGS) $(CFLAGS_$(BCURDIR)/$(@F)) $(CFLAGS_$(BCURDIR)) \
+		$(c_flags) $(CFLAGS_$(BCURDIR)/$(@F)) $(CFLAGS_$(BCURDIR)) \
 			-o $@ $(srctree)/$(CPUDIR)/$(SOC)/asm-offsets.c -c -S; \
 	else \
 		touch $@; \
@@ -900,15 +1061,15 @@ $(TIMESTAMP_FILE):
 		@cmp -s $@ $@.tmp && rm -f $@.tmp || mv -f $@.tmp $@
 
 easylogo env gdb:
-	$(MAKE) $(build)=tools/$@ MTD_VERSION=${MTD_VERSION}
+	$(Q)$(MAKE) $(build)=tools/$@ MTD_VERSION=${MTD_VERSION}
 
 gdbtools: gdb
 
 xmldocs pdfdocs psdocs htmldocs mandocs: tools/kernel-doc/docproc
-	$(MAKE) U_BOOT_VERSION=$(U_BOOT_VERSION) $(build)=doc/DocBook $@
+	$(Q)$(MAKE) U_BOOT_VERSION=$(U_BOOT_VERSION) $(build)=doc/DocBook $@
 
 tools-all: easylogo env gdb $(VERSION_FILE) $(TIMESTAMP_FILE)
-	$(MAKE) $(build)=tools HOST_TOOLS_ALL=y
+	$(Q)$(MAKE) $(build)=tools HOST_TOOLS_ALL=y
 
 .PHONY : CHANGELOG
 CHANGELOG:
@@ -968,7 +1129,7 @@ clean:
 	@$(MAKE) -f $(srctree)/doc/DocBook/Makefile cleandocs
 	@find $(OBJTREE) -type f \
 		\( -name 'core' -o -name '*.bak' -o -name '*~' -o -name '*.su' \
-		-o -name '*.o'	-o -name '*.a' -o -name '*.exe' \
+		-o -name '*.o'	-o -name '*.a' -o -name '*.exe' -o -name '*.cmd' \
 		-o -name '*.cfgtmp' \) -print \
 		| xargs rm -f
 

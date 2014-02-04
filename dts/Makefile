@@ -36,7 +36,7 @@ process_lds = \
 	$(1) | sed -r -n 's/^OUTPUT_$(2)[ ("]*([^")]*).*/\1/p'
 
 # Run the compiler and get the link script from the linker
-GET_LDS = $(CC) $(CFLAGS) $(LDFLAGS) -Wl,--verbose 2>&1
+GET_LDS = $(CC) $(c_flags) $(ld_flags) -Wl,--verbose 2>&1
 
 $(obj)/dt.o: $(DT_BIN)
 	# We want the output format and arch.

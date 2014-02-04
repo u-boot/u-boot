@@ -25,7 +25,7 @@ obj-$(CONFIG_CMD_HDMIDETECT) += cmd_hdmidet.o
 
 $(OBJTREE)/$(patsubst "%",%,$(CONFIG_IMX_CONFIG)).cfgtmp: $(OBJTREE)/%.cfgtmp : $(SRCTREE)/%
 	mkdir -p $(dir $@)
-	$(CC) -E -x c $< $(CPPFLAGS) -o $@
+	$(CPP) $(cpp_flags) -x c -o $@ $<
 
 $(OBJTREE)/u-boot.imx: $(OBJTREE)/u-boot.bin $(OBJTREE)/$(patsubst "%",%,$(CONFIG_IMX_CONFIG)).cfgtmp
 	$(OBJTREE)/tools/mkimage -n $(filter-out %.bin,$^) -T imximage \

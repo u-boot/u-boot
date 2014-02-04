@@ -15,17 +15,18 @@ nandobj	:= $(OBJTREE)/nand_spl/
 LDSCRIPT= $(TOPDIR)/$(CPUDIR)/u-boot-nand_spl.lds
 LDFLAGS := -T $(nandobj)u-boot-nand_spl.lds -Ttext $(CONFIG_SYS_TEXT_BASE_SPL) \
 		$(LDFLAGS) $(LDFLAGS_FINAL)
-AFLAGS	+= -DCONFIG_NAND_SPL
-CFLAGS	+= -DCONFIG_NAND_SPL
+asflags-y += -DCONFIG_NAND_SPL
+ccflags-y += -DCONFIG_NAND_SPL
 
 SOBJS	= start.o resetvec.o
 COBJS	= cache.o cpu_init_early.o spl_minimal.o fsl_law.o law.o \
 	  nand_boot.o nand_boot_fsl_elbc.o ns16550.o tlb.o tlb_table.o
 
-SRCS	:= $(addprefix $(obj)/,$(SOBJS:.o=.S) $(COBJS:.o=.c))
 OBJS	:= $(addprefix $(obj)/,$(SOBJS) $(COBJS))
 __OBJS	:= $(SOBJS) $(COBJS)
 LNDIR	:= $(nandobj)board/$(BOARDDIR)
+
+targets += $(__OBJS)
 
 all: $(nandobj)u-boot-spl.bin $(nandobj)u-boot-spl-16k.bin
 
@@ -40,7 +41,7 @@ $(nandobj)u-boot-spl:	$(OBJS) $(nandobj)u-boot-nand_spl.lds
 		-Map $(nandobj)u-boot-spl.map -o $@
 
 $(nandobj)u-boot-nand_spl.lds: $(LDSCRIPT)
-	$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -I$(nandobj)/board/$(BOARDDIR) \
+	$(CPP) $(cpp_flags) $(LDPPFLAGS) -I$(nandobj)/board/$(BOARDDIR) \
 		-ansi -D__ASSEMBLY__ -P - <$< >$@
 
 # create symbolic links for common files

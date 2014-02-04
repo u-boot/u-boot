@@ -5,9 +5,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-LOCAL_CFLAGS  += -I$(TOPDIR)/drivers/net/npe/include -DCONFIG_IXP425_COMPONENT_ETHDB -D__linux
-CFLAGS  += $(LOCAL_CFLAGS)
-CPPFLAGS  += $(LOCAL_CFLAGS) # needed for depend
+ccflags-y += -I$(src)/include -DCONFIG_IXP425_COMPONENT_ETHDB -D__linux
 
 obj-y := npe.o \
 	miiphy.o \

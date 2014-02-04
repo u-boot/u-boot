@@ -25,7 +25,7 @@ extra-y += check_initcode
 
 # make sure our initcode (which goes into LDR) does not
 # have relocs or external references
-$(obj)/initcode.o: CFLAGS += -fno-function-sections -fno-data-sections
+CFLAGS_REMOVE_initcode.o := -ffunction-sections -fdata-sections
 READINIT = env LC_ALL=C $(CROSS_COMPILE)readelf -s $<
 $(obj)/check_initcode: $(obj)/initcode.o
 ifneq ($(CONFIG_BFIN_BOOT_MODE),BFIN_BOOT_BYPASS)
@@ -35,7 +35,6 @@ ifneq ($(CONFIG_BFIN_BOOT_MODE),BFIN_BOOT_BYPASS)
 	fi
 endif
 
-$(obj)/init.lds: $(src)/init.lds.S
-	$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ -P $^ -o $@
+CPPFLAGS_init.lds := -ansi
 $(obj)/init.elf: $(obj)/init.lds $(obj)/init.o $(obj)/initcode.o
 	$(LD) $(LDFLAGS) -T $^ -o $@

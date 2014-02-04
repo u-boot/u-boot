@@ -238,10 +238,6 @@ obj-$(CONFIG_FIT_SIGNATURE) += image-sig.o
 obj-y += memsize.o
 obj-y += stdio.o
 
-$(obj)/env_embedded.o: $(src)/env_embedded.c
-	$(CC) $(AFLAGS) -Wa,--no-warn \
-		-DENV_CRC=$(shell tools/envcrc) -c -o $@ $<
-
-# SEE README.arm-unaligned-accesses
-$(obj)/hush.o: CFLAGS += $(PLATFORM_NO_UNALIGNED)
-$(obj)/fdt_support.o: CFLAGS += $(PLATFORM_NO_UNALIGNED)
+CFLAGS_env_embedded.o := -Wa,--no-warn -DENV_CRC=$(shell tools/envcrc 2>/dev/null)
+CFLAGS_hush.o := $(PLATFORM_NO_UNALIGNED)
+CFLAGS_fdt_support.o := $(PLATFORM_NO_UNALIGNED)

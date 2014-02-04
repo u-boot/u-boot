@@ -2,7 +2,16 @@
 # Building
 # ==========================================================================
 
-src := $(obj)
+# Modified for U-Boot
+ifeq ($(CONFIG_TPL_BUILD),y)
+  src := $(patsubst tpl/%,%,$(obj))
+else
+  ifeq ($(CONFIG_SPL_BUILD),y)
+    src := $(patsubst spl/%,%,$(obj))
+  else
+    src := $(obj)
+  endif
+endif
 
 PHONY := __build
 __build:
@@ -34,6 +43,11 @@ subdir-ccflags-y :=
 -include include/config/auto.conf
 
 include scripts/Kbuild.include
+
+# Added for U-Boot
+# We must include config.mk after Kbuild.include
+# so that some config.mk can use cc-option.
+include config.mk
 
 # For backward compatibility check that these variables do not change
 save-cflags := $(CFLAGS)
@@ -115,14 +129,16 @@ ifneq ($(hostprogs-y)$(hostprogs-m),)
 include scripts/Makefile.host
 endif
 
-ifneq ($(KBUILD_SRC),)
+# Uncommented for U-Boot
+#  We need to create output dicrectory for SPL and TPL even for in-tree build
+#ifneq ($(KBUILD_SRC),)
 # Create output directory if not already present
 _dummy := $(shell [ -d $(obj) ] || mkdir -p $(obj))
 
 # Create directories for object files if directory does not exist
 # Needed when obj-y := dir/file.o syntax is used
 _dummy := $(foreach d,$(obj-dirs), $(shell [ -d $(d) ] || mkdir -p $(d)))
-endif
+#endif
 
 ifndef obj
 $(warning kbuild: Makefile.build is included improperly)
