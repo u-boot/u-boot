@@ -4,22 +4,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-include $(TOPDIR)/config.mk
+hostprogs-y := docproc
+always := $(hostprogs-y)
 
-all:	$(obj)docproc
-
-$(obj)docproc:	docproc.c
-	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
-	$(HOSTSTRIP) $@
-
-clean:
-	rm -rf docproc
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+HOST_EXTRACFLAGS := -pedantic

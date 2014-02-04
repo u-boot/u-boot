@@ -126,6 +126,8 @@ unexport CDPATH
 
 #########################################################################
 
+build := -f $(TOPDIR)/scripts/Makefile.build -C
+
 # The "tools" are needed early, so put this first
 # Don't include stuff already done in $(LIBS)
 # The "examples" conditionally depend on U-Boot (say, when USE_PRIVATE_LIBGCC
@@ -362,8 +364,6 @@ endif
 endif
 endif
 
-build := -f $(TOPDIR)/scripts/Makefile.build -C
-
 all:		$(ALL-y) $(SUBDIR_EXAMPLES-y)
 
 $(obj)u-boot.dtb:	checkdtc $(obj)u-boot
@@ -558,7 +558,10 @@ $(OBJS):
 $(LIBS):	depend $(SUBDIR_TOOLS)
 		$(MAKE) $(build) $(dir $(subst $(obj),,$@))
 
-$(SUBDIRS):	depend
+tools:	depend
+		$(MAKE) $(build) $@ all
+
+$(filter-out tools,$(SUBDIRS)):	depend
 		$(MAKE) -C $@ all
 
 $(SUBDIR_EXAMPLES-y): $(obj)u-boot
@@ -711,7 +714,7 @@ depend dep tags ctags etags cscope $(obj)System.map:
 	@ exit 1
 
 tools: $(VERSION_FILE) $(TIMESTAMP_FILE)
-	$(MAKE) -C $@ all
+	$(MAKE) $(build) $@ all
 endif	# config.mk
 
 # ARM relocations should all be R_ARM_RELATIVE (32-bit) or
@@ -746,14 +749,15 @@ $(TIMESTAMP_FILE):
 		@cmp -s $@ $@.tmp && rm -f $@.tmp || mv -f $@.tmp $@
 
 easylogo env gdb:
-	$(MAKE) -C tools/$@ all MTD_VERSION=${MTD_VERSION}
+	$(MAKE) $(build) tools/$@ MTD_VERSION=${MTD_VERSION}
+
 gdbtools: gdb
 
 xmldocs pdfdocs psdocs htmldocs mandocs: tools/kernel-doc/docproc
 	$(MAKE) U_BOOT_VERSION=$(U_BOOT_VERSION) -C doc/DocBook/ $@
 
 tools-all: easylogo env gdb $(VERSION_FILE) $(TIMESTAMP_FILE)
-	$(MAKE) -C tools HOST_TOOLS_ALL=y
+	$(MAKE) $(build) tools HOST_TOOLS_ALL=y
 
 .PHONY : CHANGELOG
 CHANGELOG:
@@ -798,7 +802,7 @@ clean:
 	       $(obj)tools/gen_eth_addr    $(obj)tools/img2srec		  \
 	       $(obj)tools/dump{env,}image		  \
 	       $(obj)tools/mk{env,}image   $(obj)tools/mpc86x_clk	  \
-	       $(obj)tools/mk{$(BOARD),}spl				  \
+	       $(obj)tools/mk{$(BOARD),exynos}spl			  \
 	       $(obj)tools/mxsboot					  \
 	       $(obj)tools/ncb		   $(obj)tools/ubsha1		  \
 	       $(obj)tools/kernel-doc/docproc				  \

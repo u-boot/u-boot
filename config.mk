@@ -58,7 +58,6 @@ PLATFORM_LDFLAGS =
 
 HOSTCFLAGS	= -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer \
 		  $(HOSTCPPFLAGS)
-HOSTSTRIP	= strip
 
 #
 # Mac OS X / Darwin's C preprocessor is Apple specific.  It
@@ -92,13 +91,6 @@ endif
 ifeq ($(HOSTOS),cygwin)
 HOSTCFLAGS	+= -ansi
 endif
-
-# We build some files with extra pedantic flags to try to minimize things
-# that won't build on some weird host compiler -- though there are lots of
-# exceptions for files that aren't complaint.
-
-HOSTCFLAGS_NOPED = $(filter-out -pedantic,$(HOSTCFLAGS))
-HOSTCFLAGS	+= -pedantic
 
 #########################################################################
 #
@@ -213,24 +205,6 @@ CPPFLAGS += -ffunction-sections -fdata-sections
 LDFLAGS_FINAL += --gc-sections
 endif
 
-# TODO(sjg@chromium.org): Is this correct on Mac OS?
-
-# MXSImage needs LibSSL
-ifneq ($(CONFIG_MX23)$(CONFIG_MX28),)
-HOSTLIBS	+= -lssl -lcrypto
-# Add CONFIG_MXS into host CFLAGS, so we can check whether or not register
-# the mxsimage support within tools/mxsimage.c .
-HOSTCFLAGS	+= -DCONFIG_MXS
-endif
-
-ifdef CONFIG_FIT_SIGNATURE
-HOSTLIBS	+= -lssl -lcrypto
-
-# This affects include/image.h, but including the board config file
-# is tricky, so manually define this options here.
-HOSTCFLAGS	+= -DCONFIG_FIT_SIGNATURE
-endif
-
 ifneq ($(CONFIG_SYS_TEXT_BASE),)
 CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE)
 endif
@@ -341,7 +315,7 @@ endif
 
 #########################################################################
 
-export	HOSTCC HOSTCFLAGS HOSTLDFLAGS PEDCFLAGS HOSTSTRIP CROSS_COMPILE \
+export	HOSTCC HOSTCFLAGS HOSTLDFLAGS CROSS_COMPILE \
 	AS LD CC CPP AR NM STRIP OBJCOPY OBJDUMP MAKE
 export	CONFIG_SYS_TEXT_BASE PLATFORM_CPPFLAGS PLATFORM_RELFLAGS CPPFLAGS CFLAGS AFLAGS
 

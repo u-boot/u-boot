@@ -5,14 +5,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-TOOLSUBDIRS = kernel-doc
-
-#
-# Include this after HOSTOS HOSTARCH check
-# so that we can act intelligently.
-#
-include $(TOPDIR)/config.mk
-
 #
 # toolchains targeting win32 generate .exe files
 #
@@ -43,82 +35,111 @@ ENVCRC-$(CONFIG_ENV_IS_IN_NVRAM) = y
 ENVCRC-$(CONFIG_ENV_IS_IN_SPI_FLASH) = y
 CONFIG_BUILD_ENVCRC ?= $(ENVCRC-y)
 
-# Generated executable files
-BIN_FILES-$(CONFIG_LCD_LOGO) += bmp_logo$(SFX)
-BIN_FILES-$(CONFIG_VIDEO_LOGO) += bmp_logo$(SFX)
-BIN_FILES-$(CONFIG_BUILD_ENVCRC) += envcrc$(SFX)
-BIN_FILES-$(CONFIG_CMD_NET) += gen_eth_addr$(SFX)
-BIN_FILES-$(CONFIG_CMD_LOADS) += img2srec$(SFX)
-BIN_FILES-$(CONFIG_XWAY_SWAP_BYTES) += xway-swap-bytes$(SFX)
-BIN_FILES-y += dumpimage$(SFX)
-BIN_FILES-y += mkenvimage$(SFX)
-BIN_FILES-y += mkimage$(SFX)
-BIN_FILES-$(CONFIG_EXYNOS5250) += mk$(BOARD)spl$(SFX)
-BIN_FILES-$(CONFIG_EXYNOS5420) += mk$(BOARD)spl$(SFX)
-BIN_FILES-$(CONFIG_MX23) += mxsboot$(SFX)
-BIN_FILES-$(CONFIG_MX28) += mxsboot$(SFX)
-BIN_FILES-$(CONFIG_NETCONSOLE) += ncb$(SFX)
-BIN_FILES-$(CONFIG_SHA1_CHECK_UB_IMG) += ubsha1$(SFX)
-BIN_FILES-$(CONFIG_KIRKWOOD) += kwboot$(SFX)
-BIN_FILES-y += proftool$(SFX)
-BIN_FILES-$(CONFIG_STATIC_RELA) += relocate-rela$(SFX)
+# TODO: CONFIG_CMD_LICENSE does not work
+hostprogs-$(CONFIG_CMD_LICENSE) += bin2header$(SFX)
 
-# Source files which exist outside the tools directory
-EXT_OBJ_FILES-$(CONFIG_BUILD_ENVCRC) += common/env_embedded.o
-EXT_OBJ_FILES-y += common/image.o
-EXT_OBJ_FILES-$(CONFIG_FIT) += common/image-fit.o
-EXT_OBJ_FILES-y += common/image-sig.o
-EXT_OBJ_FILES-y += lib/crc32.o
-EXT_OBJ_FILES-y += lib/md5.o
-EXT_OBJ_FILES-y += lib/sha1.o
+hostprogs-$(CONFIG_LCD_LOGO) += bmp_logo$(SFX)
+hostprogs-$(CONFIG_VIDEO_LOGO) += bmp_logo$(SFX)
+HOSTCFLAGS_bmp_logo$(SFX) := -pedantic
 
-# Source files located in the tools directory
-NOPED_OBJ_FILES-y += aisimage.o
-NOPED_OBJ_FILES-y += default_image.o
-NOPED_OBJ_FILES-y += dumpimage.o
-NOPED_OBJ_FILES-y += fit_image.o
-NOPED_OBJ_FILES-y += image-host.o
-NOPED_OBJ_FILES-y += imximage.o
-NOPED_OBJ_FILES-y += kwbimage.o
-NOPED_OBJ_FILES-y += imagetool.o
-NOPED_OBJ_FILES-y += mkenvimage.o
-NOPED_OBJ_FILES-y += mkimage.o
-NOPED_OBJ_FILES-y += mxsimage.o
-NOPED_OBJ_FILES-y += omapimage.o
-NOPED_OBJ_FILES-y += os_support.o
-NOPED_OBJ_FILES-y += pblimage.o
-NOPED_OBJ_FILES-y += proftool.o
-NOPED_OBJ_FILES-y += ublimage.o
-NOPED_OBJ_FILES-y += relocate-rela.o
-OBJ_FILES-$(CONFIG_BUILD_ENVCRC) += envcrc.o
-OBJ_FILES-$(CONFIG_CMD_LOADS) += img2srec.o
-OBJ_FILES-$(CONFIG_CMD_NET) += gen_eth_addr.o
-OBJ_FILES-$(CONFIG_EXYNOS_SPL) += mkexynosspl.o
-OBJ_FILES-$(CONFIG_KIRKWOOD) += kwboot.o
-OBJ_FILES-$(CONFIG_LCD_LOGO) += bmp_logo.o
-OBJ_FILES-$(CONFIG_MX23) += mxsboot.o
-OBJ_FILES-$(CONFIG_MX28) += mxsboot.o
-OBJ_FILES-$(CONFIG_NETCONSOLE) += ncb.o
-OBJ_FILES-$(CONFIG_SHA1_CHECK_UB_IMG) += ubsha1.o
-OBJ_FILES-$(CONFIG_SMDK5250) += mkexynosspl.o
-OBJ_FILES-$(CONFIG_VIDEO_LOGO) += bmp_logo.o
-OBJ_FILES-$(CONFIG_XWAY_SWAP_BYTES) += xway-swap-bytes.o
+hostprogs-$(CONFIG_BUILD_ENVCRC) += envcrc$(SFX)
+envcrc$(SFX)-objs := crc32.o env_embedded.o envcrc.o sha1.o
+
+hostprogs-$(CONFIG_CMD_NET) += gen_eth_addr$(SFX)
+HOSTCFLAGS_gen_eth_addr$(SFX) := -pedantic
+
+hostprogs-$(CONFIG_CMD_LOADS) += img2srec$(SFX)
+HOSTCFLAGS_img2srec$(SFX) := -pedantic
+
+hostprogs-$(CONFIG_XWAY_SWAP_BYTES) += xway-swap-bytes$(SFX)
+HOSTCFLAGS_xway-swap-bytes$(SFX) := -pedantic
+
+hostprogs-y += mkenvimage$(SFX)
+mkenvimage$(SFX)-objs := crc32.o mkenvimage.o os_support.o
+
+hostprogs-y += dumpimage$(SFX) mkimage$(SFX)
+
+FIT_SIG_OBJS-$(CONFIG_FIT_SIGNATURE) := image-sig.o
+# Flattened device tree objects
+LIBFDT_OBJS := fdt.o fdt_ro.o fdt_rw.o fdt_strerror.o fdt_wip.o
+RSA_OBJS-$(CONFIG_FIT_SIGNATURE) := rsa-sign.o
+
+# common objs for dumpimage and mkimage
+dumpimage-mkimage-objs := aisimage.o \
+			$(FIT_SIG_OBJS-y) \
+			crc32.o \
+			default_image.o \
+			fit_image.o \
+			image-fit.o \
+			image-host.o \
+			image.o \
+			imagetool.o \
+			imximage.o \
+			kwbimage.o \
+			md5.o \
+			mxsimage.o \
+			omapimage.o \
+			os_support.o \
+			pblimage.o \
+			sha1.o \
+			ublimage.o \
+			$(LIBFDT_OBJS) \
+			$(RSA_OBJS-y)
+
+dumpimage$(SFX)-objs := $(dumpimage-mkimage-objs) dumpimage.o
+mkimage$(SFX)-objs   := $(dumpimage-mkimage-objs) mkimage.o
+
+# TODO(sjg@chromium.org): Is this correct on Mac OS?
+
+# MXSImage needs LibSSL
+ifneq ($(CONFIG_MX23)$(CONFIG_MX28),)
+HOSTLOADLIBES_dumpimage$(SFX) := -lssl -lcrypto
+HOSTLOADLIBES_mkimage$(SFX) := -lssl -lcrypto
+# Add CONFIG_MXS into host CFLAGS, so we can check whether or not register
+# the mxsimage support within tools/mxsimage.c .
+HOSTCFLAGS	+= -DCONFIG_MXS
+endif
+
+ifdef CONFIG_FIT_SIGNATURE
+HOSTLOADLIBES_dumpimage$(SFX) := -lssl -lcrypto
+HOSTLOADLIBES_mkimage$(SFX) := -lssl -lcrypto
+
+# This affects include/image.h, but including the board config file
+# is tricky, so manually define this options here.
+HOST_EXTRACFLAGS	+= -DCONFIG_FIT_SIGNATURE
+endif
+
+hostprogs-$(CONFIG_EXYNOS5250) += mkexynosspl$(SFX)
+hostprogs-$(CONFIG_EXYNOS5420) += mkexynosspl$(SFX)
+HOSTCFLAGS_mkexynosspl$(SFX) := -pedantic
+
+hostprogs-$(CONFIG_MX23) += mxsboot$(SFX)
+hostprogs-$(CONFIG_MX28) += mxsboot$(SFX)
+HOSTCFLAGS_mxsboot$(SFX) := -pedantic
+
+hostprogs-$(CONFIG_NETCONSOLE) += ncb$(SFX)
+hostprogs-$(CONFIG_SHA1_CHECK_UB_IMG) += ubsha1$(SFX)
+
+ubsha1$(SFX)-objs := os_support.o sha1.o ubsha1.o
+
+HOSTCFLAGS_ubsha1.o := -pedantic
+
+hostprogs-$(CONFIG_KIRKWOOD) += kwboot$(SFX)
+hostprogs-y += proftool$(SFX)
+hostprogs-$(CONFIG_STATIC_RELA) += relocate-rela$(SFX)
+
+# We build some files with extra pedantic flags to try to minimize things
+# that won't build on some weird host compiler -- though there are lots of
+# exceptions for files that aren't complaint.
+HOSTCFLAGS_crc32.o := -pedantic
+HOSTCFLAGS_md5.o := -pedantic
+HOSTCFLAGS_sha1.o := -pedantic
 
 # Don't build by default
-#ifeq ($(ARCH),ppc)
-#BIN_FILES-y += mpc86x_clk$(SFX)
-#OBJ_FILES-y += mpc86x_clk.o
-#endif
+#hostprogs-$(CONFIG_PPC) += mpc86x_clk$(SFX)
+#HOSTCFLAGS_mpc86x_clk$(SFX) := -pedantic
 
-# Flattened device tree objects
-LIBFDT_OBJ_FILES-y += fdt.o
-LIBFDT_OBJ_FILES-y += fdt_ro.o
-LIBFDT_OBJ_FILES-y += fdt_rw.o
-LIBFDT_OBJ_FILES-y += fdt_strerror.o
-LIBFDT_OBJ_FILES-y += fdt_wip.o
-
-# RSA objects
-RSA_OBJ_FILES-$(CONFIG_FIT_SIGNATURE) += rsa-sign.o
+always := $(hostprogs-y)
 
 # Generated LCD/video logo
 LOGO_H = $(OBJTREE)/include/bmp_logo.h
@@ -147,24 +168,13 @@ endif # !LOGO_BMP
 HOSTSRCS += $(addprefix $(SRCTREE)/,$(EXT_OBJ_FILES-y:.o=.c))
 HOSTSRCS += $(addprefix $(SRCTREE)/tools/,$(OBJ_FILES-y:.o=.c))
 HOSTSRCS += $(addprefix $(SRCTREE)/lib/libfdt/,$(LIBFDT_OBJ_FILES-y:.o=.c))
-HOSTSRCS += $(addprefix $(SRCTREE)/lib/rsa/,$(RSA_OBJ_FILES-y:.o=.c))
-BINS	:= $(addprefix $(obj),$(sort $(BIN_FILES-y)))
-LIBFDT_OBJS	:= $(addprefix $(obj),$(LIBFDT_OBJ_FILES-y))
-RSA_OBJS	:= $(addprefix $(obj),$(RSA_OBJ_FILES-y))
-
-# We cannot check CONFIG_FIT_SIGNATURE here since it is not set on the host
-FIT_SIG_OBJ_FILES	:= image-sig.o
-FIT_SIG_OBJS		:= $(addprefix $(obj),$(FIT_SIG_OBJ_FILES))
-
-HOSTOBJS := $(addprefix $(obj),$(OBJ_FILES-y))
-NOPEDOBJS := $(addprefix $(obj),$(NOPED_OBJ_FILES-y))
 
 #
 # Use native tools and options
 # Define __KERNEL_STRICT_NAMES to prevent typedef overlaps
 # Define _GNU_SOURCE to obtain the getline prototype from stdio.h
 #
-HOSTCPPFLAGS =	-include $(SRCTREE)/include/libfdt_env.h \
+HOST_EXTRACFLAGS += -include $(SRCTREE)/include/libfdt_env.h \
 		-idirafter $(SRCTREE)/include \
 		-idirafter $(SRCTREE)/arch/$(ARCH)/include \
 		-idirafter $(OBJTREE)/include \
@@ -175,152 +185,12 @@ HOSTCPPFLAGS =	-include $(SRCTREE)/include/libfdt_env.h \
 		-D__KERNEL_STRICT_NAMES \
 		-D_GNU_SOURCE
 
+all:	$(LOGO-y)
 
-all:	$(obj).depend $(BINS) $(LOGO-y) subdirs
-
-$(obj)bin2header$(SFX): $(obj)bin2header.o
-	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
-	$(HOSTSTRIP) $@
-
-$(obj)bmp_logo$(SFX):	$(obj)bmp_logo.o
-	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
-	$(HOSTSTRIP) $@
-
-$(obj)proftool$(SFX):	$(obj)proftool.o
-	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
-	$(HOSTSTRIP) $@
-
-$(obj)envcrc$(SFX):	$(obj)crc32.o $(obj)env_embedded.o $(obj)envcrc.o $(obj)sha1.o
-	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
-
-$(obj)gen_eth_addr$(SFX):	$(obj)gen_eth_addr.o
-	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
-	$(HOSTSTRIP) $@
-
-$(obj)img2srec$(SFX):	$(obj)img2srec.o
-	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
-	$(HOSTSTRIP) $@
-
-$(obj)xway-swap-bytes$(SFX):	$(obj)xway-swap-bytes.o
-	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
-	$(HOSTSTRIP) $@
-
-$(obj)dumpimage$(SFX):	$(obj)aisimage.o \
-			$(FIT_SIG_OBJS) \
-			$(obj)crc32.o \
-			$(obj)default_image.o \
-			$(obj)fit_image.o \
-			$(obj)image-fit.o \
-			$(obj)image.o \
-			$(obj)image-host.o \
-			$(obj)imagetool.o \
-			$(obj)imximage.o \
-			$(obj)kwbimage.o \
-			$(obj)dumpimage.o \
-			$(obj)md5.o \
-			$(obj)mxsimage.o \
-			$(obj)omapimage.o \
-			$(obj)os_support.o \
-			$(obj)pblimage.o \
-			$(obj)sha1.o \
-			$(obj)ublimage.o \
-			$(LIBFDT_OBJS) \
-			$(RSA_OBJS)
-	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^ $(HOSTLIBS)
-	$(HOSTSTRIP) $@
-
-$(obj)mkenvimage$(SFX):	$(obj)crc32.o $(obj)mkenvimage.o \
-	$(obj)os_support.o
-	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
-	$(HOSTSTRIP) $@
-
-$(obj)mkimage$(SFX):	$(obj)aisimage.o \
-			$(FIT_SIG_OBJS) \
-			$(obj)crc32.o \
-			$(obj)default_image.o \
-			$(obj)fit_image.o \
-			$(obj)image-fit.o \
-			$(obj)image-host.o \
-			$(obj)image.o \
-			$(obj)imagetool.o \
-			$(obj)imximage.o \
-			$(obj)kwbimage.o \
-			$(obj)md5.o \
-			$(obj)mkimage.o \
-			$(obj)mxsimage.o \
-			$(obj)omapimage.o \
-			$(obj)os_support.o \
-			$(obj)pblimage.o \
-			$(obj)sha1.o \
-			$(obj)ublimage.o \
-			$(LIBFDT_OBJS) \
-			$(RSA_OBJS)
-	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^ $(HOSTLIBS)
-	$(HOSTSTRIP) $@
-
-$(obj)mk$(BOARD)spl$(SFX):	$(obj)mkexynosspl.o
-	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
-	$(HOSTSTRIP) $@
-
-$(obj)mpc86x_clk$(SFX):	$(obj)mpc86x_clk.o
-	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
-	$(HOSTSTRIP) $@
-
-$(obj)mxsboot$(SFX):	$(obj)mxsboot.o
-	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
-	$(HOSTSTRIP) $@
-
-$(obj)ncb$(SFX):	$(obj)ncb.o
-	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
-	$(HOSTSTRIP) $@
-
-$(obj)ubsha1$(SFX):	$(obj)os_support.o $(obj)sha1.o $(obj)ubsha1.o
-	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
-
-$(obj)kwboot$(SFX): $(obj)kwboot.o
-	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
-	$(HOSTSTRIP) $@
-
-$(obj)relocate-rela$(SFX): $(obj)relocate-rela.o
-	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
-	$(HOSTSTRIP) $@
-
-# Some of the tool objects need to be accessed from outside the tools directory
-$(obj)%.o: $(SRCTREE)/common/%.c
-	$(HOSTCC) -g $(HOSTCFLAGS_NOPED) -c -o $@ $<
-
-$(obj)%.o: $(SRCTREE)/lib/%.c
-	$(HOSTCC) -g $(HOSTCFLAGS) -c -o $@ $<
-
-$(obj)%.o: $(SRCTREE)/lib/libfdt/%.c
-	$(HOSTCC) -g $(HOSTCFLAGS_NOPED) -c -o $@ $<
-
-$(obj)%.o: $(SRCTREE)/lib/rsa/%.c
-	$(HOSTCC) -g $(HOSTCFLAGS_NOPED) -c -o $@ $<
-
-subdirs:
-ifeq ($(TOOLSUBDIRS),)
-	@:
-else
-	@for dir in $(TOOLSUBDIRS) ; do \
-	    $(MAKE) \
-		HOSTOS=$(HOSTOS) \
-		HOSTARCH=$(HOSTARCH) \
-		-C $$dir || exit 1 ; \
-	done
-endif
+subdir-y := kernel-doc
 
 $(LOGO_H):	$(obj)bmp_logo $(LOGO_BMP)
 	$(obj)./bmp_logo --gen-info $(LOGO_BMP) > $@
 
 $(LOGO_DATA_H):	$(obj)bmp_logo $(LOGO_BMP)
 	$(obj)./bmp_logo --gen-data $(LOGO_BMP) > $@
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################

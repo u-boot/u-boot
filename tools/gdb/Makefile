@@ -8,49 +8,18 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-include $(TOPDIR)/config.mk
-
-BINS	= gdbsend gdbcont
-
-COBJS	= gdbsend.o gdbcont.o error.o remote.o serial.o
-
-HOSTOBJS := $(addprefix $(obj),$(COBJS))
-HOSTSRCS := $(COBJS:.o=.c)
-BINS	:= $(addprefix $(obj),$(BINS))
+ifneq ($(HOSTOS),cygwin)
 
 #
 # Use native tools and options
 #
-HOSTCPPFLAGS = -I$(BFD_ROOT_DIR)/include
+HOST_EXTRACFLAGS := -I$(BFD_ROOT_DIR)/include -pedantic
 
-ifeq ($(HOSTOS),cygwin)
+hostprogs-y := gdbsend gdbcont
 
-all:
-$(obj).depend:
+gdbsend-objs := gdbsend.o error.o remote.o serial.o
+gdbcont-objs := gdbcont.o error.o remote.o serial.o
 
-else	# ! CYGWIN
-
-all:	$(obj).depend $(BINS)
-
-$(obj)gdbsend:	$(obj)gdbsend.o $(obj)error.o $(obj)remote.o $(obj)serial.o
-		$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
-
-$(obj)gdbcont:	$(obj)gdbcont.o $(obj)error.o $(obj)remote.o $(obj)serial.o
-		$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
-
-clean:
-	rm -f $(HOSTOBJS)
-
-distclean:	clean
-	rm -f $(BINS) $(obj)core $(obj)*.bak $(obj).depend
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+always := $(hostprogs-y)
 
 endif	# cygwin

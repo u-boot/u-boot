@@ -43,9 +43,4 @@ $(obj).depend.%:	%.c
 $(obj).depend.%:	%.S
 	$(MAKE_DEPEND)
 
-$(HOSTOBJS): $(obj)%.o: %.c
-	$(HOSTCC) $(HOSTCFLAGS) $(HOSTCFLAGS_$(@F)) $(HOSTCFLAGS_$(BCURDIR)) -o $@ $< -c
-$(NOPEDOBJS): $(obj)%.o: %.c
-	$(HOSTCC) $(HOSTCFLAGS_NOPED) $(HOSTCFLAGS_$(@F)) $(HOSTCFLAGS_$(BCURDIR)) -o $@ $< -c
-
 #########################################################################
