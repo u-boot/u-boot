@@ -408,6 +408,9 @@ static inline int setenv_addr(const char *varname, const void *addr)
 #ifdef CONFIG_MIPS
 # include <asm/u-boot-mips.h>
 #endif /* CONFIG_MIPS */
+#ifdef CONFIG_ARC
+# include <asm/u-boot-arc.h>
+#endif /* CONFIG_ARC */
 
 #ifdef CONFIG_AUTO_COMPLETE
 int env_complete(char *var, int maxv, char *cmdv[], int maxsz, char *buf);

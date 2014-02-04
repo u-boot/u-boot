@@ -517,6 +517,24 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
+#elif defined(CONFIG_ARC700)
+
+int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	bd_t *bd = gd->bd;
+
+	print_num("mem start",		bd->bi_memstart);
+	print_lnum("mem size",		bd->bi_memsize);
+
+#if defined(CONFIG_CMD_NET)
+	print_eth(0);
+	printf("ip_addr     = %s\n", getenv("ipaddr"));
+#endif
+	printf("baudrate    = %d bps\n", bd->bi_baudrate);
+
+	return 0;
+}
+
 #else
  #error "a case for this architecture does not exist!"
 #endif
