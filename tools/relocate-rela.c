@@ -120,7 +120,7 @@ int main(int argc, char **argv)
 	}
 
 	if (rela_start > rela_end || rela_start < text_base ||
-	    (rela_end - rela_start) % 24) {
+	    (rela_end - rela_start) % sizeof(Elf64_Rela)) {
 		fprintf(stderr, "%s: bad rela bounds\n", argv[0]);
 		return 3;
 	}
