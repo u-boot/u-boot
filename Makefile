@@ -203,34 +203,6 @@ VENDOR=
 
 #########################################################################
 
-# The "tools" are needed early, so put this first
-# Don't include stuff already done in $(LIBS)
-# The "examples" conditionally depend on U-Boot (say, when USE_PRIVATE_LIBGCC
-# is "yes"), so compile examples after U-Boot is compiled.
-SUBDIR_TOOLS = tools
-SUBDIRS = $(SUBDIR_TOOLS)
-
-.PHONY : $(SUBDIRS) $(VERSION_FILE) $(TIMESTAMP_FILE)
-
-ifeq (include/config.mk,$(wildcard include/config.mk))
-
-# Include autoconf.mk before config.mk so that the config options are available
-# to all top level build files.  We need the dummy all: target to prevent the
-# dependency target in autoconf.mk.dep from being the default.
-all:
-sinclude include/autoconf.mk.dep
-sinclude include/autoconf.mk
-
-SUBDIR_EXAMPLES-y := examples/standalone
-SUBDIR_EXAMPLES-$(CONFIG_API) += examples/api
-ifndef CONFIG_SANDBOX
-SUBDIRS += $(SUBDIR_EXAMPLES-y)
-endif
-
-# load ARCH, BOARD, and CPU configuration
-include include/config.mk
-export	ARCH CPU BOARD VENDOR SOC
-
 # set default to nothing for native builds
 ifeq ($(HOSTARCH),$(ARCH))
 CROSS_COMPILE ?=
@@ -377,15 +349,6 @@ CHECK		= sparse
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void -D__CHECK_ENDIAN__ $(CF)
 
-# Use UBOOTINCLUDE when you must reference the include/ directory.
-# Needed to be compatible with the O= option
-UBOOTINCLUDE    :=
-ifneq ($(OBJTREE),$(SRCTREE))
-UBOOTINCLUDE	+= -I$(OBJTREE)/include
-endif
-UBOOTINCLUDE	+= -I$(srctree)/include \
-		-I$(srctree)/arch/$(ARCH)/include
-
 KBUILD_CPPFLAGS := -D__KERNEL__
 
 KBUILD_CFLAGS   := -Wall -Wstrict-prototypes \
@@ -396,6 +359,7 @@ KBUILD_AFLAGS   := -D__ASSEMBLY__
 U_BOOT_VERSION = $(VERSION)$(if $(PATCHLEVEL),.$(PATCHLEVEL)$(if $(SUBLEVEL),.$(SUBLEVEL)))$(EXTRAVERSION)
 
 export VERSION PATCHLEVEL SUBLEVEL U_BOOT_VERSION
+export ARCH CPU BOARD VENDOR SOC
 export CONFIG_SHELL HOSTCC HOSTCFLAGS HOSTLDFLAGS CROSS_COMPILE AS LD CC
 export CPP AR NM LDR STRIP OBJCOPY OBJDUMP
 export MAKE AWK
@@ -428,65 +392,84 @@ scripts_basic:
 # To avoid any implicit rule to kick in, define an empty command.
 scripts/basic/%: scripts_basic ;
 
+# To make sure we do not include .config for any of the *config targets
+# catch them early, and hand them over to scripts/kconfig/Makefile
+# It is allowed to specify more targets when calling make, including
+# mixing *config targets and build targets.
+# For example 'make oldconfig all'.
+# Detect when mixed targets is specified, and make a second invocation
+# of make so .config is not included in this case either (for *config).
 
-KBUILD_CFLAGS += -Os #-fomit-frame-pointer
+no-dot-config-targets := clean clobber mrproper distclean \
+			 cscope TAGS %tags help %docs check% coccicheck \
+			 backup
 
-ifdef BUILD_TAG
-KBUILD_CFLAGS += -DBUILD_TAG='"$(BUILD_TAG)"'
+config-targets := 0
+mixed-targets  := 0
+dot-config     := 1
+
+ifneq ($(filter $(no-dot-config-targets), $(MAKECMDGOALS)),)
+	ifeq ($(filter-out $(no-dot-config-targets), $(MAKECMDGOALS)),)
+		dot-config := 0
+	endif
 endif
 
-KBUILD_CFLAGS += $(call cc-option,-fno-stack-protector)
-
-KBUILD_CFLAGS	+= -g
-# $(KBUILD_AFLAGS) sets -g, which causes gcc to pass a suitable -g<format>
-# option to the assembler.
-KBUILD_AFLAGS	+= -g
-
-NOSTDINC_FLAGS += -nostdinc -isystem $(shell $(CC) -print-file-name=include)
-CHECKFLAGS     += $(NOSTDINC_FLAGS)
-
-# Report stack usage if supported
-KBUILD_CFLAGS += $(call cc-option,-fstack-usage)
-
-KBUILD_CFLAGS += $(call cc-option,-Wno-format-nonliteral)
-
-# turn jbsr into jsr for m68k
-ifeq ($(ARCH),m68k)
-ifeq ($(findstring 3.4,$(shell $(CC) --version)),3.4)
-KBUILD_AFLAGS += -Wa,-gstabs,-S
+ifeq ($(KBUILD_EXTMOD),)
+        ifneq ($(filter config %config,$(MAKECMDGOALS)),)
+                config-targets := 1
+                ifneq ($(filter-out config %config,$(MAKECMDGOALS)),)
+                        mixed-targets := 1
+                endif
+        endif
 endif
-endif
+
+ifeq ($(mixed-targets),1)
+# ===========================================================================
+# We're called with mixed targets (*config and build targets).
+# Handle them one by one.
+
+%:: FORCE
+	$(Q)$(MAKE) -C $(srctree) KBUILD_SRC= $@
+
+else
+ifeq ($(config-targets),1)
+# ===========================================================================
+# *config targets only - make sure prerequisites are updated, and descend
+# in scripts/kconfig to make the *config target
+
+# Read arch specific Makefile to set KBUILD_DEFCONFIG as needed.
+# KBUILD_DEFCONFIG may point out an alternative default configuration
+# used for 'make defconfig'
+
+%_config::
+	@$(MKCONFIG) -A $(@:_config=)
+
+else
+# ===========================================================================
+# Build targets only - this includes vmlinux, arch specific targets, clean
+# targets and others. In general all targets except *config targets.
+
+# load ARCH, BOARD, and CPU configuration
+-include include/config.mk
+
+ifeq ($(dot-config),1)
+# Read in config
+-include include/autoconf.mk
+-include include/autoconf.mk.dep
 
 # load other configuration
-include $(TOPDIR)/config.mk
+include $(srctree)/config.mk
 
-ifneq ($(CONFIG_SYS_TEXT_BASE),)
-KBUILD_CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE)
+ifeq ($(wildcard include/config.mk),)
+$(error "System not configured - see README")
 endif
 
-export CONFIG_SYS_TEXT_BASE
-
-LDFLAGS_u-boot += -T u-boot.lds $(LDFLAGS_FINAL)
-ifneq ($(CONFIG_SYS_TEXT_BASE),)
-LDFLAGS_u-boot += -Ttext $(CONFIG_SYS_TEXT_BASE)
-endif
-
-# Targets which don't build the source code
-NON_BUILD_TARGETS = backup clean clobber distclean mrproper unconfig %_config
-
-# Only do the generic board check when actually building, not configuring
-ifeq ($(filter $(NON_BUILD_TARGETS),$(MAKECMDGOALS)),)
 ifeq ($(__HAVE_ARCH_GENERIC_BOARD),)
 ifneq ($(CONFIG_SYS_GENERIC_BOARD),)
-CHECK_GENERIC_BOARD = $(error Your architecture does not support generic board. \
+$(error Your architecture does not support generic board. \
 Please undefined CONFIG_SYS_GENERIC_BOARD in your board config file)
 endif
 endif
-endif
-
-# FIX ME
-cpp_flags := $(KBUILD_CPPFLAGS) $(CPPFLAGS) $(UBOOTINCLUDE) $(NOSTDINC_FLAGS)
-c_flags := $(KBUILD_CFLAGS) $(cpp_flags)
 
 # If board code explicitly specified LDSCRIPT or CONFIG_SYS_LDSCRIPT, use
 # that (or fail if absent).  Otherwise, search for a linker script in a
@@ -524,6 +507,73 @@ ifndef LDSCRIPT
 	ifeq ($(wildcard $(LDSCRIPT)),)
 $(error could not find linker script)
 	endif
+endif
+
+else
+
+
+endif # $(dot-config)
+
+KBUILD_CFLAGS += -Os #-fomit-frame-pointer
+
+ifdef BUILD_TAG
+KBUILD_CFLAGS += -DBUILD_TAG='"$(BUILD_TAG)"'
+endif
+
+KBUILD_CFLAGS += $(call cc-option,-fno-stack-protector)
+
+KBUILD_CFLAGS	+= -g
+# $(KBUILD_AFLAGS) sets -g, which causes gcc to pass a suitable -g<format>
+# option to the assembler.
+KBUILD_AFLAGS	+= -g
+
+# Report stack usage if supported
+KBUILD_CFLAGS += $(call cc-option,-fstack-usage)
+
+KBUILD_CFLAGS += $(call cc-option,-Wno-format-nonliteral)
+
+# turn jbsr into jsr for m68k
+ifeq ($(ARCH),m68k)
+ifeq ($(findstring 3.4,$(shell $(CC) --version)),3.4)
+KBUILD_AFLAGS += -Wa,-gstabs,-S
+endif
+endif
+
+ifneq ($(CONFIG_SYS_TEXT_BASE),)
+KBUILD_CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE)
+endif
+
+export CONFIG_SYS_TEXT_BASE
+
+# Use UBOOTINCLUDE when you must reference the include/ directory.
+# Needed to be compatible with the O= option
+UBOOTINCLUDE    :=
+ifneq ($(OBJTREE),$(SRCTREE))
+UBOOTINCLUDE	+= -I$(OBJTREE)/include
+endif
+UBOOTINCLUDE	+= -I$(srctree)/include \
+		-I$(srctree)/arch/$(ARCH)/include
+
+NOSTDINC_FLAGS += -nostdinc -isystem $(shell $(CC) -print-file-name=include)
+CHECKFLAGS     += $(NOSTDINC_FLAGS)
+
+# FIX ME
+cpp_flags := $(KBUILD_CPPFLAGS) $(CPPFLAGS) $(UBOOTINCLUDE) $(NOSTDINC_FLAGS)
+c_flags := $(KBUILD_CFLAGS) $(cpp_flags)
+
+# The "tools" are needed early, so put this first
+# Don't include stuff already done in $(LIBS)
+# The "examples" conditionally depend on U-Boot (say, when USE_PRIVATE_LIBGCC
+# is "yes"), so compile examples after U-Boot is compiled.
+SUBDIR_TOOLS = tools
+SUBDIRS = $(SUBDIR_TOOLS)
+
+.PHONY : $(SUBDIRS) $(VERSION_FILE) $(TIMESTAMP_FILE)
+
+SUBDIR_EXAMPLES-y := examples/standalone
+SUBDIR_EXAMPLES-$(CONFIG_API) += examples/api
+ifndef CONFIG_SANDBOX
+SUBDIRS += $(SUBDIR_EXAMPLES-y)
 endif
 
 #########################################################################
@@ -673,6 +723,11 @@ else
 ALL-y += u-boot-nodtb-tegra.bin
 endif
 endif
+endif
+
+LDFLAGS_u-boot += -T u-boot.lds $(LDFLAGS_FINAL)
+ifneq ($(CONFIG_SYS_TEXT_BASE),)
+LDFLAGS_u-boot += -Ttext $(CONFIG_SYS_TEXT_BASE)
 endif
 
 all:		$(ALL-y) $(SUBDIR_EXAMPLES-y)
@@ -867,10 +922,33 @@ $(OBJS):
 $(LIBS):	depend $(SUBDIR_TOOLS) scripts_basic
 		$(Q)$(MAKE) $(build)=$(patsubst %/,%,$(dir $@))
 
-$(SUBDIRS):	depend scripts_basic
+$(SUBDIRS):	scripts_basic $(TIMESTAMP_FILE) $(VERSION_FILE)
 		$(Q)$(MAKE) $(build)=$@
 
 $(SUBDIR_EXAMPLES-y): u-boot
+
+#
+# Auto-generate the autoconf.mk file (which is included by all makefiles)
+#
+# This target actually generates 2 files; autoconf.mk and autoconf.mk.dep.
+# the dep file is only include in this top level makefile to determine when
+# to regenerate the autoconf.mk file.
+
+quiet_cmd_autoconf_dep = GEN     $@
+      cmd_autoconf_dep = $(CC) -x c -DDO_DEPS_ONLY -M $(c_flags) \
+	-MQ include/autoconf.mk $(srctree)/include/common.h > $@ || rm $@
+
+include/autoconf.mk.dep: include/config.h include/common.h
+	$(call cmd,autoconf_dep)
+
+quiet_cmd_autoconf = GEN     $@
+      cmd_autoconf = \
+	$(CPP) $(c_flags) -DDO_DEPS_ONLY -dM $(srctree)/include/common.h > $@.tmp && \
+	sed -n -f $(srctree)/tools/scripts/define2mk.sed $@.tmp > $@; \
+	rm $@.tmp
+
+include/autoconf.mk: include/config.h
+	$(call cmd,autoconf)
 
 u-boot.lds: $(LDSCRIPT) depend
 		$(CPP) $(cpp_flags) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ -P - <$< >$@
@@ -948,29 +1026,6 @@ checkdtc:
 		false; \
 	fi
 
-#
-# Auto-generate the autoconf.mk file (which is included by all makefiles)
-#
-# This target actually generates 2 files; autoconf.mk and autoconf.mk.dep.
-# the dep file is only include in this top level makefile to determine when
-# to regenerate the autoconf.mk file.
-
-quiet_cmd_autoconf_dep = GEN     $@
-      cmd_autoconf_dep = $(CC) -x c -DDO_DEPS_ONLY -M $(c_flags) \
-	-MQ include/autoconf.mk $(srctree)/include/common.h > $@ || rm $@
-
-include/autoconf.mk.dep: include/config.h include/common.h
-	$(call cmd,autoconf_dep)
-
-quiet_cmd_autoconf = GEN     $@
-      cmd_autoconf = \
-	$(CPP) $(c_flags) -DDO_DEPS_ONLY -dM $(srctree)/include/common.h > $@.tmp && \
-	sed -n -f $(srctree)/tools/scripts/define2mk.sed $@.tmp > $@; \
-	rm $@.tmp
-
-include/autoconf.mk: include/config.h
-	$(call cmd,autoconf)
-
 quiet_cmd_offsets = GEN     $@
       cmd_offsets = $(srctree)/tools/scripts/make-asm-offsets $< $@
 
@@ -1003,17 +1058,6 @@ $(CPUDIR)/$(SOC)/asm-offsets.s:	include/config.h
 	$(call cmd,soc_asm-offsets.s)
 
 #########################################################################
-else	# !config.mk
-all u-boot.hex u-boot.srec u-boot.bin \
-u-boot.img u-boot.dis u-boot \
-$(filter-out tools,$(SUBDIRS)) \
-depend dep tags ctags etags cscope System.map:
-	@echo "System not configured - see README" >&2
-	@ exit 1
-
-tools: $(VERSION_FILE) $(TIMESTAMP_FILE)
-	$(MAKE) $(build)=$@ all
-endif	# config.mk
 
 # ARM relocations should all be R_ARM_RELATIVE (32-bit) or
 # R_AARCH64_RELATIVE (64-bit).
@@ -1066,15 +1110,6 @@ include/license.h: tools/bin2header COPYING
 	cat COPYING | gzip -9 -c | ./tools/bin2header license_gzip > include/license.h
 #########################################################################
 
-unconfig:
-	@rm -f include/config.h include/config.mk \
-		board/*/config.tmp board/*/*/config.tmp \
-		include/autoconf.mk include/autoconf.mk.dep \
-		include/spl-autoconf.mk \
-		include/tpl-autoconf.mk
-
-%_config::	unconfig
-	@$(MKCONFIG) -A $(@:_config=)
 
 #########################################################################
 
@@ -1151,8 +1186,14 @@ clobber: clean
 	@rm -f dts/*.tmp
 	@rm -f $(addprefix spl/, u-boot-spl.ais, u-boot-spl-pad.ais)
 
-mrproper \
-distclean:	clobber unconfig
+mrproper: clobber
+	@rm -f include/config.h include/config.mk \
+		board/*/config.tmp board/*/*/config.tmp \
+		include/autoconf.mk include/autoconf.mk.dep \
+		include/spl-autoconf.mk \
+		include/tpl-autoconf.mk
+
+distclean: mrproper
 ifneq ($(OBJTREE),$(SRCTREE))
 	rm -rf *
 endif
@@ -1162,6 +1203,9 @@ backup:
 	gtar --force-local -zcvf `LC_ALL=C date "+$$F-%Y-%m-%d-%T.tar.gz"` $$F
 
 #########################################################################
+
+endif #ifeq ($(config-targets),1)
+endif #ifeq ($(mixed-targets),1)
 
 endif	# skip-makefile
 
