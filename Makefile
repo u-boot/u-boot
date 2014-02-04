@@ -570,11 +570,8 @@ SUBDIRS = $(SUBDIR_TOOLS)
 
 .PHONY : $(SUBDIRS) $(VERSION_FILE) $(TIMESTAMP_FILE)
 
-SUBDIR_EXAMPLES-y := examples/standalone
-SUBDIR_EXAMPLES-$(CONFIG_API) += examples/api
-ifndef CONFIG_SANDBOX
+SUBDIR_EXAMPLES-y := examples
 SUBDIRS += $(SUBDIR_EXAMPLES-y)
-endif
 
 #########################################################################
 # U-Boot objects....order is important (i.e. start must be first)

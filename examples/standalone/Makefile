@@ -5,10 +5,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-ifdef FTRACE
-ccflags-y += -finstrument-functions -DFTRACE
-endif
-
 extra-y        := hello_world
 extra-$(CONFIG_SMC91111)           += smc91111_eeprom
 extra-$(CONFIG_SMC911X)            += smc911x_eeprom
