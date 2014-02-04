@@ -16,7 +16,6 @@
 /xway-swap-bytes
 /*.exe
 /easylogo/easylogo
-/env/fw_printenv
 /gdb/gdbcont
 /gdb/gdbsend
 /kernel-doc/docproc
