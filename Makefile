@@ -428,8 +428,16 @@ ifeq ($(mixed-targets),1)
 # We're called with mixed targets (*config and build targets).
 # Handle them one by one.
 
-%:: FORCE
-	$(Q)$(MAKE) -C $(srctree) KBUILD_SRC= $@
+PHONY += $(MAKECMDGOALS) build-one-by-one
+
+$(MAKECMDGOALS): build-one-by-one
+	@:
+
+build-one-by-one:
+	$(Q)set -e; \
+	for i in $(MAKECMDGOALS); do \
+		$(MAKE) -f $(srctree)/Makefile $$i; \
+	done
 
 else
 ifeq ($(config-targets),1)
