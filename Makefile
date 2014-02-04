@@ -392,6 +392,17 @@ scripts_basic:
 # To avoid any implicit rule to kick in, define an empty command.
 scripts/basic/%: scripts_basic ;
 
+PHONY += outputmakefile
+# outputmakefile generates a Makefile in the output directory, if using a
+# separate output directory. This allows convenient use of make in the
+# output directory.
+outputmakefile:
+ifneq ($(KBUILD_SRC),)
+	$(Q)ln -fsn $(srctree) source
+	$(Q)$(CONFIG_SHELL) $(srctree)/scripts/mkmakefile \
+	    $(srctree) $(objtree) $(VERSION) $(PATCHLEVEL)
+endif
+
 # To make sure we do not include .config for any of the *config targets
 # catch them early, and hand them over to scripts/kconfig/Makefile
 # It is allowed to specify more targets when calling make, including
@@ -449,7 +460,7 @@ ifeq ($(config-targets),1)
 # KBUILD_DEFCONFIG may point out an alternative default configuration
 # used for 'make defconfig'
 
-%_config::
+%_config:: outputmakefile
 	@$(MKCONFIG) -A $(@:_config=)
 
 else
@@ -928,7 +939,7 @@ $(sort $(u-boot-init) $(u-boot-main)): $(u-boot-dirs) ;
 # Error messages still appears in the original language
 
 PHONY += $(u-boot-dirs)
-$(u-boot-dirs): depend scripts_basic
+$(u-boot-dirs): depend prepare scripts
 	$(Q)$(MAKE) $(build)=$@
 
 tools: $(TIMESTAMP_FILE) $(VERSION_FILE)
@@ -938,6 +949,41 @@ $(filter-out tools, $(u-boot-dirs)): tools
 # is "yes"), so compile examples after U-Boot is compiled.
 examples: $(filter-out examples, $(u-boot-dirs))
 
+# Things we need to do before we recursively start building the kernel
+# or the modules are listed in "prepare".
+# A multi level approach is used. prepareN is processed before prepareN-1.
+# archprepare is used in arch Makefiles and when processed asm symlink,
+# version.h and scripts_basic is processed / created.
+
+# Listed in dependency order
+PHONY += prepare archprepare prepare0 prepare1 prepare2 prepare3
+
+# prepare3 is used to check if we are building in a separate output directory,
+# and if so do:
+# 1) Check that make has not been executed in the kernel src $(srctree)
+prepare3:
+ifneq ($(KBUILD_SRC),)
+	@$(kecho) '  Using $(srctree) as source for u-boot'
+	$(Q)if [ -f $(srctree)/include/config.mk ]; then \
+		echo >&2 "  $(srctree) is not clean, please run 'make mrproper'"; \
+		echo >&2 "  in the '$(srctree)' directory.";\
+		/bin/false; \
+	fi;
+endif
+
+# prepare2 creates a makefile if using a separate output directory
+prepare2: prepare3 outputmakefile
+
+prepare1: prepare2
+	@:
+
+archprepare: prepare1 scripts_basic
+
+prepare0: archprepare FORCE
+	@:
+
+# All the preparing..
+prepare: prepare0
 
 #
 # Auto-generate the autoconf.mk file (which is included by all makefiles)
@@ -965,16 +1011,16 @@ include/autoconf.mk: include/config.h
 u-boot.lds: $(LDSCRIPT) depend
 		$(CPP) $(cpp_flags) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ -P - <$< >$@
 
-nand_spl:	$(TIMESTAMP_FILE) $(VERSION_FILE) depend scripts_basic
+nand_spl:	$(TIMESTAMP_FILE) $(VERSION_FILE) depend prepare
 		$(MAKE) $(build)=nand_spl/board/$(BOARDDIR) all
 
 u-boot-nand.bin:	nand_spl u-boot.bin
 		cat nand_spl/u-boot-spl-16k.bin u-boot.bin > u-boot-nand.bin
 
-spl/u-boot-spl.bin: tools depend scripts_basic
+spl/u-boot-spl.bin: tools depend prepare 
 		$(MAKE) obj=spl -f $(srctree)/spl/Makefile all
 
-tpl/u-boot-tpl.bin: tools depend scripts_basic
+tpl/u-boot-tpl.bin: tools depend prepare
 		$(MAKE) obj=tpl -f $(srctree)/spl/Makefile all CONFIG_TPL_BUILD=y
 
 # Explicitly make _depend in subdirs containing multiple targets to prevent
@@ -1213,7 +1259,10 @@ backup:
 	F=`basename $(TOPDIR)` ; cd .. ; \
 	gtar --force-local -zcvf `LC_ALL=C date "+$$F-%Y-%m-%d-%T.tar.gz"` $$F
 
-#########################################################################
+# Dummies...
+PHONY += prepare scripts
+prepare: ;
+scripts: ;
 
 endif #ifeq ($(config-targets),1)
 endif #ifeq ($(mixed-targets),1)
