@@ -12,6 +12,20 @@
 #include <config.h>
 #include <common.h>
 
+
+#ifdef CONFIG_SYS_FSL_IFC_LE
+#define ifc_in32(a)       in_le32(a)
+#define ifc_out32(a, v)   out_le32(a, v)
+#define ifc_in16(a)       in_le16(a)
+#elif defined(CONFIG_SYS_FSL_IFC_BE)
+#define ifc_in32(a)       in_be32(a)
+#define ifc_out32(a, v)   out_be32(a, v)
+#define ifc_in16(a)       in_be16(a)
+#else
+#error Neither CONFIG_SYS_FSL_IFC_LE nor CONFIG_SYS_FSL_IFC_BE is defined
+#endif
+
+
 /*
  * CSPR - Chip Select Property Register
  */
@@ -773,20 +787,22 @@ extern void init_early_memctl_regs(void);
 
 #define IFC_BASE_ADDR ((struct fsl_ifc *)CONFIG_SYS_IFC_ADDR)
 
-#define get_ifc_cspr_ext(i) (in_be32(&(IFC_BASE_ADDR)->cspr_cs[i].cspr_ext))
-#define get_ifc_cspr(i) (in_be32(&(IFC_BASE_ADDR)->cspr_cs[i].cspr))
-#define get_ifc_csor_ext(i) (in_be32(&(IFC_BASE_ADDR)->csor_cs[i].csor_ext))
-#define get_ifc_csor(i) (in_be32(&(IFC_BASE_ADDR)->csor_cs[i].csor))
-#define get_ifc_amask(i) (in_be32(&(IFC_BASE_ADDR)->amask_cs[i].amask))
-#define get_ifc_ftim(i, j) (in_be32(&(IFC_BASE_ADDR)->ftim_cs[i].ftim[j]))
+#define get_ifc_cspr_ext(i) (ifc_in32(&(IFC_BASE_ADDR)->cspr_cs[i].cspr_ext))
+#define get_ifc_cspr(i) (ifc_in32(&(IFC_BASE_ADDR)->cspr_cs[i].cspr))
+#define get_ifc_csor_ext(i) (ifc_in32(&(IFC_BASE_ADDR)->csor_cs[i].csor_ext))
+#define get_ifc_csor(i) (ifc_in32(&(IFC_BASE_ADDR)->csor_cs[i].csor))
+#define get_ifc_amask(i) (ifc_in32(&(IFC_BASE_ADDR)->amask_cs[i].amask))
+#define get_ifc_ftim(i, j) (ifc_in32(&(IFC_BASE_ADDR)->ftim_cs[i].ftim[j]))
 
-#define set_ifc_cspr_ext(i, v) (out_be32(&(IFC_BASE_ADDR)->cspr_cs[i].cspr_ext, v))
-#define set_ifc_cspr(i, v) (out_be32(&(IFC_BASE_ADDR)->cspr_cs[i].cspr, v))
-#define set_ifc_csor_ext(i, v) (out_be32(&(IFC_BASE_ADDR)->csor_cs[i].csor_ext, v))
-#define set_ifc_csor(i, v) (out_be32(&(IFC_BASE_ADDR)->csor_cs[i].csor, v))
-#define set_ifc_amask(i, v) (out_be32(&(IFC_BASE_ADDR)->amask_cs[i].amask, v))
+#define set_ifc_cspr_ext(i, v) \
+			(ifc_out32(&(IFC_BASE_ADDR)->cspr_cs[i].cspr_ext, v))
+#define set_ifc_cspr(i, v) (ifc_out32(&(IFC_BASE_ADDR)->cspr_cs[i].cspr, v))
+#define set_ifc_csor_ext(i, v) \
+			(ifc_out32(&(IFC_BASE_ADDR)->csor_cs[i].csor_ext, v))
+#define set_ifc_csor(i, v) (ifc_out32(&(IFC_BASE_ADDR)->csor_cs[i].csor, v))
+#define set_ifc_amask(i, v) (ifc_out32(&(IFC_BASE_ADDR)->amask_cs[i].amask, v))
 #define set_ifc_ftim(i, j, v) \
-			(out_be32(&(IFC_BASE_ADDR)->ftim_cs[i].ftim[j], v))
+			(ifc_out32(&(IFC_BASE_ADDR)->ftim_cs[i].ftim[j], v))
 
 enum ifc_chip_sel {
 	IFC_CS0,

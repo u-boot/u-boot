@@ -69,13 +69,7 @@ enum srds_prtcl {
 	XFI_FM2_MAC9,
 	XFI_FM2_MAC10,
 	INTERLAKEN,
-	SGMII_SW1_DTSEC1,	/* SW indicates on L2 switch */
-	SGMII_SW1_DTSEC2,
-	SGMII_SW1_DTSEC3,
-	SGMII_SW1_DTSEC4,
-	SGMII_SW1_DTSEC5,
-	SGMII_SW1_DTSEC6,
-	QSGMII_SW1_A,		/* SW indicates on L2 swtich */
+	QSGMII_SW1_A,		/* Indicates ports on L2 Switch */
 	QSGMII_SW1_B,
 };
 

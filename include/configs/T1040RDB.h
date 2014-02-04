@@ -79,10 +79,6 @@
 #if defined(CONFIG_SPIFLASH)
 #define CONFIG_SYS_EXTRA_ENV_RELOC
 #define CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_SPI_BUS              0
-#define CONFIG_ENV_SPI_CS               0
-#define CONFIG_ENV_SPI_MAX_HZ           10000000
-#define CONFIG_ENV_SPI_MODE             0
 #define CONFIG_ENV_SIZE                 0x2000          /* 8KB */
 #define CONFIG_ENV_OFFSET               0x100000        /* 1MB */
 #define CONFIG_ENV_SECT_SIZE            0x10000
@@ -202,6 +198,7 @@
 /* CPLD on IFC */
 #define CONFIG_SYS_CPLD_BASE	0xffdf0000
 #define CONFIG_SYS_CPLD_BASE_PHYS	(0xf00000000ull | CONFIG_SYS_CPLD_BASE)
+#define CONFIG_SYS_CSPR2_EXT	(0xf)
 #define CONFIG_SYS_CSPR2	(CSPR_PHYS_ADDR(CONFIG_SYS_CPLD_BASE_PHYS) \
 				| CSPR_PORT_SIZE_8 \
 				| CSPR_MSEL_GPCM \
@@ -386,6 +383,10 @@
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED         10000000
 #define CONFIG_SF_DEFAULT_MODE          0
+#define CONFIG_ENV_SPI_BUS              0
+#define CONFIG_ENV_SPI_CS               0
+#define CONFIG_ENV_SPI_MAX_HZ           10000000
+#define CONFIG_ENV_SPI_MODE             0
 
 /*
  * General PCI
@@ -543,13 +544,12 @@
 #endif
 
 #ifdef CONFIG_FMAN_ENET
-#define CONFIG_SYS_FM1_DTSEC1_RISER_PHY_ADDR    0x1c
-#define CONFIG_SYS_FM1_DTSEC2_RISER_PHY_ADDR    0x1d
-#define CONFIG_SYS_FM1_DTSEC3_RISER_PHY_ADDR    0x1e
-#define CONFIG_SYS_FM1_DTSEC4_RISER_PHY_ADDR    0x1f
+#define CONFIG_SYS_SGMII1_PHY_ADDR		0x03
+#define CONFIG_SYS_RGMII1_PHY_ADDR		0x01
+#define CONFIG_SYS_RGMII2_PHY_ADDR		0x02
 
 #define CONFIG_MII		/* MII PHY management */
-#define CONFIG_ETHPRIME		"FM1@DTSEC1"
+#define CONFIG_ETHPRIME		"FM1@DTSEC4"
 #define CONFIG_PHY_GIGE		/* Include GbE speed/duplex detection */
 #endif
 
@@ -627,9 +627,9 @@
 #define __USB_PHY_TYPE	utmi
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
-	"hwconfig=fsl_ddr:ctlr_intlv=cacheline,"		\
-	"bank_intlv=cs0_cs1;"					\
-	"usb1:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) "\0"\
+	"hwconfig=fsl_ddr:bank_intlv=cs0_cs1;"			\
+	"usb1:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) ";"\
+	"usb2:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) "\0"\
 	"netdev=eth0\0"						\
 	"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"		\
 	"ubootaddr=" __stringify(CONFIG_SYS_TEXT_BASE) "\0"	\
