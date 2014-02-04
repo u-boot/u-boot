@@ -11,6 +11,7 @@
 #include <linux/ctype.h>
 #include <errno.h>
 #include <linux/list.h>
+#include <fs.h>
 
 #include "menu.h"
 
@@ -155,6 +156,19 @@ static int do_get_fat(cmd_tbl_t *cmdtp, const char *file_path, char *file_addr)
 	fs_argv[4] = (void *)file_path;
 
 	if (!do_fat_fsload(cmdtp, 0, 5, fs_argv))
+		return 1;
+#endif
+	return -ENOENT;
+}
+
+static int do_get_any(cmd_tbl_t *cmdtp, const char *file_path, char *file_addr)
+{
+#ifdef CONFIG_CMD_FS_GENERIC
+	fs_argv[0] = "load";
+	fs_argv[3] = file_addr;
+	fs_argv[4] = (void *)file_path;
+
+	if (!do_load(cmdtp, 0, 5, fs_argv, FS_TYPE_ANY))
 		return 1;
 #endif
 	return -ENOENT;
@@ -1606,6 +1620,8 @@ int do_sysboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		do_getfile = do_get_ext2;
 	else if (strstr(argv[3], "fat"))
 		do_getfile = do_get_fat;
+	else if (strstr(argv[3], "any"))
+		do_getfile = do_get_any;
 	else {
 		printf("Invalid filesystem: %s\n", argv[3]);
 		return 1;
@@ -1643,7 +1659,7 @@ int do_sysboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 U_BOOT_CMD(
 	sysboot, 7, 1, do_sysboot,
 	"command to get and boot from syslinux files",
-	"[-p] <interface> <dev[:part]> <ext2|fat> [addr] [filename]\n"
-	"    - load and parse syslinux menu file 'filename' from ext2 or fat\n"
-	"      filesystem on 'dev' on 'interface' to address 'addr'"
+	"[-p] <interface> <dev[:part]> <ext2|fat|any> [addr] [filename]\n"
+	"    - load and parse syslinux menu file 'filename' from ext2, fat\n"
+	"      or any filesystem on 'dev' on 'interface' to address 'addr'"
 );
