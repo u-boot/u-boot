@@ -5,7 +5,10 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-ifndef CONFIG_SPL_BUILD
+ifdef CONFIG_SPL_BUILD
+# necessary to create built-in.o
+obj- := __dummy__.o
+else
 obj-y	:= spr_misc.o
 obj-y	+= spr_lowlevel_init.o
 endif

@@ -5,6 +5,9 @@
 #
 
 ifdef CONFIG_SPL_BUILD
+# necessary to create built-in.o
+obj- := __dummy__.o
+
 hostprogs-y := tools/mkorigenspl
 always := $(hostprogs-y)
 
