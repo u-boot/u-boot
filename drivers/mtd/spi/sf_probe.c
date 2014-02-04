@@ -149,7 +149,7 @@ static struct spi_flash *spi_flash_validate_params(struct spi_slave *spi,
 	flash->shift = (flash->dual_flash & SF_DUAL_PARALLEL_FLASH) ? 1 : 0;
 	flash->page_size = ((ext_jedec == 0x4d00) ? 512 : 256) << flash->shift;
 	flash->sector_size = params->sector_size << flash->shift;
-	flash->size = flash->sector_size * params->nr_sectors << flash->shift;
+	flash->size = flash->sector_size * params->nr_sectors;
 #ifdef CONFIG_SF_DUAL_FLASH
 	if (flash->dual_flash & SF_DUAL_STACKED_FLASH)
 		flash->size <<= 1;
