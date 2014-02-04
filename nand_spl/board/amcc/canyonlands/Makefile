@@ -5,7 +5,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-include $(TOPDIR)/config.mk
 include $(TOPDIR)/nand_spl/board/$(BOARDDIR)/config.mk
 
 nandobj	:= $(OBJTREE)/nand_spl/
@@ -87,10 +86,3 @@ $(obj)%.o:	$(obj)%.S
 
 $(obj)%.o:	$(obj)%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################

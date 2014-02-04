@@ -6,10 +6,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-NAND_SPL := y
 PAD_TO := 0xfff04000
-
-include $(TOPDIR)/config.mk
 
 nandobj	:= $(OBJTREE)/nand_spl/
 
@@ -79,10 +76,3 @@ $(obj)%.o:	$(obj)%.S
 
 $(obj)%.o:	$(obj)%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################

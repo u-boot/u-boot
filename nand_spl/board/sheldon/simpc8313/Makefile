@@ -7,10 +7,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-NAND_SPL := y
-
-include $(TOPDIR)/config.mk
-
 nandobj	:= $(OBJTREE)/nand_spl/
 
 LDSCRIPT= $(TOPDIR)/nand_spl/board/$(BOARDDIR)/u-boot.lds
@@ -88,10 +84,3 @@ $(obj)%.o:	$(obj)%.S
 
 $(obj)%.o:	$(obj)%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
