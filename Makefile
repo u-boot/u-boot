@@ -281,13 +281,27 @@ endif
 # load other configuration
 include $(TOPDIR)/config.mk
 
+ifneq ($(CONFIG_SYS_TEXT_BASE),)
+KBUILD_CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE)
+endif
+
+export CONFIG_SYS_TEXT_BASE
+
+LDFLAGS_u-boot += -T $(obj)u-boot.lds $(LDFLAGS_FINAL)
+ifneq ($(CONFIG_SYS_TEXT_BASE),)
+LDFLAGS_u-boot += -Ttext $(CONFIG_SYS_TEXT_BASE)
+endif
+
 # Targets which don't build the source code
-NON_BUILD_TARGETS = backup clean clobber distclean mrproper tidy unconfig
+NON_BUILD_TARGETS = backup clean clobber distclean mrproper tidy unconfig %_config
 
 # Only do the generic board check when actually building, not configuring
 ifeq ($(filter $(NON_BUILD_TARGETS),$(MAKECMDGOALS)),)
-ifeq ($(findstring _config,$(MAKECMDGOALS)),)
-$(CHECK_GENERIC_BOARD)
+ifeq ($(__HAVE_ARCH_GENERIC_BOARD),)
+ifneq ($(CONFIG_SYS_GENERIC_BOARD),)
+CHECK_GENERIC_BOARD = $(error Your architecture does not support generic board. \
+Please undefined CONFIG_SYS_GENERIC_BOARD in your board config file)
+endif
 endif
 endif
 

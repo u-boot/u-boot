@@ -102,22 +102,10 @@ CPPFLAGS += -ffunction-sections -fdata-sections
 LDFLAGS_FINAL += --gc-sections
 endif
 
-ifneq ($(CONFIG_SYS_TEXT_BASE),)
-CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE)
-endif
-
 ifeq ($(CONFIG_SPL_BUILD),y)
 CPPFLAGS += -DCONFIG_SPL_BUILD
 ifeq ($(CONFIG_TPL_BUILD),y)
 CPPFLAGS += -DCONFIG_TPL_BUILD
-endif
-endif
-
-# Does this architecture support generic board init?
-ifeq ($(__HAVE_ARCH_GENERIC_BOARD),)
-ifneq ($(CONFIG_SYS_GENERIC_BOARD),)
-CHECK_GENERIC_BOARD = $(error Your architecture does not support generic board. \
-Please undefined CONFIG_SYS_GENERIC_BOARD in your board config file)
 endif
 endif
 
@@ -141,11 +129,6 @@ AFLAGS := $(KBUILD_AFLAGS) $(CPPFLAGS)
 LDFLAGS += $(PLATFORM_LDFLAGS)
 LDFLAGS_FINAL += -Bstatic
 
-LDFLAGS_u-boot += -T $(obj)u-boot.lds $(LDFLAGS_FINAL)
-ifneq ($(CONFIG_SYS_TEXT_BASE),)
-LDFLAGS_u-boot += -Ttext $(CONFIG_SYS_TEXT_BASE)
-endif
-
 LDFLAGS_$(SPL_BIN) += -T $(obj)u-boot-spl.lds $(LDFLAGS_FINAL)
 ifneq ($(CONFIG_SPL_TEXT_BASE),)
 LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_SPL_TEXT_BASE)
@@ -153,4 +136,4 @@ endif
 
 #########################################################################
 
-export	CONFIG_SYS_TEXT_BASE PLATFORM_CPPFLAGS PLATFORM_RELFLAGS CPPFLAGS CFLAGS AFLAGS
+export PLATFORM_CPPFLAGS PLATFORM_RELFLAGS CPPFLAGS CFLAGS AFLAGS
