@@ -50,9 +50,9 @@ $(obj)demo.bin: $(obj)demo
 		$(OBJCOPY) -O binary $< $@ 2>/dev/null
 
 # Rule to build generic library C files
-$(obj)%.o: $(SRCTREE)/lib/%.c
+$(addprefix $(obj),$(notdir $(EXT_COBJ_FILES-y))): $(obj)%.o: $(SRCTREE)/lib/%.c
 	$(CC) -g $(CFLAGS) -c -o $@ $<
 
 # Rule to build architecture-specific library assembly files
-$(obj)%.o: $(SRCTREE)/arch/$(ARCH)/lib/%.S
+$(addprefix $(obj),$(notdir $(EXT_SOBJ_FILES-y))): $(obj)%.o: $(SRCTREE)/arch/$(ARCH)/lib/%.S
 	$(CC) -g $(CFLAGS) -c -o $@ $<
