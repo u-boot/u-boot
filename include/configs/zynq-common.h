@@ -100,6 +100,7 @@
 # define CONFIG_SPI_FLASH_WINBOND
 # define CONFIG_CMD_SPI
 # define CONFIG_CMD_SF
+# define CONFIG_SF_DUAL_FLASH
 #endif
 
 /* NAND */
