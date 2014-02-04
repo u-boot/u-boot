@@ -809,6 +809,7 @@ clean:
 	       $(obj)tools/proftool
 	@rm -f $(obj)board/cray/L1/{bootscript.c,bootscript.image}	  \
 	       $(obj)board/matrix_vision/*/bootscript.img		  \
+	       $(obj)spl/board/samsung/$(BOARD)/tools/mk$(BOARD)spl	  \
 	       $(obj)u-boot.lds						  \
 	       $(obj)arch/blackfin/cpu/init.{lds,elf}
 	@rm -f $(obj)include/bmp_logo.h

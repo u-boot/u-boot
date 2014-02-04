@@ -165,8 +165,8 @@ else
 VAR_SIZE_PARAM =
 endif
 $(obj)$(BOARD)-spl.bin: $(obj)u-boot-spl.bin
-	$(if $(wildcard $(OBJTREE)/tools/mk$(BOARD)spl),\
-	$(OBJTREE)/tools/mk$(BOARD)spl,\
+	$(if $(wildcard $(OBJTREE)/spl/board/samsung/$(BOARD)/tools/mk$(BOARD)spl),\
+	$(OBJTREE)/spl/board/samsung/$(BOARD)/tools/mk$(BOARD)spl,\
 	$(OBJTREE)/tools/mkexynosspl) $(VAR_SIZE_PARAM) $< $@
 endif
 
