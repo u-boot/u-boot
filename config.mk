@@ -6,13 +6,6 @@
 #
 #########################################################################
 
-# Set shell to bash if possible, otherwise fall back to sh
-SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
-	else if [ -x /bin/bash ]; then echo /bin/bash; \
-	else echo sh; fi; fi)
-
-export	SHELL
-
 ifeq ($(CURDIR),$(SRCTREE))
 dir :=
 else
@@ -55,44 +48,6 @@ PLATFORM_CPPFLAGS =
 PLATFORM_LDFLAGS =
 
 #########################################################################
-
-HOSTCFLAGS	= -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer \
-		  $(HOSTCPPFLAGS)
-
-#
-# Mac OS X / Darwin's C preprocessor is Apple specific.  It
-# generates numerous errors and warnings.  We want to bypass it
-# and use GNU C's cpp.	To do this we pass the -traditional-cpp
-# option to the compiler.  Note that the -traditional-cpp flag
-# DOES NOT have the same semantics as GNU C's flag, all it does
-# is invoke the GNU preprocessor in stock ANSI/ISO C fashion.
-#
-# Apple's linker is similar, thanks to the new 2 stage linking
-# multiple symbol definitions are treated as errors, hence the
-# -multiply_defined suppress option to turn off this error.
-#
-
-ifeq ($(HOSTOS),darwin)
-# get major and minor product version (e.g. '10' and '6' for Snow Leopard)
-DARWIN_MAJOR_VERSION	= $(shell sw_vers -productVersion | cut -f 1 -d '.')
-DARWIN_MINOR_VERSION	= $(shell sw_vers -productVersion | cut -f 2 -d '.')
-
-os_x_before	= $(shell if [ $(DARWIN_MAJOR_VERSION) -le $(1) -a \
-	$(DARWIN_MINOR_VERSION) -le $(2) ] ; then echo "$(3)"; else echo "$(4)"; fi ;)
-
-# Snow Leopards build environment has no longer restrictions as described above
-HOSTCC		 = $(call os_x_before, 10, 5, "cc", "gcc")
-HOSTCFLAGS	+= $(call os_x_before, 10, 4, "-traditional-cpp")
-HOSTLDFLAGS	+= $(call os_x_before, 10, 5, "-multiply_defined suppress")
-else
-HOSTCC		= gcc
-endif
-
-ifeq ($(HOSTOS),cygwin)
-HOSTCFLAGS	+= -ansi
-endif
-
-#########################################################################
 #
 # Option checker, gcc version (courtesy linux kernel) to ensure
 # only supported compiler options are used
@@ -117,30 +72,9 @@ endif
 
 # cc-version
 # Usage gcc-ver := $(call cc-version)
-cc-version = $(shell $(SHELL) $(SRCTREE)/scripts/gcc-version.sh $(CC))
-binutils-version = $(shell $(SHELL) $(SRCTREE)/scripts/binutils-version.sh $(AS))
-dtc-version = $(shell $(SHELL) $(SRCTREE)/scripts/dtc-version.sh $(DTC))
-
-#
-# Include the make variables (CC, etc...)
-#
-AS	= $(CROSS_COMPILE)as
-
-# Always use GNU ld
-LD	= $(shell if $(CROSS_COMPILE)ld.bfd -v > /dev/null 2>&1; \
-		then echo "$(CROSS_COMPILE)ld.bfd"; else echo "$(CROSS_COMPILE)ld"; fi;)
-
-CC	= $(CROSS_COMPILE)gcc
-CPP	= $(CC) -E
-AR	= $(CROSS_COMPILE)ar
-NM	= $(CROSS_COMPILE)nm
-LDR	= $(CROSS_COMPILE)ldr
-STRIP	= $(CROSS_COMPILE)strip
-OBJCOPY = $(CROSS_COMPILE)objcopy
-OBJDUMP = $(CROSS_COMPILE)objdump
-RANLIB	= $(CROSS_COMPILE)RANLIB
-DTC	= dtc
-CHECK	= sparse
+cc-version = $(shell $(CONFIG_SHELL) $(SRCTREE)/scripts/gcc-version.sh $(CC))
+binutils-version = $(shell $(CONFIG_SHELL) $(SRCTREE)/scripts/binutils-version.sh $(AS))
+dtc-version = $(shell $(CONFIG_SHELL) $(SRCTREE)/scripts/dtc-version.sh $(DTC))
 
 #########################################################################
 
@@ -286,10 +220,6 @@ ifneq ($(CONFIG_SPL_TEXT_BASE),)
 LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_SPL_TEXT_BASE)
 endif
 
-# Linus' kernel sanity checking tool
-CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
-		  -Wbitwise -Wno-return-void -D__CHECK_ENDIAN__ $(CF)
-
 # Location of a usable BFD library, where we define "usable" as
 # "built for ${HOST}, supports ${TARGET}".  Sensible values are
 # - When cross-compiling: the root of the cross-environment
@@ -315,6 +245,4 @@ endif
 
 #########################################################################
 
-export	HOSTCC HOSTCFLAGS HOSTLDFLAGS CROSS_COMPILE \
-	AS LD CC CPP AR NM STRIP OBJCOPY OBJDUMP MAKE
 export	CONFIG_SYS_TEXT_BASE PLATFORM_CPPFLAGS PLATFORM_RELFLAGS CPPFLAGS CFLAGS AFLAGS

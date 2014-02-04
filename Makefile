@@ -161,6 +161,73 @@ ifeq ($(HOSTARCH),$(ARCH))
 CROSS_COMPILE ?=
 endif
 
+# SHELL used by kbuild
+CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
+	  else if [ -x /bin/bash ]; then echo /bin/bash; \
+	  else echo sh; fi ; fi)
+
+HOSTCC       = gcc
+HOSTCFLAGS   = -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
+
+ifeq ($(HOSTOS),cygwin)
+HOSTCFLAGS	+= -ansi
+endif
+
+# Mac OS X / Darwin's C preprocessor is Apple specific.  It
+# generates numerous errors and warnings.  We want to bypass it
+# and use GNU C's cpp.	To do this we pass the -traditional-cpp
+# option to the compiler.  Note that the -traditional-cpp flag
+# DOES NOT have the same semantics as GNU C's flag, all it does
+# is invoke the GNU preprocessor in stock ANSI/ISO C fashion.
+#
+# Apple's linker is similar, thanks to the new 2 stage linking
+# multiple symbol definitions are treated as errors, hence the
+# -multiply_defined suppress option to turn off this error.
+#
+ifeq ($(HOSTOS),darwin)
+# get major and minor product version (e.g. '10' and '6' for Snow Leopard)
+DARWIN_MAJOR_VERSION	= $(shell sw_vers -productVersion | cut -f 1 -d '.')
+DARWIN_MINOR_VERSION	= $(shell sw_vers -productVersion | cut -f 2 -d '.')
+
+os_x_before	= $(shell if [ $(DARWIN_MAJOR_VERSION) -le $(1) -a \
+	$(DARWIN_MINOR_VERSION) -le $(2) ] ; then echo "$(3)"; else echo "$(4)"; fi ;)
+
+# Snow Leopards build environment has no longer restrictions as described above
+HOSTCC       = $(call os_x_before, 10, 5, "cc", "gcc")
+HOSTCFLAGS  += $(call os_x_before, 10, 4, "-traditional-cpp")
+HOSTLDFLAGS += $(call os_x_before, 10, 5, "-multiply_defined suppress")
+endif
+
+# Make variables (CC, etc...)
+
+AS		= $(CROSS_COMPILE)as
+# Always use GNU ld
+ifneq ($(shell $(CROSS_COMPILE)ld.bfd -v 2> /dev/null),)
+LD		= $(CROSS_COMPILE)ld.bfd
+else
+LD		= $(CROSS_COMPILE)ld
+endif
+CC		= $(CROSS_COMPILE)gcc
+CPP		= $(CC) -E
+AR		= $(CROSS_COMPILE)ar
+NM		= $(CROSS_COMPILE)nm
+LDR		= $(CROSS_COMPILE)ldr
+STRIP		= $(CROSS_COMPILE)strip
+OBJCOPY		= $(CROSS_COMPILE)objcopy
+OBJDUMP		= $(CROSS_COMPILE)objdump
+AWK		= awk
+RANLIB		= $(CROSS_COMPILE)RANLIB
+DTC		= dtc
+CHECK		= sparse
+
+CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
+		  -Wbitwise -Wno-return-void -D__CHECK_ENDIAN__ $(CF)
+
+export CONFIG_SHELL HOSTCC HOSTCFLAGS HOSTLDFLAGS CROSS_COMPILE AS LD CC
+export CPP AR NM LDR STRIP OBJCOPY OBJDUMP
+export MAKE AWK
+export DTC CHECK CHECKFLAGS
+
 # load other configuration
 include $(TOPDIR)/config.mk
 
@@ -788,27 +855,28 @@ clean:
 	       $(obj)examples/standalone/interrupt			  \
 	       $(obj)examples/standalone/mem_to_mem_idma2intr		  \
 	       $(obj)examples/standalone/sched				  \
-	       $(obj)examples/standalone/smc911{11,x}_eeprom		  \
+	       $(addprefix $(obj)examples/standalone/, smc91111_eeprom smc911x_eeprom) \
 	       $(obj)examples/standalone/test_burst			  \
 	       $(obj)examples/standalone/timer
-	@rm -f $(obj)examples/api/demo{,.bin}
+	@rm -f $(addprefix $(obj)examples/api/, demo demo.bin)
 	@rm -f $(obj)tools/bmp_logo	   $(obj)tools/easylogo/easylogo  \
 	       $(obj)tools/env/fw_printenv				  \
 	       $(obj)tools/envcrc					  \
-	       $(obj)tools/gdb/{gdbcont,gdbsend}			  \
+	       $(addprefix $(obj)tools/gdb/, gdbcont gdbsend)		  \
 	       $(obj)tools/gen_eth_addr    $(obj)tools/img2srec		  \
-	       $(obj)tools/dump{env,}image		  \
-	       $(obj)tools/mk{env,}image   $(obj)tools/mpc86x_clk	  \
-	       $(obj)tools/mk{$(BOARD),exynos}spl			  \
+	       $(obj)tools/dumpimage					  \
+	       $(addprefix $(obj)tools/, mkenvimage mkimage)		  \
+	       $(obj)tools/mpc86x_clk					  \
+	       $(addprefix $(obj)tools/, mk$(BOARD)spl mkexynosspl)	  \
 	       $(obj)tools/mxsboot					  \
 	       $(obj)tools/ncb		   $(obj)tools/ubsha1		  \
 	       $(obj)tools/kernel-doc/docproc				  \
 	       $(obj)tools/proftool
-	@rm -f $(obj)board/cray/L1/{bootscript.c,bootscript.image}	  \
+	@rm -f $(addprefix $(obj)board/cray/L1/, bootscript.c bootscript.image) \
 	       $(obj)board/matrix_vision/*/bootscript.img		  \
 	       $(obj)spl/board/samsung/$(BOARD)/tools/mk$(BOARD)spl	  \
 	       $(obj)u-boot.lds						  \
-	       $(obj)arch/blackfin/cpu/init.{lds,elf}
+	       $(addprefix $(obj)arch/blackfin/cpu/, init.lds init.elf)
 	@rm -f $(obj)include/bmp_logo.h
 	@rm -f $(obj)include/bmp_logo_data.h
 	@rm -f $(obj)lib/asm-offsets.s
@@ -843,11 +911,11 @@ clobber:	tidy
 	@rm -f $(obj)u-boot.dtb
 	@rm -f $(obj)u-boot.sb
 	@rm -f $(obj)u-boot.spr
-	@rm -f $(obj)nand_spl/{u-boot.{lds,lst},System.map}
-	@rm -f $(obj)nand_spl/{u-boot-nand_spl.lds,u-boot-spl,u-boot-spl.map}
-	@rm -f $(obj)spl/{u-boot-spl,u-boot-spl.bin,u-boot-spl.map}
+	@rm -f $(addprefix $(obj)nand_spl/, u-boot.lds u-boot.lst System.map)
+	@rm -f $(addprefix $(obj)nand_spl/, u-boot-nand_spl.lds u-boot-spl u-boot-spl.map)
+	@rm -f $(addprefix $(obj)spl/, u-boot-spl u-boot-spl.bin u-boot-spl.map)
 	@rm -f $(obj)spl/u-boot-spl.lds
-	@rm -f $(obj)tpl/{u-boot-tpl,u-boot-tpl.bin,u-boot-tpl.map}
+	@rm -f $(addprefix $(obj)tpl/, u-boot-tpl u-boot-tpl.bin u-boot-tpl.map)
 	@rm -f $(obj)tpl/u-boot-spl.lds
 	@rm -f $(obj)MLO MLO.byteswap
 	@rm -f $(obj)SPL
@@ -856,7 +924,7 @@ clobber:	tidy
 	@rm -fr $(obj)include/generated
 	@[ ! -d $(obj)nand_spl ] || find $(obj)nand_spl -name "*" -type l -print | xargs rm -f
 	@rm -f $(obj)dts/*.tmp
-	@rm -f $(obj)spl/u-boot-spl{,-pad}.ais
+	@rm -f $(addprefix $(obj)spl/, u-boot-spl.ais, u-boot-spl-pad.ais)
 
 mrproper \
 distclean:	clobber unconfig
