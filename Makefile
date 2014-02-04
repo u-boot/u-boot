@@ -202,12 +202,6 @@ export	HOSTARCH HOSTOS
 VENDOR=
 
 #########################################################################
-# Allow for silent builds
-ifeq (,$(findstring s,$(MAKEFLAGS)))
-XECHO = echo
-else
-XECHO = :
-endif
 
 # The "tools" are needed early, so put this first
 # Don't include stuff already done in $(LIBS)
@@ -909,10 +903,11 @@ TAG_SUBDIRS += include
 FIND := find
 FINDFLAGS := -L
 
+PHONY += checkstack
+
 checkstack:
-		$(CROSS_COMPILE)objdump -d u-boot \
-			`$(FIND) . -name u-boot-spl -print` | \
-			perl $(src)/scripts/checkstack.pl $(ARCH)
+	$(OBJDUMP) -d u-boot $$(find . -name u-boot-spl) | \
+	$(PERL) $(src)/scripts/checkstack.pl $(ARCH)
 
 tags ctags:
 		ctags -w -o ctags `$(FIND) $(FINDFLAGS) $(TAG_SUBDIRS) \
@@ -962,52 +957,63 @@ checkdtc:
 # This target actually generates 2 files; autoconf.mk and autoconf.mk.dep.
 # the dep file is only include in this top level makefile to determine when
 # to regenerate the autoconf.mk file.
-include/autoconf.mk.dep: include/config.h include/common.h
-	@$(XECHO) Generating $@ ; \
-	: Generate the dependancies ; \
-	$(CC) -x c -DDO_DEPS_ONLY -M $(c_flags) \
-		-MQ include/autoconf.mk $(srctree)/include/common.h > $@ || \
-		rm $@
 
-include/autoconf.mk: include/config.h
-	@$(XECHO) Generating $@ ; \
-	: Extract the config macros ; \
+quiet_cmd_autoconf_dep = GEN     $@
+      cmd_autoconf_dep = $(CC) -x c -DDO_DEPS_ONLY -M $(c_flags) \
+	-MQ include/autoconf.mk $(srctree)/include/common.h > $@ || rm $@
+
+include/autoconf.mk.dep: include/config.h include/common.h
+	$(call cmd,autoconf_dep)
+
+quiet_cmd_autoconf = GEN     $@
+      cmd_autoconf = \
 	$(CPP) $(c_flags) -DDO_DEPS_ONLY -dM $(srctree)/include/common.h > $@.tmp && \
-		sed -n -f $(srctree)/tools/scripts/define2mk.sed $@.tmp > $@; \
+	sed -n -f $(srctree)/tools/scripts/define2mk.sed $@.tmp > $@; \
 	rm $@.tmp
 
+include/autoconf.mk: include/config.h
+	$(call cmd,autoconf)
+
 # Auto-generate the spl-autoconf.mk file (which is included by all makefiles for SPL)
-include/tpl-autoconf.mk: include/config.h
-	@$(XECHO) Generating $@ ; \
-	: Extract the config macros ; \
+quiet_cmd_tpl-autoconf = GEN     $@
+      cmd_tpl-autoconf = \
 	$(CPP) $(c_flags) -DCONFIG_TPL_BUILD  -DCONFIG_SPL_BUILD\
 			-DDO_DEPS_ONLY -dM $(srctree)/include/common.h > $@.tmp && \
 		sed -n -f $(srctree)/tools/scripts/define2mk.sed $@.tmp > $@; \
 	rm $@.tmp
 
-include/spl-autoconf.mk: include/config.h
-	@$(XECHO) Generating $@ ; \
-	: Extract the config macros ; \
+include/tpl-autoconf.mk: include/config.h
+	$(call cmd,tpl-autoconf)
+
+quiet_cmd_spl-autoconf = GEN     $@
+      cmd_spl-autoconf = \
 	$(CPP) $(c_flags) -DCONFIG_SPL_BUILD -DDO_DEPS_ONLY -dM $(srctree)/include/common.h > $@.tmp && \
 		sed -n -f $(srctree)/tools/scripts/define2mk.sed $@.tmp > $@; \
 	rm $@.tmp
 
-include/generated/generic-asm-offsets.h: lib/asm-offsets.s
-	@$(XECHO) Generating $@
-	$(srctree)/tools/scripts/make-asm-offsets lib/asm-offsets.s $@
+include/spl-autoconf.mk: include/config.h
+	$(call cmd,spl-autoconf)
 
-lib/asm-offsets.s: include/config.h $(srctree)/lib/asm-offsets.c
-	@mkdir -p lib
-	$(CC) -DDO_DEPS_ONLY \
+quiet_cmd_offsets = GEN     $@
+      cmd_offsets = $(srctree)/tools/scripts/make-asm-offsets $< $@
+
+include/generated/generic-asm-offsets.h: lib/asm-offsets.s
+	$(call cmd,offsets)
+
+quiet_cmd_asm-offsets.s = CC      $@
+      cmd_asm-offsets.s = mkdir -p lib; \
+		$(CC) -DDO_DEPS_ONLY \
 		$(c_flags) $(CFLAGS_$(BCURDIR)/$(@F)) $(CFLAGS_$(BCURDIR)) \
-		-o $@ $(srctree)/lib/asm-offsets.c -c -S
+		-o $@ $< -c -S
+
+lib/asm-offsets.s: $(srctree)/lib/asm-offsets.c include/config.h
+	$(call cmd,asm-offsets.s)
 
 include/generated/asm-offsets.h: $(CPUDIR)/$(SOC)/asm-offsets.s
-	@$(XECHO) Generating $@
-	$(srctree)/tools/scripts/make-asm-offsets $(CPUDIR)/$(SOC)/asm-offsets.s $@
+	$(call cmd,offsets)
 
-$(CPUDIR)/$(SOC)/asm-offsets.s:	include/config.h
-	@mkdir -p $(CPUDIR)/$(SOC)
+quiet_cmd_soc_asm-offsets.s = CC      $@
+      cmd_soc_asm-offsets.s = mkdir -p $(CPUDIR)/$(SOC); \
 	if [ -f $(srctree)/$(CPUDIR)/$(SOC)/asm-offsets.c ];then \
 		$(CC) -DDO_DEPS_ONLY \
 		$(c_flags) $(CFLAGS_$(BCURDIR)/$(@F)) $(CFLAGS_$(BCURDIR)) \
@@ -1015,6 +1021,9 @@ $(CPUDIR)/$(SOC)/asm-offsets.s:	include/config.h
 	else \
 		touch $@; \
 	fi
+
+$(CPUDIR)/$(SOC)/asm-offsets.s:	include/config.h
+	$(call cmd,soc_asm-offsets.s)
 
 #########################################################################
 else	# !config.mk
