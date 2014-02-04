@@ -63,6 +63,14 @@ int ext4fs_read_file(struct ext2fs_node *node, int pos,
 	char *delayed_buf = NULL;
 	short status;
 
+	if (le32_to_cpu(node->inode.flags) & EXT4_EXTENTS_FL) {
+		if (ext4fs_build_extent_cache(&node->inode)) {
+			printf("Error building extent cache!\n");
+			len = -1;
+			goto out_exit;
+		}
+	}
+
 	/* Adjust len so it we can't read past the end of the file. */
 	if (len > filesize)
 		len = filesize;
@@ -75,8 +83,10 @@ int ext4fs_read_file(struct ext2fs_node *node, int pos,
 		int blockend = blocksize;
 		int skipfirst = 0;
 		blknr = read_allocated_block(&(node->inode), i);
-		if (blknr < 0)
-			return -1;
+		if (blknr < 0) {
+			len = -1;
+			goto out_exit;
+		}
 
 		blknr = blknr << log2_fs_blocksize;
 
@@ -106,8 +116,10 @@ int ext4fs_read_file(struct ext2fs_node *node, int pos,
 							delayed_skipfirst,
 							delayed_extent,
 							delayed_buf);
-					if (status == 0)
-						return -1;
+					if (status == 0) {
+						len = -1;
+						goto out_exit;
+					}
 					previous_block_number = blknr;
 					delayed_start = blknr;
 					delayed_extent = blockend;
@@ -132,8 +144,10 @@ int ext4fs_read_file(struct ext2fs_node *node, int pos,
 							delayed_skipfirst,
 							delayed_extent,
 							delayed_buf);
-				if (status == 0)
-					return -1;
+				if (status == 0) {
+					len = -1;
+					goto out_exit;
+				}
 				previous_block_number = -1;
 			}
 			memset(buf, 0, blocksize - skipfirst);
@@ -145,10 +159,16 @@ int ext4fs_read_file(struct ext2fs_node *node, int pos,
 		status = ext4fs_devread(delayed_start,
 					delayed_skipfirst, delayed_extent,
 					delayed_buf);
-		if (status == 0)
-			return -1;
+		if (status == 0) {
+			len = -1;
+			goto out_exit;
+		}
 		previous_block_number = -1;
 	}
+
+
+out_exit:
+	ext4fs_free_extent_cache();
 
 	return len;
 }

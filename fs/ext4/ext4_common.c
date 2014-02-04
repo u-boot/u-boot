@@ -26,6 +26,7 @@
 #include <stddef.h>
 #include <linux/stat.h>
 #include <linux/time.h>
+#include <linux/list.h>
 #include <asm/byteorder.h>
 #include "ext4_common.h"
 
@@ -43,6 +44,14 @@ int ext4fs_indir3_size;
 int ext4fs_indir3_blkno = -1;
 struct ext2_inode *g_parent_inode;
 static int symlinknest;
+
+struct ext4_extent_node {
+	uint32_t block;
+	uint16_t len;
+	uint64_t start;
+	struct list_head lh;
+};
+static LIST_HEAD(ext4_extent_lh);
 
 #if defined(CONFIG_EXT4_WRITE)
 uint32_t ext4fs_div_roundup(uint32_t size, uint32_t n)
@@ -1407,43 +1416,100 @@ void ext4fs_allocate_blocks(struct ext2_inode *file_inode,
 
 #endif
 
-static struct ext4_extent_header *ext4fs_get_extent_block
-	(struct ext2_data *data, char *buf,
-		struct ext4_extent_header *ext_block,
-		uint32_t fileblock, int log2_blksz)
+static void ext4fs_extent_cache_insert(struct ext4_extent_node *new)
 {
-	struct ext4_extent_idx *index;
-	unsigned long long block;
+	struct ext4_extent_node *node;
+
+	list_for_each_entry(node, &ext4_extent_lh, lh)
+		if (node->block > new->block) {
+			list_add_tail(&new->lh, &node->lh);
+			return;
+		}
+	list_add_tail(&new->lh, &ext4_extent_lh);
+}
+
+static int __ext4fs_build_extent_cache(struct ext2_data *data,
+		struct ext4_extent_header *ext_block)
+{
 	int blksz = EXT2_BLOCK_SIZE(data);
-	int i;
+	int log2_blksz = LOG2_BLOCK_SIZE(data)
+		- get_fs()->dev_desc->log2blksz;
+	struct ext4_extent_node *node;
+	struct ext4_extent_idx *index;
+	struct ext4_extent *extent;
+	unsigned long long block;
+	char *buf;
+	int i, err;
 
-	while (1) {
-		index = (struct ext4_extent_idx *)(ext_block + 1);
+	if (le16_to_cpu(ext_block->eh_magic) != EXT4_EXT_MAGIC)
+		return -EINVAL;
 
-		if (le16_to_cpu(ext_block->eh_magic) != EXT4_EXT_MAGIC)
-			return 0;
+	if (ext_block->eh_depth == 0) {
+		extent = (struct ext4_extent *)(ext_block + 1);
+		for (i = 0; i < le16_to_cpu(ext_block->eh_entries); i++) {
+			node = malloc(sizeof(*node));
+			if (!node)
+				return -ENOMEM;
+			node->block = le32_to_cpu(extent[i].ee_block);
+			node->len = le16_to_cpu(extent[i].ee_len);
+			node->start = le16_to_cpu(extent[i].ee_start_hi);
+			node->start = (node->start << 32) +
+				le32_to_cpu(extent[i].ee_start_lo);
+			ext4fs_extent_cache_insert(node);
+		}
+		return 0;
+	}
 
-		if (ext_block->eh_depth == 0)
-			return ext_block;
-		i = -1;
-		do {
-			i++;
-			if (i >= le16_to_cpu(ext_block->eh_entries))
-				break;
-		} while (fileblock >= le32_to_cpu(index[i].ei_block));
-
-		if (--i < 0)
-			return 0;
+	index = (struct ext4_extent_idx *)(ext_block + 1);
+	for (i = 0; i < le16_to_cpu(ext_block->eh_entries); i++) {
+		buf = malloc(blksz);
+		if (!buf)
+			return -ENOMEM;
 
 		block = le16_to_cpu(index[i].ei_leaf_hi);
 		block = (block << 32) + le32_to_cpu(index[i].ei_leaf_lo);
 
-		if (ext4fs_devread((lbaint_t)block << log2_blksz, 0, blksz,
-				   buf))
-			ext_block = (struct ext4_extent_header *)buf;
-		else
-			return 0;
+		if (!ext4fs_devread(block << log2_blksz, 0, blksz, buf)) {
+			free(buf);
+			return -EIO;
+		}
+
+		err = __ext4fs_build_extent_cache(data,
+				(struct ext4_extent_header *) buf);
+		free(buf);
+		if (err < 0)
+			return err;
 	}
+
+	return 0;
+}
+
+int ext4fs_build_extent_cache(struct ext2_inode *inode)
+{
+	return __ext4fs_build_extent_cache(ext4fs_root,
+			(struct ext4_extent_header *)
+			inode->b.blocks.dir_blocks);
+}
+
+void ext4fs_free_extent_cache(void)
+{
+	struct ext4_extent_node *node, *tmp;
+
+	list_for_each_entry_safe(node, tmp, &ext4_extent_lh, lh) {
+		list_del(&node->lh);
+		free(node);
+	}
+}
+
+static struct ext4_extent_node *ext4fs_extent_cache_get(uint32_t block)
+{
+	struct ext4_extent_node *node;
+
+	list_for_each_entry(node, &ext4_extent_lh, lh)
+		if (block >= node->block && block < node->block + node->len)
+			return node;
+
+	return NULL;
 }
 
 static int ext4fs_blockgroup
@@ -1508,54 +1574,22 @@ long int read_allocated_block(struct ext2_inode *inode, int fileblock)
 	long int rblock;
 	long int perblock_parent;
 	long int perblock_child;
-	unsigned long long start;
+
 	/* get the blocksize of the filesystem */
 	blksz = EXT2_BLOCK_SIZE(ext4fs_root);
 	log2_blksz = LOG2_BLOCK_SIZE(ext4fs_root)
 		- get_fs()->dev_desc->log2blksz;
 
 	if (le32_to_cpu(inode->flags) & EXT4_EXTENTS_FL) {
-		char *buf = zalloc(blksz);
-		if (!buf)
-			return -ENOMEM;
-		struct ext4_extent_header *ext_block;
-		struct ext4_extent *extent;
-		int i = -1;
-		ext_block =
-			ext4fs_get_extent_block(ext4fs_root, buf,
-						(struct ext4_extent_header *)
-						inode->b.blocks.dir_blocks,
-						fileblock, log2_blksz);
-		if (!ext_block) {
-			printf("invalid extent block\n");
-			free(buf);
-			return -EINVAL;
+		struct ext4_extent_node *node;
+
+		node = ext4fs_extent_cache_get(fileblock);
+		if (!node) {
+			printf("Extent Error\n");
+			return -1;
 		}
 
-		extent = (struct ext4_extent *)(ext_block + 1);
-
-		do {
-			i++;
-			if (i >= le16_to_cpu(ext_block->eh_entries))
-				break;
-		} while (fileblock >= le32_to_cpu(extent[i].ee_block));
-		if (--i >= 0) {
-			fileblock -= le32_to_cpu(extent[i].ee_block);
-			if (fileblock >= le16_to_cpu(extent[i].ee_len)) {
-				free(buf);
-				return 0;
-			}
-
-			start = le16_to_cpu(extent[i].ee_start_hi);
-			start = (start << 32) +
-					le32_to_cpu(extent[i].ee_start_lo);
-			free(buf);
-			return fileblock + start;
-		}
-
-		printf("Extent Error\n");
-		free(buf);
-		return -1;
+		return fileblock - node->block + node->start;
 	}
 
 	/* Direct blocks. */
