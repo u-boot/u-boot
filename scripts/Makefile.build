@@ -4,7 +4,8 @@ all:
 
 include $(TOPDIR)/config.mk
 
-LIB := $(obj)built-in.o
+# variable LIB is used in examples/standalone/Makefile
+__LIB := $(obj)built-in.o
 LIBGCC = $(obj)libgcc.o
 SRCS :=
 subdir-y :=
@@ -42,9 +43,9 @@ _dummy := $(foreach d,$(obj-dirs), $(shell [ -d $(d) ] || mkdir -p $(d)))
 
 LGOBJS := $(addprefix $(obj),$(sort $(lib-y)))
 
-all: $(LIB) $(addprefix $(obj),$(extra-y) $(always)) $(subdir-y)
+all: $(__LIB) $(addprefix $(obj),$(extra-y) $(always)) $(subdir-y)
 
-$(LIB):	$(obj).depend $(OBJS)
+$(__LIB):	$(obj).depend $(OBJS)
 	$(call cmd_link_o_target, $(OBJS))
 
 ifneq ($(strip $(lib-y)),)

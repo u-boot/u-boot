@@ -11,10 +11,8 @@ ifeq ($(ARCH),arm)
 LOAD_ADDR = 0x1000000
 endif
 
-include $(TOPDIR)/config.mk
-
 # Resulting ELF and binary exectuables will be named demo and demo.bin
-OUTPUT = $(obj)demo
+extra-y = demo
 
 # Source files located in the examples/api directory
 SOBJ_FILES-y += crt0.o
@@ -43,13 +41,13 @@ OBJS	+= $(addprefix $(obj),$(COBJ_FILES-y))
 OBJS	+= $(addprefix $(obj),$(notdir $(EXT_COBJ_FILES-y)))
 OBJS	+= $(addprefix $(obj),$(notdir $(EXT_SOBJ_FILES-y)))
 
-all:	$(obj).depend $(OUTPUT)
-
 #########################################################################
 
-$(OUTPUT):	$(OBJS)
+$(obj)demo:	$(OBJS)
 		$(LD) --gc-sections -Ttext $(LOAD_ADDR) -o $@ $^ $(PLATFORM_LIBS)
-		$(OBJCOPY) -O binary $@ $(OUTPUT).bin 2>/dev/null
+
+$(obj)demo.bin: $(obj)demo
+		$(OBJCOPY) -O binary $< $@ 2>/dev/null
 
 # Rule to build generic library C files
 $(obj)%.o: $(SRCTREE)/lib/%.c
@@ -58,12 +56,3 @@ $(obj)%.o: $(SRCTREE)/lib/%.c
 # Rule to build architecture-specific library assembly files
 $(obj)%.o: $(SRCTREE)/arch/$(ARCH)/lib/%.S
 	$(CC) -g $(CFLAGS) -c -o $@ $<
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################

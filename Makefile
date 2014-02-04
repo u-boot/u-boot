@@ -558,11 +558,8 @@ $(OBJS):
 $(LIBS):	depend $(SUBDIR_TOOLS)
 		$(MAKE) $(build) $(dir $(subst $(obj),,$@))
 
-tools:	depend
+$(SUBDIRS):	depend
 		$(MAKE) $(build) $@ all
-
-$(filter-out tools,$(SUBDIRS)):	depend
-		$(MAKE) -C $@ all
 
 $(SUBDIR_EXAMPLES-y): $(obj)u-boot
 
