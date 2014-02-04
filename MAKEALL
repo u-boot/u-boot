@@ -702,7 +702,7 @@ build_target() {
 	if [ $BUILD_MANY == 1 ] ; then
 		trap - TERM
 
-		${MAKE} -s tidy
+		${MAKE} -s clean
 
 		if [ -s ${LOG_DIR}/${target}.ERR ] ; then
 			cp ${LOG_DIR}/${target}.ERR ${OUTPUT_PREFIX}/ERR/${target}

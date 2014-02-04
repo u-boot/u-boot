@@ -472,7 +472,7 @@ LDFLAGS_u-boot += -Ttext $(CONFIG_SYS_TEXT_BASE)
 endif
 
 # Targets which don't build the source code
-NON_BUILD_TARGETS = backup clean clobber distclean mrproper tidy unconfig %_config
+NON_BUILD_TARGETS = backup clean clobber distclean mrproper unconfig %_config
 
 # Only do the generic board check when actually building, not configuring
 ifeq ($(filter $(NON_BUILD_TARGETS),$(MAKECMDGOALS)),)
@@ -1119,11 +1119,7 @@ clean:
 		-o -name '*.cfgtmp' \) -print \
 		| xargs rm -f
 
-# Removes everything not needed for testing u-boot
-tidy:	clean
-	@find $(OBJTREE) -type f \( -name '*.depend*' \) -print | xargs rm -f
-
-clobber:	tidy
+clobber: clean
 	@find $(OBJTREE) -type f \( -name '*.srec' \
 		-o -name '*.bin' -o -name u-boot.img \) \
 		-print0 | xargs -0 rm -f
