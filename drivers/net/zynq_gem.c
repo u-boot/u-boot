@@ -339,6 +339,11 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 	phy_config(phydev);
 	phy_startup(phydev);
 
+	if (!phydev->link) {
+		printf("%s: No link.\n", phydev->dev->name);
+		return -1;
+	}
+
 	switch (phydev->speed) {
 	case SPEED_1000:
 		writel(ZYNQ_GEM_NWCFG_INIT | ZYNQ_GEM_NWCFG_SPEED1000,

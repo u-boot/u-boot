@@ -261,6 +261,10 @@ static int setup_phy(struct eth_device *dev)
 		       phydev->dev->name);
 		return 0;
 	}
+	if (!phydev->link) {
+		printf("%s: No link.\n", phydev->dev->name);
+		return 0;
+	}
 
 	switch (phydev->speed) {
 	case 1000:
