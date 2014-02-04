@@ -14,6 +14,11 @@
 # Based on top-level Makefile.
 #
 
+src := $(obj)
+
+# Create output directory if not already present
+_dummy := $(shell [ -d $(obj) ] || mkdir -p $(obj))
+
 include $(srctree)/scripts/Kbuild.include
 
 CONFIG_SPL_BUILD := y
@@ -36,14 +41,6 @@ SPL_BIN := u-boot-spl
 endif
 
 include $(TOPDIR)/config.mk
-
-# We want the final binaries in this directory
-ifeq ($(CONFIG_TPL_BUILD),y)
-obj := $(OBJTREE)/tpl/
-SPLTREE := $(TPLTREE)
-else
-obj := $(OBJTREE)/spl/
-endif
 
 HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(SRCTREE)/board/$(VENDOR)/common/Makefile),y,n)
 
@@ -113,11 +110,13 @@ PLATFORM_LIBGCC = $(SPLTREE)/arch/$(ARCH)/lib/libgcc.o
 PLATFORM_LIBS := $(filter-out %/libgcc.o, $(filter-out -lgcc, $(PLATFORM_LIBS))) $(PLATFORM_LIBGCC)
 endif
 
-START := $(addprefix $(SPLTREE)/,$(head-y))
-LIBS := $(addprefix $(SPLTREE)/,$(sort $(LIBS-y)))
+LIBS-y := $(sort $(LIBS-y))
 
-__START := $(subst $(obj),,$(START))
-__LIBS := $(subst $(obj),,$(LIBS))
+__START := $(head-y)
+__LIBS := $(LIBS-y)
+
+START := $(addprefix $(obj)/,$(head-y))
+LIBS := $(addprefix $(obj)/,$(LIBS-y))
 
 # Linker Script
 ifdef CONFIG_SPL_LDSCRIPT
@@ -148,21 +147,21 @@ LDPPFLAGS += \
 	$(shell $(LD) --version | \
 	  sed -ne 's/GNU ld version \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/-DLD_MAJOR=\1 -DLD_MINOR=\2/p')
 
-$(OBJTREE)/MLO:	$(obj)u-boot-spl.bin
+$(OBJTREE)/MLO:	$(obj)/u-boot-spl.bin
 	$(OBJTREE)/tools/mkimage -T omapimage \
 		-a $(CONFIG_SPL_TEXT_BASE) -d $< $@
 
-$(OBJTREE)/MLO.byteswap: $(obj)u-boot-spl.bin
+$(OBJTREE)/MLO.byteswap: $(obj)/u-boot-spl.bin
 	$(OBJTREE)/tools/mkimage -T omapimage -n byteswap \
 		-a $(CONFIG_SPL_TEXT_BASE) -d $< $@
 
-$(OBJTREE)/SPL : $(obj)u-boot-spl.bin depend
-		$(MAKE) $(build) $(SRCTREE)/arch/arm/imx-common $@
+$(objtree)/SPL : $(obj)/u-boot-spl.bin depend
+		$(MAKE) $(build)=spl/arch/arm/imx-common $@
 
-ALL-y	+= $(obj)$(SPL_BIN).bin
+ALL-y	+= $(obj)/$(SPL_BIN).bin
 
 ifdef CONFIG_SAMSUNG
-ALL-y	+= $(obj)$(BOARD)-spl.bin
+ALL-y	+= $(obj)/$(BOARD)-spl.bin
 endif
 
 all:	$(ALL-y)
@@ -173,16 +172,16 @@ VAR_SIZE_PARAM = --vs
 else
 VAR_SIZE_PARAM =
 endif
-$(obj)$(BOARD)-spl.bin: $(obj)u-boot-spl.bin
+$(obj)/$(BOARD)-spl.bin: $(obj)/u-boot-spl.bin
 	$(if $(wildcard $(OBJTREE)/spl/board/samsung/$(BOARD)/tools/mk$(BOARD)spl),\
 	$(OBJTREE)/spl/board/samsung/$(BOARD)/tools/mk$(BOARD)spl,\
 	$(OBJTREE)/tools/mkexynosspl) $(VAR_SIZE_PARAM) $< $@
 endif
 
-$(obj)$(SPL_BIN).bin:	$(obj)$(SPL_BIN)
+$(obj)/$(SPL_BIN).bin:	$(obj)/$(SPL_BIN)
 	$(OBJCOPY) $(OBJCFLAGS) $(SPL_OBJCFLAGS) -O binary $< $@
 
-LDFLAGS_$(SPL_BIN) += -T $(obj)u-boot-spl.lds $(LDFLAGS_FINAL)
+LDFLAGS_$(SPL_BIN) += -T u-boot-spl.lds $(LDFLAGS_FINAL)
 ifneq ($(CONFIG_SPL_TEXT_BASE),)
 LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_SPL_TEXT_BASE)
 endif
@@ -192,19 +191,19 @@ GEN_UBOOT = \
 		--start-group $(__LIBS) --end-group $(PLATFORM_LIBS) \
 		-Map $(SPL_BIN).map -o $(SPL_BIN)
 
-$(obj)$(SPL_BIN):	depend $(START) $(LIBS) $(obj)u-boot-spl.lds
+$(obj)/$(SPL_BIN):	depend $(START) $(LIBS) $(obj)/u-boot-spl.lds
 	$(GEN_UBOOT)
 
 $(START):
 	@:
 
 $(LIBS):	depend
-	$(MAKE) $(build) $(SRCTREE)$(dir $(subst $(SPLTREE),,$@))
+	$(MAKE) $(build)=$(patsubst %/,%,$(dir $@))
 
-$(obj)u-boot-spl.lds: $(LDSCRIPT) depend
+$(obj)/u-boot-spl.lds: $(LDSCRIPT) depend
 	$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -I$(obj). -ansi -D__ASSEMBLY__ -P - < $< > $@
 
-depend:	$(obj).depend
+depend:	$(obj)/.depend
 .PHONY: depend
 
 # defines $(obj).depend target

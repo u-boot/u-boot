@@ -18,7 +18,7 @@ obj-y	+= darwin-ldouble.o
 CFLAGS := $(shell echo $(CFLAGS) | sed s/-msoft-float//)
 CFLAGS += -mhard-float -fkeep-inline-functions
 
-$(addprefix $(obj),$(obj-y)): $(obj)%.o:	%.c
+$(addprefix $(obj)/,$(obj-y)): $(obj)/%.o: $(src)/%.c
 	$(CC)  $(ALL_CFLAGS) -o $@.fp $< -c
 	$(OBJCOPY) -R .gnu.attributes $@.fp $@
 	rm -f $@.fp

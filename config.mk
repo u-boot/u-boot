@@ -6,42 +6,6 @@
 #
 #########################################################################
 
-ifeq ($(CURDIR),$(SRCTREE))
-dir :=
-else
-dir := $(subst $(SRCTREE)/,,$(CURDIR))
-endif
-
-ifneq ($(OBJTREE),$(SRCTREE))
-# Create object files for SPL in a separate directory
-ifeq ($(CONFIG_SPL_BUILD),y)
-ifeq ($(CONFIG_TPL_BUILD),y)
-obj := $(if $(dir),$(TPLTREE)/$(dir)/,$(TPLTREE)/)
-else
-obj := $(if $(dir),$(SPLTREE)/$(dir)/,$(SPLTREE)/)
-endif
-else
-obj := $(if $(dir),$(OBJTREE)/$(dir)/,$(OBJTREE)/)
-endif
-src := $(if $(dir),$(SRCTREE)/$(dir)/,$(SRCTREE)/)
-
-$(shell mkdir -p $(obj))
-else
-# Create object files for SPL in a separate directory
-ifeq ($(CONFIG_SPL_BUILD),y)
-ifeq ($(CONFIG_TPL_BUILD),y)
-obj := $(if $(dir),$(TPLTREE)/$(dir)/,$(TPLTREE)/)
-else
-obj := $(if $(dir),$(SPLTREE)/$(dir)/,$(SPLTREE)/)
-
-endif
-$(shell mkdir -p $(obj))
-else
-obj :=
-endif
-src :=
-endif
-
 # clean the slate ...
 PLATFORM_RELFLAGS =
 PLATFORM_CPPFLAGS =
@@ -52,14 +16,14 @@ PLATFORM_LDFLAGS =
 # Load generated board configuration
 ifeq ($(CONFIG_TPL_BUILD),y)
 # Include TPL autoconf
-sinclude $(OBJTREE)/include/tpl-autoconf.mk
+sinclude include/tpl-autoconf.mk
 else
 ifeq ($(CONFIG_SPL_BUILD),y)
 # Include SPL autoconf
-sinclude $(OBJTREE)/include/spl-autoconf.mk
+sinclude include/spl-autoconf.mk
 else
 # Include normal autoconf
-sinclude $(OBJTREE)/include/autoconf.mk
+sinclude include/autoconf.mk
 endif
 endif
 sinclude $(OBJTREE)/include/config.mk

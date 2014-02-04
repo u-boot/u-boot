@@ -6,8 +6,6 @@
 # To add a new book the only step required is to add the book to the
 # list of DOCBOOKS.
 
-include $(TOPDIR)/config.mk
-
 DOCBOOKS := fs.xml linker_lists.xml stdio.xml
 
 ###
@@ -122,7 +120,7 @@ quiet_cmd_db2pdf = PDF     $@
 
 
 index = index.html
-main_idx = $(index)
+main_idx = doc/DocBook/$(index)
 build_main_index = rm -rf $(main_idx); \
 		   echo '<h1>U-Boot Bootloader HTML Documentation</h1>' >> $(main_idx) && \
 		   echo '<h2>U-Boot Version: $(U_BOOT_VERSION)</h2>' >> $(main_idx) && \
@@ -151,7 +149,7 @@ quiet_cmd_db2man = MAN     $@
 	@(which xmlto > /dev/null 2>&1) || \
 	 (echo "*** You need to install xmlto ***"; \
 	  exit 1)
-	$(Q)mkdir -p $(obj)man
+	$(Q)mkdir -p $(obj)/man
 	$(call cmd_db2man)
 	@touch $@
 

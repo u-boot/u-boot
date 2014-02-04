@@ -21,4 +21,4 @@ else
 PLATFORM_LDFLAGS  += -m elf64ltsmip
 endif
 
-CONFIG_STANDALONE_LOAD_ADDR ?= 0xffffffff80200000 -T mips64.lds
+CONFIG_STANDALONE_LOAD_ADDR ?= 0xffffffff80200000 -T $(srctree)/$(src)/mips64.lds

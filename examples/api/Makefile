@@ -40,23 +40,23 @@ SRCS	+= $(addprefix $(SRCTREE)/examples/api/,$(COBJ_FILES-y:.o=.c))
 SRCS	+= $(addprefix $(SRCTREE)/examples/api/,$(SOBJ_FILES-y:.o=.S))
 
 # Create a list of object files to be compiled
-OBJS	+= $(addprefix $(obj),$(SOBJ_FILES-y))
-OBJS	+= $(addprefix $(obj),$(COBJ_FILES-y))
-OBJS	+= $(addprefix $(obj),$(notdir $(EXT_COBJ_FILES-y)))
-OBJS	+= $(addprefix $(obj),$(notdir $(EXT_SOBJ_FILES-y)))
+OBJS	+= $(addprefix $(obj)/,$(SOBJ_FILES-y))
+OBJS	+= $(addprefix $(obj)/,$(COBJ_FILES-y))
+OBJS	+= $(addprefix $(obj)/,$(notdir $(EXT_COBJ_FILES-y)))
+OBJS	+= $(addprefix $(obj)/,$(notdir $(EXT_SOBJ_FILES-y)))
 
 #########################################################################
 
-$(obj)demo:	$(OBJS)
+$(obj)/demo:	$(OBJS)
 		$(LD) --gc-sections -Ttext $(LOAD_ADDR) -o $@ $^ $(PLATFORM_LIBS)
 
-$(obj)demo.bin: $(obj)demo
+$(obj)/demo.bin: $(obj)/demo
 		$(OBJCOPY) -O binary $< $@ 2>/dev/null
 
 # Rule to build generic library C files
-$(addprefix $(obj),$(notdir $(EXT_COBJ_FILES-y))): $(obj)%.o: $(SRCTREE)/lib/%.c
+$(addprefix $(obj)/,$(notdir $(EXT_COBJ_FILES-y))): $(obj)/%.o: $(SRCTREE)/lib/%.c
 	$(CC) -g $(CFLAGS) -c -o $@ $<
 
 # Rule to build architecture-specific library assembly files
-$(addprefix $(obj),$(notdir $(EXT_SOBJ_FILES-y))): $(obj)%.o: $(SRCTREE)/arch/$(ARCH)/lib/%.S
+$(addprefix $(obj)/,$(notdir $(EXT_SOBJ_FILES-y))): $(obj)/%.o: $(SRCTREE)/arch/$(ARCH)/lib/%.S
 	$(CC) -g $(CFLAGS) -c -o $@ $<

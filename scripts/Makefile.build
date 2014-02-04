@@ -2,17 +2,28 @@
 .PHONY: all
 all:
 
+ifeq ($(CONFIG_TPL_BUILD),y)
+  src := $(patsubst tpl/%,%,$(obj))
+else
+  ifeq ($(CONFIG_SPL_BUILD),y)
+    src := $(patsubst spl/%,%,$(obj))
+  else
+    src := $(obj)
+  endif
+endif
+
 include $(srctree)/scripts/Kbuild.include
-include $(TOPDIR)/config.mk
+include $(srctree)/config.mk
 
 # variable LIB is used in examples/standalone/Makefile
-__LIB := $(obj)built-in.o
-LIBGCC = $(obj)libgcc.o
+__LIB := $(obj)/built-in.o
+LIBGCC = $(obj)/libgcc.o
 SRCS :=
 subdir-y :=
 obj-dirs :=
 
-include Makefile
+kbuild-dir := $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
+include $(kbuild-dir)/Makefile
 
 # Do not include host rules unless needed
 ifneq ($(hostprogs-y)$(hostprogs-m),)
@@ -28,31 +39,37 @@ lib-y := $(sort $(lib-y))
 subdir-y 	+= $(patsubst %/,%,$(filter %/, $(obj-y)))
 obj-y		:= $(patsubst %/, %/built-in.o, $(obj-y))
 subdir-obj-y	:= $(filter %/built-in.o, $(obj-y))
-subdir-obj-y	:= $(addprefix $(obj),$(subdir-obj-y))
+subdir-obj-y	:= $(addprefix $(obj)/,$(subdir-obj-y))
 
-SRCS	+= $(wildcard $(obj-y:.o=.c) $(obj-y:.o=.S) $(lib-y:.o=.c) \
-	$(lib-y:.o=.S) $(extra-y:.o=.c) $(extra-y:.o=.S))
-OBJS	:= $(addprefix $(obj),$(obj-y))
+SRCS	+= $(obj-y:.o=.c) $(obj-y:.o=.S) $(lib-y:.o=.c) \
+	$(lib-y:.o=.S) $(extra-y:.o=.c) $(extra-y:.o=.S)
+
+SRCS := $(addprefix $(if $(KBUILD_SRC),$(srctree)/$(src)/,$(src)/),$(SRCS))
+SRCS := $(wildcard $(SRCS))
+
+OBJS	:= $(addprefix $(obj)/,$(obj-y))
 
 # $(obj-dirs) is a list of directories that contain object files
 
 obj-dirs += $(dir $(OBJS))
 
+_dummy := $(shell [ -d $(obj) ] || mkdir -p $(obj))
+
 # Create directories for object files if directory does not exist
 # Needed when obj-y := dir/file.o syntax is used
 _dummy := $(foreach d,$(obj-dirs), $(shell [ -d $(d) ] || mkdir -p $(d)))
 
-LGOBJS := $(addprefix $(obj),$(sort $(lib-y)))
+LGOBJS := $(addprefix $(obj)/,$(sort $(lib-y)))
 
-all: $(__LIB) $(addprefix $(obj),$(extra-y) $(always)) $(subdir-y)
+all: $(__LIB) $(addprefix $(obj)/,$(extra-y) $(always)) $(subdir-y)
 
-$(__LIB):	$(obj).depend $(OBJS)
+$(__LIB):	$(obj)/.depend $(OBJS)
 	$(call cmd_link_o_target, $(OBJS))
 
 ifneq ($(strip $(lib-y)),)
 all: $(LIBGCC)
 
-$(LIBGCC): $(obj).depend $(LGOBJS)
+$(LIBGCC): $(obj)/.depend $(LGOBJS)
 	$(call cmd_link_o_target, $(LGOBJS))
 endif
 
@@ -63,7 +80,7 @@ endif
 
 ifneq ($(subdir-y),)
 $(subdir-y): FORCE
-	$(MAKE) -C $@ -f $(TOPDIR)/scripts/Makefile.build
+	$(MAKE) $(build)=$(obj)/$@
 endif
 
 #########################################################################
@@ -78,18 +95,18 @@ ALL_CFLAGS += $(EXTRA_CPPFLAGS)
 # See rules.mk
 EXTRA_CPPFLAGS_DEP = $(CPPFLAGS_$(BCURDIR)/$(addsuffix .o,$(basename $<))) \
 		$(CPPFLAGS_$(BCURDIR))
-$(obj)%.s:	%.S
+$(obj)/%.s:	$(src)/%.S
 	$(CPP) $(ALL_AFLAGS) -o $@ $<
-$(obj)%.o:	%.S
+$(obj)/%.o:	$(src)/%.S
 	$(CC)  $(ALL_AFLAGS) -o $@ $< -c
-$(obj)%.o:	%.c
+$(obj)/%.o:	$(src)/%.c
 ifneq ($(CHECKSRC),0)
 	$(CHECK) $(CHECKFLAGS) $(ALL_CFLAGS) $<
 endif
 	$(CC)  $(ALL_CFLAGS) -o $@ $< -c
-$(obj)%.i:	%.c
+$(obj)/%.i:	$(src)/%.c
 	$(CPP) $(ALL_CFLAGS) -o $@ $< -c
-$(obj)%.s:	%.c
+$(obj)/%.s:	$(src)/%.c
 	$(CC)  $(ALL_CFLAGS) -o $@ $< -c -S
 
 # If the list of objects to link is empty, just create an empty built-in.o
@@ -99,11 +116,11 @@ cmd_link_o_target = $(if $(strip $1),\
 
 #########################################################################
 
-# defines $(obj).depend target
+# defines $(obj)/.depend target
 
 include $(TOPDIR)/rules.mk
 
-sinclude $(obj).depend
+sinclude $(obj)/.depend
 
 #########################################################################
 

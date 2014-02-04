@@ -23,5 +23,5 @@ obj-$(CONFIG_CMD_ZBOOT)	+= zimage.o
 LIBGCC := $(notdir $(NORMAL_LIBGCC))
 extra-y := $(LIBGCC)
 
-$(obj)$(LIBGCC): $(NORMAL_LIBGCC)
+$(obj)/$(LIBGCC): $(NORMAL_LIBGCC)
 	$(OBJCOPY) $< $@ --prefix-symbols=__normal_

@@ -31,7 +31,7 @@ clean-files  := $(extra-) $(addsuffix .srec,$(extra-)) $(addsuffix .bin,$(extra-
 
 COBJS	:= $(ELF:=.o)
 
-LIB	= $(obj)libstubs.o
+LIB	= $(obj)/libstubs.o
 
 LIBAOBJS-$(CONFIG_PPC) += ppc_longjmp.o ppc_setjmp.o
 LIBAOBJS-$(CONFIG_8xx) += test_burst_lib.o
@@ -39,11 +39,11 @@ LIBAOBJS := $(LIBAOBJS-y)
 
 LIBCOBJS = stubs.o
 
-LIBOBJS	= $(addprefix $(obj),$(LIBAOBJS) $(LIBCOBJS))
+LIBOBJS	= $(addprefix $(obj)/,$(LIBAOBJS) $(LIBCOBJS))
 
 SRCS	:= $(COBJS:.o=.c) $(LIBCOBJS:.o=.c) $(LIBAOBJS:.o=.S)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-ELF	:= $(addprefix $(obj),$(ELF))
+OBJS	:= $(addprefix $(obj)/,$(COBJS))
+ELF	:= $(addprefix $(obj)/,$(ELF))
 
 gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
 
@@ -67,13 +67,13 @@ $(LIB):	$(LIBOBJS)
 	$(call cmd_link_o_target, $(LIBOBJS))
 
 $(ELF):
-$(obj)%:	$(obj)%.o $(LIB)
+$(obj)/%:	$(obj)/%.o $(LIB)
 		$(LD) $(LDFLAGS) -g -Ttext $(CONFIG_STANDALONE_LOAD_ADDR) \
 			-o $@ -e $(SYM_PREFIX)$(notdir $(<:.o=)) $< $(LIB) \
 			-L$(gcclibdir) -lgcc
 
-$(obj)%.srec:	$(obj)%
+$(obj)/%.srec:	$(obj)/%
 		$(OBJCOPY) -O srec $< $@ 2>/dev/null
 
-$(obj)%.bin:	$(obj)%
+$(obj)/%.bin:	$(obj)/%
 		$(OBJCOPY) -O binary $< $@ 2>/dev/null

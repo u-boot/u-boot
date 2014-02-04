@@ -13,7 +13,7 @@ always := $(hostprogs-y)
 #
 # TODO:
 # Fix the root cause in tools/mkorigenspl.c and delete the following work-around
-$(obj)tools/mkorigenspl: HOSTCFLAGS:=$(filter-out -O2,$(HOSTCFLAGS))
+$(obj)/tools/mkorigenspl: HOSTCFLAGS:=$(filter-out -O2,$(HOSTCFLAGS))
 else
 obj-y	+= origen.o
 endif

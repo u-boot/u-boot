@@ -26,7 +26,7 @@ DTC_FLAGS := -R 4 -p 0x1000 \
 # Use a constant name for this so we can access it from C code.
 # objcopy doesn't seem to allow us to set the symbol name independently of
 # the filename.
-DT_BIN	:= $(obj)dt.dtb
+DT_BIN	:= $(obj)/dt.dtb
 
 $(DT_BIN): $(TOPDIR)/board/$(VENDOR)/dts/$(DEVICE_TREE).dts
 	$(CPP) $(DTS_CPPFLAGS) $< -o $(DT_BIN).dts.tmp
@@ -38,7 +38,7 @@ process_lds = \
 # Run the compiler and get the link script from the linker
 GET_LDS = $(CC) $(CFLAGS) $(LDFLAGS) -Wl,--verbose 2>&1
 
-$(obj)dt.o: $(DT_BIN)
+$(obj)/dt.o: $(DT_BIN)
 	# We want the output format and arch.
 	# We also hope to win a prize for ugliest Makefile / shell interaction
 	# We look in the LDSCRIPT first.
@@ -62,7 +62,7 @@ $(obj)dt.o: $(DT_BIN)
 	\
 	cd $(dir ${DT_BIN}) && \
 	$(OBJCOPY) -I binary -O $${oformat} -B $${oarch} \
-		$(notdir ${DT_BIN}) $@
+		$(notdir ${DT_BIN}) $(notdir $@)
 	rm $(DT_BIN)
 
 obj-$(CONFIG_OF_EMBED)	:= dt.o

@@ -21,11 +21,11 @@ host-objdirs += $(foreach f,$(host-cmulti),                  \
 
 host-objdirs := $(strip $(sort $(filter-out ./,$(host-objdirs))))
 
-__hostprogs     := $(addprefix $(obj),$(__hostprogs))
-host-csingle	:= $(addprefix $(obj),$(host-csingle))
-host-cmulti	:= $(addprefix $(obj),$(host-cmulti))
-host-cobjs	:= $(addprefix $(obj),$(host-cobjs))
-host-objdirs    := $(addprefix $(obj),$(host-objdirs))
+__hostprogs     := $(addprefix $(obj)/,$(__hostprogs))
+host-csingle	:= $(addprefix $(obj)/,$(host-csingle))
+host-cmulti	:= $(addprefix $(obj)/,$(host-cmulti))
+host-cobjs	:= $(addprefix $(obj)/,$(host-cobjs))
+host-objdirs    := $(addprefix $(obj)/,$(host-objdirs))
 
 obj-dirs += $(host-objdirs)
 
@@ -49,13 +49,13 @@ hostc_flags    = $(__hostc_flags)
 #####
 # Compile programs on the host
 
-$(host-csingle): $(obj)%: %.c
+$(host-csingle): $(obj)/%: $(src)/%.c
 	$(HOSTCC) $(HOSTCFLAGS) $(HOST_EXTRACFLAGS) $(HOSTLDFLAGS) $(HOSTCFLAGS_$(@F)) $(HOSTCFLAGS_$(BCURDIR)) -o $@ $<
 
-$(host-cmulti): $(obj)%: $(host-cobjs)
-	$(HOSTCC) $(HOSTLDFLAGS) -o $@ $(addprefix $(obj),$($(@F)-objs)) $(HOSTLOADLIBES_$(@F))
+$(host-cmulti): $(obj)/%: $(host-cobjs)
+	$(HOSTCC) $(HOSTLDFLAGS) -o $@ $(addprefix $(obj)/,$($(@F)-objs)) $(HOSTLOADLIBES_$(@F))
 
-$(host-cobjs): $(obj)%.o: %.c
+$(host-cobjs): $(obj)/%.o: $(src)/%.c
 	$(HOSTCC) $(HOSTCFLAGS) $(HOST_EXTRACFLAGS) $(HOSTCFLAGS_$(@F)) $(HOSTCFLAGS_$(BCURDIR)) -o $@ $< -c
 
 targets += $(host-csingle)  $(host-cmulti) $(host-cobjs)

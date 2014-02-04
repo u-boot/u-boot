@@ -18,8 +18,8 @@ CFLAGS	+= -DCONFIG_NAND_SPL
 SOBJS	= start.o init.o resetvec.o
 COBJS	= denali_data_eye.o nand_boot.o nand_ecc.o ndfc.o sdram.o
 
-SRCS	:= $(addprefix $(obj),$(SOBJS:.o=.S) $(COBJS:.o=.c))
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+SRCS	:= $(addprefix $(obj)/,$(SOBJS:.o=.S) $(COBJS:.o=.c))
+OBJS	:= $(addprefix $(obj)/,$(SOBJS) $(COBJS))
 __OBJS	:= $(SOBJS) $(COBJS)
 LNDIR	:= $(nandobj)board/$(BOARDDIR)
 
@@ -41,47 +41,39 @@ $(nandobj)u-boot.lds: $(LDSCRIPT)
 # create symbolic links for common files
 
 # from cpu directory
-$(obj)denali_data_eye.c:
+$(obj)/denali_data_eye.c:
 	@rm -f $@
 	ln -s $(SRCTREE)/arch/powerpc/cpu/ppc4xx/denali_data_eye.c $@
 
-$(obj)ndfc.c:
+$(obj)/ndfc.c:
 	@rm -f $@
 	ln -s $(SRCTREE)/drivers/mtd/nand/ndfc.c $@
 
-$(obj)resetvec.S:
+$(obj)/resetvec.S:
 	@rm -f $@
 	ln -s $(SRCTREE)/arch/powerpc/cpu/ppc4xx/resetvec.S $@
 
-$(obj)start.S:
+$(obj)/start.S:
 	@rm -f $@
 	ln -s $(SRCTREE)/arch/powerpc/cpu/ppc4xx/start.S $@
 
 # from board directory
-$(obj)init.S:
+$(obj)/init.S:
 	@rm -f $@
 	ln -s $(SRCTREE)/board/amcc/sequoia/init.S $@
 
-$(obj)sdram.c:
+$(obj)/sdram.c:
 	@rm -f $@
-	@rm -f $(obj)sdram.h
+	@rm -f $(obj)/sdram.h
 	ln -s $(SRCTREE)/board/amcc/sequoia/sdram.c $@
-	ln -s $(SRCTREE)/board/amcc/sequoia/sdram.h $(obj)sdram.h
+	ln -s $(SRCTREE)/board/amcc/sequoia/sdram.h $(obj)/sdram.h
 
 # from nand_spl directory
-$(obj)nand_boot.c:
+$(obj)/nand_boot.c:
 	@rm -f $@
 	ln -s $(SRCTREE)/nand_spl/nand_boot.c $@
 
 # from drivers/mtd/nand directory
-$(obj)nand_ecc.c:
+$(obj)/nand_ecc.c:
 	@rm -f $@
 	ln -s $(SRCTREE)/drivers/mtd/nand/nand_ecc.c $@
-
-#########################################################################
-
-$(obj)%.o:	$(obj)%.S
-	$(CC) $(AFLAGS) -c -o $@ $<
-
-$(obj)%.o:	$(obj)%.c
-	$(CC) $(CFLAGS) -c -o $@ $<

@@ -142,8 +142,8 @@ HOSTCFLAGS_sha1.o := -pedantic
 always := $(hostprogs-y)
 
 # Generated LCD/video logo
-LOGO_H = $(OBJTREE)/include/bmp_logo.h
-LOGO_DATA_H = $(OBJTREE)/include/bmp_logo_data.h
+LOGO_H = $(objtree)/include/bmp_logo.h
+LOGO_DATA_H = $(objtree)/include/bmp_logo_data.h
 LOGO-$(CONFIG_LCD_LOGO) += $(LOGO_H)
 LOGO-$(CONFIG_LCD_LOGO) += $(LOGO_DATA_H)
 LOGO-$(CONFIG_VIDEO_LOGO) += $(LOGO_H)
@@ -151,14 +151,14 @@ LOGO-$(CONFIG_VIDEO_LOGO) += $(LOGO_DATA_H)
 
 # Generic logo
 ifeq ($(LOGO_BMP),)
-LOGO_BMP= logos/denx.bmp
+LOGO_BMP= $(srctree)/$(src)/logos/denx.bmp
 
 # Use board logo and fallback to vendor
 ifneq ($(wildcard logos/$(BOARD).bmp),)
-LOGO_BMP= logos/$(BOARD).bmp
+LOGO_BMP= $(srctree)/$(src)/logos/$(BOARD).bmp
 else
 ifneq ($(wildcard logos/$(VENDOR).bmp),)
-LOGO_BMP= logos/$(VENDOR).bmp
+LOGO_BMP= $(srctree)/$(src)/logos/$(VENDOR).bmp
 endif
 endif
 
@@ -187,8 +187,8 @@ all:	$(LOGO-y)
 
 subdir-y := kernel-doc
 
-$(LOGO_H):	$(obj)bmp_logo $(LOGO_BMP)
-	$(obj)./bmp_logo --gen-info $(LOGO_BMP) > $@
+$(LOGO_H):	$(obj)/bmp_logo $(LOGO_BMP)
+	$(obj)/bmp_logo --gen-info $(LOGO_BMP) > $@
 
-$(LOGO_DATA_H):	$(obj)bmp_logo $(LOGO_BMP)
-	$(obj)./bmp_logo --gen-data $(LOGO_BMP) > $@
+$(LOGO_DATA_H):	$(obj)/bmp_logo $(LOGO_BMP)
+	$(obj)/bmp_logo --gen-data $(LOGO_BMP) > $@
