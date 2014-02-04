@@ -916,6 +916,9 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		debug("Qspi clk frequency set to %ld Hz\n", lqspi_frequency);
 	}
 
+	qspi->slave.option = is_dual;
+	qspi->slave.op_mode_rx = SPI_OPM_RX_QOF;
+	qspi->slave.op_mode_tx = SPI_OPM_TX_QPP;
 	qspi->qspi.master.speed_hz = qspi->qspi.master.input_clk_hz / 2;
 	qspi->qspi.max_speed_hz = (max_hz < qspi->qspi.master.speed_hz) ?
 								max_hz : qspi->qspi.master.speed_hz;
