@@ -90,19 +90,13 @@ endif
 
 #########################################################################
 
-# We don't actually use $(ARFLAGS) anywhere anymore, so catch people
-# who are porting old code to latest mainline but not updating $(AR).
-ARFLAGS = $(error update your Makefile to use cmd_link_o_target and not AR)
 RELFLAGS= $(PLATFORM_RELFLAGS)
-DBGFLAGS= -g # -DDEBUG
-OPTFLAGS= -Os #-fomit-frame-pointer
 
 OBJCFLAGS += --gap-fill=0xff
 
 gccincdir := $(shell $(CC) -print-file-name=include)
 
-CPPFLAGS := $(DBGFLAGS) $(OPTFLAGS) $(RELFLAGS)		\
-	-D__KERNEL__
+CPPFLAGS = $(KBUILD_CPPFLAGS) $(RELFLAGS)
 
 # Enable garbage collection of un-used sections for SPL
 ifeq ($(CONFIG_SPL_BUILD),y)
@@ -134,26 +128,10 @@ CPPFLAGS += -I$(OBJTREE)/include
 endif
 
 CPPFLAGS += -I$(TOPDIR)/include -I$(SRCTREE)/arch/$(ARCH)/include
-CPPFLAGS += -fno-builtin -ffreestanding -nostdinc	\
+CPPFLAGS += -nostdinc	\
 	-isystem $(gccincdir) -pipe $(PLATFORM_CPPFLAGS)
 
-CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes
-
-ifdef BUILD_TAG
-CFLAGS += -DBUILD_TAG='"$(BUILD_TAG)"'
-endif
-
-CFLAGS_SSP := $(call cc-option,-fno-stack-protector)
-CFLAGS += $(CFLAGS_SSP)
-# Some toolchains enable security related warning flags by default,
-# but they don't make much sense in the u-boot world, so disable them.
-CFLAGS_WARN := $(call cc-option,-Wno-format-nonliteral) \
-	       $(call cc-option,-Wno-format-security)
-CFLAGS += $(CFLAGS_WARN)
-
-# Report stack usage if supported
-CFLAGS_STACK := $(call cc-option,-fstack-usage)
-CFLAGS += $(CFLAGS_STACK)
+CFLAGS := $(KBUILD_CFLAGS) $(CPPFLAGS)
 
 BCURDIR = $(subst $(SRCTREE)/,,$(CURDIR:$(obj)%=%))
 
@@ -165,18 +143,7 @@ endif
 endif
 endif
 
-# $(CPPFLAGS) sets -g, which causes gcc to pass a suitable -g<format>
-# option to the assembler.
-AFLAGS_DEBUG :=
-
-# turn jbsr into jsr for m68k
-ifeq ($(ARCH),m68k)
-ifeq ($(findstring 3.4,$(shell $(CC) --version)),3.4)
-AFLAGS_DEBUG := -Wa,-gstabs,-S
-endif
-endif
-
-AFLAGS := $(AFLAGS_DEBUG) -D__ASSEMBLY__ $(CPPFLAGS)
+AFLAGS := $(KBUILD_AFLAGS) $(CPPFLAGS)
 
 LDFLAGS += $(PLATFORM_LDFLAGS)
 LDFLAGS_FINAL += -Bstatic
