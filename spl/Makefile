@@ -79,67 +79,65 @@ head-$(CONFIG_X86) += $(START_PATH)/start16.o $(START_PATH)/resetvec.o
 head-$(CONFIG_4xx) += $(START_PATH)/resetvec.o
 head-$(CONFIG_MPC85xx) += $(START_PATH)/resetvec.o
 
-LIBS-y += arch/$(ARCH)/lib/
+libs-y += arch/$(ARCH)/lib/
 
-LIBS-y += $(CPUDIR)/
+libs-y += $(CPUDIR)/
 
 ifdef SOC
-LIBS-y += $(CPUDIR)/$(SOC)/
+libs-y += $(CPUDIR)/$(SOC)/
 endif
-LIBS-y += board/$(BOARDDIR)/
-LIBS-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/
+libs-y += board/$(BOARDDIR)/
+libs-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/
 
-LIBS-$(CONFIG_SPL_FRAMEWORK) += common/spl/
-LIBS-$(CONFIG_SPL_LIBCOMMON_SUPPORT) += common/
-LIBS-$(CONFIG_SPL_LIBDISK_SUPPORT) += disk/
-LIBS-$(CONFIG_SPL_I2C_SUPPORT) += drivers/i2c/
-LIBS-$(CONFIG_SPL_GPIO_SUPPORT) += drivers/gpio/
-LIBS-$(CONFIG_SPL_MMC_SUPPORT) += drivers/mmc/
-LIBS-$(CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT) += drivers/ddr/fsl/
-LIBS-$(CONFIG_SPL_SERIAL_SUPPORT) += drivers/serial/
-LIBS-$(CONFIG_SPL_SPI_FLASH_SUPPORT) += drivers/mtd/spi/
-LIBS-$(CONFIG_SPL_SPI_SUPPORT) += drivers/spi/
-LIBS-y += fs/
-LIBS-$(CONFIG_SPL_LIBGENERIC_SUPPORT) += lib/
-LIBS-$(CONFIG_SPL_POWER_SUPPORT) += drivers/power/ \
-	drivers/power/pmic/
-LIBS-$(if $(CONFIG_CMD_NAND),$(CONFIG_SPL_NAND_SUPPORT)) += drivers/mtd/nand/
-LIBS-$(CONFIG_SPL_DRIVERS_MISC_SUPPORT) += drivers/misc/
-LIBS-$(CONFIG_SPL_ONENAND_SUPPORT) += drivers/mtd/onenand/
-LIBS-$(CONFIG_SPL_DMA_SUPPORT) += drivers/dma/
-LIBS-$(CONFIG_SPL_POST_MEM_SUPPORT) += post/drivers/
-LIBS-$(CONFIG_SPL_NET_SUPPORT) += net/
-LIBS-$(CONFIG_SPL_ETH_SUPPORT) += drivers/net/
-LIBS-$(CONFIG_SPL_ETH_SUPPORT) += drivers/net/phy/
-LIBS-$(CONFIG_SPL_USBETH_SUPPORT) += drivers/net/phy/
-LIBS-$(CONFIG_SPL_MUSB_NEW_SUPPORT) += drivers/usb/musb-new/
-LIBS-$(CONFIG_SPL_USBETH_SUPPORT) += drivers/usb/gadget/
-LIBS-$(CONFIG_SPL_WATCHDOG_SUPPORT) += drivers/watchdog/
-LIBS-$(CONFIG_SPL_USB_HOST_SUPPORT) += drivers/usb/host/
-LIBS-$(CONFIG_OMAP_USB_PHY) += drivers/usb/phy/
-LIBS-$(CONFIG_SPL_SATA_SUPPORT) += drivers/block/
+libs-$(CONFIG_SPL_FRAMEWORK) += common/spl/
+libs-$(CONFIG_SPL_LIBCOMMON_SUPPORT) += common/
+libs-$(CONFIG_SPL_LIBDISK_SUPPORT) += disk/
+libs-$(CONFIG_SPL_I2C_SUPPORT) += drivers/i2c/
+libs-$(CONFIG_SPL_GPIO_SUPPORT) += drivers/gpio/
+libs-$(CONFIG_SPL_MMC_SUPPORT) += drivers/mmc/
+libs-$(CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT) += drivers/ddr/fsl/
+libs-$(CONFIG_SPL_SERIAL_SUPPORT) += drivers/serial/
+libs-$(CONFIG_SPL_SPI_FLASH_SUPPORT) += drivers/mtd/spi/
+libs-$(CONFIG_SPL_SPI_SUPPORT) += drivers/spi/
+libs-y += fs/
+libs-$(CONFIG_SPL_LIBGENERIC_SUPPORT) += lib/
+libs-$(CONFIG_SPL_POWER_SUPPORT) += drivers/power/ drivers/power/pmic/
+libs-$(if $(CONFIG_CMD_NAND),$(CONFIG_SPL_NAND_SUPPORT)) += drivers/mtd/nand/
+libs-$(CONFIG_SPL_DRIVERS_MISC_SUPPORT) += drivers/misc/
+libs-$(CONFIG_SPL_ONENAND_SUPPORT) += drivers/mtd/onenand/
+libs-$(CONFIG_SPL_DMA_SUPPORT) += drivers/dma/
+libs-$(CONFIG_SPL_POST_MEM_SUPPORT) += post/drivers/
+libs-$(CONFIG_SPL_NET_SUPPORT) += net/
+libs-$(CONFIG_SPL_ETH_SUPPORT) += drivers/net/
+libs-$(CONFIG_SPL_ETH_SUPPORT) += drivers/net/phy/
+libs-$(CONFIG_SPL_USBETH_SUPPORT) += drivers/net/phy/
+libs-$(CONFIG_SPL_MUSB_NEW_SUPPORT) += drivers/usb/musb-new/
+libs-$(CONFIG_SPL_USBETH_SUPPORT) += drivers/usb/gadget/
+libs-$(CONFIG_SPL_WATCHDOG_SUPPORT) += drivers/watchdog/
+libs-$(CONFIG_SPL_USB_HOST_SUPPORT) += drivers/usb/host/
+libs-$(CONFIG_OMAP_USB_PHY) += drivers/usb/phy/
+libs-$(CONFIG_SPL_SATA_SUPPORT) += drivers/block/
 
 ifneq (,$(CONFIG_MX23)$(CONFIG_MX35)$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35))
-LIBS-y += arch/$(ARCH)/imx-common/
+libs-y += arch/$(ARCH)/imx-common/
 endif
 
-LIBS-$(CONFIG_ARM) += arch/arm/cpu/
-LIBS-$(CONFIG_PPC) += arch/powerpc/cpu/
+libs-$(CONFIG_ARM) += arch/arm/cpu/
+libs-$(CONFIG_PPC) += arch/powerpc/cpu/
 
-LIBS-y := $(patsubst %/, %/built-in.o, $(LIBS-y))
+head-y		:= $(addprefix $(obj)/,$(head-y))
+libs-y		:= $(addprefix $(obj)/,$(libs-y))
+u-boot-spl-dirs	:= $(patsubst %/,%,$(filter %/, $(libs-y)))
+
+libs-y := $(patsubst %/, %/built-in.o, $(libs-y))
 
 # Add GCC lib
 ifeq ("$(USE_PRIVATE_LIBGCC)", "yes")
 PLATFORM_LIBS := $(SPLTREE)/arch/$(ARCH)/lib/lib.a
 endif
 
-LIBS-y := $(sort $(LIBS-y))
-
-__START := $(head-y)
-__LIBS := $(LIBS-y)
-
-START := $(addprefix $(obj)/,$(head-y))
-LIBS := $(addprefix $(obj)/,$(LIBS-y))
+u-boot-spl-init := $(head-y)
+u-boot-spl-main := $(libs-y)
 
 # Linker Script
 ifdef CONFIG_SPL_LDSCRIPT
@@ -209,19 +207,20 @@ ifneq ($(CONFIG_SPL_TEXT_BASE),)
 LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_SPL_TEXT_BASE)
 endif
 
-GEN_UBOOT = \
-	cd $(obj) && $(LD) $(LDFLAGS) $(LDFLAGS_$(@F)) $(__START) \
-		--start-group $(__LIBS) --end-group $(PLATFORM_LIBS) \
-		-Map $(SPL_BIN).map -o $(SPL_BIN)
+quiet_cmd_u-boot-spl = LD      $@
+      cmd_u-boot-spl = cd $(obj) && $(LD) $(LDFLAGS) $(LDFLAGS_$(@F)) \
+		       $(patsubst $(obj)/%,%,$(u-boot-spl-init)) --start-group \
+		       $(patsubst $(obj)/%,%,$(u-boot-spl-main)) --end-group \
+		       $(PLATFORM_LIBS) -Map $(SPL_BIN).map -o $(SPL_BIN)
 
-$(obj)/$(SPL_BIN): $(START) $(LIBS) $(obj)/u-boot-spl.lds
-	$(GEN_UBOOT)
+$(obj)/$(SPL_BIN): $(u-boot-spl-init) $(u-boot-spl-main) $(obj)/u-boot-spl.lds
+	$(call cmd,u-boot-spl)
 
-$(START):
-	@:
+$(sort $(u-boot-spl-init) $(u-boot-spl-main)): $(u-boot-spl-dirs) ;
 
-$(LIBS):
-	$(Q)$(MAKE) $(build)=$(patsubst %/,%,$(dir $@))
+PHONY += $(u-boot-spl-dirs)
+$(u-boot-spl-dirs):
+	$(Q)$(MAKE) $(build)=$@
 
 # FIX ME
 cpp_flags := $(KBUILD_CPPFLAGS) $(CPPFLAGS) $(UBOOTINCLUDE) $(NOSTDINC_FLAGS)

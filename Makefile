@@ -561,17 +561,7 @@ CHECKFLAGS     += $(NOSTDINC_FLAGS)
 cpp_flags := $(KBUILD_CPPFLAGS) $(CPPFLAGS) $(UBOOTINCLUDE) $(NOSTDINC_FLAGS)
 c_flags := $(KBUILD_CFLAGS) $(cpp_flags)
 
-# The "tools" are needed early, so put this first
-# Don't include stuff already done in $(LIBS)
-# The "examples" conditionally depend on U-Boot (say, when USE_PRIVATE_LIBGCC
-# is "yes"), so compile examples after U-Boot is compiled.
-SUBDIR_TOOLS = tools
-SUBDIRS = $(SUBDIR_TOOLS)
-
-.PHONY : $(SUBDIRS) $(VERSION_FILE) $(TIMESTAMP_FILE)
-
-SUBDIR_EXAMPLES-y := examples
-SUBDIRS += $(SUBDIR_EXAMPLES-y)
+.PHONY : $(VERSION_FILE) $(TIMESTAMP_FILE)
 
 #########################################################################
 # U-Boot objects....order is important (i.e. start must be first)
@@ -580,70 +570,76 @@ head-y := $(CPUDIR)/start.o
 head-$(CONFIG_4xx) += arch/powerpc/cpu/ppc4xx/resetvec.o
 head-$(CONFIG_MPC85xx) += arch/powerpc/cpu/mpc85xx/resetvec.o
 
-OBJS := $(head-y)
-
 HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(srctree)/board/$(VENDOR)/common/Makefile),y,n)
 
-LIBS-y += lib/
-LIBS-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/
-LIBS-y += $(CPUDIR)/
+libs-y += lib/
+libs-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/
+libs-y += $(CPUDIR)/
 ifdef SOC
-LIBS-y += $(CPUDIR)/$(SOC)/
+libs-y += $(CPUDIR)/$(SOC)/
 endif
-LIBS-$(CONFIG_IXP4XX_NPE) += drivers/net/npe/
-LIBS-$(CONFIG_OF_EMBED) += dts/
-LIBS-y += arch/$(ARCH)/lib/
-LIBS-y += fs/
-LIBS-y += net/
-LIBS-y += disk/
-LIBS-y += drivers/
-LIBS-y += drivers/dma/
-LIBS-y += drivers/gpio/
-LIBS-y += drivers/i2c/
-LIBS-y += drivers/input/
-LIBS-y += drivers/mmc/
-LIBS-y += drivers/mtd/
-LIBS-$(CONFIG_CMD_NAND) += drivers/mtd/nand/
-LIBS-y += drivers/mtd/onenand/
-LIBS-$(CONFIG_CMD_UBI) += drivers/mtd/ubi/
-LIBS-y += drivers/mtd/spi/
-LIBS-y += drivers/net/
-LIBS-y += drivers/net/phy/
-LIBS-y += drivers/pci/
-LIBS-y += drivers/power/ \
+libs-$(CONFIG_IXP4XX_NPE) += drivers/net/npe/
+libs-$(CONFIG_OF_EMBED) += dts/
+libs-y += arch/$(ARCH)/lib/
+libs-y += fs/
+libs-y += net/
+libs-y += disk/
+libs-y += drivers/
+libs-y += drivers/dma/
+libs-y += drivers/gpio/
+libs-y += drivers/i2c/
+libs-y += drivers/input/
+libs-y += drivers/mmc/
+libs-y += drivers/mtd/
+libs-$(CONFIG_CMD_NAND) += drivers/mtd/nand/
+libs-y += drivers/mtd/onenand/
+libs-$(CONFIG_CMD_UBI) += drivers/mtd/ubi/
+libs-y += drivers/mtd/spi/
+libs-y += drivers/net/
+libs-y += drivers/net/phy/
+libs-y += drivers/pci/
+libs-y += drivers/power/ \
 	drivers/power/fuel_gauge/ \
 	drivers/power/mfd/ \
 	drivers/power/pmic/ \
 	drivers/power/battery/
-LIBS-y += drivers/spi/
-LIBS-$(CONFIG_FMAN_ENET) += drivers/net/fm/
-LIBS-$(CONFIG_SYS_FSL_DDR) += drivers/ddr/fsl/
-LIBS-y += drivers/serial/
-LIBS-y += drivers/usb/eth/
-LIBS-y += drivers/usb/gadget/
-LIBS-y += drivers/usb/host/
-LIBS-y += drivers/usb/musb/
-LIBS-y += drivers/usb/musb-new/
-LIBS-y += drivers/usb/phy/
-LIBS-y += drivers/usb/ulpi/
-LIBS-y += common/
-LIBS-y += lib/libfdt/
-LIBS-$(CONFIG_API) += api/
-LIBS-$(CONFIG_HAS_POST) += post/
-LIBS-y += test/
+libs-y += drivers/spi/
+libs-$(CONFIG_FMAN_ENET) += drivers/net/fm/
+libs-$(CONFIG_SYS_FSL_DDR) += drivers/ddr/fsl/
+libs-y += drivers/serial/
+libs-y += drivers/usb/eth/
+libs-y += drivers/usb/gadget/
+libs-y += drivers/usb/host/
+libs-y += drivers/usb/musb/
+libs-y += drivers/usb/musb-new/
+libs-y += drivers/usb/phy/
+libs-y += drivers/usb/ulpi/
+libs-y += common/
+libs-y += lib/libfdt/
+libs-$(CONFIG_API) += api/
+libs-$(CONFIG_HAS_POST) += post/
+libs-y += test/
 
 ifneq (,$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35 mxs vf610))
-LIBS-y += arch/$(ARCH)/imx-common/
+libs-y += arch/$(ARCH)/imx-common/
 endif
 
-LIBS-$(CONFIG_ARM) += arch/arm/cpu/
-LIBS-$(CONFIG_PPC) += arch/powerpc/cpu/
+libs-$(CONFIG_ARM) += arch/arm/cpu/
+libs-$(CONFIG_PPC) += arch/powerpc/cpu/
 
-LIBS-y += board/$(BOARDDIR)/
+libs-y += board/$(BOARDDIR)/
 
-LIBS-y := $(patsubst %/, %/built-in.o, $(LIBS-y))
-LIBS := $(sort $(LIBS-y))
-.PHONY : $(LIBS)
+libs-y := $(sort $(libs-y))
+
+u-boot-dirs	:= $(patsubst %/,%,$(filter %/, $(libs-y))) tools examples
+
+u-boot-alldirs	:= $(sort $(u-boot-dirs) $(patsubst %/,%,$(filter %/, $(libs-))))
+
+libs-y		:= $(patsubst %/, %/built-in.o, $(libs-y))
+
+u-boot-init := $(head-y)
+u-boot-main := $(libs-y)
+
 
 # Add GCC lib
 ifdef USE_PRIVATE_LIBGCC
@@ -727,7 +723,7 @@ ifneq ($(CONFIG_SYS_TEXT_BASE),)
 LDFLAGS_u-boot += -Ttext $(CONFIG_SYS_TEXT_BASE)
 endif
 
-all:		$(ALL-y) $(SUBDIR_EXAMPLES-y)
+all:		$(ALL-y)
 
 u-boot.dtb:	checkdtc u-boot
 		$(MAKE) $(build)=dts binary
@@ -774,7 +770,7 @@ u-boot.img:	u-boot.bin
 			sed -e 's/"[	 ]*$$/ for $(BOARD) board"/') \
 		-d $< $@
 
-u-boot.imx: u-boot.bin depend
+u-boot.imx: u-boot.bin
 		$(MAKE) $(build)=arch/arm/imx-common $(objtree)/u-boot.imx
 
 u-boot.kwb:       u-boot.bin
@@ -893,17 +889,17 @@ u-boot.elf: u-boot.bin
 ifeq ($(CONFIG_SANDBOX),y)
 GEN_UBOOT = \
 		$(CC) $(SYMS) -T u-boot.lds \
-			-Wl,--start-group $(LIBS) -Wl,--end-group \
+			-Wl,--start-group $(u-boot-main) -Wl,--end-group \
 			$(PLATFORM_LIBS) -Wl,-Map -Wl,u-boot.map -o u-boot
 else
 GEN_UBOOT = \
 		$(LD) $(LDFLAGS) $(LDFLAGS_$(@F)) \
-			$(OBJS) \
-			--start-group $(LIBS) --end-group $(PLATFORM_LIBS) \
+			$(u-boot-init) \
+			--start-group $(u-boot-main) --end-group $(PLATFORM_LIBS) \
 			-Map u-boot.map -o u-boot
 endif
 
-u-boot:	depend $(SUBDIR_TOOLS) $(OBJS) $(LIBS) u-boot.lds
+u-boot:	$(u-boot-init) $(u-boot-main) u-boot.lds
 		$(GEN_UBOOT)
 ifeq ($(CONFIG_KALLSYMS),y)
 		smap=`$(call SYSTEM_MAP,u-boot) | \
@@ -913,16 +909,27 @@ ifeq ($(CONFIG_KALLSYMS),y)
 		$(GEN_UBOOT) common/system_map.o
 endif
 
-$(OBJS):
-	@:
+# The actual objects are generated when descending, 
+# make sure no implicit rule kicks in
+$(sort $(u-boot-init) $(u-boot-main)): $(u-boot-dirs) ;
 
-$(LIBS):	depend $(SUBDIR_TOOLS) scripts_basic
-		$(Q)$(MAKE) $(build)=$(patsubst %/,%,$(dir $@))
+# Handle descending into subdirectories listed in $(vmlinux-dirs)
+# Preset locale variables to speed up the build process. Limit locale
+# tweaks to this spot to avoid wrong language settings when running
+# make menuconfig etc.
+# Error messages still appears in the original language
 
-$(SUBDIRS):	scripts_basic $(TIMESTAMP_FILE) $(VERSION_FILE)
-		$(Q)$(MAKE) $(build)=$@
+PHONY += $(u-boot-dirs)
+$(u-boot-dirs): depend scripts_basic
+	$(Q)$(MAKE) $(build)=$@
 
-$(SUBDIR_EXAMPLES-y): u-boot
+tools: $(TIMESTAMP_FILE) $(VERSION_FILE)
+# The "tools" are needed early
+$(filter-out tools, $(u-boot-dirs)): tools
+# The "examples" conditionally depend on U-Boot (say, when USE_PRIVATE_LIBGCC
+# is "yes"), so compile examples after U-Boot is compiled.
+examples: $(filter-out examples, $(u-boot-dirs))
+
 
 #
 # Auto-generate the autoconf.mk file (which is included by all makefiles)
@@ -956,10 +963,10 @@ nand_spl:	$(TIMESTAMP_FILE) $(VERSION_FILE) depend scripts_basic
 u-boot-nand.bin:	nand_spl u-boot.bin
 		cat nand_spl/u-boot-spl-16k.bin u-boot.bin > u-boot-nand.bin
 
-spl/u-boot-spl.bin:	$(SUBDIR_TOOLS) depend scripts_basic
+spl/u-boot-spl.bin: tools depend scripts_basic
 		$(MAKE) obj=spl -f $(srctree)/spl/Makefile all
 
-tpl/u-boot-tpl.bin:	$(SUBDIR_TOOLS) depend scripts_basic
+tpl/u-boot-tpl.bin: tools depend scripts_basic
 		$(MAKE) obj=tpl -f $(srctree)/spl/Makefile all CONFIG_TPL_BUILD=y
 
 # Explicitly make _depend in subdirs containing multiple targets to prevent
@@ -968,9 +975,7 @@ depend dep:	$(TIMESTAMP_FILE) $(VERSION_FILE) \
 		include/generated/generic-asm-offsets.h \
 		include/generated/asm-offsets.h
 
-TAG_SUBDIRS = $(SUBDIRS)
-TAG_SUBDIRS += $(dir $(LIBS))
-TAG_SUBDIRS += include
+TAG_SUBDIRS := $(u-boot-dirs) include
 
 FIND := find
 FINDFLAGS := -L
@@ -1155,7 +1160,7 @@ clobber: clean
 	@find $(OBJTREE) -type f \( -name '*.srec' \
 		-o -name '*.bin' -o -name u-boot.img \) \
 		-print0 | xargs -0 rm -f
-	@rm -f $(OBJS) *.bak ctags etags TAGS \
+	@rm -f *.bak ctags etags TAGS \
 		cscope.* *.*~
 	@rm -f u-boot u-boot.map u-boot.hex $(ALL-y)
 	@rm -f u-boot.kwb
