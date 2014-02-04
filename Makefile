@@ -1093,7 +1093,7 @@ $(TIMESTAMP_FILE):
 		@cmp -s $@ $@.tmp && rm -f $@.tmp || mv -f $@.tmp $@
 
 easylogo env gdb:
-	$(Q)$(MAKE) $(build)=tools/$@ MTD_VERSION=${MTD_VERSION}
+	$(Q)$(MAKE) $(build)=tools/$@
 
 gdbtools: gdb
 
