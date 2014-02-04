@@ -13,21 +13,6 @@ PLATFORM_LDFLAGS =
 
 #########################################################################
 
-# Load generated board configuration
-ifeq ($(CONFIG_TPL_BUILD),y)
-# Include TPL autoconf
-sinclude include/tpl-autoconf.mk
-else
-ifeq ($(CONFIG_SPL_BUILD),y)
-# Include SPL autoconf
-sinclude include/spl-autoconf.mk
-else
-# Include normal autoconf
-sinclude include/autoconf.mk
-endif
-endif
-sinclude $(OBJTREE)/include/config.mk
-
 # Some architecture config.mk files need to know what CPUDIR is set to,
 # so calculate CPUDIR before including ARCH/SOC/CPU config.mk files.
 # Check if arch/$ARCH/cpu/$CPU exists, otherwise assume arch/$ARCH/cpu contains

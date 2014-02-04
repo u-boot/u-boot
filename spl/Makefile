@@ -40,6 +40,14 @@ else
 SPL_BIN := u-boot-spl
 endif
 
+include include/config.mk
+
+ifeq ($(CONFIG_TPL_BUILD),y)
+  -include include/tpl-autoconf.mk
+else
+  -include include/spl-autoconf.mk
+endif
+
 include $(TOPDIR)/config.mk
 
 HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(SRCTREE)/board/$(VENDOR)/common/Makefile),y,n)
