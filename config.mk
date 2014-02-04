@@ -102,14 +102,6 @@ CFLAGS := $(KBUILD_CFLAGS) $(CPPFLAGS)
 
 BCURDIR = $(subst $(SRCTREE)/,,$(CURDIR:$(obj)%=%))
 
-ifeq ($(findstring examples/,$(BCURDIR)),)
-ifeq ($(CONFIG_SPL_BUILD),)
-ifdef FTRACE
-CFLAGS += -finstrument-functions -DFTRACE
-endif
-endif
-endif
-
 AFLAGS := $(KBUILD_AFLAGS) $(CPPFLAGS)
 
 LDFLAGS += $(PLATFORM_LDFLAGS)

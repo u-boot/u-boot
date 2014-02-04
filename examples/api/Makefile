@@ -4,6 +4,10 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+ifdef FTRACE
+CFLAGS += -finstrument-functions -DFTRACE
+endif
+
 ifeq ($(ARCH),powerpc)
 LOAD_ADDR = 0x40000
 endif
