@@ -220,29 +220,6 @@ ifneq ($(CONFIG_SPL_TEXT_BASE),)
 LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_SPL_TEXT_BASE)
 endif
 
-# Location of a usable BFD library, where we define "usable" as
-# "built for ${HOST}, supports ${TARGET}".  Sensible values are
-# - When cross-compiling: the root of the cross-environment
-# - Linux/ppc (native): /usr
-# - NetBSD/ppc (native): you lose ... (must extract these from the
-#   binutils build directory, plus the native and U-Boot include
-#   files don't like each other)
-#
-# So far, this is used only by tools/gdb/Makefile.
-
-ifeq ($(HOSTOS),darwin)
-BFD_ROOT_DIR =		/usr/local/tools
-else
-ifeq ($(HOSTARCH),$(ARCH))
-# native
-BFD_ROOT_DIR =		/usr
-else
-#BFD_ROOT_DIR =		/LinuxPPC/CDK		# Linux/i386
-#BFD_ROOT_DIR =		/usr/pkg/cross		# NetBSD/i386
-BFD_ROOT_DIR =		/opt/powerpc
-endif
-endif
-
 #########################################################################
 
 export	CONFIG_SYS_TEXT_BASE PLATFORM_CPPFLAGS PLATFORM_RELFLAGS CPPFLAGS CFLAGS AFLAGS
