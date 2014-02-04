@@ -7,15 +7,23 @@ include $(TOPDIR)/config.mk
 LIB := $(obj)built-in.o
 LIBGCC = $(obj)libgcc.o
 SRCS :=
+subdir-y :=
+obj-dirs :=
 
 include Makefile
+
+# Do not include host rules unless needed
+ifneq ($(hostprogs-y)$(hostprogs-m),)
+include $(SRCTREE)/scripts/Makefile.host.tmp
+endif
 
 # Going forward use the following
 obj-y := $(sort $(obj-y))
 extra-y := $(sort $(extra-y))
+always := $(sort $(always))
 lib-y := $(sort $(lib-y))
 
-subdir-y 	:= $(patsubst %/,%,$(filter %/, $(obj-y)))
+subdir-y 	+= $(patsubst %/,%,$(filter %/, $(obj-y)))
 obj-y		:= $(patsubst %/, %/built-in.o, $(obj-y))
 subdir-obj-y	:= $(filter %/built-in.o, $(obj-y))
 subdir-obj-y	:= $(addprefix $(obj),$(subdir-obj-y))
@@ -25,7 +33,8 @@ SRCS	+= $(wildcard $(obj-y:.o=.c) $(obj-y:.o=.S) $(lib-y:.o=.c) \
 OBJS	:= $(addprefix $(obj),$(obj-y))
 
 # $(obj-dirs) is a list of directories that contain object files
-obj-dirs := $(dir $(OBJS))
+
+obj-dirs += $(dir $(OBJS))
 
 # Create directories for object files if directory does not exist
 # Needed when obj-y := dir/file.o syntax is used
@@ -33,7 +42,7 @@ _dummy := $(foreach d,$(obj-dirs), $(shell [ -d $(d) ] || mkdir -p $(d)))
 
 LGOBJS := $(addprefix $(obj),$(sort $(lib-y)))
 
-all: $(LIB) $(addprefix $(obj),$(extra-y))
+all: $(LIB) $(addprefix $(obj),$(extra-y) $(always)) $(subdir-y)
 
 $(LIB):	$(obj).depend $(OBJS)
 	$(call cmd_link_o_target, $(OBJS))
@@ -48,7 +57,9 @@ endif
 ifneq ($(subdir-obj-y),)
 # Descending
 $(subdir-obj-y): $(subdir-y)
+endif
 
+ifneq ($(subdir-y),)
 $(subdir-y): FORCE
 	$(MAKE) -C $@ -f $(TOPDIR)/scripts/Makefile.build
 endif

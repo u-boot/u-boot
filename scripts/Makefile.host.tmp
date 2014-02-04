@@ -1,0 +1,61 @@
+
+__hostprogs := $(sort $(hostprogs-y) $(hostprogs-m))
+
+# C code
+# Executables compiled from a single .c file
+host-csingle	:= $(foreach m,$(__hostprogs),$(if $($(m)-objs),,$(m)))
+
+# C executables linked based on several .o files
+host-cmulti	:= $(foreach m,$(__hostprogs),$(if $($(m)-objs),$(m)))
+
+# Object (.o) files compiled from .c files
+host-cobjs	:= $(sort $(foreach m,$(__hostprogs),$($(m)-objs)))
+
+# output directory for programs/.o files
+# hostprogs-y := tools/build may have been specified. Retrieve directory
+host-objdirs := $(foreach f,$(__hostprogs), $(if $(dir $(f)),$(dir $(f))))
+# directory of .o files from prog-objs notation
+host-objdirs += $(foreach f,$(host-cmulti),                  \
+                    $(foreach m,$($(f)-objs),                \
+                        $(if $(dir $(m)),$(dir $(m)))))
+
+host-objdirs := $(strip $(sort $(filter-out ./,$(host-objdirs))))
+
+__hostprogs     := $(addprefix $(obj),$(__hostprogs))
+host-csingle	:= $(addprefix $(obj),$(host-csingle))
+host-cmulti	:= $(addprefix $(obj),$(host-cmulti))
+host-cobjs	:= $(addprefix $(obj),$(host-cobjs))
+host-objdirs    := $(addprefix $(obj),$(host-objdirs))
+
+obj-dirs += $(host-objdirs)
+
+#####
+# Handle options to gcc. Support building with separate output directory
+
+_hostc_flags   = $(HOSTCFLAGS)   $(HOST_EXTRACFLAGS)   \
+                 $(HOSTCFLAGS_$(basetarget).o)
+
+# Find all -I options and call addtree
+flags = $(foreach o,$($(1)),$(if $(filter -I%,$(o)),$(call addtree,$(o)),$(o)))
+
+ifeq ($(OBJTREE),$(SRCTREE))
+__hostc_flags	= $(_hostc_flags)
+else
+__hostc_flags	= -I$(obj) $(call flags,_hostc_flags)
+endif
+
+hostc_flags    = $(__hostc_flags)
+
+#####
+# Compile programs on the host
+
+$(host-csingle): $(obj)%: %.c
+	$(HOSTCC) $(HOSTCFLAGS) $(HOST_EXTRACFLAGS) $(HOSTLDFLAGS) $(HOSTCFLAGS_$(@F)) $(HOSTCFLAGS_$(BCURDIR)) -o $@ $<
+
+$(host-cmulti): $(obj)%: $(host-cobjs)
+	$(HOSTCC) $(HOSTLDFLAGS) -o $@ $(addprefix $(obj),$($(@F)-objs)) $(HOSTLOADLIBES_$(@F))
+
+$(host-cobjs): $(obj)%.o: %.c
+	$(HOSTCC) $(HOSTCFLAGS) $(HOST_EXTRACFLAGS) $(HOSTCFLAGS_$(@F)) $(HOSTCFLAGS_$(BCURDIR)) -o $@ $< -c
+
+targets += $(host-csingle)  $(host-cmulti) $(host-cobjs)
