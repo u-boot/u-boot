@@ -19,7 +19,7 @@
 
 /*-------------------------------------------------------------------------*/
 /* DMA bounce buffer size, 16K is enough even for mass storage */
-#define DMA_BUFFER_SIZE	(4096*4)
+#define DMA_BUFFER_SIZE	(16*SZ_1K)
 
 #define EP0_FIFO_SIZE		64
 #define EP_FIFO_SIZE		512
@@ -80,9 +80,6 @@ struct s3c_udc {
 	struct usb_gadget_driver *driver;
 
 	struct s3c_plat_otg_data *pdata;
-
-	void *dma_buf[S3C_MAX_ENDPOINTS+1];
-	dma_addr_t dma_addr[S3C_MAX_ENDPOINTS+1];
 
 	int ep0state;
 	struct s3c_ep ep[S3C_MAX_ENDPOINTS];
