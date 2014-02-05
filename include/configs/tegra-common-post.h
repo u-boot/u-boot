@@ -66,6 +66,20 @@
 #define BOOT_TARGETS_DHCP ""
 #endif
 
+#if defined(CONFIG_CMD_DHCP) && defined(CONFIG_CMD_PXE)
+#define BOOTCMDS_PXE \
+	"bootcmd_pxe=" \
+		BOOTCMD_INIT_USB \
+		"dhcp; " \
+		"if pxe get; then " \
+			"pxe boot; " \
+		"fi\0"
+#define BOOT_TARGETS_PXE "pxe"
+#else
+#define BOOTCMDS_PXE ""
+#define BOOT_TARGETS_PXE ""
+#endif
+
 #define BOOTCMDS_COMMON \
 	"rootpart=1\0" \
 	\
@@ -108,6 +122,7 @@
 	"boot_targets=" \
 		BOOT_TARGETS_MMC " " \
 		BOOT_TARGETS_USB " " \
+		BOOT_TARGETS_PXE " " \
 		BOOT_TARGETS_DHCP " " \
 		"\0" \
 	\
@@ -117,7 +132,8 @@
 	\
 	BOOTCMDS_MMC \
 	BOOTCMDS_USB \
-	BOOTCMDS_DHCP
+	BOOTCMDS_DHCP \
+	BOOTCMDS_PXE
 
 #define CONFIG_BOOTCOMMAND \
 	"set usb_need_init; " \
