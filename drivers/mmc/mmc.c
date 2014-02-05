@@ -1505,4 +1505,25 @@ int mmc_boot_part_access(struct mmc *mmc, u8 ack, u8 part_num, u8 access)
 	}
 	return 0;
 }
+
+/*
+ * Modify EXT_CSD[179] which is PARTITION_CONFIG (formerly BOOT_CONFIG)
+ * based on the passed in values for BOOT_ACK, BOOT_PARTITION_ENABLE and
+ * PARTITION_ACCESS.
+ *
+ * Returns 0 on success.
+ */
+int mmc_set_part_conf(struct mmc *mmc, u8 ack, u8 part_num, u8 access)
+{
+	int err;
+
+	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_PART_CONF,
+			 EXT_CSD_BOOT_ACK(ack) |
+			 EXT_CSD_BOOT_PART_NUM(part_num) |
+			 EXT_CSD_PARTITION_ACCESS(access));
+
+	if (err)
+		return err;
+	return 0;
+}
 #endif

@@ -312,6 +312,8 @@ int mmc_boot_partition_size_change(struct mmc *mmc, unsigned long bootsize,
 					unsigned long rpmbsize);
 /* Function to send commands to open/close the specified boot partition */
 int mmc_boot_part_access(struct mmc *mmc, u8 ack, u8 part_num, u8 access);
+/* Function to modify the PARTITION_CONFIG field of EXT_CSD */
+int mmc_set_part_conf(struct mmc *mmc, u8 ack, u8 part_num, u8 access);
 
 /**
  * Start device initialization and return immediately; it does not block on
