@@ -8,8 +8,9 @@
 #define _CONFIG_CMD_DISTRO_DEFAULTS_H
 
 /*
- * List of all commands and options that when defined enables support for features
- * required by distros to support boards in a standardised and consitant manner.
+ * List of all commands and options that when defined enables support for
+ * features required by distros to support boards in a standardised and
+ * consitant manner.
  */
 
 #define CONFIG_BOOTP_BOOTPATH
