@@ -183,8 +183,6 @@ HOST_EXTRACFLAGS += -include $(SRCTREE)/include/libfdt_env.h \
 
 __build:	$(LOGO-y)
 
-subdir-y += kernel-doc
-
 $(LOGO_H):	$(obj)/bmp_logo $(LOGO_BMP)
 	$(obj)/bmp_logo --gen-info $(LOGO_BMP) > $@
 

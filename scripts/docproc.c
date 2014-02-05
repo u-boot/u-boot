@@ -65,7 +65,7 @@ FILELINE * docsection;
 
 #define MAXLINESZ     2048
 #define MAXFILES      250
-#define KERNELDOCPATH "tools/kernel-doc/"
+#define KERNELDOCPATH "scripts/"
 #define KERNELDOC     "kernel-doc"
 #define DOCBOOK       "-docbook"
 #define LIST          "-list"

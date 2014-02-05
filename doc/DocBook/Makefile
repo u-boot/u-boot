@@ -1,7 +1,7 @@
 ###
 # This makefile is used to generate the kernel documentation,
 # primarily based on in-line comments in various source files.
-# See doc/kernel-doc-nano-HOWTO.txt for instruction in how
+# See Documentation/kernel-doc-nano-HOWTO.txt for instruction in how
 # to document the SRC - and how to read it.
 # To add a new book the only step required is to add the book to the
 # list of DOCBOOKS.
@@ -51,8 +51,8 @@ installmandocs: mandocs
 
 ###
 #External programs used
-KERNELDOC = $(srctree)/tools/kernel-doc/kernel-doc
-DOCPROC   = $(objtree)/tools/kernel-doc/docproc
+KERNELDOC = $(srctree)/scripts/kernel-doc
+DOCPROC   = $(objtree)/scripts/docproc
 
 XMLTOFLAGS = -m $(srctree)/doc/DocBook/stylesheet.xsl
 XMLTOFLAGS += --skip-validation
@@ -134,11 +134,8 @@ build_main_index = rm -rf $(main_idx); \
 		   echo '<h2>U-Boot Version: $(U_BOOT_VERSION)</h2>' >> $(main_idx) && \
 		   cat $(HTML) >> $(main_idx)
 
-# To work around bug [1] in docbook-xsl-stylesheets 1.76.1 , generate only html
-# docs instead of xhtml with xmlto.
-# [1] http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=654338
 quiet_cmd_db2html = HTML    $@
-      cmd_db2html = xmlto html $(XMLTOFLAGS) -o $(patsubst %.html,%,$@) $< && \
+      cmd_db2html = xmlto xhtml $(XMLTOFLAGS) -o $(patsubst %.html,%,$@) $< && \
 		echo '<a HREF="$(patsubst %.html,%,$(notdir $@))/index.html"> \
         $(patsubst %.html,%,$(notdir $@))</a><p>' > $@
 
@@ -225,8 +222,8 @@ clean-files := $(DOCBOOKS) \
 clean-dirs := $(patsubst %.xml,%,$(DOCBOOKS)) man
 
 cleandocs:
-	@$(Q)rm -f $(call objectify, $(clean-files))
-	@$(Q)rm -rf $(call objectify, $(clean-dirs))
+	$(Q)rm -f $(call objectify, $(clean-files))
+	$(Q)rm -rf $(call objectify, $(clean-dirs))
 
 # Declare the contents of the .PHONY variable as phony.  We keep that
 # information in a variable se we can use it in if_changed and friends.

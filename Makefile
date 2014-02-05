@@ -1149,9 +1149,6 @@ $(TIMESTAMP_FILE):
 env: depend scripts_basic
 	$(Q)$(MAKE) $(build)=tools/$@
 
-xmldocs pdfdocs psdocs htmldocs mandocs: tools/kernel-doc/docproc
-	$(Q)$(MAKE) U_BOOT_VERSION=$(U_BOOT_VERSION) $(build)=doc/DocBook $@
-
 tools-all: HOST_TOOLS_ALL=y
 tools-all: env tools ;
 
@@ -1258,6 +1255,13 @@ distclean: mrproper
 backup:
 	F=`basename $(TOPDIR)` ; cd .. ; \
 	gtar --force-local -zcvf `LC_ALL=C date "+$$F-%Y-%m-%d-%T.tar.gz"` $$F
+
+
+# Documentation targets
+# ---------------------------------------------------------------------------
+%docs: scripts_basic FORCE
+	$(Q)$(MAKE) $(build)=scripts build_docproc
+	$(Q)$(MAKE) $(build)=doc/DocBook $@
 
 # Dummies...
 PHONY += prepare scripts
