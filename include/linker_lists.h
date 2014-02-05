@@ -8,6 +8,9 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#ifndef __LINKER_LISTS_H__
+#define __LINKER_LISTS_H__
+
 /*
  * There is no use in including this from ASM files, but that happens
  * anyway, e.g. PPC kgdb.S includes command.h which incluse us.
@@ -96,9 +99,6 @@
  *   %u_boot_list_2_drivers_2_pci_3
  *   %u_boot_list_2_drivers_3
  */
-
-#ifndef __LINKER_LISTS_H__
-#define __LINKER_LISTS_H__
 
 /**
  * ll_entry_declare() - Declare linker-generated array entry
