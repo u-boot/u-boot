@@ -1507,6 +1507,27 @@ int mmc_boot_part_access(struct mmc *mmc, u8 ack, u8 part_num, u8 access)
 }
 
 /*
+ * Modify EXT_CSD[177] which is BOOT_BUS_WIDTH
+ * based on the passed in values for BOOT_BUS_WIDTH, RESET_BOOT_BUS_WIDTH
+ * and BOOT_MODE.
+ *
+ * Returns 0 on success.
+ */
+int mmc_set_boot_bus_width(struct mmc *mmc, u8 width, u8 reset, u8 mode)
+{
+	int err;
+
+	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_BOOT_BUS_WIDTH,
+			 EXT_CSD_BOOT_BUS_WIDTH_MODE(mode) |
+			 EXT_CSD_BOOT_BUS_WIDTH_RESET(reset) |
+			 EXT_CSD_BOOT_BUS_WIDTH_WIDTH(width));
+
+	if (err)
+		return err;
+	return 0;
+}
+
+/*
  * Modify EXT_CSD[179] which is PARTITION_CONFIG (formerly BOOT_CONFIG)
  * based on the passed in values for BOOT_ACK, BOOT_PARTITION_ENABLE and
  * PARTITION_ACCESS.

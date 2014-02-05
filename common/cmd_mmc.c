@@ -338,6 +338,33 @@ static int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 		/* acknowledge to be sent during boot operation */
 		return mmc_set_part_conf(mmc, ack, part_num, access);
+	} else if (strcmp(argv[1], "bootbus") == 0) {
+		int dev;
+		struct mmc *mmc;
+		u8 width, reset, mode;
+
+		if (argc == 6) {
+			dev = simple_strtoul(argv[2], NULL, 10);
+			width = simple_strtoul(argv[3], NULL, 10);
+			reset = simple_strtoul(argv[4], NULL, 10);
+			mode = simple_strtoul(argv[5], NULL, 10);
+		} else {
+			return CMD_RET_USAGE;
+		}
+
+		mmc = find_mmc_device(dev);
+		if (!mmc) {
+			printf("no mmc device at slot %x\n", dev);
+			return 1;
+		}
+
+		if (IS_SD(mmc)) {
+			puts("BOOT_BUS_WIDTH only exists on eMMC\n");
+			return 1;
+		}
+
+		/* acknowledge to be sent during boot operation */
+		return mmc_set_boot_bus_width(mmc, width, reset, mode);
 	} else if (strcmp(argv[1], "bootpart-resize") == 0) {
 		int dev;
 		struct mmc *mmc;
@@ -475,6 +502,8 @@ U_BOOT_CMD(
 	" - Enable boot_part for booting and enable R/W access of boot_part\n"
 	"mmc close <dev> <boot_partition>\n"
 	" - Enable boot_part for booting and disable access to boot_part\n"
+	"mmc bootbus dev boot_bus_width reset_boot_bus_width boot_mode\n"
+	" - Set the BOOT_BUS_WIDTH field of the specified device\n"
 	"mmc bootpart-resize <dev> <boot part size MB> <RPMB part size MB>\n"
 	" - Change sizes of boot and RPMB partitions of specified device\n"
 	"mmc partconf dev boot_ack boot_partition partition_access\n"
