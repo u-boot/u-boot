@@ -720,7 +720,7 @@ ALL-$(CONFIG_RAMBOOT_PBL) += u-boot.pbl
 ALL-$(CONFIG_SPL) += spl/u-boot-spl.bin
 ALL-$(CONFIG_SPL_FRAMEWORK) += u-boot.img
 ALL-$(CONFIG_TPL) += tpl/u-boot-tpl.bin
-ALL-$(CONFIG_OF_SEPARATE) += u-boot.dtb u-boot-dtb.bin
+ALL-$(CONFIG_OF_SEPARATE) += u-boot-dtb.bin
 ifneq ($(CONFIG_SPL_TARGET),)
 ALL-$(CONFIG_SPL) += $(CONFIG_SPL_TARGET:"%"=%)
 endif
@@ -744,11 +744,11 @@ endif
 
 all:		$(ALL-y)
 
-u-boot.dtb:	checkdtc u-boot
-		$(MAKE) $(build)=dts binary
-		mv dts/dt.dtb $@
+PHONY += dtbs
+dtbs dts/dt.dtb: checkdtc u-boot
+	$(Q)$(MAKE) $(build)=dts dtbs
 
-u-boot-dtb.bin:	u-boot.bin u-boot.dtb
+u-boot-dtb.bin: u-boot.bin dts/dt.dtb
 		cat $^ >$@
 
 u-boot.hex:	u-boot
@@ -875,8 +875,8 @@ u-boot-nodtb-tegra.bin: spl/u-boot-spl.bin u-boot.bin
 		rm spl/u-boot-spl-pad.bin
 
 ifeq ($(CONFIG_OF_SEPARATE),y)
-u-boot-dtb-tegra.bin: u-boot-nodtb-tegra.bin u-boot.dtb
-		cat u-boot-nodtb-tegra.bin u-boot.dtb > $@
+u-boot-dtb-tegra.bin: u-boot-nodtb-tegra.bin dts/dt.dtb
+		cat $^ > $@
 endif
 endif
 
@@ -1171,7 +1171,7 @@ include/license.h: tools/bin2header COPYING
 # Directories & files removed with 'make clean'
 CLEAN_DIRS  += $(MODVERDIR)
 CLEAN_FILES += u-boot.lds include/bmp_logo.h include/bmp_logo_data.h \
-	       board/*/config.tmp board/*/*/config.tmp dts/*.tmp \
+	       board/*/config.tmp board/*/*/config.tmp \
 	       include/autoconf.mk* include/spl-autoconf.mk \
 	       include/tpl-autoconf.mk
 

@@ -151,9 +151,10 @@ cpp_flags      = -Wp,-MD,$(depfile) $(NOSTDINC_FLAGS) $(UBOOTINCLUDE)     \
 
 ld_flags       = $(LDFLAGS) $(ldflags-y)
 
+# Modified for U-Boot
 dtc_cpp_flags  = -Wp,-MD,$(depfile).pre.tmp -nostdinc                    \
-		 -I$(srctree)/arch/$(SRCARCH)/boot/dts                   \
-		 -I$(srctree)/arch/$(SRCARCH)/boot/dts/include           \
+		 -I$(srctree)/board/$(VENDOR)/dts/                       \
+		 -I$(srctree)/arch/$(ARCH)/dts                           \
 		 -undef -D__DTS__
 
 # Finds the multi-part object the current object will be linked into
@@ -247,25 +248,24 @@ cmd_gzip = (cat $(filter-out FORCE,$^) | gzip -n -f -9 > $@) || \
 
 # Generate an assembly file to wrap the output of the device tree compiler
 quiet_cmd_dt_S_dtb= DTB     $@
+# Modified for U-Boot
 cmd_dt_S_dtb=						\
 (							\
-	echo '\#include <asm-generic/vmlinux.lds.h>'; 	\
 	echo '.section .dtb.init.rodata,"a"';		\
-	echo '.balign STRUCT_ALIGNMENT';		\
 	echo '.global __dtb_$(*F)_begin';		\
 	echo '__dtb_$(*F)_begin:';			\
 	echo '.incbin "$<" ';				\
 	echo '__dtb_$(*F)_end:';			\
 	echo '.global __dtb_$(*F)_end';			\
-	echo '.balign STRUCT_ALIGNMENT'; 		\
 ) > $@
 
 $(obj)/%.dtb.S: $(obj)/%.dtb
 	$(call cmd,dt_S_dtb)
 
 quiet_cmd_dtc = DTC     $@
+# Modified for U-Boot
 cmd_dtc = $(CPP) $(dtc_cpp_flags) -x assembler-with-cpp -o $(dtc-tmp) $< ; \
-	$(objtree)/scripts/dtc/dtc -O dtb -o $@ -b 0 \
+	dtc -O dtb -o $@ -b 0 \
 		-i $(dir $<) $(DTC_FLAGS) \
 		-d $(depfile).dtc.tmp $(dtc-tmp) ; \
 	cat $(depfile).pre.tmp $(depfile).dtc.tmp > $(depfile)
