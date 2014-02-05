@@ -314,11 +314,18 @@ static int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	} else if (strcmp(argv[1], "bootpart") == 0) {
 		int dev;
-		dev = simple_strtoul(argv[2], NULL, 10);
+		struct *mmc;
+		u32 bootsize, rpmbsize;
 
-		u32 bootsize = simple_strtoul(argv[3], NULL, 10);
-		u32 rpmbsize = simple_strtoul(argv[4], NULL, 10);
-		struct mmc *mmc = find_mmc_device(dev);
+		if (argc == 5) {
+			dev = simple_strtoul(argv[2], NULL, 10);
+			bootsize = simple_strtoul(argv[3], NULL, 10);
+			rpmbsize = simple_strtoul(argv[4], NULL, 10);
+		} else {
+			return CMD_RET_USAGE;
+		}
+
+		mmc = find_mmc_device(dev);
 		if (!mmc) {
 			printf("no mmc device at slot %x\n", dev);
 			return 1;
