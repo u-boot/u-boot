@@ -12,9 +12,9 @@ ifeq ($(DEVICE_TREE),)
 DEVICE_TREE := notfound
 endif
 
-DTS := $(srctree)/board/$(VENDOR)/dts/$(DEVICE_TREE).dts
+DTS := $(srctree)/arch/$(ARCH)/dts/$(DEVICE_TREE).dts
 
-DTC_FLAGS += -i $(srctree)/arch/$(ARCH)/dts -R 4 -p 0x1000
+DTC_FLAGS += -R 4 -p 0x1000
 
 $(obj)/dt.dtb: $(DTS) FORCE
 	$(call if_changed_dep,dtc)

@@ -153,7 +153,6 @@ ld_flags       = $(LDFLAGS) $(ldflags-y)
 
 # Modified for U-Boot
 dtc_cpp_flags  = -Wp,-MD,$(depfile).pre.tmp -nostdinc                    \
-		 -I$(srctree)/board/$(VENDOR)/dts/                       \
 		 -I$(srctree)/arch/$(ARCH)/dts                           \
 		 -undef -D__DTS__
 
