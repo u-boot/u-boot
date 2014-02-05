@@ -248,17 +248,26 @@ struct smc91111_priv{
 #define	SMC_inw(a,r)	(*((volatile word *)((a)->iobase+((r)<<1))))
 #elif CONFIG_BLACKFIN
 #define	SMC_inw(a,r)	({ word __v = (*((volatile word *)((a)->iobase+(r)))); SSYNC(); __v;})
+#elif CONFIG_ARM64
+#define	SMC_inw(a, r)	(*((volatile word*)((a)->iobase+((dword)(r)))))
 #else
-#define	SMC_inw(a,r)	(*((volatile word *)((a)->iobase+(r))))
+#define SMC_inw(a, r)	(*((volatile word*)((a)->iobase+(r))))
 #endif
 #define  SMC_inb(a,r)	(((r)&1) ? SMC_inw((a),(r)&~1)>>8 : SMC_inw((a),(r)&0xFF))
 
 #ifdef CONFIG_ADNPESC1
 #define	SMC_outw(a,d,r)	(*((volatile word *)((a)->iobase+((r)<<1))) = d)
 #elif CONFIG_BLACKFIN
-#define	SMC_outw(a,d,r)	{(*((volatile word *)((a)->iobase+(r))) = d); SSYNC();}
+#define	SMC_outw(a, d, r)	\
+			({	(*((volatile word*)((a)->iobase+((r)))) = d); \
+				SSYNC(); \
+			})
+#elif CONFIG_ARM64
+#define	SMC_outw(a, d, r)	\
+			(*((volatile word*)((a)->iobase+((dword)(r)))) = d)
 #else
-#define	SMC_outw(a,d,r)	(*((volatile word *)((a)->iobase+(r))) = d)
+#define	SMC_outw(a, d, r)	\
+			(*((volatile word*)((a)->iobase+(r))) = d)
 #endif
 #define	SMC_outb(a,d,r)	({	word __d = (byte)(d);  \
 				word __w = SMC_inw((a),(r)&~1);  \
