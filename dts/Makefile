@@ -9,24 +9,30 @@
 
 DEVICE_TREE ?= $(CONFIG_DEFAULT_DEVICE_TREE:"%"=%)
 ifeq ($(DEVICE_TREE),)
-DEVICE_TREE := notfound
+DEVICE_TREE := unset
 endif
 
-DTS := $(srctree)/arch/$(ARCH)/dts/$(DEVICE_TREE).dts
+DTB := arch/$(ARCH)/dts/$(DEVICE_TREE).dtb
 
-DTC_FLAGS += -R 4 -p 0x1000
+quiet_cmd_copy = COPY    $@
+      cmd_copy = cp $< $@
 
-$(obj)/dt.dtb: $(DTS) FORCE
-	$(call if_changed_dep,dtc)
+$(obj)/dt.dtb: $(DTB) FORCE
+	$(call if_changed,copy)
 
 targets += dt.dtb
 
-$(DTS):
-	@echo >&2
-	@echo >&2 "Device Tree Source is not specified."
-	@echo >&2 "Please define 'CONFIG_DEFAULT_DEVICE_TREE'"
-	@echo >&2 "or build with 'DEVICE_TREE=<dts-file-name>' argument"
-	@/bin/false
+$(DTB): arch-dtbs
+	$(Q)test -e $@ || (						\
+	echo >&2;							\
+	echo >&2 "Device Tree Source is not correctly specified.";	\
+	echo >&2 "Please define 'CONFIG_DEFAULT_DEVICE_TREE'";		\
+	echo >&2 "or build with 'DEVICE_TREE=<device_tree>' argument";	\
+	echo >&2;							\
+	/bin/false)
+
+arch-dtbs:
+	$(Q)$(MAKE) $(build)=arch/$(ARCH)/dts dtbs
 
 .SECONDARY: $(obj)/dt.dtb.S
 
@@ -36,3 +42,6 @@ dtbs: $(obj)/dt.dtb
 	@:
 
 clean-files := dt.dtb.S
+
+# Let clean descend into dts directories
+subdir- += ../arch/*/dts
