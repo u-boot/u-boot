@@ -409,7 +409,7 @@ u32 imx_get_uartclk(void)
 
 u32 imx_get_fecclk(void)
 {
-	return decode_pll(PLL_ENET, MXC_HCLK);
+	return mxc_get_clock(MXC_IPG_CLK);
 }
 
 static int enable_enet_pll(uint32_t en)
