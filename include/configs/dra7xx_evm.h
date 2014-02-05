@@ -73,6 +73,8 @@
 #define CONFIG_SPL_SPI_CS              0
 #define CONFIG_SYS_SPI_U_BOOT_OFFS     0x20000
 
+#define CONFIG_SUPPORT_EMMC_BOOT
+
 /* USB xHCI HOST */
 #define CONFIG_CMD_USB
 #define CONFIG_USB_HOST
