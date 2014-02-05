@@ -97,18 +97,17 @@ static int setdma_rx(struct s3c_ep *ep, struct s3c_request *req)
 	u32 ep_num = ep_index(ep);
 
 	buf = req->req.buf + req->req.actual;
-
-	length = min(req->req.length - req->req.actual, (int)ep->ep.maxpacket);
+	length = min(req->req.length - req->req.actual,
+		     ep_num ? DMA_BUFFER_SIZE : ep->ep.maxpacket);
 
 	ep->len = length;
 	ep->dma_buf = buf;
 
-	if (length == 0)
+	if (ep_num == EP0_CON || length == 0)
 		pktcnt = 1;
 	else
 		pktcnt = (length - 1)/(ep->ep.maxpacket) + 1;
 
-	pktcnt = 1;
 	ctrl =  readl(&reg->out_endp[ep_num].doepctl);
 
 	writel(the_controller->dma_addr[ep_index(ep)+1],
