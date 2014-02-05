@@ -228,6 +228,8 @@
 # define CONFIG_SYS_MMC_MAX_DEVICE	1
 #endif
 
+#define CONFIG_SYS_LDSCRIPT  "arch/arm/cpu/armv7/zynq/u-boot.lds"
+
 /* Commands */
 #include <config_cmd_default.h>
 
