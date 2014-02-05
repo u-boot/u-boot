@@ -614,7 +614,7 @@ static struct usb_request *thor_start_ep(struct usb_ep *ep)
 {
 	struct usb_request *req;
 
-	req = alloc_ep_req(ep, ep->maxpacket);
+	req = alloc_ep_req(ep, THOR_PACKET_SIZE);
 	debug("%s: ep:%p req:%p\n", __func__, ep, req);
 
 	if (!req)
