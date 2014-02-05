@@ -312,9 +312,9 @@ static int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		/* acknowledge to be sent during boot operation */
 		return boot_part_access(mmc, 1, part_num, access);
 
-	} else if (strcmp(argv[1], "bootpart") == 0) {
+	} else if (strcmp(argv[1], "bootpart-resize") == 0) {
 		int dev;
-		struct *mmc;
+		struct mmc *mmc;
 		u32 bootsize, rpmbsize;
 
 		if (argc == 5) {
@@ -449,8 +449,8 @@ U_BOOT_CMD(
 	" - Enable boot_part for booting and enable R/W access of boot_part\n"
 	"mmc close <dev> <boot_partition>\n"
 	" - Enable boot_part for booting and disable access to boot_part\n"
-	"mmc bootpart <device num> <boot part size MB> <RPMB part size MB>\n"
-	" - change sizes of boot and RPMB partitions of specified device\n"
+	"mmc bootpart-resize <dev> <boot part size MB> <RPMB part size MB>\n"
+	" - Change sizes of boot and RPMB partitions of specified device\n"
 #endif
 	"mmc setdsr - set DSR register value\n"
 	);
