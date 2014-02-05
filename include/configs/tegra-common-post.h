@@ -69,20 +69,41 @@
 #define BOOTCMDS_COMMON \
 	"rootpart=1\0" \
 	\
+	"do_script_boot="                                                 \
+		"load ${devtype} ${devnum}:${rootpart} "                  \
+			"${scriptaddr} ${prefix}${script}; "              \
+		"source ${scriptaddr}\0"                                  \
+	\
 	"script_boot="                                                    \
-		"if load ${devtype} ${devnum}:${rootpart} "               \
-				"${scriptaddr} ${prefix}${script}; then " \
-			"echo ${script} found! Executing ...;"            \
-			"source ${scriptaddr};"                           \
-		"fi;\0"                                                   \
+		"for script in ${boot_scripts}; do "                      \
+			"if test -e ${devtype} ${devnum}:${rootpart} "    \
+					"${prefix}${script}; then "       \
+				"echo Found U-Boot script "               \
+					"${prefix}${script}; "            \
+				"run do_script_boot; "                    \
+				"echo SCRIPT FAILED: continuing...; "     \
+			"fi; "                                            \
+		"done\0"                                                  \
+	\
+	"do_sysboot_boot="                                                \
+		"sysboot ${devtype} ${devnum}:${rootpart} any "           \
+			"${scriptaddr} ${prefix}extlinux.conf\0"          \
+	\
+	"sysboot_boot="                                                   \
+		"if test -e ${devtype} ${devnum}:${rootpart} "            \
+				"${prefix}extlinux.conf; then "           \
+			"echo Found extlinux config "                     \
+				"${prefix}extlinux.conf; "                \
+			"run do_sysboot_boot; "                           \
+			"echo SCRIPT FAILED: continuing...; "             \
+		"fi\0"                                                    \
 	\
 	"scan_boot="                                                      \
 		"echo Scanning ${devtype} ${devnum}...; "                 \
 		"for prefix in ${boot_prefixes}; do "                     \
-			"for script in ${boot_scripts}; do "              \
-				"run script_boot; "                       \
-			"done; "                                          \
-		"done;\0"                                                 \
+			"run sysboot_boot; "                              \
+			"run script_boot; "                               \
+		"done\0"                                                  \
 	\
 	"boot_targets=" \
 		BOOT_TARGETS_MMC " " \
