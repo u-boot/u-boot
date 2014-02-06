@@ -147,37 +147,34 @@
 #define CONFIG_BOOTDELAY		2
 
 /* Shell */
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_MAXARGS		8
 #define CONFIG_SYS_PROMPT		"U-Boot> "
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_CMDLINE_EDITING
 #define CONFIG_COMMAND_HISTORY
-#define CONFIG_AUTO_COMPLETE
 
 /* Commands */
 #include <config_cmd_default.h>
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_MMC
-#define CONFIG_DOS_PARTITION
 #define CONFIG_PARTITION_UUIDS
 #define CONFIG_CMD_PART
-#define CONFIG_CMD_FS_GENERIC
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT
-/* Some things don't make sense on this HW or yet */
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
-#undef CONFIG_CMD_SAVEENV
 
-/* Device tree support for bootm/bootz */
-#define CONFIG_OF_LIBFDT
+/* Device tree support */
 #define CONFIG_OF_BOARD_SETUP
 /* ATAGs support for bootm/bootz */
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_INITRD_TAG
+
+#include <config_distro_defaults.h>
+
+/* Some things don't make sense on this HW or yet */
+#undef CONFIG_CMD_FPGA
+#undef CONFIG_CMD_NET
+#undef CONFIG_CMD_NFS
+#undef CONFIG_CMD_SAVEENV
+#undef CONFIG_CMD_DHCP
+#undef CONFIG_CMD_MII
+#undef CONFIG_CMD_NET
+#undef CONFIG_CMD_PING
 
 #endif
