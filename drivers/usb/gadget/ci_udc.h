@@ -3,12 +3,12 @@
  *
  * Licensed under the GPL-2 or later.
  */
-#ifndef __GADGET__MV_UDC_H__
-#define __GADGET__MV_UDC_H__
+#ifndef __GADGET__CI_UDC_H__
+#define __GADGET__CI_UDC_H__
 
 #define NUM_ENDPOINTS		6
 
-struct mv_udc {
+struct ci_udc {
 #define MICRO_8FRAME	0x8
 #define USBCMD_ITC(x)	((((x) > 0xff) ? 0xff : x) << 16)
 #define USBCMD_FS2	(1 << 15)
@@ -48,7 +48,7 @@ struct mv_udc {
 	u32 epctrl[16];		/* 0x1c0 */
 };
 
-struct mv_ep {
+struct ci_ep {
 	struct usb_ep ep;
 	struct list_head queue;
 	const struct usb_endpoint_descriptor *desc;
@@ -59,14 +59,14 @@ struct mv_ep {
 	uint8_t b_fast[64] __aligned(ARCH_DMA_MINALIGN);
 };
 
-struct mv_drv {
+struct ci_drv {
 	struct usb_gadget		gadget;
 	struct usb_gadget_driver	*driver;
 	struct ehci_ctrl		*ctrl;
 	struct ept_queue_head		*epts;
 	struct ept_queue_item		*items[2 * NUM_ENDPOINTS];
 	uint8_t				*items_mem;
-	struct mv_ep			ep[NUM_ENDPOINTS];
+	struct ci_ep			ep[NUM_ENDPOINTS];
 };
 
 struct ept_queue_head {

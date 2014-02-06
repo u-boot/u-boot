@@ -6,9 +6,9 @@
  */
 
 
-#ifndef __MV_UDC_H__
-#define __MV_UDC_H__
+#ifndef __CI_UDC_H__
+#define __CI_UDC_H__
 
 #define EP_MAX_PACKET_SIZE	0x200
 #define EP0_MAX_PACKET_SIZE	64
-#endif /* __MV_UDC_H__ */
+#endif /* __CI_UDC_H__ */

@@ -20,9 +20,9 @@
 #include <linux/types.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
-#include <usb/mv_udc.h>
+#include <usb/ci_udc.h>
 #include "../host/ehci.h"
-#include "mv_udc.h"
+#include "ci_udc.h"
 
 /*
  * Check if the system has too long cachelines. If the cachelines are
@@ -70,85 +70,85 @@ static struct usb_endpoint_descriptor ep0_in_desc = {
 	.bmAttributes =	USB_ENDPOINT_XFER_CONTROL,
 };
 
-static int mv_pullup(struct usb_gadget *gadget, int is_on);
-static int mv_ep_enable(struct usb_ep *ep,
+static int ci_pullup(struct usb_gadget *gadget, int is_on);
+static int ci_ep_enable(struct usb_ep *ep,
 		const struct usb_endpoint_descriptor *desc);
-static int mv_ep_disable(struct usb_ep *ep);
-static int mv_ep_queue(struct usb_ep *ep,
+static int ci_ep_disable(struct usb_ep *ep);
+static int ci_ep_queue(struct usb_ep *ep,
 		struct usb_request *req, gfp_t gfp_flags);
 static struct usb_request *
-mv_ep_alloc_request(struct usb_ep *ep, unsigned int gfp_flags);
-static void mv_ep_free_request(struct usb_ep *ep, struct usb_request *_req);
+ci_ep_alloc_request(struct usb_ep *ep, unsigned int gfp_flags);
+static void ci_ep_free_request(struct usb_ep *ep, struct usb_request *_req);
 
-static struct usb_gadget_ops mv_udc_ops = {
-	.pullup = mv_pullup,
+static struct usb_gadget_ops ci_udc_ops = {
+	.pullup = ci_pullup,
 };
 
-static struct usb_ep_ops mv_ep_ops = {
-	.enable         = mv_ep_enable,
-	.disable        = mv_ep_disable,
-	.queue          = mv_ep_queue,
-	.alloc_request  = mv_ep_alloc_request,
-	.free_request   = mv_ep_free_request,
+static struct usb_ep_ops ci_ep_ops = {
+	.enable         = ci_ep_enable,
+	.disable        = ci_ep_disable,
+	.queue          = ci_ep_queue,
+	.alloc_request  = ci_ep_alloc_request,
+	.free_request   = ci_ep_free_request,
 };
 
 /* Init values for USB endpoints. */
-static const struct usb_ep mv_ep_init[2] = {
+static const struct usb_ep ci_ep_init[2] = {
 	[0] = {	/* EP 0 */
 		.maxpacket	= 64,
 		.name		= "ep0",
-		.ops		= &mv_ep_ops,
+		.ops		= &ci_ep_ops,
 	},
 	[1] = {	/* EP 1..n */
 		.maxpacket	= 512,
 		.name		= "ep-",
-		.ops		= &mv_ep_ops,
+		.ops		= &ci_ep_ops,
 	},
 };
 
-static struct mv_drv controller = {
+static struct ci_drv controller = {
 	.gadget	= {
-		.name	= "mv_udc",
-		.ops	= &mv_udc_ops,
+		.name	= "ci_udc",
+		.ops	= &ci_udc_ops,
 		.is_dualspeed = 1,
 	},
 };
 
 /**
- * mv_get_qh() - return queue head for endpoint
+ * ci_get_qh() - return queue head for endpoint
  * @ep_num:	Endpoint number
  * @dir_in:	Direction of the endpoint (IN = 1, OUT = 0)
  *
  * This function returns the QH associated with particular endpoint
  * and it's direction.
  */
-static struct ept_queue_head *mv_get_qh(int ep_num, int dir_in)
+static struct ept_queue_head *ci_get_qh(int ep_num, int dir_in)
 {
 	return &controller.epts[(ep_num * 2) + dir_in];
 }
 
 /**
- * mv_get_qtd() - return queue item for endpoint
+ * ci_get_qtd() - return queue item for endpoint
  * @ep_num:	Endpoint number
  * @dir_in:	Direction of the endpoint (IN = 1, OUT = 0)
  *
  * This function returns the QH associated with particular endpoint
  * and it's direction.
  */
-static struct ept_queue_item *mv_get_qtd(int ep_num, int dir_in)
+static struct ept_queue_item *ci_get_qtd(int ep_num, int dir_in)
 {
 	return controller.items[(ep_num * 2) + dir_in];
 }
 
 /**
- * mv_flush_qh - flush cache over queue head
+ * ci_flush_qh - flush cache over queue head
  * @ep_num:	Endpoint number
  *
  * This function flushes cache over QH for particular endpoint.
  */
-static void mv_flush_qh(int ep_num)
+static void ci_flush_qh(int ep_num)
 {
-	struct ept_queue_head *head = mv_get_qh(ep_num, 0);
+	struct ept_queue_head *head = ci_get_qh(ep_num, 0);
 	const uint32_t start = (uint32_t)head;
 	const uint32_t end = start + 2 * sizeof(*head);
 
@@ -156,14 +156,14 @@ static void mv_flush_qh(int ep_num)
 }
 
 /**
- * mv_invalidate_qh - invalidate cache over queue head
+ * ci_invalidate_qh - invalidate cache over queue head
  * @ep_num:	Endpoint number
  *
  * This function invalidates cache over QH for particular endpoint.
  */
-static void mv_invalidate_qh(int ep_num)
+static void ci_invalidate_qh(int ep_num)
 {
-	struct ept_queue_head *head = mv_get_qh(ep_num, 0);
+	struct ept_queue_head *head = ci_get_qh(ep_num, 0);
 	uint32_t start = (uint32_t)head;
 	uint32_t end = start + 2 * sizeof(*head);
 
@@ -171,14 +171,14 @@ static void mv_invalidate_qh(int ep_num)
 }
 
 /**
- * mv_flush_qtd - flush cache over queue item
+ * ci_flush_qtd - flush cache over queue item
  * @ep_num:	Endpoint number
  *
  * This function flushes cache over qTD pair for particular endpoint.
  */
-static void mv_flush_qtd(int ep_num)
+static void ci_flush_qtd(int ep_num)
 {
-	struct ept_queue_item *item = mv_get_qtd(ep_num, 0);
+	struct ept_queue_item *item = ci_get_qtd(ep_num, 0);
 	const uint32_t start = (uint32_t)item;
 	const uint32_t end_raw = start + 2 * sizeof(*item);
 	const uint32_t end = roundup(end_raw, ARCH_DMA_MINALIGN);
@@ -187,14 +187,14 @@ static void mv_flush_qtd(int ep_num)
 }
 
 /**
- * mv_invalidate_qtd - invalidate cache over queue item
+ * ci_invalidate_qtd - invalidate cache over queue item
  * @ep_num:	Endpoint number
  *
  * This function invalidates cache over qTD pair for particular endpoint.
  */
-static void mv_invalidate_qtd(int ep_num)
+static void ci_invalidate_qtd(int ep_num)
 {
-	struct ept_queue_item *item = mv_get_qtd(ep_num, 0);
+	struct ept_queue_item *item = ci_get_qtd(ep_num, 0);
 	const uint32_t start = (uint32_t)item;
 	const uint32_t end_raw = start + 2 * sizeof(*item);
 	const uint32_t end = roundup(end_raw, ARCH_DMA_MINALIGN);
@@ -203,20 +203,20 @@ static void mv_invalidate_qtd(int ep_num)
 }
 
 static struct usb_request *
-mv_ep_alloc_request(struct usb_ep *ep, unsigned int gfp_flags)
+ci_ep_alloc_request(struct usb_ep *ep, unsigned int gfp_flags)
 {
-	struct mv_ep *mv_ep = container_of(ep, struct mv_ep, ep);
-	return &mv_ep->req;
+	struct ci_ep *ci_ep = container_of(ep, struct ci_ep, ep);
+	return &ci_ep->req;
 }
 
-static void mv_ep_free_request(struct usb_ep *ep, struct usb_request *_req)
+static void ci_ep_free_request(struct usb_ep *ep, struct usb_request *_req)
 {
 	return;
 }
 
 static void ep_enable(int num, int in, int maxpacket)
 {
-	struct mv_udc *udc = (struct mv_udc *)controller.ctrl->hcor;
+	struct ci_udc *udc = (struct ci_udc *)controller.ctrl->hcor;
 	unsigned n;
 
 	n = readl(&udc->epctrl[num]);
@@ -226,22 +226,22 @@ static void ep_enable(int num, int in, int maxpacket)
 		n |= (CTRL_RXE | CTRL_RXR | CTRL_RXT_BULK);
 
 	if (num != 0) {
-		struct ept_queue_head *head = mv_get_qh(num, in);
+		struct ept_queue_head *head = ci_get_qh(num, in);
 
 		head->config = CONFIG_MAX_PKT(maxpacket) | CONFIG_ZLT;
-		mv_flush_qh(num);
+		ci_flush_qh(num);
 	}
 	writel(n, &udc->epctrl[num]);
 }
 
-static int mv_ep_enable(struct usb_ep *ep,
+static int ci_ep_enable(struct usb_ep *ep,
 		const struct usb_endpoint_descriptor *desc)
 {
-	struct mv_ep *mv_ep = container_of(ep, struct mv_ep, ep);
+	struct ci_ep *ci_ep = container_of(ep, struct ci_ep, ep);
 	int num, in;
 	num = desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
 	in = (desc->bEndpointAddress & USB_DIR_IN) != 0;
-	mv_ep->desc = desc;
+	ci_ep->desc = desc;
 
 	if (num) {
 		int max = get_unaligned_le16(&desc->wMaxPacketSize);
@@ -259,15 +259,15 @@ static int mv_ep_enable(struct usb_ep *ep,
 	return 0;
 }
 
-static int mv_ep_disable(struct usb_ep *ep)
+static int ci_ep_disable(struct usb_ep *ep)
 {
-	struct mv_ep *mv_ep = container_of(ep, struct mv_ep, ep);
+	struct ci_ep *ci_ep = container_of(ep, struct ci_ep, ep);
 
-	mv_ep->desc = NULL;
+	ci_ep->desc = NULL;
 	return 0;
 }
 
-static int mv_bounce(struct mv_ep *ep, int in)
+static int ci_bounce(struct ci_ep *ep, int in)
 {
 	uint32_t addr = (uint32_t)ep->req.buf;
 	uint32_t ba;
@@ -306,7 +306,7 @@ flush:
 	return 0;
 }
 
-static void mv_debounce(struct mv_ep *ep, int in)
+static void ci_debounce(struct ci_ep *ep, int in)
 {
 	uint32_t addr = (uint32_t)ep->req.buf;
 	uint32_t ba = (uint32_t)ep->b_buf;
@@ -328,36 +328,36 @@ free:
 		free(ep->b_buf);
 }
 
-static int mv_ep_queue(struct usb_ep *ep,
+static int ci_ep_queue(struct usb_ep *ep,
 		struct usb_request *req, gfp_t gfp_flags)
 {
-	struct mv_ep *mv_ep = container_of(ep, struct mv_ep, ep);
-	struct mv_udc *udc = (struct mv_udc *)controller.ctrl->hcor;
+	struct ci_ep *ci_ep = container_of(ep, struct ci_ep, ep);
+	struct ci_udc *udc = (struct ci_udc *)controller.ctrl->hcor;
 	struct ept_queue_item *item;
 	struct ept_queue_head *head;
 	int bit, num, len, in, ret;
-	num = mv_ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
-	in = (mv_ep->desc->bEndpointAddress & USB_DIR_IN) != 0;
-	item = mv_get_qtd(num, in);
-	head = mv_get_qh(num, in);
+	num = ci_ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
+	in = (ci_ep->desc->bEndpointAddress & USB_DIR_IN) != 0;
+	item = ci_get_qtd(num, in);
+	head = ci_get_qh(num, in);
 	len = req->length;
 
-	ret = mv_bounce(mv_ep, in);
+	ret = ci_bounce(ci_ep, in);
 	if (ret)
 		return ret;
 
 	item->next = TERMINATE;
 	item->info = INFO_BYTES(len) | INFO_IOC | INFO_ACTIVE;
-	item->page0 = (uint32_t)mv_ep->b_buf;
-	item->page1 = ((uint32_t)mv_ep->b_buf & 0xfffff000) + 0x1000;
-	mv_flush_qtd(num);
+	item->page0 = (uint32_t)ci_ep->b_buf;
+	item->page1 = ((uint32_t)ci_ep->b_buf & 0xfffff000) + 0x1000;
+	ci_flush_qtd(num);
 
 	head->next = (unsigned) item;
 	head->info = 0;
 
 	DBG("ept%d %s queue len %x, buffer %p\n",
-	    num, in ? "in" : "out", len, mv_ep->b_buf);
-	mv_flush_qh(num);
+	    num, in ? "in" : "out", len, ci_ep->b_buf);
+	ci_flush_qh(num);
 
 	if (in)
 		bit = EPT_TX(num);
@@ -369,7 +369,7 @@ static int mv_ep_queue(struct usb_ep *ep,
 	return 0;
 }
 
-static void handle_ep_complete(struct mv_ep *ep)
+static void handle_ep_complete(struct ci_ep *ep)
 {
 	struct ept_queue_item *item;
 	int num, in, len;
@@ -377,8 +377,8 @@ static void handle_ep_complete(struct mv_ep *ep)
 	in = (ep->desc->bEndpointAddress & USB_DIR_IN) != 0;
 	if (num == 0)
 		ep->desc = &ep0_out_desc;
-	item = mv_get_qtd(num, in);
-	mv_invalidate_qtd(num);
+	item = ci_get_qtd(num, in);
+	ci_invalidate_qtd(num);
 
 	if (item->info & 0xff)
 		printf("EP%d/%s FAIL info=%x pg0=%x\n",
@@ -386,7 +386,7 @@ static void handle_ep_complete(struct mv_ep *ep)
 
 	len = (item->info >> 16) & 0x7fff;
 	ep->req.length -= len;
-	mv_debounce(ep, in);
+	ci_debounce(ep, in);
 
 	DBG("ept%d %s complete %x\n",
 			num, in ? "in" : "out", len);
@@ -403,15 +403,15 @@ static void handle_ep_complete(struct mv_ep *ep)
 static void handle_setup(void)
 {
 	struct usb_request *req = &controller.ep[0].req;
-	struct mv_udc *udc = (struct mv_udc *)controller.ctrl->hcor;
+	struct ci_udc *udc = (struct ci_udc *)controller.ctrl->hcor;
 	struct ept_queue_head *head;
 	struct usb_ctrlrequest r;
 	int status = 0;
 	int num, in, _num, _in, i;
 	char *buf;
-	head = mv_get_qh(0, 0);	/* EP0 OUT */
+	head = ci_get_qh(0, 0);	/* EP0 OUT */
 
-	mv_invalidate_qh(0);
+	ci_invalidate_qh(0);
 	memcpy(&r, head->setup_data, sizeof(struct usb_ctrlrequest));
 	writel(EPT_RX(0), &udc->epstat);
 	DBG("handle setup %s, %x, %x index %x value %x\n", reqname(r.bRequest),
@@ -425,7 +425,7 @@ static void handle_setup(void)
 		if ((r.wValue == 0) && (r.wLength == 0)) {
 			req->length = 0;
 			for (i = 0; i < NUM_ENDPOINTS; i++) {
-				struct mv_ep *ep = &controller.ep[i];
+				struct ci_ep *ep = &controller.ep[i];
 
 				if (!ep->desc)
 					continue;
@@ -478,7 +478,7 @@ static void stop_activity(void)
 {
 	int i, num, in;
 	struct ept_queue_head *head;
-	struct mv_udc *udc = (struct mv_udc *)controller.ctrl->hcor;
+	struct ci_udc *udc = (struct ci_udc *)controller.ctrl->hcor;
 	writel(readl(&udc->epcomp), &udc->epcomp);
 	writel(readl(&udc->epstat), &udc->epstat);
 	writel(0xffffffff, &udc->epflush);
@@ -492,16 +492,16 @@ static void stop_activity(void)
 				& USB_ENDPOINT_NUMBER_MASK;
 			in = (controller.ep[i].desc->bEndpointAddress
 				& USB_DIR_IN) != 0;
-			head = mv_get_qh(num, in);
+			head = ci_get_qh(num, in);
 			head->info = INFO_ACTIVE;
-			mv_flush_qh(num);
+			ci_flush_qh(num);
 		}
 	}
 }
 
 void udc_irq(void)
 {
-	struct mv_udc *udc = (struct mv_udc *)controller.ctrl->hcor;
+	struct ci_udc *udc = (struct ci_udc *)controller.ctrl->hcor;
 	unsigned n = readl(&udc->usbsts);
 	writel(n, &udc->usbsts);
 	int bit, i, num, in;
@@ -563,7 +563,7 @@ void udc_irq(void)
 int usb_gadget_handle_interrupts(void)
 {
 	u32 value;
-	struct mv_udc *udc = (struct mv_udc *)controller.ctrl->hcor;
+	struct ci_udc *udc = (struct ci_udc *)controller.ctrl->hcor;
 
 	value = readl(&udc->usbsts);
 	if (value)
@@ -572,9 +572,9 @@ int usb_gadget_handle_interrupts(void)
 	return value;
 }
 
-static int mv_pullup(struct usb_gadget *gadget, int is_on)
+static int ci_pullup(struct usb_gadget *gadget, int is_on)
 {
-	struct mv_udc *udc = (struct mv_udc *)controller.ctrl->hcor;
+	struct ci_udc *udc = (struct ci_udc *)controller.ctrl->hcor;
 	if (is_on) {
 		/* RESET */
 		writel(USBCMD_ITC(MICRO_8FRAME) | USBCMD_RST, &udc->usbcmd);
@@ -602,7 +602,7 @@ static int mv_pullup(struct usb_gadget *gadget, int is_on)
 
 void udc_disconnect(void)
 {
-	struct mv_udc *udc = (struct mv_udc *)controller.ctrl->hcor;
+	struct ci_udc *udc = (struct ci_udc *)controller.ctrl->hcor;
 	/* disable pullup */
 	stop_activity();
 	writel(USBCMD_FS2, &udc->usbcmd);
@@ -611,7 +611,7 @@ void udc_disconnect(void)
 		controller.driver->disconnect(&controller.gadget);
 }
 
-static int mvudc_probe(void)
+static int ci_udc_probe(void)
 {
 	struct ept_queue_head *head;
 	uint8_t *imem;
@@ -673,23 +673,23 @@ static int mvudc_probe(void)
 		controller.items[i] = (struct ept_queue_item *)imem;
 
 		if (i & 1) {
-			mv_flush_qh(i - 1);
-			mv_flush_qtd(i - 1);
+			ci_flush_qh(i - 1);
+			ci_flush_qtd(i - 1);
 		}
 	}
 
 	INIT_LIST_HEAD(&controller.gadget.ep_list);
 
 	/* Init EP 0 */
-	memcpy(&controller.ep[0].ep, &mv_ep_init[0], sizeof(*mv_ep_init));
+	memcpy(&controller.ep[0].ep, &ci_ep_init[0], sizeof(*ci_ep_init));
 	controller.ep[0].desc = &ep0_in_desc;
 	controller.gadget.ep0 = &controller.ep[0].ep;
 	INIT_LIST_HEAD(&controller.gadget.ep0->ep_list);
 
 	/* Init EP 1..n */
 	for (i = 1; i < NUM_ENDPOINTS; i++) {
-		memcpy(&controller.ep[i].ep, &mv_ep_init[1],
-		       sizeof(*mv_ep_init));
+		memcpy(&controller.ep[i].ep, &ci_ep_init[1],
+		       sizeof(*ci_ep_init));
 		list_add_tail(&controller.ep[i].ep.ep_list,
 			      &controller.gadget.ep_list);
 	}
@@ -699,7 +699,7 @@ static int mvudc_probe(void)
 
 int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 {
-	struct mv_udc *udc;
+	struct ci_udc *udc;
 	int ret;
 
 	if (!driver)
@@ -713,9 +713,9 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 	if (ret)
 		return ret;
 
-	ret = mvudc_probe();
+	ret = ci_udc_probe();
 	if (!ret) {
-		udc = (struct mv_udc *)controller.ctrl->hcor;
+		udc = (struct ci_udc *)controller.ctrl->hcor;
 
 		/* select ULPI phy */
 		writel(PTS(PTS_ENABLE) | PFSC, &udc->portsc);

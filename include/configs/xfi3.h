@@ -55,7 +55,7 @@
 #define CONFIG_EHCI_MXS_PORT0
 #define CONFIG_USB_MAX_CONTROLLER_COUNT 1
 
-#define CONFIG_MV_UDC		/* ChipIdea CI13xxx UDC */
+#define CONFIG_CI_UDC		/* ChipIdea CI13xxx UDC */
 #define CONFIG_USB_GADGET_DUALSPEED
 
 #define CONFIG_USB_ETHER

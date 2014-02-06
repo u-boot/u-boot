@@ -389,7 +389,7 @@ int board_eth_init(bd_t *bis)
 	}
 #endif
 
-#ifdef CONFIG_MV_UDC
+#ifdef CONFIG_CI_UDC
 	/* For otg ethernet*/
 	usb_eth_initialize(bis);
 #endif
