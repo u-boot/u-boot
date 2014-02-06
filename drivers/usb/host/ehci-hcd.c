@@ -1162,14 +1162,16 @@ create_int_queue(struct usb_device *dev, unsigned long pipe, int queuesize,
 		debug("ehci intr queue: out of memory\n");
 		goto fail1;
 	}
-	result->first = memalign(32, sizeof(struct QH) * queuesize);
+	result->first = memalign(USB_DMA_MINALIGN,
+				 sizeof(struct QH) * queuesize);
 	if (!result->first) {
 		debug("ehci intr queue: out of memory\n");
 		goto fail2;
 	}
 	result->current = result->first;
 	result->last = result->first + queuesize - 1;
-	result->tds = memalign(32, sizeof(struct qTD) * queuesize);
+	result->tds = memalign(USB_DMA_MINALIGN,
+			       sizeof(struct qTD) * queuesize);
 	if (!result->tds) {
 		debug("ehci intr queue: out of memory\n");
 		goto fail3;
