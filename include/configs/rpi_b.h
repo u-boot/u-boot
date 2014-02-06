@@ -95,6 +95,11 @@
 #define CONFIG_SYS_LOAD_ADDR		0x1000000
 #define CONFIG_CONSOLE_MUX
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define CONFIG_PREBOOT \
+	"if load mmc 0:1 ${loadaddr} /uEnv.txt; then " \
+		"env import -t ${loadaddr} ${filesize}; " \
+	"fi"
+
 /*
  * Memory layout for where various images get loaded by boot scripts:
  *
