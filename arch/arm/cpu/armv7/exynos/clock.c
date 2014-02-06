@@ -1114,6 +1114,7 @@ void exynos4_set_lcd_clk(void)
 	 * MIPI0_PRE_RATIO	[23:20]
 	 * set fimd ratio
 	 */
+	cfg = readl(&clk->div_lcd0);
 	cfg &= ~(0xf);
 	cfg |= 0x1;
 	writel(cfg, &clk->div_lcd0);
@@ -1176,6 +1177,7 @@ void exynos5_set_lcd_clk(void)
 	 * MIPI0_PRE_RATIO	[23:20]
 	 * set fimd ratio
 	 */
+	cfg = readl(&clk->div_disp1_0);
 	cfg &= ~(0xf);
 	cfg |= 0x0;
 	writel(cfg, &clk->div_disp1_0);
@@ -1236,6 +1238,7 @@ void exynos4_set_mipi_clk(void)
 	 * MIPI0_PRE_RATIO	[23:20]
 	 * set mipi ratio
 	 */
+	cfg = readl(&clk->div_lcd0);
 	cfg &= ~(0xf << 16);
 	cfg |= (0x1 << 16);
 	writel(cfg, &clk->div_lcd0);
