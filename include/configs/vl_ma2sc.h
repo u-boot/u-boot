@@ -322,7 +322,6 @@
 #define CONFIG_SYS_NAND_MASK_CLE	(1 << 22)	/* our CLE is AD22 */
 #define CONFIG_SYS_NAND_ENABLE_PIN	GPIO_PIN_PD(15)
 #define CONFIG_SYS_NAND_READY_PIN	GPIO_PIN_PB(0)
-#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
 #endif
 
 /* Ethernet */
