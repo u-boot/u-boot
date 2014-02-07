@@ -1513,4 +1513,16 @@ int mmc_set_part_conf(struct mmc *mmc, u8 ack, u8 part_num, u8 access)
 		return err;
 	return 0;
 }
+
+/*
+ * Modify EXT_CSD[162] which is RST_n_FUNCTION based on the given value
+ * for enable.  Note that this is a write-once field for non-zero values.
+ *
+ * Returns 0 on success.
+ */
+int mmc_set_rst_n_function(struct mmc *mmc, u8 enable)
+{
+	return mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_RST_N_FUNCTION,
+			  enable);
+}
 #endif

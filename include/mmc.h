@@ -150,6 +150,7 @@
 #define EXT_CSD_GP_SIZE_MULT		143	/* R/W */
 #define EXT_CSD_PARTITIONS_ATTRIBUTE	156	/* R/W */
 #define EXT_CSD_PARTITIONING_SUPPORT	160	/* RO */
+#define EXT_CSD_RST_N_FUNCTION		162	/* R/W */
 #define EXT_CSD_RPMB_MULT		168	/* RO */
 #define EXT_CSD_ERASE_GROUP_DEF		175	/* R/W */
 #define EXT_CSD_BOOT_BUS_WIDTH		177
@@ -332,6 +333,8 @@ int mmc_boot_partition_size_change(struct mmc *mmc, unsigned long bootsize,
 int mmc_set_part_conf(struct mmc *mmc, u8 ack, u8 part_num, u8 access);
 /* Function to modify the BOOT_BUS_WIDTH field of EXT_CSD */
 int mmc_set_boot_bus_width(struct mmc *mmc, u8 width, u8 reset, u8 mode);
+/* Function to modify the RST_n_FUNCTION field of EXT_CSD */
+int mmc_set_rst_n_function(struct mmc *mmc, u8 enable);
 
 /**
  * Start device initialization and return immediately; it does not block on

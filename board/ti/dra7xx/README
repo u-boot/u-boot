@@ -23,3 +23,4 @@ U-Boot # tftp ${loadaddr} dra7xx/u-boot.img
 U-Boot # mmc write ${loadaddr} 300 400
 U-Boot # mmc bootbus 1 2 0 2
 U-Boot # mmc partconf 1 1 1 0
+U-Boot # mmc rst-function 1 1

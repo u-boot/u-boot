@@ -330,6 +330,40 @@ static int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			printf("EMMC boot partition Size change Failed.\n");
 			return 1;
 		}
+	} else if (strcmp(argv[1], "rst-function") == 0) {
+		/*
+		 * Set the RST_n_ENABLE bit of RST_n_FUNCTION
+		 * The only valid values are 0x0, 0x1 and 0x2 and writing
+		 * a value of 0x1 or 0x2 sets the value permanently.
+		 */
+		int dev;
+		struct mmc *mmc;
+		u8 enable;
+
+		if (argc == 4) {
+			dev = simple_strtoul(argv[2], NULL, 10);
+			enable = simple_strtoul(argv[3], NULL, 10);
+		} else {
+			return CMD_RET_USAGE;
+		}
+
+		if (enable > 2 || enable < 0) {
+			puts("Invalid RST_n_ENABLE value\n");
+			return CMD_RET_USAGE;
+		}
+
+		mmc = find_mmc_device(dev);
+		if (!mmc) {
+			printf("no mmc device at slot %x\n", dev);
+			return 1;
+		}
+
+		if (IS_SD(mmc)) {
+			puts("RST_n_FUNCTION only exists on eMMC\n");
+			return 1;
+		}
+
+		return mmc_set_rst_n_function(mmc, enable);
 #endif /* CONFIG_SUPPORT_EMMC_BOOT */
 	}
 
@@ -436,6 +470,9 @@ U_BOOT_CMD(
 	" - Change sizes of boot and RPMB partitions of specified device\n"
 	"mmc partconf dev boot_ack boot_partition partition_access\n"
 	" - Change the bits of the PARTITION_CONFIG field of the specified device\n"
+	"mmc rst-function dev value\n"
+	" - Change the RST_n_FUNCTION field of the specified device\n"
+	"   WARNING: This is a write-once field and 0 / 1 / 2 are the only valid values.\n"
 #endif
 	"mmc setdsr - set DSR register value\n"
 	);
