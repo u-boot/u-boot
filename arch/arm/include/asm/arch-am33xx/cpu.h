@@ -171,7 +171,8 @@ struct cm_wkuppll {
 	unsigned int resv11[1];
 	unsigned int wkup_uart0ctrl;	/* offset 0xB4 */
 	unsigned int wkup_i2c0ctrl;	/* offset 0xB8 */
-	unsigned int resv12[7];
+	unsigned int wkup_adctscctrl;	/* offset 0xBC */
+	unsigned int resv12[6];
 	unsigned int divm6dpllcore;	/* offset 0xD8 */
 };
 
@@ -221,7 +222,8 @@ struct cm_perpll {
 	unsigned int tpccclkctrl;	/* offset 0xBC */
 	unsigned int dcan0clkctrl;	/* offset 0xC0 */
 	unsigned int dcan1clkctrl;	/* offset 0xC4 */
-	unsigned int resv6[2];
+	unsigned int resv6;
+	unsigned int epwmss1clkctrl;	/* offset 0xCC */
 	unsigned int emiffwclkctrl;	/* offset 0xD0 */
 	unsigned int epwmss0clkctrl;	/* offset 0xD4 */
 	unsigned int epwmss2clkctrl;	/* offset 0xD8 */
