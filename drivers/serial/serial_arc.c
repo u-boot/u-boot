@@ -38,7 +38,7 @@ static void arc_serial_setbrg(void)
 		gd->baudrate = CONFIG_BAUDRATE;
 
 	arc_console_baud = gd->cpu_clk / (gd->baudrate * 4) - 1;
-	writel(arc_console_baud & 0xff, &regs->baudl);
+	writeb(arc_console_baud & 0xff, &regs->baudl);
 
 #ifdef CONFIG_ARC
 	/*
@@ -50,11 +50,11 @@ static void arc_serial_setbrg(void)
 	 * Until that is fixed, when running on ISS, we will set baudh to !0
 	 */
 	if (gd->arch.running_on_hw)
-		writel((arc_console_baud & 0xff00) >> 8, &regs->baudh);
+		writeb((arc_console_baud & 0xff00) >> 8, &regs->baudh);
 	else
-		writel(1, &regs->baudh);
+		writeb(1, &regs->baudh);
 #else
-	writel((arc_console_baud & 0xff00) >> 8, &regs->baudh);
+	writeb((arc_console_baud & 0xff00) >> 8, &regs->baudh);
 #endif
 }
 
@@ -70,15 +70,15 @@ static void arc_serial_putc(const char c)
 	if (c == '\n')
 		arc_serial_putc('\r');
 
-	while (!(readl(&regs->status) & UART_TXEMPTY))
+	while (!(readb(&regs->status) & UART_TXEMPTY))
 		;
 
-	writel(c, &regs->data);
+	writeb(c, &regs->data);
 }
 
 static int arc_serial_tstc(void)
 {
-	return !(readl(&regs->status) & UART_RXEMPTY);
+	return !(readb(&regs->status) & UART_RXEMPTY);
 }
 
 static int arc_serial_getc(void)
@@ -87,10 +87,10 @@ static int arc_serial_getc(void)
 		;
 
 	/* Check for overflow errors */
-	if (readl(&regs->status) & UART_OVERFLOW_ERR)
+	if (readb(&regs->status) & UART_OVERFLOW_ERR)
 		return 0;
 
-	return readl(&regs->data) & 0xFF;
+	return readb(&regs->data) & 0xFF;
 }
 
 static void arc_serial_puts(const char *s)
