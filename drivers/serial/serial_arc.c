@@ -93,19 +93,13 @@ static int arc_serial_getc(void)
 	return readb(&regs->data) & 0xFF;
 }
 
-static void arc_serial_puts(const char *s)
-{
-	while (*s)
-		arc_serial_putc(*s++);
-}
-
 static struct serial_device arc_serial_drv = {
 	.name	= "arc_serial",
 	.start	= arc_serial_init,
 	.stop	= NULL,
 	.setbrg	= arc_serial_setbrg,
 	.putc	= arc_serial_putc,
-	.puts	= arc_serial_puts,
+	.puts	= default_serial_puts,
 	.getc	= arc_serial_getc,
 	.tstc	= arc_serial_tstc,
 };
