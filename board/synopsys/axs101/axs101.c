@@ -36,7 +36,7 @@ int board_mmc_init(bd_t *bis)
 
 int board_eth_init(bd_t *bis)
 {
-	if (designware_initialize(0, ARC_DWGMAC_BASE, 0,
+	if (designware_initialize(ARC_DWGMAC_BASE,
 				  PHY_INTERFACE_MODE_RGMII) >= 0)
 		return 1;
 
