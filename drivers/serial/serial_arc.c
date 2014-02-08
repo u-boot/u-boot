@@ -39,7 +39,23 @@ static void arc_serial_setbrg(void)
 
 	arc_console_baud = gd->cpu_clk / (gd->baudrate * 4) - 1;
 	writel(arc_console_baud & 0xff, &regs->baudl);
+
+#ifdef CONFIG_ARC
+	/*
+	 * UART ISS(Instruction Set simulator) emulation has a subtle bug:
+	 * A existing value of Baudh = 0 is used as a indication to startup
+	 * it's internal state machine.
+	 * Thus if baudh is set to 0, 2 times, it chokes.
+	 * This happens with BAUD=115200 and the formaula above
+	 * Until that is fixed, when running on ISS, we will set baudh to !0
+	 */
+	if (gd->arch.running_on_hw)
+		writel((arc_console_baud & 0xff00) >> 8, &regs->baudh);
+	else
+		writel(1, &regs->baudh);
+#else
 	writel((arc_console_baud & 0xff00) >> 8, &regs->baudh);
+#endif
 }
 
 static int arc_serial_init(void)
