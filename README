@@ -492,6 +492,11 @@ The following options need to be configured:
 		CONFIG_SYS_FSL_DDR_LE
 		Defines the DDR controller register space as Little Endian
 
+		CONFIG_SYS_FSL_DDR_SDRAM_BASE_PHY
+		Physical address from the view of DDR controllers. It is the
+		same as CONFIG_SYS_DDR_SDRAM_BASE for  all Power SoCs. But
+		it could be different for ARM SoCs.
+
 - Intel Monahans options:
 		CONFIG_SYS_MONAHANS_RUN_MODE_OSC_RATIO
 
