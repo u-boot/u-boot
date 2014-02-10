@@ -7,7 +7,6 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/hardware.h>
 #include "designware_i2c.h"
 
 #ifdef CONFIG_I2C_MULTI_BUS
