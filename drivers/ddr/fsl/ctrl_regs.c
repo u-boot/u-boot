@@ -145,6 +145,7 @@ static void set_csn_config(int dimm_number, int i, fsl_ddr_cfg_regs_t *ddr,
 			if (!popts->memctl_interleaving)
 				break;
 			switch (popts->memctl_interleaving_mode) {
+			case FSL_DDR_256B_INTERLEAVING:
 			case FSL_DDR_CACHE_LINE_INTERLEAVING:
 			case FSL_DDR_PAGE_INTERLEAVING:
 			case FSL_DDR_BANK_INTERLEAVING:

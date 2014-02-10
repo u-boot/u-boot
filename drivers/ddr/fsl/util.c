@@ -228,6 +228,9 @@ void board_add_ram_info(int use_default)
 		puts("       DDR Controller Interleaving Mode: ");
 
 		switch ((cs0_config >> 24) & 0xf) {
+		case FSL_DDR_256B_INTERLEAVING:
+			puts("256B");
+			break;
 		case FSL_DDR_CACHE_LINE_INTERLEAVING:
 			puts("cache line");
 			break;

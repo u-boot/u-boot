@@ -291,6 +291,7 @@ static unsigned long long __step_assign_addresses(fsl_ddr_info_t *pinfo,
 		for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
 			if (pinfo->memctl_opts[i].memctl_interleaving) {
 				switch (pinfo->memctl_opts[i].memctl_interleaving_mode) {
+				case FSL_DDR_256B_INTERLEAVING:
 				case FSL_DDR_CACHE_LINE_INTERLEAVING:
 				case FSL_DDR_PAGE_INTERLEAVING:
 				case FSL_DDR_BANK_INTERLEAVING:
