@@ -25,8 +25,8 @@ static u32 fsl_ddr_get_version(void)
 	u32 ver_major_minor_errata;
 
 	ddr = (void *)_DDR_ADDR;
-	ver_major_minor_errata = (in_be32(&ddr->ip_rev1) & 0xFFFF) << 8;
-	ver_major_minor_errata |= (in_be32(&ddr->ip_rev2) & 0xFF00) >> 8;
+	ver_major_minor_errata = (ddr_in32(&ddr->ip_rev1) & 0xFFFF) << 8;
+	ver_major_minor_errata |= (ddr_in32(&ddr->ip_rev2) & 0xFF00) >> 8;
 
 	return ver_major_minor_errata;
 }
