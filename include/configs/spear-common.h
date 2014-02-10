@@ -39,6 +39,15 @@
 /* I2C driver configuration */
 #define CONFIG_HARD_I2C
 #define CONFIG_DW_I2C
+#if defined(CONFIG_SPEAR600)
+#define CONFIG_SYS_I2C_BASE			0xD0200000
+#elif defined(CONFIG_SPEAR300)
+#define CONFIG_SYS_I2C_BASE			0xD0180000
+#elif defined(CONFIG_SPEAR310)
+#define CONFIG_SYS_I2C_BASE			0xD0180000
+#elif defined(CONFIG_SPEAR320)
+#define CONFIG_SYS_I2C_BASE			0xD0180000
+#endif
 #define CONFIG_SYS_I2C_SPEED			400000
 #define CONFIG_SYS_I2C_SLAVE			0x02
 

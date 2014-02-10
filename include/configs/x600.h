@@ -85,6 +85,7 @@
 /* I2C config options */
 #define CONFIG_HARD_I2C
 #define CONFIG_DW_I2C
+#define CONFIG_SYS_I2C_BASE			0xD0200000
 #define CONFIG_SYS_I2C_SPEED			400000
 #define CONFIG_SYS_I2C_SLAVE			0x02
 #define CONFIG_I2C_CHIPADDRESS			0x50
