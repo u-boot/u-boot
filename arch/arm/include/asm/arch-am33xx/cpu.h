@@ -353,7 +353,11 @@ struct cm_perpll {
 	unsigned int gpio2clkctrl;	/* offset 0x480 */
 	unsigned int resv20;
 	unsigned int gpio3clkctrl;	/* offset 0x488 */
-	unsigned int resv21[7];
+	unsigned int resv41;
+	unsigned int gpio4clkctrl;	/* offset 0x490 */
+	unsigned int resv42;
+	unsigned int gpio5clkctrl;	/* offset 0x498 */
+	unsigned int resv21[3];
 
 	unsigned int i2c1clkctrl;	/* offset 0x4A8 */
 	unsigned int resv22;
