@@ -30,7 +30,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern ulong get_effective_memsize(void);
 static ulong get_sp (void);
 extern void ft_fixup_num_cores(void *blob);
 static void set_clocks_in_mhz (bd_t *kbd);

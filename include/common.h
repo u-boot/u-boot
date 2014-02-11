@@ -461,6 +461,7 @@ void	api_init (void);
 
 /* common/memsize.c */
 long	get_ram_size  (long *, long);
+phys_size_t get_effective_memsize(void);
 
 /* $(BOARD)/$(BOARD).c */
 void	reset_phy     (void);
