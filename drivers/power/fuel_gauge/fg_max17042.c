@@ -20,21 +20,30 @@ static int fg_write_regs(struct pmic *p, u8 addr, u16 *data, int num)
 	int ret = 0;
 	int i;
 
-	for (i = 0; i < num; i++, addr++)
-		ret |= pmic_reg_write(p, addr, *(data + i));
+	for (i = 0; i < num; i++, addr++) {
+		ret = pmic_reg_write(p, addr, *(data + i));
+		if (ret)
+			return ret;
+	}
 
-	return ret;
+	return 0;
 }
 
 static int fg_read_regs(struct pmic *p, u8 addr, u16 *data, int num)
 {
+	unsigned int dat;
 	int ret = 0;
 	int i;
 
-	for (i = 0; i < num; i++, addr++)
-		ret |= pmic_reg_read(p, addr, (u32 *) (data + i));
+	for (i = 0; i < num; i++, addr++) {
+		ret = pmic_reg_read(p, addr, &dat);
+		if (ret)
+			return ret;
 
-	return ret;
+		*(data + i) = (u16)dat;
+	}
+
+	return 0;
 }
 
 static int fg_write_and_verify(struct pmic *p, u8 addr, u16 data)
@@ -57,9 +66,13 @@ static int fg_write_and_verify(struct pmic *p, u8 addr, u16 data)
 static void por_fuelgauge_init(struct pmic *p)
 {
 	u16 r_data0[16], r_data1[16], r_data2[16];
-	u32 rewrite_count = 5, i = 0;
-	unsigned int val;
-	int ret = 0;
+	u32 rewrite_count = 5;
+	u32 check_count;
+	u32 lock_count;
+	u32 i = 0;
+	u32 val;
+	s32 ret = 0;
+	char *status_msg;
 
 	/* Delay 500 ms */
 	mdelay(500);
@@ -67,29 +80,55 @@ static void por_fuelgauge_init(struct pmic *p)
 	pmic_reg_write(p, MAX17042_CONFIG, 0x2310);
 
 rewrite_model:
+	check_count = 5;
+	lock_count = 5;
+
+	if (!rewrite_count--) {
+		status_msg = "init failed!";
+		goto error;
+	}
+
 	/* Unlock Model Access */
 	pmic_reg_write(p, MAX17042_MLOCKReg1, MODEL_UNLOCK1);
 	pmic_reg_write(p, MAX17042_MLOCKReg2, MODEL_UNLOCK2);
 
 	/* Write/Read/Verify the Custom Model */
-	ret |= fg_write_regs(p, MAX17042_MODEL1, cell_character0,
+	ret = fg_write_regs(p, MAX17042_MODEL1, cell_character0,
 			     ARRAY_SIZE(cell_character0));
-	ret |= fg_write_regs(p, MAX17042_MODEL2, cell_character1,
-			     ARRAY_SIZE(cell_character1));
-	ret |= fg_write_regs(p, MAX17042_MODEL3, cell_character2,
-			     ARRAY_SIZE(cell_character2));
+	if (ret)
+		goto rewrite_model;
 
-	if (ret) {
-		printf("%s: Cell parameters write failed!\n", __func__);
-		return;
+	ret = fg_write_regs(p, MAX17042_MODEL2, cell_character1,
+			     ARRAY_SIZE(cell_character1));
+	if (ret)
+		goto rewrite_model;
+
+	ret = fg_write_regs(p, MAX17042_MODEL3, cell_character2,
+			     ARRAY_SIZE(cell_character2));
+	if (ret)
+		goto rewrite_model;
+
+check_model:
+	if (!check_count--) {
+		if (rewrite_count)
+			goto rewrite_model;
+		else
+			status_msg = "check failed!";
+
+		goto error;
 	}
 
-	ret |= fg_read_regs(p, MAX17042_MODEL1, r_data0, ARRAY_SIZE(r_data0));
-	ret |= fg_read_regs(p, MAX17042_MODEL2, r_data1, ARRAY_SIZE(r_data1));
-	ret |= fg_read_regs(p, MAX17042_MODEL3, r_data2, ARRAY_SIZE(r_data2));
-
+	ret = fg_read_regs(p, MAX17042_MODEL1, r_data0, ARRAY_SIZE(r_data0));
 	if (ret)
-		printf("%s: Cell parameters read failed!\n", __func__);
+		goto check_model;
+
+	ret = fg_read_regs(p, MAX17042_MODEL2, r_data1, ARRAY_SIZE(r_data1));
+	if (ret)
+		goto check_model;
+
+	ret = fg_read_regs(p, MAX17042_MODEL3, r_data2, ARRAY_SIZE(r_data2));
+	if (ret)
+		goto check_model;
 
 	for (i = 0; i < 16; i++) {
 		if ((cell_character0[i] != r_data0[i])
@@ -98,29 +137,37 @@ rewrite_model:
 			goto rewrite_model;
 		}
 
+lock_model:
+	if (!lock_count--) {
+		if (rewrite_count)
+			goto rewrite_model;
+		else
+			status_msg = "lock failed!";
+
+		goto error;
+	}
+
 	/* Lock model access */
 	pmic_reg_write(p, MAX17042_MLOCKReg1, MODEL_LOCK1);
 	pmic_reg_write(p, MAX17042_MLOCKReg2, MODEL_LOCK2);
 
 	/* Verify the model access is locked */
-	ret |= fg_read_regs(p, MAX17042_MODEL1, r_data0, ARRAY_SIZE(r_data0));
-	ret |= fg_read_regs(p, MAX17042_MODEL2, r_data1, ARRAY_SIZE(r_data1));
-	ret |= fg_read_regs(p, MAX17042_MODEL3, r_data2, ARRAY_SIZE(r_data2));
+	ret = fg_read_regs(p, MAX17042_MODEL1, r_data0, ARRAY_SIZE(r_data0));
+	if (ret)
+		goto lock_model;
 
-	if (ret) {
-		printf("%s: Cell parameters read failed!\n", __func__);
-		return;
-	}
+	ret = fg_read_regs(p, MAX17042_MODEL2, r_data1, ARRAY_SIZE(r_data1));
+	if (ret)
+		goto lock_model;
+
+	ret = fg_read_regs(p, MAX17042_MODEL3, r_data2, ARRAY_SIZE(r_data2));
+	if (ret)
+		goto lock_model;
 
 	for (i = 0; i < ARRAY_SIZE(r_data0); i++) {
 		/* Check if model locked */
-		if (r_data0[i] || r_data1[i] || r_data2[i]) {
-			/* Rewrite model data - prevent from endless loop */
-			if (rewrite_count--) {
-				puts("FG - Lock model access failed!\n");
-				goto rewrite_model;
-			}
-		}
+		if (r_data0[i] || r_data1[i] || r_data2[i])
+			goto lock_model;
 	}
 
 	/* Write Custom Parameters */
@@ -137,6 +184,11 @@ rewrite_model:
 
 	/* Delay at least 350 ms */
 	mdelay(350);
+
+	status_msg = "OK!";
+error:
+	debug("%s: model init status: %s\n", p->name, status_msg);
+	return;
 }
 
 static int power_update_battery(struct pmic *p, struct pmic *bat)
@@ -178,7 +230,7 @@ static int power_check_battery(struct pmic *p, struct pmic *bat)
 	ret |= pmic_reg_read(p, MAX17042_STATUS, &val);
 	debug("fg status: 0x%x\n", val);
 
-	if (val == MAX17042_POR)
+	if (val & MAX17042_POR)
 		por_fuelgauge_init(p);
 
 	ret |= pmic_reg_read(p, MAX17042_VERSION, &val);

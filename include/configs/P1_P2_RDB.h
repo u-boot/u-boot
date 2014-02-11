@@ -46,17 +46,17 @@
 #ifdef CONFIG_SDCARD
 #define CONFIG_RAMBOOT_SDCARD		1
 #define CONFIG_SYS_TEXT_BASE		0x11000000
-#define CONFIG_RESET_VECTOR_ADDRESS	0x1107fffc
+#define CONFIG_RESET_VECTOR_ADDRESS	0x110bfffc
 #endif
 
 #ifdef CONFIG_SPIFLASH
 #define CONFIG_RAMBOOT_SPIFLASH		1
 #define CONFIG_SYS_TEXT_BASE		0x11000000
-#define CONFIG_RESET_VECTOR_ADDRESS	0x1107fffc
+#define CONFIG_RESET_VECTOR_ADDRESS	0x110bfffc
 #endif
 
 #ifndef CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_TEXT_BASE		0xeff80000
+#define CONFIG_SYS_TEXT_BASE		0xeff40000
 #endif
 
 #ifndef CONFIG_RESET_VECTOR_ADDRESS
@@ -70,7 +70,6 @@
 /* High Level Configuration Options */
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
-#define CONFIG_MPC85xx		1	/* MPC8540/60/55/41/48/P1020/P2020,etc*/
 #define CONFIG_FSL_ELBC		1	/* Enable eLBC Support */
 
 #define CONFIG_PCI		1	/* Enable PCI/PCIE */
@@ -267,7 +266,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 /* NAND boot: 4K NAND loader config */
 #define CONFIG_SYS_NAND_SPL_SIZE	0x1000
-#define CONFIG_SYS_NAND_U_BOOT_SIZE	((512 << 10) - 0x2000)
+#define CONFIG_SYS_NAND_U_BOOT_SIZE	((768 << 10) - 0x2000)
 #define CONFIG_SYS_NAND_U_BOOT_DST	(CONFIG_SYS_INIT_L2_ADDR)
 #define CONFIG_SYS_NAND_U_BOOT_START	(CONFIG_SYS_INIT_L2_ADDR + CONFIG_SYS_NAND_SPL_SIZE)
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	(0)
@@ -495,7 +494,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #if defined(CONFIG_RAMBOOT_NAND)
 	#define CONFIG_ENV_IS_IN_NAND	1
 	#define CONFIG_ENV_SIZE		CONFIG_SYS_NAND_BLOCK_SIZE
-	#define CONFIG_ENV_OFFSET	((512 * 1024) + CONFIG_SYS_NAND_BLOCK_SIZE)
+	#define CONFIG_ENV_OFFSET	((768*1024)+CONFIG_SYS_NAND_BLOCK_SIZE)
 #elif defined(CONFIG_RAMBOOT_SDCARD)
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_FSL_FIXED_MMC_LOCATION
@@ -513,11 +512,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #endif
 #else
 	#define CONFIG_ENV_IS_IN_FLASH	1
-	#if CONFIG_SYS_MONITOR_BASE > 0xfff80000
-	#define CONFIG_ENV_ADDR		0xfff80000
-	#else
 	#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
-	#endif
 	#define CONFIG_ENV_SIZE		0x2000
 	#define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
 #endif

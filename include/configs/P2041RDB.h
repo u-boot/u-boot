@@ -18,8 +18,9 @@
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
-#define CONFIG_PBLPBI_CONFIG $(SRCTREE)/board/freescale/corenet_ds/pbi.cfg
-#define CONFIG_PBLRCW_CONFIG $(SRCTREE)/board/freescale/corenet_ds/rcw_p2041rdb.cfg
+#define CONFIG_SYS_FSL_PBL_PBI $(SRCTREE)/board/freescale/corenet_ds/pbi.cfg
+#define CONFIG_SYS_FSL_PBL_RCW \
+			$(SRCTREE)/board/freescale/corenet_ds/rcw_p2041rdb.cfg
 #endif
 
 #ifdef CONFIG_SRIO_PCIE_BOOT_SLAVE
@@ -36,11 +37,10 @@
 #define CONFIG_E500			/* BOOKE e500 family */
 #define CONFIG_E500MC			/* BOOKE e500mc family */
 #define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
-#define CONFIG_MPC85xx			/* MPC85xx/PQ3 platform */
 #define CONFIG_MP			/* support multiple processors */
 
 #ifndef CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_TEXT_BASE	0xeff80000
+#define CONFIG_SYS_TEXT_BASE	0xeff40000
 #endif
 
 #ifndef CONFIG_RESET_VECTOR_ADDRESS
@@ -93,12 +93,12 @@
 	#define CONFIG_FSL_FIXED_MMC_LOCATION
 	#define CONFIG_SYS_MMC_ENV_DEV          0
 	#define CONFIG_ENV_SIZE			0x2000
-	#define CONFIG_ENV_OFFSET		(512 * 1097)
+	#define CONFIG_ENV_OFFSET		(512 * 1658)
 #elif defined(CONFIG_NAND)
 #define CONFIG_SYS_EXTRA_ENV_RELOC
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_SIZE			CONFIG_SYS_NAND_BLOCK_SIZE
-#define CONFIG_ENV_OFFSET		(5 * CONFIG_SYS_NAND_BLOCK_SIZE)
+#define CONFIG_ENV_OFFSET		(7 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
 #define CONFIG_ENV_IS_IN_REMOTE
 #define CONFIG_ENV_ADDR		0xffe20000
@@ -511,14 +511,14 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #elif defined(CONFIG_SDCARD)
 /*
  * PBL SD boot image should stored at 0x1000(8 blocks), the size of the image is
- * about 545KB (1089 blocks), Env is stored after the image, and the env size is
- * 0x2000 (16 blocks), 8 + 1089 + 16 = 1113, enlarge it to 1130.
+ * about 825KB (1650 blocks), Env is stored after the image, and the env size is
+ * 0x2000 (16 blocks), 8 + 1650 + 16 = 1674, enlarge it to 1680.
  */
 #define CONFIG_SYS_QE_FMAN_FW_IN_MMC
-#define CONFIG_SYS_QE_FMAN_FW_ADDR	(512 * 1130)
+#define CONFIG_SYS_QE_FMAN_FW_ADDR	(512 * 1680)
 #elif defined(CONFIG_NAND)
 #define CONFIG_SYS_QE_FMAN_FW_IN_NAND
-#define CONFIG_SYS_QE_FMAN_FW_ADDR	(6 * CONFIG_SYS_NAND_BLOCK_SIZE)
+#define CONFIG_SYS_QE_FMAN_FW_ADDR	(8 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
 /*
  * Slave has no ucode locally, it can fetch this from remote. When implementing
@@ -531,7 +531,7 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_QE_FMAN_FW_ADDR	0xFFE00000
 #else
 #define CONFIG_SYS_QE_FMAN_FW_IN_NOR
-#define CONFIG_SYS_QE_FMAN_FW_ADDR	0xEFF40000
+#define CONFIG_SYS_QE_FMAN_FW_ADDR	0xEFF00000
 #endif
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)

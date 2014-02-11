@@ -156,7 +156,7 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	puts("Work-around for Erratum CPU-A003999 enabled\n");
 #endif
 #if defined(CONFIG_SYS_FSL_ERRATUM_DDR_A003474)
-	puts("Work-around for Erratum DDR-A003473 enabled\n");
+	puts("Work-around for Erratum DDR-A003474 enabled\n");
 #endif
 #if defined(CONFIG_SYS_FSL_ERRATUM_DDR_MSYNC_IN)
 	puts("Work-around for DDR MSYNC_IN Erratum enabled\n");

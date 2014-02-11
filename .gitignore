@@ -29,6 +29,7 @@
 /SPL
 /System.map
 /u-boot
+/u-boot.elf
 /u-boot.hex
 /u-boot.imx
 /u-boot-with-spl.imx
@@ -57,8 +58,8 @@
 /errlog
 /reloc_off
 
-/spl/
 !/spl/Makefile
+/spl/*
 /tpl/
 
 /include/generated/

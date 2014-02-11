@@ -8,7 +8,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_MPC824X		1
 #define CONFIG_MPC8245		1
 #define CONFIG_KVME080		1
 

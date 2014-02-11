@@ -30,6 +30,7 @@
 
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
+#define CONFIG_SYS_L2CACHE_OFF
 #ifndef CONFIG_SYS_L2CACHE_OFF
 #define CONFIG_SYS_L2_PL310
 #define CONFIG_SYS_PL310_BASE	0x10502000
@@ -114,6 +115,7 @@
 /* USB Composite download gadget - g_dnl */
 #define CONFIG_USBDOWNLOAD_GADGET
 #define CONFIG_SYS_DFU_DATA_BUF_SIZE SZ_32M
+#define DFU_DEFAULT_POLL_TIMEOUT 300
 #define CONFIG_DFU_FUNCTION
 #define CONFIG_DFU_MMC
 
@@ -173,7 +175,10 @@
 	"u-boot mmc 80 800;" \
 	"uImage ext4 0 2;" \
 	"exynos4412-trats2.dtb ext4 0 2;" \
-	""PARTS_ROOT" part 0 5\0"
+	""PARTS_BOOT" part 0 2;" \
+	""PARTS_ROOT" part 0 5;" \
+	""PARTS_DATA" part 0 6;" \
+	""PARTS_UMS" part 0 7\0"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootk=" \

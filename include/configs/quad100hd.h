@@ -15,7 +15,6 @@
  * High Level Configuration Options
  *----------------------------------------------------------------------*/
 #define CONFIG_QUAD100HD	1		/* Board is Quad100hd	*/
-#define CONFIG_4xx		1		/* ... PPC4xx family	*/
 #define CONFIG_405EP		1		/* Specifc 405EP support*/
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFFC0000

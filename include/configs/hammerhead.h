@@ -8,7 +8,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_AVR32
 #define CONFIG_AT32AP
 #define CONFIG_AT32AP7000
 #define CONFIG_HAMMERHEAD

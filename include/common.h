@@ -8,9 +8,6 @@
 #ifndef __COMMON_H_
 #define __COMMON_H_	1
 
-#undef	_LINUX_CONFIG_H
-#define _LINUX_CONFIG_H 1	/* avoid reading Linux autoconf.h file	*/
-
 #ifndef __ASSEMBLY__		/* put C only stuff in this section */
 
 typedef unsigned char		uchar;

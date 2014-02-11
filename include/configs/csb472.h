@@ -18,7 +18,6 @@
  */
 
 #define CONFIG_405GP		1	/* This is a PPC405GP CPU	*/
-#define CONFIG_4xx		1	/* ...member of PPC4xx family   */
 #define CONFIG_CSB472		1	/* on a Cogent CSB472 board     */
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f()    */
 #define CONFIG_LAST_STAGE_INIT	1	/* Call last_stage_init()	*/

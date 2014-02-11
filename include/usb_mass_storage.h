@@ -20,6 +20,9 @@
 #define UMS_NUM_SECTORS		0
 #endif
 
+/* Wait at maximum 60 seconds for cable connection */
+#define UMS_CABLE_READY_TIMEOUT	60
+
 struct ums {
 	int (*read_sector)(struct ums *ums_dev,
 			   ulong start, lbaint_t blkcnt, void *buf);

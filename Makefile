@@ -8,7 +8,7 @@
 VERSION = 2014
 PATCHLEVEL = 01
 SUBLEVEL =
-EXTRAVERSION = -rc2
+EXTRAVERSION =
 ifneq "$(SUBLEVEL)" ""
 U_BOOT_VERSION = $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
 else
@@ -419,8 +419,8 @@ $(obj)u-boot.kwb:       $(obj)u-boot.bin
 		-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE) -d $< $@
 
 $(obj)u-boot.pbl:	$(obj)u-boot.bin
-		$(obj)tools/mkimage -n $(CONFIG_PBLRCW_CONFIG) \
-		-R $(CONFIG_PBLPBI_CONFIG) -T pblimage \
+		$(obj)tools/mkimage -n $(CONFIG_SYS_FSL_PBL_RCW) \
+		-R $(CONFIG_SYS_FSL_PBL_PBI) -T pblimage \
 		-d $< $@
 
 $(obj)u-boot.sha1:	$(obj)u-boot.bin

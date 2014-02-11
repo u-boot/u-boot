@@ -16,7 +16,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU */
 #define CONFIG_MPC5200
 
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* running at 33.000000MHz */

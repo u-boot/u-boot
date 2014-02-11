@@ -72,6 +72,7 @@ LIBS-$(CONFIG_SPL_LIBGENERIC_SUPPORT) += lib/
 LIBS-$(CONFIG_SPL_POWER_SUPPORT) += drivers/power/ \
 	drivers/power/pmic/
 LIBS-$(if $(CONFIG_CMD_NAND),$(CONFIG_SPL_NAND_SUPPORT)) += drivers/mtd/nand/
+LIBS-$(CONFIG_SPL_DRIVERS_MISC_SUPPORT) += drivers/misc/
 LIBS-$(CONFIG_SPL_ONENAND_SUPPORT) += drivers/mtd/onenand/
 LIBS-$(CONFIG_SPL_DMA_SUPPORT) += drivers/dma/
 LIBS-$(CONFIG_SPL_POST_MEM_SUPPORT) += post/drivers/
@@ -82,6 +83,8 @@ LIBS-$(CONFIG_SPL_USBETH_SUPPORT) += drivers/net/phy/
 LIBS-$(CONFIG_SPL_MUSB_NEW_SUPPORT) += drivers/usb/musb-new/
 LIBS-$(CONFIG_SPL_USBETH_SUPPORT) += drivers/usb/gadget/
 LIBS-$(CONFIG_SPL_WATCHDOG_SUPPORT) += drivers/watchdog/
+LIBS-$(CONFIG_SPL_USB_HOST_SUPPORT) += drivers/usb/host/
+LIBS-$(CONFIG_OMAP_USB_PHY) += drivers/usb/phy/
 
 ifneq (,$(CONFIG_MX23)$(CONFIG_MX35)$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35))
 LIBS-y += arch/$(ARCH)/imx-common/

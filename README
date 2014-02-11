@@ -472,6 +472,15 @@ The following options need to be configured:
 		Board config to use DDR3. It can be enabled for SoCs with
 		Freescale DDR3 controllers.
 
+		CONFIG_SYS_FSL_PBL_PBI
+		It enables addition of RCW (Power on reset configuration) in built image.
+		Please refer doc/README.pblimage for more details
+
+		CONFIG_SYS_FSL_PBL_RCW
+		It adds PBI(pre-boot instructions) commands in u-boot build image.
+		PBI commands can be used to configure SoC before it starts the execution.
+		Please refer doc/README.pblimage for more details
+
 - Intel Monahans options:
 		CONFIG_SYS_MONAHANS_RUN_MODE_OSC_RATIO
 
@@ -2755,6 +2764,12 @@ CBFS (Coreboot Filesystem) support
 
 		Define this option to use the Bank addr/Extended addr
 		support on SPI flashes which has size > 16Mbytes.
+
+		CONFIG_SF_DUAL_FLASH		Dual flash memories
+
+		Define this option to use dual flash support where two flash
+		memories can be connected with a given cs line.
+		currently Xilinx Zynq qspi support these type of connections.
 
 - SystemACE Support:
 		CONFIG_SYSTEMACE

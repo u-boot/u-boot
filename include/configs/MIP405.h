@@ -17,7 +17,6 @@
  * (easy to change)
  ***********************************************************/
 #define CONFIG_405GP		1	/* This is a PPC405 CPU		*/
-#define CONFIG_4xx		1	/* ...member of PPC4xx family	*/
 #define CONFIG_MIP405		1	/* ...on a MIP405 board		*/
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF80000

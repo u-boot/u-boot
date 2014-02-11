@@ -16,7 +16,6 @@
 #define CONFIG_APM821XX		1	/* APM821XX series    */
 #define CONFIG_HOSTNAME		bluestone
 
-#define CONFIG_4xx		1	/* ... PPC4xx family */
 #define CONFIG_440		1
 
 #ifndef CONFIG_SYS_TEXT_BASE

@@ -21,8 +21,8 @@
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
-#define CONFIG_PBLPBI_CONFIG $(SRCTREE)/board/freescale/t4qds/t4_pbi.cfg
-#define CONFIG_PBLRCW_CONFIG $(SRCTREE)/board/freescale/t4qds/t4_rcw.cfg
+#define CONFIG_SYS_FSL_PBL_PBI $(SRCTREE)/board/freescale/t4qds/t4_pbi.cfg
+#define CONFIG_SYS_FSL_PBL_RCW $(SRCTREE)/board/freescale/t4qds/t4_rcw.cfg
 #endif
 
 #ifdef CONFIG_SRIO_PCIE_BOOT_SLAVE
@@ -64,12 +64,12 @@
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV          0
 #define CONFIG_ENV_SIZE			0x2000
-#define CONFIG_ENV_OFFSET		(512 * 1097)
+#define CONFIG_ENV_OFFSET		(512 * 1658)
 #elif defined(CONFIG_NAND)
 #define CONFIG_SYS_EXTRA_ENV_RELOC
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_SIZE			CONFIG_SYS_NAND_BLOCK_SIZE
-#define CONFIG_ENV_OFFSET		(5 * CONFIG_SYS_NAND_BLOCK_SIZE)
+#define CONFIG_ENV_OFFSET		(7 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
 #define CONFIG_ENV_IS_IN_REMOTE
 #define CONFIG_ENV_ADDR		0xffe20000
@@ -165,6 +165,9 @@ unsigned long get_board_ddr_clk(void);
 #define QIXIS_RCFG_CTL_RECONFIG_IDLE	0x20
 #define QIXIS_RCFG_CTL_RECONFIG_START	0x21
 #define QIXIS_RCFG_CTL_WATCHDOG_ENBLE	0x08
+#define QIXIS_BRDCFG5			0x55
+#define QIXIS_MUX_SDHC			2
+#define QIXIS_MUX_SDHC_WIDTH8		1
 #define QIXIS_BASE_PHYS		(0xf00000000ull | QIXIS_BASE)
 
 #define CONFIG_SYS_CSPR3_EXT	(0xf)
@@ -376,14 +379,14 @@ unsigned long get_board_ddr_clk(void);
 #elif defined(CONFIG_SDCARD)
 /*
  * PBL SD boot image should stored at 0x1000(8 blocks), the size of the image is
- * about 545KB (1089 blocks), Env is stored after the image, and the env size is
- * 0x2000 (16 blocks), 8 + 1089 + 16 = 1113, enlarge it to 1130.
+ * about 825KB (1650 blocks), Env is stored after the image, and the env size is
+ * 0x2000 (16 blocks), 8 + 1650 + 16 = 1674, enlarge it to 1680.
  */
 #define CONFIG_SYS_QE_FMAN_FW_IN_MMC
-#define CONFIG_SYS_QE_FMAN_FW_ADDR	(512 * 1130)
+#define CONFIG_SYS_QE_FMAN_FW_ADDR	(512 * 1680)
 #elif defined(CONFIG_NAND)
 #define CONFIG_SYS_QE_FMAN_FW_IN_NAND
-#define CONFIG_SYS_QE_FMAN_FW_ADDR	(6 * CONFIG_SYS_NAND_BLOCK_SIZE)
+#define CONFIG_SYS_QE_FMAN_FW_ADDR	(8 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
 /*
  * Slave has no ucode locally, it can fetch this from remote. When implementing
@@ -396,7 +399,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_QE_FMAN_FW_ADDR	0xFFE00000
 #else
 #define CONFIG_SYS_QE_FMAN_FW_IN_NOR
-#define CONFIG_SYS_QE_FMAN_FW_ADDR		0xEFF40000
+#define CONFIG_SYS_QE_FMAN_FW_ADDR		0xEFF00000
 #endif
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
@@ -466,6 +469,11 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 #define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
+#define CONFIG_ESDHC_DETECT_QUIRK \
+	(!(readb(QIXIS_BASE + QIXIS_BRDCFG5) & QIXIS_MUX_SDHC) || \
+	IS_SVR_REV(get_svr(), 1, 0))
+#define CONFIG_ESDHC_DETECT_8_BIT_QUIRK \
+	(!(readb(QIXIS_BASE + QIXIS_BRDCFG5) & QIXIS_MUX_SDHC_WIDTH8))
 #endif
 
 #define CONFIG_BOOTDELAY	10	/* -1 disables auto-boot */

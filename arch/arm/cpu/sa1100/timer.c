@@ -13,11 +13,6 @@
 #include <common.h>
 #include <SA-1100.h>
 
-int timer_init (void)
-{
-	return 0;
-}
-
 ulong get_timer (ulong base)
 {
 	return get_timer_masked ();

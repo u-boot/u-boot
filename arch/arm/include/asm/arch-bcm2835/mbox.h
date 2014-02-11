@@ -133,6 +133,54 @@ struct bcm2835_mbox_tag_get_arm_mem {
 	} body;
 };
 
+#define BCM2835_MBOX_POWER_DEVID_SDHCI		0
+#define BCM2835_MBOX_POWER_DEVID_UART0		1
+#define BCM2835_MBOX_POWER_DEVID_UART1		2
+#define BCM2835_MBOX_POWER_DEVID_USB_HCD	3
+#define BCM2835_MBOX_POWER_DEVID_I2C0		4
+#define BCM2835_MBOX_POWER_DEVID_I2C1		5
+#define BCM2835_MBOX_POWER_DEVID_I2C2		6
+#define BCM2835_MBOX_POWER_DEVID_SPI		7
+#define BCM2835_MBOX_POWER_DEVID_CCP2TX		8
+
+#define BCM2835_MBOX_POWER_STATE_RESP_ON	(1 << 1)
+/* Device doesn't exist */
+#define BCM2835_MBOX_POWER_STATE_RESP_NODEV	(1 << 1)
+
+#define BCM2835_MBOX_TAG_GET_POWER_STATE	0x00020001
+
+struct bcm2835_mbox_tag_get_power_state {
+	struct bcm2835_mbox_tag_hdr tag_hdr;
+	union {
+		struct {
+			u32 device_id;
+		} req;
+		struct {
+			u32 device_id;
+			u32 state;
+		} resp;
+	} body;
+};
+
+#define BCM2835_MBOX_TAG_SET_POWER_STATE	0x00028001
+
+#define BCM2835_MBOX_SET_POWER_STATE_REQ_ON	(1 << 0)
+#define BCM2835_MBOX_SET_POWER_STATE_REQ_WAIT	(1 << 1)
+
+struct bcm2835_mbox_tag_set_power_state {
+	struct bcm2835_mbox_tag_hdr tag_hdr;
+	union {
+		struct {
+			u32 device_id;
+			u32 state;
+		} req;
+		struct {
+			u32 device_id;
+			u32 state;
+		} resp;
+	} body;
+};
+
 #define BCM2835_MBOX_TAG_GET_CLOCK_RATE	0x00030002
 
 #define BCM2835_MBOX_CLOCK_ID_EMMC	1

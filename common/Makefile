@@ -197,6 +197,10 @@ obj-$(CONFIG_SPL_NET_SUPPORT) += miiphyutil.o
 obj-$(CONFIG_SPL_ENV_SUPPORT) += env_attr.o
 obj-$(CONFIG_SPL_ENV_SUPPORT) += env_flags.o
 obj-$(CONFIG_SPL_ENV_SUPPORT) += env_callback.o
+ifdef CONFIG_SPL_USB_HOST_SUPPORT
+obj-$(CONFIG_SPL_USB_SUPPORT) += usb.o usb_hub.o
+obj-$(CONFIG_USB_STORAGE) += usb_storage.o
+endif
 ifneq ($(CONFIG_SPL_NET_SUPPORT),y)
 obj-$(CONFIG_ENV_IS_NOWHERE) += env_nowhere.o
 obj-$(CONFIG_ENV_IS_IN_MMC) += env_mmc.o

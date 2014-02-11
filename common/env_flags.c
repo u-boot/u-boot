@@ -395,6 +395,9 @@ static int env_parse_flags_to_bin(const char *flags)
 	return binflags;
 }
 
+static int first_call = 1;
+static const char *flags_list;
+
 /*
  * Look for possible flags for a newly added variable
  * This is called specifically when the variable did not exist in the hash
@@ -403,10 +406,13 @@ static int env_parse_flags_to_bin(const char *flags)
 void env_flags_init(ENTRY *var_entry)
 {
 	const char *var_name = var_entry->key;
-	const char *flags_list = getenv(ENV_FLAGS_VAR);
 	char flags[ENV_FLAGS_ATTR_MAX_LEN + 1] = "";
 	int ret = 1;
 
+	if (first_call) {
+		flags_list = getenv(ENV_FLAGS_VAR);
+		first_call = 0;
+	}
 	/* look in the ".flags" and static for a reference to this variable */
 	ret = env_flags_lookup(flags_list, var_name, flags);
 

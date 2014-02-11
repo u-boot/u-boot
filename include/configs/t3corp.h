@@ -16,7 +16,6 @@
  */
 #define CONFIG_460GT		1	/* Specific PPC460GT	*/
 #define CONFIG_440		1
-#define CONFIG_4xx		1	/* ... PPC4xx family */
 
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE	0xFFFA0000

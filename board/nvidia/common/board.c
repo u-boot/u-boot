@@ -48,17 +48,6 @@ const struct tegra_sysinfo sysinfo = {
 	CONFIG_TEGRA_BOARD_STRING
 };
 
-#ifndef CONFIG_SPL_BUILD
-/*
- * Routine: timer_init
- * Description: init the timestamp and lastinc value
- */
-int timer_init(void)
-{
-	return 0;
-}
-#endif
-
 void __pin_mux_usb(void)
 {
 }

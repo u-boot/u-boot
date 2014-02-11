@@ -18,7 +18,6 @@
 #define CONFIG_TAISHAN		1	/* Board is taishan		*/
 #define CONFIG_440GX		1	/* Specifc GX support		*/
 #define CONFIG_440		1	/* ... PPC440 family		*/
-#define CONFIG_4xx		1	/* ... PPC4xx family		*/
 #define CONFIG_SYS_CLK_FREQ	33333333 /* external freq to pll	*/
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFFC0000

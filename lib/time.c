@@ -60,6 +60,11 @@ static unsigned long long notrace tick_to_time(uint64_t tick)
 	return tick;
 }
 
+int __weak timer_init(void)
+{
+	return 0;
+}
+
 ulong __weak get_timer(ulong base)
 {
 	return tick_to_time(get_ticks()) - base;

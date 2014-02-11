@@ -10,8 +10,6 @@
 
 #include <asm/ppc4xx.h>
 
-#define _LINUX_CONFIG_H 1       /* avoid reading Linux autoconf.h file  */
-
 #include <ppc_asm.tmpl>
 #include <ppc_defs.h>
 

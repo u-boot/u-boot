@@ -24,7 +24,7 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	const struct board_specific_parameters *pbsp, *pbsp_highest = NULL;
 	ulong ddr_freq;
 
-	if (ctrl_num > 2) {
+	if (ctrl_num > 1) {
 		printf("Not supported controller number %d\n", ctrl_num);
 		return;
 	}
@@ -40,8 +40,7 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	else
 		pbsp = udimms[0];
 
-
-	/* Get clk_adjust, cpo, write_data_delay,2T, according to the board ddr
+	/* Get clk_adjust, wrlvl_start, wrlvl_ctl, according to the board ddr
 	 * freqency and n_banks specified in board_specific_parameters table.
 	 */
 	ddr_freq = get_ddr_freq(0) / 1000000;
@@ -49,14 +48,10 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 		if (pbsp->n_ranks == pdimm->n_ranks &&
 		    (pdimm->rank_density >> 30) >= pbsp->rank_gb) {
 			if (ddr_freq <= pbsp->datarate_mhz_high) {
-				popts->cpo_override = pbsp->cpo;
-				popts->write_data_delay =
-					pbsp->write_data_delay;
 				popts->clk_adjust = pbsp->clk_adjust;
 				popts->wrlvl_start = pbsp->wrlvl_start;
 				popts->wrlvl_ctl_2 = pbsp->wrlvl_ctl_2;
 				popts->wrlvl_ctl_3 = pbsp->wrlvl_ctl_3;
-				popts->twot_en = pbsp->force_2t;
 				goto found;
 			}
 			pbsp_highest = pbsp;
@@ -69,13 +64,10 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 		printf("for data rate %lu MT/s\n", ddr_freq);
 		printf("Trying to use the highest speed (%u) parameters\n",
 		       pbsp_highest->datarate_mhz_high);
-		popts->cpo_override = pbsp_highest->cpo;
-		popts->write_data_delay = pbsp_highest->write_data_delay;
 		popts->clk_adjust = pbsp_highest->clk_adjust;
 		popts->wrlvl_start = pbsp_highest->wrlvl_start;
 		popts->wrlvl_ctl_2 = pbsp->wrlvl_ctl_2;
 		popts->wrlvl_ctl_3 = pbsp->wrlvl_ctl_3;
-		popts->twot_en = pbsp_highest->force_2t;
 	} else {
 		panic("DIMM is not supported by this board");
 	}

@@ -19,154 +19,93 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/**
- * struct spi_flash_params - SPI/QSPI flash device params structure
- *
- * @name:		Device name ([MANUFLETTER][DEVTYPE][DENSITY][EXTRAINFO])
- * @jedec:		Device jedec ID (0x[1byte_manuf_id][2byte_dev_id])
- * @ext_jedec:		Device ext_jedec ID
- * @sector_size:	Sector size of this device
- * @nr_sectors:		No.of sectors on this device
- * @flags:		Importent param, for flash specific behaviour
- */
-struct spi_flash_params {
-	const char *name;
-	u32 jedec;
-	u16 ext_jedec;
-	u32 sector_size;
-	u32 nr_sectors;
-	u16 flags;
+/* Read commands array */
+static u8 spi_read_cmds_array[] = {
+	CMD_READ_ARRAY_SLOW,
+	CMD_READ_DUAL_OUTPUT_FAST,
+	CMD_READ_DUAL_IO_FAST,
+	CMD_READ_QUAD_OUTPUT_FAST,
+	CMD_READ_QUAD_IO_FAST,
 };
 
-static const struct spi_flash_params spi_flash_params_table[] = {
-#ifdef CONFIG_SPI_FLASH_ATMEL		/* ATMEL */
-	{"AT45DB011D",	   0x1f2200, 0x0,	64 * 1024,     4,	       SECT_4K},
-	{"AT45DB021D",	   0x1f2300, 0x0,	64 * 1024,     8,	       SECT_4K},
-	{"AT45DB041D",	   0x1f2400, 0x0,	64 * 1024,     8,	       SECT_4K},
-	{"AT45DB081D",	   0x1f2500, 0x0,	64 * 1024,    16,	       SECT_4K},
-	{"AT45DB161D",	   0x1f2600, 0x0,	64 * 1024,    32,	       SECT_4K},
-	{"AT45DB321D",	   0x1f2700, 0x0,	64 * 1024,    64,	       SECT_4K},
-	{"AT45DB641D",	   0x1f2800, 0x0,	64 * 1024,   128,	       SECT_4K},
-	{"AT25DF321",      0x1f4701, 0x0,	64 * 1024,    64,	       SECT_4K},
+#ifdef CONFIG_SPI_FLASH_MACRONIX
+static int spi_flash_set_qeb_mxic(struct spi_flash *flash)
+{
+	u8 qeb_status;
+	int ret;
+
+	ret = spi_flash_cmd_read_status(flash, &qeb_status);
+	if (ret < 0)
+		return ret;
+
+	if (qeb_status & STATUS_QEB_MXIC) {
+		debug("SF: mxic: QEB is already set\n");
+	} else {
+		ret = spi_flash_cmd_write_status(flash, STATUS_QEB_MXIC);
+		if (ret < 0)
+			return ret;
+	}
+
+	return ret;
+}
 #endif
-#ifdef CONFIG_SPI_FLASH_EON		/* EON */
-	{"EN25Q32B",	   0x1c3016, 0x0,	64 * 1024,    64,	             0},
-	{"EN25Q64",	   0x1c3017, 0x0,	64 * 1024,   128,	       SECT_4K},
-	{"EN25Q128B",	   0x1c3018, 0x0,       64 * 1024,   256,	             0},
-	{"EN25S64",	   0x1c3817, 0x0,	64 * 1024,   128,		     0},
+
+#if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND)
+static int spi_flash_set_qeb_winspan(struct spi_flash *flash)
+{
+	u8 qeb_status;
+	int ret;
+
+	ret = spi_flash_cmd_read_config(flash, &qeb_status);
+	if (ret < 0)
+		return ret;
+
+	if (qeb_status & STATUS_QEB_WINSPAN) {
+		debug("SF: winspan: QEB is already set\n");
+	} else {
+		ret = spi_flash_cmd_write_config(flash, STATUS_QEB_WINSPAN);
+		if (ret < 0)
+			return ret;
+	}
+
+	return ret;
+}
 #endif
-#ifdef CONFIG_SPI_FLASH_GIGADEVICE	/* GIGADEVICE */
-	{"GD25Q64B",	   0xc84017, 0x0,	64 * 1024,   128,	       SECT_4K},
-	{"GD25LQ32",	   0xc86016, 0x0,	64 * 1024,    64,	       SECT_4K},
+
+static int spi_flash_set_qeb(struct spi_flash *flash, u8 idcode0)
+{
+	switch (idcode0) {
+#ifdef CONFIG_SPI_FLASH_MACRONIX
+	case SPI_FLASH_CFI_MFR_MACRONIX:
+		return spi_flash_set_qeb_mxic(flash);
 #endif
-#ifdef CONFIG_SPI_FLASH_MACRONIX	/* MACRONIX */
-	{"MX25L2006E",	   0xc22012, 0x0,	64 * 1024,     4,	             0},
-	{"MX25L4005",	   0xc22013, 0x0,	64 * 1024,     8,	             0},
-	{"MX25L8005",	   0xc22014, 0x0,	64 * 1024,    16,	             0},
-	{"MX25L1605D",	   0xc22015, 0x0,	64 * 1024,    32,	             0},
-	{"MX25L3205D",	   0xc22016, 0x0,	64 * 1024,    64,	             0},
-	{"MX25L6405D",	   0xc22017, 0x0,	64 * 1024,   128,	             0},
-	{"MX25L12805",	   0xc22018, 0x0,	64 * 1024,   256,	             0},
-	{"MX25L25635F",	   0xc22019, 0x0,	64 * 1024,   512,	             0},
-	{"MX25L51235F",	   0xc2201a, 0x0,	64 * 1024,  1024,	             0},
-	{"MX25L12855E",	   0xc22618, 0x0,	64 * 1024,   256,	             0},
+#if defined(CONFIG_SPI_FLASH_SPANSION) || defined(CONFIG_SPI_FLASH_WINBOND)
+	case SPI_FLASH_CFI_MFR_SPANSION:
+	case SPI_FLASH_CFI_MFR_WINBOND:
+		return spi_flash_set_qeb_winspan(flash);
 #endif
-#ifdef CONFIG_SPI_FLASH_SPANSION	/* SPANSION */
-	{"S25FL008A",	   0x010213, 0x0,	64 * 1024,    16,	             0},
-	{"S25FL016A",	   0x010214, 0x0,	64 * 1024,    32,	             0},
-	{"S25FL032A",	   0x010215, 0x0,	64 * 1024,    64,	             0},
-	{"S25FL064A",	   0x010216, 0x0,	64 * 1024,   128,	             0},
-	{"S25FL128P_256K", 0x012018, 0x0300,   256 * 1024,    64,	             0},
-	{"S25FL128P_64K",  0x012018, 0x0301,    64 * 1024,   256,	             0},
-	{"S25FL032P",	   0x010215, 0x4d00,    64 * 1024,    64,	             0},
-	{"S25FL064P",	   0x010216, 0x4d00,    64 * 1024,   128,	             0},
-	{"S25FL128S_64K",  0x012018, 0x4d01,    64 * 1024,   256,		     0},
-	{"S25FL256S_256K", 0x010219, 0x4d00,    64 * 1024,   512,	             0},
-	{"S25FL256S_64K",  0x010219, 0x4d01,    64 * 1024,   512,	             0},
-	{"S25FL512S_256K", 0x010220, 0x4d00,    64 * 1024,  1024,	             0},
-	{"S25FL512S_64K",  0x010220, 0x4d01,    64 * 1024,  1024,	             0},
+#ifdef CONFIG_SPI_FLASH_STMICRO
+	case SPI_FLASH_CFI_MFR_STMICRO:
+		debug("SF: QEB is volatile for %02x flash\n", idcode0);
+		return 0;
 #endif
-#ifdef CONFIG_SPI_FLASH_STMICRO		/* STMICRO */
-	{"M25P10",	   0x202011, 0x0,       32 * 1024,     4,	             0},
-	{"M25P20",	   0x202012, 0x0,       64 * 1024,     4,	             0},
-	{"M25P40",	   0x202013, 0x0,       64 * 1024,     8,	             0},
-	{"M25P80",	   0x202014, 0x0,       64 * 1024,    16,	             0},
-	{"M25P16",	   0x202015, 0x0,       64 * 1024,    32,	             0},
-	{"M25P32",	   0x202016, 0x0,       64 * 1024,    64,	             0},
-	{"M25P64",	   0x202017, 0x0,       64 * 1024,   128,	             0},
-	{"M25P128",	   0x202018, 0x0,      256 * 1024,    64,	             0},
-	{"N25Q32",	   0x20ba16, 0x0,       64 * 1024,    64,	       SECT_4K},
-	{"N25Q32A",	   0x20bb16, 0x0,       64 * 1024,    64,	       SECT_4K},
-	{"N25Q64",	   0x20ba17, 0x0,       64 * 1024,   128,	       SECT_4K},
-	{"N25Q64A",	   0x20bb17, 0x0,       64 * 1024,   128,	       SECT_4K},
-	{"N25Q128",	   0x20ba18, 0x0,       64 * 1024,   256,	       SECT_4K},
-	{"N25Q128A",	   0x20bb18, 0x0,       64 * 1024,   256,	       SECT_4K},
-	{"N25Q256",	   0x20ba19, 0x0,       64 * 1024,   512,	       SECT_4K},
-	{"N25Q256A",	   0x20bb19, 0x0,       64 * 1024,   512,	       SECT_4K},
-	{"N25Q512",	   0x20ba20, 0x0,       64 * 1024,  1024,      E_FSR | SECT_4K},
-	{"N25Q512A",	   0x20bb20, 0x0,       64 * 1024,  1024,      E_FSR | SECT_4K},
-	{"N25Q1024",	   0x20ba21, 0x0,       64 * 1024,  2048,      E_FSR | SECT_4K},
-	{"N25Q1024A",	   0x20bb21, 0x0,       64 * 1024,  2048,      E_FSR | SECT_4K},
-#endif
-#ifdef CONFIG_SPI_FLASH_SST		/* SST */
-	{"SST25VF040B",	   0xbf258d, 0x0,	64 * 1024,     8,     SECT_4K | SST_WP},
-	{"SST25VF080B",	   0xbf258e, 0x0,	64 * 1024,    16,     SECT_4K | SST_WP},
-	{"SST25VF016B",	   0xbf2541, 0x0,	64 * 1024,    32,     SECT_4K | SST_WP},
-	{"SST25VF032B",	   0xbf254a, 0x0,	64 * 1024,    64,     SECT_4K | SST_WP},
-	{"SST25VF064C",	   0xbf254b, 0x0,	64 * 1024,   128,	       SECT_4K},
-	{"SST25WF512",	   0xbf2501, 0x0,	64 * 1024,     1,     SECT_4K | SST_WP},
-	{"SST25WF010",	   0xbf2502, 0x0,	64 * 1024,     2,     SECT_4K | SST_WP},
-	{"SST25WF020",	   0xbf2503, 0x0,	64 * 1024,     4,     SECT_4K | SST_WP},
-	{"SST25WF040",	   0xbf2504, 0x0,	64 * 1024,     8,     SECT_4K | SST_WP},
-	{"SST25WF080",	   0xbf2505, 0x0,	64 * 1024,    16,     SECT_4K | SST_WP},
-#endif
-#ifdef CONFIG_SPI_FLASH_WINBOND		/* WINBOND */
-	{"W25P80",	   0xef2014, 0x0,	64 * 1024,    16,		    0},
-	{"W25P16",	   0xef2015, 0x0,	64 * 1024,    32,		    0},
-	{"W25P32",	   0xef2016, 0x0,	64 * 1024,    64,		    0},
-	{"W25X40",	   0xef3013, 0x0,	64 * 1024,     8,	      SECT_4K},
-	{"W25X16",	   0xef3015, 0x0,	64 * 1024,    32,	      SECT_4K},
-	{"W25X32",	   0xef3016, 0x0,	64 * 1024,    64,	      SECT_4K},
-	{"W25X64",	   0xef3017, 0x0,	64 * 1024,   128,	      SECT_4K},
-	{"W25Q80BL",	   0xef4014, 0x0,	64 * 1024,    16,	      SECT_4K},
-	{"W25Q16CL",	   0xef4015, 0x0,	64 * 1024,    32,	      SECT_4K},
-	{"W25Q32BV",	   0xef4016, 0x0,	64 * 1024,    64,	      SECT_4K},
-	{"W25Q64CV",	   0xef4017, 0x0,	64 * 1024,   128,	      SECT_4K},
-	{"W25Q128BV",	   0xef4018, 0x0,	64 * 1024,   256,	      SECT_4K},
-	{"W25Q256",	   0xef4019, 0x0,	64 * 1024,   512,	      SECT_4K},
-	{"W25Q80BW",	   0xef5014, 0x0,	64 * 1024,    16,	      SECT_4K},
-	{"W25Q16DW",	   0xef6015, 0x0,	64 * 1024,    32,	      SECT_4K},
-	{"W25Q32DW",	   0xef6016, 0x0,	64 * 1024,    64,	      SECT_4K},
-	{"W25Q64DW",	   0xef6017, 0x0,	64 * 1024,   128,	      SECT_4K},
-	{"W25Q128FW",	   0xef6018, 0x0,	64 * 1024,   256,	      SECT_4K},
-#endif
-	/*
-	 * Note:
-	 * Below paired flash devices has similar spi_flash params.
-	 * (S25FL129P_64K, S25FL128S_64K)
-	 * (W25Q80BL, W25Q80BV)
-	 * (W25Q16CL, W25Q16DV)
-	 * (W25Q32BV, W25Q32FV_SPI)
-	 * (W25Q64CV, W25Q64FV_SPI)
-	 * (W25Q128BV, W25Q128FV_SPI)
-	 * (W25Q32DW, W25Q32FV_QPI)
-	 * (W25Q64DW, W25Q64FV_QPI)
-	 * (W25Q128FW, W25Q128FV_QPI)
-	 */
-};
+	default:
+		printf("SF: Need set QEB func for %02x flash\n", idcode0);
+		return -1;
+	}
+}
 
 static struct spi_flash *spi_flash_validate_params(struct spi_slave *spi,
 		u8 *idcode)
 {
 	const struct spi_flash_params *params;
 	struct spi_flash *flash;
-	int i;
+	u8 cmd;
 	u16 jedec = idcode[1] << 8 | idcode[2];
 	u16 ext_jedec = idcode[3] << 8 | idcode[4];
 
-	/* Get the flash id (jedec = manuf_id + dev_id, ext_jedec) */
-	for (i = 0; i < ARRAY_SIZE(spi_flash_params_table); i++) {
-		params = &spi_flash_params_table[i];
+	params = spi_flash_params_table;
+	for (; params->name != NULL; params++) {
 		if ((params->jedec >> 16) == idcode[0]) {
 			if ((params->jedec & 0xFFFF) == jedec) {
 				if (params->ext_jedec == 0)
@@ -177,7 +116,7 @@ static struct spi_flash *spi_flash_validate_params(struct spi_slave *spi,
 		}
 	}
 
-	if (i == ARRAY_SIZE(spi_flash_params_table)) {
+	if (!params->name) {
 		printf("SF: Unsupported flash IDs: ");
 		printf("manuf %02x, jedec %04x, ext_jedec %04x\n",
 		       idcode[0], jedec, ext_jedec);
@@ -195,6 +134,7 @@ static struct spi_flash *spi_flash_validate_params(struct spi_slave *spi,
 	flash->spi = spi;
 	flash->name = params->name;
 	flash->memory_map = spi->memory_map;
+	flash->dual_flash = flash->spi->option;
 
 	/* Assign spi_flash ops */
 	flash->write = spi_flash_cmd_write_ops;
@@ -206,23 +146,74 @@ static struct spi_flash *spi_flash_validate_params(struct spi_slave *spi,
 	flash->read = spi_flash_cmd_read_ops;
 
 	/* Compute the flash size */
-	flash->page_size = (ext_jedec == 0x4d00) ? 512 : 256;
-	flash->sector_size = params->sector_size;
-	flash->size = flash->sector_size * params->nr_sectors;
+	flash->shift = (flash->dual_flash & SF_DUAL_PARALLEL_FLASH) ? 1 : 0;
+	flash->page_size = ((ext_jedec == 0x4d00) ? 512 : 256) << flash->shift;
+	flash->sector_size = params->sector_size << flash->shift;
+	flash->size = flash->sector_size * params->nr_sectors << flash->shift;
+#ifdef CONFIG_SF_DUAL_FLASH
+	if (flash->dual_flash & SF_DUAL_STACKED_FLASH)
+		flash->size <<= 1;
+#endif
 
 	/* Compute erase sector and command */
 	if (params->flags & SECT_4K) {
 		flash->erase_cmd = CMD_ERASE_4K;
-		flash->erase_size = 4096;
+		flash->erase_size = 4096 << flash->shift;
 	} else if (params->flags & SECT_32K) {
 		flash->erase_cmd = CMD_ERASE_32K;
-		flash->erase_size = 32768;
+		flash->erase_size = 32768 << flash->shift;
 	} else {
 		flash->erase_cmd = CMD_ERASE_64K;
 		flash->erase_size = flash->sector_size;
 	}
 
-	/* Poll cmd seclection */
+	/* Look for the fastest read cmd */
+	cmd = fls(params->e_rd_cmd & flash->spi->op_mode_rx);
+	if (cmd) {
+		cmd = spi_read_cmds_array[cmd - 1];
+		flash->read_cmd = cmd;
+	} else {
+		/* Go for default supported read cmd */
+		flash->read_cmd = CMD_READ_ARRAY_FAST;
+	}
+
+	/* Not require to look for fastest only two write cmds yet */
+	if (params->flags & WR_QPP && flash->spi->op_mode_tx & SPI_OPM_TX_QPP)
+		flash->write_cmd = CMD_QUAD_PAGE_PROGRAM;
+	else
+		/* Go for default supported write cmd */
+		flash->write_cmd = CMD_PAGE_PROGRAM;
+
+	/* Set the quad enable bit - only for quad commands */
+	if ((flash->read_cmd == CMD_READ_QUAD_OUTPUT_FAST) ||
+	    (flash->read_cmd == CMD_READ_QUAD_IO_FAST) ||
+	    (flash->write_cmd == CMD_QUAD_PAGE_PROGRAM)) {
+		if (spi_flash_set_qeb(flash, idcode[0])) {
+			debug("SF: Fail to set QEB for %02x\n", idcode[0]);
+			return NULL;
+		}
+	}
+
+	/* Read dummy_byte: dummy byte is determined based on the
+	 * dummy cycles of a particular command.
+	 * Fast commands - dummy_byte = dummy_cycles/8
+	 * I/O commands- dummy_byte = (dummy_cycles * no.of lines)/8
+	 * For I/O commands except cmd[0] everything goes on no.of lines
+	 * based on particular command but incase of fast commands except
+	 * data all go on single line irrespective of command.
+	 */
+	switch (flash->read_cmd) {
+	case CMD_READ_QUAD_IO_FAST:
+		flash->dummy_byte = 2;
+		break;
+	case CMD_READ_ARRAY_SLOW:
+		flash->dummy_byte = 0;
+		break;
+	default:
+		flash->dummy_byte = 1;
+	}
+
+	/* Poll cmd selection */
 	flash->poll_cmd = CMD_READ_STATUS;
 #ifdef CONFIG_SPI_FLASH_STMICRO
 	if (params->flags & E_FSR)
@@ -339,7 +330,10 @@ static struct spi_flash *spi_flash_probe_slave(struct spi_slave *spi)
 	puts("\n");
 #endif
 #ifndef CONFIG_SPI_FLASH_BAR
-	if (flash->size > SPI_FLASH_16MB_BOUN) {
+	if (((flash->dual_flash == SF_SINGLE_FLASH) &&
+	     (flash->size > SPI_FLASH_16MB_BOUN)) ||
+	     ((flash->dual_flash > SF_SINGLE_FLASH) &&
+	     (flash->size > SPI_FLASH_16MB_BOUN << 1))) {
 		puts("SF: Warning - Only lower 16MiB accessible,");
 		puts(" Full access #define CONFIG_SPI_FLASH_BAR\n");
 	}

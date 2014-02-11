@@ -18,7 +18,6 @@
 /*-----------------------------------------------------------------------
  * High Level Configuration Options
  *----------------------------------------------------------------------*/
-#define CONFIG_4xx			1	/* ... PPC4xx family	*/
 #define CONFIG_440			1	/* ... PPC440 family	*/
 #define CONFIG_440SPE			1	/* Specifc SPe support	*/
 #define CONFIG_440SPE_REVA		1	/* Support old Rev A.	*/

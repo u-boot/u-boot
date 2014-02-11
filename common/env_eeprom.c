@@ -24,7 +24,6 @@ DECLARE_GLOBAL_DATA_PTR;
 env_t *env_ptr;
 
 char *env_name_spec = "EEPROM";
-int env_eeprom_bus = -1;
 
 static int eeprom_bus_read(unsigned dev_addr, unsigned offset,
 			   uchar *buffer, unsigned cnt)
@@ -40,8 +39,7 @@ static int eeprom_bus_read(unsigned dev_addr, unsigned offset,
 	rcode = eeprom_read(dev_addr, offset, buffer, cnt);
 
 #if defined(CONFIG_I2C_ENV_EEPROM_BUS)
-	if (old_bus != env_eeprom_bus)
-		i2c_set_bus_num(old_bus);
+	i2c_set_bus_num(old_bus);
 #endif
 
 	return rcode;
@@ -63,6 +61,7 @@ static int eeprom_bus_write(unsigned dev_addr, unsigned offset,
 #if defined(CONFIG_I2C_ENV_EEPROM_BUS)
 	i2c_set_bus_num(old_bus);
 #endif
+
 	return rcode;
 }
 

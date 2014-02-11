@@ -7,13 +7,6 @@
 #
 
 PLATFORM_CPPFLAGS += -mcpu=xscale
-# =========================================================================
-#
-# Supply options according to compiler version
-#
-# ========================================================================
-PF_RELFLAGS_SLB_AT := $(call cc-option,-mshort-load-bytes,$(call cc-option,-malignment-traps,))
-PLATFORM_RELFLAGS += $(PF_RELFLAGS_SLB_AT)
 
 #
 # !WARNING!

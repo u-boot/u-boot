@@ -9,8 +9,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __CONFIG_OMAP4_COMMON_H
-#define __CONFIG_OMAP4_COMMON_H
+#ifndef __CONFIG_TI_OMAP4_COMMON_H
+#define __CONFIG_TI_OMAP4_COMMON_H
 
 /*
  * High Level Configuration Options
@@ -159,4 +159,8 @@
 #define CONFIG_SPL_DISPLAY_PRINT
 #define CONFIG_SPL_LDSCRIPT "$(CPUDIR)/omap-common/u-boot-spl.lds"
 
-#endif /* __CONFIG_OMAP4_COMMON_H */
+#ifdef CONFIG_NAND
+#define CONFIG_SPL_NAND_AM33XX_BCH	/* ELM support */
+#endif
+
+#endif /* __CONFIG_TI_OMAP4_COMMON_H */

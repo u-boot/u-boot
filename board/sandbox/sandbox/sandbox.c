@@ -23,11 +23,6 @@ unsigned long timer_read_counter(void)
 	return os_get_nsec() / 1000;
 }
 
-int timer_init(void)
-{
-	return 0;
-}
-
 int dram_init(void)
 {
 	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;

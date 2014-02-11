@@ -56,7 +56,6 @@
 /* High Level Configuration Options */
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
-#define CONFIG_MPC85xx		1	/* MPC8540/60/55/41/48 */
 #define CONFIG_MPC8536		1
 #define CONFIG_MPC8536DS	1
 

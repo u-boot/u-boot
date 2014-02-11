@@ -9,9 +9,6 @@
 #include <mpc8xx.h>
 #include <version.h>
 
-#define CONFIG_8xx 1		/* needed for Linux kernel header files */
-#define _LINUX_CONFIG_H 1	/* avoid reading Linux autoconf.h file	*/
-
 #include <ppc_asm.tmpl>
 #include <ppc_defs.h>
 

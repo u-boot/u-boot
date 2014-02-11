@@ -371,9 +371,11 @@ int board_eth_init(bd_t *bis)
 		break;
 	case 0x6c:
 	case 0x6d:
+		fm_info_set_phy_address(FM1_10GEC1, 4);
+		fm_info_set_phy_address(FM1_10GEC2, 5);
 		/* SGMII in Slot3 */
 		fm_info_set_phy_address(FM1_DTSEC1, SGMII_CARD_PORT3_PHY_ADDR);
-		fm_info_set_phy_address(FM1_DTSEC2, SGMII_CARD_PORT2_PHY_ADDR);
+		fm_info_set_phy_address(FM1_DTSEC2, SGMII_CARD_PORT4_PHY_ADDR);
 		break;
 	case 0x71:
 		/* SGMII in Slot3 */
@@ -418,7 +420,6 @@ int board_eth_init(bd_t *bis)
 		fm_info_set_phy_address(FM1_DTSEC6, SGMII_CARD_PORT2_PHY_ADDR);
 		break;
 	default:
-		puts("Invalid SerDes1 protocol for T2080QDS\n");
 		break;
 	}
 
@@ -448,7 +449,12 @@ int board_eth_init(bd_t *bis)
 				fm_info_set_mdio(i, mii_dev_for_muxval(
 						 mdio_mux[i]));
 				break;
-			};
+			case 3:
+				mdio_mux[i] = EMI1_SLOT3;
+				fm_info_set_mdio(i, mii_dev_for_muxval(
+						mdio_mux[i]));
+				break;
+			}
 			break;
 		case PHY_INTERFACE_MODE_RGMII:
 			if (i == FM1_DTSEC3)

@@ -933,6 +933,7 @@ int __maybe_unused omap_nand_switch_ecc(uint32_t hardware, uint32_t eccstrength)
 	mtd = &nand_info[nand_curr_device];
 	nand = mtd->priv;
 	nand->options |= NAND_OWN_BUFFERS;
+	nand->options &= ~NAND_SUBPAGE_READ;
 	/* Setup the ecc configurations again */
 	if (hardware) {
 		if (eccstrength == 1) {

@@ -29,6 +29,20 @@
 #define EHCICTRL_ENAINCR8			(1 << 27)
 #define EHCICTRL_ENAINCR16			(1 << 26)
 
+#define HSIC_CTRL_REFCLKSEL                     (0x2)
+#define HSIC_CTRL_REFCLKSEL_MASK                (0x3)
+#define HSIC_CTRL_REFCLKSEL_SHIFT               (23)
+
+#define HSIC_CTRL_REFCLKDIV_12                  (0x24)
+#define HSIC_CTRL_REFCLKDIV_MASK                (0x7f)
+#define HSIC_CTRL_REFCLKDIV_SHIFT               (16)
+
+#define HSIC_CTRL_SIDDQ                         (0x1 << 6)
+#define HSIC_CTRL_FORCESLEEP                    (0x1 << 5)
+#define HSIC_CTRL_FORCESUSPEND                  (0x1 << 4)
+#define HSIC_CTRL_UTMISWRST                     (0x1 << 2)
+#define HSIC_CTRL_PHYSWRST                      (0x1 << 0)
+
 /* Register map for PHY control */
 struct exynos_usb_phy {
 	unsigned int usbphyctrl0;

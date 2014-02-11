@@ -143,7 +143,7 @@ void *os_malloc(size_t length)
 	return hdr + 1;
 }
 
-void *os_free(void *ptr)
+void os_free(void *ptr)
 {
 	struct os_mem_hdr *hdr = ptr;
 
