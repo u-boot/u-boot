@@ -746,7 +746,8 @@ static ulong mem_test_alt(vu_long *buf, ulong start_addr, ulong end_addr,
 		if (temp != pattern) {
 			printf("\nFAILURE: Address bit stuck high @ 0x%.8lx:"
 				" expected 0x%.8lx, actual 0x%.8lx\n",
-				start_addr + offset, pattern, temp);
+				start_addr + offset*sizeof(vu_long),
+				pattern, temp);
 			errs++;
 			if (ctrlc())
 				return -1;
@@ -767,7 +768,8 @@ static ulong mem_test_alt(vu_long *buf, ulong start_addr, ulong end_addr,
 				printf("\nFAILURE: Address bit stuck low or"
 					" shorted @ 0x%.8lx: expected 0x%.8lx,"
 					" actual 0x%.8lx\n",
-					start_addr + offset, pattern, temp);
+					start_addr + offset*sizeof(vu_long),
+					pattern, temp);
 				errs++;
 				if (ctrlc())
 					return -1;
@@ -807,7 +809,8 @@ static ulong mem_test_alt(vu_long *buf, ulong start_addr, ulong end_addr,
 		if (temp != pattern) {
 			printf("\nFAILURE (read/write) @ 0x%.8lx:"
 				" expected 0x%.8lx, actual 0x%.8lx)\n",
-				start_addr + offset, pattern, temp);
+				start_addr + offset*sizeof(vu_long),
+				pattern, temp);
 			errs++;
 			if (ctrlc())
 				return -1;
@@ -827,7 +830,8 @@ static ulong mem_test_alt(vu_long *buf, ulong start_addr, ulong end_addr,
 		if (temp != anti_pattern) {
 			printf("\nFAILURE (read/write): @ 0x%.8lx:"
 				" expected 0x%.8lx, actual 0x%.8lx)\n",
-				start_addr + offset, anti_pattern, temp);
+				start_addr + offset*sizeof(vu_long),
+				anti_pattern, temp);
 			errs++;
 			if (ctrlc())
 				return -1;
@@ -885,7 +889,7 @@ static ulong mem_test_quick(vu_long *buf, ulong start_addr, ulong end_addr,
 
 			printf("\nMem error @ 0x%08X: "
 				"found %08lX, expected %08lX\n",
-				(uint)(uintptr_t)(start_addr + offset),
+				(uint)(uintptr_t)(start_addr + offset*sizeof(vu_long)),
 				readback, val);
 			errs++;
 			if (ctrlc())
