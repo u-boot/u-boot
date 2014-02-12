@@ -700,44 +700,47 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 		if (label->fdt) {
 			fdtfile = label->fdt;
 		} else if (label->fdtdir) {
-			fdtfile = getenv("fdtfile");
-			/*
-			 * For complex cases, it might be worth calling a
-			 * board- or SoC-provided function here to provide a
-			 * better default:
-			 *
-			 * if (!fdtfile)
-			 *     fdtfile = gen_fdtfile();
-			 *
-			 * If this is added, be sure to keep the default below,
-			 * or move it to the default weak implementation of
-			 * gen_fdtfile().
-			 */
-			if (!fdtfile) {
-				char *soc = getenv("soc");
-				char *board = getenv("board");
-				char *slash;
+			char *f1, *f2, *f3, *f4, *slash;
 
-				len = strlen(label->fdtdir);
-				if (!len)
-					slash = "./";
-				else if (label->fdtdir[len - 1] != '/')
-					slash = "/";
-				else
-					slash = "";
-
-				len = strlen(label->fdtdir) + strlen(slash) +
-					strlen(soc) + 1 + strlen(board) + 5;
-				fdtfilefree = malloc(len);
-				if (!fdtfilefree) {
-					printf("malloc fail (FDT filename)\n");
-					return 1;
-				}
-
-				snprintf(fdtfilefree, len, "%s%s%s-%s.dtb",
-					label->fdtdir, slash, soc, board);
-				fdtfile = fdtfilefree;
+			f1 = getenv("fdtfile");
+			if (f1) {
+				f2 = "";
+				f3 = "";
+				f4 = "";
+			} else {
+				/*
+				 * For complex cases where this code doesn't
+				 * generate the correct filename, the board
+				 * code should set $fdtfile during early boot,
+				 * or the boot scripts should set $fdtfile
+				 * before invoking "pxe" or "sysboot".
+				 */
+				f1 = getenv("soc");
+				f2 = "-";
+				f3 = getenv("board");
+				f4 = ".dtb";
 			}
+
+			len = strlen(label->fdtdir);
+			if (!len)
+				slash = "./";
+			else if (label->fdtdir[len - 1] != '/')
+				slash = "/";
+			else
+				slash = "";
+
+			len = strlen(label->fdtdir) + strlen(slash) +
+				strlen(f1) + strlen(f2) + strlen(f3) +
+				strlen(f4) + 1;
+			fdtfilefree = malloc(len);
+			if (!fdtfilefree) {
+				printf("malloc fail (FDT filename)\n");
+				return 1;
+			}
+
+			snprintf(fdtfilefree, len, "%s%s%s%s%s%s",
+				 label->fdtdir, slash, f1, f2, f3, f4);
+			fdtfile = fdtfilefree;
 		}
 
 		if (fdtfile) {
