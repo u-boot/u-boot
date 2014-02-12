@@ -86,6 +86,7 @@
 # define CONFIG_CMD_FAT
 # define CONFIG_SUPPORT_VFAT
 # define CONFIG_CMD_EXT2
+# define CONFIG_FAT_WRITE
 # define CONFIG_DOS_PARTITION
 #endif
 
