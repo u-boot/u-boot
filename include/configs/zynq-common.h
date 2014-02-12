@@ -88,6 +88,7 @@
 # define CONFIG_SUPPORT_VFAT
 # define CONFIG_CMD_EXT2
 # define CONFIG_DOS_PARTITION
+# define CONFIG_FAT_WRITE
 #endif
 
 /* QSPI */
