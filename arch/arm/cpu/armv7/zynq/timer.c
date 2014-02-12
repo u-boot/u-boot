@@ -110,7 +110,8 @@ void __udelay(unsigned long usec)
 	if (usec == 0)
 		return;
 
-	countticks = lldiv(gd->arch.timer_rate_hz * usec, 1000000);
+	countticks = lldiv(((unsigned long long)gd->arch.timer_rate_hz * usec),
+			   1000000);
 
 	/* decrementing timer */
 	timeend = readl(&timer_base->counter) - countticks;
