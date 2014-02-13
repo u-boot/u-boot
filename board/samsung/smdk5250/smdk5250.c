@@ -26,22 +26,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_USB_EHCI_EXYNOS
-static int board_usb_vbus_init(void)
-{
-	struct exynos5_gpio_part1 *gpio1 = (struct exynos5_gpio_part1 *)
-						samsung_get_base_gpio_part1();
-
-	/* Enable VBUS power switch */
-	s5p_gpio_direction_output(&gpio1->x2, 6, 1);
-
-	/* VBUS turn ON time */
-	mdelay(3);
-
-	return 0;
-}
-#endif
-
 #ifdef CONFIG_SOUND_MAX98095
 static void  board_enable_audio_codec(void)
 {
@@ -56,9 +40,6 @@ static void  board_enable_audio_codec(void)
 
 int exynos_init(void)
 {
-#ifdef CONFIG_USB_EHCI_EXYNOS
-	board_usb_vbus_init();
-#endif
 #ifdef CONFIG_SOUND_MAX98095
 	board_enable_audio_codec();
 #endif

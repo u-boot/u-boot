@@ -751,12 +751,7 @@ static int exynos5_pinmux_decode_periph_id(const void *blob, int node)
 	if (err)
 		return PERIPH_ID_NONE;
 
-	/* check for invalid peripheral id */
-	if ((PERIPH_ID_SDMMC4 > cell[1]) || (cell[1] < PERIPH_ID_UART0))
-		return cell[1];
-
-	debug(" invalid peripheral id\n");
-	return PERIPH_ID_NONE;
+	return cell[1];
 }
 
 int pinmux_decode_periph_id(const void *blob, int node)

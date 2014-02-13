@@ -247,180 +247,81 @@ void s5p_gpio_set_rate(struct s5p_gpio_bank *bank, int gpio, int mode);
 
 /* GPIO pins per bank  */
 #define GPIO_PER_BANK 8
+#define S5P_GPIO_PART_SHIFT	(24)
+#define S5P_GPIO_PART_MASK	(0xff)
+#define S5P_GPIO_BANK_SHIFT	(8)
+#define S5P_GPIO_BANK_MASK	(0xffff)
+#define S5P_GPIO_PIN_MASK	(0xff)
 
-#define exynos4_gpio_part1_get_nr(bank, pin) \
-	((((((unsigned int) &(((struct exynos4_gpio_part1 *) \
-			       EXYNOS4_GPIO_PART1_BASE)->bank)) \
-	    - EXYNOS4_GPIO_PART1_BASE) / sizeof(struct s5p_gpio_bank)) \
-	  * GPIO_PER_BANK) + pin)
+#define S5P_GPIO_SET_PART(x) \
+			(((x) & S5P_GPIO_PART_MASK) << S5P_GPIO_PART_SHIFT)
 
-#define EXYNOS4_GPIO_PART1_MAX ((sizeof(struct exynos4_gpio_part1) \
-			    / sizeof(struct s5p_gpio_bank)) * GPIO_PER_BANK)
+#define S5P_GPIO_GET_PART(x) \
+			(((x) >> S5P_GPIO_PART_SHIFT) & S5P_GPIO_PART_MASK)
 
-#define exynos4_gpio_part2_get_nr(bank, pin) \
-	(((((((unsigned int) &(((struct exynos4_gpio_part2 *) \
-				EXYNOS4_GPIO_PART2_BASE)->bank)) \
-	    - EXYNOS4_GPIO_PART2_BASE) / sizeof(struct s5p_gpio_bank)) \
-	  * GPIO_PER_BANK) + pin) + EXYNOS4_GPIO_PART1_MAX)
+#define S5P_GPIO_SET_PIN(x) \
+			((x) & S5P_GPIO_PIN_MASK)
 
-#define exynos4x12_gpio_part1_get_nr(bank, pin) \
-	((((((unsigned int) &(((struct exynos4x12_gpio_part1 *) \
-			       EXYNOS4X12_GPIO_PART1_BASE)->bank)) \
-	    - EXYNOS4X12_GPIO_PART1_BASE) / sizeof(struct s5p_gpio_bank)) \
-	  * GPIO_PER_BANK) + pin)
+#define EXYNOS4_GPIO_SET_BANK(part, bank) \
+			((((unsigned)&(((struct exynos4_gpio_part##part *) \
+			EXYNOS4_GPIO_PART##part##_BASE)->bank) \
+			- EXYNOS4_GPIO_PART##part##_BASE) \
+			& S5P_GPIO_BANK_MASK) << S5P_GPIO_BANK_SHIFT)
 
-#define EXYNOS4X12_GPIO_PART1_MAX ((sizeof(struct exynos4x12_gpio_part1) \
-			    / sizeof(struct s5p_gpio_bank)) * GPIO_PER_BANK)
+#define EXYNOS4X12_GPIO_SET_BANK(part, bank) \
+			((((unsigned)&(((struct exynos4x12_gpio_part##part *) \
+			EXYNOS4X12_GPIO_PART##part##_BASE)->bank) \
+			- EXYNOS4X12_GPIO_PART##part##_BASE) \
+			& S5P_GPIO_BANK_MASK) << S5P_GPIO_BANK_SHIFT)
 
-#define exynos4x12_gpio_part2_get_nr(bank, pin) \
-	(((((((unsigned int) &(((struct exynos4x12_gpio_part2 *) \
-				EXYNOS4X12_GPIO_PART2_BASE)->bank)) \
-	    - EXYNOS4X12_GPIO_PART2_BASE) / sizeof(struct s5p_gpio_bank)) \
-	  * GPIO_PER_BANK) + pin) + EXYNOS4X12_GPIO_PART1_MAX)
+#define EXYNOS5_GPIO_SET_BANK(part, bank) \
+			((((unsigned)&(((struct exynos5420_gpio_part##part *) \
+			EXYNOS5420_GPIO_PART##part##_BASE)->bank) \
+			- EXYNOS5_GPIO_PART##part##_BASE) \
+			& S5P_GPIO_BANK_MASK) << S5P_GPIO_BANK_SHIFT)
 
-#define EXYNOS4X12_GPIO_PART2_MAX ((sizeof(struct exynos4x12_gpio_part2) \
-			    / sizeof(struct s5p_gpio_bank)) * GPIO_PER_BANK)
+#define EXYNOS5420_GPIO_SET_BANK(part, bank) \
+			((((unsigned)&(((struct exynos5420_gpio_part##part *) \
+			EXYNOS5420_GPIO_PART##part##_BASE)->bank) \
+			- EXYNOS5420_GPIO_PART##part##_BASE) \
+			& S5P_GPIO_BANK_MASK) << S5P_GPIO_BANK_SHIFT)
 
-#define exynos4x12_gpio_part3_get_nr(bank, pin) \
-	(((((((unsigned int) &(((struct exynos4x12_gpio_part3 *) \
-				EXYNOS4X12_GPIO_PART3_BASE)->bank)) \
-	    - EXYNOS4X12_GPIO_PART3_BASE) / sizeof(struct s5p_gpio_bank)) \
-	  * GPIO_PER_BANK) + pin) + EXYNOS4X12_GPIO_PART2_MAX)
+#define exynos4_gpio_get(part, bank, pin) \
+			(S5P_GPIO_SET_PART(part) | \
+			EXYNOS4_GPIO_SET_BANK(part, bank) | \
+			S5P_GPIO_SET_PIN(pin))
 
-#define exynos5_gpio_part1_get_nr(bank, pin) \
-	((((((unsigned int) &(((struct exynos5_gpio_part1 *) \
-			       EXYNOS5_GPIO_PART1_BASE)->bank)) \
-	    - EXYNOS5_GPIO_PART1_BASE) / sizeof(struct s5p_gpio_bank)) \
-	  * GPIO_PER_BANK) + pin)
+#define exynos4x12_gpio_get(part, bank, pin) \
+			(S5P_GPIO_SET_PART(part) | \
+			EXYNOS4X12_GPIO_SET_BANK(part, bank) | \
+			S5P_GPIO_SET_PIN(pin))
 
-#define EXYNOS5_GPIO_PART1_MAX ((sizeof(struct exynos5_gpio_part1) \
-			    / sizeof(struct s5p_gpio_bank)) * GPIO_PER_BANK)
+#define exynos5420_gpio_get(part, bank, pin) \
+			(S5P_GPIO_SET_PART(part) | \
+			EXYNOS5420_GPIO_SET_BANK(part, bank) | \
+			S5P_GPIO_SET_PIN(pin))
 
-#define exynos5_gpio_part2_get_nr(bank, pin) \
-	(((((((unsigned int) &(((struct exynos5_gpio_part2 *) \
-				EXYNOS5_GPIO_PART2_BASE)->bank)) \
-	    - EXYNOS5_GPIO_PART2_BASE) / sizeof(struct s5p_gpio_bank)) \
-	  * GPIO_PER_BANK) + pin) + EXYNOS5_GPIO_PART1_MAX)
+#define exynos5_gpio_get(part, bank, pin) \
+			(S5P_GPIO_SET_PART(part) | \
+			EXYNOS5_GPIO_SET_BANK(part, bank) | \
+			S5P_GPIO_SET_PIN(pin))
 
-#define EXYNOS5_GPIO_PART2_MAX ((sizeof(struct exynos5_gpio_part2) \
-			    / sizeof(struct s5p_gpio_bank)) * GPIO_PER_BANK)
-
-#define exynos5_gpio_part3_get_nr(bank, pin) \
-	(((((((unsigned int) &(((struct exynos5_gpio_part3 *) \
-				EXYNOS5_GPIO_PART3_BASE)->bank)) \
-	    - EXYNOS5_GPIO_PART3_BASE) / sizeof(struct s5p_gpio_bank)) \
-	  * GPIO_PER_BANK) + pin) + EXYNOS5_GPIO_PART2_MAX)
-
-
-/* EXYNOS5420 */
-#define exynos5420_gpio_part1_get_nr(bank, pin) \
-	((((((unsigned int) &(((struct exynos5420_gpio_part1 *)\
-			       EXYNOS5420_GPIO_PART1_BASE)->bank)) \
-	    - EXYNOS5420_GPIO_PART1_BASE) / sizeof(struct s5p_gpio_bank)) \
-	  * GPIO_PER_BANK) + pin)
-
-#define EXYNOS5420_GPIO_PART1_MAX ((sizeof(struct exynos5420_gpio_part1) \
-			    / sizeof(struct s5p_gpio_bank)) * GPIO_PER_BANK)
-
-#define exynos5420_gpio_part2_get_nr(bank, pin) \
-	(((((((unsigned int) &(((struct exynos5420_gpio_part2 *)\
-				EXYNOS5420_GPIO_PART2_BASE)->bank)) \
-	    - EXYNOS5420_GPIO_PART2_BASE) / sizeof(struct s5p_gpio_bank)) \
-	  * GPIO_PER_BANK) + pin) + EXYNOS5420_GPIO_PART1_MAX)
-
-#define EXYNOS5420_GPIO_PART2_MAX ((sizeof(struct exynos5420_gpio_part2) \
-			    / sizeof(struct s5p_gpio_bank)) * GPIO_PER_BANK)
-
-#define exynos5420_gpio_part3_get_nr(bank, pin) \
-	(((((((unsigned int) &(((struct exynos5420_gpio_part3 *)\
-				EXYNOS5420_GPIO_PART3_BASE)->bank)) \
-	    - EXYNOS5420_GPIO_PART3_BASE) / sizeof(struct s5p_gpio_bank)) \
-	  * GPIO_PER_BANK) + pin) + EXYNOS5420_GPIO_PART2_MAX)
-
-#define EXYNOS5420_GPIO_PART3_MAX ((sizeof(struct exynos5420_gpio_part3) \
-			    / sizeof(struct s5p_gpio_bank)) * GPIO_PER_BANK)
-
-#define exynos5420_gpio_part4_get_nr(bank, pin) \
-	(((((((unsigned int) &(((struct exynos5420_gpio_part4 *)\
-				EXYNOS5420_GPIO_PART4_BASE)->bank)) \
-	    - EXYNOS5420_GPIO_PART4_BASE) / sizeof(struct s5p_gpio_bank)) \
-	  * GPIO_PER_BANK) + pin) + EXYNOS5420_GPIO_PART3_MAX)
-
-#define EXYNOS5420_GPIO_PART4_MAX ((sizeof(struct exynos5420_gpio_part4) \
-			    / sizeof(struct s5p_gpio_bank)) * GPIO_PER_BANK)
-
-#define EXYNOS5420_GPIO_PART5_MAX ((sizeof(struct exynos5420_gpio_part5) \
-			    / sizeof(struct s5p_gpio_bank)) * GPIO_PER_BANK)
-
-static inline unsigned int s5p_gpio_base(int nr)
+static inline unsigned int s5p_gpio_base(int gpio)
 {
-	if (cpu_is_exynos5()) {
-		if (proid_is_exynos5420()) {
-			if (nr < EXYNOS5420_GPIO_PART1_MAX)
-				return EXYNOS5420_GPIO_PART1_BASE;
-			else if (nr < EXYNOS5420_GPIO_PART2_MAX)
-				return EXYNOS5420_GPIO_PART2_BASE;
-			else if (nr < EXYNOS5420_GPIO_PART3_MAX)
-				return EXYNOS5420_GPIO_PART3_BASE;
-			else
-				return EXYNOS5420_GPIO_PART4_BASE;
-		} else {
-			if (nr < EXYNOS5_GPIO_PART1_MAX)
-				return EXYNOS5_GPIO_PART1_BASE;
-			else if (nr < EXYNOS5_GPIO_PART2_MAX)
-				return EXYNOS5_GPIO_PART2_BASE;
-			else
-				return EXYNOS5_GPIO_PART3_BASE;
-		}
-	} else if (cpu_is_exynos4()) {
-		if (nr < EXYNOS4_GPIO_PART1_MAX)
-			return EXYNOS4_GPIO_PART1_BASE;
-		else
-			return EXYNOS4_GPIO_PART2_BASE;
+	unsigned gpio_part = S5P_GPIO_GET_PART(gpio);
+
+	switch (gpio_part) {
+	case 1:
+		return samsung_get_base_gpio_part1();
+	case 2:
+		return samsung_get_base_gpio_part2();
+	case 3:
+		return samsung_get_base_gpio_part3();
+	case 4:
+		return samsung_get_base_gpio_part4();
+	default:
+		return 0;
 	}
-
-	return 0;
-}
-
-static inline unsigned int s5p_gpio_part_max(int nr)
-{
-	if (cpu_is_exynos5()) {
-		if (proid_is_exynos5420()) {
-			if (nr < EXYNOS5420_GPIO_PART1_MAX)
-				return 0;
-			else if (nr < EXYNOS5420_GPIO_PART2_MAX)
-				return EXYNOS5420_GPIO_PART1_MAX;
-			else if (nr < EXYNOS5420_GPIO_PART3_MAX)
-				return EXYNOS5420_GPIO_PART2_MAX;
-			else if (nr < EXYNOS5420_GPIO_PART4_MAX)
-				return EXYNOS5420_GPIO_PART3_MAX;
-			else
-				return EXYNOS5420_GPIO_PART4_MAX;
-		} else {
-			if (nr < EXYNOS5_GPIO_PART1_MAX)
-				return 0;
-			else if (nr < EXYNOS5_GPIO_PART2_MAX)
-				return EXYNOS5_GPIO_PART1_MAX;
-			else
-				return EXYNOS5_GPIO_PART2_MAX;
-		}
-	} else if (cpu_is_exynos4()) {
-		if (proid_is_exynos4412()) {
-			if (nr < EXYNOS4X12_GPIO_PART1_MAX)
-				return 0;
-			else if (nr < EXYNOS4X12_GPIO_PART2_MAX)
-				return EXYNOS4X12_GPIO_PART1_MAX;
-			else
-				return EXYNOS4X12_GPIO_PART2_MAX;
-		} else {
-			if (nr < EXYNOS4_GPIO_PART1_MAX)
-				return 0;
-			else
-				return EXYNOS4_GPIO_PART1_MAX;
-		}
-	}
-
-	return 0;
 }
 #endif
 
