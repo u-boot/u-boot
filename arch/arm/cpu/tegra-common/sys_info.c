@@ -8,7 +8,6 @@
 #include <common.h>
 #include <linux/ctype.h>
 
-#ifdef CONFIG_DISPLAY_CPUINFO
 void upstring(char *s)
 {
 	while (*s) {
@@ -30,4 +29,3 @@ int print_cpuinfo(void)
 	/* TBD: Add printf of major/minor rev info, stepping, etc. */
 	return 0;
 }
-#endif	/* CONFIG_DISPLAY_CPUINFO */
