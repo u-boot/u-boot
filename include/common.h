@@ -304,7 +304,14 @@ extern ulong monitor_flash_len;
 int mac_read_from_eeprom(void);
 extern u8 __dtb_dt_begin[];	/* embedded device tree blob */
 int set_cpu_clk_info(void);
+#if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo(void);
+#else
+static inline int print_cpuinfo(void)
+{
+	return 0;
+}
+#endif
 int update_flash_size(int flash_size);
 
 /**

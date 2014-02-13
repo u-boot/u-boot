@@ -887,9 +887,7 @@ static init_fnc_t init_sequence_f[] = {
 #ifdef CONFIG_PPC
 	checkcpu,
 #endif
-#if defined(CONFIG_DISPLAY_CPUINFO)
 	print_cpuinfo,		/* display cpu info (and speed) */
-#endif
 #if defined(CONFIG_MPC5xxx)
 	prt_mpc5xxx_clks,
 #endif /* CONFIG_MPC5xxx */
