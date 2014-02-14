@@ -264,10 +264,9 @@
 			"${mtdparts} "					\
 			"vram=6M omapfb.vram=1:2M,2:2M,3:2M "		\
 			"omapdss.def_disp=lcd;"				\
-		"bootm 0x82000000 0x84000000\0"
-
-#define CONFIG_BOOTCOMMAND \
-	"run nandboot"
+		"bootm 0x82000000 0x84000000\0"				\
+	"bootcmd=mmc rescan;if fatload mmc 0 82000000 loadbootscr.scr;"	\
+		"then source 82000000;else run nandboot;fi\0"
 
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_CMDLINE_EDITING
