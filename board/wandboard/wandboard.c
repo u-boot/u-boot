@@ -25,6 +25,7 @@
 #include <miiphy.h>
 #include <netdev.h>
 #include <linux/fb.h>
+#include <phy.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
