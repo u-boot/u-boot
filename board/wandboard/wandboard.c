@@ -26,6 +26,7 @@
 #include <netdev.h>
 #include <linux/fb.h>
 #include <phy.h>
+#include <input.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
