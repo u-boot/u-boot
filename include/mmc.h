@@ -349,4 +349,6 @@ struct mmc *mmc_spi_init(uint bus, uint cs, uint speed, uint mode);
 int mmc_legacy_init(int verbose);
 #endif
 
+int board_mmc_init(bd_t *bis);
+
 #endif /* _MMC_H_ */
