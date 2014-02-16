@@ -169,4 +169,6 @@
 
 #define CONFIG_TPM_TIS_SANDBOX
 
+#define CONFIG_CMD_LZMADEC
+
 #endif
