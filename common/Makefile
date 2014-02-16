@@ -159,6 +159,9 @@ obj-$(CONFIG_CMD_UBI) += cmd_ubi.o
 obj-$(CONFIG_CMD_UBIFS) += cmd_ubifs.o
 obj-$(CONFIG_CMD_UNIVERSE) += cmd_universe.o
 obj-$(CONFIG_CMD_UNZIP) += cmd_unzip.o
+ifdef CONFIG_LZMA
+obj-$(CONFIG_CMD_LZMADEC) += cmd_lzmadec.o
+endif
 ifdef CONFIG_CMD_USB
 obj-y += cmd_usb.o
 obj-y += usb.o usb_hub.o
