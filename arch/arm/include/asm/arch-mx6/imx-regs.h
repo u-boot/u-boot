@@ -409,7 +409,7 @@ struct cspi_regs {
 #define MXC_CSPICON_POL		4  /* SCLK polarity */
 #define MXC_CSPICON_SSPOL	12 /* SS polarity */
 #define MXC_CSPICON_CTL		20 /* inactive state of SCLK */
-#ifdef CONFIG_MX6SL
+#if defined(CONFIG_MX6SL) || defined(CONFIG_MX6DL)
 #define MXC_SPI_BASE_ADDRESSES \
 	ECSPI1_BASE_ADDR, \
 	ECSPI2_BASE_ADDR, \
