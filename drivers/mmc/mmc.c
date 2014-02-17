@@ -430,7 +430,7 @@ int mmc_complete_op_cond(struct mmc *mmc)
 	mmc->ocr = cmd.response[0];
 
 	mmc->high_capacity = ((mmc->ocr & OCR_HCS) == OCR_HCS);
-	mmc->rca = 0;
+	mmc->rca = 1;
 
 	return 0;
 }
@@ -1442,67 +1442,44 @@ int mmc_boot_partition_size_change(struct mmc *mmc, unsigned long bootsize,
 }
 
 /*
- * This function shall form and send the commands to open / close the
- * boot partition specified by user.
- *
- * Input Parameters:
- * ack: 0x0 - No boot acknowledge sent (default)
- *	0x1 - Boot acknowledge sent during boot operation
- * part_num: User selects boot data that will be sent to master
- *	0x0 - Device not boot enabled (default)
- *	0x1 - Boot partition 1 enabled for boot
- *	0x2 - Boot partition 2 enabled for boot
- * access: User selects partitions to access
- *	0x0 : No access to boot partition (default)
- *	0x1 : R/W boot partition 1
- *	0x2 : R/W boot partition 2
- *	0x3 : R/W Replay Protected Memory Block (RPMB)
+ * Modify EXT_CSD[177] which is BOOT_BUS_WIDTH
+ * based on the passed in values for BOOT_BUS_WIDTH, RESET_BOOT_BUS_WIDTH
+ * and BOOT_MODE.
  *
  * Returns 0 on success.
  */
-int mmc_boot_part_access(struct mmc *mmc, u8 ack, u8 part_num, u8 access)
+int mmc_set_boot_bus_width(struct mmc *mmc, u8 width, u8 reset, u8 mode)
 {
 	int err;
-	struct mmc_cmd cmd;
 
-	/* Boot ack enable, boot partition enable , boot partition access */
-	cmd.cmdidx = MMC_CMD_SWITCH;
-	cmd.resp_type = MMC_RSP_R1b;
+	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_BOOT_BUS_WIDTH,
+			 EXT_CSD_BOOT_BUS_WIDTH_MODE(mode) |
+			 EXT_CSD_BOOT_BUS_WIDTH_RESET(reset) |
+			 EXT_CSD_BOOT_BUS_WIDTH_WIDTH(width));
 
-	cmd.cmdarg = (MMC_SWITCH_MODE_WRITE_BYTE << 24) |
-			(EXT_CSD_PART_CONF << 16) |
-			((EXT_CSD_BOOT_ACK(ack) |
-			EXT_CSD_BOOT_PART_NUM(part_num) |
-			EXT_CSD_PARTITION_ACCESS(access)) << 8);
-
-	err = mmc_send_cmd(mmc, &cmd, NULL);
-	if (err) {
-		if (access) {
-			debug("mmc boot partition#%d open fail:Error1 = %d\n",
-			      part_num, err);
-		} else {
-			debug("mmc boot partition#%d close fail:Error = %d\n",
-			      part_num, err);
-		}
+	if (err)
 		return err;
-	}
+	return 0;
+}
 
-	if (access) {
-		/* 4bit transfer mode at booting time. */
-		cmd.cmdidx = MMC_CMD_SWITCH;
-		cmd.resp_type = MMC_RSP_R1b;
+/*
+ * Modify EXT_CSD[179] which is PARTITION_CONFIG (formerly BOOT_CONFIG)
+ * based on the passed in values for BOOT_ACK, BOOT_PARTITION_ENABLE and
+ * PARTITION_ACCESS.
+ *
+ * Returns 0 on success.
+ */
+int mmc_set_part_conf(struct mmc *mmc, u8 ack, u8 part_num, u8 access)
+{
+	int err;
 
-		cmd.cmdarg = (MMC_SWITCH_MODE_WRITE_BYTE << 24) |
-				(EXT_CSD_BOOT_BUS_WIDTH << 16) |
-				((1 << 0) << 8);
+	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_PART_CONF,
+			 EXT_CSD_BOOT_ACK(ack) |
+			 EXT_CSD_BOOT_PART_NUM(part_num) |
+			 EXT_CSD_PARTITION_ACCESS(access));
 
-		err = mmc_send_cmd(mmc, &cmd, NULL);
-		if (err) {
-			debug("mmc boot partition#%d open fail:Error2 = %d\n",
-			      part_num, err);
-			return err;
-		}
-	}
+	if (err)
+		return err;
 	return 0;
 }
 #endif

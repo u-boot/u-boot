@@ -66,7 +66,18 @@ u32 spl_boot_device(void)
 
 u32 spl_boot_mode(void)
 {
-	return gd->arch.omap_boot_params.omap_bootmode;
+	u32 val = gd->arch.omap_boot_params.omap_bootmode;
+
+	if (val == MMCSD_MODE_RAW)
+		return MMCSD_MODE_RAW;
+	else if (val == MMCSD_MODE_FAT)
+		return MMCSD_MODE_FAT;
+	else
+#ifdef CONFIG_SUPPORT_EMMC_BOOT
+		return MMCSD_MODE_EMMCBOOT;
+#else
+		return MMCSD_MODE_UNDEFINED;
+#endif
 }
 
 void spl_board_init(void)
