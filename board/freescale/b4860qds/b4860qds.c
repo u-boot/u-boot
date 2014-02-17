@@ -121,6 +121,7 @@ int configure_vsc3316_3308(void)
 	debug("Using SERDES2 Protocol: 0x%x:\n", serdes2_prtcl);
 
 	switch (serdes1_prtcl) {
+	case 0x29:
 	case 0x2a:
 	case 0x2C:
 	case 0x2D:
@@ -200,6 +201,7 @@ int configure_vsc3316_3308(void)
 		break;
 
 #ifdef CONFIG_PPC_B4420
+	case 0x17:
 	case 0x18:
 			/*
 			 * Configuration:
