@@ -8,7 +8,6 @@
 #ifndef __CORE_PMIC_H_
 #define __CORE_PMIC_H_
 
-#include <common.h>
 #include <linux/list.h>
 #include <i2c.h>
 #include <power/power_chrg.h>

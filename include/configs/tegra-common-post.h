@@ -99,6 +99,7 @@
 	BOOTCMDS_DHCP
 
 #define CONFIG_BOOTCOMMAND \
+	"set usb_need_init; " \
 	"for target in ${boot_targets}; do run bootcmd_${target}; done"
 
 #endif
@@ -129,10 +130,15 @@
 	"stderr=serial" STDOUT_LCD "\0" \
 	""
 
+#ifndef BOARD_EXTRA_ENV_SETTINGS
+#define BOARD_EXTRA_ENV_SETTINGS
+#endif
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	TEGRA_DEVICE_SETTINGS \
 	MEM_LAYOUT_ENV_SETTINGS \
-	BOOTCMDS_COMMON
+	BOOTCMDS_COMMON \
+	BOARD_EXTRA_ENV_SETTINGS
 
 #if defined(CONFIG_TEGRA20_SFLASH) || defined(CONFIG_TEGRA20_SLINK) || defined(CONFIG_TEGRA114_SPI)
 #define CONFIG_FDT_SPI

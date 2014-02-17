@@ -28,6 +28,7 @@
 #include <power/max17042_fg.h>
 #include <usb.h>
 #include <usb_mass_storage.h>
+#include <samsung/misc.h>
 
 #include "setup.h"
 
@@ -742,7 +743,7 @@ vidinfo_t panel_info = {
 	.vl_hsp		= CONFIG_SYS_LOW,
 	.vl_vsp		= CONFIG_SYS_LOW,
 	.vl_dp		= CONFIG_SYS_LOW,
-	.vl_bpix	= 5,	/* Bits per pixel, 2^5 = 32 */
+	.vl_bpix	= 4,	/* Bits per pixel, 2^4 = 16 */
 
 	/* s6e8ax0 Panel infomation */
 	.vl_hspw	= 5,
@@ -786,3 +787,21 @@ void init_panel_info(vidinfo_t *vid)
 
 	setenv("lcdinfo", "lcd=s6e8ax0");
 }
+
+#ifdef CONFIG_MISC_INIT_R
+int misc_init_r(void)
+{
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	set_board_info();
+#endif
+#ifdef CONFIG_LCD_MENU
+	keys_init();
+	check_boot_mode();
+#endif
+#ifdef CONFIG_CMD_BMP
+	if (panel_info.logo_on)
+		draw_logo();
+#endif
+	return 0;
+}
+#endif

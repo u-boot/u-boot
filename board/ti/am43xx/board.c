@@ -188,7 +188,7 @@ const struct ctrl_ioregs ioregs_ddr3 = {
 	.dt1ioctl		= DDR3_DATA0_IOCTRL_VALUE,
 	.dt2ioctrl		= DDR3_DATA0_IOCTRL_VALUE,
 	.dt3ioctrl		= DDR3_DATA0_IOCTRL_VALUE,
-	.emif_sdram_config_ext	= 0x0043,
+	.emif_sdram_config_ext	= 0x0143,
 };
 
 const struct emif_regs ddr3_emif_regs_400Mhz = {

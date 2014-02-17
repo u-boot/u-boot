@@ -432,11 +432,13 @@ struct omap_sys_ctrl_regs const dra7xx_ctrl = {
 	.control_srcomp_code_latch		= 0x4A002E84,
 	.control_ddr_control_ext_0		= 0x4A002E88,
 	.control_padconf_core_base		= 0x4A003400,
+	.control_std_fuse_opp_vdd_mpu_2		= 0x4A003B24,
 	.control_port_emif1_sdram_config	= 0x4AE0C110,
 	.control_port_emif1_lpddr2_nvm_config	= 0x4AE0C114,
 	.control_port_emif2_sdram_config	= 0x4AE0C118,
 	.control_emif1_sdram_config_ext		= 0x4AE0C144,
 	.control_emif2_sdram_config_ext		= 0x4AE0C148,
+	.control_wkup_ldovbb_mpu_voltage_ctrl	= 0x4AE0C158,
 	.control_padconf_mode			= 0x4AE0C5A0,
 	.control_xtal_oscillator		= 0x4AE0C5A4,
 	.control_i2c_2				= 0x4AE0C5A8,
@@ -807,6 +809,9 @@ struct prcm_regs const dra7xx_prcm = {
 	.cm_dsp_clkstctrl			= 0x4a005400,
 	.cm_dsp_dsp_clkctrl			= 0x4a005420,
 
+	/* prm irqstatus regs */
+	.prm_irqstatus_mpu_2			= 0x4ae06014,
+
 	/* cm2.ckgen */
 	.cm_clksel_usb_60mhz			= 0x4a008104,
 	.cm_clkmode_dpll_per			= 0x4a008140,
@@ -967,4 +972,7 @@ struct prcm_regs const dra7xx_prcm = {
 	.prm_vc_val_bypass			= 0x4ae07da0,
 	.prm_vc_cfg_i2c_mode			= 0x4ae07db4,
 	.prm_vc_cfg_i2c_clk			= 0x4ae07db8,
+
+	.prm_abbldo_mpu_setup			= 0x4AE07DDC,
+	.prm_abbldo_mpu_ctrl			= 0x4AE07DE0,
 };

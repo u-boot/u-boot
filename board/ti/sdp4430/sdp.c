@@ -73,26 +73,6 @@ void set_muxconf_regs_essential(void)
 				 sizeof(struct pad_conf_entry));
 }
 
-void set_muxconf_regs_non_essential(void)
-{
-	do_set_mux((*ctrl)->control_padconf_core_base,
-		   core_padconf_array_non_essential,
-		   sizeof(core_padconf_array_non_essential) /
-		   sizeof(struct pad_conf_entry));
-
-	do_set_mux((*ctrl)->control_padconf_wkup_base,
-		   wkup_padconf_array_non_essential,
-		   sizeof(wkup_padconf_array_non_essential) /
-		   sizeof(struct pad_conf_entry));
-
-	if (omap_revision() < OMAP4460_ES1_0) {
-		do_set_mux((*ctrl)->control_padconf_wkup_base,
-			wkup_padconf_array_non_essential_4430,
-			sizeof(wkup_padconf_array_non_essential_4430) /
-			sizeof(struct pad_conf_entry));
-	}
-}
-
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_GENERIC_MMC)
 int board_mmc_init(bd_t *bis)
 {

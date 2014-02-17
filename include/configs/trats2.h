@@ -152,6 +152,9 @@
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
+#define CONFIG_ENV_VARS_UBOOT_CONFIG
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+
 /* Tizen - partitions definitions */
 #define PARTS_CSA		"csa"
 #define PARTS_BOOT		"boot"
@@ -178,11 +181,16 @@
 	""PARTS_BOOT" part 0 2;" \
 	""PARTS_ROOT" part 0 5;" \
 	""PARTS_DATA" part 0 6;" \
-	""PARTS_UMS" part 0 7\0"
+	""PARTS_UMS" part 0 7;" \
+	"params.bin mmc 0x38 0x8\0"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootk=" \
-		"run loaddtb; run loaduimage; bootm 0x40007FC0 - ${fdtaddr}\0" \
+		"run loaduimage;" \
+		"if run loaddtb; then " \
+			"bootm 0x40007FC0 - ${fdtaddr};" \
+		"fi;" \
+		"bootm 0x40007FC0;\0" \
 	"updatemmc=" \
 		"mmc boot 0 1 1 1; mmc write 0x42008000 0 0x200;" \
 		"mmc boot 0 1 1 0\0" \
@@ -196,7 +204,7 @@
 	"mmcboot=" \
 		"setenv bootargs root=/dev/mmcblk${mmcdev}p${mmcrootpart} " \
 		"${lpj} rootwait ${console} ${meminfo} ${opts} ${lcdinfo}; " \
-		"run loaddtb; run loaduimage; bootm 0x40007FC0 - ${fdtaddr}\0" \
+		"run bootk\0" \
 	"bootchart=set opts init=/sbin/bootchartd; run bootcmd\0" \
 	"boottrace=setenv opts initcall_debug; run bootcmd\0" \
 	"verify=n\0" \
@@ -237,7 +245,6 @@
 		   "setenv spl_imgaddr;" \
 		   "setenv spl_addr_tmp;\0" \
 	"fdtaddr=40800000\0" \
-	"fdtfile=exynos4412-trats2.dtb\0"
 
 /*
  * Miscellaneous configurable options
@@ -277,7 +284,6 @@
 #define CONFIG_EFI_PARTITION
 #define CONFIG_PARTITION_UUIDS
 
-#define CONFIG_MISC_INIT_R
 #define CONFIG_BOARD_EARLY_INIT_F
 
 /* I2C */
@@ -318,16 +324,43 @@ int get_soft_i2c_sda_pin(void);
 #define CONFIG_USB_GADGET_VBUS_DRAW	2
 #define CONFIG_USB_CABLE_CHECK
 
+/* Common misc for Samsung */
+#define CONFIG_MISC_COMMON
+
+#define CONFIG_MISC_INIT_R
+
+/* Download menu - Samsung common */
+#define CONFIG_LCD_MENU
+#define CONFIG_LCD_MENU_BOARD
+
+/* Download menu - definitions for check keys */
+#ifndef __ASSEMBLY__
+#include <power/max77686_pmic.h>
+
+#define KEY_PWR_PMIC_NAME		"MAX77686_PMIC"
+#define KEY_PWR_STATUS_REG		MAX77686_REG_PMIC_STATUS1
+#define KEY_PWR_STATUS_MASK		(1 << 0)
+#define KEY_PWR_INTERRUPT_REG		MAX77686_REG_PMIC_INT1
+#define KEY_PWR_INTERRUPT_MASK		(1 << 1)
+
+#define KEY_VOL_UP_GPIO			exynos4x12_gpio_get(2, x2, 2)
+#define KEY_VOL_DOWN_GPIO		exynos4x12_gpio_get(2, x3, 3)
+#endif /* __ASSEMBLY__ */
+
+/* LCD console */
+#define LCD_BPP                 LCD_COLOR16
+#define CONFIG_SYS_WHITE_ON_BLACK
+
 /* LCD */
 #define CONFIG_EXYNOS_FB
 #define CONFIG_LCD
 #define CONFIG_CMD_BMP
-#define CONFIG_BMP_32BPP
+#define CONFIG_BMP_16BPP
 #define CONFIG_FB_ADDR		0x52504000
 #define CONFIG_S6E8AX0
 #define CONFIG_EXYNOS_MIPI_DSIM
 #define CONFIG_VIDEO_BMP_GZIP
-#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE ((500 * 250 * 4) + (1 << 12))
+#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE ((500 * 160 * 4) + 54)
 
 #define CONFIG_CMD_USB_MASS_STORAGE
 #define CONFIG_USB_GADGET_MASS_STORAGE

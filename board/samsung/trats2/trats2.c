@@ -28,6 +28,7 @@
 #include <usb.h>
 #include <usb/s3c_udc.h>
 #include <usb_mass_storage.h>
+#include <samsung/misc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -72,14 +73,11 @@ static void check_hw_revision(void)
 int checkboard(void)
 {
 	puts("Board:\tTRATS2\n");
+	printf("HW Revision:\t0x%04x\n", board_rev);
+
 	return 0;
 }
 #endif
-
-static void show_hw_revision(void)
-{
-	printf("HW Revision:\t0x%04x\n", board_rev);
-}
 
 u32 get_board_rev(void)
 {
@@ -144,17 +142,17 @@ static void board_init_i2c(void)
 int get_soft_i2c_scl_pin(void)
 {
 	if (I2C_ADAP_HWNR)
-		return exynos4x12_gpio_part2_get_nr(m2, 1); /* I2C9 */
+		return exynos4x12_gpio_get(2, m2, 1); /* I2C9 */
 	else
-		return exynos4x12_gpio_part1_get_nr(f1, 4); /* I2C8 */
+		return exynos4x12_gpio_get(1, f1, 4); /* I2C8 */
 }
 
 int get_soft_i2c_sda_pin(void)
 {
 	if (I2C_ADAP_HWNR)
-		return exynos4x12_gpio_part2_get_nr(m2, 0); /* I2C9 */
+		return exynos4x12_gpio_get(2, m2, 0); /* I2C9 */
 	else
-		return exynos4x12_gpio_part1_get_nr(f1, 5); /* I2C8 */
+		return exynos4x12_gpio_get(1, f1, 5); /* I2C8 */
 }
 #endif
 
@@ -568,7 +566,7 @@ vidinfo_t panel_info = {
 	.vl_hsp		= CONFIG_SYS_LOW,
 	.vl_vsp		= CONFIG_SYS_LOW,
 	.vl_dp		= CONFIG_SYS_LOW,
-	.vl_bpix	= 5,	/* Bits per pixel, 2^5 = 32 */
+	.vl_bpix	= 4,	/* Bits per pixel, 2^4 = 16 */
 
 	/* s6e8ax0 Panel infomation */
 	.vl_hspw	= 5,
@@ -618,11 +616,17 @@ void init_panel_info(vidinfo_t *vid)
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
-	setenv("model", "GT-I8800");
-	setenv("board", "TRATS2");
-
-	show_hw_revision();
-
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	set_board_info();
+#endif
+#ifdef CONFIG_LCD_MENU
+	keys_init();
+	check_boot_mode();
+#endif
+#ifdef CONFIG_CMD_BMP
+	if (panel_info.logo_on)
+		draw_logo();
+#endif
 	return 0;
 }
 #endif

@@ -412,9 +412,9 @@ int get_periph_clock_source(enum periph_id periph_id,
 	 * with its 16-bit divisor
 	 */
 	if (type == CLOCK_TYPE_PCXTS)
-		*mux_bits = 4;
+		*mux_bits = MASK_BITS_31_28;
 	else
-		*mux_bits = 2;
+		*mux_bits = MASK_BITS_31_30;
 	if (type == CLOCK_TYPE_PCMT16)
 		*divider_bits = 16;
 	else

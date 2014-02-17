@@ -43,16 +43,10 @@ static void set_mux_conf_regs(void)
 		set_muxconf_regs_essential();
 		break;
 	case OMAP_INIT_CONTEXT_UBOOT_AFTER_SPL:
-#ifdef CONFIG_SYS_ENABLE_PADS_ALL
-		set_muxconf_regs_non_essential();
-#endif
 		break;
 	case OMAP_INIT_CONTEXT_UBOOT_FROM_NOR:
 	case OMAP_INIT_CONTEXT_UBOOT_AFTER_CH:
 		set_muxconf_regs_essential();
-#ifdef CONFIG_SYS_ENABLE_PADS_ALL
-		set_muxconf_regs_non_essential();
-#endif
 		break;
 	}
 }

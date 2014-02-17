@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2013, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2010-2014, NVIDIA CORPORATION.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -61,12 +61,6 @@ enum {
 	CLOCK_MAX_MUX   = 8     /* number of source options for each clock */
 };
 
-enum {
-	MASK_BITS_31_30	= 2,	/* num of bits used to specify clock source */
-	MASK_BITS_31_29,
-	MASK_BITS_29_28,
-};
-
 /*
  * Clock source mux for each clock type. This just converts our enum into
  * a list of mux sources for use by the code.
@@ -109,7 +103,7 @@ static enum clock_id clock_source[CLOCK_TYPE_COUNT][CLOCK_MAX_MUX+1] = {
 		MASK_BITS_31_29},
 	{ CLK(PERIPH),	CLK(CGENERAL),	CLK(SFROM32KHZ),	CLK(OSC),
 		CLK(NONE),	CLK(NONE),	CLK(NONE),	CLK(NONE),
-		MASK_BITS_29_28}
+		MASK_BITS_31_28}
 };
 
 /*
@@ -610,26 +604,24 @@ void clock_early_init(void)
 	struct clk_rst_ctlr *clkrst =
 		(struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
 
+	tegra30_set_up_pllp();
+
 	/*
-	 * PLLP output frequency set to 408Mhz
 	 * PLLC output frequency set to 600Mhz
 	 * PLLD output frequency set to 925Mhz
 	 */
 	switch (clock_get_osc_freq()) {
 	case CLOCK_OSC_FREQ_12_0: /* OSC is 12Mhz */
-		clock_set_rate(CLOCK_ID_PERIPH, 408, 12, 0, 8);
 		clock_set_rate(CLOCK_ID_CGENERAL, 600, 12, 0, 8);
 		clock_set_rate(CLOCK_ID_DISPLAY, 925, 12, 0, 12);
 		break;
 
 	case CLOCK_OSC_FREQ_26_0: /* OSC is 26Mhz */
-		clock_set_rate(CLOCK_ID_PERIPH, 408, 26, 0, 8);
 		clock_set_rate(CLOCK_ID_CGENERAL, 600, 26, 0, 8);
 		clock_set_rate(CLOCK_ID_DISPLAY, 925, 26, 0, 12);
 		break;
 
 	case CLOCK_OSC_FREQ_13_0: /* OSC is 13Mhz */
-		clock_set_rate(CLOCK_ID_PERIPH, 408, 13, 0, 8);
 		clock_set_rate(CLOCK_ID_CGENERAL, 600, 13, 0, 8);
 		clock_set_rate(CLOCK_ID_DISPLAY, 925, 13, 0, 12);
 		break;

@@ -28,18 +28,25 @@
 s8 abb_setup_ldovbb(u32 fuse, u32 ldovbb)
 {
 	u32 vset;
+	u32 fuse_enable_mask = OMAP5_ABB_FUSE_ENABLE_MASK;
+	u32 fuse_vset_mask = OMAP5_ABB_FUSE_VSET_MASK;
 
+	if (!is_omap54xx()) {
+		/* DRA7 */
+		fuse_enable_mask = DRA7_ABB_FUSE_ENABLE_MASK;
+		fuse_vset_mask = DRA7_ABB_FUSE_VSET_MASK;
+	}
 	/*
 	 * ABB parameters must be properly fused
 	 * otherwise ABB should be disabled
 	 */
 	vset = readl(fuse);
-	if (!(vset & OMAP5_ABB_FUSE_ENABLE_MASK))
+	if (!(vset & fuse_enable_mask))
 		return -1;
 
 	/* prepare VSET value for LDOVBB mux register */
-	vset &= OMAP5_ABB_FUSE_VSET_MASK;
-	vset >>= ffs(OMAP5_ABB_FUSE_VSET_MASK) - 1;
+	vset &= fuse_vset_mask;
+	vset >>= ffs(fuse_vset_mask) - 1;
 	vset <<= ffs(OMAP5_ABB_LDOVBBMPU_VSET_OUT_MASK) - 1;
 	vset |= OMAP5_ABB_LDOVBBMPU_MUX_CTRL_MASK;
 

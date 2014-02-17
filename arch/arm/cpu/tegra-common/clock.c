@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2013, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2010-2014, NVIDIA CORPORATION.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -142,8 +142,8 @@ void clock_ll_set_source_divisor(enum periph_id periph_id, unsigned source,
 
 	value = readl(reg);
 
-	value &= ~OUT_CLK_SOURCE_MASK;
-	value |= source << OUT_CLK_SOURCE_SHIFT;
+	value &= ~OUT_CLK_SOURCE_31_30_MASK;
+	value |= source << OUT_CLK_SOURCE_31_30_SHIFT;
 
 	value &= ~OUT_CLK_DIVISOR_MASK;
 	value |= divisor << OUT_CLK_DIVISOR_SHIFT;
@@ -155,8 +155,8 @@ void clock_ll_set_source(enum periph_id periph_id, unsigned source)
 {
 	u32 *reg = get_periph_source_reg(periph_id);
 
-	clrsetbits_le32(reg, OUT_CLK_SOURCE_MASK,
-			source << OUT_CLK_SOURCE_SHIFT);
+	clrsetbits_le32(reg, OUT_CLK_SOURCE_31_30_MASK,
+			source << OUT_CLK_SOURCE_31_30_SHIFT);
 }
 
 /**
@@ -304,13 +304,27 @@ static int adjust_periph_pll(enum periph_id periph_id, int source,
 	/* work out the source clock and set it */
 	if (source < 0)
 		return -1;
-	if (mux_bits == 4) {
-		clrsetbits_le32(reg, OUT_CLK_SOURCE4_MASK,
-			source << OUT_CLK_SOURCE4_SHIFT);
-	} else {
-		clrsetbits_le32(reg, OUT_CLK_SOURCE_MASK,
-			source << OUT_CLK_SOURCE_SHIFT);
+
+	switch (mux_bits) {
+	case MASK_BITS_31_30:
+		clrsetbits_le32(reg, OUT_CLK_SOURCE_31_30_MASK,
+				source << OUT_CLK_SOURCE_31_30_SHIFT);
+		break;
+
+	case MASK_BITS_31_29:
+		clrsetbits_le32(reg, OUT_CLK_SOURCE_31_29_MASK,
+				source << OUT_CLK_SOURCE_31_29_SHIFT);
+		break;
+
+	case MASK_BITS_31_28:
+		clrsetbits_le32(reg, OUT_CLK_SOURCE_31_28_MASK,
+				source << OUT_CLK_SOURCE_31_28_SHIFT);
+		break;
+
+	default:
+		return -1;
 	}
+
 	udelay(2);
 	return 0;
 }
@@ -560,4 +574,96 @@ void clock_init(void)
 
 	/* Do any special system timer/TSC setup */
 	arch_timer_init();
+}
+
+static void set_avp_clock_source(u32 src)
+{
+	struct clk_rst_ctlr *clkrst =
+			(struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
+	u32 val;
+
+	val = (src << SCLK_SWAKEUP_FIQ_SOURCE_SHIFT) |
+		(src << SCLK_SWAKEUP_IRQ_SOURCE_SHIFT) |
+		(src << SCLK_SWAKEUP_RUN_SOURCE_SHIFT) |
+		(src << SCLK_SWAKEUP_IDLE_SOURCE_SHIFT) |
+		(SCLK_SYS_STATE_RUN << SCLK_SYS_STATE_SHIFT);
+	writel(val, &clkrst->crc_sclk_brst_pol);
+	udelay(3);
+}
+
+/*
+ * This function is useful on Tegra30, and any later SoCs that have compatible
+ * PLLP configuration registers.
+ */
+void tegra30_set_up_pllp(void)
+{
+	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
+	u32 reg;
+
+	/*
+	 * Based on the Tegra TRM, the system clock (which is the AVP clock) can
+	 * run up to 275MHz. On power on, the default sytem clock source is set
+	 * to PLLP_OUT0. This function sets PLLP's (hence PLLP_OUT0's) rate to
+	 * 408MHz which is beyond system clock's upper limit.
+	 *
+	 * The fix is to set the system clock to CLK_M before initializing PLLP,
+	 * and then switch back to PLLP_OUT4, which has an appropriate divider
+	 * configured, after PLLP has been configured
+	 */
+	set_avp_clock_source(SCLK_SOURCE_CLKM);
+
+	/*
+	 * PLLP output frequency set to 408Mhz
+	 * PLLC output frequency set to 228Mhz
+	 */
+	switch (clock_get_osc_freq()) {
+	case CLOCK_OSC_FREQ_12_0: /* OSC is 12Mhz */
+		clock_set_rate(CLOCK_ID_PERIPH, 408, 12, 0, 8);
+		clock_set_rate(CLOCK_ID_CGENERAL, 456, 12, 1, 8);
+		break;
+
+	case CLOCK_OSC_FREQ_26_0: /* OSC is 26Mhz */
+		clock_set_rate(CLOCK_ID_PERIPH, 408, 26, 0, 8);
+		clock_set_rate(CLOCK_ID_CGENERAL, 600, 26, 0, 8);
+		break;
+
+	case CLOCK_OSC_FREQ_13_0: /* OSC is 13Mhz */
+		clock_set_rate(CLOCK_ID_PERIPH, 408, 13, 0, 8);
+		clock_set_rate(CLOCK_ID_CGENERAL, 600, 13, 0, 8);
+		break;
+	case CLOCK_OSC_FREQ_19_2:
+	default:
+		/*
+		 * These are not supported. It is too early to print a
+		 * message and the UART likely won't work anyway due to the
+		 * oscillator being wrong.
+		 */
+		break;
+	}
+
+	/* Set PLLP_OUT1, 2, 3 & 4 freqs to 9.6, 48, 102 & 204MHz */
+
+	/* OUT1, 2 */
+	/* Assert RSTN before enable */
+	reg = PLLP_OUT2_RSTN_EN | PLLP_OUT1_RSTN_EN;
+	writel(reg, &clkrst->crc_pll[CLOCK_ID_PERIPH].pll_out[0]);
+	/* Set divisor and reenable */
+	reg = (IN_408_OUT_48_DIVISOR << PLLP_OUT2_RATIO)
+		| PLLP_OUT2_OVR | PLLP_OUT2_CLKEN | PLLP_OUT2_RSTN_DIS
+		| (IN_408_OUT_9_6_DIVISOR << PLLP_OUT1_RATIO)
+		| PLLP_OUT1_OVR | PLLP_OUT1_CLKEN | PLLP_OUT1_RSTN_DIS;
+	writel(reg, &clkrst->crc_pll[CLOCK_ID_PERIPH].pll_out[0]);
+
+	/* OUT3, 4 */
+	/* Assert RSTN before enable */
+	reg = PLLP_OUT4_RSTN_EN | PLLP_OUT3_RSTN_EN;
+	writel(reg, &clkrst->crc_pll[CLOCK_ID_PERIPH].pll_out[1]);
+	/* Set divisor and reenable */
+	reg = (IN_408_OUT_204_DIVISOR << PLLP_OUT4_RATIO)
+		| PLLP_OUT4_OVR | PLLP_OUT4_CLKEN | PLLP_OUT4_RSTN_DIS
+		| (IN_408_OUT_102_DIVISOR << PLLP_OUT3_RATIO)
+		| PLLP_OUT3_OVR | PLLP_OUT3_CLKEN | PLLP_OUT3_RSTN_DIS;
+	writel(reg, &clkrst->crc_pll[CLOCK_ID_PERIPH].pll_out[1]);
+
+	set_avp_clock_source(SCLK_SOURCE_PLLP_OUT4);
 }

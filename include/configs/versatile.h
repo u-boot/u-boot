@@ -101,7 +101,8 @@
 
 #define CONFIG_BOOTDELAY	2
 #define CONFIG_BOOTARGS		"root=/dev/nfs mem=128M ip=dhcp "\
-				"netdev=25,0,0xf1010000,0xf1010010,eth0"
+				"netdev=25,0,0xf1010000,0xf1010010,eth0 "\
+				"console=ttyAMA0,38400n1"
 
 /*
  * Static configuration when assigning fixed address

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2013, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2010-2014, NVIDIA CORPORATION.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -68,7 +68,7 @@ static void enable_cpu_clocks(void)
 	/* Wait for PLL-X to lock */
 	do {
 		reg = readl(&clkrst->crc_pll_simple[SIMPLE_PLLX].pll_base);
-	} while ((reg & (1 << 27)) == 0);
+	} while ((reg & PLL_LOCK_MASK) == 0);
 
 	/* Wait until all clocks are stable */
 	udelay(PLL_STABILIZATION_DELAY);
@@ -125,18 +125,6 @@ void t114_init_clocks(void)
 
 	/* Set active CPU cluster to G */
 	clrbits_le32(&flow->cluster_control, 1);
-
-	/*
-	 * Switch system clock to PLLP_OUT4 (108 MHz), AVP will now run
-	 * at 108 MHz. This is glitch free as only the source is changed, no
-	 * special precaution needed.
-	 */
-	val = (SCLK_SOURCE_PLLP_OUT4 << SCLK_SWAKEUP_FIQ_SOURCE_SHIFT) |
-		(SCLK_SOURCE_PLLP_OUT4 << SCLK_SWAKEUP_IRQ_SOURCE_SHIFT) |
-		(SCLK_SOURCE_PLLP_OUT4 << SCLK_SWAKEUP_RUN_SOURCE_SHIFT) |
-		(SCLK_SOURCE_PLLP_OUT4 << SCLK_SWAKEUP_IDLE_SOURCE_SHIFT) |
-		(SCLK_SYS_STATE_RUN << SCLK_SYS_STATE_SHIFT);
-	writel(val, &clkrst->crc_sclk_brst_pol);
 
 	writel(SUPER_SCLK_ENB_MASK, &clkrst->crc_super_sclk_div);
 
@@ -204,45 +192,43 @@ void t114_init_clocks(void)
 	debug("t114_init_clocks exit\n");
 }
 
-static int is_partition_powered(u32 mask)
+static bool is_partition_powered(u32 partid)
 {
 	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
 	u32 reg;
 
 	/* Get power gate status */
 	reg = readl(&pmc->pmc_pwrgate_status);
-	return (reg & mask) == mask;
+	return !!(reg & (1 << partid));
 }
 
-static int is_clamp_enabled(u32 mask)
+static bool is_clamp_enabled(u32 partid)
 {
 	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
 	u32 reg;
 
-	/* Get clamp status. TODO: Add pmc_clamp_status alias to pmc.h */
-	reg = readl(&pmc->pmc_pwrgate_timer_on);
-	return (reg & mask) == mask;
+	/* Get clamp status. */
+	reg = readl(&pmc->pmc_clamp_status);
+	return !!(reg & (1 << partid));
 }
 
-static void power_partition(u32 status, u32 partid)
+static void power_partition(u32 partid)
 {
 	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
 
-	debug("%s: status = %08X, part ID = %08X\n", __func__, status, partid);
+	debug("%s: part ID = %08X\n", __func__, partid);
 	/* Is the partition already on? */
-	if (!is_partition_powered(status)) {
+	if (!is_partition_powered(partid)) {
 		/* No, toggle the partition power state (OFF -> ON) */
 		debug("power_partition, toggling state\n");
-		clrbits_le32(&pmc->pmc_pwrgate_toggle, 0x1F);
-		setbits_le32(&pmc->pmc_pwrgate_toggle, partid);
-		setbits_le32(&pmc->pmc_pwrgate_toggle, START_CP);
+		writel(START_CP | partid, &pmc->pmc_pwrgate_toggle);
 
 		/* Wait for the power to come up */
-		while (!is_partition_powered(status))
+		while (!is_partition_powered(partid))
 			;
 
 		/* Wait for the clamp status to be cleared */
-		while (is_clamp_enabled(status))
+		while (is_clamp_enabled(partid))
 			;
 
 		/* Give I/O signals time to stabilize */
@@ -257,13 +243,13 @@ void powerup_cpus(void)
 	/* We boot to the fast cluster */
 	debug("powerup_cpus entry: G cluster\n");
 	/* Power up the fast cluster rail partition */
-	power_partition(CRAIL, CRAILID);
+	power_partition(CRAIL);
 
 	/* Power up the fast cluster non-CPU partition */
-	power_partition(C0NC, C0NCID);
+	power_partition(C0NC);
 
 	/* Power up the fast cluster CPU0 partition */
-	power_partition(CE0, CE0ID);
+	power_partition(CE0);
 }
 
 void start_cpu(u32 reset_vector)

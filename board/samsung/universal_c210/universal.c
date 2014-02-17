@@ -22,6 +22,7 @@
 #include <usb/s3c_udc.h>
 #include <asm/arch/cpu.h>
 #include <power/max8998_pmic.h>
+#include <samsung/misc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -446,7 +447,7 @@ vidinfo_t panel_info = {
 	.vl_vsp		= CONFIG_SYS_HIGH,
 	.vl_dp		= CONFIG_SYS_HIGH,
 
-	.vl_bpix	= 5,	/* Bits per pixel */
+	.vl_bpix	= 4,	/* Bits per pixel */
 
 	/* LD9040 LCD Panel */
 	.vl_hspw	= 2,
@@ -511,3 +512,21 @@ int board_init(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_MISC_INIT_R
+int misc_init_r(void)
+{
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	set_board_info();
+#endif
+#ifdef CONFIG_LCD_MENU
+	keys_init();
+	check_boot_mode();
+#endif
+#ifdef CONFIG_CMD_BMP
+	if (panel_info.logo_on)
+		draw_logo();
+#endif
+	return 0;
+}
+#endif

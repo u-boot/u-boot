@@ -164,7 +164,7 @@
 		"fatload mmc 0 ${load_addr} ${fit_image} && " \
 		"bootm ${load_addr}\0" \
 	"jtagboot=echo TFTPing FIT to RAM... && " \
-		"tftp ${load_addr} ${fit_image} && " \
+		"tftpboot ${load_addr} ${fit_image} && " \
 		"bootm ${load_addr}\0"
 #define CONFIG_BOOTCOMMAND		"run $modeboot"
 #define CONFIG_BOOTDELAY		3 /* -1 to Disable autoboot */
@@ -227,6 +227,8 @@
 # define CONFIG_CMD_ELF
 # define CONFIG_SYS_MMC_MAX_DEVICE	1
 #endif
+
+#define CONFIG_SYS_LDSCRIPT  "arch/arm/cpu/armv7/zynq/u-boot.lds"
 
 /* Commands */
 #include <config_cmd_default.h>

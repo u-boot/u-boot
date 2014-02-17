@@ -141,8 +141,8 @@
  * - 'release': for a standalone system		kernel/rootfs from flash
  */
 #define CONFIG_KM_DEF_ENV_BOOTTARGETS					\
-	"subbootcmds=ubiattach ubicopy cramfsloadfdt cramfsloadkernel "	\
-		"flashargs add_default addpanic boot\0"			\
+	"subbootcmds=ubiattach ubicopy cramfsloadfdt set_fdthigh "	\
+		"cramfsloadkernel flashargs add_default addpanic boot\0"\
 	"develop="							\
 		"tftp 200000 scripts/develop-${arch}.txt && "		\
 		"env import -t 200000 ${filesize} && "			\
@@ -226,6 +226,7 @@
 	CONFIG_KM_DEF_ENV_FLASH_BOOT					\
 	CONFIG_KM_DEF_ENV_CONSTANTS					\
 	"altbootcmd=run bootcmd\0"					\
+	"boot=bootm ${load_addr_r} - ${fdt_addr_r}\0"			\
 	"bootcmd=km_checkbidhwk &&  "					\
 		"setenv bootcmd \'if km_checktestboot; then; "          \
 				"setenv boot_bank ${test_bank}; else; " \
@@ -235,6 +236,10 @@
 			"run ${subbootcmds}; reset\' && "		\
 		"saveenv && saveenv && boot\0"				\
 	"bootlimit=3\0"							\
+	"cramfsloadfdt="						\
+		"cramfsload ${fdt_addr_r} "				\
+		"fdt_0x${IVM_BoardId}_0x${IVM_HWKey}.dtb\0"		\
+	"fdt_addr_r="__stringify(CONFIG_KM_FDT_ADDR) "\0"		\
 	"init=/sbin/init-overlay.sh\0"					\
 	"load_addr_r="__stringify(CONFIG_KM_KERNEL_ADDR) "\0"		\
 	"load=tftpboot ${load_addr_r} ${u-boot}\0"			\

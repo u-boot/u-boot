@@ -124,6 +124,9 @@
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
+#define CONFIG_ENV_VARS_UBOOT_CONFIG
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"updateb=" \
 		"onenand erase 0x0 0x100000;" \
@@ -229,8 +232,8 @@
 /*
  * I2C Settings
  */
-#define CONFIG_SOFT_I2C_GPIO_SCL exynos4_gpio_part1_get_nr(b, 7)
-#define CONFIG_SOFT_I2C_GPIO_SDA exynos4_gpio_part1_get_nr(b, 6)
+#define CONFIG_SOFT_I2C_GPIO_SCL exynos4_gpio_get(1, b, 7)
+#define CONFIG_SOFT_I2C_GPIO_SDA exynos4_gpio_get(1, b, 6)
 
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */
@@ -253,10 +256,10 @@
  */
 #define CONFIG_SOFT_SPI
 #define CONFIG_SOFT_SPI_MODE SPI_MODE_3
-#define CONFIG_SOFT_SPI_GPIO_SCLK exynos4_gpio_part2_get_nr(y3, 1)
-#define CONFIG_SOFT_SPI_GPIO_MOSI exynos4_gpio_part2_get_nr(y3, 3)
-#define CONFIG_SOFT_SPI_GPIO_MISO exynos4_gpio_part2_get_nr(y3, 0)
-#define CONFIG_SOFT_SPI_GPIO_CS exynos4_gpio_part2_get_nr(y4, 3)
+#define CONFIG_SOFT_SPI_GPIO_SCLK exynos4_gpio_get(2, y3, 1)
+#define CONFIG_SOFT_SPI_GPIO_MOSI exynos4_gpio_get(2, y3, 3)
+#define CONFIG_SOFT_SPI_GPIO_MISO exynos4_gpio_get(2, y3, 0)
+#define CONFIG_SOFT_SPI_GPIO_CS exynos4_gpio_get(2, y4, 3)
 
 #define SPI_DELAY udelay(1)
 #undef SPI_INIT
@@ -269,16 +272,43 @@ void universal_spi_sda(int bit);
 int universal_spi_read(void);
 #endif
 
+/* Common misc for Samsung */
+#define CONFIG_MISC_COMMON
+
+#define CONFIG_MISC_INIT_R
+
+/* Download menu - Samsung common */
+#define CONFIG_LCD_MENU
+#define CONFIG_LCD_MENU_BOARD
+
+/* Download menu - definitions for check keys */
+#ifndef __ASSEMBLY__
+#include <power/max8998_pmic.h>
+
+#define KEY_PWR_PMIC_NAME		"MAX8998_PMIC"
+#define KEY_PWR_STATUS_REG		MAX8998_REG_STATUS1
+#define KEY_PWR_STATUS_MASK		(1 << 7)
+#define KEY_PWR_INTERRUPT_REG		MAX8998_REG_IRQ1
+#define KEY_PWR_INTERRUPT_MASK		(1 << 7)
+
+#define KEY_VOL_UP_GPIO			exynos4_gpio_get(2, x2, 0)
+#define KEY_VOL_DOWN_GPIO		exynos4_gpio_get(2, x2, 1)
+#endif /* __ASSEMBLY__ */
+
+/* LCD console */
+#define LCD_BPP			LCD_COLOR16
+#define CONFIG_SYS_WHITE_ON_BLACK
+
 /*
  * LCD Settings
  */
 #define CONFIG_EXYNOS_FB
 #define CONFIG_LCD
 #define CONFIG_CMD_BMP
-#define CONFIG_BMP_32BPP
+#define CONFIG_BMP_16BPP
 #define CONFIG_LD9040
 #define CONFIG_EXYNOS_MIPI_DSIM
 #define CONFIG_VIDEO_BMP_GZIP
-#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE ((520 * 120 * 4) + (1 << 12))
+#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE ((500 * 160 * 4) + 54)
 
 #endif	/* __CONFIG_H */

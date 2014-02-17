@@ -223,6 +223,8 @@ typedef struct vidinfo {
 	unsigned int logo_on;
 	unsigned int logo_width;
 	unsigned int logo_height;
+	int logo_x_offset;
+	int logo_y_offset;
 	unsigned long logo_addr;
 	unsigned int rgb_mode;
 	unsigned int resolution;
