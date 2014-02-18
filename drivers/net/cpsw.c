@@ -656,7 +656,7 @@ static void cpsw_slave_init(struct cpsw_slave *slave, struct cpsw_priv *priv)
 
 	cpsw_ale_add_mcast(priv, NetBcastAddr, 1 << slave_port);
 
-	priv->phy_mask |= 1 << slave->data->phy_id;
+	priv->phy_mask |= 1 << slave->data->phy_addr;
 }
 
 static struct cpdma_desc *cpdma_desc_alloc(struct cpsw_priv *priv)
@@ -948,7 +948,7 @@ static int cpsw_phy_init(struct eth_device *dev, struct cpsw_slave *slave)
 			SUPPORTED_1000baseT_Full);
 
 	phydev = phy_connect(priv->bus,
-			CONFIG_PHY_ADDR,
+			slave->data->phy_addr,
 			dev,
 			slave->data->phy_if);
 

@@ -196,7 +196,6 @@
 /* Network */
 #define CONFIG_CMD_MII
 #define CONFIG_PHYLIB
-#define CONFIG_PHY_ADDR		1
 #define CONFIG_PHY_RESET	1
 #define CONFIG_PHY_NATSEMI
 

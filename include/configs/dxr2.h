@@ -49,7 +49,6 @@
 
 #undef CONFIG_MII
 #undef CONFIG_PHY_GIGE
-#define CONFIG_PHY_ADDR			0
 #define CONFIG_PHY_SMSC
 
 #define CONFIG_FACTORYSET
