@@ -41,19 +41,23 @@ int do_elf_reloc_fixups(void)
 			 */
 			memcpy(&val, offset_ptr_ram, sizeof(int));
 
+#ifdef __LITTLE_ENDIAN__
 			/* If location in ".text" section swap value */
 			if ((unsigned int)offset_ptr_rom <
 			    (unsigned int)&__text_end)
 				val = (val << 16) | (val >> 16);
+#endif
 
 			/* Check that the target points into .text */
 			if (val >= CONFIG_SYS_TEXT_BASE && val <=
 			    (unsigned int)&__bss_end) {
 				val += gd->reloc_off;
+#ifdef __LITTLE_ENDIAN__
 				/* If location in ".text" section swap value */
 				if ((unsigned int)offset_ptr_rom <
 				    (unsigned int)&__text_end)
 					val = (val << 16) | (val >> 16);
+#endif
 				memcpy(offset_ptr_ram, &val, sizeof(int));
 			} else {
 				debug("   %p: rom reloc %x, ram %p, value %x, limit %x\n",
