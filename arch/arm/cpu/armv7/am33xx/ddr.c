@@ -80,8 +80,8 @@ static void configure_mr(int nr, u32 cs)
  */
 void config_sdram_emif4d5(const struct emif_regs *regs, int nr)
 {
-	writel(0x0, &emif_reg[nr]->emif_pwr_mgmt_ctrl);
-	writel(0x0, &emif_reg[nr]->emif_pwr_mgmt_ctrl_shdw);
+	writel(0xA0, &emif_reg[nr]->emif_pwr_mgmt_ctrl);
+	writel(0xA0, &emif_reg[nr]->emif_pwr_mgmt_ctrl_shdw);
 	writel(0x1, &emif_reg[nr]->emif_iodft_tlgc);
 	writel(regs->zq_config, &emif_reg[nr]->emif_zq_config);
 
