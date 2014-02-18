@@ -204,6 +204,8 @@
 	"run mmcboot;" \
 	"run usbboot;"
 
+#endif
+
 /* CPSW Ethernet */
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_DHCP
@@ -221,8 +223,12 @@
 #define CONFIG_NET_MULTI
 #define CONFIG_PHY_GIGE
 #define CONFIG_PHYLIB
-#define CONFIG_SYS_RX_ETH_BUFFER	64
-#define CONFIG_PHY_ADDR			16
 
-#endif
+#define CONFIG_SPL_ENV_SUPPORT
+#define CONFIG_SPL_NET_VCI_STRING	"AM43xx U-Boot SPL"
+
+#define CONFIG_SPL_ETH_SUPPORT
+#define CONFIG_SPL_NET_SUPPORT
+#define CONFIG_SYS_RX_ETH_BUFFER	64
+
 #endif	/* __CONFIG_AM43XX_EVM_H */
