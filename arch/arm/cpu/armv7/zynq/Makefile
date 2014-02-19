@@ -12,3 +12,5 @@ obj-y	:= timer.o
 obj-y	+= cpu.o
 obj-y	+= ddrc.o
 obj-y	+= slcr.o
+obj-y	+= clk.o
+obj-$(CONFIG_SPL_BUILD)	+= spl.o

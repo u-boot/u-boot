@@ -7,6 +7,8 @@
 #ifndef _ASM_ARCH_HARDWARE_H
 #define _ASM_ARCH_HARDWARE_H
 
+#define ZYNQ_SERIAL_BASEADDR0		0xE0000000
+#define ZYNQ_SERIAL_BASEADDR1		0xE0001000
 #define ZYNQ_SYS_CTRL_BASEADDR		0xF8000000
 #define ZYNQ_DEV_CFG_APB_BASEADDR	0xF8007000
 #define ZYNQ_SCU_BASEADDR		0xF8F00000
@@ -21,17 +23,51 @@
 #define ZYNQ_SPI_BASEADDR1		0xE0007000
 #define ZYNQ_DDRC_BASEADDR		0xF8006000
 
+/* Bootmode setting values */
+#define ZYNQ_BM_MASK		0xF
+#define ZYNQ_BM_NOR		0x2
+#define ZYNQ_BM_SD		0x5
+#define ZYNQ_BM_JTAG		0x0
+
 /* Reflect slcr offsets */
 struct slcr_regs {
 	u32 scl; /* 0x0 */
 	u32 slcr_lock; /* 0x4 */
 	u32 slcr_unlock; /* 0x8 */
-	u32 reserved0[75];
+	u32 reserved0_1[61];
+	u32 arm_pll_ctrl; /* 0x100 */
+	u32 ddr_pll_ctrl; /* 0x104 */
+	u32 io_pll_ctrl; /* 0x108 */
+	u32 reserved0_2[5];
+	u32 arm_clk_ctrl; /* 0x120 */
+	u32 ddr_clk_ctrl; /* 0x124 */
+	u32 dci_clk_ctrl; /* 0x128 */
+	u32 aper_clk_ctrl; /* 0x12c */
+	u32 reserved0_3[2];
 	u32 gem0_rclk_ctrl; /* 0x138 */
 	u32 gem1_rclk_ctrl; /* 0x13c */
 	u32 gem0_clk_ctrl; /* 0x140 */
 	u32 gem1_clk_ctrl; /* 0x144 */
-	u32 reserved1[46];
+	u32 smc_clk_ctrl; /* 0x148 */
+	u32 lqspi_clk_ctrl; /* 0x14c */
+	u32 sdio_clk_ctrl; /* 0x150 */
+	u32 uart_clk_ctrl; /* 0x154 */
+	u32 spi_clk_ctrl; /* 0x158 */
+	u32 can_clk_ctrl; /* 0x15c */
+	u32 can_mioclk_ctrl; /* 0x160 */
+	u32 dbg_clk_ctrl; /* 0x164 */
+	u32 pcap_clk_ctrl; /* 0x168 */
+	u32 reserved0_4[1];
+	u32 fpga0_clk_ctrl; /* 0x170 */
+	u32 reserved0_5[3];
+	u32 fpga1_clk_ctrl; /* 0x180 */
+	u32 reserved0_6[3];
+	u32 fpga2_clk_ctrl; /* 0x190 */
+	u32 reserved0_7[3];
+	u32 fpga3_clk_ctrl; /* 0x1a0 */
+	u32 reserved0_8[8];
+	u32 clk_621_true; /* 0x1c4 */
+	u32 reserved1[14];
 	u32 pss_rst_ctrl; /* 0x200 */
 	u32 reserved2[15];
 	u32 fpga_rst_ctrl; /* 0x240 */
