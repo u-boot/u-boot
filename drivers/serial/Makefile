@@ -18,7 +18,6 @@ obj-$(CONFIG_SYS_NS16550) += ns16550.o
 obj-$(CONFIG_S5P) += serial_s5p.o
 obj-$(CONFIG_SYS_NS16550_SERIAL) += serial_ns16550.o
 obj-$(CONFIG_IMX_SERIAL) += serial_imx.o
-obj-$(CONFIG_IXP_SERIAL) += serial_ixp.o
 obj-$(CONFIG_KS8695_SERIAL) += serial_ks8695.o
 obj-$(CONFIG_MAX3100_SERIAL) += serial_max3100.o
 obj-$(CONFIG_MXC_UART) += serial_mxc.o
