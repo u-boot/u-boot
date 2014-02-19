@@ -409,20 +409,15 @@ u32 imx_get_uartclk(void)
 
 u32 imx_get_fecclk(void)
 {
-	return decode_pll(PLL_ENET, MXC_HCLK);
+	return mxc_get_clock(MXC_IPG_CLK);
 }
 
-int enable_sata_clock(void)
+static int enable_enet_pll(uint32_t en)
 {
-	u32 reg = 0;
-	s32 timeout = 100000;
 	struct mxc_ccm_reg *const imx_ccm
 		= (struct mxc_ccm_reg *) CCM_BASE_ADDR;
-
-	/* Enable sata clock */
-	reg = readl(&imx_ccm->CCGR5); /* CCGR5 */
-	reg |= MXC_CCM_CCGR5_SATA_MASK;
-	writel(reg, &imx_ccm->CCGR5);
+	s32 timeout = 100000;
+	u32 reg = 0;
 
 	/* Enable PLLs */
 	reg = readl(&imx_ccm->analog_pll_enet);
@@ -437,10 +432,70 @@ int enable_sata_clock(void)
 		return -EIO;
 	reg &= ~BM_ANADIG_PLL_SYS_BYPASS;
 	writel(reg, &imx_ccm->analog_pll_enet);
-	reg |= BM_ANADIG_PLL_ENET_ENABLE_SATA;
+	reg |= en;
 	writel(reg, &imx_ccm->analog_pll_enet);
+	return 0;
+}
 
-	return 0 ;
+static void ungate_sata_clock(void)
+{
+	struct mxc_ccm_reg *const imx_ccm =
+		(struct mxc_ccm_reg *)CCM_BASE_ADDR;
+
+	/* Enable SATA clock. */
+	setbits_le32(&imx_ccm->CCGR5, MXC_CCM_CCGR5_SATA_MASK);
+}
+
+static void ungate_pcie_clock(void)
+{
+	struct mxc_ccm_reg *const imx_ccm =
+		(struct mxc_ccm_reg *)CCM_BASE_ADDR;
+
+	/* Enable PCIe clock. */
+	setbits_le32(&imx_ccm->CCGR4, MXC_CCM_CCGR4_PCIE_MASK);
+}
+
+int enable_sata_clock(void)
+{
+	ungate_sata_clock();
+	return enable_enet_pll(BM_ANADIG_PLL_ENET_ENABLE_SATA);
+}
+
+int enable_pcie_clock(void)
+{
+	struct anatop_regs *anatop_regs =
+		(struct anatop_regs *)ANATOP_BASE_ADDR;
+	struct mxc_ccm_reg *ccm_regs = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+
+	/*
+	 * Here be dragons!
+	 *
+	 * The register ANATOP_MISC1 is not documented in the Freescale
+	 * MX6RM. The register that is mapped in the ANATOP space and
+	 * marked as ANATOP_MISC1 is actually documented in the PMU section
+	 * of the datasheet as PMU_MISC1.
+	 *
+	 * Switch LVDS clock source to SATA (0xb), disable clock INPUT and
+	 * enable clock OUTPUT. This is important for PCI express link that
+	 * is clocked from the i.MX6.
+	 */
+#define ANADIG_ANA_MISC1_LVDSCLK1_IBEN		(1 << 12)
+#define ANADIG_ANA_MISC1_LVDSCLK1_OBEN		(1 << 10)
+#define ANADIG_ANA_MISC1_LVDS1_CLK_SEL_MASK	0x0000001F
+	clrsetbits_le32(&anatop_regs->ana_misc1,
+			ANADIG_ANA_MISC1_LVDSCLK1_IBEN |
+			ANADIG_ANA_MISC1_LVDS1_CLK_SEL_MASK,
+			ANADIG_ANA_MISC1_LVDSCLK1_OBEN | 0xb);
+
+	/* PCIe reference clock sourced from AXI. */
+	clrbits_le32(&ccm_regs->cbcmr, MXC_CCM_CBCMR_PCIE_AXI_CLK_SEL);
+
+	/* Party time! Ungate the clock to the PCIe. */
+	ungate_sata_clock();
+	ungate_pcie_clock();
+
+	return enable_enet_pll(BM_ANADIG_PLL_ENET_ENABLE_SATA |
+			       BM_ANADIG_PLL_ENET_ENABLE_PCIE);
 }
 
 unsigned int mxc_get_clock(enum mxc_clock clk)
