@@ -1178,7 +1178,7 @@ CLEAN_FILES += u-boot.lds include/bmp_logo.h include/bmp_logo_data.h \
 CLOBBER_DIRS  += $(patsubst %,spl/%, $(filter-out Makefile, \
 		 $(shell ls -1 spl 2>/dev/null))) \
 		 tpl
-CLOBBER_FILES += u-boot* MLO MLO* SPL System.map nand_spl/u-boot*
+CLOBBER_FILES += u-boot* MLO* SPL System.map nand_spl/u-boot*
 
 # Directories & files removed with 'make mrproper'
 MRPROPER_DIRS  += include/config include/generated
