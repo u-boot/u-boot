@@ -89,6 +89,18 @@
 # define CONFIG_DOS_PARTITION
 #endif
 
+#ifdef CONFIG_ZYNQ_USB
+# define CONFIG_USB_EHCI
+# define CONFIG_CMD_USB
+# define CONFIG_USB_STORAGE
+# define CONFIG_SUPPORT_VFAT
+# define CONFIG_USB_EHCI_ZYNQ
+# define CONFIG_USB_ULPI_VIEWPORT
+# define CONFIG_USB_ULPI
+# define CONFIG_EHCI_IS_TDI
+# define CONFIG_USB_MAX_CONTROLLER_COUNT	2
+#endif
+
 #define CONFIG_SYS_I2C_ZYNQ
 /* I2C */
 #if defined(CONFIG_SYS_I2C_ZYNQ)
@@ -150,7 +162,13 @@
 		"bootm ${load_addr}\0" \
 	"jtagboot=echo TFTPing FIT to RAM... && " \
 		"tftpboot ${load_addr} ${fit_image} && " \
-		"bootm ${load_addr}\0"
+		"bootm ${load_addr}\0" \
+	"usbboot=if usb start; then " \
+			"echo Copying FIT from USB to RAM... && " \
+			"fatload usb 0 ${load_addr} ${fit_image} && " \
+			"bootm ${load_addr}\0" \
+		"fi\0"
+
 #define CONFIG_BOOTCOMMAND		"run $modeboot"
 #define CONFIG_BOOTDELAY		3 /* -1 to Disable autoboot */
 #define CONFIG_SYS_LOAD_ADDR		0 /* default? */
