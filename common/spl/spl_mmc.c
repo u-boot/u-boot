@@ -86,7 +86,7 @@ static int mmc_load_fpga_image_fat(struct mmc *mmc)
 	if (err <= 0) {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		printf("spl: error reading image %s, err - %d\n",
-		       CONFIG_SPL_FAT_LOAD_ARGS_NAME, err);
+		       CONFIG_SPL_FPGA_LOAD_ARGS_NAME, err);
 #endif
 		return -1;
 	}
