@@ -150,7 +150,6 @@ serial_initfunc(oc_serial_initialize);
 serial_initfunc(sandbox_serial_initialize);
 serial_initfunc(clps7111_serial_initialize);
 serial_initfunc(imx_serial_initialize);
-serial_initfunc(ixp_serial_initialize);
 serial_initfunc(ks8695_serial_initialize);
 serial_initfunc(lh7a40x_serial_initialize);
 serial_initfunc(max3100_serial_initialize);
@@ -244,7 +243,6 @@ void serial_initialize(void)
 	sandbox_serial_initialize();
 	clps7111_serial_initialize();
 	imx_serial_initialize();
-	ixp_serial_initialize();
 	ks8695_serial_initialize();
 	lh7a40x_serial_initialize();
 	max3100_serial_initialize();

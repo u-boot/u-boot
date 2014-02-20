@@ -101,10 +101,6 @@ III) Analysis of in-tree drivers
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible. This driver
   might be removed in favor of serial_mxc.c .
 
-  serial_ixp.c
-  ------------
-  No support for CONFIG_SERIAL_MULTI. Simple conversion possible.
-
   serial_ks8695.c
   ---------------
   No support for CONFIG_SERIAL_MULTI. Simple conversion possible.

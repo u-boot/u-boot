@@ -38,12 +38,19 @@ _irq:			.word _irq
 _fiq:			.word _fiq
 _pad:			.word 0x12345678 /* now 16*4=64 */
 #else
+.globl _undefined_instruction
 _undefined_instruction: .word undefined_instruction
+.globl _software_interrupt
 _software_interrupt:	.word software_interrupt
+.globl _prefetch_abort
 _prefetch_abort:	.word prefetch_abort
+.globl _data_abort
 _data_abort:		.word data_abort
+.globl _not_used
 _not_used:		.word not_used
+.globl _irq
 _irq:			.word irq
+.globl _fiq
 _fiq:			.word fiq
 _pad:			.word 0x12345678 /* now 16*4=64 */
 #endif	/* CONFIG_SPL_BUILD */

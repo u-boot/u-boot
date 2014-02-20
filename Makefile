@@ -597,7 +597,6 @@ libs-y += $(CPUDIR)/
 ifdef SOC
 libs-y += $(CPUDIR)/$(SOC)/
 endif
-libs-$(CONFIG_IXP4XX_NPE) += drivers/net/npe/
 libs-$(CONFIG_OF_EMBED) += dts/
 libs-y += arch/$(ARCH)/lib/
 libs-y += fs/

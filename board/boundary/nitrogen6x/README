@@ -67,10 +67,10 @@ override auto-detection and force activation of the specified panel.
 To build U-Boot for one of the Nitrogen6x or SabreLite board:
 
 	make nitrogen6x_config
-	make u-boot.imx
+	make
 
 Note that 'nitrogen6x' is a placeholder. The complete list of supported
-board configurations is shown in tha MAINTAINERS file:
+board configurations is shown in the boards.cfg file:
 	nitrogen6q		i.MX6Q/6D	1GB
 	nitrogen6dl		i.MX6DL		1GB
 	nitrogen6s		i.MX6S		512MB

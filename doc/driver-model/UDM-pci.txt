@@ -125,10 +125,6 @@ III) Analysis of in-tree drivers
       Shared driver for indirect PCI bridges, several CONFIG macros - will
       require significant cleanup.
 
-    pci_ixp.c
-    ---------
-      Standard driver, specifies all read/write functions separately.
-
     pci_sh4.c
     ---------
       Shared init function for SH4 drivers, uses dword for read/write ops.

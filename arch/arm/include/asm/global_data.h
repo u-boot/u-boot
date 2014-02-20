@@ -32,9 +32,6 @@ struct arch_global_data {
 	unsigned long tbl;
 	unsigned long lastinc;
 	unsigned long long timer_reset_value;
-#ifdef CONFIG_IXP425
-	unsigned long timestamp;
-#endif
 #if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
 	unsigned long tlb_addr;
 	unsigned long tlb_size;
