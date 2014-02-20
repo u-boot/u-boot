@@ -59,7 +59,8 @@ int board_init(void)
 	 */
 	writel(0x26d, 0xe0001014);
 
-#ifdef CONFIG_FPGA
+#if (defined(CONFIG_FPGA) && !defined(CONFIG_SPL_BUILD)) || \
+    (defined(CONFIG_SPL_FPGA_SUPPORT) && defined(CONFIG_SPL_BUILD))
 	fpga_init();
 	fpga_add(fpga_xilinx, &fpga);
 #endif
