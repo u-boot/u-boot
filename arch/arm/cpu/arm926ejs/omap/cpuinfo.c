@@ -13,7 +13,7 @@
 #include <command.h>
 #include <linux/compiler.h>
 
-#if defined(CONFIG_DISPLAY_CPUINFO) && defined(CONFIG_OMAP)
+#if defined(CONFIG_OMAP)
 
 #define omap_readw(x)		*(volatile unsigned short *)(x)
 #define omap_readl(x)		*(volatile unsigned long *)(x)
@@ -239,4 +239,4 @@ int print_cpuinfo (void)
 	return 0;
 }
 
-#endif /* #if defined(CONFIG_DISPLAY_CPUINFO) && defined(CONFIG_OMAP) */
+#endif /* #if defined(CONFIG_OMAP) */

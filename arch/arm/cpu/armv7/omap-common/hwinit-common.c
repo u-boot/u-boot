@@ -248,6 +248,7 @@ u32 get_device_type(void)
 				      (DEVICE_TYPE_MASK)) >> DEVICE_TYPE_SHIFT;
 }
 
+#if defined(CONFIG_DISPLAY_CPUINFO)
 /*
  * Print CPU information
  */
@@ -258,6 +259,8 @@ int print_cpuinfo(void)
 
 	return 0;
 }
+#endif
+
 #ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)
 {

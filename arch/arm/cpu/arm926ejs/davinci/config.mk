@@ -4,5 +4,5 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 ifndef CONFIG_SPL_BUILD
-ALL-$(CONFIG_SPL_FRAMEWORK)	+= $(obj)u-boot.ais
+ALL-$(CONFIG_SPL_FRAMEWORK)	+= u-boot.ais
 endif

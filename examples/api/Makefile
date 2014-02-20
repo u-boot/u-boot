@@ -11,10 +11,8 @@ ifeq ($(ARCH),arm)
 LOAD_ADDR = 0x1000000
 endif
 
-include $(TOPDIR)/config.mk
-
 # Resulting ELF and binary exectuables will be named demo and demo.bin
-OUTPUT = $(obj)demo
+extra-y = demo
 
 # Source files located in the examples/api directory
 SOBJ_FILES-y += crt0.o
@@ -31,39 +29,25 @@ EXT_COBJ_FILES-y += lib/time.o
 EXT_COBJ_FILES-y += lib/vsprintf.o
 EXT_SOBJ_FILES-$(CONFIG_PPC) += arch/powerpc/lib/ppcstring.o
 
-# Create a list of source files so their dependencies can be auto-generated
-SRCS	+= $(addprefix $(SRCTREE)/,$(EXT_COBJ_FILES-y:.o=.c))
-SRCS	+= $(addprefix $(SRCTREE)/,$(EXT_SOBJ_FILES-y:.o=.S))
-SRCS	+= $(addprefix $(SRCTREE)/examples/api/,$(COBJ_FILES-y:.o=.c))
-SRCS	+= $(addprefix $(SRCTREE)/examples/api/,$(SOBJ_FILES-y:.o=.S))
-
 # Create a list of object files to be compiled
-OBJS	+= $(addprefix $(obj),$(SOBJ_FILES-y))
-OBJS	+= $(addprefix $(obj),$(COBJ_FILES-y))
-OBJS	+= $(addprefix $(obj),$(notdir $(EXT_COBJ_FILES-y)))
-OBJS	+= $(addprefix $(obj),$(notdir $(EXT_SOBJ_FILES-y)))
-
-all:	$(obj).depend $(OUTPUT)
+OBJS	+= $(addprefix $(obj)/,$(SOBJ_FILES-y))
+OBJS	+= $(addprefix $(obj)/,$(COBJ_FILES-y))
+OBJS	+= $(addprefix $(obj)/,$(notdir $(EXT_COBJ_FILES-y)))
+OBJS	+= $(addprefix $(obj)/,$(notdir $(EXT_SOBJ_FILES-y)))
 
 #########################################################################
 
-$(OUTPUT):	$(OBJS)
+$(obj)/demo:	$(OBJS)
 		$(LD) --gc-sections -Ttext $(LOAD_ADDR) -o $@ $^ $(PLATFORM_LIBS)
-		$(OBJCOPY) -O binary $@ $(OUTPUT).bin 2>/dev/null
+
+$(obj)/demo.bin: $(obj)/demo
+		$(OBJCOPY) -O binary $< $@ 2>/dev/null
 
 # Rule to build generic library C files
-$(obj)%.o: $(SRCTREE)/lib/%.c
-	$(CC) -g $(CFLAGS) -c -o $@ $<
+$(addprefix $(obj)/,$(notdir $(EXT_COBJ_FILES-y))): $(obj)/%.o: $(SRCTREE)/lib/%.c FORCE
+	$(call cmd,force_checksrc)
+	$(call if_changed_rule,cc_o_c)
 
 # Rule to build architecture-specific library assembly files
-$(obj)%.o: $(SRCTREE)/arch/$(ARCH)/lib/%.S
-	$(CC) -g $(CFLAGS) -c -o $@ $<
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+$(addprefix $(obj)/,$(notdir $(EXT_SOBJ_FILES-y))): $(obj)/%.o: $(SRCTREE)/arch/$(ARCH)/lib/%.S
+	$(call if_changed_dep,as_o_S)

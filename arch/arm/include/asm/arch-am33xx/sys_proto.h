@@ -17,10 +17,6 @@
 u32 get_cpu_rev(void);
 u32 get_sysboot_value(void);
 
-#ifdef CONFIG_DISPLAY_CPUINFO
-int print_cpuinfo(void);
-#endif
-
 extern struct ctrl_stat *cstat;
 u32 get_device_type(void);
 void save_omap_boot_params(void);

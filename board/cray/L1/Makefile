@@ -9,8 +9,10 @@ obj-y	= L1.o flash.o
 obj-y	+= init.o
 obj-y	+= bootscript.o
 
-$(obj)bootscript.c: $(obj)bootscript.image
-	od -t x1 -v -A x $^ | awk -f x2c.awk > $@
+$(obj)/bootscript.c: $(obj)/bootscript.image
+	od -t x1 -v -A x $^ | awk -f $(srctree)/$(src)/x2c.awk > $@
 
-$(obj)bootscript.image: $(src)bootscript.hush $(src)Makefile
-	-$(OBJTREE)/tools/mkimage -A ppc -O linux -T script -C none -a 0 -e 0 -n bootscript -d $(src)bootscript.hush $@
+$(obj)/bootscript.image: $(src)/bootscript.hush
+	-$(OBJTREE)/tools/mkimage -A ppc -O linux -T script -C none -a 0 -e 0 -n bootscript -d $< $@
+
+clean-files := bootscript.c bootscript.image

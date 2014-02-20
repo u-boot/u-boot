@@ -5,16 +5,20 @@
 #
 # Normal rules
 #
-
-*.rej
-*.orig
-*.a
+.*
 *.o
+*.o.*
+*.a
+*.s
 *.su
-*~
+*.mod.c
+*.i
+*.lst
+*.order
+*.elf
 *.swp
-*.patch
 *.bin
+*.patch
 *.cfgtmp
 *.dts.tmp
 
@@ -24,12 +28,10 @@
 #
 # Top-level generic files
 #
-
 /MLO*
 /SPL
 /System.map
 /u-boot
-/u-boot.elf
 /u-boot.hex
 /u-boot.imx
 /u-boot-with-spl.imx
@@ -46,14 +48,18 @@
 /u-boot.lds
 /u-boot.ubl
 /u-boot.ais
-/u-boot.dtb
 /u-boot.sb
+
+#
+# git files that we don't want to ignore even it they are dot-files
+#
+!.gitignore
+!.mailmap
 
 #
 # Generated files
 #
 
-*.depend*
 /LOG
 /errlog
 /reloc_off
@@ -65,7 +71,6 @@
 /include/generated/
 /include/spl-autoconf.mk
 /include/tpl-autoconf.mk
-asm-offsets.s
 
 # stgit generated dirs
 patches-*
@@ -91,3 +96,7 @@ GPATH
 GRTAGS
 GSYMS
 GTAGS
+
+*.orig
+*~
+\#*#

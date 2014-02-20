@@ -5,7 +5,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-#CFLAGS += -DDEBUG
+#ccflags-y += -DDEBUG
 
 obj-$(CONFIG_RTC_AT91SAM9_RTT) += at91sam9_rtt.o
 obj-$(CONFIG_RTC_BFIN) += bfin_rtc.o

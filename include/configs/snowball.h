@@ -41,8 +41,6 @@
 #define CONFIG_ENV_SIZE		(8*1024)
 #define CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + 256*1024)
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* for initial data */
-
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_SAVEENV

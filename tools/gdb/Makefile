@@ -8,49 +8,39 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-include $(TOPDIR)/config.mk
+ifneq ($(HOSTOS),cygwin)
 
-BINS	= gdbsend gdbcont
+# Location of a usable BFD library, where we define "usable" as
+# "built for ${HOST}, supports ${TARGET}".  Sensible values are
+# - When cross-compiling: the root of the cross-environment
+# - Linux/ppc (native): /usr
+# - NetBSD/ppc (native): you lose ... (must extract these from the
+#   binutils build directory, plus the native and U-Boot include
+#   files don't like each other)
 
-COBJS	= gdbsend.o gdbcont.o error.o remote.o serial.o
-
-HOSTOBJS := $(addprefix $(obj),$(COBJS))
-HOSTSRCS := $(COBJS:.o=.c)
-BINS	:= $(addprefix $(obj),$(BINS))
+ifeq ($(HOSTOS),darwin)
+BFD_ROOT_DIR =		/usr/local/tools
+else
+ifeq ($(HOSTARCH),$(ARCH))
+# native
+BFD_ROOT_DIR =		/usr
+else
+#BFD_ROOT_DIR =		/LinuxPPC/CDK		# Linux/i386
+#BFD_ROOT_DIR =		/usr/pkg/cross		# NetBSD/i386
+BFD_ROOT_DIR =		/opt/powerpc
+endif
+endif
 
 #
 # Use native tools and options
 #
-HOSTCPPFLAGS = -I$(BFD_ROOT_DIR)/include
+HOST_EXTRACFLAGS := -I$(BFD_ROOT_DIR)/include -pedantic
 
-ifeq ($(HOSTOS),cygwin)
+hostprogs-y := gdbsend gdbcont
 
-all:
-$(obj).depend:
+gdbsend-objs := gdbsend.o error.o remote.o serial.o
+gdbcont-objs := gdbcont.o error.o remote.o serial.o
 
-else	# ! CYGWIN
-
-all:	$(obj).depend $(BINS)
-
-$(obj)gdbsend:	$(obj)gdbsend.o $(obj)error.o $(obj)remote.o $(obj)serial.o
-		$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
-
-$(obj)gdbcont:	$(obj)gdbcont.o $(obj)error.o $(obj)remote.o $(obj)serial.o
-		$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
-
-clean:
-	rm -f $(HOSTOBJS)
-
-distclean:	clean
-	rm -f $(BINS) $(obj)core $(obj)*.bak $(obj).depend
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+always := $(hostprogs-y)
 
 endif	# cygwin

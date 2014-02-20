@@ -360,7 +360,7 @@ static int setup_fdt(void)
 {
 #ifdef CONFIG_OF_EMBED
 	/* Get a pointer to the FDT */
-	gd->fdt_blob = _binary_dt_dtb_start;
+	gd->fdt_blob = __dtb_dt_begin;
 #elif defined CONFIG_OF_SEPARATE
 	/* FDT is at end of image */
 # ifdef CONFIG_SYS_SYM_OFFSETS
@@ -887,9 +887,7 @@ static init_fnc_t init_sequence_f[] = {
 #ifdef CONFIG_PPC
 	checkcpu,
 #endif
-#if defined(CONFIG_DISPLAY_CPUINFO)
 	print_cpuinfo,		/* display cpu info (and speed) */
-#endif
 #if defined(CONFIG_MPC5xxx)
 	prt_mpc5xxx_clks,
 #endif /* CONFIG_MPC5xxx */

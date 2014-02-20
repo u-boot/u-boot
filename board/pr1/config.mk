@@ -9,6 +9,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-CFLAGS_lib += -O2
-CFLAGS_lib/lzma += -O2
-CFLAGS_lib/zlib += -O2
+# FIX ME
+ifneq ($(filter lib lib/lzma lib/zlib, $(obj)),)
+ccflags-y := -O2
+endif

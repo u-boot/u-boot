@@ -672,8 +672,6 @@ build_target() {
 		output_dir="${OUTPUT_PREFIX}"
 	fi
 
-	export BUILD_DIR="${output_dir}"
-
 	target_arch=$(get_target_arch ${target})
 	eval cross_toolchain=\$CROSS_COMPILE_`echo $target_arch | tr '[:lower:]' '[:upper:]'`
 	if [ "${cross_toolchain}" ] ; then
@@ -682,6 +680,10 @@ build_target() {
 	    MAKE="make CROSS_COMPILE=${CROSS_COMPILE}"
 	else
 	    MAKE=make
+	fi
+
+	if [  "${output_dir}" != "." ] ; then
+		MAKE="${MAKE} O=${output_dir}"
 	fi
 
 	${MAKE} distclean >/dev/null
@@ -698,7 +700,7 @@ build_target() {
 	if [ $BUILD_MANY == 1 ] ; then
 		trap - TERM
 
-		${MAKE} -s tidy
+		${MAKE} -s clean
 
 		if [ -s ${LOG_DIR}/${target}.ERR ] ; then
 			cp ${LOG_DIR}/${target}.ERR ${OUTPUT_PREFIX}/ERR/${target}

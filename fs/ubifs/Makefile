@@ -15,4 +15,4 @@ obj-y += tnc.o tnc_misc.o debug.o crc16.o budget.o
 obj-y += log.o orphan.o recovery.o replay.o
 
 # SEE README.arm-unaligned-accesses
-$(obj)super.o: CFLAGS += $(PLATFORM_NO_UNALIGNED)
+CFLAGS_super.o := $(PLATFORM_NO_UNALIGNED)

@@ -22,12 +22,13 @@ obj-y  += reset.o
 obj-y  += traps.o
 
 extra-y += check_initcode
+clean-files := init.lds
 
 # make sure our initcode (which goes into LDR) does not
 # have relocs or external references
-$(obj)initcode.o: CFLAGS += -fno-function-sections -fno-data-sections
+CFLAGS_REMOVE_initcode.o := -ffunction-sections -fdata-sections
 READINIT = env LC_ALL=C $(CROSS_COMPILE)readelf -s $<
-$(obj)check_initcode: $(obj)initcode.o
+$(obj)/check_initcode: $(obj)/initcode.o
 ifneq ($(CONFIG_BFIN_BOOT_MODE),BFIN_BOOT_BYPASS)
 	@if $(READINIT) | grep '\<GLOBAL\>.*\<UND\>' ; then \
 		echo "$< contains external references!" 1>&2 ; \
@@ -35,7 +36,6 @@ ifneq ($(CONFIG_BFIN_BOOT_MODE),BFIN_BOOT_BYPASS)
 	fi
 endif
 
-$(obj)init.lds: init.lds.S
-	$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ -P $^ -o $@
-$(obj)init.elf: $(obj)init.lds $(obj)init.o $(obj)initcode.o
+CPPFLAGS_init.lds := -ansi
+$(obj)/init.elf: $(obj)/init.lds $(obj)/init.o $(obj)/initcode.o
 	$(LD) $(LDFLAGS) -T $^ -o $@

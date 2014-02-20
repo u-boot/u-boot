@@ -5,7 +5,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-include $(TOPDIR)/config.mk
 include $(TOPDIR)/nand_spl/board/$(BOARDDIR)/config.mk
 
 nandobj	:= $(OBJTREE)/nand_spl/
@@ -13,8 +12,8 @@ nandobj	:= $(OBJTREE)/nand_spl/
 LDSCRIPT= $(TOPDIR)/nand_spl/board/$(BOARDDIR)/u-boot.lds
 LDFLAGS := -T $(nandobj)u-boot.lds -Ttext $(CONFIG_SYS_TEXT_BASE) $(LDFLAGS) \
 	   $(LDFLAGS_FINAL)
-AFLAGS	+= -DCONFIG_NAND_SPL
-CFLAGS	+= -DCONFIG_NAND_SPL
+asflags-y += -DCONFIG_NAND_SPL
+ccflags-y += -DCONFIG_NAND_SPL
 
 SOBJS	:= start.o
 SOBJS	+= init.o
@@ -24,10 +23,11 @@ COBJS	+= nand_boot.o
 COBJS	+= nand_ecc.o
 COBJS	+= ndfc.o
 
-SRCS	:= $(addprefix $(obj),$(SOBJS:.o=.S) $(COBJS:.o=.c))
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+OBJS	:= $(addprefix $(obj)/,$(SOBJS) $(COBJS))
 __OBJS	:= $(SOBJS) $(COBJS)
 LNDIR	:= $(nandobj)board/$(BOARDDIR)
+
+targets += $(__OBJS)
 
 all: $(nandobj)u-boot-spl.bin $(nandobj)u-boot-spl-16k.bin
 
@@ -42,55 +42,34 @@ $(nandobj)u-boot-spl:	$(OBJS) $(nandobj)u-boot.lds
 		-Map $(nandobj)u-boot-spl.map -o $@
 
 $(nandobj)u-boot.lds: $(LDSCRIPT)
-	$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ -P - <$^ >$@
+	$(CPP) $(cpp_flags) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ -P - <$^ >$@
 
 # create symbolic links for common files
 
 # from cpu directory
-$(obj)ndfc.c:
+$(obj)/ndfc.c:
 	@rm -f $@
 	ln -s $(SRCTREE)/drivers/mtd/nand/ndfc.c $@
 
-$(obj)resetvec.S:
+$(obj)/resetvec.S:
 	@rm -f $@
 	ln -s $(SRCTREE)/arch/powerpc/cpu/ppc4xx/resetvec.S $@
 
-$(obj)start.S:
+$(obj)/start.S:
 	@rm -f $@
 	ln -s $(SRCTREE)/arch/powerpc/cpu/ppc4xx/start.S $@
 
 # from board directory
-$(obj)init.S:
+$(obj)/init.S:
 	@rm -f $@
 	ln -s $(SRCTREE)/board/amcc/canyonlands/init.S $@
 
 # from nand_spl directory
-$(obj)nand_boot.c:
+$(obj)/nand_boot.c:
 	@rm -f $@
 	ln -s $(SRCTREE)/nand_spl/nand_boot.c $@
 
 # from drivers/mtd/nand directory
-$(obj)nand_ecc.c:
+$(obj)/nand_ecc.c:
 	@rm -f $@
 	ln -s $(SRCTREE)/drivers/mtd/nand/nand_ecc.c $@
-
-ifneq ($(OBJTREE), $(SRCTREE))
-$(obj)ddr2_fixed.c:
-	@rm -f $@
-	ln -s $(SRCTREE)/nand_spl/board/$(BOARDDIR)/ddr2_fixed.c $@
-endif
-
-#########################################################################
-
-$(obj)%.o:	$(obj)%.S
-	$(CC) $(AFLAGS) -c -o $@ $<
-
-$(obj)%.o:	$(obj)%.c
-	$(CC) $(CFLAGS) -c -o $@ $<
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################

@@ -1,14 +1,12 @@
 ###
 # This makefile is used to generate the kernel documentation,
 # primarily based on in-line comments in various source files.
-# See doc/kernel-doc-nano-HOWTO.txt for instruction in how
+# See Documentation/kernel-doc-nano-HOWTO.txt for instruction in how
 # to document the SRC - and how to read it.
 # To add a new book the only step required is to add the book to the
 # list of DOCBOOKS.
 
-include $(TOPDIR)/config.mk
-
-DOCBOOKS := fs.xml linker_lists.xml stdio.xml
+DOCBOOKS := linker_lists.xml stdio.xml
 
 ###
 # The build process is as follows (targets):
@@ -26,9 +24,9 @@ PS_METHOD	= $(prefer-db2x)
 
 ###
 # The targets that may be used.
-PHONY += $(obj).depend xmldocs sgmldocs psdocs pdfdocs htmldocs mandocs installmandocs cleandocs
+PHONY += xmldocs sgmldocs psdocs pdfdocs htmldocs mandocs installmandocs cleandocs
 
-BOOKS := $(addprefix $(OBJTREE)/doc/DocBook/,$(DOCBOOKS))
+BOOKS := $(addprefix $(obj)/,$(DOCBOOKS))
 xmldocs: $(BOOKS)
 sgmldocs: xmldocs
 
@@ -53,10 +51,10 @@ installmandocs: mandocs
 
 ###
 #External programs used
-KERNELDOC = $(SRCTREE)/tools/kernel-doc/kernel-doc
-DOCPROC   = $(OBJTREE)/tools/kernel-doc/docproc
+KERNELDOC = $(srctree)/scripts/kernel-doc
+DOCPROC   = $(objtree)/scripts/docproc
 
-XMLTOFLAGS = -m $(SRCTREE)/doc/DocBook/stylesheet.xsl
+XMLTOFLAGS = -m $(srctree)/doc/DocBook/stylesheet.xsl
 XMLTOFLAGS += --skip-validation
 
 ###
@@ -66,27 +64,35 @@ XMLTOFLAGS += --skip-validation
 #     appropriate parameters.
 # The following rules are used to generate the .xml documentation
 # required to generate the final targets. (ps, pdf, html).
-%.xml: %.tmpl
-	$(DOCPROC) doc $< >$@
+quiet_cmd_docproc = DOCPROC $@
+      cmd_docproc = SRCTREE=$(srctree)/ $(DOCPROC) doc $< >$@
+define rule_docproc
+	set -e;								\
+        $(if $($(quiet)cmd_$(1)),echo '  $($(quiet)cmd_$(1))';) 	\
+        $(cmd_$(1)); 							\
+        ( 								\
+          echo 'cmd_$@ := $(cmd_$(1))'; 				\
+          echo $@: `SRCTREE=$(srctree) $(DOCPROC) depend $<`; 		\
+        ) > $(dir $@).$(notdir $@).cmd
+endef
 
-ifeq ($@, "cleandocs")
-sinclude $(obj).depend
-$(obj).depend: $(patsubst %.xml, %.tmpl, $(DOCBOOKS))
-	rm -f $(obj).depend ;					\
-	touch $(obj).depend ;					\
-	for file in $^ ; do					\
-		xmlfile=`echo "$${file}" |			\
-			sed "s/tmpl$$/xml/"` ;			\
-		echo -n "$${xmlfile}: ">> $(obj).depend ;	\
-		$(DOCPROC) depend $$file >> $(obj).depend ;	\
-		echo -e "\n\t$(DOCPROC) doc $< >$${xmlfile} " >>	\
-			$(obj).depend ;				\
-	done
+%.xml: %.tmpl FORCE
+	$(call if_changed_rule,docproc)
+
+###
+#Read in all saved dependency files
+cmd_files := $(wildcard $(foreach f,$(BOOKS),$(dir $(f)).$(notdir $(f)).cmd))
+
+ifneq ($(cmd_files),)
+  include $(cmd_files)
 endif
 
 ###
 # Changes in kernel-doc force a rebuild of all documentation
 $(BOOKS): $(KERNELDOC)
+
+# Tell kbuild to always build the programs
+always := $(hostprogs-y)
 
 notfoundtemplate = echo "*** You have to install docbook-utils or xmlto ***"; \
 		   exit 1
@@ -113,37 +119,34 @@ endif
 quiet_cmd_db2ps = PS      $@
       cmd_db2ps = $(subst TYPE,ps, $($(PS_METHOD)template))
 %.ps : %.xml
-	$(call cmd_db2ps)
+	$(call cmd,db2ps)
 
 quiet_cmd_db2pdf = PDF     $@
       cmd_db2pdf = $(subst TYPE,pdf, $($(PDF_METHOD)template))
 %.pdf : %.xml
-	$(call cmd_db2pdf)
+	$(call cmd,db2pdf)
 
 
 index = index.html
-main_idx = $(index)
+main_idx = doc/DocBook/$(index)
 build_main_index = rm -rf $(main_idx); \
 		   echo '<h1>U-Boot Bootloader HTML Documentation</h1>' >> $(main_idx) && \
 		   echo '<h2>U-Boot Version: $(U_BOOT_VERSION)</h2>' >> $(main_idx) && \
 		   cat $(HTML) >> $(main_idx)
 
-# To work around bug [1] in docbook-xsl-stylesheets 1.76.1 , generate only html
-# docs instead of xhtml with xmlto.
-# [1] http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=654338
 quiet_cmd_db2html = HTML    $@
-      cmd_db2html = xmlto html $(XMLTOFLAGS) -o $(patsubst %.html,%,$@) $< && \
+      cmd_db2html = xmlto xhtml $(XMLTOFLAGS) -o $(patsubst %.html,%,$@) $< && \
 		echo '<a HREF="$(patsubst %.html,%,$(notdir $@))/index.html"> \
-	$(patsubst %.html,%,$(notdir $@))</a><p>' > $@
+        $(patsubst %.html,%,$(notdir $@))</a><p>' > $@
 
 %.html:	%.xml
 	@(which xmlto > /dev/null 2>&1) || \
 	 (echo "*** You need to install xmlto ***"; \
 	  exit 1)
 	@rm -rf $@ $(patsubst %.html,%,$@)
-	$(call cmd_db2html)
+	$(call cmd,db2html)
 	@if [ ! -z "$(PNG-$(basename $(notdir $@)))" ]; then \
-	    cp $(PNG-$(basename $(notdir $@))) $(patsubst %.html,%,$@); fi
+            cp $(PNG-$(basename $(notdir $@))) $(patsubst %.html,%,$@); fi
 
 quiet_cmd_db2man = MAN     $@
       cmd_db2man = if grep -q refentry $<; then xmlto man $(XMLTOFLAGS) -o $(obj)/man $< ; gzip -f $(obj)/man/*.9; fi
@@ -151,8 +154,8 @@ quiet_cmd_db2man = MAN     $@
 	@(which xmlto > /dev/null 2>&1) || \
 	 (echo "*** You need to install xmlto ***"; \
 	  exit 1)
-	$(Q)mkdir -p $(obj)man
-	$(call cmd_db2man)
+	$(Q)mkdir -p $(obj)/man
+	$(call cmd,db2man)
 	@touch $@
 
 ###
@@ -164,7 +167,7 @@ quiet_cmd_fig2eps = FIG2EPS $@
 	@(which fig2dev > /dev/null 2>&1) || \
 	 (echo "*** You need to install transfig ***"; \
 	  exit 1)
-	$(call cmd_fig2eps)
+	$(call cmd,fig2eps)
 
 quiet_cmd_fig2png = FIG2PNG $@
       cmd_fig2png = fig2dev -Lpng $< $@
@@ -173,7 +176,7 @@ quiet_cmd_fig2png = FIG2PNG $@
 	@(which fig2dev > /dev/null 2>&1) || \
 	 (echo "*** You need to install transfig ***"; \
 	  exit 1)
-	$(call cmd_fig2png)
+	$(call cmd,fig2png)
 
 ###
 # Rule to convert a .c file to inline XML documentation
@@ -219,9 +222,8 @@ clean-files := $(DOCBOOKS) \
 clean-dirs := $(patsubst %.xml,%,$(DOCBOOKS)) man
 
 cleandocs:
-	@rm -f $(obj).depend
-	@$(Q)rm -f $(call objectify, $(clean-files))
-	@$(Q)rm -rf $(call objectify, $(clean-dirs))
+	$(Q)rm -f $(call objectify, $(clean-files))
+	$(Q)rm -rf $(call objectify, $(clean-dirs))
 
 # Declare the contents of the .PHONY variable as phony.  We keep that
 # information in a variable se we can use it in if_changed and friends.

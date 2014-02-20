@@ -6,6 +6,7 @@
 /dumpimage
 /mkenvimage
 /mkimage
+/mkexynosspl
 /mpc86x_clk
 /mxsboot
 /ncb
@@ -15,8 +16,5 @@
 /xway-swap-bytes
 /*.exe
 /easylogo/easylogo
-/env/crc32.c
-/env/fw_printenv
 /gdb/gdbcont
 /gdb/gdbsend
-/kernel-doc/docproc

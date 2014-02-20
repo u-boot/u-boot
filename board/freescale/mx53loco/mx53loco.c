@@ -343,6 +343,7 @@ int board_early_init_f(void)
 	return 0;
 }
 
+#if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo(void)
 {
 	u32 cpurev;
@@ -356,6 +357,7 @@ int print_cpuinfo(void)
 	printf("Reset cause: %s\n", get_reset_cause());
 	return 0;
 }
+#endif
 
 /*
  * Do not overwrite the console

@@ -170,7 +170,6 @@
 #define CONFIG_SYS_BARGSIZE			CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_LOAD_ADDR			0x00800000
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
-#define CONFIG_SYS_64BIT_VSPRINTF
 
 /* Use last 2 lwords in internal SRAM for bootcounter */
 #define CONFIG_BOOTCOUNT_LIMIT

@@ -9,7 +9,10 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-CFLAGS += -DBFIN_BOARD_NAME='"$(BOARD)"'
+# Unnecessary.
+# Use CONFIG_SYS_BOARD instead of BFIN_BOARD_NAME
+# and delete this.
+ccflags-y += -DBFIN_BOARD_NAME='"$(BOARD)"'
 
 obj-y	+= ins.o
 obj-y	+= memcmp.o

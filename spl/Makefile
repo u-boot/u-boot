@@ -14,8 +14,24 @@
 # Based on top-level Makefile.
 #
 
+src := $(obj)
+
+# Create output directory if not already present
+_dummy := $(shell [ -d $(obj) ] || mkdir -p $(obj))
+
+include $(srctree)/scripts/Kbuild.include
+
 CONFIG_SPL_BUILD := y
 export CONFIG_SPL_BUILD
+
+KBUILD_CPPFLAGS += -DCONFIG_SPL_BUILD
+ifeq ($(CONFIG_TPL_BUILD),y)
+KBUILD_CPPFLAGS += -DCONFIG_TPL_BUILD
+endif
+
+# Enable garbage collection of un-used sections for SPL
+KBUILD_CFLAGS += -ffunction-sections -fdata-sections
+LDFLAGS_FINAL += --gc-sections
 
 ifeq ($(CONFIG_TPL_BUILD),y)
 export CONFIG_TPL_BUILD
@@ -24,15 +40,31 @@ else
 SPL_BIN := u-boot-spl
 endif
 
+include include/config.mk
+
+ifeq ($(CONFIG_TPL_BUILD),y)
+  -include include/tpl-autoconf.mk
+else
+  -include include/spl-autoconf.mk
+endif
+
 include $(TOPDIR)/config.mk
 
-# We want the final binaries in this directory
-ifeq ($(CONFIG_TPL_BUILD),y)
-obj := $(OBJTREE)/tpl/
-SPLTREE := $(TPLTREE)
-else
-obj := $(OBJTREE)/spl/
-endif
+# FIX ME
+c_flags := $(KBUILD_CFLAGS) $(KBUILD_CPPFLAGS) $(CPPFLAGS) $(UBOOTINCLUDE) $(NOSTDINC_FLAGS)
+
+# Auto-generate the spl-autoconf.mk file (which is included by all makefiles for SPL)
+quiet_cmd_autoconf = GEN     $@
+      cmd_autoconf = \
+	$(CPP) $(c_flags) -DDO_DEPS_ONLY -dM $(srctree)/include/common.h > $@.tmp && \
+		sed -n -f $(srctree)/tools/scripts/define2mk.sed $@.tmp > $@; \
+	rm $@.tmp
+
+include/tpl-autoconf.mk: include/config.h
+	$(call cmd,autoconf)
+
+include/spl-autoconf.mk: include/config.h
+	$(call cmd,autoconf)
 
 HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(SRCTREE)/board/$(VENDOR)/common/Makefile),y,n)
 
@@ -47,65 +79,65 @@ head-$(CONFIG_X86) += $(START_PATH)/start16.o $(START_PATH)/resetvec.o
 head-$(CONFIG_4xx) += $(START_PATH)/resetvec.o
 head-$(CONFIG_MPC85xx) += $(START_PATH)/resetvec.o
 
-LIBS-y += arch/$(ARCH)/lib/
+libs-y += arch/$(ARCH)/lib/
 
-LIBS-y += $(CPUDIR)/
+libs-y += $(CPUDIR)/
 
 ifdef SOC
-LIBS-y += $(CPUDIR)/$(SOC)/
+libs-y += $(CPUDIR)/$(SOC)/
 endif
-LIBS-y += board/$(BOARDDIR)/
-LIBS-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/
+libs-y += board/$(BOARDDIR)/
+libs-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/
 
-LIBS-$(CONFIG_SPL_FRAMEWORK) += common/spl/
-LIBS-$(CONFIG_SPL_LIBCOMMON_SUPPORT) += common/
-LIBS-$(CONFIG_SPL_LIBDISK_SUPPORT) += disk/
-LIBS-$(CONFIG_SPL_I2C_SUPPORT) += drivers/i2c/
-LIBS-$(CONFIG_SPL_GPIO_SUPPORT) += drivers/gpio/
-LIBS-$(CONFIG_SPL_MMC_SUPPORT) += drivers/mmc/
-LIBS-$(CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT) += drivers/ddr/fsl/
-LIBS-$(CONFIG_SPL_SERIAL_SUPPORT) += drivers/serial/
-LIBS-$(CONFIG_SPL_SPI_FLASH_SUPPORT) += drivers/mtd/spi/
-LIBS-$(CONFIG_SPL_SPI_SUPPORT) += drivers/spi/
-LIBS-y += fs/
-LIBS-$(CONFIG_SPL_LIBGENERIC_SUPPORT) += lib/
-LIBS-$(CONFIG_SPL_POWER_SUPPORT) += drivers/power/ \
-	drivers/power/pmic/
-LIBS-$(if $(CONFIG_CMD_NAND),$(CONFIG_SPL_NAND_SUPPORT)) += drivers/mtd/nand/
-LIBS-$(CONFIG_SPL_DRIVERS_MISC_SUPPORT) += drivers/misc/
-LIBS-$(CONFIG_SPL_ONENAND_SUPPORT) += drivers/mtd/onenand/
-LIBS-$(CONFIG_SPL_DMA_SUPPORT) += drivers/dma/
-LIBS-$(CONFIG_SPL_POST_MEM_SUPPORT) += post/drivers/
-LIBS-$(CONFIG_SPL_NET_SUPPORT) += net/
-LIBS-$(CONFIG_SPL_ETH_SUPPORT) += drivers/net/
-LIBS-$(CONFIG_SPL_ETH_SUPPORT) += drivers/net/phy/
-LIBS-$(CONFIG_SPL_USBETH_SUPPORT) += drivers/net/phy/
-LIBS-$(CONFIG_SPL_MUSB_NEW_SUPPORT) += drivers/usb/musb-new/
-LIBS-$(CONFIG_SPL_USBETH_SUPPORT) += drivers/usb/gadget/
-LIBS-$(CONFIG_SPL_WATCHDOG_SUPPORT) += drivers/watchdog/
-LIBS-$(CONFIG_SPL_USB_HOST_SUPPORT) += drivers/usb/host/
-LIBS-$(CONFIG_OMAP_USB_PHY) += drivers/usb/phy/
+libs-$(CONFIG_SPL_FRAMEWORK) += common/spl/
+libs-$(CONFIG_SPL_LIBCOMMON_SUPPORT) += common/
+libs-$(CONFIG_SPL_LIBDISK_SUPPORT) += disk/
+libs-$(CONFIG_SPL_I2C_SUPPORT) += drivers/i2c/
+libs-$(CONFIG_SPL_GPIO_SUPPORT) += drivers/gpio/
+libs-$(CONFIG_SPL_MMC_SUPPORT) += drivers/mmc/
+libs-$(CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT) += drivers/ddr/fsl/
+libs-$(CONFIG_SPL_SERIAL_SUPPORT) += drivers/serial/
+libs-$(CONFIG_SPL_SPI_FLASH_SUPPORT) += drivers/mtd/spi/
+libs-$(CONFIG_SPL_SPI_SUPPORT) += drivers/spi/
+libs-y += fs/
+libs-$(CONFIG_SPL_LIBGENERIC_SUPPORT) += lib/
+libs-$(CONFIG_SPL_POWER_SUPPORT) += drivers/power/ drivers/power/pmic/
+libs-$(if $(CONFIG_CMD_NAND),$(CONFIG_SPL_NAND_SUPPORT)) += drivers/mtd/nand/
+libs-$(CONFIG_SPL_DRIVERS_MISC_SUPPORT) += drivers/misc/
+libs-$(CONFIG_SPL_ONENAND_SUPPORT) += drivers/mtd/onenand/
+libs-$(CONFIG_SPL_DMA_SUPPORT) += drivers/dma/
+libs-$(CONFIG_SPL_POST_MEM_SUPPORT) += post/drivers/
+libs-$(CONFIG_SPL_NET_SUPPORT) += net/
+libs-$(CONFIG_SPL_ETH_SUPPORT) += drivers/net/
+libs-$(CONFIG_SPL_ETH_SUPPORT) += drivers/net/phy/
+libs-$(CONFIG_SPL_USBETH_SUPPORT) += drivers/net/phy/
+libs-$(CONFIG_SPL_MUSB_NEW_SUPPORT) += drivers/usb/musb-new/
+libs-$(CONFIG_SPL_USBETH_SUPPORT) += drivers/usb/gadget/
+libs-$(CONFIG_SPL_WATCHDOG_SUPPORT) += drivers/watchdog/
+libs-$(CONFIG_SPL_USB_HOST_SUPPORT) += drivers/usb/host/
+libs-$(CONFIG_OMAP_USB_PHY) += drivers/usb/phy/
+libs-$(CONFIG_SPL_SATA_SUPPORT) += drivers/block/
 
 ifneq (,$(CONFIG_MX23)$(CONFIG_MX35)$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35))
-LIBS-y += arch/$(ARCH)/imx-common/
+libs-y += arch/$(ARCH)/imx-common/
 endif
 
-LIBS-$(CONFIG_ARM) += arch/arm/cpu/
-LIBS-$(CONFIG_PPC) += arch/powerpc/cpu/
+libs-$(CONFIG_ARM) += arch/arm/cpu/
+libs-$(CONFIG_PPC) += arch/powerpc/cpu/
 
-LIBS-y := $(patsubst %/, %/built-in.o, $(LIBS-y))
+head-y		:= $(addprefix $(obj)/,$(head-y))
+libs-y		:= $(addprefix $(obj)/,$(libs-y))
+u-boot-spl-dirs	:= $(patsubst %/,%,$(filter %/, $(libs-y)))
+
+libs-y := $(patsubst %/, %/built-in.o, $(libs-y))
 
 # Add GCC lib
 ifeq ("$(USE_PRIVATE_LIBGCC)", "yes")
-PLATFORM_LIBGCC = $(SPLTREE)/arch/$(ARCH)/lib/libgcc.o
-PLATFORM_LIBS := $(filter-out %/libgcc.o, $(filter-out -lgcc, $(PLATFORM_LIBS))) $(PLATFORM_LIBGCC)
+PLATFORM_LIBS := $(SPLTREE)/arch/$(ARCH)/lib/lib.a
 endif
 
-START := $(addprefix $(SPLTREE)/,$(head-y))
-LIBS := $(addprefix $(SPLTREE)/,$(sort $(LIBS-y)))
-
-__START := $(subst $(obj),,$(START))
-__LIBS := $(subst $(obj),,$(LIBS))
+u-boot-spl-init := $(head-y)
+u-boot-spl-main := $(libs-y)
 
 # Linker Script
 ifdef CONFIG_SPL_LDSCRIPT
@@ -126,8 +158,6 @@ ifeq ($(wildcard $(LDSCRIPT)),)
 $(error could not find linker script)
 endif
 
-build := -f $(TOPDIR)/scripts/Makefile.build -C
-
 # Special flags for CPP when processing the linker script.
 # Pass the version down so we can handle backwards compatibility
 # on the fly.
@@ -138,21 +168,21 @@ LDPPFLAGS += \
 	$(shell $(LD) --version | \
 	  sed -ne 's/GNU ld version \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/-DLD_MAJOR=\1 -DLD_MINOR=\2/p')
 
-$(OBJTREE)/MLO:	$(obj)u-boot-spl.bin
+$(OBJTREE)/MLO:	$(obj)/u-boot-spl.bin
 	$(OBJTREE)/tools/mkimage -T omapimage \
 		-a $(CONFIG_SPL_TEXT_BASE) -d $< $@
 
-$(OBJTREE)/MLO.byteswap: $(obj)u-boot-spl.bin
+$(OBJTREE)/MLO.byteswap: $(obj)/u-boot-spl.bin
 	$(OBJTREE)/tools/mkimage -T omapimage -n byteswap \
 		-a $(CONFIG_SPL_TEXT_BASE) -d $< $@
 
-$(OBJTREE)/SPL : $(obj)u-boot-spl.bin depend
-		$(MAKE) $(build) $(SRCTREE)/arch/arm/imx-common $@
+$(objtree)/SPL : $(obj)/u-boot-spl.bin
+		$(MAKE) $(build)=spl/arch/arm/imx-common $@
 
-ALL-y	+= $(obj)$(SPL_BIN).bin
+ALL-y	+= $(obj)/$(SPL_BIN).bin
 
 ifdef CONFIG_SAMSUNG
-ALL-y	+= $(obj)$(BOARD)-spl.bin
+ALL-y	+= $(obj)/$(BOARD)-spl.bin
 endif
 
 all:	$(ALL-y)
@@ -163,32 +193,44 @@ VAR_SIZE_PARAM = --vs
 else
 VAR_SIZE_PARAM =
 endif
-$(obj)$(BOARD)-spl.bin: $(obj)u-boot-spl.bin
-	$(OBJTREE)/tools/mk$(BOARD)spl $(VAR_SIZE_PARAM) $< $@
+$(obj)/$(BOARD)-spl.bin: $(obj)/u-boot-spl.bin
+	$(if $(wildcard $(OBJTREE)/spl/board/samsung/$(BOARD)/tools/mk$(BOARD)spl),\
+	$(OBJTREE)/spl/board/samsung/$(BOARD)/tools/mk$(BOARD)spl,\
+	$(OBJTREE)/tools/mkexynosspl) $(VAR_SIZE_PARAM) $< $@
 endif
 
-$(obj)$(SPL_BIN).bin:	$(obj)$(SPL_BIN)
+$(obj)/$(SPL_BIN).bin:	$(obj)/$(SPL_BIN)
 	$(OBJCOPY) $(OBJCFLAGS) $(SPL_OBJCFLAGS) -O binary $< $@
 
-GEN_UBOOT = \
-	cd $(obj) && $(LD) $(LDFLAGS) $(LDFLAGS_$(@F)) $(__START) \
-		--start-group $(__LIBS) --end-group $(PLATFORM_LIBS) \
-		-Map $(SPL_BIN).map -o $(SPL_BIN)
+LDFLAGS_$(SPL_BIN) += -T u-boot-spl.lds $(LDFLAGS_FINAL)
+ifneq ($(CONFIG_SPL_TEXT_BASE),)
+LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_SPL_TEXT_BASE)
+endif
 
-$(obj)$(SPL_BIN):	depend $(START) $(LIBS) $(obj)u-boot-spl.lds
-	$(GEN_UBOOT)
+quiet_cmd_u-boot-spl = LD      $@
+      cmd_u-boot-spl = cd $(obj) && $(LD) $(LDFLAGS) $(LDFLAGS_$(@F)) \
+		       $(patsubst $(obj)/%,%,$(u-boot-spl-init)) --start-group \
+		       $(patsubst $(obj)/%,%,$(u-boot-spl-main)) --end-group \
+		       $(PLATFORM_LIBS) -Map $(SPL_BIN).map -o $(SPL_BIN)
 
-$(START):
-	@:
+$(obj)/$(SPL_BIN): $(u-boot-spl-init) $(u-boot-spl-main) $(obj)/u-boot-spl.lds
+	$(call cmd,u-boot-spl)
 
-$(LIBS):	depend
-	$(MAKE) $(build) $(SRCTREE)$(dir $(subst $(SPLTREE),,$@))
+$(sort $(u-boot-spl-init) $(u-boot-spl-main)): $(u-boot-spl-dirs) ;
 
-$(obj)u-boot-spl.lds: $(LDSCRIPT) depend
-	$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -I$(obj). -ansi -D__ASSEMBLY__ -P - < $< > $@
+PHONY += $(u-boot-spl-dirs)
+$(u-boot-spl-dirs):
+	$(Q)$(MAKE) $(build)=$@
 
-depend:	$(obj).depend
-.PHONY: depend
+# FIX ME
+cpp_flags := $(KBUILD_CPPFLAGS) $(CPPFLAGS) $(UBOOTINCLUDE) $(NOSTDINC_FLAGS)
 
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
+$(obj)/u-boot-spl.lds: $(LDSCRIPT) FORCE
+	$(CPP) $(cpp_flags) $(LDPPFLAGS) -I$(obj). -ansi -D__ASSEMBLY__ -P - < $< > $@
+
+PHONY += FORCE
+FORCE:
+
+# Declare the contents of the .PHONY variable as phony.  We keep that
+# information in a variable so we can use it in if_changed and friends.
+.PHONY: $(PHONY)

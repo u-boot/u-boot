@@ -67,4 +67,4 @@ obj-$(CONFIG_BOOTP_RANDOM_DELAY) += rand.o
 obj-$(CONFIG_CMD_LINK_LOCAL) += rand.o
 
 # SEE README.arm-unaligned-accesses
-$(obj)bzlib.o: CFLAGS += $(PLATFORM_NO_UNALIGNED)
+CFLAGS_bzlib.o := $(PLATFORM_NO_UNALIGNED)

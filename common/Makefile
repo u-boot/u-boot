@@ -202,6 +202,9 @@ ifdef CONFIG_SPL_USB_HOST_SUPPORT
 obj-$(CONFIG_SPL_USB_SUPPORT) += usb.o usb_hub.o
 obj-$(CONFIG_USB_STORAGE) += usb_storage.o
 endif
+ifdef CONFIG_SPL_SATA_SUPPORT
+obj-$(CONFIG_CMD_SCSI) += cmd_scsi.o
+endif
 ifneq ($(CONFIG_SPL_NET_SUPPORT),y)
 obj-$(CONFIG_ENV_IS_NOWHERE) += env_nowhere.o
 obj-$(CONFIG_ENV_IS_IN_MMC) += env_mmc.o
@@ -235,11 +238,6 @@ obj-$(CONFIG_FIT_SIGNATURE) += image-sig.o
 obj-y += memsize.o
 obj-y += stdio.o
 
-$(obj)env_embedded.o: $(src)env_embedded.c
-	$(CC) $(AFLAGS) -Wa,--no-warn \
-		-DENV_CRC=$(shell $(obj)../tools/envcrc) \
-		-c -o $@ $(src)env_embedded.c
-
-# SEE README.arm-unaligned-accesses
-$(obj)hush.o: CFLAGS += $(PLATFORM_NO_UNALIGNED)
-$(obj)fdt_support.o: CFLAGS += $(PLATFORM_NO_UNALIGNED)
+CFLAGS_env_embedded.o := -Wa,--no-warn -DENV_CRC=$(shell tools/envcrc 2>/dev/null)
+CFLAGS_hush.o := $(PLATFORM_NO_UNALIGNED)
+CFLAGS_fdt_support.o := $(PLATFORM_NO_UNALIGNED)
