@@ -23,6 +23,7 @@
 
 #include <asm/cplb.h>
 #include <asm/mach-common/bits/mpu.h>
+#include <asm/clock.h>
 #include <kgdb.h>
 
 #ifdef CONFIG_CMD_NAND

@@ -15,6 +15,7 @@
 #include <asm/errno.h>
 #include <asm/byteorder.h>
 #include <asm/blackfin.h>
+#include <asm/clock.h>
 #include <asm/portmux.h>
 #include <asm/mach-common/bits/sdh.h>
 #include <asm/mach-common/bits/dma.h>

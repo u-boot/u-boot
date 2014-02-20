@@ -16,6 +16,7 @@
 #include <linux/mii.h>
 
 #include <asm/blackfin.h>
+#include <asm/clock.h>
 #include <asm/portmux.h>
 #include <asm/mach-common/bits/dma.h>
 #include <asm/mach-common/bits/emac.h>
