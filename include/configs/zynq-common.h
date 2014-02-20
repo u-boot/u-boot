@@ -91,6 +91,18 @@
 # define CONFIG_FAT_WRITE
 #endif
 
+#ifdef CONFIG_ZYNQ_USB
+#define CONFIG_USB_EHCI
+#define CONFIG_CMD_USB
+#define CONFIG_USB_STORAGE
+#define CONFIG_SUPPORT_VFAT
+#define CONFIG_USB_EHCI_ZYNQ
+#define CONFIG_USB_ULPI_VIEWPORT
+#define CONFIG_USB_ULPI
+#define CONFIG_EHCI_IS_TDI
+#define CONFIG_USB_MAX_CONTROLLER_COUNT	2
+#endif
+
 /* QSPI */
 #ifdef CONFIG_ZYNQ_QSPI
 # define CONFIG_SF_DEFAULT_SPEED	30000000
@@ -213,6 +225,14 @@
 			"fatload mmc 0 0x3000000 ${kernel_image} && " \
 			"fatload mmc 0 0x2A00000 ${devicetree_image} && " \
 			"fatload mmc 0 0x2000000 ${ramdisk_image} && " \
+			"bootm 0x3000000 0x2000000 0x2A00000; " \
+		"fi\0" \
+	"usbboot=if usb start; then " \
+			"run uenvboot; " \
+			"echo Copying Linux from USB to RAM... && " \
+			"fatload usb 0 0x3000000 ${kernel_image} && " \
+			"fatload usb 0 0x2A00000 ${devicetree_image} && " \
+			"fatload usb 0 0x2000000 ${ramdisk_image} && " \
 			"bootm 0x3000000 0x2000000 0x2A00000; " \
 		"fi\0" \
 	"nandboot=echo Copying Linux from NAND flash to RAM... && " \
