@@ -17,6 +17,7 @@
 #define SLCR_QSPI_ENABLE_MASK		0x03
 #define SLCR_NAND_L2_SEL		0x10
 #define SLCR_NAND_L2_SEL_MASK		0x1F
+#define SLCR_USB_L1_SEL			0x04
 
 #define SLCR_IDCODE_MASK	0x1F000
 #define SLCR_IDCODE_SHIFT	12
@@ -58,6 +59,14 @@ static const int nand16_pins[] = {
 	16, 17, 18, 19, 20, 21, 22, 23
 };
 
+static const int usb0_pins[] = {
+	28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39
+};
+
+static const int usb1_pins[] = {
+	40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+};
+
 static const struct zynq_slcr_mio_get_status mio_periphs[] = {
 	{
 		"qspi0",
@@ -93,6 +102,20 @@ static const struct zynq_slcr_mio_get_status mio_periphs[] = {
 		ARRAY_SIZE(nand16_pins),
 		SLCR_NAND_L2_SEL_MASK,
 		SLCR_NAND_L2_SEL,
+	},
+	{
+		"usb0",
+		usb0_pins,
+		ARRAY_SIZE(usb0_pins),
+		SLCR_USB_L1_SEL,
+		SLCR_USB_L1_SEL,
+	},
+	{
+		"usb1",
+		usb1_pins,
+		ARRAY_SIZE(usb1_pins),
+		SLCR_USB_L1_SEL,
+		SLCR_USB_L1_SEL,
 	},
 };
 
