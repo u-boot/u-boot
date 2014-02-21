@@ -81,9 +81,8 @@ obj-$(CONFIG_SYS_HUSH_PARSER) += cmd_exit.o
 obj-$(CONFIG_CMD_EXT4) += cmd_ext4.o
 obj-$(CONFIG_CMD_EXT2) += cmd_ext2.o
 obj-$(CONFIG_CMD_FAT) += cmd_fat.o
-obj-$(CONFIG_CMD_FDC)$(CONFIG_CMD_FDOS) += cmd_fdc.o
+obj-$(CONFIG_CMD_FDC) += cmd_fdc.o
 obj-$(CONFIG_OF_LIBFDT) += cmd_fdt.o fdt_support.o
-obj-$(CONFIG_CMD_FDOS) += cmd_fdos.o
 obj-$(CONFIG_CMD_FITUPD) += cmd_fitupd.o
 obj-$(CONFIG_CMD_FLASH) += cmd_flash.o
 ifdef CONFIG_FPGA
