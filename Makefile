@@ -412,7 +412,7 @@ endif
 # of make so .config is not included in this case either (for *config).
 
 no-dot-config-targets := clean clobber mrproper distclean \
-			 cscope TAGS %tags help %docs check% coccicheck \
+			 help %docs check% coccicheck \
 			 backup
 
 config-targets := 0
