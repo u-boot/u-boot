@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <div64.h>
 #include <dfu.h>
+#include <mmc.h>
 
 static unsigned char __aligned(CONFIG_SYS_CACHELINE_SIZE)
 				dfu_file_buf[CONFIG_SYS_DFU_MAX_FILE_SIZE];
@@ -20,8 +21,8 @@ static long dfu_file_buf_len;
 static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
 			u64 offset, void *buf, long *len)
 {
-	char cmd_buf[DFU_CMD_BUF_SIZE];
-	u32 blk_start, blk_count;
+	struct mmc *mmc = find_mmc_device(dfu->dev_num);
+	u32 blk_start, blk_count, n = 0;
 
 	/*
 	 * We must ensure that we work in lba_blk_size chunks, so ALIGN
@@ -38,12 +39,28 @@ static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
 		return -EINVAL;
 	}
 
-	sprintf(cmd_buf, "mmc %s %p %x %x",
-		op == DFU_OP_READ ? "read" : "write",
-		 buf, blk_start, blk_count);
+	debug("%s: %s dev: %d start: %d cnt: %d buf: 0x%p\n", __func__,
+	      op == DFU_OP_READ ? "MMC READ" : "MMC WRITE", dfu->dev_num,
+	      blk_start, blk_count, buf);
+	switch (op) {
+	case DFU_OP_READ:
+		n = mmc->block_dev.block_read(dfu->dev_num, blk_start,
+					      blk_count, buf);
+		break;
+	case DFU_OP_WRITE:
+		n = mmc->block_dev.block_write(dfu->dev_num, blk_start,
+					       blk_count, buf);
+		break;
+	default:
+		error("Operation not supported\n");
+	}
 
-	debug("%s: %s 0x%p\n", __func__, cmd_buf, cmd_buf);
-	return run_command(cmd_buf, 0);
+	if (n != blk_count) {
+		error("MMC operation failed");
+		return -EIO;
+	}
+
+	return 0;
 }
 
 static int mmc_file_buffer(struct dfu_entity *dfu, void *buf, long *len)
