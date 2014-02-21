@@ -20,8 +20,8 @@
 
 #include "../common/qixis.h"
 #include "../common/vsc3316_3308.h"
-#include "t2080qds.h"
-#include "t2080qds_qixis.h"
+#include "t208xqds.h"
+#include "t208xqds_qixis.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -89,19 +89,22 @@ int select_i2c_ch_pca9547(u8 ch)
 int brd_mux_lane_to_slot(void)
 {
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	u32 srds_prtcl_s1, srds_prtcl_s2;
+	u32 srds_prtcl_s1;
 
 	srds_prtcl_s1 = in_be32(&gur->rcwsr[4]) &
 				FSL_CORENET2_RCWSR4_SRDS1_PRTCL;
 	srds_prtcl_s1 >>= FSL_CORENET2_RCWSR4_SRDS1_PRTCL_SHIFT;
-	srds_prtcl_s2 = in_be32(&gur->rcwsr[4]) &
+#if defined(CONFIG_T2080QDS)
+	u32 srds_prtcl_s2 = in_be32(&gur->rcwsr[4]) &
 				FSL_CORENET2_RCWSR4_SRDS2_PRTCL;
 	srds_prtcl_s2 >>= FSL_CORENET2_RCWSR4_SRDS2_PRTCL_SHIFT;
+#endif
 
 	switch (srds_prtcl_s1) {
 	case 0:
 		/* SerDes1 is not enabled */
 		break;
+#if defined(CONFIG_T2080QDS)
 	case 0x1c:
 	case 0xa2:
 		/* SD1(A:D) => SLOT3 SGMII
@@ -180,12 +183,89 @@ int brd_mux_lane_to_slot(void)
 		 */
 		 QIXIS_WRITE(brdcfg[12], 0x1a);
 		 break;
+#elif defined(CONFIG_T2081QDS)
+	case 0x51:
+		/* SD1(A:D) => SLOT2 XAUI
+		 * SD1(E)   => SLOT1 PCIe4 x1
+		 * SD1(F:H) => SLOT3 SGMII
+		 */
+		QIXIS_WRITE(brdcfg[12], 0x98);
+		QIXIS_WRITE(brdcfg[13], 0x70);
+		break;
+	case 0x6b:
+		/* SD1(A:D) => XFI SFP Module
+		 * SD1(E)   => SLOT1 PCIe4 x1
+		 * SD1(F:H) => SLOT3 SGMII
+		 */
+		QIXIS_WRITE(brdcfg[12], 0x80);
+		QIXIS_WRITE(brdcfg[13], 0x70);
+		break;
+	case 0x6c:
+		/* SD1(A:B) => XFI SFP Module
+		 * SD1(C:D) => SLOT2 SGMII
+		 * SD1(E:H) => SLOT1 PCIe4 x4
+		 */
+		QIXIS_WRITE(brdcfg[12], 0xe8);
+		QIXIS_WRITE(brdcfg[13], 0x0);
+		break;
+	case 0x6d:
+		/* SD1(A:B) => XFI SFP Module
+		 * SD1(C:D) => SLOT2 SGMII
+		 * SD1(E:H) => SLOT1 PCIe4 x4
+		 */
+		QIXIS_WRITE(brdcfg[12], 0xe8);
+		QIXIS_WRITE(brdcfg[13], 0x0);
+		break;
+	case 0xaa:
+	case 0xab:
+		/* SD1(A:D) => SLOT2 PCIe3 x4
+		 * SD1(F:H) => SLOT1 SGMI4 x4
+		 */
+		QIXIS_WRITE(brdcfg[12], 0xf8);
+		QIXIS_WRITE(brdcfg[13], 0x0);
+		break;
+	case 0xca:
+	case 0xcb:
+		/* SD1(A)   => SLOT2 PCIe3 x1
+		 * SD1(B)   => SLOT7 SGMII
+		 * SD1(C)   => SLOT6 SGMII
+		 * SD1(D)   => SLOT5 SGMII
+		 * SD1(E)   => SLOT1 PCIe4 x1
+		 * SD1(F:H) => SLOT3 SGMII
+		 */
+		QIXIS_WRITE(brdcfg[12], 0x80);
+		QIXIS_WRITE(brdcfg[13], 0x70);
+		break;
+	case 0xde:
+	case 0xdf:
+		/* SD1(A:D) => SLOT2 PCIe3 x4
+		 * SD1(E)   => SLOT1 PCIe4 x1
+		 * SD1(F)   => SLOT4 PCIe1 x1
+		 * SD1(G)   => SLOT3 PCIe2 x1
+		 * SD1(H)   => SLOT7 SGMII
+		 */
+		QIXIS_WRITE(brdcfg[12], 0x98);
+		QIXIS_WRITE(brdcfg[13], 0x25);
+		break;
+	case 0xf2:
+		/* SD1(A)   => SLOT2 PCIe3 x1
+		 * SD1(B:D) => SLOT7 SGMII
+		 * SD1(E)   => SLOT1 PCIe4 x1
+		 * SD1(F)   => SLOT4 PCIe1 x1
+		 * SD1(G)   => SLOT3 PCIe2 x1
+		 * SD1(H)   => SLOT7 SGMII
+		 */
+		QIXIS_WRITE(brdcfg[12], 0x81);
+		QIXIS_WRITE(brdcfg[13], 0xa5);
+		break;
+#endif
 	default:
 		printf("WARNING: unsupported for SerDes1 Protocol %d\n",
 		       srds_prtcl_s1);
 		return -1;
 	}
 
+#ifdef CONFIG_T2080QDS
 	switch (srds_prtcl_s2) {
 	case 0:
 		/* SerDes2 is not enabled */
@@ -241,6 +321,7 @@ int brd_mux_lane_to_slot(void)
 		       srds_prtcl_s2);
 		return -1;
 	}
+#endif
 	return 0;
 }
 

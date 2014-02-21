@@ -5,21 +5,25 @@
  */
 
 /*
- * T2080 QDS board configuration file
+ * T2080/T2081 QDS board configuration file
  */
 
-#ifndef __T2080QDS_H
-#define __T2080QDS_H
+#ifndef __T208xQDS_H
+#define __T208xQDS_H
 
-#define CONFIG_T2080QDS
 #define CONFIG_ICS307_REFCLK_HZ 25000000  /* ICS307 ref clk freq */
 #define CONFIG_MMC
 #define CONFIG_SPI_FLASH
 #define CONFIG_USB_EHCI
+#if defined(CONFIG_PPC_T2080)
+#define CONFIG_T2080QDS
 #define CONFIG_FSL_SATA_V2
 #define CONFIG_SYS_SRIO		/* Enable Serial RapidIO Support */
 #define CONFIG_SRIO1		/* SRIO port 1 */
 #define CONFIG_SRIO2		/* SRIO port 2 */
+#elif defined(CONFIG_PPC_T2081)
+#define CONFIG_T2081QDS
+#endif
 
 /* High Level Configuration Options */
 #define CONFIG_PHYS_64BIT
@@ -44,8 +48,12 @@
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
-#define CONFIG_SYS_FSL_PBL_PBI $(SRCTREE)/board/freescale/t2080qds/t2080_pbi.cfg
-#define CONFIG_SYS_FSL_PBL_RCW $(SRCTREE)/board/freescale/t2080qds/t2080_rcw.cfg
+#define CONFIG_SYS_FSL_PBL_PBI $(SRCTREE)/board/freescale/t208xqds/t208x_pbi.cfg
+#if defined(CONFIG_PPC_T2080)
+#define CONFIG_SYS_FSL_PBL_RCW $(SRCTREE)/board/freescale/t208xqds/t2080_rcw.cfg
+#elif defined(CONFIG_PPC_T2081)
+#define CONFIG_SYS_FSL_PBL_RCW $(SRCTREE)/board/freescale/t208xqds/t2081_rcw.cfg
+#endif
 #endif
 
 #define CONFIG_SRIO_PCIE_BOOT_MASTER
@@ -447,7 +455,12 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_FSL_ESPI
 #define CONFIG_SPI_FLASH_SST
 #define CONFIG_SPI_FLASH_STMICRO
+#if defined(CONFIG_T2080QDS)
 #define CONFIG_SPI_FLASH_SPANSION
+#elif defined(CONFIG_T2081QDS)
+#define CONFIG_SPI_FLASH_EON
+#endif
+
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED	 10000000
 #define CONFIG_SF_DEFAULT_MODE	  0
@@ -505,7 +518,7 @@ unsigned long get_board_ddr_clk(void);
 
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
-#define CONFIG_FSL_PCIE_RESET           /* need PCIe reset errata LSZ ADD */
+#define CONFIG_FSL_PCIE_RESET	   /* need PCIe reset errata */
 #define CONFIG_NET_MULTI
 #define CONFIG_E1000
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */
@@ -801,4 +814,4 @@ unsigned long get_board_ddr_clk(void);
 #undef CONFIG_CMD_USB
 #endif
 
-#endif	/* __T2080QDS_H */
+#endif	/* __T208xQDS_H */

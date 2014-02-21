@@ -4,10 +4,10 @@
  * SPDX-License-Identifier:     GPL-2.0+
  */
 
-#ifndef __T2080QDS_QIXIS_H__
-#define __T2080QDS_QIXIS_H__
+#ifndef __T208xQDS_QIXIS_H__
+#define __T208xQDS_QIXIS_H__
 
-/* Definitions of QIXIS Registers for T2080QDS */
+/* Definitions of QIXIS Registers for T208xQDS */
 
 #define QIXIS_SRDS1CLK_122		0x5a
 #define QIXIS_SRDS1CLK_125		0x5e
@@ -34,6 +34,8 @@
 #define QIXIS_DDRCLK_133                0x3
 
 #define BRDCFG5_IRE                     0x20    /* i2c Remote i2c1 enable */
+
+#define BRDCFG9_SFP_TX_EN		0x10
 
 #define BRDCFG12_SD3EN_MASK             0x20
 #define BRDCFG12_SD3MX_MASK             0x08
