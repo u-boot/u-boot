@@ -721,7 +721,7 @@ ALL-$(CONFIG_RAMBOOT_PBL) += u-boot.pbl
 ALL-$(CONFIG_SPL) += spl/u-boot-spl.bin
 ALL-$(CONFIG_SPL_FRAMEWORK) += u-boot.img
 ALL-$(CONFIG_TPL) += tpl/u-boot-tpl.bin
-ALL-$(CONFIG_OF_SEPARATE) += u-boot-dtb.bin
+ALL-$(CONFIG_OF_SEPARATE) += u-boot.dtb u-boot-dtb.bin
 ifneq ($(CONFIG_SPL_TARGET),)
 ALL-$(CONFIG_SPL) += $(CONFIG_SPL_TARGET:"%"=%)
 endif
@@ -766,6 +766,12 @@ dtbs dts/dt.dtb: checkdtc u-boot
 
 u-boot-dtb.bin: u-boot.bin dts/dt.dtb FORCE
 	$(call if_changed,cat)
+
+quiet_cmd_copy = COPY    $@
+      cmd_copy = cp $< $@
+
+u-boot.dtb: dts/dt.dtb
+	$(call cmd,copy)
 
 OBJCOPYFLAGS_u-boot.hex := -O ihex
 
