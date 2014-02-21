@@ -84,6 +84,26 @@
 #define CONFIG_OMAP_USB_PHY
 #define CONFIG_AM437X_USB2PHY2_HOST
 
+/* SPI */
+#undef CONFIG_OMAP3_SPI
+#define CONFIG_TI_QSPI
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_MACRONIX
+#define CONFIG_CMD_SF
+#define CONFIG_CMD_SPI
+#define CONFIG_TI_SPI_MMAP
+#define CONFIG_QSPI_SEL_GPIO                   48
+#define CONFIG_SF_DEFAULT_SPEED                48000000
+#define CONFIG_DEFAULT_SPI_MODE                SPI_MODE_3
+
+/* SPI SPL */
+#define CONFIG_SPL_SPI_SUPPORT
+#define CONFIG_SPL_SPI_LOAD
+#define CONFIG_SPL_SPI_FLASH_SUPPORT
+#define CONFIG_SPL_SPI_BUS             0
+#define CONFIG_SPL_SPI_CS              0
+#define CONFIG_SYS_SPI_U_BOOT_OFFS     0x20000
+
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x80200000\0" \
