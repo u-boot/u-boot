@@ -60,7 +60,12 @@ SECTIONS
 		*(.__rel_dyn_end)
 	}
 
-	_end = .;
+	.end :
+	{
+		*(.__end)
+	}
+
+	_image_binary_end = .;
 
 /*
  * Compiler-generated __bss_start and __bss_end, see arch/arm/lib/bss.c

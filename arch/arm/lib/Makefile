@@ -32,7 +32,6 @@ endif
 ifndef CONFIG_SYS_GENERIC_BOARD
 obj-y	+= board.o
 endif
-obj-y	+= sections.o
 
 obj-$(CONFIG_OF_LIBFDT) += bootm-fdt.o
 obj-$(CONFIG_CMD_BOOTM) += bootm.o
@@ -43,6 +42,7 @@ else
 obj-$(CONFIG_SPL_FRAMEWORK) += spl.o
 endif
 
+obj-y	+= sections.o
 ifdef CONFIG_ARM64
 obj-y	+= interrupts_64.o
 else

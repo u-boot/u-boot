@@ -42,7 +42,11 @@ SECTIONS
 	. = ALIGN(4);
 
 	__image_copy_end = .;
-	_end = .;
+
+	.end :
+	{
+		*(.__end)
+	} >.sram
 
 	.bss :
 	{
