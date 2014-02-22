@@ -57,7 +57,7 @@ unsigned long flash_init (void)
 	 */
 	flash_protect (FLAG_PROTECT_SET,
 		       CONFIG_SYS_FLASH_BASE,
-		       CONFIG_SYS_FLASH_BASE + _bss_start_ofs,
+		       CONFIG_SYS_FLASH_BASE + (__bss_end - __bss_start),
 		       &flash_info[0]);
 
 	return size;

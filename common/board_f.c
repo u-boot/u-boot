@@ -149,13 +149,9 @@ static int display_text_info(void)
 #ifndef CONFIG_SANDBOX
 	ulong bss_start, bss_end;
 
-#ifdef CONFIG_SYS_SYM_OFFSETS
-	bss_start = _bss_start_ofs + _TEXT_BASE;
-	bss_end = _bss_end_ofs + _TEXT_BASE;
-#else
 	bss_start = (ulong)&__bss_start;
 	bss_end = (ulong)&__bss_end;
-#endif
+
 	debug("U-Boot code: %08X -> %08lX  BSS: -> %08lX\n",
 	      CONFIG_SYS_TEXT_BASE, bss_start, bss_end);
 #endif
@@ -279,8 +275,8 @@ static int zero_global_data(void)
 
 static int setup_mon_len(void)
 {
-#ifdef CONFIG_SYS_SYM_OFFSETS
-	gd->mon_len = _bss_end_ofs;
+#ifdef __ARM__
+	gd->mon_len = (ulong)&__bss_end - (ulong)_start;
 #elif defined(CONFIG_SANDBOX)
 	gd->mon_len = (ulong)&_end - (ulong)_init;
 #else
@@ -363,11 +359,7 @@ static int setup_fdt(void)
 	gd->fdt_blob = __dtb_dt_begin;
 #elif defined CONFIG_OF_SEPARATE
 	/* FDT is at end of image */
-# ifdef CONFIG_SYS_SYM_OFFSETS
-	gd->fdt_blob = (void *)(_end_ofs + CONFIG_SYS_TEXT_BASE);
-# else
 	gd->fdt_blob = (ulong *)&_end;
-# endif
 #elif defined(CONFIG_OF_HOSTFILE)
 	if (read_fdt_from_file()) {
 		puts("Failed to read control FDT\n");

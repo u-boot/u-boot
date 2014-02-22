@@ -3707,12 +3707,6 @@ Configuration Settings:
 	its config.mk file). If you find problems enabling this option on
 	your board please report the problem and send patches!
 
-- CONFIG_SYS_SYM_OFFSETS
-	This is set by architectures that use offsets for link symbols
-	instead of absolute values. So bss_start is obtained using an
-	offset _bss_start_ofs from CONFIG_SYS_TEXT_BASE, rather than
-	directly. You should not need to touch this setting.
-
 - CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC (OMAP only)
 	This is set by OMAP boards for the max time that reset should
 	be asserted. See doc/README.omap-reset-time for details on how
