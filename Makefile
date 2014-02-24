@@ -746,6 +746,10 @@ endif
 quiet_cmd_objcopy = OBJCOPY $@
 cmd_objcopy = $(OBJCOPY) $(OBJCOPYFLAGS) $(OBJCOPYFLAGS_$(@F)) $< $@
 
+quiet_cmd_mkimage = UIMAGE  $@
+cmd_mkimage = $(objtree)/tools/mkimage $(MKIMAGEFLAGS_$(@F)) -d $< $@ \
+	$(if $(KBUILD_VERBOSE:1=), >/dev/null)
+
 all:		$(ALL-y)
 
 PHONY += dtbs
@@ -789,24 +793,21 @@ ifndef CONFIG_SYS_UBOOT_START
 CONFIG_SYS_UBOOT_START := 0
 endif
 
-u-boot.img:	u-boot.bin
-		tools/mkimage -A $(ARCH) -T firmware -C none \
-		-O u-boot -a $(CONFIG_SYS_TEXT_BASE) \
-		-e $(CONFIG_SYS_UBOOT_START) \
-		-n "U-Boot $(UBOOTRELEASE) for $(BOARD) board" \
-		-d $< $@
+MKIMAGEFLAGS_u-boot.img = -A $(ARCH) -T firmware -C none -O u-boot \
+	-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_UBOOT_START) \
+	-n "U-Boot $(UBOOTRELEASE) for $(BOARD) board"
+
+MKIMAGEFLAGS_u-boot.kwb = -n $(CONFIG_SYS_KWD_CONFIG) -T kwbimage \
+		-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE)
+
+MKIMAGEFLAGS_u-boot.pbl = -n $(CONFIG_SYS_FSL_PBL_RCW) \
+		-R $(CONFIG_SYS_FSL_PBL_PBI) -T pblimage
+
+u-boot.img u-boot.kwb u-boot.pbl: u-boot.bin FORCE
+	$(call if_changed,mkimage)
 
 u-boot.imx: u-boot.bin
 	$(Q)$(MAKE) $(build)=arch/arm/imx-common $(objtree)/$@
-
-u-boot.kwb:       u-boot.bin
-		tools/mkimage -n $(CONFIG_SYS_KWD_CONFIG) -T kwbimage \
-		-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE) -d $< $@
-
-u-boot.pbl:	u-boot.bin
-		tools/mkimage -n $(CONFIG_SYS_FSL_PBL_RCW) \
-		-R $(CONFIG_SYS_FSL_PBL_PBI) -T pblimage \
-		-d $< $@
 
 u-boot.sha1:	u-boot.bin
 		tools/ubsha1 u-boot.bin
@@ -837,9 +838,10 @@ tpl/u-boot-with-tpl.bin: tpl/u-boot-tpl.bin u-boot.bin
 u-boot-with-spl.imx u-boot-with-nand-spl.imx: spl/u-boot-spl.bin u-boot.bin
 	$(Q)$(MAKE) $(build)=arch/arm/imx-common $(objtree)/$@
 
-u-boot.ubl:       u-boot-with-spl.bin
-		tools/mkimage -n $(UBL_CONFIG) -T ublimage \
-		-e $(CONFIG_SYS_TEXT_BASE) -d $< u-boot.ubl
+MKIMAGEFLAGS_u-boot.ubl = -n $(UBL_CONFIG) -T ublimage -e $(CONFIG_SYS_TEXT_BASE)
+
+u-boot.ubl: u-boot-with-spl.bin FORCE
+	$(call if_changed,mkimage)
 
 u-boot.ais:       spl/u-boot-spl.bin u-boot.img
 		tools/mkimage -s -n $(if $(CONFIG_AIS_CONFIG_FILE),$(srctree)/$(CONFIG_AIS_CONFIG_FILE:"%"=%),"/dev/null") \

@@ -7,7 +7,7 @@
 #
 
 ifdef CONFIG_SPL_BUILD
-ALL-y	+= $(OBJTREE)/MLO
+ALL-y	+= MLO
 else
 ALL-y	+= u-boot.img
 endif

@@ -169,13 +169,16 @@ LDPPFLAGS += \
 	$(shell $(LD) --version | \
 	  sed -ne 's/GNU ld version \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/-DLD_MAJOR=\1 -DLD_MINOR=\2/p')
 
-$(OBJTREE)/MLO:	$(obj)/u-boot-spl.bin
-	$(OBJTREE)/tools/mkimage -T omapimage \
-		-a $(CONFIG_SPL_TEXT_BASE) -d $< $@
+quiet_cmd_mkimage = UIMAGE  $@
+cmd_mkimage = $(objtree)/tools/mkimage $(MKIMAGEFLAGS_$(@F)) -d $< $@ \
+	$(if $(KBUILD_VERBOSE:1=), >/dev/null)
 
-$(OBJTREE)/MLO.byteswap: $(obj)/u-boot-spl.bin
-	$(OBJTREE)/tools/mkimage -T omapimage -n byteswap \
-		-a $(CONFIG_SPL_TEXT_BASE) -d $< $@
+MKIMAGEFLAGS_MLO = -T omapimage -a $(CONFIG_SPL_TEXT_BASE)
+
+MKIMAGEFLAGS_MLO.byteswap = -T omapimage -n byteswap -a $(CONFIG_SPL_TEXT_BASE)
+
+MLO MLO.byteswap: $(obj)/u-boot-spl.bin
+	$(call if_changed,mkimage)
 
 $(objtree)/SPL: $(obj)/u-boot-spl.bin
 	$(Q)$(MAKE) $(build)=spl/arch/arm/imx-common $@
