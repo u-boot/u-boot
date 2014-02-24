@@ -72,8 +72,10 @@ $(obj)/%:	$(obj)/%.o $(LIB)
 			-o $@ -e $(SYM_PREFIX)$(notdir $(<:.o=)) $< $(LIB) \
 			-L$(gcclibdir) -lgcc
 
-$(obj)/%.srec:	$(obj)/%
-		$(OBJCOPY) -O srec $< $@ 2>/dev/null
+$(obj)/%.srec: OBJCOPYFLAGS := -O srec
+$(obj)/%.srec: $(obj)/% FORCE
+	$(call if_changed,objcopy)
 
-$(obj)/%.bin:	$(obj)/%
-		$(OBJCOPY) -O binary $< $@ 2>/dev/null
+$(obj)/%.bin: OBJCOPYFLAGS := -O binary
+$(obj)/%.bin: $(obj)/% FORCE
+	$(call if_changed,objcopy)

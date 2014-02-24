@@ -40,8 +40,10 @@ OBJS	+= $(addprefix $(obj)/,$(notdir $(EXT_SOBJ_FILES-y)))
 $(obj)/demo:	$(OBJS)
 		$(LD) --gc-sections -Ttext $(LOAD_ADDR) -o $@ $^ $(PLATFORM_LIBS)
 
-$(obj)/demo.bin: $(obj)/demo
-		$(OBJCOPY) -O binary $< $@ 2>/dev/null
+# demo.bin is never genrated. Is this necessary?
+OBJCOPYFLAGS_demo.bin := -O binary
+$(obj)/demo.bin: $(obj)/demo FORCE
+	$(call if_changed,objcopy)
 
 # Rule to build generic library C files
 $(addprefix $(obj)/,$(notdir $(EXT_COBJ_FILES-y))): $(obj)/%.o: $(SRCTREE)/lib/%.c FORCE

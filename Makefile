@@ -743,6 +743,9 @@ ifneq ($(CONFIG_SYS_TEXT_BASE),)
 LDFLAGS_u-boot += -Ttext $(CONFIG_SYS_TEXT_BASE)
 endif
 
+quiet_cmd_objcopy = OBJCOPY $@
+cmd_objcopy = $(OBJCOPY) $(OBJCOPYFLAGS) $(OBJCOPYFLAGS_$(@F)) $< $@
+
 all:		$(ALL-y)
 
 PHONY += dtbs
@@ -752,27 +755,31 @@ dtbs dts/dt.dtb: checkdtc u-boot
 u-boot-dtb.bin: u-boot.bin dts/dt.dtb
 		cat $^ >$@
 
-u-boot.hex:	u-boot
-		$(OBJCOPY) $(OBJCOPYFLAGS) -O ihex $< $@
+OBJCOPYFLAGS_u-boot.hex := -O ihex
 
-u-boot.srec:	u-boot
-		$(OBJCOPY) $(OBJCOPYFLAGS) -O srec $< $@
+OBJCOPYFLAGS_u-boot.srec := -O srec
 
-u-boot.bin:	u-boot
-		$(OBJCOPY) $(OBJCOPYFLAGS) -O binary $< $@
-		$(call DO_STATIC_RELA,$<,$@,$(CONFIG_SYS_TEXT_BASE))
-		$(BOARD_SIZE_CHECK)
+u-boot.hex u-boot.srec: u-boot FORCE
+	$(call if_changed,objcopy)
+
+OBJCOPYFLAGS_u-boot.bin := -O binary
+
+u-boot.bin: u-boot FORCE
+	$(call if_changed,objcopy)
+	$(call DO_STATIC_RELA,$<,$@,$(CONFIG_SYS_TEXT_BASE))
+	$(BOARD_SIZE_CHECK)
 
 u-boot.ldr:	u-boot
 		$(CREATE_LDR_ENV)
 		$(LDR) -T $(CONFIG_BFIN_CPU) -c $@ $< $(LDR_FLAGS)
 		$(BOARD_SIZE_CHECK)
 
-u-boot.ldr.hex:	u-boot.ldr
-		$(OBJCOPY) $(OBJCOPYFLAGS) -O ihex $< $@ -I binary
+OBJCOPYFLAGS_u-boot.ldr.hex := -I binary -O ihex
 
-u-boot.ldr.srec:	u-boot.ldr
-		$(OBJCOPY) $(OBJCOPYFLAGS) -O srec $< $@ -I binary
+OBJCOPYFLAGS_u-boot.ldr.srec := -I binary -O srec
+
+u-boot.ldr.hex u-boot.ldr.srec: u-boot.ldr FORCE
+	$(call if_changed,objcopy)
 
 #
 # U-Boot entry point, needed for booting of full-blown U-Boot
@@ -1252,6 +1259,16 @@ quiet_cmd_rmdirs = $(if $(wildcard $(rm-dirs)),CLEAN   $(wildcard $(rm-dirs)))
 
 quiet_cmd_rmfiles = $(if $(wildcard $(rm-files)),CLEAN   $(wildcard $(rm-files)))
       cmd_rmfiles = rm -f $(rm-files)
+
+# read all saved command lines
+
+targets := $(wildcard $(sort $(targets)))
+cmd_files := $(wildcard .*.cmd $(foreach f,$(targets),$(dir $(f)).$(notdir $(f)).cmd))
+
+ifneq ($(cmd_files),)
+  $(cmd_files): ;	# Do not try to update included dependency files
+  include $(cmd_files)
+endif
 
 # Shorthand for $(Q)$(MAKE) -f scripts/Makefile.clean obj=dir
 # Usage:

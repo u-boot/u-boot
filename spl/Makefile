@@ -200,8 +200,13 @@ $(obj)/$(BOARD)-spl.bin: $(obj)/u-boot-spl.bin
 	$(OBJTREE)/tools/mkexynosspl) $(VAR_SIZE_PARAM) $< $@
 endif
 
-$(obj)/$(SPL_BIN).bin:	$(obj)/$(SPL_BIN)
-	$(OBJCOPY) $(OBJCOPYFLAGS) $(SPL_OBJCFLAGS) -O binary $< $@
+quiet_cmd_objcopy = OBJCOPY $@
+cmd_objcopy = $(OBJCOPY) $(OBJCOPYFLAGS) $(OBJCOPYFLAGS_$(@F)) $< $@
+
+OBJCOPYFLAGS_$(SPL_BIN).bin = $(SPL_OBJCFLAGS) -O binary
+
+$(obj)/$(SPL_BIN).bin: $(obj)/$(SPL_BIN) FORCE
+	$(call if_changed,objcopy)
 
 LDFLAGS_$(SPL_BIN) += -T u-boot-spl.lds $(LDFLAGS_FINAL)
 ifneq ($(CONFIG_SPL_TEXT_BASE),)
@@ -228,6 +233,16 @@ cpp_flags := $(KBUILD_CPPFLAGS) $(CPPFLAGS) $(UBOOTINCLUDE) $(NOSTDINC_FLAGS)
 
 $(obj)/u-boot-spl.lds: $(LDSCRIPT) FORCE
 	$(CPP) $(cpp_flags) $(LDPPFLAGS) -I$(obj). -ansi -D__ASSEMBLY__ -P - < $< > $@
+
+# read all saved command lines
+
+targets := $(wildcard $(sort $(targets)))
+cmd_files := $(wildcard $(obj)/.*.cmd $(foreach f,$(targets),$(dir $(f)).$(notdir $(f)).cmd))
+
+ifneq ($(cmd_files),)
+  $(cmd_files): ;	# Do not try to update included dependency files
+  include $(cmd_files)
+endif
 
 PHONY += FORCE
 FORCE:
