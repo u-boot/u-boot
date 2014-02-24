@@ -242,6 +242,7 @@
 #ifdef CONFIG_SPL_BUILD
 #define CONFIG_SYS_DCACHE_OFF
 #undef CONFIG_FPGA
+#undef CONFIG_OF_CONTROL
 #endif
 
 /* MMC support */
