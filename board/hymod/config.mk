@@ -11,4 +11,4 @@
 
 PLATFORM_CPPFLAGS += -I$(TOPDIR)
 
-OBJCFLAGS = --remove-section=.ppcenv
+OBJCOPYFLAGS = --remove-section=.ppcenv

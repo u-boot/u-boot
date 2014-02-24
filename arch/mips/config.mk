@@ -50,4 +50,4 @@ PLATFORM_CPPFLAGS		+= -msoft-float
 PLATFORM_LDFLAGS		+= -G 0 -static -n -nostdlib $(ENDIANNESS)
 PLATFORM_RELFLAGS		+= -ffunction-sections -fdata-sections
 LDFLAGS_FINAL			+= --gc-sections -pie
-OBJCFLAGS			+= --remove-section=.dynsym
+OBJCOPYFLAGS			+= --remove-section=.dynsym

@@ -753,13 +753,13 @@ u-boot-dtb.bin: u-boot.bin dts/dt.dtb
 		cat $^ >$@
 
 u-boot.hex:	u-boot
-		$(OBJCOPY) ${OBJCFLAGS} -O ihex $< $@
+		$(OBJCOPY) $(OBJCOPYFLAGS) -O ihex $< $@
 
 u-boot.srec:	u-boot
-		$(OBJCOPY) ${OBJCFLAGS} -O srec $< $@
+		$(OBJCOPY) $(OBJCOPYFLAGS) -O srec $< $@
 
 u-boot.bin:	u-boot
-		$(OBJCOPY) ${OBJCFLAGS} -O binary $< $@
+		$(OBJCOPY) $(OBJCOPYFLAGS) -O binary $< $@
 		$(call DO_STATIC_RELA,$<,$@,$(CONFIG_SYS_TEXT_BASE))
 		$(BOARD_SIZE_CHECK)
 
@@ -769,10 +769,10 @@ u-boot.ldr:	u-boot
 		$(BOARD_SIZE_CHECK)
 
 u-boot.ldr.hex:	u-boot.ldr
-		$(OBJCOPY) ${OBJCFLAGS} -O ihex $< $@ -I binary
+		$(OBJCOPY) $(OBJCOPYFLAGS) -O ihex $< $@ -I binary
 
 u-boot.ldr.srec:	u-boot.ldr
-		$(OBJCOPY) ${OBJCFLAGS} -O srec $< $@ -I binary
+		$(OBJCOPY) $(OBJCOPYFLAGS) -O srec $< $@ -I binary
 
 #
 # U-Boot entry point, needed for booting of full-blown U-Boot
@@ -810,7 +810,7 @@ u-boot.dis:	u-boot
 # $@ is output, $(1) and $(2) are inputs, $(3) is padded intermediate,
 # $(4) is pad-to
 SPL_PAD_APPEND = \
-		$(OBJCOPY) ${OBJCFLAGS} --pad-to=$(4) -I binary -O binary \
+		$(OBJCOPY) $(OBJCOPYFLAGS) --pad-to=$(4) -I binary -O binary \
 		$(1) $(3); \
 		cat $(3) $(2) > $@; \
 		rm $(3)
@@ -845,7 +845,7 @@ u-boot.ais:       spl/u-boot-spl.bin u-boot.img
 			-e $(CONFIG_SPL_TEXT_BASE) \
 			-d spl/u-boot-spl.bin \
 			spl/u-boot-spl.ais
-		$(OBJCOPY) ${OBJCFLAGS} -I binary \
+		$(OBJCOPY) $(OBJCOPYFLAGS) -I binary \
 			--pad-to=$(CONFIG_SPL_MAX_SIZE) -O binary \
 			spl/u-boot-spl.ais spl/u-boot-spl-pad.ais
 		cat spl/u-boot-spl-pad.ais u-boot.img > u-boot.ais
@@ -870,7 +870,7 @@ u-boot.spr:	u-boot.img spl/u-boot-spl.bin
 
 ifneq ($(CONFIG_TEGRA),)
 u-boot-nodtb-tegra.bin: spl/u-boot-spl.bin u-boot.bin
-		$(OBJCOPY) ${OBJCFLAGS} --pad-to=$(CONFIG_SYS_TEXT_BASE) -O binary spl/u-boot-spl spl/u-boot-spl-pad.bin
+		$(OBJCOPY) $(OBJCOPYFLAGS) --pad-to=$(CONFIG_SYS_TEXT_BASE) -O binary spl/u-boot-spl spl/u-boot-spl-pad.bin
 		cat spl/u-boot-spl-pad.bin u-boot.bin > $@
 		rm spl/u-boot-spl-pad.bin
 

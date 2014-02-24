@@ -41,7 +41,7 @@ endif
 
 RELFLAGS= $(PLATFORM_RELFLAGS)
 
-OBJCFLAGS += --gap-fill=0xff
+OBJCOPYFLAGS += --gap-fill=0xff
 
 CPPFLAGS = $(RELFLAGS)
 CPPFLAGS += -pipe $(PLATFORM_CPPFLAGS)

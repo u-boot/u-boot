@@ -201,7 +201,7 @@ $(obj)/$(BOARD)-spl.bin: $(obj)/u-boot-spl.bin
 endif
 
 $(obj)/$(SPL_BIN).bin:	$(obj)/$(SPL_BIN)
-	$(OBJCOPY) $(OBJCFLAGS) $(SPL_OBJCFLAGS) -O binary $< $@
+	$(OBJCOPY) $(OBJCOPYFLAGS) $(SPL_OBJCFLAGS) -O binary $< $@
 
 LDFLAGS_$(SPL_BIN) += -T u-boot-spl.lds $(LDFLAGS_FINAL)
 ifneq ($(CONFIG_SPL_TEXT_BASE),)

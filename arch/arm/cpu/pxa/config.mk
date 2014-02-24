@@ -18,5 +18,5 @@ PLATFORM_CPPFLAGS += -mcpu=xscale
 #
 
 #ifdef CONFIG_SPL_BUILD
-OBJCFLAGS += -j .text.0 -j .text.1
+OBJCOPYFLAGS += -j .text.0 -j .text.1
 #endif
