@@ -939,7 +939,7 @@ $(sort $(u-boot-init) $(u-boot-main)): $(u-boot-dirs) ;
 # Error messages still appears in the original language
 
 PHONY += $(u-boot-dirs)
-$(u-boot-dirs): depend prepare scripts
+$(u-boot-dirs): prepare scripts
 	$(Q)$(MAKE) $(build)=$@
 
 tools: prepare
@@ -988,7 +988,8 @@ prepare1: prepare2 $(version_h) $(timestamp_h)
 
 archprepare: prepare1 scripts_basic
 
-prepare0: archprepare FORCE
+prepare0: archprepare FORCE include/generated/generic-asm-offsets.h \
+	include/generated/asm-offsets.h
 	@:
 
 # All the preparing..
@@ -1038,26 +1039,28 @@ quiet_cmd_autoconf = GEN     $@
 include/autoconf.mk: include/config.h
 	$(call cmd,autoconf)
 
-u-boot.lds: $(LDSCRIPT) depend prepare
+# ---------------------------------------------------------------------------
+
+PHONY += depend dep
+depend dep:
+	@echo '*** Warning: make $@ is unnecessary now.'
+
+# ---------------------------------------------------------------------------
+
+u-boot.lds: $(LDSCRIPT) prepare
 		$(CPP) $(cpp_flags) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ -P - <$< >$@
 
-nand_spl: depend prepare
+nand_spl: prepare
 		$(MAKE) $(build)=nand_spl/board/$(BOARDDIR) all
 
 u-boot-nand.bin:	nand_spl u-boot.bin
 		cat nand_spl/u-boot-spl-16k.bin u-boot.bin > u-boot-nand.bin
 
-spl/u-boot-spl.bin: tools depend prepare
+spl/u-boot-spl.bin: tools prepare
 		$(MAKE) obj=spl -f $(srctree)/spl/Makefile all
 
-tpl/u-boot-tpl.bin: tools depend prepare
+tpl/u-boot-tpl.bin: tools prepare
 		$(MAKE) obj=tpl -f $(srctree)/spl/Makefile all CONFIG_TPL_BUILD=y
-
-# Explicitly make _depend in subdirs containing multiple targets to prevent
-# parallel sub-makes creating .depend files simultaneously.
-depend dep:	\
-		include/generated/generic-asm-offsets.h \
-		include/generated/asm-offsets.h
 
 TAG_SUBDIRS := $(u-boot-dirs) include
 
