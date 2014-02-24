@@ -177,8 +177,8 @@ $(OBJTREE)/MLO.byteswap: $(obj)/u-boot-spl.bin
 	$(OBJTREE)/tools/mkimage -T omapimage -n byteswap \
 		-a $(CONFIG_SPL_TEXT_BASE) -d $< $@
 
-$(objtree)/SPL : $(obj)/u-boot-spl.bin
-		$(MAKE) $(build)=spl/arch/arm/imx-common $@
+$(objtree)/SPL: $(obj)/u-boot-spl.bin
+	$(Q)$(MAKE) $(build)=spl/arch/arm/imx-common $@
 
 ALL-y	+= $(obj)/$(SPL_BIN).bin
 

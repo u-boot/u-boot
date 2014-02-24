@@ -790,7 +790,7 @@ u-boot.img:	u-boot.bin
 		-d $< $@
 
 u-boot.imx: u-boot.bin
-		$(MAKE) $(build)=arch/arm/imx-common $(objtree)/u-boot.imx
+	$(Q)$(MAKE) $(build)=arch/arm/imx-common $(objtree)/$@
 
 u-boot.kwb:       u-boot.bin
 		tools/mkimage -n $(CONFIG_SYS_KWD_CONFIG) -T kwbimage \
@@ -827,13 +827,8 @@ u-boot-with-spl.bin: spl/u-boot-spl.bin $(SPL_PAYLOAD)
 tpl/u-boot-with-tpl.bin: tpl/u-boot-tpl.bin u-boot.bin
 		$(call SPL_PAD_APPEND,$<,u-boot.bin,tpl/u-boot-tpl-pad.bin,$(CONFIG_TPL_PAD_TO))
 
-u-boot-with-spl.imx: spl/u-boot-spl.bin u-boot.bin
-		$(MAKE) $(build)=arch/arm/imx-common \
-			$(OBJTREE)/u-boot-with-spl.imx
-
-u-boot-with-nand-spl.imx: spl/u-boot-spl.bin u-boot.bin
-		$(MAKE) $(build)=arch/arm/imx-common \
-			$(OBJTREE)/u-boot-with-nand-spl.imx
+u-boot-with-spl.imx u-boot-with-nand-spl.imx: spl/u-boot-spl.bin u-boot.bin
+	$(Q)$(MAKE) $(build)=arch/arm/imx-common $(objtree)/$@
 
 u-boot.ubl:       u-boot-with-spl.bin
 		tools/mkimage -n $(UBL_CONFIG) -T ublimage \
@@ -851,8 +846,8 @@ u-boot.ais:       spl/u-boot-spl.bin u-boot.img
 		cat spl/u-boot-spl-pad.ais u-boot.img > u-boot.ais
 
 
-u-boot.sb:       u-boot.bin spl/u-boot-spl.bin
-		$(MAKE) $(build)=$(CPUDIR)/$(SOC)/ $(OBJTREE)/u-boot.sb
+u-boot.sb: u-boot.bin spl/u-boot-spl.bin
+	$(Q)$(MAKE) $(build)=arch/arm/cpu/arm926ejs/mxs $(objtree)/u-boot.sb
 
 # On x600 (SPEAr600) U-Boot is appended to U-Boot SPL.
 # Both images are created using mkimage (crc etc), so that the ROM
@@ -1050,16 +1045,16 @@ u-boot.lds: $(LDSCRIPT) prepare
 		$(CPP) $(cpp_flags) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ -P - <$< >$@
 
 nand_spl: prepare
-		$(MAKE) $(build)=nand_spl/board/$(BOARDDIR) all
+	$(Q)$(MAKE) $(build)=nand_spl/board/$(BOARDDIR) all
 
 u-boot-nand.bin:	nand_spl u-boot.bin
 		cat nand_spl/u-boot-spl-16k.bin u-boot.bin > u-boot-nand.bin
 
 spl/u-boot-spl.bin: tools prepare
-		$(MAKE) obj=spl -f $(srctree)/spl/Makefile all
+	$(Q)$(MAKE) obj=spl -f $(srctree)/spl/Makefile all
 
 tpl/u-boot-tpl.bin: tools prepare
-		$(MAKE) obj=tpl -f $(srctree)/spl/Makefile all CONFIG_TPL_BUILD=y
+	$(Q)$(MAKE) obj=tpl -f $(srctree)/spl/Makefile all CONFIG_TPL_BUILD=y
 
 TAG_SUBDIRS := $(u-boot-dirs) include
 
