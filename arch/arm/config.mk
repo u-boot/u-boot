@@ -112,3 +112,13 @@ OBJCOPYFLAGS += -j .text -j .rodata -j .data -j .u_boot_list -j .rela.dyn
 else
 OBJCOPYFLAGS += -j .text -j .rodata -j .hash -j .data -j .got.plt -j .u_boot_list -j .rel.dyn
 endif
+
+ifneq ($(CONFIG_IMX_CONFIG),)
+ifdef CONFIG_SPL
+ifndef CONFIG_SPL_BUILD
+ALL-y += SPL
+endif
+else
+ALL-y += u-boot.imx
+endif
+endif

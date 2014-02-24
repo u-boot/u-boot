@@ -13,13 +13,3 @@ PLATFORM_CPPFLAGS += $(PF_CPPFLAGS_ARMV7)
 # SEE README.arm-unaligned-accesses
 PF_NO_UNALIGNED := $(call cc-option, -mno-unaligned-access,)
 PLATFORM_NO_UNALIGNED := $(PF_NO_UNALIGNED)
-
-ifneq ($(CONFIG_IMX_CONFIG),)
-ifdef CONFIG_SPL
-ifdef CONFIG_SPL_BUILD
-ALL-y	+= SPL
-endif
-else
-ALL-y	+= u-boot.imx
-endif
-endif

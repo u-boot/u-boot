@@ -180,9 +180,6 @@ MKIMAGEFLAGS_MLO.byteswap = -T omapimage -n byteswap -a $(CONFIG_SPL_TEXT_BASE)
 MLO MLO.byteswap: $(obj)/u-boot-spl.bin
 	$(call if_changed,mkimage)
 
-SPL: $(obj)/u-boot-spl.bin
-	$(Q)$(MAKE) $(build)=arch/arm/imx-common $@
-
 ALL-y	+= $(obj)/$(SPL_BIN).bin
 
 ifdef CONFIG_SAMSUNG
