@@ -988,9 +988,8 @@ prepare1: prepare2 $(version_h) $(timestamp_h)
 
 archprepare: prepare1 scripts_basic
 
-prepare0: archprepare FORCE include/generated/generic-asm-offsets.h \
-	include/generated/asm-offsets.h
-	@:
+prepare0: archprepare FORCE
+	$(Q)$(MAKE) $(build)=.
 
 # All the preparing..
 prepare: prepare0
@@ -1114,37 +1113,6 @@ checkdtc:
 		echo '*** Your dtc is too old, please upgrade to dtc 1.4 or newer'; \
 		false; \
 	fi
-
-quiet_cmd_offsets = GEN     $@
-      cmd_offsets = $(srctree)/tools/scripts/make-asm-offsets $< $@
-
-include/generated/generic-asm-offsets.h: lib/asm-offsets.s
-	$(call cmd,offsets)
-
-quiet_cmd_asm-offsets.s = CC      $@
-      cmd_asm-offsets.s = mkdir -p lib; \
-		$(CC) -DDO_DEPS_ONLY \
-		$(c_flags) $(CFLAGS_$(BCURDIR)/$(@F)) $(CFLAGS_$(BCURDIR)) \
-		-o $@ $< -c -S
-
-lib/asm-offsets.s: $(srctree)/lib/asm-offsets.c include/config.h
-	$(call cmd,asm-offsets.s)
-
-include/generated/asm-offsets.h: $(CPUDIR)/$(SOC)/asm-offsets.s
-	$(call cmd,offsets)
-
-quiet_cmd_soc_asm-offsets.s = CC      $@
-      cmd_soc_asm-offsets.s = mkdir -p $(CPUDIR)/$(SOC); \
-	if [ -f $(srctree)/$(CPUDIR)/$(SOC)/asm-offsets.c ];then \
-		$(CC) -DDO_DEPS_ONLY \
-		$(c_flags) $(CFLAGS_$(BCURDIR)/$(@F)) $(CFLAGS_$(BCURDIR)) \
-			-o $@ $(srctree)/$(CPUDIR)/$(SOC)/asm-offsets.c -c -S; \
-	else \
-		touch $@; \
-	fi
-
-$(CPUDIR)/$(SOC)/asm-offsets.s:	include/config.h
-	$(call cmd,soc_asm-offsets.s)
 
 #########################################################################
 
