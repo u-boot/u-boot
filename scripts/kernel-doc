@@ -392,8 +392,8 @@ sub usage {
 sub get_kernel_version() {
     my $version = 'unknown kernel version';
 
-    if (defined($ENV{'U_BOOT_VERSION'})) {
-	$version = $ENV{'U_BOOT_VERSION'};
+    if (defined($ENV{'UBOOTVERSION'})) {
+	$version = $ENV{'UBOOTVERSION'};
     }
     return $version;
 }

@@ -131,7 +131,7 @@ index = index.html
 main_idx = doc/DocBook/$(index)
 build_main_index = rm -rf $(main_idx); \
 		   echo '<h1>U-Boot Bootloader HTML Documentation</h1>' >> $(main_idx) && \
-		   echo '<h2>U-Boot Version: $(U_BOOT_VERSION)</h2>' >> $(main_idx) && \
+		   echo '<h2>U-Boot Version: $(UBOOTVERSION)</h2>' >> $(main_idx) && \
 		   cat $(HTML) >> $(main_idx)
 
 quiet_cmd_db2html = HTML    $@
