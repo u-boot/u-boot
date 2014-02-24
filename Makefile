@@ -750,14 +750,17 @@ quiet_cmd_mkimage = UIMAGE  $@
 cmd_mkimage = $(objtree)/tools/mkimage $(MKIMAGEFLAGS_$(@F)) -d $< $@ \
 	$(if $(KBUILD_VERBOSE:1=), >/dev/null)
 
+quiet_cmd_cat = CAT     $@
+cmd_cat = cat $(filter-out $(PHONY), $^) > $@
+
 all:		$(ALL-y)
 
 PHONY += dtbs
 dtbs dts/dt.dtb: checkdtc u-boot
 	$(Q)$(MAKE) $(build)=dts dtbs
 
-u-boot-dtb.bin: u-boot.bin dts/dt.dtb
-		cat $^ >$@
+u-boot-dtb.bin: u-boot.bin dts/dt.dtb FORCE
+	$(call if_changed,cat)
 
 OBJCOPYFLAGS_u-boot.hex := -O ihex
 
@@ -879,13 +882,13 @@ u-boot-nodtb-tegra.bin: spl/u-boot-spl.bin u-boot.bin
 		rm spl/u-boot-spl-pad.bin
 
 ifeq ($(CONFIG_OF_SEPARATE),y)
-u-boot-dtb-tegra.bin: u-boot-nodtb-tegra.bin dts/dt.dtb
-		cat $^ > $@
+u-boot-dtb-tegra.bin: u-boot-nodtb-tegra.bin dts/dt.dtb FORCE
+	$(call if_changed,cat)
 endif
 endif
 
-u-boot-img.bin: spl/u-boot-spl.bin u-boot.img
-		cat spl/u-boot-spl.bin u-boot.img > $@
+u-boot-img.bin: spl/u-boot-spl.bin u-boot.img FORCE
+	$(call if_changed,cat)
 
 # PPC4xx needs the SPL at the end of the image, since the reset vector
 # is located at 0xfffffffc. So we can't use the "u-boot-img.bin" target
@@ -1053,11 +1056,15 @@ depend dep:
 u-boot.lds: $(LDSCRIPT) prepare
 		$(CPP) $(cpp_flags) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ -P - <$< >$@
 
+PHONY += nand_spl
 nand_spl: prepare
 	$(Q)$(MAKE) $(build)=nand_spl/board/$(BOARDDIR) all
 
-u-boot-nand.bin:	nand_spl u-boot.bin
-		cat nand_spl/u-boot-spl-16k.bin u-boot.bin > u-boot-nand.bin
+nand_spl/u-boot-spl-16k.bin: nand_spl
+	@:
+
+u-boot-nand.bin: nand_spl/u-boot-spl-16k.bin u-boot.bin FORCE
+	$(call if_changed,cat)
 
 spl/u-boot-spl.bin: tools prepare
 	$(Q)$(MAKE) obj=spl -f $(srctree)/spl/Makefile all
