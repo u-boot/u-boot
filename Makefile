@@ -738,7 +738,7 @@ endif
 endif
 endif
 
-LDFLAGS_u-boot += -T u-boot.lds $(LDFLAGS_FINAL)
+LDFLAGS_u-boot += $(LDFLAGS_FINAL)
 ifneq ($(CONFIG_SYS_TEXT_BASE),)
 LDFLAGS_u-boot += -Ttext $(CONFIG_SYS_TEXT_BASE)
 endif
@@ -913,27 +913,22 @@ u-boot.elf: u-boot.bin
 		--defsym=_start=$(CONFIG_SYS_TEXT_BASE) \
 		-Ttext=$(CONFIG_SYS_TEXT_BASE)
 
-ifeq ($(CONFIG_SANDBOX),y)
-GEN_UBOOT = \
-		$(CC) $(SYMS) -T u-boot.lds \
-			-Wl,--start-group $(u-boot-main) -Wl,--end-group \
-			$(PLATFORM_LIBS) -Wl,-Map -Wl,u-boot.map -o u-boot
-else
-GEN_UBOOT = \
-		$(LD) $(LDFLAGS) $(LDFLAGS_$(@F)) \
-			$(u-boot-init) \
-			--start-group $(u-boot-main) --end-group $(PLATFORM_LIBS) \
-			-Map u-boot.map -o u-boot
-endif
+# Rule to link u-boot
+# May be overridden by arch/$(ARCH)/config.mk
+quiet_cmd_u-boot__ ?= LD      $@
+      cmd_u-boot__ ?= $(LD) $(LDFLAGS) $(LDFLAGS_u-boot) -o $@ \
+      -T u-boot.lds $(u-boot-init)                             \
+      --start-group $(u-boot-main) --end-group                 \
+      $(PLATFORM_LIBS) -Map u-boot.map
 
 u-boot:	$(u-boot-init) $(u-boot-main) u-boot.lds
-		$(GEN_UBOOT)
+	$(call if_changed,u-boot__)
 ifeq ($(CONFIG_KALLSYMS),y)
-		smap=`$(call SYSTEM_MAP,u-boot) | \
-			awk '$$2 ~ /[tTwW]/ {printf $$1 $$3 "\\\\000"}'` ; \
-		$(CC) $(c_flags) -DSYSTEM_MAP="\"$${smap}\"" \
-			-c $(srctree)/common/system_map.c -o common/system_map.o
-		$(GEN_UBOOT) common/system_map.o
+	smap=`$(call SYSTEM_MAP,u-boot) | \
+		awk '$$2 ~ /[tTwW]/ {printf $$1 $$3 "\\\\000"}'` ; \
+	$(CC) $(c_flags) -DSYSTEM_MAP="\"$${smap}\"" \
+		-c $(srctree)/common/system_map.c -o common/system_map.o
+	$(call cmd,u-boot__) common/system_map.o
 endif
 
 # The actual objects are generated when descending, 
