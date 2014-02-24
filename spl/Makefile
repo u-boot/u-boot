@@ -234,8 +234,12 @@ $(u-boot-spl-dirs):
 # FIX ME
 cpp_flags := $(KBUILD_CPPFLAGS) $(CPPFLAGS) $(UBOOTINCLUDE) $(NOSTDINC_FLAGS)
 
+quiet_cmd_cpp_lds = LDS     $@
+cmd_cpp_lds = $(CPP) $(cpp_flags) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ \
+		-x assembler-with-cpp -P -o $@ $<
+
 $(obj)/u-boot-spl.lds: $(LDSCRIPT) FORCE
-	$(CPP) $(cpp_flags) $(LDPPFLAGS) -I$(obj). -ansi -D__ASSEMBLY__ -P - < $< > $@
+	$(call if_changed,cpp_lds)
 
 # read all saved command lines
 

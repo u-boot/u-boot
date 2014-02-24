@@ -24,22 +24,18 @@ ELF := $(strip $(extra-y))
 extra-y += $(addsuffix .srec,$(extra-y)) $(addsuffix .bin,$(extra-y))
 clean-files  := $(extra-) $(addsuffix .srec,$(extra-)) $(addsuffix .bin,$(extra-))
 
-
 COBJS	:= $(ELF:=.o)
 
 LIB	= $(obj)/libstubs.o
 
-LIBAOBJS-$(CONFIG_PPC) += ppc_longjmp.o ppc_setjmp.o
-LIBAOBJS-$(CONFIG_8xx) += test_burst_lib.o
-LIBAOBJS := $(LIBAOBJS-y)
-
-LIBCOBJS = stubs.o
+LIBOBJS-$(CONFIG_PPC) += ppc_longjmp.o ppc_setjmp.o
+LIBOBJS-$(CONFIG_8xx) += test_burst_lib.o
+LIBOBJS-y += stubs.o
 
 .SECONDARY: $(call objectify,$(COBJS))
-targets += $(patsubst $(obj)/%,%,$(LIB)) $(COBJS) $(LIBAOBJS) $(LIBCOBJS)
+targets += $(patsubst $(obj)/%,%,$(LIB)) $(COBJS) $(LIBOBJS-y)
 
-LIBOBJS	= $(addprefix $(obj)/,$(LIBAOBJS) $(LIBCOBJS))
-
+LIBOBJS	:= $(addprefix $(obj)/,$(LIBOBJS-y))
 ELF	:= $(addprefix $(obj)/,$(ELF))
 
 gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
@@ -66,11 +62,12 @@ quiet_cmd_link_lib = LD      $@
 $(LIB):	$(LIBOBJS) FORCE
 	$(call if_changed,link_lib)
 
-$(ELF):
-$(obj)/%:	$(obj)/%.o $(LIB)
-		$(LD) $(LDFLAGS) -g -Ttext $(CONFIG_STANDALONE_LOAD_ADDR) \
-			-o $@ -e $(SYM_PREFIX)$(notdir $(<:.o=)) $< $(LIB) \
-			-L$(gcclibdir) -lgcc
+quiet_cmd_link_elf = LD      $@
+      cmd_link_elf = $(LD) $(LDFLAGS) -g -Ttext $(CONFIG_STANDALONE_LOAD_ADDR) \
+		     -o $@ -e $(SYM_PREFIX)$(@F) $< $(LIB) -L$(gcclibdir) -lgcc
+
+$(ELF): $(obj)/%: $(obj)/%.o $(LIB) FORCE
+	$(call if_changed,link_elf)
 
 $(obj)/%.srec: OBJCOPYFLAGS := -O srec
 $(obj)/%.srec: $(obj)/% FORCE

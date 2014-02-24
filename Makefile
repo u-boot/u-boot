@@ -1048,9 +1048,12 @@ depend dep:
 	@echo '*** Warning: make $@ is unnecessary now.'
 
 # ---------------------------------------------------------------------------
+quiet_cmd_cpp_lds = LDS     $@
+cmd_cpp_lds = $(CPP) $(cpp_flags) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ \
+		-x assembler-with-cpp -P -o $@ $<
 
-u-boot.lds: $(LDSCRIPT) prepare
-		$(CPP) $(cpp_flags) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ -P - <$< >$@
+u-boot.lds: $(LDSCRIPT) prepare FORCE
+	$(call if_changed,cpp_lds)
 
 PHONY += nand_spl
 nand_spl: prepare

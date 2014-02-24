@@ -37,5 +37,9 @@ ifneq ($(CONFIG_BFIN_BOOT_MODE),BFIN_BOOT_BYPASS)
 endif
 
 CPPFLAGS_init.lds := -ansi
+
+quiet_cmd_link_init = LD      $@
+      cmd_link_init = $(LD) $(LDFLAGS) -T $^ -o $@
 $(obj)/init.elf: $(obj)/init.lds $(obj)/init.o $(obj)/initcode.o
-	$(LD) $(LDFLAGS) -T $^ -o $@
+	$(call if_changed,link_init)
+targets += init.lds init.o

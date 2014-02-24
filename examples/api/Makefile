@@ -15,30 +15,32 @@ endif
 extra-y = demo
 
 # Source files located in the examples/api directory
-SOBJ_FILES-y += crt0.o
-COBJ_FILES-y += demo.o
-COBJ_FILES-y += glue.o
-COBJ_FILES-y += libgenwrap.o
+OBJ-y += crt0.o
+OBJ-y += demo.o
+OBJ-y += glue.o
+OBJ-y += libgenwrap.o
 
 # Source files which exist outside the examples/api directory
-EXT_COBJ_FILES-y += lib/crc32.o
-EXT_COBJ_FILES-y += lib/ctype.o
-EXT_COBJ_FILES-y += lib/div64.o
-EXT_COBJ_FILES-y += lib/string.o
-EXT_COBJ_FILES-y += lib/time.o
-EXT_COBJ_FILES-y += lib/vsprintf.o
-EXT_SOBJ_FILES-$(CONFIG_PPC) += arch/powerpc/lib/ppcstring.o
+EXT_COBJ-y += lib/crc32.o
+EXT_COBJ-y += lib/ctype.o
+EXT_COBJ-y += lib/div64.o
+EXT_COBJ-y += lib/string.o
+EXT_COBJ-y += lib/time.o
+EXT_COBJ-y += lib/vsprintf.o
+EXT_SOBJ-$(CONFIG_PPC) += arch/powerpc/lib/ppcstring.o
 
 # Create a list of object files to be compiled
-OBJS	+= $(addprefix $(obj)/,$(SOBJ_FILES-y))
-OBJS	+= $(addprefix $(obj)/,$(COBJ_FILES-y))
-OBJS	+= $(addprefix $(obj)/,$(notdir $(EXT_COBJ_FILES-y)))
-OBJS	+= $(addprefix $(obj)/,$(notdir $(EXT_SOBJ_FILES-y)))
+OBJS := $(OBJ-y) $(notdir $(EXT_COBJ-y) $(EXT_SOBJ-y))
+targets += $(OBJS)
+OBJS := $(addprefix $(obj)/,$(OBJS))
 
 #########################################################################
 
-$(obj)/demo:	$(OBJS)
-		$(LD) --gc-sections -Ttext $(LOAD_ADDR) -o $@ $^ $(PLATFORM_LIBS)
+quiet_cmd_link_demo = LD      $@
+cmd_link_demo = $(LD) --gc-sections -Ttext $(LOAD_ADDR) -o $@ $(filter-out $(PHONY), $^) $(PLATFORM_LIBS)
+
+$(obj)/demo: $(OBJS) FORCE
+	$(call if_changed,link_demo)
 
 # demo.bin is never genrated. Is this necessary?
 OBJCOPYFLAGS_demo.bin := -O binary
@@ -46,10 +48,10 @@ $(obj)/demo.bin: $(obj)/demo FORCE
 	$(call if_changed,objcopy)
 
 # Rule to build generic library C files
-$(addprefix $(obj)/,$(notdir $(EXT_COBJ_FILES-y))): $(obj)/%.o: $(SRCTREE)/lib/%.c FORCE
+$(addprefix $(obj)/,$(notdir $(EXT_COBJ-y))): $(obj)/%.o: lib/%.c FORCE
 	$(call cmd,force_checksrc)
 	$(call if_changed_rule,cc_o_c)
 
 # Rule to build architecture-specific library assembly files
-$(addprefix $(obj)/,$(notdir $(EXT_SOBJ_FILES-y))): $(obj)/%.o: $(SRCTREE)/arch/$(ARCH)/lib/%.S
+$(addprefix $(obj)/,$(notdir $(EXT_SOBJ-y))): $(obj)/%.o: arch/powerpc/lib/%.S FORCE
 	$(call if_changed_dep,as_o_S)
