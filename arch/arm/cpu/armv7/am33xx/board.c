@@ -36,11 +36,15 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const struct gpio_bank gpio_bank_am33xx[4] = {
+static const struct gpio_bank gpio_bank_am33xx[] = {
 	{ (void *)AM33XX_GPIO0_BASE, METHOD_GPIO_24XX },
 	{ (void *)AM33XX_GPIO1_BASE, METHOD_GPIO_24XX },
 	{ (void *)AM33XX_GPIO2_BASE, METHOD_GPIO_24XX },
 	{ (void *)AM33XX_GPIO3_BASE, METHOD_GPIO_24XX },
+#ifdef CONFIG_AM43XX
+	{ (void *)AM33XX_GPIO4_BASE, METHOD_GPIO_24XX },
+	{ (void *)AM33XX_GPIO5_BASE, METHOD_GPIO_24XX },
+#endif
 };
 
 const struct gpio_bank *const omap_gpio_bank = gpio_bank_am33xx;

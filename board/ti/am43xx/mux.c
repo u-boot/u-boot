@@ -33,8 +33,8 @@ static struct module_pin_mux i2c0_pin_mux[] = {
 	{-1},
 };
 
-static struct module_pin_mux gpio0_22_pin_mux[] = {
-	{OFFSET(ddr_ba2), (MODE(9) | PULLUP_EN)},	/* GPIO0_22 */
+static struct module_pin_mux gpio5_7_pin_mux[] = {
+	{OFFSET(spi0_cs0), (MODE(7) | PULLUP_EN)},	/* GPIO5_7 */
 	{-1},
 };
 
@@ -49,7 +49,7 @@ void enable_board_pin_mux(void)
 	configure_module_pin_mux(i2c0_pin_mux);
 
 	if (board_is_gpevm())
-		configure_module_pin_mux(gpio0_22_pin_mux);
+		configure_module_pin_mux(gpio5_7_pin_mux);
 }
 
 void enable_i2c0_pin_mux(void)

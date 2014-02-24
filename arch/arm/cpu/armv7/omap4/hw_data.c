@@ -172,6 +172,20 @@ struct dplls omap4430_dplls_es1 = {
 	.ddr = NULL
 };
 
+struct dplls omap4430_dplls_es20 = {
+	.mpu = mpu_dpll_params_1200mhz,
+	.core = core_dpll_params_es2_1600mhz_ddr200mhz,
+	.per = per_dpll_params_1536mhz,
+	.iva = iva_dpll_params_1862mhz,
+#ifdef CONFIG_SYS_OMAP_ABE_SYSCK
+	.abe = abe_dpll_params_sysclk_196608khz,
+#else
+	.abe = &abe_dpll_params_32k_196608khz,
+#endif
+	.usb = usb_dpll_params_1920mhz,
+	.ddr = NULL
+};
+
 struct dplls omap4430_dplls = {
 	.mpu = mpu_dpll_params_1200mhz,
 	.core = core_dpll_params_1600mhz,
@@ -413,6 +427,10 @@ void hw_data_init(void)
 	break;
 
 	case OMAP4430_ES2_0:
+	*dplls_data = &omap4430_dplls_es20;
+	*omap_vcores = &omap4430_volts;
+	break;
+
 	case OMAP4430_ES2_1:
 	case OMAP4430_ES2_2:
 	case OMAP4430_ES2_3:

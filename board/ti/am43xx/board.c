@@ -346,14 +346,14 @@ static void enable_vtt_regulator(void)
 	u32 temp;
 
 	/* enable module */
-	writel(GPIO_CTRL_ENABLEMODULE, AM33XX_GPIO0_BASE + OMAP_GPIO_CTRL);
+	writel(GPIO_CTRL_ENABLEMODULE, AM33XX_GPIO5_BASE + OMAP_GPIO_CTRL);
 
-	/* enable output for GPIO0_22 */
-	writel(GPIO_SETDATAOUT(GPIO_22),
-	       AM33XX_GPIO0_BASE + OMAP_GPIO_SETDATAOUT);
-	temp = readl(AM33XX_GPIO0_BASE + OMAP_GPIO_OE);
-	temp = temp & ~(GPIO_OE_ENABLE(GPIO_22));
-	writel(temp, AM33XX_GPIO0_BASE + OMAP_GPIO_OE);
+	/* enable output for GPIO5_7 */
+	writel(GPIO_SETDATAOUT(7),
+	       AM33XX_GPIO5_BASE + OMAP_GPIO_SETDATAOUT);
+	temp = readl(AM33XX_GPIO5_BASE + OMAP_GPIO_OE);
+	temp = temp & ~(GPIO_OE_ENABLE(7));
+	writel(temp, AM33XX_GPIO5_BASE + OMAP_GPIO_OE);
 }
 
 void sdram_init(void)
