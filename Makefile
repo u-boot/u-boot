@@ -753,6 +753,11 @@ cmd_mkimage = $(objtree)/tools/mkimage $(MKIMAGEFLAGS_$(@F)) -d $< $@ \
 quiet_cmd_cat = CAT     $@
 cmd_cat = cat $(filter-out $(PHONY), $^) > $@
 
+append = cat $(filter-out $< $(PHONY), $^) >> $@
+
+quiet_cmd_pad_cat = CAT     $@
+cmd_pad_cat = $(cmd_objcopy) && $(append) || rm -f $@
+
 all:		$(ALL-y)
 
 PHONY += dtbs
@@ -818,25 +823,21 @@ u-boot.sha1:	u-boot.bin
 u-boot.dis:	u-boot
 		$(OBJDUMP) -d $< > $@
 
-# $@ is output, $(1) and $(2) are inputs, $(3) is padded intermediate,
-# $(4) is pad-to
-SPL_PAD_APPEND = \
-		$(OBJCOPY) $(OBJCOPYFLAGS) --pad-to=$(4) -I binary -O binary \
-		$(1) $(3); \
-		cat $(3) $(2) > $@; \
-		rm $(3)
-
 ifdef CONFIG_TPL
 SPL_PAYLOAD := tpl/u-boot-with-tpl.bin
 else
 SPL_PAYLOAD := u-boot.bin
 endif
 
-u-boot-with-spl.bin: spl/u-boot-spl.bin $(SPL_PAYLOAD)
-		$(call SPL_PAD_APPEND,$<,$(SPL_PAYLOAD),spl/u-boot-spl-pad.bin,$(CONFIG_SPL_PAD_TO))
+OBJCOPYFLAGS_u-boot-with-spl.bin = -I binary -O binary \
+				   --pad-to=$(CONFIG_SPL_PAD_TO)
+u-boot-with-spl.bin: spl/u-boot-spl.bin $(SPL_PAYLOAD) FORCE
+	$(call if_changed,pad_cat)
 
-tpl/u-boot-with-tpl.bin: tpl/u-boot-tpl.bin u-boot.bin
-		$(call SPL_PAD_APPEND,$<,u-boot.bin,tpl/u-boot-tpl-pad.bin,$(CONFIG_TPL_PAD_TO))
+OBJCOPYFLAGS_u-boot-with-tpl.bin = -I binary -O binary \
+				   --pad-to=$(CONFIG_TPL_PAD_TO)
+tpl/u-boot-with-tpl.bin: tpl/u-boot-tpl.bin u-boot.bin FORCE
+	$(call if_changed,pad_cat)
 
 u-boot-with-spl.imx u-boot-with-nand-spl.imx: spl/u-boot-spl.bin u-boot.bin
 	$(Q)$(MAKE) $(build)=arch/arm/imx-common $(objtree)/$@
@@ -846,17 +847,15 @@ MKIMAGEFLAGS_u-boot.ubl = -n $(UBL_CONFIG) -T ublimage -e $(CONFIG_SYS_TEXT_BASE
 u-boot.ubl: u-boot-with-spl.bin FORCE
 	$(call if_changed,mkimage)
 
-u-boot.ais:       spl/u-boot-spl.bin u-boot.img
-		tools/mkimage -s -n $(if $(CONFIG_AIS_CONFIG_FILE),$(srctree)/$(CONFIG_AIS_CONFIG_FILE:"%"=%),"/dev/null") \
-			-T aisimage \
-			-e $(CONFIG_SPL_TEXT_BASE) \
-			-d spl/u-boot-spl.bin \
-			spl/u-boot-spl.ais
-		$(OBJCOPY) $(OBJCOPYFLAGS) -I binary \
-			--pad-to=$(CONFIG_SPL_MAX_SIZE) -O binary \
-			spl/u-boot-spl.ais spl/u-boot-spl-pad.ais
-		cat spl/u-boot-spl-pad.ais u-boot.img > u-boot.ais
+MKIMAGEFLAGS_u-boot-spl.ais = -s -n $(if $(CONFIG_AIS_CONFIG_FILE), \
+	$(srctree)/$(CONFIG_AIS_CONFIG_FILE:"%"=%),"/dev/null") \
+	-T aisimage -e $(CONFIG_SPL_TEXT_BASE)
+spl/u-boot-spl.ais: spl/u-boot-spl.bin FORCE
+	$(call if_changed,mkimage)
 
+OBJCOPYFLAGS_u-boot.ais = -I binary -O binary --pad-to=$(CONFIG_SPL_MAX_SIZE)
+u-boot.ais: spl/u-boot-spl.ais u-boot.img FORCE
+	$(call if_changed,pad_cat)
 
 u-boot.sb: u-boot.bin spl/u-boot-spl.bin
 	$(Q)$(MAKE) $(build)=arch/arm/cpu/arm926ejs/mxs $(objtree)/u-boot.sb
@@ -867,19 +866,20 @@ u-boot.sb: u-boot.bin spl/u-boot-spl.bin
 # SPL image (with mkimage header) and not the binary. Otherwise the resulting image
 # which is loaded/copied by the ROM bootloader to SRAM doesn't fit.
 # The resulting image containing both U-Boot images is called u-boot.spr
-u-boot.spr:	u-boot.img spl/u-boot-spl.bin
-		tools/mkimage -A $(ARCH) -T firmware -C none \
-		-a $(CONFIG_SPL_TEXT_BASE) -e $(CONFIG_SPL_TEXT_BASE) -n XLOADER \
-		-d spl/u-boot-spl.bin $@
-		$(OBJCOPY) -I binary -O binary \
-			--pad-to=$(CONFIG_SPL_PAD_TO) --gap-fill=0xff $@
-		cat u-boot.img >> $@
+MKIMAGEFLAGS_u-boot-spl.img = -A $(ARCH) -T firmware -C none \
+	-a $(CONFIG_SPL_TEXT_BASE) -e $(CONFIG_SPL_TEXT_BASE) -n XLOADER
+spl/u-boot-spl.img: spl/u-boot-spl.bin FORCE
+	$(call if_changed,mkimage)
+
+OBJCOPYFLAGS_u-boot.spr = -I binary -O binary --pad-to=$(CONFIG_SPL_PAD_TO) \
+			  --gap-fill=0xff
+u-boot.spr: spl/u-boot-spl.img u-boot.img FORCE
+	$(call if_changed,pad_cat)
 
 ifneq ($(CONFIG_TEGRA),)
-u-boot-nodtb-tegra.bin: spl/u-boot-spl.bin u-boot.bin
-		$(OBJCOPY) $(OBJCOPYFLAGS) --pad-to=$(CONFIG_SYS_TEXT_BASE) -O binary spl/u-boot-spl spl/u-boot-spl-pad.bin
-		cat spl/u-boot-spl-pad.bin u-boot.bin > $@
-		rm spl/u-boot-spl-pad.bin
+OBJCOPYFLAGS_u-boot-nodtb-tegra.bin = -O binary --pad-to=$(CONFIG_SYS_TEXT_BASE)
+u-boot-nodtb-tegra.bin: spl/u-boot-spl u-boot.bin FORCE
+	$(call if_changed,pad_cat)
 
 ifeq ($(CONFIG_OF_SEPARATE),y)
 u-boot-dtb-tegra.bin: u-boot-nodtb-tegra.bin dts/dt.dtb FORCE
@@ -895,10 +895,11 @@ u-boot-img.bin: spl/u-boot-spl.bin u-boot.img FORCE
 # and need to introduce a new build target with the full blown U-Boot
 # at the start padded up to the start of the SPL image. And then concat
 # the SPL image to the end.
-u-boot-img-spl-at-end.bin: spl/u-boot-spl.bin u-boot.img
-		$(OBJCOPY) -I binary -O binary --pad-to=$(CONFIG_UBOOT_PAD_TO) \
-			 --gap-fill=0xff u-boot.img $@
-		cat spl/u-boot-spl.bin >> $@
+
+OBJCOPYFLAGS_u-boot-img-spl-at-end.bin := -I binary -O binary \
+	--pad-to=$(CONFIG_UBOOT_PAD_TO) --gap-fill=0xff
+u-boot-img-spl-at-end.bin: u-boot.img spl/u-boot-spl.bin FORCE
+	$(call if_changed,pad_cat)
 
 # Create a new ELF from a raw binary file.  This is useful for arm64
 # where static relocation needs to be performed on the raw binary,
@@ -1066,7 +1067,9 @@ nand_spl/u-boot-spl-16k.bin: nand_spl
 u-boot-nand.bin: nand_spl/u-boot-spl-16k.bin u-boot.bin FORCE
 	$(call if_changed,cat)
 
-spl/u-boot-spl.bin: tools prepare
+spl/u-boot-spl.bin: spl/u-boot-spl
+	@:
+spl/u-boot-spl: tools prepare
 	$(Q)$(MAKE) obj=spl -f $(srctree)/spl/Makefile all
 
 tpl/u-boot-tpl.bin: tools prepare
