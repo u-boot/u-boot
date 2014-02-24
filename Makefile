@@ -363,7 +363,9 @@ endif
 endif
 
 ifneq ($(CONFIG_ZYNQ),)
+ifeq ($(CONFIG_SPL),y)
 ALL-y += $(obj)boot.bin
+endif
 endif
 
 build := -f $(TOPDIR)/scripts/Makefile.build -C
