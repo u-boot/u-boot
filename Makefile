@@ -815,7 +815,7 @@ u-boot.img u-boot.kwb u-boot.pbl: u-boot.bin FORCE
 	$(call if_changed,mkimage)
 
 u-boot.imx: u-boot.bin
-	$(Q)$(MAKE) $(build)=arch/arm/imx-common $(objtree)/$@
+	$(Q)$(MAKE) $(build)=arch/arm/imx-common $@
 
 u-boot.sha1:	u-boot.bin
 		tools/ubsha1 u-boot.bin
@@ -840,7 +840,7 @@ tpl/u-boot-with-tpl.bin: tpl/u-boot-tpl.bin u-boot.bin FORCE
 	$(call if_changed,pad_cat)
 
 u-boot-with-spl.imx u-boot-with-nand-spl.imx: spl/u-boot-spl.bin u-boot.bin
-	$(Q)$(MAKE) $(build)=arch/arm/imx-common $(objtree)/$@
+	$(Q)$(MAKE) $(build)=arch/arm/imx-common $@
 
 MKIMAGEFLAGS_u-boot.ubl = -n $(UBL_CONFIG) -T ublimage -e $(CONFIG_SYS_TEXT_BASE)
 

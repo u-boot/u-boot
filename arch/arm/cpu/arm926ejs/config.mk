@@ -10,7 +10,7 @@ PLATFORM_CPPFLAGS += -march=armv5te
 ifneq ($(CONFIG_IMX_CONFIG),)
 ifdef CONFIG_SPL
 ifdef CONFIG_SPL_BUILD
-ALL-y	+= $(OBJTREE)/SPL
+ALL-y	+= SPL
 endif
 else
 ALL-y	+= u-boot.imx
