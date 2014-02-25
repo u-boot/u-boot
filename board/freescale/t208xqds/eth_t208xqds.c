@@ -25,21 +25,30 @@
 #include <asm/fsl_serdes.h>
 #include "../common/qixis.h"
 #include "../common/fman.h"
-#include "t2080qds_qixis.h"
+#include "t208xqds_qixis.h"
 
 #define EMI_NONE	0xFFFFFFFF
 #define EMI1_RGMII1	0
 #define EMI1_RGMII2     1
 #define EMI1_SLOT1	2
+#if defined(CONFIG_T2080QDS)
 #define EMI1_SLOT2	6
 #define EMI1_SLOT3	3
 #define EMI1_SLOT4	4
 #define EMI1_SLOT5	5
-#define EMI2		7
+#elif defined(CONFIG_T2081QDS)
+#define EMI1_SLOT2      3
+#define EMI1_SLOT3      4
+#define EMI1_SLOT5      5
+#define EMI1_SLOT6      6
+#define EMI1_SLOT7      7
+#endif
+#define EMI2		8
 
 static int mdio_mux[NUM_FM_PORTS];
 
 static const char * const mdio_names[] = {
+#if defined(CONFIG_T2080QDS)
 	"T2080QDS_MDIO_RGMII1",
 	"T2080QDS_MDIO_RGMII2",
 	"T2080QDS_MDIO_SLOT1",
@@ -48,12 +57,27 @@ static const char * const mdio_names[] = {
 	"T2080QDS_MDIO_SLOT5",
 	"T2080QDS_MDIO_SLOT2",
 	"T2080QDS_MDIO_10GC",
+#elif defined(CONFIG_T2081QDS)
+	"T2081QDS_MDIO_RGMII1",
+	"T2081QDS_MDIO_RGMII2",
+	"T2081QDS_MDIO_SLOT1",
+	"T2081QDS_MDIO_SLOT2",
+	"T2081QDS_MDIO_SLOT3",
+	"T2081QDS_MDIO_SLOT5",
+	"T2081QDS_MDIO_SLOT6",
+	"T2081QDS_MDIO_SLOT7",
+	"T2081QDS_MDIO_10GC",
+#endif
 };
 
 /* Map SerDes1 8 lanes to default slot, will be initialized dynamically */
+#if defined(CONFIG_T2080QDS)
 static u8 lane_to_slot[] = {3, 3, 3, 3, 1, 1, 1, 1};
+#elif defined(CONFIG_T2081QDS)
+static u8 lane_to_slot[] = {2, 2, 2, 2, 1, 1, 1, 1};
+#endif
 
-static const char *T2080qds_mdio_name_for_muxval(u8 muxval)
+static const char *t208xqds_mdio_name_for_muxval(u8 muxval)
 {
 	return mdio_names[muxval];
 }
@@ -61,7 +85,7 @@ static const char *T2080qds_mdio_name_for_muxval(u8 muxval)
 struct mii_dev *mii_dev_for_muxval(u8 muxval)
 {
 	struct mii_dev *bus;
-	const char *name = T2080qds_mdio_name_for_muxval(muxval);
+	const char *name = t208xqds_mdio_name_for_muxval(muxval);
 
 	if (!name) {
 		printf("No bus for muxval %x\n", muxval);
@@ -78,15 +102,15 @@ struct mii_dev *mii_dev_for_muxval(u8 muxval)
 	return bus;
 }
 
-struct T2080qds_mdio {
+struct t208xqds_mdio {
 	u8 muxval;
 	struct mii_dev *realbus;
 };
 
-static void T2080qds_mux_mdio(u8 muxval)
+static void t208xqds_mux_mdio(u8 muxval)
 {
 	u8 brdcfg4;
-	if (muxval < 7) {
+	if (muxval < 8) {
 		brdcfg4 = QIXIS_READ(brdcfg[4]);
 		brdcfg4 &= ~BRDCFG4_EMISEL_MASK;
 		brdcfg4 |= (muxval << BRDCFG4_EMISEL_SHIFT);
@@ -94,54 +118,54 @@ static void T2080qds_mux_mdio(u8 muxval)
 	}
 }
 
-static int T2080qds_mdio_read(struct mii_dev *bus, int addr, int devad,
+static int t208xqds_mdio_read(struct mii_dev *bus, int addr, int devad,
 				int regnum)
 {
-	struct T2080qds_mdio *priv = bus->priv;
+	struct t208xqds_mdio *priv = bus->priv;
 
-	T2080qds_mux_mdio(priv->muxval);
+	t208xqds_mux_mdio(priv->muxval);
 
 	return priv->realbus->read(priv->realbus, addr, devad, regnum);
 }
 
-static int T2080qds_mdio_write(struct mii_dev *bus, int addr, int devad,
+static int t208xqds_mdio_write(struct mii_dev *bus, int addr, int devad,
 				int regnum, u16 value)
 {
-	struct T2080qds_mdio *priv = bus->priv;
+	struct t208xqds_mdio *priv = bus->priv;
 
-	T2080qds_mux_mdio(priv->muxval);
+	t208xqds_mux_mdio(priv->muxval);
 
 	return priv->realbus->write(priv->realbus, addr, devad, regnum, value);
 }
 
-static int T2080qds_mdio_reset(struct mii_dev *bus)
+static int t208xqds_mdio_reset(struct mii_dev *bus)
 {
-	struct T2080qds_mdio *priv = bus->priv;
+	struct t208xqds_mdio *priv = bus->priv;
 
 	return priv->realbus->reset(priv->realbus);
 }
 
-static int T2080qds_mdio_init(char *realbusname, u8 muxval)
+static int t208xqds_mdio_init(char *realbusname, u8 muxval)
 {
-	struct T2080qds_mdio *pmdio;
+	struct t208xqds_mdio *pmdio;
 	struct mii_dev *bus = mdio_alloc();
 
 	if (!bus) {
-		printf("Failed to allocate T2080QDS MDIO bus\n");
+		printf("Failed to allocate t208xqds MDIO bus\n");
 		return -1;
 	}
 
 	pmdio = malloc(sizeof(*pmdio));
 	if (!pmdio) {
-		printf("Failed to allocate T2080QDS private data\n");
+		printf("Failed to allocate t208xqds private data\n");
 		free(bus);
 		return -1;
 	}
 
-	bus->read = T2080qds_mdio_read;
-	bus->write = T2080qds_mdio_write;
-	bus->reset = T2080qds_mdio_reset;
-	sprintf(bus->name, T2080qds_mdio_name_for_muxval(muxval));
+	bus->read = t208xqds_mdio_read;
+	bus->write = t208xqds_mdio_write;
+	bus->reset = t208xqds_mdio_reset;
+	sprintf(bus->name, t208xqds_mdio_name_for_muxval(muxval));
 
 	pmdio->realbus = miiphy_get_dev_by_name(realbusname);
 
@@ -154,7 +178,6 @@ static int T2080qds_mdio_init(char *realbusname, u8 muxval)
 
 	pmdio->muxval = muxval;
 	bus->priv = pmdio;
-
 	return mdio_register(bus);
 }
 
@@ -173,13 +196,20 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 	if (fm_info_get_enet_if(port) == PHY_INTERFACE_MODE_SGMII) {
 		phy = fm_info_get_phy_address(port);
 		switch (port) {
+#if defined(CONFIG_T2080QDS)
 		case FM1_DTSEC1:
 		case FM1_DTSEC2:
 		case FM1_DTSEC9:
 		case FM1_DTSEC10:
-			sprintf(alias, "phy_sgmii_s3_%x", phy);
-			fdt_set_phy_handle(fdt, compat, addr, alias);
-			fdt_status_okay_by_alias(fdt, "emi1_slot3");
+			if (mdio_mux[port] == EMI1_SLOT2) {
+				sprintf(alias, "phy_sgmii_s2_%x", phy);
+				fdt_set_phy_handle(fdt, compat, addr, alias);
+				fdt_status_okay_by_alias(fdt, "emi1_slot2");
+			} else if (mdio_mux[port] == EMI1_SLOT3) {
+				sprintf(alias, "phy_sgmii_s3_%x", phy);
+				fdt_set_phy_handle(fdt, compat, addr, alias);
+				fdt_status_okay_by_alias(fdt, "emi1_slot3");
+			}
 			break;
 		case FM1_DTSEC5:
 		case FM1_DTSEC6:
@@ -193,6 +223,36 @@ void board_ft_fman_fixup_port(void *fdt, char *compat, phys_addr_t addr,
 				fdt_status_okay_by_alias(fdt, "emi1_slot2");
 			}
 			break;
+#elif defined(CONFIG_T2081QDS)
+		case FM1_DTSEC1:
+		case FM1_DTSEC2:
+		case FM1_DTSEC5:
+		case FM1_DTSEC6:
+		case FM1_DTSEC9:
+		case FM1_DTSEC10:
+			if (mdio_mux[port] == EMI1_SLOT2) {
+				sprintf(alias, "phy_sgmii_s2_%x", phy);
+				fdt_set_phy_handle(fdt, compat, addr, alias);
+				fdt_status_okay_by_alias(fdt, "emi1_slot2");
+			} else if (mdio_mux[port] == EMI1_SLOT3) {
+				sprintf(alias, "phy_sgmii_s3_%x", phy);
+				fdt_set_phy_handle(fdt, compat, addr, alias);
+				fdt_status_okay_by_alias(fdt, "emi1_slot3");
+			} else if (mdio_mux[port] == EMI1_SLOT5) {
+				sprintf(alias, "phy_sgmii_s5_%x", phy);
+				fdt_set_phy_handle(fdt, compat, addr, alias);
+				fdt_status_okay_by_alias(fdt, "emi1_slot5");
+			} else if (mdio_mux[port] == EMI1_SLOT6) {
+				sprintf(alias, "phy_sgmii_s6_%x", phy);
+				fdt_set_phy_handle(fdt, compat, addr, alias);
+				fdt_status_okay_by_alias(fdt, "emi1_slot6");
+			} else if (mdio_mux[port] == EMI1_SLOT7) {
+				sprintf(alias, "phy_sgmii_s7_%x", phy);
+				fdt_set_phy_handle(fdt, compat, addr, alias);
+				fdt_status_okay_by_alias(fdt, "emi1_slot7");
+			}
+			break;
+#endif
 		default:
 			break;
 		}
@@ -226,8 +286,8 @@ void fdt_fixup_board_enet(void *fdt)
 }
 
 /*
- * This function reads RCW to check if Serdes1{E,F,G,H} is configured
- * as slot 1/2/3 and update the lane_to_slot[] array accordingly
+ * This function reads RCW to check if Serdes1{A:H} is configured
+ * to slot 1/2/3/4/5/6/7 and update the lane_to_slot[] array accordingly
  */
 static void initialize_lane_to_slot(void)
 {
@@ -238,6 +298,7 @@ static void initialize_lane_to_slot(void)
 	srds_s1 >>= FSL_CORENET2_RCWSR4_SRDS1_PRTCL_SHIFT;
 
 	switch (srds_s1) {
+#if defined(CONFIG_T2080QDS)
 	case 0x51:
 	case 0x5f:
 	case 0x65:
@@ -264,6 +325,31 @@ static void initialize_lane_to_slot(void)
 		lane_to_slot[6] = 3;
 		lane_to_slot[7] = 3;
 		break;
+#elif defined(CONFIG_T2081QDS)
+	case 0x6b:
+		lane_to_slot[4] = 1;
+		lane_to_slot[5] = 3;
+		lane_to_slot[6] = 3;
+		lane_to_slot[7] = 3;
+		break;
+	case 0xca:
+	case 0xcb:
+		lane_to_slot[1] = 7;
+		lane_to_slot[2] = 6;
+		lane_to_slot[3] = 5;
+		lane_to_slot[5] = 3;
+		lane_to_slot[6] = 3;
+		lane_to_slot[7] = 3;
+		break;
+	case 0xf2:
+		lane_to_slot[1] = 7;
+		lane_to_slot[2] = 7;
+		lane_to_slot[3] = 7;
+		lane_to_slot[5] = 4;
+		lane_to_slot[6] = 3;
+		lane_to_slot[7] = 7;
+		break;
+#endif
 	default:
 		break;
 	}
@@ -305,14 +391,20 @@ int board_eth_init(bd_t *bis)
 	fm_memac_mdio_init(bis, &tgec_mdio_info);
 
 	/* Register the muxing front-ends to the MDIO buses */
-	T2080qds_mdio_init(DEFAULT_FM_MDIO_NAME, EMI1_RGMII1);
-	T2080qds_mdio_init(DEFAULT_FM_MDIO_NAME, EMI1_RGMII2);
-	T2080qds_mdio_init(DEFAULT_FM_MDIO_NAME, EMI1_SLOT1);
-	T2080qds_mdio_init(DEFAULT_FM_MDIO_NAME, EMI1_SLOT2);
-	T2080qds_mdio_init(DEFAULT_FM_MDIO_NAME, EMI1_SLOT3);
-	T2080qds_mdio_init(DEFAULT_FM_MDIO_NAME, EMI1_SLOT4);
-	T2080qds_mdio_init(DEFAULT_FM_MDIO_NAME, EMI1_SLOT5);
-	T2080qds_mdio_init(DEFAULT_FM_TGEC_MDIO_NAME, EMI2);
+	t208xqds_mdio_init(DEFAULT_FM_MDIO_NAME, EMI1_RGMII1);
+	t208xqds_mdio_init(DEFAULT_FM_MDIO_NAME, EMI1_RGMII2);
+	t208xqds_mdio_init(DEFAULT_FM_MDIO_NAME, EMI1_SLOT1);
+	t208xqds_mdio_init(DEFAULT_FM_MDIO_NAME, EMI1_SLOT2);
+	t208xqds_mdio_init(DEFAULT_FM_MDIO_NAME, EMI1_SLOT3);
+#if defined(CONFIG_T2080QDS)
+	t208xqds_mdio_init(DEFAULT_FM_MDIO_NAME, EMI1_SLOT4);
+#endif
+	t208xqds_mdio_init(DEFAULT_FM_MDIO_NAME, EMI1_SLOT5);
+#if defined(CONFIG_T2081QDS)
+	t208xqds_mdio_init(DEFAULT_FM_MDIO_NAME, EMI1_SLOT6);
+	t208xqds_mdio_init(DEFAULT_FM_MDIO_NAME, EMI1_SLOT7);
+#endif
+	t208xqds_mdio_init(DEFAULT_FM_TGEC_MDIO_NAME, EMI2);
 
 	/* Set the two on-board RGMII PHY address */
 	fm_info_set_phy_address(FM1_DTSEC3, RGMII_PHY1_ADDR);
@@ -327,21 +419,21 @@ int board_eth_init(bd_t *bis)
 	case 0x95:
 	case 0xa2:
 	case 0x94:
-		/* SGMII in Slot3 */
+		/* T2080QDS: SGMII in Slot3;  T2081QDS: SGMII in Slot2 */
 		fm_info_set_phy_address(FM1_DTSEC9, SGMII_CARD_PORT1_PHY_ADDR);
 		fm_info_set_phy_address(FM1_DTSEC10, SGMII_CARD_PORT2_PHY_ADDR);
 		fm_info_set_phy_address(FM1_DTSEC1, SGMII_CARD_PORT3_PHY_ADDR);
 		fm_info_set_phy_address(FM1_DTSEC2, SGMII_CARD_PORT4_PHY_ADDR);
-		/* SGMII in Slot2 */
+		/* T2080QDS: SGMII in Slot2;  T2081QDS: SGMII in Slot1 */
 		fm_info_set_phy_address(FM1_DTSEC5, SGMII_CARD_PORT3_PHY_ADDR);
 		fm_info_set_phy_address(FM1_DTSEC6, SGMII_CARD_PORT4_PHY_ADDR);
 		break;
 	case 0x51:
 	case 0x5f:
 	case 0x65:
-		/* XAUI/HiGig in Slot3 */
+		/* T2080QDS: XAUI/HiGig in Slot3;  T2081QDS: in Slot2 */
 		fm_info_set_phy_address(FM1_10GEC1, FM1_10GEC1_PHY_ADDR);
-		/* SGMII in Slot2 */
+		/* T2080QDS: SGMII in Slot2;  T2081QDS: in Slot3 */
 		fm_info_set_phy_address(FM1_DTSEC5, SGMII_CARD_PORT3_PHY_ADDR);
 		fm_info_set_phy_address(FM1_DTSEC6, SGMII_CARD_PORT4_PHY_ADDR);
 		break;
@@ -365,7 +457,7 @@ int board_eth_init(bd_t *bis)
 		fm_info_set_phy_address(FM1_10GEC2, 5);
 		fm_info_set_phy_address(FM1_10GEC3, 6);
 		fm_info_set_phy_address(FM1_10GEC4, 7);
-		/* SGMII in Slot2 */
+		/* T2080QDS: SGMII in Slot2;  T2081QDS: in Slot3 */
 		fm_info_set_phy_address(FM1_DTSEC5, SGMII_CARD_PORT3_PHY_ADDR);
 		fm_info_set_phy_address(FM1_DTSEC6, SGMII_CARD_PORT2_PHY_ADDR);
 		break;
@@ -373,7 +465,7 @@ int board_eth_init(bd_t *bis)
 	case 0x6d:
 		fm_info_set_phy_address(FM1_10GEC1, 4);
 		fm_info_set_phy_address(FM1_10GEC2, 5);
-		/* SGMII in Slot3 */
+		/* T2080QDS: SGMII in Slot3;  T2081QDS: in Slot2 */
 		fm_info_set_phy_address(FM1_DTSEC1, SGMII_CARD_PORT3_PHY_ADDR);
 		fm_info_set_phy_address(FM1_DTSEC2, SGMII_CARD_PORT4_PHY_ADDR);
 		break;
@@ -408,6 +500,7 @@ int board_eth_init(bd_t *bis)
 		fm_info_set_phy_address(FM1_DTSEC1, SGMII_CARD_PORT3_PHY_ADDR);
 		fm_info_set_phy_address(FM1_DTSEC2, SGMII_CARD_PORT4_PHY_ADDR);
 		break;
+#if defined(CONFIG_T2080QDS)
 	case 0xd9:
 	case 0xd3:
 	case 0xcb:
@@ -418,6 +511,27 @@ int board_eth_init(bd_t *bis)
 		/* SGMII in Slot2 */
 		fm_info_set_phy_address(FM1_DTSEC5, SGMII_CARD_PORT3_PHY_ADDR);
 		fm_info_set_phy_address(FM1_DTSEC6, SGMII_CARD_PORT2_PHY_ADDR);
+		break;
+#elif defined(CONFIG_T2081QDS)
+	case 0xca:
+	case 0xcb:
+		/* SGMII in Slot3 */
+		fm_info_set_phy_address(FM1_DTSEC5, SGMII_CARD_PORT1_PHY_ADDR);
+		fm_info_set_phy_address(FM1_DTSEC6, SGMII_CARD_PORT2_PHY_ADDR);
+		/* SGMII in Slot5 */
+		fm_info_set_phy_address(FM1_DTSEC2, SGMII_CARD_PORT1_PHY_ADDR);
+		/* SGMII in Slot6 */
+		fm_info_set_phy_address(FM1_DTSEC1, SGMII_CARD_PORT1_PHY_ADDR);
+		/* SGMII in Slot7 */
+		fm_info_set_phy_address(FM1_DTSEC10, SGMII_CARD_PORT3_PHY_ADDR);
+		break;
+#endif
+	case 0xf2:
+		/* T2080QDS: SGMII in Slot3; T2081QDS: SGMII in Slot7 */
+		fm_info_set_phy_address(FM1_DTSEC1, SGMII_CARD_PORT1_PHY_ADDR);
+		fm_info_set_phy_address(FM1_DTSEC2, SGMII_CARD_PORT2_PHY_ADDR);
+		fm_info_set_phy_address(FM1_DTSEC10, SGMII_CARD_PORT3_PHY_ADDR);
+		fm_info_set_phy_address(FM1_DTSEC6, SGMII_CARD_PORT4_PHY_ADDR);
 		break;
 	default:
 		break;
@@ -452,8 +566,25 @@ int board_eth_init(bd_t *bis)
 			case 3:
 				mdio_mux[i] = EMI1_SLOT3;
 				fm_info_set_mdio(i, mii_dev_for_muxval(
-						mdio_mux[i]));
+						 mdio_mux[i]));
 				break;
+#if defined(CONFIG_T2081QDS)
+			case 5:
+				mdio_mux[i] = EMI1_SLOT5;
+				fm_info_set_mdio(i, mii_dev_for_muxval(
+						 mdio_mux[i]));
+				break;
+			case 6:
+				mdio_mux[i] = EMI1_SLOT6;
+				fm_info_set_mdio(i, mii_dev_for_muxval(
+						 mdio_mux[i]));
+				break;
+			case 7:
+				mdio_mux[i] = EMI1_SLOT7;
+				fm_info_set_mdio(i, mii_dev_for_muxval(
+						 mdio_mux[i]));
+				break;
+#endif
 			}
 			break;
 		case PHY_INTERFACE_MODE_RGMII:
