@@ -495,7 +495,7 @@ ifndef LDSCRIPT
 	#LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot.lds.debug
 	ifdef CONFIG_SYS_LDSCRIPT
 		# need to strip off double quotes
-		LDSCRIPT := $(CONFIG_SYS_LDSCRIPT:"%"=%)
+		LDSCRIPT := $(srctree)/$(CONFIG_SYS_LDSCRIPT:"%"=%)
 	endif
 endif
 
@@ -517,9 +517,6 @@ ifndef LDSCRIPT
 		LDSCRIPT := $(TOPDIR)/arch/$(ARCH)/cpu/u-boot.lds
 		# We don't expect a Makefile here
 		LDSCRIPT_MAKEFILE_DIR =
-	endif
-	ifeq ($(wildcard $(LDSCRIPT)),)
-$(error could not find linker script)
 	endif
 endif
 
@@ -995,6 +992,10 @@ ifeq ($(CONFIG_SYS_GENERIC_BOARD),y)
 	@echo >&2 "  Please undefine CONFIG_SYS_GENERIC_BOARD in your board config file."
 	@/bin/false
 endif
+endif
+ifeq ($(wildcard $(LDSCRIPT)),)
+	@echo >&2 "  Could not find linker script."
+	@/bin/false
 endif
 
 archprepare: prepare1 scripts_basic
