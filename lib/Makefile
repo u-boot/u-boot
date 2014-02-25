@@ -65,6 +65,3 @@ obj-y += vsprintf.o
 obj-$(CONFIG_RANDOM_MACADDR) += rand.o
 obj-$(CONFIG_BOOTP_RANDOM_DELAY) += rand.o
 obj-$(CONFIG_CMD_LINK_LOCAL) += rand.o
-
-# SEE README.arm-unaligned-accesses
-CFLAGS_bzlib.o := $(PLATFORM_NO_UNALIGNED)

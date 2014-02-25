@@ -1726,7 +1726,7 @@ CBFS (Coreboot Filesystem) support
 
 		If this option is set, then U-Boot will prevent the environment
 		variable "splashimage" from being set to a problematic address
-		(see README.displaying-bmps and README.arm-unaligned-accesses).
+		(see README.displaying-bmps).
 		This option is useful for targets where, due to alignment
 		restrictions, an improperly aligned BMP image will cause a data
 		abort. If you think you will not have problems with unaligned
