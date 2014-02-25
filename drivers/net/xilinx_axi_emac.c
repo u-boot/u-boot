@@ -19,6 +19,7 @@
 #define XAE_EMMC_LINKSPD_10	0x00000000 /* Link Speed mask for 10 Mbit */
 #define XAE_EMMC_LINKSPD_100	0x40000000 /* Link Speed mask for 100 Mbit */
 #define XAE_EMMC_LINKSPD_1000	0x80000000 /* Link Speed mask for 1000 Mbit */
+#define XAE_EMMC_RGMII		0x20000000 /* RGMII mode */
 
 /* Interrupt Status/Enable/Mask Registers bit definitions */
 #define XAE_INT_RXRJECT_MASK	0x00000008 /* Rx frame rejected */
@@ -46,6 +47,8 @@
 #define XAE_MDIO_MCR_READY_MASK		0x00000080 /* Ready Mask */
 
 #define XAE_MDIO_DIV_DFT	29	/* Default MDIO clock divisor */
+
+#define XAE_PHYC_RGMII_MASK	0xF	/* Mask RGMII link setting */
 
 /* DMA macros */
 /* Bitmasks of XAXIDMA_CR_OFFSET register */
@@ -87,6 +90,7 @@ struct axidma_priv {
 
 	struct phy_device *phydev;
 	struct mii_dev *bus;
+	phy_interface_t interface;
 };
 
 /* BD descriptors */
@@ -123,7 +127,8 @@ struct axi_regs {
 	u32 tc; /* 0x408: Tx Configuration */
 	u32 reserved4;
 	u32 emmc; /* 0x410: EMAC mode configuration */
-	u32 reserved5[59];
+	u32 phyc; /* 0x414: TEMAC RGMII/SGMII Configuration */
+	u32 reserved5[58];
 	u32 mdio_mc; /* 0x500: MII Management Config */
 	u32 mdio_mcr; /* 0x504: MII Management Control */
 	u32 mdio_mwd; /* 0x508: MII Management Write Data */
@@ -270,8 +275,13 @@ static int setup_phy(struct eth_device *dev)
 
 	phy_detection(dev);
 
+	if (in_be32(&regs->phyc) & XAE_PHYC_RGMII_MASK)
+		priv->interface = PHY_INTERFACE_MODE_RGMII;
+	else
+		priv->interface = PHY_INTERFACE_MODE_MII;
+
 	/* Interface - look at tsec */
-	phydev = phy_connect(priv->bus, priv->phyaddr, dev, 0);
+	phydev = phy_connect(priv->bus, priv->phyaddr, dev, priv->interface);
 
 	phydev->supported &= supported;
 	phydev->advertising = phydev->supported;
@@ -303,6 +313,8 @@ static int setup_phy(struct eth_device *dev)
 
 	/* Setup the emac for the phy speed */
 	emmc_reg = in_be32(&regs->emmc);
+	if (priv->interface == PHY_INTERFACE_MODE_RGMII)
+		emmc_reg |= XAE_EMMC_RGMII;
 	emmc_reg &= ~XAE_EMMC_LINKSPEED_MASK;
 	emmc_reg |= speed;
 
