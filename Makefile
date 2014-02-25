@@ -485,13 +485,6 @@ ifeq ($(wildcard include/config.mk),)
 $(error "System not configured - see README")
 endif
 
-ifeq ($(__HAVE_ARCH_GENERIC_BOARD),)
-ifneq ($(CONFIG_SYS_GENERIC_BOARD),)
-$(error Your architecture does not support generic board. \
-Please undefined CONFIG_SYS_GENERIC_BOARD in your board config file)
-endif
-endif
-
 # If board code explicitly specified LDSCRIPT or CONFIG_SYS_LDSCRIPT, use
 # that (or fail if absent).  Otherwise, search for a linker script in a
 # standard location.
@@ -996,7 +989,13 @@ endif
 prepare2: prepare3 outputmakefile
 
 prepare1: prepare2 $(version_h) $(timestamp_h)
-	@:
+ifeq ($(__HAVE_ARCH_GENERIC_BOARD),)
+ifeq ($(CONFIG_SYS_GENERIC_BOARD),y)
+	@echo >&2 "  Your architecture does not support generic board."
+	@echo >&2 "  Please undefine CONFIG_SYS_GENERIC_BOARD in your board config file."
+	@/bin/false
+endif
+endif
 
 archprepare: prepare1 scripts_basic
 
