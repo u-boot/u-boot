@@ -259,7 +259,8 @@ static int setup_phy(struct eth_device *dev)
 	}
 
 	/* interface - look at tsec */
-	phydev = phy_connect(emaclite->bus, emaclite->phyaddr, dev, 0);
+	phydev = phy_connect(emaclite->bus, emaclite->phyaddr, dev,
+			     PHY_INTERFACE_MODE_MII);
 	/*
 	 * Phy can support 1000baseT but device NOT that's why phydev->supported
 	 * must be setup for 1000baseT. phydev->advertising setups what speeds
