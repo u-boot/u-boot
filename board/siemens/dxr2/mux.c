@@ -221,6 +221,8 @@ static struct module_pin_mux gpios_pin_mux[] = {
 	{OFFSET(ain0), MODE(7) | RXACTIVE | PULLUDDIS},
 	{OFFSET(vrefp), MODE(7) | RXACTIVE | PULLUDDIS},
 	{OFFSET(vrefn), MODE(7) | RXACTIVE | PULLUDDIS},
+	/* nRST for SMSC LAN9303 switch - GPIO2_24 */
+	{OFFSET(lcd_pclk), MODE(7) },			/* LAN9303 nRST */
 	{-1},
 };
 

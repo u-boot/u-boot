@@ -232,6 +232,13 @@ int board_eth_init(bd_t *bis)
 
 	factoryset_setenv();
 
+	/* Reset SMSC LAN9303 switch for default configuration */
+	gpio_request(GPIO_LAN9303_NRST, "nRST");
+	gpio_direction_output(GPIO_LAN9303_NRST, 0);
+	/* assert active low reset for 200us */
+	udelay(200);
+	gpio_set_value(GPIO_LAN9303_NRST, 1);
+
 	/* Set rgmii mode and enable rmii clock to be sourced from chip */
 	writel((RMII_MODE_ENABLE | RMII_CHIPCKL_ENABLE), &cdev->miisel);
 
