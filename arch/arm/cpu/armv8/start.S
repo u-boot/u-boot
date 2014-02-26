@@ -128,28 +128,6 @@ ENTRY(c_runtime_cpu_setup)
 	isb	sy
 #endif
 
-#ifndef CONFIG_SYS_DCACHE_OFF
-	/*
-	 * Setup MAIR and TCR.
-	 */
-	ldr	x0, =MEMORY_ATTRIBUTES
-	ldr	x1, =TCR_FLAGS
-
-	switch_el x2, 3f, 2f, 1f
-3:	orr	x1, x1, TCR_EL3_IPS_BITS
-	msr	mair_el3, x0
-	msr	tcr_el3, x1
-	b	0f
-2:	orr	x1, x1, TCR_EL2_IPS_BITS
-	msr	mair_el2, x0
-	msr	tcr_el2, x1
-	b	0f
-1:	orr	x1, x1, TCR_EL1_IPS_BITS
-	msr	mair_el1, x0
-	msr	tcr_el1, x1
-0:
-#endif
-
 	/* Relocate vBAR */
 	adr	x0, vectors
 	switch_el x1, 3f, 2f, 1f
