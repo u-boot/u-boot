@@ -4,7 +4,7 @@
  */
 
 #include <common.h>
-
+#include <dm.h>
 #include <os.h>
 
 /*
@@ -13,6 +13,11 @@
  * Here we initialize it.
  */
 gd_t *gd;
+
+/* Add a simple GPIO device */
+U_BOOT_DEVICE(gpio_sandbox) = {
+	.name = "gpio_sandbox",
+};
 
 void flush_cache(unsigned long start, unsigned long size)
 {

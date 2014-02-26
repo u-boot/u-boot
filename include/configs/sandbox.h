@@ -26,6 +26,7 @@
 #define CONFIG_DM_DEMO
 #define CONFIG_DM_DEMO_SIMPLE
 #define CONFIG_DM_DEMO_SHAPE
+#define CONFIG_DM_GPIO
 #define CONFIG_DM_TEST
 
 /* Number of bits in a C 'long' on this architecture */

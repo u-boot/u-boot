@@ -4,7 +4,12 @@
  */
 
 #include <common.h>
+#include <dm.h>
+#include <fdtdec.h>
+#include <malloc.h>
 #include <asm/gpio.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /* Flags for each GPIO */
 #define GPIOF_OUTPUT	(1 << 0)	/* Currently set as an output */
@@ -16,34 +21,30 @@ struct gpio_state {
 	u8 flags;		/* flags (GPIOF_...) */
 };
 
-/*
- * State of GPIOs
- * TODO: Put this into sandbox state
- */
-static struct gpio_state state[CONFIG_SANDBOX_GPIO_COUNT];
-
 /* Access routines for GPIO state */
-static u8 *get_gpio_flags(unsigned gp)
+static u8 *get_gpio_flags(struct device *dev, unsigned offset)
 {
-	/* assert()'s could be disabled, so make sure we handle that */
-	assert(gp < ARRAY_SIZE(state));
-	if (gp >= ARRAY_SIZE(state)) {
+	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+	struct gpio_state *state = dev_get_priv(dev);
+
+	if (offset >= uc_priv->gpio_count) {
 		static u8 invalid_flags;
-		printf("sandbox_gpio: error: invalid gpio %u\n", gp);
+		printf("sandbox_gpio: error: invalid gpio %u\n", offset);
 		return &invalid_flags;
 	}
 
-	return &state[gp].flags;
+	return &state[offset].flags;
 }
 
-static int get_gpio_flag(unsigned gp, int flag)
+static int get_gpio_flag(struct device *dev, unsigned offset, int flag)
 {
-	return (*get_gpio_flags(gp) & flag) != 0;
+	return (*get_gpio_flags(dev, offset) & flag) != 0;
 }
 
-static int set_gpio_flag(unsigned gp, int flag, int value)
+static int set_gpio_flag(struct device *dev, unsigned offset, int flag,
+			 int value)
 {
-	u8 *gpio = get_gpio_flags(gp);
+	u8 *gpio = get_gpio_flags(dev, offset);
 
 	if (value)
 		*gpio |= flag;
@@ -53,11 +54,12 @@ static int set_gpio_flag(unsigned gp, int flag, int value)
 	return 0;
 }
 
-static int check_reserved(unsigned gpio, const char *func)
+static int check_reserved(struct device *dev, unsigned offset,
+			  const char *func)
 {
-	if (!get_gpio_flag(gpio, GPIOF_RESERVED)) {
-		printf("sandbox_gpio: %s: error: gpio %u not reserved\n",
-			func, gpio);
+	if (!get_gpio_flag(dev, offset, GPIOF_RESERVED)) {
+		printf("sandbox_gpio: %s: error: offset %u not reserved\n",
+		       func, offset);
 		return -1;
 	}
 
@@ -68,126 +70,185 @@ static int check_reserved(unsigned gpio, const char *func)
  * Back-channel sandbox-internal-only access to GPIO state
  */
 
-int sandbox_gpio_get_value(unsigned gp)
+int sandbox_gpio_get_value(struct device *dev, unsigned offset)
 {
-	if (get_gpio_flag(gp, GPIOF_OUTPUT))
-		debug("sandbox_gpio: get_value on output gpio %u\n", gp);
-	return get_gpio_flag(gp, GPIOF_HIGH);
+	if (get_gpio_flag(dev, offset, GPIOF_OUTPUT))
+		debug("sandbox_gpio: get_value on output gpio %u\n", offset);
+	return get_gpio_flag(dev, offset, GPIOF_HIGH);
 }
 
-int sandbox_gpio_set_value(unsigned gp, int value)
+int sandbox_gpio_set_value(struct device *dev, unsigned offset, int value)
 {
-	return set_gpio_flag(gp, GPIOF_HIGH, value);
+	return set_gpio_flag(dev, offset, GPIOF_HIGH, value);
 }
 
-int sandbox_gpio_get_direction(unsigned gp)
+int sandbox_gpio_get_direction(struct device *dev, unsigned offset)
 {
-	return get_gpio_flag(gp, GPIOF_OUTPUT);
+	return get_gpio_flag(dev, offset, GPIOF_OUTPUT);
 }
 
-int sandbox_gpio_set_direction(unsigned gp, int output)
+int sandbox_gpio_set_direction(struct device *dev, unsigned offset, int output)
 {
-	return set_gpio_flag(gp, GPIOF_OUTPUT, output);
+	return set_gpio_flag(dev, offset, GPIOF_OUTPUT, output);
 }
 
 /*
  * These functions implement the public interface within U-Boot
  */
 
-/* set GPIO port 'gp' as an input */
-int gpio_direction_input(unsigned gp)
+/* set GPIO port 'offset' as an input */
+static int sb_gpio_direction_input(struct device *dev, unsigned offset)
 {
-	debug("%s: gp:%u\n", __func__, gp);
+	debug("%s: offset:%u\n", __func__, offset);
 
-	if (check_reserved(gp, __func__))
+	if (check_reserved(dev, offset, __func__))
 		return -1;
 
-	return sandbox_gpio_set_direction(gp, 0);
+	return sandbox_gpio_set_direction(dev, offset, 0);
 }
 
-/* set GPIO port 'gp' as an output, with polarity 'value' */
-int gpio_direction_output(unsigned gp, int value)
+/* set GPIO port 'offset' as an output, with polarity 'value' */
+static int sb_gpio_direction_output(struct device *dev, unsigned offset,
+				    int value)
 {
-	debug("%s: gp:%u, value = %d\n", __func__, gp, value);
+	debug("%s: offset:%u, value = %d\n", __func__, offset, value);
 
-	if (check_reserved(gp, __func__))
+	if (check_reserved(dev, offset, __func__))
 		return -1;
 
-	return sandbox_gpio_set_direction(gp, 1) |
-		sandbox_gpio_set_value(gp, value);
+	return sandbox_gpio_set_direction(dev, offset, 1) |
+		sandbox_gpio_set_value(dev, offset, value);
 }
 
-/* read GPIO IN value of port 'gp' */
-int gpio_get_value(unsigned gp)
+/* read GPIO IN value of port 'offset' */
+static int sb_gpio_get_value(struct device *dev, unsigned offset)
 {
-	debug("%s: gp:%u\n", __func__, gp);
+	debug("%s: offset:%u\n", __func__, offset);
 
-	if (check_reserved(gp, __func__))
+	if (check_reserved(dev, offset, __func__))
 		return -1;
 
-	return sandbox_gpio_get_value(gp);
+	return sandbox_gpio_get_value(dev, offset);
 }
 
-/* write GPIO OUT value to port 'gp' */
-int gpio_set_value(unsigned gp, int value)
+/* write GPIO OUT value to port 'offset' */
+static int sb_gpio_set_value(struct device *dev, unsigned offset, int value)
 {
-	debug("%s: gp:%u, value = %d\n", __func__, gp, value);
+	debug("%s: offset:%u, value = %d\n", __func__, offset, value);
 
-	if (check_reserved(gp, __func__))
+	if (check_reserved(dev, offset, __func__))
 		return -1;
 
-	if (!sandbox_gpio_get_direction(gp)) {
-		printf("sandbox_gpio: error: set_value on input gpio %u\n", gp);
+	if (!sandbox_gpio_get_direction(dev, offset)) {
+		printf("sandbox_gpio: error: set_value on input gpio %u\n",
+		       offset);
 		return -1;
 	}
 
-	return sandbox_gpio_set_value(gp, value);
+	return sandbox_gpio_set_value(dev, offset, value);
 }
 
-int gpio_request(unsigned gp, const char *label)
+static int sb_gpio_request(struct device *dev, unsigned offset,
+			   const char *label)
 {
-	debug("%s: gp:%u, label:%s\n", __func__, gp, label);
+	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+	struct gpio_state *state = dev_get_priv(dev);
 
-	if (gp >= ARRAY_SIZE(state)) {
-		printf("sandbox_gpio: error: invalid gpio %u\n", gp);
+	debug("%s: offset:%u, label:%s\n", __func__, offset, label);
+
+	if (offset >= uc_priv->gpio_count) {
+		printf("sandbox_gpio: error: invalid gpio %u\n", offset);
 		return -1;
 	}
 
-	if (get_gpio_flag(gp, GPIOF_RESERVED)) {
-		printf("sandbox_gpio: error: gpio %u already reserved\n", gp);
+	if (get_gpio_flag(dev, offset, GPIOF_RESERVED)) {
+		printf("sandbox_gpio: error: gpio %u already reserved\n",
+		       offset);
 		return -1;
 	}
 
-	state[gp].label = label;
-	return set_gpio_flag(gp, GPIOF_RESERVED, 1);
+	state[offset].label = label;
+	return set_gpio_flag(dev, offset, GPIOF_RESERVED, 1);
 }
 
-int gpio_free(unsigned gp)
+static int sb_gpio_free(struct device *dev, unsigned offset)
 {
-	debug("%s: gp:%u\n", __func__, gp);
+	struct gpio_state *state = dev_get_priv(dev);
 
-	if (check_reserved(gp, __func__))
+	debug("%s: offset:%u\n", __func__, offset);
+
+	if (check_reserved(dev, offset, __func__))
 		return -1;
 
-	state[gp].label = NULL;
-	return set_gpio_flag(gp, GPIOF_RESERVED, 0);
+	state[offset].label = NULL;
+	return set_gpio_flag(dev, offset, GPIOF_RESERVED, 0);
 }
 
-/* Display GPIO information */
-void gpio_info(void)
+static int sb_gpio_get_state(struct device *dev, unsigned int offset,
+			     char *buf, int bufsize)
 {
-	unsigned gpio;
+	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+	struct gpio_state *state = dev_get_priv(dev);
+	const char *label;
 
-	puts("Sandbox GPIOs\n");
+	label = state[offset].label;
+	snprintf(buf, bufsize, "%s%d: %s: %d [%c]%s%s",
+		 uc_priv->bank_name ? uc_priv->bank_name : "", offset,
+		 sandbox_gpio_get_direction(dev, offset) ? "out" : " in",
+		 sandbox_gpio_get_value(dev, offset),
+		 get_gpio_flag(dev, offset, GPIOF_RESERVED) ? 'x' : ' ',
+		 label ? " " : "",
+		 label ? label : "");
 
-	for (gpio = 0; gpio < ARRAY_SIZE(state); ++gpio) {
-		const char *label = state[gpio].label;
-
-		printf("%4d: %s: %d [%c] %s\n",
-			gpio,
-			sandbox_gpio_get_direction(gpio) ? "out" : " in",
-			sandbox_gpio_get_value(gpio),
-			get_gpio_flag(gpio, GPIOF_RESERVED) ? 'x' : ' ',
-			label ? label : "");
-	}
+	return 0;
 }
+
+static const struct dm_gpio_ops gpio_sandbox_ops = {
+	.request		= sb_gpio_request,
+	.free			= sb_gpio_free,
+	.direction_input	= sb_gpio_direction_input,
+	.direction_output	= sb_gpio_direction_output,
+	.get_value		= sb_gpio_get_value,
+	.set_value		= sb_gpio_set_value,
+	.get_state		= sb_gpio_get_state,
+};
+
+static int sandbox_gpio_ofdata_to_platdata(struct device *dev)
+{
+	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+
+	uc_priv->gpio_count = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
+					     "num-gpios", 0);
+	uc_priv->bank_name = fdt_getprop(gd->fdt_blob, dev->of_offset,
+					 "gpio-bank-name", NULL);
+
+	return 0;
+}
+
+static int gpio_sandbox_probe(struct device *dev)
+{
+	struct gpio_dev_priv *uc_priv = dev->uclass_priv;
+
+	if (dev->of_offset == -1) {
+		/* Tell the uclass how many GPIOs we have */
+		uc_priv->gpio_count = CONFIG_SANDBOX_GPIO_COUNT;
+	}
+
+	dev->priv = calloc(sizeof(struct gpio_state), uc_priv->gpio_count);
+
+	return 0;
+}
+
+static const struct device_id sandbox_gpio_ids[] = {
+	{ .compatible = "sandbox,gpio" },
+	{ }
+};
+
+U_BOOT_DRIVER(gpio_sandbox) = {
+	.name	= "gpio_sandbox",
+	.id	= UCLASS_GPIO,
+	.of_match = sandbox_gpio_ids,
+	.ofdata_to_platdata = sandbox_gpio_ofdata_to_platdata,
+	.probe	= gpio_sandbox_probe,
+	.ops	= &gpio_sandbox_ops,
+};
