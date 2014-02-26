@@ -18,6 +18,7 @@
 #ifdef CONFIG_HAS_DATAFLASH
 #include <dataflash.h>
 #endif
+#include <dm.h>
 #include <environment.h>
 #include <fdtdec.h>
 #if defined(CONFIG_CMD_IDE)
@@ -51,7 +52,9 @@
 #ifdef CONFIG_X86
 #include <asm/init_helpers.h>
 #endif
+#include <dm/root.h>
 #include <linux/compiler.h>
+#include <linux/err.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -262,6 +265,33 @@ static int initr_malloc(void)
 			TOTAL_MALLOC_LEN);
 	return 0;
 }
+
+#ifdef CONFIG_DM
+static int initr_dm(void)
+{
+	int ret;
+
+	ret = dm_init();
+	if (ret) {
+		debug("dm_init() failed: %d\n", ret);
+		return ret;
+	}
+	ret = dm_scan_platdata();
+	if (ret) {
+		debug("dm_scan_platdata() failed: %d\n", ret);
+		return ret;
+	}
+#ifdef CONFIG_OF_CONTROL
+	ret = dm_scan_fdt(gd->fdt_blob);
+	if (ret) {
+		debug("dm_scan_fdt() failed: %d\n", ret);
+		return ret;
+	}
+#endif
+
+	return 0;
+}
+#endif
 
 __weak int power_init_board(void)
 {
@@ -761,6 +791,9 @@ init_fnc_t init_sequence_r[] = {
 	initr_barrier,
 	initr_malloc,
 	bootstage_relocate,
+#ifdef CONFIG_DM
+	initr_dm,
+#endif
 #ifdef CONFIG_ARCH_EARLY_INIT_R
 	arch_early_init_r,
 #endif
