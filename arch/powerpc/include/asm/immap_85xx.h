@@ -1722,6 +1722,9 @@ typedef struct ccsr_gur {
 	u32	rstrqpblsr;	/* Reset request preboot loader status */
 	u8	res11[8];
 	u32	rstrqmr1;	/* Reset request mask */
+#ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
+#define FSL_CORENET_RSTRQMR1_SRDS_RST_MSK      0x00000800
+#endif
 	u8	res12[4];
 	u32	rstrqsr1;	/* Reset request status */
 	u8	res13[4];

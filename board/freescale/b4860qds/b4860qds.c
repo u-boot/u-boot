@@ -11,6 +11,7 @@
 #include <linux/compiler.h>
 #include <asm/mmu.h>
 #include <asm/processor.h>
+#include <asm/errno.h>
 #include <asm/cache.h>
 #include <asm/immap_85xx.h>
 #include <asm/fsl_law.h>
@@ -293,7 +294,8 @@ int config_serdes1_refclks(void)
 		(void *)CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
 	u32 serdes1_prtcl, lane;
 	unsigned int flag_sgmii_aurora_prtcl = 0;
-	int ret, i;
+	int i;
+	int ret = 0;
 
 	serdes1_prtcl = in_be32(&gur->rcwsr[4]) &
 			FSL_CORENET2_RCWSR4_SRDS1_PRTCL;
@@ -304,10 +306,12 @@ int config_serdes1_refclks(void)
 	serdes1_prtcl >>= FSL_CORENET2_RCWSR4_SRDS1_PRTCL_SHIFT;
 	debug("Using SERDES1 Protocol: 0x%x:\n", serdes1_prtcl);
 
-	/* Clear SRDS_RSTCTL_RST bit for both PLLs before changing refclks
+	/* To prevent generation of reset request from SerDes
+	 * while changing the refclks, By setting SRDS_RST_MSK bit,
+	 * SerDes reset event cannot cause a reset request
 	 */
-	for (i = 0; i < PLL_NUM; i++)
-		clrbits_be32(&srds_regs->bank[i].rstctl, SRDS_RSTCTL_RST);
+	setbits_be32(&gur->rstrqmr1, FSL_CORENET_RSTRQMR1_SRDS_RST_MSK);
+
 	/* Reconfigure IDT idt8t49n222a device for CPRI to work
 	 * For this SerDes1's Refclk1 and refclk2 need to be set
 	 * to 122.88MHz
@@ -345,11 +349,11 @@ int config_serdes1_refclks(void)
 					SERDES_REFCLK_122_88, 0);
 			if (ret) {
 				printf("IDT8T49N222A configuration failed.\n");
-				return ret;
+				goto out;
 			} else
-				printf("IDT8T49N222A configured.\n");
+				debug("IDT8T49N222A configured.\n");
 		} else {
-			return ret;
+			goto out;
 		}
 		select_i2c_ch_pca(I2C_CH_DEFAULT);
 
@@ -400,16 +404,99 @@ int config_serdes1_refclks(void)
 		printf("WARNING:IDT8T49N222A configuration not"
 			" supported for:%x SerDes1 Protocol.\n",
 			serdes1_prtcl);
-		return -1;
 	}
 
-	return 0;
+out:
+	/* Clearing SRDS_RST_MSK bit as now
+	 * SerDes reset event can cause a reset request
+	 */
+	clrbits_be32(&gur->rstrqmr1, FSL_CORENET_RSTRQMR1_SRDS_RST_MSK);
+	return ret;
+}
+
+int config_serdes2_refclks(void)
+{
+	ccsr_gur_t *gur = (void __iomem *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	serdes_corenet_t *srds2_regs =
+		(void *)CONFIG_SYS_FSL_CORENET_SERDES2_ADDR;
+	u32 serdes2_prtcl;
+	int ret = 0;
+	int i;
+
+	serdes2_prtcl = in_be32(&gur->rcwsr[4]) &
+			FSL_CORENET2_RCWSR4_SRDS2_PRTCL;
+	if (!serdes2_prtcl) {
+		debug("SERDES2 is not enabled\n");
+		return -ENODEV;
+	}
+	serdes2_prtcl >>= FSL_CORENET2_RCWSR4_SRDS2_PRTCL_SHIFT;
+	debug("Using SERDES2 Protocol: 0x%x:\n", serdes2_prtcl);
+
+	/* To prevent generation of reset request from SerDes
+	 * while changing the refclks, By setting SRDS_RST_MSK bit,
+	 * SerDes reset event cannot cause a reset request
+	 */
+	setbits_be32(&gur->rstrqmr1, FSL_CORENET_RSTRQMR1_SRDS_RST_MSK);
+
+	/* Reconfigure IDT idt8t49n222a device for PCIe SATA to work
+	 * For this SerDes2's Refclk1 need to be set to 100MHz
+	 */
+	switch (serdes2_prtcl) {
+	case 0x9E:
+	case 0x9A:
+	case 0xb2:
+		debug("Configuring IDT for PCIe SATA for srds_prctl:%x\n",
+			serdes2_prtcl);
+		ret = select_i2c_ch_pca(I2C_CH_IDT);
+		if (!ret) {
+			ret = set_serdes_refclk(IDT_SERDES2_ADDRESS, 2,
+					SERDES_REFCLK_100,
+					SERDES_REFCLK_100, 0);
+			if (ret) {
+				printf("IDT8T49N222A configuration failed.\n");
+				goto out;
+			} else
+				debug("IDT8T49N222A configured.\n");
+		} else {
+			goto out;
+		}
+		select_i2c_ch_pca(I2C_CH_DEFAULT);
+
+		/* Steps For SerDes PLLs reset and reconfiguration after
+		 * changing SerDes's refclks
+		 */
+		for (i = 0; i < PLL_NUM; i++) {
+			clrbits_be32(&srds2_regs->bank[i].rstctl,
+					SRDS_RSTCTL_SDRST_B);
+			udelay(10);
+			clrbits_be32(&srds2_regs->bank[i].rstctl,
+				(SRDS_RSTCTL_SDEN | SRDS_RSTCTL_PLLRST_B));
+			udelay(10);
+			setbits_be32(&srds2_regs->bank[i].rstctl,
+					SRDS_RSTCTL_RST);
+			setbits_be32(&srds2_regs->bank[i].rstctl,
+				(SRDS_RSTCTL_SDEN | SRDS_RSTCTL_PLLRST_B
+				| SRDS_RSTCTL_SDRST_B));
+		}
+		break;
+	default:
+		printf("IDT configuration not supported for:%x S2 Protocol.\n",
+			serdes2_prtcl);
+	}
+
+out:
+	/* Clearing SRDS_RST_MSK bit as now
+	 * SerDes reset event can cause a reset request
+	 */
+	clrbits_be32(&gur->rstrqmr1, FSL_CORENET_RSTRQMR1_SRDS_RST_MSK);
+	return ret;
 }
 
 int board_early_init_r(void)
 {
 	const unsigned int flashbase = CONFIG_SYS_FLASH_BASE;
 	const u8 flash_esel = find_tlb_idx((void *)flashbase, 1);
+	int ret;
 
 	/*
 	 * Remap Boot flash + PROMJET region to caching-inhibited
@@ -441,6 +528,20 @@ int board_early_init_r(void)
 		printf("SerDes1 Refclks couldn't set properly.\n");
 	else
 		printf("SerDes1 Refclks have been set.\n");
+
+	/* SerDes2 refclks need to be set again, as default clks
+	 * are not suitable for PCIe SATA to work
+	 * This function will set SerDes2's Refclk1 and refclk2
+	 * for SerDes2 protocols having PCIe in them
+	 * for PCIe SATA to work
+	 */
+	ret = config_serdes2_refclks();
+	if (!ret)
+		printf("SerDes2 Refclks have been set.\n");
+	else if (ret == -ENODEV)
+		printf("SerDes disable, Refclks couldn't change.\n");
+	else
+		printf("SerDes2 Refclk reconfiguring failed.\n");
 
 	/* Configure VSC3316 and VSC3308 crossbar switches */
 	if (configure_vsc3316_3308())
