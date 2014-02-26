@@ -8,13 +8,10 @@
 CONFIG_STANDALONE_LOAD_ADDR ?= 0x40000
 
 PLATFORM_CPPFLAGS += -fno-strict-aliasing
-PLATFORM_CPPFLAGS += -Wstrict-prototypes
 PLATFORM_CPPFLAGS += -mregparm=3
 PLATFORM_CPPFLAGS += -fomit-frame-pointer
-PF_CPPFLAGS_X86   := $(call cc-option, -ffreestanding) \
-		     $(call cc-option, -fno-toplevel-reorder, \
+PF_CPPFLAGS_X86   := $(call cc-option, -fno-toplevel-reorder, \
 		       $(call cc-option, -fno-unit-at-a-time)) \
-		     $(call cc-option, -fno-stack-protector) \
 		     $(call cc-option, -mpreferred-stack-boundary=2)
 PLATFORM_CPPFLAGS += $(PF_CPPFLAGS_X86)
 PLATFORM_CPPFLAGS += -fno-dwarf2-cfi-asm
