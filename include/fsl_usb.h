@@ -52,13 +52,32 @@ struct ccsr_usb_phy {
 #define CONFIG_SYS_FSL_USB_PLLPRG2_MFI (5 << 16)
 #define CONFIG_SYS_FSL_USB_PLLPRG2_PLL_EN (1 << 21)
 #define CONFIG_SYS_FSL_USB_SYS_CLK_VALID (1 << 0)
+#define CONFIG_SYS_FSL_USB_XCVRPRG_HS_DCNT_PROG_EN (1 << 7)
+#define CONFIG_SYS_FSL_USB_XCVRPRG_HS_DCNT_PROG_MASK (3 << 4)
+
+#define INC_DCNT_THRESHOLD_25MV        (0 << 4)
+#define INC_DCNT_THRESHOLD_50MV        (1 << 4)
+#define DEC_DCNT_THRESHOLD_25MV        (2 << 4)
+#define DEC_DCNT_THRESHOLD_50MV        (3 << 4)
 #else
 struct ccsr_usb_phy {
-	u8	res0[0x18];
+	u32     config1;
+	u32     config2;
+	u32     config3;
+	u32     config4;
+	u32     config5;
+	u32     status1;
 	u32	usb_enable_override;
 	u8	res[0xe4];
 };
-#define	CONFIG_SYS_FSL_USB_ENABLE_OVERRIDE	1
+#define CONFIG_SYS_FSL_USB_HS_DISCNCT_INC (3 << 22)
+#define CONFIG_SYS_FSL_USB_RX_AUTO_CAL_RD_WR_SEL (1 << 20)
+#define CONFIG_SYS_FSL_USB_SQUELCH_PROG_WR_0 13
+#define CONFIG_SYS_FSL_USB_SQUELCH_PROG_WR_3 16
+#define CONFIG_SYS_FSL_USB_SQUELCH_PROG_RD_0 0
+#define CONFIG_SYS_FSL_USB_SQUELCH_PROG_RD_3 3
+#define CONFIG_SYS_FSL_USB_ENABLE_OVERRIDE 1
+#define CONFIG_SYS_FSL_USB_SQUELCH_PROG_MASK 0x07
 #endif
 
 #endif /*_ASM_FSL_USB_H_ */

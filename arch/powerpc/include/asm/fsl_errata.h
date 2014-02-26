@@ -26,4 +26,38 @@ static inline bool has_erratum_a006379(void)
 }
 #endif
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_A006261
+static inline bool has_erratum_a006261(void)
+{
+	u32 svr = get_svr();
+	u32 soc = SVR_SOC_VER(svr);
+
+	switch (soc) {
+	case SVR_P1010:
+		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 2, 0);
+	case SVR_P2041:
+	case SVR_P2040:
+		return IS_SVR_REV(svr, 1, 0) ||
+			IS_SVR_REV(svr, 1, 1) || IS_SVR_REV(svr, 2, 1);
+	case SVR_P3041:
+		return IS_SVR_REV(svr, 1, 0) ||
+			IS_SVR_REV(svr, 1, 1) ||
+			IS_SVR_REV(svr, 2, 0) || IS_SVR_REV(svr, 2, 1);
+	case SVR_P5010:
+	case SVR_P5020:
+	case SVR_P5021:
+		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 2, 0);
+	case SVR_T4240:
+	case SVR_T4160:
+		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 2, 0);
+	case SVR_T1040:
+		return IS_SVR_REV(svr, 1, 0);
+	case SVR_P5040:
+		return IS_SVR_REV(svr, 1, 0);
+	}
+
+	return false;
+}
+#endif
+
 #endif
