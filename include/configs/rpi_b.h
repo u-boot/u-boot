@@ -17,7 +17,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 
 /* Architecture, CPU, etc.*/
 #define CONFIG_ARM1176

@@ -64,7 +64,7 @@
 
 #define CONFIG_DISPLAY_CPUINFO
 
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (80 * SZ_1M))
 

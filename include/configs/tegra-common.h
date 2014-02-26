@@ -7,7 +7,7 @@
 
 #ifndef _TEGRA_COMMON_H_
 #define _TEGRA_COMMON_H_
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 #include <linux/stringify.h>
 
 /*

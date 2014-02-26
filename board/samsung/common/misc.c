@@ -11,7 +11,7 @@
 #include <samsung/misc.h>
 #include <errno.h>
 #include <version.h>
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/gpio.h>
 #include <asm/gpio.h>

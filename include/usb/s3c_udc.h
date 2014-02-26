@@ -10,7 +10,7 @@
 #define __S3C_USB_GADGET
 
 #include <asm/errno.h>
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/gadget.h>
 #include <linux/list.h>

@@ -51,7 +51,7 @@
 #define MACH_TYPE_TRATS			3928
 #define CONFIG_MACH_TYPE		MACH_TYPE_TRATS
 
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (80 * SZ_1M))
 

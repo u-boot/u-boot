@@ -9,7 +9,7 @@
 #include <netdev.h>
 #include <scsi.h>
 
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 #include <asm/io.h>
 
 #define HB_AHCI_BASE			0xffe08000

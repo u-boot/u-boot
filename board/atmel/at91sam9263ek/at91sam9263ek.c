@@ -7,7 +7,7 @@
  */
 
 #include <common.h>
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 #include <asm/arch/at91sam9263.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>

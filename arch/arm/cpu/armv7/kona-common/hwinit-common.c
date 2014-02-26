@@ -5,7 +5,7 @@
  */
 
 #include <common.h>
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 
 #ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)

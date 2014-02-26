@@ -17,7 +17,7 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/gpio.h>
 #include <asm/io.h>
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 #include <errno.h>
 
 #define PCI_ACCESS_READ  0

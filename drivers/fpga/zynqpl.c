@@ -10,7 +10,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <zynqpl.h>
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 

@@ -12,7 +12,7 @@
 
 /* SoC type is defined in boards.cfg */
 #include <asm/hardware.h>
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 
 #if defined(CONFIG_SYS_USE_NANDFLASH)
 #define CONFIG_ENV_IS_IN_NAND

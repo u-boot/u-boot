@@ -12,7 +12,7 @@
 #define CONFIG_MX6
 
 #include "mx6_common.h"
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
