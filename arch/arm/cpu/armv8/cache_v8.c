@@ -80,7 +80,7 @@ static void mmu_setup(void)
  */
 void invalidate_dcache_all(void)
 {
-	__asm_flush_dcache_all();
+	__asm_invalidate_dcache_all();
 }
 
 /*
@@ -177,6 +177,7 @@ int dcache_status(void)
 
 void icache_enable(void)
 {
+	__asm_invalidate_icache_all();
 	set_sctlr(get_sctlr() | CR_I);
 }
 

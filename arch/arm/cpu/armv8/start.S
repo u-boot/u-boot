@@ -64,10 +64,12 @@ reset:
 	msr	cpacr_el1, x0			/* Enable FP/SIMD */
 0:
 
-	/* Cache/BPB/TLB Invalidate */
-	bl	__asm_flush_dcache_all		/* dCache clean&invalidate */
-	bl	__asm_invalidate_icache_all	/* iCache invalidate */
-	bl	__asm_invalidate_tlb_all	/* invalidate TLBs */
+	/*
+	 * Cache/BPB/TLB Invalidate
+	 * i-cache is invalidated before enabled in icache_enable()
+	 * tlb is invalidated before mmu is enabled in dcache_enable()
+	 * d-cache is invalidated before enabled in dcache_enable()
+	 */
 
 	/* Processor specific initialization */
 	bl	lowlevel_init
