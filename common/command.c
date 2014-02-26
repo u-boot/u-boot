@@ -538,3 +538,13 @@ enum command_ret_t cmd_process(int flag, int argc, char * const argv[],
 		rc = cmd_usage(cmdtp);
 	return rc;
 }
+
+int cmd_process_error(cmd_tbl_t *cmdtp, int err)
+{
+	if (err) {
+		printf("Command '%s' failed: Error %d\n", cmdtp->name, err);
+		return 1;
+	}
+
+	return 0;
+}
