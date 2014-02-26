@@ -288,6 +288,182 @@ int configure_vsc3316_3308(void)
 	return 0;
 }
 
+static int calibrate_pll(serdes_corenet_t *srds_regs, int pll_num)
+{
+	u32 rst_err;
+
+	/* Steps For SerDes PLLs reset and reconfiguration
+	 * or PLL power-up procedure
+	 */
+	debug("CALIBRATE PLL:%d\n", pll_num);
+	clrbits_be32(&srds_regs->bank[pll_num].rstctl,
+			SRDS_RSTCTL_SDRST_B);
+	udelay(10);
+	clrbits_be32(&srds_regs->bank[pll_num].rstctl,
+		(SRDS_RSTCTL_SDEN | SRDS_RSTCTL_PLLRST_B));
+	udelay(10);
+	setbits_be32(&srds_regs->bank[pll_num].rstctl,
+			SRDS_RSTCTL_RST);
+	setbits_be32(&srds_regs->bank[pll_num].rstctl,
+		(SRDS_RSTCTL_SDEN | SRDS_RSTCTL_PLLRST_B
+		| SRDS_RSTCTL_SDRST_B));
+
+	udelay(20);
+
+	/* Check whether PLL has been locked or not */
+	rst_err = in_be32(&srds_regs->bank[pll_num].rstctl) &
+				SRDS_RSTCTL_RSTERR;
+	rst_err >>= SRDS_RSTCTL_RSTERR_SHIFT;
+	debug("RST_ERR value for PLL %d is: 0x%x:\n", pll_num, rst_err);
+	if (rst_err)
+		return rst_err;
+
+	return rst_err;
+}
+
+static int check_pll_locks(serdes_corenet_t *srds_regs, int pll_num)
+{
+	int ret = 0;
+	u32 fcap, dcbias, bcap, pllcr1, pllcr0;
+
+	if (calibrate_pll(srds_regs, pll_num)) {
+		/* STEP 1 */
+		/* Read fcap, dcbias and bcap value */
+		clrbits_be32(&srds_regs->bank[pll_num].pllcr0,
+				SRDS_PLLCR0_DCBIAS_OUT_EN);
+		fcap = in_be32(&srds_regs->bank[pll_num].pllsr2) &
+					SRDS_PLLSR2_FCAP;
+		fcap >>= SRDS_PLLSR2_FCAP_SHIFT;
+		bcap = in_be32(&srds_regs->bank[pll_num].pllsr2) &
+					SRDS_PLLSR2_BCAP_EN;
+		bcap >>= SRDS_PLLSR2_BCAP_EN_SHIFT;
+		setbits_be32(&srds_regs->bank[pll_num].pllcr0,
+				SRDS_PLLCR0_DCBIAS_OUT_EN);
+		dcbias = in_be32(&srds_regs->bank[pll_num].pllsr2) &
+					SRDS_PLLSR2_DCBIAS;
+		dcbias >>= SRDS_PLLSR2_DCBIAS_SHIFT;
+		debug("values of bcap:%x, fcap:%x and dcbias:%x\n",
+					bcap, fcap, dcbias);
+		if (fcap == 0 && bcap == 1) {
+			/* Step 3 */
+			clrbits_be32(&srds_regs->bank[pll_num].rstctl,
+				(SRDS_RSTCTL_SDEN | SRDS_RSTCTL_PLLRST_B
+				 | SRDS_RSTCTL_SDRST_B));
+			clrbits_be32(&srds_regs->bank[pll_num].pllcr1,
+					SRDS_PLLCR1_BCAP_EN);
+			setbits_be32(&srds_regs->bank[pll_num].pllcr1,
+					SRDS_PLLCR1_BCAP_OVD);
+			if (calibrate_pll(srds_regs, pll_num)) {
+				/*save the fcap, dcbias and bcap values*/
+				clrbits_be32(&srds_regs->bank[pll_num].pllcr0,
+						SRDS_PLLCR0_DCBIAS_OUT_EN);
+				fcap = in_be32(&srds_regs->bank[pll_num].pllsr2)
+					& SRDS_PLLSR2_FCAP;
+				fcap >>= SRDS_PLLSR2_FCAP_SHIFT;
+				bcap = in_be32(&srds_regs->bank[pll_num].pllsr2)
+					& SRDS_PLLSR2_BCAP_EN;
+				bcap >>= SRDS_PLLSR2_BCAP_EN_SHIFT;
+				setbits_be32(&srds_regs->bank[pll_num].pllcr0,
+						SRDS_PLLCR0_DCBIAS_OUT_EN);
+				dcbias = in_be32
+					(&srds_regs->bank[pll_num].pllsr2) &
+							SRDS_PLLSR2_DCBIAS;
+				dcbias >>= SRDS_PLLSR2_DCBIAS_SHIFT;
+
+				/* Step 4*/
+				clrbits_be32(&srds_regs->bank[pll_num].rstctl,
+				(SRDS_RSTCTL_SDEN | SRDS_RSTCTL_PLLRST_B
+				 | SRDS_RSTCTL_SDRST_B));
+				setbits_be32(&srds_regs->bank[pll_num].pllcr1,
+						SRDS_PLLCR1_BYP_CAL);
+				clrbits_be32(&srds_regs->bank[pll_num].pllcr1,
+						SRDS_PLLCR1_BCAP_EN);
+				setbits_be32(&srds_regs->bank[pll_num].pllcr1,
+						SRDS_PLLCR1_BCAP_OVD);
+				/* change the fcap and dcbias to the saved
+				 * values from Step 3 */
+				clrbits_be32(&srds_regs->bank[pll_num].pllcr1,
+							SRDS_PLLCR1_PLL_FCAP);
+				pllcr1 = (in_be32
+					(&srds_regs->bank[pll_num].pllcr1)|
+					(fcap << SRDS_PLLCR1_PLL_FCAP_SHIFT));
+				out_be32(&srds_regs->bank[pll_num].pllcr1,
+							pllcr1);
+				clrbits_be32(&srds_regs->bank[pll_num].pllcr0,
+						SRDS_PLLCR0_DCBIAS_OVRD);
+				pllcr0 = (in_be32
+				(&srds_regs->bank[pll_num].pllcr0)|
+				(dcbias << SRDS_PLLCR0_DCBIAS_OVRD_SHIFT));
+				out_be32(&srds_regs->bank[pll_num].pllcr0,
+							pllcr0);
+				ret = calibrate_pll(srds_regs, pll_num);
+				if (ret)
+					return ret;
+			} else {
+				goto out;
+			}
+		} else { /* Step 5 */
+			clrbits_be32(&srds_regs->bank[pll_num].rstctl,
+				(SRDS_RSTCTL_SDEN | SRDS_RSTCTL_PLLRST_B
+				 | SRDS_RSTCTL_SDRST_B));
+			udelay(10);
+			/* Change the fcap, dcbias, and bcap to the
+			 * values from Step 1 */
+			setbits_be32(&srds_regs->bank[pll_num].pllcr1,
+					SRDS_PLLCR1_BYP_CAL);
+			clrbits_be32(&srds_regs->bank[pll_num].pllcr1,
+						SRDS_PLLCR1_PLL_FCAP);
+			pllcr1 = (in_be32(&srds_regs->bank[pll_num].pllcr1)|
+				(fcap << SRDS_PLLCR1_PLL_FCAP_SHIFT));
+			out_be32(&srds_regs->bank[pll_num].pllcr1,
+						pllcr1);
+			clrbits_be32(&srds_regs->bank[pll_num].pllcr0,
+						SRDS_PLLCR0_DCBIAS_OVRD);
+			pllcr0 = (in_be32(&srds_regs->bank[pll_num].pllcr0)|
+				(dcbias << SRDS_PLLCR0_DCBIAS_OVRD_SHIFT));
+			out_be32(&srds_regs->bank[pll_num].pllcr0,
+						pllcr0);
+			clrbits_be32(&srds_regs->bank[pll_num].pllcr1,
+					SRDS_PLLCR1_BCAP_EN);
+			setbits_be32(&srds_regs->bank[pll_num].pllcr1,
+					SRDS_PLLCR1_BCAP_OVD);
+			ret = calibrate_pll(srds_regs, pll_num);
+			if (ret)
+				return ret;
+		}
+	}
+out:
+	return 0;
+}
+
+static int check_serdes_pll_locks(void)
+{
+	serdes_corenet_t *srds1_regs =
+		(void *)CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
+	serdes_corenet_t *srds2_regs =
+		(void *)CONFIG_SYS_FSL_CORENET_SERDES2_ADDR;
+	int i, ret1, ret2;
+
+	debug("\nSerDes1 Lock check\n");
+	for (i = 0; i < CONFIG_SYS_FSL_SRDS_NUM_PLLS; i++) {
+		ret1 = check_pll_locks(srds1_regs, i);
+		if (ret1) {
+			printf("SerDes1, PLL:%d didnt lock\n", i);
+			return ret1;
+		}
+	}
+	debug("\nSerDes2 Lock check\n");
+	for (i = 0; i < CONFIG_SYS_FSL_SRDS_NUM_PLLS; i++) {
+		ret2 = check_pll_locks(srds2_regs, i);
+		if (ret2) {
+			printf("SerDes2, PLL:%d didnt lock\n", i);
+			return ret2;
+		}
+	}
+
+	return 0;
+}
+
 int config_serdes1_refclks(void)
 {
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
@@ -478,6 +654,8 @@ int config_serdes2_refclks(void)
 			setbits_be32(&srds2_regs->bank[i].rstctl,
 				(SRDS_RSTCTL_SDEN | SRDS_RSTCTL_PLLRST_B
 				| SRDS_RSTCTL_SDRST_B));
+
+			udelay(10);
 		}
 		break;
 	default:
@@ -543,6 +721,21 @@ int board_early_init_r(void)
 		printf("SerDes disable, Refclks couldn't change.\n");
 	else
 		printf("SerDes2 Refclk reconfiguring failed.\n");
+
+#if defined(CONFIG_SYS_FSL_ERRATUM_A006384) || \
+			defined(CONFIG_SYS_FSL_ERRATUM_A006475)
+	/* Rechecking the SerDes locks after all SerDes configurations
+	 * are done, As SerDes PLLs may not lock reliably at 5 G VCO
+	 * and at cold temperatures.
+	 * Following sequence ensure the proper locking of SerDes PLLs.
+	 */
+	if (SVR_MAJ(get_svr()) == 1) {
+		if (check_serdes_pll_locks())
+			printf("SerDes plls still not locked properly.\n");
+		else
+			printf("SerDes plls have been locked well.\n");
+	}
+#endif
 
 	/* Configure VSC3316 and VSC3308 crossbar switches */
 	if (configure_vsc3316_3308())
