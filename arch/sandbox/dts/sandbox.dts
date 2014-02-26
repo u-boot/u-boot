@@ -1,0 +1,20 @@
+/dts-v1/;
+
+/ {
+	triangle {
+		compatible = "demo-shape";
+		colour = "cyan";
+		sides = <3>;
+		character = <83>;
+	};
+	square {
+		compatible = "demo-shape";
+		colour = "blue";
+		sides = <4>;
+	};
+	hexagon {
+		compatible = "demo-simple";
+		colour = "white";
+		sides = <6>;
+	};
+};

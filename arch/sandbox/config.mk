@@ -11,3 +11,5 @@ __HAVE_ARCH_GENERIC_BOARD := y
 cmd_u-boot__ = $(CC) -o $@ -T u-boot.lds \
 	-Wl,--start-group $(u-boot-main) -Wl,--end-group \
 	$(PLATFORM_LIBS) -Wl,-Map -Wl,u-boot.map
+
+CONFIG_ARCH_DEVICE_TREE := sandbox
