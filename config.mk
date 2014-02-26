@@ -46,7 +46,5 @@ OBJCOPYFLAGS += --gap-fill=0xff
 CPPFLAGS = $(RELFLAGS)
 CPPFLAGS += -pipe $(PLATFORM_CPPFLAGS)
 
-BCURDIR = $(subst $(SRCTREE)/,,$(CURDIR:$(obj)%=%))
-
 LDFLAGS += $(PLATFORM_LDFLAGS)
 LDFLAGS_FINAL += -Bstatic
