@@ -21,6 +21,8 @@
  */
 
 #ifndef __ASSEMBLY__
+#include <linux/list.h>
+
 typedef struct global_data {
 	bd_t *bd;
 	unsigned long flags;
@@ -61,6 +63,12 @@ typedef struct global_data {
 	unsigned long start_addr_sp;	/* start_addr_stackpointer */
 	unsigned long reloc_off;
 	struct global_data *new_gd;	/* relocated global data */
+
+#ifdef CONFIG_DM
+	struct device	*dm_root;	/* Root instance for Driver Model */
+	struct list_head uclass_root;	/* Head of core tree */
+#endif
+
 	const void *fdt_blob;	/* Our device tree, NULL if none */
 	void *new_fdt;		/* Relocated FDT */
 	unsigned long fdt_size;	/* Space reserved for relocated FDT */

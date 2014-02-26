@@ -591,6 +591,7 @@ libs-y += fs/
 libs-y += net/
 libs-y += disk/
 libs-y += drivers/
+libs-$(CONFIG_DM) += drivers/core/
 libs-y += drivers/dma/
 libs-y += drivers/gpio/
 libs-y += drivers/i2c/
