@@ -363,6 +363,12 @@ static int mxsmmc_init(struct mmc *mmc)
 	return 0;
 }
 
+static const struct mmc_ops mxsmmc_ops = {
+	.send_cmd	= mxsmmc_send_cmd,
+	.set_ios	= mxsmmc_set_ios,
+	.init		= mxsmmc_init,
+};
+
 int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int), int (*cd)(int))
 {
 	struct mmc *mmc = NULL;
@@ -400,11 +406,7 @@ int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int), int (*cd)(int))
 	priv->regs = mxs_ssp_regs_by_bus(id);
 
 	sprintf(mmc->name, "MXS MMC");
-	mmc->send_cmd = mxsmmc_send_cmd;
-	mmc->set_ios = mxsmmc_set_ios;
-	mmc->init = mxsmmc_init;
-	mmc->getcd = NULL;
-	mmc->getwp = NULL;
+	mmc->ops = &mxsmmc_ops;
 	mmc->priv = priv;
 
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;

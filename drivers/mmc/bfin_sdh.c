@@ -274,6 +274,11 @@ static int bfin_sdh_init(struct mmc *mmc)
 	return 0;
 }
 
+static const struct mmc_ops bfin_mmc_ops = {
+	.send_cmd	= bfin_sdh_request,
+	.set_ios	= bfin_sdh_set_ios,
+	.init		= bfin_sdh_init,
+};
 
 int bfin_mmc_init(bd_t *bis)
 {
@@ -284,11 +289,7 @@ int bfin_mmc_init(bd_t *bis)
 	if (!mmc)
 		return -ENOMEM;
 	sprintf(mmc->name, "Blackfin SDH");
-	mmc->send_cmd = bfin_sdh_request;
-	mmc->set_ios = bfin_sdh_set_ios;
-	mmc->init = bfin_sdh_init;
-	mmc->getcd = NULL;
-	mmc->getwp = NULL;
+	mmc->ops = &bfin_mmc_ops;
 	mmc->host_caps = MMC_MODE_4BIT;
 
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;

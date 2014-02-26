@@ -250,6 +250,18 @@ struct mmc_data {
 	uint blocksize;
 };
 
+/* forward decl. */
+struct mmc;
+
+struct mmc_ops {
+	int (*send_cmd)(struct mmc *mmc,
+			struct mmc_cmd *cmd, struct mmc_data *data);
+	void (*set_ios)(struct mmc *mmc);
+	int (*init)(struct mmc *mmc);
+	int (*getcd)(struct mmc *mmc);
+	int (*getwp)(struct mmc *mmc);
+};
+
 struct mmc {
 	struct list_head link;
 	char name[32];
@@ -283,12 +295,7 @@ struct mmc {
 	u64 capacity_rpmb;
 	u64 capacity_gp[4];
 	block_dev_desc_t block_dev;
-	int (*send_cmd)(struct mmc *mmc,
-			struct mmc_cmd *cmd, struct mmc_data *data);
-	void (*set_ios)(struct mmc *mmc);
-	int (*init)(struct mmc *mmc);
-	int (*getcd)(struct mmc *mmc);
-	int (*getwp)(struct mmc *mmc);
+	const struct mmc_ops *ops;
 	uint b_max;
 	char op_cond_pending;	/* 1 if we are waiting on an op_cond command */
 	char init_in_progress;	/* 1 if we have done mmc_start_init() */

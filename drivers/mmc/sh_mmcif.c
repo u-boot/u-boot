@@ -574,6 +574,12 @@ static int sh_mmcif_init(struct mmc *mmc)
 	return 0;
 }
 
+static const struct mmc_ops sh_mmcif_ops = {
+	.send_cmd	= sh_mmcif_request,
+	.set_ios	= sh_mmcif_set_ios,
+	.init		= sh_mmcif_init,
+};
+
 int mmcif_mmc_init(void)
 {
 	int ret = 0;
@@ -595,11 +601,7 @@ int mmcif_mmc_init(void)
 	mmc->host_caps = MMC_MODE_HS | MMC_MODE_HS_52MHz | MMC_MODE_4BIT |
 			 MMC_MODE_8BIT | MMC_MODE_HC;
 	memcpy(mmc->name, DRIVER_NAME, sizeof(DRIVER_NAME));
-	mmc->send_cmd = sh_mmcif_request;
-	mmc->set_ios = sh_mmcif_set_ios;
-	mmc->init = sh_mmcif_init;
-	mmc->getcd = NULL;
-	mmc->getwp = NULL;
+	mmc->ops = &sh_mmcif_ops;
 	host->regs = (struct sh_mmcif_regs *)CONFIG_SH_MMCIF_ADDR;
 	host->clk = CONFIG_SH_MMCIF_CLK;
 	mmc->priv = host;

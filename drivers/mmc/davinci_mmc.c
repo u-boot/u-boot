@@ -363,6 +363,12 @@ static void dmmc_set_ios(struct mmc *mmc)
 		dmmc_set_clock(mmc, mmc->clock);
 }
 
+static const struct mmc_ops dmmc_ops = {
+	.send_cmd	= dmmc_send_cmd,
+	.set_ios	= dmmc_set_ios,
+	.init		= dmmc_init,
+};
+
 /* Called from board_mmc_init during startup. Can be called multiple times
  * depending on the number of slots available on board and controller
  */
@@ -375,12 +381,7 @@ int davinci_mmc_init(bd_t *bis, struct davinci_mmc *host)
 
 	sprintf(mmc->name, "davinci");
 	mmc->priv = host;
-	mmc->send_cmd = dmmc_send_cmd;
-	mmc->set_ios = dmmc_set_ios;
-	mmc->init = dmmc_init;
-	mmc->getcd = NULL;
-	mmc->getwp = NULL;
-
+	mmc->ops = &dmmc_ops;
 	mmc->f_min = 200000;
 	mmc->f_max = 25000000;
 	mmc->voltages = host->voltages;

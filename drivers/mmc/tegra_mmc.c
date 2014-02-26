@@ -314,7 +314,7 @@ static int mmc_send_cmd_bounced(struct mmc *mmc, struct mmc_cmd *cmd,
 	return 0;
 }
 
-static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
+static int tegra_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			struct mmc_data *data)
 {
 	void *buf;
@@ -396,7 +396,7 @@ out:
 	host->clock = clock;
 }
 
-static void mmc_set_ios(struct mmc *mmc)
+static void tegra_mmc_set_ios(struct mmc *mmc)
 {
 	struct mmc_host *host = mmc->priv;
 	unsigned char ctrl;
@@ -464,7 +464,7 @@ static void mmc_reset(struct mmc_host *host, struct mmc *mmc)
 	pad_init_mmc(host);
 }
 
-static int mmc_core_init(struct mmc *mmc)
+static int tegra_mmc_core_init(struct mmc *mmc)
 {
 	struct mmc_host *host = (struct mmc_host *)mmc->priv;
 	unsigned int mask;
@@ -521,6 +521,13 @@ int tegra_mmc_getcd(struct mmc *mmc)
 	return 1;
 }
 
+static const struct mmc_ops tegra_mmc_ops = {
+	.send_cmd	= tegra_mmc_send_cmd,
+	.set_ios	= tegra_mmc_set_ios,
+	.init		= tegra_mmc_core_init,
+	.getcd		= tegra_mmc_getcd,
+};
+
 static int do_mmc_init(int dev_index)
 {
 	struct mmc_host *host;
@@ -558,11 +565,7 @@ static int do_mmc_init(int dev_index)
 
 	sprintf(mmc->name, "Tegra SD/MMC");
 	mmc->priv = host;
-	mmc->send_cmd = mmc_send_cmd;
-	mmc->set_ios = mmc_set_ios;
-	mmc->init = mmc_core_init;
-	mmc->getcd = tegra_mmc_getcd;
-	mmc->getwp = NULL;
+	mmc->ops = &tegra_mmc_ops;
 
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
 	mmc->host_caps = 0;

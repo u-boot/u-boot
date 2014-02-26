@@ -366,6 +366,12 @@ static int pxa_mmc_init(struct mmc *mmc)
 	return 0;
 }
 
+static const struct mmc_ops pxa_mmc_ops = {
+	.send_cmd	= pxa_mmc_request,
+	.set_ios	= pxa_mmc_set_ios,
+	.init		= pxa_mmc_init,
+};
+
 int pxa_mmc_register(int card_index)
 {
 	struct mmc *mmc;
@@ -397,10 +403,7 @@ int pxa_mmc_register(int card_index)
 	mmc->priv = priv;
 
 	sprintf(mmc->name, "PXA MMC");
-	mmc->send_cmd	= pxa_mmc_request;
-	mmc->set_ios	= pxa_mmc_set_ios;
-	mmc->init	= pxa_mmc_init;
-	mmc->getcd	= NULL;
+	mmc->ops = &pxa_mmc_ops;
 
 	mmc->voltages	= MMC_VDD_32_33 | MMC_VDD_33_34;
 	mmc->f_max	= PXAMMC_MAX_SPEED;

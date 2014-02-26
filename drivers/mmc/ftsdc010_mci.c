@@ -316,6 +316,12 @@ static int ftsdc010_init(struct mmc *mmc)
 	return 0;
 }
 
+static const struct mmc_ops ftsdc010_ops = {
+	.send_cmd	= ftsdc010_request,
+	.set_ios	= ftsdc010_set_ios,
+	.init		= ftsdc010_init,
+};
+
 int ftsdc010_mmc_init(int devid)
 {
 	struct mmc *mmc;
@@ -347,10 +353,7 @@ int ftsdc010_mmc_init(int devid)
 	mmc->priv  = chip;
 
 	sprintf(mmc->name, "ftsdc010");
-	mmc->send_cmd  = ftsdc010_request;
-	mmc->set_ios   = ftsdc010_set_ios;
-	mmc->init      = ftsdc010_init;
-
+	mmc->ops = &ftsdc010_ops;
 	mmc->host_caps = MMC_MODE_HS | MMC_MODE_HS_52MHz;
 	switch (readl(&regs->bwr) & FTSDC010_BWR_CAPS_MASK) {
 	case FTSDC010_BWR_CAPS_4BIT:

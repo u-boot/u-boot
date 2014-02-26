@@ -335,6 +335,12 @@ static void host_set_ios(struct mmc *dev)
 	udelay(CLK_CHANGE_DELAY);
 }
 
+static const struct mmc_ops arm_pl180_mmci_ops = {
+	.send_cmd = host_request,
+	.set_ios = host_set_ios,
+	.init = mmc_host_reset,
+};
+
 /*
  * mmc_host_init - initialize the mmc controller.
  * Set initial clock and power for mmc slot.
@@ -360,11 +366,7 @@ int arm_pl180_mmci_init(struct pl180_mmc_host *host)
 	sdi_u32 = readl(&host->base->mask0) & ~SDI_MASK0_MASK;
 	writel(sdi_u32, &host->base->mask0);
 	strncpy(dev->name, host->name, sizeof(dev->name));
-	dev->send_cmd = host_request;
-	dev->set_ios = host_set_ios;
-	dev->init = mmc_host_reset;
-	dev->getcd = NULL;
-	dev->getwp = NULL;
+	dev->ops = &arm_pl180_mmci_ops;
 	dev->host_caps = host->caps;
 	dev->voltages = host->voltages;
 	dev->f_min = host->clock_min;

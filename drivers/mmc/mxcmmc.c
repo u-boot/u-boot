@@ -485,6 +485,12 @@ static int mxcmci_init(struct mmc *mmc)
 	return 0;
 }
 
+static const struct mmc_ops mxcmci_ops = {
+	.send_cmd	= mxcmci_request,
+	.set_ios	= mxcmci_set_ios,
+	.init		= mxcmci_init,
+};
+
 static int mxcmci_initialize(bd_t *bis)
 {
 	struct mmc *mmc = NULL;
@@ -495,11 +501,7 @@ static int mxcmci_initialize(bd_t *bis)
 		return -ENOMEM;
 
 	sprintf(mmc->name, "MXC MCI");
-	mmc->send_cmd = mxcmci_request;
-	mmc->set_ios = mxcmci_set_ios;
-	mmc->init = mxcmci_init;
-	mmc->getcd = NULL;
-	mmc->getwp = NULL;
+	mmc->ops = &mxcmci_ops;
 	mmc->host_caps = MMC_MODE_4BIT;
 
 	host->base = (struct mxcmci_regs *)CONFIG_MXC_MCI_REGS_BASE;

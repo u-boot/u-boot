@@ -343,6 +343,12 @@ static int dwmci_init(struct mmc *mmc)
 	return 0;
 }
 
+static const struct mmc_ops dwmci_ops = {
+	.send_cmd	= dwmci_send_cmd,
+	.set_ios	= dwmci_set_ios,
+	.init		= dwmci_init,
+};
+
 int add_dwmci(struct dwmci_host *host, u32 max_clk, u32 min_clk)
 {
 	struct mmc *mmc;
@@ -358,9 +364,7 @@ int add_dwmci(struct dwmci_host *host, u32 max_clk, u32 min_clk)
 	host->mmc = mmc;
 
 	sprintf(mmc->name, "%s", host->name);
-	mmc->send_cmd = dwmci_send_cmd;
-	mmc->set_ios = dwmci_set_ios;
-	mmc->init = dwmci_init;
+	mmc->ops = &dwmci_ops;
 	mmc->f_min = min_clk;
 	mmc->f_max = max_clk;
 

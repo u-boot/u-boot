@@ -344,6 +344,12 @@ static int mci_init(struct mmc *mmc)
 	return 0;
 }
 
+static const struct mmc_ops atmel_mci_ops = {
+	.send_cmd	= mci_send_cmd,
+	.set_ios	= mci_set_ios,
+	.init		= mci_init,
+};
+
 /*
  * This is the only exported function
  *
@@ -360,11 +366,7 @@ int atmel_mci_init(void *regs)
 
 	strcpy(mmc->name, "mci");
 	mmc->priv = regs;
-	mmc->send_cmd = mci_send_cmd;
-	mmc->set_ios = mci_set_ios;
-	mmc->init = mci_init;
-	mmc->getcd = NULL;
-	mmc->getwp = NULL;
+	mmc->ops = &atmel_mci_ops;
 
 	/* need to be able to pass these in on a board by board basis */
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;

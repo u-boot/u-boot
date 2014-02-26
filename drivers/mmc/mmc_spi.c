@@ -255,6 +255,12 @@ static int mmc_spi_init_p(struct mmc *mmc)
 	return 0;
 }
 
+static const struct mmc_ops mmc_spi_ops = {
+	.send_cmd	= mmc_spi_request,
+	.set_ios	= mmc_spi_set_ios,
+	.init		= mmc_spi_init_p,
+};
+
 struct mmc *mmc_spi_init(uint bus, uint cs, uint speed, uint mode)
 {
 	struct mmc *mmc;
@@ -269,11 +275,7 @@ struct mmc *mmc_spi_init(uint bus, uint cs, uint speed, uint mode)
 		return NULL;
 	}
 	sprintf(mmc->name, "MMC_SPI");
-	mmc->send_cmd = mmc_spi_request;
-	mmc->set_ios = mmc_spi_set_ios;
-	mmc->init = mmc_spi_init_p;
-	mmc->getcd = NULL;
-	mmc->getwp = NULL;
+	mmc->ops = &mmc_spi_ops;
 	mmc->host_caps = MMC_MODE_SPI;
 
 	mmc->voltages = MMC_SPI_VOLTAGE;

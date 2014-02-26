@@ -37,8 +37,8 @@ int mmc_getwp(struct mmc *mmc)
 	wp = board_mmc_getwp(mmc);
 
 	if (wp < 0) {
-		if (mmc->getwp)
-			wp = mmc->getwp(mmc);
+		if (mmc->ops->getwp)
+			wp = mmc->ops->getwp(mmc);
 		else
 			wp = 0;
 	}
@@ -63,7 +63,7 @@ int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 
 	printf("CMD_SEND:%d\n", cmd->cmdidx);
 	printf("\t\tARG\t\t\t 0x%08X\n", cmd->cmdarg);
-	ret = mmc->send_cmd(mmc, cmd, data);
+	ret = mmc->ops->send_cmd(mmc, cmd, data);
 	switch (cmd->resp_type) {
 		case MMC_RSP_NONE:
 			printf("\t\tMMC_RSP_NONE\n");
@@ -106,7 +106,7 @@ int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 			break;
 	}
 #else
-	ret = mmc->send_cmd(mmc, cmd, data);
+	ret = mmc->ops->send_cmd(mmc, cmd, data);
 #endif
 	return ret;
 }
@@ -578,8 +578,8 @@ int mmc_getcd(struct mmc *mmc)
 	cd = board_mmc_getcd(mmc);
 
 	if (cd < 0) {
-		if (mmc->getcd)
-			cd = mmc->getcd(mmc);
+		if (mmc->ops->getcd)
+			cd = mmc->ops->getcd(mmc);
 		else
 			cd = 1;
 	}
@@ -751,7 +751,8 @@ static const int multipliers[] = {
 
 static void mmc_set_ios(struct mmc *mmc)
 {
-	mmc->set_ios(mmc);
+	if (mmc->ops->set_ios)
+		mmc->ops->set_ios(mmc);
 }
 
 void mmc_set_clock(struct mmc *mmc, uint clock)
@@ -1207,7 +1208,8 @@ int mmc_start_init(struct mmc *mmc)
 {
 	int err;
 
-	if (mmc_getcd(mmc) == 0) {
+	/* we pretend there's no card when init is NULL */
+	if (mmc_getcd(mmc) == 0 || mmc->ops->init == NULL) {
 		mmc->has_init = 0;
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 		printf("MMC: no card present\n");
@@ -1218,7 +1220,8 @@ int mmc_start_init(struct mmc *mmc)
 	if (mmc->has_init)
 		return 0;
 
-	err = mmc->init(mmc);
+	/* made sure it's not NULL earlier */
+	err = mmc->ops->init(mmc);
 
 	if (err)
 		return err;

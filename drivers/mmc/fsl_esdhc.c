@@ -524,6 +524,13 @@ static void esdhc_reset(struct fsl_esdhc *regs)
 		printf("MMC/SD: Reset never completed.\n");
 }
 
+static const struct mmc_ops esdhc_ops = {
+	.send_cmd	= esdhc_send_cmd,
+	.set_ios	= esdhc_set_ios,
+	.init		= esdhc_init,
+	.getcd		= esdhc_getcd,
+};
+
 int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 {
 	struct fsl_esdhc *regs;
@@ -548,12 +555,7 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 				| SYSCTL_IPGEN | SYSCTL_CKEN);
 
 	mmc->priv = cfg;
-	mmc->send_cmd = esdhc_send_cmd;
-	mmc->set_ios = esdhc_set_ios;
-	mmc->init = esdhc_init;
-	mmc->getcd = esdhc_getcd;
-	mmc->getwp = NULL;
-
+	mmc->ops = &esdhc_ops;
 	voltage_caps = 0;
 	caps = regs->hostcapblt;
 

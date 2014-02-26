@@ -430,6 +430,13 @@ int sdhci_init(struct mmc *mmc)
 	return 0;
 }
 
+
+static const struct mmc_ops sdhci_ops = {
+	.send_cmd	= sdhci_send_command,
+	.set_ios	= sdhci_set_ios,
+	.init		= sdhci_init,
+};
+
 int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 {
 	struct mmc *mmc;
@@ -445,11 +452,7 @@ int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 	host->mmc = mmc;
 
 	sprintf(mmc->name, "%s", host->name);
-	mmc->send_cmd = sdhci_send_command;
-	mmc->set_ios = sdhci_set_ios;
-	mmc->init = sdhci_init;
-	mmc->getcd = NULL;
-	mmc->getwp = NULL;
+	mmc->ops = &sdhci_ops;
 
 	caps = sdhci_readl(host, SDHCI_CAPABILITIES);
 #ifdef CONFIG_MMC_SDMA
