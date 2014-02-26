@@ -21,6 +21,7 @@
 #define CONFIG_BOOTSTAGE
 #define CONFIG_BOOTSTAGE_REPORT
 #define CONFIG_DM
+#define CONFIG_CMD_DM
 #define CONFIG_DM_TEST
 
 /* Number of bits in a C 'long' on this architecture */
