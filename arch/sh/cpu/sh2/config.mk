@@ -14,5 +14,4 @@ PLATFORM_CPPFLAGS += -m3e -mb
 endif
 PLATFORM_CPPFLAGS += -DCONFIG_SH2 $(call cc-option,-mno-fdpic)
 
-PLATFORM_RELFLAGS += -ffixed-r13
 PLATFORM_LDFLAGS += $(ENDIANNESS)
