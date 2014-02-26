@@ -489,8 +489,6 @@ endif
 # that (or fail if absent).  Otherwise, search for a linker script in a
 # standard location.
 
-LDSCRIPT_MAKEFILE_DIR = $(dir $(LDSCRIPT))
-
 ifndef LDSCRIPT
 	#LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot.lds.debug
 	ifdef CONFIG_SYS_LDSCRIPT
@@ -515,8 +513,6 @@ ifndef LDSCRIPT
 	endif
 	ifeq ($(wildcard $(LDSCRIPT)),)
 		LDSCRIPT := $(TOPDIR)/arch/$(ARCH)/cpu/u-boot.lds
-		# We don't expect a Makefile here
-		LDSCRIPT_MAKEFILE_DIR =
 	endif
 endif
 
