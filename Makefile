@@ -1063,6 +1063,13 @@ u-boot.lds: $(LDSCRIPT) prepare FORCE
 PHONY += nand_spl
 nand_spl: prepare
 	$(Q)$(MAKE) $(build)=nand_spl/board/$(BOARDDIR) all
+	@echo >&2
+	@echo >&2 "==================== WARNING ====================="
+	@echo >&2 "nand_spl will not be included in v2014.07 release."
+	@echo >&2 "Please switch over to SPL."
+	@echo >&2 "Otherwise, this board will be removed."
+	@echo >&2 "=================================================="
+	@echo >&2
 
 nand_spl/u-boot-spl-16k.bin: nand_spl
 	@:
