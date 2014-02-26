@@ -268,6 +268,10 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef CONFIG_SYS_FSL_ERRATUM_A005125
 	puts("Work-around for Erratum A005125 enabled\n");
 #endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A007075
+	if (has_erratum_a007075())
+		puts("Work-around for Erratum A007075 enabled\n");
+#endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_I2C_A004447
 	if ((SVR_SOC_VER(svr) == SVR_8548 && IS_SVR_REV(svr, 3, 1)) ||
 	    (SVR_REV(svr) <= CONFIG_SYS_FSL_A004447_SVR_REV))
