@@ -7,8 +7,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-PLATFORM_RELFLAGS += -ffixed-d7 -msep-data
-
 cfg=$(shell grep configs $(OBJTREE)/include/config.h | sed 's/.*<\(configs.*\)>/\1/')
 is5301x:=$(shell grep CONFIG_MCF5301x $(TOPDIR)/include/$(cfg))
 is532x:=$(shell grep CONFIG_MCF532x $(TOPDIR)/include/$(cfg))
