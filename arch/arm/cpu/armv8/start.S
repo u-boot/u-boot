@@ -122,12 +122,6 @@ ENDPROC(lowlevel_init)
 /*-----------------------------------------------------------------------*/
 
 ENTRY(c_runtime_cpu_setup)
-	/* If I-cache is enabled invalidate it */
-#ifndef CONFIG_SYS_ICACHE_OFF
-	ic	iallu			/* I+BTB cache invalidate */
-	isb	sy
-#endif
-
 	/* Relocate vBAR */
 	adr	x0, vectors
 	switch_el x1, 3f, 2f, 1f

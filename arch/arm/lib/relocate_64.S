@@ -11,6 +11,7 @@
 #include <asm-offsets.h>
 #include <config.h>
 #include <linux/linkage.h>
+#include <asm/macro.h>
 
 /*
  * void relocate_code (addr_moni)
@@ -19,6 +20,9 @@
  * x0 holds the destination address.
  */
 ENTRY(relocate_code)
+	stp	x29, x30, [sp, #-32]!	/* create a stack frame */
+	mov	x29, sp
+	str	x0, [sp, #16]
 	/*
 	 * Copy u-boot from flash to RAM
 	 */
@@ -32,6 +36,7 @@ copy_loop:
 	stp	x10, x11, [x0], #16	/* copy to   target address [x0] */
 	cmp	x1, x2			/* until source end address [x2] */
 	b.lo	copy_loop
+	str	x0, [sp, #24]
 
 	/*
 	 * Fix .rela.dyn relocations
@@ -54,5 +59,19 @@ fixnext:
 	b.lo	fixloop
 
 relocate_done:
+	switch_el x1, 3f, 2f, 1f
+	bl	hang
+3:	mrs	x0, sctlr_el3
+	b	0f
+2:	mrs	x0, sctlr_el2
+	b	0f
+1:	mrs	x0, sctlr_el1
+0:	tbz	w0, #2, 5f	/* skip flushing cache if disabled */
+	tbz	w0, #12, 4f	/* invalide i-cache is enabled */
+	ic	iallu		/* i-cache invalidate all */
+	isb	sy
+4:	ldp	x0, x1, [sp, #16]
+	bl	__asm_flush_dcache_range
+5:	ldp	x29, x30, [sp],#16
 	ret
 ENDPROC(relocate_code)
