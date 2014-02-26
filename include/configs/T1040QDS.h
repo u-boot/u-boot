@@ -375,7 +375,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
-#define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
+#define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
 
 /* Serial Port - controlled on board with jumper J8
  * open - index 2
@@ -400,6 +400,25 @@ unsigned long get_board_ddr_clk(void);
 /* Use the HUSH parser */
 #define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
+
+/* Video */
+#define CONFIG_FSL_DIU_FB
+#ifdef CONFIG_FSL_DIU_FB
+#define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_CCSRBAR + 0x180000)
+#define CONFIG_VIDEO
+#define CONFIG_CMD_BMP
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VIDEO_SW_CURSOR
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_VIDEO_BMP_LOGO
+#define CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS
+/*
+ * With CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS, flash I/O is really slow, so
+ * disable empty flash sector detection, which is I/O-intensive.
+ */
+#undef CONFIG_SYS_FLASH_EMPTY_INFO
+#endif
 
 /* pass open firmware flat tree */
 #define CONFIG_OF_LIBFDT
@@ -426,6 +445,11 @@ unsigned long get_board_ddr_clk(void);
 
 /* I2C bus multiplexer */
 #define I2C_MUX_CH_DEFAULT      0x8
+#define I2C_MUX_CH_DIU		0xC
+
+/* LDI/DVI Encoder for display */
+#define CONFIG_SYS_I2C_LDI_ADDR         0x38
+#define CONFIG_SYS_I2C_DVI_ADDR         0x75
 
 /*
  * RTC configuration
@@ -703,6 +727,7 @@ unsigned long get_board_ddr_clk(void);
 	"bank_intlv=cs0_cs1;"					\
 	"usb1:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) "\0"\
 	"netdev=eth0\0"						\
+	"video-mode=fslfb:1024x768-32@60,monitor=dvi\0"		\
 	"uboot=" __stringify(CONFIG_UBOOTPATH) "\0"		\
 	"ubootaddr=" __stringify(CONFIG_SYS_TEXT_BASE) "\0"	\
 	"tftpflash=tftpboot $loadaddr $uboot && "		\
