@@ -151,6 +151,53 @@ int configure_vsc3316_3308(void)
 		}
 		break;
 
+	case 0x02:
+	case 0x04:
+	case 0x05:
+	case 0x06:
+	case 0x08:
+	case 0x09:
+	case 0x0A:
+	case 0x0B:
+	case 0x0C:
+	case 0x30:
+	case 0x32:
+	case 0x33:
+	case 0x34:
+	case 0x39:
+	case 0x3A:
+	case 0x3C:
+	case 0x3D:
+	case 0x5C:
+	case 0x5D:
+			/*
+			 * Configuration:
+			 * SERDES: 1
+			 * Lanes: A,B: AURORA
+			 * Lanes: C,d: SGMII
+			 * Lanes: E,F,G,H: CPRI
+			 */
+		debug("Configuring crossbar for Aurora, SGMII 3 and 4,"
+				" and CPRI. srds_prctl:%x\n", serdes1_prtcl);
+		num_vsc16_con = NUM_CON_VSC3316;
+		/* Configure VSC3316 crossbar switch */
+		ret = select_i2c_ch_pca(I2C_CH_VSC3316);
+		if (!ret) {
+			ret = vsc3316_config(VSC3316_TX_ADDRESS,
+					vsc16_tx_sfp_sgmii_aurora,
+					num_vsc16_con);
+			if (ret)
+				return ret;
+			ret = vsc3316_config(VSC3316_RX_ADDRESS,
+					vsc16_rx_sfp_sgmii_aurora,
+					num_vsc16_con);
+			if (ret)
+				return ret;
+		} else {
+			return ret;
+		}
+		break;
+
 #ifdef CONFIG_PPC_B4420
 	case 0x18:
 			/*
@@ -245,7 +292,7 @@ int config_serdes1_refclks(void)
 	serdes_corenet_t *srds_regs =
 		(void *)CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
 	u32 serdes1_prtcl, lane;
-	unsigned int flag_sgmii_prtcl = 0;
+	unsigned int flag_sgmii_aurora_prtcl = 0;
 	int ret, i;
 
 	serdes1_prtcl = in_be32(&gur->rcwsr[4]) &
@@ -270,6 +317,25 @@ int config_serdes1_refclks(void)
 	case 0x2C:
 	case 0x2D:
 	case 0x2E:
+	case 0x02:
+	case 0x04:
+	case 0x05:
+	case 0x06:
+	case 0x08:
+	case 0x09:
+	case 0x0A:
+	case 0x0B:
+	case 0x0C:
+	case 0x30:
+	case 0x32:
+	case 0x33:
+	case 0x34:
+	case 0x39:
+	case 0x3A:
+	case 0x3C:
+	case 0x3D:
+	case 0x5C:
+	case 0x5D:
 		debug("Configuring idt8t49n222a for CPRI SerDes clks:"
 			" for srds_prctl:%x\n", serdes1_prtcl);
 		ret = select_i2c_ch_pca(I2C_CH_IDT);
@@ -288,7 +354,7 @@ int config_serdes1_refclks(void)
 		select_i2c_ch_pca(I2C_CH_DEFAULT);
 
 		/* Change SerDes1's Refclk1 to 125MHz for on board
-		 * SGMIIs to work
+		 * SGMIIs or Aurora to work
 		 */
 		for (lane = 0; lane < SRDS_MAX_LANES; lane++) {
 			enum srds_prtcl lane_prtcl = serdes_get_prtcl
@@ -300,14 +366,15 @@ int config_serdes1_refclks(void)
 			case SGMII_FM1_DTSEC4:
 			case SGMII_FM1_DTSEC5:
 			case SGMII_FM1_DTSEC6:
-				flag_sgmii_prtcl++;
+			case AURORA:
+				flag_sgmii_aurora_prtcl++;
 				break;
 			default:
 				break;
 			}
 		}
 
-		if (flag_sgmii_prtcl)
+		if (flag_sgmii_aurora_prtcl)
 			QIXIS_WRITE(brdcfg[4], QIXIS_SRDS1CLK_125);
 
 		/* Steps For SerDes PLLs reset and reconfiguration after
