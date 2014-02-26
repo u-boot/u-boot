@@ -238,5 +238,3 @@ obj-y += memsize.o
 obj-y += stdio.o
 
 CFLAGS_env_embedded.o := -Wa,--no-warn -DENV_CRC=$(shell tools/envcrc 2>/dev/null)
-CFLAGS_hush.o := $(PLATFORM_NO_UNALIGNED)
-CFLAGS_fdt_support.o := $(PLATFORM_NO_UNALIGNED)

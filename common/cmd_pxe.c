@@ -45,6 +45,7 @@ static char *from_env(const char *envvar)
 	return ret;
 }
 
+#ifdef CONFIG_CMD_NET
 /*
  * Convert an ethaddr from the environment to the format used by pxelinux
  * filenames based on mac addresses. Convert's ':' to '-', and adds "01-" to
@@ -75,6 +76,7 @@ static int format_mac_pxe(char *outbuf, size_t outbuf_len)
 
 	return 1;
 }
+#endif
 
 /*
  * Returns the directory the file specified in the bootfile env variable is
@@ -120,6 +122,7 @@ static int get_bootfile_path(const char *file_path, char *bootfile_path,
 
 static int (*do_getfile)(cmd_tbl_t *cmdtp, const char *file_path, char *file_addr);
 
+#ifdef CONFIG_CMD_NET
 static int do_get_tftp(cmd_tbl_t *cmdtp, const char *file_path, char *file_addr)
 {
 	char *tftp_argv[] = {"tftp", NULL, NULL, NULL};
@@ -132,6 +135,7 @@ static int do_get_tftp(cmd_tbl_t *cmdtp, const char *file_path, char *file_addr)
 
 	return 1;
 }
+#endif
 
 static char *fs_argv[5];
 
@@ -248,6 +252,8 @@ static int get_pxe_file(cmd_tbl_t *cmdtp, const char *file_path, void *file_addr
 
 	return 1;
 }
+
+#ifdef CONFIG_CMD_NET
 
 #define PXELINUX_DIR "pxelinux.cfg/"
 
@@ -397,6 +403,7 @@ do_pxe_get(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	return 1;
 }
+#endif
 
 /*
  * Wrapper to make it easier to store the file at file_path in the location
@@ -647,6 +654,7 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 		len += strlen(ip_str);
 	}
 
+#ifdef CONFIG_CMD_NET
 	if (label->ipappend & 0x2) {
 		int err;
 		strcpy(mac_str, " BOOTIF=");
@@ -655,6 +663,7 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 			mac_str[0] = '\0';
 		len += strlen(mac_str);
 	}
+#endif
 
 	if (label->append)
 		len += strlen(label->append);
@@ -1503,6 +1512,7 @@ static void handle_pxe_menu(cmd_tbl_t *cmdtp, struct pxe_menu *cfg)
 	boot_unattempted_labels(cmdtp, cfg);
 }
 
+#ifdef CONFIG_CMD_NET
 /*
  * Boots a system using a pxe file
  *
@@ -1579,6 +1589,7 @@ U_BOOT_CMD(
 	"get - try to retrieve a pxe file using tftp\npxe "
 	"boot [pxefile_addr_r] - boot from the pxe file at pxefile_addr_r\n"
 );
+#endif
 
 /*
  * Boots a system using a local disk syslinux/extlinux file

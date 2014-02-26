@@ -50,5 +50,8 @@ SECTIONS
 	.bss : { *(.bss*) }
 	__bss_end = .;
 
-	_end = .;
+	.end :
+	{
+		*(.__end)
+	}
 }

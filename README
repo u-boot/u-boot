@@ -1741,7 +1741,7 @@ CBFS (Coreboot Filesystem) support
 
 		If this option is set, then U-Boot will prevent the environment
 		variable "splashimage" from being set to a problematic address
-		(see README.displaying-bmps and README.arm-unaligned-accesses).
+		(see README.displaying-bmps).
 		This option is useful for targets where, due to alignment
 		restrictions, an improperly aligned BMP image will cause a data
 		abort. If you think you will not have problems with unaligned
@@ -3741,12 +3741,6 @@ Configuration Settings:
 	must support it (i.e. must define __HAVE_ARCH_GENERIC_BOARD in
 	its config.mk file). If you find problems enabling this option on
 	your board please report the problem and send patches!
-
-- CONFIG_SYS_SYM_OFFSETS
-	This is set by architectures that use offsets for link symbols
-	instead of absolute values. So bss_start is obtained using an
-	offset _bss_start_ofs from CONFIG_SYS_TEXT_BASE, rather than
-	directly. You should not need to touch this setting.
 
 - CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC (OMAP only)
 	This is set by OMAP boards for the max time that reset should

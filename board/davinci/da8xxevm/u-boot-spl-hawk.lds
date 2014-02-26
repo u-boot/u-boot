@@ -61,5 +61,8 @@ SECTIONS
 		__bss_end = .;
 	}
 
-	_end = .;
+	.end :
+	{
+		*(.__end)
+	}
 }
