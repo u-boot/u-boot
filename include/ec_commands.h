@@ -536,7 +536,7 @@ struct ec_response_flash_protect {
 
 enum ec_flash_region {
 	/* Region which holds read-only EC image */
-	EC_FLASH_REGION_RO,
+	EC_FLASH_REGION_RO = 0,
 	/* Region which holds rewritable EC image */
 	EC_FLASH_REGION_RW,
 	/*
@@ -544,6 +544,8 @@ enum ec_flash_region {
 	 * EC_FLASH_REGION_RO)
 	 */
 	EC_FLASH_REGION_WP_RO,
+	/* Number of regions */
+	EC_FLASH_REGION_COUNT,
 };
 
 struct ec_params_flash_region_info {
