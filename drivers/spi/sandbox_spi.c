@@ -202,3 +202,16 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 
 	return ret;
 }
+
+/**
+ * Set up a new SPI slave for an fdt node
+ *
+ * @param blob		Device tree blob
+ * @param node		SPI peripheral node to use
+ * @return 0 if ok, -1 on error
+ */
+struct spi_slave *spi_setup_slave_fdt(const void *blob, int slave_node,
+				      int spi_node)
+{
+	return NULL;
+}
