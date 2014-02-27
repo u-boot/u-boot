@@ -501,18 +501,23 @@ static int cros_ec_check_version(struct cros_ec_dev *dev)
 	 *
 	 * So for now, just read all the data anyway.
 	 */
-	dev->cmd_version_is_supported = 1;
+
+	/* Try sending a version 2 packet */
+	dev->protocol_version = 2;
 	if (ec_command_inptr(dev, EC_CMD_HELLO, 0, &req, sizeof(req),
 		       (uint8_t **)&resp, sizeof(*resp)) > 0) {
-		/* It appears to understand new version commands */
-		dev->cmd_version_is_supported = 1;
-	} else {
-		printf("%s: ERROR: old EC interface not supported\n",
-		       __func__);
-		return -1;
+		return 0;
 	}
 
-	return 0;
+	/*
+	 * Fail if we're still here, since the EC doesn't understand any
+	 * protcol version we speak.  Version 1 interface without command
+	 * version is no longer supported, and we don't know about any new
+	 * protocol versions.
+	 */
+	dev->protocol_version = 0;
+	printf("%s: ERROR: old EC interface not supported\n", __func__);
+	return -1;
 }
 
 int cros_ec_test(struct cros_ec_dev *dev)

@@ -42,6 +42,12 @@ int cros_ec_spi_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
 	int csum, len;
 	int rv;
 
+	if (dev->protocol_version != 2) {
+		debug("%s: Unsupported EC protcol version %d\n",
+		      __func__, dev->protocol_version);
+		return -1;
+	}
+
 	/*
 	 * Sanity-check input size to make sure it plus transaction overhead
 	 * fits in the internal device buffer.
