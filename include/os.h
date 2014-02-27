@@ -103,8 +103,12 @@ void os_exit(int exit_code) __attribute__((noreturn));
 
 /**
  * Put tty into raw mode to mimic serial console better
+ *
+ * @param fd		File descriptor of stdin (normally 0)
+ * @param allow_sigs	Allow Ctrl-C, Ctrl-Z to generate signals rather than
+ *			be handled by U-Boot
  */
-void os_tty_raw(int fd);
+void os_tty_raw(int fd, bool allow_sigs);
 
 /**
  * Acquires some memory from the underlying os.

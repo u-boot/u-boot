@@ -15,6 +15,7 @@
 #include <os.h>
 #include <serial.h>
 #include <linux/compiler.h>
+#include <asm/state.h>
 
 /*
  *
@@ -31,7 +32,10 @@ static unsigned int serial_buf_read;
 
 static int sandbox_serial_init(void)
 {
-	os_tty_raw(0);
+	struct sandbox_state *state = state_get_current();
+
+	if (state->term_raw != STATE_TERM_COOKED)
+		os_tty_raw(0, state->term_raw == STATE_TERM_RAW_WITH_SIGS);
 	return 0;
 }
 

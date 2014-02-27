@@ -184,6 +184,34 @@ static int sandbox_cmdline_cb_show_lcd(struct sandbox_state *state,
 SANDBOX_CMDLINE_OPT_SHORT(show_lcd, 'l', 0,
 			  "Show the sandbox LCD display");
 
+static const char *term_args[STATE_TERM_COUNT] = {
+	"raw-with-sigs",
+	"raw",
+	"cooked",
+};
+
+static int sandbox_cmdline_cb_terminal(struct sandbox_state *state,
+				       const char *arg)
+{
+	int i;
+
+	for (i = 0; i < STATE_TERM_COUNT; i++) {
+		if (!strcmp(arg, term_args[i])) {
+			state->term_raw = i;
+			return 0;
+		}
+	}
+
+	printf("Unknown terminal setting '%s' (", arg);
+	for (i = 0; i < STATE_TERM_COUNT; i++)
+		printf("%s%s", i ? ", " : "", term_args[i]);
+	puts(")\n");
+
+	return 1;
+}
+SANDBOX_CMDLINE_OPT_SHORT(terminal, 't', 1,
+			  "Set terminal to raw/cooked mode");
+
 int main(int argc, char *argv[])
 {
 	struct sandbox_state *state;
