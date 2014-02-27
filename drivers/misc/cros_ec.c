@@ -932,7 +932,6 @@ int cros_ec_init(const void *blob, struct cros_ec_dev **cros_ecp)
 	return 0;
 }
 
-#ifdef CONFIG_CMD_CROS_EC
 int cros_ec_decode_region(int argc, char * const argv[])
 {
 	if (argc > 0) {
@@ -998,6 +997,8 @@ int cros_ec_decode_ec_flash(const void *blob, struct fdt_cros_ec *config)
 
 	return 0;
 }
+
+#ifdef CONFIG_CMD_CROS_EC
 
 /**
  * Perform a flash read or write command
