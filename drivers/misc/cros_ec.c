@@ -7,10 +7,11 @@
  */
 
 /*
- * The Matrix Keyboard Protocol driver handles talking to the keyboard
- * controller chip. Mostly this is for keyboard functions, but some other
- * things have slipped in, so we provide generic services to talk to the
- * KBC.
+ * This is the interface to the Chrome OS EC. It provides keyboard functions,
+ * power control and battery management. Quite a few other functions are
+ * provided to enable the EC software to be updated, talk to the EC's I2C bus
+ * and store a small amount of data in a memory which persists while the EC
+ * is not reset.
  */
 
 #include <common.h>
@@ -216,7 +217,7 @@ static int ec_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
 
 int cros_ec_scan_keyboard(struct cros_ec_dev *dev, struct mbkp_keyscan *scan)
 {
-	if (ec_command(dev, EC_CMD_CROS_EC_STATE, 0, NULL, 0, scan,
+	if (ec_command(dev, EC_CMD_MKBP_STATE, 0, NULL, 0, scan,
 		       sizeof(scan->data)) < sizeof(scan->data))
 		return -1;
 
@@ -263,7 +264,7 @@ int cros_ec_read_version(struct cros_ec_dev *dev,
 int cros_ec_read_build_info(struct cros_ec_dev *dev, char **strp)
 {
 	if (ec_command_inptr(dev, EC_CMD_GET_BUILD_INFO, 0, NULL, 0,
-			(uint8_t **)strp, EC_HOST_PARAM_SIZE) < 0)
+			(uint8_t **)strp, EC_PROTO2_MAX_PARAM_SIZE) < 0)
 		return -1;
 
 	return 0;
@@ -332,7 +333,7 @@ int cros_ec_read_hash(struct cros_ec_dev *dev,
 	debug("%s: No valid hash (status=%d size=%d). Compute one...\n",
 	      __func__, hash->status, hash->size);
 
-	p.cmd = EC_VBOOT_HASH_RECALC;
+	p.cmd = EC_VBOOT_HASH_START;
 	p.hash_type = EC_VBOOT_HASH_TYPE_SHA256;
 	p.nonce_size = 0;
 	p.offset = EC_VBOOT_HASH_OFFSET_RW;
@@ -414,10 +415,10 @@ int cros_ec_interrupt_pending(struct cros_ec_dev *dev)
 	return !gpio_get_value(dev->ec_int.gpio);
 }
 
-int cros_ec_info(struct cros_ec_dev *dev, struct ec_response_cros_ec_info *info)
+int cros_ec_info(struct cros_ec_dev *dev, struct ec_response_mkbp_info *info)
 {
-	if (ec_command(dev, EC_CMD_CROS_EC_INFO, 0, NULL, 0, info,
-			sizeof(*info)) < sizeof(*info))
+	if (ec_command(dev, EC_CMD_MKBP_INFO, 0, NULL, 0, info,
+		       sizeof(*info)) < sizeof(*info))
 		return -1;
 
 	return 0;
@@ -590,8 +591,8 @@ static int cros_ec_flash_write_block(struct cros_ec_dev *dev,
 
 	p.offset = offset;
 	p.size = size;
-	assert(data && p.size <= sizeof(p.data));
-	memcpy(p.data, data, p.size);
+	assert(data && p.size <= EC_FLASH_WRITE_VER0_SIZE);
+	memcpy(&p + 1, data, p.size);
 
 	return ec_command_inptr(dev, EC_CMD_FLASH_WRITE, 0,
 			  &p, sizeof(p), NULL, 0) >= 0 ? 0 : -1;
@@ -602,8 +603,7 @@ static int cros_ec_flash_write_block(struct cros_ec_dev *dev,
  */
 static int cros_ec_flash_write_burst_size(struct cros_ec_dev *dev)
 {
-	struct ec_params_flash_write p;
-	return sizeof(p.data);
+	return EC_FLASH_WRITE_VER0_SIZE;
 }
 
 /**
@@ -804,7 +804,8 @@ int cros_ec_get_ldo(struct cros_ec_dev *dev, uint8_t index, uint8_t *state)
 }
 
 /**
- * Decode MBKP details from the device tree and allocate a suitable device.
+ * Decode EC interface details from the device tree and allocate a suitable
+ * device.
  *
  * @param blob		Device tree blob
  * @param node		Node to decode from
@@ -1086,7 +1087,7 @@ static int do_cros_ec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		}
 		printf("%s\n", id);
 	} else if (0 == strcmp("info", cmd)) {
-		struct ec_response_cros_ec_info info;
+		struct ec_response_mkbp_info info;
 
 		if (cros_ec_info(dev, &info)) {
 			debug("%s: Could not read KBC info\n", __func__);
