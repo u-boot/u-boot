@@ -501,4 +501,18 @@ int cros_ec_decode_ec_flash(const void *blob, struct fdt_cros_ec *config);
  */
 void cros_ec_check_keyboard(struct cros_ec_dev *dev);
 
+/*
+ * Tunnel an I2C transfer to the EC
+ *
+ * @param dev		CROS-EC device
+ * @param chip		Chip address (7-bit I2C address)
+ * @param addr		Register address to read/write
+ * @param alen		Length of register address in bytes
+ * @param buffer	Buffer containing data to read/write
+ * @param len		Length of buffer
+ * @param is_read	1 if this is a read, 0 if this is a write
+ */
+int cros_ec_i2c_xfer(struct cros_ec_dev *dev, uchar chip, uint addr,
+		     int alen, uchar *buffer, int len, int is_read);
+
 #endif
