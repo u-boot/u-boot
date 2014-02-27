@@ -224,6 +224,11 @@ static int send_command_proto3(struct cros_ec_dev *dev,
 		rv = cros_ec_spi_packet(dev, out_bytes, in_bytes);
 		break;
 #endif
+#ifdef CONFIG_CROS_EC_SANDBOX
+	case CROS_EC_IF_SANDBOX:
+		rv = cros_ec_sandbox_packet(dev, out_bytes, in_bytes);
+		break;
+#endif
 	case CROS_EC_IF_NONE:
 	/* TODO: support protocol 3 for LPC, I2C; for now fall through */
 	default:
@@ -1033,6 +1038,11 @@ static int cros_ec_decode_fdt(const void *blob, int node,
 		dev->interface = CROS_EC_IF_LPC;
 		break;
 #endif
+#ifdef CONFIG_CROS_EC_SANDBOX
+	case COMPAT_SANDBOX_HOST_EMULATION:
+		dev->interface = CROS_EC_IF_SANDBOX;
+		break;
+#endif
 	default:
 		debug("%s: Unknown compat id %d\n", __func__, compat);
 		return -1;
@@ -1085,6 +1095,12 @@ int cros_ec_init(const void *blob, struct cros_ec_dev **cros_ecp)
 #ifdef CONFIG_CROS_EC_LPC
 	case CROS_EC_IF_LPC:
 		if (cros_ec_lpc_init(dev, blob))
+			return -CROS_EC_ERR_DEV_INIT;
+		break;
+#endif
+#ifdef CONFIG_CROS_EC_SANDBOX
+	case CROS_EC_IF_SANDBOX:
+		if (cros_ec_sandbox_init(dev, blob))
 			return -CROS_EC_ERR_DEV_INIT;
 		break;
 #endif

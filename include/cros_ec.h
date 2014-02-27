@@ -20,6 +20,7 @@ enum cros_ec_interface_t {
 	CROS_EC_IF_SPI,
 	CROS_EC_IF_I2C,
 	CROS_EC_IF_LPC,	/* Intel Low Pin Count interface */
+	CROS_EC_IF_SANDBOX,
 };
 
 /* Our configuration information */
@@ -237,6 +238,7 @@ struct cros_ec_dev *board_get_cros_ec_dev(void);
 int cros_ec_i2c_init(struct cros_ec_dev *dev, const void *blob);
 int cros_ec_spi_init(struct cros_ec_dev *dev, const void *blob);
 int cros_ec_lpc_init(struct cros_ec_dev *dev, const void *blob);
+int cros_ec_sandbox_init(struct cros_ec_dev *dev, const void *blob);
 
 /**
  * Read information from the fdt for the i2c cros_ec interface
@@ -255,6 +257,15 @@ int cros_ec_i2c_decode_fdt(struct cros_ec_dev *dev, const void *blob);
  * @return 0 if ok, -1 if we failed to read all required information
  */
 int cros_ec_spi_decode_fdt(struct cros_ec_dev *dev, const void *blob);
+
+/**
+ * Read information from the fdt for the sandbox cros_ec interface
+ *
+ * @param dev		CROS-EC device
+ * @param blob		Device tree blob
+ * @return 0 if ok, -1 if we failed to read all required information
+ */
+int cros_ec_sandbox_decode_fdt(struct cros_ec_dev *dev, const void *blob);
 
 /**
  * Check whether the LPC interface supports new-style commands.
@@ -323,6 +334,8 @@ int cros_ec_spi_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
  * @return number of bytes in response packet, or <0 on error
  */
 int cros_ec_spi_packet(struct cros_ec_dev *dev, int out_bytes, int in_bytes);
+int cros_ec_sandbox_packet(struct cros_ec_dev *dev, int out_bytes,
+			   int in_bytes);
 
 /**
  * Dump a block of data for a command.
@@ -479,5 +492,13 @@ int cros_ec_get_error(void);
  * @param config	Structure to use to return information
  */
 int cros_ec_decode_ec_flash(const void *blob, struct fdt_cros_ec *config);
+
+/**
+ * Check the current keyboard state, in case recovery mode is requested.
+ * This function is for sandbox only.
+ *
+ * @param ec		CROS-EC device
+ */
+void cros_ec_check_keyboard(struct cros_ec_dev *dev);
 
 #endif
