@@ -21,6 +21,7 @@
 #include <fdtdec.h>
 #include <malloc.h>
 #include <spi.h>
+#include <asm/errno.h>
 #include <asm/io.h>
 #include <asm-generic/gpio.h>
 
@@ -298,7 +299,7 @@ static int ec_command_inptr(struct cros_ec_dev *dev, uint8_t cmd,
 		int cmd_version, const void *dout, int dout_len, uint8_t **dinp,
 		int din_len)
 {
-	uint8_t *din;
+	uint8_t *din = NULL;
 	int len;
 
 	len = send_command(dev, cmd, cmd_version, dout, dout_len,
@@ -306,7 +307,7 @@ static int ec_command_inptr(struct cros_ec_dev *dev, uint8_t cmd,
 
 	/* If the command doesn't complete, wait a while */
 	if (len == -EC_RES_IN_PROGRESS) {
-		struct ec_response_get_comms_status *resp;
+		struct ec_response_get_comms_status *resp = NULL;
 		ulong start;
 
 		/* Wait for command to complete */
@@ -334,7 +335,8 @@ static int ec_command_inptr(struct cros_ec_dev *dev, uint8_t cmd,
 				NULL, 0, &din, din_len);
 	}
 
-	debug("%s: len=%d, dinp=%p, *dinp=%p\n", __func__, len, dinp, *dinp);
+	debug("%s: len=%d, dinp=%p, *dinp=%p\n", __func__, len, dinp,
+	      dinp ? *dinp : NULL);
 	if (dinp) {
 		/* If we have any data to return, it must be 64bit-aligned */
 		assert(len <= 0 || !((uintptr_t)din & 7));
@@ -386,7 +388,7 @@ static int ec_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
 int cros_ec_scan_keyboard(struct cros_ec_dev *dev, struct mbkp_keyscan *scan)
 {
 	if (ec_command(dev, EC_CMD_MKBP_STATE, 0, NULL, 0, scan,
-		       sizeof(scan->data)) < sizeof(scan->data))
+		       sizeof(scan->data)) != sizeof(scan->data))
 		return -1;
 
 	return 0;
@@ -397,10 +399,10 @@ int cros_ec_read_id(struct cros_ec_dev *dev, char *id, int maxlen)
 	struct ec_response_get_version *r;
 
 	if (ec_command_inptr(dev, EC_CMD_GET_VERSION, 0, NULL, 0,
-			(uint8_t **)&r, sizeof(*r)) < sizeof(*r))
+			(uint8_t **)&r, sizeof(*r)) != sizeof(*r))
 		return -1;
 
-	if (maxlen > sizeof(r->version_string_ro))
+	if (maxlen > (int)sizeof(r->version_string_ro))
 		maxlen = sizeof(r->version_string_ro);
 
 	switch (r->current_image) {
@@ -423,7 +425,7 @@ int cros_ec_read_version(struct cros_ec_dev *dev,
 {
 	if (ec_command_inptr(dev, EC_CMD_GET_VERSION, 0, NULL, 0,
 			(uint8_t **)versionp, sizeof(**versionp))
-			< sizeof(**versionp))
+			!= sizeof(**versionp))
 		return -1;
 
 	return 0;
@@ -444,7 +446,7 @@ int cros_ec_read_current_image(struct cros_ec_dev *dev,
 	struct ec_response_get_version *r;
 
 	if (ec_command_inptr(dev, EC_CMD_GET_VERSION, 0, NULL, 0,
-			(uint8_t **)&r, sizeof(*r)) < sizeof(*r))
+			(uint8_t **)&r, sizeof(*r)) != sizeof(*r))
 		return -1;
 
 	*image = r->current_image;
@@ -578,7 +580,7 @@ int cros_ec_interrupt_pending(struct cros_ec_dev *dev)
 {
 	/* no interrupt support : always poll */
 	if (!fdt_gpio_isvalid(&dev->ec_int))
-		return 1;
+		return -ENOENT;
 
 	return !gpio_get_value(dev->ec_int.gpio);
 }
@@ -586,7 +588,7 @@ int cros_ec_interrupt_pending(struct cros_ec_dev *dev)
 int cros_ec_info(struct cros_ec_dev *dev, struct ec_response_mkbp_info *info)
 {
 	if (ec_command(dev, EC_CMD_MKBP_INFO, 0, NULL, 0, info,
-		       sizeof(*info)) < sizeof(*info))
+		       sizeof(*info)) != sizeof(*info))
 		return -1;
 
 	return 0;
@@ -601,7 +603,7 @@ int cros_ec_get_host_events(struct cros_ec_dev *dev, uint32_t *events_ptr)
 	 * used by ACPI/SMI.
 	 */
 	if (ec_command_inptr(dev, EC_CMD_HOST_EVENT_GET_B, 0, NULL, 0,
-		       (uint8_t **)&resp, sizeof(*resp)) < sizeof(*resp))
+		       (uint8_t **)&resp, sizeof(*resp)) < (int)sizeof(*resp))
 		return -1;
 
 	if (resp->mask & EC_HOST_EVENT_MASK(EC_HOST_EVENT_INVALID))
@@ -639,7 +641,7 @@ int cros_ec_flash_protect(struct cros_ec_dev *dev,
 
 	if (ec_command(dev, EC_CMD_FLASH_PROTECT, EC_VER_FLASH_PROTECT,
 		       &params, sizeof(params),
-		       resp, sizeof(*resp)) < sizeof(*resp))
+		       resp, sizeof(*resp)) != sizeof(*resp))
 		return -1;
 
 	return 0;
@@ -889,7 +891,7 @@ int cros_ec_flash_update_rw(struct cros_ec_dev *dev,
 
 	if (cros_ec_flash_offset(dev, EC_FLASH_REGION_RW, &rw_offset, &rw_size))
 		return -1;
-	if (image_size > rw_size)
+	if (image_size > (int)rw_size)
 		return -1;
 
 	/* Invalidate the existing hash, just in case the AP reboots
@@ -975,7 +977,7 @@ int cros_ec_get_ldo(struct cros_ec_dev *dev, uint8_t index, uint8_t *state)
 
 	if (ec_command_inptr(dev, EC_CMD_LDO_GET, 0,
 		       &params, sizeof(params),
-		       (uint8_t **)&resp, sizeof(*resp)) < sizeof(*resp))
+		       (uint8_t **)&resp, sizeof(*resp)) != sizeof(*resp))
 		return -1;
 
 	*state = resp->state;
@@ -1436,10 +1438,10 @@ static int do_cros_ec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (!ret) {
 			/* Print versions */
 			printf("RO version:    %1.*s\n",
-			       sizeof(p->version_string_ro),
+			       (int)sizeof(p->version_string_ro),
 			       p->version_string_ro);
 			printf("RW version:    %1.*s\n",
-			       sizeof(p->version_string_rw),
+			       (int)sizeof(p->version_string_rw),
 			       p->version_string_rw);
 			printf("Firmware copy: %s\n",
 				(p->current_image <
