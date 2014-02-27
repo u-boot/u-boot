@@ -360,6 +360,11 @@ int do_ext2load(cmd_tbl_t *, int, int, char * const []);
 int	env_init     (void);
 void	env_relocate (void);
 int	envmatch     (uchar *, int);
+
+/* Avoid unfortunate conflict with libc's getenv() */
+#ifdef CONFIG_SANDBOX
+#define getenv uboot_getenv
+#endif
 char	*getenv	     (const char *);
 int	getenv_f     (const char *name, char *buf, unsigned len);
 ulong getenv_ulong(const char *name, int base, ulong default_val);
