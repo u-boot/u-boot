@@ -218,6 +218,11 @@ static int send_command_proto3(struct cros_ec_dev *dev,
 		return in_bytes;
 
 	switch (dev->interface) {
+#ifdef CONFIG_CROS_EC_SPI
+	case CROS_EC_IF_SPI:
+		rv = cros_ec_spi_packet(dev, out_bytes, in_bytes);
+		break;
+#endif
 	case CROS_EC_IF_NONE:
 	/* TODO: support protocol 3 for LPC, I2C; for now fall through */
 	default:
@@ -664,6 +669,13 @@ static int cros_ec_check_version(struct cros_ec_dev *dev)
 	 *
 	 * So for now, just read all the data anyway.
 	 */
+
+	/* Try sending a version 3 packet */
+	dev->protocol_version = 3;
+	if (ec_command_inptr(dev, EC_CMD_HELLO, 0, &req, sizeof(req),
+			     (uint8_t **)&resp, sizeof(*resp)) > 0) {
+		return 0;
+	}
 
 	/* Try sending a version 2 packet */
 	dev->protocol_version = 2;

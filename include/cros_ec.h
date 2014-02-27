@@ -312,6 +312,19 @@ int cros_ec_spi_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
 		     uint8_t **dinp, int din_len);
 
 /**
+ * Send a packet to a CROS-EC device and return the response packet.
+ *
+ * Expects the request packet to be stored in dev->dout.  Stores the response
+ * packet in dev->din.
+ *
+ * @param dev		CROS-EC device
+ * @param out_bytes	Size of request packet to output
+ * @param in_bytes	Maximum size of response packet to receive
+ * @return number of bytes in response packet, or <0 on error
+ */
+int cros_ec_spi_packet(struct cros_ec_dev *dev, int out_bytes, int in_bytes);
+
+/**
  * Dump a block of data for a command.
  *
  * @param name	Name for data (e.g. 'in', 'out')
