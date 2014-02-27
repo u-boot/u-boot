@@ -107,6 +107,22 @@ static int sandbox_cmdline_cb_interactive(struct sandbox_state *state,
 
 SANDBOX_CMDLINE_OPT_SHORT(interactive, 'i', 0, "Enter interactive mode");
 
+static int sandbox_cmdline_cb_jump(struct sandbox_state *state,
+				   const char *arg)
+{
+	state->jumped = 1;
+
+	/*
+	 * TODO(sjg@chromium.org): Note this causes problems for gdb which
+	 * wants to read debug data from the image.
+	 *
+	 * os_unlink(arg);
+	 */
+
+	return 0;
+}
+SANDBOX_CMDLINE_OPT_SHORT(jump, 'j', 1, "Jumped from previous U-Boot");
+
 static int sandbox_cmdline_cb_memory(struct sandbox_state *state,
 				     const char *arg)
 {

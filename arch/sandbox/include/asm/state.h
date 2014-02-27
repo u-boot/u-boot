@@ -30,7 +30,8 @@ struct sandbox_state {
 	enum exit_type_id exit_type;	/* How we exited U-Boot */
 	const char *parse_err;		/* Error to report from parsing */
 	int argc;			/* Program arguments */
-	char **argv;
+	char **argv;			/* Command line arguments */
+	bool jumped;			/* Jumped from previous U_Boot */
 	uint8_t *ram_buf;		/* Emulated RAM buffer */
 	unsigned int ram_size;		/* Size of RAM buffer */
 	const char *ram_buf_fname;	/* Filename to use for RAM buffer */
