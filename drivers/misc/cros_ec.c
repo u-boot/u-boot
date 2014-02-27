@@ -132,10 +132,6 @@ static int ec_command_inptr(struct cros_ec_dev *dev, uint8_t cmd,
 	uint8_t *din;
 	int len;
 
-	if (cmd_version != 0 && !dev->cmd_version_is_supported) {
-		debug("%s: Command version >0 unsupported\n", __func__);
-		return -1;
-	}
 	len = send_command(dev, cmd, cmd_version, dout, dout_len,
 				&din, din_len);
 
@@ -510,14 +506,9 @@ static int cros_ec_check_version(struct cros_ec_dev *dev)
 		/* It appears to understand new version commands */
 		dev->cmd_version_is_supported = 1;
 	} else {
-		dev->cmd_version_is_supported = 0;
-		if (ec_command_inptr(dev, EC_CMD_HELLO, 0, &req,
-			      sizeof(req), (uint8_t **)&resp,
-			      sizeof(*resp)) < 0) {
-			debug("%s: Failed both old and new command style\n",
-				__func__);
-			return -1;
-		}
+		printf("%s: ERROR: old EC interface not supported\n",
+		       __func__);
+		return -1;
 	}
 
 	return 0;
