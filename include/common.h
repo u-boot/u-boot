@@ -96,6 +96,10 @@ typedef volatile unsigned char	vu_char;
 #include <flash.h>
 #include <image.h>
 
+#ifdef __LP64__
+#define CONFIG_SYS_SUPPORT_64BIT_DATA
+#endif
+
 #ifdef DEBUG
 #define _DEBUG	1
 #else

@@ -421,6 +421,10 @@ int cmd_get_data_size(char* arg, int default_size)
 			return 2;
 		case 'l':
 			return 4;
+#ifdef CONFIG_SYS_SUPPORT_64BIT_DATA
+		case 'q':
+			return 8;
+#endif
 		case 's':
 			return -2;
 		default:
