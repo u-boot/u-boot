@@ -175,6 +175,15 @@ static int sandbox_cmdline_cb_ignore_missing(struct sandbox_state *state,
 SANDBOX_CMDLINE_OPT_SHORT(ignore_missing, 'n', 0,
 			  "Ignore missing state on read");
 
+static int sandbox_cmdline_cb_show_lcd(struct sandbox_state *state,
+				       const char *arg)
+{
+	state->show_lcd = true;
+	return 0;
+}
+SANDBOX_CMDLINE_OPT_SHORT(show_lcd, 'l', 0,
+			  "Show the sandbox LCD display");
+
 int main(int argc, char *argv[])
 {
 	struct sandbox_state *state;

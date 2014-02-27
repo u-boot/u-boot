@@ -7,6 +7,7 @@
 #include <cros_ec.h>
 #include <dm.h>
 #include <os.h>
+#include <asm/u-boot-sandbox.h>
 
 /*
  * Pointer to initial global data area
@@ -34,6 +35,23 @@ int dram_init(void)
 	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
 	return 0;
 }
+
+#ifdef CONFIG_BOARD_EARLY_INIT_F
+int board_early_init_f(void)
+{
+#ifdef CONFIG_VIDEO_SANDBOX_SDL
+	int ret;
+
+	ret = sandbox_lcd_sdl_early_init();
+	if (ret) {
+		puts("Could not init sandbox LCD emulation\n");
+		return ret;
+	}
+#endif
+
+	return 0;
+}
+#endif
 
 int arch_early_init_r(void)
 {

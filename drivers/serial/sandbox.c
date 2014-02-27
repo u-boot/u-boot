@@ -11,6 +11,7 @@
  */
 
 #include <common.h>
+#include <lcd.h>
 #include <os.h>
 #include <serial.h>
 #include <linux/compiler.h>
@@ -60,6 +61,9 @@ static int sandbox_serial_tstc(void)
 	ssize_t count;
 
 	os_usleep(100);
+#ifdef CONFIG_LCD
+	lcd_sync();
+#endif
 	if (next_index == serial_buf_read)
 		return 1;	/* buffer full */
 
