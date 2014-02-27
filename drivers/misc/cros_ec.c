@@ -958,6 +958,56 @@ int cros_ec_decode_region(int argc, char * const argv[])
 	return -1;
 }
 
+int cros_ec_decode_ec_flash(const void *blob, struct fdt_cros_ec *config)
+{
+	int flash_node, node;
+
+	node = fdtdec_next_compatible(blob, 0, COMPAT_GOOGLE_CROS_EC);
+	if (node < 0) {
+		debug("Failed to find chrome-ec node'\n");
+		return -1;
+	}
+
+	flash_node = fdt_subnode_offset(blob, node, "flash");
+	if (flash_node < 0) {
+		debug("Failed to find flash node\n");
+		return -1;
+	}
+
+	if (fdtdec_read_fmap_entry(blob, flash_node, "flash",
+				   &config->flash)) {
+		debug("Failed to decode flash node in chrome-ec'\n");
+		return -1;
+	}
+
+	config->flash_erase_value = fdtdec_get_int(blob, flash_node,
+						    "erase-value", -1);
+	for (node = fdt_first_subnode(blob, flash_node); node >= 0;
+	     node = fdt_next_subnode(blob, node)) {
+		const char *name = fdt_get_name(blob, node, NULL);
+		enum ec_flash_region region;
+
+		if (0 == strcmp(name, "ro")) {
+			region = EC_FLASH_REGION_RO;
+		} else if (0 == strcmp(name, "rw")) {
+			region = EC_FLASH_REGION_RW;
+		} else if (0 == strcmp(name, "wp-ro")) {
+			region = EC_FLASH_REGION_WP_RO;
+		} else {
+			debug("Unknown EC flash region name '%s'\n", name);
+			return -1;
+		}
+
+		if (fdtdec_read_fmap_entry(blob, node, "reg",
+					   &config->region[region])) {
+			debug("Failed to decode flash region in chrome-ec'\n");
+			return -1;
+		}
+	}
+
+	return 0;
+}
+
 /**
  * Perform a flash read or write command
  *

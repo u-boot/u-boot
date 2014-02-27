@@ -63,6 +63,17 @@ struct mbkp_keyscan {
 	uint8_t data[CROS_EC_KEYSCAN_COLS];
 };
 
+/* Holds information about the Chrome EC */
+struct fdt_cros_ec {
+	struct fmap_entry flash;	/* Address and size of EC flash */
+	/*
+	 * Byte value of erased flash, or -1 if not known. It is normally
+	 * 0xff but some flash devices use 0 (e.g. STM32Lxxx)
+	 */
+	int flash_erase_value;
+	struct fmap_entry region[EC_FLASH_REGION_COUNT];
+};
+
 /**
  * Read the ID of the CROS-EC device
  *
@@ -448,5 +459,13 @@ int cros_ec_board_init(void);
  * @return error (0 if there was no error, -ve if there was an error)
  */
 int cros_ec_get_error(void);
+
+/**
+ * Returns information from the FDT about the Chrome EC flash
+ *
+ * @param blob		FDT blob to use
+ * @param config	Structure to use to return information
+ */
+int cros_ec_decode_ec_flash(const void *blob, struct fdt_cros_ec *config);
 
 #endif
