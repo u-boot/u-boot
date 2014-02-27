@@ -54,10 +54,11 @@ struct sandbox_state {
 	const char *parse_err;		/* Error to report from parsing */
 	int argc;			/* Program arguments */
 	char **argv;			/* Command line arguments */
-	bool jumped;			/* Jumped from previous U_Boot */
+	const char *jumped_fname;	/* Jumped from previous U_Boot */
 	uint8_t *ram_buf;		/* Emulated RAM buffer */
 	unsigned int ram_size;		/* Size of RAM buffer */
 	const char *ram_buf_fname;	/* Filename to use for RAM buffer */
+	bool ram_buf_rm;		/* Remove RAM buffer file after read */
 	bool write_ram_buf;		/* Write RAM buffer on exit */
 	const char *state_fname;	/* File containing sandbox state */
 	void *state_fdt;		/* Holds saved state for sandbox */

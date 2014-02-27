@@ -110,14 +110,8 @@ SANDBOX_CMDLINE_OPT_SHORT(interactive, 'i', 0, "Enter interactive mode");
 static int sandbox_cmdline_cb_jump(struct sandbox_state *state,
 				   const char *arg)
 {
-	state->jumped = 1;
-
-	/*
-	 * TODO(sjg@chromium.org): Note this causes problems for gdb which
-	 * wants to read debug data from the image.
-	 *
-	 * os_unlink(arg);
-	 */
+	/* Remember to delete this U-Boot image later */
+	state->jumped_fname = arg;
 
 	return 0;
 }
@@ -141,6 +135,15 @@ static int sandbox_cmdline_cb_memory(struct sandbox_state *state,
 }
 SANDBOX_CMDLINE_OPT_SHORT(memory, 'm', 1,
 			  "Read/write ram_buf memory contents from file");
+
+static int sandbox_cmdline_cb_rm_memory(struct sandbox_state *state,
+					const char *arg)
+{
+	state->ram_buf_rm = true;
+
+	return 0;
+}
+SANDBOX_CMDLINE_OPT(rm_memory, 0, "Remove memory file after reading");
 
 static int sandbox_cmdline_cb_state(struct sandbox_state *state,
 				    const char *arg)
@@ -228,6 +231,10 @@ int main(int argc, char *argv[])
 	ret = sandbox_read_state(state, state->state_fname);
 	if (ret)
 		goto err;
+
+	/* Remove old memory file if required */
+	if (state->ram_buf_rm && state->ram_buf_fname)
+		os_unlink(state->ram_buf_fname);
 
 	/* Do pre- and post-relocation init */
 	board_init_f(0);
