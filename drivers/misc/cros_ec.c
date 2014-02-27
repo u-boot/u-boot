@@ -74,11 +74,174 @@ int cros_ec_calc_checksum(const uint8_t *data, int size)
 	return csum & 0xff;
 }
 
+/**
+ * Create a request packet for protocol version 3.
+ *
+ * The packet is stored in the device's internal output buffer.
+ *
+ * @param dev		CROS-EC device
+ * @param cmd		Command to send (EC_CMD_...)
+ * @param cmd_version	Version of command to send (EC_VER_...)
+ * @param dout          Output data (may be NULL If dout_len=0)
+ * @param dout_len      Size of output data in bytes
+ * @return packet size in bytes, or <0 if error.
+ */
+static int create_proto3_request(struct cros_ec_dev *dev,
+				 int cmd, int cmd_version,
+				 const void *dout, int dout_len)
+{
+	struct ec_host_request *rq = (struct ec_host_request *)dev->dout;
+	int out_bytes = dout_len + sizeof(*rq);
+
+	/* Fail if output size is too big */
+	if (out_bytes > (int)sizeof(dev->dout)) {
+		debug("%s: Cannot send %d bytes\n", __func__, dout_len);
+		return -EC_RES_REQUEST_TRUNCATED;
+	}
+
+	/* Fill in request packet */
+	rq->struct_version = EC_HOST_REQUEST_VERSION;
+	rq->checksum = 0;
+	rq->command = cmd;
+	rq->command_version = cmd_version;
+	rq->reserved = 0;
+	rq->data_len = dout_len;
+
+	/* Copy data after header */
+	memcpy(rq + 1, dout, dout_len);
+
+	/* Write checksum field so the entire packet sums to 0 */
+	rq->checksum = (uint8_t)(-cros_ec_calc_checksum(dev->dout, out_bytes));
+
+	cros_ec_dump_data("out", cmd, dev->dout, out_bytes);
+
+	/* Return size of request packet */
+	return out_bytes;
+}
+
+/**
+ * Prepare the device to receive a protocol version 3 response.
+ *
+ * @param dev		CROS-EC device
+ * @param din_len       Maximum size of response in bytes
+ * @return maximum expected number of bytes in response, or <0 if error.
+ */
+static int prepare_proto3_response_buffer(struct cros_ec_dev *dev, int din_len)
+{
+	int in_bytes = din_len + sizeof(struct ec_host_response);
+
+	/* Fail if input size is too big */
+	if (in_bytes > (int)sizeof(dev->din)) {
+		debug("%s: Cannot receive %d bytes\n", __func__, din_len);
+		return -EC_RES_RESPONSE_TOO_BIG;
+	}
+
+	/* Return expected size of response packet */
+	return in_bytes;
+}
+
+/**
+ * Handle a protocol version 3 response packet.
+ *
+ * The packet must already be stored in the device's internal input buffer.
+ *
+ * @param dev		CROS-EC device
+ * @param dinp          Returns pointer to response data
+ * @param din_len       Maximum size of response in bytes
+ * @return number of bytes of response data, or <0 if error
+ */
+static int handle_proto3_response(struct cros_ec_dev *dev,
+				  uint8_t **dinp, int din_len)
+{
+	struct ec_host_response *rs = (struct ec_host_response *)dev->din;
+	int in_bytes;
+	int csum;
+
+	cros_ec_dump_data("in-header", -1, dev->din, sizeof(*rs));
+
+	/* Check input data */
+	if (rs->struct_version != EC_HOST_RESPONSE_VERSION) {
+		debug("%s: EC response version mismatch\n", __func__);
+		return -EC_RES_INVALID_RESPONSE;
+	}
+
+	if (rs->reserved) {
+		debug("%s: EC response reserved != 0\n", __func__);
+		return -EC_RES_INVALID_RESPONSE;
+	}
+
+	if (rs->data_len > din_len) {
+		debug("%s: EC returned too much data\n", __func__);
+		return -EC_RES_RESPONSE_TOO_BIG;
+	}
+
+	cros_ec_dump_data("in-data", -1, dev->din + sizeof(*rs), rs->data_len);
+
+	/* Update in_bytes to actual data size */
+	in_bytes = sizeof(*rs) + rs->data_len;
+
+	/* Verify checksum */
+	csum = cros_ec_calc_checksum(dev->din, in_bytes);
+	if (csum) {
+		debug("%s: EC response checksum invalid: 0x%02x\n", __func__,
+		      csum);
+		return -EC_RES_INVALID_CHECKSUM;
+	}
+
+	/* Return error result, if any */
+	if (rs->result)
+		return -(int)rs->result;
+
+	/* If we're still here, set response data pointer and return length */
+	*dinp = (uint8_t *)(rs + 1);
+
+	return rs->data_len;
+}
+
+static int send_command_proto3(struct cros_ec_dev *dev,
+			       int cmd, int cmd_version,
+			       const void *dout, int dout_len,
+			       uint8_t **dinp, int din_len)
+{
+	int out_bytes, in_bytes;
+	int rv;
+
+	/* Create request packet */
+	out_bytes = create_proto3_request(dev, cmd, cmd_version,
+					  dout, dout_len);
+	if (out_bytes < 0)
+		return out_bytes;
+
+	/* Prepare response buffer */
+	in_bytes = prepare_proto3_response_buffer(dev, din_len);
+	if (in_bytes < 0)
+		return in_bytes;
+
+	switch (dev->interface) {
+	case CROS_EC_IF_NONE:
+	/* TODO: support protocol 3 for LPC, I2C; for now fall through */
+	default:
+		debug("%s: Unsupported interface\n", __func__);
+		rv = -1;
+	}
+	if (rv < 0)
+		return rv;
+
+	/* Process the response */
+	return handle_proto3_response(dev, dinp, din_len);
+}
+
 static int send_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
 			const void *dout, int dout_len,
 			uint8_t **dinp, int din_len)
 {
-	int ret;
+	int ret = -1;
+
+	/* Handle protocol version 3 support */
+	if (dev->protocol_version == 3) {
+		return send_command_proto3(dev, cmd, cmd_version,
+					   dout, dout_len, dinp, din_len);
+	}
 
 	switch (dev->interface) {
 #ifdef CONFIG_CROS_EC_SPI
