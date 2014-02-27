@@ -133,7 +133,7 @@ libs-y := $(patsubst %/, %/built-in.o, $(libs-y))
 
 # Add GCC lib
 ifeq ("$(USE_PRIVATE_LIBGCC)", "yes")
-PLATFORM_LIBGCC = $(SPLTREE)/arch/$(ARCH)/lib/lib.a
+PLATFORM_LIBGCC = arch/$(ARCH)/lib/lib.a
 PLATFORM_LIBS := $(filter-out %/lib.a, $(filter-out -lgcc, $(PLATFORM_LIBS))) $(PLATFORM_LIBGCC)
 endif
 

@@ -653,7 +653,7 @@ u-boot-main := $(libs-y)
 # Add GCC lib
 ifdef USE_PRIVATE_LIBGCC
 ifeq ("$(USE_PRIVATE_LIBGCC)", "yes")
-PLATFORM_LIBGCC = $(OBJTREE)/arch/$(ARCH)/lib/lib.a
+PLATFORM_LIBGCC = arch/$(ARCH)/lib/lib.a
 else
 PLATFORM_LIBGCC = -L $(USE_PRIVATE_LIBGCC) -lgcc
 endif

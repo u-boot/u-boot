@@ -67,13 +67,8 @@ ifneq (,$(findstring -mabi=aapcs-linux,$(PLATFORM_CPPFLAGS)))
 # times. Also, the prefix needs to be different based on whether
 # CONFIG_SPL_BUILD is defined or not. 'filter-out' the existing entry
 # before adding the correct one.
-ifdef CONFIG_SPL_BUILD
-PLATFORM_LIBS := $(SPLTREE)/arch/arm/lib/eabi_compat.o \
-	$(filter-out %/arch/arm/lib/eabi_compat.o, $(PLATFORM_LIBS))
-else
-PLATFORM_LIBS := $(OBJTREE)/arch/arm/lib/eabi_compat.o \
-	$(filter-out %/arch/arm/lib/eabi_compat.o, $(PLATFORM_LIBS))
-endif
+PLATFORM_LIBS := arch/arm/lib/eabi_compat.o \
+	$(filter-out arch/arm/lib/eabi_compat.o, $(PLATFORM_LIBS))
 endif
 
 # needed for relocation
