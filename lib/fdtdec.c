@@ -617,3 +617,27 @@ int fdtdec_decode_region(const void *blob, int node,
 	debug("%s: size=%zx\n", __func__, *size);
 	return 0;
 }
+
+/**
+ * Read a flash entry from the fdt
+ *
+ * @param blob		FDT blob
+ * @param node		Offset of node to read
+ * @param name		Name of node being read
+ * @param entry		Place to put offset and size of this node
+ * @return 0 if ok, -ve on error
+ */
+int fdtdec_read_fmap_entry(const void *blob, int node, const char *name,
+			   struct fmap_entry *entry)
+{
+	u32 reg[2];
+
+	if (fdtdec_get_int_array(blob, node, "reg", reg, 2)) {
+		debug("Node '%s' has bad/missing 'reg' property\n", name);
+		return -FDT_ERR_NOTFOUND;
+	}
+	entry->offset = reg[0];
+	entry->length = reg[1];
+
+	return 0;
+}
