@@ -253,4 +253,23 @@ int os_write_ram_buf(const char *fname);
  */
 int os_read_ram_buf(const char *fname);
 
+/**
+ * Jump to a new executable image
+ *
+ * This uses exec() to run a new executable image, after putting it in a
+ * temporary file. The same arguments and environment are passed to this
+ * new image, with the addition of:
+ *
+ *	-j <filename>	Specifies the filename the image was written to. The
+ *			calling image may want to delete this at some point.
+ *	-m <filename>	Specifies the file containing the sandbox memory
+ *			(ram_buf) from this image, so that the new image can
+ *			have access to this. It also means that the original
+ *			memory filename passed to U-Boot will be left intact.
+ *
+ * @param dest		Buffer containing executable image
+ * @param size		Size of buffer
+ */
+int os_jump_to_image(const void *dest, int size);
+
 #endif
