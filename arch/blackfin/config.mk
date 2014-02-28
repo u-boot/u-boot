@@ -5,7 +5,9 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-CROSS_COMPILE ?= bfin-uclinux-
+ifeq ($(CROSS_COMPILE),)
+CROSS_COMPILE := bfin-uclinux-
+endif
 
 CONFIG_STANDALONE_LOAD_ADDR ?= 0x1000 -m elf32bfin
 

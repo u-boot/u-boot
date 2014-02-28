@@ -8,7 +8,9 @@
 #
 # SPDX-License-Identifier:	GPL-2.0+
 
-CROSS_COMPILE ?= nds32le-linux-
+ifeq ($(CROSS_COMPILE),)
+CROSS_COMPILE := nds32le-linux-
+endif
 
 CONFIG_STANDALONE_LOAD_ADDR = 0x300000 -T $(srctree)/$(src)/nds32.lds
 

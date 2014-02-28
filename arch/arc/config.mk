@@ -9,12 +9,16 @@ CONFIG_SYS_LITTLE_ENDIAN = 1
 endif
 
 ifdef CONFIG_SYS_LITTLE_ENDIAN
-CROSS_COMPILE ?= arc-buildroot-linux-uclibc-
+ARC_CROSS_COMPILE := arc-buildroot-linux-uclibc-
 endif
 
 ifdef CONFIG_SYS_BIG_ENDIAN
-CROSS_COMPILE ?= arceb-buildroot-linux-uclibc-
+ARC_CROSS_COMPILE := arceb-buildroot-linux-uclibc-
 PLATFORM_LDFLAGS += -EB
+endif
+
+ifeq ($(CROSS_COMPILE),)
+CROSS_COMPILE := $(ARC_CROSS_COMPILE)
 endif
 
 PLATFORM_CPPFLAGS += -ffixed-r25 -D__ARC__ -DCONFIG_ARC -gdwarf-2

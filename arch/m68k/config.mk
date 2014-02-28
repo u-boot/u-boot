@@ -5,7 +5,9 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-CROSS_COMPILE ?= m68k-elf-
+ifeq ($(CROSS_COMPILE),)
+CROSS_COMPILE := m68k-elf-
+endif
 
 CONFIG_STANDALONE_LOAD_ADDR ?= 0x20000
 

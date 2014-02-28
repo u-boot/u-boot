@@ -8,7 +8,9 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-CROSS_COMPILE ?= mb-
+ifeq ($(CROSS_COMPILE),)
+CROSS_COMPILE := mb-
+endif
 
 CONFIG_STANDALONE_LOAD_ADDR ?= 0x80F00000
 

@@ -5,7 +5,9 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-CROSS_COMPILE ?= ppc_8xx-
+ifeq ($(CROSS_COMPILE),)
+CROSS_COMPILE := ppc_8xx-
+endif
 
 CONFIG_STANDALONE_LOAD_ADDR ?= 0x40000
 LDFLAGS_FINAL += --gc-sections
