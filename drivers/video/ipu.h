@@ -176,6 +176,14 @@ typedef union {
 } ipu_channel_params_t;
 
 /*
+ * Enumeration of IPU interrupts.
+ */
+enum ipu_irq_line {
+	IPU_IRQ_DP_SF_END = 448 + 3,
+	IPU_IRQ_DC_FC_1 = 448 + 9,
+};
+
+/*
  * Bitfield of Display Interface signal polarities.
  */
 typedef struct {
