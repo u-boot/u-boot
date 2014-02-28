@@ -83,29 +83,32 @@
 
 /* Tizen - partitions definitions */
 #define PARTS_CSA		"csa-mmc"
-#define PARTS_BOOTLOADER	"u-boot"
 #define PARTS_BOOT		"boot"
+#define PARTS_QBOOT		"qboot"
+#define PARTS_CSC		"csc"
 #define PARTS_ROOT		"platform"
 #define PARTS_DATA		"data"
-#define PARTS_CSC		"csc"
 #define PARTS_UMS		"ums"
 
 #define PARTS_DEFAULT \
 	"uuid_disk=${uuid_gpt_disk};" \
-	"name="PARTS_CSA",size=8MiB,uuid=${uuid_gpt_"PARTS_CSA"};" \
-	"name="PARTS_BOOTLOADER",size=60MiB," \
-		"uuid=${uuid_gpt_"PARTS_BOOTLOADER"};" \
-	"name="PARTS_BOOT",size=100MiB,uuid=${uuid_gpt_"PARTS_BOOT"};" \
-	"name="PARTS_ROOT",size=1GiB,uuid=${uuid_gpt_"PARTS_ROOT"};" \
-	"name="PARTS_DATA",size=3GiB,uuid=${uuid_gpt_"PARTS_DATA"};" \
+	"name="PARTS_CSA",start=5MiB,size=8MiB,uuid=${uuid_gpt_"PARTS_CSA"};" \
+	"name="PARTS_BOOT",size=60MiB,uuid=${uuid_gpt_"PARTS_BOOT"};" \
+	"name="PARTS_QBOOT",size=100MiB,uuid=${uuid_gpt_"PARTS_QBOOT"};" \
 	"name="PARTS_CSC",size=150MiB,uuid=${uuid_gpt_"PARTS_CSC"};" \
+	"name="PARTS_ROOT",size=1536MiB,uuid=${uuid_gpt_"PARTS_ROOT"};" \
+	"name="PARTS_DATA",size=3000MiB,uuid=${uuid_gpt_"PARTS_DATA"};" \
 	"name="PARTS_UMS",size=-,uuid=${uuid_gpt_"PARTS_UMS"}\0" \
 
 #define CONFIG_DFU_ALT \
 	"u-boot mmc 80 400;" \
 	"uImage ext4 0 2;" \
+	"modem.bin ext4 0 2;" \
 	"exynos4210-trats.dtb ext4 0 2;" \
+	""PARTS_CSA" part 0 1;" \
 	""PARTS_BOOT" part 0 2;" \
+	""PARTS_QBOOT" part 0 3;" \
+	""PARTS_CSC" part 0 4;" \
 	""PARTS_ROOT" part 0 5;" \
 	""PARTS_DATA" part 0 6;" \
 	""PARTS_UMS" part 0 7;" \
