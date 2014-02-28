@@ -65,7 +65,8 @@ static int do_ut_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	run_command("if test " expr " ; then " \
 			"setenv " #name "_" #expected_result " y; else " \
 			"setenv " #name "_" #expected_result " n; fi", 0); \
-	assert(!strcmp(#expected_result, getenv(#name "_" #expected_result)));
+	assert(!strcmp(#expected_result, getenv(#name "_" #expected_result))); \
+	setenv(#name "_" #expected_result, NULL);
 
 	/* Basic operators */
 	HUSH_TEST(streq, "aaa = aaa", y);
