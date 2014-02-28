@@ -8,8 +8,6 @@
 # vct_xxx boards with MIPS 4Kc CPU core
 #
 
-sinclude $(TOPDIR)/board/$(BOARDDIR)/config.tmp
-
 ifndef CONFIG_SYS_TEXT_BASE
 CONFIG_SYS_TEXT_BASE = 0x87000000
 endif
