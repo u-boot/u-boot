@@ -7,6 +7,9 @@
 #define DEBUG
 
 #include <common.h>
+#ifdef CONFIG_SANDBOX
+#include <os.h>
+#endif
 
 static const char test_cmd[] = "setenv list 1\n setenv list ${list}2; "
 		"setenv list ${list}3\0"
@@ -156,11 +159,12 @@ static int do_ut_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	setenv("ut_var_test", NULL);
 
 #ifdef CONFIG_SANDBOX
-	/*
-	 * File existence
-	 * This assume U-Boot sandbox is run from the U-Boot build directory
-	 */
-	HUSH_TEST(e, "-e host - u-boot", y);
+	/* File existence */
+	HUSH_TEST(e, "-e host - creating_this_file_breaks_uboot_unit_test", n);
+	run_command("sb save host - creating_this_file_breaks_uboot_unit_test 0 1", 0);
+	HUSH_TEST(e, "-e host - creating_this_file_breaks_uboot_unit_test", y);
+	/* Perhaps this could be replaced by an "rm" shell command one day */
+	assert(!os_unlink("creating_this_file_breaks_uboot_unit_test"));
 	HUSH_TEST(e, "-e host - creating_this_file_breaks_uboot_unit_test", n);
 #endif
 #endif

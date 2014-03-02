@@ -84,6 +84,14 @@ int os_open(const char *pathname, int flags);
 int os_close(int fd);
 
 /**
+ * Access to the OS unlink() system call
+ *
+ * \param pathname Path of file to delete
+ * \return 0 for success, other for error
+ */
+int os_unlink(const char *pathname);
+
+/**
  * Access to the OS exit() system call
  *
  * This exits with the supplied return code, which should be 0 to indicate

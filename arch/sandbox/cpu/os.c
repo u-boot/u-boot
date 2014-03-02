@@ -92,6 +92,11 @@ int os_close(int fd)
 	return close(fd);
 }
 
+int os_unlink(const char *pathname)
+{
+	return unlink(pathname);
+}
+
 void os_exit(int exit_code)
 {
 	exit(exit_code);
