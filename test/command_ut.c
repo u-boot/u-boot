@@ -138,6 +138,23 @@ static int do_ut_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	HUSH_TEST(or_1_0_inv_inv, "! ! aaa = aaa -o ! ! bbb != bbb", y);
 	HUSH_TEST(or_1_1_inv_inv, "! ! aaa = aaa -o ! ! bbb = bbb", y);
 
+	setenv("ut_var_nonexistent", NULL);
+	setenv("ut_var_exists", "1");
+	HUSH_TEST(z_varexp_quoted, "-z \"$ut_var_nonexistent\"", y);
+	HUSH_TEST(z_varexp_quoted, "-z \"$ut_var_exists\"", n);
+	setenv("ut_var_exists", NULL);
+
+	run_command("setenv ut_var_space \" \"", 0);
+	assert(!strcmp(getenv("ut_var_space"), " "));
+	run_command("setenv ut_var_test $ut_var_space", 0);
+	assert(!getenv("ut_var_test"));
+	run_command("setenv ut_var_test \"$ut_var_space\"", 0);
+	assert(!strcmp(getenv("ut_var_test"), " "));
+	run_command("setenv ut_var_test \" 1${ut_var_space}${ut_var_space} 2 \"", 0);
+	assert(!strcmp(getenv("ut_var_test"), " 1   2 "));
+	setenv("ut_var_space", NULL);
+	setenv("ut_var_test", NULL);
+
 #ifdef CONFIG_SANDBOX
 	/*
 	 * File existence
