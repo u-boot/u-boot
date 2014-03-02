@@ -486,9 +486,21 @@ static int init_utmi_usb_controller(struct fdt_usb *config)
 	clrbits_le32(&usbctlr->icusb_ctrl, IC_ENB1);
 
 	/* Select UTMI parallel interface */
-	clrsetbits_le32(&usbctlr->port_sc1, PTS_MASK,
+#if defined(CONFIG_TEGRA20)
+	if (config->periph_id == PERIPH_ID_USBD) {
+		clrsetbits_le32(&usbctlr->port_sc1, PTS1_MASK,
+				PTS_UTMI << PTS1_SHIFT);
+		clrbits_le32(&usbctlr->port_sc1, STS1);
+	} else {
+		clrsetbits_le32(&usbctlr->port_sc1, PTS_MASK,
+				PTS_UTMI << PTS_SHIFT);
+		clrbits_le32(&usbctlr->port_sc1, STS);
+	}
+#else
+	clrsetbits_le32(&usbctlr->hostpc1_devlc, PTS_MASK,
 			PTS_UTMI << PTS_SHIFT);
-	clrbits_le32(&usbctlr->port_sc1, STS);
+	clrbits_le32(&usbctlr->hostpc1_devlc, STS);
+#endif
 
 	/* Deassert power down state */
 	clrbits_le32(&usbctlr->utmip_xcvr_cfg0, UTMIP_FORCE_PD_POWERDOWN |
@@ -546,7 +558,13 @@ static int init_ulpi_usb_controller(struct fdt_usb *config)
 			ULPI_CLKOUT_PINMUX_BYP | ULPI_OUTPUT_PINMUX_BYP);
 
 	/* Select ULPI parallel interface */
-	clrsetbits_le32(&usbctlr->port_sc1, PTS_MASK, PTS_ULPI << PTS_SHIFT);
+#if defined(CONFIG_TEGRA20)
+	clrsetbits_le32(&usbctlr->port_sc1, PTS_MASK,
+			PTS_ULPI << PTS_SHIFT);
+#else
+	clrsetbits_le32(&usbctlr->hostpc1_devlc, PTS_MASK,
+			PTS_ULPI << PTS_SHIFT);
+#endif
 
 	/* enable ULPI transceiver */
 	setbits_le32(&usbctlr->susp_ctrl, ULPI_PHY_ENB);

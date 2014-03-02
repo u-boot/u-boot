@@ -91,11 +91,6 @@
 /* USBx_CONTROLLER_2_USB2D_ICUSB_CTRL_0 */
 #define IC_ENB1					(1 << 3)
 
-/* PORTSC1, USB1, defined for Tegra20 */
-#define PTS1_SHIFT				31
-#define PTS1_MASK				(1 << PTS1_SHIFT)
-#define STS1					(1 << 30)
-
 #define PTS_UTMI	0
 #define PTS_RESERVED	1
 #define PTS_ULPI	2

@@ -147,9 +147,14 @@ struct usb_ctlr {
 #define ULPI_DIR_TRIMMER_LOAD			(1 << 24)
 #define ULPI_DIR_TRIMMER_SEL(x)			(((x) & 0x7) << 25)
 
+/* PORTSC1, USB1 */
+#define PTS1_SHIFT				31
+#define PTS1_MASK				(1 << PTS1_SHIFT)
+#define STS1					(1 << 30)
+
 /* PORTSC, USB2, USB3 */
 #define PTS_SHIFT		30
 #define PTS_MASK		(3U << PTS_SHIFT)
-
 #define STS			(1 << 29)
+
 #endif /* _TEGRA20_USB_H_ */
