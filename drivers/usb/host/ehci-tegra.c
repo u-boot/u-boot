@@ -461,6 +461,9 @@ static int init_utmi_usb_controller(struct fdt_usb *config)
 		if (config->periph_id == PERIPH_ID_USBD)
 			clrbits_le32(&clkrst->crc_utmip_pll_cfg2,
 				     UTMIP_FORCE_PD_SAMP_A_POWERDOWN);
+		if (config->periph_id == PERIPH_ID_USB2)
+			clrbits_le32(&clkrst->crc_utmip_pll_cfg2,
+				     UTMIP_FORCE_PD_SAMP_B_POWERDOWN);
 		if (config->periph_id == PERIPH_ID_USB3)
 			clrbits_le32(&clkrst->crc_utmip_pll_cfg2,
 				     UTMIP_FORCE_PD_SAMP_C_POWERDOWN);
