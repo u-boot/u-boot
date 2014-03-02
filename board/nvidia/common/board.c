@@ -31,7 +31,6 @@
 #endif
 #ifdef CONFIG_USB_EHCI_TEGRA
 #include <asm/arch-tegra/usb.h>
-#include <asm/arch/usb.h>
 #include <usb.h>
 #endif
 #ifdef CONFIG_TEGRA_MMC

@@ -13,7 +13,6 @@
 #include <asm/arch/clock.h>
 #include <asm/arch-tegra/usb.h>
 #include <asm/arch-tegra/clk_rst.h>
-#include <asm/arch/usb.h>
 #include <usb.h>
 #include <usb/ulpi.h>
 #include <libfdt.h>
