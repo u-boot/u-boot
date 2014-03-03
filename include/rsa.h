@@ -103,4 +103,14 @@ static inline int rsa_verify(struct image_sign_info *info,
 }
 #endif
 
+#define RSA2048_BYTES	(2048 / 8)
+#define RSA4096_BYTES	(4096 / 8)
+
+/* This is the minimum/maximum key size we support, in bits */
+#define RSA_MIN_KEY_BITS	2048
+#define RSA_MAX_KEY_BITS	4096
+
+/* This is the maximum signature length that we support, in bits */
+#define RSA_MAX_SIG_BITS	4096
+
 #endif

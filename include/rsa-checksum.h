@@ -12,6 +12,7 @@
 #include <sha1.h>
 #include <sha256.h>
 
+extern const uint8_t padding_sha256_rsa4096[];
 extern const uint8_t padding_sha256_rsa2048[];
 extern const uint8_t padding_sha1_rsa2048[];
 

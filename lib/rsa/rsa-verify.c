@@ -15,15 +15,6 @@
 
 #define UINT64_MULT32(v, multby)  (((uint64_t)(v)) * ((uint32_t)(multby)))
 
-#define RSA2048_BYTES	(2048 / 8)
-
-/* This is the minimum/maximum key size we support, in bits */
-#define RSA_MIN_KEY_BITS	2048
-#define RSA_MAX_KEY_BITS	2048
-
-/* This is the maximum signature length that we support, in bits */
-#define RSA_MAX_SIG_BITS	2048
-
 /**
  * subtract_modulus() - subtract modulus from the given value
  *
@@ -197,7 +188,7 @@ static int rsa_verify_key(const struct rsa_public_key *key, const uint8_t *sig,
 		return ret;
 
 	padding = algo->rsa_padding;
-	pad_len = RSA2048_BYTES - algo->checksum_len;
+	pad_len = algo->pad_len - algo->checksum_len;
 
 	/* Check pkcs1.5 padding bytes. */
 	if (memcmp(buf, padding, pad_len)) {
@@ -281,7 +272,7 @@ int rsa_verify(struct image_sign_info *info,
 {
 	const void *blob = info->fdt_blob;
 	/* Reserve memory for maximum checksum-length */
-	uint8_t hash[RSA2048_BYTES];
+	uint8_t hash[info->algo->checksum->pad_len];
 	int ndepth, noffset;
 	int sig_node, node;
 	char name[100];
@@ -291,9 +282,10 @@ int rsa_verify(struct image_sign_info *info,
 	 * Verify that the checksum-length does not exceed the
 	 * rsa-signature-length
 	 */
-	if (info->algo->checksum->checksum_len > RSA2048_BYTES) {
-		debug("%s: invlaid checksum-algorithm %s for RSA2048\n",
-		      __func__, info->algo->checksum->name);
+	if (info->algo->checksum->checksum_len >
+	    info->algo->checksum->pad_len) {
+		debug("%s: invlaid checksum-algorithm %s for %s\n",
+		      __func__, info->algo->checksum->name, info->algo->name);
 		return -EINVAL;
 	}
 

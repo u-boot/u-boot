@@ -29,6 +29,7 @@ struct checksum_algo checksum_algos[] = {
 	{
 		"sha1",
 		SHA1_SUM_LEN,
+		RSA2048_BYTES,
 #if IMAGE_ENABLE_SIGN
 		EVP_sha1,
 #else
@@ -39,14 +40,28 @@ struct checksum_algo checksum_algos[] = {
 	{
 		"sha256",
 		SHA256_SUM_LEN,
+		RSA2048_BYTES,
 #if IMAGE_ENABLE_SIGN
 		EVP_sha256,
 #else
 		sha256_calculate,
 		padding_sha256_rsa2048,
 #endif
+	},
+	{
+		"sha256",
+		SHA256_SUM_LEN,
+		RSA4096_BYTES,
+#if IMAGE_ENABLE_SIGN
+		EVP_sha256,
+#else
+		sha256_calculate,
+		padding_sha256_rsa4096,
+#endif
 	}
+
 };
+
 struct image_sig_algo image_sig_algos[] = {
 	{
 		"sha1,rsa2048",
@@ -61,7 +76,15 @@ struct image_sig_algo image_sig_algos[] = {
 		rsa_add_verify_data,
 		rsa_verify,
 		&checksum_algos[1],
+	},
+	{
+		"sha256,rsa4096",
+		rsa_sign,
+		rsa_add_verify_data,
+		rsa_verify,
+		&checksum_algos[2],
 	}
+
 };
 
 struct image_sig_algo *image_get_sig_algo(const char *name)
