@@ -833,6 +833,7 @@ int calculate_hash(const void *data, int data_len, const char *algo,
 # ifdef USE_HOSTCC
 #  define IMAGE_ENABLE_SIGN	1
 #  define IMAGE_ENABLE_VERIFY	0
+# include  <openssl/evp.h>
 #else
 #  define IMAGE_ENABLE_SIGN	0
 #  define IMAGE_ENABLE_VERIFY	1
@@ -870,6 +871,23 @@ struct image_sign_info {
 struct image_region {
 	const void *data;
 	int size;
+};
+
+#if IMAGE_ENABLE_VERIFY
+# include <rsa-checksum.h>
+#endif
+struct checksum_algo {
+	const char *name;
+	const int checksum_len;
+#if IMAGE_ENABLE_SIGN
+	const EVP_MD *(*calculate)(void);
+#else
+#if IMAGE_ENABLE_VERIFY
+	void (*calculate)(const struct image_region region[],
+			  int region_count, uint8_t *checksum);
+	const uint8_t *rsa_padding;
+#endif
+#endif
 };
 
 struct image_sig_algo {
@@ -922,6 +940,9 @@ struct image_sig_algo {
 	int (*verify)(struct image_sign_info *info,
 		      const struct image_region region[], int region_count,
 		      uint8_t *sig, uint sig_len);
+
+	/* pointer to checksum algorithm */
+	struct checksum_algo *checksum;
 };
 
 /**
