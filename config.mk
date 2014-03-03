@@ -28,10 +28,12 @@ sinclude $(TOPDIR)/$(CPUDIR)/config.mk		# include  CPU	specific rules
 ifdef	SOC
 sinclude $(TOPDIR)/$(CPUDIR)/$(SOC)/config.mk	# include  SoC	specific rules
 endif
+ifneq ($(BOARD),)
 ifdef	VENDOR
 BOARDDIR = $(VENDOR)/$(BOARD)
 else
 BOARDDIR = $(BOARD)
+endif
 endif
 ifdef	BOARD
 sinclude $(TOPDIR)/board/$(BOARDDIR)/config.mk	# include board specific rules

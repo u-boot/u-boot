@@ -636,7 +636,7 @@ endif
 libs-$(CONFIG_ARM) += arch/arm/cpu/
 libs-$(CONFIG_PPC) += arch/powerpc/cpu/
 
-libs-y += board/$(BOARDDIR)/
+libs-y += $(if $(BOARDDIR),board/$(BOARDDIR)/)
 
 libs-y := $(sort $(libs-y))
 

@@ -55,7 +55,9 @@ CONFIG_NAME="${7%_config}"
 arch="$2"
 cpu=`echo $3 | awk 'BEGIN {FS = ":"} ; {print $1}'`
 spl_cpu=`echo $3 | awk 'BEGIN {FS = ":"} ; {print $2}'`
-if [ "$6" = "-" ] ; then
+if [ "$6" = "<none>" ] ; then
+	board=
+elif [ "$6" = "-" ] ; then
 	board=${BOARD_NAME}
 else
 	board="$6"
@@ -177,8 +179,8 @@ echo "#define CONFIG_SYS_BOARD \"${board}\"" >> config.h
 
 [ "${soc}"    ] && echo "#define CONFIG_SYS_SOC    \"${soc}\""    >> config.h
 
+[ "${board}"  ] && echo "#define CONFIG_BOARDDIR board/$BOARDDIR" >> config.h
 cat << EOF >> config.h
-#define CONFIG_BOARDDIR board/$BOARDDIR
 #include <config_cmd_defaults.h>
 #include <config_defaults.h>
 #include <configs/${CONFIG_NAME}.h>
