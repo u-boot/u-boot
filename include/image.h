@@ -832,7 +832,7 @@ int calculate_hash(const void *data, int data_len, const char *algo,
 #if defined(CONFIG_FIT_SIGNATURE)
 # ifdef USE_HOSTCC
 #  define IMAGE_ENABLE_SIGN	1
-#  define IMAGE_ENABLE_VERIFY	0
+#  define IMAGE_ENABLE_VERIFY	1
 # include  <openssl/evp.h>
 #else
 #  define IMAGE_ENABLE_SIGN	0
@@ -844,7 +844,9 @@ int calculate_hash(const void *data, int data_len, const char *algo,
 #endif
 
 #ifdef USE_HOSTCC
-# define gd_fdt_blob()		NULL
+void *image_get_host_blob(void);
+void image_set_host_blob(void *host_blob);
+# define gd_fdt_blob()		image_get_host_blob()
 #else
 # define gd_fdt_blob()		(gd->fdt_blob)
 #endif
@@ -881,14 +883,11 @@ struct checksum_algo {
 	const int checksum_len;
 	const int pad_len;
 #if IMAGE_ENABLE_SIGN
-	const EVP_MD *(*calculate)(void);
-#else
-#if IMAGE_ENABLE_VERIFY
+	const EVP_MD *(*calculate_sign)(void);
+#endif
 	void (*calculate)(const struct image_region region[],
 			  int region_count, uint8_t *checksum);
 	const uint8_t *rsa_padding;
-#endif
-#endif
 };
 
 struct image_sig_algo {
@@ -1009,7 +1008,11 @@ struct image_region *fit_region_make_list(const void *fit,
 
 static inline int fit_image_check_target_arch(const void *fdt, int node)
 {
+#ifndef USE_HOSTCC
 	return fit_image_check_arch(fdt, node, IH_ARCH_DEFAULT);
+#else
+	return 0;
+#endif
 }
 
 #ifdef CONFIG_FIT_VERBOSE

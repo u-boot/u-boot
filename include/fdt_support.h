@@ -115,4 +115,9 @@ static inline int fdt_status_disabled_by_alias(void *fdt, const char* alias)
 }
 
 #endif /* ifdef CONFIG_OF_LIBFDT */
+
+#ifdef USE_HOSTCC
+int fdtdec_get_int(const void *blob, int node, const char *prop_name,
+		int default_val);
+#endif
 #endif /* ifndef __FDT_SUPPORT_H */

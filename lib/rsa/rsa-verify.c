@@ -4,16 +4,27 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#ifndef USE_HOSTCC
 #include <common.h>
 #include <fdtdec.h>
+#include <asm/types.h>
+#include <asm/byteorder.h>
+#include <asm/errno.h>
+#include <asm/types.h>
+#include <asm/unaligned.h>
+#else
+#include "fdt_host.h"
+#include "mkimage.h"
+#include <fdt_support.h>
+#endif
 #include <rsa.h>
 #include <sha1.h>
 #include <sha256.h>
-#include <asm/byteorder.h>
-#include <asm/errno.h>
-#include <asm/unaligned.h>
 
 #define UINT64_MULT32(v, multby)  (((uint64_t)(v)) * ((uint32_t)(multby)))
+
+#define get_unaligned_be32(a) fdt32_to_cpu(*(uint32_t *)a)
+#define put_unaligned_be32(a, b) (*(uint32_t *)(b) = cpu_to_fdt32(a))
 
 /**
  * subtract_modulus() - subtract modulus from the given value
@@ -150,7 +161,6 @@ static int pow_mod(const struct rsa_public_key *key, uint32_t *inout)
 	/* Convert to bigendian byte array */
 	for (i = key->len - 1, ptr = inout; (int)i >= 0; i--, ptr++)
 		put_unaligned_be32(result[i], ptr);
-
 	return 0;
 }
 

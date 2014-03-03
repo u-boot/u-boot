@@ -19,9 +19,14 @@ DECLARE_GLOBAL_DATA_PTR;
 #define IMAGE_MAX_HASHED_NODES		100
 
 #ifdef USE_HOSTCC
-__attribute__((weak)) void *get_blob(void)
+void *host_blob;
+void image_set_host_blob(void *blob)
 {
-	return NULL;
+	host_blob = blob;
+}
+void *image_get_host_blob(void)
+{
+	return host_blob;
 }
 #endif
 
@@ -32,10 +37,9 @@ struct checksum_algo checksum_algos[] = {
 		RSA2048_BYTES,
 #if IMAGE_ENABLE_SIGN
 		EVP_sha1,
-#else
+#endif
 		sha1_calculate,
 		padding_sha1_rsa2048,
-#endif
 	},
 	{
 		"sha256",
@@ -43,10 +47,9 @@ struct checksum_algo checksum_algos[] = {
 		RSA2048_BYTES,
 #if IMAGE_ENABLE_SIGN
 		EVP_sha256,
-#else
+#endif
 		sha256_calculate,
 		padding_sha256_rsa2048,
-#endif
 	},
 	{
 		"sha256",
@@ -54,10 +57,9 @@ struct checksum_algo checksum_algos[] = {
 		RSA4096_BYTES,
 #if IMAGE_ENABLE_SIGN
 		EVP_sha256,
-#else
+#endif
 		sha256_calculate,
 		padding_sha256_rsa4096,
-#endif
 	}
 
 };

@@ -695,3 +695,18 @@ int fit_add_verification_data(const char *keydir, void *keydest, void *fit,
 
 	return 0;
 }
+
+#ifdef CONFIG_FIT_SIGNATURE
+int fit_check_sign(const void *working_fdt, const void *key)
+{
+	int cfg_noffset;
+	int ret;
+
+	cfg_noffset = fit_conf_get_node(working_fdt, NULL);
+	if (!cfg_noffset)
+		return -1;
+
+	ret = fit_config_verify(working_fdt, cfg_noffset);
+	return ret;
+}
+#endif

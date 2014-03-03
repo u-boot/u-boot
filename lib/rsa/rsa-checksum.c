@@ -4,14 +4,18 @@
  * SPDX-License-Identifier:    GPL-2.0+
  */
 
+#ifndef USE_HOSTCC
 #include <common.h>
 #include <fdtdec.h>
-#include <rsa.h>
-#include <sha1.h>
-#include <sha256.h>
 #include <asm/byteorder.h>
 #include <asm/errno.h>
 #include <asm/unaligned.h>
+#else
+#include "fdt_host.h"
+#endif
+#include <rsa.h>
+#include <sha1.h>
+#include <sha256.h>
 
 /* PKCS 1.5 paddings as described in the RSA PKCS#1 v2.1 standard. */
 

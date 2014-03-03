@@ -47,6 +47,7 @@ O=$(readlink -f ${O})
 dtc="-I dts -O dtb -p 2000"
 uboot="${O}/u-boot"
 mkimage="${O}/tools/mkimage"
+fit_check_sign="${O}/tools/fit_check_sign"
 keys="${dir}/dev-keys"
 echo ${mkimage} -D "${dtc}"
 
@@ -96,6 +97,25 @@ function do_test {
 	echo Sign images
 	${mkimage} -D "${dtc}" -F -k dev-keys -K sandbox-u-boot.dtb \
 		-r test.fit >${tmp}
+
+	run_uboot "signed config" "dev+"
+
+	echo check signed config on the host
+	if ! ${fit_check_sign} -f test.fit -k sandbox-u-boot.dtb >${tmp}; then
+		echo
+		echo "Verified boot key check on host failed, output follows:"
+		cat ${tmp}
+		false
+	else
+		if ! grep -q "dev+" ${tmp}; then
+			echo
+			echo "Verified boot key check failed, output follows:"
+			cat ${tmp}
+			false
+		else
+			echo "OK"
+		fi
+	fi
 
 	run_uboot "signed config" "dev+"
 

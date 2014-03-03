@@ -193,7 +193,7 @@ static int rsa_sign_with_key(RSA *rsa, struct checksum_algo *checksum_algo,
 		goto err_create;
 	}
 	EVP_MD_CTX_init(context);
-	if (!EVP_SignInit(context, checksum_algo->calculate())) {
+	if (!EVP_SignInit(context, checksum_algo->calculate_sign())) {
 		ret = rsa_err("Signer setup failed");
 		goto err_sign;
 	}

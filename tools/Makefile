@@ -61,13 +61,13 @@ mkenvimage$(SFX)-objs := crc32.o mkenvimage.o os_support.o
 
 hostprogs-y += dumpimage$(SFX) mkimage$(SFX)
 ifdef CONFIG_FIT_SIGNATURE
-hostprogs-y += fit_info$(SFX)
+hostprogs-y += fit_info$(SFX) fit_check_sign$(SFX)
 endif
 
 FIT_SIG_OBJS-$(CONFIG_FIT_SIGNATURE) := image-sig.o
 # Flattened device tree objects
 LIBFDT_OBJS := fdt.o fdt_ro.o fdt_rw.o fdt_strerror.o fdt_wip.o
-RSA_OBJS-$(CONFIG_FIT_SIGNATURE) := rsa-sign.o
+RSA_OBJS-$(CONFIG_FIT_SIGNATURE) := rsa-sign.o rsa-verify.o rsa-checksum.o
 
 # common objs for dumpimage and mkimage
 dumpimage-mkimage-objs := aisimage.o \
@@ -97,6 +97,7 @@ dumpimage-mkimage-objs := aisimage.o \
 dumpimage$(SFX)-objs := $(dumpimage-mkimage-objs) dumpimage.o
 mkimage$(SFX)-objs   := $(dumpimage-mkimage-objs) mkimage.o
 fit_info$(SFX)-objs   := $(dumpimage-mkimage-objs) fit_info.o
+fit_check_sign$(SFX)-objs   := $(dumpimage-mkimage-objs) fit_check_sign.o
 
 # TODO(sjg@chromium.org): Is this correct on Mac OS?
 
@@ -105,6 +106,7 @@ ifneq ($(CONFIG_MX23)$(CONFIG_MX28),)
 HOSTLOADLIBES_dumpimage$(SFX) := -lssl -lcrypto
 HOSTLOADLIBES_mkimage$(SFX) := -lssl -lcrypto
 HOSTLOADLIBES_fit_info$(SFX) := -lssl -lcrypto
+HOSTLOADLIBES_fit_check_sign$(SFX) := -lssl -lcrypto
 # Add CONFIG_MXS into host CFLAGS, so we can check whether or not register
 # the mxsimage support within tools/mxsimage.c .
 HOSTCFLAGS_mxsimage.o += -DCONFIG_MXS
@@ -114,6 +116,7 @@ ifdef CONFIG_FIT_SIGNATURE
 HOSTLOADLIBES_dumpimage$(SFX) := -lssl -lcrypto
 HOSTLOADLIBES_mkimage$(SFX) := -lssl -lcrypto
 HOSTLOADLIBES_fit_info$(SFX) := -lssl -lcrypto
+HOSTLOADLIBES_fit_check_sign$(SFX) := -lssl -lcrypto
 
 # This affects include/image.h, but including the board config file
 # is tricky, so manually define this options here.
