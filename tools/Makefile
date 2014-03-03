@@ -191,3 +191,15 @@ $(LOGO_DATA_H):	$(obj)/bmp_logo $(LOGO_BMP)
 
 # Let clean descend into subdirs
 subdir- += env
+
+ifneq ($(CROSS_BUILD_TOOLS),)
+HOSTCC = $(CC)
+
+quiet_cmd_crosstools_strip = STRIP   $^
+      cmd_crosstools_strip = $(STRIP) $^; touch $@
+$(obj)/.strip: $(call objectify,$(filter $(always),$(hostprogs-y)))
+	$(call cmd,crosstools_strip)
+
+always += .strip
+endif
+clean-files += .strip

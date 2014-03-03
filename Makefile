@@ -1155,6 +1155,9 @@ env: scripts_basic
 tools-all: export HOST_TOOLS_ALL=y
 tools-all: env tools ;
 
+cross_tools: export CROSS_BUILD_TOOLS=y
+cross_tools: tools ;
+
 .PHONY : CHANGELOG
 CHANGELOG:
 	git log --no-merges U-Boot-1_1_5.. | \
