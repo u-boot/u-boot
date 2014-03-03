@@ -1152,7 +1152,7 @@ checkarmreloc: u-boot
 env: scripts_basic
 	$(Q)$(MAKE) $(build)=tools/$@
 
-tools-all: HOST_TOOLS_ALL=y
+tools-all: export HOST_TOOLS_ALL=y
 tools-all: env tools ;
 
 .PHONY : CHANGELOG
