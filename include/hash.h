@@ -27,6 +27,42 @@ struct hash_algo {
 	void (*hash_func_ws)(const unsigned char *input, unsigned int ilen,
 		unsigned char *output, unsigned int chunk_sz);
 	int chunk_size;				/* Watchdog chunk size */
+	/*
+	 * hash_init: Create the context for progressive hashing
+	 *
+	 * @algo: Pointer to the hash_algo struct
+	 * @ctxp: Pointer to the pointer of the context for hashing
+	 * @return 0 if ok, -1 on error
+	 */
+	int (*hash_init)(struct hash_algo *algo, void **ctxp);
+	/*
+	 * hash_update: Perform hashing on the given buffer
+	 *
+	 * The context is freed by this function if an error occurs.
+	 *
+	 * @algo: Pointer to the hash_algo struct
+	 * @ctx: Pointer to the context for hashing
+	 * @buf: Pointer to the buffer being hashed
+	 * @size: Size of the buffer being hashed
+	 * @is_last: 1 if this is the last update; 0 otherwise
+	 * @return 0 if ok, -1 on error
+	 */
+	int (*hash_update)(struct hash_algo *algo, void *ctx, const void *buf,
+			   unsigned int size, int is_last);
+	/*
+	 * hash_finish: Write the hash result to the given buffer
+	 *
+	 * The context is freed by this function.
+	 *
+	 * @algo: Pointer to the hash_algo struct
+	 * @ctx: Pointer to the context for hashing
+	 * @dest_buf: Pointer to the buffer for the result
+	 * @size: Size of the buffer for the result
+	 * @return 0 if ok, -ENOSPC if size of the result buffer is too small
+	 *   or -1 on other errors
+	 */
+	int (*hash_finish)(struct hash_algo *algo, void *ctx, void *dest_buf,
+			   int size);
 };
 
 /*
@@ -77,4 +113,16 @@ int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
 int hash_block(const char *algo_name, const void *data, unsigned int len,
 	       uint8_t *output, int *output_size);
 
+/**
+ * hash_lookup_algo() - Look up the hash_algo struct for an algorithm
+ *
+ * The function returns the pointer to the struct or -EPROTONOSUPPORT if the
+ * algorithm is not available.
+ *
+ * @algo_name: Hash algorithm to look up
+ * @algop: Pointer to the hash_algo struct if found
+ *
+ * @return 0 if ok, -EPROTONOSUPPORT for an unknown algorithm.
+ */
+int hash_lookup_algo(const char *algo_name, struct hash_algo **algop);
 #endif
