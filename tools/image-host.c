@@ -403,7 +403,7 @@ static int fit_config_get_hash_list(void *fit, int conf_noffset,
 		goto err_mem;
 
 	/* Get a list of images that we intend to sign */
-	prop = fit_config_get_image_list(fit, conf_noffset, &len,
+	prop = fit_config_get_image_list(fit, sig_offset, &len,
 					&allow_missing);
 	if (!prop)
 		return 0;
