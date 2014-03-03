@@ -40,7 +40,6 @@ CONFIG_BUILD_ENVCRC ?= $(ENVCRC-y)
 
 # TODO: CONFIG_CMD_LICENSE does not work
 hostprogs-$(CONFIG_CMD_LICENSE) += bin2header$(SFX)
-
 hostprogs-$(CONFIG_LCD_LOGO) += bmp_logo$(SFX)
 hostprogs-$(CONFIG_VIDEO_LOGO) += bmp_logo$(SFX)
 HOSTCFLAGS_bmp_logo$(SFX).o := -pedantic
@@ -85,6 +84,7 @@ dumpimage-mkimage-objs := aisimage.o \
 			os_support.o \
 			pblimage.o \
 			sha1.o \
+			sha256.o \
 			ublimage.o \
 			$(LIBFDT_OBJS) \
 			$(RSA_OBJS-y)
@@ -137,6 +137,7 @@ hostprogs-$(CONFIG_STATIC_RELA) += relocate-rela$(SFX)
 HOSTCFLAGS_crc32.o := -pedantic
 HOSTCFLAGS_md5.o := -pedantic
 HOSTCFLAGS_sha1.o := -pedantic
+HOSTCFLAGS_sha256.o := -pedantic
 
 # Don't build by default
 #hostprogs-$(CONFIG_PPC) += mpc86x_clk$(SFX)
