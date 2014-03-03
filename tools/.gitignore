@@ -1,5 +1,6 @@
 /bmp_logo
 /envcrc
+/fit_info
 /gen_eth_addr
 /img2srec
 /kwboot
