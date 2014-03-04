@@ -31,13 +31,7 @@ tlbtab:
 	 * use the speed up boot process. It is patched after relocation to
 	 * enable SA_I
 	 */
-#ifndef CONFIG_NAND_SPL
 	tlbentry(CONFIG_SYS_BOOT_BASE_ADDR, SZ_16M, CONFIG_SYS_BOOT_BASE_ADDR, 4, AC_RWX | SA_G) /* TLB 0 */
-#else
-	tlbentry(CONFIG_SYS_NAND_BOOT_SPL_SRC, SZ_4K, CONFIG_SYS_NAND_BOOT_SPL_SRC, 4, AC_RWX | SA_G)
-	tlbentry(CONFIG_SYS_SDRAM_BASE, SZ_256M, CONFIG_SYS_SDRAM_BASE, 0, AC_RWX | SA_IG)
-	tlbentry(256 << 20, SZ_256M, 256 << 20, 0, AC_RWX | SA_IG)
-#endif
 
 	/*
 	 * TLB entries for SDRAM are not needed on this platform.
@@ -95,31 +89,3 @@ tlbtab:
 #endif
 
 	tlbtab_end
-
-#if defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
-	/*
-	 * For NAND booting the first TLB has to be reconfigured to full size
-	 * and with caching disabled after running from RAM!
-	 */
-#define TLB00	TLB0(CONFIG_SYS_BOOT_BASE_ADDR, SZ_256M)
-#define TLB01	TLB1(CONFIG_SYS_BOOT_BASE_ADDR, 1)
-#define TLB02	TLB2(AC_RWX | SA_IG)
-
-	.globl	reconfig_tlb0
-reconfig_tlb0:
-	sync
-	isync
-	addi	r4,r0,0x0000		/* TLB entry #0 */
-	lis	r5,TLB00@h
-	ori	r5,r5,TLB00@l
-	tlbwe	r5,r4,0x0000		/* Save it out */
-	lis	r5,TLB01@h
-	ori	r5,r5,TLB01@l
-	tlbwe	r5,r4,0x0001		/* Save it out */
-	lis	r5,TLB02@h
-	ori	r5,r5,TLB02@l
-	tlbwe	r5,r4,0x0002		/* Save it out */
-	sync
-	isync
-	blr
-#endif

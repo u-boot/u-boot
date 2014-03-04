@@ -49,7 +49,6 @@
 		       "SDRAM_" #mnemonic, SDRAM_##mnemonic, data);	\
 	} while (0)
 
-#if !defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
 static void update_rdcc(void)
 {
 	u32 val;
@@ -72,7 +71,6 @@ static void update_rdcc(void)
 		}
 	}
 }
-#endif
 
 #if defined(CONFIG_440)
 /*
@@ -101,7 +99,6 @@ void dcbz_area(u32 start_address, u32 num_bytes);
 
 #define MULDIV64(m1, m2, d)	(u32)(((u64)(m1) * (u64)(m2)) / (u64)(d))
 
-#if !defined(CONFIG_NAND_SPL)
 /*-----------------------------------------------------------------------------+
  * sdram_memsize
  *-----------------------------------------------------------------------------*/
@@ -217,7 +214,6 @@ void board_add_ram_info(int use_default)
 	val = (val & SDRAM_MMODE_DCL_MASK) >> 4;
 	printf(", CL%d)", val);
 }
-#endif /* !CONFIG_NAND_SPL */
 
 #if defined(CONFIG_SPD_EEPROM)
 
@@ -2843,16 +2839,6 @@ static void test(void)
  *---------------------------------------------------------------------------*/
 phys_size_t initdram(int board_type)
 {
-	/*
-	 * Only run this SDRAM init code once. For NAND booting
-	 * targets like Kilauea, we call initdram() early from the
-	 * 4k NAND booting image (CONFIG_NAND_SPL) from nand_boot().
-	 * Later on the NAND U-Boot image runs (CONFIG_NAND_U_BOOT)
-	 * which calls initdram() again. This time the controller
-	 * mustn't be reconfigured again since we're already running
-	 * from SDRAM.
-	 */
-#if !defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
 	unsigned long val;
 
 #if defined(CONFIG_440)
@@ -2969,12 +2955,10 @@ phys_size_t initdram(int board_type)
 #endif
 
 #if defined(CONFIG_PPC4xx_DDR_AUTOCALIBRATION)
-#if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
 	/*------------------------------------------------------------------
 	 | DQS calibration.
 	 +-----------------------------------------------------------------*/
 	DQS_autocalibration();
-#endif /* !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL) */
 #endif /* CONFIG_PPC4xx_DDR_AUTOCALIBRATION */
 
 	/*
@@ -3009,13 +2993,10 @@ phys_size_t initdram(int board_type)
 	set_mcsr(get_mcsr());
 #endif /* CONFIG_PPC4xx_DDR_AUTOCALIBRATION */
 
-#endif /* !defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL) */
-
 	return (CONFIG_SYS_MBYTES_SDRAM << 20);
 }
 #endif /* CONFIG_SPD_EEPROM */
 
-#if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
 #if defined(CONFIG_440)
 u32 mfdcr_any(u32 dcr)
 {
@@ -3062,7 +3043,6 @@ void mtdcr_any(u32 dcr, u32 val)
 	}
 }
 #endif /* defined(CONFIG_440) */
-#endif /* !defined(CONFIG_NAND_U_BOOT) &&  !defined(CONFIG_NAND_SPL) */
 
 inline void ppc4xx_ibm_ddr2_register_dump(void)
 {

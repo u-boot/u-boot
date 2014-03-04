@@ -27,12 +27,6 @@
 
 #include "ecc.h"
 
-/*
- * Only compile the DDR auto-calibration code for NOR boot and
- * not for NAND boot (NAND SPL and NAND U-Boot - NUB)
- */
-#if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
-
 #define MAXBXCF			4
 #define SDRAM_RXBAS_SHIFT_1M	20
 
@@ -1231,9 +1225,3 @@ u32 DQS_autocalibration(void)
 
 	return 0;
 }
-#else /* defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL) */
-u32 DQS_autocalibration(void)
-{
-	return 0;
-}
-#endif /* !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL) */

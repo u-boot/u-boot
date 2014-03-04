@@ -125,78 +125,9 @@
 /*
  * Define here the location of the environment variables (FLASH).
  */
-#if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
 #define	CONFIG_ENV_IS_IN_FLASH	1	/* use FLASH for environment vars */
 #define CONFIG_SYS_NOR_CS		0	/* NOR chip connected to CSx */
 #define CONFIG_SYS_NAND_CS		3	/* NAND chip connected to CSx */
-#else
-#define	CONFIG_ENV_IS_IN_NAND	1	/* use NAND for environment vars  */
-#define CONFIG_SYS_NOR_CS		3	/* NOR chip connected to CSx */
-#define CONFIG_SYS_NAND_CS		0	/* NAND chip connected to CSx */
-#define CONFIG_ENV_IS_EMBEDDED	1	/* use embedded environment */
-#endif
-
-/*
- * IPL (Initial Program Loader, integrated inside CPU)
- * Will load first 4k from NAND (SPL) into cache and execute it from there.
- *
- * SPL (Secondary Program Loader)
- * Will load special U-Boot version (NUB) from NAND and execute it. This SPL
- * has to fit into 4kByte. It sets up the CPU and configures the SDRAM
- * controller and the NAND controller so that the special U-Boot image can be
- * loaded from NAND to SDRAM.
- *
- * NUB (NAND U-Boot)
- * This NAND U-Boot (NUB) is a special U-Boot version which can be started
- * from RAM. Therefore it mustn't (re-)configure the SDRAM controller.
- *
- * On 440EPx the SPL is copied to SDRAM before the NAND controller is
- * set up. While still running from cache, I experienced problems accessing
- * the NAND controller.	sr - 2006-08-25
- *
- * This is the first official implementation of booting from 2k page sized
- * NAND devices (e.g. Micron 29F2G08AA 256Mbit * 8)
- */
-#define CONFIG_SYS_NAND_BOOT_SPL_SRC	0xfffff000	/* SPL location		      */
-#define CONFIG_SYS_NAND_BOOT_SPL_SIZE	(4 << 10)	/* SPL size		      */
-#define CONFIG_SYS_NAND_BOOT_SPL_DST	(CONFIG_SYS_OCM_BASE + (12 << 10)) /* Copy SPL here  */
-#define CONFIG_SYS_NAND_U_BOOT_DST	0x01000000	/* Load NUB to this addr      */
-#define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_NAND_U_BOOT_DST	/* Start NUB from     */
-							/*   this addr	      */
-#define CONFIG_SYS_NAND_BOOT_SPL_DELTA	(CONFIG_SYS_NAND_BOOT_SPL_SRC - CONFIG_SYS_NAND_BOOT_SPL_DST)
-
-/*
- * Define the partitioning of the NAND chip (only RAM U-Boot is needed here)
- */
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	(128 << 10)	/* Offset to RAM U-Boot image */
-#define CONFIG_SYS_NAND_U_BOOT_SIZE	(1 << 20)	/* Size of RAM U-Boot image   */
-
-/*
- * Now the NAND chip has to be defined (no autodetection used!)
- */
-#define CONFIG_SYS_NAND_PAGE_SIZE	(2 << 10)	/* NAND chip page size	      */
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(128 << 10)	/* NAND chip block size	      */
-#define CONFIG_SYS_NAND_PAGE_COUNT	(CONFIG_SYS_NAND_BLOCK_SIZE / CONFIG_SYS_NAND_PAGE_SIZE)
-						/* NAND chip page count	      */
-#define CONFIG_SYS_NAND_BAD_BLOCK_POS	0		/* Location of bad block marker*/
-#define CONFIG_SYS_NAND_5_ADDR_CYCLE			/* Fifth addr used (<=128MB)  */
-
-#define CONFIG_SYS_NAND_ECCSIZE	256
-#define CONFIG_SYS_NAND_ECCBYTES	3
-#define CONFIG_SYS_NAND_OOBSIZE	64
-#define CONFIG_SYS_NAND_ECCPOS		{40, 41, 42, 43, 44, 45, 46, 47, \
-				 48, 49, 50, 51, 52, 53, 54, 55, \
-				 56, 57, 58, 59, 60, 61, 62, 63}
-
-#ifdef CONFIG_ENV_IS_IN_NAND
-/*
- * For NAND booting the environment is embedded in the U-Boot image. Please take
- * look at the file board/amcc/canyonlands/u-boot-nand.lds for details.
- */
-#define CONFIG_ENV_SIZE		CONFIG_SYS_NAND_BLOCK_SIZE
-#define CONFIG_ENV_OFFSET		(CONFIG_SYS_NAND_U_BOOT_OFFS + CONFIG_ENV_SIZE)
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
-#endif
 
 /*-----------------------------------------------------------------------
  * FLASH related
@@ -235,7 +166,6 @@
 /*------------------------------------------------------------------------------
  * DDR SDRAM
  *----------------------------------------------------------------------------*/
-#if !defined(CONFIG_NAND_U_BOOT)
 #if !defined(CONFIG_ARCHES)
 /*
  * NAND booting U-Boot version uses a fixed initialization, since the whole
@@ -308,7 +238,6 @@
 #define CONFIG_SYS_SDRAM0_MMODE		0x00000432
 #define CONFIG_SYS_SDRAM0_MEMODE	0x00000004
 #endif	/* !defined(CONFIG_ARCHES) */
-#endif	/* !defined(CONFIG_NAND_U_BOOT) */
 
 #define CONFIG_SYS_MBYTES_SDRAM	512	/* 512MB			*/
 
@@ -421,7 +350,6 @@
 	CONFIG_AMCC_DEF_ENV						\
 	CONFIG_AMCC_DEF_ENV_POWERPC					\
 	CONFIG_AMCC_DEF_ENV_NOR_UPD					\
-	CONFIG_AMCC_DEF_ENV_NAND_UPD					\
 	"kernel_addr=fc000000\0"					\
 	"fdt_addr=fc1e0000\0"						\
 	"ramdisk_addr=fc200000\0"					\
@@ -556,15 +484,6 @@
  * 0xfe00.0000 -> 4.ce00.0000
  */
 
-#if defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
-/* Memory Bank 3 (NOR-FLASH) initialization					*/
-#define CONFIG_SYS_EBC_PB3AP		0x10055e00
-#define CONFIG_SYS_EBC_PB3CR		(CONFIG_SYS_BOOT_BASE_ADDR | 0x9a000)
-
-/* Memory Bank 0 (NAND-FLASH) initialization						*/
-#define CONFIG_SYS_EBC_PB0AP		0x018003c0
-#define CONFIG_SYS_EBC_PB0CR		(CONFIG_SYS_NAND_ADDR | 0x1E000) /* BAS=NAND,BS=1MB,BU=R/W,BW=32bit*/
-#else
 /* Memory Bank 0 (NOR-FLASH) initialization					*/
 #define CONFIG_SYS_EBC_PB0AP		0x10055e00
 #define CONFIG_SYS_EBC_PB0CR		(CONFIG_SYS_BOOT_BASE_ADDR | 0x9a000)
@@ -574,7 +493,6 @@
 #define CONFIG_SYS_EBC_PB3AP		0x018003c0
 #define CONFIG_SYS_EBC_PB3CR		(CONFIG_SYS_NAND_ADDR | 0x1E000) /* BAS=NAND,BS=1MB,BU=R/W,BW=32bit*/
 #endif
-#endif	/*defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL) */
 
 #if !defined(CONFIG_ARCHES)
 /* Memory Bank 2 (CPLD) initialization						*/

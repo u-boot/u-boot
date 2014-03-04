@@ -82,17 +82,11 @@
 /*-----------------------------------------------------------------------
  * Environment
  *----------------------------------------------------------------------*/
-#if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
 #define CONFIG_ENV_IS_IN_FLASH     1	/* use FLASH for environment vars	*/
-#else
-#define CONFIG_ENV_IS_IN_NAND	1	/* use NAND for environment vars	*/
-#define CONFIG_ENV_IS_EMBEDDED	1	/* use embedded environment */
-#endif
 
 /*-----------------------------------------------------------------------
  * FLASH related
  *----------------------------------------------------------------------*/
-#if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
 #define CONFIG_SYS_FLASH_CFI			/* The flash is CFI compatible	*/
 #define CONFIG_FLASH_CFI_DRIVER		/* Use common CFI driver	*/
 
@@ -106,16 +100,6 @@
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE 1	/* use buffered writes (20x faster)	*/
 #define CONFIG_SYS_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
-#else
-/*
- * No NOR-flash on Acadia when NAND-booting. We need to undef the
- * NOR device-tree fixup code as well, since flash_info is not defined
- * in this case.
- */
-#define	CONFIG_SYS_NO_FLASH		1
-#undef CONFIG_FDT_FIXUP_NOR_FLASH_SIZE
-#endif
-
 #ifdef CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_SECT_SIZE	0x40000 /* size of one complete sector	*/
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE-CONFIG_ENV_SECT_SIZE)
@@ -124,61 +108,6 @@
 /* Address and size of Redundant Environment Sector	*/
 #define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR-CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
-#endif
-
-/*
- * IPL (Initial Program Loader, integrated inside CPU)
- * Will load first 4k from NAND (SPL) into cache and execute it from there.
- *
- * SPL (Secondary Program Loader)
- * Will load special U-Boot version (NUB) from NAND and execute it. This SPL
- * has to fit into 4kByte. It sets up the CPU and configures the SDRAM
- * controller and the NAND controller so that the special U-Boot image can be
- * loaded from NAND to SDRAM.
- *
- * NUB (NAND U-Boot)
- * This NAND U-Boot (NUB) is a special U-Boot version which can be started
- * from RAM. Therefore it mustn't (re-)configure the SDRAM controller.
- *
- * On 440EPx the SPL is copied to SDRAM before the NAND controller is
- * set up. While still running from cache, I experienced problems accessing
- * the NAND controller.	sr - 2006-08-25
- */
-#define CONFIG_SYS_NAND_BOOT_SPL_SRC	0xfffff000	/* SPL location			*/
-#define CONFIG_SYS_NAND_BOOT_SPL_SIZE	(4 << 10)	/* SPL size			*/
-#define CONFIG_SYS_NAND_BOOT_SPL_DST	(CONFIG_SYS_OCM_DATA_ADDR + (16 << 10)) /* Copy SPL here*/
-#define CONFIG_SYS_NAND_U_BOOT_DST	0x01000000	/* Load NUB to this addr	*/
-#define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_NAND_U_BOOT_DST /* Start NUB from this addr	*/
-#define CONFIG_SYS_NAND_BOOT_SPL_DELTA	(CONFIG_SYS_NAND_BOOT_SPL_SRC - CONFIG_SYS_NAND_BOOT_SPL_DST)
-
-/*
- * Define the partitioning of the NAND chip (only RAM U-Boot is needed here)
- */
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	(16 << 10)	/* Offset to RAM U-Boot image	*/
-#define CONFIG_SYS_NAND_U_BOOT_SIZE	(384 << 10)	/* Size of RAM U-Boot image	*/
-
-/*
- * Now the NAND chip has to be defined (no autodetection used!)
- */
-#define CONFIG_SYS_NAND_PAGE_SIZE	512		/* NAND chip page size		*/
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(16 << 10)	/* NAND chip block size		*/
-#define CONFIG_SYS_NAND_PAGE_COUNT	32		/* NAND chip page count		*/
-#define CONFIG_SYS_NAND_BAD_BLOCK_POS	5		/* Location of bad block marker	*/
-#undef CONFIG_SYS_NAND_4_ADDR_CYCLE			/* No fourth addr used (<=32MB)	*/
-
-#define CONFIG_SYS_NAND_ECCSIZE	256
-#define CONFIG_SYS_NAND_ECCBYTES	3
-#define CONFIG_SYS_NAND_OOBSIZE	16
-#define CONFIG_SYS_NAND_ECCPOS		{0, 1, 2, 3, 6, 7}
-
-#ifdef CONFIG_ENV_IS_IN_NAND
-/*
- * For NAND booting the environment is embedded in the U-Boot image. Please take
- * look at the file board/amcc/sequoia/u-boot-nand.lds for details.
- */
-#define CONFIG_ENV_SIZE		CONFIG_SYS_NAND_BLOCK_SIZE
-#define CONFIG_ENV_OFFSET		(CONFIG_SYS_NAND_U_BOOT_OFFS + CONFIG_ENV_SIZE)
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 #endif
 
 /*-----------------------------------------------------------------------
@@ -219,7 +148,6 @@
 	CONFIG_AMCC_DEF_ENV_POWERPC					\
 	CONFIG_AMCC_DEF_ENV_PPC_OLD					\
 	CONFIG_AMCC_DEF_ENV_NOR_UPD					\
-	CONFIG_AMCC_DEF_ENV_NAND_UPD					\
 	"kernel_addr=fff10000\0"					\
 	"ramdisk_addr=fff20000\0"					\
 	"kozio=bootm ffc60000\0"					\
@@ -242,14 +170,6 @@
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_USB
 
-/*
- * No NOR on Acadia when NAND-booting
- */
-#if defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
-#undef CONFIG_CMD_FLASH
-#undef CONFIG_CMD_IMLS
-#endif
-
 /*-----------------------------------------------------------------------
  * NAND FLASH
  *----------------------------------------------------------------------*/
@@ -260,7 +180,6 @@
 /*-----------------------------------------------------------------------
  * External Bus Controller (EBC) Setup
  *----------------------------------------------------------------------*/
-#if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
 #define CONFIG_SYS_NAND_CS		3
 /* Memory Bank 0 (Flash) initialization						*/
 #define CONFIG_SYS_EBC_PB0AP		0x03337200
@@ -278,24 +197,6 @@
 /* Memory Bank 2 (CRAM) initialization						*/
 #define CONFIG_SYS_EBC_PB2AP		0x030400c0
 #define CONFIG_SYS_EBC_PB2CR		0x020bc000
-#else
-#define CONFIG_SYS_NAND_CS		0		/* NAND chip connected to CSx	*/
-/* Memory Bank 0 (NAND-FLASH) initialization					*/
-#define CONFIG_SYS_EBC_PB0AP		0x018003c0
-#define CONFIG_SYS_EBC_PB0CR		(CONFIG_SYS_NAND_ADDR | 0x1c000)
-
-/*
- * When NAND-booting the CRAM EBC setup must be done in sync mode, since the
- * NAND-SPL already initialized the CRAM and EBC to sync mode.
- */
-/* Memory Bank 1 (CRAM) initialization						*/
-#define CONFIG_SYS_EBC_PB1AP		0x9C0201C0
-#define CONFIG_SYS_EBC_PB1CR		0x000bc000
-
-/* Memory Bank 2 (CRAM) initialization						*/
-#define CONFIG_SYS_EBC_PB2AP		0x9C0201C0
-#define CONFIG_SYS_EBC_PB2CR		0x020bc000
-#endif
 
 /* Memory Bank 4 (CPLD) initialization						*/
 #define CONFIG_SYS_EBC_PB4AP		0x04006000
