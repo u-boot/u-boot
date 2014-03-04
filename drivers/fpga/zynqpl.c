@@ -493,17 +493,17 @@ static int do_zynq_decrypt_image(cmd_tbl_t *cmdtp, int flag, int argc,
 	srcaddr = simple_strtoul(argv[1], &endp, 16);
 	if (*argv[1] == 0 || *endp != 0)
 		return -1;
-	dstaddr = simple_strtoul(argv[2], &endp, 16);
+	srclen = simple_strtoul(argv[2], &endp, 16);
 	if (*argv[2] == 0 || *endp != 0)
 		return -1;
-	srclen = simple_strtoul(argv[3], &endp, 16);
+	dstaddr = simple_strtoul(argv[3], &endp, 16);
 	if (*argv[3] == 0 || *endp != 0)
 		return -1;
 	dstlen = simple_strtoul(argv[4], &endp, 16);
 	if (*argv[4] == 0 || *endp != 0)
 		return -1;
 
-	status = zynq_decrypt_load(srcaddr, dstaddr, srclen, dstlen);
+	status = zynq_decrypt_load(srcaddr, srclen, dstaddr, dstlen);
 	if (status != 0)
 		return -1;
 
