@@ -52,7 +52,7 @@ enum spi_dual_flash {
  * @sector_size:	Sector size of this device
  * @nr_sectors:		No.of sectors on this device
  * @e_rd_cmd:		Enum list for read commands
- * @flags:		Importent param, for flash specific behaviour
+ * @flags:		Important param, for flash specific behaviour
  */
 struct spi_flash_params {
 	const char *name;
@@ -88,11 +88,11 @@ extern const struct spi_flash_params spi_flash_params_table[];
  * @memory_map:		Address of read-only SPI flash access
  * @read:		Flash read ops: Read len bytes at offset into buf
  *			Supported cmds: Fast Array Read
- * @write:		Flash write ops: Write len bytes from buf into offeset
+ * @write:		Flash write ops: Write len bytes from buf into offset
  *			Supported cmds: Page Program
  * @erase:		Flash erase ops: Erase len bytes from offset
  *			Supported cmds: Sector erase 4K, 32K, 64K
- * return 0 - Sucess, 1 - Failure
+ * return 0 - Success, 1 - Failure
  */
 struct spi_flash {
 	struct spi_slave *spi;
