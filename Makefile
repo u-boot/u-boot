@@ -1177,7 +1177,6 @@ include/license.h: tools/bin2header COPYING
 # Directories & files removed with 'make clean'
 CLEAN_DIRS  += $(MODVERDIR)
 CLEAN_FILES += u-boot.lds include/bmp_logo.h include/bmp_logo_data.h \
-	       board/*/config.tmp board/*/*/config.tmp \
 	       include/autoconf.mk* include/spl-autoconf.mk \
 	       include/tpl-autoconf.mk
 
