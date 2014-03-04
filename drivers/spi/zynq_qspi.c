@@ -29,31 +29,15 @@
  * of the QSPI controller
  */
 #define ZYNQ_QSPI_CONFIG_IFMODE_MASK	(1 << 31)  /* Flash intrface mode*/
-#define ZYNQ_QSPI_CONFIG_HOLDB_MASK	(1 << 19)  /* Holdb Mask */
 #define ZYNQ_QSPI_CONFIG_MSA_MASK	(1 << 15)  /* Manual start enb */
 #define ZYNQ_QSPI_CONFIG_MCS_MASK	(1 << 14)  /* Manual chip select */
 #define ZYNQ_QSPI_CONFIG_PCS_MASK	(1 << 10)  /* Peri chip select */
-#define ZYNQ_QSPI_CONFIG_REFCLK_MASK	(1 << 8)   /* Ref Clock Mask */
 #define ZYNQ_QSPI_CONFIG_FW_MASK	(0x3 << 6) /* FIFO width */
-#define ZYNQ_QSPI_CONFIG_BAUDRATE_MASK	(0x7 << 3) /* Baudrate Divisor Mask */
 #define ZYNQ_QSPI_CONFIG_MSTREN_MASK	(1 << 0)   /* Mode select */
 #define ZYNQ_QSPI_CONFIG_MANSRT_MASK	0x00010000 /* Manual TX Start */
 #define ZYNQ_QSPI_CONFIG_CPHA_MASK	0x00000004 /* Clock Phase Control */
 #define ZYNQ_QSPI_CONFIG_CPOL_MASK	0x00000002 /* Clock Polarity Control */
 #define ZYNQ_QSPI_CONFIG_SSCTRL_MASK	0x00003C00 /* Slave Select Mask */
-#define ZYNQ_QSPI_CONFIG_CLR_ALL_MASK	(ZYNQ_QSPI_CONFIG_IFMODE_MASK | \
-					ZYNQ_QSPI_CONFIG_HOLDB_MASK | \
-					ZYNQ_QSPI_CONFIG_MANSRT_MASK | \
-					ZYNQ_QSPI_CONFIG_MSA_MASK | \
-					ZYNQ_QSPI_CONFIG_MCS_MASK | \
-					ZYNQ_QSPI_CONFIG_PCS_MASK | \
-					ZYNQ_QSPI_CONFIG_REFCLK_MASK | \
-					ZYNQ_QSPI_CONFIG_FW_MASK | \
-					ZYNQ_QSPI_CONFIG_BAUDRATE_MASK | \
-					ZYNQ_QSPI_CONFIG_CPHA_MASK | \
-					ZYNQ_QSPI_CONFIG_CPOL_MASK | \
-					ZYNQ_QSPI_CONFIG_MSTREN_MASK)
-
 /*
  * QSPI Interrupt Registers bit Masks
  *
@@ -275,8 +259,6 @@ static void zynq_qspi_init_hw(int is_dual, unsigned int cs)
 
 	writel(0x7F, &zynq_qspi_base->isr);
 	config_reg = readl(&zynq_qspi_base->confr);
-	/* Clear all the bits before setting required configuration */
-	config_reg &= ~ZYNQ_QSPI_CONFIG_CLR_ALL_MASK;
 	config_reg |= ZYNQ_QSPI_CONFIG_IFMODE_MASK |
 		ZYNQ_QSPI_CONFIG_MCS_MASK | ZYNQ_QSPI_CONFIG_PCS_MASK |
 		ZYNQ_QSPI_CONFIG_FW_MASK | ZYNQ_QSPI_CONFIG_MSTREN_MASK;
