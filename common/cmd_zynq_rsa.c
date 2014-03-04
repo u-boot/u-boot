@@ -136,7 +136,7 @@ static int zynq_get_partition_info(u32 image_base_addr)
 	parthdroffset  += image_base_addr;
 
 	memcpy(&part_hdr[0], (u32 *)parthdroffset,
-	       (sizeof(part_hdr)*ZYNQ_MAX_PARTITION_NUMBER));
+	       (sizeof(struct partition_hdr) * ZYNQ_MAX_PARTITION_NUMBER));
 
 	return 0;
 }
