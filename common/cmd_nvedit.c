@@ -1008,6 +1008,9 @@ static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 
 	if (argc == 2) {
 		size = simple_strtoul(argv[1], NULL, 16);
+	} else if (argc == 1 && chk) {
+		puts("## Error: external checksum format must pass size\n");
+		return CMD_RET_FAILURE;
 	} else {
 		char *s = addr;
 
