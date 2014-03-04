@@ -15,7 +15,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_FPGA
+#if (defined(CONFIG_FPGA) && !defined(CONFIG_SPL_BUILD)) || \
+    (defined(CONFIG_SPL_FPGA_SUPPORT) && defined(CONFIG_SPL_BUILD))
 static xilinx_desc fpga;
 
 /* It can be done differently */
@@ -29,7 +30,8 @@ static xilinx_desc fpga100 = XILINX_XC7Z100_DESC(0x100);
 
 int board_init(void)
 {
-#ifdef CONFIG_FPGA
+#if (defined(CONFIG_FPGA) && !defined(CONFIG_SPL_BUILD)) || \
+    (defined(CONFIG_SPL_FPGA_SUPPORT) && defined(CONFIG_SPL_BUILD))
 	u32 idcode;
 
 	idcode = zynq_slcr_get_idcode();
@@ -56,7 +58,8 @@ int board_init(void)
 	}
 #endif
 
-#ifdef CONFIG_FPGA
+#if (defined(CONFIG_FPGA) && !defined(CONFIG_SPL_BUILD)) || \
+    (defined(CONFIG_SPL_FPGA_SUPPORT) && defined(CONFIG_SPL_BUILD))
 	fpga_init();
 	fpga_add(fpga_xilinx, &fpga);
 #endif
