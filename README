@@ -910,6 +910,7 @@ The following options need to be configured:
 		The default command configuration includes all commands
 		except those marked below with a "*".
 
+		CONFIG_CMD_AES		  AES 128 CBC encrypt/decrypt
 		CONFIG_CMD_ASKENV	* ask for env variable
 		CONFIG_CMD_BDI		  bdinfo
 		CONFIG_CMD_BEDBUG	* Include BedBug Debugger
