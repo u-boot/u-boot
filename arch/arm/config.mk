@@ -41,7 +41,17 @@ endif
 
 # Only test once
 ifneq ($(CONFIG_SPL_BUILD),y)
-ALL-$(CONFIG_SYS_THUMB_BUILD)	+= checkthumb
+ifeq ($(CONFIG_SYS_THUMB_BUILD),y)
+archprepare: checkthumb
+
+checkthumb:
+	@if test "$(call cc-version)" -lt "0404"; then \
+		echo -n '*** Your GCC does not produce working '; \
+		echo 'binaries in THUMB mode.'; \
+		echo '*** Your board is configured for THUMB mode.'; \
+		false; \
+	fi
+endif
 endif
 
 # Try if EABI is supported, else fall back to old API,

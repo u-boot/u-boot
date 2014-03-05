@@ -1114,14 +1114,6 @@ SYSTEM_MAP = \
 System.map:	u-boot
 		@$(call SYSTEM_MAP,$<) > $@
 
-checkthumb:
-	@if test $(call cc-version) -lt 0404; then \
-		echo -n '*** Your GCC does not produce working '; \
-		echo 'binaries in THUMB mode.'; \
-		echo '*** Your board is configured for THUMB mode.'; \
-		false; \
-	fi
-
 # GCC 3.x is reported to have problems generating the type of relocation
 # that U-Boot wants.
 # See http://lists.denx.de/pipermail/u-boot/2012-September/135156.html
