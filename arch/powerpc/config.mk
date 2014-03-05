@@ -35,5 +35,14 @@ endif
 
 # Only test once
 ifneq ($(CONFIG_SPL_BUILD),y)
-ALL-y += checkgcc4
+archprepare: checkgcc4
+
+# GCC 3.x is reported to have problems generating the type of relocation
+# that U-Boot wants.
+# See http://lists.denx.de/pipermail/u-boot/2012-September/135156.html
+checkgcc4:
+	@if test $(call cc-version) -lt 0400; then \
+		echo -n '*** Your GCC is too old, please upgrade to GCC 4.x or newer'; \
+		false; \
+	fi
 endif

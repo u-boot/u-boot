@@ -1114,15 +1114,6 @@ SYSTEM_MAP = \
 System.map:	u-boot
 		@$(call SYSTEM_MAP,$<) > $@
 
-# GCC 3.x is reported to have problems generating the type of relocation
-# that U-Boot wants.
-# See http://lists.denx.de/pipermail/u-boot/2012-September/135156.html
-checkgcc4:
-	@if test $(call cc-version) -lt 0400; then \
-		echo -n '*** Your GCC is too old, please upgrade to GCC 4.x or newer'; \
-		false; \
-	fi
-
 checkdtc:
 	@if test $(call dtc-version) -lt 0104; then \
 		echo '*** Your dtc is too old, please upgrade to dtc 1.4 or newer'; \
