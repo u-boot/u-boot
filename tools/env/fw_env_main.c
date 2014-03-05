@@ -9,18 +9,22 @@
  * Command line user interface to firmware (=U-Boot) environment.
  *
  * Implements:
- *	fw_printenv [[ -n name ] | [ name ... ]]
+ *	fw_printenv [ -a key ] [[ -n name ] | [ name ... ]]
  *              - prints the value of a single environment variable
  *                "name", the ``name=value'' pairs of one or more
  *                environment variables "name", or the whole
  *                environment if no names are specified.
- *	fw_setenv name [ value ... ]
+ *	fw_setenv [ -a key ] name [ value ... ]
  *		- If a name without any values is given, the variable
  *		  with this name is deleted from the environment;
  *		  otherwise, all "value" arguments are concatenated,
  *		  separated by single blank characters, and the
  *		  resulting string is assigned to the environment
  *		  variable "name"
+ *
+ * If '-a key' is specified, the env block is encrypted with AES 128 CBC.
+ * The 'key' argument is in the format of 32 hexadecimal numbers (16 bytes
+ * of AES key), eg. '-a aabbccddeeff00112233445566778899'.
  */
 
 #include <fcntl.h>
@@ -46,8 +50,8 @@ void usage(void)
 
 	fprintf(stderr, "fw_printenv/fw_setenv, "
 		"a command line interface to U-Boot environment\n\n"
-		"usage:\tfw_printenv [-n] [variable name]\n"
-		"\tfw_setenv [variable name] [variable value]\n"
+		"usage:\tfw_printenv [-a key] [-n] [variable name]\n"
+		"\tfw_setenv [-a key] [variable name] [variable value]\n"
 		"\tfw_setenv -s [ file ]\n"
 		"\tfw_setenv -s - < [ file ]\n\n"
 		"The file passed as argument contains only pairs "
@@ -94,9 +98,12 @@ int main(int argc, char *argv[])
 		cmdname = p + 1;
 	}
 
-	while ((c = getopt_long (argc, argv, "ns:h",
+	while ((c = getopt_long (argc, argv, "a:ns:h",
 		long_options, NULL)) != EOF) {
 		switch (c) {
+		case 'a':
+			/* AES key, handled later */
+			break;
 		case 'n':
 			/* handled in fw_printenv */
 			break;

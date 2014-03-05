@@ -8,6 +8,13 @@
 #ifndef _AES_REF_H_
 #define _AES_REF_H_
 
+#ifdef USE_HOSTCC
+/* Define compat stuff for use in fw_* tools. */
+typedef unsigned char u8;
+typedef unsigned int u32;
+#define debug(...) do {} while (0)
+#endif
+
 /*
  * AES encryption library, with small code size, supporting only 128-bit AES
  *

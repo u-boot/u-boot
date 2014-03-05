@@ -22,7 +22,11 @@
  * REDISTRIBUTION OF THIS SOFTWARE.
 */
 
+#ifndef USE_HOSTCC
 #include <common.h>
+#else
+#include <string.h>
+#endif
 #include "aes.h"
 
 /* forward s-box */
