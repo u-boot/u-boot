@@ -13,7 +13,10 @@ MINIMAL=y
 endif
 endif
 
-ifndef MINIMAL
+ifdef MINIMAL
+# necessary to create built-in.o
+obj- := __dummy__.o
+else
 obj-$(CONFIG_FSL_CADMUS)	+= cadmus.o
 obj-$(CONFIG_FSL_VIA)		+= cds_via.o
 obj-$(CONFIG_FMAN_ENET)	+= fman.o

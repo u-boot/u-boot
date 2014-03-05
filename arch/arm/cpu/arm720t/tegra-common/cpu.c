@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2012, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2010-2014, NVIDIA CORPORATION.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -112,24 +112,38 @@ struct clk_pll_table tegra_pll_x_table[TEGRA_SOC_CNT][CLOCK_OSC_FREQ_COUNT] = {
 		{ .n = 116, .m = 1, .p = 1 }, /* OSC: 12.0 MHz */
 		{ .n = 108, .m = 2, .p = 1 }, /* OSC: 26.0 MHz */
 	},
+
+	/*
+	 * T124: 700 MHz
+	 *
+	 * Register   Field  Bits   Width
+	 * ------------------------------
+	 * PLLX_BASE  p      23:20    4
+	 * PLLX_BASE  n      15: 8    8
+	 * PLLX_BASE  m       7: 0    8
+	 */
+	{
+		{ .n = 108, .m = 1, .p = 1 }, /* OSC: 13.0 MHz */
+		{ .n =  73, .m = 1, .p = 1 }, /* OSC: 19.2 MHz */
+		{ .n = 116, .m = 1, .p = 1 }, /* OSC: 12.0 MHz */
+		{ .n = 108, .m = 2, .p = 1 }, /* OSC: 26.0 MHz */
+	},
 };
 
-void adjust_pllp_out_freqs(void)
+static inline void pllx_set_iddq(void)
 {
+#if defined(CONFIG_TEGRA124)
 	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
-	struct clk_pll *pll = &clkrst->crc_pll[CLOCK_ID_PERIPH];
 	u32 reg;
 
-	/* Set T30 PLLP_OUT1, 2, 3 & 4 freqs to 9.6, 48, 102 & 204MHz */
-	reg = readl(&pll->pll_out[0]);	/* OUTA, contains OUT2 / OUT1 */
-	reg |= (IN_408_OUT_48_DIVISOR << PLLP_OUT2_RATIO) | PLLP_OUT2_OVR
-		| (IN_408_OUT_9_6_DIVISOR << PLLP_OUT1_RATIO) | PLLP_OUT1_OVR;
-	writel(reg, &pll->pll_out[0]);
-
-	reg = readl(&pll->pll_out[1]);   /* OUTB, contains OUT4 / OUT3 */
-	reg |= (IN_408_OUT_204_DIVISOR << PLLP_OUT4_RATIO) | PLLP_OUT4_OVR
-		| (IN_408_OUT_102_DIVISOR << PLLP_OUT3_RATIO) | PLLP_OUT3_OVR;
-	writel(reg, &pll->pll_out[1]);
+	/* Disable IDDQ */
+	reg = readl(&clkrst->crc_pllx_misc3);
+	reg &= ~PLLX_IDDQ_MASK;
+	writel(reg, &clkrst->crc_pllx_misc3);
+	udelay(2);
+	debug("%s: IDDQ: PLLX IDDQ = 0x%08X\n", __func__,
+	      readl(&clkrst->crc_pllx_misc3));
+#endif
 }
 
 int pllx_set_rate(struct clk_pll_simple *pll , u32 divn, u32 divm,
@@ -145,6 +159,8 @@ int pllx_set_rate(struct clk_pll_simple *pll , u32 divn, u32 divm,
 	}
 
 	debug(" pllx_set_rate entry\n");
+
+	pllx_set_iddq();
 
 	/* Set BYPASS, m, n and p to PLLX_BASE */
 	reg = PLL_BYPASS_MASK | (divm << PLL_DIVM_SHIFT);
@@ -162,18 +178,23 @@ int pllx_set_rate(struct clk_pll_simple *pll , u32 divn, u32 divm,
 		reg |= (1 << PLL_DCCON_SHIFT);
 	writel(reg, &pll->pll_misc);
 
-	/* Enable PLLX */
-	reg = readl(&pll->pll_base);
-	reg |= PLL_ENABLE_MASK;
-
 	/* Disable BYPASS */
+	reg = readl(&pll->pll_base);
 	reg &= ~PLL_BYPASS_MASK;
 	writel(reg, &pll->pll_base);
+	debug("pllx_set_rate: base = 0x%08X\n", reg);
 
 	/* Set lock_enable to PLLX_MISC */
 	reg = readl(&pll->pll_misc);
 	reg |= PLL_LOCK_ENABLE_MASK;
 	writel(reg, &pll->pll_misc);
+	debug("pllx_set_rate: misc = 0x%08X\n", reg);
+
+	/* Enable PLLX last, once it's all configured */
+	reg = readl(&pll->pll_base);
+	reg |= PLL_ENABLE_MASK;
+	writel(reg, &pll->pll_base);
+	debug("pllx_set_rate: base final = 0x%08X\n", reg);
 
 	return 0;
 }
@@ -207,12 +228,6 @@ void init_pllx(void)
 	/* set pllx */
 	sel = &tegra_pll_x_table[chip_sku][osc];
 	pllx_set_rate(pll, sel->n, sel->m, sel->p, sel->cpcon);
-
-	/* adjust PLLP_out1-4 on T3x/T114 */
-	if (soc_type >= CHIPID_TEGRA30) {
-		debug("  init_pllx: adjusting PLLP out freqs\n");
-		adjust_pllp_out_freqs();
-	}
 }
 
 void enable_cpu_clock(int enable)
@@ -334,7 +349,6 @@ void reset_A9_cpu(int reset)
 void clock_enable_coresight(int enable)
 {
 	u32 rst, src = 2;
-	int soc_type;
 
 	debug("clock_enable_coresight entry\n");
 	clock_set_enable(PERIPH_ID_CORESIGHT, enable);
@@ -343,20 +357,11 @@ void clock_enable_coresight(int enable)
 	if (enable) {
 		/*
 		 * Put CoreSight on PLLP_OUT0 and divide it down as per
-		 * PLLP base frequency based on SoC type (T20/T30/T114).
+		 * PLLP base frequency based on SoC type (T20/T30+).
 		 * Clock divider request would setup CSITE clock as 144MHz
 		 * for PLLP base 216MHz and 204MHz for PLLP base 408MHz
 		 */
-
-		soc_type = tegra_get_chip();
-		if (soc_type == CHIPID_TEGRA30 || soc_type == CHIPID_TEGRA114)
-			src = CLK_DIVIDER(NVBL_PLLP_KHZ, 204000);
-		else if (soc_type == CHIPID_TEGRA20)
-			src = CLK_DIVIDER(NVBL_PLLP_KHZ, 144000);
-		else
-			printf("%s: Unknown SoC type %X!\n",
-				 __func__, soc_type);
-
+		src = CLK_DIVIDER(NVBL_PLLP_KHZ, CSITE_KHZ);
 		clock_ll_set_source_divisor(PERIPH_ID_CSI, 0, src);
 
 		/* Unlock the CPU CoreSight interfaces */

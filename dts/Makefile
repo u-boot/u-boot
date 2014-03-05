@@ -7,64 +7,41 @@
 # This Makefile builds the internal U-Boot fdt if CONFIG_OF_CONTROL is
 # enabled. See doc/README.fdt-control for more details.
 
+DEVICE_TREE ?= $(CONFIG_DEFAULT_DEVICE_TREE:"%"=%)
 ifeq ($(DEVICE_TREE),)
-$(if $(CONFIG_DEFAULT_DEVICE_TREE),,\
-$(error Please define CONFIG_DEFAULT_DEVICE_TREE in your board header file))
-DEVICE_TREE = $(CONFIG_DEFAULT_DEVICE_TREE:"%"=%)
+DEVICE_TREE := unset
 endif
 
-DTS_INCDIRS =  $(SRCTREE)/board/$(VENDOR)/$(BOARD)/dts
-DTS_INCDIRS += $(SRCTREE)/board/$(VENDOR)/dts
-DTS_INCDIRS += $(SRCTREE)/arch/$(ARCH)/dts
+DTB := arch/$(ARCH)/dts/$(DEVICE_TREE).dtb
 
-DTS_CPPFLAGS := -x assembler-with-cpp -undef -D__DTS__ \
-		-nostdinc $(addprefix -I,$(DTS_INCDIRS))
+quiet_cmd_copy = COPY    $@
+      cmd_copy = cp $< $@
 
-DTC_FLAGS := -R 4 -p 0x1000 \
-	$(addprefix -i ,$(DTS_INCDIRS))
+$(obj)/dt.dtb: $(DTB) FORCE
+	$(call if_changed,copy)
 
-# Use a constant name for this so we can access it from C code.
-# objcopy doesn't seem to allow us to set the symbol name independently of
-# the filename.
-DT_BIN	:= $(obj)dt.dtb
+targets += dt.dtb
 
-$(DT_BIN): $(TOPDIR)/board/$(VENDOR)/dts/$(DEVICE_TREE).dts
-	$(CPP) $(DTS_CPPFLAGS) $< -o $(DT_BIN).dts.tmp
-	$(DTC) $(DTC_FLAGS) -O dtb -o ${DT_BIN} $(DT_BIN).dts.tmp
+$(DTB): arch-dtbs
+	$(Q)test -e $@ || (						\
+	echo >&2;							\
+	echo >&2 "Device Tree Source is not correctly specified.";	\
+	echo >&2 "Please define 'CONFIG_DEFAULT_DEVICE_TREE'";		\
+	echo >&2 "or build with 'DEVICE_TREE=<device_tree>' argument";	\
+	echo >&2;							\
+	/bin/false)
 
-process_lds = \
-	$(1) | sed -r -n 's/^OUTPUT_$(2)[ ("]*([^")]*).*/\1/p'
+arch-dtbs:
+	$(Q)$(MAKE) $(build)=arch/$(ARCH)/dts dtbs
 
-# Run the compiler and get the link script from the linker
-GET_LDS = $(CC) $(CFLAGS) $(LDFLAGS) -Wl,--verbose 2>&1
+.SECONDARY: $(obj)/dt.dtb.S
 
-$(obj)dt.o: $(DT_BIN)
-	# We want the output format and arch.
-	# We also hope to win a prize for ugliest Makefile / shell interaction
-	# We look in the LDSCRIPT first.
-	# Then try the linker which should give us the answer.
-	# Then check it worked.
-	[ -n "$(LDSCRIPT)" ] && \
-		oformat=`$(call process_lds,cat $(LDSCRIPT),FORMAT)` && \
-		oarch=`$(call process_lds,cat $(LDSCRIPT),ARCH)` ;\
-	\
-	[ -z $${oformat} ] && \
-		oformat=`$(call process_lds,$(GET_LDS),FORMAT)` ;\
-	[ -z $${oarch} ] && \
-		oarch=`$(call process_lds,$(GET_LDS),ARCH)` ;\
-	\
-	[ -z $${oformat} ] && \
-		echo "Cannot read OUTPUT_FORMAT from lds file $(LDSCRIPT)" && \
-		exit 1 || true ;\
-	[ -z $${oarch} ] && \
-		echo "Cannot read OUTPUT_ARCH from lds file $(LDSCRIPT)" && \
-		exit 1 || true ;\
-	\
-	cd $(dir ${DT_BIN}) && \
-	$(OBJCOPY) -I binary -O $${oformat} -B $${oarch} \
-		$(notdir ${DT_BIN}) $@
-	rm $(DT_BIN)
+obj-$(CONFIG_OF_EMBED) := dt.dtb.o
 
-obj-$(CONFIG_OF_EMBED)	:= dt.o
+dtbs: $(obj)/dt.dtb
+	@:
 
-binary:	$(DT_BIN)
+clean-files := dt.dtb.S
+
+# Let clean descend into dts directories
+subdir- += ../arch/*/dts

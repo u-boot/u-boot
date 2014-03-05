@@ -23,7 +23,7 @@ options=""
 
 if [ \( $# -eq 2 \) -a \( "$1" = "-A" \) ] ; then
 	# Automatic mode
-	line=`awk '($0 !~ /^#/ && $7 ~ /^'"$2"'$/) { print $1, $2, $3, $4, $5, $6, $7, $8 }' boards.cfg`
+	line=`awk '($0 !~ /^#/ && $7 ~ /^'"$2"'$/) { print $1, $2, $3, $4, $5, $6, $7, $8 }' $srctree/boards.cfg`
 	if [ -z "$line" ] ; then
 		echo "make: *** No rule to make target \`$2_config'.  Stop." >&2
 		exit 1

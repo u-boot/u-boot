@@ -5,5 +5,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	= timer.o cpuinfo.o
+obj-y	= timer.o
+obj-$(CONFIG_DISPLAY_CPUINFO) += cpuinfo.o
 obj-y	+= reset.o

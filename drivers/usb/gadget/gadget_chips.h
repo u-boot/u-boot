@@ -144,10 +144,10 @@
 #define	gadget_is_m66592(g)	0
 #endif
 
-#ifdef CONFIG_MV_UDC
-#define gadget_is_mv(g)        (!strcmp("mv_udc", (g)->name))
+#ifdef CONFIG_CI_UDC
+#define gadget_is_ci(g)        (!strcmp("ci_udc", (g)->name))
 #else
-#define gadget_is_mv(g)        0
+#define gadget_is_ci(g)        0
 #endif
 
 #ifdef CONFIG_USB_GADGET_FOTG210
@@ -219,7 +219,7 @@ static inline int usb_gadget_controller_number(struct usb_gadget *gadget)
 		return 0x19;
 	else if (gadget_is_m66592(gadget))
 		return 0x20;
-	else if (gadget_is_mv(gadget))
+	else if (gadget_is_ci(gadget))
 		return 0x21;
 	else if (gadget_is_fotg210(gadget))
 		return 0x22;

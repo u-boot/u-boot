@@ -17,11 +17,9 @@
 /* Ethernet driver configuration */
 #define CONFIG_MII
 #define CONFIG_DESIGNWARE_ETH
-#define CONFIG_DW_SEARCH_PHY
-#define CONFIG_DW0_PHY				1
 #define CONFIG_NET_MULTI
+#define CONFIG_PHYLIB
 #define CONFIG_PHY_RESET_DELAY			10000		/* in usec */
-#define CONFIG_DW_AUTONEG
 #define CONFIG_PHY_GIGE			/* Include GbE speed/duplex detection */
 
 /* USBD driver configuration */
@@ -41,6 +39,15 @@
 /* I2C driver configuration */
 #define CONFIG_HARD_I2C
 #define CONFIG_DW_I2C
+#if defined(CONFIG_SPEAR600)
+#define CONFIG_SYS_I2C_BASE			0xD0200000
+#elif defined(CONFIG_SPEAR300)
+#define CONFIG_SYS_I2C_BASE			0xD0180000
+#elif defined(CONFIG_SPEAR310)
+#define CONFIG_SYS_I2C_BASE			0xD0180000
+#elif defined(CONFIG_SPEAR320)
+#define CONFIG_SYS_I2C_BASE			0xD0180000
+#endif
 #define CONFIG_SYS_I2C_SPEED			400000
 #define CONFIG_SYS_I2C_SLAVE			0x02
 

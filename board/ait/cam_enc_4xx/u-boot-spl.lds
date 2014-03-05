@@ -48,5 +48,9 @@ SECTIONS
 	} >.sram
 
 	__image_copy_end = .;
-	_end = .;
+
+	.end :
+	{
+		*(.__end)
+	}
 }

@@ -77,7 +77,12 @@ SECTIONS
 		*(.__rel_dyn_end)
 	}
 
-	_end = .;
+	.end :
+	{
+		*(.__end)
+	}
+
+	_image_binary_end = .;
 
 	/*
 	 * Deprecated: this MMU section is used by pxa at present but
@@ -108,7 +113,7 @@ SECTIONS
 		KEEP(*(.__bss_end));
 	}
 
-	.dynsym _end : { *(.dynsym) }
+	.dynsym _image_binary_end : { *(.dynsym) }
 	.dynbss : { *(.dynbss) }
 	.dynstr : { *(.dynstr*) }
 	.dynamic : { *(.dynamic*) }

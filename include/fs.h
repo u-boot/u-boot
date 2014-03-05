@@ -44,6 +44,13 @@ int fs_set_blk_dev(const char *ifname, const char *dev_part_str, int fstype);
 int fs_ls(const char *dirname);
 
 /*
+ * Determine whether a file exists
+ *
+ * Returns 1 if the file exists, 0 if it doesn't exist.
+ */
+int fs_exists(const char *filename);
+
+/*
  * Read file "filename" from the partition previously set by fs_set_blk_dev(),
  * to address "addr", starting at byte offset "offset", and reading "len"
  * bytes. "offset" may be 0 to read from the start of the file. "len" may be
@@ -55,12 +62,24 @@ int fs_ls(const char *dirname);
 int fs_read(const char *filename, ulong addr, int offset, int len);
 
 /*
+ * Write file "filename" to the partition previously set by fs_set_blk_dev(),
+ * from address "addr", starting at byte offset "offset", and writing "len"
+ * bytes. "offset" may be 0 to write to the start of the file. Note that not
+ * all filesystem types support offset!=0.
+ *
+ * Returns number of bytes read on success. Returns <= 0 on error.
+ */
+int fs_write(const char *filename, ulong addr, int offset, int len);
+
+/*
  * Common implementation for various filesystem commands, optionally limited
  * to a specific filesystem type via the fstype parameter.
  */
 int do_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		int fstype);
 int do_ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
+		int fstype);
+int file_exists(const char *dev_type, const char *dev_part, const char *file,
 		int fstype);
 int do_save(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		int fstype);

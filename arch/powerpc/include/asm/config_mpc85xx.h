@@ -22,6 +22,9 @@
 #define FSL_DDR_VER_4_7	47
 #define FSL_DDR_VER_5_0	50
 
+/* IP endianness */
+#define CONFIG_SYS_FSL_IFC_BE
+
 /* Number of TLB CAM entries we have on FSL Book-E chips */
 #if defined(CONFIG_E500MC)
 #define CONFIG_SYS_NUM_TLBCAMS		64
@@ -717,8 +720,7 @@ defined(CONFIG_PPC_T1020) || defined(CONFIG_PPC_T1022)
 #define CONFIG_SYS_FSL_SINGLE_SOURCE_CLK
 #define CONFIG_SYS_FSL_TBCLK_DIV	16
 #define CONFIG_SYS_FSL_PCIE_COMPAT	"fsl,qoriq-pcie-v2.4"
-#define CONFIG_SYS_FSL_USB1_PHY_ENABLE
-#define CONFIG_SYS_FSL_USB2_PHY_ENABLE
+#define CONFIG_SYS_FSL_USB_DUAL_PHY_ENABLE
 #define CONFIG_SYS_FSL_USB_INTERNAL_UTMI_PHY
 #define CONFIG_SYS_CCSRBAR_DEFAULT	0xfe000000
 

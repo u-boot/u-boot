@@ -23,6 +23,7 @@
 
 #include <asm/cplb.h>
 #include <asm/mach-common/bits/mpu.h>
+#include <asm/clock.h>
 #include <kgdb.h>
 
 #ifdef CONFIG_CMD_NAND
@@ -142,7 +143,8 @@ void init_cplbtables(void)
 	++i;
 #if defined(__ADSPBF60x__)
 	icplb_add(0x0, 0x0);
-	dcplb_add(CONFIG_SYS_FLASH_BASE, SDRAM_EBIU);
+	dcplb_add(CONFIG_SYS_FLASH_BASE, PAGE_SIZE_16MB | CPLB_DIRTY |
+		CPLB_SUPV_WR | CPLB_USER_WR | CPLB_USER_RD | CPLB_VALID);
 	++i;
 #endif
 

@@ -217,4 +217,7 @@
 #define	TX_GE1024_CNT	0x00200000	/* 1024-Max-Byte TX Frames Sent */
 #define	TX_ABORT_CNT	0x00400000	/* TX Frames Aborted */
 
+/*default value for EMAC_VLANx reg*/
+#define EMAC_VLANX_DEF_VAL 0xFFFF
+
 #endif

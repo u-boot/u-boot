@@ -15,6 +15,7 @@
 #define BOOT_DEVICE_MMC1        5
 #define BOOT_DEVICE_MMC2        6
 #define BOOT_DEVICE_MMC2_2	7
+#define BOOT_DEVICE_SATA	9
 #define BOOT_DEVICE_SPI		10
 #define BOOT_DEVICE_UART	0x43
 

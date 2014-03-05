@@ -5,39 +5,30 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-include $(TOPDIR)/config.mk
-
-HOSTSRCS := $(SRCTREE)/lib/crc32.c  fw_env.c  fw_env_main.c
-HOSTSRCS += $(SRCTREE)/lib/ctype.c $(SRCTREE)/lib/linux_string.c
-HOSTSRCS += $(SRCTREE)/common/env_attr.c $(SRCTREE)/common/env_flags.c
-HEADERS	:= fw_env.h $(OBJTREE)/include/config.h
+# fw_printenv is supposed to run on the target system, which means it should be
+# built with cross tools. Although it may look weird, we only replace "HOSTCC"
+# with "CC" here for the maximum code reuse of scripts/Makefile.host.
+HOSTCC = $(CC)
 
 # Compile for a hosted environment on the target
-HOSTCPPFLAGS  = -idirafter $(SRCTREE)/include \
-		-idirafter $(SRCTREE)/arch/$(ARCH)/include \
-		-idirafter $(OBJTREE)/include \
+HOST_EXTRACFLAGS  = $(patsubst -I%,-idirafter%, $(UBOOTINCLUDE)) \
 		-idirafter $(SRCTREE)/tools/env \
 		-DUSE_HOSTCC \
 		-DTEXT_BASE=$(TEXT_BASE)
 
 ifeq ($(MTD_VERSION),old)
-HOSTCPPFLAGS += -DMTD_OLD
+HOST_EXTRACFLAGS += -DMTD_OLD
 endif
 
-all:	$(obj)fw_printenv
+always := fw_printenv
+hostprogs-y := fw_printenv_unstripped
 
-# Some files complain if compiled with -pedantic, use HOSTCFLAGS_NOPED
-$(obj)fw_printenv:	$(HOSTSRCS) $(HEADERS)
-	$(HOSTCC) $(HOSTCFLAGS_NOPED) $(HOSTLDFLAGS) -o $@ $(HOSTSRCS)
-	$(HOSTSTRIP) $@
+fw_printenv_unstripped-objs := fw_env.o fw_env_main.o \
+	crc32.o ctype.o linux_string.o \
+	env_attr.o env_flags.o
 
-clean:
-	rm -f $(obj)fw_printenv
+quiet_cmd_strip = STRIP   $@
+      cmd_strip = $(STRIP) -o $@ $<
 
-#########################################################################
-
-include $(TOPDIR)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+$(obj)/fw_printenv: $(obj)/fw_printenv_unstripped FORCE
+	$(call if_changed,strip)

@@ -59,6 +59,7 @@ obj-$(CONFIG_CMD_BOOTLDR) += cmd_bootldr.o
 obj-$(CONFIG_CMD_BOOTSTAGE) += cmd_bootstage.o
 obj-$(CONFIG_CMD_CACHE) += cmd_cache.o
 obj-$(CONFIG_CMD_CBFS) += cmd_cbfs.o
+obj-$(CONFIG_CMD_CLK) += cmd_clk.o
 obj-$(CONFIG_CMD_CONSOLE) += cmd_console.o
 obj-$(CONFIG_CMD_CPLBINFO) += cmd_cplbinfo.o
 obj-$(CONFIG_DATAFLASH_MMC_SELECT) += cmd_dataflash_mmc_mux.o
@@ -80,9 +81,8 @@ obj-$(CONFIG_SYS_HUSH_PARSER) += cmd_exit.o
 obj-$(CONFIG_CMD_EXT4) += cmd_ext4.o
 obj-$(CONFIG_CMD_EXT2) += cmd_ext2.o
 obj-$(CONFIG_CMD_FAT) += cmd_fat.o
-obj-$(CONFIG_CMD_FDC)$(CONFIG_CMD_FDOS) += cmd_fdc.o
+obj-$(CONFIG_CMD_FDC) += cmd_fdc.o
 obj-$(CONFIG_OF_LIBFDT) += cmd_fdt.o fdt_support.o
-obj-$(CONFIG_CMD_FDOS) += cmd_fdos.o
 obj-$(CONFIG_CMD_FITUPD) += cmd_fitupd.o
 obj-$(CONFIG_CMD_FLASH) += cmd_flash.o
 ifdef CONFIG_FPGA
@@ -201,6 +201,9 @@ ifdef CONFIG_SPL_USB_HOST_SUPPORT
 obj-$(CONFIG_SPL_USB_SUPPORT) += usb.o usb_hub.o
 obj-$(CONFIG_USB_STORAGE) += usb_storage.o
 endif
+ifdef CONFIG_SPL_SATA_SUPPORT
+obj-$(CONFIG_CMD_SCSI) += cmd_scsi.o
+endif
 ifneq ($(CONFIG_SPL_NET_SUPPORT),y)
 obj-$(CONFIG_ENV_IS_NOWHERE) += env_nowhere.o
 obj-$(CONFIG_ENV_IS_IN_MMC) += env_mmc.o
@@ -234,11 +237,4 @@ obj-$(CONFIG_FIT_SIGNATURE) += image-sig.o
 obj-y += memsize.o
 obj-y += stdio.o
 
-$(obj)env_embedded.o: $(src)env_embedded.c
-	$(CC) $(AFLAGS) -Wa,--no-warn \
-		-DENV_CRC=$(shell $(obj)../tools/envcrc) \
-		-c -o $@ $(src)env_embedded.c
-
-# SEE README.arm-unaligned-accesses
-$(obj)hush.o: CFLAGS += $(PLATFORM_NO_UNALIGNED)
-$(obj)fdt_support.o: CFLAGS += $(PLATFORM_NO_UNALIGNED)
+CFLAGS_env_embedded.o := -Wa,--no-warn -DENV_CRC=$(shell tools/envcrc 2>/dev/null)

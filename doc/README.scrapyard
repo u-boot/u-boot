@@ -11,6 +11,11 @@ easily if here is something they might want to dig for...
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+dvl_host         arm         ixp            -           2014-01-28  Michael Schwingen <michael@schwingen.org>
+actux4           arm         ixp            -           2014-01-28  Michael Schwingen <michael@schwingen.org>
+actux3           arm         ixp            -           2014-01-28  Michael Schwingen <michael@schwingen.org>
+actux2           arm         ixp            -           2014-01-28  Michael Schwingen <michael@schwingen.org>
+actux1           arm         ixp            -           2014-01-28  Michael Schwingen <michael@schwingen.org>
 mx1ads           arm         arm920t        -           2014-01-13
 mini2440         arm         arm920t        -           2014-01-13  Gabriel Huau <contact@huau-gabriel.fr>
 omap730p2        arm         arm926ejs      79c5c08d    2013-11-11

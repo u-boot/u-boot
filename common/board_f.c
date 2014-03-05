@@ -149,13 +149,9 @@ static int display_text_info(void)
 #ifndef CONFIG_SANDBOX
 	ulong bss_start, bss_end;
 
-#ifdef CONFIG_SYS_SYM_OFFSETS
-	bss_start = _bss_start_ofs + _TEXT_BASE;
-	bss_end = _bss_end_ofs + _TEXT_BASE;
-#else
 	bss_start = (ulong)&__bss_start;
 	bss_end = (ulong)&__bss_end;
-#endif
+
 	debug("U-Boot code: %08X -> %08lX  BSS: -> %08lX\n",
 	      CONFIG_SYS_TEXT_BASE, bss_start, bss_end);
 #endif
@@ -223,17 +219,6 @@ static int show_dram_config(void)
 	return 0;
 }
 
-ulong get_effective_memsize(void)
-{
-#ifndef	CONFIG_VERY_BIG_RAM
-	return gd->ram_size;
-#else
-	/* limit stack to what we can reasonable map */
-	return ((gd->ram_size > CONFIG_MAX_MEM_MAPPED) ?
-		CONFIG_MAX_MEM_MAPPED : gd->ram_size);
-#endif
-}
-
 void __dram_init_banksize(void)
 {
 #if defined(CONFIG_NR_DRAM_BANKS) && defined(CONFIG_SYS_SDRAM_BASE)
@@ -279,8 +264,8 @@ static int zero_global_data(void)
 
 static int setup_mon_len(void)
 {
-#ifdef CONFIG_SYS_SYM_OFFSETS
-	gd->mon_len = _bss_end_ofs;
+#ifdef __ARM__
+	gd->mon_len = (ulong)&__bss_end - (ulong)_start;
 #elif defined(CONFIG_SANDBOX)
 	gd->mon_len = (ulong)&_end - (ulong)_init;
 #else
@@ -360,14 +345,10 @@ static int setup_fdt(void)
 {
 #ifdef CONFIG_OF_EMBED
 	/* Get a pointer to the FDT */
-	gd->fdt_blob = _binary_dt_dtb_start;
+	gd->fdt_blob = __dtb_dt_begin;
 #elif defined CONFIG_OF_SEPARATE
 	/* FDT is at end of image */
-# ifdef CONFIG_SYS_SYM_OFFSETS
-	gd->fdt_blob = (void *)(_end_ofs + CONFIG_SYS_TEXT_BASE);
-# else
 	gd->fdt_blob = (ulong *)&_end;
-# endif
 #elif defined(CONFIG_OF_HOSTFILE)
 	if (read_fdt_from_file()) {
 		puts("Failed to read control FDT\n");
@@ -887,9 +868,7 @@ static init_fnc_t init_sequence_f[] = {
 #ifdef CONFIG_PPC
 	checkcpu,
 #endif
-#if defined(CONFIG_DISPLAY_CPUINFO)
 	print_cpuinfo,		/* display cpu info (and speed) */
-#endif
 #if defined(CONFIG_MPC5xxx)
 	prt_mpc5xxx_clks,
 #endif /* CONFIG_MPC5xxx */

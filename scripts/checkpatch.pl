@@ -3331,6 +3331,11 @@ sub process {
 			WARN("PREFER_PACKED",
 			     "__packed is preferred over __attribute__((packed))\n" . $herecurr);
 		}
+# Check for new packed members, warn to use care
+		if ($line =~ /\b(__attribute__\s*\(\s*\(.*\bpacked|__packed)\b/) {
+			WARN("NEW_PACKED",
+			     "Adding new packed members is to be done with care\n" . $herecurr);
+		}
 
 # Check for __attribute__ aligned, prefer __aligned
 		if ($line =~ /\b__attribute__\s*\(\s*\(.*aligned/) {

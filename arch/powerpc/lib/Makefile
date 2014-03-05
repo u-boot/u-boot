@@ -54,11 +54,11 @@ ifndef CONFIG_SPL_BUILD
 # Workaround for local bus unaligned access problems
 # on MPC512x and MPC5200
 ifdef CONFIG_MPC512X
-$(obj)ppcstring.o: AFLAGS += -Dmemcpy=__memcpy
+AFLAGS_ppcstring.o += -Dmemcpy=__memcpy
 obj-y += memcpy_mpc5200.o
 endif
 ifdef CONFIG_MPC5200
-$(obj)ppcstring.o: AFLAGS += -Dmemcpy=__memcpy
+AFLAGS_ppcstring.o += -Dmemcpy=__memcpy
 obj-y += memcpy_mpc5200.o
 endif
 endif

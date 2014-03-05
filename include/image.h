@@ -99,9 +99,9 @@ struct lmb;
 #endif
 
 #ifdef CONFIG_OF_BOARD_SETUP
-# define IMAAGE_OF_BOARD_SETUP		1
+# define IMAGE_OF_BOARD_SETUP		1
 #else
-# define IMAAGE_OF_BOARD_SETUP		0
+# define IMAGE_OF_BOARD_SETUP		0
 #endif
 
 /*
@@ -157,6 +157,7 @@ struct lmb;
 #define IH_ARCH_NDS32	        20	/* ANDES Technology - NDS32  */
 #define IH_ARCH_OPENRISC        21	/* OpenRISC 1000  */
 #define IH_ARCH_ARM64		22	/* ARM64	*/
+#define IH_ARCH_ARC		23	/* Synopsys DesignWare ARC */
 
 /*
  * Image Types

@@ -9,11 +9,7 @@
 #
 
 # TBS: add for debugging purposes
-BUILDUSER := $(shell whoami)
-FORCEBUILD := $(shell rm -f metrobox.o)
-
-CFLAGS += -DBUILDUSER='"$(BUILDUSER)"'
-# TBS: end debugging
+ccflags-y += -DBUILDUSER='"$(shell whoami)"'
 
 obj-y	= metrobox.o ../common/flash.o ../common/sb_common.o
 extra-y	+= init.o

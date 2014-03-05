@@ -213,10 +213,10 @@ int test_part_efi(block_dev_desc_t * dev_desc)
  */
 static int set_protective_mbr(block_dev_desc_t *dev_desc)
 {
-	legacy_mbr *p_mbr;
-
 	/* Setup the Protective MBR */
-	p_mbr = calloc(1, sizeof(p_mbr));
+	ALLOC_CACHE_ALIGN_BUFFER(legacy_mbr, p_mbr, 1);
+	memset(p_mbr, 0, sizeof(*p_mbr));
+
 	if (p_mbr == NULL) {
 		printf("%s: calloc failed!\n", __func__);
 		return -1;
@@ -231,11 +231,9 @@ static int set_protective_mbr(block_dev_desc_t *dev_desc)
 	if (dev_desc->block_write(dev_desc->dev, 0, 1, p_mbr) != 1) {
 		printf("** Can't write to device %d **\n",
 			dev_desc->dev);
-		free(p_mbr);
 		return -1;
 	}
 
-	free(p_mbr);
 	return 0;
 }
 

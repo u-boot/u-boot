@@ -19,7 +19,7 @@
 struct cpsw_slave_data {
 	u32		slave_reg_ofs;
 	u32		sliver_reg_ofs;
-	int		phy_id;
+	int		phy_addr;
 	int		phy_if;
 };
 

@@ -10,6 +10,7 @@
 #include <i2c.h>
 
 #include <asm/blackfin.h>
+#include <asm/clock.h>
 #include <asm/mach-common/bits/twi.h>
 
 /* Every register is 32bit aligned, but only 16bits in size */
@@ -274,7 +275,7 @@ unsigned int i2c_get_bus_speed(void)
  */
 void i2c_init(int speed, int slaveaddr)
 {
-	uint8_t prescale = ((get_sclk() / 1024 / 1024 + 5) / 10) & 0x7F;
+	uint8_t prescale = ((get_i2c_clk() / 1000 / 1000 + 5) / 10) & 0x7F;
 
 	/* Set TWI internal clock as 10MHz */
 	twi->control = prescale;

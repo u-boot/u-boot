@@ -128,8 +128,8 @@ __weak int fixup_cpu(void)
 
 static int initr_reloc_global_data(void)
 {
-#ifdef CONFIG_SYS_SYM_OFFSETS
-	monitor_flash_len = _end_ofs;
+#ifdef __ARM__
+	monitor_flash_len = _end - __image_copy_start;
 #elif !defined(CONFIG_SANDBOX)
 	monitor_flash_len = (ulong)&__init_end - gd->relocaddr;
 #endif

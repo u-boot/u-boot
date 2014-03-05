@@ -2515,7 +2515,7 @@ static struct fsg_common *fsg_common_init(struct fsg_common *common,
 buffhds_first_it:
 		bh->inreq_busy = 0;
 		bh->outreq_busy = 0;
-		bh->buf = kmalloc(FSG_BUFLEN, GFP_KERNEL);
+		bh->buf = memalign(CONFIG_SYS_CACHELINE_SIZE, FSG_BUFLEN);
 		if (unlikely(!bh->buf)) {
 			rc = -ENOMEM;
 			goto error_release;
@@ -2622,7 +2622,7 @@ usb_copy_descriptors(struct usb_descriptor_header **src)
 		bytes += (*tmp)->bLength;
 	bytes += (n_desc + 1) * sizeof(*tmp);
 
-	mem = kmalloc(bytes, GFP_KERNEL);
+	mem = memalign(CONFIG_SYS_CACHELINE_SIZE, bytes);
 	if (!mem)
 		return NULL;
 

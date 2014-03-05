@@ -12,17 +12,12 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* Bootmode setting values */
-#define ZYNQ_BM_MASK		0x0F
-#define ZYNQ_BM_NOR		0x02
-#define ZYNQ_BM_SD		0x05
-#define ZYNQ_BM_JTAG		0x0
-
 #ifdef CONFIG_FPGA
 Xilinx_desc fpga;
 
 /* It can be done differently */
 Xilinx_desc fpga010 = XILINX_XC7Z010_DESC(0x10);
+Xilinx_desc fpga015 = XILINX_XC7Z015_DESC(0x15);
 Xilinx_desc fpga020 = XILINX_XC7Z020_DESC(0x20);
 Xilinx_desc fpga030 = XILINX_XC7Z030_DESC(0x30);
 Xilinx_desc fpga045 = XILINX_XC7Z045_DESC(0x45);
@@ -40,6 +35,9 @@ int board_init(void)
 	case XILINX_ZYNQ_7010:
 		fpga = fpga010;
 		break;
+	case XILINX_ZYNQ_7015:
+		fpga = fpga015;
+		break;
 	case XILINX_ZYNQ_7020:
 		fpga = fpga020;
 		break;
@@ -54,8 +52,6 @@ int board_init(void)
 		break;
 	}
 #endif
-
-	icache_enable();
 
 #ifdef CONFIG_FPGA
 	fpga_init();
@@ -85,7 +81,6 @@ int board_late_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_CMD_NET
 int board_eth_init(bd_t *bis)
 {
 	u32 ret = 0;
@@ -119,7 +114,6 @@ int board_eth_init(bd_t *bis)
 #endif
 	return ret;
 }
-#endif
 
 #ifdef CONFIG_CMD_MMC
 int board_mmc_init(bd_t *bd)

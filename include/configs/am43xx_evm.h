@@ -84,6 +84,32 @@
 #define CONFIG_OMAP_USB_PHY
 #define CONFIG_AM437X_USB2PHY2_HOST
 
+/* SPI */
+#undef CONFIG_OMAP3_SPI
+#define CONFIG_TI_QSPI
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_MACRONIX
+#define CONFIG_CMD_SF
+#define CONFIG_CMD_SPI
+#define CONFIG_TI_SPI_MMAP
+#define CONFIG_QSPI_SEL_GPIO                   48
+#define CONFIG_SF_DEFAULT_SPEED                48000000
+#define CONFIG_DEFAULT_SPI_MODE                SPI_MODE_3
+
+/* SPI SPL */
+#define CONFIG_SPL_SPI_SUPPORT
+#define CONFIG_SPL_SPI_LOAD
+#define CONFIG_SPL_SPI_FLASH_SUPPORT
+#define CONFIG_SPL_SPI_BUS             0
+#define CONFIG_SPL_SPI_CS              0
+#define CONFIG_SYS_SPI_U_BOOT_OFFS     0x20000
+
+/* Enhance our eMMC support / experience. */
+#define CONFIG_CMD_GPT
+#define CONFIG_EFI_PARTITION
+#define CONFIG_PARTITION_UUIDS
+#define CONFIG_CMD_PART
+
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x80200000\0" \
@@ -95,6 +121,9 @@
 	"bootdir=/boot\0" \
 	"bootfile=zImage\0" \
 	"console=ttyO0,115200n8\0" \
+	"partitions=" \
+		"uuid_disk=${uuid_gpt_disk};" \
+		"name=rootfs,start=2MiB,size=-,uuid=${uuid_gpt_rootfs}\0" \
 	"optargs=\0" \
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \
@@ -176,4 +205,30 @@
 	"run usbboot;"
 
 #endif
+
+/* CPSW Ethernet */
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_MII
+#define CONFIG_DRIVER_TI_CPSW
+#define CONFIG_MII
+#define CONFIG_BOOTP_DEFAULT
+#define CONFIG_BOOTP_DNS
+#define CONFIG_BOOTP_DNS2
+#define CONFIG_BOOTP_SEND_HOSTNAME
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_NET_RETRY_COUNT		10
+#define CONFIG_NET_MULTI
+#define CONFIG_PHY_GIGE
+#define CONFIG_PHYLIB
+
+#define CONFIG_SPL_ENV_SUPPORT
+#define CONFIG_SPL_NET_VCI_STRING	"AM43xx U-Boot SPL"
+
+#define CONFIG_SPL_ETH_SUPPORT
+#define CONFIG_SPL_NET_SUPPORT
+#define CONFIG_SYS_RX_ETH_BUFFER	64
+
 #endif	/* __CONFIG_AM43XX_EVM_H */

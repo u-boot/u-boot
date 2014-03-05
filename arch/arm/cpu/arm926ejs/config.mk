@@ -6,13 +6,3 @@
 #
 
 PLATFORM_CPPFLAGS += -march=armv5te
-
-ifneq ($(CONFIG_IMX_CONFIG),)
-ifdef CONFIG_SPL
-ifdef CONFIG_SPL_BUILD
-ALL-y	+= $(OBJTREE)/SPL
-endif
-else
-ALL-y	+= $(obj)u-boot.imx
-endif
-endif

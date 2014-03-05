@@ -16,77 +16,15 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-
-void sdram_init(void)
-{
-	struct ccsr_ddr __iomem *ddr =
-		(struct ccsr_ddr __iomem *)CONFIG_SYS_FSL_DDR_ADDR;
-	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
-	u32 ddr_ratio;
-	unsigned long ddr_freq_mhz;
-
-	ddr_ratio = in_be32(&gur->porpllsr) & MPC85xx_PORPLLSR_DDR_RATIO;
-	ddr_ratio = ddr_ratio >> MPC85xx_PORPLLSR_DDR_RATIO_SHIFT;
-	ddr_freq_mhz = (CONFIG_SYS_CLK_FREQ * ddr_ratio) / 1000000;
-
-	/* mask off E bit */
-	u32 svr = SVR_SOC_VER(mfspr(SPRN_SVR));
-
-	__raw_writel(CONFIG_SYS_DDR_CONTROL | SDRAM_CFG_32_BE, &ddr->sdram_cfg);
-	__raw_writel(CONFIG_SYS_DDR_CS0_BNDS, &ddr->cs0_bnds);
-	__raw_writel(CONFIG_SYS_DDR_CS0_CONFIG, &ddr->cs0_config);
-	__raw_writel(CONFIG_SYS_DDR_CONTROL_2, &ddr->sdram_cfg_2);
-	__raw_writel(CONFIG_SYS_DDR_DATA_INIT, &ddr->sdram_data_init);
-
-	if (ddr_freq_mhz < 700) {
-		__raw_writel(CONFIG_SYS_DDR_TIMING_3_667, &ddr->timing_cfg_3);
-		__raw_writel(CONFIG_SYS_DDR_TIMING_0_667, &ddr->timing_cfg_0);
-		__raw_writel(CONFIG_SYS_DDR_TIMING_1_667, &ddr->timing_cfg_1);
-		__raw_writel(CONFIG_SYS_DDR_TIMING_2_667, &ddr->timing_cfg_2);
-		__raw_writel(CONFIG_SYS_DDR_MODE_1_667, &ddr->sdram_mode);
-		__raw_writel(CONFIG_SYS_DDR_MODE_2_667, &ddr->sdram_mode_2);
-		__raw_writel(CONFIG_SYS_DDR_INTERVAL_667, &ddr->sdram_interval);
-		__raw_writel(CONFIG_SYS_DDR_CLK_CTRL_667, &ddr->sdram_clk_cntl);
-		__raw_writel(CONFIG_SYS_DDR_WRLVL_CONTROL_667, &ddr->ddr_wrlvl_cntl);
-	} else {
-		__raw_writel(CONFIG_SYS_DDR_TIMING_3_800, &ddr->timing_cfg_3);
-		__raw_writel(CONFIG_SYS_DDR_TIMING_0_800, &ddr->timing_cfg_0);
-		__raw_writel(CONFIG_SYS_DDR_TIMING_1_800, &ddr->timing_cfg_1);
-		__raw_writel(CONFIG_SYS_DDR_TIMING_2_800, &ddr->timing_cfg_2);
-		__raw_writel(CONFIG_SYS_DDR_MODE_1_800, &ddr->sdram_mode);
-		__raw_writel(CONFIG_SYS_DDR_MODE_2_800, &ddr->sdram_mode_2);
-		__raw_writel(CONFIG_SYS_DDR_INTERVAL_800, &ddr->sdram_interval);
-		__raw_writel(CONFIG_SYS_DDR_CLK_CTRL_800, &ddr->sdram_clk_cntl);
-		__raw_writel(CONFIG_SYS_DDR_WRLVL_CONTROL_800, &ddr->ddr_wrlvl_cntl);
-	}
-
-	__raw_writel(CONFIG_SYS_DDR_TIMING_4, &ddr->timing_cfg_4);
-	__raw_writel(CONFIG_SYS_DDR_TIMING_5, &ddr->timing_cfg_5);
-	__raw_writel(CONFIG_SYS_DDR_ZQ_CONTROL, &ddr->ddr_zq_cntl);
-
-	/* P1014 and it's derivatives support max 16bit DDR width */
-	if (svr == SVR_P1014) {
-		__raw_writel(ddr->sdram_cfg & ~SDRAM_CFG_DBW_MASK, &ddr->sdram_cfg);
-		__raw_writel(ddr->sdram_cfg | SDRAM_CFG_16_BE, &ddr->sdram_cfg);
-		/* For CS0_BNDS we divide the start and end address by 2, so we can just
-		 * shift the entire register to achieve the desired result and the mask
-		 * the value so we don't write reserved fields */
-		__raw_writel((CONFIG_SYS_DDR_CS0_BNDS >> 1) & 0x0fff0fff, &ddr->cs0_bnds);
-	}
-
-	asm volatile("sync;isync");
-	udelay(500);
-
-	/* Let the controller go */
-	out_be32(&ddr->sdram_cfg, in_be32(&ddr->sdram_cfg) | SDRAM_CFG_MEM_EN);
-
-	set_next_law(CONFIG_SYS_NAND_DDR_LAW, LAW_SIZE_1G, LAW_TRGT_IF_DDR_1);
-}
-
 void board_init_f(ulong bootflag)
 {
 	u32 plat_ratio;
 	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
+
+#if defined(CONFIG_SYS_NAND_BR_PRELIM) && defined(CONFIG_SYS_NAND_OR_PRELIM)
+	set_lbc_br(0, CONFIG_SYS_NAND_BR_PRELIM);
+	set_lbc_or(0, CONFIG_SYS_NAND_OR_PRELIM);
+#endif
 
 	/* initialize selected port with appropriate baud rate */
 	plat_ratio = in_be32(&gur->porpllsr) & MPC85xx_PORPLLSR_PLAT_RATIO;
@@ -98,9 +36,6 @@ void board_init_f(ulong bootflag)
 
 	puts("\nNAND boot... ");
 
-	/* Initialize the DDR3 */
-	sdram_init();
-
 	/* copy code to RAM and jump to it - this should not return */
 	/* NOTE - code has to be copied out of NAND buffer before
 	 * other blocks can be read.
@@ -111,6 +46,7 @@ void board_init_f(ulong bootflag)
 
 void board_init_r(gd_t *gd, ulong dest_addr)
 {
+	puts("\nSecond program loader running in sram...");
 	nand_boot();
 }
 

@@ -25,8 +25,8 @@ static u32 fsl_ddr_get_version(void)
 	u32 ver_major_minor_errata;
 
 	ddr = (void *)_DDR_ADDR;
-	ver_major_minor_errata = (in_be32(&ddr->ip_rev1) & 0xFFFF) << 8;
-	ver_major_minor_errata |= (in_be32(&ddr->ip_rev2) & 0xFF00) >> 8;
+	ver_major_minor_errata = (ddr_in32(&ddr->ip_rev1) & 0xFFFF) << 8;
+	ver_major_minor_errata |= (ddr_in32(&ddr->ip_rev2) & 0xFF00) >> 8;
 
 	return ver_major_minor_errata;
 }
@@ -145,6 +145,7 @@ static void set_csn_config(int dimm_number, int i, fsl_ddr_cfg_regs_t *ddr,
 			if (!popts->memctl_interleaving)
 				break;
 			switch (popts->memctl_interleaving_mode) {
+			case FSL_DDR_256B_INTERLEAVING:
 			case FSL_DDR_CACHE_LINE_INTERLEAVING:
 			case FSL_DDR_PAGE_INTERLEAVING:
 			case FSL_DDR_BANK_INTERLEAVING:

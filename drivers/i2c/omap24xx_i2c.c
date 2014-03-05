@@ -32,6 +32,10 @@
  * - Status functions now read irqstatus_raw as per TRM guidelines
  *   (except for OMAP243X and OMAP34XX).
  * - Driver now supports up to I2C5 (OMAP5).
+ *
+ * Copyright (c) 2014 Hannes Petermaier <oe5hpm@oevsv.at>, B&R
+ * - Added support for set_speed
+ *
  */
 
 #include <common.h>
@@ -53,43 +57,66 @@ static int wait_for_bb(struct i2c_adapter *adap);
 static struct i2c *omap24_get_base(struct i2c_adapter *adap);
 static u16 wait_for_event(struct i2c_adapter *adap);
 static void flush_fifo(struct i2c_adapter *adap);
+static int omap24_i2c_findpsc(u32 *pscl, u32 *psch, uint speed)
+{
+	unsigned int sampleclk, prescaler;
+	int fsscll, fssclh;
 
-static void omap24_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
+	speed <<= 1;
+	prescaler = 0;
+	/*
+	 * some divisors may cause a precission loss, but shouldn't
+	 * be a big thing, because i2c_clk is then allready very slow.
+	 */
+	while (prescaler <= 0xFF) {
+		sampleclk = I2C_IP_CLK / (prescaler+1);
+
+		fsscll = sampleclk / speed;
+		fssclh = fsscll;
+		fsscll -= I2C_FASTSPEED_SCLL_TRIM;
+		fssclh -= I2C_FASTSPEED_SCLH_TRIM;
+
+		if (((fsscll > 0) && (fssclh > 0)) &&
+		    ((fsscll <= (255-I2C_FASTSPEED_SCLL_TRIM)) &&
+		    (fssclh <= (255-I2C_FASTSPEED_SCLH_TRIM)))) {
+			if (pscl)
+				*pscl = fsscll;
+			if (psch)
+				*psch = fssclh;
+
+			return prescaler;
+		}
+		prescaler++;
+	}
+	return -1;
+}
+static uint omap24_i2c_setspeed(struct i2c_adapter *adap, uint speed)
 {
 	struct i2c *i2c_base = omap24_get_base(adap);
-	int psc, fsscll, fssclh;
+	int psc, fsscll = 0, fssclh = 0;
 	int hsscll = 0, hssclh = 0;
-	u32 scll, sclh;
-	int timeout = I2C_TIMEOUT;
+	u32 scll = 0, sclh = 0;
 
-	/* Only handle standard, fast and high speeds */
-	if ((speed != OMAP_I2C_STANDARD) &&
-	    (speed != OMAP_I2C_FAST_MODE) &&
-	    (speed != OMAP_I2C_HIGH_SPEED)) {
-		printf("Error : I2C unsupported speed %d\n", speed);
-		return;
-	}
-
-	psc = I2C_IP_CLK / I2C_INTERNAL_SAMPLING_CLK;
-	psc -= 1;
-	if (psc < I2C_PSC_MIN) {
-		printf("Error : I2C unsupported prescalar %d\n", psc);
-		return;
-	}
-
-	if (speed == OMAP_I2C_HIGH_SPEED) {
+	if (speed >= OMAP_I2C_HIGH_SPEED) {
 		/* High speed */
+		psc = I2C_IP_CLK / I2C_INTERNAL_SAMPLING_CLK;
+		psc -= 1;
+		if (psc < I2C_PSC_MIN) {
+			printf("Error : I2C unsupported prescaler %d\n", psc);
+			return -1;
+		}
 
 		/* For first phase of HS mode */
-		fsscll = fssclh = I2C_INTERNAL_SAMPLING_CLK /
-			(2 * OMAP_I2C_FAST_MODE);
+		fsscll = I2C_INTERNAL_SAMPLING_CLK / (2 * speed);
+
+		fssclh = fsscll;
 
 		fsscll -= I2C_HIGHSPEED_PHASE_ONE_SCLL_TRIM;
 		fssclh -= I2C_HIGHSPEED_PHASE_ONE_SCLH_TRIM;
 		if (((fsscll < 0) || (fssclh < 0)) ||
 		    ((fsscll > 255) || (fssclh > 255))) {
 			puts("Error : I2C initializing first phase clock\n");
-			return;
+			return -1;
 		}
 
 		/* For second phase of HS mode */
@@ -100,7 +127,7 @@ static void omap24_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
 		if (((fsscll < 0) || (fssclh < 0)) ||
 		    ((fsscll > 255) || (fssclh > 255))) {
 			puts("Error : I2C initializing second phase clock\n");
-			return;
+			return -1;
 		}
 
 		scll = (unsigned int)hsscll << 8 | (unsigned int)fsscll;
@@ -108,19 +135,28 @@ static void omap24_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
 
 	} else {
 		/* Standard and fast speed */
-		fsscll = fssclh = I2C_INTERNAL_SAMPLING_CLK / (2 * speed);
-
-		fsscll -= I2C_FASTSPEED_SCLL_TRIM;
-		fssclh -= I2C_FASTSPEED_SCLH_TRIM;
-		if (((fsscll < 0) || (fssclh < 0)) ||
-		    ((fsscll > 255) || (fssclh > 255))) {
+		psc = omap24_i2c_findpsc(&scll, &sclh, speed);
+		if (0 > psc) {
 			puts("Error : I2C initializing clock\n");
-			return;
+			return -1;
 		}
-
-		scll = (unsigned int)fsscll;
-		sclh = (unsigned int)fssclh;
 	}
+
+	adap->speed	= speed;
+	adap->waitdelay = (10000000 / speed) * 2; /* wait for 20 clkperiods */
+	writew(0, &i2c_base->con);
+	writew(psc, &i2c_base->psc);
+	writew(scll, &i2c_base->scll);
+	writew(sclh, &i2c_base->sclh);
+	writew(I2C_CON_EN, &i2c_base->con);
+	writew(0xFFFF, &i2c_base->stat);	/* clear all pending status */
+
+	return 0;
+}
+static void omap24_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
+{
+	struct i2c *i2c_base = omap24_get_base(adap);
+	int timeout = I2C_TIMEOUT;
 
 	if (readw(&i2c_base->con) & I2C_CON_EN) {
 		writew(0, &i2c_base->con);
@@ -139,14 +175,14 @@ static void omap24_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
 		udelay(1000);
 	}
 
-	writew(0, &i2c_base->con);
-	writew(psc, &i2c_base->psc);
-	writew(scll, &i2c_base->scll);
-	writew(sclh, &i2c_base->sclh);
+	if (0 != omap24_i2c_setspeed(adap, speed)) {
+		printf("ERROR: failed to setup I2C bus-speed!\n");
+		return;
+	}
 
 	/* own address */
 	writew(slaveadd, &i2c_base->oa);
-	writew(I2C_CON_EN, &i2c_base->con);
+
 #if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX)
 	/*
 	 * Have to enable interrupts for OMAP2/3, these IPs don't have
@@ -165,7 +201,8 @@ static void flush_fifo(struct i2c_adapter *adap)
 	struct i2c *i2c_base = omap24_get_base(adap);
 	u16 stat;
 
-	/* note: if you try and read data when its not there or ready
+	/*
+	 * note: if you try and read data when its not there or ready
 	 * you get a bus error
 	 */
 	while (1) {
@@ -220,8 +257,8 @@ static int omap24_i2c_probe(struct i2c_adapter *adap, uchar chip)
 
 	/* Check for ACK (!NAK) */
 	if (!(status & I2C_STAT_NACK)) {
-		res = 0;			/* Device found */
-		udelay(I2C_WAIT);		/* Required by AM335X in SPL */
+		res = 0;				/* Device found */
+		udelay(adap->waitdelay);/* Required by AM335X in SPL */
 		/* Abort transfer (force idle state) */
 		writew(I2C_CON_MST | I2C_CON_TRX, &i2c_base->con); /* Reset */
 		udelay(1000);
@@ -307,7 +344,7 @@ static int omap24_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
 				       adap->hwadapnr, status);
 				goto rd_exit;
 			}
-			if (status == 0 || status & I2C_STAT_NACK) {
+			if (status == 0 || (status & I2C_STAT_NACK)) {
 				i2c_error = 1;
 				printf("i2c_read: error waiting for addr ACK (status=0x%x)\n",
 				       status);
@@ -351,7 +388,7 @@ static int omap24_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
 			       adap->hwadapnr, status);
 			goto rd_exit;
 		}
-		if (status == 0 || status & I2C_STAT_NACK) {
+		if (status == 0 || (status & I2C_STAT_NACK)) {
 			i2c_error = 1;
 			goto rd_exit;
 		}
@@ -379,6 +416,7 @@ static int omap24_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 	int i;
 	u16 status;
 	int i2c_error = 0;
+	int timeout = I2C_TIMEOUT;
 
 	if (alen < 0) {
 		puts("I2C write: addr len < 0\n");
@@ -428,7 +466,7 @@ static int omap24_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 			       adap->hwadapnr, status);
 			goto wr_exit;
 		}
-		if (status == 0 || status & I2C_STAT_NACK) {
+		if (status == 0 || (status & I2C_STAT_NACK)) {
 			i2c_error = 1;
 			printf("i2c_write: error waiting for addr ACK (status=0x%x)\n",
 			       status);
@@ -448,7 +486,7 @@ static int omap24_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 	/* Address phase is over, now write data */
 	for (i = 0; i < len; i++) {
 		status = wait_for_event(adap);
-		if (status == 0 || status & I2C_STAT_NACK) {
+		if (status == 0 || (status & I2C_STAT_NACK)) {
 			i2c_error = 1;
 			printf("i2c_write: error waiting for data ACK (status=0x%x)\n",
 			       status);
@@ -464,6 +502,15 @@ static int omap24_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 			goto wr_exit;
 		}
 	}
+	/*
+	 * poll ARDY bit for making sure that last byte really has been
+	 * transferred on the bus.
+	 */
+	do {
+		status = wait_for_event(adap);
+	} while (!(status & I2C_STAT_ARDY) && timeout--);
+	if (timeout <= 0)
+		printf("i2c_write: timed out writig last byte!\n");
 
 wr_exit:
 	flush_fifo(adap);
@@ -490,7 +537,7 @@ static int wait_for_bb(struct i2c_adapter *adap)
 		I2C_STAT_BB) && timeout--) {
 #endif
 		writew(stat, &i2c_base->stat);
-		udelay(I2C_WAIT);
+		udelay(adap->waitdelay);
 	}
 
 	if (timeout <= 0) {
@@ -513,7 +560,7 @@ static u16 wait_for_event(struct i2c_adapter *adap)
 	int timeout = I2C_TIMEOUT;
 
 	do {
-		udelay(I2C_WAIT);
+		udelay(adap->waitdelay);
 #if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX)
 		status = readw(&i2c_base->stat);
 #else
@@ -580,12 +627,12 @@ static struct i2c *omap24_get_base(struct i2c_adapter *adap)
 #endif
 
 U_BOOT_I2C_ADAP_COMPLETE(omap24_0, omap24_i2c_init, omap24_i2c_probe,
-			 omap24_i2c_read, omap24_i2c_write, NULL,
+			 omap24_i2c_read, omap24_i2c_write, omap24_i2c_setspeed,
 			 CONFIG_SYS_OMAP24_I2C_SPEED,
 			 CONFIG_SYS_OMAP24_I2C_SLAVE,
 			 0)
 U_BOOT_I2C_ADAP_COMPLETE(omap24_1, omap24_i2c_init, omap24_i2c_probe,
-			 omap24_i2c_read, omap24_i2c_write, NULL,
+			 omap24_i2c_read, omap24_i2c_write, omap24_i2c_setspeed,
 			 CONFIG_SYS_OMAP24_I2C_SPEED1,
 			 CONFIG_SYS_OMAP24_I2C_SLAVE1,
 			 1)

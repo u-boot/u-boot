@@ -68,6 +68,7 @@ struct i2c_adapter {
 	uint		(*set_bus_speed)(struct i2c_adapter *adap,
 				uint speed);
 	int		speed;
+	int		waitdelay;
 	int		slaveaddr;
 	int		init_done;
 	int		hwadapnr;

@@ -611,9 +611,8 @@ unsigned long get_board_ddr_clk(void);
 #endif
 
 #ifdef CONFIG_FMAN_ENET
-#define CONFIG_SYS_FM1_DTSEC5_PHY_ADDR	0x10
-#define CONFIG_SYS_FM1_DTSEC6_PHY_ADDR	0x11
-#define CONFIG_SYS_FM1_10GEC1_PHY_ADDR	4
+#define CONFIG_SYS_FM1_DTSEC4_PHY_ADDR	0x01
+#define CONFIG_SYS_FM1_DTSEC5_PHY_ADDR	0x02
 
 #define CONFIG_SYS_FM1_DTSEC1_RISER_PHY_ADDR    0x1c
 #define CONFIG_SYS_FM1_DTSEC2_RISER_PHY_ADDR    0x1d
@@ -670,7 +669,6 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
 #define CONFIG_SYS_MAXARGS	16		/* max number of command args */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE/* Boot Argument Buffer Size */
-#define CONFIG_SYS_HZ		1000		/* decrementer freq: 1ms ticks*/
 
 /*
  * For booting Linux, the board info and command line data

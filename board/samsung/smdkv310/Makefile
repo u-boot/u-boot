@@ -4,16 +4,12 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-ifndef CONFIG_SPL_BUILD
+ifdef CONFIG_SPL_BUILD
+# necessary to create built-in.o
+obj- := __dummy__.o
+
+hostprogs-y := tools/mksmdkv310spl
+always := $(hostprogs-y)
+else
 obj-y	+= smdkv310.o
-endif
-
-ifdef CONFIG_SPL_BUILD
-all: $(OBJTREE)/tools/mk$(BOARD)spl
-endif
-
-# Fix ME after we implement hostprogs-y.
-ifdef CONFIG_SPL_BUILD
-$(OBJTREE)/tools/mk$(BOARD)spl:	tools/mkv310_image.c
-	$(HOSTCC) tools/mkv310_image.c -o $(OBJTREE)/tools/mk$(BOARD)spl
 endif

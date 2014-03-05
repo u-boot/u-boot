@@ -5,20 +5,19 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-y	+= 20001122-1.o
-obj-y	+= 20010114-2.o
-obj-y	+= 20010226-1.o
-obj-y	+= 980619-1.o
-obj-y	+= acc1.o
-obj-y	+= compare-fp-1.o
-obj-y	+= fpu.o
-obj-y	+= mul-subnormal-single-1.o
-obj-y	+= darwin-ldouble.o
+objs-before-objcopy := 20001122-1.o 20010114-2.o 20010226-1.o 980619-1.o \
+	acc1.o compare-fp-1.o fpu.o mul-subnormal-single-1.o darwin-ldouble.o
+targets += $(objs-before-objcopy)
 
-CFLAGS := $(shell echo $(CFLAGS) | sed s/-msoft-float//)
-CFLAGS += -mhard-float -fkeep-inline-functions
+# remove -msoft-float flag
+$(foreach m, $(objs-before-objcopy), $(eval CFLAGS_REMOVE_$m := -msoft-float))
+ccflags-y := -mhard-float -fkeep-inline-functions
 
-$(obj)%.o:	%.c
-	$(CC)  $(ALL_CFLAGS) -o $@.fp $< -c
-	$(OBJCOPY) -R .gnu.attributes $@.fp $@
-	rm -f $@.fp
+# Do not delete intermidiate files (*.o)
+.SECONDARY: $(call objectify, $(objs-before-objcopy))
+
+obj-y := $(objs-before-objcopy:.o=_.o)
+
+OBJCOPYFLAGS := -R .gnu.attributes
+$(obj)/%_.o: $(obj)/%.o
+	$(call if_changed,objcopy)

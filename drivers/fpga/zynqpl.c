@@ -187,6 +187,16 @@ int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 	if ((u32)buf != ALIGN((u32)buf, ARCH_DMA_MINALIGN)) {
 		u32 *new_buf = (u32 *)ALIGN((u32)buf, ARCH_DMA_MINALIGN);
 
+		/*
+		 * This might be dangerous but permits to flash if
+		 * ARCH_DMA_MINALIGN is greater than header size
+		 */
+		if (new_buf > buf_start) {
+			debug("%s: Aligned buffer is after buffer start\n",
+			      __func__);
+			new_buf -= ARCH_DMA_MINALIGN;
+		}
+
 		printf("%s: Align buffer at %x to %x(swap %d)\n", __func__,
 		       (u32)buf_start, (u32)new_buf, swap);
 

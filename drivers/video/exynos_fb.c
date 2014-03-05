@@ -62,31 +62,6 @@ static void exynos_lcd_init(vidinfo_t *vid)
 	lcd_set_flush_dcache(1);
 }
 
-#ifdef CONFIG_CMD_BMP
-static void draw_logo(void)
-{
-	int x, y;
-	ulong addr;
-
-	if (panel_width >= panel_info.logo_width) {
-		x = ((panel_width - panel_info.logo_width) >> 1);
-	} else {
-		x = 0;
-		printf("Warning: image width is bigger than display width\n");
-	}
-
-	if (panel_height >= panel_info.logo_height) {
-		y = ((panel_height - panel_info.logo_height) >> 1) - 4;
-	} else {
-		y = 0;
-		printf("Warning: image height is bigger than display height\n");
-	}
-
-	addr = panel_info.logo_addr;
-	bmp_display(addr, x, y);
-}
-#endif
-
 void __exynos_cfg_lcd_gpio(void)
 {
 }
@@ -323,9 +298,6 @@ void lcd_enable(void)
 	if (panel_info.logo_on) {
 		memset((void *) gd->fb_base, 0, panel_width * panel_height *
 				(NBITS(panel_info.vl_bpix) >> 3));
-#ifdef CONFIG_CMD_BMP
-		draw_logo();
-#endif
 	}
 
 	lcd_panel_on(&panel_info);

@@ -818,21 +818,33 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 	 * If memory controller interleaving is enabled, then the data
 	 * bus widths must be programmed identically for all memory controllers.
 	 *
-	 * XXX: Attempt to set all controllers to the same chip select
+	 * Attempt to set all controllers to the same chip select
 	 * interleaving mode. It will do a best effort to get the
 	 * requested ranks interleaved together such that the result
 	 * should be a subset of the requested configuration.
+	 *
+	 * if CONFIG_SYS_FSL_DDR_INTLV_256B is defined, mandatory interleaving
+	 * with 256 Byte is enabled.
 	 */
 #if (CONFIG_NUM_DDR_CONTROLLERS > 1)
 	if (!hwconfig_sub_f("fsl_ddr", "ctlr_intlv", buf))
+#ifdef CONFIG_SYS_FSL_DDR_INTLV_256B
+		;
+#else
 		goto done;
-
+#endif
 	if (pdimm[0].n_ranks == 0) {
 		printf("There is no rank on CS0 for controller %d.\n", ctrl_num);
 		popts->memctl_interleaving = 0;
 		goto done;
 	}
 	popts->memctl_interleaving = 1;
+#ifdef CONFIG_SYS_FSL_DDR_INTLV_256B
+	popts->memctl_interleaving_mode = FSL_DDR_256B_INTERLEAVING;
+	popts->memctl_interleaving = 1;
+	debug("256 Byte interleaving\n");
+	goto done;
+#endif
 	/*
 	 * test null first. if CONFIG_HWCONFIG is not defined
 	 * hwconfig_arg_cmp returns non-zero
@@ -1085,6 +1097,7 @@ void check_interleaving_options(fsl_ddr_info_t *pinfo)
 			"Memory controller interleaving disabled.\n");
 	} else {
 		switch (check_intlv) {
+		case FSL_DDR_256B_INTERLEAVING:
 		case FSL_DDR_CACHE_LINE_INTERLEAVING:
 		case FSL_DDR_PAGE_INTERLEAVING:
 		case FSL_DDR_BANK_INTERLEAVING:

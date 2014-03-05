@@ -146,21 +146,21 @@ void board_add_ram_info(int use_default)
 	u32 *mcintl3r = (void *) (CONFIG_SYS_IMMR + 0x18004);
 #endif
 #if (CONFIG_NUM_DDR_CONTROLLERS > 1)
-	uint32_t cs0_config = in_be32(&ddr->cs0_config);
+	uint32_t cs0_config = ddr_in32(&ddr->cs0_config);
 #endif
-	uint32_t sdram_cfg = in_be32(&ddr->sdram_cfg);
+	uint32_t sdram_cfg = ddr_in32(&ddr->sdram_cfg);
 	int cas_lat;
 
 #if CONFIG_NUM_DDR_CONTROLLERS >= 2
 	if (!(sdram_cfg & SDRAM_CFG_MEM_EN)) {
 		ddr = (void __iomem *)CONFIG_SYS_FSL_DDR2_ADDR;
-		sdram_cfg = in_be32(&ddr->sdram_cfg);
+		sdram_cfg = ddr_in32(&ddr->sdram_cfg);
 	}
 #endif
 #if CONFIG_NUM_DDR_CONTROLLERS >= 3
 	if (!(sdram_cfg & SDRAM_CFG_MEM_EN)) {
 		ddr = (void __iomem *)CONFIG_SYS_FSL_DDR3_ADDR;
-		sdram_cfg = in_be32(&ddr->sdram_cfg);
+		sdram_cfg = ddr_in32(&ddr->sdram_cfg);
 	}
 #endif
 	puts(" (DDR");
@@ -188,8 +188,8 @@ void board_add_ram_info(int use_default)
 		puts(", 64-bit");
 
 	/* Calculate CAS latency based on timing cfg values */
-	cas_lat = ((in_be32(&ddr->timing_cfg_1) >> 16) & 0xf) + 1;
-	if ((in_be32(&ddr->timing_cfg_3) >> 12) & 1)
+	cas_lat = ((ddr_in32(&ddr->timing_cfg_1) >> 16) & 0xf) + 1;
+	if ((ddr_in32(&ddr->timing_cfg_3) >> 12) & 1)
 		cas_lat += (8 << 1);
 	printf(", CL=%d", cas_lat >> 1);
 	if (cas_lat & 0x1)
@@ -228,6 +228,9 @@ void board_add_ram_info(int use_default)
 		puts("       DDR Controller Interleaving Mode: ");
 
 		switch ((cs0_config >> 24) & 0xf) {
+		case FSL_DDR_256B_INTERLEAVING:
+			puts("256B");
+			break;
 		case FSL_DDR_CACHE_LINE_INTERLEAVING:
 			puts("cache line");
 			break;

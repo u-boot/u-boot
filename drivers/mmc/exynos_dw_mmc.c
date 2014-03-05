@@ -29,9 +29,22 @@ static void exynos_dwmci_clksel(struct dwmci_host *host)
 	dwmci_writel(host, DWMCI_CLKSEL, host->clksel_val);
 }
 
-unsigned int exynos_dwmci_get_clk(int dev_index)
+unsigned int exynos_dwmci_get_clk(struct dwmci_host *host)
 {
-	return get_mmc_clk(dev_index);
+	unsigned long sclk;
+	int8_t clk_div;
+
+	/*
+	 * Since SDCLKIN is divided inside controller by the DIVRATIO
+	 * value set in the CLKSEL register, we need to use the same output
+	 * clock value to calculate the CLKDIV value.
+	 * as per user manual:cclk_in = SDCLKIN / (DIVRATIO + 1)
+	 */
+	clk_div = ((dwmci_readl(host, DWMCI_CLKSEL) >> DWMCI_DIVRATIO_BIT)
+			& DWMCI_DIVRATIO_MASK) + 1;
+	sclk = get_mmc_clk(host->dev_index);
+
+	return sclk / clk_div;
 }
 
 static void exynos_dwmci_board_init(struct dwmci_host *host)

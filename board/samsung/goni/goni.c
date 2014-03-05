@@ -13,9 +13,16 @@
 #include <usb/s3c_udc.h>
 #include <asm/arch/cpu.h>
 #include <power/max8998_pmic.h>
+#include <samsung/misc.h>
+
 DECLARE_GLOBAL_DATA_PTR;
 
 static struct s5pc110_gpio *s5pc110_gpio;
+
+u32 get_board_rev(void)
+{
+	return 0;
+}
 
 int board_init(void)
 {
@@ -172,4 +179,14 @@ struct s3c_plat_otg_data s5pc110_otg_data = {
 	.regs_otg = S5PC110_OTG_BASE,
 	.usb_phy_ctrl = S5PC110_USB_PHY_CONTROL,
 };
+#endif
+
+#ifdef CONFIG_MISC_INIT_R
+int misc_init_r(void)
+{
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	set_board_info();
+#endif
+	return 0;
+}
 #endif

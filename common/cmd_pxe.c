@@ -11,6 +11,7 @@
 #include <linux/ctype.h>
 #include <errno.h>
 #include <linux/list.h>
+#include <fs.h>
 
 #include "menu.h"
 
@@ -44,6 +45,7 @@ static char *from_env(const char *envvar)
 	return ret;
 }
 
+#ifdef CONFIG_CMD_NET
 /*
  * Convert an ethaddr from the environment to the format used by pxelinux
  * filenames based on mac addresses. Convert's ':' to '-', and adds "01-" to
@@ -74,6 +76,7 @@ static int format_mac_pxe(char *outbuf, size_t outbuf_len)
 
 	return 1;
 }
+#endif
 
 /*
  * Returns the directory the file specified in the bootfile env variable is
@@ -119,6 +122,7 @@ static int get_bootfile_path(const char *file_path, char *bootfile_path,
 
 static int (*do_getfile)(cmd_tbl_t *cmdtp, const char *file_path, char *file_addr);
 
+#ifdef CONFIG_CMD_NET
 static int do_get_tftp(cmd_tbl_t *cmdtp, const char *file_path, char *file_addr)
 {
 	char *tftp_argv[] = {"tftp", NULL, NULL, NULL};
@@ -131,6 +135,7 @@ static int do_get_tftp(cmd_tbl_t *cmdtp, const char *file_path, char *file_addr)
 
 	return 1;
 }
+#endif
 
 static char *fs_argv[5];
 
@@ -155,6 +160,19 @@ static int do_get_fat(cmd_tbl_t *cmdtp, const char *file_path, char *file_addr)
 	fs_argv[4] = (void *)file_path;
 
 	if (!do_fat_fsload(cmdtp, 0, 5, fs_argv))
+		return 1;
+#endif
+	return -ENOENT;
+}
+
+static int do_get_any(cmd_tbl_t *cmdtp, const char *file_path, char *file_addr)
+{
+#ifdef CONFIG_CMD_FS_GENERIC
+	fs_argv[0] = "load";
+	fs_argv[3] = file_addr;
+	fs_argv[4] = (void *)file_path;
+
+	if (!do_load(cmdtp, 0, 5, fs_argv, FS_TYPE_ANY))
 		return 1;
 #endif
 	return -ENOENT;
@@ -234,6 +252,8 @@ static int get_pxe_file(cmd_tbl_t *cmdtp, const char *file_path, void *file_addr
 
 	return 1;
 }
+
+#ifdef CONFIG_CMD_NET
 
 #define PXELINUX_DIR "pxelinux.cfg/"
 
@@ -383,6 +403,7 @@ do_pxe_get(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	return 1;
 }
+#endif
 
 /*
  * Wrapper to make it easier to store the file at file_path in the location
@@ -445,6 +466,7 @@ struct pxe_label {
 	char *append;
 	char *initrd;
 	char *fdt;
+	char *fdtdir;
 	int ipappend;
 	int attempted;
 	int localboot;
@@ -516,6 +538,9 @@ static void label_destroy(struct pxe_label *label)
 
 	if (label->fdt)
 		free(label->fdt);
+
+	if (label->fdtdir)
+		free(label->fdtdir);
 
 	free(label);
 }
@@ -629,6 +654,7 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 		len += strlen(ip_str);
 	}
 
+#ifdef CONFIG_CMD_NET
 	if (label->ipappend & 0x2) {
 		int err;
 		strcpy(mac_str, " BOOTIF=");
@@ -637,6 +663,7 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 			mac_str[0] = '\0';
 		len += strlen(mac_str);
 	}
+#endif
 
 	if (label->append)
 		len += strlen(label->append);
@@ -675,13 +702,70 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 	bootm_argv[3] = getenv("fdt_addr_r");
 
 	/* if fdt label is defined then get fdt from server */
-	if (bootm_argv[3] && label->fdt) {
-		if (get_relfile_envaddr(cmdtp, label->fdt, "fdt_addr_r") < 0) {
-			printf("Skipping %s for failure retrieving fdt\n",
-					label->name);
-			return 1;
+	if (bootm_argv[3]) {
+		char *fdtfile = NULL;
+		char *fdtfilefree = NULL;
+
+		if (label->fdt) {
+			fdtfile = label->fdt;
+		} else if (label->fdtdir) {
+			char *f1, *f2, *f3, *f4, *slash;
+
+			f1 = getenv("fdtfile");
+			if (f1) {
+				f2 = "";
+				f3 = "";
+				f4 = "";
+			} else {
+				/*
+				 * For complex cases where this code doesn't
+				 * generate the correct filename, the board
+				 * code should set $fdtfile during early boot,
+				 * or the boot scripts should set $fdtfile
+				 * before invoking "pxe" or "sysboot".
+				 */
+				f1 = getenv("soc");
+				f2 = "-";
+				f3 = getenv("board");
+				f4 = ".dtb";
+			}
+
+			len = strlen(label->fdtdir);
+			if (!len)
+				slash = "./";
+			else if (label->fdtdir[len - 1] != '/')
+				slash = "/";
+			else
+				slash = "";
+
+			len = strlen(label->fdtdir) + strlen(slash) +
+				strlen(f1) + strlen(f2) + strlen(f3) +
+				strlen(f4) + 1;
+			fdtfilefree = malloc(len);
+			if (!fdtfilefree) {
+				printf("malloc fail (FDT filename)\n");
+				return 1;
+			}
+
+			snprintf(fdtfilefree, len, "%s%s%s%s%s%s",
+				 label->fdtdir, slash, f1, f2, f3, f4);
+			fdtfile = fdtfilefree;
 		}
-	} else
+
+		if (fdtfile) {
+			int err = get_relfile_envaddr(cmdtp, fdtfile, "fdt_addr_r");
+			free(fdtfilefree);
+			if (err < 0) {
+				printf("Skipping %s for failure retrieving fdt\n",
+						label->name);
+				return 1;
+			}
+		} else {
+			bootm_argv[3] = NULL;
+		}
+	}
+
+	if (!bootm_argv[3])
 		bootm_argv[3] = getenv("fdt_addr");
 
 	if (bootm_argv[3])
@@ -716,6 +800,7 @@ enum token_type {
 	T_PROMPT,
 	T_INCLUDE,
 	T_FDT,
+	T_FDTDIR,
 	T_ONTIMEOUT,
 	T_IPAPPEND,
 	T_INVALID
@@ -745,7 +830,10 @@ static const struct token keywords[] = {
 	{"append", T_APPEND},
 	{"initrd", T_INITRD},
 	{"include", T_INCLUDE},
+	{"devicetree", T_FDT},
 	{"fdt", T_FDT},
+	{"devicetreedir", T_FDTDIR},
+	{"fdtdir", T_FDTDIR},
 	{"ontimeout", T_ONTIMEOUT,},
 	{"ipappend", T_IPAPPEND,},
 	{NULL, T_INVALID}
@@ -1134,6 +1222,11 @@ static int parse_label(char **c, struct pxe_menu *cfg)
 				err = parse_sliteral(c, &label->fdt);
 			break;
 
+		case T_FDTDIR:
+			if (!label->fdtdir)
+				err = parse_sliteral(c, &label->fdtdir);
+			break;
+
 		case T_LOCALBOOT:
 			label->localboot = 1;
 			err = parse_integer(c, &label->localboot_val);
@@ -1419,6 +1512,7 @@ static void handle_pxe_menu(cmd_tbl_t *cmdtp, struct pxe_menu *cfg)
 	boot_unattempted_labels(cmdtp, cfg);
 }
 
+#ifdef CONFIG_CMD_NET
 /*
  * Boots a system using a pxe file
  *
@@ -1495,6 +1589,7 @@ U_BOOT_CMD(
 	"get - try to retrieve a pxe file using tftp\npxe "
 	"boot [pxefile_addr_r] - boot from the pxe file at pxefile_addr_r\n"
 );
+#endif
 
 /*
  * Boots a system using a local disk syslinux/extlinux file
@@ -1539,6 +1634,8 @@ int do_sysboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		do_getfile = do_get_ext2;
 	else if (strstr(argv[3], "fat"))
 		do_getfile = do_get_fat;
+	else if (strstr(argv[3], "any"))
+		do_getfile = do_get_any;
 	else {
 		printf("Invalid filesystem: %s\n", argv[3]);
 		return 1;
@@ -1576,7 +1673,7 @@ int do_sysboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 U_BOOT_CMD(
 	sysboot, 7, 1, do_sysboot,
 	"command to get and boot from syslinux files",
-	"[-p] <interface> <dev[:part]> <ext2|fat> [addr] [filename]\n"
-	"    - load and parse syslinux menu file 'filename' from ext2 or fat\n"
-	"      filesystem on 'dev' on 'interface' to address 'addr'"
+	"[-p] <interface> <dev[:part]> <ext2|fat|any> [addr] [filename]\n"
+	"    - load and parse syslinux menu file 'filename' from ext2, fat\n"
+	"      or any filesystem on 'dev' on 'interface' to address 'addr'"
 );

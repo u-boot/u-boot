@@ -52,7 +52,7 @@ static char *lbuf;
 
 unsigned long __logbuffer_base(void)
 {
-	return CONFIG_SYS_SDRAM_BASE + gd->ram_size - LOGBUFF_LEN;
+	return CONFIG_SYS_SDRAM_BASE + get_effective_memsize() - LOGBUFF_LEN;
 }
 unsigned long logbuffer_base(void)
 __attribute__((weak, alias("__logbuffer_base")));

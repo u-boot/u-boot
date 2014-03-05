@@ -11,6 +11,8 @@
 #include <asm/arch/omap.h>
 #include <malloc.h>
 #include <spi.h>
+#include <asm/gpio.h>
+#include <asm/omap_gpio.h>
 
 /* ti qpsi register bit masks */
 #define QSPI_TIMEOUT                    2000000
@@ -39,7 +41,8 @@
 #define MM_SWITCH                       0x01
 #define MEM_CS                          0x100
 #define MEM_CS_UNSELECT                 0xfffff0ff
-#define MMAP_START_ADDR                 0x5c000000
+#define MMAP_START_ADDR_DRA		0x5c000000
+#define MMAP_START_ADDR_AM43x		0x30000000
 #define CORE_CTRL_IO                    0x4a002558
 
 #define QSPI_CMD_READ                   (0x3 << 0)
@@ -99,7 +102,11 @@ static void ti_spi_setup_spi_register(struct ti_qspi_slave *qslave)
 	struct spi_slave *slave = &qslave->slave;
 	u32 memval = 0;
 
-	slave->memory_map = (void *)MMAP_START_ADDR;
+#ifdef CONFIG_DRA7XX
+	slave->memory_map = (void *)MMAP_START_ADDR_DRA;
+#else
+	slave->memory_map = (void *)MMAP_START_ADDR_AM43x;
+#endif
 
 	memval |= QSPI_CMD_READ | QSPI_SETUP0_NUM_A_BYTES |
 			QSPI_SETUP0_NUM_D_BYTES_NO_BITS |
@@ -165,6 +172,11 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 {
 	struct ti_qspi_slave *qslave;
 
+#ifdef CONFIG_AM43XX
+	gpio_request(CONFIG_QSPI_SEL_GPIO, "qspi_gpio");
+	gpio_direction_output(CONFIG_QSPI_SEL_GPIO, 1);
+#endif
+
 	qslave = spi_alloc_slave(struct ti_qspi_slave, bus, cs);
 	if (!qslave) {
 		printf("SPI_error: Fail to allocate ti_qspi_slave\n");
@@ -229,7 +241,11 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	const uchar *txp = dout;
 	uchar *rxp = din;
 	uint status;
-	int timeout, val;
+	int timeout;
+
+#ifdef CONFIG_DRA7XX
+	int val;
+#endif
 
 	debug("spi_xfer: bus:%i cs:%i bitlen:%i words:%i flags:%lx\n",
 	      slave->bus, slave->cs, bitlen, words, flags);
@@ -237,15 +253,19 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	/* Setup mmap flags */
 	if (flags & SPI_XFER_MMAP) {
 		writel(MM_SWITCH, &qslave->base->memswitch);
+#ifdef CONFIG_DRA7XX
 		val = readl(CORE_CTRL_IO);
 		val |= MEM_CS;
 		writel(val, CORE_CTRL_IO);
+#endif
 		return 0;
 	} else if (flags & SPI_XFER_MMAP_END) {
 		writel(~MM_SWITCH, &qslave->base->memswitch);
+#ifdef CONFIG_DRA7XX
 		val = readl(CORE_CTRL_IO);
 		val &= MEM_CS_UNSELECT;
 		writel(val, CORE_CTRL_IO);
+#endif
 		return 0;
 	}
 
@@ -265,6 +285,13 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		qslave->cmd |= QSPI_3_PIN;
 	qslave->cmd |= 0xfff;
 
+/* FIXME: This delay is required for successfull
+ * completion of read/write/erase. Once its root
+ * caused, it will be remove from the driver.
+ */
+#ifdef CONFIG_AM43XX
+	udelay(100);
+#endif
 	while (words--) {
 		if (txp) {
 			debug("tx cmd %08x dc %08x data %02x\n",

@@ -108,7 +108,17 @@ endif
 
 # limit ourselves to the sections we want in the .bin.
 ifdef CONFIG_ARM64
-OBJCFLAGS += -j .text -j .rodata -j .data -j .u_boot_list -j .rela.dyn
+OBJCOPYFLAGS += -j .text -j .rodata -j .data -j .u_boot_list -j .rela.dyn
 else
-OBJCFLAGS += -j .text -j .rodata -j .hash -j .data -j .got.plt -j .u_boot_list -j .rel.dyn
+OBJCOPYFLAGS += -j .text -j .rodata -j .hash -j .data -j .got.plt -j .u_boot_list -j .rel.dyn
+endif
+
+ifneq ($(CONFIG_IMX_CONFIG),)
+ifdef CONFIG_SPL
+ifndef CONFIG_SPL_BUILD
+ALL-y += SPL
+endif
+else
+ALL-y += u-boot.imx
+endif
 endif

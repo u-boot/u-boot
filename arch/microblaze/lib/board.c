@@ -24,6 +24,12 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static int display_banner(void)
+{
+	printf("\n\n%s\n\n", version_string);
+	return 0;
+}
+
 /*
  * All attempts to come up with a "common" initialization sequence
  * that works for all boards and architectures failed: some of the
@@ -44,9 +50,14 @@ init_fnc_t *init_sequence[] = {
 	fdtdec_check_fdt,
 #endif
 	serial_init,
+#ifndef CONFIG_SPL_BUILD
 	console_init_f,
+#endif
+	display_banner,
+#ifndef CONFIG_SPL_BUILD
 	interrupts_init,
 	timer_init,
+#endif
 	NULL,
 };
 
@@ -59,7 +70,7 @@ void board_init_f(ulong not_used)
 	gd = (gd_t *)(CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_GBL_DATA_OFFSET);
 	bd = (bd_t *)(CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_GBL_DATA_OFFSET
 						- GENERATED_BD_INFO_SIZE);
-#if defined(CONFIG_CMD_FLASH)
+#if defined(CONFIG_CMD_FLASH) && !defined(CONFIG_SPL_BUILD)
 	ulong flash_size = 0;
 #endif
 	asm ("nop");	/* FIXME gd is not initialize - wait */
@@ -76,14 +87,17 @@ void board_init_f(ulong not_used)
 
 #ifdef CONFIG_OF_EMBED
 	/* Get a pointer to the FDT */
-	gd->fdt_blob = _binary_dt_dtb_start;
+	gd->fdt_blob = __dtb_dt_begin;
 #elif defined CONFIG_OF_SEPARATE
 	/* FDT is at end of image */
 	gd->fdt_blob = (void *)__end;
 #endif
+
+#ifndef CONFIG_SPL_BUILD
 	/* Allow the early environment to override the fdt address */
 	gd->fdt_blob = (void *)getenv_ulong("fdtcontroladdr", 16,
 						(uintptr_t)gd->fdt_blob);
+#endif
 
 	/*
 	 * The Malloc area is immediately below the monitor copy in DRAM
@@ -103,6 +117,7 @@ void board_init_f(ulong not_used)
 			hang();
 	}
 
+#ifndef CONFIG_SPL_BUILD
 #ifdef CONFIG_OF_CONTROL
 	/* For now, put this check after the console is ready */
 	if (fdtdec_prepare_fdt())
@@ -183,4 +198,5 @@ void board_init_f(ulong not_used)
 		WATCHDOG_RESET();
 		main_loop();
 	}
+#endif /* CONFIG_SPL_BUILD */
 }

@@ -197,13 +197,10 @@
 #define REFCNT_266		0
 /**************************************/
 
-_TEXT_BASE:
-	.word	CONFIG_SYS_TEXT_BASE
-
 .globl lowlevel_init
 lowlevel_init:
 	/* use r0 to relocate DATA read/write to flash rather than memory ! */
-	ldr	r0, _TEXT_BASE
+	ldr	r0, =CONFIG_SYS_TEXT_BASE
 	ldr	r13, =BWSCON
 
 	/* enable minimal access to PLD */

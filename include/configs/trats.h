@@ -147,15 +147,23 @@
 	""PARTS_BOOT" part 0 2;" \
 	""PARTS_ROOT" part 0 5;" \
 	""PARTS_DATA" part 0 6;" \
-	""PARTS_UMS" part 0 7\0"
+	""PARTS_UMS" part 0 7;" \
+	"params.bin mmc 0x38 0x8\0"
 
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
+#define CONFIG_ENV_VARS_UBOOT_CONFIG
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootk=" \
-		"run loaddtb; run loaduimage; bootm 0x40007FC0 - ${fdtaddr}\0" \
+		"run loaduimage;" \
+		"if run loaddtb; then " \
+			"bootm 0x40007FC0 - ${fdtaddr};" \
+		"fi;" \
+		"bootm 0x40007FC0;\0" \
 	"updatemmc=" \
 		"mmc boot 0 1 1 1; mmc write 0 0x42008000 0 0x200;" \
 		"mmc boot 0 1 1 0\0" \
@@ -178,7 +186,7 @@
 	"mmcboot=" \
 		"setenv bootargs root=/dev/mmcblk${mmcdev}p${mmcrootpart} " \
 		"${lpj} rootwait ${console} ${meminfo} ${opts} ${lcdinfo}; " \
-		"run loaddtb; run loaduimage; bootm 0x40007FC0 - ${fdtaddr}\0" \
+		"run bootk\0" \
 	"bootchart=setenv opts init=/sbin/bootchartd; run bootcmd\0" \
 	"boottrace=setenv opts initcall_debug; run bootcmd\0" \
 	"mmcoops=mmc read 0 0x40000000 0x40 8; md 0x40000000 0x400\0" \
@@ -217,7 +225,6 @@
 		   "setenv spl_imgaddr;" \
 		   "setenv spl_addr_tmp;\0" \
 	"fdtaddr=40800000\0" \
-	"fdtfile=exynos4210-trats.dtb\0"
 
 
 /* Miscellaneous configurable options */
@@ -287,8 +294,8 @@
 #include <asm/arch/gpio.h>
 
 /* I2C FG */
-#define CONFIG_SOFT_I2C_GPIO_SCL exynos4_gpio_part2_get_nr(y4, 1)
-#define CONFIG_SOFT_I2C_GPIO_SDA exynos4_gpio_part2_get_nr(y4, 0)
+#define CONFIG_SOFT_I2C_GPIO_SCL exynos4_gpio_get(2, y4, 1)
+#define CONFIG_SOFT_I2C_GPIO_SDA exynos4_gpio_get(2, y4, 0)
 
 #define CONFIG_POWER
 #define CONFIG_POWER_I2C
@@ -306,16 +313,43 @@
 #define CONFIG_USB_GADGET_VBUS_DRAW	2
 #define CONFIG_USB_CABLE_CHECK
 
+/* Common misc for Samsung */
+#define CONFIG_MISC_COMMON
+
+#define CONFIG_MISC_INIT_R
+
+/* Download menu - Samsung common */
+#define CONFIG_LCD_MENU
+#define CONFIG_LCD_MENU_BOARD
+
+/* Download menu - definitions for check keys */
+#ifndef __ASSEMBLY__
+#include <power/max8997_pmic.h>
+
+#define KEY_PWR_PMIC_NAME		"MAX8997_PMIC"
+#define KEY_PWR_STATUS_REG		MAX8997_REG_STATUS1
+#define KEY_PWR_STATUS_MASK		(1 << 0)
+#define KEY_PWR_INTERRUPT_REG		MAX8997_REG_INT1
+#define KEY_PWR_INTERRUPT_MASK		(1 << 0)
+
+#define KEY_VOL_UP_GPIO			exynos4_gpio_get(2, x2, 0)
+#define KEY_VOL_DOWN_GPIO		exynos4_gpio_get(2, x2, 1)
+#endif /* __ASSEMBLY__ */
+
+/* LCD console */
+#define LCD_BPP			LCD_COLOR16
+#define CONFIG_SYS_WHITE_ON_BLACK
+
 /* LCD */
 #define CONFIG_EXYNOS_FB
 #define CONFIG_LCD
 #define CONFIG_CMD_BMP
-#define CONFIG_BMP_32BPP
+#define CONFIG_BMP_16BPP
 #define CONFIG_FB_ADDR		0x52504000
 #define CONFIG_S6E8AX0
 #define CONFIG_EXYNOS_MIPI_DSIM
 #define CONFIG_VIDEO_BMP_GZIP
-#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE ((500 * 120 * 4) + (1 << 12))
+#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE  ((500 * 160 * 4) + 54)
 
 #define CONFIG_CMD_USB_MASS_STORAGE
 #define CONFIG_USB_GADGET_MASS_STORAGE

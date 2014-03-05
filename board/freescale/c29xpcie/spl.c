@@ -12,7 +12,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-ulong get_effective_memsize(void)
+phys_size_t get_effective_memsize(void)
 {
 	return CONFIG_SYS_L2_SIZE;
 }

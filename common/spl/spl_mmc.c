@@ -111,6 +111,30 @@ void spl_mmc_load_image(void)
 					CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION,
 					CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME);
 #endif
+#ifdef CONFIG_SUPPORT_EMMC_BOOT
+	} else if (boot_mode == MMCSD_MODE_EMMCBOOT) {
+		/*
+		 * We need to check what the partition is configured to.
+		 * 1 and 2 match up to boot0 / boot1 and 7 is user data
+		 * which is the first physical partition (0).
+		 */
+		int part = (mmc->part_config >> 3) & PART_ACCESS_MASK;
+
+		if (part == 7)
+			part = 0;
+
+		if (mmc_switch_part(0, part)) {
+#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
+			puts("MMC partition switch failed\n");
+#endif
+			hang();
+		}
+#ifdef CONFIG_SPL_OS_BOOT
+		if (spl_start_uboot() || mmc_load_image_raw_os(mmc))
+#endif
+		err = mmc_load_image_raw(mmc,
+			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
+#endif
 	} else {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
 		puts("spl: wrong MMC boot mode\n");

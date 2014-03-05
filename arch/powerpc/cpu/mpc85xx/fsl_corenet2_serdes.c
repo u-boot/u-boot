@@ -75,6 +75,8 @@ static const char *serdes_prtcl_str[] = {
 	[XFI_FM2_MAC9] = "XFI_FM2_MAC9",
 	[XFI_FM2_MAC10] = "XFI_FM2_MAC10",
 	[INTERLAKEN] = "INTERLAKEN",
+	[QSGMII_SW1_A] = "QSGMII_SW1_A",
+	[QSGMII_SW1_B] = "QSGMII_SW1_B",
 };
 #endif
 

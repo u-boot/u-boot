@@ -34,6 +34,7 @@ void __udelay(unsigned long usec)
 	}
 }
 
+#ifndef CONFIG_SPL_BUILD
 static void timer_isr(void *arg)
 {
 	timestamp++;
@@ -62,10 +63,15 @@ int timer_init (void)
 		if (ret)
 			tmr = NULL;
 	}
-
 	/* No problem if timer is not found/initialized */
 	return 0;
 }
+#else
+int timer_init(void)
+{
+	return 0;
+}
+#endif
 
 /*
  * This function is derived from PowerPC code (read timebase as long long).

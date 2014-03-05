@@ -141,7 +141,6 @@ Directory Hierarchy:
 	/s3c24x0	Files specific to Samsung S3C24X0 CPUs
       /arm926ejs	Files specific to ARM 926 CPUs
       /arm1136		Files specific to ARM 1136 CPUs
-      /ixp		Files specific to Intel XScale IXP CPUs
       /pxa		Files specific to Intel XScale PXA CPUs
       /sa1100		Files specific to Intel StrongARM SA1100 CPUs
     /lib		Architecture specific library files
@@ -472,6 +471,12 @@ The following options need to be configured:
 		Board config to use DDR3. It can be enabled for SoCs with
 		Freescale DDR3 controllers.
 
+		CONFIG_SYS_FSL_IFC_BE
+		Defines the IFC controller register space as Big Endian
+
+		CONFIG_SYS_FSL_IFC_LE
+		Defines the IFC controller register space as Little Endian
+
 		CONFIG_SYS_FSL_PBL_PBI
 		It enables addition of RCW (Power on reset configuration) in built image.
 		Please refer doc/README.pblimage for more details
@@ -480,6 +485,22 @@ The following options need to be configured:
 		It adds PBI(pre-boot instructions) commands in u-boot build image.
 		PBI commands can be used to configure SoC before it starts the execution.
 		Please refer doc/README.pblimage for more details
+
+		CONFIG_SYS_FSL_DDR_BE
+		Defines the DDR controller register space as Big Endian
+
+		CONFIG_SYS_FSL_DDR_LE
+		Defines the DDR controller register space as Little Endian
+
+		CONFIG_SYS_FSL_DDR_SDRAM_BASE_PHY
+		Physical address from the view of DDR controllers. It is the
+		same as CONFIG_SYS_DDR_SDRAM_BASE for  all Power SoCs. But
+		it could be different for ARM SoCs.
+
+		CONFIG_SYS_FSL_DDR_INTLV_256B
+		DDR controller interleaving on 256-byte. This is a special
+		interleaving mode, handled by Dickens for Freescale layerscape
+		SoCs with ARM core.
 
 - Intel Monahans options:
 		CONFIG_SYS_MONAHANS_RUN_MODE_OSC_RATIO
@@ -896,6 +917,7 @@ The following options need to be configured:
 		CONFIG_CMD_BSP		* Board specific commands
 		CONFIG_CMD_BOOTD	  bootd
 		CONFIG_CMD_CACHE	* icache, dcache
+		CONFIG_CMD_CLK   	* clock command support
 		CONFIG_CMD_CONSOLE	  coninfo
 		CONFIG_CMD_CRC32	* crc32
 		CONFIG_CMD_DATE		* support for RTC, date/time...
@@ -916,10 +938,11 @@ The following options need to be configured:
 		CONFIG_CMD_EXPORTENV	* export the environment
 		CONFIG_CMD_EXT2		* ext2 command support
 		CONFIG_CMD_EXT4		* ext4 command support
+		CONFIG_CMD_FS_GENERIC	* filesystem commands (e.g. load, ls)
+					  that work for multiple fs types
 		CONFIG_CMD_SAVEENV	  saveenv
 		CONFIG_CMD_FDC		* Floppy Disk Support
 		CONFIG_CMD_FAT		* FAT command support
-		CONFIG_CMD_FDOS		* Dos diskette Support
 		CONFIG_CMD_FLASH	  flinfo, erase, protect
 		CONFIG_CMD_FPGA		  FPGA device initialization support
 		CONFIG_CMD_FUSE		* Device fuse support
@@ -1718,7 +1741,7 @@ CBFS (Coreboot Filesystem) support
 
 		If this option is set, then U-Boot will prevent the environment
 		variable "splashimage" from being set to a problematic address
-		(see README.displaying-bmps and README.arm-unaligned-accesses).
+		(see README.displaying-bmps).
 		This option is useful for targets where, due to alignment
 		restrictions, an improperly aligned BMP image will cause a data
 		abort. If you think you will not have problems with unaligned
@@ -2841,11 +2864,31 @@ CBFS (Coreboot Filesystem) support
 		CONFIG_RSA
 
 		This enables the RSA algorithm used for FIT image verification
-		in U-Boot. See doc/uImage/signature for more information.
+		in U-Boot. See doc/uImage.FIT/signature.txt for more information.
 
 		The signing part is build into mkimage regardless of this
 		option.
 
+- bootcount support:
+		CONFIG_BOOTCOUNT_LIMIT
+
+		This enables the bootcounter support, see:
+		http://www.denx.de/wiki/DULG/UBootBootCountLimit
+
+		CONFIG_AT91SAM9XE
+		enable special bootcounter support on at91sam9xe based boards.
+		CONFIG_BLACKFIN
+		enable special bootcounter support on blackfin based boards.
+		CONFIG_SOC_DA8XX
+		enable special bootcounter support on da850 based boards.
+		CONFIG_BOOTCOUNT_RAM
+		enable support for the bootcounter in RAM
+		CONFIG_BOOTCOUNT_I2C
+		enable support for the bootcounter on an i2c (like RTC) device.
+			CONFIG_SYS_I2C_RTC_ADDR = i2c chip address
+			CONFIG_SYS_BOOTCOUNT_ADDR = i2c addr which is used for
+						    the bootcounter.
+			CONFIG_BOOTCOUNT_ALEN = address len
 
 - Show boot progress:
 		CONFIG_SHOW_BOOT_PROGRESS
@@ -3698,12 +3741,6 @@ Configuration Settings:
 	must support it (i.e. must define __HAVE_ARCH_GENERIC_BOARD in
 	its config.mk file). If you find problems enabling this option on
 	your board please report the problem and send patches!
-
-- CONFIG_SYS_SYM_OFFSETS
-	This is set by architectures that use offsets for link symbols
-	instead of absolute values. So bss_start is obtained using an
-	offset _bss_start_ofs from CONFIG_SYS_TEXT_BASE, rather than
-	directly. You should not need to touch this setting.
 
 - CONFIG_OMAP_PLATFORM_RESET_TIME_MAX_USEC (OMAP only)
 	This is set by OMAP boards for the max time that reset should

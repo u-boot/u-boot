@@ -99,11 +99,16 @@
 #define CONFIG_KM_UBI_PARTITION_NAME_BOOT	"ubi0"
 #endif /* CONFIG_KM_UBI_PARTITION_NAME_BOOT */
 
+#ifndef CONFIG_KM_UBI_PART_BOOT_OPTS
+#define CONFIG_KM_UBI_PART_BOOT_OPTS		""
+#endif /* CONFIG_KM_UBI_PART_BOOT_OPTS */
+
 #ifndef CONFIG_KM_UBI_PARTITION_NAME_APP
 /* one flash chip only called boot */
 /* boot: CONFIG_KM_UBI_PARTITION_NAME_BOOT */
 # define CONFIG_KM_UBI_LINUX_MTD					\
-	"ubi.mtd=" CONFIG_KM_UBI_PARTITION_NAME_BOOT
+	"ubi.mtd=" CONFIG_KM_UBI_PARTITION_NAME_BOOT			\
+	CONFIG_KM_UBI_PART_BOOT_OPTS
 # define CONFIG_KM_DEV_ENV_FLASH_BOOT_UBI				\
 	"ubiattach=ubi part " CONFIG_KM_UBI_PARTITION_NAME_BOOT "\0"
 #else /* CONFIG_KM_UBI_PARTITION_NAME_APP */
@@ -111,7 +116,8 @@
 /* boot: CONFIG_KM_UBI_PARTITION_NAME_BOOT */
 /* app:  CONFIG_KM_UBI_PARTITION_NAME_APP */
 # define CONFIG_KM_UBI_LINUX_MTD					\
-	"ubi.mtd=" CONFIG_KM_UBI_PARTITION_NAME_BOOT " "		\
+	"ubi.mtd=" CONFIG_KM_UBI_PARTITION_NAME_BOOT			\
+	CONFIG_KM_UBI_PART_BOOT_OPTS " "				\
 	"ubi.mtd=" CONFIG_KM_UBI_PARTITION_NAME_APP
 # define CONFIG_KM_DEV_ENV_FLASH_BOOT_UBI				\
 	"ubiattach=if test ${boot_bank} -eq 0; then; "			\
@@ -135,8 +141,8 @@
  * - 'release': for a standalone system		kernel/rootfs from flash
  */
 #define CONFIG_KM_DEF_ENV_BOOTTARGETS					\
-	"subbootcmds=ubiattach ubicopy cramfsloadfdt cramfsloadkernel "	\
-		"flashargs add_default addpanic boot\0"			\
+	"subbootcmds=ubiattach ubicopy cramfsloadfdt set_fdthigh "	\
+		"cramfsloadkernel flashargs add_default addpanic boot\0"\
 	"develop="							\
 		"tftp 200000 scripts/develop-${arch}.txt && "		\
 		"env import -t 200000 ${filesize} && "			\
@@ -220,6 +226,7 @@
 	CONFIG_KM_DEF_ENV_FLASH_BOOT					\
 	CONFIG_KM_DEF_ENV_CONSTANTS					\
 	"altbootcmd=run bootcmd\0"					\
+	"boot=bootm ${load_addr_r} - ${fdt_addr_r}\0"			\
 	"bootcmd=km_checkbidhwk &&  "					\
 		"setenv bootcmd \'if km_checktestboot; then; "          \
 				"setenv boot_bank ${test_bank}; else; " \
@@ -229,6 +236,10 @@
 			"run ${subbootcmds}; reset\' && "		\
 		"saveenv && saveenv && boot\0"				\
 	"bootlimit=3\0"							\
+	"cramfsloadfdt="						\
+		"cramfsload ${fdt_addr_r} "				\
+		"fdt_0x${IVM_BoardId}_0x${IVM_HWKey}.dtb\0"		\
+	"fdt_addr_r="__stringify(CONFIG_KM_FDT_ADDR) "\0"		\
 	"init=/sbin/init-overlay.sh\0"					\
 	"load_addr_r="__stringify(CONFIG_KM_KERNEL_ADDR) "\0"		\
 	"load=tftpboot ${load_addr_r} ${u-boot}\0"			\

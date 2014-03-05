@@ -51,10 +51,17 @@
 #include <asm/io.h>
 /* CPU detection macros */
 extern unsigned int s5p_cpu_id;
+extern unsigned int s5p_cpu_rev;
+
+static inline int s5p_get_cpu_rev(void)
+{
+	return s5p_cpu_rev;
+}
 
 static inline void s5p_set_cpu_id(void)
 {
 	s5p_cpu_id = readl(S5PC100_PRO_ID);
+	s5p_cpu_rev = s5p_cpu_id & 0x000000FF;
 	s5p_cpu_id = 0xC000 | ((s5p_cpu_id & 0x00FFF000) >> 12);
 }
 
