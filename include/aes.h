@@ -25,29 +25,31 @@ enum {
 };
 
 /**
+ * aes_expand_key() - Expand the AES key
+ *
  * Expand a key into a key schedule, which is then used for the other
  * operations.
  *
- * \param key		Key, of length AES_KEY_LENGTH bytes
- * \param expkey	Buffer to place expanded key, AES_EXPAND_KEY_LENGTH
+ * @key		Key, of length AES_KEY_LENGTH bytes
+ * @expkey	Buffer to place expanded key, AES_EXPAND_KEY_LENGTH
  */
 void aes_expand_key(u8 *key, u8 *expkey);
 
 /**
- * Encrypt a single block of data
+ * aes_encrypt() - Encrypt single block of data with AES 128
  *
- * in		Input data
- * expkey	Expanded key to use for encryption (from aes_expand_key())
- * out		Output data
+ * @in		Input data
+ * @expkey	Expanded key to use for encryption (from aes_expand_key())
+ * @out		Output data
  */
 void aes_encrypt(u8 *in, u8 *expkey, u8 *out);
 
 /**
- * Decrypt a single block of data
+ * aes_decrypt() - Decrypt single block of data with AES 128
  *
- * in		Input data
- * expkey	Expanded key to use for decryption (from aes_expand_key())
- * out		Output data
+ * @in		Input data
+ * @expkey	Expanded key to use for decryption (from aes_expand_key())
+ * @out		Output data
  */
 void aes_decrypt(u8 *in, u8 *expkey, u8 *out);
 
