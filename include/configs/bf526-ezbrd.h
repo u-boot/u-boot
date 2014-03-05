@@ -153,6 +153,7 @@
 #define CONFIG_MISC_INIT_R
 #define CONFIG_RTC_BFIN
 #define CONFIG_UART_CONSOLE	1
+#define CONFIG_CC_OPTIMIZE_LIBS_FOR_SPEED
 
 /* define to enable run status via led */
 /* #define CONFIG_STATUS_LED */

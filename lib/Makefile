@@ -65,3 +65,5 @@ obj-y += vsprintf.o
 obj-$(CONFIG_RANDOM_MACADDR) += rand.o
 obj-$(CONFIG_BOOTP_RANDOM_DELAY) += rand.o
 obj-$(CONFIG_CMD_LINK_LOCAL) += rand.o
+
+subdir-ccflags-$(CONFIG_CC_OPTIMIZE_LIBS_FOR_SPEED) += -O2
