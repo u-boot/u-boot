@@ -580,3 +580,55 @@ void aes_decrypt(u8 *in, u8 *expkey, u8 *out)
 
 	memcpy(out, state, sizeof(state));
 }
+
+static void debug_print_vector(char *name, u32 num_bytes, u8 *data)
+{
+#ifdef DEBUG
+	printf("%s [%d] @0x%08x", name, num_bytes, (u32)data);
+	print_buffer(0, data, 1, num_bytes, 16);
+#endif
+}
+
+/**
+ * Apply chain data to the destination using EOR
+ *
+ * Each array is of length AES_KEY_LENGTH.
+ *
+ * @cbc_chain_data	Chain data
+ * @src			Source data
+ * @dst			Destination data, which is modified here
+ */
+static void apply_cbc_chain_data(u8 *cbc_chain_data, u8 *src, u8 *dst)
+{
+	int i;
+
+	for (i = 0; i < AES_KEY_LENGTH; i++)
+		*dst++ = *src++ ^ *cbc_chain_data++;
+}
+
+void aes_cbc_encrypt_blocks(u8 *key_exp, u8 *src, u8 *dst, u32 num_aes_blocks)
+{
+	u8 zero_key[AES_KEY_LENGTH] = { 0 };
+	u8 tmp_data[AES_KEY_LENGTH];
+	/* Convenient array of 0's for IV */
+	u8 *cbc_chain_data = zero_key;
+	u32 i;
+
+	for (i = 0; i < num_aes_blocks; i++) {
+		debug("encrypt_object: block %d of %d\n", i, num_aes_blocks);
+		debug_print_vector("AES Src", AES_KEY_LENGTH, src);
+
+		/* Apply the chain data */
+		apply_cbc_chain_data(cbc_chain_data, src, tmp_data);
+		debug_print_vector("AES Xor", AES_KEY_LENGTH, tmp_data);
+
+		/* Encrypt the AES block */
+		aes_encrypt(tmp_data, key_exp, dst);
+		debug_print_vector("AES Dst", AES_KEY_LENGTH, dst);
+
+		/* Update pointers for next loop. */
+		cbc_chain_data = dst;
+		src += AES_KEY_LENGTH;
+		dst += AES_KEY_LENGTH;
+	}
+}

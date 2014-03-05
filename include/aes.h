@@ -53,4 +53,14 @@ void aes_encrypt(u8 *in, u8 *expkey, u8 *out);
  */
 void aes_decrypt(u8 *in, u8 *expkey, u8 *out);
 
+/**
+ * aes_cbc_encrypt_blocks() - Encrypt multiple blocks of data with AES CBC.
+ *
+ * @key_exp		Expanded key to use
+ * @src			Source data to encrypt
+ * @dst			Destination buffer
+ * @num_aes_blocks	Number of AES blocks to encrypt
+ */
+void aes_cbc_encrypt_blocks(u8 *key_exp, u8 *src, u8 *dst, u32 num_aes_blocks);
+
 #endif /* _AES_REF_H_ */
