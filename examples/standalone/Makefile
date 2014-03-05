@@ -44,9 +44,8 @@ gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
 # relocatable executable.  The relocation data is not needed, and
 # also causes the entry point of the standalone application to be
 # inconsistent.
-ifeq ($(ARCH),powerpc)
-# FIX ME
-CPPFLAGS := $(filter-out $(RELFLAGS), $(CPPFLAGS))
+ifeq ($(CONFIG_PPC),y)
+PLATFORM_CPPFLAGS := $(filter-out $(RELFLAGS),$(PLATFORM_CPPFLAGS))
 endif
 
 # We don't want gcc reordering functions if possible.  This ensures that an

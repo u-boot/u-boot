@@ -29,10 +29,6 @@ ifeq ($(CONFIG_TPL_BUILD),y)
 KBUILD_CPPFLAGS += -DCONFIG_TPL_BUILD
 endif
 
-# Enable garbage collection of un-used sections for SPL
-KBUILD_CFLAGS += -ffunction-sections -fdata-sections
-LDFLAGS_FINAL += --gc-sections
-
 ifeq ($(CONFIG_TPL_BUILD),y)
 export CONFIG_TPL_BUILD
 SPL_BIN := u-boot-tpl
@@ -50,8 +46,14 @@ endif
 
 include $(TOPDIR)/config.mk
 
+# Enable garbage collection of un-used sections for SPL
+KBUILD_CFLAGS += -ffunction-sections -fdata-sections
+LDFLAGS_FINAL += --gc-sections
+
 # FIX ME
-c_flags := $(KBUILD_CFLAGS) $(KBUILD_CPPFLAGS) $(CPPFLAGS) $(UBOOTINCLUDE) $(NOSTDINC_FLAGS)
+cpp_flags := $(KBUILD_CPPFLAGS) $(PLATFORM_CPPFLAGS) $(UBOOTINCLUDE) \
+							$(NOSTDINC_FLAGS)
+c_flags := $(KBUILD_CFLAGS) $(cpp_flags)
 
 # Auto-generate the spl-autoconf.mk file (which is included by all makefiles for SPL)
 quiet_cmd_autoconf = GEN     $@
@@ -227,9 +229,6 @@ $(sort $(u-boot-spl-init) $(u-boot-spl-main)): $(u-boot-spl-dirs) ;
 PHONY += $(u-boot-spl-dirs)
 $(u-boot-spl-dirs):
 	$(Q)$(MAKE) $(build)=$@
-
-# FIX ME
-cpp_flags := $(KBUILD_CPPFLAGS) $(CPPFLAGS) $(UBOOTINCLUDE) $(NOSTDINC_FLAGS)
 
 quiet_cmd_cpp_lds = LDS     $@
 cmd_cpp_lds = $(CPP) $(cpp_flags) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ \

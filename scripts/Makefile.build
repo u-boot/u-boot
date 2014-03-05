@@ -55,11 +55,6 @@ endif
 
 include scripts/Kbuild.include
 
-# Added for U-Boot
-# We must include config.mk after Kbuild.include
-# so that some config.mk can use cc-option.
-include config.mk
-
 # For backward compatibility check that these variables do not change
 save-cflags := $(CFLAGS)
 
@@ -67,6 +62,11 @@ save-cflags := $(CFLAGS)
 kbuild-dir := $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
 kbuild-file := $(if $(wildcard $(kbuild-dir)/Kbuild),$(kbuild-dir)/Kbuild,$(kbuild-dir)/Makefile)
 include $(kbuild-file)
+
+# Added for U-Boot
+asflags-y  += $(PLATFORM_CPPFLAGS)
+ccflags-y  += $(PLATFORM_CPPFLAGS)
+cppflags-y += $(PLATFORM_CPPFLAGS)
 
 # If the save-* variables changed error out
 ifeq ($(KBUILD_NOPEDANTIC),)
