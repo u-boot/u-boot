@@ -132,7 +132,7 @@ u-boot-spl-dirs	:= $(patsubst %/,%,$(filter %/, $(libs-y)))
 libs-y := $(patsubst %/, %/built-in.o, $(libs-y))
 
 # Add GCC lib
-ifeq ("$(USE_PRIVATE_LIBGCC)", "yes")
+ifeq ($(CONFIG_USE_PRIVATE_LIBGCC),y)
 PLATFORM_LIBGCC = arch/$(ARCH)/lib/lib.a
 PLATFORM_LIBS := $(filter-out %/lib.a, $(filter-out -lgcc, $(PLATFORM_LIBS))) $(PLATFORM_LIBGCC)
 endif
