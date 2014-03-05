@@ -17,7 +17,6 @@
  * (easy to change)
  */
 
-#define CONFIG_MPC8260		1	/* This is an MPC8260 CPU	*/
 #define CONFIG_HYMOD		1	/* ...on a Hymod board		*/
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 

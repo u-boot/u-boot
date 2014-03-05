@@ -159,7 +159,7 @@ kgdb_trap(struct pt_regs *regs)
 
 #define SPACE_REQUIRED	((32*4)+(32*8)+(6*4))
 
-#ifdef CONFIG_8260
+#ifdef CONFIG_MPC8260
 /* store floating double indexed */
 #define STFDI(n,p)	__asm__ __volatile__ ("stfd " #n ",%0" : "=o"(p[2*n]))
 /* store floating double multiple */
@@ -190,7 +190,7 @@ kgdb_getregs(struct pt_regs *regs, char *buf, int max)
 		*ptr++ = regs->gpr[i];
 
 	/* Floating Point Regs */
-#ifdef CONFIG_8260
+#ifdef CONFIG_MPC8260
 	STFDM(ptr);
 	ptr += 32*2;
 #else
@@ -213,7 +213,7 @@ kgdb_getregs(struct pt_regs *regs, char *buf, int max)
 
 /* set the value of the CPU registers */
 
-#ifdef CONFIG_8260
+#ifdef CONFIG_MPC8260
 /* load floating double */
 #define LFD(n,v)	__asm__ __volatile__ ("lfd " #n ",%0" :: "o"(v))
 /* load floating double indexed */
@@ -252,7 +252,7 @@ kgdb_putreg(struct pt_regs *regs, int regno, char *buf, int length)
 		regs->gpr[regno] = *ptr;
 	else switch (regno) {
 
-#ifdef CONFIG_8260
+#ifdef CONFIG_MPC8260
 #define caseF(n) \
 	case (n) + 32:	LFD(n, *ptr);		break;
 
@@ -298,7 +298,7 @@ kgdb_putregs(struct pt_regs *regs, char *buf, int length)
 		regs->gpr[i] = *ptr++;
 
 	/* Floating Point Regs */
-#ifdef CONFIG_8260
+#ifdef CONFIG_MPC8260
 	LFDM(ptr);
 #endif
 	ptr += 32*2;
