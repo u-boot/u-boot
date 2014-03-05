@@ -404,7 +404,6 @@
 /* NAND support */
 #ifdef CONFIG_NAND
 #define CONFIG_CMD_NAND
-#define GPMC_NAND_ECC_LP_x16_LAYOUT	1
 #if !defined(CONFIG_SPI_BOOT) && !defined(CONFIG_NOR_BOOT)
 #define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
 #define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:128k(SPL)," \

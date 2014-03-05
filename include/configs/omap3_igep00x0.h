@@ -154,7 +154,6 @@
 
 #ifdef CONFIG_NAND
 #define PISMO1_NAND_SIZE		GPMC_SIZE_128M /* Configure the PISMO */
-#define GPMC_NAND_ECC_LP_x16_LAYOUT	1
 #define CONFIG_ENV_OFFSET		0x260000 /* environment starts here */
 #define CONFIG_ENV_IS_IN_NAND	        1
 #define CONFIG_ENV_SIZE			(512 << 10) /* Total Size Environment */

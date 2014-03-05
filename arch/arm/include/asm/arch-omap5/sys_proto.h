@@ -12,6 +12,7 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/omap_common.h>
+#include <linux/mtd/omap_gpmc.h>
 #include <asm/arch/clock.h>
 
 DECLARE_GLOBAL_DATA_PTR;
