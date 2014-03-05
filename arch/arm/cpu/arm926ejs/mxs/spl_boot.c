@@ -102,6 +102,18 @@ static uint8_t mxs_get_bootmode_index(void)
 	return i;
 }
 
+static void mxs_spl_fixup_vectors(void)
+{
+	/*
+	 * Copy our vector table to 0x0, since due to HAB, we cannot
+	 * be loaded to 0x0. We want to have working vectoring though,
+	 * thus this fixup. Our vectoring table is PIC, so copying is
+	 * fine.
+	 */
+	extern uint32_t _start;
+	memcpy(0x0, &_start, 0x60);
+}
+
 void mxs_common_spl_init(const uint32_t arg, const uint32_t *resptr,
 			 const iomux_cfg_t *iomux_setup,
 			 const unsigned int iomux_size)
@@ -110,7 +122,10 @@ void mxs_common_spl_init(const uint32_t arg, const uint32_t *resptr,
 		((CONFIG_SYS_TEXT_BASE - sizeof(struct mxs_spl_data)) & ~0xf);
 	uint8_t bootmode = mxs_get_bootmode_index();
 
+	mxs_spl_fixup_vectors();
+
 	mxs_iomux_setup_multiple_pads(iomux_setup, iomux_size);
+
 	mxs_power_init();
 
 	mxs_mem_init();
