@@ -856,6 +856,8 @@ OBJCOPYFLAGS_u-boot.ais = -I binary -O binary --pad-to=$(CONFIG_SPL_MAX_SIZE)
 u-boot.ais: spl/u-boot-spl.ais u-boot.img FORCE
 	$(call if_changed,pad_cat)
 
+u-boot-signed.sb: u-boot.bin spl/u-boot-spl.bin
+	$(Q)$(MAKE) $(build)=arch/arm/cpu/arm926ejs/mxs $(objtree)/u-boot-signed.sb
 u-boot.sb: u-boot.bin spl/u-boot-spl.bin
 	$(Q)$(MAKE) $(build)=arch/arm/cpu/arm926ejs/mxs $(objtree)/u-boot.sb
 
