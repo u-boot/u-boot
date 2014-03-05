@@ -172,6 +172,23 @@ int env_import(const char *buf, int check)
 	return 0;
 }
 
+/* Emport the environment and generate CRC for it. */
+int env_export(env_t *env_out)
+{
+	char *res;
+	ssize_t	len;
+
+	res = (char *)env_out->data;
+	len = hexport_r(&env_htab, '\0', 0, &res, ENV_SIZE, 0, NULL);
+	if (len < 0) {
+		error("Cannot export environment: errno = %d\n", errno);
+		return 1;
+	}
+	env_out->crc = crc32(0, env_out->data, ENV_SIZE);
+
+	return 0;
+}
+
 void env_relocate(void)
 {
 #if defined(CONFIG_NEEDS_MANUAL_RELOC)
