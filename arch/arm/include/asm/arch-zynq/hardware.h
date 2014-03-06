@@ -25,7 +25,7 @@
 #define ZYNQ_EFUSE_BASEADDR		0xF800D000
 
 /* Bootmode setting values */
-#define ZYNQ_BM_MASK		0xF
+#define ZYNQ_BM_MASK		0x7
 #define ZYNQ_BM_NOR		0x2
 #define ZYNQ_BM_SD		0x5
 #define ZYNQ_BM_JTAG		0x0
