@@ -182,6 +182,11 @@
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #endif
 
+/* OCOTP */
+#ifdef CONFIG_CMD_FUSE
+#define CONFIG_MXS_OCOTP
+#endif
+
 /* SPI */
 #ifdef CONFIG_CMD_SPI
 #define CONFIG_HARD_SPI
