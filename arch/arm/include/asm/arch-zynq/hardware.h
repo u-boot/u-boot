@@ -30,7 +30,7 @@
 #define ZYNQ_USB_BASEADDR1		0xE0003000
 
 /* Bootmode setting values */
-#define ZYNQ_BM_MASK		0x0F
+#define ZYNQ_BM_MASK		0x07
 #define ZYNQ_BM_QSPI		0x01
 #define ZYNQ_BM_NOR		0x02
 #define ZYNQ_BM_NAND		0x04
