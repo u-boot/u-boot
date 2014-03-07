@@ -863,9 +863,9 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 		if (mtd_type != MTD_ABSENT)
 			ioctl(fd, MEMLOCK, &erase);
 
-		processed  += blocklen;
+		processed  += erasesize;
 		block_seek = 0;
-		blockstart += blocklen;
+		blockstart += erasesize;
 	}
 
 	if (write_total > count)
