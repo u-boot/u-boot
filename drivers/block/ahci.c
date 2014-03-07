@@ -930,6 +930,11 @@ int ahci_init(u32 base)
 err_out:
 	return rc;
 }
+
+void __weak scsi_init(void)
+{
+}
+
 #endif
 
 /*

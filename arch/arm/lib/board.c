@@ -33,6 +33,7 @@
 #include <nand.h>
 #include <onenand_uboot.h>
 #include <mmc.h>
+#include <scsi.h>
 #include <libfdt.h>
 #include <fdtdec.h>
 #include <post.h>
@@ -591,6 +592,11 @@ void board_init_r(gd_t *id, ulong dest_addr)
 #ifdef CONFIG_GENERIC_MMC
 	puts("MMC:   ");
 	mmc_initialize(gd->bd);
+#endif
+
+#ifdef CONFIG_CMD_SCSI
+	puts("SCSI:  ");
+	scsi_init();
 #endif
 
 #ifdef CONFIG_HAS_DATAFLASH
