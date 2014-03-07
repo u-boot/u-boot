@@ -377,7 +377,19 @@ int board_mmc_init(bd_t *bis)
 	return ret;
 }
 #endif
+
+#ifdef CONFIG_DISPLAY_BOARDINFO
+int checkboard(void)
+{
+	const char *board_name;
+
+	board_name = fdt_getprop(gd->fdt_blob, 0, "model", NULL);
+	printf("Board: %s\n", board_name ? board_name : "unknown");
+
+	return 0;
+}
 #endif
+#endif /* CONFIG_OF_CONTROL */
 
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
