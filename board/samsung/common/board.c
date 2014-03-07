@@ -22,6 +22,8 @@
 #include <asm/arch/power.h>
 #include <power/pmic.h>
 #include <asm/arch/sromc.h>
+#include <lcd.h>
+#include <samsung/misc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -183,6 +185,7 @@ int power_init_board(void)
 #endif
 
 #ifdef CONFIG_OF_CONTROL
+#ifdef CONFIG_SMC911X
 static int decode_sromc(const void *blob, struct fdt_sromc *config)
 {
 	int err;
@@ -206,6 +209,7 @@ static int decode_sromc(const void *blob, struct fdt_sromc *config)
 	}
 	return 0;
 }
+#endif
 
 int board_eth_init(bd_t *bis)
 {
@@ -263,10 +267,18 @@ int board_mmc_init(bd_t *bis)
 {
 	int ret;
 
+#ifdef CONFIG_SDHCI
+	/* mmc initializattion for available channels */
+	ret = exynos_mmc_init(gd->fdt_blob);
+	if (ret)
+		debug("mmc init failed\n");
+#endif
+#ifdef CONFIG_DWMMC
 	/* dwmmc initializattion for available channels */
 	ret = exynos_dwmmc_init(gd->fdt_blob);
 	if (ret)
 		debug("dwmmc init failed\n");
+#endif
 
 	return ret;
 }
@@ -315,3 +327,21 @@ int arch_early_init_r(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_MISC_INIT_R
+int misc_init_r(void)
+{
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	set_board_info();
+#endif
+#ifdef CONFIG_LCD_MENU
+	keys_init();
+	check_boot_mode();
+#endif
+#ifdef CONFIG_CMD_BMP
+	if (panel_info.logo_on)
+		draw_logo();
+#endif
+	return 0;
+}
+#endif
