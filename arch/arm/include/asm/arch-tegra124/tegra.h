@@ -8,6 +8,8 @@
 #ifndef _TEGRA124_H_
 #define _TEGRA124_H_
 
+#define CONFIG_TEGRA124
+
 #define NV_PA_SDRAM_BASE	0x80000000
 #define NV_PA_TSC_BASE		0x700F0000	/* System Counter TSC regs */
 #define NV_PA_MC_BASE		0x70019000	/* Mem Ctlr regs (MCB, etc.) */
