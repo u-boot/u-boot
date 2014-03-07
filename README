@@ -164,7 +164,6 @@ Directory Hierarchy:
   /mips			Files generic to MIPS architecture
     /cpu		CPU specific files
       /mips32		Files specific to MIPS32 CPUs
-      /xburst		Files specific to Ingenic XBurst CPUs
     /lib		Architecture specific library files
   /nds32		Files generic to NDS32 architecture
     /cpu		CPU specific files
