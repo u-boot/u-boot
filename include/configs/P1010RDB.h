@@ -541,7 +541,8 @@ extern unsigned long get_sdram_size(void);
 					FTIM2_GPCM_TWP(0x1f))
 #define CONFIG_SYS_CS3_FTIM3		0x0
 
-#if defined(CONFIG_RAMBOOT_SDCARD) || defined(CONFIG_RAMBOOT_SPIFLASH)
+#if defined(CONFIG_RAMBOOT_SDCARD) || defined(CONFIG_RAMBOOT_SPIFLASH) || \
+	defined(CONFIG_RAMBOOT_NAND)
 #define CONFIG_SYS_RAMBOOT
 #define CONFIG_SYS_EXTRA_ENV_RELOC
 #else
