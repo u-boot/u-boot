@@ -33,6 +33,20 @@ struct local_info {
 
 static struct local_info local;
 
+int __exynos_early_init_f(void)
+{
+	return 0;
+}
+int exynos_early_init_f(void)
+	__attribute__((weak, alias("__exynos_early_init_f")));
+
+int __exynos_power_init(void)
+{
+	return 0;
+}
+int exynos_power_init(void)
+	__attribute__((weak, alias("__exynos_power_init")));
+
 #if defined CONFIG_EXYNOS_TMU
 /* Boot Time Thermal Analysis for SoC temperature threshold breach */
 static void boot_temp_check(void)
@@ -140,7 +154,7 @@ int board_early_init_f(void)
 	board_i2c_init(gd->fdt_blob);
 #endif
 
-	return err;
+	return exynos_early_init_f();
 }
 #endif
 
@@ -284,7 +298,7 @@ int power_init_board(void)
 	ret = max77686_init();
 #endif
 
-	return ret;
+	return exynos_power_init();
 }
 #endif
 
