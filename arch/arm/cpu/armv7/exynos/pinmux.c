@@ -741,6 +741,21 @@ int exynos_pinmux_config(int peripheral, int flags)
 }
 
 #ifdef CONFIG_OF_CONTROL
+static int exynos4_pinmux_decode_periph_id(const void *blob, int node)
+{
+	int err;
+	u32 cell[3];
+
+	err = fdtdec_get_int_array(blob, node, "interrupts", cell,
+					ARRAY_SIZE(cell));
+	if (err) {
+		debug(" invalid peripheral id\n");
+		return PERIPH_ID_NONE;
+	}
+
+	return cell[1];
+}
+
 static int exynos5_pinmux_decode_periph_id(const void *blob, int node)
 {
 	int err;
@@ -758,6 +773,8 @@ int pinmux_decode_periph_id(const void *blob, int node)
 {
 	if (cpu_is_exynos5())
 		return  exynos5_pinmux_decode_periph_id(blob, node);
+	else if (cpu_is_exynos4())
+		return  exynos4_pinmux_decode_periph_id(blob, node);
 	else
 		return PERIPH_ID_NONE;
 }
