@@ -100,7 +100,8 @@
 #if LCD_BPP == LCD_MONOCHROME
 # define COLOR_MASK(c)		((c)	  | (c) << 1 | (c) << 2 | (c) << 3 | \
 				 (c) << 4 | (c) << 5 | (c) << 6 | (c) << 7)
-#elif (LCD_BPP == LCD_COLOR8) || (LCD_BPP == LCD_COLOR16)
+#elif (LCD_BPP == LCD_COLOR8) || (LCD_BPP == LCD_COLOR16) || \
+	(LCD_BPP == LCD_COLOR32)
 # define COLOR_MASK(c)		(c)
 #else
 # error Unsupported LCD BPP.
@@ -177,10 +178,20 @@ static void console_scrollup(void)
 	       CONSOLE_SIZE - CONSOLE_ROW_SIZE * rows);
 
 	/* Clear the last rows */
+#if (LCD_BPP != LCD_COLOR32)
 	memset(lcd_console_address + CONSOLE_SIZE - CONSOLE_ROW_SIZE * rows,
 		COLOR_MASK(lcd_color_bg),
 		CONSOLE_ROW_SIZE * rows);
-
+#else
+	u32 *ppix = lcd_console_address +
+		    CONSOLE_SIZE - CONSOLE_ROW_SIZE * rows;
+	u32 i;
+	for (i = 0;
+	    i < (CONSOLE_ROW_SIZE * rows) / NBYTES(panel_info.vl_bpix);
+	    i++) {
+		*ppix++ = COLOR_MASK(lcd_color_bg);
+	}
+#endif
 	lcd_sync();
 	console_row -= rows;
 }
@@ -308,13 +319,15 @@ static void lcd_drawchars(ushort x, ushort y, uchar *str, int count)
 	ushort off  = x * (1 << LCD_BPP) % 8;
 #endif
 
-	dest = (uchar *)(lcd_base + y * lcd_line_length + x * (1 << LCD_BPP) / 8);
+	dest = (uchar *)(lcd_base + y * lcd_line_length + x * NBITS(LCD_BPP)/8);
 
 	for (row = 0; row < VIDEO_FONT_HEIGHT; ++row, dest += lcd_line_length) {
 		uchar *s = str;
 		int i;
 #if LCD_BPP == LCD_COLOR16
 		ushort *d = (ushort *)dest;
+#elif LCD_BPP == LCD_COLOR32
+		u32 *d = (u32 *)dest;
 #else
 		uchar *d = dest;
 #endif
@@ -342,6 +355,12 @@ static void lcd_drawchars(ushort x, ushort y, uchar *str, int count)
 				bits <<= 1;
 			}
 #elif LCD_BPP == LCD_COLOR16
+			for (c = 0; c < 8; ++c) {
+				*d++ = (bits & 0x80) ?
+						lcd_color_fg : lcd_color_bg;
+				bits <<= 1;
+			}
+#elif LCD_BPP == LCD_COLOR32
 			for (c = 0; c < 8; ++c) {
 				*d++ = (bits & 0x80) ?
 						lcd_color_fg : lcd_color_bg;
@@ -476,9 +495,19 @@ void lcd_clear(void)
 	test_pattern();
 #else
 	/* set framebuffer to background color */
+#if (LCD_BPP != LCD_COLOR32)
 	memset((char *)lcd_base,
 		COLOR_MASK(lcd_getbgcolor()),
 		lcd_line_length * panel_info.vl_row);
+#else
+	u32 *ppix = lcd_base;
+	u32 i;
+	for (i = 0;
+	   i < (lcd_line_length * panel_info.vl_row)/NBYTES(panel_info.vl_bpix);
+	   i++) {
+		*ppix++ = COLOR_MASK(lcd_color_bg);
+	}
+#endif
 #endif
 	/* Paint the logo and retrieve LCD base address */
 	debug("[LCD] Drawing the logo...\n");
