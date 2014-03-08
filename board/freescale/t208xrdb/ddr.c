@@ -1,7 +1,9 @@
 /*
- * Copyright 2013 Freescale Semiconductor, Inc.
+ * Copyright 2014 Freescale Semiconductor, Inc.
  *
- * SPDX-License-Identifier:	GPL-2.0+
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * Version 2 or later as published by the Free Software Foundation.
  */
 
 #include <common.h>
@@ -14,21 +16,6 @@
 #include "ddr.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
-int fsl_ddr_get_dimm_params(dimm_params_t *pdimm,
-		unsigned int controller_number,
-		unsigned int dimm_number)
-{
-	const char dimm_model[] = "RAW timing DDR";
-
-	if ((controller_number == 0) && (dimm_number == 0)) {
-		memcpy(pdimm, &ddr_raw_timing, sizeof(dimm_params_t));
-		memset(pdimm->mpart, 0, sizeof(pdimm->mpart));
-		memcpy(pdimm->mpart, dimm_model, sizeof(dimm_model) - 1);
-	}
-
-	return 0;
-}
 
 void fsl_ddr_board_options(memctl_options_t *popts,
 				dimm_params_t *pdimm,
@@ -46,7 +33,7 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 
 	pbsp = udimms[0];
 
-	/* Get clk_adjust according to the board ddr
+	/* Get clk_adjust, wrlvl_start, wrlvl_ctl, according to the board ddr
 	 * freqency and n_banks specified in board_specific_parameters table.
 	 */
 	ddr_freq = get_ddr_freq(0) / 1000000;
@@ -66,7 +53,7 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	}
 
 	if (pbsp_highest) {
-		printf("Error: board specific timing not found\n");
+		printf("Error: board specific timing not found");
 		printf("for data rate %lu MT/s\n", ddr_freq);
 		printf("Trying to use the highest speed (%u) parameters\n",
 		       pbsp_highest->datarate_mhz_high);
@@ -97,7 +84,7 @@ found:
 	popts->wrlvl_sample = 0xf;
 
 	/*
-	 * rtt and rtt_wr override
+	 * Rtt and Rtt_WR override
 	 */
 	popts->rtt_override = 0;
 
@@ -105,8 +92,8 @@ found:
 	popts->zq_en = 1;
 
 	/* DHC_EN =1, ODT = 75 Ohm */
-	popts->ddr_cdr1 = DDR_CDR1_DHC_EN | DDR_CDR1_ODT(DDR_CDR_ODT_OFF);
-	popts->ddr_cdr2 = DDR_CDR2_ODT(DDR_CDR_ODT_OFF);
+	popts->ddr_cdr1 = DDR_CDR1_DHC_EN | DDR_CDR1_ODT(DDR_CDR_ODT_75ohm);
+	popts->ddr_cdr2 = DDR_CDR2_ODT(DDR_CDR_ODT_75ohm);
 }
 
 phys_size_t initdram(int board_type)

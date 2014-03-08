@@ -1,29 +1,22 @@
 /*
- * Copyright 2011-2013 Freescale Semiconductor, Inc.
+ * Copyright 2014 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:     GPL-2.0+
  */
 
 /*
- * T2080/T2081 QDS board configuration file
+ * T2080 RDB/PCIe board configuration file
  */
 
-#ifndef __T208xQDS_H
-#define __T208xQDS_H
+#ifndef __T2080RDB_H
+#define __T2080RDB_H
 
+#define CONFIG_T2080RDB
 #define CONFIG_ICS307_REFCLK_HZ 25000000  /* ICS307 ref clk freq */
 #define CONFIG_MMC
 #define CONFIG_SPI_FLASH
 #define CONFIG_USB_EHCI
-#if defined(CONFIG_PPC_T2080)
-#define CONFIG_T2080QDS
 #define CONFIG_FSL_SATA_V2
-#define CONFIG_SYS_SRIO		/* Enable Serial RapidIO Support */
-#define CONFIG_SRIO1		/* SRIO port 1 */
-#define CONFIG_SRIO2		/* SRIO port 2 */
-#elif defined(CONFIG_PPC_T2081)
-#define CONFIG_T2081QDS
-#endif
 
 /* High Level Configuration Options */
 #define CONFIG_PHYS_64BIT
@@ -48,12 +41,8 @@
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
-#define CONFIG_SYS_FSL_PBL_PBI $(SRCTREE)/board/freescale/t208xqds/t208x_pbi.cfg
-#if defined(CONFIG_PPC_T2080)
-#define CONFIG_SYS_FSL_PBL_RCW $(SRCTREE)/board/freescale/t208xqds/t2080_rcw.cfg
-#elif defined(CONFIG_PPC_T2081)
-#define CONFIG_SYS_FSL_PBL_RCW $(SRCTREE)/board/freescale/t208xqds/t2081_rcw.cfg
-#endif
+#define CONFIG_SYS_FSL_PBL_PBI $(SRCTREE)/board/freescale/t208xrdb/t2080_pbi.cfg
+#define CONFIG_SYS_FSL_PBL_RCW $(SRCTREE)/board/freescale/t208xrdb/t2080_rcw.cfg
 #endif
 
 #define CONFIG_SRIO_PCIE_BOOT_MASTER
@@ -115,7 +104,7 @@
 #define CONFIG_SYS_EXTRA_ENV_RELOC
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_SIZE		CONFIG_SYS_NAND_BLOCK_SIZE
-#define CONFIG_ENV_OFFSET	(7 * CONFIG_SYS_NAND_BLOCK_SIZE)
+#define CONFIG_ENV_OFFSET	(2 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
 #define CONFIG_ENV_IS_IN_REMOTE
 #define CONFIG_ENV_ADDR		0xffe20000
@@ -134,8 +123,8 @@ unsigned long get_board_sys_clk(void);
 unsigned long get_board_ddr_clk(void);
 #endif
 
-#define CONFIG_SYS_CLK_FREQ	get_board_sys_clk()
-#define CONFIG_DDR_CLK_FREQ	get_board_ddr_clk()
+#define CONFIG_SYS_CLK_FREQ	66660000
+#define CONFIG_DDR_CLK_FREQ	133330000
 
 /*
  * Config the L3 Cache as L3 SRAM
@@ -149,7 +138,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_ID_EEPROM
 #define CONFIG_SYS_I2C_EEPROM_NXID
 #define CONFIG_SYS_EEPROM_BUS_NUM	0
-#define CONFIG_SYS_I2C_EEPROM_ADDR	0x57
+#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 
 /*
@@ -173,20 +162,15 @@ unsigned long get_board_ddr_clk(void);
 /*
  * IFC Definitions
  */
-#define CONFIG_SYS_FLASH_BASE		0xe0000000
+#define CONFIG_SYS_FLASH_BASE		0xe8000000
 #define CONFIG_SYS_FLASH_BASE_PHYS	(0xf00000000ull | CONFIG_SYS_FLASH_BASE)
 #define CONFIG_SYS_NOR0_CSPR_EXT	(0xf)
-#define CONFIG_SYS_NOR0_CSPR	(CSPR_PHYS_ADDR(CONFIG_SYS_FLASH_BASE_PHYS \
-				+ 0x8000000) | \
-				CSPR_PORT_SIZE_16 | \
-				CSPR_MSEL_NOR | \
-				CSPR_V)
-#define CONFIG_SYS_NOR1_CSPR_EXT	(0xf)
-#define CONFIG_SYS_NOR1_CSPR	(CSPR_PHYS_ADDR(CONFIG_SYS_FLASH_BASE_PHYS) | \
+#define CONFIG_SYS_NOR0_CSPR	(CSPR_PHYS_ADDR(CONFIG_SYS_FLASH_BASE_PHYS) | \
 				CSPR_PORT_SIZE_16 | \
 				CSPR_MSEL_NOR | \
 				CSPR_V)
 #define CONFIG_SYS_NOR_AMASK	IFC_AMASK(128*1024*1024)
+
 /* NOR Flash Timing Params */
 #define CONFIG_SYS_NOR_CSOR	CSOR_NAND_TRHZ_80
 
@@ -205,46 +189,34 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_FLASH_QUIET_TEST
 #define CONFIG_FLASH_SHOW_PROGRESS	45 /* count down from 45/5: 9..1 */
 
-#define CONFIG_SYS_MAX_FLASH_BANKS	2	/* number of banks */
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	1024	/* sectors per device */
 #define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
-
 #define CONFIG_SYS_FLASH_EMPTY_INFO
-#define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE_PHYS \
-					+ 0x8000000, CONFIG_SYS_FLASH_BASE_PHYS}
+#define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE_PHYS }
 
-#define CONFIG_FSL_QIXIS	/* use common QIXIS code */
-#define QIXIS_BASE			0xffdf0000
-#define QIXIS_LBMAP_SWITCH		6
-#define QIXIS_LBMAP_MASK		0x0f
-#define QIXIS_LBMAP_SHIFT		0
-#define QIXIS_LBMAP_DFLTBANK		0x00
-#define QIXIS_LBMAP_ALTBANK		0x04
-#define QIXIS_RST_CTL_RESET		0x83
-#define QIXIS_RST_FORCE_MEM		0x1
-#define QIXIS_RCFG_CTL_RECONFIG_IDLE	0x20
-#define QIXIS_RCFG_CTL_RECONFIG_START	0x21
-#define QIXIS_RCFG_CTL_WATCHDOG_ENBLE	0x08
-#define QIXIS_BASE_PHYS		(0xf00000000ull | QIXIS_BASE)
-
-#define CONFIG_SYS_CSPR3_EXT	(0xf)
-#define CONFIG_SYS_CSPR3	(CSPR_PHYS_ADDR(QIXIS_BASE_PHYS) \
+/* CPLD on IFC */
+#define CONFIG_SYS_CPLD_BASE	0xffdf0000
+#define CONFIG_SYS_CPLD_BASE_PHYS	(0xf00000000ull | CONFIG_SYS_CPLD_BASE)
+#define CONFIG_SYS_CSPR2_EXT	(0xf)
+#define CONFIG_SYS_CSPR2	(CSPR_PHYS_ADDR(CONFIG_SYS_CPLD_BASE) \
 				| CSPR_PORT_SIZE_8 \
 				| CSPR_MSEL_GPCM \
 				| CSPR_V)
-#define CONFIG_SYS_AMASK3	IFC_AMASK(4*1024)
-#define CONFIG_SYS_CSOR3	0x0
-/* QIXIS Timing parameters for IFC CS3 */
-#define CONFIG_SYS_CS3_FTIM0		(FTIM0_GPCM_TACSE(0x0e) | \
+#define CONFIG_SYS_AMASK2	IFC_AMASK(64*1024)
+#define CONFIG_SYS_CSOR2	0x0
+
+/* CPLD Timing parameters for IFC CS2 */
+#define CONFIG_SYS_CS2_FTIM0		(FTIM0_GPCM_TACSE(0x0e) | \
 					FTIM0_GPCM_TEADC(0x0e) | \
 					FTIM0_GPCM_TEAHC(0x0e))
-#define CONFIG_SYS_CS3_FTIM1		(FTIM1_GPCM_TACO(0xff) | \
-					FTIM1_GPCM_TRAD(0x3f))
-#define CONFIG_SYS_CS3_FTIM2		(FTIM2_GPCM_TCS(0x0e) | \
-					FTIM2_GPCM_TCH(0x8) | \
+#define CONFIG_SYS_CS2_FTIM1		(FTIM1_GPCM_TACO(0x0e) | \
+					FTIM1_GPCM_TRAD(0x1f))
+#define CONFIG_SYS_CS2_FTIM2		(FTIM2_GPCM_TCS(0x0e) | \
+					FTIM2_GPCM_TCH(0x0) | \
 					FTIM2_GPCM_TWP(0x1f))
-#define CONFIG_SYS_CS3_FTIM3		0x0
+#define CONFIG_SYS_CS2_FTIM3		0x0
 
 /* NAND Flash on IFC */
 #define CONFIG_NAND_FSL_IFC
@@ -287,7 +259,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_MTD_NAND_VERIFY_WRITE
 #define CONFIG_CMD_NAND
-#define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
+#define CONFIG_SYS_NAND_BLOCK_SIZE	(512 * 1024)
 
 #if defined(CONFIG_NAND)
 #define CONFIG_SYS_CSPR0_EXT		CONFIG_SYS_NAND_CSPR_EXT
@@ -298,14 +270,14 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_CS0_FTIM1		CONFIG_SYS_NAND_FTIM1
 #define CONFIG_SYS_CS0_FTIM2		CONFIG_SYS_NAND_FTIM2
 #define CONFIG_SYS_CS0_FTIM3		CONFIG_SYS_NAND_FTIM3
-#define CONFIG_SYS_CSPR2_EXT		CONFIG_SYS_NOR0_CSPR_EXT
-#define CONFIG_SYS_CSPR2		CONFIG_SYS_NOR0_CSPR
-#define CONFIG_SYS_AMASK2		CONFIG_SYS_NOR_AMASK
-#define CONFIG_SYS_CSOR2		CONFIG_SYS_NOR_CSOR
-#define CONFIG_SYS_CS2_FTIM0		CONFIG_SYS_NOR_FTIM0
-#define CONFIG_SYS_CS2_FTIM1		CONFIG_SYS_NOR_FTIM1
-#define CONFIG_SYS_CS2_FTIM2		CONFIG_SYS_NOR_FTIM2
-#define CONFIG_SYS_CS2_FTIM3		CONFIG_SYS_NOR_FTIM3
+#define CONFIG_SYS_CSPR1_EXT		CONFIG_SYS_NOR0_CSPR_EXT
+#define CONFIG_SYS_CSPR1		CONFIG_SYS_NOR0_CSPR
+#define CONFIG_SYS_AMASK1		CONFIG_SYS_NOR_AMASK
+#define CONFIG_SYS_CSOR1		CONFIG_SYS_NOR_CSOR
+#define CONFIG_SYS_CS1_FTIM0		CONFIG_SYS_NOR_FTIM0
+#define CONFIG_SYS_CS1_FTIM1		CONFIG_SYS_NOR_FTIM1
+#define CONFIG_SYS_CS1_FTIM2		CONFIG_SYS_NOR_FTIM2
+#define CONFIG_SYS_CS1_FTIM3		CONFIG_SYS_NOR_FTIM3
 #else
 #define CONFIG_SYS_CSPR0_EXT		CONFIG_SYS_NOR0_CSPR_EXT
 #define CONFIG_SYS_CSPR0		CONFIG_SYS_NOR0_CSPR
@@ -315,23 +287,15 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_CS0_FTIM1		CONFIG_SYS_NOR_FTIM1
 #define CONFIG_SYS_CS0_FTIM2		CONFIG_SYS_NOR_FTIM2
 #define CONFIG_SYS_CS0_FTIM3		CONFIG_SYS_NOR_FTIM3
-#define CONFIG_SYS_CSPR2_EXT		CONFIG_SYS_NAND_CSPR_EXT
-#define CONFIG_SYS_CSPR2		CONFIG_SYS_NAND_CSPR
-#define CONFIG_SYS_AMASK2		CONFIG_SYS_NAND_AMASK
-#define CONFIG_SYS_CSOR2		CONFIG_SYS_NAND_CSOR
-#define CONFIG_SYS_CS2_FTIM0		CONFIG_SYS_NAND_FTIM0
-#define CONFIG_SYS_CS2_FTIM1		CONFIG_SYS_NAND_FTIM1
-#define CONFIG_SYS_CS2_FTIM2		CONFIG_SYS_NAND_FTIM2
-#define CONFIG_SYS_CS2_FTIM3		CONFIG_SYS_NAND_FTIM3
+#define CONFIG_SYS_CSPR1_EXT		CONFIG_SYS_NAND_CSPR_EXT
+#define CONFIG_SYS_CSPR1		CONFIG_SYS_NAND_CSPR
+#define CONFIG_SYS_AMASK1		CONFIG_SYS_NAND_AMASK
+#define CONFIG_SYS_CSOR1		CONFIG_SYS_NAND_CSOR
+#define CONFIG_SYS_CS1_FTIM0		CONFIG_SYS_NAND_FTIM0
+#define CONFIG_SYS_CS1_FTIM1		CONFIG_SYS_NAND_FTIM1
+#define CONFIG_SYS_CS1_FTIM2		CONFIG_SYS_NAND_FTIM2
+#define CONFIG_SYS_CS1_FTIM3		CONFIG_SYS_NAND_FTIM3
 #endif
-#define CONFIG_SYS_CSPR1_EXT		CONFIG_SYS_NOR1_CSPR_EXT
-#define CONFIG_SYS_CSPR1		CONFIG_SYS_NOR1_CSPR
-#define CONFIG_SYS_AMASK1		CONFIG_SYS_NOR_AMASK
-#define CONFIG_SYS_CSOR1		CONFIG_SYS_NOR_CSOR
-#define CONFIG_SYS_CS1_FTIM0		CONFIG_SYS_NOR_FTIM0
-#define CONFIG_SYS_CS1_FTIM1		CONFIG_SYS_NOR_FTIM1
-#define CONFIG_SYS_CS1_FTIM2		CONFIG_SYS_NOR_FTIM2
-#define CONFIG_SYS_CS1_FTIM3		CONFIG_SYS_NOR_FTIM3
 
 #if defined(CONFIG_RAMBOOT_PBL)
 #define CONFIG_SYS_RAMBOOT
@@ -453,14 +417,8 @@ unsigned long get_board_ddr_clk(void);
  */
 #ifdef CONFIG_SPI_FLASH
 #define CONFIG_FSL_ESPI
-#define CONFIG_SPI_FLASH_SST
 #define CONFIG_SPI_FLASH_STMICRO
-#if defined(CONFIG_T2080QDS)
-#define CONFIG_SPI_FLASH_SPANSION
-#elif defined(CONFIG_T2081QDS)
-#define CONFIG_SPI_FLASH_EON
-#endif
-
+#define CONFIG_SPI_FLASH_BAR
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED	 10000000
 #define CONFIG_SF_DEFAULT_MODE	  0
@@ -518,7 +476,7 @@ unsigned long get_board_ddr_clk(void);
 
 #ifdef CONFIG_PCI
 #define CONFIG_PCI_INDIRECT_BRIDGE
-#define CONFIG_FSL_PCIE_RESET	   /* need PCIe reset errata */
+#define CONFIG_FSL_PCIE_RESET           /* need PCIe reset errata LSZ ADD */
 #define CONFIG_NET_MULTI
 #define CONFIG_E1000
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */
@@ -553,6 +511,8 @@ unsigned long get_board_ddr_clk(void);
  */
 #define CONFIG_SYS_QE_FW_IN_SPIFLASH
 #define CONFIG_SYS_QE_FMAN_FW_ADDR	0x110000
+#define CONFIG_CORTINA_FW_ADDR		0x120000
+
 #elif defined(CONFIG_SDCARD)
 /*
  * PBL SD boot image should stored at 0x1000(8 blocks), the size of the image is
@@ -561,9 +521,12 @@ unsigned long get_board_ddr_clk(void);
  */
 #define CONFIG_SYS_QE_FMAN_FW_IN_MMC
 #define CONFIG_SYS_QE_FMAN_FW_ADDR	(512 * 1680)
+#define CONFIG_CORTINA_FW_ADDR		(512 * 1808)
+
 #elif defined(CONFIG_NAND)
 #define CONFIG_SYS_QE_FMAN_FW_IN_NAND
-#define CONFIG_SYS_QE_FMAN_FW_ADDR	(8 * CONFIG_SYS_NAND_BLOCK_SIZE)
+#define CONFIG_SYS_QE_FMAN_FW_ADDR	(6 * CONFIG_SYS_NAND_BLOCK_SIZE)
+#define CONFIG_CORTINA_FW_ADDR		(7 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
 /*
  * Slave has no ucode locally, it can fetch this from remote. When implementing
@@ -574,9 +537,11 @@ unsigned long get_board_ddr_clk(void);
  */
 #define CONFIG_SYS_QE_FMAN_FW_IN_REMOTE
 #define CONFIG_SYS_QE_FMAN_FW_ADDR	0xFFE00000
+#define CONFIG_CORTINA_FW_ADDR		0xFFE10000
 #else
 #define CONFIG_SYS_QE_FMAN_FW_IN_NOR
 #define CONFIG_SYS_QE_FMAN_FW_ADDR	0xEFF00000
+#define CONFIG_CORTINA_FW_ADDR		0xEFE00000
 #endif
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
@@ -585,17 +550,18 @@ unsigned long get_board_ddr_clk(void);
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define CONFIG_FMAN_ENET
 #define CONFIG_PHYLIB_10G
-#define CONFIG_PHY_VITESSE
+#define CONFIG_PHY_CORTINA
+#define CONFIG_PHY_AQ1202
 #define CONFIG_PHY_REALTEK
-#define CONFIG_PHY_TERANETICS
-#define RGMII_PHY1_ADDR	0x1
-#define RGMII_PHY2_ADDR	0x2
-#define FM1_10GEC1_PHY_ADDR	  0x3
-#define SGMII_CARD_PORT1_PHY_ADDR 0x1C
-#define SGMII_CARD_PORT2_PHY_ADDR 0x1D
-#define SGMII_CARD_PORT3_PHY_ADDR 0x1E
-#define SGMII_CARD_PORT4_PHY_ADDR 0x1F
+#define CONFIG_CORTINA_FW_LENGTH	0x40000
+#define RGMII_PHY1_ADDR		0x01  /* RealTek RTL8211E */
+#define RGMII_PHY2_ADDR		0x02
+#define CORTINA_PHY_ADDR1	0x0c  /* Cortina CS4315 */
+#define CORTINA_PHY_ADDR2	0x0d
+#define FM1_10GEC3_PHY_ADDR	0x00  /* Aquantia AQ1202 10G Base-T */
+#define FM1_10GEC4_PHY_ADDR	0x01
 #endif
+
 
 #ifdef CONFIG_FMAN_ENET
 #define CONFIG_MII		/* MII PHY management */
@@ -652,8 +618,6 @@ unsigned long get_board_ddr_clk(void);
 /*
  * Environment
  */
-#define CONFIG_LOADS_ECHO	/* echo on for serial download */
-#define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */
 
 /*
  * Command line configuration.
@@ -662,12 +626,10 @@ unsigned long get_board_ddr_clk(void);
 
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ELF
-#define CONFIG_CMD_ERRATA
-#define CONFIG_CMD_GREPENV
-#define CONFIG_CMD_IRQ
-#define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
+#define CONFIG_CMD_I2C
 #define CONFIG_CMD_PING
+#define CONFIG_CMD_ECHO
 #define CONFIG_CMD_SETEXPR
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_BDI
@@ -693,6 +655,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
 #define CONFIG_SYS_MAXARGS	16	/* max number of command args */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE/* Boot Argument Buffer Size */
+#define CONFIG_SYS_HZ		1000	/* decrementer freq: 1ms ticks*/
 
 /*
  * For booting Linux, the board info and command line data
@@ -736,9 +699,9 @@ unsigned long get_board_ddr_clk(void);
 	"cmp.b $loadaddr $ubootaddr $filesize\0"		\
 	"consoledev=ttyS0\0"					\
 	"ramdiskaddr=2000000\0"					\
-	"ramdiskfile=t2080qds/ramdisk.uboot\0"			\
+	"ramdiskfile=t2080rdb/ramdisk.uboot\0"			\
 	"fdtaddr=c00000\0"					\
-	"fdtfile=t2080qds/t2080qds.dtb\0"			\
+	"fdtfile=t2080rdb/t2080rdb.dtb\0"			\
 	"bdev=sda3\0"						\
 	"c=ffe\0"
 
@@ -813,4 +776,4 @@ unsigned long get_board_ddr_clk(void);
 #undef CONFIG_CMD_USB
 #endif
 
-#endif	/* __T208xQDS_H */
+#endif	/* __T2080RDB_H */
