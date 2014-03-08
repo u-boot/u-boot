@@ -120,7 +120,7 @@ void am33xx_spl_board_init(void)
 
 	/* power-ON  3V3 via Resetcontroller */
 	oldspeed = i2c_get_bus_speed();
-	if (0 != i2c_set_bus_speed(CONFIG_SYS_OMAP24_I2C_SPEED_PSOC)) {
+	if (i2c_set_bus_speed(CONFIG_SYS_OMAP24_I2C_SPEED_PSOC) >= 0) {
 		buf = RSTCTRL_FORCE_PWR_NEN;
 		i2c_write(RSTCTRL_ADDR, RSTCTRL_CTRLREG, 1,
 			  (uint8_t *)&buf, sizeof(buf));
@@ -221,7 +221,7 @@ int board_late_init(void)
 			   TPS65217_WLEDCTRL1, 0x09, 0xFF);
 	/* write bootinfo into scratchregister of resetcontroller */
 	oldspeed = i2c_get_bus_speed();
-	if (0 != i2c_set_bus_speed(CONFIG_SYS_OMAP24_I2C_SPEED_PSOC)) {
+	if (i2c_set_bus_speed(CONFIG_SYS_OMAP24_I2C_SPEED_PSOC) >= 0) {
 		i2c_write(RSTCTRL_ADDR, RSTCTRL_SCRATCHREG, 1,
 			  (uint8_t *)&buf, sizeof(buf));
 		i2c_set_bus_speed(oldspeed);
