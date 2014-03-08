@@ -49,6 +49,12 @@ int asix_eth_probe(struct usb_device *dev, unsigned int ifnum,
 int asix_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
 		      struct eth_device *eth);
 
+void mcs7830_eth_before_probe(void);
+int mcs7830_eth_probe(struct usb_device *dev, unsigned int ifnum,
+		      struct ueth_data *ss);
+int mcs7830_eth_get_info(struct usb_device *dev, struct ueth_data *ss,
+			 struct eth_device *eth);
+
 void smsc95xx_eth_before_probe(void);
 int smsc95xx_eth_probe(struct usb_device *dev, unsigned int ifnum,
 			struct ueth_data *ss);
