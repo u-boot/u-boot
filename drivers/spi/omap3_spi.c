@@ -260,8 +260,9 @@ int omap3_spi_write(struct spi_slave *slave, unsigned int len, const void *txp,
 	}
 
 	/* wait to finish of transfer */
-	while (!(readl(&ds->regs->channel[ds->slave.cs].chstat) &
-			 OMAP3_MCSPI_CHSTAT_EOT));
+	while ((readl(&ds->regs->channel[ds->slave.cs].chstat) &
+			 (OMAP3_MCSPI_CHSTAT_EOT | OMAP3_MCSPI_CHSTAT_TXS)) !=
+			 (OMAP3_MCSPI_CHSTAT_EOT | OMAP3_MCSPI_CHSTAT_TXS));
 
 	/* Disable the channel otherwise the next immediate RX will get affected */
 	omap3_spi_set_enable(ds,OMAP3_MCSPI_CHCTRL_DIS);
