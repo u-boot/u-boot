@@ -39,6 +39,9 @@ static void exynos5_uart_config(int peripheral)
 		start = 4;
 		count = 2;
 		break;
+	default:
+		debug("%s: invalid peripheral %d", __func__, peripheral);
+		return;
 	}
 	for (i = start; i < start + count; i++) {
 		s5p_gpio_set_pull(bank, i, GPIO_PULL_NONE);
@@ -74,6 +77,9 @@ static void exynos5420_uart_config(int peripheral)
 		start = 4;
 		count = 2;
 		break;
+	default:
+		debug("%s: invalid peripheral %d", __func__, peripheral);
+		return;
 	}
 
 	for (i = start; i < start + count; i++) {
@@ -110,6 +116,9 @@ static int exynos5_mmc_config(int peripheral, int flags)
 		bank = &gpio1->c4;
 		bank_ext = NULL;
 		break;
+	default:
+		debug("%s: invalid peripheral %d", __func__, peripheral);
+		return -1;
 	}
 	if ((flags & PINMUX_FLAG_8BIT_MODE) && !bank_ext) {
 		debug("SDMMC device %d does not support 8bit mode",
@@ -683,6 +692,9 @@ static void exynos4_uart_config(int peripheral)
 		start = 4;
 		count = 2;
 		break;
+	default:
+		debug("%s: invalid peripheral %d", __func__, peripheral);
+		return;
 	}
 	for (i = start; i < start + count; i++) {
 		s5p_gpio_set_pull(bank, i, GPIO_PULL_NONE);
