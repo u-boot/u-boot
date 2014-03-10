@@ -1022,7 +1022,7 @@ define filechk_timestamp.h
 	LC_ALL=C date +'#define U_BOOT_TIME "%T"')
 endef
 
-$(version_h): $(srctree)/Makefile FORCE
+$(version_h): include/config/uboot.release FORCE
 	$(call filechk,version.h)
 
 $(timestamp_h): $(srctree)/Makefile FORCE
