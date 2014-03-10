@@ -51,6 +51,10 @@
 /spl/*
 /tpl/
 
+#
+# Generated include files
+#
+/include/config/
 /include/generated/
 /include/spl-autoconf.mk
 /include/tpl-autoconf.mk
