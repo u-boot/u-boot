@@ -363,7 +363,7 @@ int add_dwmci(struct dwmci_host *host, u32 max_clk, u32 min_clk)
 	mmc->priv = host;
 	host->mmc = mmc;
 
-	sprintf(mmc->name, "%s", host->name);
+	mmc->name = host->name;
 	mmc->ops = &dwmci_ops;
 	mmc->f_min = min_clk;
 	mmc->f_max = max_clk;

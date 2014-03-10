@@ -545,7 +545,7 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 		return -ENOMEM;
 
 	memset(mmc, 0, sizeof(struct mmc));
-	sprintf(mmc->name, "FSL_SDHC");
+	mmc->name = "FSL_SDHC";
 	regs = (struct fsl_esdhc *)cfg->esdhc_base;
 
 	/* First reset the eSDHC controller */

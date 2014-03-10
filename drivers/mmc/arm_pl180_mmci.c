@@ -365,7 +365,7 @@ int arm_pl180_mmci_init(struct pl180_mmc_host *host)
 	/* Disable mmc interrupts */
 	sdi_u32 = readl(&host->base->mask0) & ~SDI_MASK0_MASK;
 	writel(sdi_u32, &host->base->mask0);
-	strncpy(dev->name, host->name, sizeof(dev->name));
+	dev->name = host->name;
 	dev->ops = &arm_pl180_mmci_ops;
 	dev->host_caps = host->caps;
 	dev->voltages = host->voltages;

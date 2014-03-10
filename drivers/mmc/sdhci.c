@@ -451,7 +451,7 @@ int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 	mmc->priv = host;
 	host->mmc = mmc;
 
-	sprintf(mmc->name, "%s", host->name);
+	mmc->name = host->name;
 	mmc->ops = &sdhci_ops;
 
 	caps = sdhci_readl(host, SDHCI_CAPABILITIES);

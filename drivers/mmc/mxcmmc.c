@@ -500,7 +500,7 @@ static int mxcmci_initialize(bd_t *bis)
 	if (!mmc)
 		return -ENOMEM;
 
-	sprintf(mmc->name, "MXC MCI");
+	mmc->name = "MXC MCI";
 	mmc->ops = &mxcmci_ops;
 	mmc->host_caps = MMC_MODE_4BIT;
 

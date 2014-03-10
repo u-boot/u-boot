@@ -352,7 +352,7 @@ int ftsdc010_mmc_init(int devid)
 	chip->regs = regs;
 	mmc->priv  = chip;
 
-	sprintf(mmc->name, "ftsdc010");
+	mmc->name = "ftsdc010";
 	mmc->ops = &ftsdc010_ops;
 	mmc->host_caps = MMC_MODE_HS | MMC_MODE_HS_52MHz;
 	switch (readl(&regs->bwr) & FTSDC010_BWR_CAPS_MASK) {

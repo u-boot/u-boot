@@ -264,7 +264,7 @@ struct mmc_ops {
 
 struct mmc {
 	struct list_head link;
-	char name[32];
+	const char *name;	/* no need for this to be an array */
 	void *priv;
 	uint voltages;
 	uint version;

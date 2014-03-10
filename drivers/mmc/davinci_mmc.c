@@ -379,7 +379,7 @@ int davinci_mmc_init(bd_t *bis, struct davinci_mmc *host)
 	mmc = malloc(sizeof(struct mmc));
 	memset(mmc, 0, sizeof(struct mmc));
 
-	sprintf(mmc->name, "davinci");
+	mmc->name = "davinci";
 	mmc->priv = host;
 	mmc->ops = &dmmc_ops;
 	mmc->f_min = 200000;

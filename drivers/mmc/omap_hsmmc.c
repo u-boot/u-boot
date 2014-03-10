@@ -641,7 +641,7 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 	uint host_caps_val = MMC_MODE_4BIT | MMC_MODE_HS_52MHz | MMC_MODE_HS |
 			     MMC_MODE_HC;
 
-	sprintf(mmc->name, "OMAP SD/MMC");
+	mmc->name = "OMAP SD/MMC";
 	mmc->ops = &omap_hsmmc_ops;
 	mmc->priv = priv_data;
 

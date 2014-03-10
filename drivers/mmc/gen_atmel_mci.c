@@ -364,7 +364,7 @@ int atmel_mci_init(void *regs)
 	if (!mmc)
 		return -1;
 
-	strcpy(mmc->name, "mci");
+	mmc->name = "mci";
 	mmc->priv = regs;
 	mmc->ops = &atmel_mci_ops;
 

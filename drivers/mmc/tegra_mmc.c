@@ -563,7 +563,7 @@ static int do_mmc_init(int dev_index)
 
 	mmc = &mmc_dev[dev_index];
 
-	sprintf(mmc->name, "Tegra SD/MMC");
+	mmc->name = "Tegra SD/MMC";
 	mmc->priv = host;
 	mmc->ops = &tegra_mmc_ops;
 

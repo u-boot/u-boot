@@ -405,7 +405,7 @@ int mxsmmc_initialize(bd_t *bis, int id, int (*wp)(int), int (*cd)(int))
 	priv->id = id;
 	priv->regs = mxs_ssp_regs_by_bus(id);
 
-	sprintf(mmc->name, "MXS MMC");
+	mmc->name = "MXS MMC";
 	mmc->ops = &mxsmmc_ops;
 	mmc->priv = priv;
 

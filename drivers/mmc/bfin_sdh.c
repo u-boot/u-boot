@@ -288,7 +288,7 @@ int bfin_mmc_init(bd_t *bis)
 
 	if (!mmc)
 		return -ENOMEM;
-	sprintf(mmc->name, "Blackfin SDH");
+	mmc->name = "Blackfin SDH";
 	mmc->ops = &bfin_mmc_ops;
 	mmc->host_caps = MMC_MODE_4BIT;
 

@@ -402,7 +402,7 @@ int pxa_mmc_register(int card_index)
 
 	mmc->priv = priv;
 
-	sprintf(mmc->name, "PXA MMC");
+	mmc->name = "PXA MMC";
 	mmc->ops = &pxa_mmc_ops;
 
 	mmc->voltages	= MMC_VDD_32_33 | MMC_VDD_33_34;

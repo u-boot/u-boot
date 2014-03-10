@@ -274,7 +274,7 @@ struct mmc *mmc_spi_init(uint bus, uint cs, uint speed, uint mode)
 		free(mmc);
 		return NULL;
 	}
-	sprintf(mmc->name, "MMC_SPI");
+	mmc->name = "MMC_SPI";
 	mmc->ops = &mmc_spi_ops;
 	mmc->host_caps = MMC_MODE_SPI;
 
