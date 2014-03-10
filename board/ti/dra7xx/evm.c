@@ -149,12 +149,12 @@ static struct cpsw_slave_data cpsw_slaves[] = {
 	{
 		.slave_reg_ofs	= 0x208,
 		.sliver_reg_ofs	= 0xd80,
-		.phy_id		= 0,
+		.phy_addr	= 2,
 	},
 	{
 		.slave_reg_ofs	= 0x308,
 		.sliver_reg_ofs	= 0xdc0,
-		.phy_id		= 1,
+		.phy_addr	= 3,
 	},
 };
 
@@ -216,6 +216,21 @@ int board_eth_init(bd_t *bis)
 		if (is_valid_ether_addr(mac_addr))
 			eth_setenv_enetaddr("ethaddr", mac_addr);
 	}
+
+	mac_lo = readl((*ctrl)->control_core_mac_id_1_lo);
+	mac_hi = readl((*ctrl)->control_core_mac_id_1_hi);
+	mac_addr[0] = (mac_hi & 0xFF0000) >> 16;
+	mac_addr[1] = (mac_hi & 0xFF00) >> 8;
+	mac_addr[2] = mac_hi & 0xFF;
+	mac_addr[3] = (mac_lo & 0xFF0000) >> 16;
+	mac_addr[4] = (mac_lo & 0xFF00) >> 8;
+	mac_addr[5] = mac_lo & 0xFF;
+
+	if (!getenv("eth1addr")) {
+		if (is_valid_ether_addr(mac_addr))
+			eth_setenv_enetaddr("eth1addr", mac_addr);
+	}
+
 	ctrl_val = readl((*ctrl)->control_core_control_io1) & (~0x33);
 	ctrl_val |= 0x22;
 	writel(ctrl_val, (*ctrl)->control_core_control_io1);

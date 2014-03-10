@@ -378,8 +378,7 @@ void clock_enable_coresight(int enable)
 void halt_avp(void)
 {
 	for (;;) {
-		writel((HALT_COP_EVENT_JTAG | HALT_COP_EVENT_IRQ_1 \
-			| HALT_COP_EVENT_FIQ_1 | (FLOW_MODE_STOP<<29)),
-			FLOW_CTLR_HALT_COP_EVENTS);
+		writel(HALT_COP_EVENT_JTAG | (FLOW_MODE_STOP << 29),
+		       FLOW_CTLR_HALT_COP_EVENTS);
 	}
 }

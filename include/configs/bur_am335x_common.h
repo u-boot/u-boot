@@ -51,7 +51,6 @@
 #define CONFIG_MII			/* Required in net/eth.c */
 #define CONFIG_SPL_ETH_SUPPORT
 #define CONFIG_PHYLIB
-#define CONFIG_PHY_ADDR			1
 #define CONFIG_PHY_NATSEMI
 #define CONFIG_SPL_NET_SUPPORT
 #define CONFIG_SPL_ENV_SUPPORT		/* used for a fetching MAC-Address */

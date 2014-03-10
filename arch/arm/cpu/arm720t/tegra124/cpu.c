@@ -252,8 +252,8 @@ void start_cpu(u32 reset_vector)
 	tegra124_init_clocks();
 
 	/* Set power-gating timer multiplier */
-	clrbits_le32(&pmc->pmc_pwrgate_timer_mult, TIMER_MULT_MASK);
-	setbits_le32(&pmc->pmc_pwrgate_timer_mult, MULT_8);
+	writel((MULT_8 << TIMER_MULT_SHIFT) | (MULT_8 << TIMER_MULT_CPU_SHIFT),
+	       &pmc->pmc_pwrgate_timer_mult);
 
 	enable_cpu_power_rail();
 	enable_cpu_clocks();

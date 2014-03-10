@@ -17,6 +17,8 @@
 #ifndef _TEGRA30_H_
 #define _TEGRA30_H_
 
+#define CONFIG_TEGRA30
+
 #define NV_PA_SDRAM_BASE	0x80000000	/* 0x80000000 for real T30 */
 
 #include <asm/arch-tegra/tegra.h>

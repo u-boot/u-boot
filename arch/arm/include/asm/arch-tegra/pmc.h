@@ -298,14 +298,25 @@ struct pmc_ctlr {
 #define PMC_XOFS_SHIFT	1
 #define PMC_XOFS_MASK	(0x3F << PMC_XOFS_SHIFT)
 
+#if defined(CONFIG_TEGRA114)
 #define TIMER_MULT_SHIFT	0
 #define TIMER_MULT_MASK		(3 << TIMER_MULT_SHIFT)
 #define TIMER_MULT_CPU_SHIFT	2
 #define TIMER_MULT_CPU_MASK	(3 << TIMER_MULT_CPU_SHIFT)
+#elif defined(CONFIG_TEGRA124)
+#define TIMER_MULT_SHIFT	0
+#define TIMER_MULT_MASK		(7 << TIMER_MULT_SHIFT)
+#define TIMER_MULT_CPU_SHIFT	3
+#define TIMER_MULT_CPU_MASK	(7 << TIMER_MULT_CPU_SHIFT)
+#endif
+
 #define MULT_1			0
 #define MULT_2			1
 #define MULT_4			2
 #define MULT_8			3
+#if defined(CONFIG_TEGRA124)
+#define MULT_16			4
+#endif
 
 #define AMAP_WRITE_SHIFT	20
 #define AMAP_WRITE_ON		(1 << AMAP_WRITE_SHIFT)

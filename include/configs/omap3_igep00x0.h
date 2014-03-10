@@ -37,6 +37,11 @@
 #define CONFIG_SHOW_BOOT_PROGRESS
 #endif
 
+/* GPIO banks */
+#define CONFIG_OMAP3_GPIO_3		/* GPIO64 .. 95 is in GPIO bank 3 */
+#define CONFIG_OMAP3_GPIO_5		/* GPIO128..159 is in GPIO bank 5 */
+#define CONFIG_OMAP3_GPIO_6		/* GPIO160..191 is in GPIO bank 6 */
+
 /* USB */
 #define CONFIG_MUSB_UDC			1
 #define CONFIG_USB_OMAP3		1

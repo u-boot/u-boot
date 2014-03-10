@@ -18,11 +18,6 @@
  */
 #define V_NS16550_CLK		408000000	/* 408MHz (pllp_out0) */
 
-/*
- * High Level Configuration Options
- */
-#define CONFIG_TEGRA124			/* is an NVIDIA Tegra124 core */
-
 /* Environment information, boards can override if required */
 #define CONFIG_LOADADDR		0x80408000	/* def. location for kernel */
 
@@ -79,5 +74,6 @@
 /* For USB EHCI controller */
 #define CONFIG_EHCI_IS_TDI
 #define CONFIG_USB_EHCI_TXFIFO_THRESH	0x10
+#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 1
 
 #endif /* _TEGRA124_COMMON_H_ */

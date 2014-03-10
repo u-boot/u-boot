@@ -19,8 +19,12 @@
 #include <asm/arch/gpio.h>
 #include <asm/emif.h>
 #include "board.h"
+#include <miiphy.h>
+#include <cpsw.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+static struct ctrl_dev *cdev = (struct ctrl_dev *)CTRL_DEVICE_BASE;
 
 /*
  * Read header information from EEPROM into global structure.
@@ -200,7 +204,7 @@ const struct emif_regs ddr3_emif_regs_400Mhz = {
 	.read_idle_ctrl			= 0x00050000,
 	.zq_config			= 0x50074BE4,
 	.temp_alert_config		= 0x0,
-	.emif_ddr_phy_ctlr_1		= 0x0E084008,
+	.emif_ddr_phy_ctlr_1		= 0x0E004008,
 	.emif_ddr_ext_phy_ctrl_1	= 0x08020080,
 	.emif_ddr_ext_phy_ctrl_2	= 0x00400040,
 	.emif_ddr_ext_phy_ctrl_3	= 0x00400040,
@@ -400,5 +404,99 @@ int board_late_init(void)
 	setenv("board_rev", safe_string);
 #endif
 	return 0;
+}
+#endif
+
+#ifdef CONFIG_DRIVER_TI_CPSW
+
+static void cpsw_control(int enabled)
+{
+	/* Additional controls can be added here */
+	return;
+}
+
+static struct cpsw_slave_data cpsw_slaves[] = {
+	{
+		.slave_reg_ofs	= 0x208,
+		.sliver_reg_ofs	= 0xd80,
+		.phy_addr	= 16,
+	},
+	{
+		.slave_reg_ofs	= 0x308,
+		.sliver_reg_ofs	= 0xdc0,
+		.phy_addr	= 1,
+	},
+};
+
+static struct cpsw_platform_data cpsw_data = {
+	.mdio_base		= CPSW_MDIO_BASE,
+	.cpsw_base		= CPSW_BASE,
+	.mdio_div		= 0xff,
+	.channels		= 8,
+	.cpdma_reg_ofs		= 0x800,
+	.slaves			= 1,
+	.slave_data		= cpsw_slaves,
+	.ale_reg_ofs		= 0xd00,
+	.ale_entries		= 1024,
+	.host_port_reg_ofs	= 0x108,
+	.hw_stats_reg_ofs	= 0x900,
+	.bd_ram_ofs		= 0x2000,
+	.mac_control		= (1 << 5),
+	.control		= cpsw_control,
+	.host_port_num		= 0,
+	.version		= CPSW_CTRL_VERSION_2,
+};
+
+int board_eth_init(bd_t *bis)
+{
+	int rv;
+	uint8_t mac_addr[6];
+	uint32_t mac_hi, mac_lo;
+
+	/* try reading mac address from efuse */
+	mac_lo = readl(&cdev->macid0l);
+	mac_hi = readl(&cdev->macid0h);
+	mac_addr[0] = mac_hi & 0xFF;
+	mac_addr[1] = (mac_hi & 0xFF00) >> 8;
+	mac_addr[2] = (mac_hi & 0xFF0000) >> 16;
+	mac_addr[3] = (mac_hi & 0xFF000000) >> 24;
+	mac_addr[4] = mac_lo & 0xFF;
+	mac_addr[5] = (mac_lo & 0xFF00) >> 8;
+
+	if (!getenv("ethaddr")) {
+		puts("<ethaddr> not set. Validating first E-fuse MAC\n");
+		if (is_valid_ether_addr(mac_addr))
+			eth_setenv_enetaddr("ethaddr", mac_addr);
+	}
+
+	mac_lo = readl(&cdev->macid1l);
+	mac_hi = readl(&cdev->macid1h);
+	mac_addr[0] = mac_hi & 0xFF;
+	mac_addr[1] = (mac_hi & 0xFF00) >> 8;
+	mac_addr[2] = (mac_hi & 0xFF0000) >> 16;
+	mac_addr[3] = (mac_hi & 0xFF000000) >> 24;
+	mac_addr[4] = mac_lo & 0xFF;
+	mac_addr[5] = (mac_lo & 0xFF00) >> 8;
+
+	if (!getenv("eth1addr")) {
+		if (is_valid_ether_addr(mac_addr))
+			eth_setenv_enetaddr("eth1addr", mac_addr);
+	}
+
+	if (board_is_eposevm()) {
+		writel(RMII_MODE_ENABLE | RMII_CHIPCKL_ENABLE, &cdev->miisel);
+		cpsw_slaves[0].phy_if = PHY_INTERFACE_MODE_RMII;
+		cpsw_slaves[0].phy_addr = 16;
+	} else {
+		writel(RGMII_MODE_ENABLE, &cdev->miisel);
+		cpsw_slaves[0].phy_if = PHY_INTERFACE_MODE_RGMII;
+		cpsw_slaves[0].phy_addr = 0;
+	}
+
+	rv = cpsw_register(&cpsw_data);
+	if (rv < 0)
+		printf("Error %d registering CPSW switch\n", rv);
+
+	return rv;
 }
 #endif
