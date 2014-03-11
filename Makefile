@@ -165,10 +165,6 @@ VPATH		:= $(srctree)$(if $(KBUILD_EXTMOD),:$(KBUILD_EXTMOD))
 
 export srctree objtree VPATH
 
-SPLTREE		:= $(objtree)/spl
-TPLTREE		:= $(objtree)/tpl
-export	SPLTREE TPLTREE
-
 MKCONFIG	:= $(srctree)/mkconfig
 export MKCONFIG
 
