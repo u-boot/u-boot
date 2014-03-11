@@ -233,6 +233,16 @@ void init_laws(void)
 #error FSL_HW_NUM_LAWS can not be greater than 32 w/o code changes
 #endif
 
+#if defined(CONFIG_SECURE_BOOT) && defined(CONFIG_E500) && \
+						!defined(CONFIG_E500MC)
+	/* ISBC (Boot ROM) creates a LAW 0 entry for non PBL platforms,
+	 * which is not disabled before transferring the control to uboot.
+	 * Disable the LAW 0 entry here.
+	 */
+	disable_law(0);
+#endif
+
+
 	/*
 	 * Any LAWs that were set up before we booted assume they are meant to
 	 * be around and mark them used.
