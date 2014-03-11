@@ -467,7 +467,8 @@ nexti:	mflr	r1		/* R1 = our PC */
 2:	cmpw	r3, r4
 	blt	1b
 
-#if defined(CONFIG_SYS_PPC_E500_DEBUG_TLB) && !defined(MINIMAL_SPL)
+#if defined(CONFIG_SYS_PPC_E500_DEBUG_TLB) && !defined(MINIMAL_SPL) && \
+	!defined(CONFIG_SECURE_BOOT)
 /*
  * TLB entry for debuggging in AS1
  * Create temporary TLB entry in AS0 to handle debug exception
@@ -488,12 +489,6 @@ nexti:	mflr	r1		/* R1 = our PC */
 		0xffc00000, MAS3_SX|MAS3_SW|MAS3_SR, \
 		0, r6
 
-#elif !defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_SECURE_BOOT)
-	create_tlb1_entry CONFIG_SYS_PPC_E500_DEBUG_TLB, \
-		0, BOOKE_PAGESZ_1M, \
-		CONFIG_SYS_MONITOR_BASE, MAS2_I|MAS2_G, \
-		CONFIG_SYS_PBI_FLASH_WINDOW, MAS3_SX|MAS3_SW|MAS3_SR, \
-		0, r6
 #else
 /*
  * TLB entry is created for IVPR + IVOR15 to map on valid OP code address
