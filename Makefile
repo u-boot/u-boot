@@ -858,7 +858,7 @@ u-boot.ais: spl/u-boot-spl.ais u-boot.img FORCE
 	$(call if_changed,pad_cat)
 
 u-boot.sb: u-boot.bin spl/u-boot-spl.bin
-	$(Q)$(MAKE) $(build)=arch/arm/cpu/arm926ejs/mxs $(objtree)/u-boot.sb
+	$(Q)$(MAKE) $(build)=arch/arm/cpu/arm926ejs/mxs u-boot.sb
 
 # On x600 (SPEAr600) U-Boot is appended to U-Boot SPL.
 # Both images are created using mkimage (crc etc), so that the ROM
