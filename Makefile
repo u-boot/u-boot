@@ -556,11 +556,9 @@ export CONFIG_SYS_TEXT_BASE
 
 # Use UBOOTINCLUDE when you must reference the include/ directory.
 # Needed to be compatible with the O= option
-UBOOTINCLUDE    :=
-ifneq ($(OBJTREE),$(SRCTREE))
-UBOOTINCLUDE	+= -I$(OBJTREE)/include
-endif
-UBOOTINCLUDE	+= -I$(srctree)/include \
+UBOOTINCLUDE    := \
+		-Iinclude \
+		$(if $(KBUILD_SRC), -I$(srctree)/include) \
 		-I$(srctree)/arch/$(ARCH)/include
 
 NOSTDINC_FLAGS += -nostdinc -isystem $(shell $(CC) -print-file-name=include)

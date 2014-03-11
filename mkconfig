@@ -103,7 +103,7 @@ fi
 #
 # Create link to architecture specific headers
 #
-if [ "$SRCTREE" != "$OBJTREE" ] ; then
+if [ -n "$KBUILD_SRC" ] ; then
 	mkdir -p ${OBJTREE}/include
 	LNPREFIX=${SRCTREE}/arch/${arch}/include/asm/
 	cd ${OBJTREE}/include
@@ -125,7 +125,7 @@ if [ "${arch}" = "arm" ] ; then
 	ln -s ${LNPREFIX}proc-armv asm/proc
 fi
 
-if [ "$SRCTREE" = "$OBJTREE" ] ; then
+if [ -z "$KBUILD_SRC" ] ; then
 	cd ${SRCTREE}/include
 fi
 
