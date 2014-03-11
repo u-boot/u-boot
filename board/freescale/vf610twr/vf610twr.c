@@ -31,7 +31,6 @@ void setup_iomux_ddr(void)
 {
 	static const iomux_v3_cfg_t ddr_pads[] = {
 		VF610_PAD_DDR_A15__DDR_A_15,
-		VF610_PAD_DDR_A15__DDR_A_15,
 		VF610_PAD_DDR_A14__DDR_A_14,
 		VF610_PAD_DDR_A13__DDR_A_13,
 		VF610_PAD_DDR_A12__DDR_A_12,
