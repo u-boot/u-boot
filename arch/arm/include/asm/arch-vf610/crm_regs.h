@@ -187,6 +187,10 @@ struct anadig_reg {
 #define CCM_CCGR9_FEC0_CTRL_MASK		0x3
 #define CCM_CCGR9_FEC1_CTRL_MASK		(0x3 << 2)
 
+#define ANADIG_PLL5_CTRL_BYPASS                 (1 << 16)
+#define ANADIG_PLL5_CTRL_ENABLE                 (1 << 13)
+#define ANADIG_PLL5_CTRL_POWERDOWN              (1 << 12)
+#define ANADIG_PLL5_CTRL_DIV_SELECT		1
 #define ANADIG_PLL2_CTRL_ENABLE			(1 << 13)
 #define ANADIG_PLL2_CTRL_POWERDOWN		(1 << 12)
 #define ANADIG_PLL2_CTRL_DIV_SELECT		1
