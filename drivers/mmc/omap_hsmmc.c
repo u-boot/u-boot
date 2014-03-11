@@ -24,6 +24,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <malloc.h>
 #include <mmc.h>
 #include <part.h>
 #include <i2c.h>
@@ -49,6 +50,7 @@
 
 struct omap_hsmmc_data {
 	struct hsmmc *base_addr;
+	struct mmc_config cfg;
 #ifdef OMAP_HSMMC_USE_GPIO
 	int cd_gpio;
 	int wp_gpio;
@@ -61,8 +63,6 @@ struct omap_hsmmc_data {
 static int mmc_read_data(struct hsmmc *mmc_base, char *buf, unsigned int size);
 static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
 			unsigned int siz);
-static struct mmc hsmmc_dev[3];
-static struct omap_hsmmc_data hsmmc_dev_data[3];
 
 #ifdef OMAP_HSMMC_USE_GPIO
 static int omap_mmc_setup_gpio_in(int gpio, const char *label)
@@ -147,7 +147,7 @@ unsigned char mmc_board_init(struct mmc *mmc)
 		&t2_base->devconf1);
 
 	/* Change from default of 52MHz to 26MHz if necessary */
-	if (!(mmc->host_caps & MMC_MODE_HS_52MHz))
+	if (!(mmc->cfg->host_caps & MMC_MODE_HS_52MHz))
 		writel(readl(&t2_base->ctl_prog_io1) & ~CTLPROGIO1SPEEDCTRL,
 			&t2_base->ctl_prog_io1);
 
@@ -636,14 +636,17 @@ static const struct mmc_ops omap_hsmmc_ops = {
 int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 		int wp_gpio)
 {
-	struct mmc *mmc = &hsmmc_dev[dev_index];
-	struct omap_hsmmc_data *priv_data = &hsmmc_dev_data[dev_index];
-	uint host_caps_val = MMC_MODE_4BIT | MMC_MODE_HS_52MHz | MMC_MODE_HS |
-			     MMC_MODE_HC;
+	struct mmc *mmc;
+	struct omap_hsmmc_data *priv_data;
+	struct mmc_config *cfg;
+	uint host_caps_val;
 
-	mmc->name = "OMAP SD/MMC";
-	mmc->ops = &omap_hsmmc_ops;
-	mmc->priv = priv_data;
+	priv_data = malloc(sizeof(*priv_data));
+	if (priv_data == NULL)
+		return -1;
+
+	host_caps_val = MMC_MODE_4BIT | MMC_MODE_HS_52MHz | MMC_MODE_HS |
+			     MMC_MODE_HC;
 
 	switch (dev_index) {
 	case 0:
@@ -678,34 +681,40 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 	priv_data->wp_gpio = omap_mmc_setup_gpio_in(wp_gpio, "mmc_wp");
 #endif
 
-	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
-	mmc->host_caps = host_caps_val & ~host_caps_mask;
+	cfg = &priv_data->cfg;
 
-	mmc->f_min = 400000;
+	cfg->name = "OMAP SD/MMC";
+	cfg->ops = &omap_hsmmc_ops;
+
+	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
+	cfg->host_caps = host_caps_val & ~host_caps_mask;
+
+	cfg->f_min = 400000;
 
 	if (f_max != 0)
-		mmc->f_max = f_max;
+		cfg->f_max = f_max;
 	else {
-		if (mmc->host_caps & MMC_MODE_HS) {
-			if (mmc->host_caps & MMC_MODE_HS_52MHz)
-				mmc->f_max = 52000000;
+		if (cfg->host_caps & MMC_MODE_HS) {
+			if (cfg->host_caps & MMC_MODE_HS_52MHz)
+				cfg->f_max = 52000000;
 			else
-				mmc->f_max = 26000000;
+				cfg->f_max = 26000000;
 		} else
-			mmc->f_max = 20000000;
+			cfg->f_max = 20000000;
 	}
 
-	mmc->b_max = 0;
+	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
 #if defined(CONFIG_OMAP34XX)
 	/*
 	 * Silicon revs 2.1 and older do not support multiblock transfers.
 	 */
 	if ((get_cpu_family() == CPU_OMAP34XX) && (get_cpu_rev() <= CPU_3XX_ES21))
-		mmc->b_max = 1;
+		cfg->b_max = 1;
 #endif
-
-	mmc_register(mmc);
+	mmc = mmc_create(cfg, priv_data);
+	if (mmc == NULL)
+		return -1;
 
 	return 0;
 }

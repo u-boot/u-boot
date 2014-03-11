@@ -247,6 +247,8 @@ struct sdhci_host {
 	void (*set_control_reg)(struct sdhci_host *host);
 	void (*set_clock)(int dev_index, unsigned int div);
 	uint	voltages;
+
+	struct mmc_config cfg;
 };
 
 #ifdef CONFIG_MMC_SDHCI_IO_ACCESSORS

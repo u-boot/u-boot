@@ -30,10 +30,10 @@ static void dmmc_set_clock(struct mmc *mmc, uint clock)
 	struct davinci_mmc_regs *regs = host->reg_base;
 	uint clkrt, sysclk2, act_clock;
 
-	if (clock < mmc->f_min)
-		clock = mmc->f_min;
-	if (clock > mmc->f_max)
-		clock = mmc->f_max;
+	if (clock < mmc->cfg->f_min)
+		clock = mmc->cfg->f_min;
+	if (clock > mmc->cfg->f_max)
+		clock = mmc->cfg->f_max;
 
 	set_val(&regs->mmcclk, 0);
 	sysclk2 = host->input_clk;
@@ -374,22 +374,16 @@ static const struct mmc_ops dmmc_ops = {
  */
 int davinci_mmc_init(bd_t *bis, struct davinci_mmc *host)
 {
-	struct mmc *mmc;
+	host->cfg.name = "davinci";
+	host->cfg.ops = &dmmc_ops;
+	host->cfg.f_min = 200000;
+	host->cfg.f_max = 25000000;
+	host->cfg.voltages = host->voltages;
+	host->cfg.host_caps = host->host_caps;
 
-	mmc = malloc(sizeof(struct mmc));
-	memset(mmc, 0, sizeof(struct mmc));
+	host->cfg.b_max = DAVINCI_MAX_BLOCKS;
 
-	mmc->name = "davinci";
-	mmc->priv = host;
-	mmc->ops = &dmmc_ops;
-	mmc->f_min = 200000;
-	mmc->f_max = 25000000;
-	mmc->voltages = host->voltages;
-	mmc->host_caps = host->host_caps;
-
-	mmc->b_max = DAVINCI_MAX_BLOCKS;
-
-	mmc_register(mmc);
+	mmc_create(&host->cfg, host);
 
 	return 0;
 }

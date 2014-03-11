@@ -79,7 +79,7 @@ enum mmc_state {
 };
 static void print_mmcinfo(struct mmc *mmc)
 {
-	printf("Device: %s\n", mmc->name);
+	printf("Device: %s\n", mmc->cfg->name);
 	printf("Manufacturer ID: %x\n", mmc->cid[0] >> 24);
 	printf("OEM: %x\n", (mmc->cid[0] >> 8) & 0xffff);
 	printf("Name: %c%c%c%c%c \n", mmc->cid[0] & 0xff,

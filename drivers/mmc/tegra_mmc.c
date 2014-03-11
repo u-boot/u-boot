@@ -18,7 +18,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct mmc mmc_dev[MAX_HOSTS];
 struct mmc_host mmc_host[MAX_HOSTS];
 
 #ifndef CONFIG_OF_CONTROL
@@ -145,7 +144,7 @@ static int mmc_wait_inhibit(struct mmc_host *host,
 static int mmc_send_cmd_bounced(struct mmc *mmc, struct mmc_cmd *cmd,
 			struct mmc_data *data, struct bounce_buffer *bbstate)
 {
-	struct mmc_host *host = (struct mmc_host *)mmc->priv;
+	struct mmc_host *host = mmc->priv;
 	int flags, i;
 	int result;
 	unsigned int mask = 0;
@@ -456,7 +455,7 @@ static void mmc_reset(struct mmc_host *host, struct mmc *mmc)
 	}
 
 	/* Set SD bus voltage & enable bus power */
-	mmc_set_power(host, fls(mmc->voltages) - 1);
+	mmc_set_power(host, fls(mmc->cfg->voltages) - 1);
 	debug("%s: power control = %02X, host control = %02X\n", __func__,
 		readb(&host->reg->pwrcon), readb(&host->reg->hostctl));
 
@@ -466,7 +465,7 @@ static void mmc_reset(struct mmc_host *host, struct mmc *mmc)
 
 static int tegra_mmc_core_init(struct mmc *mmc)
 {
-	struct mmc_host *host = (struct mmc_host *)mmc->priv;
+	struct mmc_host *host = mmc->priv;
 	unsigned int mask;
 	debug(" mmc_core_init called\n");
 
@@ -511,7 +510,7 @@ static int tegra_mmc_core_init(struct mmc *mmc)
 
 int tegra_mmc_getcd(struct mmc *mmc)
 {
-	struct mmc_host *host = (struct mmc_host *)mmc->priv;
+	struct mmc_host *host = mmc->priv;
 
 	debug("tegra_mmc_getcd called\n");
 
@@ -561,19 +560,18 @@ static int do_mmc_init(int dev_index)
 		debug(" CD GPIO name = %s\n", host->cd_gpio.name);
 	}
 
-	mmc = &mmc_dev[dev_index];
+	memset(&host->cfg, 0, sizeof(host->cfg));
 
-	mmc->name = "Tegra SD/MMC";
-	mmc->priv = host;
-	mmc->ops = &tegra_mmc_ops;
+	host->cfg.name = "Tegra SD/MMC";
+	host->cfg.ops = &tegra_mmc_ops;
 
-	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
-	mmc->host_caps = 0;
+	host->cfg.voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
+	host->cfg.host_caps = 0;
 	if (host->width == 8)
-		mmc->host_caps |= MMC_MODE_8BIT;
+		host->cfg.host_caps |= MMC_MODE_8BIT;
 	if (host->width >= 4)
-		mmc->host_caps |= MMC_MODE_4BIT;
-	mmc->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS | MMC_MODE_HC;
+		host->cfg.host_caps |= MMC_MODE_4BIT;
+	host->cfg.host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS | MMC_MODE_HC;
 
 	/*
 	 * min freq is for card identification, and is the highest
@@ -581,10 +579,14 @@ static int do_mmc_init(int dev_index)
 	 * max freq is highest HS eMMC clock as per the SD/MMC spec
 	 *  (actually 52MHz)
 	 */
-	mmc->f_min = 375000;
-	mmc->f_max = 48000000;
+	host->cfg.f_min = 375000;
+	host->cfg.f_max = 48000000;
 
-	mmc_register(mmc);
+	host->cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
+
+	mmc = mmc_create(&host->cfg, host);
+	if (mmc == NULL)
+		return -1;
 
 	return 0;
 }

@@ -262,20 +262,28 @@ struct mmc_ops {
 	int (*getwp)(struct mmc *mmc);
 };
 
-struct mmc {
-	struct list_head link;
-	const char *name;	/* no need for this to be an array */
-	void *priv;
+struct mmc_config {
+	const char *name;
+	const struct mmc_ops *ops;
+	uint host_caps;
 	uint voltages;
-	uint version;
-	uint has_init;
 	uint f_min;
 	uint f_max;
+	uint b_max;
+	unsigned char part_type;
+};
+
+/* TODO struct mmc should be in mmc_private but it's hard to fix right now */
+struct mmc {
+	struct list_head link;
+	const struct mmc_config *cfg;	/* provided configuration */
+	uint version;
+	void *priv;
+	uint has_init;
 	int high_capacity;
 	uint bus_width;
 	uint clock;
 	uint card_caps;
-	uint host_caps;
 	uint ocr;
 	uint dsr;
 	uint dsr_imp;
@@ -295,8 +303,6 @@ struct mmc {
 	u64 capacity_rpmb;
 	u64 capacity_gp[4];
 	block_dev_desc_t block_dev;
-	const struct mmc_ops *ops;
-	uint b_max;
 	char op_cond_pending;	/* 1 if we are waiting on an op_cond command */
 	char init_in_progress;	/* 1 if we have done mmc_start_init() */
 	char preinit;		/* start init as early as possible */
@@ -304,6 +310,8 @@ struct mmc {
 };
 
 int mmc_register(struct mmc *mmc);
+struct mmc *mmc_create(const struct mmc_config *cfg, void *priv);
+void mmc_destroy(struct mmc *mmc);
 int mmc_initialize(bd_t *bis);
 int mmc_init(struct mmc *mmc);
 int mmc_read(struct mmc *mmc, u64 src, uchar *dst, int size);
@@ -352,13 +360,18 @@ void mmc_set_preinit(struct mmc *mmc, int preinit);
 
 #ifdef CONFIG_GENERIC_MMC
 #ifdef CONFIG_MMC_SPI
-#define mmc_host_is_spi(mmc)	((mmc)->host_caps & MMC_MODE_SPI)
+#define mmc_host_is_spi(mmc)	((mmc)->cfg.host_caps & MMC_MODE_SPI)
 #else
 #define mmc_host_is_spi(mmc)	0
 #endif
 struct mmc *mmc_spi_init(uint bus, uint cs, uint speed, uint mode);
 #else
 int mmc_legacy_init(int verbose);
+#endif
+
+/* Set block count limit because of 16 bit register limit on some hardware*/
+#ifndef CONFIG_SYS_MMC_MAX_BLK_COUNT
+#define CONFIG_SYS_MMC_MAX_BLK_COUNT 65535
 #endif
 
 #endif /* _MMC_H_ */
