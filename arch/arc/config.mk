@@ -23,8 +23,6 @@ endif
 
 PLATFORM_CPPFLAGS += -ffixed-r25 -D__ARC__ -DCONFIG_ARC -gdwarf-2
 
-LDSCRIPT := $(SRCTREE)/$(CPUDIR)/u-boot.lds
-
 # Needed for relocation
 LDFLAGS_FINAL += -pie
 
