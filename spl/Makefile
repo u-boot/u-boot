@@ -44,7 +44,7 @@ else
   -include include/spl-autoconf.mk
 endif
 
-include $(TOPDIR)/config.mk
+include $(srctree)/config.mk
 
 # Enable garbage collection of un-used sections for SPL
 KBUILD_CFLAGS += -ffunction-sections -fdata-sections
@@ -149,13 +149,13 @@ LDSCRIPT := $(addprefix $(SRCTREE)/,$(CONFIG_SPL_LDSCRIPT:"%"=%))
 endif
 
 ifeq ($(wildcard $(LDSCRIPT)),)
-	LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot-spl.lds
+	LDSCRIPT := $(srctree)/board/$(BOARDDIR)/u-boot-spl.lds
 endif
 ifeq ($(wildcard $(LDSCRIPT)),)
-	LDSCRIPT := $(TOPDIR)/$(CPUDIR)/u-boot-spl.lds
+	LDSCRIPT := $(srctree)/$(CPUDIR)/u-boot-spl.lds
 endif
 ifeq ($(wildcard $(LDSCRIPT)),)
-	LDSCRIPT := $(TOPDIR)/arch/$(ARCH)/cpu/u-boot-spl.lds
+	LDSCRIPT := $(srctree)/arch/$(ARCH)/cpu/u-boot-spl.lds
 endif
 ifeq ($(wildcard $(LDSCRIPT)),)
 $(error could not find linker script)
@@ -165,7 +165,7 @@ endif
 # Pass the version down so we can handle backwards compatibility
 # on the fly.
 LDPPFLAGS += \
-	-include $(TOPDIR)/include/u-boot/u-boot.lds.h \
+	-include $(srctree)/include/u-boot/u-boot.lds.h \
 	-include $(OBJTREE)/include/config.h \
 	-DCPUDIR=$(CPUDIR) \
 	$(shell $(LD) --version | \

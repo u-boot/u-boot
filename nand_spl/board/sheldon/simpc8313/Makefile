@@ -11,7 +11,7 @@ include $(srctree)/$(src)/config.mk
 
 nandobj	:= $(OBJTREE)/nand_spl/
 
-LDSCRIPT= $(TOPDIR)/nand_spl/board/$(BOARDDIR)/u-boot.lds
+LDSCRIPT= $(srctree)/nand_spl/board/$(BOARDDIR)/u-boot.lds
 LDFLAGS := -T $(nandobj)u-boot.lds -Ttext $(CONFIG_SYS_TEXT_BASE_SPL) \
 	   $(LDFLAGS) $(LDFLAGS_FINAL)
 asflags-y += -DCONFIG_NAND_SPL

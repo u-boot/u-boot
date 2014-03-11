@@ -12,7 +12,7 @@ PAD_TO := 0xfff01000
 
 nandobj	:= $(OBJTREE)/nand_spl/
 
-LDSCRIPT= $(TOPDIR)/$(CPUDIR)/u-boot-nand_spl.lds
+LDSCRIPT= $(srctree)/$(CPUDIR)/u-boot-nand_spl.lds
 LDFLAGS := -T $(nandobj)u-boot-nand_spl.lds -Ttext $(CONFIG_SYS_TEXT_BASE_SPL) \
 		$(LDFLAGS) $(LDFLAGS_FINAL)
 asflags-y += -DCONFIG_NAND_SPL

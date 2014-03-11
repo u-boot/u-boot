@@ -169,8 +169,7 @@ OBJTREE		:= $(objtree)
 SPLTREE		:= $(OBJTREE)/spl
 TPLTREE		:= $(OBJTREE)/tpl
 SRCTREE		:= $(srctree)
-TOPDIR		:= $(SRCTREE)
-export	TOPDIR SRCTREE OBJTREE SPLTREE TPLTREE
+export	SRCTREE OBJTREE SPLTREE TPLTREE
 
 MKCONFIG	:= $(SRCTREE)/mkconfig
 export MKCONFIG
@@ -490,7 +489,7 @@ endif
 # standard location.
 
 ifndef LDSCRIPT
-	#LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot.lds.debug
+	#LDSCRIPT := $(srctree)/board/$(BOARDDIR)/u-boot.lds.debug
 	ifdef CONFIG_SYS_LDSCRIPT
 		# need to strip off double quotes
 		LDSCRIPT := $(srctree)/$(CONFIG_SYS_LDSCRIPT:"%"=%)
@@ -500,19 +499,19 @@ endif
 # If there is no specified link script, we look in a number of places for it
 ifndef LDSCRIPT
 	ifeq ($(CONFIG_NAND_U_BOOT),y)
-		LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot-nand.lds
+		LDSCRIPT := $(srctree)/board/$(BOARDDIR)/u-boot-nand.lds
 		ifeq ($(wildcard $(LDSCRIPT)),)
-			LDSCRIPT := $(TOPDIR)/$(CPUDIR)/u-boot-nand.lds
+			LDSCRIPT := $(srctree)/$(CPUDIR)/u-boot-nand.lds
 		endif
 	endif
 	ifeq ($(wildcard $(LDSCRIPT)),)
-		LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot.lds
+		LDSCRIPT := $(srctree)/board/$(BOARDDIR)/u-boot.lds
 	endif
 	ifeq ($(wildcard $(LDSCRIPT)),)
-		LDSCRIPT := $(TOPDIR)/$(CPUDIR)/u-boot.lds
+		LDSCRIPT := $(srctree)/$(CPUDIR)/u-boot.lds
 	endif
 	ifeq ($(wildcard $(LDSCRIPT)),)
-		LDSCRIPT := $(TOPDIR)/arch/$(ARCH)/cpu/u-boot.lds
+		LDSCRIPT := $(srctree)/arch/$(ARCH)/cpu/u-boot.lds
 	endif
 endif
 
@@ -666,7 +665,7 @@ export PLATFORM_LIBS
 # Pass the version down so we can handle backwards compatibility
 # on the fly.
 LDPPFLAGS += \
-	-include $(TOPDIR)/include/u-boot/u-boot.lds.h \
+	-include $(srctree)/include/u-boot/u-boot.lds.h \
 	-DCPUDIR=$(CPUDIR) \
 	$(shell $(LD) --version | \
 	  sed -ne 's/GNU ld version \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/-DLD_MAJOR=\1 -DLD_MINOR=\2/p')
@@ -1240,7 +1239,7 @@ distclean: mrproper
 		-type f -print | xargs rm -f
 
 backup:
-	F=`basename $(TOPDIR)` ; cd .. ; \
+	F=`basename $(srctree)` ; cd .. ; \
 	gtar --force-local -zcvf `LC_ALL=C date "+$$F-%Y-%m-%d-%T.tar.gz"` $$F
 
 help:
