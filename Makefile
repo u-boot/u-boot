@@ -168,10 +168,9 @@ export srctree objtree VPATH
 OBJTREE		:= $(objtree)
 SPLTREE		:= $(OBJTREE)/spl
 TPLTREE		:= $(OBJTREE)/tpl
-SRCTREE		:= $(srctree)
-export	SRCTREE OBJTREE SPLTREE TPLTREE
+export	OBJTREE SPLTREE TPLTREE
 
-MKCONFIG	:= $(SRCTREE)/mkconfig
+MKCONFIG	:= $(srctree)/mkconfig
 export MKCONFIG
 
 # Make sure CDPATH settings don't interfere

@@ -8,4 +8,4 @@
 
 obj-y	+= v5fx30teval.o
 
-include $(SRCTREE)/board/xilinx/ppc440-generic/Makefile
+include $(srctree)/board/xilinx/ppc440-generic/Makefile

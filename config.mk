@@ -25,7 +25,7 @@ OBJCOPYFLAGS :=
 # Check if arch/$ARCH/cpu/$CPU exists, otherwise assume arch/$ARCH/cpu contains
 # CPU-specific code.
 CPUDIR=arch/$(ARCH)/cpu/$(CPU)
-ifneq ($(SRCTREE)/$(CPUDIR),$(wildcard $(SRCTREE)/$(CPUDIR)))
+ifneq ($(srctree)/$(CPUDIR),$(wildcard $(srctree)/$(CPUDIR)))
 CPUDIR=arch/$(ARCH)/cpu
 endif
 

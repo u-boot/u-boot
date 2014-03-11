@@ -68,7 +68,7 @@ include/tpl-autoconf.mk: include/config.h
 include/spl-autoconf.mk: include/config.h
 	$(call cmd,autoconf)
 
-HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(SRCTREE)/board/$(VENDOR)/common/Makefile),y,n)
+HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(srctree)/board/$(VENDOR)/common/Makefile),y,n)
 
 ifdef	CONFIG_SPL_START_S_PATH
 START_PATH := $(CONFIG_SPL_START_S_PATH:"%"=%)
@@ -145,7 +145,7 @@ u-boot-spl-main := $(libs-y)
 # Linker Script
 ifdef CONFIG_SPL_LDSCRIPT
 # need to strip off double quotes
-LDSCRIPT := $(addprefix $(SRCTREE)/,$(CONFIG_SPL_LDSCRIPT:"%"=%))
+LDSCRIPT := $(addprefix $(srctree)/,$(CONFIG_SPL_LDSCRIPT:"%"=%))
 endif
 
 ifeq ($(wildcard $(LDSCRIPT)),)

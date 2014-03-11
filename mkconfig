@@ -105,7 +105,7 @@ fi
 #
 if [ -n "$KBUILD_SRC" ] ; then
 	mkdir -p ${OBJTREE}/include
-	LNPREFIX=${SRCTREE}/arch/${arch}/include/asm/
+	LNPREFIX=${srctree}/arch/${arch}/include/asm/
 	cd ${OBJTREE}/include
 	mkdir -p asm
 else
@@ -126,7 +126,7 @@ if [ "${arch}" = "arm" ] ; then
 fi
 
 if [ -z "$KBUILD_SRC" ] ; then
-	cd ${SRCTREE}/include
+	cd ${srctree}/include
 fi
 
 #
