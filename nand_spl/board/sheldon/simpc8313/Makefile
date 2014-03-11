@@ -9,7 +9,7 @@
 
 include $(srctree)/$(src)/config.mk
 
-nandobj	:= $(OBJTREE)/nand_spl/
+nandobj	:= $(objtree)/nand_spl/
 
 LDSCRIPT= $(srctree)/nand_spl/board/$(BOARDDIR)/u-boot.lds
 LDFLAGS := -T $(nandobj)u-boot.lds -Ttext $(CONFIG_SYS_TEXT_BASE_SPL) \

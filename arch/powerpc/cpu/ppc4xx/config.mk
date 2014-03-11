@@ -7,7 +7,7 @@
 
 PLATFORM_CPPFLAGS += -DCONFIG_4xx -mstring -msoft-float
 
-cfg=$(shell grep configs $(OBJTREE)/include/config.h | sed 's/.*<\(configs.*\)>/\1/')
+cfg=$(shell grep configs $(objtree)/include/config.h | sed 's/.*<\(configs.*\)>/\1/')
 is440:=$(shell grep CONFIG_440 $(srctree)/include/$(cfg))
 
 ifneq (,$(findstring CONFIG_440,$(is440)))

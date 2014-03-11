@@ -6,7 +6,7 @@
 
 PAD_TO := 0xfff01000
 
-nandobj	:= $(OBJTREE)/nand_spl/
+nandobj	:= $(objtree)/nand_spl/
 
 LDSCRIPT= $(srctree)/$(CPUDIR)/u-boot-nand_spl.lds
 LDFLAGS := -T $(nandobj)u-boot-nand_spl.lds -Ttext $(CONFIG_SYS_TEXT_BASE_SPL) \

@@ -9,7 +9,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-cfg=$(shell grep configs $(OBJTREE)/include/config.h | sed 's/.*<\(configs.*\)>/\1/')
+cfg=$(shell grep configs $(objtree)/include/config.h | sed 's/.*<\(configs.*\)>/\1/')
 is5441x:=$(shell grep CONFIG_MCF5441x $(srctree)/include/$(cfg))
 
 ifneq (,$(findstring CONFIG_MCF5441x,$(is5441x)))

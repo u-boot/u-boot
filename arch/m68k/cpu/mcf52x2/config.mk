@@ -7,7 +7,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-cfg=$(shell grep configs $(OBJTREE)/include/config.h | sed 's/.*<\(configs.*\)>/\1/')
+cfg=$(shell grep configs $(objtree)/include/config.h | sed 's/.*<\(configs.*\)>/\1/')
 is5208:=$(shell grep CONFIG_M5208 $(srctree)/include/$(cfg))
 is5249:=$(shell grep CONFIG_M5249 $(srctree)/include/$(cfg))
 is5253:=$(shell grep CONFIG_M5253 $(srctree)/include/$(cfg))

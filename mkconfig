@@ -104,9 +104,9 @@ fi
 # Create link to architecture specific headers
 #
 if [ -n "$KBUILD_SRC" ] ; then
-	mkdir -p ${OBJTREE}/include
+	mkdir -p ${objtree}/include
 	LNPREFIX=${srctree}/arch/${arch}/include/asm/
-	cd ${OBJTREE}/include
+	cd ${objtree}/include
 	mkdir -p asm
 else
 	cd arch/${arch}/include

@@ -166,7 +166,7 @@ endif
 # on the fly.
 LDPPFLAGS += \
 	-include $(srctree)/include/u-boot/u-boot.lds.h \
-	-include $(OBJTREE)/include/config.h \
+	-include $(objtree)/include/config.h \
 	-DCPUDIR=$(CPUDIR) \
 	$(shell $(LD) --version | \
 	  sed -ne 's/GNU ld version \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/-DLD_MAJOR=\1 -DLD_MINOR=\2/p')
@@ -197,9 +197,9 @@ else
 VAR_SIZE_PARAM =
 endif
 $(obj)/$(BOARD)-spl.bin: $(obj)/u-boot-spl.bin
-	$(if $(wildcard $(OBJTREE)/spl/board/samsung/$(BOARD)/tools/mk$(BOARD)spl),\
-	$(OBJTREE)/spl/board/samsung/$(BOARD)/tools/mk$(BOARD)spl,\
-	$(OBJTREE)/tools/mkexynosspl) $(VAR_SIZE_PARAM) $< $@
+	$(if $(wildcard $(objtree)/spl/board/samsung/$(BOARD)/tools/mk$(BOARD)spl),\
+	$(objtree)/spl/board/samsung/$(BOARD)/tools/mk$(BOARD)spl,\
+	$(objtree)/tools/mkexynosspl) $(VAR_SIZE_PARAM) $< $@
 endif
 
 quiet_cmd_objcopy = OBJCOPY $@
