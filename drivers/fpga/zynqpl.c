@@ -399,7 +399,6 @@ int zynq_dump(Xilinx_desc *desc, const void *buf, size_t bsize)
  */
 int zynq_decrypt_load(u32 srcaddr, u32 srclen, u32 dstaddr, u32 dstlen)
 {
-	unsigned long ts; /* Timestamp */
 	u32 isr_status, status;
 
 	if ((srcaddr < SZ_1M) || (dstaddr < SZ_1M)) {
@@ -459,47 +458,11 @@ int zynq_decrypt_load(u32 srcaddr, u32 srclen, u32 dstaddr, u32 dstlen)
 	debug("%s: Size = %zu\n", __func__, srclen);
 
 	dcache_disable();
-
-	/* Set up the transfer */
-	writel((u32)srcaddr | 1, &devcfg_base->dma_src_addr);
-	writel(dstaddr | 1, &devcfg_base->dma_dst_addr);
-	writel(srclen, &devcfg_base->dma_src_len);
-	writel(dstlen, &devcfg_base->dma_dst_len);
-
-	isr_status = readl(&devcfg_base->int_sts);
-
-	/* Polling the PCAP_INIT status for Set */
-	ts = get_timer(0);
-	while (!(isr_status & DEVCFG_ISR_DMA_DONE)) {
-		if (isr_status & DEVCFG_ISR_ERROR_FLAGS_MASK) {
-			debug("%s: Error: isr = 0x%08X\n", __func__,
-			      isr_status);
-			debug("%s: Write count = 0x%08X\n", __func__,
-			      readl(&devcfg_base->write_count));
-			debug("%s: Read count = 0x%08X\n", __func__,
-			      readl(&devcfg_base->read_count));
-
-			return FPGA_FAIL;
-		}
-		if (get_timer(ts) > CONFIG_SYS_FPGA_PROG_TIME) {
-			printf("%s: Timeout wait for DMA to complete\n",
-			       __func__);
-			return FPGA_FAIL;
-		}
-		isr_status = readl(&devcfg_base->int_sts);
+	if (zynq_dma_transfer(srcaddr | 1, srclen, dstaddr | 1, dstlen)) {
+		dcache_enable();
+		return FPGA_FAIL;
 	}
-
-	isr_status = readl(&devcfg_base->int_sts);
-	if (isr_status & DEVCFG_ISR_ERROR_FLAGS_MASK) {
-		printf("%s: Error: isr = 0x%08X\n", __func__,
-		       isr_status);
-	}
-
-	debug("%s: DMA transfer is done = 0x%08x\n", __func__, isr_status);
-
 	dcache_enable();
-	/* Clear out the DMA status */
-	writel(DEVCFG_ISR_DMA_DONE, &devcfg_base->int_sts);
 
 	return FPGA_SUCCESS;
 }
