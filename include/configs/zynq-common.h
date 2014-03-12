@@ -103,6 +103,8 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_FAT_WRITE
 #define CONFIG_DOS_PARTITION
+#define CONFIG_CMD_EXT4
+#define CONFIG_CMD_EXT4_WRITE
 #endif
 
 /* QSPI */
