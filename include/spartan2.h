@@ -16,30 +16,30 @@ int spartan2_info(xilinx_desc *desc);
 
 /* Slave Parallel Implementation function table */
 typedef struct {
-	Xilinx_pre_fn	pre;
-	Xilinx_pgm_fn	pgm;
-	Xilinx_init_fn	init;
-	Xilinx_err_fn	err;
-	Xilinx_done_fn	done;
-	Xilinx_clk_fn	clk;
-	Xilinx_cs_fn	cs;
-	Xilinx_wr_fn	wr;
-	Xilinx_rdata_fn	rdata;
-	Xilinx_wdata_fn	wdata;
-	Xilinx_busy_fn	busy;
-	Xilinx_abort_fn	abort;
-	Xilinx_post_fn	post;
+	xilinx_pre_fn	pre;
+	xilinx_pgm_fn	pgm;
+	xilinx_init_fn	init;
+	xilinx_err_fn	err;
+	xilinx_done_fn	done;
+	xilinx_clk_fn	clk;
+	xilinx_cs_fn	cs;
+	xilinx_wr_fn	wr;
+	xilinx_rdata_fn	rdata;
+	xilinx_wdata_fn	wdata;
+	xilinx_busy_fn	busy;
+	xilinx_abort_fn	abort;
+	xilinx_post_fn	post;
 } xilinx_spartan2_slave_parallel_fns;
 
 /* Slave Serial Implementation function table */
 typedef struct {
-	Xilinx_pre_fn	pre;
-	Xilinx_pgm_fn	pgm;
-	Xilinx_clk_fn	clk;
-	Xilinx_init_fn	init;
-	Xilinx_done_fn	done;
-	Xilinx_wr_fn	wr;
-	Xilinx_post_fn	post;
+	xilinx_pre_fn	pre;
+	xilinx_pgm_fn	pgm;
+	xilinx_clk_fn	clk;
+	xilinx_init_fn	init;
+	xilinx_done_fn	done;
+	xilinx_wr_fn	wr;
+	xilinx_post_fn	post;
 } xilinx_spartan2_slave_serial_fns;
 
 /* Device Image Sizes
