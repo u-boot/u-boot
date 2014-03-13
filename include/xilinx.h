@@ -26,7 +26,7 @@ typedef enum {			/* typedef Xilinx_iface */
 
 typedef enum {			/* typedef Xilinx_Family */
 	min_xilinx_type,	/* low range check value */
-	Xilinx_Spartan2,	/* Spartan-II Family */
+	xilinx_spartan2,	/* Spartan-II Family */
 	Xilinx_VirtexE,		/* Virtex-E Family */
 	Xilinx_Virtex2,		/* Virtex2 Family */
 	Xilinx_Spartan3,	/* Spartan-III Family */

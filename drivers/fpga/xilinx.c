@@ -149,11 +149,11 @@ int xilinx_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 		printf ("%s: Invalid device descriptor\n", __FUNCTION__);
 	} else
 		switch (desc->family) {
-		case Xilinx_Spartan2:
+		case xilinx_spartan2:
 #if defined(CONFIG_FPGA_SPARTAN2)
 			PRINTF ("%s: Launching the Spartan-II Loader...\n",
 					__FUNCTION__);
-			ret_val = Spartan2_load (desc, buf, bsize);
+			ret_val = spartan2_load(desc, buf, bsize);
 #else
 			printf ("%s: No support for Spartan-II devices.\n",
 					__FUNCTION__);
@@ -206,11 +206,11 @@ int xilinx_dump(Xilinx_desc *desc, const void *buf, size_t bsize)
 		printf ("%s: Invalid device descriptor\n", __FUNCTION__);
 	} else
 		switch (desc->family) {
-		case Xilinx_Spartan2:
+		case xilinx_spartan2:
 #if defined(CONFIG_FPGA_SPARTAN2)
 			PRINTF ("%s: Launching the Spartan-II Reader...\n",
 					__FUNCTION__);
-			ret_val = Spartan2_dump (desc, buf, bsize);
+			ret_val = spartan2_dump(desc, buf, bsize);
 #else
 			printf ("%s: No support for Spartan-II devices.\n",
 					__FUNCTION__);
@@ -262,7 +262,7 @@ int xilinx_info (Xilinx_desc * desc)
 	if (xilinx_validate (desc, (char *)__FUNCTION__)) {
 		printf ("Family:        \t");
 		switch (desc->family) {
-		case Xilinx_Spartan2:
+		case xilinx_spartan2:
 			printf ("Spartan-II\n");
 			break;
 		case Xilinx_Spartan3:
@@ -316,9 +316,9 @@ int xilinx_info (Xilinx_desc * desc)
 		if (desc->iface_fns) {
 			printf ("Device Function Table @ 0x%p\n", desc->iface_fns);
 			switch (desc->family) {
-			case Xilinx_Spartan2:
+			case xilinx_spartan2:
 #if defined(CONFIG_FPGA_SPARTAN2)
-				Spartan2_info (desc);
+				spartan2_info(desc);
 #else
 				/* just in case */
 				printf ("%s: No support for Spartan-II devices.\n",

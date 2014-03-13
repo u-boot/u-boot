@@ -10,9 +10,9 @@
 
 #include <xilinx.h>
 
-extern int Spartan2_load(Xilinx_desc *desc, const void *image, size_t size);
-extern int Spartan2_dump(Xilinx_desc *desc, const void *buf, size_t bsize);
-extern int Spartan2_info(Xilinx_desc *desc);
+int spartan2_load(Xilinx_desc *desc, const void *image, size_t size);
+int spartan2_dump(Xilinx_desc *desc, const void *buf, size_t bsize);
+int spartan2_info(Xilinx_desc *desc);
 
 /* Slave Parallel Implementation function table */
 typedef struct {
@@ -29,7 +29,7 @@ typedef struct {
 	Xilinx_busy_fn	busy;
 	Xilinx_abort_fn	abort;
 	Xilinx_post_fn	post;
-} Xilinx_Spartan2_Slave_Parallel_fns;
+} xilinx_spartan2_slave_parallel_fns;
 
 /* Slave Serial Implementation function table */
 typedef struct {
@@ -40,7 +40,7 @@ typedef struct {
 	Xilinx_done_fn	done;
 	Xilinx_wr_fn	wr;
 	Xilinx_post_fn	post;
-} Xilinx_Spartan2_Slave_Serial_fns;
+} xilinx_spartan2_slave_serial_fns;
 
 /* Device Image Sizes
  *********************************************************************/
@@ -63,36 +63,36 @@ typedef struct {
  *********************************************************************/
 /* Spartan-II devices */
 #define XILINX_XC2S15_DESC(iface, fn_table, cookie) \
-{ Xilinx_Spartan2, iface, XILINX_XC2S15_SIZE, fn_table, cookie }
+{ xilinx_spartan2, iface, XILINX_XC2S15_SIZE, fn_table, cookie }
 
 #define XILINX_XC2S30_DESC(iface, fn_table, cookie) \
-{ Xilinx_Spartan2, iface, XILINX_XC2S30_SIZE, fn_table, cookie }
+{ xilinx_spartan2, iface, XILINX_XC2S30_SIZE, fn_table, cookie }
 
 #define XILINX_XC2S50_DESC(iface, fn_table, cookie) \
-{ Xilinx_Spartan2, iface, XILINX_XC2S50_SIZE, fn_table, cookie }
+{ xilinx_spartan2, iface, XILINX_XC2S50_SIZE, fn_table, cookie }
 
 #define XILINX_XC2S100_DESC(iface, fn_table, cookie) \
-{ Xilinx_Spartan2, iface, XILINX_XC2S100_SIZE, fn_table, cookie }
+{ xilinx_spartan2, iface, XILINX_XC2S100_SIZE, fn_table, cookie }
 
 #define XILINX_XC2S150_DESC(iface, fn_table, cookie) \
-{ Xilinx_Spartan2, iface, XILINX_XC2S150_SIZE, fn_table, cookie }
+{ xilinx_spartan2, iface, XILINX_XC2S150_SIZE, fn_table, cookie }
 
 #define XILINX_XC2S200_DESC(iface, fn_table, cookie) \
-{ Xilinx_Spartan2, iface, XILINX_XC2S200_SIZE, fn_table, cookie }
+{ xilinx_spartan2, iface, XILINX_XC2S200_SIZE, fn_table, cookie }
 
 #define XILINX_XC2S50E_DESC(iface, fn_table, cookie) \
-{ Xilinx_Spartan2, iface, XILINX_XC2S50E_SIZE, fn_table, cookie }
+{ xilinx_spartan2, iface, XILINX_XC2S50E_SIZE, fn_table, cookie }
 
 #define XILINX_XC2S100E_DESC(iface, fn_table, cookie) \
-{ Xilinx_Spartan2, iface, XILINX_XC2S100E_SIZE, fn_table, cookie }
+{ xilinx_spartan2, iface, XILINX_XC2S100E_SIZE, fn_table, cookie }
 
 #define XILINX_XC2S150E_DESC(iface, fn_table, cookie) \
-{ Xilinx_Spartan2, iface, XILINX_XC2S150E_SIZE, fn_table, cookie }
+{ xilinx_spartan2, iface, XILINX_XC2S150E_SIZE, fn_table, cookie }
 
 #define XILINX_XC2S200E_DESC(iface, fn_table, cookie) \
-{ Xilinx_Spartan2, iface, XILINX_XC2S200E_SIZE, fn_table, cookie }
+{ xilinx_spartan2, iface, XILINX_XC2S200E_SIZE, fn_table, cookie }
 
 #define XILINX_XC2S300E_DESC(iface, fn_table, cookie) \
-{ Xilinx_Spartan2, iface, XILINX_XC2S300E_SIZE, fn_table, cookie }
+{ xilinx_spartan2, iface, XILINX_XC2S300E_SIZE, fn_table, cookie }
 
 #endif /* _SPARTAN2_H_ */

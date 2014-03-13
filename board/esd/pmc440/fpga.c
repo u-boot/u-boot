@@ -47,7 +47,7 @@ Xilinx_Spartan3_Slave_Serial_fns pmc440_fpga_fns = {
 };
 #endif
 
-Xilinx_Spartan2_Slave_Serial_fns ngcc_fpga_fns = {
+xilinx_spartan2_slave_serial_fns ngcc_fpga_fns = {
 	ngcc_fpga_pre_config_fn,
 	ngcc_fpga_pgm_fn,
 	ngcc_fpga_clk_fn,

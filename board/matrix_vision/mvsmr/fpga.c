@@ -27,7 +27,7 @@ Xilinx_Spartan3_Slave_Serial_fns fpga_fns = {
 };
 
 Xilinx_desc spartan3 = {
-	Xilinx_Spartan2,
+	xilinx_spartan2,
 	slave_serial,
 	XILINX_XC3S200_SIZE,
 	(void *) &fpga_fns,
