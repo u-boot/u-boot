@@ -363,7 +363,7 @@ int xilinx_fastwr_fn(void *buf, size_t len, int flush, int cookie)
  * relocated at runtime.
  * FIXME: relocation not yet working for coldfire, see below!
  */
-Xilinx_Spartan3_Slave_Serial_fns xilinx_fns = {
+xilinx_spartan3_slave_serial_fns xilinx_fns = {
 	xilinx_pre_config_fn,
 	xilinx_pgm_fn,
 	xilinx_clk_fn,
@@ -375,7 +375,7 @@ Xilinx_Spartan3_Slave_Serial_fns xilinx_fns = {
 };
 
 Xilinx_desc xilinx_fpga[CONFIG_FPGA_COUNT] = {
-	{Xilinx_Spartan3,
+	{xilinx_spartan3,
 	 slave_serial,
 	 XILINX_XC3S4000_SIZE,
 	 (void *)&xilinx_fns,

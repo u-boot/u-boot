@@ -20,7 +20,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define USE_SP_CODE
 
 #ifdef USE_SP_CODE
-Xilinx_Spartan3_Slave_Parallel_fns pmc440_fpga_fns = {
+xilinx_spartan3_slave_parallel_fns pmc440_fpga_fns = {
 	fpga_pre_config_fn,
 	fpga_pgm_fn,
 	fpga_init_fn,
@@ -36,7 +36,7 @@ Xilinx_Spartan3_Slave_Parallel_fns pmc440_fpga_fns = {
 	fpga_post_config_fn,
 };
 #else
-Xilinx_Spartan3_Slave_Serial_fns pmc440_fpga_fns = {
+xilinx_spartan3_slave_serial_fns pmc440_fpga_fns = {
 	fpga_pre_config_fn,
 	fpga_pgm_fn,
 	fpga_clk_fn,

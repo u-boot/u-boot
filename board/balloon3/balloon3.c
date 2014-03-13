@@ -191,7 +191,7 @@ int fpga_cs_fn(int assert_clk, int flush, int cookie)
 	return assert_clk;
 }
 
-Xilinx_Spartan3_Slave_Parallel_fns balloon3_fpga_fns = {
+xilinx_spartan3_slave_parallel_fns balloon3_fpga_fns = {
 	fpga_pre_config_fn,
 	fpga_pgm_fn,
 	fpga_init_fn,

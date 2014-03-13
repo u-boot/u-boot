@@ -159,11 +159,11 @@ int xilinx_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 					__FUNCTION__);
 #endif
 			break;
-		case Xilinx_Spartan3:
+		case xilinx_spartan3:
 #if defined(CONFIG_FPGA_SPARTAN3)
 			PRINTF ("%s: Launching the Spartan-III Loader...\n",
 					__FUNCTION__);
-			ret_val = Spartan3_load (desc, buf, bsize);
+			ret_val = spartan3_load(desc, buf, bsize);
 #else
 			printf ("%s: No support for Spartan-III devices.\n",
 					__FUNCTION__);
@@ -216,11 +216,11 @@ int xilinx_dump(Xilinx_desc *desc, const void *buf, size_t bsize)
 					__FUNCTION__);
 #endif
 			break;
-		case Xilinx_Spartan3:
+		case xilinx_spartan3:
 #if defined(CONFIG_FPGA_SPARTAN3)
 			PRINTF ("%s: Launching the Spartan-III Reader...\n",
 					__FUNCTION__);
-			ret_val = Spartan3_dump (desc, buf, bsize);
+			ret_val = spartan3_dump(desc, buf, bsize);
 #else
 			printf ("%s: No support for Spartan-III devices.\n",
 					__FUNCTION__);
@@ -265,7 +265,7 @@ int xilinx_info (Xilinx_desc * desc)
 		case xilinx_spartan2:
 			printf ("Spartan-II\n");
 			break;
-		case Xilinx_Spartan3:
+		case xilinx_spartan3:
 			printf ("Spartan-III\n");
 			break;
 		case Xilinx_Virtex2:
@@ -325,9 +325,9 @@ int xilinx_info (Xilinx_desc * desc)
 						__FUNCTION__);
 #endif
 				break;
-			case Xilinx_Spartan3:
+			case xilinx_spartan3:
 #if defined(CONFIG_FPGA_SPARTAN3)
-				Spartan3_info (desc);
+				spartan3_info(desc);
 #else
 				/* just in case */
 				printf ("%s: No support for Spartan-III devices.\n",

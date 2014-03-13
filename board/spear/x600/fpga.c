@@ -163,7 +163,7 @@ static int fpga_wr_fn(int assert_write, int flush, int cookie)
 	return assert_write;
 }
 
-static Xilinx_Spartan3_Slave_Serial_fns x600_fpga_fns = {
+static xilinx_spartan3_slave_serial_fns x600_fpga_fns = {
 	fpga_pre_config_fn,
 	fpga_pgm_fn,
 	fpga_clk_fn,
