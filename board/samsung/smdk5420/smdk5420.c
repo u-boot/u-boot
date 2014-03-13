@@ -142,18 +142,3 @@ int board_get_revision(void)
 {
 	return 0;
 }
-
-#ifdef CONFIG_DISPLAY_BOARDINFO
-int checkboard(void)
-{
-	const char *board_name;
-
-	board_name = fdt_getprop(gd->fdt_blob, 0, "model", NULL);
-	if (board_name == NULL)
-		printf("\nUnknown Board\n");
-	else
-		printf("\nBoard: %s\n", board_name);
-
-	return 0;
-}
-#endif

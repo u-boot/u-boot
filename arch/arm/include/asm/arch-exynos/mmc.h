@@ -53,6 +53,8 @@
 #define SDHCI_CTRL4_DRIVE_MASK(_x)	((_x) << 16)
 #define SDHCI_CTRL4_DRIVE_SHIFT		(16)
 
+#define SDHCI_MAX_HOSTS 4
+
 int s5p_sdhci_init(u32 regbase, int index, int bus_width);
 
 static inline int s5p_mmc_init(int index, int bus_width)
@@ -62,4 +64,9 @@ static inline int s5p_mmc_init(int index, int bus_width)
 
 	return s5p_sdhci_init(base, index, bus_width);
 }
+
+#ifdef CONFIG_OF_CONTROL
+int exynos_mmc_init(const void *blob);
+#endif
+
 #endif

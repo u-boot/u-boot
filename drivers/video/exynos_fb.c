@@ -104,6 +104,13 @@ void __exynos_backlight_reset(void)
 void exynos_backlight_reset(void)
 	__attribute__((weak, alias("__exynos_backlight_reset")));
 
+int __exynos_lcd_misc_init(vidinfo_t *vid)
+{
+	return 0;
+}
+int exynos_lcd_misc_init(vidinfo_t *vid)
+	__attribute__((weak, alias("__exynos_lcd_misc_init")));
+
 static void lcd_panel_on(vidinfo_t *vid)
 {
 	udelay(vid->init_delay);
@@ -281,10 +288,15 @@ void lcd_ctrl_init(void *lcdbase)
 #ifdef CONFIG_OF_CONTROL
 	if (exynos_fimd_parse_dt(gd->fdt_blob))
 		debug("Can't get proper panel info\n");
+#ifdef CONFIG_EXYNOS_MIPI_DSIM
+	exynos_init_dsim_platform_data(&panel_info);
+#endif
+	exynos_lcd_misc_init(&panel_info);
 #else
 	/* initialize parameters which is specific to panel. */
 	init_panel_info(&panel_info);
 #endif
+
 	panel_width = panel_info.vl_width;
 	panel_height = panel_info.vl_height;
 

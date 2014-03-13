@@ -79,8 +79,10 @@ enum fdt_compat_id {
 	COMPAT_SAMSUNG_EXYNOS5_USB3_PHY,/* Exynos phy controller for usb3.0 */
 	COMPAT_SAMSUNG_EXYNOS_TMU,	/* Exynos TMU */
 	COMPAT_SAMSUNG_EXYNOS_FIMD,	/* Exynos Display controller */
+	COMPAT_SAMSUNG_EXYNOS_MIPI_DSI,	/* Exynos mipi dsi */
 	COMPAT_SAMSUNG_EXYNOS5_DP,	/* Exynos Display port controller */
 	COMPAT_SAMSUNG_EXYNOS5_DWMMC,	/* Exynos5 DWMMC controller */
+	COMPAT_SAMSUNG_EXYNOS_MMC,	/* Exynos MMC controller */
 	COMPAT_SAMSUNG_EXYNOS_SERIAL,	/* Exynos UART */
 	COMPAT_MAXIM_MAX77686_PMIC,	/* MAX77686 PMIC */
 	COMPAT_GENERIC_SPI_FLASH,	/* Generic SPI Flash chip */
