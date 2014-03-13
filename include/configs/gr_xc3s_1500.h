@@ -18,8 +18,6 @@
  * (easy to change)
  */
 
-#define CONFIG_LEON3		/* This is an LEON3 CPU */
-#define CONFIG_LEON		1	/* This is an LEON CPU */
 #define CONFIG_GRXC3S1500	1	/* ... on GR-XC3S-1500 board */
 
 /* CPU / AMBA BUS configuration */

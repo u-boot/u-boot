@@ -20,8 +20,6 @@
  * (easy to change)
  */
 
-#define CONFIG_LEON3		/* This is an LEON3 CPU */
-#define CONFIG_LEON		1	/* This is an LEON CPU */
 /* Altera NIOS Development board, Stratix II board */
 #define CONFIG_GR_EP2S60	1
 

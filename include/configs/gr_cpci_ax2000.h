@@ -19,8 +19,6 @@
  * (easy to change)
  */
 
-#define CONFIG_LEON3		/* This is an LEON3 CPU */
-#define CONFIG_LEON		1	/* This is an LEON CPU */
 #define CONFIG_CPCI_AX2000	1	/* ... on GR-CPCI-AX2000 board */
 
 #define CONFIG_LEON_RAM_SRAM 1
