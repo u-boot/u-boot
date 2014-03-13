@@ -612,6 +612,8 @@ struct fb_videomode {
 	u32 flag;
 };
 
+int board_video_skip(void);
+
 #endif /* __KERNEL__ */
 
 #endif /* _LINUX_FB_H */
