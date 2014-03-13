@@ -320,20 +320,20 @@ static u32 *zynq_align_dma_buffer(u32 *buf, u32 len, u32 swap)
 	return buf;
 }
 
-static int zynq_load(xilinx_desc *desc, const void *buf, size_t bsize)
+static int zynq_validate_bitstream(xilinx_desc *desc, const void *buf,
+				   size_t bsize, u32 blocksize, u32 *swap,
+				   u32 *partialbit)
 {
-	unsigned long ts; /* Timestamp */
-	u32 partialbit = 0;
-	u32 isr_status, swap, diff;
 	u32 *buf_start;
+	u32 diff;
 
 	/* Detect if we are going working with partial or full bitstream */
 	if (bsize != desc->size) {
 		printf("%s: Working with partial bitstream\n", __func__);
-		partialbit = 1;
+		*partialbit = 1;
 	}
+	buf_start = check_data((u8 *)buf, blocksize, swap);
 
-	buf_start = check_data((u8 *)buf, bsize, &swap);
 	if (!buf_start)
 		return FPGA_FAIL;
 
@@ -351,7 +351,25 @@ static int zynq_load(xilinx_desc *desc, const void *buf, size_t bsize)
 		return FPGA_FAIL;
 	}
 
-	if (zynq_dma_xfer_init(partialbit))
+	if (zynq_dma_xfer_init(*partialbit))
+		return FPGA_FAIL;
+
+	return 0;
+}
+
+
+static int zynq_load(xilinx_desc *desc, const void *buf, size_t bsize)
+{
+	unsigned long ts; /* Timestamp */
+	u32 partialbit = 0;
+	u32 isr_status, swap;
+
+	/*
+	 * send bsize inplace of blocksize as it was not a bitstream
+	 * in chunks
+	 */
+	if (zynq_validate_bitstream(desc, buf, bsize, bsize, &swap,
+				    &partialbit))
 		return FPGA_FAIL;
 
 	buf = zynq_align_dma_buffer((u32 *)buf, bsize, swap);
