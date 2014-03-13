@@ -48,6 +48,7 @@ xilinx_desc fpga[CONFIG_FPGA_COUNT] = {
 	 1196128l/8,
 	 (void *)&fpga_fns,
 	 0,
+	 &spartan3_op,
 	 "3s200aft256"}
 };
 

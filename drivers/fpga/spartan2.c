@@ -41,7 +41,7 @@ static int spartan2_ss_dump(xilinx_desc *desc, const void *buf, size_t bsize);
 
 /* ------------------------------------------------------------------------- */
 /* Spartan-II Generic Implementation */
-int spartan2_load(xilinx_desc *desc, const void *buf, size_t bsize)
+static int spartan2_load(xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;
 
@@ -64,7 +64,7 @@ int spartan2_load(xilinx_desc *desc, const void *buf, size_t bsize)
 	return ret_val;
 }
 
-int spartan2_dump(xilinx_desc *desc, const void *buf, size_t bsize)
+static int spartan2_dump(xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;
 
@@ -87,7 +87,7 @@ int spartan2_dump(xilinx_desc *desc, const void *buf, size_t bsize)
 	return ret_val;
 }
 
-int spartan2_info(xilinx_desc *desc)
+static int spartan2_info(xilinx_desc *desc)
 {
 	return FPGA_SUCCESS;
 }
@@ -447,3 +447,9 @@ static int spartan2_ss_dump(xilinx_desc *desc, const void *buf, size_t bsize)
 			__FUNCTION__);
 	return FPGA_FAIL;
 }
+
+struct xilinx_fpga_op spartan2_op = {
+	.load = spartan2_load,
+	.dump = spartan2_dump,
+	.info = spartan2_info,
+};

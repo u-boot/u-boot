@@ -90,7 +90,7 @@ static int virtex2_ssm_dump(xilinx_desc *desc, const void *buf, size_t bsize);
 static int virtex2_ss_load(xilinx_desc *desc, const void *buf, size_t bsize);
 static int virtex2_ss_dump(xilinx_desc *desc, const void *buf, size_t bsize);
 
-int virtex2_load(xilinx_desc *desc, const void *buf, size_t bsize)
+static int virtex2_load(xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;
 
@@ -112,7 +112,7 @@ int virtex2_load(xilinx_desc *desc, const void *buf, size_t bsize)
 	return ret_val;
 }
 
-int virtex2_dump(xilinx_desc *desc, const void *buf, size_t bsize)
+static int virtex2_dump(xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;
 
@@ -134,7 +134,7 @@ int virtex2_dump(xilinx_desc *desc, const void *buf, size_t bsize)
 	return ret_val;
 }
 
-int virtex2_info(xilinx_desc *desc)
+static int virtex2_info(xilinx_desc *desc)
 {
 	return FPGA_SUCCESS;
 }
@@ -417,3 +417,9 @@ static int virtex2_ss_dump(xilinx_desc *desc, const void *buf, size_t bsize)
 }
 
 /* vim: set ts=4 tw=78: */
+
+struct xilinx_fpga_op virtex2_op = {
+	.load = virtex2_load,
+	.dump = virtex2_dump,
+	.info = virtex2_info,
+};

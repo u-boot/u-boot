@@ -379,7 +379,8 @@ xilinx_desc xilinx_fpga[CONFIG_FPGA_COUNT] = {
 	 slave_serial,
 	 XILINX_XC3S4000_SIZE,
 	 (void *)&xilinx_fns,
-	 0}
+	 0,
+	 &spartan3_op}
 };
 
 /* Initialize the fpga.  Return 1 on success, 0 on failure. */

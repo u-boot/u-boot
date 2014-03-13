@@ -11,9 +11,7 @@
 
 #include <xilinx.h>
 
-int virtex2_load(xilinx_desc *desc, const void *image, size_t size);
-int virtex2_dump(xilinx_desc *desc, const void *buf, size_t bsize);
-int virtex2_info(xilinx_desc *desc);
+extern struct xilinx_fpga_op virtex2_op;
 
 /*
  * Slave SelectMap Implementation function table.
@@ -60,39 +58,39 @@ typedef struct {
 /* Descriptor Macros
  *********************************************************************/
 #define XILINX_XC2V40_DESC(iface, fn_table, cookie)	\
-{ xilinx_virtex2, iface, XILINX_XC2V40_SIZE, fn_table, cookie }
+{ xilinx_virtex2, iface, XILINX_XC2V40_SIZE, fn_table, cookie, &virtex2_op }
 
 #define XILINX_XC2V80_DESC(iface, fn_table, cookie) \
-{ xilinx_virtex2, iface, XILINX_XC2V80_SIZE, fn_table, cookie }
+{ xilinx_virtex2, iface, XILINX_XC2V80_SIZE, fn_table, cookie, &virtex2_op }
 
 #define XILINX_XC2V250_DESC(iface, fn_table, cookie) \
-{ xilinx_virtex2, iface, XILINX_XC2V250_SIZE, fn_table, cookie }
+{ xilinx_virtex2, iface, XILINX_XC2V250_SIZE, fn_table, cookie, &virtex2_op }
 
 #define XILINX_XC2V500_DESC(iface, fn_table, cookie) \
-{ xilinx_virtex2, iface, XILINX_XC2V500_SIZE, fn_table, cookie }
+{ xilinx_virtex2, iface, XILINX_XC2V500_SIZE, fn_table, cookie, &virtex2_op }
 
 #define XILINX_XC2V1000_DESC(iface, fn_table, cookie) \
-{ xilinx_virtex2, iface, XILINX_XC2V1000_SIZE, fn_table, cookie }
+{ xilinx_virtex2, iface, XILINX_XC2V1000_SIZE, fn_table, cookie, &virtex2_op }
 
 #define XILINX_XC2V1500_DESC(iface, fn_table, cookie) \
-{ xilinx_virtex2, iface, XILINX_XC2V1500_SIZE, fn_table, cookie }
+{ xilinx_virtex2, iface, XILINX_XC2V1500_SIZE, fn_table, cookie, &virtex2_op }
 
 #define XILINX_XC2V2000_DESC(iface, fn_table, cookie) \
-{ xilinx_virtex2, iface, XILINX_XC2V2000_SIZE, fn_table, cookie }
+{ xilinx_virtex2, iface, XILINX_XC2V2000_SIZE, fn_table, cookie, &virtex2_op }
 
 #define XILINX_XC2V3000_DESC(iface, fn_table, cookie) \
-{ xilinx_virtex2, iface, XILINX_XC2V3000_SIZE, fn_table, cookie }
+{ xilinx_virtex2, iface, XILINX_XC2V3000_SIZE, fn_table, cookie, &virtex2_op }
 
 #define XILINX_XC2V4000_DESC(iface, fn_table, cookie) \
-{ xilinx_virtex2, iface, XILINX_XC2V4000_SIZE, fn_table, cookie }
+{ xilinx_virtex2, iface, XILINX_XC2V4000_SIZE, fn_table, cookie, &virtex2_op }
 
 #define XILINX_XC2V6000_DESC(iface, fn_table, cookie) \
-{ xilinx_virtex2, iface, XILINX_XC2V6000_SIZE, fn_table, cookie }
+{ xilinx_virtex2, iface, XILINX_XC2V6000_SIZE, fn_table, cookie, &virtex2_op }
 
 #define XILINX_XC2V8000_DESC(iface, fn_table, cookie) \
-{ xilinx_virtex2, iface, XILINX_XC2V8000_SIZE, fn_table, cookie }
+{ xilinx_virtex2, iface, XILINX_XC2V8000_SIZE, fn_table, cookie, &virtex2_op }
 
 #define XILINX_XC2V10000_DESC(iface, fn_table, cookie) \
-{ xilinx_virtex2, iface, XILINX_XC2V10000_SIZE, fn_table, cookie }
+{ xilinx_virtex2, iface, XILINX_XC2V10000_SIZE, fn_table, cookie, &virtex2_op }
 
 #endif /* _VIRTEX2_H_ */
