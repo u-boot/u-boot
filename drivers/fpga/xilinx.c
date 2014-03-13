@@ -169,11 +169,11 @@ int xilinx_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 					__FUNCTION__);
 #endif
 			break;
-		case Xilinx_Virtex2:
+		case xilinx_virtex2:
 #if defined(CONFIG_FPGA_VIRTEX2)
 			PRINTF ("%s: Launching the Virtex-II Loader...\n",
 					__FUNCTION__);
-			ret_val = Virtex2_load (desc, buf, bsize);
+			ret_val = virtex2_load(desc, buf, bsize);
 #else
 			printf ("%s: No support for Virtex-II devices.\n",
 					__FUNCTION__);
@@ -226,11 +226,11 @@ int xilinx_dump(Xilinx_desc *desc, const void *buf, size_t bsize)
 					__FUNCTION__);
 #endif
 			break;
-		case Xilinx_Virtex2:
+		case xilinx_virtex2:
 #if defined( CONFIG_FPGA_VIRTEX2)
 			PRINTF ("%s: Launching the Virtex-II Reader...\n",
 					__FUNCTION__);
-			ret_val = Virtex2_dump (desc, buf, bsize);
+			ret_val = virtex2_dump(desc, buf, bsize);
 #else
 			printf ("%s: No support for Virtex-II devices.\n",
 					__FUNCTION__);
@@ -268,7 +268,7 @@ int xilinx_info (Xilinx_desc * desc)
 		case xilinx_spartan3:
 			printf ("Spartan-III\n");
 			break;
-		case Xilinx_Virtex2:
+		case xilinx_virtex2:
 			printf ("Virtex-II\n");
 			break;
 		case xilinx_zynq:
@@ -334,9 +334,9 @@ int xilinx_info (Xilinx_desc * desc)
 						__FUNCTION__);
 #endif
 				break;
-			case Xilinx_Virtex2:
+			case xilinx_virtex2:
 #if defined(CONFIG_FPGA_VIRTEX2)
-				Virtex2_info (desc);
+				virtex2_info(desc);
 #else
 				/* just in case */
 				printf ("%s: No support for Virtex-II devices.\n",

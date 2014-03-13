@@ -28,7 +28,7 @@ typedef enum {			/* typedef Xilinx_Family */
 	min_xilinx_type,	/* low range check value */
 	xilinx_spartan2,	/* Spartan-II Family */
 	Xilinx_VirtexE,		/* Virtex-E Family */
-	Xilinx_Virtex2,		/* Virtex2 Family */
+	xilinx_virtex2,		/* Virtex2 Family */
 	xilinx_spartan3,	/* Spartan-III Family */
 	xilinx_zynq,		/* Zynq Family */
 	max_xilinx_type		/* insert all new types before this */
