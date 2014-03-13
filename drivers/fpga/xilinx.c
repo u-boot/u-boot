@@ -31,7 +31,7 @@
 #endif
 
 /* Local Static Functions */
-static int xilinx_validate (Xilinx_desc * desc, char *fn);
+static int xilinx_validate(xilinx_desc *desc, char *fn);
 
 /* ------------------------------------------------------------------------- */
 
@@ -43,7 +43,7 @@ int fpga_loadbitstream(int devnum, char *fpgadata, size_t size)
 	unsigned char *dataptr;
 	unsigned int i;
 	const fpga_desc *desc;
-	Xilinx_desc *xdesc;
+	xilinx_desc *xdesc;
 
 	dataptr = (unsigned char *)fpgadata;
 	/* Find out fpga_description */
@@ -94,7 +94,7 @@ int fpga_loadbitstream(int devnum, char *fpgadata, size_t size)
 			return FPGA_FAIL;
 		}
 	} else {
-		printf("%s: Please fill correct device ID to Xilinx_desc\n",
+		printf("%s: Please fill correct device ID to xilinx_desc\n",
 		       __func__);
 	}
 	printf("  part number = \"%s\"\n", buffer);
@@ -141,7 +141,7 @@ int fpga_loadbitstream(int devnum, char *fpgadata, size_t size)
 	return fpga_load(devnum, dataptr, swapsize);
 }
 
-int xilinx_load(Xilinx_desc *desc, const void *buf, size_t bsize)
+int xilinx_load(xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;	/* assume a failure */
 
@@ -198,7 +198,7 @@ int xilinx_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 	return ret_val;
 }
 
-int xilinx_dump(Xilinx_desc *desc, const void *buf, size_t bsize)
+int xilinx_dump(xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;	/* assume a failure */
 
@@ -255,7 +255,7 @@ int xilinx_dump(Xilinx_desc *desc, const void *buf, size_t bsize)
 	return ret_val;
 }
 
-int xilinx_info (Xilinx_desc * desc)
+int xilinx_info(xilinx_desc *desc)
 {
 	int ret_val = FPGA_FAIL;
 
@@ -369,7 +369,7 @@ int xilinx_info (Xilinx_desc * desc)
 
 /* ------------------------------------------------------------------------- */
 
-static int xilinx_validate (Xilinx_desc * desc, char *fn)
+static int xilinx_validate(xilinx_desc *desc, char *fn)
 {
 	int ret_val = false;
 

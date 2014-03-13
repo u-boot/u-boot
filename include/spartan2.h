@@ -10,9 +10,9 @@
 
 #include <xilinx.h>
 
-int spartan2_load(Xilinx_desc *desc, const void *image, size_t size);
-int spartan2_dump(Xilinx_desc *desc, const void *buf, size_t bsize);
-int spartan2_info(Xilinx_desc *desc);
+int spartan2_load(xilinx_desc *desc, const void *image, size_t size);
+int spartan2_dump(xilinx_desc *desc, const void *buf, size_t bsize);
+int spartan2_info(xilinx_desc *desc);
 
 /* Slave Parallel Implementation function table */
 typedef struct {

@@ -42,7 +42,7 @@ xilinx_spartan3_slave_parallel_fns fpga_fns = {
 	fpga_post_fn,
 };
 
-Xilinx_desc fpga[CONFIG_FPGA_COUNT] = {
+xilinx_desc fpga[CONFIG_FPGA_COUNT] = {
 	{xilinx_spartan3,
 	 slave_parallel,
 	 1196128l/8,

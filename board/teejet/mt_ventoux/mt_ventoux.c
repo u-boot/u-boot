@@ -200,7 +200,7 @@ xilinx_spartan3_slave_serial_fns mt_ventoux_fpga_fns = {
 	fpga_post_config_fn,
 };
 
-Xilinx_desc fpga = XILINX_XC6SLX4_DESC(slave_serial,
+xilinx_desc fpga = XILINX_XC6SLX4_DESC(slave_serial,
 			(void *)&mt_ventoux_fpga_fns, 0);
 
 /* Initialize the FPGA */

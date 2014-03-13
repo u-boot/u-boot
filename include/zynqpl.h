@@ -12,9 +12,9 @@
 
 #include <xilinx.h>
 
-extern int zynq_load(Xilinx_desc *desc, const void *image, size_t size);
-extern int zynq_dump(Xilinx_desc *desc, const void *buf, size_t bsize);
-extern int zynq_info(Xilinx_desc *desc);
+int zynq_load(xilinx_desc *desc, const void *image, size_t size);
+int zynq_dump(xilinx_desc *desc, const void *buf, size_t bsize);
+int zynq_info(xilinx_desc *desc);
 
 #define XILINX_ZYNQ_7010	0x2
 #define XILINX_ZYNQ_7015	0x1b

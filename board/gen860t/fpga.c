@@ -56,7 +56,7 @@ xilinx_virtex2_slave_selectmap_fns fpga_fns = {
 	fpga_post_config_fn
 };
 
-Xilinx_desc fpga[CONFIG_FPGA_COUNT] = {
+xilinx_desc fpga[CONFIG_FPGA_COUNT] = {
 	{xilinx_virtex2,
 	 slave_selectmap,
 	 XILINX_XC2V3000_SIZE,

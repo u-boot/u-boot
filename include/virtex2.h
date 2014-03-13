@@ -11,9 +11,9 @@
 
 #include <xilinx.h>
 
-int virtex2_load(Xilinx_desc *desc, const void *image, size_t size);
-int virtex2_dump(Xilinx_desc *desc, const void *buf, size_t bsize);
-int virtex2_info(Xilinx_desc *desc);
+int virtex2_load(xilinx_desc *desc, const void *image, size_t size);
+int virtex2_dump(xilinx_desc *desc, const void *buf, size_t bsize);
+int virtex2_info(xilinx_desc *desc);
 
 /*
  * Slave SelectMap Implementation function table.

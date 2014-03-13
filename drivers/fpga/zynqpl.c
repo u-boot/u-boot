@@ -36,7 +36,7 @@
 #define CONFIG_SYS_FPGA_PROG_TIME	(CONFIG_SYS_HZ * 4) /* 4 s */
 #endif
 
-int zynq_info(Xilinx_desc *desc)
+int zynq_info(xilinx_desc *desc)
 {
 	return FPGA_SUCCESS;
 }
@@ -153,7 +153,7 @@ static void *check_data(u8 *buf, size_t bsize, u32 *swap)
 }
 
 
-int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
+int zynq_load(xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	unsigned long ts; /* Timestamp */
 	u32 partialbit = 0;
@@ -358,7 +358,7 @@ int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 	return FPGA_SUCCESS;
 }
 
-int zynq_dump(Xilinx_desc *desc, const void *buf, size_t bsize)
+int zynq_dump(xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	return FPGA_FAIL;
 }

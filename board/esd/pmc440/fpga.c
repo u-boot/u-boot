@@ -57,7 +57,7 @@ xilinx_spartan2_slave_serial_fns ngcc_fpga_fns = {
 	ngcc_fpga_post_config_fn
 };
 
-Xilinx_desc fpga[CONFIG_FPGA_COUNT] = {
+xilinx_desc fpga[CONFIG_FPGA_COUNT] = {
 	XILINX_XC3S1200E_DESC(
 #ifdef USE_SP_CODE
 		slave_parallel,

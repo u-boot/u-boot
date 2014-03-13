@@ -34,20 +34,20 @@ typedef enum {			/* typedef Xilinx_Family */
 	max_xilinx_type		/* insert all new types before this */
 } Xilinx_Family;		/* end, typedef Xilinx_Family */
 
-typedef struct {		/* typedef Xilinx_desc */
+typedef struct {		/* typedef xilinx_desc */
 	Xilinx_Family family;	/* part type */
 	Xilinx_iface iface;	/* interface type */
 	size_t size;		/* bytes of data part can accept */
 	void *iface_fns;	/* interface function table */
 	int cookie;		/* implementation specific cookie */
 	char *name;		/* device name in bitstream */
-} Xilinx_desc;			/* end, typedef Xilinx_desc */
+} xilinx_desc;			/* end, typedef xilinx_desc */
 
 /* Generic Xilinx Functions
  *********************************************************************/
-extern int xilinx_load(Xilinx_desc *desc, const void *image, size_t size);
-extern int xilinx_dump(Xilinx_desc *desc, const void *buf, size_t bsize);
-extern int xilinx_info(Xilinx_desc *desc);
+int xilinx_load(xilinx_desc *desc, const void *image, size_t size);
+int xilinx_dump(xilinx_desc *desc, const void *buf, size_t bsize);
+int xilinx_info(xilinx_desc *desc);
 
 /* Board specific implementation specific function types
  *********************************************************************/

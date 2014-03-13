@@ -173,7 +173,7 @@ static xilinx_spartan3_slave_serial_fns x600_fpga_fns = {
 	fpga_post_config_fn,
 };
 
-static Xilinx_desc fpga[CONFIG_FPGA_COUNT] = {
+static xilinx_desc fpga[CONFIG_FPGA_COUNT] = {
 	XILINX_XC3S1200E_DESC(slave_serial, &x600_fpga_fns, 0)
 };
 

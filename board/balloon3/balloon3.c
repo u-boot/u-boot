@@ -207,7 +207,7 @@ xilinx_spartan3_slave_parallel_fns balloon3_fpga_fns = {
 	fpga_post_config_fn,
 };
 
-Xilinx_desc fpga = XILINX_XC3S1000_DESC(slave_parallel,
+xilinx_desc fpga = XILINX_XC3S1000_DESC(slave_parallel,
 			(void *)&balloon3_fpga_fns, 0);
 
 /* Initialize the FPGA */

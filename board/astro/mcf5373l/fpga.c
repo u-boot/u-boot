@@ -374,7 +374,7 @@ xilinx_spartan3_slave_serial_fns xilinx_fns = {
 	xilinx_fastwr_fn
 };
 
-Xilinx_desc xilinx_fpga[CONFIG_FPGA_COUNT] = {
+xilinx_desc xilinx_fpga[CONFIG_FPGA_COUNT] = {
 	{xilinx_spartan3,
 	 slave_serial,
 	 XILINX_XC3S4000_SIZE,
