@@ -184,6 +184,7 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		rc = fpga_fsload(dev, fpga_data, data_size, &fpga_fsinfo);
 		break;
 #endif
+#ifdef CONFIG_FPGA_LOADMK
 	case FPGA_LOADMK:
 		switch (genimg_get_format(fpga_data)) {
 		case IMAGE_FORMAT_LEGACY:
@@ -262,7 +263,7 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			break;
 		}
 		break;
-
+#endif
 	case FPGA_DUMP:
 		rc = fpga_dump(dev, fpga_data, data_size);
 		break;
