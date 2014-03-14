@@ -63,6 +63,7 @@
  */
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_FPGA
+#define CONFIG_CMD_FPGA_LOADMK
 #undef CONFIG_CMD_EEPROM
 
 /*

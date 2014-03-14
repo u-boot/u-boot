@@ -2550,6 +2550,10 @@ CBFS (Coreboot Filesystem) support
 
 		Specify the number of FPGA devices to support.
 
+		CONFIG_CMD_FPGA_LOADMK
+
+		Enable support for fpga loadmk command
+
 		CONFIG_SYS_FPGA_PROG_FEEDBACK
 
 		Enable printing of hash marks during FPGA configuration.

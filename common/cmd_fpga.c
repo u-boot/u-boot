@@ -126,10 +126,12 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		if (!fpga_data || !data_size)
 			wrong_parms = 1;
 		break;
+#if defined(CONFIG_CMD_FPGA_LOADMK)
 	case FPGA_LOADMK:
 		if (!fpga_data)
 			wrong_parms = 1;
 		break;
+#endif
 	}
 
 	if (wrong_parms) {
@@ -153,6 +155,7 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		rc = fpga_loadbitstream(dev, fpga_data, data_size);
 		break;
 
+#if defined(CONFIG_CMD_FPGA_LOADMK)
 	case FPGA_LOADMK:
 		switch (genimg_get_format(fpga_data)) {
 		case IMAGE_FORMAT_LEGACY:
@@ -231,6 +234,7 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 			break;
 		}
 		break;
+#endif
 
 	case FPGA_DUMP:
 		rc = fpga_dump(dev, fpga_data, data_size);
@@ -257,8 +261,10 @@ static int fpga_get_op(char *opstr)
 		op = FPGA_LOADB;
 	else if (!strcmp("load", opstr))
 		op = FPGA_LOAD;
+#if defined(CONFIG_CMD_FPGA_LOADMK)
 	else if (!strcmp("loadmk", opstr))
 		op = FPGA_LOADMK;
+#endif
 	else if (!strcmp("dump", opstr))
 		op = FPGA_DUMP;
 
@@ -277,10 +283,12 @@ U_BOOT_CMD(fpga, 6, 1, do_fpga,
 	   "  load\t[dev] [address] [size]\tLoad device from memory buffer\n"
 	   "  loadb\t[dev] [address] [size]\t"
 	   "Load device from bitstream buffer (Xilinx only)\n"
+#if defined(CONFIG_CMD_FPGA_LOADMK)
 	   "  loadmk [dev] [address]\tLoad device generated with mkimage"
 #if defined(CONFIG_FIT)
 	   "\n"
 	   "\tFor loadmk operating on FIT format uImage address must include\n"
 	   "\tsubimage unit name in the form of addr:<subimg_uname>"
+#endif
 #endif
 );

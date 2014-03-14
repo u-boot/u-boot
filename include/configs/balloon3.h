@@ -54,6 +54,7 @@
 #undef	CONFIG_CMD_IMLS
 #define	CONFIG_CMD_USB
 #define	CONFIG_CMD_FPGA
+#define	CONFIG_CMD_FPGA_LOADMK
 #undef	CONFIG_LCD
 
 /*

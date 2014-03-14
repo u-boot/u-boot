@@ -51,6 +51,7 @@
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_ECHO		/* echo arguments		*/
 #define CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
+#define CONFIG_CMD_FPGA_LOADMK
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_ITEST	/* Integer (and string) test	*/
 #define CONFIG_CMD_LOADB	/* loadb			*/

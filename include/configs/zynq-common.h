@@ -191,6 +191,7 @@
 #define CONFIG_FPGA_XILINX
 #define CONFIG_FPGA_ZYNQPL
 #define CONFIG_CMD_FPGA
+#define CONFIG_CMD_FPGA_LOADMK
 
 /* Open Firmware flat tree */
 #define CONFIG_OF_LIBFDT
