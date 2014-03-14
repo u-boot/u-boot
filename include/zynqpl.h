@@ -13,6 +13,10 @@
 #include <xilinx.h>
 
 extern int zynq_load(Xilinx_desc *desc, const void *image, size_t size);
+#ifdef CONFIG_FPGA_LOADFS
+extern int zynq_fsload(Xilinx_desc *desc, const void *buf, size_t bsize,
+			fpga_fs_info *fsinfo);
+#endif
 extern int zynq_dump(Xilinx_desc *desc, const void *buf, size_t bsize);
 extern int zynq_info(Xilinx_desc *desc);
 #ifdef CONFIG_CMD_ZYNQ_AES

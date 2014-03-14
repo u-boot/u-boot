@@ -141,6 +141,37 @@ int fpga_loadbitstream(int devnum, char *fpgadata, size_t size)
 	return fpga_load(devnum, dataptr, swapsize);
 }
 
+#ifdef CONFIG_FPGA_LOADFS
+int xilinx_fsload(Xilinx_desc *desc, const void *buf, size_t bsize,
+		   fpga_fs_info *fpga_fsinfo)
+{
+	int ret_val = FPGA_FAIL;	/* assume a failure */
+
+	if (!xilinx_validate(desc, (char *)__func__)) {
+		printf("%s: Invalid device descriptor\n", __func__);
+	} else {
+		switch (desc->family) {
+		case xilinx_zynq:
+#if defined(CONFIG_FPGA_ZYNQPL)
+			PRINTF("%s: Launching the Zynq PL Loader...\n",
+			       __func__);
+			ret_val = zynq_fsload(desc, buf, bsize,
+					       fpga_fsinfo);
+#else
+			printf("%s: No support for Zynq devices.\n",
+			       __func__);
+#endif
+			break;
+
+		default:
+			printf("%s: Unsupported family type, %d\n",
+			       __func__, desc->family);
+		}
+	}
+	return ret_val;
+}
+#endif
+
 int xilinx_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;	/* assume a failure */
