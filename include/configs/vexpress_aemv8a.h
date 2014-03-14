@@ -12,6 +12,8 @@
 
 #define CONFIG_REMAKE_ELF
 
+#define CONFIG_GICV3
+
 /*#define CONFIG_ARMV8_SWITCH_TO_EL1*/
 
 /*#define CONFIG_SYS_GENERIC_BOARD*/
@@ -93,8 +95,13 @@
 #define COUNTER_FREQUENCY		(0x1800000)	/* 24MHz */
 
 /* Generic Interrupt Controller Definitions */
+#ifdef CONFIG_GICV3
+#define GICD_BASE			(0x2f000000)
+#define GICR_BASE			(0x2f100000)
+#else
 #define GICD_BASE			(0x2C001000)
 #define GICC_BASE			(0x2C002000)
+#endif
 
 #define CONFIG_SYS_MEMTEST_START	V2M_BASE
 #define CONFIG_SYS_MEMTEST_END		(V2M_BASE + 0x80000000)

@@ -35,6 +35,7 @@ endif
 
 obj-y	+= sections.o
 ifdef CONFIG_ARM64
+obj-y	+= gic_64.o
 obj-y	+= interrupts_64.o
 else
 obj-y	+= interrupts.o

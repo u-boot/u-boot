@@ -51,4 +51,60 @@
 #define GICC_IIDR		0x00fc
 #define GICC_DIR		0x1000
 
+/* ReDistributor Registers for Control and Physical LPIs */
+#define GICR_CTLR		0x0000
+#define GICR_IIDR		0x0004
+#define GICR_TYPER		0x0008
+#define GICR_STATUSR		0x0010
+#define GICR_WAKER		0x0014
+#define GICR_SETLPIR		0x0040
+#define GICR_CLRLPIR		0x0048
+#define GICR_SEIR		0x0068
+#define GICR_PROPBASER		0x0070
+#define GICR_PENDBASER		0x0078
+#define GICR_INVLPIR		0x00a0
+#define GICR_INVALLR		0x00b0
+#define GICR_SYNCR		0x00c0
+#define GICR_MOVLPIR		0x0100
+#define GICR_MOVALLR		0x0110
+
+/* ReDistributor Registers for SGIs and PPIs */
+#define GICR_IGROUPRn		0x0080
+#define GICR_ISENABLERn		0x0100
+#define GICR_ICENABLERn		0x0180
+#define GICR_ISPENDRn		0x0200
+#define GICR_ICPENDRn		0x0280
+#define GICR_ISACTIVERn		0x0300
+#define GICR_ICACTIVERn		0x0380
+#define GICR_IPRIORITYRn	0x0400
+#define GICR_ICFGR0		0x0c00
+#define GICR_ICFGR1		0x0c04
+#define GICR_IGROUPMODRn	0x0d00
+#define GICR_NSACRn		0x0e00
+
+/* Cpu Interface System Registers */
+#define ICC_IAR0_EL1		S3_0_C12_C8_0
+#define ICC_IAR1_EL1		S3_0_C12_C12_0
+#define ICC_EOIR0_EL1		S3_0_C12_C8_1
+#define ICC_EOIR1_EL1		S3_0_C12_C12_1
+#define ICC_HPPIR0_EL1		S3_0_C12_C8_2
+#define ICC_HPPIR1_EL1		S3_0_C12_C12_2
+#define ICC_BPR0_EL1		S3_0_C12_C8_3
+#define ICC_BPR1_EL1		S3_0_C12_C12_3
+#define ICC_DIR_EL1		S3_0_C12_C11_1
+#define ICC_PMR_EL1		S3_0_C4_C6_0
+#define ICC_RPR_EL1		S3_0_C12_C11_3
+#define ICC_CTLR_EL1		S3_0_C12_C12_4
+#define ICC_CTLR_EL3		S3_6_C12_C12_4
+#define ICC_SRE_EL1		S3_0_C12_C12_5
+#define ICC_SRE_EL2		S3_4_C12_C9_5
+#define ICC_SRE_EL3		S3_6_C12_C12_5
+#define ICC_IGRPEN0_EL1		S3_0_C12_C12_6
+#define ICC_IGRPEN1_EL1		S3_0_C12_C12_7
+#define ICC_IGRPEN1_EL3		S3_6_C12_C12_7
+#define ICC_SEIEN_EL1		S3_0_C12_C13_0
+#define ICC_SGI0R_EL1		S3_0_C12_C11_7
+#define ICC_SGI1R_EL1		S3_0_C12_C11_5
+#define ICC_ASGI1R_EL1		S3_0_C12_C11_6
+
 #endif /* __GIC_H__ */
