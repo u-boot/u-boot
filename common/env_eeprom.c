@@ -224,6 +224,7 @@ int env_init(void)
 #else
 int env_init(void)
 {
+#ifdef ENV_IS_EMBEDDED
 	ulong crc, len, new;
 	unsigned off;
 	uchar buf[64];
@@ -256,6 +257,10 @@ int env_init(void)
 		gd->env_addr	= 0;
 		gd->env_valid	= 0;
 	}
+#else
+	gd->env_addr = (ulong)&default_environment[0];
+	gd->env_valid = 1;
+#endif
 
 	return 0;
 }
