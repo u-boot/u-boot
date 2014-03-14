@@ -17,7 +17,7 @@ endif
 MKIMAGE_TARGET-$(CONFIG_MX23) = mxsimage.mx23.cfg
 MKIMAGE_TARGET-$(CONFIG_MX28) = mxsimage.mx28.cfg
 
-quiet_cmd_mkimage_mxs = UIMAGE  $@
+quiet_cmd_mkimage_mxs = MKIMAGE $@
 cmd_mkimage_mxs = $(objtree)/tools/mkimage -n $< -T mxsimage $@ \
 	$(if $(KBUILD_VERBOSE:1=), >/dev/null)
 

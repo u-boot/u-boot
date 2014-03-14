@@ -15,7 +15,7 @@ quiet_cmd_awk = AWK     $@
 $(obj)/bootscript.c: $(obj)/bootscript.image $(src)/x2c.awk
 	$(call cmd,awk)
 
-quiet_cmd_mkimage = UIMAGE  $@
+quiet_cmd_mkimage = MKIMAGE $@
 cmd_mkimage = $(objtree)/tools/mkimage $(MKIMAGEFLAGS_$(@F)) -d $< $@ \
         $(if $(KBUILD_VERBOSE:1=), >/dev/null)
 

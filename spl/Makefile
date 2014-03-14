@@ -171,7 +171,7 @@ LDPPFLAGS += \
 	$(shell $(LD) --version | \
 	  sed -ne 's/GNU ld version \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/-DLD_MAJOR=\1 -DLD_MINOR=\2/p')
 
-quiet_cmd_mkimage = UIMAGE  $@
+quiet_cmd_mkimage = MKIMAGE $@
 cmd_mkimage = $(objtree)/tools/mkimage $(MKIMAGEFLAGS_$(@F)) -d $< $@ \
 	$(if $(KBUILD_VERBOSE:1=), >/dev/null)
 

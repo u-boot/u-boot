@@ -32,7 +32,7 @@ $(IMX_CONFIG): %.cfgtmp: % FORCE
 	$(Q)mkdir -p $(dir $@)
 	$(call if_changed_dep,cpp_cfg)
 
-quiet_cmd_mkimage = UIMAGE  $@
+quiet_cmd_mkimage = MKIMAGE $@
 cmd_mkimage = $(objtree)/tools/mkimage $(MKIMAGEFLAGS_$(@F)) -d $< $@ \
 	$(if $(KBUILD_VERBOSE:1=), >/dev/null)
 

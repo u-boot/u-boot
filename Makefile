@@ -728,7 +728,7 @@ endif
 quiet_cmd_objcopy = OBJCOPY $@
 cmd_objcopy = $(OBJCOPY) $(OBJCOPYFLAGS) $(OBJCOPYFLAGS_$(@F)) $< $@
 
-quiet_cmd_mkimage = UIMAGE  $@
+quiet_cmd_mkimage = MKIMAGE $@
 cmd_mkimage = $(objtree)/tools/mkimage $(MKIMAGEFLAGS_$(@F)) -d $< $@ \
 	$(if $(KBUILD_VERBOSE:1=), >/dev/null)
 
