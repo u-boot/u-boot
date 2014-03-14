@@ -147,6 +147,8 @@
 # define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	4
 # define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	5
 # define CONFIG_SYS_EEPROM_SIZE			1024 /* Bytes */
+# define CONFIG_SYS_I2C_MUX_ADDR		0x74
+# define CONFIG_SYS_I2C_MUX_EEPROM_SEL		0x4
 #endif
 
 /* Total Size of Environment Sector */
