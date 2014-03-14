@@ -194,6 +194,7 @@
 #define CONFIG_CMD_FPGA_LOADMK
 #define CONFIG_CMD_FPGA_LOADP
 #define CONFIG_CMD_FPGA_LOADBP
+#define CONFIG_CMD_FPGA_LOADFS
 
 /* Open Firmware flat tree */
 #define CONFIG_OF_LIBFDT

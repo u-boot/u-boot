@@ -142,6 +142,22 @@ int xilinx_load(xilinx_desc *desc, const void *buf, size_t bsize,
 	return desc->operations->load(desc, buf, bsize, bstype);
 }
 
+#if defined(CONFIG_CMD_FPGA_LOADFS)
+int xilinx_loadfs(xilinx_desc *desc, const void *buf, size_t bsize,
+		   fpga_fs_info *fpga_fsinfo)
+{
+	if (!xilinx_validate(desc, (char *)__func__)) {
+		printf("%s: Invalid device descriptor\n", __func__);
+		return FPGA_FAIL;
+	}
+
+	if (!desc->operations->loadfs)
+		return FPGA_FAIL;
+
+	return desc->operations->loadfs(desc, buf, bsize, fpga_fsinfo);
+}
+#endif
+
 int xilinx_dump(xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	if (!xilinx_validate (desc, (char *)__FUNCTION__)) {

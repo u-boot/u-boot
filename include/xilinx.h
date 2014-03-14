@@ -46,6 +46,7 @@ typedef struct {		/* typedef xilinx_desc */
 
 struct xilinx_fpga_op {
 	int (*load)(xilinx_desc *, const void *, size_t, bitstream_type);
+	int (*loadfs)(xilinx_desc *, const void *, size_t, fpga_fs_info *);
 	int (*dump)(xilinx_desc *, const void *, size_t);
 	int (*info)(xilinx_desc *);
 };
@@ -56,6 +57,8 @@ int xilinx_load(xilinx_desc *desc, const void *image, size_t size,
 		bitstream_type bstype);
 int xilinx_dump(xilinx_desc *desc, const void *buf, size_t bsize);
 int xilinx_info(xilinx_desc *desc);
+int xilinx_loadfs(xilinx_desc *desc, const void *buf, size_t bsize,
+		  fpga_fs_info *fpga_fsinfo);
 
 /* Board specific implementation specific function types
  *********************************************************************/
