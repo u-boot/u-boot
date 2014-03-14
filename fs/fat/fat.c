@@ -319,11 +319,15 @@ get_cluster(fsdata *mydata, __u32 clustnum, __u8 *buffer, unsigned long size)
  * into 'buffer'.
  * Return the number of bytes read or -1 on fatal errors.
  */
+#ifndef CONFIG_ZYNQ_OCM
 #if defined(CONFIG_ZYNQ) && defined(CONFIG_SPL_BUILD)
 __section(.ddr)
 #endif
 __u8 get_contents_vfatname_block[MAX_CLUSTSIZE]
 	__aligned(ARCH_DMA_MINALIGN);
+#else
+__u8 *get_contents_vfatname_block = (__u8 *)FAT_BUFF_PTR_OCM;
+#endif
 
 static long
 get_contents(fsdata *mydata, dir_entry *dentptr, unsigned long pos,
@@ -574,11 +578,13 @@ static __u8 mkcksum(const char name[8], const char ext[3])
  * Get the directory entry associated with 'filename' from the directory
  * starting at 'startsect'
  */
+#ifndef CONFIG_ZYNQ_OCM
 #if defined(CONFIG_ZYNQ) && defined(CONFIG_SPL_BUILD)
 __section(.ddr)
 #endif
 __u8 get_dentfromdir_block[MAX_CLUSTSIZE]
 	__aligned(ARCH_DMA_MINALIGN);
+#endif
 
 static dir_entry *get_dentfromdir(fsdata *mydata, int startsect,
 				  char *filename, dir_entry *retdent,
@@ -587,6 +593,10 @@ static dir_entry *get_dentfromdir(fsdata *mydata, int startsect,
 	__u16 prevcksum = 0xffff;
 	__u32 curclust = START(retdent);
 	int files = 0, dirs = 0;
+#ifdef CONFIG_ZYNQ_OCM
+	__u8 get_dentfromdir_block[MAX_CLUSTSIZE]
+		__aligned(ARCH_DMA_MINALIGN);
+#endif
 
 	debug("get_dentfromdir: %s\n", filename);
 
@@ -809,11 +819,13 @@ exit:
 	return ret;
 }
 
+#ifndef CONFIG_ZYNQ_OCM
 #if defined(CONFIG_ZYNQ) && defined(CONFIG_SPL_BUILD)
 __section(.ddr)
 #endif
 __u8 do_fat_read_at_block[MAX_CLUSTSIZE]
 	__aligned(ARCH_DMA_MINALIGN);
+#endif
 
 long
 do_fat_read_at(const char *filename, unsigned long pos, void *buffer,
@@ -835,6 +847,10 @@ do_fat_read_at(const char *filename, unsigned long pos, void *buffer,
 	__u32 root_cluster = 0;
 	int rootdir_size = 0;
 	int j;
+#ifdef CONFIG_ZYNQ_OCM
+	__u8 do_fat_read_at_block[MAX_CLUSTSIZE]
+		 __aligned(ARCH_DMA_MINALIGN);
+#endif
 
 	if (read_bootsectandvi(&bs, &volinfo, &mydata->fatsize)) {
 		debug("Error: reading boot sector\n");
