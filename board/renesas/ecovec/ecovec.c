@@ -76,7 +76,7 @@ int board_init(void)
 {
 
 	/* LED (PTG) */
-	outw((inw(PGCR) & ~0xFF) | 0x66, PGCR);
+	outw((inw(PGCR) & ~0xFF) | 0x55, PGCR);
 	outw((inw(HIZCRA) & ~0x02), HIZCRA);
 
 	debug_led(1 << 0);
