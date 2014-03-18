@@ -122,7 +122,8 @@ _start_e500:
 #endif
 
 
-#if defined(CONFIG_SECURE_BOOT) && defined(CONFIG_E500MC)
+#if defined(CONFIG_SECURE_BOOT) && defined(CONFIG_E500MC) && \
+	!defined(CONFIG_E6500)
 	/* ISBC uses L2 as stack.
 	 * Disable L2 cache here so that u-boot can enable it later
 	 * as part of it's normal flow

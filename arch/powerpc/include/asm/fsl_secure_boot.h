@@ -17,5 +17,11 @@
 #endif
 #define CONFIG_SYS_PBI_FLASH_WINDOW		0xcff80000
 
+#if defined(CONFIG_B4860QDS)
+#define CONFIG_SYS_CPC_REINIT_F
+#undef CONFIG_SYS_INIT_L3_ADDR
+#define CONFIG_SYS_INIT_L3_ADDR			0xbff00000
+#endif
+
 #endif
 #endif
