@@ -17,7 +17,9 @@
 #endif
 #define CONFIG_SYS_PBI_FLASH_WINDOW		0xcff80000
 
-#if defined(CONFIG_B4860QDS) || defined(CONFIG_T4240QDS)
+#if defined(CONFIG_B4860QDS) || \
+	defined(CONFIG_T4240QDS) || \
+	defined(CONFIG_T2080QDS)
 #define CONFIG_SYS_CPC_REINIT_F
 #undef CONFIG_SYS_INIT_L3_ADDR
 #define CONFIG_SYS_INIT_L3_ADDR			0xbff00000
