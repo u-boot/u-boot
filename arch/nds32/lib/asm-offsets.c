@@ -15,14 +15,41 @@
 
 int main(void)
 {
+	/*
+	 * TODO : Check if each entry in this file is really necessary.
+	 *   - struct ftahbc02s
+	 *   - struct ftsdmc021
+	 *   - struct andes_pcu
+	 *   - struct dwcddr21mctl
+	 * are used only for generating asm-offsets.h.
+	 * It means their offset addresses are referenced only from assembly
+	 * code. Is it better to define the macros directly in headers?
+	 */
+
 #ifdef CONFIG_FTSMC020
 	OFFSET(FTSMC020_BANK0_CR,	ftsmc020, bank[0].cr);
 	OFFSET(FTSMC020_BANK0_TPR,	ftsmc020, bank[0].tpr);
 #endif
 	BLANK();
 #ifdef CONFIG_FTAHBC020S
+	OFFSET(FTAHBC020S_SLAVE_BSR_4,	ftahbc02s, s_bsr[4]);
 	OFFSET(FTAHBC020S_SLAVE_BSR_6,	ftahbc02s, s_bsr[6]);
 	OFFSET(FTAHBC020S_CR,		ftahbc02s, cr);
+#endif
+	BLANK();
+#ifdef CONFIG_FTPMU010
+	OFFSET(FTPMU010_PDLLCR0,	ftpmu010, PDLLCR0);
+#endif
+	BLANK();
+#ifdef CONFIG_FTSDMC021
+	OFFSET(FTSDMC021_TP1,		ftsdmc021, tp1);
+	OFFSET(FTSDMC021_TP2,		ftsdmc021, tp2);
+	OFFSET(FTSDMC021_CR1,		ftsdmc021, cr1);
+	OFFSET(FTSDMC021_CR2,		ftsdmc021, cr2);
+	OFFSET(FTSDMC021_BANK0_BSR,	ftsdmc021, bank0_bsr);
+	OFFSET(FTSDMC021_BANK1_BSR,	ftsdmc021, bank1_bsr);
+	OFFSET(FTSDMC021_BANK2_BSR,	ftsdmc021, bank2_bsr);
+	OFFSET(FTSDMC021_BANK3_BSR,	ftsdmc021, bank3_bsr);
 #endif
 	BLANK();
 #ifdef CONFIG_ANDES_PCU
@@ -50,5 +77,6 @@ int main(void)
 	OFFSET(DWCDDR21MCTL_DTAR,	dwcddr21mctl, dtar);	/* 0xa4 */
 	OFFSET(DWCDDR21MCTL_MR,		dwcddr21mctl, mr);	/* 0x1f0 */
 #endif
+
 	return 0;
 }

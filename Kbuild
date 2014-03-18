@@ -42,13 +42,13 @@ $(obj)/$(generic-offsets-file): lib/asm-offsets.s Kbuild
 # 2) Generate asm-offsets.h
 #
 
-ifneq ($(wildcard $(srctree)/$(CPUDIR)/$(SOC)/asm-offsets.c),)
+ifneq ($(wildcard $(srctree)/arch/$(ARCH)/lib/asm-offsets.c),)
 offsets-file := include/generated/asm-offsets.h
 endif
 
 always  += $(offsets-file)
 targets += $(offsets-file)
-targets += $(CPUDIR)/$(SOC)/asm-offsets.s
+targets += arch/$(ARCH)/lib/asm-offsets.s
 
 
 # Default sed regexp - multiline due to syntax constraints
@@ -79,9 +79,9 @@ define cmd_offsets
 endef
 
 # We use internal kbuild rules to avoid the "is up to date" message from make
-$(CPUDIR)/$(SOC)/asm-offsets.s: $(CPUDIR)/$(SOC)/asm-offsets.c FORCE
+arch/$(ARCH)/lib/asm-offsets.s: arch/$(ARCH)/lib/asm-offsets.c FORCE
 	$(Q)mkdir -p $(dir $@)
 	$(call if_changed_dep,cc_s_c)
 
-$(obj)/$(offsets-file): $(CPUDIR)/$(SOC)/asm-offsets.s
+$(obj)/$(offsets-file): arch/$(ARCH)/lib/asm-offsets.s Kbuild
 	$(call cmd,offsets)
