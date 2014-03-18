@@ -80,6 +80,9 @@ static inline unsigned int get_mmc_blk_size(int dev)
 #ifndef DFU_DEFAULT_POLL_TIMEOUT
 #define DFU_DEFAULT_POLL_TIMEOUT 0
 #endif
+#ifndef DFU_MANIFEST_POLL_TIMEOUT
+#define DFU_MANIFEST_POLL_TIMEOUT	DFU_DEFAULT_POLL_TIMEOUT
+#endif
 
 struct dfu_entity {
 	char			name[DFU_NAME_SIZE];

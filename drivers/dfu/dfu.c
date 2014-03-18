@@ -218,10 +218,6 @@ int dfu_write(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 			ret = tret;
 	}
 
-	/* end? */
-	if (size == 0)
-		ret = dfu_flush(dfu, buf, size, blk_seq_num);
-
 	return ret = 0 ? size : ret;
 }
 
