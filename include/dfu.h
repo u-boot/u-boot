@@ -138,6 +138,7 @@ unsigned long dfu_get_buf_size(void);
 
 int dfu_read(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
 int dfu_write(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
+int dfu_flush(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
 /* Device specific */
 #ifdef CONFIG_DFU_MMC
 extern int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *s);
