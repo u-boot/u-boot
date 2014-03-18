@@ -244,6 +244,9 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 		timeout++;
 #endif
 
+#ifdef ESDHCI_QUIRK_BROKEN_TIMEOUT_VALUE
+	timeout = 0xE;
+#endif
 	esdhc_clrsetbits32(&regs->sysctl, SYSCTL_TIMEOUT_MASK, timeout << 16);
 
 	return 0;
