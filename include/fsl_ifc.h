@@ -784,6 +784,7 @@ enum ifc_nand_fir_opcodes {
 
 extern void print_ifc_regs(void);
 extern void init_early_memctl_regs(void);
+void init_final_memctl_regs(void);
 
 #define IFC_BASE_ADDR ((struct fsl_ifc *)CONFIG_SYS_IFC_ADDR)
 
