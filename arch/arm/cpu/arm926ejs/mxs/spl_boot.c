@@ -18,7 +18,8 @@
 #include "mxs_init.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-gd_t gdata __section(".data");
+static gd_t gdata __section(".data");
+static bd_t bdata __section(".data");
 
 /*
  * This delay function is intended to be used only in early stage of boot, where
@@ -118,6 +119,16 @@ static void mxs_spl_fixup_vectors(void)
 	memcpy(0x0, &_start, 0x60);
 }
 
+static void mxs_spl_console_init(void)
+{
+#ifdef CONFIG_SPL_SERIAL_SUPPORT
+	gd->bd = &bdata;
+	gd->baudrate = CONFIG_BAUDRATE;
+	serial_init();
+	gd->have_console = 1;
+#endif
+}
+
 void mxs_common_spl_init(const uint32_t arg, const uint32_t *resptr,
 			 const iomux_cfg_t *iomux_setup,
 			 const unsigned int iomux_size)
@@ -130,6 +141,8 @@ void mxs_common_spl_init(const uint32_t arg, const uint32_t *resptr,
 	mxs_spl_fixup_vectors();
 
 	mxs_iomux_setup_multiple_pads(iomux_setup, iomux_size);
+
+	mxs_spl_console_init();
 
 	mxs_power_init();
 
