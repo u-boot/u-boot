@@ -416,6 +416,7 @@ unsigned long get_board_ddr_clk(void);
 /* Video */
 #define CONFIG_FSL_DIU_FB
 #ifdef CONFIG_FSL_DIU_FB
+#define CONFIG_FSL_DIU_CH7301
 #define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_CCSRBAR + 0x180000)
 #define CONFIG_VIDEO
 #define CONFIG_CMD_BMP
