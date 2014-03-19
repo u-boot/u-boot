@@ -70,7 +70,10 @@ typedef struct at91_pmc {
 
 #define AT91_PMC_MOR_MOSCEN		0x01
 #define AT91_PMC_MOR_OSCBYPASS		0x02
+#define AT91_PMC_MOR_MOSCRCEN		0x08
 #define AT91_PMC_MOR_OSCOUNT(x)		((x & 0xff) << 8)
+#define AT91_PMC_MOR_KEY(x)		((x & 0xff) << 16)
+#define AT91_PMC_MOR_MOSCSEL		(1 << 24)
 
 #define AT91_PMC_PLLXR_DIV(x)		(x & 0xFF)
 #define AT91_PMC_PLLXR_PLLCOUNT(x)	((x & 0x3F) << 8)
@@ -142,6 +145,7 @@ typedef struct at91_pmc {
 #define AT91_PMC_IXR_PCKRDY1		0x00000200
 #define AT91_PMC_IXR_PCKRDY2		0x00000400
 #define AT91_PMC_IXR_PCKRDY3		0x00000800
+#define AT91_PMC_IXR_MOSCSELS		0x00010000
 
 #define		AT91_PMC_PCK		(1 <<  0)		/* Processor Clock */
 #define		AT91RM9200_PMC_UDP	(1 <<  1)		/* USB Devcice Port Clock [AT91RM9200 only] */
