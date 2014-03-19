@@ -13,8 +13,12 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
+#include <linux/compiler.h>
 
 #include "mxs_init.h"
+
+DECLARE_GLOBAL_DATA_PTR;
+gd_t gdata __section(".data");
 
 /*
  * This delay function is intended to be used only in early stage of boot, where
@@ -121,6 +125,7 @@ void mxs_common_spl_init(const uint32_t arg, const uint32_t *resptr,
 	struct mxs_spl_data *data = (struct mxs_spl_data *)
 		((CONFIG_SYS_TEXT_BASE - sizeof(struct mxs_spl_data)) & ~0xf);
 	uint8_t bootmode = mxs_get_bootmode_index();
+	gd = &gdata;
 
 	mxs_spl_fixup_vectors();
 
