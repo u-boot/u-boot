@@ -10,7 +10,7 @@
 #include <asm/arch/pinmux.h>
 
 /* return 1 if a pingrp is in range */
-#define pmux_pingrp_isvalid(pin) (((pin) >= 0) && ((pin) < PINGRP_COUNT))
+#define pmux_pingrp_isvalid(pin) (((pin) >= 0) && ((pin) < PMUX_PINGRP_COUNT))
 
 /* return 1 if a pmux_func is in range */
 #define pmux_func_isvalid(func) \
@@ -275,9 +275,9 @@ static void pinmux_set_rcv_sel(enum pmux_pingrp pin,
 #endif /* TEGRA_PMX_HAS_RCV_SEL */
 #endif /* TEGRA_PMX_HAS_PIN_IO_BIT_ETC */
 
-static void pinmux_config_pingroup(const struct pingroup_config *config)
+static void pinmux_config_pingrp(const struct pmux_pingrp_config *config)
 {
-	enum pmux_pingrp pin = config->pingroup;
+	enum pmux_pingrp pin = config->pingrp;
 
 	pinmux_set_func(pin, config->func);
 	pinmux_set_pullupdown(pin, config->pull);
@@ -293,32 +293,33 @@ static void pinmux_config_pingroup(const struct pingroup_config *config)
 #endif
 }
 
-void pinmux_config_table(const struct pingroup_config *config, int len)
+void pinmux_config_pingrp_table(const struct pmux_pingrp_config *config,
+				int len)
 {
 	int i;
 
 	for (i = 0; i < len; i++)
-		pinmux_config_pingroup(&config[i]);
+		pinmux_config_pingrp(&config[i]);
 }
 
-#ifdef TEGRA_PMX_HAS_PADGRPS
+#ifdef TEGRA_PMX_HAS_DRVGRPS
 
-#define pmux_padgrp_isvalid(pd) (((pd) >= 0) && ((pd) < PDRIVE_PINGROUP_COUNT))
+#define pmux_drvgrp_isvalid(pd) (((pd) >= 0) && ((pd) < PMUX_DRVGRP_COUNT))
 
-#define pmux_pad_slw_isvalid(slw) \
-	(((slw) >= PGRP_SLWF_MIN) && ((slw) <= PGRP_SLWF_MAX))
+#define pmux_slw_isvalid(slw) \
+	(((slw) >= PMUX_SLWF_MIN) && ((slw) <= PMUX_SLWF_MAX))
 
-#define pmux_pad_drv_isvalid(drv) \
-	(((drv) >= PGRP_DRVUP_MIN) && ((drv) <= PGRP_DRVUP_MAX))
+#define pmux_drv_isvalid(drv) \
+	(((drv) >= PMUX_DRVUP_MIN) && ((drv) <= PMUX_DRVUP_MAX))
 
-#define pmux_pad_lpmd_isvalid(lpm) \
-	(((lpm) >= PGRP_LPMD_X8) && ((lpm) <= PGRP_LPMD_X))
+#define pmux_lpmd_isvalid(lpm) \
+	(((lpm) >= PMUX_LPMD_X8) && ((lpm) <= PMUX_LPMD_X))
 
-#define pmux_pad_schmt_isvalid(schmt) \
-	(((schmt) >= PGRP_SCHMT_DISABLE) && ((schmt) <= PGRP_SCHMT_ENABLE))
+#define pmux_schmt_isvalid(schmt) \
+	(((schmt) >= PMUX_SCHMT_DISABLE) && ((schmt) <= PMUX_SCHMT_ENABLE))
 
-#define pmux_pad_hsm_isvalid(hsm) \
-	(((hsm) >= PGRP_HSM_DISABLE) && ((hsm) <= PGRP_HSM_ENABLE))
+#define pmux_hsm_isvalid(hsm) \
+	(((hsm) >= PMUX_HSM_DISABLE) && ((hsm) <= PMUX_HSM_ENABLE))
 
 #define HSM_SHIFT	2
 #define SCHMT_SHIFT	3
@@ -333,18 +334,18 @@ void pinmux_config_table(const struct pingroup_config *config, int len)
 #define SLWF_SHIFT	30
 #define SLWF_MASK	(3 << SLWF_SHIFT)
 
-static void padgrp_set_drvup_slwf(enum pdrive_pingrp grp, int slwf)
+static void pinmux_set_drvup_slwf(enum pmux_drvgrp grp, int slwf)
 {
 	u32 *reg = DRV_REG(grp);
 	u32 val;
 
 	/* NONE means unspecified/do not change/use POR value */
-	if (slwf == PGRP_SLWF_NONE)
+	if (slwf == PMUX_SLWF_NONE)
 		return;
 
 	/* Error check on pad and slwf */
-	assert(pmux_padgrp_isvalid(grp));
-	assert(pmux_pad_slw_isvalid(slwf));
+	assert(pmux_drvgrp_isvalid(grp));
+	assert(pmux_slw_isvalid(slwf));
 
 	val = readl(reg);
 	val &= ~SLWF_MASK;
@@ -354,18 +355,18 @@ static void padgrp_set_drvup_slwf(enum pdrive_pingrp grp, int slwf)
 	return;
 }
 
-static void padgrp_set_drvdn_slwr(enum pdrive_pingrp grp, int slwr)
+static void pinmux_set_drvdn_slwr(enum pmux_drvgrp grp, int slwr)
 {
 	u32 *reg = DRV_REG(grp);
 	u32 val;
 
 	/* NONE means unspecified/do not change/use POR value */
-	if (slwr == PGRP_SLWR_NONE)
+	if (slwr == PMUX_SLWR_NONE)
 		return;
 
 	/* Error check on pad and slwr */
-	assert(pmux_padgrp_isvalid(grp));
-	assert(pmux_pad_slw_isvalid(slwr));
+	assert(pmux_drvgrp_isvalid(grp));
+	assert(pmux_slw_isvalid(slwr));
 
 	val = readl(reg);
 	val &= ~SLWR_MASK;
@@ -375,18 +376,18 @@ static void padgrp_set_drvdn_slwr(enum pdrive_pingrp grp, int slwr)
 	return;
 }
 
-static void padgrp_set_drvup(enum pdrive_pingrp grp, int drvup)
+static void pinmux_set_drvup(enum pmux_drvgrp grp, int drvup)
 {
 	u32 *reg = DRV_REG(grp);
 	u32 val;
 
 	/* NONE means unspecified/do not change/use POR value */
-	if (drvup == PGRP_DRVUP_NONE)
+	if (drvup == PMUX_DRVUP_NONE)
 		return;
 
 	/* Error check on pad and drvup */
-	assert(pmux_padgrp_isvalid(grp));
-	assert(pmux_pad_drv_isvalid(drvup));
+	assert(pmux_drvgrp_isvalid(grp));
+	assert(pmux_drv_isvalid(drvup));
 
 	val = readl(reg);
 	val &= ~DRVUP_MASK;
@@ -396,18 +397,18 @@ static void padgrp_set_drvup(enum pdrive_pingrp grp, int drvup)
 	return;
 }
 
-static void padgrp_set_drvdn(enum pdrive_pingrp grp, int drvdn)
+static void pinmux_set_drvdn(enum pmux_drvgrp grp, int drvdn)
 {
 	u32 *reg = DRV_REG(grp);
 	u32 val;
 
 	/* NONE means unspecified/do not change/use POR value */
-	if (drvdn == PGRP_DRVDN_NONE)
+	if (drvdn == PMUX_DRVDN_NONE)
 		return;
 
 	/* Error check on pad and drvdn */
-	assert(pmux_padgrp_isvalid(grp));
-	assert(pmux_pad_drv_isvalid(drvdn));
+	assert(pmux_drvgrp_isvalid(grp));
+	assert(pmux_drv_isvalid(drvdn));
 
 	val = readl(reg);
 	val &= ~DRVDN_MASK;
@@ -417,18 +418,18 @@ static void padgrp_set_drvdn(enum pdrive_pingrp grp, int drvdn)
 	return;
 }
 
-static void padgrp_set_lpmd(enum pdrive_pingrp grp, enum pgrp_lpmd lpmd)
+static void pinmux_set_lpmd(enum pmux_drvgrp grp, enum pmux_lpmd lpmd)
 {
 	u32 *reg = DRV_REG(grp);
 	u32 val;
 
 	/* NONE means unspecified/do not change/use POR value */
-	if (lpmd == PGRP_LPMD_NONE)
+	if (lpmd == PMUX_LPMD_NONE)
 		return;
 
 	/* Error check pad and lpmd value */
-	assert(pmux_padgrp_isvalid(grp));
-	assert(pmux_pad_lpmd_isvalid(lpmd));
+	assert(pmux_drvgrp_isvalid(grp));
+	assert(pmux_lpmd_isvalid(lpmd));
 
 	val = readl(reg);
 	val &= ~LPMD_MASK;
@@ -438,21 +439,21 @@ static void padgrp_set_lpmd(enum pdrive_pingrp grp, enum pgrp_lpmd lpmd)
 	return;
 }
 
-static void padgrp_set_schmt(enum pdrive_pingrp grp, enum pgrp_schmt schmt)
+static void pinmux_set_schmt(enum pmux_drvgrp grp, enum pmux_schmt schmt)
 {
 	u32 *reg = DRV_REG(grp);
 	u32 val;
 
 	/* NONE means unspecified/do not change/use POR value */
-	if (schmt == PGRP_SCHMT_NONE)
+	if (schmt == PMUX_SCHMT_NONE)
 		return;
 
 	/* Error check pad */
-	assert(pmux_padgrp_isvalid(grp));
-	assert(pmux_pad_schmt_isvalid(schmt));
+	assert(pmux_drvgrp_isvalid(grp));
+	assert(pmux_schmt_isvalid(schmt));
 
 	val = readl(reg);
-	if (schmt == PGRP_SCHMT_ENABLE)
+	if (schmt == PMUX_SCHMT_ENABLE)
 		val |= (1 << SCHMT_SHIFT);
 	else
 		val &= ~(1 << SCHMT_SHIFT);
@@ -461,21 +462,21 @@ static void padgrp_set_schmt(enum pdrive_pingrp grp, enum pgrp_schmt schmt)
 	return;
 }
 
-static void padgrp_set_hsm(enum pdrive_pingrp grp, enum pgrp_hsm hsm)
+static void pinmux_set_hsm(enum pmux_drvgrp grp, enum pmux_hsm hsm)
 {
 	u32 *reg = DRV_REG(grp);
 	u32 val;
 
 	/* NONE means unspecified/do not change/use POR value */
-	if (hsm == PGRP_HSM_NONE)
+	if (hsm == PMUX_HSM_NONE)
 		return;
 
 	/* Error check pad */
-	assert(pmux_padgrp_isvalid(grp));
-	assert(pmux_pad_hsm_isvalid(hsm));
+	assert(pmux_drvgrp_isvalid(grp));
+	assert(pmux_hsm_isvalid(hsm));
 
 	val = readl(reg);
-	if (hsm == PGRP_HSM_ENABLE)
+	if (hsm == PMUX_HSM_ENABLE)
 		val |= (1 << HSM_SHIFT);
 	else
 		val &= ~(1 << HSM_SHIFT);
@@ -484,24 +485,25 @@ static void padgrp_set_hsm(enum pdrive_pingrp grp, enum pgrp_hsm hsm)
 	return;
 }
 
-static void padctrl_config_pingroup(const struct padctrl_config *config)
+static void pinmux_config_drvgrp(const struct pmux_drvgrp_config *config)
 {
-	enum pdrive_pingrp grp = config->padgrp;
+	enum pmux_drvgrp grp = config->drvgrp;
 
-	padgrp_set_drvup_slwf(grp, config->slwf);
-	padgrp_set_drvdn_slwr(grp, config->slwr);
-	padgrp_set_drvup(grp, config->drvup);
-	padgrp_set_drvdn(grp, config->drvdn);
-	padgrp_set_lpmd(grp, config->lpmd);
-	padgrp_set_schmt(grp, config->schmt);
-	padgrp_set_hsm(grp, config->hsm);
+	pinmux_set_drvup_slwf(grp, config->slwf);
+	pinmux_set_drvdn_slwr(grp, config->slwr);
+	pinmux_set_drvup(grp, config->drvup);
+	pinmux_set_drvdn(grp, config->drvdn);
+	pinmux_set_lpmd(grp, config->lpmd);
+	pinmux_set_schmt(grp, config->schmt);
+	pinmux_set_hsm(grp, config->hsm);
 }
 
-void padgrp_config_table(const struct padctrl_config *config, int len)
+void pinmux_config_drvgrp_table(const struct pmux_drvgrp_config *config,
+				int len)
 {
 	int i;
 
 	for (i = 0; i < len; i++)
-		padctrl_config_pingroup(&config[i]);
+		pinmux_config_drvgrp(&config[i]);
 }
-#endif /* TEGRA_PMX_HAS_PADGRPS */
+#endif /* TEGRA_PMX_HAS_DRVGRPS */

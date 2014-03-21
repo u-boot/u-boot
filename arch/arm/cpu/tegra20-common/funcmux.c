@@ -16,7 +16,7 @@
 #define PINMUX(grp, mux, pupd, tri)                   \
 	{PINGRP_##grp, PMUX_FUNC_##mux, PMUX_PULL_##pupd, PMUX_TRI_##tri}
 
-static const struct pingroup_config disp1_default[] = {
+static const struct pmux_pingrp_config disp1_default[] = {
 	PINMUX(LDI,   DISPA,      NORMAL,    NORMAL),
 	PINMUX(LHP0,  DISPA,      NORMAL,    NORMAL),
 	PINMUX(LHP1,  DISPA,      NORMAL,    NORMAL),
@@ -275,8 +275,8 @@ int funcmux_select(enum periph_id id, int config)
 				pinmux_tristate_disable(i);
 				pinmux_set_pullupdown(i, PMUX_PULL_NORMAL);
 			}
-			pinmux_config_table(disp1_default,
-					    ARRAY_SIZE(disp1_default));
+			pinmux_config_pingrp_table(disp1_default,
+						   ARRAY_SIZE(disp1_default));
 		}
 		break;
 

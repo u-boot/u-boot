@@ -17,9 +17,9 @@
 #ifndef _PINMUX_CONFIG_CARDHU_H_
 #define _PINMUX_CONFIG_CARDHU_H_
 
-#define DEFAULT_PINMUX(_pingroup, _mux, _pull, _tri, _io)	\
+#define DEFAULT_PINMUX(_pingrp, _mux, _pull, _tri, _io)		\
 	{							\
-		.pingroup	= PINGRP_##_pingroup,		\
+		.pingrp		= PINGRP_##_pingrp,		\
 		.func		= PMUX_FUNC_##_mux,		\
 		.pull		= PMUX_PULL_##_pull,		\
 		.tristate	= PMUX_TRI_##_tri,		\
@@ -29,9 +29,9 @@
 		.ioreset	= PMUX_PIN_IO_RESET_DEFAULT,	\
 	}
 
-#define I2C_PINMUX(_pingroup, _mux, _pull, _tri, _io, _lock, _od) \
+#define I2C_PINMUX(_pingrp, _mux, _pull, _tri, _io, _lock, _od)	\
 	{							\
-		.pingroup	= PINGRP_##_pingroup,		\
+		.pingrp		= PINGRP_##_pingrp,		\
 		.func		= PMUX_FUNC_##_mux,		\
 		.pull		= PMUX_PULL_##_pull,		\
 		.tristate	= PMUX_TRI_##_tri,		\
@@ -41,9 +41,9 @@
 		.ioreset	= PMUX_PIN_IO_RESET_DEFAULT,	\
 	}
 
-#define LV_PINMUX(_pingroup, _mux, _pull, _tri, _io, _lock, _ioreset) \
+#define LV_PINMUX(_pingrp, _mux, _pull, _tri, _io, _lock, _ioreset) \
 	{							\
-		.pingroup	= PINGRP_##_pingroup,		\
+		.pingrp		= PINGRP_##_pingrp,		\
 		.func		= PMUX_FUNC_##_mux,		\
 		.pull		= PMUX_PULL_##_pull,		\
 		.tristate	= PMUX_TRI_##_tri,		\
@@ -53,19 +53,19 @@
 		.ioreset	= PMUX_PIN_IO_RESET_##_ioreset	\
 	}
 
-#define DEFAULT_PADCFG(_padgrp, _slwf, _slwr, _drvup, _drvdn, _lpmd, _schmt, _hsm) \
+#define DEFAULT_PADCFG(_drvgrp, _slwf, _slwr, _drvup, _drvdn, _lpmd, _schmt, _hsm) \
 	{							\
-		.padgrp		= PDRIVE_PINGROUP_##_padgrp,	\
+		.drvgrp		= PDRIVE_PINGROUP_##_drvgrp,	\
 		.slwf		= _slwf,			\
 		.slwr		= _slwr,			\
 		.drvup		= _drvup,			\
 		.drvdn		= _drvdn,			\
-		.lpmd		= PGRP_LPMD_##_lpmd,		\
-		.schmt		= PGRP_SCHMT_##_schmt,		\
-		.hsm		= PGRP_HSM_##_hsm,		\
+		.lpmd		= PMUX_LPMD_##_lpmd,		\
+		.schmt		= PMUX_SCHMT_##_schmt,		\
+		.hsm		= PMUX_HSM_##_hsm,		\
 	}
 
-static struct pingroup_config tegra3_pinmux_common[] = {
+static struct pmux_pingrp_config tegra3_pinmux_common[] = {
 	/* SDMMC1 pinmux */
 	DEFAULT_PINMUX(SDMMC1_CLK, SDMMC1, NORMAL, NORMAL, INPUT),
 	DEFAULT_PINMUX(SDMMC1_CMD, SDMMC1, UP, NORMAL, INPUT),
@@ -316,7 +316,7 @@ static struct pingroup_config tegra3_pinmux_common[] = {
 	LV_PINMUX(VI_VSYNC, RSVD1, NORMAL, NORMAL, INPUT, DISABLE, DISABLE),
 };
 
-static struct pingroup_config unused_pins_lowpower[] = {
+static struct pmux_pingrp_config unused_pins_lowpower[] = {
 	DEFAULT_PINMUX(GMI_WAIT, NAND, UP, TRISTATE, OUTPUT),
 	DEFAULT_PINMUX(GMI_ADV_N, NAND, NORMAL, TRISTATE, OUTPUT),
 	DEFAULT_PINMUX(GMI_CLK, NAND, NORMAL, TRISTATE, OUTPUT),
@@ -338,8 +338,8 @@ static struct pingroup_config unused_pins_lowpower[] = {
 	DEFAULT_PINMUX(GMI_DQS, NAND, NORMAL, TRISTATE, OUTPUT),
 };
 
-static struct padctrl_config cardhu_padctrl[] = {
-	/* (_padgrp, _slwf, _slwr, _drvup, _drvdn, _lpmd, _schmt, _hsm) */
+static struct pmux_drvgrp_config cardhu_padctrl[] = {
+	/* (_drvgrp, _slwf, _slwr, _drvup, _drvdn, _lpmd, _schmt, _hsm) */
 	DEFAULT_PADCFG(SDIO1, SDIOCFG_DRVUP_SLWF, SDIOCFG_DRVDN_SLWR, \
 		SDIOCFG_DRVUP, SDIOCFG_DRVDN, NONE, DISABLE, DISABLE),
 };

@@ -37,7 +37,7 @@
 #define PINO(pg_name, vdd, f0, f1, f2, f3) \
 	PIN(pg_name, vdd, f0, f1, f2, f3, OUTPUT)
 
-static const struct tegra_pingroup_desc tegra30_pingroups[PINGRP_COUNT] = {
+static const struct pmux_pingrp_desc tegra30_pingroups[PMUX_PINGRP_COUNT] = {
 	/*	NAME	  VDD	   f0		f1	   f2	    f3  */
 	PINI(ULPI_DATA0,  BB,	   SPI3,	HSI,	   UARTA,   ULPI),
 	PINI(ULPI_DATA1,  BB,	   SPI3,	HSI,	   UARTA,   ULPI),
@@ -289,4 +289,4 @@ static const struct tegra_pingroup_desc tegra30_pingroups[PINGRP_COUNT] = {
 	PINI(PEX_L2_CLKREQ_N,	PEXCTL,   PCIE,	HDA,	   RSVD3,   RSVD4),
 	PINI(HDMI_CEC,		SYS,      CEC,	RSVD2,	   RSVD3,   RSVD4),
 };
-const struct tegra_pingroup_desc *tegra_soc_pingroups = tegra30_pingroups;
+const struct pmux_pingrp_desc *tegra_soc_pingroups = tegra30_pingroups;

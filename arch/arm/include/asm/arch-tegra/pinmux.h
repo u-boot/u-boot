@@ -63,16 +63,16 @@ enum pmux_pin_rcv_sel {
  * you can call pinmux_config_pingroup() to configure a pin in one step. Also
  * available is pinmux_config_table() to configure a list of pins.
  */
-struct pingroup_config {
-	enum pmux_pingrp pingroup;	/* pin group PINGRP_...             */
-	enum pmux_func func;		/* function to assign FUNC_...      */
+struct pmux_pingrp_config {
+	enum pmux_pingrp pingrp;	/* pin group PMUX_PINGRP_...        */
+	enum pmux_func func;		/* function to assign PMUX_FUNC_... */
 	enum pmux_pull pull;		/* pull up/down/normal PMUX_PULL_...*/
 	enum pmux_tristate tristate;	/* tristate or normal PMUX_TRI_...  */
 #ifdef TEGRA_PMX_HAS_PIN_IO_BIT_ETC
-	enum pmux_pin_io io;		/* input or output PMUX_PIN_...  */
+	enum pmux_pin_io io;		/* input or output PMUX_PIN_...     */
 	enum pmux_pin_lock lock;	/* lock enable/disable PMUX_PIN...  */
-	enum pmux_pin_od od;		/* open-drain or push-pull driver  */
-	enum pmux_pin_ioreset ioreset;	/* input/output reset PMUX_PIN...  */
+	enum pmux_pin_od od;		/* open-drain or push-pull driver   */
+	enum pmux_pin_ioreset ioreset;	/* input/output reset PMUX_PIN...   */
 #ifdef TEGRA_PMX_HAS_RCV_SEL
 	enum pmux_pin_rcv_sel rcv_sel;	/* select between High and Normal  */
 					/* VIL/VIH receivers */
@@ -103,61 +103,62 @@ void pinmux_set_io(enum pmux_pingrp pin, enum pmux_pin_io io);
  * @param config	List of config items
  * @param len		Number of config items in list
  */
-void pinmux_config_table(const struct pingroup_config *config, int len);
+void pinmux_config_pingrp_table(const struct pmux_pingrp_config *config,
+				int len);
 
-#ifdef TEGRA_PMX_HAS_PADGRPS
+#ifdef TEGRA_PMX_HAS_DRVGRPS
 
-#define PGRP_SLWF_MIN	0
-#define PGRP_SLWF_MAX	3
-#define PGRP_SLWF_NONE	-1
+#define PMUX_SLWF_MIN	0
+#define PMUX_SLWF_MAX	3
+#define PMUX_SLWF_NONE	-1
 
-#define PGRP_SLWR_MIN	0
-#define PGRP_SLWR_MAX	3
-#define PGRP_SLWR_NONE	-1
+#define PMUX_SLWR_MIN	0
+#define PMUX_SLWR_MAX	3
+#define PMUX_SLWR_NONE	-1
 
-#define PGRP_DRVUP_MIN	0
-#define PGRP_DRVUP_MAX	127
-#define PGRP_DRVUP_NONE	-1
+#define PMUX_DRVUP_MIN	0
+#define PMUX_DRVUP_MAX	127
+#define PMUX_DRVUP_NONE	-1
 
-#define PGRP_DRVDN_MIN	0
-#define PGRP_DRVDN_MAX	127
-#define PGRP_DRVDN_NONE	-1
+#define PMUX_DRVDN_MIN	0
+#define PMUX_DRVDN_MAX	127
+#define PMUX_DRVDN_NONE	-1
 
 /* Defines a pin group cfg's low-power mode select */
-enum pgrp_lpmd {
-	PGRP_LPMD_X8 = 0,
-	PGRP_LPMD_X4,
-	PGRP_LPMD_X2,
-	PGRP_LPMD_X,
-	PGRP_LPMD_NONE = -1,
+enum pmux_lpmd {
+	PMUX_LPMD_X8 = 0,
+	PMUX_LPMD_X4,
+	PMUX_LPMD_X2,
+	PMUX_LPMD_X,
+	PMUX_LPMD_NONE = -1,
 };
 
 /* Defines whether a pin group cfg's schmidt is enabled or not */
-enum pgrp_schmt {
-	PGRP_SCHMT_DISABLE = 0,
-	PGRP_SCHMT_ENABLE = 1,
-	PGRP_SCHMT_NONE = -1,
+enum pmux_schmt {
+	PMUX_SCHMT_DISABLE = 0,
+	PMUX_SCHMT_ENABLE = 1,
+	PMUX_SCHMT_NONE = -1,
 };
 
 /* Defines whether a pin group cfg's high-speed mode is enabled or not */
-enum pgrp_hsm {
-	PGRP_HSM_DISABLE = 0,
-	PGRP_HSM_ENABLE = 1,
-	PGRP_HSM_NONE = -1,
+enum pmux_hsm {
+	PMUX_HSM_DISABLE = 0,
+	PMUX_HSM_ENABLE = 1,
+	PMUX_HSM_NONE = -1,
 };
 
 /*
  * This defines the configuration for a pin group's pad control config
  */
-struct padctrl_config {
-	enum pdrive_pingrp padgrp;	/* pin group PDRIVE_PINGRP_x */
+struct pmux_drvgrp_config {
+	enum pmux_drvgrp drvgrp;	/* pin group PMUX_DRVGRP_x   */
 	int slwf;			/* falling edge slew         */
 	int slwr;			/* rising edge slew          */
 	int drvup;			/* pull-up drive strength    */
 	int drvdn;			/* pull-down drive strength  */
-	enum pgrp_lpmd lpmd;		/* low-power mode selection  */
-	enum pgrp_schmt schmt;		/* schmidt enable            */
-	enum pgrp_hsm hsm;		/* high-speed mode enable    */
+	enum pmux_lpmd lpmd;		/* low-power mode selection  */
+	enum pmux_schmt schmt;		/* schmidt enable            */
+	enum pmux_hsm hsm;		/* high-speed mode enable    */
 };
 
 /**
@@ -166,11 +167,12 @@ struct padctrl_config {
  * @param config	List of config items
  * @param len		Number of config items in list
  */
-void padgrp_config_table(const struct padctrl_config *config, int len);
+void pinmux_config_drvgrp_table(const struct pmux_drvgrp_config *config,
+				int len);
 
-#endif /* TEGRA_PMX_HAS_PADGRPS */
+#endif /* TEGRA_PMX_HAS_DRVGRPS */
 
-struct tegra_pingroup_desc {
+struct pmux_pingrp_desc {
 	enum pmux_func funcs[4];
 #if defined(CONFIG_TEGRA20)
 	u32 ctl_id;
@@ -178,6 +180,6 @@ struct tegra_pingroup_desc {
 #endif /* CONFIG_TEGRA20 */
 };
 
-extern const struct tegra_pingroup_desc *tegra_soc_pingroups;
+extern const struct pmux_pingrp_desc *tegra_soc_pingroups;
 
 #endif /* _TEGRA_PINMUX_H_ */

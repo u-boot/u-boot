@@ -159,7 +159,7 @@ enum pmux_pingrp {
 	PINGRP_XM2C,
 	PINGRP_XM2D,
 
-	PINGRP_COUNT,
+	PMUX_PINGRP_COUNT,
 };
 
 /*

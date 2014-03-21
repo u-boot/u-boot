@@ -8,9 +8,9 @@
 #ifndef _PINMUX_CONFIG_VENICE2_H_
 #define _PINMUX_CONFIG_VENICE2_H_
 
-#define DEFAULT_PINMUX(_pingroup, _mux, _pull, _tri, _io)	\
+#define DEFAULT_PINMUX(_pingrp, _mux, _pull, _tri, _io)		\
 	{							\
-		.pingroup	= PINGRP_##_pingroup,		\
+		.pingrp		= PINGRP_##_pingrp,		\
 		.func		= PMUX_FUNC_##_mux,		\
 		.pull		= PMUX_PULL_##_pull,		\
 		.tristate	= PMUX_TRI_##_tri,		\
@@ -20,9 +20,9 @@
 		.ioreset	= PMUX_PIN_IO_RESET_DEFAULT,	\
 	}
 
-#define I2C_PINMUX(_pingroup, _mux, _pull, _tri, _io, _lock, _od) \
+#define I2C_PINMUX(_pingrp, _mux, _pull, _tri, _io, _lock, _od)	\
 	{							\
-		.pingroup	= PINGRP_##_pingroup,		\
+		.pingrp		= PINGRP_##_pingrp,		\
 		.func		= PMUX_FUNC_##_mux,		\
 		.pull		= PMUX_PULL_##_pull,		\
 		.tristate	= PMUX_TRI_##_tri,		\
@@ -32,9 +32,9 @@
 		.ioreset	= PMUX_PIN_IO_RESET_DEFAULT,	\
 	}
 
-#define DDC_PINMUX(_pingroup, _mux, _pull, _tri, _io, _lock, _rcv_sel) \
+#define DDC_PINMUX(_pingrp, _mux, _pull, _tri, _io, _lock, _rcv_sel) \
 	{							\
-		.pingroup	= PINGRP_##_pingroup,		\
+		.pingrp		= PINGRP_##_pingrp,		\
 		.func		= PMUX_FUNC_##_mux,		\
 		.pull		= PMUX_PULL_##_pull,		\
 		.tristate	= PMUX_TRI_##_tri,		\
@@ -44,9 +44,9 @@
 		.ioreset	= PMUX_PIN_IO_RESET_DEFAULT,	\
 	}
 
-#define VI_PINMUX(_pingroup, _mux, _pull, _tri, _io, _lock, _ioreset) \
+#define VI_PINMUX(_pingrp, _mux, _pull, _tri, _io, _lock, _ioreset) \
 	{							\
-		.pingroup	= PINGRP_##_pingroup,		\
+		.pingrp		= PINGRP_##_pingrp,		\
 		.func		= PMUX_FUNC_##_mux,		\
 		.pull		= PMUX_PULL_##_pull,		\
 		.tristate	= PMUX_TRI_##_tri,		\
@@ -56,9 +56,9 @@
 		.ioreset	= PMUX_PIN_IO_RESET_##_ioreset	\
 	}
 
-#define CEC_PINMUX(_pingroup, _mux, _pull, _tri, _io, _lock, _od)	\
+#define CEC_PINMUX(_pingrp, _mux, _pull, _tri, _io, _lock, _od)		\
 	{								\
-		.pingroup   = PINGRP_##_pingroup,			\
+		.pingrp     = PINGRP_##_pingrp,				\
 		.func       = PMUX_FUNC_##_mux,				\
 		.pull       = PMUX_PULL_##_pull,			\
 		.tristate   = PMUX_TRI_##_tri,				\
@@ -70,19 +70,19 @@
 
 #define USB_PINMUX CEC_PINMUX
 
-#define DEFAULT_PADCFG(_padgrp, _slwf, _slwr, _drvup, _drvdn, _lpmd, _schmt, _hsm) \
+#define DEFAULT_PADCFG(_drvgrp, _slwf, _slwr, _drvup, _drvdn, _lpmd, _schmt, _hsm) \
 	{						\
-		.padgrp = PDRIVE_PINGROUP_##_padgrp,	\
+		.drvgrp = PDRIVE_PINGROUP_##_drvgrp,	\
 		.slwf   = _slwf,			\
 		.slwr   = _slwr,			\
 		.drvup  = _drvup,			\
 		.drvdn  = _drvdn,			\
-		.lpmd   = PGRP_LPMD_##_lpmd,		\
-		.schmt  = PGRP_SCHMT_##_schmt,		\
-		.hsm    = PGRP_HSM_##_hsm,		\
+		.lpmd   = PMUX_LPMD_##_lpmd,		\
+		.schmt  = PMUX_SCHMT_##_schmt,		\
+		.hsm    = PMUX_HSM_##_hsm,		\
 	}
 
-static struct pingroup_config tegra124_pinmux_common[] = {
+static struct pmux_pingrp_config tegra124_pinmux_common[] = {
 	/* EXTPERIPH1 pinmux */
 	DEFAULT_PINMUX(CLK1_OUT,      EXTPERIPH1,  NORMAL,    NORMAL,   OUTPUT),
 
@@ -286,12 +286,12 @@ static struct pingroup_config tegra124_pinmux_common[] = {
 	DEFAULT_PINMUX(SPDIF_OUT,     RSVD1,       NORMAL,    TRISTATE, INPUT),
 };
 
-static struct pingroup_config unused_pins_lowpower[] = {
+static struct pmux_pingrp_config unused_pins_lowpower[] = {
 	DEFAULT_PINMUX(CLK1_REQ,      RSVD3,    DOWN, TRISTATE, OUTPUT),
 };
 
 /* Initially setting all used GPIO's to non-TRISTATE */
-static struct pingroup_config tegra124_pinmux_set_nontristate[] = {
+static struct pmux_pingrp_config tegra124_pinmux_set_nontristate[] = {
 	DEFAULT_PINMUX(GPIO_X4_AUD,     RSVD1,  DOWN,    NORMAL,    OUTPUT),
 	DEFAULT_PINMUX(GPIO_X7_AUD,     RSVD1,  DOWN,    NORMAL,    OUTPUT),
 	DEFAULT_PINMUX(GPIO_W2_AUD,     RSVD1,  UP,      NORMAL,    INPUT),
@@ -331,8 +331,8 @@ static struct pingroup_config tegra124_pinmux_set_nontristate[] = {
 	DEFAULT_PINMUX(GPIO_PK1,        GMI,    NORMAL,   NORMAL,   OUTPUT),
 };
 
-static struct padctrl_config venice2_padctrl[] = {
-	/* (_padgrp, _slwf, _slwr, _drvup, _drvdn, _lpmd, _schmt, _hsm) */
+static struct pmux_drvgrp_config venice2_padctrl[] = {
+	/* (_drvgrp, _slwf, _slwr, _drvup, _drvdn, _lpmd, _schmt, _hsm) */
 	DEFAULT_PADCFG(SDIO3, SDIOCFG_DRVUP_SLWF, SDIOCFG_DRVDN_SLWR,
 		       SDIOCFG_DRVUP, SDIOCFG_DRVDN, NONE, NONE, NONE),
 };

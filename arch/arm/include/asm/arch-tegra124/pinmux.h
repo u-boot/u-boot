@@ -209,10 +209,10 @@ enum pmux_pingrp {
 	PINGRP_USB_VBUS_EN2,
 	PINGRP_GPIO_PFF2,
 	PINGRP_DP_HPD,				/* last reg offset = 0x3430 */
-	PINGRP_COUNT,
+	PMUX_PINGRP_COUNT,
 };
 
-enum pdrive_pingrp {
+enum pmux_drvgrp {
 	PDRIVE_PINGROUP_AO1 = 0, /* offset 0x868 */
 	PDRIVE_PINGROUP_AO2,
 	PDRIVE_PINGROUP_AT1,
@@ -251,7 +251,7 @@ enum pdrive_pingrp {
 	PDRIVE_PINGROUP_HVC,
 	PDRIVE_PINGROUP_SDIO4,
 	PDRIVE_PINGROUP_AO0,
-	PDRIVE_PINGROUP_COUNT,
+	PMUX_DRVGRP_COUNT,
 };
 
 /*
@@ -385,7 +385,7 @@ enum pmux_func {
 
 #define TEGRA_PMX_HAS_PIN_IO_BIT_ETC
 #define TEGRA_PMX_HAS_RCV_SEL
-#define TEGRA_PMX_HAS_PADGRPS
+#define TEGRA_PMX_HAS_DRVGRPS
 #include <asm/arch-tegra/pinmux.h>
 
 #endif /* _TEGRA124_PINMUX_H_ */

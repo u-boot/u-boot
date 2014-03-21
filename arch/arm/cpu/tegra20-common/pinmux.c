@@ -283,7 +283,7 @@ enum pmux_pullid {
 
 #define PMUX_FUNC_RSVD PMUX_FUNC_RSVD1
 
-static const struct tegra_pingroup_desc tegra20_pingroups[] = {
+static const struct pmux_pingrp_desc tegra20_pingroups[] = {
 	PIN(ATA,  NAND,  IDE,    NAND,   GMI,       RSVD,        IDE),
 	PIN(ATB,  NAND,  IDE,    NAND,   GMI,       SDIO4,       IDE),
 	PIN(ATC,  NAND,  IDE,    NAND,   GMI,       SDIO4,       IDE),
@@ -434,4 +434,4 @@ static const struct tegra_pingroup_desc tegra20_pingroups[] = {
 	PINALL(XM2D,  DDR,   RSVD, RSVD, RSVD, RSVD,  RSVD, MUXCTL_NONE,
 		PUCTL_NONE),
 };
-const struct tegra_pingroup_desc *tegra_soc_pingroups = tegra20_pingroups;
+const struct pmux_pingrp_desc *tegra_soc_pingroups = tegra20_pingroups;

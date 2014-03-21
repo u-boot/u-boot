@@ -275,10 +275,10 @@ enum pmux_pingrp {
 	PINGRP_PEX_L2_RST_N,
 	PINGRP_PEX_L2_CLKREQ_N,
 	PINGRP_HDMI_CEC,	/* offset 0x33e0 */
-	PINGRP_COUNT,
+	PMUX_PINGRP_COUNT,
 };
 
-enum pdrive_pingrp {
+enum pmux_drvgrp {
 	PDRIVE_PINGROUP_AO1 = 0, /* offset 0x868 */
 	PDRIVE_PINGROUP_AO2,
 	PDRIVE_PINGROUP_AT1,
@@ -320,7 +320,7 @@ enum pdrive_pingrp {
 	PDRIVE_PINGROUP_GPV,
 	PDRIVE_PINGROUP_DEV3 = 49,	/* offset 0x92c */
 	PDRIVE_PINGROUP_CEC = 52,	/* offset 0x938 */
-	PDRIVE_PINGROUP_COUNT,
+	PMUX_DRVGRP_COUNT,
 };
 
 /*
@@ -448,7 +448,7 @@ enum pmux_func {
 };
 
 #define TEGRA_PMX_HAS_PIN_IO_BIT_ETC
-#define TEGRA_PMX_HAS_PADGRPS
+#define TEGRA_PMX_HAS_DRVGRPS
 #include <asm/arch-tegra/pinmux.h>
 
 #endif /* _TEGRA30_PINMUX_H_ */

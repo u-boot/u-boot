@@ -41,7 +41,7 @@
 #define PIN_RESERVED \
 	PIN(NONE, NONE, INVALID, INVALID, INVALID, INVALID, NONE)
 
-static const struct tegra_pingroup_desc tegra114_pingroups[PINGRP_COUNT] = {
+static const struct pmux_pingrp_desc tegra114_pingroups[PMUX_PINGRP_COUNT] = {
 	/*	NAME	  VDD	   f0		f1	   f2	    f3  */
 	PINI(ULPI_DATA0,  BB,	   SPI3,       HSI,	   UARTA,   ULPI),
 	PINI(ULPI_DATA1,  BB,	   SPI3,       HSI,	   UARTA,   ULPI),
@@ -303,4 +303,4 @@ static const struct tegra_pingroup_desc tegra114_pingroups[PINGRP_COUNT] = {
 	PIN_RESERVED,	/* Reserved by t114: 0x3404 */
 	PINO(RESET_OUT_N, SYS,     RSVD1,      RSVD2,      RSVD3, RESET_OUT_N),
 };
-const struct tegra_pingroup_desc *tegra_soc_pingroups = tegra114_pingroups;
+const struct pmux_pingrp_desc *tegra_soc_pingroups = tegra114_pingroups;
