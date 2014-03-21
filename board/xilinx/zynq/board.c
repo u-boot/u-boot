@@ -31,7 +31,8 @@ int board_init(void)
 #if defined(CONFIG_ENV_IS_IN_EEPROM) && !defined(CONFIG_SPL_BUILD)
 	unsigned char eepromsel = CONFIG_SYS_I2C_MUX_EEPROM_SEL;
 #endif
-#ifdef CONFIG_FPGA
+#if (defined(CONFIG_FPGA) && !defined(CONFIG_SPL_BUILD)) || \
+    (defined(CONFIG_SPL_FPGA_SUPPORT) && defined(CONFIG_SPL_BUILD))
 	u32 idcode;
 
 	idcode = zynq_slcr_get_idcode();
