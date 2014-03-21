@@ -601,6 +601,8 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_DPAA_FMAN
 #define CONFIG_SYS_DPAA_PME
 
+#define CONFIG_QE
+#define CONFIG_U_QE
 /* Default address of microcode for the Linux Fman driver */
 #if defined(CONFIG_SPIFLASH)
 /*
@@ -623,6 +625,7 @@ unsigned long get_board_ddr_clk(void);
 #else
 #define CONFIG_SYS_QE_FMAN_FW_IN_NOR
 #define CONFIG_SYS_FMAN_FW_ADDR		0xEFF00000
+#define CONFIG_SYS_QE_FW_ADDR		0xEFF10000
 #endif
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)

@@ -18,6 +18,7 @@
 #include <asm/fsl_portals.h>
 #include <asm/fsl_liodn.h>
 #include <fm_eth.h>
+#include <hwconfig.h>
 #include <asm/mpc85xx_gpio.h>
 
 #include "../common/qixis.h"
@@ -88,6 +89,30 @@ int select_i2c_ch_pca9547(u8 ch)
 	}
 
 	return 0;
+}
+
+static void qe_board_setup(void)
+{
+	u8 brdcfg15, brdcfg9;
+
+	if (hwconfig("qe") && hwconfig("tdm")) {
+		brdcfg15 = QIXIS_READ(brdcfg[15]);
+		/*
+		 * TDMRiser uses QE-TDM
+		 * Route QE_TDM signals to TDM Riser slot
+		 */
+		QIXIS_WRITE(brdcfg[15], brdcfg15 | 7);
+	} else if (hwconfig("qe") && hwconfig("uart")) {
+		brdcfg15 = QIXIS_READ(brdcfg[15]);
+		brdcfg9 = QIXIS_READ(brdcfg[9]);
+		/*
+		 * Route QE_TDM signals to UCC
+		 * ProfiBus controlled by UCC3
+		 */
+		brdcfg15 &= 0xfc;
+		QIXIS_WRITE(brdcfg[15], brdcfg15 | 2);
+		QIXIS_WRITE(brdcfg[9], brdcfg9 | 4);
+	}
 }
 
 int board_early_init_r(void)
@@ -196,6 +221,8 @@ int misc_init_r(void)
 			       serdes_clock_to_string(actual[i]));
 		}
 	}
+
+	qe_board_setup();
 
 	return 0;
 }
