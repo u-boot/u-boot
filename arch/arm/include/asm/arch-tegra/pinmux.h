@@ -64,18 +64,18 @@ enum pmux_pin_rcv_sel {
  * available is pinmux_config_table() to configure a list of pins.
  */
 struct pmux_pingrp_config {
-	enum pmux_pingrp pingrp;	/* pin group PMUX_PINGRP_...        */
-	enum pmux_func func;		/* function to assign PMUX_FUNC_... */
-	enum pmux_pull pull;		/* pull up/down/normal PMUX_PULL_...*/
-	enum pmux_tristate tristate;	/* tristate or normal PMUX_TRI_...  */
+	u32 pingrp:16;		/* pin group PMUX_PINGRP_...        */
+	u32 func:8;		/* function to assign PMUX_FUNC_... */
+	u32 pull:2;		/* pull up/down/normal PMUX_PULL_...*/
+	u32 tristate:2;		/* tristate or normal PMUX_TRI_...  */
 #ifdef TEGRA_PMX_HAS_PIN_IO_BIT_ETC
-	enum pmux_pin_io io;		/* input or output PMUX_PIN_...     */
-	enum pmux_pin_lock lock;	/* lock enable/disable PMUX_PIN...  */
-	enum pmux_pin_od od;		/* open-drain or push-pull driver   */
-	enum pmux_pin_ioreset ioreset;	/* input/output reset PMUX_PIN...   */
+	u32 io:2;		/* input or output PMUX_PIN_...     */
+	u32 lock:2;		/* lock enable/disable PMUX_PIN...  */
+	u32 od:2;		/* open-drain or push-pull driver   */
+	u32 ioreset:2;		/* input/output reset PMUX_PIN...   */
 #ifdef TEGRA_PMX_HAS_RCV_SEL
-	enum pmux_pin_rcv_sel rcv_sel;	/* select between High and Normal  */
-					/* VIL/VIH receivers */
+	u32 rcv_sel:2;		/* select between High and Normal  */
+				/* VIL/VIH receivers */
 #endif
 #endif
 };
@@ -151,14 +151,14 @@ enum pmux_hsm {
  * This defines the configuration for a pin group's pad control config
  */
 struct pmux_drvgrp_config {
-	enum pmux_drvgrp drvgrp;	/* pin group PMUX_DRVGRP_x   */
-	int slwf;			/* falling edge slew         */
-	int slwr;			/* rising edge slew          */
-	int drvup;			/* pull-up drive strength    */
-	int drvdn;			/* pull-down drive strength  */
-	enum pmux_lpmd lpmd;		/* low-power mode selection  */
-	enum pmux_schmt schmt;		/* schmidt enable            */
-	enum pmux_hsm hsm;		/* high-speed mode enable    */
+	u32 drvgrp:16;	/* pin group PMUX_DRVGRP_x   */
+	u32 slwf:3;		/* falling edge slew         */
+	u32 slwr:3;		/* rising edge slew          */
+	u32 drvup:8;		/* pull-up drive strength    */
+	u32 drvdn:8;		/* pull-down drive strength  */
+	u32 lpmd:3;		/* low-power mode selection  */
+	u32 schmt:2;		/* schmidt enable            */
+	u32 hsm:2;		/* high-speed mode enable    */
 };
 
 /**
@@ -173,10 +173,10 @@ void pinmux_config_drvgrp_table(const struct pmux_drvgrp_config *config,
 #endif /* TEGRA_PMX_HAS_DRVGRPS */
 
 struct pmux_pingrp_desc {
-	enum pmux_func funcs[4];
+	u8 funcs[4];
 #if defined(CONFIG_TEGRA20)
-	u32 ctl_id;
-	u32 pull_id;
+	u8 ctl_id;
+	u8 pull_id;
 #endif /* CONFIG_TEGRA20 */
 };
 

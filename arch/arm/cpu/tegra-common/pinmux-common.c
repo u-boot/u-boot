@@ -14,8 +14,7 @@
 
 /* return 1 if a pmux_func is in range */
 #define pmux_func_isvalid(func) \
-	((((func) >= 0) && ((func) < PMUX_FUNC_COUNT)) || \
-	 (((func) >= PMUX_FUNC_RSVD1) && ((func) <= PMUX_FUNC_RSVD4)))
+	(((func) >= 0) && ((func) < PMUX_FUNC_COUNT))
 
 /* return 1 if a pin_pupd_is in range */
 #define pmux_pin_pupd_isvalid(pupd) \
@@ -97,8 +96,8 @@ void pinmux_set_func(enum pmux_pingrp pin, enum pmux_func func)
 	assert(pmux_pingrp_isvalid(pin));
 	assert(pmux_func_isvalid(func));
 
-	if (func & PMUX_FUNC_RSVD1) {
-		mux = func & 3;
+	if (func >= PMUX_FUNC_RSVD1) {
+		mux = (func - PMUX_FUNC_RSVD1) & 3;
 	} else {
 		/* Search for the appropriate function */
 		for (i = 0; i < 4; i++) {
