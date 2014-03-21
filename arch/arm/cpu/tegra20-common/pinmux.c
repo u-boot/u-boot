@@ -8,9 +8,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/tegra.h>
 #include <asm/arch/pinmux.h>
-
 
 /*
  * This defines the order of the pin mux control bits in the registers. For
@@ -256,32 +254,6 @@ enum pmux_pullid {
 	PUCTL_NONE = -1
 };
 
-struct tegra_pingroup_desc {
-	const char *name;
-	enum pmux_func funcs[4];
-	enum pmux_ctlid ctl_id;
-	enum pmux_pullid pull_id;
-};
-
-
-/* Converts a pmux_pingrp number to a tristate register: 0=A, 1=B, 2=C, 3=D */
-#define TRISTATE_REG(pmux_pingrp) ((pmux_pingrp) >> 5)
-
-/* Mask value for a tristate (within TRISTATE_REG(id)) */
-#define TRISTATE_MASK(pmux_pingrp) (1 << ((pmux_pingrp) & 0x1f))
-
-/* Converts a PUCTL id to a pull register: 0=A, 1=B...4=E */
-#define PULL_REG(pmux_pullid) ((pmux_pullid) >> 4)
-
-/* Converts a PUCTL id to a shift position */
-#define PULL_SHIFT(pmux_pullid) ((pmux_pullid << 1) & 0x1f)
-
-/* Converts a MUXCTL id to a ctl register: 0=A, 1=B...6=G */
-#define MUXCTL_REG(pmux_ctlid) ((pmux_ctlid) >> 4)
-
-/* Converts a MUXCTL id to a shift position */
-#define MUXCTL_SHIFT(pmux_ctlid) ((pmux_ctlid << 1) & 0x1f)
-
 /* Convenient macro for defining pin group properties */
 #define PINALL(pg_name, vdd, f0, f1, f2, f3, f_safe, mux, pupd)		\
 	{						\
@@ -309,9 +281,9 @@ struct tegra_pingroup_desc {
 #define PIN_RESERVED \
 	PIN(NONE, NONE, RSVD, RSVD, RSVD, RSVD, RSVD)
 
-#define PMUX_FUNC_RSVD ((enum pmux_func)-1)
+#define PMUX_FUNC_RSVD PMUX_FUNC_RSVD1
 
-const struct tegra_pingroup_desc tegra_soc_pingroups[PINGRP_COUNT] = {
+static const struct tegra_pingroup_desc tegra20_pingroups[] = {
 	PIN(ATA,  NAND,  IDE,    NAND,   GMI,       RSVD,        IDE),
 	PIN(ATB,  NAND,  IDE,    NAND,   GMI,       SDIO4,       IDE),
 	PIN(ATC,  NAND,  IDE,    NAND,   GMI,       SDIO4,       IDE),
@@ -462,94 +434,4 @@ const struct tegra_pingroup_desc tegra_soc_pingroups[PINGRP_COUNT] = {
 	PINALL(XM2D,  DDR,   RSVD, RSVD, RSVD, RSVD,  RSVD, MUXCTL_NONE,
 		PUCTL_NONE),
 };
-
-void pinmux_set_tristate(enum pmux_pingrp pin, int enable)
-{
-	struct pmux_tri_ctlr *pmt =
-			(struct pmux_tri_ctlr *)NV_PA_APB_MISC_BASE;
-	u32 *tri = &pmt->pmt_tri[TRISTATE_REG(pin)];
-	u32 reg;
-
-	reg = readl(tri);
-	if (enable)
-		reg |= TRISTATE_MASK(pin);
-	else
-		reg &= ~TRISTATE_MASK(pin);
-	writel(reg, tri);
-}
-
-void pinmux_tristate_enable(enum pmux_pingrp pin)
-{
-	pinmux_set_tristate(pin, 1);
-}
-
-void pinmux_tristate_disable(enum pmux_pingrp pin)
-{
-	pinmux_set_tristate(pin, 0);
-}
-
-void pinmux_set_pullupdown(enum pmux_pingrp pin, enum pmux_pull pupd)
-{
-	struct pmux_tri_ctlr *pmt =
-			(struct pmux_tri_ctlr *)NV_PA_APB_MISC_BASE;
-	enum pmux_pullid pull_id = tegra_soc_pingroups[pin].pull_id;
-	u32 *pull = &pmt->pmt_pull[PULL_REG(pull_id)];
-	u32 mask_bit;
-	u32 reg;
-	mask_bit = PULL_SHIFT(pull_id);
-
-	reg = readl(pull);
-	reg &= ~(0x3 << mask_bit);
-	reg |= pupd << mask_bit;
-	writel(reg, pull);
-}
-
-void pinmux_set_func(enum pmux_pingrp pin, enum pmux_func func)
-{
-	struct pmux_tri_ctlr *pmt =
-			(struct pmux_tri_ctlr *)NV_PA_APB_MISC_BASE;
-	enum pmux_ctlid mux_id = tegra_soc_pingroups[pin].ctl_id;
-	u32 *muxctl = &pmt->pmt_ctl[MUXCTL_REG(mux_id)];
-	u32 mask_bit;
-	int i, mux = -1;
-	u32 reg;
-
-	assert(pmux_func_isvalid(func));
-
-	/* Handle special values */
-	if (func >= PMUX_FUNC_RSVD1) {
-		mux = (func - PMUX_FUNC_RSVD1) & 0x3;
-	} else {
-		/* Search for the appropriate function */
-		for (i = 0; i < 4; i++) {
-			if (tegra_soc_pingroups[pin].funcs[i] == func) {
-				mux = i;
-				break;
-			}
-		}
-	}
-	assert(mux != -1);
-
-	mask_bit = MUXCTL_SHIFT(mux_id);
-	reg = readl(muxctl);
-	reg &= ~(0x3 << mask_bit);
-	reg |= mux << mask_bit;
-	writel(reg, muxctl);
-}
-
-void pinmux_config_pingroup(const struct pingroup_config *config)
-{
-	enum pmux_pingrp pin = config->pingroup;
-
-	pinmux_set_func(pin, config->func);
-	pinmux_set_pullupdown(pin, config->pull);
-	pinmux_set_tristate(pin, config->tristate);
-}
-
-void pinmux_config_table(const struct pingroup_config *config, int len)
-{
-	int i;
-
-	for (i = 0; i < len; i++)
-		pinmux_config_pingroup(&config[i]);
-}
+const struct tegra_pingroup_desc *tegra_soc_pingroups = tegra20_pingroups;
