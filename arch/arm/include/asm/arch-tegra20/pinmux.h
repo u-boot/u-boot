@@ -228,21 +228,18 @@ enum pmux_func {
 	PMUX_FUNC_VI_SENSOR_CLK,
 	PMUX_FUNC_XIO,
 
-	/* These don't have a name, but can be used in the table */
-	PMUX_FUNC_RSVD1,
-	PMUX_FUNC_RSVD2,
-	PMUX_FUNC_RSVD3,
-	PMUX_FUNC_RSVD4,
-	PMUX_FUNC_RSVD,	/* Not valid and should not be used */
-
 	PMUX_FUNC_COUNT,
 
-	PMUX_FUNC_NONE = -1,
+	PMUX_FUNC_RSVD1 = 0x8000,
+	PMUX_FUNC_RSVD2 = 0x8001,
+	PMUX_FUNC_RSVD3 = 0x8002,
+	PMUX_FUNC_RSVD4 = 0x8003,
 };
 
 /* return 1 if a pmux_func is in range */
-#define pmux_func_isvalid(func) ((func) >= 0 && (func) < PMUX_FUNC_COUNT && \
-		(func) != PMUX_FUNC_RSVD)
+#define pmux_func_isvalid(func) \
+	((((func) >= 0) && ((func) < PMUX_FUNC_COUNT)) ||\
+	 (((func) >= PMUX_FUNC_RSVD1) && ((func) <= PMUX_FUNC_RSVD4)))
 
 /* The pullup/pulldown state of a pin group */
 enum pmux_pull {

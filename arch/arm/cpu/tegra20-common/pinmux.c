@@ -307,7 +307,9 @@ struct tegra_pingroup_desc {
 
 /* A pin group number which is not used */
 #define PIN_RESERVED \
-	PIN(NONE, NONE, NONE, NONE, NONE, NONE, NONE)
+	PIN(NONE, NONE, RSVD, RSVD, RSVD, RSVD, RSVD)
+
+#define PMUX_FUNC_RSVD ((enum pmux_func)-1)
 
 const struct tegra_pingroup_desc tegra_soc_pingroups[PINGRP_COUNT] = {
 	PIN(ATA,  NAND,  IDE,    NAND,   GMI,       RSVD,        IDE),
