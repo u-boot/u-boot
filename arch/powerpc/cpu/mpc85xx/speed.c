@@ -336,6 +336,10 @@ void get_sys_info(sys_info_t *sys_info)
 
 #endif /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
 
+#ifdef CONFIG_U_QE
+	sys_info->freq_qe =  sys_info->freq_systembus / 2;
+#endif
+
 #else /* CONFIG_FSL_CORENET */
 	uint plat_ratio, e500_ratio, half_freq_systembus;
 	int i;

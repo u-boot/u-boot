@@ -1889,7 +1889,9 @@ defined(CONFIG_PPC_T1020) || defined(CONFIG_PPC_T1022)
 	u32	sata2liodnr;	/* SATA 2 LIODN */
 	u32	sata3liodnr;	/* SATA 3 LIODN */
 	u32	sata4liodnr;	/* SATA 4 LIODN */
-	u8	res22[32];
+	u8      res22[24];
+	u32     qeliodnr;       /* QE LIODN */
+	u8      res_57c[4];
 	u32	dma1liodnr;	/* DMA 1 LIODN */
 	u32	dma2liodnr;	/* DMA 2 LIODN */
 	u32	dma3liodnr;	/* DMA 3 LIODN */
@@ -2877,6 +2879,7 @@ struct ccsr_pman {
 #define CONFIG_SYS_MPC85xx_LBC_OFFSET		0x124000
 #define CONFIG_SYS_MPC85xx_IFC_OFFSET		0x124000
 #define CONFIG_SYS_MPC85xx_GPIO_OFFSET		0x130000
+#define CONFIG_SYS_MPC85xx_QE_OFFSET		0x140000
 #define CONFIG_SYS_FSL_CORENET_RMAN_OFFSET	0x1e0000
 #if defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2) && !defined(CONFIG_PPC_B4860)\
 	&& !defined(CONFIG_PPC_B4420)
