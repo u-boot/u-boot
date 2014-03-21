@@ -131,7 +131,7 @@ void pinmux_set_pullupdown(enum pmux_pingrp pin, enum pmux_pull pupd)
 	writel(val, reg);
 }
 
-void pinmux_set_tristate(enum pmux_pingrp pin, int tri)
+static void pinmux_set_tristate(enum pmux_pingrp pin, int tri)
 {
 	u32 *reg = TRI_REG(pin);
 	u32 val;
@@ -275,7 +275,7 @@ static void pinmux_set_rcv_sel(enum pmux_pingrp pin,
 #endif /* TEGRA_PMX_HAS_RCV_SEL */
 #endif /* TEGRA_PMX_HAS_PIN_IO_BIT_ETC */
 
-void pinmux_config_pingroup(const struct pingroup_config *config)
+static void pinmux_config_pingroup(const struct pingroup_config *config)
 {
 	enum pmux_pingrp pin = config->pingroup;
 

@@ -86,9 +86,6 @@ void pinmux_set_func(enum pmux_pingrp pin, enum pmux_func func);
 /* Set the pull up/down feature for a pin group */
 void pinmux_set_pullupdown(enum pmux_pingrp pin, enum pmux_pull pupd);
 
-/* Set a pin group to tristate or normal */
-void pinmux_set_tristate(enum pmux_pingrp pin, int enable);
-
 /* Set a pin group to tristate */
 void pinmux_tristate_enable(enum pmux_pingrp pin);
 
@@ -99,9 +96,6 @@ void pinmux_tristate_disable(enum pmux_pingrp pin);
 /* Set a pin group as input or output */
 void pinmux_set_io(enum pmux_pingrp pin, enum pmux_pin_io io);
 #endif
-
-/* Set the complete configuration for a pin group */
-void pinmux_config_pingroup(const struct pingroup_config *config);
 
 /**
  * Configure a list of pin groups
