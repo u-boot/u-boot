@@ -48,6 +48,12 @@ const struct tegra_sysinfo sysinfo = {
 	CONFIG_TEGRA_BOARD_STRING
 };
 
+void __pinmux_init(void)
+{
+}
+
+void pinmux_init(void) __attribute__((weak, alias("__pinmux_init")));
+
 void __pin_mux_usb(void)
 {
 }
@@ -176,9 +182,7 @@ void gpio_early_init(void) __attribute__((weak, alias("__gpio_early_init")));
 
 int board_early_init_f(void)
 {
-#if !defined(CONFIG_TEGRA20)
 	pinmux_init();
-#endif
 	board_init_uart_f();
 
 	/* Initialize periph GPIOs */

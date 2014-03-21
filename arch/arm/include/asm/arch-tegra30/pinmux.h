@@ -632,9 +632,6 @@ void pinmux_set_io(enum pmux_pingrp pin, enum pmux_pin_io io);
  */
 void pinmux_config_table(struct pingroup_config *config, int len);
 
-/* Set a group of pins from a table */
-void pinmux_init(void);
-
 /**
  * Set the GP pad configs
  *
