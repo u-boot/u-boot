@@ -350,16 +350,16 @@ int fm_init_common(int index, struct ccsr_fman *reg)
 {
 	int rc;
 #if defined(CONFIG_SYS_QE_FMAN_FW_IN_NOR)
-	void *addr = (void *)CONFIG_SYS_QE_FMAN_FW_ADDR;
+	void *addr = (void *)CONFIG_SYS_FMAN_FW_ADDR;
 #elif defined(CONFIG_SYS_QE_FMAN_FW_IN_NAND)
 	size_t fw_length = CONFIG_SYS_QE_FMAN_FW_LENGTH;
 	void *addr = malloc(CONFIG_SYS_QE_FMAN_FW_LENGTH);
 
-	rc = nand_read(&nand_info[0], (loff_t)CONFIG_SYS_QE_FMAN_FW_ADDR,
+	rc = nand_read(&nand_info[0], (loff_t)CONFIG_SYS_FMAN_FW_ADDR,
 		       &fw_length, (u_char *)addr);
 	if (rc == -EUCLEAN) {
 		printf("NAND read of FMAN firmware at offset 0x%x failed %d\n",
-			CONFIG_SYS_QE_FMAN_FW_ADDR, rc);
+			CONFIG_SYS_FMAN_FW_ADDR, rc);
 	}
 #elif defined(CONFIG_SYS_QE_FW_IN_SPIFLASH)
 	struct spi_flash *ucode_flash;
@@ -371,7 +371,7 @@ int fm_init_common(int index, struct ccsr_fman *reg)
 	if (!ucode_flash)
 		printf("SF: probe for ucode failed\n");
 	else {
-		ret = spi_flash_read(ucode_flash, CONFIG_SYS_QE_FMAN_FW_ADDR,
+		ret = spi_flash_read(ucode_flash, CONFIG_SYS_FMAN_FW_ADDR,
 				CONFIG_SYS_QE_FMAN_FW_LENGTH, addr);
 		if (ret)
 			printf("SF: read for ucode failed\n");
@@ -381,7 +381,7 @@ int fm_init_common(int index, struct ccsr_fman *reg)
 	int dev = CONFIG_SYS_MMC_ENV_DEV;
 	void *addr = malloc(CONFIG_SYS_QE_FMAN_FW_LENGTH);
 	u32 cnt = CONFIG_SYS_QE_FMAN_FW_LENGTH / 512;
-	u32 blk = CONFIG_SYS_QE_FMAN_FW_ADDR / 512;
+	u32 blk = CONFIG_SYS_FMAN_FW_ADDR / 512;
 	struct mmc *mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
 
 	if (!mmc)
@@ -395,7 +395,7 @@ int fm_init_common(int index, struct ccsr_fman *reg)
 		flush_cache((ulong)addr, cnt * 512);
 	}
 #elif defined(CONFIG_SYS_QE_FMAN_FW_IN_REMOTE)
-	void *addr = (void *)CONFIG_SYS_QE_FMAN_FW_ADDR;
+	void *addr = (void *)CONFIG_SYS_FMAN_FW_ADDR;
 #else
 	void *addr = NULL;
 #endif

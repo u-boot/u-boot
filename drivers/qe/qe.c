@@ -165,7 +165,7 @@ void qe_init(uint qe_base)
 	/*
 	 * Upload microcode to IRAM for those SOCs which do not have ROM in QE.
 	 */
-	qe_upload_firmware((const void *)CONFIG_SYS_QE_FMAN_FW_ADDR);
+	qe_upload_firmware((const void *)CONFIG_SYS_QE_FW_ADDR);
 
 	/* enable the microcode in IRAM */
 	out_be32(&qe_immr->iram.iready,QE_IRAM_READY);

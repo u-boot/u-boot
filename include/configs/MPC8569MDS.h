@@ -493,7 +493,7 @@ extern unsigned long get_clock_freq(void);
 
 /* QE microcode/firmware address */
 #define CONFIG_SYS_QE_FMAN_FW_IN_NOR
-#define CONFIG_SYS_QE_FMAN_FW_ADDR	0xfff00000
+#define CONFIG_SYS_QE_FW_ADDR	0xfff00000
 
 /*
  * BOOTP options

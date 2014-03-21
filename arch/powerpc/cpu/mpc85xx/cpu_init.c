@@ -818,7 +818,7 @@ void cpu_secondary_init_r(void)
 
 	/* load QE firmware from NAND flash to DDR first */
 	ret = nand_read(&nand_info[0], (loff_t)CONFIG_SYS_QE_FMAN_FW_IN_NAND,
-			&fw_length, (u_char *)CONFIG_SYS_QE_FMAN_FW_ADDR);
+			&fw_length, (u_char *)CONFIG_SYS_QE_FW_ADDR);
 
 	if (ret && ret == -EUCLEAN) {
 		printf ("NAND read for QE firmware at offset %x failed %d\n",

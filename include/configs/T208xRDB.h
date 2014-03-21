@@ -510,7 +510,7 @@ unsigned long get_board_ddr_clk(void);
  * env, so we got 0x110000.
  */
 #define CONFIG_SYS_QE_FW_IN_SPIFLASH
-#define CONFIG_SYS_QE_FMAN_FW_ADDR	0x110000
+#define CONFIG_SYS_FMAN_FW_ADDR	0x110000
 #define CONFIG_CORTINA_FW_ADDR		0x120000
 
 #elif defined(CONFIG_SDCARD)
@@ -520,12 +520,12 @@ unsigned long get_board_ddr_clk(void);
  * 0x2000 (16 blocks), 8 + 1650 + 16 = 1674, enlarge it to 1680.
  */
 #define CONFIG_SYS_QE_FMAN_FW_IN_MMC
-#define CONFIG_SYS_QE_FMAN_FW_ADDR	(512 * 1680)
+#define CONFIG_SYS_FMAN_FW_ADDR	(512 * 1680)
 #define CONFIG_CORTINA_FW_ADDR		(512 * 1808)
 
 #elif defined(CONFIG_NAND)
 #define CONFIG_SYS_QE_FMAN_FW_IN_NAND
-#define CONFIG_SYS_QE_FMAN_FW_ADDR	(6 * CONFIG_SYS_NAND_BLOCK_SIZE)
+#define CONFIG_SYS_FMAN_FW_ADDR	(6 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #define CONFIG_CORTINA_FW_ADDR		(7 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
 /*
@@ -536,11 +536,11 @@ unsigned long get_board_ddr_clk(void);
  * master LAW->the ucode address in master's memory space.
  */
 #define CONFIG_SYS_QE_FMAN_FW_IN_REMOTE
-#define CONFIG_SYS_QE_FMAN_FW_ADDR	0xFFE00000
+#define CONFIG_SYS_FMAN_FW_ADDR	0xFFE00000
 #define CONFIG_CORTINA_FW_ADDR		0xFFE10000
 #else
 #define CONFIG_SYS_QE_FMAN_FW_IN_NOR
-#define CONFIG_SYS_QE_FMAN_FW_ADDR	0xEFF00000
+#define CONFIG_SYS_FMAN_FW_ADDR	0xEFF00000
 #define CONFIG_CORTINA_FW_ADDR		0xEFE00000
 #endif
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
