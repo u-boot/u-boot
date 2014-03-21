@@ -509,27 +509,6 @@ enum pmux_pin_ioreset {
 				(((ioreset) >= PMUX_PIN_IO_RESET_DEFAULT) && \
 				((ioreset) <= PMUX_PIN_IO_RESET_ENABLE))
 
-/* Available power domains used by pin groups */
-enum pmux_vddio {
-	PMUX_VDDIO_BB = 0,
-	PMUX_VDDIO_LCD,
-	PMUX_VDDIO_VI,
-	PMUX_VDDIO_UART,
-	PMUX_VDDIO_DDR,
-	PMUX_VDDIO_NAND,
-	PMUX_VDDIO_SYS,
-	PMUX_VDDIO_AUDIO,
-	PMUX_VDDIO_SD,
-	PMUX_VDDIO_CAM,
-	PMUX_VDDIO_GMI,
-	PMUX_VDDIO_PEXCTL,
-	PMUX_VDDIO_SDMMC1,
-	PMUX_VDDIO_SDMMC3,
-	PMUX_VDDIO_SDMMC4,
-
-	PMUX_VDDIO_NONE
-};
-
 #define PGRP_SLWF_NONE	-1
 #define PGRP_SLWF_MAX	3
 #define	PGRP_SLWR_NONE	PGRP_SLWF_NONE

@@ -259,7 +259,6 @@ enum pmux_pullid {
 struct tegra_pingroup_desc {
 	const char *name;
 	enum pmux_func funcs[4];
-	enum pmux_vddio vddio;
 	enum pmux_ctlid ctl_id;
 	enum pmux_pullid pull_id;
 };
@@ -286,7 +285,6 @@ struct tegra_pingroup_desc {
 /* Convenient macro for defining pin group properties */
 #define PINALL(pg_name, vdd, f0, f1, f2, f3, f_safe, mux, pupd)		\
 	{						\
-		.vddio = PMUX_VDDIO_ ## vdd,		\
 		.funcs = {				\
 			PMUX_FUNC_ ## f0,			\
 			PMUX_FUNC_ ## f1,			\

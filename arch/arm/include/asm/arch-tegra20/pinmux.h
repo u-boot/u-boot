@@ -257,21 +257,6 @@ enum pmux_tristate {
 	PMUX_TRI_TRISTATE = 1,
 };
 
-/* Available power domains used by pin groups */
-enum pmux_vddio {
-	PMUX_VDDIO_BB = 0,
-	PMUX_VDDIO_LCD,
-	PMUX_VDDIO_VI,
-	PMUX_VDDIO_UART,
-	PMUX_VDDIO_DDR,
-	PMUX_VDDIO_NAND,
-	PMUX_VDDIO_SYS,
-	PMUX_VDDIO_AUDIO,
-	PMUX_VDDIO_SD,
-
-	PMUX_VDDIO_NONE
-};
-
 enum {
 	PMUX_TRISTATE_REGS	= 4,
 	PMUX_MUX_REGS		= 7,

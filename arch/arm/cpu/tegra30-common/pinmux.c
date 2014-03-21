@@ -24,7 +24,6 @@
 struct tegra_pingroup_desc {
 	const char *name;
 	enum pmux_func funcs[4];
-	enum pmux_vddio vddio;
 	enum pmux_pin_io io;
 };
 
@@ -53,7 +52,6 @@ struct tegra_pingroup_desc {
 /* Convenient macro for defining pin group properties */
 #define PIN(pg_name, vdd, f0, f1, f2, f3, iod)	\
 	{						\
-		.vddio = PMUX_VDDIO_ ## vdd,		\
 		.funcs = {				\
 			PMUX_FUNC_ ## f0,		\
 			PMUX_FUNC_ ## f1,		\
