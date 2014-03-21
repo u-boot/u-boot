@@ -227,7 +227,6 @@ enum pmux_func {
 	PMUX_FUNC_VI,
 	PMUX_FUNC_VI_SENSOR_CLK,
 	PMUX_FUNC_XIO,
-	PMUX_FUNC_SAFE,
 
 	/* These don't have a name, but can be used in the table */
 	PMUX_FUNC_RSVD1,

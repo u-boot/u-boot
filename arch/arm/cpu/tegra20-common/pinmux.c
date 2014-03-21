@@ -259,7 +259,6 @@ enum pmux_pullid {
 struct tegra_pingroup_desc {
 	const char *name;
 	enum pmux_func funcs[4];
-	enum pmux_func func_safe;
 	enum pmux_vddio vddio;
 	enum pmux_ctlid ctl_id;
 	enum pmux_pullid pull_id;
@@ -294,7 +293,6 @@ struct tegra_pingroup_desc {
 			PMUX_FUNC_ ## f2,			\
 			PMUX_FUNC_ ## f3,			\
 		},					\
-		.func_safe = PMUX_FUNC_ ## f_safe,		\
 		.ctl_id = mux,				\
 		.pull_id = pupd				\
 	}

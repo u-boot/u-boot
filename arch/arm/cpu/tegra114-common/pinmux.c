@@ -24,7 +24,6 @@
 struct tegra_pingroup_desc {
 	const char *name;
 	enum pmux_func funcs[4];
-	enum pmux_func func_safe;
 	enum pmux_vddio vddio;
 	enum pmux_pin_io io;
 };
@@ -62,7 +61,6 @@ struct tegra_pingroup_desc {
 			PMUX_FUNC_ ## f2,		\
 			PMUX_FUNC_ ## f3,		\
 		},					\
-		.func_safe = PMUX_FUNC_RSVD1,		\
 		.io = PMUX_PIN_ ## iod,			\
 	}
 
@@ -395,10 +393,6 @@ void pinmux_set_func(enum pmux_pingrp pin, enum pmux_func func)
 	/* Error check on pin and func */
 	assert(pmux_pingrp_isvalid(pin));
 	assert(pmux_func_isvalid(func));
-
-	/* Handle special values */
-	if (func == PMUX_FUNC_SAFE)
-		func = tegra_soc_pingroups[pin].func_safe;
 
 	if (func & PMUX_FUNC_RSVD1) {
 		mux = func & 0x3;

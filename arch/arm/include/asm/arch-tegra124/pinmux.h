@@ -374,7 +374,6 @@ enum pmux_func {
 	PMUX_FUNC_RESET_OUT_N,
 	/* End of Tegra114 MUX selectors */
 
-	PMUX_FUNC_SAFE,
 	PMUX_FUNC_MAX,
 
 	PMUX_FUNC_INVALID = 0x4000,
