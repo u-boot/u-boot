@@ -25,28 +25,28 @@ void pin_mux_mmc(void)
 	funcmux_select(PERIPH_ID_SDMMC2, FUNCMUX_SDMMC2_DTA_DTD_8BIT);
 
 	/* For power GPIO PI6 */
-	pinmux_tristate_disable(PINGRP_ATA);
+	pinmux_tristate_disable(PMUX_PINGRP_ATA);
 	/* For CD GPIO PH2 */
-	pinmux_tristate_disable(PINGRP_ATD);
+	pinmux_tristate_disable(PMUX_PINGRP_ATD);
 
 	/* For power GPIO PT3 */
-	pinmux_tristate_disable(PINGRP_DTB);
+	pinmux_tristate_disable(PMUX_PINGRP_DTB);
 	/* For CD GPIO PI5 */
-	pinmux_tristate_disable(PINGRP_ATC);
+	pinmux_tristate_disable(PMUX_PINGRP_ATC);
 }
 #endif
 
 void pin_mux_usb(void)
 {
 	funcmux_select(PERIPH_ID_USB2, FUNCMUX_USB2_ULPI);
-	pinmux_set_func(PINGRP_CDEV2, PMUX_FUNC_PLLP_OUT4);
-	pinmux_tristate_disable(PINGRP_CDEV2);
+	pinmux_set_func(PMUX_PINGRP_CDEV2, PMUX_FUNC_PLLP_OUT4);
+	pinmux_tristate_disable(PMUX_PINGRP_CDEV2);
 	/* USB2 PHY reset GPIO */
-	pinmux_tristate_disable(PINGRP_UAC);
+	pinmux_tristate_disable(PMUX_PINGRP_UAC);
 }
 
 void pin_mux_display(void)
 {
-	pinmux_set_func(PINGRP_SDC, PMUX_FUNC_PWM);
-	pinmux_tristate_disable(PINGRP_SDC);
+	pinmux_set_func(PMUX_PINGRP_SDC, PMUX_FUNC_PWM);
+	pinmux_tristate_disable(PMUX_PINGRP_SDC);
 }
