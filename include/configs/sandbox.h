@@ -140,8 +140,6 @@
 #define CONFIG_CROS_EC
 #define CONFIG_CMD_CROS_EC
 #define CONFIG_CROS_EC_SANDBOX
-#define CONFIG_KEYBOARD
-#define CONFIG_CROS_EC_KEYB
 #define CONFIG_ARCH_EARLY_INIT_R
 #define CONFIG_BOARD_LATE_INIT
 
@@ -149,7 +147,12 @@
 #define CONFIG_SOUND_SANDBOX
 #define CONFIG_CMD_SOUND
 
+#ifndef SANDBOX_NO_SDL
 #define CONFIG_SANDBOX_SDL
+#endif
+
+/* LCD and keyboard require SDL support */
+#ifdef CONFIG_SANDBOX_SDL
 #define CONFIG_LCD
 #define CONFIG_VIDEO_SANDBOX_SDL
 #define CONFIG_CMD_BMP
@@ -158,9 +161,18 @@
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define LCD_BPP			LCD_COLOR16
 
+#define CONFIG_CROS_EC_KEYB
+#define CONFIG_KEYBOARD
+
 #define CONFIG_EXTRA_ENV_SETTINGS	"stdin=serial,cros-ec-keyb\0" \
 					"stdout=serial,lcd\0" \
 					"stderr=serial,lcd\0"
+#else
+
+#define CONFIG_EXTRA_ENV_SETTINGS	"stdin=serial\0" \
+					"stdout=serial,lcd\0" \
+					"stderr=serial,lcd\0"
+#endif
 
 #define CONFIG_GZIP_COMPRESSED
 #define CONFIG_BZIP2

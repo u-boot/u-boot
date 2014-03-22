@@ -18,3 +18,9 @@ cmd_u-boot__ = $(CC) -o $@ -T u-boot.lds \
 	$(PLATFORM_LIBS) -Wl,-Map -Wl,u-boot.map
 
 CONFIG_ARCH_DEVICE_TREE := sandbox
+
+# Define this to avoid linking with SDL, which requires SDL libraries
+# This can solve 'sdl-config: Command not found' errors
+ifneq ($(NO_SDL),)
+PLATFORM_CPPFLAGS += -DSANDBOX_NO_SDL
+endif
