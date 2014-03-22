@@ -355,7 +355,6 @@
 /*
  * PCI express
  */
-#define CONFIG_CMD_PCI
 #ifdef CONFIG_CMD_PCI
 #define CONFIG_PCI
 #define CONFIG_PCI_PNP
