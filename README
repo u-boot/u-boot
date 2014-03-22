@@ -264,6 +264,17 @@ e.g. "make cogent_mpc8xx_config". And also configure the cogent
 directory according to the instructions in cogent/README.
 
 
+Sandbox Environment:
+--------------------
+
+U-Boot can be built natively to run on a Linux host using the 'sandbox'
+board. This allows feature development which is not board- or architecture-
+specific to be undertaken on a native platform. The sandbox is also used to
+run some of U-Boot's tests.
+
+See board/sandbox/sandbox/README.sandbox for more details.
+
+
 Configuration Options:
 ----------------------
 
