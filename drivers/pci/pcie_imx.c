@@ -451,6 +451,17 @@ static int imx6_pcie_init_phy(void)
 	return 0;
 }
 
+__weak int imx6_pcie_toggle_power(void)
+{
+#ifdef CONFIG_PCIE_IMX_POWER_GPIO
+	gpio_direction_output(CONFIG_PCIE_IMX_POWER_GPIO, 0);
+	mdelay(20);
+	gpio_set_value(CONFIG_PCIE_IMX_POWER_GPIO, 1);
+	mdelay(20);
+#endif
+	return 0;
+}
+
 __weak int imx6_pcie_toggle_reset(void)
 {
 	/*
@@ -496,7 +507,7 @@ static int imx6_pcie_deassert_core_reset(void)
 {
 	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
 
-	/* FIXME: Power-up GPIO goes here. */
+	imx6_pcie_toggle_power();
 
 	/* Enable PCIe */
 	clrbits_le32(&iomuxc_regs->gpr[1], IOMUXC_GPR1_TEST_POWERDOWN);
