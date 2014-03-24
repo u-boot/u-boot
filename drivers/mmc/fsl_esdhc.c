@@ -221,16 +221,16 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 	 * 2)Timeout period should be minimum 0.250sec as per SD Card spec
 	 *  So, Number of SD Clock cycles for 0.25sec should be minimum
 	 *		(SD Clock/sec * 0.25 sec) SD Clock cycles
-	 *		= (mmc->tran_speed * 1/4) SD Clock cycles
+	 *		= (mmc->clock * 1/4) SD Clock cycles
 	 * As 1) >=  2)
-	 * => (2^(timeout+13)) >= mmc->tran_speed * 1/4
+	 * => (2^(timeout+13)) >= mmc->clock * 1/4
 	 * Taking log2 both the sides
-	 * => timeout + 13 >= log2(mmc->tran_speed/4)
+	 * => timeout + 13 >= log2(mmc->clock/4)
 	 * Rounding up to next power of 2
-	 * => timeout + 13 = log2(mmc->tran_speed/4) + 1
-	 * => timeout + 13 = fls(mmc->tran_speed/4)
+	 * => timeout + 13 = log2(mmc->clock/4) + 1
+	 * => timeout + 13 = fls(mmc->clock/4)
 	 */
-	timeout = fls(mmc->tran_speed/4);
+	timeout = fls(mmc->clock/4);
 	timeout -= 13;
 
 	if (timeout > 14)
