@@ -290,8 +290,8 @@ void watchdog_init(void)
 	 * should not be running and does not generate a PRCM reset.
 	 */
 
-	sr32(&prcm_base->fclken_wkup, 5, 1, 1);
-	sr32(&prcm_base->iclken_wkup, 5, 1, 1);
+	setbits_le32(&prcm_base->fclken_wkup, 0x20);
+	setbits_le32(&prcm_base->iclken_wkup, 0x20);
 	wait_on_value(ST_WDT2, 0x20, &prcm_base->idlest_wkup, 5);
 
 	writel(WD_UNLOCK1, &wd2_base->wspr);

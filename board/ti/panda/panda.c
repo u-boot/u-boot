@@ -308,7 +308,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	/* Now we can enable our port clocks */
 	utmi_clk = readl((void *)CM_L3INIT_HSUSBHOST_CLKCTRL);
 	utmi_clk |= HSUSBHOST_CLKCTRL_CLKSEL_UTMI_P1_MASK;
-	sr32((void *)CM_L3INIT_HSUSBHOST_CLKCTRL, 0, 32, utmi_clk);
+	setbits_le32((void *)CM_L3INIT_HSUSBHOST_CLKCTRL, utmi_clk);
 
 	ret = omap_ehci_hcd_init(index, &usbhs_bdata, hccr, hcor);
 	if (ret < 0)
