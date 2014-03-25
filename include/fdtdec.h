@@ -90,6 +90,8 @@ enum fdt_compat_id {
 	COMPAT_INFINEON_SLB9635_TPM,	/* Infineon SLB9635 TPM */
 	COMPAT_INFINEON_SLB9645_TPM,	/* Infineon SLB9645 TPM */
 	COMPAT_SAMSUNG_EXYNOS5_I2C,	/* Exynos5 High Speed I2C Controller */
+	COMPAT_SANDBOX_HOST_EMULATION,	/* Sandbox emulation of a function */
+	COMPAT_SANDBOX_LCD_SDL,		/* Sandbox LCD emulation with SDL */
 
 	COMPAT_COUNT,
 };
@@ -532,4 +534,22 @@ const u8 *fdtdec_locate_byte_array(const void *blob, int node,
  */
 int fdtdec_decode_region(const void *blob, int node,
 		const char *prop_name, void **ptrp, size_t *size);
+
+/* A flash map entry, containing an offset and length */
+struct fmap_entry {
+	uint32_t offset;
+	uint32_t length;
+};
+
+/**
+ * Read a flash entry from the fdt
+ *
+ * @param blob		FDT blob
+ * @param node		Offset of node to read
+ * @param name		Name of node being read
+ * @param entry		Place to put offset and size of this node
+ * @return 0 if ok, -ve on error
+ */
+int fdtdec_read_fmap_entry(const void *blob, int node, const char *name,
+			   struct fmap_entry *entry);
 #endif

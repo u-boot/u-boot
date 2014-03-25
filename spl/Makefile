@@ -44,7 +44,7 @@ else
   -include include/spl-autoconf.mk
 endif
 
-include $(TOPDIR)/config.mk
+include $(srctree)/config.mk
 
 # Enable garbage collection of un-used sections for SPL
 KBUILD_CFLAGS += -ffunction-sections -fdata-sections
@@ -68,7 +68,7 @@ include/tpl-autoconf.mk: include/config.h
 include/spl-autoconf.mk: include/config.h
 	$(call cmd,autoconf)
 
-HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(SRCTREE)/board/$(VENDOR)/common/Makefile),y,n)
+HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(srctree)/board/$(VENDOR)/common/Makefile),y,n)
 
 ifdef	CONFIG_SPL_START_S_PATH
 START_PATH := $(CONFIG_SPL_START_S_PATH:"%"=%)
@@ -145,17 +145,17 @@ u-boot-spl-main := $(libs-y)
 # Linker Script
 ifdef CONFIG_SPL_LDSCRIPT
 # need to strip off double quotes
-LDSCRIPT := $(addprefix $(SRCTREE)/,$(CONFIG_SPL_LDSCRIPT:"%"=%))
+LDSCRIPT := $(addprefix $(srctree)/,$(CONFIG_SPL_LDSCRIPT:"%"=%))
 endif
 
 ifeq ($(wildcard $(LDSCRIPT)),)
-	LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot-spl.lds
+	LDSCRIPT := $(srctree)/board/$(BOARDDIR)/u-boot-spl.lds
 endif
 ifeq ($(wildcard $(LDSCRIPT)),)
-	LDSCRIPT := $(TOPDIR)/$(CPUDIR)/u-boot-spl.lds
+	LDSCRIPT := $(srctree)/$(CPUDIR)/u-boot-spl.lds
 endif
 ifeq ($(wildcard $(LDSCRIPT)),)
-	LDSCRIPT := $(TOPDIR)/arch/$(ARCH)/cpu/u-boot-spl.lds
+	LDSCRIPT := $(srctree)/arch/$(ARCH)/cpu/u-boot-spl.lds
 endif
 ifeq ($(wildcard $(LDSCRIPT)),)
 $(error could not find linker script)
@@ -165,8 +165,8 @@ endif
 # Pass the version down so we can handle backwards compatibility
 # on the fly.
 LDPPFLAGS += \
-	-include $(TOPDIR)/include/u-boot/u-boot.lds.h \
-	-include $(OBJTREE)/include/config.h \
+	-include $(srctree)/include/u-boot/u-boot.lds.h \
+	-include $(objtree)/include/config.h \
 	-DCPUDIR=$(CPUDIR) \
 	$(shell $(LD) --version | \
 	  sed -ne 's/GNU ld version \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/-DLD_MAJOR=\1 -DLD_MINOR=\2/p')
@@ -197,9 +197,9 @@ else
 VAR_SIZE_PARAM =
 endif
 $(obj)/$(BOARD)-spl.bin: $(obj)/u-boot-spl.bin
-	$(if $(wildcard $(OBJTREE)/spl/board/samsung/$(BOARD)/tools/mk$(BOARD)spl),\
-	$(OBJTREE)/spl/board/samsung/$(BOARD)/tools/mk$(BOARD)spl,\
-	$(OBJTREE)/tools/mkexynosspl) $(VAR_SIZE_PARAM) $< $@
+	$(if $(wildcard $(objtree)/spl/board/samsung/$(BOARD)/tools/mk$(BOARD)spl),\
+	$(objtree)/spl/board/samsung/$(BOARD)/tools/mk$(BOARD)spl,\
+	$(objtree)/tools/mkexynosspl) $(VAR_SIZE_PARAM) $< $@
 endif
 
 quiet_cmd_objcopy = OBJCOPY $@

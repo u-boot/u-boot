@@ -1250,8 +1250,9 @@
 #define PUDR        0xA4050162
 #define PVDR        0xA4050164
 #define PWDR        0xA4050166
-#define PYDR        0xA4050168
-#define PZDR        0xA405016A
+#define PXDR        0xA4050168
+#define PYDR        0xA405016A
+#define PZDR        0xA405016C
 
 /*	UBC	*/
 #define CBR0        0xFF200000

@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <cros_ec.h>
+#include <errno.h>
 #include <fdtdec.h>
 #include <input.h>
 #include <key_matrix.h>
@@ -39,20 +40,34 @@ static struct keyb {
  * @param config	Keyboard config
  * @param keys		List of keys that we have detected
  * @param max_count	Maximum number of keys to return
- * @return number of pressed keys, 0 for none
+ * @param samep		Set to true if this scan repeats the last, else false
+ * @return number of pressed keys, 0 for none, -EIO on error
  */
 static int check_for_keys(struct keyb *config,
-			   struct key_matrix_key *keys, int max_count)
+			   struct key_matrix_key *keys, int max_count,
+			   bool *samep)
 {
 	struct key_matrix_key *key;
+	static struct mbkp_keyscan last_scan;
+	static bool last_scan_valid;
 	struct mbkp_keyscan scan;
 	unsigned int row, col, bit, data;
 	int num_keys;
 
 	if (cros_ec_scan_keyboard(config->dev, &scan)) {
 		debug("%s: keyboard scan failed\n", __func__);
-		return -1;
+		return -EIO;
 	}
+	*samep = last_scan_valid && !memcmp(&last_scan, &scan, sizeof(scan));
+
+	/*
+	 * This is a bit odd. The EC has no way to tell us that it has run
+	 * out of key scans. It just returns the same scan over and over
+	 * again. So the only way to detect that we have run out is to detect
+	 * that this scan is the same as the last.
+	 */
+	last_scan_valid = true;
+	memcpy(&last_scan, &scan, sizeof(last_scan));
 
 	for (col = num_keys = bit = 0; col < config->matrix.num_cols;
 			col++) {
@@ -112,6 +127,7 @@ int cros_ec_kbc_check(struct input_config *input)
 	int keycodes[KBC_MAX_KEYS];
 	int num_keys, num_keycodes;
 	int irq_pending, sent;
+	bool same = false;
 
 	/*
 	 * Loop until the EC has no more keyscan records, or we have
@@ -125,7 +141,10 @@ int cros_ec_kbc_check(struct input_config *input)
 	do {
 		irq_pending = cros_ec_interrupt_pending(config.dev);
 		if (irq_pending) {
-			num_keys = check_for_keys(&config, keys, KBC_MAX_KEYS);
+			num_keys = check_for_keys(&config, keys, KBC_MAX_KEYS,
+						  &same);
+			if (num_keys < 0)
+				return 0;
 			last_num_keys = num_keys;
 			memcpy(last_keys, keys, sizeof(keys));
 		} else {
@@ -142,6 +161,13 @@ int cros_ec_kbc_check(struct input_config *input)
 		num_keycodes = key_matrix_decode(&config.matrix, keys,
 				num_keys, keycodes, KBC_MAX_KEYS);
 		sent = input_send_keycodes(input, keycodes, num_keycodes);
+
+		/*
+		 * For those ECs without an interrupt, stop scanning when we
+		 * see that the scan is the same as last time.
+		 */
+		if ((irq_pending < 0) && same)
+			break;
 	} while (irq_pending && !sent);
 
 	return 1;

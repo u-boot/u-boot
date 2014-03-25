@@ -25,15 +25,15 @@ OBJCOPYFLAGS :=
 # Check if arch/$ARCH/cpu/$CPU exists, otherwise assume arch/$ARCH/cpu contains
 # CPU-specific code.
 CPUDIR=arch/$(ARCH)/cpu/$(CPU)
-ifneq ($(SRCTREE)/$(CPUDIR),$(wildcard $(SRCTREE)/$(CPUDIR)))
+ifneq ($(srctree)/$(CPUDIR),$(wildcard $(srctree)/$(CPUDIR)))
 CPUDIR=arch/$(ARCH)/cpu
 endif
 
-sinclude $(TOPDIR)/arch/$(ARCH)/config.mk	# include architecture dependend rules
-sinclude $(TOPDIR)/$(CPUDIR)/config.mk		# include  CPU	specific rules
+sinclude $(srctree)/arch/$(ARCH)/config.mk	# include architecture dependend rules
+sinclude $(srctree)/$(CPUDIR)/config.mk		# include  CPU	specific rules
 
 ifdef	SOC
-sinclude $(TOPDIR)/$(CPUDIR)/$(SOC)/config.mk	# include  SoC	specific rules
+sinclude $(srctree)/$(CPUDIR)/$(SOC)/config.mk	# include  SoC	specific rules
 endif
 ifneq ($(BOARD),)
 ifdef	VENDOR
@@ -43,7 +43,7 @@ BOARDDIR = $(BOARD)
 endif
 endif
 ifdef	BOARD
-sinclude $(TOPDIR)/board/$(BOARDDIR)/config.mk	# include board specific rules
+sinclude $(srctree)/board/$(BOARDDIR)/config.mk	# include board specific rules
 endif
 
 #########################################################################

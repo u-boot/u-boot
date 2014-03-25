@@ -6,9 +6,9 @@
 
 PAD_TO := 0xfff01000
 
-nandobj	:= $(OBJTREE)/nand_spl/
+nandobj	:= $(objtree)/nand_spl/
 
-LDSCRIPT= $(TOPDIR)/$(CPUDIR)/u-boot-nand_spl.lds
+LDSCRIPT= $(srctree)/$(CPUDIR)/u-boot-nand_spl.lds
 LDFLAGS := -T $(nandobj)u-boot-nand_spl.lds -Ttext $(CONFIG_SYS_TEXT_BASE_SPL) \
 		$(LDFLAGS) $(LDFLAGS_FINAL)
 asflags-y += -DCONFIG_NAND_SPL
@@ -44,48 +44,48 @@ $(nandobj)u-boot-nand_spl.lds: $(LDSCRIPT)
 
 $(obj)/cache.c:
 	@rm -f $@
-	ln -sf $(SRCTREE)/arch/powerpc/lib/cache.c $@
+	ln -sf $(srctree)/arch/powerpc/lib/cache.c $@
 
 $(obj)/cpu_init_early.c:
 	@rm -f $@
-	ln -sf $(SRCTREE)/$(CPUDIR)/cpu_init_early.c $@
+	ln -sf $(srctree)/$(CPUDIR)/cpu_init_early.c $@
 
 $(obj)/spl_minimal.c:
 	@rm -f $@
-	ln -sf $(SRCTREE)/$(CPUDIR)/spl_minimal.c $@
+	ln -sf $(srctree)/$(CPUDIR)/spl_minimal.c $@
 
 $(obj)/fsl_law.c:
 	@rm -f $@
-	ln -sf $(SRCTREE)/arch/powerpc/cpu/mpc8xxx/law.c $@
+	ln -sf $(srctree)/arch/powerpc/cpu/mpc8xxx/law.c $@
 
 $(obj)/law.c:
 	@rm -f $@
-	ln -sf $(SRCTREE)/board/$(BOARDDIR)/law.c $@
+	ln -sf $(srctree)/board/$(BOARDDIR)/law.c $@
 
 $(obj)/nand_boot_fsl_elbc.c:
 	@rm -f $@
-	ln -sf $(SRCTREE)/nand_spl/nand_boot_fsl_elbc.c $@
+	ln -sf $(srctree)/nand_spl/nand_boot_fsl_elbc.c $@
 
 $(obj)/ns16550.c:
 	@rm -f $@
-	ln -sf $(SRCTREE)/drivers/serial/ns16550.c $@
+	ln -sf $(srctree)/drivers/serial/ns16550.c $@
 
 $(obj)/resetvec.S:
 	@rm -f $@
-	ln -s $(SRCTREE)/$(CPUDIR)/resetvec.S $@
+	ln -s $(srctree)/$(CPUDIR)/resetvec.S $@
 
 $(obj)/fixed_ivor.S:
 	@rm -f $@
-	ln -sf $(SRCTREE)/$(CPUDIR)/fixed_ivor.S $@
+	ln -sf $(srctree)/$(CPUDIR)/fixed_ivor.S $@
 
 $(obj)/start.S: $(obj)/fixed_ivor.S
 	@rm -f $@
-	ln -sf $(SRCTREE)/$(CPUDIR)/start.S $@
+	ln -sf $(srctree)/$(CPUDIR)/start.S $@
 
 $(obj)/tlb.c:
 	@rm -f $@
-	ln -sf $(SRCTREE)/$(CPUDIR)/tlb.c $@
+	ln -sf $(srctree)/$(CPUDIR)/tlb.c $@
 
 $(obj)/tlb_table.c:
 	@rm -f $@
-	ln -sf $(SRCTREE)/board/$(BOARDDIR)/tlb.c $@
+	ln -sf $(srctree)/board/$(BOARDDIR)/tlb.c $@

@@ -61,8 +61,9 @@
 
 /* USB networking support */
 #define CONFIG_USB_HOST_ETHER
-#define CONFIG_USB_ETHER_SMSC95XX
 #define CONFIG_USB_ETHER_ASIX
+#define CONFIG_USB_ETHER_MCS7830
+#define CONFIG_USB_ETHER_SMSC95XX
 
 /* General networking support */
 #define CONFIG_CMD_NET

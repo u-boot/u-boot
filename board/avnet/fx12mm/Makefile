@@ -8,4 +8,4 @@
 
 obj-y	+= fx12mm.o
 
-include $(SRCTREE)/board/xilinx/ppc405-generic/Makefile
+include $(srctree)/board/xilinx/ppc405-generic/Makefile

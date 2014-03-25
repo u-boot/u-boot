@@ -165,14 +165,7 @@ VPATH		:= $(srctree)$(if $(KBUILD_EXTMOD),:$(KBUILD_EXTMOD))
 
 export srctree objtree VPATH
 
-OBJTREE		:= $(objtree)
-SPLTREE		:= $(OBJTREE)/spl
-TPLTREE		:= $(OBJTREE)/tpl
-SRCTREE		:= $(srctree)
-TOPDIR		:= $(SRCTREE)
-export	TOPDIR SRCTREE OBJTREE SPLTREE TPLTREE
-
-MKCONFIG	:= $(SRCTREE)/mkconfig
+MKCONFIG	:= $(srctree)/mkconfig
 export MKCONFIG
 
 # Make sure CDPATH settings don't interfere
@@ -490,7 +483,7 @@ endif
 # standard location.
 
 ifndef LDSCRIPT
-	#LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot.lds.debug
+	#LDSCRIPT := $(srctree)/board/$(BOARDDIR)/u-boot.lds.debug
 	ifdef CONFIG_SYS_LDSCRIPT
 		# need to strip off double quotes
 		LDSCRIPT := $(srctree)/$(CONFIG_SYS_LDSCRIPT:"%"=%)
@@ -500,19 +493,19 @@ endif
 # If there is no specified link script, we look in a number of places for it
 ifndef LDSCRIPT
 	ifeq ($(CONFIG_NAND_U_BOOT),y)
-		LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot-nand.lds
+		LDSCRIPT := $(srctree)/board/$(BOARDDIR)/u-boot-nand.lds
 		ifeq ($(wildcard $(LDSCRIPT)),)
-			LDSCRIPT := $(TOPDIR)/$(CPUDIR)/u-boot-nand.lds
+			LDSCRIPT := $(srctree)/$(CPUDIR)/u-boot-nand.lds
 		endif
 	endif
 	ifeq ($(wildcard $(LDSCRIPT)),)
-		LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot.lds
+		LDSCRIPT := $(srctree)/board/$(BOARDDIR)/u-boot.lds
 	endif
 	ifeq ($(wildcard $(LDSCRIPT)),)
-		LDSCRIPT := $(TOPDIR)/$(CPUDIR)/u-boot.lds
+		LDSCRIPT := $(srctree)/$(CPUDIR)/u-boot.lds
 	endif
 	ifeq ($(wildcard $(LDSCRIPT)),)
-		LDSCRIPT := $(TOPDIR)/arch/$(ARCH)/cpu/u-boot.lds
+		LDSCRIPT := $(srctree)/arch/$(ARCH)/cpu/u-boot.lds
 	endif
 endif
 
@@ -556,11 +549,9 @@ export CONFIG_SYS_TEXT_BASE
 
 # Use UBOOTINCLUDE when you must reference the include/ directory.
 # Needed to be compatible with the O= option
-UBOOTINCLUDE    :=
-ifneq ($(OBJTREE),$(SRCTREE))
-UBOOTINCLUDE	+= -I$(OBJTREE)/include
-endif
-UBOOTINCLUDE	+= -I$(srctree)/include \
+UBOOTINCLUDE    := \
+		-Iinclude \
+		$(if $(KBUILD_SRC), -I$(srctree)/include) \
 		-I$(srctree)/arch/$(ARCH)/include
 
 NOSTDINC_FLAGS += -nostdinc -isystem $(shell $(CC) -print-file-name=include)
@@ -668,7 +659,7 @@ export PLATFORM_LIBS
 # Pass the version down so we can handle backwards compatibility
 # on the fly.
 LDPPFLAGS += \
-	-include $(TOPDIR)/include/u-boot/u-boot.lds.h \
+	-include $(srctree)/include/u-boot/u-boot.lds.h \
 	-DCPUDIR=$(CPUDIR) \
 	$(shell $(LD) --version | \
 	  sed -ne 's/GNU ld version \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/-DLD_MAJOR=\1 -DLD_MINOR=\2/p')
@@ -802,11 +793,11 @@ MKIMAGEFLAGS_u-boot.img = -A $(ARCH) -T firmware -C none -O u-boot \
 	-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_UBOOT_START) \
 	-n "U-Boot $(UBOOTRELEASE) for $(BOARD) board"
 
-MKIMAGEFLAGS_u-boot.kwb = -n $(CONFIG_SYS_KWD_CONFIG) -T kwbimage \
-		-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE)
+MKIMAGEFLAGS_u-boot.kwb = -n $(srctree)/$(CONFIG_SYS_KWD_CONFIG:"%"=%) \
+	-T kwbimage -a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE)
 
-MKIMAGEFLAGS_u-boot.pbl = -n $(CONFIG_SYS_FSL_PBL_RCW) \
-		-R $(CONFIG_SYS_FSL_PBL_PBI) -T pblimage
+MKIMAGEFLAGS_u-boot.pbl = -n $(srctree)/$(CONFIG_SYS_FSL_PBL_RCW:"%"=%) \
+		-R $(srctree)/$(CONFIG_SYS_FSL_PBL_PBI:"%"=%) -T pblimage
 
 u-boot.img u-boot.kwb u-boot.pbl: u-boot.bin FORCE
 	$(call if_changed,mkimage)
@@ -858,7 +849,7 @@ u-boot.ais: spl/u-boot-spl.ais u-boot.img FORCE
 	$(call if_changed,pad_cat)
 
 u-boot.sb: u-boot.bin spl/u-boot-spl.bin
-	$(Q)$(MAKE) $(build)=arch/arm/cpu/arm926ejs/mxs $(objtree)/u-boot.sb
+	$(Q)$(MAKE) $(build)=arch/arm/cpu/arm926ejs/mxs u-boot.sb
 
 # On x600 (SPEAr600) U-Boot is appended to U-Boot SPL.
 # Both images are created using mkimage (crc etc), so that the ROM
@@ -1237,12 +1228,12 @@ distclean: mrproper
 	@find $(srctree) $(RCS_FIND_IGNORE) \
 		\( -name '*.orig' -o -name '*.rej' -o -name '*~' \
 		-o -name '*.bak' -o -name '#*#' -o -name '.*.orig' \
-		-o -name '.*.rej' \
+		-o -name '.*.rej' -o -name '*.pyc' \
 		-o -name '*%' -o -name '.*.cmd' -o -name 'core' \) \
 		-type f -print | xargs rm -f
 
 backup:
-	F=`basename $(TOPDIR)` ; cd .. ; \
+	F=`basename $(srctree)` ; cd .. ; \
 	gtar --force-local -zcvf `LC_ALL=C date "+$$F-%Y-%m-%d-%T.tar.gz"` $$F
 
 help:

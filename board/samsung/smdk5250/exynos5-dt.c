@@ -5,7 +5,6 @@
  */
 
 #include <common.h>
-#include <cros_ec.h>
 #include <fdtdec.h>
 #include <asm/io.h>
 #include <errno.h>

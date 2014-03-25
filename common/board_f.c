@@ -282,45 +282,39 @@ __weak int arch_cpu_init(void)
 
 #ifdef CONFIG_OF_HOSTFILE
 
-#define CHECK(x)		err = (x); if (err) goto failed;
-
-/* Create an empty device tree blob */
-static int make_empty_fdt(void *fdt)
-{
-	int err;
-
-	CHECK(fdt_create(fdt, 256));
-	CHECK(fdt_finish_reservemap(fdt));
-	CHECK(fdt_begin_node(fdt, ""));
-	CHECK(fdt_end_node(fdt));
-	CHECK(fdt_finish(fdt));
-
-	return 0;
-failed:
-	printf("Unable to create empty FDT: %s\n", fdt_strerror(err));
-	return -EACCES;
-}
-
 static int read_fdt_from_file(void)
 {
 	struct sandbox_state *state = state_get_current();
+	const char *fname = state->fdt_fname;
 	void *blob;
-	int size;
+	ssize_t size;
 	int err;
+	int fd;
 
 	blob = map_sysmem(CONFIG_SYS_FDT_LOAD_ADDR, 0);
 	if (!state->fdt_fname) {
-		err = make_empty_fdt(blob);
+		err = fdt_create_empty_tree(blob, 256);
 		if (!err)
 			goto done;
-		return err;
+		printf("Unable to create empty FDT: %s\n", fdt_strerror(err));
+		return -EINVAL;
 	}
-	err = fs_set_blk_dev("host", NULL, FS_TYPE_SANDBOX);
-	if (err)
-		return err;
-	size = fs_read(state->fdt_fname, CONFIG_SYS_FDT_LOAD_ADDR, 0, 0);
-	if (size < 0)
+
+	size = os_get_filesize(fname);
+	if (size < 0) {
+		printf("Failed to file FDT file '%s'\n", fname);
+		return -ENOENT;
+	}
+	fd = os_open(fname, OS_O_RDONLY);
+	if (fd < 0) {
+		printf("Failed to open FDT file '%s'\n", fname);
+		return -EACCES;
+	}
+	if (os_read(fd, blob, size) != size) {
+		os_close(fd);
 		return -EIO;
+	}
+	os_close(fd);
 
 done:
 	gd->fdt_blob = blob;

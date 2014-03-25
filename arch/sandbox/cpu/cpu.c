@@ -58,7 +58,7 @@ void *map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
 	return (void *)(gd->arch.ram_buf + paddr);
 }
 
-phys_addr_t map_to_sysmem(void *ptr)
+phys_addr_t map_to_sysmem(const void *ptr)
 {
 	return (u8 *)ptr - gd->arch.ram_buf;
 }

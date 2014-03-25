@@ -9,9 +9,9 @@
 
 include $(srctree)/$(src)/config.mk
 
-nandobj	:= $(OBJTREE)/nand_spl/
+nandobj	:= $(objtree)/nand_spl/
 
-LDSCRIPT= $(TOPDIR)/nand_spl/board/$(BOARDDIR)/u-boot.lds
+LDSCRIPT= $(srctree)/nand_spl/board/$(BOARDDIR)/u-boot.lds
 LDFLAGS := -T $(nandobj)u-boot.lds -Ttext $(CONFIG_SYS_TEXT_BASE_SPL) \
 	   $(LDFLAGS) $(LDFLAGS_FINAL)
 asflags-y += -DCONFIG_NAND_SPL
@@ -46,36 +46,36 @@ $(nandobj)u-boot.lds: $(LDSCRIPT)
 
 $(obj)/start.S:
 	@rm -f $@
-	ln -s $(SRCTREE)/arch/powerpc/cpu/mpc83xx/start.S $@
+	ln -s $(srctree)/arch/powerpc/cpu/mpc83xx/start.S $@
 
 $(obj)/nand_boot_fsl_elbc.c:
 	@rm -f $@
-	ln -s $(SRCTREE)/nand_spl/nand_boot_fsl_elbc.c $@
+	ln -s $(srctree)/nand_spl/nand_boot_fsl_elbc.c $@
 
 $(obj)/sdram.c:
 	@rm -f $@
-	ln -s $(SRCTREE)/board/$(BOARDDIR)/sdram.c $@
+	ln -s $(srctree)/board/$(BOARDDIR)/sdram.c $@
 
 $(obj)/$(BOARD).c:
 	@rm -f $@
-	ln -s $(SRCTREE)/board/$(BOARDDIR)/$(BOARD).c $@
+	ln -s $(srctree)/board/$(BOARDDIR)/$(BOARD).c $@
 
 $(obj)/ns16550.c:
 	@rm -f $@
-	ln -s $(SRCTREE)/drivers/serial/ns16550.c $@
+	ln -s $(srctree)/drivers/serial/ns16550.c $@
 
 $(obj)/spl_minimal.c:
 	@rm -f $@
-	ln -s $(SRCTREE)/arch/powerpc/cpu/mpc83xx/spl_minimal.c $@
+	ln -s $(srctree)/arch/powerpc/cpu/mpc83xx/spl_minimal.c $@
 
 $(obj)/cache.c:
 	@rm -f $@
-	ln -s $(SRCTREE)/arch/powerpc/lib/cache.c $@
+	ln -s $(srctree)/arch/powerpc/lib/cache.c $@
 
 $(obj)/time.c:
 	@rm -f $@
-	ln -s $(SRCTREE)/arch/powerpc/lib/time.c $@
+	ln -s $(srctree)/arch/powerpc/lib/time.c $@
 
 $(obj)/ticks.S:
 	@rm -f $@
-	ln -s $(SRCTREE)/arch/powerpc/lib/ticks.S $@
+	ln -s $(srctree)/arch/powerpc/lib/ticks.S $@

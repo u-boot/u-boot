@@ -29,6 +29,4 @@ LDFLAGS_FINAL += --wrap=__divdi3 --wrap=__udivdi3
 LDFLAGS_FINAL += --wrap=__moddi3 --wrap=__umoddi3
 
 export NORMAL_LIBGCC = $(shell $(CC) $(CFLAGS) -print-libgcc-file-name)
-PREFIXED_LIBGCC = $(OBJTREE)/arch/$(ARCH)/lib/$(shell basename $(NORMAL_LIBGCC))
-
-CONFIG_USE_PRIVATE_LIBGCC=$(shell dirname $(PREFIXED_LIBGCC))
+CONFIG_USE_PRIVATE_LIBGCC := arch/x86/lib

@@ -41,8 +41,8 @@
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
-#define CONFIG_SYS_FSL_PBL_PBI $(SRCTREE)/board/freescale/t208xrdb/t2080_pbi.cfg
-#define CONFIG_SYS_FSL_PBL_RCW $(SRCTREE)/board/freescale/t208xrdb/t2080_rcw.cfg
+#define CONFIG_SYS_FSL_PBL_PBI board/freescale/t208xrdb/t2080_pbi.cfg
+#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xrdb/t2080_rcw.cfg
 #endif
 
 #define CONFIG_SRIO_PCIE_BOOT_MASTER
