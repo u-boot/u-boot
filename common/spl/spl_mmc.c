@@ -92,10 +92,10 @@ static int mmc_load_fpga_image_fat(struct mmc *mmc)
 	}
 #ifdef CONFIG_SPL_FPGA_BIT
 	return fpga_loadbitstream(devnum, (char *)CONFIG_SPL_FPGA_LOAD_ADDR,
-				  desc_xilinx->size);
+				  desc_xilinx->size, BIT_FULL);
 #else
 	return fpga_load(devnum, (const void *)CONFIG_SPL_FPGA_LOAD_ADDR,
-			 desc_xilinx->size);
+			 desc_xilinx->size, BIT_FULL);
 #endif
 }
 #endif

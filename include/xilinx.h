@@ -45,7 +45,8 @@ typedef struct {		/* typedef Xilinx_desc */
 
 /* Generic Xilinx Functions
  *********************************************************************/
-extern int xilinx_load(Xilinx_desc *desc, const void *image, size_t size);
+extern int xilinx_load(Xilinx_desc *desc, const void *image, size_t size,
+		       bitstream_type bstype);
 #ifdef CONFIG_FPGA_LOADFS
 extern int xilinx_fsload(Xilinx_desc *desc, const void *buf, size_t bsize,
 			  fpga_fs_info *fpga_fsinfo);

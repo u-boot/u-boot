@@ -45,17 +45,25 @@ typedef struct {                /* typedef fpga_desc */
 } fpga_fs_info;
 #endif
 
+typedef enum {
+	BIT_FULL = 0,
+	BIT_PARTIAL,
+	BIT_COMPRESSED
+} bitstream_type;
+
 /* root function definitions */
 extern void fpga_init(void);
 extern int fpga_add(fpga_type devtype, void *desc);
 extern int fpga_count(void);
 extern const fpga_desc *const fpga_get_desc(int devnum);
-extern int fpga_load(int devnum, const void *buf, size_t bsize);
+extern int fpga_load(int devnum, const void *buf, size_t bsize,
+		     bitstream_type bstype);
 #ifdef CONFIG_FPGA_LOADFS
 extern int fpga_fsload(int devnum, const void *buf, size_t size,
 			fpga_fs_info *fpga_fsinfo);
 #endif
-extern int fpga_loadbitstream(int devnum, char *fpgadata, size_t size);
+extern int fpga_loadbitstream(int devnum, char *fpgadata, size_t size,
+			      bitstream_type bstype);
 extern int fpga_dump(int devnum, const void *buf, size_t bsize);
 extern int fpga_info(int devnum);
 extern const fpga_desc *const fpga_validate(int devnum, const void *buf,

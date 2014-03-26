@@ -35,7 +35,8 @@ static int xilinx_validate (Xilinx_desc * desc, char *fn);
 
 /* ------------------------------------------------------------------------- */
 
-int fpga_loadbitstream(int devnum, char *fpgadata, size_t size)
+int fpga_loadbitstream(int devnum, char *fpgadata, size_t size,
+		       bitstream_type bstype)
 {
 	unsigned int length;
 	unsigned int swapsize;
@@ -138,7 +139,7 @@ int fpga_loadbitstream(int devnum, char *fpgadata, size_t size)
 	dataptr += 4;
 	printf("  bytes in bitstream = %d\n", swapsize);
 
-	return fpga_load(devnum, dataptr, swapsize);
+	return fpga_load(devnum, dataptr, swapsize, bstype);
 }
 
 #ifdef CONFIG_FPGA_LOADFS
@@ -172,7 +173,8 @@ int xilinx_fsload(Xilinx_desc *desc, const void *buf, size_t bsize,
 }
 #endif
 
-int xilinx_load(Xilinx_desc *desc, const void *buf, size_t bsize)
+int xilinx_load(Xilinx_desc *desc, const void *buf, size_t bsize,
+		bitstream_type bstype)
 {
 	int ret_val = FPGA_FAIL;	/* assume a failure */
 
@@ -214,7 +216,7 @@ int xilinx_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 #if defined(CONFIG_FPGA_ZYNQPL)
 			PRINTF("%s: Launching the Zynq PL Loader...\n",
 			       __func__);
-			ret_val = zynq_load(desc, buf, bsize);
+			ret_val = zynq_load(desc, buf, bsize, bstype);
 #else
 			printf("%s: No support for Zynq devices.\n",
 			       __func__);

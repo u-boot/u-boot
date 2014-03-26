@@ -12,7 +12,8 @@
 
 #include <xilinx.h>
 
-extern int zynq_load(Xilinx_desc *desc, const void *image, size_t size);
+extern int zynq_load(Xilinx_desc *desc, const void *image, size_t size,
+		     bitstream_type bstype);
 #ifdef CONFIG_FPGA_LOADFS
 extern int zynq_fsload(Xilinx_desc *desc, const void *buf, size_t bsize,
 			fpga_fs_info *fsinfo);

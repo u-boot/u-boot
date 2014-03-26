@@ -77,7 +77,7 @@ int mv_load_fpga(void)
 		return -1;
 	}
 
-	result = fpga_load(0, fpga_data, data_size);
+	result = fpga_load(0, fpga_data, data_size, BIT_FULL);
 	if (!result)
 		bootstage_mark(BOOTSTAGE_ID_START);
 
