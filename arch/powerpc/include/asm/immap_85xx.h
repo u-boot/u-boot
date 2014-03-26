@@ -3156,4 +3156,26 @@ struct dcsr_dcfg_regs {
 #define	DCSR_DCFG_ECC_DISABLE_USB2	0x00004000
 	u8  res_524[0x1000 - 0x524]; /* 0x524 - 0x1000 */
 };
+
+#define CONFIG_SYS_MPC85xx_SCFG \
+	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_SCFG_OFFSET)
+#define CONFIG_SYS_MPC85xx_SCFG_OFFSET	0xfc000
+/* The supplement configuration unit register */
+struct ccsr_scfg {
+	u32 dpslpcr;	/* 0x000 Deep Sleep Control register */
+	u32 usb1dpslpcsr;/* 0x004 USB1 Deep Sleep Control Status register */
+	u32 usb2dpslpcsr;/* 0x008 USB2 Deep Sleep Control Status register */
+	u32 fmclkdpslpcr;/* 0x00c FM Clock Deep Sleep Control register */
+	u32 res1[4];
+	u32 esgmiiselcr;/* 0x020 Ethernet Switch SGMII Select Control reg */
+	u32 res2;
+	u32 pixclkcr;	/* 0x028 Pixel Clock Control register */
+	u32 res3[245];
+	u32 qeioclkcr;	/* 0x400 QUICC Engine IO Clock Control register */
+	u32 emiiocr;	/* 0x404 EMI MDIO Control Register */
+	u32 sdhciovselcr;/* 0x408 SDHC IO VSEL Control register */
+	u32 qmifrstcr;	/* 0x40c QMAN Interface Reset Control register */
+	u32 res4[60];
+	u32 sparecr[8];	/* 0x500 Spare Control register(0-7) */
+};
 #endif /*__IMMAP_85xx__*/
