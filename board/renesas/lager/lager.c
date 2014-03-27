@@ -40,8 +40,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #if defined(CONFIG_NORFLASH)
 static void bsc_init(void)
 {
-	struct r8a7790_lbsc *lbsc = (struct r8a7790_lbsc *)LBSC_BASE;
-	struct r8a7790_dbsc3 *dbsc3_0 = (struct r8a7790_dbsc3 *)DBSC3_0_BASE;
+	struct rcar_lbsc *lbsc = (struct rcar_lbsc *)LBSC_BASE;
+	struct rcar_dbsc3 *dbsc3_0 = (struct rcar_dbsc3 *)DBSC3_0_BASE;
 
 	/* LBSC */
 	writel(0x00000020, &lbsc->cs0ctrl);
@@ -187,8 +187,8 @@ static void bsc_init(void)
 
 void s_init(void)
 {
-	struct r8a7790_rwdt *rwdt = (struct r8a7790_rwdt *)RWDT_BASE;
-	struct r8a7790_swdt *swdt = (struct r8a7790_swdt *)SWDT_BASE;
+	struct rcar_rwdt *rwdt = (struct rcar_rwdt *)RWDT_BASE;
+	struct rcar_swdt *swdt = (struct rcar_swdt *)SWDT_BASE;
 
 	/* Watchdog init */
 	writel(0xA5A5A500, &rwdt->rwtcsra);
