@@ -275,12 +275,16 @@ static inline void ft_fixup_l2cache(void *blob)
 			u32 *reg = (u32 *)fdt_getprop(blob, off, "reg", 0);
 #if defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2) && defined(CONFIG_E6500)
 			/* Only initialize every eighth thread */
-			if (reg && !((*reg) % 8))
-#else
-			if (reg)
-#endif
+			if (reg && !((*reg) % 8)) {
 				fdt_setprop_cell(blob, l2_off, "cache-stash-id",
-					 (*reg * 2) + 32 + 1);
+						 (*reg / 4) + 32 + 1);
+			}
+#else
+			if (reg) {
+				fdt_setprop_cell(blob, l2_off, "cache-stash-id",
+						 (*reg * 2) + 32 + 1);
+			}
+#endif
 #endif
 
 			fdt_setprop(blob, l2_off, "cache-unified", NULL, 0);
