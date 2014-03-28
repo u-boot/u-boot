@@ -19,3 +19,8 @@ u32 rmobile_get_cpu_rev_integer(void)
 {
 	return ((readl(PRR) & 0x000000F0) >> 4) + 1;
 }
+
+u32 rmobile_get_cpu_rev_fraction(void)
+{
+	return readl(PRR) & 0x0000000F;
+}
