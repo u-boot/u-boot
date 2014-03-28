@@ -12,7 +12,7 @@
 #include <asm/io.h>
 #include <asm/arch/rmobile.h>
 
-/* QoS version 0.954 */
+/* QoS version 0.955 */
 
 enum {
 	DBSC3_R00, DBSC3_R01, DBSC3_R02, DBSC3_R03, DBSC3_R04,
@@ -475,7 +475,7 @@ void qos_init(void)
 	axi_qos = (struct rcar_axi_qos *)MP_AXI_ASDS0_BASE;
 	writel(0x00000001, &axi_qos->qosconf);
 	writel(0x00002014, &axi_qos->qosctset0);
-	writel(0x00000001, &axi_qos->qosreqctr);
+	writel(0x00000040, &axi_qos->qosreqctr);
 	writel(0x00002006, &axi_qos->qosthres0);
 	writel(0x00002001, &axi_qos->qosthres1);
 	writel(0x00000000, &axi_qos->qosthres2);
@@ -484,19 +484,19 @@ void qos_init(void)
 	axi_qos = (struct rcar_axi_qos *)MP_AXI_ASDS1_BASE;
 	writel(0x00000001, &axi_qos->qosconf);
 	writel(0x00002014, &axi_qos->qosctset0);
-	writel(0x00000001, &axi_qos->qosreqctr);
+	writel(0x00000040, &axi_qos->qosreqctr);
 	writel(0x00002006, &axi_qos->qosthres0);
 	writel(0x00002001, &axi_qos->qosthres1);
 	writel(0x00000000, &axi_qos->qosthres2);
 	writel(0x00000001, &axi_qos->qosqon);
 
 	axi_qos = (struct rcar_axi_qos *)MP_AXI_MLP_BASE;
-	writel(0x00000000, &axi_qos->qosconf);
-	writel(0x00002002, &axi_qos->qosctset0);
-	writel(0x00000001, &axi_qos->qosreqctr);
+	writel(0x00000001, &axi_qos->qosconf);
+	writel(0x00001FF0, &axi_qos->qosctset0);
+	writel(0x00000020, &axi_qos->qosreqctr);
 	writel(0x00002006, &axi_qos->qosthres0);
 	writel(0x00002001, &axi_qos->qosthres1);
-	writel(0x00000000, &axi_qos->qosthres2);
+	writel(0x00002001, &axi_qos->qosthres2);
 	writel(0x00000001, &axi_qos->qosqon);
 
 	axi_qos = (struct rcar_axi_qos *)MP_AXI_MMUMP_BASE;
