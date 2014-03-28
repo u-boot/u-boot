@@ -220,12 +220,6 @@ void env_relocate_spec(void)
 
 	mmc = find_mmc_device(dev);
 
-	if (tmp_env1 == NULL || tmp_env2 == NULL) {
-		puts("Can't allocate buffers for environment\n");
-		ret = 1;
-		goto err;
-	}
-
 	if (init_mmc_for_env(mmc)) {
 		ret = 1;
 		goto err;
