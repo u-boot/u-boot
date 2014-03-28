@@ -30,6 +30,7 @@
 #include <power/tps65910.h>
 #include <environment.h>
 #include <watchdog.h>
+#include <environment.h>
 #include "board.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -219,7 +220,17 @@ static struct emif_regs ddr3_evm_emif_reg_data = {
 int spl_start_uboot(void)
 {
 	/* break into full u-boot on 'c' */
-	return (serial_tstc() && serial_getc() == 'c');
+	if (serial_tstc() && serial_getc() == 'c')
+		return 1;
+
+#ifdef CONFIG_SPL_ENV_SUPPORT
+	env_init();
+	env_relocate_spec();
+	if (getenv_yesno("boot_os") != 1)
+		return 1;
+#endif
+
+	return 0;
 }
 #endif
 
