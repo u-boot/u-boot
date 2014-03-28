@@ -87,10 +87,8 @@
  * Environment setup
  */
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"loadaddr=0x82000000\0" \
+	DEFAULT_LINUX_BOOT_ENV \
 	"console=ttyO2,115200n8\0" \
-	"fdt_high=0xffffffff\0" \
-	"fdtaddr=0x80f80000\0" \
 	"fdtfile=undefined\0" \
 	"bootpart=0:2\0" \
 	"bootdir=/boot\0" \

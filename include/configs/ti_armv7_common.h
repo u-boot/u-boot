@@ -36,8 +36,28 @@
 /*
  * Our DDR memory always starts at 0x80000000 and U-Boot shall have
  * relocated itself to higher in memory by the time this value is used.
+ * However, set this to a 32MB offset to allow for easier Linux kernel
+ * booting as the default is often used as the kernel load address.
  */
-#define CONFIG_SYS_LOAD_ADDR		0x80000000
+#define CONFIG_SYS_LOAD_ADDR		0x82000000
+
+/*
+ * We setup defaults based on constraints from the Linux kernel, which should
+ * also be safe elsewhere.  We have the default load at 32MB into DDR (for
+ * the kernel), FDT above 128MB (the maximum location for the end of the
+ * kernel), and the ramdisk 512KB above that (allowing for hopefully never
+ * seen large trees).  We say all of this must be within the first 256MB
+ * as that will normally be within the kernel lowmem and thus visible via
+ * bootm_size and we only run on platforms with 256MB or more of memory.
+ */
+#define DEFAULT_LINUX_BOOT_ENV \
+	"loadaddr=0x82000000\0" \
+	"kernel_addr_r=0x82000000\0" \
+	"fdtaddr=0x88000000\0" \
+	"fdt_addr_r=0x88000000\0" \
+	"rdaddr=0x88080000\0" \
+	"ramdisk_addr_r=0x88080000\0" \
+	"bootm_size=0x10000000\0"
 
 /*
  * Default to a quick boot delay.
