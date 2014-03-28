@@ -1,8 +1,7 @@
 /*
- * arch/arm/cpu/armv7/rmobile/cpu_info-r8a7790.c
- *     This file is r8a7790 processor support.
+ * arch/arm/cpu/armv7/rmobile/cpu_info-rcar.c
  *
- * Copyright (C) 2013 Renesas Electronics Corporation
+ * Copyright (C) 2013,2014 Renesas Electronics Corporation
  *
  * SPDX-License-Identifier: GPL-2.0
  */
