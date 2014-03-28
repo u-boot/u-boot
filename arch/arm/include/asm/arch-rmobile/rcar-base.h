@@ -552,7 +552,7 @@ struct rcar_s3c {
 	u32 s3cexclidmsk;
 	u32 s3cadsplcr;
 	u32 s3cmaar;
-	u32 s3carcr11;	/* R8a7790 only */
+	u32 s3carcr11;
 	u32 s3crorr;
 	u32 s3cworr;
 	u32 s3carcr22;
