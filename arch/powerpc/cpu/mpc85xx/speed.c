@@ -107,6 +107,13 @@ void get_sys_info(sys_info_t *sys_info)
 	mem_pll_rat = (in_be32(&gur->rcwsr[0]) >>
 			FSL_CORENET_RCWSR0_MEM_PLL_RAT_SHIFT)
 			& FSL_CORENET_RCWSR0_MEM_PLL_RAT_MASK;
+#ifdef CONFIG_SYS_FSL_ERRATUM_A007212
+	if (mem_pll_rat == 0) {
+		mem_pll_rat = (in_be32(&gur->rcwsr[0]) >>
+			FSL_CORENET_RCWSR0_MEM_PLL_RAT_RESV_SHIFT) &
+			FSL_CORENET_RCWSR0_MEM_PLL_RAT_MASK;
+	}
+#endif
 	/* T4240/T4160 Rev2.0 MEM_PLL_RAT uses a value which is half of
 	 * T4240/T4160 Rev1.0. eg. It's 12 in Rev1.0, however, for Rev2.0
 	 * it uses 6.
