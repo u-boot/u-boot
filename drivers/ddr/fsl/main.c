@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2012 Freescale Semiconductor, Inc.
+ * Copyright 2008-2014 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -81,14 +81,37 @@ u8 spd_i2c_addr[CONFIG_NUM_DDR_CONTROLLERS][CONFIG_DIMM_SLOTS_PER_CTLR] = {
 
 #endif
 
+#define SPD_SPA0_ADDRESS	0x36
+#define SPD_SPA1_ADDRESS	0x37
+
 static void __get_spd(generic_spd_eeprom_t *spd, u8 i2c_address)
 {
 	int ret;
+#ifdef CONFIG_SYS_FSL_DDR4
+	uint8_t dummy = 0;
+#endif
 
 	i2c_set_bus_num(CONFIG_SYS_SPD_BUS_NUM);
 
+#ifdef CONFIG_SYS_FSL_DDR4
+	/*
+	 * DDR4 SPD has 384 to 512 bytes
+	 * To access the lower 256 bytes, we need to set EE page address to 0
+	 * To access the upper 256 bytes, we need to set EE page address to 1
+	 * See Jedec standar No. 21-C for detail
+	 */
+	i2c_write(SPD_SPA0_ADDRESS, 0, 1, &dummy, 1);
+	ret = i2c_read(i2c_address, 0, 1, (uchar *)spd, 256);
+	if (!ret) {
+		i2c_write(SPD_SPA1_ADDRESS, 0, 1, &dummy, 1);
+		ret = i2c_read(i2c_address, 0, 1,
+			       (uchar *)((ulong)spd + 256),
+			       min(256, sizeof(generic_spd_eeprom_t) - 256));
+	}
+#else
 	ret = i2c_read(i2c_address, 0, 1, (uchar *)spd,
 				sizeof(generic_spd_eeprom_t));
+#endif
 
 	if (ret) {
 		if (i2c_address ==

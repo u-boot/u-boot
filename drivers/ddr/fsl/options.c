@@ -1,5 +1,5 @@
 /*
- * Copyright 2008, 2010-2012 Freescale Semiconductor, Inc.
+ * Copyright 2008, 2010-2014 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -29,7 +29,7 @@ struct dynamic_odt {
 	unsigned int odt_rtt_wr;
 };
 
-#ifdef CONFIG_SYS_FSL_DDR3
+#if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR4)
 static const struct dynamic_odt single_Q[4] = {
 	{	/* cs0 */
 		FSL_DDR_ODT_NEVER,
@@ -259,7 +259,7 @@ static const struct dynamic_odt odt_unknown[4] = {
 		DDR3_RTT_OFF
 	}
 };
-#else	/* CONFIG_SYS_FSL_DDR3 */
+#else	/* CONFIG_SYS_FSL_DDR3 || CONFIG_SYS_FSL_DDR4 */
 static const struct dynamic_odt single_Q[4] = {
 	{0, 0, 0, 0},
 	{0, 0, 0, 0},
@@ -507,7 +507,9 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 	unsigned int i;
 	char buffer[HWCONFIG_BUFFER_SIZE];
 	char *buf = NULL;
-#if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR2)
+#if defined(CONFIG_SYS_FSL_DDR3) || \
+	defined(CONFIG_SYS_FSL_DDR2) || \
+	defined(CONFIG_SYS_FSL_DDR4)
 	const struct dynamic_odt *pdodt = odt_unknown;
 #endif
 	ulong ddr_freq;
@@ -519,7 +521,9 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 	if (getenv_f("hwconfig", buffer, sizeof(buffer)) > 0)
 		buf = buffer;
 
-#if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR2)
+#if defined(CONFIG_SYS_FSL_DDR3) || \
+	defined(CONFIG_SYS_FSL_DDR2) || \
+	defined(CONFIG_SYS_FSL_DDR4)
 	/* Chip select options. */
 	if (CONFIG_DIMM_SLOTS_PER_CTLR == 1) {
 		switch (pdimm[0].n_ranks) {
@@ -585,7 +589,9 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 
 	/* Pick chip-select local options. */
 	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
-#if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR2)
+#if defined(CONFIG_SYS_FSL_DDR3) || \
+	defined(CONFIG_SYS_FSL_DDR2) || \
+	defined(CONFIG_SYS_FSL_DDR4)
 		popts->cs_local_opts[i].odt_rd_cfg = pdodt[i].odt_rd_cfg;
 		popts->cs_local_opts[i].odt_wr_cfg = pdodt[i].odt_wr_cfg;
 		popts->cs_local_opts[i].odt_rtt_norm = pdodt[i].odt_rtt_norm;
@@ -703,7 +709,7 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 	popts->x4_en = (pdimm[0].device_width == 4) ? 1 : 0;
 
 	/* Choose burst length. */
-#if defined(CONFIG_SYS_FSL_DDR3)
+#if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR4)
 #if defined(CONFIG_E500MC)
 	popts->otf_burst_chop_en = 0;	/* on-the-fly burst chop disable */
 	popts->burst_length = DDR_BL8;	/* Fixed 8-beat burst len */
@@ -722,7 +728,7 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 #endif
 
 	/* Choose ddr controller address mirror mode */
-#if defined(CONFIG_SYS_FSL_DDR3)
+#if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR4)
 	popts->mirrored_dimm = pdimm[0].mirrored_dimm;
 #endif
 
@@ -766,11 +772,9 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 	 * BSTTOPRE precharge interval
 	 *
 	 * Set this to 0 for global auto precharge
-	 *
-	 * FIXME: Should this be configured in picoseconds?
-	 * Why it should be in ps:  better understanding of this
-	 * relative to actual DRAM timing parameters such as tRAS.
-	 * e.g. tRAS(min) = 40 ns
+	 * The value of 0x100 has been used for DDR1, DDR2, DDR3.
+	 * It is not wrong. Any value should be OK. The performance depends on
+	 * applications. There is no one good value for all.
 	 */
 	popts->bstopre = 0x100;
 
@@ -795,12 +799,12 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 	 */
 	popts->tfaw_window_four_activates_ps = 37500;
 
-#elif defined(CONFIG_SYS_FSL_DDR3)
+#else
 	popts->tfaw_window_four_activates_ps = pdimm[0].tfaw_ps;
 #endif
 	popts->zq_en = 0;
 	popts->wrlvl_en = 0;
-#if defined(CONFIG_SYS_FSL_DDR3)
+#if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR4)
 	/*
 	 * due to ddr3 dimm is fly-by topology
 	 * we suggest to enable write leveling to

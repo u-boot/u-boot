@@ -458,6 +458,9 @@ The following options need to be configured:
 		CONFIG_SYS_FSL_DDRC_GEN3
 		Freescale DDR3 controller.
 
+		CONFIG_SYS_FSL_DDRC_GEN4
+		Freescale DDR4 controller.
+
 		CONFIG_SYS_FSL_DDRC_ARM_GEN3
 		Freescale DDR3 controller for ARM-based SoCs.
 
@@ -473,7 +476,15 @@ The following options need to be configured:
 
 		CONFIG_SYS_FSL_DDR3
 		Board config to use DDR3. It can be enabled for SoCs with
-		Freescale DDR3 controllers.
+		Freescale DDR3 or DDR3L controllers.
+
+		CONFIG_SYS_FSL_DDR3L
+		Board config to use DDR3L. It can be enabled for SoCs with
+		DDR3L controllers.
+
+		CONFIG_SYS_FSL_DDR4
+		Board config to use DDR4. It can be enabled for SoCs with
+		DDR4 controllers.
 
 		CONFIG_SYS_FSL_IFC_BE
 		Defines the IFC controller register space as Big Endian
