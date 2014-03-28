@@ -193,13 +193,11 @@
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS	2
-#define PHYS_SDRAM_1		CSD0_BASE_ADDR
-#define PHYS_SDRAM_1_SIZE	(512 * 1024 * 1024)
-#define PHYS_SDRAM_2		CSD1_BASE_ADDR
-#define PHYS_SDRAM_2_SIZE	(512 * 1024 * 1024)
-#define PHYS_SDRAM_SIZE         (PHYS_SDRAM_1_SIZE + PHYS_SDRAM_2_SIZE)
-#define CONFIG_VERY_BIG_RAM
-#define CONFIG_MAX_MEM_MAPPED	PHYS_SDRAM_1_SIZE
+#define PHYS_SDRAM_1			CSD0_BASE_ADDR
+#define PHYS_SDRAM_1_SIZE		(gd->bd->bi_dram[0].size)
+#define PHYS_SDRAM_2			CSD1_BASE_ADDR
+#define PHYS_SDRAM_2_SIZE		(gd->bd->bi_dram[1].size)
+#define PHYS_SDRAM_SIZE			(gd->ram_size)
 
 #define CONFIG_SYS_SDRAM_BASE		(PHYS_SDRAM_1)
 #define CONFIG_SYS_INIT_RAM_ADDR	(IRAM_BASE_ADDR)
