@@ -412,7 +412,8 @@ int spl_start_uboot(void)
 
 	env_init();
 	getenv_f("boot_os", s, sizeof(s));
-	if ((s != NULL) && (strcmp(s, "yes") == 0))
+	if ((s != NULL) && (*s == '1' || *s == 'y' || *s == 'Y' ||
+			    *s == 't' || *s == 'T'))
 		return 0;
 
 	return 1;
