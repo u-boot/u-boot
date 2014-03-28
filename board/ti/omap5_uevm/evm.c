@@ -119,28 +119,19 @@ static void enable_host_clocks(void)
 int misc_init_r(void)
 {
 	int reg;
-	uint8_t device_mac[6];
+	u32 id[4];
 
 #ifdef CONFIG_PALMAS_POWER
 	palmas_init_settings();
 #endif
 
-	if (!getenv("usbethaddr")) {
-		reg = DIE_ID_REG_BASE + DIE_ID_REG_OFFSET;
+	reg = DIE_ID_REG_BASE + DIE_ID_REG_OFFSET;
 
-		/*
-		 * create a fake MAC address from the processor ID code.
-		 * first byte is 0x02 to signify locally administered.
-		 */
-		device_mac[0] = 0x02;
-		device_mac[1] = readl(reg + 0x10) & 0xff;
-		device_mac[2] = readl(reg + 0xC) & 0xff;
-		device_mac[3] = readl(reg + 0x8) & 0xff;
-		device_mac[4] = readl(reg) & 0xff;
-		device_mac[5] = (readl(reg) >> 8) & 0xff;
-
-		eth_setenv_enetaddr("usbethaddr", device_mac);
-	}
+	id[0] = readl(reg);
+	id[1] = readl(reg + 0x8);
+	id[2] = readl(reg + 0xC);
+	id[3] = readl(reg + 0x10);
+	usb_fake_mac_from_die_id(id);
 
 	return 0;
 }
