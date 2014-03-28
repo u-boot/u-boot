@@ -1173,7 +1173,7 @@ MRPROPER_FILES += .config .config.old \
 clean: rm-dirs  := $(CLEAN_DIRS)
 clean: rm-files := $(CLEAN_FILES)
 
-clean-dirs	:= $(foreach f,$(u-boot-alldirs),$(if $(wildcard $f/Makefile),$f))
+clean-dirs	:= $(foreach f,$(u-boot-alldirs),$(if $(wildcard $(srctree)/$f/Makefile),$f))
 
 clean-dirs      := $(addprefix _clean_, $(clean-dirs) doc/DocBook)
 

@@ -44,4 +44,4 @@ dtbs: $(obj)/dt.dtb
 clean-files := dt.dtb.S
 
 # Let clean descend into dts directories
-subdir- += ../arch/*/dts
+subdir- += ../arch/arm/dts ../arch/microblaze/dts ../arch/sandbox/dts ../arch/x86/dts
