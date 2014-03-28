@@ -238,7 +238,7 @@ static void bfin_sdh_set_ios(struct mmc *mmc)
 	u16 cfg = 0;
 	u16 clk_ctl = 0;
 
-	if (mmc_bus_width(mmc) == 4) {
+	if (mmc->bus_width == 4) {
 		cfg = bfin_read_SDH_CFG();
 #ifndef RSI_BLKSZ
 		cfg &= ~PD_SDDAT3;

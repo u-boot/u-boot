@@ -360,7 +360,7 @@ void mmc_set_preinit(struct mmc *mmc, int preinit);
 
 #ifdef CONFIG_GENERIC_MMC
 #ifdef CONFIG_MMC_SPI
-#define mmc_host_is_spi(mmc)	((mmc)->cfg.host_caps & MMC_MODE_SPI)
+#define mmc_host_is_spi(mmc)	((mmc)->cfg->host_caps & MMC_MODE_SPI)
 #else
 #define mmc_host_is_spi(mmc)	0
 #endif
