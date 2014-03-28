@@ -586,6 +586,33 @@ static void fdt_fixup_usb(void *fdt)
 #define fdt_fixup_usb(x)
 #endif
 
+#if defined(CONFIG_PPC_T1040)
+static void fdt_fixup_l2_switch(void *blob)
+{
+	uchar l2swaddr[6];
+	int node;
+
+	/* The l2switch node from device-tree has
+	 * compatible string "vitesse-9953" */
+	node = fdt_node_offset_by_compatible(blob, -1, "vitesse-9953");
+	if (node == -FDT_ERR_NOTFOUND)
+		/* no l2switch node has been found */
+		return;
+
+	/* Get MAC address for the l2switch from "l2switchaddr"*/
+	if (!eth_getenv_enetaddr("l2switchaddr", l2swaddr)) {
+		printf("Warning: MAC address for l2switch not found\n");
+		memset(l2swaddr, 0, sizeof(l2swaddr));
+	}
+
+	/* Add MAC address to l2switch node */
+	fdt_setprop(blob, node, "local-mac-address", l2swaddr,
+		    sizeof(l2swaddr));
+}
+#else
+#define fdt_fixup_l2_switch(x)
+#endif
+
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
 	int off;
@@ -723,6 +750,8 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 			"clock-frequency", gd->bus_clk/2, 1);
 
 	fdt_fixup_usb(blob);
+
+	fdt_fixup_l2_switch(blob);
 }
 
 /*
