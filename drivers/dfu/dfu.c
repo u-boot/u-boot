@@ -126,6 +126,28 @@ static int dfu_write_buffer_drain(struct dfu_entity *dfu)
 	return ret;
 }
 
+int dfu_flush(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
+{
+	int ret = 0;
+
+	if (dfu->flush_medium)
+		ret = dfu->flush_medium(dfu);
+
+	printf("\nDFU complete CRC32: 0x%08x\n", dfu->crc);
+
+	/* clear everything */
+	dfu_free_buf();
+	dfu->crc = 0;
+	dfu->offset = 0;
+	dfu->i_blk_seq_num = 0;
+	dfu->i_buf_start = dfu_buf;
+	dfu->i_buf_end = dfu_buf;
+	dfu->i_buf = dfu->i_buf_start;
+	dfu->inited = 0;
+
+	return ret;
+}
+
 int dfu_write(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 {
 	int ret = 0;
@@ -194,26 +216,6 @@ int dfu_write(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 		tret = dfu_write_buffer_drain(dfu);
 		if (ret == 0)
 			ret = tret;
-	}
-
-	/* end? */
-	if (size == 0) {
-		/* Now try and flush to the medium if needed. */
-		if (dfu->flush_medium)
-			ret = dfu->flush_medium(dfu);
-		printf("\nDFU complete CRC32: 0x%08x\n", dfu->crc);
-
-		/* clear everything */
-		dfu_free_buf();
-		dfu->crc = 0;
-		dfu->offset = 0;
-		dfu->i_blk_seq_num = 0;
-		dfu->i_buf_start = dfu_buf;
-		dfu->i_buf_end = dfu_buf;
-		dfu->i_buf = dfu->i_buf_start;
-
-		dfu->inited = 0;
-
 	}
 
 	return ret = 0 ? size : ret;

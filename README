@@ -1525,6 +1525,16 @@ The following options need to be configured:
 		this to the maximum filesize (in bytes) for the buffer.
 		Default is 4 MiB if undefined.
 
+		DFU_DEFAULT_POLL_TIMEOUT
+		Poll timeout [ms], is the timeout a device can send to the
+		host. The host must wait for this timeout before sending
+		a subsequent DFU_GET_STATUS request to the device.
+
+		DFU_MANIFEST_POLL_TIMEOUT
+		Poll timeout [ms], which the device sends to the host when
+		entering dfuMANIFEST state. Host waits this timeout, before
+		sending again an USB request to the device.
+
 - Journaling Flash filesystem support:
 		CONFIG_JFFS2_NAND, CONFIG_JFFS2_NAND_OFF, CONFIG_JFFS2_NAND_SIZE,
 		CONFIG_JFFS2_NAND_DEV
