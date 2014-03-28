@@ -13,6 +13,9 @@
 #include <asm/errno.h>
 #include <asm/byteorder.h>
 
+/* needed for the mmc_cfg definition */
+#include <mmc.h>
+
 /* FSL eSDHC-specific constants */
 #define SYSCTL			0x0002e02c
 #define SYSCTL_INITA		0x08000000
@@ -155,6 +158,7 @@ struct fsl_esdhc_cfg {
 	u32	esdhc_base;
 	u32	sdhc_clk;
 	u8	max_bus_width;
+	struct mmc_config cfg;
 };
 
 /* Select the correct accessors depending on endianess */

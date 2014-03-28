@@ -13,6 +13,9 @@
 #ifndef __ARM_PL180_MMCI_H__
 #define __ARM_PL180_MMCI_H__
 
+/* need definition of struct mmc_config */
+#include <mmc.h>
+
 #define COMMAND_REG_DELAY	300
 #define DATA_REG_DELAY		1000
 #define CLK_CHANGE_DELAY	2000
@@ -184,6 +187,7 @@ struct pl180_mmc_host {
 	unsigned int clkdiv_init;
 	unsigned int pwr_init;
 	int version2;
+	struct mmc_config cfg;
 };
 
 int arm_pl180_mmci_init(struct pl180_mmc_host *);

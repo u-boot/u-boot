@@ -127,7 +127,7 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data,
 int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 		       struct mmc_data *data)
 {
-	struct sdhci_host *host = (struct sdhci_host *)mmc->priv;
+	struct sdhci_host *host = mmc->priv;
 	unsigned int stat = 0;
 	int ret = 0;
 	int trans_bytes = 0, is_aligned = 1;
@@ -268,7 +268,7 @@ int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 
 static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 {
-	struct sdhci_host *host = (struct sdhci_host *)mmc->priv;
+	struct sdhci_host *host = mmc->priv;
 	unsigned int div, clk, timeout;
 
 	sdhci_writew(host, 0, SDHCI_CLOCK_CONTROL);
@@ -278,18 +278,18 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 
 	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
 		/* Version 3.00 divisors must be a multiple of 2. */
-		if (mmc->f_max <= clock)
+		if (mmc->cfg->f_max <= clock)
 			div = 1;
 		else {
 			for (div = 2; div < SDHCI_MAX_DIV_SPEC_300; div += 2) {
-				if ((mmc->f_max / div) <= clock)
+				if ((mmc->cfg->f_max / div) <= clock)
 					break;
 			}
 		}
 	} else {
 		/* Version 2.00 divisors must be a power of 2. */
 		for (div = 1; div < SDHCI_MAX_DIV_SPEC_200; div *= 2) {
-			if ((mmc->f_max / div) <= clock)
+			if ((mmc->cfg->f_max / div) <= clock)
 				break;
 		}
 	}
@@ -358,7 +358,7 @@ static void sdhci_set_power(struct sdhci_host *host, unsigned short power)
 void sdhci_set_ios(struct mmc *mmc)
 {
 	u32 ctrl;
-	struct sdhci_host *host = (struct sdhci_host *)mmc->priv;
+	struct sdhci_host *host = mmc->priv;
 
 	if (host->set_control_reg)
 		host->set_control_reg(host);
@@ -395,7 +395,7 @@ void sdhci_set_ios(struct mmc *mmc)
 
 int sdhci_init(struct mmc *mmc)
 {
-	struct sdhci_host *host = (struct sdhci_host *)mmc->priv;
+	struct sdhci_host *host = mmc->priv;
 
 	if ((host->quirks & SDHCI_QUIRK_32BIT_DMA_ADDR) && !aligned_buffer) {
 		aligned_buffer = memalign(8, 512*1024);
@@ -406,7 +406,7 @@ int sdhci_init(struct mmc *mmc)
 		}
 	}
 
-	sdhci_set_power(host, fls(mmc->voltages) - 1);
+	sdhci_set_power(host, fls(mmc->cfg->voltages) - 1);
 
 	if (host->quirks & SDHCI_QUIRK_NO_CD) {
 		unsigned int status;
@@ -430,26 +430,19 @@ int sdhci_init(struct mmc *mmc)
 	return 0;
 }
 
+
+static const struct mmc_ops sdhci_ops = {
+	.send_cmd	= sdhci_send_command,
+	.set_ios	= sdhci_set_ios,
+	.init		= sdhci_init,
+};
+
 int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 {
-	struct mmc *mmc;
 	unsigned int caps;
 
-	mmc = malloc(sizeof(struct mmc));
-	if (!mmc) {
-		printf("%s: mmc malloc fail!\n", __func__);
-		return -1;
-	}
-
-	mmc->priv = host;
-	host->mmc = mmc;
-
-	sprintf(mmc->name, "%s", host->name);
-	mmc->send_cmd = sdhci_send_command;
-	mmc->set_ios = sdhci_set_ios;
-	mmc->init = sdhci_init;
-	mmc->getcd = NULL;
-	mmc->getwp = NULL;
+	host->cfg.name = host->name;
+	host->cfg.ops = &sdhci_ops;
 
 	caps = sdhci_readl(host, SDHCI_CAPABILITIES);
 #ifdef CONFIG_MMC_SDMA
@@ -461,51 +454,60 @@ int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 #endif
 
 	if (max_clk)
-		mmc->f_max = max_clk;
+		host->cfg.f_max = max_clk;
 	else {
 		if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300)
-			mmc->f_max = (caps & SDHCI_CLOCK_V3_BASE_MASK)
+			host->cfg.f_max = (caps & SDHCI_CLOCK_V3_BASE_MASK)
 				>> SDHCI_CLOCK_BASE_SHIFT;
 		else
-			mmc->f_max = (caps & SDHCI_CLOCK_BASE_MASK)
+			host->cfg.f_max = (caps & SDHCI_CLOCK_BASE_MASK)
 				>> SDHCI_CLOCK_BASE_SHIFT;
-		mmc->f_max *= 1000000;
+		host->cfg.f_max *= 1000000;
 	}
-	if (mmc->f_max == 0) {
+	if (host->cfg.f_max == 0) {
 		printf("%s: Hardware doesn't specify base clock frequency\n",
 		       __func__);
 		return -1;
 	}
 	if (min_clk)
-		mmc->f_min = min_clk;
+		host->cfg.f_min = min_clk;
 	else {
 		if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300)
-			mmc->f_min = mmc->f_max / SDHCI_MAX_DIV_SPEC_300;
+			host->cfg.f_min = host->cfg.f_max /
+				SDHCI_MAX_DIV_SPEC_300;
 		else
-			mmc->f_min = mmc->f_max / SDHCI_MAX_DIV_SPEC_200;
+			host->cfg.f_min = host->cfg.f_max /
+				SDHCI_MAX_DIV_SPEC_200;
 	}
 
-	mmc->voltages = 0;
+	host->cfg.voltages = 0;
 	if (caps & SDHCI_CAN_VDD_330)
-		mmc->voltages |= MMC_VDD_32_33 | MMC_VDD_33_34;
+		host->cfg.voltages |= MMC_VDD_32_33 | MMC_VDD_33_34;
 	if (caps & SDHCI_CAN_VDD_300)
-		mmc->voltages |= MMC_VDD_29_30 | MMC_VDD_30_31;
+		host->cfg.voltages |= MMC_VDD_29_30 | MMC_VDD_30_31;
 	if (caps & SDHCI_CAN_VDD_180)
-		mmc->voltages |= MMC_VDD_165_195;
+		host->cfg.voltages |= MMC_VDD_165_195;
 
 	if (host->quirks & SDHCI_QUIRK_BROKEN_VOLTAGE)
-		mmc->voltages |= host->voltages;
+		host->cfg.voltages |= host->voltages;
 
-	mmc->host_caps = MMC_MODE_HS | MMC_MODE_HS_52MHz | MMC_MODE_4BIT;
+	host->cfg.host_caps = MMC_MODE_HS | MMC_MODE_HS_52MHz | MMC_MODE_4BIT;
 	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
 		if (caps & SDHCI_CAN_DO_8BIT)
-			mmc->host_caps |= MMC_MODE_8BIT;
+			host->cfg.host_caps |= MMC_MODE_8BIT;
 	}
 	if (host->host_caps)
-		mmc->host_caps |= host->host_caps;
+		host->cfg.host_caps |= host->host_caps;
+
+	host->cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
 	sdhci_reset(host, SDHCI_RESET_ALL);
-	mmc_register(mmc);
+
+	host->mmc = mmc_create(&host->cfg, host);
+	if (host->mmc == NULL) {
+		printf("%s: mmc create fail!\n", __func__);
+		return -1;
+	}
 
 	return 0;
 }
