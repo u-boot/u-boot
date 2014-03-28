@@ -89,6 +89,10 @@ mode.  In this case the following variables may be supported:
 boot_os : 		Set to yes/Yes/true/True/1 to enable booting to OS,
 			any other value to fall back to U-Boot (including
 			unset)
+falcon_args_file :	Filename to load as the 'args' portion of falcon mode
+			rather than the hard-coded value.
+falcon_image_file :	Filename to load as the OS image portion of falcon
+			mode rather than the hard-coded value.
 
 Using spl command
 -----------------
