@@ -17,5 +17,5 @@ u32 rmobile_get_cpu_type(void)
 
 u32 rmobile_get_cpu_rev_integer(void)
 {
-	return (readl(PRR) & 0x000000F0) >> 4;
+	return ((readl(PRR) & 0x000000F0) >> 4) + 1;
 }
