@@ -316,6 +316,7 @@ int misc_init_r(void)
 	struct gpio *gpio5_base = (struct gpio *)OMAP34XX_GPIO5_BASE;
 	struct gpio *gpio6_base = (struct gpio *)OMAP34XX_GPIO6_BASE;
 	struct control_prog_io *prog_io_base = (struct control_prog_io *)OMAP34XX_CTRL_BASE;
+	bool generate_fake_mac = false;
 
 	/* Enable i2c2 pullup resisters */
 	writel(~(PRG_I2C2_PULLUPRESX), &prog_io_base->io1);
@@ -349,6 +350,7 @@ int misc_init_r(void)
 					TWL4030_PM_RECEIVER_VAUX2_VSEL_18,
 					TWL4030_PM_RECEIVER_VAUX2_DEV_GRP,
 					TWL4030_PM_RECEIVER_DEV_GRP_P1);
+		generate_fake_mac = true;
 		break;
 	case REVISION_XM_C:
 		printf("Beagle xM Rev C\n");
@@ -359,6 +361,7 @@ int misc_init_r(void)
 					TWL4030_PM_RECEIVER_VAUX2_VSEL_18,
 					TWL4030_PM_RECEIVER_VAUX2_DEV_GRP,
 					TWL4030_PM_RECEIVER_DEV_GRP_P1);
+		generate_fake_mac = true;
 		break;
 	default:
 		printf("Beagle unknown 0x%02x\n", get_board_revision());
@@ -368,6 +371,7 @@ int misc_init_r(void)
 					TWL4030_PM_RECEIVER_VAUX2_VSEL_18,
 					TWL4030_PM_RECEIVER_VAUX2_DEV_GRP,
 					TWL4030_PM_RECEIVER_DEV_GRP_P1);
+		generate_fake_mac = true;
 	}
 
 	switch (get_expansion_id()) {
@@ -485,6 +489,13 @@ int misc_init_r(void)
 #ifdef CONFIG_USB_MUSB_OMAP2PLUS
 	musb_register(&musb_plat, &musb_board_data, (void *)MUSB_BASE);
 #endif
+
+	if (generate_fake_mac) {
+		u32 id[4];
+
+		get_dieid(id);
+		usb_fake_mac_from_die_id(id);
+	}
 
 	return 0;
 }
