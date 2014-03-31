@@ -31,9 +31,7 @@ ENTRY(__asm_flush_dcache_level)
 	add	x2, x2, #4		/* x2 <- log2(cache line size) */
 	mov	x3, #0x3ff
 	and	x3, x3, x6, lsr #3	/* x3 <- max number of #ways */
-	add	w4, w3, w3
-	sub	w4, w4, 1		/* round up log2(#ways + 1) */
-	clz	w5, w4			/* bit position of #ways */
+	clz	w5, w3			/* bit position of #ways */
 	mov	x4, #0x7fff
 	and	x4, x4, x6, lsr #13	/* x4 <- max number of #sets */
 	/* x12 <- cache level << 1 */
