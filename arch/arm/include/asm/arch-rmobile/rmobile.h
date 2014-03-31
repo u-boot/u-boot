@@ -15,4 +15,10 @@
 #endif
 #endif /* CONFIG_RMOBILE */
 
+#ifndef __ASSEMBLY__
+u32 rmobile_get_cpu_type(void);
+u32 rmobile_get_cpu_rev_integer(void);
+u32 rmobile_get_cpu_rev_fraction(void);
+#endif /* __ASSEMBLY__ */
+
 #endif /* __ASM_ARCH_RMOBILE_H */
