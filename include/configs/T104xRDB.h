@@ -1,33 +1,16 @@
 /*
- * Copyright 2013 Freescale Semiconductor, Inc.
- *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
- */
++ * Copyright 2014 Freescale Semiconductor, Inc.
++ *
++ * SPDX-License-Identifier:     GPL-2.0+
++ */
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
 /*
- * T1042RDB_PI board configuration file
+ * T104x RDB board configuration file
  */
 #define CONFIG_T104xRDB
-#define CONFIG_T1042RDB_PI
 #define CONFIG_PHYS_64BIT
 
 #ifdef CONFIG_RAMBOOT_PBL
@@ -371,7 +354,11 @@
 
 /* I2C bus multiplexer */
 #define I2C_MUX_PCA_ADDR                0x70
+#ifdef CONFIG_T1040RDB
+#define I2C_MUX_CH_DEFAULT      0x8
+#endif
 
+#ifdef CONFIG_T1042RDB_PI
 /*
  * RTC configuration
  */
@@ -381,6 +368,7 @@
 
 /*DVI encoder*/
 #define CONFIG_HDMI_ENCODER_I2C_ADDR  0x75
+#endif
 
 /*
  * eSPI - Enhanced SPI
@@ -518,6 +506,9 @@
 #define CONFIG_SYS_DPAA_FMAN
 #define CONFIG_SYS_DPAA_PME
 
+#define CONFIG_QE
+#define CONFIG_U_QE
+
 /* Default address of microcode for the Linux Fman driver */
 #if defined(CONFIG_SPIFLASH)
 /*
@@ -540,6 +531,7 @@
 #else
 #define CONFIG_SYS_QE_FMAN_FW_IN_NOR
 #define CONFIG_SYS_FMAN_FW_ADDR		0xEFF00000
+#define CONFIG_SYS_QE_FW_ADDR		0xEFF10000
 #endif
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
@@ -552,6 +544,9 @@
 #endif
 
 #ifdef CONFIG_FMAN_ENET
+#ifdef CONFIG_T1040RDB
+#define CONFIG_SYS_SGMII1_PHY_ADDR		0x03
+#endif
 #define CONFIG_SYS_RGMII1_PHY_ADDR		0x01
 #define CONFIG_SYS_RGMII2_PHY_ADDR		0x02
 
@@ -571,7 +566,9 @@
  */
 #include <config_cmd_default.h>
 
+#ifdef CONFIG_T1042RDB_PI
 #define CONFIG_CMD_DATE
+#endif
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_ERRATA
@@ -633,6 +630,14 @@
 
 #define __USB_PHY_TYPE	utmi
 
+#ifdef CONFIG_T1040RDB
+#define FDTFILE		"t1040rdb/t1040rdb.dtb"
+#define RAMDISKFILE	"t1040rdb/ramdisk.uboot"
+#elif CONFIG_T1042RDB_PI
+#define FDTFILE		"t1040rdb_pi/t1040rdb_pi.dtb"
+#define RAMDISKFILE	"t1040rdb_pi/ramdisk.uboot"
+#endif
+
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
 	"hwconfig=fsl_ddr:bank_intlv=cs0_cs1;"			\
 	"usb1:dr_mode=host,phy_type=" __stringify(__USB_PHY_TYPE) ";"\
@@ -648,9 +653,9 @@
 	"cmp.b $loadaddr $ubootaddr $filesize\0"		\
 	"consoledev=ttyS0\0"					\
 	"ramdiskaddr=2000000\0"					\
-	"ramdiskfile=t1040rdb_pi/ramdisk.uboot\0"			\
+	"ramdiskfile=" __stringify(RAMDISKFILE) "\0"		\
 	"fdtaddr=c00000\0"					\
-	"fdtfile=t1040rdb_pi/t1040rdb_pi.dtb\0"				\
+	"fdtfile=" __stringify(FDTFILE) "\0"			\
 	"bdev=sda3\0"						\
 	"c=ffe\0"
 
