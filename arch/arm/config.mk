@@ -119,6 +119,10 @@ ifndef CONFIG_SPL_BUILD
 ALL-y += SPL
 endif
 else
+ifeq ($(CONFIG_OF_SEPARATE),y)
+ALL-y += u-boot-dtb.imx
+else
 ALL-y += u-boot.imx
+endif
 endif
 endif

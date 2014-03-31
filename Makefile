@@ -757,6 +757,9 @@ dtbs dts/dt.dtb: checkdtc u-boot
 u-boot-dtb.bin: u-boot.bin dts/dt.dtb FORCE
 	$(call if_changed,cat)
 
+%.imx: %.bin
+	$(Q)$(MAKE) $(build)=arch/arm/imx-common $@
+
 quiet_cmd_copy = COPY    $@
       cmd_copy = cp $< $@
 
@@ -809,9 +812,6 @@ MKIMAGEFLAGS_u-boot.pbl = -n $(CONFIG_SYS_FSL_PBL_RCW) \
 
 u-boot.img u-boot.kwb u-boot.pbl: u-boot.bin FORCE
 	$(call if_changed,mkimage)
-
-u-boot.imx: u-boot.bin
-	$(Q)$(MAKE) $(build)=arch/arm/imx-common $@
 
 u-boot.sha1:	u-boot.bin
 		tools/ubsha1 u-boot.bin
