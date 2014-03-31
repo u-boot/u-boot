@@ -29,10 +29,12 @@ void __noreturn mmc_boot(void)
 {
 	__attribute__((noreturn)) void (*uboot)(void);
 	uint blk_start, blk_cnt, err;
-	u32 blklen;
+#ifndef CONFIG_FSL_CORENET
 	uchar *tmp_buf;
+	u32 blklen;
 	uchar val;
 	uint i, byte_num;
+#endif
 	u32 offset, code_len;
 	struct mmc *mmc;
 
@@ -102,7 +104,9 @@ void __noreturn mmc_boot(void)
 					(uchar *)CONFIG_SYS_MMC_U_BOOT_DST);
 	if (err != blk_cnt) {
 		puts("spl: mmc read failed!!\n");
+#ifndef CONFIG_FSL_CORENET
 		free(tmp_buf);
+#endif
 		hang();
 	}
 
