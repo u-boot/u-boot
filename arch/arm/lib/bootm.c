@@ -199,6 +199,7 @@ static void do_nonsec_virt_switch(void)
 
 #ifdef CONFIG_ARM64
 	smp_kick_all_cpus();
+	flush_dcache_all();	/* flush cache before swtiching to EL2 */
 	armv8_switch_to_el2();
 #ifdef CONFIG_ARMV8_SWITCH_TO_EL1
 	armv8_switch_to_el1();
