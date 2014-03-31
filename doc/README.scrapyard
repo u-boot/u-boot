@@ -49,10 +49,10 @@ tb0229           mips        mips32         3f3110d     2011-12-12
 rmu              powerpc     MPC850         fb82fd7     2011-12-07  Wolfgang Denk <wd@denx.de>
 OXC              powerpc     MPC8240        309a292     2011-12-07
 BAB7xx           powerpc     MPC740/MPC750  c53043b     2011-12-07  Frank Gottschling <fgottschling@eltec.de>
-xm250            arm         pxa            c746cdd     2011-25-11
-pleb2            arm         pxa            b185a1c     2011-25-11
-cradle           arm         pxa            4e24f8a     2011-25-11  Kyle Harris <kharris@nexus-tech.net>
-cerf250          arm         pxa            a3f1241     2011-25-11  Prakash Kumar <prakash@embedx.com>
+xm250            arm         pxa            c477d72     2011-11-25
+pleb2            arm         pxa            d299173     2011-11-25
+cradle           arm         pxa            00c4aca     2011-11-25  Kyle Harris <kharris@nexus-tech.net>
+cerf250          arm         pxa            f13eba6     2011-11-25  Prakash Kumar <prakash@embedx.com>
 mpq101           powerpc     mpc85xx        e877fab     2011-10-23  Alex Dubov <oakad@yahoo.com>
 ixdpg425         arm         ixp            0ca8eb7     2011-09-22  Stefan Roese <sr@denx.de>
 ixdp425          arm         ixp            0ca8eb7     2011-09-22  Kyle Harris <kharris@nexus-tech.net>
