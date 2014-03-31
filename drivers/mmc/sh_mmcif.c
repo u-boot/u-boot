@@ -588,13 +588,12 @@ static struct mmc_config sh_mmcif_cfg = {
 
 int mmcif_mmc_init(void)
 {
-	int ret = 0;
 	struct mmc *mmc;
 	struct sh_mmcif_host *host = NULL;
 
 	host = malloc(sizeof(struct sh_mmcif_host));
 	if (!host)
-		ret = -ENOMEM;
+		return -ENOMEM;
 	memset(host, 0, sizeof(*host));
 
 	host->regs = (struct sh_mmcif_regs *)CONFIG_SH_MMCIF_ADDR;
