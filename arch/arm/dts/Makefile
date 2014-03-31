@@ -2,6 +2,7 @@ dtb-$(CONFIG_EXYNOS5) += exynos5250-arndale.dtb \
 	exynos5250-snow.dtb \
 	exynos5250-smdk5250.dtb \
 	exynos5420-smdk5420.dtb
+dtb-$(CONFIG_MX6) += imx6q-sabreauto.dtb
 dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
 	tegra20-medcom-wide.dtb \
 	tegra20-paz00.dtb \

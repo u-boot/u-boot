@@ -1,0 +1,13 @@
+/*
+    + * Copyright 2012 Freescale Semiconductor, Inc.
+    + * Copyright 2011 Linaro Ltd.
+    + *
+    + * SPDX-License-Identifier:     GPL-2.0+
+    + */
+
+/dts-v1/;
+
+/ {
+	model = "Freescale i.MX6 Quad SABRE Automotive Board";
+	compatible = "fsl,imx6q-sabreauto", "fsl,imx6q";
+};
