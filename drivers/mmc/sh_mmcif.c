@@ -580,7 +580,7 @@ static struct mmc_config sh_mmcif_cfg = {
 	.ops		= &sh_mmcif_ops,
 	.host_caps	= MMC_MODE_HS | MMC_MODE_HS_52MHz | MMC_MODE_4BIT |
 			  MMC_MODE_8BIT | MMC_MODE_HC,
-	.voltages	= MMC_VDD_32_33 | MMC_VDD_33_34;
+	.voltages	= MMC_VDD_32_33 | MMC_VDD_33_34,
 	.f_min		= CLKDEV_MMC_INIT,
 	.f_max		= CLKDEV_EMMC_DATA,
 	.b_max		= CONFIG_SYS_MMC_MAX_BLK_COUNT,
