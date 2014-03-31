@@ -85,8 +85,6 @@ void arch_preboot_os(void)
 DECLARE_GLOBAL_DATA_PTR;
 int board_init(void)
 {
-	/* board id for linux */
-	gd->bd->bi_arch_number = MACH_TYPE_LAGER;
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = LAGER_SDRAM_BASE + 0x100;
 

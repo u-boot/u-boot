@@ -16,8 +16,6 @@
 #define CONFIG_RMOBILE
 #define CONFIG_RMOBILE_BOARD_STRING "Lager"
 #define CONFIG_SH_GPIO_PFC
-#define MACH_TYPE_LAGER		4538
-#define CONFIG_MACH_TYPE	MACH_TYPE_LAGER
 
 #include <asm/arch/rmobile.h>
 
