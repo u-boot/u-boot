@@ -374,6 +374,10 @@
 #define CCI_AXI_IPMMUDSDVMCR	0xFF880414
 #define CCI_AXI_AX2ADDRMASK	0xFF88041C
 
+#define PLL0CR			0xE61500D8
+#define PLL0_STC_MASK		0x7F000000
+#define PLL0_STC_BIT		24
+
 #ifndef __ASSEMBLY__
 #include <asm/types.h>
 
