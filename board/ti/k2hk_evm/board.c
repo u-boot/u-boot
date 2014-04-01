@@ -17,6 +17,7 @@
 #include <asm/io.h>
 #include <asm/mach-types.h>
 #include <asm/arch/nand_defs.h>
+#include <asm/arch/emac_defs.h>
 #include <asm/arch/psc_defs.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -69,6 +70,70 @@ int dram_init(void)
 	init_async_emif(ARRAY_SIZE(async_emif_config), async_emif_config);
 	return 0;
 }
+
+#ifdef CONFIG_DRIVER_TI_KEYSTONE_NET
+struct eth_priv_t eth_priv_cfg[] = {
+	{
+		.int_name	= "K2HK_EMAC",
+		.rx_flow	= 22,
+		.phy_addr	= 0,
+		.slave_port	= 1,
+		.sgmii_link_type = SGMII_LINK_MAC_PHY,
+	},
+	{
+		.int_name	= "K2HK_EMAC1",
+		.rx_flow	= 23,
+		.phy_addr	= 1,
+		.slave_port	= 2,
+		.sgmii_link_type = SGMII_LINK_MAC_PHY,
+	},
+	{
+		.int_name	= "K2HK_EMAC2",
+		.rx_flow	= 24,
+		.phy_addr	= 2,
+		.slave_port	= 3,
+		.sgmii_link_type = SGMII_LINK_MAC_MAC_FORCED,
+	},
+	{
+		.int_name	= "K2HK_EMAC3",
+		.rx_flow	= 25,
+		.phy_addr	= 3,
+		.slave_port	= 4,
+		.sgmii_link_type = SGMII_LINK_MAC_MAC_FORCED,
+	},
+};
+
+int get_eth_env_param(char *env_name)
+{
+	char *env;
+	int  res = -1;
+
+	env = getenv(env_name);
+	if (env)
+		res = simple_strtol(env, NULL, 0);
+
+	return res;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	int	j;
+	int	res;
+	char	link_type_name[32];
+
+	for (j = 0; j < (sizeof(eth_priv_cfg) / sizeof(struct eth_priv_t));
+	     j++) {
+		sprintf(link_type_name, "sgmii%d_link_type", j);
+		res = get_eth_env_param(link_type_name);
+		if (res >= 0)
+			eth_priv_cfg[j].sgmii_link_type = res;
+
+		keystone2_emac_initialize(&eth_priv_cfg[j]);
+	}
+
+	return 0;
+}
+#endif
 
 /* Byte swap the 32-bit data if the device is BE */
 int cpu_to_bus(u32 *ptr, u32 length)

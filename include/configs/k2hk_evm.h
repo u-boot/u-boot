@@ -114,6 +114,20 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS  20
 #define CONFIG_ENV_EEPROM_IS_ON_I2C
 
+/* Network Configuration */
+#define CONFIG_DRIVER_TI_KEYSTONE_NET
+#define CONFIG_MII
+#define CONFIG_BOOTP_DEFAULT
+#define CONFIG_BOOTP_DNS
+#define CONFIG_BOOTP_DNS2
+#define CONFIG_BOOTP_SEND_HOSTNAME
+#define CONFIG_NET_RETRY_COUNT                 32
+#define CONFIG_NET_MULTI
+#define CONFIG_GET_LINK_STATUS_ATTEMPTS        5
+#define CONFIG_SYS_SGMII_REFCLK_MHZ            312
+#define CONFIG_SYS_SGMII_LINERATE_MHZ          1250
+#define CONFIG_SYS_SGMII_RATESCALE             2
+
 /* NAND Configuration */
 #define CONFIG_NAND_DAVINCI
 #define CONFIG_SYS_NAND_CS                     2
@@ -178,24 +192,45 @@
 	"addr_fs=0x82000000\0"						\
 	"addr_ubi=0x82000000\0"						\
 	"fdt_high=0xffffffff\0"						\
+	"name_fdt=uImage-k2hk-evm.dtb\0"				\
+	"name_fs=arago-console-image.cpio.gz\0"				\
+	"name_kern=uImage-keystone-evm.bin\0"				\
+	"name_mon=skern-keystone-evm.bin\0"				\
+	"name_uboot=u-boot-spi-keystone-evm.gph\0"			\
+	"name_ubi=keystone-evm-ubifs.ubi\0"				\
 	"run_mon=mon_install ${addr_mon}\0"				\
 	"run_kern=bootm ${addr_kern} - ${addr_fdt}\0"			\
+	"init_net=run args_all args_net\0"				\
 	"init_ubi=run args_all args_ubi; "				\
 		"ubi part ubifs; ubifsmount boot\0"			\
+	"get_fdt_net=dhcp ${addr_fdt} ${tftp_root}/${name_fdt}\0"	\
 	"get_fdt_ubi=ubifsload ${addr_fdt} ${name_fdt}\0"		\
+	"get_kern_net=dhcp ${addr_kern} ${tftp_root}/${name_kern}\0"	\
 	"get_kern_ubi=ubifsload ${addr_kern} ${name_kern}\0"		\
+	"get_mon_net=dhcp ${addr_mon} ${tftp_root}/${name_mon}\0"	\
 	"get_mon_ubi=ubifsload ${addr_mon} ${name_mon}\0"		\
+	"get_uboot_net=dhcp ${addr_uboot} ${tftp_root}/${name_uboot}\0"	\
 	"burn_uboot=sf probe; sf erase 0 0x100000; "			\
 		"sf write ${addr_uboot} 0 ${filesize}\0"		\
 	"args_all=setenv bootargs console=ttyS0,115200n8 rootwait=1\0"	\
 	"args_ubi=setenv bootargs ${bootargs} rootfstype=ubifs "	\
 		"root=ubi0:rootfs rootflags=sync rw ubi.mtd=2,2048\0"	\
+	"args_net=setenv bootargs ${bootargs} rootfstype=nfs "		\
+		"root=/dev/nfs rw nfsroot=${serverip}:${nfs_root},"	\
+		"${nfs_options} ip=dhcp\0"				\
+	"nfs_options=v3,tcp,rsize=4096,wsize=4096\0"			\
+	"get_fdt_ramfs=dhcp ${addr_fdt} ${tftp_root}/${name_fdt}\0"	\
+	"get_kern_ramfs=dhcp ${addr_kern} ${tftp_root}/${name_kern}\0"	\
+	"get_mon_ramfs=dhcp ${addr_mon} ${tftp_root}/${name_mon}\0"	\
+	"get_fs_ramfs=dhcp ${addr_fs} ${tftp_root}/${name_fs}\0"	\
+	"get_ubi_net=dhcp ${addr_ubi} ${tftp_root}/${name_ubi}\0"	\
 	"burn_ubi=nand erase.part ubifs; "				\
 		"nand write ${addr_ubi} ubifs ${filesize}\0"		\
 	"init_ramfs=run args_all args_ramfs get_fs_ramfs\0"		\
 	"args_ramfs=setenv bootargs ${bootargs} earlyprintk "		\
 		"rdinit=/sbin/init rw root=/dev/ram0 "			\
 		"initrd=0x802000000,9M\0"				\
+	"no_post=1\0"							\
 	"mtdparts=mtdparts=davinci_nand.0:"				\
 		"1024k(bootloader)ro,512k(params)ro,522752k(ubifs)\0"
 #define CONFIG_BOOTCOMMAND						\
