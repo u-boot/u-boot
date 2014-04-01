@@ -60,9 +60,7 @@ hostprogs-y += mkenvimage$(SFX)
 mkenvimage$(SFX)-objs := crc32.o mkenvimage.o os_support.o
 
 hostprogs-y += dumpimage$(SFX) mkimage$(SFX)
-ifdef CONFIG_FIT_SIGNATURE
-hostprogs-y += fit_info$(SFX) fit_check_sign$(SFX)
-endif
+hostprogs-$(CONFIG_FIT_SIGNATURE) += fit_info$(SFX) fit_check_sign$(SFX)
 
 FIT_SIG_OBJS-$(CONFIG_FIT_SIGNATURE) := image-sig.o
 # Flattened device tree objects
