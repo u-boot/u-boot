@@ -525,67 +525,66 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 	defined(CONFIG_SYS_FSL_DDR2) || \
 	defined(CONFIG_SYS_FSL_DDR4)
 	/* Chip select options. */
-	if (CONFIG_DIMM_SLOTS_PER_CTLR == 1) {
-		switch (pdimm[0].n_ranks) {
-		case 1:
-			pdodt = single_S;
-			break;
-		case 2:
-			pdodt = single_D;
-			break;
-		case 4:
-			pdodt = single_Q;
-			break;
-		}
-	} else if (CONFIG_DIMM_SLOTS_PER_CTLR == 2) {
-		switch (pdimm[0].n_ranks) {
+#if (CONFIG_DIMM_SLOTS_PER_CTLR == 1)
+	switch (pdimm[0].n_ranks) {
+	case 1:
+		pdodt = single_S;
+		break;
+	case 2:
+		pdodt = single_D;
+		break;
+	case 4:
+		pdodt = single_Q;
+		break;
+	}
+#elif (CONFIG_DIMM_SLOTS_PER_CTLR == 2)
+	switch (pdimm[0].n_ranks) {
 #ifdef CONFIG_FSL_DDR_FIRST_SLOT_QUAD_CAPABLE
-		case 4:
-			pdodt = single_Q;
-			if (pdimm[1].n_ranks)
-				printf("Error: Quad- and Dual-rank DIMMs "
-					"cannot be used together\n");
-			break;
+	case 4:
+		pdodt = single_Q;
+		if (pdimm[1].n_ranks)
+			printf("Error: Quad- and Dual-rank DIMMs cannot be used together\n");
+		break;
 #endif
+	case 2:
+		switch (pdimm[1].n_ranks) {
 		case 2:
-			switch (pdimm[1].n_ranks) {
-			case 2:
-				pdodt = dual_DD;
-				break;
-			case 1:
-				pdodt = dual_DS;
-				break;
-			case 0:
-				pdodt = dual_D0;
-				break;
-			}
+			pdodt = dual_DD;
 			break;
 		case 1:
-			switch (pdimm[1].n_ranks) {
-			case 2:
-				pdodt = dual_SD;
-				break;
-			case 1:
-				pdodt = dual_SS;
-				break;
-			case 0:
-				pdodt = dual_S0;
-				break;
-			}
+			pdodt = dual_DS;
 			break;
 		case 0:
-			switch (pdimm[1].n_ranks) {
-			case 2:
-				pdodt = dual_0D;
-				break;
-			case 1:
-				pdodt = dual_0S;
-				break;
-			}
+			pdodt = dual_D0;
 			break;
 		}
+		break;
+	case 1:
+		switch (pdimm[1].n_ranks) {
+		case 2:
+			pdodt = dual_SD;
+			break;
+		case 1:
+			pdodt = dual_SS;
+			break;
+		case 0:
+			pdodt = dual_S0;
+			break;
+		}
+		break;
+	case 0:
+		switch (pdimm[1].n_ranks) {
+		case 2:
+			pdodt = dual_0D;
+			break;
+		case 1:
+			pdodt = dual_0S;
+			break;
+		}
+		break;
 	}
-#endif
+#endif	/* CONFIG_DIMM_SLOTS_PER_CTLR */
+#endif	/* CONFIG_SYS_FSL_DDR2, 3, 4 */
 
 	/* Pick chip-select local options. */
 	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
@@ -847,8 +846,7 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 	popts->memctl_interleaving_mode = FSL_DDR_256B_INTERLEAVING;
 	popts->memctl_interleaving = 1;
 	debug("256 Byte interleaving\n");
-	goto done;
-#endif
+#else
 	/*
 	 * test null first. if CONFIG_HWCONFIG is not defined
 	 * hwconfig_arg_cmp returns non-zero
@@ -930,8 +928,9 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 		popts->memctl_interleaving = 0;
 		printf("hwconfig has unrecognized parameter for ctlr_intlv.\n");
 	}
+#endif	/* CONFIG_SYS_FSL_DDR_INTLV_256B */
 done:
-#endif
+#endif /* CONFIG_NUM_DDR_CONTROLLERS > 1 */
 	if ((hwconfig_sub_f("fsl_ddr", "bank_intlv", buf)) &&
 		(CONFIG_CHIP_SELECTS_PER_CTRL > 1)) {
 		/* test null first. if CONFIG_HWCONFIG is not defined,
@@ -1106,10 +1105,11 @@ void check_interleaving_options(fsl_ddr_info_t *pinfo)
 		case FSL_DDR_PAGE_INTERLEAVING:
 		case FSL_DDR_BANK_INTERLEAVING:
 		case FSL_DDR_SUPERBANK_INTERLEAVING:
-			if (3 == CONFIG_NUM_DDR_CONTROLLERS)
+#if (3 == CONFIG_NUM_DDR_CONTROLLERS)
 				k = 2;
-			else
+#else
 				k = CONFIG_NUM_DDR_CONTROLLERS;
+#endif
 			break;
 		case FSL_DDR_3WAY_1KB_INTERLEAVING:
 		case FSL_DDR_3WAY_4KB_INTERLEAVING:

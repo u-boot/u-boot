@@ -220,6 +220,11 @@ const char * step_to_string(unsigned int step) {
 	if ((1 << s) != step)
 		return step_string_tbl[7];
 
+	if (s >= ARRAY_SIZE(step_string_tbl)) {
+		printf("Error for the step in %s\n", __func__);
+		s = 0;
+	}
+
 	return step_string_tbl[s];
 }
 
@@ -520,6 +525,7 @@ fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step,
 		/* STEP 5:  Assign addresses to chip selects */
 		check_interleaving_options(pinfo);
 		total_mem = step_assign_addresses(pinfo, dbw_capacity_adjust);
+		debug("Total mem %llu assigned\n", total_mem);
 
 	case STEP_COMPUTE_REGS:
 		/* STEP 6:  compute controller register values */

@@ -507,8 +507,8 @@ static void set_timing_cfg_1(fsl_ddr_cfg_regs_t *ddr,
 	wrrec_mclk = picos_to_mclk(common_dimm->twr_ps);
 	acttoact_mclk = max(picos_to_mclk(common_dimm->trrds_ps), 4);
 	wrtord_mclk = max(2, picos_to_mclk(2500));
-	if (wrrec_mclk > 24)
-		printf("Error: WRREC doesn't support more than 24 clocks\n");
+	if ((wrrec_mclk < 1) || (wrrec_mclk > 24))
+		printf("Error: WRREC doesn't support %d clocks\n", wrrec_mclk);
 	else
 		wrrec_mclk = wrrec_table[wrrec_mclk - 1];
 #else
@@ -516,8 +516,8 @@ static void set_timing_cfg_1(fsl_ddr_cfg_regs_t *ddr,
 	wrrec_mclk = picos_to_mclk(common_dimm->twr_ps);
 	acttoact_mclk = picos_to_mclk(common_dimm->trrd_ps);
 	wrtord_mclk = picos_to_mclk(common_dimm->twtr_ps);
-	if (wrrec_mclk > 16)
-		printf("Error: WRREC doesn't support more than 16 clocks\n");
+	if ((wrrec_mclk < 1) || (wrrec_mclk > 16))
+		printf("Error: WRREC doesn't support %d clocks\n", wrrec_mclk);
 	else
 		wrrec_mclk = wrrec_table[wrrec_mclk - 1];
 #endif
