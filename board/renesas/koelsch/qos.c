@@ -13,7 +13,7 @@
 #include <asm/io.h>
 #include <asm/arch/rmobile.h>
 
-/* QoS version 0.23 for ES1 and version 0.303 for ES2 */
+/* QoS version 0.240 for ES1 and version 0.310 for ES2 */
 
 enum {
 	DBSC3_00, DBSC3_01, DBSC3_02, DBSC3_03, DBSC3_04,
@@ -233,13 +233,11 @@ void qos_init(void)
 		writel(0x00000001, &qos_addr->dblgqon);
 	}
 
-	if (!IS_R8A7791_ES2()) {
-		/* CCI-400 -QoS */
-		writel(0x20001000, CCI_400_MAXOT_1);
-		writel(0x20001000, CCI_400_MAXOT_2);
-		writel(0x0000000C, CCI_400_QOSCNTL_1);
-		writel(0x0000000C, CCI_400_QOSCNTL_2);
-	}
+	/* CCI-400 -QoS */
+	writel(0x20001000, CCI_400_MAXOT_1);
+	writel(0x20001000, CCI_400_MAXOT_2);
+	writel(0x0000000C, CCI_400_QOSCNTL_1);
+	writel(0x0000000C, CCI_400_QOSCNTL_2);
 
 	/* MXI -QoS */
 	/* Transaction Control (MXI) */
@@ -700,9 +698,6 @@ void qos_init(void)
 	axi_qos = (struct rcar_axi_qos *)RT_AXI_SY2RT_BASE;
 	writel(0x00000002, &axi_qos->qosconf);
 	writel(0x00002245, &axi_qos->qosctset0);
-	writel(0x00002096, &axi_qos->qosctset1);
-	writel(0x00002030, &axi_qos->qosctset2);
-	writel(0x00002030, &axi_qos->qosctset3);
 	writel(0x00000001, &axi_qos->qosreqctr);
 	writel(0x00002064, &axi_qos->qosthres0);
 	writel(0x00002004, &axi_qos->qosthres1);
@@ -722,7 +717,7 @@ void qos_init(void)
 	axi_qos = (struct rcar_axi_qos *)MP_AXI_ASDS0_BASE;
 	writel(0x00000001, &axi_qos->qosconf);
 	writel(0x00002014, &axi_qos->qosctset0);
-	writel(0x00000001, &axi_qos->qosreqctr);
+	writel(0x00000040, &axi_qos->qosreqctr);
 	writel(0x00002064, &axi_qos->qosthres0);
 	writel(0x00002004, &axi_qos->qosthres1);
 	writel(0x00000000, &axi_qos->qosthres2);
@@ -731,19 +726,19 @@ void qos_init(void)
 	axi_qos = (struct rcar_axi_qos *)MP_AXI_ASDS1_BASE;
 	writel(0x00000001, &axi_qos->qosconf);
 	writel(0x00002014, &axi_qos->qosctset0);
-	writel(0x00000001, &axi_qos->qosreqctr);
+	writel(0x00000040, &axi_qos->qosreqctr);
 	writel(0x00002064, &axi_qos->qosthres0);
 	writel(0x00002004, &axi_qos->qosthres1);
 	writel(0x00000000, &axi_qos->qosthres2);
 	writel(0x00000001, &axi_qos->qosqon);
 
 	axi_qos = (struct rcar_axi_qos *)MP_AXI_MLP_BASE;
-	writel(0x00000000, &axi_qos->qosconf);
-	writel(0x00002014, &axi_qos->qosctset0);
-	writel(0x00000001, &axi_qos->qosreqctr);
+	writel(0x00000001, &axi_qos->qosconf);
+	writel(0x00001FF0, &axi_qos->qosctset0);
+	writel(0x00000020, &axi_qos->qosreqctr);
 	writel(0x00002064, &axi_qos->qosthres0);
 	writel(0x00002004, &axi_qos->qosthres1);
-	writel(0x00000000, &axi_qos->qosthres2);
+	writel(0x00002001, &axi_qos->qosthres2);
 	writel(0x00000001, &axi_qos->qosqon);
 
 	axi_qos = (struct rcar_axi_qos *)MP_AXI_MMUMP_BASE;
