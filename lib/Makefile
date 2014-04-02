@@ -61,6 +61,7 @@ obj-y += string.o
 obj-y += time.o
 obj-$(CONFIG_TRACE) += trace.o
 obj-$(CONFIG_BOOTP_PXE) += uuid.o
+obj-$(CONFIG_PARTITION_UUIDS) += uuid.o
 obj-y += vsprintf.o
 obj-$(CONFIG_LIB_RAND) += rand.o
 
