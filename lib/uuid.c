@@ -251,5 +251,5 @@ U_BOOT_CMD(guid, CONFIG_SYS_MAXARGS, 1, do_uuid,
 	   "varname: for set result in a environment variable\n"
 	   "e.g. guid guid_env"
 );
-#endif
-#endif
+#endif /* CONFIG_CMD_UUID */
+#endif /* CONFIG_RANDOM_UUID || CONFIG_CMD_UUID */
