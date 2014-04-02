@@ -100,8 +100,8 @@ void print_part_efi(block_dev_desc_t * dev_desc)
 
 	printf("Part\tStart LBA\tEnd LBA\t\tName\n");
 	printf("\tAttributes\n");
-	printf("\tType UUID\n");
-	printf("\tPartition UUID\n");
+	printf("\tType GUID\n");
+	printf("\tPartition GUID\n");
 
 	for (i = 0; i < le32_to_cpu(gpt_head->num_partition_entries); i++) {
 		/* Stop at the first non valid PTE */
@@ -114,11 +114,11 @@ void print_part_efi(block_dev_desc_t * dev_desc)
 			print_efiname(&gpt_pte[i]));
 		printf("\tattrs:\t0x%016llx\n", gpt_pte[i].attributes.raw);
 		uuid_bin = (unsigned char *)gpt_pte[i].partition_type_guid.b;
-		uuid_bin_to_str(uuid_bin, uuid);
+		uuid_bin_to_str(uuid_bin, uuid, UUID_STR_FORMAT_GUID);
 		printf("\ttype:\t%s\n", uuid);
 		uuid_bin = (unsigned char *)gpt_pte[i].unique_partition_guid.b;
-		uuid_bin_to_str(uuid_bin, uuid);
-		printf("\tuuid:\t%s\n", uuid);
+		uuid_bin_to_str(uuid_bin, uuid, UUID_STR_FORMAT_GUID);
+		printf("\tguid:\t%s\n", uuid);
 	}
 
 	/* Remember to free pte */
@@ -165,7 +165,8 @@ int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 	sprintf((char *)info->type, "U-Boot");
 	info->bootable = is_bootable(&gpt_pte[part - 1]);
 #ifdef CONFIG_PARTITION_UUIDS
-	uuid_bin_to_str(gpt_pte[part - 1].unique_partition_guid.b, info->uuid);
+	uuid_bin_to_str(gpt_pte[part - 1].unique_partition_guid.b, info->uuid,
+			UUID_STR_FORMAT_GUID);
 #endif
 
 	debug("%s: start 0x" LBAF ", size 0x" LBAF ", name %s", __func__,
@@ -323,7 +324,7 @@ int gpt_fill_pte(gpt_header *gpt_h, gpt_entry *gpt_e,
 		str_uuid = partitions[i].uuid;
 		bin_uuid = gpt_e[i].unique_partition_guid.b;
 
-		if (uuid_str_to_bin(str_uuid, bin_uuid)) {
+		if (uuid_str_to_bin(str_uuid, bin_uuid, UUID_STR_FORMAT_STD)) {
 			printf("Partition no. %d: invalid guid: %s\n",
 				i, str_uuid);
 			return -1;
@@ -370,7 +371,7 @@ int gpt_fill_header(block_dev_desc_t *dev_desc, gpt_header *gpt_h,
 	gpt_h->header_crc32 = 0;
 	gpt_h->partition_entry_array_crc32 = 0;
 
-	if (uuid_str_to_bin(str_guid, gpt_h->disk_guid.b))
+	if (uuid_str_to_bin(str_guid, gpt_h->disk_guid.b, UUID_STR_FORMAT_GUID))
 		return -1;
 
 	return 0;
