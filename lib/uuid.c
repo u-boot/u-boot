@@ -14,8 +14,22 @@
 /*
  * UUID - Universally Unique IDentifier - 128 bits unique number.
  *        There are 5 versions and one variant of UUID defined by RFC4122
- *        specification. Depends on version uuid number base on a time,
- *        host name, MAC address or random data.
+ *        specification. A UUID contains a set of fields. The set varies
+ *        depending on the version of the UUID, as shown below:
+ *        - time, MAC address(v1),
+ *        - user ID(v2),
+ *        - MD5 of name or URL(v3),
+ *        - random data(v4),
+ *        - SHA-1 of name or URL(v5),
+ *
+ * Layout of UUID:
+ * timestamp - 60-bit: time_low, time_mid, time_hi_and_version
+ * version   - 4 bit (bit 4 through 7 of the time_hi_and_version)
+ * clock seq - 14 bit: clock_seq_hi_and_reserved, clock_seq_low
+ * variant:  - bit 6 and 7 of clock_seq_hi_and_reserved
+ * node      - 48 bit
+ *
+ * source: https://www.ietf.org/rfc/rfc4122.txt
  *
  * UUID binary format (16 bytes):
  *
@@ -149,3 +163,51 @@ void uuid_bin_to_str(unsigned char *uuid_bin, char *uuid_str, int str_format)
 		}
 	}
 }
+
+/*
+ * gen_rand_uuid() - this function generates a random binary UUID version 4.
+ *                   In this version all fields beside 4 bits of version and
+ *                   2 bits of variant are randomly generated.
+ *
+ * @param uuid_bin - pointer to allocated array [16B]. Output is in big endian.
+*/
+#ifdef CONFIG_RANDOM_UUID
+void gen_rand_uuid(unsigned char *uuid_bin)
+{
+	struct uuid uuid;
+	unsigned int *ptr = (unsigned int *)&uuid;
+	int i;
+
+	/* Set all fields randomly */
+	for (i = 0; i < sizeof(struct uuid) / sizeof(*ptr); i++)
+		*(ptr + i) = cpu_to_be32(rand());
+
+	clrsetbits_be16(&uuid.time_hi_and_version,
+			UUID_VERSION_MASK,
+			UUID_VERSION << UUID_VERSION_SHIFT);
+
+	clrsetbits_8(&uuid.clock_seq_hi_and_reserved,
+		     UUID_VARIANT_MASK,
+		     UUID_VARIANT << UUID_VARIANT_SHIFT);
+
+	memcpy(uuid_bin, &uuid, sizeof(struct uuid));
+}
+
+/*
+ * gen_rand_uuid_str() - this function generates UUID v4 (random) in two string
+ *                       formats UUID or GUID.
+ *
+ * @param uuid_str - pointer to allocated array [37B].
+ * @param          - uuid output type: UUID - 0, GUID - 1
+ */
+void gen_rand_uuid_str(char *uuid_str, int str_format)
+{
+	unsigned char uuid_bin[UUID_BIN_LEN];
+
+	/* Generate UUID (big endian) */
+	gen_rand_uuid(uuid_bin);
+
+	/* Convert UUID bin to UUID or GUID formated STRING  */
+	uuid_bin_to_str(uuid_bin, uuid_str, str_format);
+}
+#endif
