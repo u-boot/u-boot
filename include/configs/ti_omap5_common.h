@@ -46,8 +46,6 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/omap.h>
 
-#define CONFIG_ENV_SIZE			(128 << 10)
-
 #include <configs/ti_armv7_common.h>
 
 /*
