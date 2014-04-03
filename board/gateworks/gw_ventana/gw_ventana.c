@@ -31,7 +31,6 @@
 #include <netdev.h>
 #include <power/pmic.h>
 #include <power/pfuze100_pmic.h>
-#include <i2c.h>
 #include <fdt_support.h>
 #include <jffs2/load_kernel.h>
 #include <spi_flash.h>
