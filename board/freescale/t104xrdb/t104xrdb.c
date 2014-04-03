@@ -19,14 +19,27 @@
 #include <fm_eth.h>
 
 #include "t104xrdb.h"
+#include "cpld.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
 int checkboard(void)
 {
 	struct cpu_type *cpu = gd->arch.cpu;
+	u8 sw;
 
 	printf("Board: %sRDB\n", cpu->name);
+	printf("Board rev: 0x%02x CPLD ver: 0x%02x, ",
+	       CPLD_READ(hw_ver), CPLD_READ(sw_ver));
+
+	sw = CPLD_READ(flash_ctl_status);
+	sw = ((sw & CPLD_LBMAP_MASK) >> CPLD_LBMAP_SHIFT);
+
+	if (sw <= 7)
+		printf("vBank: %d\n", sw);
+	else
+		printf("Unsupported Bank=%x\n", sw);
+
 	return 0;
 }
 
