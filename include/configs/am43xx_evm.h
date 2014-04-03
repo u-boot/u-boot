@@ -35,6 +35,8 @@
 /* SPL defines. */
 #define CONFIG_SPL_TEXT_BASE		0x40300350
 #define CONFIG_SPL_MAX_SIZE		(220 << 10)	/* 220KB */
+#define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \
+					 (128 << 20))
 #define CONFIG_SPL_YMODEM_SUPPORT
 
 /* Enabling L2 Cache */
