@@ -7,7 +7,6 @@
 #ifndef __CONFIGS_M28EVK_H__
 #define __CONFIGS_M28EVK_H__
 
-
 /* System configurations */
 #define CONFIG_MX28				/* i.MX28 SoC */
 #define MACH_TYPE_M28EVK	3613
