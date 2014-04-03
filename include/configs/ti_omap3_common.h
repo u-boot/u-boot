@@ -68,6 +68,7 @@
 #ifdef CONFIG_NAND
 #define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_NAND_SIMPLE
+#define CONFIG_SYS_NAND_BASE		0x30000000
 #endif
 
 /* Now bring in the rest of the common code. */
