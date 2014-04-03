@@ -20,6 +20,7 @@
 /* Common define for many platforms. */
 #define CONFIG_OMAP
 #define CONFIG_OMAP_COMMON
+#define CONFIG_SYS_GENERIC_BOARD
 
 /*
  * We typically do not contain NOR flash.  In the cases where we do, we
