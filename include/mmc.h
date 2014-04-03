@@ -54,6 +54,7 @@
 #define COMM_ERR		-18 /* Communications Error */
 #define TIMEOUT			-19
 #define IN_PROGRESS		-20 /* operation is in progress */
+#define SWITCH_ERR		-21 /* Card reports failure to switch mode */
 
 #define MMC_CMD_GO_IDLE_STATE		0
 #define MMC_CMD_SEND_OP_COND		1
@@ -109,6 +110,7 @@
 #define SECURE_ERASE		0x80000000
 
 #define MMC_STATUS_MASK		(~0x0206BF7F)
+#define MMC_STATUS_SWITCH_ERROR	(1 << 7)
 #define MMC_STATUS_RDY_FOR_DATA (1 << 8)
 #define MMC_STATUS_CURR_STATE	(0xf << 9)
 #define MMC_STATUS_ERROR	(1 << 19)

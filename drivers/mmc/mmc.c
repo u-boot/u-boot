@@ -150,6 +150,8 @@ int mmc_send_status(struct mmc *mmc, int timeout)
 #endif
 		return TIMEOUT;
 	}
+	if (cmd.response[0] & MMC_STATUS_SWITCH_ERROR)
+		return SWITCH_ERR;
 
 	return 0;
 }
@@ -501,7 +503,7 @@ static int mmc_change_freq(struct mmc *mmc)
 	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_HS_TIMING, 1);
 
 	if (err)
-		return err;
+		return err == SWITCH_ERR ? 0 : err;
 
 	/* Now check to see that it worked */
 	err = mmc_send_ext_csd(mmc, ext_csd);
