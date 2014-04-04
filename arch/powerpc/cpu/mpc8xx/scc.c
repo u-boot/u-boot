@@ -461,18 +461,6 @@ static int scc_init (struct eth_device *dev, bd_t * bis)
 #error Configuration Error: exactly ONE of PB_ENET_TENA, PC_ENET_TENA must be defined
 #endif
 
-#if defined(CONFIG_ADS) && defined(CONFIG_MPC860)
-	/*
-	 * Port C is used to control the PHY,MC68160.
-	 */
-	immr->im_ioport.iop_pcdir |=
-		(PC_ENET_ETHLOOP | PC_ENET_TPFLDL | PC_ENET_TPSQEL);
-
-	immr->im_ioport.iop_pcdat |= PC_ENET_TPFLDL;
-	immr->im_ioport.iop_pcdat &= ~(PC_ENET_ETHLOOP | PC_ENET_TPSQEL);
-	*((uint *) BCSR1) &= ~BCSR1_ETHEN;
-#endif /* MPC860ADS */
-
 #ifdef CONFIG_RPXCLASSIC
 	*((uchar *) BCSR0) &= ~BCSR0_ETHLPBK;
 	*((uchar *) BCSR0) |= (BCSR0_ETHEN | BCSR0_COLTEST | BCSR0_FULLDPLX);

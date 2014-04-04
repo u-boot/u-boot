@@ -429,38 +429,6 @@ typedef struct scc_enet {
  * #define FEC_ENET to enable the SCC resp. FEC ethernet drivers.
  **********************************************************************/
 
-
-/***  ADS  *************************************************************/
-
-#if defined(CONFIG_MPC860) && defined(CONFIG_ADS)
-/* This ENET stuff is for the MPC860ADS with ethernet on SCC1.
- */
-
-#define	PROFF_ENET	PROFF_SCC1
-#define	CPM_CR_ENET	CPM_CR_CH_SCC1
-#define	SCC_ENET	0
-
-#define PA_ENET_RXD	((ushort)0x0001)
-#define PA_ENET_TXD	((ushort)0x0002)
-#define PA_ENET_TCLK	((ushort)0x0100)
-#define PA_ENET_RCLK	((ushort)0x0200)
-
-#define PB_ENET_TENA	((uint)0x00001000)
-
-#define PC_ENET_CLSN	((ushort)0x0010)
-#define PC_ENET_RENA	((ushort)0x0020)
-
-#define SICR_ENET_MASK	((uint)0x000000ff)
-#define SICR_ENET_CLKRT	((uint)0x0000002c)
-
-/* 68160 PHY control */
-
-#define PC_ENET_ETHLOOP ((ushort)0x0800)
-#define PC_ENET_TPFLDL	((ushort)0x0400)
-#define PC_ENET_TPSQEL  ((ushort)0x0200)
-
-#endif	/* MPC860ADS */
-
 /***  BSEIP  **********************************************************/
 
 #ifdef CONFIG_BSEIP
@@ -562,62 +530,6 @@ typedef struct scc_enet {
 #define PB_ENET_FDPLEX_DIS ((uint)0x00008000)
 
 #endif
-
-/***  FADS823  ********************************************************/
-
-#if defined(CONFIG_MPC823FADS) && defined(CONFIG_FADS)
-/* This ENET stuff is for the MPC823FADS with ethernet on SCC2.
- */
-#ifdef CONFIG_SCC2_ENET
-#define	PROFF_ENET	PROFF_SCC2
-#define	CPM_CR_ENET	CPM_CR_CH_SCC2
-#define	SCC_ENET	1
-#define CPMVEC_ENET	CPMVEC_SCC2
-#endif
-
-#ifdef CONFIG_SCC1_ENET
-#define	PROFF_ENET	PROFF_SCC1
-#define	CPM_CR_ENET	CPM_CR_CH_SCC1
-#define	SCC_ENET	0
-#define CPMVEC_ENET	CPMVEC_SCC1
-#endif
-
-#define PA_ENET_RXD	((ushort)0x0004)
-#define PA_ENET_TXD	((ushort)0x0008)
-#define PA_ENET_TCLK	((ushort)0x0400)
-#define PA_ENET_RCLK	((ushort)0x0200)
-
-#define PB_ENET_TENA	((uint)0x00002000)
-
-#define PC_ENET_CLSN	((ushort)0x0040)
-#define PC_ENET_RENA	((ushort)0x0080)
-
-#define SICR_ENET_MASK	((uint)0x0000ff00)
-#define SICR_ENET_CLKRT	((uint)0x00002e00)
-
-#endif	/* CONFIG_FADS823FADS */
-
-/***  FADS850SAR  ********************************************************/
-
-#if defined(CONFIG_MPC850SAR) && defined(CONFIG_FADS)
-/* This ENET stuff is for the MPC850SAR with ethernet on SCC2.  Some of
- * this may be unique to the FADS850SAR configuration.
- * Note TENA is on Port B.
- */
-#define	PROFF_ENET	PROFF_SCC2
-#define	CPM_CR_ENET	CPM_CR_CH_SCC2
-#define	SCC_ENET	1
-#define PA_ENET_RXD	((ushort)0x0004)	/* PA 13 */
-#define PA_ENET_TXD	((ushort)0x0008)	/* PA 12 */
-#define PA_ENET_RCLK	((ushort)0x0200)	/* PA 6 */
-#define PA_ENET_TCLK	((ushort)0x0800)	/* PA 4 */
-#define PB_ENET_TENA	((uint)0x00002000)	/* PB 18 */
-#define PC_ENET_CLSN	((ushort)0x0040)	/* PC 9 */
-#define PC_ENET_RENA	((ushort)0x0080)	/* PC 8 */
-
-#define SICR_ENET_MASK	((uint)0x0000ff00)
-#define SICR_ENET_CLKRT	((uint)0x00002f00)	/* RCLK-CLK2, TCLK-CLK4 */
-#endif	/* CONFIG_FADS850SAR */
 
 /***  FADS860T********************************************************/
 
