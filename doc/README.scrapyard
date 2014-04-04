@@ -11,6 +11,7 @@ easily if here is something they might want to dig for...
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+lubbock          arm         pxa            -           2014-04-04  Kyle Harris <kharris@nexus-tech.net>
 MOUSSE           powerpc     mpc824x        -           2014-04-04
 rsdproto         powerpc     mpc8260        -           2014-04-04
 RPXsuper         powerpc     mpc8260        -           2014-04-04
