@@ -704,32 +704,6 @@ typedef struct scc_enet {
 #define PD_MII_MASK	((ushort)0x1FFF)	/* PD 3-15	*/
 #endif	/* CONFIG_GEN860T */
 
-/***  GENIETV  ********************************************************/
-
-#if defined(CONFIG_GENIETV)
-/* Ethernet is only on SCC2 */
-
-#define CONFIG_SCC2_ENET
-#define	PROFF_ENET	PROFF_SCC2
-#define	CPM_CR_ENET	CPM_CR_CH_SCC2
-#define	SCC_ENET	1
-#define CPMVEC_ENET	CPMVEC_SCC2
-
-#define PA_ENET_RXD	((ushort)0x0004)	/* PA 13 */
-#define PA_ENET_TXD	((ushort)0x0008)	/* PA 12 */
-#define PA_ENET_TCLK	((ushort)0x0400)	/* PA  5 */
-#define PA_ENET_RCLK	((ushort)0x0200)	/* PA  6 */
-
-#define PB_ENET_TENA	((uint)0x00002000)	/* PB 18 */
-
-#define PC_ENET_CLSN	((ushort)0x0040)	/* PC  9 */
-#define PC_ENET_RENA	((ushort)0x0080)	/* PC  8 */
-
-#define SICR_ENET_MASK	((uint)0x0000ff00)
-#define SICR_ENET_CLKRT	((uint)0x00002e00)
-
-#endif	/* CONFIG_GENIETV */
-
 /*** HERMES-PRO ******************************************************/
 
 /* The HERMES-PRO uses the FEC on a MPC860T for Ethernet */
