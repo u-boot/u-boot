@@ -12,6 +12,7 @@
 #include <i2c.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/i2c_defs.h>
+#include "davinci_i2c.h"
 
 #define CHECK_NACK() \
 	do {\
