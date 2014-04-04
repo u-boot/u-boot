@@ -12,18 +12,21 @@
 #define I2C_WRITE		0
 #define I2C_READ		1
 
-#define	I2C_OA			(I2C_BASE + 0x00)
-#define I2C_IE			(I2C_BASE + 0x04)
-#define I2C_STAT		(I2C_BASE + 0x08)
-#define I2C_SCLL		(I2C_BASE + 0x0c)
-#define I2C_SCLH		(I2C_BASE + 0x10)
-#define I2C_CNT			(I2C_BASE + 0x14)
-#define I2C_DRR			(I2C_BASE + 0x18)
-#define I2C_SA			(I2C_BASE + 0x1c)
-#define I2C_DXR			(I2C_BASE + 0x20)
-#define I2C_CON			(I2C_BASE + 0x24)
-#define I2C_IV			(I2C_BASE + 0x28)
-#define I2C_PSC			(I2C_BASE + 0x30)
+struct i2c_regs {
+	u32	i2c_oa;
+	u32	i2c_ie;
+	u32	i2c_stat;
+	u32	i2c_scll;
+	u32	i2c_sclh;
+	u32	i2c_cnt;
+	u32	i2c_drr;
+	u32	i2c_sa;
+	u32	i2c_dxr;
+	u32	i2c_con;
+	u32	i2c_iv;
+	u32	res_2c;
+	u32	i2c_psc;
+};
 
 /* I2C masks */
 
