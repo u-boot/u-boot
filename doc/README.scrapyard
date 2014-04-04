@@ -11,8 +11,9 @@ easily if here is something they might want to dig for...
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
-idmr             m68k        mcf52x2        -           2014-01-28
-M5271EVB         m68k        mcf52x2        -           2014-01-28
+nx823            powerpc     mpc8xx         -           2014-04-04
+idmr             m68k        mcf52x2        ba650e9b    2014-01-28
+M5271EVB         m68k        mcf52x2        ba650e9b    2014-01-28
 dvl_host         arm         ixp            e317de6b    2014-01-28  Michael Schwingen <michael@schwingen.org>
 actux4           arm         ixp            6ff7aafa    2014-01-28  Michael Schwingen <michael@schwingen.org>
 actux3           arm         ixp            38da33f3    2014-01-28  Michael Schwingen <michael@schwingen.org>
