@@ -8,7 +8,7 @@
 #ifndef _HYMOD_H_
 #define _HYMOD_H_
 
-#ifdef CONFIG_8260
+#ifdef CONFIG_MPC8260
 #include <asm/iopin_8260.h>
 #endif
 

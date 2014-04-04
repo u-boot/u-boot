@@ -10,7 +10,7 @@
 #define __CONFIG_DEVKIT3250_H__
 
 /* SoC and board defines */
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 #include <asm/arch/cpu.h>
 
 /*

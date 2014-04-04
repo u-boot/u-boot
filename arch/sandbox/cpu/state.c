@@ -365,7 +365,7 @@ int state_uninit(void)
 
 	state = &main_state;
 
-	if (state->write_ram_buf) {
+	if (state->write_ram_buf && !state->ram_buf_rm) {
 		err = os_write_ram_buf(state->ram_buf_fname);
 		if (err) {
 			printf("Failed to write RAM buffer\n");
@@ -379,6 +379,10 @@ int state_uninit(void)
 			return -1;
 		}
 	}
+
+	/* Delete this at the last moment so as not to upset gdb too much */
+	if (state->jumped_fname)
+		os_unlink(state->jumped_fname);
 
 	if (state->state_fdt)
 		os_free(state->state_fdt);

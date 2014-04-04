@@ -36,14 +36,15 @@
 #define EMI1_SLOT3	3
 #define EMI1_SLOT4	4
 #define EMI1_SLOT5	5
+#define EMI2            7
 #elif defined(CONFIG_T2081QDS)
 #define EMI1_SLOT2      3
 #define EMI1_SLOT3      4
 #define EMI1_SLOT5      5
 #define EMI1_SLOT6      6
 #define EMI1_SLOT7      7
-#endif
 #define EMI2		8
+#endif
 
 static int mdio_mux[NUM_FM_PORTS];
 

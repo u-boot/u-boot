@@ -19,7 +19,6 @@
  * (easy to change)
  */
 
-#define CONFIG_MPC8260		1	/* This is a MPC8260 CPU	*/
 #define CONFIG_PM826		1	/* ...on a PM8260 module	*/
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 

@@ -229,19 +229,11 @@ int misc_init_r(void)
 	gd->bd->bi_flashstart = 0 - gd->bd->bi_flashsize;
 	gd->bd->bi_flashoffset = 0;
 
-#if defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
-	mtdcr(EBC0_CFGADDR, PB2CR);
-#else
 	mtdcr(EBC0_CFGADDR, PB0CR);
-#endif
 	pbcr = mfdcr(EBC0_CFGDATA);
 	size_val = ffs(gd->bd->bi_flashsize) - 21;
 	pbcr = (pbcr & 0x0001ffff) | gd->bd->bi_flashstart | (size_val << 17);
-#if defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
-	mtdcr(EBC0_CFGADDR, PB2CR);
-#else
 	mtdcr(EBC0_CFGADDR, PB0CR);
-#endif
 	mtdcr(EBC0_CFGDATA, pbcr);
 
 	/*

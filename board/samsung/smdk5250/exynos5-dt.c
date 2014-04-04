@@ -5,7 +5,6 @@
  */
 
 #include <common.h>
-#include <cros_ec.h>
 #include <fdtdec.h>
 #include <asm/io.h>
 #include <errno.h>
@@ -44,21 +43,6 @@ int exynos_init(void)
 #endif
 	return 0;
 }
-
-#ifdef CONFIG_DISPLAY_BOARDINFO
-int checkboard(void)
-{
-	const char *board_name;
-
-	board_name = fdt_getprop(gd->fdt_blob, 0, "model", NULL);
-	if (board_name == NULL)
-		printf("\nUnknown Board\n");
-	else
-		printf("\nBoard: %s\n", board_name);
-
-	return 0;
-}
-#endif
 
 #ifdef CONFIG_LCD
 void exynos_cfg_lcd_gpio(void)

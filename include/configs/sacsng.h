@@ -524,7 +524,6 @@
  *
  *****************************************************************************/
 
-#define CONFIG_MPC8260		1	/* This is an MPC8260 CPU   */
 #define CONFIG_SACSng		1	/* munged for the SACSng */
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 

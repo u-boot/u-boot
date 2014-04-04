@@ -7,11 +7,7 @@
 
 ## Build a couple of necessary functions into a private libgcc
 ## if the user asked for it
-ifdef USE_PRIVATE_LIBGCC
-lib-y	+= _ashldi3.o
-lib-y	+= _ashrdi3.o
-lib-y	+= _lshrdi3.o
-endif
+lib-$(CONFIG_USE_PRIVATE_LIBGCC) += _ashldi3.o _ashrdi3.o _lshrdi3.o
 
 MINIMAL=
 

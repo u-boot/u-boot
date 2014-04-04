@@ -15,7 +15,7 @@
 #define __ASM_ARCH_HARDWARE_H
 
 #include <config.h>
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 
 #define	REG(addr)	(*(volatile unsigned int *)(addr))
 #define REG_P(addr)	((volatile unsigned int *)(addr))

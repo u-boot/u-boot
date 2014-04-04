@@ -116,7 +116,7 @@
 #define CONFIG_UART_CONSOLE	0
 #define CONFIG_BOOTCOMMAND	"run flashboot"
 #define FLASHBOOT_ENV_SETTINGS	"flashboot=bootm 0x20040000\0"
-
+#define CONFIG_CC_OPTIMIZE_LIBS_FOR_SPEED
 
 /*
  * Pull in common ADI header for remaining command/environment setup

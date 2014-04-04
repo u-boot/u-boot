@@ -37,6 +37,11 @@
 #define CONFIG_SHOW_BOOT_PROGRESS
 #endif
 
+/* GPIO banks */
+#define CONFIG_OMAP3_GPIO_3		/* GPIO64 .. 95 is in GPIO bank 3 */
+#define CONFIG_OMAP3_GPIO_5		/* GPIO128..159 is in GPIO bank 5 */
+#define CONFIG_OMAP3_GPIO_6		/* GPIO160..191 is in GPIO bank 6 */
+
 /* USB */
 #define CONFIG_MUSB_UDC			1
 #define CONFIG_USB_OMAP3		1
@@ -154,7 +159,6 @@
 
 #ifdef CONFIG_NAND
 #define PISMO1_NAND_SIZE		GPMC_SIZE_128M /* Configure the PISMO */
-#define GPMC_NAND_ECC_LP_x16_LAYOUT	1
 #define CONFIG_ENV_OFFSET		0x260000 /* environment starts here */
 #define CONFIG_ENV_IS_IN_NAND	        1
 #define CONFIG_ENV_SIZE			(512 << 10) /* Total Size Environment */

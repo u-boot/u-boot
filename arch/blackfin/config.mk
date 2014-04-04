@@ -5,7 +5,9 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-CROSS_COMPILE ?= bfin-uclinux-
+ifeq ($(CROSS_COMPILE),)
+CROSS_COMPILE := bfin-uclinux-
+endif
 
 CONFIG_STANDALONE_LOAD_ADDR ?= 0x1000 -m elf32bfin
 
@@ -41,6 +43,7 @@ CREATE_LDR_ENV =
 endif
 
 SYM_PREFIX = _
+export SYM_PREFIX
 
 LDR_FLAGS-y :=
 LDR_FLAGS-$(CONFIG_BFIN_BOOTROM_USES_EVT1) += -J

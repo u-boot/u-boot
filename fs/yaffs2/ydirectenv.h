@@ -77,7 +77,7 @@ void yaffs_qsort(void *aa, size_t n, size_t es,
 #define YAFFS_ROOT_MODE			0666
 #define YAFFS_LOSTNFOUND_MODE		0666
 
-#include "yaffs_list.h"
+#include "linux/list.h"
 
 #include "yaffsfs.h"
 

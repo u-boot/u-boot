@@ -5,7 +5,9 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-CROSS_COMPILE ?= sh4-linux-
+ifeq ($(CROSS_COMPILE),)
+CROSS_COMPILE := sh4-linux-
+endif
 
 CONFIG_STANDALONE_LOAD_ADDR ?= 0x8C000000
 ifeq ($(CPU),sh2)
@@ -15,3 +17,4 @@ endif
 PLATFORM_CPPFLAGS += -DCONFIG_SH -D__SH__
 PLATFORM_LDFLAGS += -e $(CONFIG_SYS_TEXT_BASE) --defsym reloc_dst=$(CONFIG_SYS_TEXT_BASE)
 LDFLAGS_FINAL = --gc-sections
+PLATFORM_RELFLAGS += -ffixed-r13

@@ -28,6 +28,8 @@
 #include <watchdog.h>
 #include <asm/unaligned.h>
 #include <splash.h>
+#include <asm/io.h>
+#include <asm/unaligned.h>
 
 #if defined(CONFIG_CPU_PXA25X) || defined(CONFIG_CPU_PXA27X) || \
 	defined(CONFIG_CPU_MONAHANS)
@@ -61,6 +63,10 @@
 # if (CONSOLE_COLOR_WHITE >= BMP_LOGO_OFFSET) && (LCD_BPP != LCD_COLOR16)
 #  error Default Color Map overlaps with Logo Color Map
 # endif
+#endif
+
+#ifdef CONFIG_SANDBOX
+#include <asm/sdl.h>
 #endif
 
 #ifndef CONFIG_LCD_ALIGNMENT
@@ -144,6 +150,13 @@ void lcd_sync(void)
 	if (lcd_flush_dcache)
 		flush_dcache_range((u32)lcd_base,
 			(u32)(lcd_base + lcd_get_size(&line_length)));
+#elif defined(CONFIG_SANDBOX) && defined(CONFIG_VIDEO_SANDBOX_SDL)
+	static ulong last_sync;
+
+	if (get_timer(last_sync) > 10) {
+		sandbox_sdl_sync(lcd_base);
+		last_sync = get_timer(0);
+	}
 #endif
 }
 
@@ -403,7 +416,7 @@ int drv_lcd_init(void)
 	struct stdio_dev lcddev;
 	int rc;
 
-	lcd_base = (void *) gd->fb_base;
+	lcd_base = map_sysmem(gd->fb_base, 0);
 
 	lcd_init(lcd_base);		/* LCD initialization */
 
@@ -494,8 +507,8 @@ static int lcd_init(void *lcdbase)
 	 * by setting up gd->fb_base. Check for this condition and fixup
 	 * 'lcd_base' address.
 	 */
-	if ((unsigned long)lcdbase != gd->fb_base)
-		lcd_base = (void *)gd->fb_base;
+	if (map_to_sysmem(lcdbase) != gd->fb_base)
+		lcd_base = map_sysmem(gd->fb_base, 0);
 
 	debug("[LCD] Using LCD frambuffer at %p\n", lcd_base);
 
@@ -886,7 +899,7 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 	ushort *cmap_base = NULL;
 	ushort i, j;
 	uchar *fb;
-	bmp_image_t *bmp=(bmp_image_t *)bmp_image;
+	bmp_image_t *bmp = (bmp_image_t *)map_sysmem(bmp_image, 0);
 	uchar *bmap;
 	ushort padded_width;
 	unsigned long width, height, byte_width;

@@ -941,11 +941,7 @@ static int cpsw_phy_init(struct eth_device *dev, struct cpsw_slave *slave)
 {
 	struct cpsw_priv *priv = (struct cpsw_priv *)dev->priv;
 	struct phy_device *phydev;
-	u32 supported = (SUPPORTED_10baseT_Half |
-			SUPPORTED_10baseT_Full |
-			SUPPORTED_100baseT_Half |
-			SUPPORTED_100baseT_Full |
-			SUPPORTED_1000baseT_Full);
+	u32 supported = PHY_GBIT_FEATURES;
 
 	phydev = phy_connect(priv->bus,
 			slave->data->phy_addr,

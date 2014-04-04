@@ -9,17 +9,19 @@ CONFIG_SYS_LITTLE_ENDIAN = 1
 endif
 
 ifdef CONFIG_SYS_LITTLE_ENDIAN
-CROSS_COMPILE ?= arc-buildroot-linux-uclibc-
+ARC_CROSS_COMPILE := arc-buildroot-linux-uclibc-
 endif
 
 ifdef CONFIG_SYS_BIG_ENDIAN
-CROSS_COMPILE ?= arceb-buildroot-linux-uclibc-
+ARC_CROSS_COMPILE := arceb-buildroot-linux-uclibc-
 PLATFORM_LDFLAGS += -EB
 endif
 
-PLATFORM_CPPFLAGS += -ffixed-r25 -D__ARC__ -DCONFIG_ARC -gdwarf-2
+ifeq ($(CROSS_COMPILE),)
+CROSS_COMPILE := $(ARC_CROSS_COMPILE)
+endif
 
-LDSCRIPT := $(SRCTREE)/$(CPUDIR)/u-boot.lds
+PLATFORM_CPPFLAGS += -ffixed-r25 -D__ARC__ -DCONFIG_ARC -gdwarf-2
 
 # Needed for relocation
 LDFLAGS_FINAL += -pie

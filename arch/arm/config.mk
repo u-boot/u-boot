@@ -5,7 +5,9 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-CROSS_COMPILE ?= arm-linux-
+ifeq ($(CROSS_COMPILE),)
+CROSS_COMPILE := arm-linux-
+endif
 
 ifndef CONFIG_STANDALONE_LOAD_ADDR
 ifneq ($(CONFIG_OMAP_COMMON),)
@@ -39,7 +41,17 @@ endif
 
 # Only test once
 ifneq ($(CONFIG_SPL_BUILD),y)
-ALL-$(CONFIG_SYS_THUMB_BUILD)	+= checkthumb
+ifeq ($(CONFIG_SYS_THUMB_BUILD),y)
+archprepare: checkthumb
+
+checkthumb:
+	@if test "$(call cc-version)" -lt "0404"; then \
+		echo -n '*** Your GCC does not produce working '; \
+		echo 'binaries in THUMB mode.'; \
+		echo '*** Your board is configured for THUMB mode.'; \
+		false; \
+	fi
+endif
 endif
 
 # Try if EABI is supported, else fall back to old API,
@@ -67,13 +79,8 @@ ifneq (,$(findstring -mabi=aapcs-linux,$(PLATFORM_CPPFLAGS)))
 # times. Also, the prefix needs to be different based on whether
 # CONFIG_SPL_BUILD is defined or not. 'filter-out' the existing entry
 # before adding the correct one.
-ifdef CONFIG_SPL_BUILD
-PLATFORM_LIBS := $(SPLTREE)/arch/arm/lib/eabi_compat.o \
-	$(filter-out %/arch/arm/lib/eabi_compat.o, $(PLATFORM_LIBS))
-else
-PLATFORM_LIBS := $(OBJTREE)/arch/arm/lib/eabi_compat.o \
-	$(filter-out %/arch/arm/lib/eabi_compat.o, $(PLATFORM_LIBS))
-endif
+PLATFORM_LIBS := arch/arm/lib/eabi_compat.o \
+	$(filter-out arch/arm/lib/eabi_compat.o, $(PLATFORM_LIBS))
 endif
 
 # needed for relocation

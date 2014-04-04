@@ -14,7 +14,7 @@
 #include <asm/gpio.h>
 #include <asm/imx-common/iomux-v3.h>
 #include <asm/io.h>
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 #include <common.h>
 #include <fsl_esdhc.h>
 #include <mmc.h>

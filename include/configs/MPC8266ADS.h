@@ -33,7 +33,6 @@
  * (easy to change)
  */
 
-#define CONFIG_MPC8260		1	/* This is an MPC8260 CPU	*/
 #define CONFIG_MPC8266ADS	1	/* ...on motorola ADS board	*/
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 

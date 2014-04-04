@@ -19,5 +19,5 @@ ccflags-y := -mhard-float -fkeep-inline-functions
 obj-y := $(objs-before-objcopy:.o=_.o)
 
 OBJCOPYFLAGS := -R .gnu.attributes
-$(obj)/%_.o: $(obj)/%.o
+$(obj)/%_.o: $(obj)/%.o FORCE
 	$(call if_changed,objcopy)

@@ -229,6 +229,14 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (IS_SVR_REV(svr, 1, 0))
 		puts("Work-around for Erratum A005871 enabled\n");
 #endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A006475
+	if (SVR_MAJ(get_svr()) == 1)
+		puts("Work-around for Erratum A006475 enabled\n");
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A006384
+	if (SVR_MAJ(get_svr()) == 1)
+		puts("Work-around for Erratum A006384 enabled\n");
+#endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_A004849
 	/* This work-around is implemented in PBI, so just check for it */
 	check_erratum_a4849(svr);
@@ -264,6 +272,10 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if ((SVR_SOC_VER(svr) == SVR_8548 && IS_SVR_REV(svr, 3, 1)) ||
 	    (SVR_REV(svr) <= CONFIG_SYS_FSL_A004447_SVR_REV))
 		puts("Work-around for Erratum I2C-A004447 enabled\n");
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A006261
+	if (has_erratum_a006261())
+		puts("Work-around for Erratum A006261 enabled\n");
 #endif
 	return 0;
 }

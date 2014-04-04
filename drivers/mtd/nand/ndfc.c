@@ -104,7 +104,6 @@ static void ndfc_read_buf(struct mtd_info *mtdinfo, uint8_t *buf, int len)
 		*p++ = in_be32((u32 *)(base + NDFC_DATA));
 }
 
-#ifndef CONFIG_NAND_SPL
 /*
  * Don't use these speedup functions in NAND boot image, since the image
  * has to fit into 4kByte.
@@ -147,8 +146,6 @@ static uint8_t ndfc_read_byte(struct mtd_info *mtd)
 #endif
 
 }
-
-#endif /* #ifndef CONFIG_NAND_SPL */
 
 void board_nand_select_device(struct nand_chip *nand, int chip)
 {
@@ -207,21 +204,11 @@ int board_nand_init(struct nand_chip *nand)
 	nand->options |= NAND_BUSWIDTH_16;
 #endif
 
-#ifndef CONFIG_NAND_SPL
 	nand->write_buf  = ndfc_write_buf;
 	nand->verify_buf = ndfc_verify_buf;
 	nand->read_byte = ndfc_read_byte;
 
 	chip++;
-#else
-	/*
-	 * Setup EBC (CS0 only right now)
-	 */
-	mtebc(EBC0_CFG, CONFIG_SYS_NDFC_EBC0_CFG);
-
-	mtebc(PB0CR, CONFIG_SYS_EBC_PB0CR);
-	mtebc(PB0AP, CONFIG_SYS_EBC_PB0AP);
-#endif
 
 	return 0;
 }

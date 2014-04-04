@@ -11,7 +11,7 @@
 #define _USB_THOR_H_
 
 #include <linux/compiler.h>
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 
 /* THOR Composite Gadget */
 #define STRING_MANUFACTURER_IDX	0

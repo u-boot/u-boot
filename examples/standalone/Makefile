@@ -11,7 +11,7 @@ extra-$(CONFIG_SMC911X)            += smc911x_eeprom
 extra-$(CONFIG_SPI_FLASH_ATMEL)    += atmel_df_pow2
 extra-$(CONFIG_MPC5xxx)            += interrupt
 extra-$(CONFIG_8xx)                += test_burst timer
-extra-$(CONFIG_8260)               += mem_to_mem_idma2intr
+extra-$(CONFIG_MPC8260)            += mem_to_mem_idma2intr
 extra-$(CONFIG_PPC)                += sched
 
 #
@@ -44,9 +44,8 @@ gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
 # relocatable executable.  The relocation data is not needed, and
 # also causes the entry point of the standalone application to be
 # inconsistent.
-ifeq ($(ARCH),powerpc)
-# FIX ME
-CPPFLAGS := $(filter-out $(RELFLAGS), $(CPPFLAGS))
+ifeq ($(CONFIG_PPC),y)
+PLATFORM_CPPFLAGS := $(filter-out $(RELFLAGS),$(PLATFORM_CPPFLAGS))
 endif
 
 # We don't want gcc reordering functions if possible.  This ensures that an

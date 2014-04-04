@@ -28,7 +28,7 @@ these symbols when linking full U-Boot even though they are not
 referenced in the source code as such.
 
 If a new board is defined do not forget to define the command section
-by writing in u-boot.lds ($(TOPDIR)/board/boardname/u-boot.lds) these
+by writing in u-boot.lds ($(srctree)/board/boardname/u-boot.lds) these
 3 lines:
 
 	.u_boot_list : {

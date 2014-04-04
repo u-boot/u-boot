@@ -41,7 +41,7 @@ u16 *ataid[AHCI_MAX_PORTS];
 #define WAIT_MS_SPINUP	20000
 #define WAIT_MS_DATAIO	5000
 #define WAIT_MS_FLUSH	5000
-#define WAIT_MS_LINKUP	4
+#define WAIT_MS_LINKUP	40
 
 static inline u32 ahci_port_base(u32 base, u32 port)
 {
@@ -930,6 +930,11 @@ int ahci_init(u32 base)
 err_out:
 	return rc;
 }
+
+void __weak scsi_init(void)
+{
+}
+
 #endif
 
 /*

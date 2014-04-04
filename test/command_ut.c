@@ -7,6 +7,9 @@
 #define DEBUG
 
 #include <common.h>
+#ifdef CONFIG_SANDBOX
+#include <os.h>
+#endif
 
 static const char test_cmd[] = "setenv list 1\n setenv list ${list}2; "
 		"setenv list ${list}3\0"
@@ -65,7 +68,8 @@ static int do_ut_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	run_command("if test " expr " ; then " \
 			"setenv " #name "_" #expected_result " y; else " \
 			"setenv " #name "_" #expected_result " n; fi", 0); \
-	assert(!strcmp(#expected_result, getenv(#name "_" #expected_result)));
+	assert(!strcmp(#expected_result, getenv(#name "_" #expected_result))); \
+	setenv(#name "_" #expected_result, NULL);
 
 	/* Basic operators */
 	HUSH_TEST(streq, "aaa = aaa", y);
@@ -137,12 +141,30 @@ static int do_ut_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	HUSH_TEST(or_1_0_inv_inv, "! ! aaa = aaa -o ! ! bbb != bbb", y);
 	HUSH_TEST(or_1_1_inv_inv, "! ! aaa = aaa -o ! ! bbb = bbb", y);
 
+	setenv("ut_var_nonexistent", NULL);
+	setenv("ut_var_exists", "1");
+	HUSH_TEST(z_varexp_quoted, "-z \"$ut_var_nonexistent\"", y);
+	HUSH_TEST(z_varexp_quoted, "-z \"$ut_var_exists\"", n);
+	setenv("ut_var_exists", NULL);
+
+	run_command("setenv ut_var_space \" \"", 0);
+	assert(!strcmp(getenv("ut_var_space"), " "));
+	run_command("setenv ut_var_test $ut_var_space", 0);
+	assert(!getenv("ut_var_test"));
+	run_command("setenv ut_var_test \"$ut_var_space\"", 0);
+	assert(!strcmp(getenv("ut_var_test"), " "));
+	run_command("setenv ut_var_test \" 1${ut_var_space}${ut_var_space} 2 \"", 0);
+	assert(!strcmp(getenv("ut_var_test"), " 1   2 "));
+	setenv("ut_var_space", NULL);
+	setenv("ut_var_test", NULL);
+
 #ifdef CONFIG_SANDBOX
-	/*
-	 * File existence
-	 * This assume U-Boot sandbox is run from the U-Boot build directory
-	 */
-	HUSH_TEST(e, "-e host - u-boot", y);
+	/* File existence */
+	HUSH_TEST(e, "-e host - creating_this_file_breaks_uboot_unit_test", n);
+	run_command("sb save host - creating_this_file_breaks_uboot_unit_test 0 1", 0);
+	HUSH_TEST(e, "-e host - creating_this_file_breaks_uboot_unit_test", y);
+	/* Perhaps this could be replaced by an "rm" shell command one day */
+	assert(!os_unlink("creating_this_file_breaks_uboot_unit_test"));
 	HUSH_TEST(e, "-e host - creating_this_file_breaks_uboot_unit_test", n);
 #endif
 #endif

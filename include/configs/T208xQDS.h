@@ -48,11 +48,11 @@
 #ifdef CONFIG_RAMBOOT_PBL
 #define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
-#define CONFIG_SYS_FSL_PBL_PBI $(SRCTREE)/board/freescale/t208xqds/t208x_pbi.cfg
+#define CONFIG_SYS_FSL_PBL_PBI board/freescale/t208xqds/t208x_pbi.cfg
 #if defined(CONFIG_PPC_T2080)
-#define CONFIG_SYS_FSL_PBL_RCW $(SRCTREE)/board/freescale/t208xqds/t2080_rcw.cfg
+#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2080_rcw.cfg
 #elif defined(CONFIG_PPC_T2081)
-#define CONFIG_SYS_FSL_PBL_RCW $(SRCTREE)/board/freescale/t208xqds/t2081_rcw.cfg
+#define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2081_rcw.cfg
 #endif
 #endif
 
@@ -242,7 +242,7 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_CS3_FTIM1		(FTIM1_GPCM_TACO(0xff) | \
 					FTIM1_GPCM_TRAD(0x3f))
 #define CONFIG_SYS_CS3_FTIM2		(FTIM2_GPCM_TCS(0x0e) | \
-					FTIM2_GPCM_TCH(0x0) | \
+					FTIM2_GPCM_TCH(0x8) | \
 					FTIM2_GPCM_TWP(0x1f))
 #define CONFIG_SYS_CS3_FTIM3		0x0
 

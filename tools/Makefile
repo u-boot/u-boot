@@ -157,10 +157,10 @@ ifeq ($(LOGO_BMP),)
 LOGO_BMP= $(srctree)/$(src)/logos/denx.bmp
 
 # Use board logo and fallback to vendor
-ifneq ($(wildcard logos/$(BOARD).bmp),)
+ifneq ($(wildcard $(srctree)/$(src)/logos/$(BOARD).bmp),)
 LOGO_BMP= $(srctree)/$(src)/logos/$(BOARD).bmp
 else
-ifneq ($(wildcard logos/$(VENDOR).bmp),)
+ifneq ($(wildcard $(srctree)/$(src)/logos/$(VENDOR).bmp),)
 LOGO_BMP= $(srctree)/$(src)/logos/$(VENDOR).bmp
 endif
 endif
@@ -172,10 +172,10 @@ endif # !LOGO_BMP
 # Define __KERNEL_STRICT_NAMES to prevent typedef overlaps
 # Define _GNU_SOURCE to obtain the getline prototype from stdio.h
 #
-HOST_EXTRACFLAGS += -include $(SRCTREE)/include/libfdt_env.h \
+HOST_EXTRACFLAGS += -include $(srctree)/include/libfdt_env.h \
 		$(patsubst -I%,-idirafter%, $(UBOOTINCLUDE)) \
-		-I$(SRCTREE)/lib/libfdt \
-		-I$(SRCTREE)/tools \
+		-I$(srctree)/lib/libfdt \
+		-I$(srctree)/tools \
 		-DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE) \
 		-DUSE_HOSTCC \
 		-D__KERNEL_STRICT_NAMES \
@@ -191,3 +191,15 @@ $(LOGO_DATA_H):	$(obj)/bmp_logo $(LOGO_BMP)
 
 # Let clean descend into subdirs
 subdir- += env
+
+ifneq ($(CROSS_BUILD_TOOLS),)
+HOSTCC = $(CC)
+
+quiet_cmd_crosstools_strip = STRIP   $^
+      cmd_crosstools_strip = $(STRIP) $^; touch $@
+$(obj)/.strip: $(call objectify,$(filter $(always),$(hostprogs-y)))
+	$(call cmd,crosstools_strip)
+
+always += .strip
+endif
+clean-files += .strip

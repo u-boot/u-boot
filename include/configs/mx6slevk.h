@@ -10,7 +10,7 @@
 #define __CONFIG_H
 
 #include <asm/arch/imx-regs.h>
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 #include "mx6_common.h"
 
 #define CONFIG_MX6

@@ -52,6 +52,10 @@ u32 spl_boot_device(void)
 {
 #ifdef CONFIG_SYS_USE_MMC
 	return BOOT_DEVICE_MMC1;
+#elif CONFIG_SYS_USE_NANDFLASH
+	return BOOT_DEVICE_NAND;
+#elif CONFIG_SYS_USE_SERIALFLASH
+	return BOOT_DEVICE_SPI;
 #endif
 	return BOOT_DEVICE_NONE;
 }

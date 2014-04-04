@@ -8,7 +8,7 @@
 VERSION = 2014
 PATCHLEVEL = 04
 SUBLEVEL =
-EXTRAVERSION = -rc1
+EXTRAVERSION = -rc2
 NAME =
 
 # *DOCUMENTATION*
@@ -165,14 +165,7 @@ VPATH		:= $(srctree)$(if $(KBUILD_EXTMOD),:$(KBUILD_EXTMOD))
 
 export srctree objtree VPATH
 
-OBJTREE		:= $(objtree)
-SPLTREE		:= $(OBJTREE)/spl
-TPLTREE		:= $(OBJTREE)/tpl
-SRCTREE		:= $(srctree)
-TOPDIR		:= $(SRCTREE)
-export	TOPDIR SRCTREE OBJTREE SPLTREE TPLTREE
-
-MKCONFIG	:= $(SRCTREE)/mkconfig
+MKCONFIG	:= $(srctree)/mkconfig
 export MKCONFIG
 
 # Make sure CDPATH settings don't interfere
@@ -358,13 +351,13 @@ UBOOTRELEASE = $(shell cat include/config/uboot.release 2> /dev/null)
 UBOOTVERSION = $(VERSION)$(if $(PATCHLEVEL),.$(PATCHLEVEL)$(if $(SUBLEVEL),.$(SUBLEVEL)))$(EXTRAVERSION)
 
 export VERSION PATCHLEVEL SUBLEVEL UBOOTRELEASE UBOOTVERSION
-export ARCH CPU BOARD VENDOR SOC
+export ARCH CPU BOARD VENDOR SOC CPUDIR BOARDDIR
 export CONFIG_SHELL HOSTCC HOSTCFLAGS HOSTLDFLAGS CROSS_COMPILE AS LD CC
 export CPP AR NM LDR STRIP OBJCOPY OBJDUMP
 export MAKE AWK
 export DTC CHECK CHECKFLAGS
 
-export KBUILD_CPPFLAGS NOSTDINC_FLAGS UBOOTINCLUDE
+export KBUILD_CPPFLAGS NOSTDINC_FLAGS UBOOTINCLUDE OBJCOPYFLAGS LDFLAGS
 export KBUILD_CFLAGS KBUILD_AFLAGS
 
 # When compiling out-of-tree modules, put MODVERDIR in the module
@@ -489,10 +482,8 @@ endif
 # that (or fail if absent).  Otherwise, search for a linker script in a
 # standard location.
 
-LDSCRIPT_MAKEFILE_DIR = $(dir $(LDSCRIPT))
-
 ifndef LDSCRIPT
-	#LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot.lds.debug
+	#LDSCRIPT := $(srctree)/board/$(BOARDDIR)/u-boot.lds.debug
 	ifdef CONFIG_SYS_LDSCRIPT
 		# need to strip off double quotes
 		LDSCRIPT := $(srctree)/$(CONFIG_SYS_LDSCRIPT:"%"=%)
@@ -502,21 +493,19 @@ endif
 # If there is no specified link script, we look in a number of places for it
 ifndef LDSCRIPT
 	ifeq ($(CONFIG_NAND_U_BOOT),y)
-		LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot-nand.lds
+		LDSCRIPT := $(srctree)/board/$(BOARDDIR)/u-boot-nand.lds
 		ifeq ($(wildcard $(LDSCRIPT)),)
-			LDSCRIPT := $(TOPDIR)/$(CPUDIR)/u-boot-nand.lds
+			LDSCRIPT := $(srctree)/$(CPUDIR)/u-boot-nand.lds
 		endif
 	endif
 	ifeq ($(wildcard $(LDSCRIPT)),)
-		LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot.lds
+		LDSCRIPT := $(srctree)/board/$(BOARDDIR)/u-boot.lds
 	endif
 	ifeq ($(wildcard $(LDSCRIPT)),)
-		LDSCRIPT := $(TOPDIR)/$(CPUDIR)/u-boot.lds
+		LDSCRIPT := $(srctree)/$(CPUDIR)/u-boot.lds
 	endif
 	ifeq ($(wildcard $(LDSCRIPT)),)
-		LDSCRIPT := $(TOPDIR)/arch/$(ARCH)/cpu/u-boot.lds
-		# We don't expect a Makefile here
-		LDSCRIPT_MAKEFILE_DIR =
+		LDSCRIPT := $(srctree)/arch/$(ARCH)/cpu/u-boot.lds
 	endif
 endif
 
@@ -560,18 +549,17 @@ export CONFIG_SYS_TEXT_BASE
 
 # Use UBOOTINCLUDE when you must reference the include/ directory.
 # Needed to be compatible with the O= option
-UBOOTINCLUDE    :=
-ifneq ($(OBJTREE),$(SRCTREE))
-UBOOTINCLUDE	+= -I$(OBJTREE)/include
-endif
-UBOOTINCLUDE	+= -I$(srctree)/include \
+UBOOTINCLUDE    := \
+		-Iinclude \
+		$(if $(KBUILD_SRC), -I$(srctree)/include) \
 		-I$(srctree)/arch/$(ARCH)/include
 
 NOSTDINC_FLAGS += -nostdinc -isystem $(shell $(CC) -print-file-name=include)
 CHECKFLAGS     += $(NOSTDINC_FLAGS)
 
 # FIX ME
-cpp_flags := $(KBUILD_CPPFLAGS) $(CPPFLAGS) $(UBOOTINCLUDE) $(NOSTDINC_FLAGS)
+cpp_flags := $(KBUILD_CPPFLAGS) $(PLATFORM_CPPFLAGS) $(UBOOTINCLUDE) \
+							$(NOSTDINC_FLAGS)
 c_flags := $(KBUILD_CFLAGS) $(cpp_flags)
 
 #########################################################################
@@ -595,6 +583,7 @@ libs-y += fs/
 libs-y += net/
 libs-y += disk/
 libs-y += drivers/
+libs-$(CONFIG_DM) += drivers/core/
 libs-y += drivers/dma/
 libs-y += drivers/gpio/
 libs-y += drivers/i2c/
@@ -629,6 +618,8 @@ libs-y += lib/libfdt/
 libs-$(CONFIG_API) += api/
 libs-$(CONFIG_HAS_POST) += post/
 libs-y += test/
+libs-y += test/dm/
+libs-$(CONFIG_DM_DEMO) += drivers/demo/
 
 ifneq (,$(filter $(SOC), mx25 mx27 mx5 mx6 mx31 mx35 mxs vf610))
 libs-y += arch/$(ARCH)/imx-common/
@@ -637,7 +628,7 @@ endif
 libs-$(CONFIG_ARM) += arch/arm/cpu/
 libs-$(CONFIG_PPC) += arch/powerpc/cpu/
 
-libs-y += board/$(BOARDDIR)/
+libs-y += $(if $(BOARDDIR),board/$(BOARDDIR)/)
 
 libs-y := $(sort $(libs-y))
 
@@ -652,11 +643,11 @@ u-boot-main := $(libs-y)
 
 
 # Add GCC lib
-ifdef USE_PRIVATE_LIBGCC
-ifeq ("$(USE_PRIVATE_LIBGCC)", "yes")
-PLATFORM_LIBGCC = $(OBJTREE)/arch/$(ARCH)/lib/lib.a
+ifdef CONFIG_USE_PRIVATE_LIBGCC
+ifeq ($(CONFIG_USE_PRIVATE_LIBGCC),y)
+PLATFORM_LIBGCC = arch/$(ARCH)/lib/lib.a
 else
-PLATFORM_LIBGCC = -L $(USE_PRIVATE_LIBGCC) -lgcc
+PLATFORM_LIBGCC = -L $(CONFIG_USE_PRIVATE_LIBGCC) -lgcc
 endif
 else
 PLATFORM_LIBGCC := -L $(shell dirname `$(CC) $(c_flags) -print-libgcc-file-name`) -lgcc
@@ -668,7 +659,7 @@ export PLATFORM_LIBS
 # Pass the version down so we can handle backwards compatibility
 # on the fly.
 LDPPFLAGS += \
-	-include $(TOPDIR)/include/u-boot/u-boot.lds.h \
+	-include $(srctree)/include/u-boot/u-boot.lds.h \
 	-DCPUDIR=$(CPUDIR) \
 	$(shell $(LD) --version | \
 	  sed -ne 's/GNU ld version \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/-DLD_MAJOR=\1 -DLD_MINOR=\2/p')
@@ -712,6 +703,7 @@ ALL-$(CONFIG_SPL) += spl/u-boot-spl.bin
 ALL-$(CONFIG_SPL_FRAMEWORK) += u-boot.img
 ALL-$(CONFIG_TPL) += tpl/u-boot-tpl.bin
 ALL-$(CONFIG_OF_SEPARATE) += u-boot.dtb u-boot-dtb.bin
+ALL-$(CONFIG_OF_HOSTFILE) += u-boot.dtb
 ifneq ($(CONFIG_SPL_TARGET),)
 ALL-$(CONFIG_SPL) += $(CONFIG_SPL_TARGET:"%"=%)
 endif
@@ -804,11 +796,11 @@ MKIMAGEFLAGS_u-boot.img = -A $(ARCH) -T firmware -C none -O u-boot \
 	-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_UBOOT_START) \
 	-n "U-Boot $(UBOOTRELEASE) for $(BOARD) board"
 
-MKIMAGEFLAGS_u-boot.kwb = -n $(CONFIG_SYS_KWD_CONFIG) -T kwbimage \
-		-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE)
+MKIMAGEFLAGS_u-boot.kwb = -n $(srctree)/$(CONFIG_SYS_KWD_CONFIG:"%"=%) \
+	-T kwbimage -a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE)
 
-MKIMAGEFLAGS_u-boot.pbl = -n $(CONFIG_SYS_FSL_PBL_RCW) \
-		-R $(CONFIG_SYS_FSL_PBL_PBI) -T pblimage
+MKIMAGEFLAGS_u-boot.pbl = -n $(srctree)/$(CONFIG_SYS_FSL_PBL_RCW:"%"=%) \
+		-R $(srctree)/$(CONFIG_SYS_FSL_PBL_PBI:"%"=%) -T pblimage
 
 u-boot.img u-boot.kwb u-boot.pbl: u-boot.bin FORCE
 	$(call if_changed,mkimage)
@@ -857,7 +849,7 @@ u-boot.ais: spl/u-boot-spl.ais u-boot.img FORCE
 	$(call if_changed,pad_cat)
 
 u-boot.sb: u-boot.bin spl/u-boot-spl.bin
-	$(Q)$(MAKE) $(build)=arch/arm/cpu/arm926ejs/mxs $(objtree)/u-boot.sb
+	$(Q)$(MAKE) $(build)=arch/arm/cpu/arm926ejs/mxs u-boot.sb
 
 # On x600 (SPEAr600) U-Boot is appended to U-Boot SPL.
 # Both images are created using mkimage (crc etc), so that the ROM
@@ -1021,7 +1013,7 @@ define filechk_timestamp.h
 	LC_ALL=C date +'#define U_BOOT_TIME "%T"')
 endef
 
-$(version_h): $(srctree)/Makefile FORCE
+$(version_h): include/config/uboot.release FORCE
 	$(call filechk,version.h)
 
 $(timestamp_h): $(srctree)/Makefile FORCE
@@ -1067,6 +1059,13 @@ u-boot.lds: $(LDSCRIPT) prepare FORCE
 PHONY += nand_spl
 nand_spl: prepare
 	$(Q)$(MAKE) $(build)=nand_spl/board/$(BOARDDIR) all
+	@echo >&2
+	@echo >&2 "==================== WARNING ====================="
+	@echo >&2 "nand_spl will not be included in v2014.07 release."
+	@echo >&2 "Please switch over to SPL."
+	@echo >&2 "Otherwise, this board will be removed."
+	@echo >&2 "=================================================="
+	@echo >&2
 
 nand_spl/u-boot-spl-16k.bin: nand_spl
 	@:
@@ -1106,23 +1105,6 @@ SYSTEM_MAP = \
 System.map:	u-boot
 		@$(call SYSTEM_MAP,$<) > $@
 
-checkthumb:
-	@if test $(call cc-version) -lt 0404; then \
-		echo -n '*** Your GCC does not produce working '; \
-		echo 'binaries in THUMB mode.'; \
-		echo '*** Your board is configured for THUMB mode.'; \
-		false; \
-	fi
-
-# GCC 3.x is reported to have problems generating the type of relocation
-# that U-Boot wants.
-# See http://lists.denx.de/pipermail/u-boot/2012-September/135156.html
-checkgcc4:
-	@if test $(call cc-version) -lt 0400; then \
-		echo -n '*** Your GCC is too old, please upgrade to GCC 4.x or newer'; \
-		false; \
-	fi
-
 checkdtc:
 	@if test $(call dtc-version) -lt 0104; then \
 		echo '*** Your dtc is too old, please upgrade to dtc 1.4 or newer'; \
@@ -1145,8 +1127,11 @@ checkarmreloc: u-boot
 env: scripts_basic
 	$(Q)$(MAKE) $(build)=tools/$@
 
-tools-all: HOST_TOOLS_ALL=y
+tools-all: export HOST_TOOLS_ALL=y
 tools-all: env tools ;
+
+cross_tools: export CROSS_BUILD_TOOLS=y
+cross_tools: tools ;
 
 .PHONY : CHANGELOG
 CHANGELOG:
@@ -1167,7 +1152,6 @@ include/license.h: tools/bin2header COPYING
 # Directories & files removed with 'make clean'
 CLEAN_DIRS  += $(MODVERDIR)
 CLEAN_FILES += u-boot.lds include/bmp_logo.h include/bmp_logo_data.h \
-	       board/*/config.tmp board/*/*/config.tmp \
 	       include/autoconf.mk* include/spl-autoconf.mk \
 	       include/tpl-autoconf.mk
 
@@ -1244,12 +1228,12 @@ distclean: mrproper
 	@find $(srctree) $(RCS_FIND_IGNORE) \
 		\( -name '*.orig' -o -name '*.rej' -o -name '*~' \
 		-o -name '*.bak' -o -name '#*#' -o -name '.*.orig' \
-		-o -name '.*.rej' \
+		-o -name '.*.rej' -o -name '*.pyc' \
 		-o -name '*%' -o -name '.*.cmd' -o -name 'core' \) \
 		-type f -print | xargs rm -f
 
 backup:
-	F=`basename $(TOPDIR)` ; cd .. ; \
+	F=`basename $(srctree)` ; cd .. ; \
 	gtar --force-local -zcvf `LC_ALL=C date "+$$F-%Y-%m-%d-%T.tar.gz"` $$F
 
 help:

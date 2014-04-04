@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <fdtdec.h>
 #include <netdev.h>
 #include <zynqpl.h>
 #include <asm/arch/hardware.h>
@@ -134,8 +135,27 @@ int board_mmc_init(bd_t *bd)
 
 int dram_init(void)
 {
-	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+#ifdef CONFIG_OF_CONTROL
+	int node;
+	fdt_addr_t addr;
+	fdt_size_t size;
+	const void *blob = gd->fdt_blob;
 
+	node = fdt_node_offset_by_prop_value(blob, -1, "device_type",
+					     "memory", 7);
+	if (node == -FDT_ERR_NOTFOUND) {
+		debug("ZYNQ DRAM: Can't get memory node\n");
+		return -1;
+	}
+	addr = fdtdec_get_addr_size(blob, node, "reg", &size);
+	if (addr == FDT_ADDR_T_NONE || size == 0) {
+		debug("ZYNQ DRAM: Can't get base address or size\n");
+		return -1;
+	}
+	gd->ram_size = size;
+#else
+	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
+#endif
 	zynq_ddrc_init();
 
 	return 0;

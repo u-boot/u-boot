@@ -14,11 +14,7 @@ obj-y	+= kgdb.o
 
 obj-y	+= 40x_spd_sdram.o
 
-ifndef CONFIG_NAND_SPL
-ifndef CONFIG_NAND_U_BOOT
 obj-y	+= 44x_spd_ddr.o
-endif
-endif
 obj-$(CONFIG_SDRAM_PPC4xx_IBM_DDR2) += 44x_spd_ddr2.o
 obj-$(CONFIG_PPC4xx_DDR_AUTOCALIBRATION) += 4xx_ibm_ddr2_autocalib.o
 obj-y	+= 4xx_pci.o

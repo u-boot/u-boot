@@ -120,7 +120,6 @@
 	CONFIG_AMCC_DEF_ENV						\
 	CONFIG_AMCC_DEF_ENV_POWERPC					\
 	CONFIG_AMCC_DEF_ENV_NOR_UPD					\
-	CONFIG_AMCC_DEF_ENV_NAND_UPD					\
 	"kernel_addr=fc000000\0"					\
 	"fdt_addr=fc1e0000\0"						\
 	"ramdisk_addr=fc200000\0"					\

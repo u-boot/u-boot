@@ -403,7 +403,6 @@
 /* NAND support */
 #ifdef CONFIG_NAND
 #define CONFIG_CMD_NAND
-#define GPMC_NAND_ECC_LP_x16_LAYOUT	1
 #if !defined(CONFIG_SPI_BOOT) && !defined(CONFIG_NOR_BOOT)
 #define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
 #define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:128k(SPL)," \
@@ -443,6 +442,8 @@
 #define CONFIG_SYS_FLASH_BASE		(0x08000000)
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
+/* Reduce SPL size by removing unlikey targets */
+#undef CONFIG_SPL_SPI_SUPPORT
 #ifdef CONFIG_NOR_BOOT
 #define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_SECT_SIZE		(128 << 10)	/* 128 KiB */

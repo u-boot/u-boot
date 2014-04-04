@@ -9,8 +9,6 @@
 #include <mpc8260.h>
 #include <version.h>
 
-#define CONFIG_8260 1		/* needed for Linux kernel header files */
-
 #include <ppc_asm.tmpl>
 #include <ppc_defs.h>
 

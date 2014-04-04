@@ -64,8 +64,6 @@
  * details. :-(
  */
 #define CONFIG_MPC8272		1
-#else
-#define CONFIG_MPC8260		1
 #endif /* CONFIG_ADSTYPE == CONFIG_SYS_8272ADS */
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f	*/

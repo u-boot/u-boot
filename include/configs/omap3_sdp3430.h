@@ -16,7 +16,7 @@
 /* TODO: REMOVE THE FOLLOWING
  * Retained the following till size.h is removed in u-boot
  */
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 /*
  * High Level Configuration Options
  */

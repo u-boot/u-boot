@@ -13,7 +13,7 @@
 
 /* SoC type is defined in boards.cfg */
 #include <asm/hardware.h>
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 
 #define CONFIG_SYS_TEXT_BASE		0x20000000
 

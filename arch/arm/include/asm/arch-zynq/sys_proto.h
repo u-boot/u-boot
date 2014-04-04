@@ -19,5 +19,6 @@ extern void zynq_ddrc_init(void);
 
 /* Driver extern functions */
 extern int zynq_sdhci_init(u32 regbase);
+extern int zynq_sdhci_of_init(const void *blob);
 
 #endif /* _SYS_PROTO_H_ */

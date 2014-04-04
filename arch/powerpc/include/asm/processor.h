@@ -1356,7 +1356,7 @@ void _nmask_and_or_msr(unsigned long nmask, unsigned long or_val);
 #elif defined(CONFIG_GEMINI)
 #define _machine _MACH_gemini
 #define have_of 0
-#elif defined(CONFIG_8260)
+#elif defined(CONFIG_MPC8260)
 #define _machine _MACH_8260
 #define have_of 0
 #elif defined(CONFIG_SANDPOINT)

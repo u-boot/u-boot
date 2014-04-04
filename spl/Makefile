@@ -29,10 +29,6 @@ ifeq ($(CONFIG_TPL_BUILD),y)
 KBUILD_CPPFLAGS += -DCONFIG_TPL_BUILD
 endif
 
-# Enable garbage collection of un-used sections for SPL
-KBUILD_CFLAGS += -ffunction-sections -fdata-sections
-LDFLAGS_FINAL += --gc-sections
-
 ifeq ($(CONFIG_TPL_BUILD),y)
 export CONFIG_TPL_BUILD
 SPL_BIN := u-boot-tpl
@@ -48,10 +44,16 @@ else
   -include include/spl-autoconf.mk
 endif
 
-include $(TOPDIR)/config.mk
+include $(srctree)/config.mk
+
+# Enable garbage collection of un-used sections for SPL
+KBUILD_CFLAGS += -ffunction-sections -fdata-sections
+LDFLAGS_FINAL += --gc-sections
 
 # FIX ME
-c_flags := $(KBUILD_CFLAGS) $(KBUILD_CPPFLAGS) $(CPPFLAGS) $(UBOOTINCLUDE) $(NOSTDINC_FLAGS)
+cpp_flags := $(KBUILD_CPPFLAGS) $(PLATFORM_CPPFLAGS) $(UBOOTINCLUDE) \
+							$(NOSTDINC_FLAGS)
+c_flags := $(KBUILD_CFLAGS) $(cpp_flags)
 
 # Auto-generate the spl-autoconf.mk file (which is included by all makefiles for SPL)
 quiet_cmd_autoconf = GEN     $@
@@ -66,7 +68,7 @@ include/tpl-autoconf.mk: include/config.h
 include/spl-autoconf.mk: include/config.h
 	$(call cmd,autoconf)
 
-HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(SRCTREE)/board/$(VENDOR)/common/Makefile),y,n)
+HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(srctree)/board/$(VENDOR)/common/Makefile),y,n)
 
 ifdef	CONFIG_SPL_START_S_PATH
 START_PATH := $(CONFIG_SPL_START_S_PATH:"%"=%)
@@ -132,8 +134,8 @@ u-boot-spl-dirs	:= $(patsubst %/,%,$(filter %/, $(libs-y)))
 libs-y := $(patsubst %/, %/built-in.o, $(libs-y))
 
 # Add GCC lib
-ifeq ("$(USE_PRIVATE_LIBGCC)", "yes")
-PLATFORM_LIBGCC = $(SPLTREE)/arch/$(ARCH)/lib/lib.a
+ifeq ($(CONFIG_USE_PRIVATE_LIBGCC),y)
+PLATFORM_LIBGCC = arch/$(ARCH)/lib/lib.a
 PLATFORM_LIBS := $(filter-out %/lib.a, $(filter-out -lgcc, $(PLATFORM_LIBS))) $(PLATFORM_LIBGCC)
 endif
 
@@ -143,17 +145,17 @@ u-boot-spl-main := $(libs-y)
 # Linker Script
 ifdef CONFIG_SPL_LDSCRIPT
 # need to strip off double quotes
-LDSCRIPT := $(addprefix $(SRCTREE)/,$(CONFIG_SPL_LDSCRIPT:"%"=%))
+LDSCRIPT := $(addprefix $(srctree)/,$(CONFIG_SPL_LDSCRIPT:"%"=%))
 endif
 
 ifeq ($(wildcard $(LDSCRIPT)),)
-	LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot-spl.lds
+	LDSCRIPT := $(srctree)/board/$(BOARDDIR)/u-boot-spl.lds
 endif
 ifeq ($(wildcard $(LDSCRIPT)),)
-	LDSCRIPT := $(TOPDIR)/$(CPUDIR)/u-boot-spl.lds
+	LDSCRIPT := $(srctree)/$(CPUDIR)/u-boot-spl.lds
 endif
 ifeq ($(wildcard $(LDSCRIPT)),)
-	LDSCRIPT := $(TOPDIR)/arch/$(ARCH)/cpu/u-boot-spl.lds
+	LDSCRIPT := $(srctree)/arch/$(ARCH)/cpu/u-boot-spl.lds
 endif
 ifeq ($(wildcard $(LDSCRIPT)),)
 $(error could not find linker script)
@@ -163,8 +165,8 @@ endif
 # Pass the version down so we can handle backwards compatibility
 # on the fly.
 LDPPFLAGS += \
-	-include $(TOPDIR)/include/u-boot/u-boot.lds.h \
-	-include $(OBJTREE)/include/config.h \
+	-include $(srctree)/include/u-boot/u-boot.lds.h \
+	-include $(objtree)/include/config.h \
 	-DCPUDIR=$(CPUDIR) \
 	$(shell $(LD) --version | \
 	  sed -ne 's/GNU ld version \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/-DLD_MAJOR=\1 -DLD_MINOR=\2/p')
@@ -195,9 +197,9 @@ else
 VAR_SIZE_PARAM =
 endif
 $(obj)/$(BOARD)-spl.bin: $(obj)/u-boot-spl.bin
-	$(if $(wildcard $(OBJTREE)/spl/board/samsung/$(BOARD)/tools/mk$(BOARD)spl),\
-	$(OBJTREE)/spl/board/samsung/$(BOARD)/tools/mk$(BOARD)spl,\
-	$(OBJTREE)/tools/mkexynosspl) $(VAR_SIZE_PARAM) $< $@
+	$(if $(wildcard $(objtree)/spl/board/samsung/$(BOARD)/tools/mk$(BOARD)spl),\
+	$(objtree)/spl/board/samsung/$(BOARD)/tools/mk$(BOARD)spl,\
+	$(objtree)/tools/mkexynosspl) $(VAR_SIZE_PARAM) $< $@
 endif
 
 quiet_cmd_objcopy = OBJCOPY $@
@@ -227,9 +229,6 @@ $(sort $(u-boot-spl-init) $(u-boot-spl-main)): $(u-boot-spl-dirs) ;
 PHONY += $(u-boot-spl-dirs)
 $(u-boot-spl-dirs):
 	$(Q)$(MAKE) $(build)=$@
-
-# FIX ME
-cpp_flags := $(KBUILD_CPPFLAGS) $(CPPFLAGS) $(UBOOTINCLUDE) $(NOSTDINC_FLAGS)
 
 quiet_cmd_cpp_lds = LDS     $@
 cmd_cpp_lds = $(CPP) $(cpp_flags) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ \

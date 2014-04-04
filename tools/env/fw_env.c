@@ -863,9 +863,9 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 		if (mtd_type != MTD_ABSENT)
 			ioctl(fd, MEMLOCK, &erase);
 
-		processed  += blocklen;
+		processed  += erasesize;
 		block_seek = 0;
-		blockstart += blocklen;
+		blockstart += erasesize;
 	}
 
 	if (write_total > count)
@@ -1246,9 +1246,10 @@ static int parse_config ()
 	strcpy (DEVNAME (0), DEVICE1_NAME);
 	DEVOFFSET (0) = DEVICE1_OFFSET;
 	ENVSIZE (0) = ENV1_SIZE;
-	/* Default values are: erase-size=env-size, #sectors=1 */
+	/* Default values are: erase-size=env-size */
 	DEVESIZE (0) = ENVSIZE (0);
-	ENVSECTORS (0) = 1;
+	/* #sectors=env-size/erase-size (rounded up) */
+	ENVSECTORS (0) = (ENVSIZE(0) + DEVESIZE(0) - 1) / DEVESIZE(0);
 #ifdef DEVICE1_ESIZE
 	DEVESIZE (0) = DEVICE1_ESIZE;
 #endif
@@ -1260,9 +1261,10 @@ static int parse_config ()
 	strcpy (DEVNAME (1), DEVICE2_NAME);
 	DEVOFFSET (1) = DEVICE2_OFFSET;
 	ENVSIZE (1) = ENV2_SIZE;
-	/* Default values are: erase-size=env-size, #sectors=1 */
+	/* Default values are: erase-size=env-size */
 	DEVESIZE (1) = ENVSIZE (1);
-	ENVSECTORS (1) = 1;
+	/* #sectors=env-size/erase-size (rounded up) */
+	ENVSECTORS (1) = (ENVSIZE(1) + DEVESIZE(1) - 1) / DEVESIZE(1);
 #ifdef DEVICE2_ESIZE
 	DEVESIZE (1) = DEVICE2_ESIZE;
 #endif
@@ -1320,8 +1322,8 @@ static int get_config (char *fname)
 			DEVESIZE(i) = ENVSIZE(i);
 
 		if (rc < 5)
-			/* Default - 1 sector */
-			ENVSECTORS (i) = 1;
+			/* Assume enough env sectors to cover the environment */
+			ENVSECTORS (i) = (ENVSIZE(i) + DEVESIZE(i) - 1) / DEVESIZE(i);
 
 		i++;
 	}

@@ -136,7 +136,7 @@
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_SYS_HUSH_PARSER
-
+#define CONFIG_CC_OPTIMIZE_LIBS_FOR_SPEED
 
 /*
  * Pull in common ADI header for remaining command/environment setup

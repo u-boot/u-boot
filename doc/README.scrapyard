@@ -11,13 +11,15 @@ easily if here is something they might want to dig for...
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
-dvl_host         arm         ixp            -           2014-01-28  Michael Schwingen <michael@schwingen.org>
-actux4           arm         ixp            -           2014-01-28  Michael Schwingen <michael@schwingen.org>
-actux3           arm         ixp            -           2014-01-28  Michael Schwingen <michael@schwingen.org>
-actux2           arm         ixp            -           2014-01-28  Michael Schwingen <michael@schwingen.org>
-actux1           arm         ixp            -           2014-01-28  Michael Schwingen <michael@schwingen.org>
-mx1ads           arm         arm920t        -           2014-01-13
-mini2440         arm         arm920t        -           2014-01-13  Gabriel Huau <contact@huau-gabriel.fr>
+idmr             m68k        mcf52x2        -           2014-01-28
+M5271EVB         m68k        mcf52x2        -           2014-01-28
+dvl_host         arm         ixp            e317de6b    2014-01-28  Michael Schwingen <michael@schwingen.org>
+actux4           arm         ixp            6ff7aafa    2014-01-28  Michael Schwingen <michael@schwingen.org>
+actux3           arm         ixp            38da33f3    2014-01-28  Michael Schwingen <michael@schwingen.org>
+actux2           arm         ixp            13e0ee7f    2014-01-28  Michael Schwingen <michael@schwingen.org>
+actux1           arm         ixp            373ee048    2014-01-28  Michael Schwingen <michael@schwingen.org>
+mx1ads           arm         arm920t        e570aca9    2014-01-13
+mini2440         arm         arm920t        af5b9b1f    2014-01-13  Gabriel Huau <contact@huau-gabriel.fr>
 omap730p2        arm         arm926ejs      79c5c08d    2013-11-11
 pn62             powerpc     mpc824x        649acfe1    2013-11-11  Wolfgang Grandegger <wg@grandegger.com>
 pdnb3            arm         ixp            304db0b     2013-09-24  Stefan Roese <sr@denx.de>

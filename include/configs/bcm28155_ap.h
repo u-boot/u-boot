@@ -7,7 +7,7 @@
 #ifndef __BCM28155_AP_H
 #define __BCM28155_AP_H
 
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 #include <asm/arch/sysmap.h>
 
 /* Architecture, CPU, chip, mach, etc */

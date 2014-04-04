@@ -28,8 +28,8 @@
 #define CONFIG_RAMBOOT_PBL
 #define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
-#define CONFIG_SYS_FSL_PBL_PBI $(SRCTREE)/board/keymile/kmp204x/pbi.cfg
-#define CONFIG_SYS_FSL_PBL_RCW $(SRCTREE)/board/keymile/kmp204x/rcw_kmp204x.cfg
+#define CONFIG_SYS_FSL_PBL_PBI board/keymile/kmp204x/pbi.cfg
+#define CONFIG_SYS_FSL_PBL_RCW board/keymile/kmp204x/rcw_kmp204x.cfg
 
 /* High Level Configuration Options */
 #define CONFIG_BOOKE
