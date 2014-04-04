@@ -461,11 +461,6 @@ static int scc_init (struct eth_device *dev, bd_t * bis)
 #error Configuration Error: exactly ONE of PB_ENET_TENA, PC_ENET_TENA must be defined
 #endif
 
-#ifdef CONFIG_RPXCLASSIC
-	*((uchar *) BCSR0) &= ~BCSR0_ETHLPBK;
-	*((uchar *) BCSR0) |= (BCSR0_ETHEN | BCSR0_COLTEST | BCSR0_FULLDPLX);
-#endif
-
 #ifdef CONFIG_RPXLITE
 	*((uchar *) BCSR0) |= BCSR0_ETHEN;
 #endif
@@ -512,8 +507,6 @@ static int scc_init (struct eth_device *dev, bd_t * bis)
 	 */
 #if defined (CONFIG_FADS)
 	udelay (10000);		/* wait 10 ms */
-#elif defined(CONFIG_RPXCLASSIC)
-	udelay (100000);	/* wait 100 ms */
 #endif
 
 	return 1;

@@ -138,7 +138,6 @@ void cpu_init_f (volatile immap_t * immr)
     defined(CONFIG_MHPC)	|| \
     defined(CONFIG_R360MPI)	|| \
     defined(CONFIG_RMU)		|| \
-    defined(CONFIG_RPXCLASSIC)	|| \
     defined(CONFIG_RPXLITE)	|| \
     defined(CONFIG_SPC1920)	|| \
     defined(CONFIG_SPD823TS)
@@ -206,10 +205,6 @@ void cpu_init_f (volatile immap_t * immr)
 	do {			/* Spin until command processed     */
 		__asm__ ("eieio");
 	} while (immr->im_cpm.cp_cpcr & CPM_CR_FLG);
-
-#ifdef CONFIG_RPXCLASSIC
-	rpxclassic_init ();
-#endif
 
 #if defined(CONFIG_RPXLITE) && defined(CONFIG_ENV_IS_IN_NVRAM)
 	rpxlite_init ();

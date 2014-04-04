@@ -211,7 +211,7 @@ static u_int m8xx_get_graycode(u_int size)
 
 #if	0
 
-#if	defined(CONFIG_RPXCLASSIC) || defined(CONFIG_RPXLITE)
+#if defined(CONFIG_RPXLITE)
 
 /* The RPX boards seems to have it's bus monitor timeout set to 6*8 clocks.
  * SYPCR is write once only, therefore must the slowest memory be faster

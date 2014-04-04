@@ -182,7 +182,7 @@ static int smc_init (void)
 #endif
 #endif	/* CONFIG_FADS */
 
-#if defined(CONFIG_RPXLITE) || defined(CONFIG_RPXCLASSIC)
+#if defined(CONFIG_RPXLITE)
 	/* Enable Monitor Port Transceiver */
 	*((uchar *) BCSR0) |= BCSR0_ENMONXCVR ;
 #endif /* CONFIG_RPXLITE */

@@ -11,6 +11,8 @@ easily if here is something they might want to dig for...
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+RPXClassic       powerpc     mpc8xx         -           2014-04-04
+RPXlite          powerpc     mpc8xx         -           2014-04-04
 genietv          powerpc     mpc8xx         -           2014-04-04
 mbx8xx           powerpc     mpc8xx         -           2014-04-04
 nx823            powerpc     mpc8xx         -           2014-04-04

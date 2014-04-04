@@ -505,10 +505,6 @@ extern ssize_t spi_read	 (uchar *, int, uchar *, int);
 extern ssize_t spi_write (uchar *, int, uchar *, int);
 #endif
 
-#ifdef CONFIG_RPXCLASSIC
-void rpxclassic_init (void);
-#endif
-
 void rpxlite_init (void);
 
 #ifdef CONFIG_HERMES
