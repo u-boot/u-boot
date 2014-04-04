@@ -204,7 +204,6 @@ void board_init_f(ulong bootflag)
 	 */
 	bd->bi_memstart	= CONFIG_SYS_SDRAM_BASE;	/* start of DRAM */
 	bd->bi_memsize	= gd->ram_size;		/* size of DRAM in bytes */
-	bd->bi_baudrate	= gd->baudrate;		/* Console Baudrate */
 
 	memcpy(id, (void *)gd, sizeof(gd_t));
 

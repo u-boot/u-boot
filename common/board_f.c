@@ -708,14 +708,6 @@ static int init_post(void)
 }
 #endif
 
-static int setup_baud_rate(void)
-{
-	/* Ick, can we get rid of this line? */
-	gd->bd->bi_baudrate = gd->baudrate;
-
-	return 0;
-}
-
 static int setup_dram_config(void)
 {
 	/* Ram is board specific, so move it to board code ... */
@@ -954,7 +946,6 @@ static init_fnc_t init_sequence_f[] = {
 	INIT_FUNC_WATCHDOG_RESET
 	setup_board_part2,
 #endif
-	setup_baud_rate,
 	display_new_sp,
 #ifdef CONFIG_SYS_EXTBDINFO
 	setup_board_extra,

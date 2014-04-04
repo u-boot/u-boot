@@ -342,7 +342,6 @@ board_init_f (ulong bootflag)
 	bd->bi_vcofreq = gd->arch.vco_clk;		/* vco Freq in Hz */
 	bd->bi_flbfreq = gd->arch.flb_clk;		/* flexbus Freq in Hz */
 #endif
-	bd->bi_baudrate = gd->baudrate;	/* Console Baudrate     */
 
 #ifdef CONFIG_SYS_EXTBDINFO
 	strncpy (bd->bi_s_version, "1.2", sizeof (bd->bi_s_version));

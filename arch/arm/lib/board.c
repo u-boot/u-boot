@@ -445,7 +445,6 @@ void board_init_f(ulong bootflag)
 	post_run(NULL, POST_ROM | post_bootmode_get(0));
 #endif
 
-	gd->bd->bi_baudrate = gd->baudrate;
 	/* Ram ist board specific, so move it to board code ... */
 	dram_init_banksize();
 	display_dram_config();	/* and display it */
