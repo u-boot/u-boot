@@ -12,10 +12,6 @@
  * CPM capabilities.  I (or someone else) will add definitions as they
  * are needed.  -- Dan
  *
- * On the MBX board, EPPC-Bug loads CPM microcode into the first 512
- * bytes of the DP RAM and relocates the I2C parameter area to the
- * IDMA1 space.  The remaining DP RAM is available for buffer descriptors
- * or other use.
  */
 #ifndef __CPM_8XX__
 #define __CPM_8XX__
@@ -135,7 +131,6 @@ typedef struct cpm_buf_desc {
 #define PROFF_SMC2	((uint)0x0380)
 
 /* Define enough so I can at least use the serial port as a UART.
- * The MBX uses SMC1 as the host serial port.
  */
 typedef struct smc_uart {
 	ushort	smc_rbase;	/* Rx Buffer descriptor base address */
@@ -887,33 +882,6 @@ typedef struct scc_enet {
 #define SICR_ENET_MASK	((uint)0x0000ff00)
 #define SICR_ENET_CLKRT	((uint)0x00003E00)
 #endif	/* CONFIG_LWMON */
-
-/***  MBX  ************************************************************/
-
-#ifdef CONFIG_MBX
-/* Bits in parallel I/O port registers that have to be set/cleared
- * to configure the pins for SCC1 use.  The TCLK and RCLK seem unique
- * to the MBX860 board.  Any two of the four available clocks could be
- * used, and the MPC860 cookbook manual has an example using different
- * clock pins.
- */
-#define	PROFF_ENET	PROFF_SCC1
-#define	CPM_CR_ENET	CPM_CR_CH_SCC1
-#define	SCC_ENET	0
-#define PA_ENET_RXD	((ushort)0x0001)
-#define PA_ENET_TXD	((ushort)0x0002)
-#define PA_ENET_TCLK	((ushort)0x0200)
-#define PA_ENET_RCLK	((ushort)0x0800)
-#define PC_ENET_TENA	((ushort)0x0001)
-#define PC_ENET_CLSN	((ushort)0x0010)
-#define PC_ENET_RENA	((ushort)0x0020)
-
-/* Control bits in the SICR to route TCLK (CLK2) and RCLK (CLK4) to
- * SCC1.  Also, make sure GR1 (bit 24) and SC1 (bit 25) are zero.
- */
-#define SICR_ENET_MASK	((uint)0x000000ff)
-#define SICR_ENET_CLKRT	((uint)0x0000003d)
-#endif	/* CONFIG_MBX */
 
 /***  KM8XX  *********************************************************/
 

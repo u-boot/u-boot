@@ -374,10 +374,6 @@ static void scc_init (int scc_index)
 	*((uchar *) BCSR0) |= BCSR0_ETHEN;
 #endif
 
-#ifdef CONFIG_MBX
-	board_ether_init ();
-#endif
-
 	/*
 	 * Set the ENT/ENR bits in the GSMR Low -- Enable Transmit/Receive
 	 */

@@ -141,10 +141,6 @@ static void smc_init (int smc_index)
 	up->smc_rfcr = SMC_EB;
 	up->smc_tfcr = SMC_EB;
 
-#if defined(CONFIG_MBX)
-	board_serial_init ();
-#endif
-
 	/* Set UART mode, 8 bit, no parity, one stop.
 	 * Enable receive and transmit.
 	 * Set local loopback mode.

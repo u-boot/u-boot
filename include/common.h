@@ -511,13 +511,6 @@ void rpxclassic_init (void);
 
 void rpxlite_init (void);
 
-#ifdef CONFIG_MBX
-/* $(BOARD)/mbx8xx.c */
-void	mbx_init (void);
-void	board_serial_init (void);
-void	board_ether_init (void);
-#endif
-
 #ifdef CONFIG_HERMES
 /* $(BOARD)/hermes.c */
 void hermes_start_lxt980 (int speed);

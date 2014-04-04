@@ -492,10 +492,6 @@ static int scc_init (struct eth_device *dev, bd_t * bis)
 	immr->im_cpm.cp_pbdat &= ~0x00000010;
 #endif /* QS860T */
 
-#ifdef CONFIG_MBX
-	board_ether_init ();
-#endif
-
 #if defined(CONFIG_NETVIA)
 #if defined(PA_ENET_PDN)
 	immr->im_ioport.iop_papar &= ~PA_ENET_PDN;

@@ -225,10 +225,6 @@ static int smc_init (void)
 	up->smc_tstate = 0;
 #endif
 
-#if defined(CONFIG_MBX)
-	board_serial_init();
-#endif	/* CONFIG_MBX */
-
 	/* Set UART mode, 8 bit, no parity, one stop.
 	 * Enable receive and transmit.
 	 */
