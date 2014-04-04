@@ -392,12 +392,6 @@ static void disable_lvds(struct display_info_t const *dev)
 		     IOMUXC_GPR2_LVDS_CH0_MODE_MASK);
 }
 
-static int detect_hdmi(struct display_info_t const *dev)
-{
-	struct hdmi_regs *hdmi	= (struct hdmi_regs *)HDMI_ARB_BASE_ADDR;
-	return readb(&hdmi->phy_stat0) & HDMI_DVI_STAT;
-}
-
 static void do_enable_hdmi(struct display_info_t const *dev)
 {
 	disable_lvds(dev);
