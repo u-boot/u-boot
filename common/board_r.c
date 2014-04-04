@@ -528,6 +528,7 @@ static int show_model_r(void)
 # else
 	checkboard();
 # endif
+	return 0;
 }
 #endif
 
