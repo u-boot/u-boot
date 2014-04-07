@@ -205,7 +205,7 @@ ENTRY(cpu_init_cp15)
 	mcr	p15, 0, r0, c1, c0, 0	@ write system control register
 #endif
 
-#ifdef CONFIG_ARM_ERRATA_742230
+#if (defined(CONFIG_ARM_ERRATA_742230) || defined(CONFIG_ARM_ERRATA_794072))
 	mrc	p15, 0, r0, c15, c0, 1	@ read diagnostic register
 	orr	r0, r0, #1 << 4		@ set bit #4
 	mcr	p15, 0, r0, c15, c0, 1	@ write diagnostic register
@@ -220,6 +220,11 @@ ENTRY(cpu_init_cp15)
 #ifdef CONFIG_ARM_ERRATA_751472
 	mrc	p15, 0, r0, c15, c0, 1	@ read diagnostic register
 	orr	r0, r0, #1 << 11	@ set bit #11
+	mcr	p15, 0, r0, c15, c0, 1	@ write diagnostic register
+#endif
+#ifdef CONFIG_ARM_ERRATA_761320
+	mrc	p15, 0, r0, c15, c0, 1	@ read diagnostic register
+	orr	r0, r0, #1 << 21	@ set bit #21
 	mcr	p15, 0, r0, c15, c0, 1	@ write diagnostic register
 #endif
 

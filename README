@@ -566,6 +566,8 @@ The following options need to be configured:
 		CONFIG_ARM_ERRATA_742230
 		CONFIG_ARM_ERRATA_743622
 		CONFIG_ARM_ERRATA_751472
+		CONFIG_ARM_ERRATA_794072
+		CONFIG_ARM_ERRATA_761320
 
 		If set, the workarounds for these ARM errata are applied early
 		during U-Boot startup. Note that these options force the
