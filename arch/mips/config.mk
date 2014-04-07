@@ -27,6 +27,8 @@ ENDIANNESS ?= -EB
 
 PLATFORM_CPPFLAGS += -DCONFIG_MIPS -D__MIPS__
 
+__HAVE_ARCH_GENERIC_BOARD := y
+
 #
 # From Linux arch/mips/Makefile
 #
