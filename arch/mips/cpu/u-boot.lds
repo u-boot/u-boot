@@ -53,6 +53,7 @@ SECTIONS
 
 	. = ALIGN(4);
 	__image_copy_end = .;
+	__init_end = .;
 
 	.rel.dyn : {
 		__rel_dyn_start = .;
