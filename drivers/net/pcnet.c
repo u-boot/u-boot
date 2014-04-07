@@ -80,7 +80,7 @@ struct pcnet_uncached_priv {
 typedef struct pcnet_priv {
 	struct pcnet_uncached_priv *uc;
 	/* Receive Buffer space */
-	unsigned char rx_buf[RX_RING_SIZE][PKT_BUF_SZ + 4];
+	unsigned char (*rx_buf)[RX_RING_SIZE][PKT_BUF_SZ + 4];
 	int cur_rx;
 	int cur_tx;
 } pcnet_priv_t;
@@ -335,6 +335,10 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 		flush_dcache_range(addr, addr + sizeof(*lp->uc));
 		addr = UNCACHED_SDRAM(addr);
 		lp->uc = (struct pcnet_uncached_priv *)addr;
+
+		addr = (u32)memalign(ARCH_DMA_MINALIGN, sizeof(*lp->rx_buf));
+		flush_dcache_range(addr, addr + sizeof(*lp->rx_buf));
+		lp->rx_buf = (void *)addr;
 	}
 
 	uc = lp->uc;
@@ -348,7 +352,7 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 	 */
 	lp->cur_rx = 0;
 	for (i = 0; i < RX_RING_SIZE; i++) {
-		uc->rx_ring[i].base = PCI_TO_MEM_LE(dev, lp->rx_buf[i]);
+		uc->rx_ring[i].base = PCI_TO_MEM_LE(dev, (*lp->rx_buf)[i]);
 		uc->rx_ring[i].buf_length = cpu_to_le16(-PKT_BUF_SZ);
 		uc->rx_ring[i].status = cpu_to_le16(0x8000);
 		PCNET_DEBUG1
@@ -467,6 +471,7 @@ static int pcnet_send(struct eth_device *dev, void *packet, int pkt_len)
 static int pcnet_recv (struct eth_device *dev)
 {
 	struct pcnet_rx_head *entry;
+	unsigned char *buf;
 	int pkt_len = 0;
 	u16 status;
 
@@ -500,14 +505,12 @@ static int pcnet_recv (struct eth_device *dev)
 				printf("%s: Rx%d: invalid packet length %d\n",
 				       dev->name, lp->cur_rx, pkt_len);
 			} else {
-				invalidate_dcache_range(
-					(unsigned long)lp->rx_buf[lp->cur_rx],
-					(unsigned long)lp->rx_buf[lp->cur_rx] +
-					pkt_len);
-				NetReceive(lp->rx_buf[lp->cur_rx], pkt_len);
+				buf = (*lp->rx_buf)[lp->cur_rx];
+				invalidate_dcache_range((unsigned long)buf,
+					(unsigned long)buf + pkt_len);
+				NetReceive(buf, pkt_len);
 				PCNET_DEBUG2("Rx%d: %d bytes from 0x%p\n",
-					     lp->cur_rx, pkt_len,
-					     lp->rx_buf[lp->cur_rx]);
+					     lp->cur_rx, pkt_len, buf);
 			}
 		}
 		entry->status |= cpu_to_le16(0x8000);
