@@ -434,7 +434,7 @@ static int pcnet_send(struct eth_device *dev, void *packet, int pkt_len)
 
 	/* Wait for completion by testing the OWN bit */
 	for (i = 1000; i > 0; i--) {
-		status = le16_to_cpu(entry->status);
+		status = readw(&entry->status);
 		if ((status & 0x8000) == 0)
 			break;
 		udelay(100);
@@ -451,11 +451,10 @@ static int pcnet_send(struct eth_device *dev, void *packet, int pkt_len)
 	 * Setup Tx ring. Caution: the write order is important here,
 	 * set the status with the "ownership" bits last.
 	 */
-	status = 0x8300;
-	entry->length = cpu_to_le16(-pkt_len);
-	entry->misc = 0x00000000;
-	entry->base = PCI_TO_MEM_LE(dev, packet);
-	entry->status = cpu_to_le16(status);
+	writew(-pkt_len, &entry->length);
+	writel(0, &entry->misc);
+	writel(PCI_TO_MEM(dev, packet), &entry->base);
+	writew(0x8300, &entry->status);
 
 	/* Trigger an immediate send poll. */
 	pcnet_write_csr(dev, 0, 0x0008);
@@ -473,34 +472,34 @@ static int pcnet_recv (struct eth_device *dev)
 	struct pcnet_rx_head *entry;
 	unsigned char *buf;
 	int pkt_len = 0;
-	u16 status;
+	u16 status, err_status;
 
 	while (1) {
 		entry = &lp->uc->rx_ring[lp->cur_rx];
 		/*
 		 * If we own the next entry, it's a new packet. Send it up.
 		 */
-		status = le16_to_cpu(entry->status);
+		status = readw(&entry->status);
 		if ((status & 0x8000) != 0)
 			break;
-		status >>= 8;
+		err_status = status >> 8;
 
-		if (status != 0x03) {	/* There was an error. */
+		if (err_status != 0x03) {	/* There was an error. */
 			printf("%s: Rx%d", dev->name, lp->cur_rx);
-			PCNET_DEBUG1(" (status=0x%x)", status);
-			if (status & 0x20)
+			PCNET_DEBUG1(" (status=0x%x)", err_status);
+			if (err_status & 0x20)
 				printf(" Frame");
-			if (status & 0x10)
+			if (err_status & 0x10)
 				printf(" Overflow");
-			if (status & 0x08)
+			if (err_status & 0x08)
 				printf(" CRC");
-			if (status & 0x04)
+			if (err_status & 0x04)
 				printf(" Fifo");
 			printf(" Error\n");
-			entry->status &= le16_to_cpu(0x03ff);
+			status &= 0x03ff;
 
 		} else {
-			pkt_len = (le32_to_cpu(entry->msg_length) & 0xfff) - 4;
+			pkt_len = (readl(&entry->msg_length) & 0xfff) - 4;
 			if (pkt_len < 60) {
 				printf("%s: Rx%d: invalid packet length %d\n",
 				       dev->name, lp->cur_rx, pkt_len);
@@ -513,7 +512,9 @@ static int pcnet_recv (struct eth_device *dev)
 					     lp->cur_rx, pkt_len, buf);
 			}
 		}
-		entry->status |= cpu_to_le16(0x8000);
+
+		status |= 0x8000;
+		writew(status, &entry->status);
 
 		if (++lp->cur_rx >= RX_RING_SIZE)
 			lp->cur_rx = 0;
