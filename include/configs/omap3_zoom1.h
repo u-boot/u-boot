@@ -45,6 +45,7 @@
 #define CONFIG_REVISION_TAG		1
 
 #define CONFIG_OF_LIBFDT		1
+#define CONFIG_CMD_BOOTZ		1
 
 /*
  * Size of malloc() pool
@@ -155,7 +156,9 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
+	"fdtaddr=0x80f80000\0" \
 	"bootfile=uImage\0" \
+	"fdtfile=omap3-ldp.dtb\0" \
 	"bootdir=/\0" \
 	"bootpart=0:1\0" \
 	"usbtty=cdc_acm\0" \
@@ -175,9 +178,14 @@
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source ${loadaddr}\0" \
 	"loadimage=load mmc ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
+	"loadfdt=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
+	"loadzimage=setenv bootfile zImage; if run loadimage; then run loadfdt;fi\0"\
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"bootm ${loadaddr}\0" \
+	"mmczboot=echo Booting from mmc ...; " \
+		"run mmcargs; " \
+		"bootz ${loadaddr} - ${fdtaddr}\0" \
 	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
 		"nand read ${loadaddr} 280000 400000; " \
@@ -190,8 +198,10 @@
 		"else " \
 			"if run loadimage; then " \
 				"run mmcboot; " \
+			"else if run loadzimage; then " \
+				"run mmczboot; " \
 			"else run nandboot; " \
-			"fi; " \
+			"fi; fi;" \
 		"fi; " \
 	"else run nandboot; fi"
 
