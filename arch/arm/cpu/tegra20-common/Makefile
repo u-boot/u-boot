@@ -9,7 +9,7 @@
 
 # The AVP is ARMv4T architecture so we must use special compiler
 # flags for any startup files it might use.
-CFLAGS_arch/arm/cpu/tegra20-common/warmboot_avp.o += -march=armv4t
+CFLAGS_warmboot_avp.o += -march=armv4t
 
 obj-y	+= clock.o funcmux.o pinmux.o
 obj-$(CONFIG_TEGRA_LP0) += warmboot.o crypto.o warmboot_avp.o

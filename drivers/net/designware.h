@@ -110,7 +110,7 @@ struct dmamacdescr {
 	u32 dmamac_cntl;
 	void *dmamac_addr;
 	struct dmamacdescr *dmamac_next;
-} __aligned(16);
+} __aligned(ARCH_DMA_MINALIGN);
 
 /*
  * txrx_status definitions

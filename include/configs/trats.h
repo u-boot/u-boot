@@ -187,6 +187,9 @@
 #define CONFIG_CMD_SPL
 #define CONFIG_SYS_SPL_ARGS_ADDR        CONFIG_SYS_SDRAM_BASE + 0x100
 
+/* GPT */
+#define CONFIG_RANDOM_UUID
+
 /* I2C */
 #include <asm/arch/gpio.h>
 
@@ -218,6 +221,10 @@
 #define CONFIG_POWER_MUIC_MAX8997
 #define CONFIG_POWER_BATTERY
 #define CONFIG_POWER_BATTERY_TRATS
+
+/* Security subsystem - enable hw_rand() */
+#define CONFIG_EXYNOS_ACE_SHA
+#define CONFIG_LIB_HW_RAND
 
 /* Common misc for Samsung */
 #define CONFIG_MISC_COMMON

@@ -151,6 +151,7 @@ struct davinci_mmc {
 	uint host_caps;		/* Host capabilities */
 	uint voltages;		/* Host supported voltages */
 	uint version;		/* MMC Controller version */
+	struct mmc_config cfg;
 };
 
 enum {

@@ -389,8 +389,13 @@ void eeprom_init  (void)
 #if defined(CONFIG_SPI) && !defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
 	spi_init_f ();
 #endif
-#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C_SOFT)
-	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SYS_I2C_SOFT) || \
+	defined(CONFIG_SYS_I2C)
+#ifdef CONFIG_SYS_I2C
+	i2c_init_all();
+#else
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+#endif
 #endif
 }
 

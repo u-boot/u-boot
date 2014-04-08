@@ -166,6 +166,9 @@
 		   "setenv spl_addr_tmp;\0" \
 	"fdtaddr=40800000\0" \
 
+/* GPT */
+#define CONFIG_RANDOM_UUID
+
 /* I2C */
 #include <asm/arch/gpio.h>
 
@@ -200,6 +203,10 @@ int get_soft_i2c_sda_pin(void);
 #define CONFIG_POWER_MUIC_MAX77693
 #define CONFIG_POWER_FG_MAX77693
 #define CONFIG_POWER_BATTERY_TRATS2
+
+/* Security subsystem - enable hw_rand() */
+#define CONFIG_EXYNOS_ACE_SHA
+#define CONFIG_LIB_HW_RAND
 
 /* Common misc for Samsung */
 #define CONFIG_MISC_COMMON

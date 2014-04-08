@@ -74,7 +74,7 @@ u-boot.csf: u-boot.ivt u-boot.bin board/$(VENDOR)/$(BOARD)/sign/u-boot.csf
 %.sig: %.csf
 	$(call if_changed,mkcst_mxs)
 
-quiet_cmd_mkimage_mxs = UIMAGE  $@
+quiet_cmd_mkimage_mxs = MKIMAGE $@
 cmd_mkimage_mxs = $(objtree)/tools/mkimage -n $< -T mxsimage $@ \
 	$(if $(KBUILD_VERBOSE:1=), >/dev/null)
 
