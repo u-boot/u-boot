@@ -19,6 +19,7 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch/mmc_host_def.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <i2c.h>
@@ -214,3 +215,9 @@ int board_eth_init(bd_t *bis)
 	return rv;
 }
 #endif /* CONFIG_DRIVER_TI_CPSW */
+#if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
+int board_mmc_init(bd_t *bis)
+{
+	return omap_mmc_init(1, 0, 0, -1, -1);
+}
+#endif
