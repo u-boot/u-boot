@@ -66,11 +66,16 @@ SECTIONS
 	} :text = 0xffff
 #else
 #if defined(CONFIG_FSL_IFC) /* Restrict bootpg at 4K boundry for IFC */
-	.bootpg ADDR(.text) + 0x1000 :
+#ifndef BOOT_PAGE_OFFSET
+#define BOOT_PAGE_OFFSET 0x1000
+#endif
+	.bootpg ADDR(.text) + BOOT_PAGE_OFFSET :
 	{
 		arch/powerpc/cpu/mpc85xx/start.o (.bootpg)
 	}
+#ifndef RESET_VECTOR_OFFSET
 #define RESET_VECTOR_OFFSET 0x1ffc /* IFC has 8K sram */
+#endif
 #elif defined(CONFIG_FSL_ELBC)
 #define RESET_VECTOR_OFFSET 0xffc /* LBC has 4k sram */
 #else
