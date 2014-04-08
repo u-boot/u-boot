@@ -505,6 +505,10 @@ The following options need to be configured:
 		PBI commands can be used to configure SoC before it starts the execution.
 		Please refer doc/README.pblimage for more details
 
+		CONFIG_SPL_FSL_PBL
+		It adds a target to create boot binary having SPL binary in PBI format
+		concatenated with u-boot binary.
+
 		CONFIG_SYS_FSL_DDR_BE
 		Defines the DDR controller register space as Big Endian
 
