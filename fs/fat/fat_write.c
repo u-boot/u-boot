@@ -952,7 +952,7 @@ static int do_fat_write(const char *filename, void *buffer,
 	}
 
 	mydata->fatbufnum = -1;
-	mydata->fatbuf = malloc(FATBUFSIZE);
+	mydata->fatbuf = memalign(ARCH_DMA_MINALIGN, FATBUFSIZE);
 	if (mydata->fatbuf == NULL) {
 		debug("Error: allocating memory\n");
 		return -1;
