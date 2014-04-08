@@ -57,6 +57,16 @@ SECTIONS
 	. = ALIGN(8);
 	__init_begin = .;
 	__init_end = .;
+#ifdef CONFIG_SPL_SKIP_RELOCATE
+	. = ALIGN(4);
+	__bss_start = .;
+	.bss : {
+		*(.sbss*)
+		*(.bss*)
+	}
+	. = ALIGN(4);
+	__bss_end = .;
+#endif
 
 /* For ifc, elbc, esdhc, espi, all need the SPL without section .resetvec */
 #ifdef CONFIG_SYS_MPC85XX_NO_RESETVEC
@@ -86,6 +96,7 @@ SECTIONS
 	} = 0xffff
 #endif
 
+#ifndef CONFIG_SPL_SKIP_RELOCATE
 	/*
 	 * Make sure that the bss segment isn't linked at 0x0, otherwise its
 	 * address won't be updated during relocation fixups.
@@ -100,4 +111,5 @@ SECTIONS
 	}
 	. = ALIGN(4);
 	__bss_end = .;
+#endif
 }

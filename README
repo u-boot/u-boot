@@ -3332,6 +3332,9 @@ FIT uImage format:
 		continuing (the hardware starts execution after just
 		loading the first page rather than the full 4K).
 
+		CONFIG_SPL_SKIP_RELOCATE
+		Avoid SPL relocation
+
 		CONFIG_SPL_NAND_BASE
 		Include nand_base.c in the SPL.  Requires
 		CONFIG_SPL_NAND_DRIVERS.
