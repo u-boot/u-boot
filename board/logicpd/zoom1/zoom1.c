@@ -18,6 +18,7 @@
 #include <netdev.h>
 #include <twl4030.h>
 #include <asm/io.h>
+#include <asm/arch/mem.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/sys_proto.h>
@@ -26,6 +27,20 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/* gpmc_cfg is initialized by gpmc_init and we use it here */
+extern struct gpmc *gpmc_cfg;
+
+/* GPMC definitions for Ethenet Controller LAN9211 */
+static const u32 gpmc_lab_enet[] = {
+	ZOOM1_ENET_GPMC_CONF1,
+	ZOOM1_ENET_GPMC_CONF2,
+	ZOOM1_ENET_GPMC_CONF3,
+	ZOOM1_ENET_GPMC_CONF4,
+	ZOOM1_ENET_GPMC_CONF5,
+	ZOOM1_ENET_GPMC_CONF6,
+	/*CONF7- computed as params */
+};
+
 /*
  * Routine: board_init
  * Description: Early hardware init.
@@ -33,6 +48,9 @@ DECLARE_GLOBAL_DATA_PTR;
 int board_init(void)
 {
 	gpmc_init(); /* in SRAM or SDRAM, finish GPMC */
+	/* CS1 is Ethernet LAN9211 */
+	enable_gpmc_cs_config(gpmc_lab_enet, &gpmc_cfg->cs[1],
+			      DEBUG_BASE, GPMC_SIZE_16M);
 	/* board id for Linux */
 	gd->bd->bi_arch_number = MACH_TYPE_OMAP_LDP;
 	/* boot param addr */
