@@ -162,7 +162,7 @@
 	"bootdir=/\0" \
 	"bootpart=0:1\0" \
 	"usbtty=cdc_acm\0" \
-	"console=ttyS2,115200n8\0" \
+	"console=ttyO2,115200n8\0" \
 	"mmcdev=0\0" \
 	"videomode=1024x768@60,vxres=1024,vyres=768\0" \
 	"videospec=omapfb:vram:2M,vram:4M\0" \
