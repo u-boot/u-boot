@@ -26,6 +26,8 @@
 #undef	MSR_KERNEL
 #define MSR_KERNEL ( MSR_ME )	/* Machine Check */
 
+#define LAW_EN		0x80000000
+
 #if defined(CONFIG_NAND_SPL) || \
 	(defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_INIT_MINIMAL))
 #define MINIMAL_SPL
@@ -577,7 +579,6 @@ infinite_debug_loop:
 #ifdef CONFIG_FSL_CORENET
 
 #define CCSR_LAWBARH0	(CONFIG_SYS_CCSRBAR + 0x1000)
-#define LAW_EN		0x80000000
 #define LAW_SIZE_4K	0xb
 #define CCSRBAR_LAWAR	(LAW_EN | (0x1e << 20) | LAW_SIZE_4K)
 #define CCSRAR_C	0x80000000	/* Commit */
