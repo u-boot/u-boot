@@ -115,7 +115,7 @@
 #undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
 #undef CONFIG_CMD_IMI		/* iminfo			*/
 #undef CONFIG_CMD_IMLS		/* List all found images	*/
-#undef CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
+#define CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
 #undef CONFIG_CMD_NFS		/* NFS support			*/
 
 #define CONFIG_SYS_NO_FLASH
@@ -264,5 +264,13 @@
 #define CONFIG_ENV_ADDR			SMNAND_ENV_OFFSET
 
 #define CONFIG_SYS_CACHELINE_SIZE	64
+
+#ifdef CONFIG_CMD_NET
+/* Ethernet (LAN9211 from SMSC9118 family) */
+#define CONFIG_SMC911X
+#define CONFIG_SMC911X_32_BIT
+#define CONFIG_SMC911X_BASE		DEBUG_BASE
+
+#endif
 
 #endif				/* __CONFIG_H */
