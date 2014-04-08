@@ -12,6 +12,20 @@
 #define ESPI_BOOT_IMAGE_ADDR	0x50
 #define CONFIG_CFG_DATA_SECTOR	0
 
+void spi_spl_load_image(uint32_t offs, unsigned int size, void *vdst)
+{
+	struct spi_flash *flash;
+
+	flash = spi_flash_probe(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,
+			CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE);
+	if (flash == NULL) {
+		puts("\nspi_flash_probe failed");
+		hang();
+	}
+
+	spi_flash_read(flash, offs, size, vdst);
+}
+
 /*
  * The main entry for SPI booting. It's necessary that SDRAM is already
  * configured and available since this code loads the main U-Boot image

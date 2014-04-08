@@ -19,6 +19,32 @@
 #define MBRDBR_BOOT_SIG_AA	0x1ff
 #define CONFIG_CFG_DATA_SECTOR	0
 
+
+void mmc_spl_load_image(uint32_t offs, unsigned int size, void *vdst)
+{
+	uint blk_start, blk_cnt, err;
+
+	struct mmc *mmc = find_mmc_device(0);
+	if (!mmc) {
+		puts("spl: mmc device not found!!\n");
+		hang();
+	}
+
+	if (mmc_init(mmc)) {
+		puts("MMC init failed\n");
+		return;
+	}
+
+	blk_start = ALIGN(offs, mmc->read_bl_len) / mmc->read_bl_len;
+	blk_cnt = ALIGN(size, mmc->read_bl_len) / mmc->read_bl_len;
+
+	err = mmc->block_dev.block_read(0, blk_start, blk_cnt, vdst);
+	if (err != blk_cnt) {
+		puts("spl: mmc read failed!!\n");
+		hang();
+	}
+}
+
 /*
  * The main entry for mmc booting. It's necessary that SDRAM is already
  * configured and available since this code loads the main U-Boot image

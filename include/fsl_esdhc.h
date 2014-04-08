@@ -187,5 +187,6 @@ static inline int fsl_esdhc_mmc_init(bd_t *bis) { return -ENOSYS; }
 static inline void fdt_fixup_esdhc(void *blob, bd_t *bd) {}
 #endif /* CONFIG_FSL_ESDHC */
 void __noreturn mmc_boot(void);
+void mmc_spl_load_image(uint32_t offs, unsigned int size, void *vdst);
 
 #endif  /* __FSL_ESDHC_H__ */
