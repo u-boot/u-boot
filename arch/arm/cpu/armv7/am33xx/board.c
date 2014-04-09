@@ -142,7 +142,7 @@ int arch_misc_init(void)
 	return 0;
 }
 
-#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_NOR_BOOT)
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
 /*
  * This function is the place to do per-board things such as ramp up the
  * MPU clock frequency.
@@ -200,9 +200,7 @@ static void watchdog_disable(void)
 	while (readl(&wdtimer->wdtwwps) != 0x0)
 		;
 }
-#endif
 
-#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_NOR_BOOT)
 void s_init(void)
 {
 	/*
