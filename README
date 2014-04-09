@@ -751,6 +751,10 @@ The following options need to be configured:
 		boot loader that has already initialized the UART.  Define this
 		variable to flush the UART at init time.
 
+		CONFIG_SERIAL_HW_FLOW_CONTROL
+
+		Define this variable to enable hw flow control in serial driver.
+		Current user of this option is drivers/serial/nsl16550.c driver
 
 - Console Interface:
 		Depending on board, define exactly one serial port

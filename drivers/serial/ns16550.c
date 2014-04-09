@@ -33,6 +33,12 @@
 #if defined(CONFIG_K2HK_EVM)
 #define UART_REG_VAL_PWREMU_MGMT_UART_DISABLE   0
 #define UART_REG_VAL_PWREMU_MGMT_UART_ENABLE ((1 << 14) | (1 << 13) | (1 << 0))
+#undef UART_MCRVAL
+#ifdef CONFIG_SERIAL_HW_FLOW_CONTROL
+#define UART_MCRVAL             (UART_MCR_RTS | UART_MCR_AFE)
+#else
+#define UART_MCRVAL             (UART_MCR_RTS)
+#endif
 #endif
 
 #ifndef CONFIG_SYS_NS16550_IER
