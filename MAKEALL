@@ -419,10 +419,6 @@ LIST_arm="$(targets_by_arch arm |		\
 #########################################################################
 
 LIST_mips4kc="		\
-	incaip		\
-	incaip_100MHz	\
-	incaip_133MHz	\
-	incaip_150MHz	\
 	qemu_mips	\
 	vct_platinum	\
 	vct_platinum_small	\

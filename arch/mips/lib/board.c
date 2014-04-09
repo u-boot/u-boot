@@ -103,9 +103,6 @@ init_fnc_t *init_sequence[] = {
 	board_early_init_f,
 	timer_init,
 	env_init,		/* initialize environment */
-#ifdef CONFIG_INCA_IP
-	incaip_set_cpuclk,	/* set cpu clock according to env. variable */
-#endif
 	init_baudrate,		/* initialize baudrate settings */
 	serial_init,		/* serial communications setup */
 	console_init_f,

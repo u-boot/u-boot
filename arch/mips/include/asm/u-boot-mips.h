@@ -21,5 +21,3 @@ static inline unsigned long image_copy_end(void)
 	extern char __image_copy_end[];
 	return (unsigned long) &__image_copy_end;
 }
-
-extern int incaip_set_cpuclk(void);
