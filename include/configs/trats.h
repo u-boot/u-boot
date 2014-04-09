@@ -59,7 +59,7 @@
 
 #define CONFIG_BOOTARGS			"Please use defined boot"
 #define CONFIG_BOOTCOMMAND		"run mmcboot"
-#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"
+#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC2,115200n8\0"
 
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR \
 					- GENERATED_GBL_DATA_SIZE)
