@@ -1053,11 +1053,11 @@ depend dep:
 
 # ---------------------------------------------------------------------------
 quiet_cmd_cpp_lds = LDS     $@
-cmd_cpp_lds = $(CPP) $(cpp_flags) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ \
-		-x assembler-with-cpp -P -o $@ $<
+cmd_cpp_lds = $(CPP) -Wp,-MD,$(depfile) $(cpp_flags) $(LDPPFLAGS) -ansi \
+		-D__ASSEMBLY__ -x assembler-with-cpp -P -o $@ $<
 
 u-boot.lds: $(LDSCRIPT) prepare FORCE
-	$(call if_changed,cpp_lds)
+	$(call if_changed_dep,cpp_lds)
 
 PHONY += nand_spl
 nand_spl: prepare
