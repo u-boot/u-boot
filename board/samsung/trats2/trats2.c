@@ -150,8 +150,21 @@ static int pmic_init_max77686(void);
 
 int exynos_init(void)
 {
+	struct exynos4_power *pwr =
+		(struct exynos4_power *)samsung_get_base_power();
+
 	check_hw_revision();
 	printf("HW Revision:\t0x%04x\n", board_rev);
+
+	/*
+	 * First bootloader on the TRATS2 platform uses
+	 * INFORM4 and INFORM5 registers for recovery
+	 *
+	 * To indicate correct boot chain - those two
+	 * registers must be cleared out
+	 */
+	writel(0, &pwr->inform4);
+	writel(0, &pwr->inform5);
 
 	return 0;
 }
