@@ -63,6 +63,9 @@
 /* GPIO support */
 #define CONFIG_OMAP_GPIO
 
+/* GPIO banks */
+#define CONFIG_OMAP3_GPIO_2		/* GPIO32..63 are in GPIO bank 2 */
+
 /* LED support */
 #define CONFIG_STATUS_LED
 #define CONFIG_BOARD_SPECIFIC_LED
