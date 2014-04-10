@@ -576,6 +576,10 @@ static void ep0_txstate(struct musb *musb)
 	} else
 		request = NULL;
 
+	/* send it out, triggering a "txpktrdy cleared" irq */
+	musb_ep_select(musb->mregs, 0);
+	musb_writew(regs, MUSB_CSR0, csr);
+
 	/* report completions as soon as the fifo's loaded; there's no
 	 * win in waiting till this last packet gets acked.  (other than
 	 * very precise fault reporting, needed by USB TMC; possible with
@@ -588,10 +592,6 @@ static void ep0_txstate(struct musb *musb)
 			return;
 		musb->ackpend = 0;
 	}
-
-	/* send it out, triggering a "txpktrdy cleared" irq */
-	musb_ep_select(musb->mregs, 0);
-	musb_writew(regs, MUSB_CSR0, csr);
 }
 
 /*
