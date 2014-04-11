@@ -29,6 +29,11 @@ ifdef CONFIG_BOOTDELAY
 obj-y += autoboot.o
 endif
 
+# This option is not just y/n - it can have a numeric value
+ifdef CONFIG_BOOT_RETRY_TIME
+obj-y += bootretry.o
+endif
+
 # boards
 obj-$(CONFIG_SYS_GENERIC_BOARD) += board_f.o
 obj-$(CONFIG_SYS_GENERIC_BOARD) += board_r.o

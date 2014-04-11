@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <bootretry.h>
 #include <cli.h>
 #include <watchdog.h>
 
@@ -18,16 +19,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static const char erase_seq[] = "\b \b";	/* erase sequence */
 static const char   tab_seq[] = "        ";	/* used to expand TABs */
 
-#ifdef CONFIG_BOOT_RETRY_TIME
-static uint64_t endtime;      /* must be set, default is instant timeout */
-static int      retry_time = -1; /* -1 so can call readline before main_loop */
-#endif
-
 char console_buffer[CONFIG_SYS_CBSIZE + 1];	/* console I/O buffer	*/
-
-#ifndef CONFIG_BOOT_RETRY_MIN
-#define CONFIG_BOOT_RETRY_MIN CONFIG_BOOT_RETRY_TIME
-#endif
 
 static char *delete_char (char *buffer, char *p, int *colp, int *np, int plen)
 {
@@ -267,13 +259,8 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 		cread_add_str(buf, init_len, 1, &num, &eol_num, buf, *len);
 
 	while (1) {
-#ifdef CONFIG_BOOT_RETRY_TIME
-		while (!tstc()) {	/* while no incoming data */
-			if (retry_time >= 0 && get_ticks() > endtime)
-				return -2;	/* timed out */
-			WATCHDOG_RESET();
-		}
-#endif
+		if (bootretry_tstc_timeout())
+			return -2;	/* timed out */
 		if (first && timeout) {
 			uint64_t etime = endtick(timeout);
 
@@ -539,13 +526,8 @@ int cli_readline_into_buffer(const char *const prompt, char *buffer,
 	col = plen;
 
 	for (;;) {
-#ifdef CONFIG_BOOT_RETRY_TIME
-		while (!tstc()) {	/* while no incoming data */
-			if (retry_time >= 0 && get_ticks() > endtime)
-				return -2;	/* timed out */
-			WATCHDOG_RESET();
-		}
-#endif
+		if (bootretry_tstc_timeout())
+			return -2;	/* timed out */
 		WATCHDOG_RESET();	/* Trigger watchdog, if needed */
 
 #ifdef CONFIG_SHOW_ACTIVITY
@@ -637,35 +619,3 @@ int cli_readline_into_buffer(const char *const prompt, char *buffer,
 	}
 #endif
 }
-
-#ifdef CONFIG_BOOT_RETRY_TIME
-/***************************************************************************
- * initialize command line timeout
- */
-void init_cmd_timeout(void)
-{
-	char *s = getenv("bootretry");
-
-	if (s != NULL)
-		retry_time = (int)simple_strtol(s, NULL, 10);
-	else
-		retry_time =  CONFIG_BOOT_RETRY_TIME;
-
-	if (retry_time >= 0 && retry_time < CONFIG_BOOT_RETRY_MIN)
-		retry_time = CONFIG_BOOT_RETRY_MIN;
-}
-
-/***************************************************************************
- * reset command line timeout to retry_time seconds
- */
-void reset_cmd_timeout(void)
-{
-	endtime = endtick(retry_time);
-}
-
-void bootretry_dont_retry(void)
-{
-	retry_time = -1;
-}
-
-#endif

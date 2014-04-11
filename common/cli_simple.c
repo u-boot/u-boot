@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <bootretry.h>
 #include <cli.h>
 #include <linux/ctype.h>
 

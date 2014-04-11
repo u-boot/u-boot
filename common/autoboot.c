@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <bootretry.h>
 #include <cli.h>
 #include <fdtdec.h>
 #include <menu.h>

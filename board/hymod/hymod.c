@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <bootretry.h>
 #include <cli.h>
 #include <mpc8260.h>
 #include <mpc8260_irq.h>

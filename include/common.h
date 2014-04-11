@@ -286,8 +286,6 @@ int run_command(const char *cmd, int flag);
  * @return 0 on success, or != 0 on error.
  */
 int run_command_list(const char *cmd, int len, int flag);
-void	init_cmd_timeout(void);
-void	reset_cmd_timeout(void);
 extern char console_buffer[];
 
 /* arch/$(ARCH)/lib/board.c */

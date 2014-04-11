@@ -12,6 +12,7 @@
  */
 
 #include <common.h>
+#include <bootretry.h>
 #include <cli.h>
 #include <command.h>
 #ifdef CONFIG_HAS_DATAFLASH
