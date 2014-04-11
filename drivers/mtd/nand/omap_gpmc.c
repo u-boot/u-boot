@@ -151,16 +151,9 @@ static int __maybe_unused omap_correct_data(struct mtd_info *mtd, uint8_t *dat,
  * Generic BCH interface
  */
 struct nand_bch_priv {
-	uint8_t mode;
-	uint8_t type;
 	struct bch_control *control;
 	enum omap_ecc ecc_scheme;
 };
-
-/* bch types */
-#define ECC_BCH4	0
-#define ECC_BCH8	1
-#define ECC_BCH16	2
 
 /*
  * This can be a single instance cause all current users have only one NAND
@@ -169,7 +162,6 @@ struct nand_bch_priv {
  * When some users with other BCH strength will exists this have to change!
  */
 static __maybe_unused struct nand_bch_priv bch_priv = {
-	.type = ECC_BCH8,
 	.control = NULL
 };
 
@@ -342,6 +334,7 @@ static int omap_correct_data_bch(struct mtd_info *mtd, uint8_t *dat,
 	uint32_t eccbytes = chip->ecc.bytes;
 	uint32_t error_count = 0, error_max;
 	uint32_t error_loc[8];
+	enum bch_level bch_type;
 	uint32_t i, ecc_flag = 0;
 	uint8_t count, err = 0;
 	uint32_t byte_pos, bit_pos;
@@ -369,22 +362,22 @@ static int omap_correct_data_bch(struct mtd_info *mtd, uint8_t *dat,
 	 */
 	switch (bch->ecc_scheme) {
 	case OMAP_ECC_BCH8_CODE_HW:
+		bch_type = BCH_8_BIT;
 		omap_reverse_list(calc_ecc, eccbytes - 1);
 		break;
 	default:
 		return -EINVAL;
 	}
 	/* use elm module to check for errors */
-	elm_config((enum bch_level)(bch->type));
-	if (elm_check_error(calc_ecc, (enum bch_level)bch->type,
-					&error_count, error_loc)) {
+	elm_config(bch_type);
+	if (elm_check_error(calc_ecc, bch_type, &error_count, error_loc)) {
 		printf("nand: error: uncorrectable ECC errors\n");
 		return -EINVAL;
 	}
 	/* correct bch error */
 	for (count = 0; count < error_count; count++) {
-		switch (bch->type) {
-		case ECC_BCH8:
+		switch (bch->ecc_scheme) {
+		case OMAP_ECC_BCH8_CODE_HW:
 			/* 14th byte in ECC is reserved to match ROM layout */
 			error_max = SECTOR_BYTES + (eccbytes - 1);
 			break;
@@ -562,7 +555,6 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 		/* For this ecc-scheme, ecc.bytes, ecc.layout, ... are
 		 * initialized in nand_scan_tail(), so just set ecc.mode */
 		bch_priv.control	= NULL;
-		bch_priv.type		= 0;
 		nand->ecc.mode		= NAND_ECC_SOFT;
 		nand->ecc.layout	= NULL;
 		nand->ecc.size		= 0;
@@ -578,7 +570,6 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 			return -EINVAL;
 		}
 		bch_priv.control	= NULL;
-		bch_priv.type		= 0;
 		/* populate ecc specific fields */
 		memset(&nand->ecc, 0, sizeof(struct nand_ecc_ctrl));
 		nand->ecc.mode		= NAND_ECC_HW;
@@ -617,7 +608,6 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 			printf("nand: error: could not init_bch()\n");
 			return -ENODEV;
 		}
-		bch_priv.type = ECC_BCH8;
 		/* populate ecc specific fields */
 		memset(&nand->ecc, 0, sizeof(struct nand_ecc_ctrl));
 		nand->ecc.mode		= NAND_ECC_HW;
@@ -659,7 +649,6 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 		}
 		/* intialize ELM for ECC error detection */
 		elm_init();
-		bch_priv.type		= ECC_BCH8;
 		/* populate ecc specific fields */
 		memset(&nand->ecc, 0, sizeof(struct nand_ecc_ctrl));
 		nand->ecc.mode		= NAND_ECC_HW;
