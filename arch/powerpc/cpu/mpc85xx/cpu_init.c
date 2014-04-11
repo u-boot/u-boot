@@ -767,8 +767,6 @@ skip_l2:
 	return 0;
 }
 
-extern void setup_ivors(void);
-
 void arch_preboot_os(void)
 {
 	u32 msr;
@@ -781,8 +779,6 @@ void arch_preboot_os(void)
 	msr = mfmsr();
 	msr &= ~(MSR_ME|MSR_CE);
 	mtmsr(msr);
-
-	setup_ivors();
 }
 
 #if defined(CONFIG_CMD_SATA) && defined(CONFIG_FSL_SATA)

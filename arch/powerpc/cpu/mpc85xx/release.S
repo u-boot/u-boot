@@ -405,9 +405,6 @@ __second_half_boot_page:
 	bne	3b
 	isync
 
-	/* setup IVORs to match fixed offsets */
-#include "fixed_ivor.S"
-
 	/* get the upper bits of the addr */
 	lwz	r11,ENTRY_ADDR_UPPER(r10)
 

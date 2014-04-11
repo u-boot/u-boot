@@ -78,11 +78,7 @@ $(obj)/resetvec.S:
 	@rm -f $@
 	ln -s $(srctree)/$(CPUDIR)/resetvec.S $@
 
-$(obj)/fixed_ivor.S:
-	@rm -f $@
-	ln -sf $(srctree)/arch/powerpc/cpu/mpc85xx/fixed_ivor.S $@
-
-$(obj)/start.S: $(obj)/fixed_ivor.S
+$(obj)/start.S:
 	@rm -f $@
 	ln -sf $(srctree)/arch/powerpc/cpu/mpc85xx/start.S $@
 

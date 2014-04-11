@@ -1965,10 +1965,4 @@ flush_dcache:
 	isync
 
 	blr
-
-.globl setup_ivors
-setup_ivors:
-
-#include "fixed_ivor.S"
-	blr
 #endif /* !MINIMAL_SPL */
