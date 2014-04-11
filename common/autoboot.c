@@ -22,6 +22,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define debug_bootkeys(fmt, args...)		\
 	debug_cond(DEBUG_BOOTKEYS, fmt, ##args)
 
+/* Stored value of bootdelay, used by autoboot_command() */
+static int stored_bootdelay;
+
 /***************************************************************************
  * Watch for 'delay' seconds for autoboot stop or autoboot delay string.
  * returns: 0 -  no key string, allow autoboot 1 - got key string, abort
@@ -205,57 +208,9 @@ static int abortboot(int bootdelay)
 #endif
 }
 
-/*
- * Runs the given boot command securely.  Specifically:
- * - Doesn't run the command with the shell (run_command or parse_string_outer),
- *   since that's a lot of code surface that an attacker might exploit.
- *   Because of this, we don't do any argument parsing--the secure boot command
- *   has to be a full-fledged u-boot command.
- * - Doesn't check for keypresses before booting, since that could be a
- *   security hole; also disables Ctrl-C.
- * - Doesn't allow the command to return.
- *
- * Upon any failures, this function will drop into an infinite loop after
- * printing the error message to console.
- */
-
-#if defined(CONFIG_OF_CONTROL)
-static void secure_boot_cmd(char *cmd)
-{
-	cmd_tbl_t *cmdtp;
-	int rc;
-
-	if (!cmd) {
-		printf("## Error: Secure boot command not specified\n");
-		goto err;
-	}
-
-	/* Disable Ctrl-C just in case some command is used that checks it. */
-	disable_ctrlc(1);
-
-	/* Find the command directly. */
-	cmdtp = find_cmd(cmd);
-	if (!cmdtp) {
-		printf("## Error: \"%s\" not defined\n", cmd);
-		goto err;
-	}
-
-	/* Run the command, forcing no flags and faking argc and argv. */
-	rc = (cmdtp->cmd)(cmdtp, 0, 1, &cmd);
-
-	/* Shouldn't ever return from boot command. */
-	printf("## Error: \"%s\" returned (code %d)\n", cmd, rc);
-
-err:
-	/*
-	 * Not a whole lot to do here.  Rebooting won't help much, since we'll
-	 * just end up right back here.  Just loop.
-	 */
-	hang();
-}
-
 static void process_fdt_options(const void *blob)
 {
+#if defined(CONFIG_OF_CONTROL)
 	ulong addr;
 
 	/* Add an env variable to point to a kernel payload, if available */
@@ -267,14 +222,11 @@ static void process_fdt_options(const void *blob)
 	addr = fdtdec_get_config_int(gd->fdt_blob, "rootdisk-offset", 0);
 	if (addr)
 		setenv_addr("rootaddr", (void *)(CONFIG_SYS_TEXT_BASE + addr));
-}
 #endif /* CONFIG_OF_CONTROL */
+}
 
-void bootdelay_process(void)
+const char *bootdelay_process(void)
 {
-#ifdef CONFIG_OF_CONTROL
-	char *env;
-#endif
 	char *s;
 	int bootdelay;
 #ifdef CONFIG_BOOTCOUNT_LIMIT
@@ -318,27 +270,18 @@ void bootdelay_process(void)
 	} else
 #endif /* CONFIG_BOOTCOUNT_LIMIT */
 		s = getenv("bootcmd");
-#ifdef CONFIG_OF_CONTROL
-	/* Allow the fdt to override the boot command */
-	env = fdtdec_get_config_string(gd->fdt_blob, "bootcmd");
-	if (env)
-		s = env;
 
 	process_fdt_options(gd->fdt_blob);
+	stored_bootdelay = bootdelay;
 
-	/*
-	 * If the bootsecure option was chosen, use secure_boot_cmd().
-	 * Always use 'env' in this case, since bootsecure requres that the
-	 * bootcmd was specified in the FDT too.
-	 */
-	if (fdtdec_get_config_int(gd->fdt_blob, "bootsecure", 0))
-		secure_boot_cmd(env);
+	return s;
+}
 
-#endif /* CONFIG_OF_CONTROL */
-
+void autoboot_command(const char *s)
+{
 	debug("### main_loop: bootcmd=\"%s\"\n", s ? s : "<UNDEFINED>");
 
-	if (bootdelay != -1 && s && !abortboot(bootdelay)) {
+	if (stored_bootdelay != -1 && s && !abortboot(stored_bootdelay)) {
 #if defined(CONFIG_AUTOBOOT_KEYED) && !defined(CONFIG_AUTOBOOT_KEYED_CTRLC)
 		int prev = disable_ctrlc(1);	/* disable Control C checking */
 #endif

@@ -12,7 +12,10 @@
 #include <common.h>
 #include <cli.h>
 #include <cli_hush.h>
+#include <fdtdec.h>
 #include <malloc.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * Run a command using the selected parser.
@@ -104,6 +107,69 @@ int do_run(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 #endif
+
+#ifdef CONFIG_OF_CONTROL
+bool cli_process_fdt(const char **cmdp)
+{
+	/* Allow the fdt to override the boot command */
+	char *env = fdtdec_get_config_string(gd->fdt_blob, "bootcmd");
+	if (env)
+		*cmdp = env;
+	/*
+	 * If the bootsecure option was chosen, use secure_boot_cmd().
+	 * Always use 'env' in this case, since bootsecure requres that the
+	 * bootcmd was specified in the FDT too.
+	 */
+	return fdtdec_get_config_int(gd->fdt_blob, "bootsecure", 0) != 0;
+}
+
+/*
+ * Runs the given boot command securely.  Specifically:
+ * - Doesn't run the command with the shell (run_command or parse_string_outer),
+ *   since that's a lot of code surface that an attacker might exploit.
+ *   Because of this, we don't do any argument parsing--the secure boot command
+ *   has to be a full-fledged u-boot command.
+ * - Doesn't check for keypresses before booting, since that could be a
+ *   security hole; also disables Ctrl-C.
+ * - Doesn't allow the command to return.
+ *
+ * Upon any failures, this function will drop into an infinite loop after
+ * printing the error message to console.
+ */
+void cli_secure_boot_cmd(const char *cmd)
+{
+	cmd_tbl_t *cmdtp;
+	int rc;
+
+	if (!cmd) {
+		printf("## Error: Secure boot command not specified\n");
+		goto err;
+	}
+
+	/* Disable Ctrl-C just in case some command is used that checks it. */
+	disable_ctrlc(1);
+
+	/* Find the command directly. */
+	cmdtp = find_cmd(cmd);
+	if (!cmdtp) {
+		printf("## Error: \"%s\" not defined\n", cmd);
+		goto err;
+	}
+
+	/* Run the command, forcing no flags and faking argc and argv. */
+	rc = (cmdtp->cmd)(cmdtp, 0, 1, (char **)&cmd);
+
+	/* Shouldn't ever return from boot command. */
+	printf("## Error: \"%s\" returned (code %d)\n", cmd, rc);
+
+err:
+	/*
+	 * Not a whole lot to do here.  Rebooting won't help much, since we'll
+	 * just end up right back here.  Just loop.
+	 */
+	hang();
+}
+#endif /* CONFIG_OF_CONTROL */
 
 void cli_loop(void)
 {

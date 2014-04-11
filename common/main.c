@@ -55,8 +55,11 @@ static void run_preboot_environment_command(void)
 #endif /* CONFIG_PREBOOT */
 }
 
+/* We come here after U-Boot is initialised and ready to process commands */
 void main_loop(void)
 {
+	const char *s;
+
 	bootstage_mark_name(BOOTSTAGE_ID_MAIN_LOOP, "main_loop");
 
 #ifndef CONFIG_SYS_GENERIC_BOARD
@@ -78,10 +81,11 @@ void main_loop(void)
 	update_tftp(0UL);
 #endif /* CONFIG_UPDATE_TFTP */
 
-	bootdelay_process();
-	/*
-	 * Main Loop for Monitor Command Processing
-	 */
+	s = bootdelay_process();
+	if (cli_process_fdt(&s))
+		cli_secure_boot_cmd(s);
+
+	autoboot_command(s);
 
 	cli_loop();
 }

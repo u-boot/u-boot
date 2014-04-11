@@ -100,6 +100,39 @@ int cli_readline_into_buffer(const char *const prompt, char *buffer,
  */
 int cli_simple_parse_line(char *line, char *argv[]);
 
+#ifdef CONFIG_OF_CONTROL
+/**
+ * cli_process_fdt() - process the boot command from the FDT
+ *
+ * If bootcmmd is defined in the /config node of the FDT, we use that
+ * as the boot command. Further, if bootsecure is set to 1 (in the same
+ * node) then we return true, indicating that the command should be executed
+ * as securely as possible, avoiding the CLI parser.
+ *
+ * @cmdp:	On entry, the command that will be executed if the FDT does
+ *		not have a command. Returns the command to execute after
+ *		checking the FDT.
+ * @return true to execute securely, else false
+ */
+bool cli_process_fdt(const char **cmdp);
+
+/** cli_secure_boot_cmd() - execute a command as securely as possible
+ *
+ * This avoids using the parser, thus executing the command with the
+ * smallest amount of code. Parameters are not supported.
+ */
+void cli_secure_boot_cmd(const char *cmd);
+#else
+static inline bool cli_process_fdt(const char **cmdp)
+{
+	return false;
+}
+
+static inline void cli_secure_boot_cmd(const char *cmd)
+{
+}
+#endif /* CONFIG_OF_CONTROL */
+
 /**
  * Go into the command loop
  *

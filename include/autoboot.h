@@ -13,9 +13,33 @@
 #define __AUTOBOOT_H
 
 #ifdef CONFIG_BOOTDELAY
-void bootdelay_process(void);
+/**
+ * bootdelay_process() - process the bootd delay
+ *
+ * Process the boot delay, boot limit, then get the value of either
+ * bootcmd, failbootcmd or altbootcmd depending on the current state.
+ * Return this command so it can be executed.
+ *
+ * @return command to executed
+ */
+const char *bootdelay_process(void);
+
+/**
+ * autoboot_command() - run the autoboot command
+ *
+ * If enabled, run the autoboot command returned from bootdelay_process().
+ * Also do the CONFIG_MENUKEY processing if enabled.
+ *
+ * @cmd: Command to run
+ */
+void autoboot_command(const char *cmd);
 #else
-static inline void bootdelay_process(void)
+static inline const char *bootdelay_process(void)
+{
+	return NULL;
+}
+
+static inline void autoboot_command(const char *s)
 {
 }
 #endif
