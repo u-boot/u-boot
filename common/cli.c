@@ -104,3 +104,25 @@ int do_run(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 #endif
+
+void cli_loop(void)
+{
+#ifdef CONFIG_SYS_HUSH_PARSER
+	parse_file_outer();
+	/* This point is never reached */
+	for (;;);
+#else
+	cli_simple_loop();
+#endif /*CONFIG_SYS_HUSH_PARSER*/
+}
+
+void cli_init(void)
+{
+#ifdef CONFIG_SYS_HUSH_PARSER
+	u_boot_hush_start();
+#endif
+
+#if defined(CONFIG_HUSH_INIT_VAR)
+	hush_init_var();
+#endif
+}

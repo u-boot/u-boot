@@ -10,7 +10,6 @@
 #include <common.h>
 #include <autoboot.h>
 #include <cli.h>
-#include <cli_hush.h>
 #include <malloc.h>
 #include <version.h>
 
@@ -71,13 +70,7 @@ void main_loop(void)
 	setenv("ver", version_string);  /* set version variable */
 #endif /* CONFIG_VERSION_VARIABLE */
 
-#ifdef CONFIG_SYS_HUSH_PARSER
-	u_boot_hush_start();
-#endif
-
-#if defined(CONFIG_HUSH_INIT_VAR)
-	hush_init_var();
-#endif
+	cli_init();
 
 	run_preboot_environment_command();
 
@@ -89,11 +82,6 @@ void main_loop(void)
 	/*
 	 * Main Loop for Monitor Command Processing
 	 */
-#ifdef CONFIG_SYS_HUSH_PARSER
-	parse_file_outer();
-	/* This point is never reached */
-	for (;;);
-#else
+
 	cli_loop();
-#endif /*CONFIG_SYS_HUSH_PARSER*/
 }

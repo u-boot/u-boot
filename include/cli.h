@@ -14,7 +14,7 @@
  * This will return if we get a timeout waiting for a command. See
  * CONFIG_BOOT_RETRY_TIME.
  */
-void cli_loop(void);
+void cli_simple_loop(void);
 
 /**
  * cli_simple_run_command() - Execute a command with the simple CLI
@@ -99,6 +99,17 @@ int cli_readline_into_buffer(const char *const prompt, char *buffer,
  * @return number of arguments
  */
 int cli_simple_parse_line(char *line, char *argv[]);
+
+/**
+ * Go into the command loop
+ *
+ * This will return if we get a timeout waiting for a command, but only for
+ * the simple parser (not hush). See CONFIG_BOOT_RETRY_TIME.
+ */
+void cli_loop(void);
+
+/** Set up the command line interpreter ready for action */
+void cli_init(void);
 
 #define endtick(seconds) (get_ticks() + (uint64_t)(seconds) * get_tbclk())
 

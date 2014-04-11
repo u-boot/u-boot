@@ -256,7 +256,7 @@ int cli_simple_run_command(const char *cmd, int flag)
 	return rc ? rc : repeatable;
 }
 
-void cli_loop(void)
+void cli_simple_loop(void)
 {
 	static char lastcommand[CONFIG_SYS_CBSIZE] = { 0, };
 
