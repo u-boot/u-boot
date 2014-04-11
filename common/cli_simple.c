@@ -19,7 +19,7 @@
 	debug_cond(DEBUG_PARSER, fmt, ##args)
 
 
-int parse_line(char *line, char *argv[])
+int cli_simple_parse_line(char *line, char *argv[])
 {
 	int nargs = 0;
 
@@ -238,7 +238,7 @@ int cli_simple_run_command(const char *cmd, int flag)
 		process_macros(token, finaltoken);
 
 		/* Extract arguments */
-		argc = parse_line(finaltoken, argv);
+		argc = cli_simple_parse_line(finaltoken, argv);
 		if (argc == 0) {
 			rc = -1;	/* no command at all */
 			continue;
@@ -272,7 +272,7 @@ void cli_loop(void)
 			reset_cmd_timeout();
 		}
 #endif
-		len = readline(CONFIG_SYS_PROMPT);
+		len = cli_readline(CONFIG_SYS_PROMPT);
 
 		flag = 0;	/* assume no special flags for now */
 		if (len > 0)

@@ -1007,9 +1007,9 @@ static void get_user_input(struct in_str *i)
 #endif
 	i->__promptme = 1;
 	if (i->promptmode == 1) {
-		n = readline(CONFIG_SYS_PROMPT);
+		n = cli_readline(CONFIG_SYS_PROMPT);
 	} else {
-		n = readline(CONFIG_SYS_PROMPT_HUSH_PS2);
+		n = cli_readline(CONFIG_SYS_PROMPT_HUSH_PS2);
 	}
 #ifdef CONFIG_BOOT_RETRY_TIME
 	if (n == -2) {

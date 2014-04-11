@@ -416,7 +416,7 @@ last_stage_init (void)
 
 #ifdef CONFIG_BOOT_RETRY_TIME
 	/*
-	 * we use the readline () function, but we also want
+	 * we use the cli_readline() function, but we also want
 	 * command timeout enabled
 	 */
 	init_cmd_timeout ();

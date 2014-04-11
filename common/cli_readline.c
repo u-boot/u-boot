@@ -484,7 +484,7 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len,
 
 /****************************************************************************/
 
-int readline(const char *const prompt)
+int cli_readline(const char *const prompt)
 {
 	/*
 	 * If console_buffer isn't 0-length the user will be prompted to modify
@@ -492,11 +492,12 @@ int readline(const char *const prompt)
 	 */
 	console_buffer[0] = '\0';
 
-	return readline_into_buffer(prompt, console_buffer, 0);
+	return cli_readline_into_buffer(prompt, console_buffer, 0);
 }
 
 
-int readline_into_buffer(const char *const prompt, char *buffer, int timeout)
+int cli_readline_into_buffer(const char *const prompt, char *buffer,
+			     int timeout)
 {
 	char *p = buffer;
 #ifdef CONFIG_CMDLINE_EDITING

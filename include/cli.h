@@ -53,7 +53,7 @@ int cli_simple_run_command_list(char *cmd, int flag);
  * @prompt: Prompt to display
  * @return command line length excluding terminator, or -ve on error
  */
-int readline(const char *const prompt);
+int cli_readline(const char *const prompt);
 
 /**
  * readline_into_buffer() - read a line into a buffer
@@ -78,7 +78,8 @@ int readline(const char *const prompt);
  * parameter), then -2 is returned. If a break is detected (Ctrl-C) then
  * -1 is returned.
  */
-int readline_into_buffer(const char *const prompt, char *buffer, int timeout);
+int cli_readline_into_buffer(const char *const prompt, char *buffer,
+				int timeout);
 
 /**
  * parse_line() - split a command line down into separate arguments
@@ -97,7 +98,7 @@ int readline_into_buffer(const char *const prompt, char *buffer, int timeout);
  * @args:	Array to hold arguments
  * @return number of arguments
  */
-int parse_line(char *line, char *argv[]);
+int cli_simple_parse_line(char *line, char *argv[]);
 
 /** bootretry_dont_retry() - Indicate that we should not retry the boot */
 void bootretry_dont_retry(void);

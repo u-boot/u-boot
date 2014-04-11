@@ -19,7 +19,7 @@ hymod_get_serno (const char *prompt)
 		reset_cmd_timeout ();
 #endif
 
-		n = readline (prompt);
+		n = cli_readline(prompt);
 
 		if (n < 0)
 			return (n);
@@ -47,7 +47,7 @@ hymod_get_ethaddr (void)
 		reset_cmd_timeout ();
 #endif
 
-		n = readline ("Enter board ethernet address: ");
+		n = cli_readline("Enter board ethernet address: ");
 
 		if (n < 0)
 			return (n);
