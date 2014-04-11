@@ -163,6 +163,18 @@ static int dfu_flush_medium_nand(struct dfu_entity *dfu)
 	return ret;
 }
 
+unsigned int dfu_polltimeout_nand(struct dfu_entity *dfu)
+{
+	/*
+	 * Currently, Poll Timeout != 0 is only needed on nand
+	 * ubi partition, as the not used sectors need an erase
+	 */
+	if (dfu->data.nand.ubi)
+		return DFU_MANIFEST_POLL_TIMEOUT;
+
+	return DFU_DEFAULT_POLL_TIMEOUT;
+}
+
 int dfu_fill_entity_nand(struct dfu_entity *dfu, char *s)
 {
 	char *st;
@@ -211,6 +223,7 @@ int dfu_fill_entity_nand(struct dfu_entity *dfu, char *s)
 	dfu->read_medium = dfu_read_medium_nand;
 	dfu->write_medium = dfu_write_medium_nand;
 	dfu->flush_medium = dfu_flush_medium_nand;
+	dfu->poll_timeout = dfu_polltimeout_nand;
 
 	/* initial state */
 	dfu->inited = 0;

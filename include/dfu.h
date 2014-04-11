@@ -100,6 +100,7 @@ struct dfu_entity {
 			u64 offset, void *buf, long *len);
 
 	int (*flush_medium)(struct dfu_entity *dfu);
+	unsigned int (*poll_timeout)(struct dfu_entity *dfu);
 
 	struct list_head list;
 
