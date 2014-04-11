@@ -797,6 +797,10 @@ defined(CONFIG_PPC_T1020) || defined(CONFIG_PPC_T1022)
 #define CONFIG_SYS_CCSRBAR_DEFAULT	0xff700000
 #define CONFIG_SYS_FSL_ERRATUM_A005125
 
+#elif defined(CONFIG_QEMU_E500)
+#define CONFIG_MAX_CPUS			1
+#define CONFIG_SYS_CCSRBAR_DEFAULT	0xe0000000
+
 #else
 #error Processor type not defined for this platform
 #endif

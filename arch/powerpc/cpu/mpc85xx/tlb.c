@@ -24,7 +24,7 @@ void invalidate_tlb(u8 tlb)
 		mtspr(MMUCSR0, 0x2);
 }
 
-void init_tlbs(void)
+__weak void init_tlbs(void)
 {
 	int i;
 

@@ -78,6 +78,13 @@ _start_e500:
 	li	r1,MSR_DE
 	mtmsr 	r1
 
+	/*
+	 * If we got an ePAPR device tree pointer passed in as r3, we need that
+	 * later in cpu_init_early_f(). Save it to a safe register before we
+	 * clobber it so that we can fetch it from there later.
+	 */
+	mr	r24, r3
+
 #ifdef CONFIG_SYS_FSL_ERRATUM_A004510
 	mfspr	r3,SPRN_SVR
 	rlwinm	r3,r3,0,0xff
@@ -1142,6 +1149,10 @@ _start_cont:
 	mr	r1,r3		/* Transfer to SP(r1) */
 
 	GET_GOT
+
+	/* Pass our potential ePAPR device tree pointer to cpu_init_early_f */
+	mr	r3, r24
+
 	bl	cpu_init_early_f
 
 	/* switch back to AS = 0 */
