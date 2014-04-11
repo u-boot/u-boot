@@ -14,7 +14,7 @@
 #include <common.h>
 #include <command.h>
 #include <fdtdec.h>
-#include <hush.h>
+#include <cli_hush.h>
 #include <malloc.h>
 #include <menu.h>
 #include <post.h>

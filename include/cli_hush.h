@@ -5,8 +5,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef _HUSH_H_
-#define _HUSH_H_
+#ifndef _CLI_HUSH_H_
+#define _CLI_HUSH_H_
 
 #define FLAG_EXIT_FROM_LOOP 1
 #define FLAG_PARSE_SEMICOLON (1 << 1)	  /* symbol ';' is special for parser */

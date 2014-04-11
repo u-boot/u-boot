@@ -79,7 +79,7 @@
 #include <malloc.h>         /* malloc, free, realloc*/
 #include <linux/ctype.h>    /* isalpha, isdigit */
 #include <common.h>        /* readline */
-#include <hush.h>
+#include <cli_hush.h>
 #include <command.h>        /* find_cmd */
 #ifndef CONFIG_SYS_PROMPT_HUSH_PS2
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
@@ -222,7 +222,7 @@ struct child_prog {
 #endif
 	char **argv;				/* program name and arguments */
 	/* was quoted when parsed; copy of struct o_string.nonnull field */
-	int *argv_nonnull;			
+	int *argv_nonnull;
 #ifdef __U_BOOT__
 	int    argc;                            /* number of program arguments */
 #endif
