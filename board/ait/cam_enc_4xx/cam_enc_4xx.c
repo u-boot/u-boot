@@ -9,7 +9,6 @@
 
 #include <common.h>
 #include <errno.h>
-#include <hush.h>
 #include <linux/mtd/nand.h>
 #include <nand.h>
 #include <miiphy.h>

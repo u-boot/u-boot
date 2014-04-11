@@ -12,11 +12,6 @@
 #include <usb.h>
 #include <part.h>
 
-#ifdef CONFIG_SYS_HUSH_PARSER
-#include <hush.h>
-#endif
-
-
 #ifdef CONFIG_AUTO_UPDATE
 
 #ifndef CONFIG_USB_OHCI
@@ -247,7 +242,7 @@ int au_do_update(int idx, long sz)
 		/* parse_string_outer() runs off the end. */
 		addr[image_get_data_size (hdr)] = 0;
 		addr += 8;
-		parse_string_outer(addr, FLAG_PARSE_SEMICOLON);
+		run_command_list(addr, -1, 0);
 		return 0;
 	}
 

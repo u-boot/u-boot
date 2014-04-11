@@ -13,7 +13,6 @@
 #include <asm/io.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/kirkwood.h>
-#include <hush.h>
 
 #define BUFLEN	16
 

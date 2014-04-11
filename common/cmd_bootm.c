@@ -32,10 +32,6 @@
 #include <usb.h>
 #endif
 
-#ifdef CONFIG_SYS_HUSH_PARSER
-#include <hush.h>
-#endif
-
 #if defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
 #include <fdt_support.h>
