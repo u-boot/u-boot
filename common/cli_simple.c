@@ -265,14 +265,12 @@ void cli_loop(void)
 	int rc = 1;
 
 	for (;;) {
-#ifdef CONFIG_BOOT_RETRY_TIME
 		if (rc >= 0) {
 			/* Saw enough of a valid command to
 			 * restart the timeout.
 			 */
-			reset_cmd_timeout();
+			bootretry_reset_cmd_timeout();
 		}
-#endif
 		len = cli_readline(CONFIG_SYS_PROMPT);
 
 		flag = 0;	/* assume no special flags for now */

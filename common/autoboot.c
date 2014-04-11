@@ -113,11 +113,9 @@ static int abortboot_keyed(int bootdelay)
 						delaykey[i].retry ? "delay" :
 						"stop");
 
-#  ifdef CONFIG_BOOT_RETRY_TIME
 				/* don't retry auto boot */
 				if (!delaykey[i].retry)
 					bootretry_dont_retry();
-#  endif
 				abort = 1;
 			}
 		}
@@ -305,9 +303,7 @@ void bootdelay_process(void)
 #if defined(CONFIG_MENU_SHOW)
 	bootdelay = menu_show(bootdelay);
 #endif
-# ifdef CONFIG_BOOT_RETRY_TIME
-	init_cmd_timeout();
-# endif	/* CONFIG_BOOT_RETRY_TIME */
+	bootretry_init_cmd_timeout();
 
 #ifdef CONFIG_POST
 	if (gd->flags & GD_FLG_POSTFAIL) {

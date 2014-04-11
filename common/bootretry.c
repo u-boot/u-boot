@@ -21,7 +21,7 @@ static int      retry_time = -1; /* -1 so can call readline before main_loop */
 /***************************************************************************
  * initialize command line timeout
  */
-void init_cmd_timeout(void)
+void bootretry_init_cmd_timeout(void)
 {
 	char *s = getenv("bootretry");
 
@@ -37,7 +37,7 @@ void init_cmd_timeout(void)
 /***************************************************************************
  * reset command line timeout to retry_time seconds
  */
-void reset_cmd_timeout(void)
+void bootretry_reset_cmd_timeout(void)
 {
 	endtime = endtick(retry_time);
 }

@@ -5,8 +5,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __bootretry_h
-#define __bootretry_h
+#ifndef __BOOTRETRY_H
+#define __BOOTRETRY_H
 
 #ifdef CONFIG_BOOT_RETRY_TIME
 /**
@@ -18,14 +18,42 @@
  * @return 0 if a key is received in time, -ETIMEDOUT if not
  */
 int bootretry_tstc_timeout(void);
+
+/**
+ * bootretry_init_cmd_timeout() - set up command timeout
+ *
+ * Get the required command timeout from the environment.
+ */
+void bootretry_init_cmd_timeout(void);
+
+/**
+ * bootretry_reset_cmd_timeout() - reset command timeout
+ *
+ * Reset the command timeout so that the user has a fresh start. This is
+ * typically used when input is received from the user.
+ */
+void bootretry_reset_cmd_timeout(void);
+
+/** bootretry_dont_retry() - Indicate that we should not retry the boot */
+void bootretry_dont_retry(void);
 #else
 static inline int bootretry_tstc_timeout(void)
 {
 	return 0;
 }
-#endif
 
-void init_cmd_timeout(void);
-void reset_cmd_timeout(void);
+static inline void bootretry_init_cmd_timeout(void)
+{
+}
+
+static inline void bootretry_reset_cmd_timeout(void)
+{
+}
+
+static inline void bootretry_dont_retry(void)
+{
+}
+
+#endif
 
 #endif

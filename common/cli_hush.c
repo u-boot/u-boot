@@ -1000,12 +1000,7 @@ static void get_user_input(struct in_str *i)
 	int n;
 	static char the_command[CONFIG_SYS_CBSIZE + 1];
 
-#ifdef CONFIG_BOOT_RETRY_TIME
-#  ifndef CONFIG_RESET_TO_RETRY
-#	error "This currently only works with CONFIG_RESET_TO_RETRY enabled"
-#  endif
-	reset_cmd_timeout();
-#endif
+	bootretry_reset_cmd_timeout();
 	i->__promptme = 1;
 	if (i->promptmode == 1) {
 		n = cli_readline(CONFIG_SYS_PROMPT);

@@ -16,9 +16,7 @@ hymod_get_serno (const char *prompt)
 		int n, serno;
 		char *p;
 
-#ifdef CONFIG_BOOT_RETRY_TIME
-		reset_cmd_timeout ();
-#endif
+		bootretry_reset_cmd_timeout();
 
 		n = cli_readline(prompt);
 
@@ -44,9 +42,7 @@ hymod_get_ethaddr (void)
 	for (;;) {
 		int n;
 
-#ifdef CONFIG_BOOT_RETRY_TIME
-		reset_cmd_timeout ();
-#endif
+		bootretry_reset_cmd_timeout();
 
 		n = cli_readline("Enter board ethernet address: ");
 
