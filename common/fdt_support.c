@@ -50,6 +50,37 @@ static void write_cell(u8 *addr, u64 val, int size)
 }
 
 /**
+ * fdt_getprop_u32_default_node - Return a node's property or a default
+ *
+ * @fdt: ptr to device tree
+ * @off: offset of node
+ * @cell: cell offset in property
+ * @prop: property name
+ * @dflt: default value if the property isn't found
+ *
+ * Convenience function to return a node's property or a default value if
+ * the property doesn't exist.
+ */
+u32 fdt_getprop_u32_default_node(const void *fdt, int off, int cell,
+				const char *prop, const u32 dflt)
+{
+	const fdt32_t *val;
+	int len;
+
+	val = fdt_getprop(fdt, off, prop, &len);
+
+	/* Check if property exists */
+	if (!val)
+		return dflt;
+
+	/* Check if property is long enough */
+	if (len < ((cell + 1) * sizeof(uint32_t)))
+		return dflt;
+
+	return fdt32_to_cpu(*val);
+}
+
+/**
  * fdt_getprop_u32_default - Find a node and return it's property or a default
  *
  * @fdt: ptr to device tree
@@ -63,18 +94,13 @@ static void write_cell(u8 *addr, u64 val, int size)
 u32 fdt_getprop_u32_default(const void *fdt, const char *path,
 				const char *prop, const u32 dflt)
 {
-	const fdt32_t *val;
 	int off;
 
 	off = fdt_path_offset(fdt, path);
 	if (off < 0)
 		return dflt;
 
-	val = fdt_getprop(fdt, off, prop, NULL);
-	if (val)
-		return fdt32_to_cpu(*val);
-	else
-		return dflt;
+	return fdt_getprop_u32_default_node(fdt, off, 0, prop, dflt);
 }
 
 /**
