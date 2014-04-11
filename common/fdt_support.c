@@ -1435,3 +1435,97 @@ u64 fdt_get_base_address(void *fdt, int node)
 
 	return prop ? fdt_translate_address(fdt, node, prop + naddr) : 0;
 }
+
+/*
+ * Read a property of size <prop_len>. Currently only supports 1 or 2 cells.
+ */
+static int fdt_read_prop(const fdt32_t *prop, int prop_len, int cell_off,
+			 uint64_t *val, int cells)
+{
+	const fdt32_t *prop32 = &prop[cell_off];
+	const fdt64_t *prop64 = (const fdt64_t *)&prop[cell_off];
+
+	if ((cell_off + cells) > prop_len)
+		return -FDT_ERR_NOSPACE;
+
+	switch (cells) {
+	case 1:
+		*val = fdt32_to_cpu(*prop32);
+		break;
+	case 2:
+		*val = fdt64_to_cpu(*prop64);
+		break;
+	default:
+		return -FDT_ERR_NOSPACE;
+	}
+
+	return 0;
+}
+
+/**
+ * fdt_read_range - Read a node's n'th range property
+ *
+ * @fdt: ptr to device tree
+ * @node: offset of node
+ * @n: range index
+ * @child_addr: pointer to storage for the "child address" field
+ * @addr: pointer to storage for the CPU view translated physical start
+ * @len: pointer to storage for the range length
+ *
+ * Convenience function that reads and interprets a specific range out of
+ * a number of the "ranges" property array.
+ */
+int fdt_read_range(void *fdt, int node, int n, uint64_t *child_addr,
+		   uint64_t *addr, uint64_t *len)
+{
+	int pnode = fdt_parent_offset(fdt, node);
+	const fdt32_t *ranges;
+	int pacells;
+	int acells;
+	int scells;
+	int ranges_len;
+	int cell = 0;
+	int r = 0;
+
+	/*
+	 * The "ranges" property is an array of
+	 * { <child address> <parent address> <size in child address space> }
+	 *
+	 * All 3 elements can span a diffent number of cells. Fetch their size.
+	 */
+	pacells = fdt_getprop_u32_default_node(fdt, pnode, 0, "#address-cells", 1);
+	acells = fdt_getprop_u32_default_node(fdt, node, 0, "#address-cells", 1);
+	scells = fdt_getprop_u32_default_node(fdt, node, 0, "#size-cells", 1);
+
+	/* Now try to get the ranges property */
+	ranges = fdt_getprop(fdt, node, "ranges", &ranges_len);
+	if (!ranges)
+		return -FDT_ERR_NOTFOUND;
+	ranges_len /= sizeof(uint32_t);
+
+	/* Jump to the n'th entry */
+	cell = n * (pacells + acells + scells);
+
+	/* Read <child address> */
+	if (child_addr) {
+		r = fdt_read_prop(ranges, ranges_len, cell, child_addr,
+				  acells);
+		if (r)
+			return r;
+	}
+	cell += acells;
+
+	/* Read <parent address> */
+	if (addr)
+		*addr = fdt_translate_address(fdt, node, ranges + cell);
+	cell += pacells;
+
+	/* Read <size in child address space> */
+	if (len) {
+		r = fdt_read_prop(ranges, ranges_len, cell, len, scells);
+		if (r)
+			return r;
+	}
+
+	return 0;
+}
