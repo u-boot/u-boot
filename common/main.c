@@ -10,7 +10,6 @@
 #include <common.h>
 #include <autoboot.h>
 #include <cli.h>
-#include <malloc.h>
 #include <version.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -26,10 +25,9 @@ static void modem_init(void)
 #ifdef CONFIG_MODEM_SUPPORT
 	debug("DEBUG: main_loop:   gd->do_mdm_init=%lu\n", gd->do_mdm_init);
 	if (gd->do_mdm_init) {
-		char *str = strdup(getenv("mdm_cmd"));
+		char *str = getenv("mdm_cmd");
+
 		setenv("preboot", str);  /* set or delete definition */
-		if (str != NULL)
-			free(str);
 		mdm_init(); /* wait for modem connection */
 	}
 #endif  /* CONFIG_MODEM_SUPPORT */
