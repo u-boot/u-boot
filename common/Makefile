@@ -18,6 +18,7 @@ endif
 # We always have this since drivers/ddr/fs/interactive.c needs it
 obj-y += cli_simple.o
 
+obj-y += cli.o
 obj-y += cli_readline.o
 obj-y += s_record.o
 obj-y += xyzModem.o
