@@ -370,10 +370,10 @@ static int omap_correct_data_bch(struct mtd_info *mtd, uint8_t *dat,
 	}
 	/* use elm module to check for errors */
 	elm_config(bch_type);
-	if (elm_check_error(calc_ecc, bch_type, &error_count, error_loc)) {
-		printf("nand: error: uncorrectable ECC errors\n");
-		return -EINVAL;
-	}
+	err = elm_check_error(calc_ecc, bch_type, &error_count, error_loc);
+	if (err)
+		return err;
+
 	/* correct bch error */
 	for (count = 0; count < error_count; count++) {
 		switch (info->ecc_scheme) {

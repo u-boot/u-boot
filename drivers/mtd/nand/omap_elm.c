@@ -19,6 +19,7 @@
 #include <linux/mtd/omap_elm.h>
 #include <asm/arch/hardware.h>
 
+#define DRIVER_NAME		"omap-elm"
 #define ELM_DEFAULT_POLY (0)
 
 struct elm *elm_cfg;
@@ -113,8 +114,10 @@ int elm_check_error(u8 *syndrome, enum bch_level bch_type, u32 *error_count,
 
 	/* check if correctable */
 	location_status = readl(&elm_cfg->error_location[poly].location_status);
-	if (!(location_status & ELM_LOCATION_STATUS_ECC_CORRECTABLE_MASK))
-		return -1;
+	if (!(location_status & ELM_LOCATION_STATUS_ECC_CORRECTABLE_MASK)) {
+		printf("%s: uncorrectable ECC errors\n", DRIVER_NAME);
+		return -EBADMSG;
+	}
 
 	/* get error count */
 	*error_count = readl(&elm_cfg->error_location[poly].location_status) &
