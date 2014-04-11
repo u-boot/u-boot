@@ -23,6 +23,11 @@ obj-y += s_record.o
 obj-y += xyzModem.o
 obj-y += cmd_disk.o
 
+# This option is not just y/n - it can have a numeric value
+ifdef CONFIG_BOOTDELAY
+obj-y += autoboot.o
+endif
+
 # boards
 obj-$(CONFIG_SYS_GENERIC_BOARD) += board_f.o
 obj-$(CONFIG_SYS_GENERIC_BOARD) += board_r.o
