@@ -99,4 +99,9 @@ int readline_into_buffer(const char *const prompt, char *buffer, int timeout);
  */
 int parse_line(char *line, char *argv[]);
 
+/** bootretry_dont_retry() - Indicate that we should not retry the boot */
+void bootretry_dont_retry(void);
+
+#define endtick(seconds) (get_ticks() + (uint64_t)(seconds) * get_tbclk())
+
 #endif

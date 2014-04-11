@@ -11,7 +11,14 @@ obj-y += main.o
 obj-y += command.o
 obj-y += exports.o
 obj-y += hash.o
-obj-$(CONFIG_SYS_HUSH_PARSER) += cli_hush.o
+ifdef CONFIG_SYS_HUSH_PARSER
+obj-y += cli_hush.o
+endif
+
+# We always have this since drivers/ddr/fs/interactive.c needs it
+obj-y += cli_simple.o
+
+obj-y += cli_readline.o
 obj-y += s_record.o
 obj-y += xyzModem.o
 obj-y += cmd_disk.o
