@@ -14,16 +14,13 @@
 #include <malloc.h>
 #include <version.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * Board-specific Platform code can reimplement show_boot_progress () if needed
  */
 void inline __show_boot_progress (int val) {}
 void show_boot_progress (int val) __attribute__((weak, alias("__show_boot_progress")));
-
-#ifdef CONFIG_MODEM_SUPPORT
-int do_mdm_init = 0;
-extern void mdm_init(void); /* defined in board.c */
-#endif
 
 void main_loop(void)
 {
@@ -40,8 +37,8 @@ void main_loop(void)
 #endif
 
 #ifdef CONFIG_MODEM_SUPPORT
-	debug("DEBUG: main_loop:   do_mdm_init=%d\n", do_mdm_init);
-	if (do_mdm_init) {
+	debug("DEBUG: main_loop:   gd->do_mdm_init=%lu\n", gd->do_mdm_init);
+	if (gd->do_mdm_init) {
 		char *str = strdup(getenv("mdm_cmd"));
 		setenv("preboot", str);  /* set or delete definition */
 		if (str != NULL)

@@ -628,13 +628,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	}
 #endif
 
-#ifdef CONFIG_MODEM_SUPPORT
- {
-	 extern int do_mdm_init;
-	 do_mdm_init = gd->do_mdm_init;
- }
-#endif
-
 #ifdef CONFIG_WATCHDOG
 	/* disable watchdog if environment is set */
 	if ((s = getenv ("watchdog")) != NULL) {
