@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <cli.h>
 
 int
 hymod_get_serno (const char *prompt)

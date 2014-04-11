@@ -7,6 +7,7 @@
 
 /* includes */
 #include <common.h>
+#include <cli.h>
 #include <linux/ctype.h>
 #include <pci.h>
 #include <net.h>

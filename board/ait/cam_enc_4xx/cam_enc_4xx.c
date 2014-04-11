@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <cli.h>
 #include <errno.h>
 #include <linux/mtd/nand.h>
 #include <nand.h>

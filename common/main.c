@@ -12,6 +12,7 @@
 /* #define	DEBUG	*/
 
 #include <common.h>
+#include <cli.h>
 #include <command.h>
 #include <fdtdec.h>
 #include <cli_hush.h>

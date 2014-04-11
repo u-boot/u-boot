@@ -79,6 +79,7 @@
 #include <malloc.h>         /* malloc, free, realloc*/
 #include <linux/ctype.h>    /* isalpha, isdigit */
 #include <common.h>        /* readline */
+#include <cli.h>
 #include <cli_hush.h>
 #include <command.h>        /* find_cmd */
 #ifndef CONFIG_SYS_PROMPT_HUSH_PS2

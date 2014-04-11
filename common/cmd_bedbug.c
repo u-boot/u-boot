@@ -3,6 +3,7 @@
  */
 
 #include <common.h>
+#include <cli.h>
 #include <command.h>
 #include <linux/ctype.h>
 #include <net.h>

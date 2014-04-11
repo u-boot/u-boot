@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <cli.h>
 #include <mpc8260.h>
 #include <mpc8260_irq.h>
 #include <ioports.h>

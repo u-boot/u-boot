@@ -14,6 +14,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <cli.h>
 #include <linux/ctype.h>
 #include <commproc.h>
 #include "mpc8xx.h"

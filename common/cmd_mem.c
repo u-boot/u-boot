@@ -12,6 +12,7 @@
  */
 
 #include <common.h>
+#include <cli.h>
 #include <command.h>
 #ifdef CONFIG_HAS_DATAFLASH
 #include <dataflash.h>

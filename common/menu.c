@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <cli.h>
 #include <malloc.h>
 #include <errno.h>
 #include <linux/list.h>

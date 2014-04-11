@@ -25,6 +25,7 @@
  */
 
 #include <common.h>
+#include <cli.h>
 #include <command.h>
 #include <environment.h>
 #include <search.h>

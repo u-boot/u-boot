@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <cli.h>
 #include <command.h>
 #include "yucca.h"
 #include <i2c.h>
