@@ -153,7 +153,6 @@ static int __maybe_unused omap_correct_data(struct mtd_info *mtd, uint8_t *dat,
 struct nand_bch_priv {
 	uint8_t mode;
 	uint8_t type;
-	uint8_t nibbles;
 	struct bch_control *control;
 	enum omap_ecc ecc_scheme;
 };
@@ -163,11 +162,6 @@ struct nand_bch_priv {
 #define ECC_BCH8	1
 #define ECC_BCH16	2
 
-/* BCH nibbles for diff bch levels */
-#define ECC_BCH4_NIBBLES	13
-#define ECC_BCH8_NIBBLES	26
-#define ECC_BCH16_NIBBLES	52
-
 /*
  * This can be a single instance cause all current users have only one NAND
  * with nearly the same setup (BCH8, some with ELM and others with sw BCH
@@ -176,7 +170,6 @@ struct nand_bch_priv {
  */
 static __maybe_unused struct nand_bch_priv bch_priv = {
 	.type = ECC_BCH8,
-	.nibbles = ECC_BCH8_NIBBLES,
 	.control = NULL
 };
 
@@ -383,7 +376,8 @@ static int omap_correct_data_bch(struct mtd_info *mtd, uint8_t *dat,
 	}
 	/* use elm module to check for errors */
 	elm_config((enum bch_level)(bch->type));
-	if (elm_check_error(calc_ecc, bch->nibbles, &error_count, error_loc)) {
+	if (elm_check_error(calc_ecc, (enum bch_level)bch->type,
+					&error_count, error_loc)) {
 		printf("nand: error: uncorrectable ECC errors\n");
 		return -EINVAL;
 	}
