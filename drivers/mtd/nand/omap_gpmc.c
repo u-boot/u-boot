@@ -331,7 +331,7 @@ static int omap_correct_data_bch(struct mtd_info *mtd, uint8_t *dat,
 {
 	struct nand_chip *chip = mtd->priv;
 	struct omap_nand_info *info = chip->priv;
-	uint32_t eccbytes = chip->ecc.bytes;
+	struct nand_ecc_ctrl *ecc = &chip->ecc;
 	uint32_t error_count = 0, error_max;
 	uint32_t error_loc[8];
 	enum bch_level bch_type;
@@ -340,7 +340,7 @@ static int omap_correct_data_bch(struct mtd_info *mtd, uint8_t *dat,
 	uint32_t byte_pos, bit_pos;
 
 	/* check calculated ecc */
-	for (i = 0; i < chip->ecc.bytes && !ecc_flag; i++) {
+	for (i = 0; i < ecc->bytes && !ecc_flag; i++) {
 		if (calc_ecc[i] != 0x00)
 			ecc_flag = 1;
 	}
@@ -349,7 +349,7 @@ static int omap_correct_data_bch(struct mtd_info *mtd, uint8_t *dat,
 
 	/* check for whether its a erased-page */
 	ecc_flag = 0;
-	for (i = 0; i < chip->ecc.bytes && !ecc_flag; i++) {
+	for (i = 0; i < ecc->bytes && !ecc_flag; i++) {
 		if (read_ecc[i] != 0xff)
 			ecc_flag = 1;
 	}
@@ -363,7 +363,7 @@ static int omap_correct_data_bch(struct mtd_info *mtd, uint8_t *dat,
 	switch (info->ecc_scheme) {
 	case OMAP_ECC_BCH8_CODE_HW:
 		bch_type = BCH_8_BIT;
-		omap_reverse_list(calc_ecc, eccbytes - 1);
+		omap_reverse_list(calc_ecc, ecc->bytes - 1);
 		break;
 	default:
 		return -EINVAL;
@@ -379,7 +379,7 @@ static int omap_correct_data_bch(struct mtd_info *mtd, uint8_t *dat,
 		switch (info->ecc_scheme) {
 		case OMAP_ECC_BCH8_CODE_HW:
 			/* 14th byte in ECC is reserved to match ROM layout */
-			error_max = SECTOR_BYTES + (eccbytes - 1);
+			error_max = SECTOR_BYTES + (ecc->bytes - 1);
 			break;
 		default:
 			return -EINVAL;
