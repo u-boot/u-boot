@@ -333,14 +333,4 @@ fiq:
 	bl	do_fiq
 
 #endif
-	.align 5
-.global arm1136_cache_flush
-arm1136_cache_flush:
-#if !defined(CONFIG_SYS_ICACHE_OFF)
-		mcr	p15, 0, r1, c7, c5, 0	@ invalidate I cache
-#endif
-#if !defined(CONFIG_SYS_DCACHE_OFF)
-		mcr	p15, 0, r1, c7, c14, 0	@ invalidate D cache
-#endif
-		mov	pc, lr			@ back to caller
 #endif	/* CONFIG_SPL_BUILD */
