@@ -165,6 +165,7 @@
 #define CONFIG_CMD_EEPROM
 
 /* U-Boot general configuration */
+#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_SYS_PROMPT               "K2HK EVM # "
 #define CONFIG_SYS_CBSIZE               1024
 #define CONFIG_SYS_PBSIZE		2048
