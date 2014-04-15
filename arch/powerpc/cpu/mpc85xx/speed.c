@@ -74,28 +74,33 @@ void get_sys_info(sys_info_t *sys_info)
 	uint ratio[CONFIG_SYS_FSL_NUM_CC_PLLS];
 	unsigned long sysclk = CONFIG_SYS_CLK_FREQ;
 	uint mem_pll_rat;
-#ifdef CONFIG_SYS_FSL_SINGLE_SOURCE_CLK
-	uint single_src;
-#endif
 
 	sys_info->freq_systembus = sysclk;
 #ifdef CONFIG_SYS_FSL_SINGLE_SOURCE_CLK
+	uint ddr_refclk_sel;
+	unsigned int porsr1_sys_clk;
+	porsr1_sys_clk = in_be32(&gur->porsr1) >> FSL_DCFG_PORSR1_SYSCLK_SHIFT
+						& FSL_DCFG_PORSR1_SYSCLK_MASK;
+	if (porsr1_sys_clk == FSL_DCFG_PORSR1_SYSCLK_DIFF)
+		sys_info->diff_sysclk = 1;
+	else
+		sys_info->diff_sysclk = 0;
+
 	/*
 	 * DDR_REFCLK_SEL rcw bit is used to determine if DDR PLLS
 	 * are driven by separate DDR Refclock or single source
 	 * differential clock.
 	 */
-	single_src = (in_be32(&gur->rcwsr[5]) >>
+	ddr_refclk_sel = (in_be32(&gur->rcwsr[5]) >>
 		      FSL_CORENET2_RCWSR5_DDR_REFCLK_SEL_SHIFT) &
 		      FSL_CORENET2_RCWSR5_DDR_REFCLK_SEL_MASK;
 	/*
-	 * For single source clocking, both ddrclock and syclock
+	 * For single source clocking, both ddrclock and sysclock
 	 * are driven by differential sysclock.
 	 */
-	if (single_src == FSL_CORENET2_RCWSR5_DDR_REFCLK_SINGLE_CLK) {
-		printf("Single Source Clock Configuration\n");
+	if (ddr_refclk_sel == FSL_CORENET2_RCWSR5_DDR_REFCLK_SINGLE_CLK)
 		sys_info->freq_ddrbus = CONFIG_SYS_CLK_FREQ;
-	} else
+	else
 #endif
 #ifdef CONFIG_DDR_CLK_FREQ
 		sys_info->freq_ddrbus = CONFIG_DDR_CLK_FREQ;

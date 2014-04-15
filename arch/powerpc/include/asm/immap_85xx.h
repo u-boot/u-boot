@@ -1583,6 +1583,12 @@ typedef struct cpc_corenet {
 typedef struct ccsr_gur {
 	u32	porsr1;		/* POR status 1 */
 	u32	porsr2;		/* POR status 2 */
+#ifdef	CONFIG_SYS_FSL_SINGLE_SOURCE_CLK
+#define	FSL_DCFG_PORSR1_SYSCLK_SHIFT	15
+#define	FSL_DCFG_PORSR1_SYSCLK_MASK	0x1
+#define	FSL_DCFG_PORSR1_SYSCLK_SINGLE_ENDED	0x1
+#define	FSL_DCFG_PORSR1_SYSCLK_DIFF	0x0
+#endif
 	u8	res_008[0x20-0x8];
 	u32	gpporcr1;	/* General-purpose POR configuration */
 	u32	gpporcr2;	/* General-purpose POR configuration 2 */

@@ -130,6 +130,11 @@ int checkcpu (void)
 
 	get_sys_info(&sysinfo);
 
+#ifdef CONFIG_SYS_FSL_SINGLE_SOURCE_CLK
+	if (sysinfo.diff_sysclk == 1)
+		puts("Single Source Clock Configuration\n");
+#endif
+
 	puts("Clock Configuration:");
 	for_each_cpu(i, core, nr_cores, mask) {
 		if (!(i & 3))
