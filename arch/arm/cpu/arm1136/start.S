@@ -53,8 +53,6 @@ _irq:			.word irq
 _fiq:			.word fiq
 _pad:			.word 0x12345678 /* now 16*4=64 */
 #endif	/* CONFIG_SPL_BUILD */
-.global _end_vect
-_end_vect:
 
 	.balignl 16,0xdeadbeef
 /*

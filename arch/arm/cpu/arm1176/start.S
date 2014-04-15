@@ -61,8 +61,6 @@ _pad:
 	. = _start + 64
 #endif
 
-.global _end_vect
-_end_vect:
 	.balignl 16,0xdeadbeef
 /*
  *************************************************************************
