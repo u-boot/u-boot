@@ -23,12 +23,6 @@
 #include <config.h>
 #include <version.h>
 
-#ifdef CONFIG_CPU_PXA25X
-#if ((CONFIG_SYS_INIT_SP_ADDR) != 0xfffff800)
-#error "Init SP address must be set to 0xfffff800 for PXA250"
-#endif
-#endif
-
 .globl _start
 _start: b	reset
 #ifdef CONFIG_SPL_BUILD
