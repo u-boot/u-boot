@@ -337,13 +337,3 @@ fiq:
 	bl	do_fiq
 
 #endif
-
-	.align	5
-.globl reset_cpu
-reset_cpu:
-	ldr	r0, RST_BASE
-	mov	r1, #0x0			@ set bit 3-0 ...
-	str	r1, [r0, #RCSR]			@ ... to clear in RCSR
-	mov	r1, #0x1
-	str	r1, [r0, #RSRR]			@ and perform reset
-	b	reset_cpu			@ silly, but repeat endlessly
