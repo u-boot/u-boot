@@ -127,7 +127,7 @@ saved-output := $(KBUILD_OUTPUT)
 KBUILD_OUTPUT := $(shell mkdir -p $(KBUILD_OUTPUT) && cd $(KBUILD_OUTPUT) \
 								&& /bin/pwd)
 $(if $(KBUILD_OUTPUT),, \
-     $(error output directory "$(saved-output)" does not exist))
+     $(error failed to create output directory "$(saved-output)"))
 
 PHONY += $(MAKECMDGOALS) sub-make
 
@@ -205,7 +205,14 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 	  else echo sh; fi ; fi)
 
 HOSTCC       = gcc
+HOSTCXX      = g++
 HOSTCFLAGS   = -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
+HOSTCXXFLAGS = -O2
+
+ifeq ($(shell $(HOSTCC) -v 2>&1 | grep -c "clang version"), 1)
+HOSTCFLAGS  += -Wno-unused-value -Wno-unused-parameter \
+		-Wno-missing-field-initializers -fno-delete-null-pointer-checks
+endif
 
 ifeq ($(HOSTOS),cygwin)
 HOSTCFLAGS	+= -ansi
@@ -301,12 +308,26 @@ endif
 # If the user is running make -s (silent mode), suppress echoing of
 # commands
 
+ifneq ($(filter 4.%,$(MAKE_VERSION)),)	# make-4
+ifneq ($(filter %s ,$(firstword x$(MAKEFLAGS))),)
+  quiet=silent_
+endif
+else					# make-3.8x
 ifneq ($(filter s% -s%,$(MAKEFLAGS)),)
   quiet=silent_
+endif
 endif
 
 export quiet Q KBUILD_VERBOSE
 
+ifneq ($(CC),)
+ifeq ($(shell $(CC) -v 2>&1 | grep -c "clang version"), 1)
+COMPILER := clang
+else
+COMPILER := gcc
+endif
+export COMPILER
+endif
 
 # Look for make include files relative to root of kernel src
 MAKEFLAGS += --include-dir=$(srctree)
@@ -368,8 +389,9 @@ export MODVERDIR := $(if $(KBUILD_EXTMOD),$(firstword $(KBUILD_EXTMOD))/).tmp_ve
 
 # Files to ignore in find ... statements
 
-RCS_FIND_IGNORE := \( -name SCCS -o -name BitKeeper -o -name .svn -o -name CVS \
-		   -o -name .pc -o -name .hg -o -name .git \) -prune -o
+export RCS_FIND_IGNORE := \( -name SCCS -o -name BitKeeper -o -name .svn -o    \
+			  -name CVS -o -name .pc -o -name .hg -o -name .git \) \
+			  -prune -o
 export RCS_TAR_IGNORE := --exclude SCCS --exclude BitKeeper --exclude .svn \
 			 --exclude CVS --exclude .pc --exclude .hg --exclude .git
 
@@ -522,6 +544,20 @@ KBUILD_CFLAGS += -DBUILD_TAG='"$(BUILD_TAG)"'
 endif
 
 KBUILD_CFLAGS += $(call cc-option,-fno-stack-protector)
+
+ifeq ($(COMPILER),clang)
+KBUILD_CPPFLAGS += $(call cc-option,-Qunused-arguments,)
+KBUILD_CPPFLAGS += $(call cc-option,-Wno-unknown-warning-option,)
+KBUILD_CFLAGS += $(call cc-disable-warning, unused-variable)
+KBUILD_CFLAGS += $(call cc-disable-warning, format-invalid-specifier)
+KBUILD_CFLAGS += $(call cc-disable-warning, gnu)
+# Quiet clang warning: comparison of unsigned expression < 0 is always false
+KBUILD_CFLAGS += $(call cc-disable-warning, tautological-compare)
+# CLANG uses a _MergedGlobals as optimization, but this breaks modpost, as the
+# source of a reference will be _MergedGlobals and not on of the whitelisted names.
+# See modpost pattern 2
+KBUILD_CFLAGS += $(call cc-option, -mno-global-merge,)
+endif
 
 KBUILD_CFLAGS	+= -g
 # $(KBUILD_AFLAGS) sets -g, which causes gcc to pass a suitable -g<format>
@@ -1168,7 +1204,8 @@ CLOBBER_DIRS  += $(patsubst %,spl/%, $(filter-out Makefile, \
 CLOBBER_FILES += u-boot* MLO* SPL System.map nand_spl/u-boot*
 
 # Directories & files removed with 'make mrproper'
-MRPROPER_DIRS  += include/config include/generated
+MRPROPER_DIRS  += include/config include/generated          \
+                  .tmp_objdiff
 MRPROPER_FILES += .config .config.old \
 		  tags TAGS cscope* GPATH GTAGS GRTAGS GSYMS \
 		  include/config.h include/config.mk
@@ -1234,8 +1271,8 @@ distclean: mrproper
 	@find $(srctree) $(RCS_FIND_IGNORE) \
 		\( -name '*.orig' -o -name '*.rej' -o -name '*~' \
 		-o -name '*.bak' -o -name '#*#' -o -name '.*.orig' \
-		-o -name '.*.rej' -o -name '*.pyc' \
-		-o -name '*%' -o -name '.*.cmd' -o -name 'core' \) \
+		-o -name '.*.rej' -o -name '*%' -o -name 'core' \
+		-o -name '*.pyc' \) \
 		-type f -print | xargs rm -f
 
 backup:
