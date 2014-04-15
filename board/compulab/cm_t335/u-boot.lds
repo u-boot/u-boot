@@ -18,6 +18,7 @@ SECTIONS
 	.text :
 	{
 		*(.__image_copy_start)
+		*(.vectors)
 		CPUDIR/start.o (.text*)
 		board/compulab/cm_t335/built-in.o (.text*)
 		*(.text*)

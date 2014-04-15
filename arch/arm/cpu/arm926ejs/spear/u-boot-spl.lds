@@ -21,6 +21,7 @@ SECTIONS
 	. = ALIGN(4);
 	.text	:
 	{
+		*(.vectors)
 		arch/arm/cpu/arm926ejs/spear/start.o	(.text*)
 		*(.text*)
 	}

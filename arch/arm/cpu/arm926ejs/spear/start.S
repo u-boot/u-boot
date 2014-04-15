@@ -17,29 +17,6 @@
 
 #include <config.h>
 
-.globl _start
-_start:
-	b	reset
-	ldr	pc, _undefined_instruction
-	ldr	pc, _software_interrupt
-	ldr	pc, _prefetch_abort
-	ldr	pc, _data_abort
-	ldr	pc, _not_used
-	ldr	pc, _irq
-	ldr	pc, _fiq
-
-_undefined_instruction:
-_software_interrupt:
-_prefetch_abort:
-_data_abort:
-_not_used:
-_irq:
-_fiq:
-	.word infinite_loop
-
-infinite_loop:
-	b	infinite_loop
-
 /*
  *************************************************************************
  *
@@ -53,9 +30,7 @@ infinite_loop:
  *************************************************************************
  */
 
-/*
- * the actual reset code
- */
+	.globl	reset
 
 reset:
 /*
