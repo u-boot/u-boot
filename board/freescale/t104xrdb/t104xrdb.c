@@ -17,6 +17,7 @@
 #include <asm/fsl_portals.h>
 #include <asm/fsl_liodn.h>
 #include <fm_eth.h>
+#include <asm/mpc85xx_gpio.h>
 
 #include "t104xrdb.h"
 #include "cpld.h"
@@ -104,3 +105,12 @@ void ft_board_setup(void *blob, bd_t *bd)
 	fdt_fixup_fman_ethernet(blob);
 #endif
 }
+
+#ifdef CONFIG_DEEP_SLEEP
+void board_mem_sleep_setup(void)
+{
+	/* Disable MCKE isolation */
+	gpio_set_value(2, 0);
+	udelay(1);
+}
+#endif
