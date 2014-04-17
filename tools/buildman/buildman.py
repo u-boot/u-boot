@@ -101,6 +101,9 @@ parser.add_option('-T', '--threads', type='int',
        default=None, help='Number of builder threads to use')
 parser.add_option('-u', '--show_unknown', action='store_true',
        default=False, help='Show boards with unknown build result')
+parser.add_option('-o', '--output-dir', type='string',
+       dest='output_dir', default='..',
+       help='Directory where all builds happen and buildman has its workspace (default is ../)')
 
 parser.usage = """buildman -b <branch> [options]
 
