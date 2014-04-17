@@ -406,6 +406,10 @@ static int __board_need_mem_reset(void)
 int board_need_mem_reset(void)
 	__attribute__((weak, alias("__board_need_mem_reset")));
 
+void __weak board_mem_sleep_setup(void)
+{
+}
+
 /*
  * The 85xx boards have a common prototype for fixed_sdram so put the
  * declaration here.

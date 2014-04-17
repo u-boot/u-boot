@@ -350,6 +350,7 @@ void cpu_init_f (void)
 	extern void m8560_cpm_reset (void);
 #ifdef CONFIG_SYS_DCSRBAR_PHYS
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	gd = (gd_t *)(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
 #endif
 #if defined(CONFIG_SECURE_BOOT)
 	struct law_entry law;
@@ -414,6 +415,13 @@ void cpu_init_f (void)
 	in_be32(&gur->dcsrcr);
 #endif
 
+#ifdef CONFIG_SYS_DCSRBAR_PHYS
+#ifdef CONFIG_DEEP_SLEEP
+	/* disable the console if boot from deep sleep */
+	if (in_be32(&gur->scrtsr[0]) & (1 << 3))
+		gd->flags |= GD_FLG_SILENT | GD_FLG_DISABLE_CONSOLE;
+#endif
+#endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_A007212
 	fsl_erratum_a007212_workaround();
 #endif
