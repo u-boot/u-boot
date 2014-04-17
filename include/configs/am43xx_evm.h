@@ -98,14 +98,6 @@
 #define CONFIG_SF_DEFAULT_SPEED                48000000
 #define CONFIG_DEFAULT_SPI_MODE                SPI_MODE_3
 
-/* SPI SPL */
-#define CONFIG_SPL_SPI_SUPPORT
-#define CONFIG_SPL_SPI_LOAD
-#define CONFIG_SPL_SPI_FLASH_SUPPORT
-#define CONFIG_SPL_SPI_BUS             0
-#define CONFIG_SPL_SPI_CS              0
-#define CONFIG_SYS_SPI_U_BOOT_OFFS     0x20000
-
 /* Enhance our eMMC support / experience. */
 #define CONFIG_CMD_GPT
 #define CONFIG_EFI_PARTITION
