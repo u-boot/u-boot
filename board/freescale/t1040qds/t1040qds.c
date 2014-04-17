@@ -18,6 +18,7 @@
 #include <asm/fsl_portals.h>
 #include <asm/fsl_liodn.h>
 #include <fm_eth.h>
+#include <asm/mpc85xx_gpio.h>
 
 #include "../common/qixis.h"
 #include "t1040qds.h"
@@ -245,3 +246,14 @@ int board_need_mem_reset(void)
 {
 	return 1;
 }
+
+#ifdef CONFIG_DEEP_SLEEP
+void board_mem_sleep_setup(void)
+{
+	/* does not provide HW signals for power management */
+	QIXIS_WRITE(pwr_ctl[1], (QIXIS_READ(pwr_ctl[1]) & ~0x2));
+	/* Disable MCKE isolation */
+	gpio_set_value(2, 0);
+	udelay(1);
+}
+#endif
