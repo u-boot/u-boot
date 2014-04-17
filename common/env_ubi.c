@@ -37,15 +37,11 @@ static unsigned char env_flags;
 int saveenv(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
-	ssize_t	len;
-	char *res;
+	int ret;
 
-	res = (char *)&env_new->data;
-	len = hexport_r(&env_htab, '\0', 0, &res, ENV_SIZE, 0, NULL);
-	if (len < 0) {
-		error("Cannot export environment: errno = %d\n", errno);
-		return 1;
-	}
+	ret = env_export(env_new);
+	if (ret)
+		return ret;
 
 	if (ubi_part(CONFIG_ENV_UBI_PART, NULL)) {
 		printf("\n** Cannot find mtd partition \"%s\"\n",
@@ -53,7 +49,6 @@ int saveenv(void)
 		return 1;
 	}
 
-	env_new->crc = crc32(0, env_new->data, ENV_SIZE);
 	env_new->flags = ++env_flags; /* increase the serial */
 
 	if (gd->env_valid == 1) {
@@ -86,23 +81,17 @@ int saveenv(void)
 int saveenv(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
-	ssize_t	len;
-	char *res;
+	int ret;
 
-	res = (char *)&env_new->data;
-	len = hexport_r(&env_htab, '\0', 0, &res, ENV_SIZE, 0, NULL);
-	if (len < 0) {
-		error("Cannot export environment: errno = %d\n", errno);
-		return 1;
-	}
+	ret = env_export(env_new);
+	if (ret)
+		return ret;
 
 	if (ubi_part(CONFIG_ENV_UBI_PART, NULL)) {
 		printf("\n** Cannot find mtd partition \"%s\"\n",
 		       CONFIG_ENV_UBI_PART);
 		return 1;
 	}
-
-	env_new->crc = crc32(0, env_new->data, ENV_SIZE);
 
 	if (ubi_volume_write(CONFIG_ENV_UBI_VOLUME, (void *)env_new,
 			     CONFIG_ENV_SIZE)) {

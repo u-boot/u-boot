@@ -159,8 +159,9 @@ static void rsa_remove(void)
 	EVP_cleanup();
 }
 
-static int rsa_sign_with_key(RSA *rsa, const struct image_region region[],
-		int region_count, uint8_t **sigp, uint *sig_size)
+static int rsa_sign_with_key(RSA *rsa, struct checksum_algo *checksum_algo,
+		const struct image_region region[], int region_count,
+		uint8_t **sigp, uint *sig_size)
 {
 	EVP_PKEY *key;
 	EVP_MD_CTX *context;
@@ -192,7 +193,7 @@ static int rsa_sign_with_key(RSA *rsa, const struct image_region region[],
 		goto err_create;
 	}
 	EVP_MD_CTX_init(context);
-	if (!EVP_SignInit(context, EVP_sha1())) {
+	if (!EVP_SignInit(context, checksum_algo->calculate_sign())) {
 		ret = rsa_err("Signer setup failed");
 		goto err_sign;
 	}
@@ -242,7 +243,8 @@ int rsa_sign(struct image_sign_info *info,
 	ret = rsa_get_priv_key(info->keydir, info->keyname, &rsa);
 	if (ret)
 		goto err_priv;
-	ret = rsa_sign_with_key(rsa, region, region_count, sigp, sig_len);
+	ret = rsa_sign_with_key(rsa, info->algo->checksum, region,
+				region_count, sigp, sig_len);
 	if (ret)
 		goto err_sign;
 
