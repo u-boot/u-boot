@@ -204,14 +204,14 @@ static long long int download_head(unsigned long long total,
 
 static int download_tail(long long int left, int cnt)
 {
+	struct dfu_entity *dfu_entity = dfu_get_entity(alt_setting_num);
 	void *transfer_buffer = dfu_get_buf();
 	int ret;
 
 	debug("%s: left: %llu cnt: %d\n", __func__, left, cnt);
 
 	if (left) {
-		ret = dfu_write(dfu_get_entity(alt_setting_num),
-				transfer_buffer, left, cnt++);
+		ret = dfu_write(dfu_entity, transfer_buffer, left, cnt++);
 		if (ret) {
 			error("DFU write failed [%d]: left: %llu", ret, left);
 			return ret;
@@ -225,8 +225,7 @@ static int download_tail(long long int left, int cnt)
 	 * This also frees memory malloc'ed by dfu_get_buf(), so no explicit
 	 * need fo call dfu_free_buf() is needed.
 	 */
-	ret = dfu_write(dfu_get_entity(alt_setting_num),
-			transfer_buffer, 0, cnt);
+	ret = dfu_write(dfu_entity, transfer_buffer, 0, cnt);
 	if (ret)
 		error("DFU write failed [%d] cnt: %d", ret, cnt);
 
