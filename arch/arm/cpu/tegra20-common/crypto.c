@@ -62,14 +62,11 @@ static void sign_object(u8 *key, u8 *key_schedule, u8 *src, u8 *dst,
 		tmp_data[i] = 0;
 
 	aes_cbc_encrypt_blocks(key_schedule, tmp_data, left, 1);
-	debug_print_vector("AES(key, nonce)", AES_KEY_LENGTH, left);
 
 	left_shift_vector(left, k1, sizeof(left));
-	debug_print_vector("L", AES_KEY_LENGTH, left);
 
 	if ((left[0] >> 7) != 0) /* get MSB of L */
 		k1[AES_KEY_LENGTH-1] ^= AES_CMAC_CONST_RB;
-	debug_print_vector("K1", AES_KEY_LENGTH, k1);
 
 	/* compute the AES-CMAC value */
 	for (i = 0; i < num_aes_blocks; i++) {
@@ -84,16 +81,11 @@ static void sign_object(u8 *key, u8 *key_schedule, u8 *src, u8 *dst,
 		aes_encrypt(tmp_data, key_schedule, dst);
 
 		debug("sign_obj: block %d of %d\n", i, num_aes_blocks);
-		debug_print_vector("AES-CMAC Src", AES_KEY_LENGTH, src);
-		debug_print_vector("AES-CMAC Xor", AES_KEY_LENGTH, tmp_data);
-		debug_print_vector("AES-CMAC Dst", AES_KEY_LENGTH, dst);
 
 		/* Update pointers for next loop. */
 		cbc_chain_data = dst;
 		src += AES_KEY_LENGTH;
 	}
-
-	debug_print_vector("AES-CMAC Hash", AES_KEY_LENGTH, dst);
 }
 
 /**
@@ -112,7 +104,6 @@ static int encrypt_and_sign(u8 *key, enum security_op oper, u8 *src,
 	u8 key_schedule[AES_EXPAND_KEY_LENGTH];
 
 	debug("encrypt_and_sign: length = %d\n", length);
-	debug_print_vector("AES key", AES_KEY_LENGTH, key);
 
 	/*
 	 * The only need for a key is for signing/checksum purposes, so
