@@ -67,7 +67,7 @@ T2080PCIe-RDB board Overview
      - One PCIe x2 end-point device (C293 Crypto co-processor)
  - IFC/Local Bus
      - NOR:  128MB 16-bit NOR Flash
-     - NAND: 512MB 8-bit NAND flash
+     - NAND: 1GB 8-bit NAND flash
      - CPLD: for system controlling with programable header on-board
  - SATA
      - Two SATA 2.0 onnectors on-board
@@ -156,11 +156,11 @@ Software configurations and board settings
    Switching between default bank and alternate bank on NOR flash
    To change boot source to vbank4:
 	via software:   run command 'cpld reset altbank' in u-boot.
-	via DIP-switch: set SW3[5:7] = '011'
+	via DIP-switch: set SW3[5:7] = '100'
 
    To change boot source to vbank0:
 	via software:   run command 'cpld reset' in u-boot.
-	via DIP-Switch: set SW3[5:7] = '111'
+	via DIP-Switch: set SW3[5:7] = '000'
 
 2. NAND Boot:
    a. build PBL image for NAND boot
