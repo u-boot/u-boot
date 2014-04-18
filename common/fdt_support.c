@@ -124,6 +124,31 @@ int fdt_find_and_setprop(void *fdt, const char *node, const char *prop,
 	return fdt_setprop(fdt, nodeoff, prop, val, len);
 }
 
+/**
+ * fdt_find_or_add_subnode - find or possibly add a subnode of a given node
+ * @fdt: pointer to the device tree blob
+ * @parentoffset: structure block offset of a node
+ * @name: name of the subnode to locate
+ *
+ * fdt_subnode_offset() finds a subnode of the node with a given name.
+ * If the subnode does not exist, it will be created.
+ */
+static int fdt_find_or_add_subnode(void *fdt, int parentoffset,
+				   const char *name)
+{
+	int offset;
+
+	offset = fdt_subnode_offset(fdt, parentoffset, name);
+
+	if (offset == -FDT_ERR_NOTFOUND)
+		offset = fdt_add_subnode(fdt, parentoffset, name);
+
+	if (offset < 0)
+		printf("%s: %s: %s\n", __func__, name, fdt_strerror(offset));
+
+	return offset;
+}
+
 #ifdef CONFIG_OF_STDOUT_VIA_ALIAS
 
 #ifdef CONFIG_CONS_INDEX
@@ -186,14 +211,10 @@ int fdt_initrd(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 	const char *path;
 	uint64_t addr, size;
 
-	/* Find the "chosen" node.  */
-	nodeoffset = fdt_path_offset (fdt, "/chosen");
-
-	/* If there is no "chosen" node in the blob return */
-	if (nodeoffset < 0) {
-		printf("fdt_initrd: %s\n", fdt_strerror(nodeoffset));
+	/* find or create "/chosen" node. */
+	nodeoffset = fdt_find_or_add_subnode(fdt, 0, "chosen");
+	if (nodeoffset < 0)
 		return nodeoffset;
-	}
 
 	/* just return if initrd_start/end aren't valid */
 	if ((initrd_start == 0) || (initrd_end == 0))
@@ -259,25 +280,10 @@ int fdt_chosen(void *fdt, int force)
 		return err;
 	}
 
-	/*
-	 * Find the "chosen" node.
-	 */
-	nodeoffset = fdt_path_offset (fdt, "/chosen");
-
-	/*
-	 * If there is no "chosen" node in the blob, create it.
-	 */
-	if (nodeoffset < 0) {
-		/*
-		 * Create a new node "/chosen" (offset 0 is root level)
-		 */
-		nodeoffset = fdt_add_subnode(fdt, 0, "chosen");
-		if (nodeoffset < 0) {
-			printf("WARNING: could not create /chosen %s.\n",
-				fdt_strerror(nodeoffset));
-			return nodeoffset;
-		}
-	}
+	/* find or create "/chosen" node. */
+	nodeoffset = fdt_find_or_add_subnode(fdt, 0, "chosen");
+	if (nodeoffset < 0)
+		return nodeoffset;
 
 	/*
 	 * Create /chosen properites that don't exist in the fdt.
@@ -419,16 +425,11 @@ int fdt_fixup_memory_banks(void *blob, u64 start[], u64 size[], int banks)
 		return err;
 	}
 
-	/* update, or add and update /memory node */
-	nodeoffset = fdt_path_offset(blob, "/memory");
-	if (nodeoffset < 0) {
-		nodeoffset = fdt_add_subnode(blob, 0, "memory");
-		if (nodeoffset < 0) {
-			printf("WARNING: could not create /memory: %s.\n",
-					fdt_strerror(nodeoffset));
+	/* find or create "/memory" node. */
+	nodeoffset = fdt_find_or_add_subnode(blob, 0, "memory");
+	if (nodeoffset < 0)
 			return nodeoffset;
-		}
-	}
+
 	err = fdt_setprop(blob, nodeoffset, "device_type", "memory",
 			sizeof("memory"));
 	if (err < 0) {
