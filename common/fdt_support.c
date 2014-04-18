@@ -21,11 +21,11 @@
  *     if #NNNN-cells property is 2 then len is 8
  *     otherwise len is 4
  */
-static int get_cells_len(void *blob, char *nr_cells_name)
+static int get_cells_len(const void *fdt, const char *nr_cells_name)
 {
 	const fdt32_t *cell;
 
-	cell = fdt_getprop(blob, 0, nr_cells_name, NULL);
+	cell = fdt_getprop(fdt, 0, nr_cells_name, NULL);
 	if (cell && fdt32_to_cpu(*cell) == 2)
 		return 8;
 
