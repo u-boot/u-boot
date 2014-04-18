@@ -17,11 +17,6 @@
 #include <exports.h>
 
 /*
- * Global data (for the gd->bd)
- */
-DECLARE_GLOBAL_DATA_PTR;
-
-/*
  * Get cells len in bytes
  *     if #NNNN-cells property is 2 then len is 8
  *     otherwise len is 4
