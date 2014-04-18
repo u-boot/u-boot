@@ -231,7 +231,7 @@ static void rescue_mode(void)
 	printf("Entering rescue mode..\n");
 #ifdef CONFIG_RANDOM_MACADDR
 	if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
-		eth_random_enetaddr(enetaddr);
+		eth_random_addr(enetaddr);
 		if (eth_setenv_enetaddr("ethaddr", enetaddr)) {
 			printf("Failed to set ethernet address\n");
 				set_led(LED_ALARM_BLINKING);

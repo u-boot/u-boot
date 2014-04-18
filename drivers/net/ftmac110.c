@@ -425,7 +425,7 @@ int ftmac110_initialize(bd_t *bis)
 	dev->recv = ftmac110_recv;
 
 	if (!eth_getenv_enetaddr_by_index("eth", card_nr, dev->enetaddr))
-		eth_random_enetaddr(dev->enetaddr);
+		eth_random_addr(dev->enetaddr);
 
 	/* allocate tx descriptors (it must be 16 bytes aligned) */
 	chip->txd = dma_alloc_coherent(
