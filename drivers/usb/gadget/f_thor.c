@@ -229,6 +229,12 @@ static int download_tail(long long int left, int cnt)
 	if (ret)
 		error("DFU write failed [%d] cnt: %d", ret, cnt);
 
+	ret = dfu_flush(dfu_entity, transfer_buffer, 0, cnt);
+	if (ret) {
+		error("DFU flush failed!");
+		return ret;
+	}
+
 	return ret;
 }
 
