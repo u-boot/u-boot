@@ -581,7 +581,7 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			initrd_end = simple_strtoul(argv[3], NULL, 16);
 		}
 
-		fdt_chosen(working_fdt, 1);
+		fdt_chosen(working_fdt);
 		fdt_initrd(working_fdt, initrd_start, initrd_end);
 
 #if defined(CONFIG_FIT_SIGNATURE)
