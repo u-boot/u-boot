@@ -380,6 +380,34 @@ void do_fixup_by_compat_u32(void *fdt, const char *compat,
 	do_fixup_by_compat(fdt, compat, prop, &tmp, 4, create);
 }
 
+/*
+ * fdt_pack_reg - pack address and size array into the "reg"-suitable stream
+ */
+static int fdt_pack_reg(const void *fdt, void *buf, uint64_t *address,
+			uint64_t *size, int n)
+{
+	int i;
+	int address_len = get_cells_len(fdt, "#address-cells");
+	int size_len = get_cells_len(fdt, "#size-cells");
+	char *p = buf;
+
+	for (i = 0; i < n; i++) {
+		if (address_len == 8)
+			*(fdt64_t *)p = cpu_to_fdt64(address[i]);
+		else
+			*(fdt32_t *)p = cpu_to_fdt32(address[i]);
+		p += address_len;
+
+		if (size_len == 8)
+			*(fdt64_t *)p = cpu_to_fdt64(size[i]);
+		else
+			*(fdt32_t *)p = cpu_to_fdt32(size[i]);
+		p += size_len;
+	}
+
+	return p - (char *)buf;
+}
+
 #ifdef CONFIG_NR_DRAM_BANKS
 #define MEMORY_BANKS_MAX CONFIG_NR_DRAM_BANKS
 #else
@@ -388,9 +416,8 @@ void do_fixup_by_compat_u32(void *fdt, const char *compat,
 int fdt_fixup_memory_banks(void *blob, u64 start[], u64 size[], int banks)
 {
 	int err, nodeoffset;
-	int addr_cell_len, size_cell_len, len;
+	int len;
 	u8 tmp[MEMORY_BANKS_MAX * 16]; /* Up to 64-bit address + 64-bit size */
-	int bank;
 
 	if (banks > MEMORY_BANKS_MAX) {
 		printf("%s: num banks %d exceeds hardcoded limit %d."
@@ -418,16 +445,7 @@ int fdt_fixup_memory_banks(void *blob, u64 start[], u64 size[], int banks)
 		return err;
 	}
 
-	addr_cell_len = get_cells_len(blob, "#address-cells");
-	size_cell_len = get_cells_len(blob, "#size-cells");
-
-	for (bank = 0, len = 0; bank < banks; bank++) {
-		write_cell(tmp + len, start[bank], addr_cell_len);
-		len += addr_cell_len;
-
-		write_cell(tmp + len, size[bank], size_cell_len);
-		len += size_cell_len;
-	}
+	len = fdt_pack_reg(blob, tmp, start, size, banks);
 
 	err = fdt_setprop(blob, nodeoffset, "reg", tmp, len);
 	if (err < 0) {
