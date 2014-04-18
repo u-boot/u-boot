@@ -582,7 +582,7 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		}
 
 		fdt_chosen(working_fdt, 1);
-		fdt_initrd(working_fdt, initrd_start, initrd_end, 1);
+		fdt_initrd(working_fdt, initrd_start, initrd_end);
 
 #if defined(CONFIG_FIT_SIGNATURE)
 	} else if (strncmp(argv[1], "che", 3) == 0) {

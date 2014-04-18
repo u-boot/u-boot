@@ -489,7 +489,7 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 	/* Create a new LMB reservation */
 	lmb_reserve(lmb, (ulong)blob, of_size);
 
-	fdt_initrd(blob, *initrd_start, *initrd_end, 1);
+	fdt_initrd(blob, *initrd_start, *initrd_end);
 	if (!ft_verify_fdt(blob))
 		return -1;
 

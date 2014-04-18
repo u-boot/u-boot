@@ -203,12 +203,11 @@ static int fdt_fixup_stdout(void *fdt, int chosenoff)
 }
 #endif
 
-int fdt_initrd(void *fdt, ulong initrd_start, ulong initrd_end, int force)
+int fdt_initrd(void *fdt, ulong initrd_start, ulong initrd_end)
 {
 	int   nodeoffset, addr_cell_len;
 	int   err, j, total;
 	fdt64_t  tmp;
-	const char *path;
 	uint64_t addr, size;
 
 	/* find or create "/chosen" node. */
@@ -242,26 +241,22 @@ int fdt_initrd(void *fdt, ulong initrd_start, ulong initrd_end, int force)
 
 	addr_cell_len = get_cells_len(fdt, "#address-cells");
 
-	path = fdt_getprop(fdt, nodeoffset, "linux,initrd-start", NULL);
-	if ((path == NULL) || force) {
-		write_cell((u8 *)&tmp, initrd_start, addr_cell_len);
-		err = fdt_setprop(fdt, nodeoffset,
-			"linux,initrd-start", &tmp, addr_cell_len);
-		if (err < 0) {
-			printf("WARNING: "
-				"could not set linux,initrd-start %s.\n",
-				fdt_strerror(err));
-			return err;
-		}
-		write_cell((u8 *)&tmp, initrd_end, addr_cell_len);
-		err = fdt_setprop(fdt, nodeoffset,
+	write_cell((u8 *)&tmp, initrd_start, addr_cell_len);
+	err = fdt_setprop(fdt, nodeoffset,
+			  "linux,initrd-start", &tmp, addr_cell_len);
+	if (err < 0) {
+		printf("WARNING: could not set linux,initrd-start %s.\n",
+		       fdt_strerror(err));
+		return err;
+	}
+	write_cell((u8 *)&tmp, initrd_end, addr_cell_len);
+	err = fdt_setprop(fdt, nodeoffset,
 			"linux,initrd-end", &tmp, addr_cell_len);
-		if (err < 0) {
-			printf("WARNING: could not set linux,initrd-end %s.\n",
-				fdt_strerror(err));
+	if (err < 0) {
+		printf("WARNING: could not set linux,initrd-end %s.\n",
+		       fdt_strerror(err));
 
-			return err;
-		}
+		return err;
 	}
 
 	return 0;
