@@ -149,9 +149,14 @@ static int fdt_find_or_add_subnode(void *fdt, int parentoffset,
 	return offset;
 }
 
-#ifdef CONFIG_OF_STDOUT_VIA_ALIAS
-
-#ifdef CONFIG_CONS_INDEX
+/* rename to CONFIG_OF_STDOUT_PATH ? */
+#if defined(OF_STDOUT_PATH)
+static int fdt_fixup_stdout(void *fdt, int chosenoff)
+{
+	return fdt_setprop(fdt, chosenoff, "linux,stdout-path",
+			      OF_STDOUT_PATH, strlen(OF_STDOUT_PATH) + 1);
+}
+#elif defined(CONFIG_OF_STDOUT_VIA_ALIAS) && defined(CONFIG_CONS_INDEX)
 static void fdt_fill_multisername(char *sername, size_t maxlen)
 {
 	const char *outname = stdio_devices[stdout]->name;
@@ -163,43 +168,47 @@ static void fdt_fill_multisername(char *sername, size_t maxlen)
 	if (strcmp(outname + 1, "serial") > 0)
 		strncpy(sername, outname + 1, maxlen);
 }
-#endif
 
 static int fdt_fixup_stdout(void *fdt, int chosenoff)
 {
-	int err = 0;
-#ifdef CONFIG_CONS_INDEX
-	int node;
+	int err;
+	int aliasoff;
 	char sername[9] = { 0 };
-	const char *path;
+	const void *path;
+	int len;
+	char tmp[256]; /* long enough */
 
 	fdt_fill_multisername(sername, sizeof(sername) - 1);
 	if (!sername[0])
 		sprintf(sername, "serial%d", CONFIG_CONS_INDEX - 1);
 
-	err = node = fdt_path_offset(fdt, "/aliases");
-	if (node >= 0) {
-		int len;
-		path = fdt_getprop(fdt, node, sername, &len);
-		if (path) {
-			char *p = malloc(len);
-			err = -FDT_ERR_NOSPACE;
-			if (p) {
-				memcpy(p, path, len);
-				err = fdt_setprop(fdt, chosenoff,
-					"linux,stdout-path", p, len);
-				free(p);
-			}
-		} else {
-			err = len;
-		}
+	aliasoff = fdt_path_offset(fdt, "/aliases");
+	if (aliasoff < 0) {
+		err = aliasoff;
+		goto error;
 	}
-#endif
+
+	path = fdt_getprop(fdt, aliasoff, sername, &len);
+	if (!path) {
+		err = len;
+		goto error;
+	}
+
+	/* fdt_setprop may break "path" so we copy it to tmp buffer */
+	memcpy(tmp, path, len);
+
+	err = fdt_setprop(fdt, chosenoff, "linux,stdout-path", tmp, len);
+error:
 	if (err < 0)
 		printf("WARNING: could not set linux,stdout-path %s.\n",
-				fdt_strerror(err));
+		       fdt_strerror(err));
 
 	return err;
+}
+#else
+static int fdt_fixup_stdout(void *fdt, int chosenoff)
+{
+	return 0;
 }
 #endif
 
@@ -280,27 +289,17 @@ int fdt_chosen(void *fdt)
 		return nodeoffset;
 
 	str = getenv("bootargs");
-	if (str != NULL) {
-		err = fdt_setprop(fdt, nodeoffset,
-				  "bootargs", str, strlen(str)+1);
-		if (err < 0)
+	if (str) {
+		err = fdt_setprop(fdt, nodeoffset, "bootargs", str,
+				  strlen(str) + 1);
+		if (err < 0) {
 			printf("WARNING: could not set bootargs %s.\n",
 			       fdt_strerror(err));
+			return err;
+		}
 	}
 
-#ifdef CONFIG_OF_STDOUT_VIA_ALIAS
-	err = fdt_fixup_stdout(fdt, nodeoffset);
-#endif
-
-#ifdef OF_STDOUT_PATH
-	err = fdt_setprop(fdt, nodeoffset, "linux,stdout-path",
-			  OF_STDOUT_PATH, strlen(OF_STDOUT_PATH)+1);
-	if (err < 0)
-		printf("WARNING: could not set linux,stdout-path %s.\n",
-		       fdt_strerror(err));
-#endif
-
-	return err;
+	return fdt_fixup_stdout(fdt, nodeoffset);
 }
 
 void do_fixup_by_path(void *fdt, const char *path, const char *prop,
