@@ -61,6 +61,17 @@ void aes_encrypt(u8 *in, u8 *expkey, u8 *out);
 void aes_decrypt(u8 *in, u8 *expkey, u8 *out);
 
 /**
+ * Apply chain data to the destination using EOR
+ *
+ * Each array is of length AES_KEY_LENGTH.
+ *
+ * @cbc_chain_data	Chain data
+ * @src			Source data
+ * @dst			Destination data, which is modified here
+ */
+void aes_apply_cbc_chain_data(u8 *cbc_chain_data, u8 *src, u8 *dst);
+
+/**
  * aes_cbc_encrypt_blocks() - Encrypt multiple blocks of data with AES CBC.
  *
  * @key_exp		Expanded key to use

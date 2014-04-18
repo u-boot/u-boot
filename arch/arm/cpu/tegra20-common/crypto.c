@@ -74,11 +74,11 @@ static void sign_object(u8 *key, u8 *key_schedule, u8 *src, u8 *dst,
 	/* compute the AES-CMAC value */
 	for (i = 0; i < num_aes_blocks; i++) {
 		/* Apply the chain data */
-		apply_cbc_chain_data(cbc_chain_data, src, tmp_data);
+		aes_apply_cbc_chain_data(cbc_chain_data, src, tmp_data);
 
 		/* for the final block, XOR K1 into the IV */
 		if (i == num_aes_blocks - 1)
-			apply_cbc_chain_data(tmp_data, k1, tmp_data);
+			aes_apply_cbc_chain_data(tmp_data, k1, tmp_data);
 
 		/* encrypt the AES block */
 		aes_encrypt(tmp_data, key_schedule, dst);
