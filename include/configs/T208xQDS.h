@@ -46,15 +46,79 @@
 #define CONFIG_ENV_OVERWRITE
 
 #ifdef CONFIG_RAMBOOT_PBL
-#define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_SYS_TEXT_BASE
-#define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
 #define CONFIG_SYS_FSL_PBL_PBI board/freescale/t208xqds/t208x_pbi.cfg
 #if defined(CONFIG_PPC_T2080)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2080_rcw.cfg
 #elif defined(CONFIG_PPC_T2081)
 #define CONFIG_SYS_FSL_PBL_RCW board/freescale/t208xqds/t2081_rcw.cfg
 #endif
+
+#define CONFIG_SPL
+#define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
+#define CONFIG_SPL_ENV_SUPPORT
+#define CONFIG_SPL_SERIAL_SUPPORT
+#define CONFIG_SPL_FLUSH_IMAGE
+#define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
+#define CONFIG_SPL_LIBGENERIC_SUPPORT
+#define CONFIG_SPL_LIBCOMMON_SUPPORT
+#define CONFIG_SPL_I2C_SUPPORT
+#define CONFIG_SPL_DRIVERS_MISC_SUPPORT
+#define CONFIG_FSL_LAW			/* Use common FSL init code */
+#define CONFIG_SYS_TEXT_BASE		0x00201000
+#define CONFIG_SPL_TEXT_BASE		0xFFFD8000
+#define CONFIG_SPL_PAD_TO		0x40000
+#define CONFIG_SPL_MAX_SIZE		0x28000
+#define RESET_VECTOR_OFFSET		0x27FFC
+#define BOOT_PAGE_OFFSET		0x27000
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_SPL_SKIP_RELOCATE
+#define CONFIG_SPL_COMMON_INIT_DDR
+#define CONFIG_SYS_CCSR_DO_NOT_RELOCATE
+#define CONFIG_SYS_NO_FLASH
 #endif
+
+#ifdef CONFIG_NAND
+#define CONFIG_SPL_NAND_SUPPORT
+#define CONFIG_SYS_NAND_U_BOOT_SIZE	(768 << 10)
+#define CONFIG_SYS_NAND_U_BOOT_DST	0x00200000
+#define CONFIG_SYS_NAND_U_BOOT_START	0x00200000
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	(256 << 10)
+#define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot-nand.lds"
+#define CONFIG_SPL_NAND_BOOT
+#endif
+
+#ifdef CONFIG_SPIFLASH
+#define	CONFIG_RESET_VECTOR_ADDRESS		0x200FFC
+#define CONFIG_SPL_SPI_SUPPORT
+#define CONFIG_SPL_SPI_FLASH_SUPPORT
+#define CONFIG_SPL_SPI_FLASH_MINIMAL
+#define CONFIG_SYS_SPI_FLASH_U_BOOT_SIZE	(768 << 10)
+#define CONFIG_SYS_SPI_FLASH_U_BOOT_DST		(0x00200000)
+#define CONFIG_SYS_SPI_FLASH_U_BOOT_START	(0x00200000)
+#define CONFIG_SYS_SPI_FLASH_U_BOOT_OFFS	(256 << 10)
+#define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot.lds"
+#ifndef CONFIG_SPL_BUILD
+#define	CONFIG_SYS_MPC85XX_NO_RESETVEC
+#endif
+#define CONFIG_SPL_SPI_BOOT
+#endif
+
+#ifdef CONFIG_SDCARD
+#define	CONFIG_RESET_VECTOR_ADDRESS		0x200FFC
+#define CONFIG_SPL_MMC_SUPPORT
+#define CONFIG_SPL_MMC_MINIMAL
+#define CONFIG_SYS_MMC_U_BOOT_SIZE	(768 << 10)
+#define CONFIG_SYS_MMC_U_BOOT_DST	(0x00200000)
+#define CONFIG_SYS_MMC_U_BOOT_START	(0x00200000)
+#define CONFIG_SYS_MMC_U_BOOT_OFFS	(260 << 10)
+#define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot.lds"
+#ifndef CONFIG_SPL_BUILD
+#define	CONFIG_SYS_MPC85XX_NO_RESETVEC
+#endif
+#define CONFIG_SPL_MMC_BOOT
+#endif
+
+#endif /* CONFIG_RAMBOOT_PBL */
 
 #define CONFIG_SRIO_PCIE_BOOT_MASTER
 #ifdef CONFIG_SRIO_PCIE_BOOT_SLAVE
@@ -85,11 +149,7 @@
 #define CONFIG_MEM_INIT_VALUE		0xdeadbeef
 #endif
 
-#ifdef CONFIG_SYS_NO_FLASH
-#if !defined(CONFIG_SRIO_PCIE_BOOT_SLAVE) && !defined(CONFIG_RAMBOOT_PBL)
-#define CONFIG_ENV_IS_NOWHERE
-#endif
-#else
+#ifndef CONFIG_SYS_NO_FLASH
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
@@ -110,12 +170,12 @@
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV	0
 #define CONFIG_ENV_SIZE		0x2000
-#define CONFIG_ENV_OFFSET	(512 * 1658)
+#define CONFIG_ENV_OFFSET	(512 * 0x800)
 #elif defined(CONFIG_NAND)
 #define CONFIG_SYS_EXTRA_ENV_RELOC
 #define CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_SIZE		CONFIG_SYS_NAND_BLOCK_SIZE
-#define CONFIG_ENV_OFFSET	(7 * CONFIG_SYS_NAND_BLOCK_SIZE)
+#define CONFIG_ENV_SIZE		0x2000
+#define CONFIG_ENV_OFFSET	(10 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
 #define CONFIG_ENV_IS_IN_REMOTE
 #define CONFIG_ENV_ADDR		0xffe20000
@@ -140,7 +200,16 @@ unsigned long get_board_ddr_clk(void);
 /*
  * Config the L3 Cache as L3 SRAM
  */
-#define CONFIG_SYS_INIT_L3_ADDR	 CONFIG_RAMBOOT_TEXT_BASE
+#define CONFIG_SYS_INIT_L3_ADDR		0xFFFC0000
+#define CONFIG_SYS_L3_SIZE		(512 << 10)
+#define CONFIG_SPL_GD_ADDR		(CONFIG_SYS_INIT_L3_ADDR + 32 * 1024)
+#ifdef CONFIG_RAMBOOT_PBL
+#define CONFIG_ENV_ADDR			(CONFIG_SPL_GD_ADDR + 4 * 1024)
+#endif
+#define CONFIG_SPL_RELOC_MALLOC_ADDR	(CONFIG_SPL_GD_ADDR + 12 * 1024)
+#define CONFIG_SPL_RELOC_MALLOC_SIZE	(50 << 10)
+#define CONFIG_SPL_RELOC_STACK		(CONFIG_SPL_GD_ADDR + 64 * 1024)
+#define CONFIG_SPL_RELOC_STACK_SIZE	(22 << 10)
 
 #define CONFIG_SYS_DCSRBAR	0xf0000000
 #define CONFIG_SYS_DCSRBAR_PHYS	0xf00000000ull
@@ -345,7 +414,12 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_RAMBOOT
 #endif
 
-#define CONFIG_SYS_MONITOR_BASE	 CONFIG_SYS_TEXT_BASE
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SPL_TEXT_BASE
+#else
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
+#endif
+
 #define CONFIG_BOARD_EARLY_INIT_R	/* call board_early_init_r function */
 #define CONFIG_MISC_INIT_R
 #define CONFIG_HWCONFIG
@@ -461,15 +535,14 @@ unsigned long get_board_ddr_clk(void);
  */
 #ifdef CONFIG_SPI_FLASH
 #define CONFIG_FSL_ESPI
-#define CONFIG_SPI_FLASH_SST
 #define CONFIG_SPI_FLASH_STMICRO
-#if defined(CONFIG_T2080QDS)
-#define CONFIG_SPI_FLASH_SPANSION
-#elif defined(CONFIG_T2081QDS)
+#if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_RAMBOOT_PBL)
+#define CONFIG_SPI_FLASH_SST
 #define CONFIG_SPI_FLASH_EON
 #endif
 
 #define CONFIG_CMD_SF
+#define CONFIG_SPI_FLASH_BAR
 #define CONFIG_SF_DEFAULT_SPEED	 10000000
 #define CONFIG_SF_DEFAULT_MODE	  0
 #endif
@@ -564,14 +637,14 @@ unsigned long get_board_ddr_clk(void);
 #elif defined(CONFIG_SDCARD)
 /*
  * PBL SD boot image should stored at 0x1000(8 blocks), the size of the image is
- * about 825KB (1650 blocks), Env is stored after the image, and the env size is
- * 0x2000 (16 blocks), 8 + 1650 + 16 = 1674, enlarge it to 1680.
+ * about 1MB (2048 blocks), Env is stored after the image, and the env size is
+ * 0x2000 (16 blocks), 8 + 2048 + 16 = 2072, enlarge it to 2080.
  */
 #define CONFIG_SYS_QE_FMAN_FW_IN_MMC
-#define CONFIG_SYS_FMAN_FW_ADDR	(512 * 1680)
+#define CONFIG_SYS_FMAN_FW_ADDR	(512 * 0x820)
 #elif defined(CONFIG_NAND)
 #define CONFIG_SYS_QE_FMAN_FW_IN_NAND
-#define CONFIG_SYS_FMAN_FW_ADDR	(8 * CONFIG_SYS_NAND_BLOCK_SIZE)
+#define CONFIG_SYS_FMAN_FW_ADDR	(11 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
 /*
  * Slave has no ucode locally, it can fetch this from remote. When implementing
