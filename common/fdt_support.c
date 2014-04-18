@@ -32,18 +32,6 @@ static int get_cells_len(const void *fdt, const char *nr_cells_name)
 	return 4;
 }
 
-/*
- * Write a 4 or 8 byte big endian cell
- */
-static void write_cell(u8 *addr, u64 val, int size)
-{
-	int shift = (size - 1) * 8;
-	while (size-- > 0) {
-		*addr++ = (val >> shift) & 0xff;
-		shift -= 8;
-	}
-}
-
 /**
  * fdt_getprop_u32_default_node - Return a node's property or a default
  *
@@ -212,11 +200,21 @@ static int fdt_fixup_stdout(void *fdt, int chosenoff)
 }
 #endif
 
+static inline int fdt_setprop_uxx(void *fdt, int nodeoffset, const char *name,
+				  uint64_t val, int is_u64)
+{
+	if (is_u64)
+		return fdt_setprop_u64(fdt, nodeoffset, name, val);
+	else
+		return fdt_setprop_u32(fdt, nodeoffset, name, (uint32_t)val);
+}
+
+
 int fdt_initrd(void *fdt, ulong initrd_start, ulong initrd_end)
 {
-	int   nodeoffset, addr_cell_len;
+	int   nodeoffset;
 	int   err, j, total;
-	fdt64_t  tmp;
+	int is_u64;
 	uint64_t addr, size;
 
 	/* find or create "/chosen" node. */
@@ -248,19 +246,20 @@ int fdt_initrd(void *fdt, ulong initrd_start, ulong initrd_end)
 		return err;
 	}
 
-	addr_cell_len = get_cells_len(fdt, "#address-cells");
+	is_u64 = (get_cells_len(fdt, "#address-cells") == 8);
 
-	write_cell((u8 *)&tmp, initrd_start, addr_cell_len);
-	err = fdt_setprop(fdt, nodeoffset,
-			  "linux,initrd-start", &tmp, addr_cell_len);
+	err = fdt_setprop_uxx(fdt, nodeoffset, "linux,initrd-start",
+			      (uint64_t)initrd_start, is_u64);
+
 	if (err < 0) {
 		printf("WARNING: could not set linux,initrd-start %s.\n",
 		       fdt_strerror(err));
 		return err;
 	}
-	write_cell((u8 *)&tmp, initrd_end, addr_cell_len);
-	err = fdt_setprop(fdt, nodeoffset,
-			"linux,initrd-end", &tmp, addr_cell_len);
+
+	err = fdt_setprop_uxx(fdt, nodeoffset, "linux,initrd-end",
+			      (uint64_t)initrd_end, is_u64);
+
 	if (err < 0) {
 		printf("WARNING: could not set linux,initrd-end %s.\n",
 		       fdt_strerror(err));
