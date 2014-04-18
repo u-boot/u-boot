@@ -217,14 +217,14 @@ int fdt_initrd(void *fdt, ulong initrd_start, ulong initrd_end)
 	int is_u64;
 	uint64_t addr, size;
 
+	/* just return if the size of initrd is zero */
+	if (initrd_start == initrd_end)
+		return 0;
+
 	/* find or create "/chosen" node. */
 	nodeoffset = fdt_find_or_add_subnode(fdt, 0, "chosen");
 	if (nodeoffset < 0)
 		return nodeoffset;
-
-	/* just return if initrd_start/end aren't valid */
-	if ((initrd_start == 0) || (initrd_end == 0))
-		return 0;
 
 	total = fdt_num_mem_rsv(fdt);
 
