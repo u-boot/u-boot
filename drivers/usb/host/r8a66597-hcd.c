@@ -807,7 +807,7 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 
 	R8A66597_DPRINT("%s\n", __func__);
 
-	memset(r8a66597, 0, sizeof(r8a66597));
+	memset(r8a66597, 0, sizeof(*r8a66597));
 	r8a66597->reg = CONFIG_R8A66597_BASE_ADDR;
 
 	disable_controller(r8a66597);
