@@ -21,7 +21,7 @@ re_remove = re.compile('^BUG=|^TEST=|^BRANCH=|^Change-Id:|^Review URL:'
 re_allowed_after_test = re.compile('^Signed-off-by:')
 
 # Signoffs
-re_signoff = re.compile('^Signed-off-by:')
+re_signoff = re.compile('^Signed-off-by: *(.*)')
 
 # The start of the cover letter
 re_cover = re.compile('^Cover-letter:')
@@ -159,6 +159,7 @@ class PatchStream:
         commit_tag_match = re_commit_tag.match(line)
         commit_match = re_commit.match(line) if self.is_log else None
         cover_cc_match = re_cover_cc.match(line)
+        signoff_match = re_signoff.match(line)
         tag_match = None
         if self.state == STATE_PATCH_HEADER:
             tag_match = re_tag.match(line)
@@ -223,7 +224,7 @@ class PatchStream:
             if is_blank:
                 # Blank line ends this change list
                 self.in_change = 0
-            elif line == '---' or re_signoff.match(line):
+            elif line == '---':
                 self.in_change = 0
                 out = self.ProcessLine(line)
             else:
@@ -271,6 +272,11 @@ class PatchStream:
                 self.commit.AddCc(tag_match.group(2).split(','))
             else:
                 self.tags.append(line);
+
+        # Suppress duplicate signoffs
+        elif signoff_match:
+            if self.commit.CheckDuplicateSignoff(signoff_match.group(1)):
+                out = [line]
 
         # Well that means this is an ordinary line
         else:

@@ -192,6 +192,7 @@ END
 	A sign-off is added automatically to your patches (this is
 	probably a bug). If you put this tag in your patches, it will
 	override the default signoff that patman automatically adds.
+	Multiple duplicate signoffs will be removed.
 
  Tested-by: Their Name <email>
  Reviewed-by: Their Name <email>
