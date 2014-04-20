@@ -11,6 +11,7 @@ import subprocess
 import sys
 import terminal
 
+import checkpatch
 import settings
 
 
@@ -193,6 +194,7 @@ def ApplyPatch(verbose, fname):
     Args:
         fname: filename of patch file to apply
     """
+    col = terminal.Color()
     cmd = ['git', 'am', fname]
     pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
@@ -203,8 +205,8 @@ def ApplyPatch(verbose, fname):
             print line
         match = re_error.match(line)
         if match:
-            print GetWarningMsg('warning', match.group(1), int(match.group(2)),
-                    'Patch failed')
+            print checkpatch.GetWarningMsg(col, 'warning', match.group(1),
+                                           int(match.group(2)), 'Patch failed')
     return pipe.returncode == 0, stdout
 
 def ApplyPatches(verbose, args, start_point):
