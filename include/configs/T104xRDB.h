@@ -518,8 +518,10 @@
 #define CONFIG_SYS_DPAA_FMAN
 #define CONFIG_SYS_DPAA_PME
 
+#ifdef CONFIG_T1040RDB
 #define CONFIG_QE
 #define CONFIG_U_QE
+#endif
 
 /* Default address of microcode for the Linux Fman driver */
 #if defined(CONFIG_SPIFLASH)
