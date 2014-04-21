@@ -899,19 +899,6 @@ void cpu_secondary_init_r(void)
 #endif
 
 #ifdef CONFIG_QE
-#ifdef CONFIG_SYS_QE_FMAN_FW_IN_NAND
-	int ret;
-	size_t fw_length = CONFIG_SYS_QE_FMAN_FW_LENGTH;
-
-	/* load QE firmware from NAND flash to DDR first */
-	ret = nand_read(&nand_info[0], (loff_t)CONFIG_SYS_QE_FMAN_FW_IN_NAND,
-			&fw_length, (u_char *)CONFIG_SYS_QE_FW_ADDR);
-
-	if (ret && ret == -EUCLEAN) {
-		printf ("NAND read for QE firmware at offset %x failed %d\n",
-				CONFIG_SYS_QE_FMAN_FW_IN_NAND, ret);
-	}
-#endif
 	qe_init(qe_base);
 	qe_reset();
 #endif
