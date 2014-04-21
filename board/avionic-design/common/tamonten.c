@@ -37,8 +37,8 @@ void pin_mux_mmc(void)
 {
 	funcmux_select(PERIPH_ID_SDMMC4, FUNCMUX_SDMMC4_ATB_GMA_GME_8_BIT);
 	/* for write-protect GPIO PI6 */
-	pinmux_tristate_disable(PINGRP_ATA);
+	pinmux_tristate_disable(PMUX_PINGRP_ATA);
 	/* for CD GPIO PH2 */
-	pinmux_tristate_disable(PINGRP_ATD);
+	pinmux_tristate_disable(PMUX_PINGRP_ATD);
 }
 #endif

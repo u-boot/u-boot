@@ -20,14 +20,14 @@
  */
 void pinmux_init(void)
 {
-	pinmux_config_table(tegra3_pinmux_common,
+	pinmux_config_pingrp_table(tegra3_pinmux_common,
 		ARRAY_SIZE(tegra3_pinmux_common));
 
-	pinmux_config_table(unused_pins_lowpower,
+	pinmux_config_pingrp_table(unused_pins_lowpower,
 		ARRAY_SIZE(unused_pins_lowpower));
 
 	/* Initialize any non-default pad configs (APB_MISC_GP regs) */
-	padgrp_config_table(cardhu_padctrl, ARRAY_SIZE(cardhu_padctrl));
+	pinmux_config_drvgrp_table(cardhu_padctrl, ARRAY_SIZE(cardhu_padctrl));
 }
 
 #if defined(CONFIG_TEGRA_MMC)

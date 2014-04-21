@@ -37,14 +37,14 @@ void pin_mux_mmc(void)
 	funcmux_select(PERIPH_ID_SDMMC3, FUNCMUX_SDMMC3_SDB_4BIT);
 
 	/* For power GPIO PI6 */
-	pinmux_tristate_disable(PINGRP_ATA);
+	pinmux_tristate_disable(PMUX_PINGRP_ATA);
 	/* For CD GPIO PI5 */
-	pinmux_tristate_disable(PINGRP_ATC);
+	pinmux_tristate_disable(PMUX_PINGRP_ATC);
 }
 #endif
 
 void pin_mux_usb(void)
 {
 	/* For USB's GPIO PD0. For now, since we have no pinmux in fdt */
-	pinmux_tristate_disable(PINGRP_SLXK);
+	pinmux_tristate_disable(PMUX_PINGRP_SLXK);
 }

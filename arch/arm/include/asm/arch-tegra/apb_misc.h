@@ -11,6 +11,8 @@
 struct apb_misc_pp_ctlr {
 	u32	reserved0[2];
 	u32	strapping_opt_a;/* 0x08: APB_MISC_PP_STRAPPING_OPT_A */
+	u32	reserved1[6];	/* 0x0c .. 0x20 */
+	u32	cfg_ctl;	/* 0x24 */
 };
 
 /* bit fields definitions for APB_MISC_PP_STRAPPING_OPT_A register */
