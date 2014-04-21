@@ -74,10 +74,37 @@ end:
 int spl_load_image_fat_os(block_dev_desc_t *block_dev, int partition)
 {
 	int err;
+	__maybe_unused char *file;
 
 	err = spl_register_fat_device(block_dev, partition);
 	if (err)
 		return err;
+
+#if defined(CONFIG_SPL_ENV_SUPPORT) && defined(CONFIG_SPL_OS_BOOT)
+	file = getenv("falcon_args_file");
+	if (file) {
+		err = file_fat_read(file, (void *)CONFIG_SYS_SPL_ARGS_ADDR, 0);
+		if (err <= 0) {
+			printf("spl: error reading image %s, err - %d, falling back to default\n",
+			       file, err);
+			goto defaults;
+		}
+		file = getenv("falcon_image_file");
+		if (file) {
+			err = spl_load_image_fat(block_dev, partition, file);
+			if (err != 0) {
+				puts("spl: falling back to default\n");
+				goto defaults;
+			}
+
+			return 0;
+		} else
+			puts("spl: falcon_image_file not set in environment, falling back to default\n");
+	} else
+		puts("spl: falcon_args_file not set in environment, falling back to default\n");
+
+defaults:
+#endif
 
 	err = file_fat_read(CONFIG_SPL_FAT_LOAD_ARGS_NAME,
 			    (void *)CONFIG_SYS_SPL_ARGS_ADDR, 0);

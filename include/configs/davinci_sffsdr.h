@@ -42,10 +42,10 @@
 #define CONFIG_CONS_INDEX	1		/* use UART0 for console */
 #define CONFIG_BAUDRATE		115200		/* Default baud rate */
 /* I2C Configuration */
-#define CONFIG_HARD_I2C
-#define CONFIG_DRIVER_DAVINCI_I2C
-#define CONFIG_SYS_I2C_SPEED		80000	/* 100Kbps won't work, silicon bug */
-#define CONFIG_SYS_I2C_SLAVE		10	/* Bogus, master-only in U-Boot */
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_DAVINCI
+#define CONFIG_SYS_DAVINCI_I2C_SPEED 80000 /* 100Kbps won't work, silicon bug */
+#define CONFIG_SYS_DAVINCI_I2C_SLAVE 10    /* Bogus, master-only in U-Boot */
 /* Network & Ethernet Configuration */
 #define CONFIG_DRIVER_TI_EMAC
 #define CONFIG_MII

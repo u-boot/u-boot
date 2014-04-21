@@ -16,15 +16,22 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_OMAP		1	/* in a TI OMAP core */
-#define CONFIG_OMAP34XX		1	/* which is a 34XX */
 #define CONFIG_OMAP3_ZOOM1	1	/* working with Zoom MDK Rev1 */
-#define CONFIG_OMAP_COMMON
+#define CONFIG_SYS_GENERIC_BOARD
 
-#define CONFIG_SDRC	/* The chip has SDRC controller */
-
+#define CONFIG_NAND
+#define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap3.h>
+#include <configs/ti_omap3_common.h>
+
+/* Remove SPL boot option - we do not support that on LDP yet */
+#undef CONFIG_SPL
+#undef CONFIG_SPL_FRAMEWORK
+#undef CONFIG_SPL_OS_BOOT
+
+/* Generic NAND definition conflicts with debug_base */
+#undef CONFIG_SYS_NAND_BASE
 
 /*
  * Display CPU and Board information
@@ -32,56 +39,15 @@
 #define CONFIG_DISPLAY_CPUINFO		1
 #define CONFIG_DISPLAY_BOARDINFO	1
 
-/* Clock Defines */
-#define V_OSCK			26000000	/* Clock output from T2 */
-#define V_SCLK			(V_OSCK >> 1)
-
 #define CONFIG_MISC_INIT_R
 
-#define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs */
-#define CONFIG_SETUP_MEMORY_TAGS	1
-#define CONFIG_INITRD_TAG		1
 #define CONFIG_REVISION_TAG		1
 
-#define CONFIG_OF_LIBFDT		1
-
-/*
- * Size of malloc() pool
- */
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
-						/* Sector */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10))
 
 /*
  * Hardware drivers
  */
-
-/*
- * NS16550 Configuration
- */
-#define V_NS16550_CLK			48000000	/* 48MHz (APLL96/2) */
-
-#define CONFIG_SYS_NS16550
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
-#define CONFIG_SYS_NS16550_CLK		V_NS16550_CLK
-
-/*
- * select serial console configuration
- */
-#define CONFIG_CONS_INDEX		3
-#define CONFIG_SYS_NS16550_COM3		OMAP34XX_UART3
-#define CONFIG_SERIAL3			3	/* UART3 */
-
-/* allow to overwrite serial and ethaddr */
-#define CONFIG_ENV_OVERWRITE
-#define CONFIG_BAUDRATE			115200
-#define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
-					115200}
-#define CONFIG_GENERIC_MMC		1
-#define CONFIG_MMC			1
-#define CONFIG_OMAP_HSMMC		1
-#define CONFIG_DOS_PARTITION		1
 
 /* USB */
 #define CONFIG_MUSB_UDC			1
@@ -98,63 +64,52 @@
 #define CONFIG_USBD_MANUFACTURER	"Texas Instruments"
 #define CONFIG_USBD_PRODUCT_NAME	"Zoom1"
 
-/* commands to include */
-#include <config_cmd_default.h>
+#define MTDIDS_DEFAULT			"nand0=nand"
+#define MTDPARTS_DEFAULT		"mtdparts=nand:512k(x-loader),"\
+					"1920k(u-boot),128k(u-boot-env),"\
+					"4m(kernel),-(fs)"
 
-#define CONFIG_CMD_EXT2		/* EXT2 Support			*/
-#define CONFIG_CMD_FAT		/* FAT support			*/
-#define CONFIG_CMD_JFFS2	/* JFFS2 Support		*/
-
-#define CONFIG_CMD_I2C		/* I2C serial bus support	*/
-#define CONFIG_CMD_MMC		/* MMC support			*/
-#define CONFIG_CMD_NAND		/* NAND support			*/
+#if defined(CONFIG_CMD_NAND)
 #define CONFIG_CMD_NAND_LOCK_UNLOCK /* Enable lock/unlock support */
+#endif
 
 #undef CONFIG_CMD_FLASH		/* flinfo, erase, protect	*/
 #undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
 #undef CONFIG_CMD_IMI		/* iminfo			*/
 #undef CONFIG_CMD_IMLS		/* List all found images	*/
-#undef CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
-#undef CONFIG_CMD_NFS		/* NFS support			*/
+#define CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
+#define CONFIG_CMD_NFS		/* NFS support			*/
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_DHCP
 
-#define CONFIG_SYS_NO_FLASH
-#define CONFIG_SYS_I2C
-#define CONFIG_SYS_OMAP24_I2C_SPEED	100000
-#define CONFIG_SYS_OMAP24_I2C_SLAVE	1
+#undef CONFIG_SYS_I2C_OMAP24XX
 #define CONFIG_SYS_I2C_OMAP34XX
 
 /*
  * TWL4030
  */
-#define CONFIG_TWL4030_POWER		1
 #define CONFIG_TWL4030_LED		1
 
 /*
  * Board NAND Info.
  */
-#define CONFIG_NAND_OMAP_GPMC
 #define CONFIG_SYS_NAND_ADDR		NAND_BASE	/* physical address */
 							/* to access nand */
 #define CONFIG_SYS_NAND_BASE		NAND_BASE	/* physical address */
 							/* to access nand at */
 							/* CS0 */
-#define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of NAND */
-							/* devices */
-#define CONFIG_JFFS2_NAND
-/* nand device jffs2 lives on */
-#define CONFIG_JFFS2_DEV		"nand0"
-/* start of jffs2 partition */
-#define CONFIG_JFFS2_PART_OFFSET	0x680000
-#define CONFIG_JFFS2_PART_SIZE		0xf980000	/* size of jffs2 */
-							/* partition */
 
 /* Environment information */
-#define CONFIG_BOOTDELAY		10
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
+	"fdtaddr=0x80f80000\0" \
+	"bootfile=uImage\0" \
+	"fdtfile=omap3-ldp.dtb\0" \
+	"bootdir=/\0" \
+	"bootpart=0:1\0" \
 	"usbtty=cdc_acm\0" \
-	"console=ttyS2,115200n8\0" \
+	"console=ttyO2,115200n8\0" \
 	"mmcdev=0\0" \
 	"videomode=1024x768@60,vxres=1024,vyres=768\0" \
 	"videospec=omapfb:vram:2M,vram:4M\0" \
@@ -169,10 +124,15 @@
 	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source ${loadaddr}\0" \
-	"loaduimage=fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
+	"loadimage=load mmc ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
+	"loadfdt=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
+	"loadzimage=setenv bootfile zImage; if run loadimage; then run loadfdt;fi\0"\
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"bootm ${loadaddr}\0" \
+	"mmczboot=echo Booting from mmc ...; " \
+		"run mmcargs; " \
+		"bootz ${loadaddr} - ${fdtaddr}\0" \
 	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
 		"nand read ${loadaddr} 280000 400000; " \
@@ -183,56 +143,21 @@
 		"if run loadbootscript; then " \
 			"run bootscript; " \
 		"else " \
-			"if run loaduimage; then " \
+			"if run loadimage; then " \
 				"run mmcboot; " \
+			"else if run loadzimage; then " \
+				"run mmczboot; " \
 			"else run nandboot; " \
-			"fi; " \
+			"fi; fi;" \
 		"fi; " \
 	"else run nandboot; fi"
 
-#define CONFIG_AUTO_COMPLETE		1
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
-#define CONFIG_SYS_PROMPT		"OMAP3 Zoom1 # "
-#define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
-/* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
-					sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS		16	/* max number of command args */
-/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE		(CONFIG_SYS_CBSIZE)
-
-#define CONFIG_SYS_MEMTEST_START	(OMAP34XX_SDRC_CS0)	/* memtest */
-								/* works on */
-#define CONFIG_SYS_MEMTEST_END		(OMAP34XX_SDRC_CS0 + \
+#define CONFIG_SYS_MEMTEST_START	(PHYS_SDRAM_1)	/* memtest */
+#define CONFIG_SYS_MEMTEST_END		(PHYS_SDRAM_2 + \
 					0x01F00000) /* 31MB */
-
-#define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0)	/* default */
-							/* load address */
-
-#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
-#define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800
-#define CONFIG_SYS_INIT_RAM_SIZE	0x800
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
-					 CONFIG_SYS_INIT_RAM_SIZE - \
-					 GENERATED_GBL_DATA_SIZE)
-/*
- * OMAP3 has 12 GP timers, they can be driven by the system clock
- * (12/13/16.8/19.2/38.4MHz) or by 32KHz clock. We use 13MHz (V_SCLK).
- * This rate is divided by a local divisor.
- */
-#define CONFIG_SYS_TIMERBASE		OMAP34XX_GPT2
-#define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
-
-/*-----------------------------------------------------------------------
- * Physical Memory Map
- */
-#define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
-#define PHYS_SDRAM_1		OMAP34XX_SDRC_CS0
-#define PHYS_SDRAM_2		OMAP34XX_SDRC_CS1
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
@@ -243,8 +168,6 @@
 /* Configure the PISMO */
 #define PISMO1_NAND_SIZE		GPMC_SIZE_128M
 #define PISMO1_ONEN_SIZE		GPMC_SIZE_128M
-
-#define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
 
 #if defined(CONFIG_CMD_NAND)
 #define CONFIG_SYS_FLASH_BASE		PISMO1_NAND_BASE
@@ -263,5 +186,13 @@
 #define CONFIG_ENV_ADDR			SMNAND_ENV_OFFSET
 
 #define CONFIG_SYS_CACHELINE_SIZE	64
+
+#ifdef CONFIG_CMD_NET
+/* Ethernet (LAN9211 from SMSC9118 family) */
+#define CONFIG_SMC911X
+#define CONFIG_SMC911X_32_BIT
+#define CONFIG_SMC911X_BASE		DEBUG_BASE
+
+#endif
 
 #endif				/* __CONFIG_H */

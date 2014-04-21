@@ -6,7 +6,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-ifeq ($(CONFIG_SPL_BUILD)$(CONFIG_NOR_BOOT),y)
+ifeq ($(CONFIG_SKIP_LOWLEVEL_INIT),)
 obj-y	:= mux.o
 endif
 

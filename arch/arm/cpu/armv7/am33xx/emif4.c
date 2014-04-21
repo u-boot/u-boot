@@ -35,7 +35,7 @@ void dram_init_banksize(void)
 }
 
 
-#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_NOR_BOOT)
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
 #ifdef CONFIG_TI81XX
 static struct dmm_lisa_map_regs *hw_lisa_map_regs =
 				(struct dmm_lisa_map_regs *)DMM_BASE;

@@ -125,6 +125,7 @@ static const table_entry_t uimage_type[] = {
 	{	IH_TYPE_FILESYSTEM, "filesystem", "Filesystem Image",	},
 	{	IH_TYPE_FIRMWARE,   "firmware",	  "Firmware",		},
 	{	IH_TYPE_FLATDT,     "flat_dt",    "Flat Device Tree",	},
+	{	IH_TYPE_GPIMAGE,    "gpimage",    "TI Keystone SPL Image",},
 	{	IH_TYPE_KERNEL,	    "kernel",	  "Kernel Image",	},
 	{	IH_TYPE_KERNEL_NOLOAD, "kernel_noload",  "Kernel Image (no loading done)", },
 	{	IH_TYPE_KWBIMAGE,   "kwbimage",   "Kirkwood Boot Image",},

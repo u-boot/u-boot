@@ -14,12 +14,15 @@
 
 #define CONFIG_DRA7XX
 
+#ifndef CONFIG_QSPI_BOOT
 /* MMC ENV related defines */
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		1	/* SLOT2: eMMC(1) */
+#define CONFIG_ENV_SIZE			(128 << 10)
 #define CONFIG_ENV_OFFSET		0xE0000
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
+#endif
 #define CONFIG_CMD_SAVEENV
 
 #if (CONFIG_CONS_INDEX == 1)
@@ -75,13 +78,46 @@
 #define CONFIG_SF_DEFAULT_SPEED                48000000
 #define CONFIG_DEFAULT_SPI_MODE                SPI_MODE_3
 
+/*
+ * Default to using SPI for environment, etc.
+ * 0x000000 - 0x010000 : QSPI.SPL (64KiB)
+ * 0x010000 - 0x020000 : QSPI.SPL.backup1 (64KiB)
+ * 0x020000 - 0x030000 : QSPI.SPL.backup2 (64KiB)
+ * 0x030000 - 0x040000 : QSPI.SPL.backup3 (64KiB)
+ * 0x040000 - 0x140000 : QSPI.u-boot (1MiB)
+ * 0x140000 - 0x1C0000 : QSPI.u-boot-spl-os (512KiB)
+ * 0x1C0000 - 0x1D0000 : QSPI.u-boot-env (64KiB)
+ * 0x1D0000 - 0x1E0000 : QSPI.u-boot-env.backup1 (64KiB)
+ * 0x1E0000 - 0x9E0000 : QSPI.kernel (8MiB)
+ * 0x9E0000 - 0x2000000 : USERLAND
+ */
+#define CONFIG_SYS_SPI_KERNEL_OFFS	0x1E0000
+#define CONFIG_SYS_SPI_ARGS_OFFS	0x140000
+#define CONFIG_SYS_SPI_ARGS_SIZE	0x80000
+#if defined(CONFIG_QSPI_BOOT)
+/* In SPL, use the environment and discard MMC support for space. */
+#ifdef CONFIG_SPL_BUILD
+#undef CONFIG_SPL_MMC_SUPPORT
+#undef CONFIG_SPL_MAX_SIZE
+#define CONFIG_SPL_MAX_SIZE             (64 << 10) /* 64 KiB */
+#endif
+#define CONFIG_SPL_ENV_SUPPORT
+#define CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
+#define CONFIG_ENV_SPI_MAX_HZ           CONFIG_SF_DEFAULT_SPEED
+#define CONFIG_ENV_SIZE			(64 << 10)
+#define CONFIG_ENV_SECT_SIZE		(64 << 10) /* 64 KB sectors */
+#define CONFIG_ENV_OFFSET		0x1C0000
+#define CONFIG_ENV_OFFSET_REDUND	0x1D0000
+#endif
+
 /* SPI SPL */
 #define CONFIG_SPL_SPI_SUPPORT
 #define CONFIG_SPL_SPI_LOAD
 #define CONFIG_SPL_SPI_FLASH_SUPPORT
 #define CONFIG_SPL_SPI_BUS             0
 #define CONFIG_SPL_SPI_CS              0
-#define CONFIG_SYS_SPI_U_BOOT_OFFS     0x20000
+#define CONFIG_SYS_SPI_U_BOOT_OFFS     0x40000
 
 #define CONFIG_SUPPORT_EMMC_BOOT
 

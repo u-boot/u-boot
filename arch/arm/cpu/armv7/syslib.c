@@ -24,19 +24,6 @@ void sdelay(unsigned long loops)
 			  "bne 1b":"=r" (loops):"0"(loops));
 }
 
-/*****************************************************************
- * sr32 - clear & set a value in a bit range for a 32 bit address
- *****************************************************************/
-void sr32(void *addr, u32 start_bit, u32 num_bits, u32 value)
-{
-	u32 tmp, msk = 0;
-	msk = 1 << num_bits;
-	--msk;
-	tmp = readl((u32)addr) & ~(msk << start_bit);
-	tmp |= value << start_bit;
-	writel(tmp, (u32)addr);
-}
-
 /*********************************************************************
  * wait_on_value() - common routine to allow waiting for changes in
  *   volatile regs.

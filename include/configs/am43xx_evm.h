@@ -35,6 +35,8 @@
 /* SPL defines. */
 #define CONFIG_SPL_TEXT_BASE		0x40300350
 #define CONFIG_SPL_MAX_SIZE		(220 << 10)	/* 220KB */
+#define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \
+					 (128 << 20))
 #define CONFIG_SPL_YMODEM_SUPPORT
 
 /* Enabling L2 Cache */
@@ -96,14 +98,6 @@
 #define CONFIG_SF_DEFAULT_SPEED                48000000
 #define CONFIG_DEFAULT_SPI_MODE                SPI_MODE_3
 
-/* SPI SPL */
-#define CONFIG_SPL_SPI_SUPPORT
-#define CONFIG_SPL_SPI_LOAD
-#define CONFIG_SPL_SPI_FLASH_SUPPORT
-#define CONFIG_SPL_SPI_BUS             0
-#define CONFIG_SPL_SPI_CS              0
-#define CONFIG_SYS_SPI_U_BOOT_OFFS     0x20000
-
 /* Enhance our eMMC support / experience. */
 #define CONFIG_CMD_GPT
 #define CONFIG_EFI_PARTITION
@@ -112,10 +106,7 @@
 
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"loadaddr=0x80200000\0" \
-	"fdtaddr=0x80F80000\0" \
-	"fdt_high=0xffffffff\0" \
-	"rdaddr=0x81000000\0" \
+	DEFAULT_LINUX_BOOT_ENV \
 	"fdtfile=undefined\0" \
 	"bootpart=0:2\0" \
 	"bootdir=/boot\0" \
@@ -131,7 +122,7 @@
 	"usbroot=/dev/sda2 rw\0" \
 	"usbrootfstype=ext4 rootwait\0" \
 	"usbdev=0\0" \
-	"ramroot=/dev/ram0 rw ramdisk_size=65536 initrd=${rdaddr},64M\0" \
+	"ramroot=/dev/ram0 rw\0" \
 	"ramrootfstype=ext2\0" \
 	"mmcargs=setenv bootargs console=${console} " \
 		"${optargs} " \

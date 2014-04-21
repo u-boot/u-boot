@@ -12,7 +12,7 @@ void davinci_enable_uart0(void)
 	lpsc_on(DAVINCI_LPSC_UART0);
 }
 
-#ifdef CONFIG_DRIVER_DAVINCI_I2C
+#ifdef CONFIG_SYS_I2C_DAVINCI
 void davinci_enable_i2c(void)
 {
 	lpsc_on(DAVINCI_LPSC_I2C);

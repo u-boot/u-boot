@@ -132,9 +132,9 @@ static void dpll3_init_34xx(u32 sil_index, u32 clk_index)
 	if (xip_safe) {
 		/*
 		 * CORE DPLL
-		 * sr32(CM_CLKSEL2_EMU) set override to work when asleep
 		 */
-		sr32(&prcm_base->clken_pll, 0, 3, PLL_FAST_RELOCK_BYPASS);
+		clrsetbits_le32(&prcm_base->clken_pll,
+				0x00000007, PLL_FAST_RELOCK_BYPASS);
 		wait_on_value(ST_CORE_CLK, 0, &prcm_base->idlest_ckgen,
 				LDELAY);
 
@@ -144,37 +144,50 @@ static void dpll3_init_34xx(u32 sil_index, u32 clk_index)
 		 */
 
 		/* CM_CLKSEL1_EMU[DIV_DPLL3] */
-		sr32(&prcm_base->clksel1_emu, 16, 5, (CORE_M3X2 + 1)) ;
-		sr32(&prcm_base->clksel1_emu, 16, 5, CORE_M3X2);
+		clrsetbits_le32(&prcm_base->clksel1_emu,
+				0x001F0000, (CORE_M3X2 + 1) << 16) ;
+		clrsetbits_le32(&prcm_base->clksel1_emu,
+				0x001F0000, CORE_M3X2 << 16);
 
 		/* M2 (CORE_DPLL_CLKOUT_DIV): CM_CLKSEL1_PLL[27:31] */
-		sr32(&prcm_base->clksel1_pll, 27, 5, ptr->m2);
+		clrsetbits_le32(&prcm_base->clksel1_pll,
+				0xF8000000, ptr->m2 << 27);
 
 		/* M (CORE_DPLL_MULT): CM_CLKSEL1_PLL[16:26] */
-		sr32(&prcm_base->clksel1_pll, 16, 11, ptr->m);
+		clrsetbits_le32(&prcm_base->clksel1_pll,
+				0x07FF0000, ptr->m << 16);
 
 		/* N (CORE_DPLL_DIV): CM_CLKSEL1_PLL[8:14] */
-		sr32(&prcm_base->clksel1_pll, 8, 7, ptr->n);
+		clrsetbits_le32(&prcm_base->clksel1_pll,
+				0x00007F00, ptr->n << 8);
 
 		/* Source is the CM_96M_FCLK: CM_CLKSEL1_PLL[6] */
-		sr32(&prcm_base->clksel1_pll, 6, 1, 0);
+		clrbits_le32(&prcm_base->clksel1_pll, 0x00000040);
 
 		/* SSI */
-		sr32(&prcm_base->clksel_core, 8, 4, CORE_SSI_DIV);
+		clrsetbits_le32(&prcm_base->clksel_core,
+				0x00000F00, CORE_SSI_DIV << 8);
 		/* FSUSB */
-		sr32(&prcm_base->clksel_core, 4, 2, CORE_FUSB_DIV);
+		clrsetbits_le32(&prcm_base->clksel_core,
+				0x00000030, CORE_FUSB_DIV << 4);
 		/* L4 */
-		sr32(&prcm_base->clksel_core, 2, 2, CORE_L4_DIV);
+		clrsetbits_le32(&prcm_base->clksel_core,
+				0x0000000C, CORE_L4_DIV << 2);
 		/* L3 */
-		sr32(&prcm_base->clksel_core, 0, 2, CORE_L3_DIV);
+		clrsetbits_le32(&prcm_base->clksel_core,
+				0x00000003, CORE_L3_DIV);
 		/* GFX */
-		sr32(&prcm_base->clksel_gfx,  0, 3, GFX_DIV);
+		clrsetbits_le32(&prcm_base->clksel_gfx,
+				0x00000007, GFX_DIV);
 		/* RESET MGR */
-		sr32(&prcm_base->clksel_wkup, 1, 2, WKUP_RSM);
+		clrsetbits_le32(&prcm_base->clksel_wkup,
+				0x00000006, WKUP_RSM << 1);
 		/* FREQSEL (CORE_DPLL_FREQSEL): CM_CLKEN_PLL[4:7] */
-		sr32(&prcm_base->clken_pll,   4, 4, ptr->fsel);
+		clrsetbits_le32(&prcm_base->clken_pll,
+				0x000000F0, ptr->fsel << 4);
 		/* LOCK MODE */
-		sr32(&prcm_base->clken_pll,   0, 3, PLL_LOCK);
+		clrsetbits_le32(&prcm_base->clken_pll,
+				0x00000007, PLL_LOCK);
 
 		wait_on_value(ST_CORE_CLK, 1, &prcm_base->idlest_ckgen,
 				LDELAY);
@@ -186,29 +199,29 @@ static void dpll3_init_34xx(u32 sil_index, u32 clk_index)
 		f_lock_pll = (void *) (SRAM_CLK_CODE);
 
 		p0 = readl(&prcm_base->clken_pll);
-		sr32(&p0, 0, 3, PLL_FAST_RELOCK_BYPASS);
+		clrsetbits_le32(&p0, 0x00000007, PLL_FAST_RELOCK_BYPASS);
 		/* FREQSEL (CORE_DPLL_FREQSEL): CM_CLKEN_PLL[4:7] */
-		sr32(&p0, 4, 4, ptr->fsel);
+		clrsetbits_le32(&p0, 0x000000F0, ptr->fsel << 4);
 
 		p1 = readl(&prcm_base->clksel1_pll);
 		/* M2 (CORE_DPLL_CLKOUT_DIV): CM_CLKSEL1_PLL[27:31] */
-		sr32(&p1, 27, 5, ptr->m2);
+		clrsetbits_le32(&p1, 0xF8000000, ptr->m2 << 27);
 		/* M (CORE_DPLL_MULT): CM_CLKSEL1_PLL[16:26] */
-		sr32(&p1, 16, 11, ptr->m);
+		clrsetbits_le32(&p1, 0x07FF0000, ptr->m << 16);
 		/* N (CORE_DPLL_DIV): CM_CLKSEL1_PLL[8:14] */
-		sr32(&p1, 8, 7, ptr->n);
+		clrsetbits_le32(&p1, 0x00007F00, ptr->n << 8);
 		/* Source is the CM_96M_FCLK: CM_CLKSEL1_PLL[6] */
-		sr32(&p1, 6, 1, 0);
+		clrbits_le32(&p1, 0x00000040);
 
 		p2 = readl(&prcm_base->clksel_core);
 		/* SSI */
-		sr32(&p2, 8, 4, CORE_SSI_DIV);
+		clrsetbits_le32(&p2, 0x00000F00, CORE_SSI_DIV << 8);
 		/* FSUSB */
-		sr32(&p2, 4, 2, CORE_FUSB_DIV);
+		clrsetbits_le32(&p2, 0x00000030, CORE_FUSB_DIV << 4);
 		/* L4 */
-		sr32(&p2, 2, 2, CORE_L4_DIV);
+		clrsetbits_le32(&p2, 0x0000000C, CORE_L4_DIV << 2);
 		/* L3 */
-		sr32(&p2, 0, 2, CORE_L3_DIV);
+		clrsetbits_le32(&p2, 0x00000003, CORE_L3_DIV);
 
 		p3 = (u32)&prcm_base->idlest_ckgen;
 
@@ -225,7 +238,7 @@ static void dpll4_init_34xx(u32 sil_index, u32 clk_index)
 	ptr = ptr + clk_index;
 
 	/* EN_PERIPH_DPLL: CM_CLKEN_PLL[16:18] */
-	sr32(&prcm_base->clken_pll, 16, 3, PLL_STOP);
+	clrsetbits_le32(&prcm_base->clken_pll, 0x00070000, PLL_STOP << 16);
 	wait_on_value(ST_PERIPH_CLK, 0, &prcm_base->idlest_ckgen, LDELAY);
 
 	/*
@@ -234,33 +247,38 @@ static void dpll4_init_34xx(u32 sil_index, u32 clk_index)
 	 * and then the actual divisor value
 	 */
 	/* M6 */
-	sr32(&prcm_base->clksel1_emu, 24, 5, (PER_M6X2 + 1));
-	sr32(&prcm_base->clksel1_emu, 24, 5, PER_M6X2);
+	clrsetbits_le32(&prcm_base->clksel1_emu,
+			0x1F000000, (PER_M6X2 + 1) << 24);
+	clrsetbits_le32(&prcm_base->clksel1_emu,
+			0x1F000000, PER_M6X2 << 24);
 	/* M5 */
-	sr32(&prcm_base->clksel_cam, 0, 5, (PER_M5X2 + 1));
-	sr32(&prcm_base->clksel_cam, 0, 5, PER_M5X2);
+	clrsetbits_le32(&prcm_base->clksel_cam, 0x0000001F, (PER_M5X2 + 1));
+	clrsetbits_le32(&prcm_base->clksel_cam, 0x0000001F, PER_M5X2);
 	/* M4 */
-	sr32(&prcm_base->clksel_dss, 0, 5, (PER_M4X2 + 1));
-	sr32(&prcm_base->clksel_dss, 0, 5, PER_M4X2);
+	clrsetbits_le32(&prcm_base->clksel_dss, 0x0000001F, (PER_M4X2 + 1));
+	clrsetbits_le32(&prcm_base->clksel_dss, 0x0000001F, PER_M4X2);
 	/* M3 */
-	sr32(&prcm_base->clksel_dss, 8, 5, (PER_M3X2 + 1));
-	sr32(&prcm_base->clksel_dss, 8, 5, PER_M3X2);
+	clrsetbits_le32(&prcm_base->clksel_dss,
+			0x00001F00, (PER_M3X2 + 1) << 8);
+	clrsetbits_le32(&prcm_base->clksel_dss,
+			0x00001F00, PER_M3X2 << 8);
 	/* M2 (DIV_96M): CM_CLKSEL3_PLL[0:4] */
-	sr32(&prcm_base->clksel3_pll, 0, 5, (ptr->m2 + 1));
-	sr32(&prcm_base->clksel3_pll, 0, 5, ptr->m2);
+	clrsetbits_le32(&prcm_base->clksel3_pll, 0x0000001F, (ptr->m2 + 1));
+	clrsetbits_le32(&prcm_base->clksel3_pll, 0x0000001F, ptr->m2);
 	/* Workaround end */
 
 	/* M (PERIPH_DPLL_MULT): CM_CLKSEL2_PLL[8:18] */
-	sr32(&prcm_base->clksel2_pll, 8, 11, ptr->m);
+	clrsetbits_le32(&prcm_base->clksel2_pll,
+			0x0007FF00, ptr->m << 8);
 
 	/* N (PERIPH_DPLL_DIV): CM_CLKSEL2_PLL[0:6] */
-	sr32(&prcm_base->clksel2_pll, 0, 7, ptr->n);
+	clrsetbits_le32(&prcm_base->clksel2_pll, 0x0000007F, ptr->n);
 
 	/* FREQSEL (PERIPH_DPLL_FREQSEL): CM_CLKEN_PLL[20:23] */
-	sr32(&prcm_base->clken_pll, 20, 4, ptr->fsel);
+	clrsetbits_le32(&prcm_base->clken_pll, 0x00F00000, ptr->fsel << 20);
 
 	/* LOCK MODE (EN_PERIPH_DPLL): CM_CLKEN_PLL[16:18] */
-	sr32(&prcm_base->clken_pll, 16, 3, PLL_LOCK);
+	clrsetbits_le32(&prcm_base->clken_pll, 0x00070000, PLL_LOCK << 16);
 	wait_on_value(ST_PERIPH_CLK, 2, &prcm_base->idlest_ckgen, LDELAY);
 }
 
@@ -273,13 +291,18 @@ static void dpll5_init_34xx(u32 sil_index, u32 clk_index)
 	ptr = ptr + clk_index;
 
 	/* PER2 DPLL (DPLL5) */
-	sr32(&prcm_base->clken2_pll, 0, 3, PLL_STOP);
+	clrsetbits_le32(&prcm_base->clken2_pll, 0x00000007, PLL_STOP);
 	wait_on_value(1, 0, &prcm_base->idlest2_ckgen, LDELAY);
-	sr32(&prcm_base->clksel5_pll, 0, 5, ptr->m2); /* set M2 (usbtll_fck) */
-	sr32(&prcm_base->clksel4_pll, 8, 11, ptr->m); /* set m (11-bit multiplier) */
-	sr32(&prcm_base->clksel4_pll, 0, 7, ptr->n); /* set n (7-bit divider)*/
-	sr32(&prcm_base->clken_pll, 4, 4, ptr->fsel);   /* FREQSEL */
-	sr32(&prcm_base->clken2_pll, 0, 3, PLL_LOCK);   /* lock mode */
+	/* set M2 (usbtll_fck) */
+	clrsetbits_le32(&prcm_base->clksel5_pll, 0x0000001F, ptr->m2);
+	/* set m (11-bit multiplier) */
+	clrsetbits_le32(&prcm_base->clksel4_pll, 0x0007FF00, ptr->m << 8);
+	/* set n (7-bit divider)*/
+	clrsetbits_le32(&prcm_base->clksel4_pll, 0x0000007F, ptr->n);
+	/* FREQSEL */
+	clrsetbits_le32(&prcm_base->clken_pll, 0x000000F0, ptr->fsel << 4);
+	/* lock mode */
+	clrsetbits_le32(&prcm_base->clken2_pll, 0x00000007, PLL_LOCK);
 	wait_on_value(1, 1, &prcm_base->idlest2_ckgen, LDELAY);
 }
 
@@ -294,16 +317,20 @@ static void mpu_init_34xx(u32 sil_index, u32 clk_index)
 	/* MPU DPLL (unlocked already) */
 
 	/* M2 (MPU_DPLL_CLKOUT_DIV) : CM_CLKSEL2_PLL_MPU[0:4] */
-	sr32(&prcm_base->clksel2_pll_mpu, 0, 5, ptr->m2);
+	clrsetbits_le32(&prcm_base->clksel2_pll_mpu,
+			0x0000001F, ptr->m2);
 
 	/* M (MPU_DPLL_MULT) : CM_CLKSEL2_PLL_MPU[8:18] */
-	sr32(&prcm_base->clksel1_pll_mpu, 8, 11, ptr->m);
+	clrsetbits_le32(&prcm_base->clksel1_pll_mpu,
+			0x0007FF00, ptr->m << 8);
 
 	/* N (MPU_DPLL_DIV) : CM_CLKSEL2_PLL_MPU[0:6] */
-	sr32(&prcm_base->clksel1_pll_mpu, 0, 7, ptr->n);
+	clrsetbits_le32(&prcm_base->clksel1_pll_mpu,
+			0x0000007F, ptr->n);
 
 	/* FREQSEL (MPU_DPLL_FREQSEL) : CM_CLKEN_PLL_MPU[4:7] */
-	sr32(&prcm_base->clken_pll_mpu, 4, 4, ptr->fsel);
+	clrsetbits_le32(&prcm_base->clken_pll_mpu,
+			0x000000F0, ptr->fsel << 4);
 }
 
 static void iva_init_34xx(u32 sil_index, u32 clk_index)
@@ -316,23 +343,29 @@ static void iva_init_34xx(u32 sil_index, u32 clk_index)
 
 	/* IVA DPLL */
 	/* EN_IVA2_DPLL : CM_CLKEN_PLL_IVA2[0:2] */
-	sr32(&prcm_base->clken_pll_iva2, 0, 3, PLL_STOP);
+	clrsetbits_le32(&prcm_base->clken_pll_iva2,
+			0x00000007, PLL_STOP);
 	wait_on_value(ST_IVA2_CLK, 0, &prcm_base->idlest_pll_iva2, LDELAY);
 
 	/* M2 (IVA2_DPLL_CLKOUT_DIV) : CM_CLKSEL2_PLL_IVA2[0:4] */
-	sr32(&prcm_base->clksel2_pll_iva2, 0, 5, ptr->m2);
+	clrsetbits_le32(&prcm_base->clksel2_pll_iva2,
+			0x0000001F, ptr->m2);
 
 	/* M (IVA2_DPLL_MULT) : CM_CLKSEL1_PLL_IVA2[8:18] */
-	sr32(&prcm_base->clksel1_pll_iva2, 8, 11, ptr->m);
+	clrsetbits_le32(&prcm_base->clksel1_pll_iva2,
+			0x0007FF00, ptr->m << 8);
 
 	/* N (IVA2_DPLL_DIV) : CM_CLKSEL1_PLL_IVA2[0:6] */
-	sr32(&prcm_base->clksel1_pll_iva2, 0, 7, ptr->n);
+	clrsetbits_le32(&prcm_base->clksel1_pll_iva2,
+			0x0000007F, ptr->n);
 
 	/* FREQSEL (IVA2_DPLL_FREQSEL) : CM_CLKEN_PLL_IVA2[4:7] */
-	sr32(&prcm_base->clken_pll_iva2, 4, 4, ptr->fsel);
+	clrsetbits_le32(&prcm_base->clken_pll_iva2,
+			0x000000F0, ptr->fsel << 4);
 
 	/* LOCK MODE (EN_IVA2_DPLL) : CM_CLKEN_PLL_IVA2[0:2] */
-	sr32(&prcm_base->clken_pll_iva2, 0, 3, PLL_LOCK);
+	clrsetbits_le32(&prcm_base->clken_pll_iva2,
+			0x00000007, PLL_LOCK);
 
 	wait_on_value(ST_IVA2_CLK, 1, &prcm_base->idlest_pll_iva2, LDELAY);
 }
@@ -357,41 +390,54 @@ static void dpll3_init_36xx(u32 sil_index, u32 clk_index)
 		/* CORE DPLL */
 
 		/* Select relock bypass: CM_CLKEN_PLL[0:2] */
-		sr32(&prcm_base->clken_pll, 0, 3, PLL_FAST_RELOCK_BYPASS);
+		clrsetbits_le32(&prcm_base->clken_pll,
+				0x00000007, PLL_FAST_RELOCK_BYPASS);
 		wait_on_value(ST_CORE_CLK, 0, &prcm_base->idlest_ckgen,
 				LDELAY);
 
 		/* CM_CLKSEL1_EMU[DIV_DPLL3] */
-		sr32(&prcm_base->clksel1_emu, 16, 5, CORE_M3X2);
+		clrsetbits_le32(&prcm_base->clksel1_emu,
+				0x001F0000, CORE_M3X2 << 16);
 
 		/* M2 (CORE_DPLL_CLKOUT_DIV): CM_CLKSEL1_PLL[27:31] */
-		sr32(&prcm_base->clksel1_pll, 27, 5, ptr->m2);
+		clrsetbits_le32(&prcm_base->clksel1_pll,
+				0xF8000000, ptr->m2 << 27);
 
 		/* M (CORE_DPLL_MULT): CM_CLKSEL1_PLL[16:26] */
-		sr32(&prcm_base->clksel1_pll, 16, 11, ptr->m);
+		clrsetbits_le32(&prcm_base->clksel1_pll,
+				0x07FF0000, ptr->m << 16);
 
 		/* N (CORE_DPLL_DIV): CM_CLKSEL1_PLL[8:14] */
-		sr32(&prcm_base->clksel1_pll, 8, 7, ptr->n);
+		clrsetbits_le32(&prcm_base->clksel1_pll,
+				0x00007F00, ptr->n << 8);
 
 		/* Source is the CM_96M_FCLK: CM_CLKSEL1_PLL[6] */
-		sr32(&prcm_base->clksel1_pll, 6, 1, 0);
+		clrbits_le32(&prcm_base->clksel1_pll, 0x00000040);
 
 		/* SSI */
-		sr32(&prcm_base->clksel_core, 8, 4, CORE_SSI_DIV);
+		clrsetbits_le32(&prcm_base->clksel_core,
+				0x00000F00, CORE_SSI_DIV << 8);
 		/* FSUSB */
-		sr32(&prcm_base->clksel_core, 4, 2, CORE_FUSB_DIV);
+		clrsetbits_le32(&prcm_base->clksel_core,
+				0x00000030, CORE_FUSB_DIV << 4);
 		/* L4 */
-		sr32(&prcm_base->clksel_core, 2, 2, CORE_L4_DIV);
+		clrsetbits_le32(&prcm_base->clksel_core,
+				0x0000000C, CORE_L4_DIV << 2);
 		/* L3 */
-		sr32(&prcm_base->clksel_core, 0, 2, CORE_L3_DIV);
+		clrsetbits_le32(&prcm_base->clksel_core,
+				0x00000003, CORE_L3_DIV);
 		/* GFX */
-		sr32(&prcm_base->clksel_gfx,  0, 3, GFX_DIV_36X);
+		clrsetbits_le32(&prcm_base->clksel_gfx,
+				0x00000007, GFX_DIV_36X);
 		/* RESET MGR */
-		sr32(&prcm_base->clksel_wkup, 1, 2, WKUP_RSM);
+		clrsetbits_le32(&prcm_base->clksel_wkup,
+				0x00000006, WKUP_RSM << 1);
 		/* FREQSEL (CORE_DPLL_FREQSEL): CM_CLKEN_PLL[4:7] */
-		sr32(&prcm_base->clken_pll,   4, 4, ptr->fsel);
+		clrsetbits_le32(&prcm_base->clken_pll,
+				0x000000F0, ptr->fsel << 4);
 		/* LOCK MODE */
-		sr32(&prcm_base->clken_pll,   0, 3, PLL_LOCK);
+		clrsetbits_le32(&prcm_base->clken_pll,
+				0x00000007, PLL_LOCK);
 
 		wait_on_value(ST_CORE_CLK, 1, &prcm_base->idlest_ckgen,
 				LDELAY);
@@ -403,29 +449,29 @@ static void dpll3_init_36xx(u32 sil_index, u32 clk_index)
 		f_lock_pll = (void *) (SRAM_CLK_CODE);
 
 		p0 = readl(&prcm_base->clken_pll);
-		sr32(&p0, 0, 3, PLL_FAST_RELOCK_BYPASS);
+		clrsetbits_le32(&p0, 0x00000007, PLL_FAST_RELOCK_BYPASS);
 		/* FREQSEL (CORE_DPLL_FREQSEL): CM_CLKEN_PLL[4:7] */
-		sr32(&p0, 4, 4, ptr->fsel);
+		clrsetbits_le32(&p0, 0x000000F0, ptr->fsel << 4);
 
 		p1 = readl(&prcm_base->clksel1_pll);
 		/* M2 (CORE_DPLL_CLKOUT_DIV): CM_CLKSEL1_PLL[27:31] */
-		sr32(&p1, 27, 5, ptr->m2);
+		clrsetbits_le32(&p1, 0xF8000000, ptr->m2 << 27);
 		/* M (CORE_DPLL_MULT): CM_CLKSEL1_PLL[16:26] */
-		sr32(&p1, 16, 11, ptr->m);
+		clrsetbits_le32(&p1, 0x07FF0000, ptr->m << 16);
 		/* N (CORE_DPLL_DIV): CM_CLKSEL1_PLL[8:14] */
-		sr32(&p1, 8, 7, ptr->n);
+		clrsetbits_le32(&p1, 0x00007F00, ptr->n << 8);
 		/* Source is the CM_96M_FCLK: CM_CLKSEL1_PLL[6] */
-		sr32(&p1, 6, 1, 0);
+		clrbits_le32(&p1, 0x00000040);
 
 		p2 = readl(&prcm_base->clksel_core);
 		/* SSI */
-		sr32(&p2, 8, 4, CORE_SSI_DIV);
+		clrsetbits_le32(&p2, 0x00000F00, CORE_SSI_DIV << 8);
 		/* FSUSB */
-		sr32(&p2, 4, 2, CORE_FUSB_DIV);
+		clrsetbits_le32(&p2, 0x00000030, CORE_FUSB_DIV << 4);
 		/* L4 */
-		sr32(&p2, 2, 2, CORE_L4_DIV);
+		clrsetbits_le32(&p2, 0x0000000C, CORE_L4_DIV << 2);
 		/* L3 */
-		sr32(&p2, 0, 2, CORE_L3_DIV);
+		clrsetbits_le32(&p2, 0x00000003, CORE_L3_DIV);
 
 		p3 = (u32)&prcm_base->idlest_ckgen;
 
@@ -444,35 +490,35 @@ static void dpll4_init_36xx(u32 sil_index, u32 clk_index)
 	ptr += clk_index;
 
 	/* EN_PERIPH_DPLL: CM_CLKEN_PLL[16:18] */
-	sr32(&prcm_base->clken_pll, 16, 3, PLL_STOP);
+	clrsetbits_le32(&prcm_base->clken_pll, 0x00070000, PLL_STOP << 16);
 	wait_on_value(ST_PERIPH_CLK, 0, &prcm_base->idlest_ckgen, LDELAY);
 
 	/* M6 (DIV_DPLL4): CM_CLKSEL1_EMU[24:29] */
-	sr32(&prcm_base->clksel1_emu, 24, 6, ptr->m6);
+	clrsetbits_le32(&prcm_base->clksel1_emu, 0x3F000000, ptr->m6 << 24);
 
 	/* M5 (CLKSEL_CAM): CM_CLKSEL1_EMU[0:5] */
-	sr32(&prcm_base->clksel_cam, 0, 6, ptr->m5);
+	clrsetbits_le32(&prcm_base->clksel_cam, 0x0000003F, ptr->m5);
 
 	/* M4 (CLKSEL_DSS1): CM_CLKSEL_DSS[0:5] */
-	sr32(&prcm_base->clksel_dss, 0, 6, ptr->m4);
+	clrsetbits_le32(&prcm_base->clksel_dss, 0x0000003F, ptr->m4);
 
 	/* M3 (CLKSEL_DSS1): CM_CLKSEL_DSS[8:13] */
-	sr32(&prcm_base->clksel_dss, 8, 6, ptr->m3);
+	clrsetbits_le32(&prcm_base->clksel_dss, 0x00003F00, ptr->m3 << 8);
 
 	/* M2 (DIV_96M): CM_CLKSEL3_PLL[0:4] */
-	sr32(&prcm_base->clksel3_pll, 0, 5, ptr->m2);
+	clrsetbits_le32(&prcm_base->clksel3_pll, 0x0000001F, ptr->m2);
 
 	/* M (PERIPH_DPLL_MULT): CM_CLKSEL2_PLL[8:19] */
-	sr32(&prcm_base->clksel2_pll, 8, 12, ptr->m);
+	clrsetbits_le32(&prcm_base->clksel2_pll, 0x000FFF00, ptr->m << 8);
 
 	/* N (PERIPH_DPLL_DIV): CM_CLKSEL2_PLL[0:6] */
-	sr32(&prcm_base->clksel2_pll, 0, 7, ptr->n);
+	clrsetbits_le32(&prcm_base->clksel2_pll, 0x0000007F, ptr->n);
 
 	/* M2DIV (CLKSEL_96M): CM_CLKSEL_CORE[12:13] */
-	sr32(&prcm_base->clksel_core, 12, 2, ptr->m2div);
+	clrsetbits_le32(&prcm_base->clksel_core, 0x00003000, ptr->m2div << 12);
 
 	/* LOCK MODE (EN_PERIPH_DPLL): CM_CLKEN_PLL[16:18] */
-	sr32(&prcm_base->clken_pll, 16, 3, PLL_LOCK);
+	clrsetbits_le32(&prcm_base->clken_pll, 0x00070000, PLL_LOCK << 16);
 	wait_on_value(ST_PERIPH_CLK, 2, &prcm_base->idlest_ckgen, LDELAY);
 }
 
@@ -485,12 +531,16 @@ static void dpll5_init_36xx(u32 sil_index, u32 clk_index)
 	ptr = ptr + clk_index;
 
 	/* PER2 DPLL (DPLL5) */
-	sr32(&prcm_base->clken2_pll, 0, 3, PLL_STOP);
+	clrsetbits_le32(&prcm_base->clken2_pll, 0x00000007, PLL_STOP);
 	wait_on_value(1, 0, &prcm_base->idlest2_ckgen, LDELAY);
-	sr32(&prcm_base->clksel5_pll, 0, 5, ptr->m2); /* set M2 (usbtll_fck) */
-	sr32(&prcm_base->clksel4_pll, 8, 11, ptr->m); /* set m (11-bit multiplier) */
-	sr32(&prcm_base->clksel4_pll, 0, 7, ptr->n); /* set n (7-bit divider)*/
-	sr32(&prcm_base->clken2_pll, 0, 3, PLL_LOCK);   /* lock mode */
+	/* set M2 (usbtll_fck) */
+	clrsetbits_le32(&prcm_base->clksel5_pll, 0x0000001F, ptr->m2);
+	/* set m (11-bit multiplier) */
+	clrsetbits_le32(&prcm_base->clksel4_pll, 0x0007FF00, ptr->m << 8);
+	/* set n (7-bit divider)*/
+	clrsetbits_le32(&prcm_base->clksel4_pll, 0x0000007F, ptr->n);
+	/* lock mode */
+	clrsetbits_le32(&prcm_base->clken2_pll, 0x00000007, PLL_LOCK);
 	wait_on_value(1, 1, &prcm_base->idlest2_ckgen, LDELAY);
 }
 
@@ -505,13 +555,13 @@ static void mpu_init_36xx(u32 sil_index, u32 clk_index)
 	/* MPU DPLL (unlocked already */
 
 	/* M2 (MPU_DPLL_CLKOUT_DIV) : CM_CLKSEL2_PLL_MPU[0:4] */
-	sr32(&prcm_base->clksel2_pll_mpu, 0, 5, ptr->m2);
+	clrsetbits_le32(&prcm_base->clksel2_pll_mpu, 0x0000001F, ptr->m2);
 
 	/* M (MPU_DPLL_MULT) : CM_CLKSEL2_PLL_MPU[8:18] */
-	sr32(&prcm_base->clksel1_pll_mpu, 8, 11, ptr->m);
+	clrsetbits_le32(&prcm_base->clksel1_pll_mpu, 0x0007FF00, ptr->m << 8);
 
 	/* N (MPU_DPLL_DIV) : CM_CLKSEL2_PLL_MPU[0:6] */
-	sr32(&prcm_base->clksel1_pll_mpu, 0, 7, ptr->n);
+	clrsetbits_le32(&prcm_base->clksel1_pll_mpu, 0x0000007F, ptr->n);
 }
 
 static void iva_init_36xx(u32 sil_index, u32 clk_index)
@@ -524,20 +574,20 @@ static void iva_init_36xx(u32 sil_index, u32 clk_index)
 
 	/* IVA DPLL */
 	/* EN_IVA2_DPLL : CM_CLKEN_PLL_IVA2[0:2] */
-	sr32(&prcm_base->clken_pll_iva2, 0, 3, PLL_STOP);
+	clrsetbits_le32(&prcm_base->clken_pll_iva2, 0x00000007, PLL_STOP);
 	wait_on_value(ST_IVA2_CLK, 0, &prcm_base->idlest_pll_iva2, LDELAY);
 
 	/* M2 (IVA2_DPLL_CLKOUT_DIV) : CM_CLKSEL2_PLL_IVA2[0:4] */
-	sr32(&prcm_base->clksel2_pll_iva2, 0, 5, ptr->m2);
+	clrsetbits_le32(&prcm_base->clksel2_pll_iva2, 0x0000001F, ptr->m2);
 
 	/* M (IVA2_DPLL_MULT) : CM_CLKSEL1_PLL_IVA2[8:18] */
-	sr32(&prcm_base->clksel1_pll_iva2, 8, 11, ptr->m);
+	clrsetbits_le32(&prcm_base->clksel1_pll_iva2, 0x0007FF00, ptr->m << 8);
 
 	/* N (IVA2_DPLL_DIV) : CM_CLKSEL1_PLL_IVA2[0:6] */
-	sr32(&prcm_base->clksel1_pll_iva2, 0, 7, ptr->n);
+	clrsetbits_le32(&prcm_base->clksel1_pll_iva2, 0x0000007F, ptr->n);
 
 	/* LOCK (MODE (EN_IVA2_DPLL) : CM_CLKEN_PLL_IVA2[0:2] */
-	sr32(&prcm_base->clken_pll_iva2, 0, 3, PLL_LOCK);
+	clrsetbits_le32(&prcm_base->clken_pll_iva2, 0x00000007, PLL_LOCK);
 
 	wait_on_value(ST_IVA2_CLK, 1, &prcm_base->idlest_pll_iva2, LDELAY);
 }
@@ -561,16 +611,16 @@ void prcm_init(void)
 	get_sys_clkin_sel(osc_clk, &sys_clkin_sel);
 
 	/* set input crystal speed */
-	sr32(&prm_base->clksel, 0, 3, sys_clkin_sel);
+	clrsetbits_le32(&prm_base->clksel, 0x00000007, sys_clkin_sel);
 
 	/* If the input clock is greater than 19.2M always divide/2 */
 	if (sys_clkin_sel > 2) {
 		/* input clock divider */
-		sr32(&prm_base->clksrc_ctrl, 6, 2, 2);
+		clrsetbits_le32(&prm_base->clksrc_ctrl, 0x000000C0, 2 << 6);
 		clk_index = sys_clkin_sel / 2;
 	} else {
 		/* input clock divider */
-		sr32(&prm_base->clksrc_ctrl, 6, 2, 1);
+		clrsetbits_le32(&prm_base->clksrc_ctrl, 0x000000C0, 1 << 6);
 		clk_index = sys_clkin_sel;
 	}
 
@@ -587,12 +637,14 @@ void prcm_init(void)
 		 * input divider to /1 as it should never set to /6.5
 		 * in this case.
 		 */
-		if (sys_clkin_sel != 1) /* 13 MHz */
+		if (sys_clkin_sel != 1) {	/* 13 MHz */
 			/* Bit 8: DPLL4_CLKINP_DIV */
-			sr32(&prm_base->clksrc_ctrl, 8, 1, 0);
+			clrbits_le32(&prm_base->clksrc_ctrl, 0x00000100);
+		}
 
 		/* Unlock MPU DPLL (slows things down, and needed later) */
-		sr32(&prcm_base->clken_pll_mpu, 0, 3, PLL_LOW_POWER_BYPASS);
+		clrsetbits_le32(&prcm_base->clken_pll_mpu,
+				0x00000007, PLL_LOW_POWER_BYPASS);
 		wait_on_value(ST_MPU_CLK, 0, &prcm_base->idlest_pll_mpu,
 				LDELAY);
 
@@ -603,7 +655,8 @@ void prcm_init(void)
 		mpu_init_36xx(0, clk_index);
 
 		/* Lock MPU DPLL to set frequency */
-		sr32(&prcm_base->clken_pll_mpu, 0, 3, PLL_LOCK);
+		clrsetbits_le32(&prcm_base->clken_pll_mpu,
+				0x00000007, PLL_LOCK);
 		wait_on_value(ST_MPU_CLK, 1, &prcm_base->idlest_pll_mpu,
 				LDELAY);
 	} else {
@@ -620,7 +673,8 @@ void prcm_init(void)
 			sil_index = 1;
 
 		/* Unlock MPU DPLL (slows things down, and needed later) */
-		sr32(&prcm_base->clken_pll_mpu, 0, 3, PLL_LOW_POWER_BYPASS);
+		clrsetbits_le32(&prcm_base->clken_pll_mpu,
+				0x00000007, PLL_LOW_POWER_BYPASS);
 		wait_on_value(ST_MPU_CLK, 0, &prcm_base->idlest_pll_mpu,
 				LDELAY);
 
@@ -633,14 +687,15 @@ void prcm_init(void)
 		mpu_init_34xx(sil_index, clk_index);
 
 		/* Lock MPU DPLL to set frequency */
-		sr32(&prcm_base->clken_pll_mpu, 0, 3, PLL_LOCK);
+		clrsetbits_le32(&prcm_base->clken_pll_mpu,
+				0x00000007, PLL_LOCK);
 		wait_on_value(ST_MPU_CLK, 1, &prcm_base->idlest_pll_mpu,
 				LDELAY);
 	}
 
 	/* Set up GPTimers to sys_clk source only */
-	sr32(&prcm_base->clksel_per, 0, 8, 0xff);
-	sr32(&prcm_base->clksel_wkup, 0, 1, 1);
+	setbits_le32(&prcm_base->clksel_per, 0x000000FF);
+	setbits_le32(&prcm_base->clksel_wkup, 1);
 
 	sdelay(5000);
 }
@@ -653,16 +708,16 @@ void ehci_clocks_enable(void)
 	struct prcm *prcm_base = (struct prcm *)PRCM_BASE;
 
 	/* Enable USBHOST_L3_ICLK (USBHOST_MICLK) */
-	sr32(&prcm_base->iclken_usbhost, 0, 1, 1);
+	setbits_le32(&prcm_base->iclken_usbhost, 1);
 	/*
 	 * Enable USBHOST_48M_FCLK (USBHOST_FCLK1)
 	 * and USBHOST_120M_FCLK (USBHOST_FCLK2)
 	 */
-	sr32(&prcm_base->fclken_usbhost, 0, 2, 3);
+	setbits_le32(&prcm_base->fclken_usbhost, 0x00000003);
 	/* Enable USBTTL_ICLK */
-	sr32(&prcm_base->iclken3_core, 2, 1, 1);
+	setbits_le32(&prcm_base->iclken3_core, 0x00000004);
 	/* Enable USBTTL_FCLK */
-	sr32(&prcm_base->fclken3_core, 2, 1, 1);
+	setbits_le32(&prcm_base->fclken3_core, 0x00000004);
 }
 
 /******************************************************************************
@@ -673,62 +728,62 @@ void per_clocks_enable(void)
 	struct prcm *prcm_base = (struct prcm *)PRCM_BASE;
 
 	/* Enable GP2 timer. */
-	sr32(&prcm_base->clksel_per, 0, 1, 0x1);	/* GPT2 = sys clk */
-	sr32(&prcm_base->iclken_per, 3, 1, 0x1);	/* ICKen GPT2 */
-	sr32(&prcm_base->fclken_per, 3, 1, 0x1);	/* FCKen GPT2 */
+	setbits_le32(&prcm_base->clksel_per, 0x01);	/* GPT2 = sys clk */
+	setbits_le32(&prcm_base->iclken_per, 0x08);	/* ICKen GPT2 */
+	setbits_le32(&prcm_base->fclken_per, 0x08);	/* FCKen GPT2 */
 
 #ifdef CONFIG_SYS_NS16550
 	/* Enable UART1 clocks */
-	sr32(&prcm_base->fclken1_core, 13, 1, 0x1);
-	sr32(&prcm_base->iclken1_core, 13, 1, 0x1);
+	setbits_le32(&prcm_base->fclken1_core, 0x00002000);
+	setbits_le32(&prcm_base->iclken1_core, 0x00002000);
 
 	/* UART 3 Clocks */
-	sr32(&prcm_base->fclken_per, 11, 1, 0x1);
-	sr32(&prcm_base->iclken_per, 11, 1, 0x1);
+	setbits_le32(&prcm_base->fclken_per, 0x00000800);
+	setbits_le32(&prcm_base->iclken_per, 0x00000800);
 #endif
 
 #ifdef CONFIG_OMAP3_GPIO_2
-	sr32(&prcm_base->fclken_per, 13, 1, 1);
-	sr32(&prcm_base->iclken_per, 13, 1, 1);
+	setbits_le32(&prcm_base->fclken_per, 0x00002000);
+	setbits_le32(&prcm_base->iclken_per, 0x00002000);
 #endif
 #ifdef CONFIG_OMAP3_GPIO_3
-	sr32(&prcm_base->fclken_per, 14, 1, 1);
-	sr32(&prcm_base->iclken_per, 14, 1, 1);
+	setbits_le32(&prcm_base->fclken_per, 0x00004000);
+	setbits_le32(&prcm_base->iclken_per, 0x00004000);
 #endif
 #ifdef CONFIG_OMAP3_GPIO_4
-	sr32(&prcm_base->fclken_per, 15, 1, 1);
-	sr32(&prcm_base->iclken_per, 15, 1, 1);
+	setbits_le32(&prcm_base->fclken_per, 0x00008000);
+	setbits_le32(&prcm_base->iclken_per, 0x00008000);
 #endif
 #ifdef CONFIG_OMAP3_GPIO_5
-	sr32(&prcm_base->fclken_per, 16, 1, 1);
-	sr32(&prcm_base->iclken_per, 16, 1, 1);
+	setbits_le32(&prcm_base->fclken_per, 0x00010000);
+	setbits_le32(&prcm_base->iclken_per, 0x00010000);
 #endif
 #ifdef CONFIG_OMAP3_GPIO_6
-	sr32(&prcm_base->fclken_per, 17, 1, 1);
-	sr32(&prcm_base->iclken_per, 17, 1, 1);
+	setbits_le32(&prcm_base->fclken_per, 0x00020000);
+	setbits_le32(&prcm_base->iclken_per, 0x00020000);
 #endif
 
 #ifdef CONFIG_SYS_I2C_OMAP34XX
 	/* Turn on all 3 I2C clocks */
-	sr32(&prcm_base->fclken1_core, 15, 3, 0x7);
-	sr32(&prcm_base->iclken1_core, 15, 3, 0x7);	/* I2C1,2,3 = on */
+	setbits_le32(&prcm_base->fclken1_core, 0x00038000);
+	setbits_le32(&prcm_base->iclken1_core, 0x00038000); /* I2C1,2,3 = on */
 #endif
 	/* Enable the ICLK for 32K Sync Timer as its used in udelay */
-	sr32(&prcm_base->iclken_wkup, 2, 1, 0x1);
+	setbits_le32(&prcm_base->iclken_wkup, 0x00000004);
 
 	if (get_cpu_family() != CPU_AM35XX)
-		sr32(&prcm_base->fclken_iva2, 0, 32, FCK_IVA2_ON);
+		out_le32(&prcm_base->fclken_iva2, FCK_IVA2_ON);
 
-	sr32(&prcm_base->fclken1_core, 0, 32, FCK_CORE1_ON);
-	sr32(&prcm_base->iclken1_core, 0, 32, ICK_CORE1_ON);
-	sr32(&prcm_base->iclken2_core, 0, 32, ICK_CORE2_ON);
-	sr32(&prcm_base->fclken_wkup, 0, 32, FCK_WKUP_ON);
-	sr32(&prcm_base->iclken_wkup, 0, 32, ICK_WKUP_ON);
-	sr32(&prcm_base->fclken_dss, 0, 32, FCK_DSS_ON);
-	sr32(&prcm_base->iclken_dss, 0, 32, ICK_DSS_ON);
+	out_le32(&prcm_base->fclken1_core, FCK_CORE1_ON);
+	out_le32(&prcm_base->iclken1_core, ICK_CORE1_ON);
+	out_le32(&prcm_base->iclken2_core, ICK_CORE2_ON);
+	out_le32(&prcm_base->fclken_wkup, FCK_WKUP_ON);
+	out_le32(&prcm_base->iclken_wkup, ICK_WKUP_ON);
+	out_le32(&prcm_base->fclken_dss, FCK_DSS_ON);
+	out_le32(&prcm_base->iclken_dss, ICK_DSS_ON);
 	if (get_cpu_family() != CPU_AM35XX) {
-		sr32(&prcm_base->fclken_cam, 0, 32, FCK_CAM_ON);
-		sr32(&prcm_base->iclken_cam, 0, 32, ICK_CAM_ON);
+		out_le32(&prcm_base->fclken_cam, FCK_CAM_ON);
+		out_le32(&prcm_base->iclken_cam, ICK_CAM_ON);
 	}
 
 	sdelay(1000);

@@ -60,10 +60,10 @@ extern unsigned int davinci_arm_clk_get(void);
 #define CONFIG_BAUDRATE			115200
 
 /* I2C Configuration */
-#define CONFIG_HARD_I2C
-#define CONFIG_DRIVER_DAVINCI_I2C
-#define CONFIG_SYS_I2C_SPEED		80000
-#define CONFIG_SYS_I2C_SLAVE		10
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_DAVINCI
+#define CONFIG_SYS_DAVINCI_I2C_SPEED		80000
+#define CONFIG_SYS_DAVINCI_I2C_SLAVE		10
 
 /* Network & Ethernet Configuration */
 #define CONFIG_DRIVER_TI_EMAC

@@ -18,7 +18,7 @@ void davinci_enable_emac(void)
 }
 #endif
 
-#ifdef CONFIG_DRIVER_DAVINCI_I2C
+#ifdef CONFIG_SYS_I2C_DAVINCI
 void davinci_enable_i2c(void)
 {
 	lpsc_on(DAVINCI_DM646X_LPSC_I2C);

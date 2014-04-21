@@ -3254,6 +3254,10 @@ FIT uImage format:
 		supports MMC, NAND and YMODEM loading of U-Boot and NAND
 		NAND loading of the Linux Kernel.
 
+		CONFIG_SPL_OS_BOOT
+		Enable booting directly to an OS from SPL.
+		See also: doc/README.falcon
+
 		CONFIG_SPL_DISPLAY_PRINT
 		For ARM, enable an optional function to print more information
 		about the running system.
@@ -3325,6 +3329,10 @@ FIT uImage format:
 		CONFIG_SPL_NAND_SIMPLE
 		Support for NAND boot using simple NAND drivers that
 		expose the cmd_ctrl() interface.
+
+		CONFIG_SPL_MTD_SUPPORT
+		Support for the MTD subsystem within SPL.  Useful for
+		environment on NAND support within SPL.
 
 		CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
 		Set for the SPL on PPC mpc8xxx targets, support for
@@ -4487,6 +4495,11 @@ Low Level (hardware related) configuration options:
 
 - CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC:
 		Enables the RTC32K OSC on AM33xx based plattforms
+
+- CONFIG_SYS_NAND_NO_SUBPAGE_WRITE
+		Option to disable subpage write in NAND driver
+		driver that uses this:
+		drivers/mtd/nand/davinci_nand.c
 
 Freescale QE/FMAN Firmware Support:
 -----------------------------------
