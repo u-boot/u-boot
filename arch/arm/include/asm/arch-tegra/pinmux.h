@@ -80,6 +80,11 @@ struct pmux_pingrp_config {
 #endif
 };
 
+#if !defined(CONFIG_TEGRA20) && !defined(CONFIG_TEGRA30)
+/* Set the pinmux CLAMP_INPUTS_WHEN_TRISTATED bit */
+void pinmux_set_tristate_input_clamping(void);
+#endif
+
 /* Set the mux function for a pin group */
 void pinmux_set_func(enum pmux_pingrp pin, enum pmux_func func);
 
