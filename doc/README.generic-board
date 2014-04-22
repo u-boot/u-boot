@@ -17,7 +17,7 @@ architecture-specific board.c file before October 2014.
 Background
 ----------
 
-U-Boot has tranditionally had a board.c file for each architecture. This has
+U-Boot has traditionally had a board.c file for each architecture. This has
 introduced quite a lot of duplication, with each architecture tending to do
 initialisation slightly differently. To address this, a new 'generic board
 init' feature was introduced a year ago in March 2013 (further motivation is
