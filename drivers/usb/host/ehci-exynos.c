@@ -197,7 +197,8 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 
 #ifdef CONFIG_OF_CONTROL
 	/* setup the Vbus gpio here */
-	if (!fdtdec_setup_gpio(&ctx->vbus_gpio))
+	if (fdt_gpio_isvalid(&ctx->vbus_gpio) &&
+	    !fdtdec_setup_gpio(&ctx->vbus_gpio))
 		gpio_direction_output(ctx->vbus_gpio.gpio, 1);
 #endif
 
