@@ -166,6 +166,7 @@ enum pmux_pingrp {
  * purely a convenience. The translation is done through a table search.
  */
 enum pmux_func {
+	PMUX_FUNC_DEFAULT,
 	PMUX_FUNC_AHB_CLK,
 	PMUX_FUNC_APB_CLK,
 	PMUX_FUNC_AUDIO_SYNC,

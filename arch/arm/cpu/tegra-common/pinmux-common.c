@@ -92,6 +92,9 @@ void pinmux_set_func(enum pmux_pingrp pin, enum pmux_func func)
 	int i, mux = -1;
 	u32 val;
 
+	if (func == PMUX_FUNC_DEFAULT)
+		return;
+
 	/* Error check on pin and func */
 	assert(pmux_pingrp_isvalid(pin));
 	assert(pmux_func_isvalid(func));
