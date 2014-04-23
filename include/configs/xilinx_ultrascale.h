@@ -61,14 +61,14 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /* Command line configuration */
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_BDI
+#define CONFIG_CMD_CACHE
+#define CONFIG_CMD_ECHO
 #define CONFIG_CMD_ENV
 #define CONFIG_CMD_IMI
 #define CONFIG_CMD_MEMORY
-#define CONFIG_CMD_SAVEENV
 #define CONFIG_CMD_RUN
-#define CONFIG_CMD_ECHO
+#define CONFIG_CMD_SAVEENV
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR		0x8000000
