@@ -70,10 +70,38 @@
 #define CONFIG_CMD_RUN
 #define CONFIG_CMD_SAVEENV
 
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_TFTPPUT
+
+/* BOOTP options */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+#define CONFIG_BOOTP_MAY_FAIL
+#define CONFIG_BOOTP_SERVERIP
+
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR		0x8000000
 
 /* Initial environment variables */
+#define CONFIG_EXTRA_ENV_SETTINGS       \
+	"ethaddr=00:0a:35:00:01:22\0"	\
+	"kernel_addr=0x200000\0"	\
+	"serverip=192.168.40.1\0"	\
+	"ipaddr=192.168.40.2\0"		\
+	"initrd_addr=0xa00000\0"	\
+	"initrd_size=0x2000000\0"	\
+	"fdt_addr=0x100000\0"		\
+	"fdt_high=0xa0000000\0"		\
+	"netboot=setenv fdt_high 0x20000000 && "	\
+		"tftpboot 1000000 uImage && "		\
+		"tftpboot 20000000 ronaldo-arm.dtb && "	\
+		"bootm 1000000 - 20000000\0"
+
 #define CONFIG_BOOTARGS			"console=ttyPS0"
 #define CONFIG_BOOTCOMMAND		"echo Hello Xilinx UltraScale MP"
 #define CONFIG_BOOTDELAY		-1
@@ -94,6 +122,20 @@
 #define CONFIG_CMDLINE_EDITING		1
 /* max command args */
 #define CONFIG_SYS_MAXARGS		64
+
+#define CONFIG_ZYNQ_GEM0
+#define CONFIG_ZYNQ_GEM_PHY_ADDR0	7
+
+/* Ethernet driver */
+#if defined(CONFIG_ZYNQ_GEM0) || defined(CONFIG_ZYNQ_GEM1) || \
+	defined(CONFIG_ZYNQ_GEM2) || defined(CONFIG_ZYNQ_GEM3)
+# define CONFIG_NET_MULTI
+# define CONFIG_ZYNQ_GEM
+# define CONFIG_MII
+# define CONFIG_SYS_FAULT_ECHO_LINK_DOWN
+# define CONFIG_PHYLIB
+# define CONFIG_PHY_MARVELL
+#endif
 
 #define CONFIG_FIT
 #define CONFIG_FIT_VERBOSE       /* enable fit_format_{error,warning}() */
