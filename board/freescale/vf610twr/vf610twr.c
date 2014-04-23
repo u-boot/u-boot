@@ -217,7 +217,8 @@ void ddr_ctrl_init(void)
 		&ddrmr->cr[139]);
 
 	writel(DDRMC_CR154_PAD_ZQ_EARLY_CMP_EN_TIMER(13) |
-		DDRMC_CR154_PAD_ZQ_MODE(1), &ddrmr->cr[154]);
+		DDRMC_CR154_PAD_ZQ_MODE(1) |
+		DDRMC_CR154_DDR_SEL_PAD_CONTR(3), &ddrmr->cr[154]);
 	writel(DDRMC_CR155_AXI0_AWCACHE | DDRMC_CR155_PAD_ODT_BYTE1(2),
 		&ddrmr->cr[155]);
 	writel(DDRMC_CR158_TWR(6), &ddrmr->cr[158]);
