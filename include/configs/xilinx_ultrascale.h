@@ -62,13 +62,19 @@
 
 /* Command line configuration */
 #define CONFIG_CMD_BDI
+#define CONFIG_CMD_BOOTD
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_ECHO
 #define CONFIG_CMD_ENV
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_FLASH
 #define CONFIG_CMD_IMI
 #define CONFIG_CMD_MEMORY
+#define CONFIG_CMD_MISC
 #define CONFIG_CMD_RUN
 #define CONFIG_CMD_SAVEENV
+#define CONFIG_CMD_SOURCE
+#define CONFIG_DOS_PARTITION
 
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
