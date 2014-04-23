@@ -81,7 +81,7 @@ enum eth_state_t {
 struct eth_device {
 	char name[16];
 	unsigned char enetaddr[6];
-	int iobase;
+	phys_addr_t iobase;
 	int state;
 
 	int  (*init) (struct eth_device *, bd_t *);
