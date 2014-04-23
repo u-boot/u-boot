@@ -161,6 +161,126 @@ struct aips_regs {
 	u32 mpr_0_7;
 	u32 mpr_8_15;
 };
+/* LCD controller registers */
+struct lcdc_regs {
+	u32 lssar;	/* Screen Start Address */
+	u32 lsr;	/* Size */
+	u32 lvpwr;	/* Virtual Page Width */
+	u32 lcpr;	/* Cursor Position */
+	u32 lcwhb;	/* Cursor Width Height and Blink */
+	u32 lccmr;	/* Color Cursor Mapping */
+	u32 lpcr;	/* Panel Configuration */
+	u32 lhcr;	/* Horizontal Configuration */
+	u32 lvcr;	/* Vertical Configuration */
+	u32 lpor;	/* Panning Offset */
+	u32 lscr;	/* Sharp Configuration */
+	u32 lpccr;	/* PWM Contrast Control */
+	u32 ldcr;	/* DMA Control */
+	u32 lrmcr;	/* Refresh Mode Control */
+	u32 licr;	/* Interrupt Configuration */
+	u32 lier;	/* Interrupt Enable */
+	u32 lisr;	/* Interrupt Status */
+	u32 res0[3];
+	u32 lgwsar;	/* Graphic Window Start Address */
+	u32 lgwsr;	/* Graphic Window Size */
+	u32 lgwvpwr;	/* Graphic Window Virtual Page Width Regist */
+	u32 lgwpor;	/* Graphic Window Panning Offset */
+	u32 lgwpr;	/* Graphic Window Position */
+	u32 lgwcr;	/* Graphic Window Control */
+	u32 lgwdcr;	/* Graphic Window DMA Control */
+	u32 res1[5];
+	u32 lauscr;	/* AUS Mode Control */
+	u32 lausccr;	/* AUS mode Cursor Control */
+	u32 res2[31 + 64*7];
+	u32 bglut;	/* Background Lookup Table */
+	u32 gwlut;	/* Graphic Window Lookup Table */
+};
+
+/* Wireless External Interface Module Registers */
+struct weim_regs {
+	u32 cscr0u;	/* Chip Select 0 Upper Register */
+	u32 cscr0l;	/* Chip Select 0 Lower Register */
+	u32 cscr0a;	/* Chip Select 0 Addition Register */
+	u32 pad0;
+	u32 cscr1u;	/* Chip Select 1 Upper Register */
+	u32 cscr1l;	/* Chip Select 1 Lower Register */
+	u32 cscr1a;	/* Chip Select 1 Addition Register */
+	u32 pad1;
+	u32 cscr2u;	/* Chip Select 2 Upper Register */
+	u32 cscr2l;	/* Chip Select 2 Lower Register */
+	u32 cscr2a;	/* Chip Select 2 Addition Register */
+	u32 pad2;
+	u32 cscr3u;	/* Chip Select 3 Upper Register */
+	u32 cscr3l;	/* Chip Select 3 Lower Register */
+	u32 cscr3a;	/* Chip Select 3 Addition Register */
+	u32 pad3;
+	u32 cscr4u;	/* Chip Select 4 Upper Register */
+	u32 cscr4l;	/* Chip Select 4 Lower Register */
+	u32 cscr4a;	/* Chip Select 4 Addition Register */
+	u32 pad4;
+	u32 cscr5u;	/* Chip Select 5 Upper Register */
+	u32 cscr5l;	/* Chip Select 5 Lower Register */
+	u32 cscr5a;	/* Chip Select 5 Addition Register */
+	u32 pad5;
+	u32 wcr;	/* WEIM Configuration Register */
+};
+
+/* Multi-Master Memory Interface */
+struct m3if_regs {
+	u32 ctl;	/* Control Register */
+	u32 wcfg0;	/* Watermark Configuration Register 0 */
+	u32 wcfg1;	/* Watermark Configuration Register1 */
+	u32 wcfg2;	/* Watermark Configuration Register2 */
+	u32 wcfg3;	/* Watermark Configuration Register 3 */
+	u32 wcfg4;	/* Watermark Configuration Register 4 */
+	u32 wcfg5;	/* Watermark Configuration Register 5 */
+	u32 wcfg6;	/* Watermark Configuration Register 6 */
+	u32 wcfg7;	/* Watermark Configuration Register 7 */
+	u32 wcsr;	/* Watermark Control and Status Register */
+	u32 scfg0;	/* Snooping Configuration Register 0 */
+	u32 scfg1;	/* Snooping Configuration Register 1 */
+	u32 scfg2;	/* Snooping Configuration Register 2 */
+	u32 ssr0;	/* Snooping Status Register 0 */
+	u32 ssr1;	/* Snooping Status Register 1 */
+	u32 res0;
+	u32 mlwe0;	/* Master Lock WEIM CS0 Register */
+	u32 mlwe1;	/* Master Lock WEIM CS1 Register */
+	u32 mlwe2;	/* Master Lock WEIM CS2 Register */
+	u32 mlwe3;	/* Master Lock WEIM CS3 Register */
+	u32 mlwe4;	/* Master Lock WEIM CS4 Register */
+	u32 mlwe5;	/* Master Lock WEIM CS5 Register */
+};
+
+/* Pulse width modulation */
+struct pwm_regs {
+	u32 cr;	/* Control Register */
+	u32 sr;	/* Status Register */
+	u32 ir;	/* Interrupt Register */
+	u32 sar;	/* Sample Register */
+	u32 pr;	/* Period Register */
+	u32 cnr;	/* Counter Register */
+};
+
+/* Enhanced Periodic Interrupt Timer */
+struct epit_regs {
+	u32 cr;	/* Control register */
+	u32 sr;	/* Status register */
+	u32 lr;	/* Load register */
+	u32 cmpr;	/* Compare register */
+	u32 cnr;	/* Counter register */
+};
+
+/* CSPI registers */
+struct cspi_regs {
+	u32 rxdata;
+	u32 txdata;
+	u32 ctrl;
+	u32 intr;
+	u32 dma;
+	u32 stat;
+	u32 period;
+	u32 test;
+};
 
 #endif
 
@@ -289,6 +409,8 @@ struct aips_regs {
 #define CCM_PERCLK_MASK		0x3f
 #define CCM_RCSR_NF_16BIT_SEL	(1 << 14)
 #define CCM_RCSR_NF_PS(v)	((v >> 26) & 3)
+#define CCM_CRDR_BT_UART_SRC_SHIFT	29
+#define CCM_CRDR_BT_UART_SRC_MASK	7
 
 /* ESDRAM Controller register bitfields */
 #define ESDCTL_PRCT(x)		(((x) & 0x3f) << 0)
@@ -345,11 +467,64 @@ struct aips_regs {
 #define WSR_UNLOCK1		0x5555
 #define WSR_UNLOCK2		0xAAAA
 
+/* MAX bits */
+#define MAX_MGPCR_AULB(x)	(((x) & 0x7) << 0)
+
+/* M3IF bits */
+#define M3IF_CTL_MRRP(x)	(((x) & 0xff) << 0)
+
+/* WEIM bits */
+/* 13 fields of the upper CS control register */
+#define WEIM_CSCR_U(sp, wp, bcd, bcs, psz, pme, sync, dol, \
+		cnc, wsc, ew, wws, edc) \
+		((sp) << 31 | (wp) << 30 | (bcd) << 28 | (bcs) << 24 | \
+		(psz) << 22 | (pme) << 21 | (sync) << 20 | (dol) << 16 | \
+		(cnc) << 14 | (wsc) << 8 | (ew) << 7 | (wws) << 4 | (edc) << 0)
+/* 12 fields of the lower CS control register */
+#define WEIM_CSCR_L(oea, oen, ebwa, ebwn, \
+		csa, ebc, dsz, csn, psr, cre, wrap, csen) \
+		((oea) << 28 | (oen) << 24 | (ebwa) << 20 | (ebwn) << 16 |\
+		(csa) << 12 | (ebc) << 11 | (dsz) << 8 | (csn) << 4 |\
+		(psr) << 3 | (cre) << 2 | (wrap) << 1 | (csen) << 0)
+/* 14 fields of the additional CS control register */
+#define WEIM_CSCR_A(ebra, ebrn, rwa, rwn, mum, lah, lbn, lba, dww, dct, \
+		wwu, age, cnc2, fce) \
+		((ebra) << 28 | (ebrn) << 24 | (rwa) << 20 | (rwn) << 16 |\
+		(mum) << 15 | (lah) << 13 | (lbn) << 10 | (lba) << 8 |\
+		(dww) << 6 | (dct) << 4 | (wwu) << 3 |\
+		(age) << 2 | (cnc2) << 1 | (fce) << 0)
+
 /* Names used in GPIO driver */
 #define GPIO1_BASE_ADDR		IMX_GPIO1_BASE
 #define GPIO2_BASE_ADDR		IMX_GPIO2_BASE
 #define GPIO3_BASE_ADDR		IMX_GPIO3_BASE
 #define GPIO4_BASE_ADDR		IMX_GPIO4_BASE
+
+/*
+ * CSPI register definitions
+ */
+#define MXC_CSPI
+#define MXC_CSPICTRL_EN		(1 << 0)
+#define MXC_CSPICTRL_MODE	(1 << 1)
+#define MXC_CSPICTRL_XCH	(1 << 2)
+#define MXC_CSPICTRL_SMC	(1 << 3)
+#define MXC_CSPICTRL_POL	(1 << 4)
+#define MXC_CSPICTRL_PHA	(1 << 5)
+#define MXC_CSPICTRL_SSCTL	(1 << 6)
+#define MXC_CSPICTRL_SSPOL	(1 << 7)
+#define MXC_CSPICTRL_CHIPSELECT(x)	(((x) & 0x3) << 12)
+#define MXC_CSPICTRL_BITCOUNT(x)	(((x) & 0xfff) << 20)
+#define MXC_CSPICTRL_DATARATE(x)	(((x) & 0x7) << 16)
+#define MXC_CSPICTRL_TC		(1 << 7)
+#define MXC_CSPICTRL_RXOVF	(1 << 6)
+#define MXC_CSPICTRL_MAXBITS	0xfff
+#define MXC_CSPIPERIOD_32KHZ	(1 << 15)
+#define MAX_SPI_BYTES	4
+
+#define MXC_SPI_BASE_ADDRESSES \
+	IMX_CSPI1_BASE, \
+	IMX_CSPI2_BASE, \
+	IMX_CSPI3_BASE
 
 #define CHIP_REV_1_0		0x10
 #define CHIP_REV_1_1		0x11
