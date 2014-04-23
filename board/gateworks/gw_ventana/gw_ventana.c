@@ -1076,10 +1076,11 @@ int misc_init_r(void)
 	}
 
 	/* configure PFUZE100 PMIC (not used on all Ventana baseboards) */
-	if ((board_type == GW54xx || board_type == GW54proto) &&
-	    !pmic_init(I2C_PMIC)) {
+	power_pfuze100_init(I2C_PMIC);
+	if (board_type == GW54xx || board_type == GW54proto) {
 		struct pmic *p = pmic_get("PFUZE100_PMIC");
 		u32 reg;
+
 		if (p && !pmic_probe(p)) {
 			pmic_reg_read(p, PFUZE100_DEVICEID, &reg);
 			printf("PMIC:  PFUZE100 ID=0x%02x\n", reg);
