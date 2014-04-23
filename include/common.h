@@ -681,9 +681,6 @@ ulong	get_UCLK (void);
 #if defined(CONFIG_LH7A40X)
 ulong	get_PLLCLK (void);
 #endif
-#if defined CONFIG_INCA_IP
-uint	incaip_get_cpuclk (void);
-#endif
 #if defined(CONFIG_IMX)
 ulong get_systemPLLCLK(void);
 ulong get_FCLK(void);

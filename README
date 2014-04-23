@@ -132,6 +132,10 @@ Directory Hierarchy:
 ====================
 
 /arch			Architecture specific files
+  /arc			Files generic to ARC architecture
+    /cpu		CPU specific files
+      /arc700		Files specific to ARC 700 CPUs
+    /lib		Architecture specific library files
   /arm			Files generic to ARM architecture
     /cpu		CPU specific files
       /arm720t		Files specific to ARM 720 CPUs
@@ -164,7 +168,7 @@ Directory Hierarchy:
   /mips			Files generic to MIPS architecture
     /cpu		CPU specific files
       /mips32		Files specific to MIPS32 CPUs
-      /xburst		Files specific to Ingenic XBurst CPUs
+      /mips64		Files specific to MIPS64 CPUs
     /lib		Architecture specific library files
   /nds32		Files generic to NDS32 architecture
     /cpu		CPU specific files

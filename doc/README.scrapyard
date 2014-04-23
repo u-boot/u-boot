@@ -125,3 +125,4 @@ MVS1             powerpc     MPC823         306620b     2008-08-26  Andre Schwar
 adsvix           ARM         PXA27x         7610db1     2008-07-30  Adrian Filipi <adrian.filipi@eurotech.com>
 R5200            ColdFire    -              48ead7a     2008-03-31  Zachary P. Landau <zachary.landau@labxtechnologies.com>
 CPCI440          powerpc     440GP          b568fd2     2007-12-27  Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+incaip           mips        mips32         -           2014-04-17  Wolfgang Denk <wd@denx.de>
