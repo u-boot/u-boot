@@ -95,4 +95,7 @@
 /* max command args */
 #define CONFIG_SYS_MAXARGS		64
 
+#define CONFIG_FIT
+#define CONFIG_FIT_VERBOSE       /* enable fit_format_{error,warning}() */
+
 #endif /* __XILINX_ULTRASCALE_H */
