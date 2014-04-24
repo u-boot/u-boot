@@ -350,6 +350,9 @@ static int ci_ep_queue(struct usb_ep *ep,
 	item->info = INFO_BYTES(len) | INFO_IOC | INFO_ACTIVE;
 	item->page0 = (uint32_t)ci_ep->b_buf;
 	item->page1 = ((uint32_t)ci_ep->b_buf & 0xfffff000) + 0x1000;
+	item->page2 = ((uint32_t)ci_ep->b_buf & 0xfffff000) + 0x2000;
+	item->page3 = ((uint32_t)ci_ep->b_buf & 0xfffff000) + 0x3000;
+	item->page4 = ((uint32_t)ci_ep->b_buf & 0xfffff000) + 0x4000;
 	ci_flush_qtd(num);
 
 	head->next = (unsigned) item;
