@@ -321,7 +321,7 @@ static void ci_debounce(struct ci_ep *ep, int in)
 	if (addr == ba)
 		return;		/* not a bounce */
 
-	memcpy(ep->req.buf, ep->b_buf, ep->req.length);
+	memcpy(ep->req.buf, ep->b_buf, ep->req.actual);
 free:
 	/* Large payloads use allocated buffer, free it. */
 	if (ep->b_buf != ep->b_fast)
@@ -388,7 +388,7 @@ static void handle_ep_complete(struct ci_ep *ep)
 		       num, in ? "in" : "out", item->info, item->page0);
 
 	len = (item->info >> 16) & 0x7fff;
-	ep->req.length -= len;
+	ep->req.actual = ep->req.length - len;
 	ci_debounce(ep, in);
 
 	DBG("ept%d %s complete %x\n",
