@@ -416,7 +416,11 @@ static void handle_setup(void)
 
 	ci_invalidate_qh(0);
 	memcpy(&r, head->setup_data, sizeof(struct usb_ctrlrequest));
+#ifdef CONFIG_CI_UDC_HAS_HOSTPC
+	writel(EPT_RX(0), &udc->epsetupstat);
+#else
 	writel(EPT_RX(0), &udc->epstat);
+#endif
 	DBG("handle setup %s, %x, %x index %x value %x\n", reqname(r.bRequest),
 	    r.bRequestType, r.bRequest, r.wIndex, r.wValue);
 
@@ -483,6 +487,9 @@ static void stop_activity(void)
 	struct ept_queue_head *head;
 	struct ci_udc *udc = (struct ci_udc *)controller.ctrl->hcor;
 	writel(readl(&udc->epcomp), &udc->epcomp);
+#ifdef CONFIG_CI_UDC_HAS_HOSTPC
+	writel(readl(&udc->epsetupstat), &udc->epsetupstat);
+#endif
 	writel(readl(&udc->epstat), &udc->epstat);
 	writel(0xffffffff, &udc->epflush);
 
@@ -524,7 +531,11 @@ void udc_irq(void)
 		int max = 64;
 		int speed = USB_SPEED_FULL;
 
+#ifdef CONFIG_CI_UDC_HAS_HOSTPC
+		bit = (readl(&udc->hostpc1_devlc) >> 25) & 3;
+#else
 		bit = (readl(&udc->portsc) >> 26) & 3;
+#endif
 		DBG("-- portchange %x %s\n", bit, (bit == 2) ? "High" : "Full");
 		if (bit == 2) {
 			speed = USB_SPEED_HIGH;
@@ -541,7 +552,11 @@ void udc_irq(void)
 		printf("<UEI %x>\n", readl(&udc->epcomp));
 
 	if ((n & STS_UI) || (n & STS_UEI)) {
+#ifdef CONFIG_CI_UDC_HAS_HOSTPC
+		n = readl(&udc->epsetupstat);
+#else
 		n = readl(&udc->epstat);
+#endif
 		if (n & EPT_RX(0))
 			handle_setup();
 
