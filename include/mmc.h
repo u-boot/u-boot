@@ -71,6 +71,7 @@
 #define MMC_CMD_SET_BLOCKLEN		16
 #define MMC_CMD_READ_SINGLE_BLOCK	17
 #define MMC_CMD_READ_MULTIPLE_BLOCK	18
+#define MMC_CMD_SET_BLOCK_COUNT         23
 #define MMC_CMD_WRITE_SINGLE_BLOCK	24
 #define MMC_CMD_WRITE_MULTIPLE_BLOCK	25
 #define MMC_CMD_ERASE_GROUP_START	35
@@ -227,6 +228,7 @@
  * boot partitions (2), general purpose partitions (4) in MMC v4.4.
  */
 #define MMC_NUM_BOOT_PARTITION	2
+#define MMC_PART_RPMB           3       /* RPMB partition number */
 
 struct mmc_cid {
 	unsigned long psn;
@@ -338,7 +340,13 @@ int mmc_set_part_conf(struct mmc *mmc, u8 ack, u8 part_num, u8 access);
 int mmc_set_boot_bus_width(struct mmc *mmc, u8 width, u8 reset, u8 mode);
 /* Function to modify the RST_n_FUNCTION field of EXT_CSD */
 int mmc_set_rst_n_function(struct mmc *mmc, u8 enable);
-
+/* Functions to read / write the RPMB partition */
+int mmc_rpmb_set_key(struct mmc *mmc, void *key);
+int mmc_rpmb_get_counter(struct mmc *mmc, unsigned long *counter);
+int mmc_rpmb_read(struct mmc *mmc, void *addr, unsigned short blk,
+		  unsigned short cnt, unsigned char *key);
+int mmc_rpmb_write(struct mmc *mmc, void *addr, unsigned short blk,
+		   unsigned short cnt, unsigned char *key);
 /**
  * Start device initialization and return immediately; it does not block on
  * polling OCR (operation condition register) status.  Then you should call

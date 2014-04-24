@@ -30,6 +30,7 @@ obj-$(CONFIG_DWMMC) += dw_mmc.o
 obj-$(CONFIG_EXYNOS_DWMMC) += exynos_dw_mmc.o
 obj-$(CONFIG_ZYNQ_SDHCI) += zynq_sdhci.o
 obj-$(CONFIG_SOCFPGA_DWMMC) += socfpga_dw_mmc.o
+obj-$(CONFIG_SUPPORT_EMMC_RPMB) += rpmb.o
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_MMC_BOOT) += fsl_esdhc_spl.o
 else
