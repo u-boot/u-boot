@@ -38,12 +38,26 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_SPL_BUILD
 static struct dxr2_baseboard_id __attribute__((section(".data"))) settings;
-/* @303MHz-i0 */
+
+#if DDR_PLL_FREQ == 303
+/* Default@303MHz-i0 */
 const struct ddr3_data ddr3_default = {
-	0x33524444, 0x56312e34, 0x0080, 0x0000, 0x0038, 0x003E, 0x00A4,
-	0x0075, 0x0888A39B, 0x26247FDA, 0x501F821F, 0x00100206, 0x61A44A32,
-	0x00000618, 0x0000014A,
+	0x33524444, 0x56312e35, 0x0080, 0x0000, 0x003A, 0x003F, 0x009F,
+	0x0079, 0x0888A39B, 0x26247FDA, 0x501F821F, 0x00100206, 0x61A44A32,
+	0x0000093B, 0x0000014A,
+	"default name @303MHz           \0",
+	"default marking                \0",
 };
+#elif DDR_PLL_FREQ == 400
+/* Default@400MHz-i0 */
+const struct ddr3_data ddr3_default = {
+	0x33524444, 0x56312e35, 0x0080, 0x0000, 0x0039, 0x0046, 0x00ab,
+	0x0080, 0x0AAAA4DB, 0x26307FDA, 0x501F821F, 0x00100207, 0x61A45232,
+	0x00000618, 0x0000014A,
+	"default name @400MHz           \0",
+	"default marking                \0",
+};
+#endif
 
 static void set_default_ddr3_timings(void)
 {
@@ -53,8 +67,12 @@ static void set_default_ddr3_timings(void)
 
 static void print_ddr3_timings(void)
 {
-	printf("\n\nDDR3 Timing parameters:\n");
-	printf("Diff     Eeprom  Default\n");
+	printf("\nDDR3\n");
+	printf("clock:\t\t%d MHz\n", DDR_PLL_FREQ);
+	printf("device:\t\t%s\n", settings.ddr3.manu_name);
+	printf("marking:\t%s\n", settings.ddr3.manu_marking);
+	printf("timing parameters\n");
+	printf("diff\teeprom\tdefault\n");
 	PRINTARGS(magic);
 	PRINTARGS(version);
 	PRINTARGS(ddr3_sratio);
@@ -78,9 +96,9 @@ static void print_ddr3_timings(void)
 
 static void print_chip_data(void)
 {
-	printf("\n");
-	printf("Device: '%s'\n", settings.chip.sdevname);
-	printf("HW version: '%s'\n", settings.chip.shwver);
+	printf("\nCPU BOARD\n");
+	printf("device: \t'%s'\n", settings.chip.sdevname);
+	printf("hw version: \t'%s'\n", settings.chip.shwver);
 }
 #endif /* CONFIG_SPL_BUILD */
 
@@ -112,19 +130,18 @@ static int read_eeprom(void)
 		printf("Using DDR3 settings from EEPROM\n");
 	} else {
 		if (ddr3_default.magic != settings.ddr3.magic)
-			printf("Error: No valid DDR3 data in eeprom.\n");
+			printf("Warning: No valid DDR3 data in eeprom.\n");
 		if (ddr3_default.version != settings.ddr3.version)
-			printf("Error: DDR3 data version does not match.\n");
+			printf("Warning: DDR3 data version does not match.\n");
 
 		printf("Using default settings\n");
 		set_default_ddr3_timings();
 	}
 
 	if (MAGIC_CHIP == settings.chip.magic) {
-		printf("Valid chip data in eeprom\n");
 		print_chip_data();
 	} else {
-		printf("Error: No chip data in eeprom\n");
+		printf("Warning: No chip data in eeprom\n");
 	}
 
 	print_ddr3_timings();
