@@ -402,7 +402,11 @@
 	"dfu_args=run bootargs_defaults;" \
 		"setenv bootargs ${bootargs} ;" \
 		"mtdparts default; " \
-		"dfu 0 nand 0; \0" \
+		"led dfu 1;" \
+		"led stat 0;" \
+		"dfu 0 nand 0;" \
+		"led dfu 0;" \
+		"led stat 1;\0" \
 		"dfu_alt_info=" DFU_ALT_INFO_NAND "\0" \
 	"net_args=run bootargs_defaults;" \
 		"mtdparts default;" \
