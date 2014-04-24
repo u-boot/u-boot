@@ -605,22 +605,16 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		opts.spread = spread;
 
 		if (scrub) {
-			if (!scrub_yes)
-				puts(scrub_warn);
-
-			if (scrub_yes)
+			if (scrub_yes) {
 				opts.scrub = 1;
-			else if (getc() == 'y') {
-				puts("y");
-				if (getc() == '\r')
+			} else {
+				puts(scrub_warn);
+				if (confirm_yesno()) {
 					opts.scrub = 1;
-				else {
+				} else {
 					puts("scrub aborted\n");
 					return 1;
 				}
-			} else {
-				puts("scrub aborted\n");
-				return 1;
 			}
 		}
 		ret = nand_erase_opts(nand, &opts);

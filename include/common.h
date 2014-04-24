@@ -836,7 +836,7 @@ int	ctrlc (void);
 int	had_ctrlc (void);	/* have we had a Control-C since last clear? */
 void	clear_ctrlc (void);	/* clear the Control-C condition */
 int	disable_ctrlc (int);	/* 1 to disable, 0 to enable Control-C detect */
-
+int confirm_yesno(void);        /*  1 if input is "y", "Y", "yes" or "YES" */
 /*
  * STDIO based functions (can always be used)
  */
