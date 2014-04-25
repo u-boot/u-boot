@@ -403,7 +403,7 @@ static int omap_correct_data_bch(struct mtd_info *mtd, uint8_t *dat,
 			dat[byte_pos] ^= 1 << bit_pos;
 			printf("nand: bit-flip corrected @data=%d\n", byte_pos);
 		} else if (byte_pos < error_max) {
-			read_ecc[byte_pos - SECTOR_BYTES] = 1 << bit_pos;
+			read_ecc[byte_pos - SECTOR_BYTES] ^= 1 << bit_pos;
 			printf("nand: bit-flip corrected @oob=%d\n", byte_pos -
 								SECTOR_BYTES);
 		} else {
