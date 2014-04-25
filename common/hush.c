@@ -996,7 +996,7 @@ static void get_user_input(struct in_str *i)
 	i->p = the_command;
 #else
 	int n;
-	static char the_command[CONFIG_SYS_CBSIZE];
+	static char the_command[CONFIG_SYS_CBSIZE + 1];
 
 #ifdef CONFIG_BOOT_RETRY_TIME
 #  ifndef CONFIG_RESET_TO_RETRY
