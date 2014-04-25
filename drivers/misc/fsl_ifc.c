@@ -162,3 +162,10 @@ void init_early_memctl_regs(void)
 	set_ifc_csor(IFC_CS7, CONFIG_SYS_CSOR7);
 #endif
 }
+
+void init_final_memctl_regs(void)
+{
+#ifdef CONFIG_SYS_CSPR0_FINAL
+	set_ifc_cspr(IFC_CS0, CONFIG_SYS_CSPR0_FINAL);
+#endif
+}

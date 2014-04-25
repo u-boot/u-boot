@@ -12,6 +12,20 @@
 #define ESPI_BOOT_IMAGE_ADDR	0x50
 #define CONFIG_CFG_DATA_SECTOR	0
 
+void spi_spl_load_image(uint32_t offs, unsigned int size, void *vdst)
+{
+	struct spi_flash *flash;
+
+	flash = spi_flash_probe(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,
+			CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE);
+	if (flash == NULL) {
+		puts("\nspi_flash_probe failed");
+		hang();
+	}
+
+	spi_flash_read(flash, offs, size, vdst);
+}
+
 /*
  * The main entry for SPI booting. It's necessary that SDRAM is already
  * configured and available since this code loads the main U-Boot image
@@ -20,8 +34,10 @@
 void spi_boot(void)
 {
 	void (*uboot)(void) __noreturn;
-	u32 offset, code_len;
+	u32 offset, code_len, copy_len = 0;
+#ifndef CONFIG_FSL_CORENET
 	unsigned char *buf = NULL;
+#endif
 	struct spi_flash *flash;
 
 	flash = spi_flash_probe(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,
@@ -56,8 +72,15 @@ void spi_boot(void)
 	code_len = code_len - CONFIG_SPL_MAX_SIZE;
 #endif
 	/* copy code to DDR */
-	spi_flash_read(flash, offset, code_len,
-		       (void *)CONFIG_SYS_SPI_FLASH_U_BOOT_DST);
+	printf("Loading second stage boot loader ");
+	while (copy_len <= code_len) {
+		spi_flash_read(flash, offset + copy_len, 0x2000,
+			       (void *)(CONFIG_SYS_SPI_FLASH_U_BOOT_DST
+			       + copy_len));
+		copy_len = copy_len + 0x2000;
+		putc('.');
+	}
+
 	/*
 	* Jump to U-Boot image
 	*/

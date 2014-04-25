@@ -44,7 +44,7 @@ int checkboard(void)
 		puts("NAND\n");
 	} else {
 		reg = ((reg & CPLD_LBMAP_MASK) >> CPLD_LBMAP_SHIFT);
-		printf("NOR vBank%d\n", ~reg & 0x7);
+		printf("NOR vBank%d\n", reg);
 	}
 #endif
 

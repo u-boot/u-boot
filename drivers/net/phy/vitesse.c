@@ -296,7 +296,7 @@ static struct phy_driver VSC8574_driver = {
 
 static struct phy_driver VSC8514_driver = {
 	.name = "Vitesse VSC8514",
-	.uid = 0x70570,
+	.uid = 0x70670,
 	.mask = 0xffff0,
 	.features = PHY_GBIT_FEATURES,
 	.config = &vsc8514_config,

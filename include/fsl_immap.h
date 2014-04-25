@@ -1,7 +1,7 @@
 /*
  * Common internal memory map for some Freescale SoCs
  *
- * Copyright 2013 Freescale Semiconductor, Inc.
+ * Copyright 2013-2014 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -50,7 +50,8 @@ struct ccsr_ddr {
 	u8	res_150[16];
 	u32	timing_cfg_4;		/* SDRAM Timing Configuration 4 */
 	u32	timing_cfg_5;		/* SDRAM Timing Configuration 5 */
-	u8	reg_168[8];
+	u32	timing_cfg_6;		/* SDRAM Timing Configuration 6 */
+	u32	timing_cfg_7;		/* SDRAM Timing Configuration 7 */
 	u32	ddr_zq_cntl;		/* ZQ calibration control*/
 	u32	ddr_wrlvl_cntl;		/* write leveling control*/
 	u8	reg_178[4];
@@ -60,14 +61,40 @@ struct ccsr_ddr {
 	u8	reg_188[8];
 	u32	ddr_wrlvl_cntl_2;	/* write leveling control 2 */
 	u32	ddr_wrlvl_cntl_3;	/* write leveling control 3 */
-	u8	res_198[104];
+	u8	res_198[0x1a0-0x198];
+	u32	ddr_sdram_rcw_3;
+	u32	ddr_sdram_rcw_4;
+	u32	ddr_sdram_rcw_5;
+	u32	ddr_sdram_rcw_6;
+	u8	res_1b0[0x200-0x1b0];
 	u32	sdram_mode_3;		/* SDRAM Mode Configuration 3 */
 	u32	sdram_mode_4;		/* SDRAM Mode Configuration 4 */
 	u32	sdram_mode_5;		/* SDRAM Mode Configuration 5 */
 	u32	sdram_mode_6;		/* SDRAM Mode Configuration 6 */
 	u32	sdram_mode_7;		/* SDRAM Mode Configuration 7 */
 	u32	sdram_mode_8;		/* SDRAM Mode Configuration 8 */
-	u8	res_218[0x908];
+	u8	res_218[0x220-0x218];
+	u32	sdram_mode_9;		/* SDRAM Mode Configuration 9 */
+	u32	sdram_mode_10;		/* SDRAM Mode Configuration 10 */
+	u32	sdram_mode_11;		/* SDRAM Mode Configuration 11 */
+	u32	sdram_mode_12;		/* SDRAM Mode Configuration 12 */
+	u32	sdram_mode_13;		/* SDRAM Mode Configuration 13 */
+	u32	sdram_mode_14;		/* SDRAM Mode Configuration 14 */
+	u32	sdram_mode_15;		/* SDRAM Mode Configuration 15 */
+	u32	sdram_mode_16;		/* SDRAM Mode Configuration 16 */
+	u8	res_240[0x250-0x240];
+	u32	timing_cfg_8;		/* SDRAM Timing Configuration 8 */
+	u32	timing_cfg_9;		/* SDRAM Timing Configuration 9 */
+	u8	res_258[0x260-0x258];
+	u32	sdram_cfg_3;
+	u8	res_264[0x2a0-0x264];
+	u32	deskew_cntl;
+	u8	res_2a4[0x400-0x2a4];
+	u32	dq_map_0;
+	u32	dq_map_1;
+	u32	dq_map_2;
+	u32	dq_map_3;
+	u8	res_410[0xb20-0x410];
 	u32	ddr_dsr1;		/* Debug Status 1 */
 	u32	ddr_dsr2;		/* Debug Status 2 */
 	u32	ddr_cdr1;		/* Control Driver 1 */

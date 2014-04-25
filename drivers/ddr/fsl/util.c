@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2012 Freescale Semiconductor, Inc.
+ * Copyright 2008-2014 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,6 +22,18 @@
 #define UL_2POW13 (1UL << 13)
 
 #define ULL_8FS 0xFFFFFFFFULL
+
+u32 fsl_ddr_get_version(void)
+{
+	struct ccsr_ddr __iomem *ddr;
+	u32 ver_major_minor_errata;
+
+	ddr = (void *)_DDR_ADDR;
+	ver_major_minor_errata = (ddr_in32(&ddr->ip_rev1) & 0xFFFF) << 8;
+	ver_major_minor_errata |= (ddr_in32(&ddr->ip_rev2) & 0xFF00) >> 8;
+
+	return ver_major_minor_errata;
+}
 
 /*
  * Round up mclk_ps to nearest 1 ps in memory controller code
@@ -175,6 +187,9 @@ void board_add_ram_info(int use_default)
 	case SDRAM_TYPE_DDR3:
 		puts("3");
 		break;
+	case SDRAM_TYPE_DDR4:
+		puts("4");
+		break;
 	default:
 		puts("?");
 		break;
@@ -188,9 +203,12 @@ void board_add_ram_info(int use_default)
 		puts(", 64-bit");
 
 	/* Calculate CAS latency based on timing cfg values */
-	cas_lat = ((ddr_in32(&ddr->timing_cfg_1) >> 16) & 0xf) + 1;
-	if ((ddr_in32(&ddr->timing_cfg_3) >> 12) & 1)
-		cas_lat += (8 << 1);
+	cas_lat = ((ddr_in32(&ddr->timing_cfg_1) >> 16) & 0xf);
+	if (fsl_ddr_get_version() <= 0x40400)
+		cas_lat += 1;
+	else
+		cas_lat += 2;
+	cas_lat += ((ddr_in32(&ddr->timing_cfg_3) >> 12) & 3) << 4;
 	printf(", CL=%d", cas_lat >> 1);
 	if (cas_lat & 0x1)
 		puts(".5");
