@@ -8,6 +8,7 @@
 #include <asm/io.h>
 #include <malloc.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/sys_proto.h>
 #include <asm/arch/clk.h>
 
 #define SLCR_LOCK_MAGIC		0x767B
