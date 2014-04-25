@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <net.h>
+#include <netdev.h>
 #include <config.h>
 #include <fdtdec.h>
 #include <libfdt.h>
