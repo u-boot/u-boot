@@ -147,9 +147,9 @@ static void *check_data(u8 *buf, size_t bsize, u32 *swap)
 		}
 		/* Loop can be huge - support CTRL + C */
 		if (ctrlc())
-			return 0;
+			return NULL;
 	}
-	return 0;
+	return NULL;
 }
 
 static int zynq_load(xilinx_desc *desc, const void *buf, size_t bsize)
