@@ -16,6 +16,7 @@ static inline bool has_erratum_a006379(void)
 	u32 svr = get_svr();
 	if (((SVR_SOC_VER(svr) == SVR_T4240) && SVR_MAJ(svr) <= 1) ||
 	    ((SVR_SOC_VER(svr) == SVR_T4160) && SVR_MAJ(svr) <= 1) ||
+	    ((SVR_SOC_VER(svr) == SVR_T4080) && SVR_MAJ(svr) <= 1) ||
 	    ((SVR_SOC_VER(svr) == SVR_B4860) && SVR_MAJ(svr) <= 2) ||
 	    ((SVR_SOC_VER(svr) == SVR_B4420) && SVR_MAJ(svr) <= 2) ||
 	    ((SVR_SOC_VER(svr) == SVR_T2080) && SVR_MAJ(svr) <= 1) ||
@@ -49,6 +50,7 @@ static inline bool has_erratum_a006261(void)
 		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 2, 0);
 	case SVR_T4240:
 	case SVR_T4160:
+	case SVR_T4080:
 		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 2, 0);
 	case SVR_T1040:
 		return IS_SVR_REV(svr, 1, 0);

@@ -462,9 +462,16 @@ __attribute__((weak, alias("__fsl_serdes__init"))) void fsl_serdes_init(void);
 int enable_cluster_l2(void)
 {
 	int i = 0;
-	u32 cluster;
+	u32 cluster, svr = get_svr();
 	ccsr_gur_t *gur = (void __iomem *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	struct ccsr_cluster_l2 __iomem *l2cache;
+
+	/* only the L2 of first cluster should be enabled as expected on T4080,
+	 * but there is no EOC in the first cluster as HW sake, so return here
+	 * to skip enabling L2 cache of the 2nd cluster.
+	 */
+	if (SVR_SOC_VER(svr) == SVR_T4080)
+		return 0;
 
 	cluster = in_be32(&gur->tp_cluster[i].lower);
 	if (cluster & TP_CLUSTER_EOC)

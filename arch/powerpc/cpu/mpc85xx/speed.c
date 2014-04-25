@@ -123,7 +123,8 @@ void get_sys_info(sys_info_t *sys_info)
 	 * T4240/T4160 Rev1.0. eg. It's 12 in Rev1.0, however, for Rev2.0
 	 * it uses 6.
 	 */
-#if defined(CONFIG_PPC_T4240) || defined(CONFIG_PPC_T4160)
+#if defined(CONFIG_PPC_T4240) || defined(CONFIG_PPC_T4160) || \
+	defined(CONFIG_PPC_T4080)
 	if (SVR_MAJ(get_svr()) >= 2)
 		mem_pll_rat *= 2;
 #endif
