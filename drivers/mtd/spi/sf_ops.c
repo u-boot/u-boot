@@ -97,10 +97,22 @@ static int spi_flash_cmd_bankaddr_write(struct spi_flash *flash, u8 bank_sel)
 {
 	u8 cmd;
 	int ret;
+	u8 upage_curr;
 
-	if (flash->bank_curr == bank_sel) {
-		debug("SF: not require to enable bank%d\n", bank_sel);
-		return 0;
+	upage_curr = flash->spi->flags & SPI_XFER_U_PAGE;
+
+	if (flash->dual_flash != SF_DUAL_STACKED_FLASH) {
+		if (flash->bank_curr == bank_sel) {
+			debug("SF: not require to enable bank%d\n", bank_sel);
+			return 0;
+		}
+	} else if (flash->upage_prev == upage_curr) {
+		if (flash->bank_curr == bank_sel) {
+			debug("SF: not require to enable bank%d\n", bank_sel);
+			return 0;
+		}
+	} else {
+		flash->upage_prev = upage_curr;
 	}
 
 	cmd = flash->bank_write_cmd;

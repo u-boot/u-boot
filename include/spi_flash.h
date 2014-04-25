@@ -108,6 +108,7 @@ struct spi_flash {
 	u8 bank_read_cmd;
 	u8 bank_write_cmd;
 	u8 bank_curr;
+	u8 upage_prev;
 #endif
 	u8 poll_cmd;
 	u8 erase_cmd;
