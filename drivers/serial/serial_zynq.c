@@ -223,7 +223,7 @@ __weak struct serial_device *default_serial_console(void)
 }
 #endif
 
-void zynq_serial_initalize(void)
+void zynq_serial_initialize(void)
 {
 	serial_register(&uart_zynq_serial0_device);
 	serial_register(&uart_zynq_serial1_device);
