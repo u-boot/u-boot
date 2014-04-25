@@ -14,6 +14,8 @@
 #define SLCR_LOCK_MAGIC		0x767B
 #define SLCR_UNLOCK_MAGIC	0xDF0D
 
+#define SLCR_USB_L1_SEL			0x04
+
 #define SLCR_IDCODE_MASK	0x1F000
 #define SLCR_IDCODE_SHIFT	12
 
@@ -34,7 +36,29 @@ struct zynq_slcr_mio_get_status {
 	u32 check_val;
 };
 
+static const int usb0_pins[] = {
+	28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39
+};
+
+static const int usb1_pins[] = {
+	40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+};
+
 static const struct zynq_slcr_mio_get_status mio_periphs[] = {
+	{
+		"usb0",
+		usb0_pins,
+		ARRAY_SIZE(usb0_pins),
+		SLCR_USB_L1_SEL,
+		SLCR_USB_L1_SEL,
+	},
+	{
+		"usb1",
+		usb1_pins,
+		ARRAY_SIZE(usb1_pins),
+		SLCR_USB_L1_SEL,
+		SLCR_USB_L1_SEL,
+	},
 };
 
 static int slcr_lock = 1; /* 1 means locked, 0 means unlocked */
