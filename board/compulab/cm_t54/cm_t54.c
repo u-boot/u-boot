@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <fdt_support.h>
 #include <usb.h>
 #include <mmc.h>
 #include <palmas.h>
@@ -19,6 +20,8 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/ehci.h>
 #include <asm/ehci-omap.h>
+
+#include "../common/eeprom.h"
 
 #define DIE_ID_REG_BASE		(OMAP54XX_L4_CORE_BASE + 0x2000)
 #define DIE_ID_REG_OFFSET	0x200
@@ -96,6 +99,66 @@ int board_mmc_init(bd_t *bis)
 		return -1;
 
 	return 0;
+}
+#endif
+
+#ifdef CONFIG_USB_HOST_ETHER
+
+void ft_board_setup(void *blob, bd_t *bd)
+{
+	uint8_t enetaddr[6];
+
+	/* MAC addr */
+	if (eth_getenv_enetaddr("usbethaddr", enetaddr)) {
+		fdt_find_and_setprop(blob, "/smsc95xx@0", "mac-address",
+				     enetaddr, 6, 1);
+	}
+}
+
+static void generate_mac_addr(uint8_t *enetaddr)
+{
+	int reg;
+
+	reg = DIE_ID_REG_BASE + DIE_ID_REG_OFFSET;
+
+	/*
+	 * create a fake MAC address from the processor ID code.
+	 * first byte is 0x02 to signify locally administered.
+	 */
+	enetaddr[0] = 0x02;
+	enetaddr[1] = readl(reg + 0x10) & 0xff;
+	enetaddr[2] = readl(reg + 0xC) & 0xff;
+	enetaddr[3] = readl(reg + 0x8) & 0xff;
+	enetaddr[4] = readl(reg) & 0xff;
+	enetaddr[5] = (readl(reg) >> 8) & 0xff;
+}
+
+/*
+ * Routine: handle_mac_address
+ * Description: prepare MAC address for on-board Ethernet.
+ */
+static int handle_mac_address(void)
+{
+	uint8_t enetaddr[6];
+	int ret;
+
+	ret = eth_getenv_enetaddr("usbethaddr", enetaddr);
+	if (ret)
+		return 0;
+
+	ret = cl_eeprom_read_mac_addr(enetaddr);
+	if (!ret || !is_valid_ether_addr(enetaddr))
+		generate_mac_addr(enetaddr);
+
+	if (!is_valid_ether_addr(enetaddr))
+		return -1;
+
+	return eth_setenv_enetaddr("usbethaddr", enetaddr);
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return handle_mac_address();
 }
 #endif
 

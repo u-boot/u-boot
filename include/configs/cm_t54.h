@@ -19,6 +19,15 @@
 #undef CONFIG_MISC_INIT_R
 #undef CONFIG_SPL_OS_BOOT
 
+/* Device Tree defines */
+#define CONFIG_OF_LIBFDT
+#define CONFIG_OF_BOARD_SETUP
+
+/* EEPROM related defines */
+#define CONFIG_SYS_I2C_OMAP34XX
+#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
+
 /* Enable SD/MMC CD and WP GPIOs */
 #define OMAP_HSMMC_USE_GPIO
 
