@@ -13,6 +13,7 @@
 #include <usb.h>
 #include <mmc.h>
 #include <palmas.h>
+#include <spl.h>
 
 #include <asm/gpio.h>
 #include <asm/arch/sys_proto.h>
@@ -73,6 +74,27 @@ static int cm_t54_palmas_regulator_set(u8 vreg, u8 vval, u8 creg, u8 cval)
 
 	return 0;
 }
+
+/*
+ * Routine: mmc_get_env_part
+ * Description:  setup environment storage device partition.
+ */
+#ifdef CONFIG_SYS_MMC_ENV_PART
+uint mmc_get_env_part(struct mmc *mmc)
+{
+	u32 bootmode = gd->arch.omap_boot_params.omap_bootmode;
+	uint bootpart = CONFIG_SYS_MMC_ENV_PART;
+
+	/*
+	 * If booted from eMMC boot partition then force eMMC
+	 * FIRST boot partition to be env storage
+	 */
+	if (bootmode == BOOT_DEVICE_MMC2_2)
+		bootpart = 1;
+
+	return bootpart;
+}
+#endif
 
 #if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
 #define SB_T54_CD_GPIO 228
