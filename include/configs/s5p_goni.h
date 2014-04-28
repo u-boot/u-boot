@@ -17,6 +17,7 @@
 #define CONFIG_S5PC110		1	/* which is in a S5PC110 */
 #define CONFIG_MACH_GONI	1	/* working with Goni */
 
+#include <linux/sizes.h>
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 
 #define CONFIG_ARCH_CPU_INIT
@@ -38,11 +39,9 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_CMDLINE_EDITING
 
-/*
- * Size of malloc() pool
- * 1MB = 0x100000, 0x100000 = 1024 * 1024
- */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (1 << 20))
+/* Size of malloc() pool.*/
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + SZ_1M)
+
 /*
  * select serial console configuration
  */
@@ -90,29 +89,24 @@
 				",7m(kernel)"\
 				",1m(log)"\
 				",12m(modem)"\
-				",60m(qboot)"\
-				",-(UBI)\0"
+				",60m(qboot)\0"
 
 #define NORMAL_MTDPARTS_DEFAULT MTDPARTS_DEFAULT
 
-#define CONFIG_BOOTCOMMAND	"run ubifsboot"
+#define CONFIG_BOOTCOMMAND	"run mmcboot"
 
 #define CONFIG_DEFAULT_CONSOLE	"console=ttySAC2,115200n8\0"
 
-#define CONFIG_RAMDISK_BOOT	"root=/dev/ram0 rw rootfstype=ext2" \
+#define CONFIG_RAMDISK_BOOT	"root=/dev/ram0 rw rootfstype=ext4" \
 		" ${console} ${meminfo}"
 
 #define CONFIG_COMMON_BOOT	"${console} ${meminfo} ${mtdparts}"
 
-#define CONFIG_BOOTARGS	"root=/dev/mtdblock8 ubi.mtd=8 ubi.mtd=3 ubi.mtd=6" \
-		" rootfstype=cramfs " CONFIG_COMMON_BOOT
+#define CONFIG_BOOTARGS	"root=/dev/mtdblock8 rootfstype=ext4 " \
+			CONFIG_COMMON_BOOT
 
 #define CONFIG_UPDATEB	"updateb=onenand erase 0x0 0x100000;" \
 			" onenand write 0x32008000 0x0 0x100000\0"
-
-#define CONFIG_UBI_MTD	" ubi.mtd=${ubiblock} ubi.mtd=3 ubi.mtd=6"
-
-#define CONFIG_UBIFS_OPTION	"rootflags=bulk_read,no_chk_data_crc"
 
 #define CONFIG_MISC_COMMON
 #define CONFIG_MISC_INIT_R
@@ -130,36 +124,38 @@
 		"onenand erase 0x01560000 0x1eaa0000;" \
 		"onenand write 0x32000000 0x1260000 0x8C0000\0" \
 	"bootk=" \
-		"onenand read 0x30007FC0 0xc00000 0x600000;" \
+		"run loaduimage;" \
 		"bootm 0x30007FC0\0" \
 	"flashboot=" \
 		"set bootargs root=/dev/mtdblock${bootblock} " \
-		"rootfstype=${rootfstype}" CONFIG_UBI_MTD " ${opts} " \
+		"rootfstype=${rootfstype} ${opts} " \
 		"${lcdinfo} " CONFIG_COMMON_BOOT "; run bootk\0" \
 	"ubifsboot=" \
 		"set bootargs root=ubi0!rootfs rootfstype=ubifs " \
-		CONFIG_UBIFS_OPTION CONFIG_UBI_MTD " ${opts} ${lcdinfo} " \
+		"${opts} ${lcdinfo} " \
 		CONFIG_COMMON_BOOT "; run bootk\0" \
 	"tftpboot=" \
 		"set bootargs root=ubi0!rootfs rootfstype=ubifs " \
-		CONFIG_UBIFS_OPTION CONFIG_UBI_MTD " ${opts} ${lcdinfo} " \
-		CONFIG_COMMON_BOOT "; tftp 0x30007FC0 uImage; " \
-		"bootm 0x30007FC0\0" \
+		"${opts} ${lcdinfo} " CONFIG_COMMON_BOOT \
+		"; tftp 0x30007FC0 uImage; bootm 0x30007FC0\0" \
 	"ramboot=" \
 		"set bootargs " CONFIG_RAMDISK_BOOT \
-		" initrd=0x33000000,8M ramdisk=8192\0" \
+		"initrd=0x33000000,8M ramdisk=8192\0" \
 	"mmcboot=" \
-		"set bootargs root=${mmcblk} rootfstype=${rootfstype}" \
-		CONFIG_UBI_MTD " ${opts} ${lcdinfo} " \
+		"set bootargs root=/dev/mmcblk${mmcdev}p${mmcrootpart} " \
+		"rootfstype=${rootfstype} ${opts} ${lcdinfo} " \
 		CONFIG_COMMON_BOOT "; run bootk\0" \
 	"boottrace=setenv opts initcall_debug; run bootcmd\0" \
 	"bootchart=set opts init=/sbin/bootchartd; run bootcmd\0" \
 	"verify=n\0" \
-	"rootfstype=cramfs\0" \
+	"rootfstype=ext4\0" \
 	"console=" CONFIG_DEFAULT_CONSOLE \
 	"mtdparts=" MTDPARTS_DEFAULT \
 	"meminfo=mem=80M mem=256M@0x40000000 mem=128M@0x50000000\0" \
-	"mmcblk=/dev/mmcblk1p1\0" \
+	"loaduimage=fatload mmc ${mmcdev}:${mmcbootpart} 0x30007FC0 uImage\0" \
+	"mmcdev=0\0" \
+	"mmcbootpart=2\0" \
+	"mmcrootpart=5\0" \
 	"bootblock=9\0" \
 	"ubiblock=8\0" \
 	"ubi=enabled\0" \
@@ -202,6 +198,13 @@
 
 #define CONFIG_DOS_PARTITION		1
 
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_EXT4
+
+/* write support for filesystems */
+#define CONFIG_FAT_WRITE
+#define CONFIG_EXT4_WRITE
+
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR - 0x1000000)
 
 #define CONFIG_SYS_CACHELINE_SIZE       64
@@ -226,5 +229,6 @@
 #define CONFIG_USB_GADGET
 #define CONFIG_USB_GADGET_S3C_UDC_OTG
 #define CONFIG_USB_GADGET_DUALSPEED
+#define CONFIG_USB_GADGET_VBUS_DRAW 2
 
 #endif	/* __CONFIG_H */
