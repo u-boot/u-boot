@@ -240,8 +240,13 @@ static void mx23_mem_setup_vddmem(void)
 	struct mxs_power_regs *power_regs =
 		(struct mxs_power_regs *)MXS_POWER_BASE;
 
+	/* We must wait before and after disabling the current limiter! */
+	early_delay(10000);
+
 	clrbits_le32(&power_regs->hw_power_vddmemctrl,
 		POWER_VDDMEMCTRL_ENABLE_ILIMIT);
+
+	early_delay(10000);
 
 }
 
