@@ -312,6 +312,7 @@
 #endif
 
 /* USB Device Firmware Update support */
+#ifndef CONFIG_SPL_BUILD
 #define CONFIG_DFU_FUNCTION
 #define CONFIG_DFU_MMC
 #define CONFIG_CMD_DFU
@@ -354,6 +355,7 @@
 	DFU_ALT_INFO_MMC \
 	DFU_ALT_INFO_RAM \
 	DFU_ALT_INFO_NAND
+#endif
 
 /*
  * Default to using SPI for environment, etc.
