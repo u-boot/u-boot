@@ -73,6 +73,7 @@
 #define CONFIG_CMD_ONENAND
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_DFU
+#define CONFIG_CMD_GPT
 
 /* USB Composite download gadget - g_dnl */
 #define CONFIG_USBDOWNLOAD_GADGET
@@ -236,6 +237,10 @@
 /* write support for filesystems */
 #define CONFIG_FAT_WRITE
 #define CONFIG_EXT4_WRITE
+
+/* GPT */
+#define CONFIG_EFI_PARTITION
+#define CONFIG_PARTITION_UUIDS
 
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR - 0x1000000)
 
