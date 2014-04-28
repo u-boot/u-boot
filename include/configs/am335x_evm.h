@@ -320,10 +320,10 @@
 	"boot part 0 1;" \
 	"rootfs part 0 2;" \
 	"MLO fat 0 1;" \
-	"MLO.raw mmc 100 100;" \
-	"u-boot.img.raw mmc 300 400;" \
-	"spl-os-args.raw mmc 80 80;" \
-	"spl-os-image.raw mmc 900 2000;" \
+	"MLO.raw mmc 0x100 0x100;" \
+	"u-boot.img.raw mmc 0x300 0x400;" \
+	"spl-os-args.raw mmc 0x80 0x80;" \
+	"spl-os-image.raw mmc 0x900 0x2000;" \
 	"spl-os-args fat 0 1;" \
 	"spl-os-image fat 0 1;" \
 	"u-boot.img fat 0 1;" \

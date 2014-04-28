@@ -215,8 +215,12 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *s)
 	}
 
 	entity_type = argv[0];
-	second_arg = simple_strtoul(argv[1], NULL, 16);
-	third_arg = simple_strtoul(argv[2], NULL, 16);
+	/*
+	 * Base 0 means we'll accept (prefixed with 0x or 0) base 16, 8,
+	 * with default 10.
+	 */
+	second_arg = simple_strtoul(argv[1], NULL, 0);
+	third_arg = simple_strtoul(argv[2], NULL, 0);
 
 	mmc = find_mmc_device(dfu->dev_num);
 	if (mmc == NULL) {
