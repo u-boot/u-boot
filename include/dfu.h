@@ -168,12 +168,5 @@ static inline int dfu_fill_entity_ram(struct dfu_entity *dfu, char *s)
 }
 #endif
 
-#ifdef CONFIG_DFU_FUNCTION
 int dfu_add(struct usb_configuration *c);
-#else
-int dfu_add(struct usb_configuration *c)
-{
-	return 0;
-}
-#endif
 #endif /* __DFU_ENTITY_H_ */

@@ -1004,3 +1004,5 @@ int thor_add(struct usb_configuration *c)
 	debug("%s:\n", __func__);
 	return thor_func_init(c);
 }
+
+DECLARE_GADGET_BIND_CALLBACK(usb_dnl_thor, thor_add);
