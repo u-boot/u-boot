@@ -40,7 +40,7 @@
 #define CONFIG_CMDLINE_EDITING
 
 /* Size of malloc() pool.*/
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + SZ_1M)
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 80 * SZ_1M)
 
 /*
  * select serial console configuration
@@ -71,14 +71,18 @@
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_ONENAND
-#define CONFIG_CMD_MTDPARTS
 #define CONFIG_CMD_MMC
+#define CONFIG_CMD_DFU
 
-#define CONFIG_BOOTDELAY		1
-#define CONFIG_ZERO_BOOTDELAY_CHECK
+/* USB Composite download gadget - g_dnl */
+#define CONFIG_USBDOWNLOAD_GADGET
+#define CONFIG_DFU_FUNCTION
+#define CONFIG_DFU_MMC
 
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
+/* USB Samsung's IDs */
+#define CONFIG_G_DNL_VENDOR_NUM 0x04E8
+#define CONFIG_G_DNL_PRODUCT_NUM 0x6601
+#define CONFIG_G_DNL_MANUFACTURER "Samsung"
 
 /* Actual modem binary size is 16MiB. Add 2MiB for bad block handling */
 #define MTDIDS_DEFAULT		"onenand0=samsung-onenand"
@@ -91,7 +95,34 @@
 				",12m(modem)"\
 				",60m(qboot)\0"
 
-#define NORMAL_MTDPARTS_DEFAULT MTDPARTS_DEFAULT
+#define CONFIG_BOOTDELAY		1
+#define CONFIG_ZERO_BOOTDELAY_CHECK
+
+/* partitions definitions */
+#define PARTS_CSA			"csa-mmc"
+#define PARTS_BOOTLOADER	"u-boot"
+#define PARTS_BOOT			"boot"
+#define PARTS_ROOT			"platform"
+#define PARTS_DATA			"data"
+#define PARTS_CSC			"csc"
+#define PARTS_UMS			"ums"
+
+#define CONFIG_DFU_ALT \
+	"u-boot raw 0x80 0x400;" \
+	"uImage ext4 0 2;" \
+	"exynos3-goni.dtb ext4 0 2;" \
+	""PARTS_ROOT" part 0 5\0"
+
+#define PARTS_DEFAULT \
+	"uuid_disk=${uuid_gpt_disk};" \
+	"name="PARTS_CSA",size=8MiB,uuid=${uuid_gpt_"PARTS_CSA"};" \
+	"name="PARTS_BOOTLOADER",size=60MiB," \
+	"uuid=${uuid_gpt_"PARTS_BOOTLOADER"};" \
+	"name="PARTS_BOOT",size=100MiB,uuid=${uuid_gpt_"PARTS_BOOT"};" \
+	"name="PARTS_ROOT",size=1GiB,uuid=${uuid_gpt_"PARTS_ROOT"};" \
+	"name="PARTS_DATA",size=3GiB,uuid=${uuid_gpt_"PARTS_DATA"};" \
+	"name="PARTS_CSC",size=150MiB,uuid=${uuid_gpt_"PARTS_CSC"};" \
+	"name="PARTS_UMS",size=-,uuid=${uuid_gpt_"PARTS_UMS"}\0" \
 
 #define CONFIG_BOOTCOMMAND	"run mmcboot"
 
@@ -150,18 +181,18 @@
 	"verify=n\0" \
 	"rootfstype=ext4\0" \
 	"console=" CONFIG_DEFAULT_CONSOLE \
-	"mtdparts=" MTDPARTS_DEFAULT \
 	"meminfo=mem=80M mem=256M@0x40000000 mem=128M@0x50000000\0" \
-	"loaduimage=fatload mmc ${mmcdev}:${mmcbootpart} 0x30007FC0 uImage\0" \
+	"loaduimage=ext4load mmc ${mmcdev}:${mmcbootpart} 0x30007FC0 uImage\0" \
 	"mmcdev=0\0" \
 	"mmcbootpart=2\0" \
 	"mmcrootpart=5\0" \
+	"partitions=" PARTS_DEFAULT \
 	"bootblock=9\0" \
 	"ubiblock=8\0" \
 	"ubi=enabled\0" \
-	"opts=always_resume=1"
+	"opts=always_resume=1\0" \
+	"dfu_alt_info=" CONFIG_DFU_ALT "\0"
 
-/* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser	*/
 #define CONFIG_SYS_PROMPT	"Goni # "
@@ -200,6 +231,7 @@
 
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_EXT4
+#define CONFIG_CMD_EXT4_WRITE
 
 /* write support for filesystems */
 #define CONFIG_FAT_WRITE
