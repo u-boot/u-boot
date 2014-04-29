@@ -1310,10 +1310,13 @@ static int mmc_complete_init(struct mmc *mmc)
 int mmc_init(struct mmc *mmc)
 {
 	int err = IN_PROGRESS;
-	unsigned start = get_timer(0);
+	unsigned start;
 
 	if (mmc->has_init)
 		return 0;
+
+	start = get_timer(0);
+
 	if (!mmc->init_in_progress)
 		err = mmc_start_init(mmc);
 
