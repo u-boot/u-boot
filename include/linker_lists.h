@@ -228,7 +228,7 @@
  * and it's name.
  *
  * Example:
- * ll_entry_declare(struct my_sub_cmd, my_sub_cmd, cmd_sub, cmd.sub) = {
+ * ll_entry_declare(struct my_sub_cmd, my_sub_cmd, cmd_sub) = {
  *         .x = 3,
  *         .y = 4,
  * };
