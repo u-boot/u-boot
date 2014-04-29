@@ -111,6 +111,11 @@ typedef u64 iomux_v3_cfg_t;
 #define PAD_CTL_DSE_40ohm	(6 << 3)
 #define PAD_CTL_DSE_34ohm	(7 << 3)
 
+#if defined CONFIG_MX6SL
+#define PAD_CTL_LVE		(1 << 1)
+#define PAD_CTL_LVE_BIT		(1 << 22)
+#endif
+
 #elif defined(CONFIG_VF610)
 
 #define PAD_MUX_MODE_SHIFT	20
