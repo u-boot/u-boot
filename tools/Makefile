@@ -73,6 +73,8 @@ dumpimage-mkimage-objs := aisimage.o \
 			crc32.o \
 			default_image.o \
 			fit_image.o \
+			gpimage.o \
+			gpimage-common.o \
 			image-fit.o \
 			image-host.o \
 			image.o \

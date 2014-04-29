@@ -78,9 +78,10 @@
 /*
  * I2C Configuration
  */
-#define CONFIG_HARD_I2C
-#define CONFIG_DRIVER_DAVINCI_I2C
-#define CONFIG_SYS_I2C_SPEED		100000
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_DAVINCI
+#define CONFIG_SYS_DAVINCI_I2C_SPEED		100000
+#define CONFIG_SYS_DAVINCI_I2C_SLAVE   10 /* Bogus, master-only in U-Boot */
 
 /*
  * Network & Ethernet Configuration

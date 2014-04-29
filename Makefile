@@ -8,7 +8,7 @@
 VERSION = 2014
 PATCHLEVEL = 04
 SUBLEVEL =
-EXTRAVERSION = -rc3
+EXTRAVERSION =
 NAME =
 
 # *DOCUMENTATION*
@@ -868,6 +868,16 @@ spl/u-boot-spl.img: spl/u-boot-spl.bin FORCE
 OBJCOPYFLAGS_u-boot.spr = -I binary -O binary --pad-to=$(CONFIG_SPL_PAD_TO) \
 			  --gap-fill=0xff
 u-boot.spr: spl/u-boot-spl.img u-boot.img FORCE
+	$(call if_changed,pad_cat)
+
+MKIMAGEFLAGS_u-boot-spl.gph = -A $(ARCH) -T gpimage -C none \
+	-a $(CONFIG_SPL_TEXT_BASE) -e $(CONFIG_SPL_TEXT_BASE) -n SPL
+spl/u-boot-spl.gph: spl/u-boot-spl.bin FORCE
+	$(call if_changed,mkimage)
+
+OBJCOPYFLAGS_u-boot-spi.gph = -I binary -O binary --pad-to=$(CONFIG_SPL_PAD_TO) \
+			  --gap-fill=0
+u-boot-spi.gph: spl/u-boot-spl.gph u-boot.img FORCE
 	$(call if_changed,pad_cat)
 
 ifneq ($(CONFIG_TEGRA),)

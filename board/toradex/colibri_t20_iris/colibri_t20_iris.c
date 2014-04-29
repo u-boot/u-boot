@@ -19,7 +19,7 @@ void pin_mux_usb(void)
 	colibri_t20_common_pin_mux_usb();
 
 	/* USB 1 aka Tegra USB port 3 VBus*/
-	pinmux_tristate_disable(PINGRP_SPIG);
+	pinmux_tristate_disable(PMUX_PINGRP_SPIG);
 }
 #endif
 
@@ -31,6 +31,6 @@ void pin_mux_usb(void)
 void pin_mux_mmc(void)
 {
 	funcmux_select(PERIPH_ID_SDMMC4, FUNCMUX_SDMMC4_ATB_GMA_4_BIT);
-	pinmux_tristate_disable(PINGRP_GMB);
+	pinmux_tristate_disable(PMUX_PINGRP_GMB);
 }
 #endif

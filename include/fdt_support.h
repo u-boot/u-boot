@@ -63,6 +63,13 @@ int fdt_pci_dma_ranges(void *blob, int phb_off, struct pci_controller *hose);
 #endif
 
 void ft_board_setup(void *blob, bd_t *bd);
+/*
+ * The keystone2 SOC requires all 32 bit aliased addresses to be converted
+ * to their 36 physical format. This has to happen after all fdt nodes
+ * are added or modified by the image_setup_libfdt(). The ft_board_setup_ex()
+ * called at the end of the image_setup_libfdt() is to do that convertion.
+ */
+void ft_board_setup_ex(void *blob, bd_t *bd);
 void ft_cpu_setup(void *blob, bd_t *bd);
 void ft_pci_setup(void *blob, bd_t *bd);
 

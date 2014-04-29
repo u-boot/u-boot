@@ -269,7 +269,9 @@ static int sh_i2c_write(struct i2c_adapter *adap, uint8_t chip, uint addr,
 static int
 sh_i2c_probe(struct i2c_adapter *adap, u8 dev)
 {
-	return sh_i2c_read(adap, dev, 0, 0, NULL, 0);
+	u8 dummy[1];
+
+	return sh_i2c_read(adap, dev, 0, 0, dummy, sizeof dummy);
 }
 
 static unsigned int sh_i2c_set_bus_speed(struct i2c_adapter *adap,
