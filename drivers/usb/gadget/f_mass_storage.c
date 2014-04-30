@@ -243,7 +243,7 @@
 #include <config.h>
 #include <malloc.h>
 #include <common.h>
-#include <usb.h>
+#include <g_dnl.h>
 
 #include <linux/err.h>
 #include <linux/usb/ch9.h>
@@ -680,11 +680,11 @@ static int sleep_thread(struct fsg_common *common)
 			/* Handle CTRL+C */
 			if (ctrlc())
 				return -EPIPE;
-#ifdef CONFIG_USB_CABLE_CHECK
+
 			/* Check cable connection */
-			if (!usb_cable_connected())
+			if (!g_dnl_board_usb_cable_connected())
 				return -EIO;
-#endif
+
 			k = 0;
 		}
 

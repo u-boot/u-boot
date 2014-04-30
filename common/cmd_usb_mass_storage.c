@@ -45,10 +45,14 @@ int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
 	/* Timeout unit: seconds */
 	int cable_ready_timeout = UMS_CABLE_READY_TIMEOUT;
 
-	if (!usb_cable_connected()) {
+	if (!g_dnl_board_usb_cable_connected()) {
+		/*
+		 * Won't execute if we don't know whether the cable is
+		 * connected.
+		 */
 		puts("Please connect USB cable.\n");
 
-		while (!usb_cable_connected()) {
+		while (!g_dnl_board_usb_cable_connected()) {
 			if (ctrlc()) {
 				puts("\rCTRL+C - Operation aborted.\n");
 				goto exit;

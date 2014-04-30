@@ -152,6 +152,11 @@ __weak int g_dnl_get_board_bcd_device_number(int gcnum)
 	return gcnum;
 }
 
+__weak int g_dnl_board_usb_cable_connected(void)
+{
+	return -EOPNOTSUPP;
+}
+
 static int g_dnl_get_bcd_device_number(struct usb_composite_dev *cdev)
 {
 	struct usb_gadget *gadget = cdev->gadget;

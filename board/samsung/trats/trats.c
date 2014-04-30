@@ -430,8 +430,7 @@ int board_usb_init(int index, enum usb_init_type init)
 	return s3c_udc_probe(&s5pc210_otg_data);
 }
 
-#ifdef CONFIG_USB_CABLE_CHECK
-int usb_cable_connected(void)
+int g_dnl_board_usb_cable_connected(void)
 {
 	struct pmic *muic = pmic_get("MAX8997_MUIC");
 	if (!muic)
@@ -439,7 +438,6 @@ int usb_cable_connected(void)
 
 	return !!muic->chrg->chrg_type(muic);
 }
-#endif
 #endif
 
 static void pmic_reset(void)
