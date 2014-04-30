@@ -381,6 +381,7 @@ int get_scl(void);
  */
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_NET
+#define CONFIG_CMD_ERRATA
 
 /* we don't need flash support */
 #define CONFIG_SYS_NO_FLASH
