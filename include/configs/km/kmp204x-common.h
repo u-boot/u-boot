@@ -85,11 +85,7 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_ADDR_MAP
 #define CONFIG_SYS_NUM_ADDR_MAP		64	/* number of TLB1 entries */
 
-#define CONFIG_POST CONFIG_SYS_POST_MEMORY	/* test POST memory test */
-#define CONFIG_SYS_MEMTEST_START	0x00100000	/* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x00800000
-#define CONFIG_SYS_ALT_MEMTEST
-#define CONFIG_PANIC_HANG	/* do not reset board on panic */
+#define CONFIG_POST CONFIG_SYS_POST_MEM_REGIONS	/* POST memory regions test */
 
 /*
  *  Config the L3 Cache as L3 SRAM

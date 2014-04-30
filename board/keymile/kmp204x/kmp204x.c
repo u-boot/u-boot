@@ -250,3 +250,16 @@ void ft_board_setup(void *blob, bd_t *bd)
 	fdt_fixup_fman_mac_addresses(blob);
 #endif
 }
+
+#if defined(CONFIG_POST)
+
+/* DIC26_SELFTEST GPIO used to start factory test sw */
+#define SELFTEST_PORT	GPIO_A
+#define SELFTEST_PIN	31
+
+int post_hotkeys_pressed(void)
+{
+	qrio_gpio_direction_input(SELFTEST_PORT, SELFTEST_PIN);
+	return qrio_get_gpio(SELFTEST_PORT, SELFTEST_PIN);
+}
+#endif
