@@ -496,6 +496,10 @@ static int init_utmi_usb_controller(struct fdt_usb *config)
 		clrbits_le32(&usbctlr->port_sc1, STS);
 	}
 #else
+	/* Set to Host mode after Controller Reset was done */
+	clrsetbits_le32(&usbctlr->usb_mode, USBMODE_CM_HC,
+			USBMODE_CM_HC);
+	/* Select PHY interface after setting host mode */
 	clrsetbits_le32(&usbctlr->hostpc1_devlc, PTS_MASK,
 			PTS_UTMI << PTS_SHIFT);
 	clrbits_le32(&usbctlr->hostpc1_devlc, STS);
@@ -561,6 +565,10 @@ static int init_ulpi_usb_controller(struct fdt_usb *config)
 	clrsetbits_le32(&usbctlr->port_sc1, PTS_MASK,
 			PTS_ULPI << PTS_SHIFT);
 #else
+	/* Set to Host mode after Controller Reset was done */
+	clrsetbits_le32(&usbctlr->usb_mode, USBMODE_CM_HC,
+			USBMODE_CM_HC);
+	/* Select PHY interface after setting host mode */
 	clrsetbits_le32(&usbctlr->hostpc1_devlc, PTS_MASK,
 			PTS_ULPI << PTS_SHIFT);
 #endif
@@ -788,19 +796,6 @@ success:
 	*hccr = (struct ehci_hccr *)&usbctlr->cap_length;
 	*hcor = (struct ehci_hcor *)&usbctlr->usb_cmd;
 
-	if (controller->has_hostpc) {
-		/* Set to Host mode after Controller Reset was done */
-		clrsetbits_le32(&usbctlr->usb_mode, USBMODE_CM_HC,
-				USBMODE_CM_HC);
-		/* Select UTMI parallel interface after setting host mode */
-		if (config->utmi) {
-			clrsetbits_le32((char *)&usbctlr->usb_cmd +
-					HOSTPC1_DEVLC, PTS_MASK,
-					PTS_UTMI << PTS_SHIFT);
-			clrbits_le32((char *)&usbctlr->usb_cmd +
-				     HOSTPC1_DEVLC, STS);
-		}
-	}
 	return 0;
 }
 
