@@ -895,6 +895,7 @@ skip_l2:
 	}
 #endif
 
+	init_used_tlb_cams();
 
 	return 0;
 }
