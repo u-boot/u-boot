@@ -349,6 +349,8 @@ struct usb_ctlr {
 
 /* USB3_IF_USB_PHY_VBUS_SENSORS_0 */
 #define VBUS_VLD_STS			(1 << 26)
+#define VBUS_B_SESS_VLD_SW_VALUE	(1 << 12)
+#define VBUS_B_SESS_VLD_SW_EN		(1 << 11)
 
 /* Setup USB on the board */
 int usb_process_devicetree(const void *blob);
