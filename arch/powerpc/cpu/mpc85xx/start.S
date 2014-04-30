@@ -1158,7 +1158,7 @@ _start_cont:
 	mtmsr	r3
 	isync
 
-	bl	cpu_init_f
+	bl	cpu_init_f	/* return boot_flag for calling board_init_f */
 	bl	board_init_f
 	isync
 
