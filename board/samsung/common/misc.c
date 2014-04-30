@@ -122,6 +122,7 @@ mode_name[BOOT_MODE_EXIT + 1][2] = {
 	{"UMS", "ums"},
 	{"DFU", "dfu"},
 	{"GPT", "gpt"},
+	{"ENV", "env"},
 	{"EXIT", ""},
 };
 
@@ -132,6 +133,7 @@ mode_info[BOOT_MODE_EXIT + 1] = {
 	"mass storage",
 	"firmware update",
 	"restore",
+	"default",
 	"and run normal boot"
 };
 
@@ -142,6 +144,7 @@ mode_cmd[BOOT_MODE_EXIT + 1] = {
 	"ums 0 mmc 0",
 	"dfu 0 mmc 0",
 	"gpt write mmc 0 $partitions",
+	"env default -a; saveenv",
 	"",
 };
 
