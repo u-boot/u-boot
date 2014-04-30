@@ -111,16 +111,11 @@
 			"bootm 0x40007FC0 - ${fdtaddr};" \
 		"fi;" \
 		"bootm 0x40007FC0;\0" \
-	"updatemmc=" \
-		"mmc boot 0 1 1 1; mmc write 0x42008000 0 0x200;" \
-		"mmc boot 0 1 1 0\0" \
 	"updatebackup=" \
-		"mmc boot 0 1 1 2; mmc write 0x42100000 0 0x200;" \
-		" mmc boot 0 1 1 0\0" \
+		"mmc dev 0 2; mmc write 0x51000000 0 0x800;" \
+		" mmc dev 0 0\0" \
 	"updatebootb=" \
-		"mmc read 0x51000000 0x80 0x200; run updatebackup\0" \
-	"updateuboot=" \
-		"mmc write 0x50000000 0x80 0x400\0" \
+		"mmc read 0x51000000 0x80 0x800; run updatebackup\0" \
 	"mmcboot=" \
 		"setenv bootargs root=/dev/mmcblk${mmcdev}p${mmcrootpart} " \
 		"${lpj} rootwait ${console} ${meminfo} ${opts} ${lcdinfo}; " \

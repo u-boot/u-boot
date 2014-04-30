@@ -121,12 +121,9 @@
 			"bootm 0x40007FC0 - ${fdtaddr};" \
 		"fi;" \
 		"bootm 0x40007FC0;\0" \
-	"updatemmc=" \
-		"mmc boot 0 1 1 1; mmc write 0 0x42008000 0 0x200;" \
-		"mmc boot 0 1 1 0\0" \
 	"updatebackup=" \
-		"mmc boot 0 1 1 2; mmc write 0 0x42100000 0 0x200;" \
-		"mmc boot 0 1 1 0\0" \
+		"mmc dev 0 2; mmc write 0 0x42100000 0 0x200;" \
+		"mmc dev 0 0\0" \
 	"updatebootb=" \
 		"mmc read 0 0x42100000 0x80 0x200; run updatebackup\0" \
 	"lpj=lpj=3981312\0" \
