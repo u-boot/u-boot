@@ -425,13 +425,13 @@ int mac_read_from_eeprom(void)
 
 	if (read_eeprom()) {
 		printf("Read failed.\n");
-		return -1;
+		return 0;
 	}
 
 	if (!is_valid) {
 		printf("Invalid ID (%02x %02x %02x %02x)\n",
 		       e.id[0], e.id[1], e.id[2], e.id[3]);
-		return -1;
+		return 0;
 	}
 
 #ifdef CONFIG_SYS_I2C_EEPROM_NXID
@@ -447,7 +447,7 @@ int mac_read_from_eeprom(void)
 	crcp = (void *)&e + crc_offset;
 	if (crc != be32_to_cpu(*crcp)) {
 		printf("CRC mismatch (%08x != %08x)\n", crc, be32_to_cpu(e.crc));
-		return -1;
+		return 0;
 	}
 
 #ifdef CONFIG_SYS_I2C_EEPROM_NXID
