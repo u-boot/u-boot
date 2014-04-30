@@ -285,7 +285,7 @@ static void download_menu(void)
 			display_download_menu(mode);
 
 		last_mode = mode;
-		mdelay(100);
+		mdelay(200);
 
 		key = check_keys();
 		switch (key) {
