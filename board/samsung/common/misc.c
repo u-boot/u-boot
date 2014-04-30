@@ -116,12 +116,12 @@ static int check_keys(void)
  * 4 BOOT_MODE_EXIT
  */
 static char *
-mode_name[BOOT_MODE_EXIT + 1] = {
-	"DEVICE",
-	"THOR",
-	"UMS",
-	"DFU",
-	"EXIT"
+mode_name[BOOT_MODE_EXIT + 1][2] = {
+	{"DEVICE", ""},
+	{"THOR", "thor"},
+	{"UMS", "ums"},
+	{"DFU", "dfu"},
+	{"EXIT", ""},
 };
 
 static char *
@@ -133,15 +133,13 @@ mode_info[BOOT_MODE_EXIT + 1] = {
 	"and run normal boot"
 };
 
-#define MODE_CMD_ARGC	4
-
 static char *
-mode_cmd[BOOT_MODE_EXIT + 1][MODE_CMD_ARGC] = {
-	{"", "", "", ""},
-	{"thor", "0", "mmc", "0"},
-	{"ums", "0", "mmc", "0"},
-	{"dfu", "0", "mmc", "0"},
-	{"", "", "", ""},
+mode_cmd[BOOT_MODE_EXIT + 1] = {
+	"",
+	"thor 0 mmc 0",
+	"ums 0 mmc 0",
+	"dfu 0 mmc 0",
+	"",
 };
 
 static void display_board_info(void)
@@ -182,11 +180,10 @@ static void display_board_info(void)
 static int mode_leave_menu(int mode)
 {
 	char *exit_option;
-	char *exit_boot = "boot";
+	char *exit_reset = "reset";
 	char *exit_back = "back";
 	cmd_tbl_t *cmd;
 	int cmd_result;
-	int cmd_repeatable;
 	int leave;
 
 	lcd_clear();
@@ -200,31 +197,29 @@ static int mode_leave_menu(int mode)
 		leave = 0;
 		break;
 	default:
-		cmd = find_cmd(mode_cmd[mode][0]);
+		cmd = find_cmd(mode_name[mode][1]);
 		if (cmd) {
-			printf("Enter: %s %s\n", mode_name[mode],
+			printf("Enter: %s %s\n", mode_name[mode][0],
 						 mode_info[mode]);
-			lcd_printf("\n\n\t%s %s\n", mode_name[mode],
+			lcd_printf("\n\n\t%s %s\n", mode_name[mode][0],
 						    mode_info[mode]);
 			lcd_puts("\n\tDo not turn off device before finish!\n");
 
-			cmd_result = cmd_process(0, MODE_CMD_ARGC,
-						 *(mode_cmd + mode),
-						 &cmd_repeatable, NULL);
+			cmd_result = run_command(mode_cmd[mode], 0);
 
 			if (cmd_result == CMD_RET_SUCCESS) {
 				printf("Command finished\n");
 				lcd_clear();
 				lcd_printf("\n\n\t%s finished\n",
-					   mode_name[mode]);
+					   mode_name[mode][0]);
 
-				exit_option = exit_boot;
+				exit_option = exit_reset;
 				leave = 1;
 			} else {
 				printf("Command error\n");
 				lcd_clear();
 				lcd_printf("\n\n\t%s command error\n",
-					   mode_name[mode]);
+					   mode_name[mode][0]);
 
 				exit_option = exit_back;
 				leave = 0;
@@ -264,7 +259,7 @@ static void display_download_menu(int mode)
 
 	for (i = 0; i <= BOOT_MODE_EXIT; i++)
 		lcd_printf("\t%s  %s - %s\n\n", selection[i],
-						mode_name[i],
+						mode_name[i][0],
 						mode_info[i]);
 }
 
@@ -305,7 +300,7 @@ static void download_menu(void)
 
 		if (run) {
 			if (mode_leave_menu(mode))
-				break;
+				run_command("reset", 0);
 
 			display_download_menu(mode);
 		}
