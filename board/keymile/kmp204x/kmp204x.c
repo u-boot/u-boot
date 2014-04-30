@@ -79,7 +79,7 @@ int get_scl(void)
 
 
 #define ZL30158_RST	8
-#define ZL30343_RST	9
+#define BFTIC4_RST	0
 
 int board_early_init_f(void)
 {
@@ -88,13 +88,15 @@ int board_early_init_f(void)
 	/* board only uses the DDR_MCK0, so disable the DDR_MCK1/2/3 */
 	setbits_be32(&gur->ddrclkdr, 0x001f000f);
 
-	/* take the Zarlinks out of reset as soon as possible */
-	qrio_prst(ZL30158_RST, false, false);
-	qrio_prst(ZL30343_RST, false, false);
+	/* set the BFTIC's prstcfg to reset at power-up and unit reset only */
+	qrio_prstcfg(BFTIC4_RST, PRSTCFG_POWUP_UNIT_RST);
+	/* and enable WD on it */
+	qrio_wdmask(BFTIC4_RST, true);
 
-	/* and set their reset to power-up only */
-	qrio_prstcfg(ZL30158_RST, PRSTCFG_POWUP_RST);
-	qrio_prstcfg(ZL30343_RST, PRSTCFG_POWUP_RST);
+	/* set the ZL30138's prstcfg to reset at power-up and unit reset only */
+	qrio_prstcfg(ZL30158_RST, PRSTCFG_POWUP_UNIT_RST);
+	/* and take it out of reset as soon as possible (needed for Hooper) */
+	qrio_prst(ZL30158_RST, false, false);
 
 	return 0;
 }
@@ -127,16 +129,37 @@ unsigned long get_board_sys_clk(unsigned long dummy)
 	return 66666666;
 }
 
+#define ETH_FRONT_PHY_RST	15
+#define QSFP2_RST		11
+#define QSFP1_RST		10
+#define ZL30343_RST		9
+
 int misc_init_f(void)
 {
 	/* configure QRIO pis for i2c deblocking */
 	i2c_deblock_gpio_cfg();
 
+	/* configure the front phy's prstcfg and take it out of reset */
+	qrio_prstcfg(ETH_FRONT_PHY_RST, PRSTCFG_POWUP_UNIT_CORE_RST);
+	qrio_prst(ETH_FRONT_PHY_RST, false, false);
+
+	/* set the ZL30343 prstcfg to reset at power-up and unit reset only */
+	qrio_prstcfg(ZL30343_RST, PRSTCFG_POWUP_UNIT_RST);
+	/* and enable the WD on it */
+	qrio_wdmask(ZL30343_RST, true);
+
+	/* set the QSFPs' prstcfg to reset at power-up and unit rst only */
+	qrio_prstcfg(QSFP1_RST, PRSTCFG_POWUP_UNIT_RST);
+	qrio_prstcfg(QSFP2_RST, PRSTCFG_POWUP_UNIT_RST);
+
+	/* and enable the WD on them */
+	qrio_wdmask(QSFP1_RST, true);
+	qrio_wdmask(QSFP2_RST, true);
+
 	return 0;
 }
 
 #define NUM_SRDS_BANKS	2
-#define PHY_RST		15
 
 int misc_init_r(void)
 {
@@ -157,9 +180,6 @@ int misc_init_r(void)
 		}
 	}
 
-	/* take the mgmt eth phy out of reset */
-	qrio_prst(PHY_RST, false, false);
-
 	return 0;
 }
 
@@ -172,6 +192,7 @@ int hush_init_var(void)
 #endif
 
 #if defined(CONFIG_LAST_STAGE_INIT)
+
 int last_stage_init(void)
 {
 #if defined(CONFIG_KMCOGE4)
@@ -187,6 +208,7 @@ int last_stage_init(void)
 	}
 #endif
 	set_km_env();
+
 	return 0;
 }
 #endif

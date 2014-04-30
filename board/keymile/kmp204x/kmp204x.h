@@ -20,6 +20,7 @@ void qrio_gpio_direction_input(u8 port_off, u8 gpio_nr);
 #define PRSTCFG_POWUP_RST		0x3
 
 void qrio_prst(u8 bit, bool en, bool wden);
+void qrio_wdmask(u8 bit, bool wden);
 void qrio_prstcfg(u8 bit, u8 mode);
 void qrio_set_leds(void);
 void qrio_enable_app_buffer(void);

@@ -91,7 +91,7 @@ void qrio_set_opendrain_gpio(u8 port_off, u8 gpio_nr, u8 val)
 
 #define WDMASK_OFF	0x16
 
-static void qrio_wdmask(u8 bit, bool wden)
+void qrio_wdmask(u8 bit, bool wden)
 {
 	u16 wdmask;
 	void __iomem *qrio_base = (void *)CONFIG_SYS_QRIO_BASE;
