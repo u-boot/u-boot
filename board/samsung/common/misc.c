@@ -261,7 +261,7 @@ static void display_download_menu(int mode)
 	selection[mode] = "[=>]";
 
 	lcd_clear();
-	lcd_printf("\n\t\tDownload Mode Menu\n");
+	lcd_printf("\n\n\t\tDownload Mode Menu\n\n");
 
 	for (i = 0; i <= BOOT_MODE_EXIT; i++)
 		lcd_printf("\t%s  %s - %s\n\n", selection[i],
@@ -274,9 +274,37 @@ static void download_menu(void)
 	int mode = 0;
 	int last_mode = 0;
 	int run;
-	int key;
+	int key = 0;
+	int timeout = 15; /* sec */
+	int i;
 
 	display_download_menu(mode);
+
+	lcd_puts("\n");
+
+	/* Start count if no key is pressed */
+	while (check_keys())
+		continue;
+
+	while (timeout--) {
+		lcd_printf("\r\tNormal boot will start in: %2.d seconds.",
+			   timeout);
+
+		/* about 1000 ms in for loop */
+		for (i = 0; i < 10; i++) {
+			mdelay(100);
+			key = check_keys();
+			if (key)
+				break;
+		}
+		if (key)
+			break;
+	}
+
+	if (!key) {
+		lcd_clear();
+		return;
+	}
 
 	while (1) {
 		run = 0;
@@ -315,45 +343,6 @@ static void download_menu(void)
 	lcd_clear();
 }
 
-static void display_mode_info(void)
-{
-	lcd_position_cursor(4, 4);
-	lcd_printf("%s\n", U_BOOT_VERSION);
-	lcd_puts("\nDownload Mode Menu\n");
-#ifdef CONFIG_SYS_BOARD
-	lcd_printf("Board name: %s\n", CONFIG_SYS_BOARD);
-#endif
-	lcd_printf("Press POWER KEY to display MENU options.");
-}
-
-static int boot_menu(void)
-{
-	int key = 0;
-	int timeout = 10;
-
-	display_mode_info();
-
-	while (timeout--) {
-		lcd_printf("\rNormal boot will start in: %d seconds.", timeout);
-		mdelay(1000);
-
-		key = key_pressed(KEY_POWER);
-		if (key)
-			break;
-	}
-
-	lcd_clear();
-
-	/* If PWR pressed - show download menu */
-	if (key) {
-		printf("Power pressed - go to download menu\n");
-		download_menu();
-		printf("Download mode exit.\n");
-	}
-
-	return 0;
-}
-
 void check_boot_mode(void)
 {
 	int pwr_key;
@@ -366,7 +355,7 @@ void check_boot_mode(void)
 	power_key_pressed(KEY_PWR_INTERRUPT_REG);
 
 	if (key_pressed(KEY_VOLUMEUP))
-		boot_menu();
+		download_menu();
 	else if (key_pressed(KEY_VOLUMEDOWN))
 		mode_leave_menu(BOOT_MODE_THOR);
 }
