@@ -293,6 +293,32 @@ static const unsigned *get_pll_timing(void)
 	return timing;
 }
 
+/* select the PHY to use with a USB controller */
+static void init_phy_mux(struct fdt_usb *config, uint pts)
+{
+	struct usb_ctlr *usbctlr = config->reg;
+
+#if defined(CONFIG_TEGRA20)
+	if (config->periph_id == PERIPH_ID_USBD) {
+		clrsetbits_le32(&usbctlr->port_sc1, PTS1_MASK,
+				PTS_UTMI << PTS1_SHIFT);
+		clrbits_le32(&usbctlr->port_sc1, STS1);
+	} else {
+		clrsetbits_le32(&usbctlr->port_sc1, PTS_MASK,
+				PTS_UTMI << PTS_SHIFT);
+		clrbits_le32(&usbctlr->port_sc1, STS);
+	}
+#else
+	/* Set to Host mode after Controller Reset was done */
+	clrsetbits_le32(&usbctlr->usb_mode, USBMODE_CM_HC,
+			USBMODE_CM_HC);
+	/* Select PHY interface after setting host mode */
+	clrsetbits_le32(&usbctlr->hostpc1_devlc, PTS_MASK,
+			pts << PTS_SHIFT);
+	clrbits_le32(&usbctlr->hostpc1_devlc, STS);
+#endif
+}
+
 /* set up the UTMI USB controller with the parameters provided */
 static int init_utmi_usb_controller(struct fdt_usb *config)
 {
@@ -485,25 +511,7 @@ static int init_utmi_usb_controller(struct fdt_usb *config)
 	clrbits_le32(&usbctlr->icusb_ctrl, IC_ENB1);
 
 	/* Select UTMI parallel interface */
-#if defined(CONFIG_TEGRA20)
-	if (config->periph_id == PERIPH_ID_USBD) {
-		clrsetbits_le32(&usbctlr->port_sc1, PTS1_MASK,
-				PTS_UTMI << PTS1_SHIFT);
-		clrbits_le32(&usbctlr->port_sc1, STS1);
-	} else {
-		clrsetbits_le32(&usbctlr->port_sc1, PTS_MASK,
-				PTS_UTMI << PTS_SHIFT);
-		clrbits_le32(&usbctlr->port_sc1, STS);
-	}
-#else
-	/* Set to Host mode after Controller Reset was done */
-	clrsetbits_le32(&usbctlr->usb_mode, USBMODE_CM_HC,
-			USBMODE_CM_HC);
-	/* Select PHY interface after setting host mode */
-	clrsetbits_le32(&usbctlr->hostpc1_devlc, PTS_MASK,
-			PTS_UTMI << PTS_SHIFT);
-	clrbits_le32(&usbctlr->hostpc1_devlc, STS);
-#endif
+	init_phy_mux(config, PTS_UTMI);
 
 	/* Deassert power down state */
 	clrbits_le32(&usbctlr->utmip_xcvr_cfg0, UTMIP_FORCE_PD_POWERDOWN |
@@ -561,17 +569,7 @@ static int init_ulpi_usb_controller(struct fdt_usb *config)
 			ULPI_CLKOUT_PINMUX_BYP | ULPI_OUTPUT_PINMUX_BYP);
 
 	/* Select ULPI parallel interface */
-#if defined(CONFIG_TEGRA20)
-	clrsetbits_le32(&usbctlr->port_sc1, PTS_MASK,
-			PTS_ULPI << PTS_SHIFT);
-#else
-	/* Set to Host mode after Controller Reset was done */
-	clrsetbits_le32(&usbctlr->usb_mode, USBMODE_CM_HC,
-			USBMODE_CM_HC);
-	/* Select PHY interface after setting host mode */
-	clrsetbits_le32(&usbctlr->hostpc1_devlc, PTS_MASK,
-			PTS_ULPI << PTS_SHIFT);
-#endif
+	init_phy_mux(config, PTS_ULPI);
 
 	/* enable ULPI transceiver */
 	setbits_le32(&usbctlr->susp_ctrl, ULPI_PHY_ENB);
