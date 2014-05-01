@@ -40,7 +40,11 @@ int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
 		return CMD_RET_FAILURE;
 	}
 
-	g_dnl_register("usb_dnl_ums");
+	rc = g_dnl_register("usb_dnl_ums");
+	if (rc) {
+		error("g_dnl_register failed");
+		return CMD_RET_FAILURE;
+	}
 
 	/* Timeout unit: seconds */
 	int cable_ready_timeout = UMS_CABLE_READY_TIMEOUT;
