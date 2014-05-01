@@ -58,6 +58,12 @@
 #define CONFIG_LOADADDR			0x12000000
 #define CONFIG_SYS_TEXT_BASE		0x17800000
 
+/* I2C Configs */
+#define CONFIG_CMD_I2C
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_SPEED		100000
+
 /* MMC Configuration */
 #define CONFIG_FSL_ESDHC
 #define CONFIG_FSL_USDHC
@@ -101,6 +107,7 @@
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_IPUV3_CLK 260000000
 #define CONFIG_IMX_HDMI
+#define CONFIG_IMX_VIDEO_SKIP
 
 #if defined(CONFIG_MX6DL) || defined(CONFIG_MX6S)
 #define CONFIG_DEFAULT_FDT_FILE		"imx6dl-wandboard.dtb"
