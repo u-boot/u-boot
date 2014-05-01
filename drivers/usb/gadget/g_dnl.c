@@ -245,11 +245,12 @@ static struct usb_composite_driver g_dnl_driver = {
  */
 int g_dnl_register(const char *name)
 {
-	int ret = usb_composite_register(&g_dnl_driver);
+	int ret;
 
 	debug("%s: g_dnl_driver.name = %s\n", __func__, name);
 	g_dnl_driver.name = name;
 
+	ret = usb_composite_register(&g_dnl_driver);
 	if (ret) {
 		printf("%s: failed!, error: %d\n", __func__, ret);
 		return ret;
