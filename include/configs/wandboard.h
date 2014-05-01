@@ -106,6 +106,7 @@
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_IPUV3_CLK 260000000
+#define CONFIG_CMD_HDMIDETECT
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
 
@@ -144,7 +145,33 @@
 			"fi; "	\
 		"fi\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
-		"root=${mmcroot}\0" \
+		"root=${mmcroot}; run videoargs\0" \
+	"videoargs=" \
+		"setenv nextcon 0; " \
+		"if hdmidet; then " \
+			"setenv bootargs ${bootargs} " \
+				"video=mxcfb${nextcon}:dev=hdmi,1280x720M@60," \
+					"if=RGB24; " \
+			"setenv fbmen fbmem=28M; " \
+			"setexpr nextcon ${nextcon} + 1; " \
+		"else " \
+			"echo - no HDMI monitor;" \
+		"fi; " \
+		"i2c dev 1; " \
+		"if i2c probe 0x10; then " \
+			"setenv bootargs ${bootargs} " \
+				"video=mxcfb${nextcon}:dev=lcd,800x480@60," \
+					"if=RGB666; " \
+			"if test 0 -eq ${nextcon}; then " \
+				"setenv fbmem fbmem=10M; " \
+			"else " \
+				"setenv fbmem ${fbmem},10M; " \
+			"fi; " \
+			"setexpr nextcon ${nextcon} + 1; " \
+		"else " \
+			"echo '- no FWBADAPT-7WVGA-LCD-F07A-0102 display';" \
+		"fi; " \
+		"setenv bootargs ${bootargs} ${fbmem}\0" \
 	"loadbootscript=" \
 		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
