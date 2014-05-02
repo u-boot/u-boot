@@ -38,6 +38,7 @@ typedef struct {		/* typedef fpga_desc */
 
 typedef enum {
 	BIT_FULL = 0,
+	BIT_PARTIAL,
 } bitstream_type;
 
 /* root function definitions */

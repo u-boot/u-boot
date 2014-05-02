@@ -23,6 +23,8 @@ static int fpga_get_op(char *opstr);
 #define FPGA_LOADB  2
 #define FPGA_DUMP   3
 #define FPGA_LOADMK 4
+#define FPGA_LOADP  5
+#define FPGA_LOADBP 6
 
 /* ------------------------------------------------------------------------- */
 /* command form:
@@ -121,7 +123,9 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 	case FPGA_INFO:
 		break;
 	case FPGA_LOAD:
+	case FPGA_LOADP:
 	case FPGA_LOADB:
+	case FPGA_LOADBP:
 	case FPGA_DUMP:
 		if (!fpga_data || !data_size)
 			wrong_parms = 1;
@@ -151,9 +155,21 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		rc = fpga_load(dev, fpga_data, data_size, BIT_FULL);
 		break;
 
+#if defined(CONFIG_CMD_FPGA_LOADP)
+	case FPGA_LOADP:
+		rc = fpga_load(dev, fpga_data, data_size, BIT_PARTIAL);
+		break;
+#endif
+
 	case FPGA_LOADB:
 		rc = fpga_loadbitstream(dev, fpga_data, data_size, BIT_FULL);
 		break;
+
+#if defined(CONFIG_CMD_FPGA_LOADBP)
+	case FPGA_LOADBP:
+		rc = fpga_loadbitstream(dev, fpga_data, data_size, BIT_PARTIAL);
+		break;
+#endif
 
 #if defined(CONFIG_CMD_FPGA_LOADMK)
 	case FPGA_LOADMK:
@@ -263,6 +279,14 @@ static int fpga_get_op(char *opstr)
 		op = FPGA_LOADB;
 	else if (!strcmp("load", opstr))
 		op = FPGA_LOAD;
+#if defined(CONFIG_CMD_FPGA_LOADP)
+	else if (!strcmp("loadp", opstr))
+		op = FPGA_LOADP;
+#endif
+#if defined(CONFIG_CMD_FPGA_LOADBP)
+	else if (!strcmp("loadbp", opstr))
+		op = FPGA_LOADBP;
+#endif
 #if defined(CONFIG_CMD_FPGA_LOADMK)
 	else if (!strcmp("loadmk", opstr))
 		op = FPGA_LOADMK;
@@ -283,8 +307,17 @@ U_BOOT_CMD(fpga, 6, 1, do_fpga,
 	   "  dump\t[dev]\t\t\tLoad device to memory buffer\n"
 	   "  info\t[dev]\t\t\tlist known device information\n"
 	   "  load\t[dev] [address] [size]\tLoad device from memory buffer\n"
+#if defined(CONFIG_CMD_FPGA_LOADP)
+	   "  loadp\t[dev] [address] [size]\t"
+	   "Load device from memory buffer with partial bitstream\n"
+#endif
 	   "  loadb\t[dev] [address] [size]\t"
 	   "Load device from bitstream buffer (Xilinx only)\n"
+#if defined(CONFIG_CMD_FPGA_LOADBP)
+	   "  loadbp\t[dev] [address] [size]\t"
+	   "Load device from bitstream buffer with partial bitstream"
+	   "(Xilinx only)\n"
+#endif
 #if defined(CONFIG_CMD_FPGA_LOADMK)
 	   "  loadmk [dev] [address]\tLoad device generated with mkimage"
 #if defined(CONFIG_FIT)

@@ -2554,6 +2554,15 @@ CBFS (Coreboot Filesystem) support
 
 		Enable support for fpga loadmk command
 
+		CONFIG_CMD_FPGA_LOADP
+
+		Enable support for fpga loadp command - load partial bitstream
+
+		CONFIG_CMD_FPGA_LOADBP
+
+		Enable support for fpga loadbp command - load partial bitstream
+		(Xilinx only)
+
 		CONFIG_SYS_FPGA_PROG_FEEDBACK
 
 		Enable printing of hash marks during FPGA configuration.
