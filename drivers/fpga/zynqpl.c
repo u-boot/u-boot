@@ -194,7 +194,7 @@ static int zynq_dma_transfer(u32 srcbuf, u32 srclen, u32 dstbuf, u32 dstlen)
 	return FPGA_SUCCESS;
 }
 
-static int zynq_dma_xfer_init(u32 partialbit)
+static int zynq_dma_xfer_init(bitstream_type bstype)
 {
 	u32 status, control, isr_status;
 	unsigned long ts;
@@ -202,7 +202,7 @@ static int zynq_dma_xfer_init(u32 partialbit)
 	/* Clear loopback bit */
 	clrbits_le32(&devcfg_base->mctrl, DEVCFG_MCTRL_PCAP_LPBK);
 
-	if (!partialbit) {
+	if (bstype != BIT_PARTIAL) {
 		zynq_slcr_devcfg_disable();
 
 		/* Setting PCFG_PROG_B signal to high */
@@ -322,16 +322,11 @@ static u32 *zynq_align_dma_buffer(u32 *buf, u32 len, u32 swap)
 
 static int zynq_validate_bitstream(xilinx_desc *desc, const void *buf,
 				   size_t bsize, u32 blocksize, u32 *swap,
-				   u32 *partialbit)
+				   bitstream_type *bstype)
 {
 	u32 *buf_start;
 	u32 diff;
 
-	/* Detect if we are going working with partial or full bitstream */
-	if (bsize != desc->size) {
-		printf("%s: Working with partial bitstream\n", __func__);
-		*partialbit = 1;
-	}
 	buf_start = check_data((u8 *)buf, blocksize, swap);
 
 	if (!buf_start)
@@ -351,7 +346,7 @@ static int zynq_validate_bitstream(xilinx_desc *desc, const void *buf,
 		return FPGA_FAIL;
 	}
 
-	if (zynq_dma_xfer_init(*partialbit))
+	if (zynq_dma_xfer_init(*bstype))
 		return FPGA_FAIL;
 
 	return 0;
@@ -361,7 +356,6 @@ static int zynq_load(xilinx_desc *desc, const void *buf, size_t bsize,
 		     bitstream_type bstype)
 {
 	unsigned long ts; /* Timestamp */
-	u32 partialbit = 0;
 	u32 isr_status, swap;
 
 	/*
@@ -369,7 +363,7 @@ static int zynq_load(xilinx_desc *desc, const void *buf, size_t bsize,
 	 * in chunks
 	 */
 	if (zynq_validate_bitstream(desc, buf, bsize, bsize, &swap,
-				    &partialbit))
+				    &bstype))
 		return FPGA_FAIL;
 
 	buf = zynq_align_dma_buffer((u32 *)buf, bsize, swap);
@@ -398,7 +392,7 @@ static int zynq_load(xilinx_desc *desc, const void *buf, size_t bsize,
 
 	debug("%s: FPGA config done\n", __func__);
 
-	if (!partialbit)
+	if (bstype != BIT_PARTIAL)
 		zynq_slcr_devcfg_enable();
 
 	return FPGA_SUCCESS;
