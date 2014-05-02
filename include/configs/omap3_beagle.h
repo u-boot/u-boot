@@ -175,6 +175,12 @@
 			"setenv fdtfile omap3-beagle-xm.dtb; fi; " \
 		"if test $fdtfile = undefined; then " \
 			"echo WARNING: Could not determine device tree to use; fi; \0" \
+	"validatefdt=" \
+		"if test $beaglerev = xMAB; then " \
+			"if test ! -e mmc ${bootpart} ${bootdir}/${fdtfile}; then " \
+				"setenv fdtfile omap3-beagle-xm.dtb; " \
+			"fi; " \
+		"fi; \0" \
 	"bootenv=uEnv.txt\0" \
 	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
 	"importbootenv=echo Importing environment from mmc ...; " \
@@ -190,7 +196,7 @@
 		"rootfstype=${ramrootfstype}\0" \
 	"loadramdisk=load mmc ${bootpart} ${rdaddr} ${bootdir}/${ramdisk}\0" \
 	"loadimage=load mmc ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
-	"loadfdt=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
+	"loadfdt=run validatefdt; load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"bootm ${loadaddr}\0" \
