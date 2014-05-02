@@ -22,5 +22,6 @@ void qrio_gpio_direction_input(u8 port_off, u8 gpio_nr);
 void qrio_prst(u8 bit, bool en, bool wden);
 void qrio_prstcfg(u8 bit, u8 mode);
 void qrio_set_leds(void);
+void qrio_enable_app_buffer(void);
 
 void pci_of_setup(void *blob, bd_t *bd);

@@ -116,6 +116,9 @@ int board_early_init_r(void)
 	/* enable the Unit LED (red) & Boot LED (on) */
 	qrio_set_leds();
 
+	/* enable Application Buffer */
+	qrio_enable_app_buffer();
+
 	return ret;
 }
 
@@ -171,6 +174,18 @@ int hush_init_var(void)
 #if defined(CONFIG_LAST_STAGE_INIT)
 int last_stage_init(void)
 {
+#if defined(CONFIG_KMCOGE4)
+	/* on KMCOGE4, the BFTIC4 is on the LBAPP2 */
+	struct bfticu_iomap *bftic4 =
+		(struct bfticu_iomap *)CONFIG_SYS_LBAPP2_BASE;
+	u8 dip_switch = in_8((u8 *)&(bftic4->mswitch)) & BFTICU_DIPSWITCH_MASK;
+
+	if (dip_switch != 0) {
+		/* start bootloader */
+		puts("DIP:   Enabled\n");
+		setenv("actual_bank", "0");
+	}
+#endif
 	set_km_env();
 	return 0;
 }

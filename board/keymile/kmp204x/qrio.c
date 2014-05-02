@@ -159,3 +159,17 @@ void qrio_set_leds(void)
 	ctrlh |= (CTRLH_WRL_BOOT | CTRLH_WRL_UNITRUN);
 	out_8(qrio_base + CTRLH_OFF, ctrlh);
 }
+
+#define CTRLL_OFF		0x03
+#define CTRLL_WRB_BUFENA	0x20
+
+void qrio_enable_app_buffer(void)
+{
+	u8 ctrll;
+	void __iomem *qrio_base = (void *)CONFIG_SYS_QRIO_BASE;
+
+	/* enable application buffer */
+	ctrll = in_8(qrio_base + CTRLL_OFF);
+	ctrll |= (CTRLL_WRB_BUFENA);
+	out_8(qrio_base + CTRLL_OFF, ctrll);
+}
