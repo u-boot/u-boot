@@ -170,7 +170,7 @@
 		"if test $beaglerev = C4; then " \
 			"setenv fdtfile omap3-beagle.dtb; fi; " \
 		"if test $beaglerev = xMAB; then " \
-			"setenv fdtfile omap3-beagle-xm.dtb; fi; " \
+			"setenv fdtfile omap3-beagle-xm-ab.dtb; fi; " \
 		"if test $beaglerev = xMC; then " \
 			"setenv fdtfile omap3-beagle-xm.dtb; fi; " \
 		"if test $fdtfile = undefined; then " \
