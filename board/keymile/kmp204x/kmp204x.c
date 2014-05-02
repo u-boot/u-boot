@@ -113,6 +113,9 @@ int board_early_init_r(void)
 	if (ret)
 		printf("error triggering PCIe FPGA config\n");
 
+	/* enable the Unit LED (red) & Boot LED (on) */
+	qrio_set_leds();
+
 	return ret;
 }
 

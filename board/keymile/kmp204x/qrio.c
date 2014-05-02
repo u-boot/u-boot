@@ -144,3 +144,18 @@ void qrio_prstcfg(u8 bit, u8 mode)
 
 	out_be32(qrio_base + PRSTCFG_OFF, prstcfg);
 }
+
+#define CTRLH_OFF		0x02
+#define CTRLH_WRL_BOOT		0x01
+#define CTRLH_WRL_UNITRUN	0x02
+
+void qrio_set_leds(void)
+{
+	u8 ctrlh;
+	void __iomem *qrio_base = (void *)CONFIG_SYS_QRIO_BASE;
+
+	/* set UNIT LED to RED and BOOT LED to ON */
+	ctrlh = in_8(qrio_base + CTRLH_OFF);
+	ctrlh |= (CTRLH_WRL_BOOT | CTRLH_WRL_UNITRUN);
+	out_8(qrio_base + CTRLH_OFF, ctrlh);
+}
