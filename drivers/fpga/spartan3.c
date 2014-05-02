@@ -45,7 +45,8 @@ static int spartan3_ss_dump(xilinx_desc *desc, const void *buf, size_t bsize);
 
 /* ------------------------------------------------------------------------- */
 /* Spartan-II Generic Implementation */
-static int spartan3_load(xilinx_desc *desc, const void *buf, size_t bsize)
+static int spartan3_load(xilinx_desc *desc, const void *buf, size_t bsize,
+			 bitstream_type bstype)
 {
 	int ret_val = FPGA_FAIL;
 

@@ -148,11 +148,11 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 		break;
 
 	case FPGA_LOAD:
-		rc = fpga_load(dev, fpga_data, data_size);
+		rc = fpga_load(dev, fpga_data, data_size, BIT_FULL);
 		break;
 
 	case FPGA_LOADB:
-		rc = fpga_loadbitstream(dev, fpga_data, data_size);
+		rc = fpga_loadbitstream(dev, fpga_data, data_size, BIT_FULL);
 		break;
 
 #if defined(CONFIG_CMD_FPGA_LOADMK)
@@ -182,7 +182,8 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 					data = (ulong)image_get_data(hdr);
 					data_size = image_get_data_size(hdr);
 				}
-				rc = fpga_load(dev, (void *)data, data_size);
+				rc = fpga_load(dev, (void *)data, data_size,
+					       BIT_FULL);
 			}
 			break;
 #if defined(CONFIG_FIT)
@@ -224,7 +225,8 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 					return 1;
 				}
 
-				rc = fpga_load(dev, fit_data, data_size);
+				rc = fpga_load(dev, fit_data, data_size,
+					       BIT_FULL);
 			}
 			break;
 #endif
