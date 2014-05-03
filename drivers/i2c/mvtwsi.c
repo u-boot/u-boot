@@ -216,7 +216,7 @@ static int twsi_stop(int status)
  */
 
 #define TWSI_FREQUENCY(m, n) \
-	((u8) (CONFIG_SYS_TCLK / (10 * (m + 1) * 2 * (1 << n))))
+	(CONFIG_SYS_TCLK / (10 * (m + 1) * (1 << n)))
 
 /*
  * These are required to be reprogrammed before enabling the controller
@@ -225,10 +225,8 @@ static int twsi_stop(int status)
  * twsi_slave_address left uninitialized lest checkpatch.pl complains.
  */
 
-/* Baudrate generator: m (bits 7..4) =4, n (bits 3..0) =4 */
+/* Baudrate generator: m (bits 6..3) = 8, n (bits 2..0) = 4 */
 static u8 twsi_baud_rate = 0x44; /* baudrate at controller reset */
-/* Default frequency corresponding to default m=4, n=4 */
-static u8 twsi_actual_speed = TWSI_FREQUENCY(4, 4);
 /* Default slave address is 0 (so is an uninitialized static) */
 static u8 twsi_slave_address;
 
@@ -279,7 +277,6 @@ void i2c_init(int requested_speed, int slaveadd)
 	}
 	/* save baud rate and slave for later calls to twsi_reset */
 	twsi_baud_rate = baud;
-	twsi_actual_speed = highest_speed;
 	twsi_slave_address = slaveadd;
 	/* reset controller */
 	twsi_reset();
