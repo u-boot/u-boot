@@ -451,6 +451,12 @@ The following options need to be configured:
 		supported, core will start to execute uboot when wakes up.
 
 - Generic CPU options:
+		CONFIG_SYS_GENERIC_GLOBAL_DATA
+		Defines global data is initialized in generic board board_init_f().
+		If this macro is defined, global data is created and cleared in
+		generic board board_init_f(). Without this macro, architecture/board
+		should initialize global data before calling board_init_f().
+
 		CONFIG_SYS_BIG_ENDIAN, CONFIG_SYS_LITTLE_ENDIAN
 
 		Defines the endianess of the CPU. Implementation of those
