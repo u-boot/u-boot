@@ -77,8 +77,13 @@ int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
 		return CMD_RET_USAGE;
 
 	usb_controller = argv[1];
-	devtype = "mmc";
-	devnum  = argv[2];
+	if (argc >= 4) {
+		devtype = argv[2];
+		devnum  = argv[3];
+	} else {
+		devtype = "mmc";
+		devnum  = argv[2];
+	}
 
 	ums = ums_init(devtype, devnum);
 	if (!ums)
@@ -152,7 +157,8 @@ exit:
 	return CMD_RET_SUCCESS;
 }
 
-U_BOOT_CMD(ums, CONFIG_SYS_MAXARGS, 1, do_usb_mass_storage,
+U_BOOT_CMD(ums, 4, 1, do_usb_mass_storage,
 	"Use the UMS [User Mass Storage]",
-	"ums <USB_controller> <mmc_dev>  e.g. ums 0 0"
+	"ums <USB_controller> [<devtype>] <devnum>  e.g. ums 0 mmc 0\n"
+	"    devtype defaults to mmc"
 );
