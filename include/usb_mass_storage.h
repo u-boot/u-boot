@@ -9,7 +9,7 @@
 #define __USB_MASS_STORAGE_H__
 
 #define SECTOR_SIZE		0x200
-#include <mmc.h>
+#include <part.h>
 #include <linux/usb/composite.h>
 
 #ifndef UMS_START_SECTOR
@@ -31,7 +31,7 @@ struct ums {
 	unsigned int start_sector;
 	unsigned int num_sectors;
 	const char *name;
-	struct mmc *mmc;
+	block_dev_desc_t *block_dev;
 };
 
 extern struct ums *ums;

@@ -7,12 +7,13 @@
 
 #include <common.h>
 #include <usb_mass_storage.h>
+#include <mmc.h>
 #include <part.h>
 
 static int ums_read_sector(struct ums *ums_dev,
 			   ulong start, lbaint_t blkcnt, void *buf)
 {
-	block_dev_desc_t *block_dev = &ums_dev->mmc->block_dev;
+	block_dev_desc_t *block_dev = ums_dev->block_dev;
 	lbaint_t blkstart = start + ums_dev->start_sector;
 	int dev_num = block_dev->dev;
 
@@ -22,7 +23,7 @@ static int ums_read_sector(struct ums *ums_dev,
 static int ums_write_sector(struct ums *ums_dev,
 			    ulong start, lbaint_t blkcnt, const void *buf)
 {
-	block_dev_desc_t *block_dev = &ums_dev->mmc->block_dev;
+	block_dev_desc_t *block_dev = ums_dev->block_dev;
 	lbaint_t blkstart = start + ums_dev->start_sector;
 	int dev_num = block_dev->dev;
 
@@ -45,7 +46,7 @@ static struct ums *ums_disk_init(struct mmc *mmc)
 		return NULL;
 	}
 
-	ums_dev.mmc = mmc;
+	ums_dev.block_dev = &mmc->block_dev;
 
 	if (ums_end_sector <= mmc_end_sector) {
 		ums_dev.start_sector = UMS_START_SECTOR;
