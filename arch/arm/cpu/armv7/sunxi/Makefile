@@ -9,4 +9,5 @@
 #
 obj-y	+= timer.o
 obj-y	+= clock.o
+obj-y	+= pinmux.o
 obj-$(CONFIG_SUN7I)	+= clock_sun4i.o
