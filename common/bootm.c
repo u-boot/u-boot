@@ -185,7 +185,7 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static int bootm_find_ramdisk(int flag, int argc, char * const argv[])
+int bootm_find_ramdisk(int flag, int argc, char * const argv[])
 {
 	int ret;
 
@@ -201,7 +201,7 @@ static int bootm_find_ramdisk(int flag, int argc, char * const argv[])
 }
 
 #if defined(CONFIG_OF_LIBFDT)
-static int bootm_find_fdt(int flag, int argc, char * const argv[])
+int bootm_find_fdt(int flag, int argc, char * const argv[])
 {
 	int ret;
 

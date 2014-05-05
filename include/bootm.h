@@ -48,6 +48,9 @@ int boot_selected_os(int argc, char * const argv[], int state,
 
 ulong bootm_disable_interrupts(void);
 
+int bootm_find_ramdisk(int flag, int argc, char * const argv[]);
+int bootm_find_fdt(int flag, int argc, char * const argv[]);
+
 /* This is a special function used by bootz */
 int bootm_find_ramdisk_fdt(int flag, int argc, char * const argv[]);
 
