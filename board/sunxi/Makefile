@@ -9,4 +9,5 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 obj-y	+= board.o
+obj-$(CONFIG_SUNXI_GMAC)	+= gmac.o
 obj-$(CONFIG_CUBIETRUCK)	+= dram_cubietruck.o
