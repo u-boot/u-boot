@@ -158,7 +158,6 @@
 							/* CS0 */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of NAND */
 							/* devices */
-#define GPMC_NAND_ECC_LP_x8_LAYOUT
 
 /* Environment information */
 #define CONFIG_BOOTDELAY		3
