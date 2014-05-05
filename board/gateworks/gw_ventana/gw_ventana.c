@@ -30,6 +30,7 @@
 #include <mtd_node.h>
 #include <netdev.h>
 #include <power/pmic.h>
+#include <power/ltc3676_pmic.h>
 #include <power/pfuze100_pmic.h>
 #include <fdt_support.h>
 #include <jffs2/load_kernel.h>
@@ -732,6 +733,62 @@ struct ventana gpio_cfg[] = {
 	},
 };
 
+/* setup board specific PMIC */
+int power_init_board(void)
+{
+	struct pmic *p;
+	u32 reg;
+
+	/* configure PFUZE100 PMIC */
+	if (board_type == GW54xx || board_type == GW54proto) {
+		power_pfuze100_init(I2C_PMIC);
+		p = pmic_get("PFUZE100_PMIC");
+		if (p && !pmic_probe(p)) {
+			pmic_reg_read(p, PFUZE100_DEVICEID, &reg);
+			printf("PMIC:  PFUZE100 ID=0x%02x\n", reg);
+
+			/* Set VGEN1 to 1.5V and enable */
+			pmic_reg_read(p, PFUZE100_VGEN1VOL, &reg);
+			reg &= ~(LDO_VOL_MASK);
+			reg |= (LDOA_1_50V | LDO_EN);
+			pmic_reg_write(p, PFUZE100_VGEN1VOL, reg);
+
+			/* Set SWBST to 5.0V and enable */
+			pmic_reg_read(p, PFUZE100_SWBSTCON1, &reg);
+			reg &= ~(SWBST_MODE_MASK | SWBST_VOL_MASK);
+			reg |= (SWBST_5_00V | SWBST_MODE_AUTO);
+			pmic_reg_write(p, PFUZE100_SWBSTCON1, reg);
+		}
+	}
+
+	/* configure LTC3676 PMIC */
+	else {
+		power_ltc3676_init(I2C_PMIC);
+		p = pmic_get("LTC3676_PMIC");
+		if (p && !pmic_probe(p)) {
+			puts("PMIC:  LTC3676\n");
+			/* set board-specific scalar to 1225mV for IMX6Q@1GHz */
+			if (is_cpu_type(MXC_CPU_MX6Q)) {
+				/* mask PGOOD during SW1 transition */
+				reg = 0x1d | LTC3676_PGOOD_MASK;
+				pmic_reg_write(p, LTC3676_DVB1B, reg);
+				/* set SW1 (VDD_SOC) to 1259mV */
+				reg = 0x1d;
+				pmic_reg_write(p, LTC3676_DVB1A, reg);
+
+				/* mask PGOOD during SW3 transition */
+				reg = 0x1d | LTC3676_PGOOD_MASK;
+				pmic_reg_write(p, LTC3676_DVB3B, reg);
+				/*set SW3 (VDD_ARM) to 1259mV */
+				reg = 0x1d;
+				pmic_reg_write(p, LTC3676_DVB3A, reg);
+			}
+		}
+	}
+
+	return 0;
+}
+
 /* setup GPIO pinmux and default configuration per baseboard */
 static void setup_board_gpio(int board)
 {
@@ -1075,29 +1132,6 @@ int misc_init_r(void)
 		setenv("serial#", str);
 	}
 
-	/* configure PFUZE100 PMIC (not used on all Ventana baseboards) */
-	power_pfuze100_init(I2C_PMIC);
-	if (board_type == GW54xx || board_type == GW54proto) {
-		struct pmic *p = pmic_get("PFUZE100_PMIC");
-		u32 reg;
-
-		if (p && !pmic_probe(p)) {
-			pmic_reg_read(p, PFUZE100_DEVICEID, &reg);
-			printf("PMIC:  PFUZE100 ID=0x%02x\n", reg);
-
-			/* Set VGEN1 to 1.5V and enable */
-			pmic_reg_read(p, PFUZE100_VGEN1VOL, &reg);
-			reg &= ~(LDO_VOL_MASK);
-			reg |= (LDOA_1_50V | LDO_EN);
-			pmic_reg_write(p, PFUZE100_VGEN1VOL, reg);
-
-			/* Set SWBST to 5.0V and enable */
-			pmic_reg_read(p, PFUZE100_SWBSTCON1, &reg);
-			reg &= ~(SWBST_MODE_MASK | SWBST_VOL_MASK);
-			reg |= (SWBST_5_00V | SWBST_MODE_AUTO);
-			pmic_reg_write(p, PFUZE100_SWBSTCON1, reg);
-		}
-	}
 
 	/* setup baseboard specific GPIO pinmux and config */
 	setup_board_gpio(board_type);

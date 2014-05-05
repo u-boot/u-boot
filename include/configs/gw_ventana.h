@@ -136,6 +136,8 @@
 #define CONFIG_POWER_I2C
 #define CONFIG_POWER_PFUZE100
 #define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
+#define CONFIG_POWER_LTC3676
+#define CONFIG_POWER_LTC3676_I2C_ADDR  0x3c
 
 /* Various command support */
 #include <config_cmd_default.h>
