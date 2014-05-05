@@ -249,10 +249,12 @@ static void boot_prep_linux(bootm_headers_t *images)
 static void boot_jump_linux(bootm_headers_t *images, int flag)
 {
 #ifdef CONFIG_ARM64
-	void (*kernel_entry)(void *fdt_addr);
+	void (*kernel_entry)(void *fdt_addr, void *res0, void *res1,
+			void *res2);
 	int fake = (flag & BOOTM_STATE_OS_FAKE_GO);
 
-	kernel_entry = (void (*)(void *fdt_addr))images->ep;
+	kernel_entry = (void (*)(void *fdt_addr, void *res0, void *res1,
+				void *res2))images->ep;
 
 	debug("## Transferring control to Linux (at address %lx)...\n",
 		(ulong) kernel_entry);
@@ -261,7 +263,7 @@ static void boot_jump_linux(bootm_headers_t *images, int flag)
 	announce_and_cleanup(fake);
 
 	if (!fake)
-		kernel_entry(images->ft_addr);
+		kernel_entry(images->ft_addr, 0x0, 0x0, 0x0);
 #else
 	unsigned long machid = gd->bd->bi_arch_number;
 	char *s;
