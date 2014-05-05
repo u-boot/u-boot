@@ -659,10 +659,12 @@ int genimg_get_format(const void *img_addr)
 	if (image_check_magic(hdr))
 		format = IMAGE_FORMAT_LEGACY;
 #if defined(CONFIG_FIT) || defined(CONFIG_OF_LIBFDT)
-	else {
-		if (fdt_check_header(img_addr) == 0)
-			format = IMAGE_FORMAT_FIT;
-	}
+	else if (fdt_check_header(img_addr) == 0)
+		format = IMAGE_FORMAT_FIT;
+#endif
+#ifdef CONFIG_ANDROID_BOOT_IMAGE
+	else if (android_image_check_header(img_addr) == 0)
+		format = IMAGE_FORMAT_ANDROID;
 #endif
 
 	return format;
@@ -932,7 +934,15 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 				(ulong)images->legacy_hdr_os);
 
 		image_multi_getimg(images->legacy_hdr_os, 1, &rd_data, &rd_len);
-	} else {
+	}
+#ifdef CONFIG_ANDROID_BOOT_IMAGE
+	else if ((genimg_get_format(images) == IMAGE_FORMAT_ANDROID) &&
+		 (!android_image_get_ramdisk((void *)images->os.start,
+		 &rd_data, &rd_len))) {
+		/* empty */
+	}
+#endif
+	else {
 		/*
 		 * no initrd image
 		 */

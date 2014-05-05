@@ -222,6 +222,7 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 			 char * const argv[])
 {
 	const void *os_hdr;
+	bool ep_found = false;
 
 	/* get kernel image header, start address and length */
 	os_hdr = boot_get_kernel(cmdtp, flag, argc, argv,
@@ -274,6 +275,18 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 		}
 		break;
 #endif
+#ifdef CONFIG_ANDROID_BOOT_IMAGE
+	case IMAGE_FORMAT_ANDROID:
+		images.os.type = IH_TYPE_KERNEL;
+		images.os.comp = IH_COMP_NONE;
+		images.os.os = IH_OS_LINUX;
+		images.ep = images.os.load;
+		ep_found = true;
+
+		images.os.end = android_image_get_end(os_hdr);
+		images.os.load = android_image_get_kload(os_hdr);
+		break;
+#endif
 	default:
 		puts("ERROR: unknown image format type!\n");
 		return 1;
@@ -293,7 +306,7 @@ static int bootm_find_os(cmd_tbl_t *cmdtp, int flag, int argc,
 			return 1;
 		}
 #endif
-	} else {
+	} else if (!ep_found) {
 		puts("Could not find kernel entry point!\n");
 		return 1;
 	}
@@ -1000,6 +1013,14 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 		images->fit_uname_os = fit_uname_kernel;
 		images->fit_uname_cfg = fit_uname_config;
 		images->fit_noffset_os = os_noffset;
+		break;
+#endif
+#ifdef CONFIG_ANDROID_BOOT_IMAGE
+	case IMAGE_FORMAT_ANDROID:
+		printf("## Booting Android Image at 0x%08lx ...\n", img_addr);
+		if (android_image_get_kernel((void *)img_addr, images->verify,
+					     os_data, os_len))
+			return NULL;
 		break;
 #endif
 	default:
