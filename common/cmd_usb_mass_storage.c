@@ -65,25 +65,33 @@ struct ums *ums_init(const char *devtype, const char *devnum)
 int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
 			       int argc, char * const argv[])
 {
+	const char *usb_controller;
+	const char *devtype;
+	const char *devnum;
+	struct ums *ums;
+	unsigned int controller_index;
+	int rc;
+	int cable_ready_timeout __maybe_unused;
+
 	if (argc < 3)
 		return CMD_RET_USAGE;
 
-	const char *usb_controller = argv[1];
-	const char *devtype = "mmc";
-	const char *devnum  = argv[2];
+	usb_controller = argv[1];
+	devtype = "mmc";
+	devnum  = argv[2];
 
-	struct ums *ums = ums_init(devtype, devnum);
+	ums = ums_init(devtype, devnum);
 	if (!ums)
 		return CMD_RET_FAILURE;
 
-	unsigned int controller_index = (unsigned int)(simple_strtoul(
-					usb_controller,	NULL, 0));
+	controller_index = (unsigned int)(simple_strtoul(
+				usb_controller,	NULL, 0));
 	if (board_usb_init(controller_index, USB_INIT_DEVICE)) {
 		error("Couldn't init USB controller.");
 		return CMD_RET_FAILURE;
 	}
 
-	int rc = fsg_init(ums);
+	rc = fsg_init(ums);
 	if (rc) {
 		error("fsg_init failed");
 		return CMD_RET_FAILURE;
@@ -96,7 +104,7 @@ int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
 	}
 
 	/* Timeout unit: seconds */
-	int cable_ready_timeout = UMS_CABLE_READY_TIMEOUT;
+	cable_ready_timeout = UMS_CABLE_READY_TIMEOUT;
 
 	if (!g_dnl_board_usb_cable_connected()) {
 		/*
