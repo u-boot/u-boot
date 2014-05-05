@@ -39,7 +39,6 @@ static struct ums ums_dev = {
 static struct ums *ums_disk_init(struct mmc *mmc)
 {
 	uint64_t mmc_end_sector = mmc->capacity / SECTOR_SIZE;
-	uint64_t ums_end_sector = UMS_NUM_SECTORS + UMS_START_SECTOR;
 
 	if (!mmc_end_sector) {
 		error("MMC capacity is not valid");
@@ -47,17 +46,8 @@ static struct ums *ums_disk_init(struct mmc *mmc)
 	}
 
 	ums_dev.block_dev = &mmc->block_dev;
-
-	if (ums_end_sector <= mmc_end_sector) {
-		ums_dev.start_sector = UMS_START_SECTOR;
-		if (UMS_NUM_SECTORS)
-			ums_dev.num_sectors = UMS_NUM_SECTORS;
-		else
-			ums_dev.num_sectors = mmc_end_sector - UMS_START_SECTOR;
-	} else {
-		ums_dev.num_sectors = mmc_end_sector;
-		puts("UMS: defined bad disk parameters. Using default.\n");
-	}
+	ums_dev.start_sector = 0;
+	ums_dev.num_sectors = mmc_end_sector;
 
 	printf("UMS: disk start sector: %#x, count: %#x\n",
 	       ums_dev.start_sector, ums_dev.num_sectors);

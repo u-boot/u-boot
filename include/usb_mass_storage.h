@@ -12,14 +12,6 @@
 #include <part.h>
 #include <linux/usb/composite.h>
 
-#ifndef UMS_START_SECTOR
-#define UMS_START_SECTOR	0
-#endif
-
-#ifndef UMS_NUM_SECTORS
-#define UMS_NUM_SECTORS		0
-#endif
-
 /* Wait at maximum 60 seconds for cable connection */
 #define UMS_CABLE_READY_TIMEOUT	60
 
