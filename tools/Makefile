@@ -131,6 +131,8 @@ hostprogs-$(CONFIG_MX23) += mxsboot$(SFX)
 hostprogs-$(CONFIG_MX28) += mxsboot$(SFX)
 HOSTCFLAGS_mxsboot$(SFX).o := -pedantic
 
+hostprogs-$(CONFIG_SUNXI) += mksunxiboot$(SFX)
+
 hostprogs-$(CONFIG_NETCONSOLE) += ncb$(SFX)
 hostprogs-$(CONFIG_SHA1_CHECK_UB_IMG) += ubsha1$(SFX)
 

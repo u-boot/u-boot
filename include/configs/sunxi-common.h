@@ -17,6 +17,11 @@
  * High Level Configuration Options
  */
 #define CONFIG_SUNXI		/* sunxi family */
+#ifdef CONFIG_SPL_BUILD
+#ifndef CONFIG_SPL_FEL
+#define CONFIG_SYS_THUMB_BUILD	/* Thumbs mode to save space in SPL */
+#endif
+#endif
 
 #include <asm/arch/cpu.h>	/* get chip and board defs */
 
@@ -121,11 +126,32 @@
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
 
+#ifdef CONFIG_SPL_FEL
+
 #define CONFIG_SPL
 #define CONFIG_SPL_LDSCRIPT "arch/arm/cpu/armv7/sunxi/u-boot-spl-fel.lds"
 #define CONFIG_SPL_START_S_PATH "arch/arm/cpu/armv7/sunxi"
 #define CONFIG_SPL_TEXT_BASE		0x2000
 #define CONFIG_SPL_MAX_SIZE		0x4000		/* 16 KiB */
+
+#else /* CONFIG_SPL */
+
+#define CONFIG_SPL_BSS_START_ADDR	0x4ff80000
+#define CONFIG_SPL_BSS_MAX_SIZE		0x80000		/* 512 KiB */
+
+#define CONFIG_SPL_TEXT_BASE		0x20		/* sram start+header */
+#define CONFIG_SPL_MAX_SIZE		0x5fe0		/* 24KB on sun4i/sun7i */
+
+#define CONFIG_SPL_LIBDISK_SUPPORT
+#define CONFIG_SPL_MMC_SUPPORT
+
+#define CONFIG_SPL_LDSCRIPT "arch/arm/cpu/armv7/sunxi/u-boot-spl.lds"
+
+#define CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR	80	/* 40KiB */
+#define CONFIG_SPL_PAD_TO		32768		/* decimal for 'dd' */
+
+#endif /* CONFIG_SPL */
+
 /* end of 32 KiB in sram */
 #define LOW_LEVEL_SRAM_STACK		0x00008000 /* End of sram */
 #define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK

@@ -189,6 +189,12 @@ ifdef CONFIG_SAMSUNG
 ALL-y	+= $(obj)/$(BOARD)-spl.bin
 endif
 
+ifdef CONFIG_SUNXI
+ifndef CONFIG_SPL_FEL
+ALL-y	+= $(obj)/sunxi-spl.bin
+endif
+endif
+
 all:	$(ALL-y)
 
 ifdef CONFIG_SAMSUNG
@@ -214,6 +220,13 @@ $(obj)/$(SPL_BIN).bin: $(obj)/$(SPL_BIN) FORCE
 LDFLAGS_$(SPL_BIN) += -T u-boot-spl.lds $(LDFLAGS_FINAL)
 ifneq ($(CONFIG_SPL_TEXT_BASE),)
 LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_SPL_TEXT_BASE)
+endif
+
+ifdef CONFIG_SUNXI
+quiet_cmd_mksunxiboot = MKSUNXI $@
+cmd_mksunxiboot = $(objtree)/tools/mksunxiboot $< $@
+$(obj)/sunxi-spl.bin: $(obj)/$(SPL_BIN).bin
+	$(call if_changed,mksunxiboot)
 endif
 
 quiet_cmd_u-boot-spl = LD      $@
