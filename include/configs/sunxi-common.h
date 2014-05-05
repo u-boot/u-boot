@@ -59,6 +59,16 @@
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_INITRD_TAG
 
+/* mmc config */
+#define CONFIG_MMC
+#define CONFIG_GENERIC_MMC
+#define CONFIG_CMD_MMC
+#define CONFIG_MMC_SUNXI
+#define CONFIG_MMC_SUNXI_SLOT		0
+#define CONFIG_MMC_SUNXI_USE_DMA
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_SYS_MMC_ENV_DEV		0	/* first detected MMC controller */
+
 /* 4MB of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (4 << 20))
 
@@ -94,6 +104,7 @@
 #define CONFIG_SYS_MONITOR_LEN		(512 << 10)	/* 512 KiB */
 #define CONFIG_IDENT_STRING		" Allwinner Technology"
 
+#define CONFIG_ENV_OFFSET		(544 << 10) /* (8 + 24 + 512) KiB */
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
