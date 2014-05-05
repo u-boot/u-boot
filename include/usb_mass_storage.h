@@ -30,7 +30,6 @@ extern struct ums *ums;
 
 int fsg_init(struct ums *);
 void fsg_cleanup(void);
-struct ums *ums_init(unsigned int);
 int fsg_main_thread(void *);
 int fsg_add(struct usb_configuration *c);
 #endif /* __USB_MASS_STORAGE_H__ */
