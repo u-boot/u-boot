@@ -93,7 +93,15 @@ void print_part_efi(block_dev_desc_t * dev_desc)
 	if (is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
 			 gpt_head, &gpt_pte) != 1) {
 		printf("%s: *** ERROR: Invalid GPT ***\n", __func__);
-		return;
+		if (is_gpt_valid(dev_desc, (dev_desc->lba - 1),
+				 gpt_head, &gpt_pte) != 1) {
+			printf("%s: *** ERROR: Invalid Backup GPT ***\n",
+			       __func__);
+			return;
+		} else {
+			printf("%s: ***        Using Backup GPT ***\n",
+			       __func__);
+		}
 	}
 
 	debug("%s: gpt-entry at %p\n", __func__, gpt_pte);
@@ -142,7 +150,15 @@ int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 	if (is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
 			gpt_head, &gpt_pte) != 1) {
 		printf("%s: *** ERROR: Invalid GPT ***\n", __func__);
-		return -1;
+		if (is_gpt_valid(dev_desc, (dev_desc->lba - 1),
+				 gpt_head, &gpt_pte) != 1) {
+			printf("%s: *** ERROR: Invalid Backup GPT ***\n",
+			       __func__);
+			return -1;
+		} else {
+			printf("%s: ***        Using Backup GPT ***\n",
+			       __func__);
+		}
 	}
 
 	if (part > le32_to_cpu(gpt_head->num_partition_entries) ||
@@ -252,7 +268,7 @@ int write_gpt_table(block_dev_desc_t *dev_desc,
 	    != pte_blk_cnt)
 		goto err;
 
-	/* recalculate the values for the Second GPT Header */
+	/* recalculate the values for the Backup GPT Header */
 	val = le64_to_cpu(gpt_h->my_lba);
 	gpt_h->my_lba = gpt_h->alternate_lba;
 	gpt_h->alternate_lba = cpu_to_le64(val);
