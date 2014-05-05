@@ -9,7 +9,6 @@
 #include <common.h>
 #include <command.h>
 #include <g_dnl.h>
-#include <mmc.h>
 #include <part.h>
 #include <usb.h>
 #include <usb_mass_storage.h>
@@ -40,17 +39,22 @@ static struct ums ums_dev = {
 	.name = "UMS disk",
 };
 
-struct ums *ums_init(unsigned int dev_num)
+struct ums *ums_init(const char *devtype, const char *devnum)
 {
-	struct mmc *mmc = NULL;
+	block_dev_desc_t *block_dev;
+	int ret;
 
-	mmc = find_mmc_device(dev_num);
-	if (!mmc || mmc_init(mmc))
+	ret = get_device(devtype, devnum, &block_dev);
+	if (ret < 0)
 		return NULL;
 
-	ums_dev.block_dev = &mmc->block_dev;
+	/* f_mass_storage.c assumes SECTOR_SIZE sectors */
+	if (block_dev->blksz != SECTOR_SIZE)
+		return NULL;
+
+	ums_dev.block_dev = block_dev;
 	ums_dev.start_sector = 0;
-	ums_dev.num_sectors = mmc->capacity / SECTOR_SIZE;
+	ums_dev.num_sectors = block_dev->lba;
 
 	printf("UMS: disk start sector: %#x, count: %#x\n",
 	       ums_dev.start_sector, ums_dev.num_sectors);
@@ -65,11 +69,10 @@ int do_usb_mass_storage(cmd_tbl_t *cmdtp, int flag,
 		return CMD_RET_USAGE;
 
 	const char *usb_controller = argv[1];
-	const char *mmc_devstring  = argv[2];
+	const char *devtype = "mmc";
+	const char *devnum  = argv[2];
 
-	unsigned int dev_num = simple_strtoul(mmc_devstring, NULL, 0);
-
-	struct ums *ums = ums_init(dev_num);
+	struct ums *ums = ums_init(devtype, devnum);
 	if (!ums)
 		return CMD_RET_FAILURE;
 
