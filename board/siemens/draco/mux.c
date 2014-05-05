@@ -1,5 +1,5 @@
 /*
- * pinmux setup for siemens dxr2 board
+ * pinmux setup for siemens draco board
  *
  * (C) Copyright 2013 Siemens Schweiz AG
  * (C) Heiko Schocher, DENX Software Engineering, hs@denx.de.

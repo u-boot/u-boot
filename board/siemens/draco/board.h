@@ -50,7 +50,7 @@ struct chip_data {
 	char shwver[7];
 };
 
-struct dxr2_baseboard_id {
+struct draco_baseboard_id {
 	struct ddr3_data ddr3;
 	struct chip_data chip;
 };

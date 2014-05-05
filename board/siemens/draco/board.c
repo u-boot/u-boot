@@ -1,5 +1,5 @@
 /*
- * Board functions for TI AM335X based dxr2 board
+ * Board functions for TI AM335X based draco board
  * (C) Copyright 2013 Siemens Schweiz AG
  * (C) Heiko Schocher, DENX Software Engineering, hs@denx.de.
  *
@@ -37,7 +37,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_SPL_BUILD
-static struct dxr2_baseboard_id __attribute__((section(".data"))) settings;
+static struct draco_baseboard_id __attribute__((section(".data"))) settings;
 
 #if DDR_PLL_FREQ == 303
 /* Default@303MHz-i0 */
@@ -138,11 +138,10 @@ static int read_eeprom(void)
 		set_default_ddr3_timings();
 	}
 
-	if (MAGIC_CHIP == settings.chip.magic) {
+	if (MAGIC_CHIP == settings.chip.magic)
 		print_chip_data();
-	} else {
+	else
 		printf("Warning: No chip data in eeprom\n");
-	}
 
 	print_ddr3_timings();
 #endif
@@ -152,48 +151,48 @@ static int read_eeprom(void)
 #ifdef CONFIG_SPL_BUILD
 static void board_init_ddr(void)
 {
-struct emif_regs dxr2_ddr3_emif_reg_data = {
+struct emif_regs draco_ddr3_emif_reg_data = {
 	.zq_config = 0x50074BE4,
 };
 
-struct ddr_data dxr2_ddr3_data = {
+struct ddr_data draco_ddr3_data = {
 };
 
-struct cmd_control dxr2_ddr3_cmd_ctrl_data = {
+struct cmd_control draco_ddr3_cmd_ctrl_data = {
 };
 
-struct ctrl_ioregs dxr2_ddr3_ioregs = {
+struct ctrl_ioregs draco_ddr3_ioregs = {
 };
 
 	/* pass values from eeprom */
-	dxr2_ddr3_emif_reg_data.sdram_tim1 = settings.ddr3.sdram_tim1;
-	dxr2_ddr3_emif_reg_data.sdram_tim2 = settings.ddr3.sdram_tim2;
-	dxr2_ddr3_emif_reg_data.sdram_tim3 = settings.ddr3.sdram_tim3;
-	dxr2_ddr3_emif_reg_data.emif_ddr_phy_ctlr_1 =
+	draco_ddr3_emif_reg_data.sdram_tim1 = settings.ddr3.sdram_tim1;
+	draco_ddr3_emif_reg_data.sdram_tim2 = settings.ddr3.sdram_tim2;
+	draco_ddr3_emif_reg_data.sdram_tim3 = settings.ddr3.sdram_tim3;
+	draco_ddr3_emif_reg_data.emif_ddr_phy_ctlr_1 =
 		settings.ddr3.emif_ddr_phy_ctlr_1;
-	dxr2_ddr3_emif_reg_data.sdram_config = settings.ddr3.sdram_config;
-	dxr2_ddr3_emif_reg_data.ref_ctrl = settings.ddr3.ref_ctrl;
+	draco_ddr3_emif_reg_data.sdram_config = settings.ddr3.sdram_config;
+	draco_ddr3_emif_reg_data.ref_ctrl = settings.ddr3.ref_ctrl;
 
-	dxr2_ddr3_data.datardsratio0 = settings.ddr3.dt0rdsratio0;
-	dxr2_ddr3_data.datawdsratio0 = settings.ddr3.dt0wdsratio0;
-	dxr2_ddr3_data.datafwsratio0 = settings.ddr3.dt0fwsratio0;
-	dxr2_ddr3_data.datawrsratio0 = settings.ddr3.dt0wrsratio0;
+	draco_ddr3_data.datardsratio0 = settings.ddr3.dt0rdsratio0;
+	draco_ddr3_data.datawdsratio0 = settings.ddr3.dt0wdsratio0;
+	draco_ddr3_data.datafwsratio0 = settings.ddr3.dt0fwsratio0;
+	draco_ddr3_data.datawrsratio0 = settings.ddr3.dt0wrsratio0;
 
-	dxr2_ddr3_cmd_ctrl_data.cmd0csratio = settings.ddr3.ddr3_sratio;
-	dxr2_ddr3_cmd_ctrl_data.cmd0iclkout = settings.ddr3.iclkout;
-	dxr2_ddr3_cmd_ctrl_data.cmd1csratio = settings.ddr3.ddr3_sratio;
-	dxr2_ddr3_cmd_ctrl_data.cmd1iclkout = settings.ddr3.iclkout;
-	dxr2_ddr3_cmd_ctrl_data.cmd2csratio = settings.ddr3.ddr3_sratio;
-	dxr2_ddr3_cmd_ctrl_data.cmd2iclkout = settings.ddr3.iclkout;
+	draco_ddr3_cmd_ctrl_data.cmd0csratio = settings.ddr3.ddr3_sratio;
+	draco_ddr3_cmd_ctrl_data.cmd0iclkout = settings.ddr3.iclkout;
+	draco_ddr3_cmd_ctrl_data.cmd1csratio = settings.ddr3.ddr3_sratio;
+	draco_ddr3_cmd_ctrl_data.cmd1iclkout = settings.ddr3.iclkout;
+	draco_ddr3_cmd_ctrl_data.cmd2csratio = settings.ddr3.ddr3_sratio;
+	draco_ddr3_cmd_ctrl_data.cmd2iclkout = settings.ddr3.iclkout;
 
-	dxr2_ddr3_ioregs.cm0ioctl = settings.ddr3.ioctr_val,
-	dxr2_ddr3_ioregs.cm1ioctl = settings.ddr3.ioctr_val,
-	dxr2_ddr3_ioregs.cm2ioctl = settings.ddr3.ioctr_val,
-	dxr2_ddr3_ioregs.dt0ioctl = settings.ddr3.ioctr_val,
-	dxr2_ddr3_ioregs.dt1ioctl = settings.ddr3.ioctr_val,
+	draco_ddr3_ioregs.cm0ioctl = settings.ddr3.ioctr_val,
+	draco_ddr3_ioregs.cm1ioctl = settings.ddr3.ioctr_val,
+	draco_ddr3_ioregs.cm2ioctl = settings.ddr3.ioctr_val,
+	draco_ddr3_ioregs.dt0ioctl = settings.ddr3.ioctr_val,
+	draco_ddr3_ioregs.dt1ioctl = settings.ddr3.ioctr_val,
 
-	config_ddr(DDR_PLL_FREQ, &dxr2_ddr3_ioregs, &dxr2_ddr3_data,
-		   &dxr2_ddr3_cmd_ctrl_data, &dxr2_ddr3_emif_reg_data, 0);
+	config_ddr(DDR_PLL_FREQ, &draco_ddr3_ioregs, &draco_ddr3_data,
+		   &draco_ddr3_cmd_ctrl_data, &draco_ddr3_emif_reg_data, 0);
 }
 
 static void spl_siemens_board_init(void)
