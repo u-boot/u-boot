@@ -36,8 +36,14 @@ static struct ums ums_dev = {
 	.name = "UMS disk",
 };
 
-static struct ums *ums_disk_init(struct mmc *mmc)
+struct ums *ums_init(unsigned int dev_num)
 {
+	struct mmc *mmc = NULL;
+
+	mmc = find_mmc_device(dev_num);
+	if (!mmc || mmc_init(mmc))
+		return NULL;
+
 	ums_dev.block_dev = &mmc->block_dev;
 	ums_dev.start_sector = 0;
 	ums_dev.num_sectors = mmc->capacity / SECTOR_SIZE;
@@ -46,13 +52,4 @@ static struct ums *ums_disk_init(struct mmc *mmc)
 	       ums_dev.start_sector, ums_dev.num_sectors);
 
 	return &ums_dev;
-}
-
-struct ums *ums_init(unsigned int dev_num)
-{
-	struct mmc *mmc = find_mmc_device(dev_num);
-
-	if (!mmc || mmc_init(mmc))
-		return NULL;
-	return ums_disk_init(mmc);
 }
