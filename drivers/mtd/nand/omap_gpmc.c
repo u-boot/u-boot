@@ -782,13 +782,18 @@ int board_nand_init(struct nand_chip *nand)
 	nand->priv	= &omap_nand_info;
 	nand->cmd_ctrl	= omap_nand_hwcontrol;
 	nand->options	|= NAND_NO_PADDING | NAND_CACHEPRG;
-	/* If we are 16 bit dev, our gpmc config tells us that */
-	if ((readl(&gpmc_cfg->cs[cs].config1) & 0x3000) == 0x1000)
-		nand->options |= NAND_BUSWIDTH_16;
-
 	nand->chip_delay = 100;
 	nand->ecc.layout = &omap_ecclayout;
 
+	/* configure driver and controller based on NAND device bus-width */
+	gpmc_config = readl(&gpmc_cfg->cs[cs].config1);
+#if defined(CONFIG_SYS_NAND_BUSWIDTH_16BIT)
+	nand->options |= NAND_BUSWIDTH_16;
+	writel(gpmc_config | (0x1 << 12), &gpmc_cfg->cs[cs].config1);
+#else
+	nand->options &= ~NAND_BUSWIDTH_16;
+	writel(gpmc_config & ~(0x1 << 12), &gpmc_cfg->cs[cs].config1);
+#endif
 	/* select ECC scheme */
 #if defined(CONFIG_NAND_OMAP_ECCSCHEME)
 	err = omap_select_ecc_scheme(nand, CONFIG_NAND_OMAP_ECCSCHEME,
