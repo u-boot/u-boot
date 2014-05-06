@@ -40,13 +40,5 @@ int fsg_init(struct ums *);
 void fsg_cleanup(void);
 struct ums *ums_init(unsigned int);
 int fsg_main_thread(void *);
-
-#ifdef CONFIG_USB_GADGET_MASS_STORAGE
 int fsg_add(struct usb_configuration *c);
-#else
-int fsg_add(struct usb_configuration *c)
-{
-	return 0;
-}
-#endif
 #endif /* __USB_MASS_STORAGE_H__ */

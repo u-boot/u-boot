@@ -24,6 +24,7 @@
 #include <linux/usb/composite.h>
 
 #include <dfu.h>
+#include <g_dnl.h>
 #include "f_dfu.h"
 
 struct f_dfu {
@@ -817,3 +818,5 @@ int dfu_add(struct usb_configuration *c)
 
 	return dfu_bind_config(c);
 }
+
+DECLARE_GADGET_BIND_CALLBACK(usb_dnl_dfu, dfu_add);

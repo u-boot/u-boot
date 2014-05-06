@@ -8,6 +8,7 @@
 #define _PART_H
 
 #include <ide.h>
+#include <common.h>
 
 typedef struct block_dev_desc {
 	int		if_type;	/* type of the interface */

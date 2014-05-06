@@ -204,7 +204,10 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 
 int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
 {
-	/* TODO: implement me */
+	if (driver->disconnect)
+		driver->disconnect(&gadget->g);
+	if (driver->unbind)
+		driver->unbind(&gadget->g);
 	return 0;
 }
 #endif /* CONFIG_MUSB_GADGET */

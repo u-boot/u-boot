@@ -219,7 +219,7 @@ int dfu_write(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 			ret = tret;
 	}
 
-	return ret = 0 ? size : ret;
+	return ret;
 }
 
 static int dfu_read_buffer_fill(struct dfu_entity *dfu, void *buf, int size)

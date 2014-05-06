@@ -197,13 +197,6 @@ int board_usb_init(int index, enum usb_init_type init)
 	return s3c_udc_probe(&s5pc210_otg_data);
 }
 
-#ifdef CONFIG_USB_CABLE_CHECK
-int usb_cable_connected(void)
-{
-	return 0;
-}
-#endif
-
 int exynos_early_init_f(void)
 {
 	wdt_stop();

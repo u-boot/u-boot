@@ -311,7 +311,11 @@ static struct fsg_lun *fsg_lun_from_dev(struct device *dev)
 #define DELAYED_STATUS	(EP0_BUFSIZE + 999)	/* An impossibly large value */
 
 /* Number of buffers we will use.  2 is enough for double-buffering */
+#ifndef CONFIG_CI_UDC
 #define FSG_NUM_BUFFERS	2
+#else
+#define FSG_NUM_BUFFERS	1 /* ci_udc only allows 1 req per ep at present */
+#endif
 
 /* Default size of buffer length. */
 #define FSG_BUFLEN	((u32)16384)
