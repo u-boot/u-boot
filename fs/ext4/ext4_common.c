@@ -904,10 +904,8 @@ long int ext4fs_get_new_blk_no(void)
 restart:
 		fs->curr_blkno++;
 		/* get the blockbitmap index respective to blockno */
-		if (fs->blksz != 1024) {
-			bg_idx = fs->curr_blkno / blk_per_grp;
-		} else {
-			bg_idx = fs->curr_blkno / blk_per_grp;
+		bg_idx = fs->curr_blkno / blk_per_grp;
+		if (fs->blksz == 1024) {
 			remainder = fs->curr_blkno % blk_per_grp;
 			if (!remainder)
 				bg_idx--;
