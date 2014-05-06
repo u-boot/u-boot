@@ -562,6 +562,7 @@ static int ext4fs_delete_file(int inodeno)
 
 	ext4fs_update();
 	ext4fs_deinit();
+	ext4fs_reinit_global();
 
 	if (ext4fs_init() != 0) {
 		printf("error in File System init\n");

@@ -1841,16 +1841,20 @@ long int read_allocated_block(struct ext2_inode *inode, int fileblock)
 	return blknr;
 }
 
-void ext4fs_close(void)
+/**
+ * ext4fs_reinit_global() - Reinitialize values of ext4 write implementation's
+ *			    global pointers
+ *
+ * This function assures that for a file with the same name but different size
+ * the sequential store on the ext4 filesystem will be correct.
+ *
+ * In this function the global data, responsible for internal representation
+ * of the ext4 data are initialized to the reset state. Without this, during
+ * replacement of the smaller file with the bigger truncation of new file was
+ * performed.
+ */
+void ext4fs_reinit_global(void)
 {
-	if ((ext4fs_file != NULL) && (ext4fs_root != NULL)) {
-		ext4fs_free_node(ext4fs_file, &ext4fs_root->diropen);
-		ext4fs_file = NULL;
-	}
-	if (ext4fs_root != NULL) {
-		free(ext4fs_root);
-		ext4fs_root = NULL;
-	}
 	if (ext4fs_indir1_block != NULL) {
 		free(ext4fs_indir1_block);
 		ext4fs_indir1_block = NULL;
@@ -1869,6 +1873,19 @@ void ext4fs_close(void)
 		ext4fs_indir3_size = 0;
 		ext4fs_indir3_blkno = -1;
 	}
+}
+void ext4fs_close(void)
+{
+	if ((ext4fs_file != NULL) && (ext4fs_root != NULL)) {
+		ext4fs_free_node(ext4fs_file, &ext4fs_root->diropen);
+		ext4fs_file = NULL;
+	}
+	if (ext4fs_root != NULL) {
+		free(ext4fs_root);
+		ext4fs_root = NULL;
+	}
+
+	ext4fs_reinit_global();
 }
 
 int ext4fs_iterate_dir(struct ext2fs_node *dir, char *name,
