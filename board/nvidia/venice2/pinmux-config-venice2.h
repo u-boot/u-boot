@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2014, NVIDIA CORPORATION. All rights reserved.
  *
  * SPDX-License-Identifier: GPL-2.0+
  */
@@ -30,6 +30,7 @@ static const struct tegra_gpio_config venice2_gpio_inits[] = {
 	GPIO_INIT(I1,   IN),
 	GPIO_INIT(I2,   OUT0),
 	GPIO_INIT(I4,   OUT0),
+	GPIO_INIT(I5,   OUT1),
 	GPIO_INIT(I6,   IN),
 	GPIO_INIT(J0,   IN),
 	GPIO_INIT(J7,   IN),
@@ -47,7 +48,10 @@ static const struct tegra_gpio_config venice2_gpio_inits[] = {
 	GPIO_INIT(O7,   IN),
 	GPIO_INIT(P2,   OUT0),
 	GPIO_INIT(Q0,   IN),
+	GPIO_INIT(Q2,   IN),
 	GPIO_INIT(Q3,   IN),
+	GPIO_INIT(Q6,   IN),
+	GPIO_INIT(Q7,   IN),
 	GPIO_INIT(R0,   OUT0),
 	GPIO_INIT(R1,   IN),
 	GPIO_INIT(R4,   IN),
@@ -125,7 +129,7 @@ static const struct pmux_pingrp_config venice2_pingrps[] = {
 	PINCFG(PI2,                    DEFAULT,     NORMAL, NORMAL,   OUTPUT,  DEFAULT, DEFAULT),
 	PINCFG(PI3,                    SPI4,        NORMAL, NORMAL,   OUTPUT,  DEFAULT, DEFAULT),
 	PINCFG(PI4,                    DEFAULT,     NORMAL, NORMAL,   OUTPUT,  DEFAULT, DEFAULT),
-	PINCFG(PI5,                    RSVD2,       UP,     TRISTATE, OUTPUT,  DEFAULT, DEFAULT),
+	PINCFG(PI5,                    DEFAULT,     NORMAL, NORMAL,   OUTPUT,  DEFAULT, DEFAULT),
 	PINCFG(PI6,                    DEFAULT,     NORMAL, NORMAL,   INPUT,   DEFAULT, DEFAULT),
 	PINCFG(PI7,                    RSVD1,       DOWN,   TRISTATE, OUTPUT,  DEFAULT, DEFAULT),
 	PINCFG(PJ0,                    DEFAULT,     UP,     NORMAL,   INPUT,   DEFAULT, DEFAULT),
@@ -166,12 +170,12 @@ static const struct pmux_pingrp_config venice2_pingrps[] = {
 	PINCFG(DAP4_SCLK_PP7,          I2S3,        NORMAL, NORMAL,   OUTPUT,  DEFAULT, DEFAULT),
 	PINCFG(KB_COL0_PQ0,            DEFAULT,     NORMAL, NORMAL,   INPUT,   DEFAULT, DEFAULT),
 	PINCFG(KB_COL1_PQ1,            RSVD2,       DOWN,   TRISTATE, OUTPUT,  DEFAULT, DEFAULT),
-	PINCFG(KB_COL2_PQ2,            RSVD2,       DOWN,   TRISTATE, OUTPUT,  DEFAULT, DEFAULT),
+	PINCFG(KB_COL2_PQ2,            DEFAULT,     UP,     NORMAL,   INPUT,   DEFAULT, DEFAULT),
 	PINCFG(KB_COL3_PQ3,            DEFAULT,     NORMAL, NORMAL,   INPUT,   DEFAULT, DEFAULT),
 	PINCFG(KB_COL4_PQ4,            SDMMC3,      UP,     NORMAL,   INPUT,   DEFAULT, DEFAULT),
 	PINCFG(KB_COL5_PQ5,            RSVD2,       DOWN,   TRISTATE, OUTPUT,  DEFAULT, DEFAULT),
-	PINCFG(KB_COL6_PQ6,            RSVD2,       DOWN,   TRISTATE, OUTPUT,  DEFAULT, DEFAULT),
-	PINCFG(KB_COL7_PQ7,            RSVD2,       DOWN,   TRISTATE, OUTPUT,  DEFAULT, DEFAULT),
+	PINCFG(KB_COL6_PQ6,            DEFAULT,     UP,     NORMAL,   INPUT,   DEFAULT, DEFAULT),
+	PINCFG(KB_COL7_PQ7,            DEFAULT,     UP,     NORMAL,   INPUT,   DEFAULT, DEFAULT),
 	PINCFG(KB_ROW0_PR0,            DEFAULT,     NORMAL, NORMAL,   OUTPUT,  DEFAULT, DEFAULT),
 	PINCFG(KB_ROW1_PR1,            DEFAULT,     NORMAL, NORMAL,   INPUT,   DEFAULT, DEFAULT),
 	PINCFG(KB_ROW2_PR2,            RSVD2,       DOWN,   TRISTATE, OUTPUT,  DEFAULT, DEFAULT),
