@@ -51,4 +51,8 @@
 
 #define CONFIG_MAX_I2C_NUM	11
 
+/* Enable FIT support and comparison */
+#define CONFIG_FIT
+#define CONFIG_FIT_BEST_MATCH
+
 #endif	/* __CONFIG_5420_H */
