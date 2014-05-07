@@ -109,6 +109,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_DEEP_SLEEP
 void board_mem_sleep_setup(void)
 {
+	/* does not provide HW signals for power management */
+	CPLD_WRITE(misc_ctl_status, (CPLD_READ(misc_ctl_status) & ~0x40));
 	/* Disable MCKE isolation */
 	gpio_set_value(2, 0);
 	udelay(1);
