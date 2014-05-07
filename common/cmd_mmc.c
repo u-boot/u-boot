@@ -403,7 +403,7 @@ static int do_mmc_part(cmd_tbl_t *cmdtp, int flag,
 static int do_mmc_dev(cmd_tbl_t *cmdtp, int flag,
 		      int argc, char * const argv[])
 {
-	int dev, part = -1;
+	int dev, part = -1, ret;
 	struct mmc *mmc;
 
 	if (argc == 1) {
@@ -427,20 +427,11 @@ static int do_mmc_dev(cmd_tbl_t *cmdtp, int flag,
 		return CMD_RET_FAILURE;
 
 	if (part != -1) {
-		int ret;
-		if (mmc->part_config == MMCPART_NOAVAILABLE) {
-			printf("Card doesn't support part_switch\n");
-			return CMD_RET_FAILURE;
-		}
-
-		if (part != mmc->part_num) {
-			ret = mmc_switch_part(dev, part);
-			if (!ret)
-				mmc->part_num = part;
-
-			printf("switch to partitions #%d, %s\n",
-			       part, (!ret) ? "OK" : "ERROR");
-		}
+		ret = mmc_select_hwpart(dev, part);
+		printf("switch to partitions #%d, %s\n",
+			part, (!ret) ? "OK" : "ERROR");
+		if (ret)
+			return 1;
 	}
 	curr_device = dev;
 	if (mmc->part_config == MMCPART_NOAVAILABLE)
