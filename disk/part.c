@@ -39,7 +39,11 @@ static const struct block_drvr block_drvr[] = {
 	{ .name = "usb", .get_dev = usb_stor_get_dev, },
 #endif
 #if defined(CONFIG_MMC)
-	{ .name = "mmc", .get_dev = mmc_get_dev, },
+	{
+		.name = "mmc",
+		.get_dev = mmc_get_dev,
+		.select_hwpart = mmc_select_hwpart,
+	},
 #endif
 #if defined(CONFIG_SYSTEMACE)
 	{ .name = "ace", .get_dev = systemace_get_dev, },

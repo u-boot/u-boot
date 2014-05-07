@@ -552,6 +552,32 @@ static int mmc_set_capacity(struct mmc *mmc, int part_num)
 	return 0;
 }
 
+int mmc_select_hwpart(int dev_num, int hwpart)
+{
+	struct mmc *mmc = find_mmc_device(dev_num);
+	int ret;
+
+	if (!mmc)
+		return -1;
+
+	if (mmc->part_num == hwpart)
+		return 0;
+
+	if (mmc->part_config == MMCPART_NOAVAILABLE) {
+		printf("Card doesn't support part_switch\n");
+		return -1;
+	}
+
+	ret = mmc_switch_part(dev_num, hwpart);
+	if (ret)
+		return -1;
+
+	mmc->part_num = hwpart;
+
+	return 0;
+}
+
+
 int mmc_switch_part(int dev_num, unsigned int part_num)
 {
 	struct mmc *mmc = find_mmc_device(dev_num);
