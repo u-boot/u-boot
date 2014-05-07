@@ -243,9 +243,10 @@ mci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 #ifdef DEBUG
 			if (data->flags & MMC_DATA_READ)
 			{
+				u32 cnt = word_count * 4;
 				printf("Read Data:\n");
-				print_buffer(0, data->dest, 1,
-					word_count*4, 0);
+				print_buffer(0, data->dest + cnt * block_count,
+					     1, cnt, 0);
 			}
 #endif
 #ifdef DEBUG
