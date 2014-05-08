@@ -813,7 +813,7 @@ init_fnc_t init_sequence_r[] = {
 #if defined(CONFIG_ARM)
 	initr_enable_interrupts,
 #endif
-#ifdef CONFIG_X86
+#if defined(CONFIG_X86) || defined(CONFIG_MICROBLAZE)
 	timer_init,		/* initialize timer */
 #endif
 #if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)

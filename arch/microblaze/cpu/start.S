@@ -150,6 +150,7 @@ clear_bss:
 	bnei    r6, 2b
 3:	/* jumping to board_init */
 #ifndef CONFIG_SPL_BUILD
+	or	r5, r0, r0	/* flags - empty */
 	brai	board_init_f
 #else
 	addi	r31, r0, CONFIG_SYS_SPL_MALLOC_END
@@ -190,4 +191,106 @@ out16:	bslli	r3, r6, 8
 	rtsd	r15, 8
 	or	r0, r0, r0
 	.end	out16
+
+/*
+ * Relocate u-boot
+ */
+	.text
+	.global	relocate_code
+	.ent	relocate_code
+	.align	2
+relocate_code:
+	/*
+	 * r5 - start_addr_sp
+	 * r6 - new_gd
+	 * r7 - reloc_addr
+	 */
+	addi	r1, r5, 0 /* Start to use new SP */
+	addi	r31, r6, 0 /* Start to use new GD */
+
+	add	r23, r0, r7 /* Move reloc addr to r23 */
+	/* Relocate text and data - r12 temp value */
+	addi	r21, r0, _start
+	addi	r22, r0, __end - 4 /* Include BSS too */
+1:	lwi	r12, r21, 0 /* Load u-boot data */
+	swi	r12, r23, 0 /* Write zero to loc */
+	addi	r21, r21, 4 /* Increment to next loc - origin code */
+	cmp	r12, r21, r22 /* Check if we have reach the end */
+	bneid	r12, 1b
+	addi	r23, r23, 4 /* Increment to next loc - relocate code */
+
+       /* R23 points to the base address. */
+	add	r23, r0, r7 /* Move reloc addr to r23 */
+	addi	r24, r0, CONFIG_SYS_TEXT_BASE /* Get reloc offset */
+	rsub	r23, r24, r23 /* keep - this is already here gd->reloc_off */
+
+	addik	r6, r0, 0x2 /* BIG/LITTLE endian offset */
+	lwi	r7, r0, 0x28
+	swi	r6, r0, 0x28 /* used first unused MB vector */
+	lbui	r10, r0, 0x28 /* used first unused MB vector */
+	swi	r7, r0, 0x28
+
+#ifdef CONFIG_SYS_USR_EXCEP
+	addik	r6, r0, _exception_handler
+	addk	r6, r6, r23 /* add offset */
+	sw	r6, r1, r0
+	lhu	r7, r1, r10
+	rsubi	r8, r10, 0xa
+	sh	r7, r0, r8
+	rsubi	r8, r10, 0xe
+	sh	r6, r0, r8
+#endif
+	addik	r6, r0, _hw_exception_handler
+	addk	r6, r6, r23 /* add offset */
+	sw	r6, r1, r0
+	lhu	r7, r1, r10
+	rsubi	r8, r10, 0x22
+	sh	r7, r0, r8
+	rsubi	r8, r10, 0x26
+	sh	r6, r0, r8
+
+	addik	r6, r0, _interrupt_handler
+	addk	r6, r6, r23 /* add offset */
+	sw	r6, r1, r0
+	lhu	r7, r1, r10
+	rsubi	r8, r10, 0x12
+	sh	r7, r0, r8
+	rsubi	r8, r10, 0x16
+	sh	r6, r0, r8
+
+	/* Check if GOT exist */
+	addik	r21, r23, _got_start
+	addik	r22, r23, _got_end
+	cmpu	r12, r21, r22
+	beqi	r12, 2f /* No GOT table - jump over */
+
+	/* Skip last 3 entries plus 1 because of loop boundary below */
+	addik	r22, r22, -0x10
+
+        /* Relocate the GOT. */
+3:	lw	r12, r21, r0 /* Load entry */
+	addk	r12, r12, r23 /* Add reloc offset */
+	sw	r12, r21, r0 /* Save entry back */
+
+	cmpu	r12, r21, r22 /* Check if this cross boundary */
+	bneid	r12, 3b
+	addik	r21. r21, 4
+
+	/* Update pointer to GOT */
+	mfs	r20, rpc
+	addik	r20, r20, _GLOBAL_OFFSET_TABLE_ + 8
+	addk	r20, r20, r23
+
+	/* Flush caches to ensure consistency */
+	addik	r5, r0, 0
+	addik	r6, r0, XILINX_DCACHE_BYTE_SIZE
+	bralid	r15, flush_cache
+	nop
+
+2:	addi	r5, r31, 0 /* gd is initialized in board_r.c */
+	addi	r6, r0, CONFIG_SYS_TEXT_BASE
+	addi	r12, r23, board_init_r
+	bra	r12 /* Jump to relocated code */
+
+	.end	relocate_code
 #endif
