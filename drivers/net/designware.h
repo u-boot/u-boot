@@ -77,18 +77,18 @@ struct eth_dma_regs {
 
 #define DW_DMA_BASE_OFFSET	(0x1000)
 
+/* Default DMA Burst length */
+#ifndef CONFIG_DW_GMAC_DEFAULT_DMA_PBL
+#define CONFIG_DW_GMAC_DEFAULT_DMA_PBL 8
+#endif
+
 /* Bus mode register definitions */
 #define FIXEDBURST		(1 << 16)
 #define PRIORXTX_41		(3 << 14)
 #define PRIORXTX_31		(2 << 14)
 #define PRIORXTX_21		(1 << 14)
 #define PRIORXTX_11		(0 << 14)
-#define BURST_1			(1 << 8)
-#define BURST_2			(2 << 8)
-#define BURST_4			(4 << 8)
-#define BURST_8			(8 << 8)
-#define BURST_16		(16 << 8)
-#define BURST_32		(32 << 8)
+#define DMA_PBL			(CONFIG_DW_GMAC_DEFAULT_DMA_PBL<<8)
 #define RXHIGHPRIO		(1 << 1)
 #define DMAMAC_SRST		(1 << 0)
 
