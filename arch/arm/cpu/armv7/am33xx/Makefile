@@ -14,7 +14,6 @@ endif
 
 obj-$(CONFIG_TI816X)	+= clock_ti816x.o
 obj-y	+= sys_info.o
-obj-y	+= mem.o
 obj-y	+= ddr.o
 obj-y	+= emif4.o
 obj-y	+= board.o
