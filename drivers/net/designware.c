@@ -280,10 +280,18 @@ static int dw_eth_send(struct eth_device *dev, void *packet, int length)
 	u32 desc_num = priv->tx_currdescnum;
 	struct dmamacdescr *desc_p = &priv->tx_mac_descrtable[desc_num];
 
-	/* Invalidate only "status" field for the following check */
-	invalidate_dcache_range((unsigned long)&desc_p->txrx_status,
-				(unsigned long)&desc_p->txrx_status +
-				sizeof(desc_p->txrx_status));
+	/*
+	 * Strictly we only need to invalidate the "txrx_status" field
+	 * for the following check, but on some platforms we cannot
+	 * invalidate only 4 bytes, so roundup to
+	 * ARCH_DMA_MINALIGN. This is safe because the individual
+	 * descriptors in the array are each aligned to
+	 * ARCH_DMA_MINALIGN.
+	 */
+	invalidate_dcache_range(
+		(unsigned long)desc_p,
+		(unsigned long)desc_p +
+		roundup(sizeof(desc_p->txrx_status), ARCH_DMA_MINALIGN));
 
 	/* Check if the descriptor is owned by CPU */
 	if (desc_p->txrx_status & DESC_TXSTS_OWNBYDMA) {
@@ -351,7 +359,7 @@ static int dw_eth_recv(struct eth_device *dev)
 		/* Invalidate received data */
 		invalidate_dcache_range((unsigned long)desc_p->dmamac_addr,
 					(unsigned long)desc_p->dmamac_addr +
-					length);
+					roundup(length, ARCH_DMA_MINALIGN));
 
 		NetReceive(desc_p->dmamac_addr, length);
 
