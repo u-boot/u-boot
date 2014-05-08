@@ -414,7 +414,8 @@ int designware_initialize(ulong base_addr, u32 interface)
 	 * Since the priv structure contains the descriptors which need a strict
 	 * buswidth alignment, memalign is used to allocate memory
 	 */
-	priv = (struct dw_eth_dev *) memalign(16, sizeof(struct dw_eth_dev));
+	priv = (struct dw_eth_dev *) memalign(ARCH_DMA_MINALIGN,
+					      sizeof(struct dw_eth_dev));
 	if (!priv) {
 		free(dev);
 		return -ENOMEM;
