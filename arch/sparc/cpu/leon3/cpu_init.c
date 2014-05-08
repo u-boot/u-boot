@@ -222,6 +222,11 @@ int timer_interrupt_init_cpu(void)
 	return gptimer_irq;
 }
 
+ulong get_tbclk(void)
+{
+	return TIMER_BASE_CLK;
+}
+
 /*
  * This function is intended for SHORT delays only.
  */
