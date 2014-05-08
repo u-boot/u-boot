@@ -84,6 +84,9 @@
 #define START(dent)	(FAT2CPU16((dent)->start) \
 			+ (mydata->fatsize != 32 ? 0 : \
 			  (FAT2CPU16((dent)->starthi) << 16)))
+#define IS_LAST_CLUST(x, fatsize) ((x) >= ((fatsize) != 32 ? \
+					((fatsize) != 16 ? 0xff8 : 0xfff8) : \
+					0xffffff8))
 #define CHECK_CLUST(x, fatsize) ((x) <= 1 || \
 				(x) >= ((fatsize) != 32 ? \
 					((fatsize) != 16 ? 0xff0 : 0xfff0) : \
