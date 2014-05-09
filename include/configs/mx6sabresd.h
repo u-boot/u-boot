@@ -59,4 +59,16 @@
 #define CONFIG_PCIE_IMX_POWER_GPIO	IMX_GPIO_NR(3, 19)
 #endif
 
+/* I2C Configs */
+#define CONFIG_CMD_I2C
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_SPEED		  100000
+
+/* PMIC */
+#define CONFIG_POWER
+#define CONFIG_POWER_I2C
+#define CONFIG_POWER_PFUZE100
+#define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
+
 #endif                         /* __MX6QSABRESD_CONFIG_H */
