@@ -29,6 +29,7 @@ class Commit:
         self.tags = []
         self.changes = {}
         self.cc_list = []
+        self.signoff_set = set()
         self.notes = []
 
     def AddChange(self, version, info):
@@ -72,3 +73,16 @@ class Commit:
             cc_list:    List of aliases or email addresses
         """
         self.cc_list += cc_list
+
+    def CheckDuplicateSignoff(self, signoff):
+        """Check a list of signoffs we have send for this patch
+
+        Args:
+            signoff:    Signoff line
+        Returns:
+            True if this signoff is new, False if we have already seen it.
+        """
+        if signoff in self.signoff_set:
+          return False
+        self.signoff_set.add(signoff)
+        return True

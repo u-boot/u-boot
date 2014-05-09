@@ -1550,7 +1550,7 @@ int do_run (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 			return 1;
 		}
 
-		if (run_command(arg, flag) != 0)
+		if (run_command_list(arg, -1, flag) != 0)
 			return 1;
 	}
 	return 0;
