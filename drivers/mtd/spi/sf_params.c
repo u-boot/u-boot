@@ -55,6 +55,7 @@ const struct spi_flash_params spi_flash_params_table[] = {
 	{"S25FL032P",	   0x010215, 0x4d00,    64 * 1024,    64, RD_FULL,		     WR_QPP},
 	{"S25FL064P",	   0x010216, 0x4d00,    64 * 1024,   128, RD_FULL,		     WR_QPP},
 	{"S25FL128S_64K",  0x012018, 0x4d01,    64 * 1024,   256, RD_FULL,		     WR_QPP},
+	{"S25FL128S_256K", 0x012018, 0x4d00,   256 * 1024,    64, RD_FULL,		     WR_QPP},
 	{"S25FL256S_256K", 0x010219, 0x4d00,   256 * 1024,   128, RD_FULL,		     WR_QPP},
 	{"S25FL256S_64K",  0x010219, 0x4d01,	64 * 1024,   512, RD_FULL,		     WR_QPP},
 	{"S25FL512S_256K", 0x010220, 0x4d00,   256 * 1024,   256, RD_FULL,		     WR_QPP},
