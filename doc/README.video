@@ -11,8 +11,6 @@ U-Boot MPC8xx video controller driver
 The driver has been tested with the following configurations:
 
 - MPC823FADS with AD7176 on a PAL TV (YCbYCr)	- arsenio@tin.it
-- GENIETV    with AD7177 on a PAL TV (YCbYCr)	- arsenio@tin.it
-
 
 "video-mode" environment variable
 ===============================

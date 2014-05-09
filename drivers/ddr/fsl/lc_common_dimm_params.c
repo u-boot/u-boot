@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2012 Freescale Semiconductor, Inc.
+ * Copyright 2008-2014 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -11,20 +11,23 @@
 
 #include <fsl_ddr.h>
 
-#if defined(CONFIG_SYS_FSL_DDR3)
+#if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR4)
 static unsigned int
-compute_cas_latency_ddr3(const dimm_params_t *dimm_params,
-			 common_timing_params_t *outpdimm,
-			 unsigned int number_of_dimms)
+compute_cas_latency(const dimm_params_t *dimm_params,
+		    common_timing_params_t *outpdimm,
+		    unsigned int number_of_dimms)
 {
 	unsigned int i;
-	unsigned int taamin_ps = 0;
-	unsigned int tckmin_x_ps = 0;
 	unsigned int common_caslat;
 	unsigned int caslat_actual;
 	unsigned int retry = 16;
 	unsigned int tmp;
 	const unsigned int mclk_ps = get_memory_clk_period_ps();
+#ifdef CONFIG_SYS_FSL_DDR3
+	const unsigned int taamax = 20000;
+#else
+	const unsigned int taamax = 18000;
+#endif
 
 	/* compute the common CAS latency supported between slots */
 	tmp = dimm_params[0].caslat_x;
@@ -34,19 +37,20 @@ compute_cas_latency_ddr3(const dimm_params_t *dimm_params,
 	}
 	common_caslat = tmp;
 
-	/* compute the max tAAmin tCKmin between slots */
-	for (i = 0; i < number_of_dimms; i++) {
-		taamin_ps = max(taamin_ps, dimm_params[i].taa_ps);
-		tckmin_x_ps = max(tckmin_x_ps, dimm_params[i].tckmin_x_ps);
-	}
 	/* validate if the memory clk is in the range of dimms */
-	if (mclk_ps < tckmin_x_ps) {
+	if (mclk_ps < outpdimm->tckmin_x_ps) {
 		printf("DDR clock (MCLK cycle %u ps) is faster than "
 			"the slowest DIMM(s) (tCKmin %u ps) can support.\n",
-			mclk_ps, tckmin_x_ps);
+			mclk_ps, outpdimm->tckmin_x_ps);
 	}
+#ifdef CONFIG_SYS_FSL_DDR4
+	if (mclk_ps > outpdimm->tckmax_ps) {
+		printf("DDR clock (MCLK cycle %u ps) is slower than DIMM(s) (tCKmax %u ps) can support.\n",
+		       mclk_ps, outpdimm->tckmax_ps);
+	}
+#endif
 	/* determine the acutal cas latency */
-	caslat_actual = (taamin_ps + mclk_ps - 1) / mclk_ps;
+	caslat_actual = (outpdimm->taamin_ps + mclk_ps - 1) / mclk_ps;
 	/* check if the dimms support the CAS latency */
 	while (!(common_caslat & (1 << caslat_actual)) && retry > 0) {
 		caslat_actual++;
@@ -54,13 +58,147 @@ compute_cas_latency_ddr3(const dimm_params_t *dimm_params,
 	}
 	/* once the caculation of caslat_actual is completed
 	 * we must verify that this CAS latency value does not
-	 * exceed tAAmax, which is 20 ns for all DDR3 speed grades
+	 * exceed tAAmax, which is 20 ns for all DDR3 speed grades,
+	 * 18ns for all DDR4 speed grades.
 	 */
-	if (caslat_actual * mclk_ps > 20000) {
+	if (caslat_actual * mclk_ps > taamax) {
 		printf("The choosen cas latency %d is too large\n",
 			caslat_actual);
 	}
-	outpdimm->lowest_common_SPD_caslat = caslat_actual;
+	outpdimm->lowest_common_spd_caslat = caslat_actual;
+	debug("lowest_common_spd_caslat is 0x%x\n", caslat_actual);
+
+	return 0;
+}
+#else	/* for DDR1 and DDR2 */
+static unsigned int
+compute_cas_latency(const dimm_params_t *dimm_params,
+		    common_timing_params_t *outpdimm,
+		    unsigned int number_of_dimms)
+{
+	int i;
+	const unsigned int mclk_ps = get_memory_clk_period_ps();
+	unsigned int lowest_good_caslat;
+	unsigned int not_ok;
+	unsigned int temp1, temp2;
+
+	debug("using mclk_ps = %u\n", mclk_ps);
+	if (mclk_ps > outpdimm->tckmax_ps) {
+		printf("Warning: DDR clock (%u ps) is slower than DIMM(s) (tCKmax %u ps)\n",
+		       mclk_ps, outpdimm->tckmax_ps);
+	}
+
+	/*
+	 * Compute a CAS latency suitable for all DIMMs
+	 *
+	 * Strategy for SPD-defined latencies: compute only
+	 * CAS latency defined by all DIMMs.
+	 */
+
+	/*
+	 * Step 1: find CAS latency common to all DIMMs using bitwise
+	 * operation.
+	 */
+	temp1 = 0xFF;
+	for (i = 0; i < number_of_dimms; i++) {
+		if (dimm_params[i].n_ranks) {
+			temp2 = 0;
+			temp2 |= 1 << dimm_params[i].caslat_x;
+			temp2 |= 1 << dimm_params[i].caslat_x_minus_1;
+			temp2 |= 1 << dimm_params[i].caslat_x_minus_2;
+			/*
+			 * If there was no entry for X-2 (X-1) in
+			 * the SPD, then caslat_x_minus_2
+			 * (caslat_x_minus_1) contains either 255 or
+			 * 0xFFFFFFFF because that's what the glorious
+			 * __ilog2 function returns for an input of 0.
+			 * On 32-bit PowerPC, left shift counts with bit
+			 * 26 set (that the value of 255 or 0xFFFFFFFF
+			 * will have), cause the destination register to
+			 * be 0.  That is why this works.
+			 */
+			temp1 &= temp2;
+		}
+	}
+
+	/*
+	 * Step 2: check each common CAS latency against tCK of each
+	 * DIMM's SPD.
+	 */
+	lowest_good_caslat = 0;
+	temp2 = 0;
+	while (temp1) {
+		not_ok = 0;
+		temp2 =  __ilog2(temp1);
+		debug("checking common caslat = %u\n", temp2);
+
+		/* Check if this CAS latency will work on all DIMMs at tCK. */
+		for (i = 0; i < number_of_dimms; i++) {
+			if (!dimm_params[i].n_ranks)
+				continue;
+
+			if (dimm_params[i].caslat_x == temp2) {
+				if (mclk_ps >= dimm_params[i].tckmin_x_ps) {
+					debug("CL = %u ok on DIMM %u at tCK=%u ps with tCKmin_X_ps of %u\n",
+					      temp2, i, mclk_ps,
+					      dimm_params[i].tckmin_x_ps);
+					continue;
+				} else {
+					not_ok++;
+				}
+			}
+
+			if (dimm_params[i].caslat_x_minus_1 == temp2) {
+				unsigned int tckmin_x_minus_1_ps
+					= dimm_params[i].tckmin_x_minus_1_ps;
+				if (mclk_ps >= tckmin_x_minus_1_ps) {
+					debug("CL = %u ok on DIMM %u at tCK=%u ps with tckmin_x_minus_1_ps of %u\n",
+					      temp2, i, mclk_ps,
+					      tckmin_x_minus_1_ps);
+					continue;
+				} else {
+					not_ok++;
+				}
+			}
+
+			if (dimm_params[i].caslat_x_minus_2 == temp2) {
+				unsigned int tckmin_x_minus_2_ps
+					= dimm_params[i].tckmin_x_minus_2_ps;
+				if (mclk_ps >= tckmin_x_minus_2_ps) {
+					debug("CL = %u ok on DIMM %u at tCK=%u ps with tckmin_x_minus_2_ps of %u\n",
+					      temp2, i, mclk_ps,
+					      tckmin_x_minus_2_ps);
+					continue;
+				} else {
+					not_ok++;
+				}
+			}
+		}
+
+		if (!not_ok)
+			lowest_good_caslat = temp2;
+
+		temp1 &= ~(1 << temp2);
+	}
+
+	debug("lowest common SPD-defined CAS latency = %u\n",
+	      lowest_good_caslat);
+	outpdimm->lowest_common_spd_caslat = lowest_good_caslat;
+
+
+	/*
+	 * Compute a common 'de-rated' CAS latency.
+	 *
+	 * The strategy here is to find the *highest* dereated cas latency
+	 * with the assumption that all of the DIMMs will support a dereated
+	 * CAS latency higher than or equal to their lowest dereated value.
+	 */
+	temp1 = 0;
+	for (i = 0; i < number_of_dimms; i++)
+		temp1 = max(temp1, dimm_params[i].caslat_lowest_derated);
+
+	outpdimm->highest_common_derated_caslat = temp1;
+	debug("highest common dereated CAS latency = %u\n", temp1);
 
 	return 0;
 }
@@ -82,34 +220,40 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 
 	unsigned int tckmin_x_ps = 0;
 	unsigned int tckmax_ps = 0xFFFFFFFF;
-	unsigned int tckmax_max_ps = 0;
 	unsigned int trcd_ps = 0;
 	unsigned int trp_ps = 0;
 	unsigned int tras_ps = 0;
+#if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR4)
+	unsigned int taamin_ps = 0;
+#endif
+#ifdef CONFIG_SYS_FSL_DDR4
+	unsigned int twr_ps = 15000;
+	unsigned int trfc1_ps = 0;
+	unsigned int trfc2_ps = 0;
+	unsigned int trfc4_ps = 0;
+	unsigned int trrds_ps = 0;
+	unsigned int trrdl_ps = 0;
+	unsigned int tccdl_ps = 0;
+#else
 	unsigned int twr_ps = 0;
 	unsigned int twtr_ps = 0;
 	unsigned int trfc_ps = 0;
 	unsigned int trrd_ps = 0;
+	unsigned int trtp_ps = 0;
+#endif
 	unsigned int trc_ps = 0;
 	unsigned int refresh_rate_ps = 0;
 	unsigned int extended_op_srt = 1;
+#if defined(CONFIG_SYS_FSL_DDR1) || defined(CONFIG_SYS_FSL_DDR2)
 	unsigned int tis_ps = 0;
 	unsigned int tih_ps = 0;
 	unsigned int tds_ps = 0;
 	unsigned int tdh_ps = 0;
-	unsigned int trtp_ps = 0;
 	unsigned int tdqsq_max_ps = 0;
 	unsigned int tqhs_ps = 0;
-
+#endif
 	unsigned int temp1, temp2;
 	unsigned int additive_latency = 0;
-#if !defined(CONFIG_SYS_FSL_DDR3)
-	const unsigned int mclk_ps = get_memory_clk_period_ps();
-	unsigned int lowest_good_caslat;
-	unsigned int not_ok;
-
-	debug("using mclk_ps = %u\n", mclk_ps);
-#endif
 
 	temp1 = 0;
 	for (i = 0; i < number_of_dimms; i++) {
@@ -146,31 +290,34 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 		 * i.e., this is the slowest the whole system can go.
 		 */
 		tckmax_ps = min(tckmax_ps, dimm_params[i].tckmax_ps);
-
-		/* Either find maximum value to determine slowest
-		 * speed, delay, time, period, etc */
+#if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR4)
+		taamin_ps = max(taamin_ps, dimm_params[i].taa_ps);
+#endif
 		tckmin_x_ps = max(tckmin_x_ps, dimm_params[i].tckmin_x_ps);
-		tckmax_max_ps = max(tckmax_max_ps, dimm_params[i].tckmax_ps);
 		trcd_ps = max(trcd_ps, dimm_params[i].trcd_ps);
 		trp_ps = max(trp_ps, dimm_params[i].trp_ps);
 		tras_ps = max(tras_ps, dimm_params[i].tras_ps);
+#ifdef CONFIG_SYS_FSL_DDR4
+		trfc1_ps = max(trfc1_ps, dimm_params[i].trfc1_ps);
+		trfc2_ps = max(trfc2_ps, dimm_params[i].trfc2_ps);
+		trfc4_ps = max(trfc4_ps, dimm_params[i].trfc4_ps);
+		trrds_ps = max(trrds_ps, dimm_params[i].trrds_ps);
+		trrdl_ps = max(trrdl_ps, dimm_params[i].trrdl_ps);
+		tccdl_ps = max(tccdl_ps, dimm_params[i].tccdl_ps);
+#else
 		twr_ps = max(twr_ps, dimm_params[i].twr_ps);
 		twtr_ps = max(twtr_ps, dimm_params[i].twtr_ps);
 		trfc_ps = max(trfc_ps, dimm_params[i].trfc_ps);
 		trrd_ps = max(trrd_ps, dimm_params[i].trrd_ps);
+		trtp_ps = max(trtp_ps, dimm_params[i].trtp_ps);
+#endif
 		trc_ps = max(trc_ps, dimm_params[i].trc_ps);
+#if defined(CONFIG_SYS_FSL_DDR1) || defined(CONFIG_SYS_FSL_DDR2)
 		tis_ps = max(tis_ps, dimm_params[i].tis_ps);
 		tih_ps = max(tih_ps, dimm_params[i].tih_ps);
 		tds_ps = max(tds_ps, dimm_params[i].tds_ps);
 		tdh_ps = max(tdh_ps, dimm_params[i].tdh_ps);
-		trtp_ps = max(trtp_ps, dimm_params[i].trtp_ps);
 		tqhs_ps = max(tqhs_ps, dimm_params[i].tqhs_ps);
-		refresh_rate_ps = max(refresh_rate_ps,
-				      dimm_params[i].refresh_rate_ps);
-		/* extended_op_srt is either 0 or 1, 0 having priority */
-		extended_op_srt = min(extended_op_srt,
-				      dimm_params[i].extended_op_srt);
-
 		/*
 		 * Find maximum tdqsq_max_ps to find slowest.
 		 *
@@ -178,6 +325,12 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 		 * strategy for this parameter?
 		 */
 		tdqsq_max_ps = max(tdqsq_max_ps, dimm_params[i].tdqsq_max_ps);
+#endif
+		refresh_rate_ps = max(refresh_rate_ps,
+				      dimm_params[i].refresh_rate_ps);
+		/* extended_op_srt is either 0 or 1, 0 having priority */
+		extended_op_srt = min(extended_op_srt,
+				      dimm_params[i].extended_op_srt);
 	}
 
 	outpdimm->ndimms_present = number_of_dimms - temp1;
@@ -189,24 +342,37 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 
 	outpdimm->tckmin_x_ps = tckmin_x_ps;
 	outpdimm->tckmax_ps = tckmax_ps;
-	outpdimm->tckmax_max_ps = tckmax_max_ps;
+#if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR4)
+	outpdimm->taamin_ps = taamin_ps;
+#endif
 	outpdimm->trcd_ps = trcd_ps;
 	outpdimm->trp_ps = trp_ps;
 	outpdimm->tras_ps = tras_ps;
-	outpdimm->twr_ps = twr_ps;
+#ifdef CONFIG_SYS_FSL_DDR4
+	outpdimm->trfc1_ps = trfc1_ps;
+	outpdimm->trfc2_ps = trfc2_ps;
+	outpdimm->trfc4_ps = trfc4_ps;
+	outpdimm->trrds_ps = trrds_ps;
+	outpdimm->trrdl_ps = trrdl_ps;
+	outpdimm->tccdl_ps = tccdl_ps;
+#else
 	outpdimm->twtr_ps = twtr_ps;
 	outpdimm->trfc_ps = trfc_ps;
 	outpdimm->trrd_ps = trrd_ps;
+	outpdimm->trtp_ps = trtp_ps;
+#endif
+	outpdimm->twr_ps = twr_ps;
 	outpdimm->trc_ps = trc_ps;
 	outpdimm->refresh_rate_ps = refresh_rate_ps;
 	outpdimm->extended_op_srt = extended_op_srt;
+#if defined(CONFIG_SYS_FSL_DDR1) || defined(CONFIG_SYS_FSL_DDR2)
 	outpdimm->tis_ps = tis_ps;
 	outpdimm->tih_ps = tih_ps;
 	outpdimm->tds_ps = tds_ps;
 	outpdimm->tdh_ps = tdh_ps;
-	outpdimm->trtp_ps = trtp_ps;
 	outpdimm->tdqsq_max_ps = tdqsq_max_ps;
 	outpdimm->tqhs_ps = tqhs_ps;
+#endif
 
 	/* Determine common burst length for all DIMMs. */
 	temp1 = 0xff;
@@ -265,128 +431,9 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	if (temp1 != 0)
 		printf("ERROR: Mix different RDIMM detected!\n");
 
-#if defined(CONFIG_SYS_FSL_DDR3)
-	if (compute_cas_latency_ddr3(dimm_params, outpdimm, number_of_dimms))
+	/* calculate cas latency for all DDR types */
+	if (compute_cas_latency(dimm_params, outpdimm, number_of_dimms))
 		return 1;
-#else
-	/*
-	 * Compute a CAS latency suitable for all DIMMs
-	 *
-	 * Strategy for SPD-defined latencies: compute only
-	 * CAS latency defined by all DIMMs.
-	 */
-
-	/*
-	 * Step 1: find CAS latency common to all DIMMs using bitwise
-	 * operation.
-	 */
-	temp1 = 0xFF;
-	for (i = 0; i < number_of_dimms; i++) {
-		if (dimm_params[i].n_ranks) {
-			temp2 = 0;
-			temp2 |= 1 << dimm_params[i].caslat_x;
-			temp2 |= 1 << dimm_params[i].caslat_x_minus_1;
-			temp2 |= 1 << dimm_params[i].caslat_x_minus_2;
-			/*
-			 * FIXME: If there was no entry for X-2 (X-1) in
-			 * the SPD, then caslat_x_minus_2
-			 * (caslat_x_minus_1) contains either 255 or
-			 * 0xFFFFFFFF because that's what the glorious
-			 * __ilog2 function returns for an input of 0.
-			 * On 32-bit PowerPC, left shift counts with bit
-			 * 26 set (that the value of 255 or 0xFFFFFFFF
-			 * will have), cause the destination register to
-			 * be 0.  That is why this works.
-			 */
-			temp1 &= temp2;
-		}
-	}
-
-	/*
-	 * Step 2: check each common CAS latency against tCK of each
-	 * DIMM's SPD.
-	 */
-	lowest_good_caslat = 0;
-	temp2 = 0;
-	while (temp1) {
-		not_ok = 0;
-		temp2 =  __ilog2(temp1);
-		debug("checking common caslat = %u\n", temp2);
-
-		/* Check if this CAS latency will work on all DIMMs at tCK. */
-		for (i = 0; i < number_of_dimms; i++) {
-			if (!dimm_params[i].n_ranks) {
-				continue;
-			}
-			if (dimm_params[i].caslat_x == temp2) {
-				if (mclk_ps >= dimm_params[i].tckmin_x_ps) {
-					debug("CL = %u ok on DIMM %u at tCK=%u"
-					    " ps with its tCKmin_X_ps of %u\n",
-					       temp2, i, mclk_ps,
-					       dimm_params[i].tckmin_x_ps);
-					continue;
-				} else {
-					not_ok++;
-				}
-			}
-
-			if (dimm_params[i].caslat_x_minus_1 == temp2) {
-				unsigned int tckmin_x_minus_1_ps
-					= dimm_params[i].tckmin_x_minus_1_ps;
-				if (mclk_ps >= tckmin_x_minus_1_ps) {
-					debug("CL = %u ok on DIMM %u at "
-						"tCK=%u ps with its "
-						"tckmin_x_minus_1_ps of %u\n",
-					       temp2, i, mclk_ps,
-					       tckmin_x_minus_1_ps);
-					continue;
-				} else {
-					not_ok++;
-				}
-			}
-
-			if (dimm_params[i].caslat_x_minus_2 == temp2) {
-				unsigned int tckmin_x_minus_2_ps
-					= dimm_params[i].tckmin_x_minus_2_ps;
-				if (mclk_ps >= tckmin_x_minus_2_ps) {
-					debug("CL = %u ok on DIMM %u at "
-						"tCK=%u ps with its "
-						"tckmin_x_minus_2_ps of %u\n",
-					       temp2, i, mclk_ps,
-					       tckmin_x_minus_2_ps);
-					continue;
-				} else {
-					not_ok++;
-				}
-			}
-		}
-
-		if (!not_ok) {
-			lowest_good_caslat = temp2;
-		}
-
-		temp1 &= ~(1 << temp2);
-	}
-
-	debug("lowest common SPD-defined CAS latency = %u\n",
-	       lowest_good_caslat);
-	outpdimm->lowest_common_SPD_caslat = lowest_good_caslat;
-
-
-	/*
-	 * Compute a common 'de-rated' CAS latency.
-	 *
-	 * The strategy here is to find the *highest* dereated cas latency
-	 * with the assumption that all of the DIMMs will support a dereated
-	 * CAS latency higher than or equal to their lowest dereated value.
-	 */
-	temp1 = 0;
-	for (i = 0; i < number_of_dimms; i++) {
-		temp1 = max(temp1, dimm_params[i].caslat_lowest_derated);
-	}
-	outpdimm->highest_common_derated_caslat = temp1;
-	debug("highest common dereated CAS latency = %u\n", temp1);
-#endif /* #if defined(CONFIG_SYS_FSL_DDR3) */
 
 	/* Determine if all DIMMs ECC capable. */
 	temp1 = 1;
@@ -404,14 +451,6 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	}
 	outpdimm->all_dimms_ecc_capable = temp1;
 
-#ifndef CONFIG_SYS_FSL_DDR3
-	/* FIXME: move to somewhere else to validate. */
-	if (mclk_ps > tckmax_max_ps) {
-		printf("Warning: some of the installed DIMMs "
-				"can not operate this slowly.\n");
-		return 1;
-	}
-#endif
 	/*
 	 * Compute additive latency.
 	 *
@@ -468,27 +507,20 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	additive_latency = 0;
 
 #if defined(CONFIG_SYS_FSL_DDR2)
-	if (lowest_good_caslat < 4) {
-		additive_latency = (picos_to_mclk(trcd_ps) > lowest_good_caslat)
-			? picos_to_mclk(trcd_ps) - lowest_good_caslat : 0;
+	if ((outpdimm->lowest_common_spd_caslat < 4) &&
+	    (picos_to_mclk(trcd_ps) > outpdimm->lowest_common_spd_caslat)) {
+		additive_latency = picos_to_mclk(trcd_ps) -
+				   outpdimm->lowest_common_spd_caslat;
 		if (mclk_to_picos(additive_latency) > trcd_ps) {
 			additive_latency = picos_to_mclk(trcd_ps);
 			debug("setting additive_latency to %u because it was "
 				" greater than tRCD_ps\n", additive_latency);
 		}
 	}
-
-#elif defined(CONFIG_SYS_FSL_DDR3)
-	/*
-	 * The system will not use the global auto-precharge mode.
-	 * However, it uses the page mode, so we set AL=0
-	 */
-	additive_latency = 0;
 #endif
 
 	/*
 	 * Validate additive latency
-	 * FIXME: move to somewhere else to validate
 	 *
 	 * AL <= tRCD(min)
 	 */
@@ -516,10 +548,19 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	debug("trcd_ps   = %u\n", outpdimm->trcd_ps);
 	debug("trp_ps    = %u\n", outpdimm->trp_ps);
 	debug("tras_ps   = %u\n", outpdimm->tras_ps);
-	debug("twr_ps    = %u\n", outpdimm->twr_ps);
+#ifdef CONFIG_SYS_FSL_DDR4
+	debug("trfc1_ps = %u\n", trfc1_ps);
+	debug("trfc2_ps = %u\n", trfc2_ps);
+	debug("trfc4_ps = %u\n", trfc4_ps);
+	debug("trrds_ps = %u\n", trrds_ps);
+	debug("trrdl_ps = %u\n", trrdl_ps);
+	debug("tccdl_ps = %u\n", tccdl_ps);
+#else
 	debug("twtr_ps   = %u\n", outpdimm->twtr_ps);
 	debug("trfc_ps   = %u\n", outpdimm->trfc_ps);
 	debug("trrd_ps   = %u\n", outpdimm->trrd_ps);
+#endif
+	debug("twr_ps    = %u\n", outpdimm->twr_ps);
 	debug("trc_ps    = %u\n", outpdimm->trc_ps);
 
 	return 0;

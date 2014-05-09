@@ -1,7 +1,5 @@
 #include <config.h>
 
-#ifndef CONFIG_ADS /* Old ADS has not got any user-controllable LED */
-
 #include <common.h>
 
 void
@@ -43,5 +41,3 @@ fast_blink(unsigned int n)
     signal_delay(0x00100000);
   }
 }
-
-#endif /* !CONFIG_ADS */

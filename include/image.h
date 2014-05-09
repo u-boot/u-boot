@@ -57,13 +57,18 @@ struct lmb;
 #  ifdef CONFIG_SPL_SHA1_SUPPORT
 #   define IMAGE_ENABLE_SHA1	1
 #  endif
+#  ifdef CONFIG_SPL_SHA256_SUPPORT
+#   define IMAGE_ENABLE_SHA256	1
+#  endif
 # else
 #  define CONFIG_CRC32		/* FIT images need CRC32 support */
 #  define CONFIG_MD5		/* and MD5 */
 #  define CONFIG_SHA1		/* and SHA1 */
+#  define CONFIG_SHA256		/* and SHA256 */
 #  define IMAGE_ENABLE_CRC32	1
 #  define IMAGE_ENABLE_MD5	1
 #  define IMAGE_ENABLE_SHA1	1
+#  define IMAGE_ENABLE_SHA256	1
 # endif
 
 #ifndef IMAGE_ENABLE_CRC32
@@ -76,6 +81,10 @@ struct lmb;
 
 #ifndef IMAGE_ENABLE_SHA1
 #define IMAGE_ENABLE_SHA1	0
+#endif
+
+#ifndef IMAGE_ENABLE_SHA256
+#define IMAGE_ENABLE_SHA256	0
 #endif
 
 #endif /* CONFIG_FIT */
@@ -824,7 +833,8 @@ int calculate_hash(const void *data, int data_len, const char *algo,
 #if defined(CONFIG_FIT_SIGNATURE)
 # ifdef USE_HOSTCC
 #  define IMAGE_ENABLE_SIGN	1
-#  define IMAGE_ENABLE_VERIFY	0
+#  define IMAGE_ENABLE_VERIFY	1
+# include  <openssl/evp.h>
 #else
 #  define IMAGE_ENABLE_SIGN	0
 #  define IMAGE_ENABLE_VERIFY	1
@@ -835,7 +845,9 @@ int calculate_hash(const void *data, int data_len, const char *algo,
 #endif
 
 #ifdef USE_HOSTCC
-# define gd_fdt_blob()		NULL
+void *image_get_host_blob(void);
+void image_set_host_blob(void *host_blob);
+# define gd_fdt_blob()		image_get_host_blob()
 #else
 # define gd_fdt_blob()		(gd->fdt_blob)
 #endif
@@ -862,6 +874,21 @@ struct image_sign_info {
 struct image_region {
 	const void *data;
 	int size;
+};
+
+#if IMAGE_ENABLE_VERIFY
+# include <rsa-checksum.h>
+#endif
+struct checksum_algo {
+	const char *name;
+	const int checksum_len;
+	const int pad_len;
+#if IMAGE_ENABLE_SIGN
+	const EVP_MD *(*calculate_sign)(void);
+#endif
+	void (*calculate)(const struct image_region region[],
+			  int region_count, uint8_t *checksum);
+	const uint8_t *rsa_padding;
 };
 
 struct image_sig_algo {
@@ -914,6 +941,9 @@ struct image_sig_algo {
 	int (*verify)(struct image_sign_info *info,
 		      const struct image_region region[], int region_count,
 		      uint8_t *sig, uint sig_len);
+
+	/* pointer to checksum algorithm */
+	struct checksum_algo *checksum;
 };
 
 /**
@@ -979,7 +1009,11 @@ struct image_region *fit_region_make_list(const void *fit,
 
 static inline int fit_image_check_target_arch(const void *fdt, int node)
 {
+#ifndef USE_HOSTCC
 	return fit_image_check_arch(fdt, node, IH_ARCH_DEFAULT);
+#else
+	return 0;
+#endif
 }
 
 #ifdef CONFIG_FIT_VERBOSE

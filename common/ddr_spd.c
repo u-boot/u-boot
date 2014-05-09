@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Freescale Semiconductor, Inc.
+ * Copyright 2008-2014 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -115,4 +115,47 @@ ddr3_spd_check(const ddr3_spd_eeprom_t *spd)
 			spd->crc[0], crc_lsb, spd->crc[1], crc_msb);
 		return 1;
 	}
+}
+
+unsigned int ddr4_spd_check(const struct ddr4_spd_eeprom_s *spd)
+{
+	char *p = (char *)spd;
+	int csum16;
+	int len;
+	char crc_lsb;	/* byte 126 */
+	char crc_msb;	/* byte 127 */
+
+	len = 126;
+	csum16 = crc16(p, len);
+
+	crc_lsb = (char) (csum16 & 0xff);
+	crc_msb = (char) (csum16 >> 8);
+
+	if (spd->crc[0] != crc_lsb || spd->crc[1] != crc_msb) {
+		printf("SPD checksum unexpected.\n"
+			"Checksum lsb in SPD = %02X, computed SPD = %02X\n"
+			"Checksum msb in SPD = %02X, computed SPD = %02X\n",
+			spd->crc[0], crc_lsb, spd->crc[1], crc_msb);
+		return 1;
+	}
+
+	p = (char *)((ulong)spd + 128);
+	len = 126;
+	csum16 = crc16(p, len);
+
+	crc_lsb = (char) (csum16 & 0xff);
+	crc_msb = (char) (csum16 >> 8);
+
+	if (spd->mod_section.uc[126] != crc_lsb ||
+	    spd->mod_section.uc[127] != crc_msb) {
+		printf("SPD checksum unexpected.\n"
+			"Checksum lsb in SPD = %02X, computed SPD = %02X\n"
+			"Checksum msb in SPD = %02X, computed SPD = %02X\n",
+			spd->mod_section.uc[126],
+			crc_lsb, spd->mod_section.uc[127],
+			crc_msb);
+		return 1;
+	}
+
+	return 0;
 }

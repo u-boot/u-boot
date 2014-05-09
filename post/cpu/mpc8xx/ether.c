@@ -365,17 +365,8 @@ static void scc_init (int scc_index)
 	immr->im_cpm.cp_scc[scc_index].scc_psmr = SCC_PSMR_ENCRC |
 			SCC_PSMR_NIB22 | SCC_PSMR_LPB;
 
-#ifdef CONFIG_RPXCLASSIC
-	*((uchar *) BCSR0) &= ~BCSR0_ETHLPBK;
-	*((uchar *) BCSR0) |= (BCSR0_ETHEN | BCSR0_COLTEST | BCSR0_FULLDPLX);
-#endif
-
 #ifdef CONFIG_RPXLITE
 	*((uchar *) BCSR0) |= BCSR0_ETHEN;
-#endif
-
-#ifdef CONFIG_MBX
-	board_ether_init ();
 #endif
 
 	/*
@@ -390,8 +381,6 @@ static void scc_init (int scc_index)
 	 */
 #if defined (CONFIG_FADS)
 	udelay (10000);				/* wait 10 ms */
-#elif defined(CONFIG_RPXCLASSIC)
-	udelay (100000);			/* wait 100 ms */
 #endif
 }
 

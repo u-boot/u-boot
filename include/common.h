@@ -505,18 +505,7 @@ extern ssize_t spi_read	 (uchar *, int, uchar *, int);
 extern ssize_t spi_write (uchar *, int, uchar *, int);
 #endif
 
-#ifdef CONFIG_RPXCLASSIC
-void rpxclassic_init (void);
-#endif
-
 void rpxlite_init (void);
-
-#ifdef CONFIG_MBX
-/* $(BOARD)/mbx8xx.c */
-void	mbx_init (void);
-void	board_serial_init (void);
-void	board_ether_init (void);
-#endif
 
 #ifdef CONFIG_HERMES
 /* $(BOARD)/hermes.c */
@@ -691,9 +680,6 @@ ulong	get_UCLK (void);
 #endif
 #if defined(CONFIG_LH7A40X)
 ulong	get_PLLCLK (void);
-#endif
-#if defined CONFIG_INCA_IP
-uint	incaip_get_cpuclk (void);
 #endif
 #if defined(CONFIG_IMX)
 ulong get_systemPLLCLK(void);

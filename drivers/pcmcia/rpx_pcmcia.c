@@ -18,7 +18,7 @@
 #endif
 
 #if	defined(CONFIG_PCMCIA)	\
-	&& (defined(CONFIG_RPXCLASSIC) || defined(CONFIG_RPXLITE))
+	&& defined(CONFIG_RPXLITE)
 
 #define	PCMCIA_BOARD_MSG	"RPX CLASSIC or RPX LITE"
 
@@ -70,4 +70,4 @@ static int pcmcia_hardware_disable(int slot)
 #endif
 
 
-#endif	/* CONFIG_PCMCIA && (CONFIG_RPXCLASSIC || CONFIG_RPXLITE) */
+#endif	/* CONFIG_PCMCIA && CONFIG_RPXLITE */

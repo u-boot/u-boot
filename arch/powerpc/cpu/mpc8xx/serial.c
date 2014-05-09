@@ -173,7 +173,7 @@ static int smc_init (void)
 # endif
 #endif
 
-#if defined(CONFIG_FADS) || defined(CONFIG_ADS)
+#if defined(CONFIG_FADS)
 	/* Enable RS232 */
 #if defined(CONFIG_8xx_CONS_SMC1)
 	*((uint *) BCSR1) &= ~BCSR1_RS232EN_1;
@@ -182,7 +182,7 @@ static int smc_init (void)
 #endif
 #endif	/* CONFIG_FADS */
 
-#if defined(CONFIG_RPXLITE) || defined(CONFIG_RPXCLASSIC)
+#if defined(CONFIG_RPXLITE)
 	/* Enable Monitor Port Transceiver */
 	*((uchar *) BCSR0) |= BCSR0_ENMONXCVR ;
 #endif /* CONFIG_RPXLITE */
@@ -224,10 +224,6 @@ static int smc_init (void)
 	up->smc_rstate = 0;
 	up->smc_tstate = 0;
 #endif
-
-#if defined(CONFIG_MBX)
-	board_serial_init();
-#endif	/* CONFIG_MBX */
 
 	/* Set UART mode, 8 bit, no parity, one stop.
 	 * Enable receive and transmit.

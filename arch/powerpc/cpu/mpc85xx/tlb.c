@@ -24,7 +24,7 @@ void invalidate_tlb(u8 tlb)
 		mtspr(MMUCSR0, 0x2);
 }
 
-void init_tlbs(void)
+__weak void init_tlbs(void)
 {
 	int i;
 
@@ -236,20 +236,26 @@ void init_addr_map(void)
 }
 #endif
 
-unsigned int
-setup_ddr_tlbs_phys(phys_addr_t p_addr, unsigned int memsize_in_meg)
+uint64_t tlb_map_range(ulong v_addr, phys_addr_t p_addr, uint64_t size,
+		       enum tlb_map_type map_type)
 {
 	int i;
 	unsigned int tlb_size;
-	unsigned int wimge = MAS2_M;
-	unsigned int ram_tlb_address = (unsigned int)CONFIG_SYS_DDR_SDRAM_BASE;
+	unsigned int wimge;
+	unsigned int perm;
 	unsigned int max_cam, tsize_mask;
-	u64 size, memsize = (u64)memsize_in_meg << 20;
 
+	if (map_type == TLB_MAP_RAM) {
+		perm = MAS3_SX|MAS3_SW|MAS3_SR;
+		wimge = MAS2_M;
 #ifdef CONFIG_SYS_PPC_DDR_WIMGE
-	wimge = CONFIG_SYS_PPC_DDR_WIMGE;
+		wimge = CONFIG_SYS_PPC_DDR_WIMGE;
 #endif
-	size = min(memsize, CONFIG_MAX_MEM_MAPPED);
+	} else {
+		perm = MAS3_SW|MAS3_SR;
+		wimge = MAS2_I|MAS2_G;
+	}
+
 	if ((mfspr(SPRN_MMUCFG) & MMUCFG_MAVN) == MMUCFG_MAVN_V1) {
 		/* Convert (4^max) kB to (2^max) bytes */
 		max_cam = ((mfspr(SPRN_TLB1CFG) >> 16) & 0xf) * 2 + 10;
@@ -261,11 +267,11 @@ setup_ddr_tlbs_phys(phys_addr_t p_addr, unsigned int memsize_in_meg)
 	}
 
 	for (i = 0; size && i < 8; i++) {
-		int ram_tlb_index = find_free_tlbcam();
+		int tlb_index = find_free_tlbcam();
 		u32 camsize = __ilog2_u64(size) & tsize_mask;
-		u32 align = __ilog2(ram_tlb_address) & tsize_mask;
+		u32 align = __ilog2(v_addr) & tsize_mask;
 
-		if (ram_tlb_index == -1)
+		if (tlb_index == -1)
 			break;
 
 		if (align == -2) align = max_cam;
@@ -277,18 +283,29 @@ setup_ddr_tlbs_phys(phys_addr_t p_addr, unsigned int memsize_in_meg)
 
 		tlb_size = camsize - 10;
 
-		set_tlb(1, ram_tlb_address, p_addr,
-			MAS3_SX|MAS3_SW|MAS3_SR, wimge,
-			0, ram_tlb_index, tlb_size, 1);
+		set_tlb(1, v_addr, p_addr, perm, wimge,
+			0, tlb_index, tlb_size, 1);
 
 		size -= 1ULL << camsize;
-		memsize -= 1ULL << camsize;
-		ram_tlb_address += 1UL << camsize;
+		v_addr += 1UL << camsize;
 		p_addr += 1UL << camsize;
 	}
 
+	return size;
+}
+
+unsigned int setup_ddr_tlbs_phys(phys_addr_t p_addr,
+				 unsigned int memsize_in_meg)
+{
+	unsigned int ram_tlb_address = (unsigned int)CONFIG_SYS_DDR_SDRAM_BASE;
+	u64 memsize = (u64)memsize_in_meg << 20;
+
+	memsize = min(memsize, CONFIG_MAX_MEM_MAPPED);
+	memsize = tlb_map_range(ram_tlb_address, p_addr, memsize, TLB_MAP_RAM);
+
 	if (memsize)
 		print_size(memsize, " left unmapped\n");
+
 	return memsize_in_meg;
 }
 

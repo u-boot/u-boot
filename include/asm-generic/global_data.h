@@ -80,6 +80,9 @@ typedef struct global_data {
 #if defined(CONFIG_SYS_I2C)
 	int		cur_i2c_bus;	/* current used i2c bus */
 #endif
+#ifdef CONFIG_SYS_I2C_MXC
+	void *srdata[10];
+#endif
 	unsigned long timebase_h;
 	unsigned long timebase_l;
 	struct arch_global_data arch;	/* architecture-specific data */

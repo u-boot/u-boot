@@ -37,19 +37,14 @@ int env_init(void)
 int saveenv(void)
 {
 	env_t	env_new;
-	ssize_t	len;
-	char	*res;
 	block_dev_desc_t *dev_desc = NULL;
 	int dev = FAT_ENV_DEVICE;
 	int part = FAT_ENV_PART;
 	int err;
 
-	res = (char *)&env_new.data;
-	len = hexport_r(&env_htab, '\0', 0, &res, ENV_SIZE, 0, NULL);
-	if (len < 0) {
-		error("Cannot export environment: errno = %d\n", errno);
-		return 1;
-	}
+	err = env_export(&env_new);
+	if (err)
+		return err;
 
 #ifdef CONFIG_MMC
 	if (strcmp(FAT_ENV_INTERFACE, "mmc") == 0) {
@@ -79,7 +74,6 @@ int saveenv(void)
 		return 1;
 	}
 
-	env_new.crc = crc32(0, env_new.data, ENV_SIZE);
 	err = file_fat_write(FAT_ENV_FILE, (void *)&env_new, sizeof(env_t));
 	if (err == -1) {
 		printf("\n** Unable to write \"%s\" from %s%d:%d **\n",

@@ -50,6 +50,37 @@ static void write_cell(u8 *addr, u64 val, int size)
 }
 
 /**
+ * fdt_getprop_u32_default_node - Return a node's property or a default
+ *
+ * @fdt: ptr to device tree
+ * @off: offset of node
+ * @cell: cell offset in property
+ * @prop: property name
+ * @dflt: default value if the property isn't found
+ *
+ * Convenience function to return a node's property or a default value if
+ * the property doesn't exist.
+ */
+u32 fdt_getprop_u32_default_node(const void *fdt, int off, int cell,
+				const char *prop, const u32 dflt)
+{
+	const fdt32_t *val;
+	int len;
+
+	val = fdt_getprop(fdt, off, prop, &len);
+
+	/* Check if property exists */
+	if (!val)
+		return dflt;
+
+	/* Check if property is long enough */
+	if (len < ((cell + 1) * sizeof(uint32_t)))
+		return dflt;
+
+	return fdt32_to_cpu(*val);
+}
+
+/**
  * fdt_getprop_u32_default - Find a node and return it's property or a default
  *
  * @fdt: ptr to device tree
@@ -63,18 +94,13 @@ static void write_cell(u8 *addr, u64 val, int size)
 u32 fdt_getprop_u32_default(const void *fdt, const char *path,
 				const char *prop, const u32 dflt)
 {
-	const fdt32_t *val;
 	int off;
 
 	off = fdt_path_offset(fdt, path);
 	if (off < 0)
 		return dflt;
 
-	val = fdt_getprop(fdt, off, prop, NULL);
-	if (val)
-		return fdt32_to_cpu(*val);
-	else
-		return dflt;
+	return fdt_getprop_u32_default_node(fdt, off, 0, prop, dflt);
 }
 
 /**
@@ -1408,4 +1434,98 @@ u64 fdt_get_base_address(void *fdt, int node)
 	prop = fdt_getprop(fdt, node, "ranges", &size);
 
 	return prop ? fdt_translate_address(fdt, node, prop + naddr) : 0;
+}
+
+/*
+ * Read a property of size <prop_len>. Currently only supports 1 or 2 cells.
+ */
+static int fdt_read_prop(const fdt32_t *prop, int prop_len, int cell_off,
+			 uint64_t *val, int cells)
+{
+	const fdt32_t *prop32 = &prop[cell_off];
+	const fdt64_t *prop64 = (const fdt64_t *)&prop[cell_off];
+
+	if ((cell_off + cells) > prop_len)
+		return -FDT_ERR_NOSPACE;
+
+	switch (cells) {
+	case 1:
+		*val = fdt32_to_cpu(*prop32);
+		break;
+	case 2:
+		*val = fdt64_to_cpu(*prop64);
+		break;
+	default:
+		return -FDT_ERR_NOSPACE;
+	}
+
+	return 0;
+}
+
+/**
+ * fdt_read_range - Read a node's n'th range property
+ *
+ * @fdt: ptr to device tree
+ * @node: offset of node
+ * @n: range index
+ * @child_addr: pointer to storage for the "child address" field
+ * @addr: pointer to storage for the CPU view translated physical start
+ * @len: pointer to storage for the range length
+ *
+ * Convenience function that reads and interprets a specific range out of
+ * a number of the "ranges" property array.
+ */
+int fdt_read_range(void *fdt, int node, int n, uint64_t *child_addr,
+		   uint64_t *addr, uint64_t *len)
+{
+	int pnode = fdt_parent_offset(fdt, node);
+	const fdt32_t *ranges;
+	int pacells;
+	int acells;
+	int scells;
+	int ranges_len;
+	int cell = 0;
+	int r = 0;
+
+	/*
+	 * The "ranges" property is an array of
+	 * { <child address> <parent address> <size in child address space> }
+	 *
+	 * All 3 elements can span a diffent number of cells. Fetch their size.
+	 */
+	pacells = fdt_getprop_u32_default_node(fdt, pnode, 0, "#address-cells", 1);
+	acells = fdt_getprop_u32_default_node(fdt, node, 0, "#address-cells", 1);
+	scells = fdt_getprop_u32_default_node(fdt, node, 0, "#size-cells", 1);
+
+	/* Now try to get the ranges property */
+	ranges = fdt_getprop(fdt, node, "ranges", &ranges_len);
+	if (!ranges)
+		return -FDT_ERR_NOTFOUND;
+	ranges_len /= sizeof(uint32_t);
+
+	/* Jump to the n'th entry */
+	cell = n * (pacells + acells + scells);
+
+	/* Read <child address> */
+	if (child_addr) {
+		r = fdt_read_prop(ranges, ranges_len, cell, child_addr,
+				  acells);
+		if (r)
+			return r;
+	}
+	cell += acells;
+
+	/* Read <parent address> */
+	if (addr)
+		*addr = fdt_translate_address(fdt, node, ranges + cell);
+	cell += pacells;
+
+	/* Read <size in child address space> */
+	if (len) {
+		r = fdt_read_prop(ranges, ranges_len, cell, len, scells);
+		if (r)
+			return r;
+	}
+
+	return 0;
 }

@@ -15,67 +15,12 @@
  */
 
 #include "imagetool.h"
+#include "fit_common.h"
 #include "mkimage.h"
 #include <image.h>
 #include <u-boot/crc.h>
 
 static image_header_t header;
-
-static int fit_verify_header (unsigned char *ptr, int image_size,
-			struct image_tool_params *params)
-{
-	return fdt_check_header(ptr);
-}
-
-static int fit_check_image_types (uint8_t type)
-{
-	if (type == IH_TYPE_FLATDT)
-		return EXIT_SUCCESS;
-	else
-		return EXIT_FAILURE;
-}
-
-int mmap_fdt(struct image_tool_params *params, const char *fname, void **blobp,
-		struct stat *sbuf)
-{
-	void *ptr;
-	int fd;
-
-	/* Load FIT blob into memory (we need to write hashes/signatures) */
-	fd = open(fname, O_RDWR | O_BINARY);
-
-	if (fd < 0) {
-		fprintf(stderr, "%s: Can't open %s: %s\n",
-			params->cmdname, fname, strerror(errno));
-		unlink(fname);
-		return -1;
-	}
-
-	if (fstat(fd, sbuf) < 0) {
-		fprintf(stderr, "%s: Can't stat %s: %s\n",
-			params->cmdname, fname, strerror(errno));
-		unlink(fname);
-		return -1;
-	}
-
-	ptr = mmap(0, sbuf->st_size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
-	if (ptr == MAP_FAILED) {
-		fprintf(stderr, "%s: Can't read %s: %s\n",
-			params->cmdname, fname, strerror(errno));
-		unlink(fname);
-		return -1;
-	}
-
-	/* check if ptr has a valid blob */
-	if (fdt_check_header(ptr)) {
-		fprintf(stderr, "%s: Invalid FIT blob\n", params->cmdname);
-		unlink(fname);
-		return -1;
-	}
-
-	*blobp = ptr;
-	return fd;
-}
 
 /**
  * fit_handle_file - main FIT file processing function
@@ -129,13 +74,14 @@ static int fit_handle_file(struct image_tool_params *params)
 	}
 
 	if (params->keydest) {
-		destfd = mmap_fdt(params, params->keydest, &dest_blob, &sbuf);
+		destfd = mmap_fdt(params->cmdname, params->keydest,
+				  &dest_blob, &sbuf, 1);
 		if (destfd < 0)
 			goto err_keydest;
 		destfd_size = sbuf.st_size;
 	}
 
-	tfd = mmap_fdt(params, tmpfile, &ptr, &sbuf);
+	tfd = mmap_fdt(params->cmdname, tmpfile, &ptr, &sbuf, 1);
 	if (tfd < 0)
 		goto err_mmap;
 

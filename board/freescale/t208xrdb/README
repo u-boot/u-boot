@@ -67,7 +67,7 @@ T2080PCIe-RDB board Overview
      - One PCIe x2 end-point device (C293 Crypto co-processor)
  - IFC/Local Bus
      - NOR:  128MB 16-bit NOR Flash
-     - NAND: 512MB 8-bit NAND flash
+     - NAND: 1GB 8-bit NAND flash
      - CPLD: for system controlling with programable header on-board
  - SATA
      - Two SATA 2.0 onnectors on-board
@@ -120,7 +120,7 @@ Start Address   End Address	Definition			Max size
 0xEBF00000	0xEBF1FFFF	FMAN ucode (alt bank)		128KB
 0xEBE00000	0xEBE3FFFF	PHY CS4315 firmware (alt bank)	256KB
 0xE9300000	0xEBEFFFFF	rootfs (current bank)		44MB
-0xE8800000	0xE88FFFFF	Hardware device tree (cur bank)	11MB + 512KB
+0xE8800000	0xE88FFFFF	Hardware device tree (cur bank)	1MB
 0xE8020000	0xE86FFFFF	Linux.uImage (current bank)	7MB + 875KB
 0xE8000000	0xE801FFFF	RCW (current bank)		128KB
 
@@ -146,7 +146,8 @@ Software configurations and board settings
 ------------------------------------------
 1. NOR boot:
    a. build NOR boot image
-	$ make T2080RDB
+	$ make T2080RDB_config
+	$ make
    b. program u-boot.bin image to NOR flash
 	=> tftp 1000000 u-boot.bin
 	=> pro off all;era eff40000 efffffff;cp.b 1000000 eff40000 $filesize
@@ -155,18 +156,18 @@ Software configurations and board settings
    Switching between default bank and alternate bank on NOR flash
    To change boot source to vbank4:
 	via software:   run command 'cpld reset altbank' in u-boot.
-	via DIP-switch: set SW3[5:7] = '011'
+	via DIP-switch: set SW3[5:7] = '100'
 
    To change boot source to vbank0:
 	via software:   run command 'cpld reset' in u-boot.
-	via DIP-Switch: set SW3[5:7] = '111'
+	via DIP-Switch: set SW3[5:7] = '000'
 
 2. NAND Boot:
    a. build PBL image for NAND boot
 	$ make T2080RDB_NAND_config
-	$ make u-boot.pbl
-   b. program u-boot.pbl to NAND flash
-	=> tftp 1000000 u-boot.pbl
+	$ make
+   b. program u-boot-with-spl-pbl.bin to NAND flash
+	=> tftp 1000000 u-boot-with-spl-pbl.bin
 	=> nand erase 0 d0000
 	=> nand write 1000000 0 $filesize
 	set SW1[1:8] = '10000010', SW2[1] = '1', SW3[4] = '1' for NAND boot
@@ -174,9 +175,9 @@ Software configurations and board settings
 3. SPI Boot:
    a. build PBL image for SPI boot
 	$ make T2080RDB_SPIFLASH_config
-	$ make u-boot.pbl
-   b. program u-boot.pbl to SPI flash
-	=> tftp 1000000 u-boot.pbl
+	$ make
+   b. program u-boot-with-spl-pbl.bin to SPI flash
+	=> tftp 1000000 u-boot-with-spl-pbl.bin
 	=> sf probe 0
 	=> sf erase 0 d0000
 	=> sf write 1000000 0 $filesize
@@ -185,11 +186,66 @@ Software configurations and board settings
 4. SD Boot:
    a. build PBL image for SD boot
 	$ make T2080RDB_SDCARD_config
-	$ make u-boot.pbl
-   b. program u-boot.pbl to TF card
-	=> tftp 1000000 u-boot.pbl
-	=> mmc write 1000000 8 1650
+	$ make
+   b. program u-boot-with-spl-pbl.bin to micro-SD/TF card
+	=> tftp 1000000 u-boot-with-spl-pbl.bin
+	=> mmc write 1000000 8 0x800
 	set SW1[1:8] = '00100000', SW2[1] = '0' for SD boot
+
+
+2-stage NAND/SPI/SD boot loader
+-------------------------------
+PBL initializes the internal CPC-SRAM and copy SPL(160K) to SRAM.
+SPL further initializes DDR using SPD and environment variables
+and copy u-boot(768 KB) from NAND/SPI/SD device to DDR.
+Finally SPL transers control to u-boot for futher booting.
+
+SPL has following features:
+ - Executes within 256K
+ - No relocation required
+
+Run time view of SPL framework
+-------------------------------------------------
+|Area		   | Address			|
+-------------------------------------------------
+|SecureBoot header | 0xFFFC0000 (32KB)		|
+-------------------------------------------------
+|GD, BD		   | 0xFFFC8000 (4KB)		|
+-------------------------------------------------
+|ENV		   | 0xFFFC9000 (8KB)		|
+-------------------------------------------------
+|HEAP		   | 0xFFFCB000 (50KB)		|
+-------------------------------------------------
+|STACK		   | 0xFFFD8000 (22KB)		|
+-------------------------------------------------
+|U-boot SPL	   | 0xFFFD8000 (160KB)		|
+-------------------------------------------------
+
+NAND Flash memory Map on T2080RDB
+--------------------------------------------------------------
+Start		End		Definition	Size
+0x000000	0x0FFFFF	u-boot img	1MB  (2 blocks)
+0x100000	0x17FFFF	u-boot env	512KB (1 block)
+0x180000	0x1FFFFF	FMAN ucode	512KB (1 block)
+0x200000	0x27FFFF	CS4315 ucode	512KB (1 block)
+
+
+Micro SD Card memory Map on T2080RDB
+----------------------------------------------------
+Block		#blocks		Definition	Size
+0x008		2048		u-boot img	1MB
+0x800		0016		u-boot env	8KB
+0x820		0128		FMAN ucode	64KB
+0x8a0		0512		CS4315 ucode	256KB
+
+
+SPI Flash memory Map on T2080RDB
+----------------------------------------------------
+Start		End		Definition	Size
+0x000000	0x0FFFFF	u-boot img	1MB
+0x100000	0x101FFF	u-boot env	8KB
+0x110000	0x11FFFF	FMAN ucode	64KB
+0x120000        0x15FFFF        CS4315 ucode	256KB
 
 
 How to update the ucode of Cortina CS4315/CS4340 10G PHY

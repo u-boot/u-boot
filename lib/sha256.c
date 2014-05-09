@@ -258,14 +258,15 @@ void sha256_csum_wd(const unsigned char *input, unsigned int ilen,
 {
 	sha256_context ctx;
 #if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-	unsigned char *end, *curr;
+	const unsigned char *end;
+	unsigned char *curr;
 	int chunk;
 #endif
 
 	sha256_starts(&ctx);
 
 #if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
-	curr = input;
+	curr = (unsigned char *)input;
 	end = input + ilen;
 	while (curr < end) {
 		chunk = end - curr;

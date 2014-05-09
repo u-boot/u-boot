@@ -66,8 +66,7 @@ void env_relocate_spec(void)
 int saveenv(void)
 {
 	env_t	env_new;
-	ssize_t	len;
-	char	*res;
+	int ret;
 	struct mtd_info *mtd = &onenand_mtd;
 #ifdef CONFIG_ENV_ADDR_FLEX
 	struct onenand_chip *this = &onenand_chip;
@@ -78,13 +77,9 @@ int saveenv(void)
 		.callback	= NULL,
 	};
 
-	res = (char *)&env_new.data;
-	len = hexport_r(&env_htab, '\0', 0, &res, ENV_SIZE, 0, NULL);
-	if (len < 0) {
-		error("Cannot export environment: errno = %d\n", errno);
-		return 1;
-	}
-	env_new.crc = crc32(0, env_new.data, ENV_SIZE);
+	ret = env_export(&env_new);
+	if (ret)
+		return ret;
 
 	instr.len = CONFIG_ENV_SIZE;
 #ifdef CONFIG_ENV_ADDR_FLEX

@@ -145,7 +145,7 @@ def DoBuildman(options, args):
         options.step = len(series.commits) - 1
 
     # Create a new builder with the selected options
-    output_dir = os.path.join('..', options.branch)
+    output_dir = os.path.join(options.output_dir, options.branch)
     builder = Builder(toolchains, output_dir, options.git_dir,
             options.threads, options.jobs, checkout=True,
             show_unknown=options.show_unknown, step=options.step)

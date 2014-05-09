@@ -66,13 +66,8 @@
  * motherboard and FEC Ethernet on daughterboard. All new PQ1 chips have
  * got FEC so FEC is the default.
  */
-#ifndef CONFIG_ADS
 #undef	CONFIG_SCC1_ENET		/* Disable SCC1 ethernet */
 #define	CONFIG_FEC_ENET			/* Use FEC ethernet  */
-#else					/* Old ADS has not got FEC option */
-#define	CONFIG_SCC1_ENET		/* Use SCC1 ethernet */
-#undef	CONFIG_FEC_ENET			/* No FEC ethernet  */
-#endif /* !CONFIG_ADS */
 
 #if defined(CONFIG_SCC1_ENET) && defined(CONFIG_FEC_ENET)
 #error Both CONFIG_SCC1_ENET and CONFIG_FEC_ENET configured

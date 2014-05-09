@@ -22,10 +22,8 @@
 #if !defined(CONFIG_PCMCIA_SLOT_A) && !defined(CONFIG_PCMCIA_SLOT_B)
 
 					/* The RPX series use SLOT_B	*/
-#if defined(CONFIG_RPXCLASSIC) || defined(CONFIG_RPXLITE)
+#if defined(CONFIG_RPXLITE)
 # define CONFIG_PCMCIA_SLOT_B
-#elif defined(CONFIG_ADS)		/* The ADS  board uses SLOT_A	*/
-# define CONFIG_PCMCIA_SLOT_A
 #elif defined(CONFIG_FADS)		/* The FADS series are a mess	*/
 # if defined(CONFIG_MPC86x) || defined(CONFIG_MPC821)
 #  define CONFIG_PCMCIA_SLOT_A

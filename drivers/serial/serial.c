@@ -117,7 +117,7 @@ serial_initfunc(ns16550_serial_initialize);
 serial_initfunc(pxa_serial_initialize);
 serial_initfunc(s3c24xx_serial_initialize);
 serial_initfunc(s5p_serial_initialize);
-serial_initfunc(zynq_serial_initalize);
+serial_initfunc(zynq_serial_initialize);
 serial_initfunc(bfin_serial_initialize);
 serial_initfunc(bfin_jtag_initialize);
 serial_initfunc(mpc512x_serial_initialize);
@@ -214,7 +214,7 @@ void serial_initialize(void)
 	bfin_serial_initialize();
 	bfin_jtag_initialize();
 	uartlite_serial_initialize();
-	zynq_serial_initalize();
+	zynq_serial_initialize();
 	au1x00_serial_initialize();
 	asc_serial_initialize();
 	jz_serial_initialize();

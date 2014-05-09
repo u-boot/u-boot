@@ -328,3 +328,39 @@ The below commands apply to both B4860QDS and B4420QDS.
    On Linux the interfaces are renamed as:
 	. eth2 -> fm1-gb2
 	. eth3 -> fm1-gb3
+
+NAND boot with 2 Stage boot loader
+----------------------------------
+PBL initialise the internal SRAM and copy SPL(160KB) in SRAM.
+SPL further initialise DDR using SPD and environment variables and copy
+u-boot(768 KB) from flash to DDR.
+Finally SPL transer control to u-boot for futher booting.
+
+SPL has following features:
+ - Executes within 256K
+ - No relocation required
+
+ Run time view of SPL framework during  boot :-
+ -----------------------------------------------
+ Area        | Address                         |
+-----------------------------------------------
+ Secure boot | 0xFFFC0000 (32KB)               |
+ headers     |                                 |
+ -----------------------------------------------
+ GD, BD      | 0xFFFC8000 (4KB)                |
+ -----------------------------------------------
+ ENV         | 0xFFFC9000 (8KB)                |
+ -----------------------------------------------
+ HEAP        | 0xFFFCB000 (30KB)               |
+ -----------------------------------------------
+ STACK       | 0xFFFD8000 (22KB)               |
+ -----------------------------------------------
+ U-boot SPL  | 0xFFFD8000 (160KB)              |
+ -----------------------------------------------
+
+NAND Flash memory Map on B4860 and B4420QDS
+------------------------------------------
+ Start		 End		Definition			Size
+0x000000	0x0FFFFF	u-boot                          1MB
+0x140000	0x15FFFF	u-boot env                      128KB
+0x1A0000	0x1BFFFF	FMAN Ucode                      128KB

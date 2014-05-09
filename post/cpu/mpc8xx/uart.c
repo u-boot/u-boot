@@ -106,7 +106,7 @@ static void smc_init (int smc_index)
 			~(smc_index == 1 ? BCSR1_RS232EN_1 : BCSR1_RS232EN_2);
 #endif
 
-#if defined(CONFIG_RPXLITE) || defined(CONFIG_RPXCLASSIC)
+#if defined(CONFIG_RPXLITE)
 	/* Enable Monitor Port Transceiver */
 	*((uchar *) BCSR0) |= BCSR0_ENMONXCVR;
 #endif
@@ -140,10 +140,6 @@ static void smc_init (int smc_index)
 	up->smc_tbase = dpaddr + sizeof (cbd_t);
 	up->smc_rfcr = SMC_EB;
 	up->smc_tfcr = SMC_EB;
-
-#if defined(CONFIG_MBX)
-	board_serial_init ();
-#endif
 
 	/* Set UART mode, 8 bit, no parity, one stop.
 	 * Enable receive and transmit.

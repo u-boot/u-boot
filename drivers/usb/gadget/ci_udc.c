@@ -321,7 +321,7 @@ static void ci_debounce(struct ci_ep *ep, int in)
 	if (addr == ba)
 		return;		/* not a bounce */
 
-	memcpy(ep->req.buf, ep->b_buf, ep->req.length);
+	memcpy(ep->req.buf, ep->b_buf, ep->req.actual);
 free:
 	/* Large payloads use allocated buffer, free it. */
 	if (ep->b_buf != ep->b_fast)
@@ -350,6 +350,9 @@ static int ci_ep_queue(struct usb_ep *ep,
 	item->info = INFO_BYTES(len) | INFO_IOC | INFO_ACTIVE;
 	item->page0 = (uint32_t)ci_ep->b_buf;
 	item->page1 = ((uint32_t)ci_ep->b_buf & 0xfffff000) + 0x1000;
+	item->page2 = ((uint32_t)ci_ep->b_buf & 0xfffff000) + 0x2000;
+	item->page3 = ((uint32_t)ci_ep->b_buf & 0xfffff000) + 0x3000;
+	item->page4 = ((uint32_t)ci_ep->b_buf & 0xfffff000) + 0x4000;
 	ci_flush_qtd(num);
 
 	head->next = (unsigned) item;
@@ -385,7 +388,7 @@ static void handle_ep_complete(struct ci_ep *ep)
 		       num, in ? "in" : "out", item->info, item->page0);
 
 	len = (item->info >> 16) & 0x7fff;
-	ep->req.length -= len;
+	ep->req.actual = ep->req.length - len;
 	ci_debounce(ep, in);
 
 	DBG("ept%d %s complete %x\n",
@@ -413,7 +416,11 @@ static void handle_setup(void)
 
 	ci_invalidate_qh(0);
 	memcpy(&r, head->setup_data, sizeof(struct usb_ctrlrequest));
+#ifdef CONFIG_CI_UDC_HAS_HOSTPC
+	writel(EPT_RX(0), &udc->epsetupstat);
+#else
 	writel(EPT_RX(0), &udc->epstat);
+#endif
 	DBG("handle setup %s, %x, %x index %x value %x\n", reqname(r.bRequest),
 	    r.bRequestType, r.bRequest, r.wIndex, r.wValue);
 
@@ -480,6 +487,9 @@ static void stop_activity(void)
 	struct ept_queue_head *head;
 	struct ci_udc *udc = (struct ci_udc *)controller.ctrl->hcor;
 	writel(readl(&udc->epcomp), &udc->epcomp);
+#ifdef CONFIG_CI_UDC_HAS_HOSTPC
+	writel(readl(&udc->epsetupstat), &udc->epsetupstat);
+#endif
 	writel(readl(&udc->epstat), &udc->epstat);
 	writel(0xffffffff, &udc->epflush);
 
@@ -521,7 +531,11 @@ void udc_irq(void)
 		int max = 64;
 		int speed = USB_SPEED_FULL;
 
+#ifdef CONFIG_CI_UDC_HAS_HOSTPC
+		bit = (readl(&udc->hostpc1_devlc) >> 25) & 3;
+#else
 		bit = (readl(&udc->portsc) >> 26) & 3;
+#endif
 		DBG("-- portchange %x %s\n", bit, (bit == 2) ? "High" : "Full");
 		if (bit == 2) {
 			speed = USB_SPEED_HIGH;
@@ -538,7 +552,11 @@ void udc_irq(void)
 		printf("<UEI %x>\n", readl(&udc->epcomp));
 
 	if ((n & STS_UI) || (n & STS_UEI)) {
+#ifdef CONFIG_CI_UDC_HAS_HOSTPC
+		n = readl(&udc->epsetupstat);
+#else
 		n = readl(&udc->epstat);
+#endif
 		if (n & EPT_RX(0))
 			handle_setup();
 
@@ -699,7 +717,6 @@ static int ci_udc_probe(void)
 
 int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 {
-	struct ci_udc *udc;
 	int ret;
 
 	if (!driver)
@@ -714,12 +731,18 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 		return ret;
 
 	ret = ci_udc_probe();
+#if defined(CONFIG_USB_EHCI_MX6) || defined(CONFIG_USB_EHCI_MXS)
+	/*
+	 * FIXME: usb_lowlevel_init()->ehci_hcd_init() should be doing all
+	 * HW-specific initialization, e.g. ULPI-vs-UTMI PHY selection
+	 */
 	if (!ret) {
-		udc = (struct ci_udc *)controller.ctrl->hcor;
+		struct ci_udc *udc = (struct ci_udc *)controller.ctrl->hcor;
 
 		/* select ULPI phy */
 		writel(PTS(PTS_ENABLE) | PFSC, &udc->portsc);
 	}
+#endif
 
 	ret = driver->bind(&controller.gadget);
 	if (ret) {

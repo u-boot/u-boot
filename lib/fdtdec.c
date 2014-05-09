@@ -3,6 +3,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#ifndef USE_HOSTCC
 #include <common.h>
 #include <serial.h>
 #include <libfdt.h>
@@ -645,3 +646,22 @@ int fdtdec_read_fmap_entry(const void *blob, int node, const char *name,
 
 	return 0;
 }
+#else
+#include "libfdt.h"
+#include "fdt_support.h"
+
+int fdtdec_get_int(const void *blob, int node, const char *prop_name,
+		int default_val)
+{
+	const int *cell;
+	int len;
+
+	cell = fdt_getprop_w((void *)blob, node, prop_name, &len);
+	if (cell && len >= sizeof(int)) {
+		int val = fdt32_to_cpu(cell[0]);
+
+		return val;
+	}
+	return default_val;
+}
+#endif

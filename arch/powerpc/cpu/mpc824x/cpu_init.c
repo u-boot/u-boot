@@ -46,8 +46,6 @@
 void
 cpu_init_f (void)
 {
-/* MOUSSE board is initialized in asm */
-#if !defined(CONFIG_MOUSSE)
     register unsigned long val;
     CONFIG_WRITE_HALFWORD(PCICR, 0x06); /* Bus Master, respond to PCI memory space acesses*/
 /*    CONFIG_WRITE_HALFWORD(PCISR, 0xffff); */ /*reset PCISR*/
@@ -302,98 +300,12 @@ cpu_init_f (void)
 	CONFIG_READ_WORD(MCCR1, val);
 	CONFIG_WRITE_WORD(MCCR1, val | MCCR1_MEMGO); /* set memory access going */
 	__asm__ __volatile__("eieio");
-
-#endif /* !CONFIG_MOUSSE */
 }
-
-
-#ifdef CONFIG_MOUSSE
-#ifdef INCLUDE_MPC107_REPORT
-struct MPC107_s {
-	unsigned int iobase;
-	char desc[120];
-} MPC107Regs[] = {
-	{ BMC_BASE +  0x00, "MPC107 Vendor/Device ID"		},
-	{ BMC_BASE +  0x04, "MPC107 PCI Command/Status Register" },
-	{ BMC_BASE +  0x08, "MPC107 Revision"			},
-	{ BMC_BASE +  0x0C, "MPC107 Cache Line Size"		},
-	{ BMC_BASE +  0x10, "MPC107 LMBAR"			},
-	{ BMC_BASE +  0x14, "MPC824x PCSR"			},
-	{ BMC_BASE +  0xA8, "MPC824x PICR1"			},
-	{ BMC_BASE +  0xAC, "MPC824x PICR2"			},
-	{ BMC_BASE +  0x46, "MPC824x PACR"			},
-	{ BMC_BASE + 0x310, "MPC824x ITWR"			},
-	{ BMC_BASE + 0x300, "MPC824x OMBAR"			},
-	{ BMC_BASE + 0x308, "MPC824x OTWR"			},
-	{ BMC_BASE +  0x14, "MPC107 Peripheral Control and Status Register" },
-	{ BMC_BASE + 0x78, "MPC107 EUMBAR"			},
-	{ BMC_BASE + 0xC0, "MPC107 Processor Bus Error Status"	},
-	{ BMC_BASE + 0xC4, "MPC107 PCI Bus Error Status"	},
-	{ BMC_BASE + 0xC8, "MPC107 Processor/PCI Error Address"	},
-	{ BMC_BASE + 0xE0, "MPC107 AMBOR Register"		},
-	{ BMC_BASE + 0xF0, "MPC107 MCCR1 Register"		},
-	{ BMC_BASE + 0xF4, "MPC107 MCCR2 Register"		},
-	{ BMC_BASE + 0xF8, "MPC107 MCCR3 Register"		},
-	{ BMC_BASE + 0xFC, "MPC107 MCCR4 Register"		},
-};
-#define N_MPC107_Regs	(sizeof(MPC107Regs)/sizeof(MPC107Regs[0]))
-#endif /* INCLUDE_MPC107_REPORT */
-#endif /* CONFIG_MOUSSE */
 
 /*
  * initialize higher level parts of CPU like time base and timers
  */
 int cpu_init_r (void)
 {
-#ifdef CONFIG_MOUSSE
-#ifdef INCLUDE_MPC107_REPORT
-	unsigned int tmp = 0, i;
-#endif
-	/*
-	 * Initialize the EUMBBAR (Embedded Util Mem Block Base Addr Reg).
-	 * This is necessary before the EPIC, DMA ctlr, I2C ctlr, etc. can
-	 * be accessed.
-	 */
-
-#ifdef CONFIG_MPC8240			/* only on MPC8240 */
-	mpc824x_mpc107_setreg (EUMBBAR, EUMBBAR_VAL);
-	/* MOT/SPS: Issue #10002, PCI (FD Alias enable) */
-	mpc824x_mpc107_setreg (AMBOR, 0x000000C0);
-#endif
-
-
-#ifdef INCLUDE_MPC107_REPORT
-	/* Check MPC824x PCI Device and Vendor ID */
-	while ((tmp = mpc824x_mpc107_getreg (BMC_BASE)) != 0x31057) {
-		printf ("	MPC107: offset=0x%x, val = 0x%x\n",
-			BMC_BASE,
-			tmp);
-	}
-
-	for (i = 0; i < N_MPC107_Regs; i++) {
-		printf ("	0x%x/%s = 0x%x\n",
-			MPC107Regs[i].iobase,
-			MPC107Regs[i].desc,
-			mpc824x_mpc107_getreg (MPC107Regs[i].iobase));
-	}
-
-	printf ("IBAT0L = 0x%08X\n", mfspr (IBAT0L));
-	printf ("IBAT0U = 0x%08X\n", mfspr (IBAT0U));
-	printf ("IBAT1L = 0x%08X\n", mfspr (IBAT1L));
-	printf ("IBAT1U = 0x%08X\n", mfspr (IBAT1U));
-	printf ("IBAT2L = 0x%08X\n", mfspr (IBAT2L));
-	printf ("IBAT2U = 0x%08X\n", mfspr (IBAT2U));
-	printf ("IBAT3L = 0x%08X\n", mfspr (IBAT3L));
-	printf ("IBAT3U = 0x%08X\n", mfspr (IBAT3U));
-	printf ("DBAT0L = 0x%08X\n", mfspr (DBAT0L));
-	printf ("DBAT0U = 0x%08X\n", mfspr (DBAT0U));
-	printf ("DBAT1L = 0x%08X\n", mfspr (DBAT1L));
-	printf ("DBAT1U = 0x%08X\n", mfspr (DBAT1U));
-	printf ("DBAT2L = 0x%08X\n", mfspr (DBAT2L));
-	printf ("DBAT2U = 0x%08X\n", mfspr (DBAT2U));
-	printf ("DBAT3L = 0x%08X\n", mfspr (DBAT3L));
-	printf ("DBAT3U = 0x%08X\n", mfspr (DBAT3U));
-#endif /* INCLUDE_MPC107_REPORT */
-#endif /* CONFIG_MOUSSE */
 	return (0);
 }

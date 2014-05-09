@@ -129,8 +129,6 @@ static unsigned char env_flags;
 int saveenv(void)
 {
 	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
-	ssize_t	len;
-	char	*res;
 	struct mmc *mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
 	u32	offset;
 	int	ret, copy = 0;
@@ -138,15 +136,9 @@ int saveenv(void)
 	if (init_mmc_for_env(mmc))
 		return 1;
 
-	res = (char *)&env_new->data;
-	len = hexport_r(&env_htab, '\0', 0, &res, ENV_SIZE, 0, NULL);
-	if (len < 0) {
-		error("Cannot export environment: errno = %d\n", errno);
-		ret = 1;
+	ret = env_export(env_new);
+	if (ret)
 		goto fini;
-	}
-
-	env_new->crc = crc32(0, &env_new->data[0], ENV_SIZE);
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
 	env_new->flags	= ++env_flags; /* increase the serial */

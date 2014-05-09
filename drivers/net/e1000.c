@@ -4532,7 +4532,6 @@ static int e1000_set_phy_type (struct e1000_hw *hw)
 			hw->mac_type == e1000_82547 ||
 			hw->mac_type == e1000_82547_rev_2) {
 			hw->phy_type = e1000_phy_igp;
-			hw->phy_type = e1000_phy_igp;
 			break;
 		}
 	case IGP03E1000_E_PHY_ID:

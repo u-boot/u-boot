@@ -173,7 +173,7 @@ static int announce_dram_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_PPC
+#if defined(CONFIG_MIPS) || defined(CONFIG_PPC)
 static int init_func_ram(void)
 {
 #ifdef	CONFIG_BOARD_TYPES
@@ -819,7 +819,7 @@ static init_fnc_t init_sequence_f[] = {
 	/* TODO: can we rename this to timer_init()? */
 	init_timebase,
 #endif
-#ifdef CONFIG_ARM
+#if defined(CONFIG_ARM) || defined(CONFIG_MIPS)
 	timer_init,		/* initialize timer */
 #endif
 #ifdef CONFIG_SYS_ALLOC_DPRAM
@@ -889,7 +889,7 @@ static init_fnc_t init_sequence_f[] = {
 #ifdef CONFIG_ARM
 	dram_init,		/* configure available RAM banks */
 #endif
-#ifdef CONFIG_PPC
+#if defined(CONFIG_MIPS) || defined(CONFIG_PPC)
 	init_func_ram,
 #endif
 #ifdef CONFIG_POST
