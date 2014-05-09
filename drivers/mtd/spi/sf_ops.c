@@ -258,7 +258,7 @@ int spi_flash_write_common(struct spi_flash *flash, const u8 *cmd,
 
 int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 {
-	u32 erase_size, erase_addr;
+	u32 erase_size, erase_addr, bank_addr;
 	u8 cmd[SPI_FLASH_CMD_LEN];
 	int ret = -1;
 
@@ -271,13 +271,16 @@ int spi_flash_cmd_erase_ops(struct spi_flash *flash, u32 offset, size_t len)
 	cmd[0] = flash->erase_cmd;
 	while (len) {
 		erase_addr = offset;
+		bank_addr = offset;
 
 #ifdef CONFIG_SF_DUAL_FLASH
 		if (flash->dual_flash > SF_SINGLE_FLASH)
 			spi_flash_dual_flash(flash, &erase_addr);
+		if (flash->dual_flash == SF_DUAL_STACKED_FLASH)
+			bank_addr = erase_addr;
 #endif
 #ifdef CONFIG_SPI_FLASH_BAR
-		ret = spi_flash_bank(flash, erase_addr);
+		ret = spi_flash_bank(flash, bank_addr);
 		if (ret < 0)
 			return ret;
 #endif
@@ -303,7 +306,7 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 		size_t len, const void *buf)
 {
 	unsigned long byte_addr, page_size;
-	u32 write_addr;
+	u32 write_addr, bank_addr;
 	size_t chunk_len, actual;
 	u8 cmd[SPI_FLASH_CMD_LEN];
 	int ret = -1;
@@ -313,13 +316,16 @@ int spi_flash_cmd_write_ops(struct spi_flash *flash, u32 offset,
 	cmd[0] = flash->write_cmd;
 	for (actual = 0; actual < len; actual += chunk_len) {
 		write_addr = offset;
+		bank_addr = offset;
 
 #ifdef CONFIG_SF_DUAL_FLASH
 		if (flash->dual_flash > SF_SINGLE_FLASH)
 			spi_flash_dual_flash(flash, &write_addr);
+		if (flash->dual_flash == SF_DUAL_STACKED_FLASH)
+			bank_addr = write_addr;
 #endif
 #ifdef CONFIG_SPI_FLASH_BAR
-		ret = spi_flash_bank(flash, write_addr);
+		ret = spi_flash_bank(flash, bank_addr);
 		if (ret < 0)
 			return ret;
 #endif
@@ -374,7 +380,7 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 		size_t len, void *data)
 {
 	u8 *cmd, cmdsz;
-	u32 remain_len, read_len, read_addr;
+	u32 remain_len, read_len, read_addr, bank_addr;
 	int bank_sel = 0;
 	int ret = -1;
 
@@ -399,13 +405,16 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 	cmd[0] = flash->read_cmd;
 	while (len) {
 		read_addr = offset;
+		bank_addr = offset;
 
 #ifdef CONFIG_SF_DUAL_FLASH
 		if (flash->dual_flash > SF_SINGLE_FLASH)
 			spi_flash_dual_flash(flash, &read_addr);
+		if (flash->dual_flash == SF_DUAL_STACKED_FLASH)
+			bank_addr = read_addr;
 #endif
 #ifdef CONFIG_SPI_FLASH_BAR
-		bank_sel = spi_flash_bank(flash, read_addr);
+		bank_sel = spi_flash_bank(flash, bank_addr);
 		if (bank_sel < 0)
 			return ret;
 #endif
