@@ -229,8 +229,8 @@ static int handle_stage(const void *blob)
 		break;
 	case STAGE_PWM:
 		/* Enable PWM at 15/16 high, 32768 Hz with divider 1 */
-		pinmux_set_func(PINGRP_GPU, PMUX_FUNC_PWM);
-		pinmux_tristate_disable(PINGRP_GPU);
+		pinmux_set_func(PMUX_PINGRP_GPU, PMUX_FUNC_PWM);
+		pinmux_tristate_disable(PMUX_PINGRP_GPU);
 
 		pwm_enable(config.pwm_channel, 32768, 0xdf, 1);
 		break;

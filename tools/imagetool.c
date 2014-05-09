@@ -45,6 +45,8 @@ void register_image_tool(imagetool_register_t image_register)
 	init_ubl_image_type();
 	/* Init Davinci AIS support */
 	init_ais_image_type();
+	/* Init TI Keystone boot image generation/list support */
+	init_gpimage_type();
 }
 
 /*

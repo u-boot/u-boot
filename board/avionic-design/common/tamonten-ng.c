@@ -28,14 +28,14 @@
 
 void pinmux_init(void)
 {
-	pinmux_config_table(tamonten_ng_pinmux_common,
-			    ARRAY_SIZE(tamonten_ng_pinmux_common));
-	pinmux_config_table(unused_pins_lowpower,
-			    ARRAY_SIZE(unused_pins_lowpower));
+	pinmux_config_pingrp_table(tamonten_ng_pinmux_common,
+		ARRAY_SIZE(tamonten_ng_pinmux_common));
+	pinmux_config_pingrp_table(unused_pins_lowpower,
+		ARRAY_SIZE(unused_pins_lowpower));
 
 	/* Initialize any non-default pad configs (APB_MISC_GP regs) */
-	padgrp_config_table(tamonten_ng_padctrl,
-			    ARRAY_SIZE(tamonten_ng_padctrl));
+	pinmux_config_drvgrp_table(tamonten_ng_padctrl,
+		ARRAY_SIZE(tamonten_ng_padctrl));
 }
 
 void gpio_early_init(void)

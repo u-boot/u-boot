@@ -61,10 +61,14 @@
 #define CONFIG_SPL_MAX_SIZE		(54 * 1024)
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
 #define CONFIG_SPL_POWER_SUPPORT
+#define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \
+					 (64 << 20))
+
 
 #ifdef CONFIG_NAND
 #define CONFIG_SPL_NAND_SUPPORT
 #define CONFIG_SPL_NAND_SIMPLE
+#define CONFIG_SYS_NAND_BASE		0x30000000
 #endif
 
 /* Now bring in the rest of the common code. */

@@ -208,9 +208,9 @@ int tegra20_spi_claim_bus(struct spi_slave *slave)
 	 * SPI pins on Tegra20 are muxed - change pinmux later due to UART
 	 * issue.
 	 */
-	pinmux_set_func(PINGRP_GMD, PMUX_FUNC_SFLASH);
-	pinmux_tristate_disable(PINGRP_LSPI);
-	pinmux_set_func(PINGRP_GMC, PMUX_FUNC_SFLASH);
+	pinmux_set_func(PMUX_PINGRP_GMD, PMUX_FUNC_SFLASH);
+	pinmux_tristate_disable(PMUX_PINGRP_LSPI);
+	pinmux_set_func(PMUX_PINGRP_GMC, PMUX_FUNC_SFLASH);
 
 	return 0;
 }

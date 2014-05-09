@@ -224,6 +224,7 @@ struct lmb;
 #define IH_TYPE_KERNEL_NOLOAD	14	/* OS Kernel Image, can run from any load address */
 #define IH_TYPE_PBLIMAGE	15	/* Freescale PBL Boot Image	*/
 #define IH_TYPE_MXSIMAGE	16	/* Freescale MXSBoot Image	*/
+#define IH_TYPE_GPIMAGE		17	/* TI Keystone GPHeader Image	*/
 
 /*
  * Compression Types

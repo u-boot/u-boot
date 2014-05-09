@@ -44,7 +44,7 @@
 	_min1 < _min2 ? _min1 : _min2; })
 
 struct envdev_s {
-	char devname[16];		/* Device name */
+	const char *devname;		/* Device name */
 	ulong devoff;			/* Device offset */
 	ulong env_size;			/* environment size */
 	ulong erase_size;		/* device erase size */
@@ -1368,7 +1368,7 @@ static int parse_config ()
 		return -1;
 	}
 #else
-	strcpy (DEVNAME (0), DEVICE1_NAME);
+	DEVNAME (0) = DEVICE1_NAME;
 	DEVOFFSET (0) = DEVICE1_OFFSET;
 	ENVSIZE (0) = ENV1_SIZE;
 	/* Default values are: erase-size=env-size */
@@ -1383,7 +1383,7 @@ static int parse_config ()
 #endif
 
 #ifdef HAVE_REDUND
-	strcpy (DEVNAME (1), DEVICE2_NAME);
+	DEVNAME (1) = DEVICE2_NAME;
 	DEVOFFSET (1) = DEVICE2_OFFSET;
 	ENVSIZE (1) = ENV2_SIZE;
 	/* Default values are: erase-size=env-size */
@@ -1422,6 +1422,7 @@ static int get_config (char *fname)
 	int i = 0;
 	int rc;
 	char dump[128];
+	char *devname;
 
 	fp = fopen (fname, "r");
 	if (fp == NULL)
@@ -1432,8 +1433,8 @@ static int get_config (char *fname)
 		if (dump[0] == '#')
 			continue;
 
-		rc = sscanf (dump, "%s %lx %lx %lx %lx",
-			     DEVNAME (i),
+		rc = sscanf (dump, "%ms %lx %lx %lx %lx",
+			     &devname,
 			     &DEVOFFSET (i),
 			     &ENVSIZE (i),
 			     &DEVESIZE (i),
@@ -1441,6 +1442,8 @@ static int get_config (char *fname)
 
 		if (rc < 3)
 			continue;
+
+		DEVNAME(i) = devname;
 
 		if (rc < 4)
 			/* Assume the erase size is the same as the env-size */

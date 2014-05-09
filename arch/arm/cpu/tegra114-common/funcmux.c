@@ -29,20 +29,24 @@ int funcmux_select(enum periph_id id, int config)
 	case PERIPH_ID_UART4:
 		switch (config) {
 		case FUNCMUX_UART4_GMI:
-			pinmux_set_func(PINGRP_GMI_A16, PMUX_FUNC_UARTD);
-			pinmux_set_func(PINGRP_GMI_A17, PMUX_FUNC_UARTD);
-			pinmux_set_func(PINGRP_GMI_A18, PMUX_FUNC_UARTD);
-			pinmux_set_func(PINGRP_GMI_A19, PMUX_FUNC_UARTD);
+			pinmux_set_func(PMUX_PINGRP_GMI_A16_PJ7,
+					PMUX_FUNC_UARTD);
+			pinmux_set_func(PMUX_PINGRP_GMI_A17_PB0,
+					PMUX_FUNC_UARTD);
+			pinmux_set_func(PMUX_PINGRP_GMI_A18_PB1,
+					PMUX_FUNC_UARTD);
+			pinmux_set_func(PMUX_PINGRP_GMI_A19_PK7,
+					PMUX_FUNC_UARTD);
 
-			pinmux_set_io(PINGRP_GMI_A16, PMUX_PIN_OUTPUT);
-			pinmux_set_io(PINGRP_GMI_A17, PMUX_PIN_INPUT);
-			pinmux_set_io(PINGRP_GMI_A18, PMUX_PIN_INPUT);
-			pinmux_set_io(PINGRP_GMI_A19, PMUX_PIN_OUTPUT);
+			pinmux_set_io(PMUX_PINGRP_GMI_A16_PJ7, PMUX_PIN_OUTPUT);
+			pinmux_set_io(PMUX_PINGRP_GMI_A17_PB0, PMUX_PIN_INPUT);
+			pinmux_set_io(PMUX_PINGRP_GMI_A18_PB1, PMUX_PIN_INPUT);
+			pinmux_set_io(PMUX_PINGRP_GMI_A19_PK7, PMUX_PIN_OUTPUT);
 
-			pinmux_tristate_disable(PINGRP_GMI_A16);
-			pinmux_tristate_disable(PINGRP_GMI_A17);
-			pinmux_tristate_disable(PINGRP_GMI_A18);
-			pinmux_tristate_disable(PINGRP_GMI_A19);
+			pinmux_tristate_disable(PMUX_PINGRP_GMI_A16_PJ7);
+			pinmux_tristate_disable(PMUX_PINGRP_GMI_A17_PB0);
+			pinmux_tristate_disable(PMUX_PINGRP_GMI_A18_PB1);
+			pinmux_tristate_disable(PMUX_PINGRP_GMI_A19_PK7);
 			break;
 		}
 		break;

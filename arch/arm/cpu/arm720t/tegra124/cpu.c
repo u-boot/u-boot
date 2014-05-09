@@ -26,8 +26,8 @@ static void enable_cpu_power_rail(void)
 	debug("enable_cpu_power_rail entry\n");
 
 	/* un-tristate PWR_I2C SCL/SDA, rest of the defaults are correct */
-	pinmux_tristate_disable(PINGRP_PWR_I2C_SCL);
-	pinmux_tristate_disable(PINGRP_PWR_I2C_SDA);
+	pinmux_tristate_disable(PMUX_PINGRP_PWR_I2C_SCL_PZ6);
+	pinmux_tristate_disable(PMUX_PINGRP_PWR_I2C_SDA_PZ7);
 
 	pmic_enable_cpu_vdd();
 

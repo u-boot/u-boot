@@ -574,6 +574,8 @@ void abb_setup(u32 fuse, u32 ldovbb, u32 setup, u32 control,
 	       u32 txdone, u32 txdone_mask, u32 opp);
 s8 abb_setup_ldovbb(u32 fuse, u32 ldovbb);
 
+void usb_fake_mac_from_die_id(u32 *id);
+
 /* HW Init Context */
 #define OMAP_INIT_CONTEXT_SPL			0
 #define OMAP_INIT_CONTEXT_UBOOT_FROM_NOR	1
