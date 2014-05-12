@@ -74,3 +74,11 @@ int spl_start_uboot(void)
 	return 0;
 }
 #endif
+
+__weak void ps7_init(void)
+{
+	/*
+	 * This function is overridden by the one in
+	 * board/xilinx/zynq/ps7_init.c, if it exists.
+	 */
+}
