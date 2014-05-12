@@ -13,6 +13,7 @@
 #include <mmc.h>
 #include <fat.h>
 #include <dfu.h>
+#include <hash.h>
 #include <linux/list.h>
 #include <linux/compiler.h>
 
@@ -20,6 +21,7 @@ static bool dfu_reset_request;
 static LIST_HEAD(dfu_list);
 static int dfu_alt_num;
 static int alt_num_cnt;
+static struct hash_algo *dfu_hash_algo;
 
 bool dfu_reset(void)
 {
@@ -99,6 +101,29 @@ unsigned char *dfu_get_buf(void)
 	return dfu_buf;
 }
 
+static char *dfu_get_hash_algo(void)
+{
+	char *s;
+
+	s = getenv("dfu_hash_algo");
+	/*
+	 * By default the legacy behaviour to calculate the crc32 hash
+	 * value is preserved.
+	 *
+	 * To disable calculation of the hash algorithm for received data
+	 * specify the "dfu_hash_algo = disabled" at your board envs.
+	 */
+	debug("%s: DFU hash method: %s\n", __func__, s ? s : "not specified");
+
+	if (!s || !strcmp(s, "crc32"))
+		return "crc32";
+
+	if (!strcmp(s, "disabled"))
+		return NULL;
+
+	return NULL;
+}
+
 static int dfu_write_buffer_drain(struct dfu_entity *dfu)
 {
 	long w_size;
@@ -109,8 +134,9 @@ static int dfu_write_buffer_drain(struct dfu_entity *dfu)
 	if (w_size == 0)
 		return 0;
 
-	/* update CRC32 */
-	dfu->crc = crc32(dfu->crc, dfu->i_buf_start, w_size);
+	if (dfu_hash_algo)
+		dfu_hash_algo->hash_update(dfu_hash_algo, &dfu->crc,
+					   dfu->i_buf_start, w_size, 0);
 
 	ret = dfu->write_medium(dfu, dfu->offset, dfu->i_buf_start, &w_size);
 	if (ret)
@@ -138,7 +164,9 @@ int dfu_flush(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 	if (dfu->flush_medium)
 		ret = dfu->flush_medium(dfu);
 
-	printf("\nDFU complete CRC32: 0x%08x\n", dfu->crc);
+	if (dfu_hash_algo)
+		printf("\nDFU complete %s: 0x%08x\n", dfu_hash_algo->name,
+		       dfu->crc);
 
 	/* clear everything */
 	dfu_free_buf();
@@ -238,7 +266,11 @@ static int dfu_read_buffer_fill(struct dfu_entity *dfu, void *buf, int size)
 		/* consume */
 		if (chunk > 0) {
 			memcpy(buf, dfu->i_buf, chunk);
-			dfu->crc = crc32(dfu->crc, buf, chunk);
+			if (dfu_hash_algo)
+				dfu_hash_algo->hash_update(dfu_hash_algo,
+							   &dfu->crc, buf,
+							   chunk, 0);
+
 			dfu->i_buf += chunk;
 			dfu->b_left -= chunk;
 			dfu->r_left -= chunk;
@@ -322,7 +354,9 @@ int dfu_read(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 	}
 
 	if (ret < size) {
-		debug("%s: %s CRC32: 0x%x\n", __func__, dfu->name, dfu->crc);
+		if (dfu_hash_algo)
+			debug("%s: %s %s: 0x%x\n", __func__, dfu->name,
+			      dfu_hash_algo->name, dfu->crc);
 		puts("\nUPLOAD ... done\nCtrl+C to exit ...\n");
 
 		dfu_free_buf();
@@ -396,6 +430,14 @@ int dfu_config_entities(char *env, char *interface, int num)
 
 	dfu_alt_num = dfu_find_alt_num(env);
 	debug("%s: dfu_alt_num=%d\n", __func__, dfu_alt_num);
+
+	dfu_hash_algo = NULL;
+	s = dfu_get_hash_algo();
+	if (s) {
+		ret = hash_lookup_algo(s, &dfu_hash_algo);
+		if (ret)
+			error("Hash algorithm %s not supported\n", s);
+	}
 
 	dfu = calloc(sizeof(*dfu), dfu_alt_num);
 	if (!dfu)
