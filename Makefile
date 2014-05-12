@@ -354,7 +354,6 @@ STRIP		= $(CROSS_COMPILE)strip
 OBJCOPY		= $(CROSS_COMPILE)objcopy
 OBJDUMP		= $(CROSS_COMPILE)objdump
 AWK		= awk
-RANLIB		= $(CROSS_COMPILE)RANLIB
 DTC		= dtc
 CHECK		= sparse
 
