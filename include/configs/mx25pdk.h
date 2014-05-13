@@ -26,6 +26,8 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 #define CONFIG_MACH_TYPE	MACH_TYPE_MX25_3DS
 
 /* Size of malloc() pool */
