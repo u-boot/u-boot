@@ -275,7 +275,8 @@ class PatchStream:
 
         # Suppress duplicate signoffs
         elif signoff_match:
-            if self.commit.CheckDuplicateSignoff(signoff_match.group(1)):
+            if (self.is_log or
+                self.commit.CheckDuplicateSignoff(signoff_match.group(1))):
                 out = [line]
 
         # Well that means this is an ordinary line
