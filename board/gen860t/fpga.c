@@ -40,7 +40,7 @@ DECLARE_GLOBAL_DATA_PTR;
 /* Note that these are pointers to code that is in Flash.  They will be
  * relocated at runtime.
  */
-Xilinx_Virtex2_Slave_SelectMap_fns fpga_fns = {
+xilinx_virtex2_slave_selectmap_fns fpga_fns = {
 	fpga_pre_config_fn,
 	fpga_pgm_fn,
 	fpga_init_fn,
@@ -56,8 +56,8 @@ Xilinx_Virtex2_Slave_SelectMap_fns fpga_fns = {
 	fpga_post_config_fn
 };
 
-Xilinx_desc fpga[CONFIG_FPGA_COUNT] = {
-	{Xilinx_Virtex2,
+xilinx_desc fpga[CONFIG_FPGA_COUNT] = {
+	{xilinx_virtex2,
 	 slave_selectmap,
 	 XILINX_XC2V3000_SIZE,
 	 (void *) &fpga_fns,

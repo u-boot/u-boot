@@ -190,7 +190,7 @@ int fpga_clk_fn(int assert_clk, int flush, int cookie)
 	return assert_clk;
 }
 
-Xilinx_Spartan3_Slave_Serial_fns mt_ventoux_fpga_fns = {
+xilinx_spartan3_slave_serial_fns mt_ventoux_fpga_fns = {
 	fpga_pre_config_fn,
 	fpga_pgm_fn,
 	fpga_clk_fn,
@@ -200,7 +200,7 @@ Xilinx_Spartan3_Slave_Serial_fns mt_ventoux_fpga_fns = {
 	fpga_post_config_fn,
 };
 
-Xilinx_desc fpga = XILINX_XC6SLX4_DESC(slave_serial,
+xilinx_desc fpga = XILINX_XC6SLX4_DESC(slave_serial,
 			(void *)&mt_ventoux_fpga_fns, 0);
 
 /* Initialize the FPGA */
