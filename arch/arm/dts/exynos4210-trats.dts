@@ -101,7 +101,7 @@
 	sdhci@12510000 {
 		samsung,bus-width = <8>;
 		samsung,timing = <1 3 3>;
-		pwr-gpios = <&gpio 0x2008002 0>;
+		pwr-gpios = <&gpio 0xA2 0>;
 	};
 
 	sdhci@12520000 {
@@ -111,7 +111,7 @@
 	sdhci@12530000 {
 		samsung,bus-width = <4>;
 		samsung,timing = <1 2 3>;
-		cd-gpios = <&gpio 0x20c6004 0>;
+		cd-gpios = <&gpio 0x39C 0>;
 	};
 
 	sdhci@12540000 {
