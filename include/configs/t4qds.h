@@ -10,6 +10,8 @@
 #ifndef __T4QDS_H
 #define __T4QDS_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_CMD_REGINFO
 
 /* High Level Configuration Options */

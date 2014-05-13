@@ -20,8 +20,9 @@
 #if defined(CONFIG_B4860QDS) || \
 	defined(CONFIG_T4240QDS) || \
 	defined(CONFIG_T2080QDS) || \
+	defined(CONFIG_T2080RDB) || \
 	defined(CONFIG_T1040QDS) || \
-	defined(CONFIG_T1040RDB)
+	defined(CONFIG_T104xRDB)
 #define CONFIG_SYS_CPC_REINIT_F
 #undef CONFIG_SYS_INIT_L3_ADDR
 #define CONFIG_SYS_INIT_L3_ADDR			0xbff00000

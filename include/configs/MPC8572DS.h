@@ -11,6 +11,9 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
 #include "../board/freescale/common/ics307_clk.h"
 
 #ifdef CONFIG_36BIT
@@ -30,7 +33,7 @@
 #endif
 
 #ifndef CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_TEXT_BASE	0xeff80000
+#define CONFIG_SYS_TEXT_BASE	0xeff40000
 #endif
 
 #ifndef CONFIG_RESET_VECTOR_ADDRESS

@@ -7,6 +7,9 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
 /*
  * B4860 QDS board configuration file
  */
@@ -114,6 +117,17 @@
 
 #define IDT_SERDES1_ADDRESS            0x6E
 #define IDT_SERDES2_ADDRESS            0x6C
+
+/* Voltage monitor on channel 2*/
+#define I2C_MUX_CH_VOL_MONITOR		0xa
+#define I2C_VOL_MONITOR_ADDR		0x40
+#define I2C_VOL_MONITOR_BUS_V_OFFSET	0x2
+#define I2C_VOL_MONITOR_BUS_V_OVF	0x1
+#define I2C_VOL_MONITOR_BUS_V_SHIFT	3
+
+#define CONFIG_ZM7300
+#define I2C_MUX_CH_DPM			0xa
+#define I2C_DPM_ADDR			0x28
 
 #define CONFIG_ENV_OVERWRITE
 

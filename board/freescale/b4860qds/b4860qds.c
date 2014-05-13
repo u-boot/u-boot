@@ -23,6 +23,7 @@
 #include "../common/qixis.h"
 #include "../common/vsc3316_3308.h"
 #include "../common/idt8t49n222a_serdes_clk.h"
+#include "../common/zm7300.h"
 #include "b4860qds.h"
 #include "b4860qds_qixis.h"
 #include "b4860qds_crossbar_con.h"
@@ -92,6 +93,238 @@ int select_i2c_ch_pca(u8 ch)
 	}
 
 	return 0;
+}
+
+/*
+ * read_voltage from sensor on I2C bus
+ * We use average of 4 readings, waiting for 532us befor another reading
+ */
+#define WAIT_FOR_ADC	532	/* wait for 532 microseconds for ADC */
+#define NUM_READINGS	4	/* prefer to be power of 2 for efficiency */
+
+static inline int read_voltage(void)
+{
+	int i, ret, voltage_read = 0;
+	u16 vol_mon;
+
+	for (i = 0; i < NUM_READINGS; i++) {
+		ret = i2c_read(I2C_VOL_MONITOR_ADDR,
+			I2C_VOL_MONITOR_BUS_V_OFFSET, 1, (void *)&vol_mon, 2);
+		if (ret) {
+			printf("VID: failed to read core voltage\n");
+			return ret;
+		}
+		if (vol_mon & I2C_VOL_MONITOR_BUS_V_OVF) {
+			printf("VID: Core voltage sensor error\n");
+			return -1;
+		}
+		debug("VID: bus voltage reads 0x%04x\n", vol_mon);
+		/* LSB = 4mv */
+		voltage_read += (vol_mon >> I2C_VOL_MONITOR_BUS_V_SHIFT) * 4;
+		udelay(WAIT_FOR_ADC);
+	}
+	/* calculate the average */
+	voltage_read /= NUM_READINGS;
+
+	return voltage_read;
+}
+
+static int adjust_vdd(ulong vdd_override)
+{
+	int re_enable = disable_interrupts();
+	ccsr_gur_t __iomem *gur =
+		(void __iomem *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	u32 fusesr;
+	u8 vid;
+	int vdd_target, vdd_last;
+	int existing_voltage, temp_voltage, voltage; /* all in 1/10 mV */
+	int ret;
+	unsigned int orig_i2c_speed;
+	unsigned long vdd_string_override;
+	char *vdd_string;
+	static const uint16_t vdd[32] = {
+		0,	/* unused */
+		9875,	/* 0.9875V */
+		9750,
+		9625,
+		9500,
+		9375,
+		9250,
+		9125,
+		9000,
+		8875,
+		8750,
+		8625,
+		8500,
+		8375,
+		8250,
+		8125,
+		10000,	/* 1.0000V */
+		10125,
+		10250,
+		10375,
+		10500,
+		10625,
+		10750,
+		10875,
+		11000,
+		0,	/* reserved */
+	};
+	struct vdd_drive {
+		u8 vid;
+		unsigned voltage;
+	};
+
+	ret = select_i2c_ch_pca(I2C_MUX_CH_VOL_MONITOR);
+	if (ret) {
+		printf("VID: I2c failed to switch channel\n");
+		ret = -1;
+		goto exit;
+	}
+
+	/* get the voltage ID from fuse status register */
+	fusesr = in_be32(&gur->dcfg_fusesr);
+	vid = (fusesr >> FSL_CORENET_DCFG_FUSESR_VID_SHIFT) &
+		FSL_CORENET_DCFG_FUSESR_VID_MASK;
+	if (vid == FSL_CORENET_DCFG_FUSESR_VID_MASK) {
+		vid = (fusesr >> FSL_CORENET_DCFG_FUSESR_ALTVID_SHIFT) &
+			FSL_CORENET_DCFG_FUSESR_ALTVID_MASK;
+	}
+	vdd_target = vdd[vid];
+	debug("VID:Reading from from fuse,vid=%x vdd is %dmV\n",
+	      vid, vdd_target/10);
+
+	/* check override variable for overriding VDD */
+	vdd_string = getenv("b4qds_vdd_mv");
+	if (vdd_override == 0 && vdd_string &&
+	    !strict_strtoul(vdd_string, 10, &vdd_string_override))
+		vdd_override = vdd_string_override;
+	if (vdd_override >= 819 && vdd_override <= 1212) {
+		vdd_target = vdd_override * 10; /* convert to 1/10 mV */
+		debug("VDD override is %lu\n", vdd_override);
+	} else if (vdd_override != 0) {
+		printf("Invalid value.\n");
+	}
+
+	if (vdd_target == 0) {
+		printf("VID: VID not used\n");
+		ret = 0;
+		goto exit;
+	}
+
+	/*
+	 * Read voltage monitor to check real voltage.
+	 * Voltage monitor LSB is 4mv.
+	 */
+	vdd_last = read_voltage();
+	if (vdd_last < 0) {
+		printf("VID: abort VID adjustment\n");
+		ret = -1;
+		goto exit;
+	}
+
+	debug("VID: Core voltage is at %d mV\n", vdd_last);
+	ret = select_i2c_ch_pca(I2C_MUX_CH_DPM);
+	if (ret) {
+		printf("VID: I2c failed to switch channel to DPM\n");
+		ret = -1;
+		goto exit;
+	}
+
+	/* Round up to the value of step of Voltage regulator */
+	voltage = roundup(vdd_target, ZM_STEP);
+	debug("VID: rounded up voltage = %d\n", voltage);
+
+	/* lower the speed to 100kHz to access ZM7300 device */
+	debug("VID: Setting bus speed to 100KHz if not already set\n");
+	orig_i2c_speed = i2c_get_bus_speed();
+	if (orig_i2c_speed != 100000)
+		i2c_set_bus_speed(100000);
+
+	/* Read the existing level on board, if equal to requsted one,
+	   no need to re-set */
+	existing_voltage = zm_read_voltage();
+
+	/* allowing the voltage difference of one step 0.0125V acceptable */
+	if ((existing_voltage >= voltage) &&
+	    (existing_voltage < (voltage + ZM_STEP))) {
+		debug("VID: voltage already set as requested,returning\n");
+		ret = existing_voltage;
+		goto out;
+	}
+	debug("VID: Changing voltage for board from %dmV to %dmV\n",
+	      existing_voltage/10, voltage/10);
+
+	if (zm_disable_wp() < 0) {
+		ret = -1;
+		goto out;
+	}
+	/* Change Voltage: the change is done through all the steps in the
+	   way, to avoid reset to the board due to power good signal fail
+	   in big voltage change gap jump.
+	*/
+	if (existing_voltage > voltage) {
+		temp_voltage = existing_voltage - ZM_STEP;
+			while (temp_voltage >= voltage) {
+				ret = zm_write_voltage(temp_voltage);
+				if (ret == temp_voltage) {
+					temp_voltage -= ZM_STEP;
+				} else {
+					/* ZM7300 device failed to set
+					 * the voltage */
+					printf
+					("VID:Stepping down vol failed:%dmV\n",
+					 temp_voltage/10);
+				     ret = -1;
+				     goto out;
+				}
+			}
+	} else {
+		temp_voltage = existing_voltage + ZM_STEP;
+			while (temp_voltage < (voltage + ZM_STEP)) {
+				ret = zm_write_voltage(temp_voltage);
+				if (ret == temp_voltage) {
+					temp_voltage += ZM_STEP;
+				} else {
+					/* ZM7300 device failed to set
+					 * the voltage */
+					printf
+					("VID:Stepping up vol failed:%dmV\n",
+					 temp_voltage/10);
+				     ret = -1;
+				     goto out;
+				}
+			}
+	}
+
+	if (zm_enable_wp() < 0)
+		ret = -1;
+
+	/* restore the speed to 400kHz */
+out:	debug("VID: Restore the I2C bus speed to %dKHz\n",
+				orig_i2c_speed/1000);
+	i2c_set_bus_speed(orig_i2c_speed);
+	if (ret < 0)
+		goto exit;
+
+	ret = select_i2c_ch_pca(I2C_MUX_CH_VOL_MONITOR);
+	if (ret) {
+		printf("VID: I2c failed to switch channel\n");
+		ret = -1;
+		goto exit;
+	}
+	vdd_last = read_voltage();
+	select_i2c_ch_pca(I2C_CH_DEFAULT);
+
+	if (vdd_last > 0)
+		printf("VID: Core voltage %d mV\n", vdd_last);
+	else
+		ret = -1;
+
+exit:
+	if (re_enable)
+		enable_interrupts();
+	return ret;
 }
 
 int configure_vsc3316_3308(void)
@@ -697,6 +930,13 @@ int board_early_init_r(void)
 #ifdef CONFIG_SYS_DPAA_QBMAN
 	setup_portals();
 #endif
+	/*
+	 * Adjust core voltage according to voltage ID
+	 * This function changes I2C mux to channel 2.
+	 */
+	if (adjust_vdd(0) < 0)
+		printf("Warning: Adjusting core voltage failed\n");
+
 	/* SerDes1 refclks need to be set again, as default clks
 	 * are not suitable for CPRI and onboard SGMIIs to work
 	 * simultaneously.
