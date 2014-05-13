@@ -222,8 +222,8 @@ int get_soft_i2c_sda_pin(void);
 #define KEY_PWR_INTERRUPT_REG		MAX77686_REG_PMIC_INT1
 #define KEY_PWR_INTERRUPT_MASK		(1 << 1)
 
-#define KEY_VOL_UP_GPIO			exynos4x12_gpio_get(2, x2, 2)
-#define KEY_VOL_DOWN_GPIO		exynos4x12_gpio_get(2, x3, 3)
+#define KEY_VOL_UP_GPIO			EXYNOS4X12_GPIO_X22
+#define KEY_VOL_DOWN_GPIO		EXYNOS4X12_GPIO_X33
 #endif /* __ASSEMBLY__ */
 
 /* LCD console */

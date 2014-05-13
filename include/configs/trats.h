@@ -204,8 +204,8 @@
 #define CONFIG_SYS_I2C_INIT_BOARD
 
 /* I2C FG */
-#define CONFIG_SOFT_I2C_GPIO_SCL exynos4_gpio_get(2, y4, 1)
-#define CONFIG_SOFT_I2C_GPIO_SDA exynos4_gpio_get(2, y4, 0)
+#define CONFIG_SOFT_I2C_GPIO_SCL EXYNOS4_GPIO_Y41
+#define CONFIG_SOFT_I2C_GPIO_SDA EXYNOS4_GPIO_Y40
 
 /* POWER */
 #define CONFIG_POWER
@@ -242,8 +242,8 @@
 #define KEY_PWR_INTERRUPT_REG		MAX8997_REG_INT1
 #define KEY_PWR_INTERRUPT_MASK		(1 << 0)
 
-#define KEY_VOL_UP_GPIO			exynos4_gpio_get(2, x2, 0)
-#define KEY_VOL_DOWN_GPIO		exynos4_gpio_get(2, x2, 1)
+#define KEY_VOL_UP_GPIO			EXYNOS4_GPIO_X20
+#define KEY_VOL_DOWN_GPIO		EXYNOS4_GPIO_X21
 #endif /* __ASSEMBLY__ */
 
 /* LCD console */
