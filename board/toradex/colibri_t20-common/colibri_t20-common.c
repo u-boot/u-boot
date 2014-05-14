@@ -18,12 +18,12 @@ void colibri_t20_common_pin_mux_usb(void)
 	/* module internal USB bus to connect ethernet chipset */
 	funcmux_select(PERIPH_ID_USB2, FUNCMUX_USB2_ULPI);
 	/* ULPI reference clock output */
-	pinmux_set_func(PINGRP_CDEV2, PMUX_FUNC_PLLP_OUT4);
-	pinmux_tristate_disable(PINGRP_CDEV2);
+	pinmux_set_func(PMUX_PINGRP_CDEV2, PMUX_FUNC_PLLP_OUT4);
+	pinmux_tristate_disable(PMUX_PINGRP_CDEV2);
 	/* PHY reset GPIO */
-	pinmux_tristate_disable(PINGRP_UAC);
+	pinmux_tristate_disable(PMUX_PINGRP_UAC);
 	/* VBus GPIO */
-	pinmux_tristate_disable(PINGRP_DTE);
+	pinmux_tristate_disable(PMUX_PINGRP_DTE);
 }
 #endif
 

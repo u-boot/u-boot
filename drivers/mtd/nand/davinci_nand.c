@@ -609,6 +609,9 @@ void davinci_nand_init(struct nand_chip *nand)
 #ifdef CONFIG_SYS_NAND_USE_FLASH_BBT
 	nand->bbt_options	  |= NAND_BBT_USE_FLASH;
 #endif
+#ifdef CONFIG_SYS_NAND_NO_SUBPAGE_WRITE
+	nand->options	  |= NAND_NO_SUBPAGE_WRITE;
+#endif
 #ifdef CONFIG_SYS_NAND_HW_ECC
 	nand->ecc.mode = NAND_ECC_HW;
 	nand->ecc.size = 512;

@@ -8,4 +8,4 @@
 #
 
 
-obj-y	+= interrupts.o
+obj-y	+= interrupts.o sandbox.o

@@ -220,7 +220,6 @@ void board_init_f(ulong board_type)
 	 */
 	bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 	bd->bi_dram[0].size = sdram_size;
-	bd->bi_baudrate = gd->baudrate;
 
 	memcpy(new_gd, gd, sizeof(gd_t));
 

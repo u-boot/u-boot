@@ -58,7 +58,6 @@ int checkboard (void)
 	u32 BoardType = get_BoardType ();
 	char *BoardName[2] = { "mvBlueBOX", "mvBlueLYNX" };
 	char *p;
-	bd_t *bd = gd->bd;
 
 	hw_watchdog_reset ();
 
@@ -71,8 +70,8 @@ int checkboard (void)
 	if ((p = getenv ("console_nr")) != NULL) {
 		unsigned long con_nr = simple_strtoul (p, NULL, 10) & 3;
 
-		bd->bi_baudrate &= ~3;
-		bd->bi_baudrate |= con_nr & 3;
+		gd->baudrate &= ~3;
+		gd->baudrate |= con_nr & 3;
 	}
 	return 0;
 }

@@ -346,3 +346,23 @@ ulong get_bus_freq (ulong dummy)
 	get_sys_info(&sys_info);
 	return sys_info.freq_systembus;
 }
+
+/*
+ * Return the number of cores on this SOC.
+ */
+int cpu_numcores(void)
+{
+	/*
+	 * The QEMU u-boot target only needs to drive the first core,
+	 * spinning and device tree nodes get driven by QEMU itself
+	 */
+	return 1;
+}
+
+/*
+ * Return a 32-bit mask indicating which cores are present on this SOC.
+ */
+u32 cpu_mask(void)
+{
+	return (1 << cpu_numcores()) - 1;
+}

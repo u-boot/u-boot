@@ -19,15 +19,16 @@
  */
 void pinmux_init(void)
 {
-	pinmux_config_table(tegra124_pinmux_set_nontristate,
-			    ARRAY_SIZE(tegra124_pinmux_set_nontristate));
+	pinmux_config_pingrp_table(tegra124_pinmux_set_nontristate,
+		ARRAY_SIZE(tegra124_pinmux_set_nontristate));
 
-	pinmux_config_table(tegra124_pinmux_common,
-			    ARRAY_SIZE(tegra124_pinmux_common));
+	pinmux_config_pingrp_table(tegra124_pinmux_common,
+		ARRAY_SIZE(tegra124_pinmux_common));
 
-	pinmux_config_table(unused_pins_lowpower,
-			    ARRAY_SIZE(unused_pins_lowpower));
+	pinmux_config_pingrp_table(unused_pins_lowpower,
+		ARRAY_SIZE(unused_pins_lowpower));
 
 	/* Initialize any non-default pad configs (APB_MISC_GP regs) */
-	padgrp_config_table(venice2_padctrl, ARRAY_SIZE(venice2_padctrl));
+	pinmux_config_drvgrp_table(venice2_padctrl,
+		ARRAY_SIZE(venice2_padctrl));
 }

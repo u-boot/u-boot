@@ -62,6 +62,7 @@ static struct cpu_type cpu_type_list[] = {
 	CPU_TYPE_ENTRY(T4240, T4240, 0),
 	CPU_TYPE_ENTRY(T4120, T4120, 0),
 	CPU_TYPE_ENTRY(T4160, T4160, 0),
+	CPU_TYPE_ENTRY(T4080, T4080, 4),
 	CPU_TYPE_ENTRY(B4860, B4860, 0),
 	CPU_TYPE_ENTRY(G4860, G4860, 0),
 	CPU_TYPE_ENTRY(G4060, G4060, 0),
@@ -176,7 +177,7 @@ struct cpu_type *identify_cpu(u32 ver)
 /*
  * Return a 32-bit mask indicating which cores are present on this SOC.
  */
-u32 cpu_mask(void)
+__weak u32 cpu_mask(void)
 {
 	ccsr_pic_t __iomem *pic = (void *)CONFIG_SYS_MPC8xxx_PIC_ADDR;
 	struct cpu_type *cpu = gd->arch.cpu;
@@ -195,7 +196,7 @@ u32 cpu_mask(void)
 /*
  * Return the number of cores on this SOC.
  */
-int cpu_numcores(void)
+__weak int cpu_numcores(void)
 {
 	struct cpu_type *cpu = gd->arch.cpu;
 

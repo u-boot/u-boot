@@ -6,7 +6,6 @@
 #
 
 obj-$(CONFIG_BFIN_TWI_I2C) += bfin-twi_i2c.o
-obj-$(CONFIG_DRIVER_DAVINCI_I2C) += davinci_i2c.o
 obj-$(CONFIG_DW_I2C) += designware_i2c.o
 obj-$(CONFIG_I2C_MVTWSI) += mvtwsi.o
 obj-$(CONFIG_I2C_MV) += mv_i2c.o
@@ -16,6 +15,7 @@ obj-$(CONFIG_TSI108_I2C) += tsi108_i2c.o
 obj-$(CONFIG_U8500_I2C) += u8500_i2c.o
 obj-$(CONFIG_SH_SH7734_I2C) += sh_sh7734_i2c.o
 obj-$(CONFIG_SYS_I2C) += i2c_core.o
+obj-$(CONFIG_SYS_I2C_DAVINCI) += davinci_i2c.o
 obj-$(CONFIG_SYS_I2C_FSL) += fsl_i2c.o
 obj-$(CONFIG_SYS_I2C_FTI2C010) += fti2c010.o
 obj-$(CONFIG_SYS_I2C_KONA) += kona_i2c.o

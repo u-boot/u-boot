@@ -21,8 +21,7 @@ static void report_time(ulong cycles)
 	printf("\ntime:");
 	if (minutes)
 		printf(" %lu minutes,", minutes);
-	printf(" %lu.%03lu seconds, %lu ticks\n",
-			seconds, milliseconds, cycles);
+	printf(" %lu.%03lu seconds\n", seconds, milliseconds);
 }
 
 static int do_time(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])

@@ -401,7 +401,7 @@ static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 	image_buf = map_sysmem(image_start, image_len);
 	switch (comp) {
 	case IH_COMP_NONE:
-		if (load == blob_start || load == image_start) {
+		if (load == image_start) {
 			printf("   XIP %s ... ", type_name);
 			no_overlap = 1;
 		} else {

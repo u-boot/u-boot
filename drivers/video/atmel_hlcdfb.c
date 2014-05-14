@@ -128,12 +128,12 @@ void lcd_ctrl_init(void *lcdbase)
 	value |= LCDC_LCDCFG1_HSPW(panel_info.vl_hsync_len - 1);
 	lcdc_writel(&regs->lcdc_lcdcfg1, value);
 
-	value = LCDC_LCDCFG2_VBPW(panel_info.vl_lower_margin);
-	value |= LCDC_LCDCFG2_VFPW(panel_info.vl_upper_margin - 1);
+	value = LCDC_LCDCFG2_VBPW(panel_info.vl_upper_margin);
+	value |= LCDC_LCDCFG2_VFPW(panel_info.vl_lower_margin - 1);
 	lcdc_writel(&regs->lcdc_lcdcfg2, value);
 
-	value = LCDC_LCDCFG3_HBPW(panel_info.vl_right_margin - 1);
-	value |= LCDC_LCDCFG3_HFPW(panel_info.vl_left_margin - 1);
+	value = LCDC_LCDCFG3_HBPW(panel_info.vl_left_margin - 1);
+	value |= LCDC_LCDCFG3_HFPW(panel_info.vl_right_margin - 1);
 	lcdc_writel(&regs->lcdc_lcdcfg3, value);
 
 	/* Display size */

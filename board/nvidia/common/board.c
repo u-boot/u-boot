@@ -31,7 +31,6 @@
 #endif
 #ifdef CONFIG_USB_EHCI_TEGRA
 #include <asm/arch-tegra/usb.h>
-#include <asm/arch/usb.h>
 #include <usb.h>
 #endif
 #ifdef CONFIG_TEGRA_MMC
@@ -47,6 +46,12 @@ DECLARE_GLOBAL_DATA_PTR;
 const struct tegra_sysinfo sysinfo = {
 	CONFIG_TEGRA_BOARD_STRING
 };
+
+void __pinmux_init(void)
+{
+}
+
+void pinmux_init(void) __attribute__((weak, alias("__pinmux_init")));
 
 void __pin_mux_usb(void)
 {
@@ -176,9 +181,7 @@ void gpio_early_init(void) __attribute__((weak, alias("__gpio_early_init")));
 
 int board_early_init_f(void)
 {
-#if !defined(CONFIG_TEGRA20)
 	pinmux_init();
-#endif
 	board_init_uart_f();
 
 	/* Initialize periph GPIOs */

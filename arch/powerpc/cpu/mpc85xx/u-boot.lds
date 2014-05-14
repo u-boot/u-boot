@@ -4,7 +4,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include "config.h"	/* CONFIG_BOARDDIR */
+#include "config.h"
 
 #ifdef CONFIG_RESET_VECTOR_ADDRESS
 #define RESET_VECTOR_ADDRESS	CONFIG_RESET_VECTOR_ADDRESS

@@ -142,7 +142,7 @@ static u32 zynq_i2c_wait(struct zynq_i2c_registers *zynq_i2c, u32 mask)
 			break;
 	}
 #ifdef DEBUG
-	zynq_i2c_debug_status(zynq_i2c));
+	zynq_i2c_debug_status(zynq_i2c);
 #endif
 	/* Clear interrupt status flags */
 	writel(int_status & mask, &zynq_i2c->interrupt_status);
@@ -235,7 +235,7 @@ static int zynq_i2c_read(struct i2c_adapter *adap, u8 dev, uint addr,
 	clrbits_le32(&zynq_i2c->control, ZYNQ_I2C_CONTROL_HOLD);
 
 #ifdef DEBUG
-	zynq_i2c_debug_status();
+	zynq_i2c_debug_status(zynq_i2c);
 #endif
 	return 0;
 }

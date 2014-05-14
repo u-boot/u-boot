@@ -94,20 +94,23 @@ err_out:
 }
 
 #define PCIE_SW_RST	14
-#define PEXHC_SW_RST	13
-#define HOOPER_SW_RST	12
+#define PEXHC_RST	13
+#define HOOPER_RST	12
 
 void pci_init_board(void)
 {
-	/* first wait for the PCIe FPGA to be configured
+	qrio_prstcfg(PCIE_SW_RST, PRSTCFG_POWUP_UNIT_CORE_RST);
+	qrio_prstcfg(PEXHC_RST, PRSTCFG_POWUP_UNIT_CORE_RST);
+	qrio_prstcfg(HOOPER_RST, PRSTCFG_POWUP_UNIT_CORE_RST);
+
+	/* wait for the PCIe FPGA to be configured
 	 * it has been triggered earlier in board_early_init_r */
-	int ret = wait_for_fpga_config();
-	if (ret)
+	if (wait_for_fpga_config())
 		printf("error finishing PCIe FPGA config\n");
 
 	qrio_prst(PCIE_SW_RST, false, false);
-	qrio_prst(PEXHC_SW_RST, false, false);
-	qrio_prst(HOOPER_SW_RST, false, false);
+	qrio_prst(PEXHC_RST, false, false);
+	qrio_prst(HOOPER_RST, false, false);
 	/* Hooper is not direcly PCIe capable */
 	mdelay(50);
 

@@ -91,7 +91,7 @@ void qrio_set_opendrain_gpio(u8 port_off, u8 gpio_nr, u8 val)
 
 #define WDMASK_OFF	0x16
 
-static void qrio_wdmask(u8 bit, bool wden)
+void qrio_wdmask(u8 bit, bool wden)
 {
 	u16 wdmask;
 	void __iomem *qrio_base = (void *)CONFIG_SYS_QRIO_BASE;
@@ -143,4 +143,33 @@ void qrio_prstcfg(u8 bit, u8 mode)
 	}
 
 	out_be32(qrio_base + PRSTCFG_OFF, prstcfg);
+}
+
+#define CTRLH_OFF		0x02
+#define CTRLH_WRL_BOOT		0x01
+#define CTRLH_WRL_UNITRUN	0x02
+
+void qrio_set_leds(void)
+{
+	u8 ctrlh;
+	void __iomem *qrio_base = (void *)CONFIG_SYS_QRIO_BASE;
+
+	/* set UNIT LED to RED and BOOT LED to ON */
+	ctrlh = in_8(qrio_base + CTRLH_OFF);
+	ctrlh |= (CTRLH_WRL_BOOT | CTRLH_WRL_UNITRUN);
+	out_8(qrio_base + CTRLH_OFF, ctrlh);
+}
+
+#define CTRLL_OFF		0x03
+#define CTRLL_WRB_BUFENA	0x20
+
+void qrio_enable_app_buffer(void)
+{
+	u8 ctrll;
+	void __iomem *qrio_base = (void *)CONFIG_SYS_QRIO_BASE;
+
+	/* enable application buffer */
+	ctrll = in_8(qrio_base + CTRLL_OFF);
+	ctrll |= (CTRLL_WRB_BUFENA);
+	out_8(qrio_base + CTRLL_OFF, ctrll);
 }

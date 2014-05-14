@@ -474,7 +474,6 @@
 #define CONFIG_ENV_FLAGS_LIST_STATIC "ethaddr:mo,eth1addr:mo"
 
 #define CONFIG_BAUDRATE		115200
-#define CONFIG_SYS_HZ			1000
 
 /* Initial Memory map for Linux*/
 #define CONFIG_SYS_BOOTMAPSZ		(256 << 20)

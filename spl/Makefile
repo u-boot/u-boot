@@ -88,7 +88,7 @@ libs-y += $(CPUDIR)/
 ifdef SOC
 libs-y += $(CPUDIR)/$(SOC)/
 endif
-libs-y += board/$(BOARDDIR)/
+libs-y += $(if $(BOARDDIR),board/$(BOARDDIR)/)
 libs-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/
 
 libs-$(CONFIG_SPL_FRAMEWORK) += common/spl/
@@ -104,6 +104,7 @@ libs-$(CONFIG_SPL_SPI_SUPPORT) += drivers/spi/
 libs-y += fs/
 libs-$(CONFIG_SPL_LIBGENERIC_SUPPORT) += lib/
 libs-$(CONFIG_SPL_POWER_SUPPORT) += drivers/power/ drivers/power/pmic/
+libs-$(CONFIG_SPL_MTD_SUPPORT) += drivers/mtd/
 libs-$(if $(CONFIG_CMD_NAND),$(CONFIG_SPL_NAND_SUPPORT)) += drivers/mtd/nand/
 libs-$(CONFIG_SPL_DRIVERS_MISC_SUPPORT) += drivers/misc/
 libs-$(CONFIG_SPL_ONENAND_SUPPORT) += drivers/mtd/onenand/

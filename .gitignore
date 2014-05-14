@@ -47,8 +47,8 @@
 /errlog
 /reloc_off
 
-!/spl/Makefile
 /spl/*
+!/spl/Makefile
 /tpl/
 
 #

@@ -16,7 +16,7 @@
 #include "fpga.h"
 #include "mvsmr.h"
 
-Xilinx_Spartan3_Slave_Serial_fns fpga_fns = {
+xilinx_spartan3_slave_serial_fns fpga_fns = {
 	fpga_pre_config_fn,
 	fpga_pgm_fn,
 	fpga_clk_fn,
@@ -26,8 +26,8 @@ Xilinx_Spartan3_Slave_Serial_fns fpga_fns = {
 	0
 };
 
-Xilinx_desc spartan3 = {
-	Xilinx_Spartan2,
+xilinx_desc spartan3 = {
+	xilinx_spartan2,
 	slave_serial,
 	XILINX_XC3S200_SIZE,
 	(void *) &fpga_fns,
