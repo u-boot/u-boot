@@ -77,7 +77,7 @@
 #define  UCR3_DSR        (1<<10) /* Data set ready */
 #define  UCR3_DCD        (1<<9)  /* Data carrier detect */
 #define  UCR3_RI         (1<<8)  /* Ring indicator */
-#define  UCR3_TIMEOUTEN  (1<<7)  /* Timeout interrupt enable */
+#define  UCR3_ADNIMP     (1<<7)  /* Autobaud Detection Not Improved */
 #define  UCR3_RXDSEN	 (1<<6)  /* Receive status interrupt enable */
 #define  UCR3_AIRINTEN   (1<<5)  /* Async IR wake interrupt enable */
 #define  UCR3_AWAKEN	 (1<<4)  /* Async wake interrupt enable */
@@ -186,7 +186,7 @@ static int mxc_serial_init(void)
 
 	while (!(__REG(UART_PHYS + UCR2) & UCR2_SRST));
 
-	__REG(UART_PHYS + UCR3) = 0x0704;
+	__REG(UART_PHYS + UCR3) = 0x0704 | UCR3_ADNIMP;
 	__REG(UART_PHYS + UCR4) = 0x8000;
 	__REG(UART_PHYS + UESC) = 0x002b;
 	__REG(UART_PHYS + UTIM) = 0x0;
