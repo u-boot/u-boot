@@ -91,6 +91,7 @@ dumpimage-mkimage-objs := aisimage.o \
 			omapimage.o \
 			os_support.o \
 			pblimage.o \
+			pbl_crc32.o \
 			sha1.o \
 			sha256.o \
 			ublimage.o \
