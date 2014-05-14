@@ -215,15 +215,14 @@ struct dmamacdescr {
 #endif
 
 struct dw_eth_dev {
+	struct dmamacdescr tx_mac_descrtable[CONFIG_TX_DESCR_NUM];
+	struct dmamacdescr rx_mac_descrtable[CONFIG_RX_DESCR_NUM];
+	char txbuffs[TX_TOTAL_BUFSIZE] __aligned(ARCH_DMA_MINALIGN);
+	char rxbuffs[RX_TOTAL_BUFSIZE] __aligned(ARCH_DMA_MINALIGN);
+
 	u32 interface;
 	u32 tx_currdescnum;
 	u32 rx_currdescnum;
-
-	struct dmamacdescr tx_mac_descrtable[CONFIG_TX_DESCR_NUM];
-	struct dmamacdescr rx_mac_descrtable[CONFIG_RX_DESCR_NUM];
-
-	char txbuffs[TX_TOTAL_BUFSIZE];
-	char rxbuffs[RX_TOTAL_BUFSIZE];
 
 	struct eth_mac_regs *mac_regs_p;
 	struct eth_dma_regs *dma_regs_p;
