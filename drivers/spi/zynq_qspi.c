@@ -88,31 +88,6 @@
 #define ZYNQ_QSPI_MIO_NUM_QSPI1		5
 #define ZYNQ_QSPI_MIO_NUM_QSPI1_CS	1
 
-/* Definitions of the flash commands - Flash opcodes in ascending order */
-#define ZYNQ_QSPI_FLASH_OPCODE_WRSR	0x01	/* Write status register */
-#define ZYNQ_QSPI_FLASH_OPCODE_PP	0x02	/* Page program */
-#define ZYNQ_QSPI_FLASH_OPCODE_NR	0x03	/* Normal read data bytes */
-#define ZYNQ_QSPI_FLASH_OPCODE_WRDS	0x04	/* Write disable */
-#define ZYNQ_QSPI_FLASH_OPCODE_RDSR1	0x05	/* Read status register 1 */
-#define ZYNQ_QSPI_FLASH_OPCODE_WREN	0x06	/* Write enable */
-#define ZYNQ_QSPI_FLASH_OPCODE_FR	0x0B	/* Fast read data bytes */
-#define ZYNQ_QSPI_FLASH_OPCODE_BRRD	0x16	/* Bank address reg read */
-#define ZYNQ_QSPI_FLASH_OPCODE_BRWR	0x17	/* Bank address reg write */
-#define ZYNQ_QSPI_FLASH_OPCODE_BE_4K	0x20	/* Erase 4KiB block */
-#define ZYNQ_QSPI_FLASH_OPCODE_QPP	0x32	/* Quad Page Program */
-#define ZYNQ_QSPI_FLASH_OPCODE_RDSR2	0x35	/* Read status register 2 */
-#define ZYNQ_QSPI_FLASH_OPCODE_DR	0x3B	/* Dual read data bytes */
-#define ZYNQ_QSPI_FLASH_OPCODE_BE_32K	0x52	/* Erase 32KiB block */
-#define ZYNQ_QSPI_FLASH_OPCODE_QR	0x6B	/* Quad read data bytes */
-#define ZYNQ_QSPI_FLASH_OPCODE_ES	0x75	/* Erase suspend */
-#define ZYNQ_QSPI_FLASH_OPCODE_ER	0x7A	/* Erase resume */
-#define ZYNQ_QSPI_FLASH_OPCODE_RDID	0x9F	/* Read JEDEC ID */
-#define ZYNQ_QSPI_FLASH_OPCODE_DIOR	0xBB	/* Dual IO high perf read */
-#define ZYNQ_QSPI_FLASH_OPCODE_WREAR	0xC5	/* Extended address reg write */
-#define ZYNQ_QSPI_FLASH_OPCODE_RDEAR	0xC8	/* Extended address reg read */
-#define ZYNQ_QSPI_FLASH_OPCODE_BE	0xC7	/* Erase whole flash block */
-#define ZYNQ_QSPI_FLASH_OPCODE_SE	0xD8	/* Sector erase (usually 64KB)*/
-
 /* QSPI register offsets */
 struct zynq_qspi_regs {
 	u32 confr;	/* 0x00 */
@@ -147,8 +122,6 @@ struct zynq_qspi {
 	void *rxbuf;
 	int bytes_to_transfer;
 	int bytes_to_receive;
-	struct zynq_qspi_inst_format *curr_inst;
-	u8 inst_response;
 	unsigned int is_inst;
 	unsigned int is_dual;
 	unsigned int u_page;
@@ -177,46 +150,6 @@ struct zynq_qspi_slave {
 	struct spi_device qspi;
 };
 #define to_zynq_qspi_slave(s) container_of(s, struct zynq_qspi_slave, slave)
-
-/*
- * struct zynq_qspi_inst_format - Defines qspi flash instruction format
- * @opcode:		Operational code of instruction
- * @inst_size:		Size of the instruction including address bytes
- * @offset:		Register address where instruction has to be written
- */
-struct zynq_qspi_inst_format {
-	u8 opcode;
-	u8 inst_size;
-	u8 offset;
-};
-
-/* List of all the QSPI instructions and its format */
-static struct zynq_qspi_inst_format flash_inst[] = {
-	{ ZYNQ_QSPI_FLASH_OPCODE_WREN, 1, ZYNQ_QSPI_TXD_00_01_OFFSET },
-	{ ZYNQ_QSPI_FLASH_OPCODE_WRDS, 1, ZYNQ_QSPI_TXD_00_01_OFFSET },
-	{ ZYNQ_QSPI_FLASH_OPCODE_RDSR1, 1, ZYNQ_QSPI_TXD_00_01_OFFSET },
-	{ ZYNQ_QSPI_FLASH_OPCODE_RDSR2, 1, ZYNQ_QSPI_TXD_00_01_OFFSET },
-	{ ZYNQ_QSPI_FLASH_OPCODE_WRSR, 1, ZYNQ_QSPI_TXD_00_01_OFFSET },
-	{ ZYNQ_QSPI_FLASH_OPCODE_PP, 4, ZYNQ_QSPI_TXD_00_00_OFFSET },
-	{ ZYNQ_QSPI_FLASH_OPCODE_SE, 4, ZYNQ_QSPI_TXD_00_00_OFFSET },
-	{ ZYNQ_QSPI_FLASH_OPCODE_BE_32K, 4, ZYNQ_QSPI_TXD_00_00_OFFSET },
-	{ ZYNQ_QSPI_FLASH_OPCODE_BE_4K, 4, ZYNQ_QSPI_TXD_00_00_OFFSET },
-	{ ZYNQ_QSPI_FLASH_OPCODE_BE, 1, ZYNQ_QSPI_TXD_00_01_OFFSET },
-	{ ZYNQ_QSPI_FLASH_OPCODE_ES, 1, ZYNQ_QSPI_TXD_00_01_OFFSET },
-	{ ZYNQ_QSPI_FLASH_OPCODE_ER, 1, ZYNQ_QSPI_TXD_00_01_OFFSET },
-	{ ZYNQ_QSPI_FLASH_OPCODE_RDID, 1, ZYNQ_QSPI_TXD_00_01_OFFSET },
-	{ ZYNQ_QSPI_FLASH_OPCODE_NR, 4, ZYNQ_QSPI_TXD_00_00_OFFSET },
-	{ ZYNQ_QSPI_FLASH_OPCODE_FR, 1, ZYNQ_QSPI_TXD_00_01_OFFSET },
-	{ ZYNQ_QSPI_FLASH_OPCODE_DR, 1, ZYNQ_QSPI_TXD_00_01_OFFSET },
-	{ ZYNQ_QSPI_FLASH_OPCODE_QR, 1, ZYNQ_QSPI_TXD_00_01_OFFSET },
-	{ ZYNQ_QSPI_FLASH_OPCODE_BRWR, 1, ZYNQ_QSPI_TXD_00_01_OFFSET },
-	{ ZYNQ_QSPI_FLASH_OPCODE_BRRD, 1, ZYNQ_QSPI_TXD_00_01_OFFSET },
-	{ ZYNQ_QSPI_FLASH_OPCODE_WREAR, 1, ZYNQ_QSPI_TXD_00_01_OFFSET },
-	{ ZYNQ_QSPI_FLASH_OPCODE_RDEAR, 1, ZYNQ_QSPI_TXD_00_01_OFFSET },
-	{ ZYNQ_QSPI_FLASH_OPCODE_QPP, 4, ZYNQ_QSPI_TXD_00_00_OFFSET },
-	{ ZYNQ_QSPI_FLASH_OPCODE_DIOR, 4, ZYNQ_QSPI_TXD_00_00_OFFSET },
-	/* Add all the instructions supported by the flash device */
-};
 
 /*
  * zynq_qspi_init_hw - Initialize the hardware
@@ -565,27 +498,18 @@ static int zynq_qspi_irq_poll(struct zynq_qspi *zqspi)
 		while ((rxindex < rxcount) &&
 				(rxindex < ZYNQ_QSPI_RXFIFO_THRESHOLD)) {
 			/* Read out the data from the RX FIFO */
-				u32 data;
+			u32 data;
+			data = readl(&zynq_qspi_base->drxr);
 
-				data = readl(&zynq_qspi_base->drxr);
-
-				if ((zqspi->inst_response) &&
-				    (!((zqspi->curr_inst->opcode ==
-				    ZYNQ_QSPI_FLASH_OPCODE_RDSR1) ||
-				    (zqspi->curr_inst->opcode ==
-				    ZYNQ_QSPI_FLASH_OPCODE_RDSR2)))) {
-					zqspi->inst_response = 0;
-					zynq_qspi_copy_read_data(zqspi, data,
-						zqspi->curr_inst->inst_size);
-				} else if (zqspi->bytes_to_receive < 4) {
-					zynq_qspi_copy_read_data(zqspi, data,
-						zqspi->bytes_to_receive);
-				} else {
+			if (zqspi->bytes_to_receive >= 4) {
 				if (zqspi->rxbuf) {
 					memcpy(zqspi->rxbuf, &data, 4);
 					zqspi->rxbuf += 4;
 				}
 				zqspi->bytes_to_receive -= 4;
+			} else {
+				zynq_qspi_copy_read_data(zqspi, data,
+					zqspi->bytes_to_receive);
 			}
 			rxindex++;
 		}
@@ -630,8 +554,6 @@ static int zynq_qspi_start_transfer(struct spi_device *qspi,
 	struct zynq_qspi *zqspi = &qspi->master;
 	static u8 current_u_page;
 	u32 data = 0;
-	u8 instruction = 0;
-	u8 index;
 
 	debug("%s: qspi: 0x%08x transfer: 0x%08x len: %d\n", __func__,
 	      (u32)qspi, (u32)transfer, transfer->len);
@@ -641,24 +563,7 @@ static int zynq_qspi_start_transfer(struct spi_device *qspi,
 	zqspi->bytes_to_transfer = transfer->len;
 	zqspi->bytes_to_receive = transfer->len;
 
-	if (zqspi->txbuf)
-		instruction = *(u8 *)zqspi->txbuf;
-
-	if (instruction && zqspi->is_inst) {
-		for (index = 0; index < ARRAY_SIZE(flash_inst); index++)
-			if (instruction == flash_inst[index].opcode)
-				break;
-
-		/*
-		 * Instruction might have already been transmitted. This is a
-		 * 'data only' transfer
-		 */
-		if (index == ARRAY_SIZE(flash_inst))
-			goto xfer_data;
-
-		zqspi->curr_inst = &flash_inst[index];
-		zqspi->inst_response = 1;
-
+	if (zqspi->is_inst) {
 		if ((zqspi->is_dual == SF_DUAL_STACKED_FLASH) &&
 				(current_u_page != zqspi->u_page)) {
 			if (zqspi->u_page) {
@@ -679,53 +584,13 @@ static int zynq_qspi_start_transfer(struct spi_device *qspi,
 					ZYNQ_QSPI_FR_QOUT_CODE),
 					&zynq_qspi_base->lcr);
 			}
-
 			current_u_page = zqspi->u_page;
-		}
-
-		/* Get the instruction */
-		data = 0;
-		zynq_qspi_copy_write_data(zqspi, &data,
-					zqspi->curr_inst->inst_size);
-
-		/*
-		 * Write the instruction to LSB of the FIFO. The core is
-		 * designed such that it is not necessary to check whether the
-		 * write FIFO is full before writing. However, write would be
-		 * delayed if the user tries to write when write FIFO is full
-		 */
-		writel(data, &zynq_qspi_base->confr +
-				(zqspi->curr_inst->offset / 4));
-
-		/*
-		 * Read status register and Read ID instructions don't require
-		 * to ignore the extra bytes in response of instruction as
-		 * response contains the value
-		 */
-		if ((instruction == ZYNQ_QSPI_FLASH_OPCODE_RDSR1) ||
-		    (instruction == ZYNQ_QSPI_FLASH_OPCODE_RDSR2) ||
-		    (instruction == ZYNQ_QSPI_FLASH_OPCODE_RDID) ||
-		    (instruction == ZYNQ_QSPI_FLASH_OPCODE_BRRD) ||
-		    (instruction == ZYNQ_QSPI_FLASH_OPCODE_RDEAR)) {
-			if (zqspi->bytes_to_transfer < 4)
-				zqspi->bytes_to_transfer = 0;
-			else
-				zqspi->bytes_to_transfer -= 3;
 		}
 	}
 
-xfer_data:
-	/*
-	 * In case of Fast, Dual and Quad reads, transmit the instruction first.
-	 * Address and dummy byte should be transmitted after instruction
-	 * is transmitted
-	 */
-	if (((zqspi->is_inst == 0) && (zqspi->bytes_to_transfer)) ||
-	    ((zqspi->bytes_to_transfer) &&
-	     (instruction != ZYNQ_QSPI_FLASH_OPCODE_FR) &&
-	     (instruction != ZYNQ_QSPI_FLASH_OPCODE_DR) &&
-	     (instruction != ZYNQ_QSPI_FLASH_OPCODE_QR) &&
-	     (instruction != ZYNQ_QSPI_FLASH_OPCODE_DIOR)))
+	if (transfer->len < 4)
+		zynq_qspi_fill_tx_fifo(zqspi, transfer->len);
+	else
 		zynq_qspi_fill_tx_fifo(zqspi, ZYNQ_QSPI_FIFO_DEPTH);
 
 	writel(ZYNQ_QSPI_IXR_ALL_MASK, &zynq_qspi_base->ier);
