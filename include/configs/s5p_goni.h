@@ -214,8 +214,8 @@
 /*
  * I2C Settings
  */
-#define CONFIG_SOFT_I2C_GPIO_SCL s5pc110_gpio_get(j4, 3)
-#define CONFIG_SOFT_I2C_GPIO_SDA s5pc110_gpio_get(j4, 0)
+#define CONFIG_SOFT_I2C_GPIO_SCL S5PC110_GPIO_J43
+#define CONFIG_SOFT_I2C_GPIO_SDA S5PC110_GPIO_J40
 
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */

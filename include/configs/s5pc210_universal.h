@@ -111,12 +111,9 @@
 		"onenand write 0x41008000 0xc00000 0x500000\0" \
 	"bootk=" \
 		"run loaduimage; bootm 0x40007FC0\0" \
-	"updatemmc=" \
-		"mmc boot 0 1 1 1; mmc write 0 0x42008000 0 0x200;" \
-		"mmc boot 0 1 1 0\0" \
 	"updatebackup=" \
-		"mmc boot 0 1 1 2; mmc write 0 0x42100000 0 0x200;" \
-		"mmc boot 0 1 1 0\0" \
+		"mmc dev 0 2; mmc write 0 0x42100000 0 0x200;" \
+		"mmc dev 0 0\0" \
 	"updatebootb=" \
 		"mmc read 0 0x42100000 0x80 0x200; run updatebackup\0" \
 	"lpj=lpj=3981312\0" \
@@ -170,8 +167,8 @@
 /*
  * I2C Settings
  */
-#define CONFIG_SOFT_I2C_GPIO_SCL exynos4_gpio_get(1, b, 7)
-#define CONFIG_SOFT_I2C_GPIO_SDA exynos4_gpio_get(1, b, 6)
+#define CONFIG_SOFT_I2C_GPIO_SCL EXYNOS4_GPIO_B7
+#define CONFIG_SOFT_I2C_GPIO_SDA EXYNOS4_GPIO_B6
 
 #define CONFIG_CMD_I2C
 
@@ -196,10 +193,10 @@
  */
 #define CONFIG_SOFT_SPI
 #define CONFIG_SOFT_SPI_MODE SPI_MODE_3
-#define CONFIG_SOFT_SPI_GPIO_SCLK exynos4_gpio_get(2, y3, 1)
-#define CONFIG_SOFT_SPI_GPIO_MOSI exynos4_gpio_get(2, y3, 3)
-#define CONFIG_SOFT_SPI_GPIO_MISO exynos4_gpio_get(2, y3, 0)
-#define CONFIG_SOFT_SPI_GPIO_CS exynos4_gpio_get(2, y4, 3)
+#define CONFIG_SOFT_SPI_GPIO_SCLK EXYNOS4_GPIO_Y31
+#define CONFIG_SOFT_SPI_GPIO_MOSI EXYNOS4_GPIO_Y33
+#define CONFIG_SOFT_SPI_GPIO_MISO EXYNOS4_GPIO_Y30
+#define CONFIG_SOFT_SPI_GPIO_CS EXYNOS4_GPIO_Y43
 
 #define SPI_DELAY udelay(1)
 #undef SPI_INIT
@@ -231,8 +228,8 @@ int universal_spi_read(void);
 #define KEY_PWR_INTERRUPT_REG		MAX8998_REG_IRQ1
 #define KEY_PWR_INTERRUPT_MASK		(1 << 7)
 
-#define KEY_VOL_UP_GPIO			exynos4_gpio_get(2, x2, 0)
-#define KEY_VOL_DOWN_GPIO		exynos4_gpio_get(2, x2, 1)
+#define KEY_VOL_UP_GPIO			EXYNOS4_GPIO_X20
+#define KEY_VOL_DOWN_GPIO		EXYNOS4_GPIO_X21
 #endif /* __ASSEMBLY__ */
 
 /* LCD console */

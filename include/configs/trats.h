@@ -59,7 +59,7 @@
 
 #define CONFIG_BOOTARGS			"Please use defined boot"
 #define CONFIG_BOOTCOMMAND		"run mmcboot"
-#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"
+#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC2,115200n8\0"
 
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR \
 					- GENERATED_GBL_DATA_SIZE)
@@ -121,12 +121,9 @@
 			"bootm 0x40007FC0 - ${fdtaddr};" \
 		"fi;" \
 		"bootm 0x40007FC0;\0" \
-	"updatemmc=" \
-		"mmc boot 0 1 1 1; mmc write 0 0x42008000 0 0x200;" \
-		"mmc boot 0 1 1 0\0" \
 	"updatebackup=" \
-		"mmc boot 0 1 1 2; mmc write 0 0x42100000 0 0x200;" \
-		"mmc boot 0 1 1 0\0" \
+		"mmc dev 0 2; mmc write 0 0x42100000 0 0x200;" \
+		"mmc dev 0 0\0" \
 	"updatebootb=" \
 		"mmc read 0 0x42100000 0x80 0x200; run updatebackup\0" \
 	"lpj=lpj=3981312\0" \
@@ -207,8 +204,8 @@
 #define CONFIG_SYS_I2C_INIT_BOARD
 
 /* I2C FG */
-#define CONFIG_SOFT_I2C_GPIO_SCL exynos4_gpio_get(2, y4, 1)
-#define CONFIG_SOFT_I2C_GPIO_SDA exynos4_gpio_get(2, y4, 0)
+#define CONFIG_SOFT_I2C_GPIO_SCL EXYNOS4_GPIO_Y41
+#define CONFIG_SOFT_I2C_GPIO_SDA EXYNOS4_GPIO_Y40
 
 /* POWER */
 #define CONFIG_POWER
@@ -245,8 +242,8 @@
 #define KEY_PWR_INTERRUPT_REG		MAX8997_REG_INT1
 #define KEY_PWR_INTERRUPT_MASK		(1 << 0)
 
-#define KEY_VOL_UP_GPIO			exynos4_gpio_get(2, x2, 0)
-#define KEY_VOL_DOWN_GPIO		exynos4_gpio_get(2, x2, 1)
+#define KEY_VOL_UP_GPIO			EXYNOS4_GPIO_X20
+#define KEY_VOL_DOWN_GPIO		EXYNOS4_GPIO_X21
 #endif /* __ASSEMBLY__ */
 
 /* LCD console */

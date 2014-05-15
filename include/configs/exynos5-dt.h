@@ -288,4 +288,6 @@
 
 #define CONFIG_CMD_BOOTZ
 
+#define CONFIG_CMD_GPIO
+
 #endif	/* __CONFIG_H */

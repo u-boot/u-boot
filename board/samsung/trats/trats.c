@@ -54,8 +54,6 @@ int exynos_init(void)
 void i2c_init_board(void)
 {
 	int err;
-	struct exynos4_gpio_part2 *gpio2 =
-		(struct exynos4_gpio_part2 *)samsung_get_base_gpio_part2();
 
 	/* I2C_5 -> PMIC */
 	err = exynos_pinmux_config(PERIPH_ID_I2C5, PINMUX_FLAG_NONE);
@@ -65,8 +63,8 @@ void i2c_init_board(void)
 	}
 
 	/* I2C_8 -> FG */
-	s5p_gpio_direction_output(&gpio2->y4, 0, 1);
-	s5p_gpio_direction_output(&gpio2->y4, 1, 1);
+	gpio_direction_output(EXYNOS4_GPIO_Y40, 1);
+	gpio_direction_output(EXYNOS4_GPIO_Y41, 1);
 }
 
 static void trats_low_power_mode(void)
@@ -347,21 +345,19 @@ int exynos_power_init(void)
 
 static unsigned int get_hw_revision(void)
 {
-	struct exynos4_gpio_part1 *gpio =
-		(struct exynos4_gpio_part1 *)samsung_get_base_gpio_part1();
 	int hwrev = 0;
 	int i;
 
 	/* hw_rev[3:0] == GPE1[3:0] */
-	for (i = 0; i < 4; i++) {
-		s5p_gpio_cfg_pin(&gpio->e1, i, GPIO_INPUT);
-		s5p_gpio_set_pull(&gpio->e1, i, GPIO_PULL_NONE);
+	for (i = EXYNOS4_GPIO_E10; i < EXYNOS4_GPIO_E14; i++) {
+		gpio_cfg_pin(i, S5P_GPIO_INPUT);
+		gpio_set_pull(i, S5P_GPIO_PULL_NONE);
 	}
 
 	udelay(1);
 
 	for (i = 0; i < 4; i++)
-		hwrev |= (s5p_gpio_get_value(&gpio->e1, i) << i);
+		hwrev |= (gpio_get_value(EXYNOS4_GPIO_E10 + i) << i);
 
 	debug("hwrev 0x%x\n", hwrev);
 
@@ -442,11 +438,8 @@ int g_dnl_board_usb_cable_connected(void)
 
 static void pmic_reset(void)
 {
-	struct exynos4_gpio_part2 *gpio =
-		(struct exynos4_gpio_part2 *)samsung_get_base_gpio_part2();
-
-	s5p_gpio_direction_output(&gpio->x0, 7, 1);
-	s5p_gpio_set_pull(&gpio->x2, 7, GPIO_PULL_NONE);
+	gpio_direction_output(EXYNOS4_GPIO_X07, 1);
+	gpio_set_pull(EXYNOS4_GPIO_X27, S5P_GPIO_PULL_NONE);
 }
 
 static void board_clock_init(void)
@@ -523,12 +516,9 @@ static void board_power_init(void)
 
 static void exynos_uart_init(void)
 {
-	struct exynos4_gpio_part2 *gpio2 =
-		(struct exynos4_gpio_part2 *)samsung_get_base_gpio_part2();
-
 	/* UART_SEL GPY4[7] (part2) at EXYNOS4 */
-	s5p_gpio_set_pull(&gpio2->y4, 7, GPIO_PULL_UP);
-	s5p_gpio_direction_output(&gpio2->y4, 7, 1);
+	gpio_set_pull(EXYNOS4_GPIO_Y47, S5P_GPIO_PULL_UP);
+	gpio_direction_output(EXYNOS4_GPIO_Y47, 1);
 }
 
 int exynos_early_init_f(void)
@@ -544,14 +534,11 @@ int exynos_early_init_f(void)
 
 void exynos_reset_lcd(void)
 {
-	struct exynos4_gpio_part2 *gpio2 =
-		(struct exynos4_gpio_part2 *)samsung_get_base_gpio_part2();
-
-	s5p_gpio_direction_output(&gpio2->y4, 5, 1);
+	gpio_direction_output(EXYNOS4_GPIO_Y45, 1);
 	udelay(10000);
-	s5p_gpio_direction_output(&gpio2->y4, 5, 0);
+	gpio_direction_output(EXYNOS4_GPIO_Y45, 0);
 	udelay(10000);
-	s5p_gpio_direction_output(&gpio2->y4, 5, 1);
+	gpio_direction_output(EXYNOS4_GPIO_Y45, 1);
 }
 
 int lcd_power(void)

@@ -52,7 +52,7 @@
 
 #define CONFIG_BOOTARGS			"Please use defined boot"
 #define CONFIG_BOOTCOMMAND		"run mmcboot"
-#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"
+#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC2,115200n8\0"
 
 #define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR \
 					- GENERATED_GBL_DATA_SIZE)
@@ -111,16 +111,11 @@
 			"bootm 0x40007FC0 - ${fdtaddr};" \
 		"fi;" \
 		"bootm 0x40007FC0;\0" \
-	"updatemmc=" \
-		"mmc boot 0 1 1 1; mmc write 0x42008000 0 0x200;" \
-		"mmc boot 0 1 1 0\0" \
 	"updatebackup=" \
-		"mmc boot 0 1 1 2; mmc write 0x42100000 0 0x200;" \
-		" mmc boot 0 1 1 0\0" \
+		"mmc dev 0 2; mmc write 0x51000000 0 0x800;" \
+		" mmc dev 0 0\0" \
 	"updatebootb=" \
-		"mmc read 0x51000000 0x80 0x200; run updatebackup\0" \
-	"updateuboot=" \
-		"mmc write 0x50000000 0x80 0x400\0" \
+		"mmc read 0x51000000 0x80 0x800; run updatebackup\0" \
 	"mmcboot=" \
 		"setenv bootargs root=/dev/mmcblk${mmcdev}p${mmcrootpart} " \
 		"${lpj} rootwait ${console} ${meminfo} ${opts} ${lcdinfo}; " \
@@ -227,8 +222,8 @@ int get_soft_i2c_sda_pin(void);
 #define KEY_PWR_INTERRUPT_REG		MAX77686_REG_PMIC_INT1
 #define KEY_PWR_INTERRUPT_MASK		(1 << 1)
 
-#define KEY_VOL_UP_GPIO			exynos4x12_gpio_get(2, x2, 2)
-#define KEY_VOL_DOWN_GPIO		exynos4x12_gpio_get(2, x3, 3)
+#define KEY_VOL_UP_GPIO			EXYNOS4X12_GPIO_X22
+#define KEY_VOL_DOWN_GPIO		EXYNOS4X12_GPIO_X33
 #endif /* __ASSEMBLY__ */
 
 /* LCD console */
