@@ -590,6 +590,13 @@ void hw_data_init(void)
 	*ctrl = &dra7xx_ctrl;
 	break;
 
+	case DRA722_ES1_0:
+	*prcm = &dra7xx_prcm;
+	*dplls_data = &dra7xx_dplls;
+	*omap_vcores = &dra722_volts;
+	*ctrl = &dra7xx_ctrl;
+	break;
+
 	default:
 		printf("\n INVALID OMAP REVISION ");
 	}
