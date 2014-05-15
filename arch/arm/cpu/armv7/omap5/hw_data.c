@@ -372,6 +372,38 @@ struct vcores_data dra752_volts = {
 	.iva.pmic	= &tps659038,
 };
 
+struct vcores_data dra722_volts = {
+	.mpu.value	= 1000,
+	.mpu.efuse.reg	= STD_FUSE_OPP_VMIN_MPU_NOM,
+	.mpu.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.mpu.addr	= 0x23,
+	.mpu.pmic	= &tps659038,
+
+	.eve.value	= 1000,
+	.eve.efuse.reg	= STD_FUSE_OPP_VMIN_DSPEVE_NOM,
+	.eve.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.eve.addr	= 0x2f,
+	.eve.pmic	= &tps659038,
+
+	.gpu.value	= 1000,
+	.gpu.efuse.reg	= STD_FUSE_OPP_VMIN_GPU_NOM,
+	.gpu.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.gpu.addr	= 0x2f,
+	.gpu.pmic	= &tps659038,
+
+	.core.value	= 1000,
+	.core.efuse.reg	= STD_FUSE_OPP_VMIN_CORE_NOM,
+	.core.efuse.reg_bits = DRA752_EFUSE_REGBITS,
+	.core.addr	= 0x27,
+	.core.pmic	= &tps659038,
+
+	.iva.value	= 1000,
+	.iva.efuse.reg	= STD_FUSE_OPP_VMIN_IVA_NOM,
+	.iva.efuse.reg_bits	= DRA752_EFUSE_REGBITS,
+	.iva.addr	= 0x2f,
+	.iva.pmic	= &tps659038,
+};
+
 /*
  * Enable essential clock domains, modules and
  * do some additional special settings needed
