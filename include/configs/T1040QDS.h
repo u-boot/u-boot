@@ -767,8 +767,7 @@ unsigned long get_board_ddr_clk(void);
 	"ramdiskfile=t1040qds/ramdisk.uboot\0"			\
 	"fdtaddr=c00000\0"					\
 	"fdtfile=t1040qds/t1040qds.dtb\0"			\
-	"bdev=sda3\0"						\
-	"c=ffe\0"
+	"bdev=sda3\0"
 
 #define CONFIG_LINUX                       \
 	"setenv bootargs root=/dev/ram rw "            \

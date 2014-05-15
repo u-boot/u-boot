@@ -713,8 +713,7 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 	"ramdiskfile=p2041rdb/ramdisk.uboot\0"			\
 	"fdtaddr=c00000\0"					\
 	"fdtfile=p2041rdb/p2041rdb.dtb\0"			\
-	"bdev=sda3\0"						\
-	"c=ffe\0"
+	"bdev=sda3\0"
 
 #define CONFIG_HDBOOT					\
 	"setenv bootargs root=/dev/$bdev rw "		\

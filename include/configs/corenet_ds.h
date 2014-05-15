@@ -715,8 +715,7 @@
 	"ramdiskfile=p4080ds/ramdisk.uboot\0"			\
 	"fdtaddr=c00000\0"					\
 	"fdtfile=p4080ds/p4080ds.dtb\0"				\
-	"bdev=sda3\0"						\
-	"c=ffe\0"
+	"bdev=sda3\0"
 
 #define CONFIG_HDBOOT					\
 	"setenv bootargs root=/dev/$bdev rw "		\

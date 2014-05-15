@@ -838,8 +838,7 @@ unsigned long get_board_ddr_clk(void);
 	"ramdiskfile=b4860qds/ramdisk.uboot\0"			\
 	"fdtaddr=c00000\0"					\
 	"fdtfile=b4860qds/b4860qds.dtb\0"				\
-	"bdev=sda3\0"						\
-	"c=ffe\0"
+	"bdev=sda3\0"
 
 /* For emulation this causes u-boot to jump to the start of the proof point
    app code automatically */

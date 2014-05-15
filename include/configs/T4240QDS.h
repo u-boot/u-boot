@@ -572,8 +572,7 @@ unsigned long get_board_ddr_clk(void);
 	"ramdiskfile=t4240qds/ramdisk.uboot\0"			\
 	"fdtaddr=c00000\0"					\
 	"fdtfile=t4240qds/t4240qds.dtb\0"				\
-	"bdev=sda3\0"						\
-	"c=ffe\0"
+	"bdev=sda3\0"
 
 #define CONFIG_HVBOOT				\
 	"setenv bootargs config-addr=0x60000000; "	\
