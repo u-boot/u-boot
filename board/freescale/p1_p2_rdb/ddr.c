@@ -180,27 +180,22 @@ fsl_ddr_cfg_regs_t ddr_cfg_regs_800 = {
 
 phys_size_t fixed_sdram (void)
 {
-	char buf[32];
 	fsl_ddr_cfg_regs_t ddr_cfg_regs;
 	size_t ddr_size;
 	struct cpu_type *cpu;
 	ulong ddr_freq, ddr_freq_mhz;
 
 	cpu = gd->arch.cpu;
-	/* P1020 and it's derivatives support max 32bit DDR width */
-	if (cpu->soc_ver == SVR_P1020 || cpu->soc_ver == SVR_P1011) {
-		ddr_size = (CONFIG_SYS_SDRAM_SIZE * 1024 * 1024 / 2);
-	} else {
-		ddr_size = CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
-	}
+
+	ddr_size = CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
+
 #if defined(CONFIG_SYS_RAMBOOT)
 	return ddr_size;
 #endif
 	ddr_freq = get_ddr_freq(0);
 	ddr_freq_mhz = ddr_freq / 1000000;
 
-	printf("Configuring DDR for %s MT/s data rate\n",
-				strmhz(buf, ddr_freq));
+	printf("Configuring DDR for %ld T/s data rate\n", ddr_freq);
 
 	if(ddr_freq_mhz <= 400)
 		memcpy(&ddr_cfg_regs, &ddr_cfg_regs_400, sizeof(ddr_cfg_regs));
@@ -211,8 +206,7 @@ phys_size_t fixed_sdram (void)
 	else if(ddr_freq_mhz <= 800)
 		memcpy(&ddr_cfg_regs, &ddr_cfg_regs_800, sizeof(ddr_cfg_regs));
 	else
-		panic("Unsupported DDR data rate %s MT/s data rate\n",
-					strmhz(buf, ddr_freq));
+		panic("Unsupported DDR data rate %ld T/s\n", ddr_freq);
 
 	/* P1020 and it's derivatives support max 32bit DDR width */
 	if (cpu->soc_ver == SVR_P1020 || cpu->soc_ver == SVR_P1011) {
