@@ -619,6 +619,7 @@ void get_ioregs(const struct ctrl_ioregs **regs)
 		break;
 	case DRA752_ES1_0:
 	case DRA752_ES1_1:
+	case DRA722_ES1_0:
 		*regs = &ioregs_dra7xx_es1;
 		break;
 

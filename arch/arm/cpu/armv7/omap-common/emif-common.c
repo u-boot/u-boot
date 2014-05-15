@@ -1384,8 +1384,10 @@ void sdram_init(void)
 
 	if (sdram_type == EMIF_SDRAM_TYPE_DDR3 &&
 	    (!in_sdram && !warm_reset())) {
-		do_bug0039_workaround(EMIF1_BASE);
-		do_bug0039_workaround(EMIF2_BASE);
+		if (emif1_enabled)
+			do_bug0039_workaround(EMIF1_BASE);
+		if (emif2_enabled)
+			do_bug0039_workaround(EMIF2_BASE);
 	}
 
 	debug("<<sdram_init()\n");
