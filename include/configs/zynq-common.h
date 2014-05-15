@@ -262,13 +262,6 @@
 
 #define CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/armv7/zynq/u-boot-spl.lds"
 
-/* Disable dcache for SPL just for sure */
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_DCACHE_OFF
-#undef CONFIG_FPGA
-#undef CONFIG_OF_CONTROL
-#endif
-
 /* MMC support */
 #ifdef CONFIG_ZYNQ_SDHCI0
 #define CONFIG_SPL_MMC_SUPPORT
@@ -277,7 +270,18 @@
 #define CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION    1
 #define CONFIG_SPL_LIBDISK_SUPPORT
 #define CONFIG_SPL_FAT_SUPPORT
-#define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME     "u-boot.img"
+#if defined(CONFIG_OF_CONTROL) && defined(CONFIG_OF_SEPARATE)
+# define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME     "u-boot-dtb.img"
+#else
+# define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME     "u-boot.img"
+#endif
+#endif
+
+/* Disable dcache for SPL just for sure */
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_SYS_DCACHE_OFF
+#undef CONFIG_FPGA
+#undef CONFIG_OF_CONTROL
 #endif
 
 /* Address in RAM where the parameters must be copied by SPL. */
