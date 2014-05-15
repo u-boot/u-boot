@@ -86,11 +86,30 @@
 #define IO_RESET_SHIFT	8
 #define RCV_SEL_SHIFT	9
 
+#if !defined(CONFIG_TEGRA20) && !defined(CONFIG_TEGRA30)
+/* This register/field only exists on Tegra114 and later */
+#define APB_MISC_PP_PINMUX_GLOBAL_0 0x40
+#define CLAMP_INPUTS_WHEN_TRISTATED 1
+
+void pinmux_set_tristate_input_clamping(void)
+{
+	u32 *reg = _R(APB_MISC_PP_PINMUX_GLOBAL_0);
+	u32 val;
+
+	val = readl(reg);
+	val |= CLAMP_INPUTS_WHEN_TRISTATED;
+	writel(val, reg);
+}
+#endif
+
 void pinmux_set_func(enum pmux_pingrp pin, enum pmux_func func)
 {
 	u32 *reg = MUX_REG(pin);
 	int i, mux = -1;
 	u32 val;
+
+	if (func == PMUX_FUNC_DEFAULT)
+		return;
 
 	/* Error check on pin and func */
 	assert(pmux_pingrp_isvalid(pin));

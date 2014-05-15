@@ -231,6 +231,7 @@ enum pmux_drvgrp {
 };
 
 enum pmux_func {
+	PMUX_FUNC_DEFAULT,
 	PMUX_FUNC_BLINK,
 	PMUX_FUNC_CEC,
 	PMUX_FUNC_CLDVFS,
