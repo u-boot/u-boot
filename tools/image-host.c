@@ -403,7 +403,7 @@ static int fit_config_get_hash_list(void *fit, int conf_noffset,
 		goto err_mem;
 
 	/* Get a list of images that we intend to sign */
-	prop = fit_config_get_image_list(fit, conf_noffset, &len,
+	prop = fit_config_get_image_list(fit, sig_offset, &len,
 					&allow_missing);
 	if (!prop)
 		return 0;
@@ -695,3 +695,18 @@ int fit_add_verification_data(const char *keydir, void *keydest, void *fit,
 
 	return 0;
 }
+
+#ifdef CONFIG_FIT_SIGNATURE
+int fit_check_sign(const void *working_fdt, const void *key)
+{
+	int cfg_noffset;
+	int ret;
+
+	cfg_noffset = fit_conf_get_node(working_fdt, NULL);
+	if (!cfg_noffset)
+		return -1;
+
+	ret = fit_config_verify(working_fdt, cfg_noffset);
+	return ret;
+}
+#endif

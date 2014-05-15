@@ -66,11 +66,9 @@ static struct ums *ums_disk_init(struct mmc *mmc)
 
 struct ums *ums_init(unsigned int dev_num)
 {
-	struct mmc *mmc = NULL;
+	struct mmc *mmc = find_mmc_device(dev_num);
 
-	mmc = find_mmc_device(dev_num);
-	if (!mmc)
+	if (!mmc || mmc_init(mmc))
 		return NULL;
-
 	return ums_disk_init(mmc);
 }

@@ -11,9 +11,10 @@
 #include <dm.h>
 #include <asm/gpio.h>
 
-#ifndef name_to_gpio
-#define name_to_gpio(name) simple_strtoul(name, NULL, 10)
-#endif
+int __weak name_to_gpio(const char *name)
+{
+	return simple_strtoul(name, NULL, 10);
+}
 
 enum gpio_cmd {
 	GPIO_INPUT,

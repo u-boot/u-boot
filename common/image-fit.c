@@ -22,6 +22,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #include <bootstage.h>
 #include <sha1.h>
+#include <sha256.h>
 #include <u-boot/crc.h>
 #include <u-boot/md5.h>
 
@@ -882,6 +883,10 @@ int calculate_hash(const void *data, int data_len, const char *algo,
 		sha1_csum_wd((unsigned char *)data, data_len,
 			     (unsigned char *)value, CHUNKSZ_SHA1);
 		*value_len = 20;
+	} else if (IMAGE_ENABLE_SHA256 && strcmp(algo, "sha256") == 0) {
+		sha256_csum_wd((unsigned char *)data, data_len,
+			       (unsigned char *)value, CHUNKSZ_SHA256);
+		*value_len = SHA256_SUM_LEN;
 	} else if (IMAGE_ENABLE_MD5 && strcmp(algo, "md5") == 0) {
 		md5_wd((unsigned char *)data, data_len, value, CHUNKSZ_MD5);
 		*value_len = 16;

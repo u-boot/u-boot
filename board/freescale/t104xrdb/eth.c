@@ -41,6 +41,7 @@ int board_eth_init(bd_t *bis)
 			/* T1040RDB only supports SGMII on DTSEC3 */
 			fm_info_set_phy_address(FM1_DTSEC3,
 						CONFIG_SYS_SGMII1_PHY_ADDR);
+			break;
 #endif
 		case PHY_INTERFACE_MODE_RGMII:
 			if (FM1_DTSEC4 == i)

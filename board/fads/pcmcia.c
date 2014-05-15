@@ -14,11 +14,7 @@
 
 #ifdef	CONFIG_PCMCIA
 
-#ifdef	CONFIG_ADS
-#define	PCMCIA_BOARD_MSG "ADS"
-#else
 #define	PCMCIA_BOARD_MSG "FADS"
-#endif
 
 int pcmcia_voltage_set(int slot, int vcc, int vpp)
 {
@@ -33,9 +29,6 @@ int pcmcia_voltage_set(int slot, int vcc, int vpp)
 
 	switch(vcc) {
 		case 0: reg = 0; break;
-#ifdef CONFIG_ADS
-	case 50: reg = BCSR1_PCCVCCON; break;
-#endif
 #ifdef CONFIG_FADS
 	case 33: reg = BCSR1_PCCVCC0 | BCSR1_PCCVCC1; break;
 	case 50: reg = BCSR1_PCCVCC1; break;
@@ -45,9 +38,6 @@ int pcmcia_voltage_set(int slot, int vcc, int vpp)
 
 	/* first, turn off all power */
 
-#ifdef CONFIG_ADS
-	*((uint *)BCSR1) |= BCSR1_PCCVCCON;
-#endif
 #ifdef CONFIG_FADS
 	*((uint *)BCSR1) &= ~(BCSR1_PCCVCC0 | BCSR1_PCCVCC1);
 #endif
@@ -55,9 +45,6 @@ int pcmcia_voltage_set(int slot, int vcc, int vpp)
 
 	/* enable new powersettings */
 
-#ifdef CONFIG_ADS
-	*((uint *)BCSR1) &= ~reg;
-#endif
 #ifdef CONFIG_FADS
 	*((uint *)BCSR1) |= reg;
 #endif

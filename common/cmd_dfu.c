@@ -22,7 +22,6 @@ static int do_dfu(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char *interface = argv[2];
 	char *devstring = argv[3];
 
-	char *s = "dfu";
 	int ret, i = 0;
 
 	ret = dfu_init_env_entities(interface, simple_strtoul(devstring,
@@ -38,7 +37,7 @@ static int do_dfu(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int controller_index = simple_strtoul(usb_controller, NULL, 0);
 	board_usb_init(controller_index, USB_INIT_DEVICE);
 
-	g_dnl_register(s);
+	g_dnl_register("usb_dnl_dfu");
 	while (1) {
 		if (dfu_reset())
 			/*

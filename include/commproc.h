@@ -12,10 +12,6 @@
  * CPM capabilities.  I (or someone else) will add definitions as they
  * are needed.  -- Dan
  *
- * On the MBX board, EPPC-Bug loads CPM microcode into the first 512
- * bytes of the DP RAM and relocates the I2C parameter area to the
- * IDMA1 space.  The remaining DP RAM is available for buffer descriptors
- * or other use.
  */
 #ifndef __CPM_8XX__
 #define __CPM_8XX__
@@ -135,7 +131,6 @@ typedef struct cpm_buf_desc {
 #define PROFF_SMC2	((uint)0x0380)
 
 /* Define enough so I can at least use the serial port as a UART.
- * The MBX uses SMC1 as the host serial port.
  */
 typedef struct smc_uart {
 	ushort	smc_rbase;	/* Rx Buffer descriptor base address */
@@ -434,38 +429,6 @@ typedef struct scc_enet {
  * #define FEC_ENET to enable the SCC resp. FEC ethernet drivers.
  **********************************************************************/
 
-
-/***  ADS  *************************************************************/
-
-#if defined(CONFIG_MPC860) && defined(CONFIG_ADS)
-/* This ENET stuff is for the MPC860ADS with ethernet on SCC1.
- */
-
-#define	PROFF_ENET	PROFF_SCC1
-#define	CPM_CR_ENET	CPM_CR_CH_SCC1
-#define	SCC_ENET	0
-
-#define PA_ENET_RXD	((ushort)0x0001)
-#define PA_ENET_TXD	((ushort)0x0002)
-#define PA_ENET_TCLK	((ushort)0x0100)
-#define PA_ENET_RCLK	((ushort)0x0200)
-
-#define PB_ENET_TENA	((uint)0x00001000)
-
-#define PC_ENET_CLSN	((ushort)0x0010)
-#define PC_ENET_RENA	((ushort)0x0020)
-
-#define SICR_ENET_MASK	((uint)0x000000ff)
-#define SICR_ENET_CLKRT	((uint)0x0000002c)
-
-/* 68160 PHY control */
-
-#define PC_ENET_ETHLOOP ((ushort)0x0800)
-#define PC_ENET_TPFLDL	((ushort)0x0400)
-#define PC_ENET_TPSQEL  ((ushort)0x0200)
-
-#endif	/* MPC860ADS */
-
 /***  BSEIP  **********************************************************/
 
 #ifdef CONFIG_BSEIP
@@ -568,62 +531,6 @@ typedef struct scc_enet {
 
 #endif
 
-/***  FADS823  ********************************************************/
-
-#if defined(CONFIG_MPC823FADS) && defined(CONFIG_FADS)
-/* This ENET stuff is for the MPC823FADS with ethernet on SCC2.
- */
-#ifdef CONFIG_SCC2_ENET
-#define	PROFF_ENET	PROFF_SCC2
-#define	CPM_CR_ENET	CPM_CR_CH_SCC2
-#define	SCC_ENET	1
-#define CPMVEC_ENET	CPMVEC_SCC2
-#endif
-
-#ifdef CONFIG_SCC1_ENET
-#define	PROFF_ENET	PROFF_SCC1
-#define	CPM_CR_ENET	CPM_CR_CH_SCC1
-#define	SCC_ENET	0
-#define CPMVEC_ENET	CPMVEC_SCC1
-#endif
-
-#define PA_ENET_RXD	((ushort)0x0004)
-#define PA_ENET_TXD	((ushort)0x0008)
-#define PA_ENET_TCLK	((ushort)0x0400)
-#define PA_ENET_RCLK	((ushort)0x0200)
-
-#define PB_ENET_TENA	((uint)0x00002000)
-
-#define PC_ENET_CLSN	((ushort)0x0040)
-#define PC_ENET_RENA	((ushort)0x0080)
-
-#define SICR_ENET_MASK	((uint)0x0000ff00)
-#define SICR_ENET_CLKRT	((uint)0x00002e00)
-
-#endif	/* CONFIG_FADS823FADS */
-
-/***  FADS850SAR  ********************************************************/
-
-#if defined(CONFIG_MPC850SAR) && defined(CONFIG_FADS)
-/* This ENET stuff is for the MPC850SAR with ethernet on SCC2.  Some of
- * this may be unique to the FADS850SAR configuration.
- * Note TENA is on Port B.
- */
-#define	PROFF_ENET	PROFF_SCC2
-#define	CPM_CR_ENET	CPM_CR_CH_SCC2
-#define	SCC_ENET	1
-#define PA_ENET_RXD	((ushort)0x0004)	/* PA 13 */
-#define PA_ENET_TXD	((ushort)0x0008)	/* PA 12 */
-#define PA_ENET_RCLK	((ushort)0x0200)	/* PA 6 */
-#define PA_ENET_TCLK	((ushort)0x0800)	/* PA 4 */
-#define PB_ENET_TENA	((uint)0x00002000)	/* PB 18 */
-#define PC_ENET_CLSN	((ushort)0x0040)	/* PC 9 */
-#define PC_ENET_RENA	((ushort)0x0080)	/* PC 8 */
-
-#define SICR_ENET_MASK	((uint)0x0000ff00)
-#define SICR_ENET_CLKRT	((uint)0x00002f00)	/* RCLK-CLK2, TCLK-CLK4 */
-#endif	/* CONFIG_FADS850SAR */
-
 /***  FADS860T********************************************************/
 
 #if defined(CONFIG_FADS) && defined(CONFIG_MPC86x)
@@ -708,32 +615,6 @@ typedef struct scc_enet {
 #define PD_MII_RXD3	((ushort)0x0001)	/* PD 15	*/
 #define PD_MII_MASK	((ushort)0x1FFF)	/* PD 3-15	*/
 #endif	/* CONFIG_GEN860T */
-
-/***  GENIETV  ********************************************************/
-
-#if defined(CONFIG_GENIETV)
-/* Ethernet is only on SCC2 */
-
-#define CONFIG_SCC2_ENET
-#define	PROFF_ENET	PROFF_SCC2
-#define	CPM_CR_ENET	CPM_CR_CH_SCC2
-#define	SCC_ENET	1
-#define CPMVEC_ENET	CPMVEC_SCC2
-
-#define PA_ENET_RXD	((ushort)0x0004)	/* PA 13 */
-#define PA_ENET_TXD	((ushort)0x0008)	/* PA 12 */
-#define PA_ENET_TCLK	((ushort)0x0400)	/* PA  5 */
-#define PA_ENET_RCLK	((ushort)0x0200)	/* PA  6 */
-
-#define PB_ENET_TENA	((uint)0x00002000)	/* PB 18 */
-
-#define PC_ENET_CLSN	((ushort)0x0040)	/* PC  9 */
-#define PC_ENET_RENA	((ushort)0x0080)	/* PC  8 */
-
-#define SICR_ENET_MASK	((uint)0x0000ff00)
-#define SICR_ENET_CLKRT	((uint)0x00002e00)
-
-#endif	/* CONFIG_GENIETV */
 
 /*** HERMES-PRO ******************************************************/
 
@@ -887,60 +768,6 @@ typedef struct scc_enet {
 #define SICR_ENET_MASK	((uint)0x0000ff00)
 #define SICR_ENET_CLKRT	((uint)0x00003E00)
 #endif	/* CONFIG_LWMON */
-
-/***  NX823  ***********************************************/
-
-#if defined(CONFIG_NX823)
-/* Bits in parallel I/O port registers that have to be set/cleared
- * to configure the pins for SCC1 use.
- */
-#define PROFF_ENET	PROFF_SCC2
-#define CPM_CR_ENET	CPM_CR_CH_SCC2
-#define SCC_ENET	1
-#define PA_ENET_RXD	((ushort)0x0004)  /* PA 13 */
-#define PA_ENET_TXD	((ushort)0x0008)  /* PA 12 */
-#define PA_ENET_RCLK	((ushort)0x0200)  /* PA  6 */
-#define PA_ENET_TCLK	((ushort)0x0800)  /* PA  4 */
-
-#define PB_ENET_TENA	((uint)0x00002000)   /* PB 18 */
-
-#define PC_ENET_CLSN	((ushort)0x0040)  /* PC  9 */
-#define PC_ENET_RENA	((ushort)0x0080)  /* PC  8 */
-
-/* Control bits in the SICR to route TCLK (CLK3) and RCLK (CLK1) to
- * SCC2.  Also, make sure GR2 (bit 16) and SC2 (bit 17) are zero.
- */
-#define SICR_ENET_MASK	((uint)0x0000ff00)
-#define SICR_ENET_CLKRT	((uint)0x00002f00)
-
-#endif   /* CONFIG_NX823 */
-
-/***  MBX  ************************************************************/
-
-#ifdef CONFIG_MBX
-/* Bits in parallel I/O port registers that have to be set/cleared
- * to configure the pins for SCC1 use.  The TCLK and RCLK seem unique
- * to the MBX860 board.  Any two of the four available clocks could be
- * used, and the MPC860 cookbook manual has an example using different
- * clock pins.
- */
-#define	PROFF_ENET	PROFF_SCC1
-#define	CPM_CR_ENET	CPM_CR_CH_SCC1
-#define	SCC_ENET	0
-#define PA_ENET_RXD	((ushort)0x0001)
-#define PA_ENET_TXD	((ushort)0x0002)
-#define PA_ENET_TCLK	((ushort)0x0200)
-#define PA_ENET_RCLK	((ushort)0x0800)
-#define PC_ENET_TENA	((ushort)0x0001)
-#define PC_ENET_CLSN	((ushort)0x0010)
-#define PC_ENET_RENA	((ushort)0x0020)
-
-/* Control bits in the SICR to route TCLK (CLK2) and RCLK (CLK4) to
- * SCC1.  Also, make sure GR1 (bit 24) and SC1 (bit 25) are zero.
- */
-#define SICR_ENET_MASK	((uint)0x000000ff)
-#define SICR_ENET_CLKRT	((uint)0x0000003d)
-#endif	/* CONFIG_MBX */
 
 /***  KM8XX  *********************************************************/
 
@@ -1126,41 +953,6 @@ typedef struct scc_enet {
 #define SICR_ENET_CLKRT		((uint)0x0000003D)
 
 #endif /* CONFIG_QS860T */
-
-/***  RPXCLASSIC  *****************************************************/
-
-#ifdef CONFIG_RPXCLASSIC
-
-#ifdef CONFIG_FEC_ENET
-
-# define FEC_ENET				/* use FEC for EThernet */
-# undef SCC_ENET
-
-#else	/* ! CONFIG_FEC_ENET */
-
-/* Bits in parallel I/O port registers that have to be set/cleared
- * to configure the pins for SCC1 use.
- */
-#define	PROFF_ENET	PROFF_SCC1
-#define	CPM_CR_ENET	CPM_CR_CH_SCC1
-#define	SCC_ENET	0
-#define PA_ENET_RXD	((ushort)0x0001)
-#define PA_ENET_TXD	((ushort)0x0002)
-#define PA_ENET_TCLK	((ushort)0x0200)
-#define PA_ENET_RCLK	((ushort)0x0800)
-#define PB_ENET_TENA	((uint)0x00001000)
-#define PC_ENET_CLSN	((ushort)0x0010)
-#define PC_ENET_RENA	((ushort)0x0020)
-
-/* Control bits in the SICR to route TCLK (CLK2) and RCLK (CLK4) to
- * SCC1.  Also, make sure GR1 (bit 24) and SC1 (bit 25) are zero.
- */
-#define SICR_ENET_MASK	((uint)0x000000ff)
-#define SICR_ENET_CLKRT	((uint)0x0000003d)
-
-#endif	/* CONFIG_FEC_ENET */
-
-#endif	/* CONFIG_RPXCLASSIC */
 
 /***  RPXLITE  ********************************************************/
 

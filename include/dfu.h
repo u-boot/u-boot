@@ -64,11 +64,6 @@ struct ram_internal_data {
 	unsigned int	size;
 };
 
-static inline unsigned int get_mmc_blk_size(int dev)
-{
-	return find_mmc_device(dev)->read_bl_len;
-}
-
 #define DFU_NAME_SIZE			32
 #define DFU_CMD_BUF_SIZE		128
 #ifndef CONFIG_SYS_DFU_DATA_BUF_SIZE
@@ -173,12 +168,5 @@ static inline int dfu_fill_entity_ram(struct dfu_entity *dfu, char *s)
 }
 #endif
 
-#ifdef CONFIG_DFU_FUNCTION
 int dfu_add(struct usb_configuration *c);
-#else
-int dfu_add(struct usb_configuration *c)
-{
-	return 0;
-}
-#endif
 #endif /* __DFU_ENTITY_H_ */

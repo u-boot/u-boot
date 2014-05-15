@@ -60,4 +60,20 @@ static inline bool has_erratum_a006261(void)
 }
 #endif
 
+static inline bool has_erratum_a007075(void)
+{
+	u32 svr = get_svr();
+	u32 soc = SVR_SOC_VER(svr);
+
+	switch (soc) {
+	case SVR_B4860:
+	case SVR_B4420:
+		return IS_SVR_REV(svr, 1, 0) || IS_SVR_REV(svr, 2, 0);
+	case SVR_P1010:
+		return IS_SVR_REV(svr, 1, 0);
+	case SVR_P4080:
+		return IS_SVR_REV(svr, 2, 0) || IS_SVR_REV(svr, 3, 0);
+	}
+	return false;
+}
 #endif

@@ -132,6 +132,10 @@ Directory Hierarchy:
 ====================
 
 /arch			Architecture specific files
+  /arc			Files generic to ARC architecture
+    /cpu		CPU specific files
+      /arc700		Files specific to ARC 700 CPUs
+    /lib		Architecture specific library files
   /arm			Files generic to ARM architecture
     /cpu		CPU specific files
       /arm720t		Files specific to ARM 720 CPUs
@@ -164,7 +168,7 @@ Directory Hierarchy:
   /mips			Files generic to MIPS architecture
     /cpu		CPU specific files
       /mips32		Files specific to MIPS32 CPUs
-      /xburst		Files specific to Ingenic XBurst CPUs
+      /mips64		Files specific to MIPS64 CPUs
     /lib		Architecture specific library files
   /nds32		Files generic to NDS32 architecture
     /cpu		CPU specific files
@@ -427,6 +431,14 @@ The following options need to be configured:
 		In this mode, a single differential clock is used to supply
 		clocks to the sysclock, ddrclock and usbclock.
 
+		CONFIG_SYS_CPC_REINIT_F
+		This CONFIG is defined when the CPC is configured as SRAM at the
+		time of U-boot entry and is required to be re-initialized.
+
+		CONFIG_DEEP_SLEEP
+		Inidcates this SoC supports deep sleep feature. If deep sleep is
+		supported, core will start to execute uboot when wakes up.
+
 - Generic CPU options:
 		CONFIG_SYS_BIG_ENDIAN, CONFIG_SYS_LITTLE_ENDIAN
 
@@ -454,6 +466,9 @@ The following options need to be configured:
 		CONFIG_SYS_FSL_DDRC_GEN3
 		Freescale DDR3 controller.
 
+		CONFIG_SYS_FSL_DDRC_GEN4
+		Freescale DDR4 controller.
+
 		CONFIG_SYS_FSL_DDRC_ARM_GEN3
 		Freescale DDR3 controller for ARM-based SoCs.
 
@@ -469,7 +484,15 @@ The following options need to be configured:
 
 		CONFIG_SYS_FSL_DDR3
 		Board config to use DDR3. It can be enabled for SoCs with
-		Freescale DDR3 controllers.
+		Freescale DDR3 or DDR3L controllers.
+
+		CONFIG_SYS_FSL_DDR3L
+		Board config to use DDR3L. It can be enabled for SoCs with
+		DDR3L controllers.
+
+		CONFIG_SYS_FSL_DDR4
+		Board config to use DDR4. It can be enabled for SoCs with
+		DDR4 controllers.
 
 		CONFIG_SYS_FSL_IFC_BE
 		Defines the IFC controller register space as Big Endian
@@ -485,6 +508,10 @@ The following options need to be configured:
 		It adds PBI(pre-boot instructions) commands in u-boot build image.
 		PBI commands can be used to configure SoC before it starts the execution.
 		Please refer doc/README.pblimage for more details
+
+		CONFIG_SPL_FSL_PBL
+		It adds a target to create boot binary having SPL binary in PBI format
+		concatenated with u-boot binary.
 
 		CONFIG_SYS_FSL_DDR_BE
 		Defines the DDR controller register space as Big Endian
@@ -912,6 +939,7 @@ The following options need to be configured:
 		The default command configuration includes all commands
 		except those marked below with a "*".
 
+		CONFIG_CMD_AES		  AES 128 CBC encrypt/decrypt
 		CONFIG_CMD_ASKENV	* ask for env variable
 		CONFIG_CMD_BDI		  bdinfo
 		CONFIG_CMD_BEDBUG	* Include BedBug Debugger
@@ -1455,13 +1483,6 @@ The following options need to be configured:
 			Define this as the unique Product ID
 			for your device
 			- CONFIG_USBD_PRODUCTID 0xFFFF
-
-		Some USB device drivers may need to check USB cable attachment.
-		In this case you can enable following config in BoardName.h:
-			CONFIG_USB_CABLE_CHECK
-			This enables function definition:
-			- usb_cable_connected() in include/usb.h
-			Implementation of this function is board-specific.
 
 - ULPI Layer Support:
 		The ULPI (UTMI Low Pin (count) Interface) PHYs are supported via
@@ -3316,6 +3337,9 @@ FIT uImage format:
 		continuing (the hardware starts execution after just
 		loading the first page rather than the full 4K).
 
+		CONFIG_SPL_SKIP_RELOCATE
+		Avoid SPL relocation
+
 		CONFIG_SPL_NAND_BASE
 		Include nand_base.c in the SPL.  Requires
 		CONFIG_SPL_NAND_DRIVERS.
@@ -4510,8 +4534,13 @@ This firmware often needs to be loaded during U-Boot booting, so macros
 are used to identify the storage device (NOR flash, SPI, etc) and the address
 within that device.
 
-- CONFIG_SYS_QE_FMAN_FW_ADDR
-	The address in the storage device where the firmware is located.  The
+- CONFIG_SYS_FMAN_FW_ADDR
+	The address in the storage device where the FMAN microcode is located.  The
+	meaning of this address depends on which CONFIG_SYS_QE_FW_IN_xxx macro
+	is also specified.
+
+- CONFIG_SYS_QE_FW_ADDR
+	The address in the storage device where the QE microcode is located.  The
 	meaning of this address depends on which CONFIG_SYS_QE_FW_IN_xxx macro
 	is also specified.
 

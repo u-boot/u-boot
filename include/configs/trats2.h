@@ -91,7 +91,7 @@
 	"name="PARTS_UMS",size=-,uuid=${uuid_gpt_"PARTS_UMS"}\0" \
 
 #define CONFIG_DFU_ALT \
-	"u-boot mmc 80 800;" \
+	"u-boot raw 0x80 0x800;" \
 	"uImage ext4 0 2;" \
 	"modem.bin ext4 0 2;" \
 	"exynos4412-trats2.dtb ext4 0 2;" \
@@ -102,7 +102,7 @@
 	""PARTS_ROOT" part 0 5;" \
 	""PARTS_DATA" part 0 6;" \
 	""PARTS_UMS" part 0 7;" \
-	"params.bin mmc 0x38 0x8\0"
+	"params.bin raw 0x38 0x8\0"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootk=" \

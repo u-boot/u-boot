@@ -79,7 +79,7 @@ void setup_ifc(void)
 #endif
 
 /* We run cpu_init_early_f in AS = 1 */
-void cpu_init_early_f(void)
+void cpu_init_early_f(void *fdt)
 {
 	u32 mas0, mas1, mas2, mas3, mas7;
 	int i;
@@ -101,6 +101,12 @@ void cpu_init_early_f(void)
 	 */
 	for (i = 0; i < sizeof(gd_t); i++)
 		((char *)gd)[i] = 0;
+
+	/*
+	 * CONFIG_SYS_CCSRBAR_PHYS below may use gd->fdt_blob on ePAPR systems,
+	 * so we need to populate it before it accesses it.
+	 */
+	gd->fdt_blob = fdt;
 
 	mas0 = MAS0_TLBSEL(1) | MAS0_ESEL(13);
 	mas1 = MAS1_VALID | MAS1_TID(0) | MAS1_TS | MAS1_TSIZE(BOOKE_PAGESZ_1M);

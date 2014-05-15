@@ -108,6 +108,9 @@ usb_gadget_get_string(struct usb_gadget_strings *table, int id, u8 *buf)
 	struct usb_string	*s;
 	int			len;
 
+	if (!table)
+		return -EINVAL;
+
 	/* descriptor 0 has the language id */
 	if (id == 0) {
 		buf[0] = 4;

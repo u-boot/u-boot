@@ -164,6 +164,13 @@
 #endif
 
 /*
+ * Increasing TX FIFO threshold value from 2 to 4 decreases
+ * data burst rate with which data packets are posted from the TX
+ * latency FIFO to compensate for latencies in DDR pipeline during DMA
+ */
+#define TXFIFOTHRESH		4
+
+/*
  * USB Registers
  */
 struct usb_ehci {

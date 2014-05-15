@@ -423,18 +423,45 @@ fsl_i2c_read(struct i2c_adapter *adap, u8 dev, uint addr, int alen, u8 *data,
 	struct fsl_i2c *device = (struct fsl_i2c *)i2c_dev[adap->hwadapnr];
 	int i = -1; /* signal error */
 	u8 *a = (u8*)&addr;
+	int len = alen * -1;
 
 	if (i2c_wait4bus(adap) < 0)
 		return -1;
 
-	if ((!length || alen > 0)
-	    && i2c_write_addr(adap, dev, I2C_WRITE_BIT, 0) != 0
-	    && __i2c_write(adap, &a[4 - alen], alen) == alen)
-		i = 0; /* No error so far */
+	/* To handle the need of I2C devices that require to write few bytes
+	 * (more than 4 bytes of address as in the case of else part)
+	 * of data before reading, Negative equivalent of length(bytes to write)
+	 * is passed, but used the +ve part of len for writing data
+	 */
+	if (alen < 0) {
+		/* Generate a START and send the Address and
+		 * the Tx Bytes to the slave.
+		 * "START: Address: Write bytes data[len]"
+		 * IF part supports writing any number of bytes in contrast
+		 * to the else part, which supports writing address offset
+		 * of upto 4 bytes only.
+		 * bytes that need to be written are passed in
+		 * "data", which will eventually keep the data READ,
+		 * after writing the len bytes out of it
+		 */
+		if (i2c_write_addr(adap, dev, I2C_WRITE_BIT, 0) != 0)
+			i = __i2c_write(adap, data, len);
 
-	if (length &&
-	    i2c_write_addr(adap, dev, I2C_READ_BIT, alen ? 1 : 0) != 0)
-		i = __i2c_read(adap, data, length);
+		if (i != len)
+			return -1;
+
+		if (length && i2c_write_addr(adap, dev, I2C_READ_BIT, 1) != 0)
+			i = __i2c_read(adap, data, length);
+	} else {
+		if ((!length || alen > 0) &&
+		    i2c_write_addr(adap, dev, I2C_WRITE_BIT, 0) != 0  &&
+		    __i2c_write(adap, &a[4 - alen], alen) == alen)
+			i = 0; /* No error so far */
+
+		if (length &&
+		    i2c_write_addr(adap, dev, I2C_READ_BIT, alen ? 1 : 0) != 0)
+			i = __i2c_read(adap, data, length);
+	}
 
 	writeb(I2C_CR_MEN, &device->cr);
 

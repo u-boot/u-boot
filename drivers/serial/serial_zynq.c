@@ -153,17 +153,17 @@ static int uart_zynq_serial_getc(const int port)
 
 /* Multi serial device functions */
 #define DECLARE_PSSERIAL_FUNCTIONS(port) \
-	int uart_zynq##port##_init(void) \
+	static int uart_zynq##port##_init(void) \
 				{ return uart_zynq_serial_init(port); } \
-	void uart_zynq##port##_setbrg(void) \
+	static void uart_zynq##port##_setbrg(void) \
 				{ return uart_zynq_serial_setbrg(port); } \
-	int uart_zynq##port##_getc(void) \
+	static int uart_zynq##port##_getc(void) \
 				{ return uart_zynq_serial_getc(port); } \
-	int uart_zynq##port##_tstc(void) \
+	static int uart_zynq##port##_tstc(void) \
 				{ return uart_zynq_serial_tstc(port); } \
-	void uart_zynq##port##_putc(const char c) \
+	static void uart_zynq##port##_putc(const char c) \
 				{ uart_zynq_serial_putc(c, port); } \
-	void uart_zynq##port##_puts(const char *s) \
+	static void uart_zynq##port##_puts(const char *s) \
 				{ uart_zynq_serial_puts(s, port); }
 
 /* Serial device descriptor */
@@ -179,10 +179,10 @@ static int uart_zynq_serial_getc(const int port)
 }
 
 DECLARE_PSSERIAL_FUNCTIONS(0);
-struct serial_device uart_zynq_serial0_device =
+static struct serial_device uart_zynq_serial0_device =
 	INIT_PSSERIAL_STRUCTURE(0, "ttyPS0");
 DECLARE_PSSERIAL_FUNCTIONS(1);
-struct serial_device uart_zynq_serial1_device =
+static struct serial_device uart_zynq_serial1_device =
 	INIT_PSSERIAL_STRUCTURE(1, "ttyPS1");
 
 #ifdef CONFIG_OF_CONTROL
@@ -223,7 +223,7 @@ __weak struct serial_device *default_serial_console(void)
 }
 #endif
 
-void zynq_serial_initalize(void)
+void zynq_serial_initialize(void)
 {
 	serial_register(&uart_zynq_serial0_device);
 	serial_register(&uart_zynq_serial1_device);

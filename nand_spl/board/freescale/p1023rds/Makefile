@@ -74,11 +74,7 @@ $(obj)/resetvec.S:
 	@rm -f $@
 	ln -s $(srctree)/$(CPUDIR)/resetvec.S $@
 
-$(obj)/fixed_ivor.S:
-	@rm -f $@
-	ln -sf $(srctree)/$(CPUDIR)/fixed_ivor.S $@
-
-$(obj)/start.S: $(obj)/fixed_ivor.S
+$(obj)/start.S:
 	@rm -f $@
 	ln -sf $(srctree)/$(CPUDIR)/start.S $@
 

@@ -69,17 +69,11 @@ void env_relocate_spec(void)
 int saveenv(void)
 {
 	env_t	env_new;
-	ssize_t	len;
-	char	*res;
 	int	rcode = 0;
 
-	res = (char *)&env_new.data;
-	len = hexport_r(&env_htab, '\0', 0, &res, ENV_SIZE, 0, NULL);
-	if (len < 0) {
-		error("Cannot export environment: errno = %d\n", errno);
-		return 1;
-	}
-	env_new.crc = crc32(0, env_new.data, ENV_SIZE);
+	rcode = env_export(&env_new);
+	if (rcode)
+		return rcode;
 
 #ifdef CONFIG_SYS_NVRAM_ACCESS_ROUTINE
 	nvram_write(CONFIG_ENV_ADDR, &env_new, CONFIG_ENV_SIZE);

@@ -40,7 +40,6 @@ CONFIG_BUILD_ENVCRC ?= $(ENVCRC-y)
 
 # TODO: CONFIG_CMD_LICENSE does not work
 hostprogs-$(CONFIG_CMD_LICENSE) += bin2header$(SFX)
-
 hostprogs-$(CONFIG_LCD_LOGO) += bmp_logo$(SFX)
 hostprogs-$(CONFIG_VIDEO_LOGO) += bmp_logo$(SFX)
 HOSTCFLAGS_bmp_logo$(SFX).o := -pedantic
@@ -61,17 +60,20 @@ hostprogs-y += mkenvimage$(SFX)
 mkenvimage$(SFX)-objs := crc32.o mkenvimage.o os_support.o
 
 hostprogs-y += dumpimage$(SFX) mkimage$(SFX)
+hostprogs-$(CONFIG_FIT_SIGNATURE) += fit_info$(SFX) fit_check_sign$(SFX)
 
 FIT_SIG_OBJS-$(CONFIG_FIT_SIGNATURE) := image-sig.o
 # Flattened device tree objects
 LIBFDT_OBJS := fdt.o fdt_ro.o fdt_rw.o fdt_strerror.o fdt_wip.o
-RSA_OBJS-$(CONFIG_FIT_SIGNATURE) := rsa-sign.o
+RSA_OBJS-$(CONFIG_FIT_SIGNATURE) := rsa-sign.o rsa-verify.o rsa-checksum.o
 
 # common objs for dumpimage and mkimage
 dumpimage-mkimage-objs := aisimage.o \
 			$(FIT_SIG_OBJS-y) \
 			crc32.o \
 			default_image.o \
+			fdtdec.o \
+			fit_common.o \
 			fit_image.o \
 			gpimage.o \
 			gpimage-common.o \
@@ -87,12 +89,15 @@ dumpimage-mkimage-objs := aisimage.o \
 			os_support.o \
 			pblimage.o \
 			sha1.o \
+			sha256.o \
 			ublimage.o \
 			$(LIBFDT_OBJS) \
 			$(RSA_OBJS-y)
 
 dumpimage$(SFX)-objs := $(dumpimage-mkimage-objs) dumpimage.o
 mkimage$(SFX)-objs   := $(dumpimage-mkimage-objs) mkimage.o
+fit_info$(SFX)-objs   := $(dumpimage-mkimage-objs) fit_info.o
+fit_check_sign$(SFX)-objs   := $(dumpimage-mkimage-objs) fit_check_sign.o
 
 # TODO(sjg@chromium.org): Is this correct on Mac OS?
 
@@ -100,6 +105,8 @@ mkimage$(SFX)-objs   := $(dumpimage-mkimage-objs) mkimage.o
 ifneq ($(CONFIG_MX23)$(CONFIG_MX28),)
 HOSTLOADLIBES_dumpimage$(SFX) := -lssl -lcrypto
 HOSTLOADLIBES_mkimage$(SFX) := -lssl -lcrypto
+HOSTLOADLIBES_fit_info$(SFX) := -lssl -lcrypto
+HOSTLOADLIBES_fit_check_sign$(SFX) := -lssl -lcrypto
 # Add CONFIG_MXS into host CFLAGS, so we can check whether or not register
 # the mxsimage support within tools/mxsimage.c .
 HOSTCFLAGS_mxsimage.o += -DCONFIG_MXS
@@ -108,6 +115,8 @@ endif
 ifdef CONFIG_FIT_SIGNATURE
 HOSTLOADLIBES_dumpimage$(SFX) := -lssl -lcrypto
 HOSTLOADLIBES_mkimage$(SFX) := -lssl -lcrypto
+HOSTLOADLIBES_fit_info$(SFX) := -lssl -lcrypto
+HOSTLOADLIBES_fit_check_sign$(SFX) := -lssl -lcrypto
 
 # This affects include/image.h, but including the board config file
 # is tricky, so manually define this options here.
@@ -139,6 +148,7 @@ hostprogs-$(CONFIG_STATIC_RELA) += relocate-rela$(SFX)
 HOSTCFLAGS_crc32.o := -pedantic
 HOSTCFLAGS_md5.o := -pedantic
 HOSTCFLAGS_sha1.o := -pedantic
+HOSTCFLAGS_sha256.o := -pedantic
 
 # Don't build by default
 #hostprogs-$(CONFIG_PPC) += mpc86x_clk$(SFX)

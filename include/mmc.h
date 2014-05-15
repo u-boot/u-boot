@@ -12,6 +12,7 @@
 
 #include <linux/list.h>
 #include <linux/compiler.h>
+#include <part.h>
 
 #define SD_VERSION_SD	0x20000
 #define SD_VERSION_3	(SD_VERSION_SD | 0x300)

@@ -453,7 +453,7 @@ static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 #endif /* CONFIG_LZMA */
 #ifdef CONFIG_LZO
 	case IH_COMP_LZO: {
-		size_t size;
+		size_t size = unc_len;
 
 		printf("   Uncompressing %s ... ", type_name);
 

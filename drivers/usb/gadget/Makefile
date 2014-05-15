@@ -13,6 +13,7 @@ ifdef CONFIG_USB_GADGET
 obj-$(CONFIG_USB_GADGET_ATMEL_USBA) += atmel_usba_udc.o
 obj-$(CONFIG_USB_GADGET_S3C_UDC_OTG) += s3c_udc_otg.o
 obj-$(CONFIG_USB_GADGET_FOTG210) += fotg210.o
+obj-$(CONFIG_CI_UDC)	+= ci_udc.o
 obj-$(CONFIG_THOR_FUNCTION) += f_thor.o
 obj-$(CONFIG_USBDOWNLOAD_GADGET) += g_dnl.o
 obj-$(CONFIG_DFU_FUNCTION) += f_dfu.o

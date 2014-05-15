@@ -1583,6 +1583,12 @@ typedef struct cpc_corenet {
 typedef struct ccsr_gur {
 	u32	porsr1;		/* POR status 1 */
 	u32	porsr2;		/* POR status 2 */
+#ifdef	CONFIG_SYS_FSL_SINGLE_SOURCE_CLK
+#define	FSL_DCFG_PORSR1_SYSCLK_SHIFT	15
+#define	FSL_DCFG_PORSR1_SYSCLK_MASK	0x1
+#define	FSL_DCFG_PORSR1_SYSCLK_SINGLE_ENDED	0x1
+#define	FSL_DCFG_PORSR1_SYSCLK_DIFF	0x0
+#endif
 	u8	res_008[0x20-0x8];
 	u32	gpporcr1;	/* General-purpose POR configuration */
 	u32	gpporcr2;	/* General-purpose POR configuration 2 */
@@ -1739,6 +1745,8 @@ typedef struct ccsr_gur {
 
 #ifdef CONFIG_SYS_FSL_QORIQ_CHASSIS2
 #define FSL_CORENET_RCWSR0_MEM_PLL_RAT_SHIFT	16
+/* use reserved bits 18~23 as scratch space to host DDR PLL ratio */
+#define FSL_CORENET_RCWSR0_MEM_PLL_RAT_RESV_SHIFT	8
 #define FSL_CORENET_RCWSR0_MEM_PLL_RAT_MASK	0x3f
 #if defined(CONFIG_PPC_T4240) || defined(CONFIG_PPC_T4160)
 #define FSL_CORENET2_RCWSR4_SRDS1_PRTCL		0xfc000000
@@ -1889,7 +1897,9 @@ defined(CONFIG_PPC_T1020) || defined(CONFIG_PPC_T1022)
 	u32	sata2liodnr;	/* SATA 2 LIODN */
 	u32	sata3liodnr;	/* SATA 3 LIODN */
 	u32	sata4liodnr;	/* SATA 4 LIODN */
-	u8	res22[32];
+	u8      res22[24];
+	u32     qeliodnr;       /* QE LIODN */
+	u8      res_57c[4];
 	u32	dma1liodnr;	/* DMA 1 LIODN */
 	u32	dma2liodnr;	/* DMA 2 LIODN */
 	u32	dma3liodnr;	/* DMA 3 LIODN */
@@ -2877,6 +2887,7 @@ struct ccsr_pman {
 #define CONFIG_SYS_MPC85xx_LBC_OFFSET		0x124000
 #define CONFIG_SYS_MPC85xx_IFC_OFFSET		0x124000
 #define CONFIG_SYS_MPC85xx_GPIO_OFFSET		0x130000
+#define CONFIG_SYS_MPC85xx_QE_OFFSET		0x140000
 #define CONFIG_SYS_FSL_CORENET_RMAN_OFFSET	0x1e0000
 #if defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2) && !defined(CONFIG_PPC_B4860)\
 	&& !defined(CONFIG_PPC_B4420)
@@ -3150,5 +3161,27 @@ struct dcsr_dcfg_regs {
 #define	DCSR_DCFG_ECC_DISABLE_USB1	0x00008000
 #define	DCSR_DCFG_ECC_DISABLE_USB2	0x00004000
 	u8  res_524[0x1000 - 0x524]; /* 0x524 - 0x1000 */
+};
+
+#define CONFIG_SYS_MPC85xx_SCFG \
+	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_SCFG_OFFSET)
+#define CONFIG_SYS_MPC85xx_SCFG_OFFSET	0xfc000
+/* The supplement configuration unit register */
+struct ccsr_scfg {
+	u32 dpslpcr;	/* 0x000 Deep Sleep Control register */
+	u32 usb1dpslpcsr;/* 0x004 USB1 Deep Sleep Control Status register */
+	u32 usb2dpslpcsr;/* 0x008 USB2 Deep Sleep Control Status register */
+	u32 fmclkdpslpcr;/* 0x00c FM Clock Deep Sleep Control register */
+	u32 res1[4];
+	u32 esgmiiselcr;/* 0x020 Ethernet Switch SGMII Select Control reg */
+	u32 res2;
+	u32 pixclkcr;	/* 0x028 Pixel Clock Control register */
+	u32 res3[245];
+	u32 qeioclkcr;	/* 0x400 QUICC Engine IO Clock Control register */
+	u32 emiiocr;	/* 0x404 EMI MDIO Control Register */
+	u32 sdhciovselcr;/* 0x408 SDHC IO VSEL Control register */
+	u32 qmifrstcr;	/* 0x40c QMAN Interface Reset Control register */
+	u32 res4[60];
+	u32 sparecr[8];	/* 0x500 Spare Control register(0-7) */
 };
 #endif /*__IMMAP_85xx__*/

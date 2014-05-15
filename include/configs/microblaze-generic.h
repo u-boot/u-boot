@@ -71,7 +71,7 @@
 
 /* ethernet */
 #undef CONFIG_SYS_ENET
-#if defined(XILINX_EMACLITE_BASEADDR)
+#if defined(XILINX_EMACLITE_BASEADDR) || defined(CONFIG_OF_CONTROL)
 # define CONFIG_XILINX_EMACLITE	1
 # define CONFIG_SYS_ENET
 #endif
