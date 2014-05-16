@@ -24,6 +24,7 @@
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
+#define CONFIG_SYS_GENERIC_BOARD
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
@@ -141,6 +142,7 @@
 #define CONFIG_CMD_HDMIDETECT
 #define CONFIG_CONSOLE_MUX
 #define CONFIG_IMX_HDMI
+#define CONFIG_IMX_VIDEO_SKIP
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE

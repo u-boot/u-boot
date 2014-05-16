@@ -19,13 +19,12 @@
 #include <asm/imx-common/mxc_i2c.h>
 #include <asm/imx-common/sata.h>
 #include <asm/imx-common/boot_mode.h>
+#include <asm/imx-common/video.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <micrel.h>
 #include <miiphy.h>
 #include <netdev.h>
-#include <linux/fb.h>
-#include <ipu_pixfmt.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/mxc_hdmi.h>
 #include <i2c.h>
@@ -331,7 +330,7 @@ int board_mmc_init(bd_t *bis)
 #ifdef CONFIG_MXC_SPI
 iomux_v3_cfg_t const ecspi1_pads[] = {
 	/* SS1 */
-	MX6_PAD_EIM_D19__GPIO3_IO19   | MUX_PAD_CTRL(SPI_PAD_CTRL),
+	MX6_PAD_EIM_D19__GPIO3_IO19  | MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_EIM_D17__ECSPI1_MISO | MUX_PAD_CTRL(SPI_PAD_CTRL),
 	MX6_PAD_EIM_D18__ECSPI1_MOSI | MUX_PAD_CTRL(SPI_PAD_CTRL),
 	MX6_PAD_EIM_D16__ECSPI1_SCLK | MUX_PAD_CTRL(SPI_PAD_CTRL),
@@ -446,22 +445,6 @@ static iomux_v3_cfg_t const rgb_pads[] = {
 	MX6_PAD_DISP0_DAT23__IPU1_DISP0_DATA23,
 };
 
-struct display_info_t {
-	int	bus;
-	int	addr;
-	int	pixfmt;
-	int	(*detect)(struct display_info_t const *dev);
-	void	(*enable)(struct display_info_t const *dev);
-	struct	fb_videomode mode;
-};
-
-
-static int detect_hdmi(struct display_info_t const *dev)
-{
-	struct hdmi_regs *hdmi	= (struct hdmi_regs *)HDMI_ARB_BASE_ADDR;
-	return readb(&hdmi->phy_stat0) & HDMI_DVI_STAT;
-}
-
 static void do_enable_hdmi(struct display_info_t const *dev)
 {
 	imx_enable_hdmi_phy();
@@ -492,7 +475,7 @@ static void enable_rgb(struct display_info_t const *dev)
 	gpio_direction_output(RGB_BACKLIGHT_GP, 1);
 }
 
-static struct display_info_t const displays[] = {{
+struct display_info_t const displays[] = {{
 	.bus	= -1,
 	.addr	= 0,
 	.pixfmt	= IPU_PIX_FMT_RGB24,
@@ -573,51 +556,7 @@ static struct display_info_t const displays[] = {{
 		.sync           = 0,
 		.vmode          = FB_VMODE_NONINTERLACED
 } } };
-
-int board_video_skip(void)
-{
-	int i;
-	int ret;
-	char const *panel = getenv("panel");
-	if (!panel) {
-		for (i = 0; i < ARRAY_SIZE(displays); i++) {
-			struct display_info_t const *dev = displays+i;
-			if (dev->detect(dev)) {
-				panel = dev->mode.name;
-				printf("auto-detected panel %s\n", panel);
-				break;
-			}
-		}
-		if (!panel) {
-			panel = displays[0].mode.name;
-			printf("No panel detected: default to %s\n", panel);
-			i = 0;
-		}
-	} else {
-		for (i = 0; i < ARRAY_SIZE(displays); i++) {
-			if (!strcmp(panel, displays[i].mode.name))
-				break;
-		}
-	}
-	if (i < ARRAY_SIZE(displays)) {
-		ret = ipuv3_fb_init(&displays[i].mode, 0,
-				    displays[i].pixfmt);
-		if (!ret) {
-			displays[i].enable(displays+i);
-			printf("Display: %s (%ux%u)\n",
-			       displays[i].mode.name,
-			       displays[i].mode.xres,
-			       displays[i].mode.yres);
-		} else {
-			printf("LCD %s cannot be configured: %d\n",
-			       displays[i].mode.name, ret);
-		}
-	} else {
-		printf("unsupported panel %s\n", panel);
-		ret = -EINVAL;
-	}
-	return (0 != ret);
-}
+size_t display_count = ARRAY_SIZE(displays);
 
 static void setup_display(void)
 {

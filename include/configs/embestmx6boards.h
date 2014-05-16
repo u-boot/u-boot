@@ -1,31 +1,39 @@
 /*
- * Copyright (C) 2012 Freescale Semiconductor, Inc.
+ * Copyright (C) 2014 Eukréa Electromatique
+ * Author: Eric Bénard <eric@eukrea.com>
  *
- * Configuration settings for the Freescale i.MX6Q SabreSD board.
+ * Configuration settings for the Embest RIoTboard
+ *
+ * based on mx6*sabre*.h which are :
+ * Copyright (C) 2012 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __MX6QSABRE_COMMON_CONFIG_H
-#define __MX6QSABRE_COMMON_CONFIG_H
+#ifndef __RIOTBOARD_CONFIG_H
+#define __RIOTBOARD_CONFIG_H
 
-#define CONFIG_MX6
+#include <asm/arch/imx-regs.h>
+#include <asm/imx-common/gpio.h>
 
 #include "mx6_common.h"
 #include <linux/sizes.h>
 
+#define CONFIG_MXC_UART_BASE		UART2_BASE
+#define CONFIG_CONSOLE_DEV		"ttymxc0"
+#define CONFIG_MMCROOT			"/dev/mmcblk1p2"
+
+#define PHYS_SDRAM_SIZE		(1u * 1024 * 1024 * 1024)
+
+#define CONFIG_MX6
+
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
-
-#include <asm/arch/imx-regs.h>
-#include <asm/imx-common/gpio.h>
 
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
-
-#define CONFIG_SYS_GENERIC_BOARD
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)
@@ -40,6 +48,24 @@
 #ifdef CONFIG_CMD_FUSE
 #define CONFIG_MXC_OCOTP
 #endif
+
+/* I2C Configs */
+#define CONFIG_CMD_I2C
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_MXC
+#define CONFIG_SYS_I2C_SPEED		100000
+
+/* USB Configs */
+#define CONFIG_CMD_USB
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_MX6
+#define CONFIG_USB_STORAGE
+#define CONFIG_USB_HOST_ETHER
+#define CONFIG_USB_ETHER_ASIX
+#define CONFIG_USB_MAX_CONTROLLER_COUNT 2
+#define CONFIG_EHCI_HCD_INIT_AFTER_RESET	/* For OTG port */
+#define CONFIG_MXC_USB_PORTSC	(PORT_PTS_UTMI | PORT_PTS_PTW)
+#define CONFIG_MXC_USB_FLAGS	0
 
 /* MMC Configs */
 #define CONFIG_FSL_ESDHC
@@ -63,7 +89,7 @@
 #define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_XCV_TYPE		RGMII
 #define CONFIG_ETHPRIME			"FEC"
-#define CONFIG_FEC_MXC_PHYADDR		1
+#define CONFIG_FEC_MXC_PHYADDR		4
 
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_ATHEROS
@@ -71,10 +97,10 @@
 #define CONFIG_CMD_SF
 #ifdef CONFIG_CMD_SF
 #define CONFIG_SPI_FLASH
-#define CONFIG_SPI_FLASH_STMICRO
+#define CONFIG_SPI_FLASH_SST
 #define CONFIG_MXC_SPI
 #define CONFIG_SF_DEFAULT_BUS		0
-#define CONFIG_SF_DEFAULT_CS		(0 | (IMX_GPIO_NR(4, 9) << 8))
+#define CONFIG_SF_DEFAULT_CS		(0 | (IMX_GPIO_NR(2, 30) << 8))
 #define CONFIG_SF_DEFAULT_SPEED		20000000
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #endif
@@ -107,16 +133,32 @@
 			"setenv get_cmd tftp; " \
 		"fi; " \
 		"if ${get_cmd} ${update_sd_firmware_filename}; then " \
-			"if mmc dev ${emmcdev} && " \
-				"mmc open ${emmcdev} 1; then "	\
+			"if mmc dev ${emmcdev}; then "	\
 				"setexpr fw_sz ${filesize} / 0x200; " \
 				"setexpr fw_sz ${fw_sz} + 1; "	\
 				"mmc write ${loadaddr} 0x2 ${fw_sz}; " \
-				"mmc close ${emmcdev} 1; " \
 			"fi; "	\
 		"fi\0"
 #else
 #define EMMC_ENV ""
+#endif
+
+#ifdef CONFIG_CMD_SF
+#define SF_ENV \
+	"update_spi_firmware=" \
+		"if test ${ip_dyn} = yes; then " \
+			"setenv get_cmd dhcp; " \
+		"else " \
+			"setenv get_cmd tftp; " \
+		"fi; " \
+		"if ${get_cmd} ${update_spi_firmware_filename}; then " \
+			"if sf probe; then "	\
+				"sf erase 0 0xc0000; " \
+				"sf write ${loadaddr} 0x400 ${filesize}; " \
+			"fi; "	\
+		"fi\0"
+#else
+#define SF_ENV ""
 #endif
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -146,6 +188,7 @@
 			"fi; "	\
 		"fi\0" \
 	EMMC_ENV	  \
+	SF_ENV	  \
 	"mmcargs=setenv bootargs console=${console},${baudrate} " \
 		"root=${mmcroot}\0" \
 	"loadbootscript=" \
@@ -248,10 +291,23 @@
 
 #define CONFIG_ENV_SIZE			(8 * 1024)
 
-#define CONFIG_ENV_IS_IN_MMC
-
 #if defined(CONFIG_ENV_IS_IN_MMC)
+/* RiOTboard */
+#define CONFIG_DEFAULT_FDT_FILE	"imx6s-riotboard.dtb"
+#define CONFIG_SYS_FSL_USDHC_NUM	3
+#define CONFIG_SYS_MMC_ENV_DEV		2	/* SDHC4 */
 #define CONFIG_ENV_OFFSET		(6 * 64 * 1024)
+#define CONFIG_SUPPORT_EMMC_BOOT /* eMMC specific */
+#elif defined(CONFIG_ENV_IS_IN_SPI_FLASH)
+/* MarSBoard */
+#define CONFIG_DEFAULT_FDT_FILE	"imx6q-marsboard.dtb"
+#define CONFIG_SYS_FSL_USDHC_NUM	2
+#define CONFIG_ENV_OFFSET		(768 * 1024)
+#define CONFIG_ENV_SECT_SIZE		(8 * 1024)
+#define CONFIG_ENV_SPI_BUS		CONFIG_SF_DEFAULT_BUS
+#define CONFIG_ENV_SPI_CS		CONFIG_SF_DEFAULT_CS
+#define CONFIG_ENV_SPI_MODE		CONFIG_SF_DEFAULT_MODE
+#define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
 #endif
 
 #define CONFIG_OF_LIBFDT
@@ -260,4 +316,21 @@
 #define CONFIG_CMD_CACHE
 #endif
 
-#endif                         /* __MX6QSABRE_COMMON_CONFIG_H */
+/* Framebuffer */
+#define CONFIG_VIDEO
+#define CONFIG_VIDEO_IPUV3
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
+#define CONFIG_VIDEO_BMP_RLE8
+#define CONFIG_SPLASH_SCREEN
+#define CONFIG_SPLASH_SCREEN_ALIGN
+#define CONFIG_BMP_16BPP
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_VIDEO_BMP_LOGO
+#define CONFIG_IPUV3_CLK 260000000
+#define CONFIG_IMX_HDMI
+#define CONFIG_IMX_VIDEO_SKIP
+
+#endif                         /* __RIOTBOARD_CONFIG_H */

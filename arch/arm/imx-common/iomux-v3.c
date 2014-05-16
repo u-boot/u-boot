@@ -30,6 +30,14 @@ void imx_iomux_v3_setup_pad(iomux_v3_cfg_t pad)
 		(pad & MUX_PAD_CTRL_OFS_MASK) >> MUX_PAD_CTRL_OFS_SHIFT;
 	u32 pad_ctrl = (pad & MUX_PAD_CTRL_MASK) >> MUX_PAD_CTRL_SHIFT;
 
+#if defined CONFIG_MX6SL
+	/* Check whether LVE bit needs to be set */
+	if (pad_ctrl & PAD_CTL_LVE) {
+		pad_ctrl &= ~PAD_CTL_LVE;
+		pad_ctrl |= PAD_CTL_LVE_BIT;
+	}
+#endif
+
 	if (mux_ctrl_ofs)
 		__raw_writel(mux_mode, base + mux_ctrl_ofs);
 

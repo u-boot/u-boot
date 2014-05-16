@@ -93,4 +93,5 @@ enum {
 #define SWBST_MODE_AUTO	(2 << 2)
 #define SWBST_MODE_APS	(2 << 3)
 
+int power_pfuze100_init(unsigned char bus);
 #endif
