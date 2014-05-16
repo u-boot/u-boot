@@ -893,30 +893,6 @@ static void exynos4_set_mmc_clk(int dev_index, unsigned int div)
 			(div & 0xff) << ((dev_index << 4) + 8));
 }
 
-/* exynos4x12: set the mmc clock */
-static void exynos4x12_set_mmc_clk(int dev_index, unsigned int div)
-{
-	struct exynos4x12_clock *clk =
-		(struct exynos4x12_clock *)samsung_get_base_clock();
-	unsigned int addr;
-
-	/*
-	 * CLK_DIV_FSYS1
-	 * MMC0_PRE_RATIO [15:8], MMC1_PRE_RATIO [31:24]
-	 * CLK_DIV_FSYS2
-	 * MMC2_PRE_RATIO [15:8], MMC3_PRE_RATIO [31:24]
-	 */
-	if (dev_index < 2) {
-		addr = (unsigned int)&clk->div_fsys1;
-	} else {
-		addr = (unsigned int)&clk->div_fsys2;
-		dev_index -= 2;
-	}
-
-	clrsetbits_le32(addr, 0xff << ((dev_index << 4) + 8),
-			(div & 0xff) << ((dev_index << 4) + 8));
-}
-
 /* exynos5: set the mmc clock */
 static void exynos5_set_mmc_clk(int dev_index, unsigned int div)
 {
@@ -1612,10 +1588,7 @@ void set_mmc_clk(int dev_index, unsigned int div)
 		else
 			exynos5_set_mmc_clk(dev_index, div);
 	} else {
-		if (proid_is_exynos4412())
-			exynos4x12_set_mmc_clk(dev_index, div);
-		else
-			exynos4_set_mmc_clk(dev_index, div);
+		exynos4_set_mmc_clk(dev_index, div);
 	}
 }
 
