@@ -10,12 +10,12 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __CONFIG_DXR2_H
-#define __CONFIG_DXR2_H
+#ifndef __CONFIG_DRACO_H
+#define __CONFIG_DRACO_H
 
-#define CONFIG_SIEMENS_DXR2
-#define MACH_TYPE_DXR2			4315
-#define CONFIG_SIEMENS_MACH_TYPE	MACH_TYPE_DXR2
+#define CONFIG_SIEMENS_DRACO
+#define MACH_TYPE_DRACO			4314
+#define CONFIG_SIEMENS_MACH_TYPE	MACH_TYPE_DRACO
 
 #include "siemens-am33x-common.h"
 
@@ -61,7 +61,6 @@
 
 /* Default env settings */
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"hostname=dxr2\0" \
 	"nand_img_size=0x400000\0" \
 	"optargs=\0" \
 	CONFIG_COMMON_ENV_SETTINGS
@@ -90,4 +89,4 @@
 	"fi"
 #endif
 #endif	/* CONFIG_SPL_BUILD */
-#endif	/* ! __CONFIG_DXR2_H */
+#endif	/* ! __CONFIG_DRACO_H */

@@ -322,6 +322,9 @@
 
 #define V_SCLK	V_OSCK
 
+/* CKO buffer control */
+#define CKOBUFFER_CLK_ENABLE_MASK	(1 << 28)
+
 /* AUXCLKx reg fields */
 #define AUXCLK_ENABLE_MASK		(1 << 8)
 #define AUXCLK_SRCSELECT_SHIFT		1

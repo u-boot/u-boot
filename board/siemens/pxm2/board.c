@@ -70,11 +70,11 @@ struct cmd_control pxm2_ddr3_cmd_ctrl_data = {
 };
 
 const struct ctrl_ioregs ioregs = {
-	.cm0ioctl		= DXR2_IOCTRL_VAL,
-	.cm1ioctl		= DXR2_IOCTRL_VAL,
-	.cm2ioctl		= DXR2_IOCTRL_VAL,
-	.dt0ioctl		= DXR2_IOCTRL_VAL,
-	.dt1ioctl		= DXR2_IOCTRL_VAL,
+	.cm0ioctl		= DDR_IOCTRL_VAL,
+	.cm1ioctl		= DDR_IOCTRL_VAL,
+	.cm2ioctl		= DDR_IOCTRL_VAL,
+	.dt0ioctl		= DDR_IOCTRL_VAL,
+	.dt1ioctl		= DDR_IOCTRL_VAL,
 };
 
 	config_ddr(DDR_PLL_FREQ, &ioregs, &pxm2_ddr3_data,

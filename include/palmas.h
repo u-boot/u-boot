@@ -24,6 +24,10 @@
 #define LDO1_CTRL		0x50
 #define LDO1_VOLTAGE		0x51
 
+/* LDO2 control/voltage */
+#define LDO2_CTRL		0x52
+#define LDO2_VOLTAGE		0x53
+
 /* LDO9 control/voltage */
 #define LDO9_CTRL		0x60
 #define LDO9_VOLTAGE		0x61
