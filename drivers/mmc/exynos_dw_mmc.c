@@ -95,6 +95,7 @@ static int exynos_dwmci_core_init(struct dwmci_host *host, int index)
 			host->clksel_val = DWMMC_MMC2_CLKSEL_VAL;
 	}
 
+	host->caps = MMC_MODE_DDR_52MHz;
 	host->clksel = exynos_dwmci_clksel;
 	host->dev_index = index;
 	host->get_mmc_clk = exynos_dwmci_get_clk;
