@@ -104,15 +104,20 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 
 	if (!strncmp(phy_type, "utmi", 4)) {
 #if defined(CONFIG_SYS_FSL_USB_INTERNAL_UTMI_PHY)
-		setbits_be32(&ehci->control, PHY_CLK_SEL_UTMI);
-		setbits_be32(&ehci->control, UTMI_PHY_EN);
+		clrsetbits_be32(&ehci->control, CONTROL_REGISTER_W1C_MASK,
+				PHY_CLK_SEL_UTMI);
+		clrsetbits_be32(&ehci->control, CONTROL_REGISTER_W1C_MASK,
+				UTMI_PHY_EN);
 		udelay(1000); /* delay required for PHY Clk to appear */
 #endif
 		out_le32(&(*hcor)->or_portsc[0], PORT_PTS_UTMI);
-		setbits_be32(&ehci->control, USB_EN);
+		clrsetbits_be32(&ehci->control, CONTROL_REGISTER_W1C_MASK,
+				USB_EN);
 	} else {
-		setbits_be32(&ehci->control, PHY_CLK_SEL_ULPI);
-		clrsetbits_be32(&ehci->control, UTMI_PHY_EN, USB_EN);
+		clrsetbits_be32(&ehci->control, CONTROL_REGISTER_W1C_MASK,
+				PHY_CLK_SEL_ULPI);
+		clrsetbits_be32(&ehci->control, UTMI_PHY_EN |
+				CONTROL_REGISTER_W1C_MASK, USB_EN);
 		udelay(1000); /* delay required for PHY Clk to appear */
 		if (!usb_phy_clk_valid(ehci))
 			return -EINVAL;

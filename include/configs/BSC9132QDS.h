@@ -360,7 +360,7 @@ combinations. this should be removed later
 #endif
 
 /* Set up IFC registers for boot location NOR/NAND */
-#if defined(CONFIG_NAND)
+#if defined(CONFIG_NAND) || defined(CONFIG_NAND_SECBOOT)
 #define CONFIG_SYS_CSPR0		CONFIG_SYS_NAND_CSPR
 #define CONFIG_SYS_AMASK0		CONFIG_SYS_NAND_AMASK
 #define CONFIG_SYS_CSOR0		CONFIG_SYS_NAND_CSOR

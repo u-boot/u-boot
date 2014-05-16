@@ -886,6 +886,10 @@
 #endif
 #endif
 
+#if defined(CONFIG_P1020RDB_PD)
+#define CONFIG_USB_MAX_CONTROLLER_COUNT	1
+#endif
+
 #define CONFIG_MMC
 
 #ifdef CONFIG_MMC

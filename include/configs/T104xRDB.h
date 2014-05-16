@@ -779,8 +779,7 @@
 	"ramdiskfile=" __stringify(RAMDISKFILE) "\0"		\
 	"fdtaddr=c00000\0"					\
 	"fdtfile=" __stringify(FDTFILE) "\0"			\
-	"bdev=sda3\0"						\
-	"c=ffe\0"
+	"bdev=sda3\0"
 
 #define CONFIG_LINUX                       \
 	"setenv bootargs root=/dev/ram rw "            \

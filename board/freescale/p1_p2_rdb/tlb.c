@@ -37,6 +37,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 			0, 1, BOOKE_PAGESZ_1M, 1),
 
+#ifndef CONFIG_SPL_BUILD
 	/* W**G* - Flash/promjet, localbus */
 	/* This will be changed to *I*G* after relocation to RAM. */
 	SET_TLB_ENTRY(1, CONFIG_SYS_FLASH_BASE, CONFIG_SYS_FLASH_BASE_PHYS,
@@ -55,6 +56,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 			0, 4, BOOKE_PAGESZ_256K, 1),
 
 #endif /* #if defined(CONFIG_PCI) */
+#endif
 	/* *I*G - NAND */
 	SET_TLB_ENTRY(1, CONFIG_SYS_NAND_BASE, CONFIG_SYS_NAND_BASE_PHYS,
 			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
@@ -65,7 +67,21 @@ struct fsl_e_tlb_entry tlb_table[] = {
 			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 			0, 6, BOOKE_PAGESZ_1M, 1),
 
-#if defined(CONFIG_SYS_RAMBOOT)
+#ifdef CONFIG_SYS_INIT_L2_ADDR
+	/* *I*G - L2SRAM */
+	SET_TLB_ENTRY(1, CONFIG_SYS_INIT_L2_ADDR, CONFIG_SYS_INIT_L2_ADDR_PHYS,
+		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_G,
+		      0, 11, BOOKE_PAGESZ_256K, 1),
+#if CONFIG_SYS_L2_SIZE >= (256 << 10)
+	SET_TLB_ENTRY(1, CONFIG_SYS_INIT_L2_ADDR + 0x40000,
+		      CONFIG_SYS_INIT_L2_ADDR_PHYS + 0x40000,
+		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
+		      0, 12, BOOKE_PAGESZ_256K, 1),
+#endif
+#endif
+
+#if defined(CONFIG_SYS_RAMBOOT) || \
+	(defined(CONFIG_SPL) && !defined(CONFIG_SPL_COMMON_INIT_DDR))
 	SET_TLB_ENTRY(1, CONFIG_SYS_DDR_SDRAM_BASE, CONFIG_SYS_DDR_SDRAM_BASE,
 			MAS3_SX|MAS3_SW|MAS3_SR, 0,
 			0, 7, BOOKE_PAGESZ_1G, 1)

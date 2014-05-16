@@ -11,6 +11,8 @@
 
 #include <asm/processor.h>
 
+#define CONTROL_REGISTER_W1C_MASK       0x00020000  /* W1C: PHY_CLK_VALID */
+
 /* Global offsets */
 #define FSL_SKIP_PCI		0x100
 
