@@ -38,6 +38,7 @@
 #define MMC_MODE_8BIT		(1 << 3)
 #define MMC_MODE_SPI		(1 << 4)
 #define MMC_MODE_HC		(1 << 5)
+#define MMC_MODE_DDR_52MHz	(1 << 6)
 
 #define SD_DATA_4BIT	0x00040000
 
@@ -169,10 +170,16 @@
 
 #define EXT_CSD_CARD_TYPE_26	(1 << 0)	/* Card can run at 26MHz */
 #define EXT_CSD_CARD_TYPE_52	(1 << 1)	/* Card can run at 52MHz */
+#define EXT_CSD_CARD_TYPE_DDR_1_8V	(1 << 2)
+#define EXT_CSD_CARD_TYPE_DDR_1_2V	(1 << 3)
+#define EXT_CSD_CARD_TYPE_DDR_52	(EXT_CSD_CARD_TYPE_DDR_1_8V \
+					| EXT_CSD_CARD_TYPE_DDR_1_2V)
 
 #define EXT_CSD_BUS_WIDTH_1	0	/* Card is in 1 bit mode */
 #define EXT_CSD_BUS_WIDTH_4	1	/* Card is in 4 bit mode */
 #define EXT_CSD_BUS_WIDTH_8	2	/* Card is in 8 bit mode */
+#define EXT_CSD_DDR_BUS_WIDTH_4	5	/* Card is in 4 bit DDR mode */
+#define EXT_CSD_DDR_BUS_WIDTH_8	6	/* Card is in 8 bit DDR mode */
 
 #define EXT_CSD_BOOT_ACK_ENABLE			(1 << 6)
 #define EXT_CSD_BOOT_PARTITION_ENABLE		(1 << 3)

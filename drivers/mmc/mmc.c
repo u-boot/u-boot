@@ -158,6 +158,9 @@ int mmc_set_blocklen(struct mmc *mmc, int len)
 {
 	struct mmc_cmd cmd;
 
+	if (mmc->card_caps & MMC_MODE_DDR_52MHz)
+		return 0;
+
 	cmd.cmdidx = MMC_CMD_SET_BLOCKLEN;
 	cmd.resp_type = MMC_RSP_R1;
 	cmd.cmdarg = len;
@@ -514,10 +517,13 @@ static int mmc_change_freq(struct mmc *mmc)
 		return 0;
 
 	/* High Speed is set, there are two types: 52MHz and 26MHz */
-	if (cardtype & EXT_CSD_CARD_TYPE_52)
+	if (cardtype & EXT_CSD_CARD_TYPE_52) {
+		if (cardtype & EXT_CSD_CARD_TYPE_DDR_52)
+			mmc->card_caps |= MMC_MODE_DDR_52MHz;
 		mmc->card_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
-	else
+	} else {
 		mmc->card_caps |= MMC_MODE_HS;
+	}
 
 	return 0;
 }
@@ -1054,6 +1060,8 @@ static int mmc_startup(struct mmc *mmc)
 
 		/* An array of possible bus widths in order of preference */
 		static unsigned ext_csd_bits[] = {
+			EXT_CSD_DDR_BUS_WIDTH_8,
+			EXT_CSD_DDR_BUS_WIDTH_4,
 			EXT_CSD_BUS_WIDTH_8,
 			EXT_CSD_BUS_WIDTH_4,
 			EXT_CSD_BUS_WIDTH_1,
@@ -1061,13 +1069,15 @@ static int mmc_startup(struct mmc *mmc)
 
 		/* An array to map CSD bus widths to host cap bits */
 		static unsigned ext_to_hostcaps[] = {
+			[EXT_CSD_DDR_BUS_WIDTH_4] = MMC_MODE_DDR_52MHz,
+			[EXT_CSD_DDR_BUS_WIDTH_8] = MMC_MODE_DDR_52MHz,
 			[EXT_CSD_BUS_WIDTH_4] = MMC_MODE_4BIT,
 			[EXT_CSD_BUS_WIDTH_8] = MMC_MODE_8BIT,
 		};
 
 		/* An array to map chosen bus width to an integer */
 		static unsigned widths[] = {
-			8, 4, 1,
+			8, 4, 8, 4, 1,
 		};
 
 		for (idx=0; idx < ARRAY_SIZE(ext_csd_bits); idx++) {
