@@ -243,13 +243,6 @@ int board_eth_init(bd_t *bis)
 int board_mmc_init(bd_t *bis)
 {
 	int ret;
-
-#ifdef CONFIG_SDHCI
-	/* mmc initializattion for available channels */
-	ret = exynos_mmc_init(gd->fdt_blob);
-	if (ret)
-		debug("mmc init failed\n");
-#endif
 #ifdef CONFIG_DWMMC
 	/* dwmmc initializattion for available channels */
 	ret = exynos_dwmmc_init(gd->fdt_blob);
@@ -257,6 +250,12 @@ int board_mmc_init(bd_t *bis)
 		debug("dwmmc init failed\n");
 #endif
 
+#ifdef CONFIG_SDHCI
+	/* mmc initializattion for available channels */
+	ret = exynos_mmc_init(gd->fdt_blob);
+	if (ret)
+		debug("mmc init failed\n");
+#endif
 	return ret;
 }
 #endif
