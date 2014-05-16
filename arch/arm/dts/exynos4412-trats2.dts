@@ -31,6 +31,7 @@
 		console = "/serial@13820000";
 		mmc0 = "sdhci@12510000";
 		mmc2 = "sdhci@12530000";
+		mmc4 = "dwmmc@12550000";
 	};
 
 	i2c@138d0000 {
@@ -430,5 +431,12 @@
 
 	sdhci@12540000 {
 		status = "disabled";
+	};
+
+	dwmmc@12550000 {
+		samsung,bus-width = <8>;
+		samsung,timing = <0 1 0>;
+		pwr-gpios = <&gpio 0xB2 0>;
+		index = <4>;
 	};
 };

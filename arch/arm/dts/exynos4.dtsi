@@ -128,6 +128,14 @@
 		interrupts = <0 78 0>;
 	};
 
+	dwmmc@12550000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,exynos-dwmmc";
+		reg = <0x12550000 0x1000>;
+		interrupts = <0 131 0>;
+	};
+
 	gpio: gpio {
 		gpio-controller;
 		#gpio-cells = <2>;
