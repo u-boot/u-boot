@@ -417,6 +417,7 @@
 		samsung,bus-width = <8>;
 		samsung,timing = <1 3 3>;
 		pwr-gpios = <&gpio 0xB2 0>;
+		status = "disabled";
 	};
 
 	sdhci@12520000 {
@@ -435,8 +436,11 @@
 
 	dwmmc@12550000 {
 		samsung,bus-width = <8>;
-		samsung,timing = <0 1 0>;
+		samsung,timing = <2 1 0>;
 		pwr-gpios = <&gpio 0xB2 0>;
+		fifoth_val = <0x203f0040>;
+		bus_hz = <400000000>;
+		div = <0x3>;
 		index = <4>;
 	};
 };
