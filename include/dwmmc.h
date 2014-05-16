@@ -134,7 +134,9 @@ struct dwmci_host {
 	unsigned int version;
 	unsigned int clock;
 	unsigned int bus_hz;
+	unsigned int div;
 	int dev_index;
+	int dev_id;
 	int buswidth;
 	u32 clksel_val;
 	u32 fifoth_val;
