@@ -194,8 +194,8 @@ u32 omap_sdram_size(void)
 		addr = section & EMIF_SYS_ADDR_MASK;
 
 		/* See if the address is valid */
-		if ((addr >= DRAM_ADDR_SPACE_START) &&
-		    (addr < DRAM_ADDR_SPACE_END)) {
+		if ((addr >= TI_ARMV7_DRAM_ADDR_SPACE_START) &&
+		    (addr < TI_ARMV7_DRAM_ADDR_SPACE_END)) {
 			size = ((section & EMIF_SYS_SIZE_MASK) >>
 				   EMIF_SYS_SIZE_SHIFT);
 			size = 1 << size;

@@ -576,12 +576,6 @@ s8 abb_setup_ldovbb(u32 fuse, u32 ldovbb);
 
 void usb_fake_mac_from_die_id(u32 *id);
 
-/* HW Init Context */
-#define OMAP_INIT_CONTEXT_SPL			0
-#define OMAP_INIT_CONTEXT_UBOOT_FROM_NOR	1
-#define OMAP_INIT_CONTEXT_UBOOT_AFTER_SPL	2
-#define OMAP_INIT_CONTEXT_UBOOT_AFTER_CH	3
-
 /* ABB */
 #define OMAP_ABB_NOMINAL_OPP		0
 #define OMAP_ABB_FAST_OPP		1
