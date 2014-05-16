@@ -123,6 +123,9 @@
 #define DWMCI_BMOD_IDMAC_FB	(1 << 1)
 #define DWMCI_BMOD_IDMAC_EN	(1 << 7)
 
+/* UHS register */
+#define DWMCI_DDR_MODE	(1 << 16)
+
 /* quirks */
 #define DWMCI_QUIRK_DISABLE_SMU		(1 << 0)
 
