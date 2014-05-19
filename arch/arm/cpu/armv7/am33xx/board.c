@@ -224,7 +224,7 @@ void s_init(void)
 	set_uart_mux_conf();
 	setup_clocks_for_console();
 	uart_soft_reset();
-#ifdef CONFIG_NOR_BOOT
+#if defined(CONFIG_NOR_BOOT) || defined(CONFIG_QSPI_BOOT)
 	gd->baudrate = CONFIG_BAUDRATE;
 	serial_init();
 	gd->have_console = 1;

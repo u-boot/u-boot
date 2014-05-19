@@ -70,7 +70,7 @@ static int read_eeprom(struct am43xx_board_id *header)
 	return 0;
 }
 
-#ifdef CONFIG_SPL_BUILD
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
 
 #define NUM_OPPS	6
 
