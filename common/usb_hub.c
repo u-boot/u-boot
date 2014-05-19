@@ -36,7 +36,7 @@
 #endif
 
 #ifndef CONFIG_USB_HUB_MIN_POWER_ON_DELAY
-#define CONFIG_USB_HUB_MIN_POWER_ON_DELAY	100
+#define CONFIG_USB_HUB_MIN_POWER_ON_DELAY	1000
 #endif
 
 #define USB_BUFSIZ	512
@@ -138,8 +138,11 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
 		debug("port %d returns %lX\n", i + 1, dev->status);
 	}
 
-	/* Wait for power to become stable */
-	mdelay(max(pgood_delay, CONFIG_USB_HUB_MIN_POWER_ON_DELAY));
+	/*
+	 * Wait for power to become stable,
+	 * plus spec-defined max time for device to connect
+	 */
+	mdelay(pgood_delay + CONFIG_USB_HUB_MIN_POWER_ON_DELAY);
 }
 
 void usb_hub_reset(void)
