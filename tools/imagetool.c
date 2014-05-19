@@ -27,6 +27,8 @@ void register_image_tool(imagetool_register_t image_register)
 	 */
 	register_func = image_register;
 
+	/* Init ATMEL ROM Boot Image generation/list support */
+	init_atmel_image_type();
 	/* Init Freescale PBL Boot image generation/list support */
 	init_pbl_image_type();
 	/* Init Kirkwood Boot image generation/list support */

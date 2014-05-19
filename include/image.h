@@ -225,6 +225,7 @@ struct lmb;
 #define IH_TYPE_PBLIMAGE	15	/* Freescale PBL Boot Image	*/
 #define IH_TYPE_MXSIMAGE	16	/* Freescale MXSBoot Image	*/
 #define IH_TYPE_GPIMAGE		17	/* TI Keystone GPHeader Image	*/
+#define IH_TYPE_ATMELIMAGE	18	/* ATMEL ROM bootable Image	*/
 
 /*
  * Compression Types

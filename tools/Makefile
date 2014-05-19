@@ -69,6 +69,7 @@ RSA_OBJS-$(CONFIG_FIT_SIGNATURE) := rsa-sign.o rsa-verify.o rsa-checksum.o
 
 # common objs for dumpimage and mkimage
 dumpimage-mkimage-objs := aisimage.o \
+			atmelimage.o \
 			$(FIT_SIG_OBJS-y) \
 			crc32.o \
 			default_image.o \
