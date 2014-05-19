@@ -38,6 +38,8 @@ ENVCRC-$(CONFIG_ENV_IS_IN_NVRAM) = y
 ENVCRC-$(CONFIG_ENV_IS_IN_SPI_FLASH) = y
 CONFIG_BUILD_ENVCRC ?= $(ENVCRC-y)
 
+hostprogs-$(CONFIG_SPL_GENERATE_ATMEL_PMECC_HEADER) += atmel_pmecc_params$(SFX)
+
 # TODO: CONFIG_CMD_LICENSE does not work
 hostprogs-$(CONFIG_CMD_LICENSE) += bin2header$(SFX)
 hostprogs-$(CONFIG_LCD_LOGO) += bmp_logo$(SFX)

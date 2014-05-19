@@ -183,6 +183,17 @@ MKIMAGEFLAGS_MLO.byteswap = -T omapimage -n byteswap -a $(CONFIG_SPL_TEXT_BASE)
 MLO MLO.byteswap: $(obj)/u-boot-spl.bin
 	$(call if_changed,mkimage)
 
+MKIMAGEFLAGS_boot.bin = -T atmelimage
+
+ifeq ($(CONFIG_SPL_GENERATE_ATMEL_PMECC_HEADER),y)
+MKIMAGEFLAGS_boot.bin += -n $(shell $(obj)/../tools/atmel_pmecc_params)
+
+boot.bin: $(obj)/../tools/atmel_pmecc_params
+endif
+
+boot.bin: $(obj)/u-boot-spl.bin
+	$(call if_changed,mkimage)
+
 ALL-y	+= $(obj)/$(SPL_BIN).bin
 
 ifdef CONFIG_SAMSUNG
