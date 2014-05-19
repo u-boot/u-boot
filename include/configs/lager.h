@@ -42,6 +42,7 @@
 
 #define CONFIG_SYS_TEXT_BASE	0xE8080000
 #define CONFIG_SYS_THUMB_BUILD
+#define CONFIG_SYS_GENERIC_BOARD
 
 /* Support File sytems */
 #define CONFIG_DOS_PARTITION
