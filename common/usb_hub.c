@@ -35,10 +35,6 @@
 #include <asm/4xx_pci.h>
 #endif
 
-#ifndef CONFIG_USB_HUB_MIN_POWER_ON_DELAY
-#define CONFIG_USB_HUB_MIN_POWER_ON_DELAY	1000
-#endif
-
 #define USB_BUFSIZ	512
 
 static struct usb_hub_device hub_dev[USB_MAX_HUB];
@@ -142,7 +138,7 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
 	 * Wait for power to become stable,
 	 * plus spec-defined max time for device to connect
 	 */
-	mdelay(pgood_delay + CONFIG_USB_HUB_MIN_POWER_ON_DELAY);
+	mdelay(pgood_delay + 1000);
 }
 
 void usb_hub_reset(void)
