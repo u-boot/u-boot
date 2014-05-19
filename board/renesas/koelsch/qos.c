@@ -111,6 +111,7 @@ void qos_init(void)
 
 	/* DBSC DBADJ2 */
 	writel(0x20042004, DBSC3_0_DBADJ2);
+	writel(0x20042004, DBSC3_1_DBADJ2);
 
 	/* S3C -QoS */
 	s3c = (struct rcar_s3c *)S3C_BASE;
