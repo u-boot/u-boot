@@ -32,7 +32,6 @@
 
 #include <asm/arch/hardware.h>
 
-#define CONFIG_AT91FAMILY
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_BOARD_EARLY_INIT_F

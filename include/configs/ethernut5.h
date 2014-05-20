@@ -24,7 +24,6 @@
 
 /* CPU information */
 #define CONFIG_ARM926EJS
-#define CONFIG_AT91FAMILY
 #define CONFIG_DISPLAY_CPUINFO		/* Display at console. */
 #define CONFIG_ARCH_CPU_INIT
 

@@ -18,7 +18,6 @@
 #define CONFIG_SYS_AT91_MAIN_CLOCK	12000000	/* 12 MHz crystal */
 
 #define CONFIG_AT91SAM9X5EK
-#define CONFIG_AT91FAMILY
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS
