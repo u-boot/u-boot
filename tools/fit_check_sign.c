@@ -42,12 +42,13 @@ int main(int argc, char **argv)
 	void *fit_blob;
 	char *fdtfile = NULL;
 	char *keyfile = NULL;
-	char cmdname[50];
+	char cmdname[256];
 	int ret;
 	void *key_blob;
 	int c;
 
-	strcpy(cmdname, *argv);
+	strncpy(cmdname, *argv, sizeof(cmdname) - 1);
+	cmdname[sizeof(cmdname) - 1] = '\0';
 	while ((c = getopt(argc, argv, "f:k:")) != -1)
 		switch (c) {
 		case 'f':
