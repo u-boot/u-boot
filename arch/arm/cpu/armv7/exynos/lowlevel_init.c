@@ -48,6 +48,8 @@ int do_lowlevel_init(void)
 
 	arch_cpu_init();
 
+	set_ps_hold_ctrl();
+
 	reset_status = get_reset_status();
 
 	switch (reset_status) {
