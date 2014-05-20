@@ -25,21 +25,21 @@ struct board_specific_parameters {
 static const struct board_specific_parameters udimm0[] = {
 	/*
 	 * memory controller 0
-	 *   num|  hi| rank|  clk| wrlvl |   wrlvl   |  wrlvl |
-	 * ranks| mhz| GB  |adjst| start |   ctl2    |  ctl3  |
+	 *   num|  hi| rank|  clk| wrlvl | wrlvl | wrlvl |
+	 * ranks| mhz| GB  |adjst| start | ctl2  | ctl3  |
 	 */
-	{2,  1200, 2, 5,     7, 0x0808090a, 0x0b0c0c0a},
-	{2,  1500, 2, 5,     6, 0x07070809, 0x0a0b0b09},
-	{2,  1600, 2, 5,     8, 0x090b0b0d, 0x0d0e0f0b},
-	{2,  1700, 2, 4,     7, 0x080a0a0c, 0x0c0d0e0a},
-	{2,  1900, 2, 5,     9, 0x0a0b0c0e, 0x0f10120c},
-	{2,  2140, 2, 4,     8, 0x090a0b0d, 0x0e0f110b},
-	{1,  1200, 2, 5,     7, 0x0808090a, 0x0b0c0c0a},
-	{1,  1500, 2, 5,     6, 0x07070809, 0x0a0b0b09},
-	{1,  1600, 2, 5,     8, 0x090b0b0d, 0x0d0e0f0b},
-	{1,  1700, 2, 4,     7, 0x080a0a0c, 0x0c0d0e0a},
-	{1,  1900, 2, 5,     9, 0x0a0b0c0e, 0x0f10120c},
-	{1,  2140, 2, 4,     8, 0x090a0b0d, 0x0e0f110b},
+	{2,  1200,  0,  5,  7,  0x0808090a,  0x0b0c0c0a},
+	{2,  1500,  0,  5,  6,  0x07070809,  0x0a0b0b09},
+	{2,  1600,  0,  5,  8,  0x090b0b0d,  0x0d0e0f0b},
+	{2,  1700,  0,  4,  7,  0x080a0a0c,  0x0c0d0e0a},
+	{2,  1900,  0,  5,  9,  0x0a0b0c0e,  0x0f10120c},
+	{2,  2140,  0,  4,  8,  0x090a0b0d,  0x0e0f110b},
+	{1,  1200,  0,  5,  7,  0x0808090a,  0x0b0c0c0a},
+	{1,  1500,  0,  5,  6,  0x07070809,  0x0a0b0b09},
+	{1,  1600,  0,  5,  8,  0x090b0b0d,  0x0d0e0f0b},
+	{1,  1700,  0,  4,  7,  0x080a0a0c,  0x0c0d0e0a},
+	{1,  1900,  0,  5,  9,  0x0a0b0c0e,  0x0f10120c},
+	{1,  2140,  0,  4,  8,  0x090a0b0d,  0x0e0f110b},
 	{}
 };
 
