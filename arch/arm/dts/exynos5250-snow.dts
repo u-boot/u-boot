@@ -44,7 +44,7 @@
 			reg = <0x1e>;
 			compatible = "google,cros-ec";
 			i2c-max-frequency = <100000>;
-			ec-interrupt = <&gpio 782 1>;
+			ec-interrupt = <&gpio 182 1>;
 		};
 
 		power-regulator@48 {
@@ -60,7 +60,7 @@
 			reg = <0>;
 			compatible = "google,cros-ec";
 			spi-max-frequency = <5000000>;
-			ec-interrupt = <&gpio 782 1>;
+			ec-interrupt = <&gpio 182 1>;
 			optimise-flash-write;
 			status = "disabled";
 		};
