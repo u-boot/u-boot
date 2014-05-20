@@ -102,11 +102,13 @@ void cpu_init_early_f(void *fdt)
 	for (i = 0; i < sizeof(gd_t); i++)
 		((char *)gd)[i] = 0;
 
+#ifdef CONFIG_QEMU_E500
 	/*
 	 * CONFIG_SYS_CCSRBAR_PHYS below may use gd->fdt_blob on ePAPR systems,
 	 * so we need to populate it before it accesses it.
 	 */
 	gd->fdt_blob = fdt;
+#endif
 
 	mas0 = MAS0_TLBSEL(1) | MAS0_ESEL(13);
 	mas1 = MAS1_VALID | MAS1_TID(0) | MAS1_TS | MAS1_TSIZE(BOOKE_PAGESZ_1M);

@@ -78,7 +78,6 @@ void board_init_f(ulong not_used)
 	memset((void *)bd, 0, GENERATED_BD_INFO_SIZE);
 	gd->bd = bd;
 	gd->baudrate = CONFIG_BAUDRATE;
-	bd->bi_baudrate = CONFIG_BAUDRATE;
 	bd->bi_memstart = CONFIG_SYS_SDRAM_BASE;
 	bd->bi_memsize = CONFIG_SYS_SDRAM_SIZE;
 	gd->flags |= GD_FLG_RELOC;      /* tell others: relocation done */

@@ -10,6 +10,9 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
 #ifdef CONFIG_36BIT
 #define CONFIG_PHYS_64BIT
 #endif
@@ -881,6 +884,10 @@
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_USB_STORAGE
 #endif
+#endif
+
+#if defined(CONFIG_P1020RDB_PD)
+#define CONFIG_USB_MAX_CONTROLLER_COUNT	1
 #endif
 
 #define CONFIG_MMC

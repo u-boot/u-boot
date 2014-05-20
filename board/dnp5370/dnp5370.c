@@ -14,7 +14,6 @@
 #include <common.h>
 #include <config.h>
 #include <asm/blackfin.h>
-#include <asm/net.h>
 #include <net.h>
 #include <netdev.h>
 #include <asm/gpio.h>
@@ -55,7 +54,7 @@ static void board_init_enetaddr(uchar *mac_addr)
 
 	if (!valid_mac) {
 		puts("Warning: Generating 'random' MAC address\n");
-		bfin_gen_rand_mac(mac_addr);
+		eth_random_addr(mac_addr);
 	}
 
 	eth_setenv_enetaddr("ethaddr", mac_addr);

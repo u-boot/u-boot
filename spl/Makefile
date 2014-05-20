@@ -88,7 +88,7 @@ libs-y += $(CPUDIR)/
 ifdef SOC
 libs-y += $(CPUDIR)/$(SOC)/
 endif
-libs-y += board/$(BOARDDIR)/
+libs-y += $(if $(BOARDDIR),board/$(BOARDDIR)/)
 libs-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/
 
 libs-$(CONFIG_SPL_FRAMEWORK) += common/spl/

@@ -74,9 +74,6 @@ static int on_baudrate(const char *name, const char *value, enum env_op op,
 		}
 
 		gd->baudrate = baudrate;
-#if defined(CONFIG_PPC) || defined(CONFIG_MCF52x2)
-		gd->bd->bi_baudrate = baudrate;
-#endif
 
 		serial_setbrg();
 
@@ -502,12 +499,11 @@ int uart_post_test(int flags)
 	unsigned char c;
 	int ret, saved_baud, b;
 	struct serial_device *saved_dev, *s;
-	bd_t *bd = gd->bd;
 
 	/* Save current serial state */
 	ret = 0;
 	saved_dev = serial_current;
-	saved_baud = bd->bi_baudrate;
+	saved_baud = gd->baudrate;
 
 	for (s = serial_devices; s; s = s->next) {
 		/* If this driver doesn't support loop back, skip it */
@@ -530,7 +526,7 @@ int uart_post_test(int flags)
 
 		/* Test every available baud rate */
 		for (b = 0; b < ARRAY_SIZE(bauds); ++b) {
-			bd->bi_baudrate = bauds[b];
+			gd->baudrate = bauds[b];
 			serial_setbrg();
 
 			/*
@@ -572,7 +568,7 @@ int uart_post_test(int flags)
  done:
 	/* Restore previous serial state */
 	serial_current = saved_dev;
-	bd->bi_baudrate = saved_baud;
+	gd->baudrate = saved_baud;
 	serial_reinit_all();
 	serial_setbrg();
 

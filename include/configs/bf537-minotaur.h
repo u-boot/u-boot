@@ -89,6 +89,7 @@
 /* Uncomment next line to use fixed MAC address */
 /* #define CONFIG_ETHADDR	02:80:ad:20:31:42 */
 
+#define CONFIG_LIB_RAND
 
 /*
  * Flash Settings

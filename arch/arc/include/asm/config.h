@@ -7,6 +7,8 @@
 #ifndef __ASM_ARC_CONFIG_H_
 #define __ASM_ARC_CONFIG_H_
 
+#define CONFIG_SYS_GENERIC_GLOBAL_DATA
+
 #define CONFIG_LMB
 
 #endif /*__ASM_ARC_CONFIG_H_ */

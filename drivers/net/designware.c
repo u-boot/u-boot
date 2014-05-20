@@ -390,6 +390,8 @@ static int dw_phy_init(struct eth_device *dev)
 	if (!phydev)
 		return -1;
 
+	phy_connect_dev(phydev, dev);
+
 	phydev->supported &= PHY_GBIT_FEATURES;
 	phydev->advertising = phydev->supported;
 

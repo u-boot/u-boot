@@ -14,15 +14,15 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_FPGA
-Xilinx_desc fpga;
+xilinx_desc fpga;
 
 /* It can be done differently */
-Xilinx_desc fpga010 = XILINX_XC7Z010_DESC(0x10);
-Xilinx_desc fpga015 = XILINX_XC7Z015_DESC(0x15);
-Xilinx_desc fpga020 = XILINX_XC7Z020_DESC(0x20);
-Xilinx_desc fpga030 = XILINX_XC7Z030_DESC(0x30);
-Xilinx_desc fpga045 = XILINX_XC7Z045_DESC(0x45);
-Xilinx_desc fpga100 = XILINX_XC7Z100_DESC(0x100);
+xilinx_desc fpga010 = XILINX_XC7Z010_DESC(0x10);
+xilinx_desc fpga015 = XILINX_XC7Z015_DESC(0x15);
+xilinx_desc fpga020 = XILINX_XC7Z020_DESC(0x20);
+xilinx_desc fpga030 = XILINX_XC7Z030_DESC(0x30);
+xilinx_desc fpga045 = XILINX_XC7Z045_DESC(0x45);
+xilinx_desc fpga100 = XILINX_XC7Z100_DESC(0x100);
 #endif
 
 int board_init(void)

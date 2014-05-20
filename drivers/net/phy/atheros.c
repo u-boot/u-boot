@@ -31,9 +31,7 @@ static int ar8035_config(struct phy_device *phydev)
 	regval = phy_read(phydev, MDIO_DEVAD_NONE, 0x1e);
 	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, (regval|0x0100));
 
-	genphy_config_aneg(phydev);
-
-	phy_reset(phydev);
+	phydev->supported = phydev->drv->features;
 
 	return 0;
 }

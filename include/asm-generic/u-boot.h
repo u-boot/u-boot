@@ -66,7 +66,6 @@ typedef struct bd_info {
 	unsigned long	bi_ipbfreq;	/* IPB Bus Freq, in MHz */
 	unsigned long	bi_pcifreq;	/* PCI Bus Freq, in MHz */
 #endif
-	unsigned int	bi_baudrate;	/* Console Baudrate */
 #if defined(CONFIG_405)   || \
 		defined(CONFIG_405GP) || \
 		defined(CONFIG_405EP) || \

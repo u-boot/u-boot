@@ -368,12 +368,12 @@ void fsl_erratum_a007212_workaround(void)
 }
 #endif
 
-void cpu_init_f (void)
+ulong cpu_init_f(void)
 {
+	ulong flag = 0;
 	extern void m8560_cpm_reset (void);
 #ifdef CONFIG_SYS_DCSRBAR_PHYS
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	gd = (gd_t *)(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
 #endif
 #if defined(CONFIG_SECURE_BOOT)
 	struct law_entry law;
@@ -442,13 +442,14 @@ void cpu_init_f (void)
 #ifdef CONFIG_DEEP_SLEEP
 	/* disable the console if boot from deep sleep */
 	if (in_be32(&gur->scrtsr[0]) & (1 << 3))
-		gd->flags |= GD_FLG_SILENT | GD_FLG_DISABLE_CONSOLE;
+		flag = GD_FLG_SILENT | GD_FLG_DISABLE_CONSOLE;
 #endif
 #endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_A007212
 	fsl_erratum_a007212_workaround();
 #endif
 
+	return flag;
 }
 
 /* Implement a dummy function for those platforms w/o SERDES */
@@ -462,9 +463,16 @@ __attribute__((weak, alias("__fsl_serdes__init"))) void fsl_serdes_init(void);
 int enable_cluster_l2(void)
 {
 	int i = 0;
-	u32 cluster;
+	u32 cluster, svr = get_svr();
 	ccsr_gur_t *gur = (void __iomem *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	struct ccsr_cluster_l2 __iomem *l2cache;
+
+	/* only the L2 of first cluster should be enabled as expected on T4080,
+	 * but there is no EOC in the first cluster as HW sake, so return here
+	 * to skip enabling L2 cache of the 2nd cluster.
+	 */
+	if (SVR_SOC_VER(svr) == SVR_T4080)
+		return 0;
 
 	cluster = in_be32(&gur->tp_cluster[i].lower);
 	if (cluster & TP_CLUSTER_EOC)
@@ -888,6 +896,7 @@ skip_l2:
 	}
 #endif
 
+	init_used_tlb_cams();
 
 	return 0;
 }

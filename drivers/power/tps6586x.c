@@ -32,7 +32,7 @@ enum {
 };
 
 #define MAX_I2C_RETRY	3
-int tps6586x_read(int reg)
+static int tps6586x_read(int reg)
 {
 	int	i;
 	uchar	data;
@@ -61,7 +61,7 @@ exit:
 	return retval;
 }
 
-int tps6586x_write(int reg, uchar *data, uint len)
+static int tps6586x_write(int reg, uchar *data, uint len)
 {
 	int	i;
 	int	retval = -1;

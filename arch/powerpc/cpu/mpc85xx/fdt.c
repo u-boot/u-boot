@@ -674,7 +674,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 
 #ifdef CONFIG_CPM2
 	do_fixup_by_compat_u32(blob, "fsl,cpm2-scc-uart",
-		"current-speed", bd->bi_baudrate, 1);
+		"current-speed", gd->baudrate, 1);
 
 	do_fixup_by_compat_u32(blob, "fsl,cpm2-brg",
 		"clock-frequency", bd->bi_brgfreq, 1);

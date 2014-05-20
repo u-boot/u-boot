@@ -4,7 +4,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include "config.h"	/* CONFIG_BOARDDIR */
+#include "config.h"
 
 #ifndef CONFIG_SYS_MONITOR_LEN
 #define CONFIG_SYS_MONITOR_LEN	0x80000

@@ -264,6 +264,17 @@ e.g. "make cogent_mpc8xx_config". And also configure the cogent
 directory according to the instructions in cogent/README.
 
 
+Sandbox Environment:
+--------------------
+
+U-Boot can be built natively to run on a Linux host using the 'sandbox'
+board. This allows feature development which is not board- or architecture-
+specific to be undertaken on a native platform. The sandbox is also used to
+run some of U-Boot's tests.
+
+See board/sandbox/sandbox/README.sandbox for more details.
+
+
 Configuration Options:
 ----------------------
 
@@ -440,6 +451,12 @@ The following options need to be configured:
 		supported, core will start to execute uboot when wakes up.
 
 - Generic CPU options:
+		CONFIG_SYS_GENERIC_GLOBAL_DATA
+		Defines global data is initialized in generic board board_init_f().
+		If this macro is defined, global data is created and cleared in
+		generic board board_init_f(). Without this macro, architecture/board
+		should initialize global data before calling board_init_f().
+
 		CONFIG_SYS_BIG_ENDIAN, CONFIG_SYS_LITTLE_ENDIAN
 
 		Defines the endianess of the CPU. Implementation of those
@@ -740,6 +757,10 @@ The following options need to be configured:
 		boot loader that has already initialized the UART.  Define this
 		variable to flush the UART at init time.
 
+		CONFIG_SERIAL_HW_FLOW_CONTROL
+
+		Define this variable to enable hw flow control in serial driver.
+		Current user of this option is drivers/serial/nsl16550.c driver
 
 - Console Interface:
 		Depending on board, define exactly one serial port

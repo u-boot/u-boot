@@ -33,6 +33,7 @@
 #include <watchdog.h>
 #include <linux/stddef.h>
 #include <asm/byteorder.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -846,7 +847,8 @@ static int do_env_export(cmd_tbl_t *cmdtp, int flag,
 			 int argc, char * const argv[])
 {
 	char	buf[32];
-	char	*addr, *cmd, *res;
+	ulong	addr;
+	char	*ptr, *cmd, *res;
 	size_t	size = 0;
 	ssize_t	len;
 	env_t	*envp;
@@ -891,10 +893,11 @@ NXTARG:		;
 	if (argc < 1)
 		return CMD_RET_USAGE;
 
-	addr = (char *)simple_strtoul(argv[0], NULL, 16);
+	addr = simple_strtoul(argv[0], NULL, 16);
+	ptr = map_sysmem(addr, size);
 
 	if (size)
-		memset(addr, '\0', size);
+		memset(ptr, '\0', size);
 
 	argc--;
 	argv++;
@@ -902,7 +905,7 @@ NXTARG:		;
 	if (sep) {		/* export as text file */
 		len = hexport_r(&env_htab, sep,
 				H_MATCH_KEY | H_MATCH_IDENT,
-				&addr, size, argc, argv);
+				&ptr, size, argc, argv);
 		if (len < 0) {
 			error("Cannot export environment: errno = %d\n", errno);
 			return 1;
@@ -913,12 +916,12 @@ NXTARG:		;
 		return 0;
 	}
 
-	envp = (env_t *)addr;
+	envp = (env_t *)ptr;
 
 	if (chk)		/* export as checksum protected block */
 		res = (char *)envp->data;
 	else			/* export as raw binary data */
-		res = addr;
+		res = ptr;
 
 	len = hexport_r(&env_htab, '\0',
 			H_MATCH_KEY | H_MATCH_IDENT,
@@ -960,7 +963,8 @@ sep_err:
 static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 			 int argc, char * const argv[])
 {
-	char	*cmd, *addr;
+	ulong	addr;
+	char	*cmd, *ptr;
 	char	sep = '\n';
 	int	chk = 0;
 	int	fmt = 0;
@@ -1004,7 +1008,8 @@ static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 	if (!fmt)
 		printf("## Warning: defaulting to text format\n");
 
-	addr = (char *)simple_strtoul(argv[0], NULL, 16);
+	addr = simple_strtoul(argv[0], NULL, 16);
+	ptr = map_sysmem(addr, 0);
 
 	if (argc == 2) {
 		size = simple_strtoul(argv[1], NULL, 16);
@@ -1012,7 +1017,7 @@ static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 		puts("## Error: external checksum format must pass size\n");
 		return CMD_RET_FAILURE;
 	} else {
-		char *s = addr;
+		char *s = ptr;
 
 		size = 0;
 
@@ -1032,7 +1037,7 @@ static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 
 	if (chk) {
 		uint32_t crc;
-		env_t *ep = (env_t *)addr;
+		env_t *ep = (env_t *)ptr;
 
 		size -= offsetof(env_t, data);
 		memcpy(&crc, &ep->crc, sizeof(crc));
@@ -1041,11 +1046,11 @@ static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 			puts("## Error: bad CRC, import failed\n");
 			return 1;
 		}
-		addr = (char *)ep->data;
+		ptr = (char *)ep->data;
 	}
 
-	if (himport_r(&env_htab, addr, size, sep, del ? 0 : H_NOCLEAR,
-			0, NULL) == 0) {
+	if (himport_r(&env_htab, ptr, size, sep, del ? 0 : H_NOCLEAR, 0,
+		      NULL) == 0) {
 		error("Environment import failed: errno = %d\n", errno);
 		return 1;
 	}
