@@ -20,6 +20,7 @@
 #include <asm/arch/sromc.h>
 #include <power/pmic.h>
 #include <power/max77686_pmic.h>
+#include <power/tps65090_pmic.h>
 #include <tmu.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -161,7 +162,19 @@ int exynos_power_init(void)
 
 #ifdef CONFIG_POWER_MAX77686
 	ret = max77686_init();
+	if (ret)
+		return ret;
 #endif
+#ifdef CONFIG_POWER_TPS65090
+	/*
+	 * The TPS65090 may not be in the device tree. If so, it is not
+	 * an error.
+	 */
+	ret = tps65090_init();
+	if (ret == 0 || ret == -ENODEV)
+		return 0;
+#endif
+
 	return ret;
 }
 #endif	/* CONFIG_POWER */
