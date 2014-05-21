@@ -39,6 +39,7 @@
 #define CONFIG_REVISION_TAG
 
 #define CONFIG_OF_LIBFDT
+#define CONFIG_CMD_BOOTZ
 
 /*
  * Size of malloc() pool
@@ -92,7 +93,7 @@
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_EXT2		/* EXT2 Support			*/
 #define CONFIG_CMD_FAT		/* FAT support			*/
-#define CONFIG_CMD_JFFS2	/* JFFS2 Support		*/
+#define CONFIG_CMD_FS_GENERIC
 
 #define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MMC		/* MMC support			*/
@@ -165,8 +166,13 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
+	"dtbaddr=0x81600000\0" \
+	"dtbfile=overo.dtb\0" \
+	"bootdir=/boot\0" \
+	"bootfile=zImage\0" \
+	"usbtty=cdc_acm\0" \
 	"console=ttyO2,115200n8\0" \
-	"mpurate=500\0" \
+	"mpurate=auto\0" \
 	"optargs=\0" \
 	"vram=12M\0" \
 	"dvimode=1024x768MR-16@60\0" \
@@ -193,16 +199,21 @@
 		"omapdss.def_disp=${defaultdisplay} " \
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype}\0" \
-	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
-	"bootscript=echo Running bootscript from mmc ...; " \
+	"loadbootscript=load mmc ${mmcdev} ${loadaddr} boot.scr\0" \
+	"bootscript=echo Running boot script from mmc ...; " \
 		"source ${loadaddr}\0" \
-	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} uEnv.txt\0" \
-	"importbootenv=echo Importing environment from mmc${mmcdev} ...; " \
+	"loadbootenv=load mmc ${mmcdev} ${loadaddr} uEnv.txt\0" \
+	"importbootenv=echo Importing environment from mmc ...; " \
 		"env import -t ${loadaddr} ${filesize}\0" \
-	"loaduimage=fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
-	"mmcboot=echo Booting from mmc ...; " \
+	"loaduimage=load mmc ${mmcdev} ${loadaddr} uImage\0" \
+	"mmcboot=echo Booting from mmc...; " \
 		"run mmcargs; " \
 		"bootm ${loadaddr}\0" \
+	"loadzimage=load mmc ${mmcdev}:2 ${loadaddr} ${bootdir}/${bootfile}\0" \
+	"loadfdt=load mmc ${mmcdev}:2 ${dtbaddr} ${bootdir}/${dtbfile}\0" \
+	"mmcbootfdt=echo Booting with DT from mmc ...; " \
+		"run mmcargs; " \
+		"bootz ${loadaddr} - ${dtbaddr}\0" \
 	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
 		"nand read ${loadaddr} linux; " \
@@ -212,20 +223,27 @@
 	"mmc dev ${mmcdev}; if mmc rescan; then " \
 		"if run loadbootscript; then " \
 			"run bootscript; " \
-		"else " \
-			"if run loadbootenv; then " \
-				"run importbootenv; " \
-				"if test -n ${uenvcmd}; then " \
-					"echo Running uenvcmd ...;" \
-					"run uenvcmd;" \
+		"fi;" \
+		"if run loadbootenv; then " \
+			"echo Loaded environment from ${bootenv};" \
+			"run importbootenv;" \
+		"fi;" \
+		"if test -n $uenvcmd; then " \
+			"echo Running uenvcmd ...;" \
+			"run uenvcmd;" \
+		"fi;" \
+		"if run loaduimage; then " \
+			"run mmcboot;" \
+		"fi;" \
+		"if run loadzimage; then " \
+			"if test -n $dtbfile; then " \
+				"if run loadfdt; then " \
+					"run mmcbootfdt;" \
 				"fi;" \
 			"fi;" \
-			"if run loaduimage; then " \
-				"run mmcboot; " \
-			"else run nandboot; " \
-			"fi; " \
-		"fi; " \
-	"else run nandboot; fi"
+		"fi;" \
+	"fi;" \
+	"run nandboot; " \
 
 #define CONFIG_AUTO_COMPLETE	1
 /*
