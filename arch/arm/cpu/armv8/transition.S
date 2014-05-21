@@ -43,7 +43,7 @@ ENTRY(armv8_switch_to_el1)
 	mrs	x0, cnthctl_el2
 	orr	x0, x0, #0x3		/* Enable EL1 access to timers */
 	msr	cnthctl_el2, x0
-	msr	cntvoff_el2, x0
+	msr	cntvoff_el2, xzr
 	mrs	x0, cntkctl_el1
 	orr	x0, x0, #0x3		/* Enable EL0 access to timers */
 	msr	cntkctl_el1, x0
