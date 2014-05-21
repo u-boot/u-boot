@@ -148,6 +148,7 @@
 #define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
 #define CONFIG_SYS_MEMTEST_END		0x23e00000
 
+#ifdef CONFIG_SYS_USE_NANDFLASH
 /* bootstrap + u-boot + env in nandflash */
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		0xc0000
@@ -163,6 +164,24 @@
 	"256k(env),256k(env_redundant),256k(spare),"			\
 	"512k(dtb),6M(kernel)ro,-(rootfs) "				\
 	"root=/dev/mtdblock7 rw rootfstype=jffs2"
+#elif CONFIG_SYS_USE_MMC
+/* bootstrap + u-boot + env + linux in mmc */
+#define FAT_ENV_INTERFACE	"mmc"
+#define FAT_ENV_DEVICE		0
+#define FAT_ENV_PART		1
+#define FAT_ENV_FILE		"uboot.env"
+#define CONFIG_ENV_IS_IN_FAT
+#define CONFIG_FAT_WRITE
+#define CONFIG_ENV_SIZE		0x4000
+
+#define CONFIG_BOOTARGS		"console=ttyS0,115200 " \
+				"mtdparts=atmel_nand:" \
+				"8M(bootstrap/uboot/kernel)ro,-(rootfs) " \
+				"root=/dev/mmcblk0p2 rw rootwait"
+#define CONFIG_BOOTCOMMAND	"fatload mmc 0:1 0x71000000 dtb; " \
+				"fatload mmc 0:1 0x72000000 zImage; " \
+				"bootz 0x72000000 - 0x71000000"
+#endif
 
 #define CONFIG_BAUDRATE			115200
 
