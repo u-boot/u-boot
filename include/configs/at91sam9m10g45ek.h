@@ -116,6 +116,20 @@
 
 #endif
 
+/* MMC */
+#define CONFIG_CMD_MMC
+
+#ifdef CONFIG_CMD_MMC
+#define CONFIG_MMC
+#define CONFIG_GENERIC_MMC
+#define CONFIG_GENERIC_ATMEL_MCI
+#endif
+
+#if defined(CONFIG_CMD_USB) || defined(CONFIG_CMD_MMC)
+#define CONFIG_CMD_FAT
+#define CONFIG_DOS_PARTITION
+#endif
+
 /* Ethernet */
 #define CONFIG_MACB
 #define CONFIG_RMII
@@ -127,7 +141,6 @@
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_ATMEL
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	2
-#define CONFIG_DOS_PARTITION
 #define CONFIG_USB_STORAGE
 
 #define CONFIG_SYS_LOAD_ADDR		0x22000000	/* load address */
