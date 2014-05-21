@@ -52,6 +52,15 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #endif
 
+/*
+ * When building U-Boot such that there is no previous loader
+ * we need to call board_early_init_f.  This is taken care of in
+ * s_init when we have SPL used.
+ */
+#if !defined(CONFIG_SKIP_LOWLEVEL_INIT) && !defined(CONFIG_SPL)
+#define CONFIG_BOARD_EARLY_INIT_F
+#endif
+
 /* Now bring in the rest of the common code. */
 #include <configs/ti_armv7_common.h>
 
