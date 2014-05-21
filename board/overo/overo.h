@@ -22,6 +22,7 @@ const omap3_sysinfo sysinfo = {
 #define REVISION_1	0x1
 #define REVISION_2	0x2
 #define REVISION_3	0x3
+#define REVISION_4	0x4
 
 /*
  * IEN  - Input Enable

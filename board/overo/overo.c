@@ -141,6 +141,7 @@ void get_board_mem_timings(struct board_sdrc_timings *timings)
 		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
 		break;
 	case REVISION_1: /* Micron 256MB/512MB, 1/2 banks of 256MB */
+	case REVISION_4:
 		timings->mcfg = MICRON_V_MCFG_200(256 << 20);
 		timings->ctrla = MICRON_V_ACTIMA_200;
 		timings->ctrlb = MICRON_V_ACTIMB_200;
