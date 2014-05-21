@@ -43,9 +43,11 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_ENV_SIZE		(128 << 10)	/* 128 KiB */
-						/* Sector */
-#define CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + (128 << 10))
+#define CONFIG_ENV_SIZE		(128 << 10)	/* 128 KiB sector */
+
+/* Shift 128 << 15 provides 4 MiB heap to support UBI commands.
+ * Shift 128 << 10 provides 128 KiB heap for limited-memory devices. */
+#define CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + (128 << 15))
 
 /*
  * Hardware drivers
@@ -97,6 +99,37 @@
 #undef CONFIG_CMD_NFS		/* NFS support			*/
 #define CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
 
+#ifdef CONFIG_CMD_NAND
+
+#define CONFIG_CMD_MTDPARTS	/* MTD partition support */
+#define CONFIG_CMD_UBI		/* UBI-formated MTD partition support */
+#define CONFIG_CMD_UBIFS	/* Read-only UBI volume operations */
+
+#define CONFIG_RBTREE		/* required by CONFIG_CMD_UBI */
+#define CONFIG_LZO		/* required by CONFIG_CMD_UBIFS */
+
+#define CONFIG_MTD_DEVICE	/* required by CONFIG_CMD_MTDPARTS   */
+#define CONFIG_MTD_PARTITIONS	/* required for UBI partition support */
+
+/* NAND block size is 128 KiB.  Synchronize these values with
+ * overo_nand_partitions in mach-omap2/board-overo.c in Linux:
+ *  xloader              4 * NAND_BLOCK_SIZE = 512 KiB
+ *  uboot               14 * NAND_BLOCK_SIZE = 1792 KiB
+ *  uboot environtment   2 * NAND_BLOCK_SIZE = 256 KiB
+ *  linux               32 * NAND_BLOCK_SIE = 4 MiB
+ *  rootfs              remainder
+ */
+#define MTDIDS_DEFAULT "nand0=omap2-nand.0"
+#define MTDPARTS_DEFAULT "mtdparts=omap2-nand.0:"	\
+	"512k(xloader),"				\
+	"1792k(u-boot),"				\
+	"256k(environ),"				\
+	"4m(linux),"					\
+	"-(rootfs)"
+#else /* CONFIG_CMD_NAND */
+#define MTDPARTS_DEFAULT
+#endif /* CONFIG_CMD_NAND */
+
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_OMAP24_I2C_SPEED	100000
@@ -145,6 +178,7 @@
 	"mmcrootfstype=ext3 rootwait\0" \
 	"nandroot=ubi0:rootfs ubi.mtd=4\0" \
 	"nandrootfstype=ubifs\0" \
+	"mtdparts=" MTDPARTS_DEFAULT "\0" \
 	"mmcargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"mpurate=${mpurate} " \
