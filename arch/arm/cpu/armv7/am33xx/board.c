@@ -238,7 +238,9 @@ void s_init(void)
 	/* Enable RTC32K clock */
 	rtc32k_enable();
 #endif
+#ifdef CONFIG_SPL_BUILD
 	sdram_init();
+#endif
 }
 #endif
 
