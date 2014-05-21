@@ -46,6 +46,11 @@
 #define SPR_ICCFGR	(SPRGROUP_SYS + 6)
 #define SPR_DCFGR	(SPRGROUP_SYS + 7)
 #define SPR_PCCFGR	(SPRGROUP_SYS + 8)
+#define SPR_VR2		(SPRGROUP_SYS + 9)
+#define SPR_AVR		(SPRGROUP_SYS + 10)
+#define SPR_EVBAR	(SPRGROUP_SYS + 11)
+#define SPR_AECR	(SPRGROUP_SYS + 12)
+#define SPR_AESR	(SPRGROUP_SYS + 13)
 #define SPR_NPC		(SPRGROUP_SYS + 16)
 #define SPR_SR		(SPRGROUP_SYS + 17)
 #define SPR_PPC		(SPRGROUP_SYS + 18)
@@ -161,7 +166,13 @@
 #define SPR_CPUCFGR_OF32S	0x00000080 /* ORFPX32 supported */
 #define SPR_CPUCFGR_OF64S	0x00000100 /* ORFPX64 supported */
 #define SPR_CPUCFGR_OV64S	0x00000200 /* ORVDX64 supported */
-#define SPR_CPUCFGR_RES		0xfffffc00 /* Reserved */
+#define SPR_CPUCFGR_ND		0x00000400 /* No delay slot */
+#define SPR_CPUCFGR_AVRP	0x00000800 /* Arch. Version Register present */
+#define SPR_CPUCFGR_EVBARP	0x00001000 /* Exception Vector Base Address Register (EVBAR) present */
+#define SPR_CPUCFGR_ISRP	0x00002000 /* Implementation-Specific Registers (ISR0-7) present */
+#define SPR_CPUCFGR_AECSRP	0x00004000 /* Arithmetic Exception Control Register (AECR) and */
+					   /* Arithmetic Exception Status Register (AESR) presents */
+#define SPR_CPUCFGR_RES		0xffffc000 /* Reserved */
 
 /*
  * Bit definitions for the Debug configuration register and other
