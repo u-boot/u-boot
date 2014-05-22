@@ -413,6 +413,7 @@ enum fit_load_op {
 #define IMAGE_FORMAT_INVALID	0x00
 #define IMAGE_FORMAT_LEGACY	0x01	/* legacy image_header based format */
 #define IMAGE_FORMAT_FIT	0x02	/* new, libfdt based format */
+#define IMAGE_FORMAT_ANDROID	0x03	/* Android boot image */
 
 int genimg_get_format(const void *img_addr);
 int genimg_has_config(bootm_headers_t *images);
@@ -1030,5 +1031,17 @@ static inline int fit_image_check_target_arch(const void *fdt, int node)
 #define fit_unsupported_reset(msg)
 #endif /* CONFIG_FIT_VERBOSE */
 #endif /* CONFIG_FIT */
+
+#if defined(CONFIG_ANDROID_BOOT_IMAGE)
+struct andr_img_hdr;
+int android_image_check_header(const struct andr_img_hdr *hdr);
+int android_image_get_kernel(const struct andr_img_hdr *hdr, int verify,
+			     ulong *os_data, ulong *os_len);
+int android_image_get_ramdisk(const struct andr_img_hdr *hdr,
+			      ulong *rd_data, ulong *rd_len);
+ulong android_image_get_end(const struct andr_img_hdr *hdr);
+ulong android_image_get_kload(const struct andr_img_hdr *hdr);
+
+#endif /* CONFIG_ANDROID_BOOT_IMAGE */
 
 #endif	/* __IMAGE_H__ */

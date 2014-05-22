@@ -175,10 +175,17 @@ static void dnload_request_flush(struct usb_ep *ep, struct usb_request *req)
 		  req->length, f_dfu->blk_seq_num);
 }
 
+static inline int dfu_get_manifest_timeout(struct dfu_entity *dfu)
+{
+	return dfu->poll_timeout ? dfu->poll_timeout(dfu) :
+		DFU_MANIFEST_POLL_TIMEOUT;
+}
+
 static void handle_getstatus(struct usb_request *req)
 {
 	struct dfu_status *dstat = (struct dfu_status *)req->buf;
 	struct f_dfu *f_dfu = req->context;
+	struct dfu_entity *dfu = dfu_get_entity(f_dfu->altsetting);
 
 	dfu_set_poll_timeout(dstat, 0);
 
@@ -191,7 +198,8 @@ static void handle_getstatus(struct usb_request *req)
 		f_dfu->dfu_state = DFU_STATE_dfuMANIFEST;
 		break;
 	case DFU_STATE_dfuMANIFEST:
-		dfu_set_poll_timeout(dstat, DFU_MANIFEST_POLL_TIMEOUT);
+		dfu_set_poll_timeout(dstat, dfu_get_manifest_timeout(dfu));
+		break;
 	default:
 		break;
 	}
