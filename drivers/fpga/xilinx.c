@@ -24,7 +24,8 @@ static int xilinx_validate(xilinx_desc *desc, char *fn);
 
 /* ------------------------------------------------------------------------- */
 
-int fpga_loadbitstream(int devnum, char *fpgadata, size_t size)
+int fpga_loadbitstream(int devnum, char *fpgadata, size_t size,
+		       bitstream_type bstype)
 {
 	unsigned int length;
 	unsigned int swapsize;
@@ -127,18 +128,35 @@ int fpga_loadbitstream(int devnum, char *fpgadata, size_t size)
 	dataptr += 4;
 	printf("  bytes in bitstream = %d\n", swapsize);
 
-	return fpga_load(devnum, dataptr, swapsize);
+	return fpga_load(devnum, dataptr, swapsize, bstype);
 }
 
-int xilinx_load(xilinx_desc *desc, const void *buf, size_t bsize)
+int xilinx_load(xilinx_desc *desc, const void *buf, size_t bsize,
+		bitstream_type bstype)
 {
 	if (!xilinx_validate (desc, (char *)__FUNCTION__)) {
 		printf ("%s: Invalid device descriptor\n", __FUNCTION__);
 		return FPGA_FAIL;
 	}
 
-	return desc->operations->load(desc, buf, bsize);
+	return desc->operations->load(desc, buf, bsize, bstype);
 }
+
+#if defined(CONFIG_CMD_FPGA_LOADFS)
+int xilinx_loadfs(xilinx_desc *desc, const void *buf, size_t bsize,
+		   fpga_fs_info *fpga_fsinfo)
+{
+	if (!xilinx_validate(desc, (char *)__func__)) {
+		printf("%s: Invalid device descriptor\n", __func__);
+		return FPGA_FAIL;
+	}
+
+	if (!desc->operations->loadfs)
+		return FPGA_FAIL;
+
+	return desc->operations->loadfs(desc, buf, bsize, fpga_fsinfo);
+}
+#endif
 
 int xilinx_dump(xilinx_desc *desc, const void *buf, size_t bsize)
 {
