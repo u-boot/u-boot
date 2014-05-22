@@ -37,7 +37,7 @@ struct uclass {
 	struct list_head sibling_node;
 };
 
-struct device;
+struct udevice;
 
 /**
  * struct uclass_driver - Driver for the uclass
@@ -65,10 +65,10 @@ struct device;
 struct uclass_driver {
 	const char *name;
 	enum uclass_id id;
-	int (*post_bind)(struct device *dev);
-	int (*pre_unbind)(struct device *dev);
-	int (*post_probe)(struct device *dev);
-	int (*pre_remove)(struct device *dev);
+	int (*post_bind)(struct udevice *dev);
+	int (*pre_unbind)(struct udevice *dev);
+	int (*post_probe)(struct udevice *dev);
+	int (*pre_remove)(struct udevice *dev);
 	int (*init)(struct uclass *class);
 	int (*destroy)(struct uclass *class);
 	int priv_auto_alloc_size;
@@ -101,7 +101,7 @@ int uclass_get(enum uclass_id key, struct uclass **ucp);
  * @ucp: Returns pointer to uclass (there is only one per for each ID)
  * @return 0 if OK, -ve on error
  */
-int uclass_get_device(enum uclass_id id, int index, struct device **ucp);
+int uclass_get_device(enum uclass_id id, int index, struct udevice **ucp);
 
 /**
  * uclass_first_device() - Get the first device in a uclass
@@ -110,7 +110,7 @@ int uclass_get_device(enum uclass_id id, int index, struct device **ucp);
  * @devp: Returns pointer to the first device in that uclass, or NULL if none
  * @return 0 if OK (found or not found), -1 on error
  */
-int uclass_first_device(enum uclass_id id, struct device **devp);
+int uclass_first_device(enum uclass_id id, struct udevice **devp);
 
 /**
  * uclass_next_device() - Get the next device in a uclass
@@ -119,7 +119,7 @@ int uclass_first_device(enum uclass_id id, struct device **devp);
  * to the next device in the same uclass, or NULL if none
  * @return 0 if OK (found or not found), -1 on error
  */
-int uclass_next_device(struct device **devp);
+int uclass_next_device(struct udevice **devp);
 
 /**
  * uclass_foreach_dev() - Helper function to iteration through devices
@@ -127,7 +127,7 @@ int uclass_next_device(struct device **devp);
  * This creates a for() loop which works through the available devices in
  * a uclass in order from start to end.
  *
- * @pos: struct device * to hold the current device. Set to NULL when there
+ * @pos: struct udevice * to hold the current device. Set to NULL when there
  * are no more devices.
  * uc: uclass to scan
  */

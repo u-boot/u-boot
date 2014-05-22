@@ -16,12 +16,12 @@
 #include <dm/test.h>
 #include <dm/uclass-internal.h>
 
-static int display_succ(struct device *in, char *buf)
+static int display_succ(struct udevice *in, char *buf)
 {
 	int len;
 	int ip = 0;
 	char local[16];
-	struct device *pos, *n, *prev = NULL;
+	struct udevice *pos, *n, *prev = NULL;
 
 	printf("%s- %s @ %08x", buf, in->name, map_to_sysmem(in));
 	if (in->flags & DM_FLAG_ACTIVATED)
@@ -49,7 +49,7 @@ static int display_succ(struct device *in, char *buf)
 	return 0;
 }
 
-static int dm_dump(struct device *dev)
+static int dm_dump(struct udevice *dev)
 {
 	if (!dev)
 		return -EINVAL;
@@ -59,7 +59,7 @@ static int dm_dump(struct device *dev)
 static int do_dm_dump_all(cmd_tbl_t *cmdtp, int flag, int argc,
 			  char * const argv[])
 {
-	struct device *root;
+	struct udevice *root;
 
 	root = dm_root();
 	printf("ROOT %08x\n", map_to_sysmem(root));
@@ -74,7 +74,7 @@ static int do_dm_dump_uclass(cmd_tbl_t *cmdtp, int flag, int argc,
 	int id;
 
 	for (id = 0; id < UCLASS_COUNT; id++) {
-		struct device *dev;
+		struct udevice *dev;
 
 		ret = uclass_get(id, &uc);
 		if (ret)

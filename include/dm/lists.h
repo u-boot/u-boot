@@ -32,8 +32,8 @@ struct driver *lists_driver_lookup_name(const char *name);
  */
 struct uclass_driver *lists_uclass_lookup(enum uclass_id id);
 
-int lists_bind_drivers(struct device *parent);
+int lists_bind_drivers(struct udevice *parent);
 
-int lists_bind_fdt(struct device *parent, const void *blob, int offset);
+int lists_bind_fdt(struct udevice *parent, const void *blob, int offset);
 
 #endif

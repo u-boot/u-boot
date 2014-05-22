@@ -24,7 +24,7 @@ struct driver_info;
 #define DM_FLAG_ALLOC_PDATA	(2 << 0)
 
 /**
- * struct device - An instance of a driver
+ * struct udevice - An instance of a driver
  *
  * This holds information about a device, which is a driver bound to a
  * particular port or peripheral (essentially a driver instance).
@@ -53,12 +53,12 @@ struct driver_info;
  * @sibling_node: Next device in list of all devices
  * @flags: Flags for this device DM_FLAG_...
  */
-struct device {
+struct udevice {
 	struct driver *driver;
 	const char *name;
 	void *platdata;
 	int of_offset;
-	struct device *parent;
+	struct udevice *parent;
 	void *priv;
 	struct uclass *uclass;
 	void *uclass_priv;
@@ -122,11 +122,11 @@ struct driver {
 	char *name;
 	enum uclass_id id;
 	const struct device_id *of_match;
-	int (*bind)(struct device *dev);
-	int (*probe)(struct device *dev);
-	int (*remove)(struct device *dev);
-	int (*unbind)(struct device *dev);
-	int (*ofdata_to_platdata)(struct device *dev);
+	int (*bind)(struct udevice *dev);
+	int (*probe)(struct udevice *dev);
+	int (*remove)(struct udevice *dev);
+	int (*unbind)(struct udevice *dev);
+	int (*ofdata_to_platdata)(struct udevice *dev);
 	int priv_auto_alloc_size;
 	int platdata_auto_alloc_size;
 	const void *ops;	/* driver-specific operations */
@@ -144,7 +144,7 @@ struct driver {
  * @dev		Device to check
  * @return platform data, or NULL if none
  */
-void *dev_get_platdata(struct device *dev);
+void *dev_get_platdata(struct udevice *dev);
 
 /**
  * dev_get_priv() - Get the private data for a device
@@ -154,6 +154,6 @@ void *dev_get_platdata(struct device *dev);
  * @dev		Device to check
  * @return private data, or NULL if none
  */
-void *dev_get_priv(struct device *dev);
+void *dev_get_priv(struct udevice *dev);
 
 #endif

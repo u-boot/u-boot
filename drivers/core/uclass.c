@@ -101,7 +101,7 @@ fail_mem:
 int uclass_destroy(struct uclass *uc)
 {
 	struct uclass_driver *uc_drv;
-	struct device *dev, *tmp;
+	struct udevice *dev, *tmp;
 	int ret;
 
 	list_for_each_entry_safe(dev, tmp, &uc->dev_head, uclass_node) {
@@ -137,10 +137,10 @@ int uclass_get(enum uclass_id id, struct uclass **ucp)
 	return 0;
 }
 
-int uclass_find_device(enum uclass_id id, int index, struct device **devp)
+int uclass_find_device(enum uclass_id id, int index, struct udevice **devp)
 {
 	struct uclass *uc;
-	struct device *dev;
+	struct udevice *dev;
 	int ret;
 
 	*devp = NULL;
@@ -158,9 +158,9 @@ int uclass_find_device(enum uclass_id id, int index, struct device **devp)
 	return -ENODEV;
 }
 
-int uclass_get_device(enum uclass_id id, int index, struct device **devp)
+int uclass_get_device(enum uclass_id id, int index, struct udevice **devp)
 {
-	struct device *dev;
+	struct udevice *dev;
 	int ret;
 
 	*devp = NULL;
@@ -177,10 +177,10 @@ int uclass_get_device(enum uclass_id id, int index, struct device **devp)
 	return 0;
 }
 
-int uclass_first_device(enum uclass_id id, struct device **devp)
+int uclass_first_device(enum uclass_id id, struct udevice **devp)
 {
 	struct uclass *uc;
-	struct device *dev;
+	struct udevice *dev;
 	int ret;
 
 	*devp = NULL;
@@ -190,7 +190,7 @@ int uclass_first_device(enum uclass_id id, struct device **devp)
 	if (list_empty(&uc->dev_head))
 		return 0;
 
-	dev = list_first_entry(&uc->dev_head, struct device, uclass_node);
+	dev = list_first_entry(&uc->dev_head, struct udevice, uclass_node);
 	ret = device_probe(dev);
 	if (ret)
 		return ret;
@@ -199,16 +199,17 @@ int uclass_first_device(enum uclass_id id, struct device **devp)
 	return 0;
 }
 
-int uclass_next_device(struct device **devp)
+int uclass_next_device(struct udevice **devp)
 {
-	struct device *dev = *devp;
+	struct udevice *dev = *devp;
 	int ret;
 
 	*devp = NULL;
 	if (list_is_last(&dev->uclass_node, &dev->uclass->dev_head))
 		return 0;
 
-	dev = list_entry(dev->uclass_node.next, struct device, uclass_node);
+	dev = list_entry(dev->uclass_node.next, struct udevice,
+			 uclass_node);
 	ret = device_probe(dev);
 	if (ret)
 		return ret;
@@ -217,7 +218,7 @@ int uclass_next_device(struct device **devp)
 	return 0;
 }
 
-int uclass_bind_device(struct device *dev)
+int uclass_bind_device(struct udevice *dev)
 {
 	struct uclass *uc;
 	int ret;
@@ -237,7 +238,7 @@ int uclass_bind_device(struct device *dev)
 	return 0;
 }
 
-int uclass_unbind_device(struct device *dev)
+int uclass_unbind_device(struct udevice *dev)
 {
 	struct uclass *uc;
 	int ret;
@@ -253,7 +254,7 @@ int uclass_unbind_device(struct device *dev)
 	return 0;
 }
 
-int uclass_post_probe_device(struct device *dev)
+int uclass_post_probe_device(struct udevice *dev)
 {
 	struct uclass_driver *uc_drv = dev->uclass->uc_drv;
 
@@ -263,7 +264,7 @@ int uclass_post_probe_device(struct device *dev)
 	return 0;
 }
 
-int uclass_pre_remove_device(struct device *dev)
+int uclass_pre_remove_device(struct udevice *dev)
 {
 	struct uclass_driver *uc_drv;
 	struct uclass *uc;

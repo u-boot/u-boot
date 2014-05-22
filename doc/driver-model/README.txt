@@ -122,7 +122,7 @@ What is going on?
 Let's start at the top. The demo command is in common/cmd_demo.c. It does
 the usual command procesing and then:
 
-	struct device *demo_dev;
+	struct udevice *demo_dev;
 
 	ret = uclass_get_device(UCLASS_DEMO, devnum, &demo_dev);
 
@@ -147,7 +147,7 @@ this particular device may use one or other of them.
 
 The code for demo_hello() is in drivers/demo/demo-uclass.c:
 
-int demo_hello(struct device *dev, int ch)
+int demo_hello(struct udevice *dev, int ch)
 {
 	const struct demo_ops *ops = device_get_ops(dev);
 
@@ -160,7 +160,7 @@ int demo_hello(struct device *dev, int ch)
 As you can see it just calls the relevant driver method. One of these is
 in drivers/demo/demo-simple.c:
 
-static int simple_hello(struct device *dev, int ch)
+static int simple_hello(struct udevice *dev, int ch)
 {
 	const struct dm_demo_pdata *pdata = dev_get_platdata(dev);
 
@@ -321,7 +321,7 @@ instead of struct instance, struct platdata, etc.)
 this concept relates to a class of drivers (or a subsystem). We shouldn't
 use 'class' since it is a C++ reserved word, so U-Boot class (uclass) seems
 better than 'core'.
-- Remove 'struct driver_instance' and just use a single 'struct device'.
+- Remove 'struct driver_instance' and just use a single 'struct udevice'.
 This removes a level of indirection that doesn't seem necessary.
 - Built in device tree support, to avoid the need for platdata
 - Removed the concept of driver relocation, and just make it possible for

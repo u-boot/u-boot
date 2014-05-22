@@ -24,7 +24,7 @@ static const struct driver_info root_info = {
 	.name		= "root_driver",
 };
 
-struct device *dm_root(void)
+struct udevice *dm_root(void)
 {
 	if (!gd->dm_root) {
 		dm_warn("Virtual root driver does not exist!\n");

@@ -60,7 +60,7 @@ static struct driver_info driver_info_manual = {
 /* Test that binding with platdata occurs correctly */
 static int dm_test_autobind(struct dm_test_state *dms)
 {
-	struct device *dev;
+	struct udevice *dev;
 
 	/*
 	 * We should have a single class (UCLASS_ROOT) and a single root
@@ -95,7 +95,7 @@ DM_TEST(dm_test_autobind, 0);
 static int dm_test_autoprobe(struct dm_test_state *dms)
 {
 	int expected_base_add;
-	struct device *dev;
+	struct udevice *dev;
 	struct uclass *uc;
 	int i;
 
@@ -157,7 +157,7 @@ DM_TEST(dm_test_autoprobe, DM_TESTF_SCAN_PDATA);
 static int dm_test_platdata(struct dm_test_state *dms)
 {
 	const struct dm_test_pdata *pdata;
-	struct device *dev;
+	struct udevice *dev;
 	int i;
 
 	for (i = 0; i < 3; i++) {
@@ -175,7 +175,7 @@ DM_TEST(dm_test_platdata, DM_TESTF_SCAN_PDATA);
 static int dm_test_lifecycle(struct dm_test_state *dms)
 {
 	int op_count[DM_TEST_OP_COUNT];
-	struct device *dev, *test_dev;
+	struct udevice *dev, *test_dev;
 	int pingret;
 	int ret;
 
@@ -229,7 +229,7 @@ DM_TEST(dm_test_lifecycle, DM_TESTF_SCAN_PDATA | DM_TESTF_PROBE_TEST);
 /* Test that we can bind/unbind and the lists update correctly */
 static int dm_test_ordering(struct dm_test_state *dms)
 {
-	struct device *dev, *dev_penultimate, *dev_last, *test_dev;
+	struct udevice *dev, *dev_penultimate, *dev_last, *test_dev;
 	int pingret;
 
 	ut_assertok(device_bind_by_name(dms->root, &driver_info_manual,
@@ -281,7 +281,7 @@ static int dm_test_ordering(struct dm_test_state *dms)
 DM_TEST(dm_test_ordering, DM_TESTF_SCAN_PDATA);
 
 /* Check that we can perform operations on a device (do a ping) */
-int dm_check_operations(struct dm_test_state *dms, struct device *dev,
+int dm_check_operations(struct dm_test_state *dms, struct udevice *dev,
 			uint32_t base, struct dm_test_priv *priv)
 {
 	int expected;
@@ -311,7 +311,7 @@ int dm_check_operations(struct dm_test_state *dms, struct device *dev,
 /* Check that we can perform operations on devices */
 static int dm_test_operations(struct dm_test_state *dms)
 {
-	struct device *dev;
+	struct udevice *dev;
 	int i;
 
 	/*
@@ -341,7 +341,7 @@ DM_TEST(dm_test_operations, DM_TESTF_SCAN_PDATA);
 /* Remove all drivers and check that things work */
 static int dm_test_remove(struct dm_test_state *dms)
 {
-	struct device *dev;
+	struct udevice *dev;
 	int i;
 
 	for (i = 0; i < 3; i++) {
@@ -367,7 +367,7 @@ static int dm_test_leak(struct dm_test_state *dms)
 
 	for (i = 0; i < 2; i++) {
 		struct mallinfo start, end;
-		struct device *dev;
+		struct udevice *dev;
 		int ret;
 		int id;
 
@@ -435,10 +435,10 @@ DM_TEST(dm_test_uclass, 0);
  *		this array.
  * @return 0 if OK, -ve on error
  */
-static int create_children(struct dm_test_state *dms, struct device *parent,
-			   int count, int key, struct device *child[])
+static int create_children(struct dm_test_state *dms, struct udevice *parent,
+			   int count, int key, struct udevice *child[])
 {
-	struct device *dev;
+	struct udevice *dev;
 	int i;
 
 	for (i = 0; i < count; i++) {
@@ -460,10 +460,10 @@ static int create_children(struct dm_test_state *dms, struct device *parent,
 
 static int dm_test_children(struct dm_test_state *dms)
 {
-	struct device *top[NODE_COUNT];
-	struct device *child[NODE_COUNT];
-	struct device *grandchild[NODE_COUNT];
-	struct device *dev;
+	struct udevice *top[NODE_COUNT];
+	struct udevice *child[NODE_COUNT];
+	struct udevice *grandchild[NODE_COUNT];
+	struct udevice *dev;
 	int total;
 	int ret;
 	int i;
