@@ -97,15 +97,15 @@
 #define CONFIG_EXTRA_ENV_SETTINGS       \
 	"ethaddr=00:0a:35:00:01:22\0"	\
 	"kernel_addr=0x200000\0"	\
-	"serverip=192.168.40.1\0"	\
-	"ipaddr=192.168.40.2\0"		\
+	"serverip=10.0.2.2\0"	\
+	"ipaddr=10.0.2.15\0"		\
 	"initrd_addr=0xa00000\0"	\
 	"initrd_size=0x2000000\0"	\
 	"fdt_addr=0x100000\0"		\
-	"fdt_high=0xa0000000\0"		\
-	"netboot=setenv fdt_high 0x20000000 && "	\
-		"tftpboot 1000000 uImage && "		\
-		"tftpboot 20000000 ronaldo-arm.dtb && "	\
+	"fdt_high=0x10000000\0"		\
+	"netboot=tftpboot 1000000 image.ub && bootm\0"	\
+	"jtagboot=tftpboot 1000000 uImage && "		\
+		"tftpboot 20000000 system.dtb && "	\
 		"bootm 1000000 - 20000000\0"
 
 #define CONFIG_BOOTARGS			"console=ttyPS0"
