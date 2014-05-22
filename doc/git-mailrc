@@ -22,6 +22,7 @@ alias jagan	     Jagannadha Sutradharudu Teki <jagannadh.teki@gmail.com>
 alias jasonjin       Jason Jin <jason.jin@freescale.com>
 alias jhersh         Joe Hershberger <joe.hershberger@gmail.com>
 alias kimphill       Kim Phillips <kim.phillips@freescale.com>
+alias lukma          Lukasz Majewski <l.majewski@samsung.com>
 alias macpaul        Macpaul Lin <macpaul@andestech.com>
 alias marex          Marek Vasut <marex@denx.de>
 alias monstr         Michal Simek <monstr@monstr.eu>
@@ -101,6 +102,7 @@ alias x86            uboot, sjg, gruss
 
 # Subsystem aliases
 alias cfi            uboot, stroese
+alias dfu            uboot, lukma
 alias kerneldoc      uboot, marex
 alias fdt            uboot, Jerry Van Baren <vanbaren@cideas.com>
 alias i2c            uboot, hs
