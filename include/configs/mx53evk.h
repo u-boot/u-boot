@@ -23,6 +23,8 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 #define CONFIG_OF_LIBFDT
 
 /* Size of malloc() pool */

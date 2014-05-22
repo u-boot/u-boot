@@ -2,7 +2,7 @@
  * arch/arm/cpu/armv7/rmobile/lowlevel_init_ca15.S
  *     This file is lager low level initialize.
  *
- * Copyright (C) 2013 Renesas Electronics Corporation
+ * Copyright (C) 2013, 2014 Renesas Electronics Corporation
  *
  * SPDX-License-Identifier: GPL-2.0
  */
@@ -36,16 +36,32 @@ do_cpu_waiting:
 	.align  4
 do_lowlevel_init:
 	/* surpress wfe if ca15 */
-	tst	r4, #4
+	tst r4, #4
 	mrceq p15, 0, r0, c1, c0, 1	/* actlr */
 	orreq r0, r0, #(1<<7)
 	mcreq p15, 0, r0, c1, c0, 1
+
 	/* and set l2 latency */
 	mrceq p15, 1, r0, c9, c0, 2	/* l2ctlr */
 	orreq r0, r0, #0x00000800
 	orreq r0, r0, #0x00000003
 	mcreq p15, 1, r0, c9, c0, 2
 
+	mrc p15, 0, r0, c0, c0, 5	/* r0 = MPIDR */
+	and r0, r0, #0xf00
+	lsr r0, r0, #8
+	tst r0, #1			/* only need for cluster 0 */
+	bne _exit_init_l2_a15
+
+	mrc p15, 1, r0, c9, c0, 2	/* r0 = L2CTLR */
+	and r1, r0, #7
+	cmp r1, #3			/* has already been set up */
+	bicne r0, r0, #0xe7
+	orrne r0, r0, #0x83		/* L2CTLR[7:6] + L2CTLR[2:0] */
+	orrne r0, r0, #0x20             /* L2CTLR[5] */
+	mcrne p15, 1, r0, c9, c0, 2
+
+_exit_init_l2_a15:
 	ldr	r3, =(CONFIG_SYS_INIT_SP_ADDR)
 	sub	sp, r3, #4
 	str	lr, [sp]

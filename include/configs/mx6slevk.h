@@ -10,6 +10,7 @@
 #define __CONFIG_H
 
 #include <asm/arch/imx-regs.h>
+#include <asm/imx-common/gpio.h>
 #include <linux/sizes.h>
 #include "mx6_common.h"
 
@@ -194,6 +195,17 @@
 
 #ifndef CONFIG_SYS_DCACHE_OFF
 #define CONFIG_CMD_CACHE
+#endif
+
+#define CONFIG_CMD_SF
+#ifdef CONFIG_CMD_SF
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_STMICRO
+#define CONFIG_MXC_SPI
+#define CONFIG_SF_DEFAULT_BUS		0
+#define CONFIG_SF_DEFAULT_CS		(0 | (IMX_GPIO_NR(4, 11) << 8))
+#define CONFIG_SF_DEFAULT_SPEED		20000000
+#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
 #endif
 
 #endif				/* __CONFIG_H */

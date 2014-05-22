@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <asm/arch/gpio.h>
 #include <asm/arch/pinmux.h>
 #include "pinmux-config-jetson-tk1.h"
 
@@ -15,6 +16,11 @@
  */
 void pinmux_init(void)
 {
+	pinmux_set_tristate_input_clamping();
+
+	gpio_config_table(jetson_tk1_gpio_inits,
+			  ARRAY_SIZE(jetson_tk1_gpio_inits));
+
 	pinmux_config_pingrp_table(jetson_tk1_pingrps,
 				   ARRAY_SIZE(jetson_tk1_pingrps));
 

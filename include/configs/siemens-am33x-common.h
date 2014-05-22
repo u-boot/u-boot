@@ -358,7 +358,7 @@
 
 #define CONFIG_COMMON_ENV_SETTINGS \
 	"verify=no \0" \
-	"project_dir=systemone\0" \
+	"project_dir=targetdir\0" \
 	"upgrade_available=0\0" \
 	"altbootcmd=run bootcmd\0" \
 	"bootlimit=3\0" \
@@ -402,7 +402,11 @@
 	"dfu_args=run bootargs_defaults;" \
 		"setenv bootargs ${bootargs} ;" \
 		"mtdparts default; " \
-		"dfu 0 nand 0; \0" \
+		"led dfu 1;" \
+		"led stat 0;" \
+		"dfu 0 nand 0;" \
+		"led dfu 0;" \
+		"led stat 1;\0" \
 		"dfu_alt_info=" DFU_ALT_INFO_NAND "\0" \
 	"net_args=run bootargs_defaults;" \
 		"mtdparts default;" \

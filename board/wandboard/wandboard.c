@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013 Freescale Semiconductor, Inc.
+ * Copyright (C) 2014 O.S. Systems Software LTDA.
  *
  * Author: Fabio Estevam <fabio.estevam@freescale.com>
  *
@@ -15,18 +16,19 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/imx-common/iomux-v3.h>
+#include <asm/imx-common/mxc_i2c.h>
 #include <asm/imx-common/boot_mode.h>
+#include <asm/imx-common/video.h>
 #include <asm/io.h>
 #include <linux/sizes.h>
 #include <common.h>
 #include <fsl_esdhc.h>
-#include <ipu_pixfmt.h>
 #include <mmc.h>
 #include <miiphy.h>
 #include <netdev.h>
-#include <linux/fb.h>
 #include <phy.h>
 #include <input.h>
+#include <i2c.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -40,6 +42,10 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define ENET_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
+
+#define I2C_PAD_CTRL	(PAD_CTL_PUS_100K_UP |			\
+	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS |	\
+	PAD_CTL_ODE | PAD_CTL_SRE_FAST)
 
 #define USDHC1_CD_GPIO		IMX_GPIO_NR(1, 2)
 #define USDHC3_CD_GPIO		IMX_GPIO_NR(3, 9)
@@ -210,37 +216,119 @@ int board_phy_config(struct phy_device *phydev)
 }
 
 #if defined(CONFIG_VIDEO_IPUV3)
-static struct fb_videomode const hdmi = {
-	.name           = "HDMI",
-	.refresh        = 60,
-	.xres           = 1024,
-	.yres           = 768,
-	.pixclock       = 15385,
-	.left_margin    = 220,
-	.right_margin   = 40,
-	.upper_margin   = 21,
-	.lower_margin   = 7,
-	.hsync_len      = 60,
-	.vsync_len      = 10,
-	.sync           = FB_SYNC_EXT,
-	.vmode          = FB_VMODE_NONINTERLACED
+struct i2c_pads_info i2c2_pad_info = {
+	.scl = {
+		.i2c_mode = MX6_PAD_KEY_COL3__I2C2_SCL
+			| MUX_PAD_CTRL(I2C_PAD_CTRL),
+		.gpio_mode = MX6_PAD_KEY_COL3__GPIO4_IO12
+			| MUX_PAD_CTRL(I2C_PAD_CTRL),
+		.gp = IMX_GPIO_NR(4, 12)
+	},
+	.sda = {
+		.i2c_mode = MX6_PAD_KEY_ROW3__I2C2_SDA
+			| MUX_PAD_CTRL(I2C_PAD_CTRL),
+		.gpio_mode = MX6_PAD_KEY_ROW3__GPIO4_IO13
+			| MUX_PAD_CTRL(I2C_PAD_CTRL),
+		.gp = IMX_GPIO_NR(4, 13)
+	}
 };
 
-int board_video_skip(void)
+static iomux_v3_cfg_t const fwadapt_7wvga_pads[] = {
+	MX6_PAD_DI0_DISP_CLK__IPU1_DI0_DISP_CLK,
+	MX6_PAD_DI0_PIN2__IPU1_DI0_PIN02, /* HSync */
+	MX6_PAD_DI0_PIN3__IPU1_DI0_PIN03, /* VSync */
+	MX6_PAD_DI0_PIN4__IPU1_DI0_PIN04
+		| MUX_PAD_CTRL(PAD_CTL_DSE_120ohm), /* Contrast */
+	MX6_PAD_DI0_PIN15__IPU1_DI0_PIN15, /* DISP0_DRDY */
+
+	MX6_PAD_DISP0_DAT0__IPU1_DISP0_DATA00,
+	MX6_PAD_DISP0_DAT1__IPU1_DISP0_DATA01,
+	MX6_PAD_DISP0_DAT2__IPU1_DISP0_DATA02,
+	MX6_PAD_DISP0_DAT3__IPU1_DISP0_DATA03,
+	MX6_PAD_DISP0_DAT4__IPU1_DISP0_DATA04,
+	MX6_PAD_DISP0_DAT5__IPU1_DISP0_DATA05,
+	MX6_PAD_DISP0_DAT6__IPU1_DISP0_DATA06,
+	MX6_PAD_DISP0_DAT7__IPU1_DISP0_DATA07,
+	MX6_PAD_DISP0_DAT8__IPU1_DISP0_DATA08,
+	MX6_PAD_DISP0_DAT9__IPU1_DISP0_DATA09,
+	MX6_PAD_DISP0_DAT10__IPU1_DISP0_DATA10,
+	MX6_PAD_DISP0_DAT11__IPU1_DISP0_DATA11,
+	MX6_PAD_DISP0_DAT12__IPU1_DISP0_DATA12,
+	MX6_PAD_DISP0_DAT13__IPU1_DISP0_DATA13,
+	MX6_PAD_DISP0_DAT14__IPU1_DISP0_DATA14,
+	MX6_PAD_DISP0_DAT15__IPU1_DISP0_DATA15,
+	MX6_PAD_DISP0_DAT16__IPU1_DISP0_DATA16,
+	MX6_PAD_DISP0_DAT17__IPU1_DISP0_DATA17,
+
+	MX6_PAD_SD4_DAT2__GPIO2_IO10
+		| MUX_PAD_CTRL(NO_PAD_CTRL), /* DISP0_BKLEN */
+	MX6_PAD_SD4_DAT3__GPIO2_IO11
+		| MUX_PAD_CTRL(NO_PAD_CTRL), /* DISP0_VDDEN */
+};
+
+static void do_enable_hdmi(struct display_info_t const *dev)
 {
-	int ret;
-
-	ret = ipuv3_fb_init(&hdmi, 0, IPU_PIX_FMT_RGB24);
-
-	if (ret) {
-		printf("HDMI cannot be configured: %d\n", ret);
-		return ret;
-	}
-
 	imx_enable_hdmi_phy();
-
-	return ret;
 }
+
+static int detect_i2c(struct display_info_t const *dev)
+{
+	return (0 == i2c_set_bus_num(dev->bus)) &&
+			(0 == i2c_probe(dev->addr));
+}
+
+static void enable_fwadapt_7wvga(struct display_info_t const *dev)
+{
+	imx_iomux_v3_setup_multiple_pads(
+		fwadapt_7wvga_pads,
+		ARRAY_SIZE(fwadapt_7wvga_pads));
+
+	gpio_direction_output(IMX_GPIO_NR(2, 10), 1);
+	gpio_direction_output(IMX_GPIO_NR(2, 11), 1);
+}
+
+struct display_info_t const displays[] = {{
+	.bus	= -1,
+	.addr	= 0,
+	.pixfmt	= IPU_PIX_FMT_RGB24,
+	.detect	= detect_hdmi,
+	.enable	= do_enable_hdmi,
+	.mode	= {
+		.name           = "HDMI",
+		.refresh        = 60,
+		.xres           = 1024,
+		.yres           = 768,
+		.pixclock       = 15385,
+		.left_margin    = 220,
+		.right_margin   = 40,
+		.upper_margin   = 21,
+		.lower_margin   = 7,
+		.hsync_len      = 60,
+		.vsync_len      = 10,
+		.sync           = FB_SYNC_EXT,
+		.vmode          = FB_VMODE_NONINTERLACED
+} }, {
+	.bus	= 1,
+	.addr	= 0x10,
+	.pixfmt	= IPU_PIX_FMT_RGB666,
+	.detect	= detect_i2c,
+	.enable	= enable_fwadapt_7wvga,
+	.mode	= {
+		.name           = "FWBADAPT-LCD-F07A-0102",
+		.refresh        = 60,
+		.xres           = 800,
+		.yres           = 480,
+		.pixclock       = 33260,
+		.left_margin    = 128,
+		.right_margin   = 128,
+		.upper_margin   = 22,
+		.lower_margin   = 22,
+		.hsync_len      = 1,
+		.vsync_len      = 1,
+		.sync           = 0,
+		.vmode          = FB_VMODE_NONINTERLACED
+} } };
+size_t display_count = ARRAY_SIZE(displays);
 
 static void setup_display(void)
 {
@@ -254,6 +342,10 @@ static void setup_display(void)
 	reg |= (CHSCCDR_CLK_SEL_LDB_DI0
 		<< MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_OFFSET);
 	writel(reg, &mxc_ccm->chsccdr);
+
+	/* Disable LCD backlight */
+	imx_iomux_v3_setup_pad(MX6_PAD_DI0_PIN4__GPIO4_IO20);
+	gpio_direction_input(IMX_GPIO_NR(4, 20));
 }
 #endif /* CONFIG_VIDEO_IPUV3 */
 
@@ -304,6 +396,8 @@ int board_init(void)
 {
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
+
+	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c2_pad_info);
 
 	return 0;
 }

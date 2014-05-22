@@ -48,6 +48,13 @@
 #define CONFIG_SYS_NS16550_CLK		V_NS16550_CLK
 
 /*
+ * Common HW configuration.
+ * If this varies between SoCs later, move to tegraNN-common.h
+ * Note: This is number of devices, not max device ID.
+ */
+#define CONFIG_SYS_MMC_MAX_DEVICE 4
+
+/*
  * select serial console configuration
  */
 #define CONFIG_CONS_INDEX	1

@@ -128,12 +128,6 @@ do_userbutton(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		button = 0;
 
 	gpio_free(gpio);
-	if (!button) {
-		/* LED0 - RED=1: GPIO2_0 2*32 = 64 */
-		gpio_request(BOARD_DFU_BUTTON_LED, "");
-		gpio_direction_output(BOARD_DFU_BUTTON_LED, 1);
-		gpio_set_value(BOARD_DFU_BUTTON_LED, 1);
-	}
 
 	return button;
 }
@@ -144,6 +138,46 @@ U_BOOT_CMD(
 	""
 );
 #endif
+/*
+ * This command sets led
+ * Input -	name of led
+ *		value of led
+ * Returns -	1 if input does not match
+ *		0 if led was set
+ */
+static int
+do_setled(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	int gpio = 0;
+	if (argc != 3)
+		goto exit;
+#if defined(BOARD_STATUS_LED)
+	if (!strcmp(argv[1], "stat"))
+		gpio = BOARD_STATUS_LED;
+#endif
+#if defined(BOARD_DFU_BUTTON_LED)
+	if (!strcmp(argv[1], "dfu"))
+		gpio = BOARD_DFU_BUTTON_LED;
+#endif
+	/* If argument does not mach exit */
+	if (gpio == 0)
+		goto exit;
+	gpio_request(gpio, "");
+	gpio_direction_output(gpio, 1);
+	if (!strcmp(argv[2], "1"))
+		gpio_set_value(gpio, 1);
+	else
+		gpio_set_value(gpio, 0);
+	return 0;
+exit:
+	return 1;
+}
+
+U_BOOT_CMD(
+	led, CONFIG_SYS_MAXARGS, 2, do_setled,
+	"Set led on or off",
+	"dfu val - set dfu led\nled stat val - set status led"
+);
 
 static int
 do_usertestwdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])

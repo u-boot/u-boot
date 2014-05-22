@@ -18,7 +18,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct mmc_host mmc_host[MAX_HOSTS];
+struct mmc_host mmc_host[CONFIG_SYS_MMC_MAX_DEVICE];
 
 #ifndef CONFIG_OF_CONTROL
 #error "Please enable device tree support to use this driver"
@@ -669,13 +669,14 @@ static int process_nodes(const void *blob, int node_list[], int count)
 
 void tegra_mmc_init(void)
 {
-	int node_list[MAX_HOSTS], count;
+	int node_list[CONFIG_SYS_MMC_MAX_DEVICE], count;
 	const void *blob = gd->fdt_blob;
 	debug("%s entry\n", __func__);
 
 	/* See if any Tegra124 MMC controllers are present */
 	count = fdtdec_find_aliases_for_id(blob, "sdhci",
-		COMPAT_NVIDIA_TEGRA124_SDMMC, node_list, MAX_HOSTS);
+		COMPAT_NVIDIA_TEGRA124_SDMMC, node_list,
+		CONFIG_SYS_MMC_MAX_DEVICE);
 	debug("%s: count of Tegra124 sdhci nodes is %d\n", __func__, count);
 	if (process_nodes(blob, node_list, count)) {
 		printf("%s: Error processing T30 mmc node(s)!\n", __func__);
@@ -684,7 +685,8 @@ void tegra_mmc_init(void)
 
 	/* See if any Tegra30 MMC controllers are present */
 	count = fdtdec_find_aliases_for_id(blob, "sdhci",
-		COMPAT_NVIDIA_TEGRA30_SDMMC, node_list, MAX_HOSTS);
+		COMPAT_NVIDIA_TEGRA30_SDMMC, node_list,
+		CONFIG_SYS_MMC_MAX_DEVICE);
 	debug("%s: count of T30 sdhci nodes is %d\n", __func__, count);
 	if (process_nodes(blob, node_list, count)) {
 		printf("%s: Error processing T30 mmc node(s)!\n", __func__);
@@ -693,7 +695,8 @@ void tegra_mmc_init(void)
 
 	/* Now look for any Tegra20 MMC controllers */
 	count = fdtdec_find_aliases_for_id(blob, "sdhci",
-		COMPAT_NVIDIA_TEGRA20_SDMMC, node_list, MAX_HOSTS);
+		COMPAT_NVIDIA_TEGRA20_SDMMC, node_list,
+		CONFIG_SYS_MMC_MAX_DEVICE);
 	debug("%s: count of T20 sdhci nodes is %d\n", __func__, count);
 	if (process_nodes(blob, node_list, count)) {
 		printf("%s: Error processing T20 mmc node(s)!\n", __func__);

@@ -88,7 +88,7 @@ SECTIONS
 	}
 
 	/*
-	 * Zynq needs to discard more sections because the user
+	 * Zynq needs to discard these sections because the user
 	 * is expected to pass this image on to tools for boot.bin
 	 * generation that require them to be dropped.
 	 */

@@ -12,6 +12,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/mx6-pins.h>
+#include <asm/arch/mxc_hdmi.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
@@ -19,6 +20,7 @@
 #include <asm/imx-common/mxc_i2c.h>
 #include <asm/imx-common/boot_mode.h>
 #include <asm/imx-common/sata.h>
+#include <asm/imx-common/video.h>
 #include <jffs2/load_kernel.h>
 #include <hwconfig.h>
 #include <i2c.h>
@@ -30,8 +32,8 @@
 #include <mtd_node.h>
 #include <netdev.h>
 #include <power/pmic.h>
+#include <power/ltc3676_pmic.h>
 #include <power/pfuze100_pmic.h>
-#include <i2c.h>
 #include <fdt_support.h>
 #include <jffs2/load_kernel.h>
 #include <spi_flash.h>
@@ -368,6 +370,134 @@ int board_eth_init(bd_t *bis)
 
 	return 0;
 }
+
+#if defined(CONFIG_VIDEO_IPUV3)
+
+static void enable_hdmi(struct display_info_t const *dev)
+{
+	imx_enable_hdmi_phy();
+}
+
+static int detect_i2c(struct display_info_t const *dev)
+{
+	return i2c_set_bus_num(dev->bus) == 0 &&
+		i2c_probe(dev->addr) == 0;
+}
+
+static void enable_lvds(struct display_info_t const *dev)
+{
+	struct iomuxc *iomux = (struct iomuxc *)
+				IOMUXC_BASE_ADDR;
+
+	/* set CH0 data width to 24bit (IOMUXC_GPR2:5 0=18bit, 1=24bit) */
+	u32 reg = readl(&iomux->gpr[2]);
+	reg |= IOMUXC_GPR2_DATA_WIDTH_CH0_24BIT;
+	writel(reg, &iomux->gpr[2]);
+
+	/* Enable Backlight */
+	imx_iomux_v3_setup_pad(MX6_PAD_SD1_CMD__GPIO1_IO18 |
+			       MUX_PAD_CTRL(NO_PAD_CTRL));
+	gpio_direction_output(IMX_GPIO_NR(1, 18), 1);
+}
+
+struct display_info_t const displays[] = {{
+	/* HDMI Output */
+	.bus	= -1,
+	.addr	= 0,
+	.pixfmt	= IPU_PIX_FMT_RGB24,
+	.detect	= detect_hdmi,
+	.enable	= enable_hdmi,
+	.mode	= {
+		.name           = "HDMI",
+		.refresh        = 60,
+		.xres           = 1024,
+		.yres           = 768,
+		.pixclock       = 15385,
+		.left_margin    = 220,
+		.right_margin   = 40,
+		.upper_margin   = 21,
+		.lower_margin   = 7,
+		.hsync_len      = 60,
+		.vsync_len      = 10,
+		.sync           = FB_SYNC_EXT,
+		.vmode          = FB_VMODE_NONINTERLACED
+} }, {
+	/* Freescale MXC-LVDS1: HannStar HSD100PXN1-A00 w/ egalx_ts cont */
+	.bus	= 2,
+	.addr	= 0x4,
+	.pixfmt	= IPU_PIX_FMT_LVDS666,
+	.detect	= detect_i2c,
+	.enable	= enable_lvds,
+	.mode	= {
+		.name           = "Hannstar-XGA",
+		.refresh        = 60,
+		.xres           = 1024,
+		.yres           = 768,
+		.pixclock       = 15385,
+		.left_margin    = 220,
+		.right_margin   = 40,
+		.upper_margin   = 21,
+		.lower_margin   = 7,
+		.hsync_len      = 60,
+		.vsync_len      = 10,
+		.sync           = FB_SYNC_EXT,
+		.vmode          = FB_VMODE_NONINTERLACED
+} } };
+size_t display_count = ARRAY_SIZE(displays);
+
+static void setup_display(void)
+{
+	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
+	int reg;
+
+	enable_ipu_clock();
+	imx_setup_hdmi();
+	/* Turn on LDB0,IPU,IPU DI0 clocks */
+	reg = __raw_readl(&mxc_ccm->CCGR3);
+	reg |= MXC_CCM_CCGR3_LDB_DI0_MASK;
+	writel(reg, &mxc_ccm->CCGR3);
+
+	/* set LDB0, LDB1 clk select to 011/011 */
+	reg = readl(&mxc_ccm->cs2cdr);
+	reg &= ~(MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_MASK
+		 |MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_MASK);
+	reg |= (3<<MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_OFFSET)
+	      |(3<<MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_OFFSET);
+	writel(reg, &mxc_ccm->cs2cdr);
+
+	reg = readl(&mxc_ccm->cscmr2);
+	reg |= MXC_CCM_CSCMR2_LDB_DI0_IPU_DIV;
+	writel(reg, &mxc_ccm->cscmr2);
+
+	reg = readl(&mxc_ccm->chsccdr);
+	reg |= (CHSCCDR_CLK_SEL_LDB_DI0
+		<<MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_OFFSET);
+	writel(reg, &mxc_ccm->chsccdr);
+
+	reg = IOMUXC_GPR2_BGREF_RRMODE_EXTERNAL_RES
+	     |IOMUXC_GPR2_DI1_VS_POLARITY_ACTIVE_HIGH
+	     |IOMUXC_GPR2_DI0_VS_POLARITY_ACTIVE_LOW
+	     |IOMUXC_GPR2_BIT_MAPPING_CH1_SPWG
+	     |IOMUXC_GPR2_DATA_WIDTH_CH1_18BIT
+	     |IOMUXC_GPR2_BIT_MAPPING_CH0_SPWG
+	     |IOMUXC_GPR2_DATA_WIDTH_CH0_18BIT
+	     |IOMUXC_GPR2_LVDS_CH1_MODE_DISABLED
+	     |IOMUXC_GPR2_LVDS_CH0_MODE_ENABLED_DI0;
+	writel(reg, &iomux->gpr[2]);
+
+	reg = readl(&iomux->gpr[3]);
+	reg = (reg & ~IOMUXC_GPR3_LVDS0_MUX_CTL_MASK)
+	    | (IOMUXC_GPR3_MUX_SRC_IPU1_DI0
+	       <<IOMUXC_GPR3_LVDS0_MUX_CTL_OFFSET);
+	writel(reg, &iomux->gpr[3]);
+
+	/* Backlight CABEN on LVDS connector */
+	imx_iomux_v3_setup_pad(MX6_PAD_SD2_CLK__GPIO1_IO10 |
+			       MUX_PAD_CTRL(NO_PAD_CTRL));
+	gpio_direction_output(IMX_GPIO_NR(1, 10), 0);
+}
+#endif /* CONFIG_VIDEO_IPUV3 */
 
 /* read ventana EEPROM, check for validity, and return baseboard type */
 static int
@@ -733,6 +863,62 @@ struct ventana gpio_cfg[] = {
 	},
 };
 
+/* setup board specific PMIC */
+int power_init_board(void)
+{
+	struct pmic *p;
+	u32 reg;
+
+	/* configure PFUZE100 PMIC */
+	if (board_type == GW54xx || board_type == GW54proto) {
+		power_pfuze100_init(I2C_PMIC);
+		p = pmic_get("PFUZE100_PMIC");
+		if (p && !pmic_probe(p)) {
+			pmic_reg_read(p, PFUZE100_DEVICEID, &reg);
+			printf("PMIC:  PFUZE100 ID=0x%02x\n", reg);
+
+			/* Set VGEN1 to 1.5V and enable */
+			pmic_reg_read(p, PFUZE100_VGEN1VOL, &reg);
+			reg &= ~(LDO_VOL_MASK);
+			reg |= (LDOA_1_50V | LDO_EN);
+			pmic_reg_write(p, PFUZE100_VGEN1VOL, reg);
+
+			/* Set SWBST to 5.0V and enable */
+			pmic_reg_read(p, PFUZE100_SWBSTCON1, &reg);
+			reg &= ~(SWBST_MODE_MASK | SWBST_VOL_MASK);
+			reg |= (SWBST_5_00V | SWBST_MODE_AUTO);
+			pmic_reg_write(p, PFUZE100_SWBSTCON1, reg);
+		}
+	}
+
+	/* configure LTC3676 PMIC */
+	else {
+		power_ltc3676_init(I2C_PMIC);
+		p = pmic_get("LTC3676_PMIC");
+		if (p && !pmic_probe(p)) {
+			puts("PMIC:  LTC3676\n");
+			/* set board-specific scalar to 1225mV for IMX6Q@1GHz */
+			if (is_cpu_type(MXC_CPU_MX6Q)) {
+				/* mask PGOOD during SW1 transition */
+				reg = 0x1d | LTC3676_PGOOD_MASK;
+				pmic_reg_write(p, LTC3676_DVB1B, reg);
+				/* set SW1 (VDD_SOC) to 1259mV */
+				reg = 0x1d;
+				pmic_reg_write(p, LTC3676_DVB1A, reg);
+
+				/* mask PGOOD during SW3 transition */
+				reg = 0x1d | LTC3676_PGOOD_MASK;
+				pmic_reg_write(p, LTC3676_DVB3B, reg);
+				/*set SW3 (VDD_ARM) to 1259mV */
+				reg = 0x1d;
+				pmic_reg_write(p, LTC3676_DVB3A, reg);
+			}
+		}
+	}
+
+	return 0;
+}
+
 /* setup GPIO pinmux and default configuration per baseboard */
 static void setup_board_gpio(int board)
 {
@@ -888,6 +1074,9 @@ int board_early_init_f(void)
 	setup_iomux_uart();
 	gpio_direction_output(GP_USB_OTG_PWR, 0); /* OTG power off */
 
+#if defined(CONFIG_VIDEO_IPUV3)
+	setup_display();
+#endif
 	return 0;
 }
 
@@ -1076,28 +1265,6 @@ int misc_init_r(void)
 		setenv("serial#", str);
 	}
 
-	/* configure PFUZE100 PMIC (not used on all Ventana baseboards) */
-	if ((board_type == GW54xx || board_type == GW54proto) &&
-	    !pmic_init(I2C_PMIC)) {
-		struct pmic *p = pmic_get("PFUZE100_PMIC");
-		u32 reg;
-		if (p && !pmic_probe(p)) {
-			pmic_reg_read(p, PFUZE100_DEVICEID, &reg);
-			printf("PMIC:  PFUZE100 ID=0x%02x\n", reg);
-
-			/* Set VGEN1 to 1.5V and enable */
-			pmic_reg_read(p, PFUZE100_VGEN1VOL, &reg);
-			reg &= ~(LDO_VOL_MASK);
-			reg |= (LDOA_1_50V | LDO_EN);
-			pmic_reg_write(p, PFUZE100_VGEN1VOL, reg);
-
-			/* Set SWBST to 5.0V and enable */
-			pmic_reg_read(p, PFUZE100_SWBSTCON1, &reg);
-			reg &= ~(SWBST_MODE_MASK | SWBST_VOL_MASK);
-			reg |= (SWBST_5_00V | SWBST_MODE_AUTO);
-			pmic_reg_write(p, PFUZE100_SWBSTCON1, reg);
-		}
-	}
 
 	/* setup baseboard specific GPIO pinmux and config */
 	setup_board_gpio(board_type);
@@ -1243,7 +1410,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 
 	/* board serial number */
 	fdt_setprop(blob, 0, "system-serial", getenv("serial#"),
-		    strlen(getenv("serial#") + 1));
+		    strlen(getenv("serial#")) + 1);
 
 	/* board (model contains model from device-tree) */
 	fdt_setprop(blob, 0, "board", info->model,
