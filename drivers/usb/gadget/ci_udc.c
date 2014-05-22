@@ -424,6 +424,7 @@ static void handle_ep_complete(struct ci_ep *ep)
 	item = ci_get_qtd(num, in);
 	ci_invalidate_qtd(num);
 
+	len = (item->info >> 16) & 0x7fff;
 	if (item->info & 0xff)
 		printf("EP%d/%s FAIL info=%x pg0=%x\n",
 		       num, in ? "in" : "out", item->info, item->page0);
@@ -435,7 +436,6 @@ static void handle_ep_complete(struct ci_ep *ep)
 	if (!list_empty(&ep->queue))
 		ci_ep_submit_next_request(ep);
 
-	len = (item->info >> 16) & 0x7fff;
 	ci_req->req.actual = ci_req->req.length - len;
 	ci_debounce(ci_req, in);
 

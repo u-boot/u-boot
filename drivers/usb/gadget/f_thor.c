@@ -219,21 +219,15 @@ static int download_tail(long long int left, int cnt)
 	}
 
 	/*
-	 * To store last "packet" DFU storage backend requires dfu_write with
-	 * size parameter equal to 0
+	 * To store last "packet" or write file from buffer to filesystem
+	 * DFU storage backend requires dfu_flush
 	 *
 	 * This also frees memory malloc'ed by dfu_get_buf(), so no explicit
 	 * need fo call dfu_free_buf() is needed.
 	 */
-	ret = dfu_write(dfu_entity, transfer_buffer, 0, cnt);
-	if (ret)
-		error("DFU write failed [%d] cnt: %d", ret, cnt);
-
 	ret = dfu_flush(dfu_entity, transfer_buffer, 0, cnt);
-	if (ret) {
+	if (ret)
 		error("DFU flush failed!");
-		return ret;
-	}
 
 	return ret;
 }

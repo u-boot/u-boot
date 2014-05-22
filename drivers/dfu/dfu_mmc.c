@@ -18,11 +18,29 @@ static unsigned char __aligned(CONFIG_SYS_CACHELINE_SIZE)
 				dfu_file_buf[CONFIG_SYS_DFU_MAX_FILE_SIZE];
 static long dfu_file_buf_len;
 
+static int mmc_access_part(struct dfu_entity *dfu, struct mmc *mmc, int part)
+{
+	int ret;
+
+	if (part == mmc->part_num)
+		return 0;
+
+	ret = mmc_switch_part(dfu->dev_num, part);
+	if (ret) {
+		error("Cannot switch to partition %d\n", part);
+		return ret;
+	}
+	mmc->part_num = part;
+
+	return 0;
+}
+
 static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
 			u64 offset, void *buf, long *len)
 {
 	struct mmc *mmc = find_mmc_device(dfu->dev_num);
 	u32 blk_start, blk_count, n = 0;
+	int ret, part_num_bkp = 0;
 
 	/*
 	 * We must ensure that we work in lba_blk_size chunks, so ALIGN
@@ -37,6 +55,13 @@ static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
 			dfu->data.mmc.lba_start + dfu->data.mmc.lba_size) {
 		puts("Request would exceed designated area!\n");
 		return -EINVAL;
+	}
+
+	if (dfu->data.mmc.hw_partition >= 0) {
+		part_num_bkp = mmc->part_num;
+		ret = mmc_access_part(dfu, mmc, dfu->data.mmc.hw_partition);
+		if (ret)
+			return ret;
 	}
 
 	debug("%s: %s dev: %d start: %d cnt: %d buf: 0x%p\n", __func__,
@@ -57,7 +82,15 @@ static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
 
 	if (n != blk_count) {
 		error("MMC operation failed");
+		if (dfu->data.mmc.hw_partition >= 0)
+			mmc_access_part(dfu, mmc, part_num_bkp);
 		return -EIO;
+	}
+
+	if (dfu->data.mmc.hw_partition >= 0) {
+		ret = mmc_access_part(dfu, mmc, part_num_bkp);
+		if (ret)
+			return ret;
 	}
 
 	return 0;
@@ -194,6 +227,8 @@ int dfu_read_medium_mmc(struct dfu_entity *dfu, u64 offset, void *buf,
  *	2nd and 3rd:
  *		lba_start and lba_size, for raw write
  *		mmc_dev and mmc_part, for filesystems and part
+ *	4th (optional):
+ *		mmcpart <num> (access to HW eMMC partitions)
  */
 int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *s)
 {
@@ -233,11 +268,22 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *s)
 		return -ENODEV;
 	}
 
+	dfu->data.mmc.hw_partition = -EINVAL;
 	if (!strcmp(entity_type, "raw")) {
 		dfu->layout			= DFU_RAW_ADDR;
 		dfu->data.mmc.lba_start		= second_arg;
 		dfu->data.mmc.lba_size		= third_arg;
 		dfu->data.mmc.lba_blk_size	= mmc->read_bl_len;
+
+		/*
+		 * Check for an extra entry at dfu_alt_info env variable
+		 * specifying the mmc HW defined partition number
+		 */
+		if (s)
+			if (!strcmp(strsep(&s, " "), "mmcpart"))
+				dfu->data.mmc.hw_partition =
+					simple_strtoul(s, NULL, 0);
+
 	} else if (!strcmp(entity_type, "part")) {
 		disk_partition_t partinfo;
 		block_dev_desc_t *blk_dev = &mmc->block_dev;

@@ -131,6 +131,10 @@ int dfu_flush(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 {
 	int ret = 0;
 
+	ret = dfu_write_buffer_drain(dfu);
+	if (ret)
+		return ret;
+
 	if (dfu->flush_medium)
 		ret = dfu->flush_medium(dfu);
 
