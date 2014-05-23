@@ -10,6 +10,7 @@
 #include <config.h>
 #include <common.h>
 #include <command.h>
+#include <errno.h>
 #include <mmc.h>
 #include <part.h>
 #include <malloc.h>
@@ -564,19 +565,19 @@ int mmc_select_hwpart(int dev_num, int hwpart)
 	int ret;
 
 	if (!mmc)
-		return -1;
+		return -ENODEV;
 
 	if (mmc->part_num == hwpart)
 		return 0;
 
 	if (mmc->part_config == MMCPART_NOAVAILABLE) {
 		printf("Card doesn't support part_switch\n");
-		return -1;
+		return -EMEDIUMTYPE;
 	}
 
 	ret = mmc_switch_part(dev_num, hwpart);
 	if (ret)
-		return -1;
+		return ret;
 
 	mmc->part_num = hwpart;
 
