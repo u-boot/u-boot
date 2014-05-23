@@ -418,7 +418,7 @@ static int do_mmc_dev(cmd_tbl_t *cmdtp, int flag,
 		return CMD_RET_USAGE;
 	}
 
-	mmc = init_mmc_device(dev, false);
+	mmc = init_mmc_device(dev, true);
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
