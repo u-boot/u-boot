@@ -103,14 +103,14 @@
 	"initrd_size=0x2000000\0"	\
 	"fdt_addr=0x100000\0"		\
 	"fdt_high=0x10000000\0"		\
-	"netboot=tftpboot 1000000 image.ub && bootm\0"	\
+	"netboot=tftpboot 10000000 image.ub && bootm\0"	\
 	"jtagboot=tftpboot 1000000 uImage && "		\
 		"tftpboot 20000000 system.dtb && "	\
 		"bootm 1000000 - 20000000\0"
 
 #define CONFIG_BOOTARGS			"console=ttyPS0"
-#define CONFIG_BOOTCOMMAND		"echo Hello Xilinx UltraScale MP"
-#define CONFIG_BOOTDELAY		-1
+#define CONFIG_BOOTCOMMAND		"echo Hello Xilinx UltraScale MP; run netboot"
+#define CONFIG_BOOTDELAY		5
 
 /* Do not preserve environment */
 #define CONFIG_ENV_IS_NOWHERE		1
