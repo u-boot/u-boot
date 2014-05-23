@@ -371,16 +371,10 @@ static int do_mmc_rescan(cmd_tbl_t *cmdtp, int flag,
 {
 	struct mmc *mmc;
 
-	mmc = find_mmc_device(curr_device);
-	if (!mmc) {
-		printf("no mmc device at slot %x\n", curr_device);
+	mmc = init_mmc_device(curr_device, true);
+	if (!mmc)
 		return CMD_RET_FAILURE;
-	}
 
-	mmc->has_init = 0;
-
-	if (mmc_init(mmc))
-		return CMD_RET_FAILURE;
 	return CMD_RET_SUCCESS;
 }
 static int do_mmc_part(cmd_tbl_t *cmdtp, int flag,
