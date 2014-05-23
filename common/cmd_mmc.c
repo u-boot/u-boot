@@ -403,7 +403,7 @@ static int do_mmc_part(cmd_tbl_t *cmdtp, int flag,
 static int do_mmc_dev(cmd_tbl_t *cmdtp, int flag,
 		      int argc, char * const argv[])
 {
-	int dev, part = -1, ret;
+	int dev, part = 0, ret;
 	struct mmc *mmc;
 
 	if (argc == 1) {
@@ -426,13 +426,12 @@ static int do_mmc_dev(cmd_tbl_t *cmdtp, int flag,
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
-	if (part != -1) {
-		ret = mmc_select_hwpart(dev, part);
-		printf("switch to partitions #%d, %s\n",
-			part, (!ret) ? "OK" : "ERROR");
-		if (ret)
-			return 1;
-	}
+	ret = mmc_select_hwpart(dev, part);
+	printf("switch to partitions #%d, %s\n",
+	       part, (!ret) ? "OK" : "ERROR");
+	if (ret)
+		return 1;
+
 	curr_device = dev;
 	if (mmc->part_config == MMCPART_NOAVAILABLE)
 		printf("mmc%d is current device\n", curr_device);
