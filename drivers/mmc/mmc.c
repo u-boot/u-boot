@@ -150,6 +150,8 @@ int mmc_send_status(struct mmc *mmc, int timeout)
 #endif
 		return TIMEOUT;
 	}
+	if (cmd.response[0] & MMC_STATUS_SWITCH_ERROR)
+		return SWITCH_ERR;
 
 	return 0;
 }
@@ -501,7 +503,7 @@ static int mmc_change_freq(struct mmc *mmc)
 	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_HS_TIMING, 1);
 
 	if (err)
-		return err;
+		return err == SWITCH_ERR ? 0 : err;
 
 	/* Now check to see that it worked */
 	err = mmc_send_ext_csd(mmc, ext_csd);
@@ -549,6 +551,32 @@ static int mmc_set_capacity(struct mmc *mmc, int part_num)
 
 	return 0;
 }
+
+int mmc_select_hwpart(int dev_num, int hwpart)
+{
+	struct mmc *mmc = find_mmc_device(dev_num);
+	int ret;
+
+	if (!mmc)
+		return -1;
+
+	if (mmc->part_num == hwpart)
+		return 0;
+
+	if (mmc->part_config == MMCPART_NOAVAILABLE) {
+		printf("Card doesn't support part_switch\n");
+		return -1;
+	}
+
+	ret = mmc_switch_part(dev_num, hwpart);
+	if (ret)
+		return -1;
+
+	mmc->part_num = hwpart;
+
+	return 0;
+}
+
 
 int mmc_switch_part(int dev_num, unsigned int part_num)
 {
@@ -1310,10 +1338,13 @@ static int mmc_complete_init(struct mmc *mmc)
 int mmc_init(struct mmc *mmc)
 {
 	int err = IN_PROGRESS;
-	unsigned start = get_timer(0);
+	unsigned start;
 
 	if (mmc->has_init)
 		return 0;
+
+	start = get_timer(0);
+
 	if (!mmc->init_in_progress)
 		err = mmc_start_init(mmc);
 

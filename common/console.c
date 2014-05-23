@@ -537,7 +537,33 @@ int ctrlc(void)
 	}
 	return 0;
 }
+/* Reads user's confirmation.
+   Returns 1 if user's input is "y", "Y", "yes" or "YES"
+*/
+int confirm_yesno(void)
+{
+	int i;
+	char str_input[5];
 
+	/* Flush input */
+	while (tstc())
+		getc();
+	i = 0;
+	while (i < sizeof(str_input)) {
+		str_input[i] = getc();
+		putc(str_input[i]);
+		if (str_input[i] == '\r')
+			break;
+		i++;
+	}
+	putc('\n');
+	if (strncmp(str_input, "y\r", 2) == 0 ||
+	    strncmp(str_input, "Y\r", 2) == 0 ||
+	    strncmp(str_input, "yes\r", 4) == 0 ||
+	    strncmp(str_input, "YES\r", 4) == 0)
+		return 1;
+	return 0;
+}
 /* pass 1 to disable ctrlc() checking, 0 to enable.
  * returns previous state
  */
