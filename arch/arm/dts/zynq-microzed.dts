@@ -11,4 +11,13 @@
 / {
 	model = "Zynq MicroZED Board";
 	compatible = "xlnx,zynq-microzed", "xlnx,zynq-7000";
+
+	aliases {
+		serial0 = &uart1;
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0 0x40000000>;
+	};
 };
