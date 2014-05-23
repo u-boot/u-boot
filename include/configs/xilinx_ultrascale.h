@@ -19,6 +19,8 @@
 
 #define CONFIG_SYS_NO_FLASH
 
+#define XILINX_ULTRASCALE
+
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1
 #define CONFIG_SYS_SDRAM_BASE		0
@@ -56,6 +58,8 @@
 #define CONFIG_ZYNQ_SERIAL_UART0
 #define CONFIG_ZYNQ_SERIAL
 
+#define CONFIG_ZYNQ_QSPI
+
 #define CONFIG_CONS_INDEX		0
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
@@ -90,6 +94,18 @@
 #define CONFIG_BOOTP_MAY_FAIL
 #define CONFIG_BOOTP_SERVERIP
 
+
+#ifdef CONFIG_ZYNQ_QSPI
+# define CONFIG_SF_DEFAULT_SPEED        30000000
+# define CONFIG_SPI_FLASH
+# define CONFIG_SPI_FLASH_BAR
+# define CONFIG_SPI_FLASH_SPANSION
+# define CONFIG_SPI_FLASH_STMICRO
+# define CONFIG_SPI_FLASH_WINBOND
+# define CONFIG_CMD_SPI
+# define CONFIG_CMD_SF
+#endif
+
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR		0x8000000
 
@@ -104,6 +120,7 @@
 	"fdt_addr=0x100000\0"		\
 	"fdt_high=0x10000000\0"		\
 	"netboot=tftpboot 10000000 image.ub && bootm\0"	\
+	"qspiboot=sf probe 0; sf read 10000000 0 1000000; bootm 10080000\0"	\
 	"jtagboot=tftpboot 1000000 uImage && "		\
 		"tftpboot 20000000 system.dtb && "	\
 		"bootm 1000000 - 20000000\0"
