@@ -27,8 +27,4 @@ obj-y	+= boot-common.o
 obj-y	+= lowlevel_init.o
 endif
 
-ifndef CONFIG_SPL_BUILD
-ifneq ($(CONFIG_OMAP44XX)$(CONFIG_OMAP54XX),)
 obj-y	+= mem-common.o
-endif
-endif
