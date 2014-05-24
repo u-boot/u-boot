@@ -11,4 +11,13 @@
 / {
 	model = "Zynq ZED Board";
 	compatible = "xlnx,zynq-zed", "xlnx,zynq-7000";
+
+	aliases {
+		serial0 = &uart1;
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0 0x20000000>;
+	};
 };

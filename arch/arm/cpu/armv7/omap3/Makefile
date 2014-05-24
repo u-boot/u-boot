@@ -9,7 +9,6 @@ obj-y	:= lowlevel_init.o
 
 obj-y	+= board.o
 obj-y	+= clock.o
-obj-y	+= mem.o
 obj-y	+= sys_info.o
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SPL_OMAP3_ID_NAND)	+= spl_id_nand.o

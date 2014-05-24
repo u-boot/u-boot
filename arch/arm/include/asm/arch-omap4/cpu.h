@@ -12,6 +12,8 @@
 #include <asm/types.h>
 #endif /* !(__KERNEL_STRICT_NAMES || __ASSEMBLY__) */
 
+#include <asm/arch/hardware.h>
+
 #ifndef __KERNEL_STRICT_NAMES
 #ifndef __ASSEMBLY__
 struct gptimer {
@@ -56,9 +58,6 @@ struct watchdog {
 #define TCLR_ST			(0x1 << 0)
 #define TCLR_AR			(0x1 << 1)
 #define TCLR_PRE		(0x1 << 5)
-
-/* GPMC BASE */
-#define GPMC_BASE		(OMAP44XX_GPMC_BASE)
 
 /* I2C base */
 #define I2C_BASE1		(OMAP44XX_L4_PER_BASE + 0x70000)

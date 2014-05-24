@@ -1,5 +1,5 @@
-#ifndef __ASM_R8A7791_H__
-#define __ASM_R8A7791_H__
+#ifndef __ASM_R8A7791_GPIO_H__
+#define __ASM_R8A7791_GPIO_H__
 
 /* Pin Function Controller:
  * GPIO_FN_xx - GPIO used to select pin function
@@ -435,4 +435,4 @@ enum {
 	GPIO_FN_MLB_DAT, GPIO_FN_CAN1_RX_B,
 };
 
-#endif /* __ASM_R8A7791_H__ */
+#endif /* __ASM_R8A7791_GPIO_H__ */

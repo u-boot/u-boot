@@ -344,6 +344,7 @@ enum {
  * MAP  - Map this CS to which address(GPMC address space)- Absolute address
  *   >>24 before being used.
  */
+#define GPMC_SIZE_256M	0x0
 #define GPMC_SIZE_128M	0x8
 #define GPMC_SIZE_64M	0xC
 #define GPMC_SIZE_32M	0xE

@@ -447,10 +447,10 @@ struct omap_sys_ctrl_regs const dra7xx_ctrl = {
 	.control_wkup_control_spare_r		= 0x4AE0C5B4,
 	.control_wkup_control_spare_r_c0	= 0x4AE0C5B8,
 	.control_srcomp_east_side_wkup		= 0x4AE0C5BC,
-	.control_efuse_1			= 0x4AE0C5C0,
-	.control_efuse_2			= 0x4AE0C5C4,
-	.control_efuse_3			= 0x4AE0C5C8,
-	.control_efuse_4			= 0x4AE0C5CC,
+	.control_efuse_1			= 0x4AE0C5C8,
+	.control_efuse_2			= 0x4AE0C5CC,
+	.control_efuse_3			= 0x4AE0C5D0,
+	.control_efuse_4			= 0x4AE0C5D4,
 	.control_efuse_13			= 0x4AE0C5F0,
 };
 

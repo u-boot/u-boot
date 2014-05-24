@@ -14,6 +14,9 @@ void lowlevel_init(void)
 {
 }
 
+#define ZYNQ_SILICON_VER_MASK	0xF0000000
+#define ZYNQ_SILICON_VER_SHIFT	28
+
 int arch_cpu_init(void)
 {
 	zynq_slcr_unlock();
@@ -40,6 +43,16 @@ int arch_cpu_init(void)
 	zynq_slcr_lock();
 
 	return 0;
+}
+
+unsigned int zynq_get_silicon_version(void)
+{
+	unsigned int ver;
+
+	ver = (readl(&devcfg_base->mctrl) &
+	       ZYNQ_SILICON_VER_MASK) >> ZYNQ_SILICON_VER_SHIFT;
+
+	return ver;
 }
 
 void reset_cpu(ulong addr)

@@ -15,7 +15,9 @@ extern void zynq_slcr_devcfg_disable(void);
 extern void zynq_slcr_devcfg_enable(void);
 extern u32 zynq_slcr_get_boot_mode(void);
 extern u32 zynq_slcr_get_idcode(void);
+extern int zynq_slcr_get_mio_pin_status(const char *periph);
 extern void zynq_ddrc_init(void);
+extern unsigned int zynq_get_silicon_version(void);
 
 /* Driver extern functions */
 extern int zynq_sdhci_init(u32 regbase);
