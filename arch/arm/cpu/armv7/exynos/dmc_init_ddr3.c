@@ -230,6 +230,7 @@ int ddr3_mem_ctrl_init(struct mem_timings *mem, int reset)
 	struct exynos5420_dmc *drex0, *drex1;
 	struct exynos5420_tzasc *tzasc0, *tzasc1;
 	uint32_t val, n_lock_r, n_lock_w_phy0, n_lock_w_phy1;
+	uint32_t lock0_info, lock1_info;
 	int chip;
 	int i;
 
@@ -391,7 +392,41 @@ int ddr3_mem_ctrl_init(struct mem_timings *mem, int reset)
 		 */
 		dmc_config_mrs(mem, &drex0->directcmd);
 		dmc_config_mrs(mem, &drex1->directcmd);
-	} else {
+	}
+
+	/*
+	 * Get PHY_CON13 from both phys.  Gate CLKM around reading since
+	 * PHY_CON13 is glitchy when CLKM is running.  We're paranoid and
+	 * wait until we get a "fine lock", though a coarse lock is probably
+	 * OK (we only use the coarse numbers below).  We try to gate the
+	 * clock for as short a time as possible in case SDRAM is somehow
+	 * sensitive.  sdelay(10) in the loop is arbitrary to make sure
+	 * there is some time for PHY_CON13 to get updated.  In practice
+	 * no delay appears to be needed.
+	 */
+	val = readl(&clk->gate_bus_cdrex);
+	while (true) {
+		writel(val & ~0x1, &clk->gate_bus_cdrex);
+		lock0_info = readl(&phy0_ctrl->phy_con13);
+		writel(val, &clk->gate_bus_cdrex);
+
+		if ((lock0_info & CTRL_FINE_LOCKED) == CTRL_FINE_LOCKED)
+			break;
+
+		sdelay(10);
+	}
+	while (true) {
+		writel(val & ~0x2, &clk->gate_bus_cdrex);
+		lock1_info = readl(&phy1_ctrl->phy_con13);
+		writel(val, &clk->gate_bus_cdrex);
+
+		if ((lock1_info & CTRL_FINE_LOCKED) == CTRL_FINE_LOCKED)
+			break;
+
+		sdelay(10);
+	}
+
+	if (!reset) {
 		/*
 		 * During Suspend-Resume & S/W-Reset, as soon as PMU releases
 		 * pad retention, CKE goes high. This causes memory contents
@@ -442,15 +477,13 @@ int ddr3_mem_ctrl_init(struct mem_timings *mem, int reset)
 		val |= (RDLVL_PASS_ADJ_VAL << RDLVL_PASS_ADJ_OFFSET);
 		writel(val, &phy1_ctrl->phy_con1);
 
-		n_lock_r = readl(&phy0_ctrl->phy_con13);
-		n_lock_w_phy0 = (n_lock_r & CTRL_LOCK_COARSE_MASK) >> 2;
+		n_lock_w_phy0 = (lock0_info & CTRL_LOCK_COARSE_MASK) >> 2;
 		n_lock_r = readl(&phy0_ctrl->phy_con12);
 		n_lock_r &= ~CTRL_DLL_ON;
 		n_lock_r |= n_lock_w_phy0;
 		writel(n_lock_r, &phy0_ctrl->phy_con12);
 
-		n_lock_r = readl(&phy1_ctrl->phy_con13);
-		n_lock_w_phy1 = (n_lock_r & CTRL_LOCK_COARSE_MASK) >> 2;
+		n_lock_w_phy1 = (lock1_info & CTRL_LOCK_COARSE_MASK) >> 2;
 		n_lock_r = readl(&phy1_ctrl->phy_con12);
 		n_lock_r &= ~CTRL_DLL_ON;
 		n_lock_r |= n_lock_w_phy1;
