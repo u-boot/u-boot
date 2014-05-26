@@ -421,6 +421,9 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 		bank_sel = spi_flash_bank(flash, bank_addr);
 		if (bank_sel < 0)
 			return ret;
+		if ((flash->dual_flash == SF_DUAL_STACKED_FLASH) &&
+		    (flash->spi->flags & SPI_XFER_U_PAGE))
+			bank_sel += (flash->size >> 1)/SPI_FLASH_16MB_BOUN;
 #endif
 		remain_len = ((SPI_FLASH_16MB_BOUN << flash->shift) *
 				(bank_sel + 1)) - offset;
