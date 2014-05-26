@@ -59,6 +59,7 @@
 #define CONFIG_ZYNQ_SERIAL
 
 #define CONFIG_ZYNQ_QSPI
+#define CONFIG_ZYNQ_SDHCI0
 
 #define CONFIG_CONS_INDEX		0
 #define CONFIG_BAUDRATE			115200
@@ -106,6 +107,14 @@
 # define CONFIG_CMD_SF
 #endif
 
+#if defined(CONFIG_ZYNQ_SDHCI0) || defined(CONFIG_ZYNQ_SDHCI1)
+# define CONFIG_MMC
+# define CONFIG_GENERIC_MMC
+# define CONFIG_SDHCI
+# define CONFIG_ZYNQ_SDHCI
+# define CONFIG_CMD_MMC
+#endif
+
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LOAD_ADDR		0x8000000
 
@@ -121,6 +130,7 @@
 	"fdt_high=0x10000000\0"		\
 	"netboot=tftpboot 10000000 image.ub && bootm\0"	\
 	"qspiboot=sf probe 0; sf read 10000000 0 1000000; bootm 10080000\0"	\
+	"sdboot=mmcinfo && fatload mmc 0:0 10000000 image.ub && bootm 10000000\0"	\
 	"jtagboot=tftpboot 1000000 uImage && "		\
 		"tftpboot 20000000 system.dtb && "	\
 		"bootm 1000000 - 20000000\0"

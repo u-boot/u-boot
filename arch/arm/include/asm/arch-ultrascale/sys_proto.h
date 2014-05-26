@@ -13,5 +13,6 @@ static inline void zynq_slcr_gem_clk_setup(u32 gem_id, unsigned long clk_rate)
 {
 }
 
+extern int zynq_sdhci_init(u32 regbase);
 
 #endif /* _ASM_ARCH_SYS_PROTO_H */
