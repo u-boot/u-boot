@@ -6,6 +6,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <common.h>
 #include <config.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
@@ -16,7 +17,11 @@
 #include "exynos5_setup.h"
 #include "clock_init.h"
 
-#define TIMEOUT	10000
+#define TIMEOUT_US		10000
+#define NUM_BYTE_LANES		4
+#define DEFAULT_DQS		8
+#define DEFAULT_DQS_X4		(DEFAULT_DQS << 24) || (DEFAULT_DQS << 16) \
+				|| (DEFAULT_DQS << 8) || (DEFAULT_DQS << 0)
 
 #ifdef CONFIG_EXYNOS5250
 static void reset_phy_ctrl(void)
@@ -176,7 +181,7 @@ int ddr3_mem_ctrl_init(struct mem_timings *mem, int reset)
 		writel(val, &phy1_ctrl->phy_con1);
 
 		writel(CTRL_RDLVL_GATE_ENABLE, &dmc->rdlvl_config);
-		i = TIMEOUT;
+		i = TIMEOUT_US;
 		while ((readl(&dmc->phystatus) &
 			(RDLVL_COMPLETE_CHO | RDLVL_COMPLETE_CH1)) !=
 			(RDLVL_COMPLETE_CHO | RDLVL_COMPLETE_CH1) && i > 0) {
@@ -220,6 +225,219 @@ int ddr3_mem_ctrl_init(struct mem_timings *mem, int reset)
 #endif
 
 #ifdef CONFIG_EXYNOS5420
+/**
+ * RAM address to use in the test.
+ *
+ * We'll use 4 words at this address and 4 at this address + 0x80 (Ares
+ * interleaves channels every 128 bytes).  This will allow us to evaluate all of
+ * the chips in a 1 chip per channel (2GB) system and half the chips in a 2
+ * chip per channel (4GB) system.  We can't test the 2nd chip since we need to
+ * do tests before the 2nd chip is enabled.  Looking at the 2nd chip isn't
+ * critical because the 1st and 2nd chip have very similar timings (they'd
+ * better have similar timings, since there's only a single adjustment that is
+ * shared by both chips).
+ */
+const unsigned int test_addr = CONFIG_SYS_SDRAM_BASE;
+
+/* Test pattern with which RAM will be tested */
+static const unsigned int test_pattern[] = {
+	0x5a5a5a5a,
+	0xa5a5a5a5,
+	0xf0f0f0f0,
+	0x0f0f0f0f,
+};
+
+/**
+ * This function is a test vector for sw read leveling,
+ * it compares the read data with the written data.
+ *
+ * @param ch			DMC channel number
+ * @param byte_lane		which DQS byte offset,
+ *				possible values are 0,1,2,3
+ * @return			TRUE if memory was good, FALSE if not.
+ */
+static bool dmc_valid_window_test_vector(int ch, int byte_lane)
+{
+	unsigned int read_data;
+	unsigned int mask;
+	int i;
+
+	mask = 0xFF << (8 * byte_lane);
+
+	for (i = 0; i < ARRAY_SIZE(test_pattern); i++) {
+		read_data = readl(test_addr + i * 4 + ch * 0x80);
+		if ((read_data & mask) != (test_pattern[i] & mask))
+			return false;
+	}
+
+	return true;
+}
+
+/**
+ * This function returns current read offset value.
+ *
+ * @param phy_ctrl	pointer to the current phy controller
+ */
+static unsigned int dmc_get_read_offset_value(struct exynos5420_phy_control
+					       *phy_ctrl)
+{
+	return readl(&phy_ctrl->phy_con4);
+}
+
+/**
+ * This function performs resync, so that slave DLL is updated.
+ *
+ * @param phy_ctrl	pointer to the current phy controller
+ */
+static void ddr_phy_set_do_resync(struct exynos5420_phy_control *phy_ctrl)
+{
+	setbits_le32(&phy_ctrl->phy_con10, PHY_CON10_CTRL_OFFSETR3);
+	clrbits_le32(&phy_ctrl->phy_con10, PHY_CON10_CTRL_OFFSETR3);
+}
+
+/**
+ * This function sets read offset value register with 'offset'.
+ *
+ * ...we also call call ddr_phy_set_do_resync().
+ *
+ * @param phy_ctrl	pointer to the current phy controller
+ * @param offset	offset to read DQS
+ */
+static void dmc_set_read_offset_value(struct exynos5420_phy_control *phy_ctrl,
+				      unsigned int offset)
+{
+	writel(offset, &phy_ctrl->phy_con4);
+	ddr_phy_set_do_resync(phy_ctrl);
+}
+
+/**
+ * Convert a 2s complement byte to a byte with a sign bit.
+ *
+ * NOTE: you shouldn't use normal math on the number returned by this function.
+ *   As an example, -10 = 0xf6.  After this function -10 = 0x8a.  If you wanted
+ *   to do math and get the average of 10 and -10 (should be 0):
+ *     0x8a + 0xa = 0x94 (-108)
+ *     0x94 / 2   = 0xca (-54)
+ *   ...and 0xca = sign bit plus 0x4a, or -74
+ *
+ * Also note that you lose the ability to represent -128 since there are two
+ * representations of 0.
+ *
+ * @param b	The byte to convert in two's complement.
+ * @return	The 7-bit value + sign bit.
+ */
+
+unsigned char make_signed_byte(signed char b)
+{
+	if (b < 0)
+		return 0x80 | -b;
+	else
+		return b;
+}
+
+/**
+ * Test various shifts starting at 'start' and going to 'end'.
+ *
+ * For each byte lane, we'll walk through shift starting at 'start' and going
+ * to 'end' (inclusive).  When we are finally able to read the test pattern
+ * we'll store the value in the results array.
+ *
+ * @param phy_ctrl		pointer to the current phy controller
+ * @param ch			channel number
+ * @param start			the start shift.  -127 to 127
+ * @param end			the end shift.  -127 to 127
+ * @param results		we'll store results for each byte lane.
+ */
+
+void test_shifts(struct exynos5420_phy_control *phy_ctrl, int ch,
+		 int start, int end, int results[NUM_BYTE_LANES])
+{
+	int incr = (start < end) ? 1 : -1;
+	int byte_lane;
+
+	for (byte_lane = 0; byte_lane < NUM_BYTE_LANES; byte_lane++) {
+		int shift;
+
+		dmc_set_read_offset_value(phy_ctrl, DEFAULT_DQS_X4);
+		results[byte_lane] = DEFAULT_DQS;
+
+		for (shift = start; shift != (end + incr); shift += incr) {
+			unsigned int byte_offsetr;
+			unsigned int offsetr;
+
+			byte_offsetr = make_signed_byte(shift);
+
+			offsetr = dmc_get_read_offset_value(phy_ctrl);
+			offsetr &= ~(0xFF << (8 * byte_lane));
+			offsetr |= (byte_offsetr << (8 * byte_lane));
+			dmc_set_read_offset_value(phy_ctrl, offsetr);
+
+			if (dmc_valid_window_test_vector(ch, byte_lane)) {
+				results[byte_lane] = shift;
+				break;
+			}
+		}
+	}
+}
+
+/**
+ * This function performs SW read leveling to compensate DQ-DQS skew at
+ * receiver it first finds the optimal read offset value on each DQS
+ * then applies the value to PHY.
+ *
+ * Read offset value has its min margin and max margin. If read offset
+ * value exceeds its min or max margin, read data will have corruption.
+ * To avoid this we are doing sw read leveling.
+ *
+ * SW read leveling is:
+ * 1> Finding offset value's left_limit and right_limit
+ * 2> and calculate its center value
+ * 3> finally programs that center value to PHY
+ * 4> then PHY gets its optimal offset value.
+ *
+ * @param phy_ctrl		pointer to the current phy controller
+ * @param ch			channel number
+ * @param coarse_lock_val	The coarse lock value read from PHY_CON13.
+ *				(0 - 0x7f)
+ */
+static void software_find_read_offset(struct exynos5420_phy_control *phy_ctrl,
+				      int ch, unsigned int coarse_lock_val)
+{
+	unsigned int offsetr_cent;
+	int byte_lane;
+	int left_limit;
+	int right_limit;
+	int left[NUM_BYTE_LANES];
+	int right[NUM_BYTE_LANES];
+	int i;
+
+	/* Fill the memory with test patterns */
+	for (i = 0; i < ARRAY_SIZE(test_pattern); i++)
+		writel(test_pattern[i], test_addr + i * 4 + ch * 0x80);
+
+	/* Figure out the limits we'll test with; keep -127 < limit < 127 */
+	left_limit = DEFAULT_DQS - coarse_lock_val;
+	right_limit = DEFAULT_DQS + coarse_lock_val;
+	if (right_limit > 127)
+		right_limit = 127;
+
+	/* Fill in the location where reads were OK from left and right */
+	test_shifts(phy_ctrl, ch, left_limit, right_limit, left);
+	test_shifts(phy_ctrl, ch, right_limit, left_limit, right);
+
+	/* Make a final value by taking the center between the left and right */
+	offsetr_cent = 0;
+	for (byte_lane = 0; byte_lane < NUM_BYTE_LANES; byte_lane++) {
+		int temp_center;
+		unsigned int vmwc;
+
+		temp_center = (left[byte_lane] + right[byte_lane]) / 2;
+		vmwc = make_signed_byte(temp_center);
+		offsetr_cent |= vmwc << (8 * byte_lane);
+	}
+	dmc_set_read_offset_value(phy_ctrl, offsetr_cent);
+}
+
 int ddr3_mem_ctrl_init(struct mem_timings *mem, int reset)
 {
 	struct exynos5420_clock *clk =
@@ -229,6 +447,7 @@ int ddr3_mem_ctrl_init(struct mem_timings *mem, int reset)
 	struct exynos5420_phy_control *phy0_ctrl, *phy1_ctrl;
 	struct exynos5420_dmc *drex0, *drex1;
 	struct exynos5420_tzasc *tzasc0, *tzasc1;
+	struct exynos5_power *pmu;
 	uint32_t val, n_lock_r, n_lock_w_phy0, n_lock_w_phy1;
 	uint32_t lock0_info, lock1_info;
 	int chip;
@@ -243,6 +462,8 @@ int ddr3_mem_ctrl_init(struct mem_timings *mem, int reset)
 	tzasc0 = (struct exynos5420_tzasc *)samsung_get_base_dmc_tzasc();
 	tzasc1 = (struct exynos5420_tzasc *)(samsung_get_base_dmc_tzasc()
 							+ DMC_OFFSET);
+	pmu = (struct exynos5_power *)EXYNOS5420_POWER_BASE;
+
 	/* Enable PAUSE for DREX */
 	setbits_le32(&clk->pause, ENABLE_BIT);
 
@@ -512,7 +733,7 @@ int ddr3_mem_ctrl_init(struct mem_timings *mem, int reset)
 		writel(val, &phy1_ctrl->phy_con1);
 
 		writel(CTRL_RDLVL_GATE_ENABLE, &drex0->rdlvl_config);
-		i = TIMEOUT;
+		i = TIMEOUT_US;
 		while (((readl(&drex0->phystatus) & RDLVL_COMPLETE_CHO) !=
 			RDLVL_COMPLETE_CHO) && (i > 0)) {
 			/*
@@ -527,7 +748,7 @@ int ddr3_mem_ctrl_init(struct mem_timings *mem, int reset)
 		writel(CTRL_RDLVL_GATE_DISABLE, &drex0->rdlvl_config);
 
 		writel(CTRL_RDLVL_GATE_ENABLE, &drex1->rdlvl_config);
-		i = TIMEOUT;
+		i = TIMEOUT_US;
 		while (((readl(&drex1->phystatus) & RDLVL_COMPLETE_CHO) !=
 			RDLVL_COMPLETE_CHO) && (i > 0)) {
 			/*
@@ -559,6 +780,27 @@ int ddr3_mem_ctrl_init(struct mem_timings *mem, int reset)
 
 		setbits_le32(&phy0_ctrl->phy_con2, DLL_DESKEW_EN);
 		setbits_le32(&phy1_ctrl->phy_con2, DLL_DESKEW_EN);
+	}
+
+	/*
+	 * Do software read leveling
+	 *
+	 * Do this before we turn on auto refresh since the auto refresh can
+	 * be in conflict with the resync operation that's part of setting
+	 * read leveling.
+	 */
+	if (!reset) {
+		/* restore calibrated value after resume */
+		dmc_set_read_offset_value(phy0_ctrl, readl(&pmu->pmu_spare1));
+		dmc_set_read_offset_value(phy1_ctrl, readl(&pmu->pmu_spare2));
+	} else {
+		software_find_read_offset(phy0_ctrl, 0,
+					  CTRL_LOCK_COARSE(lock0_info));
+		software_find_read_offset(phy1_ctrl, 1,
+					  CTRL_LOCK_COARSE(lock1_info));
+		/* save calibrated value to restore after resume */
+		writel(dmc_get_read_offset_value(phy0_ctrl), &pmu->pmu_spare1);
+		writel(dmc_get_read_offset_value(phy1_ctrl), &pmu->pmu_spare2);
 	}
 
 	/* Send PALL command */
