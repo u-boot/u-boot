@@ -181,12 +181,31 @@ int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 			UUID_STR_FORMAT_GUID);
 #endif
 
-	debug("%s: start 0x" LBAF ", size 0x" LBAF ", name %s", __func__,
+	debug("%s: start 0x" LBAF ", size 0x" LBAF ", name %s\n", __func__,
 	      info->start, info->size, info->name);
 
 	/* Remember to free pte */
 	free(gpt_pte);
 	return 0;
+}
+
+int get_partition_info_efi_by_name(block_dev_desc_t *dev_desc,
+	const char *name, disk_partition_t *info)
+{
+	int ret;
+	int i;
+	for (i = 1; i < GPT_ENTRY_NUMBERS; i++) {
+		ret = get_partition_info_efi(dev_desc, i, info);
+		if (ret != 0) {
+			/* no more entries in table */
+			return -1;
+		}
+		if (strcmp(name, (const char *)info->name) == 0) {
+			/* matched */
+			return 0;
+		}
+	}
+	return -2;
 }
 
 int test_part_efi(block_dev_desc_t * dev_desc)
