@@ -162,7 +162,7 @@ void mem_ctrl_init(int reset)
 
 	/* If there are any other memory variant, add their init call below */
 	if (param->mem_type == DDR_MODE_DDR3) {
-		ret = ddr3_mem_ctrl_init(mem, param->mem_iv_size, reset);
+		ret = ddr3_mem_ctrl_init(mem, reset);
 		if (ret) {
 			/* will hang if failed to init memory control */
 			while (1)

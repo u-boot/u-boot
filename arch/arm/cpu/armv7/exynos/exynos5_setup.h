@@ -890,16 +890,11 @@ enum {
 /*
  * Memory variant specific initialization code for DDR3
  *
- * @param mem		Memory timings for this memory type.
- * @param mem_iv_size	Memory interleaving size is a configurable parameter
- *			which the DMC uses to decide how to split a memory
- *			chunk into smaller chunks to support concurrent
- *			accesses; may vary across boards.
+ * @param mem          Memory timings for this memory type.
  * @param reset         Reset DDR PHY during initialization.
  * @return 0 if ok, SETUP_ERR_... if there is a problem
  */
-int ddr3_mem_ctrl_init(struct mem_timings *mem, unsigned long mem_iv_size,
-			int reset);
+int ddr3_mem_ctrl_init(struct mem_timings *mem, int reset);
 
 /* Memory variant specific initialization code for LPDDR3 */
 void lpddr3_mem_ctrl_init(void);

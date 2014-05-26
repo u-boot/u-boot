@@ -28,8 +28,7 @@ static void reset_phy_ctrl(void)
 	writel(DDR3PHY_CTRL_PHY_RESET, &clk->lpddr3phy_ctrl);
 }
 
-int ddr3_mem_ctrl_init(struct mem_timings *mem, unsigned long mem_iv_size,
-		       int reset)
+int ddr3_mem_ctrl_init(struct mem_timings *mem, int reset)
 {
 	unsigned int val;
 	struct exynos5_phy_control *phy0_ctrl, *phy1_ctrl;
@@ -221,8 +220,7 @@ int ddr3_mem_ctrl_init(struct mem_timings *mem, unsigned long mem_iv_size,
 #endif
 
 #ifdef CONFIG_EXYNOS5420
-int ddr3_mem_ctrl_init(struct mem_timings *mem, unsigned long mem_iv_size,
-		       int reset)
+int ddr3_mem_ctrl_init(struct mem_timings *mem, int reset)
 {
 	struct exynos5420_clock *clk =
 		(struct exynos5420_clock *)samsung_get_base_clock();
@@ -244,7 +242,6 @@ int ddr3_mem_ctrl_init(struct mem_timings *mem, unsigned long mem_iv_size,
 	tzasc0 = (struct exynos5420_tzasc *)samsung_get_base_dmc_tzasc();
 	tzasc1 = (struct exynos5420_tzasc *)(samsung_get_base_dmc_tzasc()
 							+ DMC_OFFSET);
-
 	/* Enable PAUSE for DREX */
 	setbits_le32(&clk->pause, ENABLE_BIT);
 
