@@ -1637,6 +1637,12 @@ CBFS (Coreboot Filesystem) support
 		filesystem. Available commands are cbfsinit, cbfsinfo, cbfsls
 		and cbfsload.
 
+- FAT(File Allocation Table) filesystem cluster size:
+		CONFIG_FS_FAT_MAX_CLUSTSIZE
+
+		Define the max cluster size for fat operations else
+		a default value of 65536 will be defined.
+
 - Keyboard Support:
 		CONFIG_ISA_KEYBOARD
 
