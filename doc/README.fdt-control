@@ -66,11 +66,11 @@ Tools
 
 To use this feature you will need to get the device tree compiler here:
 
-	git://jdl.com/software/dtc.git
+	git://git.kernel.org/pub/scm/utils/dtc/dtc.git
 
 For example:
 
-	$ git clone git://jdl.com/software/dtc.git
+	$ git clone git://git.kernel.org/pub/scm/utils/dtc/dtc.git
 	$ cd dtc
 	$ make
 	$ sudo make install
