@@ -51,6 +51,10 @@ struct macb_dma_desc {
 	u32	ctrl;
 };
 
+#define DMA_DESC_BYTES(n)	(n * sizeof(struct macb_dma_desc))
+#define MACB_TX_DMA_DESC_SIZE	(DMA_DESC_BYTES(MACB_TX_RING_SIZE))
+#define MACB_RX_DMA_DESC_SIZE	(DMA_DESC_BYTES(MACB_RX_RING_SIZE))
+
 #define RXADDR_USED		0x00000001
 #define RXADDR_WRAP		0x00000002
 
@@ -194,6 +198,39 @@ int macb_miiphy_write(const char *devname, u8 phy_adr, u8 reg, u16 value)
 }
 #endif
 
+#define RX	1
+#define TX	0
+static inline void macb_invalidate_ring_desc(struct macb_device *macb, bool rx)
+{
+	if (rx)
+		invalidate_dcache_range(macb->rx_ring_dma, macb->rx_ring_dma +
+			MACB_RX_DMA_DESC_SIZE);
+	else
+		invalidate_dcache_range(macb->tx_ring_dma, macb->tx_ring_dma +
+			MACB_TX_DMA_DESC_SIZE);
+}
+
+static inline void macb_flush_ring_desc(struct macb_device *macb, bool rx)
+{
+	if (rx)
+		flush_dcache_range(macb->rx_ring_dma, macb->rx_ring_dma +
+			MACB_RX_DMA_DESC_SIZE);
+	else
+		flush_dcache_range(macb->tx_ring_dma, macb->tx_ring_dma +
+			MACB_TX_DMA_DESC_SIZE);
+}
+
+static inline void macb_flush_rx_buffer(struct macb_device *macb)
+{
+	flush_dcache_range(macb->rx_buffer_dma, macb->rx_buffer_dma +
+				MACB_RX_BUFFER_SIZE);
+}
+
+static inline void macb_invalidate_rx_buffer(struct macb_device *macb)
+{
+	invalidate_dcache_range(macb->rx_buffer_dma, macb->rx_buffer_dma +
+				MACB_RX_BUFFER_SIZE);
+}
 
 #if defined(CONFIG_CMD_NET)
 
@@ -218,6 +255,9 @@ static int macb_send(struct eth_device *netdev, void *packet, int length)
 	macb->tx_ring[tx_head].ctrl = ctrl;
 	macb->tx_ring[tx_head].addr = paddr;
 	barrier();
+	macb_flush_ring_desc(macb, TX);
+	/* Do we need check paddr and length is dcache line aligned? */
+	flush_dcache_range(paddr, paddr + length);
 	macb_writel(macb, NCR, MACB_BIT(TE) | MACB_BIT(RE) | MACB_BIT(TSTART));
 
 	/*
@@ -226,6 +266,7 @@ static int macb_send(struct eth_device *netdev, void *packet, int length)
 	 */
 	for (i = 0; i <= MACB_TX_TIMEOUT; i++) {
 		barrier();
+		macb_invalidate_ring_desc(macb, TX);
 		ctrl = macb->tx_ring[tx_head].ctrl;
 		if (ctrl & TXBUF_USED)
 			break;
@@ -254,6 +295,8 @@ static void reclaim_rx_buffers(struct macb_device *macb,
 	unsigned int i;
 
 	i = macb->rx_tail;
+
+	macb_invalidate_ring_desc(macb, RX);
 	while (i > new_tail) {
 		macb->rx_ring[i].addr &= ~RXADDR_USED;
 		i++;
@@ -267,6 +310,7 @@ static void reclaim_rx_buffers(struct macb_device *macb,
 	}
 
 	barrier();
+	macb_flush_ring_desc(macb, RX);
 	macb->rx_tail = new_tail;
 }
 
@@ -280,6 +324,8 @@ static int macb_recv(struct eth_device *netdev)
 	u32 status;
 
 	for (;;) {
+		macb_invalidate_ring_desc(macb, RX);
+
 		if (!(macb->rx_ring[rx_tail].addr & RXADDR_USED))
 			return -1;
 
@@ -293,6 +339,8 @@ static int macb_recv(struct eth_device *netdev)
 		if (status & RXBUF_FRAME_END) {
 			buffer = macb->rx_buffer + 128 * macb->rx_tail;
 			length = status & RXBUF_FRMLEN_MASK;
+
+			macb_invalidate_rx_buffer(macb);
 			if (wrapped) {
 				unsigned int headlen, taillen;
 
@@ -506,6 +554,9 @@ static int macb_init(struct eth_device *netdev, bd_t *bd)
 		macb->rx_ring[i].ctrl = 0;
 		paddr += 128;
 	}
+	macb_flush_ring_desc(macb, RX);
+	macb_flush_rx_buffer(macb);
+
 	for (i = 0; i < MACB_TX_RING_SIZE; i++) {
 		macb->tx_ring[i].addr = 0;
 		if (i == (MACB_TX_RING_SIZE - 1))
@@ -513,6 +564,8 @@ static int macb_init(struct eth_device *netdev, bd_t *bd)
 		else
 			macb->tx_ring[i].ctrl = TXBUF_USED;
 	}
+	macb_flush_ring_desc(macb, TX);
+
 	macb->rx_tail = 0;
 	macb->tx_head = 0;
 	macb->tx_tail = 0;
@@ -658,12 +711,12 @@ int macb_eth_initialize(int id, void *regs, unsigned int phy_addr)
 
 	macb->rx_buffer = dma_alloc_coherent(MACB_RX_BUFFER_SIZE,
 					     &macb->rx_buffer_dma);
-	macb->rx_ring = dma_alloc_coherent(MACB_RX_RING_SIZE
-					   * sizeof(struct macb_dma_desc),
+	macb->rx_ring = dma_alloc_coherent(MACB_RX_DMA_DESC_SIZE,
 					   &macb->rx_ring_dma);
-	macb->tx_ring = dma_alloc_coherent(MACB_TX_RING_SIZE
-					   * sizeof(struct macb_dma_desc),
+	macb->tx_ring = dma_alloc_coherent(MACB_TX_DMA_DESC_SIZE,
 					   &macb->tx_ring_dma);
+
+	/* TODO: we need check the rx/tx_ring_dma is dcache line aligned */
 
 	macb->regs = regs;
 	macb->phy_addr = phy_addr;
