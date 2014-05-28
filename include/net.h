@@ -601,7 +601,7 @@ static inline ulong NetReadLong(ulong *from)
 {
 	ulong l;
 
-	memcpy((void *)&l, (void *)from, sizeof(l));
+	memcpy((void *)&l, (void *)from, sizeof(u32));
 	return l;
 }
 
@@ -620,7 +620,7 @@ static inline void NetCopyIP(void *to, void *from)
 /* copy ulong */
 static inline void NetCopyLong(ulong *to, ulong *from)
 {
-	memcpy((void *)to, (void *)from, sizeof(ulong));
+	memcpy((void *)to, (void *)from, sizeof(u32));
 }
 
 /**
