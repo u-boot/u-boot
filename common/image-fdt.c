@@ -29,6 +29,7 @@ static void fdt_error(const char *msg)
 	puts(" - must RESET the board to recover.\n");
 }
 
+#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
 static const image_header_t *image_get_fdt(ulong fdt_addr)
 {
 	const image_header_t *fdt_hdr = map_sysmem(fdt_addr, 0);
@@ -61,6 +62,7 @@ static const image_header_t *image_get_fdt(ulong fdt_addr)
 	}
 	return fdt_hdr;
 }
+#endif
 
 /**
  * boot_fdt_add_mem_rsv_regions - Mark the memreserve sections as unusable
@@ -220,11 +222,13 @@ error:
 int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 		bootm_headers_t *images, char **of_flat_tree, ulong *of_size)
 {
+#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
 	const image_header_t *fdt_hdr;
+	ulong		load, load_end;
+	ulong		image_start, image_data, image_end;
+#endif
 	ulong		fdt_addr;
 	char		*fdt_blob = NULL;
-	ulong		image_start, image_data, image_end;
-	ulong		load, load_end;
 	void		*buf;
 #if defined(CONFIG_FIT)
 	const char	*fit_uname_config = images->fit_uname_cfg;
@@ -298,6 +302,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 		 */
 		buf = map_sysmem(fdt_addr, 0);
 		switch (genimg_get_format(buf)) {
+#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
 		case IMAGE_FORMAT_LEGACY:
 			/* verify fdt_addr points to a valid image header */
 			printf("## Flattened Device Tree from Legacy Image at %08lx\n",
@@ -337,6 +342,7 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 
 			fdt_addr = load;
 			break;
+#endif
 		case IMAGE_FORMAT_FIT:
 			/*
 			 * This case will catch both: new uImage format

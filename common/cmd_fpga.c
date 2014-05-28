@@ -201,6 +201,7 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 #if defined(CONFIG_CMD_FPGA_LOADMK)
 	case FPGA_LOADMK:
 		switch (genimg_get_format(fpga_data)) {
+#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
 		case IMAGE_FORMAT_LEGACY:
 			{
 				image_header_t *hdr =
@@ -229,6 +230,7 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 					       BIT_FULL);
 			}
 			break;
+#endif
 #if defined(CONFIG_FIT)
 		case IMAGE_FORMAT_FIT:
 			{

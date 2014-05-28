@@ -3200,6 +3200,19 @@ FIT uImage format:
  -150	common/cmd_nand.c	Incorrect FIT image format
   151	common/cmd_nand.c	FIT image format OK
 
+- legacy image format:
+		CONFIG_IMAGE_FORMAT_LEGACY
+		enables the legacy image format support in U-Boot.
+
+		Default:
+		enabled if CONFIG_FIT_SIGNATURE is not defined.
+
+		CONFIG_DISABLE_IMAGE_LEGACY
+		disable the legacy image format
+
+		This define is introduced, as the legacy image format is
+		enabled per default for backward compatibility.
+
 - FIT image support:
 		CONFIG_FIT
 		Enable support for the FIT uImage format.
@@ -3215,6 +3228,11 @@ FIT uImage format:
 		This option enables signature verification of FIT uImages,
 		using a hash signed and verified using RSA. See
 		doc/uImage.FIT/signature.txt for more details.
+
+		WARNING: When relying on signed FIT images with required
+		signature check the legacy image format is default
+		disabled. If a board need legacy image format support
+		enable this through CONFIG_IMAGE_FORMAT_LEGACY
 
 - Standalone program support:
 		CONFIG_STANDALONE_LOAD_ADDR

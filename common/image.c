@@ -44,8 +44,10 @@ extern int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
 static const image_header_t *image_get_ramdisk(ulong rd_addr, uint8_t arch,
 						int verify);
+#endif
 #else
 #include "mkimage.h"
 #include <u-boot/md5.h>
@@ -330,6 +332,7 @@ void image_print_contents(const void *ptr)
 
 
 #ifndef USE_HOSTCC
+#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
 /**
  * image_get_ramdisk - get and verify ramdisk image
  * @rd_addr: ramdisk image start address
@@ -391,6 +394,7 @@ static const image_header_t *image_get_ramdisk(ulong rd_addr, uint8_t arch,
 
 	return rd_hdr;
 }
+#endif
 #endif /* !USE_HOSTCC */
 
 /*****************************************************************************/
@@ -654,22 +658,23 @@ int genimg_get_comp_id(const char *name)
  */
 int genimg_get_format(const void *img_addr)
 {
-	ulong format = IMAGE_FORMAT_INVALID;
+#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
 	const image_header_t *hdr;
 
 	hdr = (const image_header_t *)img_addr;
 	if (image_check_magic(hdr))
-		format = IMAGE_FORMAT_LEGACY;
+		return IMAGE_FORMAT_LEGACY;
+#endif
 #if defined(CONFIG_FIT) || defined(CONFIG_OF_LIBFDT)
-	else if (fdt_check_header(img_addr) == 0)
-		format = IMAGE_FORMAT_FIT;
+	if (fdt_check_header(img_addr) == 0)
+		return IMAGE_FORMAT_FIT;
 #endif
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
-	else if (android_image_check_header(img_addr) == 0)
-		format = IMAGE_FORMAT_ANDROID;
+	if (android_image_check_header(img_addr) == 0)
+		return IMAGE_FORMAT_ANDROID;
 #endif
 
-	return format;
+	return IMAGE_FORMAT_INVALID;
 }
 
 /**
@@ -711,12 +716,14 @@ ulong genimg_get_image(ulong img_addr)
 
 		/* get data size */
 		switch (genimg_get_format(buf)) {
+#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
 		case IMAGE_FORMAT_LEGACY:
 			d_size = image_get_data_size(buf);
 			debug("   Legacy format image found at 0x%08lx, "
 					"size 0x%08lx\n",
 					ram_addr, d_size);
 			break;
+#endif
 #if defined(CONFIG_FIT)
 		case IMAGE_FORMAT_FIT:
 			d_size = fit_get_size(buf) - h_size;
@@ -792,7 +799,9 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 {
 	ulong rd_addr, rd_load;
 	ulong rd_data, rd_len;
+#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
 	const image_header_t *rd_hdr;
+#endif
 	void *buf;
 #ifdef CONFIG_SUPPORT_RAW_INITRD
 	char *end;
@@ -875,6 +884,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 		 */
 		buf = map_sysmem(rd_addr, 0);
 		switch (genimg_get_format(buf)) {
+#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
 		case IMAGE_FORMAT_LEGACY:
 			printf("## Loading init Ramdisk from Legacy "
 					"Image at %08lx ...\n", rd_addr);
@@ -890,6 +900,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 			rd_len = image_get_data_size(rd_hdr);
 			rd_load = image_get_load(rd_hdr);
 			break;
+#endif
 #if defined(CONFIG_FIT)
 		case IMAGE_FORMAT_FIT:
 			rd_noffset = fit_image_load(images, FIT_RAMDISK_PROP,
