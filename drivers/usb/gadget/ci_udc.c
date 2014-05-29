@@ -397,6 +397,21 @@ static int ci_ep_queue(struct usb_ep *ep,
 	num = ci_ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
 	in = (ci_ep->desc->bEndpointAddress & USB_DIR_IN) != 0;
 
+	if (!num && ci_ep->req_primed) {
+		/*
+		 * The flipping of ep0 between IN and OUT relies on
+		 * ci_ep_queue consuming the current IN/OUT setting
+		 * immediately. If this is deferred to a later point when the
+		 * req is pulled out of ci_req->queue, then the IN/OUT setting
+		 * may have been changed since the req was queued, and state
+		 * will get out of sync. This condition doesn't occur today,
+		 * but could if bugs were introduced later, and this error
+		 * check will save a lot of debugging time.
+		 */
+		printf("%s: ep0 transaction already in progress\n", __func__);
+		return -EPROTO;
+	}
+
 	ret = ci_bounce(ci_req, in);
 	if (ret)
 		return ret;
