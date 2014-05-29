@@ -56,14 +56,7 @@ static const char *reqname(unsigned r)
 }
 #endif
 
-static struct usb_endpoint_descriptor ep0_out_desc = {
-	.bLength = sizeof(struct usb_endpoint_descriptor),
-	.bDescriptorType = USB_DT_ENDPOINT,
-	.bEndpointAddress = 0,
-	.bmAttributes =	USB_ENDPOINT_XFER_CONTROL,
-};
-
-static struct usb_endpoint_descriptor ep0_in_desc = {
+static struct usb_endpoint_descriptor ep0_desc = {
 	.bLength = sizeof(struct usb_endpoint_descriptor),
 	.bDescriptorType = USB_DT_ENDPOINT,
 	.bEndpointAddress = USB_DIR_IN,
@@ -435,7 +428,7 @@ static void handle_ep_complete(struct ci_ep *ep)
 	num = ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
 	in = (ep->desc->bEndpointAddress & USB_DIR_IN) != 0;
 	if (num == 0)
-		ep->desc = &ep0_out_desc;
+		ep0_desc.bEndpointAddress = 0;
 	item = ci_get_qtd(num, in);
 	ci_invalidate_qtd(num);
 
@@ -460,7 +453,7 @@ static void handle_ep_complete(struct ci_ep *ep)
 	if (num == 0) {
 		ci_req->req.length = 0;
 		usb_ep_queue(&ep->ep, &ci_req->req, 0);
-		ep->desc = &ep0_in_desc;
+		ep0_desc.bEndpointAddress = USB_DIR_IN;
 	}
 }
 
@@ -771,7 +764,7 @@ static int ci_udc_probe(void)
 
 	/* Init EP 0 */
 	memcpy(&controller.ep[0].ep, &ci_ep_init[0], sizeof(*ci_ep_init));
-	controller.ep[0].desc = &ep0_in_desc;
+	controller.ep[0].desc = &ep0_desc;
 	INIT_LIST_HEAD(&controller.ep[0].queue);
 	controller.ep[0].req_primed = false;
 	controller.gadget.ep0 = &controller.ep[0].ep;
