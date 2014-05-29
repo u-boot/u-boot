@@ -428,6 +428,17 @@ static int ci_ep_queue(struct usb_ep *ep,
 	return 0;
 }
 
+static void flip_ep0_direction(void)
+{
+	if (ep0_desc.bEndpointAddress == USB_DIR_IN) {
+		DBG("%s: Flipping ep0 ot OUT\n", __func__);
+		ep0_desc.bEndpointAddress = 0;
+	} else {
+		DBG("%s: Flipping ep0 ot IN\n", __func__);
+		ep0_desc.bEndpointAddress = USB_DIR_IN;
+	}
+}
+
 static void handle_ep_complete(struct ci_ep *ep)
 {
 	struct ept_queue_item *item;
@@ -436,8 +447,6 @@ static void handle_ep_complete(struct ci_ep *ep)
 
 	num = ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
 	in = (ep->desc->bEndpointAddress & USB_DIR_IN) != 0;
-	if (num == 0)
-		ep0_desc.bEndpointAddress = 0;
 	item = ci_get_qtd(num, in);
 	ci_invalidate_qtd(num);
 
@@ -458,11 +467,18 @@ static void handle_ep_complete(struct ci_ep *ep)
 
 	DBG("ept%d %s req %p, complete %x\n",
 	    num, in ? "in" : "out", ci_req, len);
-	ci_req->req.complete(&ep->ep, &ci_req->req);
-	if (num == 0) {
+	if (num != 0 || controller.ep0_data_phase)
+		ci_req->req.complete(&ep->ep, &ci_req->req);
+	if (num == 0 && controller.ep0_data_phase) {
+		/*
+		 * Data Stage is complete, so flip ep0 dir for Status Stage,
+		 * which always transfers a packet in the opposite direction.
+		 */
+		DBG("%s: flip ep0 dir for Status Stage\n", __func__);
+		flip_ep0_direction();
+		controller.ep0_data_phase = false;
 		ci_req->req.length = 0;
 		usb_ep_queue(&ep->ep, &ci_req->req, 0);
-		ep0_desc.bEndpointAddress = USB_DIR_IN;
 	}
 }
 
@@ -491,8 +507,26 @@ static void handle_setup(void)
 #else
 	writel(EPT_RX(0), &udc->epstat);
 #endif
-	DBG("handle setup %s, %x, %x index %x value %x\n", reqname(r.bRequest),
-	    r.bRequestType, r.bRequest, r.wIndex, r.wValue);
+	DBG("handle setup %s, %x, %x index %x value %x length %x\n",
+	    reqname(r.bRequest), r.bRequestType, r.bRequest, r.wIndex,
+	    r.wValue, r.wLength);
+
+	/* Set EP0 dir for Data Stage based on Setup Stage data */
+	if (r.bRequestType & USB_DIR_IN) {
+		DBG("%s: Set ep0 to IN for Data Stage\n", __func__);
+		ep0_desc.bEndpointAddress = USB_DIR_IN;
+	} else {
+		DBG("%s: Set ep0 to OUT for Data Stage\n", __func__);
+		ep0_desc.bEndpointAddress = 0;
+	}
+	if (r.wLength) {
+		controller.ep0_data_phase = true;
+	} else {
+		/* 0 length -> no Data Stage. Flip dir for Status Stage */
+		DBG("%s: 0 length: flip ep0 dir for Status Stage\n", __func__);
+		flip_ep0_direction();
+		controller.ep0_data_phase = false;
+	}
 
 	list_del_init(&ci_req->queue);
 	ci_ep->req_primed = false;
