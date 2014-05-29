@@ -115,8 +115,6 @@
 #define K2HK_LPSC_ARM_SREFLEX          51
 #define K2HK_LPSC_TETRIS               52
 
-#define K2HK_UART0_BASE                0x02530c00
-
 /* DDR3A definitions */
 #define K2HK_DDR3A_EMIF_CTRL_BASE      0x21010000
 #define K2HK_DDR3A_EMIF_DATA_BASE      0x80000000
