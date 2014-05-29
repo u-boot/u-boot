@@ -198,7 +198,13 @@ static void ci_invalidate_qtd(int ep_num)
 static struct usb_request *
 ci_ep_alloc_request(struct usb_ep *ep, unsigned int gfp_flags)
 {
+	struct ci_ep *ci_ep = container_of(ep, struct ci_ep, ep);
+	int num;
 	struct ci_req *ci_req;
+
+	num = ci_ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
+	if (num == 0 && controller.ep0_req)
+		return &controller.ep0_req->req;
 
 	ci_req = memalign(ARCH_DMA_MINALIGN, sizeof(*ci_req));
 	if (!ci_req)
@@ -206,6 +212,9 @@ ci_ep_alloc_request(struct usb_ep *ep, unsigned int gfp_flags)
 
 	INIT_LIST_HEAD(&ci_req->queue);
 	ci_req->b_buf = 0;
+
+	if (num == 0)
+		controller.ep0_req = ci_req;
 
 	return &ci_req->req;
 }
@@ -471,7 +480,7 @@ static void handle_setup(void)
 	int num, in, _num, _in, i;
 	char *buf;
 
-	ci_req = list_first_entry(&ci_ep->queue, struct ci_req, queue);
+	ci_req = controller.ep0_req;
 	req = &ci_req->req;
 	head = ci_get_qh(0, 0);	/* EP0 OUT */
 
@@ -778,6 +787,12 @@ static int ci_udc_probe(void)
 		controller.ep[i].req_primed = false;
 		list_add_tail(&controller.ep[i].ep.ep_list,
 			      &controller.gadget.ep_list);
+	}
+
+	ci_ep_alloc_request(&controller.ep[0].ep, 0);
+	if (!controller.ep0_req) {
+		free(controller.epts);
+		return -ENOMEM;
 	}
 
 	return 0;
