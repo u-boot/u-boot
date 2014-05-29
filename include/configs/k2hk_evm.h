@@ -131,6 +131,7 @@
 
 /* NAND Configuration */
 #define CONFIG_NAND_DAVINCI
+#define CONFIG_CMD_NAND_ECCLAYOUT
 #define CONFIG_SYS_NAND_CS                     2
 #define CONFIG_SYS_NAND_USE_FLASH_BBT
 #define CONFIG_SYS_NAND_4BIT_HW_ECC_OOBFIRST
