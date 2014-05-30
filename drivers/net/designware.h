@@ -77,18 +77,18 @@ struct eth_dma_regs {
 
 #define DW_DMA_BASE_OFFSET	(0x1000)
 
+/* Default DMA Burst length */
+#ifndef CONFIG_DW_GMAC_DEFAULT_DMA_PBL
+#define CONFIG_DW_GMAC_DEFAULT_DMA_PBL 8
+#endif
+
 /* Bus mode register definitions */
 #define FIXEDBURST		(1 << 16)
 #define PRIORXTX_41		(3 << 14)
 #define PRIORXTX_31		(2 << 14)
 #define PRIORXTX_21		(1 << 14)
 #define PRIORXTX_11		(0 << 14)
-#define BURST_1			(1 << 8)
-#define BURST_2			(2 << 8)
-#define BURST_4			(4 << 8)
-#define BURST_8			(8 << 8)
-#define BURST_16		(16 << 8)
-#define BURST_32		(32 << 8)
+#define DMA_PBL			(CONFIG_DW_GMAC_DEFAULT_DMA_PBL<<8)
 #define RXHIGHPRIO		(1 << 1)
 #define DMAMAC_SRST		(1 << 0)
 
@@ -215,15 +215,14 @@ struct dmamacdescr {
 #endif
 
 struct dw_eth_dev {
+	struct dmamacdescr tx_mac_descrtable[CONFIG_TX_DESCR_NUM];
+	struct dmamacdescr rx_mac_descrtable[CONFIG_RX_DESCR_NUM];
+	char txbuffs[TX_TOTAL_BUFSIZE] __aligned(ARCH_DMA_MINALIGN);
+	char rxbuffs[RX_TOTAL_BUFSIZE] __aligned(ARCH_DMA_MINALIGN);
+
 	u32 interface;
 	u32 tx_currdescnum;
 	u32 rx_currdescnum;
-
-	struct dmamacdescr tx_mac_descrtable[CONFIG_TX_DESCR_NUM];
-	struct dmamacdescr rx_mac_descrtable[CONFIG_RX_DESCR_NUM];
-
-	char txbuffs[TX_TOTAL_BUFSIZE];
-	char rxbuffs[RX_TOTAL_BUFSIZE];
 
 	struct eth_mac_regs *mac_regs_p;
 	struct eth_dma_regs *dma_regs_p;

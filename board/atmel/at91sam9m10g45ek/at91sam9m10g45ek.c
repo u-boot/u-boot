@@ -16,6 +16,7 @@
 #include <asm/arch/clk.h>
 #include <lcd.h>
 #include <atmel_lcdc.h>
+#include <atmel_mci.h>
 #if defined(CONFIG_RESET_PHY_R) && defined(CONFIG_MACB)
 #include <net.h>
 #endif
@@ -215,6 +216,15 @@ void lcd_show_board_info(void)
 		nand_size >> 20 );
 }
 #endif /* CONFIG_LCD_INFO */
+#endif
+
+#ifdef CONFIG_GENERIC_ATMEL_MCI
+int board_mmc_init(bd_t *bis)
+{
+	at91_mci_hw_init();
+
+	return atmel_mci_init((void *)ATMEL_BASE_MCI0);
+}
 #endif
 
 int board_early_init_f(void)

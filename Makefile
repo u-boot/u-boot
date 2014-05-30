@@ -937,6 +937,13 @@ OBJCOPYFLAGS_u-boot-spi.gph = -I binary -O binary --pad-to=$(CONFIG_SPL_PAD_TO) 
 u-boot-spi.gph: spl/u-boot-spl.gph u-boot.img FORCE
 	$(call if_changed,pad_cat)
 
+ifneq ($(CONFIG_SUNXI),)
+OBJCOPYFLAGS_u-boot-sunxi-with-spl.bin = -I binary -O binary \
+				   --pad-to=$(CONFIG_SPL_PAD_TO) --gap-fill=0xff
+u-boot-sunxi-with-spl.bin: spl/sunxi-spl.bin u-boot.img FORCE
+	$(call if_changed,pad_cat)
+endif
+
 ifneq ($(CONFIG_TEGRA),)
 OBJCOPYFLAGS_u-boot-nodtb-tegra.bin = -O binary --pad-to=$(CONFIG_SYS_TEXT_BASE)
 u-boot-nodtb-tegra.bin: spl/u-boot-spl u-boot.bin FORCE
@@ -1162,6 +1169,9 @@ spl/u-boot-spl.bin: spl/u-boot-spl
 	@:
 spl/u-boot-spl: tools prepare
 	$(Q)$(MAKE) obj=spl -f $(srctree)/spl/Makefile all
+
+spl/sunxi-spl.bin: spl/u-boot-spl
+	@:
 
 tpl/u-boot-tpl.bin: tools prepare
 	$(Q)$(MAKE) obj=tpl -f $(srctree)/spl/Makefile all CONFIG_TPL_BUILD=y

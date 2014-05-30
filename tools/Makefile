@@ -38,6 +38,8 @@ ENVCRC-$(CONFIG_ENV_IS_IN_NVRAM) = y
 ENVCRC-$(CONFIG_ENV_IS_IN_SPI_FLASH) = y
 CONFIG_BUILD_ENVCRC ?= $(ENVCRC-y)
 
+hostprogs-$(CONFIG_SPL_GENERATE_ATMEL_PMECC_HEADER) += atmel_pmecc_params$(SFX)
+
 # TODO: CONFIG_CMD_LICENSE does not work
 hostprogs-$(CONFIG_CMD_LICENSE) += bin2header$(SFX)
 hostprogs-$(CONFIG_LCD_LOGO) += bmp_logo$(SFX)
@@ -69,6 +71,7 @@ RSA_OBJS-$(CONFIG_FIT_SIGNATURE) := rsa-sign.o rsa-verify.o rsa-checksum.o
 
 # common objs for dumpimage and mkimage
 dumpimage-mkimage-objs := aisimage.o \
+			atmelimage.o \
 			$(FIT_SIG_OBJS-y) \
 			crc32.o \
 			default_image.o \
@@ -130,6 +133,8 @@ HOSTCFLAGS_mkexynosspl$(SFX).o := -pedantic
 hostprogs-$(CONFIG_MX23) += mxsboot$(SFX)
 hostprogs-$(CONFIG_MX28) += mxsboot$(SFX)
 HOSTCFLAGS_mxsboot$(SFX).o := -pedantic
+
+hostprogs-$(CONFIG_SUNXI) += mksunxiboot$(SFX)
 
 hostprogs-$(CONFIG_NETCONSOLE) += ncb$(SFX)
 hostprogs-$(CONFIG_SHA1_CHECK_UB_IMG) += ubsha1$(SFX)

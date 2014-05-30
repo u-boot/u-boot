@@ -159,6 +159,7 @@ void register_image_type(struct image_type_params *tparams);
  * Supported image types init functions
  */
 void init_default_image_type(void);
+void init_atmel_image_type(void);
 void init_pbl_image_type(void);
 void init_ais_image_type(void);
 void init_kwb_image_type(void);

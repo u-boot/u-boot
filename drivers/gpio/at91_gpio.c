@@ -34,6 +34,7 @@ static struct at91_port *at91_pio_get_port(unsigned port)
 #endif
 #endif
 	default:
+		printf("Error: at91_gpio: Fail to get PIO base!\n");
 		return NULL;
 	}
 }
@@ -200,7 +201,7 @@ int at91_set_pio_output(unsigned port, u32 pin, int value)
 	struct at91_port *at91_port = at91_pio_get_port(port);
 	u32 mask;
 
-	if ((port < ATMEL_PIO_PORTS) && (pin < 32)) {
+	if (at91_port && (port < ATMEL_PIO_PORTS) && (pin < 32)) {
 		mask = 1 << pin;
 		writel(mask, &at91_port->idr);
 		writel(mask, &at91_port->pudr);

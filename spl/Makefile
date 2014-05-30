@@ -183,10 +183,27 @@ MKIMAGEFLAGS_MLO.byteswap = -T omapimage -n byteswap -a $(CONFIG_SPL_TEXT_BASE)
 MLO MLO.byteswap: $(obj)/u-boot-spl.bin
 	$(call if_changed,mkimage)
 
+MKIMAGEFLAGS_boot.bin = -T atmelimage
+
+ifeq ($(CONFIG_SPL_GENERATE_ATMEL_PMECC_HEADER),y)
+MKIMAGEFLAGS_boot.bin += -n $(shell $(obj)/../tools/atmel_pmecc_params)
+
+boot.bin: $(obj)/../tools/atmel_pmecc_params
+endif
+
+boot.bin: $(obj)/u-boot-spl.bin
+	$(call if_changed,mkimage)
+
 ALL-y	+= $(obj)/$(SPL_BIN).bin
 
 ifdef CONFIG_SAMSUNG
 ALL-y	+= $(obj)/$(BOARD)-spl.bin
+endif
+
+ifdef CONFIG_SUNXI
+ifndef CONFIG_SPL_FEL
+ALL-y	+= $(obj)/sunxi-spl.bin
+endif
 endif
 
 all:	$(ALL-y)
@@ -214,6 +231,13 @@ $(obj)/$(SPL_BIN).bin: $(obj)/$(SPL_BIN) FORCE
 LDFLAGS_$(SPL_BIN) += -T u-boot-spl.lds $(LDFLAGS_FINAL)
 ifneq ($(CONFIG_SPL_TEXT_BASE),)
 LDFLAGS_$(SPL_BIN) += -Ttext $(CONFIG_SPL_TEXT_BASE)
+endif
+
+ifdef CONFIG_SUNXI
+quiet_cmd_mksunxiboot = MKSUNXI $@
+cmd_mksunxiboot = $(objtree)/tools/mksunxiboot $< $@
+$(obj)/sunxi-spl.bin: $(obj)/$(SPL_BIN).bin
+	$(call if_changed,mksunxiboot)
 endif
 
 quiet_cmd_u-boot-spl = LD      $@

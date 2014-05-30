@@ -50,10 +50,10 @@ reset:
 	 */
 	adr	x0, vectors
 	switch_el x1, 3f, 2f, 1f
-3:	mrs	x0, scr_el3
+3:	msr	vbar_el3, x0
+	mrs	x0, scr_el3
 	orr	x0, x0, #0xf			/* SCR_EL3.NS|IRQ|FIQ|EA */
 	msr	scr_el3, x0
-	msr	vbar_el3, x0
 	msr	cptr_el3, xzr			/* Enable FP/SIMD */
 	ldr	x0, =COUNTER_FREQUENCY
 	msr	cntfrq_el0, x0			/* Initialize CNTFRQ */

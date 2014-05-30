@@ -13,8 +13,6 @@
 
 /*--------------------------------------------------------------------------*/
 
-#define CONFIG_ARM926EJS		/* This is an ARM926EJS Core	*/
-#define CONFIG_AT91FAMILY
 #define CONFIG_AT91SAM9263		/* It's an Atmel AT91SAM9263 SoC*/
 #define CONFIG_VL_MA2SC			/* on an VL_MA2SC Board	*/
 #define CONFIG_ARCH_CPU_INIT

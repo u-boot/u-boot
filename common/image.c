@@ -139,6 +139,7 @@ static const table_entry_t uimage_type[] = {
 	{	IH_TYPE_STANDALONE, "standalone", "Standalone Program", },
 	{	IH_TYPE_UBLIMAGE,   "ublimage",   "Davinci UBL image",},
 	{	IH_TYPE_MXSIMAGE,   "mxsimage",   "Freescale MXS Boot Image",},
+	{	IH_TYPE_ATMELIMAGE, "atmelimage", "ATMEL ROM-Boot Image",},
 	{	-1,		    "",		  "",			},
 };
 
