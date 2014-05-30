@@ -321,14 +321,6 @@ The following options need to be configured:
 					  the LCD display every second with
 					  a "rotator" |\-/|\-/
 
-- Board flavour: (if CONFIG_MPC8260ADS is defined)
-		CONFIG_ADSTYPE
-		Possible values are:
-			CONFIG_SYS_8260ADS	- original MPC8260ADS
-			CONFIG_SYS_8266ADS	- MPC8266ADS
-			CONFIG_SYS_PQ2FADS	- PQ2FADS-ZU or PQ2FADS-VR
-			CONFIG_SYS_8272ADS	- MPC8272ADS
-
 - Marvell Family Member
 		CONFIG_SYS_MVFS		- define it if you want to enable
 					  multiple fs option at one time

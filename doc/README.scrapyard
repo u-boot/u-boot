@@ -11,6 +11,7 @@ easily if here is something they might want to dig for...
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+mpc8260ads       powerpc     mpc8260        -           -           Yuli Barcohen <yuli@arabellasw.com>
 adder            powerpc     mpc8xx         -           -           Yuli Barcohen <yuli@arabellasw.com>
 quad100hd	 powerpc     ppc405ep	    -		-	    Gary Jennejohn <gljennjohn@googlemail.com>
 lubbock          arm         pxa            36bf57b     2014-04-18  Kyle Harris <kharris@nexus-tech.net>
