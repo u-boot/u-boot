@@ -61,6 +61,11 @@ static int do_ut_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		"setenv list ${list}3", strlen("setenv list 1"), 0);
 	assert(!strcmp("1", getenv("list")));
 
+	assert(run_command("false", 0) == 1);
+	assert(run_command("echo", 0) == 0);
+	assert(run_command_list("false", -1, 0) == 1);
+	assert(run_command_list("echo", -1, 0) == 0);
+
 #ifdef CONFIG_SYS_HUSH_PARSER
 	/* Test the 'test' command */
 
