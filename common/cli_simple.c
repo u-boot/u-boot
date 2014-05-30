@@ -331,7 +331,7 @@ int cli_simple_run_command_list(char *cmd, int flag)
 		++next;
 	}
 	if (rcode == 0 && *line)
-		rcode = (cli_simple_run_command(line, 0) >= 0);
+		rcode = (cli_simple_run_command(line, 0) < 0);
 
 	return rcode;
 }
