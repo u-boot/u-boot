@@ -11,6 +11,7 @@ easily if here is something they might want to dig for...
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+ep8248           powerpc     mpc8260        -           -           Yuli Barcohen <yuli@arabellasw.com>
 ispan            powerpc     mpc8260        -           -           Yuli Barcohen <yuli@arabellasw.com>
 rattler          powerpc     mpc8260        -           -           Yuli Barcohen <yuli@arabellasw.com>
 zpc1900          powerpc     mpc8260        -           -           Yuli Barcohen <yuli@arabellasw.com>

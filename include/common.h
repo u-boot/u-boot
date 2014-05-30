@@ -54,8 +54,6 @@ typedef volatile unsigned char	vu_char;
 #include <asm/immap_512x.h>
 #elif defined(CONFIG_MPC8260)
 #if   defined(CONFIG_MPC8247) \
-   || defined(CONFIG_MPC8248) \
-   || defined(CONFIG_MPC8271) \
    || defined(CONFIG_MPC8272)
 #define CONFIG_MPC8272_FAMILY	1
 #endif
