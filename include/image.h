@@ -45,6 +45,7 @@ struct lmb;
 #endif /* USE_HOSTCC */
 
 #if defined(CONFIG_FIT)
+#include <hash.h>
 #include <libfdt.h>
 #include <fdt_support.h>
 # ifdef CONFIG_SPL_BUILD
@@ -706,7 +707,7 @@ int bootz_setup(ulong image, ulong *start, ulong *end);
 #define FIT_FDT_PROP		"fdt"
 #define FIT_DEFAULT_PROP	"default"
 
-#define FIT_MAX_HASH_LEN	20	/* max(crc32_len(4), sha1_len(20)) */
+#define FIT_MAX_HASH_LEN	HASH_MAX_DIGEST_SIZE
 
 /* cmdline argument format parsing */
 int fit_parse_conf(const char *spec, ulong addr_curr,

@@ -6,6 +6,18 @@
 #ifndef _HASH_H
 #define _HASH_H
 
+/*
+ * Maximum digest size for all algorithms we support. Having this value
+ * avoids a malloc() or C99 local declaration in common/cmd_hash.c.
+ */
+#define HASH_MAX_DIGEST_SIZE	32
+
+enum {
+	HASH_FLAG_VERIFY	= 1 << 0,	/* Enable verify mode */
+	HASH_FLAG_ENV		= 1 << 1,	/* Allow env vars */
+};
+
+#ifndef USE_HOSTCC
 #if defined(CONFIG_SHA1SUM_VERIFY) || defined(CONFIG_CRC32_VERIFY)
 #define CONFIG_HASH_VERIFY
 #endif
@@ -65,17 +77,6 @@ struct hash_algo {
 			   int size);
 };
 
-/*
- * Maximum digest size for all algorithms we support. Having this value
- * avoids a malloc() or C99 local declaration in common/cmd_hash.c.
- */
-#define HASH_MAX_DIGEST_SIZE	32
-
-enum {
-	HASH_FLAG_VERIFY	= 1 << 0,	/* Enable verify mode */
-	HASH_FLAG_ENV		= 1 << 1,	/* Allow env vars */
-};
-
 /**
  * hash_command: Process a hash command for a particular algorithm
  *
@@ -125,4 +126,5 @@ int hash_block(const char *algo_name, const void *data, unsigned int len,
  * @return 0 if ok, -EPROTONOSUPPORT for an unknown algorithm.
  */
 int hash_lookup_algo(const char *algo_name, struct hash_algo **algop);
+#endif /* !USE_HOSTCC */
 #endif
