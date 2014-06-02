@@ -22,7 +22,7 @@ static int max77693_charger_state(struct pmic *p, int state, int current)
 	val = MAX77693_CHG_UNLOCK;
 	pmic_reg_write(p, MAX77693_CHG_CNFG_06, val);
 
-	if (state == CHARGER_DISABLE) {
+	if (state == PMIC_CHARGER_DISABLE) {
 		puts("Disable the charger.\n");
 		pmic_reg_read(p, MAX77693_CHG_CNFG_00, &val);
 		val &= ~0x01;

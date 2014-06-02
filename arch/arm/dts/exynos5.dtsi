@@ -136,7 +136,7 @@
 	mmc@12200000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		compatible = "samsung,exynos5250-dwmmc";
+		compatible = "samsung,exynos-dwmmc";
 		reg = <0x12200000 0x1000>;
 		interrupts = <0 75 0>;
 	};
@@ -144,7 +144,7 @@
 	mmc@12210000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		compatible = "samsung,exynos5250-dwmmc";
+		compatible = "samsung,exynos-dwmmc";
 		reg = <0x12210000 0x1000>;
 		interrupts = <0 76 0>;
 	};
@@ -152,7 +152,7 @@
 	mmc@12220000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		compatible = "samsung,exynos5250-dwmmc";
+		compatible = "samsung,exynos-dwmmc";
 		reg = <0x12220000 0x1000>;
 		interrupts = <0 77 0>;
 	};
@@ -160,7 +160,7 @@
 	mmc@12230000 {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		compatible = "samsung,exynos5250-dwmmc";
+		compatible = "samsung,exynos-dwmmc";
 		reg = <0x12230000 0x1000>;
 		interrupts = <0 78 0>;
 	};

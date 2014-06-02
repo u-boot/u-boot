@@ -224,8 +224,8 @@
 
 /* PMIC */
 #define CONFIG_PMIC
-#define CONFIG_PMIC_I2C
-#define CONFIG_PMIC_MAX77686
+#define CONFIG_POWER_I2C
+#define CONFIG_POWER_MAX77686
 
 #define CONFIG_DEFAULT_DEVICE_TREE	exynos5250-arndale
 

@@ -81,7 +81,7 @@ enum fdt_compat_id {
 	COMPAT_SAMSUNG_EXYNOS_FIMD,	/* Exynos Display controller */
 	COMPAT_SAMSUNG_EXYNOS_MIPI_DSI,	/* Exynos mipi dsi */
 	COMPAT_SAMSUNG_EXYNOS5_DP,	/* Exynos Display port controller */
-	COMPAT_SAMSUNG_EXYNOS5_DWMMC,	/* Exynos5 DWMMC controller */
+	COMPAT_SAMSUNG_EXYNOS_DWMMC,	/* Exynos DWMMC controller */
 	COMPAT_SAMSUNG_EXYNOS_MMC,	/* Exynos MMC controller */
 	COMPAT_SAMSUNG_EXYNOS_SERIAL,	/* Exynos UART */
 	COMPAT_MAXIM_MAX77686_PMIC,	/* MAX77686 PMIC */
@@ -92,6 +92,8 @@ enum fdt_compat_id {
 	COMPAT_SAMSUNG_EXYNOS5_I2C,	/* Exynos5 High Speed I2C Controller */
 	COMPAT_SANDBOX_HOST_EMULATION,	/* Sandbox emulation of a function */
 	COMPAT_SANDBOX_LCD_SDL,		/* Sandbox LCD emulation with SDL */
+	COMPAT_TI_TPS65090,		/* Texas Instrument TPS65090 */
+	COMPAT_NXP_PTN3460,		/* NXP PTN3460 DP/LVDS bridge */
 
 	COMPAT_COUNT,
 };

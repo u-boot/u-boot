@@ -573,15 +573,26 @@ static void exynos4_i2c_config(int peripheral, int flags)
 static int exynos4_mmc_config(int peripheral, int flags)
 {
 	int i, start = 0, start_ext = 0;
+	unsigned int func, ext_func;
 
 	switch (peripheral) {
 	case PERIPH_ID_SDMMC0:
 		start = EXYNOS4_GPIO_K00;
 		start_ext = EXYNOS4_GPIO_K13;
+		func = S5P_GPIO_FUNC(0x2);
+		ext_func = S5P_GPIO_FUNC(0x3);
 		break;
 	case PERIPH_ID_SDMMC2:
 		start = EXYNOS4_GPIO_K20;
 		start_ext = EXYNOS4_GPIO_K33;
+		func = S5P_GPIO_FUNC(0x2);
+		ext_func = S5P_GPIO_FUNC(0x3);
+		break;
+	case PERIPH_ID_SDMMC4:
+		start = EXYNOS4_GPIO_K00;
+		start_ext = EXYNOS4_GPIO_K13;
+		func = S5P_GPIO_FUNC(0x3);
+		ext_func = S5P_GPIO_FUNC(0x4);
 		break;
 	default:
 		return -1;
@@ -589,13 +600,14 @@ static int exynos4_mmc_config(int peripheral, int flags)
 	for (i = start; i < (start + 7); i++) {
 		if (i == (start + 2))
 			continue;
-		gpio_cfg_pin(i,  S5P_GPIO_FUNC(0x2));
+		gpio_cfg_pin(i,  func);
 		gpio_set_pull(i, S5P_GPIO_PULL_NONE);
 		gpio_set_drv(i, S5P_GPIO_DRV_4X);
 	}
+	/* SDMMC2 do not use 8bit mode at exynos4 */
 	if (flags & PINMUX_FLAG_8BIT_MODE) {
 		for (i = start_ext; i < (start_ext + 4); i++) {
-			gpio_cfg_pin(i,  S5P_GPIO_FUNC(0x3));
+			gpio_cfg_pin(i,  ext_func);
 			gpio_set_pull(i, S5P_GPIO_PULL_NONE);
 			gpio_set_drv(i, S5P_GPIO_DRV_4X);
 		}
@@ -676,15 +688,26 @@ static void exynos4x12_i2c_config(int peripheral, int flags)
 static int exynos4x12_mmc_config(int peripheral, int flags)
 {
 	int i, start = 0, start_ext = 0;
+	unsigned int func, ext_func;
 
 	switch (peripheral) {
 	case PERIPH_ID_SDMMC0:
 		start = EXYNOS4X12_GPIO_K00;
 		start_ext = EXYNOS4X12_GPIO_K13;
+		func = S5P_GPIO_FUNC(0x2);
+		ext_func = S5P_GPIO_FUNC(0x3);
 		break;
 	case PERIPH_ID_SDMMC2:
 		start = EXYNOS4X12_GPIO_K20;
 		start_ext = EXYNOS4X12_GPIO_K33;
+		func = S5P_GPIO_FUNC(0x2);
+		ext_func = S5P_GPIO_FUNC(0x3);
+		break;
+	case PERIPH_ID_SDMMC4:
+		start = EXYNOS4_GPIO_K00;
+		start_ext = EXYNOS4_GPIO_K13;
+		func = S5P_GPIO_FUNC(0x3);
+		ext_func = S5P_GPIO_FUNC(0x4);
 		break;
 	default:
 		return -1;
@@ -692,13 +715,13 @@ static int exynos4x12_mmc_config(int peripheral, int flags)
 	for (i = start; i < (start + 7); i++) {
 		if (i == (start + 2))
 			continue;
-		gpio_cfg_pin(i,  S5P_GPIO_FUNC(0x2));
+		gpio_cfg_pin(i,  func);
 		gpio_set_pull(i, S5P_GPIO_PULL_NONE);
 		gpio_set_drv(i, S5P_GPIO_DRV_4X);
 	}
 	if (flags & PINMUX_FLAG_8BIT_MODE) {
 		for (i = start_ext; i < (start_ext + 4); i++) {
-			gpio_cfg_pin(i,  S5P_GPIO_FUNC(0x3));
+			gpio_cfg_pin(i,  ext_func);
 			gpio_set_pull(i, S5P_GPIO_PULL_NONE);
 			gpio_set_drv(i, S5P_GPIO_DRV_4X);
 		}
@@ -759,10 +782,10 @@ static int exynos4_pinmux_config(int peripheral, int flags)
 		break;
 	case PERIPH_ID_SDMMC0:
 	case PERIPH_ID_SDMMC2:
+	case PERIPH_ID_SDMMC4:
 		return exynos4_mmc_config(peripheral, flags);
 	case PERIPH_ID_SDMMC1:
 	case PERIPH_ID_SDMMC3:
-	case PERIPH_ID_SDMMC4:
 		debug("SDMMC device %d not implemented\n", peripheral);
 		return -1;
 	default:
@@ -794,10 +817,10 @@ static int exynos4x12_pinmux_config(int peripheral, int flags)
 		break;
 	case PERIPH_ID_SDMMC0:
 	case PERIPH_ID_SDMMC2:
+	case PERIPH_ID_SDMMC4:
 		return exynos4x12_mmc_config(peripheral, flags);
 	case PERIPH_ID_SDMMC1:
 	case PERIPH_ID_SDMMC3:
-	case PERIPH_ID_SDMMC4:
 		debug("SDMMC device %d not implemented\n", peripheral);
 		return -1;
 	default:

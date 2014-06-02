@@ -123,6 +123,9 @@
 #define DWMCI_BMOD_IDMAC_FB	(1 << 1)
 #define DWMCI_BMOD_IDMAC_EN	(1 << 7)
 
+/* UHS register */
+#define DWMCI_DDR_MODE	(1 << 16)
+
 /* quirks */
 #define DWMCI_QUIRK_DISABLE_SMU		(1 << 0)
 
@@ -134,7 +137,9 @@ struct dwmci_host {
 	unsigned int version;
 	unsigned int clock;
 	unsigned int bus_hz;
+	unsigned int div;
 	int dev_index;
+	int dev_id;
 	int buswidth;
 	u32 clksel_val;
 	u32 fifoth_val;

@@ -869,7 +869,7 @@ static void exynos4_set_mmc_clk(int dev_index, unsigned int div)
 {
 	struct exynos4_clock *clk =
 		(struct exynos4_clock *)samsung_get_base_clock();
-	unsigned int addr;
+	unsigned int addr, clear_bit, set_bit;
 
 	/*
 	 * CLK_DIV_FSYS1
@@ -877,44 +877,26 @@ static void exynos4_set_mmc_clk(int dev_index, unsigned int div)
 	 * CLK_DIV_FSYS2
 	 * MMC2_PRE_RATIO [15:8], MMC3_PRE_RATIO [31:24]
 	 * CLK_DIV_FSYS3
-	 * MMC4_PRE_RATIO [15:8]
+	 * MMC4_RATIO [3:0]
 	 */
 	if (dev_index < 2) {
 		addr = (unsigned int)&clk->div_fsys1;
-	}  else if (dev_index == 4) {
+		clear_bit = MASK_PRE_RATIO(dev_index);
+		set_bit = SET_PRE_RATIO(dev_index, div);
+	} else if (dev_index == 4) {
 		addr = (unsigned int)&clk->div_fsys3;
 		dev_index -= 4;
+		/* MMC4 is controlled with the MMC4_RATIO value */
+		clear_bit = MASK_RATIO(dev_index);
+		set_bit = SET_RATIO(dev_index, div);
 	} else {
 		addr = (unsigned int)&clk->div_fsys2;
 		dev_index -= 2;
+		clear_bit = MASK_PRE_RATIO(dev_index);
+		set_bit = SET_PRE_RATIO(dev_index, div);
 	}
 
-	clrsetbits_le32(addr, 0xff << ((dev_index << 4) + 8),
-			(div & 0xff) << ((dev_index << 4) + 8));
-}
-
-/* exynos4x12: set the mmc clock */
-static void exynos4x12_set_mmc_clk(int dev_index, unsigned int div)
-{
-	struct exynos4x12_clock *clk =
-		(struct exynos4x12_clock *)samsung_get_base_clock();
-	unsigned int addr;
-
-	/*
-	 * CLK_DIV_FSYS1
-	 * MMC0_PRE_RATIO [15:8], MMC1_PRE_RATIO [31:24]
-	 * CLK_DIV_FSYS2
-	 * MMC2_PRE_RATIO [15:8], MMC3_PRE_RATIO [31:24]
-	 */
-	if (dev_index < 2) {
-		addr = (unsigned int)&clk->div_fsys1;
-	} else {
-		addr = (unsigned int)&clk->div_fsys2;
-		dev_index -= 2;
-	}
-
-	clrsetbits_le32(addr, 0xff << ((dev_index << 4) + 8),
-			(div & 0xff) << ((dev_index << 4) + 8));
+	clrsetbits_le32(addr, clear_bit, set_bit);
 }
 
 /* exynos5: set the mmc clock */
@@ -1612,10 +1594,7 @@ void set_mmc_clk(int dev_index, unsigned int div)
 		else
 			exynos5_set_mmc_clk(dev_index, div);
 	} else {
-		if (proid_is_exynos4412())
-			exynos4x12_set_mmc_clk(dev_index, div);
-		else
-			exynos4_set_mmc_clk(dev_index, div);
+		exynos4_set_mmc_clk(dev_index, div);
 	}
 }
 
