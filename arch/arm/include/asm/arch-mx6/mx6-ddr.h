@@ -173,6 +173,78 @@ struct mx6sdl_iomux_grp_regs {
 	u32 res4;
 	u32 grp_b6ds;
 };
+
+/* Device Information: Varies per DDR3 part number and speed grade */
+struct mx6_ddr3_cfg {
+	u16 mem_speed;	/* ie 1600 for DDR3-1600 (800,1066,1333,1600) */
+	u8 density;	/* chip density (Gb) (1,2,4,8) */
+	u8 width;	/* bus width (bits) (4,8,16) */
+	u8 banks;	/* number of banks */
+	u8 rowaddr;	/* row address bits (11-16)*/
+	u8 coladdr;	/* col address bits (9-12) */
+	u8 pagesz;	/* page size (K) (1-2) */
+	u16 trcd;	/* tRCD=tRP=CL (ns*100) */
+	u16 trcmin;	/* tRC min (ns*100) */
+	u16 trasmin;	/* tRAS min (ns*100) */
+	u8 SRT;		/* self-refresh temperature: 0=normal, 1=extended */
+};
+
+/* System Information: Varies per board design, layout, and term choices */
+struct mx6_ddr_sysinfo {
+	u8 dsize;	/* size of bus (in dwords: 0=16bit,1=32bit,2=64bit) */
+	u8 cs_density;	/* density per chip select (Gb) */
+	u8 ncs;		/* number chip selects used (1|2) */
+	char cs1_mirror;/* enable address mirror (0|1) */
+	char bi_on;	/* Bank interleaving enable */
+	u8 rtt_nom;	/* Rtt_Nom (DDR3_RTT_*) */
+	u8 rtt_wr;	/* Rtt_Wr (DDR3_RTT_*) */
+	u8 ralat;	/* Read Additional Latency (0-7) */
+	u8 walat;	/* Write Additional Latency (0-3) */
+	u8 mif3_mode;	/* Command prediction working mode */
+	u8 rst_to_cke;	/* Time from SDE enable to CKE rise */
+	u8 sde_to_rst;	/* Time from SDE enable until DDR reset# is high */
+};
+
+/*
+ * Board specific calibration:
+ *   This includes write leveling calibration values as well as DQS gating
+ *   and read/write delays. These values are board/layout/device specific.
+ *   Freescale recommends using the i.MX6 DDR Stress Test Tool V1.0.2
+ *   (DOC-96412) to determine these values over a range of boards and
+ *   temperatures.
+ */
+struct mx6_mmdc_calibration {
+	/* write leveling calibration */
+	u32 p0_mpwldectrl0;
+	u32 p0_mpwldectrl1;
+	u32 p1_mpwldectrl0;
+	u32 p1_mpwldectrl1;
+	/* read DQS gating */
+	u32 p0_mpdgctrl0;
+	u32 p0_mpdgctrl1;
+	u32 p1_mpdgctrl0;
+	u32 p1_mpdgctrl1;
+	/* read delay */
+	u32 p0_mprddlctl;
+	u32 p1_mprddlctl;
+	/* write delay */
+	u32 p0_mpwrdlctl;
+	u32 p1_mpwrdlctl;
+};
+
+/* configure iomux (pinctl/padctl) */
+void mx6dq_dram_iocfg(unsigned width,
+		      const struct mx6dq_iomux_ddr_regs *,
+		      const struct mx6dq_iomux_grp_regs *);
+void mx6sdl_dram_iocfg(unsigned width,
+		       const struct mx6sdl_iomux_ddr_regs *,
+		       const struct mx6sdl_iomux_grp_regs *);
+
+/* configure mx6 mmdc registers */
+void mx6_dram_cfg(const struct mx6_ddr_sysinfo *,
+		  const struct mx6_mmdc_calibration *,
+		  const struct mx6_ddr3_cfg *);
+
 #endif /* CONFIG_SPL_BUILD */
 
 #define MX6_MMDC_P0_MDCTL	0x021b0000
