@@ -11,6 +11,7 @@
 
 #define GPMC_BUF_EMPTY	0
 #define GPMC_BUF_FULL	1
+#define GPMC_MAX_SECTORS	8
 
 enum omap_ecc {
 	/* 1-bit  ECC calculation by Software, Error detection by Software */
@@ -75,7 +76,7 @@ struct gpmc {
 	u8 res7[12];		/* 0x224 */
 	u32 testmomde_ctrl;	/* 0x230 */
 	u8 res8[12];		/* 0x234 */
-	struct bch_res_0_3 bch_result_0_3[2];	/* 0x240 */
+	struct bch_res_0_3 bch_result_0_3[GPMC_MAX_SECTORS]; /* 0x240,0x250, */
 };
 
 /* Used for board specific gpmc initialization */
