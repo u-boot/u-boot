@@ -1,0 +1,419 @@
+/*
+ * Copyright (C) 2014 Gateworks Corporation
+ * Author: Tim Harvey <tharvey@gateworks.com>
+ *
+ * SPDX-License-Identifier:     GPL-2.0+
+ */
+
+#include <common.h>
+#include <i2c.h>
+#include <asm/io.h>
+#include <asm/arch/iomux.h>
+#include <asm/arch/mx6-ddr.h>
+#include <asm/arch/mx6-pins.h>
+#include <asm/arch/sys_proto.h>
+#include <asm/imx-common/boot_mode.h>
+#include <asm/imx-common/iomux-v3.h>
+#include <asm/imx-common/mxc_i2c.h>
+#include <spl.h>
+
+#include "ventana_eeprom.h"
+
+DECLARE_GLOBAL_DATA_PTR;
+
+#define RTT_NOM_120OHM /* use 120ohm Rtt_nom vs 60ohm (lower power) */
+#define I2C_GSC			0
+#define GSC_EEPROM_ADDR		0x51
+#define GSC_EEPROM_DDR_SIZE	0x2B	/* enum (512,1024,2048) MB */
+#define GSC_EEPROM_DDR_WIDTH	0x2D	/* enum (32,64) bit */
+#define I2C_PAD_CTRL  (PAD_CTL_PUS_100K_UP |                    \
+	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS |   \
+	PAD_CTL_ODE | PAD_CTL_SRE_FAST)
+#define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
+#define CONFIG_SYS_I2C_SPEED	100000
+
+/* I2C1: GSC */
+static struct i2c_pads_info mx6q_i2c_pad_info0 = {
+	.scl = {
+		.i2c_mode = MX6Q_PAD_EIM_D21__I2C1_SCL | PC,
+		.gpio_mode = MX6Q_PAD_EIM_D21__GPIO3_IO21 | PC,
+		.gp = IMX_GPIO_NR(3, 21)
+	},
+	.sda = {
+		.i2c_mode = MX6Q_PAD_EIM_D28__I2C1_SDA | PC,
+		.gpio_mode = MX6Q_PAD_EIM_D28__GPIO3_IO28 | PC,
+		.gp = IMX_GPIO_NR(3, 28)
+	}
+};
+static struct i2c_pads_info mx6dl_i2c_pad_info0 = {
+	.scl = {
+		.i2c_mode = MX6DL_PAD_EIM_D21__I2C1_SCL | PC,
+		.gpio_mode = MX6DL_PAD_EIM_D21__GPIO3_IO21 | PC,
+		.gp = IMX_GPIO_NR(3, 21)
+	},
+	.sda = {
+		.i2c_mode = MX6DL_PAD_EIM_D28__I2C1_SDA | PC,
+		.gpio_mode = MX6DL_PAD_EIM_D28__GPIO3_IO28 | PC,
+		.gp = IMX_GPIO_NR(3, 28)
+	}
+};
+
+static void i2c_setup_iomux(void)
+{
+	if (is_cpu_type(MXC_CPU_MX6Q))
+		setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6q_i2c_pad_info0);
+	else
+		setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, &mx6dl_i2c_pad_info0);
+}
+
+/* configure MX6Q/DUAL mmdc DDR io registers */
+struct mx6dq_iomux_ddr_regs mx6dq_ddr_ioregs = {
+	/* SDCLK[0:1], CAS, RAS, Reset: Differential input, 40ohm */
+	.dram_sdclk_0 = 0x00020030,
+	.dram_sdclk_1 = 0x00020030,
+	.dram_cas = 0x00020030,
+	.dram_ras = 0x00020030,
+	.dram_reset = 0x00020030,
+	/* SDCKE[0:1]: 100k pull-up */
+	.dram_sdcke0 = 0x00003000,
+	.dram_sdcke1 = 0x00003000,
+	/* SDBA2: pull-up disabled */
+	.dram_sdba2 = 0x00000000,
+	/* SDODT[0:1]: 100k pull-up, 40 ohm */
+	.dram_sdodt0 = 0x00003030,
+	.dram_sdodt1 = 0x00003030,
+	/* SDQS[0:7]: Differential input, 40 ohm */
+	.dram_sdqs0 = 0x00000030,
+	.dram_sdqs1 = 0x00000030,
+	.dram_sdqs2 = 0x00000030,
+	.dram_sdqs3 = 0x00000030,
+	.dram_sdqs4 = 0x00000030,
+	.dram_sdqs5 = 0x00000030,
+	.dram_sdqs6 = 0x00000030,
+	.dram_sdqs7 = 0x00000030,
+
+	/* DQM[0:7]: Differential input, 40 ohm */
+	.dram_dqm0 = 0x00020030,
+	.dram_dqm1 = 0x00020030,
+	.dram_dqm2 = 0x00020030,
+	.dram_dqm3 = 0x00020030,
+	.dram_dqm4 = 0x00020030,
+	.dram_dqm5 = 0x00020030,
+	.dram_dqm6 = 0x00020030,
+	.dram_dqm7 = 0x00020030,
+};
+
+/* configure MX6Q/DUAL mmdc GRP io registers */
+struct mx6dq_iomux_grp_regs mx6dq_grp_ioregs = {
+	/* DDR3 */
+	.grp_ddr_type = 0x000c0000,
+	.grp_ddrmode_ctl = 0x00020000,
+	/* disable DDR pullups */
+	.grp_ddrpke = 0x00000000,
+	/* ADDR[00:16], SDBA[0:1]: 40 ohm */
+	.grp_addds = 0x00000030,
+	/* CS0/CS1/SDBA2/CKE0/CKE1/SDWE: 40 ohm */
+	.grp_ctlds = 0x00000030,
+	/* DATA[00:63]: Differential input, 40 ohm */
+	.grp_ddrmode = 0x00020000,
+	.grp_b0ds = 0x00000030,
+	.grp_b1ds = 0x00000030,
+	.grp_b2ds = 0x00000030,
+	.grp_b3ds = 0x00000030,
+	.grp_b4ds = 0x00000030,
+	.grp_b5ds = 0x00000030,
+	.grp_b6ds = 0x00000030,
+	.grp_b7ds = 0x00000030,
+};
+
+/* configure MX6SOLO/DUALLITE mmdc DDR io registers */
+struct mx6sdl_iomux_ddr_regs mx6sdl_ddr_ioregs = {
+	/* SDCLK[0:1], CAS, RAS, Reset: Differential input, 40ohm */
+	.dram_sdclk_0 = 0x00020030,
+	.dram_sdclk_1 = 0x00020030,
+	.dram_cas = 0x00020030,
+	.dram_ras = 0x00020030,
+	.dram_reset = 0x00020030,
+	/* SDCKE[0:1]: 100k pull-up */
+	.dram_sdcke0 = 0x00003000,
+	.dram_sdcke1 = 0x00003000,
+	/* SDBA2: pull-up disabled */
+	.dram_sdba2 = 0x00000000,
+	/* SDODT[0:1]: 100k pull-up, 40 ohm */
+	.dram_sdodt0 = 0x00003030,
+	.dram_sdodt1 = 0x00003030,
+	/* SDQS[0:7]: Differential input, 40 ohm */
+	.dram_sdqs0 = 0x00000030,
+	.dram_sdqs1 = 0x00000030,
+	.dram_sdqs2 = 0x00000030,
+	.dram_sdqs3 = 0x00000030,
+	.dram_sdqs4 = 0x00000030,
+	.dram_sdqs5 = 0x00000030,
+	.dram_sdqs6 = 0x00000030,
+	.dram_sdqs7 = 0x00000030,
+
+	/* DQM[0:7]: Differential input, 40 ohm */
+	.dram_dqm0 = 0x00020030,
+	.dram_dqm1 = 0x00020030,
+	.dram_dqm2 = 0x00020030,
+	.dram_dqm3 = 0x00020030,
+	.dram_dqm4 = 0x00020030,
+	.dram_dqm5 = 0x00020030,
+	.dram_dqm6 = 0x00020030,
+	.dram_dqm7 = 0x00020030,
+};
+
+/* configure MX6SOLO/DUALLITE mmdc GRP io registers */
+struct mx6sdl_iomux_grp_regs mx6sdl_grp_ioregs = {
+	/* DDR3 */
+	.grp_ddr_type = 0x000c0000,
+	/* SDQS[0:7]: Differential input, 40 ohm */
+	.grp_ddrmode_ctl = 0x00020000,
+	/* disable DDR pullups */
+	.grp_ddrpke = 0x00000000,
+	/* ADDR[00:16], SDBA[0:1]: 40 ohm */
+	.grp_addds = 0x00000030,
+	/* CS0/CS1/SDBA2/CKE0/CKE1/SDWE: 40 ohm */
+	.grp_ctlds = 0x00000030,
+	/* DATA[00:63]: Differential input, 40 ohm */
+	.grp_ddrmode = 0x00020000,
+	.grp_b0ds = 0x00000030,
+	.grp_b1ds = 0x00000030,
+	.grp_b2ds = 0x00000030,
+	.grp_b3ds = 0x00000030,
+	.grp_b4ds = 0x00000030,
+	.grp_b5ds = 0x00000030,
+	.grp_b6ds = 0x00000030,
+	.grp_b7ds = 0x00000030,
+};
+
+/* MT41K128M16JT-125 */
+static struct mx6_ddr3_cfg mt41k128m16jt_125 = {
+	.mem_speed = 1600,
+	.density = 2,
+	.width = 16,
+	.banks = 8,
+	.rowaddr = 14,
+	.coladdr = 10,
+	.pagesz = 2,
+	.trcd = 1375,
+	.trcmin = 4875,
+	.trasmin = 3500,
+};
+
+/* GW54xx specific calibration */
+static struct mx6_mmdc_calibration gw54xxq_mmdc_calib = {
+	/* write leveling calibration determine */
+	.p0_mpwldectrl0 = 0x00190018,
+	.p0_mpwldectrl1 = 0x0021001D,
+	.p1_mpwldectrl0 = 0x00160027,
+	.p1_mpwldectrl1 = 0x0012001E,
+	/* Read DQS Gating calibration */
+	.p0_mpdgctrl0 = 0x43370346,
+	.p0_mpdgctrl1 = 0x032A0321,
+	.p1_mpdgctrl0 = 0x433A034D,
+	.p1_mpdgctrl1 = 0x032F0235,
+	/* Read Calibration: DQS delay relative to DQ read access */
+	.p0_mprddlctl = 0x3C313539,
+	.p1_mprddlctl = 0x37333140,
+	/* Write Calibration: DQ/DM delay relative to DQS write access */
+	.p0_mpwrdlctl = 0x37393C38,
+	.p1_mpwrdlctl = 0x42334538,
+};
+
+/* GW53xx specific calibration */
+static struct mx6_mmdc_calibration gw53xxq_mmdc_calib = {
+	/* write leveling calibration determine */
+	.p0_mpwldectrl0 = 0x00160013,
+	.p0_mpwldectrl1 = 0x00090024,
+	.p1_mpwldectrl0 = 0x001F0018,
+	.p1_mpwldectrl1 = 0x000C001C,
+	/* Read DQS Gating calibration */
+	.p0_mpdgctrl0 = 0x433A034C,
+	.p0_mpdgctrl1 = 0x0336032F,
+	.p1_mpdgctrl0 = 0x4343034A,
+	.p1_mpdgctrl1 = 0x03370222,
+	/* Read Calibration: DQS delay relative to DQ read access */
+	.p0_mprddlctl = 0x3F343638,
+	.p1_mprddlctl = 0x38373442,
+	/* Write Calibration: DQ/DM delay relative to DQS write access */
+	.p0_mpwrdlctl = 0x343A3E39,
+	.p1_mpwrdlctl = 0x44344239,
+};
+static struct mx6_mmdc_calibration gw53xxdl_mmdc_calib = {
+	/* write leveling calibration determine */
+	.p0_mpwldectrl0 = 0x003C003C,
+	.p0_mpwldectrl1 = 0x00330038,
+	.p1_mpwldectrl0 = 0x001F002A,
+	.p1_mpwldectrl1 = 0x0022003F,
+	/* Read DQS Gating calibration */
+	.p0_mpdgctrl0 = 0x42410244,
+	.p0_mpdgctrl1 = 0x022D022D,
+	.p1_mpdgctrl0 = 0x4234023A,
+	.p1_mpdgctrl1 = 0x021C0228,
+	/* Read Calibration: DQS delay relative to DQ read access */
+	.p0_mprddlctl = 0x484A4C4B,
+	.p1_mprddlctl = 0x4B4D4E4B,
+	/* Write Calibration: DQ/DM delay relative to DQS write access */
+	.p0_mpwrdlctl = 0x33342B32,
+	.p1_mpwrdlctl = 0x3933332B,
+};
+
+/* GW52xx specific calibration */
+static struct mx6_mmdc_calibration gw52xxdl_mmdc_calib = {
+	/* write leveling calibration determine */
+	.p0_mpwldectrl0 = 0x0040003F,
+	.p0_mpwldectrl1 = 0x00370037,
+	/* Read DQS Gating calibration */
+	.p0_mpdgctrl0 = 0x42420244,
+	.p0_mpdgctrl1 = 0x022F022F,
+	/* Read Calibration: DQS delay relative to DQ read access */
+	.p0_mprddlctl = 0x49464B4A,
+	/* Write Calibration: DQ/DM delay relative to DQS write access */
+	.p0_mpwrdlctl = 0x32362C32,
+};
+
+/* GW51xx specific calibration */
+static struct mx6_mmdc_calibration gw51xxq_mmdc_calib = {
+	/* write leveling calibration determine */
+	.p0_mpwldectrl0 = 0x00150016,
+	.p0_mpwldectrl1 = 0x001F0017,
+	/* Read DQS Gating calibration */
+	.p0_mpdgctrl0 = 0x433D034D,
+	.p0_mpdgctrl1 = 0x033D032F,
+	/* Read Calibration: DQS delay relative to DQ read access */
+	.p0_mprddlctl = 0x3F313639,
+	/* Write Calibration: DQ/DM delay relative to DQS write access */
+	.p0_mpwrdlctl = 0x33393F36,
+};
+
+static struct mx6_mmdc_calibration gw51xxdl_mmdc_calib = {
+	/* write leveling calibration determine */
+	.p0_mpwldectrl0 = 0x003D003F,
+	.p0_mpwldectrl1 = 0x002F0038,
+	/* Read DQS Gating calibration */
+	.p0_mpdgctrl0 = 0x423A023A,
+	.p0_mpdgctrl1 = 0x022A0228,
+	/* Read Calibration: DQS delay relative to DQ read access */
+	.p0_mprddlctl = 0x48494C4C,
+	/* Write Calibration: DQ/DM delay relative to DQS write access */
+	.p0_mpwrdlctl = 0x34352D31,
+};
+
+static void spl_dram_init(int width, int size, int board_model)
+{
+	struct mx6_ddr3_cfg *mem = &mt41k128m16jt_125;
+	struct mx6_mmdc_calibration *calib;
+	struct mx6_ddr_sysinfo sysinfo = {
+		/* width of data bus:0=16,1=32,2=64 */
+		.dsize = width/32,
+		/* config for full 4GB range so that get_mem_size() works */
+		.cs_density = 32, /* 32Gb per CS */
+		/* single chip select */
+		.ncs = 1,
+		.cs1_mirror = 0,
+		.rtt_wr = 1 /*DDR3_RTT_60_OHM*/,	/* RTT_Wr = RZQ/4 */
+#ifdef RTT_NOM_120OHM
+		.rtt_nom = 2 /*DDR3_RTT_120_OHM*/,	/* RTT_Nom = RZQ/2 */
+#else
+		.rtt_nom = 1 /*DDR3_RTT_60_OHM*/,	/* RTT_Nom = RZQ/4 */
+#endif
+		.walat = 1,	/* Write additional latency */
+		.ralat = 5,	/* Read additional latency */
+		.mif3_mode = 3,	/* Command prediction working mode */
+		.bi_on = 1,	/* Bank interleaving enabled */
+		.sde_to_rst = 0x10,	/* 14 cycles, 200us (JEDEC default) */
+		.rst_to_cke = 0x23,	/* 33 cycles, 500us (JEDEC default) */
+	};
+
+	/*
+	 * MMDC Calibration requires the following data:
+	 *   mx6_mmdc_calibration - board-specific calibration (routing delays)
+	 *   mx6_ddr_sysinfo - board-specific memory architecture (width/cs/etc)
+	 *   mx6_ddr_cfg - chip specific timing/layout details
+	 */
+	switch (board_model) {
+	default:
+	case GW51xx:
+		if (is_cpu_type(MXC_CPU_MX6Q))
+			calib = &gw51xxq_mmdc_calib;
+		else
+			calib = &gw51xxdl_mmdc_calib;
+		break;
+	case GW52xx:
+		calib = &gw52xxdl_mmdc_calib;
+		break;
+	case GW53xx:
+		if (is_cpu_type(MXC_CPU_MX6Q))
+			calib = &gw53xxq_mmdc_calib;
+		else
+			calib = &gw53xxdl_mmdc_calib;
+		break;
+	case GW54xx:
+		calib = &gw54xxq_mmdc_calib;
+		break;
+	}
+
+	if (is_cpu_type(MXC_CPU_MX6Q))
+		mx6dq_dram_iocfg(width, &mx6dq_ddr_ioregs,
+				 &mx6dq_grp_ioregs);
+	else
+		mx6sdl_dram_iocfg(width, &mx6sdl_ddr_ioregs,
+				  &mx6sdl_grp_ioregs);
+	mx6_dram_cfg(&sysinfo, calib, mem);
+}
+
+/*
+ * called from C runtime startup code (arch/arm/lib/crt0.S:_main)
+ * - we have a stack and a place to store GD, both in SRAM
+ * - no variable global data is available
+ */
+void board_init_f(ulong dummy)
+{
+	struct ventana_board_info ventana_info;
+	int board_model;
+
+	/*
+	 * Zero out global data:
+	 *  - this shoudl be done by crt0.S
+	 *  - failure to zero it will cause i2c_setup to fail
+	 */
+	memset((void *)gd, 0, sizeof(struct global_data));
+
+	/* setup AIPS and disable watchdog */
+	arch_cpu_init();
+
+	/* iomux and setup of i2c */
+	board_early_init_f();
+	i2c_setup_iomux();
+
+	/* setup GP timer */
+	timer_init();
+
+	/* UART clocks enabled and gd valid - init serial console */
+	preloader_console_init();
+
+	/* read/validate EEPROM info to determine board model and SDRAM cfg */
+	board_model = read_eeprom(I2C_GSC, &ventana_info);
+
+	/* provide some some default: 32bit 128MB */
+	if (GW_UNKNOWN == board_model) {
+		ventana_info.sdram_width = 2;
+		ventana_info.sdram_size = 3;
+	}
+
+	/* configure MMDC for SDRAM width/size and per-model calibration */
+	spl_dram_init(8 << ventana_info.sdram_width,
+		      16 << ventana_info.sdram_size,
+		      board_model);
+
+	/* Clear the BSS. */
+	memset(__bss_start, 0, __bss_end - __bss_start);
+
+	/* load/boot image from boot device */
+	board_init_r(NULL, 0);
+}
+
+void reset_cpu(ulong addr)
+{
+}

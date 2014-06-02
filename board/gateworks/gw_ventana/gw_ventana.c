@@ -1102,6 +1102,7 @@ void get_board_serial(struct tag_serialnr *serialnr)
  * Board Support
  */
 
+/* called from SPL board_init_f() */
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
@@ -1115,8 +1116,7 @@ int board_early_init_f(void)
 
 int dram_init(void)
 {
-	gd->ram_size = get_ram_size((void *)PHYS_SDRAM,
-				    CONFIG_DDR_MB*1024*1024);
+	gd->ram_size = imx_ddr_size();
 	return 0;
 }
 
@@ -1258,9 +1258,11 @@ int misc_init_r(void)
 		 * env scripts will try loading each from most specific to
 		 * least.
 		 */
-		if (is_cpu_type(MXC_CPU_MX6Q))
+		if (is_cpu_type(MXC_CPU_MX6Q) ||
+		    is_cpu_type(MXC_CPU_MX6D))
 			cputype = "imx6q";
-		else if (is_cpu_type(MXC_CPU_MX6DL))
+		else if (is_cpu_type(MXC_CPU_MX6DL) ||
+			 is_cpu_type(MXC_CPU_MX6SOLO))
 			cputype = "imx6dl";
 		memset(str, 0, sizeof(str));
 		for (i = 0; i < (sizeof(str)-1) && info->model[i]; i++)
