@@ -11,6 +11,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
+#include <asm/arch/sys_proto.h>
 #include <asm/imx-common/iomux-v3.h>
 
 static void *base = (void *)IOMUXC_BASE_ADDR;
@@ -54,12 +55,23 @@ void imx_iomux_v3_setup_pad(iomux_v3_cfg_t pad)
 #endif
 }
 
+/* configures a list of pads within declared with IOMUX_PADS macro */
 void imx_iomux_v3_setup_multiple_pads(iomux_v3_cfg_t const *pad_list,
 				      unsigned count)
 {
 	iomux_v3_cfg_t const *p = pad_list;
+	int stride;
 	int i;
 
-	for (i = 0; i < count; i++)
-		imx_iomux_v3_setup_pad(*p++);
+#if defined(CONFIG_MX6QDL)
+	stride = 2;
+	if (!is_cpu_type(MXC_CPU_MX6Q) && !is_cpu_type(MXC_CPU_MX6D))
+		p += 1;
+#else
+	stride = 1;
+#endif
+	for (i = 0; i < count; i++) {
+		imx_iomux_v3_setup_pad(*p);
+		p += stride;
+	}
 }
