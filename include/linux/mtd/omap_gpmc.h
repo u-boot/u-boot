@@ -27,6 +27,8 @@ enum omap_ecc {
 	OMAP_ECC_BCH8_CODE_HW_DETECTION_SW,
 	/* 8-bit  ECC calculation by GPMC, Error detection by ELM */
 	OMAP_ECC_BCH8_CODE_HW,
+	/* 16-bit  ECC calculation by GPMC, Error detection by ELM */
+	OMAP_ECC_BCH16_CODE_HW,
 };
 
 struct gpmc_cs {
@@ -45,6 +47,10 @@ struct gpmc_cs {
 
 struct bch_res_0_3 {
 	u32 bch_result_x[4];
+};
+
+struct bch_res_4_6 {
+	u32 bch_result_x[3];
 };
 
 struct gpmc {
@@ -77,6 +83,8 @@ struct gpmc {
 	u32 testmomde_ctrl;	/* 0x230 */
 	u8 res8[12];		/* 0x234 */
 	struct bch_res_0_3 bch_result_0_3[GPMC_MAX_SECTORS]; /* 0x240,0x250, */
+	u8 res9[16 * 4];	/* 0x2C0 - 0x2FF */
+	struct bch_res_4_6 bch_result_4_6[GPMC_MAX_SECTORS]; /* 0x300,0x310, */
 };
 
 /* Used for board specific gpmc initialization */

@@ -224,6 +224,19 @@ static void omap_enable_hwecc(struct mtd_info *mtd, int32_t mode)
 			eccsize1 = 2;  /* non-ECC bits in nibbles per sector */
 		}
 		break;
+	case OMAP_ECC_BCH16_CODE_HW:
+		ecc_algo = 0x1;
+		bch_type = 0x2;
+		if (mode == NAND_ECC_WRITE) {
+			bch_wrapmode = 0x01;
+			eccsize0 = 0;  /* extra bits in nibbles per sector */
+			eccsize1 = 52; /* OOB bits in nibbles per sector */
+		} else {
+			bch_wrapmode = 0x01;
+			eccsize0 = 52; /* ECC bits in nibbles per sector */
+			eccsize1 = 0;  /* non-ECC bits in nibbles per sector */
+		}
+		break;
 	default:
 		return;
 	}
@@ -290,6 +303,29 @@ static int omap_calculate_ecc(struct mtd_info *mtd, const uint8_t *dat,
 			ptr--;
 		}
 		break;
+	case OMAP_ECC_BCH16_CODE_HW:
+		val = readl(&gpmc_cfg->bch_result_4_6[0].bch_result_x[2]);
+		ecc_code[i++] = (val >>  8) & 0xFF;
+		ecc_code[i++] = (val >>  0) & 0xFF;
+		val = readl(&gpmc_cfg->bch_result_4_6[0].bch_result_x[1]);
+		ecc_code[i++] = (val >> 24) & 0xFF;
+		ecc_code[i++] = (val >> 16) & 0xFF;
+		ecc_code[i++] = (val >>  8) & 0xFF;
+		ecc_code[i++] = (val >>  0) & 0xFF;
+		val = readl(&gpmc_cfg->bch_result_4_6[0].bch_result_x[0]);
+		ecc_code[i++] = (val >> 24) & 0xFF;
+		ecc_code[i++] = (val >> 16) & 0xFF;
+		ecc_code[i++] = (val >>  8) & 0xFF;
+		ecc_code[i++] = (val >>  0) & 0xFF;
+		for (j = 3; j >= 0; j--) {
+			val = readl(&gpmc_cfg->bch_result_0_3[0].bch_result_x[j]
+									);
+			ecc_code[i++] = (val >> 24) & 0xFF;
+			ecc_code[i++] = (val >> 16) & 0xFF;
+			ecc_code[i++] = (val >>  8) & 0xFF;
+			ecc_code[i++] = (val >>  0) & 0xFF;
+		}
+		break;
 	default:
 		return -EINVAL;
 	}
@@ -307,6 +343,8 @@ static int omap_calculate_ecc(struct mtd_info *mtd, const uint8_t *dat,
 #endif
 	case OMAP_ECC_BCH8_CODE_HW:
 		ecc_code[chip->ecc.bytes - 1] = 0x00;
+		break;
+	case OMAP_ECC_BCH16_CODE_HW:
 		break;
 	default:
 		return -EINVAL;
@@ -333,7 +371,7 @@ static int omap_correct_data_bch(struct mtd_info *mtd, uint8_t *dat,
 	struct omap_nand_info *info = chip->priv;
 	struct nand_ecc_ctrl *ecc = &chip->ecc;
 	uint32_t error_count = 0, error_max;
-	uint32_t error_loc[8];
+	uint32_t error_loc[ELM_MAX_ERROR_COUNT];
 	enum bch_level bch_type;
 	uint32_t i, ecc_flag = 0;
 	uint8_t count, err = 0;
@@ -365,6 +403,10 @@ static int omap_correct_data_bch(struct mtd_info *mtd, uint8_t *dat,
 		bch_type = BCH_8_BIT;
 		omap_reverse_list(calc_ecc, ecc->bytes - 1);
 		break;
+	case OMAP_ECC_BCH16_CODE_HW:
+		bch_type = BCH_16_BIT;
+		omap_reverse_list(calc_ecc, ecc->bytes);
+		break;
 	default:
 		return -EINVAL;
 	}
@@ -380,6 +422,9 @@ static int omap_correct_data_bch(struct mtd_info *mtd, uint8_t *dat,
 		case OMAP_ECC_BCH8_CODE_HW:
 			/* 14th byte in ECC is reserved to match ROM layout */
 			error_max = SECTOR_BYTES + (ecc->bytes - 1);
+			break;
+		case OMAP_ECC_BCH16_CODE_HW:
+			error_max = SECTOR_BYTES + ecc->bytes;
 			break;
 		default:
 			return -EINVAL;
@@ -666,6 +711,38 @@ static int omap_select_ecc_scheme(struct nand_chip *nand,
 		return -EINVAL;
 #endif
 
+	case OMAP_ECC_BCH16_CODE_HW:
+#ifdef CONFIG_NAND_OMAP_ELM
+		debug("nand: using OMAP_ECC_BCH16_CODE_HW\n");
+		/* check ecc-scheme requirements before updating ecc info */
+		if ((26 * eccsteps) + BADBLOCK_MARKER_LENGTH > oobsize) {
+			printf("nand: error: insufficient OOB: require=%d\n", (
+				(26 * eccsteps) + BADBLOCK_MARKER_LENGTH));
+			return -EINVAL;
+		}
+		/* intialize ELM for ECC error detection */
+		elm_init();
+		/* populate ecc specific fields */
+		nand->ecc.mode		= NAND_ECC_HW;
+		nand->ecc.size		= SECTOR_BYTES;
+		nand->ecc.bytes		= 26;
+		nand->ecc.strength	= 16;
+		nand->ecc.hwctl		= omap_enable_hwecc;
+		nand->ecc.correct	= omap_correct_data_bch;
+		nand->ecc.calculate	= omap_calculate_ecc;
+		nand->ecc.read_page	= omap_read_page_bch;
+		/* define ecc-layout */
+		ecclayout->eccbytes	= nand->ecc.bytes * eccsteps;
+		for (i = 0; i < ecclayout->eccbytes; i++)
+			ecclayout->eccpos[i] = i + BADBLOCK_MARKER_LENGTH;
+		ecclayout->oobfree[0].offset = i + BADBLOCK_MARKER_LENGTH;
+		ecclayout->oobfree[0].length = oobsize - nand->ecc.bytes -
+						BADBLOCK_MARKER_LENGTH;
+		break;
+#else
+		printf("nand: error: CONFIG_NAND_OMAP_ELM required for ECC\n");
+		return -EINVAL;
+#endif
 	default:
 		debug("nand: error: ecc scheme not enabled or supported\n");
 		return -EINVAL;
