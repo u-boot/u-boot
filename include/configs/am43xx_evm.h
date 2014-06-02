@@ -179,6 +179,7 @@
 	"loadfdt=load ${devtype} ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
 	"mmcboot=mmc dev ${mmcdev}; " \
 		"setenv devnum ${mmcdev}; " \
+		"setenv devtype mmc; " \
 		"if mmc rescan; then " \
 			"echo SD/MMC found on device ${devnum};" \
 			"if run loadbootenv; then " \
