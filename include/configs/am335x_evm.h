@@ -19,10 +19,15 @@
 #include <configs/ti_am335x_common.h>
 
 #ifndef CONFIG_SPL_BUILD
+# define CONFIG_FIT
+# define CONFIG_TIMESTAMP
+# define CONFIG_LZO
 # define CONFIG_OF_CONTROL
 # define CONFIG_OF_SEPARATE
 # define CONFIG_DEFAULT_DEVICE_TREE am335x-boneblack
 #endif
+
+#define CONFIG_SYS_BOOTM_LEN		(16 << 20)
 
 #define MACH_TYPE_TIAM335EVM		3589	/* Until the next sync */
 #define CONFIG_MACH_TYPE		MACH_TYPE_TIAM335EVM
