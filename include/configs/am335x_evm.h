@@ -25,6 +25,10 @@
 # define CONFIG_OF_CONTROL
 # define CONFIG_OF_SEPARATE
 # define CONFIG_DEFAULT_DEVICE_TREE am335x-boneblack
+# ifdef CONFIG_ENABLE_VBOOT
+#  define CONFIG_FIT_SIGNATURE
+#  define CONFIG_RSA
+# endif
 #endif
 
 #define CONFIG_SYS_BOOTM_LEN		(16 << 20)
