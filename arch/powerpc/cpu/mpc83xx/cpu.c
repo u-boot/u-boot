@@ -20,7 +20,7 @@
 #include <netdev.h>
 #include <fsl_esdhc.h>
 #if defined(CONFIG_BOOTCOUNT_LIMIT) && !defined(CONFIG_MPC831x)
-#include <asm/immap_qe.h>
+#include <linux/immap_qe.h>
 #include <asm/io.h>
 #endif
 
