@@ -22,6 +22,54 @@
 
 static image_header_t header;
 
+static int fit_add_file_data(struct image_tool_params *params, size_t size_inc,
+			     const char *tmpfile)
+{
+	int tfd, destfd = 0;
+	void *dest_blob = NULL;
+	off_t destfd_size = 0;
+	struct stat sbuf;
+	void *ptr;
+	int ret = 0;
+
+	tfd = mmap_fdt(params->cmdname, tmpfile, size_inc, &ptr, &sbuf, true);
+	if (tfd < 0)
+		return -EIO;
+
+	if (params->keydest) {
+		struct stat dest_sbuf;
+
+		destfd = mmap_fdt(params->cmdname, params->keydest, size_inc,
+				  &dest_blob, &dest_sbuf, false);
+		if (destfd < 0) {
+			ret = -EIO;
+			goto err_keydest;
+		}
+		destfd_size = dest_sbuf.st_size;
+	}
+
+	/* for first image creation, add a timestamp at offset 0 i.e., root  */
+	if (params->datafile)
+		ret = fit_set_timestamp(ptr, 0, sbuf.st_mtime);
+
+	if (!ret) {
+		ret = fit_add_verification_data(params->keydir, dest_blob, ptr,
+						params->comment,
+						params->require_keys);
+	}
+
+	if (dest_blob) {
+		munmap(dest_blob, destfd_size);
+		close(destfd);
+	}
+
+err_keydest:
+	munmap(ptr, sbuf.st_size);
+	close(tfd);
+
+	return ret;
+}
+
 /**
  * fit_handle_file - main FIT file processing function
  *
@@ -38,11 +86,8 @@ static int fit_handle_file(struct image_tool_params *params)
 {
 	char tmpfile[MKIMAGE_MAX_TMPFILE_LEN];
 	char cmd[MKIMAGE_MAX_DTC_CMDLINE_LEN];
-	int tfd, destfd = 0;
-	void *dest_blob = NULL;
-	struct stat sbuf;
-	void *ptr;
-	off_t destfd_size = 0;
+	size_t size_inc;
+	int ret;
 
 	/* Flattened Image Tree (FIT) format  handling */
 	debug ("FIT format handling\n");
@@ -73,40 +118,26 @@ static int fit_handle_file(struct image_tool_params *params)
 		goto err_system;
 	}
 
-	if (params->keydest) {
-		destfd = mmap_fdt(params->cmdname, params->keydest,
-				  &dest_blob, &sbuf, 1);
-		if (destfd < 0)
-			goto err_keydest;
-		destfd_size = sbuf.st_size;
+	/*
+	 * Set hashes for images in the blob. Unfortunately we may need more
+	 * space in either FDT, so keep trying until we succeed.
+	 *
+	 * Note: this is pretty inefficient for signing, since we must
+	 * calculate the signature every time. It would be better to calculate
+	 * all the data and then store it in a separate step. However, this
+	 * would be considerably more complex to implement. Generally a few
+	 * steps of this loop is enough to sign with several keys.
+	 */
+	for (size_inc = 0; size_inc < 64 * 1024; size_inc += 1024) {
+		ret = fit_add_file_data(params, size_inc, tmpfile);
+		if (!ret || ret != -ENOSPC)
+			break;
 	}
 
-	tfd = mmap_fdt(params->cmdname, tmpfile, &ptr, &sbuf, 1);
-	if (tfd < 0)
-		goto err_mmap;
-
-	/* set hashes for images in the blob */
-	if (fit_add_verification_data(params->keydir,
-				      dest_blob, ptr, params->comment,
-				      params->require_keys)) {
+	if (ret) {
 		fprintf(stderr, "%s Can't add hashes to FIT blob\n",
 			params->cmdname);
-		goto err_add_hashes;
-	}
-
-	/* for first image creation, add a timestamp at offset 0 i.e., root  */
-	if (params->datafile && fit_set_timestamp(ptr, 0, sbuf.st_mtime)) {
-		fprintf (stderr, "%s: Can't add image timestamp\n",
-				params->cmdname);
-		goto err_add_timestamp;
-	}
-	debug ("Added timestamp successfully\n");
-
-	munmap ((void *)ptr, sbuf.st_size);
-	close (tfd);
-	if (dest_blob) {
-		munmap(dest_blob, destfd_size);
-		close(destfd);
+		goto err_system;
 	}
 
 	if (rename (tmpfile, params->imagefile) == -1) {
@@ -115,17 +146,10 @@ static int fit_handle_file(struct image_tool_params *params)
 				strerror (errno));
 		unlink (tmpfile);
 		unlink (params->imagefile);
-		return (EXIT_FAILURE);
+		return EXIT_FAILURE;
 	}
-	return (EXIT_SUCCESS);
+	return EXIT_SUCCESS;
 
-err_add_timestamp:
-err_add_hashes:
-	munmap(ptr, sbuf.st_size);
-err_mmap:
-	if (dest_blob)
-		munmap(dest_blob, destfd_size);
-err_keydest:
 err_system:
 	unlink(tmpfile);
 	return -1;

@@ -62,10 +62,10 @@ int main(int argc, char **argv)
 			break;
 	}
 
-	ffd = mmap_fdt(cmdname, fdtfile, &fit_blob, &fsbuf, false);
+	ffd = mmap_fdt(cmdname, fdtfile, 0, &fit_blob, &fsbuf, false);
 	if (ffd < 0)
 		return EXIT_FAILURE;
-	kfd = mmap_fdt(cmdname, keyfile, &key_blob, &ksbuf, false);
+	kfd = mmap_fdt(cmdname, keyfile, 0, &key_blob, &ksbuf, false);
 	if (ffd < 0)
 		return EXIT_FAILURE;
 
