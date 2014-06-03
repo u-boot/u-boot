@@ -833,7 +833,7 @@ static int fit_image_hash_get_ignore(const void *fit, int noffset, int *ignore)
  *
  * returns:
  *     0, on success
- *     -1, on property read failure
+ *     -ENOSPC if no space in device tree, -1 for other error
  */
 int fit_set_timestamp(void *fit, int noffset, time_t timestamp)
 {
@@ -847,7 +847,7 @@ int fit_set_timestamp(void *fit, int noffset, time_t timestamp)
 		printf("Can't set '%s' property for '%s' node (%s)\n",
 		       FIT_TIMESTAMP_PROP, fit_get_name(fit, noffset, NULL),
 		       fdt_strerror(ret));
-		return -1;
+		return ret == -FDT_ERR_NOSPACE ? -ENOSPC : -1;
 	}
 
 	return 0;

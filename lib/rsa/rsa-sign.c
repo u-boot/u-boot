@@ -429,20 +429,30 @@ int rsa_add_verify_data(struct image_sign_info *info, void *keydest)
 
 	ret = fdt_setprop_string(keydest, node, "key-name-hint",
 				 info->keyname);
-	ret |= fdt_setprop_u32(keydest, node, "rsa,num-bits", bits);
-	ret |= fdt_setprop_u32(keydest, node, "rsa,n0-inverse", n0_inv);
-	ret |= fdt_add_bignum(keydest, node, "rsa,modulus", modulus, bits);
-	ret |= fdt_add_bignum(keydest, node, "rsa,r-squared", r_squared, bits);
-	ret |= fdt_setprop_string(keydest, node, FIT_ALGO_PROP,
-				  info->algo->name);
+	if (!ret)
+		ret = fdt_setprop_u32(keydest, node, "rsa,num-bits", bits);
+	if (!ret)
+		ret = fdt_setprop_u32(keydest, node, "rsa,n0-inverse", n0_inv);
+	if (!ret) {
+		ret = fdt_add_bignum(keydest, node, "rsa,modulus", modulus,
+				     bits);
+	}
+	if (!ret) {
+		ret = fdt_add_bignum(keydest, node, "rsa,r-squared", r_squared,
+				     bits);
+	}
+	if (!ret) {
+		ret = fdt_setprop_string(keydest, node, FIT_ALGO_PROP,
+					 info->algo->name);
+	}
 	if (info->require_keys) {
-		fdt_setprop_string(keydest, node, "required",
-				   info->require_keys);
+		ret = fdt_setprop_string(keydest, node, "required",
+					 info->require_keys);
 	}
 	BN_free(modulus);
 	BN_free(r_squared);
 	if (ret)
-		return -EIO;
+		return ret == FDT_ERR_NOSPACE ? -ENOSPC : -EIO;
 
 	return 0;
 }
