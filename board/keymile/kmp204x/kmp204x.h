@@ -24,5 +24,7 @@ void qrio_wdmask(u8 bit, bool wden);
 void qrio_prstcfg(u8 bit, u8 mode);
 void qrio_set_leds(void);
 void qrio_enable_app_buffer(void);
+void qrio_cpuwd_flag(bool flag);
+int qrio_reset_reason(void);
 
 void pci_of_setup(void *blob, bd_t *bd);
