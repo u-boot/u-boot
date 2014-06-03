@@ -62,6 +62,8 @@ SECTIONS
 		*(.__rel_dyn_end)
 	}
 
+	.hash : { *(.hash*) }
+
 	.end :
 	{
 		*(.__end)
@@ -99,8 +101,6 @@ SECTIONS
 	}
 
 	.dynsym _image_binary_end : { *(.dynsym) }
-	.hash : { *(.hash) }
-	.got.plt : { *(.got.plt) }
 	.dynbss : { *(.dynbss) }
 	.dynstr : { *(.dynstr*) }
 	.dynamic : { *(.dynamic*) }
