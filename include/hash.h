@@ -126,5 +126,19 @@ int hash_block(const char *algo_name, const void *data, unsigned int len,
  * @return 0 if ok, -EPROTONOSUPPORT for an unknown algorithm.
  */
 int hash_lookup_algo(const char *algo_name, struct hash_algo **algop);
+
+/**
+ * hash_show() - Print out a hash algorithm and value
+ *
+ * You will get a message like this (without a newline at the end):
+ *
+ * "sha1 for 9eb3337c ... 9eb3338f ==> 7942ef1df479fd3130f716eb9613d107dab7e257"
+ *
+ * @algo:		Algorithm used for hash
+ * @addr:		Address of data that was hashed
+ * @len:		Length of data that was hashed
+ * @output:		Hash value to display
+ */
+void hash_show(struct hash_algo *algo, ulong addr, ulong len, u8 *output);
 #endif /* !USE_HOSTCC */
 #endif

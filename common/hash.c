@@ -311,8 +311,7 @@ int hash_lookup_algo(const char *algo_name, struct hash_algo **algop)
 	return -EPROTONOSUPPORT;
 }
 
-static void show_hash(struct hash_algo *algo, ulong addr, ulong len,
-		      u8 *output)
+void hash_show(struct hash_algo *algo, ulong addr, ulong len, u8 *output)
 {
 	int i;
 
@@ -392,7 +391,7 @@ int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
 			if (memcmp(output, vsum, algo->digest_size) != 0) {
 				int i;
 
-				show_hash(algo, addr, len, output);
+				hash_show(algo, addr, len, output);
 				printf(" != ");
 				for (i = 0; i < algo->digest_size; i++)
 					printf("%02x", vsum[i]);
@@ -400,7 +399,7 @@ int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
 				return 1;
 			}
 		} else {
-			show_hash(algo, addr, len, output);
+			hash_show(algo, addr, len, output);
 			printf("\n");
 
 			if (argc) {
