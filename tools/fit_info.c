@@ -68,7 +68,7 @@ int main(int argc, char **argv)
 			break;
 		}
 
-	ffd = mmap_fdt(cmdname, fdtfile, &fit_blob, &fsbuf, 0);
+	ffd = mmap_fdt(cmdname, fdtfile, &fit_blob, &fsbuf, false);
 
 	if (ffd < 0) {
 		printf("Could not open %s\n", fdtfile);
