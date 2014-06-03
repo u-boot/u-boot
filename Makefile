@@ -706,7 +706,7 @@ DO_STATIC_RELA =
 endif
 
 # Always append ALL so that arch config.mk's can add custom ones
-ALL-y += u-boot.srec u-boot.bin System.map
+ALL-y += u-boot.srec u-boot.bin System.map binary_size_check
 
 ALL-$(CONFIG_ONENAND_U_BOOT) += u-boot-onenand.bin
 ifeq ($(CONFIG_SPL_FSL_PBL),y)
@@ -784,6 +784,18 @@ u-boot.hex u-boot.srec: u-boot FORCE
 	$(call if_changed,objcopy)
 
 OBJCOPYFLAGS_u-boot.bin := -O binary
+
+binary_size_check: u-boot.bin System.map FORCE
+	@file_size=`stat -c %s u-boot.bin` ; \
+	map_size=$(shell cat System.map | \
+		awk '/_image_copy_start/ {start = $$1} /_image_binary_end/ {end = $$1} END {if (start != "" && end != "") print strtonum("0x" end) - strtonum("0x" start)}'); \
+	if [ "" != "$$map_size" ]; then \
+		if test $$map_size -ne $$file_size; then \
+			echo "System.map shows a binary size of $$map_size" >&2 ; \
+			echo "  but u-boot.bin shows $$file_size" >&2 ; \
+			exit 1; \
+		fi \
+	fi
 
 u-boot.bin: u-boot FORCE
 	$(call if_changed,objcopy)
