@@ -12,7 +12,11 @@ ifeq ($(DEVICE_TREE),)
 DEVICE_TREE := unset
 endif
 
+ifneq ($(DEV_TREE_BIN),)
+DTB := $(DEV_TREE_BIN)
+else
 DTB := arch/$(ARCH)/dts/$(DEVICE_TREE).dtb
+endif
 
 $(obj)/dt.dtb: $(DTB) FORCE
 	$(call if_changed,shipped)
