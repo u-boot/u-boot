@@ -88,6 +88,9 @@ int board_early_init_f(void)
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	bool cpuwd_flag = false;
 
+	/* configure mode for uP reset request */
+	qrio_uprstreq(UPREQ_CORE_RST);
+
 	/* board only uses the DDR_MCK0, so disable the DDR_MCK1/2/3 */
 	setbits_be32(&gur->ddrclkdr, 0x001f000f);
 
