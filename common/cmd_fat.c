@@ -13,6 +13,7 @@
 #include <s_record.h>
 #include <net.h>
 #include <ata.h>
+#include <asm/io.h>
 #include <part.h>
 #include <fat.h>
 #include <fs.h>
@@ -93,6 +94,7 @@ static int do_fat_fswrite(cmd_tbl_t *cmdtp, int flag,
 	disk_partition_t info;
 	int dev = 0;
 	int part = 1;
+	void *buf;
 
 	if (argc < 5)
 		return cmd_usage(cmdtp);
@@ -111,7 +113,9 @@ static int do_fat_fswrite(cmd_tbl_t *cmdtp, int flag,
 	addr = simple_strtoul(argv[3], NULL, 16);
 	count = simple_strtoul(argv[5], NULL, 16);
 
-	size = file_fat_write(argv[4], (void *)addr, count);
+	buf = map_sysmem(addr, count);
+	size = file_fat_write(argv[4], buf, count);
+	unmap_sysmem(buf);
 	if (size == -1) {
 		printf("\n** Unable to write \"%s\" from %s %d:%d **\n",
 			argv[4], argv[1], dev, part);
