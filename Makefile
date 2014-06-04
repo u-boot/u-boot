@@ -515,12 +515,6 @@ endif
 
 # If there is no specified link script, we look in a number of places for it
 ifndef LDSCRIPT
-	ifeq ($(CONFIG_NAND_U_BOOT),y)
-		LDSCRIPT := $(srctree)/board/$(BOARDDIR)/u-boot-nand.lds
-		ifeq ($(wildcard $(LDSCRIPT)),)
-			LDSCRIPT := $(srctree)/$(CPUDIR)/u-boot-nand.lds
-		endif
-	endif
 	ifeq ($(wildcard $(LDSCRIPT)),)
 		LDSCRIPT := $(srctree)/board/$(BOARDDIR)/u-boot.lds
 	endif
@@ -742,7 +736,6 @@ endif
 # Always append ALL so that arch config.mk's can add custom ones
 ALL-y += u-boot.srec u-boot.bin System.map
 
-ALL-$(CONFIG_NAND_U_BOOT) += u-boot-nand.bin
 ALL-$(CONFIG_ONENAND_U_BOOT) += u-boot-onenand.bin
 ifeq ($(CONFIG_SPL_FSL_PBL),y)
 ALL-$(CONFIG_RAMBOOT_PBL) += u-boot-with-spl-pbl.bin
@@ -1148,23 +1141,6 @@ cmd_cpp_lds = $(CPP) -Wp,-MD,$(depfile) $(cpp_flags) $(LDPPFLAGS) -ansi \
 u-boot.lds: $(LDSCRIPT) prepare FORCE
 	$(call if_changed_dep,cpp_lds)
 
-PHONY += nand_spl
-nand_spl: prepare
-	$(Q)$(MAKE) $(build)=nand_spl/board/$(BOARDDIR) all
-	@echo >&2
-	@echo >&2 "==================== WARNING ====================="
-	@echo >&2 "nand_spl will not be included in v2014.07 release."
-	@echo >&2 "Please switch over to SPL."
-	@echo >&2 "Otherwise, this board will be removed."
-	@echo >&2 "=================================================="
-	@echo >&2
-
-nand_spl/u-boot-spl-16k.bin: nand_spl
-	@:
-
-u-boot-nand.bin: nand_spl/u-boot-spl-16k.bin u-boot.bin FORCE
-	$(call if_changed,cat)
-
 spl/u-boot-spl.bin: spl/u-boot-spl
 	@:
 spl/u-boot-spl: tools prepare
@@ -1257,7 +1233,7 @@ CLEAN_FILES += u-boot.lds include/bmp_logo.h include/bmp_logo_data.h \
 CLOBBER_DIRS  += $(patsubst %,spl/%, $(filter-out Makefile, \
 		 $(shell ls -1 spl 2>/dev/null))) \
 		 tpl
-CLOBBER_FILES += u-boot* MLO* SPL System.map nand_spl/u-boot*
+CLOBBER_FILES += u-boot* MLO* SPL System.map
 
 # Directories & files removed with 'make mrproper'
 MRPROPER_DIRS  += include/config include/generated          \
@@ -1290,8 +1266,6 @@ clean: $(clean-dirs)
 		-o -name '*.symtypes' -o -name 'modules.order' \
 		-o -name modules.builtin -o -name '.tmp_*.o.*' \
 		-o -name '*.gcno' \) -type f -print | xargs rm -f
-	@find $(if $(KBUILD_EXTMOD), $(KBUILD_EXTMOD), .) $(RCS_FIND_IGNORE) \
-		-path './nand_spl/*' -type l -print | xargs rm -f
 
 # clobber
 #
