@@ -14,11 +14,8 @@ endif
 
 DTB := arch/$(ARCH)/dts/$(DEVICE_TREE).dtb
 
-quiet_cmd_copy = COPY    $@
-      cmd_copy = cp $< $@
-
 $(obj)/dt.dtb: $(DTB) FORCE
-	$(call if_changed,copy)
+	$(call if_changed,shipped)
 
 targets += dt.dtb
 
