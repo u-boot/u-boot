@@ -12,6 +12,8 @@
 #ifndef __BUR_AM335X_COMMON_H__
 #define __BUR_AM335X_COMMON_H__
 /* ------------------------------------------------------------------------- */
+#define CONFIG_SYS_GENERIC_BOARD
+
 #define CONFIG_AM33XX
 #define CONFIG_OMAP
 #define CONFIG_OMAP_COMMON
