@@ -105,27 +105,26 @@ fit_check_sign$(SFX)-objs   := $(dumpimage-mkimage-objs) fit_check_sign.o
 
 # TODO(sjg@chromium.org): Is this correct on Mac OS?
 
-# MXSImage needs LibSSL
 ifneq ($(CONFIG_MX23)$(CONFIG_MX28),)
-HOSTLOADLIBES_dumpimage$(SFX) := -lssl -lcrypto
-HOSTLOADLIBES_mkimage$(SFX) := -lssl -lcrypto
-HOSTLOADLIBES_fit_info$(SFX) := -lssl -lcrypto
-HOSTLOADLIBES_fit_check_sign$(SFX) := -lssl -lcrypto
 # Add CONFIG_MXS into host CFLAGS, so we can check whether or not register
 # the mxsimage support within tools/mxsimage.c .
 HOSTCFLAGS_mxsimage.o += -DCONFIG_MXS
 endif
 
 ifdef CONFIG_FIT_SIGNATURE
-HOSTLOADLIBES_dumpimage$(SFX) := -lssl -lcrypto
-HOSTLOADLIBES_mkimage$(SFX) := -lssl -lcrypto
-HOSTLOADLIBES_fit_info$(SFX) := -lssl -lcrypto
-HOSTLOADLIBES_fit_check_sign$(SFX) := -lssl -lcrypto
-
 # This affects include/image.h, but including the board config file
 # is tricky, so manually define this options here.
 HOST_EXTRACFLAGS	+= -DCONFIG_FIT_SIGNATURE
 endif
+
+# MXSImage needs LibSSL
+ifneq ($(CONFIG_MX23)$(CONFIG_MX28)$(CONFIG_FIT_SIGNATURE),)
+HOSTLOADLIBES_mkimage$(SFX) += -lssl -lcrypto
+endif
+
+HOSTLOADLIBES_dumpimage$(SFX) := $(HOSTLOADLIBES_mkimage$(SFX))
+HOSTLOADLIBES_fit_info$(SFX) := $(HOSTLOADLIBES_mkimage$(SFX))
+HOSTLOADLIBES_fit_check_sign$(SFX) := $(HOSTLOADLIBES_mkimage$(SFX))
 
 hostprogs-$(CONFIG_EXYNOS5250) += mkexynosspl$(SFX)
 hostprogs-$(CONFIG_EXYNOS5420) += mkexynosspl$(SFX)
