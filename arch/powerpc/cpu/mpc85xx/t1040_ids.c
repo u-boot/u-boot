@@ -47,6 +47,7 @@ struct liodn_id_table liodn_tbl[] = {
 
 	/* SET_NEXUS_LIODN(557), -- not yet implemented */
 	SET_QE_LIODN(559),
+	SET_TDM_LIODN(560),
 };
 int liodn_tbl_sz = ARRAY_SIZE(liodn_tbl);
 
