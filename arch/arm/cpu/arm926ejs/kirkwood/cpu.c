@@ -210,7 +210,7 @@ static void kw_sysrst_action(void)
 
 	debug("Starting %s process...\n", __FUNCTION__);
 	ret = run_command(s, 0);
-	if (ret < 0)
+	if (ret != 0)
 		debug("Error.. %s failed\n", __FUNCTION__);
 	else
 		debug("%s process finished\n", __FUNCTION__);

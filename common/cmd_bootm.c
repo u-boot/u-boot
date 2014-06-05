@@ -1087,11 +1087,7 @@ U_BOOT_CMD(
 #if defined(CONFIG_CMD_BOOTD)
 int do_bootd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	int rcode = 0;
-
-	if (run_command(getenv("bootcmd"), flag) < 0)
-		rcode = 1;
-	return rcode;
+	return run_command(getenv("bootcmd"), flag);
 }
 
 U_BOOT_CMD(
