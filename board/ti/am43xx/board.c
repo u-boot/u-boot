@@ -302,7 +302,10 @@ static u32 get_sys_clk_index(void)
 static int get_opp_offset(int max_off, int min_off)
 {
 	struct ctrl_stat *ctrl = (struct ctrl_stat *)CTRL_BASE;
-	int opp = readl(&ctrl->dev_attr), offset, i;
+	int opp, offset, i;
+
+	/* Bits 0:11 are defined to be the MPU_MAX_FREQ */
+	opp = readl(&ctrl->dev_attr) & ~0xFFFFF000;
 
 	for (i = max_off; i >= min_off; i--) {
 		offset = opp & (1 << i);
