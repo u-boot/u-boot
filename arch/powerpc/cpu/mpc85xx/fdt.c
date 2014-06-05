@@ -14,6 +14,7 @@
 #include <linux/ctype.h>
 #include <asm/io.h>
 #include <asm/fsl_portals.h>
+#include <hwconfig.h>
 #ifdef CONFIG_FSL_ESDHC
 #include <fsl_esdhc.h>
 #endif
@@ -35,6 +36,11 @@ void ft_fixup_cpu(void *blob, u64 memory_limit)
 	u32 bootpg = determine_mp_bootpg(NULL);
 	u32 id = get_my_id();
 	const char *enable_method;
+#if defined(T1040_TDM_QUIRK_CCSR_BASE)
+	int ret;
+	int tdm_hwconfig_enabled = 0;
+	char buffer[HWCONFIG_BUFFER_SIZE] = {0};
+#endif
 
 	off = fdt_node_offset_by_prop_value(blob, -1, "device_type", "cpu", 4);
 	while (off != -FDT_ERR_NOTFOUND) {
@@ -76,6 +82,26 @@ void ft_fixup_cpu(void *blob, u64 memory_limit)
 		off = fdt_node_offset_by_prop_value(blob, off,
 				"device_type", "cpu", 4);
 	}
+
+#if defined(T1040_TDM_QUIRK_CCSR_BASE)
+#define	CONFIG_MEM_HOLE_16M	0x1000000
+	/*
+	 * Extract hwconfig from environment.
+	 * Search for tdm entry in hwconfig.
+	 */
+	ret = getenv_f("hwconfig", buffer, sizeof(buffer));
+	if (ret > 0)
+		tdm_hwconfig_enabled = hwconfig_f("tdm", buffer);
+
+	/* Reserve the memory hole created by TDM LAW, so OSes dont use it */
+	if (tdm_hwconfig_enabled) {
+		off = fdt_add_mem_rsv(blob, T1040_TDM_QUIRK_CCSR_BASE,
+				      CONFIG_MEM_HOLE_16M);
+		if (off < 0)
+			printf("Failed  to reserve memory for tdm: %s\n",
+			       fdt_strerror(off));
+	}
+#endif
 
 	/* Reserve the boot page so OSes dont use it */
 	if ((u64)bootpg < memory_limit) {

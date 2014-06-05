@@ -416,6 +416,7 @@ int board_eth_init(bd_t *bis)
 		fm_info_set_phy_address(FM1_DTSEC10, RGMII_PHY2_ADDR);
 
 	switch (srds_s1) {
+	case 0x1b:
 	case 0x1c:
 	case 0x95:
 	case 0xa2:
@@ -429,8 +430,11 @@ int board_eth_init(bd_t *bis)
 		fm_info_set_phy_address(FM1_DTSEC5, SGMII_CARD_PORT3_PHY_ADDR);
 		fm_info_set_phy_address(FM1_DTSEC6, SGMII_CARD_PORT4_PHY_ADDR);
 		break;
+	case 0x50:
 	case 0x51:
+	case 0x5e:
 	case 0x5f:
+	case 0x64:
 	case 0x65:
 		/* T2080QDS: XAUI/HiGig in Slot3;  T2081QDS: in Slot2 */
 		fm_info_set_phy_address(FM1_10GEC1, FM1_10GEC1_PHY_ADDR);
@@ -439,6 +443,7 @@ int board_eth_init(bd_t *bis)
 		fm_info_set_phy_address(FM1_DTSEC6, SGMII_CARD_PORT4_PHY_ADDR);
 		break;
 	case 0x66:
+	case 0x67:
 		/*
 		 * XFI does not need a PHY to work, but to avoid U-boot use
 		 * default PHY address which is zero to a MAC when it found
@@ -453,6 +458,7 @@ int board_eth_init(bd_t *bis)
 		fm_info_set_phy_address(FM1_10GEC3, 6);
 		fm_info_set_phy_address(FM1_10GEC4, 7);
 		break;
+	case 0x6a:
 	case 0x6b:
 		fm_info_set_phy_address(FM1_10GEC1, 4);
 		fm_info_set_phy_address(FM1_10GEC2, 5);
@@ -470,6 +476,7 @@ int board_eth_init(bd_t *bis)
 		fm_info_set_phy_address(FM1_DTSEC1, SGMII_CARD_PORT3_PHY_ADDR);
 		fm_info_set_phy_address(FM1_DTSEC2, SGMII_CARD_PORT4_PHY_ADDR);
 		break;
+	case 0x70:
 	case 0x71:
 		/* SGMII in Slot3 */
 		fm_info_set_phy_address(FM1_DTSEC1, SGMII_CARD_PORT3_PHY_ADDR);
@@ -625,6 +632,7 @@ int board_eth_init(bd_t *bis)
 			fm_info_set_mdio(i, mii_dev_for_muxval(mdio_mux[i]));
 
 			if ((srds_s1 == 0x66) || (srds_s1 == 0x6b) ||
+			    (srds_s1 == 0x6a) || (srds_s1 == 0x70) ||
 			    (srds_s1 == 0x6c) || (srds_s1 == 0x6d) ||
 			    (srds_s1 == 0x71)) {
 				/* As XFI is in cage intead of a slot, so

@@ -1579,7 +1579,7 @@ void ddr4_spd_dump(const struct ddr4_spd_eeprom_s *spd)
 		printf("%-3d-%3d: ", 128, 255);
 
 		for (i = 128; i <= 255; i++)
-			printf("%02x", spd->mod_section.uc[i - 60]);
+			printf("%02x", spd->mod_section.uc[i - 128]);
 
 		break;
 	}
