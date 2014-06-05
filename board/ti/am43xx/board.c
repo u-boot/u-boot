@@ -19,6 +19,7 @@
 #include <asm/arch/gpio.h>
 #include <asm/emif.h>
 #include "board.h"
+#include <power/tps65218.h>
 #include <miiphy.h>
 #include <cpsw.h>
 
@@ -254,13 +255,6 @@ void emif_get_ext_phy_ctrl_const_regs(const u32 **regs, u32 *size)
 
 const struct dpll_params *get_dpll_ddr_params(void)
 {
-	struct am43xx_board_id header;
-
-	enable_i2c0_pin_mux();
-	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
-	if (read_eeprom(&header) < 0)
-		puts("Could not get board ID.\n");
-
 	if (board_is_eposevm())
 		return &epos_evm_dpll_ddr;
 	else if (board_is_gpevm())
@@ -336,6 +330,46 @@ const struct dpll_params *get_dpll_per_params(void)
 	int ind = get_sys_clk_index();
 
 	return &dpll_per[ind];
+}
+
+void scale_vcores(void)
+{
+	const struct dpll_params *mpu_params;
+	int mpu_vdd;
+	struct am43xx_board_id header;
+
+	enable_i2c0_pin_mux();
+	i2c_init(CONFIG_SYS_OMAP24_I2C_SPEED, CONFIG_SYS_OMAP24_I2C_SLAVE);
+	if (read_eeprom(&header) < 0)
+		puts("Could not get board ID.\n");
+
+	/* Get the frequency */
+	mpu_params = get_dpll_mpu_params();
+
+	if (i2c_probe(TPS65218_CHIP_PM))
+		return;
+
+	if (mpu_params->m == 1000) {
+		mpu_vdd = TPS65218_DCDC_VOLT_SEL_1330MV;
+	} else if (mpu_params->m == 600) {
+		mpu_vdd = TPS65218_DCDC_VOLT_SEL_1100MV;
+	} else {
+		puts("Unknown MPU clock, not scaling\n");
+		return;
+	}
+
+	/* Set DCDC1 (CORE) voltage to 1.1V */
+	if (tps65218_voltage_update(TPS65218_DCDC1,
+				    TPS65218_DCDC_VOLT_SEL_1100MV)) {
+		puts("tps65218_voltage_update failure\n");
+		return;
+	}
+
+	/* Set DCDC2 (MPU) voltage */
+	if (tps65218_voltage_update(TPS65218_DCDC2, mpu_vdd)) {
+		puts("tps65218_voltage_update failure\n");
+		return;
+	}
 }
 
 void set_uart_mux_conf(void)
