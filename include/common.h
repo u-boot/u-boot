@@ -271,6 +271,7 @@ int print_buffer(ulong addr, const void *data, uint width, uint count,
 /* common/main.c */
 void	main_loop	(void);
 int run_command(const char *cmd, int flag);
+int run_command_repeatable(const char *cmd, int flag);
 
 /**
  * Run a list of commands separated by ; or even \0

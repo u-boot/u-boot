@@ -41,6 +41,30 @@ int run_command(const char *cmd, int flag)
 #endif
 }
 
+/*
+ * Run a command using the selected parser, and check if it is repeatable.
+ *
+ * @param cmd	Command to run
+ * @param flag	Execution flags (CMD_FLAG_...)
+ * @return 0 (not repeatable) or 1 (repeatable) on success, -1 on error.
+ */
+int run_command_repeatable(const char *cmd, int flag)
+{
+#ifndef CONFIG_SYS_HUSH_PARSER
+	return cli_simple_run_command(cmd, flag);
+#else
+	/*
+	 * parse_string_outer() returns 1 for failure, so clean up
+	 * its result.
+	 */
+	if (parse_string_outer(cmd,
+			       FLAG_PARSE_SEMICOLON | FLAG_EXIT_FROM_LOOP))
+		return -1;
+
+	return 0;
+#endif
+}
+
 int run_command_list(const char *cmd, int len, int flag)
 {
 	int need_buff = 1;
