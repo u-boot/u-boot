@@ -238,7 +238,7 @@ void bedbug_main_loop (unsigned long addr, struct pt_regs *regs)
 		if (len == -1)
 			printf ("<INTERRUPT>\n");
 		else
-			rc = run_command(lastcommand, flag);
+			rc = run_command_repeatable(lastcommand, flag);
 
 		if (rc <= 0) {
 			/* invalid command or not repeatable, forget it */
