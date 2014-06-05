@@ -178,6 +178,10 @@
 #define CONFIG_CONS_INDEX              1       /* UART0 */
 #endif
 
+/* GPIO */
+#define CONFIG_SUNXI_GPIO
+#define CONFIG_CMD_GPIO
+
 /* Ethernet support */
 #ifdef CONFIG_SUNXI_EMAC
 #define CONFIG_MII			/* MII PHY management		*/
