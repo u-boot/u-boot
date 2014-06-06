@@ -21,3 +21,6 @@
 /easylogo/easylogo
 /gdb/gdbcont
 /gdb/gdbsend
+
+/lib/
+/common/

@@ -47,7 +47,7 @@ hostprogs-$(CONFIG_VIDEO_LOGO) += bmp_logo$(SFX)
 HOSTCFLAGS_bmp_logo$(SFX).o := -pedantic
 
 hostprogs-$(CONFIG_BUILD_ENVCRC) += envcrc$(SFX)
-envcrc$(SFX)-objs := crc32.o env_embedded.o envcrc.o sha1.o
+envcrc$(SFX)-objs := envcrc.o lib/crc32.o common/env_embedded.o lib/sha1.o
 
 hostprogs-$(CONFIG_CMD_NET) += gen_eth_addr$(SFX)
 HOSTCFLAGS_gen_eth_addr$(SFX).o := -pedantic
@@ -59,41 +59,43 @@ hostprogs-$(CONFIG_XWAY_SWAP_BYTES) += xway-swap-bytes$(SFX)
 HOSTCFLAGS_xway-swap-bytes$(SFX).o := -pedantic
 
 hostprogs-y += mkenvimage$(SFX)
-mkenvimage$(SFX)-objs := crc32.o mkenvimage.o os_support.o
+mkenvimage$(SFX)-objs := mkenvimage.o os_support.o lib/crc32.o
 
 hostprogs-y += dumpimage$(SFX) mkimage$(SFX)
 hostprogs-$(CONFIG_FIT_SIGNATURE) += fit_info$(SFX) fit_check_sign$(SFX)
 
-FIT_SIG_OBJS-$(CONFIG_FIT_SIGNATURE) := image-sig.o
+FIT_SIG_OBJS-$(CONFIG_FIT_SIGNATURE) := common/image-sig.o
 # Flattened device tree objects
-LIBFDT_OBJS := fdt.o fdt_ro.o fdt_rw.o fdt_strerror.o fdt_wip.o
-RSA_OBJS-$(CONFIG_FIT_SIGNATURE) := rsa-sign.o rsa-verify.o rsa-checksum.o
+LIBFDT_OBJS := $(addprefix lib/libfdt/, \
+			fdt.o fdt_ro.o fdt_rw.o fdt_strerror.o fdt_wip.o)
+RSA_OBJS-$(CONFIG_FIT_SIGNATURE) := $(addprefix lib/rsa/, \
+					rsa-sign.o rsa-verify.o rsa-checksum.o)
 
 # common objs for dumpimage and mkimage
 dumpimage-mkimage-objs := aisimage.o \
 			atmelimage.o \
 			$(FIT_SIG_OBJS-y) \
-			crc32.o \
+			lib/crc32.o \
 			default_image.o \
-			fdtdec.o \
+			lib/fdtdec.o \
 			fit_common.o \
 			fit_image.o \
 			gpimage.o \
 			gpimage-common.o \
-			image-fit.o \
+			common/image-fit.o \
 			image-host.o \
-			image.o \
+			common/image.o \
 			imagetool.o \
 			imximage.o \
 			kwbimage.o \
-			md5.o \
+			lib/md5.o \
 			mxsimage.o \
 			omapimage.o \
 			os_support.o \
 			pblimage.o \
 			pbl_crc32.o \
-			sha1.o \
-			sha256.o \
+			lib/sha1.o \
+			lib/sha256.o \
 			ublimage.o \
 			$(LIBFDT_OBJS) \
 			$(RSA_OBJS-y)
@@ -139,7 +141,7 @@ hostprogs-$(CONFIG_SUNXI) += mksunxiboot$(SFX)
 hostprogs-$(CONFIG_NETCONSOLE) += ncb$(SFX)
 hostprogs-$(CONFIG_SHA1_CHECK_UB_IMG) += ubsha1$(SFX)
 
-ubsha1$(SFX)-objs := os_support.o sha1.o ubsha1.o
+ubsha1$(SFX)-objs := os_support.o ubsha1.o lib/sha1.o
 
 HOSTCFLAGS_ubsha1.o := -pedantic
 
@@ -158,6 +160,14 @@ HOSTCFLAGS_sha256.o := -pedantic
 # Don't build by default
 #hostprogs-$(CONFIG_PPC) += mpc86x_clk$(SFX)
 #HOSTCFLAGS_mpc86x_clk$(SFX).o := -pedantic
+
+quiet_cmd_wrap = WRAP    $@
+cmd_wrap = echo "\#include <$(srctree)/$(patsubst $(obj)/%,%,$@)>" >$@
+
+$(obj)/lib/%.c $(obj)/common/%.c:
+	$(call cmd,wrap)
+
+clean-dirs := lib common
 
 always := $(hostprogs-y)
 
