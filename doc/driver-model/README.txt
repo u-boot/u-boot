@@ -20,7 +20,7 @@ Terminology
 -----------
 
 Uclass - a group of devices which operate in the same way. A uclass provides
-	a way of accessing invidual devices within the group, but always
+	a way of accessing individual devices within the group, but always
 	using the same interface. For example a GPIO uclass provides
 	operations for get/set value. An I2C uclass may have 10 I2C ports,
 	4 with one driver, and 6 with another.
@@ -120,7 +120,7 @@ What is going on?
 -----------------
 
 Let's start at the top. The demo command is in common/cmd_demo.c. It does
-the usual command procesing and then:
+the usual command processing and then:
 
 	struct udevice *demo_dev;
 
@@ -228,7 +228,7 @@ The data can be interpreted by the drivers however they like - it is
 basically a communication scheme between the board-specific code and
 the generic drivers, which are intended to work on any board.
 
-Drivers can acceess their data via dev->info->platdata. Here is
+Drivers can access their data via dev->info->platdata. Here is
 the declaration for the platform data, which would normally appear
 in the board file.
 
@@ -272,7 +272,7 @@ method reads the information out of the device tree and puts it in
 dev->platdata. Then the probe method is called to set up the device.
 
 Note that both methods are optional. If you provide an ofdata_to_platdata
-method then it wlil be called first (after bind). If you provide a probe
+method then it will be called first (after bind). If you provide a probe
 method it will be called next.
 
 If you don't want to have the platdata automatically allocated then you
@@ -310,7 +310,7 @@ Changes since v1
 For the record, this implementation uses a very similar approach to the
 original patches, but makes at least the following changes:
 
-- Tried to agressively remove boilerplate, so that for most drivers there
+- Tried to aggressively remove boilerplate, so that for most drivers there
 is little or no 'driver model' code to write.
 - Moved some data from code into data structure - e.g. store a pointer to
 the driver operations structure in the driver, rather than passing it
