@@ -21,6 +21,9 @@
 *.patch
 *.cfgtmp
 
+# host programs on Cygwin
+*.exe
+
 # Build tree
 /build-*
 
