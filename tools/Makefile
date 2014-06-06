@@ -5,15 +5,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-#
-# toolchains targeting win32 generate .exe files
-#
-ifneq (,$(findstring WIN32 ,$(shell $(HOSTCC) -E -dM -xc /dev/null)))
-SFX = .exe
-else
-SFX =
-endif
-
 # Enable all the config-independent tools
 ifneq ($(HOST_TOOLS_ALL),)
 CONFIG_LCD_LOGO = y
@@ -38,31 +29,31 @@ ENVCRC-$(CONFIG_ENV_IS_IN_NVRAM) = y
 ENVCRC-$(CONFIG_ENV_IS_IN_SPI_FLASH) = y
 CONFIG_BUILD_ENVCRC ?= $(ENVCRC-y)
 
-hostprogs-$(CONFIG_SPL_GENERATE_ATMEL_PMECC_HEADER) += atmel_pmecc_params$(SFX)
+hostprogs-$(CONFIG_SPL_GENERATE_ATMEL_PMECC_HEADER) += atmel_pmecc_params
 
 # TODO: CONFIG_CMD_LICENSE does not work
-hostprogs-$(CONFIG_CMD_LICENSE) += bin2header$(SFX)
-hostprogs-$(CONFIG_LCD_LOGO) += bmp_logo$(SFX)
-hostprogs-$(CONFIG_VIDEO_LOGO) += bmp_logo$(SFX)
-HOSTCFLAGS_bmp_logo$(SFX).o := -pedantic
+hostprogs-$(CONFIG_CMD_LICENSE) += bin2header
+hostprogs-$(CONFIG_LCD_LOGO) += bmp_logo
+hostprogs-$(CONFIG_VIDEO_LOGO) += bmp_logo
+HOSTCFLAGS_bmp_logo.o := -pedantic
 
-hostprogs-$(CONFIG_BUILD_ENVCRC) += envcrc$(SFX)
-envcrc$(SFX)-objs := envcrc.o lib/crc32.o common/env_embedded.o lib/sha1.o
+hostprogs-$(CONFIG_BUILD_ENVCRC) += envcrc
+envcrc-objs := envcrc.o lib/crc32.o common/env_embedded.o lib/sha1.o
 
-hostprogs-$(CONFIG_CMD_NET) += gen_eth_addr$(SFX)
-HOSTCFLAGS_gen_eth_addr$(SFX).o := -pedantic
+hostprogs-$(CONFIG_CMD_NET) += gen_eth_addr
+HOSTCFLAGS_gen_eth_addr.o := -pedantic
 
-hostprogs-$(CONFIG_CMD_LOADS) += img2srec$(SFX)
-HOSTCFLAGS_img2srec$(SFX).o := -pedantic
+hostprogs-$(CONFIG_CMD_LOADS) += img2srec
+HOSTCFLAGS_img2srec.o := -pedantic
 
-hostprogs-$(CONFIG_XWAY_SWAP_BYTES) += xway-swap-bytes$(SFX)
-HOSTCFLAGS_xway-swap-bytes$(SFX).o := -pedantic
+hostprogs-$(CONFIG_XWAY_SWAP_BYTES) += xway-swap-bytes
+HOSTCFLAGS_xway-swap-bytes.o := -pedantic
 
-hostprogs-y += mkenvimage$(SFX)
-mkenvimage$(SFX)-objs := mkenvimage.o os_support.o lib/crc32.o
+hostprogs-y += mkenvimage
+mkenvimage-objs := mkenvimage.o os_support.o lib/crc32.o
 
-hostprogs-y += dumpimage$(SFX) mkimage$(SFX)
-hostprogs-$(CONFIG_FIT_SIGNATURE) += fit_info$(SFX) fit_check_sign$(SFX)
+hostprogs-y += dumpimage mkimage
+hostprogs-$(CONFIG_FIT_SIGNATURE) += fit_info fit_check_sign
 
 FIT_SIG_OBJS-$(CONFIG_FIT_SIGNATURE) := common/image-sig.o
 # Flattened device tree objects
@@ -100,10 +91,10 @@ dumpimage-mkimage-objs := aisimage.o \
 			$(LIBFDT_OBJS) \
 			$(RSA_OBJS-y)
 
-dumpimage$(SFX)-objs := $(dumpimage-mkimage-objs) dumpimage.o
-mkimage$(SFX)-objs   := $(dumpimage-mkimage-objs) mkimage.o
-fit_info$(SFX)-objs   := $(dumpimage-mkimage-objs) fit_info.o
-fit_check_sign$(SFX)-objs   := $(dumpimage-mkimage-objs) fit_check_sign.o
+dumpimage-objs := $(dumpimage-mkimage-objs) dumpimage.o
+mkimage-objs   := $(dumpimage-mkimage-objs) mkimage.o
+fit_info-objs   := $(dumpimage-mkimage-objs) fit_info.o
+fit_check_sign-objs   := $(dumpimage-mkimage-objs) fit_check_sign.o
 
 # TODO(sjg@chromium.org): Is this correct on Mac OS?
 
@@ -121,33 +112,33 @@ endif
 
 # MXSImage needs LibSSL
 ifneq ($(CONFIG_MX23)$(CONFIG_MX28)$(CONFIG_FIT_SIGNATURE),)
-HOSTLOADLIBES_mkimage$(SFX) += -lssl -lcrypto
+HOSTLOADLIBES_mkimage += -lssl -lcrypto
 endif
 
-HOSTLOADLIBES_dumpimage$(SFX) := $(HOSTLOADLIBES_mkimage$(SFX))
-HOSTLOADLIBES_fit_info$(SFX) := $(HOSTLOADLIBES_mkimage$(SFX))
-HOSTLOADLIBES_fit_check_sign$(SFX) := $(HOSTLOADLIBES_mkimage$(SFX))
+HOSTLOADLIBES_dumpimage := $(HOSTLOADLIBES_mkimage)
+HOSTLOADLIBES_fit_info := $(HOSTLOADLIBES_mkimage)
+HOSTLOADLIBES_fit_check_sign := $(HOSTLOADLIBES_mkimage)
 
-hostprogs-$(CONFIG_EXYNOS5250) += mkexynosspl$(SFX)
-hostprogs-$(CONFIG_EXYNOS5420) += mkexynosspl$(SFX)
-HOSTCFLAGS_mkexynosspl$(SFX).o := -pedantic
+hostprogs-$(CONFIG_EXYNOS5250) += mkexynosspl
+hostprogs-$(CONFIG_EXYNOS5420) += mkexynosspl
+HOSTCFLAGS_mkexynosspl.o := -pedantic
 
-hostprogs-$(CONFIG_MX23) += mxsboot$(SFX)
-hostprogs-$(CONFIG_MX28) += mxsboot$(SFX)
-HOSTCFLAGS_mxsboot$(SFX).o := -pedantic
+hostprogs-$(CONFIG_MX23) += mxsboot
+hostprogs-$(CONFIG_MX28) += mxsboot
+HOSTCFLAGS_mxsboot.o := -pedantic
 
-hostprogs-$(CONFIG_SUNXI) += mksunxiboot$(SFX)
+hostprogs-$(CONFIG_SUNXI) += mksunxiboot
 
-hostprogs-$(CONFIG_NETCONSOLE) += ncb$(SFX)
-hostprogs-$(CONFIG_SHA1_CHECK_UB_IMG) += ubsha1$(SFX)
+hostprogs-$(CONFIG_NETCONSOLE) += ncb
+hostprogs-$(CONFIG_SHA1_CHECK_UB_IMG) += ubsha1
 
-ubsha1$(SFX)-objs := os_support.o ubsha1.o lib/sha1.o
+ubsha1-objs := os_support.o ubsha1.o lib/sha1.o
 
 HOSTCFLAGS_ubsha1.o := -pedantic
 
-hostprogs-$(CONFIG_KIRKWOOD) += kwboot$(SFX)
-hostprogs-y += proftool$(SFX)
-hostprogs-$(CONFIG_STATIC_RELA) += relocate-rela$(SFX)
+hostprogs-$(CONFIG_KIRKWOOD) += kwboot
+hostprogs-y += proftool
+hostprogs-$(CONFIG_STATIC_RELA) += relocate-rela
 
 # We build some files with extra pedantic flags to try to minimize things
 # that won't build on some weird host compiler -- though there are lots of
@@ -158,8 +149,8 @@ HOSTCFLAGS_sha1.o := -pedantic
 HOSTCFLAGS_sha256.o := -pedantic
 
 # Don't build by default
-#hostprogs-$(CONFIG_PPC) += mpc86x_clk$(SFX)
-#HOSTCFLAGS_mpc86x_clk$(SFX).o := -pedantic
+#hostprogs-$(CONFIG_PPC) += mpc86x_clk
+#HOSTCFLAGS_mpc86x_clk.o := -pedantic
 
 quiet_cmd_wrap = WRAP    $@
 cmd_wrap = echo "\#include <$(srctree)/$(patsubst $(obj)/%,%,$@)>" >$@
