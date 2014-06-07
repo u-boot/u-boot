@@ -5,7 +5,6 @@
 # SPDX-License-Identifier:     GPL-2.0+
 #
 
-obj-y	+= aemif.o
 obj-y	+= init.o
 obj-y	+= psc.o
 obj-y	+= clock.o
