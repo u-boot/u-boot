@@ -16,7 +16,6 @@
 #include <asm/arch/clock.h>
 #include <asm/io.h>
 #include <asm/mach-types.h>
-#include <asm/arch/nand_defs.h>
 #include <asm/arch/emac_defs.h>
 #include <asm/arch/psc_defs.h>
 

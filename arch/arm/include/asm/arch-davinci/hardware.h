@@ -597,7 +597,6 @@ static inline enum davinci_clk_ids get_async3_src(void)
 #if defined(CONFIG_SOC_DM365)
 #include <asm/arch/aintc_defs.h>
 #include <asm/arch/ddr2_defs.h>
-#include <asm/arch/emif_defs.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/pll_defs.h>
 #include <asm/arch/psc_defs.h>

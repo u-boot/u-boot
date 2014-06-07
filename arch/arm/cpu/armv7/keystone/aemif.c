@@ -10,7 +10,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
-#include <asm/arch/emif_defs.h>
+#include <asm/ti-common/davinci_nand.h>
 
 #define AEMIF_CFG_SELECT_STROBE(v)	((v) ? 1 << 31 : 0)
 #define AEMIF_CFG_EXTEND_WAIT(v)	((v) ? 1 << 30 : 0)
