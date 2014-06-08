@@ -112,6 +112,12 @@ static void exynos5_set_ps_hold_ctrl(void)
 			EXYNOS_PS_HOLD_CONTROL_DATA_HIGH);
 }
 
+/*
+ * Set ps_hold data driving value high
+ * This enables the machine to stay powered on
+ * after the initial power-on condition goes away
+ * (e.g. power button).
+ */
 void set_ps_hold_ctrl(void)
 {
 	if (cpu_is_exynos5())

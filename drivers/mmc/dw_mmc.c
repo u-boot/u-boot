@@ -284,8 +284,8 @@ static int dwmci_setup_bus(struct dwmci_host *host, u32 freq)
 
 static void dwmci_set_ios(struct mmc *mmc)
 {
-	struct dwmci_host *host = mmc->priv;
-	u32 ctype;
+	struct dwmci_host *host = (struct dwmci_host *)mmc->priv;
+	u32 ctype, regs;
 
 	debug("Buswidth = %d, clock: %d\n",mmc->bus_width, mmc->clock);
 
@@ -303,6 +303,14 @@ static void dwmci_set_ios(struct mmc *mmc)
 	}
 
 	dwmci_writel(host, DWMCI_CTYPE, ctype);
+
+	regs = dwmci_readl(host, DWMCI_UHS_REG);
+	if (mmc->card_caps & MMC_MODE_DDR_52MHz)
+		regs |= DWMCI_DDR_MODE;
+	else
+		regs &= DWMCI_DDR_MODE;
+
+	dwmci_writel(host, DWMCI_UHS_REG, regs);
 
 	if (host->clksel)
 		host->clksel(host);

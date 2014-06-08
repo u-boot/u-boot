@@ -32,11 +32,15 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
 #define CONFIG_SYS_I2C_MULTI_EEPROMS
 
+/* Power */
+#define CONFIG_POWER_TPS65218
+
 /* SPL defines. */
 #define CONFIG_SPL_TEXT_BASE		0x40300350
 #define CONFIG_SPL_MAX_SIZE		(220 << 10)	/* 220KB */
 #define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \
 					 (128 << 20))
+#define CONFIG_SPL_POWER_SUPPORT
 #define CONFIG_SPL_YMODEM_SUPPORT
 
 /* Enabling L2 Cache */
@@ -48,15 +52,24 @@
  * Since SPL did pll and ddr initialization for us,
  * we don't need to do it twice.
  */
-#if !defined(CONFIG_SPL_BUILD) && !defined(CONFIG_NOR_BOOT)
+#if !defined(CONFIG_SPL_BUILD) && !defined(CONFIG_QSPI_BOOT)
 #define CONFIG_SKIP_LOWLEVEL_INIT
+#endif
+
+/*
+ * When building U-Boot such that there is no previous loader
+ * we need to call board_early_init_f.  This is taken care of in
+ * s_init when we have SPL used.
+ */
+#if !defined(CONFIG_SKIP_LOWLEVEL_INIT) && !defined(CONFIG_SPL)
+#define CONFIG_BOARD_EARLY_INIT_F
 #endif
 
 /* Now bring in the rest of the common code. */
 #include <configs/ti_armv7_common.h>
 
-/* Always 128 KiB env size */
-#define CONFIG_ENV_SIZE			(128 << 10)
+/* Always 64 KiB env size */
+#define CONFIG_ENV_SIZE			(64 << 10)
 
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 
@@ -86,6 +99,30 @@
 #define CONFIG_OMAP_USB_PHY
 #define CONFIG_AM437X_USB2PHY2_HOST
 
+#ifdef CONFIG_QSPI_BOOT
+#define CONFIG_SYS_TEXT_BASE           0x30000000
+#undef CONFIG_ENV_IS_NOWHERE
+#define CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_SYS_REDUNDAND_ENVIRONMENT
+#define CONFIG_ENV_SPI_MAX_HZ           CONFIG_SF_DEFAULT_SPEED
+#define CONFIG_ENV_SECT_SIZE           (64 << 10) /* 64 KB sectors */
+#define CONFIG_ENV_OFFSET              0x110000
+#define CONFIG_ENV_OFFSET_REDUND       0x120000
+#ifdef MTDIDS_DEFAULT
+#undef MTDIDS_DEFAULT
+#endif
+#ifdef MTDPARTS_DEFAULT
+#undef MTDPARTS_DEFAULT
+#endif
+#define MTDPARTS_DEFAULT		"mtdparts=qspi.0:512k(QSPI.u-boot)," \
+					"512k(QSPI.u-boot.backup)," \
+					"512k(QSPI.u-boot-spl-os)," \
+					"64k(QSPI.u-boot-env)," \
+					"64k(QSPI.u-boot-env.backup)," \
+					"8m(QSPI.kernel)," \
+					"-(QSPI.file-system)"
+#endif
+
 /* SPI */
 #undef CONFIG_OMAP3_SPI
 #define CONFIG_TI_QSPI
@@ -94,6 +131,7 @@
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_SPI
 #define CONFIG_TI_SPI_MMAP
+#define CONFIG_SPI_FLASH_BAR
 #define CONFIG_QSPI_SEL_GPIO                   48
 #define CONFIG_SF_DEFAULT_SPEED                48000000
 #define CONFIG_DEFAULT_SPI_MODE                SPI_MODE_3
@@ -145,6 +183,7 @@
 	"loadfdt=load ${devtype} ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
 	"mmcboot=mmc dev ${mmcdev}; " \
 		"setenv devnum ${mmcdev}; " \
+		"setenv devtype mmc; " \
 		"if mmc rescan; then " \
 			"echo SD/MMC found on device ${devnum};" \
 			"if run loadbootenv; then " \

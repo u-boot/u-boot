@@ -23,6 +23,8 @@ int pmic_reg_write(struct pmic *p, u32 reg, u32 val)
 	if (check_reg(p, reg))
 		return -1;
 
+	I2C_SET_BUS(p->bus);
+
 	switch (pmic_i2c_tx_num) {
 	case 3:
 		if (p->sensor_byte_order == PMIC_SENSOR_BYTE_ORDER_BIG) {
@@ -65,6 +67,8 @@ int pmic_reg_read(struct pmic *p, u32 reg, u32 *val)
 
 	if (check_reg(p, reg))
 		return -1;
+
+	I2C_SET_BUS(p->bus);
 
 	if (i2c_read(pmic_i2c_addr, reg, 1, buf, pmic_i2c_tx_num))
 		return -1;

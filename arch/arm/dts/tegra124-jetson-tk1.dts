@@ -17,7 +17,8 @@
 		sdhci1 = "/sdhci@700b0400";
 		spi0 = "/spi@7000d400";
 		spi1 = "/spi@7000da00";
-		usb0 = "/usb@7d008000";
+		usb0 = "/usb@7d000000";
+		usb1 = "/usb@7d008000";
 	};
 
 	memory {
@@ -75,6 +76,12 @@
 	sdhci@700b0600 {
 		status = "okay";
 		bus-width = <8>;
+	};
+
+	usb@7d000000 {
+		status = "okay";
+		dr_mode = "otg";
+		nvidia,vbus-gpio = <&gpio 108 0>; /* gpio PN4, USB_VBUS_EN0 */
 	};
 
 	usb@7d008000 {

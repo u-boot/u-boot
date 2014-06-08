@@ -13,6 +13,8 @@
 #include <asm/arch/dwmmc.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/pinmux.h>
+#include <asm/gpio.h>
+#include <asm-generic/errno.h>
 
 #define	DWMMC_MAX_CH_NUM		4
 #define	DWMMC_MAX_FREQ			52000000
@@ -44,7 +46,11 @@ unsigned int exynos_dwmci_get_clk(struct dwmci_host *host)
 			& DWMCI_DIVRATIO_MASK) + 1;
 	sclk = get_mmc_clk(host->dev_index);
 
-	return sclk / clk_div;
+	/*
+	 * Assume to know divider value.
+	 * When clock unit is broken, need to set "host->div"
+	 */
+	return sclk / clk_div / (host->div + 1);
 }
 
 static void exynos_dwmci_board_init(struct dwmci_host *host)
@@ -60,48 +66,36 @@ static void exynos_dwmci_board_init(struct dwmci_host *host)
 	}
 }
 
-/*
- * This function adds the mmc channel to be registered with mmc core.
- * index -	mmc channel number.
- * regbase -	register base address of mmc channel specified in 'index'.
- * bus_width -	operating bus width of mmc channel specified in 'index'.
- * clksel -	value to be written into CLKSEL register in case of FDT.
- *		NULL in case od non-FDT.
- */
-int exynos_dwmci_add_port(int index, u32 regbase, int bus_width, u32 clksel)
+static int exynos_dwmci_core_init(struct dwmci_host *host, int index)
 {
-	struct dwmci_host *host = NULL;
 	unsigned int div;
 	unsigned long freq, sclk;
-	host = malloc(sizeof(struct dwmci_host));
-	if (!host) {
-		printf("dwmci_host malloc fail!\n");
-		return 1;
-	}
+
+	if (host->bus_hz)
+		freq = host->bus_hz;
+	else
+		freq = DWMMC_MAX_FREQ;
+
 	/* request mmc clock vlaue of 52MHz.  */
-	freq = 52000000;
 	sclk = get_mmc_clk(index);
 	div = DIV_ROUND_UP(sclk, freq);
 	/* set the clock divisor for mmc */
 	set_mmc_clk(index, div);
 
 	host->name = "EXYNOS DWMMC";
-	host->ioaddr = (void *)regbase;
-	host->buswidth = bus_width;
 #ifdef CONFIG_EXYNOS5420
 	host->quirks = DWMCI_QUIRK_DISABLE_SMU;
 #endif
 	host->board_init = exynos_dwmci_board_init;
 
-	if (clksel) {
-		host->clksel_val = clksel;
-	} else {
-		if (0 == index)
+	if (!host->clksel_val) {
+		if (index == 0)
 			host->clksel_val = DWMMC_MMC0_CLKSEL_VAL;
-		if (2 == index)
+		else if (index == 2)
 			host->clksel_val = DWMMC_MMC2_CLKSEL_VAL;
 	}
 
+	host->caps = MMC_MODE_DDR_52MHz;
 	host->clksel = exynos_dwmci_clksel;
 	host->dev_index = index;
 	host->get_mmc_clk = exynos_dwmci_get_clk;
@@ -113,69 +107,134 @@ int exynos_dwmci_add_port(int index, u32 regbase, int bus_width, u32 clksel)
 	return 0;
 }
 
-#ifdef CONFIG_OF_CONTROL
-int exynos_dwmmc_init(const void *blob)
+/*
+ * This function adds the mmc channel to be registered with mmc core.
+ * index -	mmc channel number.
+ * regbase -	register base address of mmc channel specified in 'index'.
+ * bus_width -	operating bus width of mmc channel specified in 'index'.
+ * clksel -	value to be written into CLKSEL register in case of FDT.
+ *		NULL in case od non-FDT.
+ */
+int exynos_dwmci_add_port(int index, u32 regbase, int bus_width, u32 clksel)
 {
-	int index, bus_width;
-	int node_list[DWMMC_MAX_CH_NUM];
-	int err = 0, dev_id, flag, count, i;
-	u32 clksel_val, base, timing[3];
+	struct dwmci_host *host = NULL;
 
-	count = fdtdec_find_aliases_for_id(blob, "mmc",
-				COMPAT_SAMSUNG_EXYNOS5_DWMMC, node_list,
-				DWMMC_MAX_CH_NUM);
+	host = malloc(sizeof(struct dwmci_host));
+	if (!host) {
+		error("dwmci_host malloc fail!\n");
+		return -ENOMEM;
+	}
+
+	host->ioaddr = (void *)regbase;
+	host->buswidth = bus_width;
+
+	if (clksel)
+		host->clksel_val = clksel;
+
+	return exynos_dwmci_core_init(host, index);
+}
+
+#ifdef CONFIG_OF_CONTROL
+static struct dwmci_host dwmci_host[DWMMC_MAX_CH_NUM];
+
+static int do_dwmci_init(struct dwmci_host *host)
+{
+	int index, flag, err;
+
+	index = host->dev_index;
+
+	flag = host->buswidth == 8 ? PINMUX_FLAG_8BIT_MODE : PINMUX_FLAG_NONE;
+	err = exynos_pinmux_config(host->dev_id, flag);
+	if (err) {
+		debug("DWMMC not configure\n");
+		return err;
+	}
+
+	return exynos_dwmci_core_init(host, index);
+}
+
+static int exynos_dwmci_get_config(const void *blob, int node,
+					struct dwmci_host *host)
+{
+	int err = 0;
+	u32 base, clksel_val, timing[3];
+
+	/* Extract device id for each mmc channel */
+	host->dev_id = pinmux_decode_periph_id(blob, node);
+
+	/* Get the bus width from the device node */
+	host->buswidth = fdtdec_get_int(blob, node, "samsung,bus-width", 0);
+	if (host->buswidth <= 0) {
+		debug("DWMMC: Can't get bus-width\n");
+		return -EINVAL;
+	}
+
+	host->dev_index = fdtdec_get_int(blob, node, "index", host->dev_id);
+	if (host->dev_index == host->dev_id)
+		host->dev_index = host->dev_id - PERIPH_ID_SDMMC0;
+
+	/* Set the base address from the device node */
+	base = fdtdec_get_addr(blob, node, "reg");
+	if (!base) {
+		debug("DWMMC: Can't get base address\n");
+		return -EINVAL;
+	}
+	host->ioaddr = (void *)base;
+
+	/* Extract the timing info from the node */
+	err =  fdtdec_get_int_array(blob, node, "samsung,timing", timing, 3);
+	if (err) {
+		debug("Can't get sdr-timings for devider\n");
+		return -EINVAL;
+	}
+
+	clksel_val = (DWMCI_SET_SAMPLE_CLK(timing[0]) |
+			DWMCI_SET_DRV_CLK(timing[1]) |
+			DWMCI_SET_DIV_RATIO(timing[2]));
+	if (clksel_val)
+		host->clksel_val = clksel_val;
+
+	host->fifoth_val = fdtdec_get_int(blob, node, "fifoth_val", 0);
+	host->bus_hz = fdtdec_get_int(blob, node, "bus_hz", 0);
+	host->div = fdtdec_get_int(blob, node, "div", 0);
+
+	return 0;
+}
+
+static int exynos_dwmci_process_node(const void *blob,
+					int node_list[], int count)
+{
+	struct dwmci_host *host;
+	int i, node, err;
 
 	for (i = 0; i < count; i++) {
-		int node = node_list[i];
-
+		node = node_list[i];
 		if (node <= 0)
 			continue;
-
-		/* Extract device id for each mmc channel */
-		dev_id = pinmux_decode_periph_id(blob, node);
-
-		/* Get the bus width from the device node */
-		bus_width = fdtdec_get_int(blob, node, "samsung,bus-width", 0);
-		if (bus_width <= 0) {
-			debug("DWMMC: Can't get bus-width\n");
-			return -1;
-		}
-		if (8 == bus_width)
-			flag = PINMUX_FLAG_8BIT_MODE;
-		else
-			flag = PINMUX_FLAG_NONE;
-
-		/* config pinmux for each mmc channel */
-		err = exynos_pinmux_config(dev_id, flag);
+		host = &dwmci_host[i];
+		err = exynos_dwmci_get_config(blob, node, host);
 		if (err) {
-			debug("DWMMC not configured\n");
+			debug("%s: failed to decode dev %d\n", __func__, i);
 			return err;
 		}
 
-		index = dev_id - PERIPH_ID_SDMMC0;
-
-		/* Get the base address from the device node */
-		base = fdtdec_get_addr(blob, node, "reg");
-		if (!base) {
-			debug("DWMMC: Can't get base address\n");
-			return -1;
-		}
-		/* Extract the timing info from the node */
-		err = fdtdec_get_int_array(blob, node, "samsung,timing",
-					timing, 3);
-		if (err) {
-			debug("Can't get sdr-timings for divider\n");
-			return -1;
-		}
-
-		clksel_val = (DWMCI_SET_SAMPLE_CLK(timing[0]) |
-				DWMCI_SET_DRV_CLK(timing[1]) |
-				DWMCI_SET_DIV_RATIO(timing[2]));
-		/* Initialise each mmc channel */
-		err = exynos_dwmci_add_port(index, base, bus_width, clksel_val);
-		if (err)
-			debug("dwmmc Channel-%d init failed\n", index);
+		do_dwmci_init(host);
 	}
 	return 0;
+}
+
+int exynos_dwmmc_init(const void *blob)
+{
+	int compat_id;
+	int node_list[DWMMC_MAX_CH_NUM];
+	int err = 0, count;
+
+	compat_id = COMPAT_SAMSUNG_EXYNOS_DWMMC;
+
+	count = fdtdec_find_aliases_for_id(blob, "mmc",
+				compat_id, node_list, DWMMC_MAX_CH_NUM);
+	err = exynos_dwmci_process_node(blob, node_list, count);
+
+	return err;
 }
 #endif

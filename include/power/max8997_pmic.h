@@ -170,7 +170,6 @@ enum {
 #define SAFEOUT_3_30V 0x03
 
 /* Charger */
-enum {CHARGER_ENABLE, CHARGER_DISABLE};
 #define DETBAT                  (1 << 2)
 #define MBCICHFCSET             (1 << 4)
 #define MBCHOSTEN               (1 << 6)

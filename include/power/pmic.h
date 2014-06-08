@@ -17,6 +17,11 @@ enum { I2C_PMIC, I2C_NUM, };
 enum { PMIC_READ, PMIC_WRITE, };
 enum { PMIC_SENSOR_BYTE_ORDER_LITTLE, PMIC_SENSOR_BYTE_ORDER_BIG, };
 
+enum {
+	PMIC_CHARGER_DISABLE,
+	PMIC_CHARGER_ENABLE,
+};
+
 struct p_i2c {
 	unsigned char addr;
 	unsigned char *buf;

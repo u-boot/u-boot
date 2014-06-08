@@ -170,8 +170,19 @@ void do_enable_clocks(u32 *const *clk_domains,
 	};
 }
 
+/*
+ * Before scaling up the clocks we need to have the PMIC scale up the
+ * voltages first.  This will be dependent on which PMIC is in use
+ * and in some cases we may not be scaling things up at all and thus not
+ * need to do anything here.
+ */
+__weak void scale_vcores(void)
+{
+}
+
 void prcm_init()
 {
 	enable_basic_clocks();
+	scale_vcores();
 	setup_dplls();
 }

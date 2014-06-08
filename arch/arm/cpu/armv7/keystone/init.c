@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <ns16550.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/hardware.h>
@@ -29,6 +30,14 @@ int arch_cpu_init(void)
 	share_all_segments(10); /* QM PDSP */
 	share_all_segments(11); /* PCIE */
 #endif
+
+	/*
+	 * just initialise the COM2 port so that TI specific
+	 * UART register PWREMU_MGMT is initialized. Linux UART
+	 * driver doesn't handle this.
+	 */
+	NS16550_init((NS16550_t)(CONFIG_SYS_NS16550_COM2),
+		     CONFIG_SYS_NS16550_CLK / 16 / CONFIG_BAUDRATE);
 
 	return 0;
 }
