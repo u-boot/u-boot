@@ -79,7 +79,7 @@ phys_size_t initdram(int board_type)
 	 * (Do not rely on the SDCS register(s) being set to 0x00000000
 	 * during reset as stated in the data sheet.)
 	 */
-	return get_ram_size((unsigned long *)CONFIG_SYS_SDRAM_BASE,
+	return get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
 				0x80000000 - CONFIG_SYS_SDRAM_BASE);
 }
 

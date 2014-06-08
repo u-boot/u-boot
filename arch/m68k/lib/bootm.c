@@ -50,11 +50,7 @@ void arch_lmb_reserve(struct lmb *lmb)
 
 int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *images)
 {
-	ulong rd_len;
-	ulong initrd_start, initrd_end;
 	int ret;
-
-	ulong cmd_start, cmd_end;
 	bd_t  *kbd;
 	void  (*kernel) (bd_t *, ulong, ulong, ulong, ulong);
 	struct lmb *lmb = &images->lmb;
@@ -96,7 +92,8 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 	 *   sp+16: Start of command line string
 	 *   sp+20: End   of command line string
 	 */
-	(*kernel) (kbd, initrd_start, initrd_end, cmd_start, cmd_end);
+	(*kernel)(kbd, images->initrd_start, images->initrd_end,
+		  images->cmdline_start, images->cmdline_end);
 	/* does not return */
 error:
 	return 1;
