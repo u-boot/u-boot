@@ -106,6 +106,7 @@ static void ti_spi_setup_spi_register(struct ti_qspi_slave *qslave)
 	slave->memory_map = (void *)MMAP_START_ADDR_DRA;
 #else
 	slave->memory_map = (void *)MMAP_START_ADDR_AM43x;
+	slave->op_mode_rx = 8;
 #endif
 
 	memval |= QSPI_CMD_READ | QSPI_SETUP0_NUM_A_BYTES |

@@ -13,4 +13,5 @@ obj-$(CONFIG_POWER_MAX77686) += pmic_max77686.o
 obj-$(CONFIG_POWER_PFUZE100) += pmic_pfuze100.o
 obj-$(CONFIG_POWER_TPS65090) += pmic_tps65090.o
 obj-$(CONFIG_POWER_TPS65217) += pmic_tps65217.o
+obj-$(CONFIG_POWER_TPS65218) += pmic_tps65218.o
 obj-$(CONFIG_POWER_TPS65910) += pmic_tps65910.o

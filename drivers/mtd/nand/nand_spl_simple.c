@@ -78,7 +78,7 @@ static int nand_command(int block, int page, uint32_t offs,
 	}
 
 	/* Shift the offset from byte addressing to word addressing. */
-	if (this->options & NAND_BUSWIDTH_16)
+	if ((this->options & NAND_BUSWIDTH_16) && !nand_opcode_8bits(cmd))
 		offs >>= 1;
 
 	/* Begin command latch cycle */

@@ -719,4 +719,23 @@ static inline int onfi_get_sync_timing_mode(struct nand_chip *chip)
 }
 #endif
 
+/**
+ * Check if the opcode's address should be sent only on the lower 8 bits
+ * @command: opcode to check
+ */
+static inline int nand_opcode_8bits(unsigned int command)
+{
+	switch (command) {
+	case NAND_CMD_READID:
+	case NAND_CMD_PARAM:
+	case NAND_CMD_GET_FEATURES:
+	case NAND_CMD_SET_FEATURES:
+		return 1;
+	default:
+		break;
+	}
+	return 0;
+}
+
+
 #endif /* __LINUX_MTD_NAND_H */
