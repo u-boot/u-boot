@@ -19,6 +19,8 @@
 #include "mx6_common.h"
 #include <linux/sizes.h>
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 #define CONFIG_MXC_UART_BASE		UART2_BASE
 #define CONFIG_CONSOLE_DEV		"ttymxc1"
 #define CONFIG_MMCROOT			"/dev/mmcblk1p2"
