@@ -155,6 +155,16 @@ static void mctl_enable_dllx(u32 phase)
 }
 
 static u32 hpcr_value[32] = {
+#ifdef CONFIG_SUN5I
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0, 0, 0, 0,
+	0x1031, 0x1031, 0x0735, 0x1035,
+	0x1035, 0x0731, 0x1031, 0,
+	0x0301, 0x0301, 0x0301, 0x0301,
+	0x0301, 0x0301, 0x0301, 0
+#endif
 #ifdef CONFIG_SUN4I
 	0x0301, 0x0301, 0x0301, 0x0301,
 	0x0301, 0x0301, 0, 0,
@@ -257,9 +267,15 @@ static void mctl_setup_dram_clock(u32 clk)
 #if defined(CONFIG_SUN5I) || defined(CONFIG_SUN7I)
 	/* setup MBUS clock */
 	reg_val = CCM_MBUS_CTRL_GATE |
+#ifdef CONFIG_SUN7I
 		  CCM_MBUS_CTRL_CLK_SRC(CCM_MBUS_CTRL_CLK_SRC_PLL6) |
 		  CCM_MBUS_CTRL_N(CCM_MBUS_CTRL_N_X(2)) |
 		  CCM_MBUS_CTRL_M(CCM_MBUS_CTRL_M_X(2));
+#else /* defined(CONFIG_SUN5I) */
+		  CCM_MBUS_CTRL_CLK_SRC(CCM_MBUS_CTRL_CLK_SRC_PLL5) |
+		  CCM_MBUS_CTRL_N(CCM_MBUS_CTRL_N_X(1)) |
+		  CCM_MBUS_CTRL_M(CCM_MBUS_CTRL_M_X(2));
+#endif
 	writel(reg_val, &ccm->mbus_clk_cfg);
 #endif
 
@@ -467,6 +483,11 @@ unsigned long dramc_init(struct dram_para *para)
 
 	/* setup DRAM relative clock */
 	mctl_setup_dram_clock(para->clock);
+
+#ifdef CONFIG_SUN5I
+	/* Disable any pad power save control */
+	writel(0, &dram->ppwrsctl);
+#endif
 
 	/* reset external DRAM */
 #ifndef CONFIG_SUN7I

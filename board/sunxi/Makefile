@@ -10,5 +10,7 @@
 #
 obj-y	+= board.o
 obj-$(CONFIG_SUNXI_GMAC)	+= gmac.o
+obj-$(CONFIG_A13_OLINUXINOM)	+= dram_a13_oli_micro.o
 obj-$(CONFIG_CUBIEBOARD)	+= dram_cubieboard.o
 obj-$(CONFIG_CUBIETRUCK)	+= dram_cubietruck.o
+obj-$(CONFIG_R7DONGLE)		+= dram_r7dongle.o

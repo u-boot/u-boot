@@ -12,6 +12,7 @@ obj-y	+= board.o
 obj-y	+= clock.o
 obj-y	+= pinmux.o
 obj-$(CONFIG_SUN4I)	+= clock_sun4i.o
+obj-$(CONFIG_SUN5I)	+= clock_sun4i.o
 obj-$(CONFIG_SUN7I)	+= clock_sun4i.o
 
 ifndef CONFIG_SPL_BUILD
@@ -20,6 +21,7 @@ endif
 
 ifdef CONFIG_SPL_BUILD
 obj-$(CONFIG_SUN4I)	+= dram.o
+obj-$(CONFIG_SUN5I)	+= dram.o
 obj-$(CONFIG_SUN7I)	+= dram.o
 ifdef CONFIG_SPL_FEL
 obj-y	+= start.o
