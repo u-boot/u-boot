@@ -214,7 +214,7 @@ static void store_result(struct hash_algo *algo, const u8 *sum,
 			sprintf(str_ptr, "%02x", sum[i]);
 			str_ptr += 2;
 		}
-		str_ptr = '\0';
+		*str_ptr = '\0';
 		setenv(dest, str_output);
 	} else {
 		ulong addr;
