@@ -11,8 +11,6 @@
 #ifndef __XILINX_ULTRASCALE_H
 #define __XILINX_ULTRASCALE_H
 
-#include <asm/arch/hardware.h>
-
 #define CONFIG_REMAKE_ELF
 
 /* #define CONFIG_ARMV8_SWITCH_TO_EL1 */
@@ -20,6 +18,10 @@
 #define CONFIG_SYS_NO_FLASH
 
 #define XILINX_ULTRASCALE
+
+/* Generic Interrupt Controller Definitions */
+#define GICD_BASE	0xFD3FF000
+#define GICC_BASE	0xFD3FE100
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1

@@ -7,6 +7,7 @@
 
 #include <common.h>
 #include <netdev.h>
+#include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 
 DECLARE_GLOBAL_DATA_PTR;
