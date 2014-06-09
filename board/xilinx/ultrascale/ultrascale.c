@@ -9,6 +9,7 @@
 #include <netdev.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -74,3 +75,29 @@ int board_mmc_init(bd_t *bd)
         return ret;
 }
 #endif
+
+int board_late_init(void)
+{
+	u32 reg = 0;
+	u8 bootmode;
+
+	reg = readl(&crlapb_base->boot_mode);
+	bootmode = reg & BOOT_MODES_MASK;
+
+	switch (bootmode) {
+	case JTAG_MODE:
+		setenv("modeboot", "netboot");
+		break;
+	case QSPI_MODE:
+		setenv("modeboot", "qspiboot");
+		break;
+	case SD_MODE:
+		setenv("modeboot", "sdboot");
+		break;
+	default:
+		printf("Invalid Boot Mode:0x%x\n", bootmode);
+		break;
+	}
+
+	return 0;
+}

@@ -21,4 +21,20 @@
 #define ZYNQ_SDHCI_BASEADDR0	0xFF014000
 #define ZYNQ_SDHCI_BASEADDR1	0xFF015000
 
+#define ZYNQMP_CRL_APB_BASEADDR	0xFF400000
+
+struct crlapb_regs {
+	u32 reserved0[128];
+	u32 boot_mode;
+	u32 reserved1[26];
+};
+
+#define crlapb_base ((struct crlapb_regs *)ZYNQMP_CRL_APB_BASEADDR)
+
+/* Bootmode setting values */
+#define BOOT_MODES_MASK	0x0000000F
+#define QSPI_MODE	0x00000001
+#define SD_MODE		0x00000005
+#define JTAG_MODE	0x00000000
+
 #endif /* _ASM_ARCH_HARDWARE_H */
