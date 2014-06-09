@@ -293,7 +293,7 @@
 
 #if defined(CONFIG_ENV_IS_IN_MMC)
 /* RiOTboard */
-#define CONFIG_DEFAULT_FDT_FILE	"imx6s-riotboard.dtb"
+#define CONFIG_DEFAULT_FDT_FILE	"imx6dl-riotboard.dtb"
 #define CONFIG_SYS_FSL_USDHC_NUM	3
 #define CONFIG_SYS_MMC_ENV_DEV		2	/* SDHC4 */
 #define CONFIG_ENV_OFFSET		(6 * 64 * 1024)
