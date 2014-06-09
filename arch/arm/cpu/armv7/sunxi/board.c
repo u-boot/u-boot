@@ -56,6 +56,13 @@ int gpio_init(void)
 
 void reset_cpu(ulong addr)
 {
+	static const struct sunxi_wdog *wdog =
+		 &((struct sunxi_timer_reg *)SUNXI_TIMER_BASE)->wdog;
+
+	/* Set the watchdog for its shortest interval (.5s) and wait */
+	writel(WDT_MODE_RESET_EN | WDT_MODE_EN, &wdog->mode);
+	writel(WDT_CTRL_KEY | WDT_CTRL_RESTART, &wdog->ctl);
+	while (1);
 }
 
 /* do some early init */
