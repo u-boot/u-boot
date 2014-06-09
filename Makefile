@@ -1128,13 +1128,13 @@ u-boot.lds: $(LDSCRIPT) prepare FORCE
 spl/u-boot-spl.bin: spl/u-boot-spl
 	@:
 spl/u-boot-spl: tools prepare
-	$(Q)$(MAKE) obj=spl -f $(srctree)/spl/Makefile all
+	$(Q)$(MAKE) obj=spl -f $(srctree)/scripts/Makefile.spl all
 
 spl/sunxi-spl.bin: spl/u-boot-spl
 	@:
 
 tpl/u-boot-tpl.bin: tools prepare
-	$(Q)$(MAKE) obj=tpl -f $(srctree)/spl/Makefile all CONFIG_TPL_BUILD=y
+	$(Q)$(MAKE) obj=tpl -f $(srctree)/scripts/Makefile.spl all CONFIG_TPL_BUILD=y
 
 TAG_SUBDIRS := $(u-boot-dirs) include
 
@@ -1214,9 +1214,7 @@ CLEAN_FILES += u-boot.lds include/bmp_logo.h include/bmp_logo_data.h \
 	       include/tpl-autoconf.mk
 
 # Directories & files removed with 'make clobber'
-CLOBBER_DIRS  += $(patsubst %,spl/%, $(filter-out Makefile, \
-		 $(shell ls -1 spl 2>/dev/null))) \
-		 tpl
+CLOBBER_DIRS  += spl tpl
 CLOBBER_FILES += u-boot* MLO* SPL System.map
 
 # Directories & files removed with 'make mrproper'
