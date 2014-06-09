@@ -228,9 +228,12 @@
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* 256 KiB */
 
 /* FLASH and environment organization */
-#define CONFIG_ENV_IS_IN_ONENAND	1
-#define CONFIG_ENV_SIZE			(256 << 10)	/* 256 KiB, 0x40000 */
-#define CONFIG_ENV_ADDR			(1 << 20)	/* 1 MB, 0x100000 */
+#define CONFIG_MMC_DEFAULT_DEV	0
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_SYS_MMC_ENV_DEV		CONFIG_MMC_DEFAULT_DEV
+#define CONFIG_ENV_SIZE			4096
+#define CONFIG_ENV_OFFSET		((32 - 4) << 10) /* 32KiB - 4KiB */
+#define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_USE_ONENAND_BOARD_INIT
 #define CONFIG_SAMSUNG_ONENAND		1
