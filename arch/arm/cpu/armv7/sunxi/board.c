@@ -117,6 +117,14 @@ int cpu_eth_init(bd_t *bis)
 {
 	int rc;
 
+#ifdef CONFIG_SUNXI_EMAC
+	rc = sunxi_emac_initialize(bis);
+	if (rc < 0) {
+		printf("sunxi: failed to initialize emac\n");
+		return rc;
+	}
+#endif
+
 #ifdef CONFIG_SUNXI_GMAC
 	rc = sunxi_gmac_initialize(bis);
 	if (rc < 0) {

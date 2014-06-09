@@ -165,6 +165,11 @@
 #define CONFIG_CONS_INDEX              1       /* UART0 */
 #endif
 
+/* Ethernet support */
+#ifdef CONFIG_SUNXI_EMAC
+#define CONFIG_MII			/* MII PHY management		*/
+#endif
+
 #ifdef CONFIG_SUNXI_GMAC
 #define CONFIG_DESIGNWARE_ETH		/* GMAC can use designware driver */
 #define CONFIG_DW_AUTONEG
