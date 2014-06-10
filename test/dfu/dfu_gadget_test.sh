@@ -1,4 +1,5 @@
 #! /bin/bash
+
 set -e # any command return if not equal to zero
 clear
 
@@ -11,10 +12,11 @@ SUFFIX=img
 RCV_DIR=rcv/
 LOG_FILE=./log/log-`date +%d-%m-%Y_%H-%M-%S`
 
+cd `dirname $0`
 ./dfu_gadget_test_init.sh
 
 cleanup () {
-    rm -rf $RCV_DIR
+    rm -rf $DIR$RCV_DIR
 }
 
 die () {
@@ -40,6 +42,8 @@ dfu_test_file () {
 
     MD5_TX=$MD5SUM
 
+    dfu-util -D ${DIR}/dfudummy.bin -a $TARGET_ALT_SETTING_B >> $LOG_FILE 2>&1 || die $?
+
     N_FILE=$DIR$RCV_DIR${1:2}"_rcv"
 
     dfu-util -U $N_FILE -a $TARGET_ALT_SETTING >> $LOG_FILE 2>&1 || die $?
@@ -62,7 +66,7 @@ printf "$COLOUR_GREEN===========================================================
 echo "DFU EP0 transmission test program"
 echo "Trouble shoot -> disable DBG (even the KERN_DEBUG) in the UDC driver"
 echo "@ -> TRATS2 # dfu 0 mmc 0"
-mkdir -p $RCV_DIR
+mkdir -p $DIR$RCV_DIR
 touch $LOG_FILE
 
 if [ $# -eq 0 ]
@@ -72,10 +76,11 @@ then
 fi
 
 TARGET_ALT_SETTING=$1
+TARGET_ALT_SETTING_B=$2
 
-if [ -n "$2" ]
+if [ -n "$3" ]
 then
-	dfu_test_file $2
+	dfu_test_file $3
 else
 	for file in $DIR*.$SUFFIX
 	do
