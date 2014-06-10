@@ -826,6 +826,7 @@ static int ci_udc_probe(void)
 
 	ci_ep_alloc_request(&controller.ep[0].ep, 0);
 	if (!controller.ep0_req) {
+		free(controller.items_mem);
 		free(controller.epts);
 		return -ENOMEM;
 	}
