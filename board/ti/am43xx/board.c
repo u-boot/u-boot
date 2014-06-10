@@ -217,6 +217,28 @@ const struct emif_regs ddr3_emif_regs_400Mhz = {
 	.emif_rd_wr_exec_thresh		= 0x00000405
 };
 
+static const struct emif_regs ddr3_sk_emif_regs_400Mhz = {
+	.sdram_config			= 0x638413b2,
+	.sdram_config2			= 0x00000000,
+	.ref_ctrl			= 0x00000c30,
+	.sdram_tim1			= 0xeaaad4db,
+	.sdram_tim2			= 0x266b7fda,
+	.sdram_tim3			= 0x107f8678,
+	.read_idle_ctrl			= 0x00050000,
+	.zq_config			= 0x50074be4,
+	.temp_alert_config		= 0x0,
+	.emif_ddr_phy_ctlr_1		= 0x0e084008,
+	.emif_ddr_ext_phy_ctrl_1	= 0x08020080,
+	.emif_ddr_ext_phy_ctrl_2	= 0x89,
+	.emif_ddr_ext_phy_ctrl_3	= 0x90,
+	.emif_ddr_ext_phy_ctrl_4	= 0x8e,
+	.emif_ddr_ext_phy_ctrl_5	= 0x8d,
+	.emif_rd_wr_lvl_rmp_win		= 0x0,
+	.emif_rd_wr_lvl_rmp_ctl		= 0x00000000,
+	.emif_rd_wr_lvl_ctl		= 0x00000000,
+	.emif_rd_wr_exec_thresh		= 0x00000000,
+};
+
 const u32 ext_phy_ctrl_const_base_ddr3[] = {
 	0x00400040,
 	0x00350035,
@@ -240,6 +262,48 @@ const u32 ext_phy_ctrl_const_base_ddr3[] = {
 	0x08102040
 };
 
+static const u32 ext_phy_ctrl_const_base_ddr3_sk[] = {
+	/* first 5 are taken care by emif_regs */
+	0x00700070,
+
+	0x00350035,
+	0x00350035,
+	0x00350035,
+	0x00350035,
+	0x00350035,
+
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+
+	0x00150015,
+	0x00150015,
+	0x00150015,
+	0x00150015,
+	0x00150015,
+
+	0x00800080,
+	0x00800080,
+
+	0x40000000,
+
+	0x08102040,
+
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+	0x00000000,
+};
+
 void emif_get_ext_phy_ctrl_const_regs(const u32 **regs, u32 *size)
 {
 	if (board_is_eposevm()) {
@@ -248,6 +312,9 @@ void emif_get_ext_phy_ctrl_const_regs(const u32 **regs, u32 *size)
 	} else if (board_is_gpevm()) {
 		*regs = ext_phy_ctrl_const_base_ddr3;
 		*size = ARRAY_SIZE(ext_phy_ctrl_const_base_ddr3);
+	} else if (board_is_sk()) {
+		*regs = ext_phy_ctrl_const_base_ddr3_sk;
+		*size = ARRAY_SIZE(ext_phy_ctrl_const_base_ddr3_sk);
 	}
 
 	return;
@@ -257,7 +324,7 @@ const struct dpll_params *get_dpll_ddr_params(void)
 {
 	if (board_is_eposevm())
 		return &epos_evm_dpll_ddr;
-	else if (board_is_gpevm())
+	else if (board_is_gpevm() || board_is_sk())
 		return &gp_evm_dpll_ddr;
 
 	printf(" Board '%s' not supported\n", am43xx_board_name);
@@ -410,6 +477,9 @@ void sdram_init(void)
 		enable_vtt_regulator();
 		config_ddr(0, &ioregs_ddr3, NULL, NULL,
 			   &ddr3_emif_regs_400Mhz, 0);
+	} else if (board_is_sk()) {
+		config_ddr(400, &ioregs_ddr3, NULL, NULL,
+			   &ddr3_sk_emif_regs_400Mhz, 0);
 	}
 }
 #endif

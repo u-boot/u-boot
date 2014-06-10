@@ -47,6 +47,11 @@ static inline int board_is_gpevm(void)
 	return !strncmp(am43xx_board_name, "AM43__GP", HDR_NAME_LEN);
 }
 
+static inline int board_is_sk(void)
+{
+	return !strncmp(am43xx_board_name, "AM43__SK", HDR_NAME_LEN);
+}
+
 void enable_uart0_pin_mux(void);
 void enable_board_pin_mux(void);
 void enable_i2c0_pin_mux(void);
