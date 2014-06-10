@@ -23,6 +23,7 @@ Contents
 2) Compiling U-Boot for a MXS based board
 3) Installation of U-Boot for a MXS based board to SD card
 4) Installation of U-Boot into NAND flash on a MX28 based board
+5) Installation of U-boot into SPI NOR flash on a MX28 based board
 
 1) Prerequisites
 ----------------
@@ -262,3 +263,28 @@ There are two possibilities when preparing an image writable to NAND flash.
 	   In case the user needs to boot a firmware image bigger than 1Mb, the
 	   user has to adjust the "update_nand_firmware_maxsz" variable for the
 	   update scripts to work properly.
+
+5) Installation of U-Boot into SPI NOR flash on a MX28 based board
+------------------------------------------------------------------
+
+The u-boot.sb file can be directly written to SPI NOR from U-boot prompt.
+
+Load u-boot.sb into RAM, this can be done in several ways and one way is to use
+tftp:
+       => tftp u-boot.sb 0x42000000
+
+Probe the SPI NOR flash:
+       => sf probe
+
+(SPI NOR should be succesfully detected in this step)
+
+Erase the blocks where U-boot binary will be written to:
+       => sf erase 0x0 0x80000
+
+Write u-boot.sb to SPI NOR:
+       => sf write 0x42000000 0 0x80000
+
+Power off the board and set the boot mode DIP switches to boot from the SPI NOR
+according to MX28 manual section 12.2.1 (Table 12-2)
+
+Last step is to power up the board and U-boot should start from SPI NOR.
