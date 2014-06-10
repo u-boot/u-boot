@@ -369,17 +369,49 @@ static void ci_ep_submit_next_request(struct ci_ep *ci_ep)
 	ci_req = list_first_entry(&ci_ep->queue, struct ci_req, queue);
 	len = ci_req->req.length;
 
-	item->next = TERMINATE;
-	item->info = INFO_BYTES(len) | INFO_IOC | INFO_ACTIVE;
+	item->info = INFO_BYTES(len) | INFO_ACTIVE;
 	item->page0 = (uint32_t)ci_req->hw_buf;
 	item->page1 = ((uint32_t)ci_req->hw_buf & 0xfffff000) + 0x1000;
 	item->page2 = ((uint32_t)ci_req->hw_buf & 0xfffff000) + 0x2000;
 	item->page3 = ((uint32_t)ci_req->hw_buf & 0xfffff000) + 0x3000;
 	item->page4 = ((uint32_t)ci_req->hw_buf & 0xfffff000) + 0x4000;
-	ci_flush_qtd(num);
 
 	head->next = (unsigned) item;
 	head->info = 0;
+
+	/*
+	 * When sending the data for an IN transaction, the attached host
+	 * knows that all data for the IN is sent when one of the following
+	 * occurs:
+	 * a) A zero-length packet is transmitted.
+	 * b) A packet with length that isn't an exact multiple of the ep's
+	 *    maxpacket is transmitted.
+	 * c) Enough data is sent to exactly fill the host's maximum expected
+	 *    IN transaction size.
+	 *
+	 * One of these conditions MUST apply at the end of an IN transaction,
+	 * or the transaction will not be considered complete by the host. If
+	 * none of (a)..(c) already applies, then we must force (a) to apply
+	 * by explicitly sending an extra zero-length packet.
+	 */
+	/*  IN    !a     !b                              !c */
+	if (in && len && !(len % ci_ep->ep.maxpacket) && ci_req->req.zero) {
+		/*
+		 * Each endpoint has 2 items allocated, even though typically
+		 * only 1 is used at a time since either an IN or an OUT but
+		 * not both is queued. For an IN transaction, item currently
+		 * points at the second of these items, so we know that we
+		 * can use (item - 1) to transmit the extra zero-length packet
+		 */
+		item->next = (unsigned)(item - 1);
+		item--;
+		item->info = INFO_ACTIVE;
+	}
+
+	item->next = TERMINATE;
+	item->info |= INFO_IOC;
+
+	ci_flush_qtd(num);
 
 	DBG("ept%d %s queue len %x, req %p, buffer %p\n",
 	    num, in ? "in" : "out", len, ci_req, ci_req->hw_buf);
