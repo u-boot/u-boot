@@ -7,8 +7,8 @@
 
 /* includes */
 
-#include"core.h"
-#include"memory.h"
+#include "core.h"
+#include "memory.h"
 
 /* According to PCI REV 2.1 MAX agents allowed on the bus are -21- */
 #define PCI_MAX_DEVICES 22
