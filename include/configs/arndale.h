@@ -229,6 +229,8 @@
 
 #define CONFIG_DEFAULT_DEVICE_TREE	exynos5250-arndale
 
+#define CONFIG_PREBOOT
+
 /* Ethernet Controllor Driver */
 #ifdef CONFIG_CMD_NET
 #define CONFIG_SMC911X
