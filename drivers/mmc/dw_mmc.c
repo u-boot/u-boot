@@ -245,7 +245,10 @@ static int dwmci_setup_bus(struct dwmci_host *host, u32 freq)
 		return -EINVAL;
 	}
 
-	div = DIV_ROUND_UP(sclk, 2 * freq);
+	if (sclk == freq)
+		div = 0;	/* bypass mode */
+	else
+		div = DIV_ROUND_UP(sclk, 2 * freq);
 
 	dwmci_writel(host, DWMCI_CLKENA, 0);
 	dwmci_writel(host, DWMCI_CLKSRC, 0);
