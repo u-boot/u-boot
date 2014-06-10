@@ -48,7 +48,11 @@
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
 /* Environment */
+#ifndef CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SIZE			(16 * 1024)
+#else
+#define CONFIG_ENV_SIZE			(4 * 1024)
+#endif
 #define CONFIG_ENV_OVERWRITE
 
 /* Environment is in MMC */
@@ -70,7 +74,6 @@
 /* Environemnt is in SPI flash */
 #if defined(CONFIG_CMD_SF) && defined(CONFIG_ENV_IS_IN_SPI_FLASH)
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
-#define CONFIG_ENV_SIZE			0x1000		/* 4KB */
 #define CONFIG_ENV_OFFSET		0x40000		/* 256K */
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 #define CONFIG_ENV_SECT_SIZE		0x1000
