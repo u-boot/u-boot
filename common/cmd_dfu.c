@@ -27,8 +27,9 @@ static int do_dfu(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	ret = dfu_init_env_entities(interface, simple_strtoul(devstring,
 							      NULL, 10));
 	if (ret)
-		return ret;
+		goto done;
 
+	ret = CMD_RET_SUCCESS;
 	if (argc > 4 && strcmp(argv[4], "list") == 0) {
 		dfu_show_entities();
 		goto done;
@@ -61,7 +62,7 @@ done:
 	if (dfu_reset())
 		run_command("reset", 0);
 
-	return CMD_RET_SUCCESS;
+	return ret;
 }
 
 U_BOOT_CMD(dfu, CONFIG_SYS_MAXARGS, 1, do_dfu,
