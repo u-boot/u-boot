@@ -97,6 +97,9 @@ void enable_board_pin_mux(void)
 	if (board_is_gpevm()) {
 		configure_module_pin_mux(gpio5_7_pin_mux);
 		configure_module_pin_mux(rgmii1_pin_mux);
+	} else if (board_is_sk()) {
+		configure_module_pin_mux(rgmii1_pin_mux);
+		configure_module_pin_mux(qspi_pin_mux);
 	} else if (board_is_eposevm()) {
 		configure_module_pin_mux(rmii1_pin_mux);
 		configure_module_pin_mux(qspi_pin_mux);
