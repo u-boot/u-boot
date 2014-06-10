@@ -1840,7 +1840,7 @@ static int run_list_real(struct pipe *pi)
 		if (rmode == RES_DO) {
 			if (!flag_rep) continue;
 		}
-		if ((rmode == RES_DONE)) {
+		if (rmode == RES_DONE) {
 			if (flag_rep) {
 				flag_restore = 1;
 			} else {
@@ -3569,7 +3569,7 @@ static char **make_list_in(char **inp, char *name)
 		p3 = insert_var_value(inp[i]);
 		p1 = p3;
 		while (*p1) {
-			if ((*p1 == ' ')) {
+			if (*p1 == ' ') {
 				p1++;
 				continue;
 			}
