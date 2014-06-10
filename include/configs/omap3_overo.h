@@ -83,7 +83,6 @@
 /* Environment information */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	DEFAULT_LINUX_BOOT_ENV \
-	"fdtfile=overo.dtb\0" \
 	"bootdir=/boot\0" \
 	"bootfile=zImage\0" \
 	"usbtty=cdc_acm\0" \
@@ -152,10 +151,11 @@
 			"run mmcboot;" \
 		"fi;" \
 		"if run loadzimage; then " \
-			"if test -n $fdtfile; then " \
-				"if run loadfdt; then " \
-					"run mmcbootfdt;" \
-				"fi;" \
+			"if test $fdtfile; then " \
+				"setenv fdtfile omap3-${boardname}-${expansionname}.dtb;" \
+			"fi;" \
+			"if run loadfdt; then " \
+				"run mmcbootfdt;" \
 			"fi;" \
 		"fi;" \
 	"fi;" \
