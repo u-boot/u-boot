@@ -221,9 +221,14 @@ ci_ep_alloc_request(struct usb_ep *ep, unsigned int gfp_flags)
 
 static void ci_ep_free_request(struct usb_ep *ep, struct usb_request *req)
 {
-	struct ci_req *ci_req;
+	struct ci_ep *ci_ep = container_of(ep, struct ci_ep, ep);
+	struct ci_req *ci_req = container_of(req, struct ci_req, req);
+	int num;
 
-	ci_req = container_of(req, struct ci_req, req);
+	num = ci_ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
+	if (num == 0)
+		controller.ep0_req = 0;
+
 	if (ci_req->b_buf)
 		free(ci_req->b_buf);
 	free(ci_req);
