@@ -724,7 +724,7 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 inode, char *dest)
 	for (b = pL->frag.listHead; b != NULL; b = b->next) {
 		jNode = (struct jffs2_raw_inode *) get_node_mem(b->offset,
 								pL->readbuf);
-		if ((inode == jNode->ino)) {
+		if (inode == jNode->ino) {
 #if 0
 			putLabeledWord("\r\n\r\nread_inode: totlen = ", jNode->totlen);
 			putLabeledWord("read_inode: inode = ", jNode->ino);
