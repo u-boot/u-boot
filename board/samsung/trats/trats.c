@@ -332,7 +332,7 @@ int exynos_power_init(void)
 
 	if (!p_chrg->chrg->chrg_bat_present(p_chrg)) {
 		puts("No battery detected\n");
-		return -1;
+		return 0;
 	}
 
 	p_fg->fg->fg_battery_check(p_fg, p_bat);
