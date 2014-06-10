@@ -594,6 +594,11 @@ int board_eth_init(bd_t *bis)
 		writel(RMII_MODE_ENABLE | RMII_CHIPCKL_ENABLE, &cdev->miisel);
 		cpsw_slaves[0].phy_if = PHY_INTERFACE_MODE_RMII;
 		cpsw_slaves[0].phy_addr = 16;
+	} else if (board_is_sk()) {
+		writel(RGMII_MODE_ENABLE, &cdev->miisel);
+		cpsw_slaves[0].phy_if = PHY_INTERFACE_MODE_RGMII;
+		cpsw_slaves[0].phy_addr = 4;
+		cpsw_slaves[1].phy_addr = 5;
 	} else {
 		writel(RGMII_MODE_ENABLE, &cdev->miisel);
 		cpsw_slaves[0].phy_if = PHY_INTERFACE_MODE_RGMII;
