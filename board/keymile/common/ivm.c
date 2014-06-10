@@ -120,7 +120,7 @@ static int ivm_findinventorystring(int type,
 
 	/* Look for the requested number of CR. */
 	while ((cr != nr) && (addr < INVENTORYDATASIZE)) {
-		if ((buf[addr] == '\r'))
+		if (buf[addr] == '\r')
 			cr++;
 		addr++;
 	}
