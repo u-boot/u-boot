@@ -135,9 +135,9 @@
 		"tftpboot 20000000 system.dtb && "	\
 		"bootm 1000000 - 20000000\0"
 
-#define CONFIG_BOOTARGS			"console=ttyPS0"
-#define CONFIG_BOOTCOMMAND		"echo Hello Xilinx UltraScale MP; run netboot"
-#define CONFIG_BOOTDELAY		5
+#define CONFIG_BOOTARGS		"console=ttyPS0"
+#define CONFIG_BOOTCOMMAND	"echo Hello Xilinx UltraScale MP; run netboot"
+#define CONFIG_BOOTDELAY	5
 
 /* Do not preserve environment */
 #define CONFIG_ENV_IS_NOWHERE		1
