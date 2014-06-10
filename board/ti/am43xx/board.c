@@ -260,7 +260,7 @@ const struct dpll_params *get_dpll_ddr_params(void)
 	else if (board_is_gpevm())
 		return &gp_evm_dpll_ddr;
 
-	puts(" Board not supported\n");
+	printf(" Board '%s' not supported\n", am43xx_board_name);
 	return NULL;
 }
 
