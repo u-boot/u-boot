@@ -875,5 +875,11 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 
 int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
 {
+	udc_disconnect();
+
+	ci_ep_free_request(&controller.ep[0].ep, &controller.ep0_req->req);
+	free(controller.items_mem);
+	free(controller.epts);
+
 	return 0;
 }
