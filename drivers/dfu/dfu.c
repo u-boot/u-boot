@@ -106,21 +106,15 @@ static char *dfu_get_hash_algo(void)
 	char *s;
 
 	s = getenv("dfu_hash_algo");
-	/*
-	 * By default the legacy behaviour to calculate the crc32 hash
-	 * value is preserved.
-	 *
-	 * To disable calculation of the hash algorithm for received data
-	 * specify the "dfu_hash_algo = disabled" at your board envs.
-	 */
-	debug("%s: DFU hash method: %s\n", __func__, s ? s : "not specified");
-
-	if (!s || !strcmp(s, "crc32"))
-		return "crc32";
-
-	if (!strcmp(s, "disabled"))
+	if (!s)
 		return NULL;
 
+	if (!strcmp(s, "crc32")) {
+		debug("%s: DFU hash method: %s\n", __func__, s);
+		return s;
+	}
+
+	error("DFU hash method: %s not supported!\n", s);
 	return NULL;
 }
 
