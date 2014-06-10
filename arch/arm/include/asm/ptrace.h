@@ -11,7 +11,7 @@
 /* options set using PTRACE_SETOPTIONS */
 #define PTRACE_O_TRACESYSGOOD	0x00000001
 
-#include <asm/proc/ptrace.h>
+#include <asm/proc-armv/ptrace.h>
 
 #ifndef __ASSEMBLY__
 #define pc_pointer(v) \
