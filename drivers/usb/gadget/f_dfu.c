@@ -162,17 +162,27 @@ static void dfu_set_poll_timeout(struct dfu_status *dstat, unsigned int ms)
 static void dnload_request_complete(struct usb_ep *ep, struct usb_request *req)
 {
 	struct f_dfu *f_dfu = req->context;
+	int ret;
 
-	dfu_write(dfu_get_entity(f_dfu->altsetting), req->buf,
-		  req->length, f_dfu->blk_seq_num);
+	ret = dfu_write(dfu_get_entity(f_dfu->altsetting), req->buf,
+			req->length, f_dfu->blk_seq_num);
+	if (ret) {
+		f_dfu->dfu_status = DFU_STATUS_errUNKNOWN;
+		f_dfu->dfu_state = DFU_STATE_dfuERROR;
+	}
 }
 
 static void dnload_request_flush(struct usb_ep *ep, struct usb_request *req)
 {
 	struct f_dfu *f_dfu = req->context;
+	int ret;
 
-	dfu_flush(dfu_get_entity(f_dfu->altsetting), req->buf,
-		  req->length, f_dfu->blk_seq_num);
+	ret = dfu_flush(dfu_get_entity(f_dfu->altsetting), req->buf,
+			req->length, f_dfu->blk_seq_num);
+	if (ret) {
+		f_dfu->dfu_status = DFU_STATUS_errUNKNOWN;
+		f_dfu->dfu_state = DFU_STATE_dfuERROR;
+	}
 }
 
 static inline int dfu_get_manifest_timeout(struct dfu_entity *dfu)
@@ -770,6 +780,8 @@ static int dfu_set_alt(struct usb_function *f, unsigned intf, unsigned alt)
 	debug("%s: intf:%d alt:%d\n", __func__, intf, alt);
 
 	f_dfu->altsetting = alt;
+	f_dfu->dfu_state = DFU_STATE_dfuIDLE;
+	f_dfu->dfu_status = DFU_STATUS_OK;
 
 	return 0;
 }
