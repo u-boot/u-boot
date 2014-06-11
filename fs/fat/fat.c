@@ -1243,6 +1243,11 @@ int fat_exists(const char *filename)
 	return sz >= 0;
 }
 
+int fat_size(const char *filename)
+{
+	return do_fat_read_at(filename, 0, NULL, 0, LS_NO, 1);
+}
+
 long file_fat_read_at(const char *filename, unsigned long pos, void *buffer,
 		      unsigned long maxsize)
 {

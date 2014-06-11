@@ -198,6 +198,7 @@ int file_cd(const char *path);
 int file_fat_detectfs(void);
 int file_fat_ls(const char *dir);
 int fat_exists(const char *filename);
+int fat_size(const char *filename);
 long file_fat_read_at(const char *filename, unsigned long pos, void *buffer,
 		      unsigned long maxsize);
 long file_fat_read(const char *filename, void *buffer, unsigned long maxsize);

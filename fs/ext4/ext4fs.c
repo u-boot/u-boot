@@ -182,6 +182,11 @@ int ext4fs_exists(const char *filename)
 	return file_len >= 0;
 }
 
+int ext4fs_size(const char *filename)
+{
+	return ext4fs_open(filename);
+}
+
 int ext4fs_read(char *buf, unsigned len)
 {
 	if (ext4fs_root == NULL || ext4fs_file == NULL)

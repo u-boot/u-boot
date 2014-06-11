@@ -51,6 +51,13 @@ int fs_ls(const char *dirname);
 int fs_exists(const char *filename);
 
 /*
+ * Determine a file's size
+ *
+ * Returns the file's size in bytes, or a negative value if it doesn't exist.
+ */
+int fs_size(const char *filename);
+
+/*
  * Read file "filename" from the partition previously set by fs_set_blk_dev(),
  * to address "addr", starting at byte offset "offset", and reading "len"
  * bytes. "offset" may be 0 to read from the start of the file. "len" may be
@@ -75,6 +82,8 @@ int fs_write(const char *filename, ulong addr, int offset, int len);
  * Common implementation for various filesystem commands, optionally limited
  * to a specific filesystem type via the fstype parameter.
  */
+int do_size(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
+		int fstype);
 int do_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		int fstype);
 int do_ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],

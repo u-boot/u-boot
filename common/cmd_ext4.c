@@ -42,6 +42,12 @@
 #include <usb.h>
 #endif
 
+int do_ext4_size(cmd_tbl_t *cmdtp, int flag, int argc,
+						char *const argv[])
+{
+	return do_size(cmdtp, flag, argc, argv, FS_TYPE_EXT);
+}
+
 int do_ext4_load(cmd_tbl_t *cmdtp, int flag, int argc,
 						char *const argv[])
 {
@@ -112,6 +118,14 @@ U_BOOT_CMD(ext4write, 6, 1, do_ext4_write,
 	"    - create a file in / directory");
 
 #endif
+
+U_BOOT_CMD(
+	ext4size,	4,	0,	do_ext4_size,
+	"determine a file's size",
+	"<interface> <dev[:part]> <filename>\n"
+	"    - Find file 'filename' from 'dev' on 'interface'\n"
+	"      and determine its size."
+);
 
 U_BOOT_CMD(ext4ls, 4, 1, do_ext4_ls,
 	   "list files in a directory (default /)",
