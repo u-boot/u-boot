@@ -401,6 +401,7 @@ static int dfu_fill_entity(struct dfu_entity *dfu, char *s, int alt,
 
 	dfu->alt = alt;
 	dfu->max_buf_size = 0;
+	dfu->free_entity = NULL;
 
 	/* Specific for mmc device */
 	if (strcmp(interface, "mmc") == 0) {
@@ -427,6 +428,8 @@ void dfu_free_entities(void)
 
 	list_for_each_entry_safe_reverse(dfu, p, &dfu_list, list) {
 		list_del(&dfu->list);
+		if (dfu->free_entity)
+			dfu->free_entity(dfu);
 		t = dfu;
 	}
 	if (t)
