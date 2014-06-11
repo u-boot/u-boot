@@ -413,6 +413,9 @@ static int dfu_fill_entity(struct dfu_entity *dfu, char *s, int alt,
 	} else if (strcmp(interface, "ram") == 0) {
 		if (dfu_fill_entity_ram(dfu, devstr, s))
 			return -1;
+	} else if (strcmp(interface, "sf") == 0) {
+		if (dfu_fill_entity_sf(dfu, devstr, s))
+			return -1;
 	} else {
 		printf("%s: Device %s not (yet) supported!\n",
 		       __func__,  interface);
