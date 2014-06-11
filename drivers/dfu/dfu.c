@@ -82,7 +82,7 @@ unsigned long dfu_get_buf_size(void)
 	return dfu_buf_size;
 }
 
-unsigned char *dfu_get_buf(void)
+unsigned char *dfu_get_buf(struct dfu_entity *dfu)
 {
 	char *s;
 
@@ -92,6 +92,8 @@ unsigned char *dfu_get_buf(void)
 	s = getenv("dfu_bufsiz");
 	dfu_buf_size = s ? (unsigned long)simple_strtol(s, NULL, 16) :
 			CONFIG_SYS_DFU_DATA_BUF_SIZE;
+	if (dfu->max_buf_size && dfu_buf_size > dfu->max_buf_size)
+		dfu_buf_size = dfu->max_buf_size;
 
 	dfu_buf = memalign(CONFIG_SYS_CACHELINE_SIZE, dfu_buf_size);
 	if (dfu_buf == NULL)
@@ -194,10 +196,10 @@ int dfu_write(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 		dfu->offset = 0;
 		dfu->bad_skip = 0;
 		dfu->i_blk_seq_num = 0;
-		dfu->i_buf_start = dfu_get_buf();
+		dfu->i_buf_start = dfu_get_buf(dfu);
 		if (dfu->i_buf_start == NULL)
 			return -ENOMEM;
-		dfu->i_buf_end = dfu_get_buf() + dfu_buf_size;
+		dfu->i_buf_end = dfu_get_buf(dfu) + dfu_buf_size;
 		dfu->i_buf = dfu->i_buf_start;
 
 		dfu->inited = 1;
@@ -318,7 +320,7 @@ int dfu_read(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 	       __func__, dfu->name, buf, size, blk_seq_num, dfu->i_buf);
 
 	if (!dfu->inited) {
-		dfu->i_buf_start = dfu_get_buf();
+		dfu->i_buf_start = dfu_get_buf(dfu);
 		if (dfu->i_buf_start == NULL)
 			return -ENOMEM;
 
@@ -342,7 +344,7 @@ int dfu_read(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 		dfu->i_blk_seq_num = 0;
 		dfu->crc = 0;
 		dfu->offset = 0;
-		dfu->i_buf_end = dfu_get_buf() + dfu_buf_size;
+		dfu->i_buf_end = dfu_get_buf(dfu) + dfu_buf_size;
 		dfu->i_buf = dfu->i_buf_start;
 		dfu->b_left = 0;
 
@@ -398,6 +400,7 @@ static int dfu_fill_entity(struct dfu_entity *dfu, char *s, int alt,
 	strcpy(dfu->name, st);
 
 	dfu->alt = alt;
+	dfu->max_buf_size = 0;
 
 	/* Specific for mmc device */
 	if (strcmp(interface, "mmc") == 0) {

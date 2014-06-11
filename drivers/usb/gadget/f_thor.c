@@ -142,7 +142,8 @@ static long long int download_head(unsigned long long total,
 				   int *cnt)
 {
 	long long int rcv_cnt = 0, left_to_rcv, ret_rcv;
-	void *transfer_buffer = dfu_get_buf();
+	struct dfu_entity *dfu_entity = dfu_get_entity(alt_setting_num);
+	void *transfer_buffer = dfu_get_buf(dfu_entity);
 	void *buf = transfer_buffer;
 	int usb_pkt_cnt = 0, ret;
 
@@ -205,7 +206,7 @@ static long long int download_head(unsigned long long total,
 static int download_tail(long long int left, int cnt)
 {
 	struct dfu_entity *dfu_entity = dfu_get_entity(alt_setting_num);
-	void *transfer_buffer = dfu_get_buf();
+	void *transfer_buffer = dfu_get_buf(dfu_entity);
 	int ret;
 
 	debug("%s: left: %llu cnt: %d\n", __func__, left, cnt);

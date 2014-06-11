@@ -91,6 +91,7 @@ struct dfu_entity {
 	void                    *dev_private;
 	enum dfu_device_type    dev_type;
 	enum dfu_layout         layout;
+	unsigned long           max_buf_size;
 
 	union {
 		struct mmc_internal_data mmc;
@@ -138,7 +139,7 @@ void dfu_trigger_reset(void);
 int dfu_get_alt(char *name);
 bool dfu_reset(void);
 int dfu_init_env_entities(char *interface, char *devstr);
-unsigned char *dfu_get_buf(void);
+unsigned char *dfu_get_buf(struct dfu_entity *dfu);
 unsigned char *dfu_free_buf(void);
 unsigned long dfu_get_buf_size(void);
 
