@@ -179,7 +179,7 @@ unsigned int dfu_polltimeout_nand(struct dfu_entity *dfu)
 	return DFU_DEFAULT_POLL_TIMEOUT;
 }
 
-int dfu_fill_entity_nand(struct dfu_entity *dfu, char *s)
+int dfu_fill_entity_nand(struct dfu_entity *dfu, char *devstr, char *s)
 {
 	char *st;
 	int ret, dev, part;

@@ -39,6 +39,8 @@ enum dfu_op {
 };
 
 struct mmc_internal_data {
+	int dev_num;
+
 	/* RAW programming */
 	unsigned int lba_start;
 	unsigned int lba_size;
@@ -87,7 +89,6 @@ struct dfu_entity {
 	char			name[DFU_NAME_SIZE];
 	int                     alt;
 	void                    *dev_private;
-	int                     dev_num;
 	enum dfu_device_type    dev_type;
 	enum dfu_layout         layout;
 
@@ -125,7 +126,7 @@ struct dfu_entity {
 	unsigned int inited:1;
 };
 
-int dfu_config_entities(char *s, char *interface, int num);
+int dfu_config_entities(char *s, char *interface, char *devstr);
 void dfu_free_entities(void);
 void dfu_show_entities(void);
 int dfu_get_alt_number(void);
@@ -136,7 +137,7 @@ char *dfu_extract_token(char** e, int *n);
 void dfu_trigger_reset(void);
 int dfu_get_alt(char *name);
 bool dfu_reset(void);
-int dfu_init_env_entities(char *interface, int dev);
+int dfu_init_env_entities(char *interface, char *devstr);
 unsigned char *dfu_get_buf(void);
 unsigned char *dfu_free_buf(void);
 unsigned long dfu_get_buf_size(void);
@@ -146,9 +147,10 @@ int dfu_write(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
 int dfu_flush(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
 /* Device specific */
 #ifdef CONFIG_DFU_MMC
-extern int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *s);
+extern int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr, char *s);
 #else
-static inline int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *s)
+static inline int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *devstr,
+				      char *s)
 {
 	puts("MMC support not available!\n");
 	return -1;
@@ -156,9 +158,10 @@ static inline int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *s)
 #endif
 
 #ifdef CONFIG_DFU_NAND
-extern int dfu_fill_entity_nand(struct dfu_entity *dfu, char *s);
+extern int dfu_fill_entity_nand(struct dfu_entity *dfu, char *devstr, char *s);
 #else
-static inline int dfu_fill_entity_nand(struct dfu_entity *dfu, char *s)
+static inline int dfu_fill_entity_nand(struct dfu_entity *dfu, char *devstr,
+				       char *s)
 {
 	puts("NAND support not available!\n");
 	return -1;
@@ -166,9 +169,10 @@ static inline int dfu_fill_entity_nand(struct dfu_entity *dfu, char *s)
 #endif
 
 #ifdef CONFIG_DFU_RAM
-extern int dfu_fill_entity_ram(struct dfu_entity *dfu, char *s);
+extern int dfu_fill_entity_ram(struct dfu_entity *dfu, char *devstr, char *s);
 #else
-static inline int dfu_fill_entity_ram(struct dfu_entity *dfu, char *s)
+static inline int dfu_fill_entity_ram(struct dfu_entity *dfu, char *devstr,
+				      char *s)
 {
 	puts("RAM support not available!\n");
 	return -1;

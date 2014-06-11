@@ -24,8 +24,7 @@ static int do_dfu(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	int ret, i = 0;
 
-	ret = dfu_init_env_entities(interface, simple_strtoul(devstring,
-							      NULL, 10));
+	ret = dfu_init_env_entities(interface, devstring);
 	if (ret)
 		goto done;
 

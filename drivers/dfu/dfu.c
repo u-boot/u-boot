@@ -44,7 +44,7 @@ static int dfu_find_alt_num(const char *s)
 	return ++i;
 }
 
-int dfu_init_env_entities(char *interface, int dev)
+int dfu_init_env_entities(char *interface, char *devstr)
 {
 	const char *str_env;
 	char *env_bkp;
@@ -57,7 +57,7 @@ int dfu_init_env_entities(char *interface, int dev)
 	}
 
 	env_bkp = strdup(str_env);
-	ret = dfu_config_entities(env_bkp, interface, dev);
+	ret = dfu_config_entities(env_bkp, interface, devstr);
 	if (ret) {
 		error("DFU entities configuration failed!\n");
 		return ret;
@@ -389,26 +389,25 @@ int dfu_read(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 }
 
 static int dfu_fill_entity(struct dfu_entity *dfu, char *s, int alt,
-			   char *interface, int num)
+			   char *interface, char *devstr)
 {
 	char *st;
 
-	debug("%s: %s interface: %s num: %d\n", __func__, s, interface, num);
+	debug("%s: %s interface: %s dev: %s\n", __func__, s, interface, devstr);
 	st = strsep(&s, " ");
 	strcpy(dfu->name, st);
 
-	dfu->dev_num = num;
 	dfu->alt = alt;
 
 	/* Specific for mmc device */
 	if (strcmp(interface, "mmc") == 0) {
-		if (dfu_fill_entity_mmc(dfu, s))
+		if (dfu_fill_entity_mmc(dfu, devstr, s))
 			return -1;
 	} else if (strcmp(interface, "nand") == 0) {
-		if (dfu_fill_entity_nand(dfu, s))
+		if (dfu_fill_entity_nand(dfu, devstr, s))
 			return -1;
 	} else if (strcmp(interface, "ram") == 0) {
-		if (dfu_fill_entity_ram(dfu, s))
+		if (dfu_fill_entity_ram(dfu, devstr, s))
 			return -1;
 	} else {
 		printf("%s: Device %s not (yet) supported!\n",
@@ -434,7 +433,7 @@ void dfu_free_entities(void)
 	alt_num_cnt = 0;
 }
 
-int dfu_config_entities(char *env, char *interface, int num)
+int dfu_config_entities(char *env, char *interface, char *devstr)
 {
 	struct dfu_entity *dfu;
 	int i, ret;
@@ -457,7 +456,8 @@ int dfu_config_entities(char *env, char *interface, int num)
 	for (i = 0; i < dfu_alt_num; i++) {
 
 		s = strsep(&env, ";");
-		ret = dfu_fill_entity(&dfu[i], s, alt_num_cnt, interface, num);
+		ret = dfu_fill_entity(&dfu[i], s, alt_num_cnt, interface,
+				      devstr);
 		if (ret)
 			return -1;
 

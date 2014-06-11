@@ -52,7 +52,7 @@ static int dfu_read_medium_ram(struct dfu_entity *dfu, u64 offset,
 	return dfu_transfer_medium_ram(DFU_OP_READ, dfu, offset, buf, len);
 }
 
-int dfu_fill_entity_ram(struct dfu_entity *dfu, char *s)
+int dfu_fill_entity_ram(struct dfu_entity *dfu, char *devstr, char *s)
 {
 	char *st;
 
