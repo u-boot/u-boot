@@ -35,6 +35,7 @@ enum dfu_layout {
 enum dfu_op {
 	DFU_OP_READ = 1,
 	DFU_OP_WRITE,
+	DFU_OP_SIZE,
 };
 
 struct mmc_internal_data {
@@ -95,6 +96,8 @@ struct dfu_entity {
 		struct nand_internal_data nand;
 		struct ram_internal_data ram;
 	} data;
+
+	long (*get_medium_size)(struct dfu_entity *dfu);
 
 	int (*read_medium)(struct dfu_entity *dfu,
 			u64 offset, void *buf, long *len);
