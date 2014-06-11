@@ -1424,9 +1424,6 @@ The following options need to be configured:
 		CONFIG_USB_EHCI_TXFIFO_THRESH enables setting of the
 		txfilltuning field in the EHCI controller on reset.
 
-		CONFIG_USB_HUB_MIN_POWER_ON_DELAY defines the minimum
-		interval for usb hub power-on delay.(minimum 100msec)
-
 - USB Device:
 		Define the below if you wish to use the USB console.
 		Once firmware is rebuilt from a serial console issue the

@@ -97,6 +97,8 @@ struct ci_ep {
 
 struct ci_drv {
 	struct usb_gadget		gadget;
+	struct ci_req			*ep0_req;
+	bool				ep0_data_phase;
 	struct usb_gadget_driver	*driver;
 	struct ehci_ctrl		*ctrl;
 	struct ept_queue_head		*epts;
