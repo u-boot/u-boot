@@ -197,16 +197,6 @@ static struct spi_flash *spi_flash_validate_params(struct spi_slave *spi,
 		/* Go for default supported write cmd */
 		flash->write_cmd = CMD_PAGE_PROGRAM;
 
-	/* Set the quad enable bit - only for quad commands */
-	if ((flash->read_cmd == CMD_READ_QUAD_OUTPUT_FAST) ||
-	    (flash->read_cmd == CMD_READ_QUAD_IO_FAST) ||
-	    (flash->write_cmd == CMD_QUAD_PAGE_PROGRAM)) {
-		if (spi_flash_set_qeb(flash, idcode[0])) {
-			debug("SF: Fail to set QEB for %02x\n", idcode[0]);
-			return NULL;
-		}
-	}
-
 	/* Read dummy_byte: dummy byte is determined based on the
 	 * dummy cycles of a particular command.
 	 * Fast commands - dummy_byte = dummy_cycles/8
@@ -326,6 +316,16 @@ static struct spi_flash *spi_flash_probe_slave(struct spi_slave *spi)
 	flash = spi_flash_validate_params(spi, idcode);
 	if (!flash)
 		goto err_read_id;
+
+	/* Set the quad enable bit - only for quad commands */
+	if ((flash->read_cmd == CMD_READ_QUAD_OUTPUT_FAST) ||
+	    (flash->read_cmd == CMD_READ_QUAD_IO_FAST) ||
+	    (flash->write_cmd == CMD_QUAD_PAGE_PROGRAM)) {
+		if (spi_flash_set_qeb(flash, idcode[0])) {
+			debug("SF: Fail to set QEB for %02x\n", idcode[0]);
+			return NULL;
+		}
+	}
 
 #ifdef CONFIG_OF_CONTROL
 	if (spi_flash_decode_fdt(gd->fdt_blob, flash)) {
