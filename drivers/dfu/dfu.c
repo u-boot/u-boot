@@ -267,7 +267,6 @@ static int dfu_read_buffer_fill(struct dfu_entity *dfu, void *buf, int size)
 
 			dfu->i_buf += chunk;
 			dfu->b_left -= chunk;
-			dfu->r_left -= chunk;
 			size -= chunk;
 			buf += chunk;
 			readn += chunk;
@@ -313,10 +312,19 @@ int dfu_read(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 		if (dfu->i_buf_start == NULL)
 			return -ENOMEM;
 
-		ret = dfu->read_medium(dfu, 0, dfu->i_buf_start, &dfu->r_left);
-		if (ret != 0) {
-			debug("%s: failed to get r_left\n", __func__);
-			return ret;
+		dfu->r_left = dfu->get_medium_size(dfu);
+		if (dfu->r_left < 0)
+			return dfu->r_left;
+		switch (dfu->layout) {
+		case DFU_RAW_ADDR:
+		case DFU_RAM_ADDR:
+			break;
+		default:
+			if (dfu->r_left >= dfu_buf_size) {
+				printf("%s: File too big for buffer\n",
+				       __func__);
+				return -EOVERFLOW;
+			}
 		}
 
 		debug("%s: %s %ld [B]\n", __func__, dfu->name, dfu->r_left);
@@ -326,7 +334,7 @@ int dfu_read(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 		dfu->offset = 0;
 		dfu->i_buf_end = dfu_get_buf() + dfu_buf_size;
 		dfu->i_buf = dfu->i_buf_start;
-		dfu->b_left = min(dfu_buf_size, dfu->r_left);
+		dfu->b_left = 0;
 
 		dfu->bad_skip = 0;
 

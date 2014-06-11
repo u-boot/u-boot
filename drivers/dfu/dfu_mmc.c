@@ -12,6 +12,8 @@
 #include <errno.h>
 #include <div64.h>
 #include <dfu.h>
+#include <ext4fs.h>
+#include <fat.h>
 #include <mmc.h>
 
 static unsigned char __aligned(CONFIG_SYS_CACHELINE_SIZE)
@@ -113,28 +115,45 @@ static int mmc_file_buffer(struct dfu_entity *dfu, void *buf, long *len)
 static int mmc_file_op(enum dfu_op op, struct dfu_entity *dfu,
 			void *buf, long *len)
 {
+	const char *fsname, *opname;
 	char cmd_buf[DFU_CMD_BUF_SIZE];
 	char *str_env;
 	int ret;
 
 	switch (dfu->layout) {
 	case DFU_FS_FAT:
-		sprintf(cmd_buf, "fat%s mmc %d:%d 0x%x %s",
-			op == DFU_OP_READ ? "load" : "write",
-			dfu->data.mmc.dev, dfu->data.mmc.part,
-			(unsigned int) buf, dfu->name);
+		fsname = "fat";
 		break;
 	case DFU_FS_EXT4:
-		sprintf(cmd_buf, "ext4%s mmc %d:%d 0x%x /%s",
-			op == DFU_OP_READ ? "load" : "write",
-			dfu->data.mmc.dev, dfu->data.mmc.part,
-			(unsigned int) buf, dfu->name);
+		fsname = "ext4";
 		break;
 	default:
 		printf("%s: Layout (%s) not (yet) supported!\n", __func__,
 		       dfu_get_layout(dfu->layout));
 		return -1;
 	}
+
+	switch (op) {
+	case DFU_OP_READ:
+		opname = "load";
+		break;
+	case DFU_OP_WRITE:
+		opname = "write";
+		break;
+	case DFU_OP_SIZE:
+		opname = "size";
+		break;
+	default:
+		return -1;
+	}
+
+	sprintf(cmd_buf, "%s%s mmc %d:%d", fsname, opname,
+		dfu->data.mmc.dev, dfu->data.mmc.part);
+
+	if (op != DFU_OP_SIZE)
+		sprintf(cmd_buf + strlen(cmd_buf), " 0x%x", (unsigned int)buf);
+
+	sprintf(cmd_buf + strlen(cmd_buf), " %s", dfu->name);
 
 	if (op == DFU_OP_WRITE)
 		sprintf(cmd_buf + strlen(cmd_buf), " %lx", *len);
@@ -147,7 +166,7 @@ static int mmc_file_op(enum dfu_op op, struct dfu_entity *dfu,
 		return ret;
 	}
 
-	if (dfu->layout != DFU_RAW_ADDR && op == DFU_OP_READ) {
+	if (op != DFU_OP_WRITE) {
 		str_env = getenv("filesize");
 		if (str_env == NULL) {
 			puts("dfu: Wrong file size!\n");
@@ -194,6 +213,27 @@ int dfu_flush_medium_mmc(struct dfu_entity *dfu)
 	}
 
 	return ret;
+}
+
+long dfu_get_medium_size_mmc(struct dfu_entity *dfu)
+{
+	int ret;
+	long len;
+
+	switch (dfu->layout) {
+	case DFU_RAW_ADDR:
+		return dfu->data.mmc.lba_size * dfu->data.mmc.lba_blk_size;
+	case DFU_FS_FAT:
+	case DFU_FS_EXT4:
+		ret = mmc_file_op(DFU_OP_SIZE, dfu, NULL, &len);
+		if (ret < 0)
+			return ret;
+		return len;
+	default:
+		printf("%s: Layout (%s) not (yet) supported!\n", __func__,
+		       dfu_get_layout(dfu->layout));
+		return -1;
+	}
 }
 
 int dfu_read_medium_mmc(struct dfu_entity *dfu, u64 offset, void *buf,
@@ -316,6 +356,7 @@ int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *s)
 	}
 
 	dfu->dev_type = DFU_DEV_MMC;
+	dfu->get_medium_size = dfu_get_medium_size_mmc;
 	dfu->read_medium = dfu_read_medium_mmc;
 	dfu->write_medium = dfu_write_medium_mmc;
 	dfu->flush_medium = dfu_flush_medium_mmc;
