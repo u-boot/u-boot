@@ -58,7 +58,7 @@ int gpio_lookup_name(const char *name, struct udevice **devp,
 		uc_priv = dev->uclass_priv;
 		len = uc_priv->bank_name ? strlen(uc_priv->bank_name) : 0;
 
-		if (!strncmp(name, uc_priv->bank_name, len)) {
+		if (!strncasecmp(name, uc_priv->bank_name, len)) {
 			if (strict_strtoul(name + len, 10, &offset))
 				continue;
 			if (devp)
