@@ -609,11 +609,13 @@ static int fit_config_process_sig(const char *keydir, void *keydest,
 	/* Write the public key into the supplied FDT file */
 	if (keydest) {
 		ret = info.algo->add_verify_data(&info, keydest);
+		if (ret == -ENOSPC)
+			return -ENOSPC;
 		if (ret) {
 			printf("Failed to add verification data for '%s' signature node in '%s' image node\n",
 			       node_name, conf_name);
-			return ret == FDT_ERR_NOSPACE ? -ENOSPC : -EIO;
 		}
+		return ret;
 	}
 
 	return 0;
