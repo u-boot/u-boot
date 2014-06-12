@@ -23,13 +23,15 @@ static inline unsigned long dma_map_single(volatile void *vaddr, size_t len,
 
 	switch (dir) {
 	case DMA_BIDIRECTIONAL:
-		dcache_flush_range(vaddr, len);
+		flush_dcache_range((unsigned long)vaddr,
+				   (unsigned long)vaddr + len);
 		break;
 	case DMA_TO_DEVICE:
 		dcache_clean_range(vaddr, len);
 		break;
 	case DMA_FROM_DEVICE:
-		dcache_invalidate_range(vaddr, len);
+		invalidate_dcache_range((unsigned long)vaddr,
+					(unsigned long)vaddr + len);
 		break;
 	default:
 		/* This will cause a linker error */
