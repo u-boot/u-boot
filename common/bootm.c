@@ -244,6 +244,7 @@ static int bootm_find_other(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	return 0;
 }
+#endif /* USE_HOSTCC */
 
 /**
  * decomp_image() - decompress the operating system
@@ -353,6 +354,7 @@ static int decomp_image(int comp, ulong load, ulong image_start, int type,
 	return 0;
 }
 
+#ifndef USE_HOSTCC
 static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 			 int boot_progress)
 {
@@ -837,6 +839,75 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 	      *os_data, *os_len, *os_len);
 
 	return buf;
+}
+#else /* USE_HOSTCC */
+
+void memmove_wd(void *to, void *from, size_t len, ulong chunksz)
+{
+	memmove(to, from, len);
+}
+
+static int bootm_host_load_image(const void *fit, int req_image_type)
+{
+	const char *fit_uname_config = NULL;
+	ulong data, len;
+	bootm_headers_t images;
+	int noffset;
+	ulong load_end;
+	uint8_t image_type;
+	uint8_t imape_comp;
+	void *load_buf;
+	int ret;
+
+	memset(&images, '\0', sizeof(images));
+	images.verify = 1;
+	noffset = fit_image_load(&images, (ulong)fit,
+		NULL, &fit_uname_config,
+		IH_ARCH_DEFAULT, req_image_type, -1,
+		FIT_LOAD_IGNORED, &data, &len);
+	if (noffset < 0)
+		return noffset;
+	if (fit_image_get_type(fit, noffset, &image_type)) {
+		puts("Can't get image type!\n");
+		return -EINVAL;
+	}
+
+	if (fit_image_get_comp(fit, noffset, &imape_comp)) {
+		puts("Can't get image compression!\n");
+		return -EINVAL;
+	}
+
+	/* Allow the image to expand by a factor of 4, should be safe */
+	load_buf = malloc((1 << 20) + len * 4);
+	ret = decomp_image(imape_comp, 0, data, image_type, load_buf,
+			   (void *)data, len, &load_end);
+	free(load_buf);
+	if (ret && ret != BOOTM_ERR_UNIMPLEMENTED)
+		return ret;
+
+	return 0;
+}
+
+int bootm_host_load_images(const void *fit, int cfg_noffset)
+{
+	static uint8_t image_types[] = {
+		IH_TYPE_KERNEL,
+		IH_TYPE_FLATDT,
+		IH_TYPE_RAMDISK,
+	};
+	int err = 0;
+	int i;
+
+	for (i = 0; i < ARRAY_SIZE(image_types); i++) {
+		int ret;
+
+		ret = bootm_host_load_image(fit, image_types[i]);
+		if (!err && ret && ret != -ENOENT)
+			err = ret;
+	}
+
+	/* Return the first error we found */
+	return err;
 }
 
 #endif /* ndef USE_HOSTCC */

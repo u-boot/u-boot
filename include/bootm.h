@@ -41,6 +41,8 @@ void lynxkdi_boot(image_header_t *hdr);
 
 boot_os_fn *bootm_os_get_boot_func(int os);
 
+int bootm_host_load_images(const void *fit, int cfg_noffset);
+
 int boot_selected_os(int argc, char * const argv[], int state,
 		     bootm_headers_t *images, boot_os_fn *boot_fn);
 

@@ -425,6 +425,7 @@ ulong genimg_get_image(ulong img_addr);
 
 int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 		uint8_t arch, ulong *rd_start, ulong *rd_end);
+#endif
 
 /**
  * fit_image_load() - load an image from a FIT
@@ -454,12 +455,14 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
  * @param load_op	Decribes what to do with the load address
  * @param datap		Returns address of loaded image
  * @param lenp		Returns length of loaded image
+ * @return node offset of image, or -ve error code on error
  */
 int fit_image_load(bootm_headers_t *images, ulong addr,
 		   const char **fit_unamep, const char **fit_uname_configp,
 		   int arch, int image_type, int bootstage_id,
 		   enum fit_load_op load_op, ulong *datap, ulong *lenp);
 
+#ifndef USE_HOSTCC
 /**
  * fit_get_node_from_config() - Look up an image a FIT by type
  *
@@ -604,8 +607,8 @@ int image_check_dcrc(const image_header_t *hdr);
 ulong getenv_bootm_low(void);
 phys_size_t getenv_bootm_size(void);
 phys_size_t getenv_bootm_mapsize(void);
-void memmove_wd(void *to, void *from, size_t len, ulong chunksz);
 #endif
+void memmove_wd(void *to, void *from, size_t len, ulong chunksz);
 
 static inline int image_check_magic(const image_header_t *hdr)
 {

@@ -80,10 +80,13 @@ int main(int argc, char **argv)
 
 	image_set_host_blob(key_blob);
 	ret = fit_check_sign(fit_blob, key_blob);
-	if (!ret)
+	if (!ret) {
 		ret = EXIT_SUCCESS;
-	else
+		fprintf(stderr, "Signature check OK\n");
+	} else {
 		ret = EXIT_FAILURE;
+		fprintf(stderr, "Signature check Bad (error %d)\n", ret);
+	}
 
 	(void) munmap((void *)fit_blob, fsbuf.st_size);
 	(void) munmap((void *)key_blob, ksbuf.st_size);

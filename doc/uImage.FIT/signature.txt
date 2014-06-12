@@ -361,6 +361,7 @@ Test Verified Boot Run: unsigned config: OK
 Sign images
 Test Verified Boot Run: signed config: OK
 check signed config on the host
+Signature check OK
 OK
 Test Verified Boot Run: signed config: OK
 Test Verified Boot Run: signed config with bad hash: OK
@@ -374,11 +375,13 @@ Test Verified Boot Run: unsigned config: OK
 Sign images
 Test Verified Boot Run: signed config: OK
 check signed config on the host
+Signature check OK
 OK
 Test Verified Boot Run: signed config: OK
 Test Verified Boot Run: signed config with bad hash: OK
 
 Test passed
+
 
 Future Work
 -----------
