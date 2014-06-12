@@ -139,6 +139,7 @@ int hash_lookup_algo(const char *algo_name, struct hash_algo **algop);
  * @len:		Length of data that was hashed
  * @output:		Hash value to display
  */
-void hash_show(struct hash_algo *algo, ulong addr, ulong len, u8 *output);
+void hash_show(struct hash_algo *algo, ulong addr, ulong len,
+	       uint8_t *output);
 #endif /* !USE_HOSTCC */
 #endif
