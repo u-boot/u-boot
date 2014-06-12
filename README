@@ -1000,6 +1000,7 @@ The following options need to be configured:
 		CONFIG_CMD_IMLS		  List all images found in NOR flash
 		CONFIG_CMD_IMLS_NAND	* List all images found in NAND flash
 		CONFIG_CMD_IMMAP	* IMMR dump support
+		CONFIG_CMD_IOTRACE	* I/O tracing for debugging
 		CONFIG_CMD_IMPORTENV	* import an environment
 		CONFIG_CMD_INI		* import data from an ini file into the env
 		CONFIG_CMD_IRQ		* irqinfo
@@ -1170,6 +1171,28 @@ The following options need to be configured:
 
 		Note that if the GPIO device uses I2C, then the I2C interface
 		must also be configured. See I2C Support, below.
+
+- I/O tracing:
+		When CONFIG_IO_TRACE is selected, U-Boot intercepts all I/O
+		accesses and can checksum them or write a list of them out
+		to memory. See the 'iotrace' command for details. This is
+		useful for testing device drivers since it can confirm that
+		the driver behaves the same way before and after a code
+		change. Currently this is supported on sandbox and arm. To
+		add support for your architecture, add '#include <iotrace.h>'
+		to the bottom of arch/<arch>/include/asm/io.h and test.
+
+		Example output from the 'iotrace stats' command is below.
+		Note that if the trace buffer is exhausted, the checksum will
+		still continue to operate.
+
+			iotrace is enabled
+			Start:  10000000	(buffer start address)
+			Size:   00010000	(buffer size)
+			Offset: 00000120	(current buffer offset)
+			Output: 10000120	(start + offset)
+			Count:  00000018	(number of trace records)
+			CRC32:  9526fb66	(CRC32 of all trace records)
 
 - Timestamp Support:
 
