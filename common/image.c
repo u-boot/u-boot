@@ -903,7 +903,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
 #endif
 #if defined(CONFIG_FIT)
 		case IMAGE_FORMAT_FIT:
-			rd_noffset = fit_image_load(images, FIT_RAMDISK_PROP,
+			rd_noffset = fit_image_load(images,
 					rd_addr, &fit_uname_ramdisk,
 					&fit_uname_config, arch,
 					IH_TYPE_RAMDISK,

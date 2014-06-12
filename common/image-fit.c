@@ -1477,7 +1477,32 @@ int fit_get_node_from_config(bootm_headers_t *images, const char *prop_name,
 	return noffset;
 }
 
-int fit_image_load(bootm_headers_t *images, const char *prop_name, ulong addr,
+/**
+ * fit_get_image_type_property() - get property name for IH_TYPE_...
+ *
+ * @return the properly name where we expect to find the image in the
+ * config node
+ */
+static const char *fit_get_image_type_property(int type)
+{
+	/*
+	 * This is sort-of available in the uimage_type[] table in image.c
+	 * but we don't have access to the sohrt name, and "fdt" is different
+	 * anyway. So let's just keep it here.
+	 */
+	switch (type) {
+	case IH_TYPE_FLATDT:
+		return FIT_FDT_PROP;
+	case IH_TYPE_KERNEL:
+		return FIT_KERNEL_PROP;
+	case IH_TYPE_RAMDISK:
+		return FIT_RAMDISK_PROP;
+	}
+
+	return "unknown";
+}
+
+int fit_image_load(bootm_headers_t *images, ulong addr,
 		   const char **fit_unamep, const char **fit_uname_configp,
 		   int arch, int image_type, int bootstage_id,
 		   enum fit_load_op load_op, ulong *datap, ulong *lenp)
@@ -1490,11 +1515,13 @@ int fit_image_load(bootm_headers_t *images, const char *prop_name, ulong addr,
 	size_t size;
 	int type_ok, os_ok;
 	ulong load, data, len;
+	const char *prop_name;
 	int ret;
 
 	fit = map_sysmem(addr, 0);
 	fit_uname = fit_unamep ? *fit_unamep : NULL;
 	fit_uname_config = fit_uname_configp ? *fit_uname_configp : NULL;
+	prop_name = fit_get_image_type_property(image_type);
 	printf("## Loading %s from FIT Image at %08lx ...\n", prop_name, addr);
 
 	bootstage_mark(bootstage_id + BOOTSTAGE_SUB_FORMAT);

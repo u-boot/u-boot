@@ -434,8 +434,9 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
  * out progress messages, checking the type/arch/os and optionally copying it
  * to the right load address.
  *
+ * The property to look up is defined by image_type.
+ *
  * @param images	Boot images structure
- * @param prop_name	Property name to look up (FIT_..._PROP)
  * @param addr		Address of FIT in memory
  * @param fit_unamep	On entry this is the requested image name
  *			(e.g. "kernel@1") or NULL to use the default. On exit
@@ -454,7 +455,7 @@ int boot_get_ramdisk(int argc, char * const argv[], bootm_headers_t *images,
  * @param datap		Returns address of loaded image
  * @param lenp		Returns length of loaded image
  */
-int fit_image_load(bootm_headers_t *images, const char *prop_name, ulong addr,
+int fit_image_load(bootm_headers_t *images, ulong addr,
 		   const char **fit_unamep, const char **fit_uname_configp,
 		   int arch, int image_type, int bootstage_id,
 		   enum fit_load_op load_op, ulong *datap, ulong *lenp);

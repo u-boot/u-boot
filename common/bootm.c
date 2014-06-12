@@ -776,8 +776,7 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 #endif
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
-		os_noffset = fit_image_load(images, FIT_KERNEL_PROP,
-				img_addr,
+		os_noffset = fit_image_load(images, img_addr,
 				&fit_uname_kernel, &fit_uname_config,
 				IH_ARCH_DEFAULT, IH_TYPE_KERNEL,
 				BOOTSTAGE_ID_FIT_KERNEL_START,

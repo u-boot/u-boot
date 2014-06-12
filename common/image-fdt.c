@@ -355,7 +355,6 @@ int boot_get_fdt(int flag, int argc, char * const argv[], uint8_t arch,
 				ulong load, len;
 
 				fdt_noffset = fit_image_load(images,
-					FIT_FDT_PROP,
 					fdt_addr, &fit_uname_fdt,
 					&fit_uname_config,
 					arch, IH_TYPE_FLATDT,
