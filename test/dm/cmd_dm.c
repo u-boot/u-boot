@@ -23,7 +23,7 @@ static int display_succ(struct udevice *in, char *buf)
 	char local[16];
 	struct udevice *pos, *n, *prev = NULL;
 
-	printf("%s- %s @ %08x", buf, in->name, map_to_sysmem(in));
+	printf("%s- %s @ %08lx", buf, in->name, (ulong)map_to_sysmem(in));
 	if (in->flags & DM_FLAG_ACTIVATED)
 		puts(" - activated");
 	puts("\n");
@@ -62,7 +62,7 @@ static int do_dm_dump_all(cmd_tbl_t *cmdtp, int flag, int argc,
 	struct udevice *root;
 
 	root = dm_root();
-	printf("ROOT %08x\n", map_to_sysmem(root));
+	printf("ROOT %08lx\n", (ulong)map_to_sysmem(root));
 	return dm_dump(root);
 }
 
@@ -84,8 +84,8 @@ static int do_dm_dump_uclass(cmd_tbl_t *cmdtp, int flag, int argc,
 		for (ret = uclass_first_device(id, &dev);
 		     dev;
 		     ret = uclass_next_device(&dev)) {
-			printf("  %s @  %08x:\n", dev->name,
-			       map_to_sysmem(dev));
+			printf("  %s @ %08lx:\n", dev->name,
+			       (ulong)map_to_sysmem(dev));
 		}
 		puts("\n");
 	}
