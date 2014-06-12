@@ -14,6 +14,7 @@
 #include <dm/platdata.h>
 #include <dm/uclass.h>
 #include <dm/util.h>
+#include <fdtdec.h>
 #include <linux/compiler.h>
 
 struct driver *lists_driver_lookup_name(const char *name)

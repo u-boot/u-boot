@@ -10,6 +10,7 @@
 #include <common.h>
 #include <errno.h>
 #include <malloc.h>
+#include <libfdt.h>
 #include <dm/device.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
