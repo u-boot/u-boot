@@ -19,8 +19,12 @@
 #include <asm/errno.h>
 #include <fsl_ifc.h>
 
+#ifndef CONFIG_SYS_FSL_IFC_BANK_COUNT
+#define CONFIG_SYS_FSL_IFC_BANK_COUNT	4
+#endif
+
 #define FSL_IFC_V1_1_0	0x01010000
-#define MAX_BANKS	4
+#define MAX_BANKS	CONFIG_SYS_FSL_IFC_BANK_COUNT
 #define ERR_BYTE	0xFF /* Value returned for read bytes
 				when read failed */
 #define IFC_TIMEOUT_MSECS 10 /* Maximum number of mSecs to wait for IFC
