@@ -793,7 +793,7 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 #ifdef CONFIG_ANDROID_BOOT_IMAGE
 	case IMAGE_FORMAT_ANDROID:
 		printf("## Booting Android Image at 0x%08lx ...\n", img_addr);
-		if (android_image_get_kernel((void *)img_addr, images->verify,
+		if (android_image_get_kernel(buf, images->verify,
 					     os_data, os_len))
 			return NULL;
 		break;
