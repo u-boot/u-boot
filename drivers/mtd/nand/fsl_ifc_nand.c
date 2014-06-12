@@ -806,11 +806,29 @@ static void fsl_ifc_select_chip(struct mtd_info *mtd, int chip)
 {
 }
 
-static void fsl_ifc_sram_init(void)
+static int fsl_ifc_sram_init(uint32_t ver)
 {
 	struct fsl_ifc *ifc = ifc_ctrl->regs;
 	uint32_t cs = 0, csor = 0, csor_8k = 0, csor_ext = 0;
+	uint32_t ncfgr = 0;
 	long long end_tick;
+
+	if (ver > FSL_IFC_V1_1_0) {
+		ncfgr = ifc_in32(&ifc->ifc_nand.ncfgr);
+		ifc_out32(&ifc->ifc_nand.ncfgr, ncfgr | IFC_NAND_SRAM_INIT_EN);
+
+		/* wait for  SRAM_INIT bit to be clear or timeout */
+		end_tick = usec2ticks(IFC_TIMEOUT_MSECS * 1000) + get_ticks();
+		while (end_tick > get_ticks()) {
+			ifc_ctrl->status =
+				ifc_in32(&ifc->ifc_nand.nand_evter_stat);
+
+			if (!(ifc_ctrl->status & IFC_NAND_SRAM_INIT_EN))
+				return 0;
+		}
+		printf("fsl-ifc: Failed to Initialise SRAM\n");
+		return 1;
+	}
 
 	cs = ifc_ctrl->cs_nand >> IFC_NAND_CSEL_SHIFT;
 
@@ -854,11 +872,18 @@ static void fsl_ifc_sram_init(void)
 			break;
 	}
 
+	if (ifc_ctrl->status != IFC_NAND_EVTER_STAT_OPC) {
+		printf("fsl-ifc: Failed to Initialise SRAM\n");
+		return 1;
+	}
+
 	ifc_out32(&ifc->ifc_nand.nand_evter_stat, ifc_ctrl->status);
 
 	/* Restore CSOR and CSOR_ext */
 	ifc_out32(&ifc_ctrl->regs->csor_cs[cs].csor, csor);
 	ifc_out32(&ifc_ctrl->regs->csor_cs[cs].csor_ext, csor_ext);
+
+	return 0;
 }
 
 static int fsl_ifc_chip_init(int devnum, u8 *addr)
@@ -868,7 +893,7 @@ static int fsl_ifc_chip_init(int devnum, u8 *addr)
 	struct fsl_ifc_mtd *priv;
 	struct nand_ecclayout *layout;
 	uint32_t cspr = 0, csor = 0, ver = 0;
-	int ret;
+	int ret = 0;
 
 	if (!ifc_ctrl) {
 		fsl_ifc_ctrl_init();
@@ -1010,8 +1035,10 @@ static int fsl_ifc_chip_init(int devnum, u8 *addr)
 	}
 
 	ver = ifc_in32(&ifc_ctrl->regs->ifc_rev);
-	if (ver == FSL_IFC_V1_1_0)
-		fsl_ifc_sram_init();
+	if (ver >= FSL_IFC_V1_1_0)
+		ret = fsl_ifc_sram_init(ver);
+	if (ret)
+		return ret;
 
 	ret = nand_scan_ident(mtd, 1, NULL);
 	if (ret)
