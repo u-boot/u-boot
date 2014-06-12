@@ -21,7 +21,7 @@ struct driver_info;
 #define DM_FLAG_ACTIVATED	(1 << 0)
 
 /* DM is responsible for allocating and freeing platdata */
-#define DM_FLAG_ALLOC_PDATA	(2 << 0)
+#define DM_FLAG_ALLOC_PDATA	(1 << 1)
 
 /**
  * struct udevice - An instance of a driver
