@@ -62,6 +62,15 @@ int main(int argc, char **argv)
 			break;
 	}
 
+	if (!fdtfile) {
+		fprintf(stderr, "%s: Missing fdt file\n", *argv);
+		usage(*argv);
+	}
+	if (!keyfile) {
+		fprintf(stderr, "%s: Missing key file\n", *argv);
+		usage(*argv);
+	}
+
 	ffd = mmap_fdt(cmdname, fdtfile, 0, &fit_blob, &fsbuf, false);
 	if (ffd < 0)
 		return EXIT_FAILURE;
