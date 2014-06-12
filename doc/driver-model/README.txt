@@ -315,7 +315,7 @@ is little or no 'driver model' code to write.
 - Moved some data from code into data structure - e.g. store a pointer to
 the driver operations structure in the driver, rather than passing it
 to the driver bind function.
-- Rename some structures to make them more similar to Linux (struct device
+- Rename some structures to make them more similar to Linux (struct udevice
 instead of struct instance, struct platdata, etc.)
 - Change the name 'core' to 'uclass', meaning U-Boot class. It seems that
 this concept relates to a class of drivers (or a subsystem). We shouldn't

@@ -111,7 +111,7 @@ static int shape_ofdata_to_platdata(struct udevice *dev)
 	return 0;
 }
 
-static const struct device_id demo_shape_id[] = {
+static const struct udevice_id demo_shape_id[] = {
 	{ "demo-shape", 0 },
 	{ },
 };

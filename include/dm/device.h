@@ -75,11 +75,11 @@ struct udevice {
 #define device_active(dev)	((dev)->flags & DM_FLAG_ACTIVATED)
 
 /**
- * struct device_id - Lists the compatible strings supported by a driver
+ * struct udevice_id - Lists the compatible strings supported by a driver
  * @compatible: Compatible string
  * @data: Data for this compatible string
  */
-struct device_id {
+struct udevice_id {
 	const char *compatible;
 	ulong data;
 };
@@ -121,7 +121,7 @@ struct device_id {
 struct driver {
 	char *name;
 	enum uclass_id id;
-	const struct device_id *of_match;
+	const struct udevice_id *of_match;
 	int (*bind)(struct udevice *dev);
 	int (*probe)(struct udevice *dev);
 	int (*remove)(struct udevice *dev);

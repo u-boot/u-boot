@@ -239,7 +239,7 @@ static int gpio_sandbox_probe(struct udevice *dev)
 	return 0;
 }
 
-static const struct device_id sandbox_gpio_ids[] = {
+static const struct udevice_id sandbox_gpio_ids[] = {
 	{ .compatible = "sandbox,gpio" },
 	{ }
 };

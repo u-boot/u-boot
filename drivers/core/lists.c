@@ -94,7 +94,7 @@ int lists_bind_drivers(struct udevice *parent)
  * tree error
  */
 static int driver_check_compatible(const void *blob, int offset,
-				   const struct device_id *of_match)
+				   const struct udevice_id *of_match)
 {
 	int ret;
 
