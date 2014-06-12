@@ -9,8 +9,8 @@
 
 #include <errno.h>
 #include <image.h>
-#include <sha1.h>
-#include <sha256.h>
+#include <u-boot/sha1.h>
+#include <u-boot/sha256.h>
 
 extern const uint8_t padding_sha256_rsa4096[];
 extern const uint8_t padding_sha256_rsa2048[];

@@ -11,7 +11,7 @@
 #include <config.h>
 #include <common.h>
 #include <mmc.h>
-#include <sha256.h>
+#include <u-boot/sha256.h>
 #include "mmc_private.h"
 
 /* Request codes */

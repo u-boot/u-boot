@@ -18,7 +18,7 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
-#include <sha1.h>
+#include <u-boot/sha1.h>
 #include "fdt_host.h"
 
 #define ARRAY_SIZE(x)		(sizeof(x) / sizeof((x)[0]))

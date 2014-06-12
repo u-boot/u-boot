@@ -34,7 +34,7 @@
 #endif
 
 #include <u-boot/md5.h>
-#include <sha1.h>
+#include <u-boot/sha1.h>
 #include <asm/errno.h>
 #include <asm/io.h>
 

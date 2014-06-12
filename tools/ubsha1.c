@@ -13,7 +13,7 @@
 #include <errno.h>
 #include <string.h>
 #include <sys/stat.h>
-#include "sha1.h"
+#include <u-boot/sha1.h>
 
 int main (int argc, char **argv)
 {

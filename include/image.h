@@ -886,7 +886,7 @@ struct image_region {
 };
 
 #if IMAGE_ENABLE_VERIFY
-# include <rsa-checksum.h>
+# include <u-boot/rsa-checksum.h>
 #endif
 struct checksum_algo {
 	const char *name;

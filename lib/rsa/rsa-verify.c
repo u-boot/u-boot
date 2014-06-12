@@ -17,9 +17,9 @@
 #include "mkimage.h"
 #include <fdt_support.h>
 #endif
-#include <rsa.h>
-#include <sha1.h>
-#include <sha256.h>
+#include <u-boot/rsa.h>
+#include <u-boot/sha1.h>
+#include <u-boot/sha256.h>
 
 #define UINT64_MULT32(v, multby)  (((uint64_t)(v)) * ((uint32_t)(multby)))
 

@@ -7,7 +7,7 @@
 
 #include <common.h>
 #include <stdarg.h>
-#include <sha1.h>
+#include <u-boot/sha1.h>
 #include <tpm.h>
 #include <asm/unaligned.h>
 

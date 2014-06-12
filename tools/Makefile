@@ -192,7 +192,6 @@ endif # !LOGO_BMP
 # Define _GNU_SOURCE to obtain the getline prototype from stdio.h
 #
 HOST_EXTRACFLAGS += -include $(srctree)/include/libfdt_env.h \
-		-include $(srctree)/include/sha256.h \
 		$(patsubst -I%,-idirafter%, $(UBOOTINCLUDE)) \
 		-I$(srctree)/lib/libfdt \
 		-I$(srctree)/tools \
