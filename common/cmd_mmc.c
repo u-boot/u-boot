@@ -92,7 +92,7 @@ static void print_mmcinfo(struct mmc *mmc)
 
 	printf("Bus Width: %d-bit\n", mmc->bus_width);
 }
-static struct mmc *init_mmc_device(int dev)
+static struct mmc *init_mmc_device(int dev, bool force_init)
 {
 	struct mmc *mmc;
 	mmc = find_mmc_device(dev);
@@ -100,6 +100,8 @@ static struct mmc *init_mmc_device(int dev)
 		printf("no mmc device at slot %x\n", dev);
 		return NULL;
 	}
+	if (force_init)
+		mmc->has_init = 0;
 	if (mmc_init(mmc))
 		return NULL;
 	return mmc;
@@ -117,7 +119,7 @@ static int do_mmcinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		}
 	}
 
-	mmc = init_mmc_device(curr_device);
+	mmc = init_mmc_device(curr_device, false);
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
@@ -247,7 +249,7 @@ static int do_mmcrpmb(cmd_tbl_t *cmdtp, int flag,
 	if (flag == CMD_FLAG_REPEAT && !cp->repeatable)
 		return CMD_RET_SUCCESS;
 
-	mmc = init_mmc_device(curr_device);
+	mmc = init_mmc_device(curr_device, false);
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
@@ -292,7 +294,7 @@ static int do_mmc_read(cmd_tbl_t *cmdtp, int flag,
 	blk = simple_strtoul(argv[2], NULL, 16);
 	cnt = simple_strtoul(argv[3], NULL, 16);
 
-	mmc = init_mmc_device(curr_device);
+	mmc = init_mmc_device(curr_device, false);
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
@@ -320,7 +322,7 @@ static int do_mmc_write(cmd_tbl_t *cmdtp, int flag,
 	blk = simple_strtoul(argv[2], NULL, 16);
 	cnt = simple_strtoul(argv[3], NULL, 16);
 
-	mmc = init_mmc_device(curr_device);
+	mmc = init_mmc_device(curr_device, false);
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
@@ -348,7 +350,7 @@ static int do_mmc_erase(cmd_tbl_t *cmdtp, int flag,
 	blk = simple_strtoul(argv[1], NULL, 16);
 	cnt = simple_strtoul(argv[2], NULL, 16);
 
-	mmc = init_mmc_device(curr_device);
+	mmc = init_mmc_device(curr_device, false);
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
@@ -369,16 +371,10 @@ static int do_mmc_rescan(cmd_tbl_t *cmdtp, int flag,
 {
 	struct mmc *mmc;
 
-	mmc = find_mmc_device(curr_device);
-	if (!mmc) {
-		printf("no mmc device at slot %x\n", curr_device);
+	mmc = init_mmc_device(curr_device, true);
+	if (!mmc)
 		return CMD_RET_FAILURE;
-	}
 
-	mmc->has_init = 0;
-
-	if (mmc_init(mmc))
-		return CMD_RET_FAILURE;
 	return CMD_RET_SUCCESS;
 }
 static int do_mmc_part(cmd_tbl_t *cmdtp, int flag,
@@ -387,7 +383,7 @@ static int do_mmc_part(cmd_tbl_t *cmdtp, int flag,
 	block_dev_desc_t *mmc_dev;
 	struct mmc *mmc;
 
-	mmc = init_mmc_device(curr_device);
+	mmc = init_mmc_device(curr_device, false);
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
@@ -403,7 +399,7 @@ static int do_mmc_part(cmd_tbl_t *cmdtp, int flag,
 static int do_mmc_dev(cmd_tbl_t *cmdtp, int flag,
 		      int argc, char * const argv[])
 {
-	int dev, part = -1, ret;
+	int dev, part = 0, ret;
 	struct mmc *mmc;
 
 	if (argc == 1) {
@@ -422,17 +418,16 @@ static int do_mmc_dev(cmd_tbl_t *cmdtp, int flag,
 		return CMD_RET_USAGE;
 	}
 
-	mmc = init_mmc_device(dev);
+	mmc = init_mmc_device(dev, true);
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
-	if (part != -1) {
-		ret = mmc_select_hwpart(dev, part);
-		printf("switch to partitions #%d, %s\n",
-			part, (!ret) ? "OK" : "ERROR");
-		if (ret)
-			return 1;
-	}
+	ret = mmc_select_hwpart(dev, part);
+	printf("switch to partitions #%d, %s\n",
+	       part, (!ret) ? "OK" : "ERROR");
+	if (ret)
+		return 1;
+
 	curr_device = dev;
 	if (mmc->part_config == MMCPART_NOAVAILABLE)
 		printf("mmc%d is current device\n", curr_device);
@@ -463,7 +458,7 @@ static int do_mmc_bootbus(cmd_tbl_t *cmdtp, int flag,
 	reset = simple_strtoul(argv[3], NULL, 10);
 	mode = simple_strtoul(argv[4], NULL, 10);
 
-	mmc = init_mmc_device(dev);
+	mmc = init_mmc_device(dev, false);
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
@@ -488,7 +483,7 @@ static int do_mmc_boot_resize(cmd_tbl_t *cmdtp, int flag,
 	bootsize = simple_strtoul(argv[2], NULL, 10);
 	rpmbsize = simple_strtoul(argv[3], NULL, 10);
 
-	mmc = init_mmc_device(dev);
+	mmc = init_mmc_device(dev, false);
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
@@ -521,7 +516,7 @@ static int do_mmc_partconf(cmd_tbl_t *cmdtp, int flag,
 	part_num = simple_strtoul(argv[3], NULL, 10);
 	access = simple_strtoul(argv[4], NULL, 10);
 
-	mmc = init_mmc_device(dev);
+	mmc = init_mmc_device(dev, false);
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
@@ -556,7 +551,7 @@ static int do_mmc_rst_func(cmd_tbl_t *cmdtp, int flag,
 		return CMD_RET_USAGE;
 	}
 
-	mmc = init_mmc_device(dev);
+	mmc = init_mmc_device(dev, false);
 	if (!mmc)
 		return CMD_RET_FAILURE;
 
