@@ -84,4 +84,8 @@ int device_remove(struct udevice *dev);
  */
 int device_unbind(struct udevice *dev);
 
+/* Cast away any volatile pointer */
+#define DM_ROOT_NON_CONST		(((gd_t *)gd)->dm_root)
+#define DM_UCLASS_ROOT_NON_CONST	(((gd_t *)gd)->uclass_root)
+
 #endif
