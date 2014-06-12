@@ -510,7 +510,7 @@ int zynq_gem_initialize(bd_t *bis, phys_addr_t base_addr,
 	memset(priv->rxbuffers, 0, RX_BUF * PKTSIZE_ALIGN);
 
 	/* Align bd_space to 1MB */
-#ifdef __XILINX_ULTRASCALE_H
+#ifdef __XILINX_ZYNQMP_H
 	bd_space = memalign(1 << 20, BD_SPACE);
 #else
 	bd_space = memalign(1 << MMU_SECTION_SHIFT, BD_SPACE);

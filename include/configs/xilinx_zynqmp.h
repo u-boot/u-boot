@@ -1,5 +1,5 @@
 /*
- * Configuration for Xilinx UltraScale MP
+ * Configuration for Xilinx ZynqMP
  * (C) Copyright 2014 Xilinx, Inc.
  * Michal Simek <michal.simek@xilinx.com>
  *
@@ -8,8 +8,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __XILINX_ULTRASCALE_H
-#define __XILINX_ULTRASCALE_H
+#ifndef __XILINX_ZYNQMP_H
+#define __XILINX_ZYNQMP_H
 
 #define CONFIG_REMAKE_ELF
 
@@ -17,7 +17,7 @@
 
 #define CONFIG_SYS_NO_FLASH
 
-#define XILINX_ULTRASCALE
+#define XILINX_ZYNQMP
 
 /* Generic Interrupt Controller Definitions */
 #define GICD_BASE	0xFD3FF000
@@ -38,8 +38,8 @@
 #define CONFIG_SYS_DCACHE_OFF
 #define CONFIG_SYS_ICACHE_OFF
 
-#define CONFIG_IDENT_STRING		" Xilinx UltraScale MP"
-#define CONFIG_BOOTP_VCI_STRING		"U-boot.armv8.Xilinx_UltraScale_MP"
+#define CONFIG_IDENT_STRING		" Xilinx ZynqMP"
+#define CONFIG_BOOTP_VCI_STRING		"U-boot.armv8.Xilinx_ZynqMP"
 
 /* Text base on 16MB for now - 0 doesn't work */
 #define CONFIG_SYS_TEXT_BASE		0x100000
@@ -48,7 +48,7 @@
 /* Flat Device Tree Definitions */
 #define CONFIG_OF_LIBFDT
 
-#define CONFIG_DEFAULT_DEVICE_TREE	ultrascale
+#define CONFIG_DEFAULT_DEVICE_TREE	zynqmp
 
 /* Generic Timer Definitions */
 #define COUNTER_FREQUENCY		0x1800000 /* 24MHz */
@@ -138,7 +138,7 @@
 		"bootm 1000000 - 20000000\0"
 
 #define CONFIG_BOOTARGS		"console=ttyPS0"
-#define CONFIG_BOOTCOMMAND	"echo Hello Xilinx UltraScale MP; run $modeboot"
+#define CONFIG_BOOTCOMMAND	"echo Hello Xilinx ZynqMP; run $modeboot"
 #define CONFIG_BOOTDELAY	5
 
 #define CONFIG_BOARD_LATE_INIT
@@ -150,7 +150,7 @@
 /* Monitor Command Prompt */
 /* Console I/O Buffer Size */
 #define CONFIG_SYS_CBSIZE		512
-#define CONFIG_SYS_PROMPT		"UltraScale> "
+#define CONFIG_SYS_PROMPT		"ZynqMP> "
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_HUSH_PARSER
@@ -179,4 +179,4 @@
 
 #define CONFIG_SYS_BOOTM_LEN	(60 * 1024 * 1024)
 
-#endif /* __XILINX_ULTRASCALE_H */
+#endif /* __XILINX_ZYNQMP_H */
