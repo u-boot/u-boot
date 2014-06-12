@@ -245,32 +245,29 @@ static int bootm_find_other(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
-static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
-			 int boot_progress)
+/**
+ * decomp_image() - decompress the operating system
+ *
+ * @comp:	Compression algorithm that is used (IH_COMP_...)
+ * @load:	Destination load address in U-Boot memory
+ * @image_start Image start address (where we are decompressing from)
+ * @type:	OS type (IH_OS_...)
+ * @load_bug:	Place to decompress to
+ * @image_buf:	Address to decompress from
+ * @return 0 if OK, -ve on error (BOOTM_ERR_...)
+ */
+static int decomp_image(int comp, ulong load, ulong image_start, int type,
+			void *load_buf, void *image_buf, ulong image_len,
+			ulong *load_end)
 {
-	image_info_t os = images->os;
-	uint8_t comp = os.comp;
-	ulong load = os.load;
-	ulong blob_start = os.start;
-	ulong blob_end = os.end;
-	ulong image_start = os.image_start;
-	ulong image_len = os.image_len;
-	__maybe_unused uint unc_len = CONFIG_SYS_BOOTM_LEN;
-	int no_overlap = 0;
-	void *load_buf, *image_buf;
-#if defined(CONFIG_LZMA) || defined(CONFIG_LZO)
-	int ret;
-#endif /* defined(CONFIG_LZMA) || defined(CONFIG_LZO) */
+	const char *type_name = genimg_get_type_name(type);
+	__attribute__((unused)) uint unc_len = CONFIG_SYS_BOOTM_LEN;
 
-	const char *type_name = genimg_get_type_name(os.type);
-
-	load_buf = map_sysmem(load, unc_len);
-	image_buf = map_sysmem(image_start, image_len);
+	*load_end = load;
 	switch (comp) {
 	case IH_COMP_NONE:
 		if (load == image_start) {
 			printf("   XIP %s ... ", type_name);
-			no_overlap = 1;
 		} else {
 			printf("   Loading %s ... ", type_name);
 			memmove_wd(load_buf, image_buf, image_len, CHUNKSZ);
@@ -282,8 +279,6 @@ static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 		printf("   Uncompressing %s ... ", type_name);
 		if (gunzip(load_buf, unc_len, image_buf, &image_len) != 0) {
 			puts("GUNZIP: uncompress, out-of-mem or overwrite error - must RESET board to recover\n");
-			if (boot_progress)
-				bootstage_error(BOOTSTAGE_ID_DECOMP_IMAGE);
 			return BOOTM_ERR_RESET;
 		}
 
@@ -304,8 +299,6 @@ static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 		if (i != BZ_OK) {
 			printf("BUNZIP2: uncompress or overwrite error %d - must RESET board to recover\n",
 			       i);
-			if (boot_progress)
-				bootstage_error(BOOTSTAGE_ID_DECOMP_IMAGE);
 			return BOOTM_ERR_RESET;
 		}
 
@@ -315,6 +308,8 @@ static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 #ifdef CONFIG_LZMA
 	case IH_COMP_LZMA: {
 		SizeT lzma_len = unc_len;
+		int ret;
+
 		printf("   Uncompressing %s ... ", type_name);
 
 		ret = lzmaBuffToBuffDecompress(load_buf, &lzma_len,
@@ -333,6 +328,7 @@ static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 #ifdef CONFIG_LZO
 	case IH_COMP_LZO: {
 		size_t size = unc_len;
+		int ret;
 
 		printf("   Uncompressing %s ... ", type_name);
 
@@ -340,8 +336,6 @@ static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 		if (ret != LZO_E_OK) {
 			printf("LZO: uncompress or overwrite error %d - must RESET board to recover\n",
 			       ret);
-			if (boot_progress)
-				bootstage_error(BOOTSTAGE_ID_DECOMP_IMAGE);
 			return BOOTM_ERR_RESET;
 		}
 
@@ -354,11 +348,38 @@ static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
 		return BOOTM_ERR_UNIMPLEMENTED;
 	}
 
+	puts("OK\n");
+
+	return 0;
+}
+
+static int bootm_load_os(bootm_headers_t *images, unsigned long *load_end,
+			 int boot_progress)
+{
+	image_info_t os = images->os;
+	ulong load = os.load;
+	ulong blob_start = os.start;
+	ulong blob_end = os.end;
+	ulong image_start = os.image_start;
+	ulong image_len = os.image_len;
+	bool no_overlap;
+	void *load_buf, *image_buf;
+	int err;
+
+	load_buf = map_sysmem(load, 0);
+	image_buf = map_sysmem(os.image_start, image_len);
+	err = decomp_image(os.comp, load, os.image_start, os.type, load_buf,
+			   image_buf, image_len, load_end);
+	if (err) {
+		bootstage_error(BOOTSTAGE_ID_DECOMP_IMAGE);
+		return err;
+	}
 	flush_cache(load, (*load_end - load) * sizeof(ulong));
 
-	puts("OK\n");
 	debug("   kernel loaded at 0x%08lx, end = 0x%08lx\n", load, *load_end);
 	bootstage_mark(BOOTSTAGE_ID_KERNEL_LOADED);
+
+	no_overlap = (os.comp == IH_COMP_NONE && load == image_start);
 
 	if (!no_overlap && (load < blob_end) && (*load_end > blob_start)) {
 		debug("images.os.start = 0x%lX, images.os.end = 0x%lx\n",
