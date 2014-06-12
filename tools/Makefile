@@ -66,6 +66,7 @@ RSA_OBJS-$(CONFIG_FIT_SIGNATURE) := $(addprefix lib/rsa/, \
 dumpimage-mkimage-objs := aisimage.o \
 			atmelimage.o \
 			$(FIT_SIG_OBJS-y) \
+			common/bootm.o \
 			lib/crc32.o \
 			default_image.o \
 			lib/fdtdec.o \

@@ -5,10 +5,10 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#ifndef USE_HOSTCC
 #include <common.h>
-#include <bootm.h>
+#include <bootstage.h>
 #include <bzlib.h>
-#include <image.h>
 #include <fdt_support.h>
 #include <lmb.h>
 #include <malloc.h>
@@ -17,12 +17,16 @@
 #include <lzma/LzmaTypes.h>
 #include <lzma/LzmaDec.h>
 #include <lzma/LzmaTools.h>
-
 #if defined(CONFIG_CMD_USB)
 #include <usb.h>
 #endif
+#else
+#include "mkimage.h"
+#endif
 
-DECLARE_GLOBAL_DATA_PTR;
+#include <command.h>
+#include <bootm.h>
+#include <image.h>
 
 #ifndef CONFIG_SYS_BOOTM_LEN
 /* use 8MByte as default max gunzip size */
@@ -30,6 +34,10 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 #define IH_INITRD_ARCH IH_ARCH_DEFAULT
+
+#ifndef USE_HOSTCC
+
+DECLARE_GLOBAL_DATA_PTR;
 
 static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 				   char * const argv[], bootm_headers_t *images,
@@ -809,3 +817,5 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	return buf;
 }
+
+#endif /* ndef USE_HOSTCC */
