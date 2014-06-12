@@ -143,9 +143,9 @@ specify the file to read.
 You cannot use more than one of these options at the same time.
 
 To use a device tree file that you have compiled yourself, pass
-DEV_TREE_BIN=<filename> to 'make', as in:
+EXT_DTB=<filename> to 'make', as in:
 
-	make DEV_TREE_BIN=boot/am335x-boneblack-pubkey.dtb
+	make EXT_DTB=boot/am335x-boneblack-pubkey.dtb
 
 Then U-Boot will copy that file to u-boot.dtb, put it in the .img file
 if used, and u-boot-dtb.bin.

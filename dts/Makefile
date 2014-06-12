@@ -12,8 +12,8 @@ ifeq ($(DEVICE_TREE),)
 DEVICE_TREE := unset
 endif
 
-ifneq ($(DEV_TREE_BIN),)
-DTB := $(DEV_TREE_BIN)
+ifneq ($(EXT_DTB),)
+DTB := $(EXT_DTB)
 else
 DTB := arch/$(ARCH)/dts/$(DEVICE_TREE).dtb
 endif
