@@ -612,7 +612,7 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		}
 
 		ret = fit_config_verify(working_fdt, cfg_noffset);
-		if (ret == 1)
+		if (ret == 0)
 			return CMD_RET_SUCCESS;
 		else
 			return CMD_RET_FAILURE;

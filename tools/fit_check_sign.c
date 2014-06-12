@@ -80,8 +80,7 @@ int main(int argc, char **argv)
 
 	image_set_host_blob(key_blob);
 	ret = fit_check_sign(fit_blob, key_blob);
-
-	if (ret)
+	if (!ret)
 		ret = EXIT_SUCCESS;
 	else
 		ret = EXIT_FAILURE;

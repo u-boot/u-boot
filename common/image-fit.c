@@ -1534,7 +1534,7 @@ int fit_image_load(bootm_headers_t *images, const char *prop_name, ulong addr,
 			images->fit_uname_cfg = fit_uname_config;
 			if (IMAGE_ENABLE_VERIFY && images->verify) {
 				puts("   Verifying Hash Integrity ... ");
-				if (!fit_config_verify(fit, cfg_noffset)) {
+				if (fit_config_verify(fit, cfg_noffset)) {
 					puts("Bad Data Hash\n");
 					bootstage_error(bootstage_id +
 						BOOTSTAGE_SUB_HASH);
