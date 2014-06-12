@@ -5331,6 +5331,11 @@ Information structure as we define in include/asm-<arch>/u-boot.h,
 and make sure that your definition of IMAP_ADDR uses the same value
 as your U-Boot configuration in CONFIG_SYS_IMMR.
 
+Note that U-Boot now has a driver model, a unified model for drivers.
+If you are adding a new driver, plumb it into driver model. If there
+is no uclass available, you are encouraged to create one. See
+doc/driver-model.
+
 
 Configuring the Linux kernel:
 -----------------------------
