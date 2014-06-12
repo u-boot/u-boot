@@ -165,12 +165,12 @@ static int do_ut_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 #ifdef CONFIG_SANDBOX
 	/* File existence */
-	HUSH_TEST(e, "-e host - creating_this_file_breaks_uboot_unit_test", n);
-	run_command("sb save host - creating_this_file_breaks_uboot_unit_test 0 1", 0);
-	HUSH_TEST(e, "-e host - creating_this_file_breaks_uboot_unit_test", y);
+	HUSH_TEST(e, "-e hostfs - creating_this_file_breaks_uboot_unit_test", n);
+	run_command("sb save hostfs - creating_this_file_breaks_uboot_unit_test 0 1", 0);
+	HUSH_TEST(e, "-e hostfs - creating_this_file_breaks_uboot_unit_test", y);
 	/* Perhaps this could be replaced by an "rm" shell command one day */
 	assert(!os_unlink("creating_this_file_breaks_uboot_unit_test"));
-	HUSH_TEST(e, "-e host - creating_this_file_breaks_uboot_unit_test", n);
+	HUSH_TEST(e, "-e hostfs - creating_this_file_breaks_uboot_unit_test", n);
 #endif
 #endif
 

@@ -114,11 +114,13 @@ static int do_sandbox(cmd_tbl_t *cmdtp, int flag, int argc,
 U_BOOT_CMD(
 	sb,	8,	1,	do_sandbox,
 	"Miscellaneous sandbox commands",
-	"load host <dev> <addr> <filename> [<bytes> <offset>]  - "
+	"load hostfs - <addr> <filename> [<bytes> <offset>]  - "
 		"load a file from host\n"
-	"sb ls host <filename>                      - list files on host\n"
-	"sb save host <dev> <filename> <addr> <bytes> [<offset>] - "
+	"sb ls hostfs - <filename>                    - list files on host\n"
+	"sb save hostfs - <filename> <addr> <bytes> [<offset>] - "
 		"save a file to host\n"
 	"sb bind <dev> [<filename>] - bind \"host\" device to file\n"
-	"sb info [<dev>]            - show device binding & info"
+	"sb info [<dev>]            - show device binding & info\n"
+	"sb commands use the \"hostfs\" device. The \"host\" device is used\n"
+	"with standard IO commands such as fatls or ext2load"
 );

@@ -14,7 +14,7 @@ set -e
 run_uboot() {
 	echo -n "Test Verified Boot Run: $1: "
 	${uboot} -d sandbox-u-boot.dtb >${tmp} -c '
-sb load host 0 100 test.fit;
+sb load hostfs - 100 test.fit;
 fdt addr 100;
 bootm 100;
 reset'
