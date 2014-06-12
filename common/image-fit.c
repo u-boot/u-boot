@@ -1637,7 +1637,7 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 
 	/*
 	 * Work-around for eldk-4.2 which gives this warning if we try to
-	 * case in the unmap_sysmem() call:
+	 * cast in the unmap_sysmem() call:
 	 * warning: initialization discards qualifiers from pointer target type
 	 */
 	{
