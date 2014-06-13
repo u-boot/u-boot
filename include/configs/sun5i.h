@@ -12,6 +12,7 @@
  * High Level Configuration Options
  */
 #define CONFIG_SUN5I		/* sun5i SoC generation */
+#define CONFIG_CLK_FULL_SPEED		1008000000
 
 #define CONFIG_SYS_PROMPT		"sun5i# "
 

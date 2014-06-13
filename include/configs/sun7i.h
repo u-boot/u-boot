@@ -13,6 +13,7 @@
  * A20 specific configuration
  */
 #define CONFIG_SUN7I		/* sun7i SoC generation */
+#define CONFIG_CLK_FULL_SPEED		912000000
 
 #define CONFIG_SYS_PROMPT		"sun7i# "
 

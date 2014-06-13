@@ -169,6 +169,11 @@
 #define CONFIG_SYS_I2C_SLAVE		0x7f
 #define CONFIG_CMD_I2C
 
+/* PMU */
+#if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || defined CONFIG_AXP221_POWER
+#define CONFIG_SPL_POWER_SUPPORT
+#endif
+
 #ifndef CONFIG_CONS_INDEX
 #define CONFIG_CONS_INDEX              1       /* UART0 */
 #endif
