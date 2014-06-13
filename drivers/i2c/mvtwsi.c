@@ -220,11 +220,10 @@ static int twsi_stop(int status)
 
 /*
  * Reset controller.
- * Called at end of i2c_init unsuccessful i2c transactions.
  * Controller reset also resets the baud rate and slave address, so
- * re-establish them.
+ * they must be re-established afterwards.
  */
-static void twsi_reset(u8 baud_rate, u8 slave_address)
+static void twsi_reset(struct i2c_adapter *adap)
 {
 	/* ensure controller will be enabled by any twsi*() function */
 	twsi_control_flags = MVTWSI_CONTROL_TWSIEN;
@@ -232,23 +231,17 @@ static void twsi_reset(u8 baud_rate, u8 slave_address)
 	writel(0, &twsi->soft_reset);
 	/* wait 2 ms -- this is what the Marvell LSP does */
 	udelay(20000);
-	/* set baud rate */
-	writel(baud_rate, &twsi->baudrate);
-	/* set slave address even though we don't use it */
-	writel(slave_address, &twsi->slave_address);
-	writel(0, &twsi->xtnd_slave_addr);
-	/* assert STOP but don't care for the result */
-	(void) twsi_stop(0);
 }
 
 /*
  * I2C init called by cmd_i2c when doing 'i2c reset'.
  * Sets baud to the highest possible value not exceeding requested one.
  */
-void i2c_init(int requested_speed, int slaveadd)
+static unsigned int twsi_i2c_set_bus_speed(struct i2c_adapter *adap,
+					   unsigned int requested_speed)
 {
-	int	tmp_speed, highest_speed, n, m;
-	int	baud = 0x44; /* baudrate at controller reset */
+	unsigned int tmp_speed, highest_speed, n, m;
+	unsigned int baud = 0x44; /* baudrate at controller reset */
 
 	/* use actual speed to collect progressively higher values */
 	highest_speed = 0;
@@ -263,8 +256,21 @@ void i2c_init(int requested_speed, int slaveadd)
 			}
 		}
 	}
+	writel(baud, &twsi->baudrate);
+	return 0;
+}
+
+static void twsi_i2c_init(struct i2c_adapter *adap, int speed, int slaveadd)
+{
 	/* reset controller */
-	twsi_reset(baud, slaveadd);
+	twsi_reset(adap);
+	/* set speed */
+	twsi_i2c_set_bus_speed(adap, speed);
+	/* set slave address even though we don't use it */
+	writel(slaveadd, &twsi->slave_address);
+	writel(0, &twsi->xtnd_slave_addr);
+	/* assert STOP but don't care for the result */
+	(void) twsi_stop(0);
 }
 
 /*
@@ -294,7 +300,7 @@ static int i2c_begin(int expected_start_status, u8 addr)
  * I2C probe called by cmd_i2c when doing 'i2c probe'.
  * Begin read, nak data byte, end.
  */
-int i2c_probe(uchar chip)
+static int twsi_i2c_probe(struct i2c_adapter *adap, uchar chip)
 {
 	u8 dummy_byte;
 	int status;
@@ -320,12 +326,13 @@ int i2c_probe(uchar chip)
  * cmd_eeprom, so we have to choose here, and for the moment that'll be
  * a repeated start without a preceding stop.
  */
-int i2c_read(u8 dev, uint addr, int alen, u8 *data, int length)
+static int twsi_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
+			int alen, uchar *data, int length)
 {
 	int status;
 
 	/* begin i2c write to send the address bytes */
-	status = i2c_begin(MVTWSI_STATUS_START, (dev << 1));
+	status = i2c_begin(MVTWSI_STATUS_START, (chip << 1));
 	/* send addr bytes */
 	while ((status == 0) && alen--)
 		status = twsi_send(addr >> (8*alen),
@@ -333,7 +340,7 @@ int i2c_read(u8 dev, uint addr, int alen, u8 *data, int length)
 	/* begin i2c read to receive eeprom data bytes */
 	if (status == 0)
 		status = i2c_begin(
-			MVTWSI_STATUS_REPEATED_START, (dev << 1) | 1);
+			MVTWSI_STATUS_REPEATED_START, (chip << 1) | 1);
 	/* prepare ACK if at least one byte must be received */
 	if (length > 0)
 		twsi_control_flags |= MVTWSI_CONTROL_ACK;
@@ -355,12 +362,13 @@ int i2c_read(u8 dev, uint addr, int alen, u8 *data, int length)
  * I2C write called by cmd_i2c when doing 'i2c write' and by cmd_eeprom.c
  * Begin write, send address byte(s), send data bytes, end.
  */
-int i2c_write(u8 dev, uint addr, int alen, u8 *data, int length)
+static int twsi_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
+			int alen, uchar *data, int length)
 {
 	int status;
 
 	/* begin i2c write to send the eeprom adress bytes then data bytes */
-	status = i2c_begin(MVTWSI_STATUS_START, (dev << 1));
+	status = i2c_begin(MVTWSI_STATUS_START, (chip << 1));
 	/* send addr bytes */
 	while ((status == 0) && alen--)
 		status = twsi_send(addr >> (8*alen),
@@ -374,21 +382,7 @@ int i2c_write(u8 dev, uint addr, int alen, u8 *data, int length)
 	return status;
 }
 
-/*
- * Bus set routine: we only support bus 0.
- */
-int i2c_set_bus_num(unsigned int bus)
-{
-	if (bus > 0) {
-		return -1;
-	}
-	return 0;
-}
-
-/*
- * Bus get routine: hard-return bus 0.
- */
-unsigned int i2c_get_bus_num(void)
-{
-	return 0;
-}
+U_BOOT_I2C_ADAP_COMPLETE(twsi0, twsi_i2c_init, twsi_i2c_probe,
+			 twsi_i2c_read, twsi_i2c_write,
+			 twsi_i2c_set_bus_speed,
+			 CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE, 0)
