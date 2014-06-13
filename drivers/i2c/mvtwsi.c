@@ -22,6 +22,8 @@
 #include <asm/arch/orion5x.h>
 #elif defined(CONFIG_KIRKWOOD)
 #include <asm/arch/kirkwood.h>
+#elif defined(CONFIG_SUNXI)
+#include <asm/arch/i2c.h>
 #else
 #error Driver mvtwsi not supported by SoC or board
 #endif
@@ -29,6 +31,20 @@
 /*
  * TWSI register structure
  */
+
+#ifdef CONFIG_SUNXI
+
+struct  mvtwsi_registers {
+	u32 slave_address;
+	u32 xtnd_slave_addr;
+	u32 data;
+	u32 control;
+	u32 status;
+	u32 baudrate;
+	u32 soft_reset;
+};
+
+#else
 
 struct  mvtwsi_registers {
 	u32 slave_address;
@@ -42,6 +58,8 @@ struct  mvtwsi_registers {
 	u32 reserved[2];
 	u32 soft_reset;
 };
+
+#endif
 
 /*
  * Control register fields

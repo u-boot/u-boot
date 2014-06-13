@@ -106,6 +106,13 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
+void i2c_init_board(void)
+{
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(0), SUNXI_GPB0_TWI0);
+	sunxi_gpio_set_cfgpin(SUNXI_GPB(1), SUNXI_GPB0_TWI0);
+	clock_twi_onoff(0, 1);
+}
+
 #ifdef CONFIG_SPL_BUILD
 void sunxi_board_init(void)
 {
