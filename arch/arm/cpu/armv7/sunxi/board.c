@@ -77,7 +77,11 @@ void reset_cpu(ulong addr)
 	/* Set the watchdog for its shortest interval (.5s) and wait */
 	writel(WDT_MODE_RESET_EN | WDT_MODE_EN, &wdog->mode);
 	writel(WDT_CTRL_KEY | WDT_CTRL_RESTART, &wdog->ctl);
-	while (1);
+
+	while (1) {
+		/* sun5i sometimes gets stuck without this */
+		writel(WDT_MODE_RESET_EN | WDT_MODE_EN, &wdog->mode);
+	}
 }
 
 /* do some early init */
