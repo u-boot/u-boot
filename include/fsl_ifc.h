@@ -12,6 +12,8 @@
 #include <config.h>
 #include <common.h>
 
+#define FSL_IFC_V1_1_0	0x01010000
+#define FSL_IFC_V2_0_0	0x02000000
 
 #ifdef CONFIG_SYS_FSL_IFC_LE
 #define ifc_in32(a)       in_le32(a)

@@ -23,7 +23,6 @@
 #define CONFIG_SYS_FSL_IFC_BANK_COUNT	4
 #endif
 
-#define FSL_IFC_V1_1_0	0x01010000
 #define MAX_BANKS	CONFIG_SYS_FSL_IFC_BANK_COUNT
 #define ERR_BYTE	0xFF /* Value returned for read bytes
 				when read failed */
@@ -1039,6 +1038,9 @@ static int fsl_ifc_chip_init(int devnum, u8 *addr)
 		ret = fsl_ifc_sram_init(ver);
 	if (ret)
 		return ret;
+
+	if (ver >= FSL_IFC_V2_0_0)
+		priv->bufnum_mask = (priv->bufnum_mask * 2) + 1;
 
 	ret = nand_scan_ident(mtd, 1, NULL);
 	if (ret)
