@@ -31,9 +31,6 @@
 #endif
 #include <net.h>
 #include <serial.h>
-#if defined(CONFIG_CMD_BEDBUG)
-#include <cmd_bedbug.h>
-#endif
 #ifdef CONFIG_SYS_ALLOC_DPRAM
 #include <commproc.h>
 #endif
@@ -600,11 +597,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	 * keyboard).
 	 */
 	last_stage_init ();
-#endif
-
-#if defined(CONFIG_CMD_BEDBUG)
-	WATCHDOG_RESET ();
-	bedbug_init ();
 #endif
 
 #if defined(CONFIG_PRAM) || defined(CONFIG_LOGBUFFER)
