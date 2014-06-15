@@ -40,10 +40,10 @@ static int abortboot_keyed(int bootdelay)
 		int retry;
 	}
 	delaykey[] = {
-		{ str: getenv("bootdelaykey"),  retry: 1 },
-		{ str: getenv("bootdelaykey2"), retry: 1 },
-		{ str: getenv("bootstopkey"),   retry: 0 },
-		{ str: getenv("bootstopkey2"),  retry: 0 },
+		{ .str = getenv("bootdelaykey"),  .retry = 1 },
+		{ .str = getenv("bootdelaykey2"), .retry = 1 },
+		{ .str = getenv("bootstopkey"),   .retry = 0 },
+		{ .str = getenv("bootstopkey2"),  .retry = 0 },
 	};
 
 	char presskey[MAX_DELAY_STOP_STR];
