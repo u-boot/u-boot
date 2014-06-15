@@ -7,11 +7,7 @@
 
 
 #include <common.h>
-#if defined(CONFIG_NIOS)
-#include <nios.h>
-#else
 #include <asm/io.h>
-#endif
 
 #define SECTSZ		(64 * 1024)
 flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
