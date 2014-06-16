@@ -147,7 +147,7 @@ void secure_unlock_mem(void)
  *		configure secure registers and exit secure world
  *              general use.
  *****************************************************************************/
-void secureworld_exit()
+void secureworld_exit(void)
 {
 	unsigned long i;
 
@@ -178,7 +178,7 @@ void secureworld_exit()
  * Description: If chip is GP/EMU(special) type, unlock the SRAM for
  *              general use.
  *****************************************************************************/
-void try_unlock_memory()
+void try_unlock_memory(void)
 {
 	int mode;
 	int in_sdram = is_running_in_sdram();
