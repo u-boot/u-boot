@@ -33,7 +33,7 @@ enum csc_type_t {
 
 struct dp_csc_param_t {
 	int mode;
-	void *coeff;
+	const int (*coeff)[5][3];
 };
 
 #define SYNC_WAVE 0
