@@ -121,7 +121,8 @@ void gpmc_init(void)
 	writel(0x00000008, &gpmc_cfg->sysconfig);
 	writel(0x00000000, &gpmc_cfg->irqstatus);
 	writel(0x00000000, &gpmc_cfg->irqenable);
-	writel(0x00000000, &gpmc_cfg->timeout_control);
+	/* disable timeout, set a safe reset value */
+	writel(0x00001ff0, &gpmc_cfg->timeout_control);
 #ifdef CONFIG_NOR
 	writel(0x00000200, &gpmc_cfg->config);
 #else
