@@ -788,7 +788,8 @@ OBJCOPYFLAGS_u-boot.bin := -O binary
 binary_size_check: u-boot.bin System.map FORCE
 	@file_size=`stat -c %s u-boot.bin` ; \
 	map_size=$(shell cat System.map | \
-		awk '/_image_copy_start/ {start = $$1} /_image_binary_end/ {end = $$1} END {if (start != "" && end != "") print strtonum("0x" end) - strtonum("0x" start)}'); \
+		awk '/_image_copy_start/ {start = $$1} /_image_binary_end/ {end = $$1} END {if (start != "" && end != "") print "ibase=16; " toupper(end) " - " toupper(start)}' \
+		| bc); \
 	if [ "" != "$$map_size" ]; then \
 		if test $$map_size -ne $$file_size; then \
 			echo "System.map shows a binary size of $$map_size" >&2 ; \
