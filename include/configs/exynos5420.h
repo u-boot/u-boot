@@ -25,6 +25,8 @@
 #endif
 #define CONFIG_IRAM_TOP			0x02074000
 
+#define CONFIG_SPL_MAX_FOOTPRINT	(30 * 1024)
+
 #define CONFIG_DEVICE_TREE_LIST "exynos5420-peach-pit exynos5420-smdk5420"
 
 #define CONFIG_MAX_I2C_NUM	11

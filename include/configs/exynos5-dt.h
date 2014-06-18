@@ -144,8 +144,6 @@
 
 /* specific .lds file */
 #define CONFIG_SPL_LDSCRIPT	"board/samsung/common/exynos-uboot-spl.lds"
-#define CONFIG_SPL_MAX_FOOTPRINT	(14 * 1024)
-
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
