@@ -435,10 +435,10 @@
 
 /*
  * Definitions that differ with SoC's.
- * Below is the part defining macros for smdk5250.
- * Else part introduces macros for smdk5420.
+ * Below is the part defining macros for Exynos5250.
+ * Else part introduces macros for Exynos5420.
  */
-#ifndef CONFIG_SMDK5420
+#ifndef CONFIG_EXYNOS5420
 
 /* APLL_CON1 */
 #define APLL_CON1_VAL	(0x00203800)
