@@ -70,6 +70,7 @@
 #define ZYNQ_QSPI_LCFG_DUMMY_SHIFT	8
 
 #define ZYNQ_QSPI_FR_QOUT_CODE	0x6B	/* read instruction code */
+#define ZYNQ_QSPI_FR_DUALIO_CODE	0xBB
 
 /*
  * The modebits configurable by the driver to make the SPI support different
@@ -87,6 +88,11 @@
 #define ZYNQ_QSPI_MIO_NUM_QSPI0		6
 #define ZYNQ_QSPI_MIO_NUM_QSPI1		5
 #define ZYNQ_QSPI_MIO_NUM_QSPI1_CS	1
+
+/* QSPI MIO's count for different connection topologies */
+#define ZYNQ_QSPI_MIO_NUM_QSPI0_DIO	4
+#define ZYNQ_QSPI_MIO_NUM_QSPI1_DIO	3
+#define ZYNQ_QSPI_MIO_NUM_QSPI1_CS_DIO	1
 
 /* QSPI register offsets */
 struct zynq_qspi_regs {
@@ -124,6 +130,7 @@ struct zynq_qspi {
 	int bytes_to_receive;
 	unsigned int is_inst;
 	unsigned int is_dual;
+	unsigned int is_dio;
 	unsigned int u_page;
 };
 
@@ -172,7 +179,7 @@ struct zynq_qspi_slave {
  *	- Set the little endian mode of TX FIFO and
  *	- Enable the QSPI controller
  */
-static void zynq_qspi_init_hw(int is_dual, unsigned int cs)
+static void zynq_qspi_init_hw(int is_dual, int is_dio, unsigned int cs)
 {
 	u32 config_reg;
 
@@ -199,20 +206,37 @@ static void zynq_qspi_init_hw(int is_dual, unsigned int cs)
 		config_reg |= 0x10;
 	writel(config_reg, &zynq_qspi_base->confr);
 
-	if (is_dual == SF_DUAL_PARALLEL_FLASH)
-		/* Enable two memories on seperate buses */
-		writel((ZYNQ_QSPI_LCFG_TWO_MEM_MASK |
-			ZYNQ_QSPI_LCFG_SEP_BUS_MASK |
-			(1 << ZYNQ_QSPI_LCFG_DUMMY_SHIFT) |
-			ZYNQ_QSPI_FR_QOUT_CODE),
-			&zynq_qspi_base->lcr);
-	else if (is_dual == SF_DUAL_STACKED_FLASH)
-		/* Configure two memories on shared bus by enabling lower mem */
-		writel((ZYNQ_QSPI_LCFG_TWO_MEM_MASK |
-			(1 << ZYNQ_QSPI_LCFG_DUMMY_SHIFT) |
-			ZYNQ_QSPI_FR_QOUT_CODE),
-			&zynq_qspi_base->lcr);
-
+	if (is_dual == SF_DUAL_PARALLEL_FLASH) {
+		if (is_dio == SF_DUALIO_FLASH)
+			/* Enable two memories on seperate buses */
+			writel((ZYNQ_QSPI_LCFG_TWO_MEM_MASK |
+				ZYNQ_QSPI_LCFG_SEP_BUS_MASK |
+				(1 << ZYNQ_QSPI_LCFG_DUMMY_SHIFT) |
+				ZYNQ_QSPI_FR_DUALIO_CODE),
+				&zynq_qspi_base->lcr);
+		else
+			/* Enable two memories on seperate buses */
+			writel((ZYNQ_QSPI_LCFG_TWO_MEM_MASK |
+				ZYNQ_QSPI_LCFG_SEP_BUS_MASK |
+				(1 << ZYNQ_QSPI_LCFG_DUMMY_SHIFT) |
+				ZYNQ_QSPI_FR_QOUT_CODE),
+				&zynq_qspi_base->lcr);
+	} else if (is_dual == SF_DUAL_STACKED_FLASH) {
+		if (is_dio == SF_DUALIO_FLASH)
+			/* Configure two memories on shared bus
+			 * by enabling lower mem */
+			writel((ZYNQ_QSPI_LCFG_TWO_MEM_MASK |
+				(1 << ZYNQ_QSPI_LCFG_DUMMY_SHIFT) |
+				ZYNQ_QSPI_FR_DUALIO_CODE),
+				&zynq_qspi_base->lcr);
+		else
+			/* Configure two memories on shared bus
+			 * by enabling lower mem */
+			writel((ZYNQ_QSPI_LCFG_TWO_MEM_MASK |
+				(1 << ZYNQ_QSPI_LCFG_DUMMY_SHIFT) |
+				ZYNQ_QSPI_FR_QOUT_CODE),
+				&zynq_qspi_base->lcr);
+	}
 	writel(ZYNQ_QSPI_ENABLE_ENABLE_MASK, &zynq_qspi_base->enbr);
 }
 
@@ -563,10 +587,16 @@ static int zynq_qspi_start_transfer(struct spi_device *qspi,
 	zqspi->bytes_to_transfer = transfer->len;
 	zqspi->bytes_to_receive = transfer->len;
 
-	if (zqspi->is_inst) {
-		if ((zqspi->is_dual == SF_DUAL_STACKED_FLASH) &&
-				(current_u_page != zqspi->u_page)) {
-			if (zqspi->u_page) {
+	if (zqspi->is_inst && (zqspi->is_dual == SF_DUAL_STACKED_FLASH) &&
+	    (current_u_page != zqspi->u_page)) {
+		if (zqspi->u_page) {
+			if (zqspi->is_dio == SF_DUALIO_FLASH)
+				writel((ZYNQ_QSPI_LCFG_TWO_MEM_MASK |
+					ZYNQ_QSPI_LCFG_U_PAGE |
+					(1 << ZYNQ_QSPI_LCFG_DUMMY_SHIFT) |
+					ZYNQ_QSPI_FR_DUALIO_CODE),
+					&zynq_qspi_base->lcr);
+			else
 				/* Configure two memories on shared bus
 				 * by enabling upper mem
 				 */
@@ -575,7 +605,13 @@ static int zynq_qspi_start_transfer(struct spi_device *qspi,
 					(1 << ZYNQ_QSPI_LCFG_DUMMY_SHIFT) |
 					ZYNQ_QSPI_FR_QOUT_CODE),
 					&zynq_qspi_base->lcr);
-			} else {
+		} else {
+			if (zqspi->is_dio == SF_DUALIO_FLASH)
+				writel((ZYNQ_QSPI_LCFG_TWO_MEM_MASK |
+					(1 << ZYNQ_QSPI_LCFG_DUMMY_SHIFT) |
+					ZYNQ_QSPI_FR_DUALIO_CODE),
+					&zynq_qspi_base->lcr);
+			else
 				/* Configure two memories on shared bus
 				 * by enabling lower mem
 				 */
@@ -583,9 +619,8 @@ static int zynq_qspi_start_transfer(struct spi_device *qspi,
 					(1 << ZYNQ_QSPI_LCFG_DUMMY_SHIFT) |
 					ZYNQ_QSPI_FR_QOUT_CODE),
 					&zynq_qspi_base->lcr);
-			}
-			current_u_page = zqspi->u_page;
 		}
+		current_u_page = zqspi->u_page;
 	}
 
 	if (transfer->len < 4)
@@ -671,25 +706,49 @@ static int zynq_qspi_transfer(struct spi_device *qspi,
  * function will return -1, if there is no MIO configuration for
  * qspi flash.
  */
-static int zynq_qspi_check_is_dual_flash(void)
+static int zynq_qspi_check_is_dual_flash(int *is_dio)
 {
 	int is_dual = -1;
 	int lower_mio = 0, upper_mio = 0, upper_mio_cs1 = 0;
 
 	lower_mio = zynq_slcr_get_mio_pin_status("qspi0");
-	if (lower_mio == ZYNQ_QSPI_MIO_NUM_QSPI0)
+	if (lower_mio == ZYNQ_QSPI_MIO_NUM_QSPI0) {
 		is_dual = SF_SINGLE_FLASH;
+	} else {
+		lower_mio = zynq_slcr_get_mio_pin_status("qspi0_dio");
+		if (lower_mio == ZYNQ_QSPI_MIO_NUM_QSPI0_DIO) {
+			debug("QSPI in Single 2-bit\n");
+			*is_dio = SF_DUALIO_FLASH;
+			is_dual = SF_SINGLE_FLASH;
+		}
+	}
 
-	upper_mio_cs1 = zynq_slcr_get_mio_pin_status("qspi1_cs");
-	if ((lower_mio == ZYNQ_QSPI_MIO_NUM_QSPI0) &&
-	    (upper_mio_cs1 == ZYNQ_QSPI_MIO_NUM_QSPI1_CS))
-		is_dual = SF_DUAL_STACKED_FLASH;
+	if (*is_dio != SF_DUALIO_FLASH) {
+		upper_mio_cs1 = zynq_slcr_get_mio_pin_status("qspi1_cs");
+		if ((lower_mio == ZYNQ_QSPI_MIO_NUM_QSPI0) &&
+		    (upper_mio_cs1 == ZYNQ_QSPI_MIO_NUM_QSPI1_CS))
+			is_dual = SF_DUAL_STACKED_FLASH;
 
-	upper_mio = zynq_slcr_get_mio_pin_status("qspi1");
-	if ((lower_mio == ZYNQ_QSPI_MIO_NUM_QSPI0) &&
-	    (upper_mio_cs1 == ZYNQ_QSPI_MIO_NUM_QSPI1_CS) &&
-	    (upper_mio == ZYNQ_QSPI_MIO_NUM_QSPI1))
-		is_dual = SF_DUAL_PARALLEL_FLASH;
+		upper_mio = zynq_slcr_get_mio_pin_status("qspi1");
+		if ((lower_mio == ZYNQ_QSPI_MIO_NUM_QSPI0) &&
+		    (upper_mio_cs1 == ZYNQ_QSPI_MIO_NUM_QSPI1_CS) &&
+		    (upper_mio == ZYNQ_QSPI_MIO_NUM_QSPI1))
+			is_dual = SF_DUAL_PARALLEL_FLASH;
+	} else {
+		upper_mio_cs1 = zynq_slcr_get_mio_pin_status("qspi1_cs_dio");
+		if ((lower_mio == ZYNQ_QSPI_MIO_NUM_QSPI0_DIO) &&
+		    (upper_mio_cs1 == ZYNQ_QSPI_MIO_NUM_QSPI1_CS_DIO)) {
+			debug("QSPI in DualStacked 2-bit\n");
+			is_dual = SF_DUAL_STACKED_FLASH;
+		}
+		upper_mio = zynq_slcr_get_mio_pin_status("qspi1_dio");
+		if ((lower_mio == ZYNQ_QSPI_MIO_NUM_QSPI0_DIO) &&
+		    (upper_mio_cs1 == ZYNQ_QSPI_MIO_NUM_QSPI1_CS_DIO) &&
+		    (upper_mio == ZYNQ_QSPI_MIO_NUM_QSPI1_DIO)) {
+			debug("QSPI in DualParallel 2-bit\n");
+			is_dual = SF_DUAL_PARALLEL_FLASH;
+		}
+	}
 
 	return is_dual;
 }
@@ -719,6 +778,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		unsigned int max_hz, unsigned int mode)
 {
 	int is_dual;
+	int is_dio = 0;
 	unsigned long lqspi_frequency;
 	struct zynq_qspi_slave *qspi;
 
@@ -728,7 +788,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	if (!spi_cs_is_valid(bus, cs))
 		return NULL;
 
-	is_dual = zynq_qspi_check_is_dual_flash();
+	is_dual = zynq_qspi_check_is_dual_flash(&is_dio);
 
 	if (is_dual == -1) {
 		printf("%s: No QSPI device detected based on MIO settings\n",
@@ -736,7 +796,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		return NULL;
 	}
 
-	zynq_qspi_init_hw(is_dual, cs);
+	zynq_qspi_init_hw(is_dual, is_dio, cs);
 
 	qspi = spi_alloc_slave(struct zynq_qspi_slave, bus, cs);
 	if (!qspi) {
@@ -754,11 +814,13 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	}
 
 	qspi->slave.option = is_dual;
+	qspi->slave.dio = is_dio;
 	qspi->slave.op_mode_rx = SPI_OPM_RX_QOF;
 	qspi->slave.op_mode_tx = SPI_OPM_TX_QPP;
 	qspi->qspi.master.speed_hz = qspi->qspi.master.input_clk_hz / 2;
 	qspi->qspi.max_speed_hz = (max_hz < qspi->qspi.master.speed_hz) ?
 								max_hz : qspi->qspi.master.speed_hz;
+	qspi->qspi.master.is_dio = is_dio;
 	qspi->qspi.master.is_dual = is_dual;
 	qspi->qspi.mode = mode;
 	qspi->qspi.chip_select = 0;
