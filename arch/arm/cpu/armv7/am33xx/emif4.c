@@ -115,7 +115,7 @@ void config_ddr(unsigned int pll, const struct ctrl_ioregs *ioregs,
 #endif
 #ifdef CONFIG_AM43XX
 	writel(readl(&cm_device->cm_dll_ctrl) & ~0x1, &cm_device->cm_dll_ctrl);
-	while ((readl(&cm_device->cm_dll_ctrl) && CM_DLL_READYST) == 0)
+	while ((readl(&cm_device->cm_dll_ctrl) & CM_DLL_READYST) == 0)
 		;
 	writel(0x80000000, &ddrctrl->ddrioctrl);
 
