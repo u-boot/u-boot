@@ -1,0 +1,30 @@
+DFU TEST CASE DESCRIPTION:
+
+The prerequisites for running this script are assured by dfu_gadget_test_init.sh.
+In this file user is able to generate their own set of test files by altering
+the default set of TEST_FILES_SIZES variable.
+The dfu_gadget_test_init.sh would generate test images only if they are not
+already generated.
+
+Moreover, on a target device the "dfu_alt_info" env variable should be extended
+to have "dfu_test.bin fat 0 6;" \ entry ([1]). For reference please consult the
+config file for TRATS/TRATS2 devices (./include/configs/trats{2}.h)
+
+One can use fat, ext4 or any other supported file system, which can be
+created in a convenient way with exporting partitions via UMS (ums 0 mmc 0)
+and using standard tools on host (like mkfs.ext4).
+
+Example usage:
+1. On the target:
+   env default -a
+   dfu 0 mmc 0
+2. On the host:
+   ./dfu_gadget_test.sh 11 [test_file]
+
+where 11 is the mumber of alt setting corresponding to entry [1] and [test_file]
+is an optional parameter, with which one can explicitly indicate the test file
+to be used.
+
+The number of the alt setting entry can be obtained with dfu-util -l command.
+In its output one should look for the 'name="dfu_test1.bin"' and corresponding
+alt=11.
