@@ -43,6 +43,8 @@ enum spi_dual_flash {
 	SF_DUAL_PARALLEL_FLASH = 1 << 1,
 };
 
+#define SF_DUALIO_FLASH	1
+
 /**
  * struct spi_flash_params - SPI/QSPI flash device params structure
  *

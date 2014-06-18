@@ -170,15 +170,21 @@ static struct spi_flash *spi_flash_validate_params(struct spi_slave *spi,
 	/* Look for the fastest read cmd */
 	cmd = fls(params->e_rd_cmd & flash->spi->op_mode_rx);
 	if (cmd) {
-		cmd = spi_read_cmds_array[cmd - 1];
-		flash->read_cmd = cmd;
+		if (flash->spi->dio != SF_DUALIO_FLASH) {
+			cmd = spi_read_cmds_array[cmd - 1];
+			flash->read_cmd = cmd;
+		} else {
+			flash->read_cmd = CMD_READ_DUAL_IO_FAST;
+		}
 	} else {
 		/* Go for default supported read cmd */
 		flash->read_cmd = CMD_READ_ARRAY_FAST;
 	}
 
 	/* Not require to look for fastest only two write cmds yet */
-	if (params->flags & WR_QPP && flash->spi->op_mode_tx & SPI_OPM_TX_QPP)
+	if ((params->flags & WR_QPP) &&
+	    (flash->spi->op_mode_tx & SPI_OPM_TX_QPP) &&
+	    (flash->spi->dio != SF_DUALIO_FLASH))
 		flash->write_cmd = CMD_QUAD_PAGE_PROGRAM;
 	else
 		/* Go for default supported write cmd */
@@ -216,6 +222,12 @@ static struct spi_flash *spi_flash_validate_params(struct spi_slave *spi,
 	switch (flash->read_cmd) {
 	case CMD_READ_QUAD_IO_FAST:
 		flash->dummy_byte = 2;
+		break;
+	case CMD_READ_DUAL_IO_FAST:
+		if (idcode[0] == SPI_FLASH_CFI_MFR_STMICRO)
+			flash->dummy_byte = 2;
+		else
+			flash->dummy_byte = 1;
 		break;
 	case CMD_READ_ARRAY_SLOW:
 		flash->dummy_byte = 0;

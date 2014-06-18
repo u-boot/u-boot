@@ -79,6 +79,7 @@ struct spi_slave {
 	unsigned int max_write_size;
 	void *memory_map;
 	u8 option;
+	u8 dio;
 	u8 flags;
 };
 
