@@ -65,4 +65,9 @@
 #define LCD_YRES			1600
 #define LCD_BPP			LCD_COLOR16
 #endif
+
+/* DRAM Memory Banks */
+#define CONFIG_NR_DRAM_BANKS	8
+#define SDRAM_BANK_SIZE		(256UL << 20UL)	/* 256 MB */
+
 #endif  /* __CONFIG_5250_H */
