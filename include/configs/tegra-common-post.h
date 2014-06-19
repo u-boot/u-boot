@@ -101,13 +101,12 @@
 	\
 	"do_sysboot_boot="                                                \
 		"sysboot ${devtype} ${devnum}:${rootpart} any "           \
-			"${scriptaddr} ${prefix}extlinux.conf\0"          \
+			"${scriptaddr} ${prefix}extlinux/extlinux.conf\0" \
 	\
 	"sysboot_boot="                                                   \
 		"if test -e ${devtype} ${devnum}:${rootpart} "            \
-				"${prefix}extlinux.conf; then "           \
-			"echo Found extlinux config "                     \
-				"${prefix}extlinux.conf; "                \
+				"${prefix}extlinux/extlinux.conf; then "  \
+			"echo Found ${prefix}extlinux/extlinux.conf; "    \
 			"run do_sysboot_boot; "                           \
 			"echo SCRIPT FAILED: continuing...; "             \
 		"fi\0"                                                    \
