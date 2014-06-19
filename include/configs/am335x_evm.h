@@ -22,10 +22,10 @@
 # define CONFIG_FIT
 # define CONFIG_TIMESTAMP
 # define CONFIG_LZO
-# define CONFIG_OF_CONTROL
-# define CONFIG_OF_SEPARATE
-# define CONFIG_DEFAULT_DEVICE_TREE am335x-boneblack
 # ifdef CONFIG_ENABLE_VBOOT
+#  define CONFIG_OF_CONTROL
+#  define CONFIG_OF_SEPARATE
+#  define CONFIG_DEFAULT_DEVICE_TREE am335x-boneblack
 #  define CONFIG_FIT_SIGNATURE
 #  define CONFIG_RSA
 # endif
