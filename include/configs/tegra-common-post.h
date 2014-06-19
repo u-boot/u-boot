@@ -173,6 +173,8 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	TEGRA_DEVICE_SETTINGS \
 	MEM_LAYOUT_ENV_SETTINGS \
+	"fdt_high=ffffffff\0" \
+	"initrd_high=ffffffff\0" \
 	BOOTCMDS_COMMON \
 	BOARD_EXTRA_ENV_SETTINGS
 
