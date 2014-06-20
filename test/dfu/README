@@ -26,7 +26,12 @@ Example usage:
    setenv dfu_alt_info dfu_test.bin fat 0 6\;dfudummy.bin fat 0 6
    dfu 0 mmc 0
 2. On the host:
-   test/dfu/dfu_gadget_test.sh dfu_test.bin dfudummy.bin
+   test/dfu/dfu_gadget_test.sh X Y  [test file name]
+   e.g. test/dfu/dfu_gadget_test.sh 0 1
+   or
+   e.g. test/dfu/dfu_gadget_test.sh 0 1 ./dat_960.img
 
-... where dfu_test.bin and dfudummy.bin are the names of the alt settings from
-$dfu_alt_info.
+... where X and Y are dfu_test.bin's and dfudummy.bin's alt setting numbers.
+They can be obtained from dfu-util -l or $dfu_alt_info.
+It is also possible to pass optional [test file name] to force the script to
+test one particular file.
