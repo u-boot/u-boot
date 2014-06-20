@@ -11,6 +11,9 @@ easily if here is something they might want to dig for...
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+netphone         powerpc     mpc8xx         -           -
+netta2           powerpc     mpc8xx         -           -
+netta            powerpc     mpc8xx         -           -
 rbc823           powerpc     mpc8xx         -           -
 quantum          powerpc     mpc8xx         -           -
 RPXlite_dw       powerpc     mpc8xx         -           -

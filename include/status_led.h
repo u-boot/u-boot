@@ -231,9 +231,6 @@ void status_led_set  (int led, int state);
 
 # define STATUS_LED_BOOT        0               /* LED 0 used for boot status */
 
-/*****  NetPhone   ********************************************************/
-#elif defined(CONFIG_NETPHONE) || defined(CONFIG_NETTA2)
-/* XXX empty just to avoid the error */
 /*****  STx XTc    ********************************************************/
 #elif defined(CONFIG_STXXTC)
 /* XXX empty just to avoid the error */

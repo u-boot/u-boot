@@ -377,26 +377,6 @@ static void fec_pin_init(int fecidx)
 	 */
 	immr->im_cpm.cp_fec1.fec_mii_speed = ((bd->bi_intfreq + 4999999) / 5000000) << 1;
 
-#if defined(CONFIG_NETTA) || defined(CONFIG_NETPHONE) || defined(CONFIG_NETTA2)
-	{
-		volatile fec_t *fecp;
-
-		/*
-		 * only two FECs please
-		 */
-		if ((unsigned int)fecidx >= 2)
-			hang();
-
-		if (fecidx == 0)
-			fecp = &immr->im_cpm.cp_fec1;
-		else
-			fecp = &immr->im_cpm.cp_fec2;
-
-		/* our PHYs are the limit at 2.5 MHz */
-		fecp->fec_mii_speed <<= 1;
-	}
-#endif
-
 #if defined(CONFIG_MPC885_FAMILY) && defined(WANT_MII)
 	/* use MDC for MII */
 	immr->im_ioport.iop_pdpar |=  0x0080;

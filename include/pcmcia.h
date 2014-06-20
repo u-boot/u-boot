@@ -41,8 +41,6 @@
 # define CONFIG_PCMCIA_SLOT_B
 #elif defined(CONFIG_ATC)		/* The ATC use SLOT_A	*/
 # define CONFIG_PCMCIA_SLOT_A
-#elif defined(CONFIG_NETTA)
-# define CONFIG_PCMCIA_SLOT_A
 #elif defined(CONFIG_UC100)		/* The UC100 use SLOT_B	        */
 # define CONFIG_PCMCIA_SLOT_B
 #else
