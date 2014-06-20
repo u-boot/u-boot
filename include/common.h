@@ -28,10 +28,8 @@ typedef volatile unsigned char	vu_char;
 #endif
 #if defined(CONFIG_8xx)
 #include <asm/8xx_immap.h>
-#if defined(CONFIG_MPC852)	|| defined(CONFIG_MPC852T)	|| \
-    defined(CONFIG_MPC859)	|| defined(CONFIG_MPC859T)	|| \
-    defined(CONFIG_MPC859DSL)	|| \
-    defined(CONFIG_MPC866)	|| defined(CONFIG_MPC866T)	|| \
+#if defined(CONFIG_MPC859)	|| defined(CONFIG_MPC859T)	|| \
+    defined(CONFIG_MPC866)	|| \
     defined(CONFIG_MPC866P)
 # define CONFIG_MPC866_FAMILY 1
 #elif defined(CONFIG_MPC870) \

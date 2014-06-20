@@ -197,19 +197,6 @@ static int scc_init (struct eth_device *dev, bd_t * bis)
 	reset_phy();
 #endif
 
-#ifdef CONFIG_FADS
-#if defined(CONFIG_MPC86xADS) || defined(CONFIG_MPC860T)
-	/* The MPC86xADS/FADS860T don't use the MODEM_EN or DATA_VOICE signals. */
-	*((uint *) BCSR4) &= ~BCSR4_ETHLOOP;
-	*((uint *) BCSR4) |= BCSR4_TFPLDL | BCSR4_TPSQEL;
-	*((uint *) BCSR1) &= ~BCSR1_ETHEN;
-#else
-	*((uint *) BCSR4) &= ~(BCSR4_ETHLOOP | BCSR4_MODEM_EN);
-	*((uint *) BCSR4) |= BCSR4_TFPLDL | BCSR4_TPSQEL | BCSR4_DATA_VOICE;
-	*((uint *) BCSR1) &= ~BCSR1_ETHEN;
-#endif
-#endif
-
 	pram_ptr = (scc_enet_t *) & (immr->im_cpm.cp_dparam[PROFF_ENET]);
 
 	rxIdx = 0;
@@ -487,13 +474,6 @@ static int scc_init (struct eth_device *dev, bd_t * bis)
 
 	immr->im_cpm.cp_scc[SCC_ENET].scc_gsmrl |=
 		(SCC_GSMRL_ENR | SCC_GSMRL_ENT);
-
-	/*
-	 * Work around transmit problem with first eth packet
-	 */
-#if defined (CONFIG_FADS)
-	udelay (10000);		/* wait 10 ms */
-#endif
 
 	return 1;
 }

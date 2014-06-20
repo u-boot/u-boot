@@ -531,45 +531,6 @@ typedef struct scc_enet {
 
 #endif
 
-/***  FADS860T********************************************************/
-
-#if defined(CONFIG_FADS) && defined(CONFIG_MPC86x)
-/*
- * This ENET stuff is for the MPC86xFADS/MPC8xxADS with ethernet on SCC1.
- */
-#ifdef CONFIG_SCC1_ENET
-
-#define	SCC_ENET	0
-
-#define	PROFF_ENET	PROFF_SCC1
-#define	CPM_CR_ENET	CPM_CR_CH_SCC1
-
-#define PA_ENET_RXD	((ushort)0x0001)
-#define PA_ENET_TXD	((ushort)0x0002)
-#define PA_ENET_TCLK	((ushort)0x0100)
-#define PA_ENET_RCLK	((ushort)0x0200)
-
-#define PB_ENET_TENA	((uint)0x00001000)
-
-#define PC_ENET_CLSN	((ushort)0x0010)
-#define PC_ENET_RENA	((ushort)0x0020)
-
-#define SICR_ENET_MASK	((uint)0x000000ff)
-#define SICR_ENET_CLKRT	((uint)0x0000002c)
-
-#endif	/* CONFIG_SCC1_ETHERNET */
-
-/*
- * This ENET stuff is for the MPC860TFADS/MPC86xADS/MPC885ADS
- * with ethernet on FEC.
- */
-
-#ifdef CONFIG_FEC_ENET
-#define	FEC_ENET	/* Use FEC for Ethernet */
-#endif	/* CONFIG_FEC_ENET */
-
-#endif	/* CONFIG_FADS && CONFIG_MPC86x */
-
 /***  FPS850L, FPS860L  ************************************************/
 
 #if defined(CONFIG_FPS850L) || defined(CONFIG_FPS860L)
