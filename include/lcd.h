@@ -258,10 +258,6 @@ extern vidinfo_t panel_info;
 
 /* Video functions */
 
-#if defined(CONFIG_RBC823)
-void	lcd_disable(void);
-#endif
-
 void	lcd_putc(const char c);
 void	lcd_puts(const char *s);
 void	lcd_printf(const char *fmt, ...);

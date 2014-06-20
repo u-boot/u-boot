@@ -968,7 +968,7 @@ typedef struct scc_enet {
 /***  MVS1, TQM823L/M, TQM850L/M, TQM885D, R360MPI  **********/
 
 #if (defined(CONFIG_MVS) && CONFIG_MVS < 2) || \
-    defined(CONFIG_R360MPI) || defined(CONFIG_RBC823)  || \
+    defined(CONFIG_R360MPI) || \
     defined(CONFIG_RRVISION)|| defined(CONFIG_TQM823L) || \
     defined(CONFIG_TQM823M) || defined(CONFIG_TQM850L) || \
     defined(CONFIG_TQM850M) || defined(CONFIG_TQM885D) || \
