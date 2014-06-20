@@ -57,4 +57,23 @@
 				  , __FILE__, __LINE__); }
 
 #define PAGE_SIZE	4096
+
+/**
+ * upper_32_bits - return MSB bits 32-63 of a number if little endian, or
+ * return MSB bits 0-31 of a number if big endian.
+ * @n: the number we're accessing
+ *
+ * A basic shift-right of a 64- or 32-bit quantity.  Use this to suppress
+ * the "right shift count >= width of type" warning when that quantity is
+ * 32-bits.
+ */
+#define upper_32_bits(n) ((u32)(((n) >> 16) >> 16))
+
+/**
+ * lower_32_bits - return LSB bits 0-31 of a number if little endian, or
+ * return LSB bits 32-63 of a number if big endian.
+ * @n: the number we're accessing
+ */
+#define lower_32_bits(n) ((u32)(n))
+
 #endif
