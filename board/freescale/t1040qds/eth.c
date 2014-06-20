@@ -355,7 +355,9 @@ static void set_brdcfg9_for_gtx_clk(void)
 {
 	u8 brdcfg9;
 	brdcfg9 = QIXIS_READ(brdcfg[9]);
-	brdcfg9 |= (1 << 5);
+/* Initializing EPHY2 clock to RGMII mode */
+	brdcfg9 &= ~(BRDCFG9_EPHY2_MASK);
+	brdcfg9 |= (BRDCFG9_EPHY2_VAL);
 	QIXIS_WRITE(brdcfg[9], brdcfg9);
 }
 
