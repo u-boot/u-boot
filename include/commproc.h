@@ -900,60 +900,6 @@ typedef struct scc_enet {
 
 #endif	/* CONFIG_NETVIA */
 
-/***  QS850/QS823  ***************************************************/
-
-#if defined(CONFIG_QS850) || defined(CONFIG_QS823)
-#undef FEC_ENET /* Don't use FEC for EThernet */
-
-#define PROFF_ENET		PROFF_SCC2
-#define CPM_CR_ENET		CPM_CR_CH_SCC2
-#define SCC_ENET		1
-
-#define PA_ENET_RXD		((ushort)0x0004)  /* RXD on PA13 (Pin D9) */
-#define PA_ENET_TXD		((ushort)0x0008)  /* TXD on PA12 (Pin D7) */
-#define PC_ENET_RENA		((ushort)0x0080)  /* RENA on PC8 (Pin D12) */
-#define PC_ENET_CLSN		((ushort)0x0040)  /* CLSN on PC9 (Pin C12) */
-#define PA_ENET_TCLK		((ushort)0x0200)  /* TCLK on PA6 (Pin D8) */
-#define PA_ENET_RCLK		((ushort)0x0800)  /* RCLK on PA4 (Pin D10) */
-#define PB_ENET_TENA		((uint)0x00002000)  /* TENA on PB18 (Pin D11) */
-#define PC_ENET_LBK		((ushort)0x0010)  /* Loopback control on PC11 (Pin B14) */
-#define PC_ENET_LI		((ushort)0x0020)  /* Link Integrity control PC10 (A15) */
-#define PC_ENET_SQE		((ushort)0x0100)  /* SQE Disable control PC7 (B15) */
-
-/* SCC2 TXCLK from CLK2
- * SCC2 RXCLK from CLK4
- * SCC2 Connected to NMSI */
-#define SICR_ENET_MASK		((uint)0x00007F00)
-#define SICR_ENET_CLKRT		((uint)0x00003D00)
-
-#endif /* CONFIG_QS850/QS823 */
-
-/***  QS860T  ***************************************************/
-
-#ifdef CONFIG_QS860T
-#ifdef CONFIG_FEC_ENET
-#define FEC_ENET /* use FEC for EThernet */
-#endif /* CONFIG_FEC_ETHERNET */
-
-/* This ENET stuff is for GTH 10 Mbit ( SCC ) */
-#define PROFF_ENET		PROFF_SCC1
-#define CPM_CR_ENET		CPM_CR_CH_SCC1
-#define SCC_ENET		0
-
-#define PA_ENET_RXD		((ushort)0x0001) /* PA15 */
-#define PA_ENET_TXD		((ushort)0x0002) /* PA14 */
-#define PA_ENET_TCLK		((ushort)0x0800) /* PA4 */
-#define PA_ENET_RCLK		((ushort)0x0200) /* PA6 */
-#define PB_ENET_TENA		((uint)0x00001000) /* PB19 */
-#define PC_ENET_CLSN		((ushort)0x0010) /* PC11 */
-#define PC_ENET_RENA		((ushort)0x0020) /* PC10 */
-
-#define SICR_ENET_MASK		((uint)0x000000ff)
-/* RCLK PA4 -->CLK4, TCLK PA6 -->CLK2 */
-#define SICR_ENET_CLKRT		((uint)0x0000003D)
-
-#endif /* CONFIG_QS860T */
-
 /***  RPXLITE  ********************************************************/
 
 #ifdef CONFIG_RPXLITE

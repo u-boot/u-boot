@@ -465,16 +465,6 @@ static int scc_init (struct eth_device *dev, bd_t * bis)
 	*((uchar *) BCSR0) |= BCSR0_ETHEN;
 #endif
 
-#if defined(CONFIG_QS860T)
-	/*
-	 * PB27=FDE-, set output low for full duplex
-	 * PB26=Link Test Enable, normally high output
-	 */
-	immr->im_cpm.cp_pbdir |= 0x00000030;
-	immr->im_cpm.cp_pbdat |= 0x00000020;
-	immr->im_cpm.cp_pbdat &= ~0x00000010;
-#endif /* QS860T */
-
 #if defined(CONFIG_NETVIA)
 #if defined(PA_ENET_PDN)
 	immr->im_ioport.iop_papar &= ~PA_ENET_PDN;
