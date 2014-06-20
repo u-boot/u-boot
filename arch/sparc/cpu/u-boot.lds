@@ -1,7 +1,5 @@
 /*
- * Linker script for Gaisler Research AB's GRSIM LEON2 simulator.
- *
- * (C) Copyright 2007
+ * (C) Copyright 2007-2008
  * Daniel Hellstrom, Gaisler Research, daniel@gaisler.com.
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -43,7 +41,7 @@ SECTIONS
 		_text = .;
 
 		*(.start)
-		arch/sparc/cpu/leon2/start.o (.text)
+		*/start.o (.text)
 /* 8k is the same as the PROM offset from end of main memory, (CONFIG_SYS_PROM_SIZE) */
 		. = ALIGN(8192);
 /* PROM CODE, Will be relocated to the end of memory,
@@ -100,6 +98,7 @@ SECTIONS
 
 /*	.data.rel : { } */
 
+
 	. = ALIGN(4096);
 	__init_begin = .;
 	.text.init : { *(.text.init) }
@@ -130,6 +129,7 @@ SECTIONS
 	/* PROM CODE */
 
 	/* global data in RAM passed to kernel after booting */
+
 
 	.stab 0		: { *(.stab) }
 	.stabstr 0		: { *(.stabstr) }
