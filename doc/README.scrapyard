@@ -11,6 +11,7 @@ easily if here is something they might want to dig for...
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+spc1920          powerpc     mpc8xx         -           -
 v37              powerpc     mpc8xx         -           -
 fads             powerpc     mpc8xx         -           -
 netphone         powerpc     mpc8xx         -           -

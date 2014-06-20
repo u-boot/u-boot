@@ -138,7 +138,6 @@ void cpu_init_f (volatile immap_t * immr)
     defined(CONFIG_MHPC)	|| \
     defined(CONFIG_R360MPI)	|| \
     defined(CONFIG_RMU)		|| \
-    defined(CONFIG_SPC1920)	|| \
     defined(CONFIG_SPD823TS)
 
 	memctl->memc_br0 = CONFIG_SYS_BR0_PRELIM;
