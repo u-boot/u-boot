@@ -900,32 +900,6 @@ typedef struct scc_enet {
 
 #endif	/* CONFIG_NETVIA */
 
-/***  RPXLITE  ********************************************************/
-
-#ifdef CONFIG_RPXLITE
-/* This ENET stuff is for the MPC850 with ethernet on SCC2.  Some of
- * this may be unique to the RPX-Lite configuration.
- * Note TENA is on Port B.
- */
-#define	PROFF_ENET	PROFF_SCC2
-#define	CPM_CR_ENET	CPM_CR_CH_SCC2
-#define	SCC_ENET	1
-#define PA_ENET_RXD	((ushort)0x0004)
-#define PA_ENET_TXD	((ushort)0x0008)
-#define PA_ENET_TCLK	((ushort)0x0200)
-#define PA_ENET_RCLK	((ushort)0x0800)
-#if defined(CONFIG_RMU)
-#define PC_ENET_TENA	((uint)0x00000002)	/* PC14 */
-#else
-#define PB_ENET_TENA	((uint)0x00002000)
-#endif
-#define PC_ENET_CLSN	((ushort)0x0040)
-#define PC_ENET_RENA	((ushort)0x0080)
-
-#define SICR_ENET_MASK	((uint)0x0000ff00)
-#define SICR_ENET_CLKRT	((uint)0x00003d00)
-#endif	/* CONFIG_RPXLITE */
-
 /***  SM850  *********************************************************/
 
 /* The SM850 Service Module uses SCC2 for IrDA and SCC3 for Ethernet */

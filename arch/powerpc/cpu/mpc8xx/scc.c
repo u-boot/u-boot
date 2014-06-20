@@ -461,10 +461,6 @@ static int scc_init (struct eth_device *dev, bd_t * bis)
 #error Configuration Error: exactly ONE of PB_ENET_TENA, PC_ENET_TENA must be defined
 #endif
 
-#ifdef CONFIG_RPXLITE
-	*((uchar *) BCSR0) |= BCSR0_ETHEN;
-#endif
-
 #if defined(CONFIG_NETVIA)
 #if defined(PA_ENET_PDN)
 	immr->im_ioport.iop_papar &= ~PA_ENET_PDN;

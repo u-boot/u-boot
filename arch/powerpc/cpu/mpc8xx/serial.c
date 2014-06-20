@@ -182,11 +182,6 @@ static int smc_init (void)
 #endif
 #endif	/* CONFIG_FADS */
 
-#if defined(CONFIG_RPXLITE)
-	/* Enable Monitor Port Transceiver */
-	*((uchar *) BCSR0) |= BCSR0_ENMONXCVR ;
-#endif /* CONFIG_RPXLITE */
-
 	/* Set the physical address of the host memory buffers in
 	 * the buffer descriptors.
 	 */

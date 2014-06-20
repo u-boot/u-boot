@@ -268,11 +268,6 @@ void lcd_ctrl_init (void *lcdbase)
 	 * the controller.
 	 */
 
-#ifdef CONFIG_RPXLITE
-	/* This is special for RPXlite_DW Software Development Platform **[Sam]** */
-	panel_info.vl_dp = CONFIG_SYS_LOW;
-#endif
-
 	lccrtmp  = LCDBIT (LCCR_BNUM_BIT,
 		   (((panel_info.vl_row * panel_info.vl_col) * (1 << LCD_BPP)) / 128));
 

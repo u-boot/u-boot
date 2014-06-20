@@ -11,6 +11,8 @@ easily if here is something they might want to dig for...
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+quantum          powerpc     mpc8xx         -           -
+RPXlite_dw       powerpc     mpc8xx         -           -
 qs850            powerpc     mpc8xx         -           -
 qs860t           powerpc     mpc8xx         -           -
 simpc8313        powerpc     mpc83xx        7445207f    2014-06-05  Ron Madrid <info@sheldoninst.com>

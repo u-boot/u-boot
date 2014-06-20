@@ -365,10 +365,6 @@ static void scc_init (int scc_index)
 	immr->im_cpm.cp_scc[scc_index].scc_psmr = SCC_PSMR_ENCRC |
 			SCC_PSMR_NIB22 | SCC_PSMR_LPB;
 
-#ifdef CONFIG_RPXLITE
-	*((uchar *) BCSR0) |= BCSR0_ETHEN;
-#endif
-
 	/*
 	 * Set the ENT/ENR bits in the GSMR Low -- Enable Transmit/Receive
 	 */

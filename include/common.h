@@ -499,8 +499,6 @@ extern ssize_t spi_read	 (uchar *, int, uchar *, int);
 extern ssize_t spi_write (uchar *, int, uchar *, int);
 #endif
 
-void rpxlite_init (void);
-
 #ifdef CONFIG_HERMES
 /* $(BOARD)/hermes.c */
 void hermes_start_lxt980 (int speed);
