@@ -1023,29 +1023,6 @@ typedef struct scc_enet {
 # endif	/* CONFIG_FEC_ENET */
 #endif	/* CONFIG_TQM855L/M, TQM860L/M, TQM862L/M */
 
-/***  V37  **********************************************************/
-
-#ifdef CONFIG_V37
-/* This ENET stuff is for the MPC823 with ethernet on SCC2.  Some of
- * this may be unique to the Marel V37 configuration.
- * Note TENA is on Port B.
- */
-#define	PROFF_ENET	PROFF_SCC2
-#define	CPM_CR_ENET	CPM_CR_CH_SCC2
-#define	SCC_ENET	1
-#define PA_ENET_RXD	((ushort)0x0004)
-#define PA_ENET_TXD	((ushort)0x0008)
-#define PA_ENET_TCLK	((ushort)0x0400)
-#define PA_ENET_RCLK	((ushort)0x0200)
-#define PB_ENET_TENA	((uint)0x00002000)
-#define PC_ENET_CLSN	((ushort)0x0040)
-#define PC_ENET_RENA	((ushort)0x0080)
-
-#define SICR_ENET_MASK	((uint)0x0000ff00)
-#define SICR_ENET_CLKRT	((uint)0x00002e00)
-#endif	/* CONFIG_V37 */
-
-
 /*********************************************************************/
 
 /* SCC Event register as used by Ethernet.

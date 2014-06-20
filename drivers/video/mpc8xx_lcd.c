@@ -34,7 +34,7 @@
 #define CONFIG_LCD_INFO		/* Display Logo, (C) and system info	*/
 #endif
 
-#if defined(CONFIG_V37) || defined(CONFIG_EDT32F10)
+#if defined(CONFIG_EDT32F10)
 #undef CONFIG_LCD_LOGO
 #undef CONFIG_LCD_INFO
 #endif
@@ -412,12 +412,6 @@ void lcd_enable (void)
 	/* Enable the LCD panel */
 	immr->im_siu_conf.sc_sdcr |= (1 << (31 - 25));		/* LAM = 1 */
 	lcdp->lcd_lccr |= LCCR_PON;
-
-#ifdef CONFIG_V37
-	/* Turn on display backlight */
-	immr->im_cpm.cp_pbpar |= 0x00008000;
-	immr->im_cpm.cp_pbdir |= 0x00008000;
-#endif
 
 #if defined(CONFIG_LWMON)
     {	uchar c = pic_read (0x60);
