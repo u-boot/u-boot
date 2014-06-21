@@ -53,7 +53,7 @@ static int testfdt_drv_probe(struct udevice *dev)
 	return 0;
 }
 
-static const struct device_id testfdt_ids[] = {
+static const struct udevice_id testfdt_ids[] = {
 	{
 		.compatible = "denx,u-boot-fdt-test",
 		.data = DM_TEST_TYPE_FIRST },

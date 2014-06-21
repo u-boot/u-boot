@@ -32,7 +32,7 @@ static int demo_shape_ofdata_to_platdata(struct udevice *dev)
 	return demo_parse_dt(dev);
 }
 
-static const struct device_id demo_shape_id[] = {
+static const struct udevice_id demo_shape_id[] = {
 	{ "demo-simple", 0 },
 	{ },
 };

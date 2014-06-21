@@ -26,7 +26,7 @@
  * @priv: Private data for this uclass
  * @uc_drv: The driver for the uclass itself, not to be confused with a
  * 'struct driver'
- * dev_head: List of devices in this uclass (devices are attached to their
+ * @dev_head: List of devices in this uclass (devices are attached to their
  * uclass when their bind method is called)
  * @sibling_node: Next uclass in the linked list of uclasses
  */
@@ -96,12 +96,14 @@ int uclass_get(enum uclass_id key, struct uclass **ucp);
 /**
  * uclass_get_device() - Get a uclass device based on an ID and index
  *
+ * The device is probed to activate it ready for use.
+ *
  * id: ID to look up
  * @index: Device number within that uclass (0=first)
- * @ucp: Returns pointer to uclass (there is only one per for each ID)
+ * @devp: Returns pointer to device (there is only one per for each ID)
  * @return 0 if OK, -ve on error
  */
-int uclass_get_device(enum uclass_id id, int index, struct udevice **ucp);
+int uclass_get_device(enum uclass_id id, int index, struct udevice **devp);
 
 /**
  * uclass_first_device() - Get the first device in a uclass
@@ -129,7 +131,7 @@ int uclass_next_device(struct udevice **devp);
  *
  * @pos: struct udevice * to hold the current device. Set to NULL when there
  * are no more devices.
- * uc: uclass to scan
+ * @uc: uclass to scan
  */
 #define uclass_foreach_dev(pos, uc)					\
 	for (pos = list_entry((&(uc)->dev_head)->next, typeof(*pos),	\

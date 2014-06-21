@@ -16,6 +16,9 @@
 
 #endif
 
+#define CONFIG_IO_TRACE
+#define CONFIG_CMD_IOTRACE
+
 #define CONFIG_SYS_TIMER_RATE		1000000
 
 #define CONFIG_BOOTSTAGE

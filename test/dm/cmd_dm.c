@@ -23,7 +23,7 @@ static int display_succ(struct udevice *in, char *buf)
 	char local[16];
 	struct udevice *pos, *n, *prev = NULL;
 
-	printf("%s- %s @ %08x", buf, in->name, map_to_sysmem(in));
+	printf("%s- %s @ %08lx", buf, in->name, (ulong)map_to_sysmem(in));
 	if (in->flags & DM_FLAG_ACTIVATED)
 		puts(" - activated");
 	puts("\n");
@@ -62,7 +62,7 @@ static int do_dm_dump_all(cmd_tbl_t *cmdtp, int flag, int argc,
 	struct udevice *root;
 
 	root = dm_root();
-	printf("ROOT %08x\n", map_to_sysmem(root));
+	printf("ROOT %08lx\n", (ulong)map_to_sysmem(root));
 	return dm_dump(root);
 }
 
@@ -84,8 +84,8 @@ static int do_dm_dump_uclass(cmd_tbl_t *cmdtp, int flag, int argc,
 		for (ret = uclass_first_device(id, &dev);
 		     dev;
 		     ret = uclass_next_device(&dev)) {
-			printf("  %s @  %08x:\n", dev->name,
-			       map_to_sysmem(dev));
+			printf("  %s @ %08lx:\n", dev->name,
+			       (ulong)map_to_sysmem(dev));
 		}
 		puts("\n");
 	}
@@ -93,16 +93,23 @@ static int do_dm_dump_uclass(cmd_tbl_t *cmdtp, int flag, int argc,
 	return 0;
 }
 
+#ifdef CONFIG_DM_TEST
 static int do_dm_test(cmd_tbl_t *cmdtp, int flag, int argc,
 			  char * const argv[])
 {
 	return dm_test_main();
 }
+#define TEST_HELP "\ndm test         Run tests"
+#else
+#define TEST_HELP
+#endif
 
 static cmd_tbl_t test_commands[] = {
 	U_BOOT_CMD_MKENT(tree, 0, 1, do_dm_dump_all, "", ""),
 	U_BOOT_CMD_MKENT(uclass, 1, 1, do_dm_dump_uclass, "", ""),
+#ifdef CONFIG_DM_TEST
 	U_BOOT_CMD_MKENT(test, 1, 1, do_dm_test, "", ""),
+#endif
 };
 
 static int do_dm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -128,6 +135,6 @@ U_BOOT_CMD(
 	dm,	2,	1,	do_dm,
 	"Driver model low level access",
 	"tree         Dump driver model tree\n"
-	"dm uclass        Dump list of instances for each uclass\n"
-	"dm test         Run tests"
+	"dm uclass        Dump list of instances for each uclass"
+	TEST_HELP
 );

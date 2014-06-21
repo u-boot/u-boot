@@ -14,6 +14,7 @@
 #include <dm/platdata.h>
 #include <dm/uclass.h>
 #include <dm/util.h>
+#include <fdtdec.h>
 #include <linux/compiler.h>
 
 struct driver *lists_driver_lookup_name(const char *name)
@@ -94,7 +95,7 @@ int lists_bind_drivers(struct udevice *parent)
  * tree error
  */
 static int driver_check_compatible(const void *blob, int offset,
-				   const struct device_id *of_match)
+				   const struct udevice_id *of_match)
 {
 	int ret;
 

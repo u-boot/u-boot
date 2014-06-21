@@ -41,7 +41,7 @@ int dm_scan_platdata(void);
 int dm_scan_fdt(const void *blob);
 
 /**
- * dm_init() - Initialize Driver Model structures
+ * dm_init() - Initialise Driver Model structures
  *
  * This function will initialize roots of driver tree and class tree.
  * This needs to be called before anything uses the DM
