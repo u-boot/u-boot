@@ -19,6 +19,8 @@
 #define CONFIG_MPC8313
 #define CONFIG_IDS8313
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 #define CONFIG_FSL_ELBC
 
 #define CONFIG_MISC_INIT_R
@@ -582,6 +584,5 @@
 #define CONFIG_RSA
 #define CONFIG_SHA1
 #define CONFIG_SHA256
-#define CONFIG_OF_CONTROL
 
 #endif	/* __CONFIG_H */
