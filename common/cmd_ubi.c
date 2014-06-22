@@ -287,7 +287,7 @@ out_err:
 	return err;
 }
 
-int ubi_volume_continue_write(char *volume, void *buf, size_t size)
+static int ubi_volume_continue_write(char *volume, void *buf, size_t size)
 {
 	int err = 1;
 	struct ubi_volume *vol;

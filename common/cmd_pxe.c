@@ -1562,7 +1562,7 @@ static cmd_tbl_t cmd_pxe_sub[] = {
 	U_BOOT_CMD_MKENT(boot, 2, 1, do_pxe_boot, "", "")
 };
 
-int do_pxe(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_pxe(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	cmd_tbl_t *cp;
 
@@ -1596,7 +1596,7 @@ U_BOOT_CMD(
  *
  * Returns 0 on success, 1 on error.
  */
-int do_sysboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_sysboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned long pxefile_addr_r;
 	struct pxe_menu *cfg;

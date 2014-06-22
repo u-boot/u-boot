@@ -142,8 +142,7 @@ source (ulong addr, const char *fit_uname)
 
 /**************************************************/
 #if defined(CONFIG_CMD_SOURCE)
-int
-do_source (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_source(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong addr;
 	int rcode;
