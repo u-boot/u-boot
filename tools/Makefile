@@ -69,6 +69,7 @@ dumpimage-mkimage-objs := aisimage.o \
 			common/bootm.o \
 			lib/crc32.o \
 			default_image.o \
+			lib/fdtdec_common.o \
 			lib/fdtdec.o \
 			fit_common.o \
 			fit_image.o \
