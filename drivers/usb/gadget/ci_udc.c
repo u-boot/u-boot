@@ -226,8 +226,11 @@ static void ci_ep_free_request(struct usb_ep *ep, struct usb_request *req)
 	int num;
 
 	num = ci_ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
-	if (num == 0)
+	if (num == 0) {
+		if (!controller.ep0_req)
+			return;
 		controller.ep0_req = 0;
+	}
 
 	if (ci_req->b_buf)
 		free(ci_req->b_buf);
@@ -908,6 +911,9 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
 {
 	udc_disconnect();
+
+	driver->unbind(&controller.gadget);
+	controller.driver = NULL;
 
 	ci_ep_free_request(&controller.ep[0].ep, &controller.ep0_req->req);
 	free(controller.items_mem);
