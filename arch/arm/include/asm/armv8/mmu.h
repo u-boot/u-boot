@@ -108,4 +108,28 @@
 				TCR_IRGN_WBWA |		\
 				TCR_T0SZ(VA_BITS))
 
+#ifndef __ASSEMBLY__
+void set_pgtable_section(u64 *page_table, u64 index,
+			 u64 section, u64 memory_type);
+static inline void set_ttbr_tcr_mair(int el, u64 table, u64 tcr, u64 attr)
+{
+	asm volatile("dsb sy");
+	if (el == 1) {
+		asm volatile("msr ttbr0_el1, %0" : : "r" (table) : "memory");
+		asm volatile("msr tcr_el1, %0" : : "r" (tcr) : "memory");
+		asm volatile("msr mair_el1, %0" : : "r" (attr) : "memory");
+	} else if (el == 2) {
+		asm volatile("msr ttbr0_el2, %0" : : "r" (table) : "memory");
+		asm volatile("msr tcr_el2, %0" : : "r" (tcr) : "memory");
+		asm volatile("msr mair_el2, %0" : : "r" (attr) : "memory");
+	} else if (el == 3) {
+		asm volatile("msr ttbr0_el3, %0" : : "r" (table) : "memory");
+		asm volatile("msr tcr_el3, %0" : : "r" (tcr) : "memory");
+		asm volatile("msr mair_el3, %0" : : "r" (attr) : "memory");
+	} else {
+		hang();
+	}
+	asm volatile("isb");
+}
+#endif
 #endif /* _ASM_ARMV8_MMU_H_ */
