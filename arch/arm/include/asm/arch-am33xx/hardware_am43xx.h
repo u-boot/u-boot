@@ -43,6 +43,11 @@
 #define VTP0_CTRL_ADDR			0x44E10E0C
 #define VTP1_CTRL_ADDR			0x48140E10
 
+/* USB CTRL Base Address */
+#define USB1_CTRL			0x44e10628
+#define USB1_CTRL_CM_PWRDN		BIT(0)
+#define USB1_CTRL_OTG_PWRDN		BIT(1)
+
 /* DDR Base address */
 #define DDR_PHY_CMD_ADDR		0x44E12000
 #define DDR_PHY_DATA_ADDR		0x44E120C8
