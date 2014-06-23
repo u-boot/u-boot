@@ -73,12 +73,17 @@ void invalidate_dcache_all(void)
 	__asm_invalidate_dcache_all();
 }
 
+void __weak flush_l3_cache(void)
+{
+}
+
 /*
  * Performs a clean & invalidation of the entire data cache at all levels
  */
 void flush_dcache_all(void)
 {
 	__asm_flush_dcache_all();
+	flush_l3_cache();
 }
 
 /*
@@ -211,7 +216,7 @@ void invalidate_icache_all(void)
  * Enable dCache & iCache, whether cache is actually enabled
  * depend on CONFIG_SYS_DCACHE_OFF and CONFIG_SYS_ICACHE_OFF
  */
-void enable_caches(void)
+void __weak enable_caches(void)
 {
 	icache_enable();
 	dcache_enable();
