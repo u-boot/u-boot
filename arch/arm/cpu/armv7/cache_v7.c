@@ -354,41 +354,10 @@ void invalidate_icache_all(void)
 }
 #endif
 
-/*
- * Stub implementations for outer cache operations
- */
-void __v7_outer_cache_enable(void)
-{
-}
-void v7_outer_cache_enable(void)
-	__attribute__((weak, alias("__v7_outer_cache_enable")));
-
-void __v7_outer_cache_disable(void)
-{
-}
-void v7_outer_cache_disable(void)
-	__attribute__((weak, alias("__v7_outer_cache_disable")));
-
-void __v7_outer_cache_flush_all(void)
-{
-}
-void v7_outer_cache_flush_all(void)
-	__attribute__((weak, alias("__v7_outer_cache_flush_all")));
-
-void __v7_outer_cache_inval_all(void)
-{
-}
-void v7_outer_cache_inval_all(void)
-	__attribute__((weak, alias("__v7_outer_cache_inval_all")));
-
-void __v7_outer_cache_flush_range(u32 start, u32 end)
-{
-}
-void v7_outer_cache_flush_range(u32 start, u32 end)
-	__attribute__((weak, alias("__v7_outer_cache_flush_range")));
-
-void __v7_outer_cache_inval_range(u32 start, u32 end)
-{
-}
-void v7_outer_cache_inval_range(u32 start, u32 end)
-	__attribute__((weak, alias("__v7_outer_cache_inval_range")));
+/*  Stub implementations for outer cache operations */
+__weak void v7_outer_cache_enable(void) {}
+__weak void v7_outer_cache_disable(void) {}
+__weak void v7_outer_cache_flush_all(void) {}
+__weak void v7_outer_cache_inval_all(void) {}
+__weak void v7_outer_cache_flush_range(u32 start, u32 end) {}
+__weak void v7_outer_cache_inval_range(u32 start, u32 end) {}

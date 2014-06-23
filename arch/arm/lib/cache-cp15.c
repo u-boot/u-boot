@@ -14,11 +14,9 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void __arm_init_before_mmu(void)
+__weak void arm_init_before_mmu(void)
 {
 }
-void arm_init_before_mmu(void)
-	__attribute__((weak, alias("__arm_init_before_mmu")));
 
 __weak void arm_init_domains(void)
 {
@@ -44,13 +42,10 @@ void set_section_dcache(int section, enum dcache_option option)
 	page_table[section] = value;
 }
 
-void __mmu_page_table_flush(unsigned long start, unsigned long stop)
+__weak void mmu_page_table_flush(unsigned long start, unsigned long stop)
 {
 	debug("%s: Warning: not implemented\n", __func__);
 }
-
-void mmu_page_table_flush(unsigned long start, unsigned long stop)
-	__attribute__((weak, alias("__mmu_page_table_flush")));
 
 void mmu_set_region_dcache_behaviour(u32 start, int size,
 				     enum dcache_option option)
