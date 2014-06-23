@@ -12,6 +12,7 @@
 #include <asm/arch-fsl-lsch3/immap_lsch3.h>
 #include "cpu.h"
 #include "speed.h"
+#include <fsl_mc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -423,3 +424,13 @@ int print_cpuinfo(void)
 	return 0;
 }
 #endif
+
+int cpu_eth_init(bd_t *bis)
+{
+	int error = 0;
+
+#ifdef CONFIG_FSL_MC_ENET
+	error = mc_init(bis);
+#endif
+	return error;
+}

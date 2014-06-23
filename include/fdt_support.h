@@ -113,16 +113,24 @@ static inline int fdt_status_disabled(void *fdt, int nodeoffset)
 {
 	return fdt_set_node_status(fdt, nodeoffset, FDT_STATUS_DISABLED, 0);
 }
+static inline int fdt_status_fail(void *fdt, int nodeoffset)
+{
+	return fdt_set_node_status(fdt, nodeoffset, FDT_STATUS_FAIL, 0);
+}
 
-int fdt_set_status_by_alias(void *fdt, const char* alias,
+int fdt_set_status_by_alias(void *fdt, const char *alias,
 			    enum fdt_status status, unsigned int error_code);
-static inline int fdt_status_okay_by_alias(void *fdt, const char* alias)
+static inline int fdt_status_okay_by_alias(void *fdt, const char *alias)
 {
 	return fdt_set_status_by_alias(fdt, alias, FDT_STATUS_OKAY, 0);
 }
-static inline int fdt_status_disabled_by_alias(void *fdt, const char* alias)
+static inline int fdt_status_disabled_by_alias(void *fdt, const char *alias)
 {
 	return fdt_set_status_by_alias(fdt, alias, FDT_STATUS_DISABLED, 0);
+}
+static inline int fdt_status_fail_by_alias(void *fdt, const char *alias)
+{
+	return fdt_set_status_by_alias(fdt, alias, FDT_STATUS_FAIL, 0);
 }
 
 #endif /* ifdef CONFIG_OF_LIBFDT */

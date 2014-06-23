@@ -4676,6 +4676,33 @@ within that device.
 	window->master inbound window->master LAW->the ucode address in
 	master's memory space.
 
+Freescale Layerscape Management Complex Firmware Support:
+---------------------------------------------------------
+The Freescale Layerscape Management Complex (MC) supports the loading of
+"firmware".
+This firmware often needs to be loaded during U-Boot booting, so macros
+are used to identify the storage device (NOR flash, SPI, etc) and the address
+within that device.
+
+- CONFIG_FSL_MC_ENET
+	Enable the MC driver for Layerscape SoCs.
+
+- CONFIG_SYS_LS_MC_FW_ADDR
+	The address in the storage device where the firmware is located.  The
+	meaning of this address depends on which CONFIG_SYS_LS_MC_FW_IN_xxx macro
+	is also specified.
+
+- CONFIG_SYS_LS_MC_FW_LENGTH
+	The maximum possible size of the firmware.  The firmware binary format
+	has a field that specifies the actual size of the firmware, but it
+	might not be possible to read any part of the firmware unless some
+	local storage is allocated to hold the entire firmware first.
+
+- CONFIG_SYS_LS_MC_FW_IN_NOR
+	Specifies that MC firmware is located in NOR flash, mapped as
+	normal addressable memory via the LBC. CONFIG_SYS_LS_MC_FW_ADDR is the
+	virtual address in NOR flash.
+
 Building the Software:
 ======================
 
