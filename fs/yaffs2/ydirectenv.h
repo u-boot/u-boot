@@ -58,8 +58,6 @@ void yaffs_qsort(void *aa, size_t n, size_t es,
 #define inline
 #endif
 
-#define cond_resched()  do {} while (0)
-
 #define yaffs_trace(msk, fmt, ...) do { \
 	if (yaffs_trace_mask & (msk)) \
 		printf("yaffs: " fmt "\n", ##__VA_ARGS__); \

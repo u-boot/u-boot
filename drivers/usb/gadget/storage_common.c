@@ -267,11 +267,6 @@ struct interrupt_data {
 #define ASCQ(x)		((u8) (x))
 
 struct device_attribute { int i; };
-struct rw_semaphore { int i; };
-#define down_write(...)			do { } while (0)
-#define up_write(...)			do { } while (0)
-#define down_read(...)			do { } while (0)
-#define up_read(...)			do { } while (0)
 #define ETOOSMALL	525
 
 #include <usb_mass_storage.h>
