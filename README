@@ -4156,6 +4156,37 @@ but it can not erase, write this NOR flash by SRIO or PCIE interface.
 	  You will probably want to define these to avoid a really noisy system
 	  when storing the env in UBI.
 
+- CONFIG_ENV_IS_IN_FAT:
+       Define this if you want to use the FAT file system for the environment.
+
+       - FAT_ENV_INTERFACE:
+
+         Define this to a string that is the name of the block device.
+
+       - FAT_ENV_DEV_AND_PART:
+
+         Define this to a string to specify the partition of the device. It can
+         be as following:
+
+           "D:P", "D:0", "D", "D:" or "D:auto" (D, P are integers. And P >= 1)
+               - "D:P": device D partition P. Error occurs if device D has no
+                        partition table.
+               - "D:0": device D.
+               - "D" or "D:": device D partition 1 if device D has partition
+                              table, or the whole device D if has no partition
+                              table.
+               - "D:auto": first partition in device D with bootable flag set.
+                           If none, first valid paratition in device D. If no
+                           partition table then means device D.
+
+       - FAT_ENV_FILE:
+
+         It's a string of the FAT file name. This file use to store the
+         envrionment.
+
+       - CONFIG_FAT_WRITE:
+         This should be defined. Otherwise it cannot save the envrionment file.
+
 - CONFIG_ENV_IS_IN_MMC:
 
 	Define this if you have an MMC device which you want to use for the
