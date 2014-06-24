@@ -214,7 +214,7 @@ static u32 get_uart_clk(void)
 	u32 reg, uart_podf;
 	u32 freq = decode_pll(PLL_USBOTG, MXC_HCLK) / 6; /* static divider */
 	reg = __raw_readl(&imx_ccm->cscdr1);
-#ifdef CONFIG_MX6SL
+#if (defined(CONFIG_MX6SL) || defined(CONFIG_MX6SX))
 	if (reg & MXC_CCM_CSCDR1_UART_CLK_SEL)
 		freq = MXC_HCLK;
 #endif
@@ -282,7 +282,7 @@ static u32 get_emi_slow_clk(void)
 	return root_freq / (emi_slow_podf + 1);
 }
 
-#ifdef CONFIG_MX6SL
+#if (defined(CONFIG_MX6SL) || defined(CONFIG_MX6SX))
 static u32 get_mmdc_ch0_clk(void)
 {
 	u32 cbcmr = __raw_readl(&imx_ccm->cbcmr);
