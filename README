@@ -3338,6 +3338,9 @@ FIT uImage format:
 		Adds the MTD partitioning infrastructure from the Linux
 		kernel. Needed for UBI support.
 
+		CONFIG_MTD_NAND_VERIFY_WRITE
+		verify if the written data is correct reread.
+
 - UBI support
 		CONFIG_CMD_UBI
 
@@ -3350,6 +3353,64 @@ FIT uImage format:
 
 		Make the verbose messages from UBI stop printing.  This leaves
 		warnings and errors enabled.
+
+
+		CONFIG_MTD_UBI_WL_THRESHOLD
+		This parameter defines the maximum difference between the highest
+		erase counter value and the lowest erase counter value of eraseblocks
+		of UBI devices. When this threshold is exceeded, UBI starts performing
+		wear leveling by means of moving data from eraseblock with low erase
+		counter to eraseblocks with high erase counter.
+
+		The default value should be OK for SLC NAND flashes, NOR flashes and
+		other flashes which have eraseblock life-cycle 100000 or more.
+		However, in case of MLC NAND flashes which typically have eraseblock
+		life-cycle less than 10000, the threshold should be lessened (e.g.,
+		to 128 or 256, although it does not have to be power of 2).
+
+		default: 4096
+		
+		CONFIG_MTD_UBI_BEB_LIMIT
+		This option specifies the maximum bad physical eraseblocks UBI
+		expects on the MTD device (per 1024 eraseblocks). If the
+		underlying flash does not admit of bad eraseblocks (e.g. NOR
+		flash), this value is ignored.
+
+		NAND datasheets often specify the minimum and maximum NVM
+		(Number of Valid Blocks) for the flashes' endurance lifetime.
+		The maximum expected bad eraseblocks per 1024 eraseblocks
+		then can be calculated as "1024 * (1 - MinNVB / MaxNVB)",
+		which gives 20 for most NANDs (MaxNVB is basically the total
+		count of eraseblocks on the chip).
+
+		To put it differently, if this value is 20, UBI will try to
+		reserve about 1.9% of physical eraseblocks for bad blocks
+		handling. And that will be 1.9% of eraseblocks on the entire
+		NAND chip, not just the MTD partition UBI attaches. This means
+		that if you have, say, a NAND flash chip admits maximum 40 bad
+		eraseblocks, and it is split on two MTD partitions of the same
+		size, UBI will reserve 40 eraseblocks when attaching a
+		partition.
+
+		default: 20
+
+		CONFIG_MTD_UBI_FASTMAP
+		Fastmap is a mechanism which allows attaching an UBI device
+		in nearly constant time. Instead of scanning the whole MTD device it
+		only has to locate a checkpoint (called fastmap) on the device.
+		The on-flash fastmap contains all information needed to attach
+		the device. Using fastmap makes only sense on large devices where
+		attaching by scanning takes long. UBI will not automatically install
+		a fastmap on old images, but you can set the UBI parameter
+		CONFIG_MTD_UBI_FASTMAP_AUTOCONVERT to 1 if you want so. Please note
+		that fastmap-enabled images are still usable with UBI implementations
+		without	fastmap support. On typical flash devices the whole fastmap
+		fits into one PEB. UBI will reserve PEBs to hold two fastmaps.
+
+		CONFIG_MTD_UBI_FASTMAP_AUTOCONVERT
+		Set this parameter to enable fastmap automatically on images
+		without a fastmap.
+		default: 0
 
 - UBIFS support
 		CONFIG_CMD_UBIFS

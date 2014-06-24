@@ -684,6 +684,7 @@ static void fsl_ifc_read_buf(struct mtd_info *mtd, u8 *buf, int len)
 		       __func__, len, avail);
 }
 
+#if defined(CONFIG_MTD_NAND_VERIFY_WRITE)
 /*
  * Verify buffer against the IFC Controller Data Buffer
  */
@@ -716,6 +717,7 @@ static int fsl_ifc_verify_buf(struct mtd_info *mtd,
 	ctrl->index += len;
 	return i == len && ctrl->status == IFC_NAND_EVTER_STAT_OPC ? 0 : -EIO;
 }
+#endif
 
 /* This function is called after Program and Erase Operations to
  * check for success or failure.
@@ -939,7 +941,9 @@ static int fsl_ifc_chip_init(int devnum, u8 *addr)
 
 	nand->write_buf = fsl_ifc_write_buf;
 	nand->read_buf = fsl_ifc_read_buf;
+#if defined(CONFIG_MTD_NAND_VERIFY_WRITE)
 	nand->verify_buf = fsl_ifc_verify_buf;
+#endif
 	nand->select_chip = fsl_ifc_select_chip;
 	nand->cmdfunc = fsl_ifc_cmdfunc;
 	nand->waitfunc = fsl_ifc_wait;

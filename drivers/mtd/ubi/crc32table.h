@@ -66,7 +66,7 @@ tole(0xbad03605L), tole(0xcdd70693L), tole(0x54de5729L), tole(0x23d967bfL),
 tole(0xb3667a2eL), tole(0xc4614ab8L), tole(0x5d681b02L), tole(0x2a6f2b94L),
 tole(0xb40bbe37L), tole(0xc30c8ea1L), tole(0x5a05df1bL), tole(0x2d02ef8dL)
 };
-#ifdef UBI_LINUX
+#ifndef __UBOOT__
 static const u32 crc32table_be[] = {
 tobe(0x00000000L), tobe(0x04c11db7L), tobe(0x09823b6eL), tobe(0x0d4326d9L),
 tobe(0x130476dcL), tobe(0x17c56b6bL), tobe(0x1a864db2L), tobe(0x1e475005L),
