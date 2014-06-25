@@ -224,14 +224,16 @@ static int send_recv_packets(struct i2c_bus *i2c_bus,
 
 		if (is_write) {
 			/* deal with word alignment */
-			if ((unsigned)dptr & 3) {
+			if ((words == 1) && last_bytes) {
+				local = 0;
+				memcpy(&local, dptr, last_bytes);
+			} else if ((unsigned)dptr & 3) {
 				memcpy(&local, dptr, sizeof(u32));
-				writel(local, &control->tx_fifo);
-				debug("pkt data sent (0x%x)\n", local);
 			} else {
-				writel(*wptr, &control->tx_fifo);
-				debug("pkt data sent (0x%x)\n", *wptr);
+				local = *wptr;
 			}
+			writel(local, &control->tx_fifo);
+			debug("pkt data sent (0x%x)\n", local);
 			if (!wait_for_tx_fifo_empty(control)) {
 				error = -1;
 				goto exit;
