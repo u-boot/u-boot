@@ -11,7 +11,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
-#ifndef CONFIG_MX25
+#if !defined(CONFIG_MX25) && !defined(CONFIG_VF610)
 #include <asm/arch/sys_proto.h>
 #endif
 #include <asm/imx-common/iomux-v3.h>
