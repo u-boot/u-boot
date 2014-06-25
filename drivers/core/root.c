@@ -15,6 +15,7 @@
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <dm/platdata.h>
+#include <dm/root.h>
 #include <dm/uclass.h>
 #include <dm/util.h>
 #include <linux/list.h>

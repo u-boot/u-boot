@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <dm/device.h>
 #include <dm/device-internal.h>
+#include <dm/lists.h>
 #include <dm/platdata.h>
 #include <dm/uclass.h>
 #include <dm/util.h>
