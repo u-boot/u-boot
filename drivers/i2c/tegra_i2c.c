@@ -548,8 +548,8 @@ static int tegra_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
 	uint offset;
 	int i;
 
-	debug("i2c_read: chip=0x%x, addr=0x%x, len=0x%x\n",
-				chip, addr, len);
+	debug("i2c_read: chip=0x%x, addr=0x%x, alen=0x%x len=0x%x\n",
+	      chip, addr, alen, len);
 	bus = tegra_i2c_get_bus(adap);
 	if (!bus)
 		return 1;
@@ -587,8 +587,8 @@ static int tegra_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 	uint offset;
 	int i;
 
-	debug("i2c_write: chip=0x%x, addr=0x%x, len=0x%x\n",
-				chip, addr, len);
+	debug("i2c_write: chip=0x%x, addr=0x%x, alen=0x%x len=0x%x\n",
+	      chip, addr, alen, len);
 	bus = tegra_i2c_get_bus(adap);
 	if (!bus)
 		return 1;
