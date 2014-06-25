@@ -471,10 +471,10 @@ static int ci_ep_queue(struct usb_ep *ep,
 static void flip_ep0_direction(void)
 {
 	if (ep0_desc.bEndpointAddress == USB_DIR_IN) {
-		DBG("%s: Flipping ep0 ot OUT\n", __func__);
+		DBG("%s: Flipping ep0 to OUT\n", __func__);
 		ep0_desc.bEndpointAddress = 0;
 	} else {
-		DBG("%s: Flipping ep0 ot IN\n", __func__);
+		DBG("%s: Flipping ep0 to IN\n", __func__);
 		ep0_desc.bEndpointAddress = USB_DIR_IN;
 	}
 }
