@@ -321,14 +321,6 @@ The following options need to be configured:
 					  the LCD display every second with
 					  a "rotator" |\-/|\-/
 
-- Board flavour: (if CONFIG_MPC8260ADS is defined)
-		CONFIG_ADSTYPE
-		Possible values are:
-			CONFIG_SYS_8260ADS	- original MPC8260ADS
-			CONFIG_SYS_8266ADS	- MPC8266ADS
-			CONFIG_SYS_PQ2FADS	- PQ2FADS-ZU or PQ2FADS-VR
-			CONFIG_SYS_8272ADS	- MPC8272ADS
-
 - Marvell Family Member
 		CONFIG_SYS_MVFS		- define it if you want to enable
 					  multiple fs option at one time
@@ -1008,6 +1000,7 @@ The following options need to be configured:
 		CONFIG_CMD_IMLS		  List all images found in NOR flash
 		CONFIG_CMD_IMLS_NAND	* List all images found in NAND flash
 		CONFIG_CMD_IMMAP	* IMMR dump support
+		CONFIG_CMD_IOTRACE	* I/O tracing for debugging
 		CONFIG_CMD_IMPORTENV	* import an environment
 		CONFIG_CMD_INI		* import data from an ini file into the env
 		CONFIG_CMD_IRQ		* irqinfo
@@ -1178,6 +1171,28 @@ The following options need to be configured:
 
 		Note that if the GPIO device uses I2C, then the I2C interface
 		must also be configured. See I2C Support, below.
+
+- I/O tracing:
+		When CONFIG_IO_TRACE is selected, U-Boot intercepts all I/O
+		accesses and can checksum them or write a list of them out
+		to memory. See the 'iotrace' command for details. This is
+		useful for testing device drivers since it can confirm that
+		the driver behaves the same way before and after a code
+		change. Currently this is supported on sandbox and arm. To
+		add support for your architecture, add '#include <iotrace.h>'
+		to the bottom of arch/<arch>/include/asm/io.h and test.
+
+		Example output from the 'iotrace stats' command is below.
+		Note that if the trace buffer is exhausted, the checksum will
+		still continue to operate.
+
+			iotrace is enabled
+			Start:  10000000	(buffer start address)
+			Size:   00010000	(buffer size)
+			Offset: 00000120	(current buffer offset)
+			Output: 10000120	(start + offset)
+			Count:  00000018	(number of trace records)
+			CRC32:  9526fb66	(CRC32 of all trace records)
 
 - Timestamp Support:
 
@@ -1432,9 +1447,6 @@ The following options need to be configured:
 		CONFIG_USB_EHCI_TXFIFO_THRESH enables setting of the
 		txfilltuning field in the EHCI controller on reset.
 
-		CONFIG_USB_HUB_MIN_POWER_ON_DELAY defines the minimum
-		interval for usb hub power-on delay.(minimum 100msec)
-
 - USB Device:
 		Define the below if you wish to use the USB console.
 		Once firmware is rebuilt from a serial console issue the
@@ -1644,6 +1656,12 @@ CBFS (Coreboot Filesystem) support
 		Define this to enable support for reading from a Coreboot
 		filesystem. Available commands are cbfsinit, cbfsinfo, cbfsls
 		and cbfsload.
+
+- FAT(File Allocation Table) filesystem cluster size:
+		CONFIG_FS_FAT_MAX_CLUSTSIZE
+
+		Define the max cluster size for fat operations else
+		a default value of 65536 will be defined.
 
 - Keyboard Support:
 		CONFIG_ISA_KEYBOARD
@@ -3202,6 +3220,19 @@ FIT uImage format:
  -150	common/cmd_nand.c	Incorrect FIT image format
   151	common/cmd_nand.c	FIT image format OK
 
+- legacy image format:
+		CONFIG_IMAGE_FORMAT_LEGACY
+		enables the legacy image format support in U-Boot.
+
+		Default:
+		enabled if CONFIG_FIT_SIGNATURE is not defined.
+
+		CONFIG_DISABLE_IMAGE_LEGACY
+		disable the legacy image format
+
+		This define is introduced, as the legacy image format is
+		enabled per default for backward compatibility.
+
 - FIT image support:
 		CONFIG_FIT
 		Enable support for the FIT uImage format.
@@ -3217,6 +3248,11 @@ FIT uImage format:
 		This option enables signature verification of FIT uImages,
 		using a hash signed and verified using RSA. See
 		doc/uImage.FIT/signature.txt for more details.
+
+		WARNING: When relying on signed FIT images with required
+		signature check the legacy image format is default
+		disabled. If a board need legacy image format support
+		enable this through CONFIG_IMAGE_FORMAT_LEGACY
 
 - Standalone program support:
 		CONFIG_STANDALONE_LOAD_ADDR
@@ -5294,6 +5330,11 @@ include/asm-ppc/tqm8xx.h) includes the same definition of the Board
 Information structure as we define in include/asm-<arch>/u-boot.h,
 and make sure that your definition of IMAP_ADDR uses the same value
 as your U-Boot configuration in CONFIG_SYS_IMMR.
+
+Note that U-Boot now has a driver model, a unified model for drivers.
+If you are adding a new driver, plumb it into driver model. If there
+is no uclass available, you are encouraged to create one. See
+doc/driver-model.
 
 
 Configuring the Linux kernel:

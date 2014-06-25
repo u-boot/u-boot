@@ -18,7 +18,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static int testfdt_drv_ping(struct device *dev, int pingval, int *pingret)
+static int testfdt_drv_ping(struct udevice *dev, int pingval, int *pingret)
 {
 	const struct dm_test_pdata *pdata = dev->platdata;
 	struct dm_test_priv *priv = dev_get_priv(dev);
@@ -33,7 +33,7 @@ static const struct test_ops test_ops = {
 	.ping = testfdt_drv_ping,
 };
 
-static int testfdt_ofdata_to_platdata(struct device *dev)
+static int testfdt_ofdata_to_platdata(struct udevice *dev)
 {
 	struct dm_test_pdata *pdata = dev_get_platdata(dev);
 
@@ -44,7 +44,7 @@ static int testfdt_ofdata_to_platdata(struct device *dev)
 	return 0;
 }
 
-static int testfdt_drv_probe(struct device *dev)
+static int testfdt_drv_probe(struct udevice *dev)
 {
 	struct dm_test_priv *priv = dev_get_priv(dev);
 
@@ -53,7 +53,7 @@ static int testfdt_drv_probe(struct device *dev)
 	return 0;
 }
 
-static const struct device_id testfdt_ids[] = {
+static const struct udevice_id testfdt_ids[] = {
 	{
 		.compatible = "denx,u-boot-fdt-test",
 		.data = DM_TEST_TYPE_FIRST },
@@ -75,7 +75,7 @@ U_BOOT_DRIVER(testfdt_drv) = {
 };
 
 /* From here is the testfdt uclass code */
-int testfdt_ping(struct device *dev, int pingval, int *pingret)
+int testfdt_ping(struct udevice *dev, int pingval, int *pingret)
 {
 	const struct test_ops *ops = device_get_ops(dev);
 
@@ -94,7 +94,7 @@ UCLASS_DRIVER(testfdt) = {
 static int dm_test_fdt(struct dm_test_state *dms)
 {
 	const int num_drivers = 3;
-	struct device *dev;
+	struct udevice *dev;
 	struct uclass *uc;
 	int ret;
 	int i;

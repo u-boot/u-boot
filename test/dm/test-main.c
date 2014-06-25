@@ -32,7 +32,7 @@ static int dm_test_init(struct dm_test_state *dms)
 /* Ensure all the test devices are probed */
 static int do_autoprobe(struct dm_test_state *dms)
 {
-	struct device *dev;
+	struct udevice *dev;
 	int ret;
 
 	/* Scanning the uclass is enough to probe all the devices */

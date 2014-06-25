@@ -581,8 +581,8 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			initrd_end = simple_strtoul(argv[3], NULL, 16);
 		}
 
-		fdt_chosen(working_fdt, 1);
-		fdt_initrd(working_fdt, initrd_start, initrd_end, 1);
+		fdt_chosen(working_fdt);
+		fdt_initrd(working_fdt, initrd_start, initrd_end);
 
 #if defined(CONFIG_FIT_SIGNATURE)
 	} else if (strncmp(argv[1], "che", 3) == 0) {
@@ -612,7 +612,7 @@ static int do_fdt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		}
 
 		ret = fit_config_verify(working_fdt, cfg_noffset);
-		if (ret == 1)
+		if (ret == 0)
 			return CMD_RET_SUCCESS;
 		else
 			return CMD_RET_FAILURE;

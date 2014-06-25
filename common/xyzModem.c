@@ -759,7 +759,8 @@ xyzModem_stream_terminate (bool abort, int (*getc) (void))
        * If we don't eat it now, RedBoot will think the user typed it.
        */
       ZM_DEBUG (zm_dprintf ("Trailing gunk:\n"));
-      while ((c = (*getc) ()) > -1);
+      while ((c = (*getc) ()) > -1)
+        ;
       ZM_DEBUG (zm_dprintf ("\n"));
       /*
        * Make a small delay to give terminal programs like minicom

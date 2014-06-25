@@ -56,14 +56,7 @@ static const char *reqname(unsigned r)
 }
 #endif
 
-static struct usb_endpoint_descriptor ep0_out_desc = {
-	.bLength = sizeof(struct usb_endpoint_descriptor),
-	.bDescriptorType = USB_DT_ENDPOINT,
-	.bEndpointAddress = 0,
-	.bmAttributes =	USB_ENDPOINT_XFER_CONTROL,
-};
-
-static struct usb_endpoint_descriptor ep0_in_desc = {
+static struct usb_endpoint_descriptor ep0_desc = {
 	.bLength = sizeof(struct usb_endpoint_descriptor),
 	.bDescriptorType = USB_DT_ENDPOINT,
 	.bEndpointAddress = USB_DIR_IN,
@@ -205,7 +198,13 @@ static void ci_invalidate_qtd(int ep_num)
 static struct usb_request *
 ci_ep_alloc_request(struct usb_ep *ep, unsigned int gfp_flags)
 {
+	struct ci_ep *ci_ep = container_of(ep, struct ci_ep, ep);
+	int num;
 	struct ci_req *ci_req;
+
+	num = ci_ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
+	if (num == 0 && controller.ep0_req)
+		return &controller.ep0_req->req;
 
 	ci_req = memalign(ARCH_DMA_MINALIGN, sizeof(*ci_req));
 	if (!ci_req)
@@ -214,14 +213,22 @@ ci_ep_alloc_request(struct usb_ep *ep, unsigned int gfp_flags)
 	INIT_LIST_HEAD(&ci_req->queue);
 	ci_req->b_buf = 0;
 
+	if (num == 0)
+		controller.ep0_req = ci_req;
+
 	return &ci_req->req;
 }
 
 static void ci_ep_free_request(struct usb_ep *ep, struct usb_request *req)
 {
-	struct ci_req *ci_req;
+	struct ci_ep *ci_ep = container_of(ep, struct ci_ep, ep);
+	struct ci_req *ci_req = container_of(req, struct ci_req, req);
+	int num;
 
-	ci_req = container_of(req, struct ci_req, req);
+	num = ci_ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
+	if (num == 0)
+		controller.ep0_req = 0;
+
 	if (ci_req->b_buf)
 		free(ci_req->b_buf);
 	free(ci_req);
@@ -362,17 +369,49 @@ static void ci_ep_submit_next_request(struct ci_ep *ci_ep)
 	ci_req = list_first_entry(&ci_ep->queue, struct ci_req, queue);
 	len = ci_req->req.length;
 
-	item->next = TERMINATE;
-	item->info = INFO_BYTES(len) | INFO_IOC | INFO_ACTIVE;
+	item->info = INFO_BYTES(len) | INFO_ACTIVE;
 	item->page0 = (uint32_t)ci_req->hw_buf;
 	item->page1 = ((uint32_t)ci_req->hw_buf & 0xfffff000) + 0x1000;
 	item->page2 = ((uint32_t)ci_req->hw_buf & 0xfffff000) + 0x2000;
 	item->page3 = ((uint32_t)ci_req->hw_buf & 0xfffff000) + 0x3000;
 	item->page4 = ((uint32_t)ci_req->hw_buf & 0xfffff000) + 0x4000;
-	ci_flush_qtd(num);
 
 	head->next = (unsigned) item;
 	head->info = 0;
+
+	/*
+	 * When sending the data for an IN transaction, the attached host
+	 * knows that all data for the IN is sent when one of the following
+	 * occurs:
+	 * a) A zero-length packet is transmitted.
+	 * b) A packet with length that isn't an exact multiple of the ep's
+	 *    maxpacket is transmitted.
+	 * c) Enough data is sent to exactly fill the host's maximum expected
+	 *    IN transaction size.
+	 *
+	 * One of these conditions MUST apply at the end of an IN transaction,
+	 * or the transaction will not be considered complete by the host. If
+	 * none of (a)..(c) already applies, then we must force (a) to apply
+	 * by explicitly sending an extra zero-length packet.
+	 */
+	/*  IN    !a     !b                              !c */
+	if (in && len && !(len % ci_ep->ep.maxpacket) && ci_req->req.zero) {
+		/*
+		 * Each endpoint has 2 items allocated, even though typically
+		 * only 1 is used at a time since either an IN or an OUT but
+		 * not both is queued. For an IN transaction, item currently
+		 * points at the second of these items, so we know that we
+		 * can use (item - 1) to transmit the extra zero-length packet
+		 */
+		item->next = (unsigned)(item - 1);
+		item--;
+		item->info = INFO_ACTIVE;
+	}
+
+	item->next = TERMINATE;
+	item->info |= INFO_IOC;
+
+	ci_flush_qtd(num);
 
 	DBG("ept%d %s queue len %x, req %p, buffer %p\n",
 	    num, in ? "in" : "out", len, ci_req, ci_req->hw_buf);
@@ -397,6 +436,21 @@ static int ci_ep_queue(struct usb_ep *ep,
 	num = ci_ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
 	in = (ci_ep->desc->bEndpointAddress & USB_DIR_IN) != 0;
 
+	if (!num && ci_ep->req_primed) {
+		/*
+		 * The flipping of ep0 between IN and OUT relies on
+		 * ci_ep_queue consuming the current IN/OUT setting
+		 * immediately. If this is deferred to a later point when the
+		 * req is pulled out of ci_req->queue, then the IN/OUT setting
+		 * may have been changed since the req was queued, and state
+		 * will get out of sync. This condition doesn't occur today,
+		 * but could if bugs were introduced later, and this error
+		 * check will save a lot of debugging time.
+		 */
+		printf("%s: ep0 transaction already in progress\n", __func__);
+		return -EPROTO;
+	}
+
 	ret = ci_bounce(ci_req, in);
 	if (ret)
 		return ret;
@@ -411,6 +465,17 @@ static int ci_ep_queue(struct usb_ep *ep,
 	return 0;
 }
 
+static void flip_ep0_direction(void)
+{
+	if (ep0_desc.bEndpointAddress == USB_DIR_IN) {
+		DBG("%s: Flipping ep0 ot OUT\n", __func__);
+		ep0_desc.bEndpointAddress = 0;
+	} else {
+		DBG("%s: Flipping ep0 ot IN\n", __func__);
+		ep0_desc.bEndpointAddress = USB_DIR_IN;
+	}
+}
+
 static void handle_ep_complete(struct ci_ep *ep)
 {
 	struct ept_queue_item *item;
@@ -419,8 +484,6 @@ static void handle_ep_complete(struct ci_ep *ep)
 
 	num = ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
 	in = (ep->desc->bEndpointAddress & USB_DIR_IN) != 0;
-	if (num == 0)
-		ep->desc = &ep0_out_desc;
 	item = ci_get_qtd(num, in);
 	ci_invalidate_qtd(num);
 
@@ -441,11 +504,18 @@ static void handle_ep_complete(struct ci_ep *ep)
 
 	DBG("ept%d %s req %p, complete %x\n",
 	    num, in ? "in" : "out", ci_req, len);
-	ci_req->req.complete(&ep->ep, &ci_req->req);
-	if (num == 0) {
+	if (num != 0 || controller.ep0_data_phase)
+		ci_req->req.complete(&ep->ep, &ci_req->req);
+	if (num == 0 && controller.ep0_data_phase) {
+		/*
+		 * Data Stage is complete, so flip ep0 dir for Status Stage,
+		 * which always transfers a packet in the opposite direction.
+		 */
+		DBG("%s: flip ep0 dir for Status Stage\n", __func__);
+		flip_ep0_direction();
+		controller.ep0_data_phase = false;
 		ci_req->req.length = 0;
 		usb_ep_queue(&ep->ep, &ci_req->req, 0);
-		ep->desc = &ep0_in_desc;
 	}
 }
 
@@ -463,7 +533,7 @@ static void handle_setup(void)
 	int num, in, _num, _in, i;
 	char *buf;
 
-	ci_req = list_first_entry(&ci_ep->queue, struct ci_req, queue);
+	ci_req = controller.ep0_req;
 	req = &ci_req->req;
 	head = ci_get_qh(0, 0);	/* EP0 OUT */
 
@@ -474,8 +544,26 @@ static void handle_setup(void)
 #else
 	writel(EPT_RX(0), &udc->epstat);
 #endif
-	DBG("handle setup %s, %x, %x index %x value %x\n", reqname(r.bRequest),
-	    r.bRequestType, r.bRequest, r.wIndex, r.wValue);
+	DBG("handle setup %s, %x, %x index %x value %x length %x\n",
+	    reqname(r.bRequest), r.bRequestType, r.bRequest, r.wIndex,
+	    r.wValue, r.wLength);
+
+	/* Set EP0 dir for Data Stage based on Setup Stage data */
+	if (r.bRequestType & USB_DIR_IN) {
+		DBG("%s: Set ep0 to IN for Data Stage\n", __func__);
+		ep0_desc.bEndpointAddress = USB_DIR_IN;
+	} else {
+		DBG("%s: Set ep0 to OUT for Data Stage\n", __func__);
+		ep0_desc.bEndpointAddress = 0;
+	}
+	if (r.wLength) {
+		controller.ep0_data_phase = true;
+	} else {
+		/* 0 length -> no Data Stage. Flip dir for Status Stage */
+		DBG("%s: 0 length: flip ep0 dir for Status Stage\n", __func__);
+		flip_ep0_direction();
+		controller.ep0_data_phase = false;
+	}
 
 	list_del_init(&ci_req->queue);
 	ci_ep->req_primed = false;
@@ -646,6 +734,17 @@ int usb_gadget_handle_interrupts(void)
 	return value;
 }
 
+void udc_disconnect(void)
+{
+	struct ci_udc *udc = (struct ci_udc *)controller.ctrl->hcor;
+	/* disable pullup */
+	stop_activity();
+	writel(USBCMD_FS2, &udc->usbcmd);
+	udelay(800);
+	if (controller.driver)
+		controller.driver->disconnect(&controller.gadget);
+}
+
 static int ci_pullup(struct usb_gadget *gadget, int is_on)
 {
 	struct ci_udc *udc = (struct ci_udc *)controller.ctrl->hcor;
@@ -664,25 +763,10 @@ static int ci_pullup(struct usb_gadget *gadget, int is_on)
 		/* Turn on the USB connection by enabling the pullup resistor */
 		writel(USBCMD_ITC(MICRO_8FRAME) | USBCMD_RUN, &udc->usbcmd);
 	} else {
-		stop_activity();
-		writel(USBCMD_FS2, &udc->usbcmd);
-		udelay(800);
-		if (controller.driver)
-			controller.driver->disconnect(gadget);
+		udc_disconnect();
 	}
 
 	return 0;
-}
-
-void udc_disconnect(void)
-{
-	struct ci_udc *udc = (struct ci_udc *)controller.ctrl->hcor;
-	/* disable pullup */
-	stop_activity();
-	writel(USBCMD_FS2, &udc->usbcmd);
-	udelay(800);
-	if (controller.driver)
-		controller.driver->disconnect(&controller.gadget);
 }
 
 static int ci_udc_probe(void)
@@ -756,7 +840,7 @@ static int ci_udc_probe(void)
 
 	/* Init EP 0 */
 	memcpy(&controller.ep[0].ep, &ci_ep_init[0], sizeof(*ci_ep_init));
-	controller.ep[0].desc = &ep0_in_desc;
+	controller.ep[0].desc = &ep0_desc;
 	INIT_LIST_HEAD(&controller.ep[0].queue);
 	controller.ep[0].req_primed = false;
 	controller.gadget.ep0 = &controller.ep[0].ep;
@@ -770,6 +854,13 @@ static int ci_udc_probe(void)
 		controller.ep[i].req_primed = false;
 		list_add_tail(&controller.ep[i].ep.ep_list,
 			      &controller.gadget.ep_list);
+	}
+
+	ci_ep_alloc_request(&controller.ep[0].ep, 0);
+	if (!controller.ep0_req) {
+		free(controller.items_mem);
+		free(controller.epts);
+		return -ENOMEM;
 	}
 
 	return 0;
@@ -816,5 +907,11 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 
 int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
 {
+	udc_disconnect();
+
+	ci_ep_free_request(&controller.ep[0].ep, &controller.ep0_req->req);
+	free(controller.items_mem);
+	free(controller.epts);
+
 	return 0;
 }

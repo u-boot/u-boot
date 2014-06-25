@@ -225,6 +225,32 @@ static void disable_cpc_sram(void)
 }
 #endif
 
+#if defined(T1040_TDM_QUIRK_CCSR_BASE)
+#ifdef CONFIG_POST
+#error POST memory test cannot be enabled with TDM
+#endif
+static void enable_tdm_law(void)
+{
+	int ret;
+	char buffer[HWCONFIG_BUFFER_SIZE] = {0};
+	int tdm_hwconfig_enabled = 0;
+
+	/*
+	 * Extract hwconfig from environment since environment
+	 * is not setup properly yet. Search for tdm entry in
+	 * hwconfig.
+	 */
+	ret = getenv_f("hwconfig", buffer, sizeof(buffer));
+	if (ret > 0) {
+		tdm_hwconfig_enabled = hwconfig_f("tdm", buffer);
+		/* If tdm is defined in hwconfig, set law for tdm workaround */
+		if (tdm_hwconfig_enabled)
+			set_next_law(T1040_TDM_QUIRK_CCSR_BASE, LAW_SIZE_16M,
+				     LAW_TRGT_IF_CCSR);
+	}
+}
+#endif
+
 static void enable_cpc(void)
 {
 	int i;
@@ -729,6 +755,9 @@ skip_l2:
 	disable_cpc_sram();
 #endif
 	enable_cpc();
+#if defined(T1040_TDM_QUIRK_CCSR_BASE)
+	enable_tdm_law();
+#endif
 
 #ifndef CONFIG_SYS_FSL_NO_SERDES
 	/* needs to be in ram since code uses global static vars */

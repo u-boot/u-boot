@@ -17,11 +17,11 @@
  * or GPIO blocks registered with the GPIO controller. Returns
  * entry on success, NULL on error.
  */
-static int gpio_to_device(unsigned int gpio, struct device **devp,
+static int gpio_to_device(unsigned int gpio, struct udevice **devp,
 			  unsigned int *offset)
 {
 	struct gpio_dev_priv *uc_priv;
-	struct device *dev;
+	struct udevice *dev;
 	int ret;
 
 	for (ret = uclass_first_device(UCLASS_GPIO, &dev);
@@ -40,11 +40,11 @@ static int gpio_to_device(unsigned int gpio, struct device **devp,
 	return ret ? ret : -EINVAL;
 }
 
-int gpio_lookup_name(const char *name, struct device **devp,
+int gpio_lookup_name(const char *name, struct udevice **devp,
 		     unsigned int *offsetp, unsigned int *gpiop)
 {
 	struct gpio_dev_priv *uc_priv;
-	struct device *dev;
+	struct udevice *dev;
 	int ret;
 
 	if (devp)
@@ -58,7 +58,7 @@ int gpio_lookup_name(const char *name, struct device **devp,
 		uc_priv = dev->uclass_priv;
 		len = uc_priv->bank_name ? strlen(uc_priv->bank_name) : 0;
 
-		if (!strncmp(name, uc_priv->bank_name, len)) {
+		if (!strncasecmp(name, uc_priv->bank_name, len)) {
 			if (strict_strtoul(name + len, 10, &offset))
 				continue;
 			if (devp)
@@ -86,7 +86,7 @@ int gpio_lookup_name(const char *name, struct device **devp,
 int gpio_request(unsigned gpio, const char *label)
 {
 	unsigned int offset;
-	struct device *dev;
+	struct udevice *dev;
 	int ret;
 
 	ret = gpio_to_device(gpio, &dev, &offset);
@@ -110,7 +110,7 @@ int gpio_request(unsigned gpio, const char *label)
 int gpio_free(unsigned gpio)
 {
 	unsigned int offset;
-	struct device *dev;
+	struct udevice *dev;
 	int ret;
 
 	ret = gpio_to_device(gpio, &dev, &offset);
@@ -133,7 +133,7 @@ int gpio_free(unsigned gpio)
 int gpio_direction_input(unsigned gpio)
 {
 	unsigned int offset;
-	struct device *dev;
+	struct udevice *dev;
 	int ret;
 
 	ret = gpio_to_device(gpio, &dev, &offset);
@@ -155,7 +155,7 @@ int gpio_direction_input(unsigned gpio)
 int gpio_direction_output(unsigned gpio, int value)
 {
 	unsigned int offset;
-	struct device *dev;
+	struct udevice *dev;
 	int ret;
 
 	ret = gpio_to_device(gpio, &dev, &offset);
@@ -177,7 +177,7 @@ int gpio_direction_output(unsigned gpio, int value)
 int gpio_get_value(unsigned gpio)
 {
 	unsigned int offset;
-	struct device *dev;
+	struct udevice *dev;
 	int ret;
 
 	ret = gpio_to_device(gpio, &dev, &offset);
@@ -199,7 +199,7 @@ int gpio_get_value(unsigned gpio)
 int gpio_set_value(unsigned gpio, int value)
 {
 	unsigned int offset;
-	struct device *dev;
+	struct udevice *dev;
 	int ret;
 
 	ret = gpio_to_device(gpio, &dev, &offset);
@@ -209,7 +209,7 @@ int gpio_set_value(unsigned gpio, int value)
 	return gpio_get_ops(dev)->set_value(dev, offset, value);
 }
 
-const char *gpio_get_bank_info(struct device *dev, int *bit_count)
+const char *gpio_get_bank_info(struct udevice *dev, int *bit_count)
 {
 	struct gpio_dev_priv *priv;
 
@@ -225,7 +225,7 @@ const char *gpio_get_bank_info(struct device *dev, int *bit_count)
 static int gpio_renumber(void)
 {
 	struct gpio_dev_priv *uc_priv;
-	struct device *dev;
+	struct udevice *dev;
 	struct uclass *uc;
 	unsigned base;
 	int ret;
@@ -247,12 +247,12 @@ static int gpio_renumber(void)
 	return 0;
 }
 
-static int gpio_post_probe(struct device *dev)
+static int gpio_post_probe(struct udevice *dev)
 {
 	return gpio_renumber();
 }
 
-static int gpio_pre_remove(struct device *dev)
+static int gpio_pre_remove(struct udevice *dev)
 {
 	return gpio_renumber();
 }

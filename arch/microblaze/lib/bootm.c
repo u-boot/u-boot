@@ -58,7 +58,7 @@ int do_bootm_linux(int flag, int argc, char * const argv[],
 	/* fixup the initrd now that we know where it should be */
 	if (images->rd_start && images->rd_end && of_flat_tree)
 		ret = fdt_initrd(of_flat_tree, images->rd_start,
-				 images->rd_end, 1);
+				 images->rd_end);
 		if (ret)
 			return 1;
 

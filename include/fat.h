@@ -18,7 +18,11 @@
 #define VFAT_MAXSEQ		9   /* Up to 9 of 13 2-byte UTF-16 entries */
 #define PREFETCH_BLOCKS		2
 
-#define MAX_CLUSTSIZE	65536
+#ifndef CONFIG_FS_FAT_MAX_CLUSTSIZE
+#define CONFIG_FS_FAT_MAX_CLUSTSIZE 65536
+#endif
+#define MAX_CLUSTSIZE	CONFIG_FS_FAT_MAX_CLUSTSIZE
+
 #define DIRENTSPERBLOCK	(mydata->sect_size / sizeof(dir_entry))
 #define DIRENTSPERCLUST	((mydata->clust_size * mydata->sect_size) / \
 			 sizeof(dir_entry))

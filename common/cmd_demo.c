@@ -11,7 +11,7 @@
 #include <dm-demo.h>
 #include <asm/io.h>
 
-struct device *demo_dev;
+struct udevice *demo_dev;
 
 static int do_demo_hello(cmd_tbl_t *cmdtp, int flag, int argc,
 			 char * const argv[])
@@ -41,7 +41,7 @@ static int do_demo_status(cmd_tbl_t *cmdtp, int flag, int argc,
 
 int do_demo_list(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	struct device *dev;
+	struct udevice *dev;
 	int i, ret;
 
 	puts("Demo uclass entries:\n");

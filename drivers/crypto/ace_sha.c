@@ -8,8 +8,8 @@
 #include "ace_sha.h"
 
 #ifdef CONFIG_SHA_HW_ACCEL
-#include <sha256.h>
-#include <sha1.h>
+#include <u-boot/sha256.h>
+#include <u-boot/sha1.h>
 #include <asm/errno.h>
 
 /* SHA1 value for the message of zero length */

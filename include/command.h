@@ -11,7 +11,6 @@
 #ifndef __COMMAND_H
 #define __COMMAND_H
 
-#include <config.h>
 #include <linker_lists.h>
 
 #ifndef NULL

@@ -1,6 +1,7 @@
 /*
  * (C) Copyright 2011, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>
  * (C) Copyright 2011, Julius Baxter <julius@opencores.org>
+ * (C) Copyright 2014, Franck Jullien <franck.jullien@gmail.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -40,9 +41,48 @@ __reset:
 	l.ori	r3,r0,SPR_SR_SM
 	l.mtspr	r0,r3,SPR_SR
 
+	l.jal	_cur
+	l.nop
+_cur:
+	l.ori	r8, r9, 0		/* Get _cur current address */
+
+	l.movhi	r3, hi(_cur)
+	l.ori	r3, r3, lo(_cur)
+	l.sfeq	r8, r3			/* If we are running at the linked address */
+	l.bf	_no_vector_reloc	/* there is not need for relocation */
+	 l.sub	r8, r8, r3
+
+	l.mfspr	r4, r0, SPR_CPUCFGR
+	l.andi	r4, r4, SPR_CPUCFGR_EVBARP	/* Exception Vector Base Address Register present ? */
+	l.sfnei	r4,0
+	l.bnf	_reloc_vectors
+	l.movhi	r5, 0			/* Destination */
+
+	l.mfspr	r4, r0, SPR_EVBAR
+	l.add	r5, r5, r4
+
+_reloc_vectors:
+	/* Relocate vectors*/
+	l.movhi	r5, 0			/* Destination */
+	l.movhi	r6, hi(__start)		/* Length */
+	l.ori	r6, r6, lo(__start)
+	l.ori	r3, r8, 0
+
+.L_relocvectors:
+	l.lwz	r7, 0(r3)
+	l.sw	0(r5), r7
+	l.addi	r5, r5, 4
+	l.sfeq	r5, r6
+	l.bnf	.L_relocvectors
+	 l.addi	r3, r3, 4
+
+_no_vector_reloc:
+
 	/* Relocate u-boot */
-	l.movhi	r3,hi(__start)		/* source start address */
+	l.movhi	r3,hi(__start)		/* source start offset */
 	l.ori	r3,r3,lo(__start)
+	l.add	r3,r8,r3
+
 	l.movhi	r4,hi(_stext)		/* dest start address */
 	l.ori	r4,r4,lo(_stext)
 	l.movhi	r5,hi(__end)		/* dest end address */
@@ -56,19 +96,6 @@ __reset:
 	l.bf	.L_reloc
 	 l.addi	r4,r4,4			/* delay slot */
 
-#ifdef CONFIG_SYS_RELOCATE_VECTORS
-	/* Relocate vectors from 0xf0000000 to 0x00000000 */
-	l.movhi r4, 0xf000 /* source */
-	l.movhi r5, 0      /* destination */
-	l.addi	r6, r5, CONFIG_SYS_VECTORS_LEN /* length */
-.L_relocvectors:
-	l.lwz	r7, 0(r4)
-	l.sw	0(r5), r7
-	l.addi	r5, r5, 4
-	l.sfeq	r5,r6
-	l.bnf	.L_relocvectors
-	 l.addi	r4,r4, 4
-#endif
 	l.movhi	r4,hi(_start)
 	l.ori	r4,r4,lo(_start)
 	l.jr	r4

@@ -12,7 +12,7 @@
 #include <dm-demo.h>
 #include <asm/io.h>
 
-static int simple_hello(struct device *dev, int ch)
+static int simple_hello(struct udevice *dev, int ch)
 {
 	const struct dm_demo_pdata *pdata = dev_get_platdata(dev);
 
@@ -26,13 +26,13 @@ static const struct demo_ops simple_ops = {
 	.hello = simple_hello,
 };
 
-static int demo_shape_ofdata_to_platdata(struct device *dev)
+static int demo_shape_ofdata_to_platdata(struct udevice *dev)
 {
 	/* Parse the data that is common with all demo devices */
 	return demo_parse_dt(dev);
 }
 
-static const struct device_id demo_shape_id[] = {
+static const struct udevice_id demo_shape_id[] = {
 	{ "demo-simple", 0 },
 	{ },
 };

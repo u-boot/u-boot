@@ -437,4 +437,7 @@ out:
 
 #endif	/* __mem_isa */
 #endif	/* __KERNEL__ */
+
+#include <iotrace.h>
+
 #endif	/* __ASM_ARM_IO_H */

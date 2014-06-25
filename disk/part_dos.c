@@ -21,6 +21,8 @@
 
 #ifdef HAVE_BLOCK_DEVICE
 
+#define DOS_PART_DEFAULT_SECTOR 512
+
 /* Convert char[4] in little endian format to the host format integer
  */
 static inline int le32_to_int(unsigned char *le32)
@@ -168,6 +170,7 @@ static int get_partition_info_extended (block_dev_desc_t *dev_desc, int ext_part
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
 	dos_partition_t *pt;
 	int i;
+	int dos_type;
 
 	if (dev_desc->block_read (dev_desc->dev, ext_part_sector, 1, (ulong *) buffer) != 1) {
 		printf ("** Can't read partition table on %d:%d **\n",
@@ -198,9 +201,10 @@ static int get_partition_info_extended (block_dev_desc_t *dev_desc, int ext_part
 		    (pt->sys_ind != 0) &&
 		    (part_num == which_part) &&
 		    (is_extended(pt->sys_ind) == 0)) {
-			info->blksz = 512;
-			info->start = ext_part_sector + le32_to_int (pt->start4);
-			info->size  = le32_to_int (pt->size4);
+			info->blksz = DOS_PART_DEFAULT_SECTOR;
+			info->start = (lbaint_t)(ext_part_sector +
+					le32_to_int(pt->start4));
+			info->size  = (lbaint_t)le32_to_int(pt->size4);
 			switch(dev_desc->if_type) {
 				case IF_TYPE_IDE:
 				case IF_TYPE_SATA:
@@ -252,6 +256,22 @@ static int get_partition_info_extended (block_dev_desc_t *dev_desc, int ext_part
 				 part_num, which_part, info, disksig);
 		}
 	}
+
+	/* Check for DOS PBR if no partition is found */
+	dos_type = test_block_type(buffer);
+
+	if (dos_type == DOS_PBR) {
+		info->start = 0;
+		info->size = dev_desc->lba;
+		info->blksz = DOS_PART_DEFAULT_SECTOR;
+		info->bootable = 0;
+		sprintf ((char *)info->type, "U-Boot");
+#ifdef CONFIG_PARTITION_UUIDS
+		info->uuid[0] = 0;
+#endif
+		return 0;
+	}
+
 	return -1;
 }
 

@@ -30,7 +30,7 @@ static const char * const gpio_function[] = {
 	"unknown",
 };
 
-static void show_gpio(struct device *dev, const char *bank_name, int offset)
+static void show_gpio(struct udevice *dev, const char *bank_name, int offset)
 {
 	struct dm_gpio_ops *ops = gpio_get_ops(dev);
 	char buf[80];
@@ -62,7 +62,7 @@ static void show_gpio(struct device *dev, const char *bank_name, int offset)
 
 static int do_gpio_status(const char *gpio_name)
 {
-	struct device *dev;
+	struct udevice *dev;
 	int newline = 0;
 	int ret;
 

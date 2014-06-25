@@ -78,6 +78,8 @@ SECTIONS
 		*(.__rel_dyn_end)
 	}
 
+	.hash : { *(.hash*) }
+
 	.end :
 	{
 		*(.__end)
@@ -118,7 +120,6 @@ SECTIONS
 	.dynbss : { *(.dynbss) }
 	.dynstr : { *(.dynstr*) }
 	.dynamic : { *(.dynamic*) }
-	.hash : { *(.hash*) }
 	.gnu.hash : { *(.gnu.hash) }
 	.plt : { *(.plt*) }
 	.interp : { *(.interp*) }

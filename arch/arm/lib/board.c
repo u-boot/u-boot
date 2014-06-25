@@ -277,7 +277,7 @@ void board_init_f(ulong bootflag)
 	gd->mon_len = (ulong)&__bss_end - (ulong)_start;
 #ifdef CONFIG_OF_EMBED
 	/* Get a pointer to the FDT */
-	gd->fdt_blob = __dtb_db_begin;
+	gd->fdt_blob = __dtb_dt_begin;
 #elif defined CONFIG_OF_SEPARATE
 	/* FDT is at end of image */
 	gd->fdt_blob = &_end;

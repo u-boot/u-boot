@@ -8,7 +8,6 @@
 #include <command.h>
 #include <ansi.h>
 #include <menu.h>
-#include <hush.h>
 #include <watchdog.h>
 #include <malloc.h>
 #include <linux/string.h>

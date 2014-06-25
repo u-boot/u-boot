@@ -488,6 +488,9 @@ int configure_vsc3316_3308(void)
 	}
 
 	switch (serdes2_prtcl) {
+#ifdef CONFIG_PPC_B4420
+	case 0x9d:
+#endif
 	case 0x9E:
 	case 0x9A:
 	case 0x98:
@@ -852,6 +855,9 @@ int config_serdes2_refclks(void)
 	 * For this SerDes2's Refclk1 need to be set to 100MHz
 	 */
 	switch (serdes2_prtcl) {
+#ifdef CONFIG_PPC_B4420
+	case 0x9d:
+#endif
 	case 0x9E:
 	case 0x9A:
 	case 0xb2:

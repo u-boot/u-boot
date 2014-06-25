@@ -36,7 +36,6 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 1, BOOKE_PAGESZ_4M, 1),
 
-#ifndef CONFIG_NAND_SPL
 	/* *W*G* - BCSR and NOR flash on local bus*/
 	/* This will be changed to *I*G* after relocation to RAM. */
 	SET_TLB_ENTRY(1, CONFIG_SYS_BCSR_BASE, CONFIG_SYS_BCSR_BASE_PHYS,
@@ -79,7 +78,6 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      CONFIG_SYS_QMAN_MEM_PHYS + 0x00100000,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 10, BOOKE_PAGESZ_1M, 1),
-#endif
 
 	/* *I*G - NAND */
 	SET_TLB_ENTRY(1, CONFIG_SYS_NAND_BASE, CONFIG_SYS_NAND_BASE_PHYS,

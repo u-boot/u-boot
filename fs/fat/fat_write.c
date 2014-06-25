@@ -947,7 +947,7 @@ static int do_fat_write(const char *filename, void *buffer,
 
 	total_sector = bs.total_sect;
 	if (total_sector == 0)
-		total_sector = cur_part_info.size;
+		total_sector = (int)cur_part_info.size; /* cast of lbaint_t */
 
 	if (mydata->fatsize == 32)
 		mydata->fatlength = bs.fat32_length;

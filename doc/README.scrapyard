@@ -11,15 +11,28 @@ easily if here is something they might want to dig for...
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
-lubbock          arm         pxa            -           2014-04-04  Kyle Harris <kharris@nexus-tech.net>
-MOUSSE           powerpc     mpc824x        -           2014-04-04
-rsdproto         powerpc     mpc8260        -           2014-04-04
-RPXsuper         powerpc     mpc8260        -           2014-04-04
-RPXClassic       powerpc     mpc8xx         -           2014-04-04
-RPXlite          powerpc     mpc8xx         -           2014-04-04
-genietv          powerpc     mpc8xx         -           2014-04-04
-mbx8xx           powerpc     mpc8xx         -           2014-04-04
-nx823            powerpc     mpc8xx         -           2014-04-04
+simpc8313        powerpc     mpc83xx        -           2014-04-28  Ron Madrid <info@sheldoninst.com>
+hidden_dragon    powerpc     mpc824x        3fe1a854    2014-05-30  Yusdi Santoso <yusdi_santoso@adaptec.com>
+debris           powerpc     mpc824x        7edb1f7b    2014-05-30  Sangmoon Kim <dogoil@etinsys.com>
+kvme080          powerpc     mpc824x        2868f862    2014-05-30  Sangmoon Kim <dogoil@etinsys.com>
+ep8248           powerpc     mpc8260        49ad566d    2014-05-30  Yuli Barcohen <yuli@arabellasw.com>
+ispan            powerpc     mpc8260        80bae39a    2014-05-30  Yuli Barcohen <yuli@arabellasw.com>
+rattler          powerpc     mpc8260        d0664db4    2014-05-30  Yuli Barcohen <yuli@arabellasw.com>
+zpc1900          powerpc     mpc8260        6f80bb48    2014-05-30  Yuli Barcohen <yuli@arabellasw.com>
+mpc8260ads       powerpc     mpc8260        facb6725    2014-05-30  Yuli Barcohen <yuli@arabellasw.com>
+adder            powerpc     mpc8xx         373a9788    2014-05-30  Yuli Barcohen <yuli@arabellasw.com>
+quad100hd        powerpc     ppc405ep       3569571d    2014-05-30  Gary Jennejohn <gljennjohn@googlemail.com>
+lubbock          arm         pxa            36bf57b     2014-04-18  Kyle Harris <kharris@nexus-tech.net>
+EVB64260	 powerpc     mpc824x        bb3aef9	2014-04-18
+MOUSSE           powerpc     mpc824x        03f2ecc     2014-04-18
+rsdproto         powerpc     mpc8260        8b043e6     2014-04-18
+RPXsuper         powerpc     mpc8260        0ebf5f5     2014-04-18
+RPXClassic       powerpc     mpc8xx         4fb3925     2014-04-18
+RPXlite          powerpc     mpc8xx         4fb3925     2014-04-18
+FADS		 powerpc     mpc8xx	    aa6e1e4	2014-04-18
+genietv          powerpc     mpc8xx         b8a49bd     2014-04-18
+mbx8xx           powerpc     mpc8xx         d6b11fd     2014-04-18
+nx823            powerpc     mpc8xx         a146e8b     2014-04-18
 idmr             m68k        mcf52x2        ba650e9b    2014-01-28
 M5271EVB         m68k        mcf52x2        ba650e9b    2014-01-28
 dvl_host         arm         ixp            e317de6b    2014-01-28  Michael Schwingen <michael@schwingen.org>

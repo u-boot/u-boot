@@ -16,6 +16,9 @@
 
 #endif
 
+#define CONFIG_IO_TRACE
+#define CONFIG_CMD_IOTRACE
+
 #define CONFIG_SYS_TIMER_RATE		1000000
 
 #define CONFIG_BOOTSTAGE
@@ -41,6 +44,7 @@
 #define CONFIG_RSA
 #define CONFIG_CMD_FDT
 #define CONFIG_DEFAULT_DEVICE_TREE	sandbox
+#define CONFIG_ANDROID_BOOT_IMAGE
 
 #define CONFIG_FS_FAT
 #define CONFIG_FS_EXT4

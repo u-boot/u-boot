@@ -285,7 +285,7 @@ int tps65090_init(void)
 	}
 
 	bus = i2c_get_bus_num_fdt(parent);
-	if (p->bus < 0) {
+	if (bus < 0) {
 		debug("%s: Cannot find I2C bus\n", __func__);
 		return -ENOENT;
 	}

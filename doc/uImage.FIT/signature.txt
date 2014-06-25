@@ -328,6 +328,9 @@ be enabled:
 CONFIG_FIT_SIGNATURE - enable signing and verfication in FITs
 CONFIG_RSA - enable RSA algorithm for signing
 
+WARNING: When relying on signed FIT images with required signature check
+the legacy image format is default disabled by not defining
+CONFIG_IMAGE_FORMAT_LEGACY
 
 Testing
 -------
@@ -358,6 +361,7 @@ Test Verified Boot Run: unsigned config: OK
 Sign images
 Test Verified Boot Run: signed config: OK
 check signed config on the host
+Signature check OK
 OK
 Test Verified Boot Run: signed config: OK
 Test Verified Boot Run: signed config with bad hash: OK
@@ -371,11 +375,13 @@ Test Verified Boot Run: unsigned config: OK
 Sign images
 Test Verified Boot Run: signed config: OK
 check signed config on the host
+Signature check OK
 OK
 Test Verified Boot Run: signed config: OK
 Test Verified Boot Run: signed config with bad hash: OK
 
 Test passed
+
 
 Future Work
 -----------

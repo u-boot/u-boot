@@ -21,10 +21,6 @@
 #if defined(CONFIG_MPC8272_FAMILY)
 #ifdef CONFIG_MPC8247
 #define CPU_ID_STR	"MPC8247"
-#elif defined CONFIG_MPC8248
-#define CPU_ID_STR	"MPC8248"
-#elif defined CONFIG_MPC8271
-#define CPU_ID_STR	"MPC8271"
 #else
 #define CPU_ID_STR	"MPC8272"
 #endif

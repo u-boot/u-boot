@@ -840,7 +840,7 @@ int ext4fs_write(const char *fname, unsigned char *buffer,
 	unsigned int ibmap_idx;
 	struct ext_filesystem *fs = get_fs();
 	ALLOC_CACHE_ALIGN_BUFFER(char, filename, 256);
-	memset(filename, 0x00, sizeof(filename));
+	memset(filename, 0x00, 256);
 
 	g_parent_inode = zalloc(sizeof(struct ext2_inode));
 	if (!g_parent_inode)

@@ -104,8 +104,6 @@
 #define CONFIG_USB_DEVICE
 #define CONFIG_USB_TTY
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
-/* This delay is really for slow-to-power-on USB sticks, not the hub */
-#define CONFIG_USB_HUB_MIN_POWER_ON_DELAY 500
 
 /* commands to include */
 #include <config_cmd_default.h>

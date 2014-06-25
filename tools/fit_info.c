@@ -68,7 +68,19 @@ int main(int argc, char **argv)
 			break;
 		}
 
-	ffd = mmap_fdt(cmdname, fdtfile, &fit_blob, &fsbuf, 0);
+	if (!fdtfile) {
+		fprintf(stderr, "%s: Missing fdt file\n", *argv);
+		usage(*argv);
+	}
+	if (!nodename) {
+		fprintf(stderr, "%s: Missing node name\n", *argv);
+		usage(*argv);
+	}
+	if (!propertyname) {
+		fprintf(stderr, "%s: Missing property name\n", *argv);
+		usage(*argv);
+	}
+	ffd = mmap_fdt(cmdname, fdtfile, 0, &fit_blob, &fsbuf, false);
 
 	if (ffd < 0) {
 		printf("Could not open %s\n", fdtfile);

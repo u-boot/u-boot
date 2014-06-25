@@ -18,7 +18,7 @@
 
 static struct dm_test_state *dms = &global_test_state;
 
-int test_ping(struct device *dev, int pingval, int *pingret)
+int test_ping(struct udevice *dev, int pingval, int *pingret)
 {
 	const struct test_ops *ops = device_get_ops(dev);
 
@@ -28,24 +28,25 @@ int test_ping(struct device *dev, int pingval, int *pingret)
 	return ops->ping(dev, pingval, pingret);
 }
 
-static int test_post_bind(struct device *dev)
+static int test_post_bind(struct udevice *dev)
 {
 	dm_testdrv_op_count[DM_TEST_OP_POST_BIND]++;
 
 	return 0;
 }
 
-static int test_pre_unbind(struct device *dev)
+static int test_pre_unbind(struct udevice *dev)
 {
 	dm_testdrv_op_count[DM_TEST_OP_PRE_UNBIND]++;
 
 	return 0;
 }
 
-static int test_post_probe(struct device *dev)
+static int test_post_probe(struct udevice *dev)
 {
-	struct device *prev = list_entry(dev->uclass_node.prev, struct device,
-					 uclass_node);
+	struct udevice *prev = list_entry(dev->uclass_node.prev,
+					    struct udevice, uclass_node);
+
 	struct dm_test_uclass_perdev_priv *priv = dev->uclass_priv;
 	struct uclass *uc = dev->uclass;
 
@@ -68,7 +69,7 @@ static int test_post_probe(struct device *dev)
 	return 0;
 }
 
-static int test_pre_remove(struct device *dev)
+static int test_pre_remove(struct udevice *dev)
 {
 	dm_testdrv_op_count[DM_TEST_OP_PRE_REMOVE]++;
 

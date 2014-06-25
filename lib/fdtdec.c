@@ -111,24 +111,6 @@ fdt_addr_t fdtdec_get_addr(const void *blob, int node,
 	return fdtdec_get_addr_size(blob, node, prop_name, NULL);
 }
 
-s32 fdtdec_get_int(const void *blob, int node, const char *prop_name,
-		s32 default_val)
-{
-	const s32 *cell;
-	int len;
-
-	debug("%s: %s: ", __func__, prop_name);
-	cell = fdt_getprop(blob, node, prop_name, &len);
-	if (cell && len >= sizeof(s32)) {
-		s32 val = fdt32_to_cpu(cell[0]);
-
-		debug("%#x (%d)\n", val, val);
-		return val;
-	}
-	debug("(not found)\n");
-	return default_val;
-}
-
 uint64_t fdtdec_get_uint64(const void *blob, int node, const char *prop_name,
 		uint64_t default_val)
 {
@@ -647,23 +629,5 @@ int fdtdec_read_fmap_entry(const void *blob, int node, const char *name,
 	entry->length = reg[1];
 
 	return 0;
-}
-#else
-#include "libfdt.h"
-#include "fdt_support.h"
-
-int fdtdec_get_int(const void *blob, int node, const char *prop_name,
-		int default_val)
-{
-	const int *cell;
-	int len;
-
-	cell = fdt_getprop_w((void *)blob, node, prop_name, &len);
-	if (cell && len >= sizeof(int)) {
-		int val = fdt32_to_cpu(cell[0]);
-
-		return val;
-	}
-	return default_val;
 }
 #endif

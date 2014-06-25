@@ -120,11 +120,6 @@ else
 	ln -s ${LNPREFIX}arch-${soc} asm/arch
 fi
 
-if [ "${arch}" = "arm" ] ; then
-	rm -f asm/proc
-	ln -s ${LNPREFIX}proc-armv asm/proc
-fi
-
 if [ -z "$KBUILD_SRC" ] ; then
 	cd ${srctree}/include
 fi

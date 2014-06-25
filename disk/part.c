@@ -86,7 +86,7 @@ block_dev_desc_t *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 			block_dev_desc_t *dev_desc = reloc_get_dev(dev);
 			if (!dev_desc)
 				return NULL;
-			if (hwpart == -1)
+			if (hwpart == 0 && !select_hwpart)
 				return dev_desc;
 			if (!select_hwpart)
 				return NULL;
@@ -102,7 +102,7 @@ block_dev_desc_t *get_dev_hwpart(const char *ifname, int dev, int hwpart)
 
 block_dev_desc_t *get_dev(const char *ifname, int dev)
 {
-	return get_dev_hwpart(ifname, dev, -1);
+	return get_dev_hwpart(ifname, dev, 0);
 }
 #else
 block_dev_desc_t *get_dev_hwpart(const char *ifname, int dev, int hwpart)
@@ -460,7 +460,7 @@ int get_device(const char *ifname, const char *dev_hwpart_str,
 		hwpart_str++;
 	} else {
 		dev_str = dev_hwpart_str;
-		hwpart = -1;
+		hwpart = 0;
 	}
 
 	dev = simple_strtoul(dev_str, &ep, 16);
@@ -509,6 +509,25 @@ int get_device_and_partition(const char *ifname, const char *dev_part_str,
 	int p;
 	int part;
 	disk_partition_t tmpinfo;
+
+	/*
+	 * Special-case a psuedo block device "hostfs", to allow access to the
+	 * host's own filesystem.
+	 */
+	if (0 == strcmp(ifname, "hostfs")) {
+		*dev_desc = NULL;
+		info->start = 0;
+		info->size = 0;
+		info->blksz = 0;
+		info->bootable = 0;
+		strcpy((char *)info->type, BOOT_PART_TYPE);
+		strcpy((char *)info->name, "Sandbox host");
+#ifdef CONFIG_PARTITION_UUIDS
+		info->uuid[0] = 0;
+#endif
+
+		return 0;
+	}
 
 	/* If no dev_part_str, use bootdevice environment variable */
 	if (!dev_part_str || !strlen(dev_part_str) ||

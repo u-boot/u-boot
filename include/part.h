@@ -180,6 +180,17 @@ int   test_part_amiga (block_dev_desc_t *dev_desc);
 #include <part_efi.h>
 /* disk/part_efi.c */
 int get_partition_info_efi (block_dev_desc_t * dev_desc, int part, disk_partition_t *info);
+/**
+ * get_partition_info_efi_by_name() - Find the specified GPT partition table entry
+ *
+ * @param dev_desc - block device descriptor
+ * @param gpt_name - the specified table entry name
+ * @param info - returns the disk partition info
+ *
+ * @return - '0' on match, '-1' on no match, otherwise error
+ */
+int get_partition_info_efi_by_name(block_dev_desc_t *dev_desc,
+	const char *name, disk_partition_t *info);
 void print_part_efi (block_dev_desc_t *dev_desc);
 int   test_part_efi (block_dev_desc_t *dev_desc);
 

@@ -67,7 +67,7 @@ int board_eth_init(bd_t *bis)
 	/* Register the 10G MDIO bus */
 	fm_memac_mdio_init(bis, &tgec_mdio_info);
 
-	if (srds_prtcl_s1 == 28) {
+	if ((srds_prtcl_s1 == 28) || (srds_prtcl_s1 == 27)) {
 		/* SGMII */
 		fm_info_set_phy_address(FM1_DTSEC1, SGMII_PHY_ADDR1);
 		fm_info_set_phy_address(FM1_DTSEC2, SGMII_PHY_ADDR2);

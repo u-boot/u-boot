@@ -1346,26 +1346,14 @@ void _nmask_and_or_msr(unsigned long nmask, unsigned long or_val);
 #if defined(CONFIG_8xx)
 #define _machine _MACH_8xx
 #define have_of 0
-#elif defined(CONFIG_OAK)
-#define _machine _MACH_oak
-#define have_of	0
 #elif defined(CONFIG_WALNUT)
 #define _machine _MACH_walnut
-#define have_of 0
-#elif defined(CONFIG_APUS)
-#define _machine _MACH_apus
-#define have_of 0
-#elif defined(CONFIG_GEMINI)
-#define _machine _MACH_gemini
 #define have_of 0
 #elif defined(CONFIG_MPC8260)
 #define _machine _MACH_8260
 #define have_of 0
 #elif defined(CONFIG_SANDPOINT)
 #define _machine _MACH_sandpoint
-#elif defined(CONFIG_HIDDEN_DRAGON)
-#define _machine _MACH_hidden_dragon
-#define have_of 0
 #else
 #error "Machine not defined correctly"
 #endif

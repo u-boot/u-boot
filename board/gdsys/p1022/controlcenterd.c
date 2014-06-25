@@ -221,11 +221,7 @@ void hw_watchdog_reset(void)
 #ifdef CONFIG_TRAILBLAZER
 int do_bootd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	int rcode = 0;
-
-	if (run_command(getenv("bootcmd"), flag) < 0)
-		rcode = 1;
-	return rcode;
+	return run_command(getenv("bootcmd"), flag);
 }
 
 int board_early_init_r(void)

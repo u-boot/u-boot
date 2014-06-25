@@ -991,14 +991,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	kbd_init();
 #endif
 
-#ifdef CONFIG_MODEM_SUPPORT
-	{
-		extern int do_mdm_init;
-
-		do_mdm_init = gd->do_mdm_init;
-	}
-#endif
-
 	/* Initialization complete - start the monitor */
 
 	/* main_loop() can return to retry autoboot, if so just run it again. */
