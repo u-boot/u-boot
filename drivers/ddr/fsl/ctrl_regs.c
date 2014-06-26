@@ -1857,6 +1857,9 @@ static void set_timing_cfg_8(fsl_ddr_cfg_regs_t *ddr,
 
 	acttoact_bg = picos_to_mclk(common_dimm->trrdl_ps);
 	wrtord_bg = max(4, picos_to_mclk(7500));
+	if (popts->otf_burst_chop_en)
+		wrtord_bg += 2;
+
 	pre_all_rec = 0;
 
 	ddr->timing_cfg_8 = (0
