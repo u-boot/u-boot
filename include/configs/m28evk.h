@@ -12,17 +12,25 @@
 #define MACH_TYPE_M28EVK	3613
 #define CONFIG_MACH_TYPE	MACH_TYPE_M28EVK
 
+#define CONFIG_FIT
+
+#define CONFIG_TIMESTAMP		/* Print image info with timestamp */
+
 /* U-Boot Commands */
 #define CONFIG_SYS_NO_FLASH
 #include <config_cmd_default.h>
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DOS_PARTITION
+#define CONFIG_FAT_WRITE
 
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_BMP
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_EXT4
+#define CONFIG_CMD_EXT4_WRITE
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_GREPENV
@@ -145,7 +153,7 @@
 #define	CONFIG_BMP_16BPP
 #define	CONFIG_VIDEO_BMP_RLE8
 #define	CONFIG_VIDEO_BMP_GZIP
-#define	CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(512 << 10)
+#define	CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(2 << 20)
 #endif
 
 /* Booting Linux */
