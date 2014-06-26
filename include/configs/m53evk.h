@@ -166,6 +166,7 @@
 #define CONFIG_FEC_XCV_TYPE		RMII
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_MICREL
+#define CONFIG_ETHPRIME			"FEC0"
 #endif
 
 /*
@@ -241,9 +242,10 @@
 #define CONFIG_REVISION_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_BOOTDELAY	3
-#define CONFIG_BOOTFILE		"m53evk/uImage"
+#define CONFIG_BOOTFILE		"fitImage"
 #define CONFIG_BOOTARGS		"console=ttymxc1,115200"
 #define CONFIG_LOADADDR		0x70800000
+#define CONFIG_BOOTCOMMAND	"run mmc_mmc"
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
 #define CONFIG_OF_LIBFDT
 
@@ -269,5 +271,88 @@
 #define CONFIG_SYS_NAND_PAGE_COUNT	64
 #define CONFIG_SYS_NAND_SIZE		(256 * 1024 * 1024)
 #define CONFIG_SYS_NAND_BAD_BLOCK_POS	0
+
+/*
+ * Extra Environments
+ */
+#define CONFIG_PREBOOT		"run try_bootscript"
+#define CONFIG_HOSTNAME		m53evk
+
+#define CONFIG_EXTRA_ENV_SETTINGS					\
+	"consdev=ttymxc1\0"						\
+	"baudrate=115200\0"						\
+	"bootscript=boot.scr\0"						\
+	"bootdev=/dev/mmcblk0p1\0"					\
+	"rootdev=/dev/mmcblk0p2\0"					\
+	"netdev=eth0\0"							\
+	"rootpath=/opt/eldk-5.5/armv7a-hf/rootfs-qte-sdk\0"		\
+	"kernel_addr_r=0x72000000\0"					\
+	"addcons="							\
+		"setenv bootargs ${bootargs} "				\
+		"console=${consdev},${baudrate}\0"			\
+	"addip="							\
+		"setenv bootargs ${bootargs} "				\
+		"ip=${ipaddr}:${serverip}:${gatewayip}:"		\
+			"${netmask}:${hostname}:${netdev}:off\0"	\
+	"addmisc="							\
+		"setenv bootargs ${bootargs} ${miscargs}\0"		\
+	"adddfltmtd="							\
+		"if test \"x${mtdparts}\" == \"x\" ; then "		\
+			"mtdparts default ; "				\
+		"fi\0"							\
+	"addmtd="							\
+		"run adddfltmtd ; "					\
+		"setenv bootargs ${bootargs} ${mtdparts}\0"		\
+	"addargs=run addcons addmtd addmisc\0"				\
+	"mmcload="							\
+		"mmc rescan ; "						\
+		"ext4load mmc 0:1 ${kernel_addr_r} ${bootfile}\0"	\
+	"ubiload="							\
+		"ubi part UBI ; ubifsmount ubi0:rootfs ; "		\
+		"ubifsload ${kernel_addr_r} /boot/${bootfile}\0"	\
+	"netload="							\
+		"tftp ${kernel_addr_r} ${hostname}/${bootfile}\0"	\
+	"miscargs=nohlt panic=1\0"					\
+	"mmcargs=setenv bootargs root=${rootdev} rw rootwait\0"		\
+	"ubiargs="							\
+		"setenv bootargs ubi.mtd=5 "				\
+		"root=ubi0:rootfs rootfstype=ubifs\0"			\
+	"nfsargs="							\
+		"setenv bootargs root=/dev/nfs rw "			\
+			"nfsroot=${serverip}:${rootpath},v3,tcp\0"	\
+	"mmc_mmc="							\
+		"run mmcload mmcargs addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"mmc_ubi="							\
+		"run mmcload ubiargs addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"mmc_nfs="							\
+		"run mmcload nfsargs addip addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"ubi_mmc="							\
+		"run ubiload mmcargs addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"ubi_ubi="							\
+		"run ubiload ubiargs addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"ubi_nfs="							\
+		"run ubiload nfsargs addip addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"net_mmc="							\
+		"run netload mmcargs addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"net_ubi="							\
+		"run netload ubiargs addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"net_nfs="							\
+		"run netload nfsargs addip addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"try_bootscript="						\
+		"mmc rescan;"						\
+		"if ext4load mmc 0:1 ${kernel_addr_r} ${bootscript};"	\
+		"then;"							\
+			"\techo Running bootscript...;"			\
+			"\tsource ${kernel_addr_r};"			\
+		"fi\0"
 
 #endif	/* __M53EVK_CONFIG_H__ */
