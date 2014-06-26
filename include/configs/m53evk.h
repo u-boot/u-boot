@@ -129,8 +129,8 @@
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
 #define CONFIG_ENV_SECT_SIZE		(128 * 1024)
-#define CONFIG_ENV_RANGE		(512 * 1024)
-#define CONFIG_ENV_OFFSET		0x100000
+#define CONFIG_ENV_RANGE		(4 * CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_OFFSET		(8 * CONFIG_ENV_SECT_SIZE) /* 1 MiB */
 #define CONFIG_ENV_OFFSET_REDUND	\
 		(CONFIG_ENV_OFFSET + CONFIG_ENV_RANGE)
 
@@ -144,13 +144,12 @@
 #define MTDIDS_DEFAULT			"nand0=mxc_nand"
 #define MTDPARTS_DEFAULT			\
 	"mtdparts=mxc_nand:"			\
-		"1m(bootloader)ro,"		\
-		"512k(environment),"		\
-		"512k(redundant-environment),"	\
-		"4m(kernel),"			\
-		"128k(fdt),"			\
-		"8m(ramdisk),"			\
-		"-(filesystem)"
+		"1024k(u-boot),"		\
+		"512k(env1),"			\
+		"512k(env2),"			\
+		"14m(boot),"			\
+		"240m(data),"			\
+		"-@2048k(UBI)"
 #else
 #define CONFIG_ENV_IS_NOWHERE
 #endif
