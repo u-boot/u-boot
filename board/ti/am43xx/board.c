@@ -68,6 +68,9 @@ static int read_eeprom(struct am43xx_board_id *header)
 	strncpy(am43xx_board_name, (char *)header->name, sizeof(header->name));
 	am43xx_board_name[sizeof(header->name)] = 0;
 
+	strncpy(am43xx_board_rev, (char *)header->version, sizeof(header->version));
+	am43xx_board_rev[sizeof(header->version)] = 0;
+
 	return 0;
 }
 
@@ -217,6 +220,44 @@ const struct emif_regs ddr3_emif_regs_400Mhz = {
 	.emif_rd_wr_exec_thresh		= 0x00000405
 };
 
+/* EMIF DDR3 Configurations are different for beta AM43X GP EVMs */
+const struct emif_regs ddr3_emif_regs_400Mhz_beta = {
+	.sdram_config			= 0x638413B2,
+	.ref_ctrl			= 0x00000C30,
+	.sdram_tim1			= 0xEAAAD4DB,
+	.sdram_tim2			= 0x266B7FDA,
+	.sdram_tim3			= 0x107F8678,
+	.read_idle_ctrl			= 0x00050000,
+	.zq_config			= 0x50074BE4,
+	.temp_alert_config		= 0x0,
+	.emif_ddr_phy_ctlr_1		= 0x0E004008,
+	.emif_ddr_ext_phy_ctrl_1	= 0x08020080,
+	.emif_ddr_ext_phy_ctrl_2	= 0x00000065,
+	.emif_ddr_ext_phy_ctrl_3	= 0x00000091,
+	.emif_ddr_ext_phy_ctrl_4	= 0x000000B5,
+	.emif_ddr_ext_phy_ctrl_5	= 0x000000E5,
+	.emif_rd_wr_exec_thresh		= 0x00000405
+};
+
+/* EMIF DDR3 Configurations are different for production AM43X GP EVMs */
+const struct emif_regs ddr3_emif_regs_400Mhz_production = {
+	.sdram_config			= 0x638413B2,
+	.ref_ctrl			= 0x00000C30,
+	.sdram_tim1			= 0xEAAAD4DB,
+	.sdram_tim2			= 0x266B7FDA,
+	.sdram_tim3			= 0x107F8678,
+	.read_idle_ctrl			= 0x00050000,
+	.zq_config			= 0x50074BE4,
+	.temp_alert_config		= 0x0,
+	.emif_ddr_phy_ctlr_1		= 0x0E004008,
+	.emif_ddr_ext_phy_ctrl_1	= 0x08020080,
+	.emif_ddr_ext_phy_ctrl_2	= 0x00000066,
+	.emif_ddr_ext_phy_ctrl_3	= 0x00000091,
+	.emif_ddr_ext_phy_ctrl_4	= 0x000000B9,
+	.emif_ddr_ext_phy_ctrl_5	= 0x000000E6,
+	.emif_rd_wr_exec_thresh		= 0x00000405
+};
+
 static const struct emif_regs ddr3_sk_emif_regs_400Mhz = {
 	.sdram_config			= 0x638413b2,
 	.sdram_config2			= 0x00000000,
@@ -256,6 +297,52 @@ const u32 ext_phy_ctrl_const_base_ddr3[] = {
 	0x00340034,
 	0x00340034,
 	0x00340034,
+	0x0,
+	0x0,
+	0x40000000,
+	0x08102040
+};
+
+const u32 ext_phy_ctrl_const_base_ddr3_beta[] = {
+	0x00000000,
+	0x00000045,
+	0x00000046,
+	0x00000048,
+	0x00000047,
+	0x00000000,
+	0x0000004C,
+	0x00000070,
+	0x00000085,
+	0x000000A3,
+	0x00000000,
+	0x0000000C,
+	0x00000030,
+	0x00000045,
+	0x00000063,
+	0x00000000,
+	0x0,
+	0x0,
+	0x40000000,
+	0x08102040
+};
+
+const u32 ext_phy_ctrl_const_base_ddr3_production[] = {
+	0x00000000,
+	0x00000044,
+	0x00000044,
+	0x00000046,
+	0x00000046,
+	0x00000000,
+	0x00000059,
+	0x00000077,
+	0x00000093,
+	0x000000A8,
+	0x00000000,
+	0x00000019,
+	0x00000037,
+	0x00000053,
+	0x00000068,
+	0x00000000,
 	0x0,
 	0x0,
 	0x40000000,
@@ -309,6 +396,12 @@ void emif_get_ext_phy_ctrl_const_regs(const u32 **regs, u32 *size)
 	if (board_is_eposevm()) {
 		*regs = ext_phy_ctrl_const_base_lpddr2;
 		*size = ARRAY_SIZE(ext_phy_ctrl_const_base_lpddr2);
+	} else if (board_is_evm_14_or_later()) {
+		*regs = ext_phy_ctrl_const_base_ddr3_production;
+		*size = ARRAY_SIZE(ext_phy_ctrl_const_base_ddr3_production);
+	} else if (board_is_evm_12_or_later()) {
+		*regs = ext_phy_ctrl_const_base_ddr3_beta;
+		*size = ARRAY_SIZE(ext_phy_ctrl_const_base_ddr3_beta);
 	} else if (board_is_gpevm()) {
 		*regs = ext_phy_ctrl_const_base_ddr3;
 		*size = ARRAY_SIZE(ext_phy_ctrl_const_base_ddr3);
@@ -473,6 +566,14 @@ void sdram_init(void)
 	 */
 	if (board_is_eposevm()) {
 		config_ddr(0, &ioregs_lpddr2, NULL, NULL, &emif_regs_lpddr2, 0);
+	} else if (board_is_evm_14_or_later()) {
+		enable_vtt_regulator();
+		config_ddr(0, &ioregs_ddr3, NULL, NULL,
+			   &ddr3_emif_regs_400Mhz_production, 0);
+	} else if (board_is_evm_12_or_later()) {
+		enable_vtt_regulator();
+		config_ddr(0, &ioregs_ddr3, NULL, NULL,
+			   &ddr3_emif_regs_400Mhz_beta, 0);
 	} else if (board_is_gpevm()) {
 		enable_vtt_regulator();
 		config_ddr(0, &ioregs_ddr3, NULL, NULL,
