@@ -644,9 +644,10 @@ unsigned long get_board_ddr_clk(void)
 int misc_init_r(void)
 {
 	u8 sw;
-	serdes_corenet_t *srds_regs =
-		(void *)CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
+	void *srds_base = (void *)CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
+	serdes_corenet_t *srds_regs;
 	u32 actual[MAX_SERDES];
+	u32 pllcr0, expected;
 	unsigned int i;
 
 	sw = QIXIS_READ(brdcfg[2]);
@@ -669,8 +670,9 @@ int misc_init_r(void)
 	}
 
 	for (i = 0; i < MAX_SERDES; i++) {
-		u32 pllcr0 = srds_regs->bank[i].pllcr0;
-		u32 expected = pllcr0 & SRDS_PLLCR0_RFCK_SEL_MASK;
+		srds_regs = srds_base + i * 0x1000;
+		pllcr0 = srds_regs->bank[0].pllcr0;
+		expected = pllcr0 & SRDS_PLLCR0_RFCK_SEL_MASK;
 		if (expected != actual[i]) {
 			printf("Warning: SERDES%u expects reference clock %sMHz, but actual is %sMHz\n",
 			       i + 1, serdes_clock_to_string(expected),
