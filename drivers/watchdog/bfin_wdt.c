@@ -9,6 +9,7 @@
 #include <common.h>
 #include <watchdog.h>
 #include <asm/blackfin.h>
+#include <asm/clock.h>
 #include <asm/mach-common/bits/watchdog.h>
 
 void hw_watchdog_reset(void)
