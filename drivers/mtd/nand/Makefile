@@ -68,5 +68,6 @@ else  # minimal SPL drivers
 obj-$(CONFIG_NAND_FSL_ELBC) += fsl_elbc_spl.o
 obj-$(CONFIG_NAND_FSL_IFC) += fsl_ifc_spl.o
 obj-$(CONFIG_NAND_MXC) += mxc_nand_spl.o
+obj-$(CONFIG_NAND_MXS) += mxs_nand_spl.o mxs_nand.o
 
 endif # drivers

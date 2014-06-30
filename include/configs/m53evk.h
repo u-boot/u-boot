@@ -9,6 +9,7 @@
 #define __M53EVK_CONFIG_H__
 
 #define CONFIG_MX53
+#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_MXC_GPIO
 
 #include <asm/arch/imx-regs.h>

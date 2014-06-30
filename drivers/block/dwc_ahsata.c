@@ -17,6 +17,7 @@
 #include <asm/io.h>
 #include <linux/bitops.h>
 #include <asm/arch/clock.h>
+#include <asm/arch/sys_proto.h>
 #include "dwc_ahsata.h"
 
 struct sata_port_regs {
@@ -558,6 +559,10 @@ int init_sata(int dev)
 	u32 linkmap;
 	struct ahci_probe_ent *probe_ent = NULL;
 
+#if defined(CONFIG_MX6)
+	if (!is_cpu_type(MXC_CPU_MX6Q) && !is_cpu_type(MXC_CPU_MX6D))
+		return 1;
+#endif
 	if (dev < 0 || dev > (CONFIG_SYS_SATA_MAX_DEVICE - 1)) {
 		printf("The sata index %d is out of ranges\n\r", dev);
 		return -1;
