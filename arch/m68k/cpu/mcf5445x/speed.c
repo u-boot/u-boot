@@ -115,7 +115,7 @@ void setup_5441x_clocks(void)
 	gd->cpu_clk = vco / temp;	/* cpu clock */
 	gd->arch.flb_clk = vco / temp;	/* FlexBus clock */
 	gd->arch.flb_clk >>= 1;
-	if (in_be16(ccm->misccr2) & 2)		/* fsys/4 */
+	if (in_be16(&ccm->misccr2) & 2)		/* fsys/4 */
 		gd->arch.flb_clk >>= 1;
 
 	temp = ((pdr & PLL_DR_OUTDIV2_BITS) >> 5) + 1;
