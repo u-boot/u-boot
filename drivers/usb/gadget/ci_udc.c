@@ -146,7 +146,9 @@ static struct ept_queue_head *ci_get_qh(int ep_num, int dir_in)
  */
 static struct ept_queue_item *ci_get_qtd(int ep_num, int dir_in)
 {
-	return controller.items[(ep_num * 2) + dir_in];
+	int index = (ep_num * 2) + dir_in;
+	uint8_t *imem = controller.items_mem + (index * ILIST_ENT_SZ);
+	return (struct ept_queue_item *)imem;
 }
 
 /**
@@ -790,7 +792,6 @@ static int ci_pullup(struct usb_gadget *gadget, int is_on)
 static int ci_udc_probe(void)
 {
 	struct ept_queue_head *head;
-	uint8_t *imem;
 	int i;
 
 	const int num = 2 * NUM_ENDPOINTS;
@@ -830,9 +831,6 @@ static int ci_udc_probe(void)
 				| CONFIG_ZLT;
 		head->next = TERMINATE;
 		head->info = 0;
-
-		imem = controller.items_mem + (i * ILIST_ENT_SZ);
-		controller.items[i] = (struct ept_queue_item *)imem;
 
 		if (i & 1) {
 			ci_flush_qh(i / 2);
