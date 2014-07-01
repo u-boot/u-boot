@@ -222,12 +222,11 @@ ci_ep_alloc_request(struct usb_ep *ep, unsigned int gfp_flags)
 	if (num == 0 && controller.ep0_req)
 		return &controller.ep0_req->req;
 
-	ci_req = memalign(ARCH_DMA_MINALIGN, sizeof(*ci_req));
+	ci_req = calloc(1, sizeof(*ci_req));
 	if (!ci_req)
 		return NULL;
 
 	INIT_LIST_HEAD(&ci_req->queue);
-	ci_req->b_buf = 0;
 
 	if (num == 0)
 		controller.ep0_req = ci_req;
