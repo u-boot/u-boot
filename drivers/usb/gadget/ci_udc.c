@@ -495,14 +495,14 @@ static void flip_ep0_direction(void)
 	}
 }
 
-static void handle_ep_complete(struct ci_ep *ep)
+static void handle_ep_complete(struct ci_ep *ci_ep)
 {
 	struct ept_queue_item *item;
 	int num, in, len;
 	struct ci_req *ci_req;
 
-	num = ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
-	in = (ep->desc->bEndpointAddress & USB_DIR_IN) != 0;
+	num = ci_ep->desc->bEndpointAddress & USB_ENDPOINT_NUMBER_MASK;
+	in = (ci_ep->desc->bEndpointAddress & USB_DIR_IN) != 0;
 	item = ci_get_qtd(num, in);
 	ci_invalidate_qtd(num);
 
@@ -511,12 +511,12 @@ static void handle_ep_complete(struct ci_ep *ep)
 		printf("EP%d/%s FAIL info=%x pg0=%x\n",
 		       num, in ? "in" : "out", item->info, item->page0);
 
-	ci_req = list_first_entry(&ep->queue, struct ci_req, queue);
+	ci_req = list_first_entry(&ci_ep->queue, struct ci_req, queue);
 	list_del_init(&ci_req->queue);
-	ep->req_primed = false;
+	ci_ep->req_primed = false;
 
-	if (!list_empty(&ep->queue))
-		ci_ep_submit_next_request(ep);
+	if (!list_empty(&ci_ep->queue))
+		ci_ep_submit_next_request(ci_ep);
 
 	ci_req->req.actual = ci_req->req.length - len;
 	ci_debounce(ci_req, in);
@@ -524,7 +524,7 @@ static void handle_ep_complete(struct ci_ep *ep)
 	DBG("ept%d %s req %p, complete %x\n",
 	    num, in ? "in" : "out", ci_req, len);
 	if (num != 0 || controller.ep0_data_phase)
-		ci_req->req.complete(&ep->ep, &ci_req->req);
+		ci_req->req.complete(&ci_ep->ep, &ci_req->req);
 	if (num == 0 && controller.ep0_data_phase) {
 		/*
 		 * Data Stage is complete, so flip ep0 dir for Status Stage,
@@ -534,7 +534,7 @@ static void handle_ep_complete(struct ci_ep *ep)
 		flip_ep0_direction();
 		controller.ep0_data_phase = false;
 		ci_req->req.length = 0;
-		usb_ep_queue(&ep->ep, &ci_req->req, 0);
+		usb_ep_queue(&ci_ep->ep, &ci_req->req, 0);
 	}
 }
 
