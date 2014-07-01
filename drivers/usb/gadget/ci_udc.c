@@ -404,10 +404,11 @@ static void ci_ep_submit_next_request(struct ci_ep *ci_ep)
 		 * only 1 is used at a time since either an IN or an OUT but
 		 * not both is queued. For an IN transaction, item currently
 		 * points at the second of these items, so we know that we
-		 * can use (item - 1) to transmit the extra zero-length packet
+		 * can use the other to transmit the extra zero-length packet.
 		 */
-		item->next = (unsigned)(item - 1);
-		item--;
+		struct ept_queue_item *other_item = ci_get_qtd(num, 0);
+		item->next = (unsigned)other_item;
+		item = other_item;
 		item->info = INFO_ACTIVE;
 	}
 
