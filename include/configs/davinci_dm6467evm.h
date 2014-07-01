@@ -78,6 +78,8 @@ extern unsigned int davinci_arm_clk_get(void);
 #define CONFIG_SYS_NO_FLASH
 #ifdef CONFIG_SYS_USE_NAND
 #define CONFIG_NAND_DAVINCI
+#define CONFIG_SYS_NAND_MASK_CLE	0x80000
+#define CONFIG_SYS_NAND_MASK_ALE	0x40000
 #define CONFIG_SYS_NAND_CS		2
 #undef CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_IS_IN_NAND

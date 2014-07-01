@@ -126,7 +126,7 @@
 		"if test $board_name = panda-es; then " \
 			"setenv fdtfile omap4-panda-es.dtb; fi;" \
 		"if test $board_name = duovero; then " \
-			"setenv fdtfile omap4-duovero.dtb; fi;" \
+			"setenv fdtfile omap4-duovero-parlor.dtb; fi;" \
 		"if test $fdtfile = undefined; then " \
 			"echo WARNING: Could not determine device tree to use; fi; \0" \
 	"loadfdt=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \

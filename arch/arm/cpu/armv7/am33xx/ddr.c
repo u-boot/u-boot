@@ -95,6 +95,7 @@ void config_sdram_emif4d5(const struct emif_regs *regs, int nr)
 	       &emif_reg[nr]->emif_rd_wr_exec_thresh);
 
 	writel(regs->ref_ctrl, &emif_reg[nr]->emif_sdram_ref_ctrl);
+	writel(regs->ref_ctrl, &emif_reg[nr]->emif_sdram_ref_ctrl_shdw);
 	writel(regs->sdram_config, &emif_reg[nr]->emif_sdram_config);
 	writel(regs->sdram_config, &cstat->secure_emif_sdram_config);
 

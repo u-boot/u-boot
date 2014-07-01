@@ -32,8 +32,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <nand.h>
-#include <asm/arch/nand_defs.h>
-#include <asm/arch/emif_defs.h>
+#include <asm/ti-common/davinci_nand.h>
 
 /* Definitions for 4-bit hardware ECC */
 #define NAND_TIMEOUT			10240

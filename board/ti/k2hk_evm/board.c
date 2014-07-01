@@ -16,9 +16,9 @@
 #include <asm/arch/clock.h>
 #include <asm/io.h>
 #include <asm/mach-types.h>
-#include <asm/arch/nand_defs.h>
 #include <asm/arch/emac_defs.h>
 #include <asm/arch/psc_defs.h>
+#include <asm/ti-common/ti-aemif.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -40,9 +40,9 @@ unsigned int external_clk[ext_clk_count] = {
 						what is that */
 };
 
-static struct async_emif_config async_emif_config[ASYNC_EMIF_NUM_CS] = {
+static struct aemif_config aemif_configs[] = {
 	{			/* CS0 */
-		.mode		= ASYNC_EMIF_MODE_NAND,
+		.mode		= AEMIF_MODE_NAND,
 		.wr_setup	= 0xf,
 		.wr_strobe	= 0x3f,
 		.wr_hold	= 7,
@@ -50,7 +50,7 @@ static struct async_emif_config async_emif_config[ASYNC_EMIF_NUM_CS] = {
 		.rd_strobe	= 0x3f,
 		.rd_hold	= 7,
 		.turn_around	= 3,
-		.width		= ASYNC_EMIF_8,
+		.width		= AEMIF_WIDTH_8,
 	},
 
 };
@@ -67,7 +67,7 @@ int dram_init(void)
 
 	gd->ram_size = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
 				    CONFIG_MAX_RAM_BANK_SIZE);
-	init_async_emif(ARRAY_SIZE(async_emif_config), async_emif_config);
+	aemif_init(ARRAY_SIZE(aemif_configs), aemif_configs);
 	return 0;
 }
 
