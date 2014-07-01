@@ -35,15 +35,20 @@
 #endif
 
 /*
- * Each qTD item must be 32-byte aligned, each qTD touple must be
- * cacheline aligned. There are two qTD items for each endpoint and
- * only one of them is used for the endpoint at time, so we can group
- * them together.
+ * Every QTD must be individually aligned, since we can program any
+ * QTD's address into HW. Cache flushing requires ARCH_DMA_MINALIGN,
+ * and the USB HW requires 32-byte alignment. Align to both:
  */
 #define ILIST_ALIGN		roundup(ARCH_DMA_MINALIGN, 32)
-#define ILIST_ENT_RAW_SZ	(2 * sizeof(struct ept_queue_item))
-#define ILIST_ENT_SZ		roundup(ILIST_ENT_RAW_SZ, ARCH_DMA_MINALIGN)
-#define ILIST_SZ		(NUM_ENDPOINTS * ILIST_ENT_SZ)
+/* Each QTD is this size */
+#define ILIST_ENT_RAW_SZ	sizeof(struct ept_queue_item)
+/*
+ * Align the size of the QTD too, so we can add this value to each
+ * QTD's address to get another aligned address.
+ */
+#define ILIST_ENT_SZ		roundup(ILIST_ENT_RAW_SZ, ILIST_ALIGN)
+/* For each endpoint, we need 2 QTDs, one for each of IN and OUT */
+#define ILIST_SZ		(NUM_ENDPOINTS * 2 * ILIST_ENT_SZ)
 
 #ifndef DEBUG
 #define DBG(x...) do {} while (0)
@@ -184,8 +189,7 @@ static void ci_flush_qtd(int ep_num)
 {
 	struct ept_queue_item *item = ci_get_qtd(ep_num, 0);
 	const uint32_t start = (uint32_t)item;
-	const uint32_t end_raw = start + 2 * sizeof(*item);
-	const uint32_t end = roundup(end_raw, ARCH_DMA_MINALIGN);
+	const uint32_t end = start + 2 * ILIST_ENT_SZ;
 
 	flush_dcache_range(start, end);
 }
@@ -200,8 +204,7 @@ static void ci_invalidate_qtd(int ep_num)
 {
 	struct ept_queue_item *item = ci_get_qtd(ep_num, 0);
 	const uint32_t start = (uint32_t)item;
-	const uint32_t end_raw = start + 2 * sizeof(*item);
-	const uint32_t end = roundup(end_raw, ARCH_DMA_MINALIGN);
+	const uint32_t end = start + 2 * ILIST_ENT_SZ;
 
 	invalidate_dcache_range(start, end);
 }
@@ -828,10 +831,7 @@ static int ci_udc_probe(void)
 		head->next = TERMINATE;
 		head->info = 0;
 
-		imem = controller.items_mem + ((i >> 1) * ILIST_ENT_SZ);
-		if (i & 1)
-			imem += sizeof(struct ept_queue_item);
-
+		imem = controller.items_mem + (i * ILIST_ENT_SZ);
 		controller.items[i] = (struct ept_queue_item *)imem;
 
 		if (i & 1) {
