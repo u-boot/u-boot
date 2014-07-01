@@ -834,8 +834,8 @@ static int ci_udc_probe(void)
 		controller.items[i] = (struct ept_queue_item *)imem;
 
 		if (i & 1) {
-			ci_flush_qh(i - 1);
-			ci_flush_qtd(i - 1);
+			ci_flush_qh(i / 2);
+			ci_flush_qtd(i / 2);
 		}
 	}
 
