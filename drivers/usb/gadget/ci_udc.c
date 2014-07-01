@@ -34,6 +34,17 @@
 #error This driver can not work on systems with caches longer than 128b
 #endif
 
+/*
+ * Each qTD item must be 32-byte aligned, each qTD touple must be
+ * cacheline aligned. There are two qTD items for each endpoint and
+ * only one of them is used for the endpoint at time, so we can group
+ * them together.
+ */
+#define ILIST_ALIGN		roundup(ARCH_DMA_MINALIGN, 32)
+#define ILIST_ENT_RAW_SZ	(2 * sizeof(struct ept_queue_item))
+#define ILIST_ENT_SZ		roundup(ILIST_ENT_RAW_SZ, ARCH_DMA_MINALIGN)
+#define ILIST_SZ		(NUM_ENDPOINTS * ILIST_ENT_SZ)
+
 #ifndef DEBUG
 #define DBG(x...) do {} while (0)
 #else
@@ -786,29 +797,18 @@ static int ci_udc_probe(void)
 	const int eplist_raw_sz = num * sizeof(struct ept_queue_head);
 	const int eplist_sz = roundup(eplist_raw_sz, ARCH_DMA_MINALIGN);
 
-	const int ilist_align = roundup(ARCH_DMA_MINALIGN, 32);
-	const int ilist_ent_raw_sz = 2 * sizeof(struct ept_queue_item);
-	const int ilist_ent_sz = roundup(ilist_ent_raw_sz, ARCH_DMA_MINALIGN);
-	const int ilist_sz = NUM_ENDPOINTS * ilist_ent_sz;
-
 	/* The QH list must be aligned to 4096 bytes. */
 	controller.epts = memalign(eplist_align, eplist_sz);
 	if (!controller.epts)
 		return -ENOMEM;
 	memset(controller.epts, 0, eplist_sz);
 
-	/*
-	 * Each qTD item must be 32-byte aligned, each qTD touple must be
-	 * cacheline aligned. There are two qTD items for each endpoint and
-	 * only one of them is used for the endpoint at time, so we can group
-	 * them together.
-	 */
-	controller.items_mem = memalign(ilist_align, ilist_sz);
+	controller.items_mem = memalign(ILIST_ALIGN, ILIST_SZ);
 	if (!controller.items_mem) {
 		free(controller.epts);
 		return -ENOMEM;
 	}
-	memset(controller.items_mem, 0, ilist_sz);
+	memset(controller.items_mem, 0, ILIST_SZ);
 
 	for (i = 0; i < 2 * NUM_ENDPOINTS; i++) {
 		/*
@@ -828,7 +828,7 @@ static int ci_udc_probe(void)
 		head->next = TERMINATE;
 		head->info = 0;
 
-		imem = controller.items_mem + ((i >> 1) * ilist_ent_sz);
+		imem = controller.items_mem + ((i >> 1) * ILIST_ENT_SZ);
 		if (i & 1)
 			imem += sizeof(struct ept_queue_item);
 
