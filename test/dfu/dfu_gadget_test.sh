@@ -66,6 +66,7 @@ printf "$COLOUR_GREEN===========================================================
 echo "DFU EP0 transmission test program"
 echo "Trouble shoot -> disable DBG (even the KERN_DEBUG) in the UDC driver"
 echo "@ -> TRATS2 # dfu 0 mmc 0"
+cleanup
 mkdir -p $DIR$RCV_DIR
 touch $LOG_FILE
 
