@@ -332,7 +332,7 @@ int dfu_read(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 		case DFU_RAM_ADDR:
 			break;
 		default:
-			if (dfu->r_left >= dfu_buf_size) {
+			if (dfu->r_left > dfu_buf_size) {
 				printf("%s: File too big for buffer\n",
 				       __func__);
 				return -EOVERFLOW;
