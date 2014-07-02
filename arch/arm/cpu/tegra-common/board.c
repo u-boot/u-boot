@@ -27,11 +27,12 @@ enum {
 	UART_COUNT = 5,
 };
 
+#if defined(CONFIG_TEGRA20) || defined(CONFIG_TEGRA30) || \
+	defined(CONFIG_TEGRA114)
 /*
  * Boot ROM initializes the odmdata in APBDEV_PMC_SCRATCH20_0,
  * so we are using this value to identify memory size.
  */
-
 unsigned int query_sdram_size(void)
 {
 	struct pmc_ctlr *const pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
@@ -72,6 +73,21 @@ unsigned int query_sdram_size(void)
 	}
 #endif
 }
+#else
+#include <asm/arch/mc.h>
+
+/* Read the RAM size directly from the memory controller */
+unsigned int query_sdram_size(void)
+{
+	struct mc_ctlr *const mc = (struct mc_ctlr *)NV_PA_MC_BASE;
+	u32 size_mb;
+
+	size_mb = readl(&mc->mc_emem_cfg);
+	debug("mc->mc_emem_cfg (MEM_SIZE_MB) = 0x%08x\n", size_mb);
+
+	return size_mb * 1024 * 1024;
+}
+#endif
 
 int dram_init(void)
 {
