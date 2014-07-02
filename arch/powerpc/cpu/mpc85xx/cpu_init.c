@@ -520,7 +520,8 @@ int enable_cluster_l2(void)
 			u32 idx = (cluster >> (j*8)) & TP_CLUSTER_INIT_MASK;
 			u32 type = in_be32(&gur->tp_ityp[idx]);
 
-			if (type & TP_ITYP_AV)
+			if ((type & TP_ITYP_AV) &&
+			    TP_ITYP_TYPE(type) == TP_ITYP_TYPE_PPC)
 				cluster_valid = 1;
 		}
 
