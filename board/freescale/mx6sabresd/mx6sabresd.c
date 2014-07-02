@@ -12,6 +12,7 @@
 #include <asm/arch/mx6-pins.h>
 #include <asm/errno.h>
 #include <asm/gpio.h>
+#include <asm/imx-common/mxc_i2c.h>
 #include <asm/imx-common/iomux-v3.h>
 #include <asm/imx-common/boot_mode.h>
 #include <asm/imx-common/video.h>
@@ -23,6 +24,9 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
+#include <i2c.h>
+#include <power/pmic.h>
+#include <power/pfuze100_pmic.h>
 DECLARE_GLOBAL_DATA_PTR;
 
 #define UART_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
@@ -38,6 +42,14 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define SPI_PAD_CTRL (PAD_CTL_HYS | PAD_CTL_SPEED_MED | \
 		      PAD_CTL_DSE_40ohm | PAD_CTL_SRE_FAST)
+
+#define I2C_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
+	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS |	\
+	PAD_CTL_ODE | PAD_CTL_SRE_FAST)
+
+#define I2C_PMIC	1
+
+#define I2C_PAD MUX_PAD_CTRL(I2C_PAD_CTRL)
 
 int dram_init(void)
 {
@@ -127,6 +139,19 @@ iomux_v3_cfg_t const ecspi1_pads[] = {
 	MX6_PAD_KEY_COL1__ECSPI1_MISO | MUX_PAD_CTRL(SPI_PAD_CTRL),
 	MX6_PAD_KEY_ROW0__ECSPI1_MOSI | MUX_PAD_CTRL(SPI_PAD_CTRL),
 	MX6_PAD_KEY_ROW1__GPIO4_IO09 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+static struct i2c_pads_info i2c_pad_info1 = {
+	.scl = {
+		.i2c_mode = MX6_PAD_KEY_COL3__I2C2_SCL | I2C_PAD,
+		.gpio_mode = MX6_PAD_KEY_COL3__GPIO4_IO12 | I2C_PAD,
+		.gp = IMX_GPIO_NR(4, 12)
+	},
+	.sda = {
+		.i2c_mode = MX6_PAD_KEY_ROW3__I2C2_SDA | I2C_PAD,
+		.gpio_mode = MX6_PAD_KEY_ROW3__GPIO4_IO13 | I2C_PAD,
+		.gp = IMX_GPIO_NR(4, 13)
+	}
 };
 
 static void setup_spi(void)
@@ -426,6 +451,64 @@ int board_init(void)
 #ifdef CONFIG_MXC_SPI
 	setup_spi();
 #endif
+	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+
+	return 0;
+}
+
+static int pfuze_init(void)
+{
+	struct pmic *p;
+	int ret;
+	unsigned int reg;
+
+	ret = power_pfuze100_init(I2C_PMIC);
+	if (ret)
+		return ret;
+
+	p = pmic_get("PFUZE100_PMIC");
+	ret = pmic_probe(p);
+	if (ret)
+		return ret;
+
+	pmic_reg_read(p, PFUZE100_DEVICEID, &reg);
+	printf("PMIC:  PFUZE100 ID=0x%02x\n", reg);
+
+	/* Increase VGEN3 from 2.5 to 2.8V */
+	pmic_reg_read(p, PFUZE100_VGEN3VOL, &reg);
+	reg &= ~0xf;
+	reg |= 0xa;
+	pmic_reg_write(p, PFUZE100_VGEN3VOL, reg);
+
+	/* Increase VGEN5 from 2.8 to 3V */
+	pmic_reg_read(p, PFUZE100_VGEN5VOL, &reg);
+	reg &= ~0xf;
+	reg |= 0xc;
+	pmic_reg_write(p, PFUZE100_VGEN5VOL, reg);
+
+	/* Set SW1AB stanby volage to 0.975V */
+	pmic_reg_read(p, PFUZE100_SW1ABSTBY, &reg);
+	reg &= ~0x3f;
+	reg |= 0x1b;
+	pmic_reg_write(p, PFUZE100_SW1ABSTBY, reg);
+
+	/* Set SW1AB/VDDARM step ramp up time from 16us to 4us/25mV */
+	pmic_reg_read(p, PUZE_100_SW1ABCONF, &reg);
+	reg &= ~0xc0;
+	reg |= 0x40;
+	pmic_reg_write(p, PUZE_100_SW1ABCONF, reg);
+
+	/* Set SW1C standby voltage to 0.975V */
+	pmic_reg_read(p, PFUZE100_SW1CSTBY, &reg);
+	reg &= ~0x3f;
+	reg |= 0x1b;
+	pmic_reg_write(p, PFUZE100_SW1CSTBY, reg);
+
+	/* Set SW1C/VDDSOC step ramp up time from 16us to 4us/25mV */
+	pmic_reg_read(p, PFUZE100_SW1CCONF, &reg);
+	reg &= ~0xc0;
+	reg |= 0x40;
+	pmic_reg_write(p, PFUZE100_SW1CCONF, reg);
 
 	return 0;
 }
@@ -446,6 +529,7 @@ int board_late_init(void)
 #ifdef CONFIG_CMD_BMODE
 	add_board_boot_modes(board_boot_modes);
 #endif
+	pfuze_init();
 
 	return 0;
 }

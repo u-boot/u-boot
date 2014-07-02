@@ -19,7 +19,7 @@
 #include <net.h>
 #include <netdev.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/emif_defs.h>
+#include <asm/ti-common/davinci_nand.h>
 #include <asm/arch/emac_defs.h>
 #include <asm/io.h>
 #include <asm/arch/davinci_misc.h>

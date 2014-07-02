@@ -11,7 +11,9 @@
 #include <asm/imx-common/regs-common.h>
 #include "../arch-imx/cpu.h"
 
-#define is_soc_rev(rev)	((get_cpu_rev() & 0xFF) - rev)
+#define soc_rev() (get_cpu_rev() & 0xFF)
+#define is_soc_rev(rev)        (soc_rev() - rev)
+
 u32 get_cpu_rev(void);
 
 /* returns MXC_CPU_ value */

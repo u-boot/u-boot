@@ -15,7 +15,7 @@
 #include <asm/arch/tegra.h>
 #include <asm/arch-tegra/apb_misc.h>
 #include <asm/arch-tegra/board.h>
-#include <asm/arch/spl.h>
+#include <asm/spl.h>
 #include "cpu.h"
 
 void spl_board_init(void)

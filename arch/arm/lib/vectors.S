@@ -43,8 +43,6 @@
  *************************************************************************
  */
 
-_start:
-
 #ifdef CONFIG_SYS_DV_NOR_BOOT_CFG
 	.word	CONFIG_SYS_DV_NOR_BOOT_CFG
 #endif

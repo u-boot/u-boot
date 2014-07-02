@@ -20,7 +20,7 @@
 #include <linux/sizes.h>
 
 #define CONFIG_MXC_UART_BASE		UART2_BASE
-#define CONFIG_CONSOLE_DEV		"ttymxc0"
+#define CONFIG_CONSOLE_DEV		"ttymxc1"
 #define CONFIG_MMCROOT			"/dev/mmcblk1p2"
 
 #define PHYS_SDRAM_SIZE		(1u * 1024 * 1024 * 1024)
@@ -293,7 +293,7 @@
 
 #if defined(CONFIG_ENV_IS_IN_MMC)
 /* RiOTboard */
-#define CONFIG_DEFAULT_FDT_FILE	"imx6s-riotboard.dtb"
+#define CONFIG_DEFAULT_FDT_FILE	"imx6dl-riotboard.dtb"
 #define CONFIG_SYS_FSL_USDHC_NUM	3
 #define CONFIG_SYS_MMC_ENV_DEV		2	/* SDHC4 */
 #define CONFIG_ENV_OFFSET		(6 * 64 * 1024)

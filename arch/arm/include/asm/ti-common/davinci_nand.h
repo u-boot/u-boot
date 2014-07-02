@@ -1,23 +1,45 @@
 /*
- * emif definitions to re-use davinci emif driver on Keystone2
+ * NAND Flash Driver
  *
- * (C) Copyright 2012-2014
- *     Texas Instruments Incorporated, <www.ti.com>
- * (C) Copyright 2007 Sergey Kubushyn <ksi@koi8.net>
+ * Copyright (C) 2006-2014 Texas Instruments.
  *
- * SPDX-License-Identifier:     GPL-2.0+
+ * Based on Linux DaVinci NAND driver by TI.
  */
-#ifndef _EMIF_DEFS_H_
-#define _EMIF_DEFS_H_
 
+#ifndef _DAVINCI_NAND_H_
+#define _DAVINCI_NAND_H_
+
+#include <linux/mtd/nand.h>
 #include <asm/arch/hardware.h>
+
+#define NAND_READ_START  	0x00
+#define NAND_READ_END    	0x30
+#define NAND_STATUS      	0x70
+
+#define MASK_CLE		0x10
+#define MASK_ALE		0x08
+
+#ifdef CONFIG_SYS_NAND_MASK_CLE
+#undef MASK_CLE
+#define MASK_CLE CONFIG_SYS_NAND_MASK_CLE
+#endif
+#ifdef CONFIG_SYS_NAND_MASK_ALE
+#undef MASK_ALE
+#define MASK_ALE CONFIG_SYS_NAND_MASK_ALE
+#endif
 
 struct davinci_emif_regs {
 	uint32_t	ercsr;
 	uint32_t	awccr;
 	uint32_t	sdbcr;
 	uint32_t	sdrcr;
-	uint32_t	abncr[4];
+	union {
+		uint32_t abncr[4];
+		uint32_t ab1cr;
+		uint32_t ab2cr;
+		uint32_t ab3cr;
+		uint32_t ab4cr;
+	};
 	uint32_t	sdtimr;
 	uint32_t	ddrsr;
 	uint32_t	ddrphycr;
@@ -56,18 +78,21 @@ struct davinci_emif_regs {
 #define DAVINCI_NANDFCR_1BIT_ECC_START(n)		(1 << (8 + ((n) - 2)))
 #define DAVINCI_NANDFCR_4BIT_ECC_START			(1 << 12)
 #define DAVINCI_NANDFCR_4BIT_CALC_START			(1 << 13)
+#define DAVINCI_NANDFCR_CS2NAND				(1 << 0)
 
 /* Chip Select setup */
 #define DAVINCI_ABCR_STROBE_SELECT			(1 << 31)
 #define DAVINCI_ABCR_EXT_WAIT				(1 << 30)
-#define DAVINCI_ABCR_WSETUP(n)				((n) << 26)
-#define DAVINCI_ABCR_WSTROBE(n)				((n) << 20)
-#define DAVINCI_ABCR_WHOLD(n)				((n) << 17)
-#define DAVINCI_ABCR_RSETUP(n)				((n) << 13)
-#define DAVINCI_ABCR_RSTROBE(n)				((n) << 7)
-#define DAVINCI_ABCR_RHOLD(n)				((n) << 4)
-#define DAVINCI_ABCR_TA(n)				((n) << 2)
+#define DAVINCI_ABCR_WSETUP(n)				(n << 26)
+#define DAVINCI_ABCR_WSTROBE(n)				(n << 20)
+#define DAVINCI_ABCR_WHOLD(n)				(n << 17)
+#define DAVINCI_ABCR_RSETUP(n)				(n << 13)
+#define DAVINCI_ABCR_RSTROBE(n)				(n << 7)
+#define DAVINCI_ABCR_RHOLD(n)				(n << 4)
+#define DAVINCI_ABCR_TA(n)				(n << 2)
 #define DAVINCI_ABCR_ASIZE_16BIT			1
 #define DAVINCI_ABCR_ASIZE_8BIT				0
+
+void davinci_nand_init(struct nand_chip *nand);
 
 #endif

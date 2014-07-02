@@ -6,7 +6,7 @@
  */
 
 #ifndef _TEGRA_COMMON_UMS_H_
-#define _TEGRA_COMMON_UMS_H
+#define _TEGRA_COMMON_UMS_H_
 
 #ifndef CONFIG_SPL_BUILD
 /* USB gadget, and mass storage protocol */

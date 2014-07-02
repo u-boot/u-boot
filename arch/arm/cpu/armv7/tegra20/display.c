@@ -328,7 +328,7 @@ static int tegra_display_decode_config(const void *blob,
 	rgb = fdt_subnode_offset(blob, node, "rgb");
 
 	config->panel_node = fdtdec_lookup_phandle(blob, rgb, "nvidia,panel");
-	if (!config->panel_node < 0) {
+	if (config->panel_node < 0) {
 		debug("%s: Cannot find panel information\n", __func__);
 		return -1;
 	}

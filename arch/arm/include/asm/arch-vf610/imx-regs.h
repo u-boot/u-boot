@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Freescale Semiconductor, Inc.
+ * Copyright 2013-2014 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -86,6 +86,8 @@
 #define ESDHC1_BASE_ADDR	(AIPS1_BASE_ADDR + 0x00032000)
 #define ENET_BASE_ADDR		(AIPS1_BASE_ADDR + 0x00050000)
 #define ENET1_BASE_ADDR		(AIPS1_BASE_ADDR + 0x00051000)
+
+#define QSPI0_AMBA_BASE		0x20000000
 
 /* MUX mode and PAD ctrl are in one register */
 #define CONFIG_IOMUX_SHARE_CONF_REG

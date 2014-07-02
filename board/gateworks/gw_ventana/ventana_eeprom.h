@@ -103,4 +103,15 @@ enum {
 	EECONFIG_RES15,
 };
 
+enum {
+	GW54proto, /* original GW5400-A prototype */
+	GW51xx,
+	GW52xx,
+	GW53xx,
+	GW54xx,
+	GW_UNKNOWN,
+};
+
+int read_eeprom(int bus, struct ventana_board_info *);
+
 #endif

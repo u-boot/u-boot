@@ -16,7 +16,7 @@
 #include <netdev.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/nand_defs.h>
+#include <asm/ti-common/davinci_nand.h>
 #include <asm/arch/davinci_misc.h>
 #ifdef CONFIG_DAVINCI_MMC
 #include <mmc.h>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Freescale Semiconductor, Inc.
+ * Copyright 2013-2014 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -150,6 +150,9 @@ struct anadig_reg {
 #define CCM_CACRR_ARM_CLK_DIV_MASK		0x7
 #define CCM_CACRR_ARM_CLK_DIV(v)		((v) & 0x7)
 
+#define CCM_CSCMR1_QSPI0_CLK_SEL_OFFSET		22
+#define CCM_CSCMR1_QSPI0_CLK_SEL_MASK		(0x3 << 22)
+#define CCM_CSCMR1_QSPI0_CLK_SEL(v)		(((v) & 0x3) << 22)
 #define CCM_CSCMR1_ESDHC1_CLK_SEL_OFFSET	18
 #define CCM_CSCMR1_ESDHC1_CLK_SEL_MASK		(0x3 << 18)
 #define CCM_CSCMR1_ESDHC1_CLK_SEL(v)		(((v) & 0x3) << 18)
@@ -161,6 +164,11 @@ struct anadig_reg {
 #define CCM_CSCDR2_ESDHC1_CLK_DIV_MASK		(0xf << 20)
 #define CCM_CSCDR2_ESDHC1_CLK_DIV(v)		(((v) & 0xf) << 20)
 
+#define CCM_CSCDR3_QSPI0_EN			(1 << 4)
+#define CCM_CSCDR3_QSPI0_DIV(v)			((v) << 3)
+#define CCM_CSCDR3_QSPI0_X2_DIV(v)		((v) << 2)
+#define CCM_CSCDR3_QSPI0_X4_DIV(v)		((v) & 0x3)
+
 #define CCM_CSCMR2_RMII_CLK_SEL_OFFSET		4
 #define CCM_CSCMR2_RMII_CLK_SEL_MASK		(0x3 << 4)
 #define CCM_CSCMR2_RMII_CLK_SEL(v)		(((v) & 0x3) << 4)
@@ -170,6 +178,7 @@ struct anadig_reg {
 #define CCM_CCGR0_UART1_CTRL_MASK		(0x3 << 16)
 #define CCM_CCGR1_PIT_CTRL_MASK			(0x3 << 14)
 #define CCM_CCGR1_WDOGA5_CTRL_MASK		(0x3 << 28)
+#define CCM_CCGR2_QSPI0_CTRL_MASK		(0x3 << 8)
 #define CCM_CCGR2_IOMUXC_CTRL_MASK		(0x3 << 16)
 #define CCM_CCGR2_PORTA_CTRL_MASK		(0x3 << 18)
 #define CCM_CCGR2_PORTB_CTRL_MASK		(0x3 << 20)

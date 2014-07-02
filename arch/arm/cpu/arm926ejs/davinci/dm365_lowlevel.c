@@ -11,6 +11,7 @@
 #include <nand.h>
 #include <ns16550.h>
 #include <post.h>
+#include <asm/ti-common/davinci_nand.h>
 #include <asm/arch/dm365_lowlevel.h>
 #include <asm/arch/hardware.h>
 

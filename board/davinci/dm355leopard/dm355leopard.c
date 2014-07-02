@@ -9,7 +9,7 @@
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/gpio.h>
-#include <asm/arch/nand_defs.h>
+#include <asm/ti-common/davinci_nand.h>
 #include <asm/arch/davinci_misc.h>
 #include <net.h>
 #include <netdev.h>
