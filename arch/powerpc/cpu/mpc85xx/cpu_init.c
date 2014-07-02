@@ -254,12 +254,36 @@ static void enable_tdm_law(void)
 void enable_cpc(void)
 {
 	int i;
+	int ret;
 	u32 size = 0;
-
+	u32 cpccfg0;
+	char buffer[HWCONFIG_BUFFER_SIZE];
+	char cpc_subarg[16];
+	bool have_hwconfig = false;
+	int cpc_args = 0;
 	cpc_corenet_t *cpc = (cpc_corenet_t *)CONFIG_SYS_FSL_CPC_ADDR;
 
+	/* Extract hwconfig from environment */
+	ret = getenv_f("hwconfig", buffer, sizeof(buffer));
+	if (ret > 0) {
+		/*
+		 * If "en_cpc" is not defined in hwconfig then by default all
+		 * cpcs are enable. If this config is defined then individual
+		 * cpcs which have to be enabled should also be defined.
+		 * e.g en_cpc:cpc1,cpc2;
+		 */
+		if (hwconfig_f("en_cpc", buffer))
+			have_hwconfig = true;
+	}
+
 	for (i = 0; i < CONFIG_SYS_NUM_CPC; i++, cpc++) {
-		u32 cpccfg0 = in_be32(&cpc->cpccfg0);
+		if (have_hwconfig) {
+			sprintf(cpc_subarg, "cpc%u", i + 1);
+			cpc_args = hwconfig_sub_f("en_cpc", cpc_subarg, buffer);
+			if (cpc_args == 0)
+				continue;
+		}
+		cpccfg0 = in_be32(&cpc->cpccfg0);
 		size += CPC_CFG0_SZ_K(cpccfg0);
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_CPC_A002
