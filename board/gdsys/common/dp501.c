@@ -54,6 +54,7 @@ static void dp501_link_training(u8 addr)
 void dp501_powerup(u8 addr)
 {
 	dp501_clrbits(addr, 0x0a, 0x30); /* power on encoder */
+	dp501_setbits(addr, 0x0a, 0x0e); /* block HDCP and MCCS on I2C bride*/
 	i2c_reg_write(addr, 0x27, 0x30); /* Hardware auto detect DVO timing */
 	dp501_setbits(addr, 0x72, 0x80); /* DPCD read enable */
 	dp501_setbits(addr, 0x30, 0x20); /* RS polynomial select */
