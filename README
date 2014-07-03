@@ -3269,6 +3269,11 @@ FIT uImage format:
 		disabled. If a board need legacy image format support
 		enable this through CONFIG_IMAGE_FORMAT_LEGACY
 
+		CONFIG_FIT_DISABLE_SHA256
+		Supporting SHA256 hashes has quite an impact on binary size.
+		For constrained systems sha256 hash support can be disabled
+		with this option.
+
 - Standalone program support:
 		CONFIG_STANDALONE_LOAD_ADDR
 
