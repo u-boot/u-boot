@@ -61,6 +61,7 @@ void dp501_powerup(u8 addr)
 	i2c_reg_write(addr, 0x71, 0x20); /* Enable Aux burst write */
 	dp501_setbits(addr, 0x78, 0x30); /* Disable HPD2 IRQ */
 	dp501_clrbits(addr, 0x2f, 0x40); /* Link FIFO reset selection */
+	dp501_clrbits(addr, 0x60, 0x20); /* Enable scrambling */
 
 #ifdef CONFIG_SYS_DP501_VCAPCTRL0
 	i2c_reg_write(addr, 0x24, CONFIG_SYS_DP501_VCAPCTRL0);
