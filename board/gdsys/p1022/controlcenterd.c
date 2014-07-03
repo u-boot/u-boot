@@ -382,9 +382,9 @@ static void hydra_initialize(void)
 		fpga = pci_map_bar(devno, PCI_BASE_ADDRESS_0,
 			PCI_REGION_MEM);
 
-		versions = readl(fpga->versions);
-		fpga_version = readl(fpga->fpga_version);
-		fpga_features = readl(fpga->fpga_features);
+		versions = readl(&fpga->versions);
+		fpga_version = readl(&fpga->fpga_version);
+		fpga_features = readl(&fpga->fpga_features);
 
 		hardware_version = versions & 0xf;
 		feature_uart_channels = (fpga_features >> 6) & 0x1f;
