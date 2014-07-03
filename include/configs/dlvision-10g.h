@@ -64,9 +64,14 @@
 /*
  * Commands additional to the ones defined in amcc-common.h
  */
-#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DTT
+#undef CONFIG_CMD_DHCP
+#undef CONFIG_CMD_DIAG
 #undef CONFIG_CMD_EEPROM
+#undef CONFIG_CMD_ELF
+#undef CONFIG_CMD_I2C
+#undef CONFIG_CMD_IRQ
+#undef CONFIG_CMD_NFS
 
 /*
  * SDRAM configuration (please see cpu/ppc/sdram.[ch])
