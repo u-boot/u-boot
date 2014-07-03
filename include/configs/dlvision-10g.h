@@ -97,7 +97,10 @@
 /*
  * I2C stuff
  */
+#define CONFIG_SYS_I2C_PPC4XX
+#define CONFIG_SYS_I2C_PPC4XX_CH0
 #define CONFIG_SYS_I2C_PPC4XX_SPEED_0		100000
+#define CONFIG_SYS_I2C_PPC4XX_SLAVE_0		0x7F
 
 #define CONFIG_SYS_I2C_IHS
 #define CONFIG_SYS_I2C_IHS_CH0
@@ -117,6 +120,11 @@
 		{ { 46, 10 }, { 48, 14 }, { 50, 19 }, { 52, 23 },\
 		  { 54, 27 }, { 56, 31 }, { 58, 36 }, { 60, 40 } }
 #define CONFIG_DTT_TACH_LIMIT	0xa10
+
+#define CONFIG_SYS_ICS8N3QV01
+#define CONFIG_SYS_ICS8N3QV01_I2C	{0, 1}
+#define CONFIG_SYS_SIL1178
+#define CONFIG_SYS_SIL1178_I2C		{0, 1}
 
 /* EBC peripherals */
 
@@ -317,9 +325,7 @@
 /*
  * OSD Setup
  */
-#define CONFIG_SYS_ICS8N3QV01
 #define CONFIG_SYS_MPC92469AC
-#define CONFIG_SYS_SIL1178
 #define CONFIG_SYS_OSD_SCREENS		CONFIG_SYS_FPGA_COUNT
 
 #endif	/* __CONFIG_H */
