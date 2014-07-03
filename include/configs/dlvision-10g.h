@@ -99,7 +99,18 @@
  */
 #define CONFIG_SYS_I2C_PPC4XX_SPEED_0		100000
 
+#define CONFIG_SYS_I2C_IHS
+#define CONFIG_SYS_I2C_IHS_CH0
+#define CONFIG_SYS_I2C_IHS_SPEED_0		50000
+#define CONFIG_SYS_I2C_IHS_SLAVE_0		0x7F
+#define CONFIG_SYS_I2C_IHS_CH1
+#define CONFIG_SYS_I2C_IHS_SPEED_1		50000
+#define CONFIG_SYS_I2C_IHS_SLAVE_1		0x7F
+
+#define CONFIG_SYS_SPD_BUS_NUM		2
+
 /* Temp sensor/hwmon/dtt */
+#define CONFIG_SYS_DTT_BUS_NUM	2
 #define CONFIG_DTT_LM63		1	/* National LM63	*/
 #define CONFIG_DTT_SENSORS	{ 0x4c, 0x4e, 0x18 } /* Sensor addresses */
 #define CONFIG_DTT_PWM_LOOKUPTABLE	\
