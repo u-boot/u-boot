@@ -377,13 +377,9 @@ int last_stage_init(void)
 	if (!legacy) {
 		/* Turn on Parade DP501 */
 		pca9698_direction_output(0x20, 9, 1);
-		udelay(500000);
 
 		ch0_rgmii2_present = !pca9698_get_value(0x20, 30);
 	}
-
-	print_fpga_info(0, ch0_rgmii2_present);
-	osd_probe(0);
 
 	/* wait for FPGA done */
 	for (k = 0; k < ARRAY_SIZE(mclink_controllers); ++k) {
@@ -413,12 +409,15 @@ int last_stage_init(void)
 		}
 	}
 
-	/* wait for slave-PLLs to be up and running */
+	/* give slave-PLLs and Parade DP501 some time to be up and running */
 	udelay(500000);
 
 	mclink_fpgacount = CONFIG_SYS_MCLINK_MAX;
 	slaves = mclink_probe();
 	mclink_fpgacount = 0;
+
+	print_fpga_info(0, ch0_rgmii2_present);
+	osd_probe(0);
 
 	if (slaves <= 0)
 		return 0;
