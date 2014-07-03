@@ -167,11 +167,6 @@ int fpga_gpio_get(unsigned int bus, int pin);
 #define I2C_DELAY	udelay(25)	/* 1/4 I2C clock duration */
 
 /*
- * OSD hardware
- */
-#define CONFIG_SYS_MPC92469AC
-
-/*
  * FLASH organization
  */
 #define CONFIG_SYS_FLASH_CFI		/* The flash is CFI compatible	*/
@@ -298,7 +293,6 @@ int fpga_gpio_get(unsigned int bus, int pin);
 /*
  * OSD Setup
  */
-#define CONFIG_SYS_ICS8N3QV01
 #define CONFIG_SYS_MPC92469AC
 #define CONFIG_SYS_OSD_SCREENS		1
 #define CONFIG_SYS_DP501_DIFFERENTIAL

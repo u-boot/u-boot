@@ -9,6 +9,7 @@
 #include <i2c.h>
 #include <malloc.h>
 
+#include "dp501.h"
 #include <gdsys_fpga.h>
 
 #define CH7301_I2C_ADDR 0x75
@@ -23,6 +24,8 @@
 
 #define SIL1178_MASTER_I2C_ADDRESS 0x38
 #define SIL1178_SLAVE_I2C_ADDRESS 0x39
+
+#define DP501_I2C_ADDR 0x08
 
 #define PIXCLK_640_480_60 25180000
 
@@ -54,17 +57,22 @@ u16 *buf;
 
 unsigned int max_osd_screen = CONFIG_SYS_OSD_SCREENS - 1;
 
-#ifdef CONFIG_SYS_CH7301
-int ch7301_i2c[] = CONFIG_SYS_CH7301_I2C;
-#endif
-
-#ifdef CONFIG_SYS_ICS8N3QV01
+#ifdef CONFIG_SYS_ICS8N3QV01_I2C
 int ics8n3qv01_i2c[] = CONFIG_SYS_ICS8N3QV01_I2C;
 #endif
 
-#ifdef CONFIG_SYS_SIL1178
+#ifdef CONFIG_SYS_CH7301_I2C
+int ch7301_i2c[] = CONFIG_SYS_CH7301_I2C;
+#endif
+
+#ifdef CONFIG_SYS_SIL1178_I2C
 int sil1178_i2c[] = CONFIG_SYS_SIL1178_I2C;
 #endif
+
+#ifdef CONFIG_SYS_DP501_I2C
+int dp501_i2c[] = CONFIG_SYS_DP501_I2C;
+#endif
+
 
 #ifdef CONFIG_SYS_MPC92469AC
 static void mpc92469ac_calc_parameters(unsigned int fout,
@@ -118,7 +126,7 @@ static void mpc92469ac_set(unsigned screen, unsigned int fout)
 }
 #endif
 
-#ifdef CONFIG_SYS_ICS8N3QV01
+#ifdef CONFIG_SYS_ICS8N3QV01_I2C
 
 static unsigned int ics8n3qv01_get_fout_calc(unsigned index)
 {
@@ -283,6 +291,8 @@ int osd_probe(unsigned screen)
 	u16 features;
 	u8 value;
 	int old_bus = i2c_get_bus_num();
+	bool pixclock_present = false;
+	bool output_driver_present = false;
 
 	FPGA_GET_REG(0, osd.version, &version);
 	FPGA_GET_REG(0, osd.features, &features);
@@ -297,50 +307,75 @@ int osd_probe(unsigned screen)
 	printf("OSD%d:  Digital-OSD version %01d.%02d, %d" "x%d characters\n",
 		screen, version/100, version%100, base_width, base_height);
 
-#ifdef CONFIG_SYS_CH7301
-	i2c_set_bus_num(ch7301_i2c[screen]);
-	value = i2c_reg_read(CH7301_I2C_ADDR, CH7301_DID);
-	if (value != 0x17) {
-		printf("       Probing CH7301 failed, DID %02x\n", value);
-		i2c_set_bus_num(old_bus);
-		return -1;
-	}
-	i2c_reg_write(CH7301_I2C_ADDR, CH7301_TPCP, 0x08);
-	i2c_reg_write(CH7301_I2C_ADDR, CH7301_TPD, 0x16);
-	i2c_reg_write(CH7301_I2C_ADDR, CH7301_TPF, 0x60);
-	i2c_reg_write(CH7301_I2C_ADDR, CH7301_DC, 0x09);
-	i2c_reg_write(CH7301_I2C_ADDR, CH7301_PM, 0xc0);
-#endif
+	/* setup pixclock */
 
 #ifdef CONFIG_SYS_MPC92469AC
+	pixclock_present = true;
 	mpc92469ac_set(screen, PIXCLK_640_480_60);
 #endif
 
-#ifdef CONFIG_SYS_ICS8N3QV01
+#ifdef CONFIG_SYS_ICS8N3QV01_I2C
 	i2c_set_bus_num(ics8n3qv01_i2c[screen]);
-	ics8n3qv01_set(PIXCLK_640_480_60);
+	if (!i2c_probe(ICS8N3QV01_I2C_ADDR)) {
+		ics8n3qv01_set(PIXCLK_640_480_60);
+		pixclock_present = true;
+	}
 #endif
 
-#ifdef CONFIG_SYS_SIL1178
-	i2c_set_bus_num(sil1178_i2c[screen]);
-	value = i2c_reg_read(SIL1178_SLAVE_I2C_ADDRESS, 0x02);
-	if (value != 0x06) {
-		printf("       Probing SIL1178, DEV_IDL %02x\n", value);
-		i2c_set_bus_num(old_bus);
-		return -1;
+	if (!pixclock_present)
+		printf("       no pixelclock found\n");
+
+	/* setup output driver */
+
+#ifdef CONFIG_SYS_CH7301_I2C
+	i2c_set_bus_num(ch7301_i2c[screen]);
+	if (!i2c_probe(CH7301_I2C_ADDR)) {
+		value = i2c_reg_read(CH7301_I2C_ADDR, CH7301_DID);
+		if (value == 0x17) {
+			i2c_reg_write(CH7301_I2C_ADDR, CH7301_TPCP, 0x08);
+			i2c_reg_write(CH7301_I2C_ADDR, CH7301_TPD, 0x16);
+			i2c_reg_write(CH7301_I2C_ADDR, CH7301_TPF, 0x60);
+			i2c_reg_write(CH7301_I2C_ADDR, CH7301_DC, 0x09);
+			i2c_reg_write(CH7301_I2C_ADDR, CH7301_PM, 0xc0);
+			output_driver_present = true;
+		}
 	}
-	/* magic initialization sequence adapted from datasheet */
-	i2c_reg_write(SIL1178_SLAVE_I2C_ADDRESS, 0x08, 0x36);
-	i2c_reg_write(SIL1178_MASTER_I2C_ADDRESS, 0x0f, 0x44);
-	i2c_reg_write(SIL1178_MASTER_I2C_ADDRESS, 0x0f, 0x4c);
-	i2c_reg_write(SIL1178_MASTER_I2C_ADDRESS, 0x0e, 0x10);
-	i2c_reg_write(SIL1178_MASTER_I2C_ADDRESS, 0x0a, 0x80);
-	i2c_reg_write(SIL1178_MASTER_I2C_ADDRESS, 0x09, 0x30);
-	i2c_reg_write(SIL1178_MASTER_I2C_ADDRESS, 0x0c, 0x89);
-	i2c_reg_write(SIL1178_MASTER_I2C_ADDRESS, 0x0d, 0x60);
-	i2c_reg_write(SIL1178_MASTER_I2C_ADDRESS, 0x08, 0x36);
-	i2c_reg_write(SIL1178_MASTER_I2C_ADDRESS, 0x08, 0x37);
 #endif
+
+#ifdef CONFIG_SYS_SIL1178_I2C
+	i2c_set_bus_num(sil1178_i2c[screen]);
+	if (!i2c_probe(SIL1178_SLAVE_I2C_ADDRESS)) {
+		value = i2c_reg_read(SIL1178_SLAVE_I2C_ADDRESS, 0x02);
+		if (value == 0x06) {
+			/*
+			 * magic initialization sequence,
+			 * adapted from datasheet
+			 */
+			i2c_reg_write(SIL1178_SLAVE_I2C_ADDRESS, 0x08, 0x36);
+			i2c_reg_write(SIL1178_MASTER_I2C_ADDRESS, 0x0f, 0x44);
+			i2c_reg_write(SIL1178_MASTER_I2C_ADDRESS, 0x0f, 0x4c);
+			i2c_reg_write(SIL1178_MASTER_I2C_ADDRESS, 0x0e, 0x10);
+			i2c_reg_write(SIL1178_MASTER_I2C_ADDRESS, 0x0a, 0x80);
+			i2c_reg_write(SIL1178_MASTER_I2C_ADDRESS, 0x09, 0x30);
+			i2c_reg_write(SIL1178_MASTER_I2C_ADDRESS, 0x0c, 0x89);
+			i2c_reg_write(SIL1178_MASTER_I2C_ADDRESS, 0x0d, 0x60);
+			i2c_reg_write(SIL1178_MASTER_I2C_ADDRESS, 0x08, 0x36);
+			i2c_reg_write(SIL1178_MASTER_I2C_ADDRESS, 0x08, 0x37);
+			output_driver_present = true;
+		}
+	}
+#endif
+
+#ifdef CONFIG_SYS_DP501_I2C
+	i2c_set_bus_num(dp501_i2c[screen]);
+	if (!i2c_probe(DP501_I2C_ADDR)) {
+		dp501_powerup(DP501_I2C_ADDR);
+		output_driver_present = true;
+	}
+#endif
+
+	if (!output_driver_present)
+		printf("       no output driver found\n");
 
 	FPGA_SET_REG(screen, osd.control, 0x0049);
 

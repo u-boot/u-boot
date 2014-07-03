@@ -34,7 +34,6 @@ static int wait_for_int(bool read)
 	       | (read ? I2CINT_RECEIVE_EV : I2CINT_TRANSMIT_EV)))) {
 		udelay(10);
 		if (ctr++ > 5000) {
-			printf("I2C timeout\n");
 			return 1;
 		}
 		FPGA_GET_REG(I2C_ADAP_HWNR, i2c.interrupt_status, &val);

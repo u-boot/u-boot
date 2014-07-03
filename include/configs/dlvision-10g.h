@@ -121,9 +121,7 @@
 		  { 54, 27 }, { 56, 31 }, { 58, 36 }, { 60, 40 } }
 #define CONFIG_DTT_TACH_LIMIT	0xa10
 
-#define CONFIG_SYS_ICS8N3QV01
 #define CONFIG_SYS_ICS8N3QV01_I2C	{0, 1}
-#define CONFIG_SYS_SIL1178
 #define CONFIG_SYS_SIL1178_I2C		{0, 1}
 
 /* EBC peripherals */
