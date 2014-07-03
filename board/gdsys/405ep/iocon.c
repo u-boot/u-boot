@@ -15,6 +15,7 @@
 #include "405ep.h"
 #include <gdsys_fpga.h>
 
+#include "../common/dp501.h"
 #include "../common/osd.h"
 #include "../common/mclink.h"
 
@@ -97,6 +98,8 @@ enum {
 
 unsigned int mclink_fpgacount;
 struct ihs_fpga *fpga_ptr[] = CONFIG_SYS_FPGA_PTR;
+
+int dp501_i2c[] = CONFIG_SYS_DP501_I2C;
 
 static int setup_88e1518(const char *bus, unsigned char addr);
 
@@ -371,8 +374,17 @@ int last_stage_init(void)
 	u16 fpga_features;
 	int feature_carrier_speed = fpga_features & (1<<4);
 	bool ch0_rgmii2_present = false;
+	int old_bus = i2c_get_bus_num();
 
 	FPGA_GET_REG(0, fpga_features, &fpga_features);
+
+	/* Turn on Parade DP501 */
+	pca9698_direction_output(0x20, 9, 1);
+	udelay(500000);
+
+	i2c_set_bus_num(dp501_i2c[0]);
+	dp501_powerup(0x08);
+	i2c_set_bus_num(old_bus);
 
 	if (!legacy)
 		ch0_rgmii2_present = !pca9698_get_value(0x20, 30);

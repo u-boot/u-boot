@@ -121,7 +121,9 @@
 #define CONFIG_SYS_I2C_SOFT_SPEED_4		50000
 #define CONFIG_SYS_I2C_SOFT_SLAVE_4		0x7F
 
+#define CONFIG_SYS_ICS8N3QV01_I2C		{1, 2, 3, 4}
 #define CONFIG_SYS_CH7301_I2C			{1, 2, 3, 4}
+#define CONFIG_SYS_DP501_I2C			{1, 2, 3, 4}
 
 #ifndef __ASSEMBLY__
 void fpga_gpio_set(unsigned int bus, int pin);
@@ -146,6 +148,8 @@ int fpga_gpio_get(unsigned int bus, int pin);
 			fpga_gpio_set(I2C_ADAP_HWNR, 0x0020); \
 		else \
 			fpga_gpio_clear(I2C_ADAP_HWNR, 0x0020); \
+		while (!!fpga_gpio_get(I2C_ADAP_HWNR, 0x0020) != !!bit) \
+			; \
 	} while (0)
 #define I2C_DELAY	udelay(25)	/* 1/4 I2C clock duration */
 
@@ -153,7 +157,6 @@ int fpga_gpio_get(unsigned int bus, int pin);
  * OSD hardware
  */
 #define CONFIG_SYS_MPC92469AC
-#define CONFIG_SYS_CH7301
 
 /*
  * FLASH organization
@@ -282,9 +285,11 @@ int fpga_gpio_get(unsigned int bus, int pin);
 /*
  * OSD Setup
  */
+#define CONFIG_SYS_ICS8N3QV01
 #define CONFIG_SYS_MPC92469AC
-#define CONFIG_SYS_CH7301
 #define CONFIG_SYS_OSD_SCREENS		1
+#define CONFIG_SYS_DP501_DIFFERENTIAL
+#define CONFIG_SYS_DP501_VCAPCTRL0	0x01 /* DDR mode 0, DE for H/VSYNC */
 
 #define CONFIG_BITBANGMII		/* bit-bang MII PHY management */
 #define CONFIG_BITBANGMII_MULTI
