@@ -19,8 +19,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define DEBUGF(fmt,args...)
 #endif
 
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
-
 #if defined(CONFIG_405GP)
 
 void get_sys_info (PPC4xx_SYS_INFO * sysInfo)
