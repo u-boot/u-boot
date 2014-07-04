@@ -221,8 +221,10 @@
 	"get_mon_net=dhcp ${addr_mon} ${tftp_root}/${name_mon}\0"	\
 	"get_mon_ubi=ubifsload ${addr_mon} ${name_mon}\0"		\
 	"get_uboot_net=dhcp ${addr_uboot} ${tftp_root}/${name_uboot}\0"	\
-	"burn_uboot=sf probe; sf erase 0 0x100000; "			\
+	"burn_uboot_spi=sf probe; sf erase 0 0x100000; "		\
 		"sf write ${addr_uboot} 0 ${filesize}\0"		\
+	"burn_uboot_nand=nand erase 0 0x100000; "			\
+		"nand write ${addr_uboot} 0 ${filesize}\0"		\
 	"args_all=setenv bootargs console=ttyS0,115200n8 rootwait=1\0"	\
 	"args_ubi=setenv bootargs ${bootargs} rootfstype=ubifs "	\
 		"root=ubi0:rootfs rootflags=sync rw ubi.mtd=2,2048\0"	\
