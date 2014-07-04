@@ -57,6 +57,12 @@ extern void unlock_ram_in_cache(void);
 #endif /* CONFIG_SYS_INIT_RAM_LOCK */
 #endif /* __ASSEMBLY__ */
 
+#if defined(__KERNEL__) && !defined(__ASSEMBLY__)
+int l2cache_init(void);
+void enable_cpc(void);
+void disable_cpc_sram(void);
+#endif
+
 /* prep registers for L2 */
 #define CACHECRBA       0x80000823      /* Cache configuration register address */
 #define L2CACHE_MASK	0x03	/* Mask for 2 L2 Cache bits */
