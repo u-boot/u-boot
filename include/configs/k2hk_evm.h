@@ -135,7 +135,8 @@
 
 /* NAND Configuration */
 #define CONFIG_NAND_DAVINCI
-#define CONFIG_CMD_NAND_ECCLAYOUT
+#define CONFIG_KEYSTONE_RBL_NAND
+#define CONFIG_KEYSTONE_NAND_MAX_RBL_SIZE	CONFIG_ENV_OFFSET
 #define CONFIG_SYS_NAND_CS                     2
 #define CONFIG_SYS_NAND_USE_FLASH_BBT
 #define CONFIG_SYS_NAND_4BIT_HW_ECC_OOBFIRST
@@ -155,6 +156,7 @@
 #define CONFIG_MTD_DEVICE
 #define CONFIG_RBTREE
 #define CONFIG_LZO
+#define MTDIDS_DEFAULT			"nand0=davinci_nand.0"
 #define MTDPARTS_DEFAULT                "mtdparts=davinci_nand.0:" \
 					"1024k(bootloader)ro,512k(params)ro," \
 					"-(ubifs)"
