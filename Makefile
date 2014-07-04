@@ -914,6 +914,12 @@ OBJCOPYFLAGS_u-boot-spi.gph = -I binary -O binary --pad-to=$(CONFIG_SPL_PAD_TO) 
 u-boot-spi.gph: spl/u-boot-spl.gph u-boot.img FORCE
 	$(call if_changed,pad_cat)
 
+MKIMAGEFLAGS_u-boot-nand.gph = -A $(ARCH) -T gpimage -C none \
+	-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE) -n U-Boot
+u-boot-nand.gph: u-boot.bin FORCE
+	$(call if_changed,mkimage)
+	@dd if=/dev/zero bs=8 count=1 2>/dev/null >> $@
+
 ifneq ($(CONFIG_SUNXI),)
 OBJCOPYFLAGS_u-boot-sunxi-with-spl.bin = -I binary -O binary \
 				   --pad-to=$(CONFIG_SPL_PAD_TO) --gap-fill=0xff
