@@ -24,6 +24,8 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/timer.h>
 
+#include <linux/compiler.h>
+
 #ifdef CONFIG_SPL_BUILD
 /* Pointer to the global data structure for SPL */
 DECLARE_GLOBAL_DATA_PTR;
@@ -115,7 +117,7 @@ void enable_caches(void)
  */
 int cpu_eth_init(bd_t *bis)
 {
-	int rc;
+	__maybe_unused int rc;
 
 #ifdef CONFIG_SUNXI_EMAC
 	rc = sunxi_emac_initialize(bis);
