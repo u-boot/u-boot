@@ -110,7 +110,8 @@ static void i2c_init_controller(struct i2c_bus *i2c_bus)
 static void send_packet_headers(
 	struct i2c_bus *i2c_bus,
 	struct i2c_trans_info *trans,
-	u32 packet_id)
+	u32 packet_id,
+	bool end_with_repeated_start)
 {
 	u32 data;
 
@@ -132,6 +133,8 @@ static void send_packet_headers(
 	/* Enable Read if it is not a write transaction */
 	if (!(trans->flags & I2C_IS_WRITE))
 		data |= PKT_HDR3_READ_MODE_MASK;
+	if (end_with_repeated_start)
+		data |= PKT_HDR3_REPEAT_START_MASK;
 
 	/* Write I2C specific header */
 	writel(data, &i2c_bus->control->tx_fifo);
@@ -209,7 +212,8 @@ static int send_recv_packets(struct i2c_bus *i2c_bus,
 	int_status = readl(&control->int_status);
 	writel(int_status, &control->int_status);
 
-	send_packet_headers(i2c_bus, trans, 1);
+	send_packet_headers(i2c_bus, trans, 1,
+			    trans->flags & I2C_USE_REPEATED_START);
 
 	words = DIV_ROUND_UP(trans->num_bytes, 4);
 	last_bytes = trans->num_bytes & 3;
@@ -220,14 +224,16 @@ static int send_recv_packets(struct i2c_bus *i2c_bus,
 
 		if (is_write) {
 			/* deal with word alignment */
-			if ((unsigned)dptr & 3) {
+			if ((words == 1) && last_bytes) {
+				local = 0;
+				memcpy(&local, dptr, last_bytes);
+			} else if ((unsigned)dptr & 3) {
 				memcpy(&local, dptr, sizeof(u32));
-				writel(local, &control->tx_fifo);
-				debug("pkt data sent (0x%x)\n", local);
 			} else {
-				writel(*wptr, &control->tx_fifo);
-				debug("pkt data sent (0x%x)\n", *wptr);
+				local = *wptr;
 			}
+			writel(local, &control->tx_fifo);
+			debug("pkt data sent (0x%x)\n", local);
 			if (!wait_for_tx_fifo_empty(control)) {
 				error = -1;
 				goto exit;
@@ -267,7 +273,7 @@ exit:
 }
 
 static int tegra_i2c_write_data(struct i2c_bus *bus, u32 addr, u8 *data,
-				u32 len)
+				u32 len, bool end_with_repeated_start)
 {
 	int error;
 	struct i2c_trans_info trans_info;
@@ -275,6 +281,8 @@ static int tegra_i2c_write_data(struct i2c_bus *bus, u32 addr, u8 *data,
 	trans_info.address = addr;
 	trans_info.buf = data;
 	trans_info.flags = I2C_IS_WRITE;
+	if (end_with_repeated_start)
+		trans_info.flags |= I2C_USE_REPEATED_START;
 	trans_info.num_bytes = len;
 	trans_info.is_10bit_address = 0;
 
@@ -463,7 +471,8 @@ static void tegra_i2c_init(struct i2c_adapter *adap, int speed, int slaveaddr)
 }
 
 /* i2c write version without the register address */
-int i2c_write_data(struct i2c_bus *bus, uchar chip, uchar *buffer, int len)
+int i2c_write_data(struct i2c_bus *bus, uchar chip, uchar *buffer, int len,
+		   bool end_with_repeated_start)
 {
 	int rc;
 
@@ -475,7 +484,8 @@ int i2c_write_data(struct i2c_bus *bus, uchar chip, uchar *buffer, int len)
 	debug("\n");
 
 	/* Shift 7-bit address over for lower-level i2c functions */
-	rc = tegra_i2c_write_data(bus, chip << 1, buffer, len);
+	rc = tegra_i2c_write_data(bus, chip << 1, buffer, len,
+				  end_with_repeated_start);
 	if (rc)
 		debug("i2c_write_data(): rc=%d\n", rc);
 
@@ -516,7 +526,7 @@ static int tegra_i2c_probe(struct i2c_adapter *adap, uchar chip)
 	if (!bus)
 		return 1;
 	reg = 0;
-	rc = i2c_write_data(bus, chip, &reg, 1);
+	rc = i2c_write_data(bus, chip, &reg, 1, false);
 	if (rc) {
 		debug("Error probing 0x%x.\n", chip);
 		return 1;
@@ -538,8 +548,8 @@ static int tegra_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
 	uint offset;
 	int i;
 
-	debug("i2c_read: chip=0x%x, addr=0x%x, len=0x%x\n",
-				chip, addr, len);
+	debug("i2c_read: chip=0x%x, addr=0x%x, alen=0x%x len=0x%x\n",
+	      chip, addr, alen, len);
 	bus = tegra_i2c_get_bus(adap);
 	if (!bus)
 		return 1;
@@ -554,7 +564,7 @@ static int tegra_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
 				data[alen - i - 1] =
 					(addr + offset) >> (8 * i);
 			}
-			if (i2c_write_data(bus, chip, data, alen)) {
+			if (i2c_write_data(bus, chip, data, alen, true)) {
 				debug("i2c_read: error sending (0x%x)\n",
 					addr);
 				return 1;
@@ -577,8 +587,8 @@ static int tegra_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 	uint offset;
 	int i;
 
-	debug("i2c_write: chip=0x%x, addr=0x%x, len=0x%x\n",
-				chip, addr, len);
+	debug("i2c_write: chip=0x%x, addr=0x%x, alen=0x%x len=0x%x\n",
+	      chip, addr, alen, len);
 	bus = tegra_i2c_get_bus(adap);
 	if (!bus)
 		return 1;
@@ -591,7 +601,7 @@ static int tegra_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 		for (i = 0; i < alen; i++)
 			data[alen - i - 1] = (addr + offset) >> (8 * i);
 		data[alen] = buffer[offset];
-		if (i2c_write_data(bus, chip, data, alen + 1)) {
+		if (i2c_write_data(bus, chip, data, alen + 1, false)) {
 			debug("i2c_write: error sending (0x%x)\n", addr);
 			return 1;
 		}
