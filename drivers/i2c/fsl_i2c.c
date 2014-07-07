@@ -46,10 +46,16 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static const struct fsl_i2c *i2c_dev[2] = {
+static const struct fsl_i2c *i2c_dev[4] = {
 	(struct fsl_i2c *)(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_I2C_OFFSET),
 #ifdef CONFIG_SYS_FSL_I2C2_OFFSET
-	(struct fsl_i2c *)(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_I2C2_OFFSET)
+	(struct fsl_i2c *)(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_I2C2_OFFSET),
+#endif
+#ifdef CONFIG_SYS_FSL_I2C3_OFFSET
+	(struct fsl_i2c *)(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_I2C3_OFFSET),
+#endif
+#ifdef CONFIG_SYS_FSL_I2C4_OFFSET
+	(struct fsl_i2c *)(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_I2C4_OFFSET)
 #endif
 };
 
@@ -538,4 +544,16 @@ U_BOOT_I2C_ADAP_COMPLETE(fsl_1, fsl_i2c_init, fsl_i2c_probe, fsl_i2c_read,
 			 fsl_i2c_write, fsl_i2c_set_bus_speed,
 			 CONFIG_SYS_FSL_I2C2_SPEED, CONFIG_SYS_FSL_I2C2_SLAVE,
 			 1)
+#endif
+#ifdef CONFIG_SYS_FSL_I2C3_OFFSET
+U_BOOT_I2C_ADAP_COMPLETE(fsl_2, fsl_i2c_init, fsl_i2c_probe, fsl_i2c_read,
+			 fsl_i2c_write, fsl_i2c_set_bus_speed,
+			 CONFIG_SYS_FSL_I2C3_SPEED, CONFIG_SYS_FSL_I2C3_SLAVE,
+			 2)
+#endif
+#ifdef CONFIG_SYS_FSL_I2C4_OFFSET
+U_BOOT_I2C_ADAP_COMPLETE(fsl_3, fsl_i2c_init, fsl_i2c_probe, fsl_i2c_read,
+			 fsl_i2c_write, fsl_i2c_set_bus_speed,
+			 CONFIG_SYS_FSL_I2C4_SPEED, CONFIG_SYS_FSL_I2C4_SLAVE,
+			 3)
 #endif
