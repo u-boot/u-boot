@@ -103,7 +103,7 @@ class Toolchains:
         if not toolchains:
             print ("Warning: No tool chains - please add a [toolchain] section"
                  " to your buildman config file %s. See README for details" %
-                 config_fname)
+                 bsettings.config_fname)
 
         for name, value in toolchains:
             if '*' in value:
