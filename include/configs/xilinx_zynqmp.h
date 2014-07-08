@@ -54,7 +54,7 @@
 #define COUNTER_FREQUENCY		0x1800000 /* 24MHz */
 
 /* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128 * 1024)
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 0x400000)
 
 /* Serial setup */
 #define CONFIG_ZYNQ_SERIAL_UART0
