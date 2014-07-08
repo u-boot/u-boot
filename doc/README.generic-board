@@ -40,10 +40,11 @@ Supported Arcthitectures
 ------------------------
 
 If you are unlucky then your architecture may not support generic board.
-The following architectures are supported at the time of writing:
+The following architectures are supported now:
 
    arc
    arm
+   mips
    powerpc
    sandbox
    x86
