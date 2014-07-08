@@ -9,3 +9,8 @@ unsigned long get_uart_clk(int dev_id)
 {
 	return 25000000;
 }
+
+unsigned long get_ttc_clk(int dev_id)
+{
+	return 25000000;
+}

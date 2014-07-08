@@ -9,6 +9,7 @@
 #include <command.h>
 #include <asm/system.h>
 
+#ifndef XILINX_ZYNQMP
 /*
  * Generic timer implementation of get_tbclk()
  */
@@ -18,6 +19,7 @@ unsigned long get_tbclk(void)
 	asm volatile("mrs %0, cntfrq_el0" : "=r" (cntfrq));
 	return cntfrq;
 }
+#endif
 
 /*
  * Generic timer implementation of timer_read_counter()
