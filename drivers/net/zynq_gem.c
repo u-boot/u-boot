@@ -55,10 +55,21 @@
 #define ZYNQ_GEM_NWCFG_SPEED1000	0x000000400 /* 1Gbps operation */
 #define ZYNQ_GEM_NWCFG_FDEN		0x000000002 /* Full Duplex mode */
 #define ZYNQ_GEM_NWCFG_FSREM		0x000020000 /* FCS removal */
+#ifdef XILINX_ZYNQMP
+#define ZYNQ_GEM_NWCFG_MDCCLKDIV	0x0001C0000 /* Div pclk by 224, 540MHz */
+#else
 #define ZYNQ_GEM_NWCFG_MDCCLKDIV	0x000080000 /* Div pclk by 32, 80MHz */
+#endif
 #define ZYNQ_GEM_NWCFG_MDCCLKDIV2	0x0000c0000 /* Div pclk by 48, 120MHz */
 
-#define ZYNQ_GEM_NWCFG_INIT		(ZYNQ_GEM_NWCFG_FDEN | \
+#ifdef XILINX_ZYNQMP
+# define ZYNQ_GEM_DBUS_WIDTH	(1 << 21) /* 64 bit bus */
+#else
+# define ZYNQ_GEM_DBUS_WIDTH	(0 << 21) /* 32 bit bus */
+#endif
+
+#define ZYNQ_GEM_NWCFG_INIT		(ZYNQ_GEM_DBUS_WIDTH | \
+					ZYNQ_GEM_NWCFG_FDEN | \
 					ZYNQ_GEM_NWCFG_FSREM | \
 					ZYNQ_GEM_NWCFG_MDCCLKDIV)
 
@@ -370,10 +381,12 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 		break;
 	}
 
+#ifndef XILINX_ZYNQMP
 	/* Change the rclk and clk only not using EMIO interface */
 	if (!priv->emio)
 		zynq_slcr_gem_clk_setup(dev->iobase !=
 					ZYNQ_GEM_BASEADDR0, clk_rate);
+#endif
 
 	setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_RXEN_MASK |
 					ZYNQ_GEM_NWCTRL_TXEN_MASK);
@@ -386,6 +399,9 @@ static int zynq_gem_send(struct eth_device *dev, void *ptr, int len)
 	u32 addr, size;
 	struct zynq_gem_priv *priv = dev->priv;
 	struct zynq_gem_regs *regs = (struct zynq_gem_regs *)dev->iobase;
+
+	setbits_le32(&regs->nwctrl, ZYNQ_GEM_NWCTRL_RXEN_MASK |
+		     ZYNQ_GEM_NWCTRL_TXEN_MASK);
 
 	/* setup BD */
 	writel((u32)priv->tx_bd, &regs->txqbase);
