@@ -23,8 +23,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-u32 device_big_endian;
-
 unsigned int external_clk[ext_clk_count] = {
 	[sys_clk]	=	122880000,
 	[alt_core_clk]	=	125000000,
@@ -135,18 +133,6 @@ int board_eth_init(bd_t *bis)
 	return 0;
 }
 #endif
-
-/* Byte swap the 32-bit data if the device is BE */
-int cpu_to_bus(u32 *ptr, u32 length)
-{
-	u32 i;
-
-	if (device_big_endian)
-		for (i = 0; i < length; i++, ptr++)
-			*ptr = __swab32(*ptr);
-
-	return 0;
-}
 
 #if defined(CONFIG_BOARD_EARLY_INIT_F)
 int board_early_init_f(void)

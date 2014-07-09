@@ -14,3 +14,4 @@ obj-$(CONFIG_DRIVER_TI_KEYSTONE_NET) += keystone_nav.o
 obj-y	+= msmc.o
 obj-$(CONFIG_SPL_BUILD)	+= spl.o
 obj-y	+= ddr3.o
+obj-y	+= keystone.o
