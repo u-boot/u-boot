@@ -45,7 +45,7 @@ U_BOOT_CMD(
 U_BOOT_CMD(
 	ext2load,	6,	0,	do_ext2load,
 	"load binary file from a Ext2 filesystem",
-	"<interface> <dev[:part]> [addr] [filename] [bytes]\n"
+	"<interface> [<dev[:part]> [addr [filename [bytes [pos]]]]]\n"
 	"    - load binary file 'filename' from 'dev' on 'interface'\n"
 	"      to address 'addr' from ext2 filesystem."
 )
