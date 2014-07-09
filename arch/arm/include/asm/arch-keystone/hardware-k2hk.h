@@ -16,7 +16,6 @@
 #define KS2_RSTCTRL_MASK                0xffff0000
 #define KS2_RSTCTRL_SWRST               0xfffe0000
 
-#define K2HK_PSC_BASE                   0x02350000
 #define KS2_DEVICE_STATE_CTRL_BASE      0x02620000
 #define JTAG_ID_REG                     (KS2_DEVICE_STATE_CTRL_BASE + 0x18)
 #define K2HK_DEVSTAT                    (KS2_DEVICE_STATE_CTRL_BASE + 0x20)

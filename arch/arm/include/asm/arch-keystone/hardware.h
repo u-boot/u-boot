@@ -119,6 +119,9 @@ struct ddr3_emif_config {
 #define KS2_UART0_BASE                	0x02530c00
 #define KS2_UART1_BASE                	0x02531000
 
+/* PSC */
+#define KS2_PSC_BASE			0x02350000
+
 /* AEMIF */
 #define KS2_AEMIF_CNTRL_BASE       	0x21000a00
 #define DAVINCI_ASYNC_EMIF_CNTRL_BASE   KS2_AEMIF_CNTRL_BASE
