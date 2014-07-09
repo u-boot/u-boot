@@ -8,6 +8,7 @@
 obj-y	+= init.o
 obj-y	+= psc.o
 obj-y	+= clock.o
+obj-$(CONFIG_SOC_K2HK) += clock-k2hk.o
 obj-y	+= cmd_clock.o
 obj-y	+= cmd_mon.o
 obj-$(CONFIG_DRIVER_TI_KEYSTONE_NET) += keystone_nav.o
