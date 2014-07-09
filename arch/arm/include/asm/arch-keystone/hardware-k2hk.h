@@ -68,7 +68,6 @@
 #define K2HK_LPSC_VUSR0                12
 #define K2HK_LPSC_CHIP_SRSS            13
 #define K2HK_LPSC_MSMC                 14
-#define K2HK_LPSC_GEM_0                15
 #define K2HK_LPSC_GEM_1                16
 #define K2HK_LPSC_GEM_2                17
 #define K2HK_LPSC_GEM_3                18
@@ -105,7 +104,6 @@
 #define K2HK_LPSC_VUSR1                49
 #define K2HK_LPSC_XGE                  50
 #define K2HK_LPSC_ARM_SREFLEX          51
-#define K2HK_LPSC_TETRIS               52
 
 /* DDR3A definitions */
 #define K2HK_DDR3A_EMIF_CTRL_BASE      0x21010000
@@ -136,5 +134,8 @@
 
 /* MSMC control */
 #define K2HK_MSMC_CTRL_BASE             0x0bc00000
+
+/* Number of DSP cores */
+#define KS2_NUM_DSPS			8
 
 #endif /* __ASM_ARCH_HARDWARE_H */

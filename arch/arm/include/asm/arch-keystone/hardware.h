@@ -87,10 +87,16 @@ typedef volatile unsigned int   *dv_reg_p;
 
 /* PSC */
 #define KS2_PSC_BASE			0x02350000
+#define KS2_LPSC_GEM_0			15
+#define KS2_LPSC_TETRIS			52
+#define KS2_TETRIS_PWR_DOMAIN		31
 
 /* AEMIF */
 #define KS2_AEMIF_CNTRL_BASE       	0x21000a00
 #define DAVINCI_ASYNC_EMIF_CNTRL_BASE   KS2_AEMIF_CNTRL_BASE
+
+/* Flag from ks2_debug options to check if DSPs need to stay ON */
+#define DBG_LEAVE_DSPS_ON		0x1
 
 #ifdef CONFIG_SOC_K2HK
 #include <asm/arch/hardware-k2hk.h>
