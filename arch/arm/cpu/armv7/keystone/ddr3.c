@@ -8,6 +8,7 @@
  */
 
 #include <asm/io.h>
+#include <common.h>
 #include <asm/arch/ddr3.h>
 
 void ddr3_init_ddrphy(u32 base, struct ddr3_phy_config *phy_cfg)
@@ -66,4 +67,22 @@ void ddr3_init_ddremif(u32 base, struct ddr3_emif_config *emif_cfg)
 	__raw_writel(emif_cfg->sdtim4, base + KS2_DDR3_SDTIM4_OFFSET);
 	__raw_writel(emif_cfg->zqcfg,  base + KS2_DDR3_ZQCFG_OFFSET);
 	__raw_writel(emif_cfg->sdrfc,  base + KS2_DDR3_SDRFC_OFFSET);
+}
+
+void ddr3_reset_ddrphy(void)
+{
+	u32 tmp;
+
+	/* Assert DDR3A  PHY reset */
+	tmp = readl(K2HK_DDR3APLLCTL1);
+	tmp |= KS2_DDR3_PLLCTRL_PHY_RESET;
+	writel(tmp, K2HK_DDR3APLLCTL1);
+
+	/* wait 10us to catch the reset */
+	udelay(10);
+
+	/* Release DDR3A PHY reset */
+	tmp = readl(K2HK_DDR3APLLCTL1);
+	tmp &= ~KS2_DDR3_PLLCTRL_PHY_RESET;
+	__raw_writel(tmp, K2HK_DDR3APLLCTL1);
 }

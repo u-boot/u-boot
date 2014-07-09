@@ -80,6 +80,8 @@ typedef volatile unsigned int   *dv_reg_p;
 #define KS2_DDR3_PMCTL_OFFSET           0x38
 #define KS2_DDR3_ZQCFG_OFFSET           0xC8
 
+#define KS2_DDR3_PLLCTRL_PHY_RESET	0x80000000
+
 #define KS2_UART0_BASE                	0x02530c00
 #define KS2_UART1_BASE                	0x02531000
 
