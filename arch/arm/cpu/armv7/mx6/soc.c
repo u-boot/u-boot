@@ -337,6 +337,10 @@ void s_init(void)
 	u32 mask480;
 	u32 mask528;
 
+
+	if (is_cpu_type(MXC_CPU_MX6SX))
+		return;
+
 	/* Due to hardware limitation, on MX6Q we need to gate/ungate all PFDs
 	 * to make sure PFD is working right, otherwise, PFDs may
 	 * not output clock after reset, MX6DL and MX6SL have added 396M pfd
