@@ -62,6 +62,7 @@ alias sunxi          uboot, ijc, jwrdegoede
 alias tegra          uboot, sjg, Tom Warren <twarren@nvidia.com>, Stephen Warren <swarren@nvidia.com>
 alias tegra2         tegra
 alias ti             uboot, trini
+alias zynq           uboot, monstr
 
 alias avr32          uboot, abiessmann
 
