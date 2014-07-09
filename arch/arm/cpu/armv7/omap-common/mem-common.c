@@ -89,7 +89,7 @@ void gpmc_init(void)
 						};
 	u32 size = GPMC_SIZE_16M;
 	u32 base = CONFIG_SYS_FLASH_BASE;
-#elif defined(CONFIG_NAND)
+#elif defined(CONFIG_NAND) || defined(CONFIG_CMD_NAND)
 /* configure GPMC for NAND */
 	const u32  gpmc_regs[GPMC_MAX_REG] = {	M_NAND_GPMC_CONFIG1,
 						M_NAND_GPMC_CONFIG2,
