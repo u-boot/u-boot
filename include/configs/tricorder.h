@@ -35,6 +35,8 @@
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap3.h>
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 /* Display CPU and Board information */
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
