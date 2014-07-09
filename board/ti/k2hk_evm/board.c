@@ -12,6 +12,7 @@
 #include <fdt_support.h>
 #include <libfdt.h>
 
+#include <asm/arch/ddr3.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/clock.h>
 #include <asm/io.h>
@@ -63,7 +64,7 @@ static struct pll_init_data pll_config[] = {
 
 int dram_init(void)
 {
-	init_ddr3();
+	ddr3_init();
 
 	gd->ram_size = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
 				    CONFIG_MAX_RAM_BANK_SIZE);

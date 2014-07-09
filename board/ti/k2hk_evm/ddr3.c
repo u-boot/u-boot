@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <asm/arch/ddr3.h>
 #include <asm/arch/hardware.h>
 #include <asm/io.h>
 #include <i2c.h>
@@ -228,7 +229,7 @@ struct pll_init_data ddr3b_333 = DDR3_PLL_333(B);
 struct pll_init_data ddr3a_400 = DDR3_PLL_400(A);
 struct pll_init_data ddr3b_400 = DDR3_PLL_400(B);
 
-void init_ddr3(void)
+void ddr3_init(void)
 {
 	char dimm_name[32];
 
@@ -239,22 +240,26 @@ void init_ddr3(void)
 	if (!strcmp(dimm_name, "18KSF1G72HZ-1G6E2 ")) {
 		init_pll(&ddr3a_400);
 		if (cpu_revision() > 0) {
-			init_ddrphy(K2HK_DDR3A_DDRPHYC, &ddr3phy_1600_64A);
-			init_ddremif(K2HK_DDR3A_EMIF_CTRL_BASE, &ddr3_1600_64);
+			ddr3_init_ddrphy(K2HK_DDR3A_DDRPHYC, &ddr3phy_1600_64A);
+			ddr3_init_ddremif(K2HK_DDR3A_EMIF_CTRL_BASE,
+					  &ddr3_1600_64);
 			printf("DRAM:  Capacity 8 GiB (includes reported below)\n");
 		} else {
-			init_ddrphy(K2HK_DDR3A_DDRPHYC, &ddr3phy_1600_32);
-			init_ddremif(K2HK_DDR3A_EMIF_CTRL_BASE, &ddr3_1600_32);
+			ddr3_init_ddrphy(K2HK_DDR3A_DDRPHYC, &ddr3phy_1600_32);
+			ddr3_init_ddremif(K2HK_DDR3A_EMIF_CTRL_BASE,
+					  &ddr3_1600_32);
 			printf("DRAM:  Capacity 4 GiB (includes reported below)\n");
 		}
 	} else if (!strcmp(dimm_name, "SQR-SD3T-2G1333SED")) {
 		init_pll(&ddr3a_333);
 		if (cpu_revision() > 0) {
-			init_ddrphy(K2HK_DDR3A_DDRPHYC, &ddr3phy_1333_64A);
-			init_ddremif(K2HK_DDR3A_EMIF_CTRL_BASE, &ddr3_1333_64);
+			ddr3_init_ddrphy(K2HK_DDR3A_DDRPHYC, &ddr3phy_1333_64A);
+			ddr3_init_ddremif(K2HK_DDR3A_EMIF_CTRL_BASE,
+					  &ddr3_1333_64);
 		} else {
-			init_ddrphy(K2HK_DDR3A_DDRPHYC, &ddr3phy_1333_32);
-			init_ddremif(K2HK_DDR3A_EMIF_CTRL_BASE, &ddr3_1333_32);
+			ddr3_init_ddrphy(K2HK_DDR3A_DDRPHYC, &ddr3phy_1333_32);
+			ddr3_init_ddremif(K2HK_DDR3A_EMIF_CTRL_BASE,
+					  &ddr3_1333_32);
 		}
 	} else {
 		printf("Unknown SO-DIMM. Cannot configure DDR3\n");
@@ -263,6 +268,6 @@ void init_ddr3(void)
 	}
 
 	init_pll(&ddr3b_333);
-	init_ddrphy(K2HK_DDR3B_DDRPHYC, &ddr3phy_1333_64);
-	init_ddremif(K2HK_DDR3B_EMIF_CTRL_BASE, &ddr3_1333_64);
+	ddr3_init_ddrphy(K2HK_DDR3B_DDRPHYC, &ddr3phy_1333_64);
+	ddr3_init_ddremif(K2HK_DDR3B_EMIF_CTRL_BASE, &ddr3_1333_64);
 }

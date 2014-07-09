@@ -7,10 +7,10 @@
  * SPDX-License-Identifier:     GPL-2.0+
  */
 
-#include <asm/arch/hardware.h>
 #include <asm/io.h>
+#include <asm/arch/ddr3.h>
 
-void init_ddrphy(u32 base, struct ddr3_phy_config *phy_cfg)
+void ddr3_init_ddrphy(u32 base, struct ddr3_phy_config *phy_cfg)
 {
 	unsigned int tmp;
 
@@ -57,7 +57,7 @@ void init_ddrphy(u32 base, struct ddr3_phy_config *phy_cfg)
 		;
 }
 
-void init_ddremif(u32 base, struct ddr3_emif_config *emif_cfg)
+void ddr3_init_ddremif(u32 base, struct ddr3_emif_config *emif_cfg)
 {
 	__raw_writel(emif_cfg->sdcfg,  base + KS2_DDR3_SDCFG_OFFSET);
 	__raw_writel(emif_cfg->sdtim1, base + KS2_DDR3_SDTIM1_OFFSET);
