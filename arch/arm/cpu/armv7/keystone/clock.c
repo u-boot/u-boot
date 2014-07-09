@@ -29,11 +29,11 @@ struct pll_regs {
 };
 
 static const struct pll_regs pll_regs[] = {
-	[CORE_PLL]	= { K2HK_MAINPLLCTL0, K2HK_MAINPLLCTL1},
-	[PASS_PLL]	= { K2HK_PASSPLLCTL0, K2HK_PASSPLLCTL1},
-	[TETRIS_PLL]	= { K2HK_ARMPLLCTL0,  K2HK_ARMPLLCTL1},
-	[DDR3A_PLL]	= { K2HK_DDR3APLLCTL0, K2HK_DDR3APLLCTL1},
-	[DDR3B_PLL]	= { K2HK_DDR3BPLLCTL0, K2HK_DDR3BPLLCTL1},
+	[CORE_PLL]	= { KS2_MAINPLLCTL0, KS2_MAINPLLCTL1},
+	[PASS_PLL]	= { KS2_PASSPLLCTL0, KS2_PASSPLLCTL1},
+	[TETRIS_PLL]	= { KS2_ARMPLLCTL0,  KS2_ARMPLLCTL1},
+	[DDR3A_PLL]	= { KS2_DDR3APLLCTL0, KS2_DDR3APLLCTL1},
+	[DDR3B_PLL]	= { KS2_DDR3BPLLCTL0, KS2_DDR3BPLLCTL1},
 };
 
 /* Fout = Fref * NF(mult) / NR(prediv) / OD */
@@ -47,7 +47,7 @@ static unsigned long pll_freq_get(int pll)
 		ret = external_clk[sys_clk];
 		if (pllctl_reg_read(pll, ctl) & PLLCTL_PLLEN) {
 			/* PLL mode */
-			tmp = __raw_readl(K2HK_MAINPLLCTL0);
+			tmp = __raw_readl(KS2_MAINPLLCTL0);
 			prediv = (tmp & PLL_DIV_MASK) + 1;
 			mult = (((tmp & PLLM_MULT_HI_SMASK) >> 6) |
 				(pllctl_reg_read(pll, mult) &
@@ -61,19 +61,19 @@ static unsigned long pll_freq_get(int pll)
 		switch (pll) {
 		case PASS_PLL:
 			ret = external_clk[pa_clk];
-			reg = K2HK_PASSPLLCTL0;
+			reg = KS2_PASSPLLCTL0;
 			break;
 		case TETRIS_PLL:
 			ret = external_clk[tetris_clk];
-			reg = K2HK_ARMPLLCTL0;
+			reg = KS2_ARMPLLCTL0;
 			break;
 		case DDR3A_PLL:
 			ret = external_clk[ddr3a_clk];
-			reg = K2HK_DDR3APLLCTL0;
+			reg = KS2_DDR3APLLCTL0;
 			break;
 		case DDR3B_PLL:
 			ret = external_clk[ddr3b_clk];
-			reg = K2HK_DDR3BPLLCTL0;
+			reg = KS2_DDR3BPLLCTL0;
 			break;
 		default:
 			return 0;
@@ -214,7 +214,7 @@ void init_pll(const struct pll_init_data *data)
 		 * Set CHIPMISCCTL1[13] = 0 (enable glitchfree bypass)
 		 * only applicable for Kepler
 		 */
-		clrbits_le32(K2HK_MISC_CTRL, ARM_PLL_EN);
+		clrbits_le32(KS2_MISC_CTRL, KS2_ARM_PLL_EN);
 		/* 2 In PLLCTL1, write PLLRST = 1 (PLL is reset) */
 		setbits_le32(pll_regs[data->pll].reg1 ,
 			     PLL_PLLRST | PLLCTL_ENSAT);
@@ -255,7 +255,7 @@ void init_pll(const struct pll_init_data *data)
 		 * 9 Set CHIPMISCCTL1[13] = 1 (disable glitchfree bypass)
 		 * only applicable for Kepler
 		 */
-		setbits_le32(K2HK_MISC_CTRL, ARM_PLL_EN);
+		setbits_le32(KS2_MISC_CTRL, KS2_ARM_PLL_EN);
 	} else {
 		setbits_le32(pll_regs[data->pll].reg1, PLLCTL_ENSAT);
 		/*

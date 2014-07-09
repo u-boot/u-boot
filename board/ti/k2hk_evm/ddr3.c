@@ -299,20 +299,20 @@ void ddr3_init(void)
 				/* PG 2.0 */
 				/* Reset DDR3A PHY after PLL enabled */
 				ddr3_reset_ddrphy();
-				ddr3_init_ddrphy(K2HK_DDR3A_DDRPHYC,
+				ddr3_init_ddrphy(KS2_DDR3A_DDRPHYC,
 						 &ddr3phy_1600_64A_pg2);
 			} else {
 				/* PG 1.1 */
-				ddr3_init_ddrphy(K2HK_DDR3A_DDRPHYC,
+				ddr3_init_ddrphy(KS2_DDR3A_DDRPHYC,
 						 &ddr3phy_1600_64A);
 			}
 
-			ddr3_init_ddremif(K2HK_DDR3A_EMIF_CTRL_BASE,
+			ddr3_init_ddremif(KS2_DDR3A_EMIF_CTRL_BASE,
 					  &ddr3_1600_64);
 			printf("DRAM:  Capacity 8 GiB (includes reported below)\n");
 		} else {
-			ddr3_init_ddrphy(K2HK_DDR3A_DDRPHYC, &ddr3phy_1600_32);
-			ddr3_init_ddremif(K2HK_DDR3A_EMIF_CTRL_BASE,
+			ddr3_init_ddrphy(KS2_DDR3A_DDRPHYC, &ddr3phy_1600_32);
+			ddr3_init_ddremif(KS2_DDR3A_EMIF_CTRL_BASE,
 					  &ddr3_1600_32);
 			printf("DRAM:  Capacity 4 GiB (includes reported below)\n");
 		}
@@ -323,18 +323,18 @@ void ddr3_init(void)
 				/* PG 2.0 */
 				/* Reset DDR3A PHY after PLL enabled */
 				ddr3_reset_ddrphy();
-				ddr3_init_ddrphy(K2HK_DDR3A_DDRPHYC,
+				ddr3_init_ddrphy(KS2_DDR3A_DDRPHYC,
 						 &ddr3phy_1333_64A_pg2);
 			} else {
 				/* PG 1.1 */
-				ddr3_init_ddrphy(K2HK_DDR3A_DDRPHYC,
+				ddr3_init_ddrphy(KS2_DDR3A_DDRPHYC,
 						 &ddr3phy_1333_64A);
 			}
-			ddr3_init_ddremif(K2HK_DDR3A_EMIF_CTRL_BASE,
+			ddr3_init_ddremif(KS2_DDR3A_EMIF_CTRL_BASE,
 					  &ddr3_1333_64);
 		} else {
-			ddr3_init_ddrphy(K2HK_DDR3A_DDRPHYC, &ddr3phy_1333_32);
-			ddr3_init_ddremif(K2HK_DDR3A_EMIF_CTRL_BASE,
+			ddr3_init_ddrphy(KS2_DDR3A_DDRPHYC, &ddr3phy_1333_32);
+			ddr3_init_ddremif(KS2_DDR3A_EMIF_CTRL_BASE,
 					  &ddr3_1333_32);
 		}
 	} else {
@@ -344,6 +344,6 @@ void ddr3_init(void)
 	}
 
 	init_pll(&ddr3b_333);
-	ddr3_init_ddrphy(K2HK_DDR3B_DDRPHYC, &ddr3phy_1333_64);
-	ddr3_init_ddremif(K2HK_DDR3B_EMIF_CTRL_BASE, &ddr3_1333_64);
+	ddr3_init_ddrphy(KS2_DDR3B_DDRPHYC, &ddr3phy_1333_64);
+	ddr3_init_ddremif(KS2_DDR3B_EMIF_CTRL_BASE, &ddr3_1333_64);
 }

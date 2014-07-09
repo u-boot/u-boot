@@ -73,7 +73,7 @@
 #define CONFIG_SYS_NS16550_REG_SIZE     -4
 #define CONFIG_SYS_NS16550_COM1         KS2_UART0_BASE
 #define CONFIG_SYS_NS16550_COM2         KS2_UART1_BASE
-#define CONFIG_SYS_NS16550_CLK          clk_get_rate(K2HK_CLK1_6)
+#define CONFIG_SYS_NS16550_CLK          clk_get_rate(KS2_CLK1_6)
 #define CONFIG_CONS_INDEX               1
 #define CONFIG_BAUDRATE                 115200
 
@@ -83,16 +83,16 @@
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_DAVINCI_SPI
 #define CONFIG_SYS_SPI0
-#define CONFIG_SYS_SPI_BASE             K2HK_SPI_BASE
+#define CONFIG_SYS_SPI_BASE             KS2_SPI_BASE
 #define CONFIG_SYS_SPI0_NUM_CS          4
 #define CONFIG_SYS_SPI1
-#define CONFIG_SYS_SPI1_BASE            K2HK_SPI1_BASE
+#define CONFIG_SYS_SPI1_BASE            KS2_SPI1_BASE
 #define CONFIG_SYS_SPI1_NUM_CS          4
 #define CONFIG_SYS_SPI2
 #define CONFIG_SYS_SPI2_NUM_CS          4
-#define CONFIG_SYS_SPI2_BASE            K2HK_SPI2_BASE
+#define CONFIG_SYS_SPI2_BASE            KS2_SPI2_BASE
 #define CONFIG_CMD_SPI
-#define CONFIG_SYS_SPI_CLK              clk_get_rate(K2HK_LPSC_EMIF25_SPI)
+#define CONFIG_SYS_SPI_CLK              clk_get_rate(KS2_LPSC_EMIF25_SPI)
 #define CONFIG_SF_DEFAULT_SPEED         30000000
 #define CONFIG_ENV_SPI_MAX_HZ           CONFIG_SF_DEFAULT_SPEED
 
@@ -264,6 +264,6 @@
 /* we may include files below only after all above definitions */
 #include <asm/arch/hardware.h>
 #include <asm/arch/clock.h>
-#define CONFIG_SYS_HZ_CLOCK             clk_get_rate(K2HK_CLK1_6)
+#define CONFIG_SYS_HZ_CLOCK             clk_get_rate(KS2_CLK1_6)
 
 #endif /* __CONFIG_K2HK_EVM_H */

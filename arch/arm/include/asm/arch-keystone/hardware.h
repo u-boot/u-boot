@@ -105,7 +105,7 @@ typedef volatile unsigned int   *dv_reg_p;
 #ifndef __ASSEMBLY__
 static inline int cpu_is_k2hk(void)
 {
-	unsigned int jtag_id	= __raw_readl(JTAG_ID_REG);
+	unsigned int jtag_id	= __raw_readl(KS2_JTAG_ID_REG);
 	unsigned int part_no	= (jtag_id >> 12) & 0xffff;
 
 	return (part_no == 0xb981) ? 1 : 0;
@@ -113,7 +113,7 @@ static inline int cpu_is_k2hk(void)
 
 static inline int cpu_revision(void)
 {
-	unsigned int jtag_id	= __raw_readl(JTAG_ID_REG);
+	unsigned int jtag_id	= __raw_readl(KS2_JTAG_ID_REG);
 	unsigned int rev	= (jtag_id >> 28) & 0xf;
 
 	return rev;

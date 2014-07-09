@@ -74,15 +74,15 @@ void ddr3_reset_ddrphy(void)
 	u32 tmp;
 
 	/* Assert DDR3A  PHY reset */
-	tmp = readl(K2HK_DDR3APLLCTL1);
+	tmp = readl(KS2_DDR3APLLCTL1);
 	tmp |= KS2_DDR3_PLLCTRL_PHY_RESET;
-	writel(tmp, K2HK_DDR3APLLCTL1);
+	writel(tmp, KS2_DDR3APLLCTL1);
 
 	/* wait 10us to catch the reset */
 	udelay(10);
 
 	/* Release DDR3A PHY reset */
-	tmp = readl(K2HK_DDR3APLLCTL1);
+	tmp = readl(KS2_DDR3APLLCTL1);
 	tmp &= ~KS2_DDR3_PLLCTRL_PHY_RESET;
-	__raw_writel(tmp, K2HK_DDR3APLLCTL1);
+	__raw_writel(tmp, KS2_DDR3APLLCTL1);
 }

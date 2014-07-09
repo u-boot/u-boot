@@ -15,8 +15,8 @@
 
 void chip_configuration_unlock(void)
 {
-	__raw_writel(KEYSTONE_KICK0_MAGIC, KEYSTONE_KICK0);
-	__raw_writel(KEYSTONE_KICK1_MAGIC, KEYSTONE_KICK1);
+	__raw_writel(KS2_KICK0_MAGIC, KS2_KICK0);
+	__raw_writel(KS2_KICK1_MAGIC, KS2_KICK1);
 }
 
 int arch_cpu_init(void)

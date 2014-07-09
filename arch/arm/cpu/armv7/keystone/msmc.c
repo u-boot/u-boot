@@ -58,7 +58,7 @@ struct msms_regs {
 
 void share_all_segments(int priv_id)
 {
-	struct msms_regs *msmc = (struct msms_regs *)K2HK_MSMC_CTRL_BASE;
+	struct msms_regs *msmc = (struct msms_regs *)KS2_MSMC_CTRL_BASE;
 	int j;
 
 	for (j = 0; j < 8; j++) {
