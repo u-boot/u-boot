@@ -130,8 +130,7 @@ int board_eth_init(bd_t *bis)
 
 static int setup_fec(void)
 {
-	struct iomuxc_base_regs *iomuxc_regs =
-				(struct iomuxc_base_regs *)IOMUXC_BASE_ADDR;
+	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
 	int ret;
 
 	/* clear gpr1[14], gpr1[18:17] to select anatop clock */

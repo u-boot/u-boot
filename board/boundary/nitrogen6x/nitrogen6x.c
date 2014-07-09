@@ -644,8 +644,7 @@ int overwrite_console(void)
 
 int board_init(void)
 {
-	struct iomuxc_base_regs *const iomuxc_regs
-		= (struct iomuxc_base_regs *)IOMUXC_BASE_ADDR;
+	struct iomuxc *const iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
 
 	clrsetbits_le32(&iomuxc_regs->gpr[1],
 			IOMUXC_GPR1_OTG_ID_MASK,

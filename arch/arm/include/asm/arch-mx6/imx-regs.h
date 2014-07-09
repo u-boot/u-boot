@@ -764,15 +764,6 @@ struct anatop_regs {
 #define ANATOP_PFD_CLKGATE_SHIFT(n)	(7+((n)*8))
 #define ANATOP_PFD_CLKGATE_MASK(n)	(1<<ANATOP_PFD_CLKGATE_SHIFT(n))
 
-struct iomuxc_base_regs {
-	u32     gpr[14];        /* 0x000 */
-	u32     obsrv[5];       /* 0x038 */
-	u32     swmux_ctl[197]; /* 0x04c */
-	u32     swpad_ctl[250]; /* 0x360 */
-	u32     swgrp[26];      /* 0x748 */
-	u32     daisy[104];     /* 0x7b0..94c */
-};
-
 struct wdog_regs {
 	u16	wcr;	/* Control */
 	u16	wsr;	/* Service */
