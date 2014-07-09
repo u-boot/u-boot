@@ -157,11 +157,14 @@ void ft_board_setup(void *blob, bd_t *bd)
 	u64 size[2];
 	char name[32], *env, *endp;
 	int lpae, nodeoffset;
+	int unitrd_fixup = 0;
 	u32 ddr3a_size;
 	int nbanks;
 
 	env = getenv("mem_lpae");
 	lpae = env && simple_strtol(env, NULL, 0);
+	env = getenv("uinitrd_fixup");
+	unitrd_fixup = env && simple_strtol(env, NULL, 0);
 
 	ddr3a_size = 0;
 	if (lpae) {
@@ -204,10 +207,11 @@ void ft_board_setup(void *blob, bd_t *bd)
 	fdt_fixup_memory_banks(blob, start, size, nbanks);
 
 	/* Fix up the initrd */
-	if (lpae) {
+	if (lpae && unitrd_fixup) {
 		u64 initrd_start, initrd_end;
 		u32 *prop1, *prop2;
 		int err;
+
 		nodeoffset = fdt_path_offset(blob, "/chosen");
 		if (nodeoffset >= 0) {
 			prop1 = (u32 *)fdt_getprop(blob, nodeoffset,
