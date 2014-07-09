@@ -1,9 +1,10 @@
 #
-# K2HK-EVM: board Makefile
+# KS2-EVM: board Makefile
 # (C) Copyright 2012-2014
 #     Texas Instruments Incorporated, <www.ti.com>
 # SPDX-License-Identifier:     GPL-2.0+
 #
 
-obj-y	+= board.o
-obj-y	+= ddr3.o
+obj-y += board.o
+obj-$(CONFIG_K2HK_EVM) += board_k2hk.o
+obj-$(CONFIG_K2HK_EVM) += ddr3_k2hk.o
