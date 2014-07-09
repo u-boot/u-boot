@@ -398,6 +398,9 @@ struct src {
 
 
 struct iomuxc {
+#ifdef CONFIG_MX6SX
+	u8 reserved[0x4000];
+#endif
 	u32 gpr[14];
 	u32 omux[5];
 	/* mux and pad registers */
