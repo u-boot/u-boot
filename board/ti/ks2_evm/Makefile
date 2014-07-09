@@ -6,5 +6,6 @@
 #
 
 obj-y += board.o
+obj-y += ddr3_cfg.o
 obj-$(CONFIG_K2HK_EVM) += board_k2hk.o
 obj-$(CONFIG_K2HK_EVM) += ddr3_k2hk.o
