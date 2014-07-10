@@ -110,7 +110,6 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 static void lcd_drawchars(ushort x, ushort y, uchar *str, int count);
-static inline void lcd_puts_xy(ushort x, ushort y, uchar *s);
 static inline void lcd_putc_xy(ushort x, ushort y, uchar  c);
 
 static int lcd_init(void *lcdbase);
@@ -372,15 +371,6 @@ static void lcd_drawchars(ushort x, ushort y, uchar *str, int count)
 #endif
 	}
 }
-
-/*----------------------------------------------------------------------*/
-
-static inline void lcd_puts_xy(ushort x, ushort y, uchar *s)
-{
-	lcd_drawchars(x, y, s, strlen((char *)s));
-}
-
-/*----------------------------------------------------------------------*/
 
 static inline void lcd_putc_xy(ushort x, ushort y, uchar c)
 {
