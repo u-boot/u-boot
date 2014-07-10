@@ -17,6 +17,8 @@
 
 #define CONFIG_SYS_NO_FLASH
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 #define XILINX_ZYNQMP
 
 /* Generic Interrupt Controller Definitions */
