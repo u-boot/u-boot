@@ -220,7 +220,7 @@
 
 */
 
-
+
 
 /* Preliminaries */
 
@@ -1132,7 +1132,7 @@ gAllocatedSize))
 
 #endif
 
-
+
 
 /*
   Type declarations
@@ -1272,7 +1272,7 @@ nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
        serviced via calls to mmap, and then later released via munmap.
 
 */
-
+
 /*  sizes, alignments */
 
 #define SIZE_SZ                (sizeof(INTERNAL_SIZE_T))
@@ -1297,7 +1297,7 @@ nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define aligned_OK(m)    (((unsigned long)((m)) & (MALLOC_ALIGN_MASK)) == 0)
 
 
-
+
 
 /*
   Physical chunk operations
@@ -1332,7 +1332,7 @@ nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define chunk_at_offset(p, s)  ((mchunkptr)(((char*)(p)) + (s)))
 
 
-
+
 
 /*
   Dealing with use bits
@@ -1371,7 +1371,7 @@ nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  (((mchunkptr)(((char*)(p)) + (s)))->size &= ~(PREV_INUSE))
 
 
-
+
 
 /*
   Dealing with size fields
@@ -1394,7 +1394,7 @@ nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define set_foot(p, s)   (((mchunkptr)((char*)(p) + (s)))->prev_size = (s))
 
 
-
+
 
 
 /*
@@ -1566,7 +1566,7 @@ void mem_malloc_init(ulong start, ulong size)
 
 #define is_small_request(nb) (nb < MAX_SMALLBIN_SIZE - SMALLBIN_WIDTH)
 
-
+
 
 /*
     To help compensate for the large number of bins, a one-level index
@@ -1590,7 +1590,7 @@ void mem_malloc_init(ulong start, ulong size)
 #define clear_binblock(ii)  (binblocks_w = (mbinptr)(binblocks_r & ~(idx2binblock(ii))))
 
 
-
+
 
 
 /*  Other static bookkeeping data */
@@ -1628,7 +1628,7 @@ static unsigned int max_n_mmaps = 0;
 static unsigned long max_mmapped_mem = 0;
 #endif
 
-
+
 
 /*
   Debugging support
@@ -1769,7 +1769,7 @@ static void do_check_malloced_chunk(p, s) mchunkptr p; INTERNAL_SIZE_T s;
 #define check_malloced_chunk(P,N)
 #endif
 
-
+
 
 /*
   Macro-based internal utilities
@@ -1841,7 +1841,7 @@ static void do_check_malloced_chunk(p, s) mchunkptr p; INTERNAL_SIZE_T s;
   (last_remainder->fd = last_remainder->bk = last_remainder)
 
 
-
+
 
 
 /* Routines dealing with mmap(). */
@@ -1972,7 +1972,7 @@ static mchunkptr mremap_chunk(p, new_size) mchunkptr p; size_t new_size;
 #endif /* HAVE_MMAP */
 
 
-
+
 
 /*
   Extend the top-most chunk by obtaining memory from system.
@@ -2089,7 +2089,7 @@ static void malloc_extend_top(nb) INTERNAL_SIZE_T nb;
 }
 
 
-
+
 
 /* Main public routines */
 
@@ -2396,7 +2396,7 @@ Void_t* mALLOc(bytes) size_t bytes;
 }
 
 
-
+
 
 /*
 
@@ -2513,7 +2513,7 @@ void fREe(mem) Void_t* mem;
 }
 
 
-
+
 
 
 /*
@@ -2750,7 +2750,7 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
 }
 
 
-
+
 
 /*
 
@@ -2868,7 +2868,7 @@ Void_t* mEMALIGn(alignment, bytes) size_t alignment; size_t bytes;
 
 }
 
-
+
 
 
 /*
@@ -2975,7 +2975,7 @@ void cfree(mem) Void_t *mem;
 }
 #endif
 
-
+
 
 /*
 
@@ -3056,7 +3056,7 @@ int malloc_trim(pad) size_t pad;
   }
 }
 
-
+
 
 /*
   malloc_usable_size:
@@ -3092,7 +3092,7 @@ size_t malloc_usable_size(mem) Void_t* mem;
 }
 
 
-
+
 
 /* Utility to update current_mallinfo for malloc_stats and mallinfo() */
 
@@ -3136,7 +3136,7 @@ static void malloc_update_mallinfo()
 }
 #endif	/* DEBUG */
 
-
+
 
 /*
 
@@ -3183,7 +3183,7 @@ struct mallinfo mALLINFo()
 #endif	/* DEBUG */
 
 
-
+
 
 /*
   mallopt:
