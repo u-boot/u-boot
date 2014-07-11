@@ -128,12 +128,6 @@ static int calc_divisor (NS16550_t port)
 	}
 	port->osc_12m_sel = 0;			/* clear if previsouly set */
 #endif
-#ifdef CONFIG_OMAP1610
-	/* If can't cleanly clock 115200 set div to 1 */
-	if ((CONFIG_SYS_NS16550_CLK == 48000000) && (gd->baudrate == 115200)) {
-		return (26);		/* return 26 for base divisor */
-	}
-#endif
 
 #define MODE_X_DIV 16
 	/* Compute divisor value. Normally, we should simply return:
