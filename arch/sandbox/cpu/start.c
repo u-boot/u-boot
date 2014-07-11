@@ -240,6 +240,9 @@ int main(int argc, char *argv[])
 
 	memset(&data, '\0', sizeof(data));
 	gd = &data;
+#ifdef CONFIG_SYS_MALLOC_F_LEN
+	gd->malloc_base = CONFIG_MALLOC_F_ADDR;
+#endif
 
 	/* Do pre- and post-relocation init */
 	board_init_f(0);
