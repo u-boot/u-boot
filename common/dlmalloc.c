@@ -930,6 +930,8 @@ struct mallinfo mALLINFo();
 #endif	/* 0 */			/* Moved to malloc.h */
 
 #include <malloc.h>
+#include <asm/io.h>
+
 #ifdef DEBUG
 #if __STD_C
 static void malloc_update_mallinfo (void);
@@ -2174,6 +2176,20 @@ Void_t* mALLOc(bytes) size_t bytes;
 
   INTERNAL_SIZE_T nb;
 
+#ifdef CONFIG_SYS_MALLOC_F_LEN
+	if (!(gd->flags & GD_FLG_RELOC)) {
+		ulong new_ptr;
+		void *ptr;
+
+		new_ptr = gd->malloc_ptr + bytes;
+		if (new_ptr > gd->malloc_limit)
+			panic("Out of pre-reloc memory");
+		ptr = map_sysmem(gd->malloc_base + gd->malloc_ptr, bytes);
+		gd->malloc_ptr = ALIGN(new_ptr, sizeof(new_ptr));
+		return ptr;
+	}
+#endif
+
   /* check if mem_malloc_init() was run */
   if ((mem_malloc_start == 0) && (mem_malloc_end == 0)) {
     /* not initialized yet */
@@ -2437,6 +2453,12 @@ void fREe(mem) Void_t* mem;
   mchunkptr fwd;       /* misc temp for linking */
   int       islr;      /* track whether merging with last_remainder */
 
+#ifdef CONFIG_SYS_MALLOC_F_LEN
+	/* free() is a no-op - all the memory will be freed on relocation */
+	if (!(gd->flags & GD_FLG_RELOC))
+		return;
+#endif
+
   if (mem == NULL)                              /* free(0) has no effect */
     return;
 
@@ -2587,6 +2609,13 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
 
   /* realloc of null is supposed to be same as malloc */
   if (oldmem == NULL) return mALLOc(bytes);
+
+#ifdef CONFIG_SYS_MALLOC_F_LEN
+	if (!(gd->flags & GD_FLG_RELOC)) {
+		/* This is harder to support and should not be needed */
+		panic("pre-reloc realloc() is not supported");
+	}
+#endif
 
   newp    = oldp    = mem2chunk(oldmem);
   newsize = oldsize = chunksize(oldp);
@@ -2933,6 +2962,12 @@ Void_t* cALLOc(n, elem_size) size_t n; size_t elem_size;
     return NULL;
   else
   {
+#ifdef CONFIG_SYS_MALLOC_F_LEN
+	if (!(gd->flags & GD_FLG_RELOC)) {
+		MALLOC_ZERO(mem, sz);
+		return mem;
+	}
+#endif
     p = mem2chunk(mem);
 
     /* Two optional cases in which clearing not necessary */

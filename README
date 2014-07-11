@@ -3736,6 +3736,19 @@ Configuration Settings:
 - CONFIG_SYS_MALLOC_LEN:
 		Size of DRAM reserved for malloc() use.
 
+- CONFIG_SYS_MALLOC_F_LEN
+		Size of the malloc() pool for use before relocation. If
+		this is defined, then a very simple malloc() implementation
+		will become available before relocation. The address is just
+		below the global data, and the stack is moved down to make
+		space.
+
+		This feature allocates regions with increasing addresses
+		within the region. calloc() is supported, but realloc()
+		is not available. free() is supported but does nothing.
+		The memory will be freed (or in fact just forgotton) when
+		U-Boot relocates itself.
+
 - CONFIG_SYS_BOOTM_LEN:
 		Normally compressed uImages are limited to an
 		uncompressed size of 8 MBytes. If this is not enough,

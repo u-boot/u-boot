@@ -85,6 +85,11 @@ typedef struct global_data {
 #endif
 	unsigned long timebase_h;
 	unsigned long timebase_l;
+#ifdef CONFIG_SYS_MALLOC_F_LEN
+	unsigned long malloc_base;	/* base address of early malloc() */
+	unsigned long malloc_limit;	/* limit address */
+	unsigned long malloc_ptr;	/* current address */
+#endif
 	struct arch_global_data arch;	/* architecture-specific data */
 } gd_t;
 #endif
