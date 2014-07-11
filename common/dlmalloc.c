@@ -1,5 +1,9 @@
 #include <common.h>
 
+#ifdef CONFIG_SANDBOX
+#define DEBUG
+#endif
+
 #if 0	/* Moved to malloc.h */
 /* ---------- To make a malloc.h, start cutting here ------------ */
 
