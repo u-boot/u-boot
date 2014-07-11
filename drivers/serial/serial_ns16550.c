@@ -120,6 +120,8 @@ static NS16550_t serial_ports[6] = {
 
 static int calc_divisor (NS16550_t port)
 {
+	const unsigned int mode_x_div = 16;
+
 #ifdef CONFIG_OMAP1510
 	/* If can't cleanly clock 115200 set div to 1 */
 	if ((CONFIG_SYS_NS16550_CLK == 12000000) && (gd->baudrate == 115200)) {
@@ -129,10 +131,8 @@ static int calc_divisor (NS16550_t port)
 	port->osc_12m_sel = 0;			/* clear if previsouly set */
 #endif
 
-#define MODE_X_DIV 16
-
 	return DIV_ROUND_CLOSEST(CONFIG_SYS_NS16550_CLK,
-						MODE_X_DIV * gd->baudrate);
+						mode_x_div * gd->baudrate);
 }
 
 void
