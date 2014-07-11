@@ -67,10 +67,19 @@ ENTRY(_main)
 	ldr	sp, =(CONFIG_SYS_INIT_SP_ADDR)
 #endif
 	bic	sp, sp, #7	/* 8-byte alignment for ABI compliance */
+	mov	r2, sp
 	sub	sp, sp, #GD_SIZE	/* allocate one GD above SP */
 	bic	sp, sp, #7	/* 8-byte alignment for ABI compliance */
 	mov	r9, sp		/* GD is above SP */
+	mov	r1, sp
 	mov	r0, #0
+clr_gd:
+	cmp	r1, r2			/* while not at end of GD */
+	strlo	r0, [r1]		/* clear 32-bit GD word */
+	addlo	r1, r1, #4		/* move to next */
+	blo	clr_gd
+
+	/* mov r0, #0 not needed due to above code */
 	bl	board_init_f
 
 #if ! defined(CONFIG_SPL_BUILD)
