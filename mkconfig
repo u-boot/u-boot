@@ -60,13 +60,7 @@ if [ "$cpu" = "-" ] ; then
 	cpu=
 fi
 
-if [ "$6" = "<none>" ] ; then
-	board=
-elif [ "$6" = "-" ] ; then
-	board=${BOARD_NAME}
-else
-	board="$6"
-fi
+[ "$6" != "-" ] && board="$6"
 [ "$5" != "-" ] && vendor="$5"
 [ "$4" != "-" ] && soc="$4"
 [ $# -gt 7 ] && [ "$8" != "-" ] && {
