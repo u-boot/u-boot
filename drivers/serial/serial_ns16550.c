@@ -130,13 +130,9 @@ static int calc_divisor (NS16550_t port)
 #endif
 
 #define MODE_X_DIV 16
-	/* Compute divisor value. Normally, we should simply return:
-	 *   CONFIG_SYS_NS16550_CLK) / MODE_X_DIV / gd->baudrate
-	 * but we need to round that value by adding 0.5.
-	 * Rounding is especially important at high baud rates.
-	 */
-	return (CONFIG_SYS_NS16550_CLK + (gd->baudrate * (MODE_X_DIV / 2))) /
-		(MODE_X_DIV * gd->baudrate);
+
+	return DIV_ROUND_CLOSEST(CONFIG_SYS_NS16550_CLK,
+						MODE_X_DIV * gd->baudrate);
 }
 
 void
