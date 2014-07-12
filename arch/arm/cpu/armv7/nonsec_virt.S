@@ -46,6 +46,7 @@ _secure_monitor:
 #endif
 
 	mcr	p15, 0, r1, c1, c1, 0		@ write SCR (with NS bit set)
+	isb
 
 #ifdef CONFIG_ARMV7_VIRT
 	mrceq	p15, 0, r0, c12, c0, 1		@ get MVBAR value
