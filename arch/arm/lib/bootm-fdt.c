@@ -20,7 +20,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int arch_fixup_memory_node(void *blob)
+int arch_fixup_fdt(void *blob)
 {
 	bd_t *bd = gd->bd;
 	int bank;

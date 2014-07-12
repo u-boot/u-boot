@@ -359,7 +359,7 @@ void boot_prep_vxworks(bootm_headers_t *images)
 	if (images->ft_addr) {
 		off = fdt_path_offset(images->ft_addr, "/memory");
 		if (off < 0) {
-			if (arch_fixup_memory_node(images->ft_addr))
+			if (arch_fixup_fdt(images->ft_addr))
 				puts("## WARNING: fixup memory failed!\n");
 		}
 	}
