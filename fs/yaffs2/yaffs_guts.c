@@ -3203,19 +3203,18 @@ static void yaffs_load_name_from_oh(struct yaffs_dev *dev, YCHAR *name,
 		} else {
 			yaffs_strncpy(name, oh_name + 1, buff_size - 1);
 		}
-	} else {
-#else
-	{
-#endif
-		yaffs_strncpy(name, oh_name, buff_size - 1);
+
+		return;
 	}
+#endif
+
+	yaffs_strncpy(name, oh_name, buff_size - 1);
 }
 
 static void yaffs_load_oh_from_name(struct yaffs_dev *dev, YCHAR *oh_name,
 				    const YCHAR *name)
 {
 #ifdef CONFIG_YAFFS_AUTO_UNICODE
-
 	int is_ascii;
 	YCHAR *w;
 
@@ -3246,12 +3245,12 @@ static void yaffs_load_oh_from_name(struct yaffs_dev *dev, YCHAR *oh_name,
 			*oh_name = 0;
 			yaffs_strncpy(oh_name + 1, name, YAFFS_MAX_NAME_LENGTH - 2);
 		}
-	} else {
-#else
-	{
-#endif
-		yaffs_strncpy(oh_name, name, YAFFS_MAX_NAME_LENGTH - 1);
+
+		return;
 	}
+#endif
+
+	yaffs_strncpy(oh_name, name, YAFFS_MAX_NAME_LENGTH - 1);
 }
 
 /* UpdateObjectHeader updates the header on NAND for an object.
