@@ -21,7 +21,7 @@
 static struct list_head mmc_devices;
 static int cur_dev_num = -1;
 
-int __weak board_mmc_getwp(struct mmc *mmc)
+__weak int board_mmc_getwp(struct mmc *mmc)
 {
 	return -1;
 }
@@ -375,7 +375,7 @@ static int mmc_send_op_cond_iter(struct mmc *mmc, struct mmc_cmd *cmd,
 	return 0;
 }
 
-int mmc_send_op_cond(struct mmc *mmc)
+static int mmc_send_op_cond(struct mmc *mmc)
 {
 	struct mmc_cmd cmd;
 	int err, i;
@@ -397,7 +397,7 @@ int mmc_send_op_cond(struct mmc *mmc)
 	return IN_PROGRESS;
 }
 
-int mmc_complete_op_cond(struct mmc *mmc)
+static int mmc_complete_op_cond(struct mmc *mmc)
 {
 	struct mmc_cmd cmd;
 	int timeout = 1000;

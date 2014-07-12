@@ -120,7 +120,7 @@ static void omap5_pbias_config(struct mmc *mmc)
 }
 #endif
 
-unsigned char mmc_board_init(struct mmc *mmc)
+static unsigned char mmc_board_init(struct mmc *mmc)
 {
 #if defined(CONFIG_OMAP34XX)
 	t2_t *t2_base = (t2_t *)T2_BASE;
