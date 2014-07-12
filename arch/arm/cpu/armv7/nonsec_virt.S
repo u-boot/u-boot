@@ -38,10 +38,10 @@ _secure_monitor:
 	bic	r1, r1, #0x4e			@ clear IRQ, FIQ, EA, nET bits
 	orr	r1, r1, #0x31			@ enable NS, AW, FW bits
 
-#ifdef CONFIG_ARMV7_VIRT
 	mrc	p15, 0, r0, c0, c1, 1		@ read ID_PFR1
 	and	r0, r0, #CPUID_ARM_VIRT_MASK	@ mask virtualization bits
 	cmp	r0, #(1 << CPUID_ARM_VIRT_SHIFT)
+#ifdef CONFIG_ARMV7_VIRT
 	orreq	r1, r1, #0x100			@ allow HVC instruction
 #endif
 
@@ -52,7 +52,14 @@ _secure_monitor:
 	mrceq	p15, 0, r0, c12, c0, 1		@ get MVBAR value
 	mcreq	p15, 4, r0, c12, c0, 0		@ write HVBAR
 #endif
+	bne	1f
 
+	@ Reset CNTVOFF to 0 before leaving monitor mode
+	mrc	p15, 0, r0, c0, c1, 1		@ read ID_PFR1
+	ands	r0, r0, #CPUID_ARM_GENTIMER_MASK	@ test arch timer bits
+	movne	r0, #0
+	mcrrne	p15, 4, r0, r0, c14		@ Reset CNTVOFF to zero
+1:
 	movs	pc, lr				@ return to non-secure SVC
 
 _hyp_trap:
