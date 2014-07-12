@@ -13,16 +13,9 @@
 #include <asm/armv7.h>
 #include <asm/gic.h>
 #include <asm/io.h>
+#include <asm/secure.h>
 
 unsigned long gic_dist_addr;
-
-static unsigned int read_cpsr(void)
-{
-	unsigned int reg;
-
-	asm volatile ("mrs %0, cpsr\n" : "=r" (reg));
-	return reg;
-}
 
 static unsigned int read_id_pfr1(void)
 {
@@ -72,6 +65,18 @@ static unsigned long get_gicd_base_address(void)
 #endif
 }
 
+static void relocate_secure_section(void)
+{
+#ifdef CONFIG_ARMV7_SECURE_BASE
+	size_t sz = __secure_end - __secure_start;
+
+	memcpy((void *)CONFIG_ARMV7_SECURE_BASE, __secure_start, sz);
+	flush_dcache_range(CONFIG_ARMV7_SECURE_BASE,
+			   CONFIG_ARMV7_SECURE_BASE + sz + 1);
+	invalidate_icache_all();
+#endif
+}
+
 static void kick_secondary_cpus_gic(unsigned long gicdaddr)
 {
 	/* kick all CPUs (except this one) by writing to GICD_SGIR */
@@ -83,35 +88,7 @@ void __weak smp_kick_all_cpus(void)
 	kick_secondary_cpus_gic(gic_dist_addr);
 }
 
-int armv7_switch_hyp(void)
-{
-	unsigned int reg;
-
-	/* check whether we are in HYP mode already */
-	if ((read_cpsr() & 0x1f) == 0x1a) {
-		debug("CPU already in HYP mode\n");
-		return 0;
-	}
-
-	/* check whether the CPU supports the virtualization extensions */
-	reg = read_id_pfr1();
-	if ((reg & CPUID_ARM_VIRT_MASK) != 1 << CPUID_ARM_VIRT_SHIFT) {
-		printf("HYP mode: Virtualization extensions not implemented.\n");
-		return -1;
-	}
-
-	/* call the HYP switching code on this CPU also */
-	_switch_to_hyp();
-
-	if ((read_cpsr() & 0x1F) != 0x1a) {
-		printf("HYP mode: switch not successful.\n");
-		return -1;
-	}
-
-	return 0;
-}
-
-int armv7_switch_nonsec(void)
+int armv7_init_nonsec(void)
 {
 	unsigned int reg;
 	unsigned itlinesnr, i;
@@ -147,11 +124,13 @@ int armv7_switch_nonsec(void)
 	for (i = 1; i <= itlinesnr; i++)
 		writel((unsigned)-1, gic_dist_addr + GICD_IGROUPRn + 4 * i);
 
-	smp_set_core_boot_addr((unsigned long)_smp_pen, -1);
+#ifndef CONFIG_ARMV7_PSCI
+	smp_set_core_boot_addr((unsigned long)secure_ram_addr(_smp_pen), -1);
 	smp_kick_all_cpus();
+#endif
 
 	/* call the non-sec switching code on this CPU also */
-	_nonsec_init();
-
+	relocate_secure_section();
+	secure_ram_addr(_nonsec_init)();
 	return 0;
 }
