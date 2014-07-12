@@ -30,24 +30,7 @@ static unsigned long get_gicd_base_address(void)
 #ifdef CONFIG_ARM_GIC_BASE_ADDRESS
 	return CONFIG_ARM_GIC_BASE_ADDRESS + GIC_DIST_OFFSET;
 #else
-	unsigned midr;
 	unsigned periphbase;
-
-	/* check whether we are an Cortex-A15 or A7.
-	 * The actual HYP switch should work with all CPUs supporting
-	 * the virtualization extension, but we need the GIC address,
-	 * which we know only for sure for those two CPUs.
-	 */
-	asm("mrc p15, 0, %0, c0, c0, 0\n" : "=r"(midr));
-	switch (midr & MIDR_PRIMARY_PART_MASK) {
-	case MIDR_CORTEX_A9_R0P1:
-	case MIDR_CORTEX_A15_R0P0:
-	case MIDR_CORTEX_A7_R0P0:
-		break;
-	default:
-		printf("nonsec: could not determine GIC address.\n");
-		return -1;
-	}
 
 	/* get the GIC base address from the CBAR register */
 	asm("mrc p15, 4, %0, c15, c0, 0\n" : "=r" (periphbase));
