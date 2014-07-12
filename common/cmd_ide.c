@@ -321,16 +321,6 @@ inline unsigned char __ide_inb(int dev, int port)
 unsigned char ide_inb(int dev, int port)
 	__attribute__ ((weak, alias("__ide_inb")));
 
-#ifdef CONFIG_TUNE_PIO
-inline int __ide_set_piomode(int pio_mode)
-{
-	return 0;
-}
-
-inline int ide_set_piomode(int pio_mode)
-	__attribute__ ((weak, alias("__ide_set_piomode")));
-#endif
-
 void ide_init(void)
 {
 	unsigned char c;
@@ -575,14 +565,6 @@ static void ide_ident(block_dev_desc_t *dev_desc)
 #ifdef CONFIG_ATAPI
 	int retries = 0;
 #endif
-
-#ifdef CONFIG_TUNE_PIO
-	int pio_mode;
-#endif
-
-#if 0
-	int mode, cycle_time;
-#endif
 	int device;
 
 	device = dev_desc->dev;
@@ -690,72 +672,6 @@ static void ide_ident(block_dev_desc_t *dev_desc)
 		dev_desc->removable = 1;
 	else
 		dev_desc->removable = 0;
-
-#ifdef CONFIG_TUNE_PIO
-	/* Mode 0 - 2 only, are directly determined by word 51. */
-	pio_mode = iop.tPIO;
-	if (pio_mode > 2) {
-		printf("WARNING: Invalid PIO (word 51 = %d).\n", pio_mode);
-		/* Force it to dead slow, and hope for the best... */
-		pio_mode = 0;
-	}
-
-	/* Any CompactFlash Storage Card that supports PIO mode 3 or above
-	 * shall set bit 1 of word 53 to one and support the fields contained
-	 * in words 64 through 70.
-	 */
-	if (iop.field_valid & 0x02) {
-		/*
-		 * Mode 3 and above are possible.  Check in order from slow
-		 * to fast, so we wind up with the highest mode allowed.
-		 */
-		if (iop.eide_pio_modes & 0x01)
-			pio_mode = 3;
-		if (iop.eide_pio_modes & 0x02)
-			pio_mode = 4;
-		if (ata_id_is_cfa((u16 *)&iop)) {
-			if ((iop.cf_advanced_caps & 0x07) == 0x01)
-				pio_mode = 5;
-			if ((iop.cf_advanced_caps & 0x07) == 0x02)
-				pio_mode = 6;
-		}
-	}
-
-	/* System-specific, depends on bus speeds, etc. */
-	ide_set_piomode(pio_mode);
-#endif /* CONFIG_TUNE_PIO */
-
-#if 0
-	/*
-	 * Drive PIO mode autoselection
-	 */
-	mode = iop.tPIO;
-
-	printf("tPIO = 0x%02x = %d\n", mode, mode);
-	if (mode > 2) {		/* 2 is maximum allowed tPIO value */
-		mode = 2;
-		debug("Override tPIO -> 2\n");
-	}
-	if (iop.field_valid & 2) {	/* drive implements ATA2? */
-		debug("Drive implements ATA2\n");
-		if (iop.capability & 8) {	/* drive supports use_iordy? */
-			cycle_time = iop.eide_pio_iordy;
-		} else {
-			cycle_time = iop.eide_pio;
-		}
-		debug("cycle time = %d\n", cycle_time);
-		mode = 4;
-		if (cycle_time > 120)
-			mode = 3;	/* 120 ns for PIO mode 4 */
-		if (cycle_time > 180)
-			mode = 2;	/* 180 ns for PIO mode 3 */
-		if (cycle_time > 240)
-			mode = 1;	/* 240 ns for PIO mode 4 */
-		if (cycle_time > 383)
-			mode = 0;	/* 383 ns for PIO mode 4 */
-	}
-	printf("PIO mode to use: PIO %d\n", mode);
-#endif /* 0 */
 
 #ifdef CONFIG_ATAPI
 	if (dev_desc->if_type == IF_TYPE_ATAPI) {
