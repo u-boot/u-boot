@@ -44,10 +44,19 @@ _monitor_vectors:
  * ip: target PC
  */
 _secure_monitor:
-	mrc	p15, 0, r5, c1, c1, 0		@ read SCR
-	bic	r5, r5, #0x4e			@ clear IRQ, FIQ, EA, nET bits
-	orr	r5, r5, #0x31			@ enable NS, AW, FW bits
+#ifdef CONFIG_ARMV7_PSCI
+	ldr	r5, =_psci_vectors		@ Switch to the next monitor
+	mcr	p15, 0, r5, c12, c0, 1
+	isb
 
+	@ Obtain a secure stack, and configure the PSCI backend
+	bl	psci_arch_init
+#endif
+
+	mrc	p15, 0, r5, c1, c1, 0		@ read SCR
+	bic	r5, r5, #0x4a			@ clear IRQ, EA, nET bits
+	orr	r5, r5, #0x31			@ enable NS, AW, FW bits
+						@ FIQ preserved for secure mode
 	mov	r6, #SVC_MODE			@ default mode is SVC
 	is_cpu_virt_capable r4
 #ifdef CONFIG_ARMV7_VIRT
