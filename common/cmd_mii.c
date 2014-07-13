@@ -160,10 +160,10 @@ static void dump_reg(
 
 		mask_in_place = pdesc->mask << pdesc->lo;
 
-		printf("  (%04hx:%04hx) %u.",
-			mask_in_place,
-			regval & mask_in_place,
-			prd->regno);
+		printf("  (%04hx:%04x) %u.",
+		       mask_in_place,
+		       regval & mask_in_place,
+		       prd->regno);
 
 		if (special_field(prd->regno, pdesc, regval)) {
 		}
