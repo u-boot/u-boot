@@ -423,12 +423,14 @@ class BuilderThread(threading.Thread):
                         force_build or self.builder.force_build,
                         self.builder.force_build_failures)
                 failed = result.return_code or result.stderr
+                did_config = do_config
                 if failed and not do_config:
                     # If our incremental build failed, try building again
                     # with a reconfig.
                     if self.builder.force_config_on_failure:
                         result, request_config = self.RunCommit(commit_upto,
                             brd, work_dir, True, True, False)
+                        did_config = True
                 do_config = request_config
 
                 # If we built that commit, then config is done. But if we got
@@ -445,7 +447,7 @@ class BuilderThread(threading.Thread):
                 # Of course this is substantially slower if there are build
                 # errors/warnings (e.g. 2-3x slower even if only 10% of builds
                 # have problems).
-                if (failed and not result.already_done and not do_config and
+                if (failed and not result.already_done and not did_config and
                         self.builder.force_config_on_failure):
                     # If this build failed, try the next one with a
                     # reconfigure.
