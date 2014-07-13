@@ -188,7 +188,8 @@ class BuilderThread(threading.Thread):
         return self.builder.do_make(commit, brd, stage, cwd, *args,
                 **kwargs)
 
-    def RunCommit(self, commit_upto, brd, work_dir, do_config, force_build):
+    def RunCommit(self, commit_upto, brd, work_dir, do_config, force_build,
+                  force_build_failures):
         """Build a particular commit.
 
         If the build is already done, and we are not forcing a build, we skip
@@ -200,6 +201,8 @@ class BuilderThread(threading.Thread):
             work_dir: Directory to which the source will be checked out
             do_config: True to run a make <board>_config on the source
             force_build: Force a build even if one was previously done
+            force_build_failures: Force a bulid if the previous result showed
+                failure
 
         Returns:
             tuple containing:
@@ -215,14 +218,20 @@ class BuilderThread(threading.Thread):
         # Check if the job was already completed last time
         done_file = self.builder.GetDoneFile(commit_upto, brd.target)
         result.already_done = os.path.exists(done_file)
-        if result.already_done and not force_build:
+        will_build = (force_build or force_build_failures or
+            not result.already_done)
+        if result.already_done and will_build:
             # Get the return code from that build and use it
             with open(done_file, 'r') as fd:
                 result.return_code = int(fd.readline())
             err_file = self.builder.GetErrFile(commit_upto, brd.target)
             if os.path.exists(err_file) and os.stat(err_file).st_size:
                 result.stderr = 'bad'
-        else:
+            elif not force_build:
+                # The build passed, so no need to build it again
+                will_build = False
+
+        if will_build:
             # We are going to have to build it. First, get a toolchain
             if not self.toolchain:
                 try:
@@ -411,14 +420,15 @@ class BuilderThread(threading.Thread):
             for commit_upto in range(0, len(job.commits), job.step):
                 result, request_config = self.RunCommit(commit_upto, brd,
                         work_dir, do_config,
-                        force_build or self.builder.force_build)
+                        force_build or self.builder.force_build,
+                        self.builder.force_build_failures)
                 failed = result.return_code or result.stderr
                 if failed and not do_config:
                     # If our incremental build failed, try building again
                     # with a reconfig.
                     if self.builder.force_config_on_failure:
                         result, request_config = self.RunCommit(commit_upto,
-                            brd, work_dir, True, True)
+                            brd, work_dir, True, True, False)
                 do_config = request_config
 
                 # If we built that commit, then config is done. But if we got
@@ -498,6 +508,8 @@ class Builder:
         force_config_on_failure: If a commit fails for a board, disable
             incremental building for the next commit we build for that
             board, so that we will see all warnings/errors again.
+        force_build_failures: If a previously-built build (i.e. built on
+            a previous run of buildman) is marked as failed, rebuild it.
         git_dir: Git directory containing source repository
         last_line_len: Length of the last line we printed (used for erasing
             it with new progress information)
@@ -578,6 +590,7 @@ class Builder:
         self._complete_delay = None
         self._next_delay_update = datetime.now()
         self.force_config_on_failure = True
+        self.force_build_failures = False
         self._step = step
 
         self.col = terminal.Color()

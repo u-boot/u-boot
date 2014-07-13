@@ -72,6 +72,9 @@ parser.add_option('-e', '--show_errors', action='store_true',
 parser.add_option('-f', '--force-build', dest='force_build',
        action='store_true', default=False,
        help='Force build of boards even if already built')
+parser.add_option('-F', '--force-build-failures', dest='force_build_failures',
+       action='store_true', default=False,
+       help='Force build of previously-failed build')
 parser.add_option('-d', '--detail', dest='show_detail',
        action='store_true', default=False,
        help='Show detailed information for each board in summary')
