@@ -213,7 +213,10 @@ class BuilderThread(threading.Thread):
         # self.Make() below, in the event that we do a build.
         result = command.CommandResult()
         result.return_code = 0
-        out_dir = os.path.join(work_dir, 'build')
+        if self.builder.in_tree:
+            out_dir = work_dir
+        else:
+            out_dir = os.path.join(work_dir, 'build')
 
         # Check if the job was already completed last time
         done_file = self.builder.GetDoneFile(commit_upto, brd.target)
@@ -257,7 +260,10 @@ class BuilderThread(threading.Thread):
                 # Set up the environment and command line
                 env = self.toolchain.MakeEnvironment()
                 Mkdir(out_dir)
-                args = ['O=build', '-s']
+                args = []
+                if not self.builder.in_tree:
+                    args.append('O=build')
+                args.append('-s')
                 if self.builder.num_jobs is not None:
                     args.extend(['-j', str(self.builder.num_jobs)])
                 config_args = ['%s_config' % brd.target]
@@ -531,6 +537,9 @@ class Builder:
             the following commits. In fact buildman will reconfigure and
             retry for any failing commits, so generally the only effect of
             this option is to slow things down.
+        in_tree: Build U-Boot in-tree instead of specifying an output
+            directory separate from the source code. This option is really
+            only useful for testing in-tree builds.
 
     Private members:
         _base_board_dict: Last-summarised Dict of boards
@@ -602,6 +611,7 @@ class Builder:
         self.force_build_failures = False
         self.force_reconfig = False
         self._step = step
+        self.in_tree = False
 
         self.col = terminal.Color()
 

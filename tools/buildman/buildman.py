@@ -85,6 +85,9 @@ parser.add_option('-g', '--git', type='string',
        help='Git repo containing branch to build', default='.')
 parser.add_option('-H', '--full-help', action='store_true', dest='full_help',
        default=False, help='Display the README file')
+parser.add_option('-i', '--in-tree', dest='in_tree',
+       action='store_true', default=False,
+       help='Build in the source tree instead of a separate directory')
 parser.add_option('-j', '--jobs', dest='jobs', type='int',
        default=None, help='Number of jobs to run at once (passed to make)')
 parser.add_option('-k', '--keep-outputs', action='store_true',
