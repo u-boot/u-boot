@@ -292,6 +292,7 @@ static int get_mtd_info(u8 type, u8 num, struct mtd_info **mtd)
 		printf("Device %s not found!\n", mtd_dev);
 		return 1;
 	}
+	put_mtd_device(*mtd);
 
 	return 0;
 }
