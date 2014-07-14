@@ -195,7 +195,7 @@
 	"bootenv=uEnv.txt\0" \
 	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
 	"importbootenv=echo Importing environment from mmc ...; " \
-		"env import -t $loadaddr $filesize\0" \
+		"env import -t -r $loadaddr $filesize\0" \
 	"ramargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"mpurate=${mpurate} " \
