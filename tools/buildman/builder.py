@@ -431,7 +431,8 @@ class BuilderThread(threading.Thread):
                         result, request_config = self.RunCommit(commit_upto,
                             brd, work_dir, True, True, False)
                         did_config = True
-                do_config = request_config
+                if not self.builder.force_reconfig:
+                    do_config = request_config
 
                 # If we built that commit, then config is done. But if we got
                 # an warning, reconfig next time to force it to build the same
@@ -524,6 +525,12 @@ class Builder:
         toolchains: Toolchains object to use for building
         upto: Current commit number we are building (0.count-1)
         warned: Number of builds that produced at least one warning
+        force_reconfig: Reconfigure U-Boot on each comiit. This disables
+            incremental building, where buildman reconfigures on the first
+            commit for a baord, and then just does an incremental build for
+            the following commits. In fact buildman will reconfigure and
+            retry for any failing commits, so generally the only effect of
+            this option is to slow things down.
 
     Private members:
         _base_board_dict: Last-summarised Dict of boards
@@ -593,6 +600,7 @@ class Builder:
         self._next_delay_update = datetime.now()
         self.force_config_on_failure = True
         self.force_build_failures = False
+        self.force_reconfig = False
         self._step = step
 
         self.col = terminal.Color()

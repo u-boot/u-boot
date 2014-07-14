@@ -157,6 +157,7 @@ def DoBuildman(options, args):
     else:
         builder.force_build = options.force_build
         builder.force_build_failures = options.force_build_failures
+        builder.force_reconfig = options.force_reconfig
 
         # Work out which boards to build
         board_selected = boards.GetSelectedDict()

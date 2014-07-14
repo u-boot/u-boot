@@ -67,6 +67,9 @@ parser.add_option('-B', '--bloat', dest='show_bloat',
        help='Show changes in function code size for each board')
 parser.add_option('-c', '--count', dest='count', type='int',
        default=-1, help='Run build on the top n commits')
+parser.add_option('-C', '--force-reconfig', dest='force_reconfig',
+       action='store_true', default=False,
+       help='Reconfigure for every commit (disable incremental build)')
 parser.add_option('-e', '--show_errors', action='store_true',
        default=False, help='Show errors and warnings')
 parser.add_option('-f', '--force-build', dest='force_build',
