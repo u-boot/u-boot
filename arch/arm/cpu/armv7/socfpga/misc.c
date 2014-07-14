@@ -6,6 +6,8 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <miiphy.h>
+#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -37,4 +39,19 @@ int overwrite_console(void)
 int misc_init_r(void)
 {
 	return 0;
+}
+
+
+/*
+ * DesignWare Ethernet initialization
+ */
+int cpu_eth_init(bd_t *bis)
+{
+#if !defined(CONFIG_SOCFPGA_VIRTUAL_TARGET) && !defined(CONFIG_SPL_BUILD)
+       /* initialize and register the emac */
+	return designware_initialize(CONFIG_EMAC_BASE,
+				     CONFIG_PHY_INTERFACE_MODE);
+#else
+	return 0;
+#endif
 }

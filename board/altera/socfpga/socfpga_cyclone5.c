@@ -37,12 +37,3 @@ int board_init(void)
 	icache_enable();
 	return 0;
 }
-
-/*
- * DesignWare Ethernet initialization
- */
-/* We know all the init functions have been run now */
-int board_eth_init(bd_t *bis)
-{
-	return 0;
-}
