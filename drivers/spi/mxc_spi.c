@@ -30,6 +30,10 @@ static unsigned long spi_bases[] = {
 #define reg_read readl
 #define reg_write(a, v) writel(v, a)
 
+#if !defined(CONFIG_SYS_SPI_MXC_WAIT)
+#define CONFIG_SYS_SPI_MXC_WAIT		(CONFIG_SYS_HZ/100)	/* 10 ms */
+#endif
+
 struct mxc_spi_slave {
 	struct spi_slave slave;
 	unsigned long	base;
@@ -212,6 +216,8 @@ int spi_xchg_single(struct spi_slave *slave, unsigned int bitlen,
 	int nbytes = DIV_ROUND_UP(bitlen, 8);
 	u32 data, cnt, i;
 	struct cspi_regs *regs = (struct cspi_regs *)mxcs->base;
+	u32 ts;
+	int status;
 
 	debug("%s: bitlen %d dout 0x%x din 0x%x\n",
 		__func__, bitlen, (u32)dout, (u32)din);
@@ -272,9 +278,16 @@ int spi_xchg_single(struct spi_slave *slave, unsigned int bitlen,
 	reg_write(&regs->ctrl, mxcs->ctrl_reg |
 		MXC_CSPICTRL_EN | MXC_CSPICTRL_XCH);
 
+	ts = get_timer(0);
+	status = reg_read(&regs->stat);
 	/* Wait until the TC (Transfer completed) bit is set */
-	while ((reg_read(&regs->stat) & MXC_CSPICTRL_TC) == 0)
-		;
+	while ((status & MXC_CSPICTRL_TC) == 0) {
+		if (get_timer(ts) > CONFIG_SYS_SPI_MXC_WAIT) {
+			printf("spi_xchg_single: Timeout!\n");
+			return -1;
+		}
+		status = reg_read(&regs->stat);
+	}
 
 	/* Transfer completed, clear any pending request */
 	reg_write(&regs->stat, MXC_CSPICTRL_TC | MXC_CSPICTRL_RXOVF);
