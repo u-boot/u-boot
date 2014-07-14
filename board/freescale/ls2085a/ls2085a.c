@@ -13,12 +13,18 @@
 #include <fdt_support.h>
 #include <libfdt.h>
 #include <fsl_mc.h>
+#include <environment.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 int board_init(void)
 {
 	init_final_memctl_regs();
+
+#ifdef CONFIG_ENV_IS_NOWHERE
+	gd->env_addr = (ulong)&default_environment[0];
+#endif
+
 	return 0;
 }
 
