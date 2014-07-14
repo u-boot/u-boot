@@ -950,11 +950,15 @@ sep_err:
 
 #ifdef CONFIG_CMD_IMPORTENV
 /*
- * env import [-d] [-t | -b | -c] addr [size]
+ * env import [-d] [-t [-r] | -b | -c] addr [size]
  *	-d:	delete existing environment before importing;
  *		otherwise overwrite / append to existion definitions
  *	-t:	assume text format; either "size" must be given or the
  *		text data must be '\0' terminated
+ *	-r:	handle CRLF like LF, that means exported variables with
+ *		a content which ends with \r won't get imported. Used
+ *		to import text files created with editors which are using CRLF
+ *		for line endings. Only effective in addition to -t.
  *	-b:	assume binary format ('\0' separated, "\0\0" terminated)
  *	-c:	assume checksum protected environment format
  *	addr:	memory address to read from
@@ -970,6 +974,7 @@ static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 	int	chk = 0;
 	int	fmt = 0;
 	int	del = 0;
+	int	crlf_is_lf = 0;
 	size_t	size;
 
 	cmd = *argv;
@@ -994,6 +999,9 @@ static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 					goto sep_err;
 				sep = '\n';
 				break;
+			case 'r':		/* handle CRLF like LF */
+				crlf_is_lf = 1;
+				break;
 			case 'd':
 				del = 1;
 				break;
@@ -1008,6 +1016,9 @@ static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 
 	if (!fmt)
 		printf("## Warning: defaulting to text format\n");
+
+	if (sep != '\n' && crlf_is_lf )
+		crlf_is_lf = 0;
 
 	addr = simple_strtoul(argv[0], NULL, 16);
 	ptr = map_sysmem(addr, 0);
@@ -1050,8 +1061,8 @@ static int do_env_import(cmd_tbl_t *cmdtp, int flag,
 		ptr = (char *)ep->data;
 	}
 
-	if (himport_r(&env_htab, ptr, size, sep, del ? 0 : H_NOCLEAR, 0,
-		      NULL) == 0) {
+	if (himport_r(&env_htab, ptr, size, sep, del ? 0 : H_NOCLEAR,
+			crlf_is_lf, 0, NULL) == 0) {
 		error("Environment import failed: errno = %d\n", errno);
 		return 1;
 	}
@@ -1180,7 +1191,7 @@ static char env_help_text[] =
 #endif
 #endif
 #if defined(CONFIG_CMD_IMPORTENV)
-	"env import [-d] [-t | -b | -c] addr [size] - import environment\n"
+	"env import [-d] [-t [-r] | -b | -c] addr [size] - import environment\n"
 #endif
 	"env print [-a | name ...] - print environment\n"
 #if defined(CONFIG_CMD_RUN)
