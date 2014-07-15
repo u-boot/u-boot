@@ -10,6 +10,7 @@
 #include <common.h>
 #include <ns16550.h>
 #include <asm/io.h>
+#include <asm/arch/msmc.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/hardware.h>
 
@@ -24,11 +25,12 @@ int arch_cpu_init(void)
 	chip_configuration_unlock();
 	icache_enable();
 
-#ifdef CONFIG_SOC_K2HK
-	share_all_segments(8);
-	share_all_segments(9);
-	share_all_segments(10); /* QM PDSP */
-	share_all_segments(11); /* PCIE */
+	msmc_share_all_segments(8);  /* TETRIS */
+	msmc_share_all_segments(9);  /* NETCP */
+	msmc_share_all_segments(10); /* QM PDSP */
+	msmc_share_all_segments(11); /* PCIE 0 */
+#ifdef CONFIG_SOC_K2E
+	msmc_share_all_segments(13); /* PCIE 1 */
 #endif
 
 	/*

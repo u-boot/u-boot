@@ -180,7 +180,6 @@ static inline int cpu_revision(void)
 	return rev;
 }
 
-void share_all_segments(int priv_id);
 int cpu_to_bus(u32 *ptr, u32 length);
 void sdelay(unsigned long);
 
