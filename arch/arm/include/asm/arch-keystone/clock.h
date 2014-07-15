@@ -16,6 +16,10 @@
 #include <asm/arch/clock-k2hk.h>
 #endif
 
+#ifdef CONFIG_SOC_K2E
+#include <asm/arch/clock-k2e.h>
+#endif
+
 #define MAIN_PLL CORE_PLL
 
 #include <asm/types.h>

@@ -106,6 +106,7 @@ void init_pll(const struct pll_init_data *data)
 
 		tmp = pllctl_reg_setbits(data->pll, ctl, PLLCTL_PLLEN);
 
+#ifndef CONFIG_SOC_K2E
 	} else if (data->pll == TETRIS_PLL) {
 		bwadj = pllm >> 1;
 		/* 1.5 Set PLLCTL0[BYPASS] =1 (enable bypass), */
@@ -156,6 +157,7 @@ void init_pll(const struct pll_init_data *data)
 		 * only applicable for Kepler
 		 */
 		setbits_le32(KS2_MISC_CTRL, KS2_ARM_PLL_EN);
+#endif
 	} else {
 		setbits_le32(keystone_pll_regs[data->pll].reg1, PLLCTL_ENSAT);
 		/*
