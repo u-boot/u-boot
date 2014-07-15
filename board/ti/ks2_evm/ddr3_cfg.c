@@ -93,6 +93,46 @@ struct ddr3_emif_config ddr3_1333_2g = {
 };
 #endif
 
+#ifdef CONFIG_K2E_EVM
+/* DDR3 PHY configuration data with 1600M rate, and 4GB size  */
+struct ddr3_phy_config ddr3phy_1600_4g = {
+	.pllcr          = 0x0001C000ul,
+	.pgcr1_mask     = (IODDRM_MASK | ZCKSEL_MASK),
+	.pgcr1_val      = ((1 << 2) | (1 << 7) | (1 << 23)),
+	.ptr0           = 0x42C21590ul,
+	.ptr1           = 0xD05612C0ul,
+	.ptr2           = 0, /* not set in gel */
+	.ptr3           = 0x08861A80ul,
+	.ptr4           = 0x0C827100ul,
+	.dcr_mask       = (PDQ_MASK | MPRDQ_MASK | BYTEMASK_MASK),
+	.dcr_val        = ((1 << 10)),
+	.dtpr0          = 0x9D9CBB66ul,
+	.dtpr1          = 0x12840300ul,
+	.dtpr2          = 0x5002D200ul,
+	.mr0            = 0x00001C70ul,
+	.mr1            = 0x00000006ul,
+	.mr2            = 0x00000018ul,
+	.dtcr           = 0x710035C7ul,
+	.pgcr2          = 0x00F07A12ul,
+	.zq0cr1         = 0x0001005Dul,
+	.zq1cr1         = 0x0001005Bul,
+	.zq2cr1         = 0x0001005Bul,
+	.pir_v1         = 0x00000033ul,
+	.pir_v2         = 0x0000FF81ul,
+};
+
+/* DDR3 EMIF configuration data with 1600M rate, and 4GB size  */
+struct ddr3_emif_config ddr3_1600_4g = {
+	.sdcfg          = 0x6200CE62ul,
+	.sdtim1         = 0x166C9855ul,
+	.sdtim2         = 0x00001D4Aul,
+	.sdtim3         = 0x421DFF53ul,
+	.sdtim4         = 0x543F07FFul,
+	.zqcfg          = 0x70073200ul,
+	.sdrfc          = 0x00001869ul,
+};
+#endif
+
 int ddr3_get_dimm_params(char *dimm_name)
 {
 	int ret;
