@@ -32,6 +32,15 @@
 #define SDMC_B0_BSR_D		CONFIG_SYS_FTSDMC021_BANK0_BSR
 #define SDMC_B1_BSR_D		CONFIG_SYS_FTSDMC021_BANK1_BSR
 
+
+/*
+ * for Orca and Emerald
+ */
+#define BOARD_ID_REG		0x104
+#define BOARD_ID_FAMILY_MASK 	0xfff000
+#define BOARD_ID_FAMILY_V5   	0x556000
+#define BOARD_ID_FAMILY_K7   	0x74b000
+
 /*
  * parameters for the static memory controller
  */
@@ -47,6 +56,10 @@
 #define AHBC_CR_A		(CONFIG_FTAHBC020S_BASE + FTAHBC020S_CR)
 #define AHBC_BSR6_A	(CONFIG_FTAHBC020S_BASE + FTAHBC020S_SLAVE_BSR_6)
 
+/*
+ * for Orca and Emerald
+ */
+#define AHBC_BSR4_A	(CONFIG_FTAHBC020S_BASE + FTAHBC020S_SLAVE_BSR_4)
 #define AHBC_BSR6_D		CONFIG_SYS_FTAHBC020S_SLAVE_BSR_6
 
 /*
@@ -100,14 +113,49 @@ mem_init:
 	 *	we need to set onboard SDRAM before remap and relocation.
 	 */
 	led	0x01
-	write32	SMC_BANK0_CR_A, SMC_BANK0_CR_D			! 0x10000052
-	write32	SMC_BANK0_TPR_A, SMC_BANK0_TPR_D		! 0x00151151
+
+  /*
+   * for Orca and Emerald
+   * disable write protection and reset bank size
+   */
+	li	$r0, SMC_BANK0_CR_A
+	lwi $r1, [$r0+#0x00]
+	ori $r1, $r1, 0x8f0
+	xori $r1, $r1, 0x8f0
+  /*
+   * check board
+   */
+	li      $r3, CONFIG_FTPMU010_BASE + BOARD_ID_REG
+  lwi     $r3, [$r3]
+  li      $r4, BOARD_ID_FAMILY_MASK
+  and     $r3, $r3, $r4
+  li      $r4, BOARD_ID_FAMILY_K7
+  xor     $r4, $r3, $r4
+  beqz    $r4, use_flash_16bit_boot
+  /*
+   * 32-bit mode
+   */
+use_flash_32bit_boot:
+	ori     $r1, $r1, 0x50
+  li      $r2, 0x00151151
+  j       sdram_b0_cr
+  /*
+   * 16-bit mode
+   */
+use_flash_16bit_boot:
+  ori     $r1, $r1, 0x60
+  li      $r2, 0x00153153
+  /*
+   * SRAM bank0 config
+   */
+sdram_b0_cr:
+  swi     $r1, [$r0+#0x00]
+  swi     $r2, [$r0+#0x04]
 
 	/*
 	 * config AHB Controller
 	 */
 	led	0x02
-	write32	AHBC_BSR6_A, AHBC_BSR6_D
 
 	/*
 	 * config PMU controller
@@ -194,7 +242,16 @@ relo_base:
 	 * a FLASH connected to bank0.
 	 */
 	led	0x11
-	li	$r4, PHYS_SDRAM_0_AT_INIT		/* 0x10000000 */
+   /*
+    * for Orca and Emerald
+    * read sdram base address automatically
+    */
+	li	$r5, AHBC_BSR6_A
+	lwi $r8, [$r5]
+	li	$r4, 0xfff00000
+	and $r4, $r4, $r8
+
+
 	li	$r5, 0x0
 	la	$r1, relo_base				/* get $pc or $lp */
 	sub	$r2, $r0, $r1
@@ -218,6 +275,29 @@ relo_base:
 	write32 SDMC_B1_BSR_A, 0x00001040
 	setbf15	AHBC_CR_A, FTAHBC020S_CR_REMAP		! 0x1
 
+  /*
+   * for Orca and Emerald
+   * extend sdram size from 256MB to 2GB
+   */
+	li	$r5, AHBC_BSR6_A
+	lwi $r6, [$r5]
+	li  $r4, 0xfff0ffff
+	and $r6 ,$r4 , $r6
+	li	$r4, 0x000b0000
+	or  $r6, $r4,	$r6
+	swi	$r6, [$r5]
+
+  /*
+   * for Orca and Emerald
+   * extend rom base from 256MB to 2GB
+   */
+	li	$r4, AHBC_BSR4_A
+	lwi $r5, [$r4]
+	li	$r6, 0xffffff
+	and $r5, $r5, $r6
+	li  $r6, 0x80000000
+	or  $r5, $r5, $r6
+	swi $r5,	[$r4]
 #endif /* #ifdef CONFIG_MEM_REMAP */
 	move	$lp, $r11
 2:

@@ -17,6 +17,18 @@
 #include <fsl_ddr_sdram.h>
 #include <fsl_ddr.h>
 
+/*
+ * CONFIG_SYS_FSL_DDR_SDRAM_BASE_PHY is the physical address from the view
+ * of DDR controllers. It is the same as CONFIG_SYS_DDR_SDRAM_BASE for
+ * all Power SoCs. But it could be different for ARM SoCs. For example,
+ * fsl_lsch3 has a mapping mechanism to map DDR memory to ranges (in order) of
+ * 0x00_8000_0000 ~ 0x00_ffff_ffff
+ * 0x80_8000_0000 ~ 0xff_ffff_ffff
+ */
+#ifndef CONFIG_SYS_FSL_DDR_SDRAM_BASE_PHY
+#define CONFIG_SYS_FSL_DDR_SDRAM_BASE_PHY CONFIG_SYS_DDR_SDRAM_BASE
+#endif
+
 #ifdef CONFIG_PPC
 #include <asm/fsl_law.h>
 
@@ -255,7 +267,7 @@ static unsigned long long __step_assign_addresses(fsl_ddr_info_t *pinfo,
 		debug("dbw_cap_adj[%d]=%d\n", i, dbw_cap_adj[i]);
 	}
 
-	current_mem_base = CONFIG_SYS_DDR_SDRAM_BASE;
+	current_mem_base = CONFIG_SYS_FSL_DDR_SDRAM_BASE_PHY;
 	total_mem = 0;
 	if (pinfo->memctl_opts[0].memctl_interleaving) {
 		rank_density = pinfo->dimm_params[0][0].rank_density >>
@@ -279,6 +291,7 @@ static unsigned long long __step_assign_addresses(fsl_ddr_info_t *pinfo,
 		for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
 			if (pinfo->memctl_opts[i].memctl_interleaving) {
 				switch (pinfo->memctl_opts[i].memctl_interleaving_mode) {
+				case FSL_DDR_256B_INTERLEAVING:
 				case FSL_DDR_CACHE_LINE_INTERLEAVING:
 				case FSL_DDR_PAGE_INTERLEAVING:
 				case FSL_DDR_BANK_INTERLEAVING:
@@ -536,7 +549,7 @@ fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step,
 		}
 
 		total_mem = 1 + (((unsigned long long)max_end << 24ULL) |
-			    0xFFFFFFULL) - CONFIG_SYS_DDR_SDRAM_BASE;
+			    0xFFFFFFULL) - CONFIG_SYS_FSL_DDR_SDRAM_BASE_PHY;
 	}
 
 	return total_mem;

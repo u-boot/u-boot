@@ -9,7 +9,7 @@
 #ifndef __ASM_ARCH_HARDWARE_H
 #define __ASM_ARCH_HARDWARE_H
 
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 #include <asm/arch/mb86r0x.h>
 
 #endif

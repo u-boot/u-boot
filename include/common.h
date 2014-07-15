@@ -8,9 +8,6 @@
 #ifndef __COMMON_H_
 #define __COMMON_H_	1
 
-#undef	_LINUX_CONFIG_H
-#define _LINUX_CONFIG_H 1	/* avoid reading Linux autoconf.h file	*/
-
 #ifndef __ASSEMBLY__		/* put C only stuff in this section */
 
 typedef unsigned char		uchar;
@@ -55,15 +52,12 @@ typedef volatile unsigned char	vu_char;
 #include <mpc5xxx.h>
 #elif defined(CONFIG_MPC512X)
 #include <asm/immap_512x.h>
-#elif defined(CONFIG_8260)
+#elif defined(CONFIG_MPC8260)
 #if   defined(CONFIG_MPC8247) \
    || defined(CONFIG_MPC8248) \
    || defined(CONFIG_MPC8271) \
    || defined(CONFIG_MPC8272)
 #define CONFIG_MPC8272_FAMILY	1
-#endif
-#if defined(CONFIG_MPC8272_FAMILY)
-#define CONFIG_MPC8260	1
 #endif
 #include <asm/immap_8260.h>
 #endif
@@ -98,6 +92,10 @@ typedef volatile unsigned char	vu_char;
 #include <part.h>
 #include <flash.h>
 #include <image.h>
+
+#ifdef __LP64__
+#define CONFIG_SYS_SUPPORT_64BIT_DATA
+#endif
 
 #ifdef DEBUG
 #define _DEBUG	1
@@ -305,10 +303,18 @@ int	checkdram     (void);
 int	last_stage_init(void);
 extern ulong monitor_flash_len;
 int mac_read_from_eeprom(void);
-extern u8 _binary_dt_dtb_start[];	/* embedded device tree blob */
+extern u8 __dtb_dt_begin[];	/* embedded device tree blob */
 int set_cpu_clk_info(void);
+#if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo(void);
+#else
+static inline int print_cpuinfo(void)
+{
+	return 0;
+}
+#endif
 int update_flash_size(int flash_size);
+int arch_early_init_r(void);
 
 /**
  * Show the DRAM size in a board-specific way
@@ -355,6 +361,11 @@ int do_ext2load(cmd_tbl_t *, int, int, char * const []);
 int	env_init     (void);
 void	env_relocate (void);
 int	envmatch     (uchar *, int);
+
+/* Avoid unfortunate conflict with libc's getenv() */
+#ifdef CONFIG_SANDBOX
+#define getenv uboot_getenv
+#endif
 char	*getenv	     (const char *);
 int	getenv_f     (const char *name, char *buf, unsigned len);
 ulong getenv_ulong(const char *name, int base, ulong default_val);
@@ -411,6 +422,9 @@ static inline int setenv_addr(const char *varname, const void *addr)
 #ifdef CONFIG_MIPS
 # include <asm/u-boot-mips.h>
 #endif /* CONFIG_MIPS */
+#ifdef CONFIG_ARC
+# include <asm/u-boot-arc.h>
+#endif /* CONFIG_ARC */
 
 #ifdef CONFIG_AUTO_COMPLETE
 int env_complete(char *var, int maxv, char *cmdv[], int maxsz, char *buf);
@@ -454,6 +468,7 @@ void	api_init (void);
 
 /* common/memsize.c */
 long	get_ram_size  (long *, long);
+phys_size_t get_effective_memsize(void);
 
 /* $(BOARD)/$(BOARD).c */
 void	reset_phy     (void);
@@ -657,7 +672,7 @@ int	get_clocks (void);
 int	get_clocks_866 (void);
 int	sdram_adjust_866 (void);
 int	adjust_sdram_tbs_8xx (void);
-#if defined(CONFIG_8260)
+#if defined(CONFIG_MPC8260)
 int	prt_8260_clks (void);
 #elif defined(CONFIG_MPC5xxx)
 int	prt_mpc5xxx_clks (void);
@@ -725,7 +740,7 @@ void	get_sys_info  ( sys_info_t * );
 #endif
 
 /* $(CPU)/cpu_init.c */
-#if defined(CONFIG_8xx) || defined(CONFIG_8260)
+#if defined(CONFIG_8xx) || defined(CONFIG_MPC8260)
 void	cpu_init_f    (volatile immap_t *immr);
 #endif
 #if defined(CONFIG_4xx) || defined(CONFIG_MPC85xx) || defined(CONFIG_MCF52x2) ||defined(CONFIG_MPC86xx)
@@ -733,7 +748,7 @@ void	cpu_init_f    (void);
 #endif
 
 int	cpu_init_r    (void);
-#if defined(CONFIG_8260)
+#if defined(CONFIG_MPC8260)
 int	prt_8260_rsr  (void);
 #elif defined(CONFIG_MPC83xx)
 int	prt_83xx_rsr  (void);
@@ -807,8 +822,7 @@ void	udelay        (unsigned long);
 void mdelay(unsigned long);
 
 /* lib/uuid.c */
-void uuid_str_to_bin(const char *uuid, unsigned char *out);
-int uuid_str_valid(const char *uuid);
+#include <uuid.h>
 
 /* lib/vsprintf.c */
 #include <vsprintf.h>
@@ -820,9 +834,7 @@ char *	strmhz(char *buf, unsigned long hz);
 #include <u-boot/crc.h>
 
 /* lib/rand.c */
-#if defined(CONFIG_RANDOM_MACADDR) || \
-	defined(CONFIG_BOOTP_RANDOM_DELAY) || \
-	defined(CONFIG_CMD_LINK_LOCAL)
+#if defined(CONFIG_LIB_RAND) || defined(CONFIG_LIB_HW_RAND)
 #define RAND_MAX -1U
 void srand(unsigned int seed);
 unsigned int rand(void);

@@ -54,7 +54,12 @@ SECTIONS
 
 	. = ALIGN(0x800);
 
-	_end = .;
+	.end :
+	{
+		*(.__end)
+	}
+
+	_image_binary_end = .;
 
 	.bss __rel_dyn_start (OVERLAY) : {
 		__bss_start = .;
@@ -63,7 +68,7 @@ SECTIONS
 		__bss_end = .;
 	}
 
-	.dynsym _end : { *(.dynsym) }
+	.dynsym _image_binary_end : { *(.dynsym) }
 	.dynbss : { *(.dynbss) }
 	.dynstr : { *(.dynstr*) }
 	.dynamic : { *(.dynamic*) }

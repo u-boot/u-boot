@@ -8,4 +8,4 @@
 obj-y += mvblx.o fpga.o
 obj-$(CONFIG_ID_EEPROM) += sys_eeprom.o
 
-CFLAGS += -Werror
+ccflags-y += -Werror

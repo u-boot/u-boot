@@ -110,16 +110,13 @@
 #define REFCNT			1113	/* period=15.6us, HCLK=60Mhz, (2048+1-15.6*60) */
 /**************************************/
 
-_TEXT_BASE:
-	.word	CONFIG_SYS_TEXT_BASE
-
 .globl lowlevel_init
 lowlevel_init:
 	/* memory control configuration */
 	/* make r0 relative the current location so that it */
 	/* reads SMRDATA out of FLASH rather than memory ! */
 	ldr     r0, =SMRDATA
-	ldr	r1, _TEXT_BASE
+	ldr	r1, =CONFIG_SYS_TEXT_BASE
 	sub	r0, r0, r1
 	ldr	r1, =BWSCON	/* Bus Width Status Controller */
 	add     r2, r0, #13*4

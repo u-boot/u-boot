@@ -34,7 +34,7 @@
 
 /* SPL defines. */
 #define CONFIG_SPL_TEXT_BASE		0x40300350
-#define CONFIG_SPL_MAX_SIZE		(0x40337C00 - CONFIG_SPL_TEXT_BASE)
+#define CONFIG_SPL_MAX_SIZE		(220 << 10)	/* 220KB */
 #define CONFIG_SPL_YMODEM_SUPPORT
 
 /* Enabling L2 Cache */
@@ -69,6 +69,11 @@
 
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/omap-common/u-boot-spl.lds"
 
+/* SPL USB Support */
+#define CONFIG_SPL_USB_SUPPORT
+#define CONFIG_SPL_USB_HOST_SUPPORT
+#define CONFIG_SYS_USB_FAT_BOOT_PARTITION		1
+
 #define CONFIG_CMD_USB
 #define CONFIG_USB_HOST
 #define CONFIG_USB_XHCI
@@ -78,6 +83,32 @@
 
 #define CONFIG_OMAP_USB_PHY
 #define CONFIG_AM437X_USB2PHY2_HOST
+
+/* SPI */
+#undef CONFIG_OMAP3_SPI
+#define CONFIG_TI_QSPI
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_MACRONIX
+#define CONFIG_CMD_SF
+#define CONFIG_CMD_SPI
+#define CONFIG_TI_SPI_MMAP
+#define CONFIG_QSPI_SEL_GPIO                   48
+#define CONFIG_SF_DEFAULT_SPEED                48000000
+#define CONFIG_DEFAULT_SPI_MODE                SPI_MODE_3
+
+/* SPI SPL */
+#define CONFIG_SPL_SPI_SUPPORT
+#define CONFIG_SPL_SPI_LOAD
+#define CONFIG_SPL_SPI_FLASH_SUPPORT
+#define CONFIG_SPL_SPI_BUS             0
+#define CONFIG_SPL_SPI_CS              0
+#define CONFIG_SYS_SPI_U_BOOT_OFFS     0x20000
+
+/* Enhance our eMMC support / experience. */
+#define CONFIG_CMD_GPT
+#define CONFIG_EFI_PARTITION
+#define CONFIG_PARTITION_UUIDS
+#define CONFIG_CMD_PART
 
 #ifndef CONFIG_SPL_BUILD
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -90,30 +121,41 @@
 	"bootdir=/boot\0" \
 	"bootfile=zImage\0" \
 	"console=ttyO0,115200n8\0" \
+	"partitions=" \
+		"uuid_disk=${uuid_gpt_disk};" \
+		"name=rootfs,start=2MiB,size=-,uuid=${uuid_gpt_rootfs}\0" \
 	"optargs=\0" \
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \
 	"mmcrootfstype=ext4 rootwait\0" \
+	"usbroot=/dev/sda2 rw\0" \
+	"usbrootfstype=ext4 rootwait\0" \
+	"usbdev=0\0" \
 	"ramroot=/dev/ram0 rw ramdisk_size=65536 initrd=${rdaddr},64M\0" \
 	"ramrootfstype=ext2\0" \
 	"mmcargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"root=${mmcroot} " \
 		"rootfstype=${mmcrootfstype}\0" \
+	"usbargs=setenv bootargs console=${console} " \
+		"${optargs} " \
+		"root=${usbroot} " \
+		"rootfstype=${usbrootfstype}\0" \
 	"bootenv=uEnv.txt\0" \
-	"loadbootenv=load mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
+	"loadbootenv=load ${devtype} ${devnum} ${loadaddr} ${bootenv}\0" \
 	"importbootenv=echo Importing environment from mmc ...; " \
 		"env import -t $loadaddr $filesize\0" \
 	"ramargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"root=${ramroot} " \
 		"rootfstype=${ramrootfstype}\0" \
-	"loadramdisk=load mmc ${mmcdev} ${rdaddr} ramdisk.gz\0" \
-	"loadimage=load mmc ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
-	"loadfdt=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
+	"loadramdisk=load ${devtype} ${devnum} ${rdaddr} ramdisk.gz\0" \
+	"loadimage=load ${devtype} ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
+	"loadfdt=load ${devtype} ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile}\0" \
 	"mmcboot=mmc dev ${mmcdev}; " \
+		"setenv devnum ${mmcdev}; " \
 		"if mmc rescan; then " \
-			"echo SD/MMC found on device ${mmcdev};" \
+			"echo SD/MMC found on device ${devnum};" \
 			"if run loadbootenv; then " \
 				"echo Loaded environment from ${bootenv};" \
 				"run importbootenv;" \
@@ -129,6 +171,26 @@
 				"bootz ${loadaddr} - ${fdtaddr}; " \
 			"fi;" \
 		"fi;\0" \
+	"usbboot=" \
+		"setenv devnum ${usbdev}; " \
+		"setenv devtype usb; " \
+		"usb start ${usbdev}; " \
+		"if usb dev ${usbdev}; then " \
+			"if run loadbootenv; then " \
+				"echo Loaded environment from ${bootenv};" \
+				"run importbootenv;" \
+			"fi;" \
+			"if test -n $uenvcmd; then " \
+				"echo Running uenvcmd ...;" \
+				"run uenvcmd;" \
+			"fi;" \
+			"if run loadimage; then " \
+				"run loadfdt; " \
+				"echo Booting from usb ${usbdev}...; " \
+				"run usbargs;" \
+				"bootz ${loadaddr} - ${fdtaddr}; " \
+			"fi;" \
+		"fi\0" \
 	"findfdt="\
 		"if test $board_name = AM43EPOS; then " \
 			"setenv fdtfile am43x-epos-evm.dtb; fi; " \
@@ -139,7 +201,34 @@
 
 #define CONFIG_BOOTCOMMAND \
 	"run findfdt; " \
-	"run mmcboot;"
+	"run mmcboot;" \
+	"run usbboot;"
 
 #endif
+
+/* CPSW Ethernet */
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_MII
+#define CONFIG_DRIVER_TI_CPSW
+#define CONFIG_MII
+#define CONFIG_BOOTP_DEFAULT
+#define CONFIG_BOOTP_DNS
+#define CONFIG_BOOTP_DNS2
+#define CONFIG_BOOTP_SEND_HOSTNAME
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_SUBNETMASK
+#define CONFIG_NET_RETRY_COUNT		10
+#define CONFIG_NET_MULTI
+#define CONFIG_PHY_GIGE
+#define CONFIG_PHYLIB
+
+#define CONFIG_SPL_ENV_SUPPORT
+#define CONFIG_SPL_NET_VCI_STRING	"AM43xx U-Boot SPL"
+
+#define CONFIG_SPL_ETH_SUPPORT
+#define CONFIG_SPL_NET_SUPPORT
+#define CONFIG_SYS_RX_ETH_BUFFER	64
+
 #endif	/* __CONFIG_AM43XX_EVM_H */

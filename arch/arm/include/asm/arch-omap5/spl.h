@@ -5,7 +5,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef	_ASM_ARCH_SPL_H_
-#define	_ASM_SPL_H_
+#define	_ASM_ARCH_SPL_H_
 
 #define BOOT_DEVICE_NONE        0
 #define BOOT_DEVICE_XIP         1
@@ -15,6 +15,7 @@
 #define BOOT_DEVICE_MMC1        5
 #define BOOT_DEVICE_MMC2        6
 #define BOOT_DEVICE_MMC2_2	7
+#define BOOT_DEVICE_SATA	9
 #define BOOT_DEVICE_SPI		10
 #define BOOT_DEVICE_UART	0x43
 

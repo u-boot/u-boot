@@ -35,7 +35,7 @@ int cros_ec_i2c_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
 	uint8_t *ptr;
 	/* Receive input data, so that args will be dword aligned */
 	uint8_t *in_ptr;
-	int ret;
+	int len, csum, ret;
 
 	old_bus = i2c_get_bus_num();
 
@@ -67,24 +67,24 @@ int cros_ec_i2c_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
 	 * will be dword aligned.
 	 */
 	in_ptr = dev->din + sizeof(int64_t);
-	if (!dev->cmd_version_is_supported) {
-		/* Send an old-style command */
-		*ptr++ = cmd;
-		out_bytes = dout_len + 1;
-		in_bytes = din_len + 2;
-		in_ptr--;	/* Expect just a status byte */
-	} else {
-		*ptr++ = EC_CMD_VERSION0 + cmd_version;
-		*ptr++ = cmd;
-		*ptr++ = dout_len;
-		in_ptr -= 2;	/* Expect status, length bytes */
+
+	if (dev->protocol_version != 2) {
+		/* Something we don't support */
+		debug("%s: Protocol version %d unsupported\n",
+		      __func__, dev->protocol_version);
+		return -1;
 	}
+
+	*ptr++ = EC_CMD_VERSION0 + cmd_version;
+	*ptr++ = cmd;
+	*ptr++ = dout_len;
+	in_ptr -= 2;	/* Expect status, length bytes */
+
 	memcpy(ptr, dout, dout_len);
 	ptr += dout_len;
 
-	if (dev->cmd_version_is_supported)
-		*ptr++ = (uint8_t)
-			 cros_ec_calc_checksum(dev->dout, dout_len + 3);
+	*ptr++ = (uint8_t)
+		cros_ec_calc_checksum(dev->dout, dout_len + 3);
 
 	/* Set to the proper i2c bus */
 	if (i2c_set_bus_num(dev->bus_num)) {
@@ -121,26 +121,20 @@ int cros_ec_i2c_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
 		return -(int)*in_ptr;
 	}
 
-	if (dev->cmd_version_is_supported) {
-		int len, csum;
-
-		len = in_ptr[1];
-		if (len + 3 > sizeof(dev->din)) {
-			debug("%s: Received length %#02x too large\n",
-			      __func__, len);
-			return -1;
-		}
-		csum = cros_ec_calc_checksum(in_ptr, 2 + len);
-		if (csum != in_ptr[2 + len]) {
-			debug("%s: Invalid checksum rx %#02x, calced %#02x\n",
-			      __func__, in_ptr[2 + din_len], csum);
-			return -1;
-		}
-		din_len = min(din_len, len);
-		cros_ec_dump_data("in", -1, in_ptr, din_len + 3);
-	} else {
-		cros_ec_dump_data("in (old)", -1, in_ptr, in_bytes);
+	len = in_ptr[1];
+	if (len + 3 > sizeof(dev->din)) {
+		debug("%s: Received length %#02x too large\n",
+		      __func__, len);
+		return -1;
 	}
+	csum = cros_ec_calc_checksum(in_ptr, 2 + len);
+	if (csum != in_ptr[2 + len]) {
+		debug("%s: Invalid checksum rx %#02x, calced %#02x\n",
+		      __func__, in_ptr[2 + din_len], csum);
+		return -1;
+	}
+	din_len = min(din_len, len);
+	cros_ec_dump_data("in", -1, in_ptr, din_len + 3);
 
 	/* Return pointer to dword-aligned input data, if any */
 	*dinp = dev->din + sizeof(int64_t);
@@ -177,8 +171,6 @@ int cros_ec_i2c_decode_fdt(struct cros_ec_dev *dev, const void *blob)
 int cros_ec_i2c_init(struct cros_ec_dev *dev, const void *blob)
 {
 	i2c_init(dev->max_frequency, dev->addr);
-
-	dev->cmd_version_is_supported = 0;
 
 	return 0;
 }

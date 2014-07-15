@@ -41,7 +41,7 @@ u16 *ataid[AHCI_MAX_PORTS];
 #define WAIT_MS_SPINUP	20000
 #define WAIT_MS_DATAIO	5000
 #define WAIT_MS_FLUSH	5000
-#define WAIT_MS_LINKUP	4
+#define WAIT_MS_LINKUP	40
 
 static inline u32 ahci_port_base(u32 base, u32 port)
 {
@@ -623,6 +623,7 @@ static int ata_scsiop_inquiry(ccb *pccb)
 		95 - 4,
 	};
 	u8 fis[20];
+	u16 *idbuf;
 	ALLOC_CACHE_ALIGN_BUFFER(u16, tmpid, ATA_ID_WORDS);
 	u8 port;
 
@@ -649,17 +650,25 @@ static int ata_scsiop_inquiry(ccb *pccb)
 		return -EIO;
 	}
 
-	if (ataid[port])
-		free(ataid[port]);
-	ataid[port] = tmpid;
-	ata_swap_buf_le16(tmpid, ATA_ID_WORDS);
+	if (!ataid[port]) {
+		ataid[port] = malloc(ATA_ID_WORDS * 2);
+		if (!ataid[port]) {
+			printf("%s: No memory for ataid[port]\n", __func__);
+			return -ENOMEM;
+		}
+	}
+
+	idbuf = ataid[port];
+
+	memcpy(idbuf, tmpid, ATA_ID_WORDS * 2);
+	ata_swap_buf_le16(idbuf, ATA_ID_WORDS);
 
 	memcpy(&pccb->pdata[8], "ATA     ", 8);
-	ata_id_strcpy((u16 *) &pccb->pdata[16], &tmpid[ATA_ID_PROD], 16);
-	ata_id_strcpy((u16 *) &pccb->pdata[32], &tmpid[ATA_ID_FW_REV], 4);
+	ata_id_strcpy((u16 *)&pccb->pdata[16], &idbuf[ATA_ID_PROD], 16);
+	ata_id_strcpy((u16 *)&pccb->pdata[32], &idbuf[ATA_ID_FW_REV], 4);
 
 #ifdef DEBUG
-	ata_dump_id(tmpid);
+	ata_dump_id(idbuf);
 #endif
 	return 0;
 }
@@ -930,6 +939,11 @@ int ahci_init(u32 base)
 err_out:
 	return rc;
 }
+
+void __weak scsi_init(void)
+{
+}
+
 #endif
 
 /*

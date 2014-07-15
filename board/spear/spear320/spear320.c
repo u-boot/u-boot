@@ -65,8 +65,7 @@ int board_eth_init(bd_t *bis)
 
 #if defined(CONFIG_DESIGNWARE_ETH)
 	u32 interface = PHY_INTERFACE_MODE_MII;
-	if (designware_initialize(0, CONFIG_SPEAR_ETHBASE, CONFIG_DW0_PHY,
-				interface) >= 0)
+	if (designware_initialize(CONFIG_SPEAR_ETHBASE, interface) >= 0)
 		ret++;
 #endif
 #if defined(CONFIG_MACB)

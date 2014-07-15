@@ -55,6 +55,22 @@
 #define HAVE_BLOCK_DEVICE
 #endif
 
+#if (defined(CONFIG_PARTITION_UUIDS) || \
+	defined(CONFIG_EFI_PARTITION) || \
+	defined(CONFIG_RANDOM_UUID) || \
+	defined(CONFIG_CMD_UUID) || \
+	defined(CONFIG_BOOTP_PXE)) && \
+	!defined(CONFIG_LIB_UUID)
+#define CONFIG_LIB_UUID
+#endif
+
+#if (defined(CONFIG_RANDOM_UUID) || \
+	defined(CONFIG_CMD_UUID)) && \
+	(!defined(CONFIG_LIB_RAND) && \
+	!defined(CONFIG_LIB_HW_RAND))
+#define CONFIG_LIB_RAND
+#endif
+
 #ifndef CONFIG_SYS_PROMPT
 #define CONFIG_SYS_PROMPT	"=> "
 #endif

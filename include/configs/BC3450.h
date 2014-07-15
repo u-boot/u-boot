@@ -22,8 +22,7 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU	    */
-#define CONFIG_MPC5200		1	/* (more precisely a MPC5200 CPU)   */
+#define CONFIG_MPC5200		1	/* This is a MPC5200 CPU	    */
 #define CONFIG_TQM5200		1	/* ... on a TQM5200 module	    */
 
 #define CONFIG_BC3450		1	/* ... on a BC3450 mainboard	    */

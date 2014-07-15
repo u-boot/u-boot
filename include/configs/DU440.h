@@ -21,7 +21,6 @@
  */
 #define CONFIG_DU440		1		/* Board is esd DU440	*/
 #define CONFIG_440EPX		1		/* Specific PPC440EPx	*/
-#define CONFIG_4xx		1		/* ... PPC4xx family	*/
 #define CONFIG_SYS_CLK_FREQ	33333400	/* external freq to pll	*/
 
 #ifndef CONFIG_SYS_TEXT_BASE

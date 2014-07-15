@@ -253,10 +253,4 @@
 		"cp.b ${fileaddr} " __stringify(CONFIG_SYS_MONITOR_BASE) " ${filesize}\0" \
 	"upd=run load update\0"						\
 
-#define CONFIG_AMCC_DEF_ENV_NAND_UPD					\
-	"u-boot-nand=" __stringify(CONFIG_HOSTNAME) "/u-boot-nand.bin\0"\
-	"nload=tftp 200000 ${u-boot-nand}\0"				\
-	"nupdate=nand erase 0 100000;nand write 200000 0 100000\0"	\
-	"nupd=run nload nupdate\0"
-
 #endif /* __AMCC_COMMON_H */

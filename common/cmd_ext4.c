@@ -79,8 +79,8 @@ int do_ext4_write(cmd_tbl_t *cmdtp, int flag, int argc,
 	/* get the address in hexadecimal format (string to int) */
 	ram_address = simple_strtoul(argv[3], NULL, 16);
 
-	/* get the filesize in base 10 format */
-	file_size = simple_strtoul(argv[5], NULL, 10);
+	/* get the filesize in hexadecimal format */
+	file_size = simple_strtoul(argv[5], NULL, 16);
 
 	/* set the device as block device */
 	ext4fs_set_blk_dev(dev_desc, &info);

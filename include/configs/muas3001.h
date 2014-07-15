@@ -13,8 +13,6 @@
  * (easy to change)
  */
 
-#define CONFIG_8260		1
-#define CONFIG_MPC8260		1
 #define CONFIG_MUAS3001		1
 
 #define	CONFIG_SYS_TEXT_BASE	0xFF000000

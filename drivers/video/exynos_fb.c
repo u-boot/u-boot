@@ -62,31 +62,6 @@ static void exynos_lcd_init(vidinfo_t *vid)
 	lcd_set_flush_dcache(1);
 }
 
-#ifdef CONFIG_CMD_BMP
-static void draw_logo(void)
-{
-	int x, y;
-	ulong addr;
-
-	if (panel_width >= panel_info.logo_width) {
-		x = ((panel_width - panel_info.logo_width) >> 1);
-	} else {
-		x = 0;
-		printf("Warning: image width is bigger than display width\n");
-	}
-
-	if (panel_height >= panel_info.logo_height) {
-		y = ((panel_height - panel_info.logo_height) >> 1) - 4;
-	} else {
-		y = 0;
-		printf("Warning: image height is bigger than display height\n");
-	}
-
-	addr = panel_info.logo_addr;
-	bmp_display(addr, x, y);
-}
-#endif
-
 void __exynos_cfg_lcd_gpio(void)
 {
 }
@@ -128,6 +103,13 @@ void __exynos_backlight_reset(void)
 }
 void exynos_backlight_reset(void)
 	__attribute__((weak, alias("__exynos_backlight_reset")));
+
+int __exynos_lcd_misc_init(vidinfo_t *vid)
+{
+	return 0;
+}
+int exynos_lcd_misc_init(vidinfo_t *vid)
+	__attribute__((weak, alias("__exynos_lcd_misc_init")));
 
 static void lcd_panel_on(vidinfo_t *vid)
 {
@@ -306,10 +288,15 @@ void lcd_ctrl_init(void *lcdbase)
 #ifdef CONFIG_OF_CONTROL
 	if (exynos_fimd_parse_dt(gd->fdt_blob))
 		debug("Can't get proper panel info\n");
+#ifdef CONFIG_EXYNOS_MIPI_DSIM
+	exynos_init_dsim_platform_data(&panel_info);
+#endif
+	exynos_lcd_misc_init(&panel_info);
 #else
 	/* initialize parameters which is specific to panel. */
 	init_panel_info(&panel_info);
 #endif
+
 	panel_width = panel_info.vl_width;
 	panel_height = panel_info.vl_height;
 
@@ -323,9 +310,6 @@ void lcd_enable(void)
 	if (panel_info.logo_on) {
 		memset((void *) gd->fb_base, 0, panel_width * panel_height *
 				(NBITS(panel_info.vl_bpix) >> 3));
-#ifdef CONFIG_CMD_BMP
-		draw_logo();
-#endif
 	}
 
 	lcd_panel_on(&panel_info);

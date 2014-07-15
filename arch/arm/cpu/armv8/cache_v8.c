@@ -45,15 +45,31 @@ static void mmu_setup(void)
 
 	/* load TTBR0 */
 	el = current_el();
-	if (el == 1)
+	if (el == 1) {
 		asm volatile("msr ttbr0_el1, %0"
 			     : : "r" (gd->arch.tlb_addr) : "memory");
-	else if (el == 2)
+		asm volatile("msr tcr_el1, %0"
+			     : : "r" (TCR_FLAGS | TCR_EL1_IPS_BITS)
+			     : "memory");
+		asm volatile("msr mair_el1, %0"
+			     : : "r" (MEMORY_ATTRIBUTES) : "memory");
+	} else if (el == 2) {
 		asm volatile("msr ttbr0_el2, %0"
 			     : : "r" (gd->arch.tlb_addr) : "memory");
-	else
+		asm volatile("msr tcr_el2, %0"
+			     : : "r" (TCR_FLAGS | TCR_EL2_IPS_BITS)
+			     : "memory");
+		asm volatile("msr mair_el2, %0"
+			     : : "r" (MEMORY_ATTRIBUTES) : "memory");
+	} else {
 		asm volatile("msr ttbr0_el3, %0"
 			     : : "r" (gd->arch.tlb_addr) : "memory");
+		asm volatile("msr tcr_el3, %0"
+			     : : "r" (TCR_FLAGS | TCR_EL2_IPS_BITS)
+			     : "memory");
+		asm volatile("msr mair_el3, %0"
+			     : : "r" (MEMORY_ATTRIBUTES) : "memory");
+	}
 
 	/* enable the mmu */
 	set_sctlr(get_sctlr() | CR_M);
@@ -64,7 +80,7 @@ static void mmu_setup(void)
  */
 void invalidate_dcache_all(void)
 {
-	__asm_flush_dcache_all();
+	__asm_invalidate_dcache_all();
 }
 
 /*
@@ -161,6 +177,7 @@ int dcache_status(void)
 
 void icache_enable(void)
 {
+	__asm_invalidate_icache_all();
 	set_sctlr(get_sctlr() | CR_I);
 }
 

@@ -214,7 +214,7 @@ static inline unsigned pin_to_mask(unsigned pin)
 
 /* The following macros are need for backward compatibility */
 #define at91_set_GPIO_periph(x, y) \
-	at91_set_gpio_periph((x - PIN_BASE) / 32,(x % 32), y)
+	at91_set_pio_periph((x - PIN_BASE) / 32,(x % 32), y)
 #define at91_set_A_periph(x, y) \
 	at91_set_a_periph((x - PIN_BASE) / 32,(x % 32), y)
 #define at91_set_B_periph(x, y) \

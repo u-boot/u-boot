@@ -11,6 +11,7 @@
 #include <fsl_ddr_sdram.h>
 #include <asm/processor.h>
 #include <fsl_immap.h>
+#include <fsl_ddr.h>
 
 #if (CONFIG_CHIP_SELECTS_PER_CTRL > 4)
 #error Invalid setting for CONFIG_CHIP_SELECTS_PER_CTRL
@@ -63,54 +64,54 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 		goto step2;
 
 	if (regs->ddr_eor)
-		out_be32(&ddr->eor, regs->ddr_eor);
+		ddr_out32(&ddr->eor, regs->ddr_eor);
 	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
 		if (i == 0) {
-			out_be32(&ddr->cs0_bnds, regs->cs[i].bnds);
-			out_be32(&ddr->cs0_config, regs->cs[i].config);
-			out_be32(&ddr->cs0_config_2, regs->cs[i].config_2);
+			ddr_out32(&ddr->cs0_bnds, regs->cs[i].bnds);
+			ddr_out32(&ddr->cs0_config, regs->cs[i].config);
+			ddr_out32(&ddr->cs0_config_2, regs->cs[i].config_2);
 
 		} else if (i == 1) {
-			out_be32(&ddr->cs1_bnds, regs->cs[i].bnds);
-			out_be32(&ddr->cs1_config, regs->cs[i].config);
-			out_be32(&ddr->cs1_config_2, regs->cs[i].config_2);
+			ddr_out32(&ddr->cs1_bnds, regs->cs[i].bnds);
+			ddr_out32(&ddr->cs1_config, regs->cs[i].config);
+			ddr_out32(&ddr->cs1_config_2, regs->cs[i].config_2);
 
 		} else if (i == 2) {
-			out_be32(&ddr->cs2_bnds, regs->cs[i].bnds);
-			out_be32(&ddr->cs2_config, regs->cs[i].config);
-			out_be32(&ddr->cs2_config_2, regs->cs[i].config_2);
+			ddr_out32(&ddr->cs2_bnds, regs->cs[i].bnds);
+			ddr_out32(&ddr->cs2_config, regs->cs[i].config);
+			ddr_out32(&ddr->cs2_config_2, regs->cs[i].config_2);
 
 		} else if (i == 3) {
-			out_be32(&ddr->cs3_bnds, regs->cs[i].bnds);
-			out_be32(&ddr->cs3_config, regs->cs[i].config);
-			out_be32(&ddr->cs3_config_2, regs->cs[i].config_2);
+			ddr_out32(&ddr->cs3_bnds, regs->cs[i].bnds);
+			ddr_out32(&ddr->cs3_config, regs->cs[i].config);
+			ddr_out32(&ddr->cs3_config_2, regs->cs[i].config_2);
 		}
 	}
 
-	out_be32(&ddr->timing_cfg_3, regs->timing_cfg_3);
-	out_be32(&ddr->timing_cfg_0, regs->timing_cfg_0);
-	out_be32(&ddr->timing_cfg_1, regs->timing_cfg_1);
-	out_be32(&ddr->timing_cfg_2, regs->timing_cfg_2);
-	out_be32(&ddr->sdram_cfg_2, regs->ddr_sdram_cfg_2);
-	out_be32(&ddr->sdram_mode, regs->ddr_sdram_mode);
-	out_be32(&ddr->sdram_mode_2, regs->ddr_sdram_mode_2);
-	out_be32(&ddr->sdram_mode_3, regs->ddr_sdram_mode_3);
-	out_be32(&ddr->sdram_mode_4, regs->ddr_sdram_mode_4);
-	out_be32(&ddr->sdram_mode_5, regs->ddr_sdram_mode_5);
-	out_be32(&ddr->sdram_mode_6, regs->ddr_sdram_mode_6);
-	out_be32(&ddr->sdram_mode_7, regs->ddr_sdram_mode_7);
-	out_be32(&ddr->sdram_mode_8, regs->ddr_sdram_mode_8);
-	out_be32(&ddr->sdram_md_cntl, regs->ddr_sdram_md_cntl);
-	out_be32(&ddr->sdram_interval, regs->ddr_sdram_interval);
-	out_be32(&ddr->sdram_data_init, regs->ddr_data_init);
-	out_be32(&ddr->sdram_clk_cntl, regs->ddr_sdram_clk_cntl);
-	out_be32(&ddr->init_addr, regs->ddr_init_addr);
-	out_be32(&ddr->init_ext_addr, regs->ddr_init_ext_addr);
+	ddr_out32(&ddr->timing_cfg_3, regs->timing_cfg_3);
+	ddr_out32(&ddr->timing_cfg_0, regs->timing_cfg_0);
+	ddr_out32(&ddr->timing_cfg_1, regs->timing_cfg_1);
+	ddr_out32(&ddr->timing_cfg_2, regs->timing_cfg_2);
+	ddr_out32(&ddr->sdram_cfg_2, regs->ddr_sdram_cfg_2);
+	ddr_out32(&ddr->sdram_mode, regs->ddr_sdram_mode);
+	ddr_out32(&ddr->sdram_mode_2, regs->ddr_sdram_mode_2);
+	ddr_out32(&ddr->sdram_mode_3, regs->ddr_sdram_mode_3);
+	ddr_out32(&ddr->sdram_mode_4, regs->ddr_sdram_mode_4);
+	ddr_out32(&ddr->sdram_mode_5, regs->ddr_sdram_mode_5);
+	ddr_out32(&ddr->sdram_mode_6, regs->ddr_sdram_mode_6);
+	ddr_out32(&ddr->sdram_mode_7, regs->ddr_sdram_mode_7);
+	ddr_out32(&ddr->sdram_mode_8, regs->ddr_sdram_mode_8);
+	ddr_out32(&ddr->sdram_md_cntl, regs->ddr_sdram_md_cntl);
+	ddr_out32(&ddr->sdram_interval, regs->ddr_sdram_interval);
+	ddr_out32(&ddr->sdram_data_init, regs->ddr_data_init);
+	ddr_out32(&ddr->sdram_clk_cntl, regs->ddr_sdram_clk_cntl);
+	ddr_out32(&ddr->init_addr, regs->ddr_init_addr);
+	ddr_out32(&ddr->init_ext_addr, regs->ddr_init_ext_addr);
 
-	out_be32(&ddr->timing_cfg_4, regs->timing_cfg_4);
-	out_be32(&ddr->timing_cfg_5, regs->timing_cfg_5);
-	out_be32(&ddr->ddr_zq_cntl, regs->ddr_zq_cntl);
-	out_be32(&ddr->ddr_wrlvl_cntl, regs->ddr_wrlvl_cntl);
+	ddr_out32(&ddr->timing_cfg_4, regs->timing_cfg_4);
+	ddr_out32(&ddr->timing_cfg_5, regs->timing_cfg_5);
+	ddr_out32(&ddr->ddr_zq_cntl, regs->ddr_zq_cntl);
+	ddr_out32(&ddr->ddr_wrlvl_cntl, regs->ddr_wrlvl_cntl);
 #ifndef CONFIG_SYS_FSL_DDR_EMU
 	/*
 	 * Skip these two registers if running on emulator
@@ -118,23 +119,23 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	 */
 
 	if (regs->ddr_wrlvl_cntl_2)
-		out_be32(&ddr->ddr_wrlvl_cntl_2, regs->ddr_wrlvl_cntl_2);
+		ddr_out32(&ddr->ddr_wrlvl_cntl_2, regs->ddr_wrlvl_cntl_2);
 	if (regs->ddr_wrlvl_cntl_3)
-		out_be32(&ddr->ddr_wrlvl_cntl_3, regs->ddr_wrlvl_cntl_3);
+		ddr_out32(&ddr->ddr_wrlvl_cntl_3, regs->ddr_wrlvl_cntl_3);
 #endif
 
-	out_be32(&ddr->ddr_sr_cntr, regs->ddr_sr_cntr);
-	out_be32(&ddr->ddr_sdram_rcw_1, regs->ddr_sdram_rcw_1);
-	out_be32(&ddr->ddr_sdram_rcw_2, regs->ddr_sdram_rcw_2);
-	out_be32(&ddr->ddr_cdr1, regs->ddr_cdr1);
-	out_be32(&ddr->ddr_cdr2, regs->ddr_cdr2);
-	out_be32(&ddr->err_disable, regs->err_disable);
-	out_be32(&ddr->err_int_en, regs->err_int_en);
+	ddr_out32(&ddr->ddr_sr_cntr, regs->ddr_sr_cntr);
+	ddr_out32(&ddr->ddr_sdram_rcw_1, regs->ddr_sdram_rcw_1);
+	ddr_out32(&ddr->ddr_sdram_rcw_2, regs->ddr_sdram_rcw_2);
+	ddr_out32(&ddr->ddr_cdr1, regs->ddr_cdr1);
+	ddr_out32(&ddr->ddr_cdr2, regs->ddr_cdr2);
+	ddr_out32(&ddr->err_disable, regs->err_disable);
+	ddr_out32(&ddr->err_int_en, regs->err_int_en);
 	for (i = 0; i < 32; i++) {
 		if (regs->debug[i]) {
 			debug("Write to debug_%d as %08x\n", i + 1,
 			      regs->debug[i]);
-			out_be32(&ddr->debug[i], regs->debug[i]);
+			ddr_out32(&ddr->debug[i], regs->debug[i]);
 		}
 	}
 
@@ -155,7 +156,7 @@ step2:
 	/* Set, but do not enable the memory */
 	temp_sdram_cfg = regs->ddr_sdram_cfg;
 	temp_sdram_cfg &= ~(SDRAM_CFG_MEM_EN);
-	out_be32(&ddr->sdram_cfg, temp_sdram_cfg);
+	ddr_out32(&ddr->sdram_cfg, temp_sdram_cfg);
 
 	/*
 	 * 500 painful micro-seconds must elapse between
@@ -167,8 +168,8 @@ step2:
 	asm volatile("dsb sy;isb");
 
 	/* Let the controller go */
-	temp_sdram_cfg = in_be32(&ddr->sdram_cfg) & ~SDRAM_CFG_BI;
-	out_be32(&ddr->sdram_cfg, temp_sdram_cfg | SDRAM_CFG_MEM_EN);
+	temp_sdram_cfg = ddr_in32(&ddr->sdram_cfg) & ~SDRAM_CFG_BI;
+	ddr_out32(&ddr->sdram_cfg, temp_sdram_cfg | SDRAM_CFG_MEM_EN);
 	asm volatile("dsb sy;isb");
 
 	total_gb_size_per_controller = 0;
@@ -202,7 +203,7 @@ step2:
 	debug("Need to wait up to %d * 10ms\n", timeout);
 
 	/* Poll DDR_SDRAM_CFG_2[D_INIT] bit until auto-data init is done.  */
-	while ((in_be32(&ddr->sdram_cfg_2) & SDRAM_CFG2_D_INIT) &&
+	while ((ddr_in32(&ddr->sdram_cfg_2) & SDRAM_CFG2_D_INIT) &&
 		(timeout >= 0)) {
 		udelay(10000);		/* throttle polling rate */
 		timeout--;

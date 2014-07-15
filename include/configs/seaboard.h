@@ -8,7 +8,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 
 /* LP0 suspend / resume */
 #define CONFIG_TEGRA_LP0

@@ -26,14 +26,6 @@
 extern int denali_wait_for_dlllock(void);
 extern void denali_core_search_data_eye(void);
 
-#if defined(CONFIG_NAND_SPL)
-/* Using arch/powerpc/cpu/ppc4xx/speed.c to calculate the bus frequency is too big
- * for the 4k NAND boot image so define bus_frequency to 133MHz here
- * which is save for the refresh counter setup.
- */
-#define get_bus_freq(val)	133333333
-#endif
-
 /*************************************************************************
  *
  * initdram -- 440EPx's DDR controller is a DENALI Core
@@ -41,8 +33,7 @@ extern void denali_core_search_data_eye(void);
  ************************************************************************/
 phys_size_t initdram (int board_type)
 {
-#if !(defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_SYS_RAMBOOT)) || \
-    defined(CONFIG_NAND_SPL)
+#if !defined(CONFIG_SYS_RAMBOOT)
 	ulong speed = get_bus_freq(0);
 
 	mtsdram(DDR0_02, 0x00000000);
@@ -81,7 +72,7 @@ phys_size_t initdram (int board_type)
 	mtsdram(DDR0_02, 0x00000001);
 
 	denali_wait_for_dlllock();
-#endif /* #ifndef CONFIG_NAND_U_BOOT */
+#endif /* #ifndef CONFIG_SYS_RAMBOOT */
 
 #ifdef CONFIG_DDR_DATA_EYE
 	/* -----------------------------------------------------------+

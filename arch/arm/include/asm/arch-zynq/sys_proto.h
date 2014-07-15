@@ -23,5 +23,6 @@ extern unsigned int zynq_get_silicon_version(void);
 
 /* Driver extern functions */
 extern int zynq_sdhci_init(u32 regbase);
+extern int zynq_sdhci_of_init(const void *blob);
 
 #endif /* _SYS_PROTO_H_ */

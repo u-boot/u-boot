@@ -18,7 +18,7 @@
 #include <asm/arch/clocks_am33xx.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/hardware_am33xx.h>
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 
 const struct ctrl_ioregs ioregs = {
 	.cm0ioctl		= MT41J128MJT125_IOCTRL_VALUE,

@@ -457,6 +457,7 @@
 #endif /* CONFIG_BOOT_ROOT_NFS */
 
 #define CONFIG_BOOTP_RANDOM_DELAY       /* Randomize the BOOTP retry delay */
+#define CONFIG_LIB_RAND
 
 /*
  * BOOTP options
@@ -524,7 +525,6 @@
  *
  *****************************************************************************/
 
-#define CONFIG_MPC8260		1	/* This is an MPC8260 CPU   */
 #define CONFIG_SACSng		1	/* munged for the SACSng */
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 

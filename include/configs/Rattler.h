@@ -13,7 +13,6 @@
 #ifdef CONFIG_MPC8248
 #define CPU_ID_STR		"MPC8248"
 #else
-#define CONFIG_MPC8260
 #define CPU_ID_STR		"MPC8250"
 #endif /* CONFIG_MPC8248 */
 

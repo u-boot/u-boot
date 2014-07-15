@@ -13,7 +13,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #if (CMA_MB_CAPS & CMA_MB_CAP_SERPAR)
 
 #if (defined(CONFIG_8xx) && defined(CONFIG_8xx_CONS_NONE)) || \
-     (defined(CONFIG_8260) && defined(CONFIG_CONS_NONE))
+	(defined(CONFIG_MPC8260) && defined(CONFIG_CONS_NONE))
 
 #if CONFIG_CONS_INDEX == 1
 #define CMA_MB_SERIAL_BASE	CMA_MB_SERIALA_BASE

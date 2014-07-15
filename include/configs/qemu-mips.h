@@ -12,7 +12,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_MIPS32			/* MIPS32 CPU core */
 #define CONFIG_QEMU_MIPS
 #define CONFIG_MISC_INIT_R
 

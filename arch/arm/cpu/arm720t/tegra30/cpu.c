@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2012, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2010-2014, NVIDIA CORPORATION.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -83,18 +83,6 @@ void t30_init_clocks(void)
 	debug("t30_init_clocks entry\n");
 	/* Set active CPU cluster to G */
 	clrbits_le32(flow->cluster_control, 1 << 0);
-
-	/*
-	 * Switch system clock to PLLP_OUT4 (108 MHz), AVP will now run
-	 * at 108 MHz. This is glitch free as only the source is changed, no
-	 * special precaution needed.
-	 */
-	val = (SCLK_SOURCE_PLLP_OUT4 << SCLK_SWAKEUP_FIQ_SOURCE_SHIFT) |
-		(SCLK_SOURCE_PLLP_OUT4 << SCLK_SWAKEUP_IRQ_SOURCE_SHIFT) |
-		(SCLK_SOURCE_PLLP_OUT4 << SCLK_SWAKEUP_RUN_SOURCE_SHIFT) |
-		(SCLK_SOURCE_PLLP_OUT4 << SCLK_SWAKEUP_IDLE_SOURCE_SHIFT) |
-		(SCLK_SYS_STATE_RUN << SCLK_SYS_STATE_SHIFT);
-	writel(val, &clkrst->crc_sclk_brst_pol);
 
 	writel(SUPER_SCLK_ENB_MASK, &clkrst->crc_super_sclk_div);
 

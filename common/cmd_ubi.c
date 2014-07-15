@@ -123,6 +123,27 @@ static int ubi_info(int layout)
 	return 0;
 }
 
+static int ubi_check_volumename(const struct ubi_volume *vol, char *name)
+{
+	return strcmp(vol->name, name);
+}
+
+static int ubi_check(char *name)
+{
+	int i;
+
+	for (i = 0; i < (ubi->vtbl_slots + 1); i++) {
+		if (!ubi->volumes[i])
+			continue;	/* Empty record */
+
+		if (!ubi_check_volumename(ubi->volumes[i], name))
+			return 0;
+	}
+
+	return -EEXIST;
+}
+
+
 static int verify_mkvol_req(const struct ubi_device *ubi,
 			    const struct ubi_mkvol_req *req)
 {
@@ -558,6 +579,14 @@ static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return ubi_info(layout);
 	}
 
+	if (strcmp(argv[1], "check") == 0) {
+		if (argc > 2)
+			return ubi_check(argv[2]);
+
+		printf("Error, no volume name passed\n");
+		return 1;
+	}
+
 	if (strncmp(argv[1], "create", 6) == 0) {
 		int dynamic = 1;	/* default: dynamic volume */
 
@@ -663,6 +692,8 @@ U_BOOT_CMD(
 		" header offset)\n"
 	"ubi info [l[ayout]]"
 		" - Display volume and ubi layout information\n"
+	"ubi check volumename"
+		" - check if volumename exists\n"
 	"ubi create[vol] volume [size] [type]"
 		" - create volume name with size\n"
 	"ubi write[vol] address volume size"

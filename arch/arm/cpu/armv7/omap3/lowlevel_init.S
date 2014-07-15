@@ -17,9 +17,6 @@
 #include <asm/arch/clocks_omap3.h>
 #include <linux/linkage.h>
 
-_TEXT_BASE:
-	.word	CONFIG_SYS_TEXT_BASE	/* sdram load addr from config.mk */
-
 #ifdef CONFIG_SPL_BUILD
 ENTRY(save_boot_params)
 	ldr	r4, =omap3_boot_device

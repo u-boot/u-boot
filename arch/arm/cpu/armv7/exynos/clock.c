@@ -26,7 +26,7 @@ struct clk_bit_info {
 };
 
 /* src_bit div_bit prediv_bit */
-static struct clk_bit_info clk_bit_info[PERIPH_ID_COUNT] = {
+static struct clk_bit_info clk_bit_info[] = {
 	{0,	0,	-1},
 	{4,	4,	-1},
 	{8,	8,	-1},
@@ -870,7 +870,6 @@ static void exynos4_set_mmc_clk(int dev_index, unsigned int div)
 	struct exynos4_clock *clk =
 		(struct exynos4_clock *)samsung_get_base_clock();
 	unsigned int addr;
-	unsigned int val;
 
 	/*
 	 * CLK_DIV_FSYS1
@@ -890,10 +889,8 @@ static void exynos4_set_mmc_clk(int dev_index, unsigned int div)
 		dev_index -= 2;
 	}
 
-	val = readl(addr);
-	val &= ~(0xff << ((dev_index << 4) + 8));
-	val |= (div & 0xff) << ((dev_index << 4) + 8);
-	writel(val, addr);
+	clrsetbits_le32(addr, 0xff << ((dev_index << 4) + 8),
+			(div & 0xff) << ((dev_index << 4) + 8));
 }
 
 /* exynos4x12: set the mmc clock */
@@ -902,7 +899,6 @@ static void exynos4x12_set_mmc_clk(int dev_index, unsigned int div)
 	struct exynos4x12_clock *clk =
 		(struct exynos4x12_clock *)samsung_get_base_clock();
 	unsigned int addr;
-	unsigned int val;
 
 	/*
 	 * CLK_DIV_FSYS1
@@ -917,10 +913,8 @@ static void exynos4x12_set_mmc_clk(int dev_index, unsigned int div)
 		dev_index -= 2;
 	}
 
-	val = readl(addr);
-	val &= ~(0xff << ((dev_index << 4) + 8));
-	val |= (div & 0xff) << ((dev_index << 4) + 8);
-	writel(val, addr);
+	clrsetbits_le32(addr, 0xff << ((dev_index << 4) + 8),
+			(div & 0xff) << ((dev_index << 4) + 8));
 }
 
 /* exynos5: set the mmc clock */
@@ -929,7 +923,6 @@ static void exynos5_set_mmc_clk(int dev_index, unsigned int div)
 	struct exynos5_clock *clk =
 		(struct exynos5_clock *)samsung_get_base_clock();
 	unsigned int addr;
-	unsigned int val;
 
 	/*
 	 * CLK_DIV_FSYS1
@@ -944,10 +937,8 @@ static void exynos5_set_mmc_clk(int dev_index, unsigned int div)
 		dev_index -= 2;
 	}
 
-	val = readl(addr);
-	val &= ~(0xff << ((dev_index << 4) + 8));
-	val |= (div & 0xff) << ((dev_index << 4) + 8);
-	writel(val, addr);
+	clrsetbits_le32(addr, 0xff << ((dev_index << 4) + 8),
+			(div & 0xff) << ((dev_index << 4) + 8));
 }
 
 /* exynos5: set the mmc clock */
@@ -956,7 +947,7 @@ static void exynos5420_set_mmc_clk(int dev_index, unsigned int div)
 	struct exynos5420_clock *clk =
 		(struct exynos5420_clock *)samsung_get_base_clock();
 	unsigned int addr;
-	unsigned int val, shift;
+	unsigned int shift;
 
 	/*
 	 * CLK_DIV_FSYS1
@@ -967,10 +958,7 @@ static void exynos5420_set_mmc_clk(int dev_index, unsigned int div)
 	addr = (unsigned int)&clk->div_fsys1;
 	shift = dev_index * 10;
 
-	val = readl(addr);
-	val &= ~(0x3ff << shift);
-	val |= (div & 0x3ff) << shift;
-	writel(val, addr);
+	clrsetbits_le32(addr, 0x3ff << shift, (div & 0x3ff) << shift);
 }
 
 /* get_lcd_clk: return lcd clock frequency */
@@ -1061,7 +1049,6 @@ void exynos4_set_lcd_clk(void)
 {
 	struct exynos4_clock *clk =
 	    (struct exynos4_clock *)samsung_get_base_clock();
-	unsigned int cfg = 0;
 
 	/*
 	 * CLK_GATE_BLOCK
@@ -1073,9 +1060,7 @@ void exynos4_set_lcd_clk(void)
 	 * CLK_LCD1	[5]
 	 * CLK_GPS	[7]
 	 */
-	cfg = readl(&clk->gate_block);
-	cfg |= 1 << 4;
-	writel(cfg, &clk->gate_block);
+	setbits_le32(&clk->gate_block, 1 << 4);
 
 	/*
 	 * CLK_SRC_LCD0
@@ -1085,10 +1070,7 @@ void exynos4_set_lcd_clk(void)
 	 * MIPI0_SEL		[12:15]
 	 * set lcd0 src clock 0x6: SCLK_MPLL
 	 */
-	cfg = readl(&clk->src_lcd0);
-	cfg &= ~(0xf);
-	cfg |= 0x6;
-	writel(cfg, &clk->src_lcd0);
+	clrsetbits_le32(&clk->src_lcd0, 0xf, 0x6);
 
 	/*
 	 * CLK_GATE_IP_LCD0
@@ -1100,9 +1082,7 @@ void exynos4_set_lcd_clk(void)
 	 * CLK_PPMULCD0		[5]
 	 * Gating all clocks for FIMD0
 	 */
-	cfg = readl(&clk->gate_ip_lcd0);
-	cfg |= 1 << 0;
-	writel(cfg, &clk->gate_ip_lcd0);
+	setbits_le32(&clk->gate_ip_lcd0, 1 << 0);
 
 	/*
 	 * CLK_DIV_LCD0
@@ -1114,16 +1094,13 @@ void exynos4_set_lcd_clk(void)
 	 * MIPI0_PRE_RATIO	[23:20]
 	 * set fimd ratio
 	 */
-	cfg &= ~(0xf);
-	cfg |= 0x1;
-	writel(cfg, &clk->div_lcd0);
+	clrsetbits_le32(&clk->div_lcd0, 0xf, 0x1);
 }
 
 void exynos5_set_lcd_clk(void)
 {
 	struct exynos5_clock *clk =
 	    (struct exynos5_clock *)samsung_get_base_clock();
-	unsigned int cfg = 0;
 
 	/*
 	 * CLK_GATE_BLOCK
@@ -1135,9 +1112,7 @@ void exynos5_set_lcd_clk(void)
 	 * CLK_LCD1	[5]
 	 * CLK_GPS	[7]
 	 */
-	cfg = readl(&clk->gate_block);
-	cfg |= 1 << 4;
-	writel(cfg, &clk->gate_block);
+	setbits_le32(&clk->gate_block, 1 << 4);
 
 	/*
 	 * CLK_SRC_LCD0
@@ -1147,10 +1122,7 @@ void exynos5_set_lcd_clk(void)
 	 * MIPI0_SEL		[12:15]
 	 * set lcd0 src clock 0x6: SCLK_MPLL
 	 */
-	cfg = readl(&clk->src_disp1_0);
-	cfg &= ~(0xf);
-	cfg |= 0x6;
-	writel(cfg, &clk->src_disp1_0);
+	clrsetbits_le32(&clk->src_disp1_0, 0xf, 0x6);
 
 	/*
 	 * CLK_GATE_IP_LCD0
@@ -1162,9 +1134,7 @@ void exynos5_set_lcd_clk(void)
 	 * CLK_PPMULCD0		[5]
 	 * Gating all clocks for FIMD0
 	 */
-	cfg = readl(&clk->gate_ip_disp1);
-	cfg |= 1 << 0;
-	writel(cfg, &clk->gate_ip_disp1);
+	setbits_le32(&clk->gate_ip_disp1, 1 << 0);
 
 	/*
 	 * CLK_DIV_LCD0
@@ -1176,16 +1146,13 @@ void exynos5_set_lcd_clk(void)
 	 * MIPI0_PRE_RATIO	[23:20]
 	 * set fimd ratio
 	 */
-	cfg &= ~(0xf);
-	cfg |= 0x0;
-	writel(cfg, &clk->div_disp1_0);
+	clrsetbits_le32(&clk->div_disp1_0, 0xf, 0x0);
 }
 
 void exynos4_set_mipi_clk(void)
 {
 	struct exynos4_clock *clk =
 	    (struct exynos4_clock *)samsung_get_base_clock();
-	unsigned int cfg = 0;
 
 	/*
 	 * CLK_SRC_LCD0
@@ -1195,10 +1162,7 @@ void exynos4_set_mipi_clk(void)
 	 * MIPI0_SEL		[12:15]
 	 * set mipi0 src clock 0x6: SCLK_MPLL
 	 */
-	cfg = readl(&clk->src_lcd0);
-	cfg &= ~(0xf << 12);
-	cfg |= (0x6 << 12);
-	writel(cfg, &clk->src_lcd0);
+	clrsetbits_le32(&clk->src_lcd0, 0xf << 12, 0x6 << 12);
 
 	/*
 	 * CLK_SRC_MASK_LCD0
@@ -1208,9 +1172,7 @@ void exynos4_set_mipi_clk(void)
 	 * MIPI0_MASK		[12]
 	 * set src mask mipi0 0x1: Unmask
 	 */
-	cfg = readl(&clk->src_mask_lcd0);
-	cfg |= (0x1 << 12);
-	writel(cfg, &clk->src_mask_lcd0);
+	setbits_le32(&clk->src_mask_lcd0, 0x1 << 12);
 
 	/*
 	 * CLK_GATE_IP_LCD0
@@ -1222,9 +1184,7 @@ void exynos4_set_mipi_clk(void)
 	 * CLK_PPMULCD0		[5]
 	 * Gating all clocks for MIPI0
 	 */
-	cfg = readl(&clk->gate_ip_lcd0);
-	cfg |= 1 << 3;
-	writel(cfg, &clk->gate_ip_lcd0);
+	setbits_le32(&clk->gate_ip_lcd0, 1 << 3);
 
 	/*
 	 * CLK_DIV_LCD0
@@ -1236,9 +1196,7 @@ void exynos4_set_mipi_clk(void)
 	 * MIPI0_PRE_RATIO	[23:20]
 	 * set mipi ratio
 	 */
-	cfg &= ~(0xf << 16);
-	cfg |= (0x1 << 16);
-	writel(cfg, &clk->div_lcd0);
+	clrsetbits_le32(&clk->div_lcd0, 0xf << 16, 0x1 << 16);
 }
 
 /*

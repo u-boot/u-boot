@@ -12,6 +12,7 @@
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/omap_common.h>
+#include <linux/mtd/omap_gpmc.h>
 #include <asm/arch/clock.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -31,7 +32,6 @@ void watchdog_init(void);
 u32 get_device_type(void);
 void do_set_mux(u32 base, struct pad_conf_entry const *array, int size);
 void set_muxconf_regs_essential(void);
-void set_muxconf_regs_non_essential(void);
 void sr32(void *, u32, u32, u32);
 u32 wait_on_value(u32, u32, void *, u32);
 void sdelay(unsigned long);

@@ -140,6 +140,9 @@ int do_pmic(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return CMD_RET_SUCCESS;
 	}
 
+	if (argc < 3)
+		return CMD_RET_USAGE;
+
 	name = argv[1];
 	cmd = argv[2];
 

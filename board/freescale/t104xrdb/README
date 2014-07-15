@@ -161,17 +161,17 @@ Start Address  End Address      Description                     Size
 NOR Flash memory Map
 ---------------------
  Start          End             Definition                       Size
-0xEFF80000      0xEFFFFFFF      u-boot (current bank)            512KB
-0xEFF60000      0xEFF7FFFF      u-boot env (current bank)        128KB
-0xEFF40000      0xEFF5FFFF      FMAN Ucode (current bank)        128KB
-0xED300000      0xEFF3FFFF      rootfs (alt bank)                44MB + 256KB
-0xEC800000      0xEC8FFFF       Hardware device tree (alt bank)  1MB
+0xEFF40000      0xEFFFFFFF      u-boot (current bank)            768KB
+0xEFF20000      0xEFF3FFFF      u-boot env (current bank)        128KB
+0xEFF00000      0xEFF1FFFF      FMAN Ucode (current bank)        128KB
+0xED300000      0xEFEFFFFF      rootfs (alt bank)                44MB
+0xEC800000      0xEC8FFFFF      Hardware device tree (alt bank)  1MB
 0xEC020000      0xEC7FFFFF      Linux.uImage (alt bank)          7MB + 875KB
 0xEC000000      0xEC01FFFF      RCW (alt bank)                   128KB
-0xEBF80000      0xEBFFFFFF      u-boot (alt bank)                512KB
-0xEBF60000      0xEBF7FFFF      u-boot env (alt bank)            128KB
-0xEBF40000      0xEBF5FFFF      FMAN ucode (alt bank)            128KB
-0xE9300000      0xEBF3FFFF      rootfs (current bank)            44MB + 256KB
+0xEBF40000      0xEBFFFFFF      u-boot (alt bank)                768KB
+0xEBF20000      0xEBF3FFFF      u-boot env (alt bank)            128KB
+0xEBF00000      0xEBF1FFFF      FMAN ucode (alt bank)            128KB
+0xE9300000      0xEBEFFFFF      rootfs (current bank)            44MB
 0xE8800000      0xE88FFFFF      Hardware device tree (cur bank)  11MB + 512KB
 0xE8020000      0xE86FFFFF      Linux.uImage (current bank)      7MB + 875KB
 0xE8000000      0xE801FFFF      RCW (current bank)               128KB

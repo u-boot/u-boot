@@ -17,7 +17,7 @@
 #include <asm/imx-common/iomux-v3.h>
 #include <asm/imx-common/boot_mode.h>
 #include <asm/io.h>
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 #include <common.h>
 #include <fsl_esdhc.h>
 #include <ipu_pixfmt.h>
@@ -25,6 +25,8 @@
 #include <miiphy.h>
 #include <netdev.h>
 #include <linux/fb.h>
+#include <phy.h>
+#include <input.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -55,7 +57,7 @@ static iomux_v3_cfg_t const uart1_pads[] = {
 	MX6_PAD_CSI0_DAT11__UART1_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
-iomux_v3_cfg_t const usdhc1_pads[] = {
+static iomux_v3_cfg_t const usdhc1_pads[] = {
 	MX6_PAD_SD1_CLK__SD1_CLK   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6_PAD_SD1_CMD__SD1_CMD   | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6_PAD_SD1_DAT0__SD1_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),

@@ -7,25 +7,19 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __CONFIG_H
-#define __CONFIG_H
+#ifndef __CONFIG_TRATS_H
+#define __CONFIG_TRATS_H
 
-/*
- * High Level Configuration Options
- * (easy to change)
- */
-#define CONFIG_SAMSUNG		/* in a SAMSUNG core */
-#define CONFIG_S5P		/* which is in a S5P Family */
-#define CONFIG_EXYNOS4		/* which is in a EXYNOS4XXX */
-#define CONFIG_EXYNOS4210	/* which is in a EXYNOS4210 */
-#define CONFIG_TRATS		/* working with TRATS */
-#define CONFIG_TIZEN		/* TIZEN lib */
+#include <configs/exynos4-dt.h>
 
-#include <asm/arch/cpu.h>	/* get chip and board defs */
+#define CONFIG_SYS_PROMPT	"Trats # "	/* Monitor Command Prompt */
 
-#define CONFIG_ARCH_CPU_INIT
-#define CONFIG_DISPLAY_CPUINFO
-#define CONFIG_DISPLAY_BOARDINFO
+#define CONFIG_TRATS
+
+#undef CONFIG_DEFAULT_DEVICE_TREE
+#define CONFIG_DEFAULT_DEVICE_TREE	exynos4210-trats
+
+#define CONFIG_TIZEN			/* TIZEN lib */
 
 #define CONFIG_SYS_L2CACHE_OFF
 #ifndef CONFIG_SYS_L2CACHE_OFF
@@ -33,129 +27,100 @@
 #define CONFIG_SYS_PL310_BASE	0x10502000
 #endif
 
+/* TRATS has 4 banks of DRAM */
+#define CONFIG_NR_DRAM_BANKS		4
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
+#define PHYS_SDRAM_1			CONFIG_SYS_SDRAM_BASE
+#define CONFIG_SYS_TEXT_BASE		0x63300000
+#define SDRAM_BANK_SIZE			(256 << 20)	/* 256 MB */
+
+/* memtest works on */
+#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
+#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0x5000000)
+#define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x4800000)
+
 #define CONFIG_SYS_TEXT_BASE		0x63300000
 
-/* input clock of PLL: TRATS has 24MHz input clock at EXYNOS4210 */
-#define CONFIG_SYS_CLK_FREQ_C210	24000000
-#define CONFIG_SYS_CLK_FREQ		CONFIG_SYS_CLK_FREQ_C210
+#include <linux/sizes.h>
+/* Size of malloc() pool */
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (80 * SZ_1M))
 
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_REVISION_TAG
-#define CONFIG_CMDLINE_EDITING
-#define CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_BOARD_EARLY_INIT_F
+/* select serial console configuration */
+#define CONFIG_SERIAL2
+#define CONFIG_BAUDRATE			115200
+
+/* Console configuration */
+#define CONFIG_SYS_CONSOLE_INFO_QUIET
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 /* MACH_TYPE_TRATS macro will be removed once added to mach-types */
 #define MACH_TYPE_TRATS			3928
 #define CONFIG_MACH_TYPE		MACH_TYPE_TRATS
 
-#include <asm/sizes.h>
-/* Size of malloc() pool */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (80 * SZ_1M))
-
-/* select serial console configuration */
-#define CONFIG_SERIAL2			/* use SERIAL 2 */
-#define CONFIG_BAUDRATE			115200
-
-/* MMC */
-#define CONFIG_GENERIC_MMC
-#define CONFIG_MMC
-#define CONFIG_S5P_SDHCI
-#define CONFIG_SDHCI
-#define CONFIG_MMC_SDMA
-
-/* PWM */
-#define CONFIG_PWM
-
-/* It should define before config_cmd_default.h */
-#define CONFIG_SYS_NO_FLASH
-
-/* Command definition */
-#include <config_cmd_default.h>
-
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_MISC
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
-#undef CONFIG_CMD_XIMG
-#undef CONFIG_CMD_CACHE
-#undef CONFIG_CMD_ONENAND
-#undef CONFIG_CMD_MTDPARTS
-#define CONFIG_CMD_MMC
-#define CONFIG_CMD_DFU
-#define CONFIG_CMD_GPT
-#define CONFIG_CMD_SETEXPR
-
-/* FAT */
-#define CONFIG_CMD_FAT
-#define CONFIG_FAT_WRITE
-
-/* USB Composite download gadget - g_dnl */
-#define CONFIG_USBDOWNLOAD_GADGET
-
-/* TIZEN THOR downloader support */
-#define CONFIG_CMD_THOR_DOWNLOAD
-#define CONFIG_THOR_FUNCTION
-
-#define CONFIG_SYS_DFU_DATA_BUF_SIZE SZ_32M
-#define DFU_DEFAULT_POLL_TIMEOUT 300
-#define CONFIG_DFU_FUNCTION
-#define CONFIG_DFU_MMC
-
-/* USB Samsung's IDs */
-#define CONFIG_G_DNL_VENDOR_NUM 0x04E8
-#define CONFIG_G_DNL_PRODUCT_NUM 0x6601
-#define CONFIG_G_DNL_THOR_VENDOR_NUM CONFIG_G_DNL_VENDOR_NUM
-#define CONFIG_G_DNL_THOR_PRODUCT_NUM 0x685D
-#define CONFIG_G_DNL_MANUFACTURER "Samsung"
-
-#define CONFIG_BOOTDELAY		1
-#define CONFIG_ZERO_BOOTDELAY_CHECK
 #define CONFIG_BOOTARGS			"Please use defined boot"
 #define CONFIG_BOOTCOMMAND		"run mmcboot"
+#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC1,115200n8\0"
 
-#define CONFIG_DEFAULT_CONSOLE		"console=ttySAC2,115200n8\0"
+#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR \
+					- GENERATED_GBL_DATA_SIZE)
+
+#define CONFIG_SYS_MEM_TOP_HIDE	(1 << 20)	/* ram console */
+
+#define CONFIG_SYS_MONITOR_BASE	0x00000000
+
 #define CONFIG_BOOTBLOCK		"10"
 #define CONFIG_ENV_COMMON_BOOT		"${console} ${meminfo}"
 
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_SYS_MMC_ENV_DEV		CONFIG_MMC_DEFAULT_DEV
+#define CONFIG_ENV_SIZE			4096
+#define CONFIG_ENV_OFFSET		((32 - 4) << 10) /* 32KiB - 4KiB */
+
+#define CONFIG_ENV_OVERWRITE
+
+#define CONFIG_ENV_VARS_UBOOT_CONFIG
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+
 /* Tizen - partitions definitions */
 #define PARTS_CSA		"csa-mmc"
-#define PARTS_BOOTLOADER	"u-boot"
 #define PARTS_BOOT		"boot"
+#define PARTS_QBOOT		"qboot"
+#define PARTS_CSC		"csc"
 #define PARTS_ROOT		"platform"
 #define PARTS_DATA		"data"
-#define PARTS_CSC		"csc"
 #define PARTS_UMS		"ums"
 
 #define PARTS_DEFAULT \
 	"uuid_disk=${uuid_gpt_disk};" \
-	"name="PARTS_CSA",size=8MiB,uuid=${uuid_gpt_"PARTS_CSA"};" \
-	"name="PARTS_BOOTLOADER",size=60MiB," \
-		"uuid=${uuid_gpt_"PARTS_BOOTLOADER"};" \
-	"name="PARTS_BOOT",size=100MiB,uuid=${uuid_gpt_"PARTS_BOOT"};" \
-	"name="PARTS_ROOT",size=1GiB,uuid=${uuid_gpt_"PARTS_ROOT"};" \
-	"name="PARTS_DATA",size=3GiB,uuid=${uuid_gpt_"PARTS_DATA"};" \
+	"name="PARTS_CSA",start=5MiB,size=8MiB,uuid=${uuid_gpt_"PARTS_CSA"};" \
+	"name="PARTS_BOOT",size=60MiB,uuid=${uuid_gpt_"PARTS_BOOT"};" \
+	"name="PARTS_QBOOT",size=100MiB,uuid=${uuid_gpt_"PARTS_QBOOT"};" \
 	"name="PARTS_CSC",size=150MiB,uuid=${uuid_gpt_"PARTS_CSC"};" \
+	"name="PARTS_ROOT",size=1536MiB,uuid=${uuid_gpt_"PARTS_ROOT"};" \
+	"name="PARTS_DATA",size=3000MiB,uuid=${uuid_gpt_"PARTS_DATA"};" \
 	"name="PARTS_UMS",size=-,uuid=${uuid_gpt_"PARTS_UMS"}\0" \
 
 #define CONFIG_DFU_ALT \
 	"u-boot mmc 80 400;" \
 	"uImage ext4 0 2;" \
+	"modem.bin ext4 0 2;" \
 	"exynos4210-trats.dtb ext4 0 2;" \
+	""PARTS_CSA" part 0 1;" \
 	""PARTS_BOOT" part 0 2;" \
+	""PARTS_QBOOT" part 0 3;" \
+	""PARTS_CSC" part 0 4;" \
 	""PARTS_ROOT" part 0 5;" \
 	""PARTS_DATA" part 0 6;" \
-	""PARTS_UMS" part 0 7\0"
-
-#define CONFIG_ENV_OVERWRITE
-#define CONFIG_SYS_CONSOLE_INFO_QUIET
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
+	""PARTS_UMS" part 0 7;" \
+	"params.bin mmc 0x38 0x8\0"
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootk=" \
-		"run loaddtb; run loaduimage; bootm 0x40007FC0 - ${fdtaddr}\0" \
+		"run loaduimage;" \
+		"if run loaddtb; then " \
+			"bootm 0x40007FC0 - ${fdtaddr};" \
+		"fi;" \
+		"bootm 0x40007FC0;\0" \
 	"updatemmc=" \
 		"mmc boot 0 1 1 1; mmc write 0 0x42008000 0 0x200;" \
 		"mmc boot 0 1 1 0\0" \
@@ -178,7 +143,7 @@
 	"mmcboot=" \
 		"setenv bootargs root=/dev/mmcblk${mmcdev}p${mmcrootpart} " \
 		"${lpj} rootwait ${console} ${meminfo} ${opts} ${lcdinfo}; " \
-		"run loaddtb; run loaduimage; bootm 0x40007FC0 - ${fdtaddr}\0" \
+		"run bootk\0" \
 	"bootchart=setenv opts init=/sbin/bootchartd; run bootcmd\0" \
 	"boottrace=setenv opts initcall_debug; run bootcmd\0" \
 	"mmcoops=mmc read 0 0x40000000 0x40 8; md 0x40000000 0x400\0" \
@@ -217,61 +182,18 @@
 		   "setenv spl_imgaddr;" \
 		   "setenv spl_addr_tmp;\0" \
 	"fdtaddr=40800000\0" \
-	"fdtfile=exynos4210-trats.dtb\0"
 
-
-/* Miscellaneous configurable options */
-#define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
-#define CONFIG_SYS_PROMPT		"TRATS # "
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
-#define CONFIG_SYS_PBSIZE		384	/* Print Buffer Size */
-#define CONFIG_SYS_MAXARGS		16	/* max number of command args */
-/* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-/* memtest works on */
-#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0x5000000)
-#define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x4800000)
-
-/* TRATS has 4 banks of DRAM */
-#define CONFIG_NR_DRAM_BANKS	4
-#define SDRAM_BANK_SIZE		(256UL << 20UL)	/* 256 MB */
-#define PHYS_SDRAM_1		CONFIG_SYS_SDRAM_BASE
-#define PHYS_SDRAM_1_SIZE	SDRAM_BANK_SIZE
-#define PHYS_SDRAM_2		(CONFIG_SYS_SDRAM_BASE + SDRAM_BANK_SIZE)
-#define PHYS_SDRAM_2_SIZE	SDRAM_BANK_SIZE
-#define PHYS_SDRAM_3		(CONFIG_SYS_SDRAM_BASE + (2 * SDRAM_BANK_SIZE))
-#define PHYS_SDRAM_3_SIZE	SDRAM_BANK_SIZE
-#define PHYS_SDRAM_4		(CONFIG_SYS_SDRAM_BASE + (3 * SDRAM_BANK_SIZE))
-#define PHYS_SDRAM_4_SIZE	SDRAM_BANK_SIZE
-
-#define CONFIG_SYS_MEM_TOP_HIDE		(1 << 20)	/* ram console */
-
-#define CONFIG_SYS_MONITOR_BASE		0x00000000
-#define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
-
-#define CONFIG_ENV_IS_IN_MMC
-#define CONFIG_SYS_MMC_ENV_DEV		0
-#define CONFIG_ENV_SIZE			4096
-#define CONFIG_ENV_OFFSET		((32 - 4) << 10) /* 32KiB - 4KiB */
-
-#define CONFIG_DOS_PARTITION
-#define CONFIG_EFI_PARTITION
-
-/* EXT4 */
-#define CONFIG_CMD_EXT4
-#define CONFIG_CMD_EXT4_WRITE
 /* Falcon mode definitions */
 #define CONFIG_CMD_SPL
-#define CONFIG_SYS_SPL_ARGS_ADDR        PHYS_SDRAM_1 + 0x100
+#define CONFIG_SYS_SPL_ARGS_ADDR        CONFIG_SYS_SDRAM_BASE + 0x100
 
 /* GPT */
-#define CONFIG_EFI_PARTITION
-#define CONFIG_PARTITION_UUIDS
+#define CONFIG_RANDOM_UUID
 
-#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR - GENERATED_GBL_DATA_SIZE)
-#define CONFIG_SYS_CACHELINE_SIZE       32
+/* I2C */
+#include <asm/arch/gpio.h>
+
+#define CONFIG_CMD_I2C
 
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_S3C24X0
@@ -284,12 +206,11 @@
 #define CONFIG_SOFT_I2C_READ_REPEATED_START
 #define CONFIG_SYS_I2C_INIT_BOARD
 
-#include <asm/arch/gpio.h>
-
 /* I2C FG */
-#define CONFIG_SOFT_I2C_GPIO_SCL exynos4_gpio_part2_get_nr(y4, 1)
-#define CONFIG_SOFT_I2C_GPIO_SDA exynos4_gpio_part2_get_nr(y4, 0)
+#define CONFIG_SOFT_I2C_GPIO_SCL exynos4_gpio_get(2, y4, 1)
+#define CONFIG_SOFT_I2C_GPIO_SDA exynos4_gpio_get(2, y4, 0)
 
+/* POWER */
 #define CONFIG_POWER
 #define CONFIG_POWER_I2C
 #define CONFIG_POWER_MAX8997
@@ -300,27 +221,50 @@
 #define CONFIG_POWER_MUIC_MAX8997
 #define CONFIG_POWER_BATTERY
 #define CONFIG_POWER_BATTERY_TRATS
-#define CONFIG_USB_GADGET
-#define CONFIG_USB_GADGET_S3C_UDC_OTG
-#define CONFIG_USB_GADGET_DUALSPEED
-#define CONFIG_USB_GADGET_VBUS_DRAW	2
-#define CONFIG_USB_CABLE_CHECK
+
+/* Security subsystem - enable hw_rand() */
+#define CONFIG_EXYNOS_ACE_SHA
+#define CONFIG_LIB_HW_RAND
+
+/* Common misc for Samsung */
+#define CONFIG_MISC_COMMON
+
+#define CONFIG_MISC_INIT_R
+
+/* Download menu - Samsung common */
+#define CONFIG_LCD_MENU
+#define CONFIG_LCD_MENU_BOARD
+
+/* Download menu - definitions for check keys */
+#ifndef __ASSEMBLY__
+#include <power/max8997_pmic.h>
+
+#define KEY_PWR_PMIC_NAME		"MAX8997_PMIC"
+#define KEY_PWR_STATUS_REG		MAX8997_REG_STATUS1
+#define KEY_PWR_STATUS_MASK		(1 << 0)
+#define KEY_PWR_INTERRUPT_REG		MAX8997_REG_INT1
+#define KEY_PWR_INTERRUPT_MASK		(1 << 0)
+
+#define KEY_VOL_UP_GPIO			exynos4_gpio_get(2, x2, 0)
+#define KEY_VOL_DOWN_GPIO		exynos4_gpio_get(2, x2, 1)
+#endif /* __ASSEMBLY__ */
+
+/* LCD console */
+#define LCD_BPP			LCD_COLOR16
+#define CONFIG_SYS_WHITE_ON_BLACK
 
 /* LCD */
 #define CONFIG_EXYNOS_FB
 #define CONFIG_LCD
 #define CONFIG_CMD_BMP
-#define CONFIG_BMP_32BPP
+#define CONFIG_BMP_16BPP
 #define CONFIG_FB_ADDR		0x52504000
 #define CONFIG_S6E8AX0
 #define CONFIG_EXYNOS_MIPI_DSIM
 #define CONFIG_VIDEO_BMP_GZIP
-#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE ((500 * 120 * 4) + (1 << 12))
+#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE  ((500 * 160 * 4) + 54)
 
-#define CONFIG_CMD_USB_MASS_STORAGE
-#define CONFIG_USB_GADGET_MASS_STORAGE
-
-/* Pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT    1
+#define LCD_XRES	720
+#define LCD_YRES	1280
 
 #endif	/* __CONFIG_H */

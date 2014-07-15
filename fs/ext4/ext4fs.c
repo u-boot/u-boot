@@ -174,6 +174,14 @@ int ext4fs_ls(const char *dirname)
 	return 0;
 }
 
+int ext4fs_exists(const char *filename)
+{
+	int file_len;
+
+	file_len = ext4fs_open(filename);
+	return file_len >= 0;
+}
+
 int ext4fs_read(char *buf, unsigned len)
 {
 	if (ext4fs_root == NULL || ext4fs_file == NULL)

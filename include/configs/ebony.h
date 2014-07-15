@@ -17,7 +17,6 @@
 #define CONFIG_EBONY		1	    /* Board is ebony		*/
 #define CONFIG_440GP		1	    /* Specifc GP support	*/
 #define CONFIG_440		1	    /* ... PPC440 family	*/
-#define CONFIG_4xx		1	    /* ... PPC4xx family	*/
 #define CONFIG_BOARD_EARLY_INIT_F 1	    /* Call board_early_init_f	*/
 #define CONFIG_SYS_CLK_FREQ	33333333    /* external freq to pll	*/
 

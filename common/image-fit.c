@@ -1500,7 +1500,7 @@ int fit_image_load(bootm_headers_t *images, const char *prop_name, ulong addr,
 	}
 	bootstage_mark(bootstage_id + BOOTSTAGE_SUB_FORMAT_OK);
 	if (fit_uname) {
-		/* get ramdisk component image node offset */
+		/* get FIT component image node offset */
 		bootstage_mark(bootstage_id + BOOTSTAGE_SUB_UNIT_NAME);
 		noffset = fit_image_get_node(fit, fit_uname);
 	} else {

@@ -9,3 +9,5 @@ obj-y	+= ddr.o
 obj-$(CONFIG_PCI)     += pci.o
 obj-y	+= law.o
 obj-y	+= tlb.o
+obj-y	+= eth.o
+obj-y	+= diu.o

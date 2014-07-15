@@ -6,12 +6,15 @@
  */
 
 #include <common.h>
+#include <fdtdec.h>
 #include <watchdog.h>
 #include <asm/io.h>
 #include <linux/compiler.h>
 #include <serial.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/hardware.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #define ZYNQ_UART_SR_TXFULL	0x00000010 /* TX FIFO full */
 #define ZYNQ_UART_SR_RXEMPTY	0x00000002 /* RX FIFO empty */
@@ -182,6 +185,30 @@ DECLARE_PSSERIAL_FUNCTIONS(1);
 struct serial_device uart_zynq_serial1_device =
 	INIT_PSSERIAL_STRUCTURE(1, "ttyPS1");
 
+#ifdef CONFIG_OF_CONTROL
+__weak struct serial_device *default_serial_console(void)
+{
+	const void *blob = gd->fdt_blob;
+	int node;
+	unsigned int base_addr;
+
+	node = fdt_path_offset(blob, "serial0");
+	if (node < 0)
+		return NULL;
+
+	base_addr = fdtdec_get_addr(blob, node, "reg");
+	if (base_addr == FDT_ADDR_T_NONE)
+		return NULL;
+
+	if (base_addr == ZYNQ_SERIAL_BASEADDR0)
+		return &uart_zynq_serial0_device;
+
+	if (base_addr == ZYNQ_SERIAL_BASEADDR1)
+		return &uart_zynq_serial1_device;
+
+	return NULL;
+}
+#else
 __weak struct serial_device *default_serial_console(void)
 {
 #if defined(CONFIG_ZYNQ_SERIAL_UART0)
@@ -194,6 +221,7 @@ __weak struct serial_device *default_serial_console(void)
 #endif
 	return NULL;
 }
+#endif
 
 void zynq_serial_initalize(void)
 {

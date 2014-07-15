@@ -5,7 +5,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-#CFLAGS += -DET_DEBUG -DDEBUG
+#ccflags-y += -DET_DEBUG -DDEBUG
 
 obj-$(CONFIG_PARTITIONS) 	+= part.o
 obj-$(CONFIG_MAC_PARTITION)   += part_mac.o

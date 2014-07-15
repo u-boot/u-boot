@@ -66,27 +66,63 @@
 #define BOOT_TARGETS_DHCP ""
 #endif
 
+#if defined(CONFIG_CMD_DHCP) && defined(CONFIG_CMD_PXE)
+#define BOOTCMDS_PXE \
+	"bootcmd_pxe=" \
+		BOOTCMD_INIT_USB \
+		"dhcp; " \
+		"if pxe get; then " \
+			"pxe boot; " \
+		"fi\0"
+#define BOOT_TARGETS_PXE "pxe"
+#else
+#define BOOTCMDS_PXE ""
+#define BOOT_TARGETS_PXE ""
+#endif
+
 #define BOOTCMDS_COMMON \
 	"rootpart=1\0" \
 	\
+	"do_script_boot="                                                 \
+		"load ${devtype} ${devnum}:${rootpart} "                  \
+			"${scriptaddr} ${prefix}${script}; "              \
+		"source ${scriptaddr}\0"                                  \
+	\
 	"script_boot="                                                    \
-		"if load ${devtype} ${devnum}:${rootpart} "               \
-				"${scriptaddr} ${prefix}${script}; then " \
-			"echo ${script} found! Executing ...;"            \
-			"source ${scriptaddr};"                           \
-		"fi;\0"                                                   \
+		"for script in ${boot_scripts}; do "                      \
+			"if test -e ${devtype} ${devnum}:${rootpart} "    \
+					"${prefix}${script}; then "       \
+				"echo Found U-Boot script "               \
+					"${prefix}${script}; "            \
+				"run do_script_boot; "                    \
+				"echo SCRIPT FAILED: continuing...; "     \
+			"fi; "                                            \
+		"done\0"                                                  \
+	\
+	"do_sysboot_boot="                                                \
+		"sysboot ${devtype} ${devnum}:${rootpart} any "           \
+			"${scriptaddr} ${prefix}extlinux.conf\0"          \
+	\
+	"sysboot_boot="                                                   \
+		"if test -e ${devtype} ${devnum}:${rootpart} "            \
+				"${prefix}extlinux.conf; then "           \
+			"echo Found extlinux config "                     \
+				"${prefix}extlinux.conf; "                \
+			"run do_sysboot_boot; "                           \
+			"echo SCRIPT FAILED: continuing...; "             \
+		"fi\0"                                                    \
 	\
 	"scan_boot="                                                      \
 		"echo Scanning ${devtype} ${devnum}...; "                 \
 		"for prefix in ${boot_prefixes}; do "                     \
-			"for script in ${boot_scripts}; do "              \
-				"run script_boot; "                       \
-			"done; "                                          \
-		"done;\0"                                                 \
+			"run sysboot_boot; "                              \
+			"run script_boot; "                               \
+		"done\0"                                                  \
 	\
 	"boot_targets=" \
 		BOOT_TARGETS_MMC " " \
 		BOOT_TARGETS_USB " " \
+		BOOT_TARGETS_PXE " " \
 		BOOT_TARGETS_DHCP " " \
 		"\0" \
 	\
@@ -96,9 +132,11 @@
 	\
 	BOOTCMDS_MMC \
 	BOOTCMDS_USB \
-	BOOTCMDS_DHCP
+	BOOTCMDS_DHCP \
+	BOOTCMDS_PXE
 
 #define CONFIG_BOOTCOMMAND \
+	"set usb_need_init; " \
 	"for target in ${boot_targets}; do run bootcmd_${target}; done"
 
 #endif
@@ -129,10 +167,15 @@
 	"stderr=serial" STDOUT_LCD "\0" \
 	""
 
+#ifndef BOARD_EXTRA_ENV_SETTINGS
+#define BOARD_EXTRA_ENV_SETTINGS
+#endif
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	TEGRA_DEVICE_SETTINGS \
 	MEM_LAYOUT_ENV_SETTINGS \
-	BOOTCMDS_COMMON
+	BOOTCMDS_COMMON \
+	BOARD_EXTRA_ENV_SETTINGS
 
 #if defined(CONFIG_TEGRA20_SFLASH) || defined(CONFIG_TEGRA20_SLINK) || defined(CONFIG_TEGRA114_SPI)
 #define CONFIG_FDT_SPI

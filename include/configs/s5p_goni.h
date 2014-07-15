@@ -34,6 +34,7 @@
 
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_CMDLINE_TAG
+#define CONFIG_REVISION_TAG
 #define CONFIG_INITRD_TAG
 #define CONFIG_CMDLINE_EDITING
 
@@ -113,8 +114,13 @@
 
 #define CONFIG_UBIFS_OPTION	"rootflags=bulk_read,no_chk_data_crc"
 
+#define CONFIG_MISC_COMMON
+#define CONFIG_MISC_INIT_R
+
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define CONFIG_ENV_VARS_UBOOT_CONFIG
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	CONFIG_UPDATEB \
 	"updatek=" \
@@ -208,8 +214,8 @@
 /*
  * I2C Settings
  */
-#define CONFIG_SOFT_I2C_GPIO_SCL s5pc110_gpio_get_nr(j4, 3)
-#define CONFIG_SOFT_I2C_GPIO_SDA s5pc110_gpio_get_nr(j4, 0)
+#define CONFIG_SOFT_I2C_GPIO_SCL s5pc110_gpio_get(j4, 3)
+#define CONFIG_SOFT_I2C_GPIO_SDA s5pc110_gpio_get(j4, 0)
 
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_SOFT		/* I2C bit-banged */

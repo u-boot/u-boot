@@ -17,7 +17,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_E300	1
-#define CONFIG_MPC83xx	1
 #define CONFIG_MPC834x	1
 #define CONFIG_MPC8343	1
 
@@ -228,6 +227,7 @@
 #define CONFIG_BOOTP_NTPSERVER
 #define CONFIG_BOOTP_RANDOM_DELAY
 #define CONFIG_BOOTP_SEND_HOSTNAME
+#define CONFIG_LIB_RAND
 
 /* USB */
 #define CONFIG_SYS_USB_HOST

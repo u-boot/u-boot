@@ -23,8 +23,7 @@
  * (easy to change)
  */
 
-#define CONFIG_MPC5200		1	/* This is an MPC5xxx CPU */
-#define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU */
+#define CONFIG_MPC5200		1	/* This is an MPC5200 CPU */
 #define CONFIG_ICECUBE		1	/* ... on IceCube board	  */
 #define CONFIG_CPCI5200		1	/* ... on CPCI5200  board */
 #define CONFIG_MPC5200_DDR	1	/* ... use DDR RAM	  */

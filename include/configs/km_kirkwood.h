@@ -40,19 +40,25 @@
 #define CONFIG_IDENT_STRING		"\nKeymile Kirkwood 128M16"
 #define CONFIG_HOSTNAME			km_kirkwood_128m16
 #undef CONFIG_SYS_KWD_CONFIG
-#define CONFIG_SYS_KWD_CONFIG \
-		$(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage_128M16_1.cfg
+#define CONFIG_SYS_KWD_CONFIG $(CONFIG_BOARDDIR)/kwbimage_128M16_1.cfg
 #define CONFIG_KM_DISABLE_PCIE
 #define CONFIG_KM_IVM_BUS		1	/* I2C2 (Mux-Port 1)*/
 
-/* KM_NUSA */
-#elif defined(CONFIG_KM_NUSA)
+/* KM_NUSA / KM_SUGP1 */
+#elif defined(CONFIG_KM_NUSA) || defined(CONFIG_KM_SUGP1)
 #define CONFIG_KM_IVM_BUS		1	/* I2C2 (Mux-Port 1)*/
+
+# if defined(CONFIG_KM_NUSA)
 #define CONFIG_IDENT_STRING		"\nKeymile NUSA"
 #define CONFIG_HOSTNAME			kmnusa
+# elif defined(CONFIG_KM_SUGP1)
+#define CONFIG_IDENT_STRING		"\nKeymile SUGP1"
+#define CONFIG_HOSTNAME			kmsugp1
+#define KM_PCIE_RESET_MPP7
+#endif
+
 #undef CONFIG_SYS_KWD_CONFIG
-#define CONFIG_SYS_KWD_CONFIG \
-		$(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage_128M16_1.cfg
+#define CONFIG_SYS_KWD_CONFIG $(CONFIG_BOARDDIR)/kwbimage_128M16_1.cfg
 #define CONFIG_KM_ENV_IS_IN_SPI_NOR
 #define CONFIG_KM_FPGA_CONFIG
 #define CONFIG_KM_PIGGY4_88E6352
@@ -65,8 +71,7 @@
 #define CONFIG_HOSTNAME			mgcoge3un
 #define CONFIG_KM_IVM_BUS		1	/* I2C2 (Mux-Port 1)*/
 #undef CONFIG_SYS_KWD_CONFIG
-#define CONFIG_SYS_KWD_CONFIG \
-		$(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage-memphis.cfg
+#define CONFIG_SYS_KWD_CONFIG $(CONFIG_BOARDDIR)/kwbimage-memphis.cfg
 #define CONFIG_KM_BOARD_EXTRA_ENV	"waitforne=true\0"
 #define CONFIG_PIGGY_MAC_ADRESS_OFFSET  3
 #define CONFIG_KM_DISABLE_PCIE
@@ -77,8 +82,7 @@
 #define CONFIG_IDENT_STRING		"\nKeymile COGE5UN"
 #define CONFIG_KM_IVM_BUS		1	/* I2C2 (Mux-Port 1)*/
 #undef	CONFIG_SYS_KWD_CONFIG
-#define CONFIG_SYS_KWD_CONFIG \
-		$(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage_256M8_1.cfg
+#define CONFIG_SYS_KWD_CONFIG $(CONFIG_BOARDDIR)/kwbimage_256M8_1.cfg
 #define CONFIG_KM_ENV_IS_IN_SPI_NOR
 #define CONFIG_PIGGY_MAC_ADRESS_OFFSET	3
 #define CONFIG_HOSTNAME			kmcoge5un
@@ -97,6 +101,8 @@
 #define CONFIG_KM_IVM_BUS		1	/* I2C2 (Mux-Port 1)*/
 #define CONFIG_IDENT_STRING		"\nKeymile SUV31"
 #define CONFIG_HOSTNAME			kmsuv31
+#undef CONFIG_SYS_KWD_CONFIG
+#define CONFIG_SYS_KWD_CONFIG $(CONFIG_BOARDDIR)/kwbimage_128M16_1.cfg
 #define CONFIG_KM_ENV_IS_IN_SPI_NOR
 #define CONFIG_KM_FPGA_CONFIG
 

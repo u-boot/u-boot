@@ -9,7 +9,7 @@
 #include <netdev.h>
 #include <scsi.h>
 
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 #include <asm/io.h>
 
 #define HB_AHCI_BASE			0xffe08000
@@ -51,17 +51,23 @@ int board_eth_init(bd_t *bis)
 	return rc;
 }
 
-#ifdef CONFIG_MISC_INIT_R
-int misc_init_r(void)
+#ifdef CONFIG_SCSI_AHCI_PLAT
+void scsi_init(void)
 {
-	char envbuffer[16];
-	u32 boot_choice;
 	u32 reg = readl(HB_SREG_A9_PWRDOM_STAT);
 
 	if (reg & PWRDOM_STAT_SATA) {
 		ahci_init(HB_AHCI_BASE);
 		scsi_scan(1);
 	}
+}
+#endif
+
+#ifdef CONFIG_MISC_INIT_R
+int misc_init_r(void)
+{
+	char envbuffer[16];
+	u32 boot_choice;
 
 	boot_choice = readl(HB_SREG_A9_BOOT_SRC_STAT) & 0xff;
 	sprintf(envbuffer, "bootcmd%d", boot_choice);

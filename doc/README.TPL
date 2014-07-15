@@ -19,7 +19,7 @@ board can be reused. No code duplication or symlinking is necessary anymore.
 How it works
 ------------
 
-There has been a directory TOPDIR/spl which contains only a Makefile. The
+There has been a directory $(srctree)/spl which contains only a Makefile. The
 Makefile is shared by SPL and TPL.
 
 The object files are built separately for SPL/TPL and placed in the

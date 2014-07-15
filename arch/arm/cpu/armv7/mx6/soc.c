@@ -8,6 +8,8 @@
  */
 
 #include <common.h>
+#include <asm/armv7.h>
+#include <asm/pl310.h>
 #include <asm/errno.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
@@ -41,14 +43,19 @@ u32 get_cpu_rev(void)
 
 	if (type != MXC_CPU_MX6SL) {
 		reg = readl(&anatop->digprog);
+		struct scu_regs *scu = (struct scu_regs *)SCU_BASE_ADDR;
+		u32 cfg = readl(&scu->config) & 3;
 		type = ((reg >> 16) & 0xff);
 		if (type == MXC_CPU_MX6DL) {
-			struct scu_regs *scu = (struct scu_regs *)SCU_BASE_ADDR;
-			u32 cfg = readl(&scu->config) & 3;
-
 			if (!cfg)
 				type = MXC_CPU_MX6SOLO;
 		}
+
+		if (type == MXC_CPU_MX6Q) {
+			if (cfg == 1)
+				type = MXC_CPU_MX6D;
+		}
+
 	}
 	reg &= 0xff;		/* mx6 silicon revision */
 	return (type << 12) | (reg + 0x10);
@@ -61,6 +68,9 @@ u32 __weak get_board_rev(void)
 	u32 type = ((cpurev >> 12) & 0xff);
 	if (type == MXC_CPU_MX6SOLO)
 		cpurev = (MXC_CPU_MX6DL) << 12 | (cpurev & 0xFFF);
+
+	if (type == MXC_CPU_MX6D)
+		cpurev = (MXC_CPU_MX6Q) << 12 | (cpurev & 0xFFF);
 
 	return cpurev;
 }
@@ -177,9 +187,40 @@ static void imx_set_wdog_powerdown(bool enable)
 	writew(enable, &wdog2->wmcr);
 }
 
+static void set_ahb_rate(u32 val)
+{
+	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	u32 reg, div;
+
+	div = get_periph_clk() / val - 1;
+	reg = readl(&mxc_ccm->cbcdr);
+
+	writel((reg & (~MXC_CCM_CBCDR_AHB_PODF_MASK)) |
+		(div << MXC_CCM_CBCDR_AHB_PODF_OFFSET), &mxc_ccm->cbcdr);
+}
+
+static void clear_mmdc_ch_mask(void)
+{
+	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+
+	/* Clear MMDC channel mask */
+	writel(0, &mxc_ccm->ccdr);
+}
+
 int arch_cpu_init(void)
 {
 	init_aips();
+
+	/* Need to clear MMDC_CHx_MASK to make warm reset work. */
+	clear_mmdc_ch_mask();
+
+	/*
+	 * When low freq boot is enabled, ROM will not set AHB
+	 * freq, so we need to ensure AHB freq is 132MHz in such
+	 * scenario.
+	 */
+	if (mxc_get_clock(MXC_ARM_CLK) == 396000000)
+		set_ahb_rate(132000000);
 
 	imx_set_wdog_powerdown(false); /* Disable PDE bit of WMCR register */
 
@@ -336,3 +377,59 @@ void imx_setup_hdmi(void)
 	writel(reg, &mxc_ccm->chsccdr);
 }
 #endif
+
+#ifndef CONFIG_SYS_L2CACHE_OFF
+#define IOMUXC_GPR11_L2CACHE_AS_OCRAM 0x00000002
+void v7_outer_cache_enable(void)
+{
+	struct pl310_regs *const pl310 = (struct pl310_regs *)L2_PL310_BASE;
+	unsigned int val;
+
+#if defined CONFIG_MX6SL
+	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
+	val = readl(&iomux->gpr[11]);
+	if (val & IOMUXC_GPR11_L2CACHE_AS_OCRAM) {
+		/* L2 cache configured as OCRAM, reset it */
+		val &= ~IOMUXC_GPR11_L2CACHE_AS_OCRAM;
+		writel(val, &iomux->gpr[11]);
+	}
+#endif
+
+	writel(0x132, &pl310->pl310_tag_latency_ctrl);
+	writel(0x132, &pl310->pl310_data_latency_ctrl);
+
+	val = readl(&pl310->pl310_prefetch_ctrl);
+
+	/* Turn on the L2 I/D prefetch */
+	val |= 0x30000000;
+
+	/*
+	 * The L2 cache controller(PL310) version on the i.MX6D/Q is r3p1-50rel0
+	 * The L2 cache controller(PL310) version on the i.MX6DL/SOLO/SL is r3p2
+	 * But according to ARM PL310 errata: 752271
+	 * ID: 752271: Double linefill feature can cause data corruption
+	 * Fault Status: Present in: r3p0, r3p1, r3p1-50rel0. Fixed in r3p2
+	 * Workaround: The only workaround to this erratum is to disable the
+	 * double linefill feature. This is the default behavior.
+	 */
+
+#ifndef CONFIG_MX6Q
+	val |= 0x40800000;
+#endif
+	writel(val, &pl310->pl310_prefetch_ctrl);
+
+	val = readl(&pl310->pl310_power_ctrl);
+	val |= L2X0_DYNAMIC_CLK_GATING_EN;
+	val |= L2X0_STNDBY_MODE_EN;
+	writel(val, &pl310->pl310_power_ctrl);
+
+	setbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
+}
+
+void v7_outer_cache_disable(void)
+{
+	struct pl310_regs *const pl310 = (struct pl310_regs *)L2_PL310_BASE;
+
+	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
+}
+#endif /* !CONFIG_SYS_L2CACHE_OFF */

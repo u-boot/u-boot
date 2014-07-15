@@ -17,7 +17,6 @@
 
 extern void board_pll_init_f(void);
 
-#if !defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
 static void cram_bcr_write(u32 wr_val)
 {
 	wr_val <<= 2;
@@ -41,20 +40,9 @@ static void cram_bcr_write(u32 wr_val)
 
 	return;
 }
-#endif
 
 phys_size_t initdram(int board_type)
 {
-#if defined(CONFIG_NAND_SPL)
-	u32 reg;
-
-	/* don't reinit PLL when booting via I2C bootstrap option */
-	mfsdr(SDR0_PINSTP, reg);
-	if (reg != 0xf0000000)
-		board_pll_init_f();
-#endif
-
-#if !defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
 	int i;
 	u32 val;
 
@@ -88,7 +76,6 @@ phys_size_t initdram(int board_type)
 	/* Wait a short while, since for NAND booting this is too fast */
 	for (i=0; i<200000; i++)
 		;
-#endif
 
 	return (CONFIG_SYS_MBYTES_RAM << 20);
 }

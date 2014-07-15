@@ -20,7 +20,6 @@
 #include <version.h>
 
 #define CONFIG_83XX	1		/* needed for Linux kernel header files*/
-#define _LINUX_CONFIG_H 1	/* avoid reading Linux autoconf.h file */
 
 #include <ppc_asm.tmpl>
 #include <ppc_defs.h>
@@ -119,6 +118,11 @@ disable_addr_trans:
 	mtspr	SRR0, r4
 	mtspr	SRR1, r3
 	rfi
+
+	.globl get_svr
+get_svr:
+	mfspr	r3, SVR
+	blr
 
 	.globl get_pvr
 get_pvr:

@@ -14,7 +14,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_E300		1
-#define CONFIG_MPC83xx		1
 #define CONFIG_MPC831x		1
 #define CONFIG_MPC8313		1
 #define CONFIG_MPC8313ERDB	1

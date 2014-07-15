@@ -11,7 +11,7 @@
 #ifndef CONFIG_BOARD_SPECIFIC_LED
 # if defined(CONFIG_8xx)
 #  include <mpc8xx.h>
-# elif defined(CONFIG_8260)
+# elif defined(CONFIG_MPC8260)
 #  include <mpc8260.h>
 # elif defined(CONFIG_5xx)
 #  include <mpc5xx.h>

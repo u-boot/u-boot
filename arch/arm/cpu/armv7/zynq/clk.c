@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Sören Brinkmann <soren.brinkmann@xilinx.com>
+ * Copyright (C) 2013 Soren Brinkmann <soren.brinkmann@xilinx.com>
  * Copyright (C) 2013 Xilinx, Inc. All rights reserved.
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -360,47 +360,47 @@ static int zynq_clk_register_periph_clk(struct clk *clk, u32 *ctrl, char *name,
 static void init_periph_clocks(void)
 {
 	zynq_clk_register_periph_clk(&clks[gem0_clk], &slcr_base->gem0_clk_ctrl,
-			"gem0", 1);
+				     "gem0", 1);
 	zynq_clk_register_periph_clk(&clks[gem1_clk], &slcr_base->gem1_clk_ctrl,
-			"gem1", 1);
+				     "gem1", 1);
 
 	zynq_clk_register_periph_clk(&clks[smc_clk], &slcr_base->smc_clk_ctrl,
-			"smc", 0);
+				     "smc", 0);
 
 	zynq_clk_register_periph_clk(&clks[lqspi_clk],
-			&slcr_base->lqspi_clk_ctrl, "lqspi", 0);
+				     &slcr_base->lqspi_clk_ctrl, "lqspi", 0);
 
 	zynq_clk_register_periph_clk(&clks[sdio0_clk],
-			&slcr_base->sdio_clk_ctrl, "sdio0", 0);
+				     &slcr_base->sdio_clk_ctrl, "sdio0", 0);
 	zynq_clk_register_periph_clk(&clks[sdio1_clk],
-			&slcr_base->sdio_clk_ctrl, "sdio1", 0);
+				     &slcr_base->sdio_clk_ctrl, "sdio1", 0);
 
 	zynq_clk_register_periph_clk(&clks[spi0_clk], &slcr_base->spi_clk_ctrl,
-			"spi0", 0);
+				     "spi0", 0);
 	zynq_clk_register_periph_clk(&clks[spi1_clk], &slcr_base->spi_clk_ctrl,
-			"spi1", 0);
+				     "spi1", 0);
 
 	zynq_clk_register_periph_clk(&clks[uart0_clk],
-			&slcr_base->uart_clk_ctrl, "uart0", 0);
+				     &slcr_base->uart_clk_ctrl, "uart0", 0);
 	zynq_clk_register_periph_clk(&clks[uart1_clk],
-			&slcr_base->uart_clk_ctrl, "uart1", 0);
+				     &slcr_base->uart_clk_ctrl, "uart1", 0);
 
 	zynq_clk_register_periph_clk(&clks[dbg_trc_clk],
-			&slcr_base->dbg_clk_ctrl, "dbg_trc", 0);
+				     &slcr_base->dbg_clk_ctrl, "dbg_trc", 0);
 	zynq_clk_register_periph_clk(&clks[dbg_apb_clk],
-			&slcr_base->dbg_clk_ctrl, "dbg_apb", 0);
+				     &slcr_base->dbg_clk_ctrl, "dbg_apb", 0);
 
 	zynq_clk_register_periph_clk(&clks[pcap_clk],
-			&slcr_base->pcap_clk_ctrl, "pcap", 0);
+				     &slcr_base->pcap_clk_ctrl, "pcap", 0);
 
 	zynq_clk_register_periph_clk(&clks[fclk0_clk],
-			&slcr_base->fpga0_clk_ctrl, "fclk0", 1);
+				     &slcr_base->fpga0_clk_ctrl, "fclk0", 1);
 	zynq_clk_register_periph_clk(&clks[fclk1_clk],
-			&slcr_base->fpga1_clk_ctrl, "fclk1", 1);
+				     &slcr_base->fpga1_clk_ctrl, "fclk1", 1);
 	zynq_clk_register_periph_clk(&clks[fclk2_clk],
-			&slcr_base->fpga2_clk_ctrl, "fclk2", 1);
+				     &slcr_base->fpga2_clk_ctrl, "fclk2", 1);
 	zynq_clk_register_periph_clk(&clks[fclk3_clk],
-			&slcr_base->fpga3_clk_ctrl, "fclk3", 1);
+				     &slcr_base->fpga3_clk_ctrl, "fclk3", 1);
 }
 
 /**
@@ -420,48 +420,48 @@ static void zynq_clk_register_aper_clk(struct clk *clk, u32 *ctrl, char *name)
 static void init_aper_clocks(void)
 {
 	zynq_clk_register_aper_clk(&clks[usb0_aper_clk],
-			&slcr_base->aper_clk_ctrl, "usb0_aper");
+				   &slcr_base->aper_clk_ctrl, "usb0_aper");
 	zynq_clk_register_aper_clk(&clks[usb1_aper_clk],
-			&slcr_base->aper_clk_ctrl, "usb1_aper");
+				   &slcr_base->aper_clk_ctrl, "usb1_aper");
 
 	zynq_clk_register_aper_clk(&clks[gem0_aper_clk],
-			&slcr_base->aper_clk_ctrl, "gem0_aper");
+				   &slcr_base->aper_clk_ctrl, "gem0_aper");
 	zynq_clk_register_aper_clk(&clks[gem1_aper_clk],
-			&slcr_base->aper_clk_ctrl, "gem1_aper");
+				   &slcr_base->aper_clk_ctrl, "gem1_aper");
 
 	zynq_clk_register_aper_clk(&clks[sdio0_aper_clk],
-			&slcr_base->aper_clk_ctrl, "sdio0_aper");
+				   &slcr_base->aper_clk_ctrl, "sdio0_aper");
 	zynq_clk_register_aper_clk(&clks[sdio1_aper_clk],
-			&slcr_base->aper_clk_ctrl, "sdio1_aper");
+				   &slcr_base->aper_clk_ctrl, "sdio1_aper");
 
 	zynq_clk_register_aper_clk(&clks[spi0_aper_clk],
-			&slcr_base->aper_clk_ctrl, "spi0_aper");
+				   &slcr_base->aper_clk_ctrl, "spi0_aper");
 	zynq_clk_register_aper_clk(&clks[spi1_aper_clk],
-			&slcr_base->aper_clk_ctrl, "spi1_aper");
+				   &slcr_base->aper_clk_ctrl, "spi1_aper");
 
 	zynq_clk_register_aper_clk(&clks[can0_aper_clk],
-			&slcr_base->aper_clk_ctrl, "can0_aper");
+				   &slcr_base->aper_clk_ctrl, "can0_aper");
 	zynq_clk_register_aper_clk(&clks[can1_aper_clk],
-			&slcr_base->aper_clk_ctrl, "can1_aper");
+				   &slcr_base->aper_clk_ctrl, "can1_aper");
 
 	zynq_clk_register_aper_clk(&clks[i2c0_aper_clk],
-			&slcr_base->aper_clk_ctrl, "i2c0_aper");
+				   &slcr_base->aper_clk_ctrl, "i2c0_aper");
 	zynq_clk_register_aper_clk(&clks[i2c1_aper_clk],
-			&slcr_base->aper_clk_ctrl, "i2c1_aper");
+				   &slcr_base->aper_clk_ctrl, "i2c1_aper");
 
 	zynq_clk_register_aper_clk(&clks[uart0_aper_clk],
-			&slcr_base->aper_clk_ctrl, "uart0_aper");
+				   &slcr_base->aper_clk_ctrl, "uart0_aper");
 	zynq_clk_register_aper_clk(&clks[uart1_aper_clk],
-			&slcr_base->aper_clk_ctrl, "uart1_aper");
+				   &slcr_base->aper_clk_ctrl, "uart1_aper");
 
 	zynq_clk_register_aper_clk(&clks[gpio_aper_clk],
-			&slcr_base->aper_clk_ctrl, "gpio_aper");
+				   &slcr_base->aper_clk_ctrl, "gpio_aper");
 
 	zynq_clk_register_aper_clk(&clks[lqspi_aper_clk],
-			&slcr_base->aper_clk_ctrl, "lqspi_aper");
+				   &slcr_base->aper_clk_ctrl, "lqspi_aper");
 
 	zynq_clk_register_aper_clk(&clks[smc_aper_clk],
-			&slcr_base->aper_clk_ctrl, "smc_aper");
+				   &slcr_base->aper_clk_ctrl, "smc_aper");
 }
 
 /**
@@ -584,11 +584,11 @@ unsigned long get_uart_clk(int dev_index)
 int set_cpu_clk_info(void)
 {
 	zynq_clk_register_pll(&clks[armpll_clk], &slcr_base->arm_pll_ctrl,
-			"armpll", CONFIG_ZYNQ_PS_CLK_FREQ);
+			      "armpll", CONFIG_ZYNQ_PS_CLK_FREQ);
 	zynq_clk_register_pll(&clks[ddrpll_clk], &slcr_base->ddr_pll_ctrl,
-			"ddrpll", CONFIG_ZYNQ_PS_CLK_FREQ);
+			      "ddrpll", CONFIG_ZYNQ_PS_CLK_FREQ);
 	zynq_clk_register_pll(&clks[iopll_clk], &slcr_base->io_pll_ctrl,
-			"iopll", CONFIG_ZYNQ_PS_CLK_FREQ);
+			      "iopll", CONFIG_ZYNQ_PS_CLK_FREQ);
 
 	init_ddr_clocks();
 	init_cpu_clocks();

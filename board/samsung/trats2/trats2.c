@@ -8,15 +8,9 @@
 
 #include <common.h>
 #include <lcd.h>
-#include <asm/io.h>
-#include <asm/arch/gpio.h>
-#include <asm/arch/mmc.h>
-#include <asm/arch/power.h>
-#include <asm/arch/clk.h>
-#include <asm/arch/clock.h>
-#include <asm/arch/mipi_dsim.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/power.h>
+#include <asm/arch/mipi_dsim.h>
 #include <power/pmic.h>
 #include <power/max77686_pmic.h>
 #include <power/battery.h>
@@ -66,19 +60,6 @@ static void check_hw_revision(void)
 
 	/* board_rev[15:8] = model */
 	board_rev = modelrev << 8;
-}
-
-#ifdef CONFIG_DISPLAY_BOARDINFO
-int checkboard(void)
-{
-	puts("Board:\tTRATS2\n");
-	return 0;
-}
-#endif
-
-static void show_hw_revision(void)
-{
-	printf("HW Revision:\t0x%04x\n", board_rev);
 }
 
 u32 get_board_rev(void)
@@ -144,47 +125,51 @@ static void board_init_i2c(void)
 int get_soft_i2c_scl_pin(void)
 {
 	if (I2C_ADAP_HWNR)
-		return exynos4x12_gpio_part2_get_nr(m2, 1); /* I2C9 */
+		return exynos4x12_gpio_get(2, m2, 1); /* I2C9 */
 	else
-		return exynos4x12_gpio_part1_get_nr(f1, 4); /* I2C8 */
+		return exynos4x12_gpio_get(1, f1, 4); /* I2C8 */
 }
 
 int get_soft_i2c_sda_pin(void)
 {
 	if (I2C_ADAP_HWNR)
-		return exynos4x12_gpio_part2_get_nr(m2, 0); /* I2C9 */
+		return exynos4x12_gpio_get(2, m2, 0); /* I2C9 */
 	else
-		return exynos4x12_gpio_part1_get_nr(f1, 5); /* I2C8 */
+		return exynos4x12_gpio_get(1, f1, 5); /* I2C8 */
 }
 #endif
 
-int board_early_init_f(void)
+int exynos_early_init_f(void)
 {
-	check_hw_revision();
 	board_external_gpio_init();
-
-	gd->flags |= GD_FLG_DISABLE_CONSOLE;
 
 	return 0;
 }
 
 static int pmic_init_max77686(void);
 
-int board_init(void)
+int exynos_init(void)
 {
 	struct exynos4_power *pwr =
 		(struct exynos4_power *)samsung_get_base_power();
 
-	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
+	check_hw_revision();
+	printf("HW Revision:\t0x%04x\n", board_rev);
 
-	/* workaround: clear INFORM4..5 */
-	writel(0, (unsigned int)&pwr->inform4);
-	writel(0, (unsigned int)&pwr->inform5);
+	/*
+	 * First bootloader on the TRATS2 platform uses
+	 * INFORM4 and INFORM5 registers for recovery
+	 *
+	 * To indicate correct boot chain - those two
+	 * registers must be cleared out
+	 */
+	writel(0, &pwr->inform4);
+	writel(0, &pwr->inform5);
 
 	return 0;
 }
 
-int power_init_board(void)
+int exynos_power_init(void)
 {
 	int chrg;
 	struct power_battery *pb;
@@ -248,90 +233,6 @@ int power_init_board(void)
 		puts("CHARGE Battery !\n");
 
 	return 0;
-}
-
-int dram_init(void)
-{
-	u32 size_mb;
-
-	size_mb = (get_ram_size((long *)PHYS_SDRAM_1, PHYS_SDRAM_1_SIZE) +
-		get_ram_size((long *)PHYS_SDRAM_2, PHYS_SDRAM_2_SIZE) +
-		get_ram_size((long *)PHYS_SDRAM_3, PHYS_SDRAM_3_SIZE) +
-		get_ram_size((long *)PHYS_SDRAM_4, PHYS_SDRAM_4_SIZE)) >> 20;
-
-	gd->ram_size = size_mb << 20;
-
-	return 0;
-}
-
-void dram_init_banksize(void)
-{
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
-	gd->bd->bi_dram[1].size = PHYS_SDRAM_2_SIZE;
-	gd->bd->bi_dram[2].start = PHYS_SDRAM_3;
-	gd->bd->bi_dram[2].size = PHYS_SDRAM_3_SIZE;
-	gd->bd->bi_dram[3].start = PHYS_SDRAM_4;
-	gd->bd->bi_dram[3].size = PHYS_SDRAM_4_SIZE;
-}
-
-int board_mmc_init(bd_t *bis)
-{
-	int err0, err2 = 0;
-
-	gpio2 = (struct exynos4x12_gpio_part2 *)samsung_get_base_gpio_part2();
-
-	/* eMMC_EN: SD_0_CDn: GPK0[2] Output High */
-	s5p_gpio_direction_output(&gpio2->k0, 2, 1);
-	s5p_gpio_set_pull(&gpio2->k0, 2, GPIO_PULL_NONE);
-
-	/*
-	 * eMMC GPIO:
-	 * SDR 8-bit@48MHz at MMC0
-	 * GPK0[0]      SD_0_CLK(2)
-	 * GPK0[1]      SD_0_CMD(2)
-	 * GPK0[2]      SD_0_CDn        -> Not used
-	 * GPK0[3:6]    SD_0_DATA[0:3](2)
-	 * GPK1[3:6]    SD_0_DATA[0:3](3)
-	 *
-	 * DDR 4-bit@26MHz at MMC4
-	 * GPK0[0]      SD_4_CLK(3)
-	 * GPK0[1]      SD_4_CMD(3)
-	 * GPK0[2]      SD_4_CDn        -> Not used
-	 * GPK0[3:6]    SD_4_DATA[0:3](3)
-	 * GPK1[3:6]    SD_4_DATA[4:7](4)
-	 */
-
-	err0 = exynos_pinmux_config(PERIPH_ID_SDMMC0, PINMUX_FLAG_8BIT_MODE);
-
-	/*
-	 * MMC device init
-	 * mmc0  : eMMC (8-bit buswidth)
-	 * mmc2  : SD card (4-bit buswidth)
-	 */
-	if (err0)
-		debug("SDMMC0 not configured\n");
-	else
-		err0 = s5p_mmc_init(0, 8);
-
-	/* T-flash detect */
-	s5p_gpio_cfg_pin(&gpio2->x3, 4, 0xf);
-	s5p_gpio_set_pull(&gpio2->x3, 4, GPIO_PULL_UP);
-
-	/*
-	 * Check the T-flash  detect pin
-	 * GPX3[4] T-flash detect pin
-	 */
-	if (!s5p_gpio_get_value(&gpio2->x3, 4)) {
-		err2 = exynos_pinmux_config(PERIPH_ID_SDMMC2, PINMUX_FLAG_NONE);
-		if (err2)
-			debug("SDMMC2 not configured\n");
-		else
-			err2 = s5p_mmc_init(2, 4);
-	}
-
-	return err0 & err2;
 }
 
 #ifdef CONFIG_USB_GADGET
@@ -481,46 +382,7 @@ static int pmic_init_max77686(void)
  */
 
 #ifdef CONFIG_LCD
-static struct mipi_dsim_config dsim_config = {
-	.e_interface		= DSIM_VIDEO,
-	.e_virtual_ch		= DSIM_VIRTUAL_CH_0,
-	.e_pixel_format		= DSIM_24BPP_888,
-	.e_burst_mode		= DSIM_BURST_SYNC_EVENT,
-	.e_no_data_lane		= DSIM_DATA_LANE_4,
-	.e_byte_clk		= DSIM_PLL_OUT_DIV8,
-	.hfp			= 1,
-
-	.p			= 3,
-	.m			= 120,
-	.s			= 1,
-
-	/* D-PHY PLL stable time spec :min = 200usec ~ max 400usec */
-	.pll_stable_time	= 500,
-
-	/* escape clk : 10MHz */
-	.esc_clk		= 20 * 1000000,
-
-	/* stop state holding counter after bta change count 0 ~ 0xfff */
-	.stop_holding_cnt	= 0x7ff,
-	/* bta timeout 0 ~ 0xff */
-	.bta_timeout		= 0xff,
-	/* lp rx timeout 0 ~ 0xffff */
-	.rx_timeout		= 0xffff,
-};
-
-static struct exynos_platform_mipi_dsim dsim_platform_data = {
-	.lcd_panel_info = NULL,
-	.dsim_config = &dsim_config,
-};
-
-static struct mipi_dsim_lcd_device mipi_lcd_device = {
-	.name	= "s6e8ax0",
-	.id	= -1,
-	.bus_id	= 0,
-	.platform_data	= (void *)&dsim_platform_data,
-};
-
-static int mipi_power(void)
+int mipi_power(void)
 {
 	struct pmic *p = pmic_get("MAX77686_PMIC");
 
@@ -558,71 +420,13 @@ void exynos_reset_lcd(void)
 	s5p_gpio_set_value(&gpio1->f2, 1, 1);
 }
 
-vidinfo_t panel_info = {
-	.vl_freq	= 60,
-	.vl_col		= 720,
-	.vl_row		= 1280,
-	.vl_width	= 720,
-	.vl_height	= 1280,
-	.vl_clkp	= CONFIG_SYS_HIGH,
-	.vl_hsp		= CONFIG_SYS_LOW,
-	.vl_vsp		= CONFIG_SYS_LOW,
-	.vl_dp		= CONFIG_SYS_LOW,
-	.vl_bpix	= 5,	/* Bits per pixel, 2^5 = 32 */
-
-	/* s6e8ax0 Panel infomation */
-	.vl_hspw	= 5,
-	.vl_hbpd	= 10,
-	.vl_hfpd	= 10,
-
-	.vl_vspw	= 2,
-	.vl_vbpd	= 1,
-	.vl_vfpd	= 13,
-	.vl_cmd_allow_len = 0xf,
-	.mipi_enabled = 1,
-
-	.dual_lcd_enabled = 0,
-
-	.init_delay	= 0,
-	.power_on_delay = 25,
-	.reset_delay	= 0,
-	.interface_mode = FIMD_RGB_INTERFACE,
-};
-
-void init_panel_info(vidinfo_t *vid)
+void exynos_lcd_misc_init(vidinfo_t *vid)
 {
-	vid->logo_on	= 1;
-	vid->resolution	= HD_RESOLUTION;
-	vid->rgb_mode	= MODE_RGB_P;
-
-	vid->power_on_delay = 30;
-
-	mipi_lcd_device.reverse_panel = 1;
-
 #ifdef CONFIG_TIZEN
 	get_tizen_logo_info(vid);
 #endif
-
-	strcpy(dsim_platform_data.lcd_panel_name, mipi_lcd_device.name);
-	dsim_platform_data.mipi_power = mipi_power;
-	dsim_platform_data.phy_enable = set_mipi_phy_ctrl;
-	dsim_platform_data.lcd_panel_info = (void *)vid;
-	exynos_mipi_dsi_register_lcd_device(&mipi_lcd_device);
-
+#ifdef CONFIG_S6E8AX0
 	s6e8ax0_init();
-
-	exynos_set_dsim_platform_data(&dsim_platform_data);
+#endif
 }
 #endif /* LCD */
-
-#ifdef CONFIG_MISC_INIT_R
-int misc_init_r(void)
-{
-	setenv("model", "GT-I8800");
-	setenv("board", "TRATS2");
-
-	show_hw_revision();
-
-	return 0;
-}
-#endif

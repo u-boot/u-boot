@@ -9,7 +9,7 @@ How to flash using a MIPS Navigator Probe:
 
   - Within Navigator Console run the following commands:
 
-      source /path/to/u-boot/board/malta/flash-malta-boot.tcl
+      source /path/to/u-boot/board/imgtec/malta/flash-malta-boot.tcl
       reset
       flash-boot /path/to/u-boot/u-boot.bin
 

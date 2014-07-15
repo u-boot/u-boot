@@ -14,8 +14,7 @@
  */
 
 #define CONFIG_MPC5200
-#define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU		*/
-#define CONFIG_MCC200		1	/* ... on MCC200 board			*/
+#define CONFIG_MCC200		1	/* MCC200 board */
 
 /*
  * Valid values for CONFIG_SYS_TEXT_BASE are:

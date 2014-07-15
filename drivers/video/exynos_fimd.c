@@ -73,18 +73,19 @@ static void exynos_fimd_set_par(unsigned int win_id)
 	/* DATAPATH is DMA */
 	cfg |= EXYNOS_WINCON_DATAPATH_DMA;
 
-	if (pvid->logo_on) /* To get proprietary LOGO */
-		cfg |= EXYNOS_WINCON_WSWP_ENABLE;
-	else /* To get output console on LCD */
-		cfg |= EXYNOS_WINCON_HAWSWP_ENABLE;
+	cfg |= EXYNOS_WINCON_HAWSWP_ENABLE;
 
 	/* dma burst is 16 */
 	cfg |= EXYNOS_WINCON_BURSTLEN_16WORD;
 
-	if (pvid->logo_on) /* To get proprietary LOGO */
-		cfg |= EXYNOS_WINCON_BPPMODE_24BPP_888;
-	else /* To get output console on LCD */
+	switch (pvid->vl_bpix) {
+	case 4:
 		cfg |= EXYNOS_WINCON_BPPMODE_16BPP_565;
+		break;
+	default:
+		cfg |= EXYNOS_WINCON_BPPMODE_24BPP_888;
+		break;
+	}
 
 	writel(cfg, (unsigned int)&fimd_ctrl->wincon0 +
 			EXYNOS_WINCON(win_id));

@@ -27,6 +27,7 @@ struct ftsdc010_chip {
 	uint32_t sclk;    /* FTSDC010 source clock in Hz */
 	uint32_t fifo;    /* fifo depth in bytes */
 	uint32_t acmd;
+	struct mmc_config cfg;	/* mmc configuration */
 };
 
 static inline int ftsdc010_send_cmd(struct mmc *mmc, struct mmc_cmd *mmc_cmd)
@@ -121,14 +122,6 @@ static void ftsdc010_clkset(struct mmc *mmc, uint32_t rate)
 		else
 			clrbits_le32(&regs->ccr, FTSDC010_CCR_CLK_HISPD);
 	}
-}
-
-static inline int ftsdc010_is_ro(struct mmc *mmc)
-{
-	struct ftsdc010_chip *chip = mmc->priv;
-	const uint8_t *csd = (const uint8_t *)mmc->csd;
-
-	return chip->wprot || (csd[1] & 0x30);
 }
 
 static int ftsdc010_wait(struct ftsdc010_mmc __iomem *regs, uint32_t mask)
@@ -316,6 +309,12 @@ static int ftsdc010_init(struct mmc *mmc)
 	return 0;
 }
 
+static const struct mmc_ops ftsdc010_ops = {
+	.send_cmd	= ftsdc010_request,
+	.set_ios	= ftsdc010_set_ios,
+	.init		= ftsdc010_init,
+};
+
 int ftsdc010_mmc_init(int devid)
 {
 	struct mmc *mmc;
@@ -331,50 +330,44 @@ int ftsdc010_mmc_init(int devid)
 	regs = (void __iomem *)(CONFIG_FTSDC010_BASE + (devid << 20));
 #endif
 
-	mmc = malloc(sizeof(struct mmc));
-	if (!mmc)
-		return -ENOMEM;
-	memset(mmc, 0, sizeof(struct mmc));
-
 	chip = malloc(sizeof(struct ftsdc010_chip));
-	if (!chip) {
-		free(mmc);
+	if (!chip)
 		return -ENOMEM;
-	}
 	memset(chip, 0, sizeof(struct ftsdc010_chip));
 
 	chip->regs = regs;
-	mmc->priv  = chip;
-
-	sprintf(mmc->name, "ftsdc010");
-	mmc->send_cmd  = ftsdc010_request;
-	mmc->set_ios   = ftsdc010_set_ios;
-	mmc->init      = ftsdc010_init;
-
-	mmc->host_caps = MMC_MODE_HS | MMC_MODE_HS_52MHz;
-	switch (readl(&regs->bwr) & FTSDC010_BWR_CAPS_MASK) {
-	case FTSDC010_BWR_CAPS_4BIT:
-		mmc->host_caps |= MMC_MODE_4BIT;
-		break;
-	case FTSDC010_BWR_CAPS_8BIT:
-		mmc->host_caps |= MMC_MODE_4BIT | MMC_MODE_8BIT;
-		break;
-	default:
-		break;
-	}
-
 #ifdef CONFIG_SYS_CLK_FREQ
 	chip->sclk = CONFIG_SYS_CLK_FREQ;
 #else
 	chip->sclk = clk_get_rate("SDC");
 #endif
 
-	mmc->voltages  = MMC_VDD_32_33 | MMC_VDD_33_34;
-	mmc->f_max     = chip->sclk / 2;
-	mmc->f_min     = chip->sclk / 0x100;
-	mmc->block_dev.part_type = PART_TYPE_DOS;
+	chip->cfg.name = "ftsdc010";
+	chip->cfg.ops = &ftsdc010_ops;
+	chip->cfg.host_caps = MMC_MODE_HS | MMC_MODE_HS_52MHz;
+	switch (readl(&regs->bwr) & FTSDC010_BWR_CAPS_MASK) {
+	case FTSDC010_BWR_CAPS_4BIT:
+		chip->cfg.host_caps |= MMC_MODE_4BIT;
+		break;
+	case FTSDC010_BWR_CAPS_8BIT:
+		chip->cfg.host_caps |= MMC_MODE_4BIT | MMC_MODE_8BIT;
+		break;
+	default:
+		break;
+	}
 
-	mmc_register(mmc);
+	chip->cfg.voltages  = MMC_VDD_32_33 | MMC_VDD_33_34;
+	chip->cfg.f_max     = chip->sclk / 2;
+	chip->cfg.f_min     = chip->sclk / 0x100;
+
+	chip->cfg.part_type = PART_TYPE_DOS;
+	chip->cfg.b_max	    = CONFIG_SYS_MMC_MAX_BLK_COUNT;
+
+	mmc = mmc_create(&chip->cfg, chip);
+	if (mmc == NULL) {
+		free(chip);
+		return -ENOMEM;
+	}
 
 	return 0;
 }

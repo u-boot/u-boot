@@ -8,4 +8,5 @@
 #
 
 obj-y += lowlevel_init.o
-obj-y	+= ap.o board.o sys_info.o clock.o cache.o
+obj-y	+= ap.o board.o clock.o cache.o
+obj-$(CONFIG_DISPLAY_CPUINFO) += sys_info.o

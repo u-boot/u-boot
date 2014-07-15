@@ -9,7 +9,6 @@ obj-$(CONFIG_USB_MUSB_DSPS) += musb_dsps.o
 obj-$(CONFIG_USB_MUSB_AM35X) += am35x.o
 obj-$(CONFIG_USB_MUSB_OMAP2PLUS) += omap2430.o
 
-CFLAGS_NO_WARN := $(call cc-option,-Wno-unused-variable) \
-			$(call cc-option,-Wno-unused-but-set-variable) \
-			$(call cc-option,-Wno-unused-label)
-CFLAGS += $(CFLAGS_NO_WARN)
+ccflags-y := $(call cc-option,-Wno-unused-variable) \
+		$(call cc-option,-Wno-unused-but-set-variable) \
+		$(call cc-option,-Wno-unused-label)

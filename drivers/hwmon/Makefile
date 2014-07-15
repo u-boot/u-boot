@@ -8,7 +8,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-#CFLAGS += -DDEBUG
+#ccflags-y += -DDEBUG
 
 obj-$(CONFIG_DTT_ADM1021) += adm1021.o
 obj-$(CONFIG_DTT_ADT7460) += adt7460.o

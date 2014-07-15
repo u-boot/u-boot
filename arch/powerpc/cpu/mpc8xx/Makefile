@@ -5,7 +5,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-# CFLAGS += -DET_DEBUG
+# ccflags-y += -DET_DEBUG
 
 extra-y += start.o
 extra-y += traps.o

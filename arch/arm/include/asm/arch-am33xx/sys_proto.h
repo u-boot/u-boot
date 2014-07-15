@@ -10,16 +10,13 @@
 
 #ifndef _SYS_PROTO_H_
 #define _SYS_PROTO_H_
+#include <linux/mtd/omap_gpmc.h>
 #include <asm/arch/cpu.h>
 
 #define BOARD_REV_ID	0x0
 
 u32 get_cpu_rev(void);
 u32 get_sysboot_value(void);
-
-#ifdef CONFIG_DISPLAY_CPUINFO
-int print_cpuinfo(void);
-#endif
 
 extern struct ctrl_stat *cstat;
 u32 get_device_type(void);

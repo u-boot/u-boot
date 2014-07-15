@@ -17,6 +17,29 @@ enum exit_type_id {
 	STATE_EXIT_POWER_OFF,
 };
 
+/**
+ * Selects the behavior of the serial terminal.
+ *
+ * If Ctrl-C is processed by U-Boot, then the only way to quit sandbox is with
+ * the 'reset' command, or equivalent.
+ *
+ * If the terminal is cooked, then Ctrl-C will terminate U-Boot, and the
+ * command line will not be quite such a faithful emulation.
+ *
+ * Options are:
+ *
+ *	raw-with-sigs		- Raw, but allow signals (Ctrl-C will quit)
+ *	raw			- Terminal is always raw
+ *	cooked			- Terminal is always cooked
+ */
+enum state_terminal_raw {
+	STATE_TERM_RAW_WITH_SIGS,	/* Default */
+	STATE_TERM_RAW,
+	STATE_TERM_COOKED,
+
+	STATE_TERM_COUNT,
+};
+
 struct sandbox_spi_info {
 	const char *spec;
 	const struct sandbox_spi_emu_ops *ops;
@@ -30,16 +53,20 @@ struct sandbox_state {
 	enum exit_type_id exit_type;	/* How we exited U-Boot */
 	const char *parse_err;		/* Error to report from parsing */
 	int argc;			/* Program arguments */
-	char **argv;
+	char **argv;			/* Command line arguments */
+	const char *jumped_fname;	/* Jumped from previous U_Boot */
 	uint8_t *ram_buf;		/* Emulated RAM buffer */
 	unsigned int ram_size;		/* Size of RAM buffer */
 	const char *ram_buf_fname;	/* Filename to use for RAM buffer */
+	bool ram_buf_rm;		/* Remove RAM buffer file after read */
 	bool write_ram_buf;		/* Write RAM buffer on exit */
 	const char *state_fname;	/* File containing sandbox state */
 	void *state_fdt;		/* Holds saved state for sandbox */
 	bool read_state;		/* Read sandbox state on startup */
 	bool write_state;		/* Write sandbox state on exit */
 	bool ignore_missing_state_on_read;	/* No error if state missing */
+	bool show_lcd;			/* Show LCD on start-up */
+	enum state_terminal_raw term_raw;	/* Terminal raw/cooked */
 
 	/* Pointer to information for each SPI bus/cs */
 	struct sandbox_spi_info spi[CONFIG_SANDBOX_SPI_MAX_BUS]

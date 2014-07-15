@@ -132,6 +132,7 @@
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_MISC_INIT_R	/* needed for MAC address */
 #define CONFIG_UART_CONSOLE	0
+#define CONFIG_CC_OPTIMIZE_LIBS_FOR_SPEED
 
 #undef CONFIG_SHOW_BOOT_PROGRESS
 /* Enable this if bootretry required; currently it's disabled */

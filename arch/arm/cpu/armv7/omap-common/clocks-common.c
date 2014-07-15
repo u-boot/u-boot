@@ -418,55 +418,6 @@ static void setup_dplls(void)
 #endif
 }
 
-#ifdef CONFIG_SYS_CLOCKS_ENABLE_ALL
-static void setup_non_essential_dplls(void)
-{
-	u32 abe_ref_clk;
-	const struct dpll_params *params;
-
-	/* IVA */
-	clrsetbits_le32((*prcm)->cm_bypclk_dpll_iva,
-		CM_BYPCLK_DPLL_IVA_CLKSEL_MASK, DPLL_IVA_CLKSEL_CORE_X2_DIV_2);
-
-	params = get_iva_dpll_params(*dplls_data);
-	do_setup_dpll((*prcm)->cm_clkmode_dpll_iva, params, DPLL_LOCK, "iva");
-
-	/* Configure ABE dpll */
-	params = get_abe_dpll_params(*dplls_data);
-#ifdef CONFIG_SYS_OMAP_ABE_SYSCK
-	abe_ref_clk = CM_ABE_PLL_REF_CLKSEL_CLKSEL_SYSCLK;
-
-	if (omap_revision() == DRA752_ES1_0)
-		/* Select the sys clk for dpll_abe */
-		clrsetbits_le32((*prcm)->cm_abe_pll_sys_clksel,
-				CM_CLKSEL_ABE_PLL_SYS_CLKSEL_MASK,
-				CM_ABE_PLL_SYS_CLKSEL_SYSCLK2);
-#else
-	abe_ref_clk = CM_ABE_PLL_REF_CLKSEL_CLKSEL_32KCLK;
-	/*
-	 * We need to enable some additional options to achieve
-	 * 196.608MHz from 32768 Hz
-	 */
-	setbits_le32((*prcm)->cm_clkmode_dpll_abe,
-			CM_CLKMODE_DPLL_DRIFTGUARD_EN_MASK|
-			CM_CLKMODE_DPLL_RELOCK_RAMP_EN_MASK|
-			CM_CLKMODE_DPLL_LPMODE_EN_MASK|
-			CM_CLKMODE_DPLL_REGM4XEN_MASK);
-	/* Spend 4 REFCLK cycles at each stage */
-	clrsetbits_le32((*prcm)->cm_clkmode_dpll_abe,
-			CM_CLKMODE_DPLL_RAMP_RATE_MASK,
-			1 << CM_CLKMODE_DPLL_RAMP_RATE_SHIFT);
-#endif
-
-	/* Select the right reference clk */
-	clrsetbits_le32((*prcm)->cm_abe_pll_ref_clksel,
-			CM_ABE_PLL_REF_CLKSEL_CLKSEL_MASK,
-			abe_ref_clk << CM_ABE_PLL_REF_CLKSEL_CLKSEL_SHIFT);
-	/* Lock the dpll */
-	do_setup_dpll((*prcm)->cm_clkmode_dpll_abe, params, DPLL_LOCK, "abe");
-}
-#endif
-
 u32 get_offset_code(u32 volt_offset, struct pmic_data *pmic)
 {
 	u32 offset_code;
@@ -760,10 +711,6 @@ void prcm_init(void)
 		timer_init();
 		scale_vcores(*omap_vcores);
 		setup_dplls();
-#ifdef CONFIG_SYS_CLOCKS_ENABLE_ALL
-		setup_non_essential_dplls();
-		enable_non_essential_clocks();
-#endif
 		setup_warmreset_time();
 		break;
 	default:

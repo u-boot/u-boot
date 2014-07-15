@@ -7,7 +7,7 @@
 
 #ifndef _TEGRA_COMMON_H_
 #define _TEGRA_COMMON_H_
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 #include <linux/stringify.h>
 
 /*
@@ -29,7 +29,6 @@
 #define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
-#define CONFIG_OF_LIBFDT		/* enable passing of devicetree */
 
 /* Environment */
 #define CONFIG_ENV_VARS_UBOOT_CONFIG
@@ -69,33 +68,20 @@
 #undef CONFIG_CMD_NET		/* network support */
 
 /* turn on command-line edit/hist/auto */
-#define CONFIG_CMDLINE_EDITING
 #define CONFIG_COMMAND_HISTORY
-#define CONFIG_AUTO_COMPLETE
 
 /* turn on commonly used storage-related commands */
-
-#define CONFIG_DOS_PARTITION
-#define CONFIG_EFI_PARTITION
 #define CONFIG_PARTITION_UUIDS
-#define CONFIG_FS_EXT4
-#define CONFIG_FS_FAT
-#define CONFIG_CMD_EXT2
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_FS_GENERIC
 #define CONFIG_CMD_PART
 
 #define CONFIG_SYS_NO_FLASH
 
 #define CONFIG_CONSOLE_MUX
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define CONFIG_BOOTDELAY	2		/* -1 to disable auto boot */
 
 /*
  * Miscellaneous configurable options
  */
-#define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_SYS_PROMPT		V_PROMPT
 /*
  * Increasing the size of the IO buffer as default nfsargs size is more
@@ -133,8 +119,6 @@
 #define CONFIG_TEGRA_GPIO
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_ENTERRCM
-#define CONFIG_CMD_BOOTZ
-#define CONFIG_SUPPORT_RAW_INITRD
 
 /* Defines for SPL */
 #define CONFIG_SPL
@@ -151,10 +135,18 @@
 #define CONFIG_SPL_SERIAL_SUPPORT
 #define CONFIG_SPL_GPIO_SUPPORT
 
+#ifdef CONFIG_SPL_BUILD
+# define CONFIG_USE_PRIVATE_LIBGCC
+#endif
+
 #define CONFIG_SYS_GENERIC_BOARD
 
 /* Misc utility code */
 #define CONFIG_BOUNCE_BUFFER
 #define CONFIG_CRC32_VERIFY
+
+#ifndef CONFIG_SPL_BUILD
+#include <config_distro_defaults.h>
+#endif
 
 #endif /* _TEGRA_COMMON_H_ */

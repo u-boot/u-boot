@@ -8,6 +8,7 @@
 #include <watchdog.h>
 #include <asm/io.h>
 #include <nios2-yanu.h>
+#include <serial.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -17,62 +18,34 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static yanu_uart_t *uart = (yanu_uart_t *)CONFIG_SYS_NIOS_CONSOLE;
 
+static void oc_serial_setbrg(void)
+{
+	int n, k;
+	const unsigned max_uns = 0xFFFFFFFF;
+	unsigned best_n, best_m, baud;
+	unsigned baudrate;
+
 #if defined(CONFIG_SYS_NIOS_FIXEDBAUD)
-
-/* Everything's already setup for fixed-baud PTF assignment*/
-
-static void oc_serial_setbrg(void)
-{
-	int n, k;
-	const unsigned max_uns = 0xFFFFFFFF;
-	unsigned best_n, best_m, baud;
-
-	/* compute best N and M couple */
-	best_n = YANU_MAX_PRESCALER_N;
-	for (n = YANU_MAX_PRESCALER_N; n >= 0; n--) {
-		if ((unsigned)CONFIG_SYS_CLK_FREQ / (1 << (n + 4)) >=
-		    (unsigned)CONFIG_BAUDRATE) {
-			best_n = n;
-			break;
-		}
-	}
-	for (k = 0;; k++) {
-		if ((unsigned)CONFIG_BAUDRATE <= (max_uns >> (15+n-k)))
-			break;
-	}
-	best_m =
-	    ((unsigned)CONFIG_BAUDRATE * (1 << (15 + n - k))) /
-	    ((unsigned)CONFIG_SYS_CLK_FREQ >> k);
-
-	baud = best_m + best_n * YANU_BAUDE;
-	writel(baud, &uart->baud);
-
-	return;
-}
-
+	/* Everything's already setup for fixed-baud PTF assignment */
+	baudrate = CONFIG_BAUDRATE;
 #else
-
-static void oc_serial_setbrg(void)
-{
-	int n, k;
-	const unsigned max_uns = 0xFFFFFFFF;
-	unsigned best_n, best_m, baud;
-
+	baudrate = gd->baudrate;
+#endif
 	/* compute best N and M couple */
 	best_n = YANU_MAX_PRESCALER_N;
 	for (n = YANU_MAX_PRESCALER_N; n >= 0; n--) {
 		if ((unsigned)CONFIG_SYS_CLK_FREQ / (1 << (n + 4)) >=
-		    gd->baudrate) {
+		    baudrate) {
 			best_n = n;
 			break;
 		}
 	}
 	for (k = 0;; k++) {
-		if (gd->baudrate <= (max_uns >> (15+n-k)))
+		if (baudrate <= (max_uns >> (15+n-k)))
 			break;
 	}
 	best_m =
-	    (gd->baudrate * (1 << (15 + n - k))) /
+	    (baudrate * (1 << (15 + n - k))) /
 	    ((unsigned)CONFIG_SYS_CLK_FREQ >> k);
 
 	baud = best_m + best_n * YANU_BAUDE;
@@ -80,9 +53,6 @@ static void oc_serial_setbrg(void)
 
 	return;
 }
-
-
-#endif /* CONFIG_SYS_NIOS_FIXEDBAUD */
 
 static int oc_serial_init(void)
 {
@@ -154,7 +124,7 @@ static int oc_serial_tstc(void)
 		 ((1 << YANU_RFIFO_CHARS_N) - 1)) > 0);
 }
 
-statoc int oc_serial_getc(void)
+static int oc_serial_getc(void)
 {
 	while (serial_tstc() == 0)
 		WATCHDOG_RESET ();

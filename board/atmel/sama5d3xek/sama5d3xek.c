@@ -307,6 +307,10 @@ void spl_board_init(void)
 {
 #ifdef CONFIG_SYS_USE_MMC
 	sama5d3xek_mci_hw_init();
+#elif CONFIG_SYS_USE_NANDFLASH
+	sama5d3xek_nand_hw_init();
+#elif CONFIG_SYS_USE_SERIALFLASH
+	at91_spi0_hw_init(1 << 0);
 #endif
 }
 

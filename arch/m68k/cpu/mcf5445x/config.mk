@@ -9,10 +9,8 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-PLATFORM_RELFLAGS += -ffixed-d7 -msep-data
-
-cfg=$(shell grep configs $(OBJTREE)/include/config.h | sed 's/.*<\(configs.*\)>/\1/')
-is5441x:=$(shell grep CONFIG_MCF5441x $(TOPDIR)/include/$(cfg))
+cfg=$(shell grep configs $(objtree)/include/config.h | sed 's/.*<\(configs.*\)>/\1/')
+is5441x:=$(shell grep CONFIG_MCF5441x $(srctree)/include/$(cfg))
 
 ifneq (,$(findstring CONFIG_MCF5441x,$(is5441x)))
 PLATFORM_CPPFLAGS += -mcpu=54418 -fPIC

@@ -17,7 +17,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 
 /* Architecture, CPU, etc.*/
 #define CONFIG_ARM1176
@@ -95,11 +95,24 @@
 #define CONFIG_SYS_LOAD_ADDR		0x1000000
 #define CONFIG_CONSOLE_MUX
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define CONFIG_PREBOOT \
+	"if load mmc 0:1 ${loadaddr} /uEnv.txt; then " \
+		"env import -t ${loadaddr} ${filesize}; " \
+	"fi"
+
+#define ENV_DEVICE_SETTINGS \
+	"stdin=serial,lcd\0" \
+	"stdout=serial,lcd\0" \
+	"stderr=serial,lcd\0"
+
 /*
  * Memory layout for where various images get loaded by boot scripts:
  *
  * scriptaddr can be pretty much anywhere that doesn't conflict with something
  *   else. Put it low in memory to avoid conflicts.
+ *
+ * pxefile_addr_r can be pretty much anywhere that doesn't conflict with
+ *   something else. Put it low in memory to avoid conflicts.
  *
  * kernel_addr_r must be within the first 128M of RAM in order for the
  *   kernel's CONFIG_AUTO_ZRELADDR option to work. Since the kernel will
@@ -116,67 +129,112 @@
  * ramdisk_addr_r simply shouldn't overlap anything else. Choosing 33M allows
  *   for the FDT/DTB to be up to 1M, which is hopefully plenty.
  */
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	"stdin=serial\0" \
-	"stderr=serial,lcd\0" \
-	"stdout=serial,lcd\0" \
+#define ENV_MEM_LAYOUT_SETTINGS \
 	"scriptaddr=0x00000000\0" \
+	"pxefile_addr_r=0x00100000\0" \
 	"kernel_addr_r=0x01000000\0" \
 	"fdt_addr_r=0x02000000\0" \
+	"fdtfile=bcm2835-rpi-b.dtb\0" \
 	"ramdisk_addr_r=0x02100000\0" \
-	"boot_targets=mmc0\0" \
-	\
-	"script_boot=" \
-		"if fatload ${devtype} ${devnum}:1 " \
-					"${scriptaddr} boot.scr.uimg; then " \
-			"source ${scriptaddr}; " \
-		"fi;\0" \
-	\
+
+#define BOOTCMDS_MMC \
 	"mmc_boot=" \
 		"setenv devtype mmc; " \
 		"if mmc dev ${devnum}; then " \
-			"run script_boot; " \
+			"run scan_boot; " \
 		"fi\0" \
+	"bootcmd_mmc0=setenv devnum 0; run mmc_boot;\0"
+#define BOOT_TARGETS_MMC "mmc0"
+
+#define BOOTCMDS_COMMON \
+	"rootpart=1\0" \
 	\
-	"bootcmd_mmc0=setenv devnum 0; run mmc_boot\0" \
+	"do_script_boot="                                                 \
+		"load ${devtype} ${devnum}:${rootpart} "                  \
+			"${scriptaddr} ${prefix}${script}; "              \
+		"source ${scriptaddr}\0"                                  \
+	\
+	"script_boot="                                                    \
+		"for script in ${boot_scripts}; do "                      \
+			"if test -e ${devtype} ${devnum}:${rootpart} "    \
+					"${prefix}${script}; then "       \
+				"echo Found ${prefix}${script}; "         \
+				"run do_script_boot; "                    \
+				"echo SCRIPT FAILED: continuing...; "     \
+			"fi; "                                            \
+		"done\0"                                                  \
+	\
+	"do_sysboot_boot="                                                \
+		"sysboot ${devtype} ${devnum}:${rootpart} any "           \
+			"${scriptaddr} ${prefix}extlinux/extlinux.conf\0" \
+	\
+	"sysboot_boot="                                                   \
+		"if test -e ${devtype} ${devnum}:${rootpart} "            \
+				"${prefix}extlinux/extlinux.conf; then "  \
+			"echo Found ${prefix}extlinux/extlinux.conf; "    \
+			"run do_sysboot_boot; "                           \
+			"echo SCRIPT FAILED: continuing...; "             \
+		"fi\0"                                                    \
+	\
+	"scan_boot="                                                      \
+		"echo Scanning ${devtype} ${devnum}...; "                 \
+		"for prefix in ${boot_prefixes}; do "                     \
+			"run sysboot_boot; "                              \
+			"run script_boot; "                               \
+		"done\0"                                                  \
+	\
+	"boot_targets=" \
+		BOOT_TARGETS_MMC " " \
+		"\0" \
+	\
+	"boot_prefixes=/\0" \
+	\
+	"boot_scripts=boot.scr.uimg\0" \
+	\
+	BOOTCMDS_MMC
 
 #define CONFIG_BOOTCOMMAND \
 	"for target in ${boot_targets}; do run bootcmd_${target}; done"
 
-#define CONFIG_BOOTDELAY		2
+#define CONFIG_BOOTCOMMAND \
+	"for target in ${boot_targets}; do run bootcmd_${target}; done"
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	ENV_DEVICE_SETTINGS \
+	ENV_MEM_LAYOUT_SETTINGS \
+	BOOTCMDS_COMMON
+
+#define CONFIG_BOOTDELAY 2
 
 /* Shell */
-#define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_MAXARGS		8
 #define CONFIG_SYS_PROMPT		"U-Boot> "
-#define CONFIG_SYS_LONGHELP
-#define CONFIG_CMDLINE_EDITING
 #define CONFIG_COMMAND_HISTORY
-#define CONFIG_AUTO_COMPLETE
 
 /* Commands */
 #include <config_cmd_default.h>
-#define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_MMC
-#define CONFIG_DOS_PARTITION
 #define CONFIG_PARTITION_UUIDS
 #define CONFIG_CMD_PART
-#define CONFIG_CMD_FS_GENERIC
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_EXT
-/* Some things don't make sense on this HW or yet */
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
-#undef CONFIG_CMD_SAVEENV
 
-/* Device tree support for bootm/bootz */
-#define CONFIG_OF_LIBFDT
+/* Device tree support */
 #define CONFIG_OF_BOARD_SETUP
 /* ATAGs support for bootm/bootz */
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_INITRD_TAG
+
+#include <config_distro_defaults.h>
+
+/* Some things don't make sense on this HW or yet */
+#undef CONFIG_CMD_FPGA
+#undef CONFIG_CMD_NET
+#undef CONFIG_CMD_NFS
+#undef CONFIG_CMD_SAVEENV
+#undef CONFIG_CMD_DHCP
+#undef CONFIG_CMD_MII
+#undef CONFIG_CMD_NET
+#undef CONFIG_CMD_PING
 
 #endif

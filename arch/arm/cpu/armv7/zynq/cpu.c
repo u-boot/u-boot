@@ -6,6 +6,7 @@
  */
 #include <common.h>
 #include <asm/io.h>
+#include <asm/arch/clk.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/clk.h>
@@ -61,7 +62,7 @@ void reset_cpu(ulong addr)
 #ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)
 {
-        /* Enable D-cache. I-cache is already enabled in start.S */
-        dcache_enable();
+	/* Enable D-cache. I-cache is already enabled in start.S */
+	dcache_enable();
 }
 #endif

@@ -22,9 +22,6 @@
  * r9 has Mobile DDR size, 1 means 1GiB, 2 means 2GiB and so on
  */
 
-_TEXT_BASE:
-	.word	CONFIG_SYS_TEXT_BASE
-
 	.globl lowlevel_init
 lowlevel_init:
 	mov	r11, lr

@@ -9,7 +9,7 @@
 
 #ifndef __ASSEMBLY__
 
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 
 #define ASYNC_EMIF_NUM_CS		4
 #define ASYNC_EMIF_MODE_NOR		0

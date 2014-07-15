@@ -1,0 +1,13 @@
+#
+# Copyright 2014 Freescale Semiconductor, Inc.
+#
+# SPDX-License-Identifier:      GPL-2.0+
+#
+
+obj-$(CONFIG_T2080RDB) += t208xrdb.o
+obj-$(CONFIG_T2080RDB) += eth_t208xrdb.o
+obj-$(CONFIG_T2080RDB) += cpld.o
+obj-$(CONFIG_PCI)      += pci.o
+obj-y   += ddr.o
+obj-y   += law.o
+obj-y   += tlb.o

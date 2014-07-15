@@ -1,0 +1,138 @@
+/*
+ * Samsung's Exynos4 SoC common device tree source
+ *
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/include/ "skeleton.dtsi"
+
+/ {
+	serial@13800000 {
+		compatible = "samsung,exynos4210-uart";
+		reg = <0x13800000 0x3c>;
+		id = <0>;
+	};
+
+	serial@13810000 {
+		compatible = "samsung,exynos4210-uart";
+		reg = <0x13810000 0x3c>;
+		id = <1>;
+	};
+
+	serial@13820000 {
+		compatible = "samsung,exynos4210-uart";
+		reg = <0x13820000 0x3c>;
+		id = <2>;
+	};
+
+	serial@13830000 {
+		compatible = "samsung,exynos4210-uart";
+		reg = <0x13830000 0x3c>;
+		id = <3>;
+	};
+
+	serial@13840000 {
+		compatible = "samsung,exynos4210-uart";
+		reg = <0x13840000 0x3c>;
+		id = <4>;
+	};
+
+	i2c@13860000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,s3c2440-i2c";
+		interrupts = <0 0 0>;
+	};
+
+	i2c@13870000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,s3c2440-i2c";
+		interrupts = <1 1 0>;
+	};
+
+	i2c@13880000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,s3c2440-i2c";
+		interrupts = <2 2 0>;
+	};
+
+	i2c@13890000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,s3c2440-i2c";
+		interrupts = <3 3 0>;
+	};
+
+	i2c@138a0000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,s3c2440-i2c";
+		interrupts = <4 4 0>;
+	};
+
+	i2c@138b0000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,s3c2440-i2c";
+		interrupts = <5 5 0>;
+	};
+
+	i2c@138c0000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,s3c2440-i2c";
+		interrupts = <6 6 0>;
+	};
+
+	i2c@138d0000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,s3c2440-i2c";
+		interrupts = <7 7 0>;
+	};
+
+	sdhci@12510000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,exynos-mmc";
+		reg = <0x12510000 0x1000>;
+		interrupts = <0 75 0>;
+	};
+
+	sdhci@12520000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,exynos-mmc";
+		reg = <0x12520000 0x1000>;
+		interrupts = <0 76 0>;
+	};
+
+	sdhci@12530000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,exynos-mmc";
+		reg = <0x12530000 0x1000>;
+		interrupts = <0 77 0>;
+	};
+
+	sdhci@12540000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "samsung,exynos-mmc";
+		reg = <0x12540000 0x1000>;
+		interrupts = <0 78 0>;
+	};
+
+	gpio: gpio {
+		gpio-controller;
+		#gpio-cells = <2>;
+
+		interrupt-controller;
+		#interrupt-cells = <2>;
+	};
+};

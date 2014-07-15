@@ -439,7 +439,7 @@ static int DhcpExtended(u8 *e, int message_type, IPaddr_t ServerID,
 			*e++ = 17;
 			*e++ = 0;	/* type 0 - UUID */
 
-			uuid_str_to_bin(uuid, e);
+			uuid_str_to_bin(uuid, e, UUID_STR_FORMAT_STD);
 			e += 16;
 		} else {
 			printf("Invalid pxeuuid: %s\n", uuid);

@@ -356,11 +356,6 @@
 #endif /* CONFIG_CMD_DATE */
 
 /*
- * Clocks
- */
-#define	CONFIG_SYS_HZ			1000	/* Ticks per second */
-
-/*
  * PLL
  *
  *  31 | x  |x| x x x x |x x x x x x x x x x |x x|x x x x|x x x x x x x x x x| 0

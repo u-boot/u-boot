@@ -63,26 +63,6 @@ static char *print_efiname(gpt_entry *pte)
 	return name;
 }
 
-static void uuid_string(unsigned char *uuid, char *str)
-{
-	static const u8 le[16] = {3, 2, 1, 0, 5, 4, 7, 6, 8, 9, 10, 11,
-				  12, 13, 14, 15};
-	int i;
-
-	for (i = 0; i < 16; i++) {
-		sprintf(str, "%02x", uuid[le[i]]);
-		str += 2;
-		switch (i) {
-		case 3:
-		case 5:
-		case 7:
-		case 9:
-			*str++ = '-';
-			break;
-		}
-	}
-}
-
 static efi_guid_t system_guid = PARTITION_SYSTEM_GUID;
 
 static inline int is_bootable(gpt_entry *p)
@@ -103,6 +83,7 @@ void print_part_efi(block_dev_desc_t * dev_desc)
 	gpt_entry *gpt_pte = NULL;
 	int i = 0;
 	char uuid[37];
+	unsigned char *uuid_bin;
 
 	if (!dev_desc) {
 		printf("%s: Invalid Argument(s)\n", __func__);
@@ -119,8 +100,8 @@ void print_part_efi(block_dev_desc_t * dev_desc)
 
 	printf("Part\tStart LBA\tEnd LBA\t\tName\n");
 	printf("\tAttributes\n");
-	printf("\tType UUID\n");
-	printf("\tPartition UUID\n");
+	printf("\tType GUID\n");
+	printf("\tPartition GUID\n");
 
 	for (i = 0; i < le32_to_cpu(gpt_head->num_partition_entries); i++) {
 		/* Stop at the first non valid PTE */
@@ -132,10 +113,12 @@ void print_part_efi(block_dev_desc_t * dev_desc)
 			le64_to_cpu(gpt_pte[i].ending_lba),
 			print_efiname(&gpt_pte[i]));
 		printf("\tattrs:\t0x%016llx\n", gpt_pte[i].attributes.raw);
-		uuid_string(gpt_pte[i].partition_type_guid.b, uuid);
+		uuid_bin = (unsigned char *)gpt_pte[i].partition_type_guid.b;
+		uuid_bin_to_str(uuid_bin, uuid, UUID_STR_FORMAT_GUID);
 		printf("\ttype:\t%s\n", uuid);
-		uuid_string(gpt_pte[i].unique_partition_guid.b, uuid);
-		printf("\tuuid:\t%s\n", uuid);
+		uuid_bin = (unsigned char *)gpt_pte[i].unique_partition_guid.b;
+		uuid_bin_to_str(uuid_bin, uuid, UUID_STR_FORMAT_GUID);
+		printf("\tguid:\t%s\n", uuid);
 	}
 
 	/* Remember to free pte */
@@ -182,7 +165,8 @@ int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 	sprintf((char *)info->type, "U-Boot");
 	info->bootable = is_bootable(&gpt_pte[part - 1]);
 #ifdef CONFIG_PARTITION_UUIDS
-	uuid_string(gpt_pte[part - 1].unique_partition_guid.b, info->uuid);
+	uuid_bin_to_str(gpt_pte[part - 1].unique_partition_guid.b, info->uuid,
+			UUID_STR_FORMAT_GUID);
 #endif
 
 	debug("%s: start 0x" LBAF ", size 0x" LBAF ", name %s", __func__,
@@ -213,10 +197,10 @@ int test_part_efi(block_dev_desc_t * dev_desc)
  */
 static int set_protective_mbr(block_dev_desc_t *dev_desc)
 {
-	legacy_mbr *p_mbr;
-
 	/* Setup the Protective MBR */
-	p_mbr = calloc(1, sizeof(p_mbr));
+	ALLOC_CACHE_ALIGN_BUFFER(legacy_mbr, p_mbr, 1);
+	memset(p_mbr, 0, sizeof(*p_mbr));
+
 	if (p_mbr == NULL) {
 		printf("%s: calloc failed!\n", __func__);
 		return -1;
@@ -231,64 +215,8 @@ static int set_protective_mbr(block_dev_desc_t *dev_desc)
 	if (dev_desc->block_write(dev_desc->dev, 0, 1, p_mbr) != 1) {
 		printf("** Can't write to device %d **\n",
 			dev_desc->dev);
-		free(p_mbr);
 		return -1;
 	}
-
-	free(p_mbr);
-	return 0;
-}
-
-/**
- * string_uuid(); Convert UUID stored as string to bytes
- *
- * @param uuid - UUID represented as string
- * @param dst - GUID buffer
- *
- * @return return 0 on successful conversion
- */
-static int string_uuid(char *uuid, u8 *dst)
-{
-	efi_guid_t guid;
-	u16 b, c, d;
-	u64 e;
-	u32 a;
-	u8 *p;
-	u8 i;
-
-	const u8 uuid_str_len = 36;
-
-	/* The UUID is written in text: */
-	/* 1        9    14   19   24 */
-	/* xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx */
-
-	debug("%s: uuid: %s\n", __func__, uuid);
-
-	if (strlen(uuid) != uuid_str_len)
-		return -1;
-
-	for (i = 0; i < uuid_str_len; i++) {
-		if ((i == 8) || (i == 13) || (i == 18) || (i == 23)) {
-			if (uuid[i] != '-')
-				return -1;
-		} else {
-			if (!isxdigit(uuid[i]))
-				return -1;
-		}
-	}
-
-	a = (u32)simple_strtoul(uuid, NULL, 16);
-	b = (u16)simple_strtoul(uuid + 9, NULL, 16);
-	c = (u16)simple_strtoul(uuid + 14, NULL, 16);
-	d = (u16)simple_strtoul(uuid + 19, NULL, 16);
-	e = (u64)simple_strtoull(uuid + 24, NULL, 16);
-
-	p = (u8 *) &e;
-	guid = EFI_GUID(a, b, c, d >> 8, d & 0xFF,
-			*(p + 5), *(p + 4), *(p + 3),
-			*(p + 2), *(p + 1) , *p);
-
-	memcpy(dst, guid.b, sizeof(efi_guid_t));
 
 	return 0;
 }
@@ -360,6 +288,7 @@ int gpt_fill_pte(gpt_header *gpt_h, gpt_entry *gpt_e,
 	size_t efiname_len, dosname_len;
 #ifdef CONFIG_PARTITION_UUIDS
 	char *str_uuid;
+	unsigned char *bin_uuid;
 #endif
 
 	for (i = 0; i < parts; i++) {
@@ -393,7 +322,9 @@ int gpt_fill_pte(gpt_header *gpt_h, gpt_entry *gpt_e,
 
 #ifdef CONFIG_PARTITION_UUIDS
 		str_uuid = partitions[i].uuid;
-		if (string_uuid(str_uuid, gpt_e[i].unique_partition_guid.b)) {
+		bin_uuid = gpt_e[i].unique_partition_guid.b;
+
+		if (uuid_str_to_bin(str_uuid, bin_uuid, UUID_STR_FORMAT_STD)) {
 			printf("Partition no. %d: invalid guid: %s\n",
 				i, str_uuid);
 			return -1;
@@ -440,7 +371,7 @@ int gpt_fill_header(block_dev_desc_t *dev_desc, gpt_header *gpt_h,
 	gpt_h->header_crc32 = 0;
 	gpt_h->partition_entry_array_crc32 = 0;
 
-	if (string_uuid(str_guid, gpt_h->disk_guid.b))
+	if (uuid_str_to_bin(str_guid, gpt_h->disk_guid.b, UUID_STR_FORMAT_GUID))
 		return -1;
 
 	return 0;

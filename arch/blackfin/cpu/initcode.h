@@ -49,7 +49,7 @@ program_async_controller(ADI_BOOT_DATA *bs)
 
 	serial_putc('a');
 
-#ifdef __ADSPBF60x__
+#ifndef __ADSPBF60x__
 	/* Program the async banks controller. */
 #ifdef EBIU_AMGCTL
 	bfin_write_EBIU_AMBCTL0(CONFIG_EBIU_AMBCTL0_VAL);
@@ -74,7 +74,7 @@ program_async_controller(ADI_BOOT_DATA *bs)
 
 	serial_putc('c');
 
-#else   /* __ADSPBF60x__ */
+#else 	/* __ADSPBF60x__ */
 	/* Program the static memory controller. */
 # ifdef CONFIG_SMC_GCTL_VAL
 	bfin_write_SMC_GCTL(CONFIG_SMC_GCTL_VAL);
@@ -116,7 +116,7 @@ program_async_controller(ADI_BOOT_DATA *bs)
 	bfin_write_SMC_B3ETIM(CONFIG_SMC_B3ETIM_VAL);
 # endif
 
-#endif
+#endif /* __ADSPBF60x__ */
 	serial_putc('d');
 }
 

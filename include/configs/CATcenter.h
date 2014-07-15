@@ -59,7 +59,6 @@
  */
 
 #define CONFIG_405EP		1	/* This is a PPC405 CPU		*/
-#define CONFIG_4xx		1	/* ...member of PPC4xx family	*/
 #define CONFIG_PPCHAMELEONEVB	1	/* ...on a PPChameleonEVB board */
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFFB0000	/* Reserve 320 kB for Monitor */

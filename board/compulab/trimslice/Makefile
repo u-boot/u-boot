@@ -7,4 +7,4 @@
 
 obj-y	:= trimslice.o
 
-include ../../nvidia/common/common.mk
+include $(srctree)/board/nvidia/common/common.mk

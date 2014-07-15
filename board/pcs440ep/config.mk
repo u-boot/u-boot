@@ -10,7 +10,7 @@
 #
 
 # Check the U-Boot Image with a SHA1 checksum
-ALL-y += $(obj)u-boot.sha1
+ALL-y += u-boot.sha1
 
 PLATFORM_CPPFLAGS += -DCONFIG_440=1
 

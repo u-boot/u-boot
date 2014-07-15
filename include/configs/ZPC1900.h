@@ -11,7 +11,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_MPC8260		1	/* This is an MPC8260 CPU      */
 #define CONFIG_ZPC1900		1	/* ...on Zephyr ZPC.1900 board */
 
 #define	CONFIG_SYS_TEXT_BASE	0xFE000000

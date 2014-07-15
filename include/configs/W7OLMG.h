@@ -18,7 +18,6 @@
  */
 
 #define CONFIG_405GP		1		/* This is a PPC405GP CPU	*/
-#define CONFIG_4xx		1		/* ...member of PPC405 family	*/
 #define CONFIG_W7O		1		/* ...on a Wave 7 Optics board	*/
 #define CONFIG_W7OLMG		1		/* ...specifically an LMG	*/
 

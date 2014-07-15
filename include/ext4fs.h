@@ -134,6 +134,7 @@ int ext4fs_read(char *buf, unsigned len);
 int ext4fs_mount(unsigned part_length);
 void ext4fs_close(void);
 int ext4fs_ls(const char *dirname);
+int ext4fs_exists(const char *filename);
 void ext4fs_free_node(struct ext2fs_node *node, struct ext2fs_node *currroot);
 int ext4fs_devread(lbaint_t sector, int byte_offset, int byte_len, char *buf);
 void ext4fs_set_blk_dev(block_dev_desc_t *rbdd, disk_partition_t *info);

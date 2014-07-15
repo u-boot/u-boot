@@ -36,7 +36,7 @@ re_series_tag = re.compile('^Series-([a-z-]*): *(.*)')
 re_commit_tag = re.compile('^Commit-([a-z-]*): *(.*)')
 
 # Commit tags that we want to collect and keep
-re_tag = re.compile('^(Tested-by|Acked-by|Reviewed-by|Cc): (.*)')
+re_tag = re.compile('^(Tested-by|Acked-by|Reviewed-by|Patch-cc): (.*)')
 
 # The start of a new commit in the git log
 re_commit = re.compile('^commit ([0-9a-f]*)$')
@@ -267,7 +267,7 @@ class PatchStream:
             if (tag_match.group(1) == 'Tested-by' and
                     tag_match.group(2).find(os.getenv('USER') + '@') != -1):
                 self.warn.append("Ignoring %s" % line)
-            elif tag_match.group(1) == 'Cc':
+            elif tag_match.group(1) == 'Patch-cc':
                 self.commit.AddCc(tag_match.group(2).split(','))
             else:
                 self.tags.append(line);

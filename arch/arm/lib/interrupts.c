@@ -153,7 +153,7 @@ void do_prefetch_abort (struct pt_regs *pt_regs)
 
 void do_data_abort (struct pt_regs *pt_regs)
 {
-	printf ("data abort\n\n    MAYBE you should read doc/README.arm-unaligned-accesses\n\n");
+	printf ("data abort\n");
 	show_regs (pt_regs);
 	bad_mode ();
 }

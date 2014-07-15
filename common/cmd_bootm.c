@@ -514,8 +514,8 @@ static int do_bootm_standalone(int flag, int argc, char * const argv[],
 		setenv_hex("filesize", images->os.image_len);
 		return 0;
 	}
-	appl = (int (*)(int, char * const []))(ulong)ntohl(images->ep);
-	(*appl)(argc, argv);
+	appl = (int (*)(int, char * const []))images->ep;
+	appl(argc, argv);
 	return 0;
 }
 

@@ -14,8 +14,7 @@
  */
 
 #define CONFIG_MPC5200
-#define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU */
-#define CONFIG_PM520		1	/* ... on PM520 board */
+#define CONFIG_PM520		1	/* PM520 board */
 
 #define	CONFIG_SYS_TEXT_BASE	0xfff00000
 

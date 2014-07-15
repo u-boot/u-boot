@@ -76,7 +76,7 @@ int board_init(void)
 {
 
 	/* LED (PTG) */
-	outw((inw(PGCR) & ~0xFF) | 0x66, PGCR);
+	outw((inw(PGCR) & ~0xFF) | 0x55, PGCR);
 	outw((inw(HIZCRA) & ~0x02), HIZCRA);
 
 	debug_led(1 << 0);
@@ -97,7 +97,7 @@ int board_init(void)
 	/* USB host */
 	outw((inw(PBCR) & ~0x300) | 0x100, PBCR);
 	outb((inb(PBDR) & ~0x10) | 0x10, PBDR);
-	outl(inl(MSTPCR2) & 0x100000, MSTPCR2);
+	outl(inl(MSTPCR2) & ~0x100000, MSTPCR2);
 	outw(0x0600, UPONCR0);
 
 	debug_led(1 << 3);

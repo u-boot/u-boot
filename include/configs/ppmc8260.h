@@ -293,7 +293,6 @@
  *
  *****************************************************************************/
 
-#define CONFIG_MPC8260		1	/* This is an MPC8260 CPU   */
 #define CONFIG_PPMC8260		1	/* on an Wind River PPMC8260 Board  */
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 

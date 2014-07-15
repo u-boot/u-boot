@@ -17,4 +17,5 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-obj- :=
+# necessary to create built-in.o
+obj- := __dummy__.o

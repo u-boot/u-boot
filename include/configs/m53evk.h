@@ -39,18 +39,20 @@
 #define CONFIG_CMD_USB
 #define CONFIG_VIDEO
 
+#define CONFIG_REGEX			/* Enable regular expression support */
+
 /*
  * Memory configurations
  */
 #define CONFIG_NR_DRAM_BANKS		2
 #define PHYS_SDRAM_1			CSD0_BASE_ADDR
-#define PHYS_SDRAM_1_SIZE		(512 * 1024 * 1024)
+#define PHYS_SDRAM_1_SIZE		(gd->bd->bi_dram[0].size)
 #define PHYS_SDRAM_2			CSD1_BASE_ADDR
-#define PHYS_SDRAM_2_SIZE		(512 * 1024 * 1024)
-#define PHYS_SDRAM_SIZE			(PHYS_SDRAM_1_SIZE + PHYS_SDRAM_2_SIZE)
+#define PHYS_SDRAM_2_SIZE		(gd->bd->bi_dram[1].size)
+#define PHYS_SDRAM_SIZE			(gd->ram_size)
 #define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
 #define CONFIG_SYS_MEMTEST_START	0x70000000
-#define CONFIG_SYS_MEMTEST_END		0xaff00000
+#define CONFIG_SYS_MEMTEST_END		0x8ff00000
 
 #define CONFIG_SYS_SDRAM_BASE		(PHYS_SDRAM_1)
 #define CONFIG_SYS_INIT_RAM_ADDR	(IRAM_BASE_ADDR)
@@ -128,9 +130,9 @@
 #define CONFIG_LZO
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
-#define MTDIDS_DEFAULT			"nand0=mxc-nand"
+#define MTDIDS_DEFAULT			"nand0=mxc_nand"
 #define MTDPARTS_DEFAULT			\
-	"mtdparts=mxc-nand:"			\
+	"mtdparts=mxc_nand:"			\
 		"1m(bootloader)ro,"		\
 		"512k(environment),"		\
 		"512k(redundant-environment),"	\
@@ -183,6 +185,7 @@
 #define CONFIG_USB_STORAGE
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_ASIX
+#define CONFIG_USB_ETHER_MCS7830
 #define CONFIG_USB_ETHER_SMSC95XX
 #define CONFIG_MXC_USB_PORT		1
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)

@@ -198,7 +198,7 @@ static struct cpsw_slave_data cpsw_slaves[] = {
 	{
 		.slave_reg_ofs	= 0x208,
 		.sliver_reg_ofs	= 0xd80,
-		.phy_id		= 0,
+		.phy_addr	= 0,
 		.phy_if		= PHY_INTERFACE_MODE_MII,
 	},
 };
@@ -242,6 +242,25 @@ int board_eth_init(bd_t *bis)
 		n += rv;
 	return n;
 }
+
+static int do_switch_reset(cmd_tbl_t *cmdtp, int flag, int argc,
+			   char *const argv[])
+{
+	/* Reset SMSC LAN9303 switch for default configuration */
+	gpio_request(GPIO_LAN9303_NRST, "nRST");
+	gpio_direction_output(GPIO_LAN9303_NRST, 0);
+	/* assert active low reset for 200us */
+	udelay(200);
+	gpio_set_value(GPIO_LAN9303_NRST, 1);
+
+	return 0;
+};
+
+U_BOOT_CMD(
+	switch_rst, CONFIG_SYS_MAXARGS, 1,	do_switch_reset,
+	"Reset LAN9303 switch via its reset pin",
+	""
+);
 #endif /* #if defined(CONFIG_DRIVER_TI_CPSW) */
 #endif /* #if (defined(CONFIG_DRIVER_TI_CPSW) && !defined(CONFIG_SPL_BUILD)) */
 

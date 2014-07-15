@@ -57,7 +57,14 @@ SECTIONS
 	. = ALIGN(8);
 	__init_begin = .;
 	__init_end = .;
-/* FIXME for non-NAND SPL */
+
+/* For ifc, elbc, esdhc, espi, all need the SPL without section .resetvec */
+#ifdef CONFIG_SYS_MPC85XX_NO_RESETVEC
+	.bootpg ADDR(.text) - 0x1000 :
+	{
+		KEEP(*(.bootpg))
+	} :text = 0xffff
+#else
 #if defined(CONFIG_FSL_IFC) /* Restrict bootpg at 4K boundry for IFC */
 	.bootpg ADDR(.text) + 0x1000 :
 	{
@@ -69,12 +76,6 @@ SECTIONS
 #else
 #error unknown NAND controller
 #endif
-#ifdef CONFIG_SYS_MPC85XX_NO_RESETVEC
-	.bootpg ADDR(.text) - 0x1000 :
-	{
-		KEEP(*(.bootpg))
-	} :text = 0xffff
-#else
 	.resetvec ADDR(.text) + RESET_VECTOR_OFFSET : {
 		KEEP(*(.resetvec))
 	} = 0xffff

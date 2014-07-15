@@ -379,11 +379,7 @@ int board_early_init_r (void)
 	 */
 
 	/* Remap the NOR FLASH to 0xcc00.0000 ... 0xcfff.ffff */
-#if defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
-	mtebc(PB3CR, CONFIG_SYS_FLASH_BASE_PHYS_L | 0xda000);
-#else
 	mtebc(PB0CR, CONFIG_SYS_FLASH_BASE_PHYS_L | 0xda000);
-#endif
 
 	/* Remove TLB entry of boot EBC mapping */
 	remove_tlb(CONFIG_SYS_BOOT_BASE_ADDR, 16 << 20);

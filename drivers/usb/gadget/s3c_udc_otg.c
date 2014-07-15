@@ -843,7 +843,7 @@ static struct s3c_udc memory = {
 int s3c_udc_probe(struct s3c_plat_otg_data *pdata)
 {
 	struct s3c_udc *dev = &memory;
-	int retval = 0, i;
+	int retval = 0;
 
 	debug("%s: %p\n", __func__, pdata);
 
@@ -864,16 +864,15 @@ int s3c_udc_probe(struct s3c_plat_otg_data *pdata)
 
 	the_controller = dev;
 
-	for (i = 0; i < S3C_MAX_ENDPOINTS+1; i++) {
-		dev->dma_buf[i] = memalign(CONFIG_SYS_CACHELINE_SIZE,
-					   DMA_BUFFER_SIZE);
-		dev->dma_addr[i] = (dma_addr_t) dev->dma_buf[i];
-		invalidate_dcache_range((unsigned long) dev->dma_buf[i],
-					(unsigned long) (dev->dma_buf[i]
-							 + DMA_BUFFER_SIZE));
+	usb_ctrl = memalign(CONFIG_SYS_CACHELINE_SIZE,
+			    ROUND(sizeof(struct usb_ctrlrequest),
+				  CONFIG_SYS_CACHELINE_SIZE));
+	if (!usb_ctrl) {
+		error("No memory available for UDC!\n");
+		return -ENOMEM;
 	}
-	usb_ctrl = dev->dma_buf[0];
-	usb_ctrl_dma_addr = dev->dma_addr[0];
+
+	usb_ctrl_dma_addr = (dma_addr_t) usb_ctrl;
 
 	udc_reinit(dev);
 

@@ -22,8 +22,6 @@ struct emu_hal_params_rx51 {
 	u32 param4;
 };
 
-int print_cpuinfo(void);
-
 /*
  * IEN  - Input Enable
  * IDIS - Input Disable

@@ -8,10 +8,10 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-CROSS_COMPILE ?= mb-
+ifeq ($(CROSS_COMPILE),)
+CROSS_COMPILE := mb-
+endif
 
 CONFIG_STANDALONE_LOAD_ADDR ?= 0x80F00000
 
 PLATFORM_CPPFLAGS += -ffixed-r31 -D__microblaze__
-
-LDSCRIPT ?= $(SRCTREE)/$(CPUDIR)/u-boot.lds

@@ -20,6 +20,21 @@ enum clock_osc_freq {
 	CLOCK_OSC_FREQ_COUNT,
 };
 
+/*
+ * Note that no Tegra clock register actually uses all of bits 31:28 as
+ * the mux field. Rather, bits 30:28, 29:28, or 28 are used. However, in
+ * those cases, nothing is stored in the bits about the mux field, so it's
+ * safe to pretend that the mux field extends all the way to the end of the
+ * register. As such, the U-Boot clock driver is currently a bit lazy, and
+ * doesn't distinguish between 31:28, 30:28, 29:28 and 28; it just lumps
+ * them all together and pretends they're all 31:28.
+ */
+enum {
+	MASK_BITS_31_30,
+	MASK_BITS_31_29,
+	MASK_BITS_31_28,
+};
+
 #include <asm/arch/clock-tables.h>
 /* PLL stabilization delay in usec */
 #define CLOCK_PLL_STABLE_DELAY_US 300
@@ -304,5 +319,7 @@ int clock_set_rate(enum clock_id clkid, u32 n, u32 m, u32 p, u32 cpcon);
 
 /* SoC-specific TSC init */
 void arch_timer_init(void);
+
+void tegra30_set_up_pllp(void);
 
 #endif  /* _TEGRA_CLOCK_H_ */

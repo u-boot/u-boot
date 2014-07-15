@@ -19,7 +19,6 @@
 #define CONFIG_IDENT_STRING     " $Name:  $"
 
 #define CONFIG_405EP		1	/* This is a PPC405 CPU		*/
-#define CONFIG_4xx		1	/* ...member of PPC4xx family	*/
 #define CONFIG_WUH405		1	/* ...on a WUH405 board		*/
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFFC0000

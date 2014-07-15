@@ -221,6 +221,8 @@ struct child_prog {
 	pid_t pid;					/* 0 if exited */
 #endif
 	char **argv;				/* program name and arguments */
+	/* was quoted when parsed; copy of struct o_string.nonnull field */
+	int *argv_nonnull;			
 #ifdef __U_BOOT__
 	int    argc;                            /* number of program arguments */
 #endif
@@ -467,7 +469,7 @@ static int process_command_subs(o_string *dest, struct p_context *ctx, struct in
 static int parse_group(o_string *dest, struct p_context *ctx, struct in_str *input, int ch);
 #endif
 static char *lookup_param(char *src);
-static char *make_string(char **inp);
+static char *make_string(char **inp, int *nonnull);
 static int handle_dollar(o_string *dest, struct p_context *ctx, struct in_str *input);
 #ifndef __U_BOOT__
 static int parse_string(o_string *dest, struct p_context *ctx, const char *src);
@@ -1613,7 +1615,8 @@ static int run_pipe_real(struct pipe *pi)
 		if (child->sp) {
 			char * str = NULL;
 
-			str = make_string((child->argv + i));
+			str = make_string(child->argv + i,
+					  child->argv_nonnull + i);
 			parse_string_outer(str, FLAG_EXIT_FROM_LOOP | FLAG_REPARSING);
 			free(str);
 			return last_return_code;
@@ -1940,7 +1943,8 @@ static int free_pipe(struct pipe *pi, int indent)
 			for (a = 0; a < child->argc; a++) {
 				free(child->argv[a]);
 			}
-					free(child->argv);
+			free(child->argv);
+			free(child->argv_nonnull);
 			child->argc = 0;
 #endif
 			child->argv=NULL;
@@ -2470,8 +2474,14 @@ static int done_word(o_string *dest, struct p_context *ctx)
 		argc = ++child->argc;
 		child->argv = realloc(child->argv, (argc+1)*sizeof(*child->argv));
 		if (child->argv == NULL) return 1;
+		child->argv_nonnull = realloc(child->argv_nonnull,
+					(argc+1)*sizeof(*child->argv_nonnull));
+		if (child->argv_nonnull == NULL)
+			return 1;
 		child->argv[argc-1]=str;
+		child->argv_nonnull[argc-1] = dest->nonnull;
 		child->argv[argc]=NULL;
+		child->argv_nonnull[argc] = 0;
 		for (s = dest->data; s && *s; s++,str++) {
 			if (*s == '\\') s++;
 			*str = *s;
@@ -2537,6 +2547,7 @@ static int done_command(struct p_context *ctx)
 	prog->redirects = NULL;
 #endif
 	prog->argv = NULL;
+	prog->argv_nonnull = NULL;
 #ifndef __U_BOOT__
 	prog->is_stopped = 0;
 #endif
@@ -3585,8 +3596,12 @@ static char **make_list_in(char **inp, char *name)
 	return list;
 }
 
-/* Make new string for parser */
-static char * make_string(char ** inp)
+/*
+ * Make new string for parser
+ * inp     - array of argument strings to flatten
+ * nonnull - indicates argument was quoted when originally parsed
+ */
+static char *make_string(char **inp, int *nonnull)
 {
 	char *p;
 	char *str = NULL;
@@ -3600,13 +3615,17 @@ static char * make_string(char ** inp)
 		noeval = 1;
 	for (n = 0; inp[n]; n++) {
 		p = insert_var_value_sub(inp[n], noeval);
-		str = xrealloc(str, (len + strlen(p)));
+		str = xrealloc(str, (len + strlen(p) + (2 * nonnull[n])));
 		if (n) {
 			strcat(str, " ");
 		} else {
 			*str = '\0';
 		}
+		if (nonnull[n])
+			strcat(str, "'");
 		strcat(str, p);
+		if (nonnull[n])
+			strcat(str, "'");
 		len = strlen(str) + 3;
 		if (p != inp[n]) free(p);
 	}

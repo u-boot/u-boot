@@ -183,7 +183,7 @@ cm_remap:
 
 	/* Now 0x00000000 is writeable, replace the vectors	*/
 	ldr	r0, =_start	/* r0 <- start of vectors	*/
-	ldr	r2, =_TEXT_BASE	/* r2 <- past vectors	*/
+	add	r2, r0, #64	/* r2 <- past vectors	*/
 	sub	r1,r1,r1		/* destination 0x00000000	*/
 
 copy_vec:

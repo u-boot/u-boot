@@ -119,8 +119,6 @@
 #define CONFIG_SYS_NAND_BASE		NAND_BASE	/* physical address */
 							/* to access nand */
 							/* at CS0 */
-#define GPMC_NAND_ECC_LP_x16_LAYOUT
-
 #define CONFIG_SYS_MAX_NAND_DEVICE	1	/* Max number of NAND */
 						/* devices */
 #define CONFIG_JFFS2_NAND

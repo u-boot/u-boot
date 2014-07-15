@@ -37,7 +37,7 @@ typedef struct bd_info {
 	unsigned long	bi_dsp_freq; /* dsp core frequency */
 	unsigned long	bi_ddr_freq; /* ddr frequency */
 #endif
-#if defined(CONFIG_5xx) || defined(CONFIG_8xx) || defined(CONFIG_8260) \
+#if defined(CONFIG_5xx) || defined(CONFIG_8xx) || defined(CONFIG_MPC8260) \
 	|| defined(CONFIG_E500) || defined(CONFIG_MPC86xx)
 	unsigned long	bi_immr_base;	/* base of IMMR register */
 #endif

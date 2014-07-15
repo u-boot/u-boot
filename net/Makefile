@@ -5,7 +5,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-# CFLAGS += -DDEBUG
+#ccflags-y += -DDEBUG
 
 obj-$(CONFIG_CMD_NET)  += arp.o
 obj-$(CONFIG_CMD_NET)  += bootp.o

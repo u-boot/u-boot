@@ -18,7 +18,6 @@
  */
 
 #define CONFIG_405GP		1	/* This is a PPC405 CPU		*/
-#define CONFIG_4xx		1	/* ...member of PPC4xx family	*/
 #define CONFIG_CPCIISER4	1	/* ...on a CPCIISER4 board	*/
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFFC0000

@@ -8,6 +8,8 @@
 #ifndef __MAX77686_H_
 #define __MAX77686_H_
 
+#include <power/pmic.h>
+
 enum {
 	MAX77686_REG_PMIC_ID		= 0x0,
 	MAX77686_REG_PMIC_INTSRC,

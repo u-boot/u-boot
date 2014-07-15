@@ -223,6 +223,8 @@ typedef struct vidinfo {
 	unsigned int logo_on;
 	unsigned int logo_width;
 	unsigned int logo_height;
+	int logo_x_offset;
+	int logo_y_offset;
 	unsigned long logo_addr;
 	unsigned int rgb_mode;
 	unsigned int resolution;
@@ -310,6 +312,9 @@ int lcd_get_size(int *line_length);
 
 int lcd_dt_simplefb_add_node(void *blob);
 int lcd_dt_simplefb_enable_existing_node(void *blob);
+
+/* Update the LCD / flush the cache */
+void lcd_sync(void);
 
 /************************************************************************/
 /* ** BITMAP DISPLAY SUPPORT						*/

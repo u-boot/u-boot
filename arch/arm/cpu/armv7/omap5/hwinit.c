@@ -17,7 +17,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/clock.h>
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 #include <asm/utils.h>
 #include <asm/arch/gpio.h>
 #include <asm/emif.h>
@@ -332,6 +332,9 @@ void init_omap_revision(void)
 		break;
 	case DRA752_CONTROL_ID_CODE_ES1_0:
 		*omap_si_rev = DRA752_ES1_0;
+		break;
+	case DRA752_CONTROL_ID_CODE_ES1_1:
+		*omap_si_rev = DRA752_ES1_1;
 		break;
 	default:
 		*omap_si_rev = OMAP5430_SILICON_ID_INVALID;

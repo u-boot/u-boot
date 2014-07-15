@@ -17,7 +17,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 
 #include "tegra30-common.h"
 
@@ -29,6 +29,10 @@
 /* High-level configuration options */
 #define V_PROMPT		"Tegra30 (Cardhu) # "
 #define CONFIG_TEGRA_BOARD_STRING	"NVIDIA Cardhu"
+
+#define BOARD_EXTRA_ENV_SETTINGS \
+	"board_name=cardhu-a04\0" \
+	"fdtfile=tegra30-cardhu-a04.dtb\0"
 
 /* Board-specific serial config */
 #define CONFIG_SERIAL_MULTI

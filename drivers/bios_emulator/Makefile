@@ -8,8 +8,5 @@ obj-y = atibios.o biosemu.o besys.o bios.o \
 	$(X86DIR)/sys.o \
 	$(X86DIR)/debug.o
 
-EXTRA_CFLAGS += -I. -I./include \
+ccflags-y := -I$(srctree)/$(src) -I$(srctree)/$(src)/include \
 	-D__PPC__  -D__BIG_ENDIAN__
-
-CFLAGS += $(EXTRA_CFLAGS)
-CPPFLAGS += $(EXTRA_CFLAGS)

@@ -29,30 +29,53 @@
  *
  * @return - zero on successful expand and env is set
  */
-static char extract_env(const char *str, char **env)
+static int extract_env(const char *str, char **env)
 {
+	int ret = -1;
 	char *e, *s;
+#ifdef CONFIG_RANDOM_UUID
+	char uuid_str[UUID_STR_LEN + 1];
+#endif
 
 	if (!str || strlen(str) < 4)
 		return -1;
 
-	if ((strncmp(str, "${", 2) == 0) && (str[strlen(str) - 1] == '}')) {
-		s = strdup(str);
-		if (s == NULL)
-			return -1;
-		memset(s + strlen(s) - 1, '\0', 1);
-		memmove(s, s + 2, strlen(s) - 1);
+	if (!((strncmp(str, "${", 2) == 0) && (str[strlen(str) - 1] == '}')))
+		return -1;
+
+	s = strdup(str);
+	if (s == NULL)
+		return -1;
+
+	memset(s + strlen(s) - 1, '\0', 1);
+	memmove(s, s + 2, strlen(s) - 1);
+
+	e = getenv(s);
+	if (e == NULL) {
+#ifdef CONFIG_RANDOM_UUID
+		debug("%s unset. ", str);
+		gen_rand_uuid_str(uuid_str, UUID_STR_FORMAT_STD);
+		setenv(s, uuid_str);
+
 		e = getenv(s);
-		free(s);
-		if (e == NULL) {
-			printf("Environmental '%s' not set\n", str);
-			return -1; /* env not set */
+		if (e) {
+			debug("Set to random.\n");
+			ret = 0;
+		} else {
+			debug("Can't get random UUID.\n");
 		}
-		*env = e;
-		return 0;
+#else
+		debug("%s unset.\n", str);
+#endif
+	} else {
+		debug("%s get from environment.\n", str);
+		ret = 0;
 	}
 
-	return -1;
+	*env = e;
+	free(s);
+
+	return ret;
 }
 
 /**
@@ -299,8 +322,16 @@ static int do_gpt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			return CMD_RET_FAILURE;
 		}
 
-		if (gpt_default(blk_dev_desc, argv[4]))
+		puts("Writing GPT: ");
+
+		ret = gpt_default(blk_dev_desc, argv[4]);
+		if (!ret) {
+			puts("success!\n");
+			return CMD_RET_SUCCESS;
+		} else {
+			puts("error!\n");
 			return CMD_RET_FAILURE;
+		}
 	} else {
 		return CMD_RET_USAGE;
 	}

@@ -7,7 +7,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-PLATFORM_RELFLAGS += -ffixed-d7 -msep-data
 PLATFORM_CPPFLAGS += -mcpu=5485 -fPIC
 
 ifneq (,$(findstring -linux-,$(shell $(CC) --version)))

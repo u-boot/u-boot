@@ -29,7 +29,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_E300		1	/* E300 Family */
-#define CONFIG_MPC512X		1	/* MPC512X family */
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF00000
 

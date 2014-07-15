@@ -143,7 +143,7 @@ struct bcm2835_mbox_tag_get_arm_mem {
 #define BCM2835_MBOX_POWER_DEVID_SPI		7
 #define BCM2835_MBOX_POWER_DEVID_CCP2TX		8
 
-#define BCM2835_MBOX_POWER_STATE_RESP_ON	(1 << 1)
+#define BCM2835_MBOX_POWER_STATE_RESP_ON	(1 << 0)
 /* Device doesn't exist */
 #define BCM2835_MBOX_POWER_STATE_RESP_NODEV	(1 << 1)
 

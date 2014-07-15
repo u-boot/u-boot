@@ -21,7 +21,6 @@
 #include <asm/arch/mux.h>
 #include <asm/arch/mem.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/omap_gpmc.h>
 #include <asm/gpio.h>
 #include <asm/mach-types.h>
 #include "overo.h"

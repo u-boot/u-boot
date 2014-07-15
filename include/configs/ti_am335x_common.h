@@ -13,7 +13,6 @@
 #define __CONFIG_TI_AM335X_COMMON_H__
 
 #define CONFIG_AM33XX
-#define CONFIG_BOARD_LATE_INIT
 #define CONFIG_ARCH_CPU_INIT
 #define CONFIG_SYS_CACHELINE_SIZE       64
 #define CONFIG_MAX_RAM_BANK_SIZE	(1024 << 20)	/* 1GB */
@@ -31,6 +30,7 @@
 /* Network defines. */
 #define CONFIG_CMD_NET			/* 'bootp' and 'tftp' */
 #define CONFIG_CMD_DHCP
+#define CONFIG_CMD_MII
 #define CONFIG_BOOTP_DNS		/* Configurable parts of CMD_DHCP */
 #define CONFIG_BOOTP_DNS2
 #define CONFIG_BOOTP_SEND_HOSTNAME
@@ -71,6 +71,10 @@
  */
 #if !defined(CONFIG_SPL_BUILD) && !defined(CONFIG_NOR_BOOT)
 #define CONFIG_SKIP_LOWLEVEL_INIT
+#endif
+
+#ifdef CONFIG_NAND
+#define CONFIG_SPL_NAND_AM33XX_BCH	/* ELM support */
 #endif
 
 /* Now bring in the rest of the common code. */

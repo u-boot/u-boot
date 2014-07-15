@@ -17,6 +17,8 @@
 #ifndef _TEGRA114_H_
 #define _TEGRA114_H_
 
+#define CONFIG_TEGRA114
+
 #define NV_PA_SDRAM_BASE	0x80000000	/* 0x80000000 for real T114 */
 #define NV_PA_TSC_BASE		0x700F0000	/* System Counter TSC regs */
 

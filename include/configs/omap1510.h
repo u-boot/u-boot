@@ -10,7 +10,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 
 /*
   There are 2 sets of general I/O -->

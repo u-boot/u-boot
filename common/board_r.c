@@ -18,6 +18,7 @@
 #ifdef CONFIG_HAS_DATAFLASH
 #include <dataflash.h>
 #endif
+#include <dm.h>
 #include <environment.h>
 #include <fdtdec.h>
 #if defined(CONFIG_CMD_IDE)
@@ -51,7 +52,9 @@
 #ifdef CONFIG_X86
 #include <asm/init_helpers.h>
 #endif
+#include <dm/root.h>
 #include <linux/compiler.h>
+#include <linux/err.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -128,8 +131,8 @@ __weak int fixup_cpu(void)
 
 static int initr_reloc_global_data(void)
 {
-#ifdef CONFIG_SYS_SYM_OFFSETS
-	monitor_flash_len = _end_ofs;
+#ifdef __ARM__
+	monitor_flash_len = _end - __image_copy_start;
 #elif !defined(CONFIG_SANDBOX)
 	monitor_flash_len = (ulong)&__init_end - gd->relocaddr;
 #endif
@@ -262,6 +265,33 @@ static int initr_malloc(void)
 			TOTAL_MALLOC_LEN);
 	return 0;
 }
+
+#ifdef CONFIG_DM
+static int initr_dm(void)
+{
+	int ret;
+
+	ret = dm_init();
+	if (ret) {
+		debug("dm_init() failed: %d\n", ret);
+		return ret;
+	}
+	ret = dm_scan_platdata();
+	if (ret) {
+		debug("dm_scan_platdata() failed: %d\n", ret);
+		return ret;
+	}
+#ifdef CONFIG_OF_CONTROL
+	ret = dm_scan_fdt(gd->fdt_blob);
+	if (ret) {
+		debug("dm_scan_fdt() failed: %d\n", ret);
+		return ret;
+	}
+#endif
+
+	return 0;
+}
+#endif
 
 __weak int power_init_board(void)
 {
@@ -761,6 +791,9 @@ init_fnc_t init_sequence_r[] = {
 	initr_barrier,
 	initr_malloc,
 	bootstage_relocate,
+#ifdef CONFIG_DM
+	initr_dm,
+#endif
 #ifdef CONFIG_ARCH_EARLY_INIT_R
 	arch_early_init_r,
 #endif
@@ -903,9 +936,19 @@ init_fnc_t init_sequence_r[] = {
 
 void board_init_r(gd_t *new_gd, ulong dest_addr)
 {
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
+	int i;
+#endif
+
 #ifndef CONFIG_X86
 	gd = new_gd;
 #endif
+
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
+	for (i = 0; i < ARRAY_SIZE(init_sequence_r); i++)
+		init_sequence_r[i] += gd->reloc_off;
+#endif
+
 	if (initcall_run_list(init_sequence_r))
 		hang();
 

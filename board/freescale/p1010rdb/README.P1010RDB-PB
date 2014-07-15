@@ -149,11 +149,11 @@ Steps to program images to flash for different boot mode
 1. NOR boot
    => tftp 1000000 u-boot.bin
    For bank0
-   => pro off all;era eff80000 efffffff;cp.b 1000000 eff80000 $filesize
+   => pro off all;era eff40000 efffffff;cp.b 1000000 eff40000 $filesize
    set SW1[8]=0, SW4[1:4]= 1111 and SW3[3:4]= 00, then power on the board
 
    For bank1
-   => pro off all;era eef80000 eeffffff;cp.b 1000000 eef80000 $filesize
+   => pro off all;era eef40000 eeffffff;cp.b 1000000 eef40000 $filesize
    set SW1[8]=1, SW4[1:4]= 1111 and SW3[3:4]= 00, then power on the board
 
 2. NAND boot

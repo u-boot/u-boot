@@ -69,7 +69,12 @@ SECTIONS
 		*(.__rel_dyn_end)
 	}
 
-	_end = .;
+	.end :
+	{
+		*(.__end)
+	}
+
+	_image_binary_end = .;
 
 /*
  * Compiler-generated __bss_start and __bss_end, see arch/arm/lib/bss.c
@@ -90,7 +95,7 @@ SECTIONS
 		KEEP(*(.__bss_end));
 	}
 
-	.dynsym _end : { *(.dynsym) }
+	.dynsym _image_binary_end : { *(.dynsym) }
 	.dynbss : { *(.dynbss) }
 	.dynstr : { *(.dynstr*) }
 	.dynamic : { *(.dynamic*) }

@@ -9,7 +9,6 @@
 #define __CONFIG_H
 
 #define CONFIG_405EP		1	/* this is a PPC405 CPU */
-#define CONFIG_4xx		1	/*  member of PPC4xx family */
 #define CONFIG_DLVISION_10G	1	/*  on a DLVision-10G board */
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFFC0000
@@ -218,9 +217,8 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_OCM_DATA_ADDR /* in SDRAM */
 #define CONFIG_SYS_INIT_RAM_END	CONFIG_SYS_OCM_DATA_SIZE /* End of used area */
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128  /* size/bytes res'd for init data*/
 #define CONFIG_SYS_GBL_DATA_OFFSET \
-	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+	(CONFIG_SYS_INIT_RAM_END - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*

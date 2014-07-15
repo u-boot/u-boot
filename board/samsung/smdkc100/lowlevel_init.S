@@ -17,9 +17,6 @@
  * r5 has zero always
  */
 
-_TEXT_BASE:
-	.word	CONFIG_SYS_TEXT_BASE
-
 	.globl lowlevel_init
 lowlevel_init:
 	mov	r9, lr

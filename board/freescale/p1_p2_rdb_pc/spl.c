@@ -20,7 +20,7 @@ static const u32 sysclk_tbl[] = {
 	99999000, 11111000, 12499800, 13333200
 };
 
-ulong get_effective_memsize(void)
+phys_size_t get_effective_memsize(void)
 {
 	return CONFIG_SYS_L2_SIZE;
 }

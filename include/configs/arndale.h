@@ -22,8 +22,6 @@
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
-/* Enable fdt support for Exynos5250 */
-#define CONFIG_ARCH_DEVICE_TREE		exynos5250
 #define CONFIG_OF_CONTROL
 #define CONFIG_OF_SEPARATE
 

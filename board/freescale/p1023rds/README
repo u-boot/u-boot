@@ -62,8 +62,8 @@ To program the image in the boot flash bank:
 NOR flash boot:
 	=> tftp 1000000 u-boot.bin
 	=> protect off all
-	=> erase eff80000 efffffff
-	=> cp.b 1000000 eff80000 80000
+	=> erase eff40000 efffffff
+	=> cp.b 1000000 eff40000 c0000
 
 NAND flash boot:
 	=> tftp 1000000 u-boot-nand.bin

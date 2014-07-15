@@ -16,9 +16,8 @@
  * (easy to change)
  */
 
-#define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU		*/
-#define CONFIG_MPC5200		1	/* (more precisely an MPC5200 CPU)	*/
-#define CONFIG_INKA4X0		1	/* INKA4x0 board			*/
+#define CONFIG_MPC5200		1	/* This is an MPC5200 CPU	*/
+#define CONFIG_INKA4X0		1	/* INKA4x0 board		*/
 
 /*
  * Valid values for CONFIG_SYS_TEXT_BASE are:

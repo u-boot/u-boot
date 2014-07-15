@@ -6,7 +6,9 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-CROSS_COMPILE ?= nios2-elf-
+ifeq ($(CROSS_COMPILE),)
+CROSS_COMPILE := nios2-elf-
+endif
 
 CONFIG_STANDALONE_LOAD_ADDR ?= 0x02000000
 

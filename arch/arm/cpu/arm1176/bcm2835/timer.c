@@ -18,11 +18,6 @@
 #include <asm/io.h>
 #include <asm/arch/timer.h>
 
-int timer_init(void)
-{
-	return 0;
-}
-
 ulong get_timer_us(ulong base)
 {
 	struct bcm2835_timer_regs *regs =

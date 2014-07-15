@@ -11,8 +11,7 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU */
-#define CONFIG_MPC5200		1	/* (more precisely an MPC5200 CPU) */
+#define CONFIG_MPC5200		1	/* This is an MPC5200 CPU */
 #define CONFIG_CM5200		1	/* ... on CM5200 platform */
 
 #define	CONFIG_SYS_TEXT_BASE	0xfc000000

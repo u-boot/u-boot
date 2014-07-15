@@ -21,7 +21,6 @@
 /* High Level Configuration Options */
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
-#define CONFIG_MPC85xx		1	/* MPC8540/MPC8560 */
 #define CONFIG_MPC8540		1	/* MPC8540 specific */
 #define CONFIG_MPC8540ADS	1	/* MPC8540ADS board specific */
 

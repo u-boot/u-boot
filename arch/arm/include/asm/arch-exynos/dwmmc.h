@@ -23,6 +23,10 @@
 #define MPSCTRL_ENCRYPTION		(0x1<<1)
 #define MPSCTRL_VALID			(0x1<<0)
 
+/* CLKSEL Register */
+#define DWMCI_DIVRATIO_BIT		24
+#define DWMCI_DIVRATIO_MASK		0x7
+
 #ifdef CONFIG_OF_CONTROL
 int exynos_dwmmc_init(const void *blob);
 #endif

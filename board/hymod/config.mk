@@ -9,6 +9,6 @@
 # HYMOD boards
 #
 
-PLATFORM_CPPFLAGS += -I$(TOPDIR)
+PLATFORM_CPPFLAGS += -I$(srctree)
 
-OBJCFLAGS = --remove-section=.ppcenv
+OBJCOPYFLAGS = --remove-section=.ppcenv

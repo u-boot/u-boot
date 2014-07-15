@@ -13,6 +13,7 @@ static int ar8021_config(struct phy_device *phydev)
 	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x05);
 	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x3D47);
 
+	phydev->supported = phydev->drv->features;
 	return 0;
 }
 
@@ -40,7 +41,7 @@ static int ar8035_config(struct phy_device *phydev)
 static struct phy_driver AR8021_driver =  {
 	.name = "AR8021",
 	.uid = 0x4dd040,
-	.mask = 0x4fffff,
+	.mask = 0x4ffff0,
 	.features = PHY_GBIT_FEATURES,
 	.config = ar8021_config,
 	.startup = genphy_startup,
@@ -52,7 +53,7 @@ static struct phy_driver AR8031_driver =  {
 	.uid = 0x4dd074,
 	.mask = 0xffffffef,
 	.features = PHY_GBIT_FEATURES,
-	.config = ar8021_config,
+	.config = genphy_config,
 	.startup = genphy_startup,
 	.shutdown = genphy_shutdown,
 };

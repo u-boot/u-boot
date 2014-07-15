@@ -12,6 +12,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if defined(CONFIG_DISPLAY_CPUINFO)
 /*
  * Print CPU information
  */
@@ -20,6 +21,7 @@ int print_cpuinfo(void)
 	puts("CPU   : Altera SOCFPGA Platform\n");
 	return 0;
 }
+#endif
 
 /*
  * Print Board information

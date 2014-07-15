@@ -145,7 +145,7 @@
 	"flashboot=flread 20040000 1000000 300000;" \
 	"bootm 0x1000000\0"
 #define CONFIG_BOARD_SIZE_LIMIT $$((384 * 1024))
-
+#define CONFIG_CC_OPTIMIZE_LIBS_FOR_SPEED
 
 /*
  * Pull in common ADI header for remaining command/environment setup

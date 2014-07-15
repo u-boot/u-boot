@@ -468,8 +468,6 @@ static int asix_send(struct eth_device *eth, void *packet, int length)
 
 	memcpy(msg, &packet_len, sizeof(packet_len));
 	memcpy(msg + sizeof(packet_len), (void *)packet, length);
-	if (length & 1)
-		length++;
 
 	err = usb_bulk_msg(dev->pusb_dev,
 				usb_sndbulkpipe(dev->pusb_dev, dev->ep_out),

@@ -5,7 +5,10 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include <config.h>
+#include <common.h>
+
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifdef __PPC__
 /*
  * At least on G2 PowerPC cores, sequential accesses to non-existent
@@ -75,4 +78,15 @@ long get_ram_size(long *base, long maxsize)
 	}
 
 	return (maxsize);
+}
+
+phys_size_t __weak get_effective_memsize(void)
+{
+#ifndef CONFIG_VERY_BIG_RAM
+	return gd->ram_size;
+#else
+	/* limit stack to what we can reasonable map */
+	return ((gd->ram_size > CONFIG_MAX_MEM_MAPPED) ?
+		CONFIG_MAX_MEM_MAPPED : gd->ram_size);
+#endif
 }

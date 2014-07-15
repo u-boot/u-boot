@@ -10,9 +10,9 @@
 #include <spl.h>
 #include <asm/u-boot.h>
 #include <mmc.h>
-#include <fat.h>
 #include <version.h>
 #include <image.h>
+#include <fat.h>
 #include <fpga.h>
 #include <xilinx.h>
 
@@ -100,54 +100,6 @@ static int mmc_load_fpga_image_fat(struct mmc *mmc)
 }
 #endif
 
-#ifdef CONFIG_SPL_FAT_SUPPORT
-static int mmc_load_image_fat(struct mmc *mmc, const char *filename)
-{
-	int err;
-	struct image_header *header;
-
-	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE -
-						sizeof(struct image_header));
-
-	err = file_fat_read(filename, header, sizeof(struct image_header));
-	if (err <= 0)
-		goto end;
-
-	spl_parse_image_header(header);
-
-	err = file_fat_read(filename, (u8 *)spl_image.load_addr, 0);
-
-end:
-#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-	if (err <= 0)
-		printf("spl: error reading image %s, err - %d\n",
-		       filename, err);
-#endif
-
-	return (err <= 0);
-}
-
-#ifdef CONFIG_SPL_OS_BOOT
-static int mmc_load_image_fat_os(struct mmc *mmc)
-{
-	int err;
-
-	err = file_fat_read(CONFIG_SPL_FAT_LOAD_ARGS_NAME,
-			    (void *)CONFIG_SYS_SPL_ARGS_ADDR, 0);
-	if (err <= 0) {
-#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-		printf("spl: error reading image %s, err - %d\n",
-		       CONFIG_SPL_FAT_LOAD_ARGS_NAME, err);
-#endif
-		return -1;
-	}
-
-	return mmc_load_image_fat(mmc, CONFIG_SPL_FAT_LOAD_KERNEL_NAME);
-}
-#endif
-
-#endif
-
 void spl_mmc_load_image(void)
 {
 	struct mmc *mmc;
@@ -172,34 +124,54 @@ void spl_mmc_load_image(void)
 		hang();
 	}
 
-	boot_mode = spl_boot_mode();
+	  boot_mode = spl_boot_mode();
 	if (boot_mode == MMCSD_MODE_RAW) {
 		debug("boot mode - RAW\n");
 #ifdef CONFIG_SPL_OS_BOOT
 		if (spl_start_uboot() || mmc_load_image_raw_os(mmc))
 #endif
 		err = mmc_load_image_raw(mmc,
-					 CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
+			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
 #ifdef CONFIG_SPL_FAT_SUPPORT
 	} else if (boot_mode == MMCSD_MODE_FAT) {
 		debug("boot mode - FAT\n");
 
-		err = fat_register_device(&mmc->block_dev,
-					  CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION);
-		if (err) {
-#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
-			printf("spl: fat register err - %d\n", err);
-#endif
-			hang();
-		}
 #ifdef CONFIG_SPL_FPGA_SUPPORT
 		mmc_load_fpga_image_fat(mmc);
 #endif
 
 #ifdef CONFIG_SPL_OS_BOOT
-		if (spl_start_uboot() || mmc_load_image_fat_os(mmc))
+		if (spl_start_uboot() || spl_load_image_fat_os(&mmc->block_dev,
+								CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION))
 #endif
-		err = mmc_load_image_fat(mmc, CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME);
+		err = spl_load_image_fat(&mmc->block_dev,
+					CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION,
+					CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME);
+#endif
+#ifdef CONFIG_SUPPORT_EMMC_BOOT
+	} else if (boot_mode == MMCSD_MODE_EMMCBOOT) {
+		/*
+		 * We need to check what the partition is configured to.
+		 * 1 and 2 match up to boot0 / boot1 and 7 is user data
+		 * which is the first physical partition (0).
+		 */
+		int part = (mmc->part_config >> 3) & PART_ACCESS_MASK;
+
+		if (part == 7)
+			part = 0;
+
+		if (mmc_switch_part(0, part)) {
+#ifdef CONFIG_SPL_LIBCOMMON_SUPPORT
+			puts("MMC partition switch failed\n");
+#endif
+			hang();
+		}
+
+#ifdef CONFIG_SPL_OS_BOOT
+		if (spl_start_uboot() || mmc_load_image_raw_os(mmc))
+#endif
+		err = mmc_load_image_raw(mmc,
+			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
 #endif
 	} else {
 #ifdef CONFIG_SPL_LIBCOMMON_SUPPORT

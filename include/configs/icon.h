@@ -16,7 +16,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_ICON		1		/* Board is icon	*/
-#define CONFIG_4xx		1		/* ... PPC4xx family	*/
 #define CONFIG_440		1		/* ... PPC440 family	*/
 #define CONFIG_440SPE		1		/* Specifc SPe support	*/
 

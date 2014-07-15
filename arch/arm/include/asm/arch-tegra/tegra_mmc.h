@@ -11,6 +11,9 @@
 
 #include <fdtdec.h>
 
+/* for mmc_config definition */
+#include <mmc.h>
+
 #define MAX_HOSTS		4	/* Max number of 'hosts'/controllers */
 
 #ifndef __ASSEMBLY__
@@ -138,6 +141,7 @@ struct mmc_host {
 	struct fdt_gpio_state wp_gpio;		/* Write Protect GPIO */
 	unsigned int version;	/* SDHCI spec. version */
 	unsigned int clock;	/* Current clock (MHz) */
+	struct mmc_config cfg;	/* mmc configuration */
 };
 
 void pad_init_mmc(struct mmc_host *host);

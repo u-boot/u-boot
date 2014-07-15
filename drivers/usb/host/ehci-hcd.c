@@ -395,6 +395,7 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 		QH_ENDPT2_UFCMASK(0) | QH_ENDPT2_UFSMASK(0);
 	qh->qh_endpt2 = cpu_to_hc32(endpt);
 	qh->qh_overlay.qt_next = cpu_to_hc32(QT_NEXT_TERMINATE);
+	qh->qh_overlay.qt_altnext = cpu_to_hc32(QT_NEXT_TERMINATE);
 
 	tdp = &qh->qh_overlay.qt_next;
 
@@ -1161,14 +1162,16 @@ create_int_queue(struct usb_device *dev, unsigned long pipe, int queuesize,
 		debug("ehci intr queue: out of memory\n");
 		goto fail1;
 	}
-	result->first = memalign(32, sizeof(struct QH) * queuesize);
+	result->first = memalign(USB_DMA_MINALIGN,
+				 sizeof(struct QH) * queuesize);
 	if (!result->first) {
 		debug("ehci intr queue: out of memory\n");
 		goto fail2;
 	}
 	result->current = result->first;
 	result->last = result->first + queuesize - 1;
-	result->tds = memalign(32, sizeof(struct qTD) * queuesize);
+	result->tds = memalign(USB_DMA_MINALIGN,
+			       sizeof(struct qTD) * queuesize);
 	if (!result->tds) {
 		debug("ehci intr queue: out of memory\n");
 		goto fail3;
@@ -1186,6 +1189,7 @@ create_int_queue(struct usb_device *dev, unsigned long pipe, int queuesize,
 			qh->qh_link = QH_LINK_TERMINATE;
 
 		qh->qh_overlay.qt_next = (uint32_t)td;
+		qh->qh_overlay.qt_altnext = QT_NEXT_TERMINATE;
 		qh->qh_endpt1 = (0 << 28) | /* No NAK reload (ehci 4.9) */
 			(usb_maxpacket(dev, pipe) << 16) | /* MPS */
 			(1 << 14) |

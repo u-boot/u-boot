@@ -70,11 +70,6 @@
 #define CONFIG_KM_DEF_BOOT_ARGS_CPU		""
 
 #define CONFIG_KM_DEF_ENV_CPU						\
-	"boot=bootm ${load_addr_r} - ${fdt_addr_r}\0"			\
-	"cramfsloadfdt="						\
-		"cramfsload ${fdt_addr_r} "				\
-		"fdt_0x${IVM_BoardId}_0x${IVM_HWKey}.dtb\0"		\
-	"fdt_addr_r=" __stringify(CONFIG_KM_FDT_ADDR) "\0"		\
 	"u-boot="__stringify(CONFIG_HOSTNAME) "/u-boot.bin\0"		\
 	"update="							\
 		"protect off " __stringify(BOOTFLASH_START) " +${filesize} && "\
@@ -82,6 +77,7 @@
 		"cp.b ${load_addr_r} " __stringify(BOOTFLASH_START)	\
 		"  ${filesize} && "					\
 		"protect on " __stringify(BOOTFLASH_START) "  +${filesize}\0"\
+	"set_fdthigh=true\0"						\
 	""
 
 #endif /* __CONFIG_KEYMILE_POWERPC_H */

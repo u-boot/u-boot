@@ -139,11 +139,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(512 << 10)
 
 /*
- * size in bytes reserved for initial data
- */
-#define CONFIG_SYS_GBL_DATA_SIZE	128
-
-/*
  * AHB Controller configuration
  */
 #define CONFIG_FTAHBC020S

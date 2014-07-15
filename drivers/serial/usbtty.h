@@ -20,8 +20,8 @@
 #include <usb/pxa27x_udc.h>
 #elif defined(CONFIG_DW_UDC)
 #include <usb/designware_udc.h>
-#elif defined(CONFIG_MV_UDC)
-#include <usb/mv_udc.h>
+#elif defined(CONFIG_CI_UDC)
+#include <usb/ci_udc.h>
 #endif
 
 #include <usb/udc.h>

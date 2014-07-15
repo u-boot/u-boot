@@ -88,7 +88,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_num("sramstart",		bd->bi_sramstart);
 	print_num("sramsize",		bd->bi_sramsize);
 #if	defined(CONFIG_5xx)  || defined(CONFIG_8xx) || \
-	defined(CONFIG_8260) || defined(CONFIG_E500)
+	defined(CONFIG_MPC8260) || defined(CONFIG_E500)
 	print_num("immr_base",		bd->bi_immr_base);
 #endif
 	print_num("bootflags",		bd->bi_bootflags);
@@ -513,6 +513,24 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 
 	printf("baudrate    = %u bps\n", bd->bi_baudrate);
+
+	return 0;
+}
+
+#elif defined(CONFIG_ARC700)
+
+int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	bd_t *bd = gd->bd;
+
+	print_num("mem start",		bd->bi_memstart);
+	print_lnum("mem size",		bd->bi_memsize);
+
+#if defined(CONFIG_CMD_NET)
+	print_eth(0);
+	printf("ip_addr     = %s\n", getenv("ipaddr"));
+#endif
+	printf("baudrate    = %d bps\n", bd->bi_baudrate);
 
 	return 0;
 }

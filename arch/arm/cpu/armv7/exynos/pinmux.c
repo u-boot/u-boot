@@ -39,6 +39,9 @@ static void exynos5_uart_config(int peripheral)
 		start = 4;
 		count = 2;
 		break;
+	default:
+		debug("%s: invalid peripheral %d", __func__, peripheral);
+		return;
 	}
 	for (i = start; i < start + count; i++) {
 		s5p_gpio_set_pull(bank, i, GPIO_PULL_NONE);
@@ -74,6 +77,9 @@ static void exynos5420_uart_config(int peripheral)
 		start = 4;
 		count = 2;
 		break;
+	default:
+		debug("%s: invalid peripheral %d", __func__, peripheral);
+		return;
 	}
 
 	for (i = start; i < start + count; i++) {
@@ -110,6 +116,9 @@ static int exynos5_mmc_config(int peripheral, int flags)
 		bank = &gpio1->c4;
 		bank_ext = NULL;
 		break;
+	default:
+		debug("%s: invalid peripheral %d", __func__, peripheral);
+		return -1;
 	}
 	if ((flags & PINMUX_FLAG_8BIT_MODE) && !bank_ext) {
 		debug("SDMMC device %d does not support 8bit mode",
@@ -683,6 +692,9 @@ static void exynos4_uart_config(int peripheral)
 		start = 4;
 		count = 2;
 		break;
+	default:
+		debug("%s: invalid peripheral %d", __func__, peripheral);
+		return;
 	}
 	for (i = start; i < start + count; i++) {
 		s5p_gpio_set_pull(bank, i, GPIO_PULL_NONE);
@@ -741,6 +753,21 @@ int exynos_pinmux_config(int peripheral, int flags)
 }
 
 #ifdef CONFIG_OF_CONTROL
+static int exynos4_pinmux_decode_periph_id(const void *blob, int node)
+{
+	int err;
+	u32 cell[3];
+
+	err = fdtdec_get_int_array(blob, node, "interrupts", cell,
+					ARRAY_SIZE(cell));
+	if (err) {
+		debug(" invalid peripheral id\n");
+		return PERIPH_ID_NONE;
+	}
+
+	return cell[1];
+}
+
 static int exynos5_pinmux_decode_periph_id(const void *blob, int node)
 {
 	int err;
@@ -751,18 +778,15 @@ static int exynos5_pinmux_decode_periph_id(const void *blob, int node)
 	if (err)
 		return PERIPH_ID_NONE;
 
-	/* check for invalid peripheral id */
-	if ((PERIPH_ID_SDMMC4 > cell[1]) || (cell[1] < PERIPH_ID_UART0))
-		return cell[1];
-
-	debug(" invalid peripheral id\n");
-	return PERIPH_ID_NONE;
+	return cell[1];
 }
 
 int pinmux_decode_periph_id(const void *blob, int node)
 {
 	if (cpu_is_exynos5())
 		return  exynos5_pinmux_decode_periph_id(blob, node);
+	else if (cpu_is_exynos4())
+		return  exynos4_pinmux_decode_periph_id(blob, node);
 	else
 		return PERIPH_ID_NONE;
 }

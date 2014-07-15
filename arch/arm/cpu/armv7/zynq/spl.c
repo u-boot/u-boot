@@ -11,32 +11,29 @@
 #include <asm/arch/spl.h>
 #include <asm/arch/sys_proto.h>
 
-__weak void ps7_init(void)
-{
-	puts("Please copy ps7_init.c/h from hw project\n");
-}
-
 DECLARE_GLOBAL_DATA_PTR;
 
 void board_init_f(ulong dummy)
 {
+	ps7_init();
+
 	/* Clear the BSS. */
 	memset(__bss_start, 0, __bss_end - __bss_start);
 
 	/* Set global data pointer. */
 	gd = &gdata;
 
-	ps7_init();
-
 	preloader_console_init();
 	arch_cpu_init();
 	board_init_r(NULL, 0);
 }
 
+#ifdef CONFIG_SPL_BOARD_INIT
 void spl_board_init(void)
 {
 	board_init();
 }
+#endif
 
 u32 spl_boot_device(void)
 {

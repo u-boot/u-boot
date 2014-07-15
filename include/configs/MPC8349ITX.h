@@ -47,7 +47,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_MPC83xx		1
 #define CONFIG_MPC834x		/* MPC834x family (8343, 8347, 8349) */
 #define CONFIG_MPC8349		/* MPC8349 specific */
 

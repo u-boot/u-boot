@@ -9,7 +9,7 @@
  */
 
 #include <common.h>
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include <asm/arch/at91sam9_smc.h>

@@ -63,6 +63,9 @@
 /* GPIO support */
 #define CONFIG_OMAP_GPIO
 
+/* GPIO banks */
+#define CONFIG_OMAP3_GPIO_2		/* GPIO32..63 are in GPIO bank 2 */
+
 /* LED support */
 #define CONFIG_STATUS_LED
 #define CONFIG_BOARD_SPECIFIC_LED
@@ -134,8 +137,6 @@
 #define CONFIG_SYS_NAND_BASE		NAND_BASE	/* physical address */
 							/* to access nand at */
 							/* CS0 */
-#define GPMC_NAND_ECC_LP_x16_LAYOUT	1
-
 #define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of NAND */
 							/* devices */
 #define CONFIG_BCH
@@ -367,11 +368,12 @@
 #define CONFIG_SYS_NAND_OOBSIZE		64
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128*1024)
 #define CONFIG_SYS_NAND_BAD_BLOCK_POS	NAND_LARGE_BADBLOCK_POS
-#define CONFIG_SYS_NAND_ECCPOS		{12, 13, 14, 15, 16, 17, 18, 19, 20,\
-			21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33,\
-			34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46,\
-			47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59,\
-			60, 61, 62, 63}
+#define CONFIG_SYS_NAND_ECCPOS		{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, \
+					 13, 14, 16, 17, 18, 19, 20, 21, 22, \
+					 23, 24, 25, 26, 27, 28, 30, 31, 32, \
+					 33, 34, 35, 36, 37, 38, 39, 40, 41, \
+					 42, 44, 45, 46, 47, 48, 49, 50, 51, \
+					 52, 53, 54, 55, 56}
 
 #define CONFIG_SYS_NAND_ECCSIZE		512
 #define CONFIG_SYS_NAND_ECCBYTES	13

@@ -48,17 +48,6 @@ const struct tegra_sysinfo sysinfo = {
 	CONFIG_TEGRA_BOARD_STRING
 };
 
-#ifndef CONFIG_SPL_BUILD
-/*
- * Routine: timer_init
- * Description: init the timestamp and lastinc value
- */
-int timer_init(void)
-{
-	return 0;
-}
-#endif
-
 void __pin_mux_usb(void)
 {
 }
@@ -78,12 +67,14 @@ void __gpio_early_init_uart(void)
 void gpio_early_init_uart(void)
 __attribute__((weak, alias("__gpio_early_init_uart")));
 
+#if defined(CONFIG_TEGRA_NAND)
 void __pin_mux_nand(void)
 {
 	funcmux_select(PERIPH_ID_NDFLASH, FUNCMUX_DEFAULT);
 }
 
 void pin_mux_nand(void) __attribute__((weak, alias("__pin_mux_nand")));
+#endif
 
 void __pin_mux_display(void)
 {

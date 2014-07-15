@@ -7,7 +7,7 @@
  */
 
 #include <common.h>
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 #include <asm/arch/at91sam9263.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>
@@ -24,6 +24,7 @@
 #include <net.h>
 #endif
 #include <netdev.h>
+#include <atmel_mci.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -212,6 +213,15 @@ void lcd_show_board_info(void)
 	lcd_puts ("\n");
 }
 #endif /* CONFIG_LCD_INFO */
+#endif
+
+#ifdef CONFIG_GENERIC_ATMEL_MCI
+int board_mmc_init(bd_t *bd)
+{
+	at91_mci_hw_init();
+
+	return atmel_mci_init((void *)ATMEL_BASE_MCI1);
+}
 #endif
 
 int board_early_init_f(void)

@@ -15,6 +15,10 @@
 
 #define CONFIG_KM_DEF_NETDEV	"netdev=eth0\0"
 
+/* an additionnal option is required for UBI as subpage access is
+ * supported in u-boot */
+#define CONFIG_KM_UBI_PART_BOOT_OPTS		",2048"
+
 #define CONFIG_NAND_ECC_BCH
 
 /* common KM defines */
@@ -24,15 +28,14 @@
 #define CONFIG_RAMBOOT_PBL
 #define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
-#define CONFIG_PBLPBI_CONFIG $(SRCTREE)/board/keymile/kmp204x/pbi.cfg
-#define CONFIG_PBLRCW_CONFIG $(SRCTREE)/board/keymile/kmp204x/rcw_kmp204x.cfg
+#define CONFIG_SYS_FSL_PBL_PBI board/keymile/kmp204x/pbi.cfg
+#define CONFIG_SYS_FSL_PBL_RCW board/keymile/kmp204x/rcw_kmp204x.cfg
 
 /* High Level Configuration Options */
 #define CONFIG_BOOKE
 #define CONFIG_E500			/* BOOKE e500 family */
 #define CONFIG_E500MC			/* BOOKE e500mc family */
 #define CONFIG_SYS_BOOK3E_HV		/* Category E.HV supported */
-#define CONFIG_MPC85xx			/* MPC85xx/PQ3 platform */
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_MP			/* support multiple processors */
 
@@ -149,8 +152,6 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_KM_KERNEL_ADDR	0x1000000	/* max kernel size 15.5Mbytes */
 #define CONFIG_KM_FDT_ADDR	0x1F80000	/* max dtb    size  0.5Mbytes */
 
-#define CONFIG_BOOTCOUNT_LIMIT
-
 /*
  * Local Bus Definitions
  */
@@ -207,8 +208,13 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_BR1_PRELIM  CONFIG_SYS_QRIO_BR_PRELIM /* QRIO Base Address */
 #define CONFIG_SYS_OR1_PRELIM  CONFIG_SYS_QRIO_OR_PRELIM /* QRIO Options */
 
+/* bootcounter in QRIO */
+#define CONFIG_BOOTCOUNT_LIMIT
+#define CONFIG_SYS_BOOTCOUNT_ADDR	(CONFIG_SYS_QRIO_BASE + 0x20)
+
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_BOARD_EARLY_INIT_R	/* call board_early_init_r function */
+#define CONFIG_MISC_INIT_F
 #define CONFIG_MISC_INIT_R
 #define CONFIG_LAST_STAGE_INIT
 
@@ -264,7 +270,10 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_FIT_VERBOSE	/* enable fit_format_{error,warning}() */
 
 /* I2C */
+
 #define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_INIT_BOARD
+#define CONFIG_SYS_I2C_SPEED		100000 /* deblocking */
 #define CONFIG_SYS_NUM_I2C_BUSES	3
 #define CONFIG_SYS_I2C_MAX_HOPS		1
 #define CONFIG_SYS_I2C_FSL		/* Use FSL I2C driver */
@@ -277,6 +286,12 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 					{0, {{I2C_MUX_PCA9547, 0x70, 1 } } }, \
 					{0, {{I2C_MUX_PCA9547, 0x70, 2 } } }, \
 				}
+#ifndef __ASSEMBLY__
+void set_sda(int state);
+void set_scl(int state);
+int get_sda(void);
+int get_scl(void);
+#endif
 
 #define CONFIG_KM_IVM_BUS		1	/* I2C1 (Mux-Port 1)*/
 
@@ -287,6 +302,7 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_BAR	/* 4 byte-addressing */
 #define CONFIG_SPI_FLASH_STMICRO
+#define CONFIG_SPI_FLASH_SPANSION
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED         20000000
 #define CONFIG_SF_DEFAULT_MODE          0
@@ -421,6 +437,7 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 	"update="							\
 		"sf probe 0;sf erase 0 +${filesize};"			\
 		"sf write ${load_addr_r} 0 ${filesize};\0"		\
+	"set_fdthigh=true\0"						\
 	""
 
 #define CONFIG_HW_ENV_SETTINGS						\

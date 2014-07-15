@@ -13,7 +13,6 @@
 
 #include <version.h>
 
-#define CONFIG_MPC5xxx	1
 #define CONFIG_MPC5200 	1
 
 #ifndef CONFIG_SYS_TEXT_BASE
@@ -93,6 +92,7 @@
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_BOOTP_VENDOREX
+#define CONFIG_LIB_RAND
 
 /*
  * Autoboot

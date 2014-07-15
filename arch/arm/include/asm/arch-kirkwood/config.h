@@ -38,7 +38,7 @@
  * CONFIG_SYS_KWD_CONFIG should be defined in board specific header file
  */
 #ifndef CONFIG_SYS_KWD_CONFIG
-#define	CONFIG_SYS_KWD_CONFIG	$(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage.cfg
+#define	CONFIG_SYS_KWD_CONFIG	$(CONFIG_BOARDDIR)/kwbimage.cfg
 #endif /* CONFIG_SYS_KWD_CONFIG */
 
 /* Kirkwood has 2k of Security SRAM, use it for SP */

@@ -123,12 +123,11 @@ static struct spi_flash *spi_flash_validate_params(struct spi_slave *spi,
 		return NULL;
 	}
 
-	flash = malloc(sizeof(*flash));
+	flash = calloc(1, sizeof(*flash));
 	if (!flash) {
 		debug("SF: Failed to allocate spi_flash\n");
 		return NULL;
 	}
-	memset(flash, '\0', sizeof(*flash));
 
 	/* Assign spi data */
 	flash->spi = spi;
@@ -147,7 +146,21 @@ static struct spi_flash *spi_flash_validate_params(struct spi_slave *spi,
 
 	/* Compute the flash size */
 	flash->shift = (flash->dual_flash & SF_DUAL_PARALLEL_FLASH) ? 1 : 0;
-	flash->page_size = ((ext_jedec == 0x4d00) ? 512 : 256) << flash->shift;
+	/*
+	 * The Spansion S25FL032P and S25FL064P have 256b pages, yet use the
+	 * 0x4d00 Extended JEDEC code. The rest of the Spansion flashes with
+	 * the 0x4d00 Extended JEDEC code have 512b pages. All of the others
+	 * have 256b pages.
+	 */
+	if (ext_jedec == 0x4d00) {
+		if ((jedec == 0x0215) || (jedec == 0x216))
+			flash->page_size = 256;
+		else
+			flash->page_size = 512;
+	} else {
+		flash->page_size = 256;
+	}
+	flash->page_size <<= flash->shift;
 	flash->sector_size = params->sector_size << flash->shift;
 	flash->size = flash->sector_size * params->nr_sectors;
 #ifdef CONFIG_SF_DUAL_FLASH

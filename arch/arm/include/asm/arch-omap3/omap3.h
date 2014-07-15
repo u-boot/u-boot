@@ -140,13 +140,13 @@ struct gpio {
 					 SRAM_OFFSET2)
 #define SRAM_CLK_CODE			(SRAM_VECT_CODE + 64)
 
-#define OMAP3_PUBLIC_SRAM_BASE		0x40208000 /* Works for GP & EMU */
-#define OMAP3_PUBLIC_SRAM_END		0x40210000
+#define NON_SECURE_SRAM_START		0x40208000 /* Works for GP & EMU */
+#define NON_SECURE_SRAM_END		0x40210000
 
 #define LOW_LEVEL_SRAM_STACK		0x4020FFFC
 
 /* scratch area - accessible on both EMU and GP */
-#define OMAP3_PUBLIC_SRAM_SCRATCH_AREA	OMAP3_PUBLIC_SRAM_BASE
+#define OMAP3_PUBLIC_SRAM_SCRATCH_AREA	NON_SECURE_SRAM_START
 
 #define DEBUG_LED1			149	/* gpio */
 #define DEBUG_LED2			150	/* gpio */

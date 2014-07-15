@@ -19,22 +19,6 @@ Who:	Tom Rini <trini@ti.com>
 
 ---------------------------
 
-What:	Remove CONFIG_SYS_ENABLE_PADS_ALL and CONFIG_SYS_CLOCKS_ENABLE_ALL
-When:	Release v2013.07
-
-Why:	When set these options enable "all" of the pads and clocks found
-	on OMAP4/5 platforms, so that the Linux Kernel does not have to.
-	It has been agreed that this goes against the U-Boot design
-	philosophy and since f3f98bb0 we have not enabled more than is
-	used in U-Boot.  The kernel has been updating drivers to enable
-	rather than assume pads/clocks have been enabled already.  Our
-	expectation is that by v2013.07 a suitable kernel shall exist that
-	does not need these options set for a reasonable I/O set to function.
-
-Who:	Tom Rini <trini@ti.com> and Sricharan R <r.sricharan@ti.com>
-
----------------------------
-
 What:	Users of the legacy miiphy_* code
 When:	undetermined
 

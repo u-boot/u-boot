@@ -143,6 +143,31 @@ void at91_spi1_hw_init(unsigned long cs_mask)
 }
 #endif
 
+#if defined(CONFIG_GENERIC_ATMEL_MCI)
+void at91_mci_hw_init(void)
+{
+	/* Enable mci clock */
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
+	writel(1 << ATMEL_ID_MCI1, &pmc->pcer);
+
+	at91_set_a_periph(AT91_PIO_PORTA, 6, PUP);	/* MCI1_CK */
+
+#if defined(CONFIG_ATMEL_MCI_PORTB)
+	at91_set_a_periph(AT91_PIO_PORTA, 21, PUP);	/* MCI1_CDB */
+	at91_set_a_periph(AT91_PIO_PORTA, 22, PUP);	/* MCI1_DB0 */
+	at91_set_a_periph(AT91_PIO_PORTA, 23, PUP);	/* MCI1_DB1 */
+	at91_set_a_periph(AT91_PIO_PORTA, 24, PUP);	/* MCI1_DB2 */
+	at91_set_a_periph(AT91_PIO_PORTA, 25, PUP);	/* MCI1_DB3 */
+#else
+	at91_set_a_periph(AT91_PIO_PORTA, 7, PUP);	/* MCI1_CDA */
+	at91_set_a_periph(AT91_PIO_PORTA, 8, PUP);	/* MCI1_DA0 */
+	at91_set_a_periph(AT91_PIO_PORTA, 9, PUP);	/* MCI1_DA1 */
+	at91_set_a_periph(AT91_PIO_PORTA, 10, PUP);	/* MCI1_DA2 */
+	at91_set_a_periph(AT91_PIO_PORTA, 11, PUP);	/* MCI1_DA3 */
+#endif
+}
+#endif
+
 #ifdef CONFIG_MACB
 void at91_macb_hw_init(void)
 {

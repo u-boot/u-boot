@@ -74,10 +74,9 @@
 /* Ethernet config options */
 #define CONFIG_MII
 #define CONFIG_DESIGNWARE_ETH
-#define CONFIG_DW_SEARCH_PHY
 #define CONFIG_NET_MULTI
+#define CONFIG_PHYLIB
 #define CONFIG_PHY_RESET_DELAY			10000		/* in usec */
-#define CONFIG_DW_AUTONEG
 #define CONFIG_PHY_ADDR		0	/* PHY address */
 #define CONFIG_PHY_GIGE			/* Include GbE speed/duplex detection */
 
@@ -86,6 +85,7 @@
 /* I2C config options */
 #define CONFIG_HARD_I2C
 #define CONFIG_DW_I2C
+#define CONFIG_SYS_I2C_BASE			0xD0200000
 #define CONFIG_SYS_I2C_SPEED			400000
 #define CONFIG_SYS_I2C_SLAVE			0x02
 #define CONFIG_I2C_CHIPADDRESS			0x50
@@ -171,7 +171,6 @@
 #define CONFIG_SYS_BARGSIZE			CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_LOAD_ADDR			0x00800000
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
-#define CONFIG_SYS_64BIT_VSPRINTF
 
 /* Use last 2 lwords in internal SRAM for bootcounter */
 #define CONFIG_BOOTCOUNT_LIMIT

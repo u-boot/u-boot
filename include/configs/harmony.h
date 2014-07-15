@@ -8,7 +8,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 #include "tegra20-common.h"
 
 /* Enable fdt support for Harmony. Flash the image in u-boot-dtb.bin */
@@ -61,8 +61,9 @@
 
 /* USB networking support */
 #define CONFIG_USB_HOST_ETHER
-#define CONFIG_USB_ETHER_SMSC95XX
 #define CONFIG_USB_ETHER_ASIX
+#define CONFIG_USB_ETHER_MCS7830
+#define CONFIG_USB_ETHER_SMSC95XX
 
 /* General networking support */
 #define CONFIG_CMD_NET

@@ -156,11 +156,7 @@ int board_eth_init(bd_t *bis)
 
 	setup_iomux_enet();
 
-	ret = cpu_eth_init(bis);
-	if (ret)
-		printf("FEC MXC: %s:failed\n", __func__);
-
-	return ret;
+	return cpu_eth_init(bis);
 }
 #endif
 

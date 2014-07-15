@@ -3,6 +3,7 @@ bootcmd=run ${subbootcmds}
 configure=run set_uimage; km_setboardid && saveenv && reset
 subbootcmds=tftpfdt tftpkernel nfsargs add_default boot
 nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${toolchain}/${arch}
+tftpfdt=if run set_fdthigh || test ${arch} != arm; then tftpboot ${fdt_addr_r} ${hostname}/${hostname}.dtb; else true; fi
 tftpkernel=tftpboot ${load_addr_r} ${hostname}/${uimage}
 toolchain=/opt/eldk
 rootfssize=0

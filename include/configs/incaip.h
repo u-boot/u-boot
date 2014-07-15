@@ -12,7 +12,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_MIPS32		1	/* MIPS 4Kc CPU core	*/
 #define CONFIG_INCA_IP		1	/* on a INCA-IP Board	*/
 
 #define CONFIG_XWAY_SWAP_BYTES

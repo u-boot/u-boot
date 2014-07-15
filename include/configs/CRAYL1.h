@@ -19,7 +19,6 @@
  */
 
 #define CONFIG_405GP		1	/* This is a PPC405 CPU	*/
-#define CONFIG_4xx		    1   /* ...member of PPC405 family */
 
 /*
  * Note: I make an "image" from U-Boot itself, which prefixes 0x40

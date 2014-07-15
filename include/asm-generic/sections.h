@@ -63,28 +63,16 @@ extern char __image_copy_end[];
 extern void _start(void);
 
 /*
- * ARM needs to use offsets for symbols, since the values of some symbols
- * are not resolved prior to relocation (and are just 0). Maybe this can be
- * resolved, or maybe other architectures are similar, iwc this should be
- * promoted to an architecture option.
+ * ARM defines its symbols as char[]. Other arches define them as ulongs.
  */
 #ifdef CONFIG_ARM
-#define CONFIG_SYS_SYM_OFFSETS
-#endif
 
-#ifdef CONFIG_SYS_SYM_OFFSETS
-/* Start/end of the relocation entries, as an offset from _start */
-extern ulong _rel_dyn_start_ofs;
-extern ulong _rel_dyn_end_ofs;
-
-/* End of the region to be relocated, as an offset form _start */
-extern ulong _image_copy_end_ofs;
-
-extern ulong _bss_start_ofs;	/* BSS start relative to _start */
-extern ulong _bss_end_ofs;		/* BSS end relative to _start */
-extern ulong _end_ofs;		/* end of image relative to _start */
-
-extern ulong _TEXT_BASE;	/* code start */
+extern char __bss_start[];
+extern char __bss_end[];
+extern char __image_copy_start[];
+extern char __image_copy_end[];
+extern char __rel_dyn_start[];
+extern char __rel_dyn_end[];
 
 #else /* don't use offsets: */
 

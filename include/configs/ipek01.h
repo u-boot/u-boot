@@ -16,9 +16,8 @@
  */
 
 #define CONFIG_MPC5200
-#define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU */
-#define CONFIG_MPX5200		1	/* ... on MPX5200 board */
-#define CONFIG_MPC5200_DDR	1	/* ... use DDR RAM */
+#define CONFIG_MPX5200		1	/* MPX5200 board */
+#define CONFIG_MPC5200_DDR	1	/* use DDR RAM */
 #define CONFIG_IPEK01           	/* Motherboard is ipek01 */
 
 #define	CONFIG_SYS_TEXT_BASE	0xfc000000

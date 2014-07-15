@@ -60,16 +60,12 @@ SECTIONS
 		*(.__rel_dyn_end)
 	}
 
-	_end = .;
-
-	/*
-	 * Deprecated: this MMU section is used by pxa at present but
-	 * should not be used by new boards/CPUs.
-	 */
-	. = ALIGN(4096);
-	.mmutable : {
-		*(.mmutable)
+	.end :
+	{
+		*(.__end)
 	}
+
+	_image_binary_end = .;
 
 /*
  * Compiler-generated __bss_start and __bss_end, see arch/arm/lib/bss.c
@@ -91,6 +87,11 @@ SECTIONS
 		KEEP(*(.__bss_end));
 	}
 
+	/*
+	 * Zynq needs to discard more sections because the user
+	 * is expected to pass this image on to tools for boot.bin
+	 * generation that require them to be dropped.
+	 */
 	/DISCARD/ : { *(.dynsym) }
 	/DISCARD/ : { *(.dynbss*) }
 	/DISCARD/ : { *(.dynstr*) }

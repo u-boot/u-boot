@@ -7,7 +7,6 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/hardware.h>
 #include "designware_i2c.h"
 
 #ifdef CONFIG_I2C_MULTI_BUS
@@ -197,35 +196,18 @@ static int i2c_wait_for_bb(void)
 	return 0;
 }
 
-/* check parameters for i2c_read and i2c_write */
-static int check_params(uint addr, int alen, uchar *buffer, int len)
-{
-	if (buffer == NULL) {
-		printf("Buffer is invalid\n");
-		return 1;
-	}
-
-	if (alen > 1) {
-		printf("addr len %d not supported\n", alen);
-		return 1;
-	}
-
-	if (addr + len > 256) {
-		printf("address out of range\n");
-		return 1;
-	}
-
-	return 0;
-}
-
-static int i2c_xfer_init(uchar chip, uint addr)
+static int i2c_xfer_init(uchar chip, uint addr, int alen)
 {
 	if (i2c_wait_for_bb())
 		return 1;
 
 	i2c_setaddress(chip);
-	writel(addr, &i2c_regs_p->ic_cmd_data);
-
+	while (alen) {
+		alen--;
+		/* high byte address going out first */
+		writel((addr >> (alen * 8)) & 0xff,
+		       &i2c_regs_p->ic_cmd_data);
+	}
 	return 0;
 }
 
@@ -285,10 +267,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	      addr);
 #endif
 
-	if (check_params(addr, alen, buffer, len))
-		return 1;
-
-	if (i2c_xfer_init(chip, addr))
+	if (i2c_xfer_init(chip, addr, alen))
 		return 1;
 
 	start_time_rx = get_timer(0);
@@ -345,10 +324,7 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	      addr);
 #endif
 
-	if (check_params(addr, alen, buffer, len))
-		return 1;
-
-	if (i2c_xfer_init(chip, addr))
+	if (i2c_xfer_init(chip, addr, alen))
 		return 1;
 
 	start_time_tx = get_timer(0);

@@ -20,7 +20,7 @@
 
 lowlevel_init:
 
-	/* jump to 0xA0020000 if bit 1 of PVDR_A */
+	/* jump to CONFIG_ECOVEC_ROMIMAGE_ADDR if bit 1 of PVDR_A */
 	mov.l	PVDR_A, r1
 	mov.l	PVDR_D, r2
 	mov.b	@r1, r0

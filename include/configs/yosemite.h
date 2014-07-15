@@ -23,7 +23,6 @@
 #define CONFIG_HOSTNAME		yellowstone
 #endif
 #define CONFIG_440		1	/* ... PPC440 family		*/
-#define CONFIG_4xx		1	/* ... PPC4xx family		*/
 #define CONFIG_SYS_CLK_FREQ	66666666    /* external freq to pll	*/
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF80000

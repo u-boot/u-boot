@@ -80,6 +80,9 @@ static inline unsigned int get_mmc_blk_size(int dev)
 #ifndef DFU_DEFAULT_POLL_TIMEOUT
 #define DFU_DEFAULT_POLL_TIMEOUT 0
 #endif
+#ifndef DFU_MANIFEST_POLL_TIMEOUT
+#define DFU_MANIFEST_POLL_TIMEOUT	DFU_DEFAULT_POLL_TIMEOUT
+#endif
 
 struct dfu_entity {
 	char			name[DFU_NAME_SIZE];
@@ -138,6 +141,7 @@ unsigned long dfu_get_buf_size(void);
 
 int dfu_read(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
 int dfu_write(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
+int dfu_flush(struct dfu_entity *de, void *buf, int size, int blk_seq_num);
 /* Device specific */
 #ifdef CONFIG_DFU_MMC
 extern int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *s);

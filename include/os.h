@@ -84,6 +84,14 @@ int os_open(const char *pathname, int flags);
 int os_close(int fd);
 
 /**
+ * Access to the OS unlink() system call
+ *
+ * \param pathname Path of file to delete
+ * \return 0 for success, other for error
+ */
+int os_unlink(const char *pathname);
+
+/**
  * Access to the OS exit() system call
  *
  * This exits with the supplied return code, which should be 0 to indicate
@@ -95,8 +103,12 @@ void os_exit(int exit_code) __attribute__((noreturn));
 
 /**
  * Put tty into raw mode to mimic serial console better
+ *
+ * @param fd		File descriptor of stdin (normally 0)
+ * @param allow_sigs	Allow Ctrl-C, Ctrl-Z to generate signals rather than
+ *			be handled by U-Boot
  */
-void os_tty_raw(int fd);
+void os_tty_raw(int fd, bool allow_sigs);
 
 /**
  * Acquires some memory from the underlying os.
@@ -113,7 +125,7 @@ void *os_malloc(size_t length);
  *
  * \param ptr		Pointer to memory block to free
  */
-void *os_free(void *ptr);
+void os_free(void *ptr);
 
 /**
  * Reallocate previously-allocated memory to increase/decrease space
@@ -244,5 +256,24 @@ int os_write_ram_buf(const char *fname);
  * @return 0 if OK, -ve on error
  */
 int os_read_ram_buf(const char *fname);
+
+/**
+ * Jump to a new executable image
+ *
+ * This uses exec() to run a new executable image, after putting it in a
+ * temporary file. The same arguments and environment are passed to this
+ * new image, with the addition of:
+ *
+ *	-j <filename>	Specifies the filename the image was written to. The
+ *			calling image may want to delete this at some point.
+ *	-m <filename>	Specifies the file containing the sandbox memory
+ *			(ram_buf) from this image, so that the new image can
+ *			have access to this. It also means that the original
+ *			memory filename passed to U-Boot will be left intact.
+ *
+ * @param dest		Buffer containing executable image
+ * @param size		Size of buffer
+ */
+int os_jump_to_image(const void *dest, int size);
 
 #endif

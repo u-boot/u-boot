@@ -11,10 +11,12 @@
 #include <linux/compiler.h>
 #include <asm/spl.h>
 
+
 /* Boot type */
 #define MMCSD_MODE_UNDEFINED	0
 #define MMCSD_MODE_RAW		1
 #define MMCSD_MODE_FAT		2
+#define MMCSD_MODE_EMMCBOOT	3
 
 struct spl_image_info {
 	const char *name;
@@ -59,6 +61,16 @@ void spl_spi_load_image(void);
 
 /* Ethernet SPL functions */
 void spl_net_load_image(const char *device);
+
+/* USB SPL functions */
+void spl_usb_load_image(void);
+
+/* SATA SPL functions */
+void spl_sata_load_image(void);
+
+/* SPL FAT image functions */
+int spl_load_image_fat(block_dev_desc_t *block_dev, int partition, const char *filename);
+int spl_load_image_fat_os(block_dev_desc_t *block_dev, int partition);
 
 #ifdef CONFIG_SPL_BOARD_INIT
 void spl_board_init(void);

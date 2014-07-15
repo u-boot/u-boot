@@ -12,6 +12,7 @@
 
 #include <linux/list.h>
 #include <linux/fb.h>
+#include <lcd.h>
 
 #define PANEL_NAME_SIZE		(32)
 
@@ -368,8 +369,12 @@ int exynos_mipi_dsi_register_lcd_device(struct mipi_dsim_lcd_device
 						*lcd_dev);
 
 void exynos_set_dsim_platform_data(struct exynos_platform_mipi_dsim *pd);
+void exynos_init_dsim_platform_data(vidinfo_t *vid);
 
 /* panel driver init based on mipi dsi interface */
 void s6e8ax0_init(void);
 
+#ifdef CONFIG_OF_CONTROL
+extern int mipi_power(void);
+#endif
 #endif /* _DSIM_H */

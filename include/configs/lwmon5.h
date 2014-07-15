@@ -22,7 +22,6 @@
 #define CONFIG_LWMON5		1		/* Board is lwmon5	*/
 #define CONFIG_440EPX		1		/* Specific PPC440EPx	*/
 #define CONFIG_440		1		/* ... PPC440 family	*/
-#define CONFIG_4xx		1		/* ... PPC4xx family	*/
 
 #ifdef CONFIG_LCD4_LWMON5
 #define	CONFIG_SYS_TEXT_BASE	0x01000000 /* SPL U-Boot TEXT_BASE */

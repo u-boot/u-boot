@@ -627,72 +627,6 @@ int fdc_setup(int drive, FDC_COMMAND_STRUCT *pCMD, FD_GEO_STRUCT *pFG)
 	return true;
 }
 
-#if defined(CONFIG_CMD_FDOS)
-
-/* Low level functions for the Floppy-DOS layer                              */
-
-/**************************************************************************
-* int fdc_fdos_init
-* initialize the FDC layer
-*
-*/
-int fdc_fdos_init (int drive)
-{
-	FD_GEO_STRUCT *pFG = (FD_GEO_STRUCT *)floppy_type;
-	FDC_COMMAND_STRUCT *pCMD = &cmd;
-
-	/* setup FDC and scan for drives  */
-	if (fdc_setup(drive, pCMD, pFG) == false) {
-		printf("\n** Error in setup FDC **\n");
-		return false;
-	}
-	if (fdc_check_drive(pCMD, pFG) == false) {
-		printf("\n** Error in check_drives **\n");
-		return false;
-	}
-	if((pCMD->flags&(1<<drive))==0) {
-		/* drive not available */
-		printf("\n** Drive %d not available **\n",drive);
-		return false;
-	}
-	if((pCMD->flags&(0x10<<drive))==0) {
-		/* no disk inserted */
-		printf("\n** No disk inserted in drive %d **\n",drive);
-		return false;
-	}
-	/* ok, we have a valid source */
-	pCMD->drive=drive;
-
-	/* read first block */
-	pCMD->blnr=0;
-	return true;
-}
-/**************************************************************************
-* int fdc_fdos_seek
-* parameter is a block number
-*/
-int fdc_fdos_seek (int where)
-{
-	FD_GEO_STRUCT *pFG = (FD_GEO_STRUCT *)floppy_type;
-	FDC_COMMAND_STRUCT *pCMD = &cmd;
-
-	pCMD -> blnr = where ;
-	return (fdc_seek (pCMD, pFG));
-}
-/**************************************************************************
-* int fdc_fdos_read
-*  the length is in block number
-*/
-int fdc_fdos_read (void *buffer, int len)
-{
-	FD_GEO_STRUCT *pFG = (FD_GEO_STRUCT *)floppy_type;
-	FDC_COMMAND_STRUCT *pCMD = &cmd;
-
-	return (fdc_read_data (buffer, len, pCMD, pFG));
-}
-#endif
-
-#if defined(CONFIG_CMD_FDC)
 /****************************************************************************
  * main routine do_fdcboot
  */
@@ -812,4 +746,3 @@ U_BOOT_CMD(
 	"boot from floppy device",
 	"loadAddr drive"
 );
-#endif

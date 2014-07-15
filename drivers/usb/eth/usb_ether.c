@@ -30,6 +30,13 @@ static const struct usb_eth_prob_dev prob_dev[] = {
 		.get_info = asix_eth_get_info,
 	},
 #endif
+#ifdef CONFIG_USB_ETHER_MCS7830
+	{
+		.before_probe = mcs7830_eth_before_probe,
+		.probe = mcs7830_eth_probe,
+		.get_info = mcs7830_eth_get_info,
+	},
+#endif
 #ifdef CONFIG_USB_ETHER_SMSC95XX
 	{
 		.before_probe = smsc95xx_eth_before_probe,

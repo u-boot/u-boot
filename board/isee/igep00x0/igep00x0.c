@@ -8,7 +8,6 @@
 #include <twl4030.h>
 #include <netdev.h>
 #include <asm/gpio.h>
-#include <asm/omap_gpmc.h>
 #include <asm/io.h>
 #include <asm/arch/mem.h>
 #include <asm/arch/mmc_host_def.h>

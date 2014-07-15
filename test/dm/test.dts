@@ -1,0 +1,59 @@
+/dts-v1/;
+
+/ {
+	model = "sandbox";
+	compatible = "sandbox";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	a-test {
+		reg = <0>;
+		compatible = "denx,u-boot-fdt-test";
+		ping-add = <0>;
+	};
+
+	junk {
+		reg = <1>;
+		compatible = "not,compatible";
+	};
+
+	no-compatible {
+		reg = <2>;
+	};
+
+	b-test {
+		reg = <3>;
+		compatible = "denx,u-boot-fdt-test";
+		ping-add = <3>;
+	};
+
+	some-bus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <4>;
+		ping-add = <4>;
+		c-test {
+			compatible = "denx,u-boot-fdt-test";
+			reg = <5>;
+			ping-add = <5>;
+		};
+	};
+
+	d-test {
+		reg = <6>;
+		ping-add = <6>;
+		compatible = "google,another-fdt-test";
+	};
+
+	base-gpios {
+		compatible = "sandbox,gpio";
+		gpio-bank-name = "a";
+		num-gpios = <20>;
+	};
+
+	extra-gpios {
+		compatible = "sandbox,gpio";
+		gpio-bank-name = "b";
+		num-gpios = <10>;
+	};
+};

@@ -452,23 +452,6 @@ int get_device_and_partition(const char *ifname, const char *dev_part_str,
 	int part;
 	disk_partition_t tmpinfo;
 
-	/*
-	 * For now, we have a special case for sandbox, since there is no
-	 * real block device support.
-	 */
-	if (0 == strcmp(ifname, "host")) {
-		*dev_desc = NULL;
-		info->start = info->size =  info->blksz = 0;
-		info->bootable = 0;
-		strcpy((char *)info->type, BOOT_PART_TYPE);
-		strcpy((char *)info->name, "Sandbox host");
-#ifdef CONFIG_PARTITION_UUIDS
-		info->uuid[0] = 0;
-#endif
-
-		return 0;
-	}
-
 	/* If no dev_part_str, use bootdevice environment variable */
 	if (!dev_part_str || !strlen(dev_part_str) ||
 	    !strcmp(dev_part_str, "-"))

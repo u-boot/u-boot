@@ -30,14 +30,14 @@
 #define CONFIG_SYS_BAUDRATE_TABLE  \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
 
-#if defined(CONFIG_ZYNQ_SERIAL_UART0) || defined(CONFIG_ZYNQ_SERIAL_UART1)
-#define CONFIG_ZYNQ_SERIAL
-#endif
-
 /* DCC driver */
 #if defined(CONFIG_ZYNQ_DCC)
 # define CONFIG_ARM_DCC
 # define CONFIG_CPU_V6 /* Required by CONFIG_ARM_DCC */
+#else
+# if defined(CONFIG_ZYNQ_SERIAL_UART0) || defined(CONFIG_ZYNQ_SERIAL_UART1)
+#  define CONFIG_ZYNQ_SERIAL
+# endif
 #endif
 
 /* Ethernet driver */
@@ -295,6 +295,8 @@
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_BOARD_LATE_INIT
 #define CONFIG_SYS_LONGHELP
+#define CONFIG_CLOCKS
+#define CONFIG_CMD_CLK
 #define CONFIG_SYS_MAXARGS		32 /* max number of command args */
 #define CONFIG_SYS_CBSIZE		2048 /* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
@@ -349,6 +351,7 @@
 # define CONFIG_SYS_MMC_MAX_DEVICE	1
 #endif
 
+/* Commands */
 #include <config_cmd_default.h>
 
 #ifdef CONFIG_SYS_ENET
@@ -360,9 +363,6 @@
 # undef CONFIG_CMD_NET
 # undef CONFIG_CMD_NFS
 #endif
-
-#define CONFIG_CLOCKS
-#define CONFIG_CMD_CLK
 
 #if defined(CONFIG_CMD_ZYNQ_RSA)
 #define CONFIG_RSA
@@ -457,6 +457,7 @@
 
 /* 3 * 64kB blocks of OCM - one is on the top because of bootrom */
 #define CONFIG_SPL_MAX_FOOTPRINT	0x30000
+#define CONFIG_SPL_MAX_SIZE	0x30000
 
 /* The highest 64k OCM address */
 #define OCM_HIGH_ADDR	0xffff0000
@@ -472,7 +473,10 @@
 					 GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x1000
 
-/* These two can't be more than 0xffffff2c */
-/* CONFIG_SYS_SPL_MALLOC_START + CONFIG_SYS_SPL_MALLOC_SIZE */
+/* BSS setup */
+#define CONFIG_SPL_BSS_START_ADDR	0x100000
+#define CONFIG_SPL_BSS_MAX_SIZE		0x100000
+
+#define CONFIG_SYS_UBOOT_START	CONFIG_SYS_TEXT_BASE
 
 #endif /* __CONFIG_ZYNQ_COMMON_H */

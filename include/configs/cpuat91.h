@@ -10,7 +10,7 @@
 #ifndef _CONFIG_CPUAT91_H
 #define _CONFIG_CPUAT91_H
 
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 
 #ifdef CONFIG_RAMBOOT
 #define CONFIG_SKIP_LOWLEVEL_INIT

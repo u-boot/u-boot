@@ -34,7 +34,12 @@
 #define NV_PA_PMC_BASE		(NV_PA_APB_MISC_BASE + 0xE400)
 #define NV_PA_EMC_BASE		(NV_PA_APB_MISC_BASE + 0xF400)
 #define NV_PA_FUSE_BASE		(NV_PA_APB_MISC_BASE + 0xF800)
+#if defined(CONFIG_TEGRA20) || defined(CONFIG_TEGRA30) || \
+	defined(CONFIG_TEGRA114)
 #define NV_PA_CSITE_BASE	0x70040000
+#else
+#define NV_PA_CSITE_BASE	0x70800000
+#endif
 #define TEGRA_USB_ADDR_MASK	0xFFFFC000
 
 #define NV_PA_SDRC_CS0		NV_PA_SDRAM_BASE
@@ -68,6 +73,7 @@ enum {
 	SKU_ID_TM30MQS_P_A3	= 0xb1,
 	SKU_ID_T114_ENG		= 0x00, /* Dalmore value, unfused */
 	SKU_ID_T114_1		= 0x01,
+	SKU_ID_T124_ENG		= 0x00, /* Venice2 value, unfused */
 };
 
 /*
@@ -81,6 +87,7 @@ enum {
 	TEGRA_SOC_T25,
 	TEGRA_SOC_T30,
 	TEGRA_SOC_T114,
+	TEGRA_SOC_T124,
 
 	TEGRA_SOC_CNT,
 	TEGRA_SOC_UNKNOWN	= -1,

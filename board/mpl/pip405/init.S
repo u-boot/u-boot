@@ -19,7 +19,6 @@
  *	Bank 6 - used to switch on the 12V for the Multipurpose socket
  *	Bank 7 - Config Register
  *-----------------------------------------------------------------------------*/
-#define _LINUX_CONFIG_H 1	/* avoid reading Linux autoconf.h file	*/
 
 #include <configs/PIP405.h>
 #include <ppc_asm.tmpl>

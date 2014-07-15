@@ -1,5 +1,5 @@
 /*
- *  (C) Copyright 2010,2011
+ *  (C) Copyright 2010-2014
  *  NVIDIA Corporation <www.nvidia.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
@@ -109,11 +109,17 @@ static int uart_configs[] = {
 	-1,
 	-1,
 	-1,
-#else	/* Tegra114 */
+#elif defined(CONFIG_TEGRA114)
 	-1,
 	-1,
 	-1,
 	FUNCMUX_UART4_GMI,	/* UARTD */
+	-1,
+#else	/* Tegra124 */
+	FUNCMUX_UART1_KBC,	/* UARTA */
+	-1,
+	-1,
+	FUNCMUX_UART4_GPIO,	/* UARTD */
 	-1,
 #endif
 };

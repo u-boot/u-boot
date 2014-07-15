@@ -2,11 +2,10 @@
 This is a demo implementation of a Linux command line tool to access
 the U-Boot's environment variables.
 
-In the current version, there is an issue in cross-compilation.
 In order to cross-compile fw_printenv, run
-    make HOSTCC=<your CC cross-compiler> env
+    make CROSS_COMPILE=<your cross-compiler prefix> env
 in the root directory of the U-Boot distribution. For example,
-    make HOSTCC=arm-linux-gcc env
+    make CROSS_COMPILE=arm-linux- env
 
 For the run-time utility configuration uncomment the line
 #define CONFIG_FILE  "/etc/fw_env.config"

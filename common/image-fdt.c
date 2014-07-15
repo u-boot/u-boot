@@ -463,7 +463,7 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 		return -1;
 	}
 	arch_fixup_memory_node(blob);
-	if (IMAAGE_OF_BOARD_SETUP)
+	if (IMAGE_OF_BOARD_SETUP)
 		ft_board_setup(blob, gd->bd);
 	fdt_fixup_ethernet(blob);
 

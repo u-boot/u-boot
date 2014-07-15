@@ -10,5 +10,5 @@ obj-y	:= h2200.o
 
 extra-y := h2200-header.bin
 
-$(obj)h2200-header.bin: $(obj)h2200-header.o
+$(obj)/h2200-header.bin: $(obj)/h2200-header.o
 	$(OBJCOPY) -O binary $< $@

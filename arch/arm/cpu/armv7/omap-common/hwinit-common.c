@@ -14,7 +14,7 @@
 #include <common.h>
 #include <spl.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 #include <asm/emif.h>
 #include <asm/omap_common.h>
 #include <linux/compiler.h>
@@ -43,16 +43,10 @@ static void set_mux_conf_regs(void)
 		set_muxconf_regs_essential();
 		break;
 	case OMAP_INIT_CONTEXT_UBOOT_AFTER_SPL:
-#ifdef CONFIG_SYS_ENABLE_PADS_ALL
-		set_muxconf_regs_non_essential();
-#endif
 		break;
 	case OMAP_INIT_CONTEXT_UBOOT_FROM_NOR:
 	case OMAP_INIT_CONTEXT_UBOOT_AFTER_CH:
 		set_muxconf_regs_essential();
-#ifdef CONFIG_SYS_ENABLE_PADS_ALL
-		set_muxconf_regs_non_essential();
-#endif
 		break;
 	}
 }
@@ -254,6 +248,7 @@ u32 get_device_type(void)
 				      (DEVICE_TYPE_MASK)) >> DEVICE_TYPE_SHIFT;
 }
 
+#if defined(CONFIG_DISPLAY_CPUINFO)
 /*
  * Print CPU information
  */
@@ -264,6 +259,8 @@ int print_cpuinfo(void)
 
 	return 0;
 }
+#endif
+
 #ifndef CONFIG_SYS_DCACHE_OFF
 void enable_caches(void)
 {

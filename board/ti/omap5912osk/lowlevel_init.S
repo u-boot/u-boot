@@ -18,10 +18,6 @@
 #include <./configs/omap1510.h>
 #endif
 
-
-_TEXT_BASE:
-	.word	CONFIG_SYS_TEXT_BASE	/* sdram load addr from config.mk */
-
 .globl lowlevel_init
 lowlevel_init:
 

@@ -46,7 +46,11 @@ static const u32 kwmpp_config[] = {
 	MPP4_NF_IO6,
 	MPP5_NF_IO7,
 	MPP6_SYSRST_OUTn,
+#if defined(KM_PCIE_RESET_MPP7)
+	MPP7_GPO,
+#else
 	MPP7_PEX_RST_OUTn,
+#endif
 #if defined(CONFIG_SYS_I2C_SOFT)
 	MPP8_GPIO,		/* SDA */
 	MPP9_GPIO,		/* SCL */
@@ -102,7 +106,7 @@ static const u32 kwmpp_config[] = {
 /*
  * Wait for startup OK from mgcoge3ne
  */
-int startup_allowed(void)
+static int startup_allowed(void)
 {
 	unsigned char buf;
 
@@ -164,7 +168,6 @@ static int initialize_unit_leds(void)
 	return 0;
 }
 
-#if defined(CONFIG_BOOTCOUNT_LIMIT)
 static void set_bootcount_addr(void)
 {
 	uchar buf[32];
@@ -173,7 +176,6 @@ static void set_bootcount_addr(void)
 	sprintf((char *)buf, "0x%x", bootcountaddr);
 	setenv("bootcountaddr", (char *)buf);
 }
-#endif
 
 int misc_init_r(void)
 {
@@ -210,9 +212,7 @@ int misc_init_r(void)
 
 	initialize_unit_leds();
 	set_km_env();
-#if defined(CONFIG_BOOTCOUNT_LIMIT)
 	set_bootcount_addr();
-#endif
 	return 0;
 }
 
@@ -322,15 +322,15 @@ void reset_phy(void)
 		return;
 
 	/* RGMII clk transition on data stable */
-	if (!miiphy_read(name, CONFIG_PHY_BASE_ADR, PHY_SPEC_CTRL_REG, &reg))
+	if (miiphy_read(name, CONFIG_PHY_BASE_ADR, PHY_SPEC_CTRL_REG, &reg))
 		printf("Error reading PHY spec ctrl reg\n");
-	if (!miiphy_write(name, CONFIG_PHY_BASE_ADR, PHY_SPEC_CTRL_REG,
-		reg | PHY_RGMII_CLK_STABLE | PHY_CLSA))
+	if (miiphy_write(name, CONFIG_PHY_BASE_ADR, PHY_SPEC_CTRL_REG,
+			 reg | PHY_RGMII_CLK_STABLE | PHY_CLSA))
 		printf("Error writing PHY spec ctrl reg\n");
 
 	/* leds setup */
-	if (!miiphy_write(name, CONFIG_PHY_BASE_ADR, PHY_LED_SEL_REG,
-		PHY_LED0_LINK | PHY_LED1_ACT | PHY_LED2_INT))
+	if (miiphy_write(name, CONFIG_PHY_BASE_ADR, PHY_LED_SEL_REG,
+			 PHY_LED0_LINK | PHY_LED1_ACT | PHY_LED2_INT))
 		printf("Error writing PHY LED reg\n");
 
 	/* reset the phy */

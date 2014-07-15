@@ -12,6 +12,9 @@
 
 /* Register bit fields */
 #define PL310_AUX_CTRL_ASSOCIATIVITY_MASK	(1 << 16)
+#define L2X0_DYNAMIC_CLK_GATING_EN		(1 << 1)
+#define L2X0_STNDBY_MODE_EN			(1 << 0)
+#define L2X0_CTRL_EN				1
 
 struct pl310_regs {
 	u32 pl310_cache_id;
@@ -47,6 +50,24 @@ struct pl310_regs {
 	u32 pad9[1];
 	u32 pl310_clean_inv_line_idx;
 	u32 pl310_clean_inv_way;
+	u32 pad10[64];
+	u32 pl310_lockdown_dbase;
+	u32 pl310_lockdown_ibase;
+	u32 pad11[190];
+	u32 pl310_addr_filter_start;
+	u32 pl310_addr_filter_end;
+	u32 pad12[190];
+	u32 pl310_test_operation;
+	u32 pad13[3];
+	u32 pl310_line_data;
+	u32 pad14[7];
+	u32 pl310_line_tag;
+	u32 pad15[3];
+	u32 pl310_debug_ctrl;
+	u32 pad16[7];
+	u32 pl310_prefetch_ctrl;
+	u32 pad17[7];
+	u32 pl310_power_ctrl;
 };
 
 void pl310_inval_all(void);

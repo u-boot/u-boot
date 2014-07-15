@@ -211,11 +211,8 @@ static u32 pll_dco_freq_sel(u32 clkout_dco)
 static u32 pll_sigma_delta_val(u32 clkout_dco)
 {
 	u32 sig_val = 0;
-	float frac_div;
 
-	frac_div = (float) clkout_dco / 250;
-	frac_div = frac_div + 0.90;
-	sig_val = (int)frac_div;
+	sig_val = (clkout_dco + 225) / 250;
 	sig_val = sig_val << 24;
 
 	return sig_val;

@@ -17,7 +17,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <asm/sizes.h>
+#include <linux/sizes.h>
 #include "tegra20-common.h"
 
 /* Enable fdt support for Paz00. Flash the image in u-boot-dtb.bin */

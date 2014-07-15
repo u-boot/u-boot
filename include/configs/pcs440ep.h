@@ -23,7 +23,6 @@
 #define CONFIG_PCS440EP		1	/* Board is PCS440EP            */
 #define CONFIG_440EP		1	/* Specific PPC440EP support    */
 #define CONFIG_440		1	/* ... PPC440 family	        */
-#define CONFIG_4xx		1	/* ... PPC4xx family	        */
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFFA0000
 

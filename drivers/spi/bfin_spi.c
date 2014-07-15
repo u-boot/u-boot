@@ -13,6 +13,7 @@
 #include <spi.h>
 
 #include <asm/blackfin.h>
+#include <asm/clock.h>
 #include <asm/gpio.h>
 #include <asm/portmux.h>
 #include <asm/mach-common/bits/spi.h>
@@ -140,12 +141,12 @@ static const unsigned short cs_pins[][7] = {
 void spi_set_speed(struct spi_slave *slave, uint hz)
 {
 	struct bfin_spi_slave *bss = to_bfin_spi_slave(slave);
-	ulong sclk;
+	ulong clk;
 	u32 baud;
 
-	sclk = get_sclk();
+	clk = get_spi_clk();
 	/* baud should be rounded up */
-	baud = DIV_ROUND_UP(sclk, 2 * hz);
+	baud = DIV_ROUND_UP(clk, 2 * hz);
 	if (baud < 2)
 		baud = 2;
 	else if (baud > (u16)-1)

@@ -277,10 +277,10 @@ static init_fnc_t *init_sequence[] = {
 	serial_init,
 	console_init_f,
 	display_options,
-#if defined(CONFIG_8260)
+#if defined(CONFIG_MPC8260)
 	prt_8260_rsr,
 	prt_8260_clks,
-#endif /* CONFIG_8260 */
+#endif /* CONFIG_MPC8260 */
 #if defined(CONFIG_MPC83xx)
 	prt_83xx_rsr,
 #endif
@@ -312,17 +312,6 @@ static init_fnc_t *init_sequence[] = {
 	NULL,	/* Terminate this list */
 };
 
-ulong get_effective_memsize(void)
-{
-#ifndef	CONFIG_VERY_BIG_RAM
-	return gd->ram_size;
-#else
-	/* limit stack to what we can reasonable map */
-	return ((gd->ram_size > CONFIG_MAX_MEM_MAPPED) ?
-		CONFIG_MAX_MEM_MAPPED : gd->ram_size);
-#endif
-}
-
 static int __fixup_cpu(void)
 {
 	return 0;
@@ -342,13 +331,6 @@ int fixup_cpu(void) __attribute__((weak, alias("__fixup_cpu")));
  * Be aware of the restrictions: global data is read-only, BSS is not
  * initialized, and stack space is limited to a few kB.
  */
-
-#ifdef CONFIG_LOGBUFFER
-unsigned long logbuffer_base(void)
-{
-	return CONFIG_SYS_SDRAM_BASE + get_effective_memsize() - LOGBUFF_LEN;
-}
-#endif
 
 void board_init_f(ulong bootflag)
 {
@@ -522,7 +504,7 @@ void board_init_f(ulong bootflag)
 	bd->bi_sramsize = CONFIG_SYS_SRAM_SIZE;		/* size  of SRAM */
 #endif
 
-#if defined(CONFIG_8xx) || defined(CONFIG_8260) || defined(CONFIG_5xx) || \
+#if defined(CONFIG_8xx) || defined(CONFIG_MPC8260) || defined(CONFIG_5xx) || \
     defined(CONFIG_E500) || defined(CONFIG_MPC86xx)
 	bd->bi_immr_base = CONFIG_SYS_IMMR;	/* base  of IMMR register     */
 #endif

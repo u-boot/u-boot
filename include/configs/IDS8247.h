@@ -17,7 +17,6 @@
  * (easy to change)
  */
 
-#define CONFIG_MPC8260		1	/* This is a MPC8260 CPU		*/
 #define CONFIG_MPC8272_FAMILY	1
 #define CONFIG_IDS8247		1
 #define CPU_ID_STR		"MPC8247"

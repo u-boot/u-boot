@@ -421,6 +421,10 @@ int cmd_get_data_size(char* arg, int default_size)
 			return 2;
 		case 'l':
 			return 4;
+#ifdef CONFIG_SYS_SUPPORT_64BIT_DATA
+		case 'q':
+			return 8;
+#endif
 		case 's':
 			return -2;
 		default:
@@ -537,4 +541,14 @@ enum command_ret_t cmd_process(int flag, int argc, char * const argv[],
 	if (rc == CMD_RET_USAGE)
 		rc = cmd_usage(cmdtp);
 	return rc;
+}
+
+int cmd_process_error(cmd_tbl_t *cmdtp, int err)
+{
+	if (err) {
+		printf("Command '%s' failed: Error %d\n", cmdtp->name, err);
+		return 1;
+	}
+
+	return 0;
 }

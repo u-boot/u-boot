@@ -9,7 +9,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_MPC8260
 #define CPU_ID_STR		"MPC8270"
 
 #define CONFIG_EP82XXM	/* Embedded Planet EP82xxM H 1.0 board */

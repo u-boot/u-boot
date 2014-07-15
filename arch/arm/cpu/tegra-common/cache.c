@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2013-2014, NVIDIA CORPORATION.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -23,8 +23,6 @@
 
 void config_cache(void)
 {
-	struct apb_misc_gp_ctlr *gp =
-		(struct apb_misc_gp_ctlr *)NV_PA_APB_MISC_GP_BASE;
 	u32 reg = 0;
 
 	/* enable SMP mode and FW for CPU0, by writing to Auxiliary Ctl reg */
@@ -33,10 +31,10 @@ void config_cache(void)
 		"orr r0, r0, #0x41\n"
 		"mcr p15, 0, r0, c1, c0, 1\n");
 
-	/* Currently, only T114 needs this L2 cache change to boot Linux */
-	reg = (readl(&gp->hidrev) & HIDREV_CHIPID_MASK);
-	if (reg != (CHIPID_TEGRA114 << HIDREV_CHIPID_SHIFT))
+	/* Currently, only Tegra114+ needs this L2 cache change to boot Linux */
+	if (tegra_get_chip() < CHIPID_TEGRA114)
 		return;
+
 	/*
 	 * Systems with an architectural L2 cache must not use the PL310.
 	 * Config L2CTLR here for a data RAM latency of 3 cycles.
