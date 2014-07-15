@@ -942,8 +942,13 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 		return 1;
 	}
 
-	/* We support displaying 8bpp BMPs on 16bpp LCDs */
-	if (bpix != bmp_bpix && !(bmp_bpix == 8 && bpix == 16)) {
+	/*
+	 * We support displaying 8bpp BMPs on 16bpp LCDs
+	 * and displaying 24bpp BMPs on 32bpp LCDs
+	 * */
+	if (bpix != bmp_bpix &&
+	    !(bmp_bpix == 8 && bpix == 16) &&
+	    !(bmp_bpix == 24 && bpix == 32)) {
 		printf ("Error: %d bit/pixel mode, but BMP has %d bit/pixel\n",
 			bpix, get_unaligned_le16(&bmp->header.bit_count));
 		return 1;
@@ -1064,7 +1069,19 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 		}
 		break;
 #endif /* CONFIG_BMP_16BPP */
-
+#if defined(CONFIG_BMP_24BMP)
+	case 24:
+		for (i = 0; i < height; ++i) {
+			for (j = 0; j < width; j++) {
+				*(fb++) = *(bmap++);
+				*(fb++) = *(bmap++);
+				*(fb++) = *(bmap++);
+				*(fb++) = 0;
+			}
+			fb -= lcd_line_length + width * (bpix / 8);
+		}
+		break;
+#endif /* CONFIG_BMP_24BMP */
 #if defined(CONFIG_BMP_32BPP)
 	case 32:
 		for (i = 0; i < height; ++i) {
