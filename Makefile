@@ -1137,7 +1137,7 @@ spl/sunxi-spl.bin: spl/u-boot-spl
 tpl/u-boot-tpl.bin: tools prepare
 	$(Q)$(MAKE) obj=tpl -f $(srctree)/scripts/Makefile.spl all CONFIG_TPL_BUILD=y
 
-TAG_SUBDIRS := $(u-boot-dirs) include
+TAG_SUBDIRS := $(patsubst %,$(srctree)/%,$(u-boot-dirs) include)
 
 FIND := find
 FINDFLAGS := -L
@@ -1147,7 +1147,7 @@ tags ctags:
 						-name '*.[chS]' -print`
 
 etags:
-		etags -a -o $(obj)etags `$(FIND) $(FINDFLAGS) $(TAG_SUBDIRS) \
+		etags -a -o etags `$(FIND) $(FINDFLAGS) $(TAG_SUBDIRS) \
 						-name '*.[chS]' -print`
 cscope:
 		$(FIND) $(FINDFLAGS) $(TAG_SUBDIRS) -name '*.[chS]' -print > \
