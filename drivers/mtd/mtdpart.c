@@ -572,6 +572,7 @@ out_register:
 	return slave;
 }
 
+#ifndef __UBOOT__
 int mtd_add_partition(struct mtd_info *master, const char *name,
 		      long long offset, long long length)
 {
@@ -651,6 +652,7 @@ int mtd_del_partition(struct mtd_info *master, int partno)
 	return ret;
 }
 EXPORT_SYMBOL_GPL(mtd_del_partition);
+#endif
 
 /*
  * This function, given a master MTD object and a partition table, creates

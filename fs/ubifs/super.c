@@ -2241,8 +2241,14 @@ static int ubifs_fill_super(struct super_block *sb, void *data, int silent)
 	int err;
 
 	c->vfs_sb = sb;
+#ifndef __UBOOT__
 	/* Re-open the UBI device in read-write mode */
 	c->ubi = ubi_open_volume(c->vi.ubi_num, c->vi.vol_id, UBI_READWRITE);
+#else
+	/* U-Boot read only mode */
+	c->ubi = ubi_open_volume(c->vi.ubi_num, c->vi.vol_id, UBI_READONLY);
+#endif
+
 	if (IS_ERR(c->ubi)) {
 		err = PTR_ERR(c->ubi);
 		goto out;

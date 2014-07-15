@@ -476,6 +476,8 @@ int add_mtd_device(struct mtd_info *mtd)
 	   the notifier, since we hold the mtd_table_mutex */
 	list_for_each_entry(not, &mtd_notifiers, list)
 		not->add(mtd);
+#else
+	pr_debug("mtd: Giving out device %d to %s\n", i, mtd->name);
 #endif
 
 	mutex_unlock(&mtd_table_mutex);

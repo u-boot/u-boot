@@ -480,6 +480,7 @@ static inline int mtd_is_bitflip_or_eccerr(int err) {
 #ifdef __UBOOT__
 /* drivers/mtd/mtdcore.h */
 int add_mtd_device(struct mtd_info *mtd);
+int del_mtd_device(struct mtd_info *mtd);
 int add_mtd_partitions(struct mtd_info *, const struct mtd_partition *, int);
 int del_mtd_partitions(struct mtd_info *);
 #endif
