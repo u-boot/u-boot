@@ -1222,7 +1222,7 @@ CLOBBER_FILES += u-boot* MLO* SPL System.map
 MRPROPER_DIRS  += include/config include/generated          \
 		  .tmp_objdiff
 MRPROPER_FILES += .config .config.old \
-		  tags TAGS cscope* GPATH GTAGS GRTAGS GSYMS \
+		  ctags etags cscope* GPATH GTAGS GRTAGS GSYMS \
 		  include/config.h include/config.mk
 
 # clean - Delete most, but leave enough to build external modules
