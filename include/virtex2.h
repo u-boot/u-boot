@@ -47,10 +47,10 @@ extern struct xilinx_fpga_op virtex2_op;
 
 /* Device Image Sizes (in bytes)
  *********************************************************************/
-#define XILINX_XC2V40_SIZE		(338208 / 8)
-#define XILINX_XC2V80_SIZE		(597408 / 8)
-#define XILINX_XC2V250_SIZE		(1591584 / 8)
-#define XILINX_XC2V500_SIZE		(2557857 / 8)
+#define XILINX_XC2V40_SIZE	(338208 / 8)
+#define XILINX_XC2V80_SIZE	(597408 / 8)
+#define XILINX_XC2V250_SIZE	(1591584 / 8)
+#define XILINX_XC2V500_SIZE	(2557857 / 8)
 #define XILINX_XC2V1000_SIZE	(3749408 / 8)
 #define XILINX_XC2V1500_SIZE	(5166240 / 8)
 #define XILINX_XC2V2000_SIZE	(6808352 / 8)
