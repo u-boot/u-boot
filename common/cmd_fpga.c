@@ -211,6 +211,7 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 
 				comp = image_get_comp(hdr);
 				if (comp == IH_COMP_GZIP) {
+#if defined(CONFIG_GZIP)
 					ulong image_buf = image_get_data(hdr);
 					data = image_get_load(hdr);
 					ulong image_size = ~0UL;
@@ -222,6 +223,10 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 						return 1;
 					}
 					data_size = image_size;
+#else
+					puts("Gunzip image is not supported\n");
+					return 1;
+#endif
 				} else {
 					data = (ulong)image_get_data(hdr);
 					data_size = image_get_data_size(hdr);
