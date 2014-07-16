@@ -12,7 +12,12 @@
 
 #include <xilinx.h>
 
+#if defined(CONFIG_FPGA_ZYNQPL)
 extern struct xilinx_fpga_op zynq_op;
+# define FPGA_ZYNQPL_OPS	&zynq_op
+#else
+# define FPGA_ZYNQPL_OPS	NULL
+#endif
 
 #define XILINX_ZYNQ_7010	0x2
 #define XILINX_ZYNQ_7015	0x1b
@@ -31,21 +36,27 @@ extern struct xilinx_fpga_op zynq_op;
 
 /* Descriptor Macros */
 #define XILINX_XC7Z010_DESC(cookie) \
-{ xilinx_zynq, devcfg, XILINX_XC7Z010_SIZE, NULL, cookie, &zynq_op, "7z010" }
+{ xilinx_zynq, devcfg, XILINX_XC7Z010_SIZE, NULL, cookie, FPGA_ZYNQPL_OPS, \
+	"7z010" }
 
 #define XILINX_XC7Z015_DESC(cookie) \
-{ xilinx_zynq, devcfg, XILINX_XC7Z015_SIZE, NULL, cookie, &zynq_op, "7z015" }
+{ xilinx_zynq, devcfg, XILINX_XC7Z015_SIZE, NULL, cookie, FPGA_ZYNQPL_OPS, \
+	"7z015" }
 
 #define XILINX_XC7Z020_DESC(cookie) \
-{ xilinx_zynq, devcfg, XILINX_XC7Z020_SIZE, NULL, cookie, &zynq_op, "7z020" }
+{ xilinx_zynq, devcfg, XILINX_XC7Z020_SIZE, NULL, cookie, FPGA_ZYNQPL_OPS, \
+	"7z020" }
 
 #define XILINX_XC7Z030_DESC(cookie) \
-{ xilinx_zynq, devcfg, XILINX_XC7Z030_SIZE, NULL, cookie, &zynq_op, "7z030" }
+{ xilinx_zynq, devcfg, XILINX_XC7Z030_SIZE, NULL, cookie, FPGA_ZYNQPL_OPS, \
+	"7z030" }
 
 #define XILINX_XC7Z045_DESC(cookie) \
-{ xilinx_zynq, devcfg, XILINX_XC7Z045_SIZE, NULL, cookie, &zynq_op, "7z045" }
+{ xilinx_zynq, devcfg, XILINX_XC7Z045_SIZE, NULL, cookie, FPGA_ZYNQPL_OPS, \
+	"7z045" }
 
 #define XILINX_XC7Z100_DESC(cookie) \
-{ xilinx_zynq, devcfg, XILINX_XC7Z100_SIZE, NULL, cookie, &zynq_op, "7z100" }
+{ xilinx_zynq, devcfg, XILINX_XC7Z100_SIZE, NULL, cookie, FPGA_ZYNQPL_OPS, \
+	"7z100" }
 
 #endif /* _ZYNQPL_H_ */
