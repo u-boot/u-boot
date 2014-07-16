@@ -114,19 +114,6 @@ static void scc_init (int scc_index)
 	immr->im_cpm.cp_scc[scc_index].scc_gsmrl &=
 			~(SCC_GSMRL_ENR | SCC_GSMRL_ENT);
 
-#if defined(CONFIG_FADS)
-#if defined(CONFIG_MPC860T) || defined(CONFIG_MPC86xADS)
-	/* The FADS860T and MPC86xADS don't use the MODEM_EN or DATA_VOICE signals. */
-	*((uint *) BCSR4) &= ~BCSR4_ETHLOOP;
-	*((uint *) BCSR4) |= BCSR4_TFPLDL | BCSR4_TPSQEL;
-	*((uint *) BCSR1) &= ~BCSR1_ETHEN;
-#else
-	*((uint *) BCSR4) &= ~(BCSR4_ETHLOOP | BCSR4_MODEM_EN);
-	*((uint *) BCSR4) |= BCSR4_TFPLDL | BCSR4_TPSQEL | BCSR4_DATA_VOICE;
-	*((uint *) BCSR1) &= ~BCSR1_ETHEN;
-#endif
-#endif
-
 	pram_ptr = (scc_enet_t *) & (immr->im_cpm.cp_dparam[proff[scc_index]]);
 
 	rxIdx = 0;
@@ -365,23 +352,12 @@ static void scc_init (int scc_index)
 	immr->im_cpm.cp_scc[scc_index].scc_psmr = SCC_PSMR_ENCRC |
 			SCC_PSMR_NIB22 | SCC_PSMR_LPB;
 
-#ifdef CONFIG_RPXLITE
-	*((uchar *) BCSR0) |= BCSR0_ETHEN;
-#endif
-
 	/*
 	 * Set the ENT/ENR bits in the GSMR Low -- Enable Transmit/Receive
 	 */
 
 	immr->im_cpm.cp_scc[scc_index].scc_gsmrl |=
 			(SCC_GSMRL_ENR | SCC_GSMRL_ENT);
-
-	/*
-	 * Work around transmit problem with first eth packet
-	 */
-#if defined (CONFIG_FADS)
-	udelay (10000);				/* wait 10 ms */
-#endif
 }
 
 static void scc_halt (int scc_index)

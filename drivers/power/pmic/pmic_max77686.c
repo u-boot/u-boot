@@ -210,6 +210,10 @@ int pmic_init(unsigned char bus)
 {
 	static const char name[] = "MAX77686_PMIC";
 	struct pmic *p = pmic_alloc();
+#ifdef CONFIG_OF_CONTROL
+	const void *blob = gd->fdt_blob;
+	int node, parent, tmp;
+#endif
 
 	if (!p) {
 		printf("%s: POWER allocation error!\n", __func__);
@@ -217,9 +221,6 @@ int pmic_init(unsigned char bus)
 	}
 
 #ifdef CONFIG_OF_CONTROL
-	const void *blob = gd->fdt_blob;
-	int node, parent;
-
 	node = fdtdec_next_compatible(blob, 0, COMPAT_MAXIM_MAX77686_PMIC);
 	if (node < 0) {
 		debug("PMIC: No node for PMIC Chip in device tree\n");
@@ -233,11 +234,13 @@ int pmic_init(unsigned char bus)
 		return -1;
 	}
 
-	p->bus = i2c_get_bus_num_fdt(parent);
-	if (p->bus < 0) {
+	/* tmp since p->bus is unsigned */
+	tmp = i2c_get_bus_num_fdt(parent);
+	if (tmp < 0) {
 		debug("%s: Cannot find I2C bus\n", __func__);
 		return -1;
 	}
+	p->bus = tmp;
 	p->hw.i2c.addr = fdtdec_get_int(blob, node, "reg", 9);
 #else
 	p->bus = bus;

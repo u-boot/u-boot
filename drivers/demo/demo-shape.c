@@ -23,7 +23,7 @@ struct shape_data {
 };
 
 /* Crazy little function to draw shapes on the console */
-static int shape_hello(struct device *dev, int ch)
+static int shape_hello(struct udevice *dev, int ch)
 {
 	const struct dm_demo_pdata *pdata = dev_get_platdata(dev);
 	struct shape_data *data = dev_get_priv(dev);
@@ -81,7 +81,7 @@ static int shape_hello(struct device *dev, int ch)
 	return 0;
 }
 
-static int shape_status(struct device *dev, int *status)
+static int shape_status(struct udevice *dev, int *status)
 {
 	struct shape_data *data = dev_get_priv(dev);
 
@@ -94,7 +94,7 @@ static const struct demo_ops shape_ops = {
 	.status = shape_status,
 };
 
-static int shape_ofdata_to_platdata(struct device *dev)
+static int shape_ofdata_to_platdata(struct udevice *dev)
 {
 	struct dm_demo_pdata *pdata = dev_get_platdata(dev);
 	int ret;
@@ -111,7 +111,7 @@ static int shape_ofdata_to_platdata(struct device *dev)
 	return 0;
 }
 
-static const struct device_id demo_shape_id[] = {
+static const struct udevice_id demo_shape_id[] = {
 	{ "demo-shape", 0 },
 	{ },
 };

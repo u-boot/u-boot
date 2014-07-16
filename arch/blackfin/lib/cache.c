@@ -111,3 +111,13 @@ int dcache_status(void)
 {
 	return bfin_read_DMEM_CONTROL() & ACACHE_BCACHE;
 }
+
+void invalidate_dcache_range(unsigned long start, unsigned long stop)
+{
+	blackfin_dcache_flush_invalidate_range((const void *)start, (const void *)stop);
+}
+
+void flush_dcache_range(unsigned long start, unsigned long stop)
+{
+	blackfin_dcache_flush_range((const void *)start, (const void *)stop);
+}

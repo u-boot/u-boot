@@ -113,16 +113,20 @@ int kona_sdhci_init(int dev_index, u32 min_clk, u32 quirks)
 		       __func__, dev_index);
 		ret = -EINVAL;
 	}
-	if (ret)
+	if (ret) {
+		free(host);
 		return ret;
+	}
 
 	host->name = "kona-sdhci";
 	host->ioaddr = reg_base;
 	host->quirks = quirks;
 	host->host_caps = MMC_MODE_HC;
 
-	if (init_kona_mmc_core(host))
+	if (init_kona_mmc_core(host)) {
+		free(host);
 		return -EINVAL;
+	}
 
 	if (quirks & SDHCI_QUIRK_REG32_RW)
 		host->version = sdhci_readl(host, SDHCI_HOST_VERSION - 2) >> 16;

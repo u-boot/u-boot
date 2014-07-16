@@ -14,7 +14,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/davinci_misc.h>
 #include <asm/arch/ddr2_defs.h>
-#include <asm/arch/emif_defs.h>
+#include <asm/ti-common/davinci_nand.h>
 #include <asm/arch/pll_defs.h>
 
 void davinci_enable_uart0(void)

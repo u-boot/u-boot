@@ -38,8 +38,8 @@ int fit_check_image_types(uint8_t type)
 		return EXIT_FAILURE;
 }
 
-int mmap_fdt(char *cmdname, const char *fname, void **blobp,
-		struct stat *sbuf, int useunlink)
+int mmap_fdt(const char *cmdname, const char *fname, size_t size_inc,
+	     void **blobp, struct stat *sbuf, bool delete_on_error)
 {
 	void *ptr;
 	int fd;
@@ -50,17 +50,22 @@ int mmap_fdt(char *cmdname, const char *fname, void **blobp,
 	if (fd < 0) {
 		fprintf(stderr, "%s: Can't open %s: %s\n",
 			cmdname, fname, strerror(errno));
-		if (useunlink)
-			unlink(fname);
-		return -1;
+		goto err;
 	}
 
 	if (fstat(fd, sbuf) < 0) {
 		fprintf(stderr, "%s: Can't stat %s: %s\n",
 			cmdname, fname, strerror(errno));
-		if (useunlink)
-			unlink(fname);
-		return -1;
+		goto err;
+	}
+
+	if (size_inc) {
+		sbuf->st_size += size_inc;
+		if (ftruncate(fd, sbuf->st_size)) {
+			fprintf(stderr, "%s: Can't expand %s: %s\n",
+				cmdname, fname, strerror(errno));
+		goto err;
+		}
 	}
 
 	errno = 0;
@@ -68,19 +73,35 @@ int mmap_fdt(char *cmdname, const char *fname, void **blobp,
 	if ((ptr == MAP_FAILED) || (errno != 0)) {
 		fprintf(stderr, "%s: Can't read %s: %s\n",
 			cmdname, fname, strerror(errno));
-		if (useunlink)
-			unlink(fname);
-		return -1;
+		goto err;
 	}
 
 	/* check if ptr has a valid blob */
 	if (fdt_check_header(ptr)) {
 		fprintf(stderr, "%s: Invalid FIT blob\n", cmdname);
-		if (useunlink)
-			unlink(fname);
-		return -1;
+		goto err;
+	}
+
+	/* expand if needed */
+	if (size_inc) {
+		int ret;
+
+		ret = fdt_open_into(ptr, ptr, sbuf->st_size);
+		if (ret) {
+			fprintf(stderr, "%s: Cannot expand FDT: %s\n",
+				cmdname, fdt_strerror(ret));
+			goto err;
+		}
 	}
 
 	*blobp = ptr;
 	return fd;
+
+err:
+	if (fd >= 0)
+		close(fd);
+	if (delete_on_error)
+		unlink(fname);
+
+	return -1;
 }

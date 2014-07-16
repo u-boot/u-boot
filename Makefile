@@ -8,7 +8,7 @@
 VERSION = 2014
 PATCHLEVEL = 07
 SUBLEVEL =
-EXTRAVERSION = -rc1
+EXTRAVERSION =
 NAME =
 
 # *DOCUMENTATION*
@@ -209,11 +209,6 @@ HOSTCXX      = g++
 HOSTCFLAGS   = -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
 HOSTCXXFLAGS = -O2
 
-ifeq ($(shell $(HOSTCC) -v 2>&1 | grep -c "clang version"), 1)
-HOSTCFLAGS  += -Wno-unused-value -Wno-unused-parameter \
-		-Wno-missing-field-initializers -fno-delete-null-pointer-checks
-endif
-
 ifeq ($(HOSTOS),cygwin)
 HOSTCFLAGS	+= -ansi
 endif
@@ -249,18 +244,18 @@ endif
 KBUILD_MODULES :=
 KBUILD_BUILTIN := 1
 
-#	If we have only "make modules", don't compile built-in objects.
-#	When we're building modules with modversions, we need to consider
-#	the built-in objects during the descend as well, in order to
-#	make sure the checksums are up to date before we record them.
+# If we have only "make modules", don't compile built-in objects.
+# When we're building modules with modversions, we need to consider
+# the built-in objects during the descend as well, in order to
+# make sure the checksums are up to date before we record them.
 
 ifeq ($(MAKECMDGOALS),modules)
   KBUILD_BUILTIN := $(if $(CONFIG_MODVERSIONS),1)
 endif
 
-#	If we have "make <whatever> modules", compile modules
-#	in addition to whatever we do anyway.
-#	Just "make" or "make all" shall build modules as well
+# If we have "make <whatever> modules", compile modules
+# in addition to whatever we do anyway.
+# Just "make" or "make all" shall build modules as well
 
 # U-Boot does not need modules
 #ifneq ($(filter all _all modules,$(MAKECMDGOALS)),)
@@ -320,15 +315,6 @@ endif
 
 export quiet Q KBUILD_VERBOSE
 
-ifneq ($(CC),)
-ifeq ($(shell $(CC) -v 2>&1 | grep -c "clang version"), 1)
-COMPILER := clang
-else
-COMPILER := gcc
-endif
-export COMPILER
-endif
-
 # Look for make include files relative to root of kernel src
 MAKEFLAGS += --include-dir=$(srctree)
 
@@ -354,7 +340,7 @@ STRIP		= $(CROSS_COMPILE)strip
 OBJCOPY		= $(CROSS_COMPILE)objcopy
 OBJDUMP		= $(CROSS_COMPILE)objdump
 AWK		= awk
-RANLIB		= $(CROSS_COMPILE)RANLIB
+PERL		= perl
 DTC		= dtc
 CHECK		= sparse
 
@@ -376,8 +362,8 @@ export VERSION PATCHLEVEL SUBLEVEL UBOOTRELEASE UBOOTVERSION
 export ARCH CPU BOARD VENDOR SOC CPUDIR BOARDDIR
 export CONFIG_SHELL HOSTCC HOSTCFLAGS HOSTLDFLAGS CROSS_COMPILE AS LD CC
 export CPP AR NM LDR STRIP OBJCOPY OBJDUMP
-export MAKE AWK
-export DTC CHECK CHECKFLAGS
+export MAKE AWK PERL
+export HOSTCXX HOSTCXXFLAGS DTC CHECK CHECKFLAGS
 
 export KBUILD_CPPFLAGS NOSTDINC_FLAGS UBOOTINCLUDE OBJCOPYFLAGS LDFLAGS
 export KBUILD_CFLAGS KBUILD_AFLAGS
@@ -515,12 +501,6 @@ endif
 
 # If there is no specified link script, we look in a number of places for it
 ifndef LDSCRIPT
-	ifeq ($(CONFIG_NAND_U_BOOT),y)
-		LDSCRIPT := $(srctree)/board/$(BOARDDIR)/u-boot-nand.lds
-		ifeq ($(wildcard $(LDSCRIPT)),)
-			LDSCRIPT := $(srctree)/$(CPUDIR)/u-boot-nand.lds
-		endif
-	endif
 	ifeq ($(wildcard $(LDSCRIPT)),)
 		LDSCRIPT := $(srctree)/board/$(BOARDDIR)/u-boot.lds
 	endif
@@ -544,20 +524,6 @@ KBUILD_CFLAGS += -DBUILD_TAG='"$(BUILD_TAG)"'
 endif
 
 KBUILD_CFLAGS += $(call cc-option,-fno-stack-protector)
-
-ifeq ($(COMPILER),clang)
-KBUILD_CPPFLAGS += $(call cc-option,-Qunused-arguments,)
-KBUILD_CPPFLAGS += $(call cc-option,-Wno-unknown-warning-option,)
-KBUILD_CFLAGS += $(call cc-disable-warning, unused-variable)
-KBUILD_CFLAGS += $(call cc-disable-warning, format-invalid-specifier)
-KBUILD_CFLAGS += $(call cc-disable-warning, gnu)
-# Quiet clang warning: comparison of unsigned expression < 0 is always false
-KBUILD_CFLAGS += $(call cc-disable-warning, tautological-compare)
-# CLANG uses a _MergedGlobals as optimization, but this breaks modpost, as the
-# source of a reference will be _MergedGlobals and not on of the whitelisted names.
-# See modpost pattern 2
-KBUILD_CFLAGS += $(call cc-option, -mno-global-merge,)
-endif
 
 KBUILD_CFLAGS	+= -g
 # $(KBUILD_AFLAGS) sets -g, which causes gcc to pass a suitable -g<format>
@@ -740,9 +706,8 @@ DO_STATIC_RELA =
 endif
 
 # Always append ALL so that arch config.mk's can add custom ones
-ALL-y += u-boot.srec u-boot.bin System.map
+ALL-y += u-boot.srec u-boot.bin System.map binary_size_check
 
-ALL-$(CONFIG_NAND_U_BOOT) += u-boot-nand.bin
 ALL-$(CONFIG_ONENAND_U_BOOT) += u-boot-onenand.bin
 ifeq ($(CONFIG_SPL_FSL_PBL),y)
 ALL-$(CONFIG_RAMBOOT_PBL) += u-boot-with-spl-pbl.bin
@@ -819,6 +784,19 @@ u-boot.hex u-boot.srec: u-boot FORCE
 	$(call if_changed,objcopy)
 
 OBJCOPYFLAGS_u-boot.bin := -O binary
+
+binary_size_check: u-boot.bin System.map FORCE
+	@file_size=`stat -c %s u-boot.bin` ; \
+	map_size=$(shell cat System.map | \
+		awk '/_image_copy_start/ {start = $$1} /_image_binary_end/ {end = $$1} END {if (start != "" && end != "") print "ibase=16; " toupper(end) " - " toupper(start)}' \
+		| bc); \
+	if [ "" != "$$map_size" ]; then \
+		if test $$map_size -ne $$file_size; then \
+			echo "System.map shows a binary size of $$map_size" >&2 ; \
+			echo "  but u-boot.bin shows $$file_size" >&2 ; \
+			exit 1; \
+		fi \
+	fi
 
 u-boot.bin: u-boot FORCE
 	$(call if_changed,objcopy)
@@ -1148,33 +1126,16 @@ cmd_cpp_lds = $(CPP) -Wp,-MD,$(depfile) $(cpp_flags) $(LDPPFLAGS) -ansi \
 u-boot.lds: $(LDSCRIPT) prepare FORCE
 	$(call if_changed_dep,cpp_lds)
 
-PHONY += nand_spl
-nand_spl: prepare
-	$(Q)$(MAKE) $(build)=nand_spl/board/$(BOARDDIR) all
-	@echo >&2
-	@echo >&2 "==================== WARNING ====================="
-	@echo >&2 "nand_spl will not be included in v2014.07 release."
-	@echo >&2 "Please switch over to SPL."
-	@echo >&2 "Otherwise, this board will be removed."
-	@echo >&2 "=================================================="
-	@echo >&2
-
-nand_spl/u-boot-spl-16k.bin: nand_spl
-	@:
-
-u-boot-nand.bin: nand_spl/u-boot-spl-16k.bin u-boot.bin FORCE
-	$(call if_changed,cat)
-
 spl/u-boot-spl.bin: spl/u-boot-spl
 	@:
 spl/u-boot-spl: tools prepare
-	$(Q)$(MAKE) obj=spl -f $(srctree)/spl/Makefile all
+	$(Q)$(MAKE) obj=spl -f $(srctree)/scripts/Makefile.spl all
 
 spl/sunxi-spl.bin: spl/u-boot-spl
 	@:
 
 tpl/u-boot-tpl.bin: tools prepare
-	$(Q)$(MAKE) obj=tpl -f $(srctree)/spl/Makefile all CONFIG_TPL_BUILD=y
+	$(Q)$(MAKE) obj=tpl -f $(srctree)/scripts/Makefile.spl all CONFIG_TPL_BUILD=y
 
 TAG_SUBDIRS := $(u-boot-dirs) include
 
@@ -1254,14 +1215,12 @@ CLEAN_FILES += u-boot.lds include/bmp_logo.h include/bmp_logo_data.h \
 	       include/tpl-autoconf.mk
 
 # Directories & files removed with 'make clobber'
-CLOBBER_DIRS  += $(patsubst %,spl/%, $(filter-out Makefile, \
-		 $(shell ls -1 spl 2>/dev/null))) \
-		 tpl
-CLOBBER_FILES += u-boot* MLO* SPL System.map nand_spl/u-boot*
+CLOBBER_DIRS  += spl tpl
+CLOBBER_FILES += u-boot* MLO* SPL System.map
 
 # Directories & files removed with 'make mrproper'
 MRPROPER_DIRS  += include/config include/generated          \
-                  .tmp_objdiff
+		  .tmp_objdiff
 MRPROPER_FILES += .config .config.old \
 		  tags TAGS cscope* GPATH GTAGS GRTAGS GSYMS \
 		  include/config.h include/config.mk
@@ -1290,8 +1249,6 @@ clean: $(clean-dirs)
 		-o -name '*.symtypes' -o -name 'modules.order' \
 		-o -name modules.builtin -o -name '.tmp_*.o.*' \
 		-o -name '*.gcno' \) -type f -print | xargs rm -f
-	@find $(if $(KBUILD_EXTMOD), $(KBUILD_EXTMOD), .) $(RCS_FIND_IGNORE) \
-		-path './nand_spl/*' -type l -print | xargs rm -f
 
 # clobber
 #
@@ -1317,7 +1274,7 @@ $(mrproper-dirs):
 mrproper: clobber $(mrproper-dirs)
 	$(call cmd,rmdirs)
 	$(call cmd,rmfiles)
-	@rm -f arch/*/include/asm/arch arch/*/include/asm/proc
+	@rm -f arch/*/include/asm/arch
 
 # distclean
 #

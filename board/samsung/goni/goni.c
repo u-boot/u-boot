@@ -14,6 +14,8 @@
 #include <asm/arch/cpu.h>
 #include <power/max8998_pmic.h>
 #include <samsung/misc.h>
+#include <usb.h>
+#include <usb_mass_storage.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -175,6 +177,12 @@ struct s3c_plat_otg_data s5pc110_otg_data = {
 	.regs_otg = S5PC110_OTG_BASE,
 	.usb_phy_ctrl = S5PC110_USB_PHY_CONTROL,
 };
+
+int board_usb_init(int index, enum usb_init_type init)
+{
+	debug("USB_udc_probe\n");
+	return s3c_udc_probe(&s5pc110_otg_data);
+}
 #endif
 
 #ifdef CONFIG_MISC_INIT_R

@@ -220,9 +220,9 @@ int xilinx_info(xilinx_desc *desc)
 			printf ("Unsupported interface type, %d\n", desc->iface);
 		}
 
-		printf ("Device Size:   \t%d bytes\n"
-				"Cookie:        \t0x%x (%d)\n",
-				desc->size, desc->cookie, desc->cookie);
+		printf("Device Size:   \t%zd bytes\n"
+		       "Cookie:        \t0x%x (%d)\n",
+		       desc->size, desc->cookie, desc->cookie);
 		if (desc->name)
 			printf("Device name:   \t%s\n", desc->name);
 

@@ -100,17 +100,6 @@ static void smc_init (int smc_index)
 	im->im_sdma.sdma_sdmr = 0x00;
 #endif
 
-#if defined(CONFIG_FADS)
-	/* Enable RS232 */
-	*((uint *) BCSR1) &=
-			~(smc_index == 1 ? BCSR1_RS232EN_1 : BCSR1_RS232EN_2);
-#endif
-
-#if defined(CONFIG_RPXLITE)
-	/* Enable Monitor Port Transceiver */
-	*((uchar *) BCSR0) |= BCSR0_ENMONXCVR;
-#endif
-
 	/* Set the physical address of the host memory buffers in
 	 * the buffer descriptors.
 	 */

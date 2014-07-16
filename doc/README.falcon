@@ -31,9 +31,10 @@ informed to load it before running the kernel.
 To boot the kernel, these steps under a Falcon-aware U-Boot are required:
 
 1. Boot the board into U-Boot.
-Use the "spl export" command to generate the kernel parameters area or the DT.
-U-Boot runs as when it boots the kernel, but stops before passing the control
-to the kernel.
+After loading the desired legacy-format kernel image into memory (and DT as
+well, if used), use the "spl export" command to generate the kernel parameters
+area or the DT.  U-Boot runs as when it boots the kernel, but stops before
+passing the control to the kernel.
 
 2. Save the prepared snapshot into persistent media.
 The address where to save it must be configured into board configuration

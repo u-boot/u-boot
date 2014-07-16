@@ -12,6 +12,7 @@
  */
 
 #include <common.h>
+#include <cli.h>
 #include <linux/ctype.h>
 #include <asm/types.h>
 #include <asm/io.h>
@@ -1578,7 +1579,7 @@ void ddr4_spd_dump(const struct ddr4_spd_eeprom_s *spd)
 		printf("%-3d-%3d: ", 128, 255);
 
 		for (i = 128; i <= 255; i++)
-			printf("%02x", spd->mod_section.uc[i - 60]);
+			printf("%02x", spd->mod_section.uc[i - 128]);
 
 		break;
 	}
@@ -1864,11 +1865,12 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo, int var_is_set)
 		} else {
 			/*
 			 * No need to worry for buffer overflow here in
-			 * this function;  readline() maxes out at CFG_CBSIZE
+			 * this function;  cli_readline() maxes out at
+			 * CFG_CBSIZE
 			 */
-			readline_into_buffer(prompt, buffer, 0);
+			cli_readline_into_buffer(prompt, buffer, 0);
 		}
-		argc = parse_line(buffer, argv);
+		argc = cli_simple_parse_line(buffer, argv);
 		if (argc == 0)
 			continue;
 

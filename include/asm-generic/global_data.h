@@ -65,7 +65,7 @@ typedef struct global_data {
 	struct global_data *new_gd;	/* relocated global data */
 
 #ifdef CONFIG_DM
-	struct device	*dm_root;	/* Root instance for Driver Model */
+	struct udevice	*dm_root;/* Root instance for Driver Model */
 	struct list_head uclass_root;	/* Head of core tree */
 #endif
 

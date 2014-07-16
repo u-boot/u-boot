@@ -12,7 +12,7 @@
 #include <ioports.h>
 #include <command.h>
 #include <malloc.h>
-#include <hush.h>
+#include <cli_hush.h>
 #include <net.h>
 #include <netdev.h>
 #include <asm/io.h>

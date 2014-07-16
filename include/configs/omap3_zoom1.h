@@ -98,6 +98,7 @@
 #define CONFIG_SYS_NAND_BASE		NAND_BASE	/* physical address */
 							/* to access nand at */
 							/* CS0 */
+#define CONFIG_SYS_NAND_BUSWIDTH_16BIT	16
 
 /* Environment information */
 

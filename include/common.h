@@ -28,10 +28,8 @@ typedef volatile unsigned char	vu_char;
 #endif
 #if defined(CONFIG_8xx)
 #include <asm/8xx_immap.h>
-#if defined(CONFIG_MPC852)	|| defined(CONFIG_MPC852T)	|| \
-    defined(CONFIG_MPC859)	|| defined(CONFIG_MPC859T)	|| \
-    defined(CONFIG_MPC859DSL)	|| \
-    defined(CONFIG_MPC866)	|| defined(CONFIG_MPC866T)	|| \
+#if defined(CONFIG_MPC859)	|| defined(CONFIG_MPC859T)	|| \
+    defined(CONFIG_MPC866)	|| \
     defined(CONFIG_MPC866P)
 # define CONFIG_MPC866_FAMILY 1
 #elif defined(CONFIG_MPC870) \
@@ -54,8 +52,6 @@ typedef volatile unsigned char	vu_char;
 #include <asm/immap_512x.h>
 #elif defined(CONFIG_MPC8260)
 #if   defined(CONFIG_MPC8247) \
-   || defined(CONFIG_MPC8248) \
-   || defined(CONFIG_MPC8271) \
    || defined(CONFIG_MPC8272)
 #define CONFIG_MPC8272_FAMILY	1
 #endif
@@ -273,6 +269,7 @@ int print_buffer(ulong addr, const void *data, uint width, uint count,
 /* common/main.c */
 void	main_loop	(void);
 int run_command(const char *cmd, int flag);
+int run_command_repeatable(const char *cmd, int flag);
 
 /**
  * Run a list of commands separated by ; or even \0
@@ -286,12 +283,6 @@ int run_command(const char *cmd, int flag);
  * @return 0 on success, or != 0 on error.
  */
 int run_command_list(const char *cmd, int len, int flag);
-int	readline	(const char *const prompt);
-int	readline_into_buffer(const char *const prompt, char *buffer,
-			int timeout);
-int	parse_line (char *, char *[]);
-void	init_cmd_timeout(void);
-void	reset_cmd_timeout(void);
 extern char console_buffer[];
 
 /* arch/$(ARCH)/lib/board.c */
@@ -305,6 +296,7 @@ extern ulong monitor_flash_len;
 int mac_read_from_eeprom(void);
 extern u8 __dtb_dt_begin[];	/* embedded device tree blob */
 int set_cpu_clk_info(void);
+int mdm_init(void);
 #if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo(void);
 #else
@@ -505,8 +497,6 @@ extern ssize_t spi_read	 (uchar *, int, uchar *, int);
 extern ssize_t spi_write (uchar *, int, uchar *, int);
 #endif
 
-void rpxlite_init (void);
-
 #ifdef CONFIG_HERMES
 /* $(BOARD)/hermes.c */
 void hermes_start_lxt980 (int speed);
@@ -693,9 +683,6 @@ ulong get_PERCLK3(void);
 ulong	get_bus_freq  (ulong);
 int get_serial_clock(void);
 
-#if defined(CONFIG_MPC83xx) || defined(CONFIG_MPC85xx)
-ulong get_ddr_freq(ulong);
-#endif
 #if defined(CONFIG_MPC85xx)
 typedef MPC85xx_SYS_INFO sys_info_t;
 void	get_sys_info  ( sys_info_t * );
@@ -711,6 +698,8 @@ static inline ulong get_ddr_freq(ulong dummy)
 {
 	return get_bus_freq(dummy);
 }
+#else
+ulong get_ddr_freq(ulong);
 #endif
 
 #if defined(CONFIG_4xx)

@@ -5,15 +5,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-#
-# toolchains targeting win32 generate .exe files
-#
-ifneq (,$(findstring WIN32 ,$(shell $(HOSTCC) -E -dM -xc /dev/null)))
-SFX = .exe
-else
-SFX =
-endif
-
 # Enable all the config-independent tools
 ifneq ($(HOST_TOOLS_ALL),)
 CONFIG_LCD_LOGO = y
@@ -38,111 +29,118 @@ ENVCRC-$(CONFIG_ENV_IS_IN_NVRAM) = y
 ENVCRC-$(CONFIG_ENV_IS_IN_SPI_FLASH) = y
 CONFIG_BUILD_ENVCRC ?= $(ENVCRC-y)
 
+hostprogs-$(CONFIG_SPL_GENERATE_ATMEL_PMECC_HEADER) += atmel_pmecc_params
+
 # TODO: CONFIG_CMD_LICENSE does not work
-hostprogs-$(CONFIG_CMD_LICENSE) += bin2header$(SFX)
-hostprogs-$(CONFIG_LCD_LOGO) += bmp_logo$(SFX)
-hostprogs-$(CONFIG_VIDEO_LOGO) += bmp_logo$(SFX)
-HOSTCFLAGS_bmp_logo$(SFX).o := -pedantic
+hostprogs-$(CONFIG_CMD_LICENSE) += bin2header
+hostprogs-$(CONFIG_LCD_LOGO) += bmp_logo
+hostprogs-$(CONFIG_VIDEO_LOGO) += bmp_logo
+HOSTCFLAGS_bmp_logo.o := -pedantic
 
-hostprogs-$(CONFIG_BUILD_ENVCRC) += envcrc$(SFX)
-envcrc$(SFX)-objs := crc32.o env_embedded.o envcrc.o sha1.o
+hostprogs-$(CONFIG_BUILD_ENVCRC) += envcrc
+envcrc-objs := envcrc.o lib/crc32.o common/env_embedded.o lib/sha1.o
 
-hostprogs-$(CONFIG_CMD_NET) += gen_eth_addr$(SFX)
-HOSTCFLAGS_gen_eth_addr$(SFX).o := -pedantic
+hostprogs-$(CONFIG_CMD_NET) += gen_eth_addr
+HOSTCFLAGS_gen_eth_addr.o := -pedantic
 
-hostprogs-$(CONFIG_CMD_LOADS) += img2srec$(SFX)
-HOSTCFLAGS_img2srec$(SFX).o := -pedantic
+hostprogs-$(CONFIG_CMD_LOADS) += img2srec
+HOSTCFLAGS_img2srec.o := -pedantic
 
-hostprogs-$(CONFIG_XWAY_SWAP_BYTES) += xway-swap-bytes$(SFX)
-HOSTCFLAGS_xway-swap-bytes$(SFX).o := -pedantic
+hostprogs-$(CONFIG_XWAY_SWAP_BYTES) += xway-swap-bytes
+HOSTCFLAGS_xway-swap-bytes.o := -pedantic
 
-hostprogs-y += mkenvimage$(SFX)
-mkenvimage$(SFX)-objs := crc32.o mkenvimage.o os_support.o
+hostprogs-y += mkenvimage
+mkenvimage-objs := mkenvimage.o os_support.o lib/crc32.o
 
-hostprogs-y += dumpimage$(SFX) mkimage$(SFX)
-hostprogs-$(CONFIG_FIT_SIGNATURE) += fit_info$(SFX) fit_check_sign$(SFX)
+hostprogs-y += dumpimage mkimage
+hostprogs-$(CONFIG_FIT_SIGNATURE) += fit_info fit_check_sign
 
-FIT_SIG_OBJS-$(CONFIG_FIT_SIGNATURE) := image-sig.o
+FIT_SIG_OBJS-$(CONFIG_FIT_SIGNATURE) := common/image-sig.o
 # Flattened device tree objects
-LIBFDT_OBJS := fdt.o fdt_ro.o fdt_rw.o fdt_strerror.o fdt_wip.o
-RSA_OBJS-$(CONFIG_FIT_SIGNATURE) := rsa-sign.o rsa-verify.o rsa-checksum.o
+LIBFDT_OBJS := $(addprefix lib/libfdt/, \
+			fdt.o fdt_ro.o fdt_rw.o fdt_strerror.o fdt_wip.o)
+RSA_OBJS-$(CONFIG_FIT_SIGNATURE) := $(addprefix lib/rsa/, \
+					rsa-sign.o rsa-verify.o rsa-checksum.o)
 
 # common objs for dumpimage and mkimage
 dumpimage-mkimage-objs := aisimage.o \
+			atmelimage.o \
 			$(FIT_SIG_OBJS-y) \
-			crc32.o \
+			common/bootm.o \
+			lib/crc32.o \
 			default_image.o \
-			fdtdec.o \
+			lib/fdtdec_common.o \
+			lib/fdtdec.o \
 			fit_common.o \
 			fit_image.o \
 			gpimage.o \
 			gpimage-common.o \
-			image-fit.o \
+			common/image-fit.o \
 			image-host.o \
-			image.o \
+			common/image.o \
 			imagetool.o \
 			imximage.o \
 			kwbimage.o \
-			md5.o \
+			lib/md5.o \
 			mxsimage.o \
 			omapimage.o \
 			os_support.o \
 			pblimage.o \
-			sha1.o \
-			sha256.o \
+			pbl_crc32.o \
+			lib/sha1.o \
+			lib/sha256.o \
 			ublimage.o \
 			$(LIBFDT_OBJS) \
 			$(RSA_OBJS-y)
 
-dumpimage$(SFX)-objs := $(dumpimage-mkimage-objs) dumpimage.o
-mkimage$(SFX)-objs   := $(dumpimage-mkimage-objs) mkimage.o
-fit_info$(SFX)-objs   := $(dumpimage-mkimage-objs) fit_info.o
-fit_check_sign$(SFX)-objs   := $(dumpimage-mkimage-objs) fit_check_sign.o
+dumpimage-objs := $(dumpimage-mkimage-objs) dumpimage.o
+mkimage-objs   := $(dumpimage-mkimage-objs) mkimage.o
+fit_info-objs   := $(dumpimage-mkimage-objs) fit_info.o
+fit_check_sign-objs   := $(dumpimage-mkimage-objs) fit_check_sign.o
 
 # TODO(sjg@chromium.org): Is this correct on Mac OS?
 
-# MXSImage needs LibSSL
 ifneq ($(CONFIG_MX23)$(CONFIG_MX28),)
-HOSTLOADLIBES_dumpimage$(SFX) := -lssl -lcrypto
-HOSTLOADLIBES_mkimage$(SFX) := -lssl -lcrypto
-HOSTLOADLIBES_fit_info$(SFX) := -lssl -lcrypto
-HOSTLOADLIBES_fit_check_sign$(SFX) := -lssl -lcrypto
 # Add CONFIG_MXS into host CFLAGS, so we can check whether or not register
 # the mxsimage support within tools/mxsimage.c .
 HOSTCFLAGS_mxsimage.o += -DCONFIG_MXS
 endif
 
 ifdef CONFIG_FIT_SIGNATURE
-HOSTLOADLIBES_dumpimage$(SFX) := -lssl -lcrypto
-HOSTLOADLIBES_mkimage$(SFX) := -lssl -lcrypto
-HOSTLOADLIBES_fit_info$(SFX) := -lssl -lcrypto
-HOSTLOADLIBES_fit_check_sign$(SFX) := -lssl -lcrypto
-
 # This affects include/image.h, but including the board config file
 # is tricky, so manually define this options here.
 HOST_EXTRACFLAGS	+= -DCONFIG_FIT_SIGNATURE
 endif
 
-hostprogs-$(CONFIG_EXYNOS5250) += mkexynosspl$(SFX)
-hostprogs-$(CONFIG_EXYNOS5420) += mkexynosspl$(SFX)
-HOSTCFLAGS_mkexynosspl$(SFX).o := -pedantic
+# MXSImage needs LibSSL
+ifneq ($(CONFIG_MX23)$(CONFIG_MX28)$(CONFIG_FIT_SIGNATURE),)
+HOSTLOADLIBES_mkimage += -lssl -lcrypto
+endif
 
-hostprogs-$(CONFIG_MX23) += mxsboot$(SFX)
-hostprogs-$(CONFIG_MX28) += mxsboot$(SFX)
-HOSTCFLAGS_mxsboot$(SFX).o := -pedantic
+HOSTLOADLIBES_dumpimage := $(HOSTLOADLIBES_mkimage)
+HOSTLOADLIBES_fit_info := $(HOSTLOADLIBES_mkimage)
+HOSTLOADLIBES_fit_check_sign := $(HOSTLOADLIBES_mkimage)
 
-hostprogs-$(CONFIG_SUNXI) += mksunxiboot$(SFX)
+hostprogs-$(CONFIG_EXYNOS5250) += mkexynosspl
+hostprogs-$(CONFIG_EXYNOS5420) += mkexynosspl
+HOSTCFLAGS_mkexynosspl.o := -pedantic
 
-hostprogs-$(CONFIG_NETCONSOLE) += ncb$(SFX)
-hostprogs-$(CONFIG_SHA1_CHECK_UB_IMG) += ubsha1$(SFX)
+hostprogs-$(CONFIG_MX23) += mxsboot
+hostprogs-$(CONFIG_MX28) += mxsboot
+HOSTCFLAGS_mxsboot.o := -pedantic
 
-ubsha1$(SFX)-objs := os_support.o sha1.o ubsha1.o
+hostprogs-$(CONFIG_SUNXI) += mksunxiboot
+
+hostprogs-$(CONFIG_NETCONSOLE) += ncb
+hostprogs-$(CONFIG_SHA1_CHECK_UB_IMG) += ubsha1
+
+ubsha1-objs := os_support.o ubsha1.o lib/sha1.o
 
 HOSTCFLAGS_ubsha1.o := -pedantic
 
-hostprogs-$(CONFIG_KIRKWOOD) += kwboot$(SFX)
-hostprogs-y += proftool$(SFX)
-hostprogs-$(CONFIG_STATIC_RELA) += relocate-rela$(SFX)
+hostprogs-$(CONFIG_KIRKWOOD) += kwboot
+hostprogs-y += proftool
+hostprogs-$(CONFIG_STATIC_RELA) += relocate-rela
 
 # We build some files with extra pedantic flags to try to minimize things
 # that won't build on some weird host compiler -- though there are lots of
@@ -153,8 +151,16 @@ HOSTCFLAGS_sha1.o := -pedantic
 HOSTCFLAGS_sha256.o := -pedantic
 
 # Don't build by default
-#hostprogs-$(CONFIG_PPC) += mpc86x_clk$(SFX)
-#HOSTCFLAGS_mpc86x_clk$(SFX).o := -pedantic
+#hostprogs-$(CONFIG_PPC) += mpc86x_clk
+#HOSTCFLAGS_mpc86x_clk.o := -pedantic
+
+quiet_cmd_wrap = WRAP    $@
+cmd_wrap = echo "\#include <$(srctree)/$(patsubst $(obj)/%,%,$@)>" >$@
+
+$(obj)/lib/%.c $(obj)/common/%.c:
+	$(call cmd,wrap)
+
+clean-dirs := lib common
 
 always := $(hostprogs-y)
 

@@ -15,6 +15,7 @@
 #include <asm/arch/omap.h>
 
 static char *const am43xx_board_name = (char *)AM4372_BOARD_NAME_START;
+static char *const am43xx_board_rev = (char *)AM4372_BOARD_VERSION_START;
 
 /*
  * TI AM437x EVMs define a system EEPROM that defines certain sub-fields.
@@ -45,6 +46,21 @@ static inline int board_is_eposevm(void)
 static inline int board_is_gpevm(void)
 {
 	return !strncmp(am43xx_board_name, "AM43__GP", HDR_NAME_LEN);
+}
+
+static inline int board_is_sk(void)
+{
+	return !strncmp(am43xx_board_name, "AM43__SK", HDR_NAME_LEN);
+}
+
+static inline int board_is_evm_14_or_later(void)
+{
+	return (board_is_gpevm() && strncmp("1.4", am43xx_board_rev, 3) <= 0);
+}
+
+static inline int board_is_evm_12_or_later(void)
+{
+	return (board_is_gpevm() && strncmp("1.2", am43xx_board_rev, 3) <= 0);
 }
 
 void enable_uart0_pin_mux(void);

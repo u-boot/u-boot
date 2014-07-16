@@ -14,6 +14,7 @@
 #include <dm/platdata.h>
 #include <dm/uclass.h>
 #include <dm/util.h>
+#include <fdtdec.h>
 #include <linux/compiler.h>
 
 struct driver *lists_driver_lookup_name(const char *name)
@@ -60,13 +61,13 @@ struct uclass_driver *lists_uclass_lookup(enum uclass_id id)
 	return NULL;
 }
 
-int lists_bind_drivers(struct device *parent)
+int lists_bind_drivers(struct udevice *parent)
 {
 	struct driver_info *info =
 		ll_entry_start(struct driver_info, driver_info);
 	const int n_ents = ll_entry_count(struct driver_info, driver_info);
 	struct driver_info *entry;
-	struct device *dev;
+	struct udevice *dev;
 	int result = 0;
 	int ret;
 
@@ -94,7 +95,7 @@ int lists_bind_drivers(struct device *parent)
  * tree error
  */
 static int driver_check_compatible(const void *blob, int offset,
-				   const struct device_id *of_match)
+				   const struct udevice_id *of_match)
 {
 	int ret;
 
@@ -116,12 +117,12 @@ static int driver_check_compatible(const void *blob, int offset,
 	return -ENOENT;
 }
 
-int lists_bind_fdt(struct device *parent, const void *blob, int offset)
+int lists_bind_fdt(struct udevice *parent, const void *blob, int offset)
 {
 	struct driver *driver = ll_entry_start(struct driver, driver);
 	const int n_ents = ll_entry_count(struct driver, driver);
 	struct driver *entry;
-	struct device *dev;
+	struct udevice *dev;
 	const char *name;
 	int result = 0;
 	int ret;

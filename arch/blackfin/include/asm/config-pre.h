@@ -9,9 +9,6 @@
 #ifndef __ASM_BLACKFIN_CONFIG_PRE_H__
 #define __ASM_BLACKFIN_CONFIG_PRE_H__
 
-/* Misc helper functions */
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
-
 /* Bootmode defines -- your config needs to select this via CONFIG_BFIN_BOOT_MODE.
  * Depending on your cpu, some of these may not be valid, check your HRM.
  * The actual values here are meaningless as long as they're unique.

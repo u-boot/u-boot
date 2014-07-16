@@ -331,8 +331,11 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 	char *cmd = req->buf;
 	char response[RESPONSE_LEN];
 	const char *s;
+	size_t chars_left;
 
 	strcpy(response, "OKAY");
+	chars_left = sizeof(response) - strlen(response) - 1;
+
 	strsep(&cmd, ":");
 	if (!cmd) {
 		fastboot_tx_write_str("FAILmissing var");
@@ -340,18 +343,18 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 	}
 
 	if (!strcmp_l1("version", cmd)) {
-		strncat(response, FASTBOOT_VERSION, sizeof(response));
+		strncat(response, FASTBOOT_VERSION, chars_left);
 	} else if (!strcmp_l1("bootloader-version", cmd)) {
-		strncat(response, U_BOOT_VERSION, sizeof(response));
+		strncat(response, U_BOOT_VERSION, chars_left);
 	} else if (!strcmp_l1("downloadsize", cmd)) {
 		char str_num[12];
 
 		sprintf(str_num, "%08x", CONFIG_USB_FASTBOOT_BUF_SIZE);
-		strncat(response, str_num, sizeof(response));
+		strncat(response, str_num, chars_left);
 	} else if (!strcmp_l1("serialno", cmd)) {
 		s = getenv("serial#");
 		if (s)
-			strncat(response, s, sizeof(response));
+			strncat(response, s, chars_left);
 		else
 			strcpy(response, "FAILValue not set");
 	} else {

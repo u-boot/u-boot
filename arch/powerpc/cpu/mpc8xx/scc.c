@@ -197,19 +197,6 @@ static int scc_init (struct eth_device *dev, bd_t * bis)
 	reset_phy();
 #endif
 
-#ifdef CONFIG_FADS
-#if defined(CONFIG_MPC86xADS) || defined(CONFIG_MPC860T)
-	/* The MPC86xADS/FADS860T don't use the MODEM_EN or DATA_VOICE signals. */
-	*((uint *) BCSR4) &= ~BCSR4_ETHLOOP;
-	*((uint *) BCSR4) |= BCSR4_TFPLDL | BCSR4_TPSQEL;
-	*((uint *) BCSR1) &= ~BCSR1_ETHEN;
-#else
-	*((uint *) BCSR4) &= ~(BCSR4_ETHLOOP | BCSR4_MODEM_EN);
-	*((uint *) BCSR4) |= BCSR4_TFPLDL | BCSR4_TPSQEL | BCSR4_DATA_VOICE;
-	*((uint *) BCSR1) &= ~BCSR1_ETHEN;
-#endif
-#endif
-
 	pram_ptr = (scc_enet_t *) & (immr->im_cpm.cp_dparam[PROFF_ENET]);
 
 	rxIdx = 0;
@@ -461,20 +448,6 @@ static int scc_init (struct eth_device *dev, bd_t * bis)
 #error Configuration Error: exactly ONE of PB_ENET_TENA, PC_ENET_TENA must be defined
 #endif
 
-#ifdef CONFIG_RPXLITE
-	*((uchar *) BCSR0) |= BCSR0_ETHEN;
-#endif
-
-#if defined(CONFIG_QS860T)
-	/*
-	 * PB27=FDE-, set output low for full duplex
-	 * PB26=Link Test Enable, normally high output
-	 */
-	immr->im_cpm.cp_pbdir |= 0x00000030;
-	immr->im_cpm.cp_pbdat |= 0x00000020;
-	immr->im_cpm.cp_pbdat &= ~0x00000010;
-#endif /* QS860T */
-
 #if defined(CONFIG_NETVIA)
 #if defined(PA_ENET_PDN)
 	immr->im_ioport.iop_papar &= ~PA_ENET_PDN;
@@ -501,13 +474,6 @@ static int scc_init (struct eth_device *dev, bd_t * bis)
 
 	immr->im_cpm.cp_scc[SCC_ENET].scc_gsmrl |=
 		(SCC_GSMRL_ENR | SCC_GSMRL_ENT);
-
-	/*
-	 * Work around transmit problem with first eth packet
-	 */
-#if defined (CONFIG_FADS)
-	udelay (10000);		/* wait 10 ms */
-#endif
 
 	return 1;
 }

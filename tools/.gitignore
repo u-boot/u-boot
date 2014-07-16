@@ -17,7 +17,9 @@
 /relocate-rela
 /ubsha1
 /xway-swap-bytes
-/*.exe
 /easylogo/easylogo
 /gdb/gdbcont
 /gdb/gdbsend
+
+/lib/
+/common/

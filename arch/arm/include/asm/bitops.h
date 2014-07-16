@@ -17,7 +17,7 @@
 
 #ifdef __KERNEL__
 
-#include <asm/proc/system.h>
+#include <asm/proc-armv/system.h>
 
 #define smp_mb__before_clear_bit()	do { } while (0)
 #define smp_mb__after_clear_bit()	do { } while (0)

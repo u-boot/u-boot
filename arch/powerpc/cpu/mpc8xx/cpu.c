@@ -97,14 +97,8 @@ static int check_CPU (long clock, uint pvr, uint immr)
 		pre = 'M'; m = 1;
 		if (id_str == NULL)
 			id_str =
-# if defined(CONFIG_MPC852T)
-		"PC852T";
-# elif defined(CONFIG_MPC859T)
+# if defined(CONFIG_MPC859T)
 		"PC859T";
-# elif defined(CONFIG_MPC859DSL)
-		"PC859DSL";
-# elif defined(CONFIG_MPC866T)
-		"PC866T";
 # else
 		"PC866x"; /* Unknown chip from MPC866 family */
 # endif

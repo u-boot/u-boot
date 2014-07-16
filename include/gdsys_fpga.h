@@ -43,10 +43,12 @@ struct ihs_gpio {
 };
 
 struct ihs_i2c {
-	u16 write_mailbox;
+	u16 interrupt_status;
+	u16 interrupt_enable;
 	u16 write_mailbox_ext;
-	u16 read_mailbox;
+	u16 write_mailbox;
 	u16 read_mailbox_ext;
+	u16 read_mailbox;
 };
 
 struct ihs_osd {
@@ -84,7 +86,6 @@ struct ihs_fpga {
 #endif
 
 #ifdef CONFIG_IO64
-
 struct ihs_fpga_channel {
 	u16 status_int;
 	u16 config_int;
@@ -121,9 +122,9 @@ struct ihs_fpga {
 	u16 reserved_0[6];	/* 0x0008 */
 	struct ihs_gpio gpio;	/* 0x0014 */
 	u16 mpc3w_control;	/* 0x001a */
-	u16 reserved_1[19];	/* 0x001c */
-	u16 videocontrol;	/* 0x0042 */
-	u16 reserved_2[14];	/* 0x0044 */
+	u16 reserved_1[18];	/* 0x001c */
+	struct ihs_i2c i2c;	/* 0x0040 */
+	u16 reserved_2[10];	/* 0x004c */
 	u16 mc_int;		/* 0x0060 */
 	u16 mc_int_en;		/* 0x0062 */
 	u16 mc_status;		/* 0x0064 */
@@ -150,15 +151,13 @@ struct ihs_fpga {
 	u16 fpga_features;	/* 0x0006 */
 	u16 reserved_0[10];	/* 0x0008 */
 	u16 extended_interrupt; /* 0x001c */
-	u16 reserved_1[9];	/* 0x001e */
-	struct ihs_i2c i2c;	/* 0x0030 */
-	u16 reserved_2[16];	/* 0x0038 */
+	u16 reserved_1[29];	/* 0x001e */
 	u16 mpc3w_control;	/* 0x0058 */
-	u16 reserved_3[34];	/* 0x005a */
-	u16 videocontrol;	/* 0x009e */
-	u16 reserved_4[176];	/* 0x00a0 */
+	u16 reserved_2[3];	/* 0x005a */
+	struct ihs_i2c i2c;	/* 0x0060 */
+	u16 reserved_3[205];	/* 0x0066 */
 	struct ihs_osd osd;	/* 0x0200 */
-	u16 reserved_5[761];	/* 0x020e */
+	u16 reserved_4[761];	/* 0x020e */
 	u16 videomem[31736];	/* 0x0800 */
 };
 #endif

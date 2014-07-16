@@ -11,10 +11,28 @@ obj-y += main.o
 obj-y += command.o
 obj-y += exports.o
 obj-y += hash.o
-obj-$(CONFIG_SYS_HUSH_PARSER) += hush.o
+ifdef CONFIG_SYS_HUSH_PARSER
+obj-y += cli_hush.o
+endif
+
+# We always have this since drivers/ddr/fs/interactive.c needs it
+obj-y += cli_simple.o
+
+obj-y += cli.o
+obj-y += cli_readline.o
 obj-y += s_record.o
 obj-y += xyzModem.o
 obj-y += cmd_disk.o
+
+# This option is not just y/n - it can have a numeric value
+ifdef CONFIG_BOOTDELAY
+obj-y += autoboot.o
+endif
+
+# This option is not just y/n - it can have a numeric value
+ifdef CONFIG_BOOT_RETRY_TIME
+obj-y += bootretry.o
+endif
 
 # boards
 obj-$(CONFIG_SYS_GENERIC_BOARD) += board_f.o
@@ -22,7 +40,7 @@ obj-$(CONFIG_SYS_GENERIC_BOARD) += board_r.o
 
 # core command
 obj-y += cmd_boot.o
-obj-$(CONFIG_CMD_BOOTM) += cmd_bootm.o
+obj-$(CONFIG_CMD_BOOTM) += cmd_bootm.o bootm.o bootm_os.o
 obj-y += cmd_help.o
 obj-y += cmd_version.o
 
@@ -96,6 +114,7 @@ obj-$(CONFIG_CMD_FUSE) += cmd_fuse.o
 obj-$(CONFIG_CMD_GETTIME) += cmd_gettime.o
 obj-$(CONFIG_CMD_GPIO) += cmd_gpio.o
 obj-$(CONFIG_CMD_I2C) += cmd_i2c.o
+obj-$(CONFIG_CMD_IOTRACE) += cmd_iotrace.o
 obj-$(CONFIG_CMD_HASH) += cmd_hash.o
 obj-$(CONFIG_CMD_IDE) += cmd_ide.o
 obj-$(CONFIG_CMD_IMMAP) += cmd_immap.o
@@ -243,6 +262,7 @@ obj-$(CONFIG_ANDROID_BOOT_IMAGE) += image-android.o
 obj-$(CONFIG_OF_LIBFDT) += image-fdt.o
 obj-$(CONFIG_FIT) += image-fit.o
 obj-$(CONFIG_FIT_SIGNATURE) += image-sig.o
+obj-$(CONFIG_IO_TRACE) += iotrace.o
 obj-y += memsize.o
 obj-y += stdio.o
 

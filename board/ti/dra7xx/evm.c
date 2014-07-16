@@ -82,6 +82,12 @@ int board_init(void)
 
 int board_late_init(void)
 {
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	if (omap_revision() == DRA722_ES1_0)
+		setenv("board_name", "dra72x");
+	else
+		setenv("board_name", "dra7xx");
+#endif
 	init_sata(0);
 	return 0;
 }

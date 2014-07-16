@@ -173,20 +173,6 @@ static int smc_init (void)
 # endif
 #endif
 
-#if defined(CONFIG_FADS)
-	/* Enable RS232 */
-#if defined(CONFIG_8xx_CONS_SMC1)
-	*((uint *) BCSR1) &= ~BCSR1_RS232EN_1;
-#else
-	*((uint *) BCSR1) &= ~BCSR1_RS232EN_2;
-#endif
-#endif	/* CONFIG_FADS */
-
-#if defined(CONFIG_RPXLITE)
-	/* Enable Monitor Port Transceiver */
-	*((uchar *) BCSR0) |= BCSR0_ENMONXCVR ;
-#endif /* CONFIG_RPXLITE */
-
 	/* Set the physical address of the host memory buffers in
 	 * the buffer descriptors.
 	 */

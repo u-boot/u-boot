@@ -16,7 +16,10 @@ create an uImage in the new format: mkimage and dtc, although only one
 (mkimage) is invoked directly. dtc is called from within mkimage and operates
 behind the scenes, but needs to be present in the $PATH nevertheless. It is
 important that the dtc used has support for binary includes -- refer to
-www.jdl.com for its latest version. mkimage (together with dtc) takes as input
+
+	git://git.kernel.org/pub/scm/utils/dtc/dtc.git
+
+for its latest version. mkimage (together with dtc) takes as input
 an image source file, which describes the contents of the image and defines
 its various properties used during booting. By convention, image source file
 has the ".its" extension, also, the details of its format are given in

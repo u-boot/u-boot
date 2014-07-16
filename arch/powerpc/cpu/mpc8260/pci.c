@@ -242,8 +242,6 @@ void pci_mpc8250_init (struct pci_controller *hose)
 	immap->im_siu_conf.sc_siumcr =
 		(immap->im_siu_conf.sc_siumcr & ~SIUMCR_LBPC11)
 		| SIUMCR_LBPC01;
-#elif defined(CONFIG_ADSTYPE) && CONFIG_ADSTYPE == CONFIG_SYS_PQ2FADS
-/* nothing to do for this board here */
 #elif defined CONFIG_MPC8272
 	immap->im_siu_conf.sc_siumcr = (immap->im_siu_conf.sc_siumcr &
 				  ~SIUMCR_BBD &

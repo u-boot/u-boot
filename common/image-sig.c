@@ -13,8 +13,8 @@
 DECLARE_GLOBAL_DATA_PTR;
 #endif /* !USE_HOSTCC*/
 #include <image.h>
-#include <rsa.h>
-#include <rsa-checksum.h>
+#include <u-boot/rsa.h>
+#include <u-boot/rsa-checksum.h>
 
 #define IMAGE_MAX_HASHED_NODES		100
 
@@ -467,6 +467,6 @@ int fit_config_verify_required_sigs(const void *fit, int conf_noffset,
 
 int fit_config_verify(const void *fit, int conf_noffset)
 {
-	return !fit_config_verify_required_sigs(fit, conf_noffset,
-						gd_fdt_blob());
+	return fit_config_verify_required_sigs(fit, conf_noffset,
+					       gd_fdt_blob());
 }

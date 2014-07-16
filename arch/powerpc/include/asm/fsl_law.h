@@ -68,6 +68,7 @@ enum law_trgt_if {
 	LAW_TRGT_IF_DDR_INTLV_1234 = 0x16,
 	LAW_TRGT_IF_BMAN = 0x18,
 	LAW_TRGT_IF_DCSR = 0x1d,
+	LAW_TRGT_IF_CCSR = 0x1e,
 	LAW_TRGT_IF_LBC = 0x1f,
 	LAW_TRGT_IF_QMAN = 0x3c,
 

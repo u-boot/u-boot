@@ -1,0 +1,127 @@
+/*
+ * SAMSUNG/GOOGLE Peach-Pit board device tree source
+ *
+ * Copyright (c) 2013 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/dts-v1/;
+/include/ "exynos54xx.dtsi"
+
+/ {
+	model = "Samsung/Google Peach Pit board based on Exynos5420";
+
+	compatible = "google,pit-rev#", "google,pit",
+		"google,peach", "samsung,exynos5420", "samsung,exynos5";
+
+	config {
+		google,bad-wake-gpios = <&gpio 0x56 0>; /* gpx0-6 */
+		hwid = "PIT TEST A-A 7848";
+		lazy-init = <1>;
+	};
+
+	aliases {
+		serial0 = "/serial@12C30000";
+		console = "/serial@12C30000";
+		pmic = "/i2c@12ca0000";
+	};
+
+	dmc {
+		mem-manuf = "samsung";
+		mem-type = "ddr3";
+		clock-frequency = <800000000>;
+		arm-frequency = <1700000000>;
+	};
+
+	tmu@10060000 {
+		samsung,min-temp	= <25>;
+		samsung,max-temp	= <125>;
+		samsung,start-warning	= <95>;
+		samsung,start-tripping	= <105>;
+		samsung,hw-tripping	= <110>;
+		samsung,efuse-min-value	= <40>;
+		samsung,efuse-value	= <55>;
+		samsung,efuse-max-value	= <100>;
+		samsung,slope		= <274761730>;
+		samsung,dc-value	= <25>;
+	};
+
+	/* MAX77802 is on i2c bus 4 */
+	i2c@12ca0000 {
+		clock-frequency = <400000>;
+		power-regulator@9 {
+			compatible = "maxim,max77802-pmic";
+			reg = <0x9>;
+		};
+	};
+
+	i2c@12cd0000 { /* i2c7 */
+		clock-frequency = <100000>;
+	       soundcodec@20 {
+	              reg = <0x20>;
+	              compatible = "maxim,max98090-codec";
+	       };
+	};
+
+        sound@3830000 {
+                samsung,codec-type = "max98090";
+        };
+
+	i2c@12e10000 { /* i2c9 */
+		clock-frequency = <400000>;
+                tpm@20 {
+                        compatible = "infineon,slb9645-tpm";
+                        reg = <0x20>;
+		};
+	};
+
+	spi@12d30000 { /* spi1 */
+		spi-max-frequency = <50000000>;
+		firmware_storage_spi: flash@0 {
+			reg = <0>;
+
+			/*
+			 * A region for the kernel to store a panic event
+			 * which the firmware will add to the log.
+			*/
+			elog-panic-event-offset = <0x01e00000 0x100000>;
+
+			elog-shrink-size = <0x400>;
+			elog-full-threshold = <0xc00>;
+		};
+	};
+
+	spi@12d40000 { /* spi2 */
+		spi-max-frequency = <4000000>;
+		spi-deactivate-delay = <200>;
+		cros-ec@0 {
+			reg = <0>;
+			compatible = "google,cros-ec";
+			spi-half-duplex;
+			spi-max-timeout-ms = <1100>;
+			spi-frame-header = <0xec>;
+			ec-interrupt = <&gpio 93 1>; /* GPX1_5 */
+
+			/*
+			 * This describes the flash memory within the EC. Note
+			 * that the STM32L flash erases to 0, not 0xff.
+			 */
+			#address-cells = <1>;
+			#size-cells = <1>;
+			flash@8000000 {
+				reg = <0x08000000 0x20000>;
+				erase-value = <0>;
+			};
+		};
+	};
+
+	xhci@12000000 {
+		samsung,vbus-gpio = <&gpio 0x40 0>; /* H00 */
+	};
+
+	xhci@12400000 {
+		samsung,vbus-gpio = <&gpio 0x41 0>; /* H01 */
+	};
+};

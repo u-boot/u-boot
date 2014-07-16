@@ -13,7 +13,7 @@
 #include <hash.h>
 #include <malloc.h>
 #include <os.h>
-#include <sha256.h>
+#include <u-boot/sha256.h>
 #include <spi.h>
 #include <asm/state.h>
 #include <asm/sdl.h>

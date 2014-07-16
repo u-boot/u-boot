@@ -41,7 +41,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		break;
 #ifdef CONFIG_SYS_SPI1
 	case SPI1_BUS:
-		ds->regs = (struct davinci_spi_regs *)SPI0_BASE;
+		ds->regs = (struct davinci_spi_regs *)SPI1_BASE;
 		break;
 #endif
 #ifdef CONFIG_SYS_SPI2

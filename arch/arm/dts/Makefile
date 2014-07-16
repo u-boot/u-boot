@@ -6,7 +6,8 @@ dtb-$(CONFIG_EXYNOS4) += exynos4210-origen.dtb \
 dtb-$(CONFIG_EXYNOS5) += exynos5250-arndale.dtb \
 	exynos5250-snow.dtb \
 	exynos5250-smdk5250.dtb \
-	exynos5420-smdk5420.dtb
+	exynos5420-smdk5420.dtb \
+	exynos5420-peach-pit.dtb
 dtb-$(CONFIG_MX6) += imx6q-sabreauto.dtb
 dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
 	tegra20-medcom-wide.dtb \
@@ -31,6 +32,7 @@ dtb-$(CONFIG_ZYNQ) += zynq-zc702.dtb \
 	zynq-zc770-xm010.dtb \
 	zynq-zc770-xm012.dtb \
 	zynq-zc770-xm013.dtb
+dtb-$(CONFIG_AM33XX) += am335x-boneblack.dtb
 
 targets += $(dtb-y)
 

@@ -32,6 +32,7 @@ obj-$(CONFIG_USE_ARCH_MEMCPY) += memcpy.o
 else
 obj-$(CONFIG_SPL_FRAMEWORK) += spl.o
 endif
+obj-$(CONFIG_SEMIHOSTING) += semihosting.o
 
 obj-y	+= sections.o
 ifdef CONFIG_ARM64

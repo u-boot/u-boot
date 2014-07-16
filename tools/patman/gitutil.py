@@ -232,6 +232,10 @@ def ApplyPatches(verbose, args, start_point):
         print stdout
         return False
     old_head = stdout.splitlines()[0]
+    if old_head == 'undefined':
+        str = "Invalid HEAD '%s'" % stdout.strip()
+        print col.Color(col.RED, str)
+        return False
 
     # Checkout the required start point
     cmd = ['git', 'checkout', 'HEAD~%d' % start_point]

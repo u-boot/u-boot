@@ -31,9 +31,6 @@
 #endif
 #include <net.h>
 #include <serial.h>
-#if defined(CONFIG_CMD_BEDBUG)
-#include <cmd_bedbug.h>
-#endif
 #ifdef CONFIG_SYS_ALLOC_DPRAM
 #include <commproc.h>
 #endif
@@ -602,11 +599,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	last_stage_init ();
 #endif
 
-#if defined(CONFIG_CMD_BEDBUG)
-	WATCHDOG_RESET ();
-	bedbug_init ();
-#endif
-
 #if defined(CONFIG_PRAM) || defined(CONFIG_LOGBUFFER)
 	/*
 	 * Export available size of memory for Linux,
@@ -626,13 +618,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 		sprintf (memsz, "%ldk", (bd->bi_memsize / 1024) - pram);
 		setenv ("mem", memsz);
 	}
-#endif
-
-#ifdef CONFIG_MODEM_SUPPORT
- {
-	 extern int do_mdm_init;
-	 do_mdm_init = gd->do_mdm_init;
- }
 #endif
 
 #ifdef CONFIG_WATCHDOG

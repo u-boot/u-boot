@@ -20,6 +20,43 @@ static void at91_disable_wdt(void)
 	writel(AT91_WDT_MR_WDDIS, &wdt->mr);
 }
 
+static void switch_to_main_crystal_osc(void)
+{
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
+	u32 tmp;
+
+	tmp = readl(&pmc->mor);
+	tmp &= ~AT91_PMC_MOR_OSCOUNT(0xff);
+	tmp &= ~AT91_PMC_MOR_KEY(0xff);
+	tmp |= AT91_PMC_MOR_MOSCEN;
+	tmp |= AT91_PMC_MOR_OSCOUNT(8);
+	tmp |= AT91_PMC_MOR_KEY(0x37);
+	writel(tmp, &pmc->mor);
+	while (!(readl(&pmc->sr) & AT91_PMC_IXR_MOSCS))
+		;
+
+	tmp = readl(&pmc->mor);
+	tmp &= ~AT91_PMC_MOR_OSCBYPASS;
+	tmp &= ~AT91_PMC_MOR_KEY(0xff);
+	tmp |= AT91_PMC_MOR_KEY(0x37);
+	writel(tmp, &pmc->mor);
+
+	tmp = readl(&pmc->mor);
+	tmp |= AT91_PMC_MOR_MOSCSEL;
+	tmp &= ~AT91_PMC_MOR_KEY(0xff);
+	tmp |= AT91_PMC_MOR_KEY(0x37);
+	writel(tmp, &pmc->mor);
+
+	while (!(readl(&pmc->sr) & AT91_PMC_IXR_MOSCSELS))
+		;
+
+	tmp = readl(&pmc->mor);
+	tmp &= ~AT91_PMC_MOR_MOSCRCEN;
+	tmp &= ~AT91_PMC_MOR_KEY(0xff);
+	tmp |= AT91_PMC_MOR_KEY(0x37);
+	writel(tmp, &pmc->mor);
+}
+
 void at91_plla_init(u32 pllar)
 {
 	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
@@ -76,6 +113,8 @@ u32 spl_boot_mode(void)
 
 void s_init(void)
 {
+	switch_to_main_crystal_osc();
+
 	/* disable watchdog */
 	at91_disable_wdt();
 

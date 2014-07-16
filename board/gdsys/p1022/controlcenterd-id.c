@@ -30,7 +30,7 @@
 #include <i2c.h>
 #include <mmc.h>
 #include <tpm.h>
-#include <sha1.h>
+#include <u-boot/sha1.h>
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
 #include <pca9698.h>
@@ -84,6 +84,11 @@ enum {
 	ESDHC_BOOT_IMAGE_ADDR_OFS	= 0x50,
 	ESDHC_BOOT_IMAGE_TARGET_OFS	= 0x58,
 	ESDHC_BOOT_IMAGE_ENTRY_OFS	= 0x60,
+};
+
+enum {
+	I2C_SOC_0 = 0,
+	I2C_SOC_1 = 1,
 };
 
 struct key_program {
@@ -1156,7 +1161,7 @@ static void ccdm_hang(void)
 	int j;
 #endif
 
-	I2C_SET_BUS(0);
+	I2C_SET_BUS(I2C_SOC_0);
 	pca9698_direction_output(0x22, 0, 0); /* Finder */
 	pca9698_direction_output(0x22, 4, 0); /* Status */
 
@@ -1189,8 +1194,8 @@ int startup_ccdm_id_module(void)
 	int result = 0;
 	unsigned int orig_i2c_bus;
 
-	orig_i2c_bus = I2C_GET_BUS();
-	I2C_SET_BUS(1);
+	orig_i2c_bus = i2c_get_bus_num();
+	i2c_set_bus_num(I2C_SOC_1);
 
 	/* goto end; */
 
@@ -1216,7 +1221,7 @@ int startup_ccdm_id_module(void)
 failure:
 	result = 1;
 end:
-	I2C_SET_BUS(orig_i2c_bus);
+	i2c_set_bus_num(orig_i2c_bus);
 	if (result)
 		ccdm_hang();
 

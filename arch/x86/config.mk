@@ -16,17 +16,18 @@ PF_CPPFLAGS_X86   := $(call cc-option, -fno-toplevel-reorder, \
 PLATFORM_CPPFLAGS += $(PF_CPPFLAGS_X86)
 PLATFORM_CPPFLAGS += -fno-dwarf2-cfi-asm
 PLATFORM_CPPFLAGS += -DREALMODE_BASE=0x7c0
+PLATFORM_CPPFLAGS += -march=i386 -m32
 
 # Support generic board on x86
 __HAVE_ARCH_GENERIC_BOARD := y
 
 PLATFORM_RELFLAGS += -ffunction-sections -fvisibility=hidden
 
-PLATFORM_LDFLAGS += --emit-relocs -Bsymbolic -Bsymbolic-functions
+PLATFORM_LDFLAGS += --emit-relocs -Bsymbolic -Bsymbolic-functions -m elf_i386
 
 LDFLAGS_FINAL += --gc-sections -pie
 LDFLAGS_FINAL += --wrap=__divdi3 --wrap=__udivdi3
 LDFLAGS_FINAL += --wrap=__moddi3 --wrap=__umoddi3
 
-export NORMAL_LIBGCC = $(shell $(CC) $(CFLAGS) -print-libgcc-file-name)
+export NORMAL_LIBGCC = $(shell $(CC) $(PLATFORM_CPPFLAGS) -print-libgcc-file-name)
 CONFIG_USE_PRIVATE_LIBGCC := arch/x86/lib

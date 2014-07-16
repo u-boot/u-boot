@@ -111,6 +111,7 @@
 #define CONFIG_CMD_LED		/* LED support			*/
 #define CONFIG_CMD_SETEXPR	/* Evaluate expressions		*/
 #define CONFIG_CMD_GPIO     /* Enable gpio command */
+#define CONFIG_CMD_DHCP
 
 #define CONFIG_VIDEO_OMAP3	/* DSS Support			*/
 
@@ -295,6 +296,7 @@
 #define CONFIG_SPL_OMAP3_ID_NAND
 
 /* NAND boot config */
+#define CONFIG_SYS_NAND_BUSWIDTH_16BIT	16
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_PAGE_COUNT	64
 #define CONFIG_SYS_NAND_PAGE_SIZE	2048

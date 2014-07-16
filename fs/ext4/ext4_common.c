@@ -1380,7 +1380,7 @@ void ext4fs_allocate_blocks(struct ext2_inode *file_inode,
 	unsigned int no_blks_reqd = 0;
 
 	/* allocation of direct blocks */
-	for (i = 0; i < INDIRECT_BLOCKS; i++) {
+	for (i = 0; total_remaining_blocks && i < INDIRECT_BLOCKS; i++) {
 		direct_blockno = ext4fs_get_new_blk_no();
 		if (direct_blockno == -1) {
 			printf("no block left to assign\n");
@@ -1390,8 +1390,6 @@ void ext4fs_allocate_blocks(struct ext2_inode *file_inode,
 		debug("DB %ld: %u\n", direct_blockno, total_remaining_blocks);
 
 		total_remaining_blocks--;
-		if (total_remaining_blocks == 0)
-			break;
 	}
 
 	alloc_single_indirect_block(file_inode, &total_remaining_blocks,

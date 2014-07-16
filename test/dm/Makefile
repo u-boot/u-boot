@@ -15,4 +15,6 @@ obj-$(CONFIG_DM_TEST) += ut.o
 # subsystem you must add sandbox tests here.
 obj-$(CONFIG_DM_TEST) += core.o
 obj-$(CONFIG_DM_TEST) += ut.o
+ifneq ($(CONFIG_SANDBOX),)
 obj-$(CONFIG_DM_GPIO) += gpio.o
+endif

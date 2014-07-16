@@ -5,7 +5,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __H_
+#ifndef _TPS6586X_H_
 #define _TPS6586X_H_
 
 enum {

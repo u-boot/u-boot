@@ -1899,7 +1899,8 @@ defined(CONFIG_PPC_T1020) || defined(CONFIG_PPC_T1022)
 	u32	sata2liodnr;	/* SATA 2 LIODN */
 	u32	sata3liodnr;	/* SATA 3 LIODN */
 	u32	sata4liodnr;	/* SATA 4 LIODN */
-	u8      res22[24];
+	u8	res22[20];
+	u32	tdmliodnr;	/* TDM LIODN */
 	u32     qeliodnr;       /* QE LIODN */
 	u8      res_57c[4];
 	u32	dma1liodnr;	/* DMA 1 LIODN */
@@ -2521,14 +2522,17 @@ typedef struct serdes_corenet {
 #define SRDS_PLLCR0_RFCK_SEL_150	0x30000000
 #define SRDS_PLLCR0_RFCK_SEL_161_13	0x40000000
 #define SRDS_PLLCR0_RFCK_SEL_122_88	0x50000000
+#define SRDS_PLLCR0_PLL_LCK		0x00800000
 #define SRDS_PLLCR0_DCBIAS_OUT_EN      0x02000000
 #define SRDS_PLLCR0_FRATE_SEL_MASK	0x000f0000
 #define SRDS_PLLCR0_FRATE_SEL_5		0x00000000
+#define SRDS_PLLCR0_FRATE_SEL_4_9152	0x00030000
 #define SRDS_PLLCR0_FRATE_SEL_3_75	0x00050000
 #define SRDS_PLLCR0_FRATE_SEL_5_15	0x00060000
 #define SRDS_PLLCR0_FRATE_SEL_4		0x00070000
-#define SRDS_PLLCR0_FRATE_SEL_3_12	0x00090000
-#define SRDS_PLLCR0_FRATE_SEL_3		0x000a0000
+#define SRDS_PLLCR0_FRATE_SEL_3_125	0x00090000
+#define SRDS_PLLCR0_FRATE_SEL_3_0	0x000a0000
+#define SRDS_PLLCR0_FRATE_SEL_3_072	0x000c0000
 #define SRDS_PLLCR0_DCBIAS_OVRD		0x000000F0
 #define SRDS_PLLCR0_DCBIAS_OVRD_SHIFT	4
 		u32	pllcr1; /* PLL Control Register 1 */
@@ -2863,6 +2867,21 @@ struct ccsr_pman {
 	u8	res_f4[0xf0c];
 };
 #endif
+#ifdef CONFIG_SYS_FSL_SFP_VER_3_0
+struct ccsr_sfp_regs {
+	u32 ospr;		/* 0x200 */
+	u32 reserved0[14];
+	u32 srk_hash[8];	/* 0x23c Super Root Key Hash */
+	u32 oem_uid;		/* 0x9c OEM Unique ID */
+	u8 reserved2[0x04];
+	u32 ovpr;			/* 0xA4  Intent To Secure */
+	u8 reserved4[0x08];
+	u32 fsl_uid;		/* 0xB0  FSL Unique ID */
+	u8 reserved5[0x04];
+	u32 fsl_spfr0;		/* Scratch Pad Fuse Register 0 */
+	u32 fsl_spfr1;		/* Scratch Pad Fuse Register 1 */
+};
+#endif
 
 #ifdef CONFIG_FSL_CORENET
 #define CONFIG_SYS_FSL_CORENET_CCM_OFFSET	0x0000
@@ -2876,6 +2895,14 @@ struct ccsr_pman {
 #define CONFIG_SYS_MPC8xxx_DDR3_OFFSET		0xA000
 #define CONFIG_SYS_FSL_CORENET_CLK_OFFSET	0xE1000
 #define CONFIG_SYS_FSL_CORENET_RCPM_OFFSET	0xE2000
+#ifdef CONFIG_SYS_FSL_SFP_VER_3_0
+/* In SFPv3, OSPR register is now at offset 0x200.
+ *  * So directly mapping sfp register map to this address */
+#define CONFIG_SYS_OSPR_OFFSET                  0x200
+#define CONFIG_SYS_SFP_OFFSET            (0xE8000 + CONFIG_SYS_OSPR_OFFSET)
+#else
+#define CONFIG_SYS_SFP_OFFSET                   0xE8000
+#endif
 #define CONFIG_SYS_FSL_CORENET_SERDES_OFFSET	0xEA000
 #define CONFIG_SYS_FSL_CORENET_SERDES2_OFFSET	0xEB000
 #define CONFIG_SYS_FSL_CPC_OFFSET		0x10000
@@ -2889,6 +2916,7 @@ struct ccsr_pman {
 #define CONFIG_SYS_MPC85xx_LBC_OFFSET		0x124000
 #define CONFIG_SYS_MPC85xx_IFC_OFFSET		0x124000
 #define CONFIG_SYS_MPC85xx_GPIO_OFFSET		0x130000
+#define CONFIG_SYS_MPC85xx_TDM_OFFSET		0x185000
 #define CONFIG_SYS_MPC85xx_QE_OFFSET		0x140000
 #define CONFIG_SYS_FSL_CORENET_RMAN_OFFSET	0x1e0000
 #if defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2) && !defined(CONFIG_PPC_B4860)\
@@ -3093,6 +3121,9 @@ struct ccsr_pman {
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_PCIE3_OFFSET)
 #define CONFIG_SYS_PCIE4_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_PCIE4_OFFSET)
+
+#define CONFIG_SYS_SFP_ADDR  \
+	(CONFIG_SYS_IMMR + CONFIG_SYS_SFP_OFFSET)
 
 #define TSEC_BASE_ADDR		(CONFIG_SYS_IMMR + CONFIG_SYS_TSEC1_OFFSET)
 #define MDIO_BASE_ADDR		(CONFIG_SYS_IMMR + CONFIG_SYS_MDIO1_OFFSET)

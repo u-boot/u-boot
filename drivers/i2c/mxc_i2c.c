@@ -429,6 +429,11 @@ static void * const i2c_bases[] = {
 	(void *)I2C3_BASE_ADDR
 #elif defined(CONFIG_VF610)
 	(void *)I2C0_BASE_ADDR
+#elif defined(CONFIG_FSL_LSCH3)
+	(void *)I2C1_BASE_ADDR,
+	(void *)I2C2_BASE_ADDR,
+	(void *)I2C3_BASE_ADDR,
+	(void *)I2C4_BASE_ADDR
 #else
 #error "architecture not supported"
 #endif

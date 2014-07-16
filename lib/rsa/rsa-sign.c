@@ -405,11 +405,15 @@ int rsa_add_verify_data(struct image_sign_info *info, void *keydest)
 	if (parent == -FDT_ERR_NOTFOUND) {
 		parent = fdt_add_subnode(keydest, 0, FIT_SIG_NODENAME);
 		if (parent < 0) {
-			fprintf(stderr, "Couldn't create signature node: %s\n",
-				fdt_strerror(parent));
-			return -EINVAL;
+			ret = parent;
+			if (ret != -FDT_ERR_NOSPACE) {
+				fprintf(stderr, "Couldn't create signature node: %s\n",
+					fdt_strerror(parent));
+			}
 		}
 	}
+	if (ret)
+		goto done;
 
 	/* Either create or overwrite the named key node */
 	snprintf(name, sizeof(name), "key-%s", info->keyname);
@@ -417,32 +421,47 @@ int rsa_add_verify_data(struct image_sign_info *info, void *keydest)
 	if (node == -FDT_ERR_NOTFOUND) {
 		node = fdt_add_subnode(keydest, parent, name);
 		if (node < 0) {
-			fprintf(stderr, "Could not create key subnode: %s\n",
-				fdt_strerror(node));
-			return -EINVAL;
+			ret = node;
+			if (ret != -FDT_ERR_NOSPACE) {
+				fprintf(stderr, "Could not create key subnode: %s\n",
+					fdt_strerror(node));
+			}
 		}
 	} else if (node < 0) {
 		fprintf(stderr, "Cannot select keys parent: %s\n",
 			fdt_strerror(node));
-		return -ENOSPC;
+		ret = node;
 	}
 
-	ret = fdt_setprop_string(keydest, node, "key-name-hint",
+	if (!ret) {
+		ret = fdt_setprop_string(keydest, node, "key-name-hint",
 				 info->keyname);
-	ret |= fdt_setprop_u32(keydest, node, "rsa,num-bits", bits);
-	ret |= fdt_setprop_u32(keydest, node, "rsa,n0-inverse", n0_inv);
-	ret |= fdt_add_bignum(keydest, node, "rsa,modulus", modulus, bits);
-	ret |= fdt_add_bignum(keydest, node, "rsa,r-squared", r_squared, bits);
-	ret |= fdt_setprop_string(keydest, node, FIT_ALGO_PROP,
-				  info->algo->name);
-	if (info->require_keys) {
-		fdt_setprop_string(keydest, node, "required",
-				   info->require_keys);
 	}
+	if (!ret)
+		ret = fdt_setprop_u32(keydest, node, "rsa,num-bits", bits);
+	if (!ret)
+		ret = fdt_setprop_u32(keydest, node, "rsa,n0-inverse", n0_inv);
+	if (!ret) {
+		ret = fdt_add_bignum(keydest, node, "rsa,modulus", modulus,
+				     bits);
+	}
+	if (!ret) {
+		ret = fdt_add_bignum(keydest, node, "rsa,r-squared", r_squared,
+				     bits);
+	}
+	if (!ret) {
+		ret = fdt_setprop_string(keydest, node, FIT_ALGO_PROP,
+					 info->algo->name);
+	}
+	if (info->require_keys) {
+		ret = fdt_setprop_string(keydest, node, "required",
+					 info->require_keys);
+	}
+done:
 	BN_free(modulus);
 	BN_free(r_squared);
 	if (ret)
-		return -EIO;
+		return ret == -FDT_ERR_NOSPACE ? -ENOSPC : -EIO;
 
 	return 0;
 }

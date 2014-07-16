@@ -30,9 +30,9 @@
  * @dev:	The device that is to be stripped of its children
  * @return 0 on success, -ve on error
  */
-static int device_chld_unbind(struct device *dev)
+static int device_chld_unbind(struct udevice *dev)
 {
-	struct device *pos, *n;
+	struct udevice *pos, *n;
 	int ret, saved_ret = 0;
 
 	assert(dev);
@@ -51,9 +51,9 @@ static int device_chld_unbind(struct device *dev)
  * @dev:	The device whose children are to be removed
  * @return 0 on success, -ve on error
  */
-static int device_chld_remove(struct device *dev)
+static int device_chld_remove(struct udevice *dev)
 {
-	struct device *pos, *n;
+	struct udevice *pos, *n;
 	int ret;
 
 	assert(dev);
@@ -67,10 +67,10 @@ static int device_chld_remove(struct device *dev)
 	return 0;
 }
 
-int device_bind(struct device *parent, struct driver *drv, const char *name,
-		void *platdata, int of_offset, struct device **devp)
+int device_bind(struct udevice *parent, struct driver *drv, const char *name,
+		void *platdata, int of_offset, struct udevice **devp)
 {
-	struct device *dev;
+	struct udevice *dev;
 	struct uclass *uc;
 	int ret = 0;
 
@@ -82,7 +82,7 @@ int device_bind(struct device *parent, struct driver *drv, const char *name,
 	if (ret)
 		return ret;
 
-	dev = calloc(1, sizeof(struct device));
+	dev = calloc(1, sizeof(struct udevice));
 	if (!dev)
 		return -ENOMEM;
 
@@ -129,8 +129,8 @@ fail_bind:
 	return ret;
 }
 
-int device_bind_by_name(struct device *parent, const struct driver_info *info,
-			struct device **devp)
+int device_bind_by_name(struct udevice *parent, const struct driver_info *info,
+			struct udevice **devp)
 {
 	struct driver *drv;
 
@@ -142,7 +142,7 @@ int device_bind_by_name(struct device *parent, const struct driver_info *info,
 			   -1, devp);
 }
 
-int device_unbind(struct device *dev)
+int device_unbind(struct udevice *dev)
 {
 	struct driver *drv;
 	int ret;
@@ -181,7 +181,7 @@ int device_unbind(struct device *dev)
  * device_free() - Free memory buffers allocated by a device
  * @dev:	Device that is to be started
  */
-static void device_free(struct device *dev)
+static void device_free(struct udevice *dev)
 {
 	int size;
 
@@ -200,7 +200,7 @@ static void device_free(struct device *dev)
 	}
 }
 
-int device_probe(struct device *dev)
+int device_probe(struct udevice *dev)
 {
 	struct driver *drv;
 	int size = 0;
@@ -279,7 +279,7 @@ fail:
 	return ret;
 }
 
-int device_remove(struct device *dev)
+int device_remove(struct udevice *dev)
 {
 	struct driver *drv;
 	int ret;
@@ -327,7 +327,7 @@ err:
 	return ret;
 }
 
-void *dev_get_platdata(struct device *dev)
+void *dev_get_platdata(struct udevice *dev)
 {
 	if (!dev) {
 		dm_warn("%s: null device", __func__);
@@ -337,7 +337,7 @@ void *dev_get_platdata(struct device *dev)
 	return dev->platdata;
 }
 
-void *dev_get_priv(struct device *dev)
+void *dev_get_priv(struct udevice *dev)
 {
 	if (!dev) {
 		dm_warn("%s: null device", __func__);

@@ -49,9 +49,7 @@ static inline void icache_invalidate_line(volatile void *vaddr)
  * Applies the above functions on all lines that are touched by the
  * specified virtual address range.
  */
-void dcache_invalidate_range(volatile void *start, size_t len);
 void dcache_clean_range(volatile void *start, size_t len);
-void dcache_flush_range(volatile void *start, size_t len);
 void icache_invalidate_range(volatile void *start, size_t len);
 
 static inline void dcache_flush_unlocked(void)

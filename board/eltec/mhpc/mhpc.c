@@ -14,6 +14,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <cli.h>
 #include <linux/ctype.h>
 #include <commproc.h>
 #include "mpc8xx.h"
@@ -146,21 +147,21 @@ int misc_init_r (void)
 	if (strncmp ((char *) &mhpcRevInfo.board[2], "MHPC", 4) != 0) {
 		printf ("Enter revision number (0-9): %c  ",
 			mhpcRevInfo.revision[0]);
-		if (0 != readline (NULL)) {
+		if (0 != cli_readline(NULL)) {
 			mhpcRevInfo.revision[0] =
 				(char) toupper (console_buffer[0]);
 		}
 
 		printf ("Enter revision character (A-Z): %c  ",
 			mhpcRevInfo.revision[1]);
-		if (1 == readline (NULL)) {
+		if (1 == cli_readline(NULL)) {
 			mhpcRevInfo.revision[1] =
 				(char) toupper (console_buffer[0]);
 		}
 
 		printf ("Enter board name (V-XXXX-XXXX): %s  ",
 			(char *) &mhpcRevInfo.board);
-		if (11 == readline (NULL)) {
+		if (11 == cli_readline(NULL)) {
 			for (i = 0; i < 11; i++) {
 				mhpcRevInfo.board[i] =
 					(char) toupper (console_buffer[i]);
@@ -177,7 +178,7 @@ int misc_init_r (void)
 		do {
 			printf ("\nEnter sensor number (0-255): %d  ",
 				(int) mhpcRevInfo.sensor);
-			if (0 != readline (NULL)) {
+			if (0 != cli_readline(NULL)) {
 				mhpcRevInfo.sensor =
 					(unsigned char)
 					simple_strtoul (console_buffer, NULL,
@@ -187,7 +188,7 @@ int misc_init_r (void)
 
 		printf ("Enter serial number: %s ",
 			(char *) &mhpcRevInfo.serial);
-		if (6 == readline (NULL)) {
+		if (6 == cli_readline(NULL)) {
 			for (i = 0; i < 6; i++) {
 				mhpcRevInfo.serial[i] = console_buffer[i];
 			}
@@ -195,7 +196,7 @@ int misc_init_r (void)
 		}
 
 		printf ("Enter ether node ID with leading zero (HEX): %02x%02x%02x%02x%02x%02x  ", mhpcRevInfo.etheraddr[0], mhpcRevInfo.etheraddr[1], mhpcRevInfo.etheraddr[2], mhpcRevInfo.etheraddr[3], mhpcRevInfo.etheraddr[4], mhpcRevInfo.etheraddr[5]);
-		if (12 == readline (NULL)) {
+		if (12 == cli_readline(NULL)) {
 			for (i = 0; i < 12; i += 2) {
 				mhpcRevInfo.etheraddr[i >> 1] =
 					(char) (16 *

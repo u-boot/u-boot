@@ -267,12 +267,14 @@ int misc_init_r(void)
 			expansion_config.revision,
 			expansion_config.fab_revision);
 		setenv("defaultdisplay", "dvi");
+		setenv("expansionname", "summit");
 		break;
 	case GUMSTIX_TOBI:
 		printf("Recognized Tobi expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
 		setenv("defaultdisplay", "dvi");
+		setenv("expansionname", "tobi");
 		break;
 	case GUMSTIX_TOBI_DUO:
 		printf("Recognized Tobi Duo expansion board (rev %d %s)\n",
@@ -293,12 +295,14 @@ int misc_init_r(void)
 			expansion_config.revision,
 			expansion_config.fab_revision);
 		setenv("defaultdisplay", "lcd43");
+		setenv("expansionname", "palo43");
 		break;
 	case GUMSTIX_CHESTNUT43:
 		printf("Recognized Chestnut43 expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
 		setenv("defaultdisplay", "lcd43");
+		setenv("expansionname", "chestnut43");
 		break;
 	case GUMSTIX_PINTO:
 		printf("Recognized Pinto expansion board (rev %d %s)\n",
@@ -310,6 +314,7 @@ int misc_init_r(void)
 			expansion_config.revision,
 			expansion_config.fab_revision);
 		setenv("defaultdisplay", "lcd43");
+		setenv("expansionname", "gallop43");
 		break;
 	case GUMSTIX_ALTO35:
 		printf("Recognized Alto35 expansion board (rev %d %s)\n",
@@ -317,6 +322,7 @@ int misc_init_r(void)
 			expansion_config.fab_revision);
 		MUX_ALTO35();
 		setenv("defaultdisplay", "lcd35");
+		setenv("expansionname", "alto35");
 		break;
 	case GUMSTIX_STAGECOACH:
 		printf("Recognized Stagecoach expansion board (rev %d %s)\n",
@@ -349,8 +355,11 @@ int misc_init_r(void)
 		break;
 	case GUMSTIX_NO_EEPROM:
 		puts("No EEPROM on expansion board\n");
+		setenv("expansionname", "tobi");
 		break;
 	default:
+		if (expansion_id == 0x0)
+			setenv("expansionname", "tobi");
 		printf("Unrecognized expansion board 0x%08x\n", expansion_id);
 		break;
 	}
@@ -359,6 +368,11 @@ int misc_init_r(void)
 		setenv(expansion_config.env_var, expansion_config.env_setting);
 
 	dieid_num_r();
+
+	if (get_cpu_family() == CPU_OMAP34XX)
+		setenv("boardname", "overo");
+	else
+		setenv("boardname", "overo-storm");
 
 	return 0;
 }

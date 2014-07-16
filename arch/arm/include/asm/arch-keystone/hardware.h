@@ -22,32 +22,6 @@
 typedef volatile unsigned int   dv_reg;
 typedef volatile unsigned int   *dv_reg_p;
 
-#define ASYNC_EMIF_NUM_CS               4
-#define ASYNC_EMIF_MODE_NOR             0
-#define ASYNC_EMIF_MODE_NAND            1
-#define ASYNC_EMIF_MODE_ONENAND         2
-#define ASYNC_EMIF_PRESERVE             -1
-
-struct async_emif_config {
-	unsigned mode;
-	unsigned select_strobe;
-	unsigned extend_wait;
-	unsigned wr_setup;
-	unsigned wr_strobe;
-	unsigned wr_hold;
-	unsigned rd_setup;
-	unsigned rd_strobe;
-	unsigned rd_hold;
-	unsigned turn_around;
-	enum {
-		ASYNC_EMIF_8	= 0,
-		ASYNC_EMIF_16	= 1,
-		ASYNC_EMIF_32	= 2,
-	} width;
-};
-
-void init_async_emif(int num_cs, struct async_emif_config *config);
-
 struct ddr3_phy_config {
 	unsigned int pllcr;
 	unsigned int pgcr1_mask;
@@ -141,6 +115,13 @@ struct ddr3_emif_config {
 #define KS2_DDR3_SDTIM4_OFFSET          0x28
 #define KS2_DDR3_PMCTL_OFFSET           0x38
 #define KS2_DDR3_ZQCFG_OFFSET           0xC8
+
+#define KS2_UART0_BASE                	0x02530c00
+#define KS2_UART1_BASE                	0x02531000
+
+/* AEMIF */
+#define KS2_AEMIF_CNTRL_BASE       	0x21000a00
+#define DAVINCI_ASYNC_EMIF_CNTRL_BASE   KS2_AEMIF_CNTRL_BASE
 
 #ifdef CONFIG_SOC_K2HK
 #include <asm/arch/hardware-k2hk.h>

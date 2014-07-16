@@ -25,6 +25,7 @@
  */
 
 #include <common.h>
+#include <cli.h>
 #include <command.h>
 #include <environment.h>
 #include <search.h>
@@ -408,7 +409,7 @@ int do_env_ask(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 1;
 
 	/* prompt for input */
-	len = readline(message);
+	len = cli_readline(message);
 
 	if (size < len)
 		console_buffer[size] = '\0';
@@ -591,7 +592,7 @@ static int do_env_edit(cmd_tbl_t *cmdtp, int flag, int argc,
 	else
 		buffer[0] = '\0';
 
-	if (readline_into_buffer("edit: ", buffer, 0) < 0)
+	if (cli_readline_into_buffer("edit: ", buffer, 0) < 0)
 		return 1;
 
 	return setenv(argv[1], buffer);

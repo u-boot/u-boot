@@ -10,6 +10,7 @@
 #include <config.h>
 #include <common.h>
 #include <command.h>
+#include <errno.h>
 #include <mmc.h>
 #include <part.h>
 #include <malloc.h>
@@ -159,6 +160,9 @@ int mmc_send_status(struct mmc *mmc, int timeout)
 int mmc_set_blocklen(struct mmc *mmc, int len)
 {
 	struct mmc_cmd cmd;
+
+	if (mmc->card_caps & MMC_MODE_DDR_52MHz)
+		return 0;
 
 	cmd.cmdidx = MMC_CMD_SET_BLOCKLEN;
 	cmd.resp_type = MMC_RSP_R1;
@@ -516,10 +520,13 @@ static int mmc_change_freq(struct mmc *mmc)
 		return 0;
 
 	/* High Speed is set, there are two types: 52MHz and 26MHz */
-	if (cardtype & MMC_HS_52MHZ)
+	if (cardtype & EXT_CSD_CARD_TYPE_52) {
+		if (cardtype & EXT_CSD_CARD_TYPE_DDR_52)
+			mmc->card_caps |= MMC_MODE_DDR_52MHz;
 		mmc->card_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
-	else
+	} else {
 		mmc->card_caps |= MMC_MODE_HS;
+	}
 
 	return 0;
 }
@@ -558,19 +565,19 @@ int mmc_select_hwpart(int dev_num, int hwpart)
 	int ret;
 
 	if (!mmc)
-		return -1;
+		return -ENODEV;
 
 	if (mmc->part_num == hwpart)
 		return 0;
 
 	if (mmc->part_config == MMCPART_NOAVAILABLE) {
 		printf("Card doesn't support part_switch\n");
-		return -1;
+		return -EMEDIUMTYPE;
 	}
 
 	ret = mmc_switch_part(dev_num, hwpart);
 	if (ret)
-		return -1;
+		return ret;
 
 	mmc->part_num = hwpart;
 
@@ -1082,6 +1089,8 @@ static int mmc_startup(struct mmc *mmc)
 
 		/* An array of possible bus widths in order of preference */
 		static unsigned ext_csd_bits[] = {
+			EXT_CSD_DDR_BUS_WIDTH_8,
+			EXT_CSD_DDR_BUS_WIDTH_4,
 			EXT_CSD_BUS_WIDTH_8,
 			EXT_CSD_BUS_WIDTH_4,
 			EXT_CSD_BUS_WIDTH_1,
@@ -1089,13 +1098,15 @@ static int mmc_startup(struct mmc *mmc)
 
 		/* An array to map CSD bus widths to host cap bits */
 		static unsigned ext_to_hostcaps[] = {
+			[EXT_CSD_DDR_BUS_WIDTH_4] = MMC_MODE_DDR_52MHz,
+			[EXT_CSD_DDR_BUS_WIDTH_8] = MMC_MODE_DDR_52MHz,
 			[EXT_CSD_BUS_WIDTH_4] = MMC_MODE_4BIT,
 			[EXT_CSD_BUS_WIDTH_8] = MMC_MODE_8BIT,
 		};
 
 		/* An array to map chosen bus width to an integer */
 		static unsigned widths[] = {
-			8, 4, 1,
+			8, 4, 8, 4, 1,
 		};
 
 		for (idx=0; idx < ARRAY_SIZE(ext_csd_bits); idx++) {

@@ -15,8 +15,8 @@
 #include <malloc.h>
 #include <hw_sha.h>
 #include <hash.h>
-#include <sha1.h>
-#include <sha256.h>
+#include <u-boot/sha1.h>
+#include <u-boot/sha256.h>
 #include <asm/io.h>
 #include <asm/errno.h>
 
@@ -187,7 +187,7 @@ static struct hash_algo hash_algo[] = {
  * @allow_env_vars:	non-zero to permit storing the result to an
  *			variable environment
  */
-static void store_result(struct hash_algo *algo, const u8 *sum,
+static void store_result(struct hash_algo *algo, const uint8_t *sum,
 			 const char *dest, int allow_env_vars)
 {
 	unsigned int i;
@@ -214,7 +214,7 @@ static void store_result(struct hash_algo *algo, const u8 *sum,
 			sprintf(str_ptr, "%02x", sum[i]);
 			str_ptr += 2;
 		}
-		str_ptr = '\0';
+		*str_ptr = '\0';
 		setenv(dest, str_output);
 	} else {
 		ulong addr;
@@ -243,8 +243,8 @@ static void store_result(struct hash_algo *algo, const u8 *sum,
  *			address, and the * prefix is not expected.
  * @return 0 if ok, non-zero on error
  */
-static int parse_verify_sum(struct hash_algo *algo, char *verify_str, u8 *vsum,
-			    int allow_env_vars)
+static int parse_verify_sum(struct hash_algo *algo, char *verify_str,
+			    uint8_t *vsum, int allow_env_vars)
 {
 	int env_var = 0;
 
@@ -311,8 +311,7 @@ int hash_lookup_algo(const char *algo_name, struct hash_algo **algop)
 	return -EPROTONOSUPPORT;
 }
 
-static void show_hash(struct hash_algo *algo, ulong addr, ulong len,
-		      u8 *output)
+void hash_show(struct hash_algo *algo, ulong addr, ulong len, uint8_t *output)
 {
 	int i;
 
@@ -356,8 +355,8 @@ int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
 
 	if (multi_hash()) {
 		struct hash_algo *algo;
-		u8 output[HASH_MAX_DIGEST_SIZE];
-		u8 vsum[HASH_MAX_DIGEST_SIZE];
+		uint8_t output[HASH_MAX_DIGEST_SIZE];
+		uint8_t vsum[HASH_MAX_DIGEST_SIZE];
 		void *buf;
 
 		if (hash_lookup_algo(algo_name, &algo)) {
@@ -392,7 +391,7 @@ int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
 			if (memcmp(output, vsum, algo->digest_size) != 0) {
 				int i;
 
-				show_hash(algo, addr, len, output);
+				hash_show(algo, addr, len, output);
 				printf(" != ");
 				for (i = 0; i < algo->digest_size; i++)
 					printf("%02x", vsum[i]);
@@ -400,7 +399,7 @@ int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
 				return 1;
 			}
 		} else {
-			show_hash(algo, addr, len, output);
+			hash_show(algo, addr, len, output);
 			printf("\n");
 
 			if (argc) {

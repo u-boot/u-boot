@@ -211,16 +211,6 @@ static u_int m8xx_get_graycode(u_int size)
 
 #if	0
 
-#if defined(CONFIG_RPXLITE)
-
-/* The RPX boards seems to have it's bus monitor timeout set to 6*8 clocks.
- * SYPCR is write once only, therefore must the slowest memory be faster
- * than the bus monitor or we will get a machine check due to the bus timeout.
- */
-#undef	PCMCIA_BMT_LIMIT
-#define	PCMCIA_BMT_LIMIT (6*8)
-#endif
-
 static u_int m8xx_get_speed(u_int ns, u_int is_io)
 {
 	u_int reg, clocks, psst, psl, psht;

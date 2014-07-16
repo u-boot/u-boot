@@ -70,10 +70,12 @@ static inline phys_addr_t virt_to_phys(void * vaddr)
 #define __arch_getb(a)			(*(volatile unsigned char *)(a))
 #define __arch_getw(a)			(*(volatile unsigned short *)(a))
 #define __arch_getl(a)			(*(volatile unsigned int *)(a))
+#define __arch_getq(a)			(*(volatile unsigned long long *)(a))
 
 #define __arch_putb(v,a)		(*(volatile unsigned char *)(a) = (v))
 #define __arch_putw(v,a)		(*(volatile unsigned short *)(a) = (v))
 #define __arch_putl(v,a)		(*(volatile unsigned int *)(a) = (v))
+#define __arch_putq(v,a)		(*(volatile unsigned long long *)(a) = (v))
 
 extern inline void __raw_writesb(unsigned long addr, const void *data,
 				 int bytelen)
@@ -123,10 +125,12 @@ extern inline void __raw_readsl(unsigned long addr, void *data, int longlen)
 #define __raw_writeb(v,a)	__arch_putb(v,a)
 #define __raw_writew(v,a)	__arch_putw(v,a)
 #define __raw_writel(v,a)	__arch_putl(v,a)
+#define __raw_writeq(v,a)	__arch_putq(v,a)
 
 #define __raw_readb(a)		__arch_getb(a)
 #define __raw_readw(a)		__arch_getw(a)
 #define __raw_readl(a)		__arch_getl(a)
+#define __raw_readq(a)		__arch_getq(a)
 
 /*
  * TODO: The kernel offers some more advanced versions of barriers, it might
@@ -139,10 +143,12 @@ extern inline void __raw_readsl(unsigned long addr, void *data, int longlen)
 #define writeb(v,c)	({ u8  __v = v; __iowmb(); __arch_putb(__v,c); __v; })
 #define writew(v,c)	({ u16 __v = v; __iowmb(); __arch_putw(__v,c); __v; })
 #define writel(v,c)	({ u32 __v = v; __iowmb(); __arch_putl(__v,c); __v; })
+#define writeq(v,c)	({ u64 __v = v; __iowmb(); __arch_putq(__v,c); __v; })
 
 #define readb(c)	({ u8  __v = __arch_getb(c); __iormb(); __v; })
 #define readw(c)	({ u16 __v = __arch_getw(c); __iormb(); __v; })
 #define readl(c)	({ u32 __v = __arch_getl(c); __iormb(); __v; })
+#define readq(c)	({ u64 __v = __arch_getq(c); __iormb(); __v; })
 
 /*
  * The compiler seems to be incapable of optimising constants
@@ -168,9 +174,11 @@ extern inline void __raw_readsl(unsigned long addr, void *data, int longlen)
 #define out_arch(type,endian,a,v)	__raw_write##type(cpu_to_##endian(v),a)
 #define in_arch(type,endian,a)		endian##_to_cpu(__raw_read##type(a))
 
+#define out_le64(a,v)	out_arch(q,le64,a,v)
 #define out_le32(a,v)	out_arch(l,le32,a,v)
 #define out_le16(a,v)	out_arch(w,le16,a,v)
 
+#define in_le64(a)	in_arch(q,le64,a)
 #define in_le32(a)	in_arch(l,le32,a)
 #define in_le16(a)	in_arch(w,le16,a)
 
@@ -437,4 +445,7 @@ out:
 
 #endif	/* __mem_isa */
 #endif	/* __KERNEL__ */
+
+#include <iotrace.h>
+
 #endif	/* __ASM_ARM_IO_H */

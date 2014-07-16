@@ -230,6 +230,12 @@
 				CSPR_MSEL_NOR | \
 				CSPR_V)
 #define CONFIG_SYS_NOR_AMASK	IFC_AMASK(128*1024*1024)
+
+/*
+ * TDM Definition
+ */
+#define T1040_TDM_QUIRK_CCSR_BASE	0xfe000000
+
 /* NOR Flash Timing Params */
 #define CONFIG_SYS_NOR_CSOR	CSOR_NAND_TRHZ_80
 #define CONFIG_SYS_NOR_FTIM0	(FTIM0_NOR_TACSE(0x4) | \

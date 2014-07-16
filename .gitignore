@@ -20,7 +20,9 @@
 *.bin
 *.patch
 *.cfgtmp
-*.dts.tmp
+
+# host programs on Cygwin
+*.exe
 
 # Build tree
 /build-*
@@ -47,8 +49,7 @@
 /errlog
 /reloc_off
 
-/spl/*
-!/spl/Makefile
+/spl/
 /tpl/
 
 #

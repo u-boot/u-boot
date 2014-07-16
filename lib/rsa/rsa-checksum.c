@@ -13,9 +13,9 @@
 #else
 #include "fdt_host.h"
 #endif
-#include <rsa.h>
-#include <sha1.h>
-#include <sha256.h>
+#include <u-boot/rsa.h>
+#include <u-boot/sha1.h>
+#include <u-boot/sha256.h>
 
 /* PKCS 1.5 paddings as described in the RSA PKCS#1 v2.1 standard. */
 

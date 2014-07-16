@@ -22,7 +22,6 @@
 #define CONFIG_SYS_AT91_MAIN_CLOCK      12000000 /* from 12 MHz crystal */
 
 #define CONFIG_AT91SAM9M10G45EK
-#define CONFIG_AT91FAMILY
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs	*/
 #define CONFIG_SETUP_MEMORY_TAGS
@@ -33,6 +32,8 @@
 
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_OF_LIBFDT
+
+#define CONFIG_SYS_GENERIC_BOARD
 
 /* general purpose I/O */
 #define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
@@ -115,6 +116,20 @@
 
 #endif
 
+/* MMC */
+#define CONFIG_CMD_MMC
+
+#ifdef CONFIG_CMD_MMC
+#define CONFIG_MMC
+#define CONFIG_GENERIC_MMC
+#define CONFIG_GENERIC_ATMEL_MCI
+#endif
+
+#if defined(CONFIG_CMD_USB) || defined(CONFIG_CMD_MMC)
+#define CONFIG_CMD_FAT
+#define CONFIG_DOS_PARTITION
+#endif
+
 /* Ethernet */
 #define CONFIG_MACB
 #define CONFIG_RMII
@@ -126,7 +141,6 @@
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_ATMEL
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	2
-#define CONFIG_DOS_PARTITION
 #define CONFIG_USB_STORAGE
 
 #define CONFIG_SYS_LOAD_ADDR		0x22000000	/* load address */
@@ -134,6 +148,7 @@
 #define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
 #define CONFIG_SYS_MEMTEST_END		0x23e00000
 
+#ifdef CONFIG_SYS_USE_NANDFLASH
 /* bootstrap + u-boot + env in nandflash */
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		0xc0000
@@ -149,6 +164,28 @@
 	"256k(env),256k(env_redundant),256k(spare),"			\
 	"512k(dtb),6M(kernel)ro,-(rootfs) "				\
 	"root=/dev/mtdblock7 rw rootfstype=jffs2"
+#elif CONFIG_SYS_USE_MMC
+/* bootstrap + u-boot + env + linux in mmc */
+#define FAT_ENV_INTERFACE	"mmc"
+/*
+ * We don't specify the part number, if device 0 has partition table, it means
+ * the first partition; it no partition table, then take whole device as a
+ * FAT file system.
+ */
+#define FAT_ENV_DEVICE_AND_PART	"0"
+#define FAT_ENV_FILE		"uboot.env"
+#define CONFIG_ENV_IS_IN_FAT
+#define CONFIG_FAT_WRITE
+#define CONFIG_ENV_SIZE		0x4000
+
+#define CONFIG_BOOTARGS		"console=ttyS0,115200 " \
+				"mtdparts=atmel_nand:" \
+				"8M(bootstrap/uboot/kernel)ro,-(rootfs) " \
+				"root=/dev/mmcblk0p2 rw rootwait"
+#define CONFIG_BOOTCOMMAND	"fatload mmc 0:1 0x71000000 dtb; " \
+				"fatload mmc 0:1 0x72000000 zImage; " \
+				"bootz 0x72000000 - 0x71000000"
+#endif
 
 #define CONFIG_BAUDRATE			115200
 

@@ -12,6 +12,8 @@
 #ifndef __BUR_AM335X_COMMON_H__
 #define __BUR_AM335X_COMMON_H__
 /* ------------------------------------------------------------------------- */
+#define CONFIG_SYS_GENERIC_BOARD
+
 #define CONFIG_AM33XX
 #define CONFIG_OMAP
 #define CONFIG_OMAP_COMMON
@@ -94,7 +96,7 @@
 #define CONFIG_SYS_OMAP24_I2C_SPEED	100000
 #define CONFIG_SYS_OMAP24_I2C_SLAVE	1
 #define CONFIG_SYS_I2C_OMAP24XX
-
+#define CONFIG_CMD_I2C
 /* GPIO */
 #define CONFIG_OMAP_GPIO
 #define CONFIG_CMD_GPIO

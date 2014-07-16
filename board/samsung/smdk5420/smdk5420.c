@@ -42,9 +42,6 @@ int exynos_init(void)
 #ifdef CONFIG_LCD
 void cfg_lcd_gpio(void)
 {
-	struct exynos5_gpio_part1 *gpio1 =
-		(struct exynos5_gpio_part1 *)samsung_get_base_gpio_part1();
-
 	/* For Backlight */
 	gpio_cfg_pin(EXYNOS5420_GPIO_B20, S5P_GPIO_OUTPUT);
 	gpio_set_value(EXYNOS5420_GPIO_B20, 1);

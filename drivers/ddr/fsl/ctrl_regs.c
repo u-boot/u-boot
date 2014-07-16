@@ -2304,5 +2304,10 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 	ddr->debug[2] = 0x00000400;
 	ddr->debug[4] = 0xff800000;
 #endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A004508
+	if ((ip_rev >= 0x40000) && (ip_rev < 0x40400))
+		ddr->debug[2] |= 0x00000200;	/* set bit 22 */
+#endif
+
 	return check_fsl_memctl_config_regs(ddr);
 }

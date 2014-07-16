@@ -282,8 +282,12 @@
 #define PHY_CON12_VAL		0x10107F50
 #define CTRL_START		(1 << 6)
 #define CTRL_DLL_ON		(1 << 5)
+#define CTRL_LOCK_COARSE_OFFSET	10
+#define CTRL_LOCK_COARSE_MASK	(0x7F << CTRL_LOCK_COARSE_OFFSET)
+#define CTRL_LOCK_COARSE(x)	(((x) & CTRL_LOCK_COARSE_MASK) >> \
+				 CTRL_LOCK_COARSE_OFFSET)
 #define CTRL_FORCE_MASK		(0x7F << 8)
-#define CTRL_LOCK_COARSE_MASK	(0x7F << 10)
+#define CTRL_FINE_LOCKED	0x7
 
 #define CTRL_OFFSETD_RESET_VAL	0x8
 #define CTRL_OFFSETD_VAL	0x7F
@@ -431,10 +435,10 @@
 
 /*
  * Definitions that differ with SoC's.
- * Below is the part defining macros for smdk5250.
- * Else part introduces macros for smdk5420.
+ * Below is the part defining macros for Exynos5250.
+ * Else part introduces macros for Exynos5420.
  */
-#ifndef CONFIG_SMDK5420
+#ifndef CONFIG_EXYNOS5420
 
 /* APLL_CON1 */
 #define APLL_CON1_VAL	(0x00203800)
@@ -890,16 +894,11 @@ enum {
 /*
  * Memory variant specific initialization code for DDR3
  *
- * @param mem		Memory timings for this memory type.
- * @param mem_iv_size	Memory interleaving size is a configurable parameter
- *			which the DMC uses to decide how to split a memory
- *			chunk into smaller chunks to support concurrent
- *			accesses; may vary across boards.
+ * @param mem          Memory timings for this memory type.
  * @param reset         Reset DDR PHY during initialization.
  * @return 0 if ok, SETUP_ERR_... if there is a problem
  */
-int ddr3_mem_ctrl_init(struct mem_timings *mem, unsigned long mem_iv_size,
-			int reset);
+int ddr3_mem_ctrl_init(struct mem_timings *mem, int reset);
 
 /* Memory variant specific initialization code for LPDDR3 */
 void lpddr3_mem_ctrl_init(void);

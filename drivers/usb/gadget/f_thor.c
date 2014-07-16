@@ -306,7 +306,6 @@ static int process_data(void)
 	ALLOC_CACHE_ALIGN_BUFFER(struct rqt_box, rqt, sizeof(struct rqt_box));
 	int ret = -EINVAL;
 
-	memset(rqt, 0, sizeof(rqt));
 	memcpy(rqt, thor_rx_data_buf, sizeof(struct rqt_box));
 
 	debug("+RQT: %d, %d\n", rqt->rqt, rqt->rqt_data);

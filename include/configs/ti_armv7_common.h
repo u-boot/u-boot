@@ -127,7 +127,7 @@
  * we are on so we do not need to rely on the command prompt.  We set a
  * console baudrate of 115200 and use the default baud rate table.
  */
-#define CONFIG_SYS_MALLOC_LEN		(1024 << 10)
+#define CONFIG_SYS_MALLOC_LEN		(16 << 20)
 #define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT		"U-Boot# "
 #define CONFIG_SYS_CONSOLE_INFO_QUIET
@@ -196,7 +196,8 @@
  * under common/spl/.  Given our generally common memory map, we set a
  * number of related defaults and sizes here.
  */
-#ifndef CONFIG_NOR_BOOT
+#if !defined(CONFIG_NOR_BOOT) && \
+	!(defined(CONFIG_QSPI_BOOT) && defined(CONFIG_AM43XX))
 #define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_OS_BOOT

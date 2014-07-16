@@ -147,7 +147,7 @@ void secure_unlock_mem(void)
  *		configure secure registers and exit secure world
  *              general use.
  *****************************************************************************/
-void secureworld_exit()
+void secureworld_exit(void)
 {
 	unsigned long i;
 
@@ -178,7 +178,7 @@ void secureworld_exit()
  * Description: If chip is GP/EMU(special) type, unlock the SRAM for
  *              general use.
  *****************************************************************************/
-void try_unlock_memory()
+void try_unlock_memory(void)
 {
 	int mode;
 	int in_sdram = is_running_in_sdram();
@@ -478,11 +478,3 @@ void omap3_outer_cache_disable(void)
 	omap3_update_aux_cr(0, 0x2);
 }
 #endif /* !CONFIG_SYS_L2CACHE_OFF */
-
-#ifndef CONFIG_SYS_DCACHE_OFF
-void enable_caches(void)
-{
-	/* Enable D-cache. I-cache is already enabled in start.S */
-	dcache_enable();
-}
-#endif /* !CONFIG_SYS_DCACHE_OFF */
