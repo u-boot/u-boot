@@ -43,6 +43,9 @@ struct mmc_internal_data {
 	unsigned int lba_size;
 	unsigned int lba_blk_size;
 
+	/* eMMC HW partition access */
+	int hw_partition;
+
 	/* FAT/EXT */
 	unsigned int dev;
 	unsigned int part;
@@ -63,11 +66,6 @@ struct ram_internal_data {
 	void		*start;
 	unsigned int	size;
 };
-
-static inline unsigned int get_mmc_blk_size(int dev)
-{
-	return find_mmc_device(dev)->read_bl_len;
-}
 
 #define DFU_NAME_SIZE			32
 #define DFU_CMD_BUF_SIZE		128
@@ -105,6 +103,7 @@ struct dfu_entity {
 			u64 offset, void *buf, long *len);
 
 	int (*flush_medium)(struct dfu_entity *dfu);
+	unsigned int (*poll_timeout)(struct dfu_entity *dfu);
 
 	struct list_head list;
 
@@ -173,12 +172,5 @@ static inline int dfu_fill_entity_ram(struct dfu_entity *dfu, char *s)
 }
 #endif
 
-#ifdef CONFIG_DFU_FUNCTION
 int dfu_add(struct usb_configuration *c);
-#else
-int dfu_add(struct usb_configuration *c)
-{
-	return 0;
-}
-#endif
 #endif /* __DFU_ENTITY_H_ */

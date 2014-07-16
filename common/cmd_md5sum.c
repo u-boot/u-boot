@@ -33,7 +33,6 @@ static void store_result(const u8 *sum, const char *dest)
 			sprintf(str_ptr, "%02x", sum[i]);
 			str_ptr += 2;
 		}
-		str_ptr = '\0';
 		setenv(dest, str_output);
 	}
 }

@@ -34,6 +34,7 @@ SECTIONS
 	.text :
 	{
 		*(.__image_copy_start)
+		*(.vectors)
 		CPUDIR/start.o (.text*)
 		board/ti/am335x/built-in.o (.text*)
 		*(.text*)
@@ -77,6 +78,8 @@ SECTIONS
 		*(.__rel_dyn_end)
 	}
 
+	.hash : { *(.hash*) }
+
 	.end :
 	{
 		*(.__end)
@@ -117,7 +120,6 @@ SECTIONS
 	.dynbss : { *(.dynbss) }
 	.dynstr : { *(.dynstr*) }
 	.dynamic : { *(.dynamic*) }
-	.hash : { *(.hash*) }
 	.gnu.hash : { *(.gnu.hash) }
 	.plt : { *(.plt*) }
 	.interp : { *(.interp*) }

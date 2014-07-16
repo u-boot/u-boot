@@ -11,9 +11,9 @@
 #include <fsl_pmic.h>
 #include <errno.h>
 
-#if defined(CONFIG_PMIC_FSL_MC13892)
+#if defined(CONFIG_POWER_FSL_MC13892)
 #define FSL_PMIC_I2C_LENGTH	3
-#elif defined(CONFIG_PMIC_FSL_MC34704)
+#elif defined(CONFIG_POWER_FSL_MC34704)
 #define FSL_PMIC_I2C_LENGTH	1
 #endif
 
@@ -51,7 +51,7 @@ int pmic_init(unsigned char bus)
 	p->hw.i2c.addr = CONFIG_SYS_FSL_PMIC_I2C_ADDR;
 	p->hw.i2c.tx_num = FSL_PMIC_I2C_LENGTH;
 #else
-#error "You must select CONFIG_POWER_SPI or CONFIG_PMIC_I2C"
+#error "You must select CONFIG_POWER_SPI or CONFIG_POWER_I2C"
 #endif
 
 	return 0;

@@ -39,6 +39,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #define GUMSTIX_CHESTNUT43		0x06000200
 #define GUMSTIX_PINTO			0x07000200
 #define GUMSTIX_GALLOP43		0x08000200
+#define GUMSTIX_ALTO35			0x09000200
+#define GUMSTIX_STAGECOACH		0x0A000200
+#define GUMSTIX_THUMBO			0x0B000200
+#define GUMSTIX_TURTLECORE		0x0C000200
+#define GUMSTIX_ARBOR43C		0x0D000200
 
 #define ETTUS_USRP_E			0x01000300
 
@@ -141,6 +146,7 @@ void get_board_mem_timings(struct board_sdrc_timings *timings)
 		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
 		break;
 	case REVISION_1: /* Micron 256MB/512MB, 1/2 banks of 256MB */
+	case REVISION_4:
 		timings->mcfg = MICRON_V_MCFG_200(256 << 20);
 		timings->ctrla = MICRON_V_ACTIMA_200;
 		timings->ctrlb = MICRON_V_ACTIMB_200;
@@ -230,6 +236,8 @@ unsigned int get_expansion_id(void)
  */
 int misc_init_r(void)
 {
+	unsigned int expansion_id;
+
 	twl4030_power_init();
 	twl4030_led_init(TWL4030_LED_LEDEN_LEDAON | TWL4030_LED_LEDEN_LEDBON);
 
@@ -252,18 +260,21 @@ int misc_init_r(void)
 		puts("Unable to detect mmc2 connection type\n");
 	}
 
-	switch (get_expansion_id()) {
+	expansion_id = get_expansion_id();
+	switch (expansion_id) {
 	case GUMSTIX_SUMMIT:
 		printf("Recognized Summit expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
 		setenv("defaultdisplay", "dvi");
+		setenv("expansionname", "summit");
 		break;
 	case GUMSTIX_TOBI:
 		printf("Recognized Tobi expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
 		setenv("defaultdisplay", "dvi");
+		setenv("expansionname", "tobi");
 		break;
 	case GUMSTIX_TOBI_DUO:
 		printf("Recognized Tobi Duo expansion board (rev %d %s)\n",
@@ -284,12 +295,14 @@ int misc_init_r(void)
 			expansion_config.revision,
 			expansion_config.fab_revision);
 		setenv("defaultdisplay", "lcd43");
+		setenv("expansionname", "palo43");
 		break;
 	case GUMSTIX_CHESTNUT43:
 		printf("Recognized Chestnut43 expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
 		setenv("defaultdisplay", "lcd43");
+		setenv("expansionname", "chestnut43");
 		break;
 	case GUMSTIX_PINTO:
 		printf("Recognized Pinto expansion board (rev %d %s)\n",
@@ -301,6 +314,37 @@ int misc_init_r(void)
 			expansion_config.revision,
 			expansion_config.fab_revision);
 		setenv("defaultdisplay", "lcd43");
+		setenv("expansionname", "gallop43");
+		break;
+	case GUMSTIX_ALTO35:
+		printf("Recognized Alto35 expansion board (rev %d %s)\n",
+			expansion_config.revision,
+			expansion_config.fab_revision);
+		MUX_ALTO35();
+		setenv("defaultdisplay", "lcd35");
+		setenv("expansionname", "alto35");
+		break;
+	case GUMSTIX_STAGECOACH:
+		printf("Recognized Stagecoach expansion board (rev %d %s)\n",
+			expansion_config.revision,
+			expansion_config.fab_revision);
+		break;
+	case GUMSTIX_THUMBO:
+		printf("Recognized Thumbo expansion board (rev %d %s)\n",
+			expansion_config.revision,
+			expansion_config.fab_revision);
+		break;
+	case GUMSTIX_TURTLECORE:
+		printf("Recognized Turtlecore expansion board (rev %d %s)\n",
+			expansion_config.revision,
+			expansion_config.fab_revision);
+		break;
+	case GUMSTIX_ARBOR43C:
+		printf("Recognized Arbor43C expansion board (rev %d %s)\n",
+			expansion_config.revision,
+			expansion_config.fab_revision);
+		MUX_ARBOR43C();
+		setenv("defaultdisplay", "lcd43");
 		break;
 	case ETTUS_USRP_E:
 		printf("Recognized Ettus Research USRP-E (rev %d %s)\n",
@@ -311,15 +355,24 @@ int misc_init_r(void)
 		break;
 	case GUMSTIX_NO_EEPROM:
 		puts("No EEPROM on expansion board\n");
+		setenv("expansionname", "tobi");
 		break;
 	default:
-		puts("Unrecognized expansion board\n");
+		if (expansion_id == 0x0)
+			setenv("expansionname", "tobi");
+		printf("Unrecognized expansion board 0x%08x\n", expansion_id);
+		break;
 	}
 
 	if (expansion_config.content == 1)
 		setenv(expansion_config.env_var, expansion_config.env_setting);
 
 	dieid_num_r();
+
+	if (get_cpu_family() == CPU_OMAP34XX)
+		setenv("boardname", "overo");
+	else
+		setenv("boardname", "overo-storm");
 
 	return 0;
 }

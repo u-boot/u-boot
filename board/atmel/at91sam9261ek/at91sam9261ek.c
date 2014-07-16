@@ -133,20 +133,20 @@ static void at91sam9261ek_dm9000_hw_init(void)
 
 #ifdef CONFIG_LCD
 vidinfo_t panel_info = {
-	vl_col:		240,
-	vl_row:		320,
-	vl_clk:		4965000,
-	vl_sync:	ATMEL_LCDC_INVLINE_INVERTED |
-			ATMEL_LCDC_INVFRAME_INVERTED,
-	vl_bpix:	3,
-	vl_tft:		1,
-	vl_hsync_len:	5,
-	vl_left_margin:	1,
-	vl_right_margin:33,
-	vl_vsync_len:	1,
-	vl_upper_margin:1,
-	vl_lower_margin:0,
-	mmio:		ATMEL_BASE_LCDC,
+	.vl_col =		240,
+	.vl_row =		320,
+	.vl_clk =		4965000,
+	.vl_sync =		ATMEL_LCDC_INVLINE_INVERTED |
+				ATMEL_LCDC_INVFRAME_INVERTED,
+	.vl_bpix =		3,
+	.vl_tft =		1,
+	.vl_hsync_len =		5,
+	.vl_left_margin =	1,
+	.vl_right_margin =	33,
+	.vl_vsync_len =		1,
+	.vl_upper_margin =	1,
+	.vl_lower_margin =	0,
+	.mmio =			ATMEL_BASE_LCDC,
 };
 
 void lcd_enable(void)

@@ -6,7 +6,7 @@
 #
 
 VERSION = 2014
-PATCHLEVEL = 04
+PATCHLEVEL = 07
 SUBLEVEL =
 EXTRAVERSION =
 NAME =
@@ -127,7 +127,7 @@ saved-output := $(KBUILD_OUTPUT)
 KBUILD_OUTPUT := $(shell mkdir -p $(KBUILD_OUTPUT) && cd $(KBUILD_OUTPUT) \
 								&& /bin/pwd)
 $(if $(KBUILD_OUTPUT),, \
-     $(error output directory "$(saved-output)" does not exist))
+     $(error failed to create output directory "$(saved-output)"))
 
 PHONY += $(MAKECMDGOALS) sub-make
 
@@ -205,7 +205,9 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 	  else echo sh; fi ; fi)
 
 HOSTCC       = gcc
+HOSTCXX      = g++
 HOSTCFLAGS   = -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
+HOSTCXXFLAGS = -O2
 
 ifeq ($(HOSTOS),cygwin)
 HOSTCFLAGS	+= -ansi
@@ -242,18 +244,18 @@ endif
 KBUILD_MODULES :=
 KBUILD_BUILTIN := 1
 
-#	If we have only "make modules", don't compile built-in objects.
-#	When we're building modules with modversions, we need to consider
-#	the built-in objects during the descend as well, in order to
-#	make sure the checksums are up to date before we record them.
+# If we have only "make modules", don't compile built-in objects.
+# When we're building modules with modversions, we need to consider
+# the built-in objects during the descend as well, in order to
+# make sure the checksums are up to date before we record them.
 
 ifeq ($(MAKECMDGOALS),modules)
   KBUILD_BUILTIN := $(if $(CONFIG_MODVERSIONS),1)
 endif
 
-#	If we have "make <whatever> modules", compile modules
-#	in addition to whatever we do anyway.
-#	Just "make" or "make all" shall build modules as well
+# If we have "make <whatever> modules", compile modules
+# in addition to whatever we do anyway.
+# Just "make" or "make all" shall build modules as well
 
 # U-Boot does not need modules
 #ifneq ($(filter all _all modules,$(MAKECMDGOALS)),)
@@ -301,12 +303,17 @@ endif
 # If the user is running make -s (silent mode), suppress echoing of
 # commands
 
+ifneq ($(filter 4.%,$(MAKE_VERSION)),)	# make-4
+ifneq ($(filter %s ,$(firstword x$(MAKEFLAGS))),)
+  quiet=silent_
+endif
+else					# make-3.8x
 ifneq ($(filter s% -s%,$(MAKEFLAGS)),)
   quiet=silent_
 endif
+endif
 
 export quiet Q KBUILD_VERBOSE
-
 
 # Look for make include files relative to root of kernel src
 MAKEFLAGS += --include-dir=$(srctree)
@@ -333,7 +340,7 @@ STRIP		= $(CROSS_COMPILE)strip
 OBJCOPY		= $(CROSS_COMPILE)objcopy
 OBJDUMP		= $(CROSS_COMPILE)objdump
 AWK		= awk
-RANLIB		= $(CROSS_COMPILE)RANLIB
+PERL		= perl
 DTC		= dtc
 CHECK		= sparse
 
@@ -355,8 +362,8 @@ export VERSION PATCHLEVEL SUBLEVEL UBOOTRELEASE UBOOTVERSION
 export ARCH CPU BOARD VENDOR SOC CPUDIR BOARDDIR
 export CONFIG_SHELL HOSTCC HOSTCFLAGS HOSTLDFLAGS CROSS_COMPILE AS LD CC
 export CPP AR NM LDR STRIP OBJCOPY OBJDUMP
-export MAKE AWK
-export DTC CHECK CHECKFLAGS
+export MAKE AWK PERL
+export HOSTCXX HOSTCXXFLAGS DTC CHECK CHECKFLAGS
 
 export KBUILD_CPPFLAGS NOSTDINC_FLAGS UBOOTINCLUDE OBJCOPYFLAGS LDFLAGS
 export KBUILD_CFLAGS KBUILD_AFLAGS
@@ -368,8 +375,9 @@ export MODVERDIR := $(if $(KBUILD_EXTMOD),$(firstword $(KBUILD_EXTMOD))/).tmp_ve
 
 # Files to ignore in find ... statements
 
-RCS_FIND_IGNORE := \( -name SCCS -o -name BitKeeper -o -name .svn -o -name CVS \
-		   -o -name .pc -o -name .hg -o -name .git \) -prune -o
+export RCS_FIND_IGNORE := \( -name SCCS -o -name BitKeeper -o -name .svn -o    \
+			  -name CVS -o -name .pc -o -name .hg -o -name .git \) \
+			  -prune -o
 export RCS_TAR_IGNORE := --exclude SCCS --exclude BitKeeper --exclude .svn \
 			 --exclude CVS --exclude .pc --exclude .hg --exclude .git
 
@@ -493,12 +501,6 @@ endif
 
 # If there is no specified link script, we look in a number of places for it
 ifndef LDSCRIPT
-	ifeq ($(CONFIG_NAND_U_BOOT),y)
-		LDSCRIPT := $(srctree)/board/$(BOARDDIR)/u-boot-nand.lds
-		ifeq ($(wildcard $(LDSCRIPT)),)
-			LDSCRIPT := $(srctree)/$(CPUDIR)/u-boot-nand.lds
-		endif
-	endif
 	ifeq ($(wildcard $(LDSCRIPT)),)
 		LDSCRIPT := $(srctree)/board/$(BOARDDIR)/u-boot.lds
 	endif
@@ -542,11 +544,19 @@ KBUILD_AFLAGS += -Wa,-gstabs,-S
 endif
 endif
 
+# Prohibit date/time macros, which would make the build non-deterministic
+KBUILD_CFLAGS   += $(call cc-option,-Werror=date-time)
+
 ifneq ($(CONFIG_SYS_TEXT_BASE),)
 KBUILD_CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE)
 endif
 
 export CONFIG_SYS_TEXT_BASE
+
+# Add user supplied CPPFLAGS, AFLAGS and CFLAGS as the last assignments
+KBUILD_CPPFLAGS += $(KCPPFLAGS)
+KBUILD_AFLAGS += $(KAFLAGS)
+KBUILD_CFLAGS += $(KCFLAGS)
 
 # Use UBOOTINCLUDE when you must reference the include/ directory.
 # Needed to be compatible with the O= option
@@ -655,6 +665,7 @@ PLATFORM_LIBGCC := -L $(shell dirname `$(CC) $(c_flags) -print-libgcc-file-name`
 endif
 PLATFORM_LIBS += $(PLATFORM_LIBGCC)
 export PLATFORM_LIBS
+export PLATFORM_LIBGCC
 
 # Special flags for CPP when processing the linker script.
 # Pass the version down so we can handle backwards compatibility
@@ -695,15 +706,21 @@ DO_STATIC_RELA =
 endif
 
 # Always append ALL so that arch config.mk's can add custom ones
-ALL-y += u-boot.srec u-boot.bin System.map
+ALL-y += u-boot.srec u-boot.bin System.map binary_size_check
 
-ALL-$(CONFIG_NAND_U_BOOT) += u-boot-nand.bin
 ALL-$(CONFIG_ONENAND_U_BOOT) += u-boot-onenand.bin
+ifeq ($(CONFIG_SPL_FSL_PBL),y)
+ALL-$(CONFIG_RAMBOOT_PBL) += u-boot-with-spl-pbl.bin
+else
 ALL-$(CONFIG_RAMBOOT_PBL) += u-boot.pbl
+endif
 ALL-$(CONFIG_SPL) += spl/u-boot-spl.bin
 ALL-$(CONFIG_SPL_FRAMEWORK) += u-boot.img
 ALL-$(CONFIG_TPL) += tpl/u-boot-tpl.bin
 ALL-$(CONFIG_OF_SEPARATE) += u-boot.dtb u-boot-dtb.bin
+ifeq ($(CONFIG_SPL_FRAMEWORK),y)
+ALL-$(CONFIG_OF_SEPARATE) += u-boot-dtb.img
+endif
 ALL-$(CONFIG_OF_HOSTFILE) += u-boot.dtb
 ifneq ($(CONFIG_SPL_TARGET),)
 ALL-$(CONFIG_SPL) += $(CONFIG_SPL_TARGET:"%"=%)
@@ -774,6 +791,19 @@ u-boot.hex u-boot.srec: u-boot FORCE
 
 OBJCOPYFLAGS_u-boot.bin := -O binary
 
+binary_size_check: u-boot.bin System.map FORCE
+	@file_size=`stat -c %s u-boot.bin` ; \
+	map_size=$(shell cat System.map | \
+		awk '/_image_copy_start/ {start = $$1} /_image_binary_end/ {end = $$1} END {if (start != "" && end != "") print "ibase=16; " toupper(end) " - " toupper(start)}' \
+		| bc); \
+	if [ "" != "$$map_size" ]; then \
+		if test $$map_size -ne $$file_size; then \
+			echo "System.map shows a binary size of $$map_size" >&2 ; \
+			echo "  but u-boot.bin shows $$file_size" >&2 ; \
+			exit 1; \
+		fi \
+	fi
+
 u-boot.bin: u-boot FORCE
 	$(call if_changed,objcopy)
 	$(call DO_STATIC_RELA,$<,$@,$(CONFIG_SYS_TEXT_BASE))
@@ -810,6 +840,11 @@ MKIMAGEFLAGS_u-boot.pbl = -n $(srctree)/$(CONFIG_SYS_FSL_PBL_RCW:"%"=%) \
 		-R $(srctree)/$(CONFIG_SYS_FSL_PBL_PBI:"%"=%) -T pblimage
 
 u-boot.img u-boot.kwb u-boot.pbl: u-boot.bin FORCE
+	$(call if_changed,mkimage)
+
+MKIMAGEFLAGS_u-boot-dtb.img = $(MKIMAGEFLAGS_u-boot.img)
+
+u-boot-dtb.img: u-boot-dtb.bin FORCE
 	$(call if_changed,mkimage)
 
 u-boot.sha1:	u-boot.bin
@@ -851,7 +886,7 @@ MKIMAGEFLAGS_u-boot-spl.ais = -s -n $(if $(CONFIG_AIS_CONFIG_FILE), \
 spl/u-boot-spl.ais: spl/u-boot-spl.bin FORCE
 	$(call if_changed,mkimage)
 
-OBJCOPYFLAGS_u-boot.ais = -I binary -O binary --pad-to=$(CONFIG_SPL_MAX_SIZE)
+OBJCOPYFLAGS_u-boot.ais = -I binary -O binary --pad-to=$(CONFIG_SPL_PAD_TO)
 u-boot.ais: spl/u-boot-spl.ais u-boot.img FORCE
 	$(call if_changed,pad_cat)
 
@@ -876,6 +911,23 @@ OBJCOPYFLAGS_u-boot.spr = -I binary -O binary --pad-to=$(CONFIG_SPL_PAD_TO) \
 u-boot.spr: spl/u-boot-spl.img u-boot.img FORCE
 	$(call if_changed,pad_cat)
 
+MKIMAGEFLAGS_u-boot-spl.gph = -A $(ARCH) -T gpimage -C none \
+	-a $(CONFIG_SPL_TEXT_BASE) -e $(CONFIG_SPL_TEXT_BASE) -n SPL
+spl/u-boot-spl.gph: spl/u-boot-spl.bin FORCE
+	$(call if_changed,mkimage)
+
+OBJCOPYFLAGS_u-boot-spi.gph = -I binary -O binary --pad-to=$(CONFIG_SPL_PAD_TO) \
+			  --gap-fill=0
+u-boot-spi.gph: spl/u-boot-spl.gph u-boot.img FORCE
+	$(call if_changed,pad_cat)
+
+ifneq ($(CONFIG_SUNXI),)
+OBJCOPYFLAGS_u-boot-sunxi-with-spl.bin = -I binary -O binary \
+				   --pad-to=$(CONFIG_SPL_PAD_TO) --gap-fill=0xff
+u-boot-sunxi-with-spl.bin: spl/sunxi-spl.bin u-boot.img FORCE
+	$(call if_changed,pad_cat)
+endif
+
 ifneq ($(CONFIG_TEGRA),)
 OBJCOPYFLAGS_u-boot-nodtb-tegra.bin = -O binary --pad-to=$(CONFIG_SYS_TEXT_BASE)
 u-boot-nodtb-tegra.bin: spl/u-boot-spl u-boot.bin FORCE
@@ -892,6 +944,21 @@ u-boot-img.bin: spl/u-boot-spl.bin u-boot.img FORCE
 
 boot.bin: spl/u-boot-spl.bin
 	tools/zynq-boot-bin.py -o boot.bin -u spl/u-boot-spl.bin
+
+#Add a target to create boot binary having SPL binary in PBI format
+#concatenated with u-boot binary. It is need by PowerPC SoC having
+#internal SRAM <= 512KB.
+MKIMAGEFLAGS_u-boot-spl.pbl = -n $(srctree)/$(CONFIG_SYS_FSL_PBL_RCW:"%"=%) \
+		-R $(srctree)/$(CONFIG_SYS_FSL_PBL_PBI:"%"=%) -T pblimage
+
+spl/u-boot-spl.pbl: spl/u-boot-spl.bin FORCE
+	$(call if_changed,mkimage)
+
+OBJCOPYFLAGS_u-boot-with-spl-pbl.bin = -I binary -O binary --pad-to=$(CONFIG_SPL_PAD_TO) \
+			  --gap-fill=0xff
+
+u-boot-with-spl-pbl.bin: spl/u-boot-spl.pbl u-boot.bin FORCE
+	$(call if_changed,pad_cat)
 
 # PPC4xx needs the SPL at the end of the image, since the reset vector
 # is located at 0xfffffffc. So we can't use the "u-boot-img.bin" target
@@ -1068,30 +1135,16 @@ cmd_cpp_lds = $(CPP) -Wp,-MD,$(depfile) $(cpp_flags) $(LDPPFLAGS) -ansi \
 u-boot.lds: $(LDSCRIPT) prepare FORCE
 	$(call if_changed_dep,cpp_lds)
 
-PHONY += nand_spl
-nand_spl: prepare
-	$(Q)$(MAKE) $(build)=nand_spl/board/$(BOARDDIR) all
-	@echo >&2
-	@echo >&2 "==================== WARNING ====================="
-	@echo >&2 "nand_spl will not be included in v2014.07 release."
-	@echo >&2 "Please switch over to SPL."
-	@echo >&2 "Otherwise, this board will be removed."
-	@echo >&2 "=================================================="
-	@echo >&2
-
-nand_spl/u-boot-spl-16k.bin: nand_spl
-	@:
-
-u-boot-nand.bin: nand_spl/u-boot-spl-16k.bin u-boot.bin FORCE
-	$(call if_changed,cat)
-
 spl/u-boot-spl.bin: spl/u-boot-spl
 	@:
 spl/u-boot-spl: tools prepare
-	$(Q)$(MAKE) obj=spl -f $(srctree)/spl/Makefile all
+	$(Q)$(MAKE) obj=spl -f $(srctree)/scripts/Makefile.spl all
+
+spl/sunxi-spl.bin: spl/u-boot-spl
+	@:
 
 tpl/u-boot-tpl.bin: tools prepare
-	$(Q)$(MAKE) obj=tpl -f $(srctree)/spl/Makefile all CONFIG_TPL_BUILD=y
+	$(Q)$(MAKE) obj=tpl -f $(srctree)/scripts/Makefile.spl all CONFIG_TPL_BUILD=y
 
 TAG_SUBDIRS := $(u-boot-dirs) include
 
@@ -1171,13 +1224,12 @@ CLEAN_FILES += u-boot.lds include/bmp_logo.h include/bmp_logo_data.h \
 	       include/tpl-autoconf.mk
 
 # Directories & files removed with 'make clobber'
-CLOBBER_DIRS  += $(patsubst %,spl/%, $(filter-out Makefile, \
-		 $(shell ls -1 spl 2>/dev/null))) \
-		 tpl
-CLOBBER_FILES += u-boot* MLO* SPL System.map nand_spl/u-boot*
+CLOBBER_DIRS  += spl tpl
+CLOBBER_FILES += u-boot* MLO* SPL System.map
 
 # Directories & files removed with 'make mrproper'
-MRPROPER_DIRS  += include/config include/generated
+MRPROPER_DIRS  += include/config include/generated          \
+		  .tmp_objdiff
 MRPROPER_FILES += .config .config.old \
 		  tags TAGS cscope* GPATH GTAGS GRTAGS GSYMS \
 		  include/config.h include/config.mk
@@ -1206,8 +1258,6 @@ clean: $(clean-dirs)
 		-o -name '*.symtypes' -o -name 'modules.order' \
 		-o -name modules.builtin -o -name '.tmp_*.o.*' \
 		-o -name '*.gcno' \) -type f -print | xargs rm -f
-	@find $(if $(KBUILD_EXTMOD), $(KBUILD_EXTMOD), .) $(RCS_FIND_IGNORE) \
-		-path './nand_spl/*' -type l -print | xargs rm -f
 
 # clobber
 #
@@ -1233,7 +1283,7 @@ $(mrproper-dirs):
 mrproper: clobber $(mrproper-dirs)
 	$(call cmd,rmdirs)
 	$(call cmd,rmfiles)
-	@rm -f arch/*/include/asm/arch arch/*/include/asm/proc
+	@rm -f arch/*/include/asm/arch
 
 # distclean
 #
@@ -1243,8 +1293,8 @@ distclean: mrproper
 	@find $(srctree) $(RCS_FIND_IGNORE) \
 		\( -name '*.orig' -o -name '*.rej' -o -name '*~' \
 		-o -name '*.bak' -o -name '#*#' -o -name '.*.orig' \
-		-o -name '.*.rej' -o -name '*.pyc' \
-		-o -name '*%' -o -name '.*.cmd' -o -name 'core' \) \
+		-o -name '.*.rej' -o -name '*%' -o -name 'core' \
+		-o -name '*.pyc' \) \
 		-type f -print | xargs rm -f
 
 backup:

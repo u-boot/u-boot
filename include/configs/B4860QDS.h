@@ -7,6 +7,9 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
 /*
  * B4860 QDS board configuration file
  */
@@ -14,10 +17,43 @@
 #define CONFIG_PHYS_64BIT
 
 #ifdef CONFIG_RAMBOOT_PBL
+#define CONFIG_SYS_FSL_PBL_PBI	$(SRCTREE)/board/freescale/b4860qds/b4_pbi.cfg
+#define CONFIG_SYS_FSL_PBL_RCW	$(SRCTREE)/board/freescale/b4860qds/b4_rcw.cfg
+#ifndef CONFIG_NAND
 #define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
-#define CONFIG_SYS_FSL_PBL_PBI	board/freescale/b4860qds/b4_pbi.cfg
-#define CONFIG_SYS_FSL_PBL_RCW	board/freescale/b4860qds/b4_rcw.cfg
+#else
+#define CONFIG_SPL
+#define CONFIG_SPL_MPC8XXX_INIT_DDR_SUPPORT
+#define CONFIG_SPL_ENV_SUPPORT
+#define CONFIG_SPL_SERIAL_SUPPORT
+#define CONFIG_SPL_FLUSH_IMAGE
+#define CONFIG_SPL_TARGET		"u-boot-with-spl.bin"
+#define CONFIG_SPL_LIBGENERIC_SUPPORT
+#define CONFIG_SPL_LIBCOMMON_SUPPORT
+#define CONFIG_SPL_I2C_SUPPORT
+#define CONFIG_SPL_DRIVERS_MISC_SUPPORT
+#define CONFIG_FSL_LAW                 /* Use common FSL init code */
+#define CONFIG_SYS_TEXT_BASE		0x00201000
+#define CONFIG_SPL_TEXT_BASE		0xFFFD8000
+#define CONFIG_SPL_PAD_TO		0x40000
+#define CONFIG_SPL_MAX_SIZE		0x28000
+#define RESET_VECTOR_OFFSET		0x27FFC
+#define BOOT_PAGE_OFFSET		0x27000
+#define CONFIG_SPL_NAND_SUPPORT
+#define CONFIG_SYS_NAND_U_BOOT_SIZE	(768 << 10)
+#define CONFIG_SYS_NAND_U_BOOT_DST	0x00200000
+#define CONFIG_SYS_NAND_U_BOOT_START	0x00200000
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	(256 << 10)
+#define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc85xx/u-boot-nand.lds"
+#define CONFIG_SPL_NAND_BOOT
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_SPL_SKIP_RELOCATE
+#define CONFIG_SPL_COMMON_INIT_DDR
+#define CONFIG_SYS_CCSR_DO_NOT_RELOCATE
+#define CONFIG_SYS_NO_FLASH
+#endif
+#endif
 #endif
 
 #ifdef CONFIG_SRIO_PCIE_BOOT_SLAVE
@@ -82,6 +118,17 @@
 #define IDT_SERDES1_ADDRESS            0x6E
 #define IDT_SERDES2_ADDRESS            0x6C
 
+/* Voltage monitor on channel 2*/
+#define I2C_MUX_CH_VOL_MONITOR		0xa
+#define I2C_VOL_MONITOR_ADDR		0x40
+#define I2C_VOL_MONITOR_BUS_V_OFFSET	0x2
+#define I2C_VOL_MONITOR_BUS_V_OVF	0x1
+#define I2C_VOL_MONITOR_BUS_V_SHIFT	3
+
+#define CONFIG_ZM7300
+#define I2C_MUX_CH_DPM			0xa
+#define I2C_DPM_ADDR			0x28
+
 #define CONFIG_ENV_OVERWRITE
 
 #ifdef CONFIG_SYS_NO_FLASH
@@ -113,8 +160,8 @@
 #elif defined(CONFIG_NAND)
 #define CONFIG_SYS_EXTRA_ENV_RELOC
 #define CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_SIZE			CONFIG_SYS_NAND_BLOCK_SIZE
-#define CONFIG_ENV_OFFSET		(7 * CONFIG_SYS_NAND_BLOCK_SIZE)
+#define CONFIG_ENV_SIZE			0x2000
+#define CONFIG_ENV_OFFSET		(10 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
 #define CONFIG_ENV_IS_IN_REMOTE
 #define CONFIG_ENV_ADDR		0xffe20000
@@ -164,7 +211,16 @@ unsigned long get_board_ddr_clk(void);
 /*
  *  Config the L3 Cache as L3 SRAM
  */
-#define CONFIG_SYS_INIT_L3_ADDR		CONFIG_RAMBOOT_TEXT_BASE
+#define CONFIG_SYS_INIT_L3_ADDR		0xFFFC0000
+#define CONFIG_SYS_L3_SIZE		256 << 10
+#define CONFIG_SPL_GD_ADDR		(CONFIG_SYS_INIT_L3_ADDR + 32 * 1024)
+#ifdef CONFIG_NAND
+#define CONFIG_ENV_ADDR			(CONFIG_SPL_GD_ADDR + 4 * 1024)
+#endif
+#define CONFIG_SPL_RELOC_MALLOC_ADDR	(CONFIG_SPL_GD_ADDR + 12 * 1024)
+#define CONFIG_SPL_RELOC_MALLOC_SIZE	(30 << 10)
+#define CONFIG_SPL_RELOC_STACK		(CONFIG_SPL_GD_ADDR + 64 * 1024)
+#define CONFIG_SPL_RELOC_STACK_SIZE	(22 << 10)
 
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_DCSRBAR		0xf0000000
@@ -193,7 +249,9 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_DDR_SPD
 #define CONFIG_SYS_DDR_RAW_TIMING
 #define CONFIG_SYS_FSL_DDR3
+#ifndef CONFIG_SPL_BUILD
 #define CONFIG_FSL_DDR_INTERACTIVE
+#endif
 
 #define CONFIG_SYS_SPD_BUS_NUM	0
 #define SPD_EEPROM_ADDRESS1	0x51
@@ -381,7 +439,11 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_CS1_FTIM2		CONFIG_SYS_NOR_FTIM2
 #define CONFIG_SYS_CS1_FTIM3		CONFIG_SYS_NOR_FTIM3
 
-#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SPL_TEXT_BASE
+#else
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
+#endif
 
 #if defined(CONFIG_RAMBOOT_PBL)
 #define CONFIG_SYS_RAMBOOT
@@ -414,7 +476,7 @@ unsigned long get_board_ddr_clk(void);
 					GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
+#define CONFIG_SYS_MONITOR_LEN		(768 * 1024)
 #define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
 
 /* Serial Port - controlled on board with jumper J8
@@ -435,7 +497,9 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_SYS_NS16550_COM3	(CONFIG_SYS_CCSRBAR+0x11D500)
 #define CONFIG_SYS_NS16550_COM4	(CONFIG_SYS_CCSRBAR+0x11D600)
 #define CONFIG_SERIAL_MULTI		/* Enable both serial ports */
+#ifndef CONFIG_SPL_BUILD
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV	/* determine from environment */
+#endif
 
 
 /* Use the HUSH parser */
@@ -497,15 +561,15 @@ unsigned long get_board_ddr_clk(void);
  * for slave u-boot IMAGE instored in master memory space,
  * PHYS must be aligned based on the SIZE
  */
-#define CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_PHYS 0xfef080000ull
-#define CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_BUS1 0xfff80000ull
-#define CONFIG_SRIO_PCIE_BOOT_IMAGE_SIZE 0x80000	/* 512K */
-#define CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_BUS2 0x3fff80000ull
+#define CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_PHYS 0xfef200000ull
+#define CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_BUS1 0xfff00000ull
+#define CONFIG_SRIO_PCIE_BOOT_IMAGE_SIZE 0x100000	/* 1M */
+#define CONFIG_SRIO_PCIE_BOOT_IMAGE_MEM_BUS2 0x3fff00000ull
 /*
  * for slave UCODE and ENV instored in master memory space,
  * PHYS must be aligned based on the SIZE
  */
-#define CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_MEM_PHYS 0xfef040000ull
+#define CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_MEM_PHYS 0xfef100000ull
 #define CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_MEM_BUS 0x3ffe00000ull
 #define CONFIG_SRIO_PCIE_BOOT_UCODE_ENV_SIZE 0x40000	/* 256K */
 
@@ -596,7 +660,7 @@ unsigned long get_board_ddr_clk(void);
  * env, so we got 0x110000.
  */
 #define CONFIG_SYS_QE_FW_IN_SPIFLASH
-#define CONFIG_SYS_QE_FMAN_FW_ADDR	0x110000
+#define CONFIG_SYS_FMAN_FW_ADDR	0x110000
 #elif defined(CONFIG_SDCARD)
 /*
  * PBL SD boot image should stored at 0x1000(8 blocks), the size of the image is
@@ -604,10 +668,10 @@ unsigned long get_board_ddr_clk(void);
  * 0x2000 (16 blocks), 8 + 1089 + 16 = 1113, enlarge it to 1130.
  */
 #define CONFIG_SYS_QE_FMAN_FW_IN_MMC
-#define CONFIG_SYS_QE_FMAN_FW_ADDR	(512 * 1130)
+#define CONFIG_SYS_FMAN_FW_ADDR	(512 * 1130)
 #elif defined(CONFIG_NAND)
 #define CONFIG_SYS_QE_FMAN_FW_IN_NAND
-#define CONFIG_SYS_QE_FMAN_FW_ADDR	(8 * CONFIG_SYS_NAND_BLOCK_SIZE)
+#define CONFIG_SYS_FMAN_FW_ADDR	(13 * CONFIG_SYS_NAND_BLOCK_SIZE)
 #elif defined(CONFIG_SRIO_PCIE_BOOT_SLAVE)
 /*
  * Slave has no ucode locally, it can fetch this from remote. When implementing
@@ -617,10 +681,10 @@ unsigned long get_board_ddr_clk(void);
  * master LAW->the ucode address in master's memory space.
  */
 #define CONFIG_SYS_QE_FMAN_FW_IN_REMOTE
-#define CONFIG_SYS_QE_FMAN_FW_ADDR	0xFFE00000
+#define CONFIG_SYS_FMAN_FW_ADDR	0xFFE00000
 #else
 #define CONFIG_SYS_QE_FMAN_FW_IN_NOR
-#define CONFIG_SYS_QE_FMAN_FW_ADDR		0xEFF00000
+#define CONFIG_SYS_FMAN_FW_ADDR		0xEFF00000
 #endif
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
@@ -774,8 +838,7 @@ unsigned long get_board_ddr_clk(void);
 	"ramdiskfile=b4860qds/ramdisk.uboot\0"			\
 	"fdtaddr=c00000\0"					\
 	"fdtfile=b4860qds/b4860qds.dtb\0"				\
-	"bdev=sda3\0"						\
-	"c=ffe\0"
+	"bdev=sda3\0"
 
 /* For emulation this causes u-boot to jump to the start of the proof point
    app code automatically */

@@ -249,7 +249,7 @@ static int dw_eth_init(struct eth_device *dev, bd_t *bis)
 	rx_descs_init(dev);
 	tx_descs_init(dev);
 
-	writel(FIXEDBURST | PRIORXTX_41 | BURST_16, &dma_p->busmode);
+	writel(FIXEDBURST | PRIORXTX_41 | DMA_PBL, &dma_p->busmode);
 
 	writel(readl(&dma_p->opmode) | FLUSHTXFIFO | STOREFORWARD,
 	       &dma_p->opmode);
@@ -280,10 +280,18 @@ static int dw_eth_send(struct eth_device *dev, void *packet, int length)
 	u32 desc_num = priv->tx_currdescnum;
 	struct dmamacdescr *desc_p = &priv->tx_mac_descrtable[desc_num];
 
-	/* Invalidate only "status" field for the following check */
-	invalidate_dcache_range((unsigned long)&desc_p->txrx_status,
-				(unsigned long)&desc_p->txrx_status +
-				sizeof(desc_p->txrx_status));
+	/*
+	 * Strictly we only need to invalidate the "txrx_status" field
+	 * for the following check, but on some platforms we cannot
+	 * invalidate only 4 bytes, so roundup to
+	 * ARCH_DMA_MINALIGN. This is safe because the individual
+	 * descriptors in the array are each aligned to
+	 * ARCH_DMA_MINALIGN.
+	 */
+	invalidate_dcache_range(
+		(unsigned long)desc_p,
+		(unsigned long)desc_p +
+		roundup(sizeof(desc_p->txrx_status), ARCH_DMA_MINALIGN));
 
 	/* Check if the descriptor is owned by CPU */
 	if (desc_p->txrx_status & DESC_TXSTS_OWNBYDMA) {
@@ -351,7 +359,7 @@ static int dw_eth_recv(struct eth_device *dev)
 		/* Invalidate received data */
 		invalidate_dcache_range((unsigned long)desc_p->dmamac_addr,
 					(unsigned long)desc_p->dmamac_addr +
-					length);
+					roundup(length, ARCH_DMA_MINALIGN));
 
 		NetReceive(desc_p->dmamac_addr, length);
 
@@ -390,6 +398,8 @@ static int dw_phy_init(struct eth_device *dev)
 	if (!phydev)
 		return -1;
 
+	phy_connect_dev(phydev, dev);
+
 	phydev->supported &= PHY_GBIT_FEATURES;
 	phydev->advertising = phydev->supported;
 
@@ -412,7 +422,8 @@ int designware_initialize(ulong base_addr, u32 interface)
 	 * Since the priv structure contains the descriptors which need a strict
 	 * buswidth alignment, memalign is used to allocate memory
 	 */
-	priv = (struct dw_eth_dev *) memalign(16, sizeof(struct dw_eth_dev));
+	priv = (struct dw_eth_dev *) memalign(ARCH_DMA_MINALIGN,
+					      sizeof(struct dw_eth_dev));
 	if (!priv) {
 		free(dev);
 		return -ENOMEM;

@@ -9,5 +9,4 @@
 obj-y	:= nios2-generic.o
 obj-$(CONFIG_CMD_IDE) += ../common/cfide.o
 obj-$(CONFIG_EPLED) += ../common/epled.o
-obj-$(CONFIG_SEVENSEG) += ../common/sevenseg.o
 obj-y	+= text_base.o

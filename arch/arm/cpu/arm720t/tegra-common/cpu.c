@@ -82,7 +82,7 @@ struct clk_pll_table tegra_pll_x_table[TEGRA_SOC_CNT][CLOCK_OSC_FREQ_COUNT] = {
 		{ .n = 600, .m = 13, .p = 0, .cpcon = 12 }, /* OSC: 26.0 MHz */
 	},
 	/*
-	 * T30: 1.4 GHz
+	 * T30: 600 MHz
 	 *
 	 * Register   Field  Bits   Width
 	 * ------------------------------
@@ -92,10 +92,10 @@ struct clk_pll_table tegra_pll_x_table[TEGRA_SOC_CNT][CLOCK_OSC_FREQ_COUNT] = {
 	 * PLLX_MISC  cpcon  11: 8    4
 	 */
 	{
-		{ .n = 862, .m =  8, .p = 0, .cpcon = 8 }, /* OSC: 13.0 MHz */
-		{ .n = 583, .m =  8, .p = 0, .cpcon = 4 }, /* OSC: 19.2 MHz */
-		{ .n = 700, .m =  6, .p = 0, .cpcon = 8 }, /* OSC: 12.0 MHz */
-		{ .n = 700, .m = 13, .p = 0, .cpcon = 8 }, /* OSC: 26.0 MHz */
+		{ .n = 600, .m = 13, .p = 0, .cpcon = 8 }, /* OSC: 13.0 MHz */
+		{ .n = 500, .m = 16, .p = 0, .cpcon = 8 }, /* OSC: 19.2 MHz */
+		{ .n = 600, .m = 12, .p = 0, .cpcon = 8 }, /* OSC: 12.0 MHz */
+		{ .n = 600, .m = 26, .p = 0, .cpcon = 8 }, /* OSC: 26.0 MHz */
 	},
 	/*
 	 * T114: 700 MHz

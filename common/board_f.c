@@ -173,7 +173,7 @@ static int announce_dram_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_PPC
+#if defined(CONFIG_MIPS) || defined(CONFIG_PPC)
 static int init_func_ram(void)
 {
 #ifdef	CONFIG_BOARD_TYPES
@@ -194,7 +194,7 @@ static int init_func_ram(void)
 
 static int show_dram_config(void)
 {
-	ulong size;
+	unsigned long long size;
 
 #ifdef CONFIG_NR_DRAM_BANKS
 	int i;
@@ -708,14 +708,6 @@ static int init_post(void)
 }
 #endif
 
-static int setup_baud_rate(void)
-{
-	/* Ick, can we get rid of this line? */
-	gd->bd->bi_baudrate = gd->baudrate;
-
-	return 0;
-}
-
 static int setup_dram_config(void)
 {
 	/* Ram is board specific, so move it to board code ... */
@@ -819,7 +811,7 @@ static init_fnc_t init_sequence_f[] = {
 	/* TODO: can we rename this to timer_init()? */
 	init_timebase,
 #endif
-#ifdef CONFIG_ARM
+#if defined(CONFIG_ARM) || defined(CONFIG_MIPS)
 	timer_init,		/* initialize timer */
 #endif
 #ifdef CONFIG_SYS_ALLOC_DPRAM
@@ -889,7 +881,7 @@ static init_fnc_t init_sequence_f[] = {
 #ifdef CONFIG_ARM
 	dram_init,		/* configure available RAM banks */
 #endif
-#ifdef CONFIG_PPC
+#if defined(CONFIG_MIPS) || defined(CONFIG_PPC)
 	init_func_ram,
 #endif
 #ifdef CONFIG_POST
@@ -954,7 +946,6 @@ static init_fnc_t init_sequence_f[] = {
 	INIT_FUNC_WATCHDOG_RESET
 	setup_board_part2,
 #endif
-	setup_baud_rate,
 	display_new_sp,
 #ifdef CONFIG_SYS_EXTBDINFO
 	setup_board_extra,
@@ -970,20 +961,22 @@ static init_fnc_t init_sequence_f[] = {
 
 void board_init_f(ulong boot_flags)
 {
-#ifndef CONFIG_X86
+#ifdef CONFIG_SYS_GENERIC_GLOBAL_DATA
+	/*
+	 * For some archtectures, global data is initialized and used before
+	 * calling this function. The data should be preserved. For others,
+	 * CONFIG_SYS_GENERIC_GLOBAL_DATA should be defined and use the stack
+	 * here to host global data until relocation.
+	 */
 	gd_t data;
 
 	gd = &data;
-#endif
 
 	/*
 	 * Clear global data before it is accessed at debug print
 	 * in initcall_run_list. Otherwise the debug print probably
 	 * get the wrong vaule of gd->have_console.
 	 */
-#if !defined(CONFIG_CPM2) && !defined(CONFIG_MPC512X) && \
-		!defined(CONFIG_MPC83xx) && !defined(CONFIG_MPC85xx) && \
-		!defined(CONFIG_MPC86xx) && !defined(CONFIG_X86)
 	zero_global_data();
 #endif
 

@@ -98,6 +98,7 @@ static int omap_xhci_core_init(struct omap_xhci *omap)
 {
 	int ret = 0;
 
+	usb_phy_power(1);
 	omap_enable_phy(omap);
 
 	ret = dwc3_core_init(omap->dwc3_reg);

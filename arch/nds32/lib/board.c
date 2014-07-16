@@ -255,7 +255,6 @@ void board_init_f(ulong bootflag)
 	addr_sp &= ~0x07;
 	debug("New Stack Pointer is: %08lx\n", addr_sp);
 
-	gd->bd->bi_baudrate = gd->baudrate;
 	/* Ram isn't board specific, so move it to board code ... */
 	dram_init_banksize();
 	display_dram_config();	/* and display it */

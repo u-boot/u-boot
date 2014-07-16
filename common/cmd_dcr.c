@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <cli.h>
 #include <config.h>
 #include <command.h>
 
@@ -62,7 +63,7 @@ int do_setdcr (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	do {
 		value = get_dcr (dcrn);
 		printf ("%04x: %08lx", dcrn, value);
-		nbytes = readline (" ? ");
+		nbytes = cli_readline(" ? ");
 		if (nbytes == 0) {
 			/*
 			 * <CR> pressed as only input, don't modify current

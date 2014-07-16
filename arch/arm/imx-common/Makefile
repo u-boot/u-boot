@@ -16,9 +16,11 @@ obj-$(CONFIG_SYS_I2C_MXC) += i2c-mxv7.o
 endif
 ifeq ($(SOC),$(filter $(SOC),mx6 mxs))
 obj-y	+= misc.o
+obj-$(CONFIG_SPL_BUILD)	+= spl.o
 endif
 ifeq ($(SOC),$(filter $(SOC),mx6))
 obj-$(CONFIG_CMD_SATA) += sata.o
+obj-$(CONFIG_IMX_VIDEO_SKIP) += video.o
 endif
 obj-$(CONFIG_CMD_BMODE) += cmd_bmode.o
 obj-$(CONFIG_CMD_HDMIDETECT) += cmd_hdmidet.o
@@ -31,10 +33,6 @@ IMX_CONFIG = $(CONFIG_IMX_CONFIG:"%"=%).cfgtmp
 $(IMX_CONFIG): %.cfgtmp: % FORCE
 	$(Q)mkdir -p $(dir $@)
 	$(call if_changed_dep,cpp_cfg)
-
-quiet_cmd_mkimage = MKIMAGE $@
-cmd_mkimage = $(objtree)/tools/mkimage $(MKIMAGEFLAGS_$(@F)) -d $< $@ \
-	$(if $(KBUILD_VERBOSE:1=), >/dev/null)
 
 MKIMAGEFLAGS_u-boot.imx = -n $(filter-out $< $(PHONY),$^) -T imximage \
 	-e $(CONFIG_SYS_TEXT_BASE)

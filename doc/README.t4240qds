@@ -120,3 +120,56 @@ The override voltage takes effect when booting.
 Note: voltage adjustment needs to be done step by step. Changing voltage too
 rapidly may cause current surge. The voltage stepping is done by software.
 Users can set the final voltage directly.
+
+2-stage NAND/SD boot loader
+-------------------------------
+PBL initializes the internal SRAM and copy SPL(160K) in SRAM.
+SPL further initialise DDR using SPD and environment variables
+and copy u-boot(768 KB) from NAND/SD device to DDR.
+Finally SPL transers control to u-boot for futher booting.
+
+SPL has following features:
+ - Executes within 256K
+ - No relocation required
+
+Run time view of SPL framework
+-------------------------------------------------
+|Area		| Address			|
+-------------------------------------------------
+|SecureBoot header | 0xFFFC0000	(32KB)		|
+-------------------------------------------------
+|GD, BD		| 0xFFFC8000	(4KB)		|
+-------------------------------------------------
+|ENV		| 0xFFFC9000	(8KB)		|
+-------------------------------------------------
+|HEAP		| 0xFFFCB000	(50KB)		|
+-------------------------------------------------
+|STACK		| 0xFFFD8000	(22KB)		|
+-------------------------------------------------
+|U-boot SPL	| 0xFFFD8000 	(160KB)		|
+-------------------------------------------------
+
+NAND Flash memory Map on T4QDS
+--------------------------------------------------------------
+Start		End		Definition	Size
+0x000000	0x0FFFFF	u-boot img	1MB
+0x140000	0x15FFFF	u-boot env      128KB
+0x160000	0x17FFFF	FMAN Ucode      128KB
+
+Micro SD Card memory Map on T4QDS
+----------------------------------------------------
+Block		#blocks		Definition	Size
+0x008		2048		u-boot img	1MB
+0x800		0016		u-boot env	8KB
+0x820		0128		FMAN ucode	64KB
+
+Switch Settings: (ON is 1, OFF is 0)
+===============
+NAND boot SW setting:
+SW1[1:8] = 10000010
+SW2[1.1] = 0
+SW6[1:4] = 1001
+
+SD boot SW setting:
+SW1[1:8] = 00100000
+SW2[1.1] = 0

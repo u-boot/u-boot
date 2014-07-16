@@ -12,7 +12,6 @@
 #include <asm/blackfin.h>
 #include <asm/portmux.h>
 #include <asm/gpio.h>
-#include <asm/net.h>
 #include <net.h>
 #include <netdev.h>
 #include <miiphy.h>
@@ -33,7 +32,7 @@ int checkboard(void)
 static void board_init_enetaddr(uchar *mac_addr)
 {
 	puts("Warning: Generating 'random' MAC address\n");
-	bfin_gen_rand_mac(mac_addr);
+	eth_random_addr(mac_addr);
 	eth_setenv_enetaddr("ethaddr", mac_addr);
 }
 

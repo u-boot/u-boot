@@ -84,7 +84,6 @@ void board_init(void)
 	bd->bi_sramstart = CONFIG_SYS_SRAM_BASE;
 	bd->bi_sramsize = CONFIG_SYS_SRAM_SIZE;
 #endif
-	bd->bi_baudrate = CONFIG_BAUDRATE;
 
 	for (i = 0; i < ARRAY_SIZE(init_sequence); i++) {
 		WATCHDOG_RESET();

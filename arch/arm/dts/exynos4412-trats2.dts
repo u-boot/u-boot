@@ -31,6 +31,7 @@
 		console = "/serial@13820000";
 		mmc0 = "sdhci@12510000";
 		mmc2 = "sdhci@12530000";
+		mmc4 = "dwmmc@12550000";
 	};
 
 	i2c@138d0000 {
@@ -415,7 +416,8 @@
 	sdhci@12510000 {
 		samsung,bus-width = <8>;
 		samsung,timing = <1 3 3>;
-		pwr-gpios = <&gpio 0x2004002 0>;
+		pwr-gpios = <&gpio 0xB2 0>;
+		status = "disabled";
 	};
 
 	sdhci@12520000 {
@@ -425,10 +427,20 @@
 	sdhci@12530000 {
 		samsung,bus-width = <4>;
 		samsung,timing = <1 2 3>;
-		cd-gpios = <&gpio 0x20C6004 0>;
+		cd-gpios = <&gpio 0x3BC 0>;
 	};
 
 	sdhci@12540000 {
 		status = "disabled";
+	};
+
+	dwmmc@12550000 {
+		samsung,bus-width = <8>;
+		samsung,timing = <2 1 0>;
+		pwr-gpios = <&gpio 0xB2 0>;
+		fifoth_val = <0x203f0040>;
+		bus_hz = <400000000>;
+		div = <0x3>;
+		index = <4>;
 	};
 };

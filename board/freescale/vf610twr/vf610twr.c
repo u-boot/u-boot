@@ -217,7 +217,8 @@ void ddr_ctrl_init(void)
 		&ddrmr->cr[139]);
 
 	writel(DDRMC_CR154_PAD_ZQ_EARLY_CMP_EN_TIMER(13) |
-		DDRMC_CR154_PAD_ZQ_MODE(1), &ddrmr->cr[154]);
+		DDRMC_CR154_PAD_ZQ_MODE(1) |
+		DDRMC_CR154_DDR_SEL_PAD_CONTR(3), &ddrmr->cr[154]);
 	writel(DDRMC_CR155_AXI0_AWCACHE | DDRMC_CR155_PAD_ODT_BYTE1(2),
 		&ddrmr->cr[155]);
 	writel(DDRMC_CR158_TWR(6), &ddrmr->cr[158]);
@@ -277,6 +278,26 @@ static void setup_iomux_i2c(void)
 	imx_iomux_v3_setup_multiple_pads(i2c0_pads, ARRAY_SIZE(i2c0_pads));
 }
 
+static void setup_iomux_qspi(void)
+{
+	static const iomux_v3_cfg_t qspi0_pads[] = {
+		VF610_PAD_PTD0__QSPI0_A_QSCK,
+		VF610_PAD_PTD1__QSPI0_A_CS0,
+		VF610_PAD_PTD2__QSPI0_A_DATA3,
+		VF610_PAD_PTD3__QSPI0_A_DATA2,
+		VF610_PAD_PTD4__QSPI0_A_DATA1,
+		VF610_PAD_PTD5__QSPI0_A_DATA0,
+		VF610_PAD_PTD7__QSPI0_B_QSCK,
+		VF610_PAD_PTD8__QSPI0_B_CS0,
+		VF610_PAD_PTD9__QSPI0_B_DATA3,
+		VF610_PAD_PTD10__QSPI0_B_DATA2,
+		VF610_PAD_PTD11__QSPI0_B_DATA1,
+		VF610_PAD_PTD12__QSPI0_B_DATA0,
+	};
+
+	imx_iomux_v3_setup_multiple_pads(qspi0_pads, ARRAY_SIZE(qspi0_pads));
+}
+
 #ifdef CONFIG_FSL_ESDHC
 struct fsl_esdhc_cfg esdhc_cfg[1] = {
 	{ESDHC1_BASE_ADDR},
@@ -320,7 +341,8 @@ static void clock_init(void)
 	clrsetbits_le32(&ccm->ccgr2, CCM_REG_CTRL_MASK,
 		CCM_CCGR2_IOMUXC_CTRL_MASK | CCM_CCGR2_PORTA_CTRL_MASK |
 		CCM_CCGR2_PORTB_CTRL_MASK | CCM_CCGR2_PORTC_CTRL_MASK |
-		CCM_CCGR2_PORTD_CTRL_MASK | CCM_CCGR2_PORTE_CTRL_MASK);
+		CCM_CCGR2_PORTD_CTRL_MASK | CCM_CCGR2_PORTE_CTRL_MASK |
+		CCM_CCGR2_QSPI0_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr3, CCM_REG_CTRL_MASK,
 		CCM_CCGR3_ANADIG_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr4, CCM_REG_CTRL_MASK,
@@ -351,11 +373,14 @@ static void clock_init(void)
 		CCM_CACRR_IPG_CLK_DIV(1) | CCM_CACRR_BUS_CLK_DIV(2) |
 		CCM_CACRR_ARM_CLK_DIV(0));
 	clrsetbits_le32(&ccm->cscmr1, CCM_REG_CTRL_MASK,
-		CCM_CSCMR1_ESDHC1_CLK_SEL(3));
+		CCM_CSCMR1_ESDHC1_CLK_SEL(3) | CCM_CSCMR1_QSPI0_CLK_SEL(3));
 	clrsetbits_le32(&ccm->cscdr1, CCM_REG_CTRL_MASK,
 		CCM_CSCDR1_RMII_CLK_EN);
 	clrsetbits_le32(&ccm->cscdr2, CCM_REG_CTRL_MASK,
 		CCM_CSCDR2_ESDHC1_EN | CCM_CSCDR2_ESDHC1_CLK_DIV(0));
+	clrsetbits_le32(&ccm->cscdr3, CCM_REG_CTRL_MASK,
+		CCM_CSCDR3_QSPI0_EN | CCM_CSCDR3_QSPI0_DIV(1) |
+		CCM_CSCDR3_QSPI0_X2_DIV(1) | CCM_CSCDR3_QSPI0_X4_DIV(3));
 	clrsetbits_le32(&ccm->cscmr2, CCM_REG_CTRL_MASK,
 		CCM_CSCMR2_RMII_CLK_SEL(0));
 }
@@ -385,6 +410,7 @@ int board_early_init_f(void)
 	setup_iomux_uart();
 	setup_iomux_enet();
 	setup_iomux_i2c();
+	setup_iomux_qspi();
 
 	return 0;
 }

@@ -66,11 +66,11 @@ Tools
 
 To use this feature you will need to get the device tree compiler here:
 
-	git://jdl.com/software/dtc.git
+	git://git.kernel.org/pub/scm/utils/dtc/dtc.git
 
 For example:
 
-	$ git clone git://jdl.com/software/dtc.git
+	$ git clone git://git.kernel.org/pub/scm/utils/dtc/dtc.git
 	$ cd dtc
 	$ make
 	$ sudo make install
@@ -122,7 +122,8 @@ This should include your CPU or SOC's device tree file, placed in
 arch/<arch>/dts, and then make any adjustments required.
 
 If CONFIG_OF_EMBED is defined, then it will be picked up and built into
-the U-Boot image (including u-boot.bin).
+the U-Boot image (including u-boot.bin). This is suitable for debugging
+and development only and is not recommended for production devices.
 
 If CONFIG_OF_SEPARATE is defined, then it will be built and placed in
 a u-boot.dtb file alongside u-boot.bin. A common approach is then to
@@ -130,13 +131,24 @@ join the two:
 
 	cat u-boot.bin u-boot.dtb >image.bin
 
-and then flash image.bin onto your board.
+and then flash image.bin onto your board. Note that U-Boot creates
+u-boot-dtb.bin which does the above step for you also. If you are using
+CONFIG_SPL_FRAMEWORK, then u-boot.img will be built to include the device
+tree binary.
 
 If CONFIG_OF_HOSTFILE is defined, then it will be read from a file on
 startup. This is only useful for sandbox. Use the -d flag to U-Boot to
 specify the file to read.
 
 You cannot use more than one of these options at the same time.
+
+To use a device tree file that you have compiled yourself, pass
+EXT_DTB=<filename> to 'make', as in:
+
+	make EXT_DTB=boot/am335x-boneblack-pubkey.dtb
+
+Then U-Boot will copy that file to u-boot.dtb, put it in the .img file
+if used, and u-boot-dtb.bin.
 
 If you wish to put the fdt at a different address in memory, you can
 define the "fdtcontroladdr" environment variable. This is the hex

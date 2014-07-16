@@ -100,6 +100,7 @@ typedef struct NS16550 *NS16550_t;
 #define UART_MCR_OUT1	0x04		/* Out 1 */
 #define UART_MCR_OUT2	0x08		/* Out 2 */
 #define UART_MCR_LOOP	0x10		/* Enable loopback test mode */
+#define UART_MCR_AFE	0x20		/* Enable auto-RTS/CTS */
 
 #define UART_MCR_DMA_EN	0x04
 #define UART_MCR_TX_DFR	0x08

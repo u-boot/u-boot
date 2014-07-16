@@ -273,6 +273,7 @@ diag_done:
 /*	bl	l2cache_enable */
 
 	/* run 1st part of board init code (from Flash)	  */
+	li	r3, 0		/* clear boot_flag for calling board_init_f */
 	bl	board_init_f
 	sync
 

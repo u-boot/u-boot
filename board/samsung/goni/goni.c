@@ -14,10 +14,10 @@
 #include <asm/arch/cpu.h>
 #include <power/max8998_pmic.h>
 #include <samsung/misc.h>
+#include <usb.h>
+#include <usb_mass_storage.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-static struct s5pc110_gpio *s5pc110_gpio;
 
 u32 get_board_rev(void)
 {
@@ -27,8 +27,6 @@ u32 get_board_rev(void)
 int board_init(void)
 {
 	/* Set Initial global variables */
-	s5pc110_gpio = (struct s5pc110_gpio *)S5PC110_GPIO_BASE;
-
 	gd->bd->bi_arch_number = MACH_TYPE_GONI;
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
@@ -82,7 +80,7 @@ int board_mmc_init(bd_t *bis)
 	int i, ret, ret_sd = 0;
 
 	/* MASSMEMORY_EN: XMSMDATA7: GPJ2[7] output high */
-	s5p_gpio_direction_output(&s5pc110_gpio->j2, 7, 1);
+	gpio_direction_output(S5PC110_GPIO_J27, 1);
 
 	/*
 	 * MMC0 GPIO
@@ -91,15 +89,15 @@ int board_mmc_init(bd_t *bis)
 	 * GPG0[2]	SD_0_CDn	-> Not used
 	 * GPG0[3:6]	SD_0_DATA[0:3]
 	 */
-	for (i = 0; i < 7; i++) {
-		if (i == 2)
+	for (i = S5PC110_GPIO_G00; i < S5PC110_GPIO_G07; i++) {
+		if (i == S5PC110_GPIO_G02)
 			continue;
 		/* GPG0[0:6] special function 2 */
-		s5p_gpio_cfg_pin(&s5pc110_gpio->g0, i, 0x2);
+		gpio_cfg_pin(i, 0x2);
 		/* GPG0[0:6] pull disable */
-		s5p_gpio_set_pull(&s5pc110_gpio->g0, i, GPIO_PULL_NONE);
+		gpio_set_pull(i, S5P_GPIO_PULL_NONE);
 		/* GPG0[0:6] drv 4x */
-		s5p_gpio_set_drv(&s5pc110_gpio->g0, i, GPIO_DRV_4X);
+		gpio_set_drv(i, S5P_GPIO_DRV_4X);
 	}
 
 	ret = s5p_mmc_init(0, 4);
@@ -110,20 +108,20 @@ int board_mmc_init(bd_t *bis)
 	 * SD card (T_FLASH) detect and init
 	 * T_FLASH_DETECT: EINT28: GPH3[4] input mode
 	 */
-	s5p_gpio_cfg_pin(&s5pc110_gpio->h3, 4, GPIO_INPUT);
-	s5p_gpio_set_pull(&s5pc110_gpio->h3, 4, GPIO_PULL_UP);
+	gpio_cfg_pin(S5PC110_GPIO_H34, S5P_GPIO_INPUT);
+	gpio_set_pull(S5PC110_GPIO_H34, S5P_GPIO_PULL_UP);
 
-	if (!s5p_gpio_get_value(&s5pc110_gpio->h3, 4)) {
-		for (i = 0; i < 7; i++) {
-			if (i == 2)
+	if (!gpio_get_value(S5PC110_GPIO_H34)) {
+		for (i = S5PC110_GPIO_G20; i < S5PC110_GPIO_G27; i++) {
+			if (i == S5PC110_GPIO_G22)
 				continue;
 
 			/* GPG2[0:6] special function 2 */
-			s5p_gpio_cfg_pin(&s5pc110_gpio->g2, i, 0x2);
+			gpio_cfg_pin(i, 0x2);
 			/* GPG2[0:6] pull disable */
-			s5p_gpio_set_pull(&s5pc110_gpio->g2, i, GPIO_PULL_NONE);
+			gpio_set_pull(i, S5P_GPIO_PULL_NONE);
 			/* GPG2[0:6] drv 4x */
-			s5p_gpio_set_drv(&s5pc110_gpio->g2, i, GPIO_DRV_4X);
+			gpio_set_drv(i, S5P_GPIO_DRV_4X);
 		}
 
 		ret_sd = s5p_mmc_init(2, 4);
@@ -179,6 +177,12 @@ struct s3c_plat_otg_data s5pc110_otg_data = {
 	.regs_otg = S5PC110_OTG_BASE,
 	.usb_phy_ctrl = S5PC110_USB_PHY_CONTROL,
 };
+
+int board_usb_init(int index, enum usb_init_type init)
+{
+	debug("USB_udc_probe\n");
+	return s3c_udc_probe(&s5pc110_otg_data);
+}
 #endif
 
 #ifdef CONFIG_MISC_INIT_R

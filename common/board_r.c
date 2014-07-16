@@ -528,6 +528,7 @@ static int show_model_r(void)
 # else
 	checkboard();
 # endif
+	return 0;
 }
 #endif
 
@@ -699,17 +700,6 @@ static int initr_kbd(void)
 {
 	puts("PS/2:  ");
 	kbd_init();
-	return 0;
-}
-#endif
-
-#ifdef CONFIG_MODEM_SUPPORT
-static int initr_modem(void)
-{
-	/* TODO: with new initcalls, move this into the driver */
-	extern int do_mdm_init;
-
-	do_mdm_init = gd->do_mdm_init;
 	return 0;
 }
 #endif
@@ -927,9 +917,6 @@ init_fnc_t init_sequence_r[] = {
 #endif
 #ifdef CONFIG_PS2KBD
 	initr_kbd,
-#endif
-#ifdef CONFIG_MODEM_SUPPORT
-	initr_modem,
 #endif
 	run_main_loop,
 };

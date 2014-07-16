@@ -7,6 +7,7 @@
 
 /* includes */
 #include <common.h>
+#include <cli.h>
 #include <linux/ctype.h>
 #include <pci.h>
 #include <net.h>
@@ -113,7 +114,7 @@ int misc_init_r (void)
 		printf ("Press key:\n  <c> to copy current revision info to nvram.\n");
 		printf ("  <r> to reenter revision info.\n");
 		printf ("=> ");
-		if (0 != readline (NULL)) {
+		if (0 != cli_readline(NULL)) {
 			switch ((char) toupper (console_buffer[0])) {
 			case 'C':
 				copyNv = 1;
@@ -130,7 +131,7 @@ int misc_init_r (void)
 		memcpy (buf, &eerev.revision[0][0], 14);	/* save all revision info */
 		printf ("Enter revision number (0-9): %c  ",
 			eerev.revision[0][0]);
-		if (0 != readline (NULL)) {
+		if (0 != cli_readline(NULL)) {
 			eerev.revision[0][0] =
 				(char) toupper (console_buffer[0]);
 			memcpy (&eerev.revision[1][0], buf, 12);	/* shift rest of rev info */
@@ -138,14 +139,14 @@ int misc_init_r (void)
 
 		printf ("Enter revision character (A-Z): %c  ",
 			eerev.revision[0][1]);
-		if (1 == readline (NULL)) {
+		if (1 == cli_readline(NULL)) {
 			eerev.revision[0][1] =
 				(char) toupper (console_buffer[0]);
 		}
 
 		printf ("Enter board name (V-XXXX-XXXX): %s  ",
 			(char *) &eerev.board);
-		if (11 == readline (NULL)) {
+		if (11 == cli_readline(NULL)) {
 			for (i = 0; i < 11; i++)
 				eerev.board[i] =
 					(char) toupper (console_buffer[i]);
@@ -153,14 +154,14 @@ int misc_init_r (void)
 		}
 
 		printf ("Enter serial number: %s ", (char *) &eerev.serial);
-		if (6 == readline (NULL)) {
+		if (6 == cli_readline(NULL)) {
 			for (i = 0; i < 6; i++)
 				eerev.serial[i] = console_buffer[i];
 			eerev.serial[6] = '\0';
 		}
 
 		printf ("Enter ether node ID with leading zero (HEX): %02x%02x%02x%02x%02x%02x  ", eerev.etheraddr[0], eerev.etheraddr[1], eerev.etheraddr[2], eerev.etheraddr[3], eerev.etheraddr[4], eerev.etheraddr[5]);
-		if (12 == readline (NULL)) {
+		if (12 == cli_readline(NULL)) {
 			for (i = 0; i < 12; i += 2)
 				eerev.etheraddr[i >> 1] =
 					(char) (16 *
@@ -175,7 +176,7 @@ int misc_init_r (void)
 		l = strlen ((char *) &eerev.text);
 		printf ("Add to text section (max 64 chr): %s ",
 			(char *) &eerev.text);
-		if (0 != readline (NULL)) {
+		if (0 != cli_readline(NULL)) {
 			for (i = l; i < 63; i++)
 				eerev.text[i] = console_buffer[i - l];
 			eerev.text[63] = '\0';

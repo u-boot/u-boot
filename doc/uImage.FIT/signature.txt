@@ -328,6 +328,9 @@ be enabled:
 CONFIG_FIT_SIGNATURE - enable signing and verfication in FITs
 CONFIG_RSA - enable RSA algorithm for signing
 
+WARNING: When relying on signed FIT images with required signature check
+the legacy image format is default disabled by not defining
+CONFIG_IMAGE_FORMAT_LEGACY
 
 Testing
 -------
@@ -346,7 +349,9 @@ Simple Verified Boot Test
 
 Please see doc/uImage.FIT/verified-boot.txt for more information
 
+/home/hs/ids/u-boot/sandbox/tools/mkimage -D -I dts -O dtb -p 2000
 Build keys
+do sha1 test
 Build FIT with signed images
 Test Verified Boot Run: unsigned signatures:: OK
 Sign images
@@ -355,6 +360,25 @@ Build FIT with signed configuration
 Test Verified Boot Run: unsigned config: OK
 Sign images
 Test Verified Boot Run: signed config: OK
+check signed config on the host
+Signature check OK
+OK
+Test Verified Boot Run: signed config: OK
+Test Verified Boot Run: signed config with bad hash: OK
+do sha256 test
+Build FIT with signed images
+Test Verified Boot Run: unsigned signatures:: OK
+Sign images
+Test Verified Boot Run: signed images: OK
+Build FIT with signed configuration
+Test Verified Boot Run: unsigned config: OK
+Sign images
+Test Verified Boot Run: signed config: OK
+check signed config on the host
+Signature check OK
+OK
+Test Verified Boot Run: signed config: OK
+Test Verified Boot Run: signed config with bad hash: OK
 
 Test passed
 

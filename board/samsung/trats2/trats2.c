@@ -25,9 +25,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static struct exynos4x12_gpio_part1 *gpio1;
-static struct exynos4x12_gpio_part2 *gpio2;
-
 static unsigned int board_rev = -1;
 
 static inline u32 get_model_rev(void);
@@ -37,26 +34,24 @@ static void check_hw_revision(void)
 	int modelrev = 0;
 	int i;
 
-	gpio2 = (struct exynos4x12_gpio_part2 *)samsung_get_base_gpio_part2();
-
 	/*
 	 * GPM1[1:0]: MODEL_REV[1:0]
 	 * Don't set as pull-none for these N/C pin.
 	 * TRM say that it may cause unexcepted state and leakage current.
 	 * and pull-none is only for output function.
 	 */
-	for (i = 0; i < 2; i++)
-		s5p_gpio_cfg_pin(&gpio2->m1, i, GPIO_INPUT);
+	for (i = EXYNOS4X12_GPIO_M10; i < EXYNOS4X12_GPIO_M12; i++)
+		gpio_cfg_pin(i, S5P_GPIO_INPUT);
 
 	/* GPM1[5:2]: HW_REV[3:0] */
-	for (i = 2; i < 6; i++) {
-		s5p_gpio_cfg_pin(&gpio2->m1, i, GPIO_INPUT);
-		s5p_gpio_set_pull(&gpio2->m1, i, GPIO_PULL_NONE);
+	for (i = EXYNOS4X12_GPIO_M12; i < EXYNOS4X12_GPIO_M16; i++) {
+		gpio_cfg_pin(i, S5P_GPIO_INPUT);
+		gpio_set_pull(i, S5P_GPIO_PULL_NONE);
 	}
 
 	/* GPM1[1:0]: MODEL_REV[1:0] */
 	for (i = 0; i < 2; i++)
-		modelrev |= (s5p_gpio_get_value(&gpio2->m1, i) << i);
+		modelrev |= (gpio_get_value(EXYNOS4X12_GPIO_M10 + i) << i);
 
 	/* board_rev[15:8] = model */
 	board_rev = modelrev << 8;
@@ -74,35 +69,30 @@ static inline u32 get_model_rev(void)
 
 static void board_external_gpio_init(void)
 {
-	gpio2 = (struct exynos4x12_gpio_part2 *)samsung_get_base_gpio_part2();
-
 	/*
 	 * some pins which in alive block are connected with external pull-up
 	 * but it's default setting is pull-down.
 	 * if that pin set as input then that floated
 	 */
 
-	s5p_gpio_set_pull(&gpio2->x0, 2, GPIO_PULL_NONE);	/* PS_ALS_INT */
-	s5p_gpio_set_pull(&gpio2->x0, 4, GPIO_PULL_NONE);	/* TSP_nINT */
-	s5p_gpio_set_pull(&gpio2->x0, 7, GPIO_PULL_NONE);	/* AP_PMIC_IRQ*/
-	s5p_gpio_set_pull(&gpio2->x1, 5, GPIO_PULL_NONE);	/* IF_PMIC_IRQ*/
-	s5p_gpio_set_pull(&gpio2->x2, 0, GPIO_PULL_NONE);	/* VOL_UP */
-	s5p_gpio_set_pull(&gpio2->x2, 1, GPIO_PULL_NONE);	/* VOL_DOWN */
-	s5p_gpio_set_pull(&gpio2->x2, 3, GPIO_PULL_NONE);	/* FUEL_ALERT */
-	s5p_gpio_set_pull(&gpio2->x2, 4, GPIO_PULL_NONE);	/* ADC_INT */
-	s5p_gpio_set_pull(&gpio2->x2, 7, GPIO_PULL_NONE);	/* nPOWER */
-	s5p_gpio_set_pull(&gpio2->x3, 0, GPIO_PULL_NONE);	/* WPC_INT */
-	s5p_gpio_set_pull(&gpio2->x3, 5, GPIO_PULL_NONE);	/* OK_KEY */
-	s5p_gpio_set_pull(&gpio2->x3, 7, GPIO_PULL_NONE);	/* HDMI_HPD */
+	gpio_set_pull(EXYNOS4X12_GPIO_X02, S5P_GPIO_PULL_NONE);	/* PS_ALS_INT */
+	gpio_set_pull(EXYNOS4X12_GPIO_X04, S5P_GPIO_PULL_NONE);	/* TSP_nINT */
+	gpio_set_pull(EXYNOS4X12_GPIO_X07, S5P_GPIO_PULL_NONE);	/* AP_PMIC_IRQ*/
+	gpio_set_pull(EXYNOS4X12_GPIO_X15, S5P_GPIO_PULL_NONE);	/* IF_PMIC_IRQ*/
+	gpio_set_pull(EXYNOS4X12_GPIO_X20, S5P_GPIO_PULL_NONE);	/* VOL_UP */
+	gpio_set_pull(EXYNOS4X12_GPIO_X21, S5P_GPIO_PULL_NONE);	/* VOL_DOWN */
+	gpio_set_pull(EXYNOS4X12_GPIO_X23, S5P_GPIO_PULL_NONE);	/* FUEL_ALERT */
+	gpio_set_pull(EXYNOS4X12_GPIO_X24, S5P_GPIO_PULL_NONE);	/* ADC_INT */
+	gpio_set_pull(EXYNOS4X12_GPIO_X27, S5P_GPIO_PULL_NONE);	/* nPOWER */
+	gpio_set_pull(EXYNOS4X12_GPIO_X30, S5P_GPIO_PULL_NONE);	/* WPC_INT */
+	gpio_set_pull(EXYNOS4X12_GPIO_X35, S5P_GPIO_PULL_NONE);	/* OK_KEY */
+	gpio_set_pull(EXYNOS4X12_GPIO_X37, S5P_GPIO_PULL_NONE);	/* HDMI_HPD */
 }
 
 #ifdef CONFIG_SYS_I2C_INIT_BOARD
 static void board_init_i2c(void)
 {
 	int err;
-
-	gpio1 = (struct exynos4x12_gpio_part1 *)samsung_get_base_gpio_part1();
-	gpio2 = (struct exynos4x12_gpio_part2 *)samsung_get_base_gpio_part2();
 
 	/* I2C_7 */
 	err = exynos_pinmux_config(PERIPH_ID_I2C7, PINMUX_FLAG_NONE);
@@ -112,12 +102,12 @@ static void board_init_i2c(void)
 	}
 
 	/* I2C_8 */
-	s5p_gpio_direction_output(&gpio1->f1, 4, 1);
-	s5p_gpio_direction_output(&gpio1->f1, 5, 1);
+	gpio_direction_output(EXYNOS4X12_GPIO_F14, 1);
+	gpio_direction_output(EXYNOS4X12_GPIO_F15, 1);
 
 	/* I2C_9 */
-	s5p_gpio_direction_output(&gpio2->m2, 1, 1);
-	s5p_gpio_direction_output(&gpio2->m2, 0, 1);
+	gpio_direction_output(EXYNOS4X12_GPIO_M21, 1);
+	gpio_direction_output(EXYNOS4X12_GPIO_M20, 1);
 }
 #endif
 
@@ -125,17 +115,17 @@ static void board_init_i2c(void)
 int get_soft_i2c_scl_pin(void)
 {
 	if (I2C_ADAP_HWNR)
-		return exynos4x12_gpio_get(2, m2, 1); /* I2C9 */
+		return EXYNOS4X12_GPIO_M21; /* I2C9 */
 	else
-		return exynos4x12_gpio_get(1, f1, 4); /* I2C8 */
+		return EXYNOS4X12_GPIO_F14; /* I2C8 */
 }
 
 int get_soft_i2c_sda_pin(void)
 {
 	if (I2C_ADAP_HWNR)
-		return exynos4x12_gpio_get(2, m2, 0); /* I2C9 */
+		return EXYNOS4X12_GPIO_M20; /* I2C9 */
 	else
-		return exynos4x12_gpio_get(1, f1, 5); /* I2C8 */
+		return EXYNOS4X12_GPIO_F15; /* I2C8 */
 }
 #endif
 
@@ -224,7 +214,7 @@ int exynos_power_init(void)
 
 	if (!p_chrg->chrg->chrg_bat_present(p_chrg)) {
 		puts("No battery detected\n");
-		return -1;
+		return 0;
 	}
 
 	p_fg->fg->fg_battery_check(p_fg, p_bat);
@@ -312,8 +302,7 @@ int board_usb_init(int index, enum usb_init_type init)
 	return s3c_udc_probe(&s5pc210_otg_data);
 }
 
-#ifdef CONFIG_USB_CABLE_CHECK
-int usb_cable_connected(void)
+int g_dnl_board_usb_cable_connected(void)
 {
 	struct pmic *muic = pmic_get("MAX77693_MUIC");
 	if (!muic)
@@ -321,7 +310,6 @@ int usb_cable_connected(void)
 
 	return !!muic->chrg->chrg_type(muic);
 }
-#endif
 #endif
 
 static int pmic_init_max77686(void)
@@ -398,11 +386,9 @@ void exynos_lcd_power_on(void)
 {
 	struct pmic *p = pmic_get("MAX77686_PMIC");
 
-	gpio1 = (struct exynos4x12_gpio_part1 *)samsung_get_base_gpio_part1();
-
 	/* LCD_2.2V_EN: GPC0[1] */
-	s5p_gpio_set_pull(&gpio1->c0, 1, GPIO_PULL_UP);
-	s5p_gpio_direction_output(&gpio1->c0, 1, 1);
+	gpio_set_pull(EXYNOS4X12_GPIO_C01, S5P_GPIO_PULL_UP);
+	gpio_direction_output(EXYNOS4X12_GPIO_C01, 1);
 
 	/* LDO25 VCC_3.1V_LCD */
 	pmic_probe(p);
@@ -412,12 +398,10 @@ void exynos_lcd_power_on(void)
 
 void exynos_reset_lcd(void)
 {
-	gpio1 = (struct exynos4x12_gpio_part1 *)samsung_get_base_gpio_part1();
-
 	/* reset lcd */
-	s5p_gpio_direction_output(&gpio1->f2, 1, 0);
+	gpio_direction_output(EXYNOS4X12_GPIO_F21, 0);
 	udelay(10);
-	s5p_gpio_set_value(&gpio1->f2, 1, 1);
+	gpio_set_value(EXYNOS4X12_GPIO_F21, 1);
 }
 
 void exynos_lcd_misc_init(vidinfo_t *vid)

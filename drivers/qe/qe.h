@@ -282,5 +282,7 @@ int qe_set_mii_clk_src(int ucc_num);
 int qe_upload_firmware(const struct qe_firmware *firmware);
 struct qe_firmware_info *qe_get_firmware_info(void);
 void ft_qe_setup(void *blob);
+void qe_init(uint qe_base);
+void qe_reset(void);
 
 #endif /* __QE_H__ */

@@ -10,6 +10,7 @@
 #include <common.h>
 #include <errno.h>
 #include <malloc.h>
+#include <libfdt.h>
 #include <dm/device.h>
 #include <dm/device-internal.h>
 #include <dm/lists.h>
@@ -24,7 +25,7 @@ static const struct driver_info root_info = {
 	.name		= "root_driver",
 };
 
-struct device *dm_root(void)
+struct udevice *dm_root(void)
 {
 	if (!gd->dm_root) {
 		dm_warn("Virtual root driver does not exist!\n");
@@ -42,9 +43,9 @@ int dm_init(void)
 		dm_warn("Virtual root driver already exists!\n");
 		return -EINVAL;
 	}
-	INIT_LIST_HEAD(&gd->uclass_root);
+	INIT_LIST_HEAD(&DM_UCLASS_ROOT_NON_CONST);
 
-	ret = device_bind_by_name(NULL, &root_info, &gd->dm_root);
+	ret = device_bind_by_name(NULL, &root_info, &DM_ROOT_NON_CONST);
 	if (ret)
 		return ret;
 
@@ -55,7 +56,7 @@ int dm_scan_platdata(void)
 {
 	int ret;
 
-	ret = lists_bind_drivers(gd->dm_root);
+	ret = lists_bind_drivers(DM_ROOT_NON_CONST);
 	if (ret == -ENOENT) {
 		dm_warn("Some drivers were not found\n");
 		ret = 0;

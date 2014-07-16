@@ -148,7 +148,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_mhz("ethspeed",		bd->bi_ethspeed);
 #endif
 	printf("IP addr     = %s\n", getenv("ipaddr"));
-	printf("baudrate    = %6u bps\n", bd->bi_baudrate);
+	printf("baudrate    = %6u bps\n", gd->baudrate);
 	print_num("relocaddr", gd->relocaddr);
 	board_detail();
 	return 0;
@@ -176,7 +176,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	printf("ip_addr     = %s\n", getenv("ipaddr"));
 #endif
 
-	printf("baudrate    = %u bps\n", bd->bi_baudrate);
+	printf("baudrate    = %u bps\n", gd->baudrate);
 
 	return 0;
 }
@@ -198,7 +198,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #if defined(CONFIG_CMD_NET)
 	print_eths();
 #endif
-	printf("baudrate    = %u bps\n", bd->bi_baudrate);
+	printf("baudrate    = %u bps\n", gd->baudrate);
 	return 0;
 }
 
@@ -231,7 +231,7 @@ int do_bdinfo(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	print_eth(0);
 	printf("ip_addr     = %s\n", getenv("ipaddr"));
 #endif
-	printf("baudrate               = %6u bps\n", bd->bi_baudrate);
+	printf("baudrate               = %6u bps\n", gd->baudrate);
 	return 0;
 }
 
@@ -277,7 +277,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	printf("ip_addr     = %s\n", getenv("ipaddr"));
 #endif
-	printf("baudrate    = %u bps\n", bd->bi_baudrate);
+	printf("baudrate    = %u bps\n", gd->baudrate);
 
 	return 0;
 }
@@ -304,7 +304,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	print_eth(0);
 	printf("ip_addr     = %s\n", getenv("ipaddr"));
-	printf("baudrate    = %u bps\n", bd->bi_baudrate);
+	printf("baudrate    = %u bps\n", gd->baudrate);
 
 	return 0;
 }
@@ -324,7 +324,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	print_eth(0);
 	printf("ip_addr     = %s\n", getenv("ipaddr"));
-	printf("baudrate    = %u bps\n", bd->bi_baudrate);
+	printf("baudrate    = %u bps\n", gd->baudrate);
 
 	return 0;
 }
@@ -344,7 +344,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	print_eth(0);
 	printf("ip_addr     = %s\n", getenv("ipaddr"));
-	printf("baudrate    = %u bps\n", bd->bi_baudrate);
+	printf("baudrate    = %u bps\n", gd->baudrate);
 
 	return 0;
 }
@@ -368,7 +368,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #if defined(CONFIG_CMD_NET)
 	print_eths();
 #endif
-	printf("baudrate    = %u bps\n", bd->bi_baudrate);
+	printf("baudrate    = %u bps\n", gd->baudrate);
 #if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
 	print_num("TLB addr", gd->arch.tlb_addr);
 #endif
@@ -406,7 +406,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_eth(0);
 	printf("ip_addr     = %s\n", getenv("ipaddr"));
 #endif
-	printf("baudrate    = %u bps\n", bd->bi_baudrate);
+	printf("baudrate    = %u bps\n", gd->baudrate);
 	return 0;
 }
 
@@ -440,7 +440,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	printf("ip_addr     = %s\n", getenv("ipaddr"));
 	print_mhz("ethspeed",	    bd->bi_ethspeed);
 #endif
-	printf("baudrate    = %u bps\n", bd->bi_baudrate);
+	printf("baudrate    = %u bps\n", gd->baudrate);
 
 	return 0;
 }
@@ -490,7 +490,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_eth(0);
 	printf("ip_addr     = %s\n", getenv("ipaddr"));
 #endif
-	printf("baudrate    = %u bps\n", bd->bi_baudrate);
+	printf("baudrate    = %u bps\n", gd->baudrate);
 
 	return 0;
 }
@@ -512,7 +512,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	printf("ip_addr     = %s\n", getenv("ipaddr"));
 #endif
 
-	printf("baudrate    = %u bps\n", bd->bi_baudrate);
+	printf("baudrate    = %u bps\n", gd->baudrate);
 
 	return 0;
 }
@@ -530,7 +530,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	print_eth(0);
 	printf("ip_addr     = %s\n", getenv("ipaddr"));
 #endif
-	printf("baudrate    = %d bps\n", bd->bi_baudrate);
+	printf("baudrate    = %d bps\n", gd->baudrate);
 
 	return 0;
 }

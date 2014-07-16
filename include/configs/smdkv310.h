@@ -12,6 +12,7 @@
 /* High Level Configuration Options */
 #define CONFIG_SAMSUNG			1	/* in a SAMSUNG core */
 #define CONFIG_S5P			1	/* S5P Family */
+#define CONFIG_EXYNOS4				/* EXYNOS4 Family */
 #define CONFIG_EXYNOS4210		1	/* which is a EXYNOS4210 SoC */
 #define CONFIG_SMDKV310			1	/* working with SMDKV310*/
 

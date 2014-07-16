@@ -222,7 +222,22 @@ static void am437x_enable_usb2_phy2(struct omap_xhci *omap)
 
 void usb_phy_power(int on)
 {
-	return;
+	u32 val;
+
+	/* USB1_CTRL */
+	val = readl(USB1_CTRL);
+	if (on) {
+		/*
+		 * these bits are re-used on AM437x to power up/down the USB
+		 * CM and OTG PHYs, if we don't toggle them, USB will not be
+		 * functional on newer silicon revisions
+		 */
+		val &= ~(USB1_CTRL_CM_PWRDN | USB1_CTRL_OTG_PWRDN);
+	} else {
+		val |= USB1_CTRL_CM_PWRDN | USB1_CTRL_OTG_PWRDN;
+	}
+
+	writel(val, USB1_CTRL);
 }
 #endif /* CONFIG_AM437X_USB2PHY2_HOST */
 

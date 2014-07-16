@@ -58,13 +58,7 @@ typedef unsigned long int		dword;
 
 #ifdef CONFIG_CPU_PXA25X
 
-#ifdef	CONFIG_LUBBOCK
-#define	SMC_IO_SHIFT	2
-#undef	USE_32_BIT
-
-#else
 #define	SMC_IO_SHIFT	0
-#endif
 
 #define	SMCREG(edev, r)	((edev)->iobase+((r)<<SMC_IO_SHIFT))
 

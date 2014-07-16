@@ -158,21 +158,9 @@ int do_otp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			lowup(half + count - 1), page + (half + count - 1) / 2,
 			half + count
 		);
-
-		i = 0;
-		while (1) {
-			if (tstc()) {
-				const char exp_ans[] = "YES\r";
-				char c;
-				putc(c = getc());
-				if (exp_ans[i++] != c) {
-					printf(" Aborting\n");
-					return 1;
-				} else if (!exp_ans[i]) {
-					puts("\n");
-					break;
-				}
-			}
+		if (!confirm_yesno()) {
+			printf(" Aborting\n");
+			return 1;
 		}
 	}
 

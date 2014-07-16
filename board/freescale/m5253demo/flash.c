@@ -177,7 +177,7 @@ int flash_erase(flash_info_t * info, int s_first, int s_last)
 {
 	FPWV *addr;
 	int flag, prot, sect, count;
-	ulong type, start, last;
+	ulong type, start;
 	int rcode = 0, flashtype = 0;
 
 	if ((s_first < 0) || (s_first > s_last)) {
@@ -217,7 +217,6 @@ int flash_erase(flash_info_t * info, int s_first, int s_last)
 	flag = disable_interrupts();
 
 	start = get_timer(0);
-	last = start;
 
 	if ((s_last - s_first) == (CONFIG_SYS_SST_SECT - 1)) {
 		if (prot == 0) {
@@ -319,14 +318,13 @@ int write_buff(flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 {
 	ulong wp, count;
 	u16 data;
-	int rc, port_width;
+	int rc;
 
 	if (info->flash_id == FLASH_UNKNOWN)
 		return 4;
 
 	/* get lower word aligned address */
 	wp = addr;
-	port_width = sizeof(FPW);
 
 	/* handle unaligned start bytes */
 	if (wp & 1) {

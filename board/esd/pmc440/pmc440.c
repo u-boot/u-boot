@@ -12,7 +12,6 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
-
 #include <common.h>
 #include <libfdt.h>
 #include <fdt_support.h>
@@ -34,14 +33,14 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips */
+extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 extern void __ft_board_setup(void *blob, bd_t *bd);
 
 ulong flash_get_size(ulong base, int banknum);
-int pci_is_66mhz(void);
+static int pci_is_66mhz(void);
 int is_monarch(void);
-int bootstrap_eeprom_read(unsigned dev_addr, unsigned offset,
-			  uchar *buffer, unsigned cnt);
+static int bootstrap_eeprom_read(unsigned dev_addr, unsigned offset,
+				 uchar *buffer, unsigned cnt);
 
 struct serial_device *default_serial_console(void)
 {
@@ -58,10 +57,12 @@ struct serial_device *default_serial_console(void)
 	if (((val & 0xf0000000) >> 29) != 7)
 		return &eserial2_device;
 
-	ulong scratchreg = in_be32((void*)GPIO0_ISR3L);
+	ulong scratchreg = in_be32((void *)GPIO0_ISR3L);
 	if (!(scratchreg & 0x80)) {
 		/* mark scratchreg valid */
 		scratchreg = (scratchreg & 0xffffff00) | 0x80;
+
+		i2c_init_all();
 
 		i = bootstrap_eeprom_read(CONFIG_SYS_I2C_BOOT_EEPROM_ADDR,
 					  0x10, buf, 4);
@@ -69,12 +70,11 @@ struct serial_device *default_serial_console(void)
 			scratchreg |= buf[2];
 
 			/* bringup delay for console */
-			for (delay=0; delay<(1000 * (ulong)buf[3]); delay++) {
+			for (delay = 0; delay < (1000 * (ulong)buf[3]); delay++)
 				udelay(1000);
-			}
 		} else
 			scratchreg |= 0x01;
-		out_be32((void*)GPIO0_ISR3L, scratchreg);
+		out_be32((void *)GPIO0_ISR3L, scratchreg);
 	}
 
 	if (scratchreg & 0x01)
@@ -93,10 +93,7 @@ int board_early_init_f(void)
 	mtdcr(EBC0_CFGADDR, EBC0_CFG);
 	mtdcr(EBC0_CFGDATA, 0xf8400000);
 
-	/*
-	 * Setup the GPIO pins
-	 * TODO: setup GPIOs via CONFIG_SYS_4xx_GPIO_TABLE in board's config file
-	 */
+	/* Setup the GPIO pins */
 	out_be32((void *)GPIO0_OR,    0x40000102);
 	out_be32((void *)GPIO0_TCR,   0x4c90011f);
 	out_be32((void *)GPIO0_OSRL,  0x28051400);
@@ -259,7 +256,7 @@ int misc_init_r(void)
 	 * USB suff...
 	 */
 	if ((act == NULL || strcmp(act, "host") == 0) &&
-	    !(in_be32((void*)GPIO0_IR) & GPIO0_USB_PRSNT)){
+	    !(in_be32((void *)GPIO0_IR) & GPIO0_USB_PRSNT)) {
 		/* SDR Setting */
 		mfsdr(SDR0_PFC1, sdr0_pfc1);
 		mfsdr(SDR0_USB2D0CR, usb2d0cr);
@@ -326,16 +323,16 @@ int misc_init_r(void)
 		mtsdr(SDR0_SRST1, 0x00000000);
 		mtsdr(SDR0_SRST0, 0x00000000);
 
-		if (!(in_be32((void*)GPIO0_IR) & GPIO0_USB_PRSNT)) {
+		if (!(in_be32((void *)GPIO0_IR) & GPIO0_USB_PRSNT)) {
 			/* enable power on USB socket */
-			out_be32((void*)GPIO1_OR,
-				 in_be32((void*)GPIO1_OR) & ~GPIO1_USB_PWR_N);
+			out_be32((void *)GPIO1_OR,
+				 in_be32((void *)GPIO1_OR) & ~GPIO1_USB_PWR_N);
 		}
 
 		printf("USB:   Host\n");
 
 	} else if ((strcmp(act, "dev") == 0) ||
-		   (in_be32((void*)GPIO0_IR) & GPIO0_USB_PRSNT)) {
+		   (in_be32((void *)GPIO0_IR) & GPIO0_USB_PRSNT)) {
 		mfsdr(SDR0_USB2PHY0CR, usb2phy0cr);
 
 		usb2phy0cr = usb2phy0cr &~SDR0_USB2PHY0CR_XOCLK_MASK;
@@ -414,30 +411,31 @@ int misc_init_r(void)
 #endif
 
 	/* turn off POST LED */
-	out_be32((void*)GPIO1_OR,  in_be32((void*)GPIO1_OR) & ~GPIO1_POST_N);
+	out_be32((void *)GPIO1_OR, in_be32((void *)GPIO1_OR) & ~GPIO1_POST_N);
 	/* turn on RUN LED */
-	out_be32((void*)GPIO0_OR,  in_be32((void*)GPIO0_OR) & ~GPIO0_LED_RUN_N);
+	out_be32((void *)GPIO0_OR,
+		 in_be32((void *)GPIO0_OR) & ~GPIO0_LED_RUN_N);
 	return 0;
 }
 
 int is_monarch(void)
 {
-	if (in_be32((void*)GPIO1_IR) & GPIO1_NONMONARCH)
+	if (in_be32((void *)GPIO1_IR) & GPIO1_NONMONARCH)
 		return 0;
 
 	return 1;
 }
 
-int pci_is_66mhz(void)
+static int pci_is_66mhz(void)
 {
-	if (in_be32((void*)GPIO1_IR) & GPIO1_M66EN)
+	if (in_be32((void *)GPIO1_IR) & GPIO1_M66EN)
 		return 1;
 	return 0;
 }
 
-int board_revision(void)
+static int board_revision(void)
 {
-	return (int)((in_be32((void*)GPIO1_IR) & GPIO1_HWID_MASK) >> 4);
+	return (int)((in_be32((void *)GPIO1_IR) & GPIO1_HWID_MASK) >> 4);
 }
 
 int checkboard(void)
@@ -495,7 +493,7 @@ void pci_target_init(struct pci_controller *hose)
 	out32r(PCIL0_PMM0MA, 0x00000000);	/* PMM0 Mask/Attribute */
 						/* - disabled b4 setting */
 	out32r(PCIL0_PMM0LA, CONFIG_SYS_PCI_MEMBASE);	/* PMM0 Local Address */
-	out32r(PCIL0_PMM0PCILA, CONFIG_SYS_PCI_MEMBASE); /* PMM0 PCI Low Address */
+	out32r(PCIL0_PMM0PCILA, CONFIG_SYS_PCI_MEMBASE); /* PMM0 PCI Low Addr */
 	out32r(PCIL0_PMM0PCIHA, 0x00000000);	/* PMM0 PCI High Address */
 	out32r(PCIL0_PMM0MA, 0xc0000001);	/* 1G + No prefetching, */
 						/* and enable region */
@@ -532,7 +530,8 @@ void pci_target_init(struct pci_controller *hose)
 
 	if (is_monarch()) {
 		/* BAR2: map FPGA registers behind system memory at 1GB */
-		pci_hose_write_config_dword(hose, 0, PCI_BASE_ADDRESS_2, 0x40000008);
+		pci_hose_write_config_dword(hose, 0,
+					    PCI_BASE_ADDRESS_2, 0x40000008);
 	}
 
 	/*
@@ -562,10 +561,10 @@ void pci_target_init(struct pci_controller *hose)
 					   CONFIG_SYS_PCI_CLASSCODE_NONMONARCH);
 
 		/* PCI configuration done: release ERREADY */
-		out_be32((void*)GPIO1_OR,
-			 in_be32((void*)GPIO1_OR) | GPIO1_PPC_EREADY);
-		out_be32((void*)GPIO1_TCR,
-			 in_be32((void*)GPIO1_TCR) | GPIO1_PPC_EREADY);
+		out_be32((void *)GPIO1_OR,
+			 in_be32((void *)GPIO1_OR) | GPIO1_PPC_EREADY);
+		out_be32((void *)GPIO1_TCR,
+			 in_be32((void *)GPIO1_TCR) | GPIO1_PPC_EREADY);
 	} else {
 		/* Program the board's subsystem id/classcode */
 		pci_hose_write_config_word(hose, 0, PCI_SUBSYSTEM_ID,
@@ -595,14 +594,14 @@ void pci_master_init(struct pci_controller *hose)
 
 static void wait_for_pci_ready(void)
 {
-	if (!(in_be32((void*)GPIO1_IR) & GPIO1_PPC_EREADY)) {
+	if (!(in_be32((void *)GPIO1_IR) & GPIO1_PPC_EREADY)) {
 		printf("PCI:   Waiting for EREADY (CTRL-C to skip) ... ");
 		while (1) {
 			if (ctrlc()) {
 				puts("abort\n");
 				break;
 			}
-			if (in_be32((void*)GPIO1_IR) & GPIO1_PPC_EREADY) {
+			if (in_be32((void *)GPIO1_IR) & GPIO1_PPC_EREADY) {
 				printf("done\n");
 				break;
 			}
@@ -641,34 +640,73 @@ int is_pci_host(struct pci_controller *hose)
 #endif /* defined(CONFIG_PCI) */
 
 #ifdef CONFIG_RESET_PHY_R
+static int pmc440_setup_vsc8601(char *devname, int phy_addr,
+				unsigned short behavior, unsigned short method)
+{
+	/* adjust LED behavior */
+	if (miiphy_write(devname, phy_addr, 0x1f, 0x0001) != 0) {
+		printf("Phy%d: register write access failed\n", phy_addr);
+		return -1;
+	}
+
+	miiphy_write(devname, phy_addr, 0x11, 0x0010);
+	miiphy_write(devname, phy_addr, 0x11, behavior);
+	miiphy_write(devname, phy_addr, 0x10, method);
+	miiphy_write(devname, phy_addr, 0x1f, 0x0000);
+
+	return 0;
+}
+
+static int pmc440_setup_ksz9031(char *devname, int phy_addr)
+{
+	unsigned short id1, id2;
+
+	if (miiphy_read(devname, phy_addr, 2, &id1) ||
+	    miiphy_read(devname, phy_addr, 3, &id2)) {
+		printf("Phy%d: cannot read id\n", phy_addr);
+		return -1;
+	}
+
+	if ((id1 != 0x0022) || ((id2 & 0xfff0) != 0x1620)) {
+		printf("Phy%d: unexpected id\n", phy_addr);
+		return -1;
+	}
+
+	/* MMD 2.08: adjust tx_clk pad skew */
+	miiphy_write(devname, phy_addr, 0x0d, 2);
+	miiphy_write(devname, phy_addr, 0x0e, 8);
+	miiphy_write(devname, phy_addr, 0x0d, 0x4002);
+	miiphy_write(devname, phy_addr, 0x0e, 0xf | (0x17 << 5));
+
+	return 0;
+}
+
 void reset_phy(void)
 {
 	char *s;
 	unsigned short val_method, val_behavior;
 
-	/* special LED setup for NGCC/CANDES */
-	if ((s = getenv("bd_type")) &&
-	    ((!strcmp(s, "ngcc")) || (!strcmp(s, "candes")))) {
-		val_method   = 0x0e0a;
-		val_behavior = 0x0cf2;
+	if (gd->board_type < 4) {
+		/* special LED setup for NGCC/CANDES */
+		s = getenv("bd_type");
+		if (s && ((!strcmp(s, "ngcc")) || (!strcmp(s, "candes")))) {
+			val_method   = 0x0e0a;
+			val_behavior = 0x0cf2;
+		} else {
+			/* PMC440 standard type */
+			val_method   = 0x0e10;
+			val_behavior = 0x0cf0;
+		}
+
+		/* boards up to rev. 1.3 use Vitesse VSC8601 phys */
+		pmc440_setup_vsc8601("ppc_4xx_eth0", CONFIG_PHY_ADDR,
+				     val_method, val_behavior);
+		pmc440_setup_vsc8601("ppc_4xx_eth1", CONFIG_PHY1_ADDR,
+				     val_method, val_behavior);
 	} else {
-		/* PMC440 standard type */
-		val_method   = 0x0e10;
-		val_behavior = 0x0cf0;
-	}
-
-	if (miiphy_write("ppc_4xx_eth0", CONFIG_PHY_ADDR, 0x1f, 0x0001) == 0) {
-		miiphy_write("ppc_4xx_eth0", CONFIG_PHY_ADDR, 0x11, 0x0010);
-		miiphy_write("ppc_4xx_eth0", CONFIG_PHY_ADDR, 0x11, val_behavior);
-		miiphy_write("ppc_4xx_eth0", CONFIG_PHY_ADDR, 0x10, val_method);
-		miiphy_write("ppc_4xx_eth0", CONFIG_PHY_ADDR, 0x1f, 0x0000);
-	}
-
-	if (miiphy_write("ppc_4xx_eth1", CONFIG_PHY1_ADDR, 0x1f, 0x0001) == 0) {
-		miiphy_write("ppc_4xx_eth1", CONFIG_PHY1_ADDR, 0x11, 0x0010);
-		miiphy_write("ppc_4xx_eth1", CONFIG_PHY1_ADDR, 0x11, val_behavior);
-		miiphy_write("ppc_4xx_eth1", CONFIG_PHY1_ADDR, 0x10, val_method);
-		miiphy_write("ppc_4xx_eth1", CONFIG_PHY1_ADDR, 0x1f, 0x0000);
+		/* rev. 1.4 uses a Micrel KSZ9031 */
+		pmc440_setup_ksz9031("ppc_4xx_eth0", CONFIG_PHY_ADDR);
+		pmc440_setup_ksz9031("ppc_4xx_eth1", CONFIG_PHY1_ADDR);
 	}
 }
 #endif
@@ -729,7 +767,6 @@ int bootstrap_eeprom_write(unsigned dev_addr, unsigned offset,
 	 * We must write the address again when changing pages
 	 * because the address counter only increments within a page.
 	 */
-
 	while (offset < end) {
 		unsigned alen, len;
 		unsigned maxlen;
@@ -771,8 +808,8 @@ int bootstrap_eeprom_write(unsigned dev_addr, unsigned offset,
 	return rcode;
 }
 
-int bootstrap_eeprom_read (unsigned dev_addr, unsigned offset,
-			   uchar *buffer, unsigned cnt)
+static int bootstrap_eeprom_read(unsigned dev_addr, unsigned offset,
+				 uchar *buffer, unsigned cnt)
 {
 	unsigned end = offset + cnt;
 	unsigned blk_off;
@@ -820,10 +857,10 @@ int board_usb_init(int index, enum usb_init_type init)
 	int i;
 
 	if ((act == NULL || strcmp(act, "host") == 0) &&
-	    !(in_be32((void*)GPIO0_IR) & GPIO0_USB_PRSNT))
+	    !(in_be32((void *)GPIO0_IR) & GPIO0_USB_PRSNT))
 		/* enable power on USB socket */
-		out_be32((void*)GPIO1_OR,
-			 in_be32((void*)GPIO1_OR) & ~GPIO1_USB_PWR_N);
+		out_be32((void *)GPIO1_OR,
+			 in_be32((void *)GPIO1_OR) & ~GPIO1_USB_PWR_N);
 
 	for (i=0; i<1000; i++)
 		udelay(1000);
@@ -834,7 +871,7 @@ int board_usb_init(int index, enum usb_init_type init)
 int usb_board_stop(void)
 {
 	/* disable power on USB socket */
-	out_be32((void*)GPIO1_OR, in_be32((void*)GPIO1_OR) | GPIO1_USB_PWR_N);
+	out_be32((void *)GPIO1_OR, in_be32((void *)GPIO1_OR) | GPIO1_USB_PWR_N);
 	return 0;
 }
 
@@ -858,8 +895,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 		rc = fdt_find_and_setprop(blob, "/plb/pci@1ec000000", "status",
 					  "disabled", sizeof("disabled"), 1);
 		if (rc) {
-			printf("Unable to update property status in PCI node, err=%s\n",
-			       fdt_strerror(rc));
+			printf("Unable to update property status in PCI node, ");
+			printf("err=%s\n", fdt_strerror(rc));
 		}
 	}
 }

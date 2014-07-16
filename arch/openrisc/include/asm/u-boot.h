@@ -16,7 +16,6 @@
 #define _U_BOOT_H_
 
 typedef struct bd_info {
-	unsigned int	bi_baudrate;	/* serial console baudrate */
 	unsigned long	bi_arch_number;	/* unique id for this board */
 	unsigned long	bi_boot_params;	/* where this board expects params */
 	unsigned long	bi_memstart;	/* start of DRAM memory */

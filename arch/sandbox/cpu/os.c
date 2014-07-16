@@ -341,6 +341,7 @@ int os_dirent_ls(const char *dirname, struct os_dirent_node **headp)
 			ret = -ENOMEM;
 			goto done;
 		}
+		next->next = NULL;
 		strcpy(next->name, entry.d_name);
 		switch (entry.d_type) {
 		case DT_REG:

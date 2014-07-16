@@ -663,7 +663,7 @@ static int kona_i2c_read(struct i2c_adapter *adap, uchar chip, uint addr,
 static int kona_i2c_write(struct i2c_adapter *adap, uchar chip, uint addr,
 			  int alen, uchar *buffer, int len)
 {
-	struct i2c_msg msg[0];
+	struct i2c_msg msg[1];
 	unsigned char msgbuf0[64];
 	unsigned int i;
 	struct bcm_kona_i2c_dev *dev = kona_get_dev(adap);

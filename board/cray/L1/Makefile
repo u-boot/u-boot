@@ -15,10 +15,6 @@ quiet_cmd_awk = AWK     $@
 $(obj)/bootscript.c: $(obj)/bootscript.image $(src)/x2c.awk
 	$(call cmd,awk)
 
-quiet_cmd_mkimage = MKIMAGE $@
-cmd_mkimage = $(objtree)/tools/mkimage $(MKIMAGEFLAGS_$(@F)) -d $< $@ \
-        $(if $(KBUILD_VERBOSE:1=), >/dev/null)
-
 MKIMAGEFLAGS_bootscript.image := -A ppc -O linux -T script -C none \
 						-a 0 -e 0 -n bootscript
 $(obj)/bootscript.image: $(src)/bootscript.hush

@@ -7,5 +7,5 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-obj-$(CONFIG_FIT_SIGNATURE) += rsa-verify.o
+obj-$(CONFIG_FIT_SIGNATURE) += rsa-verify.o rsa-checksum.o
 obj-$(CONFIG_CMD_ZYNQ_RSA) += rsa-verify.o

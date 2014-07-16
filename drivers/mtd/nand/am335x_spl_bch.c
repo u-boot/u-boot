@@ -16,7 +16,7 @@
 #include <linux/mtd/nand_ecc.h>
 
 static int nand_ecc_pos[] = CONFIG_SYS_NAND_ECCPOS;
-static nand_info_t mtd;
+nand_info_t nand_info[1];
 static struct nand_chip nand_chip;
 
 #define ECCSTEPS	(CONFIG_SYS_NAND_PAGE_SIZE / \
@@ -30,12 +30,12 @@ static struct nand_chip nand_chip;
 static int nand_command(int block, int page, uint32_t offs,
 	u8 cmd)
 {
-	struct nand_chip *this = mtd.priv;
+	struct nand_chip *this = nand_info[0].priv;
 	int page_addr = page + block * CONFIG_SYS_NAND_PAGE_COUNT;
 	void (*hwctrl)(struct mtd_info *mtd, int cmd,
 			unsigned int ctrl) = this->cmd_ctrl;
 
-	while (!this->dev_ready(&mtd))
+	while (!this->dev_ready(&nand_info[0]))
 		;
 
 	/* Emulate NAND_CMD_READOOB */
@@ -45,50 +45,50 @@ static int nand_command(int block, int page, uint32_t offs,
 	}
 
 	/* Begin command latch cycle */
-	hwctrl(&mtd, cmd, NAND_CTRL_CLE | NAND_CTRL_CHANGE);
+	hwctrl(&nand_info[0], cmd, NAND_CTRL_CLE | NAND_CTRL_CHANGE);
 
 	if (cmd == NAND_CMD_RESET) {
-		hwctrl(&mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
-		while (!this->dev_ready(&mtd))
+		hwctrl(&nand_info[0], NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
+		while (!this->dev_ready(&nand_info[0]))
 			;
 		return 0;
 	}
 
 	/* Shift the offset from byte addressing to word addressing. */
-	if (this->options & NAND_BUSWIDTH_16)
+	if ((this->options & NAND_BUSWIDTH_16) && !nand_opcode_8bits(cmd))
 		offs >>= 1;
 
 	/* Set ALE and clear CLE to start address cycle */
 	/* Column address */
-	hwctrl(&mtd, offs & 0xff,
+	hwctrl(&nand_info[0], offs & 0xff,
 		       NAND_CTRL_ALE | NAND_CTRL_CHANGE); /* A[7:0] */
-	hwctrl(&mtd, (offs >> 8) & 0xff, NAND_CTRL_ALE); /* A[11:9] */
+	hwctrl(&nand_info[0], (offs >> 8) & 0xff, NAND_CTRL_ALE); /* A[11:9] */
 	/* Row address */
-	hwctrl(&mtd, (page_addr & 0xff), NAND_CTRL_ALE); /* A[19:12] */
-	hwctrl(&mtd, ((page_addr >> 8) & 0xff),
+	hwctrl(&nand_info[0], (page_addr & 0xff), NAND_CTRL_ALE); /* A[19:12] */
+	hwctrl(&nand_info[0], ((page_addr >> 8) & 0xff),
 		       NAND_CTRL_ALE); /* A[27:20] */
 #ifdef CONFIG_SYS_NAND_5_ADDR_CYCLE
 	/* One more address cycle for devices > 128MiB */
-	hwctrl(&mtd, (page_addr >> 16) & 0x0f,
+	hwctrl(&nand_info[0], (page_addr >> 16) & 0x0f,
 		       NAND_CTRL_ALE); /* A[31:28] */
 #endif
-	hwctrl(&mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
+	hwctrl(&nand_info[0], NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
 
 	if (cmd == NAND_CMD_READ0) {
 		/* Latch in address */
-		hwctrl(&mtd, NAND_CMD_READSTART,
+		hwctrl(&nand_info[0], NAND_CMD_READSTART,
 			   NAND_CTRL_CLE | NAND_CTRL_CHANGE);
-		hwctrl(&mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
+		hwctrl(&nand_info[0], NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
 
 		/*
 		 * Wait a while for the data to be ready
 		 */
-		while (!this->dev_ready(&mtd))
+		while (!this->dev_ready(&nand_info[0]))
 			;
 	} else if (cmd == NAND_CMD_RNDOUT) {
-		hwctrl(&mtd, NAND_CMD_RNDOUTSTART, NAND_CTRL_CLE |
+		hwctrl(&nand_info[0], NAND_CMD_RNDOUTSTART, NAND_CTRL_CLE |
 					NAND_CTRL_CHANGE);
-		hwctrl(&mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
+		hwctrl(&nand_info[0], NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
 	}
 
 	return 0;
@@ -96,7 +96,7 @@ static int nand_command(int block, int page, uint32_t offs,
 
 static int nand_is_bad_block(int block)
 {
-	struct nand_chip *this = mtd.priv;
+	struct nand_chip *this = nand_info[0].priv;
 
 	nand_command(block, 0, CONFIG_SYS_NAND_BAD_BLOCK_POS,
 		NAND_CMD_READOOB);
@@ -117,7 +117,7 @@ static int nand_is_bad_block(int block)
 
 static int nand_read_page(int block, int page, void *dst)
 {
-	struct nand_chip *this = mtd.priv;
+	struct nand_chip *this = nand_info[0].priv;
 	u_char ecc_calc[ECCTOTAL];
 	u_char ecc_code[ECCTOTAL];
 	u_char oob_data[CONFIG_SYS_NAND_OOBSIZE];
@@ -133,15 +133,15 @@ static int nand_read_page(int block, int page, void *dst)
 	nand_command(block, page, 0, NAND_CMD_READ0);
 
 	for (i = 0; eccsteps; eccsteps--, i += eccbytes, p += eccsize) {
-		this->ecc.hwctl(&mtd, NAND_ECC_READ);
+		this->ecc.hwctl(&nand_info[0], NAND_ECC_READ);
 		nand_command(block, page, data_pos, NAND_CMD_RNDOUT);
 
-		this->read_buf(&mtd, p, eccsize);
+		this->read_buf(&nand_info[0], p, eccsize);
 
 		nand_command(block, page, oob_pos, NAND_CMD_RNDOUT);
 
-		this->read_buf(&mtd, oob, eccbytes);
-		this->ecc.calculate(&mtd, p, &ecc_calc[i]);
+		this->read_buf(&nand_info[0], oob, eccbytes);
+		this->ecc.calculate(&nand_info[0], p, &ecc_calc[i]);
 
 		data_pos += eccsize;
 		oob_pos += eccbytes;
@@ -160,7 +160,7 @@ static int nand_read_page(int block, int page, void *dst)
 		 * from correct_data(). We just hope that all possible errors
 		 * are corrected by this routine.
 		 */
-		this->ecc.correct(&mtd, p, &ecc_code[i], &ecc_calc[i]);
+		this->ecc.correct(&nand_info[0], p, &ecc_code[i], &ecc_calc[i]);
 	}
 
 	return 0;
@@ -206,13 +206,13 @@ void nand_init(void)
 	/*
 	 * Init board specific nand support
 	 */
-	mtd.priv = &nand_chip;
+	nand_info[0].priv = &nand_chip;
 	nand_chip.IO_ADDR_R = nand_chip.IO_ADDR_W =
 		(void  __iomem *)CONFIG_SYS_NAND_BASE;
 	board_nand_init(&nand_chip);
 
 	if (nand_chip.select_chip)
-		nand_chip.select_chip(&mtd, 0);
+		nand_chip.select_chip(&nand_info[0], 0);
 
 	/* NAND chip may require reset after power-on */
 	nand_command(0, 0, 0, NAND_CMD_RESET);
@@ -222,5 +222,5 @@ void nand_init(void)
 void nand_deselect(void)
 {
 	if (nand_chip.select_chip)
-		nand_chip.select_chip(&mtd, -1);
+		nand_chip.select_chip(&nand_info[0], -1);
 }

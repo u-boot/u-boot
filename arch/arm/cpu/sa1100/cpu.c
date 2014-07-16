@@ -17,6 +17,7 @@
 #include <common.h>
 #include <command.h>
 #include <asm/system.h>
+#include <asm/io.h>
 
 #ifdef CONFIG_USE_IRQ
 DECLARE_GLOBAL_DATA_PTR;
@@ -51,4 +52,17 @@ static void cache_flush (void)
 	unsigned long i = 0;
 
 	asm ("mcr p15, 0, %0, c7, c5, 0": :"r" (i));
+}
+
+#define RST_BASE 0x90030000
+#define RSRR	0x00
+#define RCSR	0x04
+
+__attribute__((noreturn)) void reset_cpu(ulong addr __attribute__((unused)))
+{
+	/* repeat endlessly */
+	while (1) {
+		writel(0, RST_BASE + RCSR);
+		writel(1, RST_BASE + RSRR);
+	}
 }

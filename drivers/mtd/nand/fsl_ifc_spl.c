@@ -88,11 +88,7 @@ static inline int bad_block(uchar *marker, int port_size)
 		return __raw_readw((u16 *)marker) != 0xffff;
 }
 
-#ifdef CONFIG_TPL_BUILD
 int nand_spl_load_image(uint32_t offs, unsigned int uboot_size, void *vdst)
-#else
-static int nand_load(uint32_t offs, unsigned int uboot_size, void *vdst)
-#endif
 {
 	struct fsl_ifc *ifc = IFC_BASE_ADDR;
 	uchar *buf = (uchar *)CONFIG_SYS_NAND_BASE;
@@ -216,15 +212,6 @@ static int nand_load(uint32_t offs, unsigned int uboot_size, void *vdst)
 
 	return 0;
 }
-
-/*
- * Defines a static function nand_load_image() here, because non-static makes
- * the code too large for certain SPLs(minimal SPL, maximum size <= 4Kbytes)
- */
-#ifndef CONFIG_TPL_BUILD
-#define nand_spl_load_image(offs, uboot_size, vdst) \
-	nand_load(offs, uboot_size, vdst)
-#endif
 
 /*
  * Main entrypoint for NAND Boot. It's necessary that SDRAM is already

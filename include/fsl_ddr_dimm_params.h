@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Freescale Semiconductor, Inc.
+ * Copyright 2008-2014 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -13,7 +13,7 @@
 #define EDC_ECC		2
 #define EDC_AC_PARITY	4
 
-/* Parameters for a DDR2 dimm computed from the SPD */
+/* Parameters for a DDR dimm computed from the SPD */
 typedef struct dimm_params_s {
 
 	/* DIMM organization parameters */
@@ -32,7 +32,12 @@ typedef struct dimm_params_s {
 	unsigned int n_row_addr;
 	unsigned int n_col_addr;
 	unsigned int edc_config;	/* 0 = none, 1 = parity, 2 = ECC */
+#ifdef CONFIG_SYS_FSL_DDR4
+	unsigned int bank_addr_bits;
+	unsigned int bank_group_bits;
+#else
 	unsigned int n_banks_per_sdram_device;
+#endif
 	unsigned int burst_lengths_bitmask;	/* BL=4 bit 2, BL=8 = bit 3 */
 	unsigned int row_density;
 
@@ -43,19 +48,19 @@ typedef struct dimm_params_s {
 
 	/* DIMM timing parameters */
 
-	unsigned int mtb_ps;	/* medium timebase ps, only for ddr3 */
-	unsigned int ftb_10th_ps; /* fine timebase, in 1/10 ps, only for ddr3 */
-	unsigned int taa_ps;	/* minimum CAS latency time, only for ddr3 */
-	unsigned int tfaw_ps;	/* four active window delay, only for ddr3 */
+	int mtb_ps;	/* medium timebase ps */
+	int ftb_10th_ps; /* fine timebase, in 1/10 ps */
+	int taa_ps;	/* minimum CAS latency time */
+	int tfaw_ps;	/* four active window delay */
 
 	/*
 	 * SDRAM clock periods
 	 * The range for these are 1000-10000 so a short should be sufficient
 	 */
-	unsigned int tckmin_x_ps;
-	unsigned int tckmin_x_minus_1_ps;
-	unsigned int tckmin_x_minus_2_ps;
-	unsigned int tckmax_ps;
+	int tckmin_x_ps;
+	int tckmin_x_minus_1_ps;
+	int tckmin_x_minus_2_ps;
+	int tckmax_ps;
 
 	/* SPD-defined CAS latencies */
 	unsigned int caslat_x;
@@ -65,32 +70,46 @@ typedef struct dimm_params_s {
 	unsigned int caslat_lowest_derated;	/* Derated CAS latency */
 
 	/* basic timing parameters */
-	unsigned int trcd_ps;
-	unsigned int trp_ps;
-	unsigned int tras_ps;
+	int trcd_ps;
+	int trp_ps;
+	int tras_ps;
 
-	unsigned int twr_ps;	/* maximum = 63750 ps */
-	unsigned int twtr_ps;	/* maximum = 63750 ps */
-	unsigned int trfc_ps;   /* max = 255 ns + 256 ns + .75 ns
+#ifdef CONFIG_SYS_FSL_DDR4
+	int trfc1_ps;
+	int trfc2_ps;
+	int trfc4_ps;
+	int trrds_ps;
+	int trrdl_ps;
+	int tccdl_ps;
+#else
+	int twr_ps;	/* maximum = 63750 ps */
+	int trfc_ps;	/* max = 255 ns + 256 ns + .75 ns
 				       = 511750 ps */
+	int trrd_ps;	/* maximum = 63750 ps */
+	int twtr_ps;	/* maximum = 63750 ps */
+	int trtp_ps;	/* byte 38, spd->trtp */
+#endif
 
-	unsigned int trrd_ps;	/* maximum = 63750 ps */
-	unsigned int trc_ps;	/* maximum = 254 ns + .75 ns = 254750 ps */
+	int trc_ps;	/* maximum = 254 ns + .75 ns = 254750 ps */
 
-	unsigned int refresh_rate_ps;
-	unsigned int extended_op_srt;
+	int refresh_rate_ps;
+	int extended_op_srt;
 
-	/* DDR3 doesn't need these as below */
-	unsigned int tis_ps;	/* byte 32, spd->ca_setup */
-	unsigned int tih_ps;	/* byte 33, spd->ca_hold */
-	unsigned int tds_ps;	/* byte 34, spd->data_setup */
-	unsigned int tdh_ps;	/* byte 35, spd->data_hold */
-	unsigned int trtp_ps;	/* byte 38, spd->trtp */
-	unsigned int tdqsq_max_ps;	/* byte 44, spd->tdqsq */
-	unsigned int tqhs_ps;	/* byte 45, spd->tqhs */
+#if defined(CONFIG_SYS_FSL_DDR1) || defined(CONFIG_SYS_FSL_DDR2)
+	int tis_ps;	/* byte 32, spd->ca_setup */
+	int tih_ps;	/* byte 33, spd->ca_hold */
+	int tds_ps;	/* byte 34, spd->data_setup */
+	int tdh_ps;	/* byte 35, spd->data_hold */
+	int tdqsq_max_ps;	/* byte 44, spd->tdqsq */
+	int tqhs_ps;	/* byte 45, spd->tqhs */
+#endif
 
 	/* DDR3 RDIMM */
 	unsigned char rcw[16];	/* Register Control Word 0-15 */
+#ifdef CONFIG_SYS_FSL_DDR4
+	unsigned int dq_mapping[18];
+	unsigned int dq_mapping_ors;
+#endif
 } dimm_params_t;
 
 extern unsigned int ddr_compute_dimm_parameters(

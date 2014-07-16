@@ -13,9 +13,56 @@
 DECLARE_GLOBAL_DATA_PTR;
 #endif /* !USE_HOSTCC*/
 #include <image.h>
-#include <rsa.h>
+#include <u-boot/rsa.h>
+#include <u-boot/rsa-checksum.h>
 
 #define IMAGE_MAX_HASHED_NODES		100
+
+#ifdef USE_HOSTCC
+void *host_blob;
+void image_set_host_blob(void *blob)
+{
+	host_blob = blob;
+}
+void *image_get_host_blob(void)
+{
+	return host_blob;
+}
+#endif
+
+struct checksum_algo checksum_algos[] = {
+	{
+		"sha1",
+		SHA1_SUM_LEN,
+		RSA2048_BYTES,
+#if IMAGE_ENABLE_SIGN
+		EVP_sha1,
+#endif
+		sha1_calculate,
+		padding_sha1_rsa2048,
+	},
+	{
+		"sha256",
+		SHA256_SUM_LEN,
+		RSA2048_BYTES,
+#if IMAGE_ENABLE_SIGN
+		EVP_sha256,
+#endif
+		sha256_calculate,
+		padding_sha256_rsa2048,
+	},
+	{
+		"sha256",
+		SHA256_SUM_LEN,
+		RSA4096_BYTES,
+#if IMAGE_ENABLE_SIGN
+		EVP_sha256,
+#endif
+		sha256_calculate,
+		padding_sha256_rsa4096,
+	}
+
+};
 
 struct image_sig_algo image_sig_algos[] = {
 	{
@@ -23,7 +70,23 @@ struct image_sig_algo image_sig_algos[] = {
 		rsa_sign,
 		rsa_add_verify_data,
 		rsa_verify,
+		&checksum_algos[0],
+	},
+	{
+		"sha256,rsa2048",
+		rsa_sign,
+		rsa_add_verify_data,
+		rsa_verify,
+		&checksum_algos[1],
+	},
+	{
+		"sha256,rsa4096",
+		rsa_sign,
+		rsa_add_verify_data,
+		rsa_verify,
+		&checksum_algos[2],
 	}
+
 };
 
 struct image_sig_algo *image_get_sig_algo(const char *name)
@@ -404,6 +467,6 @@ int fit_config_verify_required_sigs(const void *fit, int conf_noffset,
 
 int fit_config_verify(const void *fit, int conf_noffset)
 {
-	return !fit_config_verify_required_sigs(fit, conf_noffset,
-						gd_fdt_blob());
+	return fit_config_verify_required_sigs(fit, conf_noffset,
+					       gd_fdt_blob());
 }

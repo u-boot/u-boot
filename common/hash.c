@@ -12,12 +12,95 @@
 
 #include <common.h>
 #include <command.h>
+#include <malloc.h>
 #include <hw_sha.h>
 #include <hash.h>
-#include <sha1.h>
-#include <sha256.h>
+#include <u-boot/sha1.h>
+#include <u-boot/sha256.h>
 #include <asm/io.h>
 #include <asm/errno.h>
+
+#ifdef CONFIG_CMD_SHA1SUM
+static int hash_init_sha1(struct hash_algo *algo, void **ctxp)
+{
+	sha1_context *ctx = malloc(sizeof(sha1_context));
+	sha1_starts(ctx);
+	*ctxp = ctx;
+	return 0;
+}
+
+static int hash_update_sha1(struct hash_algo *algo, void *ctx, const void *buf,
+			    unsigned int size, int is_last)
+{
+	sha1_update((sha1_context *)ctx, buf, size);
+	return 0;
+}
+
+static int hash_finish_sha1(struct hash_algo *algo, void *ctx, void *dest_buf,
+			    int size)
+{
+	if (size < algo->digest_size)
+		return -1;
+
+	sha1_finish((sha1_context *)ctx, dest_buf);
+	free(ctx);
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_SHA256
+static int hash_init_sha256(struct hash_algo *algo, void **ctxp)
+{
+	sha256_context *ctx = malloc(sizeof(sha256_context));
+	sha256_starts(ctx);
+	*ctxp = ctx;
+	return 0;
+}
+
+static int hash_update_sha256(struct hash_algo *algo, void *ctx,
+			      const void *buf, unsigned int size, int is_last)
+{
+	sha256_update((sha256_context *)ctx, buf, size);
+	return 0;
+}
+
+static int hash_finish_sha256(struct hash_algo *algo, void *ctx, void
+			      *dest_buf, int size)
+{
+	if (size < algo->digest_size)
+		return -1;
+
+	sha256_finish((sha256_context *)ctx, dest_buf);
+	free(ctx);
+	return 0;
+}
+#endif
+
+static int hash_init_crc32(struct hash_algo *algo, void **ctxp)
+{
+	uint32_t *ctx = malloc(sizeof(uint32_t));
+	*ctx = 0;
+	*ctxp = ctx;
+	return 0;
+}
+
+static int hash_update_crc32(struct hash_algo *algo, void *ctx,
+			     const void *buf, unsigned int size, int is_last)
+{
+	*((uint32_t *)ctx) = crc32(*((uint32_t *)ctx), buf, size);
+	return 0;
+}
+
+static int hash_finish_crc32(struct hash_algo *algo, void *ctx, void *dest_buf,
+			     int size)
+{
+	if (size < algo->digest_size)
+		return -1;
+
+	*((uint32_t *)dest_buf) = *((uint32_t *)ctx);
+	free(ctx);
+	return 0;
+}
 
 /*
  * These are the hash algorithms we support. Chips which support accelerated
@@ -53,6 +136,9 @@ static struct hash_algo hash_algo[] = {
 		SHA1_SUM_LEN,
 		sha1_csum_wd,
 		CHUNKSZ_SHA1,
+		hash_init_sha1,
+		hash_update_sha1,
+		hash_finish_sha1,
 	},
 #define MULTI_HASH
 #endif
@@ -62,6 +148,9 @@ static struct hash_algo hash_algo[] = {
 		SHA256_SUM_LEN,
 		sha256_csum_wd,
 		CHUNKSZ_SHA256,
+		hash_init_sha256,
+		hash_update_sha256,
+		hash_finish_sha256,
 	},
 #define MULTI_HASH
 #endif
@@ -70,6 +159,9 @@ static struct hash_algo hash_algo[] = {
 		4,
 		crc32_wd_buf,
 		CHUNKSZ_CRC32,
+		hash_init_crc32,
+		hash_update_crc32,
+		hash_finish_crc32,
 	},
 };
 
@@ -95,7 +187,7 @@ static struct hash_algo hash_algo[] = {
  * @allow_env_vars:	non-zero to permit storing the result to an
  *			variable environment
  */
-static void store_result(struct hash_algo *algo, const u8 *sum,
+static void store_result(struct hash_algo *algo, const uint8_t *sum,
 			 const char *dest, int allow_env_vars)
 {
 	unsigned int i;
@@ -122,7 +214,7 @@ static void store_result(struct hash_algo *algo, const u8 *sum,
 			sprintf(str_ptr, "%02x", sum[i]);
 			str_ptr += 2;
 		}
-		str_ptr = '\0';
+		*str_ptr = '\0';
 		setenv(dest, str_output);
 	} else {
 		ulong addr;
@@ -151,8 +243,8 @@ static void store_result(struct hash_algo *algo, const u8 *sum,
  *			address, and the * prefix is not expected.
  * @return 0 if ok, non-zero on error
  */
-static int parse_verify_sum(struct hash_algo *algo, char *verify_str, u8 *vsum,
-			    int allow_env_vars)
+static int parse_verify_sum(struct hash_algo *algo, char *verify_str,
+			    uint8_t *vsum, int allow_env_vars)
 {
 	int env_var = 0;
 
@@ -204,20 +296,22 @@ static int parse_verify_sum(struct hash_algo *algo, char *verify_str, u8 *vsum,
 	return 0;
 }
 
-static struct hash_algo *find_hash_algo(const char *name)
+int hash_lookup_algo(const char *algo_name, struct hash_algo **algop)
 {
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(hash_algo); i++) {
-		if (!strcmp(name, hash_algo[i].name))
-			return &hash_algo[i];
+		if (!strcmp(algo_name, hash_algo[i].name)) {
+			*algop = &hash_algo[i];
+			return 0;
+		}
 	}
 
-	return NULL;
+	debug("Unknown hash algorithm '%s'\n", algo_name);
+	return -EPROTONOSUPPORT;
 }
 
-static void show_hash(struct hash_algo *algo, ulong addr, ulong len,
-		      u8 *output)
+void hash_show(struct hash_algo *algo, ulong addr, ulong len, uint8_t *output)
 {
 	int i;
 
@@ -230,12 +324,12 @@ int hash_block(const char *algo_name, const void *data, unsigned int len,
 	       uint8_t *output, int *output_size)
 {
 	struct hash_algo *algo;
+	int ret;
 
-	algo = find_hash_algo(algo_name);
-	if (!algo) {
-		debug("Unknown hash algorithm '%s'\n", algo_name);
-		return -EPROTONOSUPPORT;
-	}
+	ret = hash_lookup_algo(algo_name, &algo);
+	if (ret)
+		return ret;
+
 	if (output_size && *output_size < algo->digest_size) {
 		debug("Output buffer size %d too small (need %d bytes)",
 		      *output_size, algo->digest_size);
@@ -261,12 +355,11 @@ int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
 
 	if (multi_hash()) {
 		struct hash_algo *algo;
-		u8 output[HASH_MAX_DIGEST_SIZE];
-		u8 vsum[HASH_MAX_DIGEST_SIZE];
+		uint8_t output[HASH_MAX_DIGEST_SIZE];
+		uint8_t vsum[HASH_MAX_DIGEST_SIZE];
 		void *buf;
 
-		algo = find_hash_algo(algo_name);
-		if (!algo) {
+		if (hash_lookup_algo(algo_name, &algo)) {
 			printf("Unknown hash algorithm '%s'\n", algo_name);
 			return CMD_RET_USAGE;
 		}
@@ -298,7 +391,7 @@ int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
 			if (memcmp(output, vsum, algo->digest_size) != 0) {
 				int i;
 
-				show_hash(algo, addr, len, output);
+				hash_show(algo, addr, len, output);
 				printf(" != ");
 				for (i = 0; i < algo->digest_size; i++)
 					printf("%02x", vsum[i]);
@@ -306,7 +399,7 @@ int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
 				return 1;
 			}
 		} else {
-			show_hash(algo, addr, len, output);
+			hash_show(algo, addr, len, output);
 			printf("\n");
 
 			if (argc) {

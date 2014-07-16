@@ -12,7 +12,6 @@
 #include <net.h>
 #include <netdev.h>
 #include <asm/blackfin.h>
-#include <asm/net.h>
 #include "gpio_cfi_flash.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -32,7 +31,7 @@ static void board_init_enetaddr(char *var)
 		return;
 
 	printf("Warning: %s: generating 'random' MAC address\n", var);
-	bfin_gen_rand_mac(enetaddr);
+	eth_random_addr(enetaddr);
 	eth_setenv_enetaddr(var, enetaddr);
 }
 

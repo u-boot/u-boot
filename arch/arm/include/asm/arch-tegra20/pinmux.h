@@ -5,8 +5,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef _PINMUX_H_
-#define _PINMUX_H_
+#ifndef _TEGRA20_PINMUX_H_
+#define _TEGRA20_PINMUX_H_
 
 /*
  * Pin groups which we adjust. There are three basic attributes of each pin
@@ -18,148 +18,146 @@
  */
 enum pmux_pingrp {
 	/* APB_MISC_PP_TRISTATE_REG_A_0 */
-	PINGRP_ATA,
-	PINGRP_ATB,
-	PINGRP_ATC,
-	PINGRP_ATD,
-	PINGRP_CDEV1,
-	PINGRP_CDEV2,
-	PINGRP_CSUS,
-	PINGRP_DAP1,
+	PMUX_PINGRP_ATA,
+	PMUX_PINGRP_ATB,
+	PMUX_PINGRP_ATC,
+	PMUX_PINGRP_ATD,
+	PMUX_PINGRP_CDEV1,
+	PMUX_PINGRP_CDEV2,
+	PMUX_PINGRP_CSUS,
+	PMUX_PINGRP_DAP1,
 
-	PINGRP_DAP2,
-	PINGRP_DAP3,
-	PINGRP_DAP4,
-	PINGRP_DTA,
-	PINGRP_DTB,
-	PINGRP_DTC,
-	PINGRP_DTD,
-	PINGRP_DTE,
+	PMUX_PINGRP_DAP2,
+	PMUX_PINGRP_DAP3,
+	PMUX_PINGRP_DAP4,
+	PMUX_PINGRP_DTA,
+	PMUX_PINGRP_DTB,
+	PMUX_PINGRP_DTC,
+	PMUX_PINGRP_DTD,
+	PMUX_PINGRP_DTE,
 
-	PINGRP_GPU,
-	PINGRP_GPV,
-	PINGRP_I2CP,
-	PINGRP_IRTX,
-	PINGRP_IRRX,
-	PINGRP_KBCB,
-	PINGRP_KBCA,
-	PINGRP_PMC,
+	PMUX_PINGRP_GPU,
+	PMUX_PINGRP_GPV,
+	PMUX_PINGRP_I2CP,
+	PMUX_PINGRP_IRTX,
+	PMUX_PINGRP_IRRX,
+	PMUX_PINGRP_KBCB,
+	PMUX_PINGRP_KBCA,
+	PMUX_PINGRP_PMC,
 
-	PINGRP_PTA,
-	PINGRP_RM,
-	PINGRP_KBCE,
-	PINGRP_KBCF,
-	PINGRP_GMA,
-	PINGRP_GMC,
-	PINGRP_SDIO1,
-	PINGRP_OWC,
+	PMUX_PINGRP_PTA,
+	PMUX_PINGRP_RM,
+	PMUX_PINGRP_KBCE,
+	PMUX_PINGRP_KBCF,
+	PMUX_PINGRP_GMA,
+	PMUX_PINGRP_GMC,
+	PMUX_PINGRP_SDIO1,
+	PMUX_PINGRP_OWC,
 
 	/* 32: APB_MISC_PP_TRISTATE_REG_B_0 */
-	PINGRP_GME,
-	PINGRP_SDC,
-	PINGRP_SDD,
-	PINGRP_RESERVED0,
-	PINGRP_SLXA,
-	PINGRP_SLXC,
-	PINGRP_SLXD,
-	PINGRP_SLXK,
+	PMUX_PINGRP_GME,
+	PMUX_PINGRP_SDC,
+	PMUX_PINGRP_SDD,
+	PMUX_PINGRP_RESERVED0,
+	PMUX_PINGRP_SLXA,
+	PMUX_PINGRP_SLXC,
+	PMUX_PINGRP_SLXD,
+	PMUX_PINGRP_SLXK,
 
-	PINGRP_SPDI,
-	PINGRP_SPDO,
-	PINGRP_SPIA,
-	PINGRP_SPIB,
-	PINGRP_SPIC,
-	PINGRP_SPID,
-	PINGRP_SPIE,
-	PINGRP_SPIF,
+	PMUX_PINGRP_SPDI,
+	PMUX_PINGRP_SPDO,
+	PMUX_PINGRP_SPIA,
+	PMUX_PINGRP_SPIB,
+	PMUX_PINGRP_SPIC,
+	PMUX_PINGRP_SPID,
+	PMUX_PINGRP_SPIE,
+	PMUX_PINGRP_SPIF,
 
-	PINGRP_SPIG,
-	PINGRP_SPIH,
-	PINGRP_UAA,
-	PINGRP_UAB,
-	PINGRP_UAC,
-	PINGRP_UAD,
-	PINGRP_UCA,
-	PINGRP_UCB,
+	PMUX_PINGRP_SPIG,
+	PMUX_PINGRP_SPIH,
+	PMUX_PINGRP_UAA,
+	PMUX_PINGRP_UAB,
+	PMUX_PINGRP_UAC,
+	PMUX_PINGRP_UAD,
+	PMUX_PINGRP_UCA,
+	PMUX_PINGRP_UCB,
 
-	PINGRP_RESERVED1,
-	PINGRP_ATE,
-	PINGRP_KBCC,
-	PINGRP_RESERVED2,
-	PINGRP_RESERVED3,
-	PINGRP_GMB,
-	PINGRP_GMD,
-	PINGRP_DDC,
+	PMUX_PINGRP_RESERVED1,
+	PMUX_PINGRP_ATE,
+	PMUX_PINGRP_KBCC,
+	PMUX_PINGRP_RESERVED2,
+	PMUX_PINGRP_RESERVED3,
+	PMUX_PINGRP_GMB,
+	PMUX_PINGRP_GMD,
+	PMUX_PINGRP_DDC,
 
 	/* 64: APB_MISC_PP_TRISTATE_REG_C_0 */
-	PINGRP_LD0,
-	PINGRP_LD1,
-	PINGRP_LD2,
-	PINGRP_LD3,
-	PINGRP_LD4,
-	PINGRP_LD5,
-	PINGRP_LD6,
-	PINGRP_LD7,
+	PMUX_PINGRP_LD0,
+	PMUX_PINGRP_LD1,
+	PMUX_PINGRP_LD2,
+	PMUX_PINGRP_LD3,
+	PMUX_PINGRP_LD4,
+	PMUX_PINGRP_LD5,
+	PMUX_PINGRP_LD6,
+	PMUX_PINGRP_LD7,
 
-	PINGRP_LD8,
-	PINGRP_LD9,
-	PINGRP_LD10,
-	PINGRP_LD11,
-	PINGRP_LD12,
-	PINGRP_LD13,
-	PINGRP_LD14,
-	PINGRP_LD15,
+	PMUX_PINGRP_LD8,
+	PMUX_PINGRP_LD9,
+	PMUX_PINGRP_LD10,
+	PMUX_PINGRP_LD11,
+	PMUX_PINGRP_LD12,
+	PMUX_PINGRP_LD13,
+	PMUX_PINGRP_LD14,
+	PMUX_PINGRP_LD15,
 
-	PINGRP_LD16,
-	PINGRP_LD17,
-	PINGRP_LHP0,
-	PINGRP_LHP1,
-	PINGRP_LHP2,
-	PINGRP_LVP0,
-	PINGRP_LVP1,
-	PINGRP_HDINT,
+	PMUX_PINGRP_LD16,
+	PMUX_PINGRP_LD17,
+	PMUX_PINGRP_LHP0,
+	PMUX_PINGRP_LHP1,
+	PMUX_PINGRP_LHP2,
+	PMUX_PINGRP_LVP0,
+	PMUX_PINGRP_LVP1,
+	PMUX_PINGRP_HDINT,
 
-	PINGRP_LM0,
-	PINGRP_LM1,
-	PINGRP_LVS,
-	PINGRP_LSC0,
-	PINGRP_LSC1,
-	PINGRP_LSCK,
-	PINGRP_LDC,
-	PINGRP_LCSN,
+	PMUX_PINGRP_LM0,
+	PMUX_PINGRP_LM1,
+	PMUX_PINGRP_LVS,
+	PMUX_PINGRP_LSC0,
+	PMUX_PINGRP_LSC1,
+	PMUX_PINGRP_LSCK,
+	PMUX_PINGRP_LDC,
+	PMUX_PINGRP_LCSN,
 
 	/* 96: APB_MISC_PP_TRISTATE_REG_D_0 */
-	PINGRP_LSPI,
-	PINGRP_LSDA,
-	PINGRP_LSDI,
-	PINGRP_LPW0,
-	PINGRP_LPW1,
-	PINGRP_LPW2,
-	PINGRP_LDI,
-	PINGRP_LHS,
+	PMUX_PINGRP_LSPI,
+	PMUX_PINGRP_LSDA,
+	PMUX_PINGRP_LSDI,
+	PMUX_PINGRP_LPW0,
+	PMUX_PINGRP_LPW1,
+	PMUX_PINGRP_LPW2,
+	PMUX_PINGRP_LDI,
+	PMUX_PINGRP_LHS,
 
-	PINGRP_LPP,
-	PINGRP_RESERVED4,
-	PINGRP_KBCD,
-	PINGRP_GPU7,
-	PINGRP_DTF,
-	PINGRP_UDA,
-	PINGRP_CRTP,
-	PINGRP_SDB,
+	PMUX_PINGRP_LPP,
+	PMUX_PINGRP_RESERVED4,
+	PMUX_PINGRP_KBCD,
+	PMUX_PINGRP_GPU7,
+	PMUX_PINGRP_DTF,
+	PMUX_PINGRP_UDA,
+	PMUX_PINGRP_CRTP,
+	PMUX_PINGRP_SDB,
 
 	/* these pin groups only have pullup and pull down control */
-	PINGRP_FIRST_NO_MUX,
-	PINGRP_CK32 = PINGRP_FIRST_NO_MUX,
-	PINGRP_DDRC,
-	PINGRP_PMCA,
-	PINGRP_PMCB,
-	PINGRP_PMCC,
-	PINGRP_PMCD,
-	PINGRP_PMCE,
-	PINGRP_XM2C,
-	PINGRP_XM2D,
-
-	PINGRP_COUNT,
+	PMUX_PINGRP_CK32,
+	PMUX_PINGRP_DDRC,
+	PMUX_PINGRP_PMCA,
+	PMUX_PINGRP_PMCB,
+	PMUX_PINGRP_PMCC,
+	PMUX_PINGRP_PMCD,
+	PMUX_PINGRP_PMCE,
+	PMUX_PINGRP_XM2C,
+	PMUX_PINGRP_XM2D,
+	PMUX_PINGRP_COUNT,
 };
 
 /*
@@ -168,6 +166,7 @@ enum pmux_pingrp {
  * purely a convenience. The translation is done through a table search.
  */
 enum pmux_func {
+	PMUX_FUNC_DEFAULT,
 	PMUX_FUNC_AHB_CLK,
 	PMUX_FUNC_APB_CLK,
 	PMUX_FUNC_AUDIO_SYNC,
@@ -227,111 +226,13 @@ enum pmux_func {
 	PMUX_FUNC_VI,
 	PMUX_FUNC_VI_SENSOR_CLK,
 	PMUX_FUNC_XIO,
-	PMUX_FUNC_SAFE,
-
-	/* These don't have a name, but can be used in the table */
 	PMUX_FUNC_RSVD1,
 	PMUX_FUNC_RSVD2,
 	PMUX_FUNC_RSVD3,
 	PMUX_FUNC_RSVD4,
-	PMUX_FUNC_RSVD,	/* Not valid and should not be used */
-
 	PMUX_FUNC_COUNT,
-
-	PMUX_FUNC_NONE = -1,
 };
 
-/* return 1 if a pmux_func is in range */
-#define pmux_func_isvalid(func) ((func) >= 0 && (func) < PMUX_FUNC_COUNT && \
-		(func) != PMUX_FUNC_RSVD)
+#include <asm/arch-tegra/pinmux.h>
 
-/* The pullup/pulldown state of a pin group */
-enum pmux_pull {
-	PMUX_PULL_NORMAL = 0,
-	PMUX_PULL_DOWN,
-	PMUX_PULL_UP,
-};
-
-/* Defines whether a pin group is tristated or in normal operation */
-enum pmux_tristate {
-	PMUX_TRI_NORMAL = 0,
-	PMUX_TRI_TRISTATE = 1,
-};
-
-/* Available power domains used by pin groups */
-enum pmux_vddio {
-	PMUX_VDDIO_BB = 0,
-	PMUX_VDDIO_LCD,
-	PMUX_VDDIO_VI,
-	PMUX_VDDIO_UART,
-	PMUX_VDDIO_DDR,
-	PMUX_VDDIO_NAND,
-	PMUX_VDDIO_SYS,
-	PMUX_VDDIO_AUDIO,
-	PMUX_VDDIO_SD,
-
-	PMUX_VDDIO_NONE
-};
-
-enum {
-	PMUX_TRISTATE_REGS	= 4,
-	PMUX_MUX_REGS		= 7,
-	PMUX_PULL_REGS		= 5,
-};
-
-/* APB MISC Pin Mux and Tristate (APB_MISC_PP_) registers */
-struct pmux_tri_ctlr {
-	uint pmt_reserved0;		/* ABP_MISC_PP_ reserved offset 00 */
-	uint pmt_reserved1;		/* ABP_MISC_PP_ reserved offset 04 */
-	uint pmt_strap_opt_a;		/* _STRAPPING_OPT_A_0, offset 08   */
-	uint pmt_reserved2;		/* ABP_MISC_PP_ reserved offset 0C */
-	uint pmt_reserved3;		/* ABP_MISC_PP_ reserved offset 10 */
-	uint pmt_tri[PMUX_TRISTATE_REGS];/* _TRI_STATE_REG_A/B/C/D_0 14-20 */
-	uint pmt_cfg_ctl;		/* _CONFIG_CTL_0, offset 24        */
-
-	uint pmt_reserved[22];		/* ABP_MISC_PP_ reserved offs 28-7C */
-
-	uint pmt_ctl[PMUX_MUX_REGS];	/* _PIN_MUX_CTL_A-G_0, offset 80   */
-	uint pmt_reserved4;		/* ABP_MISC_PP_ reserved offset 9c */
-	uint pmt_pull[PMUX_PULL_REGS];	/* APB_MISC_PP_PULLUPDOWN_REG_A-E  */
-};
-
-/*
- * This defines the configuration for a pin, including the function assigned,
- * pull up/down settings and tristate settings. Having set up one of these
- * you can call pinmux_config_pingroup() to configure a pin in one step. Also
- * available is pinmux_config_table() to configure a list of pins.
- */
-struct pingroup_config {
-	enum pmux_pingrp pingroup;	/* pin group PINGRP_...             */
-	enum pmux_func func;		/* function to assign FUNC_...      */
-	enum pmux_pull pull;		/* pull up/down/normal PMUX_PULL_...*/
-	enum pmux_tristate tristate;	/* tristate or normal PMUX_TRI_...  */
-};
-
-/* Set a pin group to tristate */
-void pinmux_tristate_enable(enum pmux_pingrp pin);
-
-/* Set a pin group to normal (non tristate) */
-void pinmux_tristate_disable(enum pmux_pingrp pin);
-
-/* Set the pull up/down feature for a pin group */
-void pinmux_set_pullupdown(enum pmux_pingrp pin, enum pmux_pull pupd);
-
-/* Set the mux function for a pin group */
-void pinmux_set_func(enum pmux_pingrp pin, enum pmux_func func);
-
-/* Set the complete configuration for a pin group */
-void pinmux_config_pingroup(const struct pingroup_config *config);
-
-void pinmux_set_tristate(enum pmux_pingrp pin, int enable);
-
-/**
- * Configuure a list of pin groups
- *
- * @param config	List of config items
- * @param len		Number of config items in list
- */
-void pinmux_config_table(const struct pingroup_config *config, int len);
-
-#endif	/* PINMUX_H */
+#endif /* _TEGRA20_PINMUX_H_ */

@@ -32,7 +32,27 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	if (!ds)
 		return NULL;
 
-	ds->regs = (struct davinci_spi_regs *)CONFIG_SYS_SPI_BASE;
+	ds->slave.bus = bus;
+	ds->slave.cs = cs;
+
+	switch (bus) {
+	case SPI0_BUS:
+		ds->regs = (struct davinci_spi_regs *)SPI0_BASE;
+		break;
+#ifdef CONFIG_SYS_SPI1
+	case SPI1_BUS:
+		ds->regs = (struct davinci_spi_regs *)SPI1_BASE;
+		break;
+#endif
+#ifdef CONFIG_SYS_SPI2
+	case SPI2_BUS:
+		ds->regs = (struct davinci_spi_regs *)SPI2_BASE;
+		break;
+#endif
+	default: /* Invalid bus number */
+		return NULL;
+	}
+
 	ds->freq = max_hz;
 
 	return &ds->slave;
@@ -59,7 +79,7 @@ int spi_claim_bus(struct spi_slave *slave)
 	writel(SPIGCR1_MASTER_MASK | SPIGCR1_CLKMOD_MASK, &ds->regs->gcr1);
 
 	/* CS, CLK, SIMO and SOMI are functional pins */
-	writel((SPIPC0_EN0FUN_MASK | SPIPC0_CLKFUN_MASK |
+	writel(((1 << slave->cs) | SPIPC0_CLKFUN_MASK |
 		SPIPC0_DOFUN_MASK | SPIPC0_DIFUN_MASK), &ds->regs->pc0);
 
 	/* setup format */
@@ -264,7 +284,30 @@ out:
 
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
-	return bus == 0 && cs == 0;
+	int ret = 0;
+
+	switch (bus) {
+	case SPI0_BUS:
+		if (cs < SPI0_NUM_CS)
+			ret = 1;
+		break;
+#ifdef CONFIG_SYS_SPI1
+	case SPI1_BUS:
+		if (cs < SPI1_NUM_CS)
+			ret = 1;
+		break;
+#endif
+#ifdef CONFIG_SYS_SPI2
+	case SPI2_BUS:
+		if (cs < SPI2_NUM_CS)
+			ret = 1;
+		break;
+#endif
+	default:
+		/* Invalid bus number. Do nothing */
+		break;
+	}
+	return ret;
 }
 
 void spi_cs_activate(struct spi_slave *slave)

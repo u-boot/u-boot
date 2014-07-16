@@ -21,9 +21,10 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif /* !USE_HOSTCC*/
 
 #include <bootstage.h>
-#include <sha1.h>
 #include <u-boot/crc.h>
 #include <u-boot/md5.h>
+#include <u-boot/sha1.h>
+#include <u-boot/sha256.h>
 
 /*****************************************************************************/
 /* New uImage format routines */
@@ -832,7 +833,7 @@ static int fit_image_hash_get_ignore(const void *fit, int noffset, int *ignore)
  *
  * returns:
  *     0, on success
- *     -1, on property read failure
+ *     -ENOSPC if no space in device tree, -1 for other error
  */
 int fit_set_timestamp(void *fit, int noffset, time_t timestamp)
 {
@@ -846,7 +847,7 @@ int fit_set_timestamp(void *fit, int noffset, time_t timestamp)
 		printf("Can't set '%s' property for '%s' node (%s)\n",
 		       FIT_TIMESTAMP_PROP, fit_get_name(fit, noffset, NULL),
 		       fdt_strerror(ret));
-		return -1;
+		return ret == -FDT_ERR_NOSPACE ? -ENOSPC : -1;
 	}
 
 	return 0;
@@ -882,6 +883,10 @@ int calculate_hash(const void *data, int data_len, const char *algo,
 		sha1_csum_wd((unsigned char *)data, data_len,
 			     (unsigned char *)value, CHUNKSZ_SHA1);
 		*value_len = 20;
+	} else if (IMAGE_ENABLE_SHA256 && strcmp(algo, "sha256") == 0) {
+		sha256_csum_wd((unsigned char *)data, data_len,
+			       (unsigned char *)value, CHUNKSZ_SHA256);
+		*value_len = SHA256_SUM_LEN;
 	} else if (IMAGE_ENABLE_MD5 && strcmp(algo, "md5") == 0) {
 		md5_wd((unsigned char *)data, data_len, value, CHUNKSZ_MD5);
 		*value_len = 16;
@@ -1472,7 +1477,32 @@ int fit_get_node_from_config(bootm_headers_t *images, const char *prop_name,
 	return noffset;
 }
 
-int fit_image_load(bootm_headers_t *images, const char *prop_name, ulong addr,
+/**
+ * fit_get_image_type_property() - get property name for IH_TYPE_...
+ *
+ * @return the properly name where we expect to find the image in the
+ * config node
+ */
+static const char *fit_get_image_type_property(int type)
+{
+	/*
+	 * This is sort-of available in the uimage_type[] table in image.c
+	 * but we don't have access to the sohrt name, and "fdt" is different
+	 * anyway. So let's just keep it here.
+	 */
+	switch (type) {
+	case IH_TYPE_FLATDT:
+		return FIT_FDT_PROP;
+	case IH_TYPE_KERNEL:
+		return FIT_KERNEL_PROP;
+	case IH_TYPE_RAMDISK:
+		return FIT_RAMDISK_PROP;
+	}
+
+	return "unknown";
+}
+
+int fit_image_load(bootm_headers_t *images, ulong addr,
 		   const char **fit_unamep, const char **fit_uname_configp,
 		   int arch, int image_type, int bootstage_id,
 		   enum fit_load_op load_op, ulong *datap, ulong *lenp)
@@ -1485,11 +1515,13 @@ int fit_image_load(bootm_headers_t *images, const char *prop_name, ulong addr,
 	size_t size;
 	int type_ok, os_ok;
 	ulong load, data, len;
+	const char *prop_name;
 	int ret;
 
 	fit = map_sysmem(addr, 0);
 	fit_uname = fit_unamep ? *fit_unamep : NULL;
 	fit_uname_config = fit_uname_configp ? *fit_uname_configp : NULL;
+	prop_name = fit_get_image_type_property(image_type);
 	printf("## Loading %s from FIT Image at %08lx ...\n", prop_name, addr);
 
 	bootstage_mark(bootstage_id + BOOTSTAGE_SUB_FORMAT);
@@ -1529,7 +1561,7 @@ int fit_image_load(bootm_headers_t *images, const char *prop_name, ulong addr,
 			images->fit_uname_cfg = fit_uname_config;
 			if (IMAGE_ENABLE_VERIFY && images->verify) {
 				puts("   Verifying Hash Integrity ... ");
-				if (!fit_config_verify(fit, cfg_noffset)) {
+				if (fit_config_verify(fit, cfg_noffset)) {
 					puts("Bad Data Hash\n");
 					bootstage_error(bootstage_id +
 						BOOTSTAGE_SUB_HASH);
@@ -1559,12 +1591,13 @@ int fit_image_load(bootm_headers_t *images, const char *prop_name, ulong addr,
 	}
 
 	bootstage_mark(bootstage_id + BOOTSTAGE_SUB_CHECK_ARCH);
+#ifndef USE_HOSTCC
 	if (!fit_image_check_target_arch(fit, noffset)) {
 		puts("Unsupported Architecture\n");
 		bootstage_error(bootstage_id + BOOTSTAGE_SUB_CHECK_ARCH);
 		return -ENOEXEC;
 	}
-
+#endif
 	if (image_type == IH_TYPE_FLATDT &&
 	    !fit_image_check_comp(fit, noffset, IH_COMP_NONE)) {
 		puts("FDT image is compressed");
@@ -1605,7 +1638,7 @@ int fit_image_load(bootm_headers_t *images, const char *prop_name, ulong addr,
 
 	/*
 	 * Work-around for eldk-4.2 which gives this warning if we try to
-	 * case in the unmap_sysmem() call:
+	 * cast in the unmap_sysmem() call:
 	 * warning: initialization discards qualifiers from pointer target type
 	 */
 	{

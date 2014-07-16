@@ -25,10 +25,5 @@ struct ch_settings {
 	uint32_t flags;
 };
 
-struct gp_header {
-	uint32_t size;
-	uint32_t load_addr;
-};
-
 #define KEY_CHSETTINGS 0xC0C0C0C1
 #endif /* _OMAPIMAGE_H_ */

@@ -96,7 +96,7 @@ static uint esdhc_xfertyp(struct mmc_cmd *cmd, struct mmc_data *data)
 	else if (cmd->resp_type & MMC_RSP_PRESENT)
 		xfertyp |= XFERTYP_RSPTYP_48;
 
-#if defined(CONFIG_MX53) || defined(CONFIG_T4240QDS)
+#if defined(CONFIG_MX53) || defined(CONFIG_PPC_T4240)
 	if (cmd->cmdidx == MMC_CMD_STOP_TRANSMISSION)
 		xfertyp |= XFERTYP_CMDTYP_ABORT;
 #endif
@@ -174,7 +174,7 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 	int timeout;
 	struct fsl_esdhc_cfg *cfg = mmc->priv;
 	struct fsl_esdhc *regs = (struct fsl_esdhc *)cfg->esdhc_base;
-#ifndef CONFIG_SYS_FSL_ESDHC_USE_PIO
+
 	uint wml_value;
 
 	wml_value = data->blocksize/4;
@@ -184,12 +184,15 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 			wml_value = WML_RD_WML_MAX_VAL;
 
 		esdhc_clrsetbits32(&regs->wml, WML_RD_WML_MASK, wml_value);
+#ifndef CONFIG_SYS_FSL_ESDHC_USE_PIO
 		esdhc_write32(&regs->dsaddr, (u32)data->dest);
+#endif
 	} else {
+#ifndef CONFIG_SYS_FSL_ESDHC_USE_PIO
 		flush_dcache_range((ulong)data->src,
 				   (ulong)data->src+data->blocks
 					 *data->blocksize);
-
+#endif
 		if (wml_value > WML_WR_WML_MAX)
 			wml_value = WML_WR_WML_MAX_VAL;
 		if ((esdhc_read32(&regs->prsstat) & PRSSTAT_WPSPL) == 0) {
@@ -199,19 +202,10 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 
 		esdhc_clrsetbits32(&regs->wml, WML_WR_WML_MASK,
 					wml_value << 16);
+#ifndef CONFIG_SYS_FSL_ESDHC_USE_PIO
 		esdhc_write32(&regs->dsaddr, (u32)data->src);
+#endif
 	}
-#else	/* CONFIG_SYS_FSL_ESDHC_USE_PIO */
-	if (!(data->flags & MMC_DATA_READ)) {
-		if ((esdhc_read32(&regs->prsstat) & PRSSTAT_WPSPL) == 0) {
-			printf("\nThe SD card is locked. "
-				"Can not write to a locked card.\n\n");
-			return TIMEOUT;
-		}
-		esdhc_write32(&regs->dsaddr, (u32)data->src);
-	} else
-		esdhc_write32(&regs->dsaddr, (u32)data->dest);
-#endif	/* CONFIG_SYS_FSL_ESDHC_USE_PIO */
 
 	esdhc_write32(&regs->blkattr, data->blocks << 16 | data->blocksize);
 
@@ -252,6 +246,7 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 	return 0;
 }
 
+#ifndef CONFIG_SYS_FSL_ESDHC_USE_PIO
 static void check_and_invalidate_dcache_range
 	(struct mmc_cmd *cmd,
 	 struct mmc_data *data) {
@@ -261,6 +256,8 @@ static void check_and_invalidate_dcache_range
 	unsigned end = start+size ;
 	invalidate_dcache_range(start, end);
 }
+#endif
+
 /*
  * Sends a command out on the bus.  Takes the mmc pointer,
  * a command pointer, and an optional data pointer.
@@ -388,9 +385,10 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 				goto out;
 			}
 		} while ((irqstat & DATA_COMPLETE) != DATA_COMPLETE);
-#endif
+
 		if (data->flags & MMC_DATA_READ)
 			check_and_invalidate_dcache_range(cmd, data);
+#endif
 	}
 
 out:

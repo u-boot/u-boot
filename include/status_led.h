@@ -231,28 +231,6 @@ void status_led_set  (int led, int state);
 
 # define STATUS_LED_BOOT        0               /* LED 0 used for boot status */
 
-/*****  RBC823    ********************************************************/
-#elif defined(CONFIG_RBC823)
-
-# define STATUS_LED_PAR         im_ioport.iop_pcpar
-# define STATUS_LED_DIR         im_ioport.iop_pcdir
-#  undef STATUS_LED_ODR
-# define STATUS_LED_DAT         im_ioport.iop_pcdat
-
-# define STATUS_LED_BIT         0x0002          /* LED 0 is on PC.14 */
-# define STATUS_LED_PERIOD      (CONFIG_SYS_HZ / 2)
-# define STATUS_LED_STATE       STATUS_LED_BLINKING
-# define STATUS_LED_BIT1        0x0004          /* LED 1 is on PC.13 */
-# define STATUS_LED_PERIOD1     (CONFIG_SYS_HZ)
-# define STATUS_LED_STATE1      STATUS_LED_OFF
-
-# define STATUS_LED_ACTIVE      1               /* LED on for bit == 1  */
-
-# define STATUS_LED_BOOT        0               /* LED 0 used for boot status */
-
-/*****  NetPhone   ********************************************************/
-#elif defined(CONFIG_NETPHONE) || defined(CONFIG_NETTA2)
-/* XXX empty just to avoid the error */
 /*****  STx XTc    ********************************************************/
 #elif defined(CONFIG_STXXTC)
 /* XXX empty just to avoid the error */

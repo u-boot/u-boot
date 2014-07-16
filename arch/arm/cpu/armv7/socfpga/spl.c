@@ -121,6 +121,10 @@ void spl_board_init(void)
 	/* reconfigure the PLLs */
 	cm_basic_init(&cm_default_cfg);
 
+	/* configure the IOCSR / IO buffer settings */
+	if (scan_mgr_configure_iocsr())
+		hang();
+
 	/* configure the pin muxing through system manager */
 	sysmgr_pinmux_init();
 #endif /* CONFIG_SOCFPGA_VIRTUAL_TARGET */

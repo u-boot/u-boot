@@ -467,6 +467,9 @@ enum mem_manuf {
 /* PHY_CON1 register fields */
 #define PHY_CON1_RDLVL_RDDATA_ADJ_SHIFT	0
 
+/* PHY_CON4 rgister fields */
+#define PHY_CON10_CTRL_OFFSETR3		(1 << 24)
+
 /* PHY_CON12 register fields */
 #define PHY_CON12_CTRL_START_POINT_SHIFT	24
 #define PHY_CON12_CTRL_INC_SHIFT	16

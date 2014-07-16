@@ -21,6 +21,10 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)
 {
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+	sdram_init();
+#endif
+
 	/* dram_init must store complete ramsize in gd->ram_size */
 	gd->ram_size = get_ram_size(
 			(void *)CONFIG_SYS_SDRAM_BASE,
@@ -35,7 +39,7 @@ void dram_init_banksize(void)
 }
 
 
-#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_NOR_BOOT)
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
 #ifdef CONFIG_TI81XX
 static struct dmm_lisa_map_regs *hw_lisa_map_regs =
 				(struct dmm_lisa_map_regs *)DMM_BASE;
@@ -111,7 +115,7 @@ void config_ddr(unsigned int pll, const struct ctrl_ioregs *ioregs,
 #endif
 #ifdef CONFIG_AM43XX
 	writel(readl(&cm_device->cm_dll_ctrl) & ~0x1, &cm_device->cm_dll_ctrl);
-	while ((readl(&cm_device->cm_dll_ctrl) && CM_DLL_READYST) == 0)
+	while ((readl(&cm_device->cm_dll_ctrl) & CM_DLL_READYST) == 0)
 		;
 	writel(0x80000000, &ddrctrl->ddrioctrl);
 

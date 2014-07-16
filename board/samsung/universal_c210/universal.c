@@ -27,8 +27,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct exynos4_gpio_part1 *gpio1;
-struct exynos4_gpio_part2 *gpio2;
 unsigned int board_rev;
 
 u32 get_board_rev(void)
@@ -197,13 +195,6 @@ int board_usb_init(int index, enum usb_init_type init)
 	return s3c_udc_probe(&s5pc210_otg_data);
 }
 
-#ifdef CONFIG_USB_CABLE_CHECK
-int usb_cable_connected(void)
-{
-	return 0;
-}
-#endif
-
 int exynos_early_init_f(void)
 {
 	wdt_stop();
@@ -312,35 +303,35 @@ void exynos_cfg_lcd_gpio(void)
 
 	for (i = 0; i < 8; i++) {
 		/* set GPF0,1,2[0:7] for RGB Interface and Data lines (32bit) */
-		s5p_gpio_cfg_pin(&gpio1->f0, i, GPIO_FUNC(2));
-		s5p_gpio_cfg_pin(&gpio1->f1, i, GPIO_FUNC(2));
-		s5p_gpio_cfg_pin(&gpio1->f2, i, GPIO_FUNC(2));
+		gpio_cfg_pin(EXYNOS4_GPIO_F00 + i, S5P_GPIO_FUNC(2));
+		gpio_cfg_pin(EXYNOS4_GPIO_F10 + i, S5P_GPIO_FUNC(2));
+		gpio_cfg_pin(EXYNOS4_GPIO_F20 + i, S5P_GPIO_FUNC(2));
 		/* pull-up/down disable */
-		s5p_gpio_set_pull(&gpio1->f0, i, GPIO_PULL_NONE);
-		s5p_gpio_set_pull(&gpio1->f1, i, GPIO_PULL_NONE);
-		s5p_gpio_set_pull(&gpio1->f2, i, GPIO_PULL_NONE);
+		gpio_set_pull(EXYNOS4_GPIO_F00 + i, S5P_GPIO_PULL_NONE);
+		gpio_set_pull(EXYNOS4_GPIO_F10 + i, S5P_GPIO_PULL_NONE);
+		gpio_set_pull(EXYNOS4_GPIO_F20 + i, S5P_GPIO_PULL_NONE);
 
 		/* drive strength to max (24bit) */
-		s5p_gpio_set_drv(&gpio1->f0, i, GPIO_DRV_4X);
-		s5p_gpio_set_rate(&gpio1->f0, i, GPIO_DRV_SLOW);
-		s5p_gpio_set_drv(&gpio1->f1, i, GPIO_DRV_4X);
-		s5p_gpio_set_rate(&gpio1->f1, i, GPIO_DRV_SLOW);
-		s5p_gpio_set_drv(&gpio1->f2, i, GPIO_DRV_4X);
-		s5p_gpio_set_rate(&gpio1->f0, i, GPIO_DRV_SLOW);
+		gpio_set_drv(EXYNOS4_GPIO_F00 + i, S5P_GPIO_DRV_4X);
+		gpio_set_rate(EXYNOS4_GPIO_F00 + i, S5P_GPIO_DRV_SLOW);
+		gpio_set_drv(EXYNOS4_GPIO_F10 + i, S5P_GPIO_DRV_4X);
+		gpio_set_rate(EXYNOS4_GPIO_F10 + i, S5P_GPIO_DRV_SLOW);
+		gpio_set_drv(EXYNOS4_GPIO_F20 + i, S5P_GPIO_DRV_4X);
+		gpio_set_rate(EXYNOS4_GPIO_F00 + i, S5P_GPIO_DRV_SLOW);
 	}
 
-	for (i = 0; i < f3_end; i++) {
+	for (i = EXYNOS4_GPIO_F30; i < (EXYNOS4_GPIO_F30 + f3_end); i++) {
 		/* set GPF3[0:3] for RGB Interface and Data lines (32bit) */
-		s5p_gpio_cfg_pin(&gpio1->f3, i, GPIO_FUNC(2));
+		gpio_cfg_pin(i, S5P_GPIO_FUNC(2));
 		/* pull-up/down disable */
-		s5p_gpio_set_pull(&gpio1->f3, i, GPIO_PULL_NONE);
+		gpio_set_pull(i, S5P_GPIO_PULL_NONE);
 		/* drive strength to max (24bit) */
-		s5p_gpio_set_drv(&gpio1->f3, i, GPIO_DRV_4X);
-		s5p_gpio_set_rate(&gpio1->f3, i, GPIO_DRV_SLOW);
+		gpio_set_drv(i, S5P_GPIO_DRV_4X);
+		gpio_set_rate(i, S5P_GPIO_DRV_SLOW);
 	}
 
 	/* gpio pad configuration for LCD reset. */
-	s5p_gpio_cfg_pin(&gpio2->y4, 5, GPIO_OUTPUT);
+	gpio_cfg_pin(EXYNOS4_GPIO_Y45, S5P_GPIO_OUTPUT);
 
 	spi_init();
 }
@@ -352,11 +343,11 @@ int mipi_power(void)
 
 void exynos_reset_lcd(void)
 {
-	s5p_gpio_set_value(&gpio2->y4, 5, 1);
+	gpio_set_value(EXYNOS4_GPIO_Y45, 1);
 	udelay(10000);
-	s5p_gpio_set_value(&gpio2->y4, 5, 0);
+	gpio_set_value(EXYNOS4_GPIO_Y45, 0);
 	udelay(10000);
-	s5p_gpio_set_value(&gpio2->y4, 5, 1);
+	gpio_set_value(EXYNOS4_GPIO_Y45, 1);
 	udelay(100);
 }
 
@@ -386,9 +377,6 @@ void exynos_enable_ldo(unsigned int onoff)
 
 int exynos_init(void)
 {
-	gpio1 = (struct exynos4_gpio_part1 *) EXYNOS4_GPIO_PART1_BASE;
-	gpio2 = (struct exynos4_gpio_part2 *) EXYNOS4_GPIO_PART2_BASE;
-
 	gd->bd->bi_arch_number = MACH_TYPE_UNIVERSAL_C210;
 
 	switch (get_hwrev()) {
@@ -399,7 +387,7 @@ int exynos_init(void)
 		 * you should set it HIGH since it removes the inverter
 		 */
 		/* MASSMEMORY_EN: XMDMDATA_6: GPE3[6] */
-		s5p_gpio_direction_output(&gpio1->e3, 6, 0);
+		gpio_direction_output(EXYNOS4_GPIO_E36, 0);
 		break;
 	default:
 		/*
@@ -407,7 +395,7 @@ int exynos_init(void)
 		 * But set it as HIGH to ensure
 		 */
 		/* MASSMEMORY_EN: XMDMADDR_3: GPE1[3] */
-		s5p_gpio_direction_output(&gpio1->e1, 3, 1);
+		gpio_direction_output(EXYNOS4_GPIO_E13, 1);
 		break;
 	}
 

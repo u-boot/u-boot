@@ -142,7 +142,20 @@ int arch_misc_init(void)
 	return 0;
 }
 
-#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_NOR_BOOT)
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+/*
+ * In the case of non-SPL based booting we'll want to call these
+ * functions a tiny bit later as it will require gd to be set and cleared
+ * and that's not true in s_init in this case so we cannot do it there.
+ */
+int board_early_init_f(void)
+{
+	prcm_init();
+	set_mux_conf_regs();
+
+	return 0;
+}
+
 /*
  * This function is the place to do per-board things such as ramp up the
  * MPU clock frequency.
@@ -200,9 +213,7 @@ static void watchdog_disable(void)
 	while (readl(&wdtimer->wdtwwps) != 0x0)
 		;
 }
-#endif
 
-#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_NOR_BOOT)
 void s_init(void)
 {
 	/*
@@ -226,7 +237,7 @@ void s_init(void)
 	set_uart_mux_conf();
 	setup_clocks_for_console();
 	uart_soft_reset();
-#ifdef CONFIG_NOR_BOOT
+#if defined(CONFIG_NOR_BOOT) || defined(CONFIG_QSPI_BOOT)
 	gd->baudrate = CONFIG_BAUDRATE;
 	serial_init();
 	gd->have_console = 1;
@@ -234,20 +245,13 @@ void s_init(void)
 	gd = &gdata;
 	preloader_console_init();
 #endif
-	prcm_init();
-	set_mux_conf_regs();
 #if defined(CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC)
 	/* Enable RTC32K clock */
 	rtc32k_enable();
 #endif
+#ifdef CONFIG_SPL_BUILD
+	board_early_init_f();
 	sdram_init();
+#endif
 }
 #endif
-
-#ifndef CONFIG_SYS_DCACHE_OFF
-void enable_caches(void)
-{
-	/* Enable D-cache. I-cache is already enabled in start.S */
-	dcache_enable();
-}
-#endif /* !CONFIG_SYS_DCACHE_OFF */

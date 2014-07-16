@@ -44,6 +44,7 @@ obj-$(CONFIG_PPC_P5020) += p5020_ids.o
 obj-$(CONFIG_PPC_P5040) += p5040_ids.o
 obj-$(CONFIG_PPC_T4240) += t4240_ids.o
 obj-$(CONFIG_PPC_T4160) += t4240_ids.o
+obj-$(CONFIG_PPC_T4080) += t4240_ids.o
 obj-$(CONFIG_PPC_B4420) += b4860_ids.o
 obj-$(CONFIG_PPC_B4860) += b4860_ids.o
 obj-$(CONFIG_PPC_T1040) += t1040_ids.o
@@ -88,6 +89,7 @@ obj-$(CONFIG_PPC_P5020) += p5020_serdes.o
 obj-$(CONFIG_PPC_P5040) += p5040_serdes.o
 obj-$(CONFIG_PPC_T4240) += t4240_serdes.o
 obj-$(CONFIG_PPC_T4160) += t4240_serdes.o
+obj-$(CONFIG_PPC_T4080) += t4240_serdes.o
 obj-$(CONFIG_PPC_B4420) += b4860_serdes.o
 obj-$(CONFIG_PPC_B4860) += b4860_serdes.o
 obj-$(CONFIG_BSC9132) += bsc9132_serdes.o
@@ -102,7 +104,9 @@ obj-y	+= cpu.o
 obj-y	+= cpu_init.o
 obj-y	+= cpu_init_early.o
 obj-y	+= interrupts.o
+ifneq ($(CONFIG_QEMU_E500),y)
 obj-y	+= speed.o
+endif
 obj-y	+= tlb.o
 obj-y	+= traps.o
 

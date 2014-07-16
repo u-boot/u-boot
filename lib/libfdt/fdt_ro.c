@@ -44,7 +44,7 @@ static int _fdt_string_eq(const void *fdt, int stroffset,
 {
 	const char *p = fdt_string(fdt, stroffset);
 
-	return (strlen(p) == len) && (memcmp(p, s, len) == 0);
+	return (strnlen(p, len + 1) == len) && (memcmp(p, s, len) == 0);
 }
 
 int fdt_get_mem_rsv(const void *fdt, int n, uint64_t *address, uint64_t *size)

@@ -24,10 +24,7 @@ OBJCOPYFLAGS :=
 # so calculate CPUDIR before including ARCH/SOC/CPU config.mk files.
 # Check if arch/$ARCH/cpu/$CPU exists, otherwise assume arch/$ARCH/cpu contains
 # CPU-specific code.
-CPUDIR=arch/$(ARCH)/cpu/$(CPU)
-ifneq ($(srctree)/$(CPUDIR),$(wildcard $(srctree)/$(CPUDIR)))
-CPUDIR=arch/$(ARCH)/cpu
-endif
+CPUDIR=arch/$(ARCH)/cpu$(if $(CPU),/$(CPU),)
 
 sinclude $(srctree)/arch/$(ARCH)/config.mk	# include architecture dependend rules
 sinclude $(srctree)/$(CPUDIR)/config.mk		# include  CPU	specific rules

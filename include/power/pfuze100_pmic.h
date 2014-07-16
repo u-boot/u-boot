@@ -15,7 +15,11 @@ enum {
 	PFUZE100_FABID		= 0x04,
 
 	PFUZE100_SW1ABVOL	= 0x20,
+	PFUZE100_SW1ABSTBY	= 0x21,
+	PUZE_100_SW1ABCONF	= 0x24,
 	PFUZE100_SW1CVOL	= 0x2e,
+	PFUZE100_SW1CSTBY	= 0x2f,
+	PFUZE100_SW1CCONF	= 0x32,
 	PFUZE100_SW2VOL		= 0x35,
 	PFUZE100_SW3AVOL	= 0x3c,
 	PFUZE100_SW3BVOL	= 0x43,
@@ -93,4 +97,5 @@ enum {
 #define SWBST_MODE_AUTO	(2 << 2)
 #define SWBST_MODE_APS	(2 << 3)
 
+int power_pfuze100_init(unsigned char bus);
 #endif

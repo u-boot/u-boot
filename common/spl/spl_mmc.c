@@ -77,7 +77,7 @@ static int mmc_load_fpga_image_fat(struct mmc *mmc)
 	int err;
 	int devnum = 0;
 	const fpga_desc *const desc = fpga_get_desc(devnum);
-	Xilinx_desc *desc_xilinx = desc->devdesc;
+	xilinx_desc *desc_xilinx = desc->devdesc;
 
 	/* FIXME = standard file size + header desc_xilinx->size + 0x6c */
 	err = file_fat_read(CONFIG_SPL_FPGA_LOAD_ARGS_NAME,

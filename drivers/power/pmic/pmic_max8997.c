@@ -35,7 +35,7 @@ static int pmic_charger_state(struct pmic *p, int state, int current)
 	if (pmic_probe(p))
 		return -1;
 
-	if (state == CHARGER_DISABLE) {
+	if (state == PMIC_CHARGER_DISABLE) {
 		puts("Disable the charger.\n");
 		pmic_reg_read(p, MAX8997_REG_MBCCTRL2, &val);
 		val &= ~(MBCHOSTEN | VCHGR_FC);

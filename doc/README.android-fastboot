@@ -1,0 +1,91 @@
+Android Fastboot
+~~~~~~~~~~~~~~~~
+
+Overview
+========
+The protocol that is used over USB is described in
+README.android-fastboot-protocol in same directory.
+
+The current implementation does not yet support the flash and erase
+commands.
+
+Client installation
+===================
+The counterpart to this gadget is the fastboot client which can
+be found in Android's platform/system/core repository in the fastboot
+folder. It runs on Windows, Linux and even OSX. Linux user are lucky since
+they only need libusb.
+Windows users need to bring some time until they have Android SDK (currently
+http://dl.google.com/android/installer_r12-windows.exe) installed. You
+need to install ADB package which contains the required glue libraries for
+accessing USB. Also you need "Google USB driver package" and "SDK platform
+tools". Once installed the usb driver is placed in your SDK folder under
+extras\google\usb_driver. The android_winusb.inf needs a line like
+
+   %SingleBootLoaderInterface% = USB_Install, USB\VID_0451&PID_D022
+
+either in the [Google.NTx86] section for 32bit Windows or [Google.NTamd64]
+for 64bit Windows. VID and PID should match whatever the fastboot is
+advertising.
+
+Board specific
+==============
+The fastboot gadget relies on the USB download gadget, so the following
+options must be configured:
+
+CONFIG_USBDOWNLOAD_GADGET
+CONFIG_G_DNL_VENDOR_NUM
+CONFIG_G_DNL_PRODUCT_NUM
+CONFIG_G_DNL_MANUFACTURER
+
+The fastboot function is enabled by defining CONFIG_CMD_FASTBOOT and
+CONFIG_ANDROID_BOOT_IMAGE.
+
+The fastboot protocol requires a large memory buffer for downloads. This
+buffer should be as large as possible for a platform. The location of the
+buffer and size are set with CONFIG_USB_FASTBOOT_BUF_ADDR and
+CONFIG_USB_FASTBOOT_BUF_SIZE.
+
+In Action
+=========
+Enter into fastboot by executing the fastboot command in u-boot and you
+should see:
+|GADGET DRIVER: usb_dnl_fastboot
+
+On the client side you can fetch the bootloader version for instance:
+|>fastboot getvar bootloader-version
+|bootloader-version: U-Boot 2014.04-00005-gd24cabc
+|finished. total time: 0.000s
+
+or initiate a reboot:
+|>fastboot reboot
+
+and once the client comes back, the board should reset.
+
+You can also specify a kernel image to boot. You have to either specify
+the an image in Android format _or_ pass a binary kernel and let the
+fastboot client wrap the Android suite around it. On OMAP for instance you
+take zImage kernel and pass it to the fastboot client:
+
+|>fastboot -b 0x80000000 -c "console=ttyO2 earlyprintk root=/dev/ram0
+|	mem=128M" boot zImage
+|creating boot image...
+|creating boot image - 1847296 bytes
+|downloading 'boot.img'...
+|OKAY [  2.766s]
+|booting...
+|OKAY [ -0.000s]
+|finished. total time: 2.766s
+
+and on the gadget side you should see:
+|Starting download of 1847296 bytes
+|........................................................
+|downloading of 1847296 bytes finished
+|Booting kernel..
+|## Booting Android Image at 0x81000000 ...
+|Kernel load addr 0x80008000 size 1801 KiB
+|Kernel command line: console=ttyO2 earlyprintk root=/dev/ram0 mem=128M
+|   Loading Kernel Image ... OK
+|OK
+|
+|Starting kernel ...

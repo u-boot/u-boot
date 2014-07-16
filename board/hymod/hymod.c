@@ -8,6 +8,8 @@
  */
 
 #include <common.h>
+#include <bootretry.h>
+#include <cli.h>
 #include <mpc8260.h>
 #include <mpc8260_irq.h>
 #include <ioports.h>
@@ -413,13 +415,11 @@ last_stage_init (void)
 	hymod_conf_t *cp = &gd->bd->bi_hymod_conf;
 	int rc;
 
-#ifdef CONFIG_BOOT_RETRY_TIME
 	/*
-	 * we use the readline () function, but we also want
+	 * we use the cli_readline() function, but we also want
 	 * command timeout enabled
 	 */
-	init_cmd_timeout ();
-#endif
+	bootretry_init_cmd_timeout();
 
 	memset ((void *) cp, 0, sizeof (*cp));
 

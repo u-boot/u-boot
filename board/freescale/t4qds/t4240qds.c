@@ -354,14 +354,18 @@ int config_frontside_crossbar_vsc3316(void)
 			FSL_CORENET2_RCWSR4_SRDS1_PRTCL;
 	srds_prtcl_s1 >>= FSL_CORENET2_RCWSR4_SRDS1_PRTCL_SHIFT;
 	switch (srds_prtcl_s1) {
+	case 37:
 	case 38:
 		/* swap first lane and third lane on slot1 */
 		vsc3316_fsm1_tx[0][1] = 14;
 		vsc3316_fsm1_tx[6][1] = 0;
 		vsc3316_fsm1_rx[1][1] = 2;
 		vsc3316_fsm1_rx[6][1] = 13;
+	case 39:
 	case 40:
+	case 45:
 	case 46:
+	case 47:
 	case 48:
 		/* swap first lane and third lane on slot2 */
 		vsc3316_fsm1_tx[2][1] = 8;
@@ -382,17 +386,24 @@ int config_frontside_crossbar_vsc3316(void)
 				FSL_CORENET2_RCWSR4_SRDS2_PRTCL;
 	srds_prtcl_s2 >>= FSL_CORENET2_RCWSR4_SRDS2_PRTCL_SHIFT;
 	switch (srds_prtcl_s2) {
+	case 37:
 	case 38:
 		/* swap first lane and third lane on slot3 */
 		vsc3316_fsm2_tx[2][1] = 11;
 		vsc3316_fsm2_tx[5][1] = 4;
 		vsc3316_fsm2_rx[2][1] = 9;
 		vsc3316_fsm2_rx[4][1] = 7;
+	case 39:
 	case 40:
+	case 45:
 	case 46:
+	case 47:
 	case 48:
+	case 49:
 	case 50:
+	case 51:
 	case 52:
+	case 53:
 	case 54:
 		/* swap first lane and third lane on slot4 */
 		vsc3316_fsm2_tx[6][1] = 3;
@@ -425,6 +436,7 @@ int config_backside_crossbar_mux(void)
 	case 0:
 		/* SerDes3 is not enabled */
 		break;
+	case 1:
 	case 2:
 	case 9:
 	case 10:
@@ -434,13 +446,20 @@ int config_backside_crossbar_mux(void)
 		brdcfg |= BRDCFG12_SD3MX_SLOT5;
 		QIXIS_WRITE(brdcfg[12], brdcfg);
 		break;
+	case 3:
 	case 4:
+	case 5:
 	case 6:
+	case 7:
 	case 8:
+	case 11:
 	case 12:
+	case 13:
 	case 14:
+	case 15:
 	case 16:
 	case 17:
+	case 18:
 	case 19:
 	case 20:
 		/* SD3(4:7) => SLOT6(0:3) */
@@ -462,6 +481,7 @@ int config_backside_crossbar_mux(void)
 	case 0:
 		/* SerDes4 is not enabled */
 		break;
+	case 1:
 	case 2:
 		/* 10b, SD4(0:7) => SLOT7(0:7) */
 		brdcfg = QIXIS_READ(brdcfg[12]);
@@ -469,8 +489,11 @@ int config_backside_crossbar_mux(void)
 		brdcfg |= BRDCFG12_SD4MX_SLOT7;
 		QIXIS_WRITE(brdcfg[12], brdcfg);
 		break;
+	case 3:
 	case 4:
+	case 5:
 	case 6:
+	case 7:
 	case 8:
 		/* x1b, SD4(4:7) => SLOT8(0:3) */
 		brdcfg = QIXIS_READ(brdcfg[12]);
@@ -478,9 +501,13 @@ int config_backside_crossbar_mux(void)
 		brdcfg |= BRDCFG12_SD4MX_SLOT8;
 		QIXIS_WRITE(brdcfg[12], brdcfg);
 		break;
+	case 9:
 	case 10:
+	case 11:
 	case 12:
+	case 13:
 	case 14:
+	case 15:
 	case 16:
 	case 18:
 		/* 00b, SD4(4:5) => AURORA, SD4(6:7) => SATA */

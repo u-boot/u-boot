@@ -24,8 +24,6 @@
  *
  */
 
-#define CONFIG_LEON3			/* This is an LEON3 CPU */
-#define CONFIG_LEON		1	/* This is an LEON CPU */
 #define CONFIG_GRSIM		0	/* ... not running on GRSIM */
 #define CONFIG_TSIM		1	/* ... running on TSIM */
 
@@ -55,6 +53,7 @@
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_ECHO		/* echo arguments		*/
 #define CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
+#define CONFIG_CMD_FPGA_LOADMK
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_ITEST	/* Integer (and string) test	*/
 #define CONFIG_CMD_LOADB	/* loadb			*/

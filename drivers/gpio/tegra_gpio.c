@@ -221,6 +221,26 @@ int gpio_set_value(unsigned gpio, int value)
 	return 0;
 }
 
+void gpio_config_table(const struct tegra_gpio_config *config, int len)
+{
+	int i;
+
+	for (i = 0; i < len; i++) {
+		switch (config[i].init) {
+		case TEGRA_GPIO_INIT_IN:
+			gpio_direction_input(config[i].gpio);
+			break;
+		case TEGRA_GPIO_INIT_OUT0:
+			gpio_direction_output(config[i].gpio, 0);
+			break;
+		case TEGRA_GPIO_INIT_OUT1:
+			gpio_direction_output(config[i].gpio, 1);
+			break;
+		}
+		set_config(config[i].gpio, 1);
+	}
+}
+
 /*
  * Display Tegra GPIO information
  */

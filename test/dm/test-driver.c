@@ -18,7 +18,7 @@
 int dm_testdrv_op_count[DM_TEST_OP_COUNT];
 static struct dm_test_state *dms = &global_test_state;
 
-static int testdrv_ping(struct device *dev, int pingval, int *pingret)
+static int testdrv_ping(struct udevice *dev, int pingval, int *pingret)
 {
 	const struct dm_test_pdata *pdata = dev_get_platdata(dev);
 	struct dm_test_priv *priv = dev_get_priv(dev);
@@ -33,7 +33,7 @@ static const struct test_ops test_ops = {
 	.ping = testdrv_ping,
 };
 
-static int test_bind(struct device *dev)
+static int test_bind(struct udevice *dev)
 {
 	/* Private data should not be allocated */
 	ut_assert(!dev_get_priv(dev));
@@ -42,7 +42,7 @@ static int test_bind(struct device *dev)
 	return 0;
 }
 
-static int test_probe(struct device *dev)
+static int test_probe(struct udevice *dev)
 {
 	struct dm_test_priv *priv = dev_get_priv(dev);
 
@@ -54,7 +54,7 @@ static int test_probe(struct device *dev)
 	return 0;
 }
 
-static int test_remove(struct device *dev)
+static int test_remove(struct udevice *dev)
 {
 	/* Private data should still be allocated */
 	ut_assert(dev_get_priv(dev));
@@ -63,7 +63,7 @@ static int test_remove(struct device *dev)
 	return 0;
 }
 
-static int test_unbind(struct device *dev)
+static int test_unbind(struct udevice *dev)
 {
 	/* Private data should not be allocated */
 	ut_assert(!dev->priv);
@@ -94,7 +94,7 @@ U_BOOT_DRIVER(test2_drv) = {
 	.priv_auto_alloc_size = sizeof(struct dm_test_priv),
 };
 
-static int test_manual_drv_ping(struct device *dev, int pingval, int *pingret)
+static int test_manual_drv_ping(struct udevice *dev, int pingval, int *pingret)
 {
 	*pingret = pingval + 2;
 
@@ -105,14 +105,14 @@ static const struct test_ops test_manual_ops = {
 	.ping = test_manual_drv_ping,
 };
 
-static int test_manual_bind(struct device *dev)
+static int test_manual_bind(struct udevice *dev)
 {
 	dm_testdrv_op_count[DM_TEST_OP_BIND]++;
 
 	return 0;
 }
 
-static int test_manual_probe(struct device *dev)
+static int test_manual_probe(struct udevice *dev)
 {
 	dm_testdrv_op_count[DM_TEST_OP_PROBE]++;
 	if (!dms->force_fail_alloc)
@@ -123,13 +123,13 @@ static int test_manual_probe(struct device *dev)
 	return 0;
 }
 
-static int test_manual_remove(struct device *dev)
+static int test_manual_remove(struct udevice *dev)
 {
 	dm_testdrv_op_count[DM_TEST_OP_REMOVE]++;
 	return 0;
 }
 
-static int test_manual_unbind(struct device *dev)
+static int test_manual_unbind(struct udevice *dev)
 {
 	dm_testdrv_op_count[DM_TEST_OP_UNBIND]++;
 	return 0;

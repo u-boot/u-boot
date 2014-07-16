@@ -4,70 +4,27 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#ifndef USE_HOSTCC
 #include <common.h>
 #include <fdtdec.h>
-#include <rsa.h>
-#include <sha1.h>
+#include <asm/types.h>
 #include <asm/byteorder.h>
 #include <asm/errno.h>
+#include <asm/types.h>
 #include <asm/unaligned.h>
-
-/**
- * struct rsa_public_key - holder for a public key
- *
- * An RSA public key consists of a modulus (typically called N), the inverse
- * and R^2, where R is 2^(# key bits).
- */
-struct rsa_public_key {
-	uint len;		/* Length of modulus[] in number of uint32_t */
-	uint32_t n0inv;		/* -1 / modulus[0] mod 2^32 */
-	uint32_t *modulus;	/* modulus as little endian array */
-	uint32_t *rr;		/* R^2 as little endian array */
-};
+#else
+#include "fdt_host.h"
+#include "mkimage.h"
+#include <fdt_support.h>
+#endif
+#include <u-boot/rsa.h>
+#include <u-boot/sha1.h>
+#include <u-boot/sha256.h>
 
 #define UINT64_MULT32(v, multby)  (((uint64_t)(v)) * ((uint32_t)(multby)))
 
-#define RSA2048_BYTES	(2048 / 8)
-
-/* This is the minimum/maximum key size we support, in bits */
-#define RSA_MIN_KEY_BITS	2048
-#define RSA_MAX_KEY_BITS	2048
-
-/* This is the maximum signature length that we support, in bits */
-#define RSA_MAX_SIG_BITS	2048
-
-static const uint8_t padding_sha1_rsa2048[RSA2048_BYTES - SHA1_SUM_LEN] = {
-	0x00, 0x01, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-	0xff, 0xff, 0xff, 0xff, 0x00, 0x30, 0x21, 0x30,
-	0x09, 0x06, 0x05, 0x2b, 0x0e, 0x03, 0x02, 0x1a,
-	0x05, 0x00, 0x04, 0x14
-};
+#define get_unaligned_be32(a) fdt32_to_cpu(*(uint32_t *)a)
+#define put_unaligned_be32(a, b) (*(uint32_t *)(b) = cpu_to_fdt32(a))
 
 /**
  * subtract_modulus() - subtract modulus from the given value
@@ -204,24 +161,26 @@ static int pow_mod(const struct rsa_public_key *key, uint32_t *inout)
 	/* Convert to bigendian byte array */
 	for (i = key->len - 1, ptr = inout; (int)i >= 0; i--, ptr++)
 		put_unaligned_be32(result[i], ptr);
-
 	return 0;
 }
 
 static int rsa_verify_key(const struct rsa_public_key *key, const uint8_t *sig,
-		const uint32_t sig_len, const uint8_t *hash)
+			  const uint32_t sig_len, const uint8_t *hash,
+			  struct checksum_algo *algo)
 {
 	const uint8_t *padding;
 	int pad_len;
 	int ret;
 
-	if (!key || !sig || !hash)
+	if (!key || !sig || !hash || !algo)
 		return -EIO;
 
 	if (sig_len != (key->len * sizeof(uint32_t))) {
 		debug("Signature is of incorrect length %d\n", sig_len);
 		return -EINVAL;
 	}
+
+	debug("Checksum algorithm: %s", algo->name);
 
 	/* Sanity check for stack size */
 	if (sig_len > RSA_MAX_SIG_BITS / 8) {
@@ -238,9 +197,8 @@ static int rsa_verify_key(const struct rsa_public_key *key, const uint8_t *sig,
 	if (ret)
 		return ret;
 
-	/* Determine padding to use depending on the signature type. */
-	padding = padding_sha1_rsa2048;
-	pad_len = RSA2048_BYTES - SHA1_SUM_LEN;
+	padding = algo->rsa_padding;
+	pad_len = algo->pad_len - algo->checksum_len;
 
 	/* Check pkcs1.5 padding bytes. */
 	if (memcmp(buf, padding, pad_len)) {
@@ -309,7 +267,7 @@ static int rsa_verify_with_keynode(struct image_sign_info *info,
 	}
 
 	debug("key length %d\n", key.len);
-	ret = rsa_verify_key(&key, sig, sig_len, hash);
+	ret = rsa_verify_key(&key, sig, sig_len, hash, info->algo->checksum);
 	if (ret) {
 		printf("%s: RSA failed to verify: %d\n", __func__, ret);
 		return ret;
@@ -323,12 +281,23 @@ int rsa_verify(struct image_sign_info *info,
 	       uint8_t *sig, uint sig_len)
 {
 	const void *blob = info->fdt_blob;
-	uint8_t hash[SHA1_SUM_LEN];
+	/* Reserve memory for maximum checksum-length */
+	uint8_t hash[info->algo->checksum->pad_len];
 	int ndepth, noffset;
 	int sig_node, node;
 	char name[100];
-	sha1_context ctx;
-	int ret, i;
+	int ret;
+
+	/*
+	 * Verify that the checksum-length does not exceed the
+	 * rsa-signature-length
+	 */
+	if (info->algo->checksum->checksum_len >
+	    info->algo->checksum->pad_len) {
+		debug("%s: invlaid checksum-algorithm %s for %s\n",
+		      __func__, info->algo->checksum->name, info->algo->name);
+		return -EINVAL;
+	}
 
 	sig_node = fdt_subnode_offset(blob, 0, FIT_SIG_NODENAME);
 	if (sig_node < 0) {
@@ -336,10 +305,8 @@ int rsa_verify(struct image_sign_info *info,
 		return -ENOENT;
 	}
 
-	sha1_starts(&ctx);
-	for (i = 0; i < region_count; i++)
-		sha1_update(&ctx, region[i].data, region[i].size);
-	sha1_finish(&ctx, hash);
+	/* Calculate checksum with checksum-algorithm */
+	info->algo->checksum->calculate(region, region_count, hash);
 
 	/* See if we must use a particular key */
 	if (info->required_keynode != -1) {

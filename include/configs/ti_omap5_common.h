@@ -46,8 +46,6 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/omap.h>
 
-#define CONFIG_ENV_SIZE			(128 << 10)
-
 #include <configs/ti_armv7_common.h>
 
 /*
@@ -69,11 +67,9 @@
 #define PARTS_DEFAULT
 #endif
 
+#define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"loadaddr=0x80200000\0" \
-	"fdtaddr=0x80F80000\0" \
-	"fdt_high=0xffffffff\0" \
-	"rdaddr=0x81000000\0" \
+	DEFAULT_LINUX_BOOT_ENV \
 	"console=" CONSOLEDEV ",115200n8\0" \
 	"fdtfile=undefined\0" \
 	"bootpart=0:2\0" \
@@ -121,6 +117,8 @@
 			"setenv fdtfile omap5-uevm.dtb; fi; " \
 		"if test $board_name = dra7xx; then " \
 			"setenv fdtfile dra7-evm.dtb; fi;" \
+		"if test $board_name = dra72x; then " \
+			"setenv fdtfile dra72-evm.dtb; fi;" \
 		"if test $fdtfile = undefined; then " \
 			"echo WARNING: Could not determine device tree to use; fi; \0" \
 	"loadfdt=load mmc ${bootpart} ${fdtaddr} ${bootdir}/${fdtfile};\0" \
@@ -145,6 +143,8 @@
 #define CONFIG_SPL_MAX_SIZE		(0x4031E000 - CONFIG_SPL_TEXT_BASE)
 #define CONFIG_SPL_DISPLAY_PRINT
 #define CONFIG_SPL_LDSCRIPT "$(CPUDIR)/omap-common/u-boot-spl.lds"
+#define CONFIG_SYS_SPL_ARGS_ADDR	(CONFIG_SYS_SDRAM_BASE + \
+					 (128 << 20))
 
 #ifdef CONFIG_NAND
 #define CONFIG_SPL_NAND_AM33XX_BCH	/* ELM support */

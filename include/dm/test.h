@@ -30,7 +30,7 @@ struct dm_test_pdata {
  *	@return 0 if OK, -ve on error
  */
 struct test_ops {
-	int (*ping)(struct device *dev, int pingval, int *pingret);
+	int (*ping)(struct udevice *dev, int pingval, int *pingret);
 };
 
 /* Operations that our test driver supports */
@@ -102,8 +102,8 @@ extern struct dm_test_state global_test_state;
  * @skip_post_probe: Skip uclass post-probe processing
  */
 struct dm_test_state {
-	struct device *root;
-	struct device *testdev;
+	struct udevice *root;
+	struct udevice *testdev;
 	int fail_count;
 	int force_fail_alloc;
 	int skip_post_probe;
@@ -138,8 +138,8 @@ struct dm_test {
 	}
 
 /* Declare ping methods for the drivers */
-int test_ping(struct device *dev, int pingval, int *pingret);
-int testfdt_ping(struct device *dev, int pingval, int *pingret);
+int test_ping(struct udevice *dev, int pingval, int *pingret);
+int testfdt_ping(struct udevice *dev, int pingval, int *pingret);
 
 /**
  * dm_check_operations() - Check that we can perform ping operations
@@ -152,7 +152,7 @@ int testfdt_ping(struct device *dev, int pingval, int *pingret);
  * @priv: Pointer to private test information
  * @return 0 if OK, -ve on error
  */
-int dm_check_operations(struct dm_test_state *dms, struct device *dev,
+int dm_check_operations(struct dm_test_state *dms, struct udevice *dev,
 			uint32_t base, struct dm_test_priv *priv);
 
 /**

@@ -9,13 +9,11 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <fs.h>
 #include <zynqpl.h>
 #include <linux/sizes.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
-#if defined(CONFIG_FPGA_LOADFS) && !defined(CONFIG_SPL_BUILD)
-#include <fs.h>
-#endif
 
 #define DEVCFG_CTRL_PCFG_PROG_B		0x40000000
 #define DEVCFG_CTRL_PCAP_RATE_EN_MASK	0x02000000
@@ -40,7 +38,7 @@
 #define CONFIG_SYS_FPGA_PROG_TIME	(CONFIG_SYS_HZ * 4) /* 4 s */
 #endif
 
-int zynq_info(Xilinx_desc *desc)
+static int zynq_info(xilinx_desc *desc)
 {
 	return FPGA_SUCCESS;
 }
@@ -151,9 +149,9 @@ static void *check_data(u8 *buf, size_t bsize, u32 *swap)
 		}
 		/* Loop can be huge - support CTRL + C */
 		if (ctrlc())
-			return 0;
+			return NULL;
 	}
-	return 0;
+	return NULL;
 }
 
 static int zynq_dma_transfer(u32 srcbuf, u32 srclen, u32 dstbuf, u32 dstlen)
@@ -324,7 +322,7 @@ static u32 *zynq_align_dma_buffer(u32 *buf, u32 len, u32 swap)
 	return buf;
 }
 
-static int zynq_validate_bitstream(Xilinx_desc *desc, const void *buf,
+static int zynq_validate_bitstream(xilinx_desc *desc, const void *buf,
 				   size_t bsize, u32 blocksize, u32 *swap,
 				   bitstream_type *bstype)
 {
@@ -356,91 +354,8 @@ static int zynq_validate_bitstream(Xilinx_desc *desc, const void *buf,
 	return 0;
 }
 
-#if defined(CONFIG_FPGA_LOADFS) && !defined(CONFIG_SPL_BUILD)
-int zynq_fsload(Xilinx_desc *desc, const void *buf, size_t bsize,
-		 fpga_fs_info *fsinfo)
-{
-	unsigned long ts; /* Timestamp */
-	u32 isr_status, swap;
-	bitstream_type bstype;
-	u32 blocksize;
-	u32 pos = 0;
-	int fstype;
-	char *interface, *dev_part, *filename;
-
-	blocksize = fsinfo->blocksize;
-	interface = fsinfo->interface;
-	dev_part = fsinfo->dev_part;
-	filename = fsinfo->filename;
-	fstype = fsinfo->fstype;
-
-	if (fs_set_blk_dev(interface, dev_part, fstype))
-		return FPGA_FAIL;
-
-	if (fs_read(filename, (u32) buf, pos, blocksize) < 0)
-		return FPGA_FAIL;
-
-	bstype = BIT_FULL;
-
-	if (zynq_validate_bitstream(desc, buf, bsize, blocksize, &swap,
-				    &bstype))
-		return FPGA_FAIL;
-
-	dcache_disable();
-
-	do {
-		buf = zynq_align_dma_buffer((u32 *)buf, blocksize, swap);
-
-		if (zynq_dma_transfer((u32)buf | 1, blocksize >> 2,
-				      0xffffffff, 0))
-			return FPGA_FAIL;
-
-		bsize -= blocksize;
-		pos   += blocksize;
-
-		if (fs_set_blk_dev(interface, dev_part, FS_TYPE_FAT))
-			return FPGA_FAIL;
-
-		if (bsize > blocksize) {
-			if (fs_read(filename, (u32) buf, pos, blocksize) < 0)
-				return FPGA_FAIL;
-		} else {
-			if (fs_read(filename, (u32) buf, pos, bsize) < 0)
-				return FPGA_FAIL;
-		}
-	} while (bsize > blocksize);
-
-	buf = zynq_align_dma_buffer((u32 *)buf, blocksize, swap);
-
-	if (zynq_dma_transfer((u32)buf | 1, bsize >> 2, 0xffffffff, 0))
-		return FPGA_FAIL;
-
-	dcache_enable();
-
-	isr_status = readl(&devcfg_base->int_sts);
-
-	/* Check FPGA configuration completion */
-	ts = get_timer(0);
-	while (!(isr_status & DEVCFG_ISR_PCFG_DONE)) {
-		if (get_timer(ts) > CONFIG_SYS_FPGA_WAIT) {
-			printf("%s: Timeout wait for FPGA to config\n",
-			       __func__);
-			return FPGA_FAIL;
-		}
-		isr_status = readl(&devcfg_base->int_sts);
-	}
-
-	debug("%s: FPGA config done\n", __func__);
-
-	if (bstype != BIT_PARTIAL)
-		zynq_slcr_devcfg_enable();
-
-	return FPGA_SUCCESS;
-}
-#endif
-
-int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize,
-	      bitstream_type bstype)
+static int zynq_load(xilinx_desc *desc, const void *buf, size_t bsize,
+		     bitstream_type bstype)
 {
 	unsigned long ts; /* Timestamp */
 	u32 isr_status, swap;
@@ -485,10 +400,100 @@ int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize,
 	return FPGA_SUCCESS;
 }
 
-int zynq_dump(Xilinx_desc *desc, const void *buf, size_t bsize)
+#if defined(CONFIG_CMD_FPGA_LOADFS) && !defined(CONFIG_SPL_BUILD)
+static int zynq_loadfs(xilinx_desc *desc, const void *buf, size_t bsize,
+		       fpga_fs_info *fsinfo)
+{
+	unsigned long ts; /* Timestamp */
+	u32 isr_status, swap;
+	u32 partialbit = 0;
+	u32 blocksize;
+	u32 pos = 0;
+	int fstype;
+	char *interface, *dev_part, *filename;
+
+	blocksize = fsinfo->blocksize;
+	interface = fsinfo->interface;
+	dev_part = fsinfo->dev_part;
+	filename = fsinfo->filename;
+	fstype = fsinfo->fstype;
+
+	if (fs_set_blk_dev(interface, dev_part, fstype))
+		return FPGA_FAIL;
+
+	if (fs_read(filename, (u32) buf, pos, blocksize) < 0)
+		return FPGA_FAIL;
+
+	if (zynq_validate_bitstream(desc, buf, bsize, blocksize, &swap,
+				    &partialbit))
+		return FPGA_FAIL;
+
+	dcache_disable();
+
+	do {
+		buf = zynq_align_dma_buffer((u32 *)buf, blocksize, swap);
+
+		if (zynq_dma_transfer((u32)buf | 1, blocksize >> 2,
+				      0xffffffff, 0))
+			return FPGA_FAIL;
+
+		bsize -= blocksize;
+		pos   += blocksize;
+
+		if (fs_set_blk_dev(interface, dev_part, fstype))
+			return FPGA_FAIL;
+
+		if (bsize > blocksize) {
+			if (fs_read(filename, (u32) buf, pos, blocksize) < 0)
+				return FPGA_FAIL;
+		} else {
+			if (fs_read(filename, (u32) buf, pos, bsize) < 0)
+				return FPGA_FAIL;
+		}
+	} while (bsize > blocksize);
+
+	buf = zynq_align_dma_buffer((u32 *)buf, blocksize, swap);
+
+	if (zynq_dma_transfer((u32)buf | 1, bsize >> 2, 0xffffffff, 0))
+		return FPGA_FAIL;
+
+	dcache_enable();
+
+	isr_status = readl(&devcfg_base->int_sts);
+
+	/* Check FPGA configuration completion */
+	ts = get_timer(0);
+	while (!(isr_status & DEVCFG_ISR_PCFG_DONE)) {
+		if (get_timer(ts) > CONFIG_SYS_FPGA_WAIT) {
+			printf("%s: Timeout wait for FPGA to config\n",
+			       __func__);
+			return FPGA_FAIL;
+		}
+		isr_status = readl(&devcfg_base->int_sts);
+	}
+
+	debug("%s: FPGA config done\n", __func__);
+
+	if (!partialbit)
+		zynq_slcr_devcfg_enable();
+
+	return FPGA_SUCCESS;
+}
+#endif
+
+static int zynq_dump(xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	return FPGA_FAIL;
 }
+
+struct xilinx_fpga_op zynq_op = {
+	.load = zynq_load,
+#if defined(CONFIG_CMD_FPGA_LOADFS) && !defined(CONFIG_SPL_BUILD)
+	.loadfs = zynq_loadfs,
+#endif
+	.dump = zynq_dump,
+	.info = zynq_info,
+};
 
 #ifdef CONFIG_CMD_ZYNQ_AES
 /*

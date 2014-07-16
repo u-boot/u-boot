@@ -173,7 +173,6 @@ void board_init_f(ulong bootflag)
 	bd->bi_sramstart = CONFIG_SYS_SRAM_BASE;
 	bd->bi_sramsize = CONFIG_SYS_SRAM_SIZE;
 #endif
-	bd->bi_baudrate = CONFIG_BAUDRATE;
 	bd->bi_bootflags = bootflag;	/* boot / reboot flag (for LynxOS)    */
 
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */

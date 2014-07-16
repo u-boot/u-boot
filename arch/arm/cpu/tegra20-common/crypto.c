@@ -19,74 +19,6 @@ enum security_op {
 	SECURITY_ENCRYPT	= 1 << 1,	/* Encrypt the data */
 };
 
-static void debug_print_vector(char *name, u32 num_bytes, u8 *data)
-{
-	u32 i;
-
-	debug("%s [%d] @0x%08x", name, num_bytes, (u32)data);
-	for (i = 0; i < num_bytes; i++) {
-		if (i % 16 == 0)
-			debug(" = ");
-		debug("%02x", data[i]);
-		if ((i+1) % 16 != 0)
-			debug(" ");
-	}
-	debug("\n");
-}
-
-/**
- * Apply chain data to the destination using EOR
- *
- * Each array is of length AES_AES_KEY_LENGTH.
- *
- * \param cbc_chain_data	Chain data
- * \param src			Source data
- * \param dst			Destination data, which is modified here
- */
-static void apply_cbc_chain_data(u8 *cbc_chain_data, u8 *src, u8 *dst)
-{
-	int i;
-
-	for (i = 0; i < 16; i++)
-		*dst++ = *src++ ^ *cbc_chain_data++;
-}
-
-/**
- * Encrypt some data with AES.
- *
- * \param key_schedule		Expanded key to use
- * \param src			Source data to encrypt
- * \param dst			Destination buffer
- * \param num_aes_blocks	Number of AES blocks to encrypt
- */
-static void encrypt_object(u8 *key_schedule, u8 *src, u8 *dst,
-			   u32 num_aes_blocks)
-{
-	u8 tmp_data[AES_KEY_LENGTH];
-	u8 *cbc_chain_data;
-	u32 i;
-
-	cbc_chain_data = zero_key;	/* Convenient array of 0's for IV */
-
-	for (i = 0; i < num_aes_blocks; i++) {
-		debug("encrypt_object: block %d of %d\n", i, num_aes_blocks);
-		debug_print_vector("AES Src", AES_KEY_LENGTH, src);
-
-		/* Apply the chain data */
-		apply_cbc_chain_data(cbc_chain_data, src, tmp_data);
-		debug_print_vector("AES Xor", AES_KEY_LENGTH, tmp_data);
-
-		/* encrypt the AES block */
-		aes_encrypt(tmp_data, key_schedule, dst);
-		debug_print_vector("AES Dst", AES_KEY_LENGTH, dst);
-
-		/* Update pointers for next loop. */
-		cbc_chain_data = dst;
-		src += AES_KEY_LENGTH;
-		dst += AES_KEY_LENGTH;
-	}
-}
-
 /**
  * Shift a vector left by one bit
  *
@@ -129,39 +61,31 @@ static void sign_object(u8 *key, u8 *key_schedule, u8 *src, u8 *dst,
 	for (i = 0; i < AES_KEY_LENGTH; i++)
 		tmp_data[i] = 0;
 
-	encrypt_object(key_schedule, tmp_data, left, 1);
-	debug_print_vector("AES(key, nonce)", AES_KEY_LENGTH, left);
+	aes_cbc_encrypt_blocks(key_schedule, tmp_data, left, 1);
 
 	left_shift_vector(left, k1, sizeof(left));
-	debug_print_vector("L", AES_KEY_LENGTH, left);
 
 	if ((left[0] >> 7) != 0) /* get MSB of L */
 		k1[AES_KEY_LENGTH-1] ^= AES_CMAC_CONST_RB;
-	debug_print_vector("K1", AES_KEY_LENGTH, k1);
 
 	/* compute the AES-CMAC value */
 	for (i = 0; i < num_aes_blocks; i++) {
 		/* Apply the chain data */
-		apply_cbc_chain_data(cbc_chain_data, src, tmp_data);
+		aes_apply_cbc_chain_data(cbc_chain_data, src, tmp_data);
 
 		/* for the final block, XOR K1 into the IV */
 		if (i == num_aes_blocks - 1)
-			apply_cbc_chain_data(tmp_data, k1, tmp_data);
+			aes_apply_cbc_chain_data(tmp_data, k1, tmp_data);
 
 		/* encrypt the AES block */
 		aes_encrypt(tmp_data, key_schedule, dst);
 
 		debug("sign_obj: block %d of %d\n", i, num_aes_blocks);
-		debug_print_vector("AES-CMAC Src", AES_KEY_LENGTH, src);
-		debug_print_vector("AES-CMAC Xor", AES_KEY_LENGTH, tmp_data);
-		debug_print_vector("AES-CMAC Dst", AES_KEY_LENGTH, dst);
 
 		/* Update pointers for next loop. */
 		cbc_chain_data = dst;
 		src += AES_KEY_LENGTH;
 	}
-
-	debug_print_vector("AES-CMAC Hash", AES_KEY_LENGTH, dst);
 }
 
 /**
@@ -180,7 +104,6 @@ static int encrypt_and_sign(u8 *key, enum security_op oper, u8 *src,
 	u8 key_schedule[AES_EXPAND_KEY_LENGTH];
 
 	debug("encrypt_and_sign: length = %d\n", length);
-	debug_print_vector("AES key", AES_KEY_LENGTH, key);
 
 	/*
 	 * The only need for a key is for signing/checksum purposes, so
@@ -193,7 +116,7 @@ static int encrypt_and_sign(u8 *key, enum security_op oper, u8 *src,
 	if (oper & SECURITY_ENCRYPT) {
 		/* Perform this in place, resulting in src being encrypted. */
 		debug("encrypt_and_sign: begin encryption\n");
-		encrypt_object(key_schedule, src, src, num_aes_blocks);
+		aes_cbc_encrypt_blocks(key_schedule, src, src, num_aes_blocks);
 		debug("encrypt_and_sign: end encryption\n");
 	}
 

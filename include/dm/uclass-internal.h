@@ -21,7 +21,7 @@
  * @return the uclass pointer of a child at the given index or
  * return NULL on error.
  */
-int uclass_find_device(enum uclass_id id, int index, struct device **devp);
+int uclass_find_device(enum uclass_id id, int index, struct udevice **devp);
 
 /**
  * uclass_bind_device() - Associate device with a uclass
@@ -31,7 +31,7 @@ int uclass_find_device(enum uclass_id id, int index, struct device **devp);
  * @dev:	Pointer to the device
  * #return 0 on success, -ve on error
  */
-int uclass_bind_device(struct device *dev);
+int uclass_bind_device(struct udevice *dev);
 
 /**
  * uclass_unbind_device() - Deassociate device with a uclass
@@ -41,7 +41,7 @@ int uclass_bind_device(struct device *dev);
  * @dev:	Pointer to the device
  * #return 0 on success, -ve on error
  */
-int uclass_unbind_device(struct device *dev);
+int uclass_unbind_device(struct udevice *dev);
 
 /**
  * uclass_post_probe_device() - Deal with a device that has just been probed
@@ -52,7 +52,7 @@ int uclass_unbind_device(struct device *dev);
  * @dev:	Pointer to the device
  * #return 0 on success, -ve on error
  */
-int uclass_post_probe_device(struct device *dev);
+int uclass_post_probe_device(struct udevice *dev);
 
 /**
  * uclass_pre_remove_device() - Handle a device which is about to be removed
@@ -62,7 +62,7 @@ int uclass_post_probe_device(struct device *dev);
  * @dev:	Pointer to the device
  * #return 0 on success, -ve on error
  */
-int uclass_pre_remove_device(struct device *dev);
+int uclass_pre_remove_device(struct udevice *dev);
 
 /**
  * uclass_find() - Find uclass by its id

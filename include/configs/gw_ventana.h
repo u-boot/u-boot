@@ -7,6 +7,17 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+/* SPL */
+#define CONFIG_SPL_NAND_SUPPORT
+#define CONFIG_SPL_MMC_SUPPORT
+#define CONFIG_SPL_FAT_SUPPORT
+/*
+#define CONFIG_SPL_SATA_SUPPORT
+*/
+/* Location in NAND to read U-Boot from */
+#define CONFIG_SYS_NAND_U_BOOT_OFFS     (14 * 1024 * 1024)
+
+#include "imx6_spl.h"                  /* common IMX6 SPL configuration */
 #include "mx6_common.h"
 #define CONFIG_MX6
 #define CONFIG_DISPLAY_CPUINFO         /* display cpu info */
@@ -23,6 +34,8 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_SERIAL_TAG
 #define CONFIG_REVISION_TAG
+
+#define CONFIG_SYS_GENERIC_BOARD
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
@@ -136,6 +149,8 @@
 #define CONFIG_POWER_I2C
 #define CONFIG_POWER_PFUZE100
 #define CONFIG_POWER_PFUZE100_I2C_ADDR	0x08
+#define CONFIG_POWER_LTC3676
+#define CONFIG_POWER_LTC3676_I2C_ADDR  0x3c
 
 /* Various command support */
 #include <config_cmd_default.h>
@@ -188,7 +203,22 @@
 #define CONFIG_USB_ETH_CDC
 #define CONFIG_NETCONSOLE
 #define CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP
-#define CONFIG_USB_HUB_MIN_POWER_ON_DELAY 1200
+
+/* Framebuffer and LCD */
+#define CONFIG_VIDEO
+#define CONFIG_VIDEO_IPUV3
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define CONFIG_VIDEO_BMP_RLE8
+#define CONFIG_SPLASH_SCREEN
+#define CONFIG_BMP_16BPP
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_IPUV3_CLK          260000000
+#define CONFIG_CMD_HDMIDETECT
+#define CONFIG_CONSOLE_MUX
+#define CONFIG_IMX_HDMI
+#define CONFIG_IMX_VIDEO_SKIP
 
 /* serial console (ttymxc1,115200) */
 #define CONFIG_CONS_INDEX              1

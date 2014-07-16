@@ -5,7 +5,7 @@
  */
 
 #include <common.h>
-#include <asm/arch/sound.h>
+#include <asm/sound.h>
 #include <asm/sdl.h>
 
 int sound_play(uint32_t msec, uint32_t frequency)

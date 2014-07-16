@@ -5,7 +5,7 @@
  */
 
 #ifndef _DM_H_
-#define _DM_H
+#define _DM_H_
 
 #include <dm/device.h>
 #include <dm/platdata.h>

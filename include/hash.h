@@ -6,6 +6,18 @@
 #ifndef _HASH_H
 #define _HASH_H
 
+/*
+ * Maximum digest size for all algorithms we support. Having this value
+ * avoids a malloc() or C99 local declaration in common/cmd_hash.c.
+ */
+#define HASH_MAX_DIGEST_SIZE	32
+
+enum {
+	HASH_FLAG_VERIFY	= 1 << 0,	/* Enable verify mode */
+	HASH_FLAG_ENV		= 1 << 1,	/* Allow env vars */
+};
+
+#ifndef USE_HOSTCC
 #if defined(CONFIG_SHA1SUM_VERIFY) || defined(CONFIG_CRC32_VERIFY)
 #define CONFIG_HASH_VERIFY
 #endif
@@ -27,17 +39,42 @@ struct hash_algo {
 	void (*hash_func_ws)(const unsigned char *input, unsigned int ilen,
 		unsigned char *output, unsigned int chunk_sz);
 	int chunk_size;				/* Watchdog chunk size */
-};
-
-/*
- * Maximum digest size for all algorithms we support. Having this value
- * avoids a malloc() or C99 local declaration in common/cmd_hash.c.
- */
-#define HASH_MAX_DIGEST_SIZE	32
-
-enum {
-	HASH_FLAG_VERIFY	= 1 << 0,	/* Enable verify mode */
-	HASH_FLAG_ENV		= 1 << 1,	/* Allow env vars */
+	/*
+	 * hash_init: Create the context for progressive hashing
+	 *
+	 * @algo: Pointer to the hash_algo struct
+	 * @ctxp: Pointer to the pointer of the context for hashing
+	 * @return 0 if ok, -1 on error
+	 */
+	int (*hash_init)(struct hash_algo *algo, void **ctxp);
+	/*
+	 * hash_update: Perform hashing on the given buffer
+	 *
+	 * The context is freed by this function if an error occurs.
+	 *
+	 * @algo: Pointer to the hash_algo struct
+	 * @ctx: Pointer to the context for hashing
+	 * @buf: Pointer to the buffer being hashed
+	 * @size: Size of the buffer being hashed
+	 * @is_last: 1 if this is the last update; 0 otherwise
+	 * @return 0 if ok, -1 on error
+	 */
+	int (*hash_update)(struct hash_algo *algo, void *ctx, const void *buf,
+			   unsigned int size, int is_last);
+	/*
+	 * hash_finish: Write the hash result to the given buffer
+	 *
+	 * The context is freed by this function.
+	 *
+	 * @algo: Pointer to the hash_algo struct
+	 * @ctx: Pointer to the context for hashing
+	 * @dest_buf: Pointer to the buffer for the result
+	 * @size: Size of the buffer for the result
+	 * @return 0 if ok, -ENOSPC if size of the result buffer is too small
+	 *   or -1 on other errors
+	 */
+	int (*hash_finish)(struct hash_algo *algo, void *ctx, void *dest_buf,
+			   int size);
 };
 
 /**
@@ -77,4 +114,32 @@ int hash_command(const char *algo_name, int flags, cmd_tbl_t *cmdtp, int flag,
 int hash_block(const char *algo_name, const void *data, unsigned int len,
 	       uint8_t *output, int *output_size);
 
+/**
+ * hash_lookup_algo() - Look up the hash_algo struct for an algorithm
+ *
+ * The function returns the pointer to the struct or -EPROTONOSUPPORT if the
+ * algorithm is not available.
+ *
+ * @algo_name: Hash algorithm to look up
+ * @algop: Pointer to the hash_algo struct if found
+ *
+ * @return 0 if ok, -EPROTONOSUPPORT for an unknown algorithm.
+ */
+int hash_lookup_algo(const char *algo_name, struct hash_algo **algop);
+
+/**
+ * hash_show() - Print out a hash algorithm and value
+ *
+ * You will get a message like this (without a newline at the end):
+ *
+ * "sha1 for 9eb3337c ... 9eb3338f ==> 7942ef1df479fd3130f716eb9613d107dab7e257"
+ *
+ * @algo:		Algorithm used for hash
+ * @addr:		Address of data that was hashed
+ * @len:		Length of data that was hashed
+ * @output:		Hash value to display
+ */
+void hash_show(struct hash_algo *algo, ulong addr, ulong len,
+	       uint8_t *output);
+#endif /* !USE_HOSTCC */
 #endif

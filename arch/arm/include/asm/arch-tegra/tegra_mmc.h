@@ -14,8 +14,6 @@
 /* for mmc_config definition */
 #include <mmc.h>
 
-#define MAX_HOSTS		4	/* Max number of 'hosts'/controllers */
-
 #ifndef __ASSEMBLY__
 struct tegra_mmc {
 	unsigned int	sysad;		/* _SYSTEM_ADDRESS_0 */

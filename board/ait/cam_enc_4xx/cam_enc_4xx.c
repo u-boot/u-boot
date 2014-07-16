@@ -8,15 +8,15 @@
  */
 
 #include <common.h>
+#include <cli.h>
 #include <errno.h>
-#include <hush.h>
 #include <linux/mtd/nand.h>
 #include <nand.h>
 #include <miiphy.h>
 #include <netdev.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/nand_defs.h>
+#include <asm/ti-common/davinci_nand.h>
 #include <asm/arch/davinci_misc.h>
 #ifdef CONFIG_DAVINCI_MMC
 #include <mmc.h>
@@ -777,7 +777,7 @@ static void ait_menu_read_env(char *name)
 
 	sprintf(output, "%s old: %s value: ", name, getenv(name));
 	memset(cbuf, 0, CONFIG_SYS_CBSIZE);
-	readret = readline_into_buffer(output, cbuf, 0);
+	readret = cli_readline_into_buffer(output, cbuf, 0);
 
 	if (readret >= 0) {
 		ret = setenv(name, cbuf);

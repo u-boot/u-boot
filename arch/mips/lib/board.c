@@ -27,12 +27,6 @@ ulong monitor_flash_len;
 
 static char *failed = "*** failed ***\n";
 
-/*
- * mips_io_port_base is the begin of the address space to which x86 style
- * I/O ports are mapped.
- */
-const unsigned long mips_io_port_base = -1;
-
 int __board_early_init_f(void)
 {
 	/*
@@ -109,9 +103,6 @@ init_fnc_t *init_sequence[] = {
 	board_early_init_f,
 	timer_init,
 	env_init,		/* initialize environment */
-#ifdef CONFIG_INCA_IP
-	incaip_set_cpuclk,	/* set cpu clock according to env. variable */
-#endif
 	init_baudrate,		/* initialize baudrate settings */
 	serial_init,		/* serial communications setup */
 	console_init_f,
@@ -213,7 +204,6 @@ void board_init_f(ulong bootflag)
 	 */
 	bd->bi_memstart	= CONFIG_SYS_SDRAM_BASE;	/* start of DRAM */
 	bd->bi_memsize	= gd->ram_size;		/* size of DRAM in bytes */
-	bd->bi_baudrate	= gd->baudrate;		/* Console Baudrate */
 
 	memcpy(id, (void *)gd, sizeof(gd_t));
 

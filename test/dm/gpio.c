@@ -17,7 +17,7 @@ static int dm_test_gpio(struct dm_test_state *dms)
 {
 	unsigned int offset, gpio;
 	struct dm_gpio_ops *ops;
-	struct device *dev;
+	struct udevice *dev;
 	const char *name;
 	int offset_count;
 	char buf[80];

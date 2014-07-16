@@ -22,7 +22,6 @@ int do_thor_down(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char *interface = argv[2];
 	char *devstring = argv[3];
 
-	const char *s = "thor";
 	int ret;
 
 	puts("TIZEN \"THOR\" Downloader\n");
@@ -40,7 +39,7 @@ int do_thor_down(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		goto exit;
 	}
 
-	g_dnl_register(s);
+	g_dnl_register("usb_dnl_thor");
 
 	ret = thor_init();
 	if (ret) {

@@ -26,11 +26,8 @@ extern const int lpsc_size;
 #define dv_maskbits(addr, val) \
 	writel((readl(addr) & val), addr)
 
-void da850_waitloop(unsigned long loopcnt);
-int da850_pll_init(struct davinci_pllc_regs *reg, unsigned long pllmult);
 void da850_lpc_transition(unsigned char pscnum, unsigned char module,
 		unsigned char domain, unsigned char state);
-int da850_ddr_setup(void);
 void da850_psc_init(void);
 void da850_pinmux_ctl(unsigned long offset, unsigned long mask,
 	unsigned long value);

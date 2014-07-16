@@ -18,6 +18,8 @@
 #include <asm/fsl_portals.h>
 #include <asm/fsl_liodn.h>
 #include <fm_eth.h>
+#include <hwconfig.h>
+#include <asm/mpc85xx_gpio.h>
 
 #include "../common/qixis.h"
 #include "t1040qds.h"
@@ -87,6 +89,30 @@ int select_i2c_ch_pca9547(u8 ch)
 	}
 
 	return 0;
+}
+
+static void qe_board_setup(void)
+{
+	u8 brdcfg15, brdcfg9;
+
+	if (hwconfig("qe") && hwconfig("tdm")) {
+		brdcfg15 = QIXIS_READ(brdcfg[15]);
+		/*
+		 * TDMRiser uses QE-TDM
+		 * Route QE_TDM signals to TDM Riser slot
+		 */
+		QIXIS_WRITE(brdcfg[15], brdcfg15 | 7);
+	} else if (hwconfig("qe") && hwconfig("uart")) {
+		brdcfg15 = QIXIS_READ(brdcfg[15]);
+		brdcfg9 = QIXIS_READ(brdcfg[9]);
+		/*
+		 * Route QE_TDM signals to UCC
+		 * ProfiBus controlled by UCC3
+		 */
+		brdcfg15 &= 0xfc;
+		QIXIS_WRITE(brdcfg[15], brdcfg15 | 2);
+		QIXIS_WRITE(brdcfg[9], brdcfg9 | 4);
+	}
 }
 
 int board_early_init_r(void)
@@ -196,6 +222,8 @@ int misc_init_r(void)
 		}
 	}
 
+	qe_board_setup();
+
 	return 0;
 }
 
@@ -245,3 +273,14 @@ int board_need_mem_reset(void)
 {
 	return 1;
 }
+
+#ifdef CONFIG_DEEP_SLEEP
+void board_mem_sleep_setup(void)
+{
+	/* does not provide HW signals for power management */
+	QIXIS_WRITE(pwr_ctl[1], (QIXIS_READ(pwr_ctl[1]) & ~0x2));
+	/* Disable MCKE isolation */
+	gpio_set_value(2, 0);
+	udelay(1);
+}
+#endif

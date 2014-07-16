@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2012 Freescale Semiconductor, Inc.
+ * Copyright 2008-2014 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -16,20 +16,6 @@
 #include <fsl_ddr.h>
 #include <fsl_immap.h>
 #include <asm/io.h>
-
-#define _DDR_ADDR CONFIG_SYS_FSL_DDR_ADDR
-
-static u32 fsl_ddr_get_version(void)
-{
-	struct ccsr_ddr __iomem *ddr;
-	u32 ver_major_minor_errata;
-
-	ddr = (void *)_DDR_ADDR;
-	ver_major_minor_errata = (ddr_in32(&ddr->ip_rev1) & 0xFFFF) << 8;
-	ver_major_minor_errata |= (ddr_in32(&ddr->ip_rev2) & 0xFF00) >> 8;
-
-	return ver_major_minor_errata;
-}
 
 unsigned int picos_to_mclk(unsigned int picos);
 
@@ -81,6 +67,39 @@ static inline int fsl_ddr_get_rtt(void)
 	return rtt;
 }
 
+#ifdef CONFIG_SYS_FSL_DDR4
+/*
+ * compute CAS write latency according to DDR4 spec
+ * CWL = 9 for <= 1600MT/s
+ *       10 for <= 1866MT/s
+ *       11 for <= 2133MT/s
+ *       12 for <= 2400MT/s
+ *       14 for <= 2667MT/s
+ *       16 for <= 2933MT/s
+ *       18 for higher
+ */
+static inline unsigned int compute_cas_write_latency(void)
+{
+	unsigned int cwl;
+	const unsigned int mclk_ps = get_memory_clk_period_ps();
+	if (mclk_ps >= 1250)
+		cwl = 9;
+	else if (mclk_ps >= 1070)
+		cwl = 10;
+	else if (mclk_ps >= 935)
+		cwl = 11;
+	else if (mclk_ps >= 833)
+		cwl = 12;
+	else if (mclk_ps >= 750)
+		cwl = 14;
+	else if (mclk_ps >= 681)
+		cwl = 16;
+	else
+		cwl = 18;
+
+	return cwl;
+}
+#else
 /*
  * compute the CAS write latency according to DDR3 spec
  * CWL = 5 if tCK >= 2.5ns
@@ -119,6 +138,7 @@ static inline unsigned int compute_cas_write_latency(void)
 	}
 	return cwl;
 }
+#endif
 
 /* Chip Select Configuration (CSn_CONFIG) */
 static void set_csn_config(int dimm_number, int i, fsl_ddr_cfg_regs_t *ddr,
@@ -135,6 +155,11 @@ static void set_csn_config(int dimm_number, int i, fsl_ddr_cfg_regs_t *ddr,
 	unsigned int row_bits_cs_n = 0; /* Num of row bits for SDRAM on CSn */
 	unsigned int col_bits_cs_n = 0; /* Num of ocl bits for SDRAM on CSn */
 	int go_config = 0;
+#ifdef CONFIG_SYS_FSL_DDR4
+	unsigned int bg_bits_cs_n = 0; /* Num of bank group bits */
+#else
+	unsigned int n_banks_per_sdram_device;
+#endif
 
 	/* Compute CS_CONFIG only for existing ranks of each DIMM.  */
 	switch (i) {
@@ -178,14 +203,18 @@ static void set_csn_config(int dimm_number, int i, fsl_ddr_cfg_regs_t *ddr,
 		break;
 	}
 	if (go_config) {
-		unsigned int n_banks_per_sdram_device;
 		cs_n_en = 1;
 		ap_n_en = popts->cs_local_opts[i].auto_precharge;
 		odt_rd_cfg = popts->cs_local_opts[i].odt_rd_cfg;
 		odt_wr_cfg = popts->cs_local_opts[i].odt_wr_cfg;
+#ifdef CONFIG_SYS_FSL_DDR4
+		ba_bits_cs_n = dimm_params[dimm_number].bank_addr_bits;
+		bg_bits_cs_n = dimm_params[dimm_number].bank_group_bits;
+#else
 		n_banks_per_sdram_device
 			= dimm_params[dimm_number].n_banks_per_sdram_device;
 		ba_bits_cs_n = __ilog2(n_banks_per_sdram_device) - 2;
+#endif
 		row_bits_cs_n = dimm_params[dimm_number].n_row_addr - 12;
 		col_bits_cs_n = dimm_params[dimm_number].n_col_addr - 8;
 	}
@@ -203,6 +232,9 @@ static void set_csn_config(int dimm_number, int i, fsl_ddr_cfg_regs_t *ddr,
 
 		| ((ba_bits_cs_n & 0x3) << 14)
 		| ((row_bits_cs_n & 0x7) << 8)
+#ifdef CONFIG_SYS_FSL_DDR4
+		| ((bg_bits_cs_n & 0x3) << 4)
+#endif
 		| ((col_bits_cs_n & 0x7) << 0)
 		);
 	debug("FSLDDR: cs[%d]_config = 0x%08x\n", i,ddr->cs[i].config);
@@ -262,11 +294,23 @@ static void set_timing_cfg_0(fsl_ddr_cfg_regs_t *ddr,
 	/* Precharge powerdown exit timing (tXP). */
 	unsigned char pre_pd_exit_mclk;
 	/* ODT powerdown exit timing (tAXPD). */
-	unsigned char taxpd_mclk;
+	unsigned char taxpd_mclk = 0;
 	/* Mode register set cycle time (tMRD). */
 	unsigned char tmrd_mclk;
 
-#ifdef CONFIG_SYS_FSL_DDR3
+#ifdef CONFIG_SYS_FSL_DDR4
+	/* tXP=max(4nCK, 6ns) */
+	int txp = max((get_memory_clk_period_ps() * 4), 6000); /* unit=ps */
+	trwt_mclk = 2;
+	twrt_mclk = 1;
+	act_pd_exit_mclk = picos_to_mclk(txp);
+	pre_pd_exit_mclk = act_pd_exit_mclk;
+	/*
+	 * MRS_CYC = max(tMRD, tMOD)
+	 * tMRD = 8nCK, tMOD = max(24nCK, 15ns)
+	 */
+	tmrd_mclk = max(24, picos_to_mclk(15000));
+#elif defined(CONFIG_SYS_FSL_DDR3)
 	/*
 	 * (tXARD and tXARDS). Empirical?
 	 * The DDR3 spec has not tXARD,
@@ -275,7 +319,7 @@ static void set_timing_cfg_0(fsl_ddr_cfg_regs_t *ddr,
 	 * spec has not the tAXPD, we use
 	 * tAXPD=1, need design to confirm.
 	 */
-	int tXP = max((get_memory_clk_period_ps() * 3), 7500); /* unit=ps */
+	int txp = max((get_memory_clk_period_ps() * 3), 7500); /* unit=ps */
 	unsigned int data_rate = get_ddr_freq(0);
 	tmrd_mclk = 4;
 	/* set the turnaround time */
@@ -300,7 +344,7 @@ static void set_timing_cfg_0(fsl_ddr_cfg_regs_t *ddr,
 		taxpd_mclk = 1;
 	} else {
 		/* act_pd_exit_mclk = tXARD, see above */
-		act_pd_exit_mclk = picos_to_mclk(tXP);
+		act_pd_exit_mclk = picos_to_mclk(txp);
 		/* Mode register MR0[A12] is '1' - fast exit */
 		pre_pd_exit_mclk = act_pd_exit_mclk;
 		taxpd_mclk = 1;
@@ -364,8 +408,12 @@ static void set_timing_cfg_3(fsl_ddr_cfg_regs_t *ddr,
 	ext_acttorw = picos_to_mclk(common_dimm->trcd_ps) >> 4;
 	ext_caslat = (2 * cas_latency - 1) >> 4;
 	ext_add_lat = additive_latency >> 4;
+#ifdef CONFIG_SYS_FSL_DDR4
+	ext_refrec = (picos_to_mclk(common_dimm->trfc1_ps) - 8) >> 4;
+#else
 	ext_refrec = (picos_to_mclk(common_dimm->trfc_ps) - 8) >> 4;
 	/* ext_wrrec only deals with 16 clock and above, or 14 with OTF */
+#endif
 	ext_wrrec = (picos_to_mclk(common_dimm->twr_ps) +
 		(popts->otf_burst_chop_en ? 2 : 0)) >> 4;
 
@@ -404,9 +452,19 @@ static void set_timing_cfg_1(fsl_ddr_cfg_regs_t *ddr,
 	unsigned char acttoact_mclk;
 	/* Last write data pair to read command issue interval (tWTR) */
 	unsigned char wrtord_mclk;
+#ifdef CONFIG_SYS_FSL_DDR4
+	/* DDR4 supports 10, 12, 14, 16, 18, 20, 24 */
+	static const u8 wrrec_table[] = {
+		10, 10, 10, 10, 10,
+		10, 10, 10, 10, 10,
+		12, 12, 14, 14, 16,
+		16, 18, 18, 20, 20,
+		24, 24, 24, 24};
+#else
 	/* DDR_SDRAM_MODE doesn't support 9,11,13,15 */
 	static const u8 wrrec_table[] = {
 		1, 2, 3, 4, 5, 6, 7, 8, 10, 10, 12, 12, 14, 14, 0, 0};
+#endif
 
 	pretoact_mclk = picos_to_mclk(common_dimm->trp_ps);
 	acttopre_mclk = picos_to_mclk(common_dimm->tras_ps);
@@ -438,20 +496,34 @@ static void set_timing_cfg_1(fsl_ddr_cfg_regs_t *ddr,
 	 * we need set extend bit for it at
 	 * TIMING_CFG_3[EXT_CASLAT]
 	 */
-	caslat_ctrl = 2 * cas_latency - 1;
+	if (fsl_ddr_get_version() <= 0x40400)
+		caslat_ctrl = 2 * cas_latency - 1;
+	else
+		caslat_ctrl = (cas_latency - 1) << 1;
 #endif
 
-	refrec_ctrl = picos_to_mclk(common_dimm->trfc_ps) - 8;
+#ifdef CONFIG_SYS_FSL_DDR4
+	refrec_ctrl = picos_to_mclk(common_dimm->trfc1_ps) - 8;
 	wrrec_mclk = picos_to_mclk(common_dimm->twr_ps);
-
-	if (wrrec_mclk > 16)
-		printf("Error: WRREC doesn't support more than 16 clocks\n");
+	acttoact_mclk = max(picos_to_mclk(common_dimm->trrds_ps), 4);
+	wrtord_mclk = max(2, picos_to_mclk(2500));
+	if ((wrrec_mclk < 1) || (wrrec_mclk > 24))
+		printf("Error: WRREC doesn't support %d clocks\n", wrrec_mclk);
 	else
 		wrrec_mclk = wrrec_table[wrrec_mclk - 1];
+#else
+	refrec_ctrl = picos_to_mclk(common_dimm->trfc_ps) - 8;
+	wrrec_mclk = picos_to_mclk(common_dimm->twr_ps);
+	acttoact_mclk = picos_to_mclk(common_dimm->trrd_ps);
+	wrtord_mclk = picos_to_mclk(common_dimm->twtr_ps);
+	if ((wrrec_mclk < 1) || (wrrec_mclk > 16))
+		printf("Error: WRREC doesn't support %d clocks\n", wrrec_mclk);
+	else
+		wrrec_mclk = wrrec_table[wrrec_mclk - 1];
+#endif
 	if (popts->otf_burst_chop_en)
 		wrrec_mclk += 2;
 
-	acttoact_mclk = picos_to_mclk(common_dimm->trrd_ps);
 	/*
 	 * JEDEC has min requirement for tRRD
 	 */
@@ -459,7 +531,6 @@ static void set_timing_cfg_1(fsl_ddr_cfg_regs_t *ddr,
 	if (acttoact_mclk < 4)
 		acttoact_mclk = 4;
 #endif
-	wrtord_mclk = picos_to_mclk(common_dimm->twtr_ps);
 	/*
 	 * JEDEC has some min requirements for tWTR
 	 */
@@ -526,14 +597,18 @@ static void set_timing_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 	wr_lat = compute_cas_write_latency();
 #endif
 
+#ifdef CONFIG_SYS_FSL_DDR4
+	rd_to_pre = picos_to_mclk(7500);
+#else
 	rd_to_pre = picos_to_mclk(common_dimm->trtp_ps);
+#endif
 	/*
 	 * JEDEC has some min requirements for tRTP
 	 */
 #if defined(CONFIG_SYS_FSL_DDR2)
 	if (rd_to_pre  < 2)
 		rd_to_pre  = 2;
-#elif defined(CONFIG_SYS_FSL_DDR3)
+#elif defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR4)
 	if (rd_to_pre < 4)
 		rd_to_pre = 4;
 #endif
@@ -541,13 +616,20 @@ static void set_timing_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 		rd_to_pre += 2; /* according to UM */
 
 	wr_data_delay = popts->write_data_delay;
+#ifdef CONFIG_SYS_FSL_DDR4
+	cpo = 0;
+	cke_pls = max(3, picos_to_mclk(5000));
+#else
 	cke_pls = picos_to_mclk(popts->tcke_clock_pulse_width_ps);
+#endif
+
 	four_act = picos_to_mclk(popts->tfaw_window_four_activates_ps);
 
 	ddr->timing_cfg_2 = (0
 		| ((add_lat_mclk & 0xf) << 28)
 		| ((cpo & 0x1f) << 23)
 		| ((wr_lat & 0xf) << 19)
+		| ((wr_lat & 0x10) << 14)
 		| ((rd_to_pre & RD_TO_PRE_MASK) << RD_TO_PRE_SHIFT)
 		| ((wr_data_delay & WR_DATA_DELAY_MASK) << WR_DATA_DELAY_SHIFT)
 		| ((cke_pls & 0x7) << 6)
@@ -640,7 +722,8 @@ static void set_ddr_sdram_cfg(fsl_ddr_cfg_regs_t *ddr,
 	 * we must clear it when use the on-the-fly mode,
 	 * must set it when use the 32-bits bus mode.
 	 */
-	if (sdram_type == SDRAM_TYPE_DDR3) {
+	if ((sdram_type == SDRAM_TYPE_DDR3) ||
+	    (sdram_type == SDRAM_TYPE_DDR4)) {
 		if (popts->burst_length == DDR_BL8)
 			eight_be = 1;
 		if (popts->burst_length == DDR_OTF)
@@ -682,8 +765,6 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 {
 	unsigned int frc_sr = 0;	/* Force self refresh */
 	unsigned int sr_ie = 0;		/* Self-refresh interrupt enable */
-	unsigned int dll_rst_dis;	/* DLL reset disable */
-	unsigned int dqs_cfg;		/* DQS configuration */
 	unsigned int odt_cfg = 0;	/* ODT configuration */
 	unsigned int num_pr;		/* Number of posted refreshes */
 	unsigned int slow = 0;		/* DDR will be run less than 1250 */
@@ -695,9 +776,12 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 	unsigned int md_en = 0;		/* Mirrored DIMM Enable */
 	unsigned int qd_en = 0;		/* quad-rank DIMM Enable */
 	int i;
+#ifndef CONFIG_SYS_FSL_DDR4
+	unsigned int dll_rst_dis = 1;	/* DLL reset disable */
+	unsigned int dqs_cfg;		/* DQS configuration */
 
-	dll_rst_dis = 1;	/* Make this configurable */
 	dqs_cfg = popts->dqs_config;
+#endif
 	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
 		if (popts->cs_local_opts[i].odt_rd_cfg
 			|| popts->cs_local_opts[i].odt_wr_cfg) {
@@ -715,7 +799,7 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 	 *        * ({EXT_REFREC || REFREC} + 8 + 2)]}
 	 *      << DDR_SDRAM_INTERVAL[REFINT]
 	 */
-#if defined(CONFIG_SYS_FSL_DDR3)
+#if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR4)
 	obc_cfg = popts->otf_burst_chop_en;
 #else
 	obc_cfg = 0;
@@ -744,15 +828,17 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 	d_init = 0;
 #endif
 
-#if defined(CONFIG_SYS_FSL_DDR3)
+#if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR4)
 	md_en = popts->mirrored_dimm;
 #endif
 	qd_en = popts->quad_rank_present ? 1 : 0;
 	ddr->ddr_sdram_cfg_2 = (0
 		| ((frc_sr & 0x1) << 31)
 		| ((sr_ie & 0x1) << 30)
+#ifndef CONFIG_SYS_FSL_DDR4
 		| ((dll_rst_dis & 0x1) << 29)
 		| ((dqs_cfg & 0x3) << 26)
+#endif
 		| ((odt_cfg & 0x3) << 21)
 		| ((num_pr & 0xf) << 12)
 		| ((slow & 1) << 11)
@@ -768,6 +854,7 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 	debug("FSLDDR: ddr_sdram_cfg_2 = 0x%08x\n", ddr->ddr_sdram_cfg_2);
 }
 
+#ifdef CONFIG_SYS_FSL_DDR4
 /* DDR SDRAM Mode configuration 2 (DDR_SDRAM_MODE_2) */
 static void set_ddr_sdram_mode_2(fsl_ddr_cfg_regs_t *ddr,
 				const memctl_options_t *popts,
@@ -776,8 +863,93 @@ static void set_ddr_sdram_mode_2(fsl_ddr_cfg_regs_t *ddr,
 {
 	unsigned short esdmode2 = 0;	/* Extended SDRAM mode 2 */
 	unsigned short esdmode3 = 0;	/* Extended SDRAM mode 3 */
+	int i;
+	unsigned int wr_crc = 0;	/* Disable */
+	unsigned int rtt_wr = 0;	/* Rtt_WR - dynamic ODT off */
+	unsigned int srt = 0;	/* self-refresh temerature, normal range */
+	unsigned int cwl = compute_cas_write_latency() - 9;
+	unsigned int mpr = 0;	/* serial */
+	unsigned int wc_lat;
+	const unsigned int mclk_ps = get_memory_clk_period_ps();
 
-#if defined(CONFIG_SYS_FSL_DDR3)
+	if (popts->rtt_override)
+		rtt_wr = popts->rtt_wr_override_value;
+	else
+		rtt_wr = popts->cs_local_opts[0].odt_rtt_wr;
+
+	if (common_dimm->extended_op_srt)
+		srt = common_dimm->extended_op_srt;
+
+	esdmode2 = (0
+		| ((wr_crc & 0x1) << 12)
+		| ((rtt_wr & 0x3) << 9)
+		| ((srt & 0x3) << 6)
+		| ((cwl & 0x7) << 3));
+
+	if (mclk_ps >= 1250)
+		wc_lat = 0;
+	else if (mclk_ps >= 833)
+		wc_lat = 1;
+	else
+		wc_lat = 2;
+
+	esdmode3 = (0
+		| ((mpr & 0x3) << 11)
+		| ((wc_lat & 0x3) << 9));
+
+	ddr->ddr_sdram_mode_2 = (0
+				 | ((esdmode2 & 0xFFFF) << 16)
+				 | ((esdmode3 & 0xFFFF) << 0)
+				 );
+	debug("FSLDDR: ddr_sdram_mode_2 = 0x%08x\n", ddr->ddr_sdram_mode_2);
+
+	if (unq_mrs_en) {	/* unique mode registers are supported */
+		for (i = 1; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
+			if (popts->rtt_override)
+				rtt_wr = popts->rtt_wr_override_value;
+			else
+				rtt_wr = popts->cs_local_opts[i].odt_rtt_wr;
+
+			esdmode2 &= 0xF9FF;	/* clear bit 10, 9 */
+			esdmode2 |= (rtt_wr & 0x3) << 9;
+			switch (i) {
+			case 1:
+				ddr->ddr_sdram_mode_4 = (0
+					| ((esdmode2 & 0xFFFF) << 16)
+					| ((esdmode3 & 0xFFFF) << 0)
+					);
+				break;
+			case 2:
+				ddr->ddr_sdram_mode_6 = (0
+					| ((esdmode2 & 0xFFFF) << 16)
+					| ((esdmode3 & 0xFFFF) << 0)
+					);
+				break;
+			case 3:
+				ddr->ddr_sdram_mode_8 = (0
+					| ((esdmode2 & 0xFFFF) << 16)
+					| ((esdmode3 & 0xFFFF) << 0)
+					);
+				break;
+			}
+		}
+		debug("FSLDDR: ddr_sdram_mode_4 = 0x%08x\n",
+		      ddr->ddr_sdram_mode_4);
+		debug("FSLDDR: ddr_sdram_mode_6 = 0x%08x\n",
+		      ddr->ddr_sdram_mode_6);
+		debug("FSLDDR: ddr_sdram_mode_8 = 0x%08x\n",
+		      ddr->ddr_sdram_mode_8);
+	}
+}
+#elif defined(CONFIG_SYS_FSL_DDR3)
+/* DDR SDRAM Mode configuration 2 (DDR_SDRAM_MODE_2) */
+static void set_ddr_sdram_mode_2(fsl_ddr_cfg_regs_t *ddr,
+				const memctl_options_t *popts,
+				const common_timing_params_t *common_dimm,
+				const unsigned int unq_mrs_en)
+{
+	unsigned short esdmode2 = 0;	/* Extended SDRAM mode 2 */
+	unsigned short esdmode3 = 0;	/* Extended SDRAM mode 3 */
 	int i;
 	unsigned int rtt_wr = 0;	/* Rtt_WR - dynamic ODT off */
 	unsigned int srt = 0;	/* self-refresh temerature, normal range */
@@ -799,14 +971,12 @@ static void set_ddr_sdram_mode_2(fsl_ddr_cfg_regs_t *ddr,
 		| ((asr & 0x1) << 6)
 		| ((cwl & 0x7) << 3)
 		| ((pasr & 0x7) << 0));
-#endif
 	ddr->ddr_sdram_mode_2 = (0
 				 | ((esdmode2 & 0xFFFF) << 16)
 				 | ((esdmode3 & 0xFFFF) << 0)
 				 );
 	debug("FSLDDR: ddr_sdram_mode_2 = 0x%08x\n", ddr->ddr_sdram_mode_2);
 
-#ifdef CONFIG_SYS_FSL_DDR3
 	if (unq_mrs_en) {	/* unique mode registers are supported */
 		for (i = 1; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
 			if (popts->rtt_override)
@@ -844,8 +1014,127 @@ static void set_ddr_sdram_mode_2(fsl_ddr_cfg_regs_t *ddr,
 		debug("FSLDDR: ddr_sdram_mode_8 = 0x%08x\n",
 			ddr->ddr_sdram_mode_8);
 	}
-#endif
 }
+
+#else /* for DDR2 and DDR1 */
+/* DDR SDRAM Mode configuration 2 (DDR_SDRAM_MODE_2) */
+static void set_ddr_sdram_mode_2(fsl_ddr_cfg_regs_t *ddr,
+				const memctl_options_t *popts,
+				const common_timing_params_t *common_dimm,
+				const unsigned int unq_mrs_en)
+{
+	unsigned short esdmode2 = 0;	/* Extended SDRAM mode 2 */
+	unsigned short esdmode3 = 0;	/* Extended SDRAM mode 3 */
+
+	ddr->ddr_sdram_mode_2 = (0
+				 | ((esdmode2 & 0xFFFF) << 16)
+				 | ((esdmode3 & 0xFFFF) << 0)
+				 );
+	debug("FSLDDR: ddr_sdram_mode_2 = 0x%08x\n", ddr->ddr_sdram_mode_2);
+}
+#endif
+
+#ifdef CONFIG_SYS_FSL_DDR4
+/* DDR SDRAM Mode configuration 9 (DDR_SDRAM_MODE_9) */
+static void set_ddr_sdram_mode_9(fsl_ddr_cfg_regs_t *ddr,
+				const memctl_options_t *popts,
+				const common_timing_params_t *common_dimm,
+				const unsigned int unq_mrs_en)
+{
+	int i;
+	unsigned short esdmode4 = 0;	/* Extended SDRAM mode 4 */
+	unsigned short esdmode5;	/* Extended SDRAM mode 5 */
+
+	esdmode5 = 0x00000400;		/* Data mask enabled */
+
+	ddr->ddr_sdram_mode_9 = (0
+				 | ((esdmode4 & 0xffff) << 16)
+				 | ((esdmode5 & 0xffff) << 0)
+				);
+	debug("FSLDDR: ddr_sdram_mode_9) = 0x%08x\n", ddr->ddr_sdram_mode_9);
+	if (unq_mrs_en) {	/* unique mode registers are supported */
+		for (i = 1; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
+			switch (i) {
+			case 1:
+				ddr->ddr_sdram_mode_11 = (0
+					| ((esdmode4 & 0xFFFF) << 16)
+					| ((esdmode5 & 0xFFFF) << 0)
+					);
+				break;
+			case 2:
+				ddr->ddr_sdram_mode_13 = (0
+					| ((esdmode4 & 0xFFFF) << 16)
+					| ((esdmode5 & 0xFFFF) << 0)
+					);
+				break;
+			case 3:
+				ddr->ddr_sdram_mode_15 = (0
+					| ((esdmode4 & 0xFFFF) << 16)
+					| ((esdmode5 & 0xFFFF) << 0)
+					);
+				break;
+			}
+		}
+		debug("FSLDDR: ddr_sdram_mode_11 = 0x%08x\n",
+		      ddr->ddr_sdram_mode_11);
+		debug("FSLDDR: ddr_sdram_mode_13 = 0x%08x\n",
+		      ddr->ddr_sdram_mode_13);
+		debug("FSLDDR: ddr_sdram_mode_15 = 0x%08x\n",
+		      ddr->ddr_sdram_mode_15);
+	}
+}
+
+/* DDR SDRAM Mode configuration 10 (DDR_SDRAM_MODE_10) */
+static void set_ddr_sdram_mode_10(fsl_ddr_cfg_regs_t *ddr,
+				const memctl_options_t *popts,
+				const common_timing_params_t *common_dimm,
+				const unsigned int unq_mrs_en)
+{
+	int i;
+	unsigned short esdmode6 = 0;	/* Extended SDRAM mode 6 */
+	unsigned short esdmode7 = 0;	/* Extended SDRAM mode 7 */
+	unsigned int tccdl_min = picos_to_mclk(common_dimm->tccdl_ps);
+
+	esdmode6 = ((tccdl_min - 4) & 0x7) << 10;
+
+	ddr->ddr_sdram_mode_10 = (0
+				 | ((esdmode6 & 0xffff) << 16)
+				 | ((esdmode7 & 0xffff) << 0)
+				);
+	debug("FSLDDR: ddr_sdram_mode_10) = 0x%08x\n", ddr->ddr_sdram_mode_10);
+	if (unq_mrs_en) {	/* unique mode registers are supported */
+		for (i = 1; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
+			switch (i) {
+			case 1:
+				ddr->ddr_sdram_mode_12 = (0
+					| ((esdmode6 & 0xFFFF) << 16)
+					| ((esdmode7 & 0xFFFF) << 0)
+					);
+				break;
+			case 2:
+				ddr->ddr_sdram_mode_14 = (0
+					| ((esdmode6 & 0xFFFF) << 16)
+					| ((esdmode7 & 0xFFFF) << 0)
+					);
+				break;
+			case 3:
+				ddr->ddr_sdram_mode_16 = (0
+					| ((esdmode6 & 0xFFFF) << 16)
+					| ((esdmode7 & 0xFFFF) << 0)
+					);
+				break;
+			}
+		}
+		debug("FSLDDR: ddr_sdram_mode_12 = 0x%08x\n",
+		      ddr->ddr_sdram_mode_12);
+		debug("FSLDDR: ddr_sdram_mode_14 = 0x%08x\n",
+		      ddr->ddr_sdram_mode_14);
+		debug("FSLDDR: ddr_sdram_mode_16 = 0x%08x\n",
+		      ddr->ddr_sdram_mode_16);
+	}
+}
+
+#endif
 
 /* DDR SDRAM Interval Configuration (DDR_SDRAM_INTERVAL) */
 static void set_ddr_sdram_interval(fsl_ddr_cfg_regs_t *ddr,
@@ -867,7 +1156,7 @@ static void set_ddr_sdram_interval(fsl_ddr_cfg_regs_t *ddr,
 	debug("FSLDDR: ddr_sdram_interval = 0x%08x\n", ddr->ddr_sdram_interval);
 }
 
-#if defined(CONFIG_SYS_FSL_DDR3)
+#ifdef CONFIG_SYS_FSL_DDR4
 /* DDR SDRAM Mode configuration set (DDR_SDRAM_MODE) */
 static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
 			       const memctl_options_t *popts,
@@ -876,6 +1165,177 @@ static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
 			       unsigned int additive_latency,
 			       const unsigned int unq_mrs_en)
 {
+	int i;
+	unsigned short esdmode;		/* Extended SDRAM mode */
+	unsigned short sdmode;		/* SDRAM mode */
+
+	/* Mode Register - MR1 */
+	unsigned int qoff = 0;		/* Output buffer enable 0=yes, 1=no */
+	unsigned int tdqs_en = 0;	/* TDQS Enable: 0=no, 1=yes */
+	unsigned int rtt;
+	unsigned int wrlvl_en = 0;	/* Write level enable: 0=no, 1=yes */
+	unsigned int al = 0;		/* Posted CAS# additive latency (AL) */
+	unsigned int dic = 0;		/* Output driver impedance, 40ohm */
+	unsigned int dll_en = 1;	/* DLL Enable  1=Enable (Normal),
+						       0=Disable (Test/Debug) */
+
+	/* Mode Register - MR0 */
+	unsigned int wr = 0;	/* Write Recovery */
+	unsigned int dll_rst;	/* DLL Reset */
+	unsigned int mode;	/* Normal=0 or Test=1 */
+	unsigned int caslat = 4;/* CAS# latency, default set as 6 cycles */
+	/* BT: Burst Type (0=Nibble Sequential, 1=Interleaved) */
+	unsigned int bt;
+	unsigned int bl;	/* BL: Burst Length */
+
+	unsigned int wr_mclk;
+	/* DDR4 support WR 10, 12, 14, 16, 18, 20, 24 */
+	static const u8 wr_table[] = {
+		0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 6, 6};
+	/* DDR4 support CAS 9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24 */
+	static const u8 cas_latency_table[] = {
+		0, 1, 2, 3, 4, 5, 6, 7, 8, 8,
+		9, 9, 10, 10, 11, 11};
+
+	if (popts->rtt_override)
+		rtt = popts->rtt_override_value;
+	else
+		rtt = popts->cs_local_opts[0].odt_rtt_norm;
+
+	if (additive_latency == (cas_latency - 1))
+		al = 1;
+	if (additive_latency == (cas_latency - 2))
+		al = 2;
+
+	if (popts->quad_rank_present)
+		dic = 1;	/* output driver impedance 240/7 ohm */
+
+	/*
+	 * The esdmode value will also be used for writing
+	 * MR1 during write leveling for DDR3, although the
+	 * bits specifically related to the write leveling
+	 * scheme will be handled automatically by the DDR
+	 * controller. so we set the wrlvl_en = 0 here.
+	 */
+	esdmode = (0
+		| ((qoff & 0x1) << 12)
+		| ((tdqs_en & 0x1) << 11)
+		| ((rtt & 0x7) << 8)
+		| ((wrlvl_en & 0x1) << 7)
+		| ((al & 0x3) << 3)
+		| ((dic & 0x3) << 1)   /* DIC field is split */
+		| ((dll_en & 0x1) << 0)
+		);
+
+	/*
+	 * DLL control for precharge PD
+	 * 0=slow exit DLL off (tXPDLL)
+	 * 1=fast exit DLL on (tXP)
+	 */
+
+	wr_mclk = picos_to_mclk(common_dimm->twr_ps);
+	if (wr_mclk <= 24) {
+		wr = wr_table[wr_mclk - 10];
+	} else {
+		printf("Error: unsupported write recovery for mode register wr_mclk = %d\n",
+		       wr_mclk);
+	}
+
+	dll_rst = 0;	/* dll no reset */
+	mode = 0;	/* normal mode */
+
+	/* look up table to get the cas latency bits */
+	if (cas_latency >= 9 && cas_latency <= 24)
+		caslat = cas_latency_table[cas_latency - 9];
+	else
+		printf("Error: unsupported cas latency for mode register\n");
+
+	bt = 0;	/* Nibble sequential */
+
+	switch (popts->burst_length) {
+	case DDR_BL8:
+		bl = 0;
+		break;
+	case DDR_OTF:
+		bl = 1;
+		break;
+	case DDR_BC4:
+		bl = 2;
+		break;
+	default:
+		printf("Error: invalid burst length of %u specified. ",
+		       popts->burst_length);
+		puts("Defaulting to on-the-fly BC4 or BL8 beats.\n");
+		bl = 1;
+		break;
+	}
+
+	sdmode = (0
+		  | ((wr & 0x7) << 9)
+		  | ((dll_rst & 0x1) << 8)
+		  | ((mode & 0x1) << 7)
+		  | (((caslat >> 1) & 0x7) << 4)
+		  | ((bt & 0x1) << 3)
+		  | ((caslat & 1) << 2)
+		  | ((bl & 0x3) << 0)
+		  );
+
+	ddr->ddr_sdram_mode = (0
+			       | ((esdmode & 0xFFFF) << 16)
+			       | ((sdmode & 0xFFFF) << 0)
+			       );
+
+	debug("FSLDDR: ddr_sdram_mode = 0x%08x\n", ddr->ddr_sdram_mode);
+
+	if (unq_mrs_en) {	/* unique mode registers are supported */
+		for (i = 1; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
+			if (popts->rtt_override)
+				rtt = popts->rtt_override_value;
+			else
+				rtt = popts->cs_local_opts[i].odt_rtt_norm;
+
+			esdmode &= 0xF8FF;	/* clear bit 10,9,8 for rtt */
+			esdmode |= (rtt & 0x7) << 8;
+			switch (i) {
+			case 1:
+				ddr->ddr_sdram_mode_3 = (0
+				       | ((esdmode & 0xFFFF) << 16)
+				       | ((sdmode & 0xFFFF) << 0)
+				       );
+				break;
+			case 2:
+				ddr->ddr_sdram_mode_5 = (0
+				       | ((esdmode & 0xFFFF) << 16)
+				       | ((sdmode & 0xFFFF) << 0)
+				       );
+				break;
+			case 3:
+				ddr->ddr_sdram_mode_7 = (0
+				       | ((esdmode & 0xFFFF) << 16)
+				       | ((sdmode & 0xFFFF) << 0)
+				       );
+				break;
+			}
+		}
+		debug("FSLDDR: ddr_sdram_mode_3 = 0x%08x\n",
+		      ddr->ddr_sdram_mode_3);
+		debug("FSLDDR: ddr_sdram_mode_5 = 0x%08x\n",
+		      ddr->ddr_sdram_mode_5);
+		debug("FSLDDR: ddr_sdram_mode_5 = 0x%08x\n",
+		      ddr->ddr_sdram_mode_5);
+	}
+}
+
+#elif defined(CONFIG_SYS_FSL_DDR3)
+/* DDR SDRAM Mode configuration set (DDR_SDRAM_MODE) */
+static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
+			       const memctl_options_t *popts,
+			       const common_timing_params_t *common_dimm,
+			       unsigned int cas_latency,
+			       unsigned int additive_latency,
+			       const unsigned int unq_mrs_en)
+{
+	int i;
 	unsigned short esdmode;		/* Extended SDRAM mode */
 	unsigned short sdmode;		/* SDRAM mode */
 
@@ -906,9 +1366,6 @@ static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
 	 * for this table
 	 */
 	static const u8 wr_table[] = {1, 2, 3, 4, 5, 5, 6, 6, 7, 7, 0, 0};
-
-	const unsigned int mclk_ps = get_memory_clk_period_ps();
-	int i;
 
 	if (popts->rtt_override)
 		rtt = popts->rtt_override_value;
@@ -950,7 +1407,7 @@ static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
 	 */
 	dll_on = 1;
 
-	wr_mclk = (common_dimm->twr_ps + mclk_ps - 1) / mclk_ps;
+	wr_mclk = picos_to_mclk(common_dimm->twr_ps);
 	if (wr_mclk <= 16) {
 		wr = wr_table[wr_mclk - 5];
 	} else {
@@ -1109,9 +1566,6 @@ static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
 	unsigned int bt;
 	unsigned int bl;	/* BL: Burst Length */
 
-#if defined(CONFIG_SYS_FSL_DDR2)
-	const unsigned int mclk_ps = get_memory_clk_period_ps();
-#endif
 	dqs_en = !popts->dqs_config;
 	rtt = fsl_ddr_get_rtt();
 
@@ -1141,7 +1595,7 @@ static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
 #if defined(CONFIG_SYS_FSL_DDR1)
 	wr = 0;       /* Historical */
 #elif defined(CONFIG_SYS_FSL_DDR2)
-	wr = (common_dimm->twr_ps + mclk_ps - 1) / mclk_ps - 1;
+	wr = picos_to_mclk(common_dimm->twr_ps);
 #endif
 	dll_res = 0;
 	mode = 0;
@@ -1255,7 +1709,7 @@ static void set_timing_cfg_4(fsl_ddr_cfg_regs_t *ddr,
 	unsigned int wwt = 0; /* Write-to-write turnaround for same CS */
 	unsigned int dll_lock = 0; /* DDR SDRAM DLL Lock Time */
 
-#if defined(CONFIG_SYS_FSL_DDR3)
+#if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR4)
 	if (popts->burst_length == DDR_BL8) {
 		/* We set BL/2 for fixed BL8 */
 		rrt = 0;	/* BL/2 clocks */
@@ -1265,6 +1719,11 @@ static void set_timing_cfg_4(fsl_ddr_cfg_regs_t *ddr,
 		rrt = 2;	/* BL/2 + 2 clocks */
 		wwt = 2;	/* BL/2 + 2 clocks */
 	}
+#endif
+
+#ifdef CONFIG_SYS_FSL_DDR4
+	dll_lock = 2;	/* tDLLK = 1024 clocks */
+#elif defined(CONFIG_SYS_FSL_DDR3)
 	dll_lock = 1;	/* tDLLK = 512 clocks from spec */
 #endif
 	ddr->timing_cfg_4 = (0
@@ -1285,9 +1744,12 @@ static void set_timing_cfg_5(fsl_ddr_cfg_regs_t *ddr, unsigned int cas_latency)
 	unsigned int wodt_on = 0;	/* Write to ODT on */
 	unsigned int wodt_off = 0;	/* Write to ODT off */
 
-#if defined(CONFIG_SYS_FSL_DDR3)
+#if defined(CONFIG_SYS_FSL_DDR3) || defined(CONFIG_SYS_FSL_DDR4)
+	unsigned int wr_lat = ((ddr->timing_cfg_2 & 0x00780000) >> 19) +
+			      ((ddr->timing_cfg_2 & 0x00040000) >> 14);
 	/* rodt_on = timing_cfg_1[caslat] - timing_cfg_2[wrlat] + 1 */
-	rodt_on = cas_latency - ((ddr->timing_cfg_2 & 0x00780000) >> 19) + 1;
+	if (cas_latency >= wr_lat)
+		rodt_on = cas_latency - wr_lat + 1;
 	rodt_off = 4;	/*  4 clocks */
 	wodt_on = 1;	/*  1 clocks */
 	wodt_off = 4;	/*  4 clocks */
@@ -1302,6 +1764,164 @@ static void set_timing_cfg_5(fsl_ddr_cfg_regs_t *ddr, unsigned int cas_latency)
 	debug("FSLDDR: timing_cfg_5 = 0x%08x\n", ddr->timing_cfg_5);
 }
 
+#ifdef CONFIG_SYS_FSL_DDR4
+static void set_timing_cfg_6(fsl_ddr_cfg_regs_t *ddr)
+{
+	unsigned int hs_caslat = 0;
+	unsigned int hs_wrlat = 0;
+	unsigned int hs_wrrec = 0;
+	unsigned int hs_clkadj = 0;
+	unsigned int hs_wrlvl_start = 0;
+
+	ddr->timing_cfg_6 = (0
+			     | ((hs_caslat & 0x1f) << 24)
+			     | ((hs_wrlat & 0x1f) << 19)
+			     | ((hs_wrrec & 0x1f) << 12)
+			     | ((hs_clkadj & 0x1f) << 6)
+			     | ((hs_wrlvl_start & 0x1f) << 0)
+			    );
+	debug("FSLDDR: timing_cfg_6 = 0x%08x\n", ddr->timing_cfg_6);
+}
+
+static void set_timing_cfg_7(fsl_ddr_cfg_regs_t *ddr,
+			const common_timing_params_t *common_dimm)
+{
+	unsigned int txpr, tcksre, tcksrx;
+	unsigned int cke_rst, cksre, cksrx, par_lat, cs_to_cmd;
+
+	txpr = max(5, picos_to_mclk(common_dimm->trfc1_ps + 10000));
+	tcksre = max(5, picos_to_mclk(10000));
+	tcksrx = max(5, picos_to_mclk(10000));
+	par_lat = 0;
+	cs_to_cmd = 0;
+
+	if (txpr <= 200)
+		cke_rst = 0;
+	else if (txpr <= 256)
+		cke_rst = 1;
+	else if (txpr <= 512)
+		cke_rst = 2;
+	else
+		cke_rst = 3;
+
+	if (tcksre <= 19)
+		cksre = tcksre - 5;
+	else
+		cksre = 15;
+
+	if (tcksrx <= 19)
+		cksrx = tcksrx - 5;
+	else
+		cksrx = 15;
+
+	ddr->timing_cfg_7 = (0
+			     | ((cke_rst & 0x3) << 28)
+			     | ((cksre & 0xf) << 24)
+			     | ((cksrx & 0xf) << 20)
+			     | ((par_lat & 0xf) << 16)
+			     | ((cs_to_cmd & 0xf) << 4)
+			    );
+	debug("FSLDDR: timing_cfg_7 = 0x%08x\n", ddr->timing_cfg_7);
+}
+
+static void set_timing_cfg_8(fsl_ddr_cfg_regs_t *ddr,
+			     const memctl_options_t *popts,
+			     const common_timing_params_t *common_dimm,
+			     unsigned int cas_latency)
+{
+	unsigned int rwt_bg, wrt_bg, rrt_bg, wwt_bg;
+	unsigned int acttoact_bg, wrtord_bg, pre_all_rec;
+	unsigned int tccdl = picos_to_mclk(common_dimm->tccdl_ps);
+	unsigned int wr_lat = ((ddr->timing_cfg_2 & 0x00780000) >> 19) +
+			      ((ddr->timing_cfg_2 & 0x00040000) >> 14);
+
+	rwt_bg = cas_latency + 2 + 4 - wr_lat;
+	if (rwt_bg < tccdl)
+		rwt_bg = tccdl - rwt_bg;
+	else
+		rwt_bg = 0;
+
+	wrt_bg = wr_lat + 4 + 1 - cas_latency;
+	if (wrt_bg < tccdl)
+		wrt_bg = tccdl - wrt_bg;
+	else
+		wrt_bg = 0;
+
+	if (popts->burst_length == DDR_BL8) {
+		rrt_bg = tccdl - 4;
+		wwt_bg = tccdl - 4;
+	} else {
+		rrt_bg = tccdl - 2;
+		wwt_bg = tccdl - 4;
+	}
+
+	acttoact_bg = picos_to_mclk(common_dimm->trrdl_ps);
+	wrtord_bg = max(4, picos_to_mclk(7500));
+	pre_all_rec = 0;
+
+	ddr->timing_cfg_8 = (0
+			     | ((rwt_bg & 0xf) << 28)
+			     | ((wrt_bg & 0xf) << 24)
+			     | ((rrt_bg & 0xf) << 20)
+			     | ((wwt_bg & 0xf) << 16)
+			     | ((acttoact_bg & 0xf) << 12)
+			     | ((wrtord_bg & 0xf) << 8)
+			     | ((pre_all_rec & 0x1f) << 0)
+			    );
+
+	debug("FSLDDR: timing_cfg_8 = 0x%08x\n", ddr->timing_cfg_8);
+}
+
+static void set_timing_cfg_9(fsl_ddr_cfg_regs_t *ddr)
+{
+	ddr->timing_cfg_9 = 0;
+	debug("FSLDDR: timing_cfg_9 = 0x%08x\n", ddr->timing_cfg_9);
+}
+
+static void set_ddr_dq_mapping(fsl_ddr_cfg_regs_t *ddr,
+			       const dimm_params_t *dimm_params)
+{
+	ddr->dq_map_0 = ((dimm_params->dq_mapping[0] & 0x3F) << 26) |
+			((dimm_params->dq_mapping[1] & 0x3F) << 20) |
+			((dimm_params->dq_mapping[2] & 0x3F) << 14) |
+			((dimm_params->dq_mapping[3] & 0x3F) << 8) |
+			((dimm_params->dq_mapping[4] & 0x3F) << 2);
+
+	ddr->dq_map_1 = ((dimm_params->dq_mapping[5] & 0x3F) << 26) |
+			((dimm_params->dq_mapping[6] & 0x3F) << 20) |
+			((dimm_params->dq_mapping[7] & 0x3F) << 14) |
+			((dimm_params->dq_mapping[10] & 0x3F) << 8) |
+			((dimm_params->dq_mapping[11] & 0x3F) << 2);
+
+	ddr->dq_map_2 = ((dimm_params->dq_mapping[12] & 0x3F) << 26) |
+			((dimm_params->dq_mapping[13] & 0x3F) << 20) |
+			((dimm_params->dq_mapping[14] & 0x3F) << 14) |
+			((dimm_params->dq_mapping[15] & 0x3F) << 8) |
+			((dimm_params->dq_mapping[16] & 0x3F) << 2);
+
+	ddr->dq_map_3 = ((dimm_params->dq_mapping[17] & 0x3F) << 26) |
+			((dimm_params->dq_mapping[8] & 0x3F) << 20) |
+			((dimm_params->dq_mapping[9] & 0x3F) << 14) |
+			dimm_params->dq_mapping_ors;
+
+	debug("FSLDDR: dq_map_0 = 0x%08x\n", ddr->dq_map_0);
+	debug("FSLDDR: dq_map_1 = 0x%08x\n", ddr->dq_map_1);
+	debug("FSLDDR: dq_map_2 = 0x%08x\n", ddr->dq_map_2);
+	debug("FSLDDR: dq_map_3 = 0x%08x\n", ddr->dq_map_3);
+}
+static void set_ddr_sdram_cfg_3(fsl_ddr_cfg_regs_t *ddr,
+			       const memctl_options_t *popts)
+{
+	int rd_pre;
+
+	rd_pre = popts->quad_rank_present ? 1 : 0;
+
+	ddr->ddr_sdram_cfg_3 = (rd_pre & 0x1) << 16;
+
+	debug("FSLDDR: ddr_sdram_cfg_3 = 0x%08x\n", ddr->ddr_sdram_cfg_3);
+}
+#endif	/* CONFIG_SYS_FSL_DDR4 */
+
 /* DDR ZQ Calibration Control (DDR_ZQ_CNTL) */
 static void set_ddr_zq_cntl(fsl_ddr_cfg_regs_t *ddr, unsigned int zq_en)
 {
@@ -1310,11 +1930,21 @@ static void set_ddr_zq_cntl(fsl_ddr_cfg_regs_t *ddr, unsigned int zq_en)
 	unsigned int zqoper = 0;
 	/* Normal Operation Short Calibration Time (tZQCS) */
 	unsigned int zqcs = 0;
+#ifdef CONFIG_SYS_FSL_DDR4
+	unsigned int zqcs_init;
+#endif
 
 	if (zq_en) {
+#ifdef CONFIG_SYS_FSL_DDR4
+		zqinit = 10;	/* 1024 clocks */
+		zqoper = 9;	/* 512 clocks */
+		zqcs = 7;	/* 128 clocks */
+		zqcs_init = 5;	/* 1024 refresh sequences */
+#else
 		zqinit = 9;	/* 512 clocks */
 		zqoper = 8;	/* 256 clocks */
 		zqcs = 6;	/* 64 clocks */
+#endif
 	}
 
 	ddr->ddr_zq_cntl = (0
@@ -1322,6 +1952,9 @@ static void set_ddr_zq_cntl(fsl_ddr_cfg_regs_t *ddr, unsigned int zq_en)
 			    | ((zqinit & 0xF) << 24)
 			    | ((zqoper & 0xF) << 16)
 			    | ((zqcs & 0xF) << 8)
+#ifdef CONFIG_SYS_FSL_DDR4
+			    | ((zqcs_init & 0xF) << 0)
+#endif
 			    );
 	debug("FSLDDR: zq_cntl = 0x%08x\n", ddr->ddr_zq_cntl);
 }
@@ -1478,7 +2111,7 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 	 */
 	cas_latency = (popts->cas_latency_override)
 		? popts->cas_latency_override_value
-		: common_dimm->lowest_common_SPD_caslat;
+		: common_dimm->lowest_common_spd_caslat;
 
 	additive_latency = (popts->additive_latency_override)
 		? popts->additive_latency_override_value
@@ -1639,6 +2272,10 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 	set_ddr_sdram_mode(ddr, popts, common_dimm,
 				cas_latency, additive_latency, unq_mrs_en);
 	set_ddr_sdram_mode_2(ddr, popts, common_dimm, unq_mrs_en);
+#ifdef CONFIG_SYS_FSL_DDR4
+	set_ddr_sdram_mode_9(ddr, popts, common_dimm, unq_mrs_en);
+	set_ddr_sdram_mode_10(ddr, popts, common_dimm, unq_mrs_en);
+#endif
 	set_ddr_sdram_interval(ddr, popts, common_dimm);
 	set_ddr_data_init(ddr);
 	set_ddr_sdram_clk_cntl(ddr, popts);
@@ -1646,6 +2283,14 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 	set_ddr_init_ext_addr(ddr);
 	set_timing_cfg_4(ddr, popts);
 	set_timing_cfg_5(ddr, cas_latency);
+#ifdef CONFIG_SYS_FSL_DDR4
+	set_ddr_sdram_cfg_3(ddr, popts);
+	set_timing_cfg_6(ddr);
+	set_timing_cfg_7(ddr, common_dimm);
+	set_timing_cfg_8(ddr, popts, common_dimm, cas_latency);
+	set_timing_cfg_9(ddr);
+	set_ddr_dq_mapping(ddr, dimm_params);
+#endif
 
 	set_ddr_zq_cntl(ddr, zq_en);
 	set_ddr_wrlvl_cntl(ddr, wrlvl_en, popts);
@@ -1659,5 +2304,10 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 	ddr->debug[2] = 0x00000400;
 	ddr->debug[4] = 0xff800000;
 #endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A004508
+	if ((ip_rev >= 0x40000) && (ip_rev < 0x40400))
+		ddr->debug[2] |= 0x00000200;	/* set bit 22 */
+#endif
+
 	return check_fsl_memctl_config_regs(ddr);
 }

@@ -298,7 +298,8 @@ int xhci_hcd_init(int index, struct xhci_hccr **hccr, struct xhci_hcor **hcor)
 
 #ifdef CONFIG_OF_CONTROL
 	/* setup the Vbus gpio here */
-	if (!fdtdec_setup_gpio(&ctx->vbus_gpio))
+	if (fdt_gpio_isvalid(&ctx->vbus_gpio) &&
+	    !fdtdec_setup_gpio(&ctx->vbus_gpio))
 		gpio_direction_output(ctx->vbus_gpio.gpio, 1);
 #endif
 

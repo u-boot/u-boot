@@ -16,16 +16,16 @@ struct ventana_board_info {
 	u8 mfgdate[4];       /* 0x20: MFG date (read only) */
 	u8 res2[7];          /* 0x24 */
 	/* sdram config */
-	u8 sdram_size;       /* 0x2B: enum (512,1024,2048) MB */
-	u8 sdram_speed;      /* 0x2C: enum (100,133,166,200,267,333,400) MHz */
-	u8 sdram_width;      /* 0x2D: enum (32,64) bit */
+	u8 sdram_size;       /* 0x2B: (16 << n) MB */
+	u8 sdram_speed;      /* 0x2C: (33.333 * n) MHz */
+	u8 sdram_width;      /* 0x2D: (8 << n) bit */
 	/* cpu config */
-	u8 cpu_speed;        /* 0x2E: enum (800,1000,1200) MHz */
-	u8 cpu_type;         /* 0x2F: enum (imx6q,imx6d,imx6dl,imx6s) */
+	u8 cpu_speed;        /* 0x2E: (33.333 * n) MHz */
+	u8 cpu_type;         /* 0x2F: 7=imx6q, 8=imx6dl */
 	u8 model[16];        /* 0x30: model string */
 	/* FLASH config */
-	u8 nand_flash_size;  /* 0x40: enum (4,8,16,32,64,128) MB */
-	u8 spi_flash_size;   /* 0x41: enum (4,8,16,32,64,128) MB */
+	u8 nand_flash_size;  /* 0x40: (8 << (n-1)) MB */
+	u8 spi_flash_size;   /* 0x41: (4 << (n-1)) MB */
 
 	/* Config1: SoC Peripherals */
 	u8 config[8];        /* 0x42: loading options */
@@ -102,5 +102,16 @@ enum {
 	EECONFIG_RES14,
 	EECONFIG_RES15,
 };
+
+enum {
+	GW54proto, /* original GW5400-A prototype */
+	GW51xx,
+	GW52xx,
+	GW53xx,
+	GW54xx,
+	GW_UNKNOWN,
+};
+
+int read_eeprom(int bus, struct ventana_board_info *);
 
 #endif

@@ -8,6 +8,6 @@
 obj-$(CONFIG_SYS_FPGA_COMMON) += fpga.o
 obj-$(CONFIG_IO) += miiphybb.o
 obj-$(CONFIG_IO64) += miiphybb.o
-obj-$(CONFIG_IOCON) += osd.o mclink.o
+obj-$(CONFIG_IOCON) += osd.o mclink.o dp501.o
 obj-$(CONFIG_DLVISION_10G) += osd.o
 obj-$(CONFIG_CONTROLCENTERD) += dp501.o

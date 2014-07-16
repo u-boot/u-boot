@@ -67,6 +67,6 @@
 
 #define FAT_BUFF_PTR_OCM		0xFFFC5000
 /* Define the cluster size fat filesystem */
-#define MAX_CLUSTSIZE			32768
+#define CONFIG_FS_FAT_MAX_CLUSTSIZE		32768
 
 #endif /* __CONFIG_ZYNQ_OCM_H */

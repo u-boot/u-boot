@@ -286,6 +286,8 @@ int board_early_init_r (void)
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * update "memory" property in the blob
  */
@@ -314,7 +316,7 @@ void ft_blob_update (void *blob, bd_t *bd)
 	/* baudrate */
 	nodeoffset = fdt_path_offset (blob, "/soc/cpm/serial");
 	if (nodeoffset >= 0) {
-		speed = cpu_to_be32 (bd->bi_baudrate);
+		speed = cpu_to_be32 (gd->baudrate);
 		ret = fdt_setprop (blob, nodeoffset, "current-speed", &speed,
 					sizeof (unsigned long));
 	if (ret < 0)

@@ -10,7 +10,7 @@
 #ifndef _DM_ROOT_H_
 #define _DM_ROOT_H_
 
-struct device;
+struct udevice;
 
 /**
  * dm_root() - Return pointer to the top of the driver tree
@@ -19,7 +19,7 @@ struct device;
  *
  * @return pointer to root device, or NULL if not inited yet
  */
-struct device *dm_root(void);
+struct udevice *dm_root(void);
 
 /**
  * dm_scan_platdata() - Scan all platform data and bind drivers
@@ -41,7 +41,7 @@ int dm_scan_platdata(void);
 int dm_scan_fdt(const void *blob);
 
 /**
- * dm_init() - Initialize Driver Model structures
+ * dm_init() - Initialise Driver Model structures
  *
  * This function will initialize roots of driver tree and class tree.
  * This needs to be called before anything uses the DM

@@ -20,12 +20,12 @@
 #include "siemens-am33x-common.h"
 
 #define CONFIG_SYS_MPUCLK	275
-#define DXR2_IOCTRL_VAL	0x18b
 #define DDR_PLL_FREQ	303
 #undef CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC
 
 #define BOARD_DFU_BUTTON_GPIO	27
-#define BOARD_DFU_BUTTON_LED	64
+#define BOARD_DFU_BUTTON_LED	64	/* red LED */
+#define BOARD_STATUS_LED	103	/* green LED */
 #define GPIO_LAN9303_NRST	88	/* GPIO2_24 = gpio88 */
 
 #undef CONFIG_DOS_PARTITION

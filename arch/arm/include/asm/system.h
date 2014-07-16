@@ -78,6 +78,8 @@ void gic_send_sgi(unsigned long sgino);
 void wait_for_wakeup(void);
 void smp_kick_all_cpus(void);
 
+void flush_l3_cache(void);
+
 #endif	/* __ASSEMBLY__ */
 
 #else /* CONFIG_ARM64 */

@@ -30,11 +30,11 @@
 #define ZYNQ_USB_BASEADDR1		0xE0003000
 
 /* Bootmode setting values */
-#define ZYNQ_BM_MASK		0x07
-#define ZYNQ_BM_QSPI		0x01
-#define ZYNQ_BM_NOR		0x02
-#define ZYNQ_BM_NAND		0x04
-#define ZYNQ_BM_SD		0x05
+#define ZYNQ_BM_MASK		0x7
+#define ZYNQ_BM_QSPI		0x1
+#define ZYNQ_BM_NOR		0x2
+#define ZYNQ_BM_NAND		0x4
+#define ZYNQ_BM_SD		0x5
 #define ZYNQ_BM_JTAG		0x0
 
 /* Reflect slcr offsets */

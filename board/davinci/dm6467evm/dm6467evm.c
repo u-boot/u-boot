@@ -8,7 +8,8 @@
 #include <netdev.h>
 #include <asm/io.h>
 #include <nand.h>
-#include <asm/arch/nand_defs.h>
+#include <asm/arch/hardware.h>
+#include <asm/ti-common/davinci_nand.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

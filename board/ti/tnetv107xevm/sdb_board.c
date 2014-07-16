@@ -11,7 +11,7 @@
 #include <asm/arch/clock.h>
 #include <asm/io.h>
 #include <asm/mach-types.h>
-#include <asm/arch/nand_defs.h>
+#include <asm/ti-common/davinci_nand.h>
 #include <asm/arch/mux.h>
 
 DECLARE_GLOBAL_DATA_PTR;

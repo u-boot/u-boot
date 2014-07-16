@@ -31,9 +31,10 @@ informed to load it before running the kernel.
 To boot the kernel, these steps under a Falcon-aware U-Boot are required:
 
 1. Boot the board into U-Boot.
-Use the "spl export" command to generate the kernel parameters area or the DT.
-U-Boot runs as when it boots the kernel, but stops before passing the control
-to the kernel.
+After loading the desired legacy-format kernel image into memory (and DT as
+well, if used), use the "spl export" command to generate the kernel parameters
+area or the DT.  U-Boot runs as when it boots the kernel, but stops before
+passing the control to the kernel.
 
 2. Save the prepared snapshot into persistent media.
 The address where to save it must be configured into board configuration
@@ -80,6 +81,19 @@ spl_start_uboot() : required
 		Returns "0" if SPL should start the kernel, "1" if U-Boot
 		must be started.
 
+Environment variables
+---------------------
+
+A board may chose to look at the environment for decisions about falcon
+mode.  In this case the following variables may be supported:
+
+boot_os : 		Set to yes/Yes/true/True/1 to enable booting to OS,
+			any other value to fall back to U-Boot (including
+			unset)
+falcon_args_file :	Filename to load as the 'args' portion of falcon mode
+			rather than the hard-coded value.
+falcon_image_file :	Filename to load as the OS image portion of falcon
+			mode rather than the hard-coded value.
 
 Using spl command
 -----------------

@@ -5,6 +5,7 @@
  */
 
 #include <common.h>
+#include <cli.h>
 #include <malloc.h>
 #include <errno.h>
 #include <linux/list.h>
@@ -196,8 +197,9 @@ static inline int menu_interactive_choice(struct menu *m, void **choice)
 		menu_display(m);
 
 		if (!m->item_choice) {
-			readret = readline_into_buffer("Enter choice: ", cbuf,
-					m->timeout / 10);
+			readret = cli_readline_into_buffer("Enter choice: ",
+							   cbuf,
+							   m->timeout / 10);
 
 			if (readret >= 0) {
 				choice_item = menu_item_by_key(m, cbuf);

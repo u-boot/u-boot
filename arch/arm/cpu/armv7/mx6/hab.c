@@ -7,15 +7,69 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/hab.h>
+#include <asm/arch/sys_proto.h>
 
 /* -------- start of HAB API updates ------------*/
-#define hab_rvt_report_event ((hab_rvt_report_event_t *)HAB_RVT_REPORT_EVENT)
-#define hab_rvt_report_status ((hab_rvt_report_status_t *)HAB_RVT_REPORT_STATUS)
-#define hab_rvt_authenticate_image \
-	((hab_rvt_authenticate_image_t *)HAB_RVT_AUTHENTICATE_IMAGE)
-#define hab_rvt_entry ((hab_rvt_entry_t *)HAB_RVT_ENTRY)
-#define hab_rvt_exit ((hab_rvt_exit_t *)HAB_RVT_EXIT)
-#define hab_rvt_clock_init HAB_RVT_CLOCK_INIT
+
+#define hab_rvt_report_event_p					\
+(								\
+	((is_cpu_type(MXC_CPU_MX6Q) ||				\
+	  is_cpu_type(MXC_CPU_MX6D)) &&				\
+	  (soc_rev() >= CHIP_REV_1_5)) ?			\
+	((hab_rvt_report_event_t *)HAB_RVT_REPORT_EVENT_NEW) :	\
+	(is_cpu_type(MXC_CPU_MX6DL) &&				\
+	 (soc_rev() >= CHIP_REV_1_2)) ?				\
+	((hab_rvt_report_event_t *)HAB_RVT_REPORT_EVENT_NEW) :	\
+	((hab_rvt_report_event_t *)HAB_RVT_REPORT_EVENT)	\
+)
+
+#define hab_rvt_report_status_p					\
+(								\
+	((is_cpu_type(MXC_CPU_MX6Q) ||				\
+	  is_cpu_type(MXC_CPU_MX6D)) &&				\
+	  (soc_rev() >= CHIP_REV_1_5)) ?			\
+	((hab_rvt_report_status_t *)HAB_RVT_REPORT_STATUS_NEW) :\
+	(is_cpu_type(MXC_CPU_MX6DL) &&				\
+	 (soc_rev() >= CHIP_REV_1_2)) ?				\
+	((hab_rvt_report_status_t *)HAB_RVT_REPORT_STATUS_NEW) :\
+	((hab_rvt_report_status_t *)HAB_RVT_REPORT_STATUS)	\
+)
+
+#define hab_rvt_authenticate_image_p				\
+(								\
+	((is_cpu_type(MXC_CPU_MX6Q) ||				\
+	  is_cpu_type(MXC_CPU_MX6D)) &&				\
+	  (soc_rev() >= CHIP_REV_1_5)) ?			\
+	((hab_rvt_authenticate_image_t *)HAB_RVT_AUTHENTICATE_IMAGE_NEW) : \
+	(is_cpu_type(MXC_CPU_MX6DL) &&				\
+	 (soc_rev() >= CHIP_REV_1_2)) ?				\
+	((hab_rvt_authenticate_image_t *)HAB_RVT_AUTHENTICATE_IMAGE_NEW) : \
+	((hab_rvt_authenticate_image_t *)HAB_RVT_AUTHENTICATE_IMAGE)	\
+)
+
+#define hab_rvt_entry_p						\
+(								\
+	((is_cpu_type(MXC_CPU_MX6Q) ||				\
+	  is_cpu_type(MXC_CPU_MX6D)) &&				\
+	  (soc_rev() >= CHIP_REV_1_5)) ?			\
+	((hab_rvt_entry_t *)HAB_RVT_ENTRY_NEW) :		\
+	(is_cpu_type(MXC_CPU_MX6DL) &&				\
+	 (soc_rev() >= CHIP_REV_1_2)) ?				\
+	((hab_rvt_entry_t *)HAB_RVT_ENTRY_NEW) :		\
+	((hab_rvt_entry_t *)HAB_RVT_ENTRY)			\
+)
+
+#define hab_rvt_exit_p						\
+(								\
+	((is_cpu_type(MXC_CPU_MX6Q) ||				\
+	  is_cpu_type(MXC_CPU_MX6D)) &&				\
+	  (soc_rev() >= CHIP_REV_1_5)) ?			\
+	((hab_rvt_exit_t *)HAB_RVT_EXIT_NEW) :			\
+	(is_cpu_type(MXC_CPU_MX6DL) &&				\
+	 (soc_rev() >= CHIP_REV_1_2)) ?				\
+	((hab_rvt_exit_t *)HAB_RVT_EXIT_NEW) :			\
+	((hab_rvt_exit_t *)HAB_RVT_EXIT)			\
+)
 
 bool is_hab_enabled(void)
 {
@@ -52,6 +106,11 @@ int get_hab_status(void)
 	size_t bytes = sizeof(event_data); /* Event size in bytes */
 	enum hab_config config = 0;
 	enum hab_state state = 0;
+	hab_rvt_report_event_t *hab_rvt_report_event;
+	hab_rvt_report_status_t *hab_rvt_report_status;
+
+	hab_rvt_report_event = hab_rvt_report_event_p;
+	hab_rvt_report_status = hab_rvt_report_status_p;
 
 	if (is_hab_enabled())
 		puts("\nSecure boot enabled\n");

@@ -12,17 +12,10 @@
 
 #include <xilinx.h>
 
-extern int zynq_load(Xilinx_desc *desc, const void *image, size_t size,
-		     bitstream_type bstype);
-#ifdef CONFIG_FPGA_LOADFS
-extern int zynq_fsload(Xilinx_desc *desc, const void *buf, size_t bsize,
-			fpga_fs_info *fsinfo);
-#endif
-extern int zynq_dump(Xilinx_desc *desc, const void *buf, size_t bsize);
-extern int zynq_info(Xilinx_desc *desc);
 #ifdef CONFIG_CMD_ZYNQ_AES
 extern int zynq_decrypt_load(u32 srcaddr, u32 dstaddr, u32 srclen, u32 dstlen);
 #endif
+extern struct xilinx_fpga_op zynq_op;
 
 #define XILINX_ZYNQ_7010	0x2
 #define XILINX_ZYNQ_7015	0x1b
@@ -41,21 +34,21 @@ extern int zynq_decrypt_load(u32 srcaddr, u32 dstaddr, u32 srclen, u32 dstlen);
 
 /* Descriptor Macros */
 #define XILINX_XC7Z010_DESC(cookie) \
-{ xilinx_zynq, devcfg, XILINX_XC7Z010_SIZE, NULL, cookie, "7z010" }
+{ xilinx_zynq, devcfg, XILINX_XC7Z010_SIZE, NULL, cookie, &zynq_op, "7z010" }
 
 #define XILINX_XC7Z015_DESC(cookie) \
-{ xilinx_zynq, devcfg, XILINX_XC7Z015_SIZE, NULL, cookie, "7z015" }
+{ xilinx_zynq, devcfg, XILINX_XC7Z015_SIZE, NULL, cookie, &zynq_op, "7z015" }
 
 #define XILINX_XC7Z020_DESC(cookie) \
-{ xilinx_zynq, devcfg, XILINX_XC7Z020_SIZE, NULL, cookie, "7z020" }
+{ xilinx_zynq, devcfg, XILINX_XC7Z020_SIZE, NULL, cookie, &zynq_op, "7z020" }
 
 #define XILINX_XC7Z030_DESC(cookie) \
-{ xilinx_zynq, devcfg, XILINX_XC7Z030_SIZE, NULL, cookie, "7z030" }
+{ xilinx_zynq, devcfg, XILINX_XC7Z030_SIZE, NULL, cookie, &zynq_op, "7z030" }
 
 #define XILINX_XC7Z045_DESC(cookie) \
-{ xilinx_zynq, devcfg, XILINX_XC7Z045_SIZE, NULL, cookie, "7z045" }
+{ xilinx_zynq, devcfg, XILINX_XC7Z045_SIZE, NULL, cookie, &zynq_op, "7z045" }
 
 #define XILINX_XC7Z100_DESC(cookie) \
-{ xilinx_zynq, devcfg, XILINX_XC7Z100_SIZE, NULL, cookie, "7z100" }
+{ xilinx_zynq, devcfg, XILINX_XC7Z100_SIZE, NULL, cookie, &zynq_op, "7z100" }
 
 #endif /* _ZYNQPL_H_ */

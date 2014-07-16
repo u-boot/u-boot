@@ -449,7 +449,9 @@ int board_eth_init(bd_t *bis)
 		fm_info_set_phy_address(FM1_10GEC1, FM1_10GEC1_PHY_ADDR);
 		fm_info_set_phy_address(FM1_10GEC2, FM1_10GEC2_PHY_ADDR);
 		break;
+	case 27:
 	case 28:
+	case 35:
 	case 36:
 		/* SGMII in Slot1 and Slot2 */
 		fm_info_set_phy_address(FM1_DTSEC1, slot_qsgmii_phyaddr[2][0]);
@@ -465,6 +467,7 @@ int board_eth_init(bd_t *bis)
 						slot_qsgmii_phyaddr[1][2]);
 		}
 		break;
+	case 37:
 	case 38:
 		fm_info_set_phy_address(FM1_DTSEC1, slot_qsgmii_phyaddr[2][0]);
 		fm_info_set_phy_address(FM1_DTSEC2, slot_qsgmii_phyaddr[2][1]);
@@ -479,8 +482,11 @@ int board_eth_init(bd_t *bis)
 						slot_qsgmii_phyaddr[1][3]);
 		}
 		break;
+	case 39:
 	case 40:
+	case 45:
 	case 46:
+	case 47:
 	case 48:
 		fm_info_set_phy_address(FM1_DTSEC5, slot_qsgmii_phyaddr[1][0]);
 		fm_info_set_phy_address(FM1_DTSEC6, slot_qsgmii_phyaddr[1][1]);
@@ -585,12 +591,17 @@ int board_eth_init(bd_t *bis)
 		fm_info_set_phy_address(FM2_10GEC1, FM2_10GEC1_PHY_ADDR);
 		fm_info_set_phy_address(FM2_10GEC2, FM2_10GEC2_PHY_ADDR);
 		break;
+	case 6:
 	case 7:
+	case 12:
 	case 13:
 	case 14:
+	case 15:
 	case 16:
+	case 21:
 	case 22:
 	case 23:
+	case 24:
 	case 25:
 	case 26:
 		/* XAUI/HiGig in Slot3, SGMII in Slot4 */
@@ -600,7 +611,9 @@ int board_eth_init(bd_t *bis)
 		fm_info_set_phy_address(FM2_DTSEC3, slot_qsgmii_phyaddr[4][2]);
 		fm_info_set_phy_address(FM2_DTSEC4, slot_qsgmii_phyaddr[4][3]);
 		break;
+	case 27:
 	case 28:
+	case 35:
 	case 36:
 		/* SGMII in Slot3 and Slot4 */
 		fm_info_set_phy_address(FM2_DTSEC1, slot_qsgmii_phyaddr[4][0]);
@@ -612,6 +625,7 @@ int board_eth_init(bd_t *bis)
 		fm_info_set_phy_address(FM2_DTSEC9, slot_qsgmii_phyaddr[3][3]);
 		fm_info_set_phy_address(FM2_DTSEC10, slot_qsgmii_phyaddr[3][2]);
 		break;
+	case 37:
 	case 38:
 		/* QSGMII in Slot3 and Slot4 */
 		fm_info_set_phy_address(FM2_DTSEC1, slot_qsgmii_phyaddr[4][0]);
@@ -623,8 +637,11 @@ int board_eth_init(bd_t *bis)
 		fm_info_set_phy_address(FM2_DTSEC9, slot_qsgmii_phyaddr[3][2]);
 		fm_info_set_phy_address(FM2_DTSEC10, slot_qsgmii_phyaddr[3][3]);
 		break;
+	case 39:
 	case 40:
+	case 45:
 	case 46:
+	case 47:
 	case 48:
 		/* SGMII in Slot3 */
 		fm_info_set_phy_address(FM2_DTSEC5, slot_qsgmii_phyaddr[3][0]);
@@ -637,8 +654,11 @@ int board_eth_init(bd_t *bis)
 		fm_info_set_phy_address(FM2_DTSEC3, slot_qsgmii_phyaddr[4][2]);
 		fm_info_set_phy_address(FM2_DTSEC4, slot_qsgmii_phyaddr[4][3]);
 		break;
+	case 49:
 	case 50:
+	case 51:
 	case 52:
+	case 53:
 	case 54:
 		fm_info_set_phy_address(FM2_10GEC1, FM2_10GEC1_PHY_ADDR);
 		fm_info_set_phy_address(FM2_DTSEC1, slot_qsgmii_phyaddr[4][0]);

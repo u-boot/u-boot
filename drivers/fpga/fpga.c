@@ -180,7 +180,7 @@ int __weak fpga_loadbitstream(int devnum, char *fpgadata, size_t size,
 	return FPGA_FAIL;
 }
 
-#ifdef CONFIG_FPGA_LOADFS
+#if defined(CONFIG_CMD_FPGA_LOADFS)
 int fpga_fsload(int devnum, const void *buf, size_t size,
 		 fpga_fs_info *fpga_fsinfo)
 {
@@ -192,8 +192,8 @@ int fpga_fsload(int devnum, const void *buf, size_t size,
 		switch (desc->devtype) {
 		case fpga_xilinx:
 #if defined(CONFIG_FPGA_XILINX)
-			ret_val = xilinx_fsload(desc->devdesc, buf, size,
-						 fpga_fsinfo);
+			ret_val = xilinx_loadfs(desc->devdesc, buf, size,
+						fpga_fsinfo);
 #else
 			fpga_no_sup((char *)__func__, "Xilinx devices");
 #endif

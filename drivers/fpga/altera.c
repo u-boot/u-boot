@@ -153,9 +153,9 @@ int altera_info( Altera_desc *desc )
 			printf ("Unsupported interface type, %d\n", desc->iface);
 		}
 
-		printf ("Device Size:   \t%d bytes\n"
-				"Cookie:        \t0x%x (%d)\n",
-				desc->size, desc->cookie, desc->cookie);
+		printf("Device Size:   \t%zd bytes\n"
+		      "Cookie:        \t0x%x (%d)\n",
+		      desc->size, desc->cookie, desc->cookie);
 
 		if (desc->iface_fns) {
 			printf ("Device Function Table @ 0x%p\n", desc->iface_fns);

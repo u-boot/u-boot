@@ -23,14 +23,14 @@ struct dm_demo_pdata {
 };
 
 struct demo_ops {
-	int (*hello)(struct device *dev, int ch);
-	int (*status)(struct device *dev, int *status);
+	int (*hello)(struct udevice *dev, int ch);
+	int (*status)(struct udevice *dev, int *status);
 };
 
-int demo_hello(struct device *dev, int ch);
-int demo_status(struct device *dev, int *status);
+int demo_hello(struct udevice *dev, int ch);
+int demo_status(struct udevice *dev, int *status);
 int demo_list(void);
 
-int demo_parse_dt(struct device *dev);
+int demo_parse_dt(struct udevice *dev);
 
 #endif

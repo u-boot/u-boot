@@ -191,7 +191,7 @@ int fpga_cs_fn(int assert_clk, int flush, int cookie)
 	return assert_clk;
 }
 
-Xilinx_Spartan3_Slave_Parallel_fns balloon3_fpga_fns = {
+xilinx_spartan3_slave_parallel_fns balloon3_fpga_fns = {
 	fpga_pre_config_fn,
 	fpga_pgm_fn,
 	fpga_init_fn,
@@ -207,7 +207,7 @@ Xilinx_Spartan3_Slave_Parallel_fns balloon3_fpga_fns = {
 	fpga_post_config_fn,
 };
 
-Xilinx_desc fpga = XILINX_XC3S1000_DESC(slave_parallel,
+xilinx_desc fpga = XILINX_XC3S1000_DESC(slave_parallel,
 			(void *)&balloon3_fpga_fns, 0);
 
 /* Initialize the FPGA */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2012 Freescale Semiconductor, Inc.
+ * Copyright 2010-2014 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -12,6 +12,7 @@
  */
 
 #include <common.h>
+#include <cli.h>
 #include <linux/ctype.h>
 #include <asm/types.h>
 #include <asm/io.h>
@@ -153,25 +154,38 @@ static void lowest_common_dimm_parameters_edit(fsl_ddr_info_t *pinfo,
 	static const struct options_string options[] = {
 		COMMON_TIMING(tckmin_x_ps),
 		COMMON_TIMING(tckmax_ps),
-		COMMON_TIMING(tckmax_max_ps),
+		COMMON_TIMING(taamin_ps),
 		COMMON_TIMING(trcd_ps),
 		COMMON_TIMING(trp_ps),
 		COMMON_TIMING(tras_ps),
-		COMMON_TIMING(twr_ps),
+
+#ifdef CONFIG_SYS_FSL_DDR4
+		COMMON_TIMING(trfc1_ps),
+		COMMON_TIMING(trfc2_ps),
+		COMMON_TIMING(trfc4_ps),
+		COMMON_TIMING(trrds_ps),
+		COMMON_TIMING(trrdl_ps),
+		COMMON_TIMING(tccdl_ps),
+#else
 		COMMON_TIMING(twtr_ps),
 		COMMON_TIMING(trfc_ps),
 		COMMON_TIMING(trrd_ps),
+		COMMON_TIMING(trtp_ps),
+#endif
+		COMMON_TIMING(twr_ps),
 		COMMON_TIMING(trc_ps),
 		COMMON_TIMING(refresh_rate_ps),
+		COMMON_TIMING(extended_op_srt),
+#if defined(CONFIG_SYS_FSL_DDR1) || defined(CONFIG_SYS_FSL_DDR2)
 		COMMON_TIMING(tis_ps),
 		COMMON_TIMING(tih_ps),
 		COMMON_TIMING(tds_ps),
 		COMMON_TIMING(tdh_ps),
-		COMMON_TIMING(trtp_ps),
 		COMMON_TIMING(tdqsq_max_ps),
 		COMMON_TIMING(tqhs_ps),
+#endif
 		COMMON_TIMING(ndimms_present),
-		COMMON_TIMING(lowest_common_SPD_caslat),
+		COMMON_TIMING(lowest_common_spd_caslat),
 		COMMON_TIMING(highest_common_derated_caslat),
 		COMMON_TIMING(additive_latency),
 		COMMON_TIMING(all_dimms_burst_lengths_bitmask),
@@ -211,7 +225,12 @@ static void fsl_ddr_dimm_parameters_edit(fsl_ddr_info_t *pinfo,
 		DIMM_PARM(n_row_addr),
 		DIMM_PARM(n_col_addr),
 		DIMM_PARM(edc_config),
+#ifdef CONFIG_SYS_FSL_DDR4
+		DIMM_PARM(bank_addr_bits),
+		DIMM_PARM(bank_group_bits),
+#else
 		DIMM_PARM(n_banks_per_sdram_device),
+#endif
 		DIMM_PARM(burst_lengths_bitmask),
 		DIMM_PARM(row_density),
 
@@ -229,20 +248,32 @@ static void fsl_ddr_dimm_parameters_edit(fsl_ddr_info_t *pinfo,
 		DIMM_PARM(trcd_ps),
 		DIMM_PARM(trp_ps),
 		DIMM_PARM(tras_ps),
+#ifdef CONFIG_SYS_FSL_DDR4
+		DIMM_PARM(trfc1_ps),
+		DIMM_PARM(trfc2_ps),
+		DIMM_PARM(trfc4_ps),
+		DIMM_PARM(trrds_ps),
+		DIMM_PARM(trrdl_ps),
+		DIMM_PARM(tccdl_ps),
+#else
 		DIMM_PARM(twr_ps),
 		DIMM_PARM(twtr_ps),
 		DIMM_PARM(trfc_ps),
 		DIMM_PARM(trrd_ps),
+		DIMM_PARM(trtp_ps),
+#endif
 		DIMM_PARM(trc_ps),
 		DIMM_PARM(refresh_rate_ps),
+		DIMM_PARM(extended_op_srt),
 
+#if defined(CONFIG_SYS_FSL_DDR1) || defined(CONFIG_SYS_FSL_DDR2)
 		DIMM_PARM(tis_ps),
 		DIMM_PARM(tih_ps),
 		DIMM_PARM(tds_ps),
 		DIMM_PARM(tdh_ps),
-		DIMM_PARM(trtp_ps),
 		DIMM_PARM(tdqsq_max_ps),
 		DIMM_PARM(tqhs_ps),
+#endif
 
 		DIMM_PARM(rank_density),
 		DIMM_PARM(capacity),
@@ -270,7 +301,12 @@ static void print_dimm_parameters(const dimm_params_t *pdimm)
 		DIMM_PARM(n_row_addr),
 		DIMM_PARM(n_col_addr),
 		DIMM_PARM(edc_config),
+#ifdef CONFIG_SYS_FSL_DDR4
+		DIMM_PARM(bank_addr_bits),
+		DIMM_PARM(bank_group_bits),
+#else
 		DIMM_PARM(n_banks_per_sdram_device),
+#endif
 
 		DIMM_PARM(tckmin_x_ps),
 		DIMM_PARM(tckmin_x_minus_1_ps),
@@ -286,20 +322,31 @@ static void print_dimm_parameters(const dimm_params_t *pdimm)
 		DIMM_PARM(trcd_ps),
 		DIMM_PARM(trp_ps),
 		DIMM_PARM(tras_ps),
+#ifdef CONFIG_SYS_FSL_DDR4
+		DIMM_PARM(trfc1_ps),
+		DIMM_PARM(trfc2_ps),
+		DIMM_PARM(trfc4_ps),
+		DIMM_PARM(trrds_ps),
+		DIMM_PARM(trrdl_ps),
+		DIMM_PARM(tccdl_ps),
+#else
 		DIMM_PARM(twr_ps),
 		DIMM_PARM(twtr_ps),
 		DIMM_PARM(trfc_ps),
 		DIMM_PARM(trrd_ps),
+		DIMM_PARM(trtp_ps),
+#endif
 		DIMM_PARM(trc_ps),
 		DIMM_PARM(refresh_rate_ps),
 
+#if defined(CONFIG_SYS_FSL_DDR1) || defined(CONFIG_SYS_FSL_DDR2)
 		DIMM_PARM(tis_ps),
 		DIMM_PARM(tih_ps),
 		DIMM_PARM(tds_ps),
 		DIMM_PARM(tdh_ps),
-		DIMM_PARM(trtp_ps),
 		DIMM_PARM(tdqsq_max_ps),
 		DIMM_PARM(tqhs_ps),
+#endif
 	};
 	static const unsigned int n_opts = ARRAY_SIZE(options);
 
@@ -326,23 +373,36 @@ static void print_lowest_common_dimm_parameters(
 		const common_timing_params_t *plcd_dimm_params)
 {
 	static const struct options_string options[] = {
-		COMMON_TIMING(tckmax_max_ps),
+		COMMON_TIMING(taamin_ps),
 		COMMON_TIMING(trcd_ps),
 		COMMON_TIMING(trp_ps),
 		COMMON_TIMING(tras_ps),
-		COMMON_TIMING(twr_ps),
+#ifdef CONFIG_SYS_FSL_DDR4
+		COMMON_TIMING(trfc1_ps),
+		COMMON_TIMING(trfc2_ps),
+		COMMON_TIMING(trfc4_ps),
+		COMMON_TIMING(trrds_ps),
+		COMMON_TIMING(trrdl_ps),
+		COMMON_TIMING(tccdl_ps),
+#else
 		COMMON_TIMING(twtr_ps),
 		COMMON_TIMING(trfc_ps),
 		COMMON_TIMING(trrd_ps),
+		COMMON_TIMING(trtp_ps),
+#endif
+		COMMON_TIMING(twr_ps),
 		COMMON_TIMING(trc_ps),
 		COMMON_TIMING(refresh_rate_ps),
+		COMMON_TIMING(extended_op_srt),
+#if defined(CONFIG_SYS_FSL_DDR1) || defined(CONFIG_SYS_FSL_DDR2)
 		COMMON_TIMING(tis_ps),
+		COMMON_TIMING(tih_ps),
 		COMMON_TIMING(tds_ps),
 		COMMON_TIMING(tdh_ps),
-		COMMON_TIMING(trtp_ps),
 		COMMON_TIMING(tdqsq_max_ps),
 		COMMON_TIMING(tqhs_ps),
-		COMMON_TIMING(lowest_common_SPD_caslat),
+#endif
+		COMMON_TIMING(lowest_common_spd_caslat),
 		COMMON_TIMING(highest_common_derated_caslat),
 		COMMON_TIMING(additive_latency),
 		COMMON_TIMING(ndimms_present),
@@ -460,6 +520,9 @@ static void fsl_ddr_options_edit(fsl_ddr_info_t *pinfo,
 		CTRL_OPTIONS(tfaw_window_four_activates_ps),
 		CTRL_OPTIONS(trwt_override),
 		CTRL_OPTIONS(trwt),
+		CTRL_OPTIONS(rtt_override),
+		CTRL_OPTIONS(rtt_override_value),
+		CTRL_OPTIONS(rtt_wr_override_value),
 	};
 
 	static const unsigned int n_opts = ARRAY_SIZE(options);
@@ -505,6 +568,7 @@ static void print_fsl_memctl_config_regs(const fsl_ddr_cfg_regs_t *ddr)
 		CFG_REGS(timing_cfg_2),
 		CFG_REGS(ddr_sdram_cfg),
 		CFG_REGS(ddr_sdram_cfg_2),
+		CFG_REGS(ddr_sdram_cfg_3),
 		CFG_REGS(ddr_sdram_mode),
 		CFG_REGS(ddr_sdram_mode_2),
 		CFG_REGS(ddr_sdram_mode_3),
@@ -513,6 +577,16 @@ static void print_fsl_memctl_config_regs(const fsl_ddr_cfg_regs_t *ddr)
 		CFG_REGS(ddr_sdram_mode_6),
 		CFG_REGS(ddr_sdram_mode_7),
 		CFG_REGS(ddr_sdram_mode_8),
+#ifdef CONFIG_SYS_FSL_DDR4
+		CFG_REGS(ddr_sdram_mode_9),
+		CFG_REGS(ddr_sdram_mode_10),
+		CFG_REGS(ddr_sdram_mode_11),
+		CFG_REGS(ddr_sdram_mode_12),
+		CFG_REGS(ddr_sdram_mode_13),
+		CFG_REGS(ddr_sdram_mode_14),
+		CFG_REGS(ddr_sdram_mode_15),
+		CFG_REGS(ddr_sdram_mode_16),
+#endif
 		CFG_REGS(ddr_sdram_interval),
 		CFG_REGS(ddr_data_init),
 		CFG_REGS(ddr_sdram_clk_cntl),
@@ -520,6 +594,12 @@ static void print_fsl_memctl_config_regs(const fsl_ddr_cfg_regs_t *ddr)
 		CFG_REGS(ddr_init_ext_addr),
 		CFG_REGS(timing_cfg_4),
 		CFG_REGS(timing_cfg_5),
+#ifdef CONFIG_SYS_FSL_DDR4
+		CFG_REGS(timing_cfg_6),
+		CFG_REGS(timing_cfg_7),
+		CFG_REGS(timing_cfg_8),
+		CFG_REGS(timing_cfg_9),
+#endif
 		CFG_REGS(ddr_zq_cntl),
 		CFG_REGS(ddr_wrlvl_cntl),
 		CFG_REGS(ddr_wrlvl_cntl_2),
@@ -529,6 +609,10 @@ static void print_fsl_memctl_config_regs(const fsl_ddr_cfg_regs_t *ddr)
 		CFG_REGS(ddr_sdram_rcw_2),
 		CFG_REGS(ddr_cdr1),
 		CFG_REGS(ddr_cdr2),
+		CFG_REGS(dq_map_0),
+		CFG_REGS(dq_map_1),
+		CFG_REGS(dq_map_2),
+		CFG_REGS(dq_map_3),
 		CFG_REGS(err_disable),
 		CFG_REGS(err_int_en),
 		CFG_REGS(ddr_eor),
@@ -574,6 +658,7 @@ static void fsl_ddr_regs_edit(fsl_ddr_info_t *pinfo,
 		CFG_REGS(timing_cfg_2),
 		CFG_REGS(ddr_sdram_cfg),
 		CFG_REGS(ddr_sdram_cfg_2),
+		CFG_REGS(ddr_sdram_cfg_3),
 		CFG_REGS(ddr_sdram_mode),
 		CFG_REGS(ddr_sdram_mode_2),
 		CFG_REGS(ddr_sdram_mode_3),
@@ -582,6 +667,16 @@ static void fsl_ddr_regs_edit(fsl_ddr_info_t *pinfo,
 		CFG_REGS(ddr_sdram_mode_6),
 		CFG_REGS(ddr_sdram_mode_7),
 		CFG_REGS(ddr_sdram_mode_8),
+#ifdef CONFIG_SYS_FSL_DDR4
+		CFG_REGS(ddr_sdram_mode_9),
+		CFG_REGS(ddr_sdram_mode_10),
+		CFG_REGS(ddr_sdram_mode_11),
+		CFG_REGS(ddr_sdram_mode_12),
+		CFG_REGS(ddr_sdram_mode_13),
+		CFG_REGS(ddr_sdram_mode_14),
+		CFG_REGS(ddr_sdram_mode_15),
+		CFG_REGS(ddr_sdram_mode_16),
+#endif
 		CFG_REGS(ddr_sdram_interval),
 		CFG_REGS(ddr_data_init),
 		CFG_REGS(ddr_sdram_clk_cntl),
@@ -589,6 +684,12 @@ static void fsl_ddr_regs_edit(fsl_ddr_info_t *pinfo,
 		CFG_REGS(ddr_init_ext_addr),
 		CFG_REGS(timing_cfg_4),
 		CFG_REGS(timing_cfg_5),
+#ifdef CONFIG_SYS_FSL_DDR4
+		CFG_REGS(timing_cfg_6),
+		CFG_REGS(timing_cfg_7),
+		CFG_REGS(timing_cfg_8),
+		CFG_REGS(timing_cfg_9),
+#endif
 		CFG_REGS(ddr_zq_cntl),
 		CFG_REGS(ddr_wrlvl_cntl),
 		CFG_REGS(ddr_wrlvl_cntl_2),
@@ -598,6 +699,10 @@ static void fsl_ddr_regs_edit(fsl_ddr_info_t *pinfo,
 		CFG_REGS(ddr_sdram_rcw_2),
 		CFG_REGS(ddr_cdr1),
 		CFG_REGS(ddr_cdr2),
+		CFG_REGS(dq_map_0),
+		CFG_REGS(dq_map_1),
+		CFG_REGS(dq_map_2),
+		CFG_REGS(dq_map_3),
 		CFG_REGS(err_disable),
 		CFG_REGS(err_int_en),
 		CFG_REGS(ddr_sdram_rcw_2),
@@ -705,6 +810,9 @@ static void print_memctl_options(const memctl_options_t *popts)
 		CTRL_OPTIONS(tfaw_window_four_activates_ps),
 		CTRL_OPTIONS(trwt_override),
 		CTRL_OPTIONS(trwt),
+		CTRL_OPTIONS(rtt_override),
+		CTRL_OPTIONS(rtt_override_value),
+		CTRL_OPTIONS(rtt_wr_override_value),
 	};
 	static const unsigned int n_opts = ARRAY_SIZE(options);
 
@@ -1245,6 +1353,266 @@ void ddr3_spd_dump(const ddr3_spd_eeprom_t *spd)
 }
 #endif
 
+#ifdef CONFIG_SYS_FSL_DDR4
+void ddr4_spd_dump(const struct ddr4_spd_eeprom_s *spd)
+{
+	unsigned int i;
+
+	/* General Section: Bytes 0-127 */
+
+#define PRINT_NXS(x, y, z...) printf("%-3d    : %02x " z "\n", x, (u8)y);
+#define PRINT_NNXXS(n0, n1, x0, x1, s) \
+	printf("%-3d-%3d: %02x %02x " s "\n", n0, n1, x0, x1);
+
+	PRINT_NXS(0, spd->info_size_crc,
+		  "info_size_crc  bytes written into serial memory, CRC coverage");
+	PRINT_NXS(1, spd->spd_rev,
+		  "spd_rev        SPD Revision");
+	PRINT_NXS(2, spd->mem_type,
+		  "mem_type       Key Byte / DRAM Device Type");
+	PRINT_NXS(3, spd->module_type,
+		  "module_type    Key Byte / Module Type");
+	PRINT_NXS(4, spd->density_banks,
+		  "density_banks  SDRAM Density and Banks");
+	PRINT_NXS(5, spd->addressing,
+		  "addressing     SDRAM Addressing");
+	PRINT_NXS(6, spd->package_type,
+		  "package_type   Package type");
+	PRINT_NXS(7, spd->opt_feature,
+		  "opt_feature    Optional features");
+	PRINT_NXS(8, spd->thermal_ref,
+		  "thermal_ref    Thermal and Refresh options");
+	PRINT_NXS(9, spd->oth_opt_features,
+		  "oth_opt_features Other SDRAM optional features");
+	PRINT_NXS(10, spd->res_10,
+		  "res_10         Reserved");
+	PRINT_NXS(11, spd->module_vdd,
+		  "module_vdd     Module Nominal Voltage, VDD");
+	PRINT_NXS(12, spd->organization,
+		  "organization Module Organization");
+	PRINT_NXS(13, spd->bus_width,
+		  "bus_width      Module Memory Bus Width");
+	PRINT_NXS(14, spd->therm_sensor,
+		  "therm_sensor   Module Thermal Sensor");
+	PRINT_NXS(15, spd->ext_type,
+		  "ext_type       Extended module type");
+	PRINT_NXS(16, spd->res_16,
+		  "res_16       Reserved");
+	PRINT_NXS(17, spd->timebases,
+		  "timebases    MTb and FTB");
+	PRINT_NXS(18, spd->tck_min,
+		  "tck_min      tCKAVGmin");
+	PRINT_NXS(19, spd->tck_max,
+		  "tck_max      TCKAVGmax");
+	PRINT_NXS(20, spd->caslat_b1,
+		  "caslat_b1    CAS latencies, 1st byte");
+	PRINT_NXS(21, spd->caslat_b2,
+		  "caslat_b2    CAS latencies, 2nd byte");
+	PRINT_NXS(22, spd->caslat_b3,
+		  "caslat_b3    CAS latencies, 3rd byte ");
+	PRINT_NXS(23, spd->caslat_b4,
+		  "caslat_b4    CAS latencies, 4th byte");
+	PRINT_NXS(24, spd->taa_min,
+		  "taa_min      Min CAS Latency Time");
+	PRINT_NXS(25, spd->trcd_min,
+		  "trcd_min     Min RAS# to CAS# Delay Time");
+	PRINT_NXS(26, spd->trp_min,
+		  "trp_min      Min Row Precharge Delay Time");
+	PRINT_NXS(27, spd->tras_trc_ext,
+		  "tras_trc_ext Upper Nibbles for tRAS and tRC");
+	PRINT_NXS(28, spd->tras_min_lsb,
+		  "tras_min_lsb tRASmin, lsb");
+	PRINT_NXS(29, spd->trc_min_lsb,
+		  "trc_min_lsb  tRCmin, lsb");
+	PRINT_NXS(30, spd->trfc1_min_lsb,
+		  "trfc1_min_lsb  Min Refresh Recovery Delay Time, LSB");
+	PRINT_NXS(31, spd->trfc1_min_msb,
+		  "trfc1_min_msb  Min Refresh Recovery Delay Time, MSB ");
+	PRINT_NXS(32, spd->trfc2_min_lsb,
+		  "trfc2_min_lsb  Min Refresh Recovery Delay Time, LSB");
+	PRINT_NXS(33, spd->trfc2_min_msb,
+		  "trfc2_min_msb  Min Refresh Recovery Delay Time, MSB");
+	PRINT_NXS(34, spd->trfc4_min_lsb,
+		  "trfc4_min_lsb Min Refresh Recovery Delay Time, LSB");
+	PRINT_NXS(35, spd->trfc4_min_msb,
+		  "trfc4_min_msb Min Refresh Recovery Delay Time, MSB");
+	PRINT_NXS(36, spd->tfaw_msb,
+		  "tfaw_msb      Upper Nibble for tFAW");
+	PRINT_NXS(37, spd->tfaw_min,
+		  "tfaw_min      tFAW, lsb");
+	PRINT_NXS(38, spd->trrds_min,
+		  "trrds_min     tRRD_Smin, MTB");
+	PRINT_NXS(39, spd->trrdl_min,
+		  "trrdl_min     tRRD_Lmin, MTB");
+	PRINT_NXS(40, spd->tccdl_min,
+		  "tccdl_min     tCCS_Lmin, MTB");
+
+	printf("%-3d-%3d: ", 41, 59);  /* Reserved, General Section */
+	for (i = 41; i <= 59; i++)
+		printf("%02x ", spd->res_41[i - 41]);
+
+	puts("\n");
+	printf("%-3d-%3d: ", 60, 77);
+	for (i = 60; i <= 77; i++)
+		printf("%02x ", spd->mapping[i - 60]);
+	puts("   mapping[] Connector to SDRAM bit map\n");
+
+	PRINT_NXS(117, spd->fine_tccdl_min,
+		  "fine_tccdl_min Fine offset for tCCD_Lmin");
+	PRINT_NXS(118, spd->fine_trrdl_min,
+		  "fine_trrdl_min Fine offset for tRRD_Lmin");
+	PRINT_NXS(119, spd->fine_trrds_min,
+		  "fine_trrds_min Fine offset for tRRD_Smin");
+	PRINT_NXS(120, spd->fine_trc_min,
+		  "fine_trc_min   Fine offset for tRCmin");
+	PRINT_NXS(121, spd->fine_trp_min,
+		  "fine_trp_min   Fine offset for tRPmin");
+	PRINT_NXS(122, spd->fine_trcd_min,
+		  "fine_trcd_min  Fine offset for tRCDmin");
+	PRINT_NXS(123, spd->fine_taa_min,
+		  "fine_taa_min   Fine offset for tAAmin");
+	PRINT_NXS(124, spd->fine_tck_max,
+		  "fine_tck_max   Fine offset for tCKAVGmax");
+	PRINT_NXS(125, spd->fine_tck_min,
+		  "fine_tck_min   Fine offset for tCKAVGmin");
+
+	/* CRC: Bytes 126-127 */
+	PRINT_NNXXS(126, 127, spd->crc[0], spd->crc[1], "  SPD CRC");
+
+	switch (spd->module_type) {
+	case 0x02:  /* UDIMM */
+	case 0x03:  /* SO-DIMM */
+		PRINT_NXS(128, spd->mod_section.unbuffered.mod_height,
+			  "mod_height    (Unbuffered) Module Nominal Height");
+		PRINT_NXS(129, spd->mod_section.unbuffered.mod_thickness,
+			  "mod_thickness (Unbuffered) Module Maximum Thickness");
+		PRINT_NXS(130, spd->mod_section.unbuffered.ref_raw_card,
+			  "ref_raw_card  (Unbuffered) Reference Raw Card Used");
+		PRINT_NXS(131, spd->mod_section.unbuffered.addr_mapping,
+			  "addr_mapping  (Unbuffered) Address mapping from Edge Connector to DRAM");
+		PRINT_NNXXS(254, 255, spd->mod_section.unbuffered.crc[0],
+			    spd->mod_section.unbuffered.crc[1], "  Module CRC");
+		break;
+	case 0x01:  /* RDIMM */
+		PRINT_NXS(128, spd->mod_section.registered.mod_height,
+			  "mod_height    (Registered) Module Nominal Height");
+		PRINT_NXS(129, spd->mod_section.registered.mod_thickness,
+			  "mod_thickness (Registered) Module Maximum Thickness");
+		PRINT_NXS(130, spd->mod_section.registered.ref_raw_card,
+			  "ref_raw_card  (Registered) Reference Raw Card Used");
+		PRINT_NXS(131, spd->mod_section.registered.modu_attr,
+			  "modu_attr     (Registered) DIMM Module Attributes");
+		PRINT_NXS(132, spd->mod_section.registered.thermal,
+			  "thermal       (Registered) Thermal Heat Spreader Solution");
+		PRINT_NXS(133, spd->mod_section.registered.reg_id_lo,
+			  "reg_id_lo     (Registered) Register Manufacturer ID Code, LSB");
+		PRINT_NXS(134, spd->mod_section.registered.reg_id_hi,
+			  "reg_id_hi     (Registered) Register Manufacturer ID Code, MSB");
+		PRINT_NXS(135, spd->mod_section.registered.reg_rev,
+			  "reg_rev       (Registered) Register Revision Number");
+		PRINT_NXS(136, spd->mod_section.registered.reg_map,
+			  "reg_map       (Registered) Address mapping");
+		PRINT_NNXXS(254, 255, spd->mod_section.registered.crc[0],
+			    spd->mod_section.registered.crc[1], "  Module CRC");
+		break;
+	case 0x04:  /* LRDIMM */
+		PRINT_NXS(128, spd->mod_section.loadreduced.mod_height,
+			  "mod_height    (Loadreduced) Module Nominal Height");
+		PRINT_NXS(129, spd->mod_section.loadreduced.mod_thickness,
+			  "mod_thickness (Loadreduced) Module Maximum Thickness");
+		PRINT_NXS(130, spd->mod_section.loadreduced.ref_raw_card,
+			  "ref_raw_card  (Loadreduced) Reference Raw Card Used");
+		PRINT_NXS(131, spd->mod_section.loadreduced.modu_attr,
+			  "modu_attr     (Loadreduced) DIMM Module Attributes");
+		PRINT_NXS(132, spd->mod_section.loadreduced.thermal,
+			  "thermal       (Loadreduced) Thermal Heat Spreader Solution");
+		PRINT_NXS(133, spd->mod_section.loadreduced.reg_id_lo,
+			  "reg_id_lo     (Loadreduced) Register Manufacturer ID Code, LSB");
+		PRINT_NXS(134, spd->mod_section.loadreduced.reg_id_hi,
+			  "reg_id_hi     (Loadreduced) Register Manufacturer ID Code, MSB");
+		PRINT_NXS(135, spd->mod_section.loadreduced.reg_rev,
+			  "reg_rev       (Loadreduced) Register Revision Number");
+		PRINT_NXS(136, spd->mod_section.loadreduced.reg_map,
+			  "reg_map       (Loadreduced) Address mapping");
+		PRINT_NXS(137, spd->mod_section.loadreduced.reg_drv,
+			  "reg_drv       (Loadreduced) Reg output drive strength");
+		PRINT_NXS(138, spd->mod_section.loadreduced.reg_drv_ck,
+			  "reg_drv_ck    (Loadreduced) Reg output drive strength for CK");
+		PRINT_NXS(139, spd->mod_section.loadreduced.data_buf_rev,
+			  "data_buf_rev  (Loadreduced) Data Buffer Revision Numbe");
+		PRINT_NXS(140, spd->mod_section.loadreduced.vrefqe_r0,
+			  "vrefqe_r0     (Loadreduced) DRAM VrefDQ for Package Rank 0");
+		PRINT_NXS(141, spd->mod_section.loadreduced.vrefqe_r1,
+			  "vrefqe_r1     (Loadreduced) DRAM VrefDQ for Package Rank 1");
+		PRINT_NXS(142, spd->mod_section.loadreduced.vrefqe_r2,
+			  "vrefqe_r2     (Loadreduced) DRAM VrefDQ for Package Rank 2");
+		PRINT_NXS(143, spd->mod_section.loadreduced.vrefqe_r3,
+			  "vrefqe_r3     (Loadreduced) DRAM VrefDQ for Package Rank 3");
+		PRINT_NXS(144, spd->mod_section.loadreduced.data_intf,
+			  "data_intf     (Loadreduced) Data Buffer VrefDQ for DRAM Interface");
+		PRINT_NXS(145, spd->mod_section.loadreduced.data_drv_1866,
+			  "data_drv_1866 (Loadreduced) Data Buffer MDQ Drive Strength and RTT");
+		PRINT_NXS(146, spd->mod_section.loadreduced.data_drv_2400,
+			  "data_drv_2400 (Loadreduced) Data Buffer MDQ Drive Strength and RTT");
+		PRINT_NXS(147, spd->mod_section.loadreduced.data_drv_3200,
+			  "data_drv_3200 (Loadreduced) Data Buffer MDQ Drive Strength and RTT");
+		PRINT_NXS(148, spd->mod_section.loadreduced.dram_drv,
+			  "dram_drv      (Loadreduced) DRAM Drive Strength");
+		PRINT_NXS(149, spd->mod_section.loadreduced.dram_odt_1866,
+			  "dram_odt_1866 (Loadreduced) DRAM ODT (RTT_WR, RTT_NOM)");
+		PRINT_NXS(150, spd->mod_section.loadreduced.dram_odt_2400,
+			  "dram_odt_2400 (Loadreduced) DRAM ODT (RTT_WR, RTT_NOM)");
+		PRINT_NXS(151, spd->mod_section.loadreduced.dram_odt_3200,
+			  "dram_odt_3200 (Loadreduced) DRAM ODT (RTT_WR, RTT_NOM)");
+		PRINT_NXS(152, spd->mod_section.loadreduced.dram_odt_park_1866,
+			  "dram_odt_park_1866 (Loadreduced) DRAM ODT (RTT_PARK)");
+		PRINT_NXS(153, spd->mod_section.loadreduced.dram_odt_park_2400,
+			  "dram_odt_park_2400 (Loadreduced) DRAM ODT (RTT_PARK)");
+		PRINT_NXS(154, spd->mod_section.loadreduced.dram_odt_park_3200,
+			  "dram_odt_park_3200 (Loadreduced) DRAM ODT (RTT_PARK)");
+		PRINT_NNXXS(254, 255, spd->mod_section.loadreduced.crc[0],
+			    spd->mod_section.loadreduced.crc[1],
+			    "  Module CRC");
+		break;
+	default:
+		/* Module-specific Section, Unsupported Module Type */
+		printf("%-3d-%3d: ", 128, 255);
+
+		for (i = 128; i <= 255; i++)
+			printf("%02x", spd->mod_section.uc[i - 128]);
+
+		break;
+	}
+
+	/* Unique Module ID: Bytes 320-383 */
+	PRINT_NXS(320, spd->mmid_lsb, "Module MfgID Code LSB - JEP-106");
+	PRINT_NXS(321, spd->mmid_msb, "Module MfgID Code MSB - JEP-106");
+	PRINT_NXS(322, spd->mloc,     "Mfg Location");
+	PRINT_NNXXS(323, 324, spd->mdate[0], spd->mdate[1], "Mfg Date");
+
+	printf("%-3d-%3d: ", 325, 328);
+
+	for (i = 325; i <= 328; i++)
+		printf("%02x ", spd->sernum[i - 325]);
+	printf("   Module Serial Number\n");
+
+	printf("%-3d-%3d: ", 329, 348);
+	for (i = 329; i <= 348; i++)
+		printf("%02x ", spd->mpart[i - 329]);
+	printf("   Mfg's Module Part Number\n");
+
+	PRINT_NXS(349, spd->mrev, "Module Revision code");
+	PRINT_NXS(350, spd->dmid_lsb, "DRAM MfgID Code LSB - JEP-106");
+	PRINT_NXS(351, spd->dmid_msb, "DRAM MfgID Code MSB - JEP-106");
+	PRINT_NXS(352, spd->stepping, "DRAM stepping");
+
+	printf("%-3d-%3d: ", 353, 381);
+	for (i = 353; i <= 381; i++)
+		printf("%02x ", spd->msd[i - 353]);
+	printf("   Mfg's Specific Data\n");
+}
+#endif
+
 static inline void generic_spd_dump(const generic_spd_eeprom_t *spd)
 {
 #if defined(CONFIG_SYS_FSL_DDR1)
@@ -1253,6 +1621,8 @@ static inline void generic_spd_dump(const generic_spd_eeprom_t *spd)
 	ddr2_spd_dump(spd);
 #elif defined(CONFIG_SYS_FSL_DDR3)
 	ddr3_spd_dump(spd);
+#elif defined(CONFIG_SYS_FSL_DDR4)
+	ddr4_spd_dump(spd);
 #endif
 }
 
@@ -1495,11 +1865,12 @@ unsigned long long fsl_ddr_interactive(fsl_ddr_info_t *pinfo, int var_is_set)
 		} else {
 			/*
 			 * No need to worry for buffer overflow here in
-			 * this function;  readline() maxes out at CFG_CBSIZE
+			 * this function;  cli_readline() maxes out at
+			 * CFG_CBSIZE
 			 */
-			readline_into_buffer(prompt, buffer, 0);
+			cli_readline_into_buffer(prompt, buffer, 0);
 		}
-		argc = parse_line(buffer, argv);
+		argc = cli_simple_parse_line(buffer, argv);
 		if (argc == 0)
 			continue;
 

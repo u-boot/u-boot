@@ -11,6 +11,9 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
+#if !defined(CONFIG_MX25) && !defined(CONFIG_VF610)
+#include <asm/arch/sys_proto.h>
+#endif
 #include <asm/imx-common/iomux-v3.h>
 
 static void *base = (void *)IOMUXC_BASE_ADDR;
@@ -30,6 +33,14 @@ void imx_iomux_v3_setup_pad(iomux_v3_cfg_t pad)
 		(pad & MUX_PAD_CTRL_OFS_MASK) >> MUX_PAD_CTRL_OFS_SHIFT;
 	u32 pad_ctrl = (pad & MUX_PAD_CTRL_MASK) >> MUX_PAD_CTRL_SHIFT;
 
+#if defined CONFIG_MX6SL
+	/* Check whether LVE bit needs to be set */
+	if (pad_ctrl & PAD_CTL_LVE) {
+		pad_ctrl &= ~PAD_CTL_LVE;
+		pad_ctrl |= PAD_CTL_LVE_BIT;
+	}
+#endif
+
 	if (mux_ctrl_ofs)
 		__raw_writel(mux_mode, base + mux_ctrl_ofs);
 
@@ -46,12 +57,23 @@ void imx_iomux_v3_setup_pad(iomux_v3_cfg_t pad)
 #endif
 }
 
+/* configures a list of pads within declared with IOMUX_PADS macro */
 void imx_iomux_v3_setup_multiple_pads(iomux_v3_cfg_t const *pad_list,
 				      unsigned count)
 {
 	iomux_v3_cfg_t const *p = pad_list;
+	int stride;
 	int i;
 
-	for (i = 0; i < count; i++)
-		imx_iomux_v3_setup_pad(*p++);
+#if defined(CONFIG_MX6QDL)
+	stride = 2;
+	if (!is_cpu_type(MXC_CPU_MX6Q) && !is_cpu_type(MXC_CPU_MX6D))
+		p += 1;
+#else
+	stride = 1;
+#endif
+	for (i = 0; i < count; i++) {
+		imx_iomux_v3_setup_pad(*p);
+		p += stride;
+	}
 }

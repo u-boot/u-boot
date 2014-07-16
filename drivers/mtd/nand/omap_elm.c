@@ -16,23 +16,21 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/errno.h>
-#include <linux/mtd/omap_gpmc.h>
 #include <linux/mtd/omap_elm.h>
 #include <asm/arch/hardware.h>
 
+#define DRIVER_NAME		"omap-elm"
 #define ELM_DEFAULT_POLY (0)
 
 struct elm *elm_cfg;
 
 /**
- * elm_load_syndromes - Load BCH syndromes based on nibble selection
+ * elm_load_syndromes - Load BCH syndromes based on bch_type selection
  * @syndrome: BCH syndrome
- * @nibbles:
+ * @bch_type: BCH4/BCH8/BCH16
  * @poly: Syndrome Polynomial set to use
- *
- * Load BCH syndromes based on nibble selection
  */
-static void elm_load_syndromes(u8 *syndrome, u32 nibbles, u8 poly)
+static void elm_load_syndromes(u8 *syndrome, enum bch_level bch_type, u8 poly)
 {
 	u32 *ptr;
 	u32 val;
@@ -48,8 +46,7 @@ static void elm_load_syndromes(u8 *syndrome, u32 nibbles, u8 poly)
 				(syndrome[7] << 24);
 	writel(val, ptr);
 
-	/* BCH 8-bit with 26 nibbles (4*8=32) */
-	if (nibbles > 13) {
+	if (bch_type == BCH_8_BIT || bch_type == BCH_16_BIT) {
 		/* reg 2 */
 		ptr = &elm_cfg->syndrome_fragments[poly].syndrome_fragment_x[2];
 		val = syndrome[8] | (syndrome[9] << 8) | (syndrome[10] << 16) |
@@ -62,8 +59,7 @@ static void elm_load_syndromes(u8 *syndrome, u32 nibbles, u8 poly)
 		writel(val, ptr);
 	}
 
-	/* BCH 16-bit with 52 nibbles (7*8=56) */
-	if (nibbles > 26) {
+	if (bch_type == BCH_16_BIT) {
 		/* reg 4 */
 		ptr = &elm_cfg->syndrome_fragments[poly].syndrome_fragment_x[4];
 		val = syndrome[16] | (syndrome[17] << 8) |
@@ -87,7 +83,7 @@ static void elm_load_syndromes(u8 *syndrome, u32 nibbles, u8 poly)
 /**
  * elm_check_errors - Check for BCH errors and return error locations
  * @syndrome: BCH syndrome
- * @nibbles:
+ * @bch_type: BCH4/BCH8/BCH16
  * @error_count: Returns number of errrors in the syndrome
  * @error_locations: Returns error locations (in decimal) in this array
  *
@@ -95,14 +91,14 @@ static void elm_load_syndromes(u8 *syndrome, u32 nibbles, u8 poly)
  * and locations in the array passed. Returns -1 if error is not correctable,
  * else returns 0
  */
-int elm_check_error(u8 *syndrome, u32 nibbles, u32 *error_count,
+int elm_check_error(u8 *syndrome, enum bch_level bch_type, u32 *error_count,
 		u32 *error_locations)
 {
 	u8 poly = ELM_DEFAULT_POLY;
 	s8 i;
 	u32 location_status;
 
-	elm_load_syndromes(syndrome, nibbles, poly);
+	elm_load_syndromes(syndrome, bch_type, poly);
 
 	/* start processing */
 	writel((readl(&elm_cfg->syndrome_fragments[poly].syndrome_fragment_x[6])
@@ -118,8 +114,10 @@ int elm_check_error(u8 *syndrome, u32 nibbles, u32 *error_count,
 
 	/* check if correctable */
 	location_status = readl(&elm_cfg->error_location[poly].location_status);
-	if (!(location_status & ELM_LOCATION_STATUS_ECC_CORRECTABLE_MASK))
-		return -1;
+	if (!(location_status & ELM_LOCATION_STATUS_ECC_CORRECTABLE_MASK)) {
+		printf("%s: uncorrectable ECC errors\n", DRIVER_NAME);
+		return -EBADMSG;
+	}
 
 	/* get error count */
 	*error_count = readl(&elm_cfg->error_location[poly].location_status) &

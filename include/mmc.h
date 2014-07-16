@@ -12,6 +12,7 @@
 
 #include <linux/list.h>
 #include <linux/compiler.h>
+#include <part.h>
 
 #define SD_VERSION_SD	0x20000
 #define SD_VERSION_3	(SD_VERSION_SD | 0x300)
@@ -31,15 +32,13 @@
 #define MMC_VERSION_4_41	(MMC_VERSION_MMC | 0x429)
 #define MMC_VERSION_4_5		(MMC_VERSION_MMC | 0x405)
 
-#define MMC_MODE_HS		0x001
-#define MMC_MODE_HS_52MHz	0x010
-#define MMC_MODE_4BIT		0x100
-#define MMC_MODE_8BIT		0x200
-#define MMC_MODE_SPI		0x400
-#define MMC_MODE_HC		0x800
-
-#define MMC_MODE_MASK_WIDTH_BITS (MMC_MODE_4BIT | MMC_MODE_8BIT)
-#define MMC_MODE_WIDTH_BITS_SHIFT 8
+#define MMC_MODE_HS		(1 << 0)
+#define MMC_MODE_HS_52MHz	(1 << 1)
+#define MMC_MODE_4BIT		(1 << 2)
+#define MMC_MODE_8BIT		(1 << 3)
+#define MMC_MODE_SPI		(1 << 4)
+#define MMC_MODE_HC		(1 << 5)
+#define MMC_MODE_DDR_52MHz	(1 << 6)
 
 #define SD_DATA_4BIT	0x00040000
 
@@ -53,6 +52,7 @@
 #define COMM_ERR		-18 /* Communications Error */
 #define TIMEOUT			-19
 #define IN_PROGRESS		-20 /* operation is in progress */
+#define SWITCH_ERR		-21 /* Card reports failure to switch mode */
 
 #define MMC_CMD_GO_IDLE_STATE		0
 #define MMC_CMD_SEND_OP_COND		1
@@ -69,6 +69,7 @@
 #define MMC_CMD_SET_BLOCKLEN		16
 #define MMC_CMD_READ_SINGLE_BLOCK	17
 #define MMC_CMD_READ_MULTIPLE_BLOCK	18
+#define MMC_CMD_SET_BLOCK_COUNT         23
 #define MMC_CMD_WRITE_SINGLE_BLOCK	24
 #define MMC_CMD_WRITE_MULTIPLE_BLOCK	25
 #define MMC_CMD_ERASE_GROUP_START	35
@@ -97,9 +98,6 @@
 #define SD_HIGHSPEED_BUSY	0x00020000
 #define SD_HIGHSPEED_SUPPORTED	0x00020000
 
-#define MMC_HS_TIMING		0x00000100
-#define MMC_HS_52MHZ		0x2
-
 #define OCR_BUSY		0x80000000
 #define OCR_HCS			0x40000000
 #define OCR_VOLTAGE_MASK	0x007FFF80
@@ -108,6 +106,7 @@
 #define SECURE_ERASE		0x80000000
 
 #define MMC_STATUS_MASK		(~0x0206BF7F)
+#define MMC_STATUS_SWITCH_ERROR	(1 << 7)
 #define MMC_STATUS_RDY_FOR_DATA (1 << 8)
 #define MMC_STATUS_CURR_STATE	(0xf << 9)
 #define MMC_STATUS_ERROR	(1 << 19)
@@ -174,10 +173,16 @@
 
 #define EXT_CSD_CARD_TYPE_26	(1 << 0)	/* Card can run at 26MHz */
 #define EXT_CSD_CARD_TYPE_52	(1 << 1)	/* Card can run at 52MHz */
+#define EXT_CSD_CARD_TYPE_DDR_1_8V	(1 << 2)
+#define EXT_CSD_CARD_TYPE_DDR_1_2V	(1 << 3)
+#define EXT_CSD_CARD_TYPE_DDR_52	(EXT_CSD_CARD_TYPE_DDR_1_8V \
+					| EXT_CSD_CARD_TYPE_DDR_1_2V)
 
 #define EXT_CSD_BUS_WIDTH_1	0	/* Card is in 1 bit mode */
 #define EXT_CSD_BUS_WIDTH_4	1	/* Card is in 4 bit mode */
 #define EXT_CSD_BUS_WIDTH_8	2	/* Card is in 8 bit mode */
+#define EXT_CSD_DDR_BUS_WIDTH_4	5	/* Card is in 4 bit DDR mode */
+#define EXT_CSD_DDR_BUS_WIDTH_8	6	/* Card is in 8 bit DDR mode */
 
 #define EXT_CSD_BOOT_ACK_ENABLE			(1 << 6)
 #define EXT_CSD_BOOT_PARTITION_ENABLE		(1 << 3)
@@ -224,6 +229,7 @@
  * boot partitions (2), general purpose partitions (4) in MMC v4.4.
  */
 #define MMC_NUM_BOOT_PARTITION	2
+#define MMC_PART_RPMB           3       /* RPMB partition number */
 
 struct mmc_cid {
 	unsigned long psn;
@@ -335,7 +341,13 @@ int mmc_set_part_conf(struct mmc *mmc, u8 ack, u8 part_num, u8 access);
 int mmc_set_boot_bus_width(struct mmc *mmc, u8 width, u8 reset, u8 mode);
 /* Function to modify the RST_n_FUNCTION field of EXT_CSD */
 int mmc_set_rst_n_function(struct mmc *mmc, u8 enable);
-
+/* Functions to read / write the RPMB partition */
+int mmc_rpmb_set_key(struct mmc *mmc, void *key);
+int mmc_rpmb_get_counter(struct mmc *mmc, unsigned long *counter);
+int mmc_rpmb_read(struct mmc *mmc, void *addr, unsigned short blk,
+		  unsigned short cnt, unsigned char *key);
+int mmc_rpmb_write(struct mmc *mmc, void *addr, unsigned short blk,
+		   unsigned short cnt, unsigned char *key);
 /**
  * Start device initialization and return immediately; it does not block on
  * polling OCR (operation condition register) status.  Then you should call

@@ -18,9 +18,11 @@
 #define VFAT_MAXSEQ		9   /* Up to 9 of 13 2-byte UTF-16 entries */
 #define PREFETCH_BLOCKS		2
 
-#ifndef MAX_CLUSTSIZE
-#define MAX_CLUSTSIZE	65536
+#ifndef CONFIG_FS_FAT_MAX_CLUSTSIZE
+#define CONFIG_FS_FAT_MAX_CLUSTSIZE 65536
 #endif
+#define MAX_CLUSTSIZE	CONFIG_FS_FAT_MAX_CLUSTSIZE
+
 #define DIRENTSPERBLOCK	(mydata->sect_size / sizeof(dir_entry))
 #define DIRENTSPERCLUST	((mydata->clust_size * mydata->sect_size) / \
 			 sizeof(dir_entry))
@@ -86,8 +88,13 @@
 #define START(dent)	(FAT2CPU16((dent)->start) \
 			+ (mydata->fatsize != 32 ? 0 : \
 			  (FAT2CPU16((dent)->starthi) << 16)))
+#define IS_LAST_CLUST(x, fatsize) ((x) >= ((fatsize) != 32 ? \
+					((fatsize) != 16 ? 0xff8 : 0xfff8) : \
+					0xffffff8))
 #define CHECK_CLUST(x, fatsize) ((x) <= 1 || \
-				(x) >= ((fatsize) != 32 ? 0xfff0 : 0xffffff0))
+				(x) >= ((fatsize) != 32 ? \
+					((fatsize) != 16 ? 0xff0 : 0xfff0) : \
+					0xffffff0))
 
 typedef struct boot_sector {
 	__u8	ignored[3];	/* Bootstrap code */

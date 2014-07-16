@@ -14,6 +14,9 @@
  * System configuration
  */
 #define CONFIG_MALTA
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_DISPLAY_BOARDINFO
 
 #define CONFIG_MEMSIZE_IN_BYTES
 

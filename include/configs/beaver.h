@@ -21,6 +21,9 @@
 
 #include "tegra30-common.h"
 
+/* VDD core PMIC */
+#define CONFIG_TEGRA_VDD_CORE_TPS62366A_SET1
+
 /* Enable fdt support for Beaver. Flash the image in u-boot-dtb.bin */
 #define CONFIG_DEFAULT_DEVICE_TREE	tegra30-beaver
 #define CONFIG_OF_CONTROL
@@ -73,6 +76,7 @@
 /* USB Host support */
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_TEGRA
+#define CONFIG_USB_MAX_CONTROLLER_COUNT	2
 #define CONFIG_USB_STORAGE
 #define CONFIG_CMD_USB
 
@@ -84,6 +88,7 @@
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_DHCP
 
+#include "tegra-common-ums.h"
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */

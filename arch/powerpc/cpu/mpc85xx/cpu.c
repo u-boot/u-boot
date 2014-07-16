@@ -77,6 +77,30 @@ int checkcpu (void)
 	major = SVR_MAJ(svr);
 	minor = SVR_MIN(svr);
 
+#if defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2) && defined(CONFIG_E6500)
+	if (SVR_SOC_VER(svr) == SVR_T4080) {
+		ccsr_rcpm_t *rcpm =
+			(void __iomem *)(CONFIG_SYS_FSL_CORENET_RCPM_ADDR);
+
+		setbits_be32(&gur->devdisr2, FSL_CORENET_DEVDISR2_DTSEC1_6 ||
+			     FSL_CORENET_DEVDISR2_DTSEC1_9);
+		setbits_be32(&gur->devdisr3, FSL_CORENET_DEVDISR3_PCIE3);
+		setbits_be32(&gur->devdisr5, FSL_CORENET_DEVDISR5_DDR3);
+
+		/* It needs SW to disable core4~7 as HW design sake on T4080 */
+		for (i = 4; i < 8; i++)
+			cpu_disable(i);
+
+		/* request core4~7 into PH20 state, prior to entering PCL10
+		 * state, all cores in cluster should be placed in PH20 state.
+		 */
+		setbits_be32(&rcpm->pcph20setr, 0xf0);
+
+		/* put the 2nd cluster into PCL10 state */
+		setbits_be32(&rcpm->clpcl10setr, 1 << 1);
+	}
+#endif
+
 	if (cpu_numcores() > 1) {
 #ifndef CONFIG_MP
 		puts("Unicore software on multiprocessor system!!\n"
@@ -129,6 +153,11 @@ int checkcpu (void)
 	}
 
 	get_sys_info(&sysinfo);
+
+#ifdef CONFIG_SYS_FSL_SINGLE_SOURCE_CLK
+	if (sysinfo.diff_sysclk == 1)
+		puts("Single Source Clock Configuration\n");
+#endif
 
 	puts("Clock Configuration:");
 	for_each_cpu(i, core, nr_cores, mask) {
@@ -272,7 +301,7 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifndef CONFIG_SYS_FSL_TBCLK_DIV
 #define CONFIG_SYS_FSL_TBCLK_DIV 8
 #endif
-unsigned long get_tbclk (void)
+__weak unsigned long get_tbclk (void)
 {
 	unsigned long tbclk_div = CONFIG_SYS_FSL_TBCLK_DIV;
 
@@ -338,7 +367,8 @@ void mpc85xx_reginfo(void)
 	!defined(CONFIG_SYS_INIT_L2_ADDR)
 phys_size_t initdram(int board_type)
 {
-#if defined(CONFIG_SPD_EEPROM) || defined(CONFIG_DDR_SPD)
+#if defined(CONFIG_SPD_EEPROM) || defined(CONFIG_DDR_SPD) || \
+	defined(CONFIG_QEMU_E500)
 	return fsl_ddr_sdram_size();
 #else
 	return (phys_size_t)CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;

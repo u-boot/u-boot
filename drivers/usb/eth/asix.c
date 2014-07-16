@@ -565,7 +565,7 @@ struct asix_dongle {
 	int flags;
 };
 
-static const struct asix_dongle const asix_dongles[] = {
+static const struct asix_dongle asix_dongles[] = {
 	{ 0x05ac, 0x1402, FLAG_TYPE_AX88772 },	/* Apple USB Ethernet Adapter */
 	{ 0x07d1, 0x3c05, FLAG_TYPE_AX88772 },	/* D-Link DUB-E100 H/W Ver B1 */
 	{ 0x2001, 0x1a02, FLAG_TYPE_AX88772 },	/* D-Link DUB-E100 H/W Ver C1 */

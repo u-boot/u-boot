@@ -60,9 +60,6 @@
 /* Watchdog Timer2 - MPU watchdog */
 #define WDT2_BASE		(OMAP44XX_L4_WKUP_BASE + 0x14000)
 
-/* GPMC */
-#define OMAP44XX_GPMC_BASE	0x50000000
-
 /*
  * Hardware Register Details
  */

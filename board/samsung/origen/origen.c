@@ -30,13 +30,6 @@ int board_usb_init(int index, enum usb_init_type init)
 	return 0;
 }
 
-#ifdef CONFIG_USB_CABLE_CHECK
-int usb_cable_connected(void)
-{
-	return 0;
-}
-#endif
-
 #ifdef CONFIG_BOARD_EARLY_INIT_F
 int exynos_early_init_f(void)
 {

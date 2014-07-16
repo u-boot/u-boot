@@ -87,7 +87,7 @@
 #define CONFIG_HOSTNAME		bf526-ezbrd
 /* Uncomment next line to use fixed MAC address */
 /* #define CONFIG_ETHADDR	02:80:ad:20:31:e8 */
-
+#define CONFIG_LIB_RAND
 
 /*
  * Flash Settings

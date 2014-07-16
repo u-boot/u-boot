@@ -29,14 +29,18 @@ int funcmux_select(enum periph_id id, int config)
 	case PERIPH_ID_UART1:
 		switch (config) {
 		case FUNCMUX_UART1_ULPI:
-			pinmux_set_func(PINGRP_ULPI_DATA0, PMUX_FUNC_UARTA);
-			pinmux_set_func(PINGRP_ULPI_DATA1, PMUX_FUNC_UARTA);
-			pinmux_set_func(PINGRP_ULPI_DATA2, PMUX_FUNC_UARTA);
-			pinmux_set_func(PINGRP_ULPI_DATA3, PMUX_FUNC_UARTA);
-			pinmux_tristate_disable(PINGRP_ULPI_DATA0);
-			pinmux_tristate_disable(PINGRP_ULPI_DATA1);
-			pinmux_tristate_disable(PINGRP_ULPI_DATA2);
-			pinmux_tristate_disable(PINGRP_ULPI_DATA3);
+			pinmux_set_func(PMUX_PINGRP_ULPI_DATA0_PO1,
+					PMUX_FUNC_UARTA);
+			pinmux_set_func(PMUX_PINGRP_ULPI_DATA1_PO2,
+					PMUX_FUNC_UARTA);
+			pinmux_set_func(PMUX_PINGRP_ULPI_DATA2_PO3,
+					PMUX_FUNC_UARTA);
+			pinmux_set_func(PMUX_PINGRP_ULPI_DATA3_PO4,
+					PMUX_FUNC_UARTA);
+			pinmux_tristate_disable(PMUX_PINGRP_ULPI_DATA0_PO1);
+			pinmux_tristate_disable(PMUX_PINGRP_ULPI_DATA1_PO2);
+			pinmux_tristate_disable(PMUX_PINGRP_ULPI_DATA2_PO3);
+			pinmux_tristate_disable(PMUX_PINGRP_ULPI_DATA3_PO4);
 			break;
 		}
 		break;

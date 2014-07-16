@@ -58,6 +58,14 @@
 #define MIIM_VSC8514_18G_QSGMII		0x80e0
 #define MIIM_VSC8514_18G_CMDSTAT	0x8000
 
+/* Vitesse VSC8664 Control/Status Register */
+#define MIIM_VSC8664_SERDES_AND_SIGDET	0x13
+#define MIIM_VSC8664_ADDITIONAL_DEV	0x16
+#define MIIM_VSC8664_EPHY_CON		0x17
+#define MIIM_VSC8664_LED_CON		0x1E
+
+#define PHY_EXT_PAGE_ACCESS_EXTENDED	0x0001
+
 /* CIS8201 */
 static int vitesse_config(struct phy_device *phydev)
 {
@@ -244,6 +252,33 @@ static int vsc8514_config(struct phy_device *phydev)
 	return 0;
 }
 
+static int vsc8664_config(struct phy_device *phydev)
+{
+	u32 val;
+
+	/* Enable MAC interface auto-negotiation */
+	phy_write(phydev, MDIO_DEVAD_NONE, PHY_EXT_PAGE_ACCESS, 0);
+	val = phy_read(phydev, MDIO_DEVAD_NONE, MIIM_VSC8664_EPHY_CON);
+	val |= (1 << 13);
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_VSC8664_EPHY_CON, val);
+
+	phy_write(phydev, MDIO_DEVAD_NONE, PHY_EXT_PAGE_ACCESS,
+		  PHY_EXT_PAGE_ACCESS_EXTENDED);
+	val = phy_read(phydev, MDIO_DEVAD_NONE, MIIM_VSC8664_SERDES_AND_SIGDET);
+	val |= (1 << 11);
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_VSC8664_SERDES_AND_SIGDET, val);
+	phy_write(phydev, MDIO_DEVAD_NONE, PHY_EXT_PAGE_ACCESS, 0);
+
+	/* Enable LED blink */
+	val = phy_read(phydev, MDIO_DEVAD_NONE, MIIM_VSC8664_LED_CON);
+	val &= ~(1 << 2);
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_VSC8664_LED_CON, val);
+
+	genphy_config_aneg(phydev);
+
+	return 0;
+}
+
 static struct phy_driver VSC8211_driver = {
 	.name	= "Vitesse VSC8211",
 	.uid	= 0xfc4b0,
@@ -296,7 +331,7 @@ static struct phy_driver VSC8574_driver = {
 
 static struct phy_driver VSC8514_driver = {
 	.name = "Vitesse VSC8514",
-	.uid = 0x70570,
+	.uid = 0x70670,
 	.mask = 0xffff0,
 	.features = PHY_GBIT_FEATURES,
 	.config = &vsc8514_config,
@@ -334,6 +369,16 @@ static struct phy_driver VSC8662_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
+static struct phy_driver VSC8664_driver = {
+	.name = "Vitesse VSC8664",
+	.uid = 0x70660,
+	.mask = 0xffff0,
+	.features = PHY_GBIT_FEATURES,
+	.config = &vsc8664_config,
+	.startup = &vitesse_startup,
+	.shutdown = &genphy_shutdown,
+};
+
 /* Vitesse bought Cicada, so we'll put these here */
 static struct phy_driver cis8201_driver = {
 	.name = "CIS8201",
@@ -366,6 +411,7 @@ int phy_vitesse_init(void)
 	phy_register(&VSC8574_driver);
 	phy_register(&VSC8514_driver);
 	phy_register(&VSC8662_driver);
+	phy_register(&VSC8664_driver);
 	phy_register(&cis8201_driver);
 	phy_register(&cis8204_driver);
 

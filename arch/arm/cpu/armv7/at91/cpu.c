@@ -61,6 +61,8 @@ int print_cpuinfo(void)
 
 void enable_caches(void)
 {
+	icache_enable();
+	dcache_enable();
 }
 
 unsigned int get_chip_id(void)

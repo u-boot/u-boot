@@ -68,6 +68,18 @@
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_MICREL
 
+/* QSPI Configs*/
+#define CONFIG_FSL_QSPI
+
+#ifdef CONFIG_FSL_QSPI
+#define CONFIG_CMD_SF
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_SPANSION
+#define FSL_QSPI_FLASH_SIZE		(1 << 24)
+#define FSL_QSPI_FLASH_NUM		2
+#define CONFIG_SYS_FSL_QSPI_LE
+#endif
+
 /* I2C Configs */
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C

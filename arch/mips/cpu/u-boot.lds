@@ -53,6 +53,7 @@ SECTIONS
 
 	. = ALIGN(4);
 	__image_copy_end = .;
+	__init_end = .;
 
 	.rel.dyn : {
 		__rel_dyn_start = .;
@@ -60,27 +61,7 @@ SECTIONS
 		__rel_dyn_end = .;
 	}
 
-	.deadcode : {
-		/*
-		 * Workaround for a binutils feature (or bug?).
-		 *
-		 * The GNU ld from binutils puts the dynamic relocation
-		 * entries into the .rel.dyn section. Sometimes it
-		 * allocates more dynamic relocation entries than it needs
-		 * and the unused slots are set to R_MIPS_NONE entries.
-		 *
-		 * However the size of the .rel.dyn section in the ELF
-		 * section header does not cover the unused entries, so
-		 * objcopy removes those during stripping.
-		 *
-		 * Create a small section here to avoid that.
-		 */
-		LONG(0xffffffff);
-	}
-
-	.dynsym : {
-		*(.dynsym)
-	}
+	_end = .;
 
 	.bss __rel_dyn_start (OVERLAY) : {
 		__bss_start = .;
@@ -91,15 +72,39 @@ SECTIONS
 		__bss_end = .;
 	}
 
-	/DISCARD/ : {
+	.dynsym _end : {
+		*(.dynsym)
+	}
+
+	.dynbss : {
 		*(.dynbss)
+	}
+
+	.dynstr : {
 		*(.dynstr)
+	}
+
+	.dynamic : {
 		*(.dynamic)
-		*(.interp)
-		*(.hash)
-		*(.gnu.*)
+	}
+
+	.plt : {
 		*(.plt)
-		*(.got.plt)
-		*(.rel.plt)
+	}
+
+	.interp : {
+		*(.interp)
+	}
+
+	.gnu : {
+		*(.gnu*)
+	}
+
+	.MIPS.stubs : {
+		*(.MIPS.stubs)
+	}
+
+	.hash : {
+		*(.hash)
 	}
 }

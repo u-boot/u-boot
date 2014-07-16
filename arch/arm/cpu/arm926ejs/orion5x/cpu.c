@@ -15,7 +15,6 @@
 #include <asm/io.h>
 #include <u-boot/md5.h>
 #include <asm/arch/cpu.h>
-#include <hush.h>
 
 #define BUFLEN	16
 

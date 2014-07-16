@@ -6,5 +6,6 @@
 # SPDX-License-Identifier:  GPL-2.0+
 #
 
-obj-y  := gw_ventana.o gsc.o
+obj-y  := gw_ventana.o gsc.o eeprom.o
+obj-$(CONFIG_SPL_BUILD) += gw_ventana_spl.o
 

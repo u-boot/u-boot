@@ -55,13 +55,12 @@ CONFIG_NAME="${7%_config}"
 arch="$2"
 cpu=`echo $3 | awk 'BEGIN {FS = ":"} ; {print $1}'`
 spl_cpu=`echo $3 | awk 'BEGIN {FS = ":"} ; {print $2}'`
-if [ "$6" = "<none>" ] ; then
-	board=
-elif [ "$6" = "-" ] ; then
-	board=${BOARD_NAME}
-else
-	board="$6"
+
+if [ "$cpu" = "-" ] ; then
+	cpu=
 fi
+
+[ "$6" != "-" ] && board="$6"
 [ "$5" != "-" ] && vendor="$5"
 [ "$4" != "-" ] && soc="$4"
 [ $# -gt 7 ] && [ "$8" != "-" ] && {
@@ -114,15 +113,10 @@ fi
 
 rm -f asm/arch
 
-if [ -z "${soc}" ] ; then
-	ln -s ${LNPREFIX}arch-${cpu} asm/arch
-else
+if [ "${soc}" ] ; then
 	ln -s ${LNPREFIX}arch-${soc} asm/arch
-fi
-
-if [ "${arch}" = "arm" ] ; then
-	rm -f asm/proc
-	ln -s ${LNPREFIX}proc-armv asm/proc
+elif [ "${cpu}" ] ; then
+	ln -s ${LNPREFIX}arch-${cpu} asm/arch
 fi
 
 if [ -z "$KBUILD_SRC" ] ; then

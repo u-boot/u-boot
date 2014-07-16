@@ -18,6 +18,7 @@
 #include <phy.h>
 #include <errno.h>
 #include <linux/err.h>
+#include <linux/compiler.h>
 
 /* Generic PHY support and helper functions */
 
@@ -577,7 +578,7 @@ static struct phy_device *phy_device_create(struct mii_dev *bus, int addr,
  * Description: Reads the ID registers of the PHY at @addr on the
  *   @bus, stores it in @phy_id and returns zero on success.
  */
-static int get_phy_id(struct mii_dev *bus, int addr, int devad, u32 *phy_id)
+int __weak get_phy_id(struct mii_dev *bus, int addr, int devad, u32 *phy_id)
 {
 	int phy_reg;
 
@@ -608,10 +609,8 @@ static struct phy_device *create_phy_by_mask(struct mii_dev *bus,
 	while (phy_mask) {
 		int addr = ffs(phy_mask) - 1;
 		int r = get_phy_id(bus, addr, devad, &phy_id);
-		if (r < 0)
-			return ERR_PTR(r);
 		/* If the PHY ID is mostly f's, we didn't find anything */
-		if ((phy_id & 0x1fffffff) != 0x1fffffff)
+		if (r == 0 && (phy_id & 0x1fffffff) != 0x1fffffff)
 			return phy_device_create(bus, addr, phy_id, interface);
 		phy_mask &= ~(1 << addr);
 	}

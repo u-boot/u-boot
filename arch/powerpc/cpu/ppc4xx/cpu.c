@@ -607,9 +607,6 @@ int checkcpu (void)
 #if defined(SDR0_PINSTP_SHIFT)
 	printf ("       Bootstrap Option %c - ", bootstrap_char[bootstrap_option()]);
 	printf ("Boot ROM Location %s", bootstrap_str[bootstrap_option()]);
-#ifdef CONFIG_NAND_U_BOOT
-	puts(", booting from NAND");
-#endif /* CONFIG_NAND_U_BOOT */
 	putc('\n');
 #endif	/* SDR0_PINSTP_SHIFT */
 

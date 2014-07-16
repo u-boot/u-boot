@@ -6,13 +6,9 @@
  */
 
 /*
- * Problems with CONFIG_SYS_64BIT_LBA:
- *
- * struct disk_partition.start in include/part.h is sized as ulong.
- * When CONFIG_SYS_64BIT_LBA is activated, lbaint_t changes from ulong to uint64_t.
- * For now, it is cast back to ulong at assignment.
- *
- * This limits the maximum size of addressable storage to < 2 Terra Bytes
+ * NOTE:
+ *   when CONFIG_SYS_64BIT_LBA is not defined, lbaint_t is 32 bits; this
+ *   limits the maximum size of addressable storage to < 2 Terra Bytes
  */
 #include <asm/unaligned.h>
 #include <common.h>
@@ -43,8 +39,8 @@ static inline u32 efi_crc32(const void *buf, u32 len)
 
 static int pmbr_part_valid(struct partition *part);
 static int is_pmbr_valid(legacy_mbr * mbr);
-static int is_gpt_valid(block_dev_desc_t * dev_desc, unsigned long long lba,
-				gpt_header * pgpt_head, gpt_entry ** pgpt_pte);
+static int is_gpt_valid(block_dev_desc_t *dev_desc, u64 lba,
+				gpt_header *pgpt_head, gpt_entry **pgpt_pte);
 static gpt_entry *alloc_read_gpt_entries(block_dev_desc_t * dev_desc,
 				gpt_header * pgpt_head);
 static int is_pte_valid(gpt_entry * pte);
@@ -93,7 +89,15 @@ void print_part_efi(block_dev_desc_t * dev_desc)
 	if (is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
 			 gpt_head, &gpt_pte) != 1) {
 		printf("%s: *** ERROR: Invalid GPT ***\n", __func__);
-		return;
+		if (is_gpt_valid(dev_desc, (dev_desc->lba - 1),
+				 gpt_head, &gpt_pte) != 1) {
+			printf("%s: *** ERROR: Invalid Backup GPT ***\n",
+			       __func__);
+			return;
+		} else {
+			printf("%s: ***        Using Backup GPT ***\n",
+			       __func__);
+		}
 	}
 
 	debug("%s: gpt-entry at %p\n", __func__, gpt_pte);
@@ -142,7 +146,15 @@ int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 	if (is_gpt_valid(dev_desc, GPT_PRIMARY_PARTITION_TABLE_LBA,
 			gpt_head, &gpt_pte) != 1) {
 		printf("%s: *** ERROR: Invalid GPT ***\n", __func__);
-		return -1;
+		if (is_gpt_valid(dev_desc, (dev_desc->lba - 1),
+				 gpt_head, &gpt_pte) != 1) {
+			printf("%s: *** ERROR: Invalid Backup GPT ***\n",
+			       __func__);
+			return -1;
+		} else {
+			printf("%s: ***        Using Backup GPT ***\n",
+			       __func__);
+		}
 	}
 
 	if (part > le32_to_cpu(gpt_head->num_partition_entries) ||
@@ -153,10 +165,10 @@ int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 		return -1;
 	}
 
-	/* The ulong casting limits the maximum disk size to 2 TB */
-	info->start = (u64)le64_to_cpu(gpt_pte[part - 1].starting_lba);
+	/* The 'lbaint_t' casting may limit the maximum disk size to 2 TB */
+	info->start = (lbaint_t)le64_to_cpu(gpt_pte[part - 1].starting_lba);
 	/* The ending LBA is inclusive, to calculate size, add 1 to it */
-	info->size = ((u64)le64_to_cpu(gpt_pte[part - 1].ending_lba) + 1)
+	info->size = (lbaint_t)le64_to_cpu(gpt_pte[part - 1].ending_lba) + 1
 		     - info->start;
 	info->blksz = dev_desc->blksz;
 
@@ -169,12 +181,31 @@ int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 			UUID_STR_FORMAT_GUID);
 #endif
 
-	debug("%s: start 0x" LBAF ", size 0x" LBAF ", name %s", __func__,
+	debug("%s: start 0x" LBAF ", size 0x" LBAF ", name %s\n", __func__,
 	      info->start, info->size, info->name);
 
 	/* Remember to free pte */
 	free(gpt_pte);
 	return 0;
+}
+
+int get_partition_info_efi_by_name(block_dev_desc_t *dev_desc,
+	const char *name, disk_partition_t *info)
+{
+	int ret;
+	int i;
+	for (i = 1; i < GPT_ENTRY_NUMBERS; i++) {
+		ret = get_partition_info_efi(dev_desc, i, info);
+		if (ret != 0) {
+			/* no more entries in table */
+			return -1;
+		}
+		if (strcmp(name, (const char *)info->name) == 0) {
+			/* matched */
+			return 0;
+		}
+	}
+	return -2;
 }
 
 int test_part_efi(block_dev_desc_t * dev_desc)
@@ -252,7 +283,7 @@ int write_gpt_table(block_dev_desc_t *dev_desc,
 	    != pte_blk_cnt)
 		goto err;
 
-	/* recalculate the values for the Second GPT Header */
+	/* recalculate the values for the Backup GPT Header */
 	val = le64_to_cpu(gpt_h->my_lba);
 	gpt_h->my_lba = gpt_h->alternate_lba;
 	gpt_h->alternate_lba = cpu_to_le64(val);
@@ -263,12 +294,14 @@ int write_gpt_table(block_dev_desc_t *dev_desc,
 	gpt_h->header_crc32 = cpu_to_le32(calc_crc32);
 
 	if (dev_desc->block_write(dev_desc->dev,
-				  le32_to_cpu(gpt_h->last_usable_lba + 1),
+				  (lbaint_t)le64_to_cpu(gpt_h->last_usable_lba)
+				  + 1,
 				  pte_blk_cnt, gpt_e) != pte_blk_cnt)
 		goto err;
 
 	if (dev_desc->block_write(dev_desc->dev,
-				  le32_to_cpu(gpt_h->my_lba), 1, gpt_h) != 1)
+				  (lbaint_t)le64_to_cpu(gpt_h->my_lba), 1,
+				  gpt_h) != 1)
 		goto err;
 
 	debug("GPT successfully written to block device!\n");
@@ -282,8 +315,10 @@ int write_gpt_table(block_dev_desc_t *dev_desc,
 int gpt_fill_pte(gpt_header *gpt_h, gpt_entry *gpt_e,
 		disk_partition_t *partitions, int parts)
 {
-	u32 offset = (u32)le32_to_cpu(gpt_h->first_usable_lba);
-	ulong start;
+	lbaint_t offset = (lbaint_t)le64_to_cpu(gpt_h->first_usable_lba);
+	lbaint_t start;
+	lbaint_t last_usable_lba = (lbaint_t)
+			le64_to_cpu(gpt_h->last_usable_lba);
 	int i, k;
 	size_t efiname_len, dosname_len;
 #ifdef CONFIG_PARTITION_UUIDS
@@ -305,7 +340,7 @@ int gpt_fill_pte(gpt_header *gpt_h, gpt_entry *gpt_e,
 			gpt_e[i].starting_lba = cpu_to_le64(offset);
 			offset += partitions[i].size;
 		}
-		if (offset >= gpt_h->last_usable_lba) {
+		if (offset >= last_usable_lba) {
 			printf("Partitions layout exceds disk size\n");
 			return -1;
 		}
@@ -347,7 +382,8 @@ int gpt_fill_pte(gpt_header *gpt_h, gpt_entry *gpt_e,
 			gpt_e[i].partition_name[k] =
 				(efi_char16_t)(partitions[i].name[k]);
 
-		debug("%s: name: %s offset[%d]: 0x%x size[%d]: 0x" LBAF "\n",
+		debug("%s: name: %s offset[%d]: 0x" LBAF
+		      " size[%d]: 0x" LBAF "\n",
 		      __func__, partitions[i].name, i,
 		      offset, i, partitions[i].size);
 	}
@@ -471,12 +507,12 @@ static int is_pmbr_valid(legacy_mbr * mbr)
  * Description: returns 1 if valid,  0 on error.
  * If valid, returns pointers to PTEs.
  */
-static int is_gpt_valid(block_dev_desc_t * dev_desc, unsigned long long lba,
-			gpt_header * pgpt_head, gpt_entry ** pgpt_pte)
+static int is_gpt_valid(block_dev_desc_t *dev_desc, u64 lba,
+			gpt_header *pgpt_head, gpt_entry **pgpt_pte)
 {
 	u32 crc32_backup = 0;
 	u32 calc_crc32;
-	unsigned long long lastlba;
+	u64 lastlba;
 
 	if (!dev_desc || !pgpt_head) {
 		printf("%s: Invalid Argument(s)\n", __func__);
@@ -484,7 +520,8 @@ static int is_gpt_valid(block_dev_desc_t * dev_desc, unsigned long long lba,
 	}
 
 	/* Read GPT Header from device */
-	if (dev_desc->block_read(dev_desc->dev, lba, 1, pgpt_head) != 1) {
+	if (dev_desc->block_read(dev_desc->dev, (lbaint_t)lba, 1, pgpt_head)
+			!= 1) {
 		printf("*** ERROR: Can't read GPT header ***\n");
 		return 0;
 	}
@@ -523,7 +560,7 @@ static int is_gpt_valid(block_dev_desc_t * dev_desc, unsigned long long lba,
 	}
 
 	/* Check the first_usable_lba and last_usable_lba are within the disk. */
-	lastlba = (unsigned long long)dev_desc->lba;
+	lastlba = (u64)dev_desc->lba;
 	if (le64_to_cpu(pgpt_head->first_usable_lba) > lastlba) {
 		printf("GPT: first_usable_lba incorrect: %llX > %llX\n",
 			le64_to_cpu(pgpt_head->first_usable_lba), lastlba);
@@ -531,7 +568,7 @@ static int is_gpt_valid(block_dev_desc_t * dev_desc, unsigned long long lba,
 	}
 	if (le64_to_cpu(pgpt_head->last_usable_lba) > lastlba) {
 		printf("GPT: last_usable_lba incorrect: %llX > %llX\n",
-			(u64) le64_to_cpu(pgpt_head->last_usable_lba), lastlba);
+			le64_to_cpu(pgpt_head->last_usable_lba), lastlba);
 		return 0;
 	}
 
@@ -608,7 +645,7 @@ static gpt_entry *alloc_read_gpt_entries(block_dev_desc_t * dev_desc,
 	/* Read GPT Entries from device */
 	blk_cnt = BLOCK_CNT(count, dev_desc);
 	if (dev_desc->block_read (dev_desc->dev,
-		le64_to_cpu(pgpt_head->partition_entry_lba),
+		(lbaint_t)le64_to_cpu(pgpt_head->partition_entry_lba),
 		(lbaint_t) (blk_cnt), pte)
 		!= blk_cnt) {
 

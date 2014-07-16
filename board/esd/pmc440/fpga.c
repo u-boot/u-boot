@@ -20,7 +20,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define USE_SP_CODE
 
 #ifdef USE_SP_CODE
-Xilinx_Spartan3_Slave_Parallel_fns pmc440_fpga_fns = {
+xilinx_spartan3_slave_parallel_fns pmc440_fpga_fns = {
 	fpga_pre_config_fn,
 	fpga_pgm_fn,
 	fpga_init_fn,
@@ -36,7 +36,7 @@ Xilinx_Spartan3_Slave_Parallel_fns pmc440_fpga_fns = {
 	fpga_post_config_fn,
 };
 #else
-Xilinx_Spartan3_Slave_Serial_fns pmc440_fpga_fns = {
+xilinx_spartan3_slave_serial_fns pmc440_fpga_fns = {
 	fpga_pre_config_fn,
 	fpga_pgm_fn,
 	fpga_clk_fn,
@@ -47,7 +47,7 @@ Xilinx_Spartan3_Slave_Serial_fns pmc440_fpga_fns = {
 };
 #endif
 
-Xilinx_Spartan2_Slave_Serial_fns ngcc_fpga_fns = {
+xilinx_spartan2_slave_serial_fns ngcc_fpga_fns = {
 	ngcc_fpga_pre_config_fn,
 	ngcc_fpga_pgm_fn,
 	ngcc_fpga_clk_fn,
@@ -57,7 +57,7 @@ Xilinx_Spartan2_Slave_Serial_fns ngcc_fpga_fns = {
 	ngcc_fpga_post_config_fn
 };
 
-Xilinx_desc fpga[CONFIG_FPGA_COUNT] = {
+xilinx_desc fpga[CONFIG_FPGA_COUNT] = {
 	XILINX_XC3S1200E_DESC(
 #ifdef USE_SP_CODE
 		slave_parallel,

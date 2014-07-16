@@ -9,8 +9,8 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #include <u-boot/md5.h>
-#include <rsa.h>
-#include <sha256.h>
+#include <u-boot/rsa.h>
+#include <u-boot/sha256.h>
 #include <spi_flash.h>
 #include <zynqpl.h>
 

@@ -332,7 +332,10 @@
 #define CONFIG_FPGA_XILINX
 #define CONFIG_FPGA_ZYNQPL
 #define CONFIG_CMD_FPGA
-#define CONFIG_FPGA_LOADFS
+#define CONFIG_CMD_FPGA_LOADMK
+#define CONFIG_CMD_FPGA_LOADP
+#define CONFIG_CMD_FPGA_LOADBP
+#define CONFIG_CMD_FPGA_LOADFS
 
 /* Open Firmware flat tree */
 #define CONFIG_OF_LIBFDT
@@ -340,6 +343,7 @@
 /* FIT support */
 #define CONFIG_FIT
 #define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
+#define CONFIG_IMAGE_FORMAT_LEGACY /* enable also legacy image format */
 
 /* Extend size of kernel image for uncompression */
 #define CONFIG_SYS_BOOTM_LEN	(60 * 1024 * 1024)
@@ -417,11 +421,24 @@
 #define CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION    1
 #define CONFIG_SPL_LIBDISK_SUPPORT
 #define CONFIG_SPL_FAT_SUPPORT
-#define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME     "u-boot.img"
+#if defined(CONFIG_OF_CONTROL) && defined(CONFIG_OF_SEPARATE)
+# define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME     "u-boot-dtb.img"
+#else
+# define CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME     "u-boot.img"
+#endif
+#endif
+
+/* Disable dcache for SPL just for sure */
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_SYS_DCACHE_OFF
+#undef CONFIG_FPGA
+#undef CONFIG_OF_CONTROL
 #endif
 
 /* Address in RAM where the parameters must be copied by SPL. */
 #define CONFIG_SYS_SPL_ARGS_ADDR	0x10000000
+#define CONFIG_SYS_SPI_ARGS_OFFS	0 /* FIXME */
+#define CONFIG_SYS_SPI_ARGS_SIZE	0 /* FIXME */
 
 #define CONFIG_SPL_FAT_LOAD_ARGS_NAME		"system.dtb"
 #define CONFIG_SPL_FAT_LOAD_KERNEL_NAME		"uImage"
@@ -451,6 +468,7 @@
 
 /* for booting directly linux */
 #define CONFIG_SPL_OS_BOOT
+#define CONFIG_SYS_SPI_KERNEL_OFFS	0 /* FIXME */
 
 /* SP location before relocation, must use scratch RAM */
 #define CONFIG_SPL_TEXT_BASE	0x0

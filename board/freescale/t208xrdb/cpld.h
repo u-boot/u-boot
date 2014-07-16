@@ -35,8 +35,8 @@ void cpld_write(unsigned int reg, u8 value);
 #define CPLD_LBMAP_MASK		0x3F
 #define CPLD_BANK_SEL_MASK	0x07
 #define CPLD_BANK_OVERRIDE	0x40
-#define CPLD_LBMAP_ALTBANK	0x43 /* BANK OR | BANK 4 */
-#define CPLD_LBMAP_DFLTBANK	0x47 /* BANK OR | BANK 0 */
+#define CPLD_LBMAP_ALTBANK	0x44 /* BANK OR | BANK 4 */
+#define CPLD_LBMAP_DFLTBANK	0x40 /* BANK OR | BANK 0 */
 #define CPLD_LBMAP_RESET	0xFF
 #define CPLD_LBMAP_SHIFT	0x03
 #define CPLD_BOOT_SEL		0x80

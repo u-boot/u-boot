@@ -541,7 +541,8 @@ extern unsigned long get_sdram_size(void);
 					FTIM2_GPCM_TWP(0x1f))
 #define CONFIG_SYS_CS3_FTIM3		0x0
 
-#if defined(CONFIG_RAMBOOT_SDCARD) || defined(CONFIG_RAMBOOT_SPIFLASH)
+#if defined(CONFIG_RAMBOOT_SDCARD) || defined(CONFIG_RAMBOOT_SPIFLASH) || \
+	defined(CONFIG_RAMBOOT_NAND)
 #define CONFIG_SYS_RAMBOOT
 #define CONFIG_SYS_EXTRA_ENV_RELOC
 #else
@@ -549,8 +550,7 @@ extern unsigned long get_sdram_size(void);
 #endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_IFC_A003399
-#if !defined(CONFIG_SPL) && !defined(CONFIG_SYS_RAMBOOT)\
-	&& !defined(CONFIG_SECURE_BOOT)
+#if !defined(CONFIG_SPL) && !defined(CONFIG_SYS_RAMBOOT)
 #define CONFIG_A003399_NOR_WORKAROUND
 #endif
 #endif
@@ -566,7 +566,7 @@ extern unsigned long get_sdram_size(void);
 						- GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_LEN		(256 * 1024) /* Reserve 256 kB for Mon*/
+#define CONFIG_SYS_MONITOR_LEN		(768 * 1024)
 #define CONFIG_SYS_MALLOC_LEN		(1024 * 1024)	/* Reserved for malloc*/
 
 /*
