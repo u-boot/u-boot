@@ -30,6 +30,17 @@
 #define serial_in(y)		readb(y)
 #endif
 
+#if defined(CONFIG_K2HK_EVM)
+#define UART_REG_VAL_PWREMU_MGMT_UART_DISABLE   0
+#define UART_REG_VAL_PWREMU_MGMT_UART_ENABLE ((1 << 14) | (1 << 13) | (1 << 0))
+#undef UART_MCRVAL
+#ifdef CONFIG_SERIAL_HW_FLOW_CONTROL
+#define UART_MCRVAL             (UART_MCR_RTS | UART_MCR_AFE)
+#else
+#define UART_MCRVAL             (UART_MCR_RTS)
+#endif
+#endif
+
 #ifndef CONFIG_SYS_NS16550_IER
 #define CONFIG_SYS_NS16550_IER  0x00
 #endif /* CONFIG_SYS_NS16550_IER */
@@ -77,6 +88,9 @@ void NS16550_init(NS16550_t com_port, int baud_divisor)
 	/* /16 is proper to hit 115200 with 48MHz */
 	serial_out(0, &com_port->mdr1);
 #endif /* CONFIG_OMAP */
+#if defined(CONFIG_K2HK_EVM)
+	serial_out(UART_REG_VAL_PWREMU_MGMT_UART_ENABLE, &com_port->regC);
+#endif
 }
 
 #ifndef CONFIG_NS16550_MIN_FUNCTIONS

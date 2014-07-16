@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <cli.h>
 #include <command.h>
 #include "yucca.h"
 #include <i2c.h>
@@ -51,7 +52,7 @@ static int setBootStrapClock(cmd_tbl_t *cmdtp, int incrflag, int flag,
 
 	do {
 		printf("enter sys clock frequency 33 or 66 MHz or quit to abort\n");
-		nbytes = readline (" ? ");
+		nbytes = cli_readline(" ? ");
 
 		if (strcmp(console_buffer, "quit") == 0)
 			return 0;
@@ -74,7 +75,7 @@ static int setBootStrapClock(cmd_tbl_t *cmdtp, int incrflag, int flag,
 			printf("enter cpu clock frequency 400, 500, 533 MHz or quit to abort\n");
 #endif
 		}
-		nbytes = readline (" ? ");
+		nbytes = cli_readline(" ? ");
 
 		if (strcmp(console_buffer, "quit") == 0)
 			return 0;
@@ -118,7 +119,7 @@ static int setBootStrapClock(cmd_tbl_t *cmdtp, int incrflag, int flag,
 				printf("enter plb clock frequency 133, 166 MHz or quit to abort\n");
 
 #endif
-			nbytes = readline (" ? ");
+			nbytes = cli_readline(" ? ");
 
 			if (strcmp(console_buffer, "quit") == 0)
 				return 0;
@@ -142,7 +143,7 @@ static int setBootStrapClock(cmd_tbl_t *cmdtp, int incrflag, int flag,
 
 	do {
 		printf("enter Pci-X clock frequency 33, 66, 100 or 133 MHz or quit to abort\n");
-		nbytes = readline (" ? ");
+		nbytes = cli_readline(" ? ");
 
 		if (strcmp(console_buffer, "quit") == 0)
 			return 0;
@@ -163,13 +164,13 @@ static int setBootStrapClock(cmd_tbl_t *cmdtp, int incrflag, int flag,
 	printf("Pci-X clk = %s MHz\n", pcixClock);
 
 	do {
-		printf("\npress [y] to write I2C bootstrap \n");
-		printf("or [n] to abort.  \n");
-		printf("Don't forget to set board switches \n");
-		printf("according to your choice before re-starting \n");
-		printf("(refer to 440spe_uboot_kit_um_1_01.pdf) \n");
+		printf("\npress [y] to write I2C bootstrap\n");
+		printf("or [n] to abort.\n");
+		printf("Don't forget to set board switches\n");
+		printf("according to your choice before re-starting\n");
+		printf("(refer to 440spe_uboot_kit_um_1_01.pdf)\n");
 
-		nbytes = readline (" ? ");
+		nbytes = cli_readline(" ? ");
 		if (strcmp(console_buffer, "n") == 0)
 			return 0;
 

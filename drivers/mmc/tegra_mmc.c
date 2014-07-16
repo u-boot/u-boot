@@ -18,8 +18,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct mmc mmc_dev[MAX_HOSTS];
-struct mmc_host mmc_host[MAX_HOSTS];
+struct mmc_host mmc_host[CONFIG_SYS_MMC_MAX_DEVICE];
 
 #ifndef CONFIG_OF_CONTROL
 #error "Please enable device tree support to use this driver"
@@ -145,7 +144,7 @@ static int mmc_wait_inhibit(struct mmc_host *host,
 static int mmc_send_cmd_bounced(struct mmc *mmc, struct mmc_cmd *cmd,
 			struct mmc_data *data, struct bounce_buffer *bbstate)
 {
-	struct mmc_host *host = (struct mmc_host *)mmc->priv;
+	struct mmc_host *host = mmc->priv;
 	int flags, i;
 	int result;
 	unsigned int mask = 0;
@@ -314,7 +313,7 @@ static int mmc_send_cmd_bounced(struct mmc *mmc, struct mmc_cmd *cmd,
 	return 0;
 }
 
-static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
+static int tegra_mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			struct mmc_data *data)
 {
 	void *buf;
@@ -396,7 +395,7 @@ out:
 	host->clock = clock;
 }
 
-static void mmc_set_ios(struct mmc *mmc)
+static void tegra_mmc_set_ios(struct mmc *mmc)
 {
 	struct mmc_host *host = mmc->priv;
 	unsigned char ctrl;
@@ -456,7 +455,7 @@ static void mmc_reset(struct mmc_host *host, struct mmc *mmc)
 	}
 
 	/* Set SD bus voltage & enable bus power */
-	mmc_set_power(host, fls(mmc->voltages) - 1);
+	mmc_set_power(host, fls(mmc->cfg->voltages) - 1);
 	debug("%s: power control = %02X, host control = %02X\n", __func__,
 		readb(&host->reg->pwrcon), readb(&host->reg->hostctl));
 
@@ -464,9 +463,9 @@ static void mmc_reset(struct mmc_host *host, struct mmc *mmc)
 	pad_init_mmc(host);
 }
 
-static int mmc_core_init(struct mmc *mmc)
+static int tegra_mmc_core_init(struct mmc *mmc)
 {
-	struct mmc_host *host = (struct mmc_host *)mmc->priv;
+	struct mmc_host *host = mmc->priv;
 	unsigned int mask;
 	debug(" mmc_core_init called\n");
 
@@ -511,7 +510,7 @@ static int mmc_core_init(struct mmc *mmc)
 
 int tegra_mmc_getcd(struct mmc *mmc)
 {
-	struct mmc_host *host = (struct mmc_host *)mmc->priv;
+	struct mmc_host *host = mmc->priv;
 
 	debug("tegra_mmc_getcd called\n");
 
@@ -520,6 +519,13 @@ int tegra_mmc_getcd(struct mmc *mmc)
 
 	return 1;
 }
+
+static const struct mmc_ops tegra_mmc_ops = {
+	.send_cmd	= tegra_mmc_send_cmd,
+	.set_ios	= tegra_mmc_set_ios,
+	.init		= tegra_mmc_core_init,
+	.getcd		= tegra_mmc_getcd,
+};
 
 static int do_mmc_init(int dev_index)
 {
@@ -554,23 +560,18 @@ static int do_mmc_init(int dev_index)
 		debug(" CD GPIO name = %s\n", host->cd_gpio.name);
 	}
 
-	mmc = &mmc_dev[dev_index];
+	memset(&host->cfg, 0, sizeof(host->cfg));
 
-	sprintf(mmc->name, "Tegra SD/MMC");
-	mmc->priv = host;
-	mmc->send_cmd = mmc_send_cmd;
-	mmc->set_ios = mmc_set_ios;
-	mmc->init = mmc_core_init;
-	mmc->getcd = tegra_mmc_getcd;
-	mmc->getwp = NULL;
+	host->cfg.name = "Tegra SD/MMC";
+	host->cfg.ops = &tegra_mmc_ops;
 
-	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
-	mmc->host_caps = 0;
+	host->cfg.voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
+	host->cfg.host_caps = 0;
 	if (host->width == 8)
-		mmc->host_caps |= MMC_MODE_8BIT;
+		host->cfg.host_caps |= MMC_MODE_8BIT;
 	if (host->width >= 4)
-		mmc->host_caps |= MMC_MODE_4BIT;
-	mmc->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS | MMC_MODE_HC;
+		host->cfg.host_caps |= MMC_MODE_4BIT;
+	host->cfg.host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS | MMC_MODE_HC;
 
 	/*
 	 * min freq is for card identification, and is the highest
@@ -578,10 +579,14 @@ static int do_mmc_init(int dev_index)
 	 * max freq is highest HS eMMC clock as per the SD/MMC spec
 	 *  (actually 52MHz)
 	 */
-	mmc->f_min = 375000;
-	mmc->f_max = 48000000;
+	host->cfg.f_min = 375000;
+	host->cfg.f_max = 48000000;
 
-	mmc_register(mmc);
+	host->cfg.b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
+
+	mmc = mmc_create(&host->cfg, host);
+	if (mmc == NULL)
+		return -1;
 
 	return 0;
 }
@@ -664,13 +669,14 @@ static int process_nodes(const void *blob, int node_list[], int count)
 
 void tegra_mmc_init(void)
 {
-	int node_list[MAX_HOSTS], count;
+	int node_list[CONFIG_SYS_MMC_MAX_DEVICE], count;
 	const void *blob = gd->fdt_blob;
 	debug("%s entry\n", __func__);
 
 	/* See if any Tegra124 MMC controllers are present */
 	count = fdtdec_find_aliases_for_id(blob, "sdhci",
-		COMPAT_NVIDIA_TEGRA124_SDMMC, node_list, MAX_HOSTS);
+		COMPAT_NVIDIA_TEGRA124_SDMMC, node_list,
+		CONFIG_SYS_MMC_MAX_DEVICE);
 	debug("%s: count of Tegra124 sdhci nodes is %d\n", __func__, count);
 	if (process_nodes(blob, node_list, count)) {
 		printf("%s: Error processing T30 mmc node(s)!\n", __func__);
@@ -679,7 +685,8 @@ void tegra_mmc_init(void)
 
 	/* See if any Tegra30 MMC controllers are present */
 	count = fdtdec_find_aliases_for_id(blob, "sdhci",
-		COMPAT_NVIDIA_TEGRA30_SDMMC, node_list, MAX_HOSTS);
+		COMPAT_NVIDIA_TEGRA30_SDMMC, node_list,
+		CONFIG_SYS_MMC_MAX_DEVICE);
 	debug("%s: count of T30 sdhci nodes is %d\n", __func__, count);
 	if (process_nodes(blob, node_list, count)) {
 		printf("%s: Error processing T30 mmc node(s)!\n", __func__);
@@ -688,7 +695,8 @@ void tegra_mmc_init(void)
 
 	/* Now look for any Tegra20 MMC controllers */
 	count = fdtdec_find_aliases_for_id(blob, "sdhci",
-		COMPAT_NVIDIA_TEGRA20_SDMMC, node_list, MAX_HOSTS);
+		COMPAT_NVIDIA_TEGRA20_SDMMC, node_list,
+		CONFIG_SYS_MMC_MAX_DEVICE);
 	debug("%s: count of T20 sdhci nodes is %d\n", __func__, count);
 	if (process_nodes(blob, node_list, count)) {
 		printf("%s: Error processing T20 mmc node(s)!\n", __func__);

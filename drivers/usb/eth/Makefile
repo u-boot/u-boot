@@ -8,4 +8,5 @@ obj-$(CONFIG_USB_HOST_ETHER) += usb_ether.o
 ifdef CONFIG_USB_ETHER_ASIX
 obj-y += asix.o
 endif
+obj-$(CONFIG_USB_ETHER_MCS7830) += mcs7830.o
 obj-$(CONFIG_USB_ETHER_SMSC95XX) += smsc95xx.o

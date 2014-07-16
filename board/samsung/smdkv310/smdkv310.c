@@ -15,15 +15,13 @@
 #include <asm/arch/sromc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-struct exynos4_gpio_part1 *gpio1;
-struct exynos4_gpio_part2 *gpio2;
 
 static void smc9115_pre_init(void)
 {
 	u32 smc_bw_conf, smc_bc_conf;
 
 	/* gpio configuration GPK0CON */
-	s5p_gpio_cfg_pin(&gpio2->y0, CONFIG_ENV_SROM_BANK, GPIO_FUNC(2));
+	gpio_cfg_pin(EXYNOS4_GPIO_Y00 + CONFIG_ENV_SROM_BANK, S5P_GPIO_FUNC(2));
 
 	/* Ethernet needs bus width of 16 bits */
 	smc_bw_conf = SROMC_DATA16_WIDTH(CONFIG_ENV_SROM_BANK);
@@ -38,9 +36,6 @@ static void smc9115_pre_init(void)
 
 int board_init(void)
 {
-	gpio1 = (struct exynos4_gpio_part1 *) EXYNOS4_GPIO_PART1_BASE;
-	gpio2 = (struct exynos4_gpio_part2 *) EXYNOS4_GPIO_PART2_BASE;
-
 	smc9115_pre_init();
 
 	gd->bd->bi_boot_params = (PHYS_SDRAM_1 + 0x100UL);
@@ -103,21 +98,21 @@ int board_mmc_init(bd_t *bis)
 	 * GPK2[2]	SD_2_CDn
 	 * GPK2[3:6]	SD_2_DATA[0:3](2)
 	 */
-	for (i = 0; i < 7; i++) {
+	for (i = EXYNOS4_GPIO_K20; i < EXYNOS4_GPIO_K27; i++) {
 		/* GPK2[0:6] special function 2 */
-		s5p_gpio_cfg_pin(&gpio2->k2, i, GPIO_FUNC(0x2));
+		gpio_cfg_pin(i, S5P_GPIO_FUNC(0x2));
 
 		/* GPK2[0:6] drv 4x */
-		s5p_gpio_set_drv(&gpio2->k2, i, GPIO_DRV_4X);
+		gpio_set_drv(i, S5P_GPIO_DRV_4X);
 
 		/* GPK2[0:1] pull disable */
-		if (i == 0 || i == 1) {
-			s5p_gpio_set_pull(&gpio2->k2, i, GPIO_PULL_NONE);
+		if (i == EXYNOS4_GPIO_K20 || i == EXYNOS4_GPIO_K21) {
+			gpio_set_pull(i, S5P_GPIO_PULL_NONE);
 			continue;
 		}
 
 		/* GPK2[2:6] pull up */
-		s5p_gpio_set_pull(&gpio2->k2, i, GPIO_PULL_UP);
+		gpio_set_pull(i, S5P_GPIO_PULL_UP);
 	}
 	err = s5p_mmc_init(2, 4);
 	return err;

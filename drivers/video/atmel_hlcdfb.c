@@ -128,12 +128,12 @@ void lcd_ctrl_init(void *lcdbase)
 	value |= LCDC_LCDCFG1_HSPW(panel_info.vl_hsync_len - 1);
 	lcdc_writel(&regs->lcdc_lcdcfg1, value);
 
-	value = LCDC_LCDCFG2_VBPW(panel_info.vl_lower_margin);
-	value |= LCDC_LCDCFG2_VFPW(panel_info.vl_upper_margin - 1);
+	value = LCDC_LCDCFG2_VBPW(panel_info.vl_upper_margin);
+	value |= LCDC_LCDCFG2_VFPW(panel_info.vl_lower_margin - 1);
 	lcdc_writel(&regs->lcdc_lcdcfg2, value);
 
-	value = LCDC_LCDCFG3_HBPW(panel_info.vl_right_margin - 1);
-	value |= LCDC_LCDCFG3_HFPW(panel_info.vl_left_margin - 1);
+	value = LCDC_LCDCFG3_HBPW(panel_info.vl_left_margin - 1);
+	value |= LCDC_LCDCFG3_HFPW(panel_info.vl_right_margin - 1);
 	lcdc_writel(&regs->lcdc_lcdcfg3, value);
 
 	/* Display size */
@@ -171,6 +171,9 @@ void lcd_ctrl_init(void *lcdbase)
 			| LCDC_BASECTRL_DMAIEN | LCDC_BASECTRL_DFETCH;
 	desc->next = (u32)desc;
 
+	/* Flush the DMA descriptor if we enabled dcache */
+	flush_dcache_range((u32)desc, (u32)desc + sizeof(*desc));
+
 	lcdc_writel(&regs->lcdc_baseaddr, desc->address);
 	lcdc_writel(&regs->lcdc_basectrl, desc->control);
 	lcdc_writel(&regs->lcdc_basenext, desc->next);
@@ -194,4 +197,7 @@ void lcd_ctrl_init(void *lcdbase)
 	lcdc_writel(&regs->lcdc_lcden, value | LCDC_LCDEN_PWMEN);
 	while (!(lcdc_readl(&regs->lcdc_lcdsr) & LCDC_LCDSR_PWMSTS))
 		udelay(1);
+
+	/* Enable flushing if we enabled dcache */
+	lcd_set_flush_dcache(1);
 }

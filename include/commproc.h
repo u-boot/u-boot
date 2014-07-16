@@ -12,10 +12,6 @@
  * CPM capabilities.  I (or someone else) will add definitions as they
  * are needed.  -- Dan
  *
- * On the MBX board, EPPC-Bug loads CPM microcode into the first 512
- * bytes of the DP RAM and relocates the I2C parameter area to the
- * IDMA1 space.  The remaining DP RAM is available for buffer descriptors
- * or other use.
  */
 #ifndef __CPM_8XX__
 #define __CPM_8XX__
@@ -135,7 +131,6 @@ typedef struct cpm_buf_desc {
 #define PROFF_SMC2	((uint)0x0380)
 
 /* Define enough so I can at least use the serial port as a UART.
- * The MBX uses SMC1 as the host serial port.
  */
 typedef struct smc_uart {
 	ushort	smc_rbase;	/* Rx Buffer descriptor base address */
@@ -434,38 +429,6 @@ typedef struct scc_enet {
  * #define FEC_ENET to enable the SCC resp. FEC ethernet drivers.
  **********************************************************************/
 
-
-/***  ADS  *************************************************************/
-
-#if defined(CONFIG_MPC860) && defined(CONFIG_ADS)
-/* This ENET stuff is for the MPC860ADS with ethernet on SCC1.
- */
-
-#define	PROFF_ENET	PROFF_SCC1
-#define	CPM_CR_ENET	CPM_CR_CH_SCC1
-#define	SCC_ENET	0
-
-#define PA_ENET_RXD	((ushort)0x0001)
-#define PA_ENET_TXD	((ushort)0x0002)
-#define PA_ENET_TCLK	((ushort)0x0100)
-#define PA_ENET_RCLK	((ushort)0x0200)
-
-#define PB_ENET_TENA	((uint)0x00001000)
-
-#define PC_ENET_CLSN	((ushort)0x0010)
-#define PC_ENET_RENA	((ushort)0x0020)
-
-#define SICR_ENET_MASK	((uint)0x000000ff)
-#define SICR_ENET_CLKRT	((uint)0x0000002c)
-
-/* 68160 PHY control */
-
-#define PC_ENET_ETHLOOP ((ushort)0x0800)
-#define PC_ENET_TPFLDL	((ushort)0x0400)
-#define PC_ENET_TPSQEL  ((ushort)0x0200)
-
-#endif	/* MPC860ADS */
-
 /***  BSEIP  **********************************************************/
 
 #ifdef CONFIG_BSEIP
@@ -568,101 +531,6 @@ typedef struct scc_enet {
 
 #endif
 
-/***  FADS823  ********************************************************/
-
-#if defined(CONFIG_MPC823FADS) && defined(CONFIG_FADS)
-/* This ENET stuff is for the MPC823FADS with ethernet on SCC2.
- */
-#ifdef CONFIG_SCC2_ENET
-#define	PROFF_ENET	PROFF_SCC2
-#define	CPM_CR_ENET	CPM_CR_CH_SCC2
-#define	SCC_ENET	1
-#define CPMVEC_ENET	CPMVEC_SCC2
-#endif
-
-#ifdef CONFIG_SCC1_ENET
-#define	PROFF_ENET	PROFF_SCC1
-#define	CPM_CR_ENET	CPM_CR_CH_SCC1
-#define	SCC_ENET	0
-#define CPMVEC_ENET	CPMVEC_SCC1
-#endif
-
-#define PA_ENET_RXD	((ushort)0x0004)
-#define PA_ENET_TXD	((ushort)0x0008)
-#define PA_ENET_TCLK	((ushort)0x0400)
-#define PA_ENET_RCLK	((ushort)0x0200)
-
-#define PB_ENET_TENA	((uint)0x00002000)
-
-#define PC_ENET_CLSN	((ushort)0x0040)
-#define PC_ENET_RENA	((ushort)0x0080)
-
-#define SICR_ENET_MASK	((uint)0x0000ff00)
-#define SICR_ENET_CLKRT	((uint)0x00002e00)
-
-#endif	/* CONFIG_FADS823FADS */
-
-/***  FADS850SAR  ********************************************************/
-
-#if defined(CONFIG_MPC850SAR) && defined(CONFIG_FADS)
-/* This ENET stuff is for the MPC850SAR with ethernet on SCC2.  Some of
- * this may be unique to the FADS850SAR configuration.
- * Note TENA is on Port B.
- */
-#define	PROFF_ENET	PROFF_SCC2
-#define	CPM_CR_ENET	CPM_CR_CH_SCC2
-#define	SCC_ENET	1
-#define PA_ENET_RXD	((ushort)0x0004)	/* PA 13 */
-#define PA_ENET_TXD	((ushort)0x0008)	/* PA 12 */
-#define PA_ENET_RCLK	((ushort)0x0200)	/* PA 6 */
-#define PA_ENET_TCLK	((ushort)0x0800)	/* PA 4 */
-#define PB_ENET_TENA	((uint)0x00002000)	/* PB 18 */
-#define PC_ENET_CLSN	((ushort)0x0040)	/* PC 9 */
-#define PC_ENET_RENA	((ushort)0x0080)	/* PC 8 */
-
-#define SICR_ENET_MASK	((uint)0x0000ff00)
-#define SICR_ENET_CLKRT	((uint)0x00002f00)	/* RCLK-CLK2, TCLK-CLK4 */
-#endif	/* CONFIG_FADS850SAR */
-
-/***  FADS860T********************************************************/
-
-#if defined(CONFIG_FADS) && defined(CONFIG_MPC86x)
-/*
- * This ENET stuff is for the MPC86xFADS/MPC8xxADS with ethernet on SCC1.
- */
-#ifdef CONFIG_SCC1_ENET
-
-#define	SCC_ENET	0
-
-#define	PROFF_ENET	PROFF_SCC1
-#define	CPM_CR_ENET	CPM_CR_CH_SCC1
-
-#define PA_ENET_RXD	((ushort)0x0001)
-#define PA_ENET_TXD	((ushort)0x0002)
-#define PA_ENET_TCLK	((ushort)0x0100)
-#define PA_ENET_RCLK	((ushort)0x0200)
-
-#define PB_ENET_TENA	((uint)0x00001000)
-
-#define PC_ENET_CLSN	((ushort)0x0010)
-#define PC_ENET_RENA	((ushort)0x0020)
-
-#define SICR_ENET_MASK	((uint)0x000000ff)
-#define SICR_ENET_CLKRT	((uint)0x0000002c)
-
-#endif	/* CONFIG_SCC1_ETHERNET */
-
-/*
- * This ENET stuff is for the MPC860TFADS/MPC86xADS/MPC885ADS
- * with ethernet on FEC.
- */
-
-#ifdef CONFIG_FEC_ENET
-#define	FEC_ENET	/* Use FEC for Ethernet */
-#endif	/* CONFIG_FEC_ENET */
-
-#endif	/* CONFIG_FADS && CONFIG_MPC86x */
-
 /***  FPS850L, FPS860L  ************************************************/
 
 #if defined(CONFIG_FPS850L) || defined(CONFIG_FPS860L)
@@ -708,32 +576,6 @@ typedef struct scc_enet {
 #define PD_MII_RXD3	((ushort)0x0001)	/* PD 15	*/
 #define PD_MII_MASK	((ushort)0x1FFF)	/* PD 3-15	*/
 #endif	/* CONFIG_GEN860T */
-
-/***  GENIETV  ********************************************************/
-
-#if defined(CONFIG_GENIETV)
-/* Ethernet is only on SCC2 */
-
-#define CONFIG_SCC2_ENET
-#define	PROFF_ENET	PROFF_SCC2
-#define	CPM_CR_ENET	CPM_CR_CH_SCC2
-#define	SCC_ENET	1
-#define CPMVEC_ENET	CPMVEC_SCC2
-
-#define PA_ENET_RXD	((ushort)0x0004)	/* PA 13 */
-#define PA_ENET_TXD	((ushort)0x0008)	/* PA 12 */
-#define PA_ENET_TCLK	((ushort)0x0400)	/* PA  5 */
-#define PA_ENET_RCLK	((ushort)0x0200)	/* PA  6 */
-
-#define PB_ENET_TENA	((uint)0x00002000)	/* PB 18 */
-
-#define PC_ENET_CLSN	((ushort)0x0040)	/* PC  9 */
-#define PC_ENET_RENA	((ushort)0x0080)	/* PC  8 */
-
-#define SICR_ENET_MASK	((uint)0x0000ff00)
-#define SICR_ENET_CLKRT	((uint)0x00002e00)
-
-#endif	/* CONFIG_GENIETV */
 
 /*** HERMES-PRO ******************************************************/
 
@@ -888,60 +730,6 @@ typedef struct scc_enet {
 #define SICR_ENET_CLKRT	((uint)0x00003E00)
 #endif	/* CONFIG_LWMON */
 
-/***  NX823  ***********************************************/
-
-#if defined(CONFIG_NX823)
-/* Bits in parallel I/O port registers that have to be set/cleared
- * to configure the pins for SCC1 use.
- */
-#define PROFF_ENET	PROFF_SCC2
-#define CPM_CR_ENET	CPM_CR_CH_SCC2
-#define SCC_ENET	1
-#define PA_ENET_RXD	((ushort)0x0004)  /* PA 13 */
-#define PA_ENET_TXD	((ushort)0x0008)  /* PA 12 */
-#define PA_ENET_RCLK	((ushort)0x0200)  /* PA  6 */
-#define PA_ENET_TCLK	((ushort)0x0800)  /* PA  4 */
-
-#define PB_ENET_TENA	((uint)0x00002000)   /* PB 18 */
-
-#define PC_ENET_CLSN	((ushort)0x0040)  /* PC  9 */
-#define PC_ENET_RENA	((ushort)0x0080)  /* PC  8 */
-
-/* Control bits in the SICR to route TCLK (CLK3) and RCLK (CLK1) to
- * SCC2.  Also, make sure GR2 (bit 16) and SC2 (bit 17) are zero.
- */
-#define SICR_ENET_MASK	((uint)0x0000ff00)
-#define SICR_ENET_CLKRT	((uint)0x00002f00)
-
-#endif   /* CONFIG_NX823 */
-
-/***  MBX  ************************************************************/
-
-#ifdef CONFIG_MBX
-/* Bits in parallel I/O port registers that have to be set/cleared
- * to configure the pins for SCC1 use.  The TCLK and RCLK seem unique
- * to the MBX860 board.  Any two of the four available clocks could be
- * used, and the MPC860 cookbook manual has an example using different
- * clock pins.
- */
-#define	PROFF_ENET	PROFF_SCC1
-#define	CPM_CR_ENET	CPM_CR_CH_SCC1
-#define	SCC_ENET	0
-#define PA_ENET_RXD	((ushort)0x0001)
-#define PA_ENET_TXD	((ushort)0x0002)
-#define PA_ENET_TCLK	((ushort)0x0200)
-#define PA_ENET_RCLK	((ushort)0x0800)
-#define PC_ENET_TENA	((ushort)0x0001)
-#define PC_ENET_CLSN	((ushort)0x0010)
-#define PC_ENET_RENA	((ushort)0x0020)
-
-/* Control bits in the SICR to route TCLK (CLK2) and RCLK (CLK4) to
- * SCC1.  Also, make sure GR1 (bit 24) and SC1 (bit 25) are zero.
- */
-#define SICR_ENET_MASK	((uint)0x000000ff)
-#define SICR_ENET_CLKRT	((uint)0x0000003d)
-#endif	/* CONFIG_MBX */
-
 /***  KM8XX  *********************************************************/
 
 /* The KM8XX Service Module uses SCC3 for Ethernet */
@@ -1073,121 +861,6 @@ typedef struct scc_enet {
 
 #endif	/* CONFIG_NETVIA */
 
-/***  QS850/QS823  ***************************************************/
-
-#if defined(CONFIG_QS850) || defined(CONFIG_QS823)
-#undef FEC_ENET /* Don't use FEC for EThernet */
-
-#define PROFF_ENET		PROFF_SCC2
-#define CPM_CR_ENET		CPM_CR_CH_SCC2
-#define SCC_ENET		1
-
-#define PA_ENET_RXD		((ushort)0x0004)  /* RXD on PA13 (Pin D9) */
-#define PA_ENET_TXD		((ushort)0x0008)  /* TXD on PA12 (Pin D7) */
-#define PC_ENET_RENA		((ushort)0x0080)  /* RENA on PC8 (Pin D12) */
-#define PC_ENET_CLSN		((ushort)0x0040)  /* CLSN on PC9 (Pin C12) */
-#define PA_ENET_TCLK		((ushort)0x0200)  /* TCLK on PA6 (Pin D8) */
-#define PA_ENET_RCLK		((ushort)0x0800)  /* RCLK on PA4 (Pin D10) */
-#define PB_ENET_TENA		((uint)0x00002000)  /* TENA on PB18 (Pin D11) */
-#define PC_ENET_LBK		((ushort)0x0010)  /* Loopback control on PC11 (Pin B14) */
-#define PC_ENET_LI		((ushort)0x0020)  /* Link Integrity control PC10 (A15) */
-#define PC_ENET_SQE		((ushort)0x0100)  /* SQE Disable control PC7 (B15) */
-
-/* SCC2 TXCLK from CLK2
- * SCC2 RXCLK from CLK4
- * SCC2 Connected to NMSI */
-#define SICR_ENET_MASK		((uint)0x00007F00)
-#define SICR_ENET_CLKRT		((uint)0x00003D00)
-
-#endif /* CONFIG_QS850/QS823 */
-
-/***  QS860T  ***************************************************/
-
-#ifdef CONFIG_QS860T
-#ifdef CONFIG_FEC_ENET
-#define FEC_ENET /* use FEC for EThernet */
-#endif /* CONFIG_FEC_ETHERNET */
-
-/* This ENET stuff is for GTH 10 Mbit ( SCC ) */
-#define PROFF_ENET		PROFF_SCC1
-#define CPM_CR_ENET		CPM_CR_CH_SCC1
-#define SCC_ENET		0
-
-#define PA_ENET_RXD		((ushort)0x0001) /* PA15 */
-#define PA_ENET_TXD		((ushort)0x0002) /* PA14 */
-#define PA_ENET_TCLK		((ushort)0x0800) /* PA4 */
-#define PA_ENET_RCLK		((ushort)0x0200) /* PA6 */
-#define PB_ENET_TENA		((uint)0x00001000) /* PB19 */
-#define PC_ENET_CLSN		((ushort)0x0010) /* PC11 */
-#define PC_ENET_RENA		((ushort)0x0020) /* PC10 */
-
-#define SICR_ENET_MASK		((uint)0x000000ff)
-/* RCLK PA4 -->CLK4, TCLK PA6 -->CLK2 */
-#define SICR_ENET_CLKRT		((uint)0x0000003D)
-
-#endif /* CONFIG_QS860T */
-
-/***  RPXCLASSIC  *****************************************************/
-
-#ifdef CONFIG_RPXCLASSIC
-
-#ifdef CONFIG_FEC_ENET
-
-# define FEC_ENET				/* use FEC for EThernet */
-# undef SCC_ENET
-
-#else	/* ! CONFIG_FEC_ENET */
-
-/* Bits in parallel I/O port registers that have to be set/cleared
- * to configure the pins for SCC1 use.
- */
-#define	PROFF_ENET	PROFF_SCC1
-#define	CPM_CR_ENET	CPM_CR_CH_SCC1
-#define	SCC_ENET	0
-#define PA_ENET_RXD	((ushort)0x0001)
-#define PA_ENET_TXD	((ushort)0x0002)
-#define PA_ENET_TCLK	((ushort)0x0200)
-#define PA_ENET_RCLK	((ushort)0x0800)
-#define PB_ENET_TENA	((uint)0x00001000)
-#define PC_ENET_CLSN	((ushort)0x0010)
-#define PC_ENET_RENA	((ushort)0x0020)
-
-/* Control bits in the SICR to route TCLK (CLK2) and RCLK (CLK4) to
- * SCC1.  Also, make sure GR1 (bit 24) and SC1 (bit 25) are zero.
- */
-#define SICR_ENET_MASK	((uint)0x000000ff)
-#define SICR_ENET_CLKRT	((uint)0x0000003d)
-
-#endif	/* CONFIG_FEC_ENET */
-
-#endif	/* CONFIG_RPXCLASSIC */
-
-/***  RPXLITE  ********************************************************/
-
-#ifdef CONFIG_RPXLITE
-/* This ENET stuff is for the MPC850 with ethernet on SCC2.  Some of
- * this may be unique to the RPX-Lite configuration.
- * Note TENA is on Port B.
- */
-#define	PROFF_ENET	PROFF_SCC2
-#define	CPM_CR_ENET	CPM_CR_CH_SCC2
-#define	SCC_ENET	1
-#define PA_ENET_RXD	((ushort)0x0004)
-#define PA_ENET_TXD	((ushort)0x0008)
-#define PA_ENET_TCLK	((ushort)0x0200)
-#define PA_ENET_RCLK	((ushort)0x0800)
-#if defined(CONFIG_RMU)
-#define PC_ENET_TENA	((uint)0x00000002)	/* PC14 */
-#else
-#define PB_ENET_TENA	((uint)0x00002000)
-#endif
-#define PC_ENET_CLSN	((ushort)0x0040)
-#define PC_ENET_RENA	((ushort)0x0080)
-
-#define SICR_ENET_MASK	((uint)0x0000ff00)
-#define SICR_ENET_CLKRT	((uint)0x00003d00)
-#endif	/* CONFIG_RPXLITE */
-
 /***  SM850  *********************************************************/
 
 /* The SM850 Service Module uses SCC2 for IrDA and SCC3 for Ethernet */
@@ -1256,7 +929,7 @@ typedef struct scc_enet {
 /***  MVS1, TQM823L/M, TQM850L/M, TQM885D, R360MPI  **********/
 
 #if (defined(CONFIG_MVS) && CONFIG_MVS < 2) || \
-    defined(CONFIG_R360MPI) || defined(CONFIG_RBC823)  || \
+    defined(CONFIG_R360MPI) || \
     defined(CONFIG_RRVISION)|| defined(CONFIG_TQM823L) || \
     defined(CONFIG_TQM823M) || defined(CONFIG_TQM850L) || \
     defined(CONFIG_TQM850M) || defined(CONFIG_TQM885D) || \
@@ -1349,29 +1022,6 @@ typedef struct scc_enet {
 
 # endif	/* CONFIG_FEC_ENET */
 #endif	/* CONFIG_TQM855L/M, TQM860L/M, TQM862L/M */
-
-/***  V37  **********************************************************/
-
-#ifdef CONFIG_V37
-/* This ENET stuff is for the MPC823 with ethernet on SCC2.  Some of
- * this may be unique to the Marel V37 configuration.
- * Note TENA is on Port B.
- */
-#define	PROFF_ENET	PROFF_SCC2
-#define	CPM_CR_ENET	CPM_CR_CH_SCC2
-#define	SCC_ENET	1
-#define PA_ENET_RXD	((ushort)0x0004)
-#define PA_ENET_TXD	((ushort)0x0008)
-#define PA_ENET_TCLK	((ushort)0x0400)
-#define PA_ENET_RCLK	((ushort)0x0200)
-#define PB_ENET_TENA	((uint)0x00002000)
-#define PC_ENET_CLSN	((ushort)0x0040)
-#define PC_ENET_RENA	((ushort)0x0080)
-
-#define SICR_ENET_MASK	((uint)0x0000ff00)
-#define SICR_ENET_CLKRT	((uint)0x00002e00)
-#endif	/* CONFIG_V37 */
-
 
 /*********************************************************************/
 

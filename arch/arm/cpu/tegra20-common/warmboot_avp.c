@@ -12,6 +12,7 @@
 #include <asm/arch/pinmux.h>
 #include <asm/arch/tegra.h>
 #include <asm/arch-tegra/ap.h>
+#include <asm/arch-tegra/apb_misc.h>
 #include <asm/arch-tegra/clk_rst.h>
 #include <asm/arch-tegra/pmc.h>
 #include <asm/arch-tegra/warmboot.h>
@@ -21,7 +22,8 @@
 
 void wb_start(void)
 {
-	struct pmux_tri_ctlr *pmt = (struct pmux_tri_ctlr *)NV_PA_APB_MISC_BASE;
+	struct apb_misc_pp_ctlr *apb_misc =
+				(struct apb_misc_pp_ctlr *)NV_PA_APB_MISC_BASE;
 	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
 	struct flow_ctlr *flow = (struct flow_ctlr *)NV_PA_FLOW_BASE;
 	struct clk_rst_ctlr *clkrst =
@@ -33,7 +35,7 @@ void wb_start(void)
 	u32 reg;
 
 	/* enable JTAG & TBE */
-	writel(CONFIG_CTL_TBE | CONFIG_CTL_JTAG, &pmt->pmt_cfg_ctl);
+	writel(CONFIG_CTL_TBE | CONFIG_CTL_JTAG, &apb_misc->cfg_ctl);
 
 	/* Are we running where we're supposed to be? */
 	asm volatile (

@@ -139,6 +139,11 @@ static __u32 get_fatent_value(fsdata *mydata, __u32 entry)
 	__u32 ret = 0x00;
 	__u16 val1, val2;
 
+	if (CHECK_CLUST(entry, mydata->fatsize)) {
+		printf("Error: Invalid FAT entry: 0x%08x\n", entry);
+		return ret;
+	}
+
 	switch (mydata->fatsize) {
 	case 32:
 		bufnum = entry / FAT32BUFSIZE;
@@ -881,8 +886,30 @@ static dir_entry *find_directory_entry(fsdata *mydata, int startsect,
 			return dentptr;
 		}
 
+		/*
+		 * In FAT16/12, the root dir is locate before data area, shows
+		 * in following:
+		 * -------------------------------------------------------------
+		 * | Boot | FAT1 & 2 | Root dir | Data (start from cluster #2) |
+		 * -------------------------------------------------------------
+		 *
+		 * As a result if curclust is in Root dir, it is a negative
+		 * number or 0, 1.
+		 *
+		 */
+		if (mydata->fatsize != 32 && (int)curclust <= 1) {
+			/* Current clust is in root dir, set to next clust */
+			curclust++;
+			if ((int)curclust <= 1)
+				continue;	/* continue to find */
+
+			/* Reach the end of root dir */
+			empty_dentptr = dentptr;
+			return NULL;
+		}
+
 		curclust = get_fatent_value(mydata, dir_curclust);
-		if ((curclust >= 0xffffff8) || (curclust >= 0xfff8)) {
+		if (IS_LAST_CLUST(curclust, mydata->fatsize)) {
 			empty_dentptr = dentptr;
 			return NULL;
 		}
@@ -920,7 +947,7 @@ static int do_fat_write(const char *filename, void *buffer,
 
 	total_sector = bs.total_sect;
 	if (total_sector == 0)
-		total_sector = cur_part_info.size;
+		total_sector = (int)cur_part_info.size; /* cast of lbaint_t */
 
 	if (mydata->fatsize == 32)
 		mydata->fatlength = bs.fat32_length;
@@ -952,7 +979,7 @@ static int do_fat_write(const char *filename, void *buffer,
 	}
 
 	mydata->fatbufnum = -1;
-	mydata->fatbuf = malloc(FATBUFSIZE);
+	mydata->fatbuf = memalign(ARCH_DMA_MINALIGN, FATBUFSIZE);
 	if (mydata->fatbuf == NULL) {
 		debug("Error: allocating memory\n");
 		return -1;

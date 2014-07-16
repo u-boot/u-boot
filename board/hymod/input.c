@@ -6,6 +6,8 @@
  */
 
 #include <common.h>
+#include <bootretry.h>
+#include <cli.h>
 
 int
 hymod_get_serno (const char *prompt)
@@ -14,11 +16,9 @@ hymod_get_serno (const char *prompt)
 		int n, serno;
 		char *p;
 
-#ifdef CONFIG_BOOT_RETRY_TIME
-		reset_cmd_timeout ();
-#endif
+		bootretry_reset_cmd_timeout();
 
-		n = readline (prompt);
+		n = cli_readline(prompt);
 
 		if (n < 0)
 			return (n);
@@ -42,11 +42,9 @@ hymod_get_ethaddr (void)
 	for (;;) {
 		int n;
 
-#ifdef CONFIG_BOOT_RETRY_TIME
-		reset_cmd_timeout ();
-#endif
+		bootretry_reset_cmd_timeout();
 
-		n = readline ("Enter board ethernet address: ");
+		n = cli_readline("Enter board ethernet address: ");
 
 		if (n < 0)
 			return (n);

@@ -66,6 +66,7 @@ static inline void set_sctlr(unsigned int val)
 }
 
 void __asm_flush_dcache_all(void);
+void __asm_invalidate_dcache_all(void);
 void __asm_flush_dcache_range(u64 start, u64 end);
 void __asm_invalidate_tlb_all(void);
 void __asm_invalidate_icache_all(void);
@@ -76,6 +77,8 @@ void gic_init(void);
 void gic_send_sgi(unsigned long sgino);
 void wait_for_wakeup(void);
 void smp_kick_all_cpus(void);
+
+void flush_l3_cache(void);
 
 #endif	/* __ASSEMBLY__ */
 

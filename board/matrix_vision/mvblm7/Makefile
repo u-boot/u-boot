@@ -8,5 +8,7 @@ obj-y	:= mvblm7.o pci.o fpga.o
 
 extra-y := bootscript.img
 
+MKIMAGEFLAGS_bootscript.image := -T script -C none -n M7_script
+
 $(obj)/bootscript.img: $(src)/bootscript
-	@mkimage -T script -C none -n M7_script -d $< $@
+	$(call cmd,mkimage)

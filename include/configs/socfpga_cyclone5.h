@@ -8,6 +8,8 @@
 
 #include <asm/arch/socfpga_base_addrs.h>
 #include "../../board/altera/socfpga/pinmux_config.h"
+#include "../../board/altera/socfpga/iocsr_config.h"
+#include "../../board/altera/socfpga/pll_config.h"
 
 /*
  * High level configuration
@@ -200,9 +202,21 @@
 #else
 #define CONFIG_SYS_TIMER_RATE		25000000
 #endif
+#define CONFIG_SYS_TIMER_COUNTS_DOWN
 #define CONFIG_SYS_TIMER_COUNTER	(CONFIG_SYS_TIMERBASE + 0x4)
 
 #define CONFIG_ENV_IS_NOWHERE
+
+/*
+ * L4 Watchdog
+ */
+#define CONFIG_HW_WATCHDOG
+#define CONFIG_HW_WATCHDOG_TIMEOUT_MS	2000
+#define CONFIG_DESIGNWARE_WATCHDOG
+#define CONFIG_DW_WDT_BASE		SOCFPGA_L4WD0_ADDRESS
+/* Clocks source frequency to watchdog timer */
+#define CONFIG_DW_WDT_CLOCK_KHZ		25000
+
 
 /*
  * SPL "Second Program Loader" aka Initial Software
@@ -235,5 +249,8 @@
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
 /* Support for lib/libgeneric.o in SPL binary */
 #define CONFIG_SPL_LIBGENERIC_SUPPORT
+
+/* Support for watchdog */
+#define CONFIG_SPL_WATCHDOG_SUPPORT
 
 #endif	/* __CONFIG_H */

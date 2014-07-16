@@ -13,7 +13,6 @@
 #include <common.h>
 #include <net.h>
 #include <netdev.h>
-#include <asm/net.h>
 
 int checkboard(void)
 {
@@ -33,7 +32,7 @@ int misc_init_r(void)
 	uchar enetaddr[6];
 	if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
 		puts("Warning: Generating 'random' MAC address\n");
-		bfin_gen_rand_mac(enetaddr);
+		eth_random_addr(enetaddr);
 		eth_setenv_enetaddr("ethaddr", enetaddr);
 	}
 

@@ -8,6 +8,7 @@
 #define _PART_H
 
 #include <ide.h>
+#include <common.h>
 
 typedef struct block_dev_desc {
 	int		if_type;	/* type of the interface */
@@ -102,6 +103,7 @@ block_dev_desc_t* sata_get_dev(int dev);
 block_dev_desc_t* scsi_get_dev(int dev);
 block_dev_desc_t* usb_stor_get_dev(int dev);
 block_dev_desc_t* mmc_get_dev(int dev);
+int mmc_select_hwpart(int dev_num, int hwpart);
 block_dev_desc_t* systemace_get_dev(int dev);
 block_dev_desc_t* mg_disk_get_dev(int dev);
 block_dev_desc_t *host_get_dev(int dev);
@@ -125,6 +127,7 @@ static inline block_dev_desc_t* sata_get_dev(int dev) { return NULL; }
 static inline block_dev_desc_t* scsi_get_dev(int dev) { return NULL; }
 static inline block_dev_desc_t* usb_stor_get_dev(int dev) { return NULL; }
 static inline block_dev_desc_t* mmc_get_dev(int dev) { return NULL; }
+static inline int mmc_select_hwpart(int dev_num, int hwpart) { return -1; }
 static inline block_dev_desc_t* systemace_get_dev(int dev) { return NULL; }
 static inline block_dev_desc_t* mg_disk_get_dev(int dev) { return NULL; }
 static inline block_dev_desc_t *host_get_dev(int dev) { return NULL; }
@@ -177,6 +180,17 @@ int   test_part_amiga (block_dev_desc_t *dev_desc);
 #include <part_efi.h>
 /* disk/part_efi.c */
 int get_partition_info_efi (block_dev_desc_t * dev_desc, int part, disk_partition_t *info);
+/**
+ * get_partition_info_efi_by_name() - Find the specified GPT partition table entry
+ *
+ * @param dev_desc - block device descriptor
+ * @param gpt_name - the specified table entry name
+ * @param info - returns the disk partition info
+ *
+ * @return - '0' on match, '-1' on no match, otherwise error
+ */
+int get_partition_info_efi_by_name(block_dev_desc_t *dev_desc,
+	const char *name, disk_partition_t *info);
 void print_part_efi (block_dev_desc_t *dev_desc);
 int   test_part_efi (block_dev_desc_t *dev_desc);
 

@@ -13,21 +13,20 @@
 #include <asm/gpio.h>
 #include <asm/arch/adc.h>
 #include <asm/arch/gpio.h>
-#include <asm/arch/mmc.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/watchdog.h>
-#include <libtizen.h>
 #include <ld9040.h>
 #include <power/pmic.h>
+#include <usb.h>
 #include <usb/s3c_udc.h>
 #include <asm/arch/cpu.h>
 #include <power/max8998_pmic.h>
+#include <libtizen.h>
 #include <samsung/misc.h>
+#include <usb_mass_storage.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct exynos4_gpio_part1 *gpio1;
-struct exynos4_gpio_part2 *gpio2;
 unsigned int board_rev;
 
 u32 get_board_rev(void)
@@ -42,7 +41,7 @@ static int get_hwrev(void)
 
 static void init_pmic_lcd(void);
 
-int power_init_board(void)
+int exynos_power_init(void)
 {
 	int ret;
 
@@ -57,22 +56,6 @@ int power_init_board(void)
 	init_pmic_lcd();
 
 	return 0;
-}
-
-int dram_init(void)
-{
-	gd->ram_size = get_ram_size((long *)PHYS_SDRAM_1, PHYS_SDRAM_1_SIZE) +
-		get_ram_size((long *)PHYS_SDRAM_2, PHYS_SDRAM_2_SIZE);
-
-	return 0;
-}
-
-void dram_init_banksize(void)
-{
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
-	gd->bd->bi_dram[1].size = PHYS_SDRAM_2_SIZE;
 }
 
 static unsigned short get_adc_value(int channel)
@@ -159,71 +142,6 @@ static void check_hw_revision(void)
 	board_rev |= hwrev;
 }
 
-#ifdef CONFIG_DISPLAY_BOARDINFO
-int checkboard(void)
-{
-	puts("Board:\tUniversal C210\n");
-	return 0;
-}
-#endif
-
-#ifdef CONFIG_GENERIC_MMC
-int board_mmc_init(bd_t *bis)
-{
-	int err;
-
-	switch (get_hwrev()) {
-	case 0:
-		/*
-		 * Set the low to enable LDO_EN
-		 * But when you use the test board for eMMC booting
-		 * you should set it HIGH since it removes the inverter
-		 */
-		/* MASSMEMORY_EN: XMDMDATA_6: GPE3[6] */
-		s5p_gpio_direction_output(&gpio1->e3, 6, 0);
-		break;
-	default:
-		/*
-		 * Default reset state is High and there's no inverter
-		 * But set it as HIGH to ensure
-		 */
-		/* MASSMEMORY_EN: XMDMADDR_3: GPE1[3] */
-		s5p_gpio_direction_output(&gpio1->e1, 3, 1);
-		break;
-	}
-
-	/*
-	 * MMC device init
-	 * mmc0	 : eMMC (8-bit buswidth)
-	 * mmc2	 : SD card (4-bit buswidth)
-	 */
-	err = exynos_pinmux_config(PERIPH_ID_SDMMC0, PINMUX_FLAG_8BIT_MODE);
-	if (err)
-		debug("SDMMC0 not configured\n");
-	else
-		err = s5p_mmc_init(0, 8);
-
-	/* T-flash detect */
-	s5p_gpio_cfg_pin(&gpio2->x3, 4, 0xf);
-	s5p_gpio_set_pull(&gpio2->x3, 4, GPIO_PULL_UP);
-
-	/*
-	 * Check the T-flash  detect pin
-	 * GPX3[4] T-flash detect pin
-	 */
-	if (!s5p_gpio_get_value(&gpio2->x3, 4)) {
-		err = exynos_pinmux_config(PERIPH_ID_SDMMC2, PINMUX_FLAG_NONE);
-		if (err)
-			debug("SDMMC2 not configured\n");
-		else
-			err = s5p_mmc_init(2, 4);
-	}
-
-	return err;
-
-}
-#endif
-
 #ifdef CONFIG_USB_GADGET
 static int s5pc210_phy_control(int on)
 {
@@ -271,7 +189,13 @@ struct s3c_plat_otg_data s5pc210_otg_data = {
 };
 #endif
 
-int board_early_init_f(void)
+int board_usb_init(int index, enum usb_init_type init)
+{
+	debug("USB_udc_probe\n");
+	return s3c_udc_probe(&s5pc210_otg_data);
+}
+
+int exynos_early_init_f(void)
 {
 	wdt_stop();
 
@@ -379,46 +303,51 @@ void exynos_cfg_lcd_gpio(void)
 
 	for (i = 0; i < 8; i++) {
 		/* set GPF0,1,2[0:7] for RGB Interface and Data lines (32bit) */
-		s5p_gpio_cfg_pin(&gpio1->f0, i, GPIO_FUNC(2));
-		s5p_gpio_cfg_pin(&gpio1->f1, i, GPIO_FUNC(2));
-		s5p_gpio_cfg_pin(&gpio1->f2, i, GPIO_FUNC(2));
+		gpio_cfg_pin(EXYNOS4_GPIO_F00 + i, S5P_GPIO_FUNC(2));
+		gpio_cfg_pin(EXYNOS4_GPIO_F10 + i, S5P_GPIO_FUNC(2));
+		gpio_cfg_pin(EXYNOS4_GPIO_F20 + i, S5P_GPIO_FUNC(2));
 		/* pull-up/down disable */
-		s5p_gpio_set_pull(&gpio1->f0, i, GPIO_PULL_NONE);
-		s5p_gpio_set_pull(&gpio1->f1, i, GPIO_PULL_NONE);
-		s5p_gpio_set_pull(&gpio1->f2, i, GPIO_PULL_NONE);
+		gpio_set_pull(EXYNOS4_GPIO_F00 + i, S5P_GPIO_PULL_NONE);
+		gpio_set_pull(EXYNOS4_GPIO_F10 + i, S5P_GPIO_PULL_NONE);
+		gpio_set_pull(EXYNOS4_GPIO_F20 + i, S5P_GPIO_PULL_NONE);
 
 		/* drive strength to max (24bit) */
-		s5p_gpio_set_drv(&gpio1->f0, i, GPIO_DRV_4X);
-		s5p_gpio_set_rate(&gpio1->f0, i, GPIO_DRV_SLOW);
-		s5p_gpio_set_drv(&gpio1->f1, i, GPIO_DRV_4X);
-		s5p_gpio_set_rate(&gpio1->f1, i, GPIO_DRV_SLOW);
-		s5p_gpio_set_drv(&gpio1->f2, i, GPIO_DRV_4X);
-		s5p_gpio_set_rate(&gpio1->f0, i, GPIO_DRV_SLOW);
+		gpio_set_drv(EXYNOS4_GPIO_F00 + i, S5P_GPIO_DRV_4X);
+		gpio_set_rate(EXYNOS4_GPIO_F00 + i, S5P_GPIO_DRV_SLOW);
+		gpio_set_drv(EXYNOS4_GPIO_F10 + i, S5P_GPIO_DRV_4X);
+		gpio_set_rate(EXYNOS4_GPIO_F10 + i, S5P_GPIO_DRV_SLOW);
+		gpio_set_drv(EXYNOS4_GPIO_F20 + i, S5P_GPIO_DRV_4X);
+		gpio_set_rate(EXYNOS4_GPIO_F00 + i, S5P_GPIO_DRV_SLOW);
 	}
 
-	for (i = 0; i < f3_end; i++) {
+	for (i = EXYNOS4_GPIO_F30; i < (EXYNOS4_GPIO_F30 + f3_end); i++) {
 		/* set GPF3[0:3] for RGB Interface and Data lines (32bit) */
-		s5p_gpio_cfg_pin(&gpio1->f3, i, GPIO_FUNC(2));
+		gpio_cfg_pin(i, S5P_GPIO_FUNC(2));
 		/* pull-up/down disable */
-		s5p_gpio_set_pull(&gpio1->f3, i, GPIO_PULL_NONE);
+		gpio_set_pull(i, S5P_GPIO_PULL_NONE);
 		/* drive strength to max (24bit) */
-		s5p_gpio_set_drv(&gpio1->f3, i, GPIO_DRV_4X);
-		s5p_gpio_set_rate(&gpio1->f3, i, GPIO_DRV_SLOW);
+		gpio_set_drv(i, S5P_GPIO_DRV_4X);
+		gpio_set_rate(i, S5P_GPIO_DRV_SLOW);
 	}
 
 	/* gpio pad configuration for LCD reset. */
-	s5p_gpio_cfg_pin(&gpio2->y4, 5, GPIO_OUTPUT);
+	gpio_cfg_pin(EXYNOS4_GPIO_Y45, S5P_GPIO_OUTPUT);
 
 	spi_init();
 }
 
+int mipi_power(void)
+{
+	return 0;
+}
+
 void exynos_reset_lcd(void)
 {
-	s5p_gpio_set_value(&gpio2->y4, 5, 1);
+	gpio_set_value(EXYNOS4_GPIO_Y45, 1);
 	udelay(10000);
-	s5p_gpio_set_value(&gpio2->y4, 5, 0);
+	gpio_set_value(EXYNOS4_GPIO_Y45, 0);
 	udelay(10000);
-	s5p_gpio_set_value(&gpio2->y4, 5, 1);
+	gpio_set_value(EXYNOS4_GPIO_Y45, 1);
 	udelay(100);
 }
 
@@ -436,39 +365,6 @@ void exynos_lcd_power_on(void)
 	pmic_set_output(p, MAX8998_REG_ONOFF2, MAX8998_LDO7, LDO_ON);
 }
 
-vidinfo_t panel_info = {
-	.vl_freq	= 60,
-	.vl_col		= 480,
-	.vl_row		= 800,
-	.vl_width	= 480,
-	.vl_height	= 800,
-	.vl_clkp	= CONFIG_SYS_HIGH,
-	.vl_hsp		= CONFIG_SYS_HIGH,
-	.vl_vsp		= CONFIG_SYS_HIGH,
-	.vl_dp		= CONFIG_SYS_HIGH,
-
-	.vl_bpix	= 4,	/* Bits per pixel */
-
-	/* LD9040 LCD Panel */
-	.vl_hspw	= 2,
-	.vl_hbpd	= 16,
-	.vl_hfpd	= 16,
-
-	.vl_vspw	= 2,
-	.vl_vbpd	= 8,
-	.vl_vfpd	= 8,
-	.vl_cmd_allow_len = 0xf,
-
-	.win_id		= 0,
-	.dual_lcd_enabled = 0,
-
-	.init_delay	= 0,
-	.power_on_delay = 10000,
-	.reset_delay	= 10000,
-	.interface_mode = FIMD_RGB_INTERFACE,
-	.mipi_enabled	= 0,
-};
-
 void exynos_cfg_ldo(void)
 {
 	ld9040_cfg_ldo();
@@ -479,30 +375,29 @@ void exynos_enable_ldo(unsigned int onoff)
 	ld9040_enable_ldo(onoff);
 }
 
-void init_panel_info(vidinfo_t *vid)
+int exynos_init(void)
 {
-	vid->logo_on	= 1;
-	vid->resolution	= HD_RESOLUTION;
-	vid->rgb_mode	= MODE_RGB_P;
-
-#ifdef CONFIG_TIZEN
-	get_tizen_logo_info(vid);
-#endif
-
-	/* for LD9040. */
-	vid->pclk_name = 1;	/* MPLL */
-	vid->sclk_div = 1;
-
-	setenv("lcdinfo", "lcd=ld9040");
-}
-
-int board_init(void)
-{
-	gpio1 = (struct exynos4_gpio_part1 *) EXYNOS4_GPIO_PART1_BASE;
-	gpio2 = (struct exynos4_gpio_part2 *) EXYNOS4_GPIO_PART2_BASE;
-
 	gd->bd->bi_arch_number = MACH_TYPE_UNIVERSAL_C210;
-	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
+
+	switch (get_hwrev()) {
+	case 0:
+		/*
+		 * Set the low to enable LDO_EN
+		 * But when you use the test board for eMMC booting
+		 * you should set it HIGH since it removes the inverter
+		 */
+		/* MASSMEMORY_EN: XMDMDATA_6: GPE3[6] */
+		gpio_direction_output(EXYNOS4_GPIO_E36, 0);
+		break;
+	default:
+		/*
+		 * Default reset state is High and there's no inverter
+		 * But set it as HIGH to ensure
+		 */
+		/* MASSMEMORY_EN: XMDMADDR_3: GPE1[3] */
+		gpio_direction_output(EXYNOS4_GPIO_E13, 1);
+		break;
+	}
 
 #ifdef CONFIG_SOFT_SPI
 	soft_spi_init();
@@ -513,20 +408,15 @@ int board_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_MISC_INIT_R
-int misc_init_r(void)
+void exynos_lcd_misc_init(vidinfo_t *vid)
 {
-#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	set_board_info();
+#ifdef CONFIG_TIZEN
+	get_tizen_logo_info(vid);
 #endif
-#ifdef CONFIG_LCD_MENU
-	keys_init();
-	check_boot_mode();
-#endif
-#ifdef CONFIG_CMD_BMP
-	if (panel_info.logo_on)
-		draw_logo();
-#endif
-	return 0;
+
+	/* for LD9040. */
+	vid->pclk_name = 1;	/* MPLL */
+	vid->sclk_div = 1;
+
+	setenv("lcdinfo", "lcd=ld9040");
 }
-#endif

@@ -998,8 +998,8 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 	if (!ehcic[index].periodic_list)
 		return -ENOMEM;
 	for (i = 0; i < 1024; i++) {
-		ehcic[index].periodic_list[i] = (uint32_t)periodic
-						| QH_LINK_TYPE_QH;
+		ehcic[index].periodic_list[i] = cpu_to_hc32((uint32_t)periodic
+						| QH_LINK_TYPE_QH);
 	}
 
 	flush_dcache_range((uint32_t)ehcic[index].periodic_list,
@@ -1089,7 +1089,7 @@ struct int_queue {
 	struct qTD *tds;
 };
 
-#define NEXT_QH(qh) (struct QH *)((qh)->qh_link & ~0x1f)
+#define NEXT_QH(qh) (struct QH *)(hc32_to_cpu((qh)->qh_link) & ~0x1f)
 
 static int
 enable_periodic(struct ehci_ctrl *ctrl)
@@ -1184,41 +1184,47 @@ create_int_queue(struct usb_device *dev, unsigned long pipe, int queuesize,
 		struct qTD *td = result->tds + i;
 		void **buf = &qh->buffer;
 
-		qh->qh_link = (uint32_t)(qh+1) | QH_LINK_TYPE_QH;
+		qh->qh_link = cpu_to_hc32((uint32_t)(qh+1) | QH_LINK_TYPE_QH);
 		if (i == queuesize - 1)
-			qh->qh_link = QH_LINK_TERMINATE;
+			qh->qh_link = cpu_to_hc32(QH_LINK_TERMINATE);
 
-		qh->qh_overlay.qt_next = (uint32_t)td;
-		qh->qh_overlay.qt_altnext = QT_NEXT_TERMINATE;
-		qh->qh_endpt1 = (0 << 28) | /* No NAK reload (ehci 4.9) */
+		qh->qh_overlay.qt_next = cpu_to_hc32((uint32_t)td);
+		qh->qh_overlay.qt_altnext = cpu_to_hc32(QT_NEXT_TERMINATE);
+		qh->qh_endpt1 =
+			cpu_to_hc32((0 << 28) | /* No NAK reload (ehci 4.9) */
 			(usb_maxpacket(dev, pipe) << 16) | /* MPS */
 			(1 << 14) |
 			QH_ENDPT1_EPS(ehci_encode_speed(dev->speed)) |
 			(usb_pipeendpoint(pipe) << 8) | /* Endpoint Number */
-			(usb_pipedevice(pipe) << 0);
-		qh->qh_endpt2 = (1 << 30) | /* 1 Tx per mframe */
-			(1 << 0); /* S-mask: microframe 0 */
+			(usb_pipedevice(pipe) << 0));
+		qh->qh_endpt2 = cpu_to_hc32((1 << 30) | /* 1 Tx per mframe */
+			(1 << 0)); /* S-mask: microframe 0 */
 		if (dev->speed == USB_SPEED_LOW ||
 				dev->speed == USB_SPEED_FULL) {
 			debug("TT: port: %d, hub address: %d\n",
 				dev->portnr, dev->parent->devnum);
-			qh->qh_endpt2 |= (dev->portnr << 23) |
+			qh->qh_endpt2 |= cpu_to_hc32((dev->portnr << 23) |
 				(dev->parent->devnum << 16) |
-				(0x1c << 8); /* C-mask: microframes 2-4 */
+				(0x1c << 8)); /* C-mask: microframes 2-4 */
 		}
 
-		td->qt_next = QT_NEXT_TERMINATE;
-		td->qt_altnext = QT_NEXT_TERMINATE;
+		td->qt_next = cpu_to_hc32(QT_NEXT_TERMINATE);
+		td->qt_altnext = cpu_to_hc32(QT_NEXT_TERMINATE);
 		debug("communication direction is '%s'\n",
 		      usb_pipein(pipe) ? "in" : "out");
-		td->qt_token = (elementsize << 16) |
+		td->qt_token = cpu_to_hc32((elementsize << 16) |
 			((usb_pipein(pipe) ? 1 : 0) << 8) | /* IN/OUT token */
-			0x80; /* active */
-		td->qt_buffer[0] = (uint32_t)buffer + i * elementsize;
-		td->qt_buffer[1] = (td->qt_buffer[0] + 0x1000) & ~0xfff;
-		td->qt_buffer[2] = (td->qt_buffer[0] + 0x2000) & ~0xfff;
-		td->qt_buffer[3] = (td->qt_buffer[0] + 0x3000) & ~0xfff;
-		td->qt_buffer[4] = (td->qt_buffer[0] + 0x4000) & ~0xfff;
+			0x80); /* active */
+		td->qt_buffer[0] =
+		    cpu_to_hc32((uint32_t)buffer + i * elementsize);
+		td->qt_buffer[1] =
+		    cpu_to_hc32((td->qt_buffer[0] + 0x1000) & ~0xfff);
+		td->qt_buffer[2] =
+		    cpu_to_hc32((td->qt_buffer[0] + 0x2000) & ~0xfff);
+		td->qt_buffer[3] =
+		    cpu_to_hc32((td->qt_buffer[0] + 0x3000) & ~0xfff);
+		td->qt_buffer[4] =
+		    cpu_to_hc32((td->qt_buffer[0] + 0x4000) & ~0xfff);
 
 		*buf = buffer + i * elementsize;
 	}
@@ -1241,7 +1247,7 @@ create_int_queue(struct usb_device *dev, unsigned long pipe, int queuesize,
 	/* hook up to periodic list */
 	struct QH *list = &ctrl->periodic_queue;
 	result->last->qh_link = list->qh_link;
-	list->qh_link = (uint32_t)result->first | QH_LINK_TYPE_QH;
+	list->qh_link = cpu_to_hc32((uint32_t)result->first | QH_LINK_TYPE_QH);
 
 	flush_dcache_range((uint32_t)result->last,
 			   ALIGN_END_ADDR(struct QH, result->last, 1));
@@ -1280,7 +1286,7 @@ void *poll_int_queue(struct usb_device *dev, struct int_queue *queue)
 	/* still active */
 	invalidate_dcache_range((uint32_t)cur,
 				ALIGN_END_ADDR(struct QH, cur, 1));
-	if (cur->qh_overlay.qt_token & 0x80) {
+	if (cur->qh_overlay.qt_token & cpu_to_hc32(0x80)) {
 		debug("Exit poll_int_queue with no completed intr transfer. "
 		      "token is %x\n", cur->qh_overlay.qt_token);
 		return NULL;
@@ -1311,7 +1317,7 @@ destroy_int_queue(struct usb_device *dev, struct int_queue *queue)
 
 	struct QH *cur = &ctrl->periodic_queue;
 	timeout = get_timer(0) + 500; /* abort after 500ms */
-	while (!(cur->qh_link & QH_LINK_TERMINATE)) {
+	while (!(cur->qh_link & cpu_to_hc32(QH_LINK_TERMINATE))) {
 		debug("considering %p, with qh_link %x\n", cur, cur->qh_link);
 		if (NEXT_QH(cur) == queue->first) {
 			debug("found candidate. removing from chain\n");

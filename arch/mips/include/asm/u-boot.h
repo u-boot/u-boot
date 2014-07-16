@@ -15,8 +15,14 @@
 #ifndef _U_BOOT_H_
 #define _U_BOOT_H_	1
 
+#ifdef CONFIG_SYS_GENERIC_BOARD
+
+/* Use the generic board which requires a unified bd_info */
+#include <asm-generic/u-boot.h>
+
+#else /* !CONFIG_SYS_GENERIC_BOARD */
+
 typedef struct bd_info {
-	unsigned int	bi_baudrate;	/* serial console baudrate */
 	unsigned long	bi_arch_number;	/* unique id for this board */
 	unsigned long	bi_boot_params;	/* where this board expects params */
 	unsigned long	bi_memstart;	/* start of DRAM memory */
@@ -25,6 +31,8 @@ typedef struct bd_info {
 	unsigned long	bi_flashsize;	/* size  of FLASH memory */
 	unsigned long	bi_flashoffset;	/* reserved area for startup monitor */
 } bd_t;
+
+#endif /* !CONFIG_SYS_GENERIC_BOARD */
 
 /* For image.h:image_check_target_arch() */
 #define IH_ARCH_DEFAULT IH_ARCH_MIPS

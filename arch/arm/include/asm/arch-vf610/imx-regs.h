@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Freescale Semiconductor, Inc.
+ * Copyright 2013-2014 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -85,6 +85,9 @@
 #define ESDHC0_BASE_ADDR	(AIPS1_BASE_ADDR + 0x00031000)
 #define ESDHC1_BASE_ADDR	(AIPS1_BASE_ADDR + 0x00032000)
 #define ENET_BASE_ADDR		(AIPS1_BASE_ADDR + 0x00050000)
+#define ENET1_BASE_ADDR		(AIPS1_BASE_ADDR + 0x00051000)
+
+#define QSPI0_AMBA_BASE		0x20000000
 
 /* MUX mode and PAD ctrl are in one register */
 #define CONFIG_IOMUX_SHARE_CONF_REG
@@ -214,6 +217,7 @@
 #define DDRMC_CR139_PHY_WRLV_EN(v)			((v) & 0xff)
 #define DDRMC_CR154_PAD_ZQ_EARLY_CMP_EN_TIMER(v)	(((v) & 0x1f) << 27)
 #define DDRMC_CR154_PAD_ZQ_MODE(v)			(((v) & 0x3) << 21)
+#define DDRMC_CR154_DDR_SEL_PAD_CONTR(v)		(((v) & 0x3) << 18)
 #define DDRMC_CR155_AXI0_AWCACHE			(1 << 10)
 #define DDRMC_CR155_PAD_ODT_BYTE1(v)			((v) & 0x7)
 #define DDRMC_CR158_TWR(v)				((v) & 0x3f)

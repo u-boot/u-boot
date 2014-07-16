@@ -9,6 +9,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <fs.h>
 #include <zynqpl.h>
 #include <linux/sizes.h>
 #include <asm/arch/hardware.h>
@@ -36,7 +37,7 @@
 #define CONFIG_SYS_FPGA_PROG_TIME	(CONFIG_SYS_HZ * 4) /* 4 s */
 #endif
 
-int zynq_info(Xilinx_desc *desc)
+static int zynq_info(xilinx_desc *desc)
 {
 	return FPGA_SUCCESS;
 }
@@ -147,81 +148,62 @@ static void *check_data(u8 *buf, size_t bsize, u32 *swap)
 		}
 		/* Loop can be huge - support CTRL + C */
 		if (ctrlc())
-			return 0;
+			return NULL;
 	}
-	return 0;
+	return NULL;
 }
 
-
-int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
+static int zynq_dma_transfer(u32 srcbuf, u32 srclen, u32 dstbuf, u32 dstlen)
 {
-	unsigned long ts; /* Timestamp */
-	u32 partialbit = 0;
-	u32 i, control, isr_status, status, swap, diff;
-	u32 *buf_start;
+	unsigned long ts;
+	u32 isr_status;
 
-	/* Detect if we are going working with partial or full bitstream */
-	if (bsize != desc->size) {
-		printf("%s: Working with partial bitstream\n", __func__);
-		partialbit = 1;
-	}
+	/* Set up the transfer */
+	writel((u32)srcbuf, &devcfg_base->dma_src_addr);
+	writel(dstbuf, &devcfg_base->dma_dst_addr);
+	writel(srclen, &devcfg_base->dma_src_len);
+	writel(dstlen, &devcfg_base->dma_dst_len);
 
-	buf_start = check_data((u8 *)buf, bsize, &swap);
-	if (!buf_start)
-		return FPGA_FAIL;
+	isr_status = readl(&devcfg_base->int_sts);
 
-	/* Check if data is postpone from start */
-	diff = (u32)buf_start - (u32)buf;
-	if (diff) {
-		printf("%s: Bitstream is not validated yet (diff %x)\n",
-		       __func__, diff);
-		return FPGA_FAIL;
-	}
+	/* Polling the PCAP_INIT status for Set */
+	ts = get_timer(0);
+	while (!(isr_status & DEVCFG_ISR_DMA_DONE)) {
+		if (isr_status & DEVCFG_ISR_ERROR_FLAGS_MASK) {
+			debug("%s: Error: isr = 0x%08X\n", __func__,
+			      isr_status);
+			debug("%s: Write count = 0x%08X\n", __func__,
+			      readl(&devcfg_base->write_count));
+			debug("%s: Read count = 0x%08X\n", __func__,
+			      readl(&devcfg_base->read_count));
 
-	if ((u32)buf < SZ_1M) {
-		printf("%s: Bitstream has to be placed up to 1MB (%x)\n",
-		       __func__, (u32)buf);
-		return FPGA_FAIL;
-	}
-
-	if ((u32)buf != ALIGN((u32)buf, ARCH_DMA_MINALIGN)) {
-		u32 *new_buf = (u32 *)ALIGN((u32)buf, ARCH_DMA_MINALIGN);
-
-		/*
-		 * This might be dangerous but permits to flash if
-		 * ARCH_DMA_MINALIGN is greater than header size
-		 */
-		if (new_buf > buf_start) {
-			debug("%s: Aligned buffer is after buffer start\n",
-			      __func__);
-			new_buf -= ARCH_DMA_MINALIGN;
+			return FPGA_FAIL;
 		}
-
-		printf("%s: Align buffer at %x to %x(swap %d)\n", __func__,
-		       (u32)buf_start, (u32)new_buf, swap);
-
-		for (i = 0; i < (bsize/4); i++)
-			new_buf[i] = load_word(&buf_start[i], swap);
-
-		swap = SWAP_DONE;
-		buf = new_buf;
-	} else if (swap != SWAP_DONE) {
-		/* For bitstream which are aligned */
-		u32 *new_buf = (u32 *)buf;
-
-		printf("%s: Bitstream is not swapped(%d) - swap it\n", __func__,
-		       swap);
-
-		for (i = 0; i < (bsize/4); i++)
-			new_buf[i] = load_word(&buf_start[i], swap);
-
-		swap = SWAP_DONE;
+		if (get_timer(ts) > CONFIG_SYS_FPGA_PROG_TIME) {
+			printf("%s: Timeout wait for DMA to complete\n",
+			       __func__);
+			return FPGA_FAIL;
+		}
+		isr_status = readl(&devcfg_base->int_sts);
 	}
+
+	debug("%s: DMA transfer is done\n", __func__);
+
+	/* Clear out the DMA status */
+	writel(DEVCFG_ISR_DMA_DONE, &devcfg_base->int_sts);
+
+	return FPGA_SUCCESS;
+}
+
+static int zynq_dma_xfer_init(bitstream_type bstype)
+{
+	u32 status, control, isr_status;
+	unsigned long ts;
 
 	/* Clear loopback bit */
 	clrbits_le32(&devcfg_base->mctrl, DEVCFG_MCTRL_PCAP_LPBK);
 
-	if (!partialbit) {
+	if (bstype != BIT_PARTIAL) {
 		zynq_slcr_devcfg_disable();
 
 		/* Setting PCFG_PROG_B signal to high */
@@ -298,6 +280,95 @@ int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 		writel(DEVCFG_STATUS_DMA_DONE_CNT_MASK, &devcfg_base->status);
 	}
 
+	return FPGA_SUCCESS;
+}
+
+static u32 *zynq_align_dma_buffer(u32 *buf, u32 len, u32 swap)
+{
+	u32 *new_buf;
+	u32 i;
+
+	if ((u32)buf != ALIGN((u32)buf, ARCH_DMA_MINALIGN)) {
+		new_buf = (u32 *)ALIGN((u32)buf, ARCH_DMA_MINALIGN);
+
+		/*
+		 * This might be dangerous but permits to flash if
+		 * ARCH_DMA_MINALIGN is greater than header size
+		 */
+		if (new_buf > buf) {
+			debug("%s: Aligned buffer is after buffer start\n",
+			      __func__);
+			new_buf -= ARCH_DMA_MINALIGN;
+		}
+		printf("%s: Align buffer at %x to %x(swap %d)\n", __func__,
+		       (u32)buf, (u32)new_buf, swap);
+
+		for (i = 0; i < (len/4); i++)
+			new_buf[i] = load_word(&buf[i], swap);
+
+		buf = new_buf;
+	} else if (swap != SWAP_DONE) {
+		/* For bitstream which are aligned */
+		u32 *new_buf = (u32 *)buf;
+
+		printf("%s: Bitstream is not swapped(%d) - swap it\n", __func__,
+		       swap);
+
+		for (i = 0; i < (len/4); i++)
+			new_buf[i] = load_word(&buf[i], swap);
+	}
+
+	return buf;
+}
+
+static int zynq_validate_bitstream(xilinx_desc *desc, const void *buf,
+				   size_t bsize, u32 blocksize, u32 *swap,
+				   bitstream_type *bstype)
+{
+	u32 *buf_start;
+	u32 diff;
+
+	buf_start = check_data((u8 *)buf, blocksize, swap);
+
+	if (!buf_start)
+		return FPGA_FAIL;
+
+	/* Check if data is postpone from start */
+	diff = (u32)buf_start - (u32)buf;
+	if (diff) {
+		printf("%s: Bitstream is not validated yet (diff %x)\n",
+		       __func__, diff);
+		return FPGA_FAIL;
+	}
+
+	if ((u32)buf < SZ_1M) {
+		printf("%s: Bitstream has to be placed up to 1MB (%x)\n",
+		       __func__, (u32)buf);
+		return FPGA_FAIL;
+	}
+
+	if (zynq_dma_xfer_init(*bstype))
+		return FPGA_FAIL;
+
+	return 0;
+}
+
+static int zynq_load(xilinx_desc *desc, const void *buf, size_t bsize,
+		     bitstream_type bstype)
+{
+	unsigned long ts; /* Timestamp */
+	u32 isr_status, swap;
+
+	/*
+	 * send bsize inplace of blocksize as it was not a bitstream
+	 * in chunks
+	 */
+	if (zynq_validate_bitstream(desc, buf, bsize, bsize, &swap,
+				    &bstype))
+		return FPGA_FAIL;
+
+	buf = zynq_align_dma_buffer((u32 *)buf, bsize, swap);
+
 	debug("%s: Source = 0x%08X\n", __func__, (u32)buf);
 	debug("%s: Size = %zu\n", __func__, bsize);
 
@@ -305,36 +376,89 @@ int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 	flush_dcache_range((u32)buf, (u32)buf +
 			   roundup(bsize, ARCH_DMA_MINALIGN));
 
-	/* Set up the transfer */
-	writel((u32)buf | 1, &devcfg_base->dma_src_addr);
-	writel(0xFFFFFFFF, &devcfg_base->dma_dst_addr);
-	writel(bsize >> 2, &devcfg_base->dma_src_len);
-	writel(0, &devcfg_base->dma_dst_len);
+	if (zynq_dma_transfer((u32)buf | 1, bsize >> 2, 0xffffffff, 0))
+		return FPGA_FAIL;
 
 	isr_status = readl(&devcfg_base->int_sts);
-
-	/* Polling the PCAP_INIT status for Set */
+	/* Check FPGA configuration completion */
 	ts = get_timer(0);
-	while (!(isr_status & DEVCFG_ISR_DMA_DONE)) {
-		if (isr_status & DEVCFG_ISR_ERROR_FLAGS_MASK) {
-			debug("%s: Error: isr = 0x%08X\n", __func__,
-			      isr_status);
-			debug("%s: Write count = 0x%08X\n", __func__,
-			      readl(&devcfg_base->write_count));
-			debug("%s: Read count = 0x%08X\n", __func__,
-			      readl(&devcfg_base->read_count));
-
-			return FPGA_FAIL;
-		}
-		if (get_timer(ts) > CONFIG_SYS_FPGA_PROG_TIME) {
-			printf("%s: Timeout wait for DMA to complete\n",
+	while (!(isr_status & DEVCFG_ISR_PCFG_DONE)) {
+		if (get_timer(ts) > CONFIG_SYS_FPGA_WAIT) {
+			printf("%s: Timeout wait for FPGA to config\n",
 			       __func__);
 			return FPGA_FAIL;
 		}
 		isr_status = readl(&devcfg_base->int_sts);
 	}
 
-	debug("%s: DMA transfer is done\n", __func__);
+	debug("%s: FPGA config done\n", __func__);
+
+	if (bstype != BIT_PARTIAL)
+		zynq_slcr_devcfg_enable();
+
+	return FPGA_SUCCESS;
+}
+
+#if defined(CONFIG_CMD_FPGA_LOADFS)
+static int zynq_loadfs(xilinx_desc *desc, const void *buf, size_t bsize,
+		       fpga_fs_info *fsinfo)
+{
+	unsigned long ts; /* Timestamp */
+	u32 isr_status, swap;
+	u32 partialbit = 0;
+	u32 blocksize;
+	u32 pos = 0;
+	int fstype;
+	char *interface, *dev_part, *filename;
+
+	blocksize = fsinfo->blocksize;
+	interface = fsinfo->interface;
+	dev_part = fsinfo->dev_part;
+	filename = fsinfo->filename;
+	fstype = fsinfo->fstype;
+
+	if (fs_set_blk_dev(interface, dev_part, fstype))
+		return FPGA_FAIL;
+
+	if (fs_read(filename, (u32) buf, pos, blocksize) < 0)
+		return FPGA_FAIL;
+
+	if (zynq_validate_bitstream(desc, buf, bsize, blocksize, &swap,
+				    &partialbit))
+		return FPGA_FAIL;
+
+	dcache_disable();
+
+	do {
+		buf = zynq_align_dma_buffer((u32 *)buf, blocksize, swap);
+
+		if (zynq_dma_transfer((u32)buf | 1, blocksize >> 2,
+				      0xffffffff, 0))
+			return FPGA_FAIL;
+
+		bsize -= blocksize;
+		pos   += blocksize;
+
+		if (fs_set_blk_dev(interface, dev_part, fstype))
+			return FPGA_FAIL;
+
+		if (bsize > blocksize) {
+			if (fs_read(filename, (u32) buf, pos, blocksize) < 0)
+				return FPGA_FAIL;
+		} else {
+			if (fs_read(filename, (u32) buf, pos, bsize) < 0)
+				return FPGA_FAIL;
+		}
+	} while (bsize > blocksize);
+
+	buf = zynq_align_dma_buffer((u32 *)buf, blocksize, swap);
+
+	if (zynq_dma_transfer((u32)buf | 1, bsize >> 2, 0xffffffff, 0))
+		return FPGA_FAIL;
+
+	dcache_enable();
+
+	isr_status = readl(&devcfg_base->int_sts);
 
 	/* Check FPGA configuration completion */
 	ts = get_timer(0);
@@ -349,16 +473,23 @@ int zynq_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 
 	debug("%s: FPGA config done\n", __func__);
 
-	/* Clear out the DMA status */
-	writel(DEVCFG_ISR_DMA_DONE, &devcfg_base->int_sts);
-
 	if (!partialbit)
 		zynq_slcr_devcfg_enable();
 
 	return FPGA_SUCCESS;
 }
+#endif
 
-int zynq_dump(Xilinx_desc *desc, const void *buf, size_t bsize)
+static int zynq_dump(xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	return FPGA_FAIL;
 }
+
+struct xilinx_fpga_op zynq_op = {
+	.load = zynq_load,
+#if defined(CONFIG_CMD_FPGA_LOADFS)
+	.loadfs = zynq_loadfs,
+#endif
+	.dump = zynq_dump,
+	.info = zynq_info,
+};

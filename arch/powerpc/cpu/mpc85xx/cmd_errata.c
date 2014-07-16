@@ -113,6 +113,21 @@ static void check_erratum_a4580(uint32_t svr)
 }
 #endif
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_A007212
+/*
+ * This workaround can be implemented in PBI, or by u-boot.
+ */
+static void check_erratum_a007212(void)
+{
+	u32 __iomem *plldgdcr = (void *)(CONFIG_SYS_DCSRBAR + 0x21c20);
+
+	if (in_be32(plldgdcr) & 0x1fe) {
+		/* check if PLL ratio is set by workaround */
+		puts("Work-around for Erratum A007212 enabled\n");
+	}
+}
+#endif
+
 static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 #ifdef CONFIG_SYS_FSL_ERRATUM_NMG_CPU_A011
@@ -216,6 +231,9 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if ((SVR_MAJ(svr) == 1) || IS_SVR_REV(svr, 2, 0))
 		puts("Work-around for Erratum NMG ETSEC129 enabled\n");
 #endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A004508
+	puts("Work-around for Erratum A004508 enabled\n");
+#endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_A004510
 	puts("Work-around for Erratum A004510 enabled\n");
 #endif
@@ -251,6 +269,9 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef CONFIG_SYS_FSL_ERRATUM_USB14
 	puts("Work-around for Erratum USB14 enabled\n");
 #endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A007186
+	puts("Work-around for Erratum A007186 enabled\n");
+#endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_A006593
 	puts("Work-around for Erratum A006593 enabled\n");
 #endif
@@ -268,6 +289,10 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef CONFIG_SYS_FSL_ERRATUM_A005125
 	puts("Work-around for Erratum A005125 enabled\n");
 #endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A007075
+	if (has_erratum_a007075())
+		puts("Work-around for Erratum A007075 enabled\n");
+#endif
 #ifdef CONFIG_SYS_FSL_ERRATUM_I2C_A004447
 	if ((SVR_SOC_VER(svr) == SVR_8548 && IS_SVR_REV(svr, 3, 1)) ||
 	    (SVR_REV(svr) <= CONFIG_SYS_FSL_A004447_SVR_REV))
@@ -277,6 +302,13 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (has_erratum_a006261())
 		puts("Work-around for Erratum A006261 enabled\n");
 #endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A007212
+	check_erratum_a007212();
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_A005434
+	puts("Work-around for Erratum A-005434 enabled\n");
+#endif
+
 	return 0;
 }
 

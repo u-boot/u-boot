@@ -1,5 +1,7 @@
 /bmp_logo
 /envcrc
+/fit_check_sign
+/fit_info
 /gen_eth_addr
 /img2srec
 /kwboot
@@ -9,12 +11,15 @@
 /mkexynosspl
 /mpc86x_clk
 /mxsboot
+/mksunxiboot
 /ncb
 /proftool
 /relocate-rela
 /ubsha1
 /xway-swap-bytes
-/*.exe
 /easylogo/easylogo
 /gdb/gdbcont
 /gdb/gdbsend
+
+/lib/
+/common/

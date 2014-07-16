@@ -51,6 +51,9 @@ reset:
 	adr	x0, vectors
 	switch_el x1, 3f, 2f, 1f
 3:	msr	vbar_el3, x0
+	mrs	x0, scr_el3
+	orr	x0, x0, #0xf			/* SCR_EL3.NS|IRQ|FIQ|EA */
+	msr	scr_el3, x0
 	msr	cptr_el3, xzr			/* Enable FP/SIMD */
 	ldr	x0, =COUNTER_FREQUENCY
 	msr	cntfrq_el0, x0			/* Initialize CNTFRQ */
@@ -64,10 +67,12 @@ reset:
 	msr	cpacr_el1, x0			/* Enable FP/SIMD */
 0:
 
-	/* Cache/BPB/TLB Invalidate */
-	bl	__asm_flush_dcache_all		/* dCache clean&invalidate */
-	bl	__asm_invalidate_icache_all	/* iCache invalidate */
-	bl	__asm_invalidate_tlb_all	/* invalidate TLBs */
+	/*
+	 * Cache/BPB/TLB Invalidate
+	 * i-cache is invalidated before enabled in icache_enable()
+	 * tlb is invalidated before mmu is enabled in dcache_enable()
+	 * d-cache is invalidated before enabled in dcache_enable()
+	 */
 
 	/* Processor specific initialization */
 	bl	lowlevel_init
@@ -93,63 +98,64 @@ master_cpu:
 /*-----------------------------------------------------------------------*/
 
 WEAK(lowlevel_init)
-	/* Initialize GIC Secure Bank Status */
 	mov	x29, lr			/* Save LR */
-	bl	gic_init
 
-	branch_if_master x0, x1, 1f
+#if defined(CONFIG_GICV2) || defined(CONFIG_GICV3)
+	branch_if_slave x0, 1f
+	ldr	x0, =GICD_BASE
+	bl	gic_init_secure
+1:
+#if defined(CONFIG_GICV3)
+	ldr	x0, =GICR_BASE
+	bl	gic_init_secure_percpu
+#elif defined(CONFIG_GICV2)
+	ldr	x0, =GICD_BASE
+	ldr	x1, =GICC_BASE
+	bl	gic_init_secure_percpu
+#endif
+#endif
+
+	branch_if_master x0, x1, 2f
 
 	/*
 	 * Slave should wait for master clearing spin table.
 	 * This sync prevent salves observing incorrect
 	 * value of spin table and jumping to wrong place.
 	 */
-	bl	wait_for_wakeup
+#if defined(CONFIG_GICV2) || defined(CONFIG_GICV3)
+#ifdef CONFIG_GICV2
+	ldr	x0, =GICC_BASE
+#endif
+	bl	gic_wait_for_interrupt
+#endif
 
 	/*
-	 * All processors will enter EL2 and optionally EL1.
+	 * All slaves will enter EL2 and optionally EL1.
 	 */
 	bl	armv8_switch_to_el2
 #ifdef CONFIG_ARMV8_SWITCH_TO_EL1
 	bl	armv8_switch_to_el1
 #endif
 
-1:
+2:
 	mov	lr, x29			/* Restore LR */
 	ret
 ENDPROC(lowlevel_init)
 
+WEAK(smp_kick_all_cpus)
+	/* Kick secondary cpus up by SGI 0 interrupt */
+	mov	x29, lr			/* Save LR */
+#if defined(CONFIG_GICV2) || defined(CONFIG_GICV3)
+	ldr	x0, =GICD_BASE
+	bl	gic_kick_secondary_cpus
+#endif
+	mov	lr, x29			/* Restore LR */
+	ret
+ENDPROC(smp_kick_all_cpus)
+
 /*-----------------------------------------------------------------------*/
 
 ENTRY(c_runtime_cpu_setup)
-	/* If I-cache is enabled invalidate it */
-#ifndef CONFIG_SYS_ICACHE_OFF
-	ic	iallu			/* I+BTB cache invalidate */
-	isb	sy
-#endif
-
-#ifndef CONFIG_SYS_DCACHE_OFF
-	/*
-	 * Setup MAIR and TCR.
-	 */
-	ldr	x0, =MEMORY_ATTRIBUTES
-	ldr	x1, =TCR_FLAGS
-
-	switch_el x2, 3f, 2f, 1f
-3:	orr	x1, x1, TCR_EL3_IPS_BITS
-	msr	mair_el3, x0
-	msr	tcr_el3, x1
-	b	0f
-2:	orr	x1, x1, TCR_EL2_IPS_BITS
-	msr	mair_el2, x0
-	msr	tcr_el2, x1
-	b	0f
-1:	orr	x1, x1, TCR_EL1_IPS_BITS
-	msr	mair_el1, x0
-	msr	tcr_el1, x1
-0:
-#endif
-
 	/* Relocate vBAR */
 	adr	x0, vectors
 	switch_el x1, 3f, 2f, 1f

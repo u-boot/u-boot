@@ -12,7 +12,6 @@
 #include <net.h>
 #include <netdev.h>
 #include <asm/blackfin.h>
-#include <asm/net.h>
 #include <asm/mach-common/bits/otp.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -45,7 +44,7 @@ static void board_init_enetaddr(uchar *mac_addr)
 
 	if (!valid_mac) {
 		puts("Warning: Generating 'random' MAC address\n");
-		bfin_gen_rand_mac(mac_addr);
+		eth_random_addr(mac_addr);
 	}
 
 	eth_setenv_enetaddr("ethaddr", mac_addr);

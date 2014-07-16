@@ -12,6 +12,8 @@
 #ifndef __BUR_AM335X_COMMON_H__
 #define __BUR_AM335X_COMMON_H__
 /* ------------------------------------------------------------------------- */
+#define CONFIG_SYS_GENERIC_BOARD
+
 #define CONFIG_AM33XX
 #define CONFIG_OMAP
 #define CONFIG_OMAP_COMMON
@@ -22,7 +24,7 @@
 /* Timer information */
 #define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
 #define CONFIG_SYS_TIMERBASE		0x48040000	/* Use Timer2 */
-
+#define CONFIG_SPL_AM33XX_ENABLE_RTC32K_OSC	/* enable 32kHz OSC at bootime */
 #define CONFIG_SPL_POWER_SUPPORT
 #define CONFIG_POWER_TPS65217
 
@@ -94,7 +96,7 @@
 #define CONFIG_SYS_OMAP24_I2C_SPEED	100000
 #define CONFIG_SYS_OMAP24_I2C_SLAVE	1
 #define CONFIG_SYS_I2C_OMAP24XX
-
+#define CONFIG_CMD_I2C
 /* GPIO */
 #define CONFIG_OMAP_GPIO
 #define CONFIG_CMD_GPIO

@@ -27,6 +27,11 @@ static struct module_pin_mux uart0_pin_mux[] = {
 };
 #ifdef CONFIG_MMC
 static struct module_pin_mux mmc1_pin_mux[] = {
+	{OFFSET(gpmc_ad7), (MODE(1) | RXACTIVE | PULLUP_EN)},	/* MMC1_DAT7 */
+	{OFFSET(gpmc_ad6), (MODE(1) | RXACTIVE | PULLUP_EN)},	/* MMC1_DAT6 */
+	{OFFSET(gpmc_ad5), (MODE(1) | RXACTIVE | PULLUP_EN)},	/* MMC1_DAT5 */
+	{OFFSET(gpmc_ad4), (MODE(1) | RXACTIVE | PULLUP_EN)},	/* MMC1_DAT4 */
+
 	{OFFSET(gpmc_ad3), (MODE(1) | RXACTIVE | PULLUP_EN)},	/* MMC1_DAT3 */
 	{OFFSET(gpmc_ad2), (MODE(1) | RXACTIVE | PULLUP_EN)},	/* MMC1_DAT2 */
 	{OFFSET(gpmc_ad1), (MODE(1) | RXACTIVE | PULLUP_EN)},	/* MMC1_DAT1 */
@@ -125,7 +130,7 @@ static struct module_pin_mux gpIOs[] = {
 	{OFFSET(mmc0_dat3), (MODE(3) | PULLUDEN | RXACTIVE)},
 	/* TIMER6   (MMC0_DAT2) - PWM_BACK_3V3, later used as MODE3 for PWM */
 	{OFFSET(mmc0_dat2), (MODE(7) | PULLUDEN | RXACTIVE)},
-	/* GPIO2_28 (MMC0_DAT1)	 - MII_nNAND */
+	/* GPIO2_27 (MMC0_DAT1)	 - MII_nNAND */
 	{OFFSET(mmc0_dat1), (MODE(7) | PULLUDEN | RXACTIVE)},
 	/* GPIO2_29 (MMC0_DAT0)	 - NAND_1n0 */
 	{OFFSET(mmc0_dat0), (MODE(7) | PULLUDEN | RXACTIVE)},
@@ -148,7 +153,7 @@ static struct module_pin_mux gpIOs[] = {
 	 * DISPLAY_ONOFF (Backlight Enable at LVDS Versions)
 	 */
 	{OFFSET(ecap0_in_pwm0_out), (MODE(7) | PULLUDEN | RXACTIVE)},
-	/* GPIO0_19 (DMA_INTR0) - ISPLAY_MODE (CPLD) */
+	/* GPIO0_19 (DMA_INTR0) - DISPLAY_MODE (CPLD) */
 	{OFFSET(xdma_event_intr0), (MODE(7) | PULLUDEN | PULLUP_EN | RXACTIVE)},
 	/* GPIO0_20 (DMA_INTR1) - REP-Switch */
 	{OFFSET(xdma_event_intr1), (MODE(7) | PULLUP_EN | RXACTIVE)},

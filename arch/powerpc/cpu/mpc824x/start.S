@@ -56,9 +56,6 @@
 	GOT_ENTRY(__init_end)
 	GOT_ENTRY(__bss_end)
 	GOT_ENTRY(__bss_start)
-#if defined(CONFIG_FADS)
-	GOT_ENTRY(environment)
-#endif
 	END_GOT
 
 /*

@@ -16,17 +16,14 @@ DECLARE_GLOBAL_DATA_PTR;
 #ifdef CONFIG_USB_EHCI_EXYNOS
 int board_usb_init(int index, enum usb_init_type init)
 {
-	struct exynos5_gpio_part1 *gpio = (struct exynos5_gpio_part1 *)
-						samsung_get_base_gpio_part1();
-
 	/* Configure gpios for usb 3503 hub:
 	 * disconnect, toggle reset and connect
 	 */
-	s5p_gpio_direction_output(&gpio->d1, 7, 0);
-	s5p_gpio_direction_output(&gpio->x3, 5, 0);
+	gpio_direction_output(EXYNOS5_GPIO_D17, 0);
+	gpio_direction_output(EXYNOS5_GPIO_X35, 0);
 
-	s5p_gpio_direction_output(&gpio->x3, 5, 1);
-	s5p_gpio_direction_output(&gpio->d1, 7, 1);
+	gpio_direction_output(EXYNOS5_GPIO_X35, 1);
+	gpio_direction_output(EXYNOS5_GPIO_D17, 1);
 
 	return 0;
 }

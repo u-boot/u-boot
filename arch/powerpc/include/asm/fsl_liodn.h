@@ -99,6 +99,14 @@ extern void fdt_fixup_liodn(void *blob);
 	SET_GUTS_LIODN("fsl,esdhc", liodn, sdmmc##sdhcNum##liodnr,\
 		CONFIG_SYS_MPC85xx_ESDHC_OFFSET)
 
+#define SET_QE_LIODN(liodn) \
+	SET_GUTS_LIODN("fsl,qe", liodn, qeliodnr,\
+		CONFIG_SYS_MPC85xx_QE_OFFSET)
+
+#define SET_TDM_LIODN(liodn) \
+	SET_GUTS_LIODN("fsl,tdm1.0", liodn, tdmliodnr,\
+		CONFIG_SYS_MPC85xx_TDM_OFFSET)
+
 #define SET_QMAN_LIODN(liodn) \
 	SET_LIODN_ENTRY_1("fsl,qman", liodn, offsetof(ccsr_qman_t, liodnr) + \
 		CONFIG_SYS_FSL_QMAN_OFFSET, \

@@ -28,6 +28,13 @@ void board_init_f(ulong dummy)
 	board_init_r(NULL, 0);
 }
 
+#ifdef CONFIG_SPL_BOARD_INIT
+void spl_board_init(void)
+{
+	board_init();
+}
+#endif
+
 u32 spl_boot_device(void)
 {
 	u32 mode;
@@ -67,3 +74,11 @@ int spl_start_uboot(void)
 	return 0;
 }
 #endif
+
+__weak void ps7_init(void)
+{
+	/*
+	 * This function is overridden by the one in
+	 * board/xilinx/zynq/ps7_init.c, if it exists.
+	 */
+}

@@ -643,8 +643,8 @@ static int xhci_submit_root(struct usb_device *udev, unsigned long pipe,
 	struct xhci_ctrl *ctrl = udev->controller;
 	struct xhci_hcor *hcor = ctrl->hcor;
 
-	if (((req->requesttype & USB_RT_PORT) &&
-	     le16_to_cpu(req->index)) > CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS) {
+	if ((req->requesttype & USB_RT_PORT) &&
+	    le16_to_cpu(req->index) > CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS) {
 		printf("The request port(%d) is not configured\n",
 			le16_to_cpu(req->index) - 1);
 		return -EINVAL;

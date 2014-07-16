@@ -173,16 +173,45 @@ int fpga_add(fpga_type devtype, void *desc)
 /*
  * Convert bitstream data and load into the fpga
  */
-int __weak fpga_loadbitstream(int devnum, char *fpgadata, size_t size)
+int __weak fpga_loadbitstream(int devnum, char *fpgadata, size_t size,
+			      bitstream_type bstype)
 {
 	printf("Bitstream support not implemented for this FPGA device\n");
 	return FPGA_FAIL;
 }
 
+#if defined(CONFIG_CMD_FPGA_LOADFS)
+int fpga_fsload(int devnum, const void *buf, size_t size,
+		 fpga_fs_info *fpga_fsinfo)
+{
+	int ret_val = FPGA_FAIL;           /* assume failure */
+	const fpga_desc *desc = fpga_validate(devnum, buf, size,
+					      (char *)__func__);
+
+	if (desc) {
+		switch (desc->devtype) {
+		case fpga_xilinx:
+#if defined(CONFIG_FPGA_XILINX)
+			ret_val = xilinx_loadfs(desc->devdesc, buf, size,
+						fpga_fsinfo);
+#else
+			fpga_no_sup((char *)__func__, "Xilinx devices");
+#endif
+			break;
+		default:
+			printf("%s: Invalid or unsupported device type %d\n",
+			       __func__, desc->devtype);
+		}
+	}
+
+	return ret_val;
+}
+#endif
+
 /*
  * Generic multiplexing code
  */
-int fpga_load(int devnum, const void *buf, size_t bsize)
+int fpga_load(int devnum, const void *buf, size_t bsize, bitstream_type bstype)
 {
 	int ret_val = FPGA_FAIL;           /* assume failure */
 	const fpga_desc *desc = fpga_validate(devnum, buf, bsize,
@@ -192,7 +221,8 @@ int fpga_load(int devnum, const void *buf, size_t bsize)
 		switch (desc->devtype) {
 		case fpga_xilinx:
 #if defined(CONFIG_FPGA_XILINX)
-			ret_val = xilinx_load(desc->devdesc, buf, bsize);
+			ret_val = xilinx_load(desc->devdesc, buf, bsize,
+					      bstype);
 #else
 			fpga_no_sup((char *)__func__, "Xilinx devices");
 #endif

@@ -457,6 +457,7 @@
 #endif /* CONFIG_BOOT_ROOT_NFS */
 
 #define CONFIG_BOOTP_RANDOM_DELAY       /* Randomize the BOOTP retry delay */
+#define CONFIG_LIB_RAND
 
 /*
  * BOOTP options

@@ -11,6 +11,7 @@
 #ifndef _SYS_PROTO_H_
 #define _SYS_PROTO_H_
 #include <linux/mtd/omap_gpmc.h>
+#include <asm/ti-common/sys_proto.h>
 #include <asm/arch/cpu.h>
 
 #define BOARD_REV_ID	0x0

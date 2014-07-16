@@ -22,7 +22,7 @@
 #define local_irq_save(flags)					\
 	({							\
 	asm volatile(						\
-	"mrs	%0, daif"					\
+	"mrs	%0, daif\n"					\
 	"msr	daifset, #3"					\
 	: "=r" (flags)						\
 	:							\

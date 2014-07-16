@@ -418,50 +418,8 @@ LIST_arm="$(targets_by_arch arm |		\
 ## MIPS Systems		(default = big endian)
 #########################################################################
 
-LIST_mips4kc="		\
-	incaip		\
-	incaip_100MHz	\
-	incaip_133MHz	\
-	incaip_150MHz	\
-	qemu_mips	\
-	vct_platinum	\
-	vct_platinum_small	\
-	vct_platinum_onenand	\
-	vct_platinum_onenand_small	\
-	vct_platinumavc	\
-	vct_platinumavc_small	\
-	vct_platinumavc_onenand	\
-	vct_platinumavc_onenand_small	\
-	vct_premium	\
-	vct_premium_small	\
-	vct_premium_onenand	\
-	vct_premium_onenand_small	\
-"
+LIST_mips="$(targets_by_arch mips)"
 
-LIST_au1xx0="		\
-	dbau1000	\
-	dbau1100	\
-	dbau1500	\
-	dbau1550	\
-"
-
-LIST_mips="		\
-	${LIST_mips4kc}	\
-	${LIST_mips5kc}	\
-	${LIST_au1xx0}	\
-"
-
-#########################################################################
-## MIPS Systems		(little endian)
-#########################################################################
-
-LIST_au1xx0_el="	\
-	dbau1550_el	\
-	pb1000		\
-"
-LIST_mips_el="			\
-	${LIST_au1xx0_el}	\
-"
 #########################################################################
 ## OpenRISC Systems
 #########################################################################

@@ -4,6 +4,12 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include "config.h"
+
+#ifndef CONFIG_SYS_MONITOR_LEN
+#define CONFIG_SYS_MONITOR_LEN	0x80000
+#endif
+
 OUTPUT_ARCH(powerpc)
 /* Do we need any of these for elf?
    __DYNAMIC = 0;    */
@@ -76,7 +82,7 @@ SECTIONS
     KEEP(arch/powerpc/cpu/mpc85xx/start.o (.bootpg))
   } :text = 0xffff
 
-  . = ADDR(.text) + 0x80000;
+  . = ADDR(.text) + CONFIG_SYS_MONITOR_LEN;
 
   __bss_start = .;
   .bss (NOLOAD)       :

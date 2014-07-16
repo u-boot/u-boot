@@ -759,6 +759,54 @@ void bfin_reset_boot_spi_cs(unsigned short pin)
 	udelay(1);
 }
 
+int name_to_gpio(const char *name)
+{
+	int port_base;
+
+	if (tolower(*name) == 'p') {
+		++name;
+
+		switch (tolower(*name)) {
+#ifdef GPIO_PA0
+		case 'a': port_base = GPIO_PA0; break;
+#endif
+#ifdef GPIO_PB0
+		case 'b': port_base = GPIO_PB0; break;
+#endif
+#ifdef GPIO_PC0
+		case 'c': port_base = GPIO_PC0; break;
+#endif
+#ifdef GPIO_PD0
+		case 'd': port_base = GPIO_PD0; break;
+#endif
+#ifdef GPIO_PE0
+		case 'e': port_base = GPIO_PE0; break;
+#endif
+#ifdef GPIO_PF0
+		case 'f': port_base = GPIO_PF0; break;
+#endif
+#ifdef GPIO_PG0
+		case 'g': port_base = GPIO_PG0; break;
+#endif
+#ifdef GPIO_PH0
+		case 'h': port_base = GPIO_PH0; break;
+#endif
+#ifdef GPIO_PI0
+		case 'i': port_base = GPIO_PI0; break;
+#endif
+#ifdef GPIO_PJ
+		case 'j': port_base = GPIO_PJ0; break;
+#endif
+		default:  return -1;
+		}
+
+		++name;
+	} else
+		port_base = 0;
+
+	return port_base + simple_strtoul(name, NULL, 10);
+}
+
 void gpio_labels(void)
 {
 	int c, gpio;

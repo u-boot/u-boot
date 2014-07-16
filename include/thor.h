@@ -15,13 +15,5 @@
 
 int thor_handle(void);
 int thor_init(void);
-
-#ifdef CONFIG_THOR_FUNCTION
 int thor_add(struct usb_configuration *c);
-#else
-int thor_add(struct usb_configuration *c)
-{
-	return 0;
-}
-#endif
 #endif /* __THOR_H_ */

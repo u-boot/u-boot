@@ -41,7 +41,6 @@
 
 #define DRIVER_VERSION		"usb_dnl 2.0"
 
-static const char shortname[] = "usb_dnl_";
 static const char product[] = "USB download gadget";
 static char g_dnl_serial[MAX_STRING_SERIAL];
 static const char manufacturer[] = CONFIG_G_DNL_MANUFACTURER;
@@ -96,29 +95,36 @@ static int g_dnl_unbind(struct usb_composite_dev *cdev)
 	free(cdev->config);
 	cdev->config = NULL;
 	debug("%s: calling usb_gadget_disconnect for "
-			"controller '%s'\n", shortname, gadget->name);
+			"controller '%s'\n", __func__, gadget->name);
 	usb_gadget_disconnect(gadget);
 
 	return 0;
 }
 
+static inline struct g_dnl_bind_callback *g_dnl_bind_callback_first(void)
+{
+	return ll_entry_start(struct g_dnl_bind_callback,
+				g_dnl_bind_callbacks);
+}
+
+static inline struct g_dnl_bind_callback *g_dnl_bind_callback_end(void)
+{
+	return ll_entry_end(struct g_dnl_bind_callback,
+				g_dnl_bind_callbacks);
+}
+
 static int g_dnl_do_config(struct usb_configuration *c)
 {
 	const char *s = c->cdev->driver->name;
-	int ret = -1;
+	struct g_dnl_bind_callback *callback = g_dnl_bind_callback_first();
 
 	debug("%s: configuration: 0x%p composite dev: 0x%p\n",
 	      __func__, c, c->cdev);
 
-	printf("GADGET DRIVER: %s\n", s);
-	if (!strcmp(s, "usb_dnl_dfu"))
-		ret = dfu_add(c);
-	else if (!strcmp(s, "usb_dnl_ums"))
-		ret = fsg_add(c);
-	else if (!strcmp(s, "usb_dnl_thor"))
-		ret = thor_add(c);
-
-	return ret;
+	for (; callback != g_dnl_bind_callback_end(); callback++)
+		if (!strcmp(s, callback->usb_function_name))
+			return callback->fptr(c);
+	return -ENODEV;
 }
 
 static int g_dnl_config_register(struct usb_composite_dev *cdev)
@@ -150,6 +156,11 @@ int g_dnl_bind_fixup(struct usb_device_descriptor *dev, const char *name)
 __weak int g_dnl_get_board_bcd_device_number(int gcnum)
 {
 	return gcnum;
+}
+
+__weak int g_dnl_board_usb_cable_connected(void)
+{
+	return -EOPNOTSUPP;
 }
 
 static int g_dnl_get_bcd_device_number(struct usb_composite_dev *cdev)
@@ -203,12 +214,12 @@ static int g_dnl_bind(struct usb_composite_dev *cdev)
 		device_desc.bcdDevice = cpu_to_le16(gcnum);
 	else {
 		debug("%s: controller '%s' not recognized\n",
-			shortname, gadget->name);
+			__func__, gadget->name);
 		device_desc.bcdDevice = __constant_cpu_to_le16(0x9999);
 	}
 
 	debug("%s: calling usb_gadget_connect for "
-			"controller '%s'\n", shortname, gadget->name);
+			"controller '%s'\n", __func__, gadget->name);
 	usb_gadget_connect(gadget);
 
 	return 0;
@@ -227,36 +238,23 @@ static struct usb_composite_driver g_dnl_driver = {
 	.unbind = g_dnl_unbind,
 };
 
-int g_dnl_register(const char *type)
+/*
+ * NOTICE:
+ * Registering via USB function name won't be necessary after rewriting
+ * g_dnl to support multiple USB functions.
+ */
+int g_dnl_register(const char *name)
 {
-	/* The largest function name is 4 */
-	static char name[sizeof(shortname) + 4];
 	int ret;
 
-	if (!strcmp(type, "dfu")) {
-		strcpy(name, shortname);
-		strcat(name, type);
-	} else if (!strcmp(type, "ums")) {
-		strcpy(name, shortname);
-		strcat(name, type);
-	} else if (!strcmp(type, "thor")) {
-		strcpy(name, shortname);
-		strcat(name, type);
-	} else {
-		printf("%s: unknown command: %s\n", __func__, type);
-		return -EINVAL;
-	}
-
+	debug("%s: g_dnl_driver.name = %s\n", __func__, name);
 	g_dnl_driver.name = name;
 
-	debug("%s: g_dnl_driver.name: %s\n", __func__, g_dnl_driver.name);
 	ret = usb_composite_register(&g_dnl_driver);
-
 	if (ret) {
 		printf("%s: failed!, error: %d\n", __func__, ret);
 		return ret;
 	}
-
 	return 0;
 }
 

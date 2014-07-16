@@ -190,6 +190,24 @@ Configuration Options:
 	This is used by SoC platforms which do not have built-in ELM
 	hardware engine required for BCH ECC correction.
 
+   CONFIG_SYS_NAND_BUSWIDTH_16BIT
+	Indicates that NAND device has 16-bit wide data-bus. In absence of this
+	config, bus-width of NAND device is assumed to be either 8-bit and later
+	determined by reading ONFI params.
+	Above config is useful when NAND device's bus-width information cannot
+	be determined from on-chip ONFI params, like in following scenarios:
+	- SPL boot does not support reading of ONFI parameters. This is done to
+	  keep SPL code foot-print small.
+	- In current U-Boot flow using nand_init(), driver initialization
+	  happens in board_nand_init() which is called before any device probe
+	  (nand_scan_ident + nand_scan_tail), thus device's ONFI parameters are
+	  not available while configuring controller. So a static CONFIG_NAND_xx
+	  is needed to know the device's bus-width in advance.
+	Some drivers using above config are:
+	drivers/mtd/nand/mxc_nand.c
+	drivers/mtd/nand/ndfc.c
+	drivers/mtd/nand/omap_gpmc.c
+
 
 Platform specific options
 =========================
@@ -231,6 +249,48 @@ Platform specific options
 		8-bit BCH code with
 		- ecc calculation using GPMC hardware engine,
 		- error detection using ELM hardware engine.
+	OMAP_ECC_BCH16_CODE_HW
+		16-bit BCH code with
+		- ecc calculation using GPMC hardware engine,
+		- error detection using ELM hardware engine.
+
+	How to select ECC scheme on OMAP and AMxx platforms ?
+	-----------------------------------------------------
+	Though higher ECC schemes have more capability to detect and correct
+	bit-flips, but still selection of ECC scheme is dependent on following
+	- hardware engines present in SoC.
+		Some legacy OMAP SoC do not have ELM h/w engine thus such
+		SoC cannot support BCHx_HW ECC schemes.
+	- size of OOB/Spare region
+		With higher ECC schemes, more OOB/Spare area is required to
+		store ECC. So choice of ECC scheme is limited by NAND oobsize.
+
+	In general following expression can help:
+		NAND_OOBSIZE >= 2 + (NAND_PAGESIZE / 512) * ECC_BYTES
+	where
+		NAND_OOBSIZE	= number of bytes available in
+				OOB/spare area per NAND page.
+		NAND_PAGESIZE	= bytes in main-area of NAND page.
+		ECC_BYTES	= number of ECC bytes generated to
+				protect 512 bytes of data, which is:
+				3 for HAM1_xx ecc schemes
+				7 for BCH4_xx ecc schemes
+				14 for BCH8_xx ecc schemes
+				26 for BCH16_xx ecc schemes
+
+		example to check for BCH16 on 2K page NAND
+		NAND_PAGESIZE = 2048
+		NAND_OOBSIZE = 64
+		2 + (2048 / 512) * 26 = 106 > NAND_OOBSIZE
+		Thus BCH16 cannot be supported on 2K page NAND.
+
+		However, for 4K pagesize NAND
+		NAND_PAGESIZE = 4096
+		NAND_OOBSIZE = 64
+		ECC_BYTES = 26
+		2 + (4096 / 512) * 26 = 210 < NAND_OOBSIZE
+		Thus BCH16 can be supported on 4K page NAND.
+
 
 NOTE:
 =====

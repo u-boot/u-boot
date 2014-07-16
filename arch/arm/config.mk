@@ -5,10 +5,6 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-ifeq ($(CROSS_COMPILE),)
-CROSS_COMPILE := arm-linux-
-endif
-
 ifndef CONFIG_STANDALONE_LOAD_ADDR
 ifneq ($(CONFIG_OMAP_COMMON),)
 CONFIG_STANDALONE_LOAD_ADDR = 0x80300000
@@ -120,12 +116,20 @@ else
 OBJCOPYFLAGS += -j .text -j .rodata -j .hash -j .data -j .got.plt -j .u_boot_list -j .rel.dyn
 endif
 
+ifdef CONFIG_OF_EMBED
+OBJCOPYFLAGS += -j .dtb.init.rodata
+endif
+
 ifneq ($(CONFIG_IMX_CONFIG),)
 ifdef CONFIG_SPL
 ifndef CONFIG_SPL_BUILD
 ALL-y += SPL
 endif
 else
+ifeq ($(CONFIG_OF_SEPARATE),y)
+ALL-y += u-boot-dtb.imx
+else
 ALL-y += u-boot.imx
+endif
 endif
 endif

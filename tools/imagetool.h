@@ -18,7 +18,7 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
-#include <sha1.h>
+#include <u-boot/sha1.h>
 #include "fdt_host.h"
 
 #define ARRAY_SIZE(x)		(sizeof(x) / sizeof((x)[0]))
@@ -159,6 +159,7 @@ void register_image_type(struct image_type_params *tparams);
  * Supported image types init functions
  */
 void init_default_image_type(void);
+void init_atmel_image_type(void);
 void init_pbl_image_type(void);
 void init_ais_image_type(void);
 void init_kwb_image_type(void);
@@ -167,6 +168,7 @@ void init_mxs_image_type(void);
 void init_fit_image_type(void);
 void init_ubl_image_type(void);
 void init_omap_image_type(void);
+void init_gpimage_type(void);
 
 void pbl_load_uboot(int fd, struct image_tool_params *mparams);
 

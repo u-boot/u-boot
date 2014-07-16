@@ -25,7 +25,7 @@ stdout or stderr) to any device you see in that list simply by
 assigning its name to the corresponding environment variable. For
 example:
 
-    setenv stdin wl_kbd		<- To use the wireless keyboard
+    setenv stdin serial		<- To use the serial input
     setenv stdout video		<- To use the video console
 
 Do a simple "saveenv" to save the console settings in the environment
@@ -99,4 +99,3 @@ The driver has been tested with the following configurations (see
 CREDITS for other contact informations):
 
 - MPC823FADS with AD7176 on a PAL TV (YCbYCr)	- arsenio@tin.it
-- GENIETV    with AD7177 on a PAL TV (YCbYCr)	- arsenio@tin.it

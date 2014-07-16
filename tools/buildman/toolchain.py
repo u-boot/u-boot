@@ -66,7 +66,7 @@ class Toolchain:
         Returns:
             Priority of toolchain, 0=highest, 20=lowest.
         """
-        priority_list = ['-elf', '-unknown-linux-gnu', '-linux', '-elf',
+        priority_list = ['-elf', '-unknown-linux-gnu', '-linux',
             '-none-linux-gnueabi', '-uclinux', '-none-eabi',
             '-gentoo-linux-gnu', '-linux-gnueabi', '-le-linux', '-uclinux']
         for prio in range(len(priority_list)):
@@ -103,7 +103,7 @@ class Toolchains:
         if not toolchains:
             print ("Warning: No tool chains - please add a [toolchain] section"
                  " to your buildman config file %s. See README for details" %
-                 config_fname)
+                 bsettings.config_fname)
 
         for name, value in toolchains:
             if '*' in value:

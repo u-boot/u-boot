@@ -107,6 +107,16 @@ static int sandbox_cmdline_cb_interactive(struct sandbox_state *state,
 
 SANDBOX_CMDLINE_OPT_SHORT(interactive, 'i', 0, "Enter interactive mode");
 
+static int sandbox_cmdline_cb_jump(struct sandbox_state *state,
+				   const char *arg)
+{
+	/* Remember to delete this U-Boot image later */
+	state->jumped_fname = arg;
+
+	return 0;
+}
+SANDBOX_CMDLINE_OPT_SHORT(jump, 'j', 1, "Jumped from previous U-Boot");
+
 static int sandbox_cmdline_cb_memory(struct sandbox_state *state,
 				     const char *arg)
 {
@@ -125,6 +135,15 @@ static int sandbox_cmdline_cb_memory(struct sandbox_state *state,
 }
 SANDBOX_CMDLINE_OPT_SHORT(memory, 'm', 1,
 			  "Read/write ram_buf memory contents from file");
+
+static int sandbox_cmdline_cb_rm_memory(struct sandbox_state *state,
+					const char *arg)
+{
+	state->ram_buf_rm = true;
+
+	return 0;
+}
+SANDBOX_CMDLINE_OPT(rm_memory, 0, "Remove memory file after reading");
 
 static int sandbox_cmdline_cb_state(struct sandbox_state *state,
 				    const char *arg)
@@ -159,6 +178,43 @@ static int sandbox_cmdline_cb_ignore_missing(struct sandbox_state *state,
 SANDBOX_CMDLINE_OPT_SHORT(ignore_missing, 'n', 0,
 			  "Ignore missing state on read");
 
+static int sandbox_cmdline_cb_show_lcd(struct sandbox_state *state,
+				       const char *arg)
+{
+	state->show_lcd = true;
+	return 0;
+}
+SANDBOX_CMDLINE_OPT_SHORT(show_lcd, 'l', 0,
+			  "Show the sandbox LCD display");
+
+static const char *term_args[STATE_TERM_COUNT] = {
+	"raw-with-sigs",
+	"raw",
+	"cooked",
+};
+
+static int sandbox_cmdline_cb_terminal(struct sandbox_state *state,
+				       const char *arg)
+{
+	int i;
+
+	for (i = 0; i < STATE_TERM_COUNT; i++) {
+		if (!strcmp(arg, term_args[i])) {
+			state->term_raw = i;
+			return 0;
+		}
+	}
+
+	printf("Unknown terminal setting '%s' (", arg);
+	for (i = 0; i < STATE_TERM_COUNT; i++)
+		printf("%s%s", i ? ", " : "", term_args[i]);
+	puts(")\n");
+
+	return 1;
+}
+SANDBOX_CMDLINE_OPT_SHORT(terminal, 't', 1,
+			  "Set terminal to raw/cooked mode");
+
 int main(int argc, char *argv[])
 {
 	struct sandbox_state *state;
@@ -175,6 +231,10 @@ int main(int argc, char *argv[])
 	ret = sandbox_read_state(state, state->state_fname);
 	if (ret)
 		goto err;
+
+	/* Remove old memory file if required */
+	if (state->ram_buf_rm && state->ram_buf_fname)
+		os_unlink(state->ram_buf_fname);
 
 	/* Do pre- and post-relocation init */
 	board_init_f(0);

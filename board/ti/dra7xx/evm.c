@@ -16,6 +16,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sata.h>
+#include <environment.h>
 
 #include "mux_data.h"
 
@@ -81,6 +82,12 @@ int board_init(void)
 
 int board_late_init(void)
 {
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	if (omap_revision() == DRA722_ES1_0)
+		setenv("board_name", "dra72x");
+	else
+		setenv("board_name", "dra7xx");
+#endif
 	init_sata(0);
 	return 0;
 }
@@ -120,6 +127,24 @@ int board_mmc_init(bd_t *bis)
 {
 	omap_mmc_init(0, 0, 0, -1, -1);
 	omap_mmc_init(1, 0, 0, -1, -1);
+	return 0;
+}
+#endif
+
+#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_OS_BOOT)
+int spl_start_uboot(void)
+{
+	/* break into full u-boot on 'c' */
+	if (serial_tstc() && serial_getc() == 'c')
+		return 1;
+
+#ifdef CONFIG_SPL_ENV_SUPPORT
+	env_init();
+	env_relocate_spec();
+	if (getenv_yesno("boot_os") != 1)
+		return 1;
+#endif
+
 	return 0;
 }
 #endif

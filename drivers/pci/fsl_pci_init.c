@@ -49,8 +49,13 @@ static void set_inbound_window(volatile pit_t *pi,
 				u64 size)
 {
 	u32 sz = (__ilog2_u64(size) - 1);
-	u32 flag = PIWAR_EN | PIWAR_LOCAL |
-			PIWAR_READ_SNOOP | PIWAR_WRITE_SNOOP;
+#ifdef CONFIG_SYS_FSL_ERRATUM_A005434
+	u32 flag = 0;
+#else
+	u32 flag = PIWAR_LOCAL;
+#endif
+
+	flag |= PIWAR_EN | PIWAR_READ_SNOOP | PIWAR_WRITE_SNOOP;
 
 	out_be32(&pi->pitar, r->phys_start >> 12);
 	out_be32(&pi->piwbar, r->bus_start >> 12);

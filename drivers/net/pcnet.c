@@ -71,12 +71,16 @@ struct pcnet_init_block {
 	u32 reserved2;
 };
 
-typedef struct pcnet_priv {
+struct pcnet_uncached_priv {
 	struct pcnet_rx_head rx_ring[RX_RING_SIZE];
 	struct pcnet_tx_head tx_ring[TX_RING_SIZE];
 	struct pcnet_init_block init_block;
+};
+
+typedef struct pcnet_priv {
+	struct pcnet_uncached_priv *uc;
 	/* Receive Buffer space */
-	unsigned char rx_buf[RX_RING_SIZE][PKT_BUF_SZ + 4];
+	unsigned char (*rx_buf)[RX_RING_SIZE][PKT_BUF_SZ + 4];
 	int cur_rx;
 	int cur_tx;
 } pcnet_priv_t;
@@ -283,6 +287,7 @@ static int pcnet_probe(struct eth_device *dev, bd_t *bis, int dev_nr)
 
 static int pcnet_init(struct eth_device *dev, bd_t *bis)
 {
+	struct pcnet_uncached_priv *uc;
 	int i, val;
 	u32 addr;
 
@@ -325,24 +330,35 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 		addr = (u32)malloc(sizeof(pcnet_priv_t) + 0x10);
 		addr = (addr + 0xf) & ~0xf;
 		lp = (pcnet_priv_t *)addr;
+
+		addr = (u32)memalign(ARCH_DMA_MINALIGN, sizeof(*lp->uc));
+		flush_dcache_range(addr, addr + sizeof(*lp->uc));
+		addr = UNCACHED_SDRAM(addr);
+		lp->uc = (struct pcnet_uncached_priv *)addr;
+
+		addr = (u32)memalign(ARCH_DMA_MINALIGN, sizeof(*lp->rx_buf));
+		flush_dcache_range(addr, addr + sizeof(*lp->rx_buf));
+		lp->rx_buf = (void *)addr;
 	}
 
-	lp->init_block.mode = cpu_to_le16(0x0000);
-	lp->init_block.filter[0] = 0x00000000;
-	lp->init_block.filter[1] = 0x00000000;
+	uc = lp->uc;
+
+	uc->init_block.mode = cpu_to_le16(0x0000);
+	uc->init_block.filter[0] = 0x00000000;
+	uc->init_block.filter[1] = 0x00000000;
 
 	/*
 	 * Initialize the Rx ring.
 	 */
 	lp->cur_rx = 0;
 	for (i = 0; i < RX_RING_SIZE; i++) {
-		lp->rx_ring[i].base = PCI_TO_MEM_LE(dev, lp->rx_buf[i]);
-		lp->rx_ring[i].buf_length = cpu_to_le16(-PKT_BUF_SZ);
-		lp->rx_ring[i].status = cpu_to_le16(0x8000);
+		uc->rx_ring[i].base = PCI_TO_MEM_LE(dev, (*lp->rx_buf)[i]);
+		uc->rx_ring[i].buf_length = cpu_to_le16(-PKT_BUF_SZ);
+		uc->rx_ring[i].status = cpu_to_le16(0x8000);
 		PCNET_DEBUG1
 			("Rx%d: base=0x%x buf_length=0x%hx status=0x%hx\n", i,
-			 lp->rx_ring[i].base, lp->rx_ring[i].buf_length,
-			 lp->rx_ring[i].status);
+			 uc->rx_ring[i].base, uc->rx_ring[i].buf_length,
+			 uc->rx_ring[i].status);
 	}
 
 	/*
@@ -351,34 +367,34 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 	 */
 	lp->cur_tx = 0;
 	for (i = 0; i < TX_RING_SIZE; i++) {
-		lp->tx_ring[i].base = 0;
-		lp->tx_ring[i].status = 0;
+		uc->tx_ring[i].base = 0;
+		uc->tx_ring[i].status = 0;
 	}
 
 	/*
 	 * Setup Init Block.
 	 */
-	PCNET_DEBUG1("Init block at 0x%p: MAC", &lp->init_block);
+	PCNET_DEBUG1("Init block at 0x%p: MAC", &lp->uc->init_block);
 
 	for (i = 0; i < 6; i++) {
-		lp->init_block.phys_addr[i] = dev->enetaddr[i];
-		PCNET_DEBUG1(" %02x", lp->init_block.phys_addr[i]);
+		lp->uc->init_block.phys_addr[i] = dev->enetaddr[i];
+		PCNET_DEBUG1(" %02x", lp->uc->init_block.phys_addr[i]);
 	}
 
-	lp->init_block.tlen_rlen = cpu_to_le16(TX_RING_LEN_BITS |
+	uc->init_block.tlen_rlen = cpu_to_le16(TX_RING_LEN_BITS |
 					       RX_RING_LEN_BITS);
-	lp->init_block.rx_ring = PCI_TO_MEM_LE(dev, lp->rx_ring);
-	lp->init_block.tx_ring = PCI_TO_MEM_LE(dev, lp->tx_ring);
-	flush_dcache_range((unsigned long)lp, (unsigned long)&lp->rx_buf);
+	uc->init_block.rx_ring = PCI_TO_MEM_LE(dev, uc->rx_ring);
+	uc->init_block.tx_ring = PCI_TO_MEM_LE(dev, uc->tx_ring);
 
 	PCNET_DEBUG1("\ntlen_rlen=0x%x rx_ring=0x%x tx_ring=0x%x\n",
-		     lp->init_block.tlen_rlen,
-		     lp->init_block.rx_ring, lp->init_block.tx_ring);
+		     uc->init_block.tlen_rlen,
+		     uc->init_block.rx_ring, uc->init_block.tx_ring);
 
 	/*
 	 * Tell the controller where the Init Block is located.
 	 */
-	addr = PCI_TO_MEM(dev, &lp->init_block);
+	barrier();
+	addr = PCI_TO_MEM(dev, &lp->uc->init_block);
 	pcnet_write_csr(dev, 1, addr & 0xffff);
 	pcnet_write_csr(dev, 2, (addr >> 16) & 0xffff);
 
@@ -408,7 +424,7 @@ static int pcnet_init(struct eth_device *dev, bd_t *bis)
 static int pcnet_send(struct eth_device *dev, void *packet, int pkt_len)
 {
 	int i, status;
-	struct pcnet_tx_head *entry = &lp->tx_ring[lp->cur_tx];
+	struct pcnet_tx_head *entry = &lp->uc->tx_ring[lp->cur_tx];
 
 	PCNET_DEBUG2("Tx%d: %d bytes from 0x%p ", lp->cur_tx, pkt_len,
 		     packet);
@@ -418,9 +434,7 @@ static int pcnet_send(struct eth_device *dev, void *packet, int pkt_len)
 
 	/* Wait for completion by testing the OWN bit */
 	for (i = 1000; i > 0; i--) {
-		invalidate_dcache_range((unsigned long)entry,
-					(unsigned long)entry + sizeof(*entry));
-		status = le16_to_cpu(entry->status);
+		status = readw(&entry->status);
 		if ((status & 0x8000) == 0)
 			break;
 		udelay(100);
@@ -437,13 +451,10 @@ static int pcnet_send(struct eth_device *dev, void *packet, int pkt_len)
 	 * Setup Tx ring. Caution: the write order is important here,
 	 * set the status with the "ownership" bits last.
 	 */
-	status = 0x8300;
-	entry->length = cpu_to_le16(-pkt_len);
-	entry->misc = 0x00000000;
-	entry->base = PCI_TO_MEM_LE(dev, packet);
-	entry->status = cpu_to_le16(status);
-	flush_dcache_range((unsigned long)entry,
-			   (unsigned long)entry + sizeof(*entry));
+	writew(-pkt_len, &entry->length);
+	writel(0, &entry->misc);
+	writel(PCI_TO_MEM(dev, packet), &entry->base);
+	writew(0x8300, &entry->status);
 
 	/* Trigger an immediate send poll. */
 	pcnet_write_csr(dev, 0, 0x0008);
@@ -459,54 +470,51 @@ static int pcnet_send(struct eth_device *dev, void *packet, int pkt_len)
 static int pcnet_recv (struct eth_device *dev)
 {
 	struct pcnet_rx_head *entry;
+	unsigned char *buf;
 	int pkt_len = 0;
-	u16 status;
+	u16 status, err_status;
 
 	while (1) {
-		entry = &lp->rx_ring[lp->cur_rx];
-		invalidate_dcache_range((unsigned long)entry,
-					(unsigned long)entry + sizeof(*entry));
+		entry = &lp->uc->rx_ring[lp->cur_rx];
 		/*
 		 * If we own the next entry, it's a new packet. Send it up.
 		 */
-		status = le16_to_cpu(entry->status);
+		status = readw(&entry->status);
 		if ((status & 0x8000) != 0)
 			break;
-		status >>= 8;
+		err_status = status >> 8;
 
-		if (status != 0x03) {	/* There was an error. */
+		if (err_status != 0x03) {	/* There was an error. */
 			printf("%s: Rx%d", dev->name, lp->cur_rx);
-			PCNET_DEBUG1(" (status=0x%x)", status);
-			if (status & 0x20)
+			PCNET_DEBUG1(" (status=0x%x)", err_status);
+			if (err_status & 0x20)
 				printf(" Frame");
-			if (status & 0x10)
+			if (err_status & 0x10)
 				printf(" Overflow");
-			if (status & 0x08)
+			if (err_status & 0x08)
 				printf(" CRC");
-			if (status & 0x04)
+			if (err_status & 0x04)
 				printf(" Fifo");
 			printf(" Error\n");
-			entry->status &= le16_to_cpu(0x03ff);
+			status &= 0x03ff;
 
 		} else {
-			pkt_len = (le32_to_cpu(entry->msg_length) & 0xfff) - 4;
+			pkt_len = (readl(&entry->msg_length) & 0xfff) - 4;
 			if (pkt_len < 60) {
 				printf("%s: Rx%d: invalid packet length %d\n",
 				       dev->name, lp->cur_rx, pkt_len);
 			} else {
-				invalidate_dcache_range(
-					(unsigned long)lp->rx_buf[lp->cur_rx],
-					(unsigned long)lp->rx_buf[lp->cur_rx] +
-					pkt_len);
-				NetReceive(lp->rx_buf[lp->cur_rx], pkt_len);
+				buf = (*lp->rx_buf)[lp->cur_rx];
+				invalidate_dcache_range((unsigned long)buf,
+					(unsigned long)buf + pkt_len);
+				NetReceive(buf, pkt_len);
 				PCNET_DEBUG2("Rx%d: %d bytes from 0x%p\n",
-					     lp->cur_rx, pkt_len,
-					     lp->rx_buf[lp->cur_rx]);
+					     lp->cur_rx, pkt_len, buf);
 			}
 		}
-		entry->status |= cpu_to_le16(0x8000);
-		flush_dcache_range((unsigned long)entry,
-				   (unsigned long)entry + sizeof(*entry));
+
+		status |= 0x8000;
+		writew(status, &entry->status);
 
 		if (++lp->cur_rx >= RX_RING_SIZE)
 			lp->cur_rx = 0;

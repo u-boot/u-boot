@@ -4,8 +4,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include<common.h>
-#include<config.h>
+#include <common.h>
+#include <config.h>
 
 #include <asm/arch/clock.h>
 #include <asm/arch/clk.h>

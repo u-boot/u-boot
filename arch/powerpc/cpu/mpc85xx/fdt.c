@@ -14,6 +14,7 @@
 #include <linux/ctype.h>
 #include <asm/io.h>
 #include <asm/fsl_portals.h>
+#include <hwconfig.h>
 #ifdef CONFIG_FSL_ESDHC
 #include <fsl_esdhc.h>
 #endif
@@ -35,6 +36,11 @@ void ft_fixup_cpu(void *blob, u64 memory_limit)
 	u32 bootpg = determine_mp_bootpg(NULL);
 	u32 id = get_my_id();
 	const char *enable_method;
+#if defined(T1040_TDM_QUIRK_CCSR_BASE)
+	int ret;
+	int tdm_hwconfig_enabled = 0;
+	char buffer[HWCONFIG_BUFFER_SIZE] = {0};
+#endif
 
 	off = fdt_node_offset_by_prop_value(blob, -1, "device_type", "cpu", 4);
 	while (off != -FDT_ERR_NOTFOUND) {
@@ -76,6 +82,26 @@ void ft_fixup_cpu(void *blob, u64 memory_limit)
 		off = fdt_node_offset_by_prop_value(blob, off,
 				"device_type", "cpu", 4);
 	}
+
+#if defined(T1040_TDM_QUIRK_CCSR_BASE)
+#define	CONFIG_MEM_HOLE_16M	0x1000000
+	/*
+	 * Extract hwconfig from environment.
+	 * Search for tdm entry in hwconfig.
+	 */
+	ret = getenv_f("hwconfig", buffer, sizeof(buffer));
+	if (ret > 0)
+		tdm_hwconfig_enabled = hwconfig_f("tdm", buffer);
+
+	/* Reserve the memory hole created by TDM LAW, so OSes dont use it */
+	if (tdm_hwconfig_enabled) {
+		off = fdt_add_mem_rsv(blob, T1040_TDM_QUIRK_CCSR_BASE,
+				      CONFIG_MEM_HOLE_16M);
+		if (off < 0)
+			printf("Failed  to reserve memory for tdm: %s\n",
+			       fdt_strerror(off));
+	}
+#endif
 
 	/* Reserve the boot page so OSes dont use it */
 	if ((u64)bootpg < memory_limit) {
@@ -275,12 +301,16 @@ static inline void ft_fixup_l2cache(void *blob)
 			u32 *reg = (u32 *)fdt_getprop(blob, off, "reg", 0);
 #if defined(CONFIG_SYS_FSL_QORIQ_CHASSIS2) && defined(CONFIG_E6500)
 			/* Only initialize every eighth thread */
-			if (reg && !((*reg) % 8))
-#else
-			if (reg)
-#endif
+			if (reg && !((*reg) % 8)) {
 				fdt_setprop_cell(blob, l2_off, "cache-stash-id",
-					 (*reg * 2) + 32 + 1);
+						 (*reg / 4) + 32 + 1);
+			}
+#else
+			if (reg) {
+				fdt_setprop_cell(blob, l2_off, "cache-stash-id",
+						 (*reg * 2) + 32 + 1);
+			}
+#endif
 #endif
 
 			fdt_setprop(blob, l2_off, "cache-unified", NULL, 0);
@@ -582,6 +612,33 @@ static void fdt_fixup_usb(void *fdt)
 #define fdt_fixup_usb(x)
 #endif
 
+#if defined(CONFIG_PPC_T1040)
+static void fdt_fixup_l2_switch(void *blob)
+{
+	uchar l2swaddr[6];
+	int node;
+
+	/* The l2switch node from device-tree has
+	 * compatible string "vitesse-9953" */
+	node = fdt_node_offset_by_compatible(blob, -1, "vitesse-9953");
+	if (node == -FDT_ERR_NOTFOUND)
+		/* no l2switch node has been found */
+		return;
+
+	/* Get MAC address for the l2switch from "l2switchaddr"*/
+	if (!eth_getenv_enetaddr("l2switchaddr", l2swaddr)) {
+		printf("Warning: MAC address for l2switch not found\n");
+		memset(l2swaddr, 0, sizeof(l2swaddr));
+	}
+
+	/* Add MAC address to l2switch node */
+	fdt_setprop(blob, node, "local-mac-address", l2swaddr,
+		    sizeof(l2swaddr));
+}
+#else
+#define fdt_fixup_l2_switch(x)
+#endif
+
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
 	int off;
@@ -643,7 +700,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 
 #ifdef CONFIG_CPM2
 	do_fixup_by_compat_u32(blob, "fsl,cpm2-scc-uart",
-		"current-speed", bd->bi_baudrate, 1);
+		"current-speed", gd->baudrate, 1);
 
 	do_fixup_by_compat_u32(blob, "fsl,cpm2-brg",
 		"clock-frequency", bd->bi_brgfreq, 1);
@@ -719,6 +776,8 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 			"clock-frequency", gd->bus_clk/2, 1);
 
 	fdt_fixup_usb(blob);
+
+	fdt_fixup_l2_switch(blob);
 }
 
 /*

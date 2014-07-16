@@ -80,7 +80,7 @@ static u32 decode_pll(enum pll_clocks pll, u32 infreq)
 		div = __raw_readl(&imx_ccm->analog_pll_sys);
 		div &= BM_ANADIG_PLL_SYS_DIV_SELECT;
 
-		return infreq * (div >> 1);
+		return (infreq * div) >> 1;
 	case PLL_BUS:
 		div = __raw_readl(&imx_ccm->analog_pll_528);
 		div &= BM_ANADIG_PLL_528_DIV_SELECT;

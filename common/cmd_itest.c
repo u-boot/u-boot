@@ -63,7 +63,7 @@ static long evalexp(char *s, int w)
 		l = simple_strtoul(s, NULL, 16);
 	}
 
-	return (l & ((1 << (w * 8)) - 1));
+	return l & ((1UL << (w * 8)) - 1);
 }
 
 static char * evalstr(char *s)

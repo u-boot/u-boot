@@ -18,6 +18,7 @@ SECTIONS
 	.text :
 	{
 		*(.__image_copy_start)
+		*(.vectors)
 		CPUDIR/start.o (.text*)
 		*(.text*)
 	}
@@ -102,6 +103,7 @@ SECTIONS
 	.dynamic : { *(.dynamic*) }
 	.plt : { *(.plt*) }
 	.interp : { *(.interp*) }
+	.gnu.hash : { *(.gnu.hash) }
 	.gnu : { *(.gnu*) }
 	.ARM.exidx : { *(.ARM.exidx*) }
 	.gnu.linkonce.armexidx : { *(.gnu.linkonce.armexidx.*) }

@@ -24,31 +24,31 @@ void dcache_clean_range(volatile void *start, size_t size)
 	sync_write_buffer();
 }
 
-void dcache_invalidate_range(volatile void *start, size_t size)
+void invalidate_dcache_range(unsigned long start, unsigned long stop)
 {
-	unsigned long v, begin, end, linesz;
+	unsigned long v, linesz;
 
 	linesz = CONFIG_SYS_DCACHE_LINESZ;
 
 	/* You asked for it, you got it */
-	begin = (unsigned long)start & ~(linesz - 1);
-	end = ((unsigned long)start + size + linesz - 1) & ~(linesz - 1);
+	start = start & ~(linesz - 1);
+	stop = (stop + linesz - 1) & ~(linesz - 1);
 
-	for (v = begin; v < end; v += linesz)
+	for (v = start; v < stop; v += linesz)
 		dcache_invalidate_line((void *)v);
 }
 
-void dcache_flush_range(volatile void *start, size_t size)
+void flush_dcache_range(unsigned long start, unsigned long stop)
 {
-	unsigned long v, begin, end, linesz;
+	unsigned long v, linesz;
 
 	linesz = CONFIG_SYS_DCACHE_LINESZ;
 
 	/* You asked for it, you got it */
-	begin = (unsigned long)start & ~(linesz - 1);
-	end = ((unsigned long)start + size + linesz - 1) & ~(linesz - 1);
+	start = start & ~(linesz - 1);
+	stop = (stop + linesz - 1) & ~(linesz - 1);
 
-	for (v = begin; v < end; v += linesz)
+	for (v = start; v < stop; v += linesz)
 		dcache_flush_line((void *)v);
 
 	sync_write_buffer();

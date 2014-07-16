@@ -7,6 +7,7 @@
 #ifndef _ASM_CONFIG_H_
 #define _ASM_CONFIG_H_
 
+#define CONFIG_SYS_GENERIC_GLOBAL_DATA
 #define CONFIG_SANDBOX_ARCH
 
 /* Used by drivers/spi/sandbox_spi.c and arch/sandbox/include/asm/state.h */

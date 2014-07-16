@@ -19,6 +19,9 @@
 
 #include <asm/arch/tegra.h>		/* get chip and board defs */
 
+#define CONFIG_DM
+#define CONFIG_CMD_DM
+
 #define CONFIG_SYS_TIMER_RATE		1000000
 #define CONFIG_SYS_TIMER_COUNTER	NV_PA_TMRUS_BASE
 
@@ -46,6 +49,13 @@
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #define CONFIG_SYS_NS16550_CLK		V_NS16550_CLK
+
+/*
+ * Common HW configuration.
+ * If this varies between SoCs later, move to tegraNN-common.h
+ * Note: This is number of devices, not max device ID.
+ */
+#define CONFIG_SYS_MMC_MAX_DEVICE 4
 
 /*
  * select serial console configuration

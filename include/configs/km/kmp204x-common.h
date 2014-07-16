@@ -28,8 +28,8 @@
 #define CONFIG_RAMBOOT_PBL
 #define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
-#define CONFIG_SYS_FSL_PBL_PBI $(SRCTREE)/board/keymile/kmp204x/pbi.cfg
-#define CONFIG_SYS_FSL_PBL_RCW $(SRCTREE)/board/keymile/kmp204x/rcw_kmp204x.cfg
+#define CONFIG_SYS_FSL_PBL_PBI board/keymile/kmp204x/pbi.cfg
+#define CONFIG_SYS_FSL_PBL_RCW board/keymile/kmp204x/rcw_kmp204x.cfg
 
 /* High Level Configuration Options */
 #define CONFIG_BOOKE
@@ -85,11 +85,7 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_ADDR_MAP
 #define CONFIG_SYS_NUM_ADDR_MAP		64	/* number of TLB1 entries */
 
-#define CONFIG_POST CONFIG_SYS_POST_MEMORY	/* test POST memory test */
-#define CONFIG_SYS_MEMTEST_START	0x00100000	/* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x00800000
-#define CONFIG_SYS_ALT_MEMTEST
-#define CONFIG_PANIC_HANG	/* do not reset board on panic */
+#define CONFIG_POST CONFIG_SYS_POST_MEM_REGIONS	/* POST memory regions test */
 
 /*
  *  Config the L3 Cache as L3 SRAM
@@ -143,10 +139,12 @@ unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_KM_PNVRAM	0x80000
 /* physical RAM MTD size [hex] */
 #define CONFIG_KM_PHRAM		0x100000
-/* resereved pram area at the end of memroy [hex] */
-#define CONFIG_KM_RESERVED_PRAM	0x0
-/* enable protected RAM */
-#define CONFIG_PRAM		0
+/* reserved pram area at the end of memory [hex]
+ * u-boot reserves some memory for the MP boot page */
+#define CONFIG_KM_RESERVED_PRAM	0x1000
+/* set the default PRAM value to at least PNVRAM + PHRAM when pram env variable
+ * is not valid yet, which is the case for when u-boot copies itself to RAM */
+#define CONFIG_PRAM		((CONFIG_KM_PNVRAM + CONFIG_KM_PHRAM)>>10)
 
 #define CONFIG_KM_CRAMFS_ADDR	0x2000000
 #define CONFIG_KM_KERNEL_ADDR	0x1000000	/* max kernel size 15.5Mbytes */
@@ -350,7 +348,7 @@ int get_scl(void);
  * ucode is stored after env, so we got 0x120000.
  */
 #define CONFIG_SYS_QE_FW_IN_SPIFLASH
-#define CONFIG_SYS_QE_FMAN_FW_ADDR	0x120000
+#define CONFIG_SYS_FMAN_FW_ADDR	0x120000
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
 
@@ -383,6 +381,7 @@ int get_scl(void);
  */
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_NET
+#define CONFIG_CMD_ERRATA
 
 /* we don't need flash support */
 #define CONFIG_SYS_NO_FLASH

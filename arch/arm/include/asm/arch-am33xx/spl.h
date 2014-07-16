@@ -5,7 +5,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef	_ASM_ARCH_SPL_H_
-#define	_ASM_SPL_H_
+#define	_ASM_ARCH_SPL_H_
 
 #if defined(CONFIG_TI816X)
 #define BOOT_DEVICE_XIP		2

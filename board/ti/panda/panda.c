@@ -193,7 +193,7 @@ int misc_init_r(void)
 {
 	int phy_type;
 	u32 auxclk, altclksrc;
-	uint8_t device_mac[6];
+	u32 id[4];
 
 	/* EHCI is not supported on ES1.0 */
 	if (omap_revision() == OMAP4430_ES1_0)
@@ -247,20 +247,11 @@ int misc_init_r(void)
 
 	writel(altclksrc, &scrm->altclksrc);
 
-	if (!getenv("usbethaddr")) {
-		/*
-		 * create a fake MAC address from the processor ID code.
-		 * first byte is 0x02 to signify locally administered.
-		 */
-		device_mac[0] = 0x02;
-		device_mac[1] = readl(STD_FUSE_DIE_ID_3) & 0xff;
-		device_mac[2] = readl(STD_FUSE_DIE_ID_2) & 0xff;
-		device_mac[3] = readl(STD_FUSE_DIE_ID_1) & 0xff;
-		device_mac[4] = readl(STD_FUSE_DIE_ID_0) & 0xff;
-		device_mac[5] = (readl(STD_FUSE_DIE_ID_0) >> 8) & 0xff;
-
-		eth_setenv_enetaddr("usbethaddr", device_mac);
-	}
+	id[0] = readl(STD_FUSE_DIE_ID_0);
+	id[1] = readl(STD_FUSE_DIE_ID_1);
+	id[2] = readl(STD_FUSE_DIE_ID_2);
+	id[3] = readl(STD_FUSE_DIE_ID_3);
+	usb_fake_mac_from_die_id(id);
 
 	return 0;
 }
@@ -308,7 +299,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	/* Now we can enable our port clocks */
 	utmi_clk = readl((void *)CM_L3INIT_HSUSBHOST_CLKCTRL);
 	utmi_clk |= HSUSBHOST_CLKCTRL_CLKSEL_UTMI_P1_MASK;
-	sr32((void *)CM_L3INIT_HSUSBHOST_CLKCTRL, 0, 32, utmi_clk);
+	setbits_le32((void *)CM_L3INIT_HSUSBHOST_CLKCTRL, utmi_clk);
 
 	ret = omap_ehci_hcd_init(index, &usbhs_bdata, hccr, hcor);
 	if (ret < 0)

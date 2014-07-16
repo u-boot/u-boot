@@ -44,35 +44,30 @@ static u32 __rmobile_get_cpu_rev_fraction(void)
 u32 rmobile_get_cpu_rev_fraction(void)
 		__attribute__((weak, alias("__rmobile_get_cpu_rev_fraction")));
 
+/* CPU infomation table */
+static const struct {
+	u16 cpu_type;
+	u8 cpu_name[10];
+} rmobile_cpuinfo[] = {
+	{ 0x37, "SH73A0" },
+	{ 0x40, "R8A7740" },
+	{ 0x45, "R8A7790" },
+	{ 0x47, "R8A7791" },
+	{ 0x0, "CPU" },
+};
+
 int print_cpuinfo(void)
 {
-	switch (rmobile_get_cpu_type()) {
-	case 0x37:
-		printf("CPU: Renesas Electronics SH73A0 rev %d.%d\n",
-		       rmobile_get_cpu_rev_integer(),
-		       rmobile_get_cpu_rev_fraction());
-		break;
-	case 0x40:
-		printf("CPU: Renesas Electronics R8A7740 rev %d.%d\n",
-		       rmobile_get_cpu_rev_integer(),
-		       rmobile_get_cpu_rev_fraction());
-		break;
-
-	case 0x45:
-		printf("CPU: Renesas Electronics R8A7790 rev %d\n",
-		       rmobile_get_cpu_rev_integer());
-		break;
-
-	case 0x47:
-		printf("CPU: Renesas Electronics R8A7791 rev %d\n",
-			rmobile_get_cpu_rev_integer());
-		break;
-
-	default:
-		printf("CPU: Renesas Electronics CPU rev %d.%d\n",
-		       rmobile_get_cpu_rev_integer(),
-		       rmobile_get_cpu_rev_fraction());
-		break;
+	int i = 0;
+	u32 cpu_type = rmobile_get_cpu_type();
+	for (; i < ARRAY_SIZE(rmobile_cpuinfo); i++) {
+		if (rmobile_cpuinfo[i].cpu_type == cpu_type) {
+			printf("CPU: Renesas Electronics %s rev %d.%d\n",
+			       rmobile_cpuinfo[i].cpu_name,
+			       rmobile_get_cpu_rev_integer(),
+			       rmobile_get_cpu_rev_fraction());
+			break;
+		}
 	}
 	return 0;
 }

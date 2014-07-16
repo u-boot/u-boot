@@ -32,5 +32,6 @@ obj-$(CONFIG_PPC_T2080) += t2080.o
 obj-$(CONFIG_PPC_T2081) += t2080.o
 obj-$(CONFIG_PPC_T4240) += t4240.o
 obj-$(CONFIG_PPC_T4160) += t4240.o
+obj-$(CONFIG_PPC_T4080) += t4240.o
 obj-$(CONFIG_PPC_B4420) += b4860.o
 obj-$(CONFIG_PPC_B4860) += b4860.o

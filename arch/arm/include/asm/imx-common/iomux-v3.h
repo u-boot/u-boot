@@ -111,6 +111,11 @@ typedef u64 iomux_v3_cfg_t;
 #define PAD_CTL_DSE_40ohm	(6 << 3)
 #define PAD_CTL_DSE_34ohm	(7 << 3)
 
+#if defined CONFIG_MX6SL
+#define PAD_CTL_LVE		(1 << 1)
+#define PAD_CTL_LVE_BIT		(1 << 22)
+#endif
+
 #elif defined(CONFIG_VF610)
 
 #define PAD_MUX_MODE_SHIFT	20
@@ -118,12 +123,14 @@ typedef u64 iomux_v3_cfg_t;
 #define PAD_CTL_SPEED_MED	(1 << 12)
 #define PAD_CTL_SPEED_HIGH	(3 << 12)
 
+#define PAD_CTL_DSE_150ohm	(1 << 6)
 #define PAD_CTL_DSE_50ohm	(3 << 6)
 #define PAD_CTL_DSE_25ohm	(6 << 6)
 #define PAD_CTL_DSE_20ohm	(7 << 6)
 
 #define PAD_CTL_PUS_47K_UP	(1 << 4 | PAD_CTL_PUE)
 #define PAD_CTL_PUS_100K_UP	(2 << 4 | PAD_CTL_PUE)
+#define PAD_CTL_PUS_22K_UP	(3 << 4 | PAD_CTL_PUE)
 #define PAD_CTL_PKE		(1 << 3)
 #define PAD_CTL_PUE		(1 << 2 | PAD_CTL_PKE)
 
@@ -169,5 +176,30 @@ typedef u64 iomux_v3_cfg_t;
 void imx_iomux_v3_setup_pad(iomux_v3_cfg_t pad);
 void imx_iomux_v3_setup_multiple_pads(iomux_v3_cfg_t const *pad_list,
 				     unsigned count);
+
+/* macros for declaring and using pinmux array */
+#if defined(CONFIG_MX6QDL)
+#define IOMUX_PADS(x) (MX6Q_##x), (MX6DL_##x)
+#define SETUP_IOMUX_PAD(def)					\
+if (is_cpu_type(MXC_CPU_MX6Q)) {				\
+	imx_iomux_v3_setup_pad(MX6Q_##def);			\
+} else {							\
+	imx_iomux_v3_setup_pad(MX6DL_##def);			\
+}
+#define SETUP_IOMUX_PADS(x)					\
+	imx_iomux_v3_setup_multiple_pads(x, ARRAY_SIZE(x)/2)
+#elif defined(CONFIG_MX6Q) || defined(CONFIG_MX6D)
+#define IOMUX_PADS(x) MX6Q_##x
+#define SETUP_IOMUX_PAD(def)					\
+	imx_iomux_v3_setup_pad(MX6Q_##def);
+#define SETUP_IOMUX_PADS(x)					\
+	imx_iomux_v3_setup_multiple_pads(x, ARRAY_SIZE(x))
+#else
+#define IOMUX_PADS(x) MX6DL_##x
+#define SETUP_IOMUX_PAD(def)					\
+	imx_iomux_v3_setup_pad(MX6DL_##def);
+#define SETUP_IOMUX_PADS(x)					\
+	imx_iomux_v3_setup_multiple_pads(x, ARRAY_SIZE(x))
+#endif
 
 #endif	/* __MACH_IOMUX_V3_H__*/

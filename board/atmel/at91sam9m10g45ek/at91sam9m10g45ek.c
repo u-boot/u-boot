@@ -16,6 +16,7 @@
 #include <asm/arch/clk.h>
 #include <lcd.h>
 #include <atmel_lcdc.h>
+#include <atmel_mci.h>
 #if defined(CONFIG_RESET_PHY_R) && defined(CONFIG_MACB)
 #include <net.h>
 #endif
@@ -120,20 +121,20 @@ static void at91sam9m10g45ek_macb_hw_init(void)
 #ifdef CONFIG_LCD
 
 vidinfo_t panel_info = {
-	vl_col:		480,
-	vl_row:		272,
-	vl_clk:		9000000,
-	vl_sync:	ATMEL_LCDC_INVLINE_NORMAL |
-			ATMEL_LCDC_INVFRAME_NORMAL,
-	vl_bpix:	3,
-	vl_tft:		1,
-	vl_hsync_len:	45,
-	vl_left_margin:	1,
-	vl_right_margin:1,
-	vl_vsync_len:	1,
-	vl_upper_margin:40,
-	vl_lower_margin:1,
-	mmio :		 ATMEL_BASE_LCDC,
+	.vl_col =		480,
+	.vl_row =		272,
+	.vl_clk =		9000000,
+	.vl_sync =		ATMEL_LCDC_INVLINE_NORMAL |
+				ATMEL_LCDC_INVFRAME_NORMAL,
+	.vl_bpix =		3,
+	.vl_tft =		1,
+	.vl_hsync_len =		45,
+	.vl_left_margin =	1,
+	.vl_right_margin =	1,
+	.vl_vsync_len =		1,
+	.vl_upper_margin =	40,
+	.vl_lower_margin =	1,
+	.mmio =			ATMEL_BASE_LCDC,
 };
 
 
@@ -215,6 +216,15 @@ void lcd_show_board_info(void)
 		nand_size >> 20 );
 }
 #endif /* CONFIG_LCD_INFO */
+#endif
+
+#ifdef CONFIG_GENERIC_ATMEL_MCI
+int board_mmc_init(bd_t *bis)
+{
+	at91_mci_hw_init();
+
+	return atmel_mci_init((void *)ATMEL_BASE_MCI0);
+}
 #endif
 
 int board_early_init_f(void)

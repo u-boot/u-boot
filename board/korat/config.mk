@@ -23,5 +23,5 @@ PLATFORM_CPPFLAGS += -DCONFIG_SYS_INIT_DBCR=0x8CFF0000
 endif
 
 ifndef CONFIG_KORAT_PERMANENT
-LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot-F7FC.lds
+LDSCRIPT := $(srctree)/board/$(BOARDDIR)/u-boot-F7FC.lds
 endif

@@ -12,6 +12,8 @@
 
 #include <asm/hardware.h>
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 /* The first stage boot loader expects u-boot running at this address. */
 #define CONFIG_SYS_TEXT_BASE	0x27000000	/* 16MB available */
 
@@ -23,8 +25,6 @@
 #define CONFIG_MACH_TYPE MACH_TYPE_ETHERNUT5
 
 /* CPU information */
-#define CONFIG_ARM926EJS
-#define CONFIG_AT91FAMILY
 #define CONFIG_DISPLAY_CPUINFO		/* Display at console. */
 #define CONFIG_ARCH_CPU_INIT
 

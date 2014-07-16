@@ -287,7 +287,7 @@ int last_stage_init(void)
 	for (fpga = 0; fpga < 2; ++fpga) {
 		for (k = 0; k < 32; ++k) {
 			u16 status;
-			FPGA_GET_REG(k, ch[k].status_int, &status);
+			FPGA_GET_REG(fpga, ch[k].status_int, &status);
 			if (!(status & (1 << 4))) {
 				failed = 1;
 				printf("fpga %d channel %d: no serdes lock\n",
@@ -304,7 +304,7 @@ int last_stage_init(void)
 	for (fpga = 0; fpga < 2; ++fpga) {
 		for (k = 0; k < 32; ++k) {
 			u16 status;
-			FPGA_GET_REG(k, hicb_ch[k].status_int, &status);
+			FPGA_GET_REG(fpga, hicb_ch[k].status_int, &status);
 			if (status)
 				printf("fpga %d hicb %d: hicb status %04x\n",
 					fpga, k, status);

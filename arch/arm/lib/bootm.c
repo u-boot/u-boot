@@ -71,8 +71,7 @@ static void announce_and_cleanup(int fake)
 		"(fake run for tracing)" : "");
 	bootstage_mark_name(BOOTSTAGE_ID_BOOTM_HANDOFF, "start_kernel");
 #ifdef CONFIG_BOOTSTAGE_FDT
-	if (flag == BOOTM_STATE_OS_FAKE_GO)
-		bootstage_fdt_add_report();
+	bootstage_fdt_add_report();
 #endif
 #ifdef CONFIG_BOOTSTAGE_REPORT
 	bootstage_report();
@@ -199,6 +198,7 @@ static void do_nonsec_virt_switch(void)
 
 #ifdef CONFIG_ARM64
 	smp_kick_all_cpus();
+	flush_dcache_all();	/* flush cache before swtiching to EL2 */
 	armv8_switch_to_el2();
 #ifdef CONFIG_ARMV8_SWITCH_TO_EL1
 	armv8_switch_to_el1();

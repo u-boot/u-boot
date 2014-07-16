@@ -45,7 +45,7 @@ typedef unsigned long mm_segment_t;		/* domain register	*/
 #if 0	/* XXX###XXX */
 #include <asm/arch/memory.h>
 #endif	/* XXX###XXX */
-#include <asm/proc/processor.h>
+#include <asm/proc-armv/processor.h>
 #include <asm/types.h>
 
 union debug_insn {

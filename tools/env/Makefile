@@ -12,7 +12,7 @@ HOSTCC = $(CC)
 
 # Compile for a hosted environment on the target
 HOST_EXTRACFLAGS  = $(patsubst -I%,-idirafter%, $(UBOOTINCLUDE)) \
-		-idirafter $(SRCTREE)/tools/env \
+		-idirafter $(srctree)/tools/env \
 		-DUSE_HOSTCC \
 		-DTEXT_BASE=$(TEXT_BASE)
 
@@ -25,7 +25,7 @@ hostprogs-y := fw_printenv_unstripped
 
 fw_printenv_unstripped-objs := fw_env.o fw_env_main.o \
 	crc32.o ctype.o linux_string.o \
-	env_attr.o env_flags.o
+	env_attr.o env_flags.o aes.o
 
 quiet_cmd_strip = STRIP   $@
       cmd_strip = $(STRIP) -o $@ $<

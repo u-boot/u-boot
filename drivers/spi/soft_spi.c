@@ -136,10 +136,14 @@ int  spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 		/*
 		 * Check if it is time to work on a new byte.
 		 */
-		if((j % 8) == 0) {
-			tmpdout = *txd++;
+		if ((j % 8) == 0) {
+			if (txd)
+				tmpdout = *txd++;
+			else
+				tmpdout = 0;
 			if(j != 0) {
-				*rxd++ = tmpdin;
+				if (rxd)
+					*rxd++ = tmpdin;
 			}
 			tmpdin  = 0;
 		}
@@ -164,9 +168,11 @@ int  spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 	 * bits over to left-justify them.  Then store the last byte
 	 * read in.
 	 */
-	if((bitlen % 8) != 0)
-		tmpdin <<= 8 - (bitlen % 8);
-	*rxd++ = tmpdin;
+	if (rxd) {
+		if ((bitlen % 8) != 0)
+			tmpdin <<= 8 - (bitlen % 8);
+		*rxd++ = tmpdin;
+	}
 
 	if (flags & SPI_XFER_END)
 		spi_cs_deactivate(slave);

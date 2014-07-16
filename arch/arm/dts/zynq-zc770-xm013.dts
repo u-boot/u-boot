@@ -11,4 +11,13 @@
 / {
 	model = "Zynq ZC770 XM013 Board";
 	compatible = "xlnx,zynq-zc770-xm013", "xlnx,zynq-7000";
+
+	aliases {
+		serial0 = &uart0;
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0 0x40000000>;
+	};
 };

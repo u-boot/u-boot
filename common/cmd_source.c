@@ -29,7 +29,9 @@ int
 source (ulong addr, const char *fit_uname)
 {
 	ulong		len;
+#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
 	const image_header_t *hdr;
+#endif
 	ulong		*data;
 	int		verify;
 	void *buf;
@@ -44,6 +46,7 @@ source (ulong addr, const char *fit_uname)
 
 	buf = map_sysmem(addr, 0);
 	switch (genimg_get_format(buf)) {
+#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
 	case IMAGE_FORMAT_LEGACY:
 		hdr = buf;
 
@@ -84,6 +87,7 @@ source (ulong addr, const char *fit_uname)
 		 */
 		while (*data++);
 		break;
+#endif
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
 		if (fit_uname == NULL) {

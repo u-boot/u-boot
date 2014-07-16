@@ -13,12 +13,12 @@
  */
 #if defined(CONFIG_LSCHLV2)
 #define CONFIG_IDENT_STRING " LS-CHLv2"
-#define CONFIG_SYS_KWD_CONFIG $(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage-lschl.cfg
+#define CONFIG_SYS_KWD_CONFIG $(CONFIG_BOARDDIR)/kwbimage-lschl.cfg
 #define CONFIG_MACH_TYPE 3006
 #define CONFIG_SYS_TCLK 166666667 /* 166 MHz */
 #elif defined(CONFIG_LSXHL)
 #define CONFIG_IDENT_STRING " LS-XHL"
-#define CONFIG_SYS_KWD_CONFIG $(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage-lsxhl.cfg
+#define CONFIG_SYS_KWD_CONFIG $(CONFIG_BOARDDIR)/kwbimage-lsxhl.cfg
 #define CONFIG_MACH_TYPE 2663
 /* CONFIG_SYS_TCLK is 200000000 by default */
 #else
@@ -37,6 +37,7 @@
 #define CONFIG_SHOW_BOOT_PROGRESS
 
 #define CONFIG_RANDOM_MACADDR
+#define CONFIG_LIB_RAND
 #define CONFIG_KIRKWOOD_GPIO
 #define CONFIG_OF_LIBFDT
 
@@ -65,6 +66,7 @@
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_USB
+#define CONFIG_CMD_FS_GENERIC
 
 #define CONFIG_DOS_PARTITION
 #define CONFIG_EFI_PARTITION
@@ -108,20 +110,41 @@
 #define CONFIG_LOADADDR		0x00800000
 #define CONFIG_BOOTCOMMAND	"run bootcmd_${bootsource}"
 #define CONFIG_BOOTARGS		"console=ttyS0,115200 root=/dev/sda2"
+
+#if defined(CONFIG_LSXHL)
+#define CONFIG_FDTFILE "kirkwood-lsxhl.dtb"
+#elif defined(CONFIG_LSCHLV2)
+#define CONFIG_FDTFILE "kirkwood-lschlv2.dtb"
+#else
+#error "Unsupported board"
+#endif
+
 #define CONFIG_EXTRA_ENV_SETTINGS					\
-	"bootsource=hdd\0"						\
+	"bootsource=legacy\0"						\
 	"hdpart=0:1\0"							\
-	"bootcmd_net=bootp 0x00100000 uImage "				\
-		"&& tftpboot 0x00800000 uInitrd "			\
+	"kernel_addr=0x00800000\0"					\
+	"ramdisk_addr=0x01000000\0"					\
+	"fdt_addr=0x01ff0000\0"						\
+	"bootcmd_legacy=ide reset "					\
+		"&& load ide ${hdpart} 0x00100000 /uImage.buffalo "	\
+		"&& load ide ${hdpart} 0x00800000 /initrd.buffalo "	\
 		"&& bootm 0x00100000 0x00800000\0"			\
+	"bootcmd_net=bootp ${kernel_addr} uImage "			\
+		"&& tftpboot ${ramdisk_addr} uInitrd "			\
+		"&& tftpboot ${fdt_addr} " CONFIG_FDTFILE " "		\
+		"&& bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"	\
 	"bootcmd_hdd=ide reset "					\
-		"&& ext2load ide ${hdpart} 0x00100000 /uImage "		\
-		"&& ext2load ide ${hdpart} 0x00800000 /uInitrd "	\
-		"&& bootm 0x00100000 0x00800000\0"			\
+		"&& load ide ${hdpart} ${kernel_addr} /uImage "		\
+		"&& load ide ${hdpart} ${ramdisk_addr} /uInitrd "	\
+		"&& load ide ${hdpart} ${fdt_addr} "			\
+			"/" CONFIG_FDTFILE " "				\
+		"&& bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"	\
 	"bootcmd_usb=usb start "					\
-		"&& fatload usb 0:1 0x00100000 /uImage "		\
-		"&& fatload usb 0:1 0x00800000 /uInitrd "		\
-		"&& bootm 0x00100000 0x00800000\0"			\
+		"&& load usb 0:1 ${kernel_addr} /uImage "		\
+		"&& load usb 0:1 ${ramdisk_addr} /uInitrd "		\
+		"&& load usb 0:1 ${fdt_addr} "				\
+			"/" CONFIG_FDTFILE " "				\
+		"&& bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"	\
 	"bootcmd_rescue=run config_nc_dhcp; run nc\0"			\
 	"eraseenv=sf probe 0 "						\
 		"&& sf erase " __stringify(CONFIG_ENV_OFFSET)		\
@@ -160,6 +183,7 @@
 #undef CONFIG_SYS_IDE_MAXDEVICE
 #define CONFIG_SYS_IDE_MAXDEVICE	1
 #define CONFIG_SYS_ATA_IDE0_OFFSET	MV_SATA_PORT0_OFFSET
+#define CONFIG_SYS_64BIT_LBA
 #endif
 
 #endif /* _CONFIG_LSXL_H */

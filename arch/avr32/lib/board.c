@@ -65,8 +65,8 @@ static void dma_alloc_init(void)
 	printf("DMA: Using memory from 0x%08lx to 0x%08lx\n",
 	       dma_alloc_start, dma_alloc_end);
 
-	dcache_invalidate_range(cached(dma_alloc_start),
-				dma_alloc_end - dma_alloc_start);
+	invalidate_dcache_range((unsigned long)cached(dma_alloc_start),
+				dma_alloc_end);
 }
 
 void *dma_alloc_coherent(size_t len, unsigned long *handle)
@@ -220,7 +220,6 @@ void board_init_f(ulong board_type)
 	 */
 	bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 	bd->bi_dram[0].size = sdram_size;
-	bd->bi_baudrate = gd->baudrate;
 
 	memcpy(new_gd, gd, sizeof(gd_t));
 

@@ -53,12 +53,17 @@ typedef void *hab_rvt_authenticate_image_t(uint8_t, ptrdiff_t,
 		void **, size_t *, hab_loader_callback_f_t);
 typedef void hapi_clock_init_t(void);
 
-#define HAB_RVT_REPORT_EVENT (*(uint32_t *)0x000000B4)
-#define HAB_RVT_REPORT_STATUS (*(uint32_t *)0x000000B8)
-#define HAB_RVT_AUTHENTICATE_IMAGE (*(uint32_t *)0x000000A4)
-#define HAB_RVT_ENTRY (*(uint32_t *)0x00000098)
-#define HAB_RVT_EXIT (*(uint32_t *)0x0000009C)
-#define HAB_RVT_CLOCK_INIT ((hapi_clock_init_t *)0x0000024D)
+#define HAB_RVT_REPORT_EVENT                   (*(uint32_t *)0x000000B4)
+#define HAB_RVT_REPORT_STATUS                  (*(uint32_t *)0x000000B8)
+#define HAB_RVT_AUTHENTICATE_IMAGE             (*(uint32_t *)0x000000A4)
+#define HAB_RVT_ENTRY                          (*(uint32_t *)0x00000098)
+#define HAB_RVT_EXIT                           (*(uint32_t *)0x0000009C)
+
+#define HAB_RVT_REPORT_EVENT_NEW               (*(uint32_t *)0x000000B8)
+#define HAB_RVT_REPORT_STATUS_NEW              (*(uint32_t *)0x000000BC)
+#define HAB_RVT_AUTHENTICATE_IMAGE_NEW         (*(uint32_t *)0x000000A8)
+#define HAB_RVT_ENTRY_NEW                      (*(uint32_t *)0x0000009C)
+#define HAB_RVT_EXIT_NEW                       (*(uint32_t *)0x000000A0)
 
 #define HAB_CID_ROM 0 /**< ROM Caller ID */
 #define HAB_CID_UBOOT 1 /**< UBOOT Caller ID*/

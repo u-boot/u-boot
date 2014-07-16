@@ -6,7 +6,7 @@
  */
 
 #include <common.h>
-#include <hush.h>
+#include <cli_hush.h>
 #include <i2c.h>
 #include "common.h"
 
@@ -120,7 +120,7 @@ static int ivm_findinventorystring(int type,
 
 	/* Look for the requested number of CR. */
 	while ((cr != nr) && (addr < INVENTORYDATASIZE)) {
-		if ((buf[addr] == '\r'))
+		if (buf[addr] == '\r')
 			cr++;
 		addr++;
 	}

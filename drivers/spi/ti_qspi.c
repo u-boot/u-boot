@@ -106,6 +106,7 @@ static void ti_spi_setup_spi_register(struct ti_qspi_slave *qslave)
 	slave->memory_map = (void *)MMAP_START_ADDR_DRA;
 #else
 	slave->memory_map = (void *)MMAP_START_ADDR_AM43x;
+	slave->op_mode_rx = 8;
 #endif
 
 	memval |= QSPI_CMD_READ | QSPI_SETUP0_NUM_A_BYTES |
@@ -314,6 +315,9 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 			qslave->cmd |= QSPI_RD_SNGL;
 			debug("rx cmd %08x dc %08x\n",
 			      qslave->cmd, qslave->dc);
+			#ifdef CONFIG_DRA7XX
+				udelay(500);
+			#endif
 			writel(qslave->cmd, &qslave->base->cmd);
 			status = readl(&qslave->base->status);
 			timeout = QSPI_TIMEOUT;

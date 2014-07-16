@@ -7,7 +7,6 @@
 
 obj-$(CONFIG_I82365) += i82365.o
 obj-$(CONFIG_8xx) += mpc8xx_pcmcia.o
-obj-y += rpx_pcmcia.o
 obj-$(CONFIG_IDE_TI_CARDBUS) += ti_pci1410a.o
 obj-y += tqm8xx_pcmcia.o
 obj-$(CONFIG_MARUBUN_PCCARD) += marubun_pcmcia.o

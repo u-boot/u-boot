@@ -9,6 +9,7 @@
 #define __M53EVK_CONFIG_H__
 
 #define CONFIG_MX53
+#define CONFIG_SYS_GENERIC_BOARD
 #define CONFIG_MXC_GPIO
 
 #include <asm/arch/imx-regs.h>
@@ -18,17 +19,26 @@
 #define CONFIG_REVISION_TAG
 #define CONFIG_SYS_NO_FLASH
 
+#define CONFIG_FIT
+
+#define CONFIG_TIMESTAMP		/* Print image info with timestamp */
+
 /*
  * U-Boot Commands
  */
 #include <config_cmd_default.h>
 #define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_DOS_PARTITION
+#define CONFIG_FAT_WRITE
 
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_BMP
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_EXT4
+#define CONFIG_CMD_EXT4_WRITE
 #define CONFIG_CMD_FAT
+#define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MMC
@@ -36,6 +46,7 @@
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SATA
+#define CONFIG_CMD_SETEXPR
 #define CONFIG_CMD_USB
 #define CONFIG_VIDEO
 
@@ -46,13 +57,13 @@
  */
 #define CONFIG_NR_DRAM_BANKS		2
 #define PHYS_SDRAM_1			CSD0_BASE_ADDR
-#define PHYS_SDRAM_1_SIZE		(512 * 1024 * 1024)
+#define PHYS_SDRAM_1_SIZE		(gd->bd->bi_dram[0].size)
 #define PHYS_SDRAM_2			CSD1_BASE_ADDR
-#define PHYS_SDRAM_2_SIZE		(512 * 1024 * 1024)
-#define PHYS_SDRAM_SIZE			(PHYS_SDRAM_1_SIZE + PHYS_SDRAM_2_SIZE)
+#define PHYS_SDRAM_2_SIZE		(gd->bd->bi_dram[1].size)
+#define PHYS_SDRAM_SIZE			(gd->ram_size)
 #define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
 #define CONFIG_SYS_MEMTEST_START	0x70000000
-#define CONFIG_SYS_MEMTEST_END		0xaff00000
+#define CONFIG_SYS_MEMTEST_END		0x8ff00000
 
 #define CONFIG_SYS_SDRAM_BASE		(PHYS_SDRAM_1)
 #define CONFIG_SYS_INIT_RAM_ADDR	(IRAM_BASE_ADDR)
@@ -118,8 +129,8 @@
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
 #define CONFIG_ENV_SECT_SIZE		(128 * 1024)
-#define CONFIG_ENV_RANGE		(512 * 1024)
-#define CONFIG_ENV_OFFSET		0x100000
+#define CONFIG_ENV_RANGE		(4 * CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_OFFSET		(8 * CONFIG_ENV_SECT_SIZE) /* 1 MiB */
 #define CONFIG_ENV_OFFSET_REDUND	\
 		(CONFIG_ENV_OFFSET + CONFIG_ENV_RANGE)
 
@@ -133,13 +144,12 @@
 #define MTDIDS_DEFAULT			"nand0=mxc_nand"
 #define MTDPARTS_DEFAULT			\
 	"mtdparts=mxc_nand:"			\
-		"1m(bootloader)ro,"		\
-		"512k(environment),"		\
-		"512k(redundant-environment),"	\
-		"4m(kernel),"			\
-		"128k(fdt),"			\
-		"8m(ramdisk),"			\
-		"-(filesystem)"
+		"1024k(u-boot),"		\
+		"512k(env1),"			\
+		"512k(env2),"			\
+		"14m(boot),"			\
+		"240m(data),"			\
+		"-@2048k(UBI)"
 #else
 #define CONFIG_ENV_IS_NOWHERE
 #endif
@@ -156,6 +166,7 @@
 #define CONFIG_FEC_XCV_TYPE		RMII
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_MICREL
+#define CONFIG_ETHPRIME			"FEC0"
 #endif
 
 /*
@@ -185,6 +196,7 @@
 #define CONFIG_USB_STORAGE
 #define CONFIG_USB_HOST_ETHER
 #define CONFIG_USB_ETHER_ASIX
+#define CONFIG_USB_ETHER_MCS7830
 #define CONFIG_USB_ETHER_SMSC95XX
 #define CONFIG_MXC_USB_PORT		1
 #define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
@@ -212,10 +224,14 @@
 #define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define CONFIG_VIDEO_BMP_RLE8
+#define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_SPLASH_SCREEN
+#define CONFIG_SPLASHIMAGE_GUARD
+#define CONFIG_SPLASH_SCREEN_ALIGN
 #define CONFIG_BMP_16BPP
 #define CONFIG_VIDEO_LOGO
-#define CONFIG_IPUV3_CLK	200000000
+#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(2 << 20)
+#define CONFIG_IPUV3_CLK		200000000
 #endif
 
 /*
@@ -226,9 +242,10 @@
 #define CONFIG_REVISION_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_BOOTDELAY	3
-#define CONFIG_BOOTFILE		"m53evk/uImage"
+#define CONFIG_BOOTFILE		"fitImage"
 #define CONFIG_BOOTARGS		"console=ttymxc1,115200"
 #define CONFIG_LOADADDR		0x70800000
+#define CONFIG_BOOTCOMMAND	"run mmc_mmc"
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
 #define CONFIG_OF_LIBFDT
 
@@ -254,5 +271,88 @@
 #define CONFIG_SYS_NAND_PAGE_COUNT	64
 #define CONFIG_SYS_NAND_SIZE		(256 * 1024 * 1024)
 #define CONFIG_SYS_NAND_BAD_BLOCK_POS	0
+
+/*
+ * Extra Environments
+ */
+#define CONFIG_PREBOOT		"run try_bootscript"
+#define CONFIG_HOSTNAME		m53evk
+
+#define CONFIG_EXTRA_ENV_SETTINGS					\
+	"consdev=ttymxc1\0"						\
+	"baudrate=115200\0"						\
+	"bootscript=boot.scr\0"						\
+	"bootdev=/dev/mmcblk0p1\0"					\
+	"rootdev=/dev/mmcblk0p2\0"					\
+	"netdev=eth0\0"							\
+	"rootpath=/opt/eldk-5.5/armv7a-hf/rootfs-qte-sdk\0"		\
+	"kernel_addr_r=0x72000000\0"					\
+	"addcons="							\
+		"setenv bootargs ${bootargs} "				\
+		"console=${consdev},${baudrate}\0"			\
+	"addip="							\
+		"setenv bootargs ${bootargs} "				\
+		"ip=${ipaddr}:${serverip}:${gatewayip}:"		\
+			"${netmask}:${hostname}:${netdev}:off\0"	\
+	"addmisc="							\
+		"setenv bootargs ${bootargs} ${miscargs}\0"		\
+	"adddfltmtd="							\
+		"if test \"x${mtdparts}\" == \"x\" ; then "		\
+			"mtdparts default ; "				\
+		"fi\0"							\
+	"addmtd="							\
+		"run adddfltmtd ; "					\
+		"setenv bootargs ${bootargs} ${mtdparts}\0"		\
+	"addargs=run addcons addmtd addmisc\0"				\
+	"mmcload="							\
+		"mmc rescan ; "						\
+		"ext4load mmc 0:1 ${kernel_addr_r} ${bootfile}\0"	\
+	"ubiload="							\
+		"ubi part UBI ; ubifsmount ubi0:rootfs ; "		\
+		"ubifsload ${kernel_addr_r} /boot/${bootfile}\0"	\
+	"netload="							\
+		"tftp ${kernel_addr_r} ${hostname}/${bootfile}\0"	\
+	"miscargs=nohlt panic=1\0"					\
+	"mmcargs=setenv bootargs root=${rootdev} rw rootwait\0"		\
+	"ubiargs="							\
+		"setenv bootargs ubi.mtd=5 "				\
+		"root=ubi0:rootfs rootfstype=ubifs\0"			\
+	"nfsargs="							\
+		"setenv bootargs root=/dev/nfs rw "			\
+			"nfsroot=${serverip}:${rootpath},v3,tcp\0"	\
+	"mmc_mmc="							\
+		"run mmcload mmcargs addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"mmc_ubi="							\
+		"run mmcload ubiargs addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"mmc_nfs="							\
+		"run mmcload nfsargs addip addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"ubi_mmc="							\
+		"run ubiload mmcargs addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"ubi_ubi="							\
+		"run ubiload ubiargs addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"ubi_nfs="							\
+		"run ubiload nfsargs addip addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"net_mmc="							\
+		"run netload mmcargs addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"net_ubi="							\
+		"run netload ubiargs addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"net_nfs="							\
+		"run netload nfsargs addip addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"try_bootscript="						\
+		"mmc rescan;"						\
+		"if ext4load mmc 0:1 ${kernel_addr_r} ${bootscript};"	\
+		"then;"							\
+			"\techo Running bootscript...;"			\
+			"\tsource ${kernel_addr_r};"			\
+		"fi\0"
 
 #endif	/* __M53EVK_CONFIG_H__ */

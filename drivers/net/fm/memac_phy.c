@@ -29,10 +29,8 @@ int memac_mdio_write(struct mii_dev *bus, int port_addr, int dev_addr,
 		c45 = 0; /* clause 22 */
 		dev_addr = regnum & 0x1f;
 		clrbits_be32(&regs->mdio_stat, MDIO_STAT_ENC);
-	} else {
+	} else
 		setbits_be32(&regs->mdio_stat, MDIO_STAT_ENC);
-		setbits_be32(&regs->mdio_stat, MDIO_STAT_HOLD_15_CLK);
-	}
 
 	/* Wait till the bus is free */
 	while ((in_be32(&regs->mdio_stat)) & MDIO_STAT_BSY)
@@ -76,10 +74,8 @@ int memac_mdio_read(struct mii_dev *bus, int port_addr, int dev_addr,
 		c45 = 0; /* clause 22 */
 		dev_addr = regnum & 0x1f;
 		clrbits_be32(&regs->mdio_stat, MDIO_STAT_ENC);
-	} else {
+	} else
 		setbits_be32(&regs->mdio_stat, MDIO_STAT_ENC);
-		setbits_be32(&regs->mdio_stat, MDIO_STAT_HOLD_15_CLK);
-	}
 
 	/* Wait till the bus is free */
 	while ((in_be32(&regs->mdio_stat)) & MDIO_STAT_BSY)
@@ -132,6 +128,18 @@ int fm_memac_mdio_init(bd_t *bis, struct memac_mdio_info *info)
 	sprintf(bus->name, info->name);
 
 	bus->priv = info->regs;
+
+	/*
+	 * On some platforms like B4860, default value of MDIO_CLK_DIV bits
+	 * in mdio_stat(mdio_cfg) register generates MDIO clock too high
+	 * (much higher than 2.5MHz), violating the IEEE specs.
+	 * On other platforms like T1040, default value of MDIO_CLK_DIV bits
+	 * is zero, so MDIO clock is disabled.
+	 * So, for proper functioning of MDIO, MDIO_CLK_DIV bits needs to
+	 * be properly initialized.
+	 */
+	setbits_be32(&((struct memac_mdio_controller *)info->regs)->mdio_stat,
+		     MDIO_STAT_CLKDIV(258));
 
 	return mdio_register(bus);
 }

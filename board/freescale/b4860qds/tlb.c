@@ -62,6 +62,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      MAS3_SX|MAS3_SR, MAS2_W|MAS2_G,
 		      0, 2, BOOKE_PAGESZ_256M, 1),
 
+#ifndef CONFIG_SPL_BUILD
 	/* *I*G* - PCI */
 	SET_TLB_ENTRY(1, CONFIG_SYS_PCIE1_MEM_VIRT, CONFIG_SYS_PCIE1_MEM_PHYS,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
@@ -96,6 +97,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 9, BOOKE_PAGESZ_16M, 1),
 #endif
+#endif
 #ifdef CONFIG_SYS_DCSRBAR_PHYS
 	SET_TLB_ENTRY(1, CONFIG_SYS_DCSRBAR, CONFIG_SYS_DCSRBAR_PHYS,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
@@ -118,6 +120,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 * entry 14 and 15 has been used hard coded, they will be disabled
 	 * in cpu_init_f, so we use entry 16 for SRIO2.
 	 */
+#ifndef CONFIG_SPL_BUILD
 #ifdef CONFIG_SYS_SRIO1_MEM_PHYS
 	/* *I*G* - SRIO1 */
 	SET_TLB_ENTRY(1, CONFIG_SYS_SRIO1_MEM_VIRT, CONFIG_SYS_SRIO1_MEM_PHYS,
@@ -139,6 +142,13 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      CONFIG_SYS_SRIO_PCIE_BOOT_UCODE_ENV_ADDR_PHYS,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_G,
 		      0, 17, BOOKE_PAGESZ_1M, 1),
+#endif
+#endif
+
+#if defined(CONFIG_RAMBOOT_PBL) && !defined(CONFIG_SPL_BUILD)
+	SET_TLB_ENTRY(1, CONFIG_SYS_DDR_SDRAM_BASE, CONFIG_SYS_DDR_SDRAM_BASE,
+		      MAS3_SX|MAS3_SW|MAS3_SR, 0,
+		      0, 17, BOOKE_PAGESZ_2G, 1)
 #endif
 };
 

@@ -116,12 +116,14 @@ static int check_keys(void)
  * 4 BOOT_MODE_EXIT
  */
 static char *
-mode_name[BOOT_MODE_EXIT + 1] = {
-	"DEVICE",
-	"THOR",
-	"UMS",
-	"DFU",
-	"EXIT"
+mode_name[BOOT_MODE_EXIT + 1][2] = {
+	{"DEVICE", ""},
+	{"THOR", "thor"},
+	{"UMS", "ums"},
+	{"DFU", "dfu"},
+	{"GPT", "gpt"},
+	{"ENV", "env"},
+	{"EXIT", ""},
 };
 
 static char *
@@ -130,18 +132,20 @@ mode_info[BOOT_MODE_EXIT + 1] = {
 	"downloader",
 	"mass storage",
 	"firmware update",
+	"restore",
+	"default",
 	"and run normal boot"
 };
 
-#define MODE_CMD_ARGC	4
-
 static char *
-mode_cmd[BOOT_MODE_EXIT + 1][MODE_CMD_ARGC] = {
-	{"", "", "", ""},
-	{"thor", "0", "mmc", "0"},
-	{"ums", "0", "mmc", "0"},
-	{"dfu", "0", "mmc", "0"},
-	{"", "", "", ""},
+mode_cmd[BOOT_MODE_EXIT + 1] = {
+	"",
+	"thor 0 mmc 0",
+	"ums 0 mmc 0",
+	"dfu 0 mmc 0",
+	"gpt write mmc 0 $partitions",
+	"env default -a; saveenv",
+	"",
 };
 
 static void display_board_info(void)
@@ -182,11 +186,10 @@ static void display_board_info(void)
 static int mode_leave_menu(int mode)
 {
 	char *exit_option;
-	char *exit_boot = "boot";
+	char *exit_reset = "reset";
 	char *exit_back = "back";
 	cmd_tbl_t *cmd;
 	int cmd_result;
-	int cmd_repeatable;
 	int leave;
 
 	lcd_clear();
@@ -200,31 +203,29 @@ static int mode_leave_menu(int mode)
 		leave = 0;
 		break;
 	default:
-		cmd = find_cmd(mode_cmd[mode][0]);
+		cmd = find_cmd(mode_name[mode][1]);
 		if (cmd) {
-			printf("Enter: %s %s\n", mode_name[mode],
+			printf("Enter: %s %s\n", mode_name[mode][0],
 						 mode_info[mode]);
-			lcd_printf("\n\n\t%s %s\n", mode_name[mode],
+			lcd_printf("\n\n\t%s %s\n", mode_name[mode][0],
 						    mode_info[mode]);
 			lcd_puts("\n\tDo not turn off device before finish!\n");
 
-			cmd_result = cmd_process(0, MODE_CMD_ARGC,
-						 *(mode_cmd + mode),
-						 &cmd_repeatable, NULL);
+			cmd_result = run_command(mode_cmd[mode], 0);
 
 			if (cmd_result == CMD_RET_SUCCESS) {
 				printf("Command finished\n");
 				lcd_clear();
 				lcd_printf("\n\n\t%s finished\n",
-					   mode_name[mode]);
+					   mode_name[mode][0]);
 
-				exit_option = exit_boot;
+				exit_option = exit_reset;
 				leave = 1;
 			} else {
 				printf("Command error\n");
 				lcd_clear();
 				lcd_printf("\n\n\t%s command error\n",
-					   mode_name[mode]);
+					   mode_name[mode][0]);
 
 				exit_option = exit_back;
 				leave = 0;
@@ -260,11 +261,11 @@ static void display_download_menu(int mode)
 	selection[mode] = "[=>]";
 
 	lcd_clear();
-	lcd_printf("\n\t\tDownload Mode Menu\n");
+	lcd_printf("\n\n\t\tDownload Mode Menu\n\n");
 
 	for (i = 0; i <= BOOT_MODE_EXIT; i++)
 		lcd_printf("\t%s  %s - %s\n\n", selection[i],
-						mode_name[i],
+						mode_name[i][0],
 						mode_info[i]);
 }
 
@@ -273,9 +274,37 @@ static void download_menu(void)
 	int mode = 0;
 	int last_mode = 0;
 	int run;
-	int key;
+	int key = 0;
+	int timeout = 15; /* sec */
+	int i;
 
 	display_download_menu(mode);
+
+	lcd_puts("\n");
+
+	/* Start count if no key is pressed */
+	while (check_keys())
+		continue;
+
+	while (timeout--) {
+		lcd_printf("\r\tNormal boot will start in: %2.d seconds.",
+			   timeout);
+
+		/* about 1000 ms in for loop */
+		for (i = 0; i < 10; i++) {
+			mdelay(100);
+			key = check_keys();
+			if (key)
+				break;
+		}
+		if (key)
+			break;
+	}
+
+	if (!key) {
+		lcd_clear();
+		return;
+	}
 
 	while (1) {
 		run = 0;
@@ -284,7 +313,7 @@ static void download_menu(void)
 			display_download_menu(mode);
 
 		last_mode = mode;
-		mdelay(100);
+		mdelay(200);
 
 		key = check_keys();
 		switch (key) {
@@ -305,52 +334,13 @@ static void download_menu(void)
 
 		if (run) {
 			if (mode_leave_menu(mode))
-				break;
+				run_command("reset", 0);
 
 			display_download_menu(mode);
 		}
 	}
 
 	lcd_clear();
-}
-
-static void display_mode_info(void)
-{
-	lcd_position_cursor(4, 4);
-	lcd_printf("%s\n", U_BOOT_VERSION);
-	lcd_puts("\nDownload Mode Menu\n");
-#ifdef CONFIG_SYS_BOARD
-	lcd_printf("Board name: %s\n", CONFIG_SYS_BOARD);
-#endif
-	lcd_printf("Press POWER KEY to display MENU options.");
-}
-
-static int boot_menu(void)
-{
-	int key = 0;
-	int timeout = 10;
-
-	display_mode_info();
-
-	while (timeout--) {
-		lcd_printf("\rNormal boot will start in: %d seconds.", timeout);
-		mdelay(1000);
-
-		key = key_pressed(KEY_POWER);
-		if (key)
-			break;
-	}
-
-	lcd_clear();
-
-	/* If PWR pressed - show download menu */
-	if (key) {
-		printf("Power pressed - go to download menu\n");
-		download_menu();
-		printf("Download mode exit.\n");
-	}
-
-	return 0;
 }
 
 void check_boot_mode(void)
@@ -365,7 +355,7 @@ void check_boot_mode(void)
 	power_key_pressed(KEY_PWR_INTERRUPT_REG);
 
 	if (key_pressed(KEY_VOLUMEUP))
-		boot_menu();
+		download_menu();
 	else if (key_pressed(KEY_VOLUMEDOWN))
 		mode_leave_menu(BOOT_MODE_THOR);
 }

@@ -4,7 +4,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include "config.h"	/* CONFIG_BOARDDIR */
+#include "config.h"
 
 #ifdef CONFIG_RESET_VECTOR_ADDRESS
 #define RESET_VECTOR_ADDRESS	CONFIG_RESET_VECTOR_ADDRESS
@@ -12,7 +12,12 @@
 #define RESET_VECTOR_ADDRESS	0xfffffffc
 #endif
 
+#ifndef CONFIG_SYS_MONITOR_LEN
+#define CONFIG_SYS_MONITOR_LEN	0x80000
+#endif
+
 OUTPUT_ARCH(powerpc)
+ENTRY(_start_e500)
 
 PHDRS
 {
@@ -84,7 +89,7 @@ SECTIONS
   {
     KEEP(arch/powerpc/cpu/mpc85xx/start.o (.bootpg))
   } :text = 0xffff
-  . = ADDR(.text) + 0x80000;
+  . = ADDR(.text) + CONFIG_SYS_MONITOR_LEN;
 #else
   .bootpg RESET_VECTOR_ADDRESS - 0xffc :
   {

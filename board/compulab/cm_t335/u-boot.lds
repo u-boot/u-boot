@@ -18,6 +18,7 @@ SECTIONS
 	.text :
 	{
 		*(.__image_copy_start)
+		*(.vectors)
 		CPUDIR/start.o (.text*)
 		board/compulab/cm_t335/built-in.o (.text*)
 		*(.text*)
@@ -61,6 +62,8 @@ SECTIONS
 		*(.__rel_dyn_end)
 	}
 
+	.hash : { *(.hash*) }
+
 	.end :
 	{
 		*(.__end)
@@ -98,8 +101,6 @@ SECTIONS
 	}
 
 	.dynsym _image_binary_end : { *(.dynsym) }
-	.hash : { *(.hash) }
-	.got.plt : { *(.got.plt) }
 	.dynbss : { *(.dynbss) }
 	.dynstr : { *(.dynstr*) }
 	.dynamic : { *(.dynamic*) }

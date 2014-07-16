@@ -11,10 +11,28 @@ obj-y += main.o
 obj-y += command.o
 obj-y += exports.o
 obj-y += hash.o
-obj-$(CONFIG_SYS_HUSH_PARSER) += hush.o
+ifdef CONFIG_SYS_HUSH_PARSER
+obj-y += cli_hush.o
+endif
+
+# We always have this since drivers/ddr/fs/interactive.c needs it
+obj-y += cli_simple.o
+
+obj-y += cli.o
+obj-y += cli_readline.o
 obj-y += s_record.o
 obj-y += xyzModem.o
 obj-y += cmd_disk.o
+
+# This option is not just y/n - it can have a numeric value
+ifdef CONFIG_BOOTDELAY
+obj-y += autoboot.o
+endif
+
+# This option is not just y/n - it can have a numeric value
+ifdef CONFIG_BOOT_RETRY_TIME
+obj-y += bootretry.o
+endif
 
 # boards
 obj-$(CONFIG_SYS_GENERIC_BOARD) += board_f.o
@@ -22,7 +40,7 @@ obj-$(CONFIG_SYS_GENERIC_BOARD) += board_r.o
 
 # core command
 obj-y += cmd_boot.o
-obj-$(CONFIG_CMD_BOOTM) += cmd_bootm.o
+obj-$(CONFIG_CMD_BOOTM) += cmd_bootm.o bootm.o bootm_os.o
 obj-y += cmd_help.o
 obj-y += cmd_version.o
 
@@ -48,6 +66,7 @@ obj-$(CONFIG_ENV_IS_IN_UBI) += env_ubi.o
 obj-$(CONFIG_ENV_IS_NOWHERE) += env_nowhere.o
 
 # command
+obj-$(CONFIG_CMD_AES) += cmd_aes.o
 obj-$(CONFIG_CMD_AMBAPP) += cmd_ambapp.o
 obj-$(CONFIG_SOURCE) += cmd_source.o
 obj-$(CONFIG_CMD_SOURCE) += cmd_source.o
@@ -95,6 +114,7 @@ obj-$(CONFIG_CMD_FUSE) += cmd_fuse.o
 obj-$(CONFIG_CMD_GETTIME) += cmd_gettime.o
 obj-$(CONFIG_CMD_GPIO) += cmd_gpio.o
 obj-$(CONFIG_CMD_I2C) += cmd_i2c.o
+obj-$(CONFIG_CMD_IOTRACE) += cmd_iotrace.o
 obj-$(CONFIG_CMD_HASH) += cmd_hash.o
 obj-$(CONFIG_CMD_IDE) += cmd_ide.o
 obj-$(CONFIG_CMD_IMMAP) += cmd_immap.o
@@ -159,11 +179,16 @@ obj-$(CONFIG_CMD_UBI) += cmd_ubi.o
 obj-$(CONFIG_CMD_UBIFS) += cmd_ubifs.o
 obj-$(CONFIG_CMD_UNIVERSE) += cmd_universe.o
 obj-$(CONFIG_CMD_UNZIP) += cmd_unzip.o
+ifdef CONFIG_LZMA
+obj-$(CONFIG_CMD_LZMADEC) += cmd_lzmadec.o
+endif
 ifdef CONFIG_CMD_USB
 obj-y += cmd_usb.o
 obj-y += usb.o usb_hub.o
 obj-$(CONFIG_USB_STORAGE) += usb_storage.o
 endif
+obj-$(CONFIG_CMD_FASTBOOT) += cmd_fastboot.o
+
 obj-$(CONFIG_CMD_USB_MASS_STORAGE) += cmd_usb_mass_storage.o
 obj-$(CONFIG_CMD_THOR_DOWNLOAD) += cmd_thordown.o
 obj-$(CONFIG_CMD_XIMG) += cmd_ximg.o
@@ -230,11 +255,14 @@ obj-$(SPD) += ddr_spd.o
 obj-$(CONFIG_HWCONFIG) += hwconfig.o
 obj-$(CONFIG_BOUNCE_BUFFER) += bouncebuf.o
 obj-y += console.o
+obj-$(CONFIG_CROS_EC) += cros_ec.o
 obj-y += dlmalloc.o
 obj-y += image.o
+obj-$(CONFIG_ANDROID_BOOT_IMAGE) += image-android.o
 obj-$(CONFIG_OF_LIBFDT) += image-fdt.o
 obj-$(CONFIG_FIT) += image-fit.o
 obj-$(CONFIG_FIT_SIGNATURE) += image-sig.o
+obj-$(CONFIG_IO_TRACE) += iotrace.o
 obj-y += memsize.o
 obj-y += stdio.o
 

@@ -7,7 +7,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#include "config.h"	/* CONFIG_BOARDDIR */
+#include "config.h"
 
 OUTPUT_ARCH(powerpc)
 #ifdef CONFIG_SYS_MPC85XX_NO_RESETVEC
@@ -57,6 +57,16 @@ SECTIONS
 	. = ALIGN(8);
 	__init_begin = .;
 	__init_end = .;
+#ifdef CONFIG_SPL_SKIP_RELOCATE
+	. = ALIGN(4);
+	__bss_start = .;
+	.bss : {
+		*(.sbss*)
+		*(.bss*)
+	}
+	. = ALIGN(4);
+	__bss_end = .;
+#endif
 
 /* For ifc, elbc, esdhc, espi, all need the SPL without section .resetvec */
 #ifdef CONFIG_SYS_MPC85XX_NO_RESETVEC
@@ -66,11 +76,16 @@ SECTIONS
 	} :text = 0xffff
 #else
 #if defined(CONFIG_FSL_IFC) /* Restrict bootpg at 4K boundry for IFC */
-	.bootpg ADDR(.text) + 0x1000 :
+#ifndef BOOT_PAGE_OFFSET
+#define BOOT_PAGE_OFFSET 0x1000
+#endif
+	.bootpg ADDR(.text) + BOOT_PAGE_OFFSET :
 	{
 		arch/powerpc/cpu/mpc85xx/start.o (.bootpg)
 	}
+#ifndef RESET_VECTOR_OFFSET
 #define RESET_VECTOR_OFFSET 0x1ffc /* IFC has 8K sram */
+#endif
 #elif defined(CONFIG_FSL_ELBC)
 #define RESET_VECTOR_OFFSET 0xffc /* LBC has 4k sram */
 #else
@@ -81,6 +96,7 @@ SECTIONS
 	} = 0xffff
 #endif
 
+#ifndef CONFIG_SPL_SKIP_RELOCATE
 	/*
 	 * Make sure that the bss segment isn't linked at 0x0, otherwise its
 	 * address won't be updated during relocation fixups.
@@ -95,4 +111,5 @@ SECTIONS
 	}
 	. = ALIGN(4);
 	__bss_end = .;
+#endif
 }

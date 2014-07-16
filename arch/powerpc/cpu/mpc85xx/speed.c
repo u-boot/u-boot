@@ -74,28 +74,33 @@ void get_sys_info(sys_info_t *sys_info)
 	uint ratio[CONFIG_SYS_FSL_NUM_CC_PLLS];
 	unsigned long sysclk = CONFIG_SYS_CLK_FREQ;
 	uint mem_pll_rat;
-#ifdef CONFIG_SYS_FSL_SINGLE_SOURCE_CLK
-	uint single_src;
-#endif
 
 	sys_info->freq_systembus = sysclk;
 #ifdef CONFIG_SYS_FSL_SINGLE_SOURCE_CLK
+	uint ddr_refclk_sel;
+	unsigned int porsr1_sys_clk;
+	porsr1_sys_clk = in_be32(&gur->porsr1) >> FSL_DCFG_PORSR1_SYSCLK_SHIFT
+						& FSL_DCFG_PORSR1_SYSCLK_MASK;
+	if (porsr1_sys_clk == FSL_DCFG_PORSR1_SYSCLK_DIFF)
+		sys_info->diff_sysclk = 1;
+	else
+		sys_info->diff_sysclk = 0;
+
 	/*
 	 * DDR_REFCLK_SEL rcw bit is used to determine if DDR PLLS
 	 * are driven by separate DDR Refclock or single source
 	 * differential clock.
 	 */
-	single_src = (in_be32(&gur->rcwsr[5]) >>
+	ddr_refclk_sel = (in_be32(&gur->rcwsr[5]) >>
 		      FSL_CORENET2_RCWSR5_DDR_REFCLK_SEL_SHIFT) &
 		      FSL_CORENET2_RCWSR5_DDR_REFCLK_SEL_MASK;
 	/*
-	 * For single source clocking, both ddrclock and syclock
+	 * For single source clocking, both ddrclock and sysclock
 	 * are driven by differential sysclock.
 	 */
-	if (single_src == FSL_CORENET2_RCWSR5_DDR_REFCLK_SINGLE_CLK) {
-		printf("Single Source Clock Configuration\n");
+	if (ddr_refclk_sel == FSL_CORENET2_RCWSR5_DDR_REFCLK_SINGLE_CLK)
 		sys_info->freq_ddrbus = CONFIG_SYS_CLK_FREQ;
-	} else
+	else
 #endif
 #ifdef CONFIG_DDR_CLK_FREQ
 		sys_info->freq_ddrbus = CONFIG_DDR_CLK_FREQ;
@@ -107,11 +112,19 @@ void get_sys_info(sys_info_t *sys_info)
 	mem_pll_rat = (in_be32(&gur->rcwsr[0]) >>
 			FSL_CORENET_RCWSR0_MEM_PLL_RAT_SHIFT)
 			& FSL_CORENET_RCWSR0_MEM_PLL_RAT_MASK;
+#ifdef CONFIG_SYS_FSL_ERRATUM_A007212
+	if (mem_pll_rat == 0) {
+		mem_pll_rat = (in_be32(&gur->rcwsr[0]) >>
+			FSL_CORENET_RCWSR0_MEM_PLL_RAT_RESV_SHIFT) &
+			FSL_CORENET_RCWSR0_MEM_PLL_RAT_MASK;
+	}
+#endif
 	/* T4240/T4160 Rev2.0 MEM_PLL_RAT uses a value which is half of
 	 * T4240/T4160 Rev1.0. eg. It's 12 in Rev1.0, however, for Rev2.0
 	 * it uses 6.
 	 */
-#if defined(CONFIG_PPC_T4240) || defined(CONFIG_PPC_T4160)
+#if defined(CONFIG_PPC_T4240) || defined(CONFIG_PPC_T4160) || \
+	defined(CONFIG_PPC_T4080)
 	if (SVR_MAJ(get_svr()) >= 2)
 		mem_pll_rat *= 2;
 #endif
@@ -151,8 +164,8 @@ void get_sys_info(sys_info_t *sys_info)
 		sys_info->freq_processor[cpu] =
 			 freq_c_pll[cplx_pll] / core_cplx_pll_div[c_pll_sel];
 	}
-#if defined(CONFIG_PPC_B4860) || defined(CONFIG_PPC_T2080) || \
-	defined(CONFIG_PPC_T2081)
+#if defined(CONFIG_PPC_B4860) || defined(CONFIG_PPC_B4420) || \
+	defined(CONFIG_PPC_T2080) || defined(CONFIG_PPC_T2081)
 #define FM1_CLK_SEL	0xe0000000
 #define FM1_CLK_SHIFT	29
 #else
@@ -335,6 +348,10 @@ void get_sys_info(sys_info_t *sys_info)
 #endif
 
 #endif /* CONFIG_SYS_FSL_QORIQ_CHASSIS2 */
+
+#ifdef CONFIG_U_QE
+	sys_info->freq_qe =  sys_info->freq_systembus / 2;
+#endif
 
 #else /* CONFIG_FSL_CORENET */
 	uint plat_ratio, e500_ratio, half_freq_systembus;

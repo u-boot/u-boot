@@ -302,7 +302,10 @@ static int spi_rx_tx(struct exynos_spi_slave *spi_slave, int todo,
 					}
 				} else {
 					if (rxp || stopping) {
-						*rxp = temp;
+						if (step == 4)
+							*(uint32_t *)rxp = temp;
+						else
+							*rxp = temp;
 						rxp += step;
 					}
 					in_bytes -= step;

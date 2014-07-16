@@ -55,13 +55,12 @@ CONFIG_NAME="${7%_config}"
 arch="$2"
 cpu=`echo $3 | awk 'BEGIN {FS = ":"} ; {print $1}'`
 spl_cpu=`echo $3 | awk 'BEGIN {FS = ":"} ; {print $2}'`
-if [ "$6" = "<none>" ] ; then
-	board=
-elif [ "$6" = "-" ] ; then
-	board=${BOARD_NAME}
-else
-	board="$6"
+
+if [ "$cpu" = "-" ] ; then
+	cpu=
 fi
+
+[ "$6" != "-" ] && board="$6"
 [ "$5" != "-" ] && vendor="$5"
 [ "$4" != "-" ] && soc="$4"
 [ $# -gt 7 ] && [ "$8" != "-" ] && {
@@ -103,10 +102,10 @@ fi
 #
 # Create link to architecture specific headers
 #
-if [ "$SRCTREE" != "$OBJTREE" ] ; then
-	mkdir -p ${OBJTREE}/include
-	LNPREFIX=${SRCTREE}/arch/${arch}/include/asm/
-	cd ${OBJTREE}/include
+if [ -n "$KBUILD_SRC" ] ; then
+	mkdir -p ${objtree}/include
+	LNPREFIX=${srctree}/arch/${arch}/include/asm/
+	cd ${objtree}/include
 	mkdir -p asm
 else
 	cd arch/${arch}/include
@@ -114,19 +113,14 @@ fi
 
 rm -f asm/arch
 
-if [ -z "${soc}" ] ; then
-	ln -s ${LNPREFIX}arch-${cpu} asm/arch
-else
+if [ "${soc}" ] ; then
 	ln -s ${LNPREFIX}arch-${soc} asm/arch
+elif [ "${cpu}" ] ; then
+	ln -s ${LNPREFIX}arch-${cpu} asm/arch
 fi
 
-if [ "${arch}" = "arm" ] ; then
-	rm -f asm/proc
-	ln -s ${LNPREFIX}proc-armv asm/proc
-fi
-
-if [ "$SRCTREE" = "$OBJTREE" ] ; then
-	cd ${SRCTREE}/include
+if [ -z "$KBUILD_SRC" ] ; then
+	cd ${srctree}/include
 fi
 
 #

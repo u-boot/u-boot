@@ -243,7 +243,7 @@
 #include <config.h>
 #include <malloc.h>
 #include <common.h>
-#include <usb.h>
+#include <g_dnl.h>
 
 #include <linux/err.h>
 #include <linux/usb/ch9.h>
@@ -255,6 +255,7 @@
 #include <linux/usb/gadget.h>
 #include <linux/usb/composite.h>
 #include <usb/lin_gadget_compat.h>
+#include <g_dnl.h>
 
 /*------------------------------------------------------------------------*/
 
@@ -680,11 +681,11 @@ static int sleep_thread(struct fsg_common *common)
 			/* Handle CTRL+C */
 			if (ctrlc())
 				return -EPIPE;
-#ifdef CONFIG_USB_CABLE_CHECK
+
 			/* Check cable connection */
-			if (!usb_cable_connected())
+			if (!g_dnl_board_usb_cable_connected())
 				return -EIO;
-#endif
+
 			k = 0;
 		}
 
@@ -2461,12 +2462,12 @@ static struct fsg_common *fsg_common_init(struct fsg_common *common,
 
 	/* Allocate? */
 	if (!common) {
-		common = calloc(sizeof *common, 1);
+		common = calloc(sizeof(*common), 1);
 		if (!common)
 			return ERR_PTR(-ENOMEM);
 		common->free_storage_on_release = 1;
 	} else {
-		memset(common, 0, sizeof common);
+		memset(common, 0, sizeof(*common));
 		common->free_storage_on_release = 0;
 	}
 
@@ -2778,3 +2779,5 @@ int fsg_init(struct ums *ums_dev)
 
 	return 0;
 }
+
+DECLARE_GADGET_BIND_CALLBACK(usb_dnl_ums, fsg_add);

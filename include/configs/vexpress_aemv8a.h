@@ -10,7 +10,20 @@
 
 #define DEBUG
 
+#ifdef CONFIG_BASE_FVP
+#ifndef CONFIG_SEMIHOSTING
+#error CONFIG_BASE_FVP requires CONFIG_SEMIHOSTING
+#endif
+#define CONFIG_BOARD_LATE_INIT
+#define CONFIG_ARMV8_SWITCH_TO_EL1
+#endif
+
 #define CONFIG_REMAKE_ELF
+
+#ifndef CONFIG_BASE_FVP
+/* Base FVP not using GICv3 yet */
+#define CONFIG_GICV3
+#endif
 
 /*#define CONFIG_ARMV8_SWITCH_TO_EL1*/
 
@@ -28,8 +41,14 @@
 #define CONFIG_BOOTP_VCI_STRING		"U-boot.armv8.vexpress_aemv8a"
 
 /* Link Definitions */
+#ifdef CONFIG_BASE_FVP
+/* ATF loads u-boot here for BASE_FVP model */
+#define CONFIG_SYS_TEXT_BASE		0x88000000
+#define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_SDRAM_BASE + 0x03f00000)
+#else
 #define CONFIG_SYS_TEXT_BASE		0x80000000
 #define CONFIG_SYS_INIT_SP_ADDR         (CONFIG_SYS_SDRAM_BASE + 0x7fff0)
+#endif
 
 /* Flat Device Tree Definitions */
 #define CONFIG_OF_LIBFDT
@@ -37,7 +56,11 @@
 #define CONFIG_DEFAULT_DEVICE_TREE	vexpress64
 
 /* SMP Spin Table Definitions */
+#ifdef CONFIG_BASE_FVP
+#define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x03f00000)
+#else
 #define CPU_RELEASE_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
+#endif
 
 /* CS register bases for the original memory map. */
 #define V2M_PA_CS0			0x00000000
@@ -93,8 +116,19 @@
 #define COUNTER_FREQUENCY		(0x1800000)	/* 24MHz */
 
 /* Generic Interrupt Controller Definitions */
+#ifdef CONFIG_GICV3
+#define GICD_BASE			(0x2f000000)
+#define GICR_BASE			(0x2f100000)
+#else
+
+#ifdef CONFIG_BASE_FVP
+#define GICD_BASE			(0x2f000000)
+#define GICC_BASE			(0x2c000000)
+#else
 #define GICD_BASE			(0x2C001000)
 #define GICC_BASE			(0x2C002000)
+#endif
+#endif
 
 #define CONFIG_SYS_MEMTEST_START	V2M_BASE
 #define CONFIG_SYS_MEMTEST_END		(V2M_BASE + 0x80000000)
@@ -114,7 +148,6 @@
 #define CONFIG_CONS_INDEX		0
 
 #define CONFIG_BAUDRATE			115200
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 #define CONFIG_SYS_SERIAL0		V2M_UART0
 #define CONFIG_SYS_SERIAL1		V2M_UART1
 
@@ -158,17 +191,41 @@
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 
 /* Initial environment variables */
+#ifdef CONFIG_BASE_FVP
 #define CONFIG_EXTRA_ENV_SETTINGS	\
-					"kernel_addr=0x200000\0"	\
-					"initrd_addr=0xa00000\0"	\
+				"kernel_name=uImage\0"	\
+				"kernel_addr_r=0x80000000\0"	\
+				"initrd_name=ramdisk.img\0"	\
+				"initrd_addr_r=0x88000000\0"	\
+				"fdt_name=devtree.dtb\0"		\
+				"fdt_addr_r=0x83000000\0"		\
+				"fdt_high=0xffffffffffffffff\0"	\
+				"initrd_high=0xffffffffffffffff\0"
+
+#define CONFIG_BOOTARGS		"console=ttyAMA0 earlyprintk=pl011,"\
+				"0x1c090000 debug user_debug=31 "\
+				"loglevel=9"
+
+#define CONFIG_BOOTCOMMAND	"fdt addr $fdt_addr_r; fdt resize; " \
+				"fdt chosen $initrd_addr_r $initrd_end; " \
+				"bootm $kernel_addr_r - $fdt_addr_r"
+
+#define CONFIG_BOOTDELAY		1
+
+#else
+
+#define CONFIG_EXTRA_ENV_SETTINGS	\
+					"kernel_addr_r=0x200000\0"	\
+					"initrd_addr_r=0xa00000\0"	\
 					"initrd_size=0x2000000\0"	\
-					"fdt_addr=0x100000\0"		\
+					"fdt_addr_r=0x100000\0"		\
 					"fdt_high=0xa0000000\0"
 
 #define CONFIG_BOOTARGS			"console=ttyAMA0 root=/dev/ram0"
-#define CONFIG_BOOTCOMMAND		"bootm $kernel_addr " \
-					"$initrd_addr:$initrd_size $fdt_addr"
+#define CONFIG_BOOTCOMMAND		"bootm $kernel_addr_r " \
+					"$initrd_addr_r:$initrd_size $fdt_addr_r"
 #define CONFIG_BOOTDELAY		-1
+#endif
 
 /* Do not preserve environment */
 #define CONFIG_ENV_IS_NOWHERE		1
@@ -180,7 +237,6 @@
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_HUSH_PARSER
-#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CMDLINE_EDITING		1

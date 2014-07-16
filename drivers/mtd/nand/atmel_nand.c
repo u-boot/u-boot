@@ -1195,7 +1195,7 @@ static int nand_command(int block, int page, uint32_t offs, u8 cmd)
 
 	hwctrl(&mtd, cmd, NAND_CTRL_CLE | NAND_CTRL_CHANGE);
 
-	if (this->options & NAND_BUSWIDTH_16)
+	if ((this->options & NAND_BUSWIDTH_16) && !nand_opcode_8bits(cmd))
 		offs >>= 1;
 
 	hwctrl(&mtd, offs & 0xff, NAND_CTRL_ALE | NAND_CTRL_CHANGE);

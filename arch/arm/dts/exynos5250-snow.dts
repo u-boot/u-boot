@@ -44,7 +44,7 @@
 			reg = <0x1e>;
 			compatible = "google,cros-ec";
 			i2c-max-frequency = <100000>;
-			ec-interrupt = <&gpio 782 1>;
+			ec-interrupt = <&gpio 182 1>;
 		};
 
 		power-regulator@48 {
@@ -60,7 +60,7 @@
 			reg = <0>;
 			compatible = "google,cros-ec";
 			spi-max-frequency = <5000000>;
-			ec-interrupt = <&gpio 782 1>;
+			ec-interrupt = <&gpio 182 1>;
 			optimise-flash-write;
 			status = "disabled";
 		};
@@ -79,6 +79,19 @@
 		soundcodec@22 {
 			reg = <0x22>;
 			compatible = "maxim,max98095-codec";
+		};
+
+		ptn3460-bridge@20 {
+			compatible = "nxp,ptn3460";
+			reg = <0x20>;
+			/*
+			 * TODO(sjg@chromium.org): Use GPIOs here
+			 * powerdown-gpio = <&gpy2 5 0>;
+			 * reset-gpio = <&gpx1 5 0>;
+			 * edid-emulation = <5>;
+			 * pinctrl-names = "default";
+			 * pinctrl-0 = <&ptn3460_gpios>;
+			 */
 		};
 	};
 
@@ -184,4 +197,48 @@
 			/* UP      LEFT    */
 			0x070b0067 0x070c0069>;
 	};
+
+	fimd@14400000 {
+		samsung,vl-freq = <60>;
+		samsung,vl-col = <1366>;
+		samsung,vl-row = <768>;
+		samsung,vl-width = <1366>;
+		samsung,vl-height = <768>;
+
+		samsung,vl-clkp;
+		samsung,vl-dp;
+		samsung,vl-hsp;
+		samsung,vl-vsp;
+
+		samsung,vl-bpix = <4>;
+
+		samsung,vl-hspw = <32>;
+		samsung,vl-hbpd = <80>;
+		samsung,vl-hfpd = <48>;
+		samsung,vl-vspw = <5>;
+		samsung,vl-vbpd = <14>;
+		samsung,vl-vfpd = <3>;
+		samsung,vl-cmd-allow-len = <0xf>;
+
+		samsung,winid = <0>;
+		samsung,interface-mode = <1>;
+		samsung,dp-enabled = <1>;
+		samsung,dual-lcd-enabled = <0>;
+	};
+
+	dp@145b0000 {
+		samsung,lt-status = <0>;
+
+		samsung,master-mode = <0>;
+		samsung,bist-mode = <0>;
+		samsung,bist-pattern = <0>;
+		samsung,h-sync-polarity = <0>;
+		samsung,v-sync-polarity = <0>;
+		samsung,interlaced = <0>;
+		samsung,color-space = <0>;
+		samsung,dynamic-range = <0>;
+		samsung,ycbcr-coeff = <0>;
+		samsung,color-depth = <1>;
+	};
+
 };

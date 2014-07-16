@@ -104,21 +104,22 @@ void os_exit(int exit_code)
 
 /* Restore tty state when we exit */
 static struct termios orig_term;
+static bool term_setup;
 
 static void os_fd_restore(void)
 {
-	tcsetattr(0, TCSANOW, &orig_term);
+	if (term_setup)
+		tcsetattr(0, TCSANOW, &orig_term);
 }
 
 /* Put tty into raw mode so <tab> and <ctrl+c> work */
-void os_tty_raw(int fd)
+void os_tty_raw(int fd, bool allow_sigs)
 {
-	static int setup = 0;
 	struct termios term;
 
-	if (setup)
+	if (term_setup)
 		return;
-	setup = 1;
+	term_setup = true;
 
 	/* If not a tty, don't complain */
 	if (tcgetattr(fd, &orig_term))
@@ -128,7 +129,7 @@ void os_tty_raw(int fd)
 	term.c_iflag = IGNBRK | IGNPAR;
 	term.c_oflag = OPOST | ONLCR;
 	term.c_cflag = CS8 | CREAD | CLOCAL;
-	term.c_lflag = 0;
+	term.c_lflag = allow_sigs ? ISIG : 0;
 	if (tcsetattr(fd, TCSANOW, &term))
 		return;
 
@@ -340,6 +341,7 @@ int os_dirent_ls(const char *dirname, struct os_dirent_node **headp)
 			ret = -ENOMEM;
 			goto done;
 		}
+		next->next = NULL;
 		strcpy(next->name, entry.d_name);
 		switch (entry.d_type) {
 		case DT_REG:
@@ -442,4 +444,94 @@ int os_read_ram_buf(const char *fname)
 		return -EIO;
 
 	return 0;
+}
+
+static int make_exec(char *fname, const void *data, int size)
+{
+	int fd;
+
+	strcpy(fname, "/tmp/u-boot.jump.XXXXXX");
+	fd = mkstemp(fname);
+	if (fd < 0)
+		return -ENOENT;
+	if (write(fd, data, size) < 0)
+		return -EIO;
+	close(fd);
+	if (chmod(fname, 0777))
+		return -ENOEXEC;
+
+	return 0;
+}
+
+static int add_args(char ***argvp, const char *add_args[], int count)
+{
+	char **argv;
+	int argc;
+
+	for (argv = *argvp, argc = 0; (*argvp)[argc]; argc++)
+		;
+
+	argv = malloc((argc + count + 1) * sizeof(char *));
+	if (!argv) {
+		printf("Out of memory for %d argv\n", count);
+		return -ENOMEM;
+	}
+	memcpy(argv, *argvp, argc * sizeof(char *));
+	memcpy(argv + argc, add_args, count * sizeof(char *));
+	argv[argc + count] = NULL;
+
+	*argvp = argv;
+	return 0;
+}
+
+int os_jump_to_image(const void *dest, int size)
+{
+	struct sandbox_state *state = state_get_current();
+	char fname[30], mem_fname[30];
+	int fd, err;
+	const char *extra_args[5];
+	char **argv = state->argv;
+#ifdef DEBUG
+	int argc, i;
+#endif
+
+	err = make_exec(fname, dest, size);
+	if (err)
+		return err;
+
+	strcpy(mem_fname, "/tmp/u-boot.mem.XXXXXX");
+	fd = mkstemp(mem_fname);
+	if (fd < 0)
+		return -ENOENT;
+	close(fd);
+	err = os_write_ram_buf(mem_fname);
+	if (err)
+		return err;
+
+	os_fd_restore();
+
+	extra_args[0] = "-j";
+	extra_args[1] = fname;
+	extra_args[2] = "-m";
+	extra_args[3] = mem_fname;
+	extra_args[4] = "--rm_memory";
+	err = add_args(&argv, extra_args,
+		       sizeof(extra_args) / sizeof(extra_args[0]));
+	if (err)
+		return err;
+
+#ifdef DEBUG
+	for (i = 0; argv[i]; i++)
+		printf("%d %s\n", i, argv[i]);
+#endif
+
+	if (state_uninit())
+		os_exit(2);
+
+	err = execv(fname, argv);
+	free(argv);
+	if (err)
+		return err;
+
+	return unlink(fname);
 }

@@ -17,6 +17,9 @@
 #include <atmel_mci.h>
 #include <net.h>
 #include <netdev.h>
+#include <spl.h>
+#include <asm/arch/atmel_mpddrc.h>
+#include <asm/arch/at91_wdt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -126,5 +129,89 @@ int board_mmc_init(bd_t *bis)
 	atmel_mci_init((void *)ATMEL_BASE_MCI0);
 
 	return 0;
+}
+#endif
+
+/* SPL */
+#ifdef CONFIG_SPL_BUILD
+void spl_board_init(void)
+{
+#ifdef CONFIG_SYS_USE_MMC
+	sama5d3_xplained_mci0_hw_init();
+#elif CONFIG_SYS_USE_NANDFLASH
+	sama5d3_xplained_nand_hw_init();
+#endif
+}
+
+static void ddr2_conf(struct atmel_mpddr *ddr2)
+{
+	ddr2->md = (ATMEL_MPDDRC_MD_DBW_32_BITS | ATMEL_MPDDRC_MD_DDR2_SDRAM);
+
+	ddr2->cr = (ATMEL_MPDDRC_CR_NC_COL_10 |
+		    ATMEL_MPDDRC_CR_NR_ROW_14 |
+		    ATMEL_MPDDRC_CR_CAS_DDR_CAS3 |
+		    ATMEL_MPDDRC_CR_ENRDM_ON |
+		    ATMEL_MPDDRC_CR_NB_8BANKS |
+		    ATMEL_MPDDRC_CR_NDQS_DISABLED |
+		    ATMEL_MPDDRC_CR_DECOD_INTERLEAVED |
+		    ATMEL_MPDDRC_CR_UNAL_SUPPORTED);
+	/*
+	 * As the DDR2-SDRAm device requires a refresh time is 7.8125us
+	 * when DDR run at 133MHz, so it needs (7.8125us * 133MHz / 10^9) clocks
+	 */
+	ddr2->rtr = 0x411;
+
+	ddr2->tpr0 = (6 << ATMEL_MPDDRC_TPR0_TRAS_OFFSET |
+		      2 << ATMEL_MPDDRC_TPR0_TRCD_OFFSET |
+		      2 << ATMEL_MPDDRC_TPR0_TWR_OFFSET |
+		      8 << ATMEL_MPDDRC_TPR0_TRC_OFFSET |
+		      2 << ATMEL_MPDDRC_TPR0_TRP_OFFSET |
+		      2 << ATMEL_MPDDRC_TPR0_TRRD_OFFSET |
+		      2 << ATMEL_MPDDRC_TPR0_TWTR_OFFSET |
+		      2 << ATMEL_MPDDRC_TPR0_TMRD_OFFSET);
+
+	ddr2->tpr1 = (2 << ATMEL_MPDDRC_TPR1_TXP_OFFSET |
+		      200 << ATMEL_MPDDRC_TPR1_TXSRD_OFFSET |
+		      28 << ATMEL_MPDDRC_TPR1_TXSNR_OFFSET |
+		      26 << ATMEL_MPDDRC_TPR1_TRFC_OFFSET);
+
+	ddr2->tpr2 = (7 << ATMEL_MPDDRC_TPR2_TFAW_OFFSET |
+		      2 << ATMEL_MPDDRC_TPR2_TRTP_OFFSET |
+		      2 << ATMEL_MPDDRC_TPR2_TRPA_OFFSET |
+		      7 << ATMEL_MPDDRC_TPR2_TXARDS_OFFSET |
+		      8 << ATMEL_MPDDRC_TPR2_TXARD_OFFSET);
+}
+
+void mem_init(void)
+{
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
+	struct atmel_mpddr ddr2;
+
+	ddr2_conf(&ddr2);
+
+	/* enable MPDDR clock */
+	at91_periph_clk_enable(ATMEL_ID_MPDDRC);
+	writel(0x4, &pmc->scer);
+
+	/* DDRAM2 Controller initialize */
+	ddr2_init(ATMEL_BASE_DDRCS, &ddr2);
+}
+
+void at91_pmc_init(void)
+{
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
+	u32 tmp;
+
+	tmp = AT91_PMC_PLLAR_29 |
+	      AT91_PMC_PLLXR_PLLCOUNT(0x3f) |
+	      AT91_PMC_PLLXR_MUL(43) |
+	      AT91_PMC_PLLXR_DIV(1);
+	at91_plla_init(tmp);
+
+	writel(0x3 << 8, &pmc->pllicpr);
+
+	tmp = AT91_PMC_MCKR_MDIV_4 |
+	      AT91_PMC_MCKR_CSS_PLLA;
+	at91_mck_init(tmp);
 }
 #endif

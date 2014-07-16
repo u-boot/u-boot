@@ -24,6 +24,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <malloc.h>
 #include <mmc.h>
 #include <part.h>
 #include <i2c.h>
@@ -35,14 +36,25 @@
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sys_proto.h>
 
+/* simplify defines to OMAP_HSMMC_USE_GPIO */
+#if (defined(CONFIG_OMAP_GPIO) && !defined(CONFIG_SPL_BUILD)) || \
+	(defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_GPIO_SUPPORT))
+#define OMAP_HSMMC_USE_GPIO
+#else
+#undef OMAP_HSMMC_USE_GPIO
+#endif
+
 /* common definitions for all OMAPs */
 #define SYSCTL_SRC	(1 << 25)
 #define SYSCTL_SRD	(1 << 26)
 
 struct omap_hsmmc_data {
 	struct hsmmc *base_addr;
+	struct mmc_config cfg;
+#ifdef OMAP_HSMMC_USE_GPIO
 	int cd_gpio;
 	int wp_gpio;
+#endif
 };
 
 /* If we fail after 1 second wait, something is really bad */
@@ -51,11 +63,8 @@ struct omap_hsmmc_data {
 static int mmc_read_data(struct hsmmc *mmc_base, char *buf, unsigned int size);
 static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
 			unsigned int siz);
-static struct mmc hsmmc_dev[3];
-static struct omap_hsmmc_data hsmmc_dev_data[3];
 
-#if (defined(CONFIG_OMAP_GPIO) && !defined(CONFIG_SPL_BUILD)) || \
-	(defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_GPIO_SUPPORT))
+#ifdef OMAP_HSMMC_USE_GPIO
 static int omap_mmc_setup_gpio_in(int gpio, const char *label)
 {
 	if (!gpio_is_valid(gpio))
@@ -69,26 +78,6 @@ static int omap_mmc_setup_gpio_in(int gpio, const char *label)
 
 	return gpio;
 }
-
-static int omap_mmc_getcd(struct mmc *mmc)
-{
-	int cd_gpio = ((struct omap_hsmmc_data *)mmc->priv)->cd_gpio;
-	return gpio_get_value(cd_gpio);
-}
-
-static int omap_mmc_getwp(struct mmc *mmc)
-{
-	int wp_gpio = ((struct omap_hsmmc_data *)mmc->priv)->wp_gpio;
-	return gpio_get_value(wp_gpio);
-}
-#else
-static inline int omap_mmc_setup_gpio_in(int gpio, const char *label)
-{
-	return -1;
-}
-
-#define omap_mmc_getcd NULL
-#define omap_mmc_getwp NULL
 #endif
 
 #if defined(CONFIG_OMAP44XX) && defined(CONFIG_TWL6030_POWER)
@@ -158,7 +147,7 @@ unsigned char mmc_board_init(struct mmc *mmc)
 		&t2_base->devconf1);
 
 	/* Change from default of 52MHz to 26MHz if necessary */
-	if (!(mmc->host_caps & MMC_MODE_HS_52MHz))
+	if (!(mmc->cfg->host_caps & MMC_MODE_HS_52MHz))
 		writel(readl(&t2_base->ctl_prog_io1) & ~CTLPROGIO1SPEEDCTRL,
 			&t2_base->ctl_prog_io1);
 
@@ -213,7 +202,7 @@ void mmc_init_stream(struct hsmmc *mmc_base)
 }
 
 
-static int mmc_init_setup(struct mmc *mmc)
+static int omap_hsmmc_init_setup(struct mmc *mmc)
 {
 	struct hsmmc *mmc_base;
 	unsigned int reg_val;
@@ -322,7 +311,7 @@ static void mmc_reset_controller_fsm(struct hsmmc *mmc_base, u32 bit)
 	}
 }
 
-static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
+static int omap_hsmmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			struct mmc_data *data)
 {
 	struct hsmmc *mmc_base;
@@ -552,7 +541,7 @@ static int mmc_write_data(struct hsmmc *mmc_base, const char *buf,
 	return 0;
 }
 
-static void mmc_set_ios(struct mmc *mmc)
+static void omap_hsmmc_set_ios(struct mmc *mmc)
 {
 	struct hsmmc *mmc_base;
 	unsigned int dsor = 0;
@@ -606,19 +595,58 @@ static void mmc_set_ios(struct mmc *mmc)
 	writel(readl(&mmc_base->sysctl) | CEN_ENABLE, &mmc_base->sysctl);
 }
 
+#ifdef OMAP_HSMMC_USE_GPIO
+static int omap_hsmmc_getcd(struct mmc *mmc)
+{
+	struct omap_hsmmc_data *priv_data = mmc->priv;
+	int cd_gpio;
+
+	/* if no CD return as 1 */
+	cd_gpio = priv_data->cd_gpio;
+	if (cd_gpio < 0)
+		return 1;
+
+	return gpio_get_value(cd_gpio);
+}
+
+static int omap_hsmmc_getwp(struct mmc *mmc)
+{
+	struct omap_hsmmc_data *priv_data = mmc->priv;
+	int wp_gpio;
+
+	/* if no WP return as 0 */
+	wp_gpio = priv_data->wp_gpio;
+	if (wp_gpio < 0)
+		return 0;
+
+	return gpio_get_value(wp_gpio);
+}
+#endif
+
+static const struct mmc_ops omap_hsmmc_ops = {
+	.send_cmd	= omap_hsmmc_send_cmd,
+	.set_ios	= omap_hsmmc_set_ios,
+	.init		= omap_hsmmc_init_setup,
+#ifdef OMAP_HSMMC_USE_GPIO
+	.getcd		= omap_hsmmc_getcd,
+	.getwp		= omap_hsmmc_getwp,
+#endif
+};
+
 int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 		int wp_gpio)
 {
-	struct mmc *mmc = &hsmmc_dev[dev_index];
-	struct omap_hsmmc_data *priv_data = &hsmmc_dev_data[dev_index];
-	uint host_caps_val = MMC_MODE_4BIT | MMC_MODE_HS_52MHz | MMC_MODE_HS |
-			     MMC_MODE_HC;
+	struct mmc *mmc;
+	struct omap_hsmmc_data *priv_data;
+	struct mmc_config *cfg;
+	uint host_caps_val;
 
-	sprintf(mmc->name, "OMAP SD/MMC");
-	mmc->send_cmd = mmc_send_cmd;
-	mmc->set_ios = mmc_set_ios;
-	mmc->init = mmc_init_setup;
-	mmc->priv = priv_data;
+	priv_data = malloc(sizeof(*priv_data));
+	if (priv_data == NULL)
+		return -1;
+
+	host_caps_val = MMC_MODE_4BIT | MMC_MODE_HS_52MHz | MMC_MODE_HS |
+			     MMC_MODE_HC;
 
 	switch (dev_index) {
 	case 0:
@@ -647,42 +675,46 @@ int omap_mmc_init(int dev_index, uint host_caps_mask, uint f_max, int cd_gpio,
 		priv_data->base_addr = (struct hsmmc *)OMAP_HSMMC1_BASE;
 		return 1;
 	}
+#ifdef OMAP_HSMMC_USE_GPIO
+	/* on error gpio values are set to -1, which is what we want */
 	priv_data->cd_gpio = omap_mmc_setup_gpio_in(cd_gpio, "mmc_cd");
-	if (priv_data->cd_gpio != -1)
-		mmc->getcd = omap_mmc_getcd;
-
 	priv_data->wp_gpio = omap_mmc_setup_gpio_in(wp_gpio, "mmc_wp");
-	if (priv_data->wp_gpio != -1)
-		mmc->getwp = omap_mmc_getwp;
+#endif
 
-	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
-	mmc->host_caps = host_caps_val & ~host_caps_mask;
+	cfg = &priv_data->cfg;
 
-	mmc->f_min = 400000;
+	cfg->name = "OMAP SD/MMC";
+	cfg->ops = &omap_hsmmc_ops;
+
+	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34 | MMC_VDD_165_195;
+	cfg->host_caps = host_caps_val & ~host_caps_mask;
+
+	cfg->f_min = 400000;
 
 	if (f_max != 0)
-		mmc->f_max = f_max;
+		cfg->f_max = f_max;
 	else {
-		if (mmc->host_caps & MMC_MODE_HS) {
-			if (mmc->host_caps & MMC_MODE_HS_52MHz)
-				mmc->f_max = 52000000;
+		if (cfg->host_caps & MMC_MODE_HS) {
+			if (cfg->host_caps & MMC_MODE_HS_52MHz)
+				cfg->f_max = 52000000;
 			else
-				mmc->f_max = 26000000;
+				cfg->f_max = 26000000;
 		} else
-			mmc->f_max = 20000000;
+			cfg->f_max = 20000000;
 	}
 
-	mmc->b_max = 0;
+	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
 #if defined(CONFIG_OMAP34XX)
 	/*
 	 * Silicon revs 2.1 and older do not support multiblock transfers.
 	 */
 	if ((get_cpu_family() == CPU_OMAP34XX) && (get_cpu_rev() <= CPU_3XX_ES21))
-		mmc->b_max = 1;
+		cfg->b_max = 1;
 #endif
-
-	mmc_register(mmc);
+	mmc = mmc_create(cfg, priv_data);
+	if (mmc == NULL)
+		return -1;
 
 	return 0;
 }

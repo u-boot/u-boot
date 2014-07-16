@@ -1,0 +1,83 @@
+U-Boot for the Gateworks Ventana Product Family boards
+
+This file contains information for the port of U-Boot to the Gateworks
+Ventana Product family boards.
+
+1. Secondary Program Loader (SPL)
+---------------------------------
+
+The i.MX6 has a BOOT ROM PPL (Primary Program Loader) which supports loading
+an executable image from various boot devices.
+
+The Gateworks Ventana board config uses an SPL build configuration. This
+will build the following artifacts from u-boot source:
+ - SPL - Secondary Program Loader that the i.MX6 BOOT ROM (Primary Program
+         Loader) boots.  This detects CPU/DRAM configuration, configures
+         The DRAM controller, loads u-boot.img from the detected boot device,
+         and jumps to it.  As this is booted from the PPL, it has an IVT/DCD
+         table.
+ - u-boot.img - The main u-boot core which is u-boot.bin with a image header.
+
+
+2. Build
+--------
+
+To build U-Boot for the Gateworks Ventana product family:
+
+ make gwventana_config
+ make
+
+
+3. Boot source, boot from NAND
+------------------------------
+
+The i.MX6 BOOT ROM expects some structures that provide details of NAND layout
+and bad block information (referred to as 'bootstreams') which are replicated
+multiple times in NAND. The number of replications and their spacing (referred
+to as search stride) is configurable through board strapping options and/or
+eFUSE settings (BOOT_SEARCH_COUNT / Pages in block from BOOT_CFG2). In
+addition, the i.MX6 BOOT ROM Flash Configuration Block (FCB) supports two
+copies of a bootloader in flash in the case that a bad block has corrupted one.
+The Freescale 'kobs-ng' application from the Freescale LTIB BSP, which runs
+under Linux and operates on an MTD partition, must be used to program the
+bootstream in order to setup this flash structure correctly.
+
+The Gateworks Ventana boards with NAND flash have been factory programmed
+such that their eFUSE settings expect 2 copies of the boostream (this is
+specified by providing kobs-ng with the --search_exponent=1 argument). Once in
+Linux with MTD support for the NAND on /dev/mtd0 you can program the SPL
+with:
+
+kobs-ng init -v -x --search_exponent=1 SPL
+
+The kobs-ng application uses an imximage which contains the Image Vector Table
+(IVT) and Device Configuration Data (DCD) structures that the i.MX6 BOOT ROM
+requires to boot.  The kobs-ng adds the Firmware Configuration Block (FCB) and
+Discovered Bad Block Table (DBBT).  The SPL build artifact from u-boot is
+an imximage.
+
+The u-boot.img, which is the non SPL u-boot binary appended to a u-boot image
+header must be programmed in the NAND flash boot device at an offset hard
+coded in the SPL. For the Ventana boards, this has been chosen to be 14MB.
+The image can be programmed from either u-boot or Linux:
+
+u-boot:
+Ventana > setenv mtdparts mtdparts=nand:14m(spl),2m(uboot),1m(env),-(rootfs)
+Ventana > tftp ${loadaddr} u-boot.img && nand erase.part uboot && \
+          nand write ${loadaddr} uboot ${filesize}
+
+Linux:
+nandwrite /dev/mtd1 u-boot.img
+
+The above assumes the default Ventana partitioning scheme which is configured
+via the mtdparts env var:
+ - spl: 14MB
+ - uboot: 2M
+ - env: 1M
+ - rootfs: the rest
+
+This information is taken from:
+  http://trac.gateworks.com/wiki/ventana/bootloader#NANDFLASH
+
+More details about the i.MX6 BOOT ROM can be found in the IMX6 reference manual.
+

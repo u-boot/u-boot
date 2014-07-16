@@ -102,32 +102,25 @@ void AT91F_SpiEnable(int cs)
 {
 	unsigned long mode;
 
+	mode = readl(ATMEL_BASE_SPI0 + AT91_SPI_MR);
+	mode &= ~AT91_SPI_PCS;
+
 	switch (cs) {
-	case 0:	/* Configure SPI CS0 for Serial DataFlash AT45DBxx */
-		mode = readl(ATMEL_BASE_SPI0 + AT91_SPI_MR);
-		mode &= 0xFFF0FFFF;
-		writel(mode | ((AT91_SPI_PCS0_DATAFLASH_CARD<<16) & AT91_SPI_PCS),
-		       ATMEL_BASE_SPI0 + AT91_SPI_MR);
+	case 0:
+		mode |= AT91_SPI_PCS0_DATAFLASH_CARD << 16;
 		break;
-	case 1:	/* Configure SPI CS1 for Serial DataFlash AT45DBxx */
-		mode = readl(ATMEL_BASE_SPI0 + AT91_SPI_MR);
-		mode &= 0xFFF0FFFF;
-		writel(mode | ((AT91_SPI_PCS1_DATAFLASH_CARD<<16) & AT91_SPI_PCS),
-		       ATMEL_BASE_SPI0 + AT91_SPI_MR);
+	case 1:
+		mode |= AT91_SPI_PCS1_DATAFLASH_CARD << 16;
 		break;
-	case 2:	/* Configure SPI CS2 for Serial DataFlash AT45DBxx */
-		mode = readl(ATMEL_BASE_SPI0 + AT91_SPI_MR);
-		mode &= 0xFFF0FFFF;
-		writel(mode | ((AT91_SPI_PCS2_DATAFLASH_CARD<<16) & AT91_SPI_PCS),
-		       ATMEL_BASE_SPI0 + AT91_SPI_MR);
+	case 2:
+		mode |= AT91_SPI_PCS2_DATAFLASH_CARD << 16;
 		break;
 	case 3:
-		mode = readl(ATMEL_BASE_SPI0 + AT91_SPI_MR);
-		mode &= 0xFFF0FFFF;
-		writel(mode | ((AT91_SPI_PCS3_DATAFLASH_CARD<<16) & AT91_SPI_PCS),
-		       ATMEL_BASE_SPI0 + AT91_SPI_MR);
+		mode |= AT91_SPI_PCS3_DATAFLASH_CARD << 16;
 		break;
 	}
+
+	writel(mode, ATMEL_BASE_SPI0 + AT91_SPI_MR);
 
 	/* SPI_Enable */
 	writel(AT91_SPI_SPIEN, ATMEL_BASE_SPI0 + AT91_SPI_CR);

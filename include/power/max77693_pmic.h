@@ -10,8 +10,6 @@
 
 #include <power/power_chrg.h>
 
-enum {CHARGER_ENABLE, CHARGER_DISABLE};
-
 #define CHARGER_MIN_CURRENT 200
 #define CHARGER_MAX_CURRENT 2000
 

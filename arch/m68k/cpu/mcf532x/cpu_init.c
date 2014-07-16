@@ -208,10 +208,10 @@ void cpu_init_f(void)
 	scm2_t *scm2 = (scm2_t *) MMAP_SCM2;
 	gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 	fbcs_t *fbcs = (fbcs_t *) MMAP_FBCS;
+#ifndef CONFIG_WATCHDOG
 	wdog_t *wdog = (wdog_t *) MMAP_WDOG;
 
 	/* watchdog is enabled by default - disable the watchdog */
-#ifndef CONFIG_WATCHDOG
 	out_be16(&wdog->cr, 0);
 #endif
 

@@ -55,7 +55,7 @@ static void dump_cmd(u32 cmdr, u32 arg, u32 status, const char* msg)
 /* Setup for MCI Clock and Block Size */
 static void mci_set_mode(struct mmc *mmc, u32 hz, u32 blklen)
 {
-	atmel_mci_t *mci = (atmel_mci_t *)mmc->priv;
+	atmel_mci_t *mci = mmc->priv;
 	u32 bus_hz = get_mci_clk_rate();
 	u32 clkdiv = 255;
 
@@ -165,7 +165,7 @@ io_fail:
 static int
 mci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 {
-	atmel_mci_t *mci = (atmel_mci_t *)mmc->priv;
+	atmel_mci_t *mci = mmc->priv;
 	u32 cmdr;
 	u32 error_flags = 0;
 	u32 status;
@@ -243,9 +243,10 @@ mci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 #ifdef DEBUG
 			if (data->flags & MMC_DATA_READ)
 			{
+				u32 cnt = word_count * 4;
 				printf("Read Data:\n");
-				print_buffer(0, data->dest, 1,
-					word_count*4, 0);
+				print_buffer(0, data->dest + cnt * block_count,
+					     1, cnt, 0);
 			}
 #endif
 #ifdef DEBUG
@@ -289,7 +290,7 @@ mci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 /* Entered into mmc structure during driver init */
 static void mci_set_ios(struct mmc *mmc)
 {
-	atmel_mci_t *mci = (atmel_mci_t *)mmc->priv;
+	atmel_mci_t *mci = mmc->priv;
 	int bus_width = mmc->bus_width;
 	unsigned int version = atmel_mci_get_version(mci);
 	int busw;
@@ -325,7 +326,7 @@ static void mci_set_ios(struct mmc *mmc)
 /* Entered into mmc structure during driver init */
 static int mci_init(struct mmc *mmc)
 {
-	atmel_mci_t *mci = (atmel_mci_t *)mmc->priv;
+	atmel_mci_t *mci = mmc->priv;
 
 	/* Initialize controller */
 	writel(MMCI_BIT(SWRST), &mci->cr);	/* soft reset */
@@ -344,6 +345,12 @@ static int mci_init(struct mmc *mmc)
 	return 0;
 }
 
+static const struct mmc_ops atmel_mci_ops = {
+	.send_cmd	= mci_send_cmd,
+	.set_ios	= mci_set_ios,
+	.init		= mci_init,
+};
+
 /*
  * This is the only exported function
  *
@@ -351,40 +358,45 @@ static int mci_init(struct mmc *mmc)
  */
 int atmel_mci_init(void *regs)
 {
-	struct mmc *mmc = malloc(sizeof(struct mmc));
+	struct mmc *mmc;
+	struct mmc_config *cfg;
 	struct atmel_mci *mci;
 	unsigned int version;
 
-	if (!mmc)
+	cfg = malloc(sizeof(*cfg));
+	if (cfg == NULL)
 		return -1;
+	memset(cfg, 0, sizeof(*cfg));
 
-	strcpy(mmc->name, "mci");
-	mmc->priv = regs;
-	mmc->send_cmd = mci_send_cmd;
-	mmc->set_ios = mci_set_ios;
-	mmc->init = mci_init;
-	mmc->getcd = NULL;
-	mmc->getwp = NULL;
+	mci = (struct atmel_mci *)regs;
+
+	cfg->name = "mci";
+	cfg->ops = &atmel_mci_ops;
 
 	/* need to be able to pass these in on a board by board basis */
-	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
-	mci = (struct atmel_mci *)mmc->priv;
+	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 	version = atmel_mci_get_version(mci);
 	if ((version & 0xf00) >= 0x300)
-		mmc->host_caps = MMC_MODE_8BIT;
+		cfg->host_caps = MMC_MODE_8BIT;
 
-	mmc->host_caps |= MMC_MODE_4BIT;
+	cfg->host_caps |= MMC_MODE_4BIT;
 
 	/*
 	 * min and max frequencies determined by
 	 * max and min of clock divider
 	 */
-	mmc->f_min = get_mci_clk_rate() / (2*256);
-	mmc->f_max = get_mci_clk_rate() / (2*1);
+	cfg->f_min = get_mci_clk_rate() / (2*256);
+	cfg->f_max = get_mci_clk_rate() / (2*1);
 
-	mmc->b_max = 0;
+	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
-	mmc_register(mmc);
+	mmc = mmc_create(cfg, regs);
+
+	if (mmc == NULL) {
+		free(cfg);
+		return -1;
+	}
+	/* NOTE: possibly leaking the cfg structure */
 
 	return 0;
 }

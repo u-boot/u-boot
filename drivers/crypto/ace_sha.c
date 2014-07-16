@@ -5,10 +5,12 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
-#include <sha256.h>
-#include <sha1.h>
-#include <asm/errno.h>
 #include "ace_sha.h"
+
+#ifdef CONFIG_SHA_HW_ACCEL
+#include <u-boot/sha256.h>
+#include <u-boot/sha1.h>
+#include <asm/errno.h>
 
 /* SHA1 value for the message of zero length */
 static const unsigned char sha1_digest_emptymsg[SHA1_SUM_LEN] = {
@@ -111,3 +113,72 @@ void hw_sha1(const unsigned char *pbuf, unsigned int buf_len,
 	if (ace_sha_hash_digest(pbuf, buf_len, pout, ACE_SHA_TYPE_SHA1))
 		debug("ACE was not setup properly or it is faulty\n");
 }
+#endif /* CONFIG_SHA_HW_ACCEL */
+
+#ifdef CONFIG_LIB_HW_RAND
+static unsigned int seed_done;
+
+void srand(unsigned int seed)
+{
+	struct exynos_ace_sfr *reg =
+		(struct exynos_ace_sfr *)samsung_get_base_ace_sfr();
+	int i, status;
+
+	/* Seed data */
+	for (i = 0; i < ACE_HASH_PRNG_REG_NUM; i++)
+		writel(seed << i, &reg->hash_seed[i]);
+
+	/* Wait for seed setup done */
+	while (1) {
+		status = readl(&reg->hash_status);
+		if ((status & ACE_HASH_SEEDSETTING_MASK) ||
+		    (status & ACE_HASH_PRNGERROR_MASK))
+			break;
+	}
+
+	seed_done = 1;
+}
+
+unsigned int rand(void)
+{
+	struct exynos_ace_sfr *reg =
+		(struct exynos_ace_sfr *)samsung_get_base_ace_sfr();
+	int i, status;
+	unsigned int seed = (unsigned int)&status;
+	unsigned int ret = 0;
+
+	if (!seed_done)
+		srand(seed);
+
+	/* Start PRNG */
+	writel(ACE_HASH_ENGSEL_PRNG | ACE_HASH_STARTBIT_ON, &reg->hash_control);
+
+	/* Wait for PRNG done */
+	while (1) {
+		status = readl(&reg->hash_status);
+		if (status & ACE_HASH_PRNGDONE_MASK)
+			break;
+		if (status & ACE_HASH_PRNGERROR_MASK) {
+			seed_done = 0;
+			return 0;
+		}
+	}
+
+	/* Clear Done IRQ */
+	writel(ACE_HASH_PRNGDONE_MASK, &reg->hash_status);
+
+	/* Read a PRNG result */
+	for (i = 0; i < ACE_HASH_PRNG_REG_NUM; i++)
+		ret += readl(&reg->hash_prng[i]);
+
+	seed_done = 0;
+	return ret;
+}
+
+unsigned int rand_r(unsigned int *seedp)
+{
+	srand(*seedp);
+
+	return rand();
+}
+#endif /* CONFIG_LIB_HW_RAND */

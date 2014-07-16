@@ -24,6 +24,7 @@
 #include <linux/usb/composite.h>
 
 #include <dfu.h>
+#include <g_dnl.h>
 #include "f_dfu.h"
 
 struct f_dfu {
@@ -164,15 +165,29 @@ static void dnload_request_complete(struct usb_ep *ep, struct usb_request *req)
 
 	dfu_write(dfu_get_entity(f_dfu->altsetting), req->buf,
 		  req->length, f_dfu->blk_seq_num);
+}
 
-	if (req->length == 0)
-		puts("DOWNLOAD ... OK\nCtrl+C to exit ...\n");
+static void dnload_request_flush(struct usb_ep *ep, struct usb_request *req)
+{
+	struct f_dfu *f_dfu = req->context;
+
+	dfu_flush(dfu_get_entity(f_dfu->altsetting), req->buf,
+		  req->length, f_dfu->blk_seq_num);
+}
+
+static inline int dfu_get_manifest_timeout(struct dfu_entity *dfu)
+{
+	return dfu->poll_timeout ? dfu->poll_timeout(dfu) :
+		DFU_MANIFEST_POLL_TIMEOUT;
 }
 
 static void handle_getstatus(struct usb_request *req)
 {
 	struct dfu_status *dstat = (struct dfu_status *)req->buf;
 	struct f_dfu *f_dfu = req->context;
+	struct dfu_entity *dfu = dfu_get_entity(f_dfu->altsetting);
+
+	dfu_set_poll_timeout(dstat, 0);
 
 	switch (f_dfu->dfu_state) {
 	case DFU_STATE_dfuDNLOAD_SYNC:
@@ -180,12 +195,14 @@ static void handle_getstatus(struct usb_request *req)
 		f_dfu->dfu_state = DFU_STATE_dfuDNLOAD_IDLE;
 		break;
 	case DFU_STATE_dfuMANIFEST_SYNC:
+		f_dfu->dfu_state = DFU_STATE_dfuMANIFEST;
+		break;
+	case DFU_STATE_dfuMANIFEST:
+		dfu_set_poll_timeout(dstat, dfu_get_manifest_timeout(dfu));
 		break;
 	default:
 		break;
 	}
-
-	dfu_set_poll_timeout(dstat, 0);
 
 	if (f_dfu->poll_timeout)
 		if (!(f_dfu->blk_seq_num %
@@ -446,10 +463,11 @@ static int state_dfu_manifest_sync(struct f_dfu *f_dfu,
 	switch (ctrl->bRequest) {
 	case USB_REQ_DFU_GETSTATUS:
 		/* We're MainfestationTolerant */
-		f_dfu->dfu_state = DFU_STATE_dfuIDLE;
+		f_dfu->dfu_state = DFU_STATE_dfuMANIFEST;
 		handle_getstatus(req);
 		f_dfu->blk_seq_num = 0;
 		value = RET_STAT_LEN;
+		req->complete = dnload_request_flush;
 		break;
 	case USB_REQ_DFU_GETSTATE:
 		handle_getstate(req);
@@ -460,6 +478,33 @@ static int state_dfu_manifest_sync(struct f_dfu *f_dfu,
 		break;
 	}
 
+	return value;
+}
+
+static int state_dfu_manifest(struct f_dfu *f_dfu,
+			      const struct usb_ctrlrequest *ctrl,
+			      struct usb_gadget *gadget,
+			      struct usb_request *req)
+{
+	int value = 0;
+
+	switch (ctrl->bRequest) {
+	case USB_REQ_DFU_GETSTATUS:
+		/* We're MainfestationTolerant */
+		f_dfu->dfu_state = DFU_STATE_dfuIDLE;
+		handle_getstatus(req);
+		f_dfu->blk_seq_num = 0;
+		value = RET_STAT_LEN;
+		puts("DOWNLOAD ... OK\nCtrl+C to exit ...\n");
+		break;
+	case USB_REQ_DFU_GETSTATE:
+		handle_getstate(req);
+		break;
+	default:
+		f_dfu->dfu_state = DFU_STATE_dfuERROR;
+		value = RET_STALL;
+		break;
+	}
 	return value;
 }
 
@@ -539,7 +584,7 @@ static dfu_state_fn dfu_state[] = {
 	state_dfu_dnbusy,        /* DFU_STATE_dfuDNBUSY */
 	state_dfu_dnload_idle,   /* DFU_STATE_dfuDNLOAD_IDLE */
 	state_dfu_manifest_sync, /* DFU_STATE_dfuMANIFEST_SYNC */
-	NULL,                    /* DFU_STATE_dfuMANIFEST */
+	state_dfu_manifest,	 /* DFU_STATE_dfuMANIFEST */
 	NULL,                    /* DFU_STATE_dfuMANIFEST_WAIT_RST */
 	state_dfu_upload_idle,   /* DFU_STATE_dfuUPLOAD_IDLE */
 	state_dfu_error          /* DFU_STATE_dfuERROR */
@@ -781,3 +826,5 @@ int dfu_add(struct usb_configuration *c)
 
 	return dfu_bind_config(c);
 }
+
+DECLARE_GADGET_BIND_CALLBACK(usb_dnl_dfu, dfu_add);

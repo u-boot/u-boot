@@ -30,6 +30,7 @@ obj-$(CONFIG_FTMAC110) += ftmac110.o
 obj-$(CONFIG_FTMAC100) += ftmac100.o
 obj-$(CONFIG_GRETH) += greth.o
 obj-$(CONFIG_INCA_IP_SWITCH) += inca-ip_sw.o
+obj-$(CONFIG_DRIVER_TI_KEYSTONE_NET) += keystone_net.o
 obj-$(CONFIG_DRIVER_KS8695ETH) += ks8695eth.o
 obj-$(CONFIG_KS8851_MLL) += ks8851_mll.o
 obj-$(CONFIG_LAN91C96) += lan91c96.o
@@ -63,3 +64,4 @@ obj-$(CONFIG_XILINX_EMACLITE) += xilinx_emaclite.o
 obj-$(CONFIG_XILINX_LL_TEMAC) += xilinx_ll_temac.o xilinx_ll_temac_mdio.o \
 		xilinx_ll_temac_fifo.o xilinx_ll_temac_sdma.o
 obj-$(CONFIG_ZYNQ_GEM) += zynq_gem.o
+obj-$(CONFIG_FSL_MC_ENET) += fsl_mc/

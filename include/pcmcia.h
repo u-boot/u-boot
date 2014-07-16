@@ -21,18 +21,7 @@
 
 #if !defined(CONFIG_PCMCIA_SLOT_A) && !defined(CONFIG_PCMCIA_SLOT_B)
 
-					/* The RPX series use SLOT_B	*/
-#if defined(CONFIG_RPXCLASSIC) || defined(CONFIG_RPXLITE)
-# define CONFIG_PCMCIA_SLOT_B
-#elif defined(CONFIG_ADS)		/* The ADS  board uses SLOT_A	*/
-# define CONFIG_PCMCIA_SLOT_A
-#elif defined(CONFIG_FADS)		/* The FADS series are a mess	*/
-# if defined(CONFIG_MPC86x) || defined(CONFIG_MPC821)
-#  define CONFIG_PCMCIA_SLOT_A
-# else
-#  define CONFIG_PCMCIA_SLOT_B
-# endif
-#elif defined(CONFIG_TQM8xxL) || defined(CONFIG_SVM_SC8xx)
+#if defined(CONFIG_TQM8xxL) || defined(CONFIG_SVM_SC8xx)
 # define	CONFIG_PCMCIA_SLOT_B	/* The TQM8xxL use SLOT_B	*/
 #elif defined(CONFIG_SPD823TS)		/* The SPD8xx  use SLOT_B	*/
 # define CONFIG_PCMCIA_SLOT_B
@@ -45,8 +34,6 @@
 #elif defined(CONFIG_R360MPI)		/* The R360MPI use SLOT_B	*/
 # define CONFIG_PCMCIA_SLOT_B
 #elif defined(CONFIG_ATC)		/* The ATC use SLOT_A	*/
-# define CONFIG_PCMCIA_SLOT_A
-#elif defined(CONFIG_NETTA)
 # define CONFIG_PCMCIA_SLOT_A
 #elif defined(CONFIG_UC100)		/* The UC100 use SLOT_B	        */
 # define CONFIG_PCMCIA_SLOT_B

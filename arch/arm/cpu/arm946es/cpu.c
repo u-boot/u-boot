@@ -16,6 +16,7 @@
 #include <common.h>
 #include <command.h>
 #include <asm/system.h>
+#include <asm/io.h>
 
 static void cache_flush(void);
 
@@ -51,3 +52,15 @@ static void cache_flush (void)
 	asm ("mcr p15, 0, %0, c7, c5, 0": :"r" (i));
 	asm ("mcr p15, 0, %0, c7, c6, 0": :"r" (i));
 }
+
+#ifndef CONFIG_INTEGRATOR
+
+__attribute__((noreturn)) void reset_cpu(ulong addr __attribute__((unused)))
+{
+	writew(0x0, 0xfffece10);
+	writew(0x8, 0xfffece10);
+	for (;;)
+		;
+}
+
+#endif	/* #ifdef CONFIG_INTEGRATOR */

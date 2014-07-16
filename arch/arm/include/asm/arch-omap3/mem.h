@@ -344,6 +344,7 @@ enum {
  * MAP  - Map this CS to which address(GPMC address space)- Absolute address
  *   >>24 before being used.
  */
+#define GPMC_SIZE_256M	0x0
 #define GPMC_SIZE_128M	0x8
 #define GPMC_SIZE_64M	0xC
 #define GPMC_SIZE_32M	0xE
@@ -352,14 +353,6 @@ enum {
 #define GPMC_BASEADDR_MASK	0x3F
 
 #define GPMC_CS_ENABLE		0x1
-
-#define SMNAND_GPMC_CONFIG1	0x00000800
-#define SMNAND_GPMC_CONFIG2	0x00141400
-#define SMNAND_GPMC_CONFIG3	0x00141400
-#define SMNAND_GPMC_CONFIG4	0x0F010F01
-#define SMNAND_GPMC_CONFIG5	0x010C1414
-#define SMNAND_GPMC_CONFIG6	0x1F0F0A80
-#define SMNAND_GPMC_CONFIG7	0x00000C44
 
 #define M_NAND_GPMC_CONFIG1	0x00001800
 #define M_NAND_GPMC_CONFIG2	0x00141400

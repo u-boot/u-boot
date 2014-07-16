@@ -13,12 +13,15 @@
 #include <mmc.h>
 #include <fat.h>
 #include <dfu.h>
+#include <hash.h>
 #include <linux/list.h>
 #include <linux/compiler.h>
 
 static bool dfu_reset_request;
 static LIST_HEAD(dfu_list);
 static int dfu_alt_num;
+static int alt_num_cnt;
+static struct hash_algo *dfu_hash_algo;
 
 bool dfu_reset(void)
 {
@@ -98,6 +101,23 @@ unsigned char *dfu_get_buf(void)
 	return dfu_buf;
 }
 
+static char *dfu_get_hash_algo(void)
+{
+	char *s;
+
+	s = getenv("dfu_hash_algo");
+	if (!s)
+		return NULL;
+
+	if (!strcmp(s, "crc32")) {
+		debug("%s: DFU hash method: %s\n", __func__, s);
+		return s;
+	}
+
+	error("DFU hash method: %s not supported!\n", s);
+	return NULL;
+}
+
 static int dfu_write_buffer_drain(struct dfu_entity *dfu)
 {
 	long w_size;
@@ -108,8 +128,9 @@ static int dfu_write_buffer_drain(struct dfu_entity *dfu)
 	if (w_size == 0)
 		return 0;
 
-	/* update CRC32 */
-	dfu->crc = crc32(dfu->crc, dfu->i_buf_start, w_size);
+	if (dfu_hash_algo)
+		dfu_hash_algo->hash_update(dfu_hash_algo, &dfu->crc,
+					   dfu->i_buf_start, w_size, 0);
 
 	ret = dfu->write_medium(dfu, dfu->offset, dfu->i_buf_start, &w_size);
 	if (ret)
@@ -122,6 +143,34 @@ static int dfu_write_buffer_drain(struct dfu_entity *dfu)
 	dfu->offset += w_size;
 
 	puts("#");
+
+	return ret;
+}
+
+int dfu_flush(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
+{
+	int ret = 0;
+
+	ret = dfu_write_buffer_drain(dfu);
+	if (ret)
+		return ret;
+
+	if (dfu->flush_medium)
+		ret = dfu->flush_medium(dfu);
+
+	if (dfu_hash_algo)
+		printf("\nDFU complete %s: 0x%08x\n", dfu_hash_algo->name,
+		       dfu->crc);
+
+	/* clear everything */
+	dfu_free_buf();
+	dfu->crc = 0;
+	dfu->offset = 0;
+	dfu->i_blk_seq_num = 0;
+	dfu->i_buf_start = dfu_buf;
+	dfu->i_buf_end = dfu_buf;
+	dfu->i_buf = dfu->i_buf_start;
+	dfu->inited = 0;
 
 	return ret;
 }
@@ -196,27 +245,7 @@ int dfu_write(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 			ret = tret;
 	}
 
-	/* end? */
-	if (size == 0) {
-		/* Now try and flush to the medium if needed. */
-		if (dfu->flush_medium)
-			ret = dfu->flush_medium(dfu);
-		printf("\nDFU complete CRC32: 0x%08x\n", dfu->crc);
-
-		/* clear everything */
-		dfu_free_buf();
-		dfu->crc = 0;
-		dfu->offset = 0;
-		dfu->i_blk_seq_num = 0;
-		dfu->i_buf_start = dfu_buf;
-		dfu->i_buf_end = dfu_buf;
-		dfu->i_buf = dfu->i_buf_start;
-
-		dfu->inited = 0;
-
-	}
-
-	return ret = 0 ? size : ret;
+	return ret;
 }
 
 static int dfu_read_buffer_fill(struct dfu_entity *dfu, void *buf, int size)
@@ -231,7 +260,11 @@ static int dfu_read_buffer_fill(struct dfu_entity *dfu, void *buf, int size)
 		/* consume */
 		if (chunk > 0) {
 			memcpy(buf, dfu->i_buf, chunk);
-			dfu->crc = crc32(dfu->crc, buf, chunk);
+			if (dfu_hash_algo)
+				dfu_hash_algo->hash_update(dfu_hash_algo,
+							   &dfu->crc, buf,
+							   chunk, 0);
+
 			dfu->i_buf += chunk;
 			dfu->b_left -= chunk;
 			dfu->r_left -= chunk;
@@ -315,7 +348,9 @@ int dfu_read(struct dfu_entity *dfu, void *buf, int size, int blk_seq_num)
 	}
 
 	if (ret < size) {
-		debug("%s: %s CRC32: 0x%x\n", __func__, dfu->name, dfu->crc);
+		if (dfu_hash_algo)
+			debug("%s: %s %s: 0x%x\n", __func__, dfu->name,
+			      dfu_hash_algo->name, dfu->crc);
 		puts("\nUPLOAD ... done\nCtrl+C to exit ...\n");
 
 		dfu_free_buf();
@@ -377,6 +412,8 @@ void dfu_free_entities(void)
 	if (t)
 		free(t);
 	INIT_LIST_HEAD(&dfu_list);
+
+	alt_num_cnt = 0;
 }
 
 int dfu_config_entities(char *env, char *interface, int num)
@@ -388,17 +425,26 @@ int dfu_config_entities(char *env, char *interface, int num)
 	dfu_alt_num = dfu_find_alt_num(env);
 	debug("%s: dfu_alt_num=%d\n", __func__, dfu_alt_num);
 
+	dfu_hash_algo = NULL;
+	s = dfu_get_hash_algo();
+	if (s) {
+		ret = hash_lookup_algo(s, &dfu_hash_algo);
+		if (ret)
+			error("Hash algorithm %s not supported\n", s);
+	}
+
 	dfu = calloc(sizeof(*dfu), dfu_alt_num);
 	if (!dfu)
 		return -1;
 	for (i = 0; i < dfu_alt_num; i++) {
 
 		s = strsep(&env, ";");
-		ret = dfu_fill_entity(&dfu[i], s, i, interface, num);
+		ret = dfu_fill_entity(&dfu[i], s, alt_num_cnt, interface, num);
 		if (ret)
 			return -1;
 
 		list_add_tail(&dfu[i].list, &dfu_list);
+		alt_num_cnt++;
 	}
 
 	return 0;

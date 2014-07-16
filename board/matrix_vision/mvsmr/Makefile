@@ -12,5 +12,7 @@ obj-y	:= mvsmr.o fpga.o
 
 extra-y := bootscript.img
 
+MKIMAGEFLAGS_bootscript.image := -T script -C none -n mvSMR_Script
+
 $(obj)/bootscript.img: $(src)/bootscript
-	@mkimage -T script -C none -n mvSMR_Script -d $< $@
+	$(call cmd,mkimage)

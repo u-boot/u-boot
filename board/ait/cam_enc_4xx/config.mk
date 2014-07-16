@@ -7,7 +7,7 @@
 # (mem base + reserved)
 #
 
-UBL_CONFIG = $(SRCTREE)/board/$(BOARDDIR)/ublimage.cfg
+UBL_CONFIG = $(srctree)/board/$(BOARDDIR)/ublimage.cfg
 ifndef CONFIG_SPL_BUILD
 ALL-y += u-boot.ubl
 else

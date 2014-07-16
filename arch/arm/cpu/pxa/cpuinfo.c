@@ -11,6 +11,12 @@
 #include <errno.h>
 #include <linux/compiler.h>
 
+#ifdef CONFIG_CPU_PXA25X
+#if ((CONFIG_SYS_INIT_SP_ADDR) != 0xfffff800)
+#error "Init SP address must be set to 0xfffff800 for PXA250"
+#endif
+#endif
+
 #define	CPU_MASK_PXA_PRODID	0x000003f0
 #define	CPU_MASK_PXA_REVID	0x0000000f
 

@@ -7,23 +7,30 @@
 #ifndef __CONFIGS_M28EVK_H__
 #define __CONFIGS_M28EVK_H__
 
-
 /* System configurations */
 #define CONFIG_MX28				/* i.MX28 SoC */
 #define MACH_TYPE_M28EVK	3613
 #define CONFIG_MACH_TYPE	MACH_TYPE_M28EVK
+
+#define CONFIG_FIT
+
+#define CONFIG_TIMESTAMP		/* Print image info with timestamp */
 
 /* U-Boot Commands */
 #define CONFIG_SYS_NO_FLASH
 #include <config_cmd_default.h>
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DOS_PARTITION
+#define CONFIG_FAT_WRITE
 
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_BMP
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_EXT4
+#define CONFIG_CMD_EXT4_WRITE
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_GREPENV
@@ -57,8 +64,8 @@
 #if defined(CONFIG_CMD_NAND) && defined(CONFIG_ENV_IS_IN_NAND)
 #define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
 #define CONFIG_ENV_SECT_SIZE		(128 * 1024)
-#define CONFIG_ENV_RANGE		(512 * 1024)
-#define CONFIG_ENV_OFFSET		0x300000
+#define CONFIG_ENV_RANGE		(4 * CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_OFFSET		(24 * CONFIG_ENV_SECT_SIZE) /* 3 MiB */
 #define CONFIG_ENV_OFFSET_REDUND	\
 		(CONFIG_ENV_OFFSET + CONFIG_ENV_RANGE)
 
@@ -72,13 +79,12 @@
 #define MTDIDS_DEFAULT			"nand0=gpmi-nand"
 #define MTDPARTS_DEFAULT			\
 	"mtdparts=gpmi-nand:"			\
-		"3m(bootloader)ro,"		\
-		"512k(environment),"		\
-		"512k(redundant-environment),"	\
-		"4m(kernel),"			\
-		"128k(fdt),"			\
-		"8m(ramdisk),"			\
-		"-(filesystem)"
+		"3m(u-boot),"			\
+		"512k(env1),"			\
+		"512k(env2),"			\
+		"14m(boot),"			\
+		"238m(data),"			\
+		"-@4096k(UBI)"
 #else
 #define CONFIG_ENV_IS_NOWHERE
 #endif
@@ -146,19 +152,33 @@
 #define	CONFIG_BMP_16BPP
 #define	CONFIG_VIDEO_BMP_RLE8
 #define	CONFIG_VIDEO_BMP_GZIP
-#define	CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(512 << 10)
+#define	CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(2 << 20)
 #endif
 
 /* Booting Linux */
 #define CONFIG_BOOTDELAY	3
-#define CONFIG_BOOTFILE		"uImage"
+#define CONFIG_BOOTFILE		"fitImage"
 #define CONFIG_BOOTARGS		"console=ttyAMA0,115200n8 "
-#define CONFIG_BOOTCOMMAND	"run bootcmd_net"
+#define CONFIG_BOOTCOMMAND	"run mmc_mmc"
 #define CONFIG_LOADADDR		0x42000000
 #define CONFIG_SYS_LOAD_ADDR	CONFIG_LOADADDR
 
 /* Extra Environment */
+#define CONFIG_PREBOOT		"run try_bootscript"
+#define CONFIG_HOSTNAME		m28evk
+
 #define CONFIG_EXTRA_ENV_SETTINGS					\
+	"consdev=ttyAMA0\0"						\
+	"baudrate=115200\0"						\
+	"bootdev=/dev/mmcblk0p2\0"					\
+	"rootdev=/dev/mmcblk0p3\0"					\
+	"netdev=eth0\0"							\
+	"hostname=m28evk\0"						\
+	"rootpath=/opt/eldk-5.5/armv5te/rootfs-qte-sdk\0"		\
+	"kernel_addr_r=0x42000000\0"					\
+	"videomode=video=ctfb:x:800,y:480,depth:18,mode:0,pclk:30066,"	\
+		"le:0,ri:256,up:0,lo:45,hs:1,vs:1,sync:100663296,"	\
+		"vmode:0\0"						\
 	"update_nand_full_filename=u-boot.nand\0"			\
 	"update_nand_firmware_filename=u-boot.sb\0"			\
 	"update_sd_firmware_filename=u-boot.sd\0"			\
@@ -174,7 +194,7 @@
 		"if tftp ${update_nand_full_filename} ; then "		\
 		"run update_nand_get_fcb_size ; "			\
 		"nand scrub -y 0x0 ${filesize} ; "			\
-		"nand write.raw ${loadaddr} 0x0 ${fcb_sz} ; "	\
+		"nand write.raw ${loadaddr} 0x0 ${fcb_sz} ; "		\
 		"setexpr update_off ${loadaddr} + ${update_nand_fcb} ; " \
 		"setexpr update_sz ${filesize} - ${update_nand_fcb} ; " \
 		"nand write ${update_off} ${update_nand_fcb} ${update_sz} ; " \
@@ -196,6 +216,73 @@
 		"setexpr fw_sz ${fw_sz} + 1 ; "				\
 		"mmc write ${loadaddr} 0x800 ${fw_sz} ; "		\
 		"fi ; "							\
+		"fi\0"							\
+	"addcons="							\
+		"setenv bootargs ${bootargs} "				\
+		"console=${consdev},${baudrate}\0"			\
+	"addip="							\
+		"setenv bootargs ${bootargs} "				\
+		"ip=${ipaddr}:${serverip}:${gatewayip}:"		\
+			"${netmask}:${hostname}:${netdev}:off\0"	\
+	"addmisc="							\
+		"setenv bootargs ${bootargs} ${miscargs}\0"		\
+	"adddfltmtd="							\
+		"if test \"x${mtdparts}\" == \"x\" ; then "		\
+			"mtdparts default ; "				\
+		"fi\0"							\
+	"addmtd="							\
+		"run adddfltmtd ; "					\
+		"setenv bootargs ${bootargs} ${mtdparts}\0"		\
+	"addargs=run addcons addmtd addmisc\0"				\
+	"mmcload="							\
+		"mmc rescan ; "						\
+		"ext4load mmc 0:2 ${kernel_addr_r} ${bootfile}\0"	\
+	"ubiload="							\
+		"ubi part UBI ; ubifsmount ubi0:rootfs ; "		\
+		"ubifsload ${kernel_addr_r} /boot/${bootfile}\0"	\
+	"netload="							\
+		"tftp ${kernel_addr_r} ${hostname}/${bootfile}\0"	\
+	"miscargs=nohlt panic=1\0"					\
+	"mmcargs=setenv bootargs root=${rootdev} rw rootwait\0"		\
+	"ubiargs="							\
+		"setenv bootargs ubi.mtd=5 "				\
+		"root=ubi0:rootfs rootfstype=ubifs\0"			\
+	"nfsargs="							\
+		"setenv bootargs root=/dev/nfs rw "			\
+			"nfsroot=${serverip}:${rootpath},v3,tcp\0"	\
+	"mmc_mmc="							\
+		"run mmcload mmcargs addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"mmc_ubi="							\
+		"run mmcload ubiargs addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"mmc_nfs="							\
+		"run mmcload nfsargs addip addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"ubi_mmc="							\
+		"run ubiload mmcargs addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"ubi_ubi="							\
+		"run ubiload ubiargs addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"ubi_nfs="							\
+		"run ubiload nfsargs addip addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"net_mmc="							\
+		"run netload mmcargs addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"net_ubi="							\
+		"run netload ubiargs addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"net_nfs="							\
+		"run netload nfsargs addip addargs ; "			\
+		"bootm ${kernel_addr_r}\0"				\
+	"try_bootscript="						\
+		"mmc rescan;"						\
+		"if ext4load mmc 0:2 ${kernel_addr_r} ${bootscript};"	\
+		"then;"							\
+			"\techo Running bootscript...;"			\
+			"\tsource ${kernel_addr_r};"			\
 		"fi\0"
 
 /* The rest of the configuration is shared */

@@ -400,7 +400,7 @@ static int conf_disp_pll(int m, int n)
 #if defined(DISPL_PLL_SPREAD_SPECTRUM)
 	writel(0x64, &cmwkup->resv6[3]); /* 0x50 */
 	writel(0x800, &cmwkup->resv6[2]); /* 0x4c */
-	writel(readl(&cmwkup->clkmoddplldisp) | (1 << 12),
+	writel(readl(&cmwkup->clkmoddplldisp) | CM_CLKMODE_DPLL_SSC_EN_MASK,
 	       &cmwkup->clkmoddplldisp); /* 0x98 */
 #endif
 	return 0;

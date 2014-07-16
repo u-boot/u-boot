@@ -1,18 +1,18 @@
-* Exynos 5250 DWC_mobile_storage
+* Exynos DWC_mobile_storage
 
-The Exynos 5250 provides DWC_mobile_storage interface which supports
+The Exynos provides DWC_mobile_storage interface which supports
 . Embedded Multimedia Cards (EMMC-version 4.5)
 . Secure Digital memory (SD mem-version 2.0)
 . Secure Digital I/O (SDIO-version 3.0)
 . Consumer Electronics Advanced Transport Architecture (CE-ATA-version 1.1)
 
-The Exynos 5250 DWC_mobile_storage provides four channels.
+The Exynos DWC_mobile_storage provides four channels.
 SOC specific and Board specific properties are channel specific.
 
 Required SoC Specific Properties:
 
 - compatible: should be
-	- samsung,exynos5250-dwmmc: for exynos5250 platforms
+	- samsung,exynos-dwmmc: for exynos platforms
 
 - reg: physical base address of the controller and length of memory mapped
 	region.

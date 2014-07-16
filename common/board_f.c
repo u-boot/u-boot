@@ -173,7 +173,7 @@ static int announce_dram_init(void)
 	return 0;
 }
 
-#ifdef CONFIG_PPC
+#if defined(CONFIG_MIPS) || defined(CONFIG_PPC)
 static int init_func_ram(void)
 {
 #ifdef	CONFIG_BOARD_TYPES
@@ -194,7 +194,7 @@ static int init_func_ram(void)
 
 static int show_dram_config(void)
 {
-	ulong size;
+	unsigned long long size;
 
 #ifdef CONFIG_NR_DRAM_BANKS
 	int i;
@@ -282,45 +282,39 @@ __weak int arch_cpu_init(void)
 
 #ifdef CONFIG_OF_HOSTFILE
 
-#define CHECK(x)		err = (x); if (err) goto failed;
-
-/* Create an empty device tree blob */
-static int make_empty_fdt(void *fdt)
-{
-	int err;
-
-	CHECK(fdt_create(fdt, 256));
-	CHECK(fdt_finish_reservemap(fdt));
-	CHECK(fdt_begin_node(fdt, ""));
-	CHECK(fdt_end_node(fdt));
-	CHECK(fdt_finish(fdt));
-
-	return 0;
-failed:
-	printf("Unable to create empty FDT: %s\n", fdt_strerror(err));
-	return -EACCES;
-}
-
 static int read_fdt_from_file(void)
 {
 	struct sandbox_state *state = state_get_current();
+	const char *fname = state->fdt_fname;
 	void *blob;
-	int size;
+	ssize_t size;
 	int err;
+	int fd;
 
 	blob = map_sysmem(CONFIG_SYS_FDT_LOAD_ADDR, 0);
 	if (!state->fdt_fname) {
-		err = make_empty_fdt(blob);
+		err = fdt_create_empty_tree(blob, 256);
 		if (!err)
 			goto done;
-		return err;
+		printf("Unable to create empty FDT: %s\n", fdt_strerror(err));
+		return -EINVAL;
 	}
-	err = fs_set_blk_dev("host", NULL, FS_TYPE_SANDBOX);
-	if (err)
-		return err;
-	size = fs_read(state->fdt_fname, CONFIG_SYS_FDT_LOAD_ADDR, 0, 0);
-	if (size < 0)
+
+	size = os_get_filesize(fname);
+	if (size < 0) {
+		printf("Failed to file FDT file '%s'\n", fname);
+		return -ENOENT;
+	}
+	fd = os_open(fname, OS_O_RDONLY);
+	if (fd < 0) {
+		printf("Failed to open FDT file '%s'\n", fname);
+		return -EACCES;
+	}
+	if (os_read(fd, blob, size) != size) {
+		os_close(fd);
 		return -EIO;
+	}
+	os_close(fd);
 
 done:
 	gd->fdt_blob = blob;
@@ -714,14 +708,6 @@ static int init_post(void)
 }
 #endif
 
-static int setup_baud_rate(void)
-{
-	/* Ick, can we get rid of this line? */
-	gd->bd->bi_baudrate = gd->baudrate;
-
-	return 0;
-}
-
 static int setup_dram_config(void)
 {
 	/* Ram is board specific, so move it to board code ... */
@@ -825,7 +811,7 @@ static init_fnc_t init_sequence_f[] = {
 	/* TODO: can we rename this to timer_init()? */
 	init_timebase,
 #endif
-#ifdef CONFIG_ARM
+#if defined(CONFIG_ARM) || defined(CONFIG_MIPS)
 	timer_init,		/* initialize timer */
 #endif
 #ifdef CONFIG_SYS_ALLOC_DPRAM
@@ -895,7 +881,7 @@ static init_fnc_t init_sequence_f[] = {
 #ifdef CONFIG_ARM
 	dram_init,		/* configure available RAM banks */
 #endif
-#ifdef CONFIG_PPC
+#if defined(CONFIG_MIPS) || defined(CONFIG_PPC)
 	init_func_ram,
 #endif
 #ifdef CONFIG_POST
@@ -960,7 +946,6 @@ static init_fnc_t init_sequence_f[] = {
 	INIT_FUNC_WATCHDOG_RESET
 	setup_board_part2,
 #endif
-	setup_baud_rate,
 	display_new_sp,
 #ifdef CONFIG_SYS_EXTBDINFO
 	setup_board_extra,
@@ -976,20 +961,22 @@ static init_fnc_t init_sequence_f[] = {
 
 void board_init_f(ulong boot_flags)
 {
-#ifndef CONFIG_X86
+#ifdef CONFIG_SYS_GENERIC_GLOBAL_DATA
+	/*
+	 * For some archtectures, global data is initialized and used before
+	 * calling this function. The data should be preserved. For others,
+	 * CONFIG_SYS_GENERIC_GLOBAL_DATA should be defined and use the stack
+	 * here to host global data until relocation.
+	 */
 	gd_t data;
 
 	gd = &data;
-#endif
 
 	/*
 	 * Clear global data before it is accessed at debug print
 	 * in initcall_run_list. Otherwise the debug print probably
 	 * get the wrong vaule of gd->have_console.
 	 */
-#if !defined(CONFIG_CPM2) && !defined(CONFIG_MPC512X) && \
-		!defined(CONFIG_MPC83xx) && !defined(CONFIG_MPC85xx) && \
-		!defined(CONFIG_MPC86xx) && !defined(CONFIG_X86)
 	zero_global_data();
 #endif
 

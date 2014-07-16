@@ -66,6 +66,8 @@
  */
 
 #include <common.h>
+#include <bootretry.h>
+#include <cli.h>
 #include <command.h>
 #include <edid.h>
 #include <environment.h>
@@ -562,9 +564,7 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const arg
 	if (argc != 3)
 		return CMD_RET_USAGE;
 
-#ifdef CONFIG_BOOT_RETRY_TIME
-	reset_cmd_timeout();	/* got a good command to get here */
-#endif
+	bootretry_reset_cmd_timeout();	/* got a good command to get here */
 	/*
 	 * We use the last specified parameters, unless new ones are
 	 * entered.
@@ -612,7 +612,7 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const arg
 				printf(" %08lx", data);
 		}
 
-		nbytes = readline (" ? ");
+		nbytes = cli_readline(" ? ");
 		if (nbytes == 0) {
 			/*
 			 * <CR> pressed as only input, don't modify current
@@ -621,9 +621,8 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const arg
 			if (incrflag)
 				addr += size;
 			nbytes = size;
-#ifdef CONFIG_BOOT_RETRY_TIME
-			reset_cmd_timeout(); /* good enough to not time out */
-#endif
+			/* good enough to not time out */
+			bootretry_reset_cmd_timeout();
 		}
 #ifdef CONFIG_BOOT_RETRY_TIME
 		else if (nbytes == -2)
@@ -640,12 +639,10 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const arg
 			data = be32_to_cpu(data);
 			nbytes = endp - console_buffer;
 			if (nbytes) {
-#ifdef CONFIG_BOOT_RETRY_TIME
 				/*
 				 * good enough to not time out
 				 */
-				reset_cmd_timeout();
-#endif
+				bootretry_reset_cmd_timeout();
 				if (i2c_write(chip, addr, alen, (uchar *)&data, size) != 0)
 					puts ("Error writing the chip.\n");
 #ifdef CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS

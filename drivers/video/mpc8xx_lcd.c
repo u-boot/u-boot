@@ -34,7 +34,7 @@
 #define CONFIG_LCD_INFO		/* Display Logo, (C) and system info	*/
 #endif
 
-#if defined(CONFIG_V37) || defined(CONFIG_EDT32F10)
+#if defined(CONFIG_EDT32F10)
 #undef CONFIG_LCD_LOGO
 #undef CONFIG_LCD_INFO
 #endif
@@ -268,11 +268,6 @@ void lcd_ctrl_init (void *lcdbase)
 	 * the controller.
 	 */
 
-#ifdef CONFIG_RPXLITE
-	/* This is special for RPXlite_DW Software Development Platform **[Sam]** */
-	panel_info.vl_dp = CONFIG_SYS_LOW;
-#endif
-
 	lccrtmp  = LCDBIT (LCCR_BNUM_BIT,
 		   (((panel_info.vl_row * panel_info.vl_col) * (1 << LCD_BPP)) / 128));
 
@@ -297,9 +292,6 @@ void lcd_ctrl_init (void *lcdbase)
 
 	/* Initialize LCD controller bus priorities.
 	 */
-#ifdef CONFIG_RBC823
-	immr->im_siu_conf.sc_sdcr = (immr->im_siu_conf.sc_sdcr & ~0x0f) | 1;	/* RAID = 01, LAID = 00 */
-#else
 	immr->im_siu_conf.sc_sdcr &= ~0x0f;	/* RAID = LAID = 0 */
 
 	/* set SHFT/CLOCK division factor 4
@@ -313,21 +305,7 @@ void lcd_ctrl_init (void *lcdbase)
 	immr->im_clkrst.car_sccr &= ~0x1F;
 	immr->im_clkrst.car_sccr |= LCD_DF;	/* was 8 */
 
-#endif /* CONFIG_RBC823 */
-
-#if defined(CONFIG_RBC823)
-	/* Enable LCD on port D.
-	 */
-	immr->im_ioport.iop_pddat &= 0x0300;
-	immr->im_ioport.iop_pdpar |= 0x1CFF;
-	immr->im_ioport.iop_pddir |= 0x1CFF;
-
-	/* Configure LCD_ON, VEE_ON, CCFL_ON on port B.
-	 */
-	immr->im_cpm.cp_pbdat &= ~0x00005001;
-	immr->im_cpm.cp_pbpar &= ~0x00005001;
-	immr->im_cpm.cp_pbdir |=  0x00005001;
-#elif !defined(CONFIG_EDT32F10)
+#if !defined(CONFIG_EDT32F10)
 	/* Enable LCD on port D.
 	 */
 	immr->im_ioport.iop_pdpar |= 0x1FFF;
@@ -432,19 +410,8 @@ void lcd_enable (void)
 	volatile lcd823_t *lcdp = &immr->im_lcd;
 
 	/* Enable the LCD panel */
-#ifndef CONFIG_RBC823
 	immr->im_siu_conf.sc_sdcr |= (1 << (31 - 25));		/* LAM = 1 */
-#endif
 	lcdp->lcd_lccr |= LCCR_PON;
-
-#ifdef CONFIG_V37
-	/* Turn on display backlight */
-	immr->im_cpm.cp_pbpar |= 0x00008000;
-	immr->im_cpm.cp_pbdir |= 0x00008000;
-#elif defined(CONFIG_RBC823)
-	/* Turn on display backlight */
-	immr->im_cpm.cp_pbdat |= 0x00004000;
-#endif
 
 #if defined(CONFIG_LWMON)
     {	uchar c = pic_read (0x60);
@@ -481,14 +448,6 @@ void lcd_enable (void)
 	r360_i2c_lcd_write(0x40 | ((ctr>>8) & 0xF), ctr & 0xFF);
     }
 #endif /* CONFIG_R360MPI */
-#ifdef CONFIG_RBC823
-	udelay(200000); /* wait 200ms */
-	/* Turn VEE_ON first */
-	immr->im_cpm.cp_pbdat |= 0x00000001;
-	udelay(200000); /* wait 200ms */
-	/* Now turn on LCD_ON */
-	immr->im_cpm.cp_pbdat |= 0x00001000;
-#endif
 #ifdef CONFIG_RRVISION
 	debug ("PC4->Output(1): enable LVDS\n");
 	debug ("PC5->Output(0): disable PAL clock\n");
@@ -507,41 +466,6 @@ void lcd_enable (void)
 	       immr->im_ioport.iop_pcdat);
 #endif
 }
-
-/*----------------------------------------------------------------------*/
-
-#if defined (CONFIG_RBC823)
-void lcd_disable (void)
-{
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
-	volatile lcd823_t *lcdp = &immr->im_lcd;
-
-#if defined(CONFIG_LWMON)
-    {	uchar c = pic_read (0x60);
-	c &= ~0x07;	/* Power off CCFL, Disable CCFL, Chip Disable LCD */
-	pic_write (0x60, c);
-    }
-#elif defined(CONFIG_R360MPI)
-    {
-	extern void r360_i2c_lcd_write (uchar data0, uchar data1);
-
-	r360_i2c_lcd_write(0x10, 0x00);
-	r360_i2c_lcd_write(0x20, 0x00);
-	r360_i2c_lcd_write(0x30, 0x00);
-	r360_i2c_lcd_write(0x40, 0x00);
-    }
-#endif /* CONFIG_LWMON */
-	/* Disable the LCD panel */
-	lcdp->lcd_lccr &= ~LCCR_PON;
-#ifdef CONFIG_RBC823
-	/* Turn off display backlight, VEE and LCD_ON */
-	immr->im_cpm.cp_pbdat &= ~0x00005001;
-#else
-	immr->im_siu_conf.sc_sdcr &= ~(1 << (31 - 25));	/* LAM = 0 */
-#endif /* CONFIG_RBC823 */
-}
-#endif	/* NOT_USED_SO_FAR || CONFIG_RBC823 */
-
 
 /************************************************************************/
 

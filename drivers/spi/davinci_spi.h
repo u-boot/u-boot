@@ -74,6 +74,39 @@ struct davinci_spi_regs {
 /* SPIDEF */
 #define SPIDEF_CSDEF0_MASK	BIT(0)
 
+#define SPI0_BUS		0
+#define SPI0_BASE		CONFIG_SYS_SPI_BASE
+/*
+ * Define default SPI0_NUM_CS as 1 for existing platforms that uses this
+ * driver. Platform can configure number of CS using CONFIG_SYS_SPI0_NUM_CS
+ * if more than one CS is supported and by defining CONFIG_SYS_SPI0.
+ */
+#ifndef CONFIG_SYS_SPI0
+#define SPI0_NUM_CS		1
+#else
+#define SPI0_NUM_CS		CONFIG_SYS_SPI0_NUM_CS
+#endif
+
+/*
+ * define CONFIG_SYS_SPI1 when platform has spi-1 device (bus #1) and
+ * CONFIG_SYS_SPI1_NUM_CS defines number of CS on this bus
+ */
+#ifdef CONFIG_SYS_SPI1
+#define SPI1_BUS		1
+#define SPI1_NUM_CS		CONFIG_SYS_SPI1_NUM_CS
+#define SPI1_BASE		CONFIG_SYS_SPI1_BASE
+#endif
+
+/*
+ * define CONFIG_SYS_SPI2 when platform has spi-2 device (bus #2) and
+ * CONFIG_SYS_SPI2_NUM_CS defines number of CS on this bus
+ */
+#ifdef CONFIG_SYS_SPI2
+#define SPI2_BUS		2
+#define SPI2_NUM_CS		CONFIG_SYS_SPI2_NUM_CS
+#define SPI2_BASE		CONFIG_SYS_SPI2_BASE
+#endif
+
 struct davinci_spi_slave {
 	struct spi_slave slave;
 	struct davinci_spi_regs *regs;

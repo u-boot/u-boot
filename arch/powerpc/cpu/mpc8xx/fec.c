@@ -377,26 +377,6 @@ static void fec_pin_init(int fecidx)
 	 */
 	immr->im_cpm.cp_fec1.fec_mii_speed = ((bd->bi_intfreq + 4999999) / 5000000) << 1;
 
-#if defined(CONFIG_NETTA) || defined(CONFIG_NETPHONE) || defined(CONFIG_NETTA2)
-	{
-		volatile fec_t *fecp;
-
-		/*
-		 * only two FECs please
-		 */
-		if ((unsigned int)fecidx >= 2)
-			hang();
-
-		if (fecidx == 0)
-			fecp = &immr->im_cpm.cp_fec1;
-		else
-			fecp = &immr->im_cpm.cp_fec2;
-
-		/* our PHYs are the limit at 2.5 MHz */
-		fecp->fec_mii_speed <<= 1;
-	}
-#endif
-
 #if defined(CONFIG_MPC885_FAMILY) && defined(WANT_MII)
 	/* use MDC for MII */
 	immr->im_ioport.iop_pdpar |=  0x0080;
@@ -561,32 +541,6 @@ static int fec_init (struct eth_device *dev, bd_t * bd)
 	volatile fec_t *fecp =
 		(volatile fec_t *) (CONFIG_SYS_IMMR + efis->fecp_offset);
 	int i;
-
-	if (efis->ether_index == 0) {
-#if defined(CONFIG_FADS)	/* FADS family uses FPGA (BCSR) to control PHYs */
-#if defined(CONFIG_MPC885ADS)
-		*(vu_char *) BCSR5 &= ~(BCSR5_MII1_EN | BCSR5_MII1_RST);
-#else
-		/* configure FADS for fast (FEC) ethernet, half-duplex */
-		/* The LXT970 needs about 50ms to recover from reset, so
-		 * wait for it by discovering the PHY before leaving eth_init().
-		 */
-		{
-			volatile uint *bcsr4 = (volatile uint *) BCSR4;
-
-			*bcsr4 = (*bcsr4 & ~(BCSR4_FETH_EN | BCSR4_FETHCFG1))
-				| (BCSR4_FETHCFG0 | BCSR4_FETHFDE |
-				   BCSR4_FETHRST);
-
-			/* reset the LXT970 PHY */
-			*bcsr4 &= ~BCSR4_FETHRST;
-			udelay (10);
-			*bcsr4 |= BCSR4_FETHRST;
-			udelay (10);
-		}
-#endif /* CONFIG_MPC885ADS */
-#endif /* CONFIG_FADS */
-	}
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 	/* the MII interface is connected to FEC1

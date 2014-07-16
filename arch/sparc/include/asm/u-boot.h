@@ -40,7 +40,6 @@ typedef struct bd_info {
 	unsigned short bi_ethspeed;	/* Ethernet speed in Mbps */
 	unsigned long bi_intfreq;	/* Internal Freq, in MHz */
 	unsigned long bi_busfreq;	/* Bus Freq, in MHz */
-	unsigned int bi_baudrate;	/* Console Baudrate */
 } bd_t;
 
 #endif				/* __ASSEMBLY__ */

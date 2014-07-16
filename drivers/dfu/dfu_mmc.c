@@ -12,16 +12,35 @@
 #include <errno.h>
 #include <div64.h>
 #include <dfu.h>
+#include <mmc.h>
 
 static unsigned char __aligned(CONFIG_SYS_CACHELINE_SIZE)
 				dfu_file_buf[CONFIG_SYS_DFU_MAX_FILE_SIZE];
 static long dfu_file_buf_len;
 
+static int mmc_access_part(struct dfu_entity *dfu, struct mmc *mmc, int part)
+{
+	int ret;
+
+	if (part == mmc->part_num)
+		return 0;
+
+	ret = mmc_switch_part(dfu->dev_num, part);
+	if (ret) {
+		error("Cannot switch to partition %d\n", part);
+		return ret;
+	}
+	mmc->part_num = part;
+
+	return 0;
+}
+
 static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
 			u64 offset, void *buf, long *len)
 {
-	char cmd_buf[DFU_CMD_BUF_SIZE];
-	u32 blk_start, blk_count;
+	struct mmc *mmc = find_mmc_device(dfu->dev_num);
+	u32 blk_start, blk_count, n = 0;
+	int ret, part_num_bkp = 0;
 
 	/*
 	 * We must ensure that we work in lba_blk_size chunks, so ALIGN
@@ -38,12 +57,43 @@ static int mmc_block_op(enum dfu_op op, struct dfu_entity *dfu,
 		return -EINVAL;
 	}
 
-	sprintf(cmd_buf, "mmc %s %p %x %x",
-		op == DFU_OP_READ ? "read" : "write",
-		 buf, blk_start, blk_count);
+	if (dfu->data.mmc.hw_partition >= 0) {
+		part_num_bkp = mmc->part_num;
+		ret = mmc_access_part(dfu, mmc, dfu->data.mmc.hw_partition);
+		if (ret)
+			return ret;
+	}
 
-	debug("%s: %s 0x%p\n", __func__, cmd_buf, cmd_buf);
-	return run_command(cmd_buf, 0);
+	debug("%s: %s dev: %d start: %d cnt: %d buf: 0x%p\n", __func__,
+	      op == DFU_OP_READ ? "MMC READ" : "MMC WRITE", dfu->dev_num,
+	      blk_start, blk_count, buf);
+	switch (op) {
+	case DFU_OP_READ:
+		n = mmc->block_dev.block_read(dfu->dev_num, blk_start,
+					      blk_count, buf);
+		break;
+	case DFU_OP_WRITE:
+		n = mmc->block_dev.block_write(dfu->dev_num, blk_start,
+					       blk_count, buf);
+		break;
+	default:
+		error("Operation not supported\n");
+	}
+
+	if (n != blk_count) {
+		error("MMC operation failed");
+		if (dfu->data.mmc.hw_partition >= 0)
+			mmc_access_part(dfu, mmc, part_num_bkp);
+		return -EIO;
+	}
+
+	if (dfu->data.mmc.hw_partition >= 0) {
+		ret = mmc_access_part(dfu, mmc, part_num_bkp);
+		if (ret)
+			return ret;
+	}
+
+	return 0;
 }
 
 static int mmc_file_buffer(struct dfu_entity *dfu, void *buf, long *len)
@@ -167,66 +217,108 @@ int dfu_read_medium_mmc(struct dfu_entity *dfu, u64 offset, void *buf,
 	return ret;
 }
 
+/*
+ * @param s Parameter string containing space-separated arguments:
+ *	1st:
+ *		raw	(raw read/write)
+ *		fat	(files)
+ *		ext4	(^)
+ *		part	(partition image)
+ *	2nd and 3rd:
+ *		lba_start and lba_size, for raw write
+ *		mmc_dev and mmc_part, for filesystems and part
+ *	4th (optional):
+ *		mmcpart <num> (access to HW eMMC partitions)
+ */
 int dfu_fill_entity_mmc(struct dfu_entity *dfu, char *s)
 {
-	int dev, part;
+	const char *entity_type;
+	size_t second_arg;
+	size_t third_arg;
+
 	struct mmc *mmc;
-	block_dev_desc_t *blk_dev;
-	disk_partition_t partinfo;
-	char *st;
 
-	dfu->dev_type = DFU_DEV_MMC;
-	st = strsep(&s, " ");
-	if (!strcmp(st, "mmc")) {
-		dfu->layout = DFU_RAW_ADDR;
-		dfu->data.mmc.lba_start = simple_strtoul(s, &s, 16);
-		dfu->data.mmc.lba_size = simple_strtoul(++s, &s, 16);
-		dfu->data.mmc.lba_blk_size = get_mmc_blk_size(dfu->dev_num);
-	} else if (!strcmp(st, "fat")) {
-		dfu->layout = DFU_FS_FAT;
-	} else if (!strcmp(st, "ext4")) {
-		dfu->layout = DFU_FS_EXT4;
-	} else if (!strcmp(st, "part")) {
+	const char *argv[3];
+	const char **parg = argv;
 
-		dfu->layout = DFU_RAW_ADDR;
-
-		dev = simple_strtoul(s, &s, 10);
-		s++;
-		part = simple_strtoul(s, &s, 10);
-
-		mmc = find_mmc_device(dev);
-		if (mmc == NULL || mmc_init(mmc)) {
-			printf("%s: could not find mmc device #%d!\n",
-			       __func__, dev);
+	for (; parg < argv + sizeof(argv) / sizeof(*argv); ++parg) {
+		*parg = strsep(&s, " ");
+		if (*parg == NULL) {
+			error("Invalid number of arguments.\n");
 			return -ENODEV;
 		}
+	}
 
-		blk_dev = &mmc->block_dev;
-		if (get_partition_info(blk_dev, part, &partinfo) != 0) {
-			printf("%s: could not find partition #%d on mmc device #%d!\n",
-			       __func__, part, dev);
-			return -ENODEV;
-		}
+	entity_type = argv[0];
+	/*
+	 * Base 0 means we'll accept (prefixed with 0x or 0) base 16, 8,
+	 * with default 10.
+	 */
+	second_arg = simple_strtoul(argv[1], NULL, 0);
+	third_arg = simple_strtoul(argv[2], NULL, 0);
 
-		dfu->data.mmc.lba_start = partinfo.start;
-		dfu->data.mmc.lba_size = partinfo.size;
-		dfu->data.mmc.lba_blk_size = partinfo.blksz;
-
-	} else {
-		printf("%s: Memory layout (%s) not supported!\n", __func__, st);
+	mmc = find_mmc_device(dfu->dev_num);
+	if (mmc == NULL) {
+		error("Couldn't find MMC device no. %d.\n", dfu->dev_num);
 		return -ENODEV;
 	}
 
-	if (dfu->layout == DFU_FS_EXT4 || dfu->layout == DFU_FS_FAT) {
-		dfu->data.mmc.dev = simple_strtoul(s, &s, 10);
-		dfu->data.mmc.part = simple_strtoul(++s, &s, 10);
+	if (mmc_init(mmc)) {
+		error("Couldn't init MMC device.\n");
+		return -ENODEV;
 	}
 
+	dfu->data.mmc.hw_partition = -EINVAL;
+	if (!strcmp(entity_type, "raw")) {
+		dfu->layout			= DFU_RAW_ADDR;
+		dfu->data.mmc.lba_start		= second_arg;
+		dfu->data.mmc.lba_size		= third_arg;
+		dfu->data.mmc.lba_blk_size	= mmc->read_bl_len;
+
+		/*
+		 * Check for an extra entry at dfu_alt_info env variable
+		 * specifying the mmc HW defined partition number
+		 */
+		if (s)
+			if (!strcmp(strsep(&s, " "), "mmcpart"))
+				dfu->data.mmc.hw_partition =
+					simple_strtoul(s, NULL, 0);
+
+	} else if (!strcmp(entity_type, "part")) {
+		disk_partition_t partinfo;
+		block_dev_desc_t *blk_dev = &mmc->block_dev;
+		int mmcdev = second_arg;
+		int mmcpart = third_arg;
+
+		if (get_partition_info(blk_dev, mmcpart, &partinfo) != 0) {
+			error("Couldn't find part #%d on mmc device #%d\n",
+			      mmcpart, mmcdev);
+			return -ENODEV;
+		}
+
+		dfu->layout			= DFU_RAW_ADDR;
+		dfu->data.mmc.lba_start		= partinfo.start;
+		dfu->data.mmc.lba_size		= partinfo.size;
+		dfu->data.mmc.lba_blk_size	= partinfo.blksz;
+	} else if (!strcmp(entity_type, "fat")) {
+		dfu->layout = DFU_FS_FAT;
+	} else if (!strcmp(entity_type, "ext4")) {
+		dfu->layout = DFU_FS_EXT4;
+	} else {
+		error("Memory layout (%s) not supported!\n", entity_type);
+		return -ENODEV;
+	}
+
+	/* if it's NOT a raw write */
+	if (strcmp(entity_type, "raw")) {
+		dfu->data.mmc.dev = second_arg;
+		dfu->data.mmc.part = third_arg;
+	}
+
+	dfu->dev_type = DFU_DEV_MMC;
 	dfu->read_medium = dfu_read_medium_mmc;
 	dfu->write_medium = dfu_write_medium_mmc;
 	dfu->flush_medium = dfu_flush_medium_mmc;
-
-	/* initial state */
 	dfu->inited = 0;
 
 	return 0;

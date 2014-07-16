@@ -30,6 +30,7 @@
 #include <power/tps65910.h>
 #include <environment.h>
 #include <watchdog.h>
+#include <environment.h>
 #include "board.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -81,7 +82,7 @@ static int read_eeprom(struct am335x_baseboard_id *header)
 	return 0;
 }
 
-#if defined(CONFIG_SPL_BUILD) || defined(CONFIG_NOR_BOOT)
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
 static const struct ddr_data ddr2_data = {
 	.datardsratio0 = ((MT47H128M16RT25E_RD_DQS<<30) |
 			  (MT47H128M16RT25E_RD_DQS<<20) |
@@ -219,7 +220,17 @@ static struct emif_regs ddr3_evm_emif_reg_data = {
 int spl_start_uboot(void)
 {
 	/* break into full u-boot on 'c' */
-	return (serial_tstc() && serial_getc() == 'c');
+	if (serial_tstc() && serial_getc() == 'c')
+		return 1;
+
+#ifdef CONFIG_SPL_ENV_SUPPORT
+	env_init();
+	env_relocate_spec();
+	if (getenv_yesno("boot_os") != 1)
+		return 1;
+#endif
+
+	return 0;
 }
 #endif
 
@@ -573,8 +584,22 @@ static struct cpsw_platform_data cpsw_data = {
 };
 #endif
 
-#if defined(CONFIG_DRIVER_TI_CPSW) || \
-	(defined(CONFIG_USB_ETHER) && defined(CONFIG_MUSB_GADGET))
+/*
+ * This function will:
+ * Read the eFuse for MAC addresses, and set ethaddr/eth1addr/usbnet_devaddr
+ * in the environment
+ * Perform fixups to the PHY present on certain boards.  We only need this
+ * function in:
+ * - SPL with either CPSW or USB ethernet support
+ * - Full U-Boot, with either CPSW or USB ethernet
+ * Build in only these cases to avoid warnings about unused variables
+ * when we build an SPL that has neither option but full U-Boot will.
+ */
+#if ((defined(CONFIG_SPL_ETH_SUPPORT) || defined(CONFIG_SPL_USBETH_SUPPORT)) \
+		&& defined(CONFIG_SPL_BUILD)) || \
+	((defined(CONFIG_DRIVER_TI_CPSW) || \
+	  defined(CONFIG_USB_ETHER) && defined(CONFIG_MUSB_GADGET)) && \
+	 !defined(CONFIG_SPL_BUILD))
 int board_eth_init(bd_t *bis)
 {
 	int rv, n = 0;

@@ -197,16 +197,6 @@ int board_usb_init(int index, enum usb_init_type init);
  */
 int board_usb_cleanup(int index, enum usb_init_type init);
 
-/*
- * If CONFIG_USB_CABLE_CHECK is set then this function
- * should be defined in board file.
- *
- * @return 1 if cable is connected and 0 otherwise.
- */
-#ifdef CONFIG_USB_CABLE_CHECK
-int usb_cable_connected(void);
-#endif
-
 #ifdef CONFIG_USB_STORAGE
 
 #define USB_MAX_STOR_DEV 5

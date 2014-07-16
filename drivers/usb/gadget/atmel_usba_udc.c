@@ -314,7 +314,7 @@ usba_ep_alloc_request(struct usb_ep *_ep, gfp_t gfp_flags)
 
 	DBG(DBG_GADGET, "ep_alloc_request: %p, 0x%x\n", _ep, gfp_flags);
 
-	req = malloc(sizeof(struct usba_request));
+	req = calloc(1, sizeof(struct usba_request));
 	if (!req)
 		return NULL;
 

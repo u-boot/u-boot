@@ -19,23 +19,13 @@
 #include <spartan3.h>
 #include <zynqpl.h>
 
-#if 0
-#define FPGA_DEBUG
-#endif
-
-/* Define FPGA_DEBUG to get debug printf's */
-#ifdef	FPGA_DEBUG
-#define	PRINTF(fmt,args...)	printf (fmt ,##args)
-#else
-#define PRINTF(fmt,args...)
-#endif
-
 /* Local Static Functions */
-static int xilinx_validate (Xilinx_desc * desc, char *fn);
+static int xilinx_validate(xilinx_desc *desc, char *fn);
 
 /* ------------------------------------------------------------------------- */
 
-int fpga_loadbitstream(int devnum, char *fpgadata, size_t size)
+int fpga_loadbitstream(int devnum, char *fpgadata, size_t size,
+		       bitstream_type bstype)
 {
 	unsigned int length;
 	unsigned int swapsize;
@@ -43,7 +33,7 @@ int fpga_loadbitstream(int devnum, char *fpgadata, size_t size)
 	unsigned char *dataptr;
 	unsigned int i;
 	const fpga_desc *desc;
-	Xilinx_desc *xdesc;
+	xilinx_desc *xdesc;
 
 	dataptr = (unsigned char *)fpgadata;
 	/* Find out fpga_description */
@@ -94,7 +84,7 @@ int fpga_loadbitstream(int devnum, char *fpgadata, size_t size)
 			return FPGA_FAIL;
 		}
 	} else {
-		printf("%s: Please fill correct device ID to Xilinx_desc\n",
+		printf("%s: Please fill correct device ID to xilinx_desc\n",
 		       __func__);
 	}
 	printf("  part number = \"%s\"\n", buffer);
@@ -138,137 +128,60 @@ int fpga_loadbitstream(int devnum, char *fpgadata, size_t size)
 	dataptr += 4;
 	printf("  bytes in bitstream = %d\n", swapsize);
 
-	return fpga_load(devnum, dataptr, swapsize);
+	return fpga_load(devnum, dataptr, swapsize, bstype);
 }
 
-int xilinx_load(Xilinx_desc *desc, const void *buf, size_t bsize)
+int xilinx_load(xilinx_desc *desc, const void *buf, size_t bsize,
+		bitstream_type bstype)
 {
-	int ret_val = FPGA_FAIL;	/* assume a failure */
-
 	if (!xilinx_validate (desc, (char *)__FUNCTION__)) {
 		printf ("%s: Invalid device descriptor\n", __FUNCTION__);
-	} else
-		switch (desc->family) {
-		case Xilinx_Spartan2:
-#if defined(CONFIG_FPGA_SPARTAN2)
-			PRINTF ("%s: Launching the Spartan-II Loader...\n",
-					__FUNCTION__);
-			ret_val = Spartan2_load (desc, buf, bsize);
-#else
-			printf ("%s: No support for Spartan-II devices.\n",
-					__FUNCTION__);
-#endif
-			break;
-		case Xilinx_Spartan3:
-#if defined(CONFIG_FPGA_SPARTAN3)
-			PRINTF ("%s: Launching the Spartan-III Loader...\n",
-					__FUNCTION__);
-			ret_val = Spartan3_load (desc, buf, bsize);
-#else
-			printf ("%s: No support for Spartan-III devices.\n",
-					__FUNCTION__);
-#endif
-			break;
-		case Xilinx_Virtex2:
-#if defined(CONFIG_FPGA_VIRTEX2)
-			PRINTF ("%s: Launching the Virtex-II Loader...\n",
-					__FUNCTION__);
-			ret_val = Virtex2_load (desc, buf, bsize);
-#else
-			printf ("%s: No support for Virtex-II devices.\n",
-					__FUNCTION__);
-#endif
-			break;
-		case xilinx_zynq:
-#if defined(CONFIG_FPGA_ZYNQPL)
-			PRINTF("%s: Launching the Zynq PL Loader...\n",
-			       __func__);
-			ret_val = zynq_load(desc, buf, bsize);
-#else
-			printf("%s: No support for Zynq devices.\n",
-			       __func__);
-#endif
-			break;
+		return FPGA_FAIL;
+	}
 
-		default:
-			printf ("%s: Unsupported family type, %d\n",
-					__FUNCTION__, desc->family);
-		}
-
-	return ret_val;
+	return desc->operations->load(desc, buf, bsize, bstype);
 }
 
-int xilinx_dump(Xilinx_desc *desc, const void *buf, size_t bsize)
+#if defined(CONFIG_CMD_FPGA_LOADFS)
+int xilinx_loadfs(xilinx_desc *desc, const void *buf, size_t bsize,
+		   fpga_fs_info *fpga_fsinfo)
 {
-	int ret_val = FPGA_FAIL;	/* assume a failure */
+	if (!xilinx_validate(desc, (char *)__func__)) {
+		printf("%s: Invalid device descriptor\n", __func__);
+		return FPGA_FAIL;
+	}
 
+	if (!desc->operations->loadfs)
+		return FPGA_FAIL;
+
+	return desc->operations->loadfs(desc, buf, bsize, fpga_fsinfo);
+}
+#endif
+
+int xilinx_dump(xilinx_desc *desc, const void *buf, size_t bsize)
+{
 	if (!xilinx_validate (desc, (char *)__FUNCTION__)) {
 		printf ("%s: Invalid device descriptor\n", __FUNCTION__);
-	} else
-		switch (desc->family) {
-		case Xilinx_Spartan2:
-#if defined(CONFIG_FPGA_SPARTAN2)
-			PRINTF ("%s: Launching the Spartan-II Reader...\n",
-					__FUNCTION__);
-			ret_val = Spartan2_dump (desc, buf, bsize);
-#else
-			printf ("%s: No support for Spartan-II devices.\n",
-					__FUNCTION__);
-#endif
-			break;
-		case Xilinx_Spartan3:
-#if defined(CONFIG_FPGA_SPARTAN3)
-			PRINTF ("%s: Launching the Spartan-III Reader...\n",
-					__FUNCTION__);
-			ret_val = Spartan3_dump (desc, buf, bsize);
-#else
-			printf ("%s: No support for Spartan-III devices.\n",
-					__FUNCTION__);
-#endif
-			break;
-		case Xilinx_Virtex2:
-#if defined( CONFIG_FPGA_VIRTEX2)
-			PRINTF ("%s: Launching the Virtex-II Reader...\n",
-					__FUNCTION__);
-			ret_val = Virtex2_dump (desc, buf, bsize);
-#else
-			printf ("%s: No support for Virtex-II devices.\n",
-					__FUNCTION__);
-#endif
-			break;
-		case xilinx_zynq:
-#if defined(CONFIG_FPGA_ZYNQPL)
-			PRINTF("%s: Launching the Zynq PL Reader...\n",
-			       __func__);
-			ret_val = zynq_dump(desc, buf, bsize);
-#else
-			printf("%s: No support for Zynq devices.\n",
-			       __func__);
-#endif
-			break;
+		return FPGA_FAIL;
+	}
 
-		default:
-			printf ("%s: Unsupported family type, %d\n",
-					__FUNCTION__, desc->family);
-		}
-
-	return ret_val;
+	return desc->operations->dump(desc, buf, bsize);
 }
 
-int xilinx_info (Xilinx_desc * desc)
+int xilinx_info(xilinx_desc *desc)
 {
 	int ret_val = FPGA_FAIL;
 
 	if (xilinx_validate (desc, (char *)__FUNCTION__)) {
 		printf ("Family:        \t");
 		switch (desc->family) {
-		case Xilinx_Spartan2:
+		case xilinx_spartan2:
 			printf ("Spartan-II\n");
 			break;
-		case Xilinx_Spartan3:
+		case xilinx_spartan3:
 			printf ("Spartan-III\n");
 			break;
-		case Xilinx_Virtex2:
+		case xilinx_virtex2:
 			printf ("Virtex-II\n");
 			break;
 		case xilinx_zynq:
@@ -307,55 +220,15 @@ int xilinx_info (Xilinx_desc * desc)
 			printf ("Unsupported interface type, %d\n", desc->iface);
 		}
 
-		printf ("Device Size:   \t%d bytes\n"
-				"Cookie:        \t0x%x (%d)\n",
-				desc->size, desc->cookie, desc->cookie);
+		printf("Device Size:   \t%zd bytes\n"
+		       "Cookie:        \t0x%x (%d)\n",
+		       desc->size, desc->cookie, desc->cookie);
 		if (desc->name)
 			printf("Device name:   \t%s\n", desc->name);
 
 		if (desc->iface_fns) {
 			printf ("Device Function Table @ 0x%p\n", desc->iface_fns);
-			switch (desc->family) {
-			case Xilinx_Spartan2:
-#if defined(CONFIG_FPGA_SPARTAN2)
-				Spartan2_info (desc);
-#else
-				/* just in case */
-				printf ("%s: No support for Spartan-II devices.\n",
-						__FUNCTION__);
-#endif
-				break;
-			case Xilinx_Spartan3:
-#if defined(CONFIG_FPGA_SPARTAN3)
-				Spartan3_info (desc);
-#else
-				/* just in case */
-				printf ("%s: No support for Spartan-III devices.\n",
-						__FUNCTION__);
-#endif
-				break;
-			case Xilinx_Virtex2:
-#if defined(CONFIG_FPGA_VIRTEX2)
-				Virtex2_info (desc);
-#else
-				/* just in case */
-				printf ("%s: No support for Virtex-II devices.\n",
-						__FUNCTION__);
-#endif
-				break;
-			case xilinx_zynq:
-#if defined(CONFIG_FPGA_ZYNQPL)
-				zynq_info(desc);
-#else
-				/* just in case */
-				printf("%s: No support for Zynq devices.\n",
-				       __func__);
-#endif
-				/* Add new family types here */
-			default:
-				/* we don't need a message here - we give one up above */
-				;
-			}
+			desc->operations->info(desc);
 		} else
 			printf ("No Device Function Table.\n");
 
@@ -369,7 +242,7 @@ int xilinx_info (Xilinx_desc * desc)
 
 /* ------------------------------------------------------------------------- */
 
-static int xilinx_validate (Xilinx_desc * desc, char *fn)
+static int xilinx_validate(xilinx_desc *desc, char *fn)
 {
 	int ret_val = false;
 

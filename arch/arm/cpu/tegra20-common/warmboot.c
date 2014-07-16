@@ -15,6 +15,7 @@
 #include <asm/arch/sdram_param.h>
 #include <asm/arch/tegra.h>
 #include <asm/arch-tegra/ap.h>
+#include <asm/arch-tegra/apb_misc.h>
 #include <asm/arch-tegra/clk_rst.h>
 #include <asm/arch-tegra/pmc.h>
 #include <asm/arch-tegra/fuse.h>
@@ -122,7 +123,8 @@ int warmboot_save_sdram_params(void)
 {
 	u32 ram_code;
 	struct sdram_params sdram;
-	struct pmux_tri_ctlr *pmt = (struct pmux_tri_ctlr *)NV_PA_APB_MISC_BASE;
+	struct apb_misc_pp_ctlr *apb_misc =
+				(struct apb_misc_pp_ctlr *)NV_PA_APB_MISC_BASE;
 	struct pmc_ctlr *pmc = (struct pmc_ctlr *)NV_PA_PMC_BASE;
 	struct apb_misc_gp_ctlr *gp =
 			(struct apb_misc_gp_ctlr *)NV_PA_APB_MISC_GP_BASE;
@@ -135,8 +137,8 @@ int warmboot_save_sdram_params(void)
 	union fbio_spare_reg fbio_spare;
 
 	/* get ram code that is used as index to array sdram_params in BCT */
-	ram_code = (readl(&pmt->pmt_strap_opt_a) >>
-			STRAP_OPT_A_RAM_CODE_SHIFT) & 3;
+	ram_code = (readl(&apb_misc->strapping_opt_a) >>
+			  STRAP_OPT_A_RAM_CODE_SHIFT) & 3;
 	memcpy(&sdram,
 	       (char *)((struct sdram_params *)SDRAM_PARAMS_BASE + ram_code),
 	       sizeof(sdram));

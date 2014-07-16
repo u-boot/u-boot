@@ -13,6 +13,9 @@
 #include <asm/errno.h>
 #include <asm/byteorder.h>
 
+/* needed for the mmc_cfg definition */
+#include <mmc.h>
+
 /* FSL eSDHC-specific constants */
 #define SYSCTL			0x0002e02c
 #define SYSCTL_INITA		0x08000000
@@ -155,6 +158,7 @@ struct fsl_esdhc_cfg {
 	u32	esdhc_base;
 	u32	sdhc_clk;
 	u8	max_bus_width;
+	struct mmc_config cfg;
 };
 
 /* Select the correct accessors depending on endianess */
@@ -183,5 +187,6 @@ static inline int fsl_esdhc_mmc_init(bd_t *bis) { return -ENOSYS; }
 static inline void fdt_fixup_esdhc(void *blob, bd_t *bd) {}
 #endif /* CONFIG_FSL_ESDHC */
 void __noreturn mmc_boot(void);
+void mmc_spl_load_image(uint32_t offs, unsigned int size, void *vdst);
 
 #endif  /* __FSL_ESDHC_H__ */

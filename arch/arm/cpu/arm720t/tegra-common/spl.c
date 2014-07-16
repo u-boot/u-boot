@@ -13,16 +13,18 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/tegra.h>
+#include <asm/arch-tegra/apb_misc.h>
 #include <asm/arch-tegra/board.h>
-#include <asm/arch/spl.h>
+#include <asm/spl.h>
 #include "cpu.h"
 
 void spl_board_init(void)
 {
-	struct pmux_tri_ctlr *pmt = (struct pmux_tri_ctlr *)NV_PA_APB_MISC_BASE;
+	struct apb_misc_pp_ctlr *apb_misc =
+				(struct apb_misc_pp_ctlr *)NV_PA_APB_MISC_BASE;
 
 	/* enable JTAG */
-	writel(0xC0, &pmt->pmt_cfg_ctl);
+	writel(0xC0, &apb_misc->cfg_ctl);
 
 	board_init_uart_f();
 

@@ -605,22 +605,16 @@ static int do_nand(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		opts.spread = spread;
 
 		if (scrub) {
-			if (!scrub_yes)
-				puts(scrub_warn);
-
-			if (scrub_yes)
+			if (scrub_yes) {
 				opts.scrub = 1;
-			else if (getc() == 'y') {
-				puts("y");
-				if (getc() == '\r')
+			} else {
+				puts(scrub_warn);
+				if (confirm_yesno()) {
 					opts.scrub = 1;
-				else {
+				} else {
 					puts("scrub aborted\n");
 					return 1;
 				}
-			} else {
-				puts("scrub aborted\n");
-				return 1;
 			}
 		}
 		ret = nand_erase_opts(nand, &opts);
@@ -904,7 +898,9 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 	int r;
 	char *s;
 	size_t cnt;
+#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
 	image_header_t *hdr;
+#endif
 #if defined(CONFIG_FIT)
 	const void *fit_hdr = NULL;
 #endif
@@ -930,6 +926,7 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 	bootstage_mark(BOOTSTAGE_ID_NAND_HDR_READ);
 
 	switch (genimg_get_format ((void *)addr)) {
+#if defined(CONFIG_IMAGE_FORMAT_LEGACY)
 	case IMAGE_FORMAT_LEGACY:
 		hdr = (image_header_t *)addr;
 
@@ -938,6 +935,7 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 
 		cnt = image_get_image_size (hdr);
 		break;
+#endif
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
 		fit_hdr = (const void *)addr;

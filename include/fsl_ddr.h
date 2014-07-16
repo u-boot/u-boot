@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2011 Freescale Semiconductor, Inc.
+ * Copyright 2008-2014 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -9,6 +9,7 @@
 #ifndef FSL_DDR_MAIN_H
 #define FSL_DDR_MAIN_H
 
+#include <fsl_ddrc_version.h>
 #include <fsl_ddr_sdram.h>
 #include <fsl_ddr_dimm_params.h>
 
@@ -21,6 +22,10 @@
 #define ddr_in32(a)	in_be32(a)
 #define ddr_out32(a, v)	out_be32(a, v)
 #endif
+
+#define _DDR_ADDR CONFIG_SYS_FSL_DDR_ADDR
+
+u32 fsl_ddr_get_version(void);
 
 #if defined(CONFIG_DDR_SPD) || defined(CONFIG_SPD_EEPROM)
 /*

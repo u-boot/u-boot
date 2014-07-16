@@ -221,11 +221,7 @@ void hw_watchdog_reset(void)
 #ifdef CONFIG_TRAILBLAZER
 int do_bootd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	int rcode = 0;
-
-	if (run_command(getenv("bootcmd"), flag) < 0)
-		rcode = 1;
-	return rcode;
+	return run_command(getenv("bootcmd"), flag);
 }
 
 int board_early_init_r(void)
@@ -386,9 +382,9 @@ static void hydra_initialize(void)
 		fpga = pci_map_bar(devno, PCI_BASE_ADDRESS_0,
 			PCI_REGION_MEM);
 
-		versions = readl(fpga->versions);
-		fpga_version = readl(fpga->fpga_version);
-		fpga_features = readl(fpga->fpga_features);
+		versions = readl(&fpga->versions);
+		fpga_version = readl(&fpga->fpga_version);
+		fpga_features = readl(&fpga->fpga_features);
 
 		hardware_version = versions & 0xf;
 		feature_uart_channels = (fpga_features >> 6) & 0x1f;

@@ -192,6 +192,7 @@ END
 	A sign-off is added automatically to your patches (this is
 	probably a bug). If you put this tag in your patches, it will
 	override the default signoff that patman automatically adds.
+	Multiple duplicate signoffs will be removed.
 
  Tested-by: Their Name <email>
  Reviewed-by: Their Name <email>
@@ -217,8 +218,10 @@ Series-changes: n
 	to update the log there and then, knowing that the script will
 	do the rest.
 
- Cc: Their Name <email>
-	This copies a single patch to another email address.
+Patch-cc: Their Name <email>
+	This copies a single patch to another email address. Note that the
+	Cc: used by git send-email is ignored by patman, but will be
+	interpreted by git send-email if you use it.
 
 Series-process-log: sort, uniq
 	This tells patman to sort and/or uniq the change logs. It is
@@ -246,8 +249,9 @@ Where Patches Are Sent
 
 Once the patches are created, patman sends them using git send-email. The
 whole series is sent to the recipients in Series-to: and Series-cc.
-You can Cc individual patches to other people with the Cc: tag. Tags in the
-subject are also picked up to Cc patches. For example, a commit like this:
+You can Cc individual patches to other people with the Patch-cc: tag. Tags
+in the subject are also picked up to Cc patches. For example, a commit like
+this:
 
 >>>>
 commit 10212537b85ff9b6e09c82045127522c0f0db981
@@ -258,16 +262,16 @@ Date:	Mon Nov 7 23:18:44 2011 -0500
 
     This should make sending out e-mails to the right people easier.
 
-    Cc: sandbox, mikef, ag
-    Cc: afleming
+    Patch-cc: sandbox, mikef, ag
+    Patch-cc: afleming
 <<<<
 
 will create a patch which is copied to x86, arm, sandbox, mikef, ag and
 afleming.
 
-If you have a cover letter it will get sent to the union of the CC lists of
-all of the other patches. If you want to sent it to additional people you
-can add a tag:
+If you have a cover letter it will get sent to the union of the Patch-cc
+lists of all of the other patches. If you want to sent it to additional
+people you can add a tag:
 
 Cover-letter-cc: <list of addresses>
 

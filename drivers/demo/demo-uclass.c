@@ -22,7 +22,7 @@ UCLASS_DRIVER(demo) = {
 	.id		= UCLASS_DEMO,
 };
 
-int demo_hello(struct device *dev, int ch)
+int demo_hello(struct udevice *dev, int ch)
 {
 	const struct demo_ops *ops = device_get_ops(dev);
 
@@ -32,7 +32,7 @@ int demo_hello(struct device *dev, int ch)
 	return ops->hello(dev, ch);
 }
 
-int demo_status(struct device *dev, int *status)
+int demo_status(struct udevice *dev, int *status)
 {
 	const struct demo_ops *ops = device_get_ops(dev);
 
@@ -42,7 +42,7 @@ int demo_status(struct device *dev, int *status)
 	return ops->status(dev, status);
 }
 
-int demo_parse_dt(struct device *dev)
+int demo_parse_dt(struct udevice *dev)
 {
 	struct dm_demo_pdata *pdata = dev_get_platdata(dev);
 	int dn = dev->of_offset;

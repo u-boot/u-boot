@@ -9,6 +9,7 @@
  */
 
 #include <common.h>
+#include <errno.h>
 #include <malloc.h>
 #include <spi.h>
 #include <spi_flash.h>
@@ -381,8 +382,11 @@ int spi_flash_cmd_read_ops(struct spi_flash *flash, u32 offset,
 	}
 
 	cmdsz = SPI_FLASH_CMD_LEN + flash->dummy_byte;
-	cmd = malloc(cmdsz);
-	memset(cmd, 0, cmdsz);
+	cmd = calloc(1, cmdsz);
+	if (!cmd) {
+		debug("SF: Failed to allocate cmd\n");
+		return -ENOMEM;
+	}
 
 	cmd[0] = flash->read_cmd;
 	while (len) {

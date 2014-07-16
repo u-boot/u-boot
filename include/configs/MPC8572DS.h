@@ -11,26 +11,17 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_SYS_GENERIC_BOARD
+#define CONFIG_DISPLAY_BOARDINFO
+
 #include "../board/freescale/common/ics307_clk.h"
 
 #ifdef CONFIG_36BIT
 #define CONFIG_PHYS_64BIT
 #endif
 
-#ifdef CONFIG_NAND
-#define CONFIG_NAND_U_BOOT
-#define CONFIG_RAMBOOT_NAND
-#ifdef CONFIG_NAND_SPL
-#define CONFIG_SYS_TEXT_BASE_SPL 0xfff00000
-#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE_SPL /* start of monitor */
-#else
-#define CONFIG_SYS_LDSCRIPT $(CPUDIR)/u-boot-nand.lds
-#define CONFIG_SYS_TEXT_BASE	0xf8f82000
-#endif /* CONFIG_NAND_SPL */
-#endif
-
 #ifndef CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_TEXT_BASE	0xeff80000
+#define CONFIG_SYS_TEXT_BASE	0xeff40000
 #endif
 
 #ifndef CONFIG_RESET_VECTOR_ADDRESS
@@ -205,12 +196,7 @@
 #define CONFIG_SYS_FLASH_ERASE_TOUT	60000		/* Flash Erase Timeout (ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500		/* Flash Write Timeout (ms) */
 
-#if defined(CONFIG_RAMBOOT_NAND)
-#define CONFIG_SYS_RAMBOOT
-#define CONFIG_SYS_EXTRA_ENV_RELOC
-#else
 #undef CONFIG_SYS_RAMBOOT
-#endif
 
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI
@@ -350,17 +336,10 @@
 			       | OR_FCM_TRLX \
 			       | OR_FCM_EHTR)
 
-#ifdef CONFIG_RAMBOOT_NAND
-#define CONFIG_SYS_BR0_PRELIM  CONFIG_SYS_NAND_BR_PRELIM /* NAND Base Address */
-#define CONFIG_SYS_OR0_PRELIM  CONFIG_SYS_NAND_OR_PRELIM /* NAND Options */
-#define CONFIG_SYS_BR2_PRELIM  CONFIG_FLASH_BR_PRELIM	/* NOR Base Address */
-#define CONFIG_SYS_OR2_PRELIM  CONFIG_FLASH_OR_PRELIM	/* NOR Options */
-#else
 #define CONFIG_SYS_BR0_PRELIM  CONFIG_FLASH_BR_PRELIM	/* NOR Base Address */
 #define CONFIG_SYS_OR0_PRELIM  CONFIG_FLASH_OR_PRELIM	/* NOR Options */
 #define CONFIG_SYS_BR2_PRELIM  CONFIG_SYS_NAND_BR_PRELIM /* NAND Base Address */
 #define CONFIG_SYS_OR2_PRELIM  CONFIG_SYS_NAND_OR_PRELIM /* NAND Options */
-#endif
 #define CONFIG_SYS_BR4_PRELIM  (BR_PHYS_ADDR(CONFIG_SYS_NAND_BASE_PHYS + 0x40000) \
 			       | (2<<BR_DECC_SHIFT)    /* Use HW ECC */ \
 			       | BR_PS_8	       /* Port Size = 8 bit */ \
@@ -597,12 +576,6 @@
  */
 
 #if defined(CONFIG_SYS_RAMBOOT)
-#if defined(CONFIG_RAMBOOT_NAND)
-#define CONFIG_ENV_IS_IN_NAND	1
-#define CONFIG_ENV_SIZE	CONFIG_SYS_NAND_BLOCK_SIZE
-#define CONFIG_ENV_OFFSET	((512 * 1024)\
-				+ CONFIG_SYS_NAND_BLOCK_SIZE)
-#endif
 
 #else
 	#define CONFIG_ENV_IS_IN_FLASH	1

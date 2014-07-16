@@ -20,7 +20,7 @@
 #include <spi.h>
 #include <spi_flash.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/emif_defs.h>
+#include <asm/ti-common/davinci_nand.h>
 #include <asm/arch/emac_defs.h>
 #include <asm/arch/pinmux_defs.h>
 #include <asm/io.h>

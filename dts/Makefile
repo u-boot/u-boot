@@ -12,13 +12,14 @@ ifeq ($(DEVICE_TREE),)
 DEVICE_TREE := unset
 endif
 
+ifneq ($(EXT_DTB),)
+DTB := $(EXT_DTB)
+else
 DTB := arch/$(ARCH)/dts/$(DEVICE_TREE).dtb
-
-quiet_cmd_copy = COPY    $@
-      cmd_copy = cp $< $@
+endif
 
 $(obj)/dt.dtb: $(DTB) FORCE
-	$(call if_changed,copy)
+	$(call if_changed,shipped)
 
 targets += dt.dtb
 
@@ -44,4 +45,4 @@ dtbs: $(obj)/dt.dtb
 clean-files := dt.dtb.S
 
 # Let clean descend into dts directories
-subdir- += ../arch/*/dts
+subdir- += ../arch/arm/dts ../arch/microblaze/dts ../arch/sandbox/dts ../arch/x86/dts

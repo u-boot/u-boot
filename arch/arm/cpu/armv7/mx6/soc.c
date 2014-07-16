@@ -124,10 +124,9 @@ static void clear_ldo_ramp(void)
 }
 
 /*
- * Set the VDDSOC
+ * Set the PMU_REG_CORE register
  *
- * Mask out the REG_CORE[22:18] bits (REG2_TRIG) and set
- * them to the specified millivolt level.
+ * Set LDO_SOC/PU/ARM regulators to the specified millivolt level.
  * Possible values are from 0.725V to 1.450V in steps of
  * 0.025V (25mV).
  */

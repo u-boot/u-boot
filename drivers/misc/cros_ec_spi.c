@@ -17,6 +17,30 @@
 #include <cros_ec.h>
 #include <spi.h>
 
+int cros_ec_spi_packet(struct cros_ec_dev *dev, int out_bytes, int in_bytes)
+{
+	int rv;
+
+	/* Do the transfer */
+	if (spi_claim_bus(dev->spi)) {
+		debug("%s: Cannot claim SPI bus\n", __func__);
+		return -1;
+	}
+
+	rv = spi_xfer(dev->spi, max(out_bytes, in_bytes) * 8,
+		      dev->dout, dev->din,
+		      SPI_XFER_BEGIN | SPI_XFER_END);
+
+	spi_release_bus(dev->spi);
+
+	if (rv) {
+		debug("%s: Cannot complete SPI transfer\n", __func__);
+		return -1;
+	}
+
+	return in_bytes;
+}
+
 /**
  * Send a command to a LPC CROS_EC device and return the reply.
  *
@@ -41,6 +65,12 @@ int cros_ec_spi_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
 	uint8_t *p;
 	int csum, len;
 	int rv;
+
+	if (dev->protocol_version != 2) {
+		debug("%s: Unsupported EC protcol version %d\n",
+		      __func__, dev->protocol_version);
+		return -1;
+	}
 
 	/*
 	 * Sanity-check input size to make sure it plus transaction overhead

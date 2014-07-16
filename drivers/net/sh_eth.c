@@ -67,7 +67,8 @@ int sh_eth_send(struct eth_device *dev, void *packet, int len)
 
 	/* packet must be a 4 byte boundary */
 	if ((int)packet & 3) {
-		printf(SHETHER_NAME ": %s: packet not 4 byte alligned\n", __func__);
+		printf(SHETHER_NAME ": %s: packet not 4 byte alligned\n"
+				, __func__);
 		ret = -EFAULT;
 		goto err;
 	}
@@ -148,7 +149,7 @@ int sh_eth_recv(struct eth_device *dev)
 
 static int sh_eth_reset(struct sh_eth_dev *eth)
 {
-#if defined(SH_ETH_TYPE_GETHER)
+#if defined(SH_ETH_TYPE_GETHER) || defined(SH_ETH_TYPE_RZ)
 	int ret = 0, i;
 
 	/* Start e-dmac transmitter and receiver */
@@ -156,7 +157,7 @@ static int sh_eth_reset(struct sh_eth_dev *eth)
 
 	/* Perform a software reset and wait for it to complete */
 	sh_eth_write(eth, EDMR_SRST, EDMR);
-	for (i = 0; i < TIMEOUT_CNT ; i++) {
+	for (i = 0; i < TIMEOUT_CNT; i++) {
 		if (!(sh_eth_read(eth, EDMR) & EDMR_SRST))
 			break;
 		udelay(1000);
@@ -218,7 +219,7 @@ static int sh_eth_tx_desc_init(struct sh_eth_dev *eth)
 	/* Point the controller to the tx descriptor list. Must use physical
 	   addresses */
 	sh_eth_write(eth, ADDR_TO_PHY(port_info->tx_desc_base), TDLAR);
-#if defined(SH_ETH_TYPE_GETHER)
+#if defined(SH_ETH_TYPE_GETHER) || defined(SH_ETH_TYPE_RZ)
 	sh_eth_write(eth, ADDR_TO_PHY(port_info->tx_desc_base), TDFAR);
 	sh_eth_write(eth, ADDR_TO_PHY(cur_tx_desc), TDFXR);
 	sh_eth_write(eth, 0x01, TDFFR);/* Last discriptor bit */
@@ -288,7 +289,7 @@ static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
 
 	/* Point the controller to the rx descriptor list */
 	sh_eth_write(eth, ADDR_TO_PHY(port_info->rx_desc_base), RDLAR);
-#if defined(SH_ETH_TYPE_GETHER)
+#if defined(SH_ETH_TYPE_GETHER) || defined(SH_ETH_TYPE_RZ)
 	sh_eth_write(eth, ADDR_TO_PHY(port_info->rx_desc_base), RDFAR);
 	sh_eth_write(eth, ADDR_TO_PHY(cur_rx_desc), RDFXR);
 	sh_eth_write(eth, RDFFR_RDLF, RDFFR);
@@ -384,7 +385,7 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 	sh_eth_write(eth, 0, TFTR);
 	sh_eth_write(eth, (FIFO_SIZE_T | FIFO_SIZE_R), FDR);
 	sh_eth_write(eth, RMCR_RST, RMCR);
-#if defined(SH_ETH_TYPE_GETHER)
+#if defined(SH_ETH_TYPE_GETHER) || defined(SH_ETH_TYPE_RZ)
 	sh_eth_write(eth, 0, RPADIR);
 #endif
 	sh_eth_write(eth, (FIFO_F_D_RFF | FIFO_F_D_RFD), FCFTR);
@@ -403,6 +404,8 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 	sh_eth_write(eth, RFLR_RFL_MIN, RFLR);
 #if defined(SH_ETH_TYPE_GETHER)
 	sh_eth_write(eth, 0, PIPR);
+#endif
+#if defined(SH_ETH_TYPE_GETHER) || defined(SH_ETH_TYPE_RZ)
 	sh_eth_write(eth, APR_AP, APR);
 	sh_eth_write(eth, MPR_MP, MPR);
 	sh_eth_write(eth, TPAUSER_TPAUSE, TPAUSER);
@@ -521,41 +524,41 @@ void sh_eth_halt(struct eth_device *dev)
 
 int sh_eth_initialize(bd_t *bd)
 {
-    int ret = 0;
+	int ret = 0;
 	struct sh_eth_dev *eth = NULL;
-    struct eth_device *dev = NULL;
+	struct eth_device *dev = NULL;
 
-    eth = (struct sh_eth_dev *)malloc(sizeof(struct sh_eth_dev));
+	eth = (struct sh_eth_dev *)malloc(sizeof(struct sh_eth_dev));
 	if (!eth) {
 		printf(SHETHER_NAME ": %s: malloc failed\n", __func__);
 		ret = -ENOMEM;
 		goto err;
 	}
 
-    dev = (struct eth_device *)malloc(sizeof(struct eth_device));
+	dev = (struct eth_device *)malloc(sizeof(struct eth_device));
 	if (!dev) {
 		printf(SHETHER_NAME ": %s: malloc failed\n", __func__);
 		ret = -ENOMEM;
 		goto err;
 	}
-    memset(dev, 0, sizeof(struct eth_device));
-    memset(eth, 0, sizeof(struct sh_eth_dev));
+	memset(dev, 0, sizeof(struct eth_device));
+	memset(eth, 0, sizeof(struct sh_eth_dev));
 
 	eth->port = CONFIG_SH_ETHER_USE_PORT;
 	eth->port_info[eth->port].phy_addr = CONFIG_SH_ETHER_PHY_ADDR;
 
-    dev->priv = (void *)eth;
-    dev->iobase = 0;
-    dev->init = sh_eth_init;
-    dev->halt = sh_eth_halt;
-    dev->send = sh_eth_send;
-    dev->recv = sh_eth_recv;
-    eth->port_info[eth->port].dev = dev;
+	dev->priv = (void *)eth;
+	dev->iobase = 0;
+	dev->init = sh_eth_init;
+	dev->halt = sh_eth_halt;
+	dev->send = sh_eth_send;
+	dev->recv = sh_eth_recv;
+	eth->port_info[eth->port].dev = dev;
 
 	sprintf(dev->name, SHETHER_NAME);
 
-    /* Register Device to EtherNet subsystem  */
-    eth_register(dev);
+	/* Register Device to EtherNet subsystem  */
+	eth_register(dev);
 
 	bb_miiphy_buses[0].priv = eth;
 	miiphy_register(dev->name, bb_miiphy_read, bb_miiphy_write);

@@ -11,6 +11,7 @@
 
 #include <common.h>
 #include <net.h>
+#include <netdev.h>
 #include <config.h>
 #include <fdtdec.h>
 #include <libfdt.h>
@@ -338,7 +339,8 @@ static int zynq_gem_init(struct eth_device *dev, bd_t * bis)
 	phy_detection(dev);
 
 	/* interface - look at tsec */
-	phydev = phy_connect(priv->bus, priv->phyaddr, dev, 0);
+	phydev = phy_connect(priv->bus, priv->phyaddr, dev,
+			     PHY_INTERFACE_MODE_MII);
 
 	phydev->supported = supported | ADVERTISED_Pause |
 			    ADVERTISED_Asym_Pause;

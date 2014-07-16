@@ -69,7 +69,6 @@ static int display_banner(void)
 static int init_baudrate(void)
 {
 	gd->baudrate = getenv_ulong("baudrate", 10, CONFIG_BAUDRATE);
-	gd->bd->bi_baudrate = gd->baudrate;
 	return 0;
 }
 
@@ -92,7 +91,6 @@ static void display_global_data(void)
 	printf(" |-env_valid: %lx\n", gd->env_valid);
 	printf(" |-jt(%p): %p\n", gd->jt, *(gd->jt));
 	printf(" \\-bd: %p\n", gd->bd);
-	printf("   |-bi_baudrate: %x\n", bd->bi_baudrate);
 	printf("   |-bi_boot_params: %lx\n", bd->bi_boot_params);
 	printf("   |-bi_memstart: %lx\n", bd->bi_memstart);
 	printf("   |-bi_memsize: %lx\n", bd->bi_memsize);

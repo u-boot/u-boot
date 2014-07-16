@@ -58,6 +58,7 @@ char *get_reset_cause(void)
 static const unsigned char col_lookup[] = {9, 10, 11, 8, 12, 9, 9, 9};
 static const unsigned char bank_lookup[] = {3, 2};
 
+/* these MMDC registers are common to the IMX53 and IMX6 */
 struct esd_mmdc_regs {
 	uint32_t	ctl;
 	uint32_t	pdc;
@@ -66,15 +67,6 @@ struct esd_mmdc_regs {
 	uint32_t	cfg1;
 	uint32_t	cfg2;
 	uint32_t	misc;
-	uint32_t	scr;
-	uint32_t	ref;
-	uint32_t	rsvd1;
-	uint32_t	rsvd2;
-	uint32_t	rwd;
-	uint32_t	or;
-	uint32_t	mrr;
-	uint32_t	cfg3lp;
-	uint32_t	mr4;
 };
 
 #define ESD_MMDC_CTL_GET_ROW(mdctl)	((ctl >> 24) & 7)
@@ -83,6 +75,12 @@ struct esd_mmdc_regs {
 #define ESD_MMDC_CTL_GET_CS1(mdctl)	((ctl >> 30) & 1)
 #define ESD_MMDC_MISC_GET_BANK(mdmisc)	((misc >> 5) & 1)
 
+/*
+ * imx_ddr_size - return size in bytes of DRAM according MMDC config
+ * The MMDC MDCTL register holds the number of bits for row, col, and data
+ * width and the MMDC MDMISC register holds the number of banks. Combine
+ * all these bits to determine the meme size the MMDC has been configured for
+ */
 unsigned imx_ddr_size(void)
 {
 	struct esd_mmdc_regs *mem = (struct esd_mmdc_regs *)MEMCTL_BASE;

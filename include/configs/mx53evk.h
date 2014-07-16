@@ -23,6 +23,8 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 #define CONFIG_OF_LIBFDT
 
 /* Size of malloc() pool */
@@ -45,7 +47,7 @@
 #define CONFIG_POWER_I2C
 #define CONFIG_POWER_FSL
 #define CONFIG_SYS_FSL_PMIC_I2C_ADDR    8
-#define CONFIG_PMIC_FSL_MC13892
+#define CONFIG_POWER_FSL_MC13892
 #define CONFIG_RTC_MC13XXX
 
 /* MMC Configs */

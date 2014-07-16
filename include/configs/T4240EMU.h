@@ -98,7 +98,7 @@
 #define CONFIG_SYS_INTERLAKEN
 
 #define CONFIG_SYS_QE_FMAN_FW_IN_NOR
-#define CONFIG_SYS_QE_FMAN_FW_ADDR		0xEFF00000
+#define CONFIG_SYS_FMAN_FW_ADDR		0xEFF00000
 #define CONFIG_SYS_QE_FMAN_FW_LENGTH	0x10000
 #define CONFIG_SYS_FDT_PAD		(0x3000 + CONFIG_SYS_QE_FMAN_FW_LENGTH)
 
@@ -128,8 +128,7 @@
 	"ramdiskfile=t4240emu/ramdisk.uboot\0"			\
 	"fdtaddr=c00000\0"					\
 	"fdtfile=t4240emu/t4240emu.dtb\0"				\
-	"bdev=sda3\0"						\
-	"c=ffe\0"
+	"bdev=sda3\0"
 
 /*
  * For emulation this causes u-boot to jump to the start of the proof point

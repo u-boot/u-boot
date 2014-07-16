@@ -14,6 +14,9 @@
 
 #include <config.h>
 
+#define TIMER_BASE_CLK 1000000
+#define US_PER_TICK (1000000 / CONFIG_SYS_HZ)
+
 DECLARE_GLOBAL_DATA_PTR;
 
 /* reset CPU (jump to 0, without reset) */
@@ -203,15 +206,15 @@ void cpu_wait_ticks(unsigned long ticks)
 	while (get_timer(start) < ticks) ;
 }
 
-/* initiate and setup timer0 interrupt to 1MHz
+/* initiate and setup timer0 interrupt to configured HZ. Base clock is 1MHz.
  * Return irq number for timer int or a negative number for
  * dealing with self
  */
 int timer_interrupt_init_cpu(void)
 {
-	/* 1ms ticks */
+	/* SYS_HZ ticks per second */
 	gptimer->e[0].val = 0;
-	gptimer->e[0].rld = 999;	/* (((1000000 / 100) - 1)) */
+	gptimer->e[0].rld = (TIMER_BASE_CLK / CONFIG_SYS_HZ) - 1;
 	gptimer->e[0].ctrl =
 	    (LEON3_GPTIMER_EN |
 	     LEON3_GPTIMER_RL | LEON3_GPTIMER_LD | LEON3_GPTIMER_IRQEN);
@@ -219,19 +222,22 @@ int timer_interrupt_init_cpu(void)
 	return gptimer_irq;
 }
 
+ulong get_tbclk(void)
+{
+	return TIMER_BASE_CLK;
+}
+
 /*
  * This function is intended for SHORT delays only.
  */
 unsigned long cpu_usec2ticks(unsigned long usec)
 {
-	/* timer set to 1kHz ==> 1 clk tick = 1 msec */
-	if (usec < 1000)
+	if (usec < US_PER_TICK)
 		return 1;
-	return (usec / 1000);
+	return usec / US_PER_TICK;
 }
 
 unsigned long cpu_ticks2usec(unsigned long ticks)
 {
-	/* 1tick = 1usec */
-	return ticks * 1000;
+	return ticks * US_PER_TICK;
 }

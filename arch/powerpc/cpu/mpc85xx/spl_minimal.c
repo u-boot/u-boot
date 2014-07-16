@@ -12,7 +12,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void cpu_init_f(void)
+ulong cpu_init_f(void)
 {
 #ifdef CONFIG_SYS_INIT_L2_ADDR
 	ccsr_l2cache_t *l2cache = (void *)CONFIG_SYS_MPC85xx_L2_ADDR;
@@ -27,6 +27,8 @@ void cpu_init_f(void)
 	out_be32(&l2cache->l2ctl,
 		(MPC85xx_L2CTL_L2E | MPC85xx_L2CTL_L2SRAM_ENTIRE));
 #endif
+
+	return 0;
 }
 
 #ifndef CONFIG_SYS_FSL_TBCLK_DIV

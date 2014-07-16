@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Freescale Semiconductor, Inc.
+ * Copyright 2013-2014 Freescale Semiconductor, Inc.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -55,57 +55,59 @@ struct ccm_reg {
 
 /* Analog components control digital interface (ANADIG) */
 struct anadig_reg {
+	u32 reserved_0x000[4];
 	u32 pll3_ctrl;
-	u32 resv0[3];
+	u32 reserved_0x014[3];
 	u32 pll7_ctrl;
-	u32 resv1[3];
+	u32 reserved_0x024[3];
 	u32 pll2_ctrl;
-	u32 resv2[3];
+	u32 reserved_0x034[3];
 	u32 pll2_ss;
-	u32 resv3[3];
+	u32 reserved_0x044[3];
 	u32 pll2_num;
-	u32 resv4[3];
+	u32 reserved_0x054[3];
 	u32 pll2_denom;
-	u32 resv5[3];
+	u32 reserved_0x064[3];
 	u32 pll4_ctrl;
-	u32 resv6[3];
+	u32 reserved_0x074[3];
 	u32 pll4_num;
-	u32 resv7[3];
+	u32 reserved_0x084[3];
 	u32 pll4_denom;
+	u32 reserved_0x094[3];
 	u32 pll6_ctrl;
-	u32 resv8[3];
+	u32 reserved_0x0A4[3];
 	u32 pll6_num;
-	u32 resv9[3];
+	u32 reserved_0x0B4[3];
 	u32 pll6_denom;
-	u32 resv10[3];
+	u32 reserved_0x0C4[7];
 	u32 pll5_ctrl;
-	u32 resv11[3];
+	u32 reserved_0x0E4[3];
 	u32 pll3_pfd;
-	u32 resv12[3];
+	u32 reserved_0x0F4[3];
 	u32 pll2_pfd;
-	u32 resv13[3];
+	u32 reserved_0x104[3];
 	u32 reg_1p1;
-	u32 resv14[3];
+	u32 reserved_0x114[3];
 	u32 reg_3p0;
-	u32 resv15[3];
+	u32 reserved_0x124[3];
 	u32 reg_2p5;
-	u32 resv16[7];
+	u32 reserved_0x134[7];
 	u32 ana_misc0;
-	u32 resv17[3];
+	u32 reserved_0x154[3];
 	u32 ana_misc1;
-	u32 resv18[63];
+	u32 reserved_0x164[63];
 	u32 anadig_digprog;
-	u32 resv19[3];
+	u32 reserved_0x264[3];
 	u32 pll1_ctrl;
-	u32 resv20[3];
+	u32 reserved_0x274[3];
 	u32 pll1_ss;
-	u32 resv21[3];
+	u32 reserved_0x284[3];
 	u32 pll1_num;
-	u32 resv22[3];
+	u32 reserved_0x294[3];
 	u32 pll1_denom;
-	u32 resv23[3];
+	u32 reserved_0x2A4[3];
 	u32 pll1_pdf;
-	u32 resv24[3];
+	u32 reserved_0x2B4[3];
 	u32 pll_lock;
 };
 #endif
@@ -148,6 +150,9 @@ struct anadig_reg {
 #define CCM_CACRR_ARM_CLK_DIV_MASK		0x7
 #define CCM_CACRR_ARM_CLK_DIV(v)		((v) & 0x7)
 
+#define CCM_CSCMR1_QSPI0_CLK_SEL_OFFSET		22
+#define CCM_CSCMR1_QSPI0_CLK_SEL_MASK		(0x3 << 22)
+#define CCM_CSCMR1_QSPI0_CLK_SEL(v)		(((v) & 0x3) << 22)
 #define CCM_CSCMR1_ESDHC1_CLK_SEL_OFFSET	18
 #define CCM_CSCMR1_ESDHC1_CLK_SEL_MASK		(0x3 << 18)
 #define CCM_CSCMR1_ESDHC1_CLK_SEL(v)		(((v) & 0x3) << 18)
@@ -159,14 +164,21 @@ struct anadig_reg {
 #define CCM_CSCDR2_ESDHC1_CLK_DIV_MASK		(0xf << 20)
 #define CCM_CSCDR2_ESDHC1_CLK_DIV(v)		(((v) & 0xf) << 20)
 
+#define CCM_CSCDR3_QSPI0_EN			(1 << 4)
+#define CCM_CSCDR3_QSPI0_DIV(v)			((v) << 3)
+#define CCM_CSCDR3_QSPI0_X2_DIV(v)		((v) << 2)
+#define CCM_CSCDR3_QSPI0_X4_DIV(v)		((v) & 0x3)
+
 #define CCM_CSCMR2_RMII_CLK_SEL_OFFSET		4
 #define CCM_CSCMR2_RMII_CLK_SEL_MASK		(0x3 << 4)
 #define CCM_CSCMR2_RMII_CLK_SEL(v)		(((v) & 0x3) << 4)
 
 #define CCM_REG_CTRL_MASK			0xffffffff
+#define CCM_CCGR0_UART0_CTRL_MASK               (0x3 << 14)
 #define CCM_CCGR0_UART1_CTRL_MASK		(0x3 << 16)
 #define CCM_CCGR1_PIT_CTRL_MASK			(0x3 << 14)
 #define CCM_CCGR1_WDOGA5_CTRL_MASK		(0x3 << 28)
+#define CCM_CCGR2_QSPI0_CTRL_MASK		(0x3 << 8)
 #define CCM_CCGR2_IOMUXC_CTRL_MASK		(0x3 << 16)
 #define CCM_CCGR2_PORTA_CTRL_MASK		(0x3 << 18)
 #define CCM_CCGR2_PORTB_CTRL_MASK		(0x3 << 20)
@@ -184,6 +196,10 @@ struct anadig_reg {
 #define CCM_CCGR9_FEC0_CTRL_MASK		0x3
 #define CCM_CCGR9_FEC1_CTRL_MASK		(0x3 << 2)
 
+#define ANADIG_PLL5_CTRL_BYPASS                 (1 << 16)
+#define ANADIG_PLL5_CTRL_ENABLE                 (1 << 13)
+#define ANADIG_PLL5_CTRL_POWERDOWN              (1 << 12)
+#define ANADIG_PLL5_CTRL_DIV_SELECT		1
 #define ANADIG_PLL2_CTRL_ENABLE			(1 << 13)
 #define ANADIG_PLL2_CTRL_POWERDOWN		(1 << 12)
 #define ANADIG_PLL2_CTRL_DIV_SELECT		1

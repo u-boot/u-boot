@@ -92,7 +92,7 @@ static uint mmc_spi_readdata(struct mmc *mmc, void *xbuf,
 			spi_xfer(spi, 2 * 8, NULL, &crc, 0);
 #ifdef CONFIG_MMC_SPI_CRC_ON
 			if (swab16(cyg_crc16(buf, bsize)) != crc) {
-				debug("%s: CRC error\n", mmc->name);
+				debug("%s: CRC error\n", mmc->cfg->name);
 				r1 = R1_SPI_COM_CRC;
 				break;
 			}
@@ -238,6 +238,7 @@ done:
 static void mmc_spi_set_ios(struct mmc *mmc)
 {
 	struct spi_slave *spi = mmc->priv;
+
 	debug("%s: clock %u\n", __func__, mmc->clock);
 	if (mmc->clock)
 		spi_set_speed(spi, mmc->clock);
@@ -246,7 +247,6 @@ static void mmc_spi_set_ios(struct mmc *mmc)
 static int mmc_spi_init_p(struct mmc *mmc)
 {
 	struct spi_slave *spi = mmc->priv;
-	mmc->clock = 0;
 	spi_set_speed(spi, MMC_SPI_MIN_CLOCK);
 	spi_claim_bus(spi);
 	/* cs deactivated for 100+ clock */
@@ -255,33 +255,37 @@ static int mmc_spi_init_p(struct mmc *mmc)
 	return 0;
 }
 
+static const struct mmc_ops mmc_spi_ops = {
+	.send_cmd	= mmc_spi_request,
+	.set_ios	= mmc_spi_set_ios,
+	.init		= mmc_spi_init_p,
+};
+
+static struct mmc_config mmc_spi_cfg = {
+	.name		= "MMC_SPI",
+	.ops		= &mmc_spi_ops,
+	.host_caps	= MMC_MODE_SPI,
+	.voltages	= MMC_SPI_VOLTAGE,
+	.f_min		= MMC_SPI_MIN_CLOCK,
+	.part_type	= PART_TYPE_DOS,
+	.b_max		= CONFIG_SYS_MMC_MAX_BLK_COUNT,
+};
+
 struct mmc *mmc_spi_init(uint bus, uint cs, uint speed, uint mode)
 {
 	struct mmc *mmc;
+	struct spi_slave *spi;
 
-	mmc = malloc(sizeof(*mmc));
-	if (!mmc)
+	spi = spi_setup_slave(bus, cs, speed, mode);
+	if (spi == NULL)
 		return NULL;
-	memset(mmc, 0, sizeof(*mmc));
-	mmc->priv = spi_setup_slave(bus, cs, speed, mode);
-	if (!mmc->priv) {
-		free(mmc);
+
+	mmc_spi_cfg.f_max = speed;
+
+	mmc = mmc_create(&mmc_spi_cfg, spi);
+	if (mmc == NULL) {
+		spi_free_slave(spi);
 		return NULL;
 	}
-	sprintf(mmc->name, "MMC_SPI");
-	mmc->send_cmd = mmc_spi_request;
-	mmc->set_ios = mmc_spi_set_ios;
-	mmc->init = mmc_spi_init_p;
-	mmc->getcd = NULL;
-	mmc->getwp = NULL;
-	mmc->host_caps = MMC_MODE_SPI;
-
-	mmc->voltages = MMC_SPI_VOLTAGE;
-	mmc->f_max = speed;
-	mmc->f_min = MMC_SPI_MIN_CLOCK;
-	mmc->block_dev.part_type = PART_TYPE_DOS;
-
-	mmc_register(mmc);
-
 	return mmc;
 }

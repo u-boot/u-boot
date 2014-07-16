@@ -906,8 +906,8 @@ struct exynos5420_power {
 	unsigned int	sysip_dat3;
 	unsigned char	res11[0xe0];
 	unsigned int	pmu_spare0;
-	unsigned int	pmu_spare1;
-	unsigned int	pmu_spare2;
+	unsigned int	pmu_spare1; /* Store PHY0_CON4 for read leveling */
+	unsigned int	pmu_spare2; /* Store PHY1_CON4 for read leveling */
 	unsigned int	pmu_spare3;
 	unsigned char	res12[0x4];
 	unsigned int	cg_status0;
@@ -1726,4 +1726,5 @@ uint32_t get_reset_status(void);
 
 /* Read the resume function and call it */
 void power_exit_wakeup(void);
+
 #endif

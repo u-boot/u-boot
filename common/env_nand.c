@@ -181,8 +181,6 @@ int saveenv(void)
 {
 	int	ret = 0;
 	ALLOC_CACHE_ALIGN_BUFFER(env_t, env_new, 1);
-	ssize_t	len;
-	char	*res;
 	int	env_idx = 0;
 	static const struct env_location location[] = {
 		{
@@ -207,13 +205,10 @@ int saveenv(void)
 	if (CONFIG_ENV_RANGE < CONFIG_ENV_SIZE)
 		return 1;
 
-	res = (char *)&env_new->data;
-	len = hexport_r(&env_htab, '\0', 0, &res, ENV_SIZE, 0, NULL);
-	if (len < 0) {
-		error("Cannot export environment: errno = %d\n", errno);
-		return 1;
-	}
-	env_new->crc   = crc32(0, env_new->data, ENV_SIZE);
+	ret = env_export(env_new);
+	if (ret)
+		return ret;
+
 #ifdef CONFIG_ENV_OFFSET_REDUND
 	env_new->flags = ++env_flags; /* increase the serial */
 	env_idx = (gd->env_valid == 1);

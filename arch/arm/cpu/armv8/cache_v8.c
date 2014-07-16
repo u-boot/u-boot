@@ -12,15 +12,14 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifndef CONFIG_SYS_DCACHE_OFF
-
-static void set_pgtable_section(u64 section, u64 memory_type)
+void set_pgtable_section(u64 *page_table, u64 index, u64 section,
+			 u64 memory_type)
 {
-	u64 *page_table = (u64 *)gd->arch.tlb_addr;
 	u64 value;
 
-	value = (section << SECTION_SHIFT) | PMD_TYPE_SECT | PMD_SECT_AF;
+	value = section | PMD_TYPE_SECT | PMD_SECT_AF;
 	value |= PMD_ATTRINDX(memory_type);
-	page_table[section] = value;
+	page_table[index] = value;
 }
 
 /* to activate the MMU we need to set up virtual memory */
@@ -28,10 +27,13 @@ static void mmu_setup(void)
 {
 	int i, j, el;
 	bd_t *bd = gd->bd;
+	u64 *page_table = (u64 *)gd->arch.tlb_addr;
 
 	/* Setup an identity-mapping for all spaces */
-	for (i = 0; i < (PGTABLE_SIZE >> 3); i++)
-		set_pgtable_section(i, MT_DEVICE_NGNRNE);
+	for (i = 0; i < (PGTABLE_SIZE >> 3); i++) {
+		set_pgtable_section(page_table, i, i << SECTION_SHIFT,
+				    MT_DEVICE_NGNRNE);
+	}
 
 	/* Setup an identity-mapping for all RAM space */
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
@@ -39,22 +41,26 @@ static void mmu_setup(void)
 		ulong end = bd->bi_dram[i].start + bd->bi_dram[i].size;
 		for (j = start >> SECTION_SHIFT;
 		     j < end >> SECTION_SHIFT; j++) {
-			set_pgtable_section(j, MT_NORMAL);
+			set_pgtable_section(page_table, j, j << SECTION_SHIFT,
+					    MT_NORMAL);
 		}
 	}
 
 	/* load TTBR0 */
 	el = current_el();
-	if (el == 1)
-		asm volatile("msr ttbr0_el1, %0"
-			     : : "r" (gd->arch.tlb_addr) : "memory");
-	else if (el == 2)
-		asm volatile("msr ttbr0_el2, %0"
-			     : : "r" (gd->arch.tlb_addr) : "memory");
-	else
-		asm volatile("msr ttbr0_el3, %0"
-			     : : "r" (gd->arch.tlb_addr) : "memory");
-
+	if (el == 1) {
+		set_ttbr_tcr_mair(el, gd->arch.tlb_addr,
+				  TCR_FLAGS | TCR_EL1_IPS_BITS,
+				  MEMORY_ATTRIBUTES);
+	} else if (el == 2) {
+		set_ttbr_tcr_mair(el, gd->arch.tlb_addr,
+				  TCR_FLAGS | TCR_EL2_IPS_BITS,
+				  MEMORY_ATTRIBUTES);
+	} else {
+		set_ttbr_tcr_mair(el, gd->arch.tlb_addr,
+				  TCR_FLAGS | TCR_EL3_IPS_BITS,
+				  MEMORY_ATTRIBUTES);
+	}
 	/* enable the mmu */
 	set_sctlr(get_sctlr() | CR_M);
 }
@@ -64,7 +70,11 @@ static void mmu_setup(void)
  */
 void invalidate_dcache_all(void)
 {
-	__asm_flush_dcache_all();
+	__asm_invalidate_dcache_all();
+}
+
+void __weak flush_l3_cache(void)
+{
 }
 
 /*
@@ -73,6 +83,7 @@ void invalidate_dcache_all(void)
 void flush_dcache_all(void)
 {
 	__asm_flush_dcache_all();
+	flush_l3_cache();
 }
 
 /*
@@ -161,6 +172,7 @@ int dcache_status(void)
 
 void icache_enable(void)
 {
+	__asm_invalidate_icache_all();
 	set_sctlr(get_sctlr() | CR_I);
 }
 
@@ -204,7 +216,7 @@ void invalidate_icache_all(void)
  * Enable dCache & iCache, whether cache is actually enabled
  * depend on CONFIG_SYS_DCACHE_OFF and CONFIG_SYS_ICACHE_OFF
  */
-void enable_caches(void)
+void __weak enable_caches(void)
 {
 	icache_enable();
 	dcache_enable();

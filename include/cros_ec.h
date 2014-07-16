@@ -20,6 +20,7 @@ enum cros_ec_interface_t {
 	CROS_EC_IF_SPI,
 	CROS_EC_IF_I2C,
 	CROS_EC_IF_LPC,	/* Intel Low Pin Count interface */
+	CROS_EC_IF_SANDBOX,
 };
 
 /* Our configuration information */
@@ -33,7 +34,7 @@ struct cros_ec_dev {
 	unsigned int bus_num;		/* Bus number (for I2C) */
 	unsigned int max_frequency;	/* Maximum interface frequency */
 	struct fdt_gpio_state ec_int;	/* GPIO used as EC interrupt line */
-	int cmd_version_is_supported;   /* Device supports command versions */
+	int protocol_version;           /* Protocol version to use */
 	int optimise_flash_write;	/* Don't write erased flash blocks */
 
 	/*
@@ -61,6 +62,17 @@ struct cros_ec_dev {
 /* Information returned by a key scan */
 struct mbkp_keyscan {
 	uint8_t data[CROS_EC_KEYSCAN_COLS];
+};
+
+/* Holds information about the Chrome EC */
+struct fdt_cros_ec {
+	struct fmap_entry flash;	/* Address and size of EC flash */
+	/*
+	 * Byte value of erased flash, or -1 if not known. It is normally
+	 * 0xff but some flash devices use 0 (e.g. STM32Lxxx)
+	 */
+	int flash_erase_value;
+	struct fmap_entry region[EC_FLASH_REGION_COUNT];
 };
 
 /**
@@ -140,7 +152,7 @@ enum {
 };
 
 /**
- * Set up the Chromium OS matrix keyboard protocol
+ * Initialise the Chromium OS EC driver
  *
  * @param blob		Device tree blob containing setup information
  * @param cros_ecp        Returns pointer to the cros_ec device, or NULL if none
@@ -157,7 +169,7 @@ int cros_ec_init(const void *blob, struct cros_ec_dev **cros_ecp);
  * @param info		Place to put the info structure
  */
 int cros_ec_info(struct cros_ec_dev *dev,
-		struct ec_response_cros_ec_info *info);
+		struct ec_response_mkbp_info *info);
 
 /**
  * Read the host event flags
@@ -226,6 +238,7 @@ struct cros_ec_dev *board_get_cros_ec_dev(void);
 int cros_ec_i2c_init(struct cros_ec_dev *dev, const void *blob);
 int cros_ec_spi_init(struct cros_ec_dev *dev, const void *blob);
 int cros_ec_lpc_init(struct cros_ec_dev *dev, const void *blob);
+int cros_ec_sandbox_init(struct cros_ec_dev *dev, const void *blob);
 
 /**
  * Read information from the fdt for the i2c cros_ec interface
@@ -246,11 +259,19 @@ int cros_ec_i2c_decode_fdt(struct cros_ec_dev *dev, const void *blob);
 int cros_ec_spi_decode_fdt(struct cros_ec_dev *dev, const void *blob);
 
 /**
+ * Read information from the fdt for the sandbox cros_ec interface
+ *
+ * @param dev		CROS-EC device
+ * @param blob		Device tree blob
+ * @return 0 if ok, -1 if we failed to read all required information
+ */
+int cros_ec_sandbox_decode_fdt(struct cros_ec_dev *dev, const void *blob);
+
+/**
  * Check whether the LPC interface supports new-style commands.
  *
  * LPC has its own way of doing this, which involves checking LPC values
- * visible to the host. Do this, and update dev->cmd_version_is_supported
- * accordingly.
+ * visible to the host. Do this, and update dev->protocol_version accordingly.
  *
  * @param dev		CROS-EC device to check
  */
@@ -300,6 +321,21 @@ int cros_ec_lpc_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
 int cros_ec_spi_command(struct cros_ec_dev *dev, uint8_t cmd, int cmd_version,
 		     const uint8_t *dout, int dout_len,
 		     uint8_t **dinp, int din_len);
+
+/**
+ * Send a packet to a CROS-EC device and return the response packet.
+ *
+ * Expects the request packet to be stored in dev->dout.  Stores the response
+ * packet in dev->din.
+ *
+ * @param dev		CROS-EC device
+ * @param out_bytes	Size of request packet to output
+ * @param in_bytes	Maximum size of response packet to receive
+ * @return number of bytes in response packet, or <0 on error
+ */
+int cros_ec_spi_packet(struct cros_ec_dev *dev, int out_bytes, int in_bytes);
+int cros_ec_sandbox_packet(struct cros_ec_dev *dev, int out_bytes,
+			   int in_bytes);
 
 /**
  * Dump a block of data for a command.
@@ -431,4 +467,52 @@ int cros_ec_set_ldo(struct cros_ec_dev *dev, uint8_t index, uint8_t state);
  * @return 0 if ok, -1 on error
  */
 int cros_ec_get_ldo(struct cros_ec_dev *dev, uint8_t index, uint8_t *state);
+
+/**
+ * Initialize the Chrome OS EC at board initialization time.
+ *
+ * @return 0 if ok, -ve on error
+ */
+int cros_ec_board_init(void);
+
+/**
+ * Get access to the error reported when cros_ec_board_init() was called
+ *
+ * This permits delayed reporting of the EC error if it failed during
+ * early init.
+ *
+ * @return error (0 if there was no error, -ve if there was an error)
+ */
+int cros_ec_get_error(void);
+
+/**
+ * Returns information from the FDT about the Chrome EC flash
+ *
+ * @param blob		FDT blob to use
+ * @param config	Structure to use to return information
+ */
+int cros_ec_decode_ec_flash(const void *blob, struct fdt_cros_ec *config);
+
+/**
+ * Check the current keyboard state, in case recovery mode is requested.
+ * This function is for sandbox only.
+ *
+ * @param ec		CROS-EC device
+ */
+void cros_ec_check_keyboard(struct cros_ec_dev *dev);
+
+/*
+ * Tunnel an I2C transfer to the EC
+ *
+ * @param dev		CROS-EC device
+ * @param chip		Chip address (7-bit I2C address)
+ * @param addr		Register address to read/write
+ * @param alen		Length of register address in bytes
+ * @param buffer	Buffer containing data to read/write
+ * @param len		Length of buffer
+ * @param is_read	1 if this is a read, 0 if this is a write
+ */
+int cros_ec_i2c_xfer(struct cros_ec_dev *dev, uchar chip, uint addr,
+		     int alen, uchar *buffer, int len, int is_read);
+
 #endif

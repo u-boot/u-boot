@@ -6,6 +6,8 @@
 
 #include <common.h>
 #include <fdtdec.h>
+#include <fpga.h>
+#include <mmc.h>
 #include <netdev.h>
 #include <zynqpl.h>
 #include <asm/arch/hardware.h>
@@ -13,21 +15,23 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_FPGA
-Xilinx_desc fpga;
+#if (defined(CONFIG_FPGA) && !defined(CONFIG_SPL_BUILD)) || \
+    (defined(CONFIG_SPL_FPGA_SUPPORT) && defined(CONFIG_SPL_BUILD))
+static xilinx_desc fpga;
 
 /* It can be done differently */
-Xilinx_desc fpga010 = XILINX_XC7Z010_DESC(0x10);
-Xilinx_desc fpga015 = XILINX_XC7Z015_DESC(0x15);
-Xilinx_desc fpga020 = XILINX_XC7Z020_DESC(0x20);
-Xilinx_desc fpga030 = XILINX_XC7Z030_DESC(0x30);
-Xilinx_desc fpga045 = XILINX_XC7Z045_DESC(0x45);
-Xilinx_desc fpga100 = XILINX_XC7Z100_DESC(0x100);
+static xilinx_desc fpga010 = XILINX_XC7Z010_DESC(0x10);
+static xilinx_desc fpga015 = XILINX_XC7Z015_DESC(0x15);
+static xilinx_desc fpga020 = XILINX_XC7Z020_DESC(0x20);
+static xilinx_desc fpga030 = XILINX_XC7Z030_DESC(0x30);
+static xilinx_desc fpga045 = XILINX_XC7Z045_DESC(0x45);
+static xilinx_desc fpga100 = XILINX_XC7Z100_DESC(0x100);
 #endif
 
 int board_init(void)
 {
-#ifdef CONFIG_FPGA
+#if (defined(CONFIG_FPGA) && !defined(CONFIG_SPL_BUILD)) || \
+    (defined(CONFIG_SPL_FPGA_SUPPORT) && defined(CONFIG_SPL_BUILD))
 	u32 idcode;
 
 	idcode = zynq_slcr_get_idcode();
@@ -54,7 +58,8 @@ int board_init(void)
 	}
 #endif
 
-#ifdef CONFIG_FPGA
+#if (defined(CONFIG_FPGA) && !defined(CONFIG_SPL_BUILD)) || \
+    (defined(CONFIG_SPL_FPGA_SUPPORT) && defined(CONFIG_SPL_BUILD))
 	fpga_init();
 	fpga_add(fpga_xilinx, &fpga);
 #endif

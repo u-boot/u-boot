@@ -12,7 +12,7 @@
 #include "asm/io.h"
 #include "asm/immap_85xx.h"
 
-#if defined(CONFIG_QE)
+#if defined(CONFIG_QE) && !defined(CONFIG_U_QE)
 #define	NUM_OF_PINS	32
 void qe_config_iopin(u8 port, u8 pin, int dir, int open_drain, int assign)
 {

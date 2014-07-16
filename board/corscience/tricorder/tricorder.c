@@ -79,6 +79,8 @@ static void get_eeprom(struct tricorder_eeprom *eeprom)
 		} else {
 			panic("Could not get board revision\n");
 		}
+	} else {
+		memset(eeprom, 0, TRICORDER_EEPROM_SIZE);
 	}
 }
 

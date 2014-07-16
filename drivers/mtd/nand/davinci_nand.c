@@ -32,8 +32,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <nand.h>
-#include <asm/arch/nand_defs.h>
-#include <asm/arch/emif_defs.h>
+#include <asm/ti-common/davinci_nand.h>
 
 /* Definitions for 4-bit hardware ECC */
 #define NAND_TIMEOUT			10240
@@ -608,6 +607,9 @@ void davinci_nand_init(struct nand_chip *nand)
 	nand->chip_delay  = 0;
 #ifdef CONFIG_SYS_NAND_USE_FLASH_BBT
 	nand->bbt_options	  |= NAND_BBT_USE_FLASH;
+#endif
+#ifdef CONFIG_SYS_NAND_NO_SUBPAGE_WRITE
+	nand->options	  |= NAND_NO_SUBPAGE_WRITE;
 #endif
 #ifdef CONFIG_SYS_NAND_HW_ECC
 	nand->ecc.mode = NAND_ECC_HW;

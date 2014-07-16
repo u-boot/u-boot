@@ -155,7 +155,6 @@ void sh_generic_init(void)
 	bd->bi_sramstart = CONFIG_SYS_SRAM_BASE;
 	bd->bi_sramsize	= CONFIG_SYS_SRAM_SIZE;
 #endif
-	bd->bi_baudrate	= CONFIG_BAUDRATE;
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
 		WATCHDOG_RESET();

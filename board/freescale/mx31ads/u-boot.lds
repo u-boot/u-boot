@@ -22,6 +22,7 @@ SECTIONS
 	  /* WARNING - the following is hand-optimized to fit within	*/
 	  /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
+	  *					(.vectors)
 	  arch/arm/cpu/arm1136/start.o		(.text*)
 	  board/freescale/mx31ads/built-in.o	(.text*)
 	  arch/arm/lib/built-in.o		(.text*)
@@ -69,6 +70,8 @@ SECTIONS
 		*(.__rel_dyn_end)
 	}
 
+	.hash : { *(.hash*) }
+
 	.end :
 	{
 		*(.__end)
@@ -99,7 +102,7 @@ SECTIONS
 	.dynbss : { *(.dynbss) }
 	.dynstr : { *(.dynstr*) }
 	.dynamic : { *(.dynamic*) }
-	.hash : { *(.hash*) }
+	.gnu.hash : { *(.gnu.hash) }
 	.plt : { *(.plt*) }
 	.interp : { *(.interp*) }
 	.gnu : { *(.gnu*) }

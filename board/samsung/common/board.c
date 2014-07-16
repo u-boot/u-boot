@@ -22,16 +22,24 @@
 #include <asm/arch/power.h>
 #include <power/pmic.h>
 #include <asm/arch/sromc.h>
-#include <power/max77686_pmic.h>
+#include <lcd.h>
+#include <samsung/misc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-struct local_info {
-	struct cros_ec_dev *cros_ec_dev;	/* Pointer to cros_ec device */
-	int cros_ec_err;			/* Error for cros_ec, 0 if ok */
-};
+int __exynos_early_init_f(void)
+{
+	return 0;
+}
+int exynos_early_init_f(void)
+	__attribute__((weak, alias("__exynos_early_init_f")));
 
-static struct local_info local;
+int __exynos_power_init(void)
+{
+	return 0;
+}
+int exynos_power_init(void)
+	__attribute__((weak, alias("__exynos_power_init")));
 
 #if defined CONFIG_EXYNOS_TMU
 /* Boot Time Thermal Analysis for SoC temperature threshold breach */
@@ -140,155 +148,21 @@ int board_early_init_f(void)
 	board_i2c_init(gd->fdt_blob);
 #endif
 
-	return err;
-}
-#endif
-
-struct cros_ec_dev *board_get_cros_ec_dev(void)
-{
-	return local.cros_ec_dev;
-}
-
-#ifdef CONFIG_CROS_EC
-static int board_init_cros_ec_devices(const void *blob)
-{
-	local.cros_ec_err = cros_ec_init(blob, &local.cros_ec_dev);
-	if (local.cros_ec_err)
-		return -1;  /* Will report in board_late_init() */
-
-	return 0;
+	return exynos_early_init_f();
 }
 #endif
 
 #if defined(CONFIG_POWER)
-#ifdef CONFIG_POWER_MAX77686
-static int pmic_reg_update(struct pmic *p, int reg, uint regval)
-{
-	u32 val;
-	int ret = 0;
-
-	ret = pmic_reg_read(p, reg, &val);
-	if (ret) {
-		debug("%s: PMIC %d register read failed\n", __func__, reg);
-		return -1;
-	}
-	val |= regval;
-	ret = pmic_reg_write(p, reg, val);
-	if (ret) {
-		debug("%s: PMIC %d register write failed\n", __func__, reg);
-		return -1;
-	}
-	return 0;
-}
-
-static int max77686_init(void)
-{
-	struct pmic *p;
-
-	if (pmic_init(I2C_PMIC))
-		return -1;
-
-	p = pmic_get("MAX77686_PMIC");
-	if (!p)
-		return -ENODEV;
-
-	if (pmic_probe(p))
-		return -1;
-
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_32KHZ, MAX77686_32KHCP_EN))
-		return -1;
-
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_BBAT,
-			    MAX77686_BBCHOSTEN | MAX77686_BBCVS_3_5V))
-		return -1;
-
-	/* VDD_MIF */
-	if (pmic_reg_write(p, MAX77686_REG_PMIC_BUCK1OUT,
-			   MAX77686_BUCK1OUT_1V)) {
-		debug("%s: PMIC %d register write failed\n", __func__,
-		      MAX77686_REG_PMIC_BUCK1OUT);
-		return -1;
-	}
-
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_BUCK1CRTL,
-			    MAX77686_BUCK1CTRL_EN))
-		return -1;
-
-	/* VDD_ARM */
-	if (pmic_reg_write(p, MAX77686_REG_PMIC_BUCK2DVS1,
-			   MAX77686_BUCK2DVS1_1_3V)) {
-		debug("%s: PMIC %d register write failed\n", __func__,
-		      MAX77686_REG_PMIC_BUCK2DVS1);
-		return -1;
-	}
-
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_BUCK2CTRL1,
-			    MAX77686_BUCK2CTRL_ON))
-		return -1;
-
-	/* VDD_INT */
-	if (pmic_reg_write(p, MAX77686_REG_PMIC_BUCK3DVS1,
-			   MAX77686_BUCK3DVS1_1_0125V)) {
-		debug("%s: PMIC %d register write failed\n", __func__,
-		      MAX77686_REG_PMIC_BUCK3DVS1);
-		return -1;
-	}
-
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_BUCK3CTRL,
-			    MAX77686_BUCK3CTRL_ON))
-		return -1;
-
-	/* VDD_G3D */
-	if (pmic_reg_write(p, MAX77686_REG_PMIC_BUCK4DVS1,
-			   MAX77686_BUCK4DVS1_1_2V)) {
-		debug("%s: PMIC %d register write failed\n", __func__,
-		      MAX77686_REG_PMIC_BUCK4DVS1);
-		return -1;
-	}
-
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_BUCK4CTRL1,
-			    MAX77686_BUCK3CTRL_ON))
-		return -1;
-
-	/* VDD_LDO2 */
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_LDO2CTRL1,
-			    MAX77686_LD02CTRL1_1_5V | EN_LDO))
-		return -1;
-
-	/* VDD_LDO3 */
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_LDO3CTRL1,
-			    MAX77686_LD03CTRL1_1_8V | EN_LDO))
-		return -1;
-
-	/* VDD_LDO5 */
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_LDO5CTRL1,
-			    MAX77686_LD05CTRL1_1_8V | EN_LDO))
-		return -1;
-
-	/* VDD_LDO10 */
-	if (pmic_reg_update(p, MAX77686_REG_PMIC_LDO10CTRL1,
-			    MAX77686_LD10CTRL1_1_8V | EN_LDO))
-		return -1;
-
-	return 0;
-}
-#endif
-
 int power_init_board(void)
 {
-	int ret = 0;
-
 	set_ps_hold_ctrl();
 
-#ifdef CONFIG_POWER_MAX77686
-	ret = max77686_init();
-#endif
-
-	return ret;
+	return exynos_power_init();
 }
 #endif
 
 #ifdef CONFIG_OF_CONTROL
+#ifdef CONFIG_SMC911X
 static int decode_sromc(const void *blob, struct fdt_sromc *config)
 {
 	int err;
@@ -312,6 +186,7 @@ static int decode_sromc(const void *blob, struct fdt_sromc *config)
 	}
 	return 0;
 }
+#endif
 
 int board_eth_init(bd_t *bis)
 {
@@ -368,28 +243,47 @@ int board_eth_init(bd_t *bis)
 int board_mmc_init(bd_t *bis)
 {
 	int ret;
-
+#ifdef CONFIG_DWMMC
 	/* dwmmc initializattion for available channels */
 	ret = exynos_dwmmc_init(gd->fdt_blob);
 	if (ret)
 		debug("dwmmc init failed\n");
+#endif
 
+#ifdef CONFIG_SDHCI
+	/* mmc initializattion for available channels */
+	ret = exynos_mmc_init(gd->fdt_blob);
+	if (ret)
+		debug("mmc init failed\n");
+#endif
 	return ret;
 }
 #endif
+
+#ifdef CONFIG_DISPLAY_BOARDINFO
+int checkboard(void)
+{
+	const char *board_name;
+
+	board_name = fdt_getprop(gd->fdt_blob, 0, "model", NULL);
+	printf("Board: %s\n", board_name ? board_name : "unknown");
+
+	return 0;
+}
 #endif
+#endif /* CONFIG_OF_CONTROL */
 
 #ifdef CONFIG_BOARD_LATE_INIT
 int board_late_init(void)
 {
 	stdio_print_current_devices();
 
-	if (local.cros_ec_err) {
+	if (cros_ec_get_error()) {
 		/* Force console on */
 		gd->flags &= ~GD_FLG_SILENT;
 
 		printf("cros-ec communications failure %d\n",
-		       local.cros_ec_err);
+		       cros_ec_get_error());
 		puts("\nPlease reset with Power+Refresh\n\n");
 		panic("Cannot init cros-ec device");
 		return -1;
@@ -401,7 +295,7 @@ int board_late_init(void)
 int arch_early_init_r(void)
 {
 #ifdef CONFIG_CROS_EC
-	if (board_init_cros_ec_devices(gd->fdt_blob)) {
+	if (cros_ec_board_init()) {
 		printf("%s: Failed to init EC\n", __func__);
 		return 0;
 	}
@@ -409,3 +303,21 @@ int arch_early_init_r(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_MISC_INIT_R
+int misc_init_r(void)
+{
+#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+	set_board_info();
+#endif
+#ifdef CONFIG_LCD_MENU
+	keys_init();
+	check_boot_mode();
+#endif
+#ifdef CONFIG_CMD_BMP
+	if (panel_info.logo_on)
+		draw_logo();
+#endif
+	return 0;
+}
+#endif

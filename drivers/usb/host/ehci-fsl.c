@@ -14,8 +14,11 @@
 #include <asm/io.h>
 #include <usb/ehci-fsl.h>
 #include <hwconfig.h>
+#include <asm/fsl_errata.h>
 
 #include "ehci.h"
+
+static void set_txfifothresh(struct usb_ehci *, u32);
 
 /* Check USB PHY clock valid */
 static int usb_phy_clk_valid(struct usb_ehci *ehci)
@@ -41,11 +44,23 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	struct usb_ehci *ehci = NULL;
 	const char *phy_type = NULL;
 	size_t len;
+	char current_usb_controller[5];
 #ifdef CONFIG_SYS_FSL_USB_INTERNAL_UTMI_PHY
 	char usb_phy[5];
 
 	usb_phy[0] = '\0';
 #endif
+	if (has_erratum_a007075()) {
+		/*
+		 * A 5ms delay is needed after applying soft-reset to the
+		 * controller to let external ULPI phy come out of reset.
+		 * This delay needs to be added before re-initializing
+		 * the controller after soft-resetting completes
+		 */
+		mdelay(5);
+	}
+	memset(current_usb_controller, '\0', 5);
+	snprintf(current_usb_controller, 4, "usb%d", index+1);
 
 	switch (index) {
 	case 0:
@@ -70,8 +85,9 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	out_be32(&ehci->snoop2, 0x80000000 | SNOOP_SIZE_2GB);
 
 	/* Init phy */
-	if (hwconfig_sub("usb1", "phy_type"))
-		phy_type = hwconfig_subarg("usb1", "phy_type", &len);
+	if (hwconfig_sub(current_usb_controller, "phy_type"))
+		phy_type = hwconfig_subarg(current_usb_controller,
+				"phy_type", &len);
 	else
 		phy_type = getenv("usb_phy_type");
 
@@ -88,15 +104,20 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 
 	if (!strncmp(phy_type, "utmi", 4)) {
 #if defined(CONFIG_SYS_FSL_USB_INTERNAL_UTMI_PHY)
-		setbits_be32(&ehci->control, PHY_CLK_SEL_UTMI);
-		setbits_be32(&ehci->control, UTMI_PHY_EN);
+		clrsetbits_be32(&ehci->control, CONTROL_REGISTER_W1C_MASK,
+				PHY_CLK_SEL_UTMI);
+		clrsetbits_be32(&ehci->control, CONTROL_REGISTER_W1C_MASK,
+				UTMI_PHY_EN);
 		udelay(1000); /* delay required for PHY Clk to appear */
 #endif
 		out_le32(&(*hcor)->or_portsc[0], PORT_PTS_UTMI);
-		setbits_be32(&ehci->control, USB_EN);
+		clrsetbits_be32(&ehci->control, CONTROL_REGISTER_W1C_MASK,
+				USB_EN);
 	} else {
-		setbits_be32(&ehci->control, PHY_CLK_SEL_ULPI);
-		clrsetbits_be32(&ehci->control, UTMI_PHY_EN, USB_EN);
+		clrsetbits_be32(&ehci->control, CONTROL_REGISTER_W1C_MASK,
+				PHY_CLK_SEL_ULPI);
+		clrsetbits_be32(&ehci->control, UTMI_PHY_EN |
+				CONTROL_REGISTER_W1C_MASK, USB_EN);
 		udelay(1000); /* delay required for PHY Clk to appear */
 		if (!usb_phy_clk_valid(ehci))
 			return -EINVAL;
@@ -109,6 +130,10 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 
 	in_le32(&ehci->usbmode);
 
+	if (SVR_SOC_VER(get_svr()) == SVR_T4240 &&
+	    IS_SVR_REV(get_svr(), 2, 0))
+		set_txfifothresh(ehci, TXFIFOTHRESH);
+
 	return 0;
 }
 
@@ -119,4 +144,18 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 int ehci_hcd_stop(int index)
 {
 	return 0;
+}
+
+/*
+ * Setting the value of TXFIFO_THRESH field in TXFILLTUNING register
+ * to counter DDR latencies in writing data into Tx buffer.
+ * This prevents Tx buffer from getting underrun
+ */
+static void set_txfifothresh(struct usb_ehci *ehci, u32 txfifo_thresh)
+{
+	u32 cmd;
+	cmd = ehci_readl(&ehci->txfilltuning);
+	cmd &= ~TXFIFO_THRESH_MASK;
+	cmd |= TXFIFO_THRESH(txfifo_thresh);
+	ehci_writel(&ehci->txfilltuning, cmd);
 }
