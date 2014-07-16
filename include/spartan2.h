@@ -38,7 +38,12 @@ typedef struct {
 	xilinx_post_fn	post;
 } xilinx_spartan2_slave_serial_fns;
 
+#if defined(CONFIG_FPGA_SPARTAN2)
 extern struct xilinx_fpga_op spartan2_op;
+# define FPGA_SPARTAN2_OPS	&spartan2_op
+#else
+# define FPGA_SPARTAN2_OPS	NULL
+#endif
 
 /* Device Image Sizes
  *********************************************************************/
@@ -61,36 +66,47 @@ extern struct xilinx_fpga_op spartan2_op;
  *********************************************************************/
 /* Spartan-II devices */
 #define XILINX_XC2S15_DESC(iface, fn_table, cookie) \
-{ xilinx_spartan2, iface, XILINX_XC2S15_SIZE, fn_table, cookie, &spartan2_op }
+{ xilinx_spartan2, iface, XILINX_XC2S15_SIZE, fn_table, cookie, \
+	FPGA_SPARTAN2_OPS }
 
 #define XILINX_XC2S30_DESC(iface, fn_table, cookie) \
-{ xilinx_spartan2, iface, XILINX_XC2S30_SIZE, fn_table, cookie, &spartan2_op }
+{ xilinx_spartan2, iface, XILINX_XC2S30_SIZE, fn_table, cookie, \
+	FPGA_SPARTAN2_OPS }
 
 #define XILINX_XC2S50_DESC(iface, fn_table, cookie) \
-{ xilinx_spartan2, iface, XILINX_XC2S50_SIZE, fn_table, cookie, &spartan2_op }
+{ xilinx_spartan2, iface, XILINX_XC2S50_SIZE, fn_table, cookie, \
+	FPGA_SPARTAN2_OPS }
 
 #define XILINX_XC2S100_DESC(iface, fn_table, cookie) \
-{ xilinx_spartan2, iface, XILINX_XC2S100_SIZE, fn_table, cookie, &spartan2_op }
+{ xilinx_spartan2, iface, XILINX_XC2S100_SIZE, fn_table, cookie, \
+	FPGA_SPARTAN2_OPS }
 
 #define XILINX_XC2S150_DESC(iface, fn_table, cookie) \
-{ xilinx_spartan2, iface, XILINX_XC2S150_SIZE, fn_table, cookie, &spartan2_op }
+{ xilinx_spartan2, iface, XILINX_XC2S150_SIZE, fn_table, cookie, \
+	FPGA_SPARTAN2_OPS }
 
 #define XILINX_XC2S200_DESC(iface, fn_table, cookie) \
-{ xilinx_spartan2, iface, XILINX_XC2S200_SIZE, fn_table, cookie, &spartan2_op }
+{ xilinx_spartan2, iface, XILINX_XC2S200_SIZE, fn_table, cookie, \
+	FPGA_SPARTAN2_OPS }
 
 #define XILINX_XC2S50E_DESC(iface, fn_table, cookie) \
-{ xilinx_spartan2, iface, XILINX_XC2S50E_SIZE, fn_table, cookie, &spartan2_op }
+{ xilinx_spartan2, iface, XILINX_XC2S50E_SIZE, fn_table, cookie, \
+	FPGA_SPARTAN2_OPS }
 
 #define XILINX_XC2S100E_DESC(iface, fn_table, cookie) \
-{ xilinx_spartan2, iface, XILINX_XC2S100E_SIZE, fn_table, cookie, &spartan2_op }
+{ xilinx_spartan2, iface, XILINX_XC2S100E_SIZE, fn_table, cookie, \
+	FPGA_SPARTAN2_OPS }
 
 #define XILINX_XC2S150E_DESC(iface, fn_table, cookie) \
-{ xilinx_spartan2, iface, XILINX_XC2S150E_SIZE, fn_table, cookie, &spartan2_op }
+{ xilinx_spartan2, iface, XILINX_XC2S150E_SIZE, fn_table, cookie, \
+	FPGA_SPARTAN2_OPS }
 
 #define XILINX_XC2S200E_DESC(iface, fn_table, cookie) \
-{ xilinx_spartan2, iface, XILINX_XC2S200E_SIZE, fn_table, cookie, &spartan2_op }
+{ xilinx_spartan2, iface, XILINX_XC2S200E_SIZE, fn_table, cookie, \
+	FPGA_SPARTAN2_OPS }
 
 #define XILINX_XC2S300E_DESC(iface, fn_table, cookie) \
-{ xilinx_spartan2, iface, XILINX_XC2S300E_SIZE, fn_table, cookie, &spartan2_op }
+{ xilinx_spartan2, iface, XILINX_XC2S300E_SIZE, fn_table, cookie, \
+	FPGA_SPARTAN2_OPS }
 
 #endif /* _SPARTAN2_H_ */
