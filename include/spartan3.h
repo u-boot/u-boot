@@ -40,7 +40,12 @@ typedef struct {
 	xilinx_abort_fn abort;
 } xilinx_spartan3_slave_serial_fns;
 
+#if defined(CONFIG_FPGA_SPARTAN3)
 extern struct xilinx_fpga_op spartan3_op;
+# define FPGA_SPARTAN3_OPS	&spartan3_op
+#else
+# define FPGA_SPARTAN3_OPS	NULL
+#endif
 
 /* Device Image Sizes
  *********************************************************************/
@@ -71,48 +76,60 @@ extern struct xilinx_fpga_op spartan3_op;
  *********************************************************************/
 /* Spartan-III devices */
 #define XILINX_XC3S50_DESC(iface, fn_table, cookie) \
-{ xilinx_spartan3, iface, XILINX_XC3S50_SIZE, fn_table, cookie, &spartan3_op }
+{ xilinx_spartan3, iface, XILINX_XC3S50_SIZE, fn_table, cookie, \
+	FPGA_SPARTAN3_OPS }
 
 #define XILINX_XC3S200_DESC(iface, fn_table, cookie) \
-{ xilinx_spartan3, iface, XILINX_XC3S200_SIZE, fn_table, cookie, &spartan3_op }
+{ xilinx_spartan3, iface, XILINX_XC3S200_SIZE, fn_table, cookie, \
+	FPGA_SPARTAN3_OPS }
 
 #define XILINX_XC3S400_DESC(iface, fn_table, cookie) \
-{ xilinx_spartan3, iface, XILINX_XC3S400_SIZE, fn_table, cookie, &spartan3_op }
+{ xilinx_spartan3, iface, XILINX_XC3S400_SIZE, fn_table, cookie, \
+	FPGA_SPARTAN3_OPS }
 
 #define XILINX_XC3S1000_DESC(iface, fn_table, cookie) \
-{ xilinx_spartan3, iface, XILINX_XC3S1000_SIZE, fn_table, cookie, &spartan3_op }
+{ xilinx_spartan3, iface, XILINX_XC3S1000_SIZE, fn_table, cookie, \
+	FPGA_SPARTAN3_OPS }
 
 #define XILINX_XC3S1500_DESC(iface, fn_table, cookie) \
-{ xilinx_spartan3, iface, XILINX_XC3S1500_SIZE, fn_table, cookie, &spartan3_op }
+{ xilinx_spartan3, iface, XILINX_XC3S1500_SIZE, fn_table, cookie, \
+	FPGA_SPARTAN3_OPS }
 
 #define XILINX_XC3S2000_DESC(iface, fn_table, cookie) \
-{ xilinx_spartan3, iface, XILINX_XC3S2000_SIZE, fn_table, cookie, &spartan3_op }
+{ xilinx_spartan3, iface, XILINX_XC3S2000_SIZE, fn_table, cookie, \
+	FPGA_SPARTAN3_OPS }
 
 #define XILINX_XC3S4000_DESC(iface, fn_table, cookie) \
-{ xilinx_spartan3, iface, XILINX_XC3S4000_SIZE, fn_table, cookie, &spartan3_op }
+{ xilinx_spartan3, iface, XILINX_XC3S4000_SIZE, fn_table, cookie, \
+	FPGA_SPARTAN3_OPS }
 
 #define XILINX_XC3S5000_DESC(iface, fn_table, cookie) \
-{ xilinx_spartan3, iface, XILINX_XC3S5000_SIZE, fn_table, cookie, &spartan3_op }
+{ xilinx_spartan3, iface, XILINX_XC3S5000_SIZE, fn_table, cookie, \
+	FPGA_SPARTAN3_OPS }
 
 /* Spartan-3E devices */
 #define XILINX_XC3S100E_DESC(iface, fn_table, cookie) \
-{ xilinx_spartan3, iface, XILINX_XC3S100E_SIZE, fn_table, cookie, &spartan3_op }
+{ xilinx_spartan3, iface, XILINX_XC3S100E_SIZE, fn_table, cookie, \
+	FPGA_SPARTAN3_OPS }
 
 #define XILINX_XC3S250E_DESC(iface, fn_table, cookie) \
-{ xilinx_spartan3, iface, XILINX_XC3S250E_SIZE, fn_table, cookie, &spartan3_op }
+{ xilinx_spartan3, iface, XILINX_XC3S250E_SIZE, fn_table, cookie, \
+	FPGA_SPARTAN3_OPS }
 
 #define XILINX_XC3S500E_DESC(iface, fn_table, cookie) \
-{ xilinx_spartan3, iface, XILINX_XC3S500E_SIZE, fn_table, cookie, &spartan3_op }
+{ xilinx_spartan3, iface, XILINX_XC3S500E_SIZE, fn_table, cookie, \
+	FPGA_SPARTAN3_OPS }
 
 #define XILINX_XC3S1200E_DESC(iface, fn_table, cookie) \
 { xilinx_spartan3, iface, XILINX_XC3S1200E_SIZE, fn_table, cookie, \
-	&spartan3_op }
+	FPGA_SPARTAN3_OPS }
 
 #define XILINX_XC3S1600E_DESC(iface, fn_table, cookie) \
 { xilinx_spartan3, iface, XILINX_XC3S1600E_SIZE, fn_table, cookie, \
-	&spartan3_op }
+	FPGA_SPARTAN3_OPS }
 
 #define XILINX_XC6SLX4_DESC(iface, fn_table, cookie) \
-{ xilinx_spartan3, iface, XILINK_XC6SLX4_SIZE, fn_table, cookie, &spartan3_op }
+{ xilinx_spartan3, iface, XILINK_XC6SLX4_SIZE, fn_table, cookie, \
+	FPGA_SPARTAN3_OPS }
 
 #endif /* _SPARTAN3_H_ */
