@@ -238,12 +238,13 @@ int xilinx_info(xilinx_desc *desc)
 		if (desc->name)
 			printf("Device name:   \t%s\n", desc->name);
 
-		if (desc->iface_fns) {
+		if (desc->iface_fns)
 			printf ("Device Function Table @ 0x%p\n", desc->iface_fns);
-			if (desc->operations && desc->operations->info)
-				desc->operations->info(desc);
-		} else
+		else
 			printf ("No Device Function Table.\n");
+
+		if (desc->operations && desc->operations->info)
+			desc->operations->info(desc);
 
 		ret_val = FPGA_SUCCESS;
 	} else {
