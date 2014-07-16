@@ -8,5 +8,20 @@
 #  scripts/mailmapper > tmp; mv tmp .mailmap
 #
 
+Allen Martin <amartin@nvidia.com>
+Andreas Bießmann <andreas.devel@googlemail.com>
+Aneesh V <aneesh@ti.com>
+Dirk Behme <dirk.behme@googlemail.com>
+Fabio Estevam <fabio.estevam@freescale.com>
+Jagannadha Sutradharudu Teki <402jagan@gmail.com>
+Markus Klotzbuecher <mk@denx.de>
+Prabhakar Kushwaha <prabhakar@freescale.com>
+Rajeshwari Shinde <rajeshwari.s@samsung.com>
+Sandeep Paulraj <s-paulraj@ti.com>
+Shaohui Xie <Shaohui.Xie@freescale.com>
 Stefan Roese <stroese>
+Stefano Babic <sbabic@denx.de>
+TsiChung Liew <Tsi-Chung.Liew@freescale.com>
 Wolfgang Denk <wdenk>
+York Sun <yorksun@freescale.com>
+Łukasz Majewski <l.majewski@samsung.com>
