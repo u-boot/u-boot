@@ -159,6 +159,12 @@
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		0x260000 /* environment starts here */
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
+/* NAND: SPL falcon mode configs */
+#ifdef CONFIG_SPL_OS_BOOT
+#define CONFIG_CMD_SPL_NAND_OFS		0x240000 /* un-assigned */
+#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	0x280000
+#define CONFIG_CMD_SPL_WRITE_SIZE	0x2000
+#endif
 
 /*
  * USB configuration.  We enable MUSB support, both for host and for

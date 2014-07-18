@@ -150,6 +150,11 @@
 #define CONFIG_ENV_OFFSET		0x300000 /* environment starts here */
 #define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
 #define CONFIG_SYS_NAND_ONFI_DETECTION
+#ifdef CONFIG_SPL_OS_BOOT
+#define CONFIG_CMD_SPL_NAND_OFS		0x400000 /* un-assigned: (using dtb) */
+#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	0x500000
+#define CONFIG_CMD_SPL_WRITE_SIZE	0x2000
+#endif
 
 /* GPIO pin + bank to pin ID mapping */
 #define GPIO_PIN(_bank, _pin)		((_bank << 5) + _pin)

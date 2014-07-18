@@ -89,6 +89,10 @@ Commands:
 
 Configuration Options:
 
+   CONFIG_SYS_NAND_U_BOOT_OFFS
+	NAND Offset from where SPL will read u-boot image. This is the starting
+	address of u-boot MTD partition in NAND.
+
    CONFIG_CMD_NAND
       Enables NAND support and commmands.
 
@@ -225,6 +229,14 @@ Platform specific options
 	thus such SoC platforms need to depend on software library for ECC error
 	detection. However ECC calculation on such plaforms would still be
 	done by GPMC controller.
+
+   CONFIG_SPL_NAND_AM33XX_BCH
+	Enables SPL-NAND driver (am335x_spl_bch.c) which supports ELM based
+        hardware ECC correction. This is useful for platforms which have ELM
+	hardware engine and use NAND boot mode.
+	Some legacy platforms like OMAP3xx do not have in-built ELM h/w engine,
+	so those platforms should use CONFIG_SPL_NAND_SIMPLE for enabling
+        SPL-NAND driver with software ECC correction support.
 
    CONFIG_NAND_OMAP_ECCSCHEME
 	On OMAP platforms, this CONFIG specifies NAND ECC scheme.
