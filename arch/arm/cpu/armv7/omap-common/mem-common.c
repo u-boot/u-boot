@@ -115,8 +115,8 @@ void gpmc_init(void)
 						ONENAND_GPMC_CONFIG6,
 						0
 						};
-	u32 base = PISMO1_ONEN_BASE;
-	u32 size = PISMO1_ONEN_SIZE;
+	u32 size = GPMC_SIZE_128M;
+	u32 base = CONFIG_SYS_ONENAND_BASE;
 #else
 	const u32 gpmc_regs[GPMC_MAX_REG] = { 0, 0, 0, 0, 0, 0, 0 };
 	u32 size = 0;

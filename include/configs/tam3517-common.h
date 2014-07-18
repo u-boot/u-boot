@@ -181,10 +181,6 @@
  */
 
 /* **** PISMO SUPPORT *** */
-
-/* Configure the PISMO */
-#define PISMO1_NAND_SIZE		GPMC_SIZE_128M
-
 #define CONFIG_NAND
 #define CONFIG_NAND_OMAP_GPMC
 #define CONFIG_ENV_IS_IN_NAND
