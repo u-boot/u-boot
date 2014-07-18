@@ -202,15 +202,18 @@
 #define CONFIG_SPL_OS_BOOT
 
 /*
- * Place the image at the start of the ROM defined image space.
- * We limit our size to the ROM-defined downloaded image area, and use the
- * rest of the space for stack.  We load U-Boot itself into memory at
- * 0x80800000 for legacy reasons (to not conflict with older SPLs).  We
- * have our BSS be placed 1MiB after this, to allow for the default
- * Linux kernel address of 0x80008000 to work, in the Falcon Mode case.
- * We have the SPL malloc pool at the end of the BSS area.
+ * Place the image at the start of the ROM defined image space (per
+ * CONFIG_SPL_TEXT_BASE and we limit our size to the ROM-defined
+ * downloaded image area.  We initalize DRAM as soon as we can so that
+ * we can place stack, malloc and BSS there.  We load U-Boot itself into
+ * memory at 0x80800000 for legacy reasons (to not conflict with older
+ * SPLs).  We have our BSS be placed 2MiB after this, to allow for the
+ * default Linux kernel address of 0x80008000 to work with most sized
+ * kernels, in the Falcon Mode case.  We have the SPL malloc pool at the
+ * end of the BSS area.  We place our stack at 32MiB after the start of
+ * DRAM to allow room for all of the above.
  */
-#define CONFIG_SPL_STACK		CONFIG_SYS_INIT_SP_ADDR
+#define CONFIG_SPL_STACK		(CONFIG_SYS_SDRAM_BASE + (32 << 20))
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE		0x80800000
 #endif
