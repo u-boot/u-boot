@@ -29,6 +29,12 @@
 #endif
 #endif
 
+#define CONFIG_ARMV7_VIRT		1
+#define CONFIG_ARMV7_NONSEC		1
+#define CONFIG_ARMV7_PSCI		1
+#define CONFIG_ARMV7_PSCI_NR_CPUS	2
+#define CONFIG_ARMV7_SECURE_BASE	SUNXI_SRAM_B_BASE
+
 /*
  * Include common sunxi configuration where most the settings are
  */

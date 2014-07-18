@@ -17,6 +17,9 @@ obj-$(CONFIG_SUN7I)	+= clock_sun4i.o
 
 ifndef CONFIG_SPL_BUILD
 obj-y	+= cpu_info.o
+ifdef CONFIG_ARMV7_PSCI
+obj-y	+= psci.o
+endif
 endif
 
 ifdef CONFIG_SPL_BUILD
