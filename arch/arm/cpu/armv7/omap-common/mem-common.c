@@ -87,8 +87,12 @@ void gpmc_init(void)
 						STNOR_GPMC_CONFIG6,
 						STNOR_GPMC_CONFIG7
 						};
-	u32 size = GPMC_SIZE_16M;
 	u32 base = CONFIG_SYS_FLASH_BASE;
+	u32 size =	(CONFIG_SYS_FLASH_SIZE  > 0x08000000) ? GPMC_SIZE_256M :
+	/* > 64MB */	((CONFIG_SYS_FLASH_SIZE > 0x04000000) ? GPMC_SIZE_128M :
+	/* > 32MB */	((CONFIG_SYS_FLASH_SIZE > 0x02000000) ? GPMC_SIZE_64M  :
+	/* > 16MB */	((CONFIG_SYS_FLASH_SIZE > 0x01000000) ? GPMC_SIZE_32M  :
+	/* min 16MB */	GPMC_SIZE_16M)));
 #elif defined(CONFIG_NAND) || defined(CONFIG_CMD_NAND)
 /* configure GPMC for NAND */
 	const u32  gpmc_regs[GPMC_MAX_REG] = {	M_NAND_GPMC_CONFIG1,
@@ -99,8 +103,9 @@ void gpmc_init(void)
 						M_NAND_GPMC_CONFIG6,
 						0
 						};
-	u32 size = GPMC_SIZE_256M;
 	u32 base = CONFIG_SYS_NAND_BASE;
+	u32 size = GPMC_SIZE_16M;
+
 #elif defined(CONFIG_CMD_ONENAND)
 	const u32 gpmc_regs[GPMC_MAX_REG] = {	ONENAND_GPMC_CONFIG1,
 						ONENAND_GPMC_CONFIG2,
