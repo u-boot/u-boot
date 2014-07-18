@@ -281,6 +281,34 @@ int spi_flash_decode_fdt(const void *blob, struct spi_flash *flash)
 }
 #endif /* CONFIG_OF_CONTROL */
 
+#ifdef CONFIG_SYS_SPI_ST_ENABLE_WP_PIN
+/* enable the W#/Vpp signal to disable writing to the status register */
+static int spi_enable_wp_pin(struct spi_flash *flash)
+{
+	u8 status;
+	int ret;
+
+	ret = spi_flash_cmd_read_status(flash, &status);
+	if (ret < 0)
+		return ret;
+
+	ret = spi_flash_cmd_write_status(flash, STATUS_SRWD);
+	if (ret < 0)
+		return ret;
+
+	ret = spi_flash_cmd_write_disable(flash);
+	if (ret < 0)
+		return ret;
+
+	return 0;
+}
+#else
+static int spi_enable_wp_pin(struct spi_flash *flash)
+{
+	return 0;
+}
+#endif
+
 static struct spi_flash *spi_flash_probe_slave(struct spi_slave *spi)
 {
 	struct spi_flash *flash = NULL;
@@ -351,6 +379,8 @@ static struct spi_flash *spi_flash_probe_slave(struct spi_slave *spi)
 		puts(" Full access #define CONFIG_SPI_FLASH_BAR\n");
 	}
 #endif
+	if (spi_enable_wp_pin(flash))
+		puts("Enable WP pin failed\n");
 
 	/* Release spi bus */
 	spi_release_bus(spi);

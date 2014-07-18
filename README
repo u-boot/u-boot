@@ -2930,6 +2930,17 @@ CBFS (Coreboot Filesystem) support
 		memories can be connected with a given cs line.
 		currently Xilinx Zynq qspi support these type of connections.
 
+		CONFIG_SYS_SPI_ST_ENABLE_WP_PIN
+		enable the W#/Vpp signal to disable writing to the status
+		register on ST MICRON flashes like the N25Q128.
+		The status register write enable/disable bit, combined with
+		the W#/VPP signal provides hardware data protection for the
+		device as follows: When the enable/disable bit is set to 1,
+		and the W#/VPP signal is driven LOW, the status register
+		nonvolatile bits become read-only and the WRITE STATUS REGISTER
+		operation will not execute. The only way to exit this
+		hardware-protected mode is to drive W#/VPP HIGH.
+
 - SystemACE Support:
 		CONFIG_SYSTEMACE
 
