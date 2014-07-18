@@ -57,6 +57,7 @@ void enable_usboh3_clk(unsigned char enable);
 int enable_sata_clock(void);
 int enable_pcie_clock(void);
 int enable_i2c_clk(unsigned char enable, unsigned i2c_num);
+int enable_spi_clk(unsigned char enable, unsigned spi_num);
 void enable_ipu_clock(void);
 int enable_fec_anatop_clock(enum enet_freq freq);
 #endif /* __ASM_ARCH_CLOCK_H */

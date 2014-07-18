@@ -505,6 +505,7 @@ struct cspi_regs {
 #define MXC_CSPICTRL_RXOVF	(1 << 6)
 #define MXC_CSPIPERIOD_32KHZ	(1 << 15)
 #define MAX_SPI_BYTES	32
+#define SPI_MAX_NUM	4
 
 /* Bit position inside CTRL register to be associated with SS */
 #define MXC_CSPICTRL_CHAN	18
