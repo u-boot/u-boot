@@ -10,6 +10,7 @@
 #
 obj-y	+= board.o
 obj-$(CONFIG_SUNXI_GMAC)	+= gmac.o
+obj-$(CONFIG_SUNXI_AHCI)	+= ahci.o
 obj-$(CONFIG_A13_OLINUXINOM)	+= dram_a13_oli_micro.o
 obj-$(CONFIG_CUBIEBOARD)	+= dram_cubieboard.o
 obj-$(CONFIG_CUBIEBOARD2)	+= dram_cubieboard2.o
