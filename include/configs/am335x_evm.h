@@ -223,11 +223,6 @@
 /* USB gadget RNDIS */
 #define CONFIG_SPL_MUSB_NEW_SUPPORT
 
-/* General network SPL, both CPSW and USB gadget RNDIS */
-#define CONFIG_SPL_NET_SUPPORT
-#define CONFIG_SPL_ENV_SUPPORT
-#define CONFIG_SPL_NET_VCI_STRING	"AM335x U-Boot SPL"
-
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/am33xx/u-boot-spl.lds"
 
 #ifdef CONFIG_NAND
@@ -314,10 +309,10 @@
 /* disable EFI partitions and partition UUID support */
 #undef CONFIG_PARTITION_UUIDS
 #undef CONFIG_EFI_PARTITION
-/*
- * Disable CPSW SPL support so we fit within the 101KiB limit.
- */
-#undef CONFIG_SPL_ETH_SUPPORT
+/* General network SPL  */
+#define CONFIG_SPL_NET_SUPPORT
+#define CONFIG_SPL_ENV_SUPPORT
+#define CONFIG_SPL_NET_VCI_STRING	"AM335x U-Boot SPL"
 #endif
 
 /* USB Device Firmware Update support */
