@@ -110,8 +110,8 @@ void cm_basic_init(const cm_config_t *cfg)
 	 * gatting off the rest of the periperal clocks.
 	 */
 	writel(~CLKMGR_PERPLLGRP_EN_NANDCLK_MASK &
-		readl(&clock_manager_base->per_pll_en),
-		&clock_manager_base->per_pll_en);
+		readl(&clock_manager_base->per_pll.en),
+		&clock_manager_base->per_pll.en);
 
 	/* DO NOT GATE OFF DEBUG CLOCKS & BRIDGE CLOCKS */
 	writel(CLKMGR_MAINPLLGRP_EN_DBGTIMERCLK_MASK |
@@ -120,12 +120,12 @@ void cm_basic_init(const cm_config_t *cfg)
 		CLKMGR_MAINPLLGRP_EN_DBGATCLK_MASK |
 		CLKMGR_MAINPLLGRP_EN_S2FUSER0CLK_MASK |
 		CLKMGR_MAINPLLGRP_EN_L4MPCLK_MASK,
-		&clock_manager_base->main_pll_en);
+		&clock_manager_base->main_pll.en);
 
-	writel(0, &clock_manager_base->sdr_pll_en);
+	writel(0, &clock_manager_base->sdr_pll.en);
 
 	/* now we can gate off the rest of the peripheral clocks */
-	writel(0, &clock_manager_base->per_pll_en);
+	writel(0, &clock_manager_base->per_pll.en);
 
 	/* Put all plls in bypass */
 	cm_write_bypass(
@@ -142,11 +142,11 @@ void cm_basic_init(const cm_config_t *cfg)
 	 * Some code might have messed with them.
 	 */
 	writel(CLKMGR_MAINPLLGRP_VCO_RESET_VALUE,
-	       &clock_manager_base->main_pll_vco);
+	       &clock_manager_base->main_pll.vco);
 	writel(CLKMGR_PERPLLGRP_VCO_RESET_VALUE,
-	       &clock_manager_base->per_pll_vco);
+	       &clock_manager_base->per_pll.vco);
 	writel(CLKMGR_SDRPLLGRP_VCO_RESET_VALUE,
-	       &clock_manager_base->sdr_pll_vco);
+	       &clock_manager_base->sdr_pll.vco);
 
 	/*
 	 * The clocks to the flash devices and the L4_MAIN clocks can
@@ -156,14 +156,14 @@ void cm_basic_init(const cm_config_t *cfg)
 	 * after exiting safe mode but before ungating the clocks.
 	 */
 	writel(CLKMGR_PERPLLGRP_SRC_RESET_VALUE,
-	       &clock_manager_base->per_pll_src);
+	       &clock_manager_base->per_pll.src);
 	writel(CLKMGR_MAINPLLGRP_L4SRC_RESET_VALUE,
-	       &clock_manager_base->main_pll_l4src);
+	       &clock_manager_base->main_pll.l4src);
 
 	/* read back for the required 5 us delay. */
-	readl(&clock_manager_base->main_pll_vco);
-	readl(&clock_manager_base->per_pll_vco);
-	readl(&clock_manager_base->sdr_pll_vco);
+	readl(&clock_manager_base->main_pll.vco);
+	readl(&clock_manager_base->per_pll.vco);
+	readl(&clock_manager_base->sdr_pll.vco);
 
 
 	/*
@@ -172,17 +172,17 @@ void cm_basic_init(const cm_config_t *cfg)
 	 */
 	writel(cfg->main_vco_base | CLEAR_BGP_EN_PWRDN |
 		CLKMGR_MAINPLLGRP_VCO_REGEXTSEL_MASK,
-		&clock_manager_base->main_pll_vco);
+		&clock_manager_base->main_pll.vco);
 
 	writel(cfg->peri_vco_base | CLEAR_BGP_EN_PWRDN |
 		CLKMGR_PERPLLGRP_VCO_REGEXTSEL_MASK,
-		&clock_manager_base->per_pll_vco);
+		&clock_manager_base->per_pll.vco);
 
 	writel(CLKMGR_SDRPLLGRP_VCO_OUTRESET_SET(0) |
 		CLKMGR_SDRPLLGRP_VCO_OUTRESETALL_SET(0) |
 		cfg->sdram_vco_base | CLEAR_BGP_EN_PWRDN |
 		CLKMGR_SDRPLLGRP_VCO_REGEXTSEL_MASK,
-		&clock_manager_base->sdr_pll_vco);
+		&clock_manager_base->sdr_pll.vco);
 
 	/*
 	 * Time starts here
@@ -194,38 +194,38 @@ void cm_basic_init(const cm_config_t *cfg)
 	timeout = 7;
 
 	/* main mpu */
-	writel(cfg->mpuclk, &clock_manager_base->main_pll_mpuclk);
+	writel(cfg->mpuclk, &clock_manager_base->main_pll.mpuclk);
 
 	/* main main clock */
-	writel(cfg->mainclk, &clock_manager_base->main_pll_mainclk);
+	writel(cfg->mainclk, &clock_manager_base->main_pll.mainclk);
 
 	/* main for dbg */
-	writel(cfg->dbgatclk, &clock_manager_base->main_pll_dbgatclk);
+	writel(cfg->dbgatclk, &clock_manager_base->main_pll.dbgatclk);
 
 	/* main for cfgs2fuser0clk */
 	writel(cfg->cfg2fuser0clk,
-	       &clock_manager_base->main_pll_cfgs2fuser0clk);
+	       &clock_manager_base->main_pll.cfgs2fuser0clk);
 
 	/* Peri emac0 50 MHz default to RMII */
-	writel(cfg->emac0clk, &clock_manager_base->per_pll_emac0clk);
+	writel(cfg->emac0clk, &clock_manager_base->per_pll.emac0clk);
 
 	/* Peri emac1 50 MHz default to RMII */
-	writel(cfg->emac1clk, &clock_manager_base->per_pll_emac1clk);
+	writel(cfg->emac1clk, &clock_manager_base->per_pll.emac1clk);
 
 	/* Peri QSPI */
-	writel(cfg->mainqspiclk, &clock_manager_base->main_pll_mainqspiclk);
+	writel(cfg->mainqspiclk, &clock_manager_base->main_pll.mainqspiclk);
 
-	writel(cfg->perqspiclk, &clock_manager_base->per_pll_perqspiclk);
+	writel(cfg->perqspiclk, &clock_manager_base->per_pll.perqspiclk);
 
 	/* Peri pernandsdmmcclk */
 	writel(cfg->pernandsdmmcclk,
-	       &clock_manager_base->per_pll_pernandsdmmcclk);
+	       &clock_manager_base->per_pll.pernandsdmmcclk);
 
 	/* Peri perbaseclk */
-	writel(cfg->perbaseclk, &clock_manager_base->per_pll_perbaseclk);
+	writel(cfg->perbaseclk, &clock_manager_base->per_pll.perbaseclk);
 
 	/* Peri s2fuser1clk */
-	writel(cfg->s2fuser1clk, &clock_manager_base->per_pll_s2fuser1clk);
+	writel(cfg->s2fuser1clk, &clock_manager_base->per_pll.s2fuser1clk);
 
 	/* 7 us must have elapsed before we can enable the VCO */
 	while (get_timer(start) < timeout)
@@ -234,29 +234,29 @@ void cm_basic_init(const cm_config_t *cfg)
 	/* Enable vco */
 	/* main pll vco */
 	writel(cfg->main_vco_base | VCO_EN_BASE,
-	       &clock_manager_base->main_pll_vco);
+	       &clock_manager_base->main_pll.vco);
 
 	/* periferal pll */
 	writel(cfg->peri_vco_base | VCO_EN_BASE,
-	       &clock_manager_base->per_pll_vco);
+	       &clock_manager_base->per_pll.vco);
 
 	/* sdram pll vco */
 	writel(CLKMGR_SDRPLLGRP_VCO_OUTRESET_SET(0) |
 		CLKMGR_SDRPLLGRP_VCO_OUTRESETALL_SET(0) |
 		cfg->sdram_vco_base | VCO_EN_BASE,
-		&clock_manager_base->sdr_pll_vco);
+		&clock_manager_base->sdr_pll.vco);
 
 	/* L3 MP and L3 SP */
-	writel(cfg->maindiv, &clock_manager_base->main_pll_maindiv);
+	writel(cfg->maindiv, &clock_manager_base->main_pll.maindiv);
 
-	writel(cfg->dbgdiv, &clock_manager_base->main_pll_dbgdiv);
+	writel(cfg->dbgdiv, &clock_manager_base->main_pll.dbgdiv);
 
-	writel(cfg->tracediv, &clock_manager_base->main_pll_tracediv);
+	writel(cfg->tracediv, &clock_manager_base->main_pll.tracediv);
 
 	/* L4 MP, L4 SP, can0, and can1 */
-	writel(cfg->perdiv, &clock_manager_base->per_pll_div);
+	writel(cfg->perdiv, &clock_manager_base->per_pll.div);
 
-	writel(cfg->gpiodiv, &clock_manager_base->per_pll_gpiodiv);
+	writel(cfg->gpiodiv, &clock_manager_base->per_pll.gpiodiv);
 
 #define LOCKED_MASK \
 	(CLKMGR_INTER_SDRPLLLOCKED_MASK  | \
@@ -267,70 +267,70 @@ void cm_basic_init(const cm_config_t *cfg)
 
 	/* write the sdram clock counters before toggling outreset all */
 	writel(cfg->ddrdqsclk & CLKMGR_SDRPLLGRP_DDRDQSCLK_CNT_MASK,
-	       &clock_manager_base->sdr_pll_ddrdqsclk);
+	       &clock_manager_base->sdr_pll.ddrdqsclk);
 
 	writel(cfg->ddr2xdqsclk & CLKMGR_SDRPLLGRP_DDR2XDQSCLK_CNT_MASK,
-	       &clock_manager_base->sdr_pll_ddr2xdqsclk);
+	       &clock_manager_base->sdr_pll.ddr2xdqsclk);
 
 	writel(cfg->ddrdqclk & CLKMGR_SDRPLLGRP_DDRDQCLK_CNT_MASK,
-	       &clock_manager_base->sdr_pll_ddrdqclk);
+	       &clock_manager_base->sdr_pll.ddrdqclk);
 
 	writel(cfg->s2fuser2clk & CLKMGR_SDRPLLGRP_S2FUSER2CLK_CNT_MASK,
-	       &clock_manager_base->sdr_pll_s2fuser2clk);
+	       &clock_manager_base->sdr_pll.s2fuser2clk);
 
 	/*
 	 * after locking, but before taking out of bypass
 	 * assert/deassert outresetall
 	 */
-	uint32_t mainvco = readl(&clock_manager_base->main_pll_vco);
+	uint32_t mainvco = readl(&clock_manager_base->main_pll.vco);
 
 	/* assert main outresetall */
 	writel(mainvco | CLKMGR_MAINPLLGRP_VCO_OUTRESETALL_MASK,
-	       &clock_manager_base->main_pll_vco);
+	       &clock_manager_base->main_pll.vco);
 
-	uint32_t periphvco = readl(&clock_manager_base->per_pll_vco);
+	uint32_t periphvco = readl(&clock_manager_base->per_pll.vco);
 
 	/* assert pheriph outresetall */
 	writel(periphvco | CLKMGR_PERPLLGRP_VCO_OUTRESETALL_MASK,
-	       &clock_manager_base->per_pll_vco);
+	       &clock_manager_base->per_pll.vco);
 
 	/* assert sdram outresetall */
 	writel(cfg->sdram_vco_base | VCO_EN_BASE|
 		CLKMGR_SDRPLLGRP_VCO_OUTRESETALL_SET(1),
-		&clock_manager_base->sdr_pll_vco);
+		&clock_manager_base->sdr_pll.vco);
 
 	/* deassert main outresetall */
 	writel(mainvco & ~CLKMGR_MAINPLLGRP_VCO_OUTRESETALL_MASK,
-	       &clock_manager_base->main_pll_vco);
+	       &clock_manager_base->main_pll.vco);
 
 	/* deassert pheriph outresetall */
 	writel(periphvco & ~CLKMGR_PERPLLGRP_VCO_OUTRESETALL_MASK,
-	       &clock_manager_base->per_pll_vco);
+	       &clock_manager_base->per_pll.vco);
 
 	/* deassert sdram outresetall */
 	writel(CLKMGR_SDRPLLGRP_VCO_OUTRESETALL_SET(0) |
 		cfg->sdram_vco_base | VCO_EN_BASE,
-		&clock_manager_base->sdr_pll_vco);
+		&clock_manager_base->sdr_pll.vco);
 
 	/*
 	 * now that we've toggled outreset all, all the clocks
 	 * are aligned nicely; so we can change any phase.
 	 */
 	cm_write_with_phase(cfg->ddrdqsclk,
-			    (uint32_t)&clock_manager_base->sdr_pll_ddrdqsclk,
+			    (uint32_t)&clock_manager_base->sdr_pll.ddrdqsclk,
 			    CLKMGR_SDRPLLGRP_DDRDQSCLK_PHASE_MASK);
 
 	/* SDRAM DDR2XDQSCLK */
 	cm_write_with_phase(cfg->ddr2xdqsclk,
-			    (uint32_t)&clock_manager_base->sdr_pll_ddr2xdqsclk,
+			    (uint32_t)&clock_manager_base->sdr_pll.ddr2xdqsclk,
 			    CLKMGR_SDRPLLGRP_DDR2XDQSCLK_PHASE_MASK);
 
 	cm_write_with_phase(cfg->ddrdqclk,
-			    (uint32_t)&clock_manager_base->sdr_pll_ddrdqclk,
+			    (uint32_t)&clock_manager_base->sdr_pll.ddrdqclk,
 			    CLKMGR_SDRPLLGRP_DDRDQCLK_PHASE_MASK);
 
 	cm_write_with_phase(cfg->s2fuser2clk,
-			    (uint32_t)&clock_manager_base->sdr_pll_s2fuser2clk,
+			    (uint32_t)&clock_manager_base->sdr_pll.s2fuser2clk,
 			    CLKMGR_SDRPLLGRP_S2FUSER2CLK_PHASE_MASK);
 
 	/* Take all three PLLs out of bypass when safe mode is cleared. */
@@ -351,11 +351,11 @@ void cm_basic_init(const cm_config_t *cfg)
 	 * now that safe mode is clear with clocks gated
 	 * it safe to change the source mux for the flashes the the L4_MAIN
 	 */
-	writel(cfg->persrc, &clock_manager_base->per_pll_src);
-	writel(cfg->l4src, &clock_manager_base->main_pll_l4src);
+	writel(cfg->persrc, &clock_manager_base->per_pll.src);
+	writel(cfg->l4src, &clock_manager_base->main_pll.l4src);
 
 	/* Now ungate non-hw-managed clocks */
-	writel(~0, &clock_manager_base->main_pll_en);
-	writel(~0, &clock_manager_base->per_pll_en);
-	writel(~0, &clock_manager_base->sdr_pll_en);
+	writel(~0, &clock_manager_base->main_pll.en);
+	writel(~0, &clock_manager_base->per_pll.en);
+	writel(~0, &clock_manager_base->sdr_pll.en);
 }

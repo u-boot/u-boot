@@ -24,7 +24,7 @@ static void socfpga_dwmci_clksel(struct dwmci_host *host)
 	unsigned int smplsel;
 
 	/* Disable SDMMC clock. */
-	clrbits_le32(&clock_manager_base->per_pll_en,
+	clrbits_le32(&clock_manager_base->per_pll.en,
 		CLKMGR_PERPLLGRP_EN_SDMMCCLK_MASK);
 
 	/* Configures drv_sel and smpl_sel */
@@ -39,7 +39,7 @@ static void socfpga_dwmci_clksel(struct dwmci_host *host)
 		readl(&system_manager_base->sdmmcgrp_ctrl));
 
 	/* Enable SDMMC clock */
-	setbits_le32(&clock_manager_base->per_pll_en,
+	setbits_le32(&clock_manager_base->per_pll.en,
 		CLKMGR_PERPLLGRP_EN_SDMMCCLK_MASK);
 }
 

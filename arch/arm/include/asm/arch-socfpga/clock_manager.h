@@ -43,6 +43,52 @@ typedef struct {
 
 extern void cm_basic_init(const cm_config_t *cfg);
 
+struct socfpga_clock_manager_main_pll {
+	u32	vco;
+	u32	misc;
+	u32	mpuclk;
+	u32	mainclk;
+	u32	dbgatclk;
+	u32	mainqspiclk;
+	u32	mainnandsdmmcclk;
+	u32	cfgs2fuser0clk;
+	u32	en;
+	u32	maindiv;
+	u32	dbgdiv;
+	u32	tracediv;
+	u32	l4src;
+	u32	stat;
+	u32	_pad_0x38_0x40[2];
+};
+
+struct socfpga_clock_manager_per_pll {
+	u32	vco;
+	u32	misc;
+	u32	emac0clk;
+	u32	emac1clk;
+	u32	perqspiclk;
+	u32	pernandsdmmcclk;
+	u32	perbaseclk;
+	u32	s2fuser1clk;
+	u32	en;
+	u32	div;
+	u32	gpiodiv;
+	u32	src;
+	u32	stat;
+	u32	_pad_0x34_0x40[3];
+};
+
+struct socfpga_clock_manager_sdr_pll {
+	u32	vco;
+	u32	ctrl;
+	u32	ddrdqsclk;
+	u32	ddr2xdqsclk;
+	u32	ddrdqclk;
+	u32	s2fuser2clk;
+	u32	en;
+	u32	stat;
+};
+
 struct socfpga_clock_manager {
 	u32	ctrl;
 	u32	bypass;
@@ -51,50 +97,10 @@ struct socfpga_clock_manager {
 	u32	dbctrl;
 	u32	stat;
 	u32	_pad_0x18_0x3f[10];
-	u32	mainpllgrp;
-	u32	perpllgrp;
-	u32	sdrpllgrp;
+	struct socfpga_clock_manager_main_pll main_pll;
+	struct socfpga_clock_manager_per_pll per_pll;
+	struct socfpga_clock_manager_sdr_pll sdr_pll;
 	u32	_pad_0xe0_0x200[72];
-
-	u32	main_pll_vco;
-	u32	main_pll_misc;
-	u32	main_pll_mpuclk;
-	u32	main_pll_mainclk;
-	u32	main_pll_dbgatclk;
-	u32	main_pll_mainqspiclk;
-	u32	main_pll_mainnandsdmmcclk;
-	u32	main_pll_cfgs2fuser0clk;
-	u32	main_pll_en;
-	u32	main_pll_maindiv;
-	u32	main_pll_dbgdiv;
-	u32	main_pll_tracediv;
-	u32	main_pll_l4src;
-	u32	main_pll_stat;
-	u32	main_pll__pad_0x38_0x40[2];
-
-	u32	per_pll_vco;
-	u32	per_pll_misc;
-	u32	per_pll_emac0clk;
-	u32	per_pll_emac1clk;
-	u32	per_pll_perqspiclk;
-	u32	per_pll_pernandsdmmcclk;
-	u32	per_pll_perbaseclk;
-	u32	per_pll_s2fuser1clk;
-	u32	per_pll_en;
-	u32	per_pll_div;
-	u32	per_pll_gpiodiv;
-	u32	per_pll_src;
-	u32	per_pll_stat;
-	u32	per_pll__pad_0x34_0x40[3];
-
-	u32	sdr_pll_vco;
-	u32	sdr_pll_ctrl;
-	u32	sdr_pll_ddrdqsclk;
-	u32	sdr_pll_ddr2xdqsclk;
-	u32	sdr_pll_ddrdqclk;
-	u32	sdr_pll_s2fuser2clk;
-	u32	sdr_pll_en;
-	u32	sdr_pll_stat;
 };
 
 #define CLKMGR_MAINPLLGRP_EN_S2FUSER0CLK_MASK 0x00000200
