@@ -333,7 +333,7 @@ static void print_part_header (const char *type, block_dev_desc_t * dev_desc)
 
 #endif /* any CONFIG_..._PARTITION */
 
-void print_part (block_dev_desc_t * dev_desc)
+void print_part(block_dev_desc_t * dev_desc)
 {
 
 		switch (dev_desc->part_type) {
@@ -381,8 +381,8 @@ void print_part (block_dev_desc_t * dev_desc)
 
 #endif /* HAVE_BLOCK_DEVICE */
 
-int get_partition_info(block_dev_desc_t *dev_desc, int part
-					, disk_partition_t *info)
+int get_partition_info(block_dev_desc_t *dev_desc, int part,
+		       disk_partition_t *info)
 {
 #ifdef HAVE_BLOCK_DEVICE
 
@@ -511,7 +511,7 @@ int get_device_and_partition(const char *ifname, const char *dev_part_str,
 	disk_partition_t tmpinfo;
 
 	/*
-	 * Special-case a psuedo block device "hostfs", to allow access to the
+	 * Special-case a pseudo block device "hostfs", to allow access to the
 	 * host's own filesystem.
 	 */
 	if (0 == strcmp(ifname, "hostfs")) {

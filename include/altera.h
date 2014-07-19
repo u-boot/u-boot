@@ -26,7 +26,7 @@ typedef enum {			/* typedef Altera_Family */
 	min_altera_type,	/* insert all new types after this */
 	Altera_ACEX1K,		/* ACEX1K Family */
 	Altera_CYC2,		/* CYCLONII Family */
-	Altera_StratixII,	/* StratixII Familiy */
+	Altera_StratixII,	/* StratixII Family */
 /* Add new models here */
 	max_altera_type		/* insert all new types before this */
 } Altera_Family;		/* end, typedef Altera_Family */
