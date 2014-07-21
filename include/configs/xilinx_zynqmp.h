@@ -20,8 +20,9 @@
 #define XILINX_ZYNQMP
 
 /* Generic Interrupt Controller Definitions */
-#define GICD_BASE	0xFD3FF000
-#define GICC_BASE	0xFD3FE100
+#define CONFIG_GICV2
+#define GICD_BASE	0xF9001000
+#define GICC_BASE	0xF9002000
 
 /* Physical Memory Map */
 #define CONFIG_NR_DRAM_BANKS		1
