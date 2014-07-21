@@ -39,4 +39,19 @@ struct crlapb_regs {
 #define SD_MODE		0x00000005
 #define JTAG_MODE	0x00000000
 
+#define ZYNQMP_CSU_BASEADDR	0xFFCC0000
+
+struct csu_regs {
+	u32 reserved0[24];
+	u32 version; /* 0x60 will be moved to 0x24 */
+};
+
+#define csu_base ((struct csu_regs *)ZYNQMP_CSU_BASEADDR)
+
+/* Board version value */
+#define ZYNQMP_CSU_VERSION_SILICON	0x0
+#define ZYNQMP_CSU_VERSION_EP108	0x1
+#define ZYNQMP_CSU_VERSION_VELOCE	0x2
+#define ZYNQMP_CSU_VERSION_QEMU		0x3
+
 #endif /* _ASM_ARCH_HARDWARE_H */

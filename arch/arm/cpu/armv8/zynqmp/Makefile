@@ -6,4 +6,5 @@
 #
 
 obj-y	+= clk.o
+obj-y	+= cpu.o
 obj-y	+= timer.o
