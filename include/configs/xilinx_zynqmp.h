@@ -130,12 +130,10 @@
 	"initrd_size=0x2000000\0"	\
 	"fdt_addr=0x100000\0"		\
 	"fdt_high=0x10000000\0"		\
-	"netboot=tftpboot 10000000 image.ub && bootm\0"	\
+	"netboot=tftpboot 80000 Image && tftpboot f000000 system.dtb && booti 80000 - f000000\0"	\
 	"qspiboot=sf probe 0; sf read 10000000 0 1000000; bootm 10080000\0"	\
 	"sdboot=mmcinfo && fatload mmc 0:0 10000000 image.ub && bootm 10000000\0"	\
-	"jtagboot=tftpboot 1000000 uImage && "		\
-		"tftpboot 20000000 system.dtb && "	\
-		"bootm 1000000 - 20000000\0"
+	"jtagboot=tftpboot 10000000 image.ub && bootm\0"
 
 #define CONFIG_BOOTARGS		"console=ttyPS0,115200 earlyprintk=cdns,uart,0xFF000000"
 #define CONFIG_BOOTCOMMAND	"echo Hello Xilinx ZynqMP; run $modeboot"
@@ -178,5 +176,8 @@
 #define CONFIG_FIT_VERBOSE       /* enable fit_format_{error,warning}() */
 
 #define CONFIG_SYS_BOOTM_LEN	(60 * 1024 * 1024)
+
+#define CONFIG_CMD_BOOTI
+#define CONFIG_CMD_UNZIP
 
 #endif /* __XILINX_ZYNQMP_H */
