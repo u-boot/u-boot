@@ -39,7 +39,6 @@
 
 /* Cache Definitions */
 #define CONFIG_SYS_DCACHE_OFF
-#define CONFIG_SYS_ICACHE_OFF
 
 #define CONFIG_IDENT_STRING		" Xilinx ZynqMP"
 #define CONFIG_BOOTP_VCI_STRING		"U-boot.armv8.Xilinx_ZynqMP"
