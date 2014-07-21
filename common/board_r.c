@@ -588,15 +588,12 @@ static int initr_status_led(void)
 #if defined(CONFIG_CMD_SCSI)
 static int initr_scsi(void)
 {
-	/* Not supported properly on ARM yet */
-#ifndef CONFIG_ARM
 	puts("SCSI:  ");
 	scsi_init();
-#endif
 
 	return 0;
 }
-#endif /* CONFIG_CMD_NET */
+#endif
 
 #if defined(CONFIG_CMD_DOC)
 static int initr_doc(void)
