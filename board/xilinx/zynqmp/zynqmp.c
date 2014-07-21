@@ -75,6 +75,19 @@ int board_late_init(void)
 {
 	u32 reg = 0;
 	u8 bootmode;
+	u32 ver = zynqmp_get_silicon_version();
+
+	switch (ver) {
+	case ZYNQMP_CSU_VERSION_VELOCE:
+	case ZYNQMP_CSU_VERSION_EP108:
+		setenv("serverip", "10.10.70.101");
+		setenv("ipaddr", "10.10.71.100");
+		break;
+	case ZYNQMP_CSU_VERSION_QEMU:
+	default:
+		setenv("serverip", "10.0.2.2");
+		setenv("ipaddr", "10.0.2.15");
+	}
 
 	reg = readl(&crlapb_base->boot_mode);
 	bootmode = reg & BOOT_MODES_MASK;

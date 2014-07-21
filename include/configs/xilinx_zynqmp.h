@@ -127,8 +127,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS       \
 	"ethaddr=00:0a:35:00:01:22\0"	\
 	"kernel_addr=0x200000\0"	\
-	"serverip=10.0.2.2\0"	\
-	"ipaddr=10.0.2.15\0"		\
 	"initrd_addr=0xa00000\0"	\
 	"initrd_size=0x2000000\0"	\
 	"fdt_addr=0x100000\0"		\
