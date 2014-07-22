@@ -162,6 +162,12 @@ while true ; do
 		echo "Internal error!" >&2 ; exit 1 ;;
 	esac
 done
+
+GNU_MAKE=$(scripts/show-gnu-make) || {
+	echo "GNU Make not found" >&2
+	exit 1
+}
+
 # echo "Remaining arguments:"
 # for arg do echo '--> '"\`$arg'" ; done
 
@@ -633,11 +639,11 @@ build_target() {
 	target_arch=$(get_target_arch ${target})
 	eval cross_toolchain=\$CROSS_COMPILE_`echo $target_arch | tr '[:lower:]' '[:upper:]'`
 	if [ "${cross_toolchain}" ] ; then
-	    MAKE="make CROSS_COMPILE=${cross_toolchain}"
+	    MAKE="$GNU_MAKE CROSS_COMPILE=${cross_toolchain}"
 	elif [ "${CROSS_COMPILE}" ] ; then
-	    MAKE="make CROSS_COMPILE=${CROSS_COMPILE}"
+	    MAKE="$GNU_MAKE CROSS_COMPILE=${CROSS_COMPILE}"
 	else
-	    MAKE=make
+	    MAKE=$GNU_MAKE
 	fi
 
 	if [  "${output_dir}" != "." ] ; then
