@@ -193,4 +193,42 @@
 #endif
 #endif /* !CONFIG_NAND */
 
+/* Parallel NOR Support */
+#if defined(CONFIG_NOR)
+/* NOR: device related configs */
+#define CONFIG_SYS_MAX_FLASH_SECT	512
+#define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
+#define CONFIG_SYS_FLASH_SIZE		(64 * 1024 * 1024) /* 64 MB */
+/* #define CONFIG_INIT_IGNORE_ERROR */
+#undef CONFIG_SYS_NO_FLASH
+#define CONFIG_CMD_FLASH
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
+#define CONFIG_SYS_FLASH_PROTECTION
+#define CONFIG_SYS_FLASH_CFI
+#define CONFIG_FLASH_CFI_DRIVER
+#define CONFIG_FLASH_CFI_MTD
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
+#define CONFIG_SYS_FLASH_BASE		(0x08000000)
+#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
+/* Reduce SPL size by removing unlikey targets */
+#ifdef CONFIG_NOR_BOOT
+#define CONFIG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_SECT_SIZE		(128 * 1024)	/* 128 KiB */
+#define MTDIDS_DEFAULT			"nor0=physmap-flash.0"
+#define MTDPARTS_DEFAULT		"mtdparts=physmap-flash.0:" \
+					"128k(NOR.SPL)," \
+					"128k(NOR.SPL.backup1)," \
+					"128k(NOR.SPL.backup2)," \
+					"128k(NOR.SPL.backup3)," \
+					"256k(NOR.u-boot-spl-os)," \
+					"1m(NOR.u-boot)," \
+					"128k(NOR.u-boot-env)," \
+					"128k(NOR.u-boot-env.backup1)," \
+					"8m(NOR.kernel)," \
+					"-(NOR.rootfs)"
+#define CONFIG_ENV_OFFSET		0x001c0000
+#define CONFIG_ENV_OFFSET_REDUND	0x001e0000
+#endif
+#endif  /* NOR support */
+
 #endif /* __CONFIG_DRA7XX_EVM_H */
