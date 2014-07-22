@@ -102,9 +102,9 @@
 
 #define CONFIG_DFU_ALT \
 	"u-boot raw 0x80 0x400;" \
-	"uImage ext4 0 2;" \
-	"modem.bin ext4 0 2;" \
-	"exynos4210-trats.dtb ext4 0 2;" \
+	"/uImage ext4 0 2;" \
+	"/modem.bin ext4 0 2;" \
+	"/exynos4210-trats.dtb ext4 0 2;" \
 	""PARTS_CSA" part 0 1;" \
 	""PARTS_BOOT" part 0 2;" \
 	""PARTS_QBOOT" part 0 3;" \
