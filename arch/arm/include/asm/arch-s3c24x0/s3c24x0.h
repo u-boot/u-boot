@@ -700,4 +700,10 @@ struct s3c24x0_sdi {
 #endif
 };
 
+#ifdef CONFIG_CMD_MMC
+#include <mmc.h>
+int s3cmmc_initialize(bd_t *bis, int (*getcd)(struct mmc *),
+		      int (*getwp)(struct mmc *));
+#endif
+
 #endif /*__S3C24X0_H__*/
