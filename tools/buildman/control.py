@@ -14,6 +14,7 @@ import gitutil
 import patchstream
 import terminal
 import toolchain
+import command
 
 def GetPlural(count):
     """Returns a plural 's' if count is not 1"""
@@ -144,10 +145,16 @@ def DoBuildman(options, args):
     if not options.step:
         options.step = len(series.commits) - 1
 
+    gnu_make = command.Output(os.path.join(options.git,
+                                           'scripts/show-gnu-make')).rstrip()
+    if not gnu_make:
+        print >> sys.stderr, 'GNU Make not found'
+        sys.exit(1)
+
     # Create a new builder with the selected options
     output_dir = os.path.join(options.output_dir, options.branch)
     builder = Builder(toolchains, output_dir, options.git_dir,
-            options.threads, options.jobs, checkout=True,
+            options.threads, options.jobs, gnu_make=gnu_make, checkout=True,
             show_unknown=options.show_unknown, step=options.step)
     builder.force_config_on_failure = not options.quick
 

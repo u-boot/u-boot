@@ -576,7 +576,7 @@ class Builder:
             self.func_sizes = func_sizes
 
     def __init__(self, toolchains, base_dir, git_dir, num_threads, num_jobs,
-                 checkout=True, show_unknown=True, step=1):
+                 gnu_make='make', checkout=True, show_unknown=True, step=1):
         """Create a new Builder object
 
         Args:
@@ -585,6 +585,7 @@ class Builder:
             git_dir: Git directory containing source repository
             num_threads: Number of builder threads to run
             num_jobs: Number of jobs to run at once (passed to make as -j)
+            gnu_make: the command name of GNU Make.
             checkout: True to check out source, False to skip that step.
                 This is used for testing.
             show_unknown: Show unknown boards (those not built) in summary
@@ -596,6 +597,7 @@ class Builder:
         self.threads = []
         self.active = True
         self.do_make = self.Make
+        self.gnu_make = gnu_make
         self.checkout = checkout
         self.num_threads = num_threads
         self.num_jobs = num_jobs
@@ -700,7 +702,7 @@ class Builder:
             args: Arguments to pass to make
             kwargs: Arguments to pass to command.RunPipe()
         """
-        cmd = ['make'] + list(args)
+        cmd = [self.gnu_make] + list(args)
         result = command.RunPipe([cmd], capture=True, capture_stderr=True,
                 cwd=cwd, raise_on_error=False, **kwargs)
         return result
