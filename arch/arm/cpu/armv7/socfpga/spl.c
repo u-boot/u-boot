@@ -14,6 +14,8 @@
 #include <spl.h>
 #include <asm/arch/system_manager.h>
 #include <asm/arch/freeze_controller.h>
+#include <asm/arch/clock_manager.h>
+#include <asm/arch/scan_manager.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

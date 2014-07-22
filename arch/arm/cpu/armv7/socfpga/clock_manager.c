@@ -188,7 +188,6 @@ void cm_basic_init(const cm_config_t *cfg)
 	 * Time starts here
 	 * must wait 7 us from BGPWRDN_SET(0) to VCO_ENABLE_SET(1)
 	 */
-	reset_timer();
 	start = get_timer(0);
 	/* timeout in unit of us as CONFIG_SYS_HZ = 1000*1000 */
 	timeout = 7;

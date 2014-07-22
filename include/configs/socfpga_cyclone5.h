@@ -15,7 +15,7 @@
  * High level configuration
  */
 /* Virtual target or real hardware */
-#define CONFIG_SOCFPGA_VIRTUAL_TARGET
+#undef CONFIG_SOCFPGA_VIRTUAL_TARGET
 
 #define CONFIG_ARMV7
 #define CONFIG_SYS_DCACHE_OFF
