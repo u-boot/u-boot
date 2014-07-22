@@ -68,6 +68,33 @@ const struct pad_conf_entry core_padconf_array_essential[] = {
 	{VIN2A_D21, (IEN | M3)},
 	{VIN2A_D22, (IEN | M3)},
 	{VIN2A_D23, (IEN | M3)},
+#ifdef CONFIG_NAND
+	/* NAND / NOR pin-mux */
+	{GPMC_AD0 , M0 | IEN | PDIS}, /* GPMC_AD0  */
+	{GPMC_AD1 , M0 | IEN | PDIS}, /* GPMC_AD1  */
+	{GPMC_AD2 , M0 | IEN | PDIS}, /* GPMC_AD2  */
+	{GPMC_AD3 , M0 | IEN | PDIS}, /* GPMC_AD3  */
+	{GPMC_AD4 , M0 | IEN | PDIS}, /* GPMC_AD4  */
+	{GPMC_AD5 , M0 | IEN | PDIS}, /* GPMC_AD5  */
+	{GPMC_AD6 , M0 | IEN | PDIS}, /* GPMC_AD6  */
+	{GPMC_AD7 , M0 | IEN | PDIS}, /* GPMC_AD7  */
+	{GPMC_AD8 , M0 | IEN | PDIS}, /* GPMC_AD8  */
+	{GPMC_AD9 , M0 | IEN | PDIS}, /* GPMC_AD9  */
+	{GPMC_AD10, M0 | IEN | PDIS}, /* GPMC_AD10 */
+	{GPMC_AD11, M0 | IEN | PDIS}, /* GPMC_AD11 */
+	{GPMC_AD12, M0 | IEN | PDIS}, /* GPMC_AD12 */
+	{GPMC_AD13, M0 | IEN | PDIS}, /* GPMC_AD13 */
+	{GPMC_AD14, M0 | IEN | PDIS}, /* GPMC_AD14 */
+	{GPMC_AD15, M0 | IEN | PDIS}, /* GPMC_AD15 */
+	{GPMC_CS0,	M0 | IDIS | PEN | PTU}, /* GPMC chip-select */
+	{GPMC_ADVN_ALE,	M0 | IDIS | PEN | PTD}, /* GPMC Addr latch */
+	{GPMC_OEN_REN,	M0 | IDIS | PEN | PTU}, /* GPMC Read enable */
+	{GPMC_WEN,	M0 | IDIS | PEN | PTU}, /* GPMC Write enable_n */
+	{GPMC_BEN0,	M0 | IDIS | PEN | PTD}, /* GPMC Byte/Column En */
+	{GPMC_WAIT0,	M0 | IEN  | PEN | PTU}, /* GPMC Wait/Ready */
+	/* GPMC_WPN (Write Protect) is controlled by DIP Switch SW10(12) */
+#else
+	/* QSPI pin-mux */
 	{GPMC_A13, (IEN | PDIS | M1)},  /* QSPI1_RTCLK */
 	{GPMC_A14, (IEN | PDIS | M1)},  /* QSPI1_D[3] */
 	{GPMC_A15, (IEN | PDIS | M1)},  /* QSPI1_D[2] */
@@ -78,6 +105,7 @@ const struct pad_conf_entry core_padconf_array_essential[] = {
 	{GPMC_A4, (IEN | PDIS | M1)},   /* QSPI1_CS3 */
 	{GPMC_CS2, (IEN | PTU | PDIS | M1)},    /* QSPI1_CS0 */
 	{GPMC_CS3, (IEN | PTU | PDIS | M1)},    /* QSPI1_CS1*/
+#endif /* CONFIG_NAND */
 	{USB2_DRVVBUS, (M0 | IEN | FSC) },
 };
 #endif /* _MUX_DATA_DRA7XX_H_ */
