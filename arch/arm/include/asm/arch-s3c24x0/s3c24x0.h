@@ -675,7 +675,7 @@ struct s3c2400_mmc {
 
 
 /* SD INTERFACE (see S3C2410 manual chapter 19) */
-struct s3c2410_sdi {
+struct s3c24x0_sdi {
 	u32	sdicon;
 	u32	sdipre;
 	u32	sdicarg;
@@ -691,14 +691,13 @@ struct s3c2410_sdi {
 	u32	sdidcnt;
 	u32	sdidsta;
 	u32	sdifsta;
-#ifdef __BIG_ENDIAN
-	u8	res[3];
-	u8	sdidat;
-#else
-	u8	sdidat;
-	u8	res[3];
-#endif
+#ifdef CONFIG_S3C2410
+	u32	sdidat;
 	u32	sdiimsk;
+#else
+	u32	sdiimsk;
+	u32	sdidat;
+#endif
 };
 
 #endif /*__S3C24X0_H__*/
