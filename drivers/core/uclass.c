@@ -158,13 +158,19 @@ int uclass_find_device(enum uclass_id id, int index, struct udevice **devp)
 	return -ENODEV;
 }
 
-int uclass_get_device(enum uclass_id id, int index, struct udevice **devp)
+/**
+ * uclass_get_device_tail() - handle the end of a get_device call
+ *
+ * This handles returning an error or probing a device as needed.
+ *
+ * @dev: Device that needs to be probed
+ * @ret: Error to return. If non-zero then the device is not probed
+ * @devp: Returns the value of 'dev' if there is no error
+ * @return ret, if non-zero, else the result of the device_probe() call
+ */
+static int uclass_get_device_tail(struct udevice *dev, int ret,
+				  struct udevice **devp)
 {
-	struct udevice *dev;
-	int ret;
-
-	*devp = NULL;
-	ret = uclass_find_device(id, index, &dev);
 	if (ret)
 		return ret;
 
@@ -175,6 +181,16 @@ int uclass_get_device(enum uclass_id id, int index, struct udevice **devp)
 	*devp = dev;
 
 	return 0;
+}
+
+int uclass_get_device(enum uclass_id id, int index, struct udevice **devp)
+{
+	struct udevice *dev;
+	int ret;
+
+	*devp = NULL;
+	ret = uclass_find_device(id, index, &dev);
+	return uclass_get_device_tail(dev, ret, devp);
 }
 
 int uclass_first_device(enum uclass_id id, struct udevice **devp)
