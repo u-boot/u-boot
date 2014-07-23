@@ -14,6 +14,7 @@
 #include <linux/compiler.h>
 #include <version.h>
 #include <environment.h>
+#include <dm.h>
 #include <fdtdec.h>
 #include <fs.h>
 #if defined(CONFIG_CMD_IDE)
@@ -53,6 +54,7 @@
 #ifdef CONFIG_SANDBOX
 #include <asm/state.h>
 #endif
+#include <dm/root.h>
 #include <linux/compiler.h>
 
 /*
@@ -778,6 +780,19 @@ static int initf_malloc(void)
 	return 0;
 }
 
+static int initf_dm(void)
+{
+#if defined(CONFIG_DM) && defined(CONFIG_SYS_MALLOC_F_LEN)
+	int ret;
+
+	ret = dm_init_and_scan(true);
+	if (ret)
+		return ret;
+#endif
+
+	return 0;
+}
+
 static init_fnc_t init_sequence_f[] = {
 #ifdef CONFIG_SANDBOX
 	setup_ram_buf,
@@ -836,6 +851,7 @@ static init_fnc_t init_sequence_f[] = {
 	init_timebase,
 #endif
 	initf_malloc,
+	initf_dm,
 	init_baud_rate,		/* initialze baudrate settings */
 	serial_init,		/* serial communications setup */
 	console_init_f,		/* stage 1 init of console */

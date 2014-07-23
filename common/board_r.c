@@ -273,27 +273,10 @@ static int initr_malloc(void)
 #ifdef CONFIG_DM
 static int initr_dm(void)
 {
-	int ret;
-
-	ret = dm_init();
-	if (ret) {
-		debug("dm_init() failed: %d\n", ret);
-		return ret;
-	}
-	ret = dm_scan_platdata(false);
-	if (ret) {
-		debug("dm_scan_platdata() failed: %d\n", ret);
-		return ret;
-	}
-#ifdef CONFIG_OF_CONTROL
-	ret = dm_scan_fdt(gd->fdt_blob, false);
-	if (ret) {
-		debug("dm_scan_fdt() failed: %d\n", ret);
-		return ret;
-	}
-#endif
-
-	return 0;
+	/* Save the pre-reloc driver model and start a new one */
+	gd->dm_root_f = gd->dm_root;
+	gd->dm_root = NULL;
+	return dm_init_and_scan(false);
 }
 #endif
 

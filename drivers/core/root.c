@@ -105,6 +105,31 @@ int dm_scan_fdt(const void *blob, bool pre_reloc_only)
 }
 #endif
 
+int dm_init_and_scan(bool pre_reloc_only)
+{
+	int ret;
+
+	ret = dm_init();
+	if (ret) {
+		debug("dm_init() failed: %d\n", ret);
+		return ret;
+	}
+	ret = dm_scan_platdata(pre_reloc_only);
+	if (ret) {
+		debug("dm_scan_platdata() failed: %d\n", ret);
+		return ret;
+	}
+#ifdef CONFIG_OF_CONTROL
+	ret = dm_scan_fdt(gd->fdt_blob, pre_reloc_only);
+	if (ret) {
+		debug("dm_scan_fdt() failed: %d\n", ret);
+		return ret;
+	}
+#endif
+
+	return 0;
+}
+
 /* This is the root driver - all drivers are children of this */
 U_BOOT_DRIVER(root_driver) = {
 	.name	= "root_driver",
