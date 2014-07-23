@@ -55,6 +55,8 @@ struct driver_info;
  * @child_head: List of children of this device
  * @sibling_node: Next device in list of all devices
  * @flags: Flags for this device DM_FLAG_...
+ * @req_seq: Requested sequence number for this device (-1 = any)
+ * @seq: Allocated sequence number for this device (-1 = none)
  */
 struct udevice {
 	struct driver *driver;
@@ -69,7 +71,12 @@ struct udevice {
 	struct list_head child_head;
 	struct list_head sibling_node;
 	uint32_t flags;
+	int req_seq;
+	int seq;
 };
+
+/* Maximum sequence number supported */
+#define DM_MAX_SEQ	999
 
 /* Returns the operations for a device */
 #define device_get_ops(dev)	(dev->driver->ops)
@@ -160,5 +167,27 @@ void *dev_get_platdata(struct udevice *dev);
  * @return private data, or NULL if none
  */
 void *dev_get_priv(struct udevice *dev);
+
+/**
+ * device_find_child_by_seq() - Find a child device based on a sequence
+ *
+ * This searches for a device with the given seq or req_seq.
+ *
+ * For seq, if an active device has this sequence it will be returned.
+ * If there is no such device then this will return -ENODEV.
+ *
+ * For req_seq, if a device (whether activated or not) has this req_seq
+ * value, that device will be returned. This is a strong indication that
+ * the device will receive that sequence when activated.
+ *
+ * @parent: Parent device
+ * @seq_or_req_seq: Sequence number to find (0=first)
+ * @find_req_seq: true to find req_seq, false to find seq
+ * @devp: Returns pointer to device (there is only one per for each seq).
+ * Set to NULL if none is found
+ * @return 0 if OK, -ve on error
+ */
+int device_find_child_by_seq(struct udevice *parent, int seq_or_req_seq,
+			     bool find_req_seq, struct udevice **devp);
 
 #endif

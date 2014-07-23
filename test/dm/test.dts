@@ -8,6 +8,7 @@
 
 	aliases {
 		console = &uart0;
+		testfdt6 = "/e-test";
 	};
 
 	uart0: serial {
@@ -42,6 +43,7 @@
 	some-bus {
 		#address-cells = <1>;
 		#size-cells = <0>;
+		reg = <3>;
 		ping-expect = <4>;
 		ping-add = <4>;
 		c-test {
@@ -52,7 +54,14 @@
 	};
 
 	d-test {
-		reg = <6>;
+		reg = <3>;
+		ping-expect = <6>;
+		ping-add = <6>;
+		compatible = "google,another-fdt-test";
+	};
+
+	e-test {
+		reg = <3>;
 		ping-expect = <6>;
 		ping-add = <6>;
 		compatible = "google,another-fdt-test";

@@ -10,6 +10,7 @@
  */
 
 #include <common.h>
+#include <fdtdec.h>
 #include <malloc.h>
 #include <dm/device.h>
 #include <dm/device-internal.h>
@@ -20,6 +21,8 @@
 #include <dm/util.h>
 #include <linux/err.h>
 #include <linux/list.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /**
  * device_chld_unbind() - Unbind all device's children from the device
@@ -95,6 +98,21 @@ int device_bind(struct udevice *parent, struct driver *drv, const char *name,
 	dev->parent = parent;
 	dev->driver = drv;
 	dev->uclass = uc;
+
+	/*
+	 * For some devices, such as a SPI or I2C bus, the 'reg' property
+	 * is a reasonable indicator of the sequence number. But if there is
+	 * an alias, we use that in preference. In any case, this is just
+	 * a 'requested' sequence, and will be resolved (and ->seq updated)
+	 * when the device is probed.
+	 */
+	dev->req_seq = fdtdec_get_int(gd->fdt_blob, of_offset, "reg", -1);
+	dev->seq = -1;
+	if (uc->uc_drv->name && of_offset != -1) {
+		fdtdec_get_alias_seq(gd->fdt_blob, uc->uc_drv->name, of_offset,
+				     &dev->req_seq);
+	}
+
 	if (!dev->platdata && drv->platdata_auto_alloc_size)
 		dev->flags |= DM_FLAG_ALLOC_PDATA;
 
@@ -207,6 +225,7 @@ int device_probe(struct udevice *dev)
 	struct driver *drv;
 	int size = 0;
 	int ret;
+	int seq;
 
 	if (!dev)
 		return -EINVAL;
@@ -249,6 +268,13 @@ int device_probe(struct udevice *dev)
 			goto fail;
 	}
 
+	seq = uclass_resolve_seq(dev);
+	if (seq < 0) {
+		ret = seq;
+		goto fail;
+	}
+	dev->seq = seq;
+
 	if (drv->ofdata_to_platdata && dev->of_offset >= 0) {
 		ret = drv->ofdata_to_platdata(dev);
 		if (ret)
@@ -276,6 +302,7 @@ fail_uclass:
 			__func__, dev->name);
 	}
 fail:
+	dev->seq = -1;
 	device_free(dev);
 
 	return ret;
@@ -311,6 +338,7 @@ int device_remove(struct udevice *dev)
 
 	device_free(dev);
 
+	dev->seq = -1;
 	dev->flags &= ~DM_FLAG_ACTIVATED;
 
 	return 0;

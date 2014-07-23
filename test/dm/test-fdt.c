@@ -94,7 +94,7 @@ UCLASS_DRIVER(testfdt) = {
 /* Test that FDT-based binding works correctly */
 static int dm_test_fdt(struct dm_test_state *dms)
 {
-	const int num_drivers = 3;
+	const int num_drivers = 4;
 	struct udevice *dev;
 	struct uclass *uc;
 	int ret;
@@ -163,3 +163,55 @@ static int dm_test_fdt_pre_reloc(struct dm_test_state *dms)
 	return 0;
 }
 DM_TEST(dm_test_fdt_pre_reloc, 0);
+
+/* Test that sequence numbers are allocated properly */
+static int dm_test_fdt_uclass_seq(struct dm_test_state *dms)
+{
+	struct udevice *dev;
+
+	/* A few basic santiy tests */
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_FDT, 3, true, &dev));
+	ut_asserteq_str("b-test", dev->name);
+
+	ut_assertok(uclass_find_device_by_seq(UCLASS_TEST_FDT, 0, true, &dev));
+	ut_asserteq_str("a-test", dev->name);
+
+	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 5,
+						       true, &dev));
+	ut_asserteq_ptr(NULL, dev);
+
+	/* Test aliases */
+	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 6, &dev));
+	ut_asserteq_str("e-test", dev->name);
+
+	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 7,
+						       true, &dev));
+
+	/* Note that c-test is not probed since it is not a top-level node */
+	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 3, &dev));
+	ut_asserteq_str("b-test", dev->name);
+
+	/*
+	 * d-test wants sequence number 3 also, but it can't have it because
+	 * b-test gets it first.
+	 */
+	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 2, &dev));
+	ut_asserteq_str("d-test", dev->name);
+
+	/* d-test actually gets 0 */
+	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 0, &dev));
+	ut_asserteq_str("d-test", dev->name);
+
+	/* initially no one wants seq 1 */
+	ut_asserteq(-ENODEV, uclass_get_device_by_seq(UCLASS_TEST_FDT, 1,
+						      &dev));
+	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 0, &dev));
+	ut_assertok(uclass_get_device(UCLASS_TEST_FDT, 1, &dev));
+
+	/* But now that it is probed, we can find it */
+	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 1, &dev));
+	ut_asserteq_str("a-test", dev->name);
+
+	return 0;
+}
+DM_TEST(dm_test_fdt_uclass_seq, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

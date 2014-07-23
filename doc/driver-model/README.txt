@@ -95,12 +95,16 @@ are provided in test/dm. To run them, try:
 You should see something like this:
 
     <...U-Boot banner...>
-    Running 14 driver model tests
+    Running 15 driver model tests
     Test: dm_test_autobind
     Test: dm_test_autoprobe
     Test: dm_test_children
     Test: dm_test_fdt
+    Device 'd-test': seq 3 is in use by 'b-test'
     Test: dm_test_fdt_pre_reloc
+    Test: dm_test_fdt_uclass_seq
+    Device 'd-test': seq 3 is in use by 'b-test'
+    Device 'a-test': seq 0 is in use by 'd-test'
     Test: dm_test_gpio
     sandbox_gpio: sb_gpio_get_value: error: offset 4 not reserved
     Test: dm_test_leak
@@ -339,6 +343,80 @@ numbering comes from include/dm/uclass.h. To add a new uclass, add to the
 end of the enum there, then declare your uclass as above.
 
 
+Device Sequence Numbers
+-----------------------
+
+U-Boot numbers devices from 0 in many situations, such as in the command
+line for I2C and SPI buses, and the device names for serial ports (serial0,
+serial1, ...). Driver model supports this numbering and permits devices
+to be locating by their 'sequence'.
+
+Sequence numbers start from 0 but gaps are permitted. For example, a board
+may have I2C buses 0, 1, 4, 5 but no 2 or 3. The choice of how devices are
+numbered is up to a particular board, and may be set by the SoC in some
+cases. While it might be tempting to automatically renumber the devices
+where there are gaps in the sequence, this can lead to confusion and is
+not the way that U-Boot works.
+
+Each device can request a sequence number. If none is required then the
+device will be automatically allocated the next available sequence number.
+
+To specify the sequence number in the device tree an alias is typically
+used.
+
+aliases {
+	serial2 = "/serial@22230000";
+};
+
+This indicates that in the uclass called "serial", the named node
+("/serial@22230000") will be given sequence number 2. Any command or driver
+which requests serial device 2 will obtain this device.
+
+Some devices represent buses where the devices on the bus are numbered or
+addressed. For example, SPI typically numbers its slaves from 0, and I2C
+uses a 7-bit address. In these cases the 'reg' property of the subnode is
+used, for example:
+
+{
+	aliases {
+		spi2 = "/spi@22300000";
+	};
+
+	spi@22300000 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		spi-flash@0 {
+			reg = <0>;
+			...
+		}
+		eeprom@1 {
+			reg = <1>;
+		};
+	};
+
+In this case we have a SPI bus with two slaves at 0 and 1. The SPI bus
+itself is numbered 2. So we might access the SPI flash with:
+
+	sf probe 2:0
+
+and the eeprom with
+
+	sspi 2:1 32 ef
+
+These commands simply need to look up the 2nd device in the SPI uclass to
+find the right SPI bus. Then, they look at the children of that bus for the
+right sequence number (0 or 1 in this case).
+
+Typically the alias method is used for top-level nodes and the 'reg' method
+is used only for buses.
+
+Device sequence numbers are resolved when a device is probed. Before then
+the sequence number is only a request which may or may not be honoured,
+depending on what other devices have been probed. However the numbering is
+entirely under the control of the board author so a conflict is generally
+an error.
+
+
 Driver Lifecycle
 ----------------
 
@@ -409,7 +487,11 @@ steps (see device_probe()):
    This means (for example) that an I2C driver will require that its bus
    be activated.
 
-   e. If the driver provides an ofdata_to_platdata() method, then this is
+   e. The device's sequence number is assigned, either the requested one
+   (assuming no conflicts) or the next available one if there is a conflict
+   or nothing particular is requested.
+
+   f. If the driver provides an ofdata_to_platdata() method, then this is
    called to convert the device tree data into platform data. This should
    do various calls like fdtdec_get_int(gd->fdt_blob, dev->of_offset, ...)
    to access the node and store the resulting information into dev->platdata.
@@ -425,7 +507,7 @@ steps (see device_probe()):
    data, one day it is possible that U-Boot will cache platformat data for
    devices which are regularly de/activated).
 
-   f. The device's probe() method is called. This should do anything that
+   g. The device's probe() method is called. This should do anything that
    is required by the device to get it going. This could include checking
    that the hardware is actually present, setting up clocks for the
    hardware and setting up hardware registers to initial values. The code
@@ -440,9 +522,9 @@ steps (see device_probe()):
    allocate the priv space here yourself. The same applies also to
    platdata_auto_alloc_size. Remember to free them in the remove() method.
 
-   g. The device is marked 'activated'
+   h. The device is marked 'activated'
 
-   h. The uclass's post_probe() method is called, if one exists. This may
+   i. The uclass's post_probe() method is called, if one exists. This may
    cause the uclass to do some housekeeping to record the device as
    activated and 'known' by the uclass.
 
@@ -488,7 +570,14 @@ remove it. This performs the probe steps in reverse:
       or preferably ofdata_to_platdata()) and the deallocation in remove()
       are the responsibility of the driver author.
 
-   e. The device is marked inactive. Note that it is still bound, so the
+   e. The device sequence number is set to -1, meaning that it no longer
+   has an allocated sequence. If the device is later reactivated and that
+   sequence number is still free, it may well receive the name sequence
+   number again. But from this point, the sequence number previously used
+   by this device will no longer exist (think of SPI bus 2 being removed
+   and bus 2 is no longer available for use).
+
+   f. The device is marked inactive. Note that it is still bound, so the
    device structure itself is not freed at this point. Should the device be
    activated again, then the cycle starts again at step 2 above.
 
