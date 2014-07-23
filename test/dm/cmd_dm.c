@@ -29,6 +29,8 @@ static void dm_display_line(struct udevice *dev, char *buf)
 	printf("%s- %c %s @ %08lx", buf,
 	       dev->flags & DM_FLAG_ACTIVATED ? '*' : ' ',
 	       dev->name, (ulong)map_to_sysmem(dev));
+	if (dev->req_seq != -1)
+		printf(", %d", dev->req_seq);
 	puts("\n");
 }
 
