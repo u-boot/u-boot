@@ -118,6 +118,10 @@ struct udevice_id {
  * @remove: Called to remove a device, i.e. de-activate it
  * @unbind: Called to unbind a device from its driver
  * @ofdata_to_platdata: Called before probe to decode device tree data
+ * @child_pre_probe: Called before a child device is probed. The device has
+ * memory allocated but it has not yet been probed.
+ * @child_post_remove: Called after a child device is removed. The device
+ * has memory allocated but its device_remove() method has been called.
  * @priv_auto_alloc_size: If non-zero this is the size of the private data
  * to be allocated in the device's ->priv pointer. If zero, then the driver
  * is responsible for allocating any data required.
@@ -143,6 +147,8 @@ struct driver {
 	int (*remove)(struct udevice *dev);
 	int (*unbind)(struct udevice *dev);
 	int (*ofdata_to_platdata)(struct udevice *dev);
+	int (*child_pre_probe)(struct udevice *dev);
+	int (*child_post_remove)(struct udevice *dev);
 	int priv_auto_alloc_size;
 	int platdata_auto_alloc_size;
 	int per_child_auto_alloc_size;

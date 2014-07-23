@@ -14,9 +14,37 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+enum {
+	FLAG_CHILD_PROBED	= 10,
+	FLAG_CHILD_REMOVED	= -7,
+};
+
+static struct dm_test_state *test_state;
+
 static int testbus_drv_probe(struct udevice *dev)
 {
 	return dm_scan_fdt_node(dev, gd->fdt_blob, dev->of_offset, false);
+}
+
+static int testbus_child_pre_probe(struct udevice *dev)
+{
+	struct dm_test_parent_data *parent_data = dev_get_parentdata(dev);
+
+	parent_data->flag += FLAG_CHILD_PROBED;
+
+	return 0;
+}
+
+static int testbus_child_post_remove(struct udevice *dev)
+{
+	struct dm_test_parent_data *parent_data = dev_get_parentdata(dev);
+	struct dm_test_state *dms = test_state;
+
+	parent_data->flag += FLAG_CHILD_REMOVED;
+	if (dms)
+		dms->removed = dev;
+
+	return 0;
 }
 
 static const struct udevice_id testbus_ids[] = {
@@ -34,6 +62,8 @@ U_BOOT_DRIVER(testbus_drv) = {
 	.priv_auto_alloc_size = sizeof(struct dm_test_priv),
 	.platdata_auto_alloc_size = sizeof(struct dm_test_pdata),
 	.per_child_auto_alloc_size = sizeof(struct dm_test_parent_data),
+	.child_pre_probe = testbus_child_pre_probe,
+	.child_post_remove = testbus_child_post_remove,
 };
 
 UCLASS_DRIVER(testbus) = {
@@ -172,3 +202,41 @@ static int dm_test_bus_parent_data(struct dm_test_state *dms)
 }
 
 DM_TEST(dm_test_bus_parent_data, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test that the bus ops are called when a child is probed/removed */
+static int dm_test_bus_parent_ops(struct dm_test_state *dms)
+{
+	struct dm_test_parent_data *parent_data;
+	struct udevice *bus, *dev;
+	struct uclass *uc;
+
+	test_state = dms;
+	ut_assertok(uclass_get_device(UCLASS_TEST_BUS, 0, &bus));
+	ut_assertok(uclass_get(UCLASS_TEST_FDT, &uc));
+
+	uclass_foreach_dev(dev, uc) {
+		/* Ignore these if they are not on this bus */
+		if (dev->parent != bus)
+			continue;
+		ut_asserteq_ptr(NULL, dev_get_parentdata(dev));
+
+		ut_assertok(device_probe(dev));
+		parent_data = dev_get_parentdata(dev);
+		ut_asserteq(FLAG_CHILD_PROBED, parent_data->flag);
+	}
+
+	uclass_foreach_dev(dev, uc) {
+		/* Ignore these if they are not on this bus */
+		if (dev->parent != bus)
+			continue;
+		parent_data = dev_get_parentdata(dev);
+		ut_asserteq(FLAG_CHILD_PROBED, parent_data->flag);
+		ut_assertok(device_remove(dev));
+		ut_asserteq_ptr(NULL, dev_get_parentdata(dev));
+		ut_asserteq_ptr(dms->removed, dev);
+	}
+	test_state = NULL;
+
+	return 0;
+}
+DM_TEST(dm_test_bus_parent_ops, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

@@ -86,9 +86,11 @@ struct dm_test_uclass_priv {
  * struct dm_test_parent_data - parent's information on each child
  *
  * @sum: Test value used to check parent data works correctly
+ * @flag: Used to track calling of parent operations
  */
 struct dm_test_parent_data {
 	int sum;
+	int flag;
 };
 
 /*
@@ -109,6 +111,7 @@ extern struct dm_test_state global_test_state;
  * @fail_count: Number of tests that failed
  * @force_fail_alloc: Force all memory allocs to fail
  * @skip_post_probe: Skip uclass post-probe processing
+ * @removed: Used to keep track of a device that was removed
  */
 struct dm_test_state {
 	struct udevice *root;
@@ -116,6 +119,7 @@ struct dm_test_state {
 	int fail_count;
 	int force_fail_alloc;
 	int skip_post_probe;
+	struct udevice *removed;
 };
 
 /* Test flags for each test */

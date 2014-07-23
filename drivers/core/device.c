@@ -291,6 +291,12 @@ int device_probe(struct udevice *dev)
 	}
 	dev->seq = seq;
 
+	if (dev->parent && dev->parent->driver->child_pre_probe) {
+		ret = dev->parent->driver->child_pre_probe(dev);
+		if (ret)
+			goto fail;
+	}
+
 	if (drv->ofdata_to_platdata && dev->of_offset >= 0) {
 		ret = drv->ofdata_to_platdata(dev);
 		if (ret)
@@ -352,12 +358,20 @@ int device_remove(struct udevice *dev)
 			goto err_remove;
 	}
 
+	if (dev->parent && dev->parent->driver->child_post_remove) {
+		ret = dev->parent->driver->child_post_remove(dev);
+		if (ret) {
+			dm_warn("%s: Device '%s' failed child_post_remove()",
+				__func__, dev->name);
+		}
+	}
+
 	device_free(dev);
 
 	dev->seq = -1;
 	dev->flags &= ~DM_FLAG_ACTIVATED;
 
-	return 0;
+	return ret;
 
 err_remove:
 	/* We can't put the children back */

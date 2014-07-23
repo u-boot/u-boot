@@ -95,7 +95,7 @@ are provided in test/dm. To run them, try:
 You should see something like this:
 
     <...U-Boot banner...>
-    Running 20 driver model tests
+    Running 21 driver model tests
     Test: dm_test_autobind
     Test: dm_test_autoprobe
     Test: dm_test_bus_children
@@ -104,6 +104,7 @@ You should see something like this:
     Device 'c-test@1': seq 1 is in use by 'd-test'
     Test: dm_test_bus_children_funcs
     Test: dm_test_bus_parent_data
+    Test: dm_test_bus_parent_ops
     Test: dm_test_children
     Test: dm_test_fdt
     Device 'd-test': seq 3 is in use by 'b-test'
@@ -423,6 +424,71 @@ the sequence number is only a request which may or may not be honoured,
 depending on what other devices have been probed. However the numbering is
 entirely under the control of the board author so a conflict is generally
 an error.
+
+
+Bus Drivers
+-----------
+
+A common use of driver model is to implement a bus, a device which provides
+access to other devices. Example of buses include SPI and I2C. Typically
+the bus provides some sort of transport or translation that makes it
+possible to talk to the devices on the bus.
+
+Driver model provides a few useful features to help with implementing
+buses. Firstly, a bus can request that its children store some 'parent
+data' which can be used to keep track of child state. Secondly, the bus can
+define methods which are called when a child is probed or removed. This is
+similar to the methods the uclass driver provides.
+
+Here an explanation of how a bus fits with a uclass may be useful. Consider
+a USB bus with several devices attached to it, each from a different (made
+up) uclass:
+
+   xhci_usb (UCLASS_USB)
+      eth (UCLASS_ETHERNET)
+      camera (UCLASS_CAMERA)
+      flash (UCLASS_FLASH_STORAGE)
+
+Each of the devices is connected to a different address on the USB bus.
+The bus device wants to store this address and some other information such
+as the bus speed for each device.
+
+To achieve this, the bus device can use dev->parent_priv in each of its
+three children. This can be auto-allocated if the bus driver has a non-zero
+value for per_child_auto_alloc_size. If not, then the bus device can
+allocate the space itself before the child device is probed.
+
+Also the bus driver can define the child_pre_probe() and child_post_remove()
+methods to allow it to do some processing before the child is activated or
+after it is deactivated.
+
+Note that the information that controls this behaviour is in the bus's
+driver, not the child's. In fact it is possible that child has no knowledge
+that it is connected to a bus. The same child device may even be used on two
+different bus types. As an example. the 'flash' device shown above may also
+be connected on a SATA bus or standalone with no bus:
+
+   xhci_usb (UCLASS_USB)
+      flash (UCLASS_FLASH_STORAGE)  - parent data/methods defined by USB bus
+
+   sata (UCLASS_SATA)
+      flash (UCLASS_FLASH_STORAGE)  - parent data/methods defined by SATA bus
+
+   flash (UCLASS_FLASH_STORAGE)  - no parent data/methods (not on a bus)
+
+Above you can see that the driver for xhci_usb/sata controls the child's
+bus methods. In the third example the device is not on a bus, and therefore
+will not have these methods at all. Consider the case where the flash
+device defines child methods. These would be used for *its* children, and
+would be quite separate from the methods defined by the driver for the bus
+that the flash device is connetced to. The act of attaching a device to a
+parent device which is a bus, causes the device to start behaving like a
+bus device, regardless of its own views on the matter.
+
+The uclass for the device can also contain data private to that uclass.
+But note that each device on the bus may be a memeber of a different
+uclass, and this data has nothing to do with the child data for each child
+on the bus.
 
 
 Driver Lifecycle
