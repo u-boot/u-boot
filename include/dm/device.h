@@ -124,7 +124,7 @@ struct udevice_id {
  * This is typically only useful for device-tree-aware drivers (those with
  * an of_match), since drivers which use platdata will have the data
  * provided in the U_BOOT_DEVICE() instantiation.
- * ops: Driver-specific operations. This is typically a list of function
+ * @ops: Driver-specific operations. This is typically a list of function
  * pointers defined by the driver, to implement driver functions required by
  * the uclass.
  * @flags: driver flags - see DM_FLAGS_...

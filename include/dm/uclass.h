@@ -98,7 +98,7 @@ int uclass_get(enum uclass_id key, struct uclass **ucp);
  *
  * The device is probed to activate it ready for use.
  *
- * id: ID to look up
+ * @id: ID to look up
  * @index: Device number within that uclass (0=first)
  * @devp: Returns pointer to device (there is only one per for each ID)
  * @return 0 if OK, -ve on error

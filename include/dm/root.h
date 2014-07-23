@@ -35,7 +35,8 @@ int dm_scan_platdata(bool pre_reloc_only);
 /**
  * dm_scan_fdt() - Scan the device tree and bind drivers
  *
- * This scans the device tree and creates a driver for each node
+ * This scans the device tree and creates a driver for each node. Only
+ * the top-level subnodes are examined.
  *
  * @blob: Pointer to device tree blob
  * @pre_reloc_only: If true, bind only drivers with the DM_FLAG_PRE_RELOC

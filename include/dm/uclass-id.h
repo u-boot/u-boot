@@ -19,7 +19,7 @@ enum uclass_id {
 	UCLASS_TEST_FDT,
 
 	/* U-Boot uclasses start here */
-	UCLASS_GPIO,
+	UCLASS_GPIO,		/* Bank of general-purpose I/O pins */
 
 	UCLASS_COUNT,
 	UCLASS_INVALID = -1,
