@@ -46,7 +46,7 @@ int dm_init(void)
 	}
 	INIT_LIST_HEAD(&DM_UCLASS_ROOT_NON_CONST);
 
-	ret = device_bind_by_name(NULL, &root_info, &DM_ROOT_NON_CONST);
+	ret = device_bind_by_name(NULL, false, &root_info, &DM_ROOT_NON_CONST);
 	if (ret)
 		return ret;
 	ret = device_probe(DM_ROOT_NON_CONST);
@@ -64,11 +64,11 @@ int dm_uninit(void)
 	return 0;
 }
 
-int dm_scan_platdata(void)
+int dm_scan_platdata(bool pre_reloc_only)
 {
 	int ret;
 
-	ret = lists_bind_drivers(DM_ROOT_NON_CONST);
+	ret = lists_bind_drivers(DM_ROOT_NON_CONST, pre_reloc_only);
 	if (ret == -ENOENT) {
 		dm_warn("Some drivers were not found\n");
 		ret = 0;
@@ -80,7 +80,7 @@ int dm_scan_platdata(void)
 }
 
 #ifdef CONFIG_OF_CONTROL
-int dm_scan_fdt(const void *blob)
+int dm_scan_fdt(const void *blob, bool pre_reloc_only)
 {
 	int offset = 0;
 	int ret = 0, err;
@@ -89,6 +89,9 @@ int dm_scan_fdt(const void *blob)
 	do {
 		offset = fdt_next_node(blob, offset, &depth);
 		if (offset > 0 && depth == 1) {
+			if (pre_reloc_only &&
+			    !fdt_getprop(blob, offset, "u-boot,dm-pre-reloc", NULL))
+				continue;
 			err = lists_bind_fdt(gd->dm_root, blob, offset);
 			if (err && !ret)
 				ret = err;

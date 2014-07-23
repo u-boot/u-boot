@@ -6,11 +6,21 @@
 	#address-cells = <1>;
 	#size-cells = <0>;
 
+	aliases {
+		console = &uart0;
+	};
+
+	uart0: serial {
+		compatible = "sandbox,serial";
+		u-boot,dm-pre-reloc;
+	};
+
 	a-test {
 		reg = <0>;
 		compatible = "denx,u-boot-fdt-test";
 		ping-expect = <0>;
 		ping-add = <0>;
+		u-boot,dm-pre-reloc;
 	};
 
 	junk {

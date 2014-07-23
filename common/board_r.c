@@ -280,13 +280,13 @@ static int initr_dm(void)
 		debug("dm_init() failed: %d\n", ret);
 		return ret;
 	}
-	ret = dm_scan_platdata();
+	ret = dm_scan_platdata(false);
 	if (ret) {
 		debug("dm_scan_platdata() failed: %d\n", ret);
 		return ret;
 	}
 #ifdef CONFIG_OF_CONTROL
-	ret = dm_scan_fdt(gd->fdt_blob);
+	ret = dm_scan_fdt(gd->fdt_blob, false);
 	if (ret) {
 		debug("dm_scan_fdt() failed: %d\n", ret);
 		return ret;

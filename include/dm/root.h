@@ -26,9 +26,11 @@ struct udevice *dm_root(void);
  *
  * This scans all available platdata and creates drivers for each
  *
+ * @pre_reloc_only: If true, bind only drivers with the DM_FLAG_PRE_RELOC
+ * flag. If false bind all drivers.
  * @return 0 if OK, -ve on error
  */
-int dm_scan_platdata(void);
+int dm_scan_platdata(bool pre_reloc_only);
 
 /**
  * dm_scan_fdt() - Scan the device tree and bind drivers
@@ -36,9 +38,11 @@ int dm_scan_platdata(void);
  * This scans the device tree and creates a driver for each node
  *
  * @blob: Pointer to device tree blob
+ * @pre_reloc_only: If true, bind only drivers with the DM_FLAG_PRE_RELOC
+ * flag. If false bind all drivers.
  * @return 0 if OK, -ve on error
  */
-int dm_scan_fdt(const void *blob);
+int dm_scan_fdt(const void *blob, bool pre_reloc_only);
 
 /**
  * dm_init() - Initialise Driver Model structures

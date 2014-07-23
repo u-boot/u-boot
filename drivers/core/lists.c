@@ -62,7 +62,7 @@ struct uclass_driver *lists_uclass_lookup(enum uclass_id id)
 	return NULL;
 }
 
-int lists_bind_drivers(struct udevice *parent)
+int lists_bind_drivers(struct udevice *parent, bool pre_reloc_only)
 {
 	struct driver_info *info =
 		ll_entry_start(struct driver_info, driver_info);
@@ -73,8 +73,8 @@ int lists_bind_drivers(struct udevice *parent)
 	int ret;
 
 	for (entry = info; entry != info + n_ents; entry++) {
-		ret = device_bind_by_name(parent, entry, &dev);
-		if (ret) {
+		ret = device_bind_by_name(parent, pre_reloc_only, entry, &dev);
+		if (ret && ret != -EPERM) {
 			dm_warn("No match for driver '%s'\n", entry->name);
 			if (!result || ret != -ENOENT)
 				result = ret;

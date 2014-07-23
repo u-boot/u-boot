@@ -100,7 +100,7 @@ static int dm_test_fdt(struct dm_test_state *dms)
 	int ret;
 	int i;
 
-	ret = dm_scan_fdt(gd->fdt_blob);
+	ret = dm_scan_fdt(gd->fdt_blob, false);
 	ut_assert(!ret);
 
 	ret = uclass_get(UCLASS_TEST_FDT, &uc);
@@ -145,3 +145,21 @@ static int dm_test_fdt(struct dm_test_state *dms)
 	return 0;
 }
 DM_TEST(dm_test_fdt, 0);
+
+static int dm_test_fdt_pre_reloc(struct dm_test_state *dms)
+{
+	struct uclass *uc;
+	int ret;
+
+	ret = dm_scan_fdt(gd->fdt_blob, true);
+	ut_assert(!ret);
+
+	ret = uclass_get(UCLASS_TEST_FDT, &uc);
+	ut_assert(!ret);
+
+	/* These is only one pre-reloc device */
+	ut_asserteq(1, list_count_items(&uc->dev_head));
+
+	return 0;
+}
+DM_TEST(dm_test_fdt_pre_reloc, 0);

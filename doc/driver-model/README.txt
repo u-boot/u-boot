@@ -95,25 +95,23 @@ are provided in test/dm. To run them, try:
 You should see something like this:
 
     <...U-Boot banner...>
-    Running 12 driver model tests
+    Running 14 driver model tests
     Test: dm_test_autobind
     Test: dm_test_autoprobe
     Test: dm_test_children
     Test: dm_test_fdt
+    Test: dm_test_fdt_pre_reloc
     Test: dm_test_gpio
     sandbox_gpio: sb_gpio_get_value: error: offset 4 not reserved
     Test: dm_test_leak
-    Warning: Please add '#define DEBUG' to the top of common/dlmalloc.c
-    Warning: Please add '#define DEBUG' to the top of common/dlmalloc.c
     Test: dm_test_lifecycle
     Test: dm_test_operations
     Test: dm_test_ordering
     Test: dm_test_platdata
+    Test: dm_test_pre_reloc
     Test: dm_test_remove
     Test: dm_test_uclass
     Failures: 0
-
-(You can add '#define DEBUG' as suggested to check for memory leaks)
 
 
 What is going on?
@@ -538,25 +536,34 @@ dealing with this might not be worth it.
 - Implemented a GPIO system, trying to keep it simple
 
 
+Pre-Relocation Support
+----------------------
+
+For pre-relocation we simply call the driver model init function. Only
+drivers marked with DM_FLAG_PRE_RELOC or the device tree
+'u-boot,dm-pre-reloc' flag are initialised prior to relocation. This helps
+to reduce the driver model overhead.
+
+Then post relocation we throw that away and re-init driver model again.
+For drivers which require some sort of continuity between pre- and
+post-relocation devices, we can provide access to the pre-relocation
+device pointers, but this is not currently implemented (the root device
+pointer is saved but not made available through the driver model API).
+
+
 Things to punt for later
 ------------------------
 
 - SPL support - this will have to be present before many drivers can be
 converted, but it seems like we can add it once we are happy with the
 core implementation.
-- Pre-relocation support - similar story
 
-That is not to say that no thinking has gone into these - in fact there
+That is not to say that no thinking has gone into this - in fact there
 is quite a lot there. However, getting these right is non-trivial and
 there is a high cost associated with going down the wrong path.
 
 For SPL, it may be possible to fit in a simplified driver model with only
 bind and probe methods, to reduce size.
-
-For pre-relocation we can simply call the driver model init function. Then
-post relocation we throw that away and re-init driver model again. For drivers
-which require some sort of continuity between pre- and post-relocation
-devices, we can provide access to the pre-relocation device pointers.
 
 Uclasses are statically numbered at compile time. It would be possible to
 change this to dynamic numbering, but then we would require some sort of

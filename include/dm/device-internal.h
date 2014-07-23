@@ -45,12 +45,14 @@ int device_bind(struct udevice *parent, struct driver *drv,
  * tree.
  *
  * @parent: Pointer to device's parent
+ * @pre_reloc_only: If true, bind the driver only if its DM_INIT_F flag is set.
+ * If false bind the driver always.
  * @info: Name and platdata for this device
  * @devp: Returns a pointer to the bound device
  * @return 0 if OK, -ve on error
  */
-int device_bind_by_name(struct udevice *parent, const struct driver_info *info,
-			struct udevice **devp);
+int device_bind_by_name(struct udevice *parent, bool pre_reloc_only,
+			const struct driver_info *info, struct udevice **devp);
 
 /**
  * device_probe() - Probe a device, activating it

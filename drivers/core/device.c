@@ -129,14 +129,16 @@ fail_bind:
 	return ret;
 }
 
-int device_bind_by_name(struct udevice *parent, const struct driver_info *info,
-			struct udevice **devp)
+int device_bind_by_name(struct udevice *parent, bool pre_reloc_only,
+			const struct driver_info *info, struct udevice **devp)
 {
 	struct driver *drv;
 
 	drv = lists_driver_lookup_name(info->name);
 	if (!drv)
 		return -ENOENT;
+	if (pre_reloc_only && !(drv->flags & DM_FLAG_PRE_RELOC))
+		return -EPERM;
 
 	return device_bind(parent, drv, info->name, (void *)info->platdata,
 			   -1, devp);

@@ -23,6 +23,9 @@ struct driver_info;
 /* DM is responsible for allocating and freeing platdata */
 #define DM_FLAG_ALLOC_PDATA	(1 << 1)
 
+/* DM should init this device prior to relocation */
+#define DM_FLAG_PRE_RELOC	(1 << 2)
+
 /**
  * struct udevice - An instance of a driver
  *
@@ -117,6 +120,7 @@ struct udevice_id {
  * ops: Driver-specific operations. This is typically a list of function
  * pointers defined by the driver, to implement driver functions required by
  * the uclass.
+ * @flags: driver flags - see DM_FLAGS_...
  */
 struct driver {
 	char *name;
@@ -130,6 +134,7 @@ struct driver {
 	int priv_auto_alloc_size;
 	int platdata_auto_alloc_size;
 	const void *ops;	/* driver-specific operations */
+	uint32_t flags;
 };
 
 /* Declare a new U-Boot driver */
