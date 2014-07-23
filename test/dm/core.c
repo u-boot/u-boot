@@ -570,3 +570,17 @@ static int dm_test_pre_reloc(struct dm_test_state *dms)
 	return 0;
 }
 DM_TEST(dm_test_pre_reloc, 0);
+
+static int dm_test_uclass_before_ready(struct dm_test_state *dms)
+{
+	struct uclass *uc;
+
+	ut_assertok(uclass_get(UCLASS_TEST, &uc));
+
+	memset(gd, '\0', sizeof(*gd));
+	ut_asserteq_ptr(NULL, uclass_find(UCLASS_TEST));
+
+	return 0;
+}
+
+DM_TEST(dm_test_uclass_before_ready, 0);

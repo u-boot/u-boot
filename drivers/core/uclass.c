@@ -23,6 +23,8 @@ struct uclass *uclass_find(enum uclass_id key)
 {
 	struct uclass *uc;
 
+	if (!gd->dm_root)
+		return NULL;
 	/*
 	 * TODO(sjg@chromium.org): Optimise this, perhaps moving the found
 	 * node to the start of the list, or creating a linear array mapping

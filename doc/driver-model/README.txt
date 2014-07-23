@@ -95,7 +95,7 @@ are provided in test/dm. To run them, try:
 You should see something like this:
 
     <...U-Boot banner...>
-    Running 16 driver model tests
+    Running 17 driver model tests
     Test: dm_test_autobind
     Test: dm_test_autoprobe
     Test: dm_test_children
@@ -116,6 +116,7 @@ You should see something like this:
     Test: dm_test_pre_reloc
     Test: dm_test_remove
     Test: dm_test_uclass
+    Test: dm_test_uclass_before_ready
     Failures: 0
 
 
