@@ -50,4 +50,12 @@ int dm_scan_fdt(const void *blob);
  */
 int dm_init(void);
 
+/**
+ * dm_uninit - Uninitialise Driver Model structures
+ *
+ * All devices will be removed and unbound
+ * @return 0 if OK, -ve on error
+ */
+int dm_uninit(void);
+
 #endif

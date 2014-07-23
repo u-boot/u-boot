@@ -56,6 +56,14 @@ int dm_init(void)
 	return 0;
 }
 
+int dm_uninit(void)
+{
+	device_remove(dm_root());
+	device_unbind(dm_root());
+
+	return 0;
+}
+
 int dm_scan_platdata(void)
 {
 	int ret;
