@@ -169,6 +169,18 @@ void *dev_get_platdata(struct udevice *dev);
 void *dev_get_priv(struct udevice *dev);
 
 /**
+ * device_get_child() - Get the child of a device by index
+ *
+ * Returns the numbered child, 0 being the first. This does not use
+ * sequence numbers, only the natural order.
+ *
+ * @dev:	Parent device to check
+ * @index:	Child index
+ * @devp:	Returns pointer to device
+ */
+int device_get_child(struct udevice *parent, int index, struct udevice **devp);
+
+/**
  * device_find_child_by_seq() - Find a child device based on a sequence
  *
  * This searches for a device with the given seq or req_seq.
@@ -189,5 +201,51 @@ void *dev_get_priv(struct udevice *dev);
  */
 int device_find_child_by_seq(struct udevice *parent, int seq_or_req_seq,
 			     bool find_req_seq, struct udevice **devp);
+
+/**
+ * device_get_child_by_seq() - Get a child device based on a sequence
+ *
+ * If an active device has this sequence it will be returned. If there is no
+ * such device then this will check for a device that is requesting this
+ * sequence.
+ *
+ * The device is probed to activate it ready for use.
+ *
+ * @parent: Parent device
+ * @seq: Sequence number to find (0=first)
+ * @devp: Returns pointer to device (there is only one per for each seq)
+ * Set to NULL if none is found
+ * @return 0 if OK, -ve on error
+ */
+int device_get_child_by_seq(struct udevice *parent, int seq,
+			    struct udevice **devp);
+
+/**
+ * device_find_child_by_of_offset() - Find a child device based on FDT offset
+ *
+ * Locates a child device by its device tree offset.
+ *
+ * @parent: Parent device
+ * @of_offset: Device tree offset to find
+ * @devp: Returns pointer to device if found, otherwise this is set to NULL
+ * @return 0 if OK, -ve on error
+ */
+int device_find_child_by_of_offset(struct udevice *parent, int of_offset,
+				   struct udevice **devp);
+
+/**
+ * device_get_child_by_of_offset() - Get a child device based on FDT offset
+ *
+ * Locates a child device by its device tree offset.
+ *
+ * The device is probed to activate it ready for use.
+ *
+ * @parent: Parent device
+ * @of_offset: Device tree offset to find
+ * @devp: Returns pointer to device if found, otherwise this is set to NULL
+ * @return 0 if OK, -ve on error
+ */
+int device_get_child_by_of_offset(struct udevice *parent, int seq,
+				  struct udevice **devp);
 
 #endif

@@ -376,3 +376,96 @@ void *dev_get_priv(struct udevice *dev)
 
 	return dev->priv;
 }
+
+static int device_get_device_tail(struct udevice *dev, int ret,
+				  struct udevice **devp)
+{
+	if (ret)
+		return ret;
+
+	ret = device_probe(dev);
+	if (ret)
+		return ret;
+
+	*devp = dev;
+
+	return 0;
+}
+
+int device_get_child(struct udevice *parent, int index, struct udevice **devp)
+{
+	struct udevice *dev;
+
+	list_for_each_entry(dev, &parent->child_head, sibling_node) {
+		if (!index--)
+			return device_get_device_tail(dev, 0, devp);
+	}
+
+	return -ENODEV;
+}
+
+int device_find_child_by_seq(struct udevice *parent, int seq_or_req_seq,
+			     bool find_req_seq, struct udevice **devp)
+{
+	struct udevice *dev;
+
+	*devp = NULL;
+	if (seq_or_req_seq == -1)
+		return -ENODEV;
+
+	list_for_each_entry(dev, &parent->child_head, sibling_node) {
+		if ((find_req_seq ? dev->req_seq : dev->seq) ==
+				seq_or_req_seq) {
+			*devp = dev;
+			return 0;
+		}
+	}
+
+	return -ENODEV;
+}
+
+int device_get_child_by_seq(struct udevice *parent, int seq,
+			    struct udevice **devp)
+{
+	struct udevice *dev;
+	int ret;
+
+	*devp = NULL;
+	ret = device_find_child_by_seq(parent, seq, false, &dev);
+	if (ret == -ENODEV) {
+		/*
+		 * We didn't find it in probed devices. See if there is one
+		 * that will request this seq if probed.
+		 */
+		ret = device_find_child_by_seq(parent, seq, true, &dev);
+	}
+	return device_get_device_tail(dev, ret, devp);
+}
+
+int device_find_child_by_of_offset(struct udevice *parent, int of_offset,
+				   struct udevice **devp)
+{
+	struct udevice *dev;
+
+	*devp = NULL;
+
+	list_for_each_entry(dev, &parent->child_head, sibling_node) {
+		if (dev->of_offset == of_offset) {
+			*devp = dev;
+			return 0;
+		}
+	}
+
+	return -ENODEV;
+}
+
+int device_get_child_by_of_offset(struct udevice *parent, int seq,
+				  struct udevice **devp)
+{
+	struct udevice *dev;
+	int ret;
+
+	*devp = NULL;
+	ret = device_find_child_by_of_offset(parent, seq, &dev);
+	return device_get_device_tail(dev, ret, devp);
+}
