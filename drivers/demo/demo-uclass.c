@@ -19,6 +19,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 UCLASS_DRIVER(demo) = {
+	.name		= "demo",
 	.id		= UCLASS_DEMO,
 };
 
