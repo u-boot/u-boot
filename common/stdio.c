@@ -11,6 +11,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <errno.h>
 #include <stdarg.h>
 #include <malloc.h>
 #include <stdio_dev.h>
@@ -148,32 +149,35 @@ struct stdio_dev* stdio_clone(struct stdio_dev *dev)
 	return _dev;
 }
 
-int stdio_register (struct stdio_dev * dev)
+int stdio_register_dev(struct stdio_dev *dev, struct stdio_dev **devp)
 {
 	struct stdio_dev *_dev;
 
 	_dev = stdio_clone(dev);
 	if(!_dev)
-		return -1;
+		return -ENODEV;
 	list_add_tail(&(_dev->list), &(devs.list));
+	if (devp)
+		*devp = _dev;
+
 	return 0;
+}
+
+int stdio_register(struct stdio_dev *dev)
+{
+	return stdio_register_dev(dev, NULL);
 }
 
 /* deregister the device "devname".
  * returns 0 if success, -1 if device is assigned and 1 if devname not found
  */
 #ifdef	CONFIG_SYS_STDIO_DEREGISTER
-int stdio_deregister(const char *devname)
+int stdio_deregister_dev(struct stdio_dev *dev)
 {
 	int l;
 	struct list_head *pos;
-	struct stdio_dev *dev;
 	char temp_names[3][16];
 
-	dev = stdio_get_by_name(devname);
-
-	if(!dev) /* device not found */
-		return -1;
 	/* get stdio devices (ListRemoveItem changes the dev list) */
 	for (l=0 ; l< MAX_FILES; l++) {
 		if (stdio_devices[l] == dev) {
@@ -196,6 +200,18 @@ int stdio_deregister(const char *devname)
 		}
 	}
 	return 0;
+}
+
+int stdio_deregister(const char *devname)
+{
+	struct stdio_dev *dev;
+
+	dev = stdio_get_by_name(devname);
+
+	if (!dev) /* device not found */
+		return -ENODEV;
+
+	return stdio_deregister_dev(dev);
 }
 #endif	/* CONFIG_SYS_STDIO_DEREGISTER */
 

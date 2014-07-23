@@ -77,10 +77,12 @@ extern char *stdio_names[MAX_FILES];
  * PROTOTYPES
  */
 int	stdio_register (struct stdio_dev * dev);
+int stdio_register_dev(struct stdio_dev *dev, struct stdio_dev **devp);
 int	stdio_init (void);
 void	stdio_print_current_devices(void);
 #ifdef CONFIG_SYS_STDIO_DEREGISTER
 int	stdio_deregister(const char *devname);
+int stdio_deregister_dev(struct stdio_dev *dev);
 #endif
 struct list_head* stdio_get_list(void);
 struct stdio_dev* stdio_get_by_name(const char* name);
