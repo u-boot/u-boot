@@ -106,7 +106,7 @@ static int dm_test_autoprobe(struct dm_test_state *dms)
 	ut_asserteq(0, dm_testdrv_op_count[DM_TEST_OP_POST_PROBE]);
 
 	/* The root device should not be activated until needed */
-	ut_assert(!(dms->root->flags & DM_FLAG_ACTIVATED));
+	ut_assert(dms->root->flags & DM_FLAG_ACTIVATED);
 
 	/*
 	 * We should be able to find the three test devices, and they should

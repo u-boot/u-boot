@@ -49,6 +49,9 @@ int dm_init(void)
 	ret = device_bind_by_name(NULL, &root_info, &DM_ROOT_NON_CONST);
 	if (ret)
 		return ret;
+	ret = device_probe(DM_ROOT_NON_CONST);
+	if (ret)
+		return ret;
 
 	return 0;
 }
