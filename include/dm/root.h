@@ -46,6 +46,22 @@ int dm_scan_platdata(bool pre_reloc_only);
 int dm_scan_fdt(const void *blob, bool pre_reloc_only);
 
 /**
+ * dm_scan_fdt_node() - Scan the device tree and bind drivers for a node
+ *
+ * This scans the subnodes of a device tree node and and creates a driver
+ * for each one.
+ *
+ * @parent: Parent device for the devices that will be created
+ * @blob: Pointer to device tree blob
+ * @offset: Offset of node to scan
+ * @pre_reloc_only: If true, bind only drivers with the DM_FLAG_PRE_RELOC
+ * flag. If false bind all drivers.
+ * @return 0 if OK, -ve on error
+ */
+int dm_scan_fdt_node(struct udevice *parent, const void *blob, int offset,
+		     bool pre_reloc_only);
+
+/**
  * dm_init_and_scan() - Initialise Driver Model structures and scan for devices
  *
  * This function initialises the roots of the driver tree and uclass trees,

@@ -91,37 +91,17 @@ UCLASS_DRIVER(testfdt) = {
 	.id		= UCLASS_TEST_FDT,
 };
 
-/* Test that FDT-based binding works correctly */
-static int dm_test_fdt(struct dm_test_state *dms)
+int dm_check_devices(struct dm_test_state *dms, int num_devices)
 {
-	const int num_drivers = 4;
 	struct udevice *dev;
-	struct uclass *uc;
 	int ret;
 	int i;
-
-	ret = dm_scan_fdt(gd->fdt_blob, false);
-	ut_assert(!ret);
-
-	ret = uclass_get(UCLASS_TEST_FDT, &uc);
-	ut_assert(!ret);
-
-	/* These are num_drivers compatible root-level device tree nodes */
-	ut_asserteq(num_drivers, list_count_items(&uc->dev_head));
-
-	/* Each should have no platdata / priv */
-	for (i = 0; i < num_drivers; i++) {
-		ret = uclass_find_device(UCLASS_TEST_FDT, i, &dev);
-		ut_assert(!ret);
-		ut_assert(!dev_get_priv(dev));
-		ut_assert(!dev->platdata);
-	}
 
 	/*
 	 * Now check that the ping adds are what we expect. This is using the
 	 * ping-add property in each node.
 	 */
-	for (i = 0; i < num_drivers; i++) {
+	for (i = 0; i < num_devices; i++) {
 		uint32_t base;
 
 		ret = uclass_get_device(UCLASS_TEST_FDT, i, &dev);
@@ -141,6 +121,37 @@ static int dm_test_fdt(struct dm_test_state *dms)
 		ut_assert(!dm_check_operations(dms, dev, base,
 					       dev_get_priv(dev)));
 	}
+
+	return 0;
+}
+
+/* Test that FDT-based binding works correctly */
+static int dm_test_fdt(struct dm_test_state *dms)
+{
+	const int num_devices = 4;
+	struct udevice *dev;
+	struct uclass *uc;
+	int ret;
+	int i;
+
+	ret = dm_scan_fdt(gd->fdt_blob, false);
+	ut_assert(!ret);
+
+	ret = uclass_get(UCLASS_TEST_FDT, &uc);
+	ut_assert(!ret);
+
+	/* These are num_devices compatible root-level device tree nodes */
+	ut_asserteq(num_devices, list_count_items(&uc->dev_head));
+
+	/* Each should have no platdata / priv */
+	for (i = 0; i < num_devices; i++) {
+		ret = uclass_find_device(UCLASS_TEST_FDT, i, &dev);
+		ut_assert(!ret);
+		ut_assert(!dev_get_priv(dev));
+		ut_assert(!dev->platdata);
+	}
+
+	ut_assertok(dm_check_devices(dms, num_devices));
 
 	return 0;
 }
@@ -187,7 +198,10 @@ static int dm_test_fdt_uclass_seq(struct dm_test_state *dms)
 	ut_asserteq(-ENODEV, uclass_find_device_by_seq(UCLASS_TEST_FDT, 7,
 						       true, &dev));
 
-	/* Note that c-test is not probed since it is not a top-level node */
+	/*
+	 * Note that c-test nodes are not probed since it is not a top-level
+	 * node
+	 */
 	ut_assertok(uclass_get_device_by_seq(UCLASS_TEST_FDT, 3, &dev));
 	ut_asserteq_str("b-test", dev->name);
 
@@ -236,12 +250,11 @@ static int dm_test_fdt_offset(struct dm_test_state *dms)
 							    node, &dev));
 
 	/* This is not a top level node so should not be probed */
-	node = fdt_path_offset(blob, "/some-bus/c-test");
+	node = fdt_path_offset(blob, "/some-bus/c-test@5");
 	ut_assert(node > 0);
 	ut_asserteq(-ENODEV, uclass_get_device_by_of_offset(UCLASS_TEST_FDT,
 							    node, &dev));
 
 	return 0;
 }
-
 DM_TEST(dm_test_fdt_offset, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

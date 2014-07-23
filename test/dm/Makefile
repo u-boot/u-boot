@@ -5,6 +5,7 @@
 #
 
 obj-$(CONFIG_CMD_DM) += cmd_dm.o
+obj-$(CONFIG_DM_TEST) += bus.o
 obj-$(CONFIG_DM_TEST) += test-driver.o
 obj-$(CONFIG_DM_TEST) += test-fdt.o
 obj-$(CONFIG_DM_TEST) += test-main.o

@@ -156,6 +156,15 @@ int dm_check_operations(struct dm_test_state *dms, struct udevice *dev,
 			uint32_t base, struct dm_test_priv *priv);
 
 /**
+ * dm_check_devices() - check the devices respond to operations correctly
+ *
+ * @dms: Overall test state
+ * @num_devices: Number of test devices to check
+ * @return 0 if OK, -ve on error
+ */
+int dm_check_devices(struct dm_test_state *dms, int num_devices);
+
+/**
  * dm_test_main() - Run all the tests
  *
  * This runs all available driver model tests

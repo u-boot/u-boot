@@ -43,13 +43,27 @@
 	some-bus {
 		#address-cells = <1>;
 		#size-cells = <0>;
+		compatible = "denx,u-boot-test-bus";
 		reg = <3>;
 		ping-expect = <4>;
 		ping-add = <4>;
-		c-test {
+		c-test@5 {
 			compatible = "denx,u-boot-fdt-test";
 			reg = <5>;
+			ping-expect = <5>;
 			ping-add = <5>;
+		};
+		c-test@0 {
+			compatible = "denx,u-boot-fdt-test";
+			reg = <0>;
+			ping-expect = <6>;
+			ping-add = <6>;
+		};
+		c-test@1 {
+			compatible = "denx,u-boot-fdt-test";
+			reg = <1>;
+			ping-expect = <7>;
+			ping-add = <7>;
 		};
 	};
 

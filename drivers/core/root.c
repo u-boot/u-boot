@@ -80,28 +80,31 @@ int dm_scan_platdata(bool pre_reloc_only)
 }
 
 #ifdef CONFIG_OF_CONTROL
-int dm_scan_fdt(const void *blob, bool pre_reloc_only)
+int dm_scan_fdt_node(struct udevice *parent, const void *blob, int offset,
+		     bool pre_reloc_only)
 {
-	int offset = 0;
 	int ret = 0, err;
-	int depth = 0;
 
-	do {
-		offset = fdt_next_node(blob, offset, &depth);
-		if (offset > 0 && depth == 1) {
-			if (pre_reloc_only &&
-			    !fdt_getprop(blob, offset, "u-boot,dm-pre-reloc", NULL))
-				continue;
-			err = lists_bind_fdt(gd->dm_root, blob, offset);
-			if (err && !ret)
-				ret = err;
-		}
-	} while (offset > 0);
+	for (offset = fdt_first_subnode(blob, offset);
+	     offset > 0;
+	     offset = fdt_next_subnode(blob, offset)) {
+		if (pre_reloc_only &&
+		    !fdt_getprop(blob, offset, "u-boot,dm-pre-reloc", NULL))
+			continue;
+		err = lists_bind_fdt(parent, blob, offset);
+		if (err && !ret)
+			ret = err;
+	}
 
 	if (ret)
 		dm_warn("Some drivers failed to bind\n");
 
 	return ret;
+}
+
+int dm_scan_fdt(const void *blob, bool pre_reloc_only)
+{
+	return dm_scan_fdt_node(gd->dm_root, blob, 0, pre_reloc_only);
 }
 #endif
 
