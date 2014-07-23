@@ -417,7 +417,7 @@ static inline void print_pre_console_buffer(void) {}
 void putc(const char c)
 {
 #ifdef CONFIG_SANDBOX
-	if (!gd) {
+	if (!gd || !(gd->flags & GD_FLG_SERIAL_READY)) {
 		os_putc(c);
 		return;
 	}
@@ -447,7 +447,7 @@ void putc(const char c)
 void puts(const char *s)
 {
 #ifdef CONFIG_SANDBOX
-	if (!gd) {
+	if (!gd || !(gd->flags & GD_FLG_SERIAL_READY)) {
 		os_puts(s);
 		return;
 	}
