@@ -87,8 +87,8 @@
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE  (800*480 + 256*4 + 10*1024)
 #define VIDEO_FB_16BPP_WORD_SWAP
 #define VIDEO_KBD_INIT_FCT		0
-#define VIDEO_TSTC_FCT			serial_tstc
-#define VIDEO_GETC_FCT			serial_getc
+#define VIDEO_TSTC_FCT		serial_stub_tstc
+#define VIDEO_GETC_FCT		serial_stub_getc
 
 /*
  * BOOTP options

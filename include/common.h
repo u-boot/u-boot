@@ -639,6 +639,11 @@ void	serial_puts   (const char *);
 int	serial_getc   (void);
 int	serial_tstc   (void);
 
+/* These versions take a stdio_dev pointer */
+struct stdio_dev;
+int serial_stub_getc(struct stdio_dev *sdev);
+int serial_stub_tstc(struct stdio_dev *sdev);
+
 void	_serial_setbrg (const int);
 void	_serial_putc   (const char, const int);
 void	_serial_putc_raw(const char, const int);

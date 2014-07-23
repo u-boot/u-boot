@@ -93,7 +93,7 @@ static int check_for_keys(struct keyb *config,
  *
  * @return 0 if no keys available, 1 if keys are available
  */
-static int kbd_tstc(void)
+static int kbd_tstc(struct stdio_dev *dev)
 {
 	/* Just get input to do this for us */
 	return config.inited ? input_tstc(&config.input) : 0;
@@ -104,7 +104,7 @@ static int kbd_tstc(void)
  *
  * @return ASCII key code, or 0 if no key, or -1 if error
  */
-static int kbd_getc(void)
+static int kbd_getc(struct stdio_dev *dev)
 {
 	/* Just get input to do this for us */
 	return config.inited ? input_getc(&config.input) : 0;
@@ -214,7 +214,7 @@ static int cros_ec_keyb_decode_fdt(const void *blob, int node,
  *
  * @return 0 if ok, -1 on error
  */
-static int cros_ec_init_keyboard(void)
+static int cros_ec_init_keyboard(struct stdio_dev *dev)
 {
 	const void *blob = gd->fdt_blob;
 	int node;

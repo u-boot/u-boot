@@ -35,22 +35,42 @@ char *stdio_names[MAX_FILES] = { "stdin", "stdout", "stderr" };
 
 
 #ifdef CONFIG_SYS_DEVICE_NULLDEV
-void nulldev_putc(const char c)
+void nulldev_putc(struct stdio_dev *dev, const char c)
 {
 	/* nulldev is empty! */
 }
 
-void nulldev_puts(const char *s)
+void nulldev_puts(struct stdio_dev *dev, const char *s)
 {
 	/* nulldev is empty! */
 }
 
-int nulldev_input(void)
+int nulldev_input(struct stdio_dev *dev)
 {
 	/* nulldev is empty! */
 	return 0;
 }
 #endif
+
+void stdio_serial_putc(struct stdio_dev *dev, const char c)
+{
+	serial_putc(c);
+}
+
+void stdio_serial_puts(struct stdio_dev *dev, const char *s)
+{
+	serial_puts(s);
+}
+
+int stdio_serial_getc(struct stdio_dev *dev)
+{
+	return serial_getc();
+}
+
+int stdio_serial_tstc(struct stdio_dev *dev)
+{
+	return serial_tstc();
+}
 
 /**************************************************************************
  * SYSTEM DRIVERS
@@ -65,10 +85,10 @@ static void drv_system_init (void)
 
 	strcpy (dev.name, "serial");
 	dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
-	dev.putc = serial_putc;
-	dev.puts = serial_puts;
-	dev.getc = serial_getc;
-	dev.tstc = serial_tstc;
+	dev.putc = stdio_serial_putc;
+	dev.puts = stdio_serial_puts;
+	dev.getc = stdio_serial_getc;
+	dev.tstc = stdio_serial_tstc;
 	stdio_register (&dev);
 
 #ifdef CONFIG_SYS_DEVICE_NULLDEV

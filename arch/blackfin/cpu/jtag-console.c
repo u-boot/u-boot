@@ -112,11 +112,11 @@ static void jtag_send(const char *raw_str, uint32_t len)
 	if (cooked_str != raw_str)
 		free((char *)cooked_str);
 }
-static void jtag_putc(const char c)
+static void jtag_putc(struct stdio_dev *dev, const char c)
 {
 	jtag_send(&c, 1);
 }
-static void jtag_puts(const char *s)
+static void jtag_puts(struct stdio_dev *dev, const char *s)
 {
 	jtag_send(s, strlen(s));
 }
@@ -133,7 +133,7 @@ static int jtag_tstc_dbg(void)
 }
 
 /* Higher layers want to know when any data is available */
-static int jtag_tstc(void)
+static int jtag_tstc(struct stdio_dev *dev)
 {
 	return jtag_tstc_dbg() || leftovers_len;
 }
@@ -142,7 +142,7 @@ static int jtag_tstc(void)
  * [32bit length][actual data]
  */
 static uint32_t leftovers;
-static int jtag_getc(void)
+static int jtag_getc(struct stdio_dev *dev)
 {
 	int ret;
 	uint32_t emudat;
@@ -173,7 +173,7 @@ static int jtag_getc(void)
 		leftovers = emudat;
 	}
 
-	return jtag_getc();
+	return jtag_getc(dev);
 }
 
 int drv_jtag_console_init(void)

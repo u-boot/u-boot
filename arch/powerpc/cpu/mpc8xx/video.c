@@ -948,7 +948,7 @@ static inline void console_newline (void)
 	}
 }
 
-void video_putc (const char c)
+void video_putc(struct stdio_dev *dev, const char c)
 {
 	if (!video_enable) {
 		serial_putc (c);
@@ -985,7 +985,7 @@ void video_putc (const char c)
 	}
 }
 
-void video_puts (const char *s)
+void video_puts(struct stdio_dev *dev, const char *s)
 {
 	int count = strlen (s);
 
@@ -994,7 +994,7 @@ void video_puts (const char *s)
 			serial_putc (*s++);
 	else
 		while (count--)
-			video_putc (*s++);
+			video_putc(dev, *s++);
 }
 
 /************************************************************************/

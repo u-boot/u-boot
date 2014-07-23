@@ -214,6 +214,11 @@ static inline void console_newline(void)
 
 /*----------------------------------------------------------------------*/
 
+static void lcd_stub_putc(struct stdio_dev *dev, const char c)
+{
+	lcd_putc(c);
+}
+
 void lcd_putc(const char c)
 {
 	if (!lcd_is_enabled) {
@@ -252,6 +257,11 @@ void lcd_putc(const char c)
 }
 
 /*----------------------------------------------------------------------*/
+
+static void lcd_stub_puts(struct stdio_dev *dev, const char *s)
+{
+	lcd_puts(s);
+}
 
 void lcd_puts(const char *s)
 {
@@ -426,8 +436,8 @@ int drv_lcd_init(void)
 	strcpy(lcddev.name, "lcd");
 	lcddev.ext   = 0;			/* No extensions */
 	lcddev.flags = DEV_FLAGS_OUTPUT;	/* Output only */
-	lcddev.putc  = lcd_putc;		/* 'putc' function */
-	lcddev.puts  = lcd_puts;		/* 'puts' function */
+	lcddev.putc  = lcd_stub_putc;		/* 'putc' function */
+	lcddev.puts  = lcd_stub_puts;		/* 'puts' function */
 
 	rc = stdio_register(&lcddev);
 

@@ -360,7 +360,7 @@ static inline void usb_kbd_poll_for_event(struct usb_device *dev)
 }
 
 /* test if a character is in the queue */
-static int usb_kbd_testc(void)
+static int usb_kbd_testc(struct stdio_dev *sdev)
 {
 	struct stdio_dev *dev;
 	struct usb_device *usb_kbd_dev;
@@ -386,7 +386,7 @@ static int usb_kbd_testc(void)
 }
 
 /* gets the character from the queue */
-static int usb_kbd_getc(void)
+static int usb_kbd_getc(struct stdio_dev *sdev)
 {
 	struct stdio_dev *dev;
 	struct usb_device *usb_kbd_dev;

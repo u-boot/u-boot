@@ -389,7 +389,7 @@ static void str2wide (char *str, u16 * wide)
  * Test whether a character is in the RX buffer
  */
 
-int usbtty_tstc (void)
+int usbtty_tstc(struct stdio_dev *dev)
 {
 	struct usb_endpoint_instance *endpoint =
 		&endpoint_instance[rx_endpoint];
@@ -409,7 +409,7 @@ int usbtty_tstc (void)
  * written into its argument c.
  */
 
-int usbtty_getc (void)
+int usbtty_getc(struct stdio_dev *dev)
 {
 	char c;
 	struct usb_endpoint_instance *endpoint =
@@ -429,7 +429,7 @@ int usbtty_getc (void)
 /*
  * Output a single byte to the usb client port.
  */
-void usbtty_putc (const char c)
+void usbtty_putc(struct stdio_dev *dev, const char c)
 {
 	if (!usbtty_configured ())
 		return;
@@ -484,7 +484,7 @@ static void __usbtty_puts (const char *str, int len)
 	}
 }
 
-void usbtty_puts (const char *str)
+void usbtty_puts(struct stdio_dev *dev, const char *str)
 {
 	int n;
 	int len;

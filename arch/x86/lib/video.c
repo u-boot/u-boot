@@ -104,7 +104,7 @@ static void __video_putc(const char c, int *x, int *y)
 	}
 }
 
-static void video_putc(const char c)
+static void video_putc(struct stdio_dev *dev, const char c)
 {
 	int x, y, pos;
 
@@ -123,7 +123,7 @@ static void video_putc(const char c)
 	outb_p(0xff & (pos >> 1), vidport+1);
 }
 
-static void video_puts(const char *s)
+static void video_puts(struct stdio_dev *dev, const char *s)
 {
 	int x, y, pos;
 	char c;

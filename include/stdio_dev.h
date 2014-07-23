@@ -27,18 +27,21 @@ struct stdio_dev {
 
 /* GENERAL functions */
 
-	int (*start) (void);		/* To start the device			*/
-	int (*stop) (void);		/* To stop the device			*/
+	int (*start)(struct stdio_dev *dev);	/* To start the device */
+	int (*stop)(struct stdio_dev *dev);	/* To stop the device */
 
 /* OUTPUT functions */
 
-	void (*putc) (const char c);	/* To put a char			*/
-	void (*puts) (const char *s);	/* To put a string (accelerator)	*/
+	/* To put a char */
+	void (*putc)(struct stdio_dev *dev, const char c);
+	/* To put a string (accelerator) */
+	void (*puts)(struct stdio_dev *dev, const char *s);
 
 /* INPUT functions */
 
-	int (*tstc) (void);		/* To test if a char is ready...	*/
-	int (*getc) (void);		/* To get that char			*/
+	/* To test if a char is ready... */
+	int (*tstc)(struct stdio_dev *dev);
+	int (*getc)(struct stdio_dev *dev);	/* To get that char */
 
 /* Other functions */
 
