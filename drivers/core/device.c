@@ -218,6 +218,13 @@ static void device_free(struct udevice *dev)
 		free(dev->uclass_priv);
 		dev->uclass_priv = NULL;
 	}
+	if (dev->parent) {
+		size = dev->parent->driver->per_child_auto_alloc_size;
+		if (size) {
+			free(dev->parent_priv);
+			dev->parent_priv = NULL;
+		}
+	}
 }
 
 int device_probe(struct udevice *dev)
@@ -263,6 +270,15 @@ int device_probe(struct udevice *dev)
 
 	/* Ensure all parents are probed */
 	if (dev->parent) {
+		size = dev->parent->driver->per_child_auto_alloc_size;
+		if (size) {
+			dev->parent_priv = calloc(1, size);
+			if (!dev->parent_priv) {
+				ret = -ENOMEM;
+				goto fail;
+			}
+		}
+
 		ret = device_probe(dev->parent);
 		if (ret)
 			goto fail;
@@ -375,6 +391,16 @@ void *dev_get_priv(struct udevice *dev)
 	}
 
 	return dev->priv;
+}
+
+void *dev_get_parentdata(struct udevice *dev)
+{
+	if (!dev) {
+		dm_warn("%s: null device", __func__);
+		return NULL;
+	}
+
+	return dev->parent_priv;
 }
 
 static int device_get_device_tail(struct udevice *dev, int ret,

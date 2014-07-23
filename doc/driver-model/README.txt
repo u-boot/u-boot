@@ -95,7 +95,7 @@ are provided in test/dm. To run them, try:
 You should see something like this:
 
     <...U-Boot banner...>
-    Running 19 driver model tests
+    Running 20 driver model tests
     Test: dm_test_autobind
     Test: dm_test_autoprobe
     Test: dm_test_bus_children
@@ -103,6 +103,7 @@ You should see something like this:
     Device 'c-test@0': seq 0 is in use by 'a-test'
     Device 'c-test@1': seq 1 is in use by 'd-test'
     Test: dm_test_bus_children_funcs
+    Test: dm_test_bus_parent_data
     Test: dm_test_children
     Test: dm_test_fdt
     Device 'd-test': seq 3 is in use by 'b-test'
@@ -489,16 +490,23 @@ steps (see device_probe()):
    stored in the device, but it is uclass data. owned by the uclass driver.
    It is possible for the device to access it.
 
-   d. All parent devices are probed. It is not possible to activate a device
+   d. If the device's immediate parent specifies a per_child_auto_alloc_size
+   then this space is allocated. This is intended for use by the parent
+   device to keep track of things related to the child. For example a USB
+   flash stick attached to a USB host controller would likely use this
+   space. The controller can hold information about the USB state of each
+   of its children.
+
+   e. All parent devices are probed. It is not possible to activate a device
    unless its predecessors (all the way up to the root device) are activated.
    This means (for example) that an I2C driver will require that its bus
    be activated.
 
-   e. The device's sequence number is assigned, either the requested one
+   f. The device's sequence number is assigned, either the requested one
    (assuming no conflicts) or the next available one if there is a conflict
    or nothing particular is requested.
 
-   f. If the driver provides an ofdata_to_platdata() method, then this is
+   g. If the driver provides an ofdata_to_platdata() method, then this is
    called to convert the device tree data into platform data. This should
    do various calls like fdtdec_get_int(gd->fdt_blob, dev->of_offset, ...)
    to access the node and store the resulting information into dev->platdata.
@@ -514,7 +522,7 @@ steps (see device_probe()):
    data, one day it is possible that U-Boot will cache platformat data for
    devices which are regularly de/activated).
 
-   g. The device's probe() method is called. This should do anything that
+   h. The device's probe() method is called. This should do anything that
    is required by the device to get it going. This could include checking
    that the hardware is actually present, setting up clocks for the
    hardware and setting up hardware registers to initial values. The code
@@ -529,9 +537,9 @@ steps (see device_probe()):
    allocate the priv space here yourself. The same applies also to
    platdata_auto_alloc_size. Remember to free them in the remove() method.
 
-   h. The device is marked 'activated'
+   i. The device is marked 'activated'
 
-   i. The uclass's post_probe() method is called, if one exists. This may
+   j. The uclass's post_probe() method is called, if one exists. This may
    cause the uclass to do some housekeeping to record the device as
    activated and 'known' by the uclass.
 
@@ -562,7 +570,8 @@ remove it. This performs the probe steps in reverse:
    to be sure that no hardware is running, it should be enough to remove
    all devices.
 
-   d. The device memory is freed (platform data, private data, uclass data).
+   d. The device memory is freed (platform data, private data, uclass data,
+   parent data).
 
    Note: Because the platform data for a U_BOOT_DEVICE() is defined with a
    static pointer, it is not de-allocated during the remove() method. For

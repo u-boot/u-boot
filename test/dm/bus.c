@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <dm.h>
+#include <dm/device-internal.h>
 #include <dm/root.h>
 #include <dm/test.h>
 #include <dm/ut.h>
@@ -32,6 +33,7 @@ U_BOOT_DRIVER(testbus_drv) = {
 	.probe	= testbus_drv_probe,
 	.priv_auto_alloc_size = sizeof(struct dm_test_priv),
 	.platdata_auto_alloc_size = sizeof(struct dm_test_pdata),
+	.per_child_auto_alloc_size = sizeof(struct dm_test_parent_data),
 };
 
 UCLASS_DRIVER(testbus) = {
@@ -107,3 +109,66 @@ static int dm_test_bus_children_funcs(struct dm_test_state *dms)
 	return 0;
 }
 DM_TEST(dm_test_bus_children_funcs, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test that the bus can store data about each child */
+static int dm_test_bus_parent_data(struct dm_test_state *dms)
+{
+	struct dm_test_parent_data *parent_data;
+	struct udevice *bus, *dev;
+	struct uclass *uc;
+	int value;
+
+	ut_assertok(uclass_get_device(UCLASS_TEST_BUS, 0, &bus));
+
+	/* Check that parent data is allocated */
+	ut_assertok(device_find_child_by_seq(bus, 0, true, &dev));
+	ut_asserteq_ptr(NULL, dev_get_parentdata(dev));
+	ut_assertok(device_get_child_by_seq(bus, 0, &dev));
+	parent_data = dev_get_parentdata(dev);
+	ut_assert(NULL != parent_data);
+
+	/* Check that it starts at 0 and goes away when device is removed */
+	parent_data->sum += 5;
+	ut_asserteq(5, parent_data->sum);
+	device_remove(dev);
+	ut_asserteq_ptr(NULL, dev_get_parentdata(dev));
+
+	/* Check that we can do this twice */
+	ut_assertok(device_get_child_by_seq(bus, 0, &dev));
+	parent_data = dev_get_parentdata(dev);
+	ut_assert(NULL != parent_data);
+	parent_data->sum += 5;
+	ut_asserteq(5, parent_data->sum);
+
+	/* Add parent data to all children */
+	ut_assertok(uclass_get(UCLASS_TEST_FDT, &uc));
+	value = 5;
+	uclass_foreach_dev(dev, uc) {
+		/* Ignore these if they are not on this bus */
+		if (dev->parent != bus) {
+			ut_asserteq_ptr(NULL, dev_get_parentdata(dev));
+			continue;
+		}
+		ut_assertok(device_probe(dev));
+		parent_data = dev_get_parentdata(dev);
+
+		parent_data->sum = value;
+		value += 5;
+	}
+
+	/* Check it is still there */
+	value = 5;
+	uclass_foreach_dev(dev, uc) {
+		/* Ignore these if they are not on this bus */
+		if (dev->parent != bus)
+			continue;
+		parent_data = dev_get_parentdata(dev);
+
+		ut_asserteq(value, parent_data->sum);
+		value += 5;
+	}
+
+	return 0;
+}
+
+DM_TEST(dm_test_bus_parent_data, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

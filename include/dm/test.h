@@ -82,6 +82,15 @@ struct dm_test_uclass_priv {
 	int total_add;
 };
 
+/**
+ * struct dm_test_parent_data - parent's information on each child
+ *
+ * @sum: Test value used to check parent data works correctly
+ */
+struct dm_test_parent_data {
+	int sum;
+};
+
 /*
  * Operation counts for the test driver, used to check that each method is
  * called correctly

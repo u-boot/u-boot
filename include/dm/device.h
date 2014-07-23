@@ -51,6 +51,7 @@ struct driver_info;
  * @priv: Private data for this device
  * @uclass: Pointer to uclass for this device
  * @uclass_priv: The uclass's private data for this device
+ * @parent_priv: The parent's private data for this device
  * @uclass_node: Used by uclass to link its devices
  * @child_head: List of children of this device
  * @sibling_node: Next device in list of all devices
@@ -67,6 +68,7 @@ struct udevice {
 	void *priv;
 	struct uclass *uclass;
 	void *uclass_priv;
+	void *parent_priv;
 	struct list_head uclass_node;
 	struct list_head child_head;
 	struct list_head sibling_node;
@@ -124,6 +126,9 @@ struct udevice_id {
  * This is typically only useful for device-tree-aware drivers (those with
  * an of_match), since drivers which use platdata will have the data
  * provided in the U_BOOT_DEVICE() instantiation.
+ * @per_child_auto_alloc_size: Each device can hold private data owned by
+ * its parent. If required this will be automatically allocated if this
+ * value is non-zero.
  * @ops: Driver-specific operations. This is typically a list of function
  * pointers defined by the driver, to implement driver functions required by
  * the uclass.
@@ -140,6 +145,7 @@ struct driver {
 	int (*ofdata_to_platdata)(struct udevice *dev);
 	int priv_auto_alloc_size;
 	int platdata_auto_alloc_size;
+	int per_child_auto_alloc_size;
 	const void *ops;	/* driver-specific operations */
 	uint32_t flags;
 };
@@ -157,6 +163,20 @@ struct driver {
  * @return platform data, or NULL if none
  */
 void *dev_get_platdata(struct udevice *dev);
+
+/**
+ * dev_get_parentdata() - Get the parent data for a device
+ *
+ * The parent data is data stored in the device but owned by the parent.
+ * For example, a USB device may have parent data which contains information
+ * about how to talk to the device over USB.
+ *
+ * This checks that dev is not NULL, but no other checks for now
+ *
+ * @dev		Device to check
+ * @return parent data, or NULL if none
+ */
+void *dev_get_parentdata(struct udevice *dev);
 
 /**
  * dev_get_priv() - Get the private data for a device
