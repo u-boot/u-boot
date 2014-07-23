@@ -62,6 +62,19 @@ int dm_scan_fdt_node(struct udevice *parent, const void *blob, int offset,
 		     bool pre_reloc_only);
 
 /**
+ * dm_scan_other() - Scan for other devices
+ *
+ * Some devices may not be visible to Driver Model. This weak function can
+ * be provided by boards which wish to create their own devices
+ * programmaticaly. They should do this by calling device_bind() on each
+ * device.
+ *
+ * @pre_reloc_only: If true, bind only drivers with the DM_FLAG_PRE_RELOC
+ * flag. If false bind all drivers.
+ */
+int dm_scan_other(bool pre_reloc_only);
+
+/**
  * dm_init_and_scan() - Initialise Driver Model structures and scan for devices
  *
  * This function initialises the roots of the driver tree and uclass trees,

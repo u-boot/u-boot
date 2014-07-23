@@ -108,6 +108,11 @@ int dm_scan_fdt(const void *blob, bool pre_reloc_only)
 }
 #endif
 
+__weak int dm_scan_other(bool pre_reloc_only)
+{
+	return 0;
+}
+
 int dm_init_and_scan(bool pre_reloc_only)
 {
 	int ret;
@@ -129,6 +134,9 @@ int dm_init_and_scan(bool pre_reloc_only)
 		return ret;
 	}
 #endif
+	ret = dm_scan_other(pre_reloc_only);
+	if (ret)
+		return ret;
 
 	return 0;
 }
