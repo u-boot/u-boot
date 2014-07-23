@@ -39,7 +39,8 @@ static int testfdt_ofdata_to_platdata(struct udevice *dev)
 
 	pdata->ping_add = fdtdec_get_int(gd->fdt_blob, dev->of_offset,
 					"ping-add", -1);
-	pdata->base = fdtdec_get_addr(gd->fdt_blob, dev->of_offset, "reg");
+	pdata->base = fdtdec_get_addr(gd->fdt_blob, dev->of_offset,
+				      "ping-expect");
 
 	return 0;
 }
@@ -127,11 +128,13 @@ static int dm_test_fdt(struct dm_test_state *dms)
 		ut_assert(!ret);
 
 		/*
-		 * Get the 'reg' property, which tells us what the ping add
-		 * should be. We don't use the platdata because we want
-		 * to test the code that sets that up (testfdt_drv_probe()).
+		 * Get the 'ping-expect' property, which tells us what the
+		 * ping add should be. We don't use the platdata because we
+		 * want to test the code that sets that up
+		 * (testfdt_drv_probe()).
 		 */
-		base = fdtdec_get_addr(gd->fdt_blob, dev->of_offset, "reg");
+		base = fdtdec_get_addr(gd->fdt_blob, dev->of_offset,
+				       "ping-expect");
 		debug("dev=%d, base=%d: %s\n", i, base,
 		      fdt_get_name(gd->fdt_blob, dev->of_offset, NULL));
 
