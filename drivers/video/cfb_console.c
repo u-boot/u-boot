@@ -2279,8 +2279,6 @@ int drv_video_init(void)
 	console_dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_SYSTEM;
 	console_dev.putc = video_putc;	/* 'putc' function */
 	console_dev.puts = video_puts;	/* 'puts' function */
-	console_dev.tstc = NULL;	/* 'tstc' function */
-	console_dev.getc = NULL;	/* 'getc' function */
 
 #if !defined(CONFIG_VGA_AS_SINGLE_DEVICE)
 	/* Also init console device */

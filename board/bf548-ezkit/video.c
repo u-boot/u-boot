@@ -281,14 +281,6 @@ static void dma_bitblit(void *dst, fastimage_t *logo, int x, int y)
 
 }
 
-void video_putc(const char c)
-{
-}
-
-void video_puts(const char *s)
-{
-}
-
 int drv_video_init(void)
 {
 	int error, devices = 1;
@@ -338,8 +330,6 @@ int drv_video_init(void)
 	strcpy(videodev.name, "video");
 	videodev.ext = DEV_EXT_VIDEO;	/* Video extensions */
 	videodev.flags = DEV_FLAGS_SYSTEM;	/* No Output */
-	videodev.putc = video_putc;	/* 'putc' function */
-	videodev.puts = video_puts;	/* 'puts' function */
 
 	error = stdio_register(&videodev);
 
