@@ -94,9 +94,9 @@ static int do_dm_dump_uclass(cmd_tbl_t *cmdtp, int flag, int argc,
 			continue;
 
 		printf("uclass %d: %s\n", id, uc->uc_drv->name);
-		for (ret = uclass_first_device(id, &dev);
-		     dev;
-		     ret = uclass_next_device(&dev)) {
+		if (list_empty(&uc->dev_head))
+			continue;
+		list_for_each_entry(dev, &uc->dev_head, uclass_node) {
 			dm_display_line(dev, "");
 		}
 		puts("\n");
