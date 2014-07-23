@@ -19,6 +19,9 @@
 #define CONFIG_SYS_FSL_PBL_RCW $(SRCTREE)/board/freescale/t104xrdb/t1040_rcw.cfg
 #endif
 #ifdef CONFIG_T1042RDB_PI
+#define CONFIG_SYS_FSL_PBL_RCW $(SRCTREE)/board/freescale/t104xrdb/t1042_pi_rcw.cfg
+#endif
+#ifdef CONFIG_T1042RDB
 #define CONFIG_SYS_FSL_PBL_RCW $(SRCTREE)/board/freescale/t104xrdb/t1042_rcw.cfg
 #endif
 
