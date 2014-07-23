@@ -16,6 +16,22 @@
 #include <dm/test.h>
 #include <dm/uclass-internal.h>
 
+/**
+ * dm_display_line() - Display information about a single device
+ *
+ * Displays a single line of information with an option prefix
+ *
+ * @dev:	Device to display
+ * @buf:	Prefix to display at the start of the line
+ */
+static void dm_display_line(struct udevice *dev, char *buf)
+{
+	printf("%s- %c %s @ %08lx", buf,
+	       dev->flags & DM_FLAG_ACTIVATED ? '*' : ' ',
+	       dev->name, (ulong)map_to_sysmem(dev));
+	puts("\n");
+}
+
 static int display_succ(struct udevice *in, char *buf)
 {
 	int len;
@@ -23,10 +39,7 @@ static int display_succ(struct udevice *in, char *buf)
 	char local[16];
 	struct udevice *pos, *n, *prev = NULL;
 
-	printf("%s- %c %s @ %08lx", buf,
-	       in->flags & DM_FLAG_ACTIVATED ? '*' : ' ',
-	       in->name, (ulong)map_to_sysmem(in));
-	puts("\n");
+	dm_display_line(in, buf);
 
 	if (list_empty(&in->child_head))
 		return 0;
@@ -84,9 +97,7 @@ static int do_dm_dump_uclass(cmd_tbl_t *cmdtp, int flag, int argc,
 		for (ret = uclass_first_device(id, &dev);
 		     dev;
 		     ret = uclass_next_device(&dev)) {
-			printf("  %c %s @ %08lx:\n",
-			       dev->flags & DM_FLAG_ACTIVATED ? '*' : ' ',
-			       dev->name, (ulong)map_to_sysmem(dev));
+			dm_display_line(dev, "");
 		}
 		puts("\n");
 	}
@@ -135,7 +146,7 @@ static int do_dm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 U_BOOT_CMD(
 	dm,	2,	1,	do_dm,
 	"Driver model low level access",
-	"tree         Dump driver model tree\n"
+	"tree         Dump driver model tree ('*' = activated)\n"
 	"dm uclass        Dump list of instances for each uclass"
 	TEST_HELP
 );
