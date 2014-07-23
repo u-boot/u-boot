@@ -504,7 +504,7 @@ int vprintf(const char *fmt, va_list args)
 	uint i;
 	char printbuffer[CONFIG_SYS_PBSIZE];
 
-#ifndef CONFIG_PRE_CONSOLE_BUFFER
+#if defined(CONFIG_PRE_CONSOLE_BUFFER) && !defined(CONFIG_SANDBOX)
 	if (!gd->have_console)
 		return 0;
 #endif
