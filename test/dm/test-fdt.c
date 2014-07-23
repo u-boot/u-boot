@@ -215,3 +215,33 @@ static int dm_test_fdt_uclass_seq(struct dm_test_state *dms)
 	return 0;
 }
 DM_TEST(dm_test_fdt_uclass_seq, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);
+
+/* Test that we can find a device by device tree offset */
+static int dm_test_fdt_offset(struct dm_test_state *dms)
+{
+	const void *blob = gd->fdt_blob;
+	struct udevice *dev;
+	int node;
+
+	node = fdt_path_offset(blob, "/e-test");
+	ut_assert(node > 0);
+	ut_assertok(uclass_get_device_by_of_offset(UCLASS_TEST_FDT, node,
+						   &dev));
+	ut_asserteq_str("e-test", dev->name);
+
+	/* This node should not be bound */
+	node = fdt_path_offset(blob, "/junk");
+	ut_assert(node > 0);
+	ut_asserteq(-ENODEV, uclass_get_device_by_of_offset(UCLASS_TEST_FDT,
+							    node, &dev));
+
+	/* This is not a top level node so should not be probed */
+	node = fdt_path_offset(blob, "/some-bus/c-test");
+	ut_assert(node > 0);
+	ut_asserteq(-ENODEV, uclass_get_device_by_of_offset(UCLASS_TEST_FDT,
+							    node, &dev));
+
+	return 0;
+}
+
+DM_TEST(dm_test_fdt_offset, DM_TESTF_SCAN_PDATA | DM_TESTF_SCAN_FDT);

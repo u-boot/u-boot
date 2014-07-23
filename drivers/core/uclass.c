@@ -187,6 +187,30 @@ int uclass_find_device_by_seq(enum uclass_id id, int seq_or_req_seq,
 	return -ENODEV;
 }
 
+static int uclass_find_device_by_of_offset(enum uclass_id id, int node,
+					   struct udevice **devp)
+{
+	struct uclass *uc;
+	struct udevice *dev;
+	int ret;
+
+	*devp = NULL;
+	if (node < 0)
+		return -ENODEV;
+	ret = uclass_get(id, &uc);
+	if (ret)
+		return ret;
+
+	list_for_each_entry(dev, &uc->dev_head, uclass_node) {
+		if (dev->of_offset == node) {
+			*devp = dev;
+			return 0;
+		}
+	}
+
+	return -ENODEV;
+}
+
 /**
  * uclass_get_device_tail() - handle the end of a get_device call
  *
@@ -236,6 +260,17 @@ int uclass_get_device_by_seq(enum uclass_id id, int seq, struct udevice **devp)
 		 */
 		ret = uclass_find_device_by_seq(id, seq, true, &dev);
 	}
+	return uclass_get_device_tail(dev, ret, devp);
+}
+
+int uclass_get_device_by_of_offset(enum uclass_id id, int node,
+				   struct udevice **devp)
+{
+	struct udevice *dev;
+	int ret;
+
+	*devp = NULL;
+	ret = uclass_find_device_by_of_offset(id, node, &dev);
 	return uclass_get_device_tail(dev, ret, devp);
 }
 

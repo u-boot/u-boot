@@ -95,12 +95,13 @@ are provided in test/dm. To run them, try:
 You should see something like this:
 
     <...U-Boot banner...>
-    Running 15 driver model tests
+    Running 16 driver model tests
     Test: dm_test_autobind
     Test: dm_test_autoprobe
     Test: dm_test_children
     Test: dm_test_fdt
     Device 'd-test': seq 3 is in use by 'b-test'
+    Test: dm_test_fdt_offset
     Test: dm_test_fdt_pre_reloc
     Test: dm_test_fdt_uclass_seq
     Device 'd-test': seq 3 is in use by 'b-test'
