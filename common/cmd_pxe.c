@@ -1554,6 +1554,8 @@ do_pxe_boot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	destroy_pxe_menu(cfg);
 
+	copy_filename(BootFile, "", sizeof(BootFile));
+
 	return 0;
 }
 
