@@ -365,6 +365,21 @@ int fdtdec_get_alias_seq(const void *blob, const char *base, int offset,
 	return -ENOENT;
 }
 
+int fdtdec_get_alias_node(const void *blob, const char *name)
+{
+	const char *prop;
+	int alias_node;
+	int len;
+
+	if (!blob)
+		return -FDT_ERR_NOTFOUND;
+	alias_node = fdt_path_offset(blob, "/aliases");
+	prop = fdt_getprop(blob, alias_node, name, &len);
+	if (!prop)
+		return -FDT_ERR_NOTFOUND;
+	return fdt_path_offset(blob, prop);
+}
+
 int fdtdec_check_fdt(void)
 {
 	/*
