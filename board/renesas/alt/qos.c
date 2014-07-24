@@ -13,7 +13,7 @@
 #include <asm/io.h>
 #include <asm/arch/rmobile.h>
 
-/* QoS version 0.10 */
+/* QoS version 0.11 */
 
 enum {
 	DBSC3_00, DBSC3_01, DBSC3_02, DBSC3_03, DBSC3_04,
@@ -156,8 +156,8 @@ void qos_init(void)
 	}
 
 	/* CCI-400 -QoS */
-	writel(0x20001000, CCI_400_MAXOT_1);
-	writel(0x20001000, CCI_400_MAXOT_2);
+	writel(0x20000800, CCI_400_MAXOT_1);
+	writel(0x20000800, CCI_400_MAXOT_2);
 	writel(0x0000000C, CCI_400_QOSCNTL_1);
 	writel(0x0000000C, CCI_400_QOSCNTL_2);
 
