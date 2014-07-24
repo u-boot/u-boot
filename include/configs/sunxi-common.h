@@ -215,6 +215,12 @@
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #endif
 
+#ifdef CONFIG_USB_EHCI
+#define CONFIG_CMD_USB
+#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 1
+#define CONFIG_USB_STORAGE
+#endif
+
 #if !defined CONFIG_ENV_IS_IN_MMC && \
     !defined CONFIG_ENV_IS_IN_NAND && \
     !defined CONFIG_ENV_IS_IN_FAT && \
