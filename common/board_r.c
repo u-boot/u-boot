@@ -587,6 +587,7 @@ static int initr_doc(void)
 {
 	puts("DOC:   ");
 	doc_init();
+	return 0;
 }
 #endif
 
