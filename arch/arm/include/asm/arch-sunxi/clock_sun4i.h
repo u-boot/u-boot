@@ -256,4 +256,8 @@ struct sunxi_ccm_reg {
 #define CCM_GMAC_CTRL_GPIT_MII (0x0 << 2)
 #define CCM_GMAC_CTRL_GPIT_RGMII (0x1 << 2)
 
+#define CCM_USB_CTRL_PHY1_RST (0x1 << 1)
+#define CCM_USB_CTRL_PHY2_RST (0x1 << 2)
+#define CCM_USB_CTRL_PHYGATE (0x1 << 8)
+
 #endif /* _SUNXI_CLOCK_SUN4I_H */
