@@ -802,14 +802,15 @@ u-boot.hex u-boot.srec: u-boot FORCE
 
 OBJCOPYFLAGS_u-boot.bin := -O binary
 
-binary_size_check: u-boot.bin System.map FORCE
+binary_size_check: u-boot.bin FORCE
 	@file_size=$(shell wc -c u-boot.bin | awk '{print $$1}') ; \
-	map_size=$(shell cat System.map | \
+	map_size=$(shell cat u-boot.map | \
 		awk '/_image_copy_start/ {start = $$1} /_image_binary_end/ {end = $$1} END {if (start != "" && end != "") print "ibase=16; " toupper(end) " - " toupper(start)}' \
+		| sed 's/0X//g' \
 		| bc); \
 	if [ "" != "$$map_size" ]; then \
 		if test $$map_size -ne $$file_size; then \
-			echo "System.map shows a binary size of $$map_size" >&2 ; \
+			echo "u-boot.map shows a binary size of $$map_size" >&2 ; \
 			echo "  but u-boot.bin shows $$file_size" >&2 ; \
 			exit 1; \
 		fi \
