@@ -175,7 +175,7 @@
 #ifdef CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_SPD_BUS_NUM		1 /* I2C2 */
+#define CONFIG_SYS_RTC_BUS_NUM		1 /* I2C2 */
 #endif
 
 /*
