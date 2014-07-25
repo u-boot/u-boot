@@ -75,7 +75,7 @@
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_DHCP
 
-#include "tegra-common-ums.h"
+#include "tegra-common-usb-gadget.h"
 #include "tegra-common-post.h"
 
 #endif /* __CONFIG_H */
