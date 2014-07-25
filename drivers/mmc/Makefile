@@ -37,3 +37,4 @@ obj-$(CONFIG_SPL_MMC_BOOT) += fsl_esdhc_spl.o
 else
 obj-$(CONFIG_GENERIC_MMC) += mmc_write.o
 endif
+obj-$(CONFIG_MVEBU_MMC) += mvebu_mmc.o
