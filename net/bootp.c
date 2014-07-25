@@ -23,12 +23,22 @@
 
 #define BOOTP_VENDOR_MAGIC	0x63825363	/* RFC1048 Magic Cookie */
 
-#define TIMEOUT		5000UL	/* Milliseconds before trying BOOTP again */
+/*
+ * The timeout for the initial BOOTP/DHCP request used to be described by a
+ * counter of fixed-length timeout periods. TIMEOUT_COUNT represents
+ * that counter
+ *
+ * Now that the timeout periods are variable (exponential backoff and retry)
+ * we convert the timeout count to the absolute time it would have take to
+ * execute that many retries, and keep sending retry packets until that time
+ * is reached.
+ */
 #ifndef CONFIG_NET_RETRY_COUNT
 # define TIMEOUT_COUNT	5		/* # of timeouts before giving up */
 #else
 # define TIMEOUT_COUNT	(CONFIG_NET_RETRY_COUNT)
 #endif
+#define TIMEOUT_MS	((3 + (TIMEOUT_COUNT * 5)) * 1000)
 
 #define PORT_BOOTPS	67		/* BOOTP server UDP port */
 #define PORT_BOOTPC	68		/* BOOTP client UDP port */
@@ -39,6 +49,8 @@
 
 ulong		BootpID;
 int		BootpTry;
+ulong		bootp_start;
+ulong		bootp_timeout;
 
 #if defined(CONFIG_CMD_DHCP)
 static dhcp_state_t dhcp_state = INIT;
@@ -327,16 +339,21 @@ BootpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 static void
 BootpTimeout(void)
 {
-	if (BootpTry >= TIMEOUT_COUNT) {
+	ulong time_taken = get_timer(bootp_start);
+
+	if (time_taken >= TIMEOUT_MS) {
 #ifdef CONFIG_BOOTP_MAY_FAIL
-		puts("\nRetry count exceeded\n");
+		puts("\nRetry time exceeded\n");
 		net_set_state(NETLOOP_FAIL);
 #else
-		puts("\nRetry count exceeded; starting again\n");
+		puts("\nRetry time exceeded; starting again\n");
 		NetStartAgain();
 #endif
 	} else {
-		NetSetTimeout(TIMEOUT, BootpTimeout);
+		bootp_timeout *= 2;
+		if (bootp_timeout > 1000)
+			bootp_timeout = 1000;
+		NetSetTimeout(bootp_timeout, BootpTimeout);
 		BootpRequest();
 	}
 }
@@ -597,6 +614,13 @@ static int BootpExtended(u8 *e)
 }
 #endif
 
+void BootpReset(void)
+{
+	BootpTry = 0;
+	bootp_start = get_timer(0);
+	bootp_timeout = 10;
+}
+
 void
 BootpRequest(void)
 {
@@ -685,7 +709,7 @@ BootpRequest(void)
 	iplen = BOOTP_HDR_SIZE - OPT_FIELD_SIZE + extlen;
 	pktlen = eth_hdr_size + IP_UDP_HDR_SIZE + iplen;
 	net_set_udp_header(iphdr, 0xFFFFFFFFL, PORT_BOOTPS, PORT_BOOTPC, iplen);
-	NetSetTimeout(SELECT_TIMEOUT, BootpTimeout);
+	NetSetTimeout(bootp_timeout, BootpTimeout);
 
 #if defined(CONFIG_CMD_DHCP)
 	dhcp_state = SELECTING;
@@ -918,7 +942,7 @@ DhcpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 						htonl(BOOTP_VENDOR_MAGIC))
 				DhcpOptionsProcess((u8 *)&bp->bp_vend[4], bp);
 
-			NetSetTimeout(TIMEOUT, BootpTimeout);
+			NetSetTimeout(5000, BootpTimeout);
 			DhcpSendRequestPkt(bp);
 #ifdef CONFIG_SYS_BOOTFILE_PREFIX
 		}
