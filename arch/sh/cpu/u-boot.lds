@@ -1,6 +1,12 @@
 /*
- * Copyright (C) 2008 Nobuhiro Iwamatsu
- * Copyright (C) 2008 Renesas Solutions Corp.
+ * Copyright (C) 2007
+ * Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+ *
+ * Copyright (C) 2008-2009
+ * Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+ *
+ * Copyright (C) 2008
+ * Mark Jonas <mark.jonas@de.bosch.com>
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -22,7 +28,7 @@ SECTIONS
 
 	.text :
 	{
-		KEEP(arch/sh/cpu/sh2/start.o	(.text))
+		KEEP(*/start.o		(.text))
 		. = ALIGN(8192);
 		common/env_embedded.o	(.ppcenv)
 		. = ALIGN(8192);
@@ -62,6 +68,7 @@ SECTIONS
 	}
 
 	PROVIDE (reloc_dst_end = .);
+	/* _reloc_dst_end = .; */
 
 	PROVIDE (bss_start = .);
 	PROVIDE (__bss_start = .);
