@@ -63,21 +63,35 @@ enum pll_type_e {
 	DDR3B_PLL,
 };
 
+enum {
+	SPD800,
+	SPD1000,
+	SPD1200,
+	SPD1350,
+	SPD1400,
+	SPD_RSV
+};
+
 #define CORE_PLL_799    {CORE_PLL,	13,	1,	2}
 #define CORE_PLL_983    {CORE_PLL,	16,	1,	2}
+#define CORE_PLL_999	{CORE_PLL,	122,	15,	1}
 #define CORE_PLL_1167   {CORE_PLL,	19,	1,	2}
 #define CORE_PLL_1228   {CORE_PLL,	20,	1,	2}
+#define CORE_PLL_1200	{CORE_PLL,	625,	32,	2}
 #define PASS_PLL_1228   {PASS_PLL,	20,	1,	2}
 #define PASS_PLL_983    {PASS_PLL,	16,	1,	2}
 #define PASS_PLL_1050   {PASS_PLL,	205,    12,	2}
 #define TETRIS_PLL_500  {TETRIS_PLL,	8,	1,	2}
 #define TETRIS_PLL_750  {TETRIS_PLL,	12,	1,	2}
+#define TETRIS_PLL_800	{TETRIS_PLL,	32,	5,	1}
 #define TETRIS_PLL_687  {TETRIS_PLL,	11,	1,	2}
 #define TETRIS_PLL_625  {TETRIS_PLL,	10,	1,	2}
 #define TETRIS_PLL_812  {TETRIS_PLL,	13,	1,	2}
 #define TETRIS_PLL_875  {TETRIS_PLL,	14,	1,	2}
+#define TETRIS_PLL_1000	{TETRIS_PLL,	40,	5,	1}
 #define TETRIS_PLL_1188 {TETRIS_PLL,	19,	2,	1}
 #define TETRIS_PLL_1200 {TETRIS_PLL,	48,	5,	1}
+#define TETRIS_PLL_1350	{TETRIS_PLL,	54,	5,	1}
 #define TETRIS_PLL_1375 {TETRIS_PLL,	22,	2,	1}
 #define TETRIS_PLL_1400 {TETRIS_PLL,	56,	5,	1}
 #define DDR3_PLL_200(x)	{DDR3##x##_PLL,	4,	1,	2}
