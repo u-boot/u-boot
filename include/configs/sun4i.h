@@ -16,6 +16,18 @@
 
 #define CONFIG_SYS_PROMPT		"sun4i# "
 
+#ifdef CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_SUNXI
+
+#define CONFIG_USB_MAX_CONTROLLER_COUNT	2
+#ifndef CONFIG_SUNXI_USB_VBUS0_GPIO
+#define CONFIG_SUNXI_USB_VBUS0_GPIO	SUNXI_GPH(6)
+#endif
+#ifndef CONFIG_SUNXI_USB_VBUS1_GPIO
+#define CONFIG_SUNXI_USB_VBUS1_GPIO	SUNXI_GPH(3)
+#endif
+#endif
+
 /*
  * Include common sunxi configuration where most the settings are
  */
