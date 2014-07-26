@@ -324,6 +324,19 @@
 
 extern void imx_get_mac_from_fuse(int dev_id, unsigned char *mac);
 
+#define SRC_SCR_CORE_1_RESET_OFFSET     14
+#define SRC_SCR_CORE_1_RESET_MASK       (1<<SRC_SCR_CORE_1_RESET_OFFSET)
+#define SRC_SCR_CORE_2_RESET_OFFSET     15
+#define SRC_SCR_CORE_2_RESET_MASK       (1<<SRC_SCR_CORE_2_RESET_OFFSET)
+#define SRC_SCR_CORE_3_RESET_OFFSET     16
+#define SRC_SCR_CORE_3_RESET_MASK       (1<<SRC_SCR_CORE_3_RESET_OFFSET)
+#define SRC_SCR_CORE_1_ENABLE_OFFSET    22
+#define SRC_SCR_CORE_1_ENABLE_MASK      (1<<SRC_SCR_CORE_1_ENABLE_OFFSET)
+#define SRC_SCR_CORE_2_ENABLE_OFFSET    23
+#define SRC_SCR_CORE_2_ENABLE_MASK      (1<<SRC_SCR_CORE_2_ENABLE_OFFSET)
+#define SRC_SCR_CORE_3_ENABLE_OFFSET    24
+#define SRC_SCR_CORE_3_ENABLE_MASK      (1<<SRC_SCR_CORE_3_ENABLE_OFFSET)
+
 /* System Reset Controller (SRC) */
 struct src {
 	u32	scr;

@@ -34,6 +34,9 @@
 #ifdef CONFIG_MPC5xxx
 #include <mpc5xxx.h>
 #endif
+#if (defined(CONFIG_MPC86xx) || defined(CONFIG_E500))
+#include <asm/mp.h>
+#endif
 
 #include <os.h>
 #include <post.h>
@@ -43,9 +46,6 @@
 #include <watchdog.h>
 #include <asm/errno.h>
 #include <asm/io.h>
-#ifdef CONFIG_MP
-#include <asm/mp.h>
-#endif
 #include <asm/sections.h>
 #ifdef CONFIG_X86
 #include <asm/init_helpers.h>
@@ -381,7 +381,7 @@ static int setup_dest_addr(void)
 	gd->ram_top = board_get_usable_ram_top(gd->mon_len);
 	gd->relocaddr = gd->ram_top;
 	debug("Ram top: %08lX\n", (ulong)gd->ram_top);
-#if defined(CONFIG_MP) && (defined(CONFIG_MPC86xx) || defined(CONFIG_E500))
+#if (defined(CONFIG_MPC86xx) || defined(CONFIG_E500))
 	/*
 	 * We need to make sure the location we intend to put secondary core
 	 * boot code is reserved and not used by any part of u-boot

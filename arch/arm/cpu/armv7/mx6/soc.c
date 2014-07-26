@@ -35,6 +35,12 @@ struct scu_regs {
 	u32	fpga_rev;
 };
 
+u32 get_nr_cpus(void)
+{
+	struct scu_regs *scu = (struct scu_regs *)SCU_BASE_ADDR;
+	return readl(&scu->config) & 3;
+}
+
 u32 get_cpu_rev(void)
 {
 	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
