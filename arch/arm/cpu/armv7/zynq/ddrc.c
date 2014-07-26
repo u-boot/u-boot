@@ -34,7 +34,7 @@ void zynq_ddrc_init(void)
 	/* ECC is enabled when memory is in 16bit mode and it is enabled */
 	if ((ecctype == ZYNQ_DDRC_ECC_SCRUBREG_ECCMODE_SECDED) &&
 	    (width == ZYNQ_DDRC_CTRLREG_BUSWIDTH_16BIT)) {
-		puts("Memory: ECC enabled\n");
+		puts("ECC enabled ");
 		/*
 		 * Clear the first 1MB because it is not initialized from
 		 * first stage bootloader. To get ECC to work all memory has
@@ -42,6 +42,6 @@ void zynq_ddrc_init(void)
 		 */
 		memset((void *)0, 0, 1 * 1024 * 1024);
 	} else {
-		puts("Memory: ECC disabled\n");
+		puts("ECC disabled ");
 	}
 }
