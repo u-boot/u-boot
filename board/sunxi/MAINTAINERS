@@ -11,7 +11,10 @@ F:	configs/Mele_A1000G_defconfig
 F:	configs/Mini-X_defconfig
 F:	configs/Mini-X-1Gb_defconfig
 F:	include/configs/sun5i.h
+F:	configs/A10s-OLinuXino-M_defconfig
+F:	configs/A13-OLinuXino_defconfig
 F:	configs/A13-OLinuXinoM_defconfig
+F:	configs/Auxtek-T004_defconfig
 F:	configs/r7-tv-dongle_defconfig
 
 CUBIEBOARD2 BOARD
