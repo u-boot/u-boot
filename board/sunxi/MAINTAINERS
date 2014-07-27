@@ -16,6 +16,11 @@ F:	configs/A13-OLinuXino_defconfig
 F:	configs/A13-OLinuXinoM_defconfig
 F:	configs/Auxtek-T004_defconfig
 F:	configs/r7-tv-dongle_defconfig
+F:	include/configs/sun7i.h
+F:	configs/A20-OLinuXino_MICRO_defconfig
+F:	configs/i12-tvbox_defconfig
+F:	configs/Linksprite_pcDuino3_defconfig
+F:	configs/qt840a_defconfig
 
 CUBIEBOARD2 BOARD
 M:	Ian Campbell <ijc@hellion.org.uk>
