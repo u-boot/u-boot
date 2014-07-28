@@ -588,7 +588,8 @@ SCIF_FNS(SCSPTR,                        0,  0, 0, 0)
 #else
 SCIF_FNS(SCSPTR,                        0,  0, 0x20, 16)
 #endif
-#if defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791)
+#if defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791) || \
+	defined(CONFIG_R8A7794)
 SCIF_FNS(DL,				0,  0, 0x30, 16)
 SCIF_FNS(CKS,				0,  0, 0x34, 16)
 #endif
