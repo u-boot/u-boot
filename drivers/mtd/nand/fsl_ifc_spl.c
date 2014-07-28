@@ -97,7 +97,7 @@ int nand_spl_load_image(uint32_t offs, unsigned int uboot_size, void *vdst)
 	int pages_per_blk;
 	int blk_size;
 	int bad_marker = 0;
-	int bufnum_mask, bufnum;
+	int bufnum_mask, bufnum, ver = 0;
 
 	int csor, cspr;
 	int pos = 0;
@@ -129,6 +129,10 @@ int nand_spl_load_image(uint32_t offs, unsigned int uboot_size, void *vdst)
 		if (port_size == 8)
 			bad_marker = 5;
 	}
+
+	ver = ifc_in32(&ifc->ifc_rev);
+	if (ver >= FSL_IFC_V2_0_0)
+		bufnum_mask = (bufnum_mask * 2) + 1;
 
 	pages_per_blk =
 		32 << ((csor & CSOR_NAND_PB_MASK) >> CSOR_NAND_PB_SHIFT);

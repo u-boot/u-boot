@@ -36,7 +36,7 @@
 #endif /* defined(CONFIG_MPC8260) */
 
 #if defined(CONFIG_QE)
-#include <asm/immap_qe.h>
+#include <linux/immap_qe.h>
 
 #define CONFIG_SYS_BOOTCOUNT_ADDR	(CONFIG_SYS_IMMR + 0x110000 + \
 					 QE_MURAM_SIZE - 2 * sizeof(u32))

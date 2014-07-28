@@ -14,7 +14,7 @@
 #include "net.h"
 #include "malloc.h"
 #include "asm/errno.h"
-#include "asm/immap_qe.h"
+#include "linux/immap_qe.h"
 #include "asm/io.h"
 #include "qe.h"
 #include "uccf.h"

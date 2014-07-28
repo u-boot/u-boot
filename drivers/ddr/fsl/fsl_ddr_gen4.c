@@ -8,6 +8,7 @@
 #include <asm/io.h>
 #include <fsl_ddr_sdram.h>
 #include <asm/processor.h>
+#include <fsl_immap.h>
 #include <fsl_ddr.h>
 
 #if (CONFIG_CHIP_SELECTS_PER_CTRL > 4)
@@ -183,12 +184,14 @@ step2:
 	 * we choose the max, that is 500 us for all of case.
 	 */
 	udelay(500);
-	asm volatile("sync;isync");
+	mb();
+	isb();
 
 	/* Let the controller go */
 	temp_sdram_cfg = ddr_in32(&ddr->sdram_cfg) & ~SDRAM_CFG_BI;
 	ddr_out32(&ddr->sdram_cfg, temp_sdram_cfg | SDRAM_CFG_MEM_EN);
-	asm volatile("sync;isync");
+	mb();
+	isb();
 
 	total_gb_size_per_controller = 0;
 	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
