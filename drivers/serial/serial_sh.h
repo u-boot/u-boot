@@ -735,8 +735,8 @@ static inline int scbrr_calc(struct uart_port port, int bps, int clk)
 #elif defined(__H8300H__) || defined(__H8300S__)
 #define SCBRR_VALUE(bps, clk) (((clk*1000/32)/bps)-1)
 #elif defined(CONFIG_R8A7790) || defined(CONFIG_R8A7791)
-#define SCBRR DL
-#define SCBRR_VALUE(bps, clk) (clk / bps / 16)
+#define DL_VALUE(bps, clk) (clk / bps / 16) /* External Clock */
+#define SCBRR_VALUE(bps, clk) ((clk+16*bps)/(32*bps)-1) /* Internal Clock */
 #else /* Generic SH */
 #define SCBRR_VALUE(bps, clk) ((clk+16*bps)/(32*bps)-1)
 #endif

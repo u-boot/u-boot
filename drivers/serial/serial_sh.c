@@ -49,9 +49,15 @@ static struct uart_port sh_sci = {
 static void sh_serial_setbrg(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-
+#ifdef CONFIG_SCIF_USE_EXT_CLK
+	unsigned short dl = DL_VALUE(gd->baudrate, CONFIG_SH_SCIF_CLK_FREQ);
+	sci_out(&sh_sci, DL, dl);
+	/* Need wait: Clock * 1/dl × 1/16 */
+	udelay((1000000 * dl * 16 / CONFIG_SYS_CLK_FREQ) * 1000 + 1);
+#else
 	sci_out(&sh_sci, SCBRR,
 		SCBRR_VALUE(gd->baudrate, CONFIG_SH_SCIF_CLK_FREQ));
+#endif
 }
 
 static int sh_serial_init(void)
