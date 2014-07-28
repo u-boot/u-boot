@@ -1,8 +1,7 @@
 /*
  * (C) Copyright 2012-2013 Henrik Nordstrom <henrik@henriknordstrom.net>
- * (C) Copyright 2013 Luke Kenneth Casson Leighton <lkcl@lkcl.net>
  *
- * Configuration settings for the Allwinner A20 (sun7i) CPU
+ * Configuration settings for the Allwinner A13 (sun5i) CPU
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -10,12 +9,12 @@
 #define __CONFIG_H
 
 /*
- * A20 specific configuration
+ * High Level Configuration Options
  */
-#define CONFIG_SUN7I		/* sun7i SoC generation */
-#define CONFIG_CLK_FULL_SPEED		912000000
+#define CONFIG_SUN5I		/* sun5i SoC generation */
+#define CONFIG_CLK_FULL_SPEED		1008000000
 
-#define CONFIG_SYS_PROMPT		"sun7i# "
+#define CONFIG_SYS_PROMPT		"sun5i# "
 
 /*
  * Include common sunxi configuration where most the settings are

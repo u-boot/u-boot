@@ -70,7 +70,6 @@
 #define CONFIG_CMD_MMC
 #define CONFIG_MMC_SUNXI
 #define CONFIG_MMC_SUNXI_SLOT		0
-#define CONFIG_MMC_SUNXI_USE_DMA
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV		0	/* first detected MMC controller */
 
@@ -162,7 +161,31 @@
 #undef CONFIG_CMD_NET
 #undef CONFIG_CMD_NFS
 
+/* I2C */
+#define CONFIG_SPL_I2C_SUPPORT
+#define CONFIG_SYS_I2C
+#define CONFIG_SYS_I2C_MVTWSI
+#define CONFIG_SYS_I2C_SPEED		400000
+#define CONFIG_SYS_I2C_SLAVE		0x7f
+#define CONFIG_CMD_I2C
+
+/* PMU */
+#if defined CONFIG_AXP152_POWER || defined CONFIG_AXP209_POWER || defined CONFIG_AXP221_POWER
+#define CONFIG_SPL_POWER_SUPPORT
+#endif
+
+#ifndef CONFIG_CONS_INDEX
 #define CONFIG_CONS_INDEX              1       /* UART0 */
+#endif
+
+/* GPIO */
+#define CONFIG_SUNXI_GPIO
+#define CONFIG_CMD_GPIO
+
+/* Ethernet support */
+#ifdef CONFIG_SUNXI_EMAC
+#define CONFIG_MII			/* MII PHY management		*/
+#endif
 
 #ifdef CONFIG_SUNXI_GMAC
 #define CONFIG_DESIGNWARE_ETH		/* GMAC can use designware driver */
@@ -187,6 +210,8 @@
     !defined CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_IS_NOWHERE
 #endif
+
+#define CONFIG_MISC_INIT_R
 
 #ifndef CONFIG_SPL_BUILD
 #include <config_distro_defaults.h>
