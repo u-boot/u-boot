@@ -21,6 +21,7 @@ SECTIONS
 	. = ALIGN(4);
 	.text : {
 		*(.__image_copy_start)
+		*(.vectors)
 		arch/arm/cpu/arm920t/start.o (.text*)
 		. = 0x1000;
 
