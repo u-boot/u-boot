@@ -12,9 +12,7 @@
 #include <asm/ppc4xx-gpio.h>
 #include <asm/ppc4xx.h>
 
-#if defined(CONFIG_405GP)  || defined(CONFIG_405EP)
 DECLARE_GLOBAL_DATA_PTR;
-#endif
 
 #ifndef CONFIG_SYS_PLL_RECONFIG
 #define CONFIG_SYS_PLL_RECONFIG	0
@@ -451,6 +449,8 @@ cpu_init_f (void)
 	mtdcr(PLB4A1_ACR, (mfdcr(PLB4A1_ACR) & ~PLB4Ax_ACR_RDP_MASK) |
 	      PLB4Ax_ACR_RDP_4DEEP);
 #endif /* CONFIG_440SP/SPE || CONFIG_460EX/GT || CONFIG_405EX */
+
+	gd = (gd_t *)(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
 }
 
 /*
