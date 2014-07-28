@@ -211,6 +211,8 @@ struct cpdma_chan {
 #define chan_read(chan, fld)		__raw_readl((chan)->fld)
 #define chan_read_ptr(chan, fld)	((void *)__raw_readl((chan)->fld))
 
+#define for_active_slave(slave, priv) \
+	slave = (priv)->slaves + (priv)->data.active_slave; if (slave)
 #define for_each_slave(slave, priv) \
 	for (slave = (priv)->slaves; slave != (priv)->slaves + \
 				(priv)->data.slaves; slave++)
@@ -609,7 +611,7 @@ static int cpsw_update_link(struct cpsw_priv *priv)
 	int link = 0;
 	struct cpsw_slave *slave;
 
-	for_each_slave(slave, priv)
+	for_active_slave(slave, priv)
 		cpsw_slave_update_link(slave, priv, &link);
 	priv->mdio_link = readl(&mdio_regs->link);
 	return link;
@@ -785,7 +787,7 @@ static int cpsw_init(struct eth_device *dev, bd_t *bis)
 			   ALE_SECURE);
 	cpsw_ale_add_mcast(priv, NetBcastAddr, 1 << priv->host_port);
 
-	for_each_slave(slave, priv)
+	for_active_slave(slave, priv)
 		cpsw_slave_init(slave, priv);
 
 	cpsw_update_link(priv);
@@ -1013,7 +1015,7 @@ int cpsw_register(struct cpsw_platform_data *data)
 
 	cpsw_mdio_init(dev->name, data->mdio_base, data->mdio_div);
 	priv->bus = miiphy_get_dev_by_name(dev->name);
-	for_each_slave(slave, priv)
+	for_active_slave(slave, priv)
 		cpsw_phy_init(dev, slave);
 
 	return 1;

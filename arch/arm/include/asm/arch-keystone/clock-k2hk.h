@@ -10,10 +10,6 @@
 #ifndef __ASM_ARCH_CLOCK_K2HK_H
 #define __ASM_ARCH_CLOCK_K2HK_H
 
-#include <asm/arch/hardware.h>
-
-#ifndef __ASSEMBLY__
-
 enum ext_clk_e {
 	sys_clk,
 	alt_core_clk,
@@ -56,7 +52,7 @@ enum clk_e {
 	sys_clk3_clk
 };
 
-#define K2HK_CLK1_6 sys_clk0_6_clk
+#define KS2_CLK1_6 sys_clk0_6_clk
 
 /* PLL identifiers */
 enum pll_type_e {
@@ -65,15 +61,6 @@ enum pll_type_e {
 	TETRIS_PLL,
 	DDR3A_PLL,
 	DDR3B_PLL,
-};
-#define MAIN_PLL CORE_PLL
-
-/* PLL configuration data */
-struct pll_init_data {
-	int pll;
-	int pll_m;		/* PLL Multiplier */
-	int pll_d;		/* PLL divider */
-	int pll_od;		/* PLL output divider    */
 };
 
 #define CORE_PLL_799    {CORE_PLL,	13,	1,	2}
@@ -97,13 +84,5 @@ struct pll_init_data {
 #define DDR3_PLL_400(x)	{DDR3##x##_PLL,	16,	1,	4}
 #define DDR3_PLL_800(x)	{DDR3##x##_PLL,	16,	1,	2}
 #define DDR3_PLL_333(x)	{DDR3##x##_PLL,	20,	1,	6}
-
-void init_plls(int num_pll, struct pll_init_data *config);
-void init_pll(const struct pll_init_data *data);
-unsigned long clk_get_rate(unsigned int clk);
-unsigned long clk_round_rate(unsigned int clk, unsigned long hz);
-int clk_set_rate(unsigned int clk, unsigned long hz);
-
-#endif
 
 #endif

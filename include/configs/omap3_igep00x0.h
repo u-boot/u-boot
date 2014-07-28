@@ -146,8 +146,6 @@
  */
 
 #ifdef CONFIG_BOOT_ONENAND
-#define PISMO1_ONEN_SIZE		GPMC_SIZE_128M /* Configure the PISMO */
-
 #define CONFIG_SYS_ONENAND_BASE		ONENAND_MAP
 
 #define ONENAND_ENV_OFFSET		0x260000 /* environment starts here */
@@ -158,7 +156,6 @@
 #endif
 
 #ifdef CONFIG_NAND
-#define PISMO1_NAND_SIZE		GPMC_SIZE_128M /* Configure the PISMO */
 #define CONFIG_ENV_OFFSET		0x260000 /* environment starts here */
 #define CONFIG_ENV_IS_IN_NAND	        1
 #define CONFIG_ENV_SIZE			(512 << 10) /* Total Size Environment */
@@ -199,6 +196,13 @@
 #define CONFIG_SYS_NAND_ECCSIZE		512
 #define CONFIG_SYS_NAND_ECCBYTES	3
 #define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_HAM1_CODE_HW
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
+/* NAND: SPL falcon mode configs */
+#ifdef CONFIG_SPL_OS_BOOT
+#define CONFIG_CMD_SPL_NAND_OFS		0x240000
+#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	0x280000
+#define CONFIG_CMD_SPL_WRITE_SIZE	0x2000
+#endif
 #endif
 
 #endif /* __IGEP00X0_H */

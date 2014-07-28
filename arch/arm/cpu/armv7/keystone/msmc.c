@@ -8,7 +8,7 @@
  */
 
 #include <common.h>
-#include <asm/arch/hardware.h>
+#include <asm/arch/msmc.h>
 
 struct mpax {
 	u32	mpaxl;
@@ -56,9 +56,9 @@ struct msms_regs {
 };
 
 
-void share_all_segments(int priv_id)
+void msmc_share_all_segments(int priv_id)
 {
-	struct msms_regs *msmc = (struct msms_regs *)K2HK_MSMC_CTRL_BASE;
+	struct msms_regs *msmc = (struct msms_regs *)KS2_MSMC_CTRL_BASE;
 	int j;
 
 	for (j = 0; j < 8; j++) {

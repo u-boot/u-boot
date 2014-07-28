@@ -10,8 +10,40 @@
 #ifndef __ASM_ARCH_CLOCK_H
 #define __ASM_ARCH_CLOCK_H
 
+#ifndef __ASSEMBLY__
+
 #ifdef CONFIG_SOC_K2HK
 #include <asm/arch/clock-k2hk.h>
 #endif
 
+#ifdef CONFIG_SOC_K2E
+#include <asm/arch/clock-k2e.h>
+#endif
+
+#define MAIN_PLL CORE_PLL
+
+#include <asm/types.h>
+
+struct keystone_pll_regs {
+	u32 reg0;
+	u32 reg1;
+};
+
+/* PLL configuration data */
+struct pll_init_data {
+	int pll;
+	int pll_m;		/* PLL Multiplier */
+	int pll_d;		/* PLL divider */
+	int pll_od;		/* PLL output divider */
+};
+
+extern const struct keystone_pll_regs keystone_pll_regs[];
+
+void init_plls(int num_pll, struct pll_init_data *config);
+void init_pll(const struct pll_init_data *data);
+unsigned long clk_get_rate(unsigned int clk);
+unsigned long clk_round_rate(unsigned int clk, unsigned long hz);
+int clk_set_rate(unsigned int clk, unsigned long hz);
+
+#endif
 #endif

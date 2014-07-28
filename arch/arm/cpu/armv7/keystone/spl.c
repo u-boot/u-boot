@@ -18,10 +18,18 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifdef CONFIG_K2HK_EVM
 static struct pll_init_data spl_pll_config[] = {
 	CORE_PLL_799,
 	TETRIS_PLL_500,
 };
+#endif
+
+#ifdef CONFIG_K2E_EVM
+static struct pll_init_data spl_pll_config[] = {
+	CORE_PLL_800,
+};
+#endif
 
 void spl_init_keystone_plls(void)
 {

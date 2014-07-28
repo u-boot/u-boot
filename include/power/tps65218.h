@@ -60,4 +60,5 @@ enum {
 int tps65218_reg_write(uchar prot_level, uchar dest_reg, uchar dest_val,
 		       uchar mask);
 int tps65218_voltage_update(uchar dc_cntrl_reg, uchar volt_sel);
+int power_tps65218_init(unsigned char bus);
 #endif	/* __POWER_TPS65218_H__ */

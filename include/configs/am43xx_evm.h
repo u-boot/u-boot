@@ -33,6 +33,8 @@
 #define CONFIG_SYS_I2C_MULTI_EEPROMS
 
 /* Power */
+#define CONFIG_POWER
+#define CONFIG_POWER_I2C
 #define CONFIG_POWER_TPS65218
 
 /* SPL defines. */

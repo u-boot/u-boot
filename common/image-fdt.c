@@ -492,7 +492,7 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 	if (!ft_verify_fdt(blob))
 		return -1;
 
-#ifdef CONFIG_SOC_K2HK
+#if defined(CONFIG_SOC_KEYSTONE)
 	if (IMAGE_OF_BOARD_SETUP)
 		ft_board_setup_ex(blob, gd->bd);
 #endif
