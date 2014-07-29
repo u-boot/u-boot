@@ -109,7 +109,7 @@ alias x86            uboot, sjg, gruss
 alias cfi            uboot, stroese
 alias dfu            uboot, lukma
 alias kerneldoc      uboot, marex
-alias fdt            uboot, Jerry Van Baren <vanbaren@cideas.com>
+alias fdt            uboot, sjg
 alias i2c            uboot, hs
 alias kconfig        uboot, masahiro
 alias mmc            uboot, panto
