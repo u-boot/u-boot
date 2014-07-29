@@ -7,6 +7,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <config.h>
+
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
 ENTRY(_start)
@@ -22,6 +24,34 @@ SECTIONS
 		CPUDIR/start.o (.text*)
 		*(.text*)
 	}
+
+#if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV7_VIRT) || defined(CONFIG_ARMV7_PSCI)
+
+#ifndef CONFIG_ARMV7_SECURE_BASE
+#define CONFIG_ARMV7_SECURE_BASE
+#endif
+
+	.__secure_start : {
+		. = ALIGN(0x1000);
+		*(.__secure_start)
+	}
+
+	.secure_text CONFIG_ARMV7_SECURE_BASE :
+		AT(ADDR(.__secure_start) + SIZEOF(.__secure_start))
+	{
+		*(._secure.text)
+	}
+
+	. = LOADADDR(.__secure_start) +
+		SIZEOF(.__secure_start) +
+		SIZEOF(.secure_text);
+
+	__secure_end_lma = .;
+	.__secure_end : AT(__secure_end_lma) {
+		*(.__secure_end)
+		LONG(0x1d1071c);	/* Must output something to reset LMA */
+	}
+#endif
 
 	. = ALIGN(4);
 	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }

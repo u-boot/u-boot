@@ -173,12 +173,8 @@
 					0x01F00000) /* 31MB */
 
 /* FLASH and environment organization */
-/* Configure the PISMO */
-#define PISMO1_NAND_SIZE		GPMC_SIZE_128M
-#define PISMO1_ONEN_SIZE		GPMC_SIZE_128M
-
 #if defined(CONFIG_NAND)
-#define CONFIG_SYS_FLASH_BASE		PISMO1_NAND_BASE
+#define CONFIG_SYS_FLASH_BASE		NAND_BASE
 #endif
 
 /* Monitor at start of flash */
@@ -220,5 +216,11 @@
 #define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_HAM1_CODE_HW
 #define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
+/* NAND: SPL falcon mode configs */
+#ifdef CONFIG_SPL_OS_BOOT
+#define CONFIG_CMD_SPL_NAND_OFS		0x240000
+#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	0x280000
+#define CONFIG_CMD_SPL_WRITE_SIZE	0x2000
+#endif
 
 #endif				/* __CONFIG_H */

@@ -22,42 +22,6 @@
 typedef volatile unsigned int   dv_reg;
 typedef volatile unsigned int   *dv_reg_p;
 
-struct ddr3_phy_config {
-	unsigned int pllcr;
-	unsigned int pgcr1_mask;
-	unsigned int pgcr1_val;
-	unsigned int ptr0;
-	unsigned int ptr1;
-	unsigned int ptr2;
-	unsigned int ptr3;
-	unsigned int ptr4;
-	unsigned int dcr_mask;
-	unsigned int dcr_val;
-	unsigned int dtpr0;
-	unsigned int dtpr1;
-	unsigned int dtpr2;
-	unsigned int mr0;
-	unsigned int mr1;
-	unsigned int mr2;
-	unsigned int dtcr;
-	unsigned int pgcr2;
-	unsigned int zq0cr1;
-	unsigned int zq1cr1;
-	unsigned int zq2cr1;
-	unsigned int pir_v1;
-	unsigned int pir_v2;
-};
-
-struct ddr3_emif_config {
-	unsigned int sdcfg;
-	unsigned int sdtim1;
-	unsigned int sdtim2;
-	unsigned int sdtim3;
-	unsigned int sdtim4;
-	unsigned int zqcfg;
-	unsigned int sdrfc;
-};
-
 #endif
 
 #define		BIT(x)	(1 << (x))
@@ -105,6 +69,11 @@ struct ddr3_emif_config {
 #define NOSRA_MASK                      0x08000000
 #define ECC_MASK                        0x00000001
 
+/* DDR3 definitions */
+#define KS2_DDR3A_EMIF_CTRL_BASE	0x21010000
+#define KS2_DDR3A_EMIF_DATA_BASE	0x80000000
+#define KS2_DDR3A_DDRPHYC		0x02329000
+
 #define KS2_DDR3_MIDR_OFFSET            0x00
 #define KS2_DDR3_STATUS_OFFSET          0x04
 #define KS2_DDR3_SDCFG_OFFSET           0x08
@@ -116,39 +85,103 @@ struct ddr3_emif_config {
 #define KS2_DDR3_PMCTL_OFFSET           0x38
 #define KS2_DDR3_ZQCFG_OFFSET           0xC8
 
+#define KS2_DDR3_PLLCTRL_PHY_RESET	0x80000000
+
 #define KS2_UART0_BASE                	0x02530c00
 #define KS2_UART1_BASE                	0x02531000
+
+/* Boot Config */
+#define KS2_DEVICE_STATE_CTRL_BASE	0x02620000
+#define KS2_JTAG_ID_REG			(KS2_DEVICE_STATE_CTRL_BASE + 0x18)
+#define KS2_DEVSTAT			(KS2_DEVICE_STATE_CTRL_BASE + 0x20)
+
+/* PSC */
+#define KS2_PSC_BASE			0x02350000
+#define KS2_LPSC_GEM_0			15
+#define KS2_LPSC_TETRIS			52
+#define KS2_TETRIS_PWR_DOMAIN		31
+
+/* Chip configuration unlock codes and registers */
+#define KS2_KICK0			(KS2_DEVICE_STATE_CTRL_BASE + 0x38)
+#define KS2_KICK1			(KS2_DEVICE_STATE_CTRL_BASE + 0x3c)
+#define KS2_KICK0_MAGIC			0x83e70b13
+#define KS2_KICK1_MAGIC			0x95a4f1e0
+
+/* PLL control registers */
+#define KS2_MAINPLLCTL0			(KS2_DEVICE_STATE_CTRL_BASE + 0x350)
+#define KS2_MAINPLLCTL1			(KS2_DEVICE_STATE_CTRL_BASE + 0x354)
+#define KS2_PASSPLLCTL0			(KS2_DEVICE_STATE_CTRL_BASE + 0x358)
+#define KS2_PASSPLLCTL1			(KS2_DEVICE_STATE_CTRL_BASE + 0x35C)
+#define KS2_DDR3APLLCTL0		(KS2_DEVICE_STATE_CTRL_BASE + 0x360)
+#define KS2_DDR3APLLCTL1		(KS2_DEVICE_STATE_CTRL_BASE + 0x364)
+#define KS2_ARMPLLCTL0			(KS2_DEVICE_STATE_CTRL_BASE + 0x370)
+#define KS2_ARMPLLCTL1			(KS2_DEVICE_STATE_CTRL_BASE + 0x374)
+
+#define KS2_PLL_CNTRL_BASE		0x02310000
+#define KS2_CLOCK_BASE			KS2_PLL_CNTRL_BASE
+#define KS2_RSTCTRL_RSTYPE		(KS2_PLL_CNTRL_BASE + 0xe4)
+#define KS2_RSTCTRL			(KS2_PLL_CNTRL_BASE + 0xe8)
+#define KS2_RSTCTRL_KEY			0x5a69
+#define KS2_RSTCTRL_MASK		0xffff0000
+#define KS2_RSTCTRL_SWRST		0xfffe0000
+
+/* SPI */
+#define KS2_SPI0_BASE			0x21000400
+#define KS2_SPI1_BASE			0x21000600
+#define KS2_SPI2_BASE			0x21000800
+#define KS2_SPI_BASE			KS2_SPI0_BASE
 
 /* AEMIF */
 #define KS2_AEMIF_CNTRL_BASE       	0x21000a00
 #define DAVINCI_ASYNC_EMIF_CNTRL_BASE   KS2_AEMIF_CNTRL_BASE
 
+/* Flag from ks2_debug options to check if DSPs need to stay ON */
+#define DBG_LEAVE_DSPS_ON		0x1
+
+/* Queue manager */
+#define KS2_QM_MANAGER_BASE		0x02a02000
+#define KS2_QM_DESC_SETUP_BASE		0x02a03000
+#define KS2_QM_MANAGER_QUEUES_BASEi	0x02a80000
+#define KS2_QM_MANAGER_Q_PROXY_BASE	0x02ac0000
+#define KS2_QM_QUEUE_STATUS_BASE	0x02a40000
+
+/* MSMC control */
+#define KS2_MSMC_CTRL_BASE		0x0bc00000
+
 #ifdef CONFIG_SOC_K2HK
 #include <asm/arch/hardware-k2hk.h>
+#endif
+
+#ifdef CONFIG_SOC_K2E
+#include <asm/arch/hardware-k2e.h>
 #endif
 
 #ifndef __ASSEMBLY__
 static inline int cpu_is_k2hk(void)
 {
-	unsigned int jtag_id	= __raw_readl(JTAG_ID_REG);
+	unsigned int jtag_id	= __raw_readl(KS2_JTAG_ID_REG);
 	unsigned int part_no	= (jtag_id >> 12) & 0xffff;
 
 	return (part_no == 0xb981) ? 1 : 0;
 }
 
+static inline int cpu_is_k2e(void)
+{
+	unsigned int jtag_id    = __raw_readl(KS2_JTAG_ID_REG);
+	unsigned int part_no    = (jtag_id >> 12) & 0xffff;
+
+	return (part_no == 0xb9a6) ? 1 : 0;
+}
+
 static inline int cpu_revision(void)
 {
-	unsigned int jtag_id	= __raw_readl(JTAG_ID_REG);
+	unsigned int jtag_id	= __raw_readl(KS2_JTAG_ID_REG);
 	unsigned int rev	= (jtag_id >> 28) & 0xf;
 
 	return rev;
 }
 
-void share_all_segments(int priv_id);
 int cpu_to_bus(u32 *ptr, u32 length);
-void init_ddrphy(u32 base, struct ddr3_phy_config *phy_cfg);
-void init_ddremif(u32 base, struct ddr3_emif_config *emif_cfg);
-void init_ddr3(void);
 void sdelay(unsigned long);
 
 #endif

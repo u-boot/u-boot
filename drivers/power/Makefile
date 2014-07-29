@@ -5,6 +5,8 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+obj-$(CONFIG_AXP152_POWER)	+= axp152.o
+obj-$(CONFIG_AXP209_POWER)	+= axp209.o
 obj-$(CONFIG_EXYNOS_TMU)	+= exynos-tmu.o
 obj-$(CONFIG_FTPMU010_POWER)	+= ftpmu010.o
 obj-$(CONFIG_TPS6586X_POWER)	+= tps6586x.o

@@ -44,6 +44,7 @@ struct cpsw_platform_data {
 	struct cpsw_slave_data	*slave_data;
 	void	(*control)(int enabled);
 	u32	host_port_num;
+	u32	active_slave;
 	u8	version;
 };
 
