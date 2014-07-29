@@ -134,6 +134,6 @@ U_BOOT_CMD(ext4ls, 4, 1, do_ext4_ls,
 
 U_BOOT_CMD(ext4load, 6, 0, do_ext4_load,
 	   "load binary file from a Ext4 filesystem",
-	   "<interface> <dev[:part]> [addr] [filename] [bytes]\n"
+	   "<interface> [<dev[:part]> [addr [filename [bytes [pos]]]]]\n"
 	   "    - load binary file 'filename' from 'dev' on 'interface'\n"
 	   "      to address 'addr' from ext4 filesystem");
