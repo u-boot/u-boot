@@ -106,6 +106,7 @@ alias sh             superh
 alias x86            uboot, sjg, gruss
 
 # Subsystem aliases
+alias dm             uboot, sjg
 alias cfi            uboot, stroese
 alias dfu            uboot, lukma
 alias kerneldoc      uboot, marex
