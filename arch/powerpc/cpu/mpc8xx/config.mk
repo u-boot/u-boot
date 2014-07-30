@@ -5,4 +5,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-PLATFORM_CPPFLAGS += -DCONFIG_8xx -mstring -mcpu=860 -msoft-float
+PLATFORM_CPPFLAGS += -mstring -mcpu=860 -msoft-float

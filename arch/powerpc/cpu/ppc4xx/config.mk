@@ -5,7 +5,7 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-PLATFORM_CPPFLAGS += -DCONFIG_4xx -mstring -msoft-float
+PLATFORM_CPPFLAGS += -mstring -msoft-float
 
 cfg=$(srctree)/include/configs/$(CONFIG_SYS_CONFIG_NAME:"%"=%).h
 is440:=$(shell grep CONFIG_440 $(cfg))

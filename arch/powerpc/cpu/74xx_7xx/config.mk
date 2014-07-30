@@ -5,4 +5,4 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-PLATFORM_CPPFLAGS += -DCONFIG_74xx_7xx -mstring
+PLATFORM_CPPFLAGS += -mstring
