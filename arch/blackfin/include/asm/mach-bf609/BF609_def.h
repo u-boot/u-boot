@@ -125,6 +125,8 @@
 #define WDOG1_CNT         0xFFC17804 /* WDOG1 Count Register */
 #define WDOG1_STAT        0xFFC17808 /* WDOG1 Watchdog Timer Status Register */
 
+#define SDU0_MSG_SET      0xFFC1F084 /* SDU0 Message Set Register */
+
 #define EMAC0_MACCFG      0xFFC20000 /* EMAC0 MAC Configuration Register */
 #define EMAC1_MACCFG      0xFFC22000 /* EMAC1 MAC Configuration Register */
 
