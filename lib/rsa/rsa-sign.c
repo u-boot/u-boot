@@ -76,6 +76,7 @@ static int rsa_get_pub_key(const char *keydir, const char *name, RSA **rsap)
 	rsa = EVP_PKEY_get1_RSA(key);
 	if (!rsa) {
 		rsa_err("Couldn't convert to a RSA style key");
+		ret = -EINVAL;
 		goto err_rsa;
 	}
 	fclose(f);

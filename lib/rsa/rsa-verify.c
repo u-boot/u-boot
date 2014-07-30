@@ -57,9 +57,9 @@ static void subtract_modulus(const struct rsa_public_key *key, uint32_t num[])
 static int greater_equal_modulus(const struct rsa_public_key *key,
 				 uint32_t num[])
 {
-	uint32_t i;
+	int i;
 
-	for (i = key->len - 1; i >= 0; i--) {
+	for (i = (int)key->len - 1; i >= 0; i--) {
 		if (num[i] < key->modulus[i])
 			return 0;
 		if (num[i] > key->modulus[i])
