@@ -199,7 +199,7 @@ class BuilderThread(threading.Thread):
             commit_upto: Commit number to build (0...n-1)
             brd: Board object to build
             work_dir: Directory to which the source will be checked out
-            do_config: True to run a make <board>_config on the source
+            do_config: True to run a make <board>_defconfig on the source
             force_build: Force a build even if one was previously done
             force_build_failures: Force a bulid if the previous result showed
                 failure
@@ -266,7 +266,7 @@ class BuilderThread(threading.Thread):
                 args.append('-s')
                 if self.builder.num_jobs is not None:
                     args.extend(['-j', str(self.builder.num_jobs)])
-                config_args = ['%s_config' % brd.target]
+                config_args = ['%s_defconfig' % brd.target]
                 config_out = ''
                 args.extend(self.builder.toolchains.GetMakeArguments(brd))
 
@@ -419,7 +419,7 @@ class BuilderThread(threading.Thread):
         work_dir = self.builder.GetThreadDir(self.thread_num)
         self.toolchain = None
         if job.commits:
-            # Run 'make board_config' on the first commit
+            # Run 'make board_defconfig' on the first commit
             do_config = True
             commit_upto  = 0
             force_build = False
