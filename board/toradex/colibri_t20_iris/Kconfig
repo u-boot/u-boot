@@ -1,0 +1,24 @@
+if TARGET_COLIBRI_T20_IRIS
+
+config SYS_CPU
+	string
+	default "arm720t" if SPL_BUILD
+	default "armv7" if !SPL_BUILD
+
+config SYS_BOARD
+	string
+	default "colibri_t20_iris"
+
+config SYS_VENDOR
+	string
+	default "toradex"
+
+config SYS_SOC
+	string
+	default "tegra20"
+
+config SYS_CONFIG_NAME
+	string
+	default "colibri_t20_iris"
+
+endif

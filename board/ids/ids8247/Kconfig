@@ -1,0 +1,15 @@
+if TARGET_IDS8247
+
+config SYS_BOARD
+	string
+	default "ids8247"
+
+config SYS_VENDOR
+	string
+	default "ids"
+
+config SYS_CONFIG_NAME
+	string
+	default "IDS8247"
+
+endif

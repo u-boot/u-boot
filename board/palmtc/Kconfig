@@ -1,0 +1,15 @@
+if TARGET_PALMTC
+
+config SYS_CPU
+	string
+	default "pxa"
+
+config SYS_BOARD
+	string
+	default "palmtc"
+
+config SYS_CONFIG_NAME
+	string
+	default "palmtc"
+
+endif

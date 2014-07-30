@@ -1,0 +1,23 @@
+if TARGET_DUOVERO
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "duovero"
+
+config SYS_VENDOR
+	string
+	default "gumstix"
+
+config SYS_SOC
+	string
+	default "omap4"
+
+config SYS_CONFIG_NAME
+	string
+	default "duovero"
+
+endif

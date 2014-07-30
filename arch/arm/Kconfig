@@ -1,0 +1,1002 @@
+menu "ARM architecture"
+	depends on ARM
+
+config SYS_ARCH
+	string
+	default "arm"
+
+choice
+	prompt "Target select"
+
+config TARGET_INTEGRATORAP_CM720T
+	bool "Support integratorap_cm720t"
+
+config TARGET_INTEGRATORAP_CM920T
+	bool "Support integratorap_cm920t"
+
+config TARGET_INTEGRATORCP_CM920T
+	bool "Support integratorcp_cm920t"
+
+config TARGET_A320EVB
+	bool "Support a320evb"
+
+config TARGET_AT91RM9200EK
+	bool "Support at91rm9200ek"
+
+config TARGET_EB_CPUX9K2
+	bool "Support eb_cpux9k2"
+
+config TARGET_CPUAT91
+	bool "Support cpuat91"
+
+config TARGET_EDB93XX
+	bool "Support edb93xx"
+
+config TARGET_SCB9328
+	bool "Support scb9328"
+
+config TARGET_CM4008
+	bool "Support cm4008"
+
+config TARGET_CM41XX
+	bool "Support cm41xx"
+
+config TARGET_VCMA9
+	bool "Support VCMA9"
+
+config TARGET_SMDK2410
+	bool "Support smdk2410"
+
+config TARGET_INTEGRATORAP_CM926EJS
+	bool "Support integratorap_cm926ejs"
+
+config TARGET_INTEGRATORCP_CM926EJS
+	bool "Support integratorcp_cm926ejs"
+
+config TARGET_ASPENITE
+	bool "Support aspenite"
+
+config TARGET_GPLUGD
+	bool "Support gplugd"
+
+config TARGET_AFEB9260
+	bool "Support afeb9260"
+
+config TARGET_AT91SAM9260EK
+	bool "Support at91sam9260ek"
+
+config TARGET_AT91SAM9261EK
+	bool "Support at91sam9261ek"
+
+config TARGET_AT91SAM9263EK
+	bool "Support at91sam9263ek"
+
+config TARGET_AT91SAM9M10G45EK
+	bool "Support at91sam9m10g45ek"
+
+config TARGET_AT91SAM9N12EK
+	bool "Support at91sam9n12ek"
+
+config TARGET_AT91SAM9RLEK
+	bool "Support at91sam9rlek"
+
+config TARGET_AT91SAM9X5EK
+	bool "Support at91sam9x5ek"
+
+config TARGET_SNAPPER9260
+	bool "Support snapper9260"
+
+config TARGET_VL_MA2SC
+	bool "Support vl_ma2sc"
+
+config TARGET_SBC35_A9G20
+	bool "Support sbc35_a9g20"
+
+config TARGET_TNY_A9260
+	bool "Support tny_a9260"
+
+config TARGET_USB_A9263
+	bool "Support usb_a9263"
+
+config TARGET_ETHERNUT5
+	bool "Support ethernut5"
+
+config TARGET_TOP9000
+	bool "Support top9000"
+
+config TARGET_MEESC
+	bool "Support meesc"
+
+config TARGET_OTC570
+	bool "Support otc570"
+
+config TARGET_CPU9260
+	bool "Support cpu9260"
+
+config TARGET_PM9261
+	bool "Support pm9261"
+
+config TARGET_PM9263
+	bool "Support pm9263"
+
+config TARGET_PM9G45
+	bool "Support pm9g45"
+
+config TARGET_CORVUS
+	bool "Support corvus"
+
+config TARGET_TAURUS
+	bool "Support taurus"
+
+config TARGET_STAMP9G20
+	bool "Support stamp9g20"
+
+config TARGET_CAM_ENC_4XX
+	bool "Support cam_enc_4xx"
+
+config TARGET_IPAM390
+	bool "Support ipam390"
+
+config TARGET_DA830EVM
+	bool "Support da830evm"
+
+config TARGET_DA850EVM
+	bool "Support da850evm"
+
+config TARGET_HAWKBOARD
+	bool "Support hawkboard"
+
+config TARGET_DAVINCI_DM355EVM
+	bool "Support davinci_dm355evm"
+
+config TARGET_DAVINCI_DM355LEOPARD
+	bool "Support davinci_dm355leopard"
+
+config TARGET_DAVINCI_DM365EVM
+	bool "Support davinci_dm365evm"
+
+config TARGET_DAVINCI_DM6467EVM
+	bool "Support davinci_dm6467evm"
+
+config TARGET_DAVINCI_DVEVM
+	bool "Support davinci_dvevm"
+
+config TARGET_EA20
+	bool "Support ea20"
+
+config TARGET_DAVINCI_SCHMOOGIE
+	bool "Support davinci_schmoogie"
+
+config TARGET_DAVINCI_SFFSDR
+	bool "Support davinci_sffsdr"
+
+config TARGET_DAVINCI_SONATA
+	bool "Support davinci_sonata"
+
+config TARGET_ENBW_CMC
+	bool "Support enbw_cmc"
+
+config TARGET_CALIMAIN
+	bool "Support calimain"
+
+config TARGET_LSXL
+	bool "Support lsxl"
+
+config TARGET_POGO_E02
+	bool "Support pogo_e02"
+
+config TARGET_DNS325
+	bool "Support dns325"
+
+config TARGET_ICONNECT
+	bool "Support iconnect"
+
+config TARGET_TK71
+	bool "Support tk71"
+
+config TARGET_KM_KIRKWOOD
+	bool "Support km_kirkwood"
+
+config TARGET_NET2BIG_V2
+	bool "Support net2big_v2"
+
+config TARGET_NETSPACE_V2
+	bool "Support netspace_v2"
+
+config TARGET_WIRELESS_SPACE
+	bool "Support wireless_space"
+
+config TARGET_DREAMPLUG
+	bool "Support dreamplug"
+
+config TARGET_GURUPLUG
+	bool "Support guruplug"
+
+config TARGET_MV88F6281GTW_GE
+	bool "Support mv88f6281gtw_ge"
+
+config TARGET_OPENRD
+	bool "Support openrd"
+
+config TARGET_RD6281A
+	bool "Support rd6281a"
+
+config TARGET_SHEEVAPLUG
+	bool "Support sheevaplug"
+
+config TARGET_IB62X0
+	bool "Support ib62x0"
+
+config TARGET_DOCKSTAR
+	bool "Support dockstar"
+
+config TARGET_GOFLEXHOME
+	bool "Support goflexhome"
+
+config TARGET_DEVKIT3250
+	bool "Support devkit3250"
+
+config TARGET_JADECPU
+	bool "Support jadecpu"
+
+config TARGET_MX25PDK
+	bool "Support mx25pdk"
+
+config TARGET_TX25
+	bool "Support tx25"
+
+config TARGET_ZMX25
+	bool "Support zmx25"
+
+config TARGET_APF27
+	bool "Support apf27"
+
+config TARGET_IMX27LITE
+	bool "Support imx27lite"
+
+config TARGET_MAGNESIUM
+	bool "Support magnesium"
+
+config TARGET_APX4DEVKIT
+	bool "Support apx4devkit"
+
+config TARGET_XFI3
+	bool "Support xfi3"
+
+config TARGET_M28EVK
+	bool "Support m28evk"
+
+config TARGET_MX23EVK
+	bool "Support mx23evk"
+
+config TARGET_MX28EVK
+	bool "Support mx28evk"
+
+config TARGET_MX23_OLINUXINO
+	bool "Support mx23_olinuxino"
+
+config TARGET_BG0900
+	bool "Support bg0900"
+
+config TARGET_SANSA_FUZE_PLUS
+	bool "Support sansa_fuze_plus"
+
+config TARGET_SC_SPS_1
+	bool "Support sc_sps_1"
+
+config TARGET_NHK8815
+	bool "Support nhk8815"
+
+config TARGET_OMAP5912OSK
+	bool "Support omap5912osk"
+
+config TARGET_EDMINIV2
+	bool "Support edminiv2"
+
+config TARGET_DKB
+	bool "Support dkb"
+
+config TARGET_SPEAR300
+	bool "Support spear300"
+
+config TARGET_SPEAR310
+	bool "Support spear310"
+
+config TARGET_SPEAR320
+	bool "Support spear320"
+
+config TARGET_SPEAR600
+	bool "Support spear600"
+
+config TARGET_X600
+	bool "Support x600"
+
+config TARGET_VERSATILEAB
+	bool "Support versatileab"
+
+config TARGET_VERSATILEPB
+	bool "Support versatilepb"
+
+config TARGET_VERSATILEQEMU
+	bool "Support versatileqemu"
+
+config TARGET_INTEGRATORCP_CM1136
+	bool "Support integratorcp_cm1136"
+
+config TARGET_IMX31_PHYCORE
+	bool "Support imx31_phycore"
+
+config TARGET_QONG
+	bool "Support qong"
+
+config TARGET_MX31ADS
+	bool "Support mx31ads"
+
+config TARGET_MX31PDK
+	bool "Support mx31pdk"
+
+config TARGET_TT01
+	bool "Support tt01"
+
+config TARGET_IMX31_LITEKIT
+	bool "Support imx31_litekit"
+
+config TARGET_WOODBURN
+	bool "Support woodburn"
+
+config TARGET_WOODBURN_SD
+	bool "Support woodburn_sd"
+
+config TARGET_FLEA3
+	bool "Support flea3"
+
+config TARGET_MX35PDK
+	bool "Support mx35pdk"
+
+config TARGET_RPI_B
+	bool "Support rpi_b"
+
+config TARGET_TNETV107X_EVM
+	bool "Support tnetv107x_evm"
+
+config TARGET_INTEGRATORAP_CM946ES
+	bool "Support integratorap_cm946es"
+
+config TARGET_INTEGRATORCP_CM946ES
+	bool "Support integratorcp_cm946es"
+
+config TARGET_VEXPRESS_CA15_TC2
+	bool "Support vexpress_ca15_tc2"
+
+config TARGET_VEXPRESS_CA5X2
+	bool "Support vexpress_ca5x2"
+
+config TARGET_VEXPRESS_CA9X4
+	bool "Support vexpress_ca9x4"
+
+config TARGET_KWB
+	bool "Support kwb"
+
+config TARGET_TSERIES
+	bool "Support tseries"
+
+config TARGET_CM_T335
+	bool "Support cm_t335"
+
+config TARGET_PEPPER
+	bool "Support pepper"
+
+config TARGET_AM335X_IGEP0033
+	bool "Support am335x_igep0033"
+
+config TARGET_PCM051
+	bool "Support pcm051"
+
+config TARGET_DRACO
+	bool "Support draco"
+
+config TARGET_DXR2
+	bool "Support dxr2"
+
+config TARGET_PXM2
+	bool "Support pxm2"
+
+config TARGET_RUT
+	bool "Support rut"
+
+config TARGET_PENGWYN
+	bool "Support pengwyn"
+
+config TARGET_AM335X_EVM
+	bool "Support am335x_evm"
+
+config TARGET_AM43XX_EVM
+	bool "Support am43xx_evm"
+
+config TARGET_TI814X_EVM
+	bool "Support ti814x_evm"
+
+config TARGET_TI816X_EVM
+	bool "Support ti816x_evm"
+
+config TARGET_SAMA5D3_XPLAINED
+	bool "Support sama5d3_xplained"
+
+config TARGET_SAMA5D3XEK
+	bool "Support sama5d3xek"
+
+config TARGET_BCM28155_AP
+	bool "Support bcm28155_ap"
+
+config TARGET_ARNDALE
+	bool "Support arndale"
+
+config TARGET_ORIGEN
+	bool "Support origen"
+
+config TARGET_SMDK5250
+	bool "Support smdk5250"
+
+config TARGET_SNOW
+	bool "Support snow"
+
+config TARGET_PEACH_PIT
+	bool "Support peach-pit"
+
+config TARGET_SMDK5420
+	bool "Support smdk5420"
+
+config TARGET_SMDKV310
+	bool "Support smdkv310"
+
+config TARGET_TRATS
+	bool "Support trats"
+
+config TARGET_TRATS2
+	bool "Support trats2"
+
+config TARGET_S5PC210_UNIVERSAL
+	bool "Support s5pc210_universal"
+
+config TARGET_HIGHBANK
+	bool "Support highbank"
+
+config TARGET_K2E_EVM
+	bool "Support k2e_evm"
+
+config TARGET_K2HK_EVM
+	bool "Support k2hk_evm"
+
+config TARGET_M53EVK
+	bool "Support m53evk"
+
+config TARGET_IMA3_MX53
+	bool "Support ima3-mx53"
+
+config TARGET_MX51EVK
+	bool "Support mx51evk"
+
+config TARGET_MX53ARD
+	bool "Support mx53ard"
+
+config TARGET_MX53EVK
+	bool "Support mx53evk"
+
+config TARGET_MX53LOCO
+	bool "Support mx53loco"
+
+config TARGET_MX53SMD
+	bool "Support mx53smd"
+
+config TARGET_MX51_EFIKAMX
+	bool "Support mx51_efikamx"
+
+config TARGET_VISION2
+	bool "Support vision2"
+
+config TARGET_UDOO
+	bool "Support udoo"
+
+config TARGET_WANDBOARD
+	bool "Support wandboard"
+
+config TARGET_TITANIUM
+	bool "Support titanium"
+
+config TARGET_NITROGEN6X
+	bool "Support nitrogen6x"
+
+config TARGET_CGTQMX6EVAL
+	bool "Support cgtqmx6eval"
+
+config TARGET_EMBESTMX6BOARDS
+	bool "Support embestmx6boards"
+
+config TARGET_MX6QARM2
+	bool "Support mx6qarm2"
+
+config TARGET_MX6QSABREAUTO
+	bool "Support mx6qsabreauto"
+
+config TARGET_MX6SABRESD
+	bool "Support mx6sabresd"
+
+config TARGET_MX6SLEVK
+	bool "Support mx6slevk"
+
+config TARGET_GW_VENTANA
+	bool "Support gw_ventana"
+
+config TARGET_HUMMINGBOARD
+	bool "Support hummingboard"
+
+config TARGET_OMAP3_OVERO
+	bool "Support omap3_overo"
+
+config TARGET_OMAP3_PANDORA
+	bool "Support omap3_pandora"
+
+config TARGET_ECO5PK
+	bool "Support eco5pk"
+
+config TARGET_DIG297
+	bool "Support dig297"
+
+config TARGET_CM_T35
+	bool "Support cm_t35"
+
+config TARGET_TRICORDER
+	bool "Support tricorder"
+
+config TARGET_MCX
+	bool "Support mcx"
+
+config TARGET_OMAP3_IGEP00X0
+	bool "Support omap3_igep00x0"
+
+config TARGET_AM3517_EVM
+	bool "Support am3517_evm"
+
+config TARGET_OMAP3_LOGIC
+	bool "Support omap3_logic"
+
+config TARGET_OMAP3_ZOOM1
+	bool "Support omap3_zoom1"
+
+config TARGET_OMAP3_MVBLX
+	bool "Support omap3_mvblx"
+
+config TARGET_NOKIA_RX51
+	bool "Support nokia_rx51"
+
+config TARGET_TAO3530
+	bool "Support tao3530"
+
+config TARGET_TWISTER
+	bool "Support twister"
+
+config TARGET_MT_VENTOUX
+	bool "Support mt_ventoux"
+
+config TARGET_AM3517_CRANE
+	bool "Support am3517_crane"
+
+config TARGET_OMAP3_BEAGLE
+	bool "Support omap3_beagle"
+
+config TARGET_OMAP3_EVM
+	bool "Support omap3_evm"
+
+config TARGET_OMAP3_EVM_QUICK_MMC
+	bool "Support omap3_evm_quick_mmc"
+
+config TARGET_OMAP3_EVM_QUICK_NAND
+	bool "Support omap3_evm_quick_nand"
+
+config TARGET_OMAP3_SDP3430
+	bool "Support omap3_sdp3430"
+
+config TARGET_DEVKIT8000
+	bool "Support devkit8000"
+
+config TARGET_DUOVERO
+	bool "Support duovero"
+
+config TARGET_OMAP4_PANDA
+	bool "Support omap4_panda"
+
+config TARGET_OMAP4_SDP4430
+	bool "Support omap4_sdp4430"
+
+config TARGET_CM_T54
+	bool "Support cm_t54"
+
+config TARGET_DRA7XX_EVM
+	bool "Support dra7xx_evm"
+
+config TARGET_OMAP5_UEVM
+	bool "Support omap5_uevm"
+
+config TARGET_ARMADILLO_800EVA
+	bool "Support armadillo-800eva"
+
+config TARGET_KZM9G
+	bool "Support kzm9g"
+
+config TARGET_ALT
+	bool "Support alt"
+
+config TARGET_KOELSCH
+	bool "Support koelsch"
+
+config TARGET_LAGER
+	bool "Support lager"
+
+config TARGET_S5P_GONI
+	bool "Support s5p_goni"
+
+config TARGET_SMDKC100
+	bool "Support smdkc100"
+
+config TARGET_SOCFPGA_CYCLONE5
+	bool "Support socfpga_cyclone5"
+
+config TARGET_SUN4I
+	bool "Support sun4i"
+
+config TARGET_SUN5I
+	bool "Support sun5i"
+
+config TARGET_SUN7I
+	bool "Support sun7i"
+
+config TARGET_SNOWBALL
+	bool "Support snowball"
+
+config TARGET_U8500_HREF
+	bool "Support u8500_href"
+
+config TARGET_VF610TWR
+	bool "Support vf610twr"
+
+config TARGET_ZYNQ_MICROZED
+	bool "Support zynq_microzed"
+
+config TARGET_ZYNQ_ZC70X
+	bool "Support zynq_zc70x"
+
+config TARGET_ZYNQ_ZC770
+	bool "Support zynq_zc770"
+
+config TARGET_ZYNQ_ZED
+	bool "Support zynq_zed"
+
+config TARGET_MEDCOM_WIDE
+	bool "Support medcom-wide"
+
+config TARGET_PLUTUX
+	bool "Support plutux"
+
+config TARGET_TEC
+	bool "Support tec"
+
+config TARGET_PAZ00
+	bool "Support paz00"
+
+config TARGET_TRIMSLICE
+	bool "Support trimslice"
+
+config TARGET_HARMONY
+	bool "Support harmony"
+
+config TARGET_SEABOARD
+	bool "Support seaboard"
+
+config TARGET_VENTANA
+	bool "Support ventana"
+
+config TARGET_WHISTLER
+	bool "Support whistler"
+
+config TARGET_COLIBRI_T20_IRIS
+	bool "Support colibri_t20_iris"
+
+config TARGET_TEC_NG
+	bool "Support tec-ng"
+
+config TARGET_BEAVER
+	bool "Support beaver"
+
+config TARGET_CARDHU
+	bool "Support cardhu"
+
+config TARGET_DALMORE
+	bool "Support dalmore"
+
+config TARGET_JETSON_TK1
+	bool "Support jetson-tk1"
+
+config TARGET_VENICE2
+	bool "Support venice2"
+
+config TARGET_VEXPRESS_AEMV8A
+	bool "Support vexpress_aemv8a"
+
+config TARGET_VEXPRESS_AEMV8A_SEMI
+	bool "Support vexpress_aemv8a_semi"
+
+config TARGET_LS2085A_EMU
+	bool "Support ls2085a_emu"
+
+config TARGET_LS2085A_SIMU
+	bool "Support ls2085a_simu"
+
+config TARGET_BALLOON3
+	bool "Support balloon3"
+
+config TARGET_H2200
+	bool "Support h2200"
+
+config TARGET_PALMLD
+	bool "Support palmld"
+
+config TARGET_PALMTC
+	bool "Support palmtc"
+
+config TARGET_PALMTREO680
+	bool "Support palmtreo680"
+
+config TARGET_PXA255_IDP
+	bool "Support pxa255_idp"
+
+config TARGET_TRIZEPSIV
+	bool "Support trizepsiv"
+
+config TARGET_VPAC270
+	bool "Support vpac270"
+
+config TARGET_XAENIAX
+	bool "Support xaeniax"
+
+config TARGET_ZIPITZ2
+	bool "Support zipitz2"
+
+config TARGET_LP8X4X
+	bool "Support lp8x4x"
+
+config TARGET_COLIBRI_PXA270
+	bool "Support colibri_pxa270"
+
+config TARGET_JORNADA
+	bool "Support jornada"
+
+endchoice
+
+source "board/8dtech/eco5pk/Kconfig"
+source "board/Barix/ipam390/Kconfig"
+source "board/BuR/kwb/Kconfig"
+source "board/BuR/tseries/Kconfig"
+source "board/BuS/eb_cpux9k2/Kconfig"
+source "board/BuS/vl_ma2sc/Kconfig"
+source "board/CarMediaLab/flea3/Kconfig"
+source "board/LaCie/edminiv2/Kconfig"
+source "board/LaCie/net2big_v2/Kconfig"
+source "board/LaCie/netspace_v2/Kconfig"
+source "board/LaCie/wireless_space/Kconfig"
+source "board/Marvell/aspenite/Kconfig"
+source "board/Marvell/dkb/Kconfig"
+source "board/Marvell/dreamplug/Kconfig"
+source "board/Marvell/gplugd/Kconfig"
+source "board/Marvell/guruplug/Kconfig"
+source "board/Marvell/mv88f6281gtw_ge/Kconfig"
+source "board/Marvell/openrd/Kconfig"
+source "board/Marvell/rd6281a/Kconfig"
+source "board/Marvell/sheevaplug/Kconfig"
+source "board/Seagate/dockstar/Kconfig"
+source "board/Seagate/goflexhome/Kconfig"
+source "board/afeb9260/Kconfig"
+source "board/ait/cam_enc_4xx/Kconfig"
+source "board/altera/socfpga/Kconfig"
+source "board/armadeus/apf27/Kconfig"
+source "board/armltd/integrator/Kconfig"
+source "board/armltd/versatile/Kconfig"
+source "board/armltd/vexpress/Kconfig"
+source "board/armltd/vexpress64/Kconfig"
+source "board/atmark-techno/armadillo-800eva/Kconfig"
+source "board/atmel/at91rm9200ek/Kconfig"
+source "board/atmel/at91sam9260ek/Kconfig"
+source "board/atmel/at91sam9261ek/Kconfig"
+source "board/atmel/at91sam9263ek/Kconfig"
+source "board/atmel/at91sam9m10g45ek/Kconfig"
+source "board/atmel/at91sam9n12ek/Kconfig"
+source "board/atmel/at91sam9rlek/Kconfig"
+source "board/atmel/at91sam9x5ek/Kconfig"
+source "board/atmel/sama5d3_xplained/Kconfig"
+source "board/atmel/sama5d3xek/Kconfig"
+source "board/avionic-design/medcom-wide/Kconfig"
+source "board/avionic-design/plutux/Kconfig"
+source "board/avionic-design/tec-ng/Kconfig"
+source "board/avionic-design/tec/Kconfig"
+source "board/balloon3/Kconfig"
+source "board/barco/titanium/Kconfig"
+source "board/bluegiga/apx4devkit/Kconfig"
+source "board/bluewater/snapper9260/Kconfig"
+source "board/boundary/nitrogen6x/Kconfig"
+source "board/broadcom/bcm28155_ap/Kconfig"
+source "board/buffalo/lsxl/Kconfig"
+source "board/calao/sbc35_a9g20/Kconfig"
+source "board/calao/tny_a9260/Kconfig"
+source "board/calao/usb_a9263/Kconfig"
+source "board/cirrus/edb93xx/Kconfig"
+source "board/cloudengines/pogo_e02/Kconfig"
+source "board/cm4008/Kconfig"
+source "board/cm41xx/Kconfig"
+source "board/comelit/dig297/Kconfig"
+source "board/compal/paz00/Kconfig"
+source "board/compulab/cm_t335/Kconfig"
+source "board/compulab/cm_t35/Kconfig"
+source "board/compulab/cm_t54/Kconfig"
+source "board/compulab/trimslice/Kconfig"
+source "board/congatec/cgtqmx6eval/Kconfig"
+source "board/corscience/tricorder/Kconfig"
+source "board/creative/xfi3/Kconfig"
+source "board/d-link/dns325/Kconfig"
+source "board/davedenx/qong/Kconfig"
+source "board/davinci/da8xxevm/Kconfig"
+source "board/davinci/dm355evm/Kconfig"
+source "board/davinci/dm355leopard/Kconfig"
+source "board/davinci/dm365evm/Kconfig"
+source "board/davinci/dm6467evm/Kconfig"
+source "board/davinci/dvevm/Kconfig"
+source "board/davinci/ea20/Kconfig"
+source "board/davinci/schmoogie/Kconfig"
+source "board/davinci/sffsdr/Kconfig"
+source "board/davinci/sonata/Kconfig"
+source "board/denx/m28evk/Kconfig"
+source "board/denx/m53evk/Kconfig"
+source "board/egnite/ethernut5/Kconfig"
+source "board/embest/mx6boards/Kconfig"
+source "board/emk/top9000/Kconfig"
+source "board/enbw/enbw_cmc/Kconfig"
+source "board/esd/meesc/Kconfig"
+source "board/esd/otc570/Kconfig"
+source "board/esg/ima3-mx53/Kconfig"
+source "board/eukrea/cpu9260/Kconfig"
+source "board/eukrea/cpuat91/Kconfig"
+source "board/faraday/a320evb/Kconfig"
+source "board/freescale/ls2085a/Kconfig"
+source "board/freescale/mx23evk/Kconfig"
+source "board/freescale/mx25pdk/Kconfig"
+source "board/freescale/mx28evk/Kconfig"
+source "board/freescale/mx31ads/Kconfig"
+source "board/freescale/mx31pdk/Kconfig"
+source "board/freescale/mx35pdk/Kconfig"
+source "board/freescale/mx51evk/Kconfig"
+source "board/freescale/mx53ard/Kconfig"
+source "board/freescale/mx53evk/Kconfig"
+source "board/freescale/mx53loco/Kconfig"
+source "board/freescale/mx53smd/Kconfig"
+source "board/freescale/mx6qarm2/Kconfig"
+source "board/freescale/mx6qsabreauto/Kconfig"
+source "board/freescale/mx6sabresd/Kconfig"
+source "board/freescale/mx6slevk/Kconfig"
+source "board/freescale/vf610twr/Kconfig"
+source "board/gateworks/gw_ventana/Kconfig"
+source "board/genesi/mx51_efikamx/Kconfig"
+source "board/gumstix/duovero/Kconfig"
+source "board/gumstix/pepper/Kconfig"
+source "board/h2200/Kconfig"
+source "board/hale/tt01/Kconfig"
+source "board/highbank/Kconfig"
+source "board/htkw/mcx/Kconfig"
+source "board/icpdas/lp8x4x/Kconfig"
+source "board/imx31_phycore/Kconfig"
+source "board/iomega/iconnect/Kconfig"
+source "board/isee/igep0033/Kconfig"
+source "board/isee/igep00x0/Kconfig"
+source "board/jornada/Kconfig"
+source "board/karo/tk71/Kconfig"
+source "board/karo/tx25/Kconfig"
+source "board/keymile/km_arm/Kconfig"
+source "board/kmc/kzm9g/Kconfig"
+source "board/logicpd/am3517evm/Kconfig"
+source "board/logicpd/imx27lite/Kconfig"
+source "board/logicpd/imx31_litekit/Kconfig"
+source "board/logicpd/omap3som/Kconfig"
+source "board/logicpd/zoom1/Kconfig"
+source "board/matrix_vision/mvblx/Kconfig"
+source "board/mpl/vcma9/Kconfig"
+source "board/nokia/rx51/Kconfig"
+source "board/nvidia/beaver/Kconfig"
+source "board/nvidia/cardhu/Kconfig"
+source "board/nvidia/dalmore/Kconfig"
+source "board/nvidia/harmony/Kconfig"
+source "board/nvidia/jetson-tk1/Kconfig"
+source "board/nvidia/seaboard/Kconfig"
+source "board/nvidia/venice2/Kconfig"
+source "board/nvidia/ventana/Kconfig"
+source "board/nvidia/whistler/Kconfig"
+source "board/olimex/mx23_olinuxino/Kconfig"
+source "board/omicron/calimain/Kconfig"
+source "board/overo/Kconfig"
+source "board/palmld/Kconfig"
+source "board/palmtc/Kconfig"
+source "board/palmtreo680/Kconfig"
+source "board/pandora/Kconfig"
+source "board/phytec/pcm051/Kconfig"
+source "board/ppcag/bg0900/Kconfig"
+source "board/pxa255_idp/Kconfig"
+source "board/raidsonic/ib62x0/Kconfig"
+source "board/raspberrypi/rpi_b/Kconfig"
+source "board/renesas/alt/Kconfig"
+source "board/renesas/koelsch/Kconfig"
+source "board/renesas/lager/Kconfig"
+source "board/ronetix/pm9261/Kconfig"
+source "board/ronetix/pm9263/Kconfig"
+source "board/ronetix/pm9g45/Kconfig"
+source "board/samsung/arndale/Kconfig"
+source "board/samsung/goni/Kconfig"
+source "board/samsung/origen/Kconfig"
+source "board/samsung/smdk2410/Kconfig"
+source "board/samsung/smdk5250/Kconfig"
+source "board/samsung/smdk5420/Kconfig"
+source "board/samsung/smdkc100/Kconfig"
+source "board/samsung/smdkv310/Kconfig"
+source "board/samsung/trats/Kconfig"
+source "board/samsung/trats2/Kconfig"
+source "board/samsung/universal_c210/Kconfig"
+source "board/sandisk/sansa_fuze_plus/Kconfig"
+source "board/scb9328/Kconfig"
+source "board/schulercontrol/sc_sps_1/Kconfig"
+source "board/siemens/corvus/Kconfig"
+source "board/siemens/draco/Kconfig"
+source "board/siemens/pxm2/Kconfig"
+source "board/siemens/rut/Kconfig"
+source "board/siemens/taurus/Kconfig"
+source "board/silica/pengwyn/Kconfig"
+source "board/solidrun/hummingboard/Kconfig"
+source "board/spear/spear300/Kconfig"
+source "board/spear/spear310/Kconfig"
+source "board/spear/spear320/Kconfig"
+source "board/spear/spear600/Kconfig"
+source "board/spear/x600/Kconfig"
+source "board/st-ericsson/snowball/Kconfig"
+source "board/st-ericsson/u8500/Kconfig"
+source "board/st/nhk8815/Kconfig"
+source "board/sunxi/Kconfig"
+source "board/syteco/jadecpu/Kconfig"
+source "board/syteco/zmx25/Kconfig"
+source "board/taskit/stamp9g20/Kconfig"
+source "board/technexion/tao3530/Kconfig"
+source "board/technexion/twister/Kconfig"
+source "board/teejet/mt_ventoux/Kconfig"
+source "board/ti/am335x/Kconfig"
+source "board/ti/am3517crane/Kconfig"
+source "board/ti/am43xx/Kconfig"
+source "board/ti/beagle/Kconfig"
+source "board/ti/dra7xx/Kconfig"
+source "board/ti/evm/Kconfig"
+source "board/ti/ks2_evm/Kconfig"
+source "board/ti/omap5912osk/Kconfig"
+source "board/ti/omap5_uevm/Kconfig"
+source "board/ti/panda/Kconfig"
+source "board/ti/sdp3430/Kconfig"
+source "board/ti/sdp4430/Kconfig"
+source "board/ti/ti814x/Kconfig"
+source "board/ti/ti816x/Kconfig"
+source "board/ti/tnetv107xevm/Kconfig"
+source "board/timll/devkit3250/Kconfig"
+source "board/timll/devkit8000/Kconfig"
+source "board/toradex/colibri_pxa270/Kconfig"
+source "board/toradex/colibri_t20_iris/Kconfig"
+source "board/trizepsiv/Kconfig"
+source "board/ttcontrol/vision2/Kconfig"
+source "board/udoo/Kconfig"
+source "board/vpac270/Kconfig"
+source "board/wandboard/Kconfig"
+source "board/woodburn/Kconfig"
+source "board/xaeniax/Kconfig"
+source "board/xilinx/zynq/Kconfig"
+source "board/zipitz2/Kconfig"
+
+endmenu

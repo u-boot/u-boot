@@ -1,0 +1,11 @@
+if TARGET_BF537_SRV1
+
+config SYS_BOARD
+	string
+	default "bf537-srv1"
+
+config SYS_CONFIG_NAME
+	string
+	default "bf537-srv1"
+
+endif

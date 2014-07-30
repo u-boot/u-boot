@@ -1,0 +1,23 @@
+if TARGET_VCMA9
+
+config SYS_CPU
+	string
+	default "arm920t"
+
+config SYS_BOARD
+	string
+	default "vcma9"
+
+config SYS_VENDOR
+	string
+	default "mpl"
+
+config SYS_SOC
+	string
+	default "s3c24x0"
+
+config SYS_CONFIG_NAME
+	string
+	default "VCMA9"
+
+endif

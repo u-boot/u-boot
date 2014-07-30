@@ -1,0 +1,47 @@
+if TARGET_SMDK5250
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "smdk5250"
+
+config SYS_VENDOR
+	string
+	default "samsung"
+
+config SYS_SOC
+	string
+	default "exynos"
+
+config SYS_CONFIG_NAME
+	string
+	default "smdk5250"
+
+endif
+
+if TARGET_SNOW
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "smdk5250"
+
+config SYS_VENDOR
+	string
+	default "samsung"
+
+config SYS_SOC
+	string
+	default "exynos"
+
+config SYS_CONFIG_NAME
+	string
+	default "snow"
+
+endif

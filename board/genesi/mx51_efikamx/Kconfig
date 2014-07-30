@@ -1,0 +1,23 @@
+if TARGET_MX51_EFIKAMX
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "mx51_efikamx"
+
+config SYS_VENDOR
+	string
+	default "genesi"
+
+config SYS_SOC
+	string
+	default "mx5"
+
+config SYS_CONFIG_NAME
+	string
+	default "mx51_efikamx"
+
+endif

@@ -1,0 +1,23 @@
+if TARGET_LAGER
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "lager"
+
+config SYS_VENDOR
+	string
+	default "renesas"
+
+config SYS_SOC
+	string
+	default "rmobile"
+
+config SYS_CONFIG_NAME
+	string
+	default "lager"
+
+endif

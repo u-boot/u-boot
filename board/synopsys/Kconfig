@@ -1,0 +1,31 @@
+if TARGET_ARCANGEL4
+
+config SYS_CPU
+	string
+	default "arc700"
+
+config SYS_VENDOR
+	string
+	default "synopsys"
+
+config SYS_CONFIG_NAME
+	string
+	default "arcangel4"
+
+endif
+
+if TARGET_ARCANGEL4_BE
+
+config SYS_CPU
+	string
+	default "arc700"
+
+config SYS_VENDOR
+	string
+	default "synopsys"
+
+config SYS_CONFIG_NAME
+	string
+	default "arcangel4-be"
+
+endif

@@ -1,0 +1,15 @@
+if TARGET_H2200
+
+config SYS_CPU
+	string
+	default "pxa"
+
+config SYS_BOARD
+	string
+	default "h2200"
+
+config SYS_CONFIG_NAME
+	string
+	default "h2200"
+
+endif

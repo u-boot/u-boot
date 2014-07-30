@@ -1,0 +1,15 @@
+if TARGET_XPEDITE550X
+
+config SYS_BOARD
+	string
+	default "xpedite550x"
+
+config SYS_VENDOR
+	string
+	default "xes"
+
+config SYS_CONFIG_NAME
+	string
+	default "xpedite550x"
+
+endif

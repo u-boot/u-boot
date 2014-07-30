@@ -1,0 +1,23 @@
+if TARGET_MX31PDK
+
+config SYS_CPU
+	string
+	default "arm1136"
+
+config SYS_BOARD
+	string
+	default "mx31pdk"
+
+config SYS_VENDOR
+	string
+	default "freescale"
+
+config SYS_SOC
+	string
+	default "mx31"
+
+config SYS_CONFIG_NAME
+	string
+	default "mx31pdk"
+
+endif

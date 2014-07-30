@@ -1,0 +1,15 @@
+if TARGET_YOSEMITE
+
+config SYS_BOARD
+	string
+	default "yosemite"
+
+config SYS_VENDOR
+	string
+	default "amcc"
+
+config SYS_CONFIG_NAME
+	string
+	default "yosemite"
+
+endif

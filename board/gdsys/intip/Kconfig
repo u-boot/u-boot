@@ -1,0 +1,15 @@
+if TARGET_INTIP
+
+config SYS_BOARD
+	string
+	default "intip"
+
+config SYS_VENDOR
+	string
+	default "gdsys"
+
+config SYS_CONFIG_NAME
+	string
+	default "intip"
+
+endif

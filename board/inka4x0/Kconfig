@@ -1,0 +1,11 @@
+if TARGET_INKA4X0
+
+config SYS_BOARD
+	string
+	default "inka4x0"
+
+config SYS_CONFIG_NAME
+	string
+	default "inka4x0"
+
+endif

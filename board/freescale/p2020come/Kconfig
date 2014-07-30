@@ -1,0 +1,15 @@
+if TARGET_P2020COME
+
+config SYS_BOARD
+	string
+	default "p2020come"
+
+config SYS_VENDOR
+	string
+	default "freescale"
+
+config SYS_CONFIG_NAME
+	string
+	default "P2020COME"
+
+endif

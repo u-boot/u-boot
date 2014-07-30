@@ -1,0 +1,15 @@
+if TARGET_P3MX
+
+config SYS_BOARD
+	string
+	default "p3mx"
+
+config SYS_VENDOR
+	string
+	default "prodrive"
+
+config SYS_CONFIG_NAME
+	string
+	default "p3mx"
+
+endif

@@ -1,0 +1,11 @@
+if TARGET_IP04
+
+config SYS_BOARD
+	string
+	default "ip04"
+
+config SYS_CONFIG_NAME
+	string
+	default "ip04"
+
+endif

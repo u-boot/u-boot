@@ -1,0 +1,19 @@
+if TARGET_UDOO
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "udoo"
+
+config SYS_SOC
+	string
+	default "mx6"
+
+config SYS_CONFIG_NAME
+	string
+	default "udoo"
+
+endif

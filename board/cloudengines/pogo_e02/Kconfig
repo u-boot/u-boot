@@ -1,0 +1,23 @@
+if TARGET_POGO_E02
+
+config SYS_CPU
+	string
+	default "arm926ejs"
+
+config SYS_BOARD
+	string
+	default "pogo_e02"
+
+config SYS_VENDOR
+	string
+	default "cloudengines"
+
+config SYS_SOC
+	string
+	default "kirkwood"
+
+config SYS_CONFIG_NAME
+	string
+	default "pogo_e02"
+
+endif

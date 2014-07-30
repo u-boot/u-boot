@@ -1,0 +1,23 @@
+if TARGET_U8500_HREF
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "u8500"
+
+config SYS_VENDOR
+	string
+	default "st-ericsson"
+
+config SYS_SOC
+	string
+	default "u8500"
+
+config SYS_CONFIG_NAME
+	string
+	default "u8500_href"
+
+endif

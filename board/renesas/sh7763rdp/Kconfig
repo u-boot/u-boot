@@ -1,0 +1,19 @@
+if TARGET_SH7763RDP
+
+config SYS_CPU
+	string
+	default "sh4"
+
+config SYS_BOARD
+	string
+	default "sh7763rdp"
+
+config SYS_VENDOR
+	string
+	default "renesas"
+
+config SYS_CONFIG_NAME
+	string
+	default "sh7763rdp"
+
+endif

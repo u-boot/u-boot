@@ -1,0 +1,19 @@
+if TARGET_AXS101
+
+config SYS_CPU
+	string
+	default "arc700"
+
+config SYS_BOARD
+	string
+	default "axs101"
+
+config SYS_VENDOR
+	string
+	default "synopsys"
+
+config SYS_CONFIG_NAME
+	string
+	default "axs101"
+
+endif

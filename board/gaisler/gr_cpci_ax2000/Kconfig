@@ -1,0 +1,19 @@
+if TARGET_GR_CPCI_AX2000
+
+config SYS_CPU
+	string
+	default "leon3"
+
+config SYS_BOARD
+	string
+	default "gr_cpci_ax2000"
+
+config SYS_VENDOR
+	string
+	default "gaisler"
+
+config SYS_CONFIG_NAME
+	string
+	default "gr_cpci_ax2000"
+
+endif

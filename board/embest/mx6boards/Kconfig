@@ -1,0 +1,23 @@
+if TARGET_EMBESTMX6BOARDS
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "mx6boards"
+
+config SYS_VENDOR
+	string
+	default "embest"
+
+config SYS_SOC
+	string
+	default "mx6"
+
+config SYS_CONFIG_NAME
+	string
+	default "embestmx6boards"
+
+endif

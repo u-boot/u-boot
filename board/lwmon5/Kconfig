@@ -1,0 +1,11 @@
+if TARGET_LWMON5
+
+config SYS_BOARD
+	string
+	default "lwmon5"
+
+config SYS_CONFIG_NAME
+	string
+	default "lwmon5"
+
+endif

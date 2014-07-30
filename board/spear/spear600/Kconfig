@@ -1,0 +1,23 @@
+if TARGET_SPEAR600
+
+config SYS_CPU
+	string
+	default "arm926ejs"
+
+config SYS_BOARD
+	string
+	default "spear600"
+
+config SYS_VENDOR
+	string
+	default "spear"
+
+config SYS_SOC
+	string
+	default "spear"
+
+config SYS_CONFIG_NAME
+	string
+	default "spear6xx_evb"
+
+endif

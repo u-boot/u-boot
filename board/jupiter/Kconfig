@@ -1,0 +1,11 @@
+if TARGET_JUPITER
+
+config SYS_BOARD
+	string
+	default "jupiter"
+
+config SYS_CONFIG_NAME
+	string
+	default "jupiter"
+
+endif

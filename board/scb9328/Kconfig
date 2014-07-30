@@ -1,0 +1,19 @@
+if TARGET_SCB9328
+
+config SYS_CPU
+	string
+	default "arm920t"
+
+config SYS_BOARD
+	string
+	default "scb9328"
+
+config SYS_SOC
+	string
+	default "imx"
+
+config SYS_CONFIG_NAME
+	string
+	default "scb9328"
+
+endif

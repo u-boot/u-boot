@@ -1,0 +1,15 @@
+if TARGET_MVBC_P
+
+config SYS_BOARD
+	string
+	default "mvbc_p"
+
+config SYS_VENDOR
+	string
+	default "matrix_vision"
+
+config SYS_CONFIG_NAME
+	string
+	default "MVBC_P"
+
+endif

@@ -1,0 +1,15 @@
+if TARGET_TOP860
+
+config SYS_BOARD
+	string
+	default "top860"
+
+config SYS_VENDOR
+	string
+	default "emk"
+
+config SYS_CONFIG_NAME
+	string
+	default "TOP860"
+
+endif

@@ -1,0 +1,15 @@
+if TARGET_NIOS2_GENERIC
+
+config SYS_BOARD
+	string
+	default "nios2-generic"
+
+config SYS_VENDOR
+	string
+	default "altera"
+
+config SYS_CONFIG_NAME
+	string
+	default "nios2-generic"
+
+endif

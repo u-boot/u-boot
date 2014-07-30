@@ -1,0 +1,11 @@
+if TARGET_IP860
+
+config SYS_BOARD
+	string
+	default "ip860"
+
+config SYS_CONFIG_NAME
+	string
+	default "IP860"
+
+endif

@@ -1,0 +1,11 @@
+if TARGET_V38B
+
+config SYS_BOARD
+	string
+	default "v38b"
+
+config SYS_CONFIG_NAME
+	string
+	default "v38b"
+
+endif

@@ -1,0 +1,23 @@
+if TARGET_SAMA5D3XEK
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "sama5d3xek"
+
+config SYS_VENDOR
+	string
+	default "atmel"
+
+config SYS_SOC
+	string
+	default "at91"
+
+config SYS_CONFIG_NAME
+	string
+	default "sama5d3xek"
+
+endif

@@ -1,0 +1,23 @@
+if TARGET_MCX
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "mcx"
+
+config SYS_VENDOR
+	string
+	default "htkw"
+
+config SYS_SOC
+	string
+	default "omap3"
+
+config SYS_CONFIG_NAME
+	string
+	default "mcx"
+
+endif

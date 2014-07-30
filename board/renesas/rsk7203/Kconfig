@@ -1,0 +1,19 @@
+if TARGET_RSK7203
+
+config SYS_CPU
+	string
+	default "sh2"
+
+config SYS_BOARD
+	string
+	default "rsk7203"
+
+config SYS_VENDOR
+	string
+	default "renesas"
+
+config SYS_CONFIG_NAME
+	string
+	default "rsk7203"
+
+endif

@@ -1,0 +1,19 @@
+if TARGET_LP8X4X
+
+config SYS_CPU
+	string
+	default "pxa"
+
+config SYS_BOARD
+	string
+	default "lp8x4x"
+
+config SYS_VENDOR
+	string
+	default "icpdas"
+
+config SYS_CONFIG_NAME
+	string
+	default "lp8x4x"
+
+endif

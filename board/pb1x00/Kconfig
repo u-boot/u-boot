@@ -1,0 +1,19 @@
+if TARGET_PB1X00
+
+config SYS_CPU
+	string
+	default "mips32"
+
+config SYS_BOARD
+	string
+	default "pb1x00"
+
+config SYS_SOC
+	string
+	default "au1x00"
+
+config SYS_CONFIG_NAME
+	string
+	default "pb1x00"
+
+endif

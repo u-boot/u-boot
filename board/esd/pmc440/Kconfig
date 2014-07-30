@@ -1,0 +1,15 @@
+if TARGET_PMC440
+
+config SYS_BOARD
+	string
+	default "pmc440"
+
+config SYS_VENDOR
+	string
+	default "esd"
+
+config SYS_CONFIG_NAME
+	string
+	default "PMC440"
+
+endif

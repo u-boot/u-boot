@@ -1,0 +1,15 @@
+if TARGET_MPC8610HPCD
+
+config SYS_BOARD
+	string
+	default "mpc8610hpcd"
+
+config SYS_VENDOR
+	string
+	default "freescale"
+
+config SYS_CONFIG_NAME
+	string
+	default "MPC8610HPCD"
+
+endif

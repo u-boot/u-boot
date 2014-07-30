@@ -1,0 +1,11 @@
+if TARGET_TOTAL5200
+
+config SYS_BOARD
+	string
+	default "total5200"
+
+config SYS_CONFIG_NAME
+	string
+	default "Total5200"
+
+endif

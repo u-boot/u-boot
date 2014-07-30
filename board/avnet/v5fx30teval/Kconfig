@@ -1,0 +1,15 @@
+if TARGET_V5FX30TEVAL
+
+config SYS_BOARD
+	string
+	default "v5fx30teval"
+
+config SYS_VENDOR
+	string
+	default "avnet"
+
+config SYS_CONFIG_NAME
+	string
+	default "v5fx30teval"
+
+endif

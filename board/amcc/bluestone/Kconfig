@@ -1,0 +1,15 @@
+if TARGET_BLUESTONE
+
+config SYS_BOARD
+	string
+	default "bluestone"
+
+config SYS_VENDOR
+	string
+	default "amcc"
+
+config SYS_CONFIG_NAME
+	string
+	default "bluestone"
+
+endif

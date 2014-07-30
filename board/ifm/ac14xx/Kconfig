@@ -1,0 +1,15 @@
+if TARGET_AC14XX
+
+config SYS_BOARD
+	string
+	default "ac14xx"
+
+config SYS_VENDOR
+	string
+	default "ifm"
+
+config SYS_CONFIG_NAME
+	string
+	default "ac14xx"
+
+endif

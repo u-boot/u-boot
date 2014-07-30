@@ -1,0 +1,15 @@
+if TARGET_MVSMR
+
+config SYS_BOARD
+	string
+	default "mvsmr"
+
+config SYS_VENDOR
+	string
+	default "matrix_vision"
+
+config SYS_CONFIG_NAME
+	string
+	default "MVSMR"
+
+endif

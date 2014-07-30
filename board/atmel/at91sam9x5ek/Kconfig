@@ -1,0 +1,23 @@
+if TARGET_AT91SAM9X5EK
+
+config SYS_CPU
+	string
+	default "arm926ejs"
+
+config SYS_BOARD
+	string
+	default "at91sam9x5ek"
+
+config SYS_VENDOR
+	string
+	default "atmel"
+
+config SYS_SOC
+	string
+	default "at91"
+
+config SYS_CONFIG_NAME
+	string
+	default "at91sam9x5ek"
+
+endif

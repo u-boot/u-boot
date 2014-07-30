@@ -1,0 +1,71 @@
+if TARGET_DA830EVM
+
+config SYS_CPU
+	string
+	default "arm926ejs"
+
+config SYS_BOARD
+	string
+	default "da8xxevm"
+
+config SYS_VENDOR
+	string
+	default "davinci"
+
+config SYS_SOC
+	string
+	default "davinci"
+
+config SYS_CONFIG_NAME
+	string
+	default "da830evm"
+
+endif
+
+if TARGET_DA850EVM
+
+config SYS_CPU
+	string
+	default "arm926ejs"
+
+config SYS_BOARD
+	string
+	default "da8xxevm"
+
+config SYS_VENDOR
+	string
+	default "davinci"
+
+config SYS_SOC
+	string
+	default "davinci"
+
+config SYS_CONFIG_NAME
+	string
+	default "da850evm"
+
+endif
+
+if TARGET_HAWKBOARD
+
+config SYS_CPU
+	string
+	default "arm926ejs"
+
+config SYS_BOARD
+	string
+	default "da8xxevm"
+
+config SYS_VENDOR
+	string
+	default "davinci"
+
+config SYS_SOC
+	string
+	default "davinci"
+
+config SYS_CONFIG_NAME
+	string
+	default "hawkboard"
+
+endif

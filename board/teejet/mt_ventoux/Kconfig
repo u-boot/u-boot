@@ -1,0 +1,23 @@
+if TARGET_MT_VENTOUX
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "mt_ventoux"
+
+config SYS_VENDOR
+	string
+	default "teejet"
+
+config SYS_SOC
+	string
+	default "omap3"
+
+config SYS_CONFIG_NAME
+	string
+	default "mt_ventoux"
+
+endif

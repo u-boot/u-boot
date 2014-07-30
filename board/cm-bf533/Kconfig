@@ -1,0 +1,11 @@
+if TARGET_CM_BF533
+
+config SYS_BOARD
+	string
+	default "cm-bf533"
+
+config SYS_CONFIG_NAME
+	string
+	default "cm-bf533"
+
+endif

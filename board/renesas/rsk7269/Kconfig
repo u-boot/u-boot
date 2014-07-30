@@ -1,0 +1,19 @@
+if TARGET_RSK7269
+
+config SYS_CPU
+	string
+	default "sh2"
+
+config SYS_BOARD
+	string
+	default "rsk7269"
+
+config SYS_VENDOR
+	string
+	default "renesas"
+
+config SYS_CONFIG_NAME
+	string
+	default "rsk7269"
+
+endif

@@ -1,0 +1,23 @@
+if TARGET_DAVINCI_SFFSDR
+
+config SYS_CPU
+	string
+	default "arm926ejs"
+
+config SYS_BOARD
+	string
+	default "sffsdr"
+
+config SYS_VENDOR
+	string
+	default "davinci"
+
+config SYS_SOC
+	string
+	default "davinci"
+
+config SYS_CONFIG_NAME
+	string
+	default "davinci_sffsdr"
+
+endif

@@ -1,0 +1,15 @@
+if TARGET_CRAYL1
+
+config SYS_BOARD
+	string
+	default "L1"
+
+config SYS_VENDOR
+	string
+	default "cray"
+
+config SYS_CONFIG_NAME
+	string
+	default "CRAYL1"
+
+endif

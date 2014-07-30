@@ -1,0 +1,15 @@
+if TARGET_HH405
+
+config SYS_BOARD
+	string
+	default "hh405"
+
+config SYS_VENDOR
+	string
+	default "esd"
+
+config SYS_CONFIG_NAME
+	string
+	default "HH405"
+
+endif

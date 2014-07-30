@@ -1,0 +1,26 @@
+menu "Nios II architecture"
+	depends on NIOS2
+
+config SYS_ARCH
+	string
+	default "nios2"
+
+choice
+	prompt "Target select"
+
+config TARGET_NIOS2_GENERIC
+	bool "Support nios2-generic"
+
+config TARGET_PCI5441
+	bool "Support PCI5441"
+
+config TARGET_PK1C20
+	bool "Support PK1C20"
+
+endchoice
+
+source "board/altera/nios2-generic/Kconfig"
+source "board/psyent/pci5441/Kconfig"
+source "board/psyent/pk1c20/Kconfig"
+
+endmenu
