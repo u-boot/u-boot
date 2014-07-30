@@ -11,7 +11,7 @@
 HOSTCC = $(CC)
 
 # Compile for a hosted environment on the target
-HOST_EXTRACFLAGS  = $(patsubst -I%,-idirafter%, $(UBOOTINCLUDE)) \
+HOST_EXTRACFLAGS  = $(patsubst -I%,-idirafter%, $(filter -I%, $(UBOOTINCLUDE))) \
 		-idirafter $(srctree)/tools/env \
 		-DUSE_HOSTCC \
 		-DTEXT_BASE=$(TEXT_BASE)

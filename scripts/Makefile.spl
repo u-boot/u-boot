@@ -21,27 +21,16 @@ _dummy := $(shell [ -d $(obj) ] || mkdir -p $(obj))
 
 include $(srctree)/scripts/Kbuild.include
 
-CONFIG_SPL_BUILD := y
-export CONFIG_SPL_BUILD
+UBOOTINCLUDE := -I$(obj)/include $(UBOOTINCLUDE)
 
-KBUILD_CPPFLAGS += -DCONFIG_SPL_BUILD
-ifeq ($(CONFIG_TPL_BUILD),y)
-KBUILD_CPPFLAGS += -DCONFIG_TPL_BUILD
-endif
+-include $(obj)/include/config/auto.conf
+-include $(obj)/include/autoconf.mk
 
 ifeq ($(CONFIG_TPL_BUILD),y)
 export CONFIG_TPL_BUILD
 SPL_BIN := u-boot-tpl
 else
 SPL_BIN := u-boot-spl
-endif
-
-include include/config.mk
-
-ifeq ($(CONFIG_TPL_BUILD),y)
-  -include include/tpl-autoconf.mk
-else
-  -include include/spl-autoconf.mk
 endif
 
 include $(srctree)/config.mk
@@ -53,20 +42,6 @@ LDFLAGS_FINAL += --gc-sections
 # FIX ME
 cpp_flags := $(KBUILD_CPPFLAGS) $(PLATFORM_CPPFLAGS) $(UBOOTINCLUDE) \
 							$(NOSTDINC_FLAGS)
-c_flags := $(KBUILD_CFLAGS) $(cpp_flags)
-
-# Auto-generate the spl-autoconf.mk file (which is included by all makefiles for SPL)
-quiet_cmd_autoconf = GEN     $@
-      cmd_autoconf = \
-	$(CPP) $(c_flags) -DDO_DEPS_ONLY -dM $(srctree)/include/common.h > $@.tmp && \
-		sed -n -f $(srctree)/tools/scripts/define2mk.sed $@.tmp > $@; \
-	rm $@.tmp
-
-include/tpl-autoconf.mk: include/config.h
-	$(call cmd,autoconf)
-
-include/spl-autoconf.mk: include/config.h
-	$(call cmd,autoconf)
 
 HAVE_VENDOR_COMMON_LIB = $(if $(wildcard $(srctree)/board/$(VENDOR)/common/Makefile),y,n)
 

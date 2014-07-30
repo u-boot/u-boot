@@ -951,6 +951,14 @@ int conf_write_autoconf(void)
 	FILE *out, *tristate, *out_h;
 	int i;
 
+	/*
+	 * Added for U-Boot SPL/TPL
+	 */
+	name = getenv("KCONFIG_OBJDIR");
+	if (name && name[0])
+		if (chdir(name))
+			return 1;
+
 	sym_clear_all_valid();
 
 	file_write_dep("include/config/auto.conf.cmd");
