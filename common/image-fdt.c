@@ -479,7 +479,7 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 	lmb_free(lmb, (phys_addr_t)(u32)(uintptr_t)blob,
 		 (phys_size_t)fdt_totalsize(blob));
 
-	ret = fdt_resize(blob);
+	ret = fdt_shrink_to_minimum(blob);
 	if (ret < 0)
 		return ret;
 	of_size = ret;

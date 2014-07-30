@@ -508,7 +508,7 @@ void fdt_fixup_ethernet(void *fdt)
 }
 
 /* Resize the fdt to its actual size + a bit of padding */
-int fdt_resize(void *blob)
+int fdt_shrink_to_minimum(void *blob)
 {
 	int i;
 	uint64_t addr, size;
