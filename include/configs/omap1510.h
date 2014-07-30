@@ -612,22 +612,6 @@ typedef struct {
 int cpu_type(void);
 #endif
 
-/*
- * EVM Implementation Specifics.
- *
- * *** NOTE ***
- * Any definitions in these files should be prefixed by an identifier -
- * eg. OMAP1510P1_FLASH0_BASE .
- *
- */
-#ifdef CONFIG_OMAP_INNOVATOR
-#include "innovator.h"
-#endif
-
-#ifdef CONFIG_OMAP_1510P1
-#include "omap1510p1.h"
-#endif
-
 /*****************************************************************************/
 
 #define CLKGEN_RESET_BASE (0xfffece00)

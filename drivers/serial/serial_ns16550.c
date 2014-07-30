@@ -122,15 +122,6 @@ static int calc_divisor (NS16550_t port)
 {
 	const unsigned int mode_x_div = 16;
 
-#ifdef CONFIG_OMAP1510
-	/* If can't cleanly clock 115200 set div to 1 */
-	if ((CONFIG_SYS_NS16550_CLK == 12000000) && (gd->baudrate == 115200)) {
-		port->osc_12m_sel = OSC_12M_SEL;	/* enable 6.5 * divisor */
-		return (1);				/* return 1 for base divisor */
-	}
-	port->osc_12m_sel = 0;			/* clear if previsouly set */
-#endif
-
 	return DIV_ROUND_CLOSEST(CONFIG_SYS_NS16550_CLK,
 						mode_x_div * gd->baudrate);
 }

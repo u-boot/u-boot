@@ -15,9 +15,6 @@
 
 #include <common.h>
 #include <asm/io.h>
-#ifdef CONFIG_OMAP_SX1
-#include <i2c.h>
-#endif
 #include <usbdevice.h>
 #include <usb/omap1510_udc.h>
 #include <usb/udc.h>
@@ -1097,20 +1094,6 @@ int udc_init (void)
 	outw ((1 << 4) | (1 << 5), CLOCK_CTRL);
 	UDCREG (CLOCK_CTRL);
 
-#ifdef CONFIG_OMAP1510
-	/* This code was originally implemented for OMAP1510 and
-	 * therefore is only applicable for OMAP1510 boards. For
-	 * OMAP5912 or OMAP16xx the register APLL_CTRL does not
-	 * exist and DPLL_CTRL is already configured.
-	 */
-
-	/* Set and check APLL */
-	outw (0x0008, APLL_CTRL);
-	UDCREG (APLL_CTRL);
-	/* Set and check DPLL */
-	outw (0x2210, DPLL_CTRL);
-	UDCREG (DPLL_CTRL);
-#endif
 	/* Set and check SOFT
 	 * The below line of code has been changed to perform a
 	 * read-modify-write instead of a simple write for
@@ -1124,42 +1107,10 @@ int udc_init (void)
 
 	/* Print banner with device revision */
 	udc_rev = inw (UDC_REV) & 0xff;
-#ifdef CONFIG_OMAP1510
-	printf ("USB:   TI OMAP1510 USB function module rev %d.%d\n",
-		udc_rev >> 4, udc_rev & 0xf);
-#endif
 
 #ifdef CONFIG_OMAP1610
 	printf ("USB:   TI OMAP5912 USB function module rev %d.%d\n",
 		udc_rev >> 4, udc_rev & 0xf);
-#endif
-
-#ifdef CONFIG_OMAP_SX1
-	i2c_read (0x32, 0x04, 1, &value, 1);
-	value |= 0x04;
-	i2c_write (0x32, 0x04, 1, &value, 1);
-
-	i2c_read (0x32, 0x03, 1, &value, 1);
-	value |= 0x01;
-	i2c_write (0x32, 0x03, 1, &value, 1);
-
-	gpio = inl(GPIO_PIN_CONTROL_REG);
-	gpio |=  0x0002; /* A_IRDA_OFF */
-	gpio |=  0x0800; /* A_SWITCH   */
-	gpio |=  0x8000; /* A_USB_ON   */
-	outl (gpio, GPIO_PIN_CONTROL_REG);
-
-	gpio = inl(GPIO_DIR_CONTROL_REG);
-	gpio &= ~0x0002; /* A_IRDA_OFF */
-	gpio &= ~0x0800; /* A_SWITCH   */
-	gpio &= ~0x8000; /* A_USB_ON   */
-	outl (gpio, GPIO_DIR_CONTROL_REG);
-
-	gpio = inl(GPIO_DATA_OUTPUT_REG);
-	gpio |=  0x0002; /* A_IRDA_OFF */
-	gpio &= ~0x0800; /* A_SWITCH   */
-	gpio &= ~0x8000; /* A_USB_ON   */
-	outl (gpio, GPIO_DATA_OUTPUT_REG);
 #endif
 
 	/* The VBUS_MODE bit selects whether VBUS detection is done via
