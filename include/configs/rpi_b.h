@@ -101,6 +101,38 @@
 		"env import -t -r ${loadaddr} ${filesize}; " \
 	"fi"
 
+/* Shell */
+#define CONFIG_SYS_MAXARGS		8
+#define CONFIG_SYS_PROMPT		"U-Boot> "
+#define CONFIG_COMMAND_HISTORY
+
+/* Commands */
+#include <config_cmd_default.h>
+#define CONFIG_CMD_GPIO
+#define CONFIG_CMD_MMC
+#define CONFIG_PARTITION_UUIDS
+#define CONFIG_CMD_PART
+
+/* Device tree support */
+#define CONFIG_OF_BOARD_SETUP
+/* ATAGs support for bootm/bootz */
+#define CONFIG_SETUP_MEMORY_TAGS
+#define CONFIG_CMDLINE_TAG
+#define CONFIG_INITRD_TAG
+
+#include <config_distro_defaults.h>
+
+/* Some things don't make sense on this HW or yet */
+#undef CONFIG_CMD_FPGA
+#undef CONFIG_CMD_NET
+#undef CONFIG_CMD_NFS
+#undef CONFIG_CMD_SAVEENV
+#undef CONFIG_CMD_DHCP
+#undef CONFIG_CMD_MII
+#undef CONFIG_CMD_NET
+#undef CONFIG_CMD_PING
+
+/* Environment */
 #define ENV_DEVICE_SETTINGS \
 	"stdin=serial,lcd\0" \
 	"stdout=serial,lcd\0" \
@@ -138,104 +170,15 @@
 	"fdtfile=bcm2835-rpi-b.dtb\0" \
 	"ramdisk_addr_r=0x02100000\0" \
 
-#define BOOTCMDS_MMC \
-	"mmc_boot=" \
-		"setenv devtype mmc; " \
-		"if mmc dev ${devnum}; then " \
-			"run scan_boot; " \
-		"fi\0" \
-	"bootcmd_mmc0=setenv devnum 0; run mmc_boot;\0"
-#define BOOT_TARGETS_MMC "mmc0"
-
-#define BOOTCMDS_COMMON \
-	"rootpart=1\0" \
-	\
-	"do_script_boot="                                                 \
-		"load ${devtype} ${devnum}:${rootpart} "                  \
-			"${scriptaddr} ${prefix}${script}; "              \
-		"source ${scriptaddr}\0"                                  \
-	\
-	"script_boot="                                                    \
-		"for script in ${boot_scripts}; do "                      \
-			"if test -e ${devtype} ${devnum}:${rootpart} "    \
-					"${prefix}${script}; then "       \
-				"echo Found ${prefix}${script}; "         \
-				"run do_script_boot; "                    \
-				"echo SCRIPT FAILED: continuing...; "     \
-			"fi; "                                            \
-		"done\0"                                                  \
-	\
-	"do_sysboot_boot="                                                \
-		"sysboot ${devtype} ${devnum}:${rootpart} any "           \
-			"${scriptaddr} ${prefix}extlinux/extlinux.conf\0" \
-	\
-	"sysboot_boot="                                                   \
-		"if test -e ${devtype} ${devnum}:${rootpart} "            \
-				"${prefix}extlinux/extlinux.conf; then "  \
-			"echo Found ${prefix}extlinux/extlinux.conf; "    \
-			"run do_sysboot_boot; "                           \
-			"echo SCRIPT FAILED: continuing...; "             \
-		"fi\0"                                                    \
-	\
-	"scan_boot="                                                      \
-		"echo Scanning ${devtype} ${devnum}...; "                 \
-		"for prefix in ${boot_prefixes}; do "                     \
-			"run sysboot_boot; "                              \
-			"run script_boot; "                               \
-		"done\0"                                                  \
-	\
-	"boot_targets=" \
-		BOOT_TARGETS_MMC " " \
-		"\0" \
-	\
-	"boot_prefixes=/\0" \
-	\
-	"boot_scripts=boot.scr.uimg\0" \
-	\
-	BOOTCMDS_MMC
-
-#define CONFIG_BOOTCOMMAND \
-	"for target in ${boot_targets}; do run bootcmd_${target}; done"
-
-#define CONFIG_BOOTCOMMAND \
-	"for target in ${boot_targets}; do run bootcmd_${target}; done"
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0)
+#include <config_distro_bootcmd.h>
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	ENV_DEVICE_SETTINGS \
 	ENV_MEM_LAYOUT_SETTINGS \
-	BOOTCMDS_COMMON
+	BOOTENV
 
 #define CONFIG_BOOTDELAY 2
-
-/* Shell */
-#define CONFIG_SYS_MAXARGS		8
-#define CONFIG_SYS_PROMPT		"U-Boot> "
-#define CONFIG_COMMAND_HISTORY
-
-/* Commands */
-#include <config_cmd_default.h>
-#define CONFIG_CMD_GPIO
-#define CONFIG_CMD_MMC
-#define CONFIG_PARTITION_UUIDS
-#define CONFIG_CMD_PART
-
-/* Device tree support */
-#define CONFIG_OF_BOARD_SETUP
-/* ATAGs support for bootm/bootz */
-#define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_CMDLINE_TAG
-#define CONFIG_INITRD_TAG
-
-#include <config_distro_defaults.h>
-
-/* Some things don't make sense on this HW or yet */
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
-#undef CONFIG_CMD_SAVEENV
-#undef CONFIG_CMD_DHCP
-#undef CONFIG_CMD_MII
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_PING
 
 #endif
