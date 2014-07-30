@@ -13,7 +13,7 @@ CONFIG_STANDALONE_LOAD_ADDR ?= 0x40000
 LDFLAGS_FINAL += --gc-sections
 PLATFORM_RELFLAGS += -fpic -mrelocatable -ffunction-sections -fdata-sections \
 								-meabi
-PLATFORM_CPPFLAGS += -DCONFIG_PPC -D__powerpc__ -ffixed-r2
+PLATFORM_CPPFLAGS += -D__powerpc__ -ffixed-r2
 PLATFORM_LDFLAGS  += -n
 
 # Support generic board on PPC

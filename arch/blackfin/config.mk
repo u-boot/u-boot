@@ -21,7 +21,6 @@ endif
 CONFIG_BFIN_BOOT_MODE := $(strip $(CONFIG_BFIN_BOOT_MODE:"%"=%))
 
 PLATFORM_RELFLAGS += -ffixed-P3 -fomit-frame-pointer -mno-fdpic
-PLATFORM_CPPFLAGS += -DCONFIG_BLACKFIN
 
 LDFLAGS_FINAL += --gc-sections
 LDFLAGS += -m elf32bfin

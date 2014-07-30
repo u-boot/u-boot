@@ -21,7 +21,7 @@ ifeq ($(CROSS_COMPILE),)
 CROSS_COMPILE := $(ARC_CROSS_COMPILE)
 endif
 
-PLATFORM_CPPFLAGS += -ffixed-r25 -D__ARC__ -DCONFIG_ARC -gdwarf-2
+PLATFORM_CPPFLAGS += -ffixed-r25 -D__ARC__ -gdwarf-2
 
 # Needed for relocation
 LDFLAGS_FINAL += -pie
