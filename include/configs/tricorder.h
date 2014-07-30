@@ -331,7 +331,6 @@
 #define CONFIG_SYS_SRAM_SIZE		0x10000
 
 /* Defines for SPL */
-#define CONFIG_SPL 1
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_NAND_SIMPLE
 

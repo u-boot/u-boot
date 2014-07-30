@@ -316,7 +316,6 @@
 #define CONFIG_OMAP3_SPI
 
 /* Defines for SPL */
-#define CONFIG_SPL 1
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_NAND_SIMPLE
 

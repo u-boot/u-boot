@@ -447,7 +447,6 @@
 #endif
 
 /* SPL part */
-#define CONFIG_SPL 1
 #define CONFIG_CMD_SPL
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_LIBCOMMON_SUPPORT
