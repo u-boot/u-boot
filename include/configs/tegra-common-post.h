@@ -8,136 +8,16 @@
 #ifndef __TEGRA_COMMON_POST_H
 #define __TEGRA_COMMON_POST_H
 
-#ifdef CONFIG_BOOTCOMMAND
-
-#define BOOTCMDS_COMMON ""
-
+#ifndef CONFIG_SPL_BUILD
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 1) \
+	func(MMC, mmc, 0) \
+	func(USB, usb, 0) \
+	func(PXE, pxe, na) \
+	func(DHCP, dhcp, na)
+#include <config_distro_bootcmd.h>
 #else
-
-#ifdef CONFIG_CMD_MMC
-#define BOOTCMDS_MMC \
-	"mmc_boot=" \
-		"setenv devtype mmc; " \
-		"if mmc dev ${devnum}; then " \
-			"run scan_boot; " \
-		"fi\0" \
-	"bootcmd_mmc0=setenv devnum 0; run mmc_boot;\0" \
-	"bootcmd_mmc1=setenv devnum 1; run mmc_boot;\0"
-#define BOOT_TARGETS_MMC "mmc1 mmc0"
-#else
-#define BOOTCMDS_MMC ""
-#define BOOT_TARGETS_MMC ""
-#endif
-
-#ifdef CONFIG_CMD_USB
-#define BOOTCMD_INIT_USB "run usb_init; "
-#define BOOTCMDS_USB \
-	"usb_init=" \
-		"if ${usb_need_init}; then " \
-			"set usb_need_init false; " \
-			"usb start 0; " \
-		"fi\0" \
-	\
-	"usb_boot=" \
-		"setenv devtype usb; " \
-		BOOTCMD_INIT_USB \
-		"if usb dev ${devnum}; then " \
-			"run scan_boot; " \
-		"fi\0" \
-	\
-	"bootcmd_usb0=setenv devnum 0; run usb_boot;\0"
-#define BOOT_TARGETS_USB "usb0"
-#else
-#define BOOTCMD_INIT_USB ""
-#define BOOTCMDS_USB ""
-#define BOOT_TARGETS_USB ""
-#endif
-
-#ifdef CONFIG_CMD_DHCP
-#define BOOTCMDS_DHCP \
-	"bootcmd_dhcp=" \
-		BOOTCMD_INIT_USB \
-		"if dhcp ${scriptaddr} boot.scr.uimg; then "\
-			"source ${scriptaddr}; " \
-		"fi\0"
-#define BOOT_TARGETS_DHCP "dhcp"
-#else
-#define BOOTCMDS_DHCP ""
-#define BOOT_TARGETS_DHCP ""
-#endif
-
-#if defined(CONFIG_CMD_DHCP) && defined(CONFIG_CMD_PXE)
-#define BOOTCMDS_PXE \
-	"bootcmd_pxe=" \
-		BOOTCMD_INIT_USB \
-		"dhcp; " \
-		"if pxe get; then " \
-			"pxe boot; " \
-		"fi\0"
-#define BOOT_TARGETS_PXE "pxe"
-#else
-#define BOOTCMDS_PXE ""
-#define BOOT_TARGETS_PXE ""
-#endif
-
-#define BOOTCMDS_COMMON \
-	"rootpart=1\0" \
-	\
-	"do_script_boot="                                                 \
-		"load ${devtype} ${devnum}:${rootpart} "                  \
-			"${scriptaddr} ${prefix}${script}; "              \
-		"source ${scriptaddr}\0"                                  \
-	\
-	"script_boot="                                                    \
-		"for script in ${boot_scripts}; do "                      \
-			"if test -e ${devtype} ${devnum}:${rootpart} "    \
-					"${prefix}${script}; then "       \
-				"echo Found U-Boot script "               \
-					"${prefix}${script}; "            \
-				"run do_script_boot; "                    \
-				"echo SCRIPT FAILED: continuing...; "     \
-			"fi; "                                            \
-		"done\0"                                                  \
-	\
-	"do_sysboot_boot="                                                \
-		"sysboot ${devtype} ${devnum}:${rootpart} any "           \
-			"${scriptaddr} ${prefix}extlinux/extlinux.conf\0" \
-	\
-	"sysboot_boot="                                                   \
-		"if test -e ${devtype} ${devnum}:${rootpart} "            \
-				"${prefix}extlinux/extlinux.conf; then "  \
-			"echo Found ${prefix}extlinux/extlinux.conf; "    \
-			"run do_sysboot_boot; "                           \
-			"echo SCRIPT FAILED: continuing...; "             \
-		"fi\0"                                                    \
-	\
-	"scan_boot="                                                      \
-		"echo Scanning ${devtype} ${devnum}...; "                 \
-		"for prefix in ${boot_prefixes}; do "                     \
-			"run sysboot_boot; "                              \
-			"run script_boot; "                               \
-		"done\0"                                                  \
-	\
-	"boot_targets=" \
-		BOOT_TARGETS_MMC " " \
-		BOOT_TARGETS_USB " " \
-		BOOT_TARGETS_PXE " " \
-		BOOT_TARGETS_DHCP " " \
-		"\0" \
-	\
-	"boot_prefixes=/ /boot/\0" \
-	\
-	"boot_scripts=boot.scr.uimg boot.scr\0" \
-	\
-	BOOTCMDS_MMC \
-	BOOTCMDS_USB \
-	BOOTCMDS_DHCP \
-	BOOTCMDS_PXE
-
-#define CONFIG_BOOTCOMMAND \
-	"set usb_need_init; " \
-	"for target in ${boot_targets}; do run bootcmd_${target}; done"
-
+#define BOOTENV
 #endif
 
 #ifdef CONFIG_TEGRA_KEYBOARD
@@ -175,7 +55,7 @@
 	MEM_LAYOUT_ENV_SETTINGS \
 	"fdt_high=ffffffff\0" \
 	"initrd_high=ffffffff\0" \
-	BOOTCMDS_COMMON \
+	BOOTENV \
 	BOARD_EXTRA_ENV_SETTINGS
 
 #if defined(CONFIG_TEGRA20_SFLASH) || defined(CONFIG_TEGRA20_SLINK) || defined(CONFIG_TEGRA114_SPI)
