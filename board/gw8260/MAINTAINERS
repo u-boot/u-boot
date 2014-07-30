@@ -1,0 +1,6 @@
+GW8260 BOARD
+M:	Oliver Brown <obrown@adventnetworks.com>
+S:	Maintained
+F:	board/gw8260/
+F:	include/configs/gw8260.h
+F:	configs/gw8260_defconfig

@@ -1,0 +1,6 @@
+KAREF BOARD
+M:	Travis Sawyer <travis.sawyer@sandburst.com>
+S:	Orphan (since 2014-03)
+F:	board/sandburst/karef/
+F:	include/configs/KAREF.h
+F:	configs/KAREF_defconfig

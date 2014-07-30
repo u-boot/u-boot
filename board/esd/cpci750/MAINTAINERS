@@ -1,0 +1,6 @@
+CPCI750 BOARD
+M:	Reinhard Arlt <reinhard.arlt@esd-electronics.com>
+S:	Maintained
+F:	board/esd/cpci750/
+F:	include/configs/CPCI750.h
+F:	configs/CPCI750_defconfig

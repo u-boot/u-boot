@@ -1,0 +1,6 @@
+AFEB9260 BOARD
+M:	Sergey Lapin <slapin@ossfans.org>
+S:	Maintained
+F:	board/afeb9260/
+F:	include/configs/afeb9260.h
+F:	configs/afeb9260_defconfig

@@ -1,0 +1,6 @@
+HYMOD BOARD
+M:	Murray Jensen <Murray.Jensen@csiro.au>
+S:	Maintained
+F:	board/hymod/
+F:	include/configs/hymod.h
+F:	configs/hymod_defconfig

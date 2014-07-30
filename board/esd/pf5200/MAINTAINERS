@@ -1,0 +1,6 @@
+PF5200 BOARD
+M:	Reinhard Arlt <reinhard.arlt@esd-electronics.com>
+S:	Maintained
+F:	board/esd/pf5200/
+F:	include/configs/pf5200.h
+F:	configs/pf5200_defconfig

@@ -1,0 +1,6 @@
+L1 BOARD
+M:	David Updegraff <dave@cray.com>
+S:	Orphan (since 2014-03)
+F:	board/cray/L1/
+F:	include/configs/CRAYL1.h
+F:	configs/CRAYL1_defconfig

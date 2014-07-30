@@ -1,0 +1,6 @@
+MERGERBOX BOARD
+M:	Andre Schwarz <andre.schwarz@matrix-vision.de>
+S:	Orphan (since 2014-03)
+F:	board/matrix_vision/mergerbox/
+F:	include/configs/MERGERBOX.h
+F:	configs/MERGERBOX_defconfig

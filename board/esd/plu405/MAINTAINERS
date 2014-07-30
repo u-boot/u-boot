@@ -1,0 +1,6 @@
+PLU405 BOARD
+M:	Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+S:	Maintained
+F:	board/esd/plu405/
+F:	include/configs/PLU405.h
+F:	configs/PLU405_defconfig

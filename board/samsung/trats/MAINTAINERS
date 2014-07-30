@@ -1,0 +1,6 @@
+TRATS BOARD
+M:	Lukasz Majewski <l.majewski@samsung.com>
+S:	Maintained
+F:	board/samsung/trats/
+F:	include/configs/trats.h
+F:	configs/trats_defconfig

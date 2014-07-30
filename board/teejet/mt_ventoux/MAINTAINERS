@@ -1,0 +1,6 @@
+MT_VENTOUX BOARD
+M:	Stefano Babic <sbabic@denx.de>
+S:	Maintained
+F:	board/teejet/mt_ventoux/
+F:	include/configs/mt_ventoux.h
+F:	configs/mt_ventoux_defconfig

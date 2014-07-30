@@ -1,0 +1,8 @@
+W7O BOARD
+M:	Erik Theisen <etheisen@mindspring.com>
+S:	Maintained
+F:	board/w7o/
+F:	include/configs/W7OLMC.h
+F:	configs/W7OLMC_defconfig
+F:	include/configs/W7OLMG.h
+F:	configs/W7OLMG_defconfig

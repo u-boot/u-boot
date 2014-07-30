@@ -1,0 +1,6 @@
+UC100 BOARD
+M:	Stefan Roese <sr@denx.de>
+S:	Maintained
+F:	board/manroland/uc100/
+F:	include/configs/uc100.h
+F:	configs/uc100_defconfig

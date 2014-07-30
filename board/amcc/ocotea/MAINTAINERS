@@ -1,0 +1,6 @@
+OCOTEA BOARD
+M:	Stefan Roese <sr@denx.de>
+S:	Maintained
+F:	board/amcc/ocotea/
+F:	include/configs/ocotea.h
+F:	configs/ocotea_defconfig

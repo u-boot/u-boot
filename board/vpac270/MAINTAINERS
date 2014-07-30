@@ -1,0 +1,8 @@
+VPAC270 BOARD
+M:	Marek Vasut <marek.vasut@gmail.com>
+S:	Maintained
+F:	board/vpac270/
+F:	include/configs/vpac270.h
+F:	configs/vpac270_nor_128_defconfig
+F:	configs/vpac270_nor_256_defconfig
+F:	configs/vpac270_ond_256_defconfig

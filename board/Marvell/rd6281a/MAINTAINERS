@@ -1,0 +1,6 @@
+RD6281A BOARD
+M:	Prafulla Wadaskar <prafulla@marvell.com>
+S:	Maintained
+F:	board/Marvell/rd6281a/
+F:	include/configs/rd6281a.h
+F:	configs/rd6281a_defconfig

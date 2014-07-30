@@ -1,0 +1,6 @@
+MVBLX BOARD
+M:	Michael Jones <michael.jones@matrix-vision.de>
+S:	Maintained
+F:	board/matrix_vision/mvblx/
+F:	include/configs/omap3_mvblx.h
+F:	configs/omap3_mvblx_defconfig

@@ -1,0 +1,6 @@
+IP860 BOARD
+M:	Wolfgang Denk <wd@denx.de>
+S:	Maintained
+F:	board/ip860/
+F:	include/configs/IP860.h
+F:	configs/IP860_defconfig

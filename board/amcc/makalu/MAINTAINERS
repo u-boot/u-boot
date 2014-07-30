@@ -1,0 +1,6 @@
+MAKALU BOARD
+M:	Stefan Roese <sr@denx.de>
+S:	Maintained
+F:	board/amcc/makalu/
+F:	include/configs/makalu.h
+F:	configs/makalu_defconfig

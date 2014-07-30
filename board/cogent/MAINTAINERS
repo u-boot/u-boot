@@ -1,0 +1,8 @@
+COGENT BOARD
+M:	Murray Jensen <Murray.Jensen@csiro.au>
+S:	Maintained
+F:	board/cogent/
+F:	include/configs/cogent_mpc8260.h
+F:	configs/cogent_mpc8260_defconfig
+F:	include/configs/cogent_mpc8xx.h
+F:	configs/cogent_mpc8xx_defconfig

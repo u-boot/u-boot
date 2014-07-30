@@ -1,0 +1,7 @@
+SHMIN BOARD
+M:	Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+M:	Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+S:	Maintained
+F:	board/shmin/
+F:	include/configs/shmin.h
+F:	configs/shmin_defconfig

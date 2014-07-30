@@ -1,0 +1,7 @@
+MS7722SE BOARD
+M:	Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+M:	Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+S:	Maintained
+F:	board/ms7722se/
+F:	include/configs/ms7722se.h
+F:	configs/ms7722se_defconfig

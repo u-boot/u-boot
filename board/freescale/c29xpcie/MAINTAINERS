@@ -1,0 +1,8 @@
+C29XPCIE BOARD
+M:	Po Liu <po.liu@freescale.com>
+S:	Maintained
+F:	board/freescale/c29xpcie/
+F:	include/configs/C29XPCIE.h
+F:	configs/C29XPCIE_defconfig
+F:	configs/C29XPCIE_NAND_defconfig
+F:	configs/C29XPCIE_SPIFLASH_defconfig

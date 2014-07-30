@@ -1,0 +1,6 @@
+BF537-PNAV BOARD
+M:	Sonic Zhang <sonic.adi@gmail.com>
+S:	Maintained
+F:	board/bf537-pnav/
+F:	include/configs/bf537-pnav.h
+F:	configs/bf537-pnav_defconfig

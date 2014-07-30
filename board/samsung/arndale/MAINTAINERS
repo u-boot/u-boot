@@ -1,0 +1,6 @@
+ARNDALE BOARD
+M:	Inderpal Singh <inderpal.singh@linaro.org>
+S:	Maintained
+F:	board/samsung/arndale/
+F:	include/configs/arndale.h
+F:	configs/arndale_defconfig

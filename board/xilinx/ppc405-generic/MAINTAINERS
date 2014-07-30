@@ -1,0 +1,7 @@
+PPC405-GENERIC BOARD
+M:	Ricardo Ribalda <ricardo.ribalda@uam.es>
+S:	Maintained
+F:	board/xilinx/ppc405-generic/
+F:	include/configs/xilinx-ppc405-generic.h
+F:	configs/xilinx-ppc405-generic_defconfig
+F:	configs/xilinx-ppc405-generic_flash_defconfig

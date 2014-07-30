@@ -1,0 +1,6 @@
+SCB9328 BOARD
+M:	Torsten Koschorrek <koschorrek@synertronixx.de>
+S:	Maintained
+F:	board/scb9328/
+F:	include/configs/scb9328.h
+F:	configs/scb9328_defconfig

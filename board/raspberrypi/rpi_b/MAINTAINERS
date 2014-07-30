@@ -1,0 +1,6 @@
+RPI_B BOARD
+M:	Stephen Warren <swarren@wwwdotorg.org>
+S:	Maintained
+F:	board/raspberrypi/rpi_b/
+F:	include/configs/rpi_b.h
+F:	configs/rpi_b_defconfig

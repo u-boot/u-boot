@@ -1,0 +1,8 @@
+WANDBOARD BOARD
+M:	Fabio Estevam <fabio.estevam@freescale.com>
+S:	Maintained
+F:	board/wandboard/
+F:	include/configs/wandboard.h
+F:	configs/wandboard_dl_defconfig
+F:	configs/wandboard_quad_defconfig
+F:	configs/wandboard_solo_defconfig

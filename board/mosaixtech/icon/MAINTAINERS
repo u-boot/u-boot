@@ -1,0 +1,6 @@
+ICON BOARD
+M:	Stefan Roese <sr@denx.de>
+S:	Maintained
+F:	board/mosaixtech/icon/
+F:	include/configs/icon.h
+F:	configs/icon_defconfig

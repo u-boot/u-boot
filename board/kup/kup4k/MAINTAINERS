@@ -1,0 +1,6 @@
+KUP4K BOARD
+M:	Klaus Heydeck <heydeck@kieback-peter.de>
+S:	Maintained
+F:	board/kup/kup4k/
+F:	include/configs/KUP4K.h
+F:	configs/KUP4K_defconfig

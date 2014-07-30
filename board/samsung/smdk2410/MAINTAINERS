@@ -1,0 +1,6 @@
+SMDK2410 BOARD
+M:	David Müller <d.mueller@elsoft.ch>
+S:	Maintained
+F:	board/samsung/smdk2410/
+F:	include/configs/smdk2410.h
+F:	configs/smdk2410_defconfig

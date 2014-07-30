@@ -1,0 +1,6 @@
+MX6QARM2 BOARD
+M:	Jason Liu <r64343@freescale.com>
+S:	Maintained
+F:	board/freescale/mx6qarm2/
+F:	include/configs/mx6qarm2.h
+F:	configs/mx6qarm2_defconfig

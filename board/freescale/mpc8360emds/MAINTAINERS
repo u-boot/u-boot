@@ -1,0 +1,15 @@
+MPC8360EMDS BOARD
+M:	Dave Liu <daveliu@freescale.com>
+S:	Maintained
+F:	board/freescale/mpc8360emds/
+F:	include/configs/MPC8360EMDS.h
+F:	configs/MPC8360EMDS_33_defconfig
+F:	configs/MPC8360EMDS_33_ATM_defconfig
+F:	configs/MPC8360EMDS_33_HOST_33_defconfig
+F:	configs/MPC8360EMDS_33_HOST_66_defconfig
+F:	configs/MPC8360EMDS_33_SLAVE_defconfig
+F:	configs/MPC8360EMDS_66_defconfig
+F:	configs/MPC8360EMDS_66_ATM_defconfig
+F:	configs/MPC8360EMDS_66_HOST_33_defconfig
+F:	configs/MPC8360EMDS_66_HOST_66_defconfig
+F:	configs/MPC8360EMDS_66_SLAVE_defconfig

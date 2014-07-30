@@ -1,0 +1,6 @@
+PMC405DE BOARD
+M:	Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+S:	Maintained
+F:	board/esd/pmc405de/
+F:	include/configs/PMC405DE.h
+F:	configs/PMC405DE_defconfig

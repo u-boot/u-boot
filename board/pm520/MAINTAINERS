@@ -1,0 +1,9 @@
+PM520 BOARD
+M:	Josef Wagner <Wagner@Microsys.de>
+S:	Maintained
+F:	board/pm520/
+F:	include/configs/PM520.h
+F:	configs/PM520_defconfig
+F:	configs/PM520_DDR_defconfig
+F:	configs/PM520_ROMBOOT_defconfig
+F:	configs/PM520_ROMBOOT_DDR_defconfig

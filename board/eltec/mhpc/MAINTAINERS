@@ -1,0 +1,6 @@
+MHPC BOARD
+M:	Frank Gottschling <fgottschling@eltec.de>
+S:	Maintained
+F:	board/eltec/mhpc/
+F:	include/configs/MHPC.h
+F:	configs/MHPC_defconfig

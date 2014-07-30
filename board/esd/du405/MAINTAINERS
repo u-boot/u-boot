@@ -1,0 +1,6 @@
+DU405 BOARD
+M:	Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+S:	Maintained
+F:	board/esd/du405/
+F:	include/configs/DU405.h
+F:	configs/DU405_defconfig

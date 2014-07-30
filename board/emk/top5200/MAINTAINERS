@@ -1,0 +1,8 @@
+TOP5200 BOARD
+M:	Reinhard Meyer <reinhard.meyer@emk-elektronik.de>
+S:	Maintained
+F:	board/emk/top5200/
+F:	include/configs/TOP5200.h
+F:	configs/EVAL5200_defconfig
+F:	configs/MINI5200_defconfig
+F:	configs/TOP5200_defconfig

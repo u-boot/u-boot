@@ -1,0 +1,6 @@
+AC14XX BOARD
+M:	Anatolij Gustschin <agust@denx.de>
+S:	Maintained
+F:	board/ifm/ac14xx/
+F:	include/configs/ac14xx.h
+F:	configs/ac14xx_defconfig

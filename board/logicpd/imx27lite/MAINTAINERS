@@ -1,0 +1,12 @@
+IMX27LITE BOARD
+M:	Wolfgang Denk <wd@denx.de>
+S:	Maintained
+F:	board/logicpd/imx27lite/
+F:	include/configs/imx27lite.h
+F:	configs/imx27lite_defconfig
+
+MAGNESIUM BOARD
+M:	Heiko Schocher <hs@denx.de>
+S:	Maintained
+F:	include/configs/magnesium.h
+F:	configs/magnesium_defconfig

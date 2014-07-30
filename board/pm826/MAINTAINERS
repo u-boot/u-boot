@@ -1,0 +1,13 @@
+PM826 BOARD
+M:	Wolfgang Denk <wd@denx.de>
+S:	Maintained
+F:	board/pm826/
+F:	include/configs/PM826.h
+F:	configs/PM825_defconfig
+F:	configs/PM825_BIGFLASH_defconfig
+F:	configs/PM825_ROMBOOT_defconfig
+F:	configs/PM825_ROMBOOT_BIGFLASH_defconfig
+F:	configs/PM826_defconfig
+F:	configs/PM826_BIGFLASH_defconfig
+F:	configs/PM826_ROMBOOT_defconfig
+F:	configs/PM826_ROMBOOT_BIGFLASH_defconfig

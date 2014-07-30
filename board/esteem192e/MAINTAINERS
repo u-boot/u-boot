@@ -1,0 +1,6 @@
+ESTEEM192E BOARD
+M:	Conn Clark <clark@esteem.com>
+S:	Maintained
+F:	board/esteem192e/
+F:	include/configs/ESTEEM192E.h
+F:	configs/ESTEEM192E_defconfig

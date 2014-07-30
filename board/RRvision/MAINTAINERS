@@ -1,0 +1,7 @@
+RRVISION BOARD
+M:	Wolfgang Denk <wd@denx.de>
+S:	Maintained
+F:	board/RRvision/
+F:	include/configs/RRvision.h
+F:	configs/RRvision_defconfig
+F:	configs/RRvision_LCD_defconfig

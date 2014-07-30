@@ -1,0 +1,6 @@
+SNOWBALL BOARD
+M:	Mathieu Poirier <mathieu.poirier@linaro.org>
+S:	Maintained
+F:	board/st-ericsson/snowball/
+F:	include/configs/snowball.h
+F:	configs/snowball_defconfig

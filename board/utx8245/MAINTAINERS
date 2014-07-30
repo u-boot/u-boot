@@ -1,0 +1,6 @@
+UTX8245 BOARD
+M:	Greg Allen <gallen@arlut.utexas.edu>
+S:	Maintained
+F:	board/utx8245/
+F:	include/configs/utx8245.h
+F:	configs/utx8245_defconfig

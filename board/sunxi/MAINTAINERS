@@ -1,0 +1,19 @@
+SUNXI BOARD
+M:	Hans de Goede <hdegoede@redhat.com>
+S:	Maintained
+F:	board/sunxi/
+F:	include/configs/sun5i.h
+F:	configs/A13-OLinuXinoM_defconfig
+F:	include/configs/sun4i.h
+F:	configs/Cubieboard_defconfig
+F:	configs/r7-tv-dongle_defconfig
+
+CUBIEBOARD2 BOARD
+M:	Ian Campbell <ijc@hellion.org.uk>
+M:	Hans de Goede <hdegoede@redhat.com>
+S:	Maintained
+F:	include/configs/sun7i.h
+F:	configs/Cubieboard2_defconfig
+F:	configs/Cubieboard2_FEL_defconfig
+F:	configs/Cubietruck_defconfig
+F:	configs/Cubietruck_FEL_defconfig

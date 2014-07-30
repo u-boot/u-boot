@@ -1,0 +1,6 @@
+ARIA BOARD
+M:	Wolfgang Denk <wd@denx.de>
+S:	Maintained
+F:	board/davedenx/aria/
+F:	include/configs/aria.h
+F:	configs/aria_defconfig

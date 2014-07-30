@@ -1,0 +1,15 @@
+ZYNQ BOARD
+M:	Michal Simek <monstr@monstr.eu>
+M:	Jagannadha Sutradharudu Teki <jaganna@xilinx.com>
+S:	Maintained
+F:	board/xilinx/zynq/
+F:	include/configs/zynq_microzed.h
+F:	configs/zynq_microzed_defconfig
+F:	include/configs/zynq_zc70x.h
+F:	configs/zynq_zc70x_defconfig
+F:	include/configs/zynq_zc770.h
+F:	configs/zynq_zc770_xm010_defconfig
+F:	configs/zynq_zc770_xm012_defconfig
+F:	configs/zynq_zc770_xm013_defconfig
+F:	include/configs/zynq_zed.h
+F:	configs/zynq_zed_defconfig

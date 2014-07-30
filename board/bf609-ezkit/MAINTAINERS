@@ -1,0 +1,6 @@
+BF609-EZKIT BOARD
+M:	Sonic Zhang <sonic.adi@gmail.com>
+S:	Maintained
+F:	board/bf609-ezkit/
+F:	include/configs/bf609-ezkit.h
+F:	configs/bf609-ezkit_defconfig
