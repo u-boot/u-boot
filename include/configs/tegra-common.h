@@ -131,7 +131,7 @@
 #define CONFIG_CMD_ENTERRCM
 
 /* Defines for SPL */
-#define CONFIG_SPL
+#define CONFIG_SPL 1
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_RAM_DEVICE
 #define CONFIG_SPL_BOARD_INIT

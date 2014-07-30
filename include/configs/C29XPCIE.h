@@ -24,8 +24,8 @@
 #endif
 
 #ifdef CONFIG_NAND
-#define CONFIG_SPL
-#define CONFIG_TPL
+#define CONFIG_SPL 1
+#define CONFIG_TPL 1
 #ifdef CONFIG_TPL_BUILD
 #define CONFIG_SPL_NAND_BOOT
 #define CONFIG_SPL_FLUSH_IMAGE

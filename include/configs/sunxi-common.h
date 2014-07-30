@@ -127,7 +127,7 @@
 
 #ifdef CONFIG_SPL_FEL
 
-#define CONFIG_SPL
+#define CONFIG_SPL	1
 #define CONFIG_SPL_LDSCRIPT "arch/arm/cpu/armv7/sunxi/u-boot-spl-fel.lds"
 #define CONFIG_SPL_START_S_PATH "arch/arm/cpu/armv7/sunxi"
 #define CONFIG_SPL_TEXT_BASE		0x2000

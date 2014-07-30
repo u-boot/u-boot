@@ -40,7 +40,7 @@ COBJS-$(CONFIG_SPL_BUILD) += foo.o
 
 The building of SPL images can be with:
 
-#define CONFIG_SPL
+#define CONFIG_SPL 1
 
 Because SPL images normally have a different text base, one has to be
 configured by defining CONFIG_SPL_TEXT_BASE. The linker script has to be

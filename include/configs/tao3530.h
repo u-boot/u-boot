@@ -301,7 +301,7 @@
 #define CONGIG_CMD_STORAGE
 
 /* Defines for SPL */
-#define CONFIG_SPL
+#define CONFIG_SPL 1
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_NAND_SIMPLE
 
