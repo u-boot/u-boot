@@ -43,7 +43,7 @@ const struct omap_sysinfo sysinfo = {
  */
 int board_init(void)
 {
-	gd->bd->bi_boot_params = (CONFIG_SYS_SDRAM_BASE + 0x100); /* boot param addr */
+	gd->bd->bi_boot_params = (CONFIG_SYS_SDRAM_BASE + 0x100);
 
 	return 0;
 }
@@ -169,7 +169,7 @@ static int handle_mac_address(void)
 		return 0;
 
 	ret = cl_eeprom_read_mac_addr(enetaddr);
-	if (!ret || !is_valid_ether_addr(enetaddr))
+	if (ret || !is_valid_ether_addr(enetaddr))
 		generate_mac_addr(enetaddr);
 
 	if (!is_valid_ether_addr(enetaddr))
