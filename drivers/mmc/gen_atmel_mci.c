@@ -110,6 +110,9 @@ static void mci_set_mode(struct mmc *mmc, u32 hz, u32 blklen)
 	if (version >= 0x200)
 		writel(MMCI_BF(BLKLEN, blklen), &mci->blkr);
 
+	if (mmc->card_caps & mmc->cfg->host_caps & MMC_MODE_HS)
+		writel(MMCI_BIT(HSMODE), &mci->cfg);
+
 	initialized = 1;
 }
 
@@ -404,8 +407,10 @@ int atmel_mci_init(void *regs)
 	/* need to be able to pass these in on a board by board basis */
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 	version = atmel_mci_get_version(mci);
-	if ((version & 0xf00) >= 0x300)
+	if ((version & 0xf00) >= 0x300) {
 		cfg->host_caps = MMC_MODE_8BIT;
+		cfg->host_caps |= MMC_MODE_HS | MMC_MODE_HS_52MHz;
+	}
 
 	cfg->host_caps |= MMC_MODE_4BIT;
 
