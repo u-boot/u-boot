@@ -295,7 +295,10 @@ phys_addr_t __lmb_alloc_base(struct lmb *lmb, phys_size_t size, ulong align, phy
 		if (max_addr == LMB_ALLOC_ANYWHERE)
 			base = lmb_align_down(lmbbase + lmbsize - size, align);
 		else if (lmbbase < max_addr) {
-			base = min(lmbbase + lmbsize, max_addr);
+			base = lmbbase + lmbsize;
+			if (base < lmbbase)
+				base = -1;
+			base = min(base, max_addr);
 			base = lmb_align_down(base - size, align);
 		} else
 			continue;
