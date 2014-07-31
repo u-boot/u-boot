@@ -556,7 +556,7 @@ const struct ctrl_ioregs ioregs_dra7xx_es1 = {
 	.ctrl_ddrio_1 = 0x84210840,
 	.ctrl_ddrio_2 = 0x84210000,
 	.ctrl_emif_sdram_config_ext = 0x0001C1A7,
-	.ctrl_emif_sdram_config_ext_final = 0x000101A7,
+	.ctrl_emif_sdram_config_ext_final = 0x0001C1A7,
 	.ctrl_ddr_ctrl_ext_0 = 0xA2000000,
 };
 
