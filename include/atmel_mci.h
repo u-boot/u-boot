@@ -67,6 +67,10 @@ typedef struct atmel_mci {
 #define MMCI_PDCPADV_SIZE			1
 #define MMCI_PDCMODE_OFFSET			15
 #define MMCI_PDCMODE_SIZE			1
+/* MCI IP version >= 0x500, MR bit 16 used for CLKODD */
+#define MMCI_CLKODD_OFFSET			16
+#define MMCI_CLKODD_SIZE			1
+/* MCI IP version < 0x200, MR higher 16bits for BLKLEN */
 #define MMCI_BLKLEN_OFFSET			16
 #define MMCI_BLKLEN_SIZE			16
 
