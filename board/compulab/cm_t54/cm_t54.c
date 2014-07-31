@@ -89,7 +89,7 @@ uint mmc_get_env_part(struct mmc *mmc)
 	 * If booted from eMMC boot partition then force eMMC
 	 * FIRST boot partition to be env storage
 	 */
-	if (bootmode == BOOT_DEVICE_MMC2_2)
+	if (bootmode == BOOT_DEVICE_MMC2)
 		bootpart = 1;
 
 	return bootpart;
