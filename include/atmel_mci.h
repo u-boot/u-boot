@@ -36,7 +36,9 @@ typedef struct atmel_mci {
 	u32	ier;	/* 0x44 */
 	u32	idr;	/* 0x48 */
 	u32	imr;	/* 0x4c */
-	u32	reserved[43];
+	u32	dma;	/* 0x50 */
+	u32	cfg;	/* 0x54 */
+	u32	reserved[41];
 	u32	version;
 } atmel_mci_t;
 
@@ -188,6 +190,16 @@ typedef struct atmel_mci {
 #define MMCI_TRTYP_BLOCK			0
 #define MMCI_TRTYP_MULTI_BLOCK			1
 #define MMCI_TRTYP_STREAM			2
+
+/* Bitfields in CFG */
+#define MMCI_FIFOMODE_OFFSET			0
+#define MMCI_FIFOMODE_SIZE			1
+#define MMCI_FERRCTRL_OFFSET			4
+#define MMCI_FERRCTRL_SIZE			1
+#define MMCI_HSMODE_OFFSET			8
+#define MMCI_HSMODE_SIZE			1
+#define MMCI_LSYNC_OFFSET			12
+#define MMCI_LSYNC_SIZE				1
 
 /* Bit manipulation macros */
 #define MMCI_BIT(name)					\
