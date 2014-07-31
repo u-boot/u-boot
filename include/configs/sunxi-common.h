@@ -123,9 +123,6 @@
 #define CONFIG_ENV_OFFSET		(544 << 10) /* (8 + 24 + 512) KiB */
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	"bootm_size=0x10000000\0"
-
 #include <config_cmd_default.h>
 #undef CONFIG_CMD_FPGA
 
@@ -219,6 +216,28 @@
 
 #ifndef CONFIG_SPL_BUILD
 #include <config_distro_defaults.h>
+
+#ifdef CONFIG_AHCI
+#define BOOT_TARGET_DEVICES_SCSI(func) func(SCSI, scsi, 0)
+#else
+#define BOOT_TARGET_DEVICES_SCSI(func)
+#endif
+
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0) \
+	BOOT_TARGET_DEVICES_SCSI(func) \
+	func(USB, usb, 0) \
+	func(PXE, pxe, na) \
+	func(DHCP, dhcp, na)
+
+#include <config_distro_bootcmd.h>
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	"bootm_size=0x10000000\0" \
+	BOOTENV
+
+#else /* ifndef CONFIG_SPL_BUILD */
+#define CONFIG_EXTRA_ENV_SETTINGS
 #endif
 
 #endif /* _SUNXI_COMMON_CONFIG_H */
