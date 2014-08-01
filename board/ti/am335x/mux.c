@@ -345,12 +345,7 @@ void enable_board_pin_mux(struct am335x_baseboard_id *header)
 			configure_module_pin_mux(spi0_pin_mux);
 		}
 	} else if (board_is_idk(header)) {
-		/*
-		 * Industrial Motor Control (IDK)
-		 * note: IDK console is on UART3 by default.
-		 *       So u-boot mus be build with CONFIG_SERIAL4 and
-		 *       CONFIG_CONS_INDEX=4
-		 */
+		/* Industrial Motor Control (IDK) */
 		configure_module_pin_mux(mii1_pin_mux);
 		configure_module_pin_mux(mmc0_no_cd_pin_mux);
 	} else if (board_is_evm_sk(header)) {
