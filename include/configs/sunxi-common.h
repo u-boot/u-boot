@@ -100,10 +100,10 @@
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#define CONFIG_SYS_LOAD_ADDR		0x48000000 /* default load address */
+#define CONFIG_SYS_LOAD_ADDR		0x42000000 /* default load address */
 
 /* standalone support */
-#define CONFIG_STANDALONE_LOAD_ADDR	0x48000000
+#define CONFIG_STANDALONE_LOAD_ADDR	0x42000000
 
 #define CONFIG_SYS_HZ			1000
 
@@ -217,6 +217,16 @@
 #ifndef CONFIG_SPL_BUILD
 #include <config_distro_defaults.h>
 
+/* 256M RAM (minimum), 32M uncompressed kernel, 16M compressed kernel, 1M fdt,
+ * 1M script, 1M pxe and the ramdisk at the end */
+#define MEM_LAYOUT_ENV_SETTINGS \
+	"bootm_size=0x10000000\0" \
+	"kernel_addr_r=0x42000000\0" \
+	"fdt_addr_r=0x43000000\0" \
+	"scriptaddr=0x43100000\0" \
+	"pxefile_addr_r=0x43200000\0" \
+	"ramdisk_addr_r=0x43300000\0"
+
 #ifdef CONFIG_AHCI
 #define BOOT_TARGET_DEVICES_SCSI(func) func(SCSI, scsi, 0)
 #else
@@ -233,7 +243,9 @@
 #include <config_distro_bootcmd.h>
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"bootm_size=0x10000000\0" \
+	MEM_LAYOUT_ENV_SETTINGS \
+	"fdtfile=" CONFIG_FTDFILE "\0" \
+	"console=ttyS0,115200\0" \
 	BOOTENV
 
 #else /* ifndef CONFIG_SPL_BUILD */
