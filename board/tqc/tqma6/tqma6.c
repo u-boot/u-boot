@@ -229,10 +229,10 @@ int board_late_init(void)
 	 * fixed in generic power code
 	 */
 	power_pfuze100_init(TQMA6_PFUZE100_I2C_BUS);
-	p = pmic_get("PFUZE100_PMIC");
+	p = pmic_get("PFUZE100");
 	if (p && !pmic_probe(p)) {
 		pmic_reg_read(p, PFUZE100_DEVICEID, &reg);
-		printf("PMIC: PFUZE100_PMIC ID=0x%02x\n", reg);
+		printf("PMIC: PFUZE100 ID=0x%02x\n", reg);
 	}
 
 	tqma6_bb_board_late_init();

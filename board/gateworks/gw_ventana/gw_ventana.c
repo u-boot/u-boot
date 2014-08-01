@@ -903,7 +903,7 @@ int power_init_board(void)
 	/* configure PFUZE100 PMIC */
 	if (board_type == GW54xx || board_type == GW54proto) {
 		power_pfuze100_init(I2C_PMIC);
-		p = pmic_get("PFUZE100_PMIC");
+		p = pmic_get("PFUZE100");
 		if (p && !pmic_probe(p)) {
 			pmic_reg_read(p, PFUZE100_DEVICEID, &reg);
 			printf("PMIC:  PFUZE100 ID=0x%02x\n", reg);
