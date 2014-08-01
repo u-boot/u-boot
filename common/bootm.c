@@ -731,26 +731,7 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 	int		os_noffset;
 #endif
 
-	/* find out kernel image address */
-	if (argc < 1) {
-		img_addr = load_addr;
-		debug("*  kernel: default image load address = 0x%08lx\n",
-		      load_addr);
-#if defined(CONFIG_FIT)
-	} else if (fit_parse_conf(argv[0], load_addr, &img_addr,
-				  &fit_uname_config)) {
-		debug("*  kernel: config '%s' from image at 0x%08lx\n",
-		      fit_uname_config, img_addr);
-	} else if (fit_parse_subimage(argv[0], load_addr, &img_addr,
-				     &fit_uname_kernel)) {
-		debug("*  kernel: subimage '%s' from image at 0x%08lx\n",
-		      fit_uname_kernel, img_addr);
-#endif
-	} else {
-		img_addr = simple_strtoul(argv[0], NULL, 16);
-		debug("*  kernel: cmdline image address = 0x%08lx\n",
-		      img_addr);
-	}
+	img_addr = genimg_get_kernel_addr(argv[0]);
 
 	bootstage_mark(BOOTSTAGE_ID_CHECK_MAGIC);
 
@@ -807,6 +788,10 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 #endif
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
+		if (!fit_parse_conf(argv[0], load_addr, &img_addr,
+					&fit_uname_config))
+			fit_parse_subimage(argv[0], load_addr, &img_addr,
+					&fit_uname_kernel);
 		os_noffset = fit_image_load(images, img_addr,
 				&fit_uname_kernel, &fit_uname_config,
 				IH_ARCH_DEFAULT, IH_TYPE_KERNEL,
