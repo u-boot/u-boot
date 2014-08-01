@@ -404,8 +404,6 @@ struct iomuxc {
 	u8 reserved[0x4000];
 #endif
 	u32 gpr[14];
-	u32 omux[5];
-	/* mux and pad registers */
 };
 
 #define IOMUXC_GPR2_COUNTER_RESET_VAL_OFFSET		20
