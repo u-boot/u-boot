@@ -250,4 +250,12 @@
 /* Enable Time Command */
 #define CONFIG_CMD_TIME
 
+#define CONFIG_S5P_PA_SYSRAM	0x02020000
+#define CONFIG_SMP_PEN_ADDR	CONFIG_S5P_PA_SYSRAM
+
+/* The PERIPHBASE in the CBAR register is wrong on the Arndale, so override it */
+#define CONFIG_ARM_GIC_BASE_ADDRESS	0x10480000
+
+#define CONFIG_ARMV7_VIRT
+
 #endif	/* __CONFIG_H */
