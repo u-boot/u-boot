@@ -538,6 +538,12 @@ The following options need to be configured:
 		interleaving mode, handled by Dickens for Freescale layerscape
 		SoCs with ARM core.
 
+		CONFIG_SYS_FSL_DDR_MAIN_NUM_CTRLS
+		Number of controllers used as main memory.
+
+		CONFIG_SYS_FSL_OTHER_DDR_NUM_CTRLS
+		Number of controllers used for other than main memory.
+
 - Intel Monahans options:
 		CONFIG_SYS_MONAHANS_RUN_MODE_OSC_RATIO
 

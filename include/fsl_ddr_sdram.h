@@ -379,12 +379,20 @@ typedef struct memctl_options_s {
 	unsigned int trwt;			/* read-to-write turnaround */
 } memctl_options_t;
 
-extern phys_size_t fsl_ddr_sdram(void);
-extern phys_size_t fsl_ddr_sdram_size(void);
+phys_size_t fsl_ddr_sdram(void);
+phys_size_t fsl_ddr_sdram_size(void);
+phys_size_t fsl_other_ddr_sdram(unsigned long long base,
+				unsigned int first_ctrl,
+				unsigned int num_ctrls,
+				unsigned int dimm_slots_per_ctrl,
+				int (*board_need_reset)(void),
+				void (*board_reset)(void),
+				void (*board_de_reset)(void));
 extern int fsl_use_spd(void);
-extern void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
-					unsigned int ctrl_num, int step);
+void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
+			     unsigned int ctrl_num, int step);
 u32 fsl_ddr_get_intl3r(void);
+void print_ddr_info(unsigned int start_ctrl);
 
 static void __board_assert_mem_reset(void)
 {
