@@ -61,9 +61,7 @@ my %commit_author_hash;
 my %commit_signer_hash;
 
 my @penguin_chief = ();
-push(@penguin_chief, "Linus Torvalds:torvalds\@linux-foundation.org");
-#Andrew wants in on most everything - 2009/01/14
-#push(@penguin_chief, "Andrew Morton:akpm\@linux-foundation.org");
+push(@penguin_chief, "Tom Rini:trini\@ti.com");
 
 my @penguin_chief_names = ();
 foreach my $chief (@penguin_chief) {
@@ -817,22 +815,25 @@ sub top_of_kernel_tree {
     if ($lk_path ne "" && substr($lk_path,length($lk_path)-1,1) ne "/") {
 	$lk_path .= "/";
     }
-    if (   (-f "${lk_path}COPYING")
-	&& (-f "${lk_path}CREDITS")
+    if (   (-f "${lk_path}CREDITS")
 	&& (-f "${lk_path}Kbuild")
 	&& (-f "${lk_path}MAINTAINERS")
 	&& (-f "${lk_path}Makefile")
 	&& (-f "${lk_path}README")
-	&& (-d "${lk_path}Documentation")
 	&& (-d "${lk_path}arch")
-	&& (-d "${lk_path}include")
+	&& (-d "${lk_path}board")
+	&& (-d "${lk_path}common")
+	&& (-d "${lk_path}doc")
 	&& (-d "${lk_path}drivers")
+	&& (-d "${lk_path}dts")
 	&& (-d "${lk_path}fs")
-	&& (-d "${lk_path}init")
-	&& (-d "${lk_path}ipc")
-	&& (-d "${lk_path}kernel")
 	&& (-d "${lk_path}lib")
-	&& (-d "${lk_path}scripts")) {
+	&& (-d "${lk_path}include")
+	&& (-d "${lk_path}net")
+	&& (-d "${lk_path}post")
+	&& (-d "${lk_path}scripts")
+	&& (-d "${lk_path}test")
+	&& (-d "${lk_path}tools")) {
 	return 1;
     }
     return 0;
