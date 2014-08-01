@@ -127,6 +127,7 @@
 	"bootm_size=0x10000000\0"
 
 #include <config_cmd_default.h>
+#undef CONFIG_CMD_FPGA
 
 #define CONFIG_FAT_WRITE	/* enable write access */
 
@@ -165,9 +166,6 @@
 #define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 #define CONFIG_SYS_SPL_MALLOC_START	0x4ff00000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x00080000	/* 512 KiB */
-
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_NET
 
 /* I2C */
 #define CONFIG_SPL_I2C_SUPPORT
