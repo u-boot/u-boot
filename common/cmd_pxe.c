@@ -1,5 +1,6 @@
 /*
  * Copyright 2010-2011 Calxeda, Inc.
+ * Copyright (c) 2014, NVIDIA CORPORATION.  All rights reserved.
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
@@ -609,6 +610,8 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 	char *bootargs;
 	int bootm_argc = 3;
 	int len = 0;
+	ulong kernel_addr;
+	void *buf;
 
 	label_print(label);
 
@@ -771,11 +774,15 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 	if (bootm_argv[3])
 		bootm_argc = 4;
 
-	do_bootm(cmdtp, 0, bootm_argc, bootm_argv);
-
+	kernel_addr = genimg_get_kernel_addr(bootm_argv[1]);
+	buf = map_sysmem(kernel_addr, 0);
+	/* Try bootm for legacy and FIT format image */
+	if (genimg_get_format(buf) != IMAGE_FORMAT_INVALID)
+		do_bootm(cmdtp, 0, bootm_argc, bootm_argv);
 #ifdef CONFIG_CMD_BOOTZ
-	/* Try booting a zImage if do_bootm returns */
-	do_bootz(cmdtp, 0, bootm_argc, bootm_argv);
+	/* Try booting a zImage */
+	else
+		do_bootz(cmdtp, 0, bootm_argc, bootm_argv);
 #endif
 	return 1;
 }
