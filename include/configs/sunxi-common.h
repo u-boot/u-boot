@@ -126,8 +126,6 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootm_size=0x10000000\0"
 
-#define CONFIG_SYS_BOOT_GET_CMDLINE
-
 #include <config_cmd_default.h>
 
 #define CONFIG_FAT_WRITE	/* enable write access */
