@@ -168,7 +168,6 @@
 
 #undef CONFIG_CMD_FPGA
 #undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
 
 /* I2C */
 #define CONFIG_SPL_I2C_SUPPORT
