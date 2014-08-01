@@ -432,7 +432,7 @@ struct mxc_ccm_reg {
 #define MXC_CCM_CLPCR_BYP_MMDC_CH0_LPM_HS		(1 << 19)
 #define MXC_CCM_CLPCR_WB_CORE_AT_LPM			(1 << 17)
 #endif
-#define MXC_CCM_CLPCR_WB_PER_AT_LPM			(1 << 17)
+#define MXC_CCM_CLPCR_WB_PER_AT_LPM			(1 << 16)
 #define MXC_CCM_CLPCR_COSC_PWRDOWN			(1 << 11)
 #define MXC_CCM_CLPCR_STBY_COUNT_MASK			(0x3 << 9)
 #define MXC_CCM_CLPCR_STBY_COUNT_OFFSET			9
