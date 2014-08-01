@@ -16,6 +16,7 @@ my $P = $0;
 my $V = '0.26';
 
 use Getopt::Long qw(:config no_auto_abbrev);
+use File::Find;
 
 my $lk_path = "./";
 my $email = 1;
@@ -273,34 +274,53 @@ if (!top_of_kernel_tree($lk_path)) {
 my @typevalue = ();
 my %keyword_hash;
 
-open (my $maint, '<', "${lk_path}MAINTAINERS")
-    or die "$P: Can't open MAINTAINERS: $!\n";
-while (<$maint>) {
-    my $line = $_;
+my @maint_files = ();
+push(@maint_files, "${lk_path}MAINTAINERS");
 
-    if ($line =~ m/^(\C):\s*(.*)/) {
-	my $type = $1;
-	my $value = $2;
+sub maint_wanted {
+    return unless $_ =~ /^MAINTAINERS/;
+    push(@maint_files, "$File::Find::name");
+}
 
-	##Filename pattern matching
-	if ($type eq "F" || $type eq "X") {
-	    $value =~ s@\.@\\\.@g;       ##Convert . to \.
-	    $value =~ s/\*/\.\*/g;       ##Convert * to .*
-	    $value =~ s/\?/\./g;         ##Convert ? to .
-	    ##if pattern is a directory and it lacks a trailing slash, add one
-	    if ((-d $value)) {
-		$value =~ s@([^/])$@$1/@;
+File::Find::find(\&maint_wanted, "${lk_path}board");
+
+foreach my $maint_file (@maint_files) {
+    my $maint;
+    open ($maint, '<', "$maint_file")
+	or die "$P: Can't open $maint_file: $!\n";
+    read_maintainers($maint);
+    close($maint);
+}
+
+sub read_maintainers {
+    my ($maint) = @_;
+
+    while (<$maint>) {
+	my $line = $_;
+
+	if ($line =~ m/^(\C):\s*(.*)/) {
+	    my $type = $1;
+	    my $value = $2;
+
+	    ##Filename pattern matching
+	    if ($type eq "F" || $type eq "X") {
+		$value =~ s@\.@\\\.@g;       ##Convert . to \.
+		$value =~ s/\*/\.\*/g;       ##Convert * to .*
+		$value =~ s/\?/\./g;         ##Convert ? to .
+		##if pattern is a directory and it lacks a trailing slash, add one
+		if ((-d $value)) {
+		    $value =~ s@([^/])$@$1/@;
+		}
+	    } elsif ($type eq "K") {
+		$keyword_hash{@typevalue} = $value;
 	    }
-	} elsif ($type eq "K") {
-	    $keyword_hash{@typevalue} = $value;
+	    push(@typevalue, "$type:$value");
+	} elsif (!/^(\s)*$/) {
+	    $line =~ s/\n$//g;
+	    push(@typevalue, $line);
 	}
-	push(@typevalue, "$type:$value");
-    } elsif (!/^(\s)*$/) {
-	$line =~ s/\n$//g;
-	push(@typevalue, $line);
     }
 }
-close($maint);
 
 
 #
