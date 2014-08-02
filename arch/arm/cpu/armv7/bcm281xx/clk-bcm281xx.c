@@ -118,6 +118,16 @@ unsigned long slave_apb_freq_tbl[8] = {
 	78 * CLOCK_1M
 };
 
+unsigned long esub_freq_tbl[8] = {
+	78 * CLOCK_1M,
+	156 * CLOCK_1M,
+	156 * CLOCK_1M,
+	156 * CLOCK_1M,
+	208 * CLOCK_1M,
+	208 * CLOCK_1M,
+	208 * CLOCK_1M
+};
+
 static struct bus_clk_data bsc1_apb_data = {
 	.gate = HW_SW_GATE_AUTO(0x0458, 16, 0, 1),
 };
@@ -294,6 +304,27 @@ static struct ccu_clock kps_ccu_clk = {
 	.freq_id = 2,
 	.freq_tbl = slave_axi_freq_tbl,
 };
+
+#ifdef CONFIG_BCM_SF2_ETH
+static struct ccu_clock esub_ccu_clk = {
+	.clk = {
+		.name = "esub_ccu_clk",
+		.ops = &ccu_clk_ops,
+		.ccu_clk_mgr_base = ESUB_CLK_BASE_ADDR,
+	},
+	.num_policy_masks = 1,
+	.policy_freq_offset = 0x00000008,
+	.freq_bit_shift = 8,
+	.policy_ctl_offset = 0x0000000c,
+	.policy0_mask_offset = 0x00000010,
+	.policy1_mask_offset = 0x00000014,
+	.policy2_mask_offset = 0x00000018,
+	.policy3_mask_offset = 0x0000001c,
+	.lvm_en_offset = 0x00000034,
+	.freq_id = 2,
+	.freq_tbl = esub_freq_tbl,
+};
+#endif
 
 /*
  * Bus clocks
@@ -517,6 +548,9 @@ struct clk_lookup arch_clk_tbl[] = {
 	CLK_LK(bsc1_apb),
 	CLK_LK(bsc2_apb),
 	CLK_LK(bsc3_apb),
+#ifdef CONFIG_BCM_SF2_ETH
+	CLK_LK(esub_ccu),
+#endif
 };
 
 /* public array size */
