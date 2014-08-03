@@ -243,7 +243,7 @@ static void mctl_setup_dram_clock(u32 clk, u32 mbus_clk)
 	/* PLL5P and PLL6 are the potential clock sources for MBUS */
 	u32 pll6x_div, pll5p_div;
 	u32 pll6x_clk = clock_get_pll6() / 1000000;
-	u32 pll5p_clk = clk / 24 * 24;
+	u32 pll5p_clk = clk / 24 * 48;
 	u32 pll5p_rate, pll6x_rate;
 #ifdef CONFIG_SUN7I
 	pll6x_clk *= 2; /* sun7i uses PLL6*2, sun5i uses just PLL6 */
@@ -256,46 +256,40 @@ static void mctl_setup_dram_clock(u32 clk, u32 mbus_clk)
 	reg_val &= ~CCM_PLL5_CTRL_N_MASK;		/* set N to 0 (x0) */
 	reg_val &= ~CCM_PLL5_CTRL_P_MASK;		/* set P to 0 (x1) */
 	if (clk >= 540 && clk < 552) {
-		/* dram = 540MHz, pll5p = 540MHz */
-		pll5p_clk = 540;
+		/* dram = 540MHz, pll5p = 1080MHz */
+		pll5p_clk = 1080;
 		reg_val |= CCM_PLL5_CTRL_M(CCM_PLL5_CTRL_M_X(2));
 		reg_val |= CCM_PLL5_CTRL_K(CCM_PLL5_CTRL_K_X(3));
 		reg_val |= CCM_PLL5_CTRL_N(CCM_PLL5_CTRL_N_X(15));
-		reg_val |= CCM_PLL5_CTRL_P(1);
 	} else if (clk >= 512 && clk < 528) {
-		/* dram = 512MHz, pll5p = 384MHz */
-		pll5p_clk = 384;
+		/* dram = 512MHz, pll5p = 1536MHz */
+		pll5p_clk = 1536;
 		reg_val |= CCM_PLL5_CTRL_M(CCM_PLL5_CTRL_M_X(3));
 		reg_val |= CCM_PLL5_CTRL_K(CCM_PLL5_CTRL_K_X(4));
 		reg_val |= CCM_PLL5_CTRL_N(CCM_PLL5_CTRL_N_X(16));
-		reg_val |= CCM_PLL5_CTRL_P(2);
 	} else if (clk >= 496 && clk < 504) {
-		/* dram = 496MHz, pll5p = 372MHz */
-		pll5p_clk = 372;
+		/* dram = 496MHz, pll5p = 1488MHz */
+		pll5p_clk = 1488;
 		reg_val |= CCM_PLL5_CTRL_M(CCM_PLL5_CTRL_M_X(3));
 		reg_val |= CCM_PLL5_CTRL_K(CCM_PLL5_CTRL_K_X(2));
 		reg_val |= CCM_PLL5_CTRL_N(CCM_PLL5_CTRL_N_X(31));
-		reg_val |= CCM_PLL5_CTRL_P(2);
 	} else if (clk >= 468 && clk < 480) {
-		/* dram = 468MHz, pll5p = 468MHz */
-		pll5p_clk = 468;
+		/* dram = 468MHz, pll5p = 936MHz */
+		pll5p_clk = 936;
 		reg_val |= CCM_PLL5_CTRL_M(CCM_PLL5_CTRL_M_X(2));
 		reg_val |= CCM_PLL5_CTRL_K(CCM_PLL5_CTRL_K_X(3));
 		reg_val |= CCM_PLL5_CTRL_N(CCM_PLL5_CTRL_N_X(13));
-		reg_val |= CCM_PLL5_CTRL_P(1);
 	} else if (clk >= 396 && clk < 408) {
-		/* dram = 396MHz, pll5p = 396MHz */
-		pll5p_clk = 396;
+		/* dram = 396MHz, pll5p = 792MHz */
+		pll5p_clk = 792;
 		reg_val |= CCM_PLL5_CTRL_M(CCM_PLL5_CTRL_M_X(2));
 		reg_val |= CCM_PLL5_CTRL_K(CCM_PLL5_CTRL_K_X(3));
 		reg_val |= CCM_PLL5_CTRL_N(CCM_PLL5_CTRL_N_X(11));
-		reg_val |= CCM_PLL5_CTRL_P(1);
 	} else 	{
 		/* any other frequency that is a multiple of 24 */
 		reg_val |= CCM_PLL5_CTRL_M(CCM_PLL5_CTRL_M_X(2));
 		reg_val |= CCM_PLL5_CTRL_K(CCM_PLL5_CTRL_K_X(2));
 		reg_val |= CCM_PLL5_CTRL_N(CCM_PLL5_CTRL_N_X(clk / 24));
-		reg_val |= CCM_PLL5_CTRL_P(CCM_PLL5_CTRL_P_X(2));
 	}
 	reg_val &= ~CCM_PLL5_CTRL_VCO_GAIN;		/* PLL VCO Gain off */
 	reg_val |= CCM_PLL5_CTRL_EN;			/* PLL On */
