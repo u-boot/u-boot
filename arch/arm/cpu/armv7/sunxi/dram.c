@@ -451,6 +451,21 @@ static void dramc_set_autorefresh_cycle(u32 clk, u32 density)
 	writel(DRAM_DRR_TREFI(tREFI) | DRAM_DRR_TRFC(tRFC), &dram->drr);
 }
 
+/* Calculate the value for A11, A10, A9 bits in MR0 (write recovery) */
+static u32 ddr3_write_recovery(u32 clk)
+{
+	u32 twr_ns = 15; /* DDR3 spec says that it is 15ns for all speed bins */
+	u32 twr_ck = (twr_ns * clk + 999) / 1000;
+	if (twr_ck < 5)
+		return 1;
+	else if (twr_ck <= 8)
+		return twr_ck - 4;
+	else if (twr_ck <= 10)
+		return 5;
+	else
+		return 6;
+}
+
 /*
  * If the dram->ppwrsctl (SDR_DPCR) register has the lowest bit set to 1, this
  * means that DRAM is currently in self-refresh mode and retaining the old
@@ -647,7 +662,7 @@ unsigned long dramc_init(struct dram_para *para)
 	reg_val |= DRAM_MR_POWER_DOWN;
 #endif
 	reg_val |= DRAM_MR_CAS_LAT(para->cas - 4);
-	reg_val |= DRAM_MR_WRITE_RECOVERY(0x5);
+	reg_val |= DRAM_MR_WRITE_RECOVERY(ddr3_write_recovery(para->clock));
 	writel(reg_val, &dram->mr);
 
 	writel(para->emr1, &dram->emr);
