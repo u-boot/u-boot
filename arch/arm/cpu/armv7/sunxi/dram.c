@@ -321,117 +321,6 @@ static int dramc_scan_readpipe(void)
 	return 0;
 }
 
-static int dramc_scan_dll_para(void)
-{
-	struct sunxi_dram_reg *dram = (struct sunxi_dram_reg *)SUNXI_DRAMC_BASE;
-	const u32 dqs_dly[7] = {0x3, 0x2, 0x1, 0x0, 0xe, 0xd, 0xc};
-	const u32 clk_dly[15] = {0x07, 0x06, 0x05, 0x04, 0x03,
-				 0x02, 0x01, 0x00, 0x08, 0x10,
-				 0x18, 0x20, 0x28, 0x30, 0x38};
-	u32 clk_dqs_count[15];
-	u32 dqs_i, clk_i, cr_i;
-	u32 max_val, min_val;
-	u32 dqs_index, clk_index;
-
-	/* Find DQS_DLY Pass Count for every CLK_DLY */
-	for (clk_i = 0; clk_i < 15; clk_i++) {
-		clk_dqs_count[clk_i] = 0;
-		clrsetbits_le32(&dram->dllcr[0], 0x3f << 6,
-				(clk_dly[clk_i] & 0x3f) << 6);
-		for (dqs_i = 0; dqs_i < 7; dqs_i++) {
-			for (cr_i = 1; cr_i < 5; cr_i++) {
-				clrsetbits_le32(&dram->dllcr[cr_i],
-						0x4f << 14,
-						(dqs_dly[dqs_i] & 0x4f) << 14);
-			}
-			udelay(2);
-			if (dramc_scan_readpipe() == 0)
-				clk_dqs_count[clk_i]++;
-		}
-	}
-	/* Test DQS_DLY Pass Count for every CLK_DLY from up to down */
-	for (dqs_i = 15; dqs_i > 0; dqs_i--) {
-		max_val = 15;
-		min_val = 15;
-		for (clk_i = 0; clk_i < 15; clk_i++) {
-			if (clk_dqs_count[clk_i] == dqs_i) {
-				max_val = clk_i;
-				if (min_val == 15)
-					min_val = clk_i;
-			}
-		}
-		if (max_val < 15)
-			break;
-	}
-
-	/* Check if Find a CLK_DLY failed */
-	if (!dqs_i)
-		goto fail;
-
-	/* Find the middle index of CLK_DLY */
-	clk_index = (max_val + min_val) >> 1;
-	if ((max_val == (15 - 1)) && (min_val > 0))
-		/* if CLK_DLY[MCTL_CLK_DLY_COUNT] is very good, then the middle
-		 * value can be more close to the max_val
-		 */
-		clk_index = (15 + clk_index) >> 1;
-	else if ((max_val < (15 - 1)) && (min_val == 0))
-		/* if CLK_DLY[0] is very good, then the middle value can be more
-		 * close to the min_val
-		 */
-		clk_index >>= 1;
-	if (clk_dqs_count[clk_index] < dqs_i)
-		clk_index = min_val;
-
-	/* Find the middle index of DQS_DLY for the CLK_DLY got above, and Scan
-	 * read pipe again
-	 */
-	clrsetbits_le32(&dram->dllcr[0], 0x3f << 6,
-			(clk_dly[clk_index] & 0x3f) << 6);
-	max_val = 7;
-	min_val = 7;
-	for (dqs_i = 0; dqs_i < 7; dqs_i++) {
-		clk_dqs_count[dqs_i] = 0;
-		for (cr_i = 1; cr_i < 5; cr_i++) {
-			clrsetbits_le32(&dram->dllcr[cr_i],
-					0x4f << 14,
-					(dqs_dly[dqs_i] & 0x4f) << 14);
-		}
-		udelay(2);
-		if (dramc_scan_readpipe() == 0) {
-			clk_dqs_count[dqs_i] = 1;
-			max_val = dqs_i;
-			if (min_val == 7)
-				min_val = dqs_i;
-		}
-	}
-
-	if (max_val < 7) {
-		dqs_index = (max_val + min_val) >> 1;
-		if ((max_val == (7-1)) && (min_val > 0))
-			dqs_index = (7 + dqs_index) >> 1;
-		else if ((max_val < (7-1)) && (min_val == 0))
-			dqs_index >>= 1;
-		if (!clk_dqs_count[dqs_index])
-			dqs_index = min_val;
-		for (cr_i = 1; cr_i < 5; cr_i++) {
-			clrsetbits_le32(&dram->dllcr[cr_i],
-					0x4f << 14,
-					(dqs_dly[dqs_index] & 0x4f) << 14);
-		}
-		udelay(2);
-		return dramc_scan_readpipe();
-	}
-
-fail:
-	clrbits_le32(&dram->dllcr[0], 0x3f << 6);
-	for (cr_i = 1; cr_i < 5; cr_i++)
-		clrbits_le32(&dram->dllcr[cr_i], 0x4f << 14);
-	udelay(2);
-
-	return dramc_scan_readpipe();
-}
-
 static void dramc_clock_output_en(u32 on)
 {
 #if defined(CONFIG_SUN5I) || defined(CONFIG_SUN7I)
@@ -665,19 +554,7 @@ unsigned long dramc_init(struct dram_para *para)
 
 	/* scan read pipe value */
 	mctl_itm_enable();
-	if (para->tpr3 & (0x1 << 31)) {
-		ret_val = dramc_scan_dll_para();
-		if (ret_val == 0)
-			para->tpr3 =
-				(((readl(&dram->dllcr[0]) >> 6) & 0x3f) << 16) |
-				(((readl(&dram->dllcr[1]) >> 14) & 0xf) << 0) |
-				(((readl(&dram->dllcr[2]) >> 14) & 0xf) << 4) |
-				(((readl(&dram->dllcr[3]) >> 14) & 0xf) << 8) |
-				(((readl(&dram->dllcr[4]) >> 14) & 0xf) << 12
-				);
-	} else {
-		ret_val = dramc_scan_readpipe();
-	}
+	ret_val = dramc_scan_readpipe();
 
 	if (ret_val < 0)
 		return 0;
