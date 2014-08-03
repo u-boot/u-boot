@@ -572,16 +572,12 @@ static void mctl_set_impedance(u32 zq, u32 odt_en)
 	writel(DRAM_IOCR_ODT_EN(odt_en), &dram->iocr);
 }
 
-unsigned long dramc_init(struct dram_para *para)
+static unsigned long dramc_init_helper(struct dram_para *para)
 {
 	struct sunxi_dram_reg *dram = (struct sunxi_dram_reg *)SUNXI_DRAMC_BASE;
 	u32 reg_val;
 	u32 density;
 	int ret_val;
-
-	/* check input dram parameter structure */
-	if (!para)
-		return 0;
 
 	/*
 	 * only single rank DDR3 is supported by this code even though the
@@ -705,4 +701,50 @@ unsigned long dramc_init(struct dram_para *para)
 	mctl_configure_hostport();
 
 	return get_ram_size((long *)PHYS_SDRAM_0, PHYS_SDRAM_0_SIZE);
+}
+
+unsigned long dramc_init(struct dram_para *para)
+{
+	unsigned long dram_size, actual_density;
+
+	/* If the dram configuration is not provided, use a default */
+	if (!para)
+		return 0;
+
+	/* if everything is known, then autodetection is not necessary */
+	if (para->io_width && para->bus_width && para->density)
+		return dramc_init_helper(para);
+
+	/* try to autodetect the DRAM bus width and density */
+	para->io_width  = 16;
+	para->bus_width = 32;
+#if defined(CONFIG_SUN4I) || defined(CONFIG_SUN5I)
+	/* only A0-A14 address lines on A10/A13, limiting max density to 4096 */
+	para->density = 4096;
+#else
+	/* all A0-A15 address lines on A20, which allow density 8192 */
+	para->density = 8192;
+#endif
+
+	dram_size = dramc_init_helper(para);
+	if (!dram_size) {
+		/* if 32-bit bus width failed, try 16-bit bus width instead */
+		para->bus_width = 16;
+		dram_size = dramc_init_helper(para);
+		if (!dram_size) {
+			/* if 16-bit bus width also failed, then bail out */
+			return dram_size;
+		}
+	}
+
+	/* check if we need to adjust the density */
+	actual_density = (dram_size >> 17) * para->io_width / para->bus_width;
+
+	if (actual_density != para->density) {
+		/* update the density and re-initialize DRAM again */
+		para->density = actual_density;
+		dram_size = dramc_init_helper(para);
+	}
+
+	return dram_size;
 }
