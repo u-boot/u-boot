@@ -152,23 +152,28 @@ static void mctl_enable_dll0(u32 phase)
 	udelay(22);
 }
 
+/* Get the number of DDR byte lanes */
+static u32 mctl_get_number_of_lanes(void)
+{
+	struct sunxi_dram_reg *dram = (struct sunxi_dram_reg *)SUNXI_DRAMC_BASE;
+	if ((readl(&dram->dcr) & DRAM_DCR_BUS_WIDTH_MASK) ==
+				DRAM_DCR_BUS_WIDTH(DRAM_DCR_BUS_WIDTH_32BIT))
+		return 4;
+	else
+		return 2;
+}
+
 /*
  * Note: This differs from pm/standby in that it checks the bus width
  */
 static void mctl_enable_dllx(u32 phase)
 {
 	struct sunxi_dram_reg *dram = (struct sunxi_dram_reg *)SUNXI_DRAMC_BASE;
-	u32 i, n, bus_width;
+	u32 i, number_of_lanes;
 
-	bus_width = readl(&dram->dcr);
+	number_of_lanes = mctl_get_number_of_lanes();
 
-	if ((bus_width & DRAM_DCR_BUS_WIDTH_MASK) ==
-	    DRAM_DCR_BUS_WIDTH(DRAM_DCR_BUS_WIDTH_32BIT))
-		n = DRAM_DCR_NR_DLLCR_32BIT;
-	else
-		n = DRAM_DCR_NR_DLLCR_16BIT;
-
-	for (i = 1; i < n; i++) {
+	for (i = 1; i <= number_of_lanes; i++) {
 		clrsetbits_le32(&dram->dllcr[i], 0xf << 14,
 				(phase & 0xf) << 14);
 		clrsetbits_le32(&dram->dllcr[i], DRAM_DLLCR_NRESET,
@@ -177,12 +182,12 @@ static void mctl_enable_dllx(u32 phase)
 	}
 	udelay(2);
 
-	for (i = 1; i < n; i++)
+	for (i = 1; i <= number_of_lanes; i++)
 		clrbits_le32(&dram->dllcr[i], DRAM_DLLCR_NRESET |
 			     DRAM_DLLCR_DISABLE);
 	udelay(22);
 
-	for (i = 1; i < n; i++)
+	for (i = 1; i <= number_of_lanes; i++)
 		clrsetbits_le32(&dram->dllcr[i], DRAM_DLLCR_DISABLE,
 				DRAM_DLLCR_NRESET);
 	udelay(22);
