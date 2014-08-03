@@ -69,7 +69,7 @@ __weak void dram_bank_mmu_setup(int bank)
 
 	debug("%s: bank: %d\n", __func__, bank);
 	for (i = bd->bi_dram[bank].start >> 20;
-	     i < (bd->bi_dram[bank].start + bd->bi_dram[bank].size) >> 20;
+	     i < (bd->bi_dram[bank].start >> 20) + (bd->bi_dram[bank].size >> 20);
 	     i++) {
 #if defined(CONFIG_SYS_ARM_CACHE_WRITETHROUGH)
 		set_section_dcache(i, DCACHE_WRITETHROUGH);
