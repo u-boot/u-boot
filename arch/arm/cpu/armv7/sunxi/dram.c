@@ -492,18 +492,7 @@ unsigned long dramc_init(struct dram_para *para)
 	writel(reg_val, &dram->dcr);
 
 #ifdef CONFIG_SUN7I
-	setbits_le32(&dram->zqcr1, (0x1 << 24) | (0x1 << 1));
-	if (para->tpr4 & 0x2)
-		clrsetbits_le32(&dram->zqcr1, (0x1 << 24), (0x1 << 1));
 	dramc_clock_output_en(1);
-#endif
-
-#if (defined(CONFIG_SUN5I) || defined(CONFIG_SUN7I))
-	/* set odt impendance divide ratio */
-	reg_val = ((para->zq) >> 8) & 0xfffff;
-	reg_val |= ((para->zq) & 0xff) << 20;
-	reg_val |= (para->zq) & 0xf0000000;
-	writel(reg_val, &dram->zqcr0);
 #endif
 
 	mctl_set_cke_delay();
@@ -520,22 +509,6 @@ unsigned long dramc_init(struct dram_para *para)
 	await_completion(&dram->ccr, DRAM_CCR_INIT);
 
 	mctl_enable_dllx(para->tpr3);
-
-#ifdef CONFIG_SUN4I
-	/* set odt impedance divide ratio */
-	reg_val = ((para->zq) >> 8) & 0xfffff;
-	reg_val |= ((para->zq) & 0xff) << 20;
-	reg_val |= (para->zq) & 0xf0000000;
-	writel(reg_val, &dram->zqcr0);
-#endif
-
-#ifdef CONFIG_SUN4I
-	/* set I/O configure register */
-	reg_val = 0x00cc0000;
-	reg_val |= (para->odt_en) & 0x3;
-	reg_val |= ((para->odt_en) & 0x3) << 30;
-	writel(reg_val, &dram->iocr);
-#endif
 
 	/* set refresh period */
 	dramc_set_autorefresh_cycle(para->clock, para->type - 2, density);
