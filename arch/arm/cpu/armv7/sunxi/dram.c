@@ -446,10 +446,6 @@ unsigned long dramc_init(struct dram_para *para)
 	/* Disable any pad power save control */
 	mctl_disable_power_save();
 
-	/* reset external DRAM */
-#ifndef CONFIG_SUN7I
-	mctl_ddr3_reset();
-#endif
 	mctl_set_drive();
 
 	/* dram clock off */
@@ -491,18 +487,11 @@ unsigned long dramc_init(struct dram_para *para)
 	reg_val |= DRAM_DCR_MODE(DRAM_DCR_MODE_INTERLEAVE);
 	writel(reg_val, &dram->dcr);
 
-#ifdef CONFIG_SUN7I
 	dramc_clock_output_en(1);
-#endif
 
 	mctl_set_cke_delay();
 
-#ifdef CONFIG_SUN7I
 	mctl_ddr3_reset();
-#else
-	/* dram clock on */
-	dramc_clock_output_en(1);
-#endif
 
 	udelay(1);
 
