@@ -235,10 +235,19 @@ static void mctl_configure_hostport(void)
 		writel(hpcr_value[i], &dram->hpcr[i]);
 }
 
-static void mctl_setup_dram_clock(u32 clk)
+static void mctl_setup_dram_clock(u32 clk, u32 mbus_clk)
 {
 	u32 reg_val;
 	struct sunxi_ccm_reg *ccm = (struct sunxi_ccm_reg *)SUNXI_CCM_BASE;
+
+	/* PLL5P and PLL6 are the potential clock sources for MBUS */
+	u32 pll6x_div, pll5p_div;
+	u32 pll6x_clk = clock_get_pll6() / 1000000;
+	u32 pll5p_clk = clk / 24 * 24;
+	u32 pll5p_rate, pll6x_rate;
+#ifdef CONFIG_SUN7I
+	pll6x_clk *= 2; /* sun7i uses PLL6*2, sun5i uses just PLL6 */
+#endif
 
 	/* setup DRAM PLL */
 	reg_val = readl(&ccm->pll5_cfg);
@@ -248,30 +257,35 @@ static void mctl_setup_dram_clock(u32 clk)
 	reg_val &= ~CCM_PLL5_CTRL_P_MASK;		/* set P to 0 (x1) */
 	if (clk >= 540 && clk < 552) {
 		/* dram = 540MHz, pll5p = 540MHz */
+		pll5p_clk = 540;
 		reg_val |= CCM_PLL5_CTRL_M(CCM_PLL5_CTRL_M_X(2));
 		reg_val |= CCM_PLL5_CTRL_K(CCM_PLL5_CTRL_K_X(3));
 		reg_val |= CCM_PLL5_CTRL_N(CCM_PLL5_CTRL_N_X(15));
 		reg_val |= CCM_PLL5_CTRL_P(1);
 	} else if (clk >= 512 && clk < 528) {
 		/* dram = 512MHz, pll5p = 384MHz */
+		pll5p_clk = 384;
 		reg_val |= CCM_PLL5_CTRL_M(CCM_PLL5_CTRL_M_X(3));
 		reg_val |= CCM_PLL5_CTRL_K(CCM_PLL5_CTRL_K_X(4));
 		reg_val |= CCM_PLL5_CTRL_N(CCM_PLL5_CTRL_N_X(16));
 		reg_val |= CCM_PLL5_CTRL_P(2);
 	} else if (clk >= 496 && clk < 504) {
 		/* dram = 496MHz, pll5p = 372MHz */
+		pll5p_clk = 372;
 		reg_val |= CCM_PLL5_CTRL_M(CCM_PLL5_CTRL_M_X(3));
 		reg_val |= CCM_PLL5_CTRL_K(CCM_PLL5_CTRL_K_X(2));
 		reg_val |= CCM_PLL5_CTRL_N(CCM_PLL5_CTRL_N_X(31));
 		reg_val |= CCM_PLL5_CTRL_P(2);
 	} else if (clk >= 468 && clk < 480) {
 		/* dram = 468MHz, pll5p = 468MHz */
+		pll5p_clk = 468;
 		reg_val |= CCM_PLL5_CTRL_M(CCM_PLL5_CTRL_M_X(2));
 		reg_val |= CCM_PLL5_CTRL_K(CCM_PLL5_CTRL_K_X(3));
 		reg_val |= CCM_PLL5_CTRL_N(CCM_PLL5_CTRL_N_X(13));
 		reg_val |= CCM_PLL5_CTRL_P(1);
 	} else if (clk >= 396 && clk < 408) {
 		/* dram = 396MHz, pll5p = 396MHz */
+		pll5p_clk = 396;
 		reg_val |= CCM_PLL5_CTRL_M(CCM_PLL5_CTRL_M_X(2));
 		reg_val |= CCM_PLL5_CTRL_K(CCM_PLL5_CTRL_K_X(3));
 		reg_val |= CCM_PLL5_CTRL_N(CCM_PLL5_CTRL_N_X(11));
@@ -298,20 +312,30 @@ static void mctl_setup_dram_clock(u32 clk)
 	clrbits_le32(&ccm->ahb_gate0, CCM_AHB_GATE_GPS);
 #endif
 
-#if defined(CONFIG_SUN5I) || defined(CONFIG_SUN7I)
 	/* setup MBUS clock */
-	reg_val = CCM_MBUS_CTRL_GATE |
-#ifdef CONFIG_SUN7I
-		  CCM_MBUS_CTRL_CLK_SRC(CCM_MBUS_CTRL_CLK_SRC_PLL6) |
-		  CCM_MBUS_CTRL_N(CCM_MBUS_CTRL_N_X(2)) |
-		  CCM_MBUS_CTRL_M(CCM_MBUS_CTRL_M_X(2));
-#else /* defined(CONFIG_SUN5I) */
-		  CCM_MBUS_CTRL_CLK_SRC(CCM_MBUS_CTRL_CLK_SRC_PLL5) |
-		  CCM_MBUS_CTRL_N(CCM_MBUS_CTRL_N_X(1)) |
-		  CCM_MBUS_CTRL_M(CCM_MBUS_CTRL_M_X(2));
-#endif
+	if (!mbus_clk)
+		mbus_clk = 300;
+	pll6x_div = DIV_ROUND_UP(pll6x_clk, mbus_clk);
+	pll5p_div = DIV_ROUND_UP(pll5p_clk, mbus_clk);
+	pll6x_rate = pll6x_clk / pll6x_div;
+	pll5p_rate = pll5p_clk / pll5p_div;
+
+	if (pll6x_div <= 16 && pll6x_rate > pll5p_rate) {
+		/* use PLL6 as the MBUS clock source */
+		reg_val = CCM_MBUS_CTRL_GATE |
+			  CCM_MBUS_CTRL_CLK_SRC(CCM_MBUS_CTRL_CLK_SRC_PLL6) |
+			  CCM_MBUS_CTRL_N(CCM_MBUS_CTRL_N_X(1)) |
+			  CCM_MBUS_CTRL_M(CCM_MBUS_CTRL_M_X(pll6x_div));
+	} else if (pll5p_div <= 16) {
+		/* use PLL5P as the MBUS clock source */
+		reg_val = CCM_MBUS_CTRL_GATE |
+			  CCM_MBUS_CTRL_CLK_SRC(CCM_MBUS_CTRL_CLK_SRC_PLL5) |
+			  CCM_MBUS_CTRL_N(CCM_MBUS_CTRL_N_X(1)) |
+			  CCM_MBUS_CTRL_M(CCM_MBUS_CTRL_M_X(pll5p_div));
+	} else {
+		panic("Bad mbus_clk\n");
+	}
 	writel(reg_val, &ccm->mbus_clk_cfg);
-#endif
 
 	/*
 	 * open DRAMC AHB & DLL register clock
@@ -511,7 +535,7 @@ unsigned long dramc_init(struct dram_para *para)
 		return 0;
 
 	/* setup DRAM relative clock */
-	mctl_setup_dram_clock(para->clock);
+	mctl_setup_dram_clock(para->clock, para->mbus_clock);
 
 	/* Disable any pad power save control */
 	mctl_disable_power_save();

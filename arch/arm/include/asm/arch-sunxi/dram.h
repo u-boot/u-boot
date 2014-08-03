@@ -69,6 +69,7 @@ struct sunxi_dram_reg {
 
 struct dram_para {
 	u32 clock;
+	u32 mbus_clock;
 	u32 type;
 	u32 rank_num;
 	u32 density;
