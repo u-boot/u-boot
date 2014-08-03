@@ -359,6 +359,24 @@ static void dramc_set_autorefresh_cycle(u32 clk, u32 type, u32 density)
 	writel(DRAM_DRR_TREFI(tREFI) | DRAM_DRR_TRFC(tRFC), &dram->drr);
 }
 
+/*
+ * If the dram->ppwrsctl (SDR_DPCR) register has the lowest bit set to 1, this
+ * means that DRAM is currently in self-refresh mode and retaining the old
+ * data. Since we have no idea what to do in this situation yet, just set this
+ * register to 0 and initialize DRAM in the same way as on any normal reboot
+ * (discarding whatever was stored there).
+ *
+ * Note: on sun7i hardware, the highest 16 bits need to be set to 0x1651 magic
+ * value for this write operation to have any effect. On sun5i hadware this
+ * magic value is not necessary. And on sun4i hardware the writes to this
+ * register seem to have no effect at all.
+ */
+static void mctl_disable_power_save(void)
+{
+	struct sunxi_dram_reg *dram = (struct sunxi_dram_reg *)SUNXI_DRAMC_BASE;
+	writel(0x16510000, &dram->ppwrsctl);
+}
+
 unsigned long dramc_init(struct dram_para *para)
 {
 	struct sunxi_dram_reg *dram = (struct sunxi_dram_reg *)SUNXI_DRAMC_BASE;
@@ -373,10 +391,8 @@ unsigned long dramc_init(struct dram_para *para)
 	/* setup DRAM relative clock */
 	mctl_setup_dram_clock(para->clock);
 
-#ifdef CONFIG_SUN5I
 	/* Disable any pad power save control */
-	writel(0, &dram->ppwrsctl);
-#endif
+	mctl_disable_power_save();
 
 	/* reset external DRAM */
 #ifndef CONFIG_SUN7I
@@ -444,10 +460,7 @@ unsigned long dramc_init(struct dram_para *para)
 #endif
 
 #ifdef CONFIG_SUN7I
-	if ((readl(&dram->ppwrsctl) & 0x1) != 0x1)
-		mctl_ddr3_reset();
-	else
-		setbits_le32(&dram->mcr, DRAM_MCR_RESET);
+	mctl_ddr3_reset();
 #else
 	/* dram clock on */
 	dramc_clock_output_en(1);
@@ -512,45 +525,6 @@ unsigned long dramc_init(struct dram_para *para)
 	/* reset external DRAM */
 	setbits_le32(&dram->ccr, DRAM_CCR_INIT);
 	await_completion(&dram->ccr, DRAM_CCR_INIT);
-
-#ifdef CONFIG_SUN7I
-	/* setup zq calibration manual */
-	reg_val = readl(&dram->ppwrsctl);
-	if ((reg_val & 0x1) == 1) {
-		/* super_standby_flag = 1 */
-
-		reg_val = readl(0x01c20c00 + 0x120); /* rtc */
-		reg_val &= 0x000fffff;
-		reg_val |= 0x17b00000;
-		writel(reg_val, &dram->zqcr0);
-
-		/* exit self-refresh state */
-		clrsetbits_le32(&dram->dcr, 0x1f << 27, 0x12 << 27);
-		/* check whether command has been executed */
-		await_completion(&dram->dcr, 0x1 << 31);
-
-		udelay(2);
-
-		/* dram pad hold off */
-		setbits_le32(&dram->ppwrsctl, 0x16510000);
-
-		await_completion(&dram->ppwrsctl, 0x1);
-
-		/* exit self-refresh state */
-		clrsetbits_le32(&dram->dcr, 0x1f << 27, 0x12 << 27);
-
-		/* check whether command has been executed */
-		await_completion(&dram->dcr, 0x1 << 31);
-
-		udelay(2);
-
-		/* issue a refresh command */
-		clrsetbits_le32(&dram->dcr, 0x1f << 27, 0x13 << 27);
-		await_completion(&dram->dcr, 0x1 << 31);
-
-		udelay(2);
-	}
-#endif
 
 	/* scan read pipe value */
 	mctl_itm_enable();
