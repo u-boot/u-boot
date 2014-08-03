@@ -159,6 +159,10 @@ struct dram_para {
 
 #define DRAM_ZQCR0_IMP_DIV(n) (((n) & 0xff) << 20)
 #define DRAM_ZQCR0_IMP_DIV_MASK DRAM_ZQCR0_IMP_DIV(0xff)
+#define DRAM_ZQCR0_ZCAL (1 << 31) /* Starts ZQ calibration when set to 1 */
+#define DRAM_ZQCR0_ZDEN (1 << 28) /* Uses ZDATA instead of doing calibration */
+
+#define DRAM_ZQSR_ZDONE (1 << 31) /* ZQ calibration completion flag */
 
 #define DRAM_IOCR_ODT_EN(n) ((((n) & 0x3) << 30) | ((n) & 0x3) << 0)
 #define DRAM_IOCR_ODT_EN_MASK DRAM_IOCR_ODT_EN(0x3)

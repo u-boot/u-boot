@@ -445,6 +445,60 @@ static void mctl_ddr3_initialize(void)
 	await_bits_clear(&dram->ccr, DRAM_CCR_INIT);
 }
 
+/*
+ * Perform impedance calibration on the DRAM controller side of the wire.
+ */
+static void mctl_set_impedance(u32 zq, u32 odt_en)
+{
+	struct sunxi_dram_reg *dram = (struct sunxi_dram_reg *)SUNXI_DRAMC_BASE;
+	u32 reg_val;
+	u32 zprog = zq & 0xFF, zdata = (zq >> 8) & 0xFFFFF;
+
+#ifndef CONFIG_SUN7I
+	/* Appears that some kind of automatically initiated default
+	 * ZQ calibration is already in progress at this point on sun4i/sun5i
+	 * hardware, but not on sun7i. So it is reasonable to wait for its
+	 * completion before doing anything else. */
+	await_bits_set(&dram->zqsr, DRAM_ZQSR_ZDONE);
+#endif
+
+	/* ZQ calibration is not really useful unless ODT is enabled */
+	if (!odt_en)
+		return;
+
+#ifdef CONFIG_SUN7I
+	/* Enabling ODT in SDR_IOCR on sun7i hardware results in a deadlock
+	 * unless bit 24 is set in SDR_ZQCR1. Not much is known about the
+	 * SDR_ZQCR1 register, but there are hints indicating that it might
+	 * be related to periodic impedance re-calibration. This particular
+	 * magic value is borrowed from the Allwinner boot0 bootloader, and
+	 * using it helps to avoid troubles */
+	writel((1 << 24) | (1 << 1), &dram->zqcr1);
+#endif
+
+	/* Needed at least for sun5i, because it does not self clear there */
+	clrbits_le32(&dram->zqcr0, DRAM_ZQCR0_ZCAL);
+
+	if (zdata) {
+		/* Set the user supplied impedance data */
+		reg_val = DRAM_ZQCR0_ZDEN | zdata;
+		writel(reg_val, &dram->zqcr0);
+		/* no need to wait, this takes effect immediately */
+	} else {
+		/* Do the calibration using the external resistor */
+		reg_val = DRAM_ZQCR0_ZCAL | DRAM_ZQCR0_IMP_DIV(zprog);
+		writel(reg_val, &dram->zqcr0);
+		/* Wait for the new impedance configuration to settle */
+		await_bits_set(&dram->zqsr, DRAM_ZQSR_ZDONE);
+	}
+
+	/* Needed at least for sun5i, because it does not self clear there */
+	clrbits_le32(&dram->zqcr0, DRAM_ZQCR0_ZCAL);
+
+	/* Set I/O configure register */
+	writel(DRAM_IOCR_ODT_EN(odt_en), &dram->iocr);
+}
+
 unsigned long dramc_init(struct dram_para *para)
 {
 	struct sunxi_dram_reg *dram = (struct sunxi_dram_reg *)SUNXI_DRAMC_BASE;
@@ -504,6 +558,8 @@ unsigned long dramc_init(struct dram_para *para)
 	writel(reg_val, &dram->dcr);
 
 	dramc_clock_output_en(1);
+
+	mctl_set_impedance(para->zq, para->odt_en);
 
 	mctl_set_cke_delay();
 
