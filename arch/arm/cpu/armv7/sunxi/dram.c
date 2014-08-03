@@ -78,6 +78,19 @@ static void mctl_ddr3_reset(void)
 		udelay(200);
 		setbits_le32(&dram->mcr, DRAM_MCR_RESET);
 	}
+	/* After the RESET pin is de-asserted, the DDR3 spec requires to wait
+	 * for additional 500 us before driving the CKE pin (Clock Enable)
+	 * high. The duration of this delay can be configured in the SDR_IDCR
+	 * (Initialization Delay Configuration Register) and applied
+	 * automatically by the DRAM controller during the DDR3 initialization
+	 * step. But SDR_IDCR has limited range on sun4i/sun5i hardware and
+	 * can't provide sufficient delay at DRAM clock frequencies higher than
+	 * 524 MHz (while Allwinner A13 supports DRAM clock frequency up to
+	 * 533 MHz according to the datasheet). Additionally, there is no
+	 * official documentation for the SDR_IDCR register anywhere, and
+	 * there is always a chance that we are interpreting it wrong.
+	 * Better be safe than sorry, so add an explicit delay here. */
+	udelay(500);
 }
 
 static void mctl_set_drive(void)
@@ -382,6 +395,40 @@ static void mctl_disable_power_save(void)
 	writel(0x16510000, &dram->ppwrsctl);
 }
 
+/*
+ * After the DRAM is powered up or reset, the DDR3 spec requires to wait at
+ * least 500 us before driving the CKE pin (Clock Enable) high. The dram->idct
+ * (SDR_IDCR) register appears to configure this delay, which gets applied
+ * right at the time when the DRAM initialization is activated in the
+ * 'mctl_ddr3_initialize' function.
+ */
+static void mctl_set_cke_delay(void)
+{
+	struct sunxi_dram_reg *dram = (struct sunxi_dram_reg *)SUNXI_DRAMC_BASE;
+
+	/* The CKE delay is represented in DRAM clock cycles, multiplied by N
+	 * (where N=2 for sun4i/sun5i and N=3 for sun7i). Here it is set to
+	 * the maximum possible value 0x1ffff, just like in the Allwinner's
+	 * boot0 bootloader. The resulting delay value is somewhere between
+	 * ~0.4 ms (sun5i with 648 MHz DRAM clock speed) and ~1.1 ms (sun7i
+	 * with 360 MHz DRAM clock speed). */
+	setbits_le32(&dram->idcr, 0x1ffff);
+}
+
+/*
+ * This triggers the DRAM initialization. It performs sending the mode registers
+ * to the DRAM among other things. Very likely the ZQCL command is also getting
+ * executed (to do the initial impedance calibration on the DRAM side of the
+ * wire). The memory controller and the PHY must be already configured before
+ * calling this function.
+ */
+static void mctl_ddr3_initialize(void)
+{
+	struct sunxi_dram_reg *dram = (struct sunxi_dram_reg *)SUNXI_DRAMC_BASE;
+	setbits_le32(&dram->ccr, DRAM_CCR_INIT);
+	await_completion(&dram->ccr, DRAM_CCR_INIT);
+}
+
 unsigned long dramc_init(struct dram_para *para)
 {
 	struct sunxi_dram_reg *dram = (struct sunxi_dram_reg *)SUNXI_DRAMC_BASE;
@@ -459,10 +506,7 @@ unsigned long dramc_init(struct dram_para *para)
 	writel(reg_val, &dram->zqcr0);
 #endif
 
-#ifdef CONFIG_SUN7I
-	/* Set CKE Delay to about 1ms */
-	setbits_le32(&dram->idcr, 0x1ffff);
-#endif
+	mctl_set_cke_delay();
 
 #ifdef CONFIG_SUN7I
 	mctl_ddr3_reset();
@@ -527,9 +571,8 @@ unsigned long dramc_init(struct dram_para *para)
 	if (para->tpr4 & 0x1)
 		setbits_le32(&dram->ccr, DRAM_CCR_COMMAND_RATE_1T);
 #endif
-	/* reset external DRAM */
-	setbits_le32(&dram->ccr, DRAM_CCR_INIT);
-	await_completion(&dram->ccr, DRAM_CCR_INIT);
+	/* initialize external DRAM */
+	mctl_ddr3_initialize();
 
 	/* scan read pipe value */
 	mctl_itm_enable();
