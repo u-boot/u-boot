@@ -69,7 +69,6 @@ int ne2k_register(void);
 int npe_initialize(bd_t *bis);
 int ns8382x_initialize(bd_t *bis);
 int pcnet_initialize(bd_t *bis);
-int plb2800_eth_initialize(bd_t *bis);
 int ppc_4xx_eth_initialize (bd_t *bis);
 int rtl8139_initialize(bd_t *bis);
 int rtl8169_initialize(bd_t *bis);
