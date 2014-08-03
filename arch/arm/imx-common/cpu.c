@@ -93,6 +93,11 @@ unsigned imx_ddr_size(void)
 	bits += bank_lookup[ESD_MMDC_MISC_GET_BANK(misc)];
 	bits += ESD_MMDC_CTL_GET_WIDTH(ctl);
 	bits += ESD_MMDC_CTL_GET_CS1(ctl);
+
+	/* The MX6 can do only 3840 MiB of DRAM */
+	if (bits == 32)
+		return 0xf0000000;
+
 	return 1 << bits;
 }
 #endif
