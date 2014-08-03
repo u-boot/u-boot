@@ -36,16 +36,32 @@
 #define CPU_CFG_CHIP_REV_B 0x3
 
 /*
- * Wait up to 1s for mask to be clear in given reg.
+ * Wait up to 1s for value to be set in given part of reg.
  */
-static void await_completion(u32 *reg, u32 mask)
+static void await_completion(u32 *reg, u32 mask, u32 val)
 {
 	unsigned long tmo = timer_get_us() + 1000000;
 
-	while (readl(reg) & mask) {
+	while ((readl(reg) & mask) != val) {
 		if (timer_get_us() > tmo)
 			panic("Timeout initialising DRAM\n");
 	}
+}
+
+/*
+ * Wait up to 1s for mask to be clear in given reg.
+ */
+static inline void await_bits_clear(u32 *reg, u32 mask)
+{
+	await_completion(reg, mask, 0);
+}
+
+/*
+ * Wait up to 1s for mask to be set in given reg.
+ */
+static inline void await_bits_set(u32 *reg, u32 mask)
+{
+	await_completion(reg, mask, mask);
 }
 
 /*
@@ -329,7 +345,7 @@ static int dramc_scan_readpipe(void)
 	setbits_le32(&dram->ccr, DRAM_CCR_DATA_TRAINING);
 
 	/* check whether data training process has completed */
-	await_completion(&dram->ccr, DRAM_CCR_DATA_TRAINING);
+	await_bits_clear(&dram->ccr, DRAM_CCR_DATA_TRAINING);
 
 	/* check data training result */
 	reg_val = readl(&dram->csr);
@@ -426,7 +442,7 @@ static void mctl_ddr3_initialize(void)
 {
 	struct sunxi_dram_reg *dram = (struct sunxi_dram_reg *)SUNXI_DRAMC_BASE;
 	setbits_le32(&dram->ccr, DRAM_CCR_INIT);
-	await_completion(&dram->ccr, DRAM_CCR_INIT);
+	await_bits_clear(&dram->ccr, DRAM_CCR_INIT);
 }
 
 unsigned long dramc_init(struct dram_para *para)
@@ -495,7 +511,7 @@ unsigned long dramc_init(struct dram_para *para)
 
 	udelay(1);
 
-	await_completion(&dram->ccr, DRAM_CCR_INIT);
+	await_bits_clear(&dram->ccr, DRAM_CCR_INIT);
 
 	mctl_enable_dllx(para->tpr3);
 
