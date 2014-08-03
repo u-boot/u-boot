@@ -48,6 +48,11 @@ static void await_completion(u32 *reg, u32 mask)
 	}
 }
 
+/*
+ * This performs the external DRAM reset by driving the RESET pin low and
+ * then high again. According to the DDR3 spec, the RESET pin needs to be
+ * kept low for at least 200 us.
+ */
 static void mctl_ddr3_reset(void)
 {
 	struct sunxi_dram_reg *dram =
@@ -64,13 +69,13 @@ static void mctl_ddr3_reset(void)
 	if ((reg_val & CPU_CFG_CHIP_VER_MASK) !=
 	    CPU_CFG_CHIP_VER(CPU_CFG_CHIP_REV_A)) {
 		setbits_le32(&dram->mcr, DRAM_MCR_RESET);
-		udelay(2);
+		udelay(200);
 		clrbits_le32(&dram->mcr, DRAM_MCR_RESET);
 	} else
 #endif
 	{
 		clrbits_le32(&dram->mcr, DRAM_MCR_RESET);
-		udelay(2);
+		udelay(200);
 		setbits_le32(&dram->mcr, DRAM_MCR_RESET);
 	}
 }
