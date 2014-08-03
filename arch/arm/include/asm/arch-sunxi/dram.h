@@ -133,7 +133,9 @@ struct dram_para {
 #define DRAM_DCR_MODE_SEQ 0x0
 #define DRAM_DCR_MODE_INTERLEAVE 0x1
 
-#define DRAM_CSR_FAILED (0x1 << 20)
+#define DRAM_CSR_DTERR  (0x1 << 20)
+#define DRAM_CSR_DTIERR (0x1 << 21)
+#define DRAM_CSR_FAILED (DRAM_CSR_DTERR | DRAM_CSR_DTIERR)
 
 #define DRAM_DRR_TRFC(n) ((n) & 0xff)
 #define DRAM_DRR_TREFI(n) (((n) & 0xffff) << 8)

@@ -357,9 +357,7 @@ static int dramc_scan_readpipe(void)
 	u32 reg_val;
 
 	/* data training trigger */
-#ifdef CONFIG_SUN7I
 	clrbits_le32(&dram->csr, DRAM_CSR_FAILED);
-#endif
 	setbits_le32(&dram->ccr, DRAM_CCR_DATA_TRAINING);
 
 	/* check whether data training process has completed */
