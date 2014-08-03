@@ -136,6 +136,14 @@ static void mctl_itm_enable(void)
 	clrbits_le32(&dram->ccr, DRAM_CCR_ITM_OFF);
 }
 
+static void mctl_itm_reset(void)
+{
+	mctl_itm_disable();
+	udelay(1); /* ITM reset needs a bit of delay */
+	mctl_itm_enable();
+	udelay(1);
+}
+
 static void mctl_enable_dll0(u32 phase)
 {
 	struct sunxi_dram_reg *dram = (struct sunxi_dram_reg *)SUNXI_DRAMC_BASE;
@@ -354,6 +362,37 @@ static void mctl_setup_dram_clock(u32 clk, u32 mbus_clk)
 	setbits_le32(&ccm->ahb_gate0, CCM_AHB_GATE_SDRAM);
 #endif
 	udelay(22);
+}
+
+/*
+ * The data from rslrX and rdgrX registers (X=rank) is stored
+ * in a single 32-bit value using the following format:
+ *   bits [31:26] - DQS gating system latency for byte lane 3
+ *   bits [25:24] - DQS gating phase select for byte lane 3
+ *   bits [23:18] - DQS gating system latency for byte lane 2
+ *   bits [17:16] - DQS gating phase select for byte lane 2
+ *   bits [15:10] - DQS gating system latency for byte lane 1
+ *   bits [ 9:8 ] - DQS gating phase select for byte lane 1
+ *   bits [ 7:2 ] - DQS gating system latency for byte lane 0
+ *   bits [ 1:0 ] - DQS gating phase select for byte lane 0
+ */
+static void mctl_set_dqs_gating_delay(int rank, u32 dqs_gating_delay)
+{
+	struct sunxi_dram_reg *dram = (struct sunxi_dram_reg *)SUNXI_DRAMC_BASE;
+	u32 lane, number_of_lanes = mctl_get_number_of_lanes();
+	/* rank0 gating system latency (3 bits per lane: cycles) */
+	u32 slr = readl(rank == 0 ? &dram->rslr0 : &dram->rslr1);
+	/* rank0 gating phase select (2 bits per lane: 90, 180, 270, 360) */
+	u32 dgr = readl(rank == 0 ? &dram->rdgr0 : &dram->rdgr1);
+	for (lane = 0; lane < number_of_lanes; lane++) {
+		u32 tmp = dqs_gating_delay >> (lane * 8);
+		slr &= ~(7 << (lane * 3));
+		slr |= ((tmp >> 2) & 7) << (lane * 3);
+		dgr &= ~(3 << (lane * 2));
+		dgr |= (tmp & 3) << (lane * 2);
+	}
+	writel(slr, rank == 0 ? &dram->rslr0 : &dram->rslr1);
+	writel(dgr, rank == 0 ? &dram->rdgr0 : &dram->rdgr1);
 }
 
 static int dramc_scan_readpipe(void)
@@ -618,7 +657,7 @@ unsigned long dramc_init(struct dram_para *para)
 	writel(para->emr2, &dram->emr2);
 	writel(para->emr3, &dram->emr3);
 
-	/* set DQS window mode */
+	/* disable drift compensation and set passive DQS window mode */
 	clrsetbits_le32(&dram->ccr, DRAM_CCR_DQS_DRIFT_COMP, DRAM_CCR_DQS_GATE);
 
 #ifdef CONFIG_SUN7I
@@ -631,10 +670,24 @@ unsigned long dramc_init(struct dram_para *para)
 
 	/* scan read pipe value */
 	mctl_itm_enable();
+
+	/* Hardware DQS gate training */
 	ret_val = dramc_scan_readpipe();
 
 	if (ret_val < 0)
 		return 0;
+
+	/* allow to override the DQS training results with a custom delay */
+	if (para->dqs_gating_delay)
+		mctl_set_dqs_gating_delay(0, para->dqs_gating_delay);
+
+	/* set the DQS gating window type */
+	if (para->active_windowing)
+		clrbits_le32(&dram->ccr, DRAM_CCR_DQS_GATE);
+	else
+		setbits_le32(&dram->ccr, DRAM_CCR_DQS_GATE);
+
+	mctl_itm_reset();
 
 	/* configure all host port */
 	mctl_configure_hostport();

@@ -88,6 +88,8 @@ struct dram_para {
 	u32 emr1;
 	u32 emr2;
 	u32 emr3;
+	u32 dqs_gating_delay;
+	u32 active_windowing;
 };
 
 #define DRAM_CCR_COMMAND_RATE_1T (0x1 << 5)
