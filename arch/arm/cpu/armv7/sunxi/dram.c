@@ -434,20 +434,18 @@ static void dramc_clock_output_en(u32 on)
 #endif
 }
 
-static const u16 tRFC_table[2][6] = {
-	/*       256Mb    512Mb    1Gb      2Gb      4Gb      8Gb      */
-	/* DDR2  75ns     105ns    127.5ns  195ns    327.5ns  invalid  */
-	{        77,      108,     131,     200,     336,     336 },
-	/* DDR3  invalid  90ns     110ns    160ns    300ns    350ns    */
-	{        93,      93,      113,     164,     308,     359 }
+/* tRFC in nanoseconds for different densities (from the DDR3 spec) */
+static const u16 tRFC_DDR3_table[6] = {
+	/* 256Mb    512Mb    1Gb      2Gb      4Gb      8Gb */
+	   90,      90,      110,     160,     300,     350
 };
 
-static void dramc_set_autorefresh_cycle(u32 clk, u32 type, u32 density)
+static void dramc_set_autorefresh_cycle(u32 clk, u32 density)
 {
 	struct sunxi_dram_reg *dram = (struct sunxi_dram_reg *)SUNXI_DRAMC_BASE;
 	u32 tRFC, tREFI;
 
-	tRFC = (tRFC_table[type][density] * clk + 1023) >> 10;
+	tRFC = (tRFC_DDR3_table[density] * clk + 999) / 1000;
 	tREFI = (7987 * clk) >> 10;	/* <= 7.8us */
 
 	writel(DRAM_DRR_TREFI(tREFI) | DRAM_DRR_TRFC(tRFC), &dram->drr);
@@ -570,6 +568,13 @@ unsigned long dramc_init(struct dram_para *para)
 	if (!para)
 		return 0;
 
+	/*
+	 * only single rank DDR3 is supported by this code even though the
+	 * hardware can theoretically support DDR2 and up to two ranks
+	 */
+	if (para->type != DRAM_MEMORY_TYPE_DDR3 || para->rank_num != 1)
+		return 0;
+
 	/* setup DRAM relative clock */
 	mctl_setup_dram_clock(para->clock, para->mbus_clock);
 
@@ -590,9 +595,7 @@ unsigned long dramc_init(struct dram_para *para)
 	mctl_enable_dll0(para->tpr3);
 
 	/* configure external DRAM */
-	reg_val = 0x0;
-	if (para->type == DRAM_MEMORY_TYPE_DDR3)
-		reg_val |= DRAM_DCR_TYPE_DDR3;
+	reg_val = DRAM_DCR_TYPE_DDR3;
 	reg_val |= DRAM_DCR_IO_WIDTH(para->io_width >> 3);
 
 	if (para->density == 256)
@@ -632,25 +635,19 @@ unsigned long dramc_init(struct dram_para *para)
 	mctl_enable_dllx(para->tpr3);
 
 	/* set refresh period */
-	dramc_set_autorefresh_cycle(para->clock, para->type - 2, density);
+	dramc_set_autorefresh_cycle(para->clock, density);
 
 	/* set timing parameters */
 	writel(para->tpr0, &dram->tpr0);
 	writel(para->tpr1, &dram->tpr1);
 	writel(para->tpr2, &dram->tpr2);
 
-	if (para->type == DRAM_MEMORY_TYPE_DDR3) {
-		reg_val = DRAM_MR_BURST_LENGTH(0x0);
+	reg_val = DRAM_MR_BURST_LENGTH(0x0);
 #if (defined(CONFIG_SUN5I) || defined(CONFIG_SUN7I))
-		reg_val |= DRAM_MR_POWER_DOWN;
+	reg_val |= DRAM_MR_POWER_DOWN;
 #endif
-		reg_val |= DRAM_MR_CAS_LAT(para->cas - 4);
-		reg_val |= DRAM_MR_WRITE_RECOVERY(0x5);
-	} else if (para->type == DRAM_MEMORY_TYPE_DDR2) {
-		reg_val = DRAM_MR_BURST_LENGTH(0x2);
-		reg_val |= DRAM_MR_CAS_LAT(para->cas);
-		reg_val |= DRAM_MR_WRITE_RECOVERY(0x5);
-	}
+	reg_val |= DRAM_MR_CAS_LAT(para->cas - 4);
+	reg_val |= DRAM_MR_WRITE_RECOVERY(0x5);
 	writel(reg_val, &dram->mr);
 
 	writel(para->emr1, &dram->emr);
