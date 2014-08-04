@@ -140,6 +140,9 @@ void s_init(void)
 #endif
 	prcm_init();
 #ifdef CONFIG_SPL_BUILD
+#ifdef CONFIG_BOARD_EARLY_INIT_F
+	board_early_init_f();
+#endif
 	/* For regular u-boot sdram_init() is called from dram_init() */
 	sdram_init();
 #endif

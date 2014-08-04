@@ -139,5 +139,6 @@ const struct pad_conf_entry core_padconf_array_essential[] = {
 	{GPMC_CS3, (IEN | PTU | PDIS | M1)},    /* QSPI1_CS1*/
 #endif /* CONFIG_NAND || CONFIG_NOR */
 	{USB2_DRVVBUS, (M0 | IEN | FSC) },
+	{SPI1_CS1, (PEN | IDIS | M14) },
 };
 #endif /* _MUX_DATA_DRA7XX_H_ */

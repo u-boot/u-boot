@@ -13,6 +13,7 @@
 #define __CONFIG_DRA7XX_EVM_H
 
 #define CONFIG_DRA7XX
+#define CONFIG_BOARD_EARLY_INIT_F
 
 #ifndef CONFIG_QSPI_BOOT
 /* MMC ENV related defines */
