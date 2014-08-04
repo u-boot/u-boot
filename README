@@ -252,15 +252,15 @@ Selection of Processor Architecture and Board Type:
 ---------------------------------------------------
 
 For all supported boards there are ready-to-use default
-configurations available; just type "make <board_name>_config".
+configurations available; just type "make <board_name>_defconfig".
 
 Example: For a TQM823L module type:
 
 	cd u-boot
-	make TQM823L_config
+	make TQM823L_defconfig
 
 For the Cogent platform, you need to specify the CPU type as well;
-e.g. "make cogent_mpc8xx_config". And also configure the cogent
+e.g. "make cogent_mpc8xx_defconfig". And also configure the cogent
 directory according to the instructions in cogent/README.
 
 
@@ -4847,9 +4847,9 @@ U-Boot is intended to be simple to build. After installing the
 sources you must configure U-Boot for one specific board type. This
 is done by typing:
 
-	make NAME_config
+	make NAME_defconfig
 
-where "NAME_config" is the name of one of the existing configu-
+where "NAME_defconfig" is the name of one of the existing configu-
 rations; see boards.cfg for supported names.
 
 Note: for some board special configuration names may exist; check if
@@ -4858,10 +4858,10 @@ Note: for some board special configuration names may exist; check if
       or with LCD support. You can select such additional "features"
       when choosing the configuration, i. e.
 
-      make TQM823L_config
+      make TQM823L_defconfig
 	- will configure for a plain TQM823L, i. e. no LCD support
 
-      make TQM823L_LCD_config
+      make TQM823L_LCD_defconfig
 	- will configure for a TQM823L with U-Boot console on LCD
 
       etc.
@@ -4881,14 +4881,14 @@ this behavior and build U-Boot to some external directory:
 1. Add O= to the make command line invocations:
 
 	make O=/tmp/build distclean
-	make O=/tmp/build NAME_config
+	make O=/tmp/build NAME_defconfig
 	make O=/tmp/build all
 
 2. Set environment variable BUILD_DIR to point to the desired location:
 
 	export BUILD_DIR=/tmp/build
 	make distclean
-	make NAME_config
+	make NAME_defconfig
 	make all
 
 Note that the command line "O=" setting overrides the BUILD_DIR environment
@@ -4914,7 +4914,7 @@ steps:
     your board
 3.  If you're porting U-Boot to a new CPU, then also create a new
     directory to hold your CPU specific code. Add any files you need.
-4.  Run "make <board>_config" with your new name.
+4.  Run "make <board>_defconfig" with your new name.
 5.  Type "make", and you should get a working "u-boot.srec" file
     to be installed on your target system.
 6.  Debug and solve any problems that might arise.
@@ -5494,7 +5494,7 @@ which was introduced for our predecessor project PPCBoot and uses a
 
 Example:
 
-	make TQM850L_config
+	make TQM850L_defconfig
 	make oldconfig
 	make dep
 	make uImage
