@@ -226,6 +226,9 @@ static int init_func_spi(void)
 #if defined(CONFIG_WATCHDOG)
 int init_func_watchdog_init(void)
 {
+#if defined(CONFIG_MPC85xx)
+	init_85xx_watchdog();
+#endif
 	puts("       Watchdog enabled\n");
 	WATCHDOG_RESET();
 	return 0;

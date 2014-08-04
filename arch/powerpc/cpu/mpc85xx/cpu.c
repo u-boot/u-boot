@@ -310,6 +310,14 @@ __weak unsigned long get_tbclk (void)
 
 
 #if defined(CONFIG_WATCHDOG)
+#define WATCHDOG_MASK (TCR_WP(63) | TCR_WRC(3) | TCR_WIE)
+void
+init_85xx_watchdog(void)
+{
+	mtspr(SPRN_TCR, (mfspr(SPRN_TCR) & ~WATCHDOG_MASK) |
+	      TCR_WP(CONFIG_WATCHDOG_PRESC) | TCR_WRC(CONFIG_WATCHDOG_RC));
+}
+
 void
 reset_85xx_watchdog(void)
 {

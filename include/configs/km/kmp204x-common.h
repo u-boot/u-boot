@@ -377,6 +377,14 @@ int get_scl(void);
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */
 
 /*
+ * Hardware Watchdog
+ */
+#define CONFIG_WATCHDOG			/* enable CPU watchdog */
+#define CONFIG_WATCHDOG_PRESC 34	/* wdog prescaler 2^(64-34) (~10min) */
+#define CONFIG_WATCHDOG_RC WRC_CHIP	/* reset chip on watchdog event */
+
+
+/*
  * additionnal command line configuration.
  */
 #define CONFIG_CMD_PCI
