@@ -1,5 +1,5 @@
 ARNDALE BOARD
-M:	Inderpal Singh <inderpal.singh@linaro.org>
+M:	Chander Kashyap <k.chander@samsung.com>
 S:	Maintained
 F:	board/samsung/arndale/
 F:	include/configs/arndale.h
