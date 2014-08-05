@@ -701,6 +701,9 @@ config TARGET_WHISTLER
 config TARGET_COLIBRI_T20_IRIS
 	bool "Support colibri_t20_iris"
 
+config TARGET_COLIBRI_T30
+	bool "Support Colibri T30"
+
 config TARGET_TEC_NG
 	bool "Support tec-ng"
 
@@ -989,6 +992,7 @@ source "board/timll/devkit3250/Kconfig"
 source "board/timll/devkit8000/Kconfig"
 source "board/toradex/colibri_pxa270/Kconfig"
 source "board/toradex/colibri_t20_iris/Kconfig"
+source "board/toradex/colibri_t30/Kconfig"
 source "board/trizepsiv/Kconfig"
 source "board/ttcontrol/vision2/Kconfig"
 source "board/udoo/Kconfig"

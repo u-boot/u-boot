@@ -21,6 +21,7 @@ dtb-$(CONFIG_TEGRA) += tegra20-harmony.dtb \
 	tegra20-colibri_t20_iris.dtb \
 	tegra30-beaver.dtb \
 	tegra30-cardhu.dtb \
+	tegra30-colibri.dtb \
 	tegra30-tec-ng.dtb \
 	tegra114-dalmore.dtb \
 	tegra124-jetson-tk1.dtb \
