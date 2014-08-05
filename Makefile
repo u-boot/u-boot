@@ -437,12 +437,12 @@ ifeq ($(mixed-targets),1)
 # We're called with mixed targets (*config and build targets).
 # Handle them one by one.
 
-PHONY += $(MAKECMDGOALS) build-one-by-one
+PHONY += $(MAKECMDGOALS) __build_one_by_one
 
-$(MAKECMDGOALS): build-one-by-one
+$(filter-out __build_one_by_one, $(MAKECMDGOALS)): __build_one_by_one
 	@:
 
-build-one-by-one:
+__build_one_by_one:
 	$(Q)set -e; \
 	for i in $(MAKECMDGOALS); do \
 		$(MAKE) -f $(srctree)/Makefile $$i; \
