@@ -943,7 +943,7 @@ u-boot-img.bin: spl/u-boot-spl.bin u-boot.img FORCE
 	$(call if_changed,cat)
 
 boot.bin: spl/u-boot-spl.bin
-	tools/zynq-boot-bin.py -o boot.bin -u spl/u-boot-spl.bin
+	$(srctree)/tools/zynq-boot-bin.py -o boot.bin -u spl/u-boot-spl.bin
 
 #Add a target to create boot binary having SPL binary in PBI format
 #concatenated with u-boot binary. It is need by PowerPC SoC having
