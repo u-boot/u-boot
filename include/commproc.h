@@ -556,27 +556,6 @@ typedef struct scc_enet {
 #define SICR_ENET_CLKRT	((uint)0x00002600)
 #endif	/* CONFIG_FPS850L, CONFIG_FPS860L */
 
-/*** GEN860T **********************************************************/
-#if defined(CONFIG_GEN860T)
-#undef	SCC_ENET
-#define	FEC_ENET
-
-#define PD_MII_TXD1	((ushort)0x1000)	/* PD  3	*/
-#define PD_MII_TXD2	((ushort)0x0800)	/* PD  4	*/
-#define PD_MII_TXD3	((ushort)0x0400)	/* PD  5	*/
-#define PD_MII_RX_DV	((ushort)0x0200)	/* PD  6	*/
-#define PD_MII_RX_ERR	((ushort)0x0100)	/* PD  7	*/
-#define PD_MII_RX_CLK	((ushort)0x0080)	/* PD  8	*/
-#define PD_MII_TXD0	((ushort)0x0040)	/* PD  9	*/
-#define PD_MII_RXD0	((ushort)0x0020)	/* PD 10	*/
-#define PD_MII_TX_ERR	((ushort)0x0010)	/* PD 11	*/
-#define PD_MII_MDC	((ushort)0x0008)	/* PD 12	*/
-#define PD_MII_RXD1	((ushort)0x0004)	/* PD 13	*/
-#define PD_MII_RXD2	((ushort)0x0002)	/* PD 14	*/
-#define PD_MII_RXD3	((ushort)0x0001)	/* PD 15	*/
-#define PD_MII_MASK	((ushort)0x1FFF)	/* PD 3-15	*/
-#endif	/* CONFIG_GEN860T */
-
 /*** HERMES-PRO ******************************************************/
 
 /* The HERMES-PRO uses the FEC on a MPC860T for Ethernet */

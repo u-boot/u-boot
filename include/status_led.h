@@ -56,30 +56,6 @@ void status_led_set  (int led, int state);
 
 # define STATUS_LED_BOOT	0		/* LED 0 used for boot status */
 
-/*****  GEN860T  *********************************************************/
-#elif defined(CONFIG_GEN860T)
-
-# define STATUS_LED_PAR			im_ioport.iop_papar
-# define STATUS_LED_DIR			im_ioport.iop_padir
-# define STATUS_LED_ODR			im_ioport.iop_paodr
-# define STATUS_LED_DAT			im_ioport.iop_padat
-
-# define STATUS_LED_BIT			0x0800	/* Red LED 0 is on PA.4	*/
-# define STATUS_LED_PERIOD		(CONFIG_SYS_HZ / 4)
-# define STATUS_LED_STATE		STATUS_LED_OFF
-# define STATUS_LED_BIT1		0x0400	/* Grn LED 1 is on PA.5	*/
-# define STATUS_LED_PERIOD1		(CONFIG_SYS_HZ / 8)
-# define STATUS_LED_STATE1		STATUS_LED_BLINKING
-# define STATUS_LED_BIT2		0x0080	/* Red LED 2 is on PA.8	*/
-# define STATUS_LED_PERIOD2		(CONFIG_SYS_HZ / 4)
-# define STATUS_LED_STATE2		STATUS_LED_OFF
-# define STATUS_LED_BIT3		0x0040	/* Grn LED 3 is on PA.9	*/
-# define STATUS_LED_PERIOD3		(CONFIG_SYS_HZ / 4)
-# define STATUS_LED_STATE3		STATUS_LED_OFF
-
-# define STATUS_LED_ACTIVE		1	/* LED on for bit == 1	*/
-# define STATUS_LED_BOOT		1	/* Boot status on LED 1	*/
-
 /*****  IVMS8  **********************************************************/
 #elif defined(CONFIG_IVMS8)
 
