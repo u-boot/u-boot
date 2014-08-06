@@ -1,6 +1,0 @@
-FLAGADM BOARD
-M:	Kári Davíðsson <kd@flaga.is>
-S:	Orphan (since 2014-06)
-F:	board/flagadm/
-F:	include/configs/FLAGADM.h
-F:	configs/FLAGADM_defconfig
