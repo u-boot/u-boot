@@ -15,6 +15,7 @@
 #include <fs.h>
 
 #include "menu.h"
+#include "cli.h"
 
 #define MAX_TFTP_PATH_LEN 127
 
@@ -578,8 +579,12 @@ static int label_localboot(struct pxe_label *label)
 	if (!localcmd)
 		return -ENOENT;
 
-	if (label->append)
-		setenv("bootargs", label->append);
+	if (label->append) {
+		char bootargs[CONFIG_SYS_CBSIZE];
+
+		cli_simple_process_macros(label->append, bootargs);
+		setenv("bootargs", bootargs);
+	}
 
 	debug("running: %s\n", localcmd);
 
@@ -607,7 +612,6 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 	char initrd_str[22];
 	char mac_str[29] = "";
 	char ip_str[68] = "";
-	char *bootargs;
 	int bootm_argc = 3;
 	int len = 0;
 	ulong kernel_addr;
@@ -654,7 +658,6 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 		sprintf(ip_str, " ip=%s:%s:%s:%s",
 			getenv("ipaddr"), getenv("serverip"),
 			getenv("gatewayip"), getenv("netmask"));
-		len += strlen(ip_str);
 	}
 
 #ifdef CONFIG_CMD_NET
@@ -664,27 +667,21 @@ static int label_boot(cmd_tbl_t *cmdtp, struct pxe_label *label)
 		err = format_mac_pxe(mac_str + 8, sizeof(mac_str) - 8);
 		if (err < 0)
 			mac_str[0] = '\0';
-		len += strlen(mac_str);
 	}
 #endif
 
-	if (label->append)
-		len += strlen(label->append);
+	if ((label->ipappend & 0x3) || label->append) {
+		char bootargs[CONFIG_SYS_CBSIZE] = "";
+		char finalbootargs[CONFIG_SYS_CBSIZE];
 
-	if (len) {
-		bootargs = malloc(len + 1);
-		if (!bootargs)
-			return 1;
-		bootargs[0] = '\0';
 		if (label->append)
 			strcpy(bootargs, label->append);
 		strcat(bootargs, ip_str);
 		strcat(bootargs, mac_str);
 
-		setenv("bootargs", bootargs);
-		printf("append: %s\n", bootargs);
-
-		free(bootargs);
+		cli_simple_process_macros(bootargs, finalbootargs);
+		setenv("bootargs", finalbootargs);
+		printf("append: %s\n", finalbootargs);
 	}
 
 	bootm_argv[1] = getenv("kernel_addr_r");
