@@ -1,6 +1,0 @@
-OMAP5912OSK BOARD
-M:	Rishi Bhattacharya <rishi@ti.com>
-S:	Maintained
-F:	board/ti/omap5912osk/
-F:	include/configs/omap5912osk.h
-F:	configs/omap5912osk_defconfig

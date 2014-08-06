@@ -287,9 +287,6 @@ config TARGET_SC_SPS_1
 config TARGET_NHK8815
 	bool "Support nhk8815"
 
-config TARGET_OMAP5912OSK
-	bool "Support omap5912osk"
-
 config TARGET_EDMINIV2
 	bool "Support edminiv2"
 
@@ -977,7 +974,6 @@ source "board/ti/beagle/Kconfig"
 source "board/ti/dra7xx/Kconfig"
 source "board/ti/evm/Kconfig"
 source "board/ti/ks2_evm/Kconfig"
-source "board/ti/omap5912osk/Kconfig"
 source "board/ti/omap5_uevm/Kconfig"
 source "board/ti/panda/Kconfig"
 source "board/ti/sdp3430/Kconfig"
