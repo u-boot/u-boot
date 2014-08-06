@@ -53,9 +53,6 @@ config TARGET_SXNI855T
 config TARGET_SPD823TS
 	bool "Support SPD823TS"
 
-config TARGET_SVM_SC8XX
-	bool "Support svm_sc8xx"
-
 config TARGET_MHPC
 	bool "Support MHPC"
 
@@ -150,7 +147,6 @@ source "board/netvia/Kconfig"
 source "board/r360mpi/Kconfig"
 source "board/sixnet/Kconfig"
 source "board/spd8xx/Kconfig"
-source "board/svm_sc8xx/Kconfig"
 source "board/tqc/tqm8xx/Kconfig"
 
 endmenu

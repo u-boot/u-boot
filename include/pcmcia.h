@@ -21,7 +21,7 @@
 
 #if !defined(CONFIG_PCMCIA_SLOT_A) && !defined(CONFIG_PCMCIA_SLOT_B)
 
-#if defined(CONFIG_TQM8xxL) || defined(CONFIG_SVM_SC8xx)
+#if defined(CONFIG_TQM8xxL)
 # define	CONFIG_PCMCIA_SLOT_B	/* The TQM8xxL use SLOT_B	*/
 #elif defined(CONFIG_SPD823TS)		/* The SPD8xx  use SLOT_B	*/
 # define CONFIG_PCMCIA_SLOT_B

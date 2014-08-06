@@ -12,6 +12,7 @@ The list should be sorted in reverse chronological order.
 
 Board            Arch        CPU            Commit      Removed     Last known maintainer/contact
 =================================================================================================
+svm_sc8xx        powerpc     mpc8xx         -           -           John Zhan <zhanz@sinovee.com>
 stxxtc           powerpc     mpc8xx         -           -           Dan Malek <dan@embeddedalley.com>
 omap5912osk      arm         arm926ejs      -           -           Rishi Bhattacharya <rishi@ti.com>
 p1023rds         powerpc     mpc85xx        d0bc5140    2014-07-22  Roy Zang <tie-fei.zang@freescale.com>
