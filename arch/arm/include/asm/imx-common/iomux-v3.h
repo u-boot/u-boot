@@ -123,6 +123,8 @@ typedef u64 iomux_v3_cfg_t;
 #define PAD_CTL_SPEED_MED	(1 << 12)
 #define PAD_CTL_SPEED_HIGH	(3 << 12)
 
+#define PAD_CTL_SRE		(1 << 11)
+
 #define PAD_CTL_DSE_150ohm	(1 << 6)
 #define PAD_CTL_DSE_50ohm	(3 << 6)
 #define PAD_CTL_DSE_25ohm	(6 << 6)
@@ -135,6 +137,8 @@ typedef u64 iomux_v3_cfg_t;
 #define PAD_CTL_PUE		(1 << 2 | PAD_CTL_PKE)
 
 #define PAD_CTL_OBE_IBE_ENABLE	(3 << 0)
+#define PAD_CTL_OBE_ENABLE	(1 << 1)
+#define PAD_CTL_IBE_ENABLE	(1 << 0)
 
 #else
 
