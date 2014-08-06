@@ -147,6 +147,10 @@ typedef struct at91_pmc {
 #define AT91_PMC_IXR_PCKRDY3		0x00000800
 #define AT91_PMC_IXR_MOSCSELS		0x00010000
 
+#define AT91_PMC_PCR_PID_MASK		(0x3f)
+#define AT91_PMC_PCR_CMD_WRITE		(0x1 << 12)
+#define AT91_PMC_PCR_EN			(0x1 << 28)
+
 #define		AT91_PMC_PCK		(1 <<  0)		/* Processor Clock */
 #define		AT91RM9200_PMC_UDP	(1 <<  1)		/* USB Devcice Port Clock [AT91RM9200 only] */
 #define		AT91RM9200_PMC_MCKUDP	(1 <<  2)		/* USB Device Port Master Clock Automatic Disable on Suspend [AT91RM9200 only] */
