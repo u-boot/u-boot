@@ -865,16 +865,6 @@ typedef struct scc_enet {
 #define SICR_ENET_CLKRT	((uint)0x00002E00)
 #endif	/* CONFIG_SPD823TS */
 
-/***  SXNI855T  ******************************************************/
-
-#if defined(CONFIG_SXNI855T)
-
-#ifdef CONFIG_FEC_ENET
-#define	FEC_ENET	/* use FEC for Ethernet */
-#endif	/* CONFIG_FEC_ETHERNET */
-
-#endif	/* CONFIG_SXNI855T */
-
 /***  MVS1, TQM823L/M, TQM850L/M, TQM885D, R360MPI  **********/
 
 #if (defined(CONFIG_MVS) && CONFIG_MVS < 2) || \

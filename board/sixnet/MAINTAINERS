@@ -1,6 +1,0 @@
-SIXNET BOARD
-M:	Dave Ellis <DGE@sixnetio.com>
-S:	Orphan (since 2014-06)
-F:	board/sixnet/
-F:	include/configs/SXNI855T.h
-F:	configs/SXNI855T_defconfig
