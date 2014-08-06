@@ -74,9 +74,6 @@ config TARGET_ELPT860
 config TARGET_UC100
 	bool "Support uc100"
 
-config TARGET_STXXTC
-	bool "Support stxxtc"
-
 config TARGET_FPS850L
 	bool "Support FPS850L"
 
@@ -153,7 +150,6 @@ source "board/netvia/Kconfig"
 source "board/r360mpi/Kconfig"
 source "board/sixnet/Kconfig"
 source "board/spd8xx/Kconfig"
-source "board/stx/stxxtc/Kconfig"
 source "board/svm_sc8xx/Kconfig"
 source "board/tqc/tqm8xx/Kconfig"
 

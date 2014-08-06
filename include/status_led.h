@@ -231,10 +231,6 @@ void status_led_set  (int led, int state);
 
 # define STATUS_LED_BOOT        0               /* LED 0 used for boot status */
 
-/*****  STx XTc    ********************************************************/
-#elif defined(CONFIG_STXXTC)
-/* XXX empty just to avoid the error */
-/************************************************************************/
 #elif defined(CONFIG_V38B)
 
 # define STATUS_LED_BIT		0x0010			/* Timer7 GPIO */
