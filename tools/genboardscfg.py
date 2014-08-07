@@ -58,8 +58,6 @@ def get_terminal_columns():
         try:
             ret = fcntl.ioctl(sys.stdout.fileno(), termios.TIOCGWINSZ, arg)
         except IOError as exception:
-            if exception.errno != errno.ENOTTY:
-                raise
             # If 'Inappropriate ioctl for device' error occurs,
             # stdout is probably redirected. Return 0.
             return 0
@@ -402,7 +400,7 @@ def __gen_boards_cfg(jobs):
       jobs: The number of jobs to run simultaneously
 
     Note:
-      The incomplete boards.cfg is left over when an error (including 
+      The incomplete boards.cfg is left over when an error (including
       the termination by the keyboard interrupt) occurs on the halfway.
     """
     check_top_directory()
