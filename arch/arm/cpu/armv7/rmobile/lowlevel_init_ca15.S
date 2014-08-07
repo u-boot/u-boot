@@ -35,6 +35,13 @@ do_cpu_waiting:
  */
 	.align  4
 do_lowlevel_init:
+	ldr	r2, =0xFF000044		/* PRR */
+	ldr	r1, [r2]
+	and	r1, r1, #0x7F00
+	lsrs	r1, r1, #8
+	cmp	r1, #0x4C		/* 0x4C is ID of r8a7794 */
+	beq	_exit_init_l2_a15
+
 	/* surpress wfe if ca15 */
 	tst r4, #4
 	mrceq p15, 0, r0, c1, c0, 1	/* actlr */
