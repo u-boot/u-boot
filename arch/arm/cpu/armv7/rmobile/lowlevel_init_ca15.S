@@ -42,11 +42,6 @@ do_lowlevel_init:
 	mcreq p15, 0, r0, c1, c0, 1
 
 	/* and set l2 latency */
-	mrceq p15, 1, r0, c9, c0, 2	/* l2ctlr */
-	orreq r0, r0, #0x00000800
-	orreq r0, r0, #0x00000003
-	mcreq p15, 1, r0, c9, c0, 2
-
 	mrc p15, 0, r0, c0, c0, 5	/* r0 = MPIDR */
 	and r0, r0, #0xf00
 	lsr r0, r0, #8
