@@ -509,10 +509,6 @@ static int imx6_pcie_deassert_core_reset(void)
 
 	imx6_pcie_toggle_power();
 
-	/* Enable PCIe */
-	clrbits_le32(&iomuxc_regs->gpr[1], IOMUXC_GPR1_TEST_POWERDOWN);
-	setbits_le32(&iomuxc_regs->gpr[1], IOMUXC_GPR1_REF_SSP_EN);
-
 	enable_pcie_clock();
 
 	/*
@@ -520,6 +516,10 @@ static int imx6_pcie_deassert_core_reset(void)
 	 * from the CPU, we need about 30mS to settle.
 	 */
 	mdelay(50);
+
+	/* Enable PCIe */
+	clrbits_le32(&iomuxc_regs->gpr[1], IOMUXC_GPR1_TEST_POWERDOWN);
+	setbits_le32(&iomuxc_regs->gpr[1], IOMUXC_GPR1_REF_SSP_EN);
 
 	imx6_pcie_toggle_reset();
 
