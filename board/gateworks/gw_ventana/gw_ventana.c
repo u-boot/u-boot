@@ -585,6 +585,8 @@ static iomux_v3_cfg_t const gw51xx_gpio_pads[] = {
 	IOMUX_PADS(PAD_CSI0_DATA_EN__GPIO5_IO20 | DIO_PAD_CFG),
 	/* PCI_RST# */
 	IOMUX_PADS(PAD_GPIO_0__GPIO1_IO00 | DIO_PAD_CFG),
+	/* PCIESKT_WDIS# */
+	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12 | DIO_PAD_CFG),
 };
 
 static iomux_v3_cfg_t const gw52xx_gpio_pads[] = {
@@ -607,6 +609,8 @@ static iomux_v3_cfg_t const gw52xx_gpio_pads[] = {
 	IOMUX_PADS(PAD_EIM_D31__GPIO3_IO31 | DIO_PAD_CFG),
 	/* PCI_RST# */
 	IOMUX_PADS(PAD_ENET_TXD1__GPIO1_IO29 | DIO_PAD_CFG),
+	/* PCIESKT_WDIS# */
+	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12 | DIO_PAD_CFG),
 };
 
 static iomux_v3_cfg_t const gw53xx_gpio_pads[] = {
@@ -629,6 +633,8 @@ static iomux_v3_cfg_t const gw53xx_gpio_pads[] = {
 	IOMUX_PADS(PAD_EIM_D31__GPIO3_IO31 | DIO_PAD_CFG),
 	/* PCI_RST# */
 	IOMUX_PADS(PAD_ENET_TXD1__GPIO1_IO29 | DIO_PAD_CFG),
+	/* PCIESKT_WDIS# */
+	IOMUX_PADS(PAD_GPIO_17__GPIO7_IO12 | DIO_PAD_CFG),
 };
 
 static iomux_v3_cfg_t const gw54xx_gpio_pads[] = {
@@ -654,6 +660,8 @@ static iomux_v3_cfg_t const gw54xx_gpio_pads[] = {
 	IOMUX_PADS(PAD_ENET_TXD1__GPIO1_IO29 | DIO_PAD_CFG),
 	/* VID_EN */
 	IOMUX_PADS(PAD_EIM_D31__GPIO3_IO31 | DIO_PAD_CFG),
+	/* PCIESKT_WDIS# */
+	IOMUX_PADS(PAD_DISP0_DAT23__GPIO5_IO17 | DIO_PAD_CFG),
 };
 
 /*
@@ -684,6 +692,7 @@ struct ventana {
 	int dioi2c_en;
 	int pcie_sson;
 	int usb_sel;
+	int wdis;
 };
 
 struct ventana gpio_cfg[] = {
@@ -769,6 +778,7 @@ struct ventana gpio_cfg[] = {
 		.mezz_irq = IMX_GPIO_NR(2, 18),
 		.gps_shdn = IMX_GPIO_NR(1, 2),
 		.vidin_en = IMX_GPIO_NR(5, 20),
+		.wdis = IMX_GPIO_NR(7, 12),
 	},
 
 	/* GW52xx */
@@ -812,6 +822,7 @@ struct ventana gpio_cfg[] = {
 		.gps_shdn = IMX_GPIO_NR(1, 27),
 		.vidin_en = IMX_GPIO_NR(3, 31),
 		.usb_sel = IMX_GPIO_NR(1, 2),
+		.wdis = IMX_GPIO_NR(7, 12),
 	},
 
 	/* GW53xx */
@@ -854,6 +865,7 @@ struct ventana gpio_cfg[] = {
 		.mezz_irq = IMX_GPIO_NR(2, 18),
 		.gps_shdn = IMX_GPIO_NR(1, 27),
 		.vidin_en = IMX_GPIO_NR(3, 31),
+		.wdis = IMX_GPIO_NR(7, 12),
 	},
 
 	/* GW54xx */
@@ -898,6 +910,7 @@ struct ventana gpio_cfg[] = {
 		.vidin_en = IMX_GPIO_NR(3, 31),
 		.dioi2c_en = IMX_GPIO_NR(4,  5),
 		.pcie_sson = IMX_GPIO_NR(1, 20),
+		.wdis = IMX_GPIO_NR(5, 17),
 	},
 };
 
@@ -1022,6 +1035,10 @@ static void setup_board_gpio(int board)
 	/* USBOTG Select (PCISKT or FrontPanel) */
 	if (gpio_cfg[board].usb_sel)
 		gpio_direction_output(gpio_cfg[board].usb_sel, 0);
+
+	/* PCISKT_WDIS# (Wireless disable GPIO to miniPCIe sockets) */
+	if (gpio_cfg[board].wdis)
+		gpio_direction_output(gpio_cfg[board].wdis, 1);
 
 	/*
 	 * Configure DIO pinmux/padctl registers
