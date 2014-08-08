@@ -11,6 +11,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <errno.h>
 #include <stdarg.h>
 #include <malloc.h>
 #include <stdio_dev.h>
@@ -35,22 +36,42 @@ char *stdio_names[MAX_FILES] = { "stdin", "stdout", "stderr" };
 
 
 #ifdef CONFIG_SYS_DEVICE_NULLDEV
-void nulldev_putc(const char c)
+void nulldev_putc(struct stdio_dev *dev, const char c)
 {
 	/* nulldev is empty! */
 }
 
-void nulldev_puts(const char *s)
+void nulldev_puts(struct stdio_dev *dev, const char *s)
 {
 	/* nulldev is empty! */
 }
 
-int nulldev_input(void)
+int nulldev_input(struct stdio_dev *dev)
 {
 	/* nulldev is empty! */
 	return 0;
 }
 #endif
+
+void stdio_serial_putc(struct stdio_dev *dev, const char c)
+{
+	serial_putc(c);
+}
+
+void stdio_serial_puts(struct stdio_dev *dev, const char *s)
+{
+	serial_puts(s);
+}
+
+int stdio_serial_getc(struct stdio_dev *dev)
+{
+	return serial_getc();
+}
+
+int stdio_serial_tstc(struct stdio_dev *dev)
+{
+	return serial_tstc();
+}
 
 /**************************************************************************
  * SYSTEM DRIVERS
@@ -65,10 +86,10 @@ static void drv_system_init (void)
 
 	strcpy (dev.name, "serial");
 	dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
-	dev.putc = serial_putc;
-	dev.puts = serial_puts;
-	dev.getc = serial_getc;
-	dev.tstc = serial_tstc;
+	dev.putc = stdio_serial_putc;
+	dev.puts = stdio_serial_puts;
+	dev.getc = stdio_serial_getc;
+	dev.tstc = stdio_serial_tstc;
 	stdio_register (&dev);
 
 #ifdef CONFIG_SYS_DEVICE_NULLDEV
@@ -128,32 +149,35 @@ struct stdio_dev* stdio_clone(struct stdio_dev *dev)
 	return _dev;
 }
 
-int stdio_register (struct stdio_dev * dev)
+int stdio_register_dev(struct stdio_dev *dev, struct stdio_dev **devp)
 {
 	struct stdio_dev *_dev;
 
 	_dev = stdio_clone(dev);
 	if(!_dev)
-		return -1;
+		return -ENODEV;
 	list_add_tail(&(_dev->list), &(devs.list));
+	if (devp)
+		*devp = _dev;
+
 	return 0;
+}
+
+int stdio_register(struct stdio_dev *dev)
+{
+	return stdio_register_dev(dev, NULL);
 }
 
 /* deregister the device "devname".
  * returns 0 if success, -1 if device is assigned and 1 if devname not found
  */
 #ifdef	CONFIG_SYS_STDIO_DEREGISTER
-int stdio_deregister(const char *devname)
+int stdio_deregister_dev(struct stdio_dev *dev)
 {
 	int l;
 	struct list_head *pos;
-	struct stdio_dev *dev;
 	char temp_names[3][16];
 
-	dev = stdio_get_by_name(devname);
-
-	if(!dev) /* device not found */
-		return -1;
 	/* get stdio devices (ListRemoveItem changes the dev list) */
 	for (l=0 ; l< MAX_FILES; l++) {
 		if (stdio_devices[l] == dev) {
@@ -176,6 +200,18 @@ int stdio_deregister(const char *devname)
 		}
 	}
 	return 0;
+}
+
+int stdio_deregister(const char *devname)
+{
+	struct stdio_dev *dev;
+
+	dev = stdio_get_by_name(devname);
+
+	if (!dev) /* device not found */
+		return -ENODEV;
+
+	return stdio_deregister_dev(dev);
 }
 #endif	/* CONFIG_SYS_STDIO_DEREGISTER */
 

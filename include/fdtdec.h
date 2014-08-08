@@ -345,6 +345,35 @@ int fdtdec_find_aliases_for_id(const void *blob, const char *name,
 int fdtdec_add_aliases_for_id(const void *blob, const char *name,
 			enum fdt_compat_id id, int *node_list, int maxcount);
 
+/**
+ * Get the alias sequence number of a node
+ *
+ * This works out whether a node is pointed to by an alias, and if so, the
+ * sequence number of that alias. Aliases are of the form <base><num> where
+ * <num> is the sequence number. For example spi2 would be sequence number
+ * 2.
+ *
+ * @param blob		Device tree blob (if NULL, then error is returned)
+ * @param base		Base name for alias (before the underscore)
+ * @param node		Node to look up
+ * @param seqp		This is set to the sequence number if one is found,
+ *			but otherwise the value is left alone
+ * @return 0 if a sequence was found, -ve if not
+ */
+int fdtdec_get_alias_seq(const void *blob, const char *base, int node,
+			 int *seqp);
+
+/**
+ * Get the offset of the given alias node
+ *
+ * This looks up an alias in /aliases then finds the offset of that node.
+ *
+ * @param blob		Device tree blob (if NULL, then error is returned)
+ * @param name		Alias name, e.g. "console"
+ * @return Node offset referred to by that alias, or -ve FDT_ERR_...
+ */
+int fdtdec_get_alias_node(const void *blob, const char *name);
+
 /*
  * Get the name for a compatible ID
  *

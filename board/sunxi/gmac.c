@@ -16,17 +16,28 @@ int sunxi_gmac_initialize(bd_t *bis)
 	setbits_le32(&ccm->ahb_gate1, 0x1 << AHB_GATE_OFFSET_GMAC);
 
 	/* Set MII clock */
+#ifdef CONFIG_RGMII
 	setbits_le32(&ccm->gmac_clk_cfg, CCM_GMAC_CTRL_TX_CLK_SRC_INT_RGMII |
 		CCM_GMAC_CTRL_GPIT_RGMII);
+#else
+	setbits_le32(&ccm->gmac_clk_cfg, CCM_GMAC_CTRL_TX_CLK_SRC_MII |
+		CCM_GMAC_CTRL_GPIT_MII);
+#endif
 
 	/* Configure pin mux settings for GMAC */
 	for (pin = SUNXI_GPA(0); pin <= SUNXI_GPA(16); pin++) {
+#ifdef CONFIG_RGMII
 		/* skip unused pins in RGMII mode */
 		if (pin == SUNXI_GPA(9) || pin == SUNXI_GPA(14))
 			continue;
+#endif
 		sunxi_gpio_set_cfgpin(pin, SUN7I_GPA0_GMAC);
 		sunxi_gpio_set_drv(pin, 3);
 	}
 
+#ifdef CONFIG_RGMII
 	return designware_initialize(SUNXI_GMAC_BASE, PHY_INTERFACE_MODE_RGMII);
+#else
+	return designware_initialize(SUNXI_GMAC_BASE, PHY_INTERFACE_MODE_MII);
+#endif
 }

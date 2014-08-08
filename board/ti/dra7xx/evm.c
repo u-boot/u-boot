@@ -163,6 +163,8 @@ int spl_start_uboot(void)
 #define VIN2A_D15_DLY_VAL		((0x4 << 5) + 0x0)
 #define VIN2A_D14_DLY_VAL		((0x4 << 5) + 0x0)
 
+extern u32 *const omap_si_rev;
+
 static void cpsw_control(int enabled)
 {
 	/* VTP can be added here */
@@ -189,7 +191,7 @@ static struct cpsw_platform_data cpsw_data = {
 	.mdio_div		= 0xff,
 	.channels		= 8,
 	.cpdma_reg_ofs		= 0x800,
-	.slaves			= 1,
+	.slaves			= 2,
 	.slave_data		= cpsw_slaves,
 	.ale_reg_ofs		= 0xd00,
 	.ale_entries		= 1024,
@@ -259,6 +261,9 @@ int board_eth_init(bd_t *bis)
 	ctrl_val = readl((*ctrl)->control_core_control_io1) & (~0x33);
 	ctrl_val |= 0x22;
 	writel(ctrl_val, (*ctrl)->control_core_control_io1);
+
+	if (*omap_si_rev == DRA722_ES1_0)
+		cpsw_data.active_slave = 1;
 
 	ret = cpsw_register(&cpsw_data);
 	if (ret < 0)

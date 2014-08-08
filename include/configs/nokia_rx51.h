@@ -220,8 +220,6 @@
 
 #ifdef ONENAND_SUPPORT
 
-#define PISMO1_NAND_SIZE		GPMC_SIZE_128M
-#define PISMO1_ONEN_SIZE		GPMC_SIZE_128M
 #define CONFIG_SYS_ONENAND_BASE		ONENAND_MAP
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_PARTITIONS
@@ -263,9 +261,10 @@
 #define VIDEO_TSTC_FCT			rx51_kp_tstc
 #define VIDEO_GETC_FCT			rx51_kp_getc
 #ifndef __ASSEMBLY__
+struct stdio_dev;
 int rx51_kp_init(void);
-int rx51_kp_tstc(void);
-int rx51_kp_getc(void);
+int rx51_kp_tstc(struct stdio_dev *sdev);
+int rx51_kp_getc(struct stdio_dev *sdev);
 #endif
 
 #ifndef MTDPARTS_DEFAULT

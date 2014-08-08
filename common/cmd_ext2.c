@@ -22,7 +22,7 @@
  */
 #include <fs.h>
 
-int do_ext2ls (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_ext2ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	return do_ls(cmdtp, flag, argc, argv, FS_TYPE_EXT);
 }
@@ -30,7 +30,7 @@ int do_ext2ls (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 /******************************************************************************
  * Ext2fs boot command intepreter. Derived from diskboot
  */
-int do_ext2load (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_ext2load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	return do_load(cmdtp, flag, argc, argv, FS_TYPE_EXT);
 }
@@ -40,12 +40,12 @@ U_BOOT_CMD(
 	"list files in a directory (default /)",
 	"<interface> <dev[:part]> [directory]\n"
 	"    - list files from 'dev' on 'interface' in a 'directory'"
-);
+)
 
 U_BOOT_CMD(
 	ext2load,	6,	0,	do_ext2load,
 	"load binary file from a Ext2 filesystem",
-	"<interface> <dev[:part]> [addr] [filename] [bytes]\n"
+	"<interface> [<dev[:part]> [addr [filename [bytes [pos]]]]]\n"
 	"    - load binary file 'filename' from 'dev' on 'interface'\n"
 	"      to address 'addr' from ext2 filesystem."
-);
+)

@@ -21,7 +21,7 @@
 static struct list_head mmc_devices;
 static int cur_dev_num = -1;
 
-int __weak board_mmc_getwp(struct mmc *mmc)
+__weak int board_mmc_getwp(struct mmc *mmc)
 {
 	return -1;
 }
@@ -42,12 +42,10 @@ int mmc_getwp(struct mmc *mmc)
 	return wp;
 }
 
-int __board_mmc_getcd(struct mmc *mmc) {
+__weak int board_mmc_getcd(struct mmc *mmc)
+{
 	return -1;
 }
-
-int board_mmc_getcd(struct mmc *mmc)__attribute__((weak,
-	alias("__board_mmc_getcd")));
 
 int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 {
@@ -377,7 +375,7 @@ static int mmc_send_op_cond_iter(struct mmc *mmc, struct mmc_cmd *cmd,
 	return 0;
 }
 
-int mmc_send_op_cond(struct mmc *mmc)
+static int mmc_send_op_cond(struct mmc *mmc)
 {
 	struct mmc_cmd cmd;
 	int err, i;
@@ -399,7 +397,7 @@ int mmc_send_op_cond(struct mmc *mmc)
 	return IN_PROGRESS;
 }
 
-int mmc_complete_op_cond(struct mmc *mmc)
+static int mmc_complete_op_cond(struct mmc *mmc)
 {
 	struct mmc_cmd cmd;
 	int timeout = 1000;
@@ -1371,17 +1369,17 @@ int mmc_set_dsr(struct mmc *mmc, u16 val)
 	return 0;
 }
 
-/*
- * CPU and board-specific MMC initializations.  Aliased function
- * signals caller to move on
- */
-static int __def_mmc_init(bd_t *bis)
+/* CPU-specific MMC initializations */
+__weak int cpu_mmc_init(bd_t *bis)
 {
 	return -1;
 }
 
-int cpu_mmc_init(bd_t *bis) __attribute__((weak, alias("__def_mmc_init")));
-int board_mmc_init(bd_t *bis) __attribute__((weak, alias("__def_mmc_init")));
+/* board-specific MMC initializations. */
+__weak int board_mmc_init(bd_t *bis)
+{
+	return -1;
+}
 
 #if !defined(CONFIG_SPL_BUILD) || defined(CONFIG_SPL_LIBCOMMON_SUPPORT)
 

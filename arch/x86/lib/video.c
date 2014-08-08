@@ -104,7 +104,7 @@ static void __video_putc(const char c, int *x, int *y)
 	}
 }
 
-static void video_putc(const char c)
+static void video_putc(struct stdio_dev *dev, const char c)
 {
 	int x, y, pos;
 
@@ -123,7 +123,7 @@ static void video_putc(const char c)
 	outb_p(0xff & (pos >> 1), vidport+1);
 }
 
-static void video_puts(const char *s)
+static void video_puts(struct stdio_dev *dev, const char *s)
 {
 	int x, y, pos;
 	char c;
@@ -178,8 +178,6 @@ int video_init(void)
 	vga_dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_SYSTEM;
 	vga_dev.putc  = video_putc;        /* 'putc' function */
 	vga_dev.puts  = video_puts;        /* 'puts' function */
-	vga_dev.tstc  = NULL;              /* 'tstc' function */
-	vga_dev.getc  = NULL;              /* 'getc' function */
 
 	if (stdio_register(&vga_dev) == 0)
 		return 1;
@@ -191,8 +189,6 @@ int video_init(void)
 	strcpy(kbd_dev.name, "kbd");
 	kbd_dev.ext   = 0;
 	kbd_dev.flags = DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
-	kbd_dev.putc  = NULL;        /* 'putc' function */
-	kbd_dev.puts  = NULL;        /* 'puts' function */
 	kbd_dev.tstc  = i8042_tstc;  /* 'tstc' function */
 	kbd_dev.getc  = i8042_getc;  /* 'getc' function */
 

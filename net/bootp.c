@@ -605,7 +605,7 @@ BootpRequest(void)
 	int extlen, pktlen, iplen;
 	int eth_hdr_size;
 #ifdef CONFIG_BOOTP_RANDOM_DELAY
-	ulong i, rand_ms;
+	ulong rand_ms;
 #endif
 
 	bootstage_mark_name(BOOTSTAGE_ID_BOOTP_START, "bootp_start");
@@ -623,8 +623,7 @@ BootpRequest(void)
 		rand_ms = rand() >> 19;
 
 	printf("Random delay: %ld ms...\n", rand_ms);
-	for (i = 0; i < rand_ms; i++)
-		udelay(1000); /*Wait 1ms*/
+	mdelay(rand_ms);
 
 #endif	/* CONFIG_BOOTP_RANDOM_DELAY */
 

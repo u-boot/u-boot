@@ -259,6 +259,10 @@ static int initr_malloc(void)
 {
 	ulong malloc_start;
 
+#ifdef CONFIG_SYS_MALLOC_F_LEN
+	debug("Pre-reloc malloc() used %#lx bytes (%ld KB)\n", gd->malloc_ptr,
+	      gd->malloc_ptr / 1024);
+#endif
 	/* The malloc area is immediately below the monitor copy in DRAM */
 	malloc_start = gd->relocaddr - TOTAL_MALLOC_LEN;
 	mem_malloc_init((ulong)map_sysmem(malloc_start, TOTAL_MALLOC_LEN),
@@ -269,27 +273,10 @@ static int initr_malloc(void)
 #ifdef CONFIG_DM
 static int initr_dm(void)
 {
-	int ret;
-
-	ret = dm_init();
-	if (ret) {
-		debug("dm_init() failed: %d\n", ret);
-		return ret;
-	}
-	ret = dm_scan_platdata();
-	if (ret) {
-		debug("dm_scan_platdata() failed: %d\n", ret);
-		return ret;
-	}
-#ifdef CONFIG_OF_CONTROL
-	ret = dm_scan_fdt(gd->fdt_blob);
-	if (ret) {
-		debug("dm_scan_fdt() failed: %d\n", ret);
-		return ret;
-	}
-#endif
-
-	return 0;
+	/* Save the pre-reloc driver model and start a new one */
+	gd->dm_root_f = gd->dm_root;
+	gd->dm_root = NULL;
+	return dm_init_and_scan(false);
 }
 #endif
 
@@ -588,15 +575,12 @@ static int initr_status_led(void)
 #if defined(CONFIG_CMD_SCSI)
 static int initr_scsi(void)
 {
-	/* Not supported properly on ARM yet */
-#ifndef CONFIG_ARM
 	puts("SCSI:  ");
 	scsi_init();
-#endif
 
 	return 0;
 }
-#endif /* CONFIG_CMD_NET */
+#endif
 
 #if defined(CONFIG_CMD_DOC)
 static int initr_doc(void)

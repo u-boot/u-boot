@@ -2360,7 +2360,7 @@ unsigned long flash_init (void)
 #endif /* CONFIG_SYS_FLASH_QUIET_TEST */
 		}
 #ifdef CONFIG_SYS_FLASH_PROTECTION
-		else if ((s != NULL) && (strcmp(s, "yes") == 0)) {
+		else if (strcmp(s, "yes") == 0) {
 			/*
 			 * Only the U-Boot image and it's environment
 			 * is protected, all other sectors are

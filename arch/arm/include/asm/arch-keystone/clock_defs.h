@@ -50,7 +50,7 @@ struct pllctl_regs {
 };
 
 static struct pllctl_regs *pllctl_regs[] = {
-	(struct pllctl_regs *)(CLOCK_BASE + 0x100)
+	(struct pllctl_regs *)(KS2_CLOCK_BASE + 0x100)
 };
 
 #define pllctl_reg(pll, reg)            (&(pllctl_regs[pll]->reg))

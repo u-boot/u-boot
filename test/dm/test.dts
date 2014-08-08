@@ -6,10 +6,22 @@
 	#address-cells = <1>;
 	#size-cells = <0>;
 
+	aliases {
+		console = &uart0;
+		testfdt6 = "/e-test";
+	};
+
+	uart0: serial {
+		compatible = "sandbox,serial";
+		u-boot,dm-pre-reloc;
+	};
+
 	a-test {
 		reg = <0>;
 		compatible = "denx,u-boot-fdt-test";
+		ping-expect = <0>;
 		ping-add = <0>;
+		u-boot,dm-pre-reloc;
 	};
 
 	junk {
@@ -24,23 +36,47 @@
 	b-test {
 		reg = <3>;
 		compatible = "denx,u-boot-fdt-test";
+		ping-expect = <3>;
 		ping-add = <3>;
 	};
 
 	some-bus {
 		#address-cells = <1>;
 		#size-cells = <0>;
-		reg = <4>;
+		compatible = "denx,u-boot-test-bus";
+		reg = <3>;
+		ping-expect = <4>;
 		ping-add = <4>;
-		c-test {
+		c-test@5 {
 			compatible = "denx,u-boot-fdt-test";
 			reg = <5>;
+			ping-expect = <5>;
 			ping-add = <5>;
+		};
+		c-test@0 {
+			compatible = "denx,u-boot-fdt-test";
+			reg = <0>;
+			ping-expect = <6>;
+			ping-add = <6>;
+		};
+		c-test@1 {
+			compatible = "denx,u-boot-fdt-test";
+			reg = <1>;
+			ping-expect = <7>;
+			ping-add = <7>;
 		};
 	};
 
 	d-test {
-		reg = <6>;
+		reg = <3>;
+		ping-expect = <6>;
+		ping-add = <6>;
+		compatible = "google,another-fdt-test";
+	};
+
+	e-test {
+		reg = <3>;
+		ping-expect = <6>;
 		ping-add = <6>;
 		compatible = "google,another-fdt-test";
 	};

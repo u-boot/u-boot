@@ -450,7 +450,7 @@ __weak int ft_verify_fdt(void *fdt)
 	return 1;
 }
 
-__weak int arch_fixup_memory_node(void *blob)
+__weak int arch_fixup_fdt(void *blob)
 {
 	return 0;
 }
@@ -467,7 +467,10 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 		puts(" - must RESET the board to recover.\n");
 		return -1;
 	}
-	arch_fixup_memory_node(blob);
+	if (arch_fixup_fdt(blob) < 0) {
+		puts("ERROR: arch specific fdt fixup failed");
+		return -1;
+	}
 	if (IMAGE_OF_BOARD_SETUP)
 		ft_board_setup(blob, gd->bd);
 	fdt_fixup_ethernet(blob);
@@ -492,7 +495,7 @@ int image_setup_libfdt(bootm_headers_t *images, void *blob,
 	if (!ft_verify_fdt(blob))
 		return -1;
 
-#ifdef CONFIG_SOC_K2HK
+#if defined(CONFIG_SOC_KEYSTONE)
 	if (IMAGE_OF_BOARD_SETUP)
 		ft_board_setup_ex(blob, gd->bd);
 #endif

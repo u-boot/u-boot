@@ -16,7 +16,9 @@
 
 #include <common.h>
 #include <config.h>
+#include <fdt_support.h>
 #include <lcd.h>
+#include <mmc.h>
 #include <asm/arch/mbox.h>
 #include <asm/arch/sdhci.h>
 #include <asm/global_data.h>
@@ -91,7 +93,7 @@ int board_init(void)
 	return power_on_module(BCM2835_MBOX_POWER_DEVID_USB_HCD);
 }
 
-int board_mmc_init(void)
+int board_mmc_init(bd_t *bis)
 {
 	ALLOC_ALIGN_BUFFER(struct msg_get_clock_rate, msg_clk, 1, 16);
 	int ret;

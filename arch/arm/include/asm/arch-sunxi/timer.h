@@ -11,6 +11,11 @@
 #ifndef _SUNXI_TIMER_H_
 #define _SUNXI_TIMER_H_
 
+#define WDT_CTRL_RESTART	(0x1 << 0)
+#define WDT_CTRL_KEY		(0x0a57 << 1)
+#define WDT_MODE_EN		(0x1 << 0)
+#define WDT_MODE_RESET_EN	(0x1 << 1)
+
 #ifndef __ASSEMBLY__
 
 #include <linux/types.h>

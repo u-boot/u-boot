@@ -6,6 +6,7 @@
 #include <common.h>
 #include <os.h>
 #include <asm/getopt.h>
+#include <asm/io.h>
 #include <asm/sections.h>
 #include <asm/state.h>
 
@@ -218,6 +219,7 @@ SANDBOX_CMDLINE_OPT_SHORT(terminal, 't', 1,
 int main(int argc, char *argv[])
 {
 	struct sandbox_state *state;
+	gd_t data;
 	int ret;
 
 	ret = state_init();
@@ -235,6 +237,12 @@ int main(int argc, char *argv[])
 	/* Remove old memory file if required */
 	if (state->ram_buf_rm && state->ram_buf_fname)
 		os_unlink(state->ram_buf_fname);
+
+	memset(&data, '\0', sizeof(data));
+	gd = &data;
+#ifdef CONFIG_SYS_MALLOC_F_LEN
+	gd->malloc_base = CONFIG_MALLOC_F_ADDR;
+#endif
 
 	/* Do pre- and post-relocation init */
 	board_init_f(0);

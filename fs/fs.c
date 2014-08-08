@@ -276,6 +276,7 @@ int do_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 	unsigned long pos;
 	int len_read;
 	unsigned long time;
+	char *ep;
 
 	if (argc < 2)
 		return CMD_RET_USAGE;
@@ -286,7 +287,9 @@ int do_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[],
 		return 1;
 
 	if (argc >= 4) {
-		addr = simple_strtoul(argv[3], NULL, 16);
+		addr = simple_strtoul(argv[3], &ep, 16);
+		if (ep == argv[3] || *ep != '\0')
+			return CMD_RET_USAGE;
 	} else {
 		addr_str = getenv("loadaddr");
 		if (addr_str != NULL)

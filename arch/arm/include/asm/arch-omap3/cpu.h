@@ -98,7 +98,6 @@ struct ctrl_id {
 #define DEBUG_BASE		0x08000000	/* debug board */
 #define NAND_BASE		0x30000000	/* NAND addr */
 						/* (actual size small port) */
-#define PISMO2_BASE		0x18000000	/* PISMO2 CS1/2 */
 #define ONENAND_MAP		0x20000000	/* OneNand addr */
 						/* (actual size small port) */
 /* SMS */

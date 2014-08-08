@@ -360,7 +360,7 @@ static inline void usb_kbd_poll_for_event(struct usb_device *dev)
 }
 
 /* test if a character is in the queue */
-static int usb_kbd_testc(void)
+static int usb_kbd_testc(struct stdio_dev *sdev)
 {
 	struct stdio_dev *dev;
 	struct usb_device *usb_kbd_dev;
@@ -386,7 +386,7 @@ static int usb_kbd_testc(void)
 }
 
 /* gets the character from the queue */
-static int usb_kbd_getc(void)
+static int usb_kbd_getc(struct stdio_dev *sdev)
 {
 	struct stdio_dev *dev;
 	struct usb_device *usb_kbd_dev;
@@ -522,8 +522,6 @@ int drv_usb_kbd_init(void)
 		memset(&usb_kbd_dev, 0, sizeof(struct stdio_dev));
 		strcpy(usb_kbd_dev.name, DEVNAME);
 		usb_kbd_dev.flags =  DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
-		usb_kbd_dev.putc = NULL;
-		usb_kbd_dev.puts = NULL;
 		usb_kbd_dev.getc = usb_kbd_getc;
 		usb_kbd_dev.tstc = usb_kbd_testc;
 		usb_kbd_dev.priv = (void *)dev;

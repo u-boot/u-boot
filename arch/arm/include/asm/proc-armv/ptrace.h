@@ -38,12 +38,14 @@ struct pt_regs {
 #define IRQ_MODE	0x12
 #define SVC_MODE	0x13
 #define ABT_MODE	0x17
+#define HYP_MODE	0x1a
 #define UND_MODE	0x1b
 #define SYSTEM_MODE	0x1f
 #define MODE_MASK	0x1f
 #define T_BIT		0x20
 #define F_BIT		0x40
 #define I_BIT		0x80
+#define A_BIT		0x100
 #define CC_V_BIT	(1 << 28)
 #define CC_C_BIT	(1 << 29)
 #define CC_Z_BIT	(1 << 30)

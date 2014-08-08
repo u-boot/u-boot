@@ -98,12 +98,44 @@ int uclass_get(enum uclass_id key, struct uclass **ucp);
  *
  * The device is probed to activate it ready for use.
  *
- * id: ID to look up
+ * @id: ID to look up
  * @index: Device number within that uclass (0=first)
  * @devp: Returns pointer to device (there is only one per for each ID)
  * @return 0 if OK, -ve on error
  */
 int uclass_get_device(enum uclass_id id, int index, struct udevice **devp);
+
+/**
+ * uclass_get_device_by_seq() - Get a uclass device based on an ID and sequence
+ *
+ * If an active device has this sequence it will be returned. If there is no
+ * such device then this will check for a device that is requesting this
+ * sequence.
+ *
+ * The device is probed to activate it ready for use.
+ *
+ * @id: ID to look up
+ * @seq: Sequence number to find (0=first)
+ * @devp: Returns pointer to device (there is only one for each seq)
+ * @return 0 if OK, -ve on error
+ */
+int uclass_get_device_by_seq(enum uclass_id id, int seq, struct udevice **devp);
+
+/**
+ * uclass_get_device_by_of_offset() - Get a uclass device by device tree node
+ *
+ * This searches the devices in the uclass for one attached to the given
+ * device tree node.
+ *
+ * The device is probed to activate it ready for use.
+ *
+ * @id: ID to look up
+ * @node: Device tree offset to search for (if -ve then -ENODEV is returned)
+ * @devp: Returns pointer to device (there is only one for each node)
+ * @return 0 if OK, -ve on error
+ */
+int uclass_get_device_by_of_offset(enum uclass_id id, int node,
+				   struct udevice **devp);
 
 /**
  * uclass_first_device() - Get the first device in a uclass
@@ -122,6 +154,21 @@ int uclass_first_device(enum uclass_id id, struct udevice **devp);
  * @return 0 if OK (found or not found), -1 on error
  */
 int uclass_next_device(struct udevice **devp);
+
+/**
+ * uclass_resolve_seq() - Resolve a device's sequence number
+ *
+ * On entry dev->seq is -1, and dev->req_seq may be -1 (to allocate a
+ * sequence number automatically, or >= 0 to select a particular number.
+ * If the requested sequence number is in use, then this device will
+ * be allocated another one.
+ *
+ * Note that the device's seq value is not changed by this function.
+ *
+ * @dev: Device for which to allocate sequence number
+ * @return sequence number allocated, or -ve on error
+ */
+int uclass_resolve_seq(struct udevice *dev);
 
 /**
  * uclass_foreach_dev() - Helper function to iteration through devices

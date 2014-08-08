@@ -17,13 +17,14 @@
 
 #include <common.h>
 #include <fdt_support.h>
+#include <asm/armv7.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int arch_fixup_memory_node(void *blob)
+int arch_fixup_fdt(void *blob)
 {
 	bd_t *bd = gd->bd;
-	int bank;
+	int bank, ret;
 	u64 start[CONFIG_NR_DRAM_BANKS];
 	u64 size[CONFIG_NR_DRAM_BANKS];
 
@@ -32,5 +33,12 @@ int arch_fixup_memory_node(void *blob)
 		size[bank] = bd->bi_dram[bank].size;
 	}
 
-	return fdt_fixup_memory_banks(blob, start, size, CONFIG_NR_DRAM_BANKS);
+	ret = fdt_fixup_memory_banks(blob, start, size, CONFIG_NR_DRAM_BANKS);
+#if defined(CONFIG_ARMV7_NONSEC) || defined(CONFIG_ARMV7_VIRT)
+	if (ret)
+		return ret;
+
+	ret = armv7_update_dt(blob);
+#endif
+	return ret;
 }

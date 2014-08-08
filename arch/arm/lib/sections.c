@@ -25,4 +25,6 @@ char __image_copy_start[0] __attribute__((section(".__image_copy_start")));
 char __image_copy_end[0] __attribute__((section(".__image_copy_end")));
 char __rel_dyn_start[0] __attribute__((section(".__rel_dyn_start")));
 char __rel_dyn_end[0] __attribute__((section(".__rel_dyn_end")));
+char __secure_start[0] __attribute__((section(".__secure_start")));
+char __secure_end[0] __attribute__((section(".__secure_end")));
 char _end[0] __attribute__((section(".__end")));

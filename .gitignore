@@ -44,11 +44,7 @@
 #
 # Generated files
 #
-
 /LOG
-/errlog
-/reloc_off
-
 /spl/
 /tpl/
 

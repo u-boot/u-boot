@@ -48,6 +48,7 @@
 # include <machine/endian.h>
 typedef unsigned long ulong;
 #endif
+#include <time.h>
 
 typedef uint8_t __u8;
 typedef uint16_t __u16;

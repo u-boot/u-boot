@@ -327,10 +327,11 @@ struct mmc *find_mmc_device(int dev_num);
 int mmc_set_dev(int dev_num);
 void print_mmc_devices(char separator);
 int get_mmc_num(void);
-int board_mmc_getcd(struct mmc *mmc);
 int mmc_switch_part(int dev_num, unsigned int part_num);
 int mmc_getcd(struct mmc *mmc);
+int board_mmc_getcd(struct mmc *mmc);
 int mmc_getwp(struct mmc *mmc);
+int board_mmc_getwp(struct mmc *mmc);
 int mmc_set_dsr(struct mmc *mmc, u16 val);
 /* Function to change the size of boot partition and rpmb partitions */
 int mmc_boot_partition_size_change(struct mmc *mmc, unsigned long bootsize,
@@ -385,6 +386,7 @@ int mmc_legacy_init(int verbose);
 #endif
 
 int board_mmc_init(bd_t *bis);
+int cpu_mmc_init(bd_t *bis);
 
 /* Set block count limit because of 16 bit register limit on some hardware*/
 #ifndef CONFIG_SYS_MMC_MAX_BLK_COUNT

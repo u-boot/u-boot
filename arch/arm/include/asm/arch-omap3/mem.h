@@ -427,20 +427,7 @@ enum {
 /* max number of GPMC regs */
 #define GPMC_MAX_REG	7
 
-#define PISMO1_NOR	1
-#define PISMO1_NAND	2
-#define PISMO2_CS0	3
-#define PISMO2_CS1	4
-#define PISMO1_ONENAND	5
 #define DBG_MPDB	6
-#define PISMO2_NAND_CS0 7
-#define PISMO2_NAND_CS1 8
-
-/* make it readable for the gpmc_init */
-#define PISMO1_NOR_BASE		FLASH_BASE
-#define PISMO1_NAND_BASE	NAND_BASE
-#define PISMO2_CS0_BASE		PISMO2_MAP1
-#define PISMO1_ONEN_BASE	ONENAND_MAP
 #define DBG_MPDB_BASE		DEBUG_BASE
 
 #ifndef __ASSEMBLY__

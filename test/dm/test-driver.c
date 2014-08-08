@@ -144,3 +144,14 @@ U_BOOT_DRIVER(test_manual_drv) = {
 	.remove	= test_manual_remove,
 	.unbind	= test_manual_unbind,
 };
+
+U_BOOT_DRIVER(test_pre_reloc_drv) = {
+	.name	= "test_pre_reloc_drv",
+	.id	= UCLASS_TEST,
+	.ops	= &test_manual_ops,
+	.bind	= test_manual_bind,
+	.probe	= test_manual_probe,
+	.remove	= test_manual_remove,
+	.unbind	= test_manual_unbind,
+	.flags	= DM_FLAG_PRE_RELOC,
+};

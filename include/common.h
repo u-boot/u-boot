@@ -318,14 +318,14 @@ int arch_early_init_r(void);
 void board_show_dram(ulong size);
 
 /**
- * arch_fixup_memory_node() - Write arch-specific memory information to fdt
+ * arch_fixup_fdt() - Write arch-specific information to fdt
  *
- * Defined in arch/$(ARCH)/lib/bootm.c
+ * Defined in arch/$(ARCH)/lib/bootm-fdt.c
  *
  * @blob:	FDT blob to write to
  * @return 0 if ok, or -ve FDT_ERR_... on failure
  */
-int arch_fixup_memory_node(void *blob);
+int arch_fixup_fdt(void *blob);
 
 /* common/flash.c */
 void flash_perror (int);
@@ -638,6 +638,11 @@ void	serial_putc_raw(const char);
 void	serial_puts   (const char *);
 int	serial_getc   (void);
 int	serial_tstc   (void);
+
+/* These versions take a stdio_dev pointer */
+struct stdio_dev;
+int serial_stub_getc(struct stdio_dev *sdev);
+int serial_stub_tstc(struct stdio_dev *sdev);
 
 void	_serial_setbrg (const int);
 void	_serial_putc   (const char, const int);

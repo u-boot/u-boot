@@ -19,6 +19,7 @@
 #include <asm/arch/gpio.h>
 #include <asm/emif.h>
 #include "board.h"
+#include <power/pmic.h>
 #include <power/tps65218.h>
 #include <miiphy.h>
 #include <cpsw.h>
@@ -604,6 +605,19 @@ void sdram_init(void)
 	}
 }
 #endif
+
+/* setup board specific PMIC */
+int power_init_board(void)
+{
+	struct pmic *p;
+
+	power_tps65218_init(I2C_PMIC);
+	p = pmic_get("TPS65218_PMIC");
+	if (p && !pmic_probe(p))
+		puts("PMIC:  TPS65218\n");
+
+	return 0;
+}
 
 int board_init(void)
 {

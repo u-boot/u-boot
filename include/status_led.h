@@ -272,19 +272,21 @@ extern void __led_set (led_id_t mask, int state);
 # include <asm/status_led.h>
 #endif
 
+#endif	/* CONFIG_STATUS_LED	*/
+
 /*
  * Coloured LEDs API
  */
 #ifndef	__ASSEMBLY__
-extern void	coloured_LED_init (void);
-extern void	red_led_on(void);
-extern void	red_led_off(void);
-extern void	green_led_on(void);
-extern void	green_led_off(void);
-extern void	yellow_led_on(void);
-extern void	yellow_led_off(void);
-extern void	blue_led_on(void);
-extern void	blue_led_off(void);
+void coloured_LED_init(void);
+void red_led_on(void);
+void red_led_off(void);
+void green_led_on(void);
+void green_led_off(void);
+void yellow_led_on(void);
+void yellow_led_off(void);
+void blue_led_on(void);
+void blue_led_off(void);
 #else
 	.extern LED_init
 	.extern red_led_on
@@ -296,7 +298,5 @@ extern void	blue_led_off(void);
 	.extern blue_led_on
 	.extern blue_led_off
 #endif
-
-#endif	/* CONFIG_STATUS_LED	*/
 
 #endif	/* _STATUS_LED_H_	*/

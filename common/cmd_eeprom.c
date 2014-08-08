@@ -43,7 +43,7 @@ extern int eeprom_write_enable (unsigned dev_addr, int state);
 /* ------------------------------------------------------------------------- */
 
 #if defined(CONFIG_CMD_EEPROM)
-int do_eeprom ( cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
+static int do_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	const char *const fmt =
 		"\nEEPROM @0x%lX %s: addr %08lx  off %04lx  count %ld ... ";
@@ -413,7 +413,7 @@ U_BOOT_CMD(
 	"read  devaddr addr off cnt\n"
 	"eeprom write devaddr addr off cnt\n"
 	"       - read/write `cnt' bytes from `devaddr` EEPROM at offset `off'"
-);
+)
 #else /* One EEPROM */
 U_BOOT_CMD(
 	eeprom,	5,	1,	do_eeprom,
@@ -421,7 +421,7 @@ U_BOOT_CMD(
 	"read  addr off cnt\n"
 	"eeprom write addr off cnt\n"
 	"       - read/write `cnt' bytes at EEPROM offset `off'"
-);
+)
 #endif /* CONFIG_SYS_I2C_MULTI_EEPROMS */
 
 #endif

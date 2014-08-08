@@ -204,8 +204,6 @@ int drv_isa_kbd_init (void)
 	memset (&kbddev, 0, sizeof(kbddev));
 	strcpy(kbddev.name, DEVNAME);
 	kbddev.flags =  DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
-	kbddev.putc = NULL ;
-	kbddev.puts = NULL ;
 	kbddev.getc = kbd_getc ;
 	kbddev.tstc = kbd_testc ;
 
@@ -250,7 +248,7 @@ void kbd_put_queue(char data)
 }
 
 /* test if a character is in the queue */
-int kbd_testc(void)
+int kbd_testc(struct stdio_dev *dev)
 {
 	if(in_pointer==out_pointer)
 		return(0); /* no data */
@@ -258,7 +256,7 @@ int kbd_testc(void)
 		return(1);
 }
 /* gets the character from the queue */
-int kbd_getc(void)
+int kbd_getc(struct stdio_dev *dev)
 {
 	char c;
 	while(in_pointer==out_pointer);

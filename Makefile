@@ -915,6 +915,12 @@ OBJCOPYFLAGS_u-boot-spi.gph = -I binary -O binary --pad-to=$(CONFIG_SPL_PAD_TO) 
 u-boot-spi.gph: spl/u-boot-spl.gph u-boot.img FORCE
 	$(call if_changed,pad_cat)
 
+MKIMAGEFLAGS_u-boot-nand.gph = -A $(ARCH) -T gpimage -C none \
+	-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE) -n U-Boot
+u-boot-nand.gph: u-boot.bin FORCE
+	$(call if_changed,mkimage)
+	@dd if=/dev/zero bs=8 count=1 2>/dev/null >> $@
+
 ifneq ($(CONFIG_SUNXI),)
 OBJCOPYFLAGS_u-boot-sunxi-with-spl.bin = -I binary -O binary \
 				   --pad-to=$(CONFIG_SPL_PAD_TO) --gap-fill=0xff
@@ -1137,7 +1143,7 @@ spl/sunxi-spl.bin: spl/u-boot-spl
 tpl/u-boot-tpl.bin: tools prepare
 	$(Q)$(MAKE) obj=tpl -f $(srctree)/scripts/Makefile.spl all CONFIG_TPL_BUILD=y
 
-TAG_SUBDIRS := $(u-boot-dirs) include
+TAG_SUBDIRS := $(patsubst %,$(srctree)/%,$(u-boot-dirs) include)
 
 FIND := find
 FINDFLAGS := -L
@@ -1147,7 +1153,7 @@ tags ctags:
 						-name '*.[chS]' -print`
 
 etags:
-		etags -a -o $(obj)etags `$(FIND) $(FINDFLAGS) $(TAG_SUBDIRS) \
+		etags -a -o etags `$(FIND) $(FINDFLAGS) $(TAG_SUBDIRS) \
 						-name '*.[chS]' -print`
 cscope:
 		$(FIND) $(FINDFLAGS) $(TAG_SUBDIRS) -name '*.[chS]' -print > \
@@ -1222,7 +1228,7 @@ CLOBBER_FILES += u-boot* MLO* SPL System.map
 MRPROPER_DIRS  += include/config include/generated          \
 		  .tmp_objdiff
 MRPROPER_FILES += .config .config.old \
-		  tags TAGS cscope* GPATH GTAGS GRTAGS GSYMS \
+		  ctags etags cscope* GPATH GTAGS GRTAGS GSYMS \
 		  include/config.h include/config.mk
 
 # clean - Delete most, but leave enough to build external modules
@@ -1311,7 +1317,8 @@ help:
 	@echo  '  dir/file.[oisS] - Build specified target only'
 	@echo  '  dir/file.lst    - Build specified mixed source/assembly target only'
 	@echo  '                    (requires a recent binutils and recent build (System.map))'
-	@echo  '  tags/TAGS	  - Generate tags file for editors'
+	@echo  '  tags/ctags	  - Generate ctags file for editors'
+	@echo  '  etags		  - Generate etags file for editors'
 	@echo  '  cscope	  - Generate cscope index'
 	@echo  '  ubootrelease	  - Output the release version string'
 	@echo  '  ubootversion	  - Output the version stored in Makefile'

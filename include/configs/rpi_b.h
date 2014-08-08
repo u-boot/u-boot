@@ -98,7 +98,7 @@
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define CONFIG_PREBOOT \
 	"if load mmc 0:1 ${loadaddr} /uEnv.txt; then " \
-		"env import -t ${loadaddr} ${filesize}; " \
+		"env import -t -r ${loadaddr} ${filesize}; " \
 	"fi"
 
 #define ENV_DEVICE_SETTINGS \
