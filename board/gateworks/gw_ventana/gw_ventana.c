@@ -31,6 +31,7 @@
 #include <mmc.h>
 #include <mtd_node.h>
 #include <netdev.h>
+#include <pci.h>
 #include <power/pmic.h>
 #include <power/ltc3676_pmic.h>
 #include <power/pfuze100_pmic.h>
@@ -1156,6 +1157,35 @@ int imx6_pcie_toggle_reset(void)
 		gpio_direction_output(pin, 1);
 	}
 	return 0;
+}
+
+/*
+ * Most Ventana boards have a PLX PEX860x PCIe switch onboard and use its
+ * GPIO's as PERST# signals for its downstream ports - configure the GPIO's
+ * properly and assert reset for 100ms.
+ */
+void board_pci_fixup_dev(struct pci_controller *hose, pci_dev_t dev,
+			 unsigned short vendor, unsigned short device,
+			 unsigned short class)
+{
+	u32 dw;
+
+	debug("%s: %02d:%02d.%02d: %04x:%04x\n", __func__,
+	      PCI_BUS(dev), PCI_DEV(dev), PCI_FUNC(dev), vendor, device);
+	if (vendor == PCI_VENDOR_ID_PLX &&
+	    (device & 0xfff0) == 0x8600 &&
+	    PCI_DEV(dev) == 0 && PCI_FUNC(dev) == 0) {
+		debug("configuring PLX 860X downstream PERST#\n");
+		pci_hose_read_config_dword(hose, dev, 0x62c, &dw);
+		dw |= 0xaaa8; /* GPIO1-7 outputs */
+		pci_hose_write_config_dword(hose, dev, 0x62c, dw);
+
+		pci_hose_read_config_dword(hose, dev, 0x644, &dw);
+		dw |= 0xfe;   /* GPIO1-7 output high */
+		pci_hose_write_config_dword(hose, dev, 0x644, dw);
+
+		mdelay(100);
+	}
 }
 #endif /* CONFIG_CMD_PCI */
 
