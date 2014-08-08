@@ -995,12 +995,10 @@ static void setup_board_gpio(int board)
 		gpio_direction_output(GP_MSATA_SEL, 0);
 	}
 
-	/*
-	 * assert PCI_RST# (released by OS when clock is valid)
-	 * TODO: figure out why leaving this de-asserted from PCI scan on boot
-	 *       causes linux pcie driver to hang during enumeration
-	 */
+#if !defined(CONFIG_CMD_PCI)
+	/* assert PCI_RST# (released by OS when clock is valid) */
 	gpio_direction_output(gpio_cfg[board].pcie_rst, 0);
+#endif
 
 	/* turn off (active-high) user LED's */
 	for (i = 0; i < 4; i++) {
