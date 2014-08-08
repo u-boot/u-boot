@@ -1263,6 +1263,10 @@ int misc_init_r(void)
 		else if (is_cpu_type(MXC_CPU_MX6DL) ||
 			 is_cpu_type(MXC_CPU_MX6SOLO))
 			cputype = "imx6dl";
+		if (8 << (ventana_info.nand_flash_size-1) >= 2048)
+			setenv("flash_layout", "large");
+		else
+			setenv("flash_layout", "normal");
 		memset(str, 0, sizeof(str));
 		for (i = 0; i < (sizeof(str)-1) && info->model[i]; i++)
 			str[i] = tolower(info->model[i]);
