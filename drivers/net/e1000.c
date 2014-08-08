@@ -41,12 +41,12 @@ tested on both gig copper and gig fiber boards
 
 /* NIC specific static variables go here */
 
-static char tx_pool[128 + 16];
-static char rx_pool[128 + 16];
-static char packet[2096];
+/* Intel i210 needs the DMA descriptor rings aligned to 128b */
+#define E1000_BUFFER_ALIGN	128
 
-static struct e1000_tx_desc *tx_base;
-static struct e1000_rx_desc *rx_base;
+DEFINE_ALIGN_BUFFER(struct e1000_tx_desc, tx_base, 16, E1000_BUFFER_ALIGN);
+DEFINE_ALIGN_BUFFER(struct e1000_rx_desc, rx_base, 16, E1000_BUFFER_ALIGN);
+DEFINE_ALIGN_BUFFER(unsigned char, packet, 4096, E1000_BUFFER_ALIGN);
 
 static int tx_tail;
 static int rx_tail, rx_last;
@@ -4803,12 +4803,25 @@ void
 fill_rx(struct e1000_hw *hw)
 {
 	struct e1000_rx_desc *rd;
+	uint32_t flush_start, flush_end;
 
 	rx_last = rx_tail;
 	rd = rx_base + rx_tail;
 	rx_tail = (rx_tail + 1) % 8;
 	memset(rd, 0, 16);
-	rd->buffer_addr = cpu_to_le64((u32) & packet);
+	rd->buffer_addr = cpu_to_le64((u32)packet);
+
+	/*
+	 * Make sure there are no stale data in WB over this area, which
+	 * might get written into the memory while the e1000 also writes
+	 * into the same memory area.
+	 */
+	invalidate_dcache_range((u32)packet, (u32)packet + 4096);
+	/* Dump the DMA descriptor into RAM. */
+	flush_start = ((u32)rd) & ~(ARCH_DMA_MINALIGN - 1);
+	flush_end = flush_start + roundup(sizeof(*rd), ARCH_DMA_MINALIGN);
+	flush_dcache_range(flush_start, flush_end);
+
 	E1000_WRITE_REG(hw, RDT, rx_tail);
 }
 
@@ -4822,16 +4835,9 @@ fill_rx(struct e1000_hw *hw)
 static void
 e1000_configure_tx(struct e1000_hw *hw)
 {
-	unsigned long ptr;
 	unsigned long tctl;
 	unsigned long tipg, tarc;
 	uint32_t ipgr1, ipgr2;
-
-	ptr = (u32) tx_pool;
-	if (ptr & 0xf)
-		ptr = (ptr + 0x10) & (~0xf);
-
-	tx_base = (typeof(tx_base)) ptr;
 
 	E1000_WRITE_REG(hw, TDBAL, (u32) tx_base);
 	E1000_WRITE_REG(hw, TDBAH, 0);
@@ -4941,7 +4947,6 @@ e1000_setup_rctl(struct e1000_hw *hw)
 static void
 e1000_configure_rx(struct e1000_hw *hw)
 {
-	unsigned long ptr;
 	unsigned long rctl, ctrl_ext;
 	rx_tail = 0;
 	/* make sure receives are disabled while setting up the descriptors */
@@ -4963,10 +4968,6 @@ e1000_configure_rx(struct e1000_hw *hw)
 		E1000_WRITE_FLUSH(hw);
 	}
 	/* Setup the Base and Length of the Rx Descriptor Ring */
-	ptr = (u32) rx_pool;
-	if (ptr & 0xf)
-		ptr = (ptr + 0x10) & (~0xf);
-	rx_base = (typeof(rx_base)) ptr;
 	E1000_WRITE_REG(hw, RDBAL, (u32) rx_base);
 	E1000_WRITE_REG(hw, RDBAH, 0);
 
@@ -4989,12 +4990,25 @@ e1000_poll(struct eth_device *nic)
 {
 	struct e1000_hw *hw = nic->priv;
 	struct e1000_rx_desc *rd;
+	uint32_t inval_start, inval_end;
+	uint32_t len;
+
 	/* return true if there's an ethernet packet ready to read */
 	rd = rx_base + rx_last;
+
+	/* Re-load the descriptor from RAM. */
+	inval_start = ((u32)rd) & ~(ARCH_DMA_MINALIGN - 1);
+	inval_end = inval_start + roundup(sizeof(*rd), ARCH_DMA_MINALIGN);
+	invalidate_dcache_range(inval_start, inval_end);
+
 	if (!(le32_to_cpu(rd->status)) & E1000_RXD_STAT_DD)
 		return 0;
 	/*DEBUGOUT("recv: packet len=%d \n", rd->length); */
-	NetReceive((uchar *)packet, le32_to_cpu(rd->length));
+	/* Packet received, make sure the data are re-loaded from RAM. */
+	len = le32_to_cpu(rd->length);
+	invalidate_dcache_range((u32)packet,
+				(u32)packet + roundup(len, ARCH_DMA_MINALIGN));
+	NetReceive((uchar *)packet, len);
 	fill_rx(hw);
 	return 1;
 }
@@ -5002,12 +5016,13 @@ e1000_poll(struct eth_device *nic)
 /**************************************************************************
 TRANSMIT - Transmit a frame
 ***************************************************************************/
-static int e1000_transmit(struct eth_device *nic, void *packet, int length)
+static int e1000_transmit(struct eth_device *nic, void *txpacket, int length)
 {
-	void *nv_packet = (void *)packet;
+	void *nv_packet = (void *)txpacket;
 	struct e1000_hw *hw = nic->priv;
 	struct e1000_tx_desc *txp;
 	int i = 0;
+	uint32_t flush_start, flush_end;
 
 	txp = tx_base + tx_tail;
 	tx_tail = (tx_tail + 1) % 8;
@@ -5015,10 +5030,22 @@ static int e1000_transmit(struct eth_device *nic, void *packet, int length)
 	txp->buffer_addr = cpu_to_le64(virt_to_bus(hw->pdev, nv_packet));
 	txp->lower.data = cpu_to_le32(hw->txd_cmd | length);
 	txp->upper.data = 0;
+
+	/* Dump the packet into RAM so e1000 can pick them. */
+	flush_dcache_range((u32)nv_packet,
+			   (u32)nv_packet + roundup(length, ARCH_DMA_MINALIGN));
+	/* Dump the descriptor into RAM as well. */
+	flush_start = ((u32)txp) & ~(ARCH_DMA_MINALIGN - 1);
+	flush_end = flush_start + roundup(sizeof(*txp), ARCH_DMA_MINALIGN);
+	flush_dcache_range(flush_start, flush_end);
+
 	E1000_WRITE_REG(hw, TDT, tx_tail);
 
 	E1000_WRITE_FLUSH(hw);
-	while (!(le32_to_cpu(txp->upper.data) & E1000_TXD_STAT_DD)) {
+	while (1) {
+		invalidate_dcache_range(flush_start, flush_end);
+		if (le32_to_cpu(txp->upper.data) & E1000_TXD_STAT_DD)
+			break;
 		if (i++ > TOUT_LOOP) {
 			DEBUGOUT("e1000: tx timeout\n");
 			return 0;
