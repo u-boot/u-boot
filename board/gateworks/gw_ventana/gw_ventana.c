@@ -50,10 +50,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define GP_RS232_EN	IMX_GPIO_NR(2, 11)
 #define GP_MSATA_SEL	IMX_GPIO_NR(2, 8)
 
-/* I2C bus numbers */
-#define I2C_GSC		0
-#define I2C_PMIC	1
-
 #define UART_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE |		\
 	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED |		\
 	PAD_CTL_DSE_40ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
@@ -89,7 +85,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * EEPROM board info struct populated by read_eeprom so that we only have to
  * read it once.
  */
-static struct ventana_board_info ventana_info;
+struct ventana_board_info ventana_info;
 
 int board_type;
 
@@ -922,7 +918,7 @@ int power_init_board(void)
 
 	/* configure PFUZE100 PMIC */
 	if (board_type == GW54xx || board_type == GW54proto) {
-		power_pfuze100_init(I2C_PMIC);
+		power_pfuze100_init(CONFIG_I2C_PMIC);
 		p = pmic_get("PFUZE100");
 		if (p && !pmic_probe(p)) {
 			pmic_reg_read(p, PFUZE100_DEVICEID, &reg);
@@ -944,7 +940,7 @@ int power_init_board(void)
 
 	/* configure LTC3676 PMIC */
 	else {
-		power_ltc3676_init(I2C_PMIC);
+		power_ltc3676_init(CONFIG_I2C_PMIC);
 		p = pmic_get("LTC3676_PMIC");
 		if (p && !pmic_probe(p)) {
 			puts("PMIC:  LTC3676\n");
@@ -1175,7 +1171,7 @@ int board_init(void)
 	setup_sata();
 #endif
 	/* read Gateworks EEPROM into global struct (used later) */
-	board_type = read_eeprom(I2C_GSC, &ventana_info);
+	board_type = read_eeprom(CONFIG_I2C_GSC, &ventana_info);
 
 	/* board-specifc GPIO iomux */
 	SETUP_IOMUX_PADS(gw_gpio_pads);
@@ -1223,7 +1219,7 @@ int checkboard(void)
 		return 0;
 
 	/* Display GSC firmware revision/CRC/status */
-	i2c_set_bus_num(I2C_GSC);
+	i2c_set_bus_num(CONFIG_I2C_GSC);
 	if (!gsc_i2c_read(GSC_SC_ADDR, GSC_SC_FWVER, 1, buf, 1)) {
 		printf("GSC:   v%d", buf[0]);
 		if (!gsc_i2c_read(GSC_SC_ADDR, GSC_SC_STATUS, 1, buf, 4)) {
@@ -1353,7 +1349,7 @@ int misc_init_r(void)
 	 *
 	 * Disable the boot watchdog and display/clear the timeout flag if set
 	 */
-	i2c_set_bus_num(I2C_GSC);
+	i2c_set_bus_num(CONFIG_I2C_GSC);
 	if (!gsc_i2c_read(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1)) {
 		reg |= (1 << GSC_SC_CTRL1_WDDIS);
 		if (gsc_i2c_write(GSC_SC_ADDR, GSC_SC_CTRL1, 1, &reg, 1))
@@ -1374,74 +1370,6 @@ int misc_init_r(void)
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 
-/* FDT aliases associated with EEPROM config bits */
-const char *fdt_aliases[] = {
-	"ethernet0",
-	"ethernet1",
-	"hdmi_out",
-	"ahci0",
-	"pcie",
-	"ssi0",
-	"ssi1",
-	"lcd0",
-	"lvds0",
-	"lvds1",
-	"usb0",
-	"usb1",
-	"mmc0",
-	"mmc1",
-	"mmc2",
-	"mmc3",
-	"uart0",
-	"uart1",
-	"uart2",
-	"uart3",
-	"uart4",
-	"ipu0",
-	"ipu1",
-	"can0",
-	"mipi_dsi",
-	"mipi_csi",
-	"tzasc0",
-	"tzasc1",
-	"i2c0",
-	"i2c1",
-	"i2c2",
-	"vpu",
-	"csi0",
-	"csi1",
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	"spi0",
-	"spi1",
-	"spi2",
-	"spi3",
-	"spi4",
-	"spi5",
-	NULL,
-	NULL,
-	"pps",
-	NULL,
-	NULL,
-	NULL,
-	"hdmi_in",
-	"cvbs_out",
-	"cvbs_in",
-	"nand",
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-};
-
 /*
  * called prior to booting kernel or by 'fdt boardsetup' command
  *
@@ -1453,8 +1381,8 @@ const char *fdt_aliases[] = {
  */
 void ft_board_setup(void *blob, bd_t *bd)
 {
-	int bit;
 	struct ventana_board_info *info = &ventana_info;
+	struct ventana_eeprom_config *cfg;
 	struct node_info nodes[] = {
 		{ "sst,w25q256",          MTD_DEV_TYPE_NOR, },  /* SPI flash */
 		{ "fsl,imx6q-gpmi-nand",  MTD_DEV_TYPE_NAND, }, /* NAND flash */
@@ -1489,9 +1417,17 @@ void ft_board_setup(void *blob, bd_t *bd)
 	 *  remove nodes by alias path if EEPROM config tells us the
 	 *  peripheral is not loaded on the board.
 	 */
-	for (bit = 0; bit < 64; bit++) {
-		if (!test_bit(bit, info->config))
-			fdt_del_node_and_alias(blob, fdt_aliases[bit]);
+	if (getenv("fdt_noconfig")) {
+		puts("   Skiping periperhal config (fdt_noconfig defined)\n");
+		return;
+	}
+	cfg = econfig;
+	while (cfg->name) {
+		if (!test_bit(cfg->bit, info->config)) {
+			fdt_del_node_and_alias(blob, cfg->dtalias ?
+					       cfg->dtalias : cfg->name);
+		}
+		cfg++;
 	}
 }
 #endif /* defined(CONFIG_OF_FLAT_TREE) && defined(CONFIG_OF_BOARD_SETUP) */
