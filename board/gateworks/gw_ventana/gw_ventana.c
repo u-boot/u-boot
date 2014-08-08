@@ -1341,7 +1341,7 @@ int misc_init_r(void)
 	}
 	if (!gsc_i2c_read(GSC_SC_ADDR, GSC_SC_STATUS, 1, &reg, 1)) {
 		if (reg & (1 << GSC_SC_IRQ_WATCHDOG)) { /* watchdog timeout */
-			puts("GSC boot watchdog timeout detected");
+			puts("GSC boot watchdog timeout detected\n");
 			reg &= ~(1 << GSC_SC_IRQ_WATCHDOG); /* clear flag */
 			gsc_i2c_write(GSC_SC_ADDR, GSC_SC_STATUS, 1, &reg, 1);
 		}
