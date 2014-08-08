@@ -1348,6 +1348,7 @@ int misc_init_r(void)
 		else if (is_cpu_type(MXC_CPU_MX6DL) ||
 			 is_cpu_type(MXC_CPU_MX6SOLO))
 			cputype = "imx6dl";
+		setenv("soctype", cputype);
 		if (8 << (ventana_info.nand_flash_size-1) >= 2048)
 			setenv("flash_layout", "large");
 		else
