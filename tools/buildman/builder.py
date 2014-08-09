@@ -210,6 +210,7 @@ class Builder:
         self.force_reconfig = False
         self._step = step
         self.in_tree = False
+        self._error_lines = 0
 
         self.col = terminal.Color()
 
@@ -891,10 +892,13 @@ class Builder:
                         self.col.MAGENTA)
             for arch, target_list in arch_list.iteritems():
                 print '%10s: %s' % (arch, target_list)
+                self._error_lines += 1
             if better_err:
                 print self.col.Color(self.col.GREEN, '\n'.join(better_err))
+                self._error_lines += 1
             if worse_err:
                 print self.col.Color(self.col.RED, '\n'.join(worse_err))
+                self._error_lines += 1
 
         if show_sizes:
             self.PrintSizeSummary(board_selected, board_dict, show_detail,
@@ -937,9 +941,12 @@ class Builder:
         self.commit_count = len(commits) if commits else 1
         self.commits = commits
         self.ResetResultSummary(board_selected)
+        self._error_lines = 0
 
         for commit_upto in range(0, self.commit_count, self._step):
             self.ProduceResultSummary(commit_upto, commits, board_selected)
+        if not self._error_lines:
+            print self.col.Color(self.col.GREEN, '(no errors to report)')
 
 
     def SetupBuild(self, board_selected, commits):
