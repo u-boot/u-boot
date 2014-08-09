@@ -14,6 +14,31 @@ import terminal
 import checkpatch
 import settings
 
+def LogCmd(commit_range, git_dir=None, oneline=False, reverse=False,
+           count=None):
+    """Create a command to perform a 'git log'
+
+    Args:
+        commit_range: Range expression to use for log, None for none
+        git_dir: Path to git repositiory (None to use default)
+        oneline: True to use --oneline, else False
+        reverse: True to reverse the log (--reverse)
+        count: Number of commits to list, or None for no limit
+    Return:
+        List containing command and arguments to run
+    """
+    cmd = ['git']
+    if git_dir:
+        cmd += ['--git-dir', git_dir]
+    cmd += ['log', '--no-color']
+    if oneline:
+        cmd.append('--oneline')
+    cmd.append('--no-decorate')
+    if count is not None:
+        cmd.append('-n%d' % count)
+    if commit_range:
+        cmd.append(commit_range)
+    return cmd
 
 def CountCommitsToBranch():
     """Returns number of commits between HEAD and the tracking branch.
@@ -24,8 +49,7 @@ def CountCommitsToBranch():
     Return:
         Number of patches that exist on top of the branch
     """
-    pipe = [['git', 'log', '--no-color', '--oneline', '--no-decorate',
-             '@{upstream}..'],
+    pipe = [LogCmd('@{upstream}..', oneline=True),
             ['wc', '-l']]
     stdout = command.RunPipe(pipe, capture=True, oneline=True).stdout
     patch_count = int(stdout)
@@ -87,8 +111,7 @@ def CountCommitsInBranch(git_dir, branch, include_upstream=False):
     range_expr = GetRangeInBranch(git_dir, branch, include_upstream)
     if not range_expr:
         return None
-    pipe = [['git', '--git-dir', git_dir, 'log', '--oneline', '--no-decorate',
-             range_expr],
+    pipe = [LogCmd(range_expr, git_dir=git_dir, oneline=True),
             ['wc', '-l']]
     result = command.RunPipe(pipe, capture=True, oneline=True)
     patch_count = int(result.stdout)
@@ -102,7 +125,7 @@ def CountCommits(commit_range):
     Return:
         Number of patches that exist on top of the branch
     """
-    pipe = [['git', 'log', '--oneline', '--no-decorate', commit_range],
+    pipe = [LogCmd(commit_range, oneline=True),
             ['wc', '-l']]
     stdout = command.RunPipe(pipe, capture=True, oneline=True).stdout
     patch_count = int(stdout)

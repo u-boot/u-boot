@@ -379,14 +379,9 @@ def GetMetaDataForList(commit_range, git_dir=None, count=None,
     Returns:
         A Series object containing information about the commits.
     """
-    params = ['git', 'log', '--no-color', '--reverse', '--no-decorate',
-                    commit_range]
-    if count is not None:
-        params[2:2] = ['-n%d' % count]
-    if git_dir:
-        params[1:1] = ['--git-dir', git_dir]
-    pipe = [params]
-    stdout = command.RunPipe(pipe, capture=True).stdout
+    params = gitutil.LogCmd(commit_range,reverse=True, count=count,
+                            git_dir=git_dir)
+    stdout = command.RunPipe([params], capture=True).stdout
     ps = PatchStream(series, is_log=True)
     for line in stdout.splitlines():
         ps.ProcessLine(line)
