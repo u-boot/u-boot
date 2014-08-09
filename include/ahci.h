@@ -58,6 +58,10 @@
 #define PORT_SCR_ERR		0x30 /* SATA phy register: SError */
 #define PORT_SCR_ACT		0x34 /* SATA phy register: SActive */
 
+#ifdef CONFIG_SUNXI_AHCI
+#define PORT_P0DMACR		0x70 /* SUNXI specific "DMA register" */
+#endif
+
 /* PORT_IRQ_{STAT,MASK} bits */
 #define PORT_IRQ_COLD_PRES	(1 << 31) /* cold presence detect */
 #define PORT_IRQ_TF_ERR		(1 << 30) /* task file error */
