@@ -248,21 +248,34 @@ class BuilderThread(threading.Thread):
 
             if self.toolchain:
                 # Checkout the right commit
-                if commit_upto is not None:
+                if self.builder.commits:
                     commit = self.builder.commits[commit_upto]
                     if self.builder.checkout:
                         git_dir = os.path.join(work_dir, '.git')
                         gitutil.Checkout(commit.hash, git_dir, work_dir,
                                          force=True)
                 else:
-                    commit = self.builder.commit # Ick, fix this for BuildCommits()
+                    commit = 'current'
 
                 # Set up the environment and command line
                 env = self.toolchain.MakeEnvironment()
                 Mkdir(out_dir)
                 args = []
+                cwd = work_dir
                 if not self.builder.in_tree:
-                    args.append('O=build')
+                    if commit_upto is None:
+                        # In this case we are building in the original source
+                        # directory (i.e. the current directory where buildman
+                        # is invoked. The output directory is set to this
+                        # thread's selected work directory.
+                        #
+                        # Symlinks can confuse U-Boot's Makefile since
+                        # we may use '..' in our path, so remove them.
+                        work_dir = os.path.realpath(work_dir)
+                        args.append('O=%s/build' % work_dir)
+                        cwd = None
+                    else:
+                        args.append('O=build')
                 args.append('-s')
                 if self.builder.num_jobs is not None:
                     args.extend(['-j', str(self.builder.num_jobs)])
@@ -272,14 +285,14 @@ class BuilderThread(threading.Thread):
 
                 # If we need to reconfigure, do that now
                 if do_config:
-                    result = self.Make(commit, brd, 'distclean', work_dir,
+                    result = self.Make(commit, brd, 'distclean', cwd,
                             'distclean', *args, env=env)
-                    result = self.Make(commit, brd, 'config', work_dir,
+                    result = self.Make(commit, brd, 'config', cwd,
                             *(args + config_args), env=env)
                     config_out = result.combined
                     do_config = False   # No need to configure next time
                 if result.return_code == 0:
-                    result = self.Make(commit, brd, 'build', work_dir, *args,
+                    result = self.Make(commit, brd, 'build', cwd, *args,
                             env=env)
                     result.stdout = config_out + result.stdout
             else:
@@ -478,8 +491,10 @@ class BuilderThread(threading.Thread):
                 self.builder.out_queue.put(result)
         else:
             # Just build the currently checked-out build
-            result = self.RunCommit(None, True)
-            result.commit_upto = self.builder.upto
+            result, request_config = self.RunCommit(None, brd, work_dir, True,
+                        True, self.builder.force_build_failures)
+            result.commit_upto = 0
+            self._WriteResult(result, job.keep_outputs)
             self.builder.out_queue.put(result)
 
     def run(self):
@@ -491,12 +506,16 @@ class BuilderThread(threading.Thread):
         alive = True
         while True:
             job = self.builder.queue.get()
+            if self.builder.active and alive:
+                self.RunJob(job)
+            '''
             try:
                 if self.builder.active and alive:
                     self.RunJob(job)
             except Exception as err:
                 alive = False
                 print err
+            '''
             self.builder.queue.task_done()
 
 
@@ -763,10 +782,13 @@ class Builder:
         Args:
             commit_upto: Commit number to use (0..self.count-1)
         """
-        commit = self.commits[commit_upto]
-        subject = commit.subject.translate(trans_valid_chars)
-        commit_dir = ('%02d_of_%02d_g%s_%s' % (commit_upto + 1,
-                self.commit_count, commit.hash, subject[:20]))
+        if self.commits:
+            commit = self.commits[commit_upto]
+            subject = commit.subject.translate(trans_valid_chars)
+            commit_dir = ('%02d_of_%02d_g%s_%s' % (commit_upto + 1,
+                    self.commit_count, commit.hash, subject[:20]))
+        else:
+            commit_dir = 'current'
         output_dir = os.path.join(self.base_dir, commit_dir)
         return output_dir
 
@@ -1308,14 +1330,18 @@ class Builder:
             show_detail: Show detail for each board
             show_bloat: Show detail for each function
         """
-        self.commit_count = len(commits)
+        self.commit_count = len(commits) if commits else 1
         self.commits = commits
         self.ResetResultSummary(board_selected)
 
         for commit_upto in range(0, self.commit_count, self._step):
             board_dict, err_lines = self.GetResultSummary(board_selected,
                     commit_upto, read_func_sizes=show_bloat)
-            msg = '%02d: %s' % (commit_upto + 1, commits[commit_upto].subject)
+            if commits:
+                msg = '%02d: %s' % (commit_upto + 1,
+                        commits[commit_upto].subject)
+            else:
+                msg = 'current'
             print self.col.Color(self.col.BLUE, msg)
             self.PrintResultSummary(board_selected, board_dict,
                     err_lines if show_errors else [], show_sizes, show_detail,
@@ -1330,7 +1356,7 @@ class Builder:
             commits: Selected commits to build
         """
         # First work out how many commits we will build
-        count = (len(commits) + self._step - 1) / self._step
+        count = (self.commit_count + self._step - 1) / self._step
         self.count = len(board_selected) * count
         self.upto = self.warned = self.fail = 0
         self._timestamps = collections.deque()
@@ -1377,13 +1403,14 @@ class Builder:
         """
         return os.path.join(self._working_dir, '%02d' % thread_num)
 
-    def _PrepareThread(self, thread_num):
+    def _PrepareThread(self, thread_num, setup_git):
         """Prepare the working directory for a thread.
 
         This clones or fetches the repo into the thread's work directory.
 
         Args:
             thread_num: Thread number (0, 1, ...)
+            setup_git: True to set up a git repo clone
         """
         thread_dir = self.GetThreadDir(thread_num)
         Mkdir(thread_dir)
@@ -1392,7 +1419,7 @@ class Builder:
         # Clone the repo if it doesn't already exist
         # TODO(sjg@chromium): Perhaps some git hackery to symlink instead, so
         # we have a private index but uses the origin repo's contents?
-        if self.git_dir:
+        if setup_git and self.git_dir:
             src_dir = os.path.abspath(self.git_dir)
             if os.path.exists(git_dir):
                 gitutil.Fetch(git_dir, thread_dir)
@@ -1400,17 +1427,18 @@ class Builder:
                 print 'Cloning repo for thread %d' % thread_num
                 gitutil.Clone(src_dir, thread_dir)
 
-    def _PrepareWorkingSpace(self, max_threads):
+    def _PrepareWorkingSpace(self, max_threads, setup_git):
         """Prepare the working directory for use.
 
         Set up the git repo for each thread.
 
         Args:
             max_threads: Maximum number of threads we expect to need.
+            setup_git: True to set up a git repo clone
         """
         Mkdir(self._working_dir)
         for thread in range(max_threads):
-            self._PrepareThread(thread)
+            self._PrepareThread(thread, setup_git)
 
     def _PrepareOutputSpace(self):
         """Get the output directories ready to receive files.
@@ -1437,12 +1465,13 @@ class Builder:
             show_errors: True to show summarised error/warning info
             keep_outputs: True to save build output files
         """
-        self.commit_count = len(commits)
+        self.commit_count = len(commits) if commits else 1
         self.commits = commits
 
         self.ResetResultSummary(board_selected)
         Mkdir(self.base_dir)
-        self._PrepareWorkingSpace(min(self.num_threads, len(board_selected)))
+        self._PrepareWorkingSpace(min(self.num_threads, len(board_selected)),
+                commits is not None)
         self._PrepareOutputSpace()
         self.SetupBuild(board_selected, commits)
         self.ProcessResult(None)

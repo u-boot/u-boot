@@ -21,15 +21,20 @@ def GetPlural(count):
     """Returns a plural 's' if count is not 1"""
     return 's' if count != 1 else ''
 
-def GetActionSummary(is_summary, count, selected, options):
+def GetActionSummary(is_summary, commits, selected, options):
     """Return a string summarising the intended action.
 
     Returns:
         Summary string.
     """
-    count = (count + options.step - 1) / options.step
-    str = '%s %d commit%s for %d boards' % (
-        'Summary of' if is_summary else 'Building', count, GetPlural(count),
+    if commits:
+        count = len(commits)
+        count = (count + options.step - 1) / options.step
+        commit_str = '%d commit%s' % (count, GetPlural(count))
+    else:
+        commit_str = 'current source'
+    str = '%s %s for %d boards' % (
+        'Summary of' if is_summary else 'Building', commit_str,
         len(selected))
     str += ' (%d thread%s, %d job%s per thread)' % (options.threads,
             GetPlural(options.threads), options.jobs, GetPlural(options.jobs))
@@ -53,13 +58,18 @@ def ShowActions(series, why_selected, boards_selected, builder, options):
     col = terminal.Color()
     print 'Dry run, so not doing much. But I would do this:'
     print
-    print GetActionSummary(False, len(series.commits), boards_selected,
+    if series:
+        commits = series.commits
+    else:
+        commits = None
+    print GetActionSummary(False, commits, boards_selected,
             options)
     print 'Build directory: %s' % builder.base_dir
-    for upto in range(0, len(series.commits), options.step):
-        commit = series.commits[upto]
-        print '   ', col.Color(col.YELLOW, commit.hash, bright=False),
-        print commit.subject
+    if commits:
+        for upto in range(0, len(series.commits), options.step):
+            commit = series.commits[upto]
+            print '   ', col.Color(col.YELLOW, commit.hash, bright=False),
+            print commit.subject
     print
     for arg in why_selected:
         if arg != 'all':
@@ -93,15 +103,16 @@ def DoBuildman(options, args):
     count = options.count
     if count == -1:
         if not options.branch:
-            str = 'Please use -b to specify a branch to build'
-            print col.Color(col.RED, str)
-            sys.exit(1)
-        count = gitutil.CountCommitsInBranch(options.git_dir, options.branch)
-        if count is None:
-            str = "Branch '%s' not found or has no upstream" % options.branch
-            print col.Color(col.RED, str)
-            sys.exit(1)
-        count += 1   # Build upstream commit also
+            count = 1
+        else:
+            count = gitutil.CountCommitsInBranch(options.git_dir,
+                                                 options.branch)
+            if count is None:
+                str = ("Branch '%s' not found or has no upstream" %
+                       options.branch)
+                print col.Color(col.RED, str)
+                sys.exit(1)
+            count += 1   # Build upstream commit also
 
     if not count:
         str = ("No commits found to process in branch '%s': "
@@ -132,17 +143,21 @@ def DoBuildman(options, args):
     # upstream/master~..branch but that isn't possible if upstream/master is
     # a merge commit (it will list all the commits that form part of the
     # merge)
-    range_expr = gitutil.GetRangeInBranch(options.git_dir, options.branch)
-    upstream_commit = gitutil.GetUpstream(options.git_dir, options.branch)
-    series = patchstream.GetMetaDataForList(upstream_commit, options.git_dir,
-            1)
-    # Conflicting tags are not a problem for buildman, since it does not use
-    # them. For example, Series-version is not useful for buildman. On the
-    # other hand conflicting tags will cause an error. So allow later tags
-    # to overwrite earlier ones.
-    series.allow_overwrite = True
-    series = patchstream.GetMetaDataForList(range_expr, options.git_dir, None,
-            series)
+    if options.branch:
+        range_expr = gitutil.GetRangeInBranch(options.git_dir, options.branch)
+        upstream_commit = gitutil.GetUpstream(options.git_dir, options.branch)
+        series = patchstream.GetMetaDataForList(upstream_commit,
+            options.git_dir, 1)
+
+        # Conflicting tags are not a problem for buildman, since it does not
+        # use them. For example, Series-version is not useful for buildman. On
+        # the other hand conflicting tags will cause an error. So allow later
+        # tags to overwrite earlier ones.
+        series.allow_overwrite = True
+        series = patchstream.GetMetaDataForList(range_expr, options.git_dir, None,
+                series)
+    else:
+        series = None
 
     # By default we have one thread per CPU. But if there are not enough jobs
     # we can have fewer threads and use a high '-j' value for make.
@@ -162,7 +177,11 @@ def DoBuildman(options, args):
         sys.exit(1)
 
     # Create a new builder with the selected options
-    output_dir = os.path.join(options.output_dir, options.branch)
+    if options.branch:
+        dirname = options.branch
+    else:
+        dirname = 'current'
+    output_dir = os.path.join(options.output_dir, dirname)
     builder = Builder(toolchains, output_dir, options.git_dir,
             options.threads, options.jobs, gnu_make=gnu_make, checkout=True,
             show_unknown=options.show_unknown, step=options.step)
@@ -180,15 +199,21 @@ def DoBuildman(options, args):
         # Work out which boards to build
         board_selected = boards.GetSelectedDict()
 
-        print GetActionSummary(options.summary, count, board_selected, options)
+        if series:
+            commits = series.commits
+        else:
+            commits = None
+
+        print GetActionSummary(options.summary, commits, board_selected,
+                               options)
 
         if options.summary:
             # We can't show function sizes without board details at present
             if options.show_bloat:
                 options.show_detail = True
-            builder.ShowSummary(series.commits, board_selected,
+            builder.ShowSummary(commits, board_selected,
                     options.show_errors, options.show_sizes,
                     options.show_detail, options.show_bloat)
         else:
-            builder.BuildBoards(series.commits, board_selected,
+            builder.BuildBoards(commits, board_selected,
                     options.show_errors, options.keep_outputs)
