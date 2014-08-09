@@ -955,40 +955,6 @@ class Builder:
         self.upto = self.warned = self.fail = 0
         self._timestamps = collections.deque()
 
-    def BuildBoardsForCommit(self, board_selected, keep_outputs):
-        """Build all boards for a single commit"""
-        self.SetupBuild(board_selected)
-        self.count = len(board_selected)
-        for brd in board_selected.itervalues():
-            job = BuilderJob()
-            job.board = brd
-            job.commits = None
-            job.keep_outputs = keep_outputs
-            self.queue.put(brd)
-
-        self.queue.join()
-        self.out_queue.join()
-        print
-        self.ClearLine(0)
-
-    def BuildCommits(self, commits, board_selected, show_errors, keep_outputs):
-        """Build all boards for all commits (non-incremental)"""
-        self.commit_count = len(commits)
-
-        self.ResetResultSummary(board_selected)
-        for self.commit_upto in range(self.commit_count):
-            self.SelectCommit(commits[self.commit_upto])
-            self.SelectOutputDir()
-            builderthread.Mkdir(self.output_dir)
-
-            self.BuildBoardsForCommit(board_selected, keep_outputs)
-            board_dict, err_lines = self.GetResultSummary()
-            self.PrintResultSummary(board_selected, board_dict,
-                err_lines if show_errors else [])
-
-        if self.already_done:
-            print '%d builds already done' % self.already_done
-
     def GetThreadDir(self, thread_num):
         """Get the directory path to the working dir for a thread.
 
