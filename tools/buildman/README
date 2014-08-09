@@ -134,6 +134,8 @@ example:
 root: /
 rest: /toolchains/*
 eldk: /opt/eldk-4.2
+arm: /opt/linaro/gcc-linaro-arm-linux-gnueabihf-4.8-2013.08_linux
+aarch64: /opt/linaro/gcc-linaro-aarch64-none-elf-4.8-2013.10_linux
 
 [toolchain-alias]
 x86: i386
