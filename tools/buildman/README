@@ -41,9 +41,10 @@ Theory of Operation
 
 Buildman is a builder. It is not make, although it runs make. It does not
 produce any useful output on the terminal while building, except for
-progress information. All the output (errors, warnings and binaries if you
-are ask for them) is stored in output directories, which you can look at
-while the build is progressing, or when it is finished.
+progress information (except with -v, see below). All the output (errors,
+warnings and binaries if you are ask for them) is stored in output
+directories, which you can look at while the build is progressing, or when
+it is finished.
 
 Buildman produces a concise summary of which boards succeeded and failed.
 It shows which commit introduced which board failure using a simple
@@ -77,12 +78,17 @@ Buildman automatically selects the correct tool chain for each board. You
 must supply suitable tool chains, but buildman takes care of selecting the
 right one.
 
-Buildman always builds a branch, and always builds the upstream commit as
-well, for comparison. It cannot build individual commits at present, unless
-(maybe) you point it at an empty branch. Put all your commits in a branch,
-set the branch's upstream to a valid value, and all will be well. Otherwise
-buildman will perform random actions. Use -n to check what the random
-actions might be.
+Buildman generally builds a branch (with the -b flag), and in this case
+builds the upstream commit as well, for comparison. It cannot build
+individual commits at present, unless (maybe) you point it at an empty
+branch. Put all your commits in a branch, set the branch's upstream to a
+valid value, and all will be well. Otherwise buildman will perform random
+actions. Use -n to check what the random actions might be.
+
+If you just want to build the current source tree, leave off the -b flag.
+This will display results and errors as they happen. You can still look
+at them later using -s. Note that buildman will assume that the source
+has changed, and will build all specified boards in this case.
 
 Buildman is optimised for building many commits at once, for many boards.
 On multi-core machines, Buildman is fast because it uses most of the
@@ -659,6 +665,15 @@ It is expected that any variables added are dealt with in U-Boot's
 config.mk file and documented in the README.
 
 
+Quick Sanity Check
+==================
+
+If you have made changes and want to do a quick sanity check of the
+currently-checked-out source, run buildman without the -b flag. This will
+build the selected boards and display build status and errors as it runs
+(i.e. -v amd -e are enabled automatically).
+
+
 Other options
 =============
 
@@ -685,7 +700,15 @@ First you need to set up your tool chains - see the 'Setting up' section
 for details. Once you have your required toolchain(s) detected then you are
 ready to go.
 
-Buildman works on entire branches, so the normal use is:
+To build the current source tree, run buildman without a -b flag:
+
+   ./tools/buildman/buildman <list of things to build>
+
+This will build the current source tree for the given boards and display
+the results and errors.
+
+However buildman usually works on entire branches, and for that you must
+specify a board flag:
 
    ./tools/buildman/buildman -b <branch_name> <list of things to build>
 
@@ -697,6 +720,9 @@ to see the results of the build. Rather than showing you all the output,
 buildman just shows a summary, with red indicating that a commit introduced
 an error and green indicating that a commit fixed an error. Use the -e
 flag to see the full errors.
+
+If you really want to see build results as they happen, use -v when doing a
+build (and -e if you want to see errors as well).
 
 You don't need to stick around on that branch while buildman is running. It
 checks out its own copy of the source code, so you can change branches,

@@ -321,7 +321,8 @@ class Builder:
         """Process the result of a build, showing progress information
 
         Args:
-            result: A CommandResult object
+            result: A CommandResult object, which indicates the result for
+                    a single build
         """
         col = terminal.Color()
         if result:
@@ -339,6 +340,13 @@ class Builder:
                 self.warned += 1
             if result.already_done:
                 self.already_done += 1
+            if self._verbose:
+                print '\r',
+                self.ClearLine(0)
+                boards_selected = {target : result.brd}
+                self.ResetResultSummary(boards_selected)
+                self.ProduceResultSummary(result.commit_upto, self.commits,
+                                          boards_selected)
         else:
             target = '(starting)'
 
@@ -362,7 +370,7 @@ class Builder:
 
         name += target
         print line + name,
-        length = 13 + len(name)
+        length = 14 + len(name)
         self.ClearLine(length)
 
     def _GetOutputDir(self, commit_upto):
@@ -1041,7 +1049,7 @@ class Builder:
             if dirname not in dir_list:
                 shutil.rmtree(dirname)
 
-    def BuildBoards(self, commits, board_selected, keep_outputs):
+    def BuildBoards(self, commits, board_selected, keep_outputs, verbose):
         """Build all commits for a list of boards
 
         Args:
@@ -1049,9 +1057,11 @@ class Builder:
             boards_selected: Dict of selected boards, key is target name,
                     value is Board object
             keep_outputs: True to save build output files
+            verbose: Display build results as they are completed
         """
         self.commit_count = len(commits) if commits else 1
         self.commits = commits
+        self._verbose = verbose
 
         self.ResetResultSummary(board_selected)
         builderthread.Mkdir(self.base_dir)

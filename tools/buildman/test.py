@@ -137,7 +137,8 @@ class TestBuild(unittest.TestCase):
         board_selected = self.boards.GetSelectedDict()
 
         #build.BuildCommits(self.commits, board_selected, False)
-        build.BuildBoards(self.commits, board_selected, False)
+        build.BuildBoards(self.commits, board_selected, keep_outputs=False,
+                          verbose=False)
         build.SetDisplayOptions(show_errors=True);
         build.ShowSummary(self.commits, board_selected)
 

@@ -113,6 +113,8 @@ parser.add_option('-T', '--threads', type='int',
        default=None, help='Number of builder threads to use')
 parser.add_option('-u', '--show_unknown', action='store_true',
        default=False, help='Show boards with unknown build result')
+parser.add_option('-v', '--verbose', action='store_true',
+       default=False, help='Show build results while the build progresses')
 
 parser.usage = """buildman -b <branch> [options]
 
