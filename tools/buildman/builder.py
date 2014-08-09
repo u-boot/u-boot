@@ -235,6 +235,20 @@ class Builder:
         for t in self.threads:
             del t
 
+    def SetDisplayOptions(self, show_errors=False, show_sizes=False,
+                          show_detail=False, show_bloat=False):
+        """Setup display options for the builder.
+
+        show_errors: True to show summarised error/warning info
+        show_sizes: Show size deltas
+        show_detail: Show detail for each board
+        show_bloat: Show detail for each function
+        """
+        self._show_errors = show_errors
+        self._show_sizes = show_sizes
+        self._show_detail = show_detail
+        self._show_bloat = show_bloat
+
     def _AddTimestamp(self):
         """Add a new timestamp to the list and record the build period.
 
@@ -891,9 +905,18 @@ class Builder:
             print "Boards not built (%d): %s" % (len(not_built),
                     ', '.join(not_built))
 
+    def ProduceResultSummary(self, commit_upto, commits, board_selected):
+            board_dict, err_lines = self.GetResultSummary(board_selected,
+                    commit_upto, read_func_sizes=self._show_bloat)
+            if commits:
+                msg = '%02d: %s' % (commit_upto + 1,
+                        commits[commit_upto].subject)
+                print self.col.Color(self.col.BLUE, msg)
+            self.PrintResultSummary(board_selected, board_dict,
+                    err_lines if self._show_errors else [],
+                    self._show_sizes, self._show_detail, self._show_bloat)
 
-    def ShowSummary(self, commits, board_selected, show_errors, show_sizes,
-                    show_detail, show_bloat):
+    def ShowSummary(self, commits, board_selected):
         """Show a build summary for U-Boot for a given board list.
 
         Reset the result summary, then repeatedly call GetResultSummary on
@@ -902,27 +925,13 @@ class Builder:
         Args:
             commit: Commit objects to summarise
             board_selected: Dict containing boards to summarise
-            show_errors: Show errors that occured
-            show_sizes: Show size deltas
-            show_detail: Show detail for each board
-            show_bloat: Show detail for each function
         """
         self.commit_count = len(commits) if commits else 1
         self.commits = commits
         self.ResetResultSummary(board_selected)
 
         for commit_upto in range(0, self.commit_count, self._step):
-            board_dict, err_lines = self.GetResultSummary(board_selected,
-                    commit_upto, read_func_sizes=show_bloat)
-            if commits:
-                msg = '%02d: %s' % (commit_upto + 1,
-                        commits[commit_upto].subject)
-            else:
-                msg = 'current'
-            print self.col.Color(self.col.BLUE, msg)
-            self.PrintResultSummary(board_selected, board_dict,
-                    err_lines if show_errors else [], show_sizes, show_detail,
-                    show_bloat)
+            self.ProduceResultSummary(commit_upto, commits, board_selected)
 
 
     def SetupBuild(self, board_selected, commits):
@@ -1032,14 +1041,13 @@ class Builder:
             if dirname not in dir_list:
                 shutil.rmtree(dirname)
 
-    def BuildBoards(self, commits, board_selected, show_errors, keep_outputs):
+    def BuildBoards(self, commits, board_selected, keep_outputs):
         """Build all commits for a list of boards
 
         Args:
             commits: List of commits to be build, each a Commit object
             boards_selected: Dict of selected boards, key is target name,
                     value is Board object
-            show_errors: True to show summarised error/warning info
             keep_outputs: True to save build output files
         """
         self.commit_count = len(commits) if commits else 1

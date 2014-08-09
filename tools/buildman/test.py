@@ -137,9 +137,9 @@ class TestBuild(unittest.TestCase):
         board_selected = self.boards.GetSelectedDict()
 
         #build.BuildCommits(self.commits, board_selected, False)
-        build.BuildBoards(self.commits, board_selected, False, False)
-        build.ShowSummary(self.commits, board_selected, True, False,
-                          False, False)
+        build.BuildBoards(self.commits, board_selected, False)
+        build.SetDisplayOptions(show_errors=True);
+        build.ShowSummary(self.commits, board_selected)
 
     def _testGit(self):
         """Test basic builder operation by building a branch"""

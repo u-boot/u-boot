@@ -207,13 +207,13 @@ def DoBuildman(options, args):
         print GetActionSummary(options.summary, commits, board_selected,
                                options)
 
+        builder.SetDisplayOptions(options.show_errors, options.show_sizes,
+                                  options.show_detail, options.show_bloat)
         if options.summary:
             # We can't show function sizes without board details at present
             if options.show_bloat:
                 options.show_detail = True
-            builder.ShowSummary(commits, board_selected,
-                    options.show_errors, options.show_sizes,
-                    options.show_detail, options.show_bloat)
+            builder.ShowSummary(commits, board_selected)
         else:
             builder.BuildBoards(commits, board_selected,
-                    options.show_errors, options.keep_outputs)
+                                options.keep_outputs)
