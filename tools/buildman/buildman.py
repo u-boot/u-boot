@@ -83,6 +83,8 @@ parser.add_option('-F', '--force-build-failures', dest='force_build_failures',
        help='Force build of previously-failed build')
 parser.add_option('-g', '--git', type='string',
        help='Git repo containing branch to build', default='.')
+parser.add_option('-G', '--config-file', type='string',
+       help='Path to buildman config file', default='')
 parser.add_option('-H', '--full-help', action='store_true', dest='full_help',
        default=False, help='Display the README file')
 parser.add_option('-i', '--in-tree', dest='in_tree',
