@@ -71,8 +71,8 @@ directory. It clones this repository into a copy for each thread, and the
 threads do not affect the state of your git repository. Any checkouts done
 by the thread affect only the working directory for that thread.
 
-Buildman automatically selects the correct toolchain for each board. You
-must supply suitable toolchains, but buildman takes care of selecting the
+Buildman automatically selects the correct tool chain for each board. You
+must supply suitable tool chains, but buildman takes care of selecting the
 right one.
 
 Buildman always builds a branch, and always builds the upstream commit as
@@ -287,7 +287,7 @@ If it can't detect the upstream branch, try checking out the branch, and
 doing something like 'git branch --set-upstream <branch> upstream/master'
 or something similar.
 
-As an exmmple:
+As an example:
 
 Dry run, so not doing much. But I would do this:
 
@@ -339,7 +339,7 @@ Building 18 commits for 1059 boards (4 threads, 1 job per thread)
   528   36  124 /19062  1:13:30  : SIMPC8313_SP
 
 This means that it is building 19062 board/commit combinations. So far it
-has managed to succesfully build 528. Another 36 have built with warnings,
+has managed to successfully build 528. Another 36 have built with warnings,
 and 124 more didn't build at all. Buildman expects to complete the process
 in an hour and 15 minutes. Use this time to buy a faster computer.
 
@@ -413,7 +413,7 @@ again.
 
 At commit 16, the error moves - you can see that the old error at line 120
 is fixed, but there is a new one at line 126. This is probably only because
-we added some code and moved the broken line futher down the file.
+we added some code and moved the broken line father down the file.
 
 If many boards have the same error, then -e will display the error only
 once. This makes the output as concise as possible.
@@ -491,7 +491,7 @@ You can also use -d to see a detailed size breakdown for each board. This
 list is sorted in order from largest growth to largest reduction.
 
 It is possible to go a little further with the -B option (--bloat). This
-shows where U-Boot has bloted, breaking the size change down to the function
+shows where U-Boot has bloated, breaking the size change down to the function
 level. Example output is below:
 
 $ ./tools/buildman/buildman -b us-mem4 -sSdB
