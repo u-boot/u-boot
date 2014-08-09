@@ -70,6 +70,9 @@ parser.add_option('-c', '--count', dest='count', type='int',
 parser.add_option('-C', '--force-reconfig', dest='force_reconfig',
        action='store_true', default=False,
        help='Reconfigure for every commit (disable incremental build)')
+parser.add_option('-d', '--detail', dest='show_detail',
+       action='store_true', default=False,
+       help='Show detailed information for each board in summary')
 parser.add_option('-e', '--show_errors', action='store_true',
        default=False, help='Show errors and warnings')
 parser.add_option('-f', '--force-build', dest='force_build',
@@ -78,9 +81,6 @@ parser.add_option('-f', '--force-build', dest='force_build',
 parser.add_option('-F', '--force-build-failures', dest='force_build_failures',
        action='store_true', default=False,
        help='Force build of previously-failed build')
-parser.add_option('-d', '--detail', dest='show_detail',
-       action='store_true', default=False,
-       help='Show detailed information for each board in summary')
 parser.add_option('-g', '--git', type='string',
        help='Git repo containing branch to build', default='.')
 parser.add_option('-H', '--full-help', action='store_true', dest='full_help',
@@ -96,6 +96,9 @@ parser.add_option('--list-tool-chains', action='store_true', default=False,
        help='List available tool chains')
 parser.add_option('-n', '--dry-run', action='store_true', dest='dry_run',
        default=False, help="Do a try run (describe actions, but no nothing)")
+parser.add_option('-o', '--output-dir', type='string',
+       dest='output_dir', default='..',
+       help='Directory where all builds happen and buildman has its workspace (default is ../)')
 parser.add_option('-Q', '--quick', action='store_true',
        default=False, help='Do a rough build, with limited warning resolution')
 parser.add_option('-s', '--summary', action='store_true',
@@ -110,9 +113,6 @@ parser.add_option('-T', '--threads', type='int',
        default=None, help='Number of builder threads to use')
 parser.add_option('-u', '--show_unknown', action='store_true',
        default=False, help='Show boards with unknown build result')
-parser.add_option('-o', '--output-dir', type='string',
-       dest='output_dir', default='..',
-       help='Directory where all builds happen and buildman has its workspace (default is ../)')
 
 parser.usage = """buildman -b <branch> [options]
 
