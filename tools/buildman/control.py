@@ -144,18 +144,25 @@ def DoBuildman(options, args):
     # a merge commit (it will list all the commits that form part of the
     # merge)
     if options.branch:
-        range_expr = gitutil.GetRangeInBranch(options.git_dir, options.branch)
-        upstream_commit = gitutil.GetUpstream(options.git_dir, options.branch)
-        series = patchstream.GetMetaDataForList(upstream_commit,
-            options.git_dir, 1)
+        if count == -1:
+            range_expr = gitutil.GetRangeInBranch(options.git_dir,
+                                                  options.branch)
+            upstream_commit = gitutil.GetUpstream(options.git_dir,
+                                                  options.branch)
+            series = patchstream.GetMetaDataForList(upstream_commit,
+                options.git_dir, 1)
 
-        # Conflicting tags are not a problem for buildman, since it does not
-        # use them. For example, Series-version is not useful for buildman. On
-        # the other hand conflicting tags will cause an error. So allow later
-        # tags to overwrite earlier ones.
-        series.allow_overwrite = True
-        series = patchstream.GetMetaDataForList(range_expr, options.git_dir, None,
-                series)
+            # Conflicting tags are not a problem for buildman, since it does
+            # not use them. For example, Series-version is not useful for
+            # buildman. On the other hand conflicting tags will cause an
+            # error. So allow later tags to overwrite earlier ones.
+            series.allow_overwrite = True
+            series = patchstream.GetMetaDataForList(range_expr,
+                                              options.git_dir, None, series)
+        else:
+            # Honour the count
+            series = patchstream.GetMetaDataForList(options.branch,
+                                                    options.git_dir, count)
     else:
         series = None
         options.verbose = True
