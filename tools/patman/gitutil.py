@@ -14,6 +14,9 @@ import terminal
 import checkpatch
 import settings
 
+# True to use --no-decorate - we check this in Setup()
+use_no_decorate = True
+
 def LogCmd(commit_range, git_dir=None, oneline=False, reverse=False,
            count=None):
     """Create a command to perform a 'git log'
@@ -33,7 +36,8 @@ def LogCmd(commit_range, git_dir=None, oneline=False, reverse=False,
     cmd += ['log', '--no-color']
     if oneline:
         cmd.append('--oneline')
-    cmd.append('--no-decorate')
+    if use_no_decorate:
+        cmd.append('--no-decorate')
     if count is not None:
         cmd.append('-n%d' % count)
     if commit_range:
@@ -566,6 +570,9 @@ def Setup():
     alias_fname = GetAliasFile()
     if alias_fname:
         settings.ReadGitAliases(alias_fname)
+    cmd = LogCmd(None, count=0)
+    use_no_decorate = (command.RunPipe([cmd], raise_on_error=False)
+                       .return_code == 0)
 
 def GetHead():
     """Get the hash of the current HEAD
