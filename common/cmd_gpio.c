@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <errno.h>
 #include <dm.h>
 #include <asm/gpio.h>
 
@@ -135,9 +136,9 @@ static int do_gpio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	enum gpio_cmd sub_cmd;
 	ulong value;
 	const char *str_cmd, *str_gpio = NULL;
+	int ret;
 #ifdef CONFIG_DM_GPIO
 	bool all = false;
-	int ret;
 #endif
 
 	if (argc < 2)
@@ -197,7 +198,8 @@ static int do_gpio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		goto show_usage;
 #endif
 	/* grab the pin before we tweak it */
-	if (gpio_request(gpio, "cmd_gpio")) {
+	ret = gpio_request(gpio, "cmd_gpio");
+	if (ret && ret != -EBUSY) {
 		printf("gpio: requesting pin %u failed\n", gpio);
 		return -1;
 	}
@@ -218,7 +220,8 @@ static int do_gpio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	printf("gpio: pin %s (gpio %i) value is %lu\n",
 		str_gpio, gpio, value);
 
-	gpio_free(gpio);
+	if (ret != -EBUSY)
+		gpio_free(gpio);
 
 	return value;
 }
