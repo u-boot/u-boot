@@ -1,0 +1,23 @@
+if TARGET_BCM958622HR
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "bcm_ep"
+
+config SYS_VENDOR
+	string
+	default "broadcom"
+
+config SYS_SOC
+	string
+	default "bcmnsp"
+
+config SYS_CONFIG_NAME
+	string
+	default "bcm_ep_board"
+
+endif
