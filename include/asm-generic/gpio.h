@@ -79,11 +79,15 @@ int gpio_get_value(unsigned gpio);
  */
 int gpio_set_value(unsigned gpio, int value);
 
-/* State of a GPIO, as reported by get_state() */
+/* State of a GPIO, as reported by get_function() */
 enum {
 	GPIOF_INPUT = 0,
 	GPIOF_OUTPUT,
-	GPIOF_UNKNOWN,
+	GPIOF_UNUSED,		/* Not claimed */
+	GPIOF_UNKNOWN,		/* Not known */
+	GPIOF_FUNC,		/* Not used as a GPIO */
+
+	GPIOF_COUNT,
 };
 
 struct udevice;
@@ -123,6 +127,13 @@ struct dm_gpio_ops {
 				int value);
 	int (*get_value)(struct udevice *dev, unsigned offset);
 	int (*set_value)(struct udevice *dev, unsigned offset, int value);
+	/**
+	 * get_function() Get the GPIO function
+	 *
+	 * @dev:     Device to check
+	 * @offset:  GPIO offset within that device
+	 * @return current function - GPIOF_...
+	 */
 	int (*get_function)(struct udevice *dev, unsigned offset);
 	int (*get_state)(struct udevice *dev, unsigned offset, char *state,
 			 int maxlen);

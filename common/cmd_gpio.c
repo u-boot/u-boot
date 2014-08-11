@@ -24,18 +24,46 @@ enum gpio_cmd {
 };
 
 #if defined(CONFIG_DM_GPIO) && !defined(gpio_status)
-static const char * const gpio_function[] = {
+static const char * const gpio_function[GPIOF_COUNT] = {
 	"input",
 	"output",
+	"unused",
 	"unknown",
+	"func",
 };
 
-static void show_gpio(struct udevice *dev, const char *bank_name, int offset)
+/* A few flags used by show_gpio() */
+enum {
+	FLAG_SHOW_ALL		= 1 << 0,
+	FLAG_SHOW_BANK		= 1 << 1,
+	FLAG_SHOW_NEWLINE	= 1 << 2,
+};
+
+static void show_gpio(struct udevice *dev, const char *bank_name, int offset,
+		      int *flagsp)
 {
 	struct dm_gpio_ops *ops = gpio_get_ops(dev);
+	int func = GPIOF_UNKNOWN;
 	char buf[80];
 	int ret;
 
+	BUILD_BUG_ON(GPIOF_COUNT != ARRAY_SIZE(gpio_function));
+
+	if (ops->get_function) {
+		ret = ops->get_function(dev, offset);
+		if (ret >= 0 && ret < ARRAY_SIZE(gpio_function))
+			func = ret;
+	}
+	if (!(*flagsp & FLAG_SHOW_ALL) && func == GPIOF_UNUSED)
+		return;
+	if ((*flagsp & FLAG_SHOW_BANK) && bank_name) {
+		if (*flagsp & FLAG_SHOW_NEWLINE) {
+			putc('\n');
+			*flagsp &= ~FLAG_SHOW_NEWLINE;
+		}
+		printf("Bank %s:\n", bank_name);
+		*flagsp &= ~FLAG_SHOW_BANK;
+	}
 	*buf = '\0';
 	if (ops->get_state) {
 		ret = ops->get_state(dev, offset, buf, sizeof(buf));
@@ -44,14 +72,6 @@ static void show_gpio(struct udevice *dev, const char *bank_name, int offset)
 			return;
 		}
 	} else {
-		int func =  GPIOF_UNKNOWN;
-		int ret;
-
-		if (ops->get_function) {
-			ret = ops->get_function(dev, offset);
-			if (ret >= 0 && ret < ARRAY_SIZE(gpio_function))
-				func = ret;
-		}
 		sprintf(buf, "%s%u: %8s %d", bank_name, offset,
 			gpio_function[func], ops->get_value(dev, offset));
 	}
@@ -60,12 +80,14 @@ static void show_gpio(struct udevice *dev, const char *bank_name, int offset)
 	puts("\n");
 }
 
-static int do_gpio_status(const char *gpio_name)
+static int do_gpio_status(bool all, const char *gpio_name)
 {
 	struct udevice *dev;
-	int newline = 0;
+	int banklen;
+	int flags;
 	int ret;
 
+	flags = 0;
 	if (gpio_name && !*gpio_name)
 		gpio_name = NULL;
 	for (ret = uclass_first_device(UCLASS_GPIO, &dev);
@@ -74,28 +96,33 @@ static int do_gpio_status(const char *gpio_name)
 		const char *bank_name;
 		int num_bits;
 
+		flags |= FLAG_SHOW_BANK;
+		if (all)
+			flags |= FLAG_SHOW_ALL;
 		bank_name = gpio_get_bank_info(dev, &num_bits);
+		if (!num_bits)
+			continue;
+		banklen = bank_name ? strlen(bank_name) : 0;
 
 		if (!gpio_name || !bank_name ||
-		    !strncmp(gpio_name, bank_name, strlen(bank_name))) {
+		    !strncmp(gpio_name, bank_name, banklen)) {
 			const char *p = NULL;
 			int offset;
 
-			if (bank_name) {
-				if (newline)
-					putc('\n');
-				printf("Bank %s:\n", bank_name);
-			}
-			newline = 1;
-			if (gpio_name && bank_name) {
-				p = gpio_name + strlen(bank_name);
+			p = gpio_name + banklen;
+			if (gpio_name && *p) {
 				offset = simple_strtoul(p, NULL, 10);
-				show_gpio(dev, bank_name, offset);
+				show_gpio(dev, bank_name, offset, &flags);
 			} else {
-				for (offset = 0; offset < num_bits; offset++)
-					show_gpio(dev, bank_name, offset);
+				for (offset = 0; offset < num_bits; offset++) {
+					show_gpio(dev, bank_name, offset,
+						  &flags);
+				}
 			}
 		}
+		/* Add a newline between bank names */
+		if (!(flags & FLAG_SHOW_BANK))
+			flags |= FLAG_SHOW_NEWLINE;
 	}
 
 	return ret;
@@ -109,6 +136,7 @@ static int do_gpio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	ulong value;
 	const char *str_cmd, *str_gpio = NULL;
 #ifdef CONFIG_DM_GPIO
+	bool all = false;
 	int ret;
 #endif
 
@@ -116,15 +144,24 @@ static int do_gpio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  show_usage:
 		return CMD_RET_USAGE;
 	str_cmd = argv[1];
-	if (argc > 2)
-		str_gpio = argv[2];
+	argc -= 2;
+	argv += 2;
+#ifdef CONFIG_DM_GPIO
+	if (argc > 0 && !strcmp(*argv, "-a")) {
+		all = true;
+		argc--;
+		argv++;
+	}
+#endif
+	if (argc > 0)
+		str_gpio = *argv;
 	if (!strcmp(str_cmd, "status")) {
 		/* Support deprecated gpio_status() */
 #ifdef gpio_status
 		gpio_status();
 		return 0;
 #elif defined(CONFIG_DM_GPIO)
-		return cmd_process_error(cmdtp, do_gpio_status(str_gpio));
+		return cmd_process_error(cmdtp, do_gpio_status(all, str_gpio));
 #else
 		goto show_usage;
 #endif
@@ -186,8 +223,8 @@ static int do_gpio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return value;
 }
 
-U_BOOT_CMD(gpio, 3, 0, do_gpio,
-	"query and control gpio pins",
-	"<input|set|clear|toggle> <pin>\n"
-	"    - input/set/clear/toggle the specified pin\n"
-	"gpio status [<bank> | <pin>]");
+U_BOOT_CMD(gpio, 4, 0, do_gpio,
+	   "query and control gpio pins",
+	   "<input|set|clear|toggle> <pin>\n"
+	   "    - input/set/clear/toggle the specified pin\n"
+	   "gpio status [-a] [<bank> | <pin>]  - show [all/claimed] GPIOs");
