@@ -113,4 +113,12 @@
 			0x070b0067 0x070c0069>;
 	};
 
+	gpio_a: gpios {
+		gpio-controller;
+		compatible = "sandbox,gpio";
+		#gpio-cells = <1>;
+		gpio-bank-name = "a";
+		num-gpios = <20>;
+	};
+
 };
