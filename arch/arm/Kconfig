@@ -512,6 +512,9 @@ config TARGET_CGTQMX6EVAL
 config TARGET_EMBESTMX6BOARDS
 	bool "Support embestmx6boards"
 
+config TARGET_ARISTAINETOS
+	bool "Support aristainetos"
+
 config TARGET_MX6QARM2
 	bool "Support mx6qarm2"
 
@@ -773,6 +776,7 @@ config TARGET_JORNADA
 endchoice
 
 source "board/8dtech/eco5pk/Kconfig"
+source "board/aristainetos/Kconfig"
 source "board/Barix/ipam390/Kconfig"
 source "board/BuR/kwb/Kconfig"
 source "board/BuR/tseries/Kconfig"
