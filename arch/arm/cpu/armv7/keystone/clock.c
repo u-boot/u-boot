@@ -174,7 +174,7 @@ void init_pll(const struct pll_init_data *data)
 		 * bypass disabled
 		 */
 		bwadj = pllm >> 1;
-		tmp |= ((bwadj & PLL_BWADJ_LO_SHIFT) << PLL_BWADJ_LO_SHIFT) |
+		tmp |= ((bwadj & PLL_BWADJ_LO_MASK) << PLL_BWADJ_LO_SHIFT) |
 			(pllm << PLL_MULT_SHIFT) |
 			(plld & PLL_DIV_MASK) |
 			(pllod << PLL_CLKOD_SHIFT);
