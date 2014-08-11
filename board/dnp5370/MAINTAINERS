@@ -1,0 +1,6 @@
+DNP5370 BOARD
+M:	M.Hasewinkel (MHA) <info@ssv-embedded.de>
+S:	Maintained
+F:	board/dnp5370/
+F:	include/configs/dnp5370.h
+F:	configs/dnp5370_defconfig

@@ -1,0 +1,7 @@
+INTIP BOARD
+M:	Dirk Eibach <eibach@gdsys.de>
+S:	Maintained
+F:	board/gdsys/intip/
+F:	include/configs/intip.h
+F:	configs/devconcenter_defconfig
+F:	configs/intip_defconfig

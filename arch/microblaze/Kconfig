@@ -1,0 +1,18 @@
+menu "MicroBlaze architecture"
+	depends on MICROBLAZE
+
+config SYS_ARCH
+	string
+	default "microblaze"
+
+choice
+	prompt "Target select"
+
+config TARGET_MICROBLAZE_GENERIC
+	bool "Support microblaze-generic"
+
+endchoice
+
+source "board/xilinx/microblaze-generic/Kconfig"
+
+endmenu

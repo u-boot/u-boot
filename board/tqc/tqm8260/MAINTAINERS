@@ -1,0 +1,16 @@
+TQM8260 BOARD
+M:	Wolfgang Denk <wd@denx.de>
+S:	Maintained
+F:	board/tqc/tqm8260/
+F:	include/configs/TQM8260.h
+F:	configs/TQM8255_AA_defconfig
+F:	configs/TQM8260_AA_defconfig
+F:	configs/TQM8260_AB_defconfig
+F:	configs/TQM8260_AC_defconfig
+F:	configs/TQM8260_AD_defconfig
+F:	configs/TQM8260_AE_defconfig
+F:	configs/TQM8260_AF_defconfig
+F:	configs/TQM8260_AG_defconfig
+F:	configs/TQM8260_AH_defconfig
+F:	configs/TQM8260_AI_defconfig
+F:	configs/TQM8265_AA_defconfig

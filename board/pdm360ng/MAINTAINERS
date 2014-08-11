@@ -1,0 +1,6 @@
+PDM360NG BOARD
+M:	Michael Weiss <michael.weiss@ifm.com>
+S:	Maintained
+F:	board/pdm360ng/
+F:	include/configs/pdm360ng.h
+F:	configs/pdm360ng_defconfig

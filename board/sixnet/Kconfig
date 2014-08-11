@@ -1,0 +1,11 @@
+if TARGET_SXNI855T
+
+config SYS_BOARD
+	string
+	default "sixnet"
+
+config SYS_CONFIG_NAME
+	string
+	default "SXNI855T"
+
+endif

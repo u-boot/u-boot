@@ -1,0 +1,15 @@
+if TARGET_MERGERBOX
+
+config SYS_BOARD
+	string
+	default "mergerbox"
+
+config SYS_VENDOR
+	string
+	default "matrix_vision"
+
+config SYS_CONFIG_NAME
+	string
+	default "MERGERBOX"
+
+endif

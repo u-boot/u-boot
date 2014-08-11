@@ -1,0 +1,6 @@
+SC3 BOARD
+M:	Heiko Schocher <hs@denx.de>
+S:	Maintained
+F:	board/sc3/
+F:	include/configs/sc3.h
+F:	configs/sc3_defconfig

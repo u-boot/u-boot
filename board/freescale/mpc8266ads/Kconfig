@@ -1,0 +1,15 @@
+if TARGET_MPC8266ADS
+
+config SYS_BOARD
+	string
+	default "mpc8266ads"
+
+config SYS_VENDOR
+	string
+	default "freescale"
+
+config SYS_CONFIG_NAME
+	string
+	default "MPC8266ADS"
+
+endif

@@ -378,11 +378,16 @@
 #else
 #define SPRN_TCR	0x154	/* Book E Timer Control Register */
 #endif /* CONFIG_BOOKE */
+#ifdef CONFIG_E500MC
+#define  TCR_WP(x)		(((64-x)&0x3)<<30)| \
+				(((64-x)&0x3c)<<15) /* WDT Period 2^x clocks*/
+#else
 #define   TCR_WP(x)		(((x)&0x3)<<30)	/* WDT Period */
 #define     WP_2_17		0		/* 2^17 clocks */
 #define     WP_2_21		1		/* 2^21 clocks */
 #define     WP_2_25		2		/* 2^25 clocks */
 #define     WP_2_29		3		/* 2^29 clocks */
+#endif /* CONFIG_E500 */
 #define   TCR_WRC(x)		(((x)&0x3)<<28)	/* WDT Reset Control */
 #define     WRC_NONE		0		/* No reset will occur */
 #define     WRC_CORE		1		/* Core reset will occur */
@@ -1118,7 +1123,6 @@
 #define SVR_B4860	0X868000
 #define SVR_G4860	0x868001
 #define SVR_B4460	0x868003
-#define SVR_G4060	0x868003
 #define SVR_B4440	0x868100
 #define SVR_G4440	0x868101
 #define SVR_B4420	0x868102

@@ -1,0 +1,11 @@
+if TARGET_CM_BF548
+
+config SYS_BOARD
+	string
+	default "cm-bf548"
+
+config SYS_CONFIG_NAME
+	string
+	default "cm-bf548"
+
+endif

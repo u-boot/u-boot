@@ -1,0 +1,6 @@
+WUH405 BOARD
+M:	Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+S:	Maintained
+F:	board/esd/wuh405/
+F:	include/configs/WUH405.h
+F:	configs/WUH405_defconfig

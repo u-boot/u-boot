@@ -13,4 +13,4 @@ build_docproc: $(obj)/docproc
 	@:
 
 # Let clean descend into subdirs
-subdir-	+= basic
+subdir-	+= basic kconfig

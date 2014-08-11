@@ -1,0 +1,6 @@
+XPEDITE1000 BOARD
+M:	Peter Tyser <ptyser@xes-inc.com>
+S:	Maintained
+F:	board/xes/xpedite1000/
+F:	include/configs/xpedite1000.h
+F:	configs/xpedite1000_defconfig

@@ -1,0 +1,15 @@
+if TARGET_LUAN
+
+config SYS_BOARD
+	string
+	default "luan"
+
+config SYS_VENDOR
+	string
+	default "amcc"
+
+config SYS_CONFIG_NAME
+	string
+	default "luan"
+
+endif

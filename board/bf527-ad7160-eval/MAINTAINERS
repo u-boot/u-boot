@@ -1,0 +1,6 @@
+BF527-AD7160-EVAL BOARD
+M:	Sonic Zhang <sonic.adi@gmail.com>
+S:	Maintained
+F:	board/bf527-ad7160-eval/
+F:	include/configs/bf527-ad7160-eval.h
+F:	configs/bf527-ad7160-eval_defconfig

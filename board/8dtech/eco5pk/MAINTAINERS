@@ -1,0 +1,6 @@
+ECO5PK BOARD
+M:	Raphael Assenat <raph@8d.com>
+S:	Maintained
+F:	board/8dtech/eco5pk/
+F:	include/configs/eco5pk.h
+F:	configs/eco5pk_defconfig

@@ -1,0 +1,6 @@
+ENBW_CMC BOARD
+M:	Heiko Schocher <hs@denx.de>
+S:	Maintained
+F:	board/enbw/enbw_cmc/
+F:	include/configs/enbw_cmc.h
+F:	configs/enbw_cmc_defconfig

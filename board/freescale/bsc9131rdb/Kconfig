@@ -1,0 +1,15 @@
+if TARGET_BSC9131RDB
+
+config SYS_BOARD
+	string
+	default "bsc9131rdb"
+
+config SYS_VENDOR
+	string
+	default "freescale"
+
+config SYS_CONFIG_NAME
+	string
+	default "BSC9131RDB"
+
+endif

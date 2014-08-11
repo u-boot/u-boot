@@ -1,0 +1,15 @@
+if TARGET_ELPT860
+
+config SYS_BOARD
+	string
+	default "elpt860"
+
+config SYS_VENDOR
+	string
+	default "LEOX"
+
+config SYS_CONFIG_NAME
+	string
+	default "ELPT860"
+
+endif

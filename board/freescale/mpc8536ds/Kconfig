@@ -1,0 +1,15 @@
+if TARGET_MPC8536DS
+
+config SYS_BOARD
+	string
+	default "mpc8536ds"
+
+config SYS_VENDOR
+	string
+	default "freescale"
+
+config SYS_CONFIG_NAME
+	string
+	default "MPC8536DS"
+
+endif

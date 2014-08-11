@@ -1,0 +1,6 @@
+BF537-STAMP BOARD
+M:	Sonic Zhang <sonic.adi@gmail.com>
+S:	Maintained
+F:	board/bf537-stamp/
+F:	include/configs/bf537-stamp.h
+F:	configs/bf537-stamp_defconfig

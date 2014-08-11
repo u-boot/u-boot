@@ -180,6 +180,15 @@ extern unsigned char env_get_char_spec(int);
 extern void env_reloc(void);
 #endif
 
+#ifdef CONFIG_ENV_IS_IN_MMC
+#include <mmc.h>
+
+extern int mmc_get_env_addr(struct mmc *mmc, int copy, u32 *env_addr);
+# ifdef CONFIG_SYS_MMC_ENV_PART
+extern uint mmc_get_env_part(struct mmc *mmc);
+# endif
+#endif
+
 #ifndef DO_DEPS_ONLY
 
 #include <env_attr.h>

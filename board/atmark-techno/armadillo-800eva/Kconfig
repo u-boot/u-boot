@@ -1,0 +1,23 @@
+if TARGET_ARMADILLO_800EVA
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "armadillo-800eva"
+
+config SYS_VENDOR
+	string
+	default "atmark-techno"
+
+config SYS_SOC
+	string
+	default "rmobile"
+
+config SYS_CONFIG_NAME
+	string
+	default "armadillo-800eva"
+
+endif

@@ -1,0 +1,15 @@
+if TARGET_MPC7448HPC2
+
+config SYS_BOARD
+	string
+	default "mpc7448hpc2"
+
+config SYS_VENDOR
+	string
+	default "freescale"
+
+config SYS_CONFIG_NAME
+	string
+	default "mpc7448hpc2"
+
+endif

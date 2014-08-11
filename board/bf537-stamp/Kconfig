@@ -1,0 +1,11 @@
+if TARGET_BF537_STAMP
+
+config SYS_BOARD
+	string
+	default "bf537-stamp"
+
+config SYS_CONFIG_NAME
+	string
+	default "bf537-stamp"
+
+endif

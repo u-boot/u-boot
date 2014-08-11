@@ -1,0 +1,63 @@
+if TARGET_P3041DS
+
+config SYS_BOARD
+	string
+	default "corenet_ds"
+
+config SYS_VENDOR
+	string
+	default "freescale"
+
+config SYS_CONFIG_NAME
+	string
+	default "P3041DS"
+
+endif
+
+if TARGET_P4080DS
+
+config SYS_BOARD
+	string
+	default "corenet_ds"
+
+config SYS_VENDOR
+	string
+	default "freescale"
+
+config SYS_CONFIG_NAME
+	string
+	default "P4080DS"
+
+endif
+
+if TARGET_P5020DS
+
+config SYS_BOARD
+	string
+	default "corenet_ds"
+
+config SYS_VENDOR
+	string
+	default "freescale"
+
+config SYS_CONFIG_NAME
+	string
+	default "P5020DS"
+
+endif
+
+if TARGET_P5040DS
+
+config SYS_BOARD
+	string
+	default "corenet_ds"
+
+config SYS_VENDOR
+	string
+	default "freescale"
+
+config SYS_CONFIG_NAME
+	string
+	default "P5040DS"
+
+endif

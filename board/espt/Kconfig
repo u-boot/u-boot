@@ -1,0 +1,15 @@
+if TARGET_ESPT
+
+config SYS_CPU
+	string
+	default "sh4"
+
+config SYS_BOARD
+	string
+	default "espt"
+
+config SYS_CONFIG_NAME
+	string
+	default "espt"
+
+endif

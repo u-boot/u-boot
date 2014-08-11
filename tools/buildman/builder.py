@@ -199,7 +199,7 @@ class BuilderThread(threading.Thread):
             commit_upto: Commit number to build (0...n-1)
             brd: Board object to build
             work_dir: Directory to which the source will be checked out
-            do_config: True to run a make <board>_config on the source
+            do_config: True to run a make <board>_defconfig on the source
             force_build: Force a build even if one was previously done
             force_build_failures: Force a bulid if the previous result showed
                 failure
@@ -213,7 +213,10 @@ class BuilderThread(threading.Thread):
         # self.Make() below, in the event that we do a build.
         result = command.CommandResult()
         result.return_code = 0
-        out_dir = os.path.join(work_dir, 'build')
+        if self.builder.in_tree:
+            out_dir = work_dir
+        else:
+            out_dir = os.path.join(work_dir, 'build')
 
         # Check if the job was already completed last time
         done_file = self.builder.GetDoneFile(commit_upto, brd.target)
@@ -257,10 +260,13 @@ class BuilderThread(threading.Thread):
                 # Set up the environment and command line
                 env = self.toolchain.MakeEnvironment()
                 Mkdir(out_dir)
-                args = ['O=build', '-s']
+                args = []
+                if not self.builder.in_tree:
+                    args.append('O=build')
+                args.append('-s')
                 if self.builder.num_jobs is not None:
                     args.extend(['-j', str(self.builder.num_jobs)])
-                config_args = ['%s_config' % brd.target]
+                config_args = ['%s_defconfig' % brd.target]
                 config_out = ''
                 args.extend(self.builder.toolchains.GetMakeArguments(brd))
 
@@ -413,7 +419,7 @@ class BuilderThread(threading.Thread):
         work_dir = self.builder.GetThreadDir(self.thread_num)
         self.toolchain = None
         if job.commits:
-            # Run 'make board_config' on the first commit
+            # Run 'make board_defconfig' on the first commit
             do_config = True
             commit_upto  = 0
             force_build = False
@@ -431,7 +437,8 @@ class BuilderThread(threading.Thread):
                         result, request_config = self.RunCommit(commit_upto,
                             brd, work_dir, True, True, False)
                         did_config = True
-                do_config = request_config
+                if not self.builder.force_reconfig:
+                    do_config = request_config
 
                 # If we built that commit, then config is done. But if we got
                 # an warning, reconfig next time to force it to build the same
@@ -524,6 +531,15 @@ class Builder:
         toolchains: Toolchains object to use for building
         upto: Current commit number we are building (0.count-1)
         warned: Number of builds that produced at least one warning
+        force_reconfig: Reconfigure U-Boot on each comiit. This disables
+            incremental building, where buildman reconfigures on the first
+            commit for a baord, and then just does an incremental build for
+            the following commits. In fact buildman will reconfigure and
+            retry for any failing commits, so generally the only effect of
+            this option is to slow things down.
+        in_tree: Build U-Boot in-tree instead of specifying an output
+            directory separate from the source code. This option is really
+            only useful for testing in-tree builds.
 
     Private members:
         _base_board_dict: Last-summarised Dict of boards
@@ -560,7 +576,7 @@ class Builder:
             self.func_sizes = func_sizes
 
     def __init__(self, toolchains, base_dir, git_dir, num_threads, num_jobs,
-                 checkout=True, show_unknown=True, step=1):
+                 gnu_make='make', checkout=True, show_unknown=True, step=1):
         """Create a new Builder object
 
         Args:
@@ -569,6 +585,7 @@ class Builder:
             git_dir: Git directory containing source repository
             num_threads: Number of builder threads to run
             num_jobs: Number of jobs to run at once (passed to make as -j)
+            gnu_make: the command name of GNU Make.
             checkout: True to check out source, False to skip that step.
                 This is used for testing.
             show_unknown: Show unknown boards (those not built) in summary
@@ -580,6 +597,7 @@ class Builder:
         self.threads = []
         self.active = True
         self.do_make = self.Make
+        self.gnu_make = gnu_make
         self.checkout = checkout
         self.num_threads = num_threads
         self.num_jobs = num_jobs
@@ -593,7 +611,9 @@ class Builder:
         self._next_delay_update = datetime.now()
         self.force_config_on_failure = True
         self.force_build_failures = False
+        self.force_reconfig = False
         self._step = step
+        self.in_tree = False
 
         self.col = terminal.Color()
 
@@ -682,7 +702,7 @@ class Builder:
             args: Arguments to pass to make
             kwargs: Arguments to pass to command.RunPipe()
         """
-        cmd = ['make'] + list(args)
+        cmd = [self.gnu_make] + list(args)
         result = command.RunPipe([cmd], capture=True, capture_stderr=True,
                 cwd=cwd, raise_on_error=False, **kwargs)
         return result

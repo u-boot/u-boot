@@ -1,0 +1,11 @@
+if TARGET_ZEUS
+
+config SYS_BOARD
+	string
+	default "zeus"
+
+config SYS_CONFIG_NAME
+	string
+	default "zeus"
+
+endif

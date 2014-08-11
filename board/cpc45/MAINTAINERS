@@ -1,0 +1,7 @@
+CPC45 BOARD
+M:	Josef Wagner <Wagner@Microsys.de>
+S:	Maintained
+F:	board/cpc45/
+F:	include/configs/CPC45.h
+F:	configs/CPC45_defconfig
+F:	configs/CPC45_ROMBOOT_defconfig

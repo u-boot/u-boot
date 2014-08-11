@@ -377,9 +377,14 @@ def EmailPatches(series, cover_fname, args, dry_run, raise_on_error, cc_fname,
     """
     to = BuildEmailList(series.get('to'), '--to', alias, raise_on_error)
     if not to:
-        print ("No recipient, please add something like this to a commit\n"
-            "Series-to: Fred Bloggs <f.blogs@napier.co.nz>")
-        return
+        git_config_to = command.Output('git', 'config', 'sendemail.to')
+        if not git_config_to:
+            print ("No recipient.\n"
+                   "Please add something like this to a commit\n"
+                   "Series-to: Fred Bloggs <f.blogs@napier.co.nz>\n"
+                   "Or do something like this\n"
+                   "git config sendemail.to u-boot@lists.denx.de")
+            return
     cc = BuildEmailList(series.get('cc'), '--cc', alias, raise_on_error)
     if self_only:
         to = BuildEmailList([os.getenv('USER')], '--to', alias, raise_on_error)

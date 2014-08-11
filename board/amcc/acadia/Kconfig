@@ -1,0 +1,15 @@
+if TARGET_ACADIA
+
+config SYS_BOARD
+	string
+	default "acadia"
+
+config SYS_VENDOR
+	string
+	default "amcc"
+
+config SYS_CONFIG_NAME
+	string
+	default "acadia"
+
+endif

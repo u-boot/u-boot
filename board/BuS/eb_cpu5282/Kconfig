@@ -1,0 +1,19 @@
+if TARGET_EB_CPU5282
+
+config SYS_CPU
+	string
+	default "mcf52x2"
+
+config SYS_BOARD
+	string
+	default "eb_cpu5282"
+
+config SYS_VENDOR
+	string
+	default "BuS"
+
+config SYS_CONFIG_NAME
+	string
+	default "eb_cpu5282"
+
+endif

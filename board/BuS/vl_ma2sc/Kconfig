@@ -1,0 +1,23 @@
+if TARGET_VL_MA2SC
+
+config SYS_CPU
+	string
+	default "arm926ejs"
+
+config SYS_BOARD
+	string
+	default "vl_ma2sc"
+
+config SYS_VENDOR
+	string
+	default "BuS"
+
+config SYS_SOC
+	string
+	default "at91"
+
+config SYS_CONFIG_NAME
+	string
+	default "vl_ma2sc"
+
+endif

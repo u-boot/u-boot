@@ -612,6 +612,51 @@ static void fdt_fixup_usb(void *fdt)
 #define fdt_fixup_usb(x)
 #endif
 
+#if defined(CONFIG_PPC_T2080) || defined(CONFIG_PPC_T4240) || \
+	defined(CONFIG_PPC_T4160) || defined(CONFIG_PPC_T4080)
+void fdt_fixup_dma3(void *blob)
+{
+	/* the 3rd DMA is not functional if SRIO2 is chosen */
+	int nodeoff;
+	ccsr_gur_t __iomem *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+
+#define CONFIG_SYS_ELO3_DMA3 (0xffe000000 + 0x102300)
+#if defined(CONFIG_PPC_T2080)
+	u32 srds_prtcl_s2 = in_be32(&gur->rcwsr[4]) &
+				    FSL_CORENET2_RCWSR4_SRDS2_PRTCL;
+	srds_prtcl_s2 >>= FSL_CORENET2_RCWSR4_SRDS2_PRTCL_SHIFT;
+
+	switch (srds_prtcl_s2) {
+	case 0x29:
+	case 0x2d:
+	case 0x2e:
+#elif defined(CONFIG_PPC_T4240) || defined(CONFIG_PPC_T4160) || \
+	defined(CONFIG_PPC_T4080)
+	u32 srds_prtcl_s4 = in_be32(&gur->rcwsr[4]) &
+				    FSL_CORENET2_RCWSR4_SRDS4_PRTCL;
+	srds_prtcl_s4 >>= FSL_CORENET2_RCWSR4_SRDS4_PRTCL_SHIFT;
+
+	switch (srds_prtcl_s4) {
+	case 6:
+	case 8:
+	case 14:
+	case 16:
+#endif
+		nodeoff = fdt_node_offset_by_compat_reg(blob, "fsl,elo3-dma",
+							CONFIG_SYS_ELO3_DMA3);
+		if (nodeoff > 0)
+			fdt_status_disabled(blob, nodeoff);
+		else
+			printf("WARNING: unable to disable dma3\n");
+		break;
+	default:
+		break;
+	}
+}
+#else
+#define fdt_fixup_dma3(x)
+#endif
+
 #if defined(CONFIG_PPC_T1040)
 static void fdt_fixup_l2_switch(void *blob)
 {
@@ -778,6 +823,8 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	fdt_fixup_usb(blob);
 
 	fdt_fixup_l2_switch(blob);
+
+	fdt_fixup_dma3(blob);
 }
 
 /*

@@ -1,0 +1,6 @@
+STXXTC BOARD
+M:	Dan Malek <dan@embeddedalley.com>
+S:	Orphan (since 2014-06)
+F:	board/stx/stxxtc/
+F:	include/configs/stxxtc.h
+F:	configs/stxxtc_defconfig

@@ -17,7 +17,7 @@ class Board:
             soc: Name of SOC, or '' if none (e.g. mx31)
             vendor: Name of vendor (e.g. armltd)
             board_name: Name of board (e.g. integrator)
-            target: Target name (use make <target>_config to configure)
+            target: Target name (use make <target>_defconfig to configure)
             options: board-specific options (e.g. integratorcp:CM1136)
         """
         self.target = target

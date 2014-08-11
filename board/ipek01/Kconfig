@@ -1,0 +1,11 @@
+if TARGET_IPEK01
+
+config SYS_BOARD
+	string
+	default "ipek01"
+
+config SYS_CONFIG_NAME
+	string
+	default "ipek01"
+
+endif

@@ -1,0 +1,24 @@
+if TARGET_HARMONY
+
+config SYS_CPU
+	string
+	default "arm720t" if SPL_BUILD
+	default "armv7" if !SPL_BUILD
+
+config SYS_BOARD
+	string
+	default "harmony"
+
+config SYS_VENDOR
+	string
+	default "nvidia"
+
+config SYS_SOC
+	string
+	default "tegra20"
+
+config SYS_CONFIG_NAME
+	string
+	default "harmony"
+
+endif

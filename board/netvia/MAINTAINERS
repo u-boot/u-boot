@@ -1,0 +1,7 @@
+NETVIA BOARD
+M:	Pantelis Antoniou <panto@intracom.gr>
+S:	Maintained
+F:	board/netvia/
+F:	include/configs/NETVIA.h
+F:	configs/NETVIA_defconfig
+F:	configs/NETVIA_V2_defconfig

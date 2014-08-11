@@ -1,0 +1,7 @@
+CPUAT91 BOARD
+M:	Eric Benard <eric@eukrea.com>
+S:	Maintained
+F:	board/eukrea/cpuat91/
+F:	include/configs/cpuat91.h
+F:	configs/cpuat91_defconfig
+F:	configs/cpuat91_ram_defconfig

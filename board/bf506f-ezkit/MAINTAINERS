@@ -1,0 +1,6 @@
+BF506F-EZKIT BOARD
+M:	Sonic Zhang <sonic.adi@gmail.com>
+S:	Maintained
+F:	board/bf506f-ezkit/
+F:	include/configs/bf506f-ezkit.h
+F:	configs/bf506f-ezkit_defconfig

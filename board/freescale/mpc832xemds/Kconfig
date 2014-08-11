@@ -1,0 +1,15 @@
+if TARGET_MPC832XEMDS
+
+config SYS_BOARD
+	string
+	default "mpc832xemds"
+
+config SYS_VENDOR
+	string
+	default "freescale"
+
+config SYS_CONFIG_NAME
+	string
+	default "MPC832XEMDS"
+
+endif

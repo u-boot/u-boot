@@ -1,0 +1,6 @@
+SVM_SC8XX BOARD
+M:	John Zhan <zhanz@sinovee.com>
+S:	Orphan (since 2014-06)
+F:	board/svm_sc8xx/
+F:	include/configs/svm_sc8xx.h
+F:	configs/svm_sc8xx_defconfig

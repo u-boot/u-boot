@@ -1,0 +1,7 @@
+ECOVEC BOARD
+M:	Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+M:	Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+S:	Maintained
+F:	board/renesas/ecovec/
+F:	include/configs/ecovec.h
+F:	configs/ecovec_defconfig

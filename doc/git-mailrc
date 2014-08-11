@@ -12,7 +12,7 @@ alias u-boot uboot
 # things simple and easy to look up/coordinate.
 alias aaribaud       Albert Aribaud <albert.u.boot@aribaud.net>
 alias abiessmann     Andreas Bießmann <andreas.devel@googlemail.com>
-alias afleming       Andy Fleming <afleming@freescale.com>
+alias afleming       Andy Fleming <afleming@gmail.com>
 alias ag             Anatolij Gustschin <agust@denx.de>
 alias galak          Kumar Gala <galak@kernel.crashing.org>
 alias gruss          Graeme Russ <graeme.russ@gmail.com>
@@ -27,6 +27,7 @@ alias kimphill       Kim Phillips <kim.phillips@freescale.com>
 alias lukma          Lukasz Majewski <l.majewski@samsung.com>
 alias macpaul        Macpaul Lin <macpaul@andestech.com>
 alias marex          Marek Vasut <marex@denx.de>
+alias masahiro       Masahiro Yamada <yamada.m@jp.panasonic.com>
 alias monstr         Michal Simek <monstr@monstr.eu>
 alias panto          Pantelis Antoniou <panto@antoniou-consulting.com>
 alias prafulla       Prafulla Wadaskar <prafulla@marvell.com>
@@ -110,6 +111,7 @@ alias dfu            uboot, lukma
 alias kerneldoc      uboot, marex
 alias fdt            uboot, Jerry Van Baren <vanbaren@cideas.com>
 alias i2c            uboot, hs
+alias kconfig        uboot, masahiro
 alias mmc            uboot, panto
 alias nand           uboot, scottwood
 alias net            uboot, jhersh

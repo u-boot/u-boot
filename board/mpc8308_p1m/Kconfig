@@ -1,0 +1,11 @@
+if TARGET_MPC8308_P1M
+
+config SYS_BOARD
+	string
+	default "mpc8308_p1m"
+
+config SYS_CONFIG_NAME
+	string
+	default "mpc8308_p1m"
+
+endif

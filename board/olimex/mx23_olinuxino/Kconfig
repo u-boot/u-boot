@@ -1,0 +1,23 @@
+if TARGET_MX23_OLINUXINO
+
+config SYS_CPU
+	string
+	default "arm926ejs"
+
+config SYS_BOARD
+	string
+	default "mx23_olinuxino"
+
+config SYS_VENDOR
+	string
+	default "olimex"
+
+config SYS_SOC
+	string
+	default "mxs"
+
+config SYS_CONFIG_NAME
+	string
+	default "mx23_olinuxino"
+
+endif

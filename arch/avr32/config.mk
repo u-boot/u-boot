@@ -9,7 +9,6 @@ ifeq ($(CROSS_COMPILE),)
 CROSS_COMPILE := avr32-linux-
 endif
 
-PLATFORM_CPPFLAGS += -DCONFIG_AVR32
 CONFIG_STANDALONE_LOAD_ADDR ?= 0x00000000
 
 PLATFORM_RELFLAGS	+= -ffixed-r5 -fPIC -mno-init-got -mrelax

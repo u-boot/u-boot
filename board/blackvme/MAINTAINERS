@@ -1,0 +1,8 @@
+BLACKVME BOARD
+M:	Wojtek Skulski <skulski@pas.rochester.edu>
+M:	Wojtek Skulski <info@skutek.com>
+M:	Benjamin Matthews <mben12@gmail.com>
+S:	Maintained
+F:	board/blackvme/
+F:	include/configs/blackvme.h
+F:	configs/blackvme_defconfig

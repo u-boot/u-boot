@@ -11,6 +11,6 @@ endif
 
 # r10 used for global object pointer, already set in OR32 GCC but just to be
 # clear
-PLATFORM_CPPFLAGS += -DCONFIG_OPENRISC -D__OR1K__ -ffixed-r10
+PLATFORM_CPPFLAGS += -D__OR1K__ -ffixed-r10
 
 CONFIG_STANDALONE_LOAD_ADDR ?= 0x40000

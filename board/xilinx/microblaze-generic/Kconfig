@@ -1,0 +1,15 @@
+if TARGET_MICROBLAZE_GENERIC
+
+config SYS_BOARD
+	string
+	default "microblaze-generic"
+
+config SYS_VENDOR
+	string
+	default "xilinx"
+
+config SYS_CONFIG_NAME
+	string
+	default "microblaze-generic"
+
+endif

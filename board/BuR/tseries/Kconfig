@@ -1,0 +1,23 @@
+if TARGET_TSERIES
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "tseries"
+
+config SYS_VENDOR
+	string
+	default "BuR"
+
+config SYS_SOC
+	string
+	default "am33xx"
+
+config SYS_CONFIG_NAME
+	string
+	default "tseries"
+
+endif

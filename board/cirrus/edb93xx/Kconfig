@@ -1,0 +1,23 @@
+if TARGET_EDB93XX
+
+config SYS_CPU
+	string
+	default "arm920t"
+
+config SYS_BOARD
+	string
+	default "edb93xx"
+
+config SYS_VENDOR
+	string
+	default "cirrus"
+
+config SYS_SOC
+	string
+	default "ep93xx"
+
+config SYS_CONFIG_NAME
+	string
+	default "edb93xx"
+
+endif

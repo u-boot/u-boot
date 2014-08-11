@@ -1,0 +1,15 @@
+if TARGET_P1_TWR
+
+config SYS_BOARD
+	string
+	default "p1_twr"
+
+config SYS_VENDOR
+	string
+	default "freescale"
+
+config SYS_CONFIG_NAME
+	string
+	default "p1_twr"
+
+endif

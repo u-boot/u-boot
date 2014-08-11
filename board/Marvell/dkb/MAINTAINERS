@@ -1,0 +1,6 @@
+DKB BOARD
+M:	Lei Wen <leiwen@marvell.com>
+S:	Maintained
+F:	board/Marvell/dkb/
+F:	include/configs/dkb.h
+F:	configs/dkb_defconfig

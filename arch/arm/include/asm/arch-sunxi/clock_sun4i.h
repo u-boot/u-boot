@@ -218,10 +218,13 @@ struct sunxi_ccm_reg {
 #define CCM_PLL5_CTRL_BYPASS (0x1 << 30)
 #define CCM_PLL5_CTRL_EN (0x1 << 31)
 
-#define CCM_PLL6_CTRL_N_SHIFT	8
-#define CCM_PLL6_CTRL_N_MASK	(0x1f << CCM_PLL6_CTRL_N_SHIFT)
-#define CCM_PLL6_CTRL_K_SHIFT	4
-#define CCM_PLL6_CTRL_K_MASK	(0x3 << CCM_PLL6_CTRL_K_SHIFT)
+#define CCM_PLL6_CTRL_EN		31
+#define CCM_PLL6_CTRL_BYPASS_EN		30
+#define CCM_PLL6_CTRL_SATA_EN_SHIFT	14
+#define CCM_PLL6_CTRL_N_SHIFT		8
+#define CCM_PLL6_CTRL_N_MASK		(0x1f << CCM_PLL6_CTRL_N_SHIFT)
+#define CCM_PLL6_CTRL_K_SHIFT		4
+#define CCM_PLL6_CTRL_K_MASK		(0x3 << CCM_PLL6_CTRL_K_SHIFT)
 
 #define CCM_GPS_CTRL_RESET (0x1 << 0)
 #define CCM_GPS_CTRL_GATE (0x1 << 1)
@@ -252,5 +255,9 @@ struct sunxi_ccm_reg {
 #define CCM_GMAC_CTRL_TX_CLK_SRC_INT_RGMII 0x2
 #define CCM_GMAC_CTRL_GPIT_MII (0x0 << 2)
 #define CCM_GMAC_CTRL_GPIT_RGMII (0x1 << 2)
+
+#define CCM_USB_CTRL_PHY1_RST (0x1 << 1)
+#define CCM_USB_CTRL_PHY2_RST (0x1 << 2)
+#define CCM_USB_CTRL_PHYGATE (0x1 << 8)
 
 #endif /* _SUNXI_CLOCK_SUN4I_H */

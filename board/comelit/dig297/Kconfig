@@ -1,0 +1,23 @@
+if TARGET_DIG297
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "dig297"
+
+config SYS_VENDOR
+	string
+	default "comelit"
+
+config SYS_SOC
+	string
+	default "omap3"
+
+config SYS_CONFIG_NAME
+	string
+	default "dig297"
+
+endif

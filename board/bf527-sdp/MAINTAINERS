@@ -1,0 +1,6 @@
+BF527-SDP BOARD
+M:	Sonic Zhang <sonic.adi@gmail.com>
+S:	Maintained
+F:	board/bf527-sdp/
+F:	include/configs/bf527-sdp.h
+F:	configs/bf527-sdp_defconfig

@@ -1,0 +1,11 @@
+if TARGET_CSB272
+
+config SYS_BOARD
+	string
+	default "csb272"
+
+config SYS_CONFIG_NAME
+	string
+	default "csb272"
+
+endif

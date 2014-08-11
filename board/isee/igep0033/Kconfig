@@ -1,0 +1,23 @@
+if TARGET_AM335X_IGEP0033
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "igep0033"
+
+config SYS_VENDOR
+	string
+	default "isee"
+
+config SYS_SOC
+	string
+	default "am33xx"
+
+config SYS_CONFIG_NAME
+	string
+	default "am335x_igep0033"
+
+endif

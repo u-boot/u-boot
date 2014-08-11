@@ -1,0 +1,11 @@
+if TARGET_G2000
+
+config SYS_BOARD
+	string
+	default "g2000"
+
+config SYS_CONFIG_NAME
+	string
+	default "G2000"
+
+endif

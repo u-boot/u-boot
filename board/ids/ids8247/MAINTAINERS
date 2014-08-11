@@ -1,0 +1,6 @@
+IDS8247 BOARD
+M:	Heiko Schocher <hs@denx.de>
+S:	Maintained
+F:	board/ids/ids8247/
+F:	include/configs/IDS8247.h
+F:	configs/IDS8247_defconfig

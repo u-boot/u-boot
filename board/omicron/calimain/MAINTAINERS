@@ -1,0 +1,7 @@
+CALIMAIN BOARD
+M:	Manfred Rudigier <manfred.rudigier@omicron.at>
+M:	Christian Riesch <christian.riesch@omicron.at>
+S:	Maintained
+F:	board/omicron/calimain/
+F:	include/configs/calimain.h
+F:	configs/calimain_defconfig

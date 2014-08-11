@@ -1,0 +1,7 @@
+EB_CPUX9K2 BOARD
+M:	Jens Scharsig <esw@bus-elektronik.de>
+S:	Maintained
+F:	board/BuS/eb_cpux9k2/
+F:	include/configs/eb_cpux9k2.h
+F:	configs/eb_cpux9k2_defconfig
+F:	configs/eb_cpux9k2_ram_defconfig

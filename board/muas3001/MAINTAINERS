@@ -1,0 +1,7 @@
+MUAS3001 BOARD
+M:	Heiko Schocher <hs@denx.de>
+S:	Maintained
+F:	board/muas3001/
+F:	include/configs/muas3001.h
+F:	configs/muas3001_defconfig
+F:	configs/muas3001_dev_defconfig

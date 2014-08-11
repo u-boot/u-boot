@@ -1,0 +1,22 @@
+DA8XXEVM BOARD
+M:	Nick Thompson <nick.thompson@gefanuc.com>
+S:	Maintained
+F:	board/davinci/da8xxevm/
+F:	include/configs/da830evm.h
+F:	configs/da830evm_defconfig
+
+DA850_AM18XXEVM BOARD
+M:	Sudhakar Rajashekhara <sudhakar.raj@ti.com>
+S:	Maintained
+F:	include/configs/da850evm.h
+F:	configs/da850_am18xxevm_defconfig
+F:	configs/da850evm_defconfig
+F:	configs/da850evm_direct_nor_defconfig
+
+HAWKBOARD BOARD
+M:	Syed Mohammed Khasim <sm.khasim@gmail.com>
+M:	Sughosh Ganu <urwithsughosh@gmail.com>
+S:	Maintained
+F:	include/configs/hawkboard.h
+F:	configs/hawkboard_defconfig
+F:	configs/hawkboard_uart_defconfig

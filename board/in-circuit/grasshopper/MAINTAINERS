@@ -1,0 +1,6 @@
+GRASSHOPPER BOARD
+M:	Andreas Bießmann <andreas.devel@googlemail.com>
+S:	Maintained
+F:	board/in-circuit/grasshopper/
+F:	include/configs/grasshopper.h
+F:	configs/grasshopper_defconfig

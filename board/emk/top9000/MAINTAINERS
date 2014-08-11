@@ -1,0 +1,7 @@
+TOP9000 BOARD
+M:	Reinhard Meyer <reinhard.meyer@emk-elektronik.de>
+S:	Maintained
+F:	board/emk/top9000/
+F:	include/configs/top9000.h
+F:	configs/top9000eval_xe_defconfig
+F:	configs/top9000su_xe_defconfig

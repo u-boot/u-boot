@@ -164,7 +164,6 @@
  * under common/spl/.  Given our generally common memory map, we set a
  * number of related defaults and sizes here.
  */
-#define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
 /*
  * Place the image at the start of the ROM defined image space.

@@ -1,0 +1,19 @@
+if TARGET_GRASSHOPPER
+
+config SYS_BOARD
+	string
+	default "grasshopper"
+
+config SYS_VENDOR
+	string
+	default "in-circuit"
+
+config SYS_SOC
+	string
+	default "at32ap700x"
+
+config SYS_CONFIG_NAME
+	string
+	default "grasshopper"
+
+endif

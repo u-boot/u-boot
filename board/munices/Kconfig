@@ -1,0 +1,11 @@
+if TARGET_MUNICES
+
+config SYS_BOARD
+	string
+	default "munices"
+
+config SYS_CONFIG_NAME
+	string
+	default "munices"
+
+endif

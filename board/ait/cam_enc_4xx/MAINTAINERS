@@ -1,0 +1,6 @@
+CAM_ENC_4XX BOARD
+M:	Heiko Schocher <hs@denx.de>
+S:	Maintained
+F:	board/ait/cam_enc_4xx/
+F:	include/configs/cam_enc_4xx.h
+F:	configs/cam_enc_4xx_defconfig

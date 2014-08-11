@@ -1,0 +1,15 @@
+if TARGET_KILAUEA
+
+config SYS_BOARD
+	string
+	default "kilauea"
+
+config SYS_VENDOR
+	string
+	default "amcc"
+
+config SYS_CONFIG_NAME
+	string
+	default "kilauea"
+
+endif

@@ -50,7 +50,6 @@
 #define CONFIG_ARCH_MISC_INIT
 
 /* SPL */
-#define CONFIG_SPL
 #define CONFIG_SPL_NO_CPU_SUPPORT_CODE
 #define CONFIG_SPL_START_S_PATH	"arch/arm/cpu/arm926ejs/mxs"
 #define CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/arm926ejs/mxs/u-boot-spl.lds"

@@ -1,0 +1,6 @@
+TOP860 BOARD
+M:	Reinhard Meyer <reinhard.meyer@emk-elektronik.de>
+S:	Maintained
+F:	board/emk/top860/
+F:	include/configs/TOP860.h
+F:	configs/TOP860_defconfig

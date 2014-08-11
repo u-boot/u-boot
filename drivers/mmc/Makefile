@@ -22,6 +22,7 @@ obj-$(CONFIG_PXA_MMC_GENERIC) += pxa_mmc_gen.o
 obj-$(CONFIG_SDHCI) += sdhci.o
 obj-$(CONFIG_BCM2835_SDHCI) += bcm2835_sdhci.o
 obj-$(CONFIG_KONA_SDHCI) += kona_sdhci.o
+obj-$(CONFIG_S3C_SDI) += s3c_sdi.o
 obj-$(CONFIG_S5P_SDHCI) += s5p_sdhci.o
 obj-$(CONFIG_SH_MMCIF) += sh_mmcif.o
 obj-$(CONFIG_SPEAR_SDHCI) += spear_sdhci.o
@@ -37,3 +38,4 @@ obj-$(CONFIG_SPL_MMC_BOOT) += fsl_esdhc_spl.o
 else
 obj-$(CONFIG_GENERIC_MMC) += mmc_write.o
 endif
+obj-$(CONFIG_MVEBU_MMC) += mvebu_mmc.o

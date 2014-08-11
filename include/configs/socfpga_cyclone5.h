@@ -223,7 +223,6 @@
  */
 
 /* Enable building of SPL globally */
-#define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
 
 /* TEXT_BASE for linking the SPL binary */

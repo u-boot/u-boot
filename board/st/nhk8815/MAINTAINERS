@@ -1,0 +1,8 @@
+NHK8815 BOARD
+M:	Nomadik Linux Team <STN_WMM_nomadik_linux@list.st.com>
+M:	Alessandro Rubini <rubini@unipv.it>
+S:	Maintained
+F:	board/st/nhk8815/
+F:	include/configs/nhk8815.h
+F:	configs/nhk8815_defconfig
+F:	configs/nhk8815_onenand_defconfig

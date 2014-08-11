@@ -1,0 +1,7 @@
+VL_MA2SC BOARD
+M:	Jens Scharsig <esw@bus-elektronik.de>
+S:	Maintained
+F:	board/BuS/vl_ma2sc/
+F:	include/configs/vl_ma2sc.h
+F:	configs/vl_ma2sc_defconfig
+F:	configs/vl_ma2sc_ram_defconfig

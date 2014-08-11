@@ -1,0 +1,11 @@
+if TARGET_SVM_SC8XX
+
+config SYS_BOARD
+	string
+	default "svm_sc8xx"
+
+config SYS_CONFIG_NAME
+	string
+	default "svm_sc8xx"
+
+endif

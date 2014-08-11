@@ -1,0 +1,6 @@
+HERMES BOARD
+M:	Wolfgang Denk <wd@denx.de>
+S:	Maintained
+F:	board/hermes/
+F:	include/configs/hermes.h
+F:	configs/hermes_defconfig

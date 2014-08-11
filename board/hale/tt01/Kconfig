@@ -1,0 +1,23 @@
+if TARGET_TT01
+
+config SYS_CPU
+	string
+	default "arm1136"
+
+config SYS_BOARD
+	string
+	default "tt01"
+
+config SYS_VENDOR
+	string
+	default "hale"
+
+config SYS_SOC
+	string
+	default "mx31"
+
+config SYS_CONFIG_NAME
+	string
+	default "tt01"
+
+endif

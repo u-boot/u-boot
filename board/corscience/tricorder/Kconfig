@@ -1,0 +1,23 @@
+if TARGET_TRICORDER
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "tricorder"
+
+config SYS_VENDOR
+	string
+	default "corscience"
+
+config SYS_SOC
+	string
+	default "omap3"
+
+config SYS_CONFIG_NAME
+	string
+	default "tricorder"
+
+endif

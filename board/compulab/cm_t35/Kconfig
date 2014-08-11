@@ -1,0 +1,23 @@
+if TARGET_CM_T35
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "cm_t35"
+
+config SYS_VENDOR
+	string
+	default "compulab"
+
+config SYS_SOC
+	string
+	default "omap3"
+
+config SYS_CONFIG_NAME
+	string
+	default "cm_t35"
+
+endif

@@ -197,7 +197,6 @@
 #define CONFIG_ENV_IS_NOWHERE
 
 /* Defines for SPL */
-#define CONFIG_SPL
 #define CONFIG_SPL_FRAMEWORK
 #define CONFIG_SPL_BOARD_INIT
 /*

@@ -1,0 +1,7 @@
+P2020COME BOARD
+M:	Ira W. Snyder <iws@ovro.caltech.edu>
+S:	Maintained
+F:	board/freescale/p2020come/
+F:	include/configs/P2020COME.h
+F:	configs/P2020COME_SDCARD_defconfig
+F:	configs/P2020COME_SPIFLASH_defconfig

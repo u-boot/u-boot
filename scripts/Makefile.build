@@ -3,14 +3,14 @@
 # ==========================================================================
 
 # Modified for U-Boot
-ifeq ($(CONFIG_TPL_BUILD),y)
-  src := $(patsubst tpl/%,%,$(obj))
-else
-  ifeq ($(CONFIG_SPL_BUILD),y)
-    src := $(patsubst spl/%,%,$(obj))
-  else
-    src := $(obj)
-  endif
+prefix := tpl
+src := $(patsubst $(prefix)/%,%,$(obj))
+ifeq ($(obj),$(src))
+prefix := spl
+src := $(patsubst $(prefix)/%,%,$(obj))
+ifeq ($(obj),$(src))
+prefix := .
+endif
 endif
 
 PHONY := __build
@@ -40,18 +40,9 @@ subdir-asflags-y :=
 subdir-ccflags-y :=
 
 # Read auto.conf if it exists, otherwise ignore
--include include/config/auto.conf
-
-# Added for U-Boot: Load U-Boot configuration
-ifeq ($(CONFIG_TPL_BUILD),y)
-  -include include/tpl-autoconf.mk
-else
-  ifeq ($(CONFIG_SPL_BUILD),y)
-    -include include/spl-autoconf.mk
-  else
-    -include include/autoconf.mk
-  endif
-endif
+# Modified for U-Boot
+-include $(prefix)/include/config/auto.conf
+-include $(prefix)/include/autoconf.mk
 
 include scripts/Kbuild.include
 

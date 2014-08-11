@@ -1,0 +1,11 @@
+if TARGET_CANMB
+
+config SYS_BOARD
+	string
+	default "canmb"
+
+config SYS_CONFIG_NAME
+	string
+	default "canmb"
+
+endif

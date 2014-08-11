@@ -1,0 +1,6 @@
+PCI405 BOARD
+M:	Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+S:	Maintained
+F:	board/esd/pci405/
+F:	include/configs/PCI405.h
+F:	configs/PCI405_defconfig

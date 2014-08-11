@@ -1,0 +1,6 @@
+JSE BOARD
+M:	Stephen Williams <steve@icarus.com>
+S:	Maintained
+F:	board/jse/
+F:	include/configs/JSE.h
+F:	configs/JSE_defconfig

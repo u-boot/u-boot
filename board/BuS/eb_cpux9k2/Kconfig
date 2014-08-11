@@ -1,0 +1,23 @@
+if TARGET_EB_CPUX9K2
+
+config SYS_CPU
+	string
+	default "arm920t"
+
+config SYS_BOARD
+	string
+	default "eb_cpux9k2"
+
+config SYS_VENDOR
+	string
+	default "BuS"
+
+config SYS_SOC
+	string
+	default "at91"
+
+config SYS_CONFIG_NAME
+	string
+	default "eb_cpux9k2"
+
+endif

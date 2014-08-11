@@ -1,0 +1,6 @@
+CM4008 BOARD
+M:	Greg Ungerer <greg.ungerer@opengear.com>
+S:	Maintained
+F:	board/cm4008/
+F:	include/configs/cm4008.h
+F:	configs/cm4008_defconfig

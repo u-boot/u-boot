@@ -1,0 +1,15 @@
+if TARGET_MVBLM7
+
+config SYS_BOARD
+	string
+	default "mvblm7"
+
+config SYS_VENDOR
+	string
+	default "matrix_vision"
+
+config SYS_CONFIG_NAME
+	string
+	default "MVBLM7"
+
+endif

@@ -1,0 +1,11 @@
+if TARGET_IBF_DSP561
+
+config SYS_BOARD
+	string
+	default "ibf-dsp561"
+
+config SYS_CONFIG_NAME
+	string
+	default "ibf-dsp561"
+
+endif

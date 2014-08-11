@@ -1,0 +1,15 @@
+if TARGET_T104XRDB
+
+config SYS_BOARD
+	string
+	default "t104xrdb"
+
+config SYS_VENDOR
+	string
+	default "freescale"
+
+config SYS_CONFIG_NAME
+	string
+	default "T104xRDB"
+
+endif

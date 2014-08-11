@@ -1,0 +1,15 @@
+if TARGET_DP405
+
+config SYS_BOARD
+	string
+	default "dp405"
+
+config SYS_VENDOR
+	string
+	default "esd"
+
+config SYS_CONFIG_NAME
+	string
+	default "DP405"
+
+endif

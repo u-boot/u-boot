@@ -1,0 +1,47 @@
+if TARGET_IMX27LITE
+
+config SYS_CPU
+	string
+	default "arm926ejs"
+
+config SYS_BOARD
+	string
+	default "imx27lite"
+
+config SYS_VENDOR
+	string
+	default "logicpd"
+
+config SYS_SOC
+	string
+	default "mx27"
+
+config SYS_CONFIG_NAME
+	string
+	default "imx27lite"
+
+endif
+
+if TARGET_MAGNESIUM
+
+config SYS_CPU
+	string
+	default "arm926ejs"
+
+config SYS_BOARD
+	string
+	default "imx27lite"
+
+config SYS_VENDOR
+	string
+	default "logicpd"
+
+config SYS_SOC
+	string
+	default "mx27"
+
+config SYS_CONFIG_NAME
+	string
+	default "magnesium"
+
+endif

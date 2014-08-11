@@ -1,0 +1,11 @@
+if TARGET_GEN860T
+
+config SYS_BOARD
+	string
+	default "gen860t"
+
+config SYS_CONFIG_NAME
+	string
+	default "GEN860T"
+
+endif

@@ -1,0 +1,7 @@
+MALTA BOARD
+M:	Paul Burton <paul.burton@imgtec.com>
+S:	Maintained
+F:	board/imgtec/malta/
+F:	include/configs/malta.h
+F:	configs/malta_defconfig
+F:	configs/maltael_defconfig

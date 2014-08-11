@@ -6,9 +6,9 @@
 #
 
 VERSION = 2014
-PATCHLEVEL = 07
+PATCHLEVEL = 10
 SUBLEVEL =
-EXTRAVERSION =
+EXTRAVERSION = -rc1
 NAME =
 
 # *DOCUMENTATION*
@@ -166,9 +166,6 @@ VPATH		:= $(srctree)$(if $(KBUILD_EXTMOD),:$(KBUILD_EXTMOD))
 
 export srctree objtree VPATH
 
-MKCONFIG	:= $(srctree)/mkconfig
-export MKCONFIG
-
 # Make sure CDPATH settings don't interfere
 unexport CDPATH
 
@@ -189,15 +186,15 @@ HOSTOS := $(shell uname -s | tr '[:upper:]' '[:lower:]' | \
 
 export	HOSTARCH HOSTOS
 
-# Deal with colliding definitions from tcsh etc.
-VENDOR=
-
 #########################################################################
 
 # set default to nothing for native builds
 ifeq ($(HOSTARCH),$(ARCH))
 CROSS_COMPILE ?=
 endif
+
+KCONFIG_CONFIG	?= .config
+export KCONFIG_CONFIG
 
 # SHELL used by kbuild
 CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
@@ -341,6 +338,7 @@ OBJCOPY		= $(CROSS_COMPILE)objcopy
 OBJDUMP		= $(CROSS_COMPILE)objdump
 AWK		= awk
 PERL		= perl
+PYTHON		= python
 DTC		= dtc
 CHECK		= sparse
 
@@ -362,7 +360,7 @@ export VERSION PATCHLEVEL SUBLEVEL UBOOTRELEASE UBOOTVERSION
 export ARCH CPU BOARD VENDOR SOC CPUDIR BOARDDIR
 export CONFIG_SHELL HOSTCC HOSTCFLAGS HOSTLDFLAGS CROSS_COMPILE AS LD CC
 export CPP AR NM LDR STRIP OBJCOPY OBJDUMP
-export MAKE AWK PERL
+export MAKE AWK PERL PYTHON
 export HOSTCXX HOSTCXXFLAGS DTC CHECK CHECKFLAGS
 
 export KBUILD_CPPFLAGS NOSTDINC_FLAGS UBOOTINCLUDE OBJCOPYFLAGS LDFLAGS
@@ -460,31 +458,49 @@ ifeq ($(config-targets),1)
 # *config targets only - make sure prerequisites are updated, and descend
 # in scripts/kconfig to make the *config target
 
-# Read arch specific Makefile to set KBUILD_DEFCONFIG as needed.
-# KBUILD_DEFCONFIG may point out an alternative default configuration
-# used for 'make defconfig'
+KBUILD_DEFCONFIG := sandbox_defconfig
+export KBUILD_DEFCONFIG KBUILD_KCONFIG
 
-%_config:: outputmakefile
-	@$(MKCONFIG) -A $(@:_config=)
+config: scripts_basic outputmakefile FORCE
+	+$(Q)$(PYTHON) $(srctree)/scripts/multiconfig.py $@
+
+%config: scripts_basic outputmakefile FORCE
+	+$(Q)$(PYTHON) $(srctree)/scripts/multiconfig.py $@
 
 else
 # ===========================================================================
 # Build targets only - this includes vmlinux, arch specific targets, clean
 # targets and others. In general all targets except *config targets.
 
-# load ARCH, BOARD, and CPU configuration
--include include/config.mk
-
 ifeq ($(dot-config),1)
 # Read in config
+-include include/config/auto.conf
+
+# Read in dependencies to all Kconfig* files, make sure to run
+# oldconfig if changes are detected.
+-include include/config/auto.conf.cmd
+
+# To avoid any implicit rule to kick in, define an empty command
+$(KCONFIG_CONFIG) include/config/auto.conf.cmd: ;
+
+# If .config is newer than include/config/auto.conf, someone tinkered
+# with it and forgot to run make oldconfig.
+# if auto.conf.cmd is missing then we are probably in a cleaned tree so
+# we execute the config step to be sure to catch updated Kconfig files
+include/config/%.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
+	$(Q)$(MAKE) -f $(srctree)/Makefile silentoldconfig
+
 -include include/autoconf.mk
 -include include/autoconf.mk.dep
 
-# load other configuration
+# We want to include arch/$(ARCH)/config.mk only when include/config/auto.conf
+# is up-to-date. When we switch to a different board configuration, old CONFIG
+# macros are still remaining in include/config/auto.conf. Without the following
+# gimmick, wrong config.mk would be included leading nasty warnings/errors.
+autoconf_is_current := $(if $(wildcard $(KCONFIG_CONFIG)),$(shell find . \
+		-path ./include/config/auto.conf -newer $(KCONFIG_CONFIG)))
+ifneq ($(autoconf_is_current),)
 include $(srctree)/config.mk
-
-ifeq ($(wildcard include/config.mk),)
-$(error "System not configured - see README")
 endif
 
 # If board code explicitly specified LDSCRIPT or CONFIG_SYS_LDSCRIPT, use
@@ -513,8 +529,8 @@ ifndef LDSCRIPT
 endif
 
 else
-
-
+# Dummy target needed, because used as prerequisite
+include/config/auto.conf: ;
 endif # $(dot-config)
 
 KBUILD_CFLAGS += -Os #-fomit-frame-pointer
@@ -563,7 +579,8 @@ KBUILD_CFLAGS += $(KCFLAGS)
 UBOOTINCLUDE    := \
 		-Iinclude \
 		$(if $(KBUILD_SRC), -I$(srctree)/include) \
-		-I$(srctree)/arch/$(ARCH)/include
+		-I$(srctree)/arch/$(ARCH)/include \
+		-include $(srctree)/include/linux/kconfig.h
 
 NOSTDINC_FLAGS += -nostdinc -isystem $(shell $(CC) -print-file-name=include)
 CHECKFLAGS     += $(NOSTDINC_FLAGS)
@@ -1024,7 +1041,7 @@ define filechk_uboot.release
 endef
 
 # Store (new) UBOOTRELEASE string in include/config/uboot.release
-include/config/uboot.release: Makefile FORCE
+include/config/uboot.release: include/config/auto.conf FORCE
 	$(call filechk,uboot.release)
 
 
@@ -1042,8 +1059,8 @@ PHONY += prepare archprepare prepare0 prepare1 prepare2 prepare3
 # 1) Check that make has not been executed in the kernel src $(srctree)
 prepare3: include/config/uboot.release
 ifneq ($(KBUILD_SRC),)
-	@$(kecho) '  Using $(srctree) as source for u-boot'
-	$(Q)if [ -f $(srctree)/include/config.mk ]; then \
+	@$(kecho) '  Using $(srctree) as source for U-Boot'
+	$(Q)if [ -f $(srctree)/.config -o -d $(srctree)/include/config ]; then \
 		echo >&2 "  $(srctree) is not clean, please run 'make mrproper'"; \
 		echo >&2 "  in the '$(srctree)' directory.";\
 		/bin/false; \
@@ -1053,7 +1070,8 @@ endif
 # prepare2 creates a makefile if using a separate output directory
 prepare2: prepare3 outputmakefile
 
-prepare1: prepare2 $(version_h) $(timestamp_h)
+prepare1: prepare2 $(version_h) $(timestamp_h) \
+                   include/config/auto.conf
 ifeq ($(__HAVE_ARCH_GENERIC_BOARD),)
 ifeq ($(CONFIG_SYS_GENERIC_BOARD),y)
 	@echo >&2 "  Your architecture does not support generic board."
@@ -1095,29 +1113,6 @@ $(version_h): include/config/uboot.release FORCE
 $(timestamp_h): $(srctree)/Makefile FORCE
 	$(call filechk,timestamp.h)
 
-#
-# Auto-generate the autoconf.mk file (which is included by all makefiles)
-#
-# This target actually generates 2 files; autoconf.mk and autoconf.mk.dep.
-# the dep file is only include in this top level makefile to determine when
-# to regenerate the autoconf.mk file.
-
-quiet_cmd_autoconf_dep = GEN     $@
-      cmd_autoconf_dep = $(CC) -x c -DDO_DEPS_ONLY -M $(c_flags) \
-	-MQ include/autoconf.mk $(srctree)/include/common.h > $@ || rm $@
-
-include/autoconf.mk.dep: include/config.h include/common.h
-	$(call cmd,autoconf_dep)
-
-quiet_cmd_autoconf = GEN     $@
-      cmd_autoconf = \
-	$(CPP) $(c_flags) -DDO_DEPS_ONLY -dM $(srctree)/include/common.h > $@.tmp && \
-	sed -n -f $(srctree)/tools/scripts/define2mk.sed $@.tmp > $@; \
-	rm $@.tmp
-
-include/autoconf.mk: include/config.h
-	$(call cmd,autoconf)
-
 # ---------------------------------------------------------------------------
 
 PHONY += depend dep
@@ -1141,7 +1136,7 @@ spl/sunxi-spl.bin: spl/u-boot-spl
 	@:
 
 tpl/u-boot-tpl.bin: tools prepare
-	$(Q)$(MAKE) obj=tpl -f $(srctree)/scripts/Makefile.spl all CONFIG_TPL_BUILD=y
+	$(Q)$(MAKE) obj=tpl -f $(srctree)/scripts/Makefile.spl all
 
 TAG_SUBDIRS := $(patsubst %,$(srctree)/%,$(u-boot-dirs) include)
 
@@ -1216,20 +1211,18 @@ include/license.h: tools/bin2header COPYING
 
 # Directories & files removed with 'make clean'
 CLEAN_DIRS  += $(MODVERDIR)
-CLEAN_FILES += u-boot.lds include/bmp_logo.h include/bmp_logo_data.h \
-	       include/autoconf.mk* include/spl-autoconf.mk \
-	       include/tpl-autoconf.mk
+CLEAN_FILES += u-boot.lds include/bmp_logo.h include/bmp_logo_data.h
 
 # Directories & files removed with 'make clobber'
-CLOBBER_DIRS  += spl tpl
+CLOBBER_DIRS  += $(foreach d, spl tpl, $(patsubst %,$d/%, \
+			$(filter-out include, $(shell ls -1 $d 2>/dev/null))))
 CLOBBER_FILES += u-boot* MLO* SPL System.map
 
 # Directories & files removed with 'make mrproper'
-MRPROPER_DIRS  += include/config include/generated          \
+MRPROPER_DIRS  += include/config include/generated spl tpl \
 		  .tmp_objdiff
-MRPROPER_FILES += .config .config.old \
-		  ctags etags cscope* GPATH GTAGS GRTAGS GSYMS \
-		  include/config.h include/config.mk
+MRPROPER_FILES += .config .config.old include/autoconf.mk* include/config.h \
+		  ctags etags TAGS cscope* GPATH GTAGS GRTAGS GSYMS
 
 # clean - Delete most, but leave enough to build external modules
 #
@@ -1306,10 +1299,9 @@ help:
 	@echo  '  mrproper	  - Remove all generated files + config + various backup files'
 	@echo  '  distclean	  - mrproper + remove editor backup and patch files'
 	@echo  ''
-# uncomment after adding Kconfig feature
-#	@echo  'Configuration targets:'
-#	@$(MAKE) -f $(srctree)/scripts/kconfig/Makefile help
-#	@echo  ''
+	@echo  'Configuration targets:'
+	@$(MAKE) -f $(srctree)/scripts/kconfig/Makefile help
+	@echo  ''
 	@echo  'Other generic targets:'
 	@echo  '  all		  - Build all necessary images depending on configuration'
 	@echo  '  u-boot	  - Build the bare u-boot'

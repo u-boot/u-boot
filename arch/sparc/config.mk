@@ -14,4 +14,4 @@ gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
 CONFIG_STANDALONE_LOAD_ADDR ?= 0x00000000 -L $(gcclibdir) \
 			       -T $(srctree)/examples/standalone/sparc.lds
 
-PLATFORM_CPPFLAGS += -DCONFIG_SPARC -D__sparc__
+PLATFORM_CPPFLAGS += -D__sparc__

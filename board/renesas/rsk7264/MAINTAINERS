@@ -1,0 +1,6 @@
+RSK7264 BOARD
+M:	Phil Edworthy <phil.edworthy@renesas.com>
+S:	Maintained
+F:	board/renesas/rsk7264/
+F:	include/configs/rsk7264.h
+F:	configs/rsk7264_defconfig

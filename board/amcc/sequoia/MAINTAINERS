@@ -1,0 +1,9 @@
+SEQUOIA BOARD
+M:	Stefan Roese <sr@denx.de>
+S:	Maintained
+F:	board/amcc/sequoia/
+F:	include/configs/sequoia.h
+F:	configs/rainier_defconfig
+F:	configs/rainier_ramboot_defconfig
+F:	configs/sequoia_defconfig
+F:	configs/sequoia_ramboot_defconfig

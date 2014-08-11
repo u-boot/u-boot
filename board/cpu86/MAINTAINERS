@@ -1,0 +1,7 @@
+CPU86 BOARD
+M:	Wolfgang Denk <wd@denx.de>
+S:	Maintained
+F:	board/cpu86/
+F:	include/configs/CPU86.h
+F:	configs/CPU86_defconfig
+F:	configs/CPU86_ROMBOOT_defconfig

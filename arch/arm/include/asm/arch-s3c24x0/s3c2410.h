@@ -139,9 +139,9 @@ static inline struct s3c24x0_spi *s3c24x0_get_base_spi(void)
 	return (struct s3c24x0_spi *)S3C24X0_SPI_BASE;
 }
 
-static inline struct s3c2410_sdi *s3c2410_get_base_sdi(void)
+static inline struct s3c24x0_sdi *s3c24x0_get_base_sdi(void)
 {
-	return (struct s3c2410_sdi *)S3C2410_SDI_BASE;
+	return (struct s3c24x0_sdi *)S3C2410_SDI_BASE;
 }
 
 #endif /*__S3C2410_H__*/

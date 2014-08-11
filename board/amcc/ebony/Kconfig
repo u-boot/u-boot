@@ -1,0 +1,15 @@
+if TARGET_EBONY
+
+config SYS_BOARD
+	string
+	default "ebony"
+
+config SYS_VENDOR
+	string
+	default "amcc"
+
+config SYS_CONFIG_NAME
+	string
+	default "ebony"
+
+endif

@@ -1,0 +1,19 @@
+if TARGET_MIGOR
+
+config SYS_CPU
+	string
+	default "sh4"
+
+config SYS_BOARD
+	string
+	default "MigoR"
+
+config SYS_VENDOR
+	string
+	default "renesas"
+
+config SYS_CONFIG_NAME
+	string
+	default "MigoR"
+
+endif

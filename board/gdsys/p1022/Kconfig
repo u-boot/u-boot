@@ -1,0 +1,15 @@
+if TARGET_CONTROLCENTERD
+
+config SYS_BOARD
+	string
+	default "p1022"
+
+config SYS_VENDOR
+	string
+	default "gdsys"
+
+config SYS_CONFIG_NAME
+	string
+	default "controlcenterd"
+
+endif

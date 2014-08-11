@@ -1,0 +1,3 @@
+CONFIG_SYS_EXTRA_OPTIONS="IMX_CONFIG=board/freescale/mx53smd/imximage.cfg"
+CONFIG_ARM=y
+CONFIG_TARGET_MX53SMD=y

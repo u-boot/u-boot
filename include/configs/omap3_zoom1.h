@@ -26,7 +26,6 @@
 #include <configs/ti_omap3_common.h>
 
 /* Remove SPL boot option - we do not support that on LDP yet */
-#undef CONFIG_SPL
 #undef CONFIG_SPL_FRAMEWORK
 #undef CONFIG_SPL_OS_BOOT
 

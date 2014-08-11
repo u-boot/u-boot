@@ -1,0 +1,23 @@
+if TARGET_FLEA3
+
+config SYS_CPU
+	string
+	default "arm1136"
+
+config SYS_BOARD
+	string
+	default "flea3"
+
+config SYS_VENDOR
+	string
+	default "CarMediaLab"
+
+config SYS_SOC
+	string
+	default "mx35"
+
+config SYS_CONFIG_NAME
+	string
+	default "flea3"
+
+endif

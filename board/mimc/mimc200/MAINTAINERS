@@ -1,0 +1,6 @@
+MIMC200 BOARD
+M:	Mark Jackson <mpfj@mimc.co.uk>
+S:	Maintained
+F:	board/mimc/mimc200/
+F:	include/configs/mimc200.h
+F:	configs/mimc200_defconfig

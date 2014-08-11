@@ -7,9 +7,9 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
-cfg=$(shell grep configs $(objtree)/include/config.h | sed 's/.*<\(configs.*\)>/\1/')
-is5301x:=$(shell grep CONFIG_MCF5301x $(srctree)/include/$(cfg))
-is532x:=$(shell grep CONFIG_MCF532x $(srctree)/include/$(cfg))
+cfg=$(srctree)/include/configs/$(CONFIG_SYS_CONFIG_NAME:"%"=%).h
+is5301x:=$(shell grep CONFIG_MCF5301x $(cfg))
+is532x:=$(shell grep CONFIG_MCF532x $(cfg))
 
 ifneq (,$(findstring CONFIG_MCF5301x,$(is5301x)))
 PLATFORM_CPPFLAGS += -mcpu=53015 -fPIC

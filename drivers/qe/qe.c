@@ -11,7 +11,7 @@
 #include <command.h>
 #include "asm/errno.h"
 #include "asm/io.h"
-#include "asm/immap_qe.h"
+#include "linux/immap_qe.h"
 #include "qe.h"
 
 #define MPC85xx_DEVDISR_QE_DISABLE	0x1

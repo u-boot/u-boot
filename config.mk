@@ -20,6 +20,16 @@ LDFLAGS_FINAL :=
 OBJCOPYFLAGS :=
 #########################################################################
 
+ARCH := $(CONFIG_SYS_ARCH:"%"=%)
+CPU := $(CONFIG_SYS_CPU:"%"=%)
+BOARD := $(CONFIG_SYS_BOARD:"%"=%)
+ifneq ($(CONFIG_SYS_VENDOR),)
+VENDOR := $(CONFIG_SYS_VENDOR:"%"=%)
+endif
+ifneq ($(CONFIG_SYS_SOC),)
+SOC := $(CONFIG_SYS_SOC:"%"=%)
+endif
+
 # Some architecture config.mk files need to know what CPUDIR is set to,
 # so calculate CPUDIR before including ARCH/SOC/CPU config.mk files.
 # Check if arch/$ARCH/cpu/$CPU exists, otherwise assume arch/$ARCH/cpu contains

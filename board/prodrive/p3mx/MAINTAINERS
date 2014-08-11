@@ -1,0 +1,7 @@
+P3MX BOARD
+M:	Stefan Roese <sr@denx.de>
+S:	Maintained
+F:	board/prodrive/p3mx/
+F:	include/configs/p3mx.h
+F:	configs/p3m7448_defconfig
+F:	configs/p3m750_defconfig

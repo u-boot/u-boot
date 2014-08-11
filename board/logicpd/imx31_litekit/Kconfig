@@ -1,0 +1,23 @@
+if TARGET_IMX31_LITEKIT
+
+config SYS_CPU
+	string
+	default "arm1136"
+
+config SYS_BOARD
+	string
+	default "imx31_litekit"
+
+config SYS_VENDOR
+	string
+	default "logicpd"
+
+config SYS_SOC
+	string
+	default "mx31"
+
+config SYS_CONFIG_NAME
+	string
+	default "imx31_litekit"
+
+endif

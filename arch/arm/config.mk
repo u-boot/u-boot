@@ -22,7 +22,7 @@ PLATFORM_RELFLAGS += $(call cc-option, -msoft-float) \
 # Support generic board on ARM
 __HAVE_ARCH_GENERIC_BOARD := y
 
-PLATFORM_CPPFLAGS += -DCONFIG_ARM -D__ARM__
+PLATFORM_CPPFLAGS += -D__ARM__
 
 # Choose between ARM/Thumb instruction sets
 ifeq ($(CONFIG_SYS_THUMB_BUILD),y)

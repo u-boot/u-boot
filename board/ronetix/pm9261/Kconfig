@@ -1,0 +1,23 @@
+if TARGET_PM9261
+
+config SYS_CPU
+	string
+	default "arm926ejs"
+
+config SYS_BOARD
+	string
+	default "pm9261"
+
+config SYS_VENDOR
+	string
+	default "ronetix"
+
+config SYS_SOC
+	string
+	default "at91"
+
+config SYS_CONFIG_NAME
+	string
+	default "pm9261"
+
+endif

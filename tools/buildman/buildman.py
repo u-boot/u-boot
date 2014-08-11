@@ -67,6 +67,9 @@ parser.add_option('-B', '--bloat', dest='show_bloat',
        help='Show changes in function code size for each board')
 parser.add_option('-c', '--count', dest='count', type='int',
        default=-1, help='Run build on the top n commits')
+parser.add_option('-C', '--force-reconfig', dest='force_reconfig',
+       action='store_true', default=False,
+       help='Reconfigure for every commit (disable incremental build)')
 parser.add_option('-e', '--show_errors', action='store_true',
        default=False, help='Show errors and warnings')
 parser.add_option('-f', '--force-build', dest='force_build',
@@ -82,6 +85,9 @@ parser.add_option('-g', '--git', type='string',
        help='Git repo containing branch to build', default='.')
 parser.add_option('-H', '--full-help', action='store_true', dest='full_help',
        default=False, help='Display the README file')
+parser.add_option('-i', '--in-tree', dest='in_tree',
+       action='store_true', default=False,
+       help='Build in the source tree instead of a separate directory')
 parser.add_option('-j', '--jobs', dest='jobs', type='int',
        default=None, help='Number of jobs to run at once (passed to make)')
 parser.add_option('-k', '--keep-outputs', action='store_true',

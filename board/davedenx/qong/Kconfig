@@ -1,0 +1,23 @@
+if TARGET_QONG
+
+config SYS_CPU
+	string
+	default "arm1136"
+
+config SYS_BOARD
+	string
+	default "qong"
+
+config SYS_VENDOR
+	string
+	default "davedenx"
+
+config SYS_SOC
+	string
+	default "mx31"
+
+config SYS_CONFIG_NAME
+	string
+	default "qong"
+
+endif

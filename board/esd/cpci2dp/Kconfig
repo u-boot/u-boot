@@ -1,0 +1,15 @@
+if TARGET_CPCI2DP
+
+config SYS_BOARD
+	string
+	default "cpci2dp"
+
+config SYS_VENDOR
+	string
+	default "esd"
+
+config SYS_CONFIG_NAME
+	string
+	default "CPCI2DP"
+
+endif

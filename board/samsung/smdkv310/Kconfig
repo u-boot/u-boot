@@ -1,0 +1,23 @@
+if TARGET_SMDKV310
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "smdkv310"
+
+config SYS_VENDOR
+	string
+	default "samsung"
+
+config SYS_SOC
+	string
+	default "exynos"
+
+config SYS_CONFIG_NAME
+	string
+	default "smdkv310"
+
+endif

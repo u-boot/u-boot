@@ -1,0 +1,23 @@
+if TARGET_OMAP3_IGEP00X0
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "igep00x0"
+
+config SYS_VENDOR
+	string
+	default "isee"
+
+config SYS_SOC
+	string
+	default "omap3"
+
+config SYS_CONFIG_NAME
+	string
+	default "omap3_igep00x0"
+
+endif

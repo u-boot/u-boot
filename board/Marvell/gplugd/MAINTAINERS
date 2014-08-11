@@ -1,0 +1,6 @@
+GPLUGD BOARD
+M:	Ajay Bhargav <ajay.bhargav@einfochips.com>
+S:	Maintained
+F:	board/Marvell/gplugd/
+F:	include/configs/gplugd.h
+F:	configs/gplugd_defconfig

@@ -1,0 +1,6 @@
+ELPT860 BOARD
+M:	The LEOX team <team@leox.org>
+S:	Maintained
+F:	board/LEOX/elpt860/
+F:	include/configs/ELPT860.h
+F:	configs/ELPT860_defconfig

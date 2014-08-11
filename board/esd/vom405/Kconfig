@@ -1,0 +1,15 @@
+if TARGET_VOM405
+
+config SYS_BOARD
+	string
+	default "vom405"
+
+config SYS_VENDOR
+	string
+	default "esd"
+
+config SYS_CONFIG_NAME
+	string
+	default "VOM405"
+
+endif

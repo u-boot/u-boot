@@ -1,0 +1,15 @@
+if TARGET_VME8349
+
+config SYS_BOARD
+	string
+	default "vme8349"
+
+config SYS_VENDOR
+	string
+	default "esd"
+
+config SYS_CONFIG_NAME
+	string
+	default "vme8349"
+
+endif

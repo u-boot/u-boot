@@ -1,0 +1,6 @@
+PCS440EP BOARD
+M:	Stefan Roese <sr@denx.de>
+S:	Maintained
+F:	board/pcs440ep/
+F:	include/configs/pcs440ep.h
+F:	configs/pcs440ep_defconfig

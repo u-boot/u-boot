@@ -1,0 +1,15 @@
+if TARGET_METROBOX
+
+config SYS_BOARD
+	string
+	default "metrobox"
+
+config SYS_VENDOR
+	string
+	default "sandburst"
+
+config SYS_CONFIG_NAME
+	string
+	default "METROBOX"
+
+endif

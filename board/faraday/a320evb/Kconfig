@@ -1,0 +1,23 @@
+if TARGET_A320EVB
+
+config SYS_CPU
+	string
+	default "arm920t"
+
+config SYS_BOARD
+	string
+	default "a320evb"
+
+config SYS_VENDOR
+	string
+	default "faraday"
+
+config SYS_SOC
+	string
+	default "a320"
+
+config SYS_CONFIG_NAME
+	string
+	default "a320evb"
+
+endif

@@ -14,6 +14,8 @@ import gitutil
 import patchstream
 import terminal
 import toolchain
+import command
+import subprocess
 
 def GetPlural(count):
     """Returns a plural 's' if count is not 1"""
@@ -108,6 +110,15 @@ def DoBuildman(options, args):
         sys.exit(1)
 
     # Work out what subset of the boards we are building
+    board_file = os.path.join(options.git, 'boards.cfg')
+    if not os.path.exists(board_file):
+        print 'Could not find %s' % board_file
+        status = subprocess.call([os.path.join(options.git,
+                                               'tools/genboardscfg.py')])
+        if status != 0:
+            print >> sys.stderr, "Failed to generate boards.cfg"
+            sys.exit(1)
+
     boards = board.Boards()
     boards.ReadBoards(os.path.join(options.git, 'boards.cfg'))
     why_selected = boards.SelectBoards(args)
@@ -144,10 +155,16 @@ def DoBuildman(options, args):
     if not options.step:
         options.step = len(series.commits) - 1
 
+    gnu_make = command.Output(os.path.join(options.git,
+                                           'scripts/show-gnu-make')).rstrip()
+    if not gnu_make:
+        print >> sys.stderr, 'GNU Make not found'
+        sys.exit(1)
+
     # Create a new builder with the selected options
     output_dir = os.path.join(options.output_dir, options.branch)
     builder = Builder(toolchains, output_dir, options.git_dir,
-            options.threads, options.jobs, checkout=True,
+            options.threads, options.jobs, gnu_make=gnu_make, checkout=True,
             show_unknown=options.show_unknown, step=options.step)
     builder.force_config_on_failure = not options.quick
 
@@ -157,6 +174,8 @@ def DoBuildman(options, args):
     else:
         builder.force_build = options.force_build
         builder.force_build_failures = options.force_build_failures
+        builder.force_reconfig = options.force_reconfig
+        builder.in_tree = options.in_tree
 
         # Work out which boards to build
         board_selected = boards.GetSelectedDict()

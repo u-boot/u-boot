@@ -26,7 +26,7 @@ Why:	We now have a PHY library, which allows everyone to share PHY
 	drivers. All new drivers should use this infrastructure, and
 	all old drivers should get converted to use it.
 
-Who:	Andy Fleming <afleming@freescale.com> and driver maintainers
+Who:	Andy Fleming <afleming@gmail.com> and driver maintainers
 
 ---------------------------
 

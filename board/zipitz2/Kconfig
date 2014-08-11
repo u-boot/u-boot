@@ -1,0 +1,15 @@
+if TARGET_ZIPITZ2
+
+config SYS_CPU
+	string
+	default "pxa"
+
+config SYS_BOARD
+	string
+	default "zipitz2"
+
+config SYS_CONFIG_NAME
+	string
+	default "zipitz2"
+
+endif

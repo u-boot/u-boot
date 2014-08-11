@@ -1,0 +1,7 @@
+GEN860T BOARD
+M:	Keith Outwater <Keith_Outwater@mvis.com>
+S:	Orphan (since 2014-06)
+F:	board/gen860t/
+F:	include/configs/GEN860T.h
+F:	configs/GEN860T_defconfig
+F:	configs/GEN860T_SC_defconfig

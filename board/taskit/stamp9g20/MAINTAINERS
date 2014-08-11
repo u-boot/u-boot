@@ -1,0 +1,7 @@
+STAMP9G20 BOARD
+M:	Markus Hubig <mhubig@imko.de>
+S:	Maintained
+F:	board/taskit/stamp9g20/
+F:	include/configs/stamp9g20.h
+F:	configs/portuxg20_defconfig
+F:	configs/stamp9g20_defconfig

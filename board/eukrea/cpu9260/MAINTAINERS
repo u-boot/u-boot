@@ -1,0 +1,13 @@
+CPU9260 BOARD
+M:	Eric Benard <eric@eukrea.com>
+S:	Maintained
+F:	board/eukrea/cpu9260/
+F:	include/configs/cpu9260.h
+F:	configs/cpu9260_defconfig
+F:	configs/cpu9260_128M_defconfig
+F:	configs/cpu9260_nand_defconfig
+F:	configs/cpu9260_nand_128M_defconfig
+F:	configs/cpu9G20_defconfig
+F:	configs/cpu9G20_128M_defconfig
+F:	configs/cpu9G20_nand_defconfig
+F:	configs/cpu9G20_nand_128M_defconfig

@@ -1,0 +1,6 @@
+MECP5123 BOARD
+M:	Reinhard Arlt <reinhard.arlt@esd-electronics.com>
+S:	Maintained
+F:	board/esd/mecp5123/
+F:	include/configs/mecp5123.h
+F:	configs/mecp5123_defconfig

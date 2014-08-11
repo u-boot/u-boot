@@ -1,0 +1,15 @@
+if TARGET_MPC8349ITX
+
+config SYS_BOARD
+	string
+	default "mpc8349itx"
+
+config SYS_VENDOR
+	string
+	default "freescale"
+
+config SYS_CONFIG_NAME
+	string
+	default "MPC8349ITX"
+
+endif

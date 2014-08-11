@@ -504,8 +504,14 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 		}
 #endif
 		if (!enabled) {
-			/* Let the user know there's no PCIe link */
-			printf("no link, regs @ 0x%lx\n", pci_info->regs);
+			/* Let the user know there's no PCIe link for root
+			 * complex. for endpoint, the link may not setup, so
+			 * print undetermined.
+			 */
+			if (fsl_is_pci_agent(hose))
+				printf("undetermined, regs @ 0x%lx\n", pci_info->regs);
+			else
+				printf("no link, regs @ 0x%lx\n", pci_info->regs);
 			hose->last_busno = hose->first_busno;
 			return;
 		}

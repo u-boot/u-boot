@@ -1,0 +1,6 @@
+EXALION BOARD
+M:	Torsten Demke <torsten.demke@fci.com>
+S:	Maintained
+F:	board/eXalion/
+F:	include/configs/eXalion.h
+F:	configs/eXalion_defconfig

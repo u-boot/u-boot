@@ -1,0 +1,23 @@
+if TARGET_OMAP5_UEVM
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "omap5_uevm"
+
+config SYS_VENDOR
+	string
+	default "ti"
+
+config SYS_SOC
+	string
+	default "omap5"
+
+config SYS_CONFIG_NAME
+	string
+	default "omap5_uevm"
+
+endif

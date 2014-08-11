@@ -1,0 +1,19 @@
+if TARGET_ECOVEC
+
+config SYS_CPU
+	string
+	default "sh4"
+
+config SYS_BOARD
+	string
+	default "ecovec"
+
+config SYS_VENDOR
+	string
+	default "renesas"
+
+config SYS_CONFIG_NAME
+	string
+	default "ecovec"
+
+endif

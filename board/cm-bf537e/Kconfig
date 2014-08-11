@@ -1,0 +1,11 @@
+if TARGET_CM_BF537E
+
+config SYS_BOARD
+	string
+	default "cm-bf537e"
+
+config SYS_CONFIG_NAME
+	string
+	default "cm-bf537e"
+
+endif

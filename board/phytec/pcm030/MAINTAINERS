@@ -1,0 +1,7 @@
+PCM030 BOARD
+M:	Jon Smirl <jonsmirl@gmail.com>
+S:	Maintained
+F:	board/phytec/pcm030/
+F:	include/configs/pcm030.h
+F:	configs/pcm030_defconfig
+F:	configs/pcm030_LOWBOOT_defconfig

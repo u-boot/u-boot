@@ -1,0 +1,23 @@
+if TARGET_ADP_AG101P
+
+config SYS_CPU
+	string
+	default "n1213"
+
+config SYS_BOARD
+	string
+	default "adp-ag101p"
+
+config SYS_VENDOR
+	string
+	default "AndesTech"
+
+config SYS_SOC
+	string
+	default "ag101"
+
+config SYS_CONFIG_NAME
+	string
+	default "adp-ag101p"
+
+endif

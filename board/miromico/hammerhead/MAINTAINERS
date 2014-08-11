@@ -1,0 +1,6 @@
+HAMMERHEAD BOARD
+M:	Alex Raimondi <alex.raimondi@miromico.ch>
+S:	Maintained
+F:	board/miromico/hammerhead/
+F:	include/configs/hammerhead.h
+F:	configs/hammerhead_defconfig

@@ -43,7 +43,11 @@
 /* DDR */
 #define CONFIG_SYS_FSL_DDR_LE
 #define CONFIG_VERY_BIG_RAM
+#ifdef CONFIG_SYS_FSL_DDR4
+#define CONFIG_SYS_FSL_DDRC_GEN4
+#else
 #define CONFIG_SYS_FSL_DDRC_ARM_GEN3	/* Enable Freescale ARM DDR3 driver */
+#endif
 #define CONFIG_SYS_FSL_DDR		/* Freescale DDR driver */
 #define CONFIG_SYS_LS2_DDR_BLOCK1_SIZE	((phys_size_t)2 << 30)
 #define CONFIG_MAX_MEM_MAPPED		CONFIG_SYS_LS2_DDR_BLOCK1_SIZE

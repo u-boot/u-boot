@@ -1,0 +1,39 @@
+if TARGET_VEXPRESS_AEMV8A
+
+config SYS_CPU
+	string
+	default "armv8"
+
+config SYS_BOARD
+	string
+	default "vexpress64"
+
+config SYS_VENDOR
+	string
+	default "armltd"
+
+config SYS_CONFIG_NAME
+	string
+	default "vexpress_aemv8a"
+
+endif
+
+if TARGET_VEXPRESS_AEMV8A_SEMI
+
+config SYS_CPU
+	string
+	default "armv8"
+
+config SYS_BOARD
+	string
+	default "vexpress64"
+
+config SYS_VENDOR
+	string
+	default "armltd"
+
+config SYS_CONFIG_NAME
+	string
+	default "vexpress_aemv8a"
+
+endif

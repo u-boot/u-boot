@@ -1,0 +1,15 @@
+if TARGET_KAREF
+
+config SYS_BOARD
+	string
+	default "karef"
+
+config SYS_VENDOR
+	string
+	default "sandburst"
+
+config SYS_CONFIG_NAME
+	string
+	default "KAREF"
+
+endif

@@ -1,0 +1,12 @@
+IVM BOARD
+M:	Wolfgang Denk <wd@denx.de>
+S:	Maintained
+F:	board/ivm/
+F:	include/configs/IVML24.h
+F:	configs/IVML24_defconfig
+F:	configs/IVML24_128_defconfig
+F:	configs/IVML24_256_defconfig
+F:	include/configs/IVMS8.h
+F:	configs/IVMS8_defconfig
+F:	configs/IVMS8_128_defconfig
+F:	configs/IVMS8_256_defconfig

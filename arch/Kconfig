@@ -1,0 +1,66 @@
+choice
+	prompt "Architecture select"
+	default SANDBOX
+
+config ARC
+	bool "ARC architecture"
+
+config ARM
+	bool "ARM architecture"
+
+config AVR32
+	bool "AVR32 architecture"
+
+config BLACKFIN
+	bool "Blackfin architecture"
+
+config M68K
+	bool "M68000 architecture"
+
+config MICROBLAZE
+	bool "MicroBlaze architecture"
+
+config MIPS
+	bool "MIPS architecture"
+
+config NDS32
+	bool "NDS32 architecture"
+
+config NIOS2
+	bool "Nios II architecture"
+
+config OPENRISC
+	bool "OpenRISC architecture"
+
+config PPC
+	bool "PowerPC architecture"
+
+config SANDBOX
+	bool "Sandbox"
+
+config SH
+	bool "SuperH architecture"
+
+config SPARC
+	bool "SPARC architecture"
+
+config X86
+	bool "x86 architecture"
+
+endchoice
+
+source "arch/arc/Kconfig"
+source "arch/arm/Kconfig"
+source "arch/avr32/Kconfig"
+source "arch/blackfin/Kconfig"
+source "arch/m68k/Kconfig"
+source "arch/microblaze/Kconfig"
+source "arch/mips/Kconfig"
+source "arch/nds32/Kconfig"
+source "arch/nios2/Kconfig"
+source "arch/openrisc/Kconfig"
+source "arch/powerpc/Kconfig"
+source "arch/sandbox/Kconfig"
+source "arch/sh/Kconfig"
+source "arch/sparc/Kconfig"
+source "arch/x86/Kconfig"
