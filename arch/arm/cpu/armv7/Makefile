@@ -28,6 +28,7 @@ ifneq ($(CONFIG_ARMV7_PSCI),)
 obj-y	+= psci.o
 endif
 
+obj-$(CONFIG_IPROC) += iproc-common/
 obj-$(CONFIG_KONA) += kona-common/
 obj-$(CONFIG_OMAP_COMMON) += omap-common/
 obj-$(CONFIG_SYS_ARCH_TIMER) += arch_timer.o
