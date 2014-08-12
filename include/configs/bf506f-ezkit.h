@@ -56,7 +56,7 @@
 /*
  * Flash Settings
  */
-
+/*
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_BASE		0x20000000
 #define CONFIG_SYS_FLASH_CFI
@@ -64,9 +64,8 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	71
 #define CONFIG_CMD_FLASH
 #define CONFIG_MONITOR_IS_IN_RAM
-/*
-#define CONFIG_SYS_NO_FLASH
 */
+#define CONFIG_SYS_NO_FLASH
 
 /*
  * SPI Settings
