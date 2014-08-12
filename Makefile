@@ -827,7 +827,7 @@ u-boot.bin: u-boot FORCE
 
 u-boot.ldr:	u-boot
 		$(CREATE_LDR_ENV)
-		$(LDR) -T $(CONFIG_BFIN_CPU) -c $@ $< $(LDR_FLAGS)
+		$(LDR) -T $(CONFIG_CPU) -c $@ $< $(LDR_FLAGS)
 		$(BOARD_SIZE_CHECK)
 
 OBJCOPYFLAGS_u-boot.ldr.hex := -I binary -O ihex
