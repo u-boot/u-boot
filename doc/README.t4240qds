@@ -79,6 +79,25 @@ Board Features
 		- High-speed serial flash
 	Two Serial port
 	Four I2C ports
+  XFI
+	XFI is supported on T4QDS-XFI board which removed slot3 and routed
+	four Lanes A/B/C/D to a SFP+ cages, which to house fiber cable or
+	direct attach cable(copper), the copper cable is used to emulate
+	10GBASE-KR scenario.
+	So, for XFI usage, there are two scenarios, one will use fiber cable,
+	another will use copper cable. An hwconfig env "fsl_10gkr_copper" is
+	introduced to indicate a XFI port will use copper cable, and U-boot
+	will fixup the dtb accordingly.
+	It's used as: fsl_10gkr_copper:<10g_mac_name>
+	The <10g_mac_name> can be fm1_10g1, fm1_10g2, fm2_10g1, fm2_10g2, they
+	do not have to be coexist in hwconfig. If a MAC is listed in the env
+	"fsl_10gkr_copper", it will use copper cable, otherwise, fiber cable
+	will be used by default.
+	for ex. set "fsl_10gkr_copper:fm1_10g1,fm1_10g2,fm2_10g1,fm2_10g2" in
+	hwconfig, then both four XFI ports will use copper cable.
+	set "fsl_10gkr_copper:fm1_10g1,fm1_10g2" in hwconfig, then first two
+	XFI ports will use copper cable, the other two XFI ports will use fiber
+	cable.
 
 Memory map
 ----------
