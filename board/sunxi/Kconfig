@@ -1,33 +1,11 @@
-if TARGET_SUN4I
-
-config SYS_CONFIG_NAME
-	default "sun4i"
-
-endif
-
-if TARGET_SUN5I
-
-config SYS_CONFIG_NAME
-	default "sun5i"
-
-endif
-
-if TARGET_SUN6I
+if TARGET_SUN4I || TARGET_SUN5I || TARGET_SUN6I || TARGET_SUN7I
 
 config SYS_CONFIG_NAME
 	string
-	default "sun6i"
-
-endif
-
-if TARGET_SUN7I
-
-config SYS_CONFIG_NAME
-	default "sun7i"
-
-endif
-
-if TARGET_SUN4I || TARGET_SUN5I || TARGET_SUN6I || TARGET_SUN7I
+	default "sun4i" if TARGET_SUN4I
+	default "sun5i" if TARGET_SUN5I
+	default "sun6i" if TARGET_SUN6I
+	default "sun7i" if TARGET_SUN7I
 
 config SYS_CPU
 	default "armv7"
