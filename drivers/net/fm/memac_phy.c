@@ -71,6 +71,8 @@ int memac_mdio_read(struct mii_dev *bus, int port_addr, int dev_addr,
 	u32 c45 = 1;
 
 	if (dev_addr == MDIO_DEVAD_NONE) {
+		if (!strcmp(bus->name, DEFAULT_FM_TGEC_MDIO_NAME))
+			return 0xffff;
 		c45 = 0; /* clause 22 */
 		dev_addr = regnum & 0x1f;
 		clrbits_be32(&regs->mdio_stat, MDIO_STAT_ENC);
