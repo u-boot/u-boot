@@ -204,6 +204,9 @@
  */
 #define CONFIG_SUNXI_FB_SIZE (8 << 20)
 
+/* Do we want to initialize a simple FB? */
+#define CONFIG_VIDEO_DT_SIMPLEFB
+
 #define CONFIG_VIDEO_SUNXI
 
 #define CONFIG_CFB_CONSOLE
@@ -216,6 +219,11 @@
 #define CONFIG_VGA_AS_SINGLE_DEVICE
 
 #define CONFIG_SYS_MEM_TOP_HIDE ((CONFIG_SUNXI_FB_SIZE + 0xFFF) & ~0xFFF)
+
+/* To be able to hook simplefb into dt */
+#ifdef CONFIG_VIDEO_DT_SIMPLEFB
+#define CONFIG_OF_BOARD_SETUP
+#endif
 
 #endif /* CONFIG_VIDEO */
 

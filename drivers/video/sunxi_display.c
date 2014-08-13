@@ -13,6 +13,8 @@
 #include <asm/arch/display.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
+#include <fdtdec.h>
+#include <fdt_support.h>
 #include <linux/fb.h>
 #include <video_fb.h>
 
@@ -408,3 +410,42 @@ void *video_hw_init(void)
 
 	return graphic_device;
 }
+
+/*
+ * Simplefb support.
+ */
+#if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_VIDEO_DT_SIMPLEFB)
+int sunxi_simplefb_setup(void *blob)
+{
+	static GraphicDevice *graphic_device = &sunxi_display.graphic_device;
+	int offset, ret;
+
+	if (!sunxi_display.enabled)
+		return 0;
+
+	/* Find a framebuffer node, with pipeline == "de_be0-lcd0-hdmi" */
+	offset = fdt_node_offset_by_compatible(blob, -1,
+					       "allwinner,simple-framebuffer");
+	while (offset >= 0) {
+		ret = fdt_find_string(blob, offset, "allwinner,pipeline",
+				      "de_be0-lcd0-hdmi");
+		if (ret == 0)
+			break;
+		offset = fdt_node_offset_by_compatible(blob, offset,
+					       "allwinner,simple-framebuffer");
+	}
+	if (offset < 0) {
+		eprintf("Cannot setup simplefb: node not found\n");
+		return 0; /* Keep older kernels working */
+	}
+
+	ret = fdt_setup_simplefb_node(blob, offset, gd->fb_base,
+			graphic_device->winSizeX, graphic_device->winSizeY,
+			graphic_device->winSizeX * graphic_device->gdfBytesPP,
+			"x8r8g8b8");
+	if (ret)
+		eprintf("Cannot setup simplefb: Error setting properties\n");
+
+	return ret;
+}
+#endif /* CONFIG_OF_BOARD_SETUP && CONFIG_VIDEO_DT_SIMPLEFB */

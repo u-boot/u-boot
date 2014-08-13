@@ -182,4 +182,6 @@ struct sunxi_hdmi_reg {
 #define SUNXI_HDMI_PLL_DBG0_PLL3		(0 << 21)
 #define SUNXI_HDMI_PLL_DBG0_PLL7		(1 << 21)
 
+int sunxi_simplefb_setup(void *blob);
+
 #endif /* _SUNXI_DISPLAY_H */
