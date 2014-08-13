@@ -215,4 +215,11 @@ config USB2_VBUS_PIN
 	---help---
 	See USB1_VBUS_PIN help text.
 
+config VIDEO
+	boolean "Enable graphical uboot console on HDMI"
+	default y
+	---help---
+	Say Y here to add support for using a cfb console on the HDMI output
+	found on most sunxi devices.
+
 endif
