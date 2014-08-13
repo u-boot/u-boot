@@ -35,9 +35,20 @@ int board_early_init_f(void)
 	return 0;
 }
 
+void detail_board_ddr_info(void)
+{
+	puts("\nDDR    ");
+	print_size(gd->bd->bi_dram[0].size + gd->bd->bi_dram[1].size, "");
+	print_ddr_info(0);
+	if (gd->bd->bi_dram[2].size) {
+		puts("\nDP-DDR ");
+		print_size(gd->bd->bi_dram[2].size, "");
+		print_ddr_info(CONFIG_DP_DDR_CTRL);
+	}
+}
+
 int dram_init(void)
 {
-	printf("DRAM:  ");
 	gd->ram_size = initdram(0);
 
 	return 0;
