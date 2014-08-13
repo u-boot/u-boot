@@ -139,9 +139,12 @@ int fm_memac_mdio_init(bd_t *bis, struct memac_mdio_info *info)
 	 * is zero, so MDIO clock is disabled.
 	 * So, for proper functioning of MDIO, MDIO_CLK_DIV bits needs to
 	 * be properly initialized.
+	 * NEG bit default should be '1' as per FMAN-v3 RM, but on platform
+	 * like T2080QDS, this bit default is '0', which leads to MDIO failure
+	 * on XAUI PHY, so set this bit definitely.
 	 */
 	setbits_be32(&((struct memac_mdio_controller *)info->regs)->mdio_stat,
-		     MDIO_STAT_CLKDIV(258));
+		     MDIO_STAT_CLKDIV(258) | MDIO_STAT_NEG);
 
 	return mdio_register(bus);
 }

@@ -244,6 +244,7 @@ struct memac_mdio_controller {
 #define MDIO_STAT_PRE		(1 << 5)
 #define MDIO_STAT_ENC		(1 << 6)
 #define MDIO_STAT_HOLD_15_CLK	(7 << 2)
+#define MDIO_STAT_NEG		(1 << 23)
 
 #define MDIO_CTL_DEV_ADDR(x)	(x & 0x1f)
 #define MDIO_CTL_PORT_ADDR(x)	((x & 0x1f) << 5)
