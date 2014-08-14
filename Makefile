@@ -1004,13 +1004,17 @@ quiet_cmd_u-boot__ ?= LD      $@
       --start-group $(u-boot-main) --end-group                 \
       $(PLATFORM_LIBS) -Map u-boot.map
 
-u-boot:	$(u-boot-init) $(u-boot-main) u-boot.lds
-	$(call if_changed,u-boot__)
-ifeq ($(CONFIG_KALLSYMS),y)
+quiet_cmd_smap = GEN     common/system_map.o
+cmd_smap = \
 	smap=`$(call SYSTEM_MAP,u-boot) | \
 		awk '$$2 ~ /[tTwW]/ {printf $$1 $$3 "\\\\000"}'` ; \
 	$(CC) $(c_flags) -DSYSTEM_MAP="\"$${smap}\"" \
 		-c $(srctree)/common/system_map.c -o common/system_map.o
+
+u-boot:	$(u-boot-init) $(u-boot-main) u-boot.lds
+	$(call if_changed,u-boot__)
+ifeq ($(CONFIG_KALLSYMS),y)
+	$(call cmd,smap)
 	$(call cmd,u-boot__) common/system_map.o
 endif
 
