@@ -373,6 +373,27 @@ int enable_fec_anatop_clock(enum enet_freq freq)
 	reg &= ~BM_ANADIG_PLL_ENET_BYPASS;
 	writel(reg, &anatop->pll_enet);
 
+#ifdef CONFIG_MX6SX
+	/*
+	 * Set enet ahb clock to 200MHz
+	 * pll2_pfd2_396m-> ENET_PODF-> ENET_AHB
+	 */
+	reg = readl(&imx_ccm->chsccdr);
+	reg &= ~(MXC_CCM_CHSCCDR_ENET_PRE_CLK_SEL_MASK
+		 | MXC_CCM_CHSCCDR_ENET_PODF_MASK
+		 | MXC_CCM_CHSCCDR_ENET_CLK_SEL_MASK);
+	/* PLL2 PFD2 */
+	reg |= (4 << MXC_CCM_CHSCCDR_ENET_PRE_CLK_SEL_OFFSET);
+	/* Div = 2*/
+	reg |= (1 << MXC_CCM_CHSCCDR_ENET_PODF_OFFSET);
+	reg |= (0 << MXC_CCM_CHSCCDR_ENET_CLK_SEL_OFFSET);
+	writel(reg, &imx_ccm->chsccdr);
+
+	/* Enable enet system clock */
+	reg = readl(&imx_ccm->CCGR3);
+	reg |= MXC_CCM_CCGR3_ENET_MASK;
+	writel(reg, &imx_ccm->CCGR3);
+#endif
 	return 0;
 }
 #endif
