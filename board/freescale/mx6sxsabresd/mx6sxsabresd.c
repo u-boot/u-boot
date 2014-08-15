@@ -7,6 +7,7 @@
  */
 
 #include <asm/arch/clock.h>
+#include <asm/arch/crm_regs.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/mx6-pins.h>
@@ -20,6 +21,8 @@
 #include <fsl_esdhc.h>
 #include <mmc.h>
 #include <i2c.h>
+#include <miiphy.h>
+#include <netdev.h>
 #include <power/pmic.h>
 #include <power/pfuze100_pmic.h>
 
@@ -32,6 +35,21 @@ DECLARE_GLOBAL_DATA_PTR;
 #define USDHC_PAD_CTRL (PAD_CTL_PKE | PAD_CTL_PUE |		\
 	PAD_CTL_PUS_22K_UP  | PAD_CTL_SPEED_LOW |		\
 	PAD_CTL_DSE_80ohm   | PAD_CTL_SRE_FAST  | PAD_CTL_HYS)
+
+#define I2C_PAD_CTRL    (PAD_CTL_PKE | PAD_CTL_PUE |            \
+	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED |               \
+	PAD_CTL_DSE_40ohm | PAD_CTL_HYS |			\
+	PAD_CTL_ODE)
+
+#define ENET_PAD_CTRL  (PAD_CTL_PUS_100K_UP | PAD_CTL_PUE |     \
+	PAD_CTL_SPEED_HIGH   |                                   \
+	PAD_CTL_DSE_48ohm   | PAD_CTL_SRE_FAST)
+
+#define ENET_CLK_PAD_CTRL  (PAD_CTL_SPEED_MED | \
+	PAD_CTL_DSE_120ohm   | PAD_CTL_SRE_FAST)
+
+#define ENET_RX_PAD_CTRL  (PAD_CTL_PKE | PAD_CTL_PUE |          \
+	PAD_CTL_SPEED_HIGH   | PAD_CTL_SRE_FAST)
 
 #define I2C_PAD_CTRL    (PAD_CTL_PKE | PAD_CTL_PUE |            \
 	PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED |               \
@@ -60,9 +78,81 @@ static iomux_v3_cfg_t const usdhc4_pads[] = {
 	MX6_PAD_SD4_DATA7__GPIO6_IO_21 | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
+static iomux_v3_cfg_t const fec1_pads[] = {
+	MX6_PAD_ENET1_MDC__ENET1_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_ENET1_MDIO__ENET1_MDIO | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII1_RX_CTL__ENET1_RX_EN | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
+	MX6_PAD_RGMII1_RD0__ENET1_RX_DATA_0 | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
+	MX6_PAD_RGMII1_RD1__ENET1_RX_DATA_1 | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
+	MX6_PAD_RGMII1_RD2__ENET1_RX_DATA_2 | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
+	MX6_PAD_RGMII1_RD3__ENET1_RX_DATA_3 | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
+	MX6_PAD_RGMII1_RXC__ENET1_RX_CLK | MUX_PAD_CTRL(ENET_RX_PAD_CTRL),
+	MX6_PAD_RGMII1_TX_CTL__ENET1_TX_EN | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII1_TD0__ENET1_TX_DATA_0 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII1_TD1__ENET1_TX_DATA_1 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII1_TD2__ENET1_TX_DATA_2 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII1_TD3__ENET1_TX_DATA_3 | MUX_PAD_CTRL(ENET_PAD_CTRL),
+	MX6_PAD_RGMII1_TXC__ENET1_RGMII_TXC | MUX_PAD_CTRL(ENET_PAD_CTRL),
+};
+
+static iomux_v3_cfg_t const peri_3v3_pads[] = {
+	MX6_PAD_QSPI1A_DATA0__GPIO4_IO_16 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+static iomux_v3_cfg_t const phy_control_pads[] = {
+	/* 25MHz Ethernet PHY Clock */
+	MX6_PAD_ENET2_RX_CLK__ENET2_REF_CLK_25M | MUX_PAD_CTRL(ENET_CLK_PAD_CTRL),
+
+	/* ENET PHY Power */
+	MX6_PAD_ENET2_COL__GPIO2_IO_6 | MUX_PAD_CTRL(NO_PAD_CTRL),
+
+	/* AR8031 PHY Reset */
+	MX6_PAD_ENET2_CRS__GPIO2_IO_7 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
 static void setup_iomux_uart(void)
 {
 	imx_iomux_v3_setup_multiple_pads(uart1_pads, ARRAY_SIZE(uart1_pads));
+}
+
+static int setup_fec(void)
+{
+	struct iomuxc *iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
+	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
+	int ret;
+	int reg;
+
+	/* Use 125MHz anatop loopback REF_CLK1 for ENET1 */
+	clrsetbits_le32(&iomuxc_regs->gpr[1], IOMUX_GPR1_FEC1_MASK, 0);
+
+	imx_iomux_v3_setup_multiple_pads(phy_control_pads,
+					 ARRAY_SIZE(phy_control_pads));
+
+	/* Enable the ENET power, active low */
+	gpio_direction_output(IMX_GPIO_NR(2, 6) , 0);
+
+	/* Reset AR8031 PHY */
+	gpio_direction_output(IMX_GPIO_NR(2, 7) , 0);
+	udelay(500);
+	gpio_set_value(IMX_GPIO_NR(2, 7), 1);
+
+	reg = readl(&anatop->pll_enet);
+	reg |= BM_ANADIG_PLL_ENET_REF_25M_ENABLE;
+	writel(reg, &anatop->pll_enet);
+
+	ret = enable_fec_anatop_clock(ENET_125MHz);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	imx_iomux_v3_setup_multiple_pads(fec1_pads, ARRAY_SIZE(fec1_pads));
+	setup_fec();
+
+	return cpu_eth_init(bis);
 }
 
 #define PC MUX_PAD_CTRL(I2C_PAD_CTRL)
@@ -131,10 +221,36 @@ static int pfuze_init(void)
 	return 0;
 }
 
+int board_phy_config(struct phy_device *phydev)
+{
+	/*
+	 * Enable 1.8V(SEL_1P5_1P8_POS_REG) on
+	 * Phy control debug reg 0
+	 */
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x1f);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x8);
+
+	/* rgmii tx clock delay enable */
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x05);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x100);
+
+	if (phydev->drv->config)
+		phydev->drv->config(phydev);
+
+	return 0;
+}
+
 int board_early_init_f(void)
 {
 	setup_iomux_uart();
 	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, &i2c_pad_info1);
+
+	/* Enable PERI_3V3, which is used by SD2, ENET, LVDS, BT */
+	imx_iomux_v3_setup_multiple_pads(peri_3v3_pads,
+					 ARRAY_SIZE(peri_3v3_pads));
+
+	/* Active high for ncp692 */
+	gpio_direction_output(IMX_GPIO_NR(4, 16) , 1);
 
 	return 0;
 }
