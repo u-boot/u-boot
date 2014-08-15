@@ -194,11 +194,6 @@ def rmdirs(*dirs):
                exception.errno != errno.ENOTEMPTY:
                 raise
 
-def error(msg):
-    """Output the given argument to stderr and exit with return code 1."""
-    print >> sys.stderr, msg
-    sys.exit(1)
-
 def run_command(command, callback_on_error=None):
     """Run the given command in a sub-shell (and exit if it fails).
 
@@ -211,7 +206,7 @@ def run_command(command, callback_on_error=None):
     if retcode:
         if callback_on_error:
             callback_on_error()
-        error("'%s' Failed" % command)
+        sys.exit("'%s' Failed" % command)
 
 def run_make_config(cmd, objdir, callback_on_error=None):
     """Run the make command in a sub-shell (and exit if it fails).

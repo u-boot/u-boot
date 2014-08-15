@@ -110,15 +110,13 @@ def DoBuildman(options, args):
             if count is None:
                 str = ("Branch '%s' not found or has no upstream" %
                        options.branch)
-                print col.Color(col.RED, str)
-                sys.exit(1)
+                sys.exit(col.Color(col.RED, str))
             count += 1   # Build upstream commit also
 
     if not count:
         str = ("No commits found to process in branch '%s': "
                "set branch's upstream or use -c flag" % options.branch)
-        print col.Color(col.RED, str)
-        sys.exit(1)
+        sys.exit(col.Color(col.RED, str))
 
     # Work out what subset of the boards we are building
     board_file = os.path.join(options.git, 'boards.cfg')
@@ -127,16 +125,14 @@ def DoBuildman(options, args):
         status = subprocess.call([os.path.join(options.git,
                                                'tools/genboardscfg.py')])
         if status != 0:
-            print >> sys.stderr, "Failed to generate boards.cfg"
-            sys.exit(1)
+            sys.exit("Failed to generate boards.cfg")
 
     boards = board.Boards()
     boards.ReadBoards(os.path.join(options.git, 'boards.cfg'))
     why_selected = boards.SelectBoards(args)
     selected = boards.GetSelected()
     if not len(selected):
-        print col.Color(col.RED, 'No matching boards found')
-        sys.exit(1)
+        sys.exit(col.Color(col.RED, 'No matching boards found'))
 
     # Read the metadata from the commits. First look at the upstream commit,
     # then the ones in the branch. We would like to do something like
@@ -182,8 +178,7 @@ def DoBuildman(options, args):
     gnu_make = command.Output(os.path.join(options.git,
                                            'scripts/show-gnu-make')).rstrip()
     if not gnu_make:
-        print >> sys.stderr, 'GNU Make not found'
-        sys.exit(1)
+        sys.exit('GNU Make not found')
 
     # Create a new builder with the selected options
     if options.branch:

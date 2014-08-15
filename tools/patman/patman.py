@@ -122,8 +122,7 @@ else:
     col = terminal.Color()
     if not options.count:
         str = 'No commits found to process - please use -c flag'
-        print col.Color(col.RED, str)
-        sys.exit(1)
+        sys.exit(col.Color(col.RED, str))
 
     # Read the metadata from the commits
     if options.count:

@@ -77,16 +77,14 @@ def check_top_directory():
     """Exit if we are not at the top of source directory."""
     for f in ('README', 'Licenses'):
         if not os.path.exists(f):
-            print >> sys.stderr, 'Please run at the top of source directory.'
-            sys.exit(1)
+            sys.exit('Please run at the top of source directory.')
 
 def get_make_cmd():
     """Get the command name of GNU Make."""
     process = subprocess.Popen([SHOW_GNU_MAKE], stdout=subprocess.PIPE)
     ret = process.communicate()
     if process.returncode:
-        print >> sys.stderr, 'GNU Make not found'
-        sys.exit(1)
+        sys.exit('GNU Make not found')
     return ret[0].rstrip()
 
 ### classes ###
@@ -209,9 +207,7 @@ class DotConfigParser:
         # sanity check of '.config' file
         for field in self.must_fields:
             if not field in fields:
-                print >> sys.stderr, 'Error: %s is not defined in %s' % \
-                                                            (field, defconfig)
-                sys.exit(1)
+                sys.exit('Error: %s is not defined in %s' % (field, defconfig))
 
         # fix-up for aarch64 and tegra
         if fields['arch'] == 'arm' and 'cpu' in fields:
@@ -455,8 +451,7 @@ def __gen_boards_cfg(jobs):
     # wait until the reformat tool finishes
     reformat_process.communicate()
     if reformat_process.returncode != 0:
-        print >> sys.stderr, '"%s" failed' % REFORMAT_CMD[0]
-        sys.exit(1)
+        sys.exit('"%s" failed' % REFORMAT_CMD[0])
 
 def gen_boards_cfg(jobs):
     """Generate boards.cfg file.
@@ -489,8 +484,7 @@ def main():
         try:
             jobs = int(options.jobs)
         except ValueError:
-            print >> sys.stderr, 'Option -j (--jobs) takes a number'
-            sys.exit(1)
+            sys.exit('Option -j (--jobs) takes a number')
     else:
         try:
             jobs = int(subprocess.Popen(['getconf', '_NPROCESSORS_ONLN'],
