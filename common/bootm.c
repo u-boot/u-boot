@@ -725,13 +725,14 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 #endif
 	ulong		img_addr;
 	const void *buf;
-#if defined(CONFIG_FIT)
 	const char	*fit_uname_config = NULL;
 	const char	*fit_uname_kernel = NULL;
+#if defined(CONFIG_FIT)
 	int		os_noffset;
 #endif
 
-	img_addr = genimg_get_kernel_addr(argv[0]);
+	img_addr = genimg_get_kernel_addr_fit(argv[0], &fit_uname_config,
+					  &fit_uname_kernel);
 
 	bootstage_mark(BOOTSTAGE_ID_CHECK_MAGIC);
 
@@ -788,10 +789,6 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 #endif
 #if defined(CONFIG_FIT)
 	case IMAGE_FORMAT_FIT:
-		if (!fit_parse_conf(argv[0], load_addr, &img_addr,
-					&fit_uname_config))
-			fit_parse_subimage(argv[0], load_addr, &img_addr,
-					&fit_uname_kernel);
 		os_noffset = fit_image_load(images, img_addr,
 				&fit_uname_kernel, &fit_uname_config,
 				IH_ARCH_DEFAULT, IH_TYPE_KERNEL,

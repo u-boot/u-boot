@@ -643,22 +643,24 @@ int genimg_get_comp_id(const char *name)
 
 #ifndef USE_HOSTCC
 /**
- * genimg_get_kernel_addr - get the real kernel address
+ * genimg_get_kernel_addr_fit - get the real kernel address and return 2
+ *                              FIT strings
  * @img_addr: a string might contain real image address
+ * @fit_uname_config: double pointer to a char, will hold pointer to a
+ *                    configuration unit name
+ * @fit_uname_kernel: double pointer to a char, will hold pointer to a subimage
+ *                    name
  *
- * genimg_get_kernel_addr() get the real kernel start address from a string
+ * genimg_get_kernel_addr_fit get the real kernel start address from a string
  * which is normally the first argv of bootm/bootz
  *
  * returns:
  *     kernel start address
  */
-ulong genimg_get_kernel_addr(char * const img_addr)
+ulong genimg_get_kernel_addr_fit(char * const img_addr,
+			     const char **fit_uname_config,
+			     const char **fit_uname_kernel)
 {
-#if defined(CONFIG_FIT)
-	const char	*fit_uname_config = NULL;
-	const char	*fit_uname_kernel = NULL;
-#endif
-
 	ulong kernel_addr;
 
 	/* find out kernel image address */
@@ -668,13 +670,13 @@ ulong genimg_get_kernel_addr(char * const img_addr)
 		      load_addr);
 #if defined(CONFIG_FIT)
 	} else if (fit_parse_conf(img_addr, load_addr, &kernel_addr,
-				  &fit_uname_config)) {
+				  fit_uname_config)) {
 		debug("*  kernel: config '%s' from image at 0x%08lx\n",
-		      fit_uname_config, kernel_addr);
+		      *fit_uname_config, kernel_addr);
 	} else if (fit_parse_subimage(img_addr, load_addr, &kernel_addr,
-				     &fit_uname_kernel)) {
+				     fit_uname_kernel)) {
 		debug("*  kernel: subimage '%s' from image at 0x%08lx\n",
-		      fit_uname_kernel, kernel_addr);
+		      *fit_uname_kernel, kernel_addr);
 #endif
 	} else {
 		kernel_addr = simple_strtoul(img_addr, NULL, 16);
@@ -683,6 +685,19 @@ ulong genimg_get_kernel_addr(char * const img_addr)
 	}
 
 	return kernel_addr;
+}
+
+/**
+ * genimg_get_kernel_addr() is the simple version of
+ * genimg_get_kernel_addr_fit(). It ignores those return FIT strings
+ */
+ulong genimg_get_kernel_addr(char * const img_addr)
+{
+	const char *fit_uname_config = NULL;
+	const char *fit_uname_kernel = NULL;
+
+	return genimg_get_kernel_addr_fit(img_addr, &fit_uname_config,
+					  &fit_uname_kernel);
 }
 
 /**
