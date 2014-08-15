@@ -12,12 +12,6 @@ config KCONFIG_OBJDIR
 	string
 	option env="KCONFIG_OBJDIR"
 
-config DEFCONFIG_LIST
-	string
-	depends on !SPL_BUILD
-	option defconfig_list
-	default "configs/sandbox_defconfig"
-
 menu "General setup"
 
 config SPL_BUILD
