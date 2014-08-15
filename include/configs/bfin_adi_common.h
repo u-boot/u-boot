@@ -39,6 +39,7 @@
 #  define CONFIG_CMD_FAT
 #  define CONFIG_CMD_MMC
 #  define CONFIG_DOS_PARTITION
+#  define CONFIG_SYS_MMC_MAX_BLK_COUNT 127
 # endif
 # ifdef CONFIG_MMC_SPI
 #  define CONFIG_CMD_MMC_SPI
