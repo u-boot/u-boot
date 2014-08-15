@@ -731,8 +731,9 @@ static const void *boot_get_kernel(cmd_tbl_t *cmdtp, int flag, int argc,
 	int		os_noffset;
 #endif
 
-	img_addr = genimg_get_kernel_addr_fit(argv[0], &fit_uname_config,
-					  &fit_uname_kernel);
+	img_addr = genimg_get_kernel_addr_fit(argc < 1 ? NULL : argv[0],
+					      &fit_uname_config,
+					      &fit_uname_kernel);
 
 	bootstage_mark(BOOTSTAGE_ID_CHECK_MAGIC);
 
