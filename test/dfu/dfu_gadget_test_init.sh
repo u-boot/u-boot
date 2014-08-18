@@ -1,5 +1,15 @@
 #! /bin/bash
 
+# Copyright (C) 2014 Samsung Electronics
+# Lukasz Majewski <l.majewski@samsung.com>
+#
+# Script fixes, enhancements and testing:
+# Stephen Warren <swarren@nvidia.com>
+#
+# Script for test files generation
+#
+# SPDX-License-Identifier:	GPL-2.0+
+
 set -e # any command return if not equal to zero
 clear
 
