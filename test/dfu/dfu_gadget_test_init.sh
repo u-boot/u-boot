@@ -9,7 +9,11 @@ COLOUR_DEFAULT="\33[0m"
 
 LOG_DIR="./log"
 
-TEST_FILES_SIZES="63 64 65 127 128 129 4095 4096 4097 959 960 961 1048575 1048576 8M"
+if [ $# -eq 0 ]; then
+    TEST_FILES_SIZES="63 64 65 127 128 129 4095 4096 4097 959 960 961 1048575 1048576 8M"
+else
+    TEST_FILES_SIZES=$@
+fi
 
 printf "Init script for generating data necessary for DFU test script"
 
