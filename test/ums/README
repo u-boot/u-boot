@@ -1,0 +1,30 @@
+UMS test script.
+
+ums_gadget_test.sh
+==================
+
+Example usage:
+1. On the target:
+   create UMS exportable partitions (with e.g. gpt write), or specify a
+   partition number (PART_NUM) as "-" to use the entire device
+   ums 0 mmc 0
+2. On the host:
+   sudo test/ums/ums_gadget_test.sh VID PID PART_NUM [-f FILE_SYSTEM] [test_file]
+   e.g. sudo test/ums/ums_gadget_test.sh 0525 a4a5 6 -f vfat ./dat_14M.img
+
+... where:
+    VID - UMS device USB Vendor ID
+    PID - UMS device USB Product ID
+    PART_NUM - is the partition number on which UMS operates or "-" to use the
+	       whole device
+
+Information about available partitions on the target one can read with using
+the 'mmc part' or 'part list' commands.
+
+The partition num (PART_NUM) can be specified as '-' for using the whole device.
+
+The [-f FILE_SYSTEM] optional switch allows for formatting target partition to
+FILE_SYSTEM.
+
+The last, optional [test_file] parameter is for specifying the exact test file
+to use.
