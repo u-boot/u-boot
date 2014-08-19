@@ -47,7 +47,12 @@
 #define CONFIG_DHCP_MIN_EXT_LEN 64
 #endif
 
-ulong		BootpID;
+#ifndef CONFIG_BOOTP_ID_CACHE_SIZE
+#define CONFIG_BOOTP_ID_CACHE_SIZE 4
+#endif
+
+ulong		bootp_ids[CONFIG_BOOTP_ID_CACHE_SIZE];
+unsigned int	bootp_num_ids;
 int		BootpTry;
 ulong		bootp_start;
 ulong		bootp_timeout;
@@ -77,6 +82,30 @@ static char *dhcpmsg2str(int type)
 #endif
 #endif
 
+static void bootp_add_id(ulong id)
+{
+	if (bootp_num_ids >= ARRAY_SIZE(bootp_ids)) {
+		size_t size = sizeof(bootp_ids) - sizeof(id);
+
+		memmove(bootp_ids, &bootp_ids[1], size);
+		bootp_ids[bootp_num_ids - 1] = id;
+	} else {
+		bootp_ids[bootp_num_ids] = id;
+		bootp_num_ids++;
+	}
+}
+
+static bool bootp_match_id(ulong id)
+{
+	unsigned int i;
+
+	for (i = 0; i < bootp_num_ids; i++)
+		if (bootp_ids[i] == id)
+			return true;
+
+	return false;
+}
+
 static int BootpCheckPkt(uchar *pkt, unsigned dest, unsigned src, unsigned len)
 {
 	struct Bootp_t *bp = (struct Bootp_t *) pkt;
@@ -96,7 +125,7 @@ static int BootpCheckPkt(uchar *pkt, unsigned dest, unsigned src, unsigned len)
 		retval = -4;
 	else if (bp->bp_hlen != HWL_ETHER)
 		retval = -5;
-	else if (NetReadLong((ulong *)&bp->bp_id) != BootpID)
+	else if (!bootp_match_id(NetReadLong((ulong *)&bp->bp_id)))
 		retval = -6;
 
 	debug("Filtering pkt = %d\n", retval);
@@ -351,8 +380,8 @@ BootpTimeout(void)
 #endif
 	} else {
 		bootp_timeout *= 2;
-		if (bootp_timeout > 1000)
-			bootp_timeout = 1000;
+		if (bootp_timeout > 2000)
+			bootp_timeout = 2000;
 		NetSetTimeout(bootp_timeout, BootpTimeout);
 		BootpRequest();
 	}
@@ -616,9 +645,10 @@ static int BootpExtended(u8 *e)
 
 void BootpReset(void)
 {
+	bootp_num_ids = 0;
 	BootpTry = 0;
 	bootp_start = get_timer(0);
-	bootp_timeout = 10;
+	bootp_timeout = 250;
 }
 
 void
@@ -631,6 +661,7 @@ BootpRequest(void)
 #ifdef CONFIG_BOOTP_RANDOM_DELAY
 	ulong rand_ms;
 #endif
+	ulong BootpID;
 
 	bootstage_mark_name(BOOTSTAGE_ID_BOOTP_START, "bootp_start");
 #if defined(CONFIG_CMD_DHCP)
@@ -699,7 +730,8 @@ BootpRequest(void)
 		| ((ulong)NetOurEther[4] << 8)
 		| (ulong)NetOurEther[5];
 	BootpID += get_timer(0);
-	BootpID	 = htonl(BootpID);
+	BootpID = htonl(BootpID);
+	bootp_add_id(BootpID);
 	NetCopyLong(&bp->bp_id, &BootpID);
 
 	/*
@@ -960,8 +992,8 @@ DhcpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 			/* Store net params from reply */
 			BootpCopyNetParams(bp);
 			dhcp_state = BOUND;
-			printf("DHCP client bound to address %pI4\n",
-				&NetOurIP);
+			printf("DHCP client bound to address %pI4 (%lu ms)\n",
+				&NetOurIP, get_timer(bootp_start));
 			bootstage_mark_name(BOOTSTAGE_ID_BOOTP_STOP,
 				"bootp_stop");
 
