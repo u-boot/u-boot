@@ -17,6 +17,10 @@
 #define US1_OR          (1 << 3)
 #define UC2_TE          (1 << 3)
 #define UC2_RE          (1 << 2)
+#define CFIFO_TXFLUSH   (1 << 7)
+#define CFIFO_RXFLUSH   (1 << 6)
+#define SFIFO_RXOF      (1 << 2)
+#define SFIFO_RXUF      (1 << 0)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -84,6 +88,12 @@ static int lpuart_serial_init(void)
 
 	__raw_writeb(0, &base->umodem);
 	__raw_writeb(0, &base->uc1);
+
+	/* Disable FIFO and flush buffer */
+	__raw_writeb(0x0, &base->upfifo);
+	__raw_writeb(0x0, &base->utwfifo);
+	__raw_writeb(0x1, &base->urwfifo);
+	__raw_writeb(CFIFO_TXFLUSH | CFIFO_RXFLUSH, &base->ucfifo);
 
 	/* provide data bits, parity, stop bit, etc */
 
