@@ -12,14 +12,17 @@ import threading
 import command
 import gitutil
 
-def Mkdir(dirname):
+def Mkdir(dirname, parents = False):
     """Make a directory if it doesn't already exist.
 
     Args:
         dirname: Directory to create
     """
     try:
-        os.mkdir(dirname)
+        if parents:
+            os.makedirs(dirname)
+        else:
+            os.mkdir(dirname)
     except OSError as err:
         if err.errno == errno.EEXIST:
             pass

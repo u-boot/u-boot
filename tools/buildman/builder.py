@@ -1141,7 +1141,7 @@ class Builder:
         self._verbose = verbose
 
         self.ResetResultSummary(board_selected)
-        builderthread.Mkdir(self.base_dir)
+        builderthread.Mkdir(self.base_dir, parents = True)
         self._PrepareWorkingSpace(min(self.num_threads, len(board_selected)),
                 commits is not None)
         self._PrepareOutputSpace()
