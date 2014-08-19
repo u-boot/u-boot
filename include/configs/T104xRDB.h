@@ -480,7 +480,7 @@
 
 /* I2C bus multiplexer */
 #define I2C_MUX_PCA_ADDR                0x70
-#ifdef CONFIG_T1040RDB
+#if defined(CONFIG_T1040RDB) || defined(CONFIG_T1042RDB)
 #define I2C_MUX_CH_DEFAULT      0x8
 #endif
 
@@ -636,7 +636,7 @@
 #define CONFIG_SYS_DPAA_FMAN
 #define CONFIG_SYS_DPAA_PME
 
-#ifdef CONFIG_T1040RDB
+#if defined(CONFIG_T1040RDB) || defined(CONFIG_T1042RDB)
 #define CONFIG_QE
 #define CONFIG_U_QE
 #endif
@@ -665,7 +665,7 @@
 #define CONFIG_SYS_FMAN_FW_ADDR		0xEFF00000
 #endif
 
-#ifdef CONFIG_T1040RDB
+#if defined(CONFIG_T1040RDB) || defined(CONFIG_T1042RDB)
 #if defined(CONFIG_SPIFLASH)
 #define CONFIG_SYS_QE_FW_ADDR		0x130000
 #elif defined(CONFIG_SDCARD)
@@ -689,7 +689,7 @@
 #endif
 
 #ifdef CONFIG_FMAN_ENET
-#ifdef CONFIG_T1040RDB
+#if defined(CONFIG_T1040RDB) || defined(CONFIG_T1042RDB)
 #define CONFIG_SYS_SGMII1_PHY_ADDR		0x03
 #endif
 #define CONFIG_SYS_RGMII1_PHY_ADDR		0x01
@@ -791,13 +791,14 @@
 #define CONFIG_BAUDRATE	115200
 
 #define __USB_PHY_TYPE	utmi
+#define RAMDISKFILE	"t104xrdb/ramdisk.uboot"
 
 #ifdef CONFIG_T1040RDB
 #define FDTFILE		"t1040rdb/t1040rdb.dtb"
-#define RAMDISKFILE	"t1040rdb/ramdisk.uboot"
-#elif CONFIG_T1042RDB_PI
-#define FDTFILE		"t1040rdb_pi/t1040rdb_pi.dtb"
-#define RAMDISKFILE	"t1040rdb_pi/ramdisk.uboot"
+#elif defined(CONFIG_T1042RDB_PI)
+#define FDTFILE		"t1042rdb_pi/t1042rdb_pi.dtb"
+#elif defined(CONFIG_T1042RDB)
+#define FDTFILE		"t1042rdb/t1042rdb.dtb"
 #endif
 
 #ifdef CONFIG_FSL_DIU_FB
