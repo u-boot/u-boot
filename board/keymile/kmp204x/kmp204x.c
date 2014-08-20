@@ -108,8 +108,8 @@ int board_early_init_f(void)
 	/* and enable WD on it */
 	qrio_wdmask(BFTIC4_RST, true);
 
-	/* set the ZL30138's prstcfg to reset at power-up and unit reset only */
-	qrio_prstcfg(ZL30158_RST, PRSTCFG_POWUP_UNIT_RST);
+	/* set the ZL30138's prstcfg to reset at power-up only */
+	qrio_prstcfg(ZL30158_RST, PRSTCFG_POWUP_RST);
 	/* and take it out of reset as soon as possible (needed for Hooper) */
 	qrio_prst(ZL30158_RST, false, false);
 
@@ -158,8 +158,8 @@ int misc_init_f(void)
 	qrio_prstcfg(ETH_FRONT_PHY_RST, PRSTCFG_POWUP_UNIT_CORE_RST);
 	qrio_prst(ETH_FRONT_PHY_RST, false, false);
 
-	/* set the ZL30343 prstcfg to reset at power-up and unit reset only */
-	qrio_prstcfg(ZL30343_RST, PRSTCFG_POWUP_UNIT_RST);
+	/* set the ZL30343 prstcfg to reset at power-up only */
+	qrio_prstcfg(ZL30343_RST, PRSTCFG_POWUP_RST);
 	/* and enable the WD on it */
 	qrio_wdmask(ZL30343_RST, true);
 
