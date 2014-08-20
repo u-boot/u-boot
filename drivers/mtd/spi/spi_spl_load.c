@@ -56,8 +56,10 @@ void spl_spi_load_image(void)
 	 * Load U-Boot image from SPI flash into RAM
 	 */
 
-	flash = spi_flash_probe(CONFIG_SPL_SPI_BUS, CONFIG_SPL_SPI_CS,
-				CONFIG_SF_DEFAULT_SPEED, SPI_MODE_3);
+	flash = spi_flash_probe(CONFIG_SF_DEFAULT_BUS,
+				CONFIG_SF_DEFAULT_CS,
+				CONFIG_SF_DEFAULT_SPEED,
+				CONFIG_SF_DEFAULT_MODE);
 	if (!flash) {
 		puts("SPI probe failed.\n");
 		hang();
