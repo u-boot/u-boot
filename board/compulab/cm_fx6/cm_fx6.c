@@ -20,6 +20,7 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include "common.h"
+#include "../common/eeprom.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -209,8 +210,31 @@ static iomux_v3_cfg_t const enet_pads[] = {
 						MUX_PAD_CTRL(ENET_PAD_CTRL)),
 };
 
+static int handle_mac_address(void)
+{
+	unsigned char enetaddr[6];
+	int rc;
+
+	rc = eth_getenv_enetaddr("ethaddr", enetaddr);
+	if (rc)
+		return 0;
+
+	rc = cl_eeprom_read_mac_addr(enetaddr);
+	if (rc)
+		return rc;
+
+	if (!is_valid_ether_addr(enetaddr))
+		return -1;
+
+	return eth_setenv_enetaddr("ethaddr", enetaddr);
+}
+
 int board_eth_init(bd_t *bis)
 {
+	int res = handle_mac_address();
+	if (res)
+		puts("No MAC address found\n");
+
 	SETUP_IOMUX_PADS(enet_pads);
 	/* phy reset */
 	gpio_direction_output(CM_FX6_ENET_NRST, 0);
@@ -364,3 +388,9 @@ int dram_init(void)
 
 	return 0;
 }
+
+u32 get_board_rev(void)
+{
+	return cl_eeprom_get_board_rev();
+}
+
