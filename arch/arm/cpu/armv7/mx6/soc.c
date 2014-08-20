@@ -430,6 +430,9 @@ void v7_outer_cache_enable(void)
 	}
 #endif
 
+	/* Must disable the L2 before changing the latency parameters */
+	clrbits_le32(&pl310->pl310_ctrl, L2X0_CTRL_EN);
+
 	writel(0x132, &pl310->pl310_tag_latency_ctrl);
 	writel(0x132, &pl310->pl310_data_latency_ctrl);
 
