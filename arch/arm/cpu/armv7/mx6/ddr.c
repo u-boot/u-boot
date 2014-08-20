@@ -309,9 +309,7 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 	twtr = ROUND(MAX(4 * clkper, 7500) / clkper, 1) - 1;
 	trcd = trp;
 	trtp = twtr;
-	cs0_end = (4 * sysinfo->cs_density <= 120) ?
-		   4 * sysinfo->cs_density + 7 :
-		   127;
+	cs0_end = 4 * sysinfo->cs_density - 1;
 
 	debug("density:%d Gb (%d Gb per chip)\n",
 	      sysinfo->cs_density, ddr3_cfg->density);
