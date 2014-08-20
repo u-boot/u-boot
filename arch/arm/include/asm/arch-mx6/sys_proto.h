@@ -20,8 +20,9 @@ u32 get_cpu_rev(void);
 /* returns MXC_CPU_ value */
 #define cpu_type(rev) (((rev) >> 12)&0xff)
 
-/* use with MXC_CPU_ constants */
-#define is_cpu_type(cpu) (cpu_type(get_cpu_rev()) == cpu)
+/* both macros return/take MXC_CPU_ constants */
+#define get_cpu_type()	(cpu_type(get_cpu_rev()))
+#define is_cpu_type(cpu) (get_cpu_type() == cpu)
 
 const char *get_imx_type(u32 imxtype);
 unsigned imx_ddr_size(void);
