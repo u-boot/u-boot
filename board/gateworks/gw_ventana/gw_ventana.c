@@ -356,9 +356,14 @@ iomux_v3_cfg_t const ecspi1_pads[] = {
 	IOMUX_PADS(PAD_EIM_D16__ECSPI1_SCLK | MUX_PAD_CTRL(SPI_PAD_CTRL)),
 };
 
+int board_spi_cs_gpio(unsigned bus, unsigned cs)
+{
+	return (bus == 0 && cs == 0) ? (IMX_GPIO_NR(3, 19)) : -1;
+}
+
 static void setup_spi(void)
 {
-	gpio_direction_output(CONFIG_SF_DEFAULT_CS, 1);
+	gpio_direction_output(IMX_GPIO_NR(3, 19), 1);
 	SETUP_IOMUX_PADS(ecspi1_pads);
 }
 #endif

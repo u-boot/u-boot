@@ -25,6 +25,11 @@ static unsigned long spi_bases[] = {
 	MXC_SPI_BASE_ADDRESSES
 };
 
+__weak int board_spi_cs_gpio(unsigned bus, unsigned cs)
+{
+	return -1;
+}
+
 #define OUT	MXC_GPIO_DIRECTION_OUT
 
 #define reg_read readl
@@ -371,31 +376,30 @@ void spi_init(void)
 {
 }
 
-static int decode_cs(struct mxc_spi_slave *mxcs, unsigned int cs)
+/*
+ * Some SPI devices require active chip-select over multiple
+ * transactions, we achieve this using a GPIO. Still, the SPI
+ * controller has to be configured to use one of its own chipselects.
+ * To use this feature you have to implement board_spi_cs_gpio() to assign
+ * a gpio value for each cs (-1 if cs doesn't need to use gpio).
+ * You must use some unused on this SPI controller cs between 0 and 3.
+ */
+static int setup_cs_gpio(struct mxc_spi_slave *mxcs,
+			 unsigned int bus, unsigned int cs)
 {
 	int ret;
 
-	/*
-	 * Some SPI devices require active chip-select over multiple
-	 * transactions, we achieve this using a GPIO. Still, the SPI
-	 * controller has to be configured to use one of its own chipselects.
-	 * To use this feature you have to call spi_setup_slave() with
-	 * cs = internal_cs | (gpio << 8), and you have to use some unused
-	 * on this SPI controller cs between 0 and 3.
-	 */
-	if (cs > 3) {
-		mxcs->gpio = cs >> 8;
-		cs &= 3;
-		ret = gpio_direction_output(mxcs->gpio, !(mxcs->ss_pol));
-		if (ret) {
-			printf("mxc_spi: cannot setup gpio %d\n", mxcs->gpio);
-			return -EINVAL;
-		}
-	} else {
-		mxcs->gpio = -1;
+	mxcs->gpio = board_spi_cs_gpio(bus, cs);
+	if (mxcs->gpio == -1)
+		return 0;
+
+	ret = gpio_direction_output(mxcs->gpio, !(mxcs->ss_pol));
+	if (ret) {
+		printf("mxc_spi: cannot setup gpio %d\n", mxcs->gpio);
+		return -EINVAL;
 	}
 
-	return cs;
+	return 0;
 }
 
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
@@ -415,13 +419,11 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 	mxcs->ss_pol = (mode & SPI_CS_HIGH) ? 1 : 0;
 
-	ret = decode_cs(mxcs, cs);
+	ret = setup_cs_gpio(mxcs, bus, cs);
 	if (ret < 0) {
 		free(mxcs);
 		return NULL;
 	}
-
-	cs = ret;
 
 	mxcs->base = spi_bases[bus];
 

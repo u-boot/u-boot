@@ -144,6 +144,11 @@ static void setup_uart(void)
 }
 
 #ifdef CONFIG_MXC_SPI
+int board_spi_cs_gpio(unsigned bus, unsigned cs)
+{
+	return (bus == 0 && cs == 1) ? 121 : -1;
+}
+
 void spi_io_init(void)
 {
 	static const iomux_v3_cfg_t spi_pads[] = {
