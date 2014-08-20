@@ -15,6 +15,7 @@
 #include <asm/arch/mx6-ddr.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch/crm_regs.h>
 #include <asm/imx-common/iomux-v3.h>
 #include <fsl_esdhc.h>
 #include "common.h"
@@ -309,7 +310,17 @@ static void cm_fx6_setup_ecspi(void) { }
 
 void board_init_f(ulong dummy)
 {
+	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+
 	gd = &gdata;
+	/*
+	 * We don't use DMA in SPL, but we do need it in U-Boot. U-Boot
+	 * initializes DMA very early (before all board code), so the only
+	 * opportunity we have to initialize APBHDMA clocks is in SPL.
+	 */
+	setbits_le32(&mxc_ccm->CCGR0, MXC_CCM_CCGR0_APBHDMA_MASK);
+	enable_usdhc_clk(1, 2);
+
 	arch_cpu_init();
 	timer_init();
 	cm_fx6_setup_ecspi();

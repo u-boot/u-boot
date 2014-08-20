@@ -130,6 +130,20 @@
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"run doboot\0" \
+	"nandroot=/dev/mtdblock4 rw\0" \
+	"nandrootfstype=ubifs\0" \
+	"nandargs=setenv bootargs console=${console} " \
+		"root=${nandroot} " \
+		"rootfstype=${nandrootfstype} " \
+		"${video}\0" \
+	"nandloadfdt=nand read ${fdtaddr} 780000 80000;\0" \
+	"nandboot=echo Booting from nand ...; " \
+		"run nandargs; " \
+		"nand read ${loadaddr} 0 780000; " \
+		"if ${loadfdt}; then " \
+			"run nandloadfdt;" \
+		"fi; " \
+		"run doboot\0" \
 	"boot=mmc dev ${mmcdev}; " \
 		"if mmc rescan; then " \
 			"if run loadmmcbootscript; then " \
@@ -142,7 +156,8 @@
 					"run mmcboot;" \
 				"fi;" \
 			"fi;" \
-		"fi;\0"
+		"fi;" \
+		"run nandboot\0"
 
 #define CONFIG_BOOTCOMMAND \
 	"run setboottypem; run boot"
@@ -159,6 +174,20 @@
 #define CONFIG_SPI_FLASH_STMICRO
 #define CONFIG_SPI_FLASH_SST
 #define CONFIG_SPI_FLASH_WINBOND
+
+/* NAND */
+#ifndef CONFIG_SPL_BUILD
+#define CONFIG_CMD_NAND
+#define CONFIG_SYS_NAND_BASE		0x40000000
+#define CONFIG_SYS_NAND_MAX_CHIPS	1
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+#define CONFIG_NAND_MXS
+#define CONFIG_SYS_NAND_ONFI_DETECTION
+/* APBH DMA is required for NAND support */
+#define CONFIG_APBH_DMA
+#define CONFIG_APBH_DMA_BURST
+#define CONFIG_APBH_DMA_BURST8
+#endif
 
 /* GPIO */
 #define CONFIG_MXC_GPIO
