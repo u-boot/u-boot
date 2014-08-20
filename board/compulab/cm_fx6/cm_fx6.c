@@ -15,11 +15,87 @@
 #include <fdt_support.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch/iomux.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include "common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef CONFIG_USB_EHCI_MX6
+#define WEAK_PULLDOWN	(PAD_CTL_PUS_100K_DOWN |		\
+			PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm |	\
+			PAD_CTL_HYS | PAD_CTL_SRE_SLOW)
+
+static int cm_fx6_usb_hub_reset(void)
+{
+	int err;
+
+	err = gpio_request(CM_FX6_USB_HUB_RST, "usb hub rst");
+	if (err) {
+		printf("USB hub rst gpio request failed: %d\n", err);
+		return -1;
+	}
+
+	SETUP_IOMUX_PAD(PAD_SD3_RST__GPIO7_IO08 | MUX_PAD_CTRL(NO_PAD_CTRL));
+	gpio_direction_output(CM_FX6_USB_HUB_RST, 0);
+	udelay(10);
+	gpio_direction_output(CM_FX6_USB_HUB_RST, 1);
+	mdelay(1);
+
+	return 0;
+}
+
+static int cm_fx6_init_usb_otg(void)
+{
+	int ret;
+	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
+
+	ret = gpio_request(SB_FX6_USB_OTG_PWR, "usb-pwr");
+	if (ret) {
+		printf("USB OTG pwr gpio request failed: %d\n", ret);
+		return ret;
+	}
+
+	SETUP_IOMUX_PAD(PAD_EIM_D22__GPIO3_IO22 | MUX_PAD_CTRL(NO_PAD_CTRL));
+	SETUP_IOMUX_PAD(PAD_ENET_RX_ER__USB_OTG_ID |
+						MUX_PAD_CTRL(WEAK_PULLDOWN));
+	clrbits_le32(&iomux->gpr[1], IOMUXC_GPR1_OTG_ID_MASK);
+	/* disable ext. charger detect, or it'll affect signal quality at dp. */
+	return gpio_direction_output(SB_FX6_USB_OTG_PWR, 0);
+}
+
+#define MX6_USBNC_BASEADDR	0x2184800
+#define USBNC_USB_H1_PWR_POL	(1 << 9)
+int board_ehci_hcd_init(int port)
+{
+	u32 *usbnc_usb_uh1_ctrl = (u32 *)(MX6_USBNC_BASEADDR + 4);
+
+	switch (port) {
+	case 0:
+		return cm_fx6_init_usb_otg();
+	case 1:
+		SETUP_IOMUX_PAD(PAD_GPIO_0__USB_H1_PWR |
+				MUX_PAD_CTRL(NO_PAD_CTRL));
+
+		/* Set PWR polarity to match power switch's enable polarity */
+		setbits_le32(usbnc_usb_uh1_ctrl, USBNC_USB_H1_PWR_POL);
+		return cm_fx6_usb_hub_reset();
+	default:
+		break;
+	}
+
+	return 0;
+}
+
+int board_ehci_power(int port, int on)
+{
+	if (port == 0)
+		return gpio_direction_output(SB_FX6_USB_OTG_PWR, on);
+
+	return 0;
+}
+#endif
 
 #ifdef CONFIG_FEC_MXC
 #define ENET_PAD_CTRL		(PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED | \
