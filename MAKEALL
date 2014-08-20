@@ -658,7 +658,7 @@ build_target() {
 		MAKE="${MAKE} O=${output_dir}"
 	fi
 
-	${MAKE} distclean >/dev/null
+	${MAKE} mrproper >/dev/null
 
 	echo "Building ${target} board..."
 	${MAKE} -s ${target}_defconfig >/dev/null

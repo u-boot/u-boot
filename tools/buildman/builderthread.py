@@ -91,7 +91,7 @@ class BuilderThread(threading.Thread):
             commit: Commit object that is being built
             brd: Board object that is being built
             stage: Stage of the build. Valid stages are:
-                        distclean - can be called to clean source
+                        mrproper - can be called to clean source
                         config - called to configure for a board
                         build - the main make invocation - it does the build
             args: A list of arguments to pass to 'make'
@@ -200,8 +200,8 @@ class BuilderThread(threading.Thread):
 
                 # If we need to reconfigure, do that now
                 if do_config:
-                    result = self.Make(commit, brd, 'distclean', cwd,
-                            'distclean', *args, env=env)
+                    result = self.Make(commit, brd, 'mrproper', cwd,
+                            'mrproper', *args, env=env)
                     result = self.Make(commit, brd, 'config', cwd,
                             *(args + config_args), env=env)
                     config_out = result.combined

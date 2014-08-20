@@ -1289,6 +1289,7 @@ distclean: mrproper
 		-o -name '.*.rej' -o -name '*%' -o -name 'core' \
 		-o -name '*.pyc' \) \
 		-type f -print | xargs rm -f
+	@rm -f boards.cfg
 
 backup:
 	F=`basename $(srctree)` ; cd .. ; \
