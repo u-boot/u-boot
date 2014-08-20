@@ -10,12 +10,99 @@
 
 #include <common.h>
 #include <fsl_esdhc.h>
+#include <miiphy.h>
+#include <netdev.h>
+#include <fdt_support.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
+#include <asm/gpio.h>
 #include "common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef CONFIG_FEC_MXC
+#define ENET_PAD_CTRL		(PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED | \
+				 PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
+
+static int mx6_rgmii_rework(struct phy_device *phydev)
+{
+	unsigned short val;
+
+	/* Ar8031 phy SmartEEE feature cause link status generates glitch,
+	 * which cause ethernet link down/up issue, so disable SmartEEE
+	 */
+	phy_write(phydev, MDIO_DEVAD_NONE, 0xd, 0x3);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0xe, 0x805d);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0xd, 0x4003);
+	val = phy_read(phydev, MDIO_DEVAD_NONE, 0xe);
+	val &= ~(0x1 << 8);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0xe, val);
+
+	/* To enable AR8031 ouput a 125MHz clk from CLK_25M */
+	phy_write(phydev, MDIO_DEVAD_NONE, 0xd, 0x7);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0xe, 0x8016);
+	phy_write(phydev, MDIO_DEVAD_NONE, 0xd, 0x4007);
+
+	val = phy_read(phydev, MDIO_DEVAD_NONE, 0xe);
+	val &= 0xffe3;
+	val |= 0x18;
+	phy_write(phydev, MDIO_DEVAD_NONE, 0xe, val);
+
+	/* introduce tx clock delay */
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x5);
+	val = phy_read(phydev, MDIO_DEVAD_NONE, 0x1e);
+	val |= 0x0100;
+	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, val);
+
+	return 0;
+}
+
+int board_phy_config(struct phy_device *phydev)
+{
+	mx6_rgmii_rework(phydev);
+
+	if (phydev->drv->config)
+		return phydev->drv->config(phydev);
+
+	return 0;
+}
+
+static iomux_v3_cfg_t const enet_pads[] = {
+	IOMUX_PADS(PAD_ENET_MDIO__ENET_MDIO | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_ENET_MDC__ENET_MDC   | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_TXC__RGMII_TXC | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_TD0__RGMII_TD0 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_TD1__RGMII_TD1 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_TD2__RGMII_TD2 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_TD3__RGMII_TD3 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_RXC__RGMII_RXC | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_RD0__RGMII_RD0 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_RD1__RGMII_RD1 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_RD2__RGMII_RD2 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_RD3__RGMII_RD3 | MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_GPIO_0__CCM_CLKO1    | MUX_PAD_CTRL(NO_PAD_CTRL)),
+	IOMUX_PADS(PAD_GPIO_3__CCM_CLKO2    | MUX_PAD_CTRL(NO_PAD_CTRL)),
+	IOMUX_PADS(PAD_SD4_DAT0__GPIO2_IO08 | MUX_PAD_CTRL(0x84)),
+	IOMUX_PADS(PAD_ENET_REF_CLK__ENET_TX_CLK  |
+						MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_TX_CTL__RGMII_TX_CTL |
+						MUX_PAD_CTRL(ENET_PAD_CTRL)),
+	IOMUX_PADS(PAD_RGMII_RX_CTL__RGMII_RX_CTL |
+						MUX_PAD_CTRL(ENET_PAD_CTRL)),
+};
+
+int board_eth_init(bd_t *bis)
+{
+	SETUP_IOMUX_PADS(enet_pads);
+	/* phy reset */
+	gpio_direction_output(CM_FX6_ENET_NRST, 0);
+	udelay(500);
+	gpio_set_value(CM_FX6_ENET_NRST, 1);
+	enable_enet_clk(1);
+	return cpu_eth_init(bis);
+}
+#endif
 
 #ifdef CONFIG_NAND_MXS
 static iomux_v3_cfg_t const nand_pads[] = {
@@ -76,6 +163,19 @@ int board_mmc_init(bd_t *bis)
 	}
 
 	return 0;
+}
+#endif
+
+#ifdef CONFIG_OF_BOARD_SETUP
+void ft_board_setup(void *blob, bd_t *bd)
+{
+	uint8_t enetaddr[6];
+
+	/* MAC addr */
+	if (eth_getenv_enetaddr("ethaddr", enetaddr)) {
+		fdt_find_and_setprop(blob, "/fec", "local-mac-address",
+				     enetaddr, 6, 1);
+	}
 }
 #endif
 

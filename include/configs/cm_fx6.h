@@ -35,8 +35,6 @@
 #undef CONFIG_CMD_XIMG
 #undef CONFIG_CMD_FPGA
 #undef CONFIG_CMD_IMLS
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
 
 /* MMC */
 #define CONFIG_MMC
@@ -189,6 +187,19 @@
 #define CONFIG_APBH_DMA_BURST8
 #endif
 
+/* Ethernet */
+#define CONFIG_FEC_MXC
+#define CONFIG_FEC_MXC_PHYADDR		0
+#define CONFIG_FEC_XCV_TYPE		RGMII
+#define IMX_FEC_BASE			ENET_BASE_ADDR
+#define CONFIG_PHYLIB
+#define CONFIG_PHY_ATHEROS
+#define CONFIG_MII
+#define CONFIG_ETHPRIME			"FEC0"
+#define CONFIG_ARP_TIMEOUT		200UL
+#define CONFIG_NETMASK			255.255.255.0
+#define CONFIG_NET_RETRY_COUNT		5
+
 /* GPIO */
 #define CONFIG_MXC_GPIO
 
@@ -206,6 +217,7 @@
 #define CONFIG_STACKSIZE			(128 * 1024)
 #define CONFIG_SYS_MALLOC_LEN			(2 * 1024 * 1024)
 #define CONFIG_SYS_U_BOOT_MAX_SIZE_SECTORS	800 /* 400 KB */
+#define CONFIG_OF_BOARD_SETUP
 
 /* SPL */
 #include "imx6_spl.h"

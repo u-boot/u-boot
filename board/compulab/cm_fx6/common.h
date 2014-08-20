@@ -15,6 +15,7 @@
 
 #define CM_FX6_ECSPI_BUS0_CS0	IMX_GPIO_NR(2, 30)
 #define CM_FX6_GREEN_LED	IMX_GPIO_NR(2, 31)
+#define CM_FX6_ENET_NRST	IMX_GPIO_NR(2, 8)
 
 void cm_fx6_set_usdhc_iomux(void);
 void cm_fx6_set_ecspi_iomux(void);
