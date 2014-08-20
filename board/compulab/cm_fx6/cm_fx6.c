@@ -16,11 +16,52 @@
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/iomux.h>
+#include <asm/imx-common/mxc_i2c.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include "common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef CONFIG_SYS_I2C_MXC
+#define I2C_PAD_CTRL	(PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED | \
+			PAD_CTL_DSE_40ohm | PAD_CTL_HYS | \
+			PAD_CTL_ODE | PAD_CTL_SRE_FAST)
+
+I2C_PADS(i2c0_pads,
+	 PAD_EIM_D21__I2C1_SCL | MUX_PAD_CTRL(I2C_PAD_CTRL),
+	 PAD_EIM_D21__GPIO3_IO21 | MUX_PAD_CTRL(I2C_PAD_CTRL),
+	 IMX_GPIO_NR(3, 21),
+	 PAD_EIM_D28__I2C1_SDA | MUX_PAD_CTRL(I2C_PAD_CTRL),
+	 PAD_EIM_D28__GPIO3_IO28 | MUX_PAD_CTRL(I2C_PAD_CTRL),
+	 IMX_GPIO_NR(3, 28));
+
+I2C_PADS(i2c1_pads,
+	 PAD_KEY_COL3__I2C2_SCL | MUX_PAD_CTRL(I2C_PAD_CTRL),
+	 PAD_KEY_COL3__GPIO4_IO12 | MUX_PAD_CTRL(I2C_PAD_CTRL),
+	 IMX_GPIO_NR(4, 12),
+	 PAD_KEY_ROW3__I2C2_SDA | MUX_PAD_CTRL(I2C_PAD_CTRL),
+	 PAD_KEY_ROW3__GPIO4_IO13 | MUX_PAD_CTRL(I2C_PAD_CTRL),
+	 IMX_GPIO_NR(4, 13));
+
+I2C_PADS(i2c2_pads,
+	 PAD_GPIO_3__I2C3_SCL | MUX_PAD_CTRL(I2C_PAD_CTRL),
+	 PAD_GPIO_3__GPIO1_IO03 | MUX_PAD_CTRL(I2C_PAD_CTRL),
+	 IMX_GPIO_NR(1, 3),
+	 PAD_GPIO_6__I2C3_SDA | MUX_PAD_CTRL(I2C_PAD_CTRL),
+	 PAD_GPIO_6__GPIO1_IO06 | MUX_PAD_CTRL(I2C_PAD_CTRL),
+	 IMX_GPIO_NR(1, 6));
+
+
+static void cm_fx6_setup_i2c(void)
+{
+	setup_i2c(0, CONFIG_SYS_I2C_SPEED, 0x7f, I2C_PADS_INFO(i2c0_pads));
+	setup_i2c(1, CONFIG_SYS_I2C_SPEED, 0x7f, I2C_PADS_INFO(i2c1_pads));
+	setup_i2c(2, CONFIG_SYS_I2C_SPEED, 0x7f, I2C_PADS_INFO(i2c2_pads));
+}
+#else
+static void cm_fx6_setup_i2c(void) { }
+#endif
 
 #ifdef CONFIG_USB_EHCI_MX6
 #define WEAK_PULLDOWN	(PAD_CTL_PUS_100K_DOWN |		\
@@ -259,6 +300,7 @@ int board_init(void)
 {
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 	cm_fx6_setup_gpmi_nand();
+	cm_fx6_setup_i2c();
 
 	return 0;
 }
