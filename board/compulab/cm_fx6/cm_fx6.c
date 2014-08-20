@@ -13,16 +13,103 @@
 #include <miiphy.h>
 #include <netdev.h>
 #include <fdt_support.h>
+#include <sata.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/iomux.h>
 #include <asm/imx-common/mxc_i2c.h>
+#include <asm/imx-common/sata.h>
 #include <asm/io.h>
 #include <asm/gpio.h>
 #include "common.h"
 #include "../common/eeprom.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef CONFIG_DWC_AHSATA
+static int cm_fx6_issd_gpios[] = {
+	/* The order of the GPIOs in the array is important! */
+	CM_FX6_SATA_PHY_SLP,
+	CM_FX6_SATA_NRSTDLY,
+	CM_FX6_SATA_PWREN,
+	CM_FX6_SATA_NSTANDBY1,
+	CM_FX6_SATA_NSTANDBY2,
+	CM_FX6_SATA_LDO_EN,
+};
+
+static void cm_fx6_sata_power(int on)
+{
+	int i;
+
+	if (!on) { /* tell the iSSD that the power will be removed */
+		gpio_direction_output(CM_FX6_SATA_PWLOSS_INT, 1);
+		mdelay(10);
+	}
+
+	for (i = 0; i < ARRAY_SIZE(cm_fx6_issd_gpios); i++) {
+		gpio_direction_output(cm_fx6_issd_gpios[i], on);
+		udelay(100);
+	}
+
+	if (!on) /* for compatibility lower the power loss interrupt */
+		gpio_direction_output(CM_FX6_SATA_PWLOSS_INT, 0);
+}
+
+static iomux_v3_cfg_t const sata_pads[] = {
+	/* SATA PWR */
+	IOMUX_PADS(PAD_ENET_TX_EN__GPIO1_IO28 | MUX_PAD_CTRL(NO_PAD_CTRL)),
+	IOMUX_PADS(PAD_EIM_A22__GPIO2_IO16    | MUX_PAD_CTRL(NO_PAD_CTRL)),
+	IOMUX_PADS(PAD_EIM_D20__GPIO3_IO20    | MUX_PAD_CTRL(NO_PAD_CTRL)),
+	IOMUX_PADS(PAD_EIM_A25__GPIO5_IO02    | MUX_PAD_CTRL(NO_PAD_CTRL)),
+	/* SATA CTRL */
+	IOMUX_PADS(PAD_ENET_TXD0__GPIO1_IO30  | MUX_PAD_CTRL(NO_PAD_CTRL)),
+	IOMUX_PADS(PAD_EIM_D23__GPIO3_IO23    | MUX_PAD_CTRL(NO_PAD_CTRL)),
+	IOMUX_PADS(PAD_EIM_D29__GPIO3_IO29    | MUX_PAD_CTRL(NO_PAD_CTRL)),
+	IOMUX_PADS(PAD_EIM_A23__GPIO6_IO06    | MUX_PAD_CTRL(NO_PAD_CTRL)),
+	IOMUX_PADS(PAD_EIM_BCLK__GPIO6_IO31   | MUX_PAD_CTRL(NO_PAD_CTRL)),
+};
+
+static void cm_fx6_setup_issd(void)
+{
+	SETUP_IOMUX_PADS(sata_pads);
+	/* Make sure this gpio has logical 0 value */
+	gpio_direction_output(CM_FX6_SATA_PWLOSS_INT, 0);
+	udelay(100);
+
+	cm_fx6_sata_power(0);
+	mdelay(250);
+	cm_fx6_sata_power(1);
+}
+
+#define CM_FX6_SATA_INIT_RETRIES	10
+int sata_initialize(void)
+{
+	int err, i;
+
+	cm_fx6_setup_issd();
+	for (i = 0; i < CM_FX6_SATA_INIT_RETRIES; i++) {
+		err = setup_sata();
+		if (err) {
+			printf("SATA setup failed: %d\n", err);
+			return err;
+		}
+
+		udelay(100);
+
+		err = __sata_initialize();
+		if (!err)
+			break;
+
+		/* There is no device on the SATA port */
+		if (sata_port_status(0, 0) == 0)
+			break;
+
+		/* There's a device, but link not established. Retry */
+	}
+
+	return err;
+}
+#endif
 
 #ifdef CONFIG_SYS_I2C_MXC
 #define I2C_PAD_CTRL	(PAD_CTL_PUS_100K_UP | PAD_CTL_SPEED_MED | \

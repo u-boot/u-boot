@@ -128,6 +128,19 @@
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"run doboot\0" \
+	"satadev=0\0" \
+	"sataroot=/dev/sda2 rw rootwait\0" \
+	"sataargs=setenv bootargs console=${console} " \
+		"root=${sataroot} " \
+		"${video}\0" \
+	"loadsatabootscript=load sata ${satadev} ${loadaddr} ${bootscr}\0" \
+	"satabootscript=echo Running bootscript from sata ...; " \
+		"source ${loadaddr}\0" \
+	"sataloadkernel=load sata ${satadev} ${loadaddr} ${kernel}\0" \
+	"sataloadfdt=load sata ${satadev} ${fdtaddr} ${fdtfile}\0" \
+	"sataboot=echo Booting from sata ...; "\
+		"run sataargs; " \
+		"run doboot\0" \
 	"nandroot=/dev/mtdblock4 rw\0" \
 	"nandrootfstype=ubifs\0" \
 	"nandargs=setenv bootargs console=${console} " \
@@ -152,6 +165,18 @@
 						"run mmcloadfdt;" \
 					"fi;" \
 					"run mmcboot;" \
+				"fi;" \
+			"fi;" \
+		"fi;" \
+		"if sata init; then " \
+			"if run loadsatabootscript; then " \
+				"run satabootscript;" \
+			"else "\
+				"if run sataloadkernel; then " \
+					"if ${loadfdt}; then " \
+						"run sataloadfdt; " \
+					"fi;" \
+					"run sataboot;" \
 				"fi;" \
 			"fi;" \
 		"fi;" \
@@ -220,6 +245,15 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 #define CONFIG_SYS_I2C_EEPROM_BUS	2
+
+/* SATA */
+#define CONFIG_CMD_SATA
+#define CONFIG_SYS_SATA_MAX_DEVICE	1
+#define CONFIG_LIBATA
+#define CONFIG_LBA48
+#define CONFIG_DWC_AHSATA
+#define CONFIG_DWC_AHSATA_PORT_ID	0
+#define CONFIG_DWC_AHSATA_BASE_ADDR	SATA_ARB_BASE_ADDR
 
 /* GPIO */
 #define CONFIG_MXC_GPIO
