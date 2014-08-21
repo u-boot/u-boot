@@ -119,3 +119,5 @@ alias net            uboot, jhersh
 alias spi	     uboot, jagan
 alias usb            uboot, marex
 alias video          uboot, ag
+alias patman         uboot, sjg
+alias buildman       uboot, sjg
