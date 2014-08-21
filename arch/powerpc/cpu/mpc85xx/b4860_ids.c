@@ -55,7 +55,7 @@ struct liodn_id_table liodn_tbl[] = {
 
 	SET_SDHC_LIODN(1, 552),
 
-	SET_USB_LIODN(1, "fsl-usb2-mph", 553),
+	SET_USB_LIODN(1, "fsl-usb2-dr", 553),
 
 	SET_PCI_LIODN(CONFIG_SYS_FSL_PCIE_COMPAT, 1, 148),
 
