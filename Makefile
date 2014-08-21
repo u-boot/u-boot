@@ -458,10 +458,10 @@ KBUILD_DEFCONFIG := sandbox_defconfig
 export KBUILD_DEFCONFIG KBUILD_KCONFIG
 
 config: scripts_basic outputmakefile FORCE
-	+$(Q)$(PYTHON) $(srctree)/scripts/multiconfig.py $@
+	(Q)$(MAKE) $(build)=scripts/kconfig $@
 
 %config: scripts_basic outputmakefile FORCE
-	+$(Q)$(PYTHON) $(srctree)/scripts/multiconfig.py $@
+	+$(Q)$(CONFIG_SHELL) $(srctree)/scripts/multiconfig.sh $@
 
 else
 # ===========================================================================
