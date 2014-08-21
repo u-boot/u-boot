@@ -1,6 +1,0 @@
-PK1C20 BOARD
-M:	Scott McNutt <smcnutt@psyent.com>
-S:	Maintained
-F:	board/psyent/pk1c20/
-F:	include/configs/PK1C20.h
-F:	configs/PK1C20_defconfig

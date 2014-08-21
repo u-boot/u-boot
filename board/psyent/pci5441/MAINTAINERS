@@ -1,6 +1,0 @@
-PCI5441 BOARD
-M:	Scott McNutt <smcnutt@psyent.com>
-S:	Maintained
-F:	board/psyent/pci5441/
-F:	include/configs/PCI5441.h
-F:	configs/PCI5441_defconfig
