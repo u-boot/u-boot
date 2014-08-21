@@ -1341,10 +1341,11 @@ int misc_init_r(void)
 	 *  The Gateworks System Controller implements a boot
 	 *  watchdog (always enabled) as a workaround for IMX6 boot related
 	 *  errata such as:
-	 *    ERR005768 - no fix
-	 *    ERR006282 - fixed in silicon r1.3
+	 *    ERR005768 - no fix scheduled
+	 *    ERR006282 - fixed in silicon r1.2
 	 *    ERR007117 - fixed in silicon r1.3
 	 *    ERR007220 - fixed in silicon r1.3
+	 *    ERR007926 - no fix scheduled
 	 *  see http://cache.freescale.com/files/32bit/doc/errata/IMX6DQCE.pdf
 	 *
 	 * Disable the boot watchdog and display/clear the timeout flag if set
