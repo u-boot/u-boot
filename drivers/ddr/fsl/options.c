@@ -777,10 +777,6 @@ unsigned int populate_memctl_options(int all_dimms_registered,
 	 */
 	popts->bstopre = 0x100;
 
-	/* Minimum CKE pulse width -- tCKE(MIN) */
-	popts->tcke_clock_pulse_width_ps
-		= mclk_to_picos(FSL_DDR_MIN_TCKE_PULSE_WIDTH_DDR);
-
 	/*
 	 * Window for four activates -- tFAW
 	 *

@@ -51,7 +51,6 @@ typedef ddr2_spd_eeprom_t generic_spd_eeprom_t;
 #define CONFIG_FSL_SDRAM_TYPE	SDRAM_TYPE_DDR2
 #endif
 #elif defined(CONFIG_SYS_FSL_DDR3)
-#define FSL_DDR_MIN_TCKE_PULSE_WIDTH_DDR	(3)	/* FIXME */
 typedef ddr3_spd_eeprom_t generic_spd_eeprom_t;
 #ifndef CONFIG_FSL_SDRAM_TYPE
 #define CONFIG_FSL_SDRAM_TYPE	SDRAM_TYPE_DDR3
@@ -352,7 +351,6 @@ typedef struct memctl_options_s {
 	unsigned int twot_en;
 	unsigned int threet_en;
 	unsigned int bstopre;
-	unsigned int tcke_clock_pulse_width_ps;	/* tCKE */
 	unsigned int tfaw_window_four_activates_ps;	/* tFAW --  FOUR_ACT */
 
 	/* Rtt impedance */
