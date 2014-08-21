@@ -19,6 +19,7 @@ SECTIONS
 	. = CONFIG_SPL_TEXT_BASE;
 	.text.0	:
 	{
+		*(.vectors)
 		arch/arm/cpu/pxa/start.o		(.text*)
 		arch/arm/lib/built-in.o			(.text*)
 		board/vpac270/built-in.o		(.text*)
