@@ -58,7 +58,7 @@ parser.add_option('--no-check', action='store_false', dest='check_patch',
 parser.add_option('--no-tags', action='store_false', dest='process_tags',
                   default=True, help="Don't process subject tags as aliaes")
 
-parser.usage = """patman [options]
+parser.usage += """
 
 Create patches from commits in a branch, check them and email them as
 specified by tags you place in the commits. Use -n to do a dry run first."""
