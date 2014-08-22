@@ -46,6 +46,16 @@ config LOCALVERSION_AUTO
 
 	  which is done within the script "scripts/setlocalversion".)
 
+config CC_OPTIMIZE_FOR_SIZE
+	bool "Optimize for size"
+	depends on !SPL_BUILD
+	default y
+	help
+	  Enabling this option will pass "-Os" instead of "-O2" to gcc
+	  resulting in a smaller U-Boot image.
+
+	  This option is enabled by default for U-Boot.
+
 endmenu		# General setup
 
 menu "Boot images"
