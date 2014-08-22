@@ -15,6 +15,8 @@
 #include "../board/altera/nios2-generic/custom_fpga.h" /* fpga parameters */
 #define CONFIG_BOARD_NAME "nios2-generic" /* custom board name */
 #define CONFIG_BOARD_EARLY_INIT_F	/* enable early board-spec. init */
+#define CONFIG_DISPLAY_CPUINFO
+#define CONFIG_DISPLAY_BOARDINFO
 #define CONFIG_SYS_NIOS_SYSID_BASE	CONFIG_SYS_SYSID_BASE
 
 /*

@@ -270,7 +270,7 @@ static int setup_mon_len(void)
 	gd->mon_len = (ulong)&__bss_end - (ulong)_start;
 #elif defined(CONFIG_SANDBOX)
 	gd->mon_len = (ulong)&_end - (ulong)_init;
-#elif defined(CONFIG_BLACKFIN)
+#elif defined(CONFIG_BLACKFIN) || defined(CONFIG_NIOS2)
 	gd->mon_len = CONFIG_SYS_MONITOR_LEN;
 #else
 	/* TODO: use (ulong)&__bss_end - (ulong)&__text_start; ? */
@@ -945,7 +945,7 @@ static init_fnc_t init_sequence_f[] = {
 	 *  - board info struct
 	 */
 	setup_dest_addr,
-#if defined(CONFIG_BLACKFIN)
+#if defined(CONFIG_BLACKFIN) || defined(CONFIG_NIOS2)
 	/* Blackfin u-boot monitor should be on top of the ram */
 	reserve_uboot,
 #endif
@@ -970,7 +970,7 @@ static init_fnc_t init_sequence_f[] = {
 		!defined(CONFIG_BLACKFIN)
 	reserve_video,
 #endif
-#if !defined(CONFIG_BLACKFIN)
+#if !defined(CONFIG_BLACKFIN) && !defined(CONFIG_NIOS2)
 	reserve_uboot,
 #endif
 #ifndef CONFIG_SPL_BUILD
