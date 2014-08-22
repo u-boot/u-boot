@@ -142,7 +142,7 @@ class MaintainersDatabase:
                             targets.append(front)
             elif tag == 'S:':
                 status = rest
-            elif line == '\n' and targets:
+            elif line == '\n':
                 for target in targets:
                     self.database[target] = (status, maintainers)
                 targets = []
