@@ -171,13 +171,10 @@ GNU_MAKE=$(scripts/show-gnu-make) || {
 # echo "Remaining arguments:"
 # for arg do echo '--> '"\`$arg'" ; done
 
-if [ ! -r boards.cfg ]; then
-	echo "Could not find boards.cfg"
-	tools/genboardscfg.py || {
-		echo "Failed to generate boards.cfg" >&2
-		exit 1
-	}
-fi
+tools/genboardscfg.py || {
+	echo "Failed to generate boards.cfg" >&2
+	exit 1
+}
 
 FILTER="\$1 !~ /^#/"
 [ "$opt_a" ] && FILTER="${FILTER} && $opt_a"
