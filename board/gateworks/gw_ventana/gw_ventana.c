@@ -1061,7 +1061,7 @@ static void setup_board_gpio(int board)
 #endif
 
 	/* turn off (active-high) user LED's */
-	for (i = 0; i < 4; i++) {
+	for (i = 0; i < ARRAY_SIZE(gpio_cfg[board].leds); i++) {
 		if (gpio_cfg[board].leds[i])
 			gpio_direction_output(gpio_cfg[board].leds[i], 1);
 	}
