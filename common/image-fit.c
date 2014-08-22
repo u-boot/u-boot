@@ -1656,7 +1656,7 @@ int fit_image_load(bootm_headers_t *images, ulong addr,
 			bootstage_error(bootstage_id + BOOTSTAGE_SUB_LOAD);
 			return -EBADF;
 		}
-	} else {
+	} else if (load_op != FIT_LOAD_OPTIONAL_NON_ZERO || load) {
 		ulong image_start, image_end;
 		ulong load_end;
 		void *dst;

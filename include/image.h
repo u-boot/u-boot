@@ -412,6 +412,7 @@ void genimg_print_time(time_t timestamp);
 enum fit_load_op {
 	FIT_LOAD_IGNORED,	/* Ignore load address */
 	FIT_LOAD_OPTIONAL,	/* Can be provided, but optional */
+	FIT_LOAD_OPTIONAL_NON_ZERO,	/* Optional, a value of 0 is ignored */
 	FIT_LOAD_REQUIRED,	/* Must be provided */
 };
 
