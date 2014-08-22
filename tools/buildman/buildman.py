@@ -118,7 +118,7 @@ parser.add_option('-u', '--show_unknown', action='store_true',
 parser.add_option('-v', '--verbose', action='store_true',
        default=False, help='Show build results while the build progresses')
 
-parser.usage = """buildman -b <branch> [options]
+parser.usage += """
 
 Build U-Boot for all commits in a branch. Use -n to do a dry run"""
 
