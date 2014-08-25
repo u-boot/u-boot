@@ -276,6 +276,9 @@ class Slot:
 
     def __del__(self):
         """Delete the working directory"""
+        if not self.occupied:
+            while self.ps.poll() == None:
+                pass
         shutil.rmtree(self.build_dir)
 
     def add(self, defconfig):
