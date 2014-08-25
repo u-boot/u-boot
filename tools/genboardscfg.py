@@ -30,7 +30,7 @@ CONFIG_DIR = 'configs'
 REFORMAT_CMD = [os.path.join('tools', 'reformat.py'),
                 '-i', '-d', '-', '-s', '8']
 SHOW_GNU_MAKE = 'scripts/show-gnu-make'
-SLEEP_TIME=0.03
+SLEEP_TIME=0.003
 
 COMMENT_BLOCK = '''#
 # List of boards
@@ -312,13 +312,20 @@ class Slot:
         Arguments:
           output: File object which the result is written to
           maintainers_database: An instance of class MaintainersDatabase
+          devnull: file object of 'dev/null'
+          make_cmd: the command name of Make
         """
-        self.occupied = False
         self.build_dir = tempfile.mkdtemp()
         self.devnull = devnull
-        self.make_cmd = make_cmd
+        self.ps = subprocess.Popen([make_cmd, 'O=' + self.build_dir,
+                                    'allnoconfig'], stdout=devnull)
+        self.occupied = True
         self.parser = DotConfigParser(self.build_dir, output,
                                       maintainers_database)
+        self.env = os.environ.copy()
+        self.env['srctree'] = os.getcwd()
+        self.env['UBOOTVERSION'] = 'dummy'
+        self.env['KCONFIG_OBJDIR'] = ''
 
     def __del__(self):
         """Delete the working directory"""
@@ -341,12 +348,30 @@ class Slot:
         """
         if self.occupied:
             return False
-        o = 'O=' + self.build_dir
-        self.ps = subprocess.Popen([self.make_cmd, o, defconfig],
-                                   stdout=self.devnull)
+
+        with open(os.path.join(self.build_dir, '.tmp_defconfig'), 'w') as f:
+            for line in open(os.path.join(CONFIG_DIR, defconfig)):
+                colon = line.find(':CONFIG_')
+                if colon == -1:
+                    f.write(line)
+                else:
+                    f.write(line[colon + 1:])
+
+        self.ps = subprocess.Popen([os.path.join('scripts', 'kconfig', 'conf'),
+                                    '--defconfig=.tmp_defconfig', 'Kconfig'],
+                                   stdout=self.devnull,
+                                   cwd=self.build_dir,
+                                   env=self.env)
+
         self.defconfig = defconfig
         self.occupied = True
         return True
+
+    def wait(self):
+        """Wait until the current subprocess finishes."""
+        while self.occupied and self.ps.poll() == None:
+            time.sleep(SLEEP_TIME)
+        self.occupied = False
 
     def poll(self):
         """Check if the subprocess is running and invoke the .config
@@ -385,6 +410,8 @@ class Slots:
         for i in range(jobs):
             self.slots.append(Slot(output, maintainers_database,
                                    devnull, make_cmd))
+        for slot in self.slots:
+            slot.wait()
 
     def add(self, defconfig):
         """Add a new subprocess if a vacant slot is available.
