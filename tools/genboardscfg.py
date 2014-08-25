@@ -411,6 +411,8 @@ def __gen_boards_cfg(jobs):
     for (dirpath, dirnames, filenames) in os.walk(CONFIG_DIR):
         dirpath = dirpath[len(CONFIG_DIR) + 1:]
         for filename in fnmatch.filter(filenames, '*_defconfig'):
+            if fnmatch.fnmatch(filename, '.*'):
+                continue
             defconfigs.append(os.path.join(dirpath, filename))
 
     # Parse all the MAINTAINERS files
