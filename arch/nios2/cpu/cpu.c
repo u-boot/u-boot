@@ -6,7 +6,7 @@
  */
 
 #include <common.h>
-#include <nios2.h>
+#include <asm/nios2.h>
 #include <asm/cache.h>
 
 DECLARE_GLOBAL_DATA_PTR;

@@ -5,8 +5,8 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
-#ifndef __NIOS2_H__
-#define __NIOS2_H__
+#ifndef __ASM_NIOS2_H__
+#define __ASM_NIOS2_H__
 
 /*------------------------------------------------------------------------
  * Control registers -- use with wrctl() & rdctl()
@@ -37,4 +37,4 @@
 #define CACHE_BYPASS(a) ((a) | 0x80000000)
 #define CACHE_NO_BYPASS(a) ((a) & ~0x80000000)
 
-#endif /* __NIOS2_H__ */
+#endif /* __ASM_NIOS2_H__ */
