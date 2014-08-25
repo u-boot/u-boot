@@ -215,7 +215,10 @@ class DotConfigParser:
         # sanity check of '.config' file
         for field in self.must_fields:
             if not field in fields:
-                sys.exit('Error: %s is not defined in %s' % (field, defconfig))
+                print >> sys.stderr, (
+                    "WARNING: '%s' is not defined in '%s'. Skip." %
+                    (field, defconfig))
+                return
 
         # fix-up for aarch64
         if fields['arch'] == 'arm' and 'cpu' in fields:
@@ -307,7 +310,11 @@ class Slot:
             return True
         if self.ps.poll() == None:
             return False
-        self.parser.parse(self.defconfig)
+        if self.ps.poll() == 0:
+            self.parser.parse(self.defconfig)
+        else:
+            print >> sys.stderr, ("WARNING: failed to process '%s'. skip." %
+                                  self.defconfig)
         self.occupied = False
         return True
 
