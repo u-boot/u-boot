@@ -599,6 +599,7 @@ int enable_pcie_clock(void)
 	struct anatop_regs *anatop_regs =
 		(struct anatop_regs *)ANATOP_BASE_ADDR;
 	struct mxc_ccm_reg *ccm_regs = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	u32 lvds1_clk_sel;
 
 	/*
 	 * Here be dragons!
@@ -608,17 +609,25 @@ int enable_pcie_clock(void)
 	 * marked as ANATOP_MISC1 is actually documented in the PMU section
 	 * of the datasheet as PMU_MISC1.
 	 *
-	 * Switch LVDS clock source to SATA (0xb), disable clock INPUT and
-	 * enable clock OUTPUT. This is important for PCI express link that
-	 * is clocked from the i.MX6.
+	 * Switch LVDS clock source to SATA (0xb) on mx6q/dl or PCI (0xa) on
+	 * mx6sx, disable clock INPUT and enable clock OUTPUT. This is important
+	 * for PCI express link that is clocked from the i.MX6.
 	 */
 #define ANADIG_ANA_MISC1_LVDSCLK1_IBEN		(1 << 12)
 #define ANADIG_ANA_MISC1_LVDSCLK1_OBEN		(1 << 10)
 #define ANADIG_ANA_MISC1_LVDS1_CLK_SEL_MASK	0x0000001F
+#define ANADIG_ANA_MISC1_LVDS1_CLK_SEL_PCIE_REF	0xa
+#define ANADIG_ANA_MISC1_LVDS1_CLK_SEL_SATA_REF	0xb
+
+	if (is_cpu_type(MXC_CPU_MX6SX))
+		lvds1_clk_sel = ANADIG_ANA_MISC1_LVDS1_CLK_SEL_PCIE_REF;
+	else
+		lvds1_clk_sel = ANADIG_ANA_MISC1_LVDS1_CLK_SEL_SATA_REF;
+
 	clrsetbits_le32(&anatop_regs->ana_misc1,
 			ANADIG_ANA_MISC1_LVDSCLK1_IBEN |
 			ANADIG_ANA_MISC1_LVDS1_CLK_SEL_MASK,
-			ANADIG_ANA_MISC1_LVDSCLK1_OBEN | 0xb);
+			ANADIG_ANA_MISC1_LVDSCLK1_OBEN | lvds1_clk_sel);
 
 	/* PCIe reference clock sourced from AXI. */
 	clrbits_le32(&ccm_regs->cbcmr, MXC_CCM_CBCMR_PCIE_AXI_CLK_SEL);
