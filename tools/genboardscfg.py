@@ -100,13 +100,19 @@ class MaintainersDatabase:
         Returns:
           Either 'Active' or 'Orphan'
         """
+        if not target in self.database:
+            print >> sys.stderr, "WARNING: no status info for '%s'" % target
+            return '-'
+
         tmp = self.database[target][0]
         if tmp.startswith('Maintained'):
             return 'Active'
         elif tmp.startswith('Orphan'):
             return 'Orphan'
         else:
-            print >> sys.stderr, 'Error: %s: unknown status' % tmp
+            print >> sys.stderr, ("WARNING: %s: unknown status for '%s'" %
+                                  (tmp, target))
+            return '-'
 
     def get_maintainers(self, target):
         """Return the maintainers of the given board.
@@ -114,6 +120,10 @@ class MaintainersDatabase:
         If the board has two or more maintainers, they are separated
         with colons.
         """
+        if not target in self.database:
+            print >> sys.stderr, "WARNING: no maintainers for '%s'" % target
+            return ''
+
         return ':'.join(self.database[target][1])
 
     def parse_file(self, file):
