@@ -719,13 +719,37 @@ static int fec_send(struct eth_device *dev, void *packet, int length)
 			break;
 	}
 
+	if (!timeout) {
+		ret = -EINVAL;
+		goto out;
+	}
+
+	/*
+	 * The TDAR bit is cleared when the descriptors are all out from TX
+	 * but on mx6solox we noticed that the READY bit is still not cleared
+	 * right after TDAR.
+	 * These are two distinct signals, and in IC simulation, we found that
+	 * TDAR always gets cleared prior than the READY bit of last BD becomes
+	 * cleared.
+	 * In mx6solox, we use a later version of FEC IP. It looks like that
+	 * this intrinsic behaviour of TDAR bit has changed in this newer FEC
+	 * version.
+	 *
+	 * Fix this by polling the READY bit of BD after the TDAR polling,
+	 * which covers the mx6solox case and does not harm the other SoCs.
+	 */
+	timeout = FEC_XFER_TIMEOUT;
+	while (--timeout) {
+		invalidate_dcache_range(addr, addr + size);
+		if (!(readw(&fec->tbd_base[fec->tbd_index].status) &
+		    FEC_TBD_READY))
+			break;
+	}
+
 	if (!timeout)
 		ret = -EINVAL;
 
-	invalidate_dcache_range(addr, addr + size);
-	if (readw(&fec->tbd_base[fec->tbd_index].status) & FEC_TBD_READY)
-		ret = -EINVAL;
-
+out:
 	debug("fec_send: status 0x%x index %d ret %i\n",
 			readw(&fec->tbd_base[fec->tbd_index].status),
 			fec->tbd_index, ret);
