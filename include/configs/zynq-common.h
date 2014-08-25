@@ -101,6 +101,50 @@
 # define CONFIG_USB_ULPI
 # define CONFIG_EHCI_IS_TDI
 # define CONFIG_USB_MAX_CONTROLLER_COUNT	2
+
+# define CONFIG_CI_UDC           /* ChipIdea CI13xxx UDC */
+# define CONFIG_USB_GADGET
+# define CONFIG_USB_GADGET_DUALSPEED
+# define CONFIG_USBDOWNLOAD_GADGET
+# define CONFIG_SYS_DFU_DATA_BUF_SIZE	0x600000
+# define DFU_DEFAULT_POLL_TIMEOUT	300
+# define CONFIG_DFU_FUNCTION
+# define CONFIG_DFU_RAM
+# define CONFIG_USB_GADGET_VBUS_DRAW	2
+# define CONFIG_G_DNL_VENDOR_NUM	0x03FD
+# define CONFIG_G_DNL_PRODUCT_NUM	0x0300
+# define CONFIG_G_DNL_MANUFACTURER	"Xilinx"
+# define CONFIG_USB_GADGET
+# define CONFIG_USB_CABLE_CHECK
+# define CONFIG_CMD_DFU
+# define DFU_ALT_INFO_RAM \
+	"dfu_ram_info=" \
+	"set dfu_alt_info " \
+	"${kernel_image} ram 0x3000000 0x500000\\\\;" \
+	"${devicetree_image} ram 0x2A00000 0x20000\\\\;" \
+	"${ramdisk_image} ram 0x2000000 0x600000\0" \
+	"dfu_ram=run dfu_ram_info && dfu 0 ram 0\0"
+
+# if defined(CONFIG_ZYNQ_SDHCI0) || defined(CONFIG_ZYNQ_SDHCI1)
+#  define CONFIG_DFU_MMC
+#  define DFU_ALT_INFO_MMC \
+	"dfu_mmc_info=" \
+	"set dfu_alt_info " \
+	"${kernel_image} fat 0 1\\\\;" \
+	"${devicetree_image} fat 0 1\\\\;" \
+	"${ramdisk_image} fat 0 1\0" \
+	"dfu_mmc=run dfu_mmc_info && dfu 0 mmc 0\0"
+#  define DFU_ALT_INFO	\
+	DFU_ALT_INFO_RAM \
+	DFU_ALT_INFO_MMC
+# else
+#  define DFU_ALT_INFO	\
+	DFU_ALT_INFO_RAM
+# endif
+#endif
+
+#if !defined(DFU_ALT_INFO)
+# define DFU_ALT_INFO
 #endif
 
 #if defined(CONFIG_ZYNQ_SDHCI) || defined(CONFIG_ZYNQ_USB)
@@ -174,7 +218,8 @@
 			"echo Copying FIT from USB to RAM... && " \
 			"load usb 0 ${load_addr} ${fit_image} && " \
 			"bootm ${load_addr}\0" \
-		"fi\0"
+		"fi\0" \
+		DFU_ALT_INFO
 
 #define CONFIG_BOOTCOMMAND		"run $modeboot"
 #define CONFIG_BOOTDELAY		3 /* -1 to Disable autoboot */
@@ -205,7 +250,7 @@
 #define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0x1000)
 
-#define CONFIG_SYS_MALLOC_LEN		0x400000
+#define CONFIG_SYS_MALLOC_LEN		0xC00000
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_SDRAM_BASE
 #define CONFIG_SYS_INIT_RAM_SIZE	CONFIG_SYS_MALLOC_LEN
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
