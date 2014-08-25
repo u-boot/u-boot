@@ -1152,6 +1152,7 @@ The following options need to be configured:
 		CONFIG_RTC_DS1307	- use Maxim, Inc. DS1307 RTC
 		CONFIG_RTC_DS1337	- use Maxim, Inc. DS1337 RTC
 		CONFIG_RTC_DS1338	- use Maxim, Inc. DS1338 RTC
+		CONFIG_RTC_DS1339	- use Maxim, Inc. DS1339 RTC
 		CONFIG_RTC_DS164x	- use Dallas DS164x RTC
 		CONFIG_RTC_ISL1208	- use Intersil ISL1208 RTC
 		CONFIG_RTC_MAX6900	- use Maxim, Inc. MAX6900 RTC
@@ -4387,6 +4388,11 @@ use the "saveenv" command to store a valid environment.
 		Similar to the previous option, but display this information
 		later, once stdio is running and output goes to the LCD, if
 		present.
+
+- CONFIG_BOARD_SIZE_LIMIT:
+		Maximum size of the U-Boot image. When defined, the
+		build system checks that the actual size does not
+		exceed it.
 
 Low Level (hardware related) configuration options:
 ---------------------------------------------------

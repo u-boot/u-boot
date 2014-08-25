@@ -9,7 +9,7 @@
 
 /*
  * Date & Time support (no alarms) for Dallas Semiconductor (now Maxim)
- * DS1307 and DS1338 Real Time Clock (RTC).
+ * DS1307 and DS1338/9 Real Time Clock (RTC).
  *
  * based on ds1337.c
  */

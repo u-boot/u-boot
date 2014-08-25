@@ -689,7 +689,7 @@ int fit_add_verification_data(const char *keydir, void *keydest, void *fit,
 	confs_noffset = fdt_path_offset(fit, FIT_CONFS_PATH);
 	if (confs_noffset < 0) {
 		printf("Can't find images parent node '%s' (%s)\n",
-		       FIT_IMAGES_PATH, fdt_strerror(confs_noffset));
+		       FIT_CONFS_PATH, fdt_strerror(confs_noffset));
 		return -ENOENT;
 	}
 
