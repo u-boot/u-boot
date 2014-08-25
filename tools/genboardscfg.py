@@ -413,63 +413,95 @@ class Indicator:
         sys.stdout.write('\r' + msg)
         sys.stdout.flush()
 
-def __gen_boards_cfg(jobs):
-    """Generate boards.cfg file.
+class BoardsFileGenerator:
 
-    Arguments:
-      jobs: The number of jobs to run simultaneously
+    """Generator of boards.cfg."""
 
-    Note:
-      The incomplete boards.cfg is left over when an error (including
-      the termination by the keyboard interrupt) occurs on the halfway.
-    """
-    check_top_directory()
-    print 'Generating %s ...  (jobs: %d)' % (BOARD_FILE, jobs)
+    def __init__(self):
+        """Prepare basic things for generating boards.cfg."""
+        # All the defconfig files to be processed
+        defconfigs = []
+        for (dirpath, dirnames, filenames) in os.walk(CONFIG_DIR):
+            dirpath = dirpath[len(CONFIG_DIR) + 1:]
+            for filename in fnmatch.filter(filenames, '*_defconfig'):
+                if fnmatch.fnmatch(filename, '.*'):
+                    continue
+                defconfigs.append(os.path.join(dirpath, filename))
+        self.defconfigs = defconfigs
+        self.indicator = Indicator(len(defconfigs))
 
-    # All the defconfig files to be processed
-    defconfigs = []
-    for (dirpath, dirnames, filenames) in os.walk(CONFIG_DIR):
-        dirpath = dirpath[len(CONFIG_DIR) + 1:]
-        for filename in fnmatch.filter(filenames, '*_defconfig'):
-            if fnmatch.fnmatch(filename, '.*'):
-                continue
-            defconfigs.append(os.path.join(dirpath, filename))
+        # Parse all the MAINTAINERS files
+        maintainers_database = MaintainersDatabase()
+        for (dirpath, dirnames, filenames) in os.walk('.'):
+            if 'MAINTAINERS' in filenames:
+                maintainers_database.parse_file(os.path.join(dirpath,
+                                                             'MAINTAINERS'))
+        self.maintainers_database = maintainers_database
 
-    # Parse all the MAINTAINERS files
-    maintainers_database = MaintainersDatabase()
-    for (dirpath, dirnames, filenames) in os.walk('.'):
-        if 'MAINTAINERS' in filenames:
-            maintainers_database.parse_file(os.path.join(dirpath,
-                                                         'MAINTAINERS'))
+    def __del__(self):
+        """Delete the incomplete boards.cfg
 
-    # Output lines should be piped into the reformat tool
-    reformat_process = subprocess.Popen(REFORMAT_CMD, stdin=subprocess.PIPE,
-                                        stdout=open(BOARD_FILE, 'w'))
-    pipe = reformat_process.stdin
-    pipe.write(COMMENT_BLOCK)
+        This destructor deletes boards.cfg if the private member 'in_progress'
+        is defined as True.  The 'in_progress' member is set to True at the
+        beginning of the generate() method and set to False at its end.
+        So, in_progress==True means generating boards.cfg was terminated
+        on the way.
+        """
 
-    indicator = Indicator(len(defconfigs))
-    slots = Slots(jobs, pipe, maintainers_database)
+        if hasattr(self, 'in_progress') and self.in_progress:
+            try:
+                os.remove(BOARD_FILE)
+            except OSError as exception:
+                # Ignore 'No such file or directory' error
+                if exception.errno != errno.ENOENT:
+                    raise
+            print 'Removed incomplete %s' % BOARD_FILE
 
-    # Main loop to process defconfig files:
-    #  Add a new subprocess into a vacant slot.
-    #  Sleep if there is no available slot.
-    for defconfig in defconfigs:
-        while not slots.add(defconfig):
-            while not slots.available():
-                # No available slot: sleep for a while
-                time.sleep(SLEEP_TIME)
-        indicator.inc()
+    def generate(self, jobs):
+        """Generate boards.cfg
 
-    # wait until all the subprocesses finish
-    while not slots.empty():
-        time.sleep(SLEEP_TIME)
-    print ''
+        This method sets the 'in_progress' member to True at the beginning
+        and sets it to False on success.  The boards.cfg should not be
+        touched before/after this method because 'in_progress' is used
+        to detect the incomplete boards.cfg.
 
-    # wait until the reformat tool finishes
-    reformat_process.communicate()
-    if reformat_process.returncode != 0:
-        sys.exit('"%s" failed' % REFORMAT_CMD[0])
+        Arguments:
+          jobs: The number of jobs to run simultaneously
+        """
+
+        self.in_progress = True
+        print 'Generating %s ...  (jobs: %d)' % (BOARD_FILE, jobs)
+
+        # Output lines should be piped into the reformat tool
+        reformat_process = subprocess.Popen(REFORMAT_CMD,
+                                            stdin=subprocess.PIPE,
+                                            stdout=open(BOARD_FILE, 'w'))
+        pipe = reformat_process.stdin
+        pipe.write(COMMENT_BLOCK)
+
+        slots = Slots(jobs, pipe, self.maintainers_database)
+
+        # Main loop to process defconfig files:
+        #  Add a new subprocess into a vacant slot.
+        #  Sleep if there is no available slot.
+        for defconfig in self.defconfigs:
+            while not slots.add(defconfig):
+                while not slots.available():
+                    # No available slot: sleep for a while
+                    time.sleep(SLEEP_TIME)
+            self.indicator.inc()
+
+        # wait until all the subprocesses finish
+        while not slots.empty():
+            time.sleep(SLEEP_TIME)
+        print ''
+
+        # wait until the reformat tool finishes
+        reformat_process.communicate()
+        if reformat_process.returncode != 0:
+            sys.exit('"%s" failed' % REFORMAT_CMD[0])
+
+        self.in_progress = False
 
 def gen_boards_cfg(jobs):
     """Generate boards.cfg file.
@@ -480,17 +512,9 @@ def gen_boards_cfg(jobs):
     Arguments:
       jobs: The number of jobs to run simultaneously
     """
-    try:
-        __gen_boards_cfg(jobs)
-    except:
-        # We should remove incomplete boards.cfg
-        try:
-            os.remove(BOARD_FILE)
-        except OSError as exception:
-            # Ignore 'No such file or directory' error
-            if exception.errno != errno.ENOENT:
-                raise
-        raise
+    check_top_directory()
+    generator = BoardsFileGenerator()
+    generator.generate(jobs)
 
 def main():
     parser = optparse.OptionParser()
