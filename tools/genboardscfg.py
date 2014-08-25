@@ -85,6 +85,52 @@ def get_make_cmd():
         sys.exit('GNU Make not found')
     return ret[0].rstrip()
 
+def output_is_new():
+    """Check if the boards.cfg file is up to date.
+
+    Returns:
+      True if the boards.cfg file exists and is newer than any of
+      *_defconfig, MAINTAINERS and Kconfig*.  False otherwise.
+    """
+    try:
+        ctime = os.path.getctime(BOARD_FILE)
+    except OSError as exception:
+        if exception.errno == errno.ENOENT:
+            # return False on 'No such file or directory' error
+            return False
+        else:
+            raise
+
+    for (dirpath, dirnames, filenames) in os.walk(CONFIG_DIR):
+        for filename in fnmatch.filter(filenames, '*_defconfig'):
+            if fnmatch.fnmatch(filename, '.*'):
+                continue
+            filepath = os.path.join(dirpath, filename)
+            if ctime < os.path.getctime(filepath):
+                return False
+
+    for (dirpath, dirnames, filenames) in os.walk('.'):
+        for filename in filenames:
+            if (fnmatch.fnmatch(filename, '*~') or
+                not fnmatch.fnmatch(filename, 'Kconfig*') and
+                not filename == 'MAINTAINERS'):
+                continue
+            filepath = os.path.join(dirpath, filename)
+            if ctime < os.path.getctime(filepath):
+                return False
+
+    # Detect a board that has been removed since the current boards.cfg
+    # was generated
+    with open(BOARD_FILE) as f:
+        for line in f:
+            if line[0] == '#' or line == '\n':
+                continue
+            defconfig = line.split()[6] + '_defconfig'
+            if not os.path.exists(os.path.join(CONFIG_DIR, defconfig)):
+                return False
+
+    return True
+
 ### classes ###
 class MaintainersDatabase:
 
@@ -503,7 +549,7 @@ class BoardsFileGenerator:
 
         self.in_progress = False
 
-def gen_boards_cfg(jobs):
+def gen_boards_cfg(jobs=1, force=False):
     """Generate boards.cfg file.
 
     The incomplete boards.cfg is deleted if an error (including
@@ -513,6 +559,10 @@ def gen_boards_cfg(jobs):
       jobs: The number of jobs to run simultaneously
     """
     check_top_directory()
+    if not force and output_is_new():
+        print "%s is up to date. Nothing to do." % BOARD_FILE
+        sys.exit(0)
+
     generator = BoardsFileGenerator()
     generator.generate(jobs)
 
@@ -521,7 +571,10 @@ def main():
     # Add options here
     parser.add_option('-j', '--jobs',
                       help='the number of jobs to run simultaneously')
+    parser.add_option('-f', '--force', action="store_true", default=False,
+                      help='regenerate the output even if it is new')
     (options, args) = parser.parse_args()
+
     if options.jobs:
         try:
             jobs = int(options.jobs)
@@ -534,7 +587,8 @@ def main():
         except (OSError, ValueError):
             print 'info: failed to get the number of CPUs. Set jobs to 1'
             jobs = 1
-    gen_boards_cfg(jobs)
+
+    gen_boards_cfg(jobs, force=options.force)
 
 if __name__ == '__main__':
     main()
