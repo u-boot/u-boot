@@ -149,6 +149,11 @@ struct s3c_usbotg_reg *reg;
 struct s3c_usbotg_phy *phy;
 static unsigned int usb_phy_ctrl;
 
+bool dfu_usb_get_reset(void)
+{
+	return !!(readl(&reg->gintsts) & INT_RESET);
+}
+
 void otg_phy_init(struct s3c_udc *dev)
 {
 	dev->pdata->phy_control(1);
