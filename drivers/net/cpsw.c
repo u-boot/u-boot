@@ -235,7 +235,6 @@ struct cpsw_priv {
 	struct phy_device		*phydev;
 	struct mii_dev			*bus;
 
-	u32				mdio_link;
 	u32				phy_mask;
 };
 
@@ -613,19 +612,8 @@ static int cpsw_update_link(struct cpsw_priv *priv)
 
 	for_active_slave(slave, priv)
 		cpsw_slave_update_link(slave, priv, &link);
-	priv->mdio_link = readl(&mdio_regs->link);
+
 	return link;
-}
-
-static int cpsw_check_link(struct cpsw_priv *priv)
-{
-	u32 link = 0;
-
-	link = __raw_readl(&mdio_regs->link) & priv->phy_mask;
-	if ((link) && (link == priv->mdio_link))
-		return 1;
-
-	return cpsw_update_link(priv);
 }
 
 static inline u32  cpsw_get_slave_port(struct cpsw_priv *priv, u32 slave_num)
@@ -891,9 +879,6 @@ static int cpsw_send(struct eth_device *dev, void *packet, int length)
 	int len;
 	int timeout = CPDMA_TIMEOUT;
 
-	if (!cpsw_check_link(priv))
-		return -EIO;
-
 	flush_dcache_range((unsigned long)packet,
 			   (unsigned long)packet + length);
 
@@ -915,8 +900,6 @@ static int cpsw_recv(struct eth_device *dev)
 	struct cpsw_priv	*priv = dev->priv;
 	void *buffer;
 	int len;
-
-	cpsw_check_link(priv);
 
 	while (cpdma_process(priv, &priv->rx_chan, &buffer, &len) >= 0) {
 		invalidate_dcache_range((unsigned long)buffer,
