@@ -28,6 +28,14 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 #define FEC_XFER_TIMEOUT	5000
 
+/*
+ * The standard 32-byte DMA alignment does not work on mx6solox, which requires
+ * 64-byte alignment in the DMA RX FEC buffer.
+ * Introduce the FEC_DMA_RX_MINALIGN which can cover mx6solox needs and also
+ * satisfies the alignment on other SoCs (32-bytes)
+ */
+#define FEC_DMA_RX_MINALIGN	64
+
 #ifndef CONFIG_MII
 #error "CONFIG_MII has to be defined!"
 #endif
@@ -881,9 +889,9 @@ static int fec_alloc_descs(struct fec_priv *fec)
 	/* Allocate RX buffers. */
 
 	/* Maximum RX buffer size. */
-	size = roundup(FEC_MAX_PKT_SIZE, ARCH_DMA_MINALIGN);
+	size = roundup(FEC_MAX_PKT_SIZE, FEC_DMA_RX_MINALIGN);
 	for (i = 0; i < FEC_RBD_NUM; i++) {
-		data = memalign(ARCH_DMA_MINALIGN, size);
+		data = memalign(FEC_DMA_RX_MINALIGN, size);
 		if (!data) {
 			printf("%s: error allocating rxbuf %d\n", __func__, i);
 			goto err_ring;
