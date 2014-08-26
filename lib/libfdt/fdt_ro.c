@@ -537,6 +537,36 @@ int fdt_find_string(const void *fdt, int node, const char *property,
 	return -FDT_ERR_NOTFOUND;
 }
 
+int fdt_get_string_index(const void *fdt, int node, const char *property,
+			 int index, const char **output)
+{
+	const char *list;
+	int length, i;
+
+	list = fdt_getprop(fdt, node, property, &length);
+
+	for (i = 0; i < length; i++) {
+		int len = strlen(list);
+
+		if (index == 0) {
+			*output = list;
+			return 0;
+		}
+
+		list += len + 1;
+		i += len;
+		index--;
+	}
+
+	return FDT_ERR_NOTFOUND;
+}
+
+int fdt_get_string(const void *fdt, int node, const char *property,
+		   const char **output)
+{
+	return fdt_get_string_index(fdt, node, property, 0, output);
+}
+
 int fdt_node_check_compatible(const void *fdt, int nodeoffset,
 			      const char *compatible)
 {
