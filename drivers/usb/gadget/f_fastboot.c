@@ -19,6 +19,9 @@
 #include <linux/compiler.h>
 #include <version.h>
 #include <g_dnl.h>
+#ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
+#include <fb_mmc.h>
+#endif
 
 #define FASTBOOT_VERSION		"0.4"
 
@@ -469,6 +472,28 @@ static void cb_boot(struct usb_ep *ep, struct usb_request *req)
 	fastboot_tx_write_str("OKAY");
 }
 
+#ifdef CONFIG_FASTBOOT_FLASH
+static void cb_flash(struct usb_ep *ep, struct usb_request *req)
+{
+	char *cmd = req->buf;
+	char response[RESPONSE_LEN];
+
+	strsep(&cmd, ":");
+	if (!cmd) {
+		printf("%s: missing partition name\n", __func__);
+		fastboot_tx_write_str("FAILmissing partition name");
+		return;
+	}
+
+	strcpy(response, "FAILno flash device defined");
+#ifdef CONFIG_FASTBOOT_FLASH_MMC_DEV
+	fb_mmc_flash_write(cmd, (void *)CONFIG_USB_FASTBOOT_BUF_ADDR,
+			   download_bytes, response);
+#endif
+	fastboot_tx_write_str(response);
+}
+#endif
+
 struct cmd_dispatch_info {
 	char *cmd;
 	void (*cb)(struct usb_ep *ep, struct usb_request *req);
@@ -488,6 +513,12 @@ static const struct cmd_dispatch_info cmd_dispatch_info[] = {
 		.cmd = "boot",
 		.cb = cb_boot,
 	},
+#ifdef CONFIG_FASTBOOT_FLASH
+	{
+		.cmd = "flash",
+		.cb = cb_flash,
+	},
+#endif
 };
 
 static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
