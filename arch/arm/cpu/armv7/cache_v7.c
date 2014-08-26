@@ -21,7 +21,8 @@
  * to get size details from Current Cache Size ID Register(CCSIDR)
  */
 static void set_csselr(u32 level, u32 type)
-{	u32 csselr = level << 1 | type;
+{
+	u32 csselr = level << 1 | type;
 
 	/* Write to Cache Size Selection Register(CSSELR) */
 	asm volatile ("mcr p15, 2, %0, c0, c0, 0" : : "r" (csselr));
@@ -49,7 +50,8 @@ static void v7_inval_dcache_level_setway(u32 level, u32 num_sets,
 					 u32 num_ways, u32 way_shift,
 					 u32 log2_line_len)
 {
-	int way, set, setway;
+	int way, set;
+	u32 setway;
 
 	/*
 	 * For optimal assembly code:
@@ -73,7 +75,8 @@ static void v7_clean_inval_dcache_level_setway(u32 level, u32 num_sets,
 					       u32 num_ways, u32 way_shift,
 					       u32 log2_line_len)
 {
-	int way, set, setway;
+	int way, set;
+	u32 setway;
 
 	/*
 	 * For optimal assembly code:
@@ -134,7 +137,6 @@ static void v7_maint_dcache_level_setway(u32 level, u32 operation)
 static void v7_maint_dcache_all(u32 operation)
 {
 	u32 level, cache_type, level_start_bit = 0;
-
 	u32 clidr = get_clidr();
 
 	for (level = 0; level < 7; level++) {
@@ -147,8 +149,7 @@ static void v7_maint_dcache_all(u32 operation)
 	}
 }
 
-static void v7_dcache_clean_inval_range(u32 start,
-					u32 stop, u32 line_len)
+static void v7_dcache_clean_inval_range(u32 start, u32 stop, u32 line_len)
 {
 	u32 mva;
 
@@ -256,7 +257,6 @@ void flush_dcache_all(void)
  */
 void invalidate_dcache_range(unsigned long start, unsigned long stop)
 {
-
 	v7_dcache_maint_range(start, stop, ARMV7_DCACHE_INVAL_RANGE);
 
 	v7_outer_cache_inval_range(start, stop);
