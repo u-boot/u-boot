@@ -40,6 +40,27 @@ struct fdt_memory {
 	fdt_addr_t end;
 };
 
+/*
+ * Information about a resource. start is the first address of the resource
+ * and end is the last address (inclusive). The length of the resource will
+ * be equal to: end - start + 1.
+ */
+struct fdt_resource {
+	fdt_addr_t start;
+	fdt_addr_t end;
+};
+
+/**
+ * Compute the size of a resource.
+ *
+ * @param res	the resource to operate on
+ * @return the size of the resource
+ */
+static inline fdt_size_t fdt_resource_size(const struct fdt_resource *res)
+{
+	return res->end - res->start + 1;
+}
+
 /**
  * Compat types that we know about and for which we might have drivers.
  * Each is named COMPAT_<dir>_<filename> where <dir> is the directory
@@ -597,4 +618,35 @@ struct fmap_entry {
  */
 int fdtdec_read_fmap_entry(const void *blob, int node, const char *name,
 			   struct fmap_entry *entry);
+
+/**
+ * Obtain an indexed resource from a device property.
+ *
+ * @param fdt		FDT blob
+ * @param node		node to examine
+ * @param property	name of the property to parse
+ * @param index		index of the resource to retrieve
+ * @param res		returns the resource
+ * @return 0 if ok, negative on error
+ */
+int fdt_get_resource(const void *fdt, int node, const char *property,
+		     unsigned int index, struct fdt_resource *res);
+
+/**
+ * Obtain a named resource from a device property.
+ *
+ * Look up the index of the name in a list of strings and return the resource
+ * at that index.
+ *
+ * @param fdt		FDT blob
+ * @param node		node to examine
+ * @param property	name of the property to parse
+ * @param prop_names	name of the property containing the list of names
+ * @param name		the name of the entry to look up
+ * @param res		returns the resource
+ */
+int fdt_get_named_resource(const void *fdt, int node, const char *property,
+			   const char *prop_names, const char *name,
+			   struct fdt_resource *res);
+
 #endif
