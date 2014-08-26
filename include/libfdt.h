@@ -866,6 +866,17 @@ int fdt_stringlist_contains(const char *strlist, int listlen, const char *str);
  */
 int fdt_count_strings(const void *fdt, int node, const char *property);
 
+/**
+ * fdt_find_string - find a string in a string list and return its index
+ * @fdt: pointer to the device tree blob
+ * @node: offset of the node
+ * @property: name of the property containing the string list
+ * @string: string to look up in the string list
+ * @return: the index of the string or negative on error
+ */
+int fdt_find_string(const void *fdt, int node, const char *property,
+		    const char *string);
+
 /**********************************************************************/
 /* Read-only functions (addressing related)                           */
 /**********************************************************************/
