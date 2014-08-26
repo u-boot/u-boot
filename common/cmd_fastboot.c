@@ -30,7 +30,8 @@ static int do_fastboot(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 }
 
 U_BOOT_CMD(
-	fastboot,	1,	1,	do_fastboot,
-	"fastboot - enter USB Fastboot protocol",
-	""
+	fastboot,	1,	0,	do_fastboot,
+	"use USB Fastboot protocol",
+	"\n"
+	"    - run as a fastboot usb device"
 );

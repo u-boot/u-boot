@@ -10,6 +10,7 @@
  *
  * SPDX-License-Identifier:	GPL-2.0+
  */
+#include <config.h>
 #include <common.h>
 #include <errno.h>
 #include <malloc.h>
@@ -41,7 +42,7 @@
 struct f_fastboot {
 	struct usb_function usb_function;
 
-	/* IN/OUT EP's and correspoinding requests */
+	/* IN/OUT EP's and corresponding requests */
 	struct usb_ep *in_ep, *out_ep;
 	struct usb_request *in_req, *out_req;
 };
@@ -293,7 +294,7 @@ static int fastboot_add(struct usb_configuration *c)
 }
 DECLARE_GADGET_BIND_CALLBACK(usb_dnl_fastboot, fastboot_add);
 
-int fastboot_tx_write(const char *buffer, unsigned int buffer_size)
+static int fastboot_tx_write(const char *buffer, unsigned int buffer_size)
 {
 	struct usb_request *in_req = fastboot_func->in_req;
 	int ret;
@@ -341,6 +342,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 
 	strsep(&cmd, ":");
 	if (!cmd) {
+		error("missing variable\n");
 		fastboot_tx_write_str("FAILmissing var");
 		return;
 	}
@@ -361,6 +363,7 @@ static void cb_getvar(struct usb_ep *ep, struct usb_request *req)
 		else
 			strcpy(response, "FAILValue not set");
 	} else {
+		error("unknown variable: %s\n", cmd);
 		strcpy(response, "FAILVariable not implemented");
 	}
 	fastboot_tx_write_str(response);
@@ -480,7 +483,7 @@ static void cb_flash(struct usb_ep *ep, struct usb_request *req)
 
 	strsep(&cmd, ":");
 	if (!cmd) {
-		printf("%s: missing partition name\n", __func__);
+		error("missing partition name\n");
 		fastboot_tx_write_str("FAILmissing partition name");
 		return;
 	}
@@ -534,10 +537,12 @@ static void rx_handler_command(struct usb_ep *ep, struct usb_request *req)
 		}
 	}
 
-	if (!func_cb)
+	if (!func_cb) {
+		error("unknown command: %s\n", cmdbuf);
 		fastboot_tx_write_str("FAILunknown command");
-	else
+	} else {
 		func_cb(ep, req);
+	}
 
 	if (req->status == 0) {
 		*cmdbuf = '\0';
