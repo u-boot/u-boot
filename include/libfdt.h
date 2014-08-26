@@ -857,6 +857,15 @@ int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
  */
 int fdt_stringlist_contains(const char *strlist, int listlen, const char *str);
 
+/**
+ * fdt_count_strings - count the number of strings in a string list
+ * @fdt: pointer to the device tree blob
+ * @node: offset of the node
+ * @property: name of the property containing the string list
+ * @return: the number of strings in the given property
+ */
+int fdt_count_strings(const void *fdt, int node, const char *property);
+
 /**********************************************************************/
 /* Read-only functions (addressing related)                           */
 /**********************************************************************/

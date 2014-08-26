@@ -491,6 +491,26 @@ int fdt_stringlist_contains(const char *strlist, int listlen, const char *str)
 	return 0;
 }
 
+int fdt_count_strings(const void *fdt, int node, const char *property)
+{
+	int length, i, count = 0;
+	const char *list;
+
+	list = fdt_getprop(fdt, node, property, &length);
+	if (!list)
+		return -length;
+
+	for (i = 0; i < length; i++) {
+		int len = strlen(list);
+
+		list += len + 1;
+		i += len;
+		count++;
+	}
+
+	return count;
+}
+
 int fdt_node_check_compatible(const void *fdt, int nodeoffset,
 			      const char *compatible)
 {
