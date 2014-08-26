@@ -7,16 +7,24 @@
 #include <common.h>
 #include <fb_mmc.h>
 #include <part.h>
+#include <aboot.h>
+#include <sparse_format.h>
 
 /* The 64 defined bytes plus the '\0' */
 #define RESPONSE_LEN	(64 + 1)
 
 static char *response_str;
 
-static void fastboot_resp(const char *s)
+void fastboot_fail(const char *s)
 {
-	strncpy(response_str, s, RESPONSE_LEN);
-	response_str[RESPONSE_LEN - 1] = '\0';
+	strncpy(response_str, "FAIL", 4);
+	strncat(response_str, s, RESPONSE_LEN - 4 - 1);
+}
+
+void fastboot_okay(const char *s)
+{
+	strncpy(response_str, "OKAY", 4);
+	strncat(response_str, s, RESPONSE_LEN - 4 - 1);
 }
 
 static void write_raw_image(block_dev_desc_t *dev_desc, disk_partition_t *info,
@@ -32,7 +40,7 @@ static void write_raw_image(block_dev_desc_t *dev_desc, disk_partition_t *info,
 
 	if (blkcnt > info->size) {
 		error("too large for partition: '%s'\n", part_name);
-		fastboot_resp("FAILtoo large for partition");
+		fastboot_fail("too large for partition");
 		return;
 	}
 
@@ -42,13 +50,13 @@ static void write_raw_image(block_dev_desc_t *dev_desc, disk_partition_t *info,
 				     buffer);
 	if (blks != blkcnt) {
 		error("failed writing to device %d\n", dev_desc->dev);
-		fastboot_resp("FAILfailed writing to device");
+		fastboot_fail("failed writing to device");
 		return;
 	}
 
 	printf("........ wrote " LBAFU " bytes to '%s'\n", blkcnt * info->blksz,
 	       part_name);
-	fastboot_resp("OKAY");
+	fastboot_okay("");
 }
 
 void fb_mmc_flash_write(const char *cmd, void *download_buffer,
@@ -64,17 +72,21 @@ void fb_mmc_flash_write(const char *cmd, void *download_buffer,
 	dev_desc = get_dev("mmc", CONFIG_FASTBOOT_FLASH_MMC_DEV);
 	if (!dev_desc || dev_desc->type == DEV_TYPE_UNKNOWN) {
 		error("invalid mmc device\n");
-		fastboot_resp("FAILinvalid mmc device");
+		fastboot_fail("invalid mmc device");
 		return;
 	}
 
 	ret = get_partition_info_efi_by_name(dev_desc, cmd, &info);
 	if (ret) {
 		error("cannot find partition: '%s'\n", cmd);
-		fastboot_resp("FAILcannot find partition");
+		fastboot_fail("cannot find partition");
 		return;
 	}
 
-	write_raw_image(dev_desc, &info, cmd, download_buffer,
-			download_bytes);
+	if (is_sparse_image(download_buffer))
+		write_sparse_image(dev_desc, &info, cmd, download_buffer,
+				   download_bytes);
+	else
+		write_raw_image(dev_desc, &info, cmd, download_buffer,
+				download_bytes);
 }
