@@ -201,7 +201,7 @@ enum {
  * \param size		size of memory region to change
  * \param option	dcache option to select
  */
-void mmu_set_region_dcache_behaviour(u32 start, int size,
+void mmu_set_region_dcache_behaviour(phys_addr_t start, size_t size,
 				     enum dcache_option option);
 
 /**
