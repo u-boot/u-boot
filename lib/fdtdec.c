@@ -765,4 +765,18 @@ int fdt_get_named_resource(const void *fdt, int node, const char *property,
 
 	return fdt_get_resource(fdt, node, property, index, res);
 }
+
+int fdtdec_pci_get_bdf(const void *fdt, int node, int *bdf)
+{
+	const fdt32_t *prop;
+	int len;
+
+	prop = fdt_getprop(fdt, node, "reg", &len);
+	if (!prop)
+		return len;
+
+	*bdf = fdt32_to_cpu(*prop) & 0xffffff;
+
+	return 0;
+}
 #endif

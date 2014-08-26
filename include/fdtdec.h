@@ -649,4 +649,15 @@ int fdt_get_named_resource(const void *fdt, int node, const char *property,
 			   const char *prop_names, const char *name,
 			   struct fdt_resource *res);
 
+/**
+ * Look at the reg property of a device node that represents a PCI device
+ * and parse the bus, device and function number from it.
+ *
+ * @param fdt		FDT blob
+ * @param node		node to examine
+ * @param bdf		returns bus, device, function triplet
+ * @return 0 if ok, negative on error
+ */
+int fdtdec_pci_get_bdf(const void *fdt, int node, int *bdf);
+
 #endif
