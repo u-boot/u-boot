@@ -288,7 +288,7 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 {
 	struct s3c_udc *dev = the_controller;
 	int retval = 0;
-	unsigned long flags;
+	unsigned long flags = 0;
 
 	debug_cond(DEBUG_SETUP != 0, "%s: %s\n", __func__, "no name");
 
@@ -336,7 +336,7 @@ int usb_gadget_register_driver(struct usb_gadget_driver *driver)
 int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
 {
 	struct s3c_udc *dev = the_controller;
-	unsigned long flags;
+	unsigned long flags = 0;
 
 	if (!dev)
 		return -ENODEV;
@@ -580,7 +580,7 @@ static int s3c_ep_enable(struct usb_ep *_ep,
 {
 	struct s3c_ep *ep;
 	struct s3c_udc *dev;
-	unsigned long flags;
+	unsigned long flags = 0;
 
 	debug("%s: %p\n", __func__, _ep);
 
@@ -644,7 +644,7 @@ static int s3c_ep_enable(struct usb_ep *_ep,
 static int s3c_ep_disable(struct usb_ep *_ep)
 {
 	struct s3c_ep *ep;
-	unsigned long flags;
+	unsigned long flags = 0;
 
 	debug("%s: %p\n", __func__, _ep);
 
@@ -702,7 +702,7 @@ static int s3c_dequeue(struct usb_ep *_ep, struct usb_request *_req)
 {
 	struct s3c_ep *ep;
 	struct s3c_request *req;
-	unsigned long flags;
+	unsigned long flags = 0;
 
 	debug("%s: %p\n", __func__, _ep);
 
