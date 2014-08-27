@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 #
 # Author: Masahiro Yamada <yamada.m@jp.panasonic.com>
 #
@@ -11,6 +11,8 @@ Converter from Kconfig and MAINTAINERS to boards.cfg
 Run 'tools/genboardscfg.py' to create boards.cfg file.
 
 Run 'tools/genboardscfg.py -h' for available options.
+
+This script only works on python 2.6 or later, but not python 3.x.
 """
 
 import errno
