@@ -216,7 +216,8 @@ def DoBuildman(options, args):
                                options)
 
         builder.SetDisplayOptions(options.show_errors, options.show_sizes,
-                                  options.show_detail, options.show_bloat)
+                                  options.show_detail, options.show_bloat,
+                                  options.list_error_boards)
         if options.summary:
             # We can't show function sizes without board details at present
             if options.show_bloat:

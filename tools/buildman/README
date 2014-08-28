@@ -442,7 +442,8 @@ is fixed, but there is a new one at line 126. This is probably only because
 we added some code and moved the broken line father down the file.
 
 If many boards have the same error, then -e will display the error only
-once. This makes the output as concise as possible.
+once. This makes the output as concise as possible. To see which boards have
+each error, use -l.
 
 The full build output in this case is available in:
 
@@ -745,10 +746,10 @@ followed by (afterwards, or perhaps concurrently in another terminal):
 to see the results of the build. Rather than showing you all the output,
 buildman just shows a summary, with red indicating that a commit introduced
 an error and green indicating that a commit fixed an error. Use the -e
-flag to see the full errors.
+flag to see the full errors and -l to see which boards caused which errors.
 
 If you really want to see build results as they happen, use -v when doing a
-build (and -e if you want to see errors as well).
+build (-e will be enabled automatically).
 
 You don't need to stick around on that branch while buildman is running. It
 checks out its own copy of the source code, so you can change branches,

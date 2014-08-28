@@ -237,18 +237,21 @@ class Builder:
             del t
 
     def SetDisplayOptions(self, show_errors=False, show_sizes=False,
-                          show_detail=False, show_bloat=False):
+                          show_detail=False, show_bloat=False,
+                          list_error_boards=False):
         """Setup display options for the builder.
 
         show_errors: True to show summarised error/warning info
         show_sizes: Show size deltas
         show_detail: Show detail for each board
         show_bloat: Show detail for each function
+        list_error_boards: Show the boards which caused each error/warning
         """
         self._show_errors = show_errors
         self._show_sizes = show_sizes
         self._show_detail = show_detail
         self._show_bloat = show_bloat
+        self._list_error_boards = list_error_boards
 
     def _AddTimestamp(self):
         """Add a new timestamp to the list and record the build period.
@@ -570,18 +573,26 @@ class Builder:
                 Dict containing boards which passed building this commit.
                     keyed by board.target
                 List containing a summary of error/warning lines
+                Dict keyed by error line, containing a list of the Board
+                    objects with that error
         """
         board_dict = {}
         err_lines_summary = []
+        err_lines_boards = {}
 
         for board in boards_selected.itervalues():
             outcome = self.GetBuildOutcome(commit_upto, board.target,
                                            read_func_sizes)
             board_dict[board.target] = outcome
             for err in outcome.err_lines:
-                if err and not err.rstrip() in err_lines_summary:
-                    err_lines_summary.append(err.rstrip())
-        return board_dict, err_lines_summary
+                if err:
+                    err = err.rstrip()
+                    if err in err_lines_boards:
+                        err_lines_boards[err].append(board)
+                    else:
+                        err_lines_boards[err] = [board]
+                        err_lines_summary.append(err.rstrip())
+        return board_dict, err_lines_summary, err_lines_boards
 
     def AddOutcome(self, board_dict, arch_list, changes, char, color):
         """Add an output to our list of outcomes for each architecture
@@ -828,7 +839,8 @@ class Builder:
 
 
     def PrintResultSummary(self, board_selected, board_dict, err_lines,
-                           show_sizes, show_detail, show_bloat):
+                           err_line_boards, show_sizes, show_detail,
+                           show_bloat):
         """Compare results with the base results and display delta.
 
         Only boards mentioned in board_selected will be considered. This
@@ -843,10 +855,30 @@ class Builder:
                 commit, keyed by board.target. The value is an Outcome object.
             err_lines: A list of errors for this commit, or [] if there is
                 none, or we don't want to print errors
+            err_line_boards: Dict keyed by error line, containing a list of
+                the Board objects with that error
             show_sizes: Show image size deltas
             show_detail: Show detail for each board
             show_bloat: Show detail for each function
         """
+        def _BoardList(line):
+            """Helper function to get a line of boards containing a line
+
+            Args:
+                line: Error line to search for
+            Return:
+                String containing a list of boards with that error line, or
+                '' if the user has not requested such a list
+            """
+            if self._list_error_boards:
+                names = []
+                for board in err_line_boards[line]:
+                    names.append(board.target)
+                names_str = '(%s) ' % ','.join(names)
+            else:
+                names_str = ''
+            return names_str
+
         better = []     # List of boards fixed since last commit
         worse = []      # List of new broken boards since last commit
         new = []        # List of boards that didn't exist last time
@@ -874,7 +906,7 @@ class Builder:
         worse_err = []
         for line in err_lines:
             if line not in self._base_err_lines:
-                worse_err.append('+' + line)
+                worse_err.append('+' + _BoardList(line) + line)
         for line in self._base_err_lines:
             if line not in err_lines:
                 better_err.append('-' + line)
@@ -918,14 +950,15 @@ class Builder:
                     ', '.join(not_built))
 
     def ProduceResultSummary(self, commit_upto, commits, board_selected):
-            board_dict, err_lines = self.GetResultSummary(board_selected,
-                    commit_upto, read_func_sizes=self._show_bloat)
+            board_dict, err_lines, err_line_boards = self.GetResultSummary(
+                    board_selected, commit_upto,
+                    read_func_sizes=self._show_bloat)
             if commits:
                 msg = '%02d: %s' % (commit_upto + 1,
                         commits[commit_upto].subject)
                 print self.col.Color(self.col.BLUE, msg)
             self.PrintResultSummary(board_selected, board_dict,
-                    err_lines if self._show_errors else [],
+                    err_lines if self._show_errors else [], err_line_boards,
                     self._show_sizes, self._show_detail, self._show_bloat)
 
     def ShowSummary(self, commits, board_selected):

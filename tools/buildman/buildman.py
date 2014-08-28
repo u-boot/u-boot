@@ -94,6 +94,8 @@ parser.add_option('-j', '--jobs', dest='jobs', type='int',
        default=None, help='Number of jobs to run at once (passed to make)')
 parser.add_option('-k', '--keep-outputs', action='store_true',
        default=False, help='Keep all build output files (e.g. binaries)')
+parser.add_option('-l', '--list-error-boards', action='store_true',
+       default=False, help='Show a list of boards next to each error/warning')
 parser.add_option('--list-tool-chains', action='store_true', default=False,
        help='List available tool chains')
 parser.add_option('-n', '--dry-run', action='store_true', dest='dry_run',
