@@ -478,13 +478,13 @@ def LookupEmail(lookup_name, alias=None, raise_on_error=True, level=0):
     ...
     OSError: Recursive email alias at 'other'
     >>> LookupEmail('odd', alias, raise_on_error=False)
-    \033[1;31mAlias 'odd' not found\033[0m
+    Alias 'odd' not found
     []
     >>> # In this case the loop part will effectively be ignored.
     >>> LookupEmail('loop', alias, raise_on_error=False)
-    \033[1;31mRecursive email alias at 'other'\033[0m
-    \033[1;31mRecursive email alias at 'john'\033[0m
-    \033[1;31mRecursive email alias at 'mary'\033[0m
+    Recursive email alias at 'other'
+    Recursive email alias at 'john'
+    Recursive email alias at 'mary'
     ['j.bloggs@napier.co.nz', 'm.poppins@cloud.net']
     """
     if not alias:

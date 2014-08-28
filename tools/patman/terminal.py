@@ -30,8 +30,12 @@ class Color(object):
           enabled: True if color output should be enabled. If False then this
             class will not add color codes at all.
         """
-        self._enabled = (colored == COLOR_ALWAYS or
-            (colored == COLOR_IF_TERMINAL and os.isatty(sys.stdout.fileno())))
+        try:
+            self._enabled = (colored == COLOR_ALWAYS or
+                    (colored == COLOR_IF_TERMINAL and
+                     os.isatty(sys.stdout.fileno())))
+        except:
+            self._enabled = False
 
     def Start(self, color, bright=True):
         """Returns a start color code.

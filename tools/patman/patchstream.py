@@ -275,7 +275,7 @@ class PatchStream:
 
         # Suppress duplicate signoffs
         elif signoff_match:
-            if (self.is_log or
+            if (self.is_log or not self.commit or
                 self.commit.CheckDuplicateSignoff(signoff_match.group(1))):
                 out = [line]
 
@@ -312,7 +312,10 @@ class PatchStream:
                 out = []
                 log = self.series.MakeChangeLog(self.commit)
                 out += self.FormatTags(self.tags)
-                out += [line] + self.commit.notes + [''] + log
+                out += [line]
+                if self.commit:
+                    out += self.commit.notes
+                out += [''] + log
             elif self.found_test:
                 if not re_allowed_after_test.match(line):
                     self.lines_after_test += 1
