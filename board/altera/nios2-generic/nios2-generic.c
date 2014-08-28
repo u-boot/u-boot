@@ -14,8 +14,6 @@
 #include <asm/io.h>
 #include <asm/gpio.h>
 
-void text_base_hook(void); /* nop hook for text_base.S */
-
 #if defined(CONFIG_ENV_IS_IN_FLASH) && defined(CONFIG_ENV_ADDR) && \
     defined(CONFIG_CFI_FLASH_MTD)
 static void __early_flash_cmd_reset(void)
@@ -30,7 +28,6 @@ void early_flash_cmd_reset(void)
 
 int board_early_init_f(void)
 {
-	text_base_hook();
 #ifdef CONFIG_ALTERA_PIO
 #ifdef LED_PIO_BASE
 	altera_pio_init(LED_PIO_BASE, LED_PIO_WIDTH, 'o',

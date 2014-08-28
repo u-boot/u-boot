@@ -5,6 +5,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <config.h>
 
 OUTPUT_FORMAT("elf32-littlenios2")
 OUTPUT_ARCH(nios2)
@@ -12,6 +13,7 @@ ENTRY(_start)
 
 SECTIONS
 {
+	. = CONFIG_SYS_MONITOR_BASE;
 	.text :
 	{
 	  arch/nios2/cpu/start.o (.text)
