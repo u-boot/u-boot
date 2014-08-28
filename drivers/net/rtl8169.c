@@ -469,7 +469,6 @@ static int rtl_recv(struct eth_device *dev)
 
 			rtl_inval_buffer(tpc->RxBufferRing[cur_rx], length);
 			memcpy(rxdata, tpc->RxBufferRing[cur_rx], length);
-			NetReceive(rxdata, length);
 
 			if (cur_rx == NUM_RX_DESC - 1)
 				tpc->RxDescArray[cur_rx].status =
@@ -480,6 +479,8 @@ static int rtl_recv(struct eth_device *dev)
 			tpc->RxDescArray[cur_rx].buf_addr =
 				cpu_to_le32(bus_to_phys(tpc->RxBufferRing[cur_rx]));
 			rtl_flush_rx_desc(&tpc->RxDescArray[cur_rx]);
+
+			NetReceive(rxdata, length);
 		} else {
 			puts("Error Rx");
 		}
