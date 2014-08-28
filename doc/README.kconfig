@@ -114,6 +114,13 @@ See below for how each configuration target works in U-Boot:
   coalesced together with "<condition:>" prefix for each line as shown above.
   This file can be used as an input of "defconfig" target.
 
+- <board>_config
+
+  This does not exist in Linux's Kconfig.
+  Prior to Kconfig, in U-Boot, "make <board>_config" was used for the
+  configuration.  It is still supported for backward compatibility and
+  its behavior is the same as "make <board>_defconfig".
+
 
 Migration steps to Kconfig
 --------------------------

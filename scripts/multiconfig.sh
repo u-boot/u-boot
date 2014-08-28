@@ -248,6 +248,7 @@ case $target in
 *_defconfig)
 	do_board_defconfig $target;;
 *_config)
+	# backward compatibility
 	do_board_defconfig ${target%_config}_defconfig;;
 silentoldconfig)
 	do_silentoldconfig;;
