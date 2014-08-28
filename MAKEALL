@@ -60,6 +60,14 @@ usage()
 	exit ${ret}
 }
 
+deprecation() {
+	echo "** Note: MAKEALL is deprecated - please use buildman instead"
+	echo "** See tools/buildman/README for details"
+	echo
+}
+
+deprecation
+
 SHORT_OPTS="ha:c:v:s:b:lmMCnr"
 LONG_OPTS="help,arch:,cpu:,vendor:,soc:,board:,list,maintainers,mails,check,continue,rebuild-errors"
 
@@ -826,6 +834,8 @@ print_stats() {
 	if [ $BUILD_MANY == 1 ] ; then
 		kill_children
 	fi
+
+	deprecation
 
 	exit $RC
 }
