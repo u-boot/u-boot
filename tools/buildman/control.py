@@ -94,7 +94,7 @@ def DoBuildman(options, args):
     if options.list_tool_chains:
         toolchains.List()
         print
-        return
+        return 0
 
     # Work out how many commits to build. We want to build everything on the
     # branch. We also build the upstream commit as a control so we can see
@@ -217,5 +217,10 @@ def DoBuildman(options, args):
                 options.show_detail = True
             builder.ShowSummary(commits, board_selected)
         else:
-            builder.BuildBoards(commits, board_selected,
+            fail, warned = builder.BuildBoards(commits, board_selected,
                                 options.keep_outputs, options.verbose)
+            if fail:
+                return 128
+            elif warned:
+                return 129
+    return 0

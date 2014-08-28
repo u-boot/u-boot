@@ -136,4 +136,5 @@ elif options.full_help:
 
 # Build selected commits for selected boards
 else:
-    control.DoBuildman(options, args)
+    ret_code = control.DoBuildman(options, args)
+    sys.exit(ret_code)

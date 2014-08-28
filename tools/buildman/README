@@ -690,6 +690,12 @@ Other options
 
 Buildman has various other command line options. Try --help to see them.
 
+When doing builds, Buildman's return code will reflect the overall result:
+
+    0 (success)     No errors or warnings found
+    128             Errors found
+    129             Warnings found
+
 
 How to change from MAKEALL
 ==========================

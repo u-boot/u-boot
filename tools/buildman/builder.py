@@ -1031,6 +1031,10 @@ class Builder:
                     value is Board object
             keep_outputs: True to save build output files
             verbose: Display build results as they are completed
+        Returns:
+            Tuple containing:
+                - number of boards that failed to build
+                - number of boards that issued warnings
         """
         self.commit_count = len(commits) if commits else 1
         self.commits = commits
@@ -1060,3 +1064,4 @@ class Builder:
         self.out_queue.join()
         print
         self.ClearLine(0)
+        return (self.fail, self.warned)
