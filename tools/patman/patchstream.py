@@ -72,7 +72,6 @@ class PatchStream:
         self.in_change = 0               # Non-zero if we are in a change list
         self.blank_count = 0             # Number of blank lines stored up
         self.state = STATE_MSG_HEADER    # What state are we in?
-        self.tags = []                   # Tags collected, like Tested-by...
         self.signoff = []                # Contents of signoff line
         self.commit = None               # Current commit
 
@@ -112,16 +111,6 @@ class PatchStream:
         if self.commit and self.is_log:
             self.series.AddCommit(self.commit)
             self.commit = None
-
-    def FormatTags(self, tags):
-        out_list = []
-        for tag in sorted(tags):
-            if tag.startswith('Cc:'):
-                tag_list = tag[4:].split(',')
-                out_list += gitutil.BuildEmailList(tag_list, 'Cc:')
-            else:
-                out_list.append(tag)
-        return out_list
 
     def ProcessLine(self, line):
         """Process a single line of a patch file or commit log
@@ -271,7 +260,7 @@ class PatchStream:
             elif tag_match.group(1) == 'Patch-cc':
                 self.commit.AddCc(tag_match.group(2).split(','))
             else:
-                self.tags.append(line);
+                out = [line]
 
         # Suppress duplicate signoffs
         elif signoff_match:
@@ -311,7 +300,6 @@ class PatchStream:
                 # Output the tags (signeoff first), then change list
                 out = []
                 log = self.series.MakeChangeLog(self.commit)
-                out += self.FormatTags(self.tags)
                 out += [line]
                 if self.commit:
                     out += self.commit.notes
