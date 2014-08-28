@@ -198,7 +198,7 @@ class Toolchains:
         >>> tcs.ResolveReferences(var_dict, 'this=${oblique}_set${first}nd')
         'this=OBLIQUE_setfi2ndrstnd'
         """
-        re_var = re.compile('(\$\{[a-z0-9A-Z]{1,}\})')
+        re_var = re.compile('(\$\{[-_a-z0-9A-Z]{1,}\})')
 
         while True:
             m = re_var.search(args)
