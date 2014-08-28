@@ -38,6 +38,8 @@ def LogCmd(commit_range, git_dir=None, oneline=False, reverse=False,
         cmd.append('--oneline')
     if use_no_decorate:
         cmd.append('--no-decorate')
+    if reverse:
+        cmd.append('--reverse')
     if count is not None:
         cmd.append('-n%d' % count)
     if commit_range:
