@@ -127,7 +127,13 @@ def DoBuildman(options, args):
 
     boards = board.Boards()
     boards.ReadBoards(os.path.join(options.git, 'boards.cfg'))
-    why_selected = boards.SelectBoards(args)
+
+    exclude = []
+    if options.exclude:
+        for arg in options.exclude:
+            exclude += arg.split(',')
+
+    why_selected = boards.SelectBoards(args, exclude)
     selected = boards.GetSelected()
     if not len(selected):
         sys.exit(col.Color(col.RED, 'No matching boards found'))

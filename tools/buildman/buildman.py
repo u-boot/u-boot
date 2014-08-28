@@ -117,6 +117,9 @@ parser.add_option('-u', '--show_unknown', action='store_true',
        default=False, help='Show boards with unknown build result')
 parser.add_option('-v', '--verbose', action='store_true',
        default=False, help='Show build results while the build progresses')
+parser.add_option('-x', '--exclude', dest='exclude',
+      type='string', action='append',
+      help='Specify a list of boards to exclude, separated by comma')
 
 parser.usage += """
 

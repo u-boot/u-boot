@@ -114,6 +114,13 @@ the '&' operator to limit the selection:
 * 'freescale & arm sandbox'  All Freescale boards with ARM architecture,
                              plus sandbox
 
+You can also use -x to specifically exclude some boards. For example:
+
+ buildmand arm -x nvidia,freescale,.*ball$
+
+means to build all arm boards except nvidia, freescale and anything ending
+with 'ball'.
+
 It is convenient to use the -n option to see whaat will be built based on
 the subset given.
 
