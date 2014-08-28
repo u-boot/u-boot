@@ -177,6 +177,7 @@ class BuilderThread(threading.Thread):
                 Mkdir(out_dir)
                 args = []
                 cwd = work_dir
+                src_dir = os.path.realpath(work_dir)
                 if not self.builder.in_tree:
                     if commit_upto is None:
                         # In this case we are building in the original source
@@ -189,6 +190,7 @@ class BuilderThread(threading.Thread):
                         work_dir = os.path.realpath(work_dir)
                         args.append('O=%s/build' % work_dir)
                         cwd = None
+                        src_dir = os.getcwd()
                     else:
                         args.append('O=build')
                 args.append('-s')
@@ -209,7 +211,7 @@ class BuilderThread(threading.Thread):
                 if result.return_code == 0:
                     result = self.Make(commit, brd, 'build', cwd, *args,
                             env=env)
-                    result.stdout = config_out + result.stdout
+                result.stderr = result.stderr.replace(src_dir + '/', '')
             else:
                 result.return_code = 1
                 result.stderr = 'No tool chain for %s\n' % brd.arch
