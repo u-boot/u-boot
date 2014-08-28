@@ -25,9 +25,6 @@ import test
 
 
 parser = OptionParser()
-parser.add_option('-a', '--no-apply', action='store_false',
-                  dest='apply_patches', default=True,
-                  help="Don't test-apply patches with git am")
 parser.add_option('-H', '--full-help', action='store_true', dest='full_help',
        default=False, help='Display the README file')
 parser.add_option('-c', '--count', dest='count', type='int',
@@ -143,10 +140,6 @@ else:
         ok = checkpatch.CheckPatches(options.verbose, args)
     else:
         ok = True
-    if options.apply_patches:
-        if not gitutil.ApplyPatches(options.verbose, args,
-                                    options.count + options.start):
-            ok = False
 
     cc_file = series.MakeCcFile(options.process_tags, cover_fname,
                                 not options.ignore_bad_tags)
