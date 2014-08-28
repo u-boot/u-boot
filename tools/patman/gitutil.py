@@ -33,7 +33,7 @@ def LogCmd(commit_range, git_dir=None, oneline=False, reverse=False,
     cmd = ['git']
     if git_dir:
         cmd += ['--git-dir', git_dir]
-    cmd += ['log', '--no-color']
+    cmd += ['--no-pager', 'log', '--no-color']
     if oneline:
         cmd.append('--oneline')
     if use_no_decorate:
