@@ -106,6 +106,14 @@ int board_late_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_DISPLAY_BOARDINFO
+int checkboard(void)
+{
+	puts("Board:\tXilinx Zynq\n");
+	return 0;
+}
+#endif
+
 int board_eth_init(bd_t *bis)
 {
 	u32 ret = 0;
