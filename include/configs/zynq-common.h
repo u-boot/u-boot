@@ -398,11 +398,6 @@
 
 #define CONFIG_SPL_LDSCRIPT	"arch/arm/cpu/armv7/zynq/u-boot-spl.lds"
 
-/* Disable dcache for SPL just for sure */
-#ifdef CONFIG_SPL_BUILD
-#define CONFIG_SYS_DCACHE_OFF
-#endif
-
 /* FPGA support */
 #define CONFIG_SPL_FPGA_SUPPORT
 #define CONFIG_SPL_FPGA_LOAD_ADDR      0x1000000
