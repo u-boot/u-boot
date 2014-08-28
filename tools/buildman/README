@@ -445,6 +445,9 @@ If many boards have the same error, then -e will display the error only
 once. This makes the output as concise as possible. To see which boards have
 each error, use -l.
 
+Buildman tries to distinguish warnings from errors, and shows warning lines
+separately with a 'w' prefix.
+
 The full build output in this case is available in:
 
 ../lcd9b/12_of_18_gd92aff7_lcd--Add-support-for/lubbock/

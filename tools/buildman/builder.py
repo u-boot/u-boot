@@ -140,6 +140,7 @@ class Builder:
     Private members:
         _base_board_dict: Last-summarised Dict of boards
         _base_err_lines: Last-summarised list of errors
+        _base_warn_lines: Last-summarised list of warnings
         _build_period_us: Time taken for a single build (float object).
         _complete_delay: Expected delay until completion (timedelta)
         _next_delay_update: Next time we plan to display a progress update
@@ -213,6 +214,11 @@ class Builder:
         self._error_lines = 0
 
         self.col = terminal.Color()
+
+        self._re_function = re.compile('(.*): In function.*')
+        self._re_files = re.compile('In file included from.*')
+        self._re_warning = re.compile('(.*):(\d*):(\d*): warning: .*')
+        self._re_note = re.compile('(.*):(\d*):(\d*): note: this is the location of the previous.*')
 
         self.queue = Queue.Queue()
         self.out_queue = Queue.Queue()
@@ -572,27 +578,57 @@ class Builder:
             Tuple:
                 Dict containing boards which passed building this commit.
                     keyed by board.target
-                List containing a summary of error/warning lines
+                List containing a summary of error lines
                 Dict keyed by error line, containing a list of the Board
                     objects with that error
+                List containing a summary of warning lines
+                Dict keyed by error line, containing a list of the Board
+                    objects with that warning
         """
+        def AddLine(lines_summary, lines_boards, line, board):
+            line = line.rstrip()
+            if line in lines_boards:
+                lines_boards[line].append(board)
+            else:
+                lines_boards[line] = [board]
+                lines_summary.append(line)
+
         board_dict = {}
         err_lines_summary = []
         err_lines_boards = {}
+        warn_lines_summary = []
+        warn_lines_boards = {}
 
         for board in boards_selected.itervalues():
             outcome = self.GetBuildOutcome(commit_upto, board.target,
                                            read_func_sizes)
             board_dict[board.target] = outcome
-            for err in outcome.err_lines:
-                if err:
-                    err = err.rstrip()
-                    if err in err_lines_boards:
-                        err_lines_boards[err].append(board)
+            last_func = None
+            last_was_warning = False
+            for line in outcome.err_lines:
+                if line:
+                    if (self._re_function.match(line) or
+                            self._re_files.match(line)):
+                        last_func = line
                     else:
-                        err_lines_boards[err] = [board]
-                        err_lines_summary.append(err.rstrip())
-        return board_dict, err_lines_summary, err_lines_boards
+                        is_warning = self._re_warning.match(line)
+                        is_note = self._re_note.match(line)
+                        if is_warning or (last_was_warning and is_note):
+                            if last_func:
+                                AddLine(warn_lines_summary, warn_lines_boards,
+                                        last_func, board)
+                            AddLine(warn_lines_summary, warn_lines_boards,
+                                    line, board)
+                        else:
+                            if last_func:
+                                AddLine(err_lines_summary, err_lines_boards,
+                                        last_func, board)
+                            AddLine(err_lines_summary, err_lines_boards,
+                                    line, board)
+                        last_was_warning = is_warning
+                        last_func = None
+        return (board_dict, err_lines_summary, err_lines_boards,
+                warn_lines_summary, warn_lines_boards)
 
     def AddOutcome(self, board_dict, arch_list, changes, char, color):
         """Add an output to our list of outcomes for each architecture
@@ -647,6 +683,9 @@ class Builder:
         for board in board_selected:
             self._base_board_dict[board] = Builder.Outcome(0, [], [], {})
         self._base_err_lines = []
+        self._base_warn_lines = []
+        self._base_err_line_boards = {}
+        self._base_warn_line_boards = {}
 
     def PrintFuncSizeDetail(self, fname, old, new):
         grow, shrink, add, remove, up, down = 0, 0, 0, 0, 0, 0
@@ -839,8 +878,8 @@ class Builder:
 
 
     def PrintResultSummary(self, board_selected, board_dict, err_lines,
-                           err_line_boards, show_sizes, show_detail,
-                           show_bloat):
+                           err_line_boards, warn_lines, warn_line_boards,
+                           show_sizes, show_detail, show_bloat):
         """Compare results with the base results and display delta.
 
         Only boards mentioned in board_selected will be considered. This
@@ -857,11 +896,15 @@ class Builder:
                 none, or we don't want to print errors
             err_line_boards: Dict keyed by error line, containing a list of
                 the Board objects with that error
+            warn_lines: A list of warnings for this commit, or [] if there is
+                none, or we don't want to print errors
+            warn_line_boards: Dict keyed by warning line, containing a list of
+                the Board objects with that warning
             show_sizes: Show image size deltas
             show_detail: Show detail for each board
             show_bloat: Show detail for each function
         """
-        def _BoardList(line):
+        def _BoardList(line, line_boards):
             """Helper function to get a line of boards containing a line
 
             Args:
@@ -872,12 +915,26 @@ class Builder:
             """
             if self._list_error_boards:
                 names = []
-                for board in err_line_boards[line]:
+                for board in line_boards[line]:
                     names.append(board.target)
                 names_str = '(%s) ' % ','.join(names)
             else:
                 names_str = ''
             return names_str
+
+        def _CalcErrorDelta(base_lines, base_line_boards, lines, line_boards,
+                            char):
+            better_lines = []
+            worse_lines = []
+            for line in lines:
+                if line not in base_lines:
+                    worse_lines.append(char + '+' +
+                            _BoardList(line, line_boards) + line)
+            for line in base_lines:
+                if line not in lines:
+                    better_lines.append(char + '-' +
+                            _BoardList(line, base_line_boards) + line)
+            return better_lines, worse_lines
 
         better = []     # List of boards fixed since last commit
         worse = []      # List of new broken boards since last commit
@@ -902,17 +959,14 @@ class Builder:
                 new.append(target)
 
         # Get a list of errors that have appeared, and disappeared
-        better_err = []
-        worse_err = []
-        for line in err_lines:
-            if line not in self._base_err_lines:
-                worse_err.append('+' + _BoardList(line) + line)
-        for line in self._base_err_lines:
-            if line not in err_lines:
-                better_err.append('-' + line)
+        better_err, worse_err = _CalcErrorDelta(self._base_err_lines,
+                self._base_err_line_boards, err_lines, err_line_boards, '')
+        better_warn, worse_warn = _CalcErrorDelta(self._base_warn_lines,
+                self._base_warn_line_boards, warn_lines, warn_line_boards, 'w')
 
         # Display results by arch
-        if better or worse or unknown or new or worse_err or better_err:
+        if (better or worse or unknown or new or worse_err or better_err
+                or worse_warn or better_warn):
             arch_list = {}
             self.AddOutcome(board_selected, arch_list, better, '',
                     self.col.GREEN)
@@ -931,6 +985,12 @@ class Builder:
             if worse_err:
                 print self.col.Color(self.col.RED, '\n'.join(worse_err))
                 self._error_lines += 1
+            if better_warn:
+                print self.col.Color(self.col.YELLOW, '\n'.join(better_warn))
+                self._error_lines += 1
+            if worse_warn:
+                print self.col.Color(self.col.MAGENTA, '\n'.join(worse_warn))
+                self._error_lines += 1
 
         if show_sizes:
             self.PrintSizeSummary(board_selected, board_dict, show_detail,
@@ -939,6 +999,9 @@ class Builder:
         # Save our updated information for the next call to this function
         self._base_board_dict = board_dict
         self._base_err_lines = err_lines
+        self._base_warn_lines = warn_lines
+        self._base_err_line_boards = err_line_boards
+        self._base_warn_line_boards = warn_line_boards
 
         # Get a list of boards that did not get built, if needed
         not_built = []
@@ -950,7 +1013,8 @@ class Builder:
                     ', '.join(not_built))
 
     def ProduceResultSummary(self, commit_upto, commits, board_selected):
-            board_dict, err_lines, err_line_boards = self.GetResultSummary(
+            (board_dict, err_lines, err_line_boards, warn_lines,
+                    warn_line_boards) = self.GetResultSummary(
                     board_selected, commit_upto,
                     read_func_sizes=self._show_bloat)
             if commits:
@@ -959,6 +1023,7 @@ class Builder:
                 print self.col.Color(self.col.BLUE, msg)
             self.PrintResultSummary(board_selected, board_dict,
                     err_lines if self._show_errors else [], err_line_boards,
+                    warn_lines if self._show_errors else [], warn_line_boards,
                     self._show_sizes, self._show_detail, self._show_bloat)
 
     def ShowSummary(self, commits, board_selected):
