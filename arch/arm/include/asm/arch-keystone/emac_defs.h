@@ -13,9 +13,6 @@
 #include <asm/arch/hardware.h>
 #include <asm/io.h>
 
-#define DEVICE_REG32_R(a)               readl(a)
-#define DEVICE_REG32_W(a, v)            writel(v, a)
-
 #define EMAC_EMACSL_BASE_ADDR           (KS2_PASS_BASE + 0x00090900)
 #define EMAC_MDIO_BASE_ADDR             (KS2_PASS_BASE + 0x00090300)
 #define EMAC_SGMII_BASE_ADDR            (KS2_PASS_BASE + 0x00090100)
@@ -182,8 +179,8 @@ struct mac_sl_cfg {
 #endif
 
 #define hw_config_streaming_switch() \
-	DEVICE_REG32_W(DEVICE_PSTREAM_CFG_REG_ADDR, \
-		       DEVICE_PSTREAM_CFG_REG_VAL_ROUTE_CPPI);
+	writel(DEVICE_PSTREAM_CFG_REG_VAL_ROUTE_CPPI,\
+	       DEVICE_PSTREAM_CFG_REG_ADDR);
 
 /* EMAC MDIO Registers Structure */
 struct mdio_regs {

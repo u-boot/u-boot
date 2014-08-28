@@ -290,13 +290,12 @@ int mac_sl_reset(u32 port)
 		return GMACSL_RET_INVALID_PORT;
 
 	/* Set the soft reset bit */
-	DEVICE_REG32_W(DEVICE_EMACSL_BASE(port) +
-		       CPGMACSL_REG_RESET, CPGMAC_REG_RESET_VAL_RESET);
+	writel(CPGMAC_REG_RESET_VAL_RESET,
+	       DEVICE_EMACSL_BASE(port) + CPGMACSL_REG_RESET);
 
 	/* Wait for the bit to clear */
 	for (i = 0; i < DEVICE_EMACSL_RESET_POLL_COUNT; i++) {
-		v = DEVICE_REG32_R(DEVICE_EMACSL_BASE(port) +
-				   CPGMACSL_REG_RESET);
+		v = readl(DEVICE_EMACSL_BASE(port) + CPGMACSL_REG_RESET);
 		if ((v & CPGMAC_REG_RESET_VAL_RESET_MASK) !=
 		    CPGMAC_REG_RESET_VAL_RESET)
 			return GMACSL_RET_OK;
@@ -321,8 +320,7 @@ int mac_sl_config(u_int16_t port, struct mac_sl_cfg *cfg)
 
 	/* Must wait if the device is undergoing reset */
 	for (i = 0; i < DEVICE_EMACSL_RESET_POLL_COUNT; i++) {
-		v = DEVICE_REG32_R(DEVICE_EMACSL_BASE(port) +
-				   CPGMACSL_REG_RESET);
+		v = readl(DEVICE_EMACSL_BASE(port) + CPGMACSL_REG_RESET);
 		if ((v & CPGMAC_REG_RESET_VAL_RESET_MASK) !=
 		    CPGMAC_REG_RESET_VAL_RESET)
 			break;
@@ -331,11 +329,8 @@ int mac_sl_config(u_int16_t port, struct mac_sl_cfg *cfg)
 	if (i == DEVICE_EMACSL_RESET_POLL_COUNT)
 		return GMACSL_RET_CONFIG_FAIL_RESET_ACTIVE;
 
-	DEVICE_REG32_W(DEVICE_EMACSL_BASE(port) + CPGMACSL_REG_MAXLEN,
-		       cfg->max_rx_len);
-
-	DEVICE_REG32_W(DEVICE_EMACSL_BASE(port) + CPGMACSL_REG_CTL,
-		       cfg->ctl);
+	writel(cfg->max_rx_len, DEVICE_EMACSL_BASE(port) + CPGMACSL_REG_MAXLEN);
+	writel(cfg->ctl, DEVICE_EMACSL_BASE(port) + CPGMACSL_REG_CTL);
 
 	return ret;
 }
@@ -345,24 +340,24 @@ int ethss_config(u32 ctl, u32 max_pkt_size)
 	u32 i;
 
 	/* Max length register */
-	DEVICE_REG32_W(DEVICE_CPSW_BASE + CPSW_REG_MAXLEN, max_pkt_size);
+	writel(max_pkt_size, DEVICE_CPSW_BASE + CPSW_REG_MAXLEN);
 
 	/* Control register */
-	DEVICE_REG32_W(DEVICE_CPSW_BASE + CPSW_REG_CTL, ctl);
+	writel(ctl, DEVICE_CPSW_BASE + CPSW_REG_CTL);
 
 	/* All statistics enabled by default */
-	DEVICE_REG32_W(DEVICE_CPSW_BASE + CPSW_REG_STAT_PORT_EN,
-		       CPSW_REG_VAL_STAT_ENABLE_ALL);
+	writel(CPSW_REG_VAL_STAT_ENABLE_ALL,
+	       DEVICE_CPSW_BASE + CPSW_REG_STAT_PORT_EN);
 
 	/* Reset and enable the ALE */
-	DEVICE_REG32_W(DEVICE_CPSW_BASE + CPSW_REG_ALE_CONTROL,
-		       CPSW_REG_VAL_ALE_CTL_RESET_AND_ENABLE |
-		       CPSW_REG_VAL_ALE_CTL_BYPASS);
+	writel(CPSW_REG_VAL_ALE_CTL_RESET_AND_ENABLE |
+	       CPSW_REG_VAL_ALE_CTL_BYPASS,
+	       DEVICE_CPSW_BASE + CPSW_REG_ALE_CONTROL);
 
 	/* All ports put into forward mode */
 	for (i = 0; i < DEVICE_CPSW_NUM_PORTS; i++)
-		DEVICE_REG32_W(DEVICE_CPSW_BASE + CPSW_REG_ALE_PORTCTL(i),
-			       CPSW_REG_VAL_PORTCTL_FORWARD_MODE);
+		writel(CPSW_REG_VAL_PORTCTL_FORWARD_MODE,
+		       DEVICE_CPSW_BASE + CPSW_REG_ALE_PORTCTL(i));
 
 	return 0;
 }
