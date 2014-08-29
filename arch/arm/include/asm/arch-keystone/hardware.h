@@ -138,6 +138,10 @@ typedef volatile unsigned int   *dv_reg_p;
 /* Flag from ks2_debug options to check if DSPs need to stay ON */
 #define DBG_LEAVE_DSPS_ON		0x1
 
+/* Device speed */
+#define KS2_REV1_DEVSPEED		(KS2_DEVICE_STATE_CTRL_BASE + 0xc98)
+#define KS2_EFUSE_BOOTROM		(KS2_DEVICE_STATE_CTRL_BASE + 0xc90)
+
 /* Queue manager */
 #define KS2_QM_MANAGER_BASE		0x02a02000
 #define KS2_QM_DESC_SETUP_BASE		0x02a03000

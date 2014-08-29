@@ -17,6 +17,22 @@ const struct keystone_pll_regs keystone_pll_regs[] = {
 	[DDR3_PLL] = {KS2_DDR3APLLCTL0, KS2_DDR3APLLCTL1},
 };
 
+int dev_speeds[] = {
+	SPD800,
+	SPD850,
+	SPD1000,
+	SPD1250,
+	SPD1350,
+	SPD1400,
+	SPD1500,
+	SPD1400,
+	SPD1350,
+	SPD1250,
+	SPD1000,
+	SPD850,
+	SPD800
+};
+
 /**
  * pll_freq_get - get pll frequency
  * Fout = Fref * NF(mult) / NR(prediv) / OD

@@ -243,8 +243,12 @@
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 
 #elif defined(CONFIG_NAND)
-#undef CONFIG_ENV_IS_NOWHERE
+/* No NAND env support in SPL */
+#ifdef CONFIG_SPL_BUILD
+#define CONFIG_ENV_IS_NOWHERE
+#else
 #define CONFIG_ENV_IS_IN_NAND
+#endif
 #define CONFIG_ENV_OFFSET		0x120000 /* TODO: Adresse definieren */
 #define CONFIG_SYS_ENV_SECT_SIZE	CONFIG_ENV_SIZE
 #else

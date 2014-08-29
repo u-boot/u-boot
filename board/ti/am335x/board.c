@@ -383,24 +383,19 @@ const struct dpll_params *get_dpll_ddr_params(void)
 
 void set_uart_mux_conf(void)
 {
-#ifdef CONFIG_SERIAL1
+#if CONFIG_CONS_INDEX == 1
 	enable_uart0_pin_mux();
-#endif /* CONFIG_SERIAL1 */
-#ifdef CONFIG_SERIAL2
+#elif CONFIG_CONS_INDEX == 2
 	enable_uart1_pin_mux();
-#endif /* CONFIG_SERIAL2 */
-#ifdef CONFIG_SERIAL3
+#elif CONFIG_CONS_INDEX == 3
 	enable_uart2_pin_mux();
-#endif /* CONFIG_SERIAL3 */
-#ifdef CONFIG_SERIAL4
+#elif CONFIG_CONS_INDEX == 4
 	enable_uart3_pin_mux();
-#endif /* CONFIG_SERIAL4 */
-#ifdef CONFIG_SERIAL5
+#elif CONFIG_CONS_INDEX == 5
 	enable_uart4_pin_mux();
-#endif /* CONFIG_SERIAL5 */
-#ifdef CONFIG_SERIAL6
+#elif CONFIG_CONS_INDEX == 6
 	enable_uart5_pin_mux();
-#endif /* CONFIG_SERIAL6 */
+#endif
 }
 
 void set_mux_conf_regs(void)

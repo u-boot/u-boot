@@ -265,4 +265,68 @@
 #define CONFIG_SPL_NET_SUPPORT
 #define CONFIG_SYS_RX_ETH_BUFFER	64
 
+/* NAND support */
+#ifdef CONFIG_NAND
+/* NAND: device related configs */
+#define CONFIG_SYS_NAND_PAGE_SIZE	4096
+#define CONFIG_SYS_NAND_OOBSIZE		224
+#define CONFIG_SYS_NAND_BLOCK_SIZE	(256*1024)
+#define CONFIG_SYS_NAND_PAGE_COUNT	(CONFIG_SYS_NAND_BLOCK_SIZE / \
+					 CONFIG_SYS_NAND_PAGE_SIZE)
+#define CONFIG_SYS_NAND_5_ADDR_CYCLE
+/* NAND: driver related configs */
+#define CONFIG_NAND_OMAP_GPMC
+#define CONFIG_NAND_OMAP_ELM
+#define CONFIG_SYS_NAND_ONFI_DETECTION
+#define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_BCH16_CODE_HW
+#define CONFIG_SYS_NAND_BAD_BLOCK_POS	NAND_LARGE_BADBLOCK_POS
+#define CONFIG_SYS_NAND_ECCPOS	{ 2, 3, 4, 5, 6, 7, 8, 9, \
+				10, 11, 12, 13, 14, 15, 16, 17, 18, 19, \
+				20, 21, 22, 23, 24, 25, 26, 27, 28, 29, \
+				30, 31, 32, 33, 34, 35, 36, 37, 38, 39, \
+				40, 41, 42, 43, 44, 45, 46, 47, 48, 49, \
+				50, 51, 52, 53, 54, 55, 56, 57, 58, 59, \
+				60, 61, 62, 63, 64, 65, 66, 67, 68, 69, \
+				70, 71, 72, 73, 74, 75, 76, 77, 78, 79, \
+				80, 81, 82, 83, 84, 85, 86, 87, 88, 89, \
+				90, 91, 92, 93, 94, 95, 96, 97, 98, 99, \
+			100, 101, 102, 103, 104, 105, 106, 107, 108, 109, \
+			110, 111, 112, 113, 114, 115, 116, 117, 118, 119, \
+			120, 121, 122, 123, 124, 125, 126, 127, 128, 129, \
+			130, 131, 132, 133, 134, 135, 136, 137, 138, 139, \
+			140, 141, 142, 143, 144, 145, 146, 147, 148, 149, \
+			150, 151, 152, 153, 154, 155, 156, 157, 158, 159, \
+			160, 161, 162, 163, 164, 165, 166, 167, 168, 169, \
+			170, 171, 172, 173, 174, 175, 176, 177, 178, 179, \
+			180, 181, 182, 183, 184, 185, 186, 187, 188, 189, \
+			190, 191, 192, 193, 194, 195, 196, 197, 198, 199, \
+			200, 201, 202, 203, 204, 205, 206, 207, 208, 209, \
+			}
+#define CONFIG_SYS_NAND_ECCSIZE		512
+#define CONFIG_SYS_NAND_ECCBYTES	26
+#define MTDIDS_DEFAULT			"nand0=nand.0"
+#define MTDPARTS_DEFAULT		"mtdparts=nand.0:" \
+					"256k(NAND.SPL)," \
+					"256k(NAND.SPL.backup1)," \
+					"256k(NAND.SPL.backup2)," \
+					"256k(NAND.SPL.backup3)," \
+					"512k(NAND.u-boot-spl-os)," \
+					"1m(NAND.u-boot)," \
+					"256k(NAND.u-boot-env)," \
+					"256k(NAND.u-boot-env.backup1)," \
+					"7m(NAND.kernel)," \
+					"-(NAND.rootfs)"
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x00180000
+/* NAND: SPL related configs */
+#ifdef CONFIG_SPL_NAND_SUPPORT
+#define CONFIG_SPL_NAND_AM33XX_BCH
+#endif
+/* NAND: SPL falcon mode configs */
+#ifdef CONFIG_SPL_OS_BOOT
+#define CONFIG_CMD_SPL_NAND_OFS		0x00100000 /* os parameters */
+#define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	0x00300000 /* kernel offset */
+#define CONFIG_CMD_SPL_WRITE_SIZE	CONFIG_SYS_NAND_BLOCK_SIZE
+#endif
+#endif /* !CONFIG_NAND */
+
 #endif	/* __CONFIG_AM43XX_EVM_H */

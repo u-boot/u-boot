@@ -61,7 +61,7 @@
 		"${optargs} " \
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype}\0" \
-	"nandroot=ubi0:rootfs rw ubi.mtd=7,2048\0" \
+	"nandroot=ubi0:rootfs rw ubi.mtd=9,2048\0" \
 	"nandrootfstype=ubifs rootwait=1\0" \
 	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
@@ -223,22 +223,20 @@
 /* USB gadget RNDIS */
 #define CONFIG_SPL_MUSB_NEW_SUPPORT
 
-/* General network SPL, both CPSW and USB gadget RNDIS */
-#define CONFIG_SPL_NET_SUPPORT
-#define CONFIG_SPL_ENV_SUPPORT
-#define CONFIG_SPL_NET_VCI_STRING	"AM335x U-Boot SPL"
-
 #define CONFIG_SPL_LDSCRIPT		"$(CPUDIR)/am33xx/u-boot-spl.lds"
+#endif
 
 #ifdef CONFIG_NAND
-#define CONFIG_NAND_OMAP_GPMC
-#define CONFIG_NAND_OMAP_ELM
+/* NAND: device related configs */
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_PAGE_COUNT	(CONFIG_SYS_NAND_BLOCK_SIZE / \
 					 CONFIG_SYS_NAND_PAGE_SIZE)
 #define CONFIG_SYS_NAND_PAGE_SIZE	2048
 #define CONFIG_SYS_NAND_OOBSIZE		64
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128*1024)
+/* NAND: driver related configs */
+#define CONFIG_NAND_OMAP_GPMC
+#define CONFIG_NAND_OMAP_ELM
 #define CONFIG_SYS_NAND_BAD_BLOCK_POS	NAND_LARGE_BADBLOCK_POS
 #define CONFIG_SYS_NAND_ECCPOS		{ 2, 3, 4, 5, 6, 7, 8, 9, \
 					 10, 11, 12, 13, 14, 15, 16, 17, \
@@ -252,15 +250,34 @@
 #define CONFIG_SYS_NAND_ECCBYTES	14
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 #define CONFIG_NAND_OMAP_ECCSCHEME	OMAP_ECC_BCH8_CODE_HW
-#define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_TEXT_BASE
-#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x80000
+#define MTDIDS_DEFAULT			"nand0=nand.0"
+#define MTDPARTS_DEFAULT		"mtdparts=nand.0:" \
+					"128k(NAND.SPL)," \
+					"128k(NAND.SPL.backup1)," \
+					"128k(NAND.SPL.backup2)," \
+					"128k(NAND.SPL.backup3)," \
+					"256k(NAND.u-boot-spl-os)," \
+					"1m(NAND.u-boot)," \
+					"128k(NAND.u-boot-env)," \
+					"128k(NAND.u-boot-env.backup1)," \
+					"8m(NAND.kernel)," \
+					"-(NAND.rootfs)"
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x000c0000
+#undef CONFIG_ENV_IS_NOWHERE
+#define CONFIG_ENV_IS_IN_NAND
+#define CONFIG_ENV_OFFSET		0x001c0000
+#define CONFIG_ENV_OFFSET_REDUND	0x001e0000
+#define CONFIG_SYS_ENV_SECT_SIZE	CONFIG_SYS_NAND_BLOCK_SIZE
+/* NAND: SPL related configs */
+#ifdef CONFIG_SPL_NAND_SUPPORT
+#define CONFIG_SPL_NAND_AM33XX_BCH
+#endif
 #ifdef CONFIG_SPL_OS_BOOT
 #define CONFIG_CMD_SPL_NAND_OFS	0x00080000 /* os parameters */
 #define CONFIG_SYS_NAND_SPL_KERNEL_OFFS	0x00200000 /* kernel offset */
 #define CONFIG_CMD_SPL_WRITE_SIZE	0x2000
 #endif
-#endif
-#endif
+#endif /* !CONFIG_NAND */
 
 /*
  * For NOR boot, we must set this to the start of where NOR is mapped
@@ -314,10 +331,10 @@
 /* disable EFI partitions and partition UUID support */
 #undef CONFIG_PARTITION_UUIDS
 #undef CONFIG_EFI_PARTITION
-/*
- * Disable CPSW SPL support so we fit within the 101KiB limit.
- */
-#undef CONFIG_SPL_ETH_SUPPORT
+/* General network SPL  */
+#define CONFIG_SPL_NET_SUPPORT
+#define CONFIG_SPL_ENV_SUPPORT
+#define CONFIG_SPL_NET_VCI_STRING	"AM335x U-Boot SPL"
 #endif
 
 /* USB Device Firmware Update support */
@@ -399,6 +416,7 @@
 #elif defined(CONFIG_EMMC_BOOT)
 #undef CONFIG_ENV_IS_NOWHERE
 #define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_SPL_ENV_SUPPORT
 #define CONFIG_SYS_MMC_ENV_DEV		1
 #define CONFIG_SYS_MMC_ENV_PART		2
 #define CONFIG_ENV_OFFSET		0x0
@@ -416,23 +434,6 @@
 #define CONFIG_PHY_GIGE
 #define CONFIG_PHYLIB
 #define CONFIG_PHY_SMSC
-
-/* NAND support */
-#ifdef CONFIG_NAND
-#define CONFIG_CMD_NAND
-#if !defined(CONFIG_SPI_BOOT) && !defined(CONFIG_NOR_BOOT)
-#define MTDIDS_DEFAULT			"nand0=omap2-nand.0"
-#define MTDPARTS_DEFAULT		"mtdparts=omap2-nand.0:128k(SPL)," \
-					"128k(SPL.backup1)," \
-					"128k(SPL.backup2)," \
-					"128k(SPL.backup3),1792k(u-boot)," \
-					"128k(u-boot-spl-os)," \
-					"128k(u-boot-env),5m(kernel),-(rootfs)"
-#define CONFIG_ENV_IS_IN_NAND
-#define CONFIG_ENV_OFFSET		0x260000 /* environment starts here */
-#define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
-#endif
-#endif
 
 /*
  * NOR Size = 16 MiB

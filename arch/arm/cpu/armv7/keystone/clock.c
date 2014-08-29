@@ -11,6 +11,8 @@
 #include <asm/arch/clock.h>
 #include <asm/arch/clock_defs.h>
 
+#define MAX_SPEEDS		13
+
 static void wait_for_completion(const struct pll_init_data *data)
 {
 	int i;
@@ -218,3 +220,44 @@ void init_plls(int num_pll, struct pll_init_data *config)
 	for (i = 0; i < num_pll; i++)
 		init_pll(&config[i]);
 }
+
+static int get_max_speed(u32 val, int *speeds)
+{
+	int j;
+
+	if (!val)
+		return speeds[0];
+
+	for (j = 1; j < MAX_SPEEDS; j++) {
+		if (val == 1)
+			return speeds[j];
+		val >>= 1;
+	}
+
+	return SPD800;
+}
+
+#ifdef CONFIG_SOC_K2HK
+static u32 read_efuse_bootrom(void)
+{
+	return (cpu_revision() > 1) ? __raw_readl(KS2_EFUSE_BOOTROM) :
+		__raw_readl(KS2_REV1_DEVSPEED);
+}
+#else
+static inline u32 read_efuse_bootrom(void)
+{
+	return __raw_readl(KS2_EFUSE_BOOTROM);
+}
+#endif
+
+inline int get_max_dev_speed(void)
+{
+	return get_max_speed(read_efuse_bootrom() & 0xffff, dev_speeds);
+}
+
+#ifndef CONFIG_SOC_K2E
+inline int get_max_arm_speed(void)
+{
+	return get_max_speed((read_efuse_bootrom() >> 16) & 0xffff, arm_speeds);
+}
+#endif

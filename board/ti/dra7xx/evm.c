@@ -13,6 +13,8 @@
 #include <common.h>
 #include <palmas.h>
 #include <sata.h>
+#include <asm/gpio.h>
+#include <asm/arch/gpio.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sata.h>
@@ -25,6 +27,9 @@
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
+
+/* GPIO 7_11 */
+#define GPIO_DDR_VTT_EN 203
 
 const struct omap_sysinfo sysinfo = {
 	"Board: DRA7xx\n"
@@ -270,5 +275,31 @@ int board_eth_init(bd_t *bis)
 		printf("Error %d registering CPSW switch\n", ret);
 
 	return ret;
+}
+#endif
+
+#ifdef CONFIG_BOARD_EARLY_INIT_F
+/* VTT regulator enable */
+static inline void vtt_regulator_enable(void)
+{
+	if (omap_hw_init_context() == OMAP_INIT_CONTEXT_UBOOT_AFTER_SPL)
+		return;
+
+	/* Do not enable VTT for DRA722 */
+	if (omap_revision() == DRA722_ES1_0)
+		return;
+
+	/*
+	 * EVM Rev G and later use gpio7_11 for DDR3 termination.
+	 * This is safe enough to do on older revs.
+	 */
+	gpio_request(GPIO_DDR_VTT_EN, "ddr_vtt_en");
+	gpio_direction_output(GPIO_DDR_VTT_EN, 1);
+}
+
+int board_early_init_f(void)
+{
+	vtt_regulator_enable();
+	return 0;
 }
 #endif
