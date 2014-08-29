@@ -34,7 +34,7 @@
 #include <asm/byteorder.h>
 #include <asm/unaligned.h>
 #include <compiler.h>
-
+#include <errno.h>
 #include <usb.h>
 #ifdef CONFIG_4xx
 #include <asm/4xx_pci.h>
@@ -60,6 +60,7 @@ int usb_init(void)
 	void *ctrl;
 	struct usb_device *dev;
 	int i, start_index = 0;
+	int ret;
 
 	dev_index = 0;
 	asynch_allowed = 1;
@@ -75,7 +76,13 @@ int usb_init(void)
 	for (i = 0; i < CONFIG_USB_MAX_CONTROLLER_COUNT; i++) {
 		/* init low_level USB */
 		printf("USB%d:   ", i);
-		if (usb_lowlevel_init(i, USB_INIT_HOST, &ctrl)) {
+		ret = usb_lowlevel_init(i, USB_INIT_HOST, &ctrl);
+		if (ret == -ENODEV) {	/* No such device. */
+			puts("Port not available.\n");
+			continue;
+		}
+
+		if (ret) {		/* Other error. */
 			puts("lowlevel init failed\n");
 			continue;
 		}
