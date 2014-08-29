@@ -93,6 +93,11 @@ unsigned imx_ddr_size(void)
 	bits += bank_lookup[ESD_MMDC_MISC_GET_BANK(misc)];
 	bits += ESD_MMDC_CTL_GET_WIDTH(ctl);
 	bits += ESD_MMDC_CTL_GET_CS1(ctl);
+
+	/* The MX6 can do only 3840 MiB of DRAM */
+	if (bits == 32)
+		return 0xf0000000;
+
 	return 1 << bits;
 }
 #endif
@@ -112,6 +117,8 @@ const char *get_imx_type(u32 imxtype)
 		return "6SOLO";	/* Solo version of the mx6 */
 	case MXC_CPU_MX6SL:
 		return "6SL";	/* Solo-Lite version of the mx6 */
+	case MXC_CPU_MX6SX:
+		return "6SX";   /* SoloX version of the mx6 */
 	case MXC_CPU_MX51:
 		return "51";
 	case MXC_CPU_MX53:

@@ -35,6 +35,12 @@ struct scu_regs {
 	u32	fpga_rev;
 };
 
+u32 get_nr_cpus(void)
+{
+	struct scu_regs *scu = (struct scu_regs *)SCU_BASE_ADDR;
+	return readl(&scu->config) & 3;
+}
+
 u32 get_cpu_rev(void)
 {
 	struct anatop_regs *anatop = (struct anatop_regs *)ANATOP_BASE_ADDR;
@@ -79,9 +85,15 @@ u32 __weak get_board_rev(void)
 void init_aips(void)
 {
 	struct aipstz_regs *aips1, *aips2;
+#ifdef CONFIG_MX6SX
+	struct aipstz_regs *aips3;
+#endif
 
 	aips1 = (struct aipstz_regs *)AIPS1_BASE_ADDR;
 	aips2 = (struct aipstz_regs *)AIPS2_BASE_ADDR;
+#ifdef CONFIG_MX6SX
+	aips3 = (struct aipstz_regs *)AIPS3_BASE_ADDR;
+#endif
 
 	/*
 	 * Set all MPROTx to be non-bufferable, trusted for R/W,
@@ -107,6 +119,26 @@ void init_aips(void)
 	writel(0x00000000, &aips2->opacr2);
 	writel(0x00000000, &aips2->opacr3);
 	writel(0x00000000, &aips2->opacr4);
+
+#ifdef CONFIG_MX6SX
+	/*
+	 * Set all MPROTx to be non-bufferable, trusted for R/W,
+	 * not forced to user-mode.
+	 */
+	writel(0x77777777, &aips3->mprot0);
+	writel(0x77777777, &aips3->mprot1);
+
+	/*
+	 * Set all OPACRx to be non-bufferable, not require
+	 * supervisor privilege level for access,allow for
+	 * write access and untrusted master access.
+	 */
+	writel(0x00000000, &aips3->opacr0);
+	writel(0x00000000, &aips3->opacr1);
+	writel(0x00000000, &aips3->opacr2);
+	writel(0x00000000, &aips3->opacr3);
+	writel(0x00000000, &aips3->opacr4);
+#endif
 }
 
 static void clear_ldo_ramp(void)
@@ -310,6 +342,10 @@ void s_init(void)
 	int is_6q = is_cpu_type(MXC_CPU_MX6Q);
 	u32 mask480;
 	u32 mask528;
+
+
+	if (is_cpu_type(MXC_CPU_MX6SX))
+		return;
 
 	/* Due to hardware limitation, on MX6Q we need to gate/ungate all PFDs
 	 * to make sure PFD is working right, otherwise, PFDs may

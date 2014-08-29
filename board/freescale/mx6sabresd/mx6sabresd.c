@@ -466,7 +466,7 @@ static int pfuze_init(void)
 	if (ret)
 		return ret;
 
-	p = pmic_get("PFUZE100_PMIC");
+	p = pmic_get("PFUZE100");
 	ret = pmic_probe(p);
 	if (ret)
 		return ret;

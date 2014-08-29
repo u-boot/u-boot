@@ -95,7 +95,9 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_SPEED		  100000
+#define CONFIG_SYS_I2C_SPEED		100000
+#define CONFIG_I2C_GSC			0
+#define CONFIG_I2C_PMIC			1
 
 /* MMC Configs */
 #define CONFIG_FSL_ESDHC
@@ -164,6 +166,7 @@
 #define CONFIG_CMD_SETEXPR
 #define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_GSC
+#define CONFIG_CMD_EECONFIG      /* Gateworks EEPROM config cmd */
 #define CONFIG_CMD_UBI
 #define CONFIG_RBTREE
 #define CONFIG_LZO

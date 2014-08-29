@@ -57,7 +57,7 @@ int gsc_i2c_write(uchar chip, uint addr, int alen, uchar *buf, int len)
 			break;
 		mdelay(10);
 	}
-	mdelay(1);
+	mdelay(100);
 	return ret;
 }
 

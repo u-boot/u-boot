@@ -246,6 +246,7 @@ int board_mmc_init(bd_t *bis)
 					riotboard_usdhc3_pads,
 					ARRAY_SIZE(riotboard_usdhc3_pads));
 				gpio_direction_input(USDHC3_CD_GPIO);
+			} else {
 				gpio_direction_output(IMX_GPIO_NR(7, 8) , 0);
 				udelay(250);
 				gpio_set_value(IMX_GPIO_NR(7, 8), 1);

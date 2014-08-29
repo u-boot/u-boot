@@ -60,6 +60,10 @@
 #define STATUS_QEB_MXIC			(1 << 6)
 #define STATUS_PEC			(1 << 7)
 
+#ifdef CONFIG_SYS_SPI_ST_ENABLE_WP_PIN
+#define STATUS_SRWD			(1 << 7) /* SR write protect */
+#endif
+
 /* Flash timeout values */
 #define SPI_FLASH_PROG_TIMEOUT		(2 * CONFIG_SYS_HZ)
 #define SPI_FLASH_PAGE_ERASE_TIMEOUT	(5 * CONFIG_SYS_HZ)

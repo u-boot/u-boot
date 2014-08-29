@@ -14,6 +14,7 @@
 #define soc_rev() (get_cpu_rev() & 0xFF)
 #define is_soc_rev(rev)        (soc_rev() - rev)
 
+u32 get_nr_cpus(void);
 u32 get_cpu_rev(void);
 
 /* returns MXC_CPU_ value */

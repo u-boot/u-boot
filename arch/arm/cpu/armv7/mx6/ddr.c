@@ -197,6 +197,7 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *i,
 	u16 trcd, trc, tras, twr, tmrd, trtp, trp, twtr, trfc, txs, txpr;
 	u16 CS0_END;
 	u16 tdllk = 0x1ff; /* DLL locking time: 512 cycles (JEDEC DDR3) */
+	u8 coladdr;
 	int clkper; /* clock period in picoseconds */
 	int clock; /* clock freq in mHz */
 	int cs;
@@ -422,8 +423,13 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *i,
 	mmdc0->mdor = reg;
 
 	/* Step 5: Configure DDR physical parameters (density and burst len) */
+	coladdr = m->coladdr;
+	if (m->coladdr == 8)		/* 8-bit COL is 0x3 */
+		coladdr += 4;
+	else if (m->coladdr == 12)	/* 12-bit COL is 0x4 */
+		coladdr += 1;
 	reg = (m->rowaddr - 11) << 24 |		/* ROW */
-	      (m->coladdr - 9) << 20 |		/* COL */
+	      (coladdr - 9) << 20 |		/* COL */
 	      (1 << 19) |			/* Burst Length = 8 for DDR3 */
 	      (i->dsize << 16);			/* DDR data bus size */
 	mmdc0->mdctl = reg;

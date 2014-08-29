@@ -93,8 +93,6 @@
 
 /* U-Boot general configuration */
 #define CONFIG_SYS_LONGHELP
-#ifndef CONFIG_SYS_PROMPT
-#endif
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O buffer size */
 #define CONFIG_SYS_PBSIZE	\
 	(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)

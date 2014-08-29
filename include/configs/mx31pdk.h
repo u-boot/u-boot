@@ -20,6 +20,8 @@
 #define CONFIG_ARM1136			/* This is an arm1136 CPU core */
 #define CONFIG_MX31			/* in a mx31 */
 
+#define CONFIG_SYS_GENERIC_BOARD
+
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 

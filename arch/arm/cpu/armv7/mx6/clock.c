@@ -71,6 +71,24 @@ int enable_i2c_clk(unsigned char enable, unsigned i2c_num)
 }
 #endif
 
+/* spi_num can be from 0 - SPI_MAX_NUM */
+int enable_spi_clk(unsigned char enable, unsigned spi_num)
+{
+	u32 reg;
+	u32 mask;
+
+	if (spi_num > SPI_MAX_NUM)
+		return -EINVAL;
+
+	mask = MXC_CCM_CCGR_CG_MASK << (spi_num << 1);
+	reg = __raw_readl(&imx_ccm->CCGR1);
+	if (enable)
+		reg |= mask;
+	else
+		reg &= ~mask;
+	__raw_writel(reg, &imx_ccm->CCGR1);
+	return 0;
+}
 static u32 decode_pll(enum pll_clocks pll, u32 infreq)
 {
 	u32 div;
@@ -214,7 +232,7 @@ static u32 get_uart_clk(void)
 	u32 reg, uart_podf;
 	u32 freq = decode_pll(PLL_USBOTG, MXC_HCLK) / 6; /* static divider */
 	reg = __raw_readl(&imx_ccm->cscdr1);
-#ifdef CONFIG_MX6SL
+#if (defined(CONFIG_MX6SL) || defined(CONFIG_MX6SX))
 	if (reg & MXC_CCM_CSCDR1_UART_CLK_SEL)
 		freq = MXC_HCLK;
 #endif
@@ -282,7 +300,7 @@ static u32 get_emi_slow_clk(void)
 	return root_freq / (emi_slow_podf + 1);
 }
 
-#ifdef CONFIG_MX6SL
+#if (defined(CONFIG_MX6SL) || defined(CONFIG_MX6SX))
 static u32 get_mmdc_ch0_clk(void)
 {
 	u32 cbcmr = __raw_readl(&imx_ccm->cbcmr);
@@ -355,6 +373,27 @@ int enable_fec_anatop_clock(enum enet_freq freq)
 	reg &= ~BM_ANADIG_PLL_ENET_BYPASS;
 	writel(reg, &anatop->pll_enet);
 
+#ifdef CONFIG_MX6SX
+	/*
+	 * Set enet ahb clock to 200MHz
+	 * pll2_pfd2_396m-> ENET_PODF-> ENET_AHB
+	 */
+	reg = readl(&imx_ccm->chsccdr);
+	reg &= ~(MXC_CCM_CHSCCDR_ENET_PRE_CLK_SEL_MASK
+		 | MXC_CCM_CHSCCDR_ENET_PODF_MASK
+		 | MXC_CCM_CHSCCDR_ENET_CLK_SEL_MASK);
+	/* PLL2 PFD2 */
+	reg |= (4 << MXC_CCM_CHSCCDR_ENET_PRE_CLK_SEL_OFFSET);
+	/* Div = 2*/
+	reg |= (1 << MXC_CCM_CHSCCDR_ENET_PODF_OFFSET);
+	reg |= (0 << MXC_CCM_CHSCCDR_ENET_CLK_SEL_OFFSET);
+	writel(reg, &imx_ccm->chsccdr);
+
+	/* Enable enet system clock */
+	reg = readl(&imx_ccm->CCGR3);
+	reg |= MXC_CCM_CCGR3_ENET_MASK;
+	writel(reg, &imx_ccm->CCGR3);
+#endif
 	return 0;
 }
 #endif
@@ -437,6 +476,7 @@ static int enable_enet_pll(uint32_t en)
 	return 0;
 }
 
+#ifndef CONFIG_MX6SX
 static void ungate_sata_clock(void)
 {
 	struct mxc_ccm_reg *const imx_ccm =
@@ -445,6 +485,7 @@ static void ungate_sata_clock(void)
 	/* Enable SATA clock. */
 	setbits_le32(&imx_ccm->CCGR5, MXC_CCM_CCGR5_SATA_MASK);
 }
+#endif
 
 static void ungate_pcie_clock(void)
 {
@@ -455,11 +496,13 @@ static void ungate_pcie_clock(void)
 	setbits_le32(&imx_ccm->CCGR4, MXC_CCM_CCGR4_PCIE_MASK);
 }
 
+#ifndef CONFIG_MX6SX
 int enable_sata_clock(void)
 {
 	ungate_sata_clock();
 	return enable_enet_pll(BM_ANADIG_PLL_ENET_ENABLE_SATA);
 }
+#endif
 
 int enable_pcie_clock(void)
 {
@@ -491,7 +534,9 @@ int enable_pcie_clock(void)
 	clrbits_le32(&ccm_regs->cbcmr, MXC_CCM_CBCMR_PCIE_AXI_CLK_SEL);
 
 	/* Party time! Ungate the clock to the PCIe. */
+#ifndef CONFIG_MX6SX
 	ungate_sata_clock();
+#endif
 	ungate_pcie_clock();
 
 	return enable_enet_pll(BM_ANADIG_PLL_ENET_ENABLE_SATA |
@@ -573,6 +618,7 @@ int do_mx6_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
+#ifndef CONFIG_MX6SX
 void enable_ipu_clock(void)
 {
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
@@ -581,6 +627,7 @@ void enable_ipu_clock(void)
 	reg |= MXC_CCM_CCGR3_IPU1_IPU_MASK;
 	writel(reg, &mxc_ccm->CCGR3);
 }
+#endif
 /***************************************************/
 
 U_BOOT_CMD(
