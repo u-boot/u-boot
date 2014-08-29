@@ -100,10 +100,10 @@
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#define CONFIG_SYS_LOAD_ADDR		0x48000000 /* default load address */
+#define CONFIG_SYS_LOAD_ADDR		0x42000000 /* default load address */
 
 /* standalone support */
-#define CONFIG_STANDALONE_LOAD_ADDR	0x48000000
+#define CONFIG_STANDALONE_LOAD_ADDR	0x42000000
 
 #define CONFIG_SYS_HZ			1000
 
@@ -123,12 +123,8 @@
 #define CONFIG_ENV_OFFSET		(544 << 10) /* (8 + 24 + 512) KiB */
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
 
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	"bootm_size=0x10000000\0"
-
-#define CONFIG_SYS_BOOT_GET_CMDLINE
-
 #include <config_cmd_default.h>
+#undef CONFIG_CMD_FPGA
 
 #define CONFIG_FAT_WRITE	/* enable write access */
 
@@ -168,10 +164,6 @@
 #define CONFIG_SYS_SPL_MALLOC_START	0x4ff00000
 #define CONFIG_SYS_SPL_MALLOC_SIZE	0x00080000	/* 512 KiB */
 
-#undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
-
 /* I2C */
 #define CONFIG_SPL_I2C_SUPPORT
 #define CONFIG_SYS_I2C
@@ -207,14 +199,6 @@
 #define CONFIG_PHYLIB
 #endif
 
-#ifdef CONFIG_CMD_NET
-#define CONFIG_CMD_NFS
-#define CONFIG_CMD_DNS
-#define CONFIG_NETCONSOLE
-#define CONFIG_BOOTP_DNS2
-#define CONFIG_BOOTP_SEND_HOSTNAME
-#endif
-
 #ifdef CONFIG_USB_EHCI
 #define CONFIG_CMD_USB
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 1
@@ -232,6 +216,40 @@
 
 #ifndef CONFIG_SPL_BUILD
 #include <config_distro_defaults.h>
+
+/* 256M RAM (minimum), 32M uncompressed kernel, 16M compressed kernel, 1M fdt,
+ * 1M script, 1M pxe and the ramdisk at the end */
+#define MEM_LAYOUT_ENV_SETTINGS \
+	"bootm_size=0x10000000\0" \
+	"kernel_addr_r=0x42000000\0" \
+	"fdt_addr_r=0x43000000\0" \
+	"scriptaddr=0x43100000\0" \
+	"pxefile_addr_r=0x43200000\0" \
+	"ramdisk_addr_r=0x43300000\0"
+
+#ifdef CONFIG_AHCI
+#define BOOT_TARGET_DEVICES_SCSI(func) func(SCSI, scsi, 0)
+#else
+#define BOOT_TARGET_DEVICES_SCSI(func)
+#endif
+
+#define BOOT_TARGET_DEVICES(func) \
+	func(MMC, mmc, 0) \
+	BOOT_TARGET_DEVICES_SCSI(func) \
+	func(USB, usb, 0) \
+	func(PXE, pxe, na) \
+	func(DHCP, dhcp, na)
+
+#include <config_distro_bootcmd.h>
+
+#define CONFIG_EXTRA_ENV_SETTINGS \
+	MEM_LAYOUT_ENV_SETTINGS \
+	"fdtfile=" CONFIG_FTDFILE "\0" \
+	"console=ttyS0,115200\0" \
+	BOOTENV
+
+#else /* ifndef CONFIG_SPL_BUILD */
+#define CONFIG_EXTRA_ENV_SETTINGS
 #endif
 
 #endif /* _SUNXI_COMMON_CONFIG_H */

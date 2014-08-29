@@ -1,17 +1,5 @@
 if TARGET_SUN4I
 
-config SYS_CPU
-	string
-	default "armv7"
-
-config SYS_BOARD
-	string
-	default "sunxi"
-
-config SYS_SOC
-	string
-	default "sunxi"
-
 config SYS_CONFIG_NAME
 	string
 	default "sun4i"
@@ -19,18 +7,6 @@ config SYS_CONFIG_NAME
 endif
 
 if TARGET_SUN5I
-
-config SYS_CPU
-	string
-	default "armv7"
-
-config SYS_BOARD
-	string
-	default "sunxi"
-
-config SYS_SOC
-	string
-	default "sunxi"
 
 config SYS_CONFIG_NAME
 	string
@@ -40,6 +16,14 @@ endif
 
 if TARGET_SUN7I
 
+config SYS_CONFIG_NAME
+	string
+	default "sun7i"
+
+endif
+
+if TARGET_SUN4I || TARGET_SUN5I || TARGET_SUN7I
+
 config SYS_CPU
 	string
 	default "armv7"
@@ -52,8 +36,7 @@ config SYS_SOC
 	string
 	default "sunxi"
 
-config SYS_CONFIG_NAME
-	string
-	default "sun7i"
+config FTDFILE
+	string "Default ftdfile env setting for this board"
 
 endif

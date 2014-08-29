@@ -69,6 +69,7 @@ struct sunxi_dram_reg {
 
 struct dram_para {
 	u32 clock;
+	u32 mbus_clock;
 	u32 type;
 	u32 rank_num;
 	u32 density;
@@ -87,6 +88,8 @@ struct dram_para {
 	u32 emr1;
 	u32 emr2;
 	u32 emr3;
+	u32 dqs_gating_delay;
+	u32 active_windowing;
 };
 
 #define DRAM_CCR_COMMAND_RATE_1T (0x1 << 5)
@@ -121,9 +124,6 @@ struct dram_para {
 #define DRAM_DCR_BUS_WIDTH_32BIT 0x3
 #define DRAM_DCR_BUS_WIDTH_16BIT 0x1
 #define DRAM_DCR_BUS_WIDTH_8BIT 0x0
-#define DRAM_DCR_NR_DLLCR_32BIT 5
-#define DRAM_DCR_NR_DLLCR_16BIT 3
-#define DRAM_DCR_NR_DLLCR_8BIT 2
 #define DRAM_DCR_RANK_SEL(n) (((n) & 0x3) << 10)
 #define DRAM_DCR_RANK_SEL_MASK DRAM_DCR_CMD_RANK(0x3)
 #define DRAM_DCR_CMD_RANK_ALL (0x1 << 12)
@@ -132,7 +132,9 @@ struct dram_para {
 #define DRAM_DCR_MODE_SEQ 0x0
 #define DRAM_DCR_MODE_INTERLEAVE 0x1
 
-#define DRAM_CSR_FAILED (0x1 << 20)
+#define DRAM_CSR_DTERR  (0x1 << 20)
+#define DRAM_CSR_DTIERR (0x1 << 21)
+#define DRAM_CSR_FAILED (DRAM_CSR_DTERR | DRAM_CSR_DTIERR)
 
 #define DRAM_DRR_TRFC(n) ((n) & 0xff)
 #define DRAM_DRR_TREFI(n) (((n) & 0xffff) << 8)
@@ -159,6 +161,10 @@ struct dram_para {
 
 #define DRAM_ZQCR0_IMP_DIV(n) (((n) & 0xff) << 20)
 #define DRAM_ZQCR0_IMP_DIV_MASK DRAM_ZQCR0_IMP_DIV(0xff)
+#define DRAM_ZQCR0_ZCAL (1 << 31) /* Starts ZQ calibration when set to 1 */
+#define DRAM_ZQCR0_ZDEN (1 << 28) /* Uses ZDATA instead of doing calibration */
+
+#define DRAM_ZQSR_ZDONE (1 << 31) /* ZQ calibration completion flag */
 
 #define DRAM_IOCR_ODT_EN(n) ((((n) & 0x3) << 30) | ((n) & 0x3) << 0)
 #define DRAM_IOCR_ODT_EN_MASK DRAM_IOCR_ODT_EN(0x3)
