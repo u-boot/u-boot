@@ -8,7 +8,7 @@
 
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/spl.h>
+#include <asm/spl.h>
 #include <asm/arch/sys_proto.h>
 
 DECLARE_GLOBAL_DATA_PTR;
