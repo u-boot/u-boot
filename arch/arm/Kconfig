@@ -374,35 +374,8 @@ config TARGET_BCM958300K
 config TARGET_BCM958622HR
 	bool "Support bcm958622hr"
 
-config TARGET_ARNDALE
-	bool "Support arndale"
-
-config TARGET_ORIGEN
-	bool "Support origen"
-
-config TARGET_SMDK5250
-	bool "Support smdk5250"
-
-config TARGET_SNOW
-	bool "Support snow"
-
-config TARGET_PEACH_PIT
-	bool "Support peach-pit"
-
-config TARGET_SMDK5420
-	bool "Support smdk5420"
-
-config TARGET_SMDKV310
-	bool "Support smdkv310"
-
-config TARGET_TRATS
-	bool "Support trats"
-
-config TARGET_TRATS2
-	bool "Support trats2"
-
-config TARGET_S5PC210_UNIVERSAL
-	bool "Support s5pc210_universal"
+config ARCH_EXYNOS
+	bool "Samsung EXYNOS"
 
 config TARGET_HIGHBANK
 	bool "Support highbank"
@@ -659,6 +632,8 @@ config TARGET_JORNADA
 
 endchoice
 
+source "arch/arm/cpu/armv7/exynos/Kconfig"
+
 source "arch/arm/cpu/arm926ejs/kirkwood/Kconfig"
 
 source "arch/arm/cpu/armv7/rmobile/Kconfig"
@@ -796,17 +771,9 @@ source "board/raspberrypi/rpi_b/Kconfig"
 source "board/ronetix/pm9261/Kconfig"
 source "board/ronetix/pm9263/Kconfig"
 source "board/ronetix/pm9g45/Kconfig"
-source "board/samsung/arndale/Kconfig"
 source "board/samsung/goni/Kconfig"
-source "board/samsung/origen/Kconfig"
 source "board/samsung/smdk2410/Kconfig"
-source "board/samsung/smdk5250/Kconfig"
-source "board/samsung/smdk5420/Kconfig"
 source "board/samsung/smdkc100/Kconfig"
-source "board/samsung/smdkv310/Kconfig"
-source "board/samsung/trats/Kconfig"
-source "board/samsung/trats2/Kconfig"
-source "board/samsung/universal_c210/Kconfig"
 source "board/sandisk/sansa_fuze_plus/Kconfig"
 source "board/scb9328/Kconfig"
 source "board/schulercontrol/sc_sps_1/Kconfig"
