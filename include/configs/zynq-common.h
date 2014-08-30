@@ -12,7 +12,6 @@
 
 /* High Level configuration Options */
 #define CONFIG_ARMV7
-#define CONFIG_ZYNQ
 
 /* CPU clock */
 #ifndef CONFIG_CPU_FREQ_HZ

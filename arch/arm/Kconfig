@@ -668,17 +668,8 @@ config TARGET_U8500_HREF
 config TARGET_VF610TWR
 	bool "Support vf610twr"
 
-config TARGET_ZYNQ_MICROZED
-	bool "Support zynq_microzed"
-
-config TARGET_ZYNQ_ZC70X
-	bool "Support zynq_zc70x"
-
-config TARGET_ZYNQ_ZC770
-	bool "Support zynq_zc770"
-
-config TARGET_ZYNQ_ZED
-	bool "Support zynq_zed"
+config ZYNQ
+	bool "Xilinx Zynq Platform"
 
 config TARGET_MEDCOM_WIDE
 	bool "Support medcom-wide"
@@ -784,6 +775,7 @@ config TARGET_JORNADA
 
 endchoice
 
+source "arch/arm/cpu/armv7/zynq/Kconfig"
 source "board/8dtech/eco5pk/Kconfig"
 source "board/aristainetos/Kconfig"
 source "board/Barix/ipam390/Kconfig"
@@ -1012,7 +1004,6 @@ source "board/vpac270/Kconfig"
 source "board/wandboard/Kconfig"
 source "board/woodburn/Kconfig"
 source "board/xaeniax/Kconfig"
-source "board/xilinx/zynq/Kconfig"
 source "board/zipitz2/Kconfig"
 
 endmenu
