@@ -190,8 +190,8 @@ config TARGET_SANSA_FUZE_PLUS
 config TARGET_SC_SPS_1
 	bool "Support sc_sps_1"
 
-config TARGET_NHK8815
-	bool "Support nhk8815"
+config ARCH_NOMADIK
+	bool "ST-Ericsson Nomadik"
 
 config ORION5X
 	bool "Marvell Orion"
@@ -518,6 +518,8 @@ source "arch/arm/cpu/armv7/keystone/Kconfig"
 
 source "arch/arm/cpu/arm926ejs/kirkwood/Kconfig"
 
+source "arch/arm/cpu/arm926ejs/nomadik/Kconfig"
+
 source "arch/arm/cpu/armv7/omap3/Kconfig"
 
 source "arch/arm/cpu/armv7/omap4/Kconfig"
@@ -650,7 +652,6 @@ source "board/spear/spear600/Kconfig"
 source "board/spear/x600/Kconfig"
 source "board/st-ericsson/snowball/Kconfig"
 source "board/st-ericsson/u8500/Kconfig"
-source "board/st/nhk8815/Kconfig"
 source "board/sunxi/Kconfig"
 source "board/syteco/jadecpu/Kconfig"
 source "board/syteco/zmx25/Kconfig"

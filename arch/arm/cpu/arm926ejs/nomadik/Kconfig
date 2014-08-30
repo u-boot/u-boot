@@ -1,0 +1,21 @@
+if ARCH_NOMADIK
+
+choice
+	prompt "Nomadik board select"
+
+config NOMADIK_NHK8815
+	bool "ST 8815 Nomadik Hardware Kit"
+
+endchoice
+
+config SYS_CPU
+	string
+	default "arm926ejs"
+
+config SYS_SOC
+	string
+	default "nomadik"
+
+source "board/st/nhk8815/Kconfig"
+
+endif

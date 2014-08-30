@@ -1,8 +1,4 @@
-if TARGET_NHK8815
-
-config SYS_CPU
-	string
-	default "arm926ejs"
+if NOMADIK_NHK8815
 
 config SYS_BOARD
 	string
@@ -11,10 +7,6 @@ config SYS_BOARD
 config SYS_VENDOR
 	string
 	default "st"
-
-config SYS_SOC
-	string
-	default "nomadik"
 
 config SYS_CONFIG_NAME
 	string
