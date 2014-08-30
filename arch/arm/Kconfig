@@ -131,53 +131,10 @@ config TARGET_TAURUS
 config TARGET_STAMP9G20
 	bool "Support stamp9g20"
 
-config TARGET_CAM_ENC_4XX
-	bool "Support cam_enc_4xx"
-
-config TARGET_IPAM390
-	bool "Support ipam390"
-
-config TARGET_DA830EVM
-	bool "Support da830evm"
-
-config TARGET_DA850EVM
-	bool "Support da850evm"
-
-config TARGET_HAWKBOARD
-	bool "Support hawkboard"
-
-config TARGET_DAVINCI_DM355EVM
-	bool "Support davinci_dm355evm"
-
-config TARGET_DAVINCI_DM355LEOPARD
-	bool "Support davinci_dm355leopard"
-
-config TARGET_DAVINCI_DM365EVM
-	bool "Support davinci_dm365evm"
-
-config TARGET_DAVINCI_DM6467EVM
-	bool "Support davinci_dm6467evm"
-
-config TARGET_DAVINCI_DVEVM
-	bool "Support davinci_dvevm"
-
-config TARGET_EA20
-	bool "Support ea20"
-
-config TARGET_DAVINCI_SCHMOOGIE
-	bool "Support davinci_schmoogie"
-
-config TARGET_DAVINCI_SFFSDR
-	bool "Support davinci_sffsdr"
-
-config TARGET_DAVINCI_SONATA
-	bool "Support davinci_sonata"
-
-config TARGET_ENBW_CMC
-	bool "Support enbw_cmc"
-
-config TARGET_CALIMAIN
-	bool "Support calimain"
+config ARCH_DAVINCI
+	bool "TI DaVinci"
+	help
+	  Support for TI's DaVinci platform.
 
 config KIRKWOOD
 	bool "Marvell Kirkwood"
@@ -632,6 +589,8 @@ config TARGET_JORNADA
 
 endchoice
 
+source "arch/arm/cpu/arm926ejs/davinci/Kconfig"
+
 source "arch/arm/cpu/armv7/exynos/Kconfig"
 
 source "arch/arm/cpu/arm926ejs/kirkwood/Kconfig"
@@ -646,7 +605,6 @@ source "arch/arm/cpu/armv7/zynq/Kconfig"
 
 source "board/8dtech/eco5pk/Kconfig"
 source "board/aristainetos/Kconfig"
-source "board/Barix/ipam390/Kconfig"
 source "board/BuR/kwb/Kconfig"
 source "board/BuR/tseries/Kconfig"
 source "board/BuS/eb_cpux9k2/Kconfig"
@@ -657,7 +615,6 @@ source "board/Marvell/aspenite/Kconfig"
 source "board/Marvell/dkb/Kconfig"
 source "board/Marvell/gplugd/Kconfig"
 source "board/afeb9260/Kconfig"
-source "board/ait/cam_enc_4xx/Kconfig"
 source "board/altera/socfpga/Kconfig"
 source "board/armadeus/apf27/Kconfig"
 source "board/armltd/integrator/Kconfig"
@@ -695,22 +652,11 @@ source "board/congatec/cgtqmx6eval/Kconfig"
 source "board/corscience/tricorder/Kconfig"
 source "board/creative/xfi3/Kconfig"
 source "board/davedenx/qong/Kconfig"
-source "board/davinci/da8xxevm/Kconfig"
-source "board/davinci/dm355evm/Kconfig"
-source "board/davinci/dm355leopard/Kconfig"
-source "board/davinci/dm365evm/Kconfig"
-source "board/davinci/dm6467evm/Kconfig"
-source "board/davinci/dvevm/Kconfig"
-source "board/davinci/ea20/Kconfig"
-source "board/davinci/schmoogie/Kconfig"
-source "board/davinci/sffsdr/Kconfig"
-source "board/davinci/sonata/Kconfig"
 source "board/denx/m28evk/Kconfig"
 source "board/denx/m53evk/Kconfig"
 source "board/egnite/ethernut5/Kconfig"
 source "board/embest/mx6boards/Kconfig"
 source "board/emk/top9000/Kconfig"
-source "board/enbw/enbw_cmc/Kconfig"
 source "board/esd/meesc/Kconfig"
 source "board/esd/otc570/Kconfig"
 source "board/esg/ima3-mx53/Kconfig"
@@ -758,7 +704,6 @@ source "board/matrix_vision/mvblx/Kconfig"
 source "board/mpl/vcma9/Kconfig"
 source "board/nokia/rx51/Kconfig"
 source "board/olimex/mx23_olinuxino/Kconfig"
-source "board/omicron/calimain/Kconfig"
 source "board/overo/Kconfig"
 source "board/palmld/Kconfig"
 source "board/palmtc/Kconfig"
