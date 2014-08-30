@@ -1,9 +1,5 @@
 if TARGET_TAO3530
 
-config SYS_CPU
-	string
-	default "armv7"
-
 config SYS_BOARD
 	string
 	default "tao3530"
@@ -11,10 +7,6 @@ config SYS_BOARD
 config SYS_VENDOR
 	string
 	default "technexion"
-
-config SYS_SOC
-	string
-	default "omap3"
 
 config SYS_CONFIG_NAME
 	string

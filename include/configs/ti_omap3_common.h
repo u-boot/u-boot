@@ -14,7 +14,6 @@
 #ifndef __CONFIG_TI_OMAP3_COMMON_H__
 #define __CONFIG_TI_OMAP3_COMMON_H__
 
-#define CONFIG_OMAP34XX
 
 #include <asm/arch/cpu.h>
 #include <asm/arch/omap3.h>

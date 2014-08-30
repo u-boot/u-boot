@@ -18,7 +18,6 @@
  */
 #define CONFIG_ARMV7			/* This is an ARM V7 CPU core */
 #define CONFIG_OMAP			/* in a TI OMAP core */
-#define CONFIG_OMAP34XX			/* which is a 34XX */
 
 #define CONFIG_OMAP_GPIO
 #define CONFIG_OMAP_COMMON

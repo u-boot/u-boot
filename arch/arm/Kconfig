@@ -412,74 +412,8 @@ config TARGET_GW_VENTANA
 config TARGET_HUMMINGBOARD
 	bool "Support hummingboard"
 
-config TARGET_OMAP3_OVERO
-	bool "Support omap3_overo"
-
-config TARGET_OMAP3_PANDORA
-	bool "Support omap3_pandora"
-
-config TARGET_ECO5PK
-	bool "Support eco5pk"
-
-config TARGET_DIG297
-	bool "Support dig297"
-
-config TARGET_CM_T35
-	bool "Support cm_t35"
-
-config TARGET_TRICORDER
-	bool "Support tricorder"
-
-config TARGET_MCX
-	bool "Support mcx"
-
-config TARGET_OMAP3_IGEP00X0
-	bool "Support omap3_igep00x0"
-
-config TARGET_AM3517_EVM
-	bool "Support am3517_evm"
-
-config TARGET_OMAP3_LOGIC
-	bool "Support omap3_logic"
-
-config TARGET_OMAP3_ZOOM1
-	bool "Support omap3_zoom1"
-
-config TARGET_OMAP3_MVBLX
-	bool "Support omap3_mvblx"
-
-config TARGET_NOKIA_RX51
-	bool "Support nokia_rx51"
-
-config TARGET_TAO3530
-	bool "Support tao3530"
-
-config TARGET_TWISTER
-	bool "Support twister"
-
-config TARGET_MT_VENTOUX
-	bool "Support mt_ventoux"
-
-config TARGET_AM3517_CRANE
-	bool "Support am3517_crane"
-
-config TARGET_OMAP3_BEAGLE
-	bool "Support omap3_beagle"
-
-config TARGET_OMAP3_EVM
-	bool "Support omap3_evm"
-
-config TARGET_OMAP3_EVM_QUICK_MMC
-	bool "Support omap3_evm_quick_mmc"
-
-config TARGET_OMAP3_EVM_QUICK_NAND
-	bool "Support omap3_evm_quick_nand"
-
-config TARGET_OMAP3_SDP3430
-	bool "Support omap3_sdp3430"
-
-config TARGET_DEVKIT8000
-	bool "Support devkit8000"
+config OMAP34XX
+	bool "OMAP34XX SoC"
 
 config TARGET_DUOVERO
 	bool "Support duovero"
@@ -595,6 +529,8 @@ source "arch/arm/cpu/armv7/exynos/Kconfig"
 
 source "arch/arm/cpu/arm926ejs/kirkwood/Kconfig"
 
+source "arch/arm/cpu/armv7/omap3/Kconfig"
+
 source "arch/arm/cpu/armv7/rmobile/Kconfig"
 
 source "arch/arm/cpu/armv7/tegra-common/Kconfig"
@@ -603,7 +539,6 @@ source "arch/arm/cpu/arm926ejs/versatile/Kconfig"
 
 source "arch/arm/cpu/armv7/zynq/Kconfig"
 
-source "board/8dtech/eco5pk/Kconfig"
 source "board/aristainetos/Kconfig"
 source "board/BuR/kwb/Kconfig"
 source "board/BuR/tseries/Kconfig"
@@ -644,12 +579,9 @@ source "board/calao/usb_a9263/Kconfig"
 source "board/cirrus/edb93xx/Kconfig"
 source "board/cm4008/Kconfig"
 source "board/cm41xx/Kconfig"
-source "board/comelit/dig297/Kconfig"
 source "board/compulab/cm_t335/Kconfig"
-source "board/compulab/cm_t35/Kconfig"
 source "board/compulab/cm_t54/Kconfig"
 source "board/congatec/cgtqmx6eval/Kconfig"
-source "board/corscience/tricorder/Kconfig"
 source "board/creative/xfi3/Kconfig"
 source "board/davedenx/qong/Kconfig"
 source "board/denx/m28evk/Kconfig"
@@ -688,27 +620,18 @@ source "board/gumstix/pepper/Kconfig"
 source "board/h2200/Kconfig"
 source "board/hale/tt01/Kconfig"
 source "board/highbank/Kconfig"
-source "board/htkw/mcx/Kconfig"
 source "board/icpdas/lp8x4x/Kconfig"
 source "board/imx31_phycore/Kconfig"
 source "board/isee/igep0033/Kconfig"
-source "board/isee/igep00x0/Kconfig"
 source "board/jornada/Kconfig"
 source "board/karo/tx25/Kconfig"
-source "board/logicpd/am3517evm/Kconfig"
 source "board/logicpd/imx27lite/Kconfig"
 source "board/logicpd/imx31_litekit/Kconfig"
-source "board/logicpd/omap3som/Kconfig"
-source "board/logicpd/zoom1/Kconfig"
-source "board/matrix_vision/mvblx/Kconfig"
 source "board/mpl/vcma9/Kconfig"
-source "board/nokia/rx51/Kconfig"
 source "board/olimex/mx23_olinuxino/Kconfig"
-source "board/overo/Kconfig"
 source "board/palmld/Kconfig"
 source "board/palmtc/Kconfig"
 source "board/palmtreo680/Kconfig"
-source "board/pandora/Kconfig"
 source "board/phytec/pcm051/Kconfig"
 source "board/ppcag/bg0900/Kconfig"
 source "board/pxa255_idp/Kconfig"
@@ -741,25 +664,17 @@ source "board/sunxi/Kconfig"
 source "board/syteco/jadecpu/Kconfig"
 source "board/syteco/zmx25/Kconfig"
 source "board/taskit/stamp9g20/Kconfig"
-source "board/technexion/tao3530/Kconfig"
-source "board/technexion/twister/Kconfig"
-source "board/teejet/mt_ventoux/Kconfig"
 source "board/ti/am335x/Kconfig"
-source "board/ti/am3517crane/Kconfig"
 source "board/ti/am43xx/Kconfig"
-source "board/ti/beagle/Kconfig"
 source "board/ti/dra7xx/Kconfig"
-source "board/ti/evm/Kconfig"
 source "board/ti/ks2_evm/Kconfig"
 source "board/ti/omap5_uevm/Kconfig"
 source "board/ti/panda/Kconfig"
-source "board/ti/sdp3430/Kconfig"
 source "board/ti/sdp4430/Kconfig"
 source "board/ti/ti814x/Kconfig"
 source "board/ti/ti816x/Kconfig"
 source "board/ti/tnetv107xevm/Kconfig"
 source "board/timll/devkit3250/Kconfig"
-source "board/timll/devkit8000/Kconfig"
 source "board/toradex/colibri_pxa270/Kconfig"
 source "board/trizepsiv/Kconfig"
 source "board/ttcontrol/vision2/Kconfig"

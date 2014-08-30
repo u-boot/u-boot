@@ -21,7 +21,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
-#define CONFIG_OMAP34XX		1	/* which is a 34XX */
 #define CONFIG_OMAP3_3430SDP	1	/* working with SDP Rev2 */
 #define CONFIG_OMAP_COMMON
 

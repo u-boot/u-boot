@@ -13,7 +13,6 @@
  * High Level Configuration Options
  */
 #define CONFIG_OMAP			/* in a TI OMAP core */
-#define CONFIG_OMAP34XX			/* which is a 34XX */
 #define CONFIG_OMAP3_MCX		/* working with mcx */
 #define CONFIG_OMAP_GPIO
 #define CONFIG_OMAP_COMMON
