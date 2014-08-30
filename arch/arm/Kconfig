@@ -415,14 +415,8 @@ config TARGET_HUMMINGBOARD
 config OMAP34XX
 	bool "OMAP34XX SoC"
 
-config TARGET_DUOVERO
-	bool "Support duovero"
-
-config TARGET_OMAP4_PANDA
-	bool "Support omap4_panda"
-
-config TARGET_OMAP4_SDP4430
-	bool "Support omap4_sdp4430"
+config OMAP44XX
+	bool "OMAP44XX SoC"
 
 config TARGET_CM_T54
 	bool "Support cm_t54"
@@ -531,6 +525,8 @@ source "arch/arm/cpu/arm926ejs/kirkwood/Kconfig"
 
 source "arch/arm/cpu/armv7/omap3/Kconfig"
 
+source "arch/arm/cpu/armv7/omap4/Kconfig"
+
 source "arch/arm/cpu/armv7/rmobile/Kconfig"
 
 source "arch/arm/cpu/armv7/tegra-common/Kconfig"
@@ -615,7 +611,6 @@ source "board/freescale/mx6sxsabresd/Kconfig"
 source "board/freescale/vf610twr/Kconfig"
 source "board/gateworks/gw_ventana/Kconfig"
 source "board/genesi/mx51_efikamx/Kconfig"
-source "board/gumstix/duovero/Kconfig"
 source "board/gumstix/pepper/Kconfig"
 source "board/h2200/Kconfig"
 source "board/hale/tt01/Kconfig"
@@ -669,8 +664,6 @@ source "board/ti/am43xx/Kconfig"
 source "board/ti/dra7xx/Kconfig"
 source "board/ti/ks2_evm/Kconfig"
 source "board/ti/omap5_uevm/Kconfig"
-source "board/ti/panda/Kconfig"
-source "board/ti/sdp4430/Kconfig"
 source "board/ti/ti814x/Kconfig"
 source "board/ti/ti816x/Kconfig"
 source "board/ti/tnetv107xevm/Kconfig"
