@@ -1,9 +1,5 @@
 if TARGET_CM_T54
 
-config SYS_CPU
-	string
-	default "armv7"
-
 config SYS_BOARD
 	string
 	default "cm_t54"
@@ -11,10 +7,6 @@ config SYS_BOARD
 config SYS_VENDOR
 	string
 	default "compulab"
-
-config SYS_SOC
-	string
-	default "omap5"
 
 config SYS_CONFIG_NAME
 	string

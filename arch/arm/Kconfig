@@ -418,14 +418,8 @@ config OMAP34XX
 config OMAP44XX
 	bool "OMAP44XX SoC"
 
-config TARGET_CM_T54
-	bool "Support cm_t54"
-
-config TARGET_DRA7XX_EVM
-	bool "Support dra7xx_evm"
-
-config TARGET_OMAP5_UEVM
-	bool "Support omap5_uevm"
+config OMAP54XX
+	bool "OMAP54XX SoC"
 
 config RMOBILE
 	bool "Renesas ARM SoCs"
@@ -527,6 +521,8 @@ source "arch/arm/cpu/armv7/omap3/Kconfig"
 
 source "arch/arm/cpu/armv7/omap4/Kconfig"
 
+source "arch/arm/cpu/armv7/omap5/Kconfig"
+
 source "arch/arm/cpu/armv7/rmobile/Kconfig"
 
 source "arch/arm/cpu/armv7/tegra-common/Kconfig"
@@ -576,7 +572,6 @@ source "board/cirrus/edb93xx/Kconfig"
 source "board/cm4008/Kconfig"
 source "board/cm41xx/Kconfig"
 source "board/compulab/cm_t335/Kconfig"
-source "board/compulab/cm_t54/Kconfig"
 source "board/congatec/cgtqmx6eval/Kconfig"
 source "board/creative/xfi3/Kconfig"
 source "board/davedenx/qong/Kconfig"
@@ -661,9 +656,7 @@ source "board/syteco/zmx25/Kconfig"
 source "board/taskit/stamp9g20/Kconfig"
 source "board/ti/am335x/Kconfig"
 source "board/ti/am43xx/Kconfig"
-source "board/ti/dra7xx/Kconfig"
 source "board/ti/ks2_evm/Kconfig"
-source "board/ti/omap5_uevm/Kconfig"
 source "board/ti/ti814x/Kconfig"
 source "board/ti/ti816x/Kconfig"
 source "board/ti/tnetv107xevm/Kconfig"
