@@ -337,11 +337,8 @@ config ARCH_EXYNOS
 config TARGET_HIGHBANK
 	bool "Support highbank"
 
-config TARGET_K2E_EVM
-	bool "Support k2e_evm"
-
-config TARGET_K2HK_EVM
-	bool "Support k2hk_evm"
+config ARCH_KEYSTONE
+	bool "TI Keystone"
 
 config TARGET_M53EVK
 	bool "Support m53evk"
@@ -515,6 +512,8 @@ source "arch/arm/cpu/arm926ejs/davinci/Kconfig"
 
 source "arch/arm/cpu/armv7/exynos/Kconfig"
 
+source "arch/arm/cpu/armv7/keystone/Kconfig"
+
 source "arch/arm/cpu/arm926ejs/kirkwood/Kconfig"
 
 source "arch/arm/cpu/armv7/omap3/Kconfig"
@@ -656,7 +655,6 @@ source "board/syteco/zmx25/Kconfig"
 source "board/taskit/stamp9g20/Kconfig"
 source "board/ti/am335x/Kconfig"
 source "board/ti/am43xx/Kconfig"
-source "board/ti/ks2_evm/Kconfig"
 source "board/ti/ti814x/Kconfig"
 source "board/ti/ti816x/Kconfig"
 source "board/ti/tnetv107xevm/Kconfig"
