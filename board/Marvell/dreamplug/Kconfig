@@ -1,9 +1,5 @@
 if TARGET_DREAMPLUG
 
-config SYS_CPU
-	string
-	default "arm926ejs"
-
 config SYS_BOARD
 	string
 	default "dreamplug"
@@ -11,10 +7,6 @@ config SYS_BOARD
 config SYS_VENDOR
 	string
 	default "Marvell"
-
-config SYS_SOC
-	string
-	default "kirkwood"
 
 config SYS_CONFIG_NAME
 	string

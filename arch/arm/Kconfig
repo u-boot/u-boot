@@ -179,59 +179,8 @@ config TARGET_ENBW_CMC
 config TARGET_CALIMAIN
 	bool "Support calimain"
 
-config TARGET_LSXL
-	bool "Support lsxl"
-
-config TARGET_POGO_E02
-	bool "Support pogo_e02"
-
-config TARGET_DNS325
-	bool "Support dns325"
-
-config TARGET_ICONNECT
-	bool "Support iconnect"
-
-config TARGET_TK71
-	bool "Support tk71"
-
-config TARGET_KM_KIRKWOOD
-	bool "Support km_kirkwood"
-
-config TARGET_NET2BIG_V2
-	bool "Support net2big_v2"
-
-config TARGET_NETSPACE_V2
-	bool "Support netspace_v2"
-
-config TARGET_WIRELESS_SPACE
-	bool "Support wireless_space"
-
-config TARGET_DREAMPLUG
-	bool "Support dreamplug"
-
-config TARGET_GURUPLUG
-	bool "Support guruplug"
-
-config TARGET_MV88F6281GTW_GE
-	bool "Support mv88f6281gtw_ge"
-
-config TARGET_OPENRD
-	bool "Support openrd"
-
-config TARGET_RD6281A
-	bool "Support rd6281a"
-
-config TARGET_SHEEVAPLUG
-	bool "Support sheevaplug"
-
-config TARGET_IB62X0
-	bool "Support ib62x0"
-
-config TARGET_DOCKSTAR
-	bool "Support dockstar"
-
-config TARGET_GOFLEXHOME
-	bool "Support goflexhome"
+config KIRKWOOD
+	bool "Marvell Kirkwood"
 
 config TARGET_DEVKIT3250
 	bool "Support devkit3250"
@@ -710,6 +659,8 @@ config TARGET_JORNADA
 
 endchoice
 
+source "arch/arm/cpu/arm926ejs/kirkwood/Kconfig"
+
 source "arch/arm/cpu/armv7/rmobile/Kconfig"
 
 source "arch/arm/cpu/armv7/tegra-common/Kconfig"
@@ -727,20 +678,9 @@ source "board/BuS/eb_cpux9k2/Kconfig"
 source "board/BuS/vl_ma2sc/Kconfig"
 source "board/CarMediaLab/flea3/Kconfig"
 source "board/LaCie/edminiv2/Kconfig"
-source "board/LaCie/net2big_v2/Kconfig"
-source "board/LaCie/netspace_v2/Kconfig"
-source "board/LaCie/wireless_space/Kconfig"
 source "board/Marvell/aspenite/Kconfig"
 source "board/Marvell/dkb/Kconfig"
-source "board/Marvell/dreamplug/Kconfig"
 source "board/Marvell/gplugd/Kconfig"
-source "board/Marvell/guruplug/Kconfig"
-source "board/Marvell/mv88f6281gtw_ge/Kconfig"
-source "board/Marvell/openrd/Kconfig"
-source "board/Marvell/rd6281a/Kconfig"
-source "board/Marvell/sheevaplug/Kconfig"
-source "board/Seagate/dockstar/Kconfig"
-source "board/Seagate/goflexhome/Kconfig"
 source "board/afeb9260/Kconfig"
 source "board/ait/cam_enc_4xx/Kconfig"
 source "board/altera/socfpga/Kconfig"
@@ -766,12 +706,10 @@ source "board/boundary/nitrogen6x/Kconfig"
 source "board/broadcom/bcm28155_ap/Kconfig"
 source "board/broadcom/bcm958300k/Kconfig"
 source "board/broadcom/bcm958622hr/Kconfig"
-source "board/buffalo/lsxl/Kconfig"
 source "board/calao/sbc35_a9g20/Kconfig"
 source "board/calao/tny_a9260/Kconfig"
 source "board/calao/usb_a9263/Kconfig"
 source "board/cirrus/edb93xx/Kconfig"
-source "board/cloudengines/pogo_e02/Kconfig"
 source "board/cm4008/Kconfig"
 source "board/cm41xx/Kconfig"
 source "board/comelit/dig297/Kconfig"
@@ -781,7 +719,6 @@ source "board/compulab/cm_t54/Kconfig"
 source "board/congatec/cgtqmx6eval/Kconfig"
 source "board/corscience/tricorder/Kconfig"
 source "board/creative/xfi3/Kconfig"
-source "board/d-link/dns325/Kconfig"
 source "board/davedenx/qong/Kconfig"
 source "board/davinci/da8xxevm/Kconfig"
 source "board/davinci/dm355evm/Kconfig"
@@ -833,13 +770,10 @@ source "board/highbank/Kconfig"
 source "board/htkw/mcx/Kconfig"
 source "board/icpdas/lp8x4x/Kconfig"
 source "board/imx31_phycore/Kconfig"
-source "board/iomega/iconnect/Kconfig"
 source "board/isee/igep0033/Kconfig"
 source "board/isee/igep00x0/Kconfig"
 source "board/jornada/Kconfig"
-source "board/karo/tk71/Kconfig"
 source "board/karo/tx25/Kconfig"
-source "board/keymile/km_arm/Kconfig"
 source "board/logicpd/am3517evm/Kconfig"
 source "board/logicpd/imx27lite/Kconfig"
 source "board/logicpd/imx31_litekit/Kconfig"
@@ -858,7 +792,6 @@ source "board/pandora/Kconfig"
 source "board/phytec/pcm051/Kconfig"
 source "board/ppcag/bg0900/Kconfig"
 source "board/pxa255_idp/Kconfig"
-source "board/raidsonic/ib62x0/Kconfig"
 source "board/raspberrypi/rpi_b/Kconfig"
 source "board/ronetix/pm9261/Kconfig"
 source "board/ronetix/pm9263/Kconfig"

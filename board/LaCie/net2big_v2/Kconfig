@@ -1,9 +1,5 @@
 if TARGET_NET2BIG_V2
 
-config SYS_CPU
-	string
-	default "arm926ejs"
-
 config SYS_BOARD
 	string
 	default "net2big_v2"
@@ -11,10 +7,6 @@ config SYS_BOARD
 config SYS_VENDOR
 	string
 	default "LaCie"
-
-config SYS_SOC
-	string
-	default "kirkwood"
 
 config SYS_CONFIG_NAME
 	string

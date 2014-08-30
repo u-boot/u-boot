@@ -1,9 +1,5 @@
 if TARGET_KM_KIRKWOOD
 
-config SYS_CPU
-	string
-	default "arm926ejs"
-
 config SYS_BOARD
 	string
 	default "km_arm"
@@ -11,10 +7,6 @@ config SYS_BOARD
 config SYS_VENDOR
 	string
 	default "keymile"
-
-config SYS_SOC
-	string
-	default "kirkwood"
 
 config SYS_CONFIG_NAME
 	string
