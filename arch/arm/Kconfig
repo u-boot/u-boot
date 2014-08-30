@@ -308,14 +308,8 @@ config TARGET_SPEAR600
 config TARGET_X600
 	bool "Support x600"
 
-config TARGET_VERSATILEAB
-	bool "Support versatileab"
-
-config TARGET_VERSATILEPB
-	bool "Support versatilepb"
-
-config TARGET_VERSATILEQEMU
-	bool "Support versatileqemu"
+config ARCH_VERSATILE
+	bool "ARM Ltd. Versatile family"
 
 config TARGET_INTEGRATORCP_CM1136
 	bool "Support integratorcp_cm1136"
@@ -720,6 +714,8 @@ source "arch/arm/cpu/armv7/rmobile/Kconfig"
 
 source "arch/arm/cpu/armv7/tegra-common/Kconfig"
 
+source "arch/arm/cpu/arm926ejs/versatile/Kconfig"
+
 source "arch/arm/cpu/armv7/zynq/Kconfig"
 
 source "board/8dtech/eco5pk/Kconfig"
@@ -750,7 +746,6 @@ source "board/ait/cam_enc_4xx/Kconfig"
 source "board/altera/socfpga/Kconfig"
 source "board/armadeus/apf27/Kconfig"
 source "board/armltd/integrator/Kconfig"
-source "board/armltd/versatile/Kconfig"
 source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
 source "board/atmel/at91rm9200ek/Kconfig"

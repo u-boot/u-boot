@@ -1,0 +1,23 @@
+if ARCH_VERSATILE
+
+config SYS_CPU
+	string
+	default "arm926ejs"
+
+config SYS_BOARD
+	string
+	default "versatile"
+
+config SYS_VENDOR
+	string
+	default "armltd"
+
+config SYS_SOC
+	string
+	default "versatile"
+
+config SYS_CONFIG_NAME
+	string
+	default "versatile"
+
+endif
