@@ -671,56 +671,9 @@ config TARGET_VF610TWR
 config ZYNQ
 	bool "Xilinx Zynq Platform"
 
-config TARGET_MEDCOM_WIDE
-	bool "Support medcom-wide"
-
-config TARGET_PLUTUX
-	bool "Support plutux"
-
-config TARGET_TEC
-	bool "Support tec"
-
-config TARGET_PAZ00
-	bool "Support paz00"
-
-config TARGET_TRIMSLICE
-	bool "Support trimslice"
-
-config TARGET_HARMONY
-	bool "Support harmony"
-
-config TARGET_SEABOARD
-	bool "Support seaboard"
-
-config TARGET_VENTANA
-	bool "Support ventana"
-
-config TARGET_WHISTLER
-	bool "Support whistler"
-
-config TARGET_COLIBRI_T20_IRIS
-	bool "Support colibri_t20_iris"
-
-config TARGET_COLIBRI_T30
-	bool "Support Colibri T30"
-
-config TARGET_TEC_NG
-	bool "Support tec-ng"
-
-config TARGET_BEAVER
-	bool "Support beaver"
-
-config TARGET_CARDHU
-	bool "Support cardhu"
-
-config TARGET_DALMORE
-	bool "Support dalmore"
-
-config TARGET_JETSON_TK1
-	bool "Support jetson-tk1"
-
-config TARGET_VENICE2
-	bool "Support venice2"
+config TEGRA
+	bool "NVIDIA Tegra"
+	select SPL
 
 config TARGET_VEXPRESS_AEMV8A
 	bool "Support vexpress_aemv8a"
@@ -775,7 +728,10 @@ config TARGET_JORNADA
 
 endchoice
 
+source "arch/arm/cpu/armv7/tegra-common/Kconfig"
+
 source "arch/arm/cpu/armv7/zynq/Kconfig"
+
 source "board/8dtech/eco5pk/Kconfig"
 source "board/aristainetos/Kconfig"
 source "board/Barix/ipam390/Kconfig"
@@ -818,10 +774,6 @@ source "board/atmel/at91sam9rlek/Kconfig"
 source "board/atmel/at91sam9x5ek/Kconfig"
 source "board/atmel/sama5d3_xplained/Kconfig"
 source "board/atmel/sama5d3xek/Kconfig"
-source "board/avionic-design/medcom-wide/Kconfig"
-source "board/avionic-design/plutux/Kconfig"
-source "board/avionic-design/tec-ng/Kconfig"
-source "board/avionic-design/tec/Kconfig"
 source "board/balloon3/Kconfig"
 source "board/barco/titanium/Kconfig"
 source "board/bluegiga/apx4devkit/Kconfig"
@@ -839,11 +791,9 @@ source "board/cloudengines/pogo_e02/Kconfig"
 source "board/cm4008/Kconfig"
 source "board/cm41xx/Kconfig"
 source "board/comelit/dig297/Kconfig"
-source "board/compal/paz00/Kconfig"
 source "board/compulab/cm_t335/Kconfig"
 source "board/compulab/cm_t35/Kconfig"
 source "board/compulab/cm_t54/Kconfig"
-source "board/compulab/trimslice/Kconfig"
 source "board/congatec/cgtqmx6eval/Kconfig"
 source "board/corscience/tricorder/Kconfig"
 source "board/creative/xfi3/Kconfig"
@@ -915,15 +865,6 @@ source "board/logicpd/zoom1/Kconfig"
 source "board/matrix_vision/mvblx/Kconfig"
 source "board/mpl/vcma9/Kconfig"
 source "board/nokia/rx51/Kconfig"
-source "board/nvidia/beaver/Kconfig"
-source "board/nvidia/cardhu/Kconfig"
-source "board/nvidia/dalmore/Kconfig"
-source "board/nvidia/harmony/Kconfig"
-source "board/nvidia/jetson-tk1/Kconfig"
-source "board/nvidia/seaboard/Kconfig"
-source "board/nvidia/venice2/Kconfig"
-source "board/nvidia/ventana/Kconfig"
-source "board/nvidia/whistler/Kconfig"
 source "board/olimex/mx23_olinuxino/Kconfig"
 source "board/omicron/calimain/Kconfig"
 source "board/overo/Kconfig"
@@ -995,8 +936,6 @@ source "board/ti/tnetv107xevm/Kconfig"
 source "board/timll/devkit3250/Kconfig"
 source "board/timll/devkit8000/Kconfig"
 source "board/toradex/colibri_pxa270/Kconfig"
-source "board/toradex/colibri_t20_iris/Kconfig"
-source "board/toradex/colibri_t30/Kconfig"
 source "board/trizepsiv/Kconfig"
 source "board/ttcontrol/vision2/Kconfig"
 source "board/udoo/Kconfig"
