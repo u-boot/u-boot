@@ -334,8 +334,8 @@ config TARGET_BCM958622HR
 config ARCH_EXYNOS
 	bool "Samsung EXYNOS"
 
-config TARGET_HIGHBANK
-	bool "Support highbank"
+config ARCH_HIGHBANK
+	bool "Calxeda Highbank"
 
 config ARCH_KEYSTONE
 	bool "TI Keystone"
@@ -512,6 +512,8 @@ source "arch/arm/cpu/arm926ejs/davinci/Kconfig"
 
 source "arch/arm/cpu/armv7/exynos/Kconfig"
 
+source "arch/arm/cpu/armv7/highbank/Kconfig"
+
 source "arch/arm/cpu/armv7/keystone/Kconfig"
 
 source "arch/arm/cpu/arm926ejs/kirkwood/Kconfig"
@@ -609,7 +611,6 @@ source "board/genesi/mx51_efikamx/Kconfig"
 source "board/gumstix/pepper/Kconfig"
 source "board/h2200/Kconfig"
 source "board/hale/tt01/Kconfig"
-source "board/highbank/Kconfig"
 source "board/icpdas/lp8x4x/Kconfig"
 source "board/imx31_phycore/Kconfig"
 source "board/isee/igep0033/Kconfig"

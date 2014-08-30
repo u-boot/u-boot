@@ -1,4 +1,4 @@
-if TARGET_HIGHBANK
+if ARCH_HIGHBANK
 
 config SYS_CPU
 	string
