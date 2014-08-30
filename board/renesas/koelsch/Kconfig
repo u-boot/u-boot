@@ -1,9 +1,5 @@
 if TARGET_KOELSCH
 
-config SYS_CPU
-	string
-	default "armv7"
-
 config SYS_BOARD
 	string
 	default "koelsch"
@@ -11,10 +7,6 @@ config SYS_BOARD
 config SYS_VENDOR
 	string
 	default "renesas"
-
-config SYS_SOC
-	string
-	default "rmobile"
 
 config SYS_CONFIG_NAME
 	string

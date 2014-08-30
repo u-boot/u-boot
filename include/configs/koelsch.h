@@ -12,7 +12,6 @@
 #undef DEBUG
 #define CONFIG_ARMV7
 #define CONFIG_R8A7791
-#define CONFIG_RMOBILE
 #define CONFIG_RMOBILE_BOARD_STRING "Koelsch"
 #define CONFIG_SH_GPIO_PFC
 

@@ -626,20 +626,8 @@ config TARGET_DRA7XX_EVM
 config TARGET_OMAP5_UEVM
 	bool "Support omap5_uevm"
 
-config TARGET_ARMADILLO_800EVA
-	bool "Support armadillo-800eva"
-
-config TARGET_KZM9G
-	bool "Support kzm9g"
-
-config TARGET_ALT
-	bool "Support alt"
-
-config TARGET_KOELSCH
-	bool "Support koelsch"
-
-config TARGET_LAGER
-	bool "Support lager"
+config RMOBILE
+	bool "Renesas ARM SoCs"
 
 config TARGET_S5P_GONI
 	bool "Support s5p_goni"
@@ -728,6 +716,8 @@ config TARGET_JORNADA
 
 endchoice
 
+source "arch/arm/cpu/armv7/rmobile/Kconfig"
+
 source "arch/arm/cpu/armv7/tegra-common/Kconfig"
 
 source "arch/arm/cpu/armv7/zynq/Kconfig"
@@ -763,7 +753,6 @@ source "board/armltd/integrator/Kconfig"
 source "board/armltd/versatile/Kconfig"
 source "board/armltd/vexpress/Kconfig"
 source "board/armltd/vexpress64/Kconfig"
-source "board/atmark-techno/armadillo-800eva/Kconfig"
 source "board/atmel/at91rm9200ek/Kconfig"
 source "board/atmel/at91sam9260ek/Kconfig"
 source "board/atmel/at91sam9261ek/Kconfig"
@@ -856,7 +845,6 @@ source "board/jornada/Kconfig"
 source "board/karo/tk71/Kconfig"
 source "board/karo/tx25/Kconfig"
 source "board/keymile/km_arm/Kconfig"
-source "board/kmc/kzm9g/Kconfig"
 source "board/logicpd/am3517evm/Kconfig"
 source "board/logicpd/imx27lite/Kconfig"
 source "board/logicpd/imx31_litekit/Kconfig"
@@ -877,9 +865,6 @@ source "board/ppcag/bg0900/Kconfig"
 source "board/pxa255_idp/Kconfig"
 source "board/raidsonic/ib62x0/Kconfig"
 source "board/raspberrypi/rpi_b/Kconfig"
-source "board/renesas/alt/Kconfig"
-source "board/renesas/koelsch/Kconfig"
-source "board/renesas/lager/Kconfig"
 source "board/ronetix/pm9261/Kconfig"
 source "board/ronetix/pm9263/Kconfig"
 source "board/ronetix/pm9g45/Kconfig"

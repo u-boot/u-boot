@@ -13,7 +13,6 @@
 #undef DEBUG
 #define CONFIG_ARMV7
 #define CONFIG_R8A7790
-#define CONFIG_RMOBILE
 #define CONFIG_RMOBILE_BOARD_STRING "Lager"
 #define CONFIG_SH_GPIO_PFC
 
