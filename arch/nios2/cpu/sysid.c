@@ -11,12 +11,16 @@
 
 #include <command.h>
 #include <asm/io.h>
-#include <nios2-io.h>
 #include <linux/time.h>
+
+typedef volatile struct {
+	unsigned	id;			/* The system build id */
+	unsigned	timestamp;		/* Timestamp */
+} nios_sysid_t;
 
 void display_sysid (void)
 {
-	struct nios_sysid_t *sysid = (struct nios_sysid_t *)CONFIG_SYS_NIOS_SYSID_BASE;
+	nios_sysid_t *sysid = (nios_sysid_t *)CONFIG_SYS_NIOS_SYSID_BASE;
 	struct tm t;
 	char asc[32];
 	time_t stamp;
