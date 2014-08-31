@@ -272,7 +272,7 @@ board. This allows feature development which is not board- or architecture-
 specific to be undertaken on a native platform. The sandbox is also used to
 run some of U-Boot's tests.
 
-See board/sandbox/sandbox/README.sandbox for more details.
+See board/sandbox/README.sandbox for more details.
 
 
 Configuration Options:
