@@ -409,6 +409,9 @@ config TARGET_GW_VENTANA
 config TARGET_HUMMINGBOARD
 	bool "Support hummingboard"
 
+config TARGET_TQMA6
+	bool "TQ Systems TQMa6 board"
+
 config OMAP34XX
 	bool "OMAP34XX SoC"
 
@@ -663,6 +666,7 @@ source "board/ti/ti816x/Kconfig"
 source "board/ti/tnetv107xevm/Kconfig"
 source "board/timll/devkit3250/Kconfig"
 source "board/toradex/colibri_pxa270/Kconfig"
+source "board/tqc/tqma6/Kconfig"
 source "board/trizepsiv/Kconfig"
 source "board/ttcontrol/vision2/Kconfig"
 source "board/udoo/Kconfig"
