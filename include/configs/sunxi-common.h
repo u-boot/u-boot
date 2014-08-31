@@ -244,7 +244,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	MEM_LAYOUT_ENV_SETTINGS \
-	"fdtfile=" CONFIG_FTDFILE "\0" \
+	"fdtfile=" CONFIG_FDTFILE "\0" \
 	"console=ttyS0,115200\0" \
 	BOOTENV
 
