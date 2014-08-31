@@ -11,7 +11,6 @@
 
 /* This file implements reading and writing the master node */
 
-#define __UBOOT__
 #include "ubifs.h"
 #ifdef __UBOOT__
 #include <linux/compat.h>

@@ -9,7 +9,6 @@
   linux/lib/rbtree.c
 */
 
-#define __UBOOT__
 #include <linux/rbtree_augmented.h>
 #ifndef __UBOOT__
 #include <linux/export.h>

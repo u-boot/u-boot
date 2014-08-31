@@ -20,7 +20,6 @@
  * Version 2.  See the file COPYING for more details.
  */
 
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/crc32.h>
 #include <linux/kernel.h>

@@ -9,7 +9,6 @@
 #ifndef __MTD_FLASHCHIP_H__
 #define __MTD_FLASHCHIP_H__
 
-#define __UBOOT__
 #ifndef __UBOOT__
 /* For spinlocks. sched.h includes spinlock.h from whichever directory it
  * happens to be in - so we don't have to care whether we're on 2.2, which

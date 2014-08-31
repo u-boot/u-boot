@@ -16,7 +16,6 @@
 #ifndef __UBIFS_MISC_H__
 #define __UBIFS_MISC_H__
 
-#define __UBOOT__
 /**
  * ubifs_zn_dirty - check if znode is dirty.
  * @znode: znode to check

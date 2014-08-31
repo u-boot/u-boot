@@ -8,7 +8,6 @@
 #ifndef __MTD_ABI_H__
 #define __MTD_ABI_H__
 
-#define __UBOOT__
 #ifdef __UBOOT__
 #include <linux/compat.h>
 #endif

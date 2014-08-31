@@ -16,7 +16,6 @@
 #ifndef __LINUX_MTD_NAND_H
 #define __LINUX_MTD_NAND_H
 
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/wait.h>
 #include <linux/spinlock.h>

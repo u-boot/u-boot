@@ -13,7 +13,6 @@ void ubi_dump_flash(struct ubi_device *ubi, int pnum, int offset, int len);
 void ubi_dump_ec_hdr(const struct ubi_ec_hdr *ec_hdr);
 void ubi_dump_vid_hdr(const struct ubi_vid_hdr *vid_hdr);
 
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/random.h>
 #endif

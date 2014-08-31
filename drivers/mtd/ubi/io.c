@@ -73,7 +73,6 @@
  * back and writes the whole sub-page.
  */
 
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/crc32.h>
 #include <linux/err.h>

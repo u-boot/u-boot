@@ -70,7 +70,6 @@
  *   o Otherwise this is corruption type 2.
  */
 
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/err.h>
 #include <linux/slab.h>

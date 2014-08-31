@@ -15,7 +15,6 @@
 #ifndef __UBIFS_H__
 #define __UBIFS_H__
 
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <asm/div64.h>
 #include <linux/statfs.h>

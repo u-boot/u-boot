@@ -59,7 +59,6 @@
  * they are read from the flash media.
  */
 
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/crc32.h>
 #include <linux/slab.h>

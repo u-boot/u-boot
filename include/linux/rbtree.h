@@ -17,7 +17,6 @@
 #ifndef	_LINUX_RBTREE_H
 #define	_LINUX_RBTREE_H
 
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/kernel.h>
 #endif

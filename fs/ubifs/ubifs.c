@@ -26,7 +26,6 @@
 #include "ubifs.h"
 #include <u-boot/zlib.h>
 
-#define __UBOOT__
 #include <linux/err.h>
 #include <linux/lzo.h>
 

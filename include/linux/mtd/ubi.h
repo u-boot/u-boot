@@ -10,7 +10,6 @@
 #define __LINUX_UBI_H__
 
 #include <linux/types.h>
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/ioctl.h>
 #include <mtd/ubi-user.h>

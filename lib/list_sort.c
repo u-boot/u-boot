@@ -1,4 +1,3 @@
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/kernel.h>
 #include <linux/module.h>

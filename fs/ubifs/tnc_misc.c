@@ -16,7 +16,6 @@
  * putting it all in one file would make that file too big and unreadable.
  */
 
-#define __UBOOT__
 #ifdef __UBOOT__
 #include <linux/err.h>
 #endif

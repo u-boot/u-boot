@@ -59,7 +59,6 @@
  *
  */
 
-#define __UBOOT__
 #ifndef __UBOOT__
 #include <linux/slab.h>
 #include <linux/types.h>
