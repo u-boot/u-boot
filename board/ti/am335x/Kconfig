@@ -22,6 +22,7 @@ config SYS_CONFIG_NAME
 
 config CONS_INDEX
 	int "UART used for console"
+	range 1 6
 	default 1
 	help
 	  The AM335x SoC has a total of 6 UARTs (UART0 to UART5 as referenced
