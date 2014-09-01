@@ -79,8 +79,16 @@ void set_board_info(void)
 	setenv("board_rev", info);
 #endif
 #ifdef CONFIG_OF_LIBFDT
-	snprintf(info, ARRAY_SIZE(info),  "%s%x-%s.dtb",
-		 CONFIG_SYS_SOC, s5p_cpu_id, CONFIG_SYS_BOARD);
+	const char *bdtype = "";
+	const char *bdname = CONFIG_SYS_BOARD;
+
+#ifdef CONFIG_BOARD_TYPES
+	bdtype = get_board_type();
+	sprintf(info, "%s%s", bdname, bdtype);
+	setenv("boardname", info);
+#endif
+	snprintf(info, ARRAY_SIZE(info),  "%s%x-%s%s.dtb",
+		 CONFIG_SYS_SOC, s5p_cpu_id, bdname, bdtype);
 	setenv("fdtfile", info);
 #endif
 }
