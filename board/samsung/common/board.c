@@ -137,7 +137,9 @@ static int board_uart_init(void)
 int board_early_init_f(void)
 {
 	int err;
-
+#ifdef CONFIG_BOARD_TYPES
+	set_board_type();
+#endif
 	err = board_uart_init();
 	if (err) {
 		debug("UART init failed\n");
@@ -147,7 +149,6 @@ int board_early_init_f(void)
 #ifdef CONFIG_SYS_I2C_INIT_BOARD
 	board_i2c_init(gd->fdt_blob);
 #endif
-
 	return exynos_early_init_f();
 }
 #endif
@@ -280,11 +281,15 @@ int board_mmc_init(bd_t *bis)
 #ifdef CONFIG_DISPLAY_BOARDINFO
 int checkboard(void)
 {
-	const char *board_name;
+	const char *board_info;
 
-	board_name = fdt_getprop(gd->fdt_blob, 0, "model", NULL);
-	printf("Board: %s\n", board_name ? board_name : "unknown");
+	board_info = fdt_getprop(gd->fdt_blob, 0, "model", NULL);
+	printf("Board: %s\n", board_info ? board_info : "unknown");
+#ifdef CONFIG_BOARD_TYPES
+	board_info = get_board_type();
 
+	printf("Model: %s\n", board_info ? board_info : "unknown");
+#endif
 	return 0;
 }
 #endif
