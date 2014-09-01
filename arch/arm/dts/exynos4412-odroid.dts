@@ -1,0 +1,70 @@
+/*
+ * Odroid-U3/X2 board device tree source
+ *
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ *		http://www.samsung.com
+ *
+ * SPDX-License-Identifier:	GPL-2.0+
+ */
+
+/dts-v1/;
+/include/ "exynos4.dtsi"
+
+/ {
+	model = "Odroid based on Exynos4412";
+	compatible = "samsung,odroid", "samsung,exynos4412";
+
+	aliases {
+		i2c0 = "/i2c@13860000";
+		serial0 = "/serial@13800000";
+		console = "/serial@13810000";
+		mmc2 = "sdhci@12530000";
+		mmc4 = "dwmmc@12550000";
+	};
+
+	i2c@13860000 {
+		samsung,i2c-sda-delay = <100>;
+		samsung,i2c-slave-addr = <0x10>;
+		samsung,i2c-max-bus-freq = <100000>;
+		status = "okay";
+
+		max77686_pmic@09 {
+			compatible = "maxim,max77686_pmic";
+			interrupts = <7 0>;
+			reg = <0x09 0 0>;
+			#clock-cells = <1>;
+		};
+	};
+
+	serial@13810000 {
+		status = "okay";
+	};
+
+	sdhci@12510000 {
+		status = "disabled";
+	};
+
+	sdhci@12520000 {
+		status = "disabled";
+	};
+
+	sdhci@12530000 {
+		samsung,bus-width = <4>;
+		samsung,timing = <1 2 3>;
+		cd-gpios = <&gpio 0xC2 0>;
+	};
+
+	sdhci@12540000 {
+		status = "disabled";
+	};
+
+	dwmmc@12550000 {
+		samsung,bus-width = <8>;
+		samsung,timing = <2 1 0>;
+		samsung,removable = <0>;
+		fifoth_val = <0x203f0040>;
+		bus_hz = <400000000>;
+		div = <0x3>;
+		index = <4>;
+	};
+};
