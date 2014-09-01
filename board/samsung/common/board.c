@@ -240,22 +240,39 @@ int board_eth_init(bd_t *bis)
 }
 
 #ifdef CONFIG_GENERIC_MMC
+static int init_mmc(void)
+{
+#ifdef CONFIG_SDHCI
+	return exynos_mmc_init(gd->fdt_blob);
+#else
+	return 0;
+#endif
+}
+
+static int init_dwmmc(void)
+{
+#ifdef CONFIG_DWMMC
+	return exynos_dwmmc_init(gd->fdt_blob);
+#else
+	return 0;
+#endif
+}
+
 int board_mmc_init(bd_t *bis)
 {
 	int ret;
-#ifdef CONFIG_DWMMC
-	/* dwmmc initializattion for available channels */
-	ret = exynos_dwmmc_init(gd->fdt_blob);
-	if (ret)
-		debug("dwmmc init failed\n");
-#endif
 
-#ifdef CONFIG_SDHCI
-	/* mmc initializattion for available channels */
-	ret = exynos_mmc_init(gd->fdt_blob);
+	if (get_boot_mode() == BOOT_MODE_SD) {
+		ret = init_mmc();
+		ret |= init_dwmmc();
+	} else {
+		ret = init_dwmmc();
+		ret |= init_mmc();
+	}
+
 	if (ret)
 		debug("mmc init failed\n");
-#endif
+
 	return ret;
 }
 #endif
