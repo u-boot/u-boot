@@ -18,6 +18,9 @@ config TARGET_ORIGEN
 config TARGET_TRATS2
 	bool "Exynos4412 Trat2 board"
 
+config TARGET_ODROID
+	bool "Exynos4412 Odroid board"
+
 config TARGET_ARNDALE
 	bool "Exynos5250 Arndale board"
 
@@ -48,6 +51,7 @@ source "board/samsung/trats/Kconfig"
 source "board/samsung/universal_c210/Kconfig"
 source "board/samsung/origen/Kconfig"
 source "board/samsung/trats2/Kconfig"
+source "board/samsung/odroid/Kconfig"
 source "board/samsung/arndale/Kconfig"
 source "board/samsung/smdk5250/Kconfig"
 source "board/samsung/smdk5420/Kconfig"
