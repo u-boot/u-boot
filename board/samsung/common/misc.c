@@ -26,8 +26,8 @@ void set_board_info(void)
 {
 	char info[64];
 
-	snprintf(info, ARRAY_SIZE(info), "%d.%d", s5p_cpu_rev & 0x0f,
-		 (s5p_cpu_rev & 0xf0) >> 0x04);
+	snprintf(info, ARRAY_SIZE(info), "%u.%u", (s5p_cpu_rev & 0xf0) >> 4,
+		 s5p_cpu_rev & 0xf);
 	setenv("soc_rev", info);
 
 	snprintf(info, ARRAY_SIZE(info), "%x", s5p_cpu_id);
