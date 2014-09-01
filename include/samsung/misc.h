@@ -28,4 +28,10 @@ void check_boot_mode(void);
 void draw_logo(void);
 #endif
 
+#ifdef CONFIG_SET_DFU_ALT_INFO
+char *get_dfu_alt_system(void);
+char *get_dfu_alt_boot(void);
+void set_dfu_alt_info(void);
+#endif
+
 #endif /* __SAMSUNG_MISC_COMMON_H__ */
