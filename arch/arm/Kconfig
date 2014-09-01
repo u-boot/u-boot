@@ -707,4 +707,6 @@ source "board/woodburn/Kconfig"
 source "board/xaeniax/Kconfig"
 source "board/zipitz2/Kconfig"
 
+source "arch/arm/Kconfig.debug"
+
 endmenu
