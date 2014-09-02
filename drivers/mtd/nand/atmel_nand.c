@@ -882,6 +882,7 @@ static int atmel_pmecc_nand_init_params(struct nand_chip *nand,
 		return -ENOMEM;
 	}
 
+	nand->options |= NAND_NO_SUBPAGE_WRITE;
 	nand->ecc.read_page = atmel_nand_pmecc_read_page;
 	nand->ecc.write_page = atmel_nand_pmecc_write_page;
 	nand->ecc.strength = cap;
