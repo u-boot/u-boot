@@ -475,11 +475,11 @@ static int omap_read_page_bch(struct mtd_info *mtd, struct nand_chip *chip,
 				oob += eccbytes) {
 		chip->ecc.hwctl(mtd, NAND_ECC_READ);
 		/* read data */
-		chip->cmdfunc(mtd, NAND_CMD_RNDOUT, data_pos, page);
+		chip->cmdfunc(mtd, NAND_CMD_RNDOUT, data_pos, -1);
 		chip->read_buf(mtd, p, eccsize);
 
 		/* read respective ecc from oob area */
-		chip->cmdfunc(mtd, NAND_CMD_RNDOUT, oob_pos, page);
+		chip->cmdfunc(mtd, NAND_CMD_RNDOUT, oob_pos, -1);
 		chip->read_buf(mtd, oob, eccbytes);
 		/* read syndrome */
 		chip->ecc.calculate(mtd, p, &ecc_calc[i]);
