@@ -32,3 +32,9 @@ F:	configs/Cubieboard2_defconfig
 F:	configs/Cubieboard2_FEL_defconfig
 F:	configs/Cubietruck_defconfig
 F:	configs/Cubietruck_FEL_defconfig
+
+A20-OLINUXINO-LIME BOARD
+M:	FUKAUMI Naoki <naobsd@gmail.com>
+S:	Maintained
+F:	board/sunxi/dram_a20_olinuxino_l.c
+F:	configs/A20-OLinuXino-Lime_defconfig
