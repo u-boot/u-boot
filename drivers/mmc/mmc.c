@@ -594,10 +594,15 @@ int mmc_switch_part(int dev_num, unsigned int part_num)
 	ret = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_PART_CONF,
 			 (mmc->part_config & ~PART_ACCESS_MASK)
 			 | (part_num & PART_ACCESS_MASK));
-	if (ret)
-		return ret;
 
-	return mmc_set_capacity(mmc, part_num);
+	/*
+	 * Set the capacity if the switch succeeded or was intended
+	 * to return to representing the raw device.
+	 */
+	if ((ret == 0) || ((ret == -ENODEV) && (part_num == 0)))
+		ret = mmc_set_capacity(mmc, part_num);
+
+	return ret;
 }
 
 int mmc_getcd(struct mmc *mmc)
