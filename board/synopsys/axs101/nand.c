@@ -62,8 +62,10 @@ struct nand_bd {
 	uint32_t buffer_ptr1;	/* DES3 */
 };
 
-#define NAND_REG_WRITE(r, v)	writel(v, CONFIG_SYS_NAND_BASE + r)
-#define NAND_REG_READ(r)	readl(CONFIG_SYS_NAND_BASE + r)
+#define NAND_REG_WRITE(r, v)	\
+	writel(v, (volatile void __iomem *)(CONFIG_SYS_NAND_BASE + r))
+#define NAND_REG_READ(r)		\
+	readl((const volatile void __iomem *)(CONFIG_SYS_NAND_BASE + r))
 
 static struct nand_bd *bd;	/* DMA buffer descriptors	*/
 
