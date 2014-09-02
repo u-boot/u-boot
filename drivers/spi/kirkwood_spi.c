@@ -18,7 +18,7 @@
 
 static struct kwspi_registers *spireg = (struct kwspi_registers *)KW_SPI_BASE;
 
-u32 cs_spi_mpp_back[2];
+static u32 cs_spi_mpp_back[2];
 
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 				unsigned int max_hz, unsigned int mode)
