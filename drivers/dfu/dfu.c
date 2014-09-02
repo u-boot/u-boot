@@ -17,20 +17,41 @@
 #include <linux/list.h>
 #include <linux/compiler.h>
 
-static bool dfu_reset_request;
+static bool dfu_detach_request;
 static LIST_HEAD(dfu_list);
 static int dfu_alt_num;
 static int alt_num_cnt;
 static struct hash_algo *dfu_hash_algo;
 
-bool dfu_reset(void)
+/*
+ * The purpose of the dfu_usb_get_reset() function is to
+ * provide information if after USB_DETACH request
+ * being sent the dfu-util performed reset of USB
+ * bus.
+ *
+ * Described behaviour is the only way to distinct if
+ * user has typed -e (detach) or -R (reset) when invoking
+ * dfu-util command.
+ *
+ */
+__weak bool dfu_usb_get_reset(void)
 {
-	return dfu_reset_request;
+	return true;
 }
 
-void dfu_trigger_reset()
+bool dfu_detach(void)
 {
-	dfu_reset_request = true;
+	return dfu_detach_request;
+}
+
+void dfu_trigger_detach(void)
+{
+	dfu_detach_request = true;
+}
+
+void dfu_clear_detach(void)
+{
+	dfu_detach_request = false;
 }
 
 static int dfu_find_alt_num(const char *s)

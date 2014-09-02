@@ -919,3 +919,10 @@ int usb_gadget_unregister_driver(struct usb_gadget_driver *driver)
 
 	return 0;
 }
+
+bool dfu_usb_get_reset(void)
+{
+	struct ci_udc *udc = (struct ci_udc *)controller.ctrl->hcor;
+
+	return !!(readl(&udc->usbsts) & STS_URI);
+}

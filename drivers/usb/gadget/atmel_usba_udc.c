@@ -171,7 +171,7 @@ usba_ep_enable(struct usb_ep *_ep, const struct usb_endpoint_descriptor *desc)
 {
 	struct usba_ep *ep = to_usba_ep(_ep);
 	struct usba_udc *udc = ep->udc;
-	unsigned long flags, ept_cfg, maxpacket;
+	unsigned long flags = 0, ept_cfg, maxpacket;
 	unsigned int nr_trans;
 
 	DBG(DBG_GADGET, "%s: ep_enable: desc=%p\n", ep->ep.name, desc);
@@ -274,7 +274,7 @@ static int usba_ep_disable(struct usb_ep *_ep)
 	struct usba_ep *ep = to_usba_ep(_ep);
 	struct usba_udc *udc = ep->udc;
 	LIST_HEAD(req_list);
-	unsigned long flags;
+	unsigned long flags = 0;
 
 	DBG(DBG_GADGET, "ep_disable: %s\n", ep->ep.name);
 
@@ -339,7 +339,7 @@ usba_ep_queue(struct usb_ep *_ep, struct usb_request *_req, gfp_t gfp_flags)
 	struct usba_request *req = to_usba_req(_req);
 	struct usba_ep *ep = to_usba_ep(_ep);
 	struct usba_udc *udc = ep->udc;
-	unsigned long flags;
+	unsigned long flags = 0;
 	int ret;
 
 	DBG(DBG_GADGET | DBG_QUEUE | DBG_REQ, "%s: queue req %p, len %u\n",
@@ -401,7 +401,7 @@ static int usba_ep_dequeue(struct usb_ep *_ep, struct usb_request *_req)
 static int usba_ep_set_halt(struct usb_ep *_ep, int value)
 {
 	struct usba_ep *ep = to_usba_ep(_ep);
-	unsigned long flags;
+	unsigned long flags = 0;
 	int ret = 0;
 
 	DBG(DBG_GADGET, "endpoint %s: %s HALT\n", ep->ep.name,
@@ -480,7 +480,7 @@ static int usba_udc_get_frame(struct usb_gadget *gadget)
 static int usba_udc_wakeup(struct usb_gadget *gadget)
 {
 	struct usba_udc *udc = to_usba_udc(gadget);
-	unsigned long flags;
+	unsigned long flags = 0;
 	u32 ctrl;
 	int ret = -EINVAL;
 
@@ -499,7 +499,7 @@ static int
 usba_udc_set_selfpowered(struct usb_gadget *gadget, int is_selfpowered)
 {
 	struct usba_udc *udc = to_usba_udc(gadget);
-	unsigned long flags;
+	unsigned long flags = 0;
 
 	spin_lock_irqsave(&udc->lock, flags);
 	if (is_selfpowered)
