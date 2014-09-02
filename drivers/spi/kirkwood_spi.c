@@ -37,7 +37,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	if (!slave)
 		return NULL;
 
-	writel(~KWSPI_CSN_ACT | KWSPI_SMEMRDY, &spireg->ctrl);
+	writel(KWSPI_SMEMRDY, &spireg->ctrl);
 
 	/* calculate spi clock prescaller using max_hz */
 	data = ((CONFIG_SYS_TCLK / 2) / max_hz) + 0x10;
@@ -137,12 +137,12 @@ void spi_init(void)
 
 void spi_cs_activate(struct spi_slave *slave)
 {
-	writel(readl(&spireg->ctrl) | KWSPI_IRQUNMASK, &spireg->ctrl);
+	setbits_le32(&spireg->ctrl, KWSPI_CSN_ACT);
 }
 
 void spi_cs_deactivate(struct spi_slave *slave)
 {
-	writel(readl(&spireg->ctrl) & KWSPI_IRQMASK, &spireg->ctrl);
+	clrbits_le32(&spireg->ctrl, KWSPI_CSN_ACT);
 }
 
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
@@ -161,8 +161,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	 * handle data in 8-bit chunks
 	 * TBD: 2byte xfer mode to be enabled
 	 */
-	writel(((readl(&spireg->cfg) & ~KWSPI_XFERLEN_MASK) |
-		KWSPI_XFERLEN_1BYTE), &spireg->cfg);
+	clrsetbits_le32(&spireg->cfg, KWSPI_XFERLEN_MASK, KWSPI_XFERLEN_1BYTE);
 
 	while (bitlen > 4) {
 		debug("loopstart bitlen %d\n", bitlen);
@@ -172,7 +171,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		if (dout)
 			tmpdout = *(u32 *) dout & 0x0ff;
 
-		writel(~KWSPI_SMEMRDIRQ, &spireg->irq_cause);
+		clrbits_le32(&spireg->irq_cause, KWSPI_SMEMRDIRQ);
 		writel(tmpdout, &spireg->dout);	/* Write the data out */
 		debug("*** spi_xfer: ... %08x written, bitlen %d\n",
 		      tmpdout, bitlen);
