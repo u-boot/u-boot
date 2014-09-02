@@ -46,7 +46,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 	/* program spi clock prescaller using max_hz */
 	writel(KWSPI_ADRLEN_3BYTE | data, &spireg->cfg);
-	debug("data = 0x%08x \n", data);
+	debug("data = 0x%08x\n", data);
 
 	writel(KWSPI_SMEMRDIRQ, &spireg->irq_cause);
 	writel(KWSPI_IRQMASK, &spireg->irq_mask);
@@ -100,7 +100,6 @@ int spi_claim_bus(struct spi_slave *slave)
 
 	/* set new spi mpp and save current mpp config */
 	kirkwood_mpp_conf(spi_mpp_config, spi_mpp_backup);
-
 #endif
 
 	return board_spi_claim_bus(slave);
@@ -127,7 +126,7 @@ void spi_release_bus(struct spi_slave *slave)
  */
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
-	return (bus == 0 && (cs == 0 || cs == 1));
+	return bus == 0 && (cs == 0 || cs == 1);
 }
 #endif
 
@@ -169,7 +168,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 
 		/* Shift data so it's msb-justified */
 		if (dout)
-			tmpdout = *(u32 *) dout & 0x0ff;
+			tmpdout = *(u32 *)dout & 0xff;
 
 		clrbits_le32(&spireg->irq_cause, KWSPI_SMEMRDIRQ);
 		writel(tmpdout, &spireg->dout);	/* Write the data out */
@@ -185,12 +184,11 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 			if (readl(&spireg->irq_cause) & KWSPI_SMEMRDIRQ) {
 				isread = 1;
 				tmpdin = readl(&spireg->din);
-				debug
-					("spi_xfer: din %p..%08x read\n",
-					din, tmpdin);
+				debug("spi_xfer: din %p..%08x read\n",
+				      din, tmpdin);
 
 				if (din) {
-					*((u8 *) din) = (u8) tmpdin;
+					*((u8 *)din) = (u8)tmpdin;
 					din += 1;
 				}
 				if (dout)
