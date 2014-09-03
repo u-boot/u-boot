@@ -28,6 +28,9 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+ * NOTE:
+ *   Although it is very similar, this license text is not identical
+ *   to the "BSD-3-Clause", therefore, DO NOT MODIFY THIS LICENSE TEXT!
  */
 
 void cmd_flash_mmc_sparse_img(const char *arg, void *data, unsigned sz)
@@ -70,23 +73,24 @@ void cmd_flash_mmc_sparse_img(const char *arg, void *data, unsigned sz)
 	}
 
 	data += sparse_header->file_hdr_sz;
-	if(sparse_header->file_hdr_sz > sizeof(sparse_header_t))
+	if (sparse_header->file_hdr_sz > sizeof(sparse_header_t))
 	{
-		/* Skip the remaining bytes in a header that is longer than
+		/*
+		 * Skip the remaining bytes in a header that is longer than
 		 * we expected.
 		 */
 		data += (sparse_header->file_hdr_sz - sizeof(sparse_header_t));
 	}
 
-	dprintf (SPEW, "=== Sparse Image Header ===\n");
-	dprintf (SPEW, "magic: 0x%x\n", sparse_header->magic);
-	dprintf (SPEW, "major_version: 0x%x\n", sparse_header->major_version);
-	dprintf (SPEW, "minor_version: 0x%x\n", sparse_header->minor_version);
-	dprintf (SPEW, "file_hdr_sz: %d\n", sparse_header->file_hdr_sz);
-	dprintf (SPEW, "chunk_hdr_sz: %d\n", sparse_header->chunk_hdr_sz);
-	dprintf (SPEW, "blk_sz: %d\n", sparse_header->blk_sz);
-	dprintf (SPEW, "total_blks: %d\n", sparse_header->total_blks);
-	dprintf (SPEW, "total_chunks: %d\n", sparse_header->total_chunks);
+	debug("=== Sparse Image Header ===\n");
+	debug("magic: 0x%x\n", sparse_header->magic);
+	debug("major_version: 0x%x\n", sparse_header->major_version);
+	debug("minor_version: 0x%x\n", sparse_header->minor_version);
+	debug("file_hdr_sz: %d\n", sparse_header->file_hdr_sz);
+	debug("chunk_hdr_sz: %d\n", sparse_header->chunk_hdr_sz);
+	debug("blk_sz: %d\n", sparse_header->blk_sz);
+	debug("total_blks: %d\n", sparse_header->total_blks);
+	debug("total_chunks: %d\n", sparse_header->total_chunks);
 
 	/* Start processing chunks */
 	for (chunk=0; chunk<sparse_header->total_chunks; chunk++)
@@ -95,33 +99,37 @@ void cmd_flash_mmc_sparse_img(const char *arg, void *data, unsigned sz)
 		chunk_header = (chunk_header_t *) data;
 		data += sizeof(chunk_header_t);
 
-		dprintf (SPEW, "=== Chunk Header ===\n");
-		dprintf (SPEW, "chunk_type: 0x%x\n", chunk_header->chunk_type);
-		dprintf (SPEW, "chunk_data_sz: 0x%x\n", chunk_header->chunk_sz);
-		dprintf (SPEW, "total_size: 0x%x\n", chunk_header->total_sz);
+		debug("=== Chunk Header ===\n");
+		debug("chunk_type: 0x%x\n", chunk_header->chunk_type);
+		debug("chunk_data_sz: 0x%x\n", chunk_header->chunk_sz);
+		debug("total_size: 0x%x\n", chunk_header->total_sz);
 
-		if(sparse_header->chunk_hdr_sz > sizeof(chunk_header_t))
+		if (sparse_header->chunk_hdr_sz > sizeof(chunk_header_t))
 		{
-			/* Skip the remaining bytes in a header that is longer than
-			 * we expected.
+			/*
+			 * Skip the remaining bytes in a header that is longer
+			 * than we expected.
 			 */
-			data += (sparse_header->chunk_hdr_sz - sizeof(chunk_header_t));
+			data += (sparse_header->chunk_hdr_sz -
+				 sizeof(chunk_header_t));
 		}
 
 		chunk_data_sz = sparse_header->blk_sz * chunk_header->chunk_sz;
 		switch (chunk_header->chunk_type)
 		{
 			case CHUNK_TYPE_RAW:
-			if(chunk_header->total_sz != (sparse_header->chunk_hdr_sz +
-											chunk_data_sz))
+			if (chunk_header->total_sz !=
+			    (sparse_header->chunk_hdr_sz + chunk_data_sz))
 			{
-				fastboot_fail("Bogus chunk size for chunk type Raw");
+				fastboot_fail(
+					"Bogus chunk size for chunk type Raw");
 				return;
 			}
 
-			if(mmc_write(ptn + ((uint64_t)total_blocks*sparse_header->blk_sz),
-						chunk_data_sz,
-						(unsigned int*)data))
+			if (mmc_write(ptn +
+				      ((uint64_t)total_blocks *
+						 sparse_header->blk_sz),
+				      chunk_data_sz, (unsigned int *)data))
 			{
 				fastboot_fail("flash write failure");
 				return;
@@ -131,17 +139,22 @@ void cmd_flash_mmc_sparse_img(const char *arg, void *data, unsigned sz)
 			break;
 
 			case CHUNK_TYPE_FILL:
-			if(chunk_header->total_sz != (sparse_header->chunk_hdr_sz +
-											sizeof(uint32_t)))
+			if (chunk_header->total_sz !=
+			    (sparse_header->chunk_hdr_sz + sizeof(uint32_t)))
 			{
-				fastboot_fail("Bogus chunk size for chunk type FILL");
+				fastboot_fail(
+					"Bogus chunk size for chunk type FILL");
 				return;
 			}
 
-			fill_buf = (uint32_t *)memalign(CACHE_LINE, ROUNDUP(sparse_header->blk_sz, CACHE_LINE));
+			fill_buf = (uint32_t *)
+				   memalign(CACHE_LINE,
+					    ROUNDUP(sparse_header->blk_sz,
+						    CACHE_LINE));
 			if (!fill_buf)
 			{
-				fastboot_fail("Malloc failed for: CHUNK_TYPE_FILL");
+				fastboot_fail(
+					"Malloc failed for: CHUNK_TYPE_FILL");
 				return;
 			}
 
@@ -156,9 +169,10 @@ void cmd_flash_mmc_sparse_img(const char *arg, void *data, unsigned sz)
 
 			for (i = 0; i < chunk_blk_cnt; i++)
 			{
-				if(mmc_write(ptn + ((uint64_t)total_blocks*sparse_header->blk_sz),
-							sparse_header->blk_sz,
-							fill_buf))
+				if (mmc_write(ptn +
+					      ((uint64_t)total_blocks *
+							 sparse_header->blk_sz),
+					      sparse_header->blk_sz, fill_buf))
 				{
 					fastboot_fail("flash write failure");
 					free(fill_buf);
@@ -176,9 +190,11 @@ void cmd_flash_mmc_sparse_img(const char *arg, void *data, unsigned sz)
 			break;
 
 			case CHUNK_TYPE_CRC:
-			if(chunk_header->total_sz != sparse_header->chunk_hdr_sz)
+			if (chunk_header->total_sz !=
+			    sparse_header->chunk_hdr_sz)
 			{
-				fastboot_fail("Bogus chunk size for chunk type Dont Care");
+				fastboot_fail(
+					"Bogus chunk size for chunk type Dont Care");
 				return;
 			}
 			total_blocks += chunk_header->chunk_sz;
@@ -186,19 +202,18 @@ void cmd_flash_mmc_sparse_img(const char *arg, void *data, unsigned sz)
 			break;
 
 			default:
-			dprintf(CRITICAL, "Unkown chunk type: %x\n",chunk_header->chunk_type);
+			debug("Unkown chunk type: %x\n",
+			      chunk_header->chunk_type);
 			fastboot_fail("Unknown chunk type");
 			return;
 		}
 	}
 
-	dprintf(INFO, "Wrote %d blocks, expected to write %d blocks\n",
-					total_blocks, sparse_header->total_blks);
+	debug("Wrote %d blocks, expected to write %d blocks\n",
+	      total_blocks, sparse_header->total_blks);
 
-	if(total_blocks != sparse_header->total_blks)
-	{
+	if (total_blocks != sparse_header->total_blks)
 		fastboot_fail("sparse image write failure");
-	}
 
 	fastboot_okay("");
 	return;
