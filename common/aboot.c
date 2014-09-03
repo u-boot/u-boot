@@ -3,6 +3,7 @@
  * All rights reserved.
  *
  * Copyright (c) 2009-2014, The Linux Foundation. All rights reserved.
+ * Portions Copyright 2014 Broadcom Corporation.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,44 +34,32 @@
  *   to the "BSD-3-Clause", therefore, DO NOT MODIFY THIS LICENSE TEXT!
  */
 
-void cmd_flash_mmc_sparse_img(const char *arg, void *data, unsigned sz)
+#include <config.h>
+#include <common.h>
+#include <aboot.h>
+#include <malloc.h>
+#include <part.h>
+#include <sparse_format.h>
+
+void write_sparse_image(block_dev_desc_t *dev_desc,
+		disk_partition_t *info, const char *part_name,
+		void *data, unsigned sz)
 {
+	lbaint_t blk;
+	lbaint_t blkcnt;
+	lbaint_t blks;
+	uint32_t bytes_written = 0;
 	unsigned int chunk;
 	unsigned int chunk_data_sz;
 	uint32_t *fill_buf = NULL;
 	uint32_t fill_val;
-	uint32_t chunk_blk_cnt = 0;
 	sparse_header_t *sparse_header;
 	chunk_header_t *chunk_header;
 	uint32_t total_blocks = 0;
-	unsigned long long ptn = 0;
-	unsigned long long size = 0;
-	int index = INVALID_PTN;
 	int i;
-	uint8_t lun = 0;
-
-	index = partition_get_index(arg);
-	ptn = partition_get_offset(index);
-	if(ptn == 0) {
-		fastboot_fail("partition table doesn't exist");
-		return;
-	}
-
-	size = partition_get_size(index);
-	if (ROUND_TO_PAGE(sz,511) > size) {
-		fastboot_fail("size too large");
-		return;
-	}
-
-	lun = partition_get_lun(index);
-	mmc_set_lun(lun);
 
 	/* Read and skip over sparse image header */
 	sparse_header = (sparse_header_t *) data;
-	if ((sparse_header->total_blks * sparse_header->blk_sz) > size) {
-		fastboot_fail("size too large");
-		return;
-	}
 
 	data += sparse_header->file_hdr_sz;
 	if (sparse_header->file_hdr_sz > sizeof(sparse_header_t))
@@ -92,17 +81,31 @@ void cmd_flash_mmc_sparse_img(const char *arg, void *data, unsigned sz)
 	debug("total_blks: %d\n", sparse_header->total_blks);
 	debug("total_chunks: %d\n", sparse_header->total_chunks);
 
+	/* verify sparse_header->blk_sz is an exact multiple of info->blksz */
+	if (sparse_header->blk_sz !=
+	    (sparse_header->blk_sz & ~(info->blksz - 1))) {
+		printf("%s: Sparse image block size issue [%u]\n",
+		       __func__, sparse_header->blk_sz);
+		fastboot_fail("sparse image block size issue");
+		return;
+	}
+
+	puts("Flashing Sparse Image\n");
+
 	/* Start processing chunks */
+	blk = info->start;
 	for (chunk=0; chunk<sparse_header->total_chunks; chunk++)
 	{
 		/* Read and skip over chunk header */
 		chunk_header = (chunk_header_t *) data;
 		data += sizeof(chunk_header_t);
 
-		debug("=== Chunk Header ===\n");
-		debug("chunk_type: 0x%x\n", chunk_header->chunk_type);
-		debug("chunk_data_sz: 0x%x\n", chunk_header->chunk_sz);
-		debug("total_size: 0x%x\n", chunk_header->total_sz);
+		if (chunk_header->chunk_type != CHUNK_TYPE_RAW) {
+			debug("=== Chunk Header ===\n");
+			debug("chunk_type: 0x%x\n", chunk_header->chunk_type);
+			debug("chunk_data_sz: 0x%x\n", chunk_header->chunk_sz);
+			debug("total_size: 0x%x\n", chunk_header->total_sz);
+		}
 
 		if (sparse_header->chunk_hdr_sz > sizeof(chunk_header_t))
 		{
@@ -115,6 +118,7 @@ void cmd_flash_mmc_sparse_img(const char *arg, void *data, unsigned sz)
 		}
 
 		chunk_data_sz = sparse_header->blk_sz * chunk_header->chunk_sz;
+		blkcnt = chunk_data_sz / info->blksz;
 		switch (chunk_header->chunk_type)
 		{
 			case CHUNK_TYPE_RAW:
@@ -126,14 +130,25 @@ void cmd_flash_mmc_sparse_img(const char *arg, void *data, unsigned sz)
 				return;
 			}
 
-			if (mmc_write(ptn +
-				      ((uint64_t)total_blocks *
-						 sparse_header->blk_sz),
-				      chunk_data_sz, (unsigned int *)data))
-			{
+			if (blk + blkcnt > info->start + info->size) {
+				printf(
+				    "%s: Request would exceed partition size!\n",
+				    __func__);
+				fastboot_fail(
+				    "Request would exceed partition size!");
+				return;
+			}
+
+			blks = dev_desc->block_write(dev_desc->dev, blk, blkcnt,
+						     data);
+			if (blks != blkcnt) {
+				printf("%s: Write failed " LBAFU "\n",
+				       __func__, blks);
 				fastboot_fail("flash write failure");
 				return;
 			}
+			blk += blkcnt;
+			bytes_written += blkcnt * info->blksz;
 			total_blocks += chunk_header->chunk_sz;
 			data += chunk_data_sz;
 			break;
@@ -148,9 +163,9 @@ void cmd_flash_mmc_sparse_img(const char *arg, void *data, unsigned sz)
 			}
 
 			fill_buf = (uint32_t *)
-				   memalign(CACHE_LINE,
-					    ROUNDUP(sparse_header->blk_sz,
-						    CACHE_LINE));
+				   memalign(ARCH_DMA_MINALIGN,
+					    ROUNDUP(info->blksz,
+						    ARCH_DMA_MINALIGN));
 			if (!fill_buf)
 			{
 				fastboot_fail(
@@ -160,27 +175,34 @@ void cmd_flash_mmc_sparse_img(const char *arg, void *data, unsigned sz)
 
 			fill_val = *(uint32_t *)data;
 			data = (char *) data + sizeof(uint32_t);
-			chunk_blk_cnt = chunk_data_sz / sparse_header->blk_sz;
 
-			for (i = 0; i < (sparse_header->blk_sz / sizeof(fill_val)); i++)
-			{
+			for (i = 0; i < (info->blksz / sizeof(fill_val)); i++)
 				fill_buf[i] = fill_val;
+
+			if (blk + blkcnt > info->start + info->size) {
+				printf(
+				    "%s: Request would exceed partition size!\n",
+				    __func__);
+				fastboot_fail(
+				    "Request would exceed partition size!");
+				return;
 			}
 
-			for (i = 0; i < chunk_blk_cnt; i++)
-			{
-				if (mmc_write(ptn +
-					      ((uint64_t)total_blocks *
-							 sparse_header->blk_sz),
-					      sparse_header->blk_sz, fill_buf))
-				{
+			for (i = 0; i < blkcnt; i++) {
+				blks = dev_desc->block_write(dev_desc->dev,
+							     blk, 1, fill_buf);
+				if (blks != 1) {
+					printf(
+					    "%s: Write failed, block # " LBAFU "\n",
+					    __func__, blkcnt);
 					fastboot_fail("flash write failure");
 					free(fill_buf);
 					return;
 				}
-
-				total_blocks++;
+				blk++;
 			}
+			bytes_written += blkcnt * info->blksz;
+			total_blocks += chunk_data_sz / sparse_header->blk_sz;
 
 			free(fill_buf);
 			break;
@@ -189,7 +211,7 @@ void cmd_flash_mmc_sparse_img(const char *arg, void *data, unsigned sz)
 			total_blocks += chunk_header->chunk_sz;
 			break;
 
-			case CHUNK_TYPE_CRC:
+			case CHUNK_TYPE_CRC32:
 			if (chunk_header->total_sz !=
 			    sparse_header->chunk_hdr_sz)
 			{
@@ -202,8 +224,8 @@ void cmd_flash_mmc_sparse_img(const char *arg, void *data, unsigned sz)
 			break;
 
 			default:
-			debug("Unkown chunk type: %x\n",
-			      chunk_header->chunk_type);
+			printf("%s: Unknown chunk type: %x\n", __func__,
+			       chunk_header->chunk_type);
 			fastboot_fail("Unknown chunk type");
 			return;
 		}
@@ -211,6 +233,7 @@ void cmd_flash_mmc_sparse_img(const char *arg, void *data, unsigned sz)
 
 	debug("Wrote %d blocks, expected to write %d blocks\n",
 	      total_blocks, sparse_header->total_blks);
+	printf("........ wrote %u bytes to '%s'\n", bytes_written, part_name);
 
 	if (total_blocks != sparse_header->total_blks)
 		fastboot_fail("sparse image write failure");
