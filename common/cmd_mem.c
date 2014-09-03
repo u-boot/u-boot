@@ -215,7 +215,7 @@ static int do_mem_mw(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 #ifdef CONFIG_MX_CYCLIC
-int do_mem_mdc ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mem_mdc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i;
 	ulong count;
@@ -242,7 +242,7 @@ int do_mem_mdc ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-int do_mem_mwc ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mem_mwc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i;
 	ulong count;
@@ -595,7 +595,8 @@ static int do_mem_loop(cmd_tbl_t *cmdtp, int flag, int argc,
 }
 
 #ifdef CONFIG_LOOPW
-int do_mem_loopw (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+static int do_mem_loopw(cmd_tbl_t *cmdtp, int flag, int argc,
+			char * const argv[])
 {
 	ulong	addr, length, i, bytes;
 	int	size;
