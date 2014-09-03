@@ -194,14 +194,14 @@ do_savedefconfig () {
 			for i in $output_lines
 			do
 				case "$i" in
-				"[+A-Z]*:$line")
+				[+A-Z]*:$line)
 					tmp="$tmp%$unmatched"
 					i=$(echo "$i" | \
-					    sed -e "s/^\([^:]\)*/\1$symbol/")
+					    sed -e "s/^\([^:]*\)/\1$symbol/")
 					tmp="$tmp%$i"
 					match=1
 					;;
-				"$line")
+				$line)
 					tmp="$tmp%$unmatched"
 					tmp="$tmp%+$symbol:$i"
 					match=1
