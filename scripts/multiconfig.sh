@@ -170,7 +170,7 @@ do_savedefconfig () {
 	# backslashes as an escape character
 	while read -r line
 	do
-		output_lines="$output_lines $line"
+		output_lines="$output_lines%$line"
 	done < defconfig
 
 	for img in $subimages
@@ -185,43 +185,64 @@ do_savedefconfig () {
 			tmp=
 			match=
 
+			# "# CONFIG_FOO is not set" should not be divided.
+			# Use "%" as a separator, instead of a whitespace.
+			# "%" is unlikely to appear in defconfig context.
+			save_IFS=$IFS
+			IFS=%
 			# coalesce common lines together
 			for i in $output_lines
 			do
 				case "$i" in
 				"[+A-Z]*:$line")
-					tmp="$tmp $unmatched"
+					tmp="$tmp%$unmatched"
 					i=$(echo "$i" | \
 					    sed -e "s/^\([^:]\)*/\1$symbol/")
-					tmp="$tmp $i"
+					tmp="$tmp%$i"
 					match=1
 					;;
 				"$line")
-					tmp="$tmp $unmatched"
-					tmp="$tmp +$symbol:$i"
+					tmp="$tmp%$unmatched"
+					tmp="$tmp%+$symbol:$i"
 					match=1
 					;;
 				*)
-					tmp="$tmp $i"
+					tmp="$tmp%$i"
 					;;
 				esac
 			done
+
+			# Restore the default separator for the outer for loop.
+			IFS=$save_IFS
 
 			if [ "$match" ]; then
 				output_lines="$tmp"
 				unmatched=
 			else
-				unmatched="$unmatched $symbol:$line"
+				unmatched="$unmatched%$symbol:$line"
 			fi
 		done < defconfig
 	done
 
 	rm -f defconfig
 	touch defconfig
+
+	save_IFS=$IFS
+	IFS=%
+
 	for line in $output_lines
 	do
-		echo $line >> defconfig
+		case "$line" in
+		"")
+			# do not output blank lines
+			;;
+		*)
+			echo $line >> defconfig
+			;;
+		esac
 	done
+
+	IFS=$save_IFS
 }
 
 # Usage:
