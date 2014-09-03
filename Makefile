@@ -458,7 +458,7 @@ KBUILD_DEFCONFIG := sandbox_defconfig
 export KBUILD_DEFCONFIG KBUILD_KCONFIG
 
 config: scripts_basic outputmakefile FORCE
-	(Q)$(MAKE) $(build)=scripts/kconfig $@
+	+$(Q)$(CONFIG_SHELL) $(srctree)/scripts/multiconfig.sh $@
 
 %config: scripts_basic outputmakefile FORCE
 	+$(Q)$(CONFIG_SHELL) $(srctree)/scripts/multiconfig.sh $@
