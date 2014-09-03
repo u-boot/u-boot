@@ -217,6 +217,7 @@ do_savedefconfig () {
 	done
 
 	rm -f defconfig
+	touch defconfig
 	for line in $output_lines
 	do
 		echo $line >> defconfig
