@@ -1,6 +1,16 @@
 /dts-v1/;
 
 / {
+	chosen {
+		stdout-path = "/serial";
+	};
+
+	/* Needs to be available prior to relocation */
+	uart0: serial {
+		compatible = "sandbox,serial";
+		sandbox,text-colour = "cyan";
+	};
+
 	triangle {
 		compatible = "demo-shape";
 		colour = "cyan";
