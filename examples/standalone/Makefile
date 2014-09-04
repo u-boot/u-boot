@@ -22,7 +22,7 @@ extra-$(CONFIG_PPC)                += sched
 ELF := $(strip $(extra-y))
 
 extra-y += $(addsuffix .srec,$(extra-y)) $(addsuffix .bin,$(extra-y))
-clean-files  := $(extra-) $(addsuffix .srec,$(extra-)) $(addsuffix .bin,$(extra-))
+clean-files  := *.srec *.bin
 
 COBJS	:= $(ELF:=.o)
 
