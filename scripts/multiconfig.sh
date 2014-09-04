@@ -118,6 +118,13 @@ do_board_defconfig () {
 	defconfig_path=$srctree/configs/$1
 	tmp_defconfig_path=configs/.tmp_defconfig
 
+	if [ ! -r $defconfig_path ]; then
+		echo >&2 "***"
+		echo >&2 "*** Can't find default configuration \"confis/$1\"!"
+		echo >&2 "***"
+		exit 1
+	fi
+
 	mkdir -p arch configs
 	# defconfig for Normal:
 	#  pick lines without prefixes and lines starting '+' prefix
