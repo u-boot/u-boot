@@ -4,7 +4,7 @@
  * modified to use CONFIG_SYS_ISA_MEM and new defines
  */
 
-#include <config.h>
+#include <common.h>
 #include <ns16550.h>
 #include <watchdog.h>
 #include <linux/types.h>
@@ -44,6 +44,22 @@
 #ifndef CONFIG_SYS_NS16550_IER
 #define CONFIG_SYS_NS16550_IER  0x00
 #endif /* CONFIG_SYS_NS16550_IER */
+
+int ns16550_calc_divisor(NS16550_t port, int clock, int baudrate)
+{
+	const unsigned int mode_x_div = 16;
+
+#ifdef CONFIG_OMAP1510
+	/* If can't cleanly clock 115200 set div to 1 */
+	if ((clock == 12000000) && (baudrate == 115200)) {
+		port->osc_12m_sel = OSC_12M_SEL;  /* enable 6.5 * divisor */
+		return 1;			/* return 1 for base divisor */
+	}
+	port->osc_12m_sel = 0;			/* clear if previsouly set */
+#endif
+
+	return DIV_ROUND_CLOSEST(clock, mode_x_div * baudrate);
+}
 
 void NS16550_init(NS16550_t com_port, int baud_divisor)
 {

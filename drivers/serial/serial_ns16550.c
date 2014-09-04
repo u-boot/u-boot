@@ -81,7 +81,8 @@ static NS16550_t serial_ports[6] = {
 	static int  eserial##port##_init(void) \
 	{ \
 		int clock_divisor; \
-		clock_divisor = calc_divisor(serial_ports[port-1]); \
+		clock_divisor = ns16550_calc_divisor(serial_ports[port-1], \
+				CONFIG_SYS_NS16550_CLK, gd->baudrate); \
 		NS16550_init(serial_ports[port-1], clock_divisor); \
 		return 0 ; \
 	} \
@@ -116,14 +117,6 @@ static NS16550_t serial_ports[6] = {
 	.tstc	= eserial##port##_tstc,		\
 	.putc	= eserial##port##_putc,		\
 	.puts	= eserial##port##_puts,		\
-}
-
-static int calc_divisor (NS16550_t port)
-{
-	const unsigned int mode_x_div = 16;
-
-	return DIV_ROUND_CLOSEST(CONFIG_SYS_NS16550_CLK,
-						mode_x_div * gd->baudrate);
 }
 
 void
@@ -167,7 +160,8 @@ _serial_setbrg (const int port)
 {
 	int clock_divisor;
 
-	clock_divisor = calc_divisor(PORT);
+	clock_divisor = ns16550_calc_divisor(PORT, CONFIG_SYS_NS16550_CLK,
+					     gd->baudrate);
 	NS16550_reinit(PORT, clock_divisor);
 }
 

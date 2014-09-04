@@ -170,3 +170,16 @@ void NS16550_putc(NS16550_t com_port, char c);
 char NS16550_getc(NS16550_t com_port);
 int NS16550_tstc(NS16550_t com_port);
 void NS16550_reinit(NS16550_t com_port, int baud_divisor);
+
+/**
+ * ns16550_calc_divisor() - calculate the divisor given clock and baud rate
+ *
+ * Given the UART input clock and required baudrate, calculate the divisor
+ * that should be used.
+ *
+ * @port:	UART port
+ * @clock:	UART input clock speed in Hz
+ * @baudrate:	Required baud rate
+ * @return baud rate divisor that should be used
+ */
+int ns16550_calc_divisor(NS16550_t port, int clock, int baudrate);
