@@ -44,7 +44,7 @@
 #define CONFIG_BOOTP_VCI_STRING		"U-boot.armv8.Xilinx_ZynqMP"
 
 /* Text base on 16MB for now - 0 doesn't work */
-#define CONFIG_SYS_TEXT_BASE		0x100000
+#define CONFIG_SYS_TEXT_BASE		0x8000000
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x7fff0)
 
 /* Flat Device Tree Definitions */
