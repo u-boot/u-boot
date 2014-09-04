@@ -54,7 +54,7 @@ def ParseArgs():
     parser.add_option('--list-tool-chains', action='store_true', default=False,
           help='List available tool chains')
     parser.add_option('-n', '--dry-run', action='store_true', dest='dry_run',
-          default=False, help="Do a try run (describe actions, but no nothing)")
+          default=False, help="Do a dry run (describe actions, but do nothing)")
     parser.add_option('-o', '--output-dir', type='string',
           dest='output_dir', default='..',
           help='Directory where all builds happen and buildman has its workspace (default is ../)')
