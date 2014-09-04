@@ -146,13 +146,18 @@ else:
 
     # Email the patches out (giving the user time to check / cancel)
     cmd = ''
-    if ok or options.ignore_errors:
+    its_a_go = ok or options.ignore_errors
+    if its_a_go:
         cmd = gitutil.EmailPatches(series, cover_fname, args,
                 options.dry_run, not options.ignore_bad_tags, cc_file,
                 in_reply_to=options.in_reply_to)
+    else:
+        print col.Color(col.RED, "Not sending emails due to errors/warnings")
 
     # For a dry run, just show our actions as a sanity check
     if options.dry_run:
         series.ShowActions(args, cmd, options.process_tags)
+        if not its_a_go:
+            print col.Color(col.RED, "Email would not be sent")
 
     os.remove(cc_file)
