@@ -61,6 +61,14 @@ int ns16550_calc_divisor(NS16550_t port, int clock, int baudrate)
 	return DIV_ROUND_CLOSEST(clock, mode_x_div * baudrate);
 }
 
+static void NS16550_setbrg(NS16550_t com_port, int baud_divisor)
+{
+	serial_out(UART_LCR_BKSE | UART_LCRVAL, &com_port->lcr);
+	serial_out(baud_divisor & 0xff, &com_port->dll);
+	serial_out((baud_divisor >> 8) & 0xff, &com_port->dlm);
+	serial_out(UART_LCRVAL, &com_port->lcr);
+}
+
 void NS16550_init(NS16550_t com_port, int baud_divisor)
 {
 #if (defined(CONFIG_SPL_BUILD) && defined(CONFIG_OMAP34XX))
@@ -71,10 +79,7 @@ void NS16550_init(NS16550_t com_port, int baud_divisor)
 	 */
 	if ((serial_in(&com_port->lsr) & (UART_LSR_TEMT | UART_LSR_THRE))
 	     == UART_LSR_THRE) {
-		serial_out(UART_LCR_DLAB, &com_port->lcr);
-		serial_out(baud_divisor & 0xff, &com_port->dll);
-		serial_out((baud_divisor >> 8) & 0xff, &com_port->dlm);
-		serial_out(UART_LCRVAL, &com_port->lcr);
+		NS16550_setbrg(com_port, baud_divisor);
 		serial_out(0, &com_port->mdr1);
 	}
 #endif
@@ -87,16 +92,10 @@ void NS16550_init(NS16550_t com_port, int baud_divisor)
 			defined(CONFIG_TI81XX) || defined(CONFIG_AM43XX)
 	serial_out(0x7, &com_port->mdr1);	/* mode select reset TL16C750*/
 #endif
-	serial_out(UART_LCR_BKSE | UART_LCRVAL, &com_port->lcr);
-	serial_out(0, &com_port->dll);
-	serial_out(0, &com_port->dlm);
-	serial_out(UART_LCRVAL, &com_port->lcr);
+	NS16550_setbrg(com_port, 0);
 	serial_out(UART_MCRVAL, &com_port->mcr);
 	serial_out(UART_FCRVAL, &com_port->fcr);
-	serial_out(UART_LCR_BKSE | UART_LCRVAL, &com_port->lcr);
-	serial_out(baud_divisor & 0xff, &com_port->dll);
-	serial_out((baud_divisor >> 8) & 0xff, &com_port->dlm);
-	serial_out(UART_LCRVAL, &com_port->lcr);
+	NS16550_setbrg(com_port, baud_divisor);
 #if defined(CONFIG_OMAP) || \
 	defined(CONFIG_AM33XX) || defined(CONFIG_SOC_DA8XX) || \
 	defined(CONFIG_TI81XX) || defined(CONFIG_AM43XX)
@@ -113,16 +112,10 @@ void NS16550_init(NS16550_t com_port, int baud_divisor)
 void NS16550_reinit(NS16550_t com_port, int baud_divisor)
 {
 	serial_out(CONFIG_SYS_NS16550_IER, &com_port->ier);
-	serial_out(UART_LCR_BKSE | UART_LCRVAL, &com_port->lcr);
-	serial_out(0, &com_port->dll);
-	serial_out(0, &com_port->dlm);
-	serial_out(UART_LCRVAL, &com_port->lcr);
+	NS16550_setbrg(com_port, 0);
 	serial_out(UART_MCRVAL, &com_port->mcr);
 	serial_out(UART_FCRVAL, &com_port->fcr);
-	serial_out(UART_LCR_BKSE, &com_port->lcr);
-	serial_out(baud_divisor & 0xff, &com_port->dll);
-	serial_out((baud_divisor >> 8) & 0xff, &com_port->dlm);
-	serial_out(UART_LCRVAL, &com_port->lcr);
+	NS16550_setbrg(com_port, baud_divisor);
 }
 #endif /* CONFIG_NS16550_MIN_FUNCTIONS */
 
