@@ -11,11 +11,15 @@
  */
 
 #include <common.h>
+#include <dm.h>
+#include <fdtdec.h>
 #include <lcd.h>
 #include <os.h>
 #include <serial.h>
 #include <linux/compiler.h>
 #include <asm/state.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 /*
  *
@@ -30,27 +34,21 @@ static char serial_buf[16];
 static unsigned int serial_buf_write;
 static unsigned int serial_buf_read;
 
-static int sandbox_serial_init(void)
+static int sandbox_serial_probe(struct udevice *dev)
 {
 	struct sandbox_state *state = state_get_current();
 
 	if (state->term_raw != STATE_TERM_COOKED)
 		os_tty_raw(0, state->term_raw == STATE_TERM_RAW_WITH_SIGS);
+
 	return 0;
 }
 
-static void sandbox_serial_setbrg(void)
-{
-}
-
-static void sandbox_serial_putc(const char ch)
+static int sandbox_serial_putc(struct udevice *dev, const char ch)
 {
 	os_write(1, &ch, 1);
-}
 
-static void sandbox_serial_puts(const char *str)
-{
-	os_write(1, str, strlen(str));
+	return 0;
 }
 
 static unsigned int increment_buffer_index(unsigned int index)
@@ -58,11 +56,14 @@ static unsigned int increment_buffer_index(unsigned int index)
 	return (index + 1) % ARRAY_SIZE(serial_buf);
 }
 
-static int sandbox_serial_tstc(void)
+static int sandbox_serial_pending(struct udevice *dev, bool input)
 {
 	const unsigned int next_index =
 		increment_buffer_index(serial_buf_write);
 	ssize_t count;
+
+	if (!input)
+		return 0;
 
 	os_usleep(100);
 #ifdef CONFIG_LCD
@@ -74,38 +75,42 @@ static int sandbox_serial_tstc(void)
 	count = os_read_no_block(0, &serial_buf[serial_buf_write], 1);
 	if (count == 1)
 		serial_buf_write = next_index;
+
 	return serial_buf_write != serial_buf_read;
 }
 
-static int sandbox_serial_getc(void)
+static int sandbox_serial_getc(struct udevice *dev)
 {
 	int result;
 
-	while (!sandbox_serial_tstc())
-		;	/* buffer empty */
+	if (!sandbox_serial_pending(dev, true))
+		return -EAGAIN;	/* buffer empty */
 
 	result = serial_buf[serial_buf_read];
 	serial_buf_read = increment_buffer_index(serial_buf_read);
 	return result;
 }
 
-static struct serial_device sandbox_serial_drv = {
-	.name	= "sandbox_serial",
-	.start	= sandbox_serial_init,
-	.stop	= NULL,
-	.setbrg	= sandbox_serial_setbrg,
-	.putc	= sandbox_serial_putc,
-	.puts	= sandbox_serial_puts,
-	.getc	= sandbox_serial_getc,
-	.tstc	= sandbox_serial_tstc,
+static const struct dm_serial_ops sandbox_serial_ops = {
+	.putc = sandbox_serial_putc,
+	.pending = sandbox_serial_pending,
+	.getc = sandbox_serial_getc,
 };
 
-void sandbox_serial_initialize(void)
-{
-	serial_register(&sandbox_serial_drv);
-}
+static const struct udevice_id sandbox_serial_ids[] = {
+	{ .compatible = "sandbox,serial" },
+	{ }
+};
 
-__weak struct serial_device *default_serial_console(void)
-{
-	return &sandbox_serial_drv;
-}
+U_BOOT_DRIVER(serial_sandbox) = {
+	.name	= "serial_sandbox",
+	.id	= UCLASS_SERIAL,
+	.of_match = sandbox_serial_ids,
+	.probe = sandbox_serial_probe,
+	.ops	= &sandbox_serial_ops,
+	.flags = DM_FLAG_PRE_RELOC,
+};
+
+U_BOOT_DEVICE(serial_sandbox_non_fdt) = {
+	.name = "serial_sandbox",
+};
