@@ -72,4 +72,96 @@ extern int write_port(struct stdio_dev *port, char *buf);
 extern int read_port(struct stdio_dev *port, char *buf, int size);
 #endif
 
+struct udevice;
+
+/**
+ * struct struct dm_serial_ops - Driver model serial operations
+ *
+ * The uclass interface is implemented by all serial devices which use
+ * driver model.
+ */
+struct dm_serial_ops {
+	/**
+	 * setbrg() - Set up the baud rate generator
+	 *
+	 * Adjust baud rate divisors to set up a new baud rate for this
+	 * device. Not all devices will support all rates. If the rate
+	 * cannot be supported, the driver is free to select the nearest
+	 * available rate. or return -EINVAL if this is not possible.
+	 *
+	 * @dev: Device pointer
+	 * @baudrate: New baud rate to use
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*setbrg)(struct udevice *dev, int baudrate);
+	/**
+	 * getc() - Read a character and return it
+	 *
+	 * If no character is available, this should return -EAGAIN without
+	 * waiting.
+	 *
+	 * @dev: Device pointer
+	 * @return character (0..255), -ve on error
+	 */
+	int (*getc)(struct udevice *dev);
+	/**
+	 * putc() - Write a character
+	 *
+	 * @dev: Device pointer
+	 * @ch: character to write
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*putc)(struct udevice *dev, const char ch);
+	/**
+	 * pending() - Check if input/output characters are waiting
+	 *
+	 * This can be used to return an indication of the number of waiting
+	 * characters if the driver knows this (e.g. by looking at the FIFO
+	 * level). It is acceptable to return 1 if an indeterminant number
+	 * of characters is waiting.
+	 *
+	 * This method is optional.
+	 *
+	 * @dev: Device pointer
+	 * @input: true to check input characters, false for output
+	 * @return number of waiting characters, 0 for none, -ve on error
+	 */
+	int (*pending)(struct udevice *dev, bool input);
+	/**
+	 * clear() - Clear the serial FIFOs/holding registers
+	 *
+	 * This method is optional.
+	 *
+	 * This quickly clears any input/output characters from the UART.
+	 * If this is not possible, but characters still exist, then it
+	 * is acceptable to return -EAGAIN (try again) or -EINVAL (not
+	 * supported).
+	 *
+	 * @dev: Device pointer
+	 * @return 0 if OK, -ve on error
+	 */
+	int (*clear)(struct udevice *dev);
+#if CONFIG_POST & CONFIG_SYS_POST_UART
+	/**
+	 * loop() - Control serial device loopback mode
+	 *
+	 * @dev: Device pointer
+	 * @on: 1 to turn loopback on, 0 to turn if off
+	 */
+	int (*loop)(struct udevice *dev, int on);
+#endif
+};
+
+/**
+ * struct serial_dev_priv - information about a device used by the uclass
+ *
+ * @sdev: stdio device attached to this uart
+ */
+struct serial_dev_priv {
+	struct stdio_dev *sdev;
+};
+
+/* Access the serial operations for a device */
+#define serial_get_ops(dev)	((struct dm_serial_ops *)(dev)->driver->ops)
+
 #endif

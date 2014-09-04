@@ -5,7 +5,11 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+ifdef CONFIG_DM_SERIAL
+obj-y += serial-uclass.o
+else
 obj-y += serial.o
+endif
 
 obj-$(CONFIG_ALTERA_UART) += altera_uart.o
 obj-$(CONFIG_ALTERA_JTAG_UART) += altera_jtag_uart.o
