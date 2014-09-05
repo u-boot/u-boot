@@ -119,7 +119,7 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 
 	while (dwmci_readl(host, DWMCI_STATUS) & DWMCI_BUSY) {
 		if (get_timer(start) > timeout) {
-			printf("Timeout on data busy\n");
+			printf("%s: Timeout on data busy\n", __func__);
 			return TIMEOUT;
 		}
 	}
@@ -177,14 +177,24 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		}
 	}
 
-	if (i == retry)
+	if (i == retry) {
+		printf("%s: Timeout.\n", __func__);
 		return TIMEOUT;
+	}
 
 	if (mask & DWMCI_INTMSK_RTO) {
-		debug("Response Timeout..\n");
+		/*
+		 * Timeout here is not necessarily fatal. (e)MMC cards
+		 * will splat here when they receive CMD55 as they do
+		 * not support this command and that is exactly the way
+		 * to tell them apart from SD cards. Thus, this output
+		 * below shall be debug(). eMMC cards also do not favor
+		 * CMD8, please keep that in mind.
+		 */
+		debug("%s: Response Timeout.\n", __func__);
 		return TIMEOUT;
 	} else if (mask & DWMCI_INTMSK_RE) {
-		debug("Response Error..\n");
+		printf("%s: Response Error.\n", __func__);
 		return -1;
 	}
 
@@ -204,7 +214,7 @@ static int dwmci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		do {
 			mask = dwmci_readl(host, DWMCI_RINTSTS);
 			if (mask & (DWMCI_DATA_ERR | DWMCI_DATA_TOUT)) {
-				debug("DATA ERROR!\n");
+				printf("%s: DATA ERROR!\n", __func__);
 				return -1;
 			}
 		} while (!(mask & DWMCI_INTMSK_DTO));
@@ -232,16 +242,16 @@ static int dwmci_setup_bus(struct dwmci_host *host, u32 freq)
 	if ((freq == host->clock) || (freq == 0))
 		return 0;
 	/*
-	 * If host->get_mmc_clk didn't define,
+	 * If host->get_mmc_clk isn't defined,
 	 * then assume that host->bus_hz is source clock value.
-	 * host->bus_hz should be set from user.
+	 * host->bus_hz should be set by user.
 	 */
 	if (host->get_mmc_clk)
 		sclk = host->get_mmc_clk(host);
 	else if (host->bus_hz)
 		sclk = host->bus_hz;
 	else {
-		printf("Didn't get source clock value..\n");
+		printf("%s: Didn't get source clock value.\n", __func__);
 		return -EINVAL;
 	}
 
@@ -260,7 +270,7 @@ static int dwmci_setup_bus(struct dwmci_host *host, u32 freq)
 	do {
 		status = dwmci_readl(host, DWMCI_CMD);
 		if (timeout-- < 0) {
-			printf("TIMEOUT error!!\n");
+			printf("%s: Timeout!\n", __func__);
 			return -ETIMEDOUT;
 		}
 	} while (status & DWMCI_CMD_START);
@@ -275,7 +285,7 @@ static int dwmci_setup_bus(struct dwmci_host *host, u32 freq)
 	do {
 		status = dwmci_readl(host, DWMCI_CMD);
 		if (timeout-- < 0) {
-			printf("TIMEOUT error!!\n");
+			printf("%s: Timeout!\n", __func__);
 			return -ETIMEDOUT;
 		}
 	} while (status & DWMCI_CMD_START);
@@ -290,7 +300,7 @@ static void dwmci_set_ios(struct mmc *mmc)
 	struct dwmci_host *host = (struct dwmci_host *)mmc->priv;
 	u32 ctype, regs;
 
-	debug("Buswidth = %d, clock: %d\n",mmc->bus_width, mmc->clock);
+	debug("Buswidth = %d, clock: %d\n", mmc->bus_width, mmc->clock);
 
 	dwmci_setup_bus(host, mmc->clock);
 	switch (mmc->bus_width) {
@@ -329,7 +339,7 @@ static int dwmci_init(struct mmc *mmc)
 	dwmci_writel(host, DWMCI_PWREN, 1);
 
 	if (!dwmci_wait_reset(host, DWMCI_RESET_ALL)) {
-		debug("%s[%d] Fail-reset!!\n",__func__,__LINE__);
+		printf("%s[%d] Fail-reset!!\n", __func__, __LINE__);
 		return -1;
 	}
 
