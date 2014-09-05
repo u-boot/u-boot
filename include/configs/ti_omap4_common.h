@@ -101,10 +101,10 @@
 		"vram=${vram} " \
 		"root=${mmcroot} " \
 		"rootfstype=${mmcrootfstype}\0" \
-	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
+	"loadbootscript=load mmc ${mmcdev} ${loadaddr} boot.scr\0" \
 	"bootscript=echo Running bootscript from mmc${mmcdev} ...; " \
 		"source ${loadaddr}\0" \
-	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} uEnv.txt\0" \
+	"loadbootenv=load mmc ${mmcdev} ${loadaddr} uEnv.txt\0" \
 	"importbootenv=echo Importing environment from mmc${mmcdev} ...; " \
 		"env import -t ${loadaddr} ${filesize}\0" \
 	"loadimage=load mmc ${bootpart} ${loadaddr} ${bootdir}/${bootfile}\0" \
