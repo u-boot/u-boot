@@ -163,6 +163,12 @@ typedef volatile unsigned int   *dv_reg_p;
 /* MSMC control */
 #define KS2_MSMC_CTRL_BASE		0x0bc00000
 
+/* USB */
+#define KS2_USB_SS_BASE			0x02680000
+#define KS2_USB_HOST_XHCI_BASE		(KS2_USB_SS_BASE + 0x10000)
+#define KS2_DEV_USB_PHY_BASE		0x02620738
+#define KS2_USB_PHY_CFG_BASE		0x02630000
+
 #ifdef CONFIG_SOC_K2HK
 #include <asm/arch/hardware-k2hk.h>
 #endif

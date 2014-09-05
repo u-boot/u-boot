@@ -183,6 +183,20 @@
 					"1024k(bootloader)ro,512k(params)ro," \
 					"-(ubifs)"
 
+/* USB Configuration */
+#define CONFIG_USB_XHCI
+#define CONFIG_USB_XHCI_KEYSTONE
+#define CONFIG_SYS_USB_XHCI_MAX_ROOT_PORTS	2
+#define CONFIG_USB_STORAGE
+#define CONFIG_DOS_PARTITION
+#define CONFIG_EFI_PARTITION
+#define CONFIG_FS_FAT
+#define CONFIG_SYS_CACHELINE_SIZE		64
+#define CONFIG_USB_SS_BASE			KS2_USB_SS_BASE
+#define CONFIG_USB_HOST_XHCI_BASE		KS2_USB_HOST_XHCI_BASE
+#define CONFIG_DEV_USB_PHY_BASE			KS2_DEV_USB_PHY_BASE
+#define CONFIG_USB_PHY_CFG_BASE			KS2_USB_PHY_CFG_BASE
+
 /* U-Boot command configuration */
 #include <config_cmd_default.h>
 #define CONFIG_CMD_ASKENV
@@ -196,6 +210,7 @@
 #define CONFIG_CMD_UBIFS
 #define CONFIG_CMD_SF
 #define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_USB
 
 /* U-Boot general configuration */
 #define CONFIG_SYS_GENERIC_BOARD
