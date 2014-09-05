@@ -180,6 +180,7 @@
 #define CONFIG_CMD_BOOTI
 #define CONFIG_CMD_UNZIP
 
+#define CONFIG_BOARD_EARLY_INIT_R
 #define CONFIG_CLOCKS
 
 #endif /* __XILINX_ZYNQMP_H */

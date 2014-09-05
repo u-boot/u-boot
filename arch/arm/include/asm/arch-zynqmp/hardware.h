@@ -24,14 +24,29 @@
 #define ZYNQ_SDHCI_BASEADDR1	0xFF170000
 
 #define ZYNQMP_CRL_APB_BASEADDR	0xFF5E0000
+#define ZYNQMP_CRL_APB_TIMESTAMP_REF_CTRL_CLKACT	0x1000000
 
 struct crlapb_regs {
-	u32 reserved0[128];
-	u32 boot_mode;
+	u32 reserved0[74];
+	u32 timestamp_ref_ctrl; /* 0x128 */
+	u32 reserved0_1[53];
+	u32 boot_mode; /* 0x200 */
 	u32 reserved1[26];
 };
 
 #define crlapb_base ((struct crlapb_regs *)ZYNQMP_CRL_APB_BASEADDR)
+
+#define ZYNQMP_IOU_SCNTR	0xFF250000
+#define ZYNQMP_IOU_SCNTR_COUNTER_CONTROL_REGISTER_EN	0x2
+#define ZYNQMP_IOU_SCNTR_COUNTER_CONTROL_REGISTER_HDBG	0x1
+
+struct iou_scntr {
+	u32 counter_control_register;
+	u32 reserved0[7];
+	u32 base_frequency_id_register;
+};
+
+#define iou_scntr ((struct iou_scntr *)ZYNQMP_IOU_SCNTR)
 
 /* Bootmode setting values */
 #define BOOT_MODES_MASK	0x0000000F

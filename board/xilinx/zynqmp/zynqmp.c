@@ -18,6 +18,23 @@ int board_init(void)
 	return 0;
 }
 
+int board_early_init_r(void)
+{
+	u32 val;
+
+	val = readl(&crlapb_base->timestamp_ref_ctrl);
+	val |= ZYNQMP_CRL_APB_TIMESTAMP_REF_CTRL_CLKACT;
+	writel(val, &crlapb_base->timestamp_ref_ctrl);
+
+	/* Program freq register in System counter and enable system counter */
+	writel(gd->cpu_clk, &iou_scntr->base_frequency_id_register);
+	writel(ZYNQMP_IOU_SCNTR_COUNTER_CONTROL_REGISTER_HDBG |
+	       ZYNQMP_IOU_SCNTR_COUNTER_CONTROL_REGISTER_EN,
+	       &iou_scntr->counter_control_register);
+
+	return 0;
+}
+
 int dram_init(void)
 {
 	gd->ram_size = CONFIG_SYS_SDRAM_SIZE;
