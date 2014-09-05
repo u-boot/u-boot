@@ -20,7 +20,7 @@
 #include <net.h>
 #include <config.h>
 #include <phy.h>
-#include <asm/fsl_enet.h>
+#include <fsl_mdio.h>
 
 #define TSEC_SIZE 		0x01000
 #define TSEC_MDIO_OFFSET	0x01000

@@ -11,13 +11,13 @@
 #include <i2c.h>
 #include <miiphy.h>
 #include <phy.h>
+#include <fsl_mdio.h>
 #if defined(CONFIG_PCI)
 #include <pci.h>
 #endif
 #include <spd_sdram.h>
 #include <asm/mmu.h>
 #include <asm/io.h>
-#include <asm/fsl_enet.h>
 #include <asm/mmu.h>
 #if defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>

@@ -8,8 +8,8 @@
 #define __FM_H__
 
 #include <common.h>
+#include <phy.h>
 #include <fm_eth.h>
-#include <asm/fsl_enet.h>
 #include <asm/fsl_fman.h>
 
 /* Port ID */
