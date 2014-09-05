@@ -261,6 +261,12 @@ int board_early_init_f(void)
 	init_early_memctl_regs();
 #endif
 
+#ifdef CONFIG_FSL_DCU_FB
+	out_be32(&scfg->scfgrevcr, SCFG_SCFGREVCR_REV);
+	out_be32(&scfg->pixclkcr, SCFG_PIXCLKCR_PXCKEN);
+	out_be32(&scfg->scfgrevcr, SCFG_SCFGREVCR_NOREV);
+#endif
+
 	return 0;
 }
 

@@ -5,3 +5,4 @@
 #
 
 obj-y += ls1021atwr.o
+obj-$(CONFIG_FSL_DCU_FB) += dcu.o
