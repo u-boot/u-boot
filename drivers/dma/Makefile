@@ -8,3 +8,4 @@
 obj-$(CONFIG_FSLDMAFEC) += MCD_tasksInit.o MCD_dmaApi.o MCD_tasks.o
 obj-$(CONFIG_APBH_DMA) += apbh_dma.o
 obj-$(CONFIG_FSL_DMA) += fsl_dma.o
+obj-$(CONFIG_TI_KSNAV) += keystone_nav.o

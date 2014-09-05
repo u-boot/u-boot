@@ -8,23 +8,23 @@
  */
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/keystone_nav.h>
+#include <asm/ti-common/keystone_nav.h>
 
 struct qm_config qm_memmap = {
-	.stat_cfg	= KS2_QM_QUEUE_STATUS_BASE,
-	.queue		= (void *)KS2_QM_MANAGER_QUEUES_BASE,
-	.mngr_vbusm	= KS2_QM_BASE_ADDRESS,
-	.i_lram		= KS2_QM_LINK_RAM_BASE,
-	.proxy		= (void *)KS2_QM_MANAGER_Q_PROXY_BASE,
-	.status_ram	= KS2_QM_STATUS_RAM_BASE,
-	.mngr_cfg	= (void *)KS2_QM_CONF_BASE,
-	.intd_cfg	= KS2_QM_INTD_CONF_BASE,
-	.desc_mem	= (void *)KS2_QM_DESC_SETUP_BASE,
-	.region_num	= KS2_QM_REGION_NUM,
-	.pdsp_cmd	= KS2_QM_PDSP1_CMD_BASE,
-	.pdsp_ctl	= KS2_QM_PDSP1_CTRL_BASE,
-	.pdsp_iram	= KS2_QM_PDSP1_IRAM_BASE,
-	.qpool_num	= KS2_QM_QPOOL_NUM,
+	.stat_cfg	= CONFIG_KSNAV_QM_QUEUE_STATUS_BASE,
+	.queue		= (void *)CONFIG_KSNAV_QM_MANAGER_QUEUES_BASE,
+	.mngr_vbusm	= CONFIG_KSNAV_QM_BASE_ADDRESS,
+	.i_lram		= CONFIG_KSNAV_QM_LINK_RAM_BASE,
+	.proxy		= (void *)CONFIG_KSNAV_QM_MANAGER_Q_PROXY_BASE,
+	.status_ram	= CONFIG_KSNAV_QM_STATUS_RAM_BASE,
+	.mngr_cfg	= (void *)CONFIG_KSNAV_QM_CONF_BASE,
+	.intd_cfg	= CONFIG_KSNAV_QM_INTD_CONF_BASE,
+	.desc_mem	= (void *)CONFIG_KSNAV_QM_DESC_SETUP_BASE,
+	.region_num	= CONFIG_KSNAV_QM_REGION_NUM,
+	.pdsp_cmd	= CONFIG_KSNAV_QM_PDSP1_CMD_BASE,
+	.pdsp_ctl	= CONFIG_KSNAV_QM_PDSP1_CTRL_BASE,
+	.pdsp_iram	= CONFIG_KSNAV_QM_PDSP1_IRAM_BASE,
+	.qpool_num	= CONFIG_KSNAV_QM_QPOOL_NUM,
 };
 
 /*
@@ -157,17 +157,17 @@ void queue_close(u32 qnum)
  * DMA API
  */
 struct pktdma_cfg netcp_pktdma = {
-	.global		= (void *)KS2_NETCP_PDMA_CTRL_BASE,
-	.tx_ch		= (void *)KS2_NETCP_PDMA_TX_BASE,
-	.tx_ch_num	= KS2_NETCP_PDMA_TX_CH_NUM,
-	.rx_ch		= (void *)KS2_NETCP_PDMA_RX_BASE,
-	.rx_ch_num	= KS2_NETCP_PDMA_RX_CH_NUM,
-	.tx_sched	= (u32 *)KS2_NETCP_PDMA_SCHED_BASE,
-	.rx_flows	= (void *)KS2_NETCP_PDMA_RX_FLOW_BASE,
-	.rx_flow_num	= KS2_NETCP_PDMA_RX_FLOW_NUM,
-	.rx_free_q	= KS2_NETCP_PDMA_RX_FREE_QUEUE,
-	.rx_rcv_q	= KS2_NETCP_PDMA_RX_RCV_QUEUE,
-	.tx_snd_q	= KS2_NETCP_PDMA_TX_SND_QUEUE,
+	.global		= (void *)CONFIG_KSNAV_NETCP_PDMA_CTRL_BASE,
+	.tx_ch		= (void *)CONFIG_KSNAV_NETCP_PDMA_TX_BASE,
+	.tx_ch_num	= CONFIG_KSNAV_NETCP_PDMA_TX_CH_NUM,
+	.rx_ch		= (void *)CONFIG_KSNAV_NETCP_PDMA_RX_BASE,
+	.rx_ch_num	= CONFIG_KSNAV_NETCP_PDMA_RX_CH_NUM,
+	.tx_sched	= (u32 *)CONFIG_KSNAV_NETCP_PDMA_SCHED_BASE,
+	.rx_flows	= (void *)CONFIG_KSNAV_NETCP_PDMA_RX_FLOW_BASE,
+	.rx_flow_num	= CONFIG_KSNAV_NETCP_PDMA_RX_FLOW_NUM,
+	.rx_free_q	= CONFIG_KSNAV_NETCP_PDMA_RX_FREE_QUEUE,
+	.rx_rcv_q	= CONFIG_KSNAV_NETCP_PDMA_RX_RCV_QUEUE,
+	.tx_snd_q	= CONFIG_KSNAV_NETCP_PDMA_TX_SND_QUEUE,
 };
 
 struct pktdma_cfg *netcp;
@@ -281,7 +281,7 @@ static int _netcp_init(struct pktdma_cfg *netcp_cfg,
 	writel(0, &netcp->global->emulation_control);
 
 	/* Set QM base address, only for K2x devices */
-	writel(KS2_QM_BASE_ADDRESS, &netcp->global->qm_base_addr[0]);
+	writel(CONFIG_KSNAV_QM_BASE_ADDRESS, &netcp->global->qm_base_addr[0]);
 
 	/* Enable all channels. The current state isn't important */
 	for (j = 0; j < netcp->tx_ch_num; j++)  {
