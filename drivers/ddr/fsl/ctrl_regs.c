@@ -693,6 +693,7 @@ static void set_ddr_sdram_cfg(fsl_ddr_cfg_regs_t *ddr,
 	unsigned int x32_en = 0;	/* x32 enable */
 	unsigned int pchb8 = 0;		/* precharge bit 8 enable */
 	unsigned int hse;		/* Global half strength override */
+	unsigned int acc_ecc_en = 0;	/* Accumulated ECC enable */
 	unsigned int mem_halt = 0;	/* memory controller halt */
 	unsigned int bi = 0;		/* Bypass initialization */
 
@@ -736,6 +737,9 @@ static void set_ddr_sdram_cfg(fsl_ddr_cfg_regs_t *ddr,
 	ba_intlv_ctl = popts->ba_intlv_ctl;
 	hse = popts->half_strength_driver_enable;
 
+	/* set when ddr bus width < 64 */
+	acc_ecc_en = (dbw != 0 && ecc_en == 1) ? 1 : 0;
+
 	ddr->ddr_sdram_cfg = (0
 			| ((mem_en & 0x1) << 31)
 			| ((sren & 0x1) << 30)
@@ -752,6 +756,7 @@ static void set_ddr_sdram_cfg(fsl_ddr_cfg_regs_t *ddr,
 			| ((x32_en & 0x1) << 5)
 			| ((pchb8 & 0x1) << 4)
 			| ((hse & 0x1) << 3)
+			| ((acc_ecc_en & 0x1) << 2)
 			| ((mem_halt & 0x1) << 1)
 			| ((bi & 0x1) << 0)
 			);
