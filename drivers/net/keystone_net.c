@@ -393,7 +393,8 @@ int32_t cpmac_drv_send(u32 *buffer, int num_bytes, int slave_port_num)
 	if (num_bytes < EMAC_MIN_ETHERNET_PKT_SIZE)
 		num_bytes = EMAC_MIN_ETHERNET_PKT_SIZE;
 
-	return netcp_send(buffer, num_bytes, (slave_port_num) << 16);
+	return ksnav_send(&netcp_pktdma, buffer,
+			  num_bytes, (slave_port_num) << 16);
 }
 
 /* Eth device open */
@@ -431,7 +432,7 @@ static int keystone2_eth_open(struct eth_device *dev, bd_t *bis)
 		printf("ERROR: qm_init()\n");
 		return -1;
 	}
-	if (netcp_init(&net_rx_buffs)) {
+	if (ksnav_init(&netcp_pktdma, &net_rx_buffs)) {
 		qm_close();
 		printf("ERROR: netcp_init()\n");
 		return -1;
@@ -456,7 +457,7 @@ static int keystone2_eth_open(struct eth_device *dev, bd_t *bis)
 
 		link = keystone_get_link_status(dev);
 		if (link == 0) {
-			netcp_close();
+			ksnav_close(&netcp_pktdma);
 			qm_close();
 			return -1;
 		}
@@ -483,7 +484,7 @@ void keystone2_eth_close(struct eth_device *dev)
 
 	ethss_stop();
 
-	netcp_close();
+	ksnav_close(&netcp_pktdma);
 	qm_close();
 
 	emac_open = 0;
@@ -530,13 +531,13 @@ static int keystone2_eth_rcv_packet(struct eth_device *dev)
 	int  pkt_size;
 	u32  *pkt;
 
-	hd = netcp_recv(&pkt, &pkt_size);
+	hd = ksnav_recv(&netcp_pktdma, &pkt, &pkt_size);
 	if (hd == NULL)
 		return 0;
 
 	NetReceive((uchar *)pkt, pkt_size);
 
-	netcp_release_rxhd(hd);
+	ksnav_release_rxhd(&netcp_pktdma, hd);
 
 	return pkt_size;
 }

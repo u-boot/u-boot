@@ -37,5 +37,6 @@
 /* Network */
 #define CONFIG_DRIVER_TI_KEYSTONE_NET
 #define CONFIG_TI_KSNAV
+#define CONFIG_KSNAV_PKTDMA_NETCP
 
 #endif /* __CONFIG_K2HK_EVM_H */

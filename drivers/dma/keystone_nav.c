@@ -156,35 +156,20 @@ void queue_close(u32 qnum)
 /**
  * DMA API
  */
-struct pktdma_cfg netcp_pktdma = {
-	.global		= (void *)CONFIG_KSNAV_NETCP_PDMA_CTRL_BASE,
-	.tx_ch		= (void *)CONFIG_KSNAV_NETCP_PDMA_TX_BASE,
-	.tx_ch_num	= CONFIG_KSNAV_NETCP_PDMA_TX_CH_NUM,
-	.rx_ch		= (void *)CONFIG_KSNAV_NETCP_PDMA_RX_BASE,
-	.rx_ch_num	= CONFIG_KSNAV_NETCP_PDMA_RX_CH_NUM,
-	.tx_sched	= (u32 *)CONFIG_KSNAV_NETCP_PDMA_SCHED_BASE,
-	.rx_flows	= (void *)CONFIG_KSNAV_NETCP_PDMA_RX_FLOW_BASE,
-	.rx_flow_num	= CONFIG_KSNAV_NETCP_PDMA_RX_FLOW_NUM,
-	.rx_free_q	= CONFIG_KSNAV_NETCP_PDMA_RX_FREE_QUEUE,
-	.rx_rcv_q	= CONFIG_KSNAV_NETCP_PDMA_RX_RCV_QUEUE,
-	.tx_snd_q	= CONFIG_KSNAV_NETCP_PDMA_TX_SND_QUEUE,
-};
 
-struct pktdma_cfg *netcp;
-
-static int netcp_rx_disable(void)
+static int ksnav_rx_disable(struct pktdma_cfg *pktdma)
 {
 	u32 j, v, k;
 
-	for (j = 0; j < netcp->rx_ch_num; j++) {
-		v = readl(&netcp->rx_ch[j].cfg_a);
+	for (j = 0; j < pktdma->rx_ch_num; j++) {
+		v = readl(&pktdma->rx_ch[j].cfg_a);
 		if (!(v & CPDMA_CHAN_A_ENABLE))
 			continue;
 
-		writel(v | CPDMA_CHAN_A_TDOWN, &netcp->rx_ch[j].cfg_a);
+		writel(v | CPDMA_CHAN_A_TDOWN, &pktdma->rx_ch[j].cfg_a);
 		for (k = 0; k < TDOWN_TIMEOUT_COUNT; k++) {
 			udelay(100);
-			v = readl(&netcp->rx_ch[j].cfg_a);
+			v = readl(&pktdma->rx_ch[j].cfg_a);
 			if (!(v & CPDMA_CHAN_A_ENABLE))
 				continue;
 		}
@@ -192,33 +177,33 @@ static int netcp_rx_disable(void)
 	}
 
 	/* Clear all of the flow registers */
-	for (j = 0; j < netcp->rx_flow_num; j++) {
-		writel(0, &netcp->rx_flows[j].control);
-		writel(0, &netcp->rx_flows[j].tags);
-		writel(0, &netcp->rx_flows[j].tag_sel);
-		writel(0, &netcp->rx_flows[j].fdq_sel[0]);
-		writel(0, &netcp->rx_flows[j].fdq_sel[1]);
-		writel(0, &netcp->rx_flows[j].thresh[0]);
-		writel(0, &netcp->rx_flows[j].thresh[1]);
-		writel(0, &netcp->rx_flows[j].thresh[2]);
+	for (j = 0; j < pktdma->rx_flow_num; j++) {
+		writel(0, &pktdma->rx_flows[j].control);
+		writel(0, &pktdma->rx_flows[j].tags);
+		writel(0, &pktdma->rx_flows[j].tag_sel);
+		writel(0, &pktdma->rx_flows[j].fdq_sel[0]);
+		writel(0, &pktdma->rx_flows[j].fdq_sel[1]);
+		writel(0, &pktdma->rx_flows[j].thresh[0]);
+		writel(0, &pktdma->rx_flows[j].thresh[1]);
+		writel(0, &pktdma->rx_flows[j].thresh[2]);
 	}
 
 	return QM_OK;
 }
 
-static int netcp_tx_disable(void)
+static int ksnav_tx_disable(struct pktdma_cfg *pktdma)
 {
 	u32 j, v, k;
 
-	for (j = 0; j < netcp->tx_ch_num; j++) {
-		v = readl(&netcp->tx_ch[j].cfg_a);
+	for (j = 0; j < pktdma->tx_ch_num; j++) {
+		v = readl(&pktdma->tx_ch[j].cfg_a);
 		if (!(v & CPDMA_CHAN_A_ENABLE))
 			continue;
 
-		writel(v | CPDMA_CHAN_A_TDOWN, &netcp->tx_ch[j].cfg_a);
+		writel(v | CPDMA_CHAN_A_TDOWN, &pktdma->tx_ch[j].cfg_a);
 		for (k = 0; k < TDOWN_TIMEOUT_COUNT; k++) {
 			udelay(100);
-			v = readl(&netcp->tx_ch[j].cfg_a);
+			v = readl(&pktdma->tx_ch[j].cfg_a);
 			if (!(v & CPDMA_CHAN_A_ENABLE))
 				continue;
 		}
@@ -228,19 +213,17 @@ static int netcp_tx_disable(void)
 	return QM_OK;
 }
 
-static int _netcp_init(struct pktdma_cfg *netcp_cfg,
-		       struct rx_buff_desc *rx_buffers)
+int ksnav_init(struct pktdma_cfg *pktdma, struct rx_buff_desc *rx_buffers)
 {
 	u32 j, v;
 	struct qm_host_desc *hd;
 	u8 *rx_ptr;
 
-	if (netcp_cfg == NULL || rx_buffers == NULL ||
+	if (pktdma == NULL || rx_buffers == NULL ||
 	    rx_buffers->buff_ptr == NULL || qm_cfg == NULL)
 		return QM_ERR;
 
-	netcp = netcp_cfg;
-	netcp->rx_flow = rx_buffers->rx_flow;
+	pktdma->rx_flow = rx_buffers->rx_flow;
 
 	/* init rx queue */
 	rx_ptr = rx_buffers->buff_ptr;
@@ -250,69 +233,64 @@ static int _netcp_init(struct pktdma_cfg *netcp_cfg,
 		if (hd == NULL)
 			return QM_ERR;
 
-		qm_buff_push(hd, netcp->rx_free_q,
+		qm_buff_push(hd, pktdma->rx_free_q,
 			     rx_ptr, rx_buffers->buff_len);
 
 		rx_ptr += rx_buffers->buff_len;
 	}
 
-	netcp_rx_disable();
+	ksnav_rx_disable(pktdma);
 
 	/* configure rx channels */
-	v = CPDMA_REG_VAL_MAKE_RX_FLOW_A(1, 1, 0, 0, 0, 0, 0, netcp->rx_rcv_q);
-	writel(v, &netcp->rx_flows[netcp->rx_flow].control);
-	writel(0, &netcp->rx_flows[netcp->rx_flow].tags);
-	writel(0, &netcp->rx_flows[netcp->rx_flow].tag_sel);
+	v = CPDMA_REG_VAL_MAKE_RX_FLOW_A(1, 1, 0, 0, 0, 0, 0, pktdma->rx_rcv_q);
+	writel(v, &pktdma->rx_flows[pktdma->rx_flow].control);
+	writel(0, &pktdma->rx_flows[pktdma->rx_flow].tags);
+	writel(0, &pktdma->rx_flows[pktdma->rx_flow].tag_sel);
 
-	v = CPDMA_REG_VAL_MAKE_RX_FLOW_D(0, netcp->rx_free_q, 0,
-					 netcp->rx_free_q);
+	v = CPDMA_REG_VAL_MAKE_RX_FLOW_D(0, pktdma->rx_free_q, 0,
+					 pktdma->rx_free_q);
 
-	writel(v, &netcp->rx_flows[netcp->rx_flow].fdq_sel[0]);
-	writel(v, &netcp->rx_flows[netcp->rx_flow].fdq_sel[1]);
-	writel(0, &netcp->rx_flows[netcp->rx_flow].thresh[0]);
-	writel(0, &netcp->rx_flows[netcp->rx_flow].thresh[1]);
-	writel(0, &netcp->rx_flows[netcp->rx_flow].thresh[2]);
+	writel(v, &pktdma->rx_flows[pktdma->rx_flow].fdq_sel[0]);
+	writel(v, &pktdma->rx_flows[pktdma->rx_flow].fdq_sel[1]);
+	writel(0, &pktdma->rx_flows[pktdma->rx_flow].thresh[0]);
+	writel(0, &pktdma->rx_flows[pktdma->rx_flow].thresh[1]);
+	writel(0, &pktdma->rx_flows[pktdma->rx_flow].thresh[2]);
 
-	for (j = 0; j < netcp->rx_ch_num; j++)
-		writel(CPDMA_CHAN_A_ENABLE, &netcp->rx_ch[j].cfg_a);
+	for (j = 0; j < pktdma->rx_ch_num; j++)
+		writel(CPDMA_CHAN_A_ENABLE, &pktdma->rx_ch[j].cfg_a);
 
 	/* configure tx channels */
 	/* Disable loopback in the tx direction */
-	writel(0, &netcp->global->emulation_control);
+	writel(0, &pktdma->global->emulation_control);
 
 	/* Set QM base address, only for K2x devices */
-	writel(CONFIG_KSNAV_QM_BASE_ADDRESS, &netcp->global->qm_base_addr[0]);
+	writel(CONFIG_KSNAV_QM_BASE_ADDRESS, &pktdma->global->qm_base_addr[0]);
 
 	/* Enable all channels. The current state isn't important */
-	for (j = 0; j < netcp->tx_ch_num; j++)  {
-		writel(0, &netcp->tx_ch[j].cfg_b);
-		writel(CPDMA_CHAN_A_ENABLE, &netcp->tx_ch[j].cfg_a);
+	for (j = 0; j < pktdma->tx_ch_num; j++)  {
+		writel(0, &pktdma->tx_ch[j].cfg_b);
+		writel(CPDMA_CHAN_A_ENABLE, &pktdma->tx_ch[j].cfg_a);
 	}
 
 	return QM_OK;
 }
 
-int netcp_init(struct rx_buff_desc *rx_buffers)
+int ksnav_close(struct pktdma_cfg *pktdma)
 {
-	return _netcp_init(&netcp_pktdma, rx_buffers);
-}
-
-int netcp_close(void)
-{
-	if (!netcp)
+	if (!pktdma)
 		return QM_ERR;
 
-	netcp_tx_disable();
-	netcp_rx_disable();
+	ksnav_tx_disable(pktdma);
+	ksnav_rx_disable(pktdma);
 
-	queue_close(netcp->rx_free_q);
-	queue_close(netcp->rx_rcv_q);
-	queue_close(netcp->tx_snd_q);
+	queue_close(pktdma->rx_free_q);
+	queue_close(pktdma->rx_rcv_q);
+	queue_close(pktdma->tx_snd_q);
 
 	return QM_OK;
 }
 
-int netcp_send(u32 *pkt, int num_bytes, u32 swinfo2)
+int ksnav_send(struct pktdma_cfg *pktdma, u32 *pkt, int num_bytes, u32 swinfo2)
 {
 	struct qm_host_desc *hd;
 
@@ -324,16 +302,16 @@ int netcp_send(u32 *pkt, int num_bytes, u32 swinfo2)
 	hd->swinfo[2]	= swinfo2;
 	hd->packet_info = qm_cfg->qpool_num;
 
-	qm_buff_push(hd, netcp->tx_snd_q, pkt, num_bytes);
+	qm_buff_push(hd, pktdma->tx_snd_q, pkt, num_bytes);
 
 	return QM_OK;
 }
 
-void *netcp_recv(u32 **pkt, int *num_bytes)
+void *ksnav_recv(struct pktdma_cfg *pktdma, u32 **pkt, int *num_bytes)
 {
 	struct qm_host_desc *hd;
 
-	hd = qm_pop(netcp->rx_rcv_q);
+	hd = qm_pop(pktdma->rx_rcv_q);
 	if (!hd)
 		return NULL;
 
@@ -343,12 +321,12 @@ void *netcp_recv(u32 **pkt, int *num_bytes)
 	return hd;
 }
 
-void netcp_release_rxhd(void *hd)
+void ksnav_release_rxhd(struct pktdma_cfg *pktdma, void *hd)
 {
 	struct qm_host_desc *_hd = (struct qm_host_desc *)hd;
 
 	_hd->buff_len = _hd->orig_buff_len;
 	_hd->buff_ptr = _hd->orig_buff_ptr;
 
-	qm_push(_hd, netcp->rx_free_q);
+	qm_push(_hd, pktdma->rx_free_q);
 }
