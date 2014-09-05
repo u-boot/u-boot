@@ -63,6 +63,11 @@
 	              reg = <0x20>;
 	              compatible = "maxim,max98090-codec";
 	       };
+
+	        edp-lvds-bridge@48 {
+	                compatible = "parade,ps8625";
+	                reg = <0x48>;
+	        };
 	};
 
         sound@3830000 {
@@ -123,5 +128,30 @@
 
 	xhci@12400000 {
 		samsung,vbus-gpio = <&gpio 0x41 0>; /* H01 */
+	};
+
+	fimd@14400000 {
+		samsung,vl-freq = <60>;
+		samsung,vl-col = <1366>;
+		samsung,vl-row = <768>;
+		samsung,vl-width = <1366>;
+		samsung,vl-height = <768>;
+
+		samsung,vl-clkp;
+		samsung,vl-dp;
+		samsung,vl-bpix = <4>;
+
+		samsung,vl-hspw = <32>;
+		samsung,vl-hbpd = <40>;
+		samsung,vl-hfpd = <40>;
+		samsung,vl-vspw = <6>;
+		samsung,vl-vbpd = <10>;
+		samsung,vl-vfpd = <12>;
+		samsung,vl-cmd-allow-len = <0xf>;
+
+		samsung,winid = <3>;
+		samsung,interface-mode = <1>;
+		samsung,dp-enabled = <1>;
+		samsung,dual-lcd-enabled = <0>;
 	};
 };
