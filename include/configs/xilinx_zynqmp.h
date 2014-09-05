@@ -52,8 +52,8 @@
 
 #define CONFIG_DEFAULT_DEVICE_TREE	zynqmp
 
-/* Generic Timer Definitions */
-#define COUNTER_FREQUENCY		0x1800000 /* 24MHz */
+/* Generic Timer Definitions - setup in EL3. Setup by ATF for other cases */
+#define COUNTER_FREQUENCY		4000000
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 0x400000)
