@@ -20,6 +20,7 @@
 #include <asm/arch/mmc.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/power.h>
+#include <asm/arch/system.h>
 #include <power/pmic.h>
 #include <asm/arch/sromc.h>
 #include <lcd.h>
@@ -149,6 +150,21 @@ int board_early_init_f(void)
 #ifdef CONFIG_SYS_I2C_INIT_BOARD
 	board_i2c_init(gd->fdt_blob);
 #endif
+
+#if defined(CONFIG_OF_CONTROL) && defined(CONFIG_EXYNOS_FB)
+/*
+ * board_init_f(arch/arm/lib/board.c) calls lcd_setmem() which needs
+ * panel_info.vl_col, panel_info.vl_row and panel_info.vl_bpix, to reserve
+ * FB memory at a very early stage. So, we need to fill panel_info.vl_col,
+ * panel_info.vl_row and panel_info.vl_bpix before lcd_setmem() is called.
+ */
+	err = exynos_lcd_early_init(gd->fdt_blob);
+	if (err) {
+		debug("LCD early init failed\n");
+		return err;
+	}
+#endif
+
 	return exynos_early_init_f();
 }
 #endif

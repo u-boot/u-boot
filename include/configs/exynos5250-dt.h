@@ -61,8 +61,6 @@
 #ifdef CONFIG_LCD
 #define CONFIG_EXYNOS_FB
 #define CONFIG_EXYNOS_DP
-#define LCD_XRES			2560
-#define LCD_YRES			1600
 #define LCD_BPP			LCD_COLOR16
 #endif
 

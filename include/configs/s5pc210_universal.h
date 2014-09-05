@@ -247,7 +247,4 @@ int universal_spi_read(void);
 #define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE ((500 * 160 * 4) + 54)
 
-#define LCD_XRES	480
-#define LCD_YRES	800
-
 #endif	/* __CONFIG_H */
