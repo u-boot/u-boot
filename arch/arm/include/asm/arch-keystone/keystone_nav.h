@@ -13,10 +13,6 @@
 #include <asm/arch/hardware.h>
 #include <asm/io.h>
 
-enum soc_type_t {
-	k2hk
-};
-
 #define QM_OK                    0
 #define QM_ERR                  -1
 #define QM_DESC_TYPE_HOST        0

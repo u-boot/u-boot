@@ -10,11 +10,6 @@
 #include <asm/io.h>
 #include <asm/arch/keystone_nav.h>
 
-static int soc_type =
-#ifdef CONFIG_SOC_K2HK
-	k2hk;
-#endif
-
 struct qm_config qm_memmap = {
 	.stat_cfg	= KS2_QM_QUEUE_STATUS_BASE,
 	.queue		= (void *)KS2_QM_MANAGER_QUEUES_BASE,
@@ -158,22 +153,21 @@ void queue_close(u32 qnum)
 		;
 }
 
-/*
+/**
  * DMA API
  */
-
-struct pktdma_cfg k2hk_netcp_pktdma = {
-	.global		= (struct global_ctl_regs *)0x02004000,
-	.tx_ch		= (struct tx_chan_regs *)0x02004400,
-	.tx_ch_num	= 9,
-	.rx_ch		= (struct rx_chan_regs *)0x02004800,
-	.rx_ch_num	= 26,
-	.tx_sched	= (u32 *)0x02004c00,
-	.rx_flows	= (struct rx_flow_regs *)0x02005000,
-	.rx_flow_num	= 32,
-	.rx_free_q	= 4001,
-	.rx_rcv_q	= 4002,
-	.tx_snd_q	= 648,
+struct pktdma_cfg netcp_pktdma = {
+	.global		= (void *)KS2_NETCP_PDMA_CTRL_BASE,
+	.tx_ch		= (void *)KS2_NETCP_PDMA_TX_BASE,
+	.tx_ch_num	= KS2_NETCP_PDMA_TX_CH_NUM,
+	.rx_ch		= (void *)KS2_NETCP_PDMA_RX_BASE,
+	.rx_ch_num	= KS2_NETCP_PDMA_RX_CH_NUM,
+	.tx_sched	= (u32 *)KS2_NETCP_PDMA_SCHED_BASE,
+	.rx_flows	= (void *)KS2_NETCP_PDMA_RX_FLOW_BASE,
+	.rx_flow_num	= KS2_NETCP_PDMA_RX_FLOW_NUM,
+	.rx_free_q	= KS2_NETCP_PDMA_RX_FREE_QUEUE,
+	.rx_rcv_q	= KS2_NETCP_PDMA_RX_RCV_QUEUE,
+	.tx_snd_q	= KS2_NETCP_PDMA_TX_SND_QUEUE,
 };
 
 struct pktdma_cfg *netcp;
@@ -300,12 +294,7 @@ static int _netcp_init(struct pktdma_cfg *netcp_cfg,
 
 int netcp_init(struct rx_buff_desc *rx_buffers)
 {
-	switch (soc_type) {
-	case k2hk:
-		_netcp_init(&k2hk_netcp_pktdma, rx_buffers);
-		return QM_OK;
-	}
-	return QM_ERR;
+	return _netcp_init(&netcp_pktdma, rx_buffers);
 }
 
 int netcp_close(void)
