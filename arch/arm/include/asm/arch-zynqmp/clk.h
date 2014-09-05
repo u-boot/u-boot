@@ -9,6 +9,5 @@
 #define _ASM_ARCH_CLK_H_
 
 unsigned long get_uart_clk(int dev_id);
-unsigned long get_ttc_clk(int dev_id);
 
 #endif /* _ASM_ARCH_CLK_H_ */
