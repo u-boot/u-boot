@@ -105,8 +105,8 @@ found:
 	popts->zq_en = 1;
 
 	/* DHC_EN =1, ODT = 75 Ohm */
-	popts->ddr_cdr1 = DDR_CDR1_DHC_EN | DDR_CDR1_ODT(DDR_CDR_ODT_OFF);
-	popts->ddr_cdr2 = DDR_CDR2_ODT(DDR_CDR_ODT_OFF);
+	popts->ddr_cdr1 = DDR_CDR1_DHC_EN | DDR_CDR1_ODT(DDR_CDR_ODT_75ohm);
+	popts->ddr_cdr2 = DDR_CDR2_ODT(DDR_CDR_ODT_75ohm);
 }
 
 phys_size_t initdram(int board_type)
