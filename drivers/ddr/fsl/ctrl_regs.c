@@ -2276,6 +2276,9 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 	if (ip_rev > 0x40400)
 		unq_mrs_en = 1;
 
+	if (ip_rev > 0x40700)
+		ddr->debug[18] = popts->cswl_override;
+
 	set_ddr_sdram_cfg_2(ddr, popts, unq_mrs_en);
 	set_ddr_sdram_mode(ddr, popts, common_dimm,
 				cas_latency, additive_latency, unq_mrs_en);
