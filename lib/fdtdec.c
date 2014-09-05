@@ -71,6 +71,7 @@ static const char * const compat_names[COMPAT_COUNT] = {
 	COMPAT(TI_TPS65090, "ti,tps65090"),
 	COMPAT(COMPAT_NXP_PTN3460, "nxp,ptn3460"),
 	COMPAT(SAMSUNG_EXYNOS_SYSMMU, "samsung,sysmmu-v3.3"),
+	COMPAT(PARADE_PS8625, "parade,ps8625"),
 };
 
 const char *fdtdec_get_compatible(enum fdt_compat_id id)
