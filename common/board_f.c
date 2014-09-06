@@ -341,21 +341,23 @@ static int setup_ram_buf(void)
 
 static int setup_fdt(void)
 {
-#ifdef CONFIG_OF_EMBED
+#ifdef CONFIG_OF_CONTROL
+# ifdef CONFIG_OF_EMBED
 	/* Get a pointer to the FDT */
 	gd->fdt_blob = __dtb_dt_begin;
-#elif defined CONFIG_OF_SEPARATE
+# elif defined CONFIG_OF_SEPARATE
 	/* FDT is at end of image */
 	gd->fdt_blob = (ulong *)&_end;
-#elif defined(CONFIG_OF_HOSTFILE)
+# elif defined(CONFIG_OF_HOSTFILE)
 	if (read_fdt_from_file()) {
 		puts("Failed to read control FDT\n");
 		return -1;
 	}
-#endif
+# endif
 	/* Allow the early environment to override the fdt address */
 	gd->fdt_blob = (void *)getenv_ulong("fdtcontroladdr", 16,
 						(uintptr_t)gd->fdt_blob);
+#endif
 	return 0;
 }
 
