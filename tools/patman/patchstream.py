@@ -355,7 +355,7 @@ class PatchStream:
 
 
 def GetMetaDataForList(commit_range, git_dir=None, count=None,
-                       series = Series()):
+                       series = None):
     """Reads out patch series metadata from the commits
 
     This does a 'git log' on the relevant commits and pulls out the tags we
@@ -370,6 +370,8 @@ def GetMetaDataForList(commit_range, git_dir=None, count=None,
     Returns:
         A Series object containing information about the commits.
     """
+    if not series:
+        series = Series()
     params = gitutil.LogCmd(commit_range,reverse=True, count=count,
                             git_dir=git_dir)
     stdout = command.RunPipe([params], capture=True).stdout
