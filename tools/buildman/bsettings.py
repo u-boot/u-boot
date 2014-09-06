@@ -5,6 +5,7 @@
 
 import ConfigParser
 import os
+import StringIO
 
 
 def Setup(fname=''):
@@ -17,11 +18,15 @@ def Setup(fname=''):
     global config_fname
 
     settings = ConfigParser.SafeConfigParser()
-    config_fname = fname
-    if config_fname == '':
-        config_fname = '%s/.buildman' % os.getenv('HOME')
-    if config_fname:
-        settings.read(config_fname)
+    if fname is not None:
+        config_fname = fname
+        if config_fname == '':
+            config_fname = '%s/.buildman' % os.getenv('HOME')
+        if config_fname:
+            settings.read(config_fname)
+
+def AddFile(data):
+    settings.readfp(StringIO.StringIO(data))
 
 def GetItems(section):
     """Get the items from a section of the config.

@@ -10,12 +10,29 @@ import sys
 import tempfile
 import unittest
 
+import bsettings
 import cmdline
 import command
 import control
 import gitutil
 import terminal
 import toolchain
+
+settings_data = '''
+# Buildman settings file
+
+[toolchain]
+
+[toolchain-alias]
+
+[make-flags]
+src=/home/sjg/c/src
+chroot=/home/sjg/c/chroot
+vboot=USE_STDINT=1 VBOOT_DEBUG=1 MAKEFLAGS_VBOOT=DEBUG=1 CFLAGS_EXTRA_VBOOT=-DUNROLL_LOOPS VBOOT_SOURCE=${src}/platform/vboot_reference
+chromeos_coreboot=VBOOT=${chroot}/build/link/usr ${vboot}
+chromeos_daisy=VBOOT=${chroot}/build/daisy/usr ${vboot}
+chromeos_peach=VBOOT=${chroot}/build/peach_pit/usr ${vboot}
+'''
 
 class TestFunctional(unittest.TestCase):
     """Functional test for buildman.
@@ -36,6 +53,8 @@ class TestFunctional(unittest.TestCase):
         command.test_result = self._HandleCommand
         self._toolchains = toolchain.Toolchains()
         self._toolchains.Add('gcc', test=False)
+        bsettings.Setup(None)
+        bsettings.AddFile(settings_data)
 
     def tearDown(self):
         shutil.rmtree(self._base_dir)
