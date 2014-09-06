@@ -79,6 +79,7 @@ Date:   Thu Aug 14 16:48:25 2014 -0600
     Series-changes: 7
     - Add new patch to fix the 'reverse' bug
 
+    Series-version: 8
 
     Change-Id: I79078f792e8b390b8a1272a8023537821d45feda
     Reported-by: York Sun <yorksun@freescale.com>
@@ -155,6 +156,8 @@ Date:   Fri Aug 22 15:57:39 2014 -0600
 
     Series-changes: 9
     - Add new patch to avoid changing the order of tags
+
+    Series-version: 9
 
     Suggested-by: Masahiro Yamada <yamada.m@jp.panasonic.com>
     Change-Id: Ib1518588c1a189ad5c3198aae76f8654aed8d0db
