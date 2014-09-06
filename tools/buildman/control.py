@@ -5,6 +5,7 @@
 
 import multiprocessing
 import os
+import shutil
 import sys
 
 import board
@@ -78,7 +79,8 @@ def ShowActions(series, why_selected, boards_selected, builder, options):
     print ('Total boards to build for each commit: %d\n' %
             why_selected['all'])
 
-def DoBuildman(options, args, toolchains=None, make_func=None, boards=None):
+def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
+               clean_dir=False):
     """The main control code for buildman
 
     Args:
@@ -93,6 +95,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None):
         board: Boards() object to use, containing a list of available
                 boards. If this is None it will be created and scanned.
     """
+    global builder
+
     if options.full_help:
         pager = os.getenv('PAGER')
         if not pager:
@@ -209,6 +213,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None):
     else:
         dirname = 'current'
     output_dir = os.path.join(options.output_dir, dirname)
+    if clean_dir and os.path.exists(output_dir):
+        shutil.rmtree(output_dir)
     builder = Builder(toolchains, output_dir, options.git_dir,
             options.threads, options.jobs, gnu_make=gnu_make, checkout=True,
             show_unknown=options.show_unknown, step=options.step)
@@ -230,6 +236,9 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None):
 
         if series:
             commits = series.commits
+            # Number the commits for test purposes
+            for commit in range(len(commits)):
+                commits[commit].sequence = commit
         else:
             commits = None
 
