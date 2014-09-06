@@ -10,6 +10,7 @@ import sys
 import tempfile
 import unittest
 
+import board
 import bsettings
 import cmdline
 import command
@@ -34,6 +35,14 @@ chromeos_daisy=VBOOT=${chroot}/build/daisy/usr ${vboot}
 chromeos_peach=VBOOT=${chroot}/build/peach_pit/usr ${vboot}
 '''
 
+boards = [
+    ['Active', 'arm', 'armv7', '', 'Tester', 'ARM Board 1', 'board0',  ''],
+    ['Active', 'arm', 'armv7', '', 'Tester', 'ARM Board 2', 'board1', ''],
+    ['Active', 'powerpc', 'powerpc', '', 'Tester', 'PowerPC board 1', 'board2', ''],
+    ['Active', 'powerpc', 'mpc5xx', '', 'Tester', 'PowerPC board 2', 'board3', ''],
+    ['Active', 'sandbox', 'sandbox', '', 'Tester', 'Sandbox board', 'board4', ''],
+]
+
 class TestFunctional(unittest.TestCase):
     """Functional test for buildman.
 
@@ -55,6 +64,9 @@ class TestFunctional(unittest.TestCase):
         self._toolchains.Add('gcc', test=False)
         bsettings.Setup(None)
         bsettings.AddFile(settings_data)
+        self._boards = board.Boards()
+        for brd in boards:
+            self._boards.AddBoard(board.Board(*brd))
 
     def tearDown(self):
         shutil.rmtree(self._base_dir)
@@ -67,7 +79,7 @@ class TestFunctional(unittest.TestCase):
         sys.argv = [sys.argv[0]] + list(args)
         options, args = cmdline.ParseArgs()
         return control.DoBuildman(options, args, toolchains=self._toolchains,
-                make_func=self._HandleMake)
+                make_func=self._HandleMake, boards=self._boards)
 
     def testFullHelp(self):
         command.test_result = None
@@ -193,6 +205,12 @@ class TestFunctional(unittest.TestCase):
         # Not handled, so abort
         print 'make', stage
         sys.exit(1)
+
+    def testNoBoards(self):
+        """Test that buildman aborts when there are no boards"""
+        self._boards = board.Boards()
+        with self.assertRaises(SystemExit):
+            self._RunControl()
 
     def testCurrentSource(self):
         """Very simple test to invoke buildman on the current source"""

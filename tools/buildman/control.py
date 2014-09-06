@@ -78,7 +78,7 @@ def ShowActions(series, why_selected, boards_selected, builder, options):
     print ('Total boards to build for each commit: %d\n' %
             why_selected['all'])
 
-def DoBuildman(options, args, toolchains=None, make_func=None):
+def DoBuildman(options, args, toolchains=None, make_func=None, boards=None):
     """The main control code for buildman
 
     Args:
@@ -90,6 +90,8 @@ def DoBuildman(options, args, toolchains=None, make_func=None):
                 to execute 'make'. If this is None, the normal function
                 will be used, which calls the 'make' tool with suitable
                 arguments. This setting is useful for tests.
+        board: Boards() object to use, containing a list of available
+                boards. If this is None it will be created and scanned.
     """
     if options.full_help:
         pager = os.getenv('PAGER')
@@ -135,14 +137,15 @@ def DoBuildman(options, args, toolchains=None, make_func=None):
         sys.exit(col.Color(col.RED, str))
 
     # Work out what subset of the boards we are building
-    board_file = os.path.join(options.git, 'boards.cfg')
-    status = subprocess.call([os.path.join(options.git,
-                                           'tools/genboardscfg.py')])
-    if status != 0:
-        sys.exit("Failed to generate boards.cfg")
+    if not boards:
+        board_file = os.path.join(options.git, 'boards.cfg')
+        status = subprocess.call([os.path.join(options.git,
+                                                'tools/genboardscfg.py')])
+        if status != 0:
+                sys.exit("Failed to generate boards.cfg")
 
-    boards = board.Boards()
-    boards.ReadBoards(os.path.join(options.git, 'boards.cfg'))
+        boards = board.Boards()
+        boards.ReadBoards(os.path.join(options.git, 'boards.cfg'))
 
     exclude = []
     if options.exclude:
