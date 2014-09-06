@@ -84,6 +84,14 @@ def DoBuildman(options, args):
         options: Command line options object
         args: Command line arguments (list of strings)
     """
+    if options.full_help:
+        pager = os.getenv('PAGER')
+        if not pager:
+            pager = 'more'
+        fname = os.path.join(os.path.dirname(sys.argv[0]), 'README')
+        command.Run(pager, fname)
+        return 0
+
     gitutil.Setup()
 
     bsettings.Setup(options.config_file)

@@ -63,12 +63,6 @@ options, args = cmdline.ParseArgs()
 # Run our meagre tests
 if options.test:
     RunTests()
-elif options.full_help:
-    pager = os.getenv('PAGER')
-    if not pager:
-        pager = 'more'
-    fname = os.path.join(os.path.dirname(sys.argv[0]), 'README')
-    command.Run(pager, fname)
 
 # Build selected commits for selected boards
 else:
