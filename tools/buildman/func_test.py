@@ -199,6 +199,8 @@ class TestFunctional(unittest.TestCase):
         # Map of [board, commit] to error messages
         self._error = {}
 
+        self._test_branch = TEST_BRANCH
+
         # Avoid sending any output and clear all terminal output
         terminal.SetPrintTestMode()
         terminal.GetPrintTestLines()
@@ -252,10 +254,10 @@ class TestFunctional(unittest.TestCase):
     def _HandleCommandGitLog(self, args):
         if '-n0' in args:
             return command.CommandResult(return_code=0)
-        elif args[-1] == 'upstream/master..%s' % TEST_BRANCH:
+        elif args[-1] == 'upstream/master..%s' % self._test_branch:
             return command.CommandResult(return_code=0, stdout=commit_shortlog)
         elif args[:3] == ['--no-color', '--no-decorate', '--reverse']:
-            if args[-1] == TEST_BRANCH:
+            if args[-1] == self._test_branch:
                 count = int(args[3][2:])
                 return command.CommandResult(return_code=0,
                                             stdout=''.join(commit_log[:count]))
@@ -270,9 +272,9 @@ class TestFunctional(unittest.TestCase):
             return command.CommandResult(return_code=0)
         elif config.startswith('branch.badbranch'):
             return command.CommandResult(return_code=1)
-        elif config == 'branch.%s.remote' % TEST_BRANCH:
+        elif config == 'branch.%s.remote' % self._test_branch:
             return command.CommandResult(return_code=0, stdout='upstream\n')
-        elif config == 'branch.%s.merge' % TEST_BRANCH:
+        elif config == 'branch.%s.merge' % self._test_branch:
             return command.CommandResult(return_code=0,
                                          stdout='refs/heads/master\n')
 
@@ -505,3 +507,10 @@ class TestFunctional(unittest.TestCase):
         self.assertEqual(self._builder.count, self._total_builds)
         self.assertEqual(self._builder.fail, 0)
         self.assertEqual(self._make_calls, 3)
+
+    def testBranchWithSlash(self):
+        """Test building a branch with a '/' in the name"""
+        self._test_branch = '/__dev/__testbranch'
+        self._RunControl('-b', self._test_branch, clean_dir=False)
+        self.assertEqual(self._builder.count, self._total_builds)
+        self.assertEqual(self._builder.fail, 0)

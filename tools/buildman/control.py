@@ -209,7 +209,7 @@ def DoBuildman(options, args, toolchains=None, make_func=None, boards=None,
 
     # Create a new builder with the selected options
     if options.branch:
-        dirname = options.branch
+        dirname = options.branch.replace('/', '_')
     else:
         dirname = 'current'
     output_dir = os.path.join(options.output_dir, dirname)
