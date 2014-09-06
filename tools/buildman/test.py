@@ -21,20 +21,21 @@ import builder
 import control
 import command
 import commit
+import terminal
 import toolchain
 
 errors = [
     '''main.c: In function 'main_loop':
 main.c:260:6: warning: unused variable 'joe' [-Wunused-variable]
 ''',
-    '''main.c: In function 'main_loop':
+    '''main.c: In function 'main_loop2':
 main.c:295:2: error: 'fred' undeclared (first use in this function)
 main.c:295:2: note: each undeclared identifier is reported only once for each function it appears in
 make[1]: *** [main.o] Error 1
 make: *** [common/libcommon.o] Error 2
 Make failed
 ''',
-    '''main.c: In function 'main_loop':
+    '''main.c: In function 'main_loop3':
 main.c:280:6: warning: unused variable 'mary' [-Wunused-variable]
 ''',
     '''powerpc-linux-ld: warning: dot moved backwards before `.bss'
@@ -103,6 +104,10 @@ class TestBuild(unittest.TestCase):
         self.toolchains.Add('powerpc-linux-gcc', test=False)
         self.toolchains.Add('gcc', test=False)
 
+        # Avoid sending any output
+        terminal.SetPrintTestMode()
+        self._col = terminal.Color()
+
     def Make(self, commit, brd, stage, *args, **kwargs):
         result = command.CommandResult()
         boardnum = int(brd.target[-1])
@@ -121,13 +126,26 @@ class TestBuild(unittest.TestCase):
 
             if not os.path.isdir(target_dir):
                 os.mkdir(target_dir)
-            #time.sleep(.2 + boardnum * .2)
 
         result.combined = result.stdout + result.stderr
         return result
 
-    def testBasic(self):
-        """Test basic builder operation"""
+    def assertSummary(self, text, arch, plus, boards, ok=False):
+        col = self._col
+        expected_colour = col.GREEN if ok else col.RED
+        expect = '%10s: ' % arch
+        # TODO(sjg@chromium.org): If plus is '', we shouldn't need this
+        expect += col.Color(expected_colour, plus)
+        expect += '  '
+        for board in boards:
+            expect += col.Color(expected_colour, ' %s' % board)
+        self.assertEqual(text, expect)
+
+    def testOutput(self):
+        """Test basic builder operation and output
+
+        This does a line-by-line verification of the summary output.
+        """
         output_dir = tempfile.mkdtemp()
         if not os.path.isdir(output_dir):
             os.mkdir(output_dir)
@@ -138,8 +156,81 @@ class TestBuild(unittest.TestCase):
 
         build.BuildBoards(self.commits, board_selected, keep_outputs=False,
                           verbose=False)
+        lines = terminal.GetPrintTestLines()
+        count = 0
+        for line in lines:
+            if line.text.strip():
+                count += 1
+
+        # We should get one starting message, then an update for every commit
+        # built.
+        self.assertEqual(count, len(commits) * len(boards) + 1)
         build.SetDisplayOptions(show_errors=True);
         build.ShowSummary(self.commits, board_selected)
+        lines = terminal.GetPrintTestLines()
+        self.assertEqual(lines[0].text, '01: %s' % commits[0][1])
+        self.assertEqual(lines[1].text, '02: %s' % commits[1][1])
+
+        # We expect all archs to fail
+        col = terminal.Color()
+        self.assertSummary(lines[2].text, 'sandbox', '+', ['board4'])
+        self.assertSummary(lines[3].text, 'arm', '+', ['board1'])
+        self.assertSummary(lines[4].text, 'powerpc', '+', ['board2', 'board3'])
+
+        # Now we should have the compiler warning
+        self.assertEqual(lines[5].text, 'w+%s' %
+                errors[0].rstrip().replace('\n', '\nw+'))
+        self.assertEqual(lines[5].colour, col.MAGENTA)
+
+        self.assertEqual(lines[6].text, '03: %s' % commits[2][1])
+        self.assertSummary(lines[7].text, 'sandbox', '+', ['board4'])
+        self.assertSummary(lines[8].text, 'arm', '', ['board1'], ok=True)
+        self.assertSummary(lines[9].text, 'powerpc', '+', ['board2', 'board3'])
+
+        # Compiler error
+        self.assertEqual(lines[10].text, '+%s' %
+                errors[1].rstrip().replace('\n', '\n+'))
+
+        self.assertEqual(lines[11].text, '04: %s' % commits[3][1])
+        self.assertSummary(lines[12].text, 'sandbox', '', ['board4'], ok=True)
+        self.assertSummary(lines[13].text, 'powerpc', '', ['board2', 'board3'],
+                ok=True)
+
+        # Compile error fixed
+        self.assertEqual(lines[14].text, '-%s' %
+                errors[1].rstrip().replace('\n', '\n-'))
+        self.assertEqual(lines[14].colour, col.GREEN)
+
+        self.assertEqual(lines[15].text, 'w+%s' %
+                errors[2].rstrip().replace('\n', '\nw+'))
+        self.assertEqual(lines[15].colour, col.MAGENTA)
+
+        self.assertEqual(lines[16].text, '05: %s' % commits[4][1])
+        self.assertSummary(lines[17].text, 'sandbox', '+', ['board4'])
+        self.assertSummary(lines[18].text, 'powerpc', '', ['board3'], ok=True)
+
+        # The second line of errors[3] is a duplicate, so buildman will drop it
+        expect = errors[3].rstrip().split('\n')
+        expect = [expect[0]] + expect[2:]
+        self.assertEqual(lines[19].text, '+%s' %
+                '\n'.join(expect).replace('\n', '\n+'))
+
+        self.assertEqual(lines[20].text, 'w-%s' %
+                errors[2].rstrip().replace('\n', '\nw-'))
+
+        self.assertEqual(lines[21].text, '06: %s' % commits[5][1])
+        self.assertSummary(lines[22].text, 'sandbox', '', ['board4'], ok=True)
+
+        # The second line of errors[3] is a duplicate, so buildman will drop it
+        expect = errors[3].rstrip().split('\n')
+        expect = [expect[0]] + expect[2:]
+        self.assertEqual(lines[23].text, '-%s' %
+                '\n'.join(expect).replace('\n', '\n-'))
+
+        self.assertEqual(lines[24].text, 'w-%s' %
+                errors[0].rstrip().replace('\n', '\nw-'))
+
+        self.assertEqual(len(lines), 25)
 
     def _testGit(self):
         """Test basic builder operation by building a branch"""
