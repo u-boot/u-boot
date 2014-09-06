@@ -46,6 +46,20 @@ powerpc-linux-ld: u-boot: section .reloc lma 0xffffa400 overlaps previous sectio
 powerpc-linux-ld: u-boot: section .data lma 0xffffcd38 overlaps previous sections
 powerpc-linux-ld: u-boot: section .u_boot_cmd lma 0xffffeb40 overlaps previous sections
 powerpc-linux-ld: u-boot: section .bootpg lma 0xfffff198 overlaps previous sections
+''',
+   '''In file included from %(basedir)sarch/sandbox/cpu/cpu.c:9:0:
+%(basedir)sarch/sandbox/include/asm/state.h:44:0: warning: "xxxx" redefined [enabled by default]
+%(basedir)sarch/sandbox/include/asm/state.h:43:0: note: this is the location of the previous definition
+%(basedir)sarch/sandbox/cpu/cpu.c: In function 'do_reset':
+%(basedir)sarch/sandbox/cpu/cpu.c:27:1: error: unknown type name 'blah'
+%(basedir)sarch/sandbox/cpu/cpu.c:28:12: error: expected declaration specifiers or '...' before numeric constant
+make[2]: *** [arch/sandbox/cpu/cpu.o] Error 1
+make[1]: *** [arch/sandbox/cpu] Error 2
+make[1]: *** Waiting for unfinished jobs....
+In file included from %(basedir)scommon/board_f.c:55:0:
+%(basedir)sarch/sandbox/include/asm/state.h:44:0: warning: "xxxx" redefined [enabled by default]
+%(basedir)sarch/sandbox/include/asm/state.h:43:0: note: this is the location of the previous definition
+make: *** [sub-make] Error 2
 '''
 ]
 
@@ -57,7 +71,8 @@ commits = [
     ['9012', 'Third commit, error', 1, errors[0:2]],
     ['3456', 'Fourth commit, warning', 0, [errors[0], errors[2]]],
     ['7890', 'Fifth commit, link errors', 1, [errors[0], errors[3]]],
-    ['abcd', 'Sixth commit, fixes all errors', 0, []]
+    ['abcd', 'Sixth commit, fixes all errors', 0, []],
+    ['ef01', 'Seventh commit, check directory suppression', 1, [errors[4]]],
 ]
 
 boards = [
@@ -109,15 +124,19 @@ class TestBuild(unittest.TestCase):
         self._col = terminal.Color()
 
     def Make(self, commit, brd, stage, *args, **kwargs):
+        global base_dir
+
         result = command.CommandResult()
         boardnum = int(brd.target[-1])
         result.return_code = 0
         result.stderr = ''
         result.stdout = ('This is the test output for board %s, commit %s' %
                 (brd.target, commit.hash))
-        if boardnum >= 1 and boardnum >= commit.sequence:
+        if ((boardnum >= 1 and boardnum >= commit.sequence) or
+                boardnum == 4 and commit.sequence == 6):
             result.return_code = commit.return_code
-            result.stderr = ''.join(commit.error_list)
+            result.stderr = (''.join(commit.error_list)
+                % {'basedir' : base_dir + '/.bm-work/00/'})
         if stage == 'build':
             target_dir = None
             for arg in args:
@@ -146,10 +165,12 @@ class TestBuild(unittest.TestCase):
 
         This does a line-by-line verification of the summary output.
         """
-        output_dir = tempfile.mkdtemp()
-        if not os.path.isdir(output_dir):
-            os.mkdir(output_dir)
-        build = builder.Builder(self.toolchains, output_dir, None, 1, 2,
+        global base_dir
+
+        base_dir = tempfile.mkdtemp()
+        if not os.path.isdir(base_dir):
+            os.mkdir(base_dir)
+        build = builder.Builder(self.toolchains, base_dir, None, 1, 2,
                                 checkout=False, show_unknown=False)
         build.do_make = self.Make
         board_selected = self.boards.GetSelectedDict()
@@ -167,6 +188,7 @@ class TestBuild(unittest.TestCase):
         self.assertEqual(count, len(commits) * len(boards) + 1)
         build.SetDisplayOptions(show_errors=True);
         build.ShowSummary(self.commits, board_selected)
+        #terminal.EchoPrintTestLines()
         lines = terminal.GetPrintTestLines()
         self.assertEqual(lines[0].text, '01: %s' % commits[0][1])
         self.assertEqual(lines[1].text, '02: %s' % commits[1][1])
@@ -230,7 +252,22 @@ class TestBuild(unittest.TestCase):
         self.assertEqual(lines[24].text, 'w-%s' %
                 errors[0].rstrip().replace('\n', '\nw-'))
 
-        self.assertEqual(len(lines), 25)
+        self.assertEqual(lines[25].text, '07: %s' % commits[6][1])
+        self.assertSummary(lines[26].text, 'sandbox', '+', ['board4'])
+
+        # Pick out the correct error lines
+        expect_str = errors[4].rstrip().replace('%(basedir)s', '').split('\n')
+        expect = expect_str[3:8] + [expect_str[-1]]
+        self.assertEqual(lines[27].text, '+%s' %
+                '\n'.join(expect).replace('\n', '\n+'))
+
+        # Now the warnings lines
+        expect = [expect_str[0]] + expect_str[10:12] + [expect_str[9]]
+        self.assertEqual(lines[28].text, 'w+%s' %
+                '\n'.join(expect).replace('\n', '\nw+'))
+
+        self.assertEqual(len(lines), 29)
+        shutil.rmtree(base_dir)
 
     def _testGit(self):
         """Test basic builder operation by building a branch"""
@@ -255,6 +292,7 @@ class TestBuild(unittest.TestCase):
         options.keep_outputs = False
         args = ['tegra20']
         control.DoBuildman(options, args)
+        shutil.rmtree(base_dir)
 
     def testBoardSingle(self):
         """Test single board selection"""
