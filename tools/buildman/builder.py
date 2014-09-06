@@ -20,6 +20,7 @@ import builderthread
 import command
 import gitutil
 import terminal
+from terminal import Print
 import toolchain
 
 
@@ -299,8 +300,8 @@ class Builder:
             length: Length of new line, in characters
         """
         if length < self.last_line_len:
-            print ' ' * (self.last_line_len - length),
-            print '\r',
+            Print(' ' * (self.last_line_len - length), newline=False)
+            Print('\r', newline=False)
         self.last_line_len = length
         sys.stdout.flush()
 
@@ -351,7 +352,7 @@ class Builder:
             if result.already_done:
                 self.already_done += 1
             if self._verbose:
-                print '\r',
+                Print('\r', newline=False)
                 self.ClearLine(0)
                 boards_selected = {target : result.brd}
                 self.ResetResultSummary(boards_selected)
@@ -379,7 +380,7 @@ class Builder:
                     self.commit_count)
 
         name += target
-        print line + name,
+        Print(line + name, newline=False)
         length = 14 + len(name)
         self.ClearLine(length)
 
@@ -495,7 +496,7 @@ class Builder:
             try:
                 size, type, name = line[:-1].split()
             except:
-                print "Invalid line in file '%s': '%s'" % (fname, line[:-1])
+                Print("Invalid line in file '%s': '%s'" % (fname, line[:-1]))
                 continue
             if type in 'tTdDbB':
                 # function names begin with '.' on 64-bit powerpc
@@ -723,16 +724,16 @@ class Builder:
             return
         args = [self.ColourNum(x) for x in args]
         indent = ' ' * 15
-        print ('%s%s: add: %s/%s, grow: %s/%s bytes: %s/%s (%s)' %
-               tuple([indent, self.col.Color(self.col.YELLOW, fname)] + args))
-        print '%s  %-38s %7s %7s %+7s' % (indent, 'function', 'old', 'new',
-                                        'delta')
+        Print('%s%s: add: %s/%s, grow: %s/%s bytes: %s/%s (%s)' %
+              tuple([indent, self.col.Color(self.col.YELLOW, fname)] + args))
+        Print('%s  %-38s %7s %7s %+7s' % (indent, 'function', 'old', 'new',
+                                         'delta'))
         for diff, name in delta:
             if diff:
                 color = self.col.RED if diff > 0 else self.col.GREEN
                 msg = '%s  %-38s %7s %7s %+7d' % (indent, name,
                         old.get(name, '-'), new.get(name,'-'), diff)
-                print self.col.Color(color, msg)
+                Print(msg, colour=color)
 
 
     def PrintSizeDetail(self, target_list, show_bloat):
@@ -757,11 +758,12 @@ class Builder:
                     color = self.col.RED if diff > 0 else self.col.GREEN
                 msg = ' %s %+d' % (name, diff)
                 if not printed_target:
-                    print '%10s  %-15s:' % ('', result['_target']),
+                    Print('%10s  %-15s:' % ('', result['_target']),
+                          newline=False)
                     printed_target = True
-                print self.col.Color(color, msg),
+                Print(msg, colour=color, newline=False)
             if printed_target:
-                print
+                Print()
                 if show_bloat:
                     target = result['_target']
                     outcome = result['_outcome']
@@ -866,13 +868,13 @@ class Builder:
                     color = self.col.RED if avg_diff > 0 else self.col.GREEN
                     msg = ' %s %+1.1f' % (name, avg_diff)
                     if not printed_arch:
-                        print '%10s: (for %d/%d boards)' % (arch, count,
-                                arch_count[arch]),
+                        Print('%10s: (for %d/%d boards)' % (arch, count,
+                              arch_count[arch]), newline=False)
                         printed_arch = True
-                    print self.col.Color(color, msg),
+                    Print(msg, colour=color, newline=False)
 
             if printed_arch:
-                print
+                Print()
                 if show_detail:
                     self.PrintSizeDetail(target_list, show_bloat)
 
@@ -977,19 +979,19 @@ class Builder:
                 self.AddOutcome(board_selected, arch_list, unknown, '?',
                         self.col.MAGENTA)
             for arch, target_list in arch_list.iteritems():
-                print '%10s: %s' % (arch, target_list)
+                Print('%10s: %s' % (arch, target_list))
                 self._error_lines += 1
             if better_err:
-                print self.col.Color(self.col.GREEN, '\n'.join(better_err))
+                Print('\n'.join(better_err), colour=self.col.GREEN)
                 self._error_lines += 1
             if worse_err:
-                print self.col.Color(self.col.RED, '\n'.join(worse_err))
+                Print('\n'.join(worse_err), colour=self.col.RED)
                 self._error_lines += 1
             if better_warn:
-                print self.col.Color(self.col.YELLOW, '\n'.join(better_warn))
+                Print('\n'.join(better_warn), colour=self.col.CYAN)
                 self._error_lines += 1
             if worse_warn:
-                print self.col.Color(self.col.MAGENTA, '\n'.join(worse_warn))
+                Print('\n'.join(worse_warn), colour=self.col.MAGENTA)
                 self._error_lines += 1
 
         if show_sizes:
@@ -1009,8 +1011,8 @@ class Builder:
             if not board in board_dict:
                 not_built.append(board)
         if not_built:
-            print "Boards not built (%d): %s" % (len(not_built),
-                    ', '.join(not_built))
+            Print("Boards not built (%d): %s" % (len(not_built),
+                  ', '.join(not_built)))
 
     def ProduceResultSummary(self, commit_upto, commits, board_selected):
             (board_dict, err_lines, err_line_boards, warn_lines,
@@ -1020,7 +1022,7 @@ class Builder:
             if commits:
                 msg = '%02d: %s' % (commit_upto + 1,
                         commits[commit_upto].subject)
-                print self.col.Color(self.col.BLUE, msg)
+                Print(msg, colour=self.col.BLUE)
             self.PrintResultSummary(board_selected, board_dict,
                     err_lines if self._show_errors else [], err_line_boards,
                     warn_lines if self._show_errors else [], warn_line_boards,
@@ -1044,7 +1046,7 @@ class Builder:
         for commit_upto in range(0, self.commit_count, self._step):
             self.ProduceResultSummary(commit_upto, commits, board_selected)
         if not self._error_lines:
-            print self.col.Color(self.col.GREEN, '(no errors to report)')
+            Print('(no errors to report)', colour=self.col.GREEN)
 
 
     def SetupBuild(self, board_selected, commits):
@@ -1089,7 +1091,7 @@ class Builder:
             if os.path.exists(git_dir):
                 gitutil.Fetch(git_dir, thread_dir)
             else:
-                print 'Cloning repo for thread %d' % thread_num
+                Print('Cloning repo for thread %d' % thread_num)
                 gitutil.Clone(src_dir, thread_dir)
 
     def _PrepareWorkingSpace(self, max_threads, setup_git):
@@ -1160,6 +1162,6 @@ class Builder:
 
         # Wait until we have processed all output
         self.out_queue.join()
-        print
+        Print()
         self.ClearLine(0)
         return (self.fail, self.warned)
