@@ -19,6 +19,7 @@ sys.path.append(os.path.join(our_path, '../patman'))
 
 # Our modules
 import board
+import bsettings
 import builder
 import checkpatch
 import cmdline
@@ -59,5 +60,6 @@ if options.test:
 
 # Build selected commits for selected boards
 else:
+    bsettings.Setup(options.config_file)
     ret_code = control.DoBuildman(options, args)
     sys.exit(ret_code)

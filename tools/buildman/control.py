@@ -101,7 +101,6 @@ def DoBuildman(options, args, toolchains=None, make_func=None):
 
     gitutil.Setup()
 
-    bsettings.Setup(options.config_file)
     options.git_dir = os.path.join(options.git, '.git')
 
     if not toolchains:
