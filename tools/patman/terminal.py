@@ -14,6 +14,78 @@ import sys
 # Selection of when we want our output to be colored
 COLOR_IF_TERMINAL, COLOR_ALWAYS, COLOR_NEVER = range(3)
 
+# Initially, we are set up to print to the terminal
+print_test_mode = False
+print_test_list = []
+
+class PrintLine:
+    """A line of text output
+
+    Members:
+        text: Text line that was printed
+        newline: True to output a newline after the text
+        colour: Text colour to use
+    """
+    def __init__(self, text, newline, colour):
+        self.text = text
+        self.newline = newline
+        self.colour = colour
+
+    def __str__(self):
+        return 'newline=%s, colour=%s, text=%s' % (self.newline, self.colour,
+                self.text)
+
+def Print(text='', newline=True, colour=None):
+    """Handle a line of output to the terminal.
+
+    In test mode this is recorded in a list. Otherwise it is output to the
+    terminal.
+
+    Args:
+        text: Text to print
+        newline: True to add a new line at the end of the text
+        colour: Colour to use for the text
+    """
+    if print_test_mode:
+        print_test_list.append(PrintLine(text, newline, colour))
+    else:
+        if colour:
+            col = Color()
+            text = col.Color(colour, text)
+        print text,
+        if newline:
+            print
+
+def SetPrintTestMode():
+    """Go into test mode, where all printing is recorded"""
+    global print_test_mode
+
+    print_test_mode = True
+
+def GetPrintTestLines():
+    """Get a list of all lines output through Print()
+
+    Returns:
+        A list of PrintLine objects
+    """
+    global print_test_list
+
+    ret = print_test_list
+    print_test_list = []
+    return ret
+
+def EchoPrintTestLines():
+    """Print out the text lines collected"""
+    for line in print_test_list:
+        if line.colour:
+            col = Color()
+            print col.Color(line.colour, line.text),
+        else:
+            print line.text,
+        if line.newline:
+            print
+
+
 class Color(object):
     """Conditionally wraps text in ANSI color escape sequences."""
     BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
