@@ -30,27 +30,20 @@ import terminal
 import toolchain
 
 def RunTests():
+    import func_test
     import test
     import doctest
 
     result = unittest.TestResult()
-    for module in ['toolchain']:
+    for module in ['toolchain', 'gitutil']:
         suite = doctest.DocTestSuite(module)
         suite.run(result)
 
-    # TODO: Surely we can just 'print' result?
-    print result
-    for test, err in result.errors:
-        print err
-    for test, err in result.failures:
-        print err
-
     sys.argv = [sys.argv[0]]
-    suite = unittest.TestLoader().loadTestsFromTestCase(test.TestBuild)
-    result = unittest.TestResult()
-    suite.run(result)
+    for module in (test.TestBuild, func_test.TestFunctional):
+        suite = unittest.TestLoader().loadTestsFromTestCase(module)
+        suite.run(result)
 
-    # TODO: Surely we can just 'print' result?
     print result
     for test, err in result.errors:
         print err

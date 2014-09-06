@@ -99,6 +99,9 @@ class Toolchains:
     def __init__(self):
         self.toolchains = {}
         self.paths = []
+        self._make_flags = dict(bsettings.GetItems('make-flags'))
+
+    def GetSettings(self):
         toolchains = bsettings.GetItems('toolchain')
         if not toolchains:
             print ("Warning: No tool chains - please add a [toolchain] section"
@@ -110,7 +113,6 @@ class Toolchains:
                 self.paths += glob.glob(value)
             else:
                 self.paths.append(value)
-        self._make_flags = dict(bsettings.GetItems('make-flags'))
 
     def Add(self, fname, test=True, verbose=False):
         """Add a toolchain to our list

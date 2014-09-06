@@ -13,6 +13,7 @@ from builder import Builder
 import gitutil
 import patchstream
 import terminal
+from terminal import Print
 import toolchain
 import command
 import subprocess
@@ -77,12 +78,18 @@ def ShowActions(series, why_selected, boards_selected, builder, options):
     print ('Total boards to build for each commit: %d\n' %
             why_selected['all'])
 
-def DoBuildman(options, args):
+def DoBuildman(options, args, toolchains=None, make_func=None):
     """The main control code for buildman
 
     Args:
         options: Command line options object
         args: Command line arguments (list of strings)
+        toolchains: Toolchains to use - this should be a Toolchains()
+                object. If None, then it will be created and scanned
+        make_func: Make function to use for the builder. This is called
+                to execute 'make'. If this is None, the normal function
+                will be used, which calls the 'make' tool with suitable
+                arguments. This setting is useful for tests.
     """
     if options.full_help:
         pager = os.getenv('PAGER')
@@ -97,8 +104,10 @@ def DoBuildman(options, args):
     bsettings.Setup(options.config_file)
     options.git_dir = os.path.join(options.git, '.git')
 
-    toolchains = toolchain.Toolchains()
-    toolchains.Scan(options.list_tool_chains)
+    if not toolchains:
+        toolchains = toolchain.Toolchains()
+        toolchains.GetSettings()
+        toolchains.Scan(options.list_tool_chains)
     if options.list_tool_chains:
         toolchains.List()
         print
@@ -202,6 +211,8 @@ def DoBuildman(options, args):
             options.threads, options.jobs, gnu_make=gnu_make, checkout=True,
             show_unknown=options.show_unknown, step=options.step)
     builder.force_config_on_failure = not options.quick
+    if make_func:
+        builder.do_make = make_func
 
     # For a dry run, just show our actions as a sanity check
     if options.dry_run:
@@ -220,8 +231,8 @@ def DoBuildman(options, args):
         else:
             commits = None
 
-        print GetActionSummary(options.summary, commits, board_selected,
-                               options)
+        Print(GetActionSummary(options.summary, commits, board_selected,
+                                options))
 
         builder.SetDisplayOptions(options.show_errors, options.show_sizes,
                                   options.show_detail, options.show_bloat,
