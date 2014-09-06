@@ -103,9 +103,11 @@
 /* DDRMC */
 #define DDRMC_PHY_DQ_TIMING				0x00002613
 #define DDRMC_PHY_DQS_TIMING				0x00002615
-#define DDRMC_PHY_CTRL					0x01210080
+#define DDRMC_PHY_CTRL					0x00210000
 #define DDRMC_PHY_MASTER_CTRL				0x0001012a
-#define DDRMC_PHY_SLAVE_CTRL				0x00012020
+#define DDRMC_PHY_SLAVE_CTRL				0x00002000
+#define DDRMC_PHY_OFF					0x00000000
+#define DDRMC_PHY_PROC_PAD_ODT				0x00010101
 
 #define DDRMC_PHY50_DDR3_MODE				(1 << 12)
 #define DDRMC_PHY50_EN_SW_HALF_CYCLE			(1 << 8)
@@ -138,7 +140,7 @@
 #define DDRMC_CR21_CCMAP_EN				1
 #define DDRMC_CR22_TDAL(v)				(((v) & 0x3f) << 16)
 #define DDRMC_CR23_BSTLEN(v)				(((v) & 0x7) << 24)
-#define DDRMC_CR23_TDLL(v)				((v) & 0xff)
+#define DDRMC_CR23_TDLL(v)				((v) & 0xffff)
 #define DDRMC_CR24_TRP_AB(v)				((v) & 0x1f)
 #define DDRMC_CR25_TREF_EN				(1 << 16)
 #define DDRMC_CR26_TREF(v)				(((v) & 0xffff) << 16)
@@ -151,7 +153,7 @@
 #define DDRMC_CR33_EN_QK_SREF				(1 << 16)
 #define DDRMC_CR34_CKSRX(v)				(((v) & 0xf) << 16)
 #define DDRMC_CR34_CKSRE(v)				(((v) & 0xf) << 8)
-#define DDRMC_CR38_FREQ_CHG_EN				(1 << 8)
+#define DDRMC_CR38_FREQ_CHG_EN(v)			(((v) & 0x1) << 8)
 #define DDRMC_CR39_PHY_INI_COM(v)			(((v) & 0xffff) << 16)
 #define DDRMC_CR39_PHY_INI_STA(v)			(((v) & 0xff) << 8)
 #define DDRMC_CR39_FRQ_CH_DLLOFF(v)			((v) & 0x3)
@@ -163,7 +165,7 @@
 #define DDRMC_CR67_ZQCS(v)				((v) & 0xfff)
 #define DDRMC_CR69_ZQ_ON_SREF_EX(v)			(((v) & 0xf) << 8)
 #define DDRMC_CR70_REF_PER_ZQ(v)			(v)
-#define DDRMC_CR72_ZQCS_ROTATE				(1 << 24)
+#define DDRMC_CR72_ZQCS_ROTATE(v)			(((v) & 0x1) << 24)
 #define DDRMC_CR73_APREBIT(v)				(((v) & 0xf) << 24)
 #define DDRMC_CR73_COL_DIFF(v)				(((v) & 0x7) << 16)
 #define DDRMC_CR73_ROW_DIFF(v)				(((v) & 0x3) << 8)
@@ -182,9 +184,10 @@
 #define DDRMC_CR77_CS_MAP				(1 << 24)
 #define DDRMC_CR77_DI_RD_INTLEAVE			(1 << 8)
 #define DDRMC_CR77_SWAP_EN				1
+#define DDRMC_CR78_Q_FULLNESS(v)			(((v) & 0x7) << 24)
 #define DDRMC_CR78_BUR_ON_FLY_BIT(v)			((v) & 0xf)
-#define DDRMC_CR79_CTLUPD_AREF				(1 << 24)
-#define DDRMC_CR82_INT_MASK				0x1fffffff
+#define DDRMC_CR79_CTLUPD_AREF(v)			(((v) & 0x1) << 24)
+#define DDRMC_CR82_INT_MASK				0x10000000
 #define DDRMC_CR87_ODT_WR_MAPCS0			(1 << 24)
 #define DDRMC_CR87_ODT_RD_MAPCS0			(1 << 16)
 #define DDRMC_CR88_TODTL_CMD(v)				(((v) & 0x1f) << 16)
@@ -192,9 +195,17 @@
 #define DDRMC_CR91_R2W_SMCSDL(v)			(((v) & 0x7) << 16)
 #define DDRMC_CR96_WLMRD(v)				(((v) & 0x3f) << 8)
 #define DDRMC_CR96_WLDQSEN(v)				((v) & 0x3f)
+#define DDRMC_CR97_WRLVL_EN				(1 << 24)
+#define DDRMC_CR98_WRLVL_DL_0				(0)
+#define DDRMC_CR99_WRLVL_DL_1				(0)
+#define DDRMC_CR102_RDLVL_GT_REGEN			(1 << 16)
+#define DDRMC_CR102_RDLVL_REG_EN			(1 << 8)
 #define DDRMC_CR105_RDLVL_DL_0(v)			(((v) & 0xff) << 8)
+#define DDRMC_CR106_RDLVL_GTDL_0(v)			((v) & 0xff)
 #define DDRMC_CR110_RDLVL_DL_1(v)			((v) & 0xff)
+#define DDRMC_CR110_RDLVL_GTDL_1(v)			(((v) & 0xff) << 16)
 #define DDRMC_CR114_RDLVL_GTDL_2(v)			(((v) & 0xffff) << 8)
+#define DDRMC_CR115_RDLVL_GTDL_2(v)			((v) & 0xff)
 #define DDRMC_CR117_AXI0_W_PRI(v)			(((v) & 0x3) << 8)
 #define DDRMC_CR117_AXI0_R_PRI(v)			((v) & 0x3)
 #define DDRMC_CR118_AXI1_W_PRI(v)			(((v) & 0x3) << 24)
@@ -208,20 +219,42 @@
 #define DDRMC_CR122_AXI0_PRIRLX(v)			((v) & 0x3ff)
 #define DDRMC_CR123_AXI1_PRI3_RPRI(v)			(((v) & 0xf) << 8)
 #define DDRMC_CR123_AXI1_PRI2_RPRI(v)			((v) & 0xf)
+#define DDRMC_CR123_AXI1_P_ODR_EN			(1 << 16)
 #define DDRMC_CR124_AXI1_PRIRLX(v)			((v) & 0x3ff)
 #define DDRMC_CR126_PHY_RDLAT(v)			(((v) & 0x3f) << 8)
 #define DDRMC_CR132_WRLAT_ADJ(v)			(((v) & 0x1f) << 8)
 #define DDRMC_CR132_RDLAT_ADJ(v)			((v) & 0x3f)
+#define DDRMC_CR137_PHYCTL_DL(v)			(((v) & 0xf) << 16)
+#define DDRMC_CR138_PHY_WRLV_MXDL(v)			(((v) & 0xffff) << 16)
+#define DDRMC_CR138_PHYDRAM_CK_EN(v)			(((v) & 0x8) << 8)
 #define DDRMC_CR139_PHY_WRLV_RESPLAT(v)			(((v) & 0xff) << 24)
 #define DDRMC_CR139_PHY_WRLV_LOAD(v)			(((v) & 0xff) << 16)
 #define DDRMC_CR139_PHY_WRLV_DLL(v)			(((v) & 0xff) << 8)
 #define DDRMC_CR139_PHY_WRLV_EN(v)			((v) & 0xff)
+#define DDRMC_CR140_PHY_WRLV_WW(v)			((v) & 0x3ff)
+#define DDRMC_CR143_RDLV_GAT_MXDL(v)			(((v) & 0xffff) << 16)
+#define DDRMC_CR143_RDLV_MXDL(v)			((v) & 0xffff)
+#define DDRMC_CR144_PHY_RDLVL_RES(v)			(((v) & 0xff) << 24)
+#define DDRMC_CR144_PHY_RDLV_LOAD(v)			(((v) & 0xff) << 16)
+#define DDRMC_CR144_PHY_RDLV_DLL(v)			(((v) & 0xff) << 8)
+#define DDRMC_CR144_PHY_RDLV_EN(v)			((v) & 0xff)
+#define DDRMC_CR145_PHY_RDLV_RR(v)			((v) & 0x3ff)
+#define DDRMC_CR146_PHY_RDLVL_RESP(v)			(v)
+#define DDRMC_CR147_RDLV_RESP_MASK(v)			((v) & 0xfffff)
+#define DDRMC_CR148_RDLV_GATE_RESP_MASK(v)		((v) & 0xfffff)
+#define DDRMC_CR151_RDLV_GAT_DQ_ZERO_CNT(v)		(((v) & 0xf) << 8)
+#define DDRMC_CR151_RDLVL_DQ_ZERO_CNT(v)		((v) & 0xf)
 #define DDRMC_CR154_PAD_ZQ_EARLY_CMP_EN_TIMER(v)	(((v) & 0x1f) << 27)
 #define DDRMC_CR154_PAD_ZQ_MODE(v)			(((v) & 0x3) << 21)
 #define DDRMC_CR154_DDR_SEL_PAD_CONTR(v)		(((v) & 0x3) << 18)
+#define DDRMC_CR154_PAD_ZQ_HW_FOR(v)			(((v) & 0x1) << 14)
 #define DDRMC_CR155_AXI0_AWCACHE			(1 << 10)
-#define DDRMC_CR155_PAD_ODT_BYTE1(v)			((v) & 0x7)
+#define DDRMC_CR155_PAD_ODT_BYTE1(v)			(((v) & 0x7) << 3)
+#define DDRMC_CR155_PAD_ODT_BYTE0(v)			((v) & 0x7)
 #define DDRMC_CR158_TWR(v)				((v) & 0x3f)
+#define DDRMC_CR161_ODT_EN(v)				(((v) & 0x1) << 16)
+#define DDRMC_CR161_TODTH_RD(v)				(((v) & 0xf) << 8)
+#define DDRMC_CR161_TODTH_WR(v)				((v) & 0xf)
 
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 #include <asm/types.h>

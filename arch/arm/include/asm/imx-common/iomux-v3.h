@@ -120,6 +120,8 @@ typedef u64 iomux_v3_cfg_t;
 
 #define PAD_MUX_MODE_SHIFT	20
 
+#define PAD_CTL_INPUT_DIFFERENTIAL (1 << 16)
+
 #define PAD_CTL_SPEED_MED	(1 << 12)
 #define PAD_CTL_SPEED_HIGH	(3 << 12)
 
