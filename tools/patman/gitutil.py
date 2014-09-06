@@ -152,7 +152,8 @@ def Checkout(commit_hash, git_dir=None, work_tree=None, force=False):
     if force:
         pipe.append('-f')
     pipe.append(commit_hash)
-    result = command.RunPipe([pipe], capture=True, raise_on_error=False)
+    result = command.RunPipe([pipe], capture=True, raise_on_error=False,
+                             capture_stderr=True)
     if result.return_code != 0:
         raise OSError, 'git checkout (%s): %s' % (pipe, result.stderr)
 
@@ -163,7 +164,8 @@ def Clone(git_dir, output_dir):
         commit_hash: Commit hash to check out
     """
     pipe = ['git', 'clone', git_dir, '.']
-    result = command.RunPipe([pipe], capture=True, cwd=output_dir)
+    result = command.RunPipe([pipe], capture=True, cwd=output_dir,
+                             capture_stderr=True)
     if result.return_code != 0:
         raise OSError, 'git clone: %s' % result.stderr
 
@@ -179,7 +181,7 @@ def Fetch(git_dir=None, work_tree=None):
     if work_tree:
         pipe.extend(['--work-tree', work_tree])
     pipe.append('fetch')
-    result = command.RunPipe([pipe], capture=True)
+    result = command.RunPipe([pipe], capture=True, capture_stderr=True)
     if result.return_code != 0:
         raise OSError, 'git fetch: %s' % result.stderr
 

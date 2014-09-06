@@ -48,6 +48,8 @@ def RunPipe(pipe_list, infile=None, outfile=None,
     last_pipe = None
     pipeline = list(pipe_list)
     user_pipestr =  '|'.join([' '.join(pipe) for pipe in pipe_list])
+    kwargs['stdout'] = None
+    kwargs['stderr'] = None
     while pipeline:
         cmd = pipeline.pop(0)
         if last_pipe is not None:
