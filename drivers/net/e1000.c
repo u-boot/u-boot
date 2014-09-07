@@ -5362,7 +5362,9 @@ e1000_initialize(bd_t * bis)
 		hw->autoneg_failed = 0;
 		hw->autoneg = 1;
 		hw->get_link_status = true;
+#ifndef CONFIG_E1000_NO_NVM
 		hw->eeprom_semaphore_present = true;
+#endif
 		hw->hw_addr = pci_map_bar(devno,	PCI_BASE_ADDRESS_0,
 							PCI_REGION_MEM);
 		hw->mac_type = e1000_undefined;
