@@ -83,6 +83,11 @@
 	"x_bootcmd_usb=usb start\0" \
 	"x_bootargs_root=root=/dev/mtdblock3 rw rootfstype=jffs2\0"
 
+#define MTDIDS_DEFAULT	"nand0=orion_nand"
+
+#define MTDPARTS_DEFAULT	\
+	"mtdparts="CONFIG_MTDPARTS
+
 /*
  * Ethernet Driver configuration
  */
