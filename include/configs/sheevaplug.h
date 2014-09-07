@@ -1,5 +1,6 @@
 /*
- * (C) Copyright 2009
+ * (C) Copyright 2009-2014
+ * Gerald Kerma <dreagle@doukki.net>
  * Marvell Semiconductor <www.marvell.com>
  * Written-by: Prafulla Wadaskar <prafulla@marvell.com>
  *
@@ -23,12 +24,21 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 /*
+ * Compression configuration
+ */
+#define CONFIG_BZIP2
+#define CONFIG_LZMA
+#define CONFIG_LZO
+
+/*
  * Commands configuration
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
 #include <config_cmd_default.h>
+#define CONFIG_CMD_BOOTZ
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
+#define CONFIG_CMD_IDE
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MMC
 #define CONFIG_CMD_NAND
@@ -92,9 +102,23 @@
 #endif /* CONFIG_CMD_MMC */
 
 /*
+ * SATA driver configuration
+ */
+#ifdef CONFIG_CMD_IDE
+#define __io
+#define CONFIG_IDE_PREINIT
+#define CONFIG_DOS_PARTITION
+#define CONFIG_MVSATA_IDE_USE_PORT0
+#define CONFIG_MVSATA_IDE_USE_PORT1
+#define CONFIG_SYS_ATA_IDE0_OFFSET	MV_SATA_PORT0_OFFSET
+#define CONFIG_SYS_ATA_IDE1_OFFSET	MV_SATA_PORT1_OFFSET
+#endif /* CONFIG_CMD_IDE */
+
+/*
  * File system
  */
 #define CONFIG_CMD_EXT2
+#define CONFIG_CMD_EXT4
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_UBI
