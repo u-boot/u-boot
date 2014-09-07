@@ -31,6 +31,11 @@
 #define CONFIG_LZO
 
 /*
+ * Miscellaneous configurable options
+ */
+#define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
+
+/*
  * Commands configuration
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
