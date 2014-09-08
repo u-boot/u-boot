@@ -35,5 +35,9 @@ int board_early_init_f(void)
 int board_init(void)
 {
 	icache_enable();
+
+	/* Address of boot parameters for ATAG (if ATAG is used) */
+	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
+
 	return 0;
 }
