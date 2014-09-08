@@ -134,4 +134,13 @@ struct socfpga_system_manager {
 #define SYSMGR_SDMMC_CTRL_SET(smplsel, drvsel)	\
 	((((drvsel) << 0) & 0x7) | (((smplsel) << 3) & 0x38))
 
+/* EMAC Group Bit definitions */
+#define SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_GMII_MII	0x0
+#define SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RGMII		0x1
+#define SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RMII		0x2
+
+#define SYSMGR_EMACGRP_CTRL_PHYSEL0_LSB			0
+#define SYSMGR_EMACGRP_CTRL_PHYSEL1_LSB			2
+#define SYSMGR_EMACGRP_CTRL_PHYSEL_MASK			0x3
+
 #endif /* _SYSTEM_MANAGER_H_ */

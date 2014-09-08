@@ -9,14 +9,57 @@
 #include <miiphy.h>
 #include <netdev.h>
 #include <asm/arch/reset_manager.h>
+#include <asm/arch/system_manager.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+static struct socfpga_system_manager *sysmgr_regs =
+	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
 
 int dram_init(void)
 {
 	gd->ram_size = get_ram_size((long *)PHYS_SDRAM_1, PHYS_SDRAM_1_SIZE);
 	return 0;
 }
+
+/*
+ * DesignWare Ethernet initialization
+ */
+#ifdef CONFIG_DESIGNWARE_ETH
+int cpu_eth_init(bd_t *bis)
+{
+#if CONFIG_EMAC_BASE == SOCFPGA_EMAC0_ADDRESS
+	const int physhift = SYSMGR_EMACGRP_CTRL_PHYSEL0_LSB;
+#elif CONFIG_EMAC_BASE == SOCFPGA_EMAC1_ADDRESS
+	const int physhift = SYSMGR_EMACGRP_CTRL_PHYSEL1_LSB;
+#else
+#error "Incorrect CONFIG_EMAC_BASE value!"
+#endif
+
+	/* Initialize EMAC. This needs to be done at least once per boot. */
+
+	/*
+	 * Putting the EMAC controller to reset when configuring the PHY
+	 * interface select at System Manager
+	 */
+	socfpga_emac_reset(1);
+
+	/* Clearing emac0 PHY interface select to 0 */
+	clrbits_le32(&sysmgr_regs->emacgrp_ctrl,
+		     SYSMGR_EMACGRP_CTRL_PHYSEL_MASK << physhift);
+
+	/* configure to PHY interface select choosed */
+	setbits_le32(&sysmgr_regs->emacgrp_ctrl,
+		     SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RGMII << physhift);
+
+	/* Release the EMAC controller from reset */
+	socfpga_emac_reset(0);
+
+	/* initialize and register the emac */
+	return designware_initialize(CONFIG_EMAC_BASE,
+				     CONFIG_PHY_INTERFACE_MODE);
+}
+#endif
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
 /*
@@ -53,19 +96,4 @@ int arch_cpu_init(void)
 int misc_init_r(void)
 {
 	return 0;
-}
-
-
-/*
- * DesignWare Ethernet initialization
- */
-int cpu_eth_init(bd_t *bis)
-{
-#if !defined(CONFIG_SOCFPGA_VIRTUAL_TARGET) && !defined(CONFIG_SPL_BUILD)
-       /* initialize and register the emac */
-	return designware_initialize(CONFIG_EMAC_BASE,
-				     CONFIG_PHY_INTERFACE_MODE);
-#else
-	return 0;
-#endif
 }
