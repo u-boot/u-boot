@@ -117,13 +117,16 @@
 # define CONFIG_USB_GADGET
 # define CONFIG_USB_CABLE_CHECK
 # define CONFIG_CMD_DFU
+# define CONFIG_CMD_THOR_DOWNLOAD
+# define CONFIG_THOR_FUNCTION
 # define DFU_ALT_INFO_RAM \
 	"dfu_ram_info=" \
 	"set dfu_alt_info " \
 	"${kernel_image} ram 0x3000000 0x500000\\\\;" \
 	"${devicetree_image} ram 0x2A00000 0x20000\\\\;" \
 	"${ramdisk_image} ram 0x2000000 0x600000\0" \
-	"dfu_ram=run dfu_ram_info && dfu 0 ram 0\0"
+	"dfu_ram=run dfu_ram_info && dfu 0 ram 0\0" \
+	"thor_ram=run dfu_ram_info && thordown 0 ram 0\0"
 
 # if defined(CONFIG_ZYNQ_SDHCI0) || defined(CONFIG_ZYNQ_SDHCI1)
 #  define CONFIG_DFU_MMC
@@ -133,7 +136,9 @@
 	"${kernel_image} fat 0 1\\\\;" \
 	"${devicetree_image} fat 0 1\\\\;" \
 	"${ramdisk_image} fat 0 1\0" \
-	"dfu_mmc=run dfu_mmc_info && dfu 0 mmc 0\0"
+	"dfu_mmc=run dfu_mmc_info && dfu 0 mmc 0\0" \
+	"thor_mmc=run dfu_mmc_info && thordown 0 mmc 0\0"
+
 #  define DFU_ALT_INFO	\
 	DFU_ALT_INFO_RAM \
 	DFU_ALT_INFO_MMC
