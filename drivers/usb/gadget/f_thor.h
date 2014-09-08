@@ -121,4 +121,7 @@ struct f_thor {
 #define F_NAME_BUF_SIZE 32
 #define THOR_PACKET_SIZE SZ_1M      /* 1 MiB */
 #define THOR_STORE_UNIT_SIZE SZ_32M /* 32 MiB */
+#ifdef CONFIG_THOR_RESET_OFF
+#define RESET_DONE 0xFFFFFFFF
+#endif
 #endif /* _USB_THOR_H_ */
