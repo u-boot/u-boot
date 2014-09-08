@@ -6,6 +6,7 @@
 #
 
 obj-y	:= board.o
+obj-$(CONFIG_THOR_FUNCTION) += thor.o
 
 # Please copy ps7_init.c/h from hw project to this directory
 obj-$(CONFIG_SPL_BUILD) += \
