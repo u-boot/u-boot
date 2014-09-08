@@ -49,8 +49,6 @@ phy_interface_t fman_port_enet_if(enum fm_port port)
 		else if ((rcwsr13 & FSL_CORENET_RCWSR13_EC2) ==
 				FSL_CORENET_RCWSR13_EC2_FM1_DTSEC5_MII)
 			return PHY_INTERFACE_MODE_MII;
-		else
-			return PHY_INTERFACE_MODE_NONE;
 	}
 
 	switch (port) {
