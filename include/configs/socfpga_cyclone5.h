@@ -195,8 +195,6 @@
 /* This timer use eosc1 where the clock frequency is fixed
  * throughout any condition */
 #define CONFIG_SYS_TIMERBASE		SOCFPGA_OSC1TIMER0_ADDRESS
-/* reload value when timer count to zero */
-#define TIMER_LOAD_VAL			0xFFFFFFFF
 /* Timer info */
 #ifdef CONFIG_SOCFPGA_VIRTUAL_TARGET
 #define CONFIG_SYS_TIMER_RATE		2400000
