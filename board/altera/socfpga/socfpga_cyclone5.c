@@ -17,7 +17,7 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 int checkboard(void)
 {
-	puts("BOARD : Altera SOCFPGA Cyclone5 Board\n");
+	puts("BOARD: Altera SoCFPGA Cyclone5 Board\n");
 	return 0;
 }
 
