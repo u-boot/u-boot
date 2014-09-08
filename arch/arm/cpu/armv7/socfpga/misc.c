@@ -10,6 +10,7 @@
 #include <netdev.h>
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/system_manager.h>
+#include <asm/arch/dwmmc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -58,6 +59,18 @@ int cpu_eth_init(bd_t *bis)
 	/* initialize and register the emac */
 	return designware_initialize(CONFIG_EMAC_BASE,
 				     CONFIG_PHY_INTERFACE_MODE);
+}
+#endif
+
+#ifdef CONFIG_DWMMC
+/*
+ * Initializes MMC controllers.
+ * to override, implement board_mmc_init()
+ */
+int cpu_mmc_init(bd_t *bis)
+{
+	return socfpga_dwmmc_init(SOCFPGA_SDMMC_ADDRESS,
+				  CONFIG_HPS_SDMMC_BUSWIDTH, 0);
 }
 #endif
 
