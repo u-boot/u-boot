@@ -7,6 +7,7 @@
 #include <common.h>
 #include <malloc.h>
 #include <dwmmc.h>
+#include <errno.h>
 #include <asm/arch/dwmmc.h>
 #include <asm/arch/clock_manager.h>
 #include <asm/arch/system_manager.h>
@@ -44,12 +45,18 @@ static void socfpga_dwmci_clksel(struct dwmci_host *host)
 int socfpga_dwmmc_init(u32 regbase, int bus_width, int index)
 {
 	struct dwmci_host *host;
+	unsigned long clk = cm_get_mmc_controller_clk_hz();
+
+	if (clk == 0) {
+		printf("%s: MMC clock is zero!", __func__);
+		return -EINVAL;
+	}
 
 	/* calloc for zero init */
-	host = calloc(sizeof(struct dwmci_host), 1);
+	host = calloc(1, sizeof(struct dwmci_host));
 	if (!host) {
-		printf("dwmci_host calloc fail!\n");
-		return -1;
+		printf("%s: calloc() failed!\n", __func__);
+		return -ENOMEM;
 	}
 
 	host->name = "SOCFPGA DWMMC";
@@ -58,7 +65,7 @@ int socfpga_dwmmc_init(u32 regbase, int bus_width, int index)
 	host->clksel = socfpga_dwmci_clksel;
 	host->dev_index = index;
 	/* fixed clock divide by 4 which due to the SDMMC wrapper */
-	host->bus_hz = CONFIG_SOCFPGA_DWMMC_BUS_HZ;
+	host->bus_hz = clk;
 	host->fifoth_val = MSIZE(0x2) |
 		RX_WMARK(CONFIG_SOCFPGA_DWMMC_FIFO_DEPTH / 2 - 1) |
 		TX_WMARK(CONFIG_SOCFPGA_DWMMC_FIFO_DEPTH / 2);
