@@ -22,6 +22,8 @@ static struct pl310_regs *const pl310 =
 	(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
 static struct socfpga_system_manager *sysmgr_regs =
 	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
+static struct socfpga_reset_manager *reset_manager_base =
+	(struct socfpga_reset_manager *)SOCFPGA_RSTMGR_ADDRESS;
 static struct nic301_registers *nic301_regs =
 	(struct nic301_registers *)SOCFPGA_L3REGS_ADDRESS;
 static struct scu_registers *scu_regs =
@@ -172,8 +174,14 @@ static void socfpga_nic301_slave_ns(void)
 	writel(0x1, &nic301_regs->sdrdata);
 }
 
+static uint32_t iswgrp_handoff[8];
+
 int misc_init_r(void)
 {
+	int i;
+	for (i = 0; i < 8; i++)	/* Cache initial SW setting regs */
+		iswgrp_handoff[i] = readl(&sysmgr_regs->iswgrp_handoff[i]);
+
 	socfpga_bridges_reset(1);
 	socfpga_nic301_slave_ns();
 
@@ -196,3 +204,70 @@ int misc_init_r(void)
 	socfpga_fpga_add();
 	return 0;
 }
+
+static void socfpga_sdram_apply_static_cfg(void)
+{
+	const uint32_t staticcfg = SOCFPGA_SDR_ADDRESS + 0x505c;
+	const uint32_t applymask = 0x8;
+	uint32_t val = readl(staticcfg) | applymask;
+
+	/*
+	 * SDRAM staticcfg register specific:
+	 * When applying the register setting, the CPU must not access
+	 * SDRAM. Luckily for us, we can abuse i-cache here to help us
+	 * circumvent the SDRAM access issue. The idea is to make sure
+	 * that the code is in one full i-cache line by branching past
+	 * it and back. Once it is in the i-cache, we execute the core
+	 * of the code and apply the register settings.
+	 *
+	 * The code below uses 7 instructions, while the Cortex-A9 has
+	 * 32-byte cachelines, thus the limit is 8 instructions total.
+	 */
+	asm volatile(
+		".align	5			\n"
+		"	b	2f		\n"
+		"1:	str	%0,	[%1]	\n"
+		"	dsb			\n"
+		"	isb			\n"
+		"	b	3f		\n"
+		"2:	b	1b		\n"
+		"3:	nop			\n"
+	: : "r"(val), "r"(staticcfg) : "memory", "cc");
+}
+
+int do_bridge(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	if (argc != 2)
+		return CMD_RET_USAGE;
+
+	argv++;
+
+	switch (*argv[0]) {
+	case 'e':	/* Enable */
+		writel(iswgrp_handoff[2], &sysmgr_regs->fpgaintfgrp_module);
+		socfpga_sdram_apply_static_cfg();
+		writel(iswgrp_handoff[3], SOCFPGA_SDR_ADDRESS + 0x5080);
+		writel(iswgrp_handoff[0], &reset_manager_base->brg_mod_reset);
+		writel(iswgrp_handoff[1], &nic301_regs->remap);
+		break;
+	case 'd':	/* Disable */
+		writel(0, &sysmgr_regs->fpgaintfgrp_module);
+		writel(0, SOCFPGA_SDR_ADDRESS + 0x5080);
+		socfpga_sdram_apply_static_cfg();
+		writel(0, &reset_manager_base->brg_mod_reset);
+		writel(1, &nic301_regs->remap);
+		break;
+	default:
+		return CMD_RET_USAGE;
+	}
+
+	return 0;
+}
+
+U_BOOT_CMD(
+	bridge, 2, 1, do_bridge,
+	"SoCFPGA HPS FPGA bridge control",
+	"enable  - Enable HPS-to-FPGA, FPGA-to-HPS, LWHPS-to-FPGA bridges\n"
+	"bridge disable - Enable HPS-to-FPGA, FPGA-to-HPS, LWHPS-to-FPGA bridges\n"
+	""
+);
