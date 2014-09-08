@@ -11,6 +11,7 @@
 #include <asm/io.h>
 #include <asm/arch-fsl-lsch3/immap_lsch3.h>
 #include "cpu.h"
+#include "mp.h"
 #include "speed.h"
 #include <fsl_mc.h>
 
@@ -433,4 +434,16 @@ int cpu_eth_init(bd_t *bis)
 	error = mc_init(bis);
 #endif
 	return error;
+}
+
+
+int arch_early_init_r(void)
+{
+	int rv;
+	rv = fsl_lsch3_wake_seconday_cores();
+
+	if (rv)
+		printf("Did not wake secondary cores\n");
+
+	return 0;
 }

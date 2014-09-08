@@ -5,3 +5,4 @@
  */
 
 int fsl_qoriq_core_to_cluster(unsigned int core);
+u32 cpu_mask(void);
