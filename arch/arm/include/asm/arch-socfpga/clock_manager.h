@@ -7,6 +7,15 @@
 #ifndef	_CLOCK_MANAGER_H_
 #define	_CLOCK_MANAGER_H_
 
+#ifndef __ASSEMBLER__
+/* Clock speed accessors */
+unsigned long cm_get_mpu_clk_hz(void);
+unsigned long cm_get_sdram_clk_hz(void);
+unsigned int cm_get_l4_sp_clk_hz(void);
+unsigned int cm_get_mmc_controller_clk_hz(void);
+unsigned int cm_get_qspi_controller_clk_hz(void);
+#endif
+
 typedef struct {
 	/* main group */
 	uint32_t main_vco_base;
@@ -89,6 +98,11 @@ struct socfpga_clock_manager_sdr_pll {
 	u32	stat;
 };
 
+struct socfpga_clock_manager_altera {
+	u32	mpuclk;
+	u32	mainclk;
+};
+
 struct socfpga_clock_manager {
 	u32	ctrl;
 	u32	bypass;
@@ -100,7 +114,8 @@ struct socfpga_clock_manager {
 	struct socfpga_clock_manager_main_pll main_pll;
 	struct socfpga_clock_manager_per_pll per_pll;
 	struct socfpga_clock_manager_sdr_pll sdr_pll;
-	u32	_pad_0xe0_0x200[72];
+	struct socfpga_clock_manager_altera altera;
+	u32	_pad_0xe8_0x200[70];
 };
 
 #define CLKMGR_CTRL_SAFEMODE_MASK 0x00000001
@@ -118,8 +133,10 @@ struct socfpga_clock_manager {
 
 /* Main PLL */
 #define CLKMGR_MAINPLLGRP_VCO_BGPWRDN_SET(x) (((x) << 0) & 0x00000001)
+#define CLKMGR_MAINPLLGRP_VCO_DENOM_GET(x) (((x) & 0x003f0000) >> 16)
 #define CLKMGR_MAINPLLGRP_VCO_DENOM_SET(x) (((x) << 16) & 0x003f0000)
 #define CLKMGR_MAINPLLGRP_VCO_EN_SET(x) (((x) << 1) & 0x00000002)
+#define CLKMGR_MAINPLLGRP_VCO_NUMER_GET(x) (((x) & 0x0000fff8) >> 3)
 #define CLKMGR_MAINPLLGRP_VCO_NUMER_SET(x) (((x) << 3) & 0x0000fff8)
 #define CLKMGR_MAINPLLGRP_VCO_OUTRESETALL_MASK 0x01000000
 #define CLKMGR_MAINPLLGRP_VCO_PWRDN_SET(x) (((x) << 2) & 0x00000004)
@@ -148,7 +165,8 @@ struct socfpga_clock_manager {
 #define CLKMGR_MAINPLLGRP_MAINDIV_L3MPCLK_SET(x) (((x) << 0) & 0x00000003)
 #define CLKMGR_MAINPLLGRP_MAINDIV_L3SPCLK_SET(x) (((x) << 2) & 0x0000000c)
 #define CLKMGR_MAINPLLGRP_MAINDIV_L4MPCLK_SET(x) (((x) << 4) & 0x00000070)
-#define CLKMGR_MAINPLLGRP_MAINDIV_L4SPCLK_SET(x)  (((x) << 7) & 0x00000380)
+#define CLKMGR_MAINPLLGRP_MAINDIV_L4SPCLK_GET(x) (((x) & 0x00000380) >> 7)
+#define CLKMGR_MAINPLLGRP_MAINDIV_L4SPCLK_SET(x) (((x) << 7) & 0x00000380)
 
 #define CLKMGR_MAINPLLGRP_DBGDIV_DBGATCLK_SET(x) (((x) << 0) & 0x00000003)
 #define CLKMGR_MAINPLLGRP_DBGDIV_DBGCLK_SET(x) (((x) << 2) & 0x0000000c)
@@ -156,16 +174,25 @@ struct socfpga_clock_manager {
 #define CLKMGR_MAINPLLGRP_TRACEDIV_TRACECLK_SET(x) (((x) << 0) & 0x00000007)
 
 #define CLKMGR_MAINPLLGRP_L4SRC_L4MP_SET(x) (((x) << 0) & 0x00000001)
+#define CLKMGR_MAINPLLGRP_L4SRC_L4SP_GET(x) (((x) & 0x00000002) >> 1)
 #define CLKMGR_MAINPLLGRP_L4SRC_L4SP_SET(x) (((x) << 1) & 0x00000002)
 #define CLKMGR_MAINPLLGRP_L4SRC_RESET_VALUE 0x00000000
+#define CLKMGR_L4_SP_CLK_SRC_MAINPLL	0x0
+#define CLKMGR_L4_SP_CLK_SRC_PERPLL	0x1
 
 /* Per PLL */
+#define CLKMGR_PERPLLGRP_VCO_DENOM_GET(x) (((x) & 0x003f0000) >> 16)
 #define CLKMGR_PERPLLGRP_VCO_DENOM_SET(x) (((x) << 16) & 0x003f0000)
+#define CLKMGR_PERPLLGRP_VCO_NUMER_GET(x) (((x) & 0x0000fff8) >> 3)
 #define CLKMGR_PERPLLGRP_VCO_NUMER_SET(x) (((x) << 3) & 0x0000fff8)
 #define CLKMGR_PERPLLGRP_VCO_OUTRESETALL_MASK 0x01000000
 #define CLKMGR_PERPLLGRP_VCO_PSRC_SET(x) (((x) << 22) & 0x00c00000)
 #define CLKMGR_PERPLLGRP_VCO_REGEXTSEL_MASK 0x80000000
 #define CLKMGR_PERPLLGRP_VCO_RESET_VALUE 0x8001000d
+#define CLKMGR_PERPLLGRP_VCO_SSRC_GET(x) (((x) & 0x00c00000) >> 22)
+#define CLKMGR_VCO_SSRC_EOSC1		0x0
+#define CLKMGR_VCO_SSRC_EOSC2		0x1
+#define CLKMGR_VCO_SSRC_F2S		0x2
 
 #define CLKMGR_PERPLLGRP_EMAC0CLK_CNT_SET(x) (((x) << 0) & 0x000001ff)
 
@@ -191,12 +218,22 @@ struct socfpga_clock_manager {
 #define CLKMGR_PERPLLGRP_GPIODIV_GPIODBCLK_SET(x) (((x) << 0) & 0x00ffffff)
 
 #define CLKMGR_PERPLLGRP_SRC_NAND_SET(x) (((x) << 2) & 0x0000000c)
+#define CLKMGR_PERPLLGRP_SRC_QSPI_GET(x) (((x) & 0x00000030) >> 4)
 #define CLKMGR_PERPLLGRP_SRC_QSPI_SET(x) (((x) << 4) & 0x00000030)
 #define CLKMGR_PERPLLGRP_SRC_RESET_VALUE 0x00000015
+#define CLKMGR_PERPLLGRP_SRC_SDMMC_GET(x) (((x) & 0x00000003) >> 0)
 #define CLKMGR_PERPLLGRP_SRC_SDMMC_SET(x) (((x) << 0) & 0x00000003)
+#define CLKMGR_SDMMC_CLK_SRC_F2S	0x0
+#define CLKMGR_SDMMC_CLK_SRC_MAIN	0x1
+#define CLKMGR_SDMMC_CLK_SRC_PER	0x2
+#define CLKMGR_QSPI_CLK_SRC_F2S		0x0
+#define CLKMGR_QSPI_CLK_SRC_MAIN	0x1
+#define CLKMGR_QSPI_CLK_SRC_PER		0x2
 
 /* SDR PLL */
+#define CLKMGR_SDRPLLGRP_VCO_DENOM_GET(x) (((x) & 0x003f0000) >> 16)
 #define CLKMGR_SDRPLLGRP_VCO_DENOM_SET(x) (((x) << 16) & 0x003f0000)
+#define CLKMGR_SDRPLLGRP_VCO_NUMER_GET(x) (((x) & 0x0000fff8) >> 3)
 #define CLKMGR_SDRPLLGRP_VCO_NUMER_SET(x) (((x) << 3) & 0x0000fff8)
 #define CLKMGR_SDRPLLGRP_VCO_OUTRESETALL_SET(x) (((x) << 24) & 0x01000000)
 #define CLKMGR_SDRPLLGRP_VCO_OUTRESETALL_SET(x) (((x) << 24) & 0x01000000)
@@ -204,8 +241,10 @@ struct socfpga_clock_manager {
 #define CLKMGR_SDRPLLGRP_VCO_OUTRESET_SET(x) (((x) << 25) & 0x7e000000)
 #define CLKMGR_SDRPLLGRP_VCO_REGEXTSEL_MASK 0x80000000
 #define CLKMGR_SDRPLLGRP_VCO_RESET_VALUE 0x8001000d
+#define CLKMGR_SDRPLLGRP_VCO_SSRC_GET(x) (((x) & 0x00c00000) >> 22)
 #define CLKMGR_SDRPLLGRP_VCO_SSRC_SET(x) (((x) << 22) & 0x00c00000)
 
+#define CLKMGR_SDRPLLGRP_DDRDQSCLK_CNT_GET(x) (((x) & 0x000001ff) >> 0)
 #define CLKMGR_SDRPLLGRP_DDRDQSCLK_CNT_MASK 0x000001ff
 #define CLKMGR_SDRPLLGRP_DDRDQSCLK_CNT_SET(x) (((x) << 0) & 0x000001ff)
 #define CLKMGR_SDRPLLGRP_DDRDQSCLK_PHASE_MASK 0x001ffe00

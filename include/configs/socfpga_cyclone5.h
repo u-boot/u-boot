@@ -24,6 +24,7 @@
 #define CONFIG_MISC_INIT_R
 #define CONFIG_SINGLE_BOOTLOADER
 #define CONFIG_SOCFPGA
+#define CONFIG_CLOCKS
 
 /* base address for .text section */
 #ifdef CONFIG_SOCFPGA_VIRTUAL_TARGET
