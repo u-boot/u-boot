@@ -49,3 +49,20 @@ void reset_deassert_peripherals_handoff(void)
 {
 	writel(0, &reset_manager_base->per_mod_reset);
 }
+
+/* Change the reset state for EMAC 0 and EMAC 1 */
+void socfpga_emac_reset(int enable)
+{
+	const void *reset = &reset_manager_base->per_mod_reset;
+
+	if (enable) {
+		setbits_le32(reset, 1 << RSTMGR_PERMODRST_EMAC0_LSB);
+		setbits_le32(reset, 1 << RSTMGR_PERMODRST_EMAC1_LSB);
+	} else {
+#if (CONFIG_EMAC_BASE == SOCFPGA_EMAC0_ADDRESS)
+		clrbits_le32(reset, 1 << RSTMGR_PERMODRST_EMAC0_LSB);
+#elif (CONFIG_EMAC_BASE == SOCFPGA_EMAC1_ADDRESS)
+		clrbits_le32(reset, 1 << RSTMGR_PERMODRST_EMAC1_LSB);
+#endif
+	}
+}
