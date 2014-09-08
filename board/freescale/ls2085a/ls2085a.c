@@ -105,6 +105,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 	phys_addr_t base;
 	phys_size_t size;
 
+	ft_cpu_setup(blob, bd);
+
 	/* limit the memory size to bank 1 until Linux can handle 40-bit PA */
 	base = getenv_bootm_low();
 	size = getenv_bootm_size();
