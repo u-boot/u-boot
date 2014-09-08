@@ -40,6 +40,8 @@ enum altera_family {
 	Altera_CYC2,
 	/* StratixII Family */
 	Altera_StratixII,
+	/* SoCFPGA Family */
+	Altera_SoCFPGA,
 
 	/* Add new models here */
 
@@ -90,5 +92,9 @@ typedef struct {
 	Altera_abort_fn abort;
 	Altera_post_fn post;
 } altera_board_specific_func;
+
+#ifdef CONFIG_FPGA_SOCFPGA
+int socfpga_load(Altera_desc *desc, const void *rbf_data, size_t rbf_size);
+#endif
 
 #endif /* _ALTERA_H_ */

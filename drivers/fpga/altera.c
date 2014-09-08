@@ -37,6 +37,9 @@ static const struct altera_fpga {
 	{ Altera_StratixII, "StratixII", StratixII_load,
 	  StratixII_dump, StratixII_info },
 #endif
+#if defined(CONFIG_FPGA_SOCFPGA)
+	{ Altera_SoCFPGA, "SoC FPGA", socfpga_load, NULL, NULL },
+#endif
 };
 
 static int altera_validate(Altera_desc *desc, const char *fn)
