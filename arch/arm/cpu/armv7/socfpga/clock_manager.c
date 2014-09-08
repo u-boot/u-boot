@@ -30,7 +30,7 @@ static const struct socfpga_clock_manager *clock_manager_base =
 	CLKMGR_MAINPLLGRP_VCO_EN_SET(1)| \
 	CLKMGR_MAINPLLGRP_VCO_BGPWRDN_SET(0))
 
-static inline void cm_wait_for_lock(uint32_t mask)
+static void cm_wait_for_lock(uint32_t mask)
 {
 	register uint32_t inter_val;
 	do {
@@ -39,7 +39,7 @@ static inline void cm_wait_for_lock(uint32_t mask)
 }
 
 /* function to poll in the fsm busy bit */
-static inline void cm_wait_for_fsm(void)
+static void cm_wait_for_fsm(void)
 {
 	while (readl(&clock_manager_base->stat) & CLKMGR_STAT_BUSY)
 		;
@@ -49,22 +49,22 @@ static inline void cm_wait_for_fsm(void)
  * function to write the bypass register which requires a poll of the
  * busy bit
  */
-static inline void cm_write_bypass(uint32_t val)
+static void cm_write_bypass(uint32_t val)
 {
 	writel(val, &clock_manager_base->bypass);
 	cm_wait_for_fsm();
 }
 
 /* function to write the ctrl register which requires a poll of the busy bit */
-static inline void cm_write_ctrl(uint32_t val)
+static void cm_write_ctrl(uint32_t val)
 {
 	writel(val, &clock_manager_base->ctrl);
 	cm_wait_for_fsm();
 }
 
 /* function to write a clock register that has phase information */
-static inline void cm_write_with_phase(uint32_t value,
-	uint32_t reg_address, uint32_t mask)
+static void cm_write_with_phase(uint32_t value,
+				uint32_t reg_address, uint32_t mask)
 {
 	/* poll until phase is zero */
 	while (readl(reg_address) & mask)
