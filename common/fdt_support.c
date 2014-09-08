@@ -963,7 +963,7 @@ struct of_bus {
 };
 
 /* Default translator (generic bus) */
-static void of_bus_default_count_cells(void *blob, int parentoffset,
+void of_bus_default_count_cells(void *blob, int parentoffset,
 					int *addrc, int *sizec)
 {
 	const fdt32_t *prop;

@@ -142,6 +142,9 @@ static inline u64 of_read_number(const fdt32_t *cell, int size)
 	return r;
 }
 
+void of_bus_default_count_cells(void *blob, int parentoffset,
+					int *addrc, int *sizec);
+
 #endif /* ifdef CONFIG_OF_LIBFDT */
 
 #ifdef USE_HOSTCC
