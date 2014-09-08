@@ -8,6 +8,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/reset_manager.h>
+#include <asm/arch/fpga_manager.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -49,6 +50,43 @@ void reset_deassert_peripherals_handoff(void)
 {
 	writel(0, &reset_manager_base->per_mod_reset);
 }
+
+#if defined(CONFIG_SOCFPGA_VIRTUAL_TARGET)
+void socfpga_bridges_reset(int enable)
+{
+	/* For SoCFPGA-VT, this is NOP. */
+}
+#else
+
+#define L3REGS_REMAP_LWHPS2FPGA_MASK	0x10
+#define L3REGS_REMAP_HPS2FPGA_MASK	0x08
+#define L3REGS_REMAP_OCRAM_MASK		0x01
+
+void socfpga_bridges_reset(int enable)
+{
+	const uint32_t l3mask = L3REGS_REMAP_LWHPS2FPGA_MASK |
+				L3REGS_REMAP_HPS2FPGA_MASK |
+				L3REGS_REMAP_OCRAM_MASK;
+
+	if (enable) {
+		/* brdmodrst */
+		writel(0xffffffff, &reset_manager_base->brg_mod_reset);
+	} else {
+		/* Check signal from FPGA. */
+		if (fpgamgr_poll_fpga_ready()) {
+			/* FPGA not ready. Wait for watchdog timeout. */
+			printf("%s: fpga not ready, hanging.\n", __func__);
+			hang();
+		}
+
+		/* brdmodrst */
+		writel(0, &reset_manager_base->brg_mod_reset);
+
+		/* Remap the bridges into memory map */
+		writel(l3mask, SOCFPGA_L3REGS_ADDRESS);
+	}
+}
+#endif
 
 /* Change the reset state for EMAC 0 and EMAC 1 */
 void socfpga_emac_reset(int enable)

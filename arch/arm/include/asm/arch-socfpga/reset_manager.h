@@ -10,6 +10,8 @@
 void reset_cpu(ulong addr);
 void reset_deassert_peripherals_handoff(void);
 
+void socfpga_bridges_reset(int enable);
+
 void socfpga_emac_reset(int enable);
 void socfpga_watchdog_reset(void);
 
