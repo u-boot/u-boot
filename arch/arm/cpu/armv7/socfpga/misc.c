@@ -13,6 +13,7 @@
 #include <asm/arch/system_manager.h>
 #include <asm/arch/dwmmc.h>
 #include <asm/arch/nic301.h>
+#include <asm/arch/scu.h>
 #include <asm/pl310.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -23,6 +24,8 @@ static struct socfpga_system_manager *sysmgr_regs =
 	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
 static struct nic301_registers *nic301_regs =
 	(struct nic301_registers *)SOCFPGA_L3REGS_ADDRESS;
+static struct scu_registers *scu_regs =
+	(struct scu_registers *)SOCFPGA_MPUSCU_ADDRESS;
 
 int dram_init(void)
 {
@@ -146,8 +149,31 @@ int arch_cpu_init(void)
 	return 0;
 }
 
+/*
+ * Convert all NIC-301 AMBA slaves from secure to non-secure
+ */
+static void socfpga_nic301_slave_ns(void)
+{
+	writel(0x1, &nic301_regs->lwhps2fpgaregs);
+	writel(0x1, &nic301_regs->hps2fpgaregs);
+	writel(0x1, &nic301_regs->acp);
+	writel(0x1, &nic301_regs->rom);
+	writel(0x1, &nic301_regs->ocram);
+	writel(0x1, &nic301_regs->sdrdata);
+}
+
 int misc_init_r(void)
 {
+	socfpga_bridges_reset(1);
+	socfpga_nic301_slave_ns();
+
+	/*
+	 * Private components security:
+	 * U-Boot : configure private timer, global timer and cpu component
+	 * access as non secure for kernel stage (as required by Linux)
+	 */
+	setbits_le32(&scu_regs->sacr, 0xfff);
+
 	/* Configure the L2 controller to make SDRAM start at 0 */
 #ifdef CONFIG_SOCFPGA_VIRTUAL_TARGET
 	writel(0x2, &nic301_regs->remap);
