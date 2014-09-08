@@ -80,7 +80,7 @@ int cpu_mmc_init(bd_t *bis)
  */
 int print_cpuinfo(void)
 {
-	puts("CPU   : Altera SOCFPGA Platform\n");
+	puts("CPU:   Altera SoCFPGA Platform\n");
 	return 0;
 }
 #endif
