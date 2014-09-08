@@ -202,3 +202,10 @@ void power_exit_wakeup(void)
 	else
 		exynos4_power_exit_wakeup();
 }
+
+unsigned int get_boot_mode(void)
+{
+	unsigned int om_pin = samsung_get_base_power();
+
+	return readl(om_pin) & OM_PIN_MASK;
+}

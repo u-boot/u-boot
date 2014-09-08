@@ -1670,6 +1670,27 @@ struct exynos5420_power {
 };
 #endif	/* __ASSEMBLY__ */
 
+#define OM_PIN_BITS	0x1f
+#define OM_PIN_SHIFT	0x1
+#define OM_PIN_MASK	(OM_PIN_BITS << OM_PIN_SHIFT)
+
+enum {
+	/*
+	 * Assign the OM pin values for respective boot modes.
+	 * Exynos4 does not support spi boot and the mmc boot OM
+	 * pin values are the same across Exynos4 and Exynos5.
+	 */
+	BOOT_MODE_SD = 4,      /* SD_CH2  | USB */
+	BOOT_MODE_EMMC = 8,     /* EMMC4.4 | USB */
+	BOOT_MODE_EMMC_SD = 40, /* EMMC4.4 | SD_CH2 */
+	BOOT_MODE_SERIAL = 20,
+	/* Boot based on Operating Mode pin settings */
+	BOOT_MODE_OM = 32,
+	BOOT_MODE_USB,	/* Boot using USB download */
+};
+
+unsigned int get_boot_mode(void);
+
 void set_mipi_phy_ctrl(unsigned int dev_index, unsigned int enable);
 
 #define EXYNOS_MIPI_PHY_ENABLE		(1 << 0)

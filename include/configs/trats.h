@@ -261,7 +261,4 @@
 #define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE  ((500 * 160 * 4) + 54)
 
-#define LCD_XRES	720
-#define LCD_YRES	1280
-
 #endif	/* __CONFIG_H */

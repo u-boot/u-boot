@@ -94,6 +94,8 @@ enum fdt_compat_id {
 	COMPAT_SANDBOX_LCD_SDL,		/* Sandbox LCD emulation with SDL */
 	COMPAT_TI_TPS65090,		/* Texas Instrument TPS65090 */
 	COMPAT_NXP_PTN3460,		/* NXP PTN3460 DP/LVDS bridge */
+	COMPAT_SAMSUNG_EXYNOS_SYSMMU,	/* Exynos sysmmu */
+	COMPAT_PARADE_PS8625,		/* Parade PS8622 EDP->LVDS bridge */
 
 	COMPAT_COUNT,
 };

@@ -22,4 +22,14 @@
 #define CONFIG_SYS_PROMPT	"Peach # "
 #define CONFIG_IDENT_STRING	" for Peach"
 
+#define CONFIG_VIDEO_PARADE
+
+/* Display */
+#define CONFIG_LCD
+#ifdef CONFIG_LCD
+#define CONFIG_EXYNOS_FB
+#define CONFIG_EXYNOS_DP
+#define LCD_BPP			LCD_COLOR16
+#endif
+
 #endif	/* __CONFIG_PEACH_PIT_H */

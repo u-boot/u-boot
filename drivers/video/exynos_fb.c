@@ -27,17 +27,13 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static unsigned int panel_width, panel_height;
 
-/*
- * board_init_f(arch/arm/lib/board.c) calls lcd_setmem() which needs
- * panel_info.vl_col, panel_info.vl_row and panel_info.vl_bpix to reserve
- * FB memory at a very early stage, i.e even before exynos_fimd_parse_dt()
- * is called. So, we are forced to statically assign it.
- */
 #ifdef CONFIG_OF_CONTROL
 vidinfo_t panel_info  = {
-	.vl_col = LCD_XRES,
-	.vl_row = LCD_YRES,
-	.vl_bpix = LCD_COLOR16,
+	/*
+	 * Insert a value here so that we don't end up in the BSS
+	 * Reference: drivers/video/tegra.c
+	 */
+	.vl_col = -1,
 };
 #endif
 
@@ -141,7 +137,7 @@ static void lcd_panel_on(vidinfo_t *vid)
 }
 
 #ifdef CONFIG_OF_CONTROL
-int exynos_fimd_parse_dt(const void *blob)
+int exynos_lcd_early_init(const void *blob)
 {
 	unsigned int node;
 	node = fdtdec_next_compatible(blob, 0, COMPAT_SAMSUNG_EXYNOS_FIMD);
@@ -286,8 +282,6 @@ void lcd_ctrl_init(void *lcdbase)
 	set_lcd_clk();
 
 #ifdef CONFIG_OF_CONTROL
-	if (exynos_fimd_parse_dt(gd->fdt_blob))
-		debug("Can't get proper panel info\n");
 #ifdef CONFIG_EXYNOS_MIPI_DSIM
 	exynos_init_dsim_platform_data(&panel_info);
 #endif

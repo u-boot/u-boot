@@ -75,6 +75,9 @@ struct mem_timings {
 	unsigned spll_mdiv;
 	unsigned spll_pdiv;
 	unsigned spll_sdiv;
+	unsigned rpll_mdiv;
+	unsigned rpll_pdiv;
+	unsigned rpll_sdiv;
 	unsigned pclk_cdrex_ratio;
 	unsigned direct_cmd_msr[MEM_TIMINGS_MSR_COUNT];
 

@@ -20,6 +20,7 @@
 #include <asm/arch/mmc.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/power.h>
+#include <asm/arch/system.h>
 #include <power/pmic.h>
 #include <asm/arch/sromc.h>
 #include <lcd.h>
@@ -137,7 +138,9 @@ static int board_uart_init(void)
 int board_early_init_f(void)
 {
 	int err;
-
+#ifdef CONFIG_BOARD_TYPES
+	set_board_type();
+#endif
 	err = board_uart_init();
 	if (err) {
 		debug("UART init failed\n");
@@ -146,6 +149,20 @@ int board_early_init_f(void)
 
 #ifdef CONFIG_SYS_I2C_INIT_BOARD
 	board_i2c_init(gd->fdt_blob);
+#endif
+
+#if defined(CONFIG_OF_CONTROL) && defined(CONFIG_EXYNOS_FB)
+/*
+ * board_init_f(arch/arm/lib/board.c) calls lcd_setmem() which needs
+ * panel_info.vl_col, panel_info.vl_row and panel_info.vl_bpix, to reserve
+ * FB memory at a very early stage. So, we need to fill panel_info.vl_col,
+ * panel_info.vl_row and panel_info.vl_bpix before lcd_setmem() is called.
+ */
+	err = exynos_lcd_early_init(gd->fdt_blob);
+	if (err) {
+		debug("LCD early init failed\n");
+		return err;
+	}
 #endif
 
 	return exynos_early_init_f();
@@ -240,22 +257,39 @@ int board_eth_init(bd_t *bis)
 }
 
 #ifdef CONFIG_GENERIC_MMC
+static int init_mmc(void)
+{
+#ifdef CONFIG_SDHCI
+	return exynos_mmc_init(gd->fdt_blob);
+#else
+	return 0;
+#endif
+}
+
+static int init_dwmmc(void)
+{
+#ifdef CONFIG_DWMMC
+	return exynos_dwmmc_init(gd->fdt_blob);
+#else
+	return 0;
+#endif
+}
+
 int board_mmc_init(bd_t *bis)
 {
 	int ret;
-#ifdef CONFIG_DWMMC
-	/* dwmmc initializattion for available channels */
-	ret = exynos_dwmmc_init(gd->fdt_blob);
-	if (ret)
-		debug("dwmmc init failed\n");
-#endif
 
-#ifdef CONFIG_SDHCI
-	/* mmc initializattion for available channels */
-	ret = exynos_mmc_init(gd->fdt_blob);
+	if (get_boot_mode() == BOOT_MODE_SD) {
+		ret = init_mmc();
+		ret |= init_dwmmc();
+	} else {
+		ret = init_dwmmc();
+		ret |= init_mmc();
+	}
+
 	if (ret)
 		debug("mmc init failed\n");
-#endif
+
 	return ret;
 }
 #endif
@@ -263,11 +297,15 @@ int board_mmc_init(bd_t *bis)
 #ifdef CONFIG_DISPLAY_BOARDINFO
 int checkboard(void)
 {
-	const char *board_name;
+	const char *board_info;
 
-	board_name = fdt_getprop(gd->fdt_blob, 0, "model", NULL);
-	printf("Board: %s\n", board_name ? board_name : "unknown");
+	board_info = fdt_getprop(gd->fdt_blob, 0, "model", NULL);
+	printf("Board: %s\n", board_info ? board_info : "unknown");
+#ifdef CONFIG_BOARD_TYPES
+	board_info = get_board_type();
 
+	printf("Model: %s\n", board_info ? board_info : "unknown");
+#endif
 	return 0;
 }
 #endif
@@ -307,6 +345,9 @@ int arch_early_init_r(void)
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
+#ifdef CONFIG_SET_DFU_ALT_INFO
+	set_dfu_alt_info();
+#endif
 #ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 	set_board_info();
 #endif

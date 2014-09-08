@@ -113,6 +113,16 @@
 		status = "disabled";
 	};
 
+	fimdm0_sysmmu@0x14640000 {
+		compatible = "samsung,sysmmu-v3.3";
+		reg = <0x14640000 0x100>;
+	};
+
+	fimdm1_sysmmu@0x14680000 {
+		compatible = "samsung,sysmmu-v3.3";
+		reg = <0x14680000 0x100>;
+	};
+
 	fimd@14400000 {
 		/* sysmmu is not used in U-Boot */
 		samsung,disable-sysmmu;

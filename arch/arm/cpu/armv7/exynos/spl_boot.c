@@ -20,7 +20,6 @@
 #include "clock_init.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-#define OM_STAT         (0x1f << 1)
 
 /* Index into irom ptr table */
 enum index {
@@ -184,7 +183,7 @@ static void exynos_spi_copy(unsigned int uboot_size, unsigned int uboot_addr)
 */
 void copy_uboot_to_ram(void)
 {
-	enum boot_mode bootmode = BOOT_MODE_OM;
+	unsigned int bootmode = BOOT_MODE_OM;
 
 	u32 (*copy_bl2)(u32 offset, u32 nblock, u32 dst) = NULL;
 	u32 offset = 0, size = 0;
@@ -207,7 +206,7 @@ void copy_uboot_to_ram(void)
 #endif
 
 	if (bootmode == BOOT_MODE_OM)
-		bootmode = readl(samsung_get_base_power()) & OM_STAT;
+		bootmode = get_boot_mode();
 
 	switch (bootmode) {
 #ifdef CONFIG_SPI_BOOTING
@@ -216,7 +215,7 @@ void copy_uboot_to_ram(void)
 		exynos_spi_copy(param->uboot_size, CONFIG_SYS_TEXT_BASE);
 		break;
 #endif
-	case BOOT_MODE_MMC:
+	case BOOT_MODE_SD:
 		offset = BL2_START_OFFSET;
 		size = BL2_SIZE_BLOC_COUNT;
 		copy_bl2 = get_irom_func(MMC_INDEX);
