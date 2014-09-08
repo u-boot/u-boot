@@ -15,7 +15,7 @@
 #define CONFIG_GICV3
 
 /* Link Definitions */
-#define CONFIG_SYS_TEXT_BASE		0x30000000
+#define CONFIG_SYS_TEXT_BASE		0x30001000
 
 #ifdef CONFIG_EMU
 #define CONFIG_SYS_NO_FLASH
