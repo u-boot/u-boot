@@ -765,7 +765,7 @@ static int thor_func_bind(struct usb_configuration *c, struct usb_function *f)
 		goto fail;
 	}
 	dev->req->buf = memalign(CONFIG_SYS_CACHELINE_SIZE,
-				 gadget->ep0->maxpacket);
+				 THOR_PACKET_SIZE);
 	if (!dev->req->buf) {
 		status = -ENOMEM;
 		goto fail;
