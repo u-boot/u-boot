@@ -120,7 +120,7 @@ Configuration command line syntax:
 				DATA 4 0x73FA88a0 0x200
 
 The processor support up to 60 register programming commands for IMXIMAGE_VERSION 1
-and 121 register programming commands for IMXIMAGE_VERSION 2.
+and 220 register programming commands for IMXIMAGE_VERSION 2.
 An error is generated if more commands are found in the configuration file.
 
 3. All commands are optional to program.
