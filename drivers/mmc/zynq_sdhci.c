@@ -14,7 +14,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/hardware.h>
 
-int zynq_sdhci_init(u32 regbase)
+int zynq_sdhci_init(unsigned long regbase)
 {
 	struct sdhci_host *host = NULL;
 
@@ -41,7 +41,7 @@ int zynq_sdhci_of_init(const void *blob)
 {
 	int offset = 0;
 	u32 ret = 0;
-	u32 reg;
+	unsigned long reg;
 
 	debug("ZYNQ SDHCI: Initialization\n");
 
