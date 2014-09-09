@@ -69,15 +69,19 @@
 
 #define CONFIG_BOOTDELAY		3
 
-#define CONFIG_LOADADDR			0x10800000
+#define CONFIG_LOADADDR			0x12000000
 #define CONFIG_SYS_TEXT_BASE		0x17800000
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"console=ttymxc3\0" \
+	"fdt_file=imx6q-arm2.dtb\0" \
+	"fdt_addr=0x18000000\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
+	"boot_fdt=try\0" \
+	"ip_dyn=yes\0" \
 	"mmcdev=1\0" \
 	"mmcpart=2\0" \
 	"mmcroot=/dev/mmcblk0p3 rootwait rw\0" \
@@ -88,15 +92,46 @@
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source\0" \
 	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
+	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
-		"bootz\0" \
+		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
+			"if run loadfdt; then " \
+				"bootz ${loadaddr} - ${fdt_addr}; " \
+			"else " \
+				"if test ${boot_fdt} = try; then " \
+					"bootz; " \
+				"else " \
+					"echo WARN: Cannot load the DT; " \
+				"fi; " \
+			"fi; " \
+		"else " \
+			"bootz; " \
+		"fi;\0" \
 	"netargs=setenv bootargs console=${console},${baudrate} " \
 		"root=/dev/nfs " \
 		"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
 	"netboot=echo Booting from net ...; " \
 		"run netargs; " \
-		"dhcp ${image}; bootz\0" \
+		"if test ${ip_dyn} = yes; then " \
+			"setenv get_cmd dhcp; " \
+		"else " \
+			"setenv get_cmd tftp; " \
+		"fi; " \
+		"${get_cmd} ${image}; " \
+		"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
+			"if ${get_cmd} ${fdt_addr} ${fdt_file}; then " \
+				"bootz ${loadaddr} - ${fdt_addr}; " \
+			"else " \
+				"if test ${boot_fdt} = try; then " \
+					"bootz; " \
+				"else " \
+					"echo WARN: Cannot load the DT; " \
+				"fi; " \
+			"fi; " \
+		"else " \
+			"bootz; " \
+		"fi;\0"
 
 #define CONFIG_BOOTCOMMAND \
 	"mmc dev ${mmcdev};" \
