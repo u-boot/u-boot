@@ -225,7 +225,6 @@
 /* designware */
 #define CONFIG_NET_MULTI
 #define CONFIG_DW_ALTDESCRIPTOR
-#define CONFIG_DW_SEARCH_PHY
 #define CONFIG_MII
 #define CONFIG_PHY_GIGE
 #define CONFIG_DW_AUTONEG
