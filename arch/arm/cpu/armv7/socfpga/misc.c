@@ -8,6 +8,7 @@
 #include <asm/io.h>
 #include <miiphy.h>
 #include <netdev.h>
+#include <asm/arch/reset_manager.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -35,6 +36,19 @@ int overwrite_console(void)
 	return 0;
 }
 #endif
+
+int arch_cpu_init(void)
+{
+	/*
+	 * If the HW watchdog is NOT enabled, make sure it is not running,
+	 * for example because it was enabled in the preloader. This might
+	 * trigger a watchdog-triggered reboot of Linux kernel later.
+	 */
+#ifndef CONFIG_HW_WATCHDOG
+	socfpga_watchdog_reset();
+#endif
+	return 0;
+}
 
 int misc_init_r(void)
 {

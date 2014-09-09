@@ -14,6 +14,18 @@ DECLARE_GLOBAL_DATA_PTR;
 static const struct socfpga_reset_manager *reset_manager_base =
 		(void *)SOCFPGA_RSTMGR_ADDRESS;
 
+/* Toggle reset signal to watchdog (WDT is disabled after this operation!) */
+void socfpga_watchdog_reset(void)
+{
+	/* assert reset for watchdog */
+	setbits_le32(&reset_manager_base->per_mod_reset,
+		     1 << RSTMGR_PERMODRST_L4WD0_LSB);
+
+	/* deassert watchdog from reset (watchdog in not running state) */
+	clrbits_le32(&reset_manager_base->per_mod_reset,
+		     1 << RSTMGR_PERMODRST_L4WD0_LSB);
+}
+
 /*
  * Write the reset manager register to cause reset
  */

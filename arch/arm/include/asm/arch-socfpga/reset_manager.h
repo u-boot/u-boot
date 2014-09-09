@@ -10,6 +10,8 @@
 void reset_cpu(ulong addr);
 void reset_deassert_peripherals_handoff(void);
 
+void socfpga_watchdog_reset(void);
+
 struct socfpga_reset_manager {
 	u32	status;
 	u32	ctrl;
@@ -26,5 +28,7 @@ struct socfpga_reset_manager {
 #else
 #define RSTMGR_CTRL_SWWARMRSTREQ_LSB 1
 #endif
+
+#define RSTMGR_PERMODRST_L4WD0_LSB	6
 
 #endif /* _RESET_MANAGER_H_ */
