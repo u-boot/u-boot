@@ -287,8 +287,8 @@ static u8 caam_get_era(void)
 	};
 
 	ccsr_sec_t __iomem *sec = (void __iomem *)CONFIG_SYS_FSL_SEC_ADDR;
-	u32 secvid_ms = in_be32(&sec->secvid_ms);
-	u32 ccbvid = in_be32(&sec->ccbvid);
+	u32 secvid_ms = sec_in32(&sec->secvid_ms);
+	u32 ccbvid = sec_in32(&sec->ccbvid);
 	u16 ip_id = (secvid_ms & SEC_SECVID_MS_IPID_MASK) >>
 				SEC_SECVID_MS_IPID_SHIFT;
 	u8 maj_rev = (secvid_ms & SEC_SECVID_MS_MAJ_REV_MASK) >>

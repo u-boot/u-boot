@@ -11,6 +11,22 @@
 #include <common.h>
 #include <asm/io.h>
 
+#ifdef CONFIG_SYS_FSL_SEC_LE
+#define sec_in32(a)       in_le32(a)
+#define sec_out32(a, v)   out_le32(a, v)
+#define sec_in16(a)       in_le16(a)
+#define sec_clrbits32     clrbits_le32
+#define sec_setbits32     setbits_le32
+#elif defined(CONFIG_SYS_FSL_SEC_BE)
+#define sec_in32(a)       in_be32(a)
+#define sec_out32(a, v)   out_be32(a, v)
+#define sec_in16(a)       in_be16(a)
+#define sec_clrbits32     clrbits_be32
+#define sec_setbits32     setbits_be32
+#else
+#error Neither CONFIG_SYS_FSL_SEC_LE nor CONFIG_SYS_FSL_SEC_BE is defined
+#endif
+
 /* Security Engine Block (MS = Most Sig., LS = Least Sig.) */
 #if CONFIG_SYS_FSL_SEC_COMPAT >= 4
 typedef struct ccsr_sec {

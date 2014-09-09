@@ -714,7 +714,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 		ccsr_sec_t __iomem *sec;
 
 		sec = (void __iomem *)CONFIG_SYS_FSL_SEC_ADDR;
-		fdt_fixup_crypto_node(blob, in_be32(&sec->secvid_ms));
+		fdt_fixup_crypto_node(blob, sec_in32(&sec->secvid_ms));
 	}
 #endif
 

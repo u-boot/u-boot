@@ -803,7 +803,7 @@ int cpu_init_r(void)
 #ifdef CONFIG_SYS_FSL_ERRATUM_SEC_A003571
 #define MCFGR_AXIPIPE 0x000000f0
 	if (IS_SVR_REV(svr, 1, 0))
-		clrbits_be32(&sec->mcfgr, MCFGR_AXIPIPE);
+		sec_clrbits32(&sec->mcfgr, MCFGR_AXIPIPE);
 #endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_A005871
