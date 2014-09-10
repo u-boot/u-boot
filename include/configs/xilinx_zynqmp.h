@@ -75,6 +75,8 @@
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_ECHO
 #define CONFIG_CMD_ENV
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_EXT4
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_FLASH
 #define CONFIG_CMD_IMI
@@ -117,6 +119,11 @@
 # define CONFIG_SDHCI
 # define CONFIG_ZYNQ_SDHCI
 # define CONFIG_CMD_MMC
+#endif
+
+#if defined (CONFIG_ZYNQ_SDHCI) || defined(CONFIG_ZYNQ_USB)
+# define CONFIG_FAT_WRITE
+# define CONFIG_CMD_EXT4_WRITE
 #endif
 
 /* Miscellaneous configurable options */
