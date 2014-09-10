@@ -833,7 +833,6 @@ static int zynq_qspi_check_is_dual_flash(void)
 	int is_dual = -1;
 	int lower_mio = 0, upper_mio = 0, upper_mio_cs1 = 0;
 
-#ifndef XILINX_ZYNQMP
 	lower_mio = zynq_slcr_get_mio_pin_status("qspi0");
 	if (lower_mio == ZYNQ_QSPI_MIO_NUM_QSPI0)
 		is_dual = SF_SINGLE_FLASH;
@@ -848,9 +847,6 @@ static int zynq_qspi_check_is_dual_flash(void)
 	    (upper_mio_cs1 == ZYNQ_QSPI_MIO_NUM_QSPI1_CS) &&
 	    (upper_mio == ZYNQ_QSPI_MIO_NUM_QSPI1))
 		is_dual = SF_DUAL_PARALLEL_FLASH;
-#else
-	is_dual = SF_SINGLE_FLASH;
-#endif
 
 	return is_dual;
 }

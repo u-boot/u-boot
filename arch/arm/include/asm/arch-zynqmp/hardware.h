@@ -61,6 +61,15 @@ struct csu_regs {
 
 #define csu_base ((struct csu_regs *)ZYNQMP_CSU_BASEADDR)
 
+#define ZYNQMP_IOU_SLCR_BASEADDR	0xFF180000
+
+struct iou_slcr_regs {
+	u32 mio_pin[78];
+	u32 reserved[442];
+};
+
+#define slcr_base ((struct iou_slcr_regs *)ZYNQMP_IOU_SLCR_BASEADDR)
+
 /* Board version value */
 #define ZYNQMP_CSU_VERSION_SILICON	0x0
 #define ZYNQMP_CSU_VERSION_EP108	0x1
