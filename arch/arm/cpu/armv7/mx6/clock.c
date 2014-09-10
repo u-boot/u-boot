@@ -78,7 +78,7 @@ void enable_usboh3_clk(unsigned char enable)
 
 }
 
-#ifdef CONFIG_FEC_MXC
+#if defined(CONFIG_FEC_MXC) && !defined(CONFIG_MX6SX)
 void enable_enet_clk(unsigned char enable)
 {
 	u32 mask = MXC_CCM_CCGR1_ENET_CLK_ENABLE_MASK;
