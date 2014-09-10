@@ -236,8 +236,11 @@
 #define CONFIG_EXTRA_ENV_SETTINGS	\
 	"ethaddr=00:0a:35:00:01:22\0"	\
 	"kernel_image=uImage\0"	\
+	"kernel_load_address=0x3000000\0" \
 	"ramdisk_image=uramdisk.image.gz\0"	\
+	"ramdisk_load_address=0x2000000\0"	\
 	"devicetree_image=devicetree.dtb\0"	\
+	"devicetree_load_address=0x2a00000\0"	\
 	"bitstream_image=system.bit.bin\0"	\
 	"boot_image=BOOT.bin\0"	\
 	"loadbit_addr=0x100000\0"	\
@@ -257,18 +260,18 @@
 		"fatload mmc 0 ${loadbit_addr} ${bitstream_image} && " \
 		"fpga load 0 ${loadbit_addr} ${filesize}\0" \
 	"norboot=echo Copying Linux from NOR flash to RAM... && " \
-		"cp.b 0xE2100000 0x3000000 ${kernel_size} && " \
-		"cp.b 0xE2600000 0x2A00000 ${devicetree_size} && " \
+		"cp.b 0xE2100000 ${kernel_load_address} ${kernel_size} && " \
+		"cp.b 0xE2600000 ${devicetree_load_address} ${devicetree_size} && " \
 		"echo Copying ramdisk... && " \
-		"cp.b 0xE2620000 0x2000000 ${ramdisk_size} && " \
-		"bootm 0x3000000 0x2000000 0x2A00000\0" \
+		"cp.b 0xE2620000 ${ramdisk_load_address} ${ramdisk_size} && " \
+		"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}\0" \
 	"qspiboot=echo Copying Linux from QSPI flash to RAM... && " \
 		"sf probe 0 0 0 && " \
-		"sf read 0x3000000 0x100000 ${kernel_size} && " \
-		"sf read 0x2A00000 0x600000 ${devicetree_size} && " \
+		"sf read ${kernel_load_address} 0x100000 ${kernel_size} && " \
+		"sf read ${devicetree_load_address} 0x600000 ${devicetree_size} && " \
 		"echo Copying ramdisk... && " \
-		"sf read 0x2000000 0x620000 ${ramdisk_size} && " \
-		"bootm 0x3000000 0x2000000 0x2A00000\0" \
+		"sf read ${ramdisk_load_address} 0x620000 ${ramdisk_size} && " \
+		"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}\0" \
 	"uenvboot=" \
 		"if run loadbootenv; then " \
 			"echo Loaded environment from ${bootenv}; " \
@@ -281,51 +284,51 @@
 	"sdboot=if mmcinfo; then " \
 			"run uenvboot; " \
 			"echo Copying Linux from SD to RAM... && " \
-			"fatload mmc 0 0x3000000 ${kernel_image} && " \
-			"fatload mmc 0 0x2A00000 ${devicetree_image} && " \
-			"fatload mmc 0 0x2000000 ${ramdisk_image} && " \
-			"bootm 0x3000000 0x2000000 0x2A00000; " \
+			"fatload mmc 0 ${kernel_load_address} ${kernel_image} && " \
+			"fatload mmc 0 ${devicetree_load_address} ${devicetree_image} && " \
+			"fatload mmc 0 ${ramdisk_load_address} ${ramdisk_image} && " \
+			"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}; " \
 		"fi\0" \
 	"usbboot=if usb start; then " \
 			"run uenvboot; " \
 			"echo Copying Linux from USB to RAM... && " \
-			"fatload usb 0 0x3000000 ${kernel_image} && " \
-			"fatload usb 0 0x2A00000 ${devicetree_image} && " \
-			"fatload usb 0 0x2000000 ${ramdisk_image} && " \
-			"bootm 0x3000000 0x2000000 0x2A00000; " \
+			"fatload usb 0 ${kernel_load_address} ${kernel_image} && " \
+			"fatload usb 0 ${devicetree_load_address} ${devicetree_image} && " \
+			"fatload usb 0 ${ramdisk_load_address} ${ramdisk_image} && " \
+			"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}; " \
 		"fi\0" \
 	"nandboot=echo Copying Linux from NAND flash to RAM... && " \
-		"nand read 0x3000000 0x100000 ${kernel_size} && " \
-		"nand read 0x2A00000 0x600000 ${devicetree_size} && " \
+		"nand read ${kernel_load_address} 0x100000 ${kernel_size} && " \
+		"nand read ${devicetree_load_address} 0x600000 ${devicetree_size} && " \
 		"echo Copying ramdisk... && " \
-		"nand read 0x2000000 0x620000 ${ramdisk_size} && " \
-		"bootm 0x3000000 0x2000000 0x2A00000\0" \
+		"nand read ${ramdisk_load_address} 0x620000 ${ramdisk_size} && " \
+		"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}\0" \
 	"jtagboot=echo TFTPing Linux to RAM... && " \
-		"tftpboot 0x3000000 ${kernel_image} && " \
-		"tftpboot 0x2A00000 ${devicetree_image} && " \
-		"tftpboot 0x2000000 ${ramdisk_image} && " \
-		"bootm 0x3000000 0x2000000 0x2A00000\0" \
+		"tftpboot ${kernel_load_address} ${kernel_image} && " \
+		"tftpboot ${devicetree_load_address} ${devicetree_image} && " \
+		"tftpboot ${ramdisk_load_address} ${ramdisk_image} && " \
+		"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}\0" \
 	"rsa_norboot=echo Copying Image from NOR flash to RAM... && " \
 		"cp.b 0xE2100000 0x100000 ${boot_size} && " \
 		"zynqrsa 0x100000 && " \
-		"bootm 0x3000000 0x2000000 0x2A00000\0" \
+		"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}\0" \
 	"rsa_nandboot=echo Copying Image from NAND flash to RAM... && " \
 		"nand read 0x100000 0x0 ${boot_size} && " \
 		"zynqrsa 0x100000 && " \
-		"bootm 0x3000000 0x2000000 0x2A00000\0" \
+		"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}\0" \
 	"rsa_qspiboot=echo Copying Image from QSPI flash to RAM... && " \
 		"sf probe 0 0 0 && " \
 		"sf read 0x100000 0x0 ${boot_size} && " \
 		"zynqrsa 0x100000 && " \
-		"bootm 0x3000000 0x2000000 0x2A00000\0" \
+		"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}\0" \
 	"rsa_sdboot=echo Copying Image from SD to RAM... && " \
 		"fatload mmc 0 0x100000 ${boot_image} && " \
 		"zynqrsa 0x100000 && " \
-		"bootm 0x3000000 0x2000000 0x2A00000\0" \
+		"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}\0" \
 	"rsa_jtagboot=echo TFTPing Image to RAM... && " \
 		"tftpboot 0x100000 ${boot_image} && " \
 		"zynqrsa 0x100000 && " \
-		"bootm 0x3000000 0x2000000 0x2A00000\0" \
+		"bootm ${kernel_load_address} ${ramdisk_load_address} ${devicetree_load_address}\0" \
 		DFU_ALT_INFO
 
 /* Default environment */
