@@ -423,7 +423,7 @@ static void * const i2c_bases[] = {
 	(void *)IMX_I2C2_BASE
 #elif defined(CONFIG_MX31) || defined(CONFIG_MX35) || \
 	defined(CONFIG_MX51) || defined(CONFIG_MX53) ||	\
-	defined(CONFIG_MX6)
+	defined(CONFIG_MX6) || defined(CONFIG_LS102XA)
 	(void *)I2C1_BASE_ADDR,
 	(void *)I2C2_BASE_ADDR,
 	(void *)I2C3_BASE_ADDR
@@ -545,7 +545,7 @@ U_BOOT_I2C_ADAP_COMPLETE(mxc1, mxc_i2c_init, mxc_i2c_probe,
 			 CONFIG_SYS_MXC_I2C2_SLAVE, 1)
 #if defined(CONFIG_MX31) || defined(CONFIG_MX35) ||\
 	defined(CONFIG_MX51) || defined(CONFIG_MX53) ||\
-	defined(CONFIG_MX6)
+	defined(CONFIG_MX6) || defined(CONFIG_LS102XA)
 U_BOOT_I2C_ADAP_COMPLETE(mxc2, mxc_i2c_init, mxc_i2c_probe,
 			 mxc_i2c_read, mxc_i2c_write,
 			 mxc_i2c_set_bus_speed,

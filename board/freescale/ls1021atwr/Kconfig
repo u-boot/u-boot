@@ -1,0 +1,23 @@
+if TARGET_LS1021ATWR
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "ls1021atwr"
+
+config SYS_VENDOR
+	string
+	default "freescale"
+
+config SYS_SOC
+	string
+	default "ls102xa"
+
+config SYS_CONFIG_NAME
+	string
+	default "ls1021atwr"
+
+endif

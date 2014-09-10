@@ -23,4 +23,8 @@
 #include <asm/arch-fsl-lsch3/config.h>
 #endif
 
+#ifdef CONFIG_LS102XA
+#include <asm/arch/config.h>
+#endif
+
 #endif
