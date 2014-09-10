@@ -12,14 +12,17 @@ import threading
 import command
 import gitutil
 
-def Mkdir(dirname):
+def Mkdir(dirname, parents = False):
     """Make a directory if it doesn't already exist.
 
     Args:
         dirname: Directory to create
     """
     try:
-        os.mkdir(dirname)
+        if parents:
+            os.makedirs(dirname)
+        else:
+            os.mkdir(dirname)
     except OSError as err:
         if err.errno == errno.EEXIST:
             pass
@@ -138,16 +141,17 @@ class BuilderThread(threading.Thread):
         result.already_done = os.path.exists(done_file)
         will_build = (force_build or force_build_failures or
             not result.already_done)
-        if result.already_done and will_build:
+        if result.already_done:
             # Get the return code from that build and use it
             with open(done_file, 'r') as fd:
                 result.return_code = int(fd.readline())
-            err_file = self.builder.GetErrFile(commit_upto, brd.target)
-            if os.path.exists(err_file) and os.stat(err_file).st_size:
-                result.stderr = 'bad'
-            elif not force_build:
-                # The build passed, so no need to build it again
-                will_build = False
+            if will_build:
+                err_file = self.builder.GetErrFile(commit_upto, brd.target)
+                if os.path.exists(err_file) and os.stat(err_file).st_size:
+                    result.stderr = 'bad'
+                elif not force_build:
+                    # The build passed, so no need to build it again
+                    will_build = False
 
         if will_build:
             # We are going to have to build it. First, get a toolchain
