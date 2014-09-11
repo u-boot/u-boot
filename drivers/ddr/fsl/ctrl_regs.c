@@ -1902,9 +1902,12 @@ static void set_timing_cfg_9(fsl_ddr_cfg_regs_t *ddr)
 	debug("FSLDDR: timing_cfg_9 = 0x%08x\n", ddr->timing_cfg_9);
 }
 
+/* This function needs to be called after set_ddr_sdram_cfg() is called */
 static void set_ddr_dq_mapping(fsl_ddr_cfg_regs_t *ddr,
 			       const dimm_params_t *dimm_params)
 {
+	unsigned int acc_ecc_en = (ddr->ddr_sdram_cfg >> 2) & 0x1;
+
 	ddr->dq_map_0 = ((dimm_params->dq_mapping[0] & 0x3F) << 26) |
 			((dimm_params->dq_mapping[1] & 0x3F) << 20) |
 			((dimm_params->dq_mapping[2] & 0x3F) << 14) |
@@ -1923,9 +1926,11 @@ static void set_ddr_dq_mapping(fsl_ddr_cfg_regs_t *ddr,
 			((dimm_params->dq_mapping[15] & 0x3F) << 8) |
 			((dimm_params->dq_mapping[16] & 0x3F) << 2);
 
+	/* dq_map for ECC[4:7] is set to 0 if accumulated ECC is enabled */
 	ddr->dq_map_3 = ((dimm_params->dq_mapping[17] & 0x3F) << 26) |
 			((dimm_params->dq_mapping[8] & 0x3F) << 20) |
-			((dimm_params->dq_mapping[9] & 0x3F) << 14) |
+			(acc_ecc_en ? 0 :
+			 (dimm_params->dq_mapping[9] & 0x3F) << 14) |
 			dimm_params->dq_mapping_ors;
 
 	debug("FSLDDR: dq_map_0 = 0x%08x\n", ddr->dq_map_0);
@@ -2292,7 +2297,7 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 	if (ip_rev > 0x40400)
 		unq_mrs_en = 1;
 
-	if (ip_rev > 0x40700)
+	if ((ip_rev > 0x40700) && (popts->cswl_override != 0))
 		ddr->debug[18] = popts->cswl_override;
 
 	set_ddr_sdram_cfg_2(ddr, popts, unq_mrs_en);

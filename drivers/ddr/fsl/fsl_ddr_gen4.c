@@ -216,7 +216,7 @@ step2:
 	 * For example, 2GB on 666MT/s 64-bit bus takes about 402ms
 	 * Let's wait for 800ms
 	 */
-	bus_width = 3 - ((ddr->sdram_cfg & SDRAM_CFG_DBW_MASK)
+	bus_width = 3 - ((ddr_in32(&ddr->sdram_cfg) & SDRAM_CFG_DBW_MASK)
 			>> SDRAM_CFG_DBW_SHIFT);
 	timeout = ((total_gb_size_per_controller << (6 - bus_width)) * 100 /
 		(get_ddr_freq(0) >> 20)) << 2;
@@ -233,5 +233,4 @@ step2:
 
 	if (timeout <= 0)
 		printf("Waiting for D_INIT timeout. Memory may not work.\n");
-
 }
