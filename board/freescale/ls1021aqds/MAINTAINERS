@@ -4,3 +4,4 @@ S:	Maintained
 F:	board/freescale/ls1021aqds/
 F:	include/configs/ls1021aqds.h
 F:	configs/ls1021aqds_nor_defconfig
+F:	configs/ls1021aqds_ddr4_nor_defconfig

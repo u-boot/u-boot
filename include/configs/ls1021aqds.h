@@ -49,10 +49,12 @@ unsigned long get_board_ddr_clk(void);
 #define CONFIG_DDR_SPD
 #define SPD_EEPROM_ADDRESS		0x51
 #define CONFIG_SYS_SPD_BUS_NUM		0
-#define CONFIG_SYS_DDR_RAW_TIMING
 
 #define CONFIG_FSL_DDR_INTERACTIVE	/* Interactive debugging */
+#ifndef CONFIG_SYS_FSL_DDR4
 #define CONFIG_SYS_FSL_DDR3		/* Use DDR3 memory */
+#define CONFIG_SYS_DDR_RAW_TIMING
+#endif
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_CHIP_SELECTS_PER_CTRL	4
 
