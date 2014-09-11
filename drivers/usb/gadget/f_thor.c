@@ -458,16 +458,6 @@ static struct usb_endpoint_descriptor hs_int_desc = {
 	.bInterval = 0x9,
 };
 
-static struct usb_qualifier_descriptor dev_qualifier = {
-	.bLength =		sizeof(dev_qualifier),
-	.bDescriptorType =	USB_DT_DEVICE_QUALIFIER,
-
-	.bcdUSB =		__constant_cpu_to_le16(0x0200),
-	.bDeviceClass =	USB_CLASS_VENDOR_SPEC,
-
-	.bNumConfigurations =	2,
-};
-
 /*
  * This attribute vendor descriptor is necessary for correct operation with
  * Windows version of THOR download program

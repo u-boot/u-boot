@@ -81,14 +81,6 @@ static struct usb_descriptor_header *dfu_runtime_descs[] = {
 	NULL,
 };
 
-static const struct usb_qualifier_descriptor dev_qualifier = {
-	.bLength =		sizeof dev_qualifier,
-	.bDescriptorType =	USB_DT_DEVICE_QUALIFIER,
-	.bcdUSB =		__constant_cpu_to_le16(0x0200),
-	.bDeviceClass =		USB_CLASS_VENDOR_SPEC,
-	.bNumConfigurations =	1,
-};
-
 static const char dfu_name[] = "Device Firmware Upgrade";
 
 /*
