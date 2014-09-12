@@ -278,6 +278,39 @@ static void setup_iomux_i2c(void)
 	imx_iomux_v3_setup_multiple_pads(i2c0_pads, ARRAY_SIZE(i2c0_pads));
 }
 
+#ifdef CONFIG_NAND_VF610_NFC
+static void setup_iomux_nfc(void)
+{
+	static const iomux_v3_cfg_t nfc_pads[] = {
+		VF610_PAD_PTD31__NF_IO15,
+		VF610_PAD_PTD30__NF_IO14,
+		VF610_PAD_PTD29__NF_IO13,
+		VF610_PAD_PTD28__NF_IO12,
+		VF610_PAD_PTD27__NF_IO11,
+		VF610_PAD_PTD26__NF_IO10,
+		VF610_PAD_PTD25__NF_IO9,
+		VF610_PAD_PTD24__NF_IO8,
+		VF610_PAD_PTD23__NF_IO7,
+		VF610_PAD_PTD22__NF_IO6,
+		VF610_PAD_PTD21__NF_IO5,
+		VF610_PAD_PTD20__NF_IO4,
+		VF610_PAD_PTD19__NF_IO3,
+		VF610_PAD_PTD18__NF_IO2,
+		VF610_PAD_PTD17__NF_IO1,
+		VF610_PAD_PTD16__NF_IO0,
+		VF610_PAD_PTB24__NF_WE_B,
+		VF610_PAD_PTB25__NF_CE0_B,
+		VF610_PAD_PTB27__NF_RE_B,
+		VF610_PAD_PTC26__NF_RB_B,
+		VF610_PAD_PTC27__NF_ALE,
+		VF610_PAD_PTC28__NF_CLE
+	};
+
+	imx_iomux_v3_setup_multiple_pads(nfc_pads, ARRAY_SIZE(nfc_pads));
+}
+#endif
+
+
 static void setup_iomux_qspi(void)
 {
 	static const iomux_v3_cfg_t qspi0_pads[] = {
@@ -354,6 +387,8 @@ static void clock_init(void)
 		CCM_CCGR7_SDHC1_CTRL_MASK);
 	clrsetbits_le32(&ccm->ccgr9, CCM_REG_CTRL_MASK,
 		CCM_CCGR9_FEC0_CTRL_MASK | CCM_CCGR9_FEC1_CTRL_MASK);
+	clrsetbits_le32(&ccm->ccgr10, CCM_REG_CTRL_MASK,
+		CCM_CCGR10_NFC_CTRL_MASK);
 
 	clrsetbits_le32(&anadig->pll2_ctrl, ANADIG_PLL2_CTRL_POWERDOWN,
 		ANADIG_PLL2_CTRL_ENABLE | ANADIG_PLL2_CTRL_DIV_SELECT);
@@ -373,14 +408,17 @@ static void clock_init(void)
 		CCM_CACRR_IPG_CLK_DIV(1) | CCM_CACRR_BUS_CLK_DIV(2) |
 		CCM_CACRR_ARM_CLK_DIV(0));
 	clrsetbits_le32(&ccm->cscmr1, CCM_REG_CTRL_MASK,
-		CCM_CSCMR1_ESDHC1_CLK_SEL(3) | CCM_CSCMR1_QSPI0_CLK_SEL(3));
+		CCM_CSCMR1_ESDHC1_CLK_SEL(3) | CCM_CSCMR1_QSPI0_CLK_SEL(3) |
+		CCM_CSCMR1_NFC_CLK_SEL(0));
 	clrsetbits_le32(&ccm->cscdr1, CCM_REG_CTRL_MASK,
 		CCM_CSCDR1_RMII_CLK_EN);
 	clrsetbits_le32(&ccm->cscdr2, CCM_REG_CTRL_MASK,
-		CCM_CSCDR2_ESDHC1_EN | CCM_CSCDR2_ESDHC1_CLK_DIV(0));
+		CCM_CSCDR2_ESDHC1_EN | CCM_CSCDR2_ESDHC1_CLK_DIV(0) |
+		CCM_CSCDR2_NFC_EN);
 	clrsetbits_le32(&ccm->cscdr3, CCM_REG_CTRL_MASK,
 		CCM_CSCDR3_QSPI0_EN | CCM_CSCDR3_QSPI0_DIV(1) |
-		CCM_CSCDR3_QSPI0_X2_DIV(1) | CCM_CSCDR3_QSPI0_X4_DIV(3));
+		CCM_CSCDR3_QSPI0_X2_DIV(1) | CCM_CSCDR3_QSPI0_X4_DIV(3) |
+		CCM_CSCDR3_NFC_PRE_DIV(5));
 	clrsetbits_le32(&ccm->cscmr2, CCM_REG_CTRL_MASK,
 		CCM_CSCMR2_RMII_CLK_SEL(0));
 }
@@ -411,6 +449,9 @@ int board_early_init_f(void)
 	setup_iomux_enet();
 	setup_iomux_i2c();
 	setup_iomux_qspi();
+#ifdef CONFIG_NAND_VF610_NFC
+	setup_iomux_nfc();
+#endif
 
 	return 0;
 }
