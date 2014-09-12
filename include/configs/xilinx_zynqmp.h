@@ -132,6 +132,7 @@
 		  "sf read 80000 140000 1800000 && booti 80000 - f000000\0" \
 	"sdboot=mmcinfo && fatload mmc 0:0 f000000 system.dtb && " \
 		"fatload mmc 0:0 f000000 Image && booti 80000 - f000000\0" \
+	"xen=tftpb 4000000 system.dtb && tftpb 0x80000 Image && tftpb 6000000 xen.ub && bootm 6000000 - 4000000\0" \
 	"jtagboot=tftpboot 10000000 image.ub && bootm\0"
 
 #define CONFIG_BOOTARGS		"setenv bootargs console=ttyPS0,${baudrate} " \
