@@ -8,20 +8,7 @@
 #define __ASM_ARCH_EXYNOS_SPL_H__
 
 #include <asm/arch-exynos/dmc.h>
-
-enum boot_mode {
-	/*
-	 * Assign the OM pin values for respective boot modes.
-	 * Exynos4 does not support spi boot and the mmc boot OM
-	 * pin values are the same across Exynos4 and Exynos5.
-	 */
-	BOOT_MODE_MMC = 4,
-	BOOT_MODE_EMMC = 8,     /* EMMC4.4 */
-	BOOT_MODE_SERIAL = 20,
-	/* Boot based on Operating Mode pin settings */
-	BOOT_MODE_OM = 32,
-	BOOT_MODE_USB,	/* Boot using USB download */
-};
+#include <asm/arch/power.h>
 
 #ifndef __ASSEMBLY__
 /* Parameters of early board initialization in SPL */
@@ -62,7 +49,7 @@ struct spl_machine_param {
 	 * table only for mmc boot.
 	 */
 	u32		uboot_size;
-	enum boot_mode	boot_source;	/* Boot device */
+	unsigned	boot_source;	/* Boot device */
 	unsigned	frequency_mhz;	/* Frequency of memory in MHz */
 	unsigned	arm_freq_mhz;	/* ARM Frequency in MHz */
 	u32		serial_base;	/* Serial base address */

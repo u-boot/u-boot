@@ -36,7 +36,7 @@ config SYS_SOC
 	string
 	default "sunxi"
 
-config FTDFILE
-	string "Default ftdfile env setting for this board"
+config FDTFILE
+	string "Default fdtfile env setting for this board"
 
 endif

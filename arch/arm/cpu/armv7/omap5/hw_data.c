@@ -227,6 +227,16 @@ static const struct dpll_params usb_dpll_params_1920mhz[NUM_SYS_CLKS] = {
 	{400, 15, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 38.4 MHz */
 };
 
+static const struct dpll_params ddr_dpll_params_2664mhz[NUM_SYS_CLKS] = {
+	{111, 0, 2, 1, 8, -1, -1, -1, -1, -1, -1, -1},		/* 12 MHz   */
+	{333, 4, 2, 1, 8, -1, -1, -1, -1, -1, -1, -1},		/* 20 MHz   */
+	{555, 6, 2, 1, 8, -1, -1, -1, -1, -1, -1, -1},		/* 16.8 MHz */
+	{555, 7, 2, 1, 8, -1, -1, -1, -1, -1, -1, -1},		/* 19.2 MHz */
+	{666, 12, 2, 1, 8, -1, -1, -1, -1, -1, -1, -1},		/* 26 MHz   */
+	{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},	/* 27 MHz   */
+	{555, 15, 2, 1, 8, -1, -1, -1, -1, -1, -1, -1},		/* 38.4 MHz */
+};
+
 static const struct dpll_params ddr_dpll_params_2128mhz[NUM_SYS_CLKS] = {
 	{266, 2, 2, 1, 8, -1, -1, -1, -1, -1, -1, -1},		/* 12 MHz   */
 	{266, 4, 2, 1, 8, -1, -1, -1, -1, -1, -1, -1},		/* 20 MHz   */
@@ -283,6 +293,17 @@ struct dplls dra7xx_dplls = {
 	.iva = iva_dpll_params_2330mhz_dra7xx,
 	.usb = usb_dpll_params_1920mhz,
 	.ddr = ddr_dpll_params_2128mhz,
+	.gmac = gmac_dpll_params_2000mhz,
+};
+
+struct dplls dra72x_dplls = {
+	.mpu = mpu_dpll_params_1ghz,
+	.core = core_dpll_params_2128mhz_dra7xx,
+	.per = per_dpll_params_768mhz_dra7xx,
+	.abe = abe_dpll_params_sysclk2_361267khz,
+	.iva = iva_dpll_params_2330mhz_dra7xx,
+	.usb = usb_dpll_params_1920mhz,
+	.ddr =	ddr_dpll_params_2664mhz,
 	.gmac = gmac_dpll_params_2000mhz,
 };
 
@@ -560,6 +581,18 @@ const struct ctrl_ioregs ioregs_dra7xx_es1 = {
 	.ctrl_ddr_ctrl_ext_0 = 0xA2000000,
 };
 
+const struct ctrl_ioregs ioregs_dra72x_es1 = {
+	.ctrl_ddrch = 0x40404040,
+	.ctrl_lpddr2ch = 0x40404040,
+	.ctrl_ddr3ch = 0x60606080,
+	.ctrl_ddrio_0 = 0xA2084210,
+	.ctrl_ddrio_1 = 0x84210840,
+	.ctrl_ddrio_2 = 0x84210000,
+	.ctrl_emif_sdram_config_ext = 0x0001C1A7,
+	.ctrl_emif_sdram_config_ext_final = 0x0001C1A7,
+	.ctrl_ddr_ctrl_ext_0 = 0xA2000000,
+};
+
 void hw_data_init(void)
 {
 	u32 omap_rev = omap_revision();
@@ -592,7 +625,7 @@ void hw_data_init(void)
 
 	case DRA722_ES1_0:
 	*prcm = &dra7xx_prcm;
-	*dplls_data = &dra7xx_dplls;
+	*dplls_data = &dra72x_dplls;
 	*omap_vcores = &dra722_volts;
 	*ctrl = &dra7xx_ctrl;
 	break;
@@ -619,8 +652,10 @@ void get_ioregs(const struct ctrl_ioregs **regs)
 		break;
 	case DRA752_ES1_0:
 	case DRA752_ES1_1:
-	case DRA722_ES1_0:
 		*regs = &ioregs_dra7xx_es1;
+		break;
+	case DRA722_ES1_0:
+		*regs = &ioregs_dra72x_es1;
 		break;
 
 	default:

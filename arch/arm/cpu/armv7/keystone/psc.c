@@ -13,9 +13,6 @@
 #include <asm/processor.h>
 #include <asm/arch/psc_defs.h>
 
-#define DEVICE_REG32_R(addr)			__raw_readl((u32 *)(addr))
-#define DEVICE_REG32_W(addr, val)		__raw_writel(val, (u32 *)(addr))
-
 int psc_delay(void)
 {
 	udelay(10);
@@ -51,7 +48,7 @@ int psc_wait(u32 domain_num)
 	retry = 0;
 
 	do {
-		ptstat = DEVICE_REG32_R(KS2_PSC_BASE + PSC_REG_PSTAT);
+		ptstat = __raw_readl(KS2_PSC_BASE + PSC_REG_PSTAT);
 		ptstat = ptstat & (1 << domain_num);
 	} while ((ptstat != 0) && ((retry += psc_delay()) <
 		 PSC_PTSTAT_TIMEOUT_LIMIT));
@@ -67,8 +64,7 @@ u32 psc_get_domain_num(u32 mod_num)
 	u32 domain_num;
 
 	/* Get the power domain associated with the module number */
-	domain_num = DEVICE_REG32_R(KS2_PSC_BASE +
-				    PSC_REG_MDCFG(mod_num));
+	domain_num = __raw_readl(KS2_PSC_BASE + PSC_REG_MDCFG(mod_num));
 	domain_num = PSC_REG_MDCFG_GET_PD(domain_num);
 
 	return domain_num;
@@ -102,7 +98,7 @@ int psc_set_state(u32 mod_num, u32 state)
 	 * Get the power domain associated with the module number, and reset
 	 * isolation functionality
 	 */
-	v = DEVICE_REG32_R(KS2_PSC_BASE + PSC_REG_MDCFG(mod_num));
+	v = __raw_readl(KS2_PSC_BASE + PSC_REG_MDCFG(mod_num));
 	domain_num = PSC_REG_MDCFG_GET_PD(v);
 	reset_iso  = PSC_REG_MDCFG_GET_RESET_ISO(v);
 
@@ -119,24 +115,22 @@ int psc_set_state(u32 mod_num, u32 state)
 	 * change is made if the new state is power down.
 	 */
 	if (state == PSC_REG_VAL_MDCTL_NEXT_ON) {
-		pdctl = DEVICE_REG32_R(KS2_PSC_BASE +
-				       PSC_REG_PDCTL(domain_num));
+		pdctl = __raw_readl(KS2_PSC_BASE + PSC_REG_PDCTL(domain_num));
 		pdctl = PSC_REG_PDCTL_SET_NEXT(pdctl,
 					       PSC_REG_VAL_PDCTL_NEXT_ON);
-		DEVICE_REG32_W(KS2_PSC_BASE + PSC_REG_PDCTL(domain_num),
-			       pdctl);
+		__raw_writel(pdctl, KS2_PSC_BASE + PSC_REG_PDCTL(domain_num));
 	}
 
 	/* Set the next state for the module to enabled/disabled */
-	mdctl = DEVICE_REG32_R(KS2_PSC_BASE + PSC_REG_MDCTL(mod_num));
+	mdctl = __raw_readl(KS2_PSC_BASE + PSC_REG_MDCTL(mod_num));
 	mdctl = PSC_REG_MDCTL_SET_NEXT(mdctl, state);
 	mdctl = PSC_REG_MDCTL_SET_RESET_ISO(mdctl, reset_iso);
-	DEVICE_REG32_W(KS2_PSC_BASE + PSC_REG_MDCTL(mod_num), mdctl);
+	__raw_writel(mdctl, KS2_PSC_BASE + PSC_REG_MDCTL(mod_num));
 
 	/* Trigger the enable */
-	ptcmd = DEVICE_REG32_R(KS2_PSC_BASE + PSC_REG_PTCMD);
+	ptcmd = __raw_readl(KS2_PSC_BASE + PSC_REG_PTCMD);
 	ptcmd |= (u32)(1<<domain_num);
-	DEVICE_REG32_W(KS2_PSC_BASE + PSC_REG_PTCMD, ptcmd);
+	__raw_writel(ptcmd, KS2_PSC_BASE + PSC_REG_PTCMD);
 
 	/* Wait on the complete */
 	return psc_wait(domain_num);
@@ -157,7 +151,7 @@ int psc_enable_module(u32 mod_num)
 	u32 mdctl;
 
 	/* Set the bit to apply reset */
-	mdctl = DEVICE_REG32_R(KS2_PSC_BASE + PSC_REG_MDCTL(mod_num));
+	mdctl = __raw_readl(KS2_PSC_BASE + PSC_REG_MDCTL(mod_num));
 	if ((mdctl & 0x3f) == PSC_REG_VAL_MDSTAT_STATE_ON)
 		return 0;
 
@@ -176,11 +170,11 @@ int psc_disable_module(u32 mod_num)
 	u32 mdctl;
 
 	/* Set the bit to apply reset */
-	mdctl = DEVICE_REG32_R(KS2_PSC_BASE + PSC_REG_MDCTL(mod_num));
+	mdctl = __raw_readl(KS2_PSC_BASE + PSC_REG_MDCTL(mod_num));
 	if ((mdctl & 0x3f) == 0)
 		return 0;
 	mdctl = PSC_REG_MDCTL_SET_LRSTZ(mdctl, 0);
-	DEVICE_REG32_W(KS2_PSC_BASE + PSC_REG_MDCTL(mod_num), mdctl);
+	__raw_writel(mdctl, KS2_PSC_BASE + PSC_REG_MDCTL(mod_num));
 
 	return psc_set_state(mod_num, PSC_REG_VAL_MDCTL_NEXT_SWRSTDISABLE);
 }
@@ -199,11 +193,11 @@ int psc_set_reset_iso(u32 mod_num)
 	u32 mdctl;
 
 	/* Set the reset isolation bit */
-	mdctl = DEVICE_REG32_R(KS2_PSC_BASE + PSC_REG_MDCTL(mod_num));
+	mdctl = __raw_readl(KS2_PSC_BASE + PSC_REG_MDCTL(mod_num));
 	mdctl = PSC_REG_MDCTL_SET_RESET_ISO(mdctl, 1);
-	DEVICE_REG32_W(KS2_PSC_BASE + PSC_REG_MDCTL(mod_num), mdctl);
+	__raw_writel(mdctl, KS2_PSC_BASE + PSC_REG_MDCTL(mod_num));
 
-	v = DEVICE_REG32_R(KS2_PSC_BASE + PSC_REG_MDCFG(mod_num));
+	v = __raw_readl(KS2_PSC_BASE + PSC_REG_MDCFG(mod_num));
 	if (PSC_REG_MDCFG_GET_RESET_ISO(v) == 1)
 		return 0;
 
@@ -220,14 +214,14 @@ int psc_disable_domain(u32 domain_num)
 	u32 pdctl;
 	u32 ptcmd;
 
-	pdctl = DEVICE_REG32_R(KS2_PSC_BASE + PSC_REG_PDCTL(domain_num));
+	pdctl = __raw_readl(KS2_PSC_BASE + PSC_REG_PDCTL(domain_num));
 	pdctl = PSC_REG_PDCTL_SET_NEXT(pdctl, PSC_REG_VAL_PDCTL_NEXT_OFF);
 	pdctl = PSC_REG_PDCTL_SET_PDMODE(pdctl, PSC_REG_VAL_PDCTL_PDMODE_SLEEP);
-	DEVICE_REG32_W(KS2_PSC_BASE + PSC_REG_PDCTL(domain_num), pdctl);
+	__raw_writel(pdctl, KS2_PSC_BASE + PSC_REG_PDCTL(domain_num));
 
-	ptcmd = DEVICE_REG32_R(KS2_PSC_BASE + PSC_REG_PTCMD);
+	ptcmd = __raw_readl(KS2_PSC_BASE + PSC_REG_PTCMD);
 	ptcmd |= (u32)(1 << domain_num);
-	DEVICE_REG32_W(KS2_PSC_BASE + PSC_REG_PTCMD, ptcmd);
+	__raw_writel(ptcmd, KS2_PSC_BASE + PSC_REG_PTCMD);
 
 	return psc_wait(domain_num);
 }

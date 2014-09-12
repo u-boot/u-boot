@@ -306,8 +306,8 @@ static struct nand_ecclayout nand_davinci_4bit_layout_oobfirst = {
 };
 
 #if defined CONFIG_KEYSTONE_RBL_NAND
-#if defined(CONFIG_SYS_NAND_PAGE_2K)
 static struct nand_ecclayout nand_keystone_rbl_4bit_layout_oobfirst = {
+#if defined(CONFIG_SYS_NAND_PAGE_2K)
 	.eccbytes = 40,
 	.eccpos = {
 		6, 7, 8, 9, 10, 11, 12, 13, 14, 15,

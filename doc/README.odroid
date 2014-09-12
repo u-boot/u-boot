@@ -1,0 +1,143 @@
+ U-boot for Odroid X2/U3
+========================
+
+1. Summary
+==========
+This is a quick instruction for setup Odroid boards based on Exynos4412.
+Board config: odroid_config
+
+2. Supported devices
+====================
+This U-BOOT config can be used on two boards:
+- Odroid U3
+- Odroid X2
+with CPU Exynos 4412 rev 2.0 and 2GB of RAM
+
+3. Boot sequence
+================
+iROM->BL1->(BL2 + TrustZone)->U-BOOT
+
+This version of U-BOOT doesn't implement SPL but it is required(BL2)
+and can be found in "boot.tar.gz" from here:
+http://dev.odroid.com/projects/4412boot/wiki/FrontPage?action=download&value=boot.tar.gz
+or here:
+http://odroid.in/guides/ubuntu-lfs/boot.tar.gz
+
+4. Boot media layout
+====================
+The table below shows SD/eMMC cards layout for U-boot.
+The block offset is starting from 0 and the block size is 512B.
+ -------------------------------------
+|  Binary   | Block offset| part type |
+|   name    | SD   | eMMC |(eMMC only)|
+ -------------------------------------
+| Bl1       | 1    | 0    |  1 (boot) |
+| Bl2       | 31   | 30   |  1 (boot) |
+| U-boot    | 63   | 62   |  1 (boot) |
+| Tzsw      | 2111 | 2110 |  1 (boot) |
+| Uboot Env | 2500 | 2500 |  0 (user) |
+ -------------------------------------
+
+5. Prepare the SD boot card - with SD card reader
+=================================================
+To prepare bootable media you need boot binaries provided by hardkernel.
+File "boot.tar.gz" (link in point 3.) contains:
+- E4412_S.bl1.HardKernel.bin
+- E4412_S.tzsw.signed.bin
+- bl2.signed.bin
+- sd_fusing.sh
+- u-boot.bin
+
+This is all you need to boot this board. But if you want to use your custom
+u-boot then you need to change u-boot.bin with your own u-boot binary*
+and run the script "sd_fusing.sh" - this script is valid only for SD card.
+
+*note:
+The proper binary file of current U-boot is u-boot-dtb.bin.
+
+quick steps for Linux:
+- extract boot.tar.gz
+- put any SD card into the SD reader
+- check the device with "dmesg"
+- run ./sd_fusing.sh /dev/sdX - where X is SD card device (but not a partition)
+Check if Hardkernel U-boot is booting, and next do the same with your U-boot.
+
+6. Prepare the eMMC boot card
+   with a eMMC card reader (boot from eMMC card slot)
+=====================================================
+To boot the device from the eMMC slot you should use a special card reader
+which supports eMMC partiion switch. All of the boot binaries are stored
+on the eMMC boot partition which is normally hidden.
+
+The "sd_fusing.sh" script can be used after updating offsets of binaries
+according to the table from point 4. Be sure that you are working on the right
+eMMC partition - its size is usually very small, about 1-4 MiB.
+
+7. Prepare the eMMC boot card
+   with a SD card reader (boot from SD card slot)
+=================================================
+If you have an eMMC->microSD adapter you can prepare the card as in point 5.
+But then the device can boot only from the SD card slot.
+
+8. Prepare the boot media using Hardkernel U-boot
+=================================================
+You can update the U-boot to the custom one if you have an working bootloader
+delivered with the board on a eMMC/SD card. Then follow the steps:
+- install the android fastboot tool
+- connect a micro usb cable to the board
+- on the U-boot prompt, run command: fastboot (as a root)
+- on the host, run command: "fastboot flash bootloader u-boot-dtb.bin"
+- the custom U-boot should start after the board resets.
+
+9. Partition layout
+====================
+Default U-boot environment is setup for fixed partiion layout.
+
+Partition table: MSDOS. Disk layout and files as listed in the table below.
+ ----- ------ ------ ------ -------- ---------------------------------
+| Num | Name |  FS  | Size | Offset |         Reguired files          |
+|     |      | Type |  MiB |  MiB   |                                 |
+ ----- ------ ------ ------ -------- ---------------------------------
+|  1  | BOOT | fat  |  100 |   2    |  kernel, fdt**                  |
+|  2  | ROOT | ext4 |   -  |        |  any Linux system               |
+ ----- ------ ------ ------ -------- ---------------------------------
+
+**note:
+Supported fdt files are:
+- exynos4412-odroidx2.dtb
+- exynos4412-odroidu3.dtb
+
+Supported kernel files are:
+- Image.itb
+- zImage
+- uImage
+
+The default environmental variable "dfu_alt_info" is set* for above layout.
+Each partition size is just an example, dfu_alt_info tries init two partitions.
+The size of each is not important.
+
+*note:
+$dfu_alt_info is set on a boot time and it is concatenated using two variables:
+- $dfu_alt_boot(set dynamically)
+- $dfu_alt_system(from current env).
+
+To add any changes to dfu_alt_info - please modify $dfu_alt_system only.
+Changes are visible after board reset.
+
+10. The environment and booting the kernel
+==========================================
+There are three macros defined in config for various boot options:
+Two for both, kernel with device tree support and also without it:
+- boot_uimg - load uImage
+- boot_zimg - load zImage
+If proper fdt file exists then it will be automatically loaded,
+so for old kernel types, please remove fdt file from boot partition.
+
+The third boot option for multi image support (more info: doc/uImage.FIT/)
+- boot_fit - for binary file: "Image.itb"
+
+Default boot command: "autoboot"
+And the boot sequence is:
+- boot_fit - if "Image.itb" exists
+- boot_zimg - if "zImage" exists
+- boot_uimg - if "uImage" exists

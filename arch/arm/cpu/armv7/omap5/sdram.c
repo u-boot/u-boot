@@ -185,6 +185,30 @@ const struct emif_regs emif_2_regs_ddr3_532_mhz_1cs_dra_es1 = {
 	.emif_rd_wr_exec_thresh         = 0x00000305
 };
 
+const struct emif_regs emif_1_regs_ddr3_666_mhz_1cs_dra_es1 = {
+	.sdram_config_init              = 0x61851AB2,
+	.sdram_config                   = 0x61851AB2,
+	.sdram_config2			= 0x08000000,
+	.ref_ctrl                       = 0x00001035,
+	.sdram_tim1                     = 0xCCCF36B3,
+	.sdram_tim2                     = 0x308F7FDA,
+	.sdram_tim3                     = 0x027F88A8,
+	.read_idle_ctrl                 = 0x00050000,
+	.zq_config                      = 0x0007190B,
+	.temp_alert_config              = 0x00000000,
+	.emif_ddr_phy_ctlr_1_init       = 0x0024400A,
+	.emif_ddr_phy_ctlr_1            = 0x0024400A,
+	.emif_ddr_ext_phy_ctrl_1        = 0x10040100,
+	.emif_ddr_ext_phy_ctrl_2        = 0x00A400A4,
+	.emif_ddr_ext_phy_ctrl_3        = 0x00A900A9,
+	.emif_ddr_ext_phy_ctrl_4        = 0x00B000B0,
+	.emif_ddr_ext_phy_ctrl_5        = 0x00B000B0,
+	.emif_rd_wr_lvl_rmp_win         = 0x00000000,
+	.emif_rd_wr_lvl_rmp_ctl         = 0x00000000,
+	.emif_rd_wr_lvl_ctl             = 0x00000000,
+	.emif_rd_wr_exec_thresh         = 0x00000305
+};
+
 const struct dmm_lisa_map_regs lisa_map_4G_x_2_x_2 = {
 	.dmm_lisa_map_0 = 0x0,
 	.dmm_lisa_map_1 = 0x0,
@@ -267,6 +291,8 @@ static void emif_get_reg_dump_sdp(u32 emif_nr, const struct emif_regs **regs)
 		}
 		break;
 	case DRA722_ES1_0:
+		*regs = &emif_1_regs_ddr3_666_mhz_1cs_dra_es1;
+		break;
 	default:
 		*regs = &emif_1_regs_ddr3_532_mhz_1cs_dra_es1;
 	}
@@ -450,6 +476,35 @@ dra_ddr3_ext_phy_ctrl_const_base_es1_emif2[] = {
 	0x0
 };
 
+const u32
+dra_ddr3_ext_phy_ctrl_const_base_666MHz[] = {
+	0x00A400A4,
+	0x00390039,
+	0x00320032,
+	0x00320032,
+	0x00320032,
+	0x00440044,
+	0x00550055,
+	0x00550055,
+	0x00550055,
+	0x00550055,
+	0x007F007F,
+	0x004D004D,
+	0x00430043,
+	0x00560056,
+	0x00540054,
+	0x00600060,
+	0x0,
+	0x00600020,
+	0x40010080,
+	0x08102040,
+	0x0,
+	0x0,
+	0x0,
+	0x0,
+	0x0
+};
+
 const struct lpddr2_mr_regs mr_regs = {
 	.mr1	= MR1_BL_8_BT_SEQ_WRAP_EN_NWR_8,
 	.mr2	= 0x6,
@@ -478,7 +533,6 @@ static void emif_get_ext_phy_ctrl_const_regs(u32 emif_nr,
 		break;
 	case DRA752_ES1_0:
 	case DRA752_ES1_1:
-	case DRA722_ES1_0:
 		if (emif_nr == 1) {
 			*regs = dra_ddr3_ext_phy_ctrl_const_base_es1_emif1;
 			*size =
@@ -488,6 +542,10 @@ static void emif_get_ext_phy_ctrl_const_regs(u32 emif_nr,
 			*size =
 			ARRAY_SIZE(dra_ddr3_ext_phy_ctrl_const_base_es1_emif2);
 		}
+		break;
+	case DRA722_ES1_0:
+		*regs = dra_ddr3_ext_phy_ctrl_const_base_666MHz;
+		*size = ARRAY_SIZE(dra_ddr3_ext_phy_ctrl_const_base_666MHz);
 		break;
 	default:
 		*regs = ddr3_ext_phy_ctrl_const_base_es2;

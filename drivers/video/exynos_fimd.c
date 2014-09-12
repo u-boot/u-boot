@@ -251,6 +251,45 @@ void exynos_fimd_window_off(unsigned int win_id)
 	writel(cfg, &fimd_ctrl->winshmap);
 }
 
+#ifdef CONFIG_OF_CONTROL
+/*
+* The reset value for FIMD SYSMMU register MMU_CTRL is 3
+* on Exynos5420 and newer versions.
+* This means FIMD SYSMMU is on by default on Exynos5420
+* and newer versions.
+* Since in u-boot we don't use SYSMMU, we should disable
+* those FIMD SYSMMU.
+* Note that there are 2 SYSMMU for FIMD: m0 and m1.
+* m0 handles windows 0 and 4, and m1 handles windows 1, 2 and 3.
+* We disable both of them here.
+*/
+void exynos_fimd_disable_sysmmu(void)
+{
+	u32 *sysmmufimd;
+	unsigned int node;
+	int node_list[2];
+	int count;
+	int i;
+
+	count = fdtdec_find_aliases_for_id(gd->fdt_blob, "fimd",
+				COMPAT_SAMSUNG_EXYNOS_SYSMMU, node_list, 2);
+	for (i = 0; i < count; i++) {
+		node = node_list[i];
+		if (node <= 0) {
+			debug("Can't get device node for fimd sysmmu\n");
+			return;
+		}
+
+		sysmmufimd = (u32 *)fdtdec_get_addr(gd->fdt_blob, node, "reg");
+		if (!sysmmufimd) {
+			debug("Can't get base address for sysmmu fimdm0");
+			return;
+		}
+
+		writel(0x0, sysmmufimd);
+	}
+}
+#endif
 
 void exynos_fimd_lcd_init(vidinfo_t *vid)
 {
@@ -268,6 +307,10 @@ void exynos_fimd_lcd_init(vidinfo_t *vid)
 								node, "reg");
 	if (fimd_ctrl == NULL)
 		debug("Can't get the FIMD base address\n");
+
+	if (fdtdec_get_bool(gd->fdt_blob, node, "samsung,disable-sysmmu"))
+		exynos_fimd_disable_sysmmu();
+
 #else
 	fimd_ctrl = (struct exynos_fb *)samsung_get_base_fimd();
 #endif

@@ -704,8 +704,8 @@ static int exynos4x12_mmc_config(int peripheral, int flags)
 		ext_func = S5P_GPIO_FUNC(0x3);
 		break;
 	case PERIPH_ID_SDMMC4:
-		start = EXYNOS4_GPIO_K00;
-		start_ext = EXYNOS4_GPIO_K13;
+		start = EXYNOS4X12_GPIO_K00;
+		start_ext = EXYNOS4X12_GPIO_K13;
 		func = S5P_GPIO_FUNC(0x3);
 		ext_func = S5P_GPIO_FUNC(0x4);
 		break;
