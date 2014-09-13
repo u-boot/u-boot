@@ -361,7 +361,7 @@ void cm_basic_init(const cm_config_t *cfg)
 	writel(~0, &clock_manager_base->sdr_pll.en);
 }
 
-unsigned long cm_get_mpu_clk_hz(void)
+static unsigned int cm_get_main_vco_clk_hz(void)
 {
 	uint32_t reg, clock;
 
@@ -370,6 +370,37 @@ unsigned long cm_get_mpu_clk_hz(void)
 	clock = CONFIG_HPS_CLK_OSC1_HZ /
 		(CLKMGR_MAINPLLGRP_VCO_DENOM_GET(reg) + 1);
 	clock *= (CLKMGR_MAINPLLGRP_VCO_NUMER_GET(reg) + 1);
+
+	return clock;
+}
+
+static unsigned int cm_get_per_vco_clk_hz(void)
+{
+	uint32_t reg, clock = 0;
+
+	/* identify PER PLL clock source */
+	reg = readl(&clock_manager_base->per_pll.vco);
+	reg = CLKMGR_PERPLLGRP_VCO_SSRC_GET(reg);
+	if (reg == CLKMGR_VCO_SSRC_EOSC1)
+		clock = CONFIG_HPS_CLK_OSC1_HZ;
+	else if (reg == CLKMGR_VCO_SSRC_EOSC2)
+		clock = CONFIG_HPS_CLK_OSC2_HZ;
+	else if (reg == CLKMGR_VCO_SSRC_F2S)
+		clock = CONFIG_HPS_CLK_F2S_PER_REF_HZ;
+
+	/* get the PER VCO clock */
+	reg = readl(&clock_manager_base->per_pll.vco);
+	clock /= (CLKMGR_PERPLLGRP_VCO_DENOM_GET(reg) + 1);
+	clock *= (CLKMGR_PERPLLGRP_VCO_NUMER_GET(reg) + 1);
+
+	return clock;
+}
+
+unsigned long cm_get_mpu_clk_hz(void)
+{
+	uint32_t reg, clock;
+
+	clock = cm_get_main_vco_clk_hz();
 
 	/* get the MPU clock */
 	reg = readl(&clock_manager_base->altera.mpuclk);
@@ -415,11 +446,7 @@ unsigned int cm_get_l4_sp_clk_hz(void)
 	reg = CLKMGR_MAINPLLGRP_L4SRC_L4SP_GET(reg);
 
 	if (reg == CLKMGR_L4_SP_CLK_SRC_MAINPLL) {
-		/* get the main VCO clock */
-		reg = readl(&clock_manager_base->main_pll.vco);
-		clock = CONFIG_HPS_CLK_OSC1_HZ /
-			(CLKMGR_MAINPLLGRP_VCO_DENOM_GET(reg) + 1);
-		clock *= (CLKMGR_MAINPLLGRP_VCO_NUMER_GET(reg) + 1);
+		clock = cm_get_main_vco_clk_hz();
 
 		/* get the clock prior L4 SP divider (main clk) */
 		reg = readl(&clock_manager_base->altera.mainclk);
@@ -427,20 +454,7 @@ unsigned int cm_get_l4_sp_clk_hz(void)
 		reg = readl(&clock_manager_base->main_pll.mainclk);
 		clock /= (reg + 1);
 	} else if (reg == CLKMGR_L4_SP_CLK_SRC_PERPLL) {
-		/* identify PER PLL clock source */
-		reg = readl(&clock_manager_base->per_pll.vco);
-		reg = CLKMGR_PERPLLGRP_VCO_SSRC_GET(reg);
-		if (reg == CLKMGR_VCO_SSRC_EOSC1)
-			clock = CONFIG_HPS_CLK_OSC1_HZ;
-		else if (reg == CLKMGR_VCO_SSRC_EOSC2)
-			clock = CONFIG_HPS_CLK_OSC2_HZ;
-		else if (reg == CLKMGR_VCO_SSRC_F2S)
-			clock = CONFIG_HPS_CLK_F2S_PER_REF_HZ;
-
-		/* get the PER VCO clock */
-		reg = readl(&clock_manager_base->per_pll.vco);
-		clock /= (CLKMGR_PERPLLGRP_VCO_DENOM_GET(reg) + 1);
-		clock *= (CLKMGR_PERPLLGRP_VCO_NUMER_GET(reg) + 1);
+		clock = cm_get_per_vco_clk_hz();
 
 		/* get the clock prior L4 SP divider (periph_base_clk) */
 		reg = readl(&clock_manager_base->per_pll.perbaseclk);
@@ -466,30 +480,13 @@ unsigned int cm_get_mmc_controller_clk_hz(void)
 	if (reg == CLKMGR_SDMMC_CLK_SRC_F2S) {
 		clock = CONFIG_HPS_CLK_F2S_PER_REF_HZ;
 	} else if (reg == CLKMGR_SDMMC_CLK_SRC_MAIN) {
-		/* get the main VCO clock */
-		reg = readl(&clock_manager_base->main_pll.vco);
-		clock = CONFIG_HPS_CLK_OSC1_HZ /
-			(CLKMGR_MAINPLLGRP_VCO_DENOM_GET(reg) + 1);
-		clock *= (CLKMGR_MAINPLLGRP_VCO_NUMER_GET(reg) + 1);
+		clock = cm_get_main_vco_clk_hz();
 
 		/* get the SDMMC clock */
 		reg = readl(&clock_manager_base->main_pll.mainnandsdmmcclk);
 		clock /= (reg + 1);
 	} else if (reg == CLKMGR_SDMMC_CLK_SRC_PER) {
-		/* identify PER PLL clock source */
-		reg = readl(&clock_manager_base->per_pll.vco);
-		reg = CLKMGR_PERPLLGRP_VCO_SSRC_GET(reg);
-		if (reg == CLKMGR_VCO_SSRC_EOSC1)
-			clock = CONFIG_HPS_CLK_OSC1_HZ;
-		else if (reg == CLKMGR_VCO_SSRC_EOSC2)
-			clock = CONFIG_HPS_CLK_OSC2_HZ;
-		else if (reg == CLKMGR_VCO_SSRC_F2S)
-			clock = CONFIG_HPS_CLK_F2S_PER_REF_HZ;
-
-		/* get the PER VCO clock */
-		reg = readl(&clock_manager_base->per_pll.vco);
-		clock /= (CLKMGR_PERPLLGRP_VCO_DENOM_GET(reg) + 1);
-		clock *= (CLKMGR_PERPLLGRP_VCO_NUMER_GET(reg) + 1);
+		clock = cm_get_per_vco_clk_hz();
 
 		/* get the SDMMC clock */
 		reg = readl(&clock_manager_base->per_pll.pernandsdmmcclk);
@@ -512,30 +509,13 @@ unsigned int cm_get_qspi_controller_clk_hz(void)
 	if (reg == CLKMGR_QSPI_CLK_SRC_F2S) {
 		clock = CONFIG_HPS_CLK_F2S_PER_REF_HZ;
 	} else if (reg == CLKMGR_QSPI_CLK_SRC_MAIN) {
-		/* get the main VCO clock */
-		reg = readl(&clock_manager_base->main_pll.vco);
-		clock = CONFIG_HPS_CLK_OSC1_HZ /
-			(CLKMGR_MAINPLLGRP_VCO_DENOM_GET(reg) + 1);
-		clock *= (CLKMGR_MAINPLLGRP_VCO_NUMER_GET(reg) + 1);
+		clock = cm_get_main_vco_clk_hz();
 
 		/* get the qspi clock */
 		reg = readl(&clock_manager_base->main_pll.mainqspiclk);
 		clock /= (reg + 1);
 	} else if (reg == CLKMGR_QSPI_CLK_SRC_PER) {
-		/* identify PER PLL clock source */
-		reg = readl(&clock_manager_base->per_pll.vco);
-		reg = CLKMGR_PERPLLGRP_VCO_SSRC_GET(reg);
-		if (reg == CLKMGR_VCO_SSRC_EOSC1)
-			clock = CONFIG_HPS_CLK_OSC1_HZ;
-		else if (reg == CLKMGR_VCO_SSRC_EOSC2)
-			clock = CONFIG_HPS_CLK_OSC2_HZ;
-		else if (reg == CLKMGR_VCO_SSRC_F2S)
-			clock = CONFIG_HPS_CLK_F2S_PER_REF_HZ;
-
-		/* get the PER VCO clock */
-		reg = readl(&clock_manager_base->per_pll.vco);
-		clock /= (CLKMGR_PERPLLGRP_VCO_DENOM_GET(reg) + 1);
-		clock *= (CLKMGR_PERPLLGRP_VCO_NUMER_GET(reg) + 1);
+		clock = cm_get_per_vco_clk_hz();
 
 		/* get the qspi clock */
 		reg = readl(&clock_manager_base->per_pll.perqspiclk);
