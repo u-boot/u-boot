@@ -13,19 +13,3 @@ config SYS_CONFIG_NAME
 	default "vexpress_aemv8a"
 
 endif
-
-if TARGET_VEXPRESS_AEMV8A_SEMI
-
-config SYS_CPU
-	default "armv8"
-
-config SYS_BOARD
-	default "vexpress64"
-
-config SYS_VENDOR
-	default "armltd"
-
-config SYS_CONFIG_NAME
-	default "vexpress_aemv8a"
-
-endif

@@ -460,9 +460,6 @@ config TEGRA
 config TARGET_VEXPRESS_AEMV8A
 	bool "Support vexpress_aemv8a"
 
-config TARGET_VEXPRESS_AEMV8A_SEMI
-	bool "Support vexpress_aemv8a_semi"
-
 config TARGET_LS2085A_EMU
 	bool "Support ls2085a_emu"
 
