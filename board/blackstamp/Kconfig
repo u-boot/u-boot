@@ -1,11 +1,9 @@
 if TARGET_BLACKSTAMP
 
 config SYS_BOARD
-	string
 	default "blackstamp"
 
 config SYS_CONFIG_NAME
-	string
 	default "blackstamp"
 
 endif

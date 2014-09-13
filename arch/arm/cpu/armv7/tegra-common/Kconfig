@@ -18,7 +18,6 @@ config TEGRA124
 endchoice
 
 config SYS_CPU
-	string
 	default "arm720t" if SPL_BUILD
 	default "armv7" if !SPL_BUILD
 

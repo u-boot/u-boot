@@ -1,15 +1,12 @@
 if TARGET_CM_T54
 
 config SYS_BOARD
-	string
 	default "cm_t54"
 
 config SYS_VENDOR
-	string
 	default "compulab"
 
 config SYS_CONFIG_NAME
-	string
 	default "cm_t54"
 
 endif

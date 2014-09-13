@@ -1,15 +1,12 @@
 if TARGET_P3P440
 
 config SYS_BOARD
-	string
 	default "p3p440"
 
 config SYS_VENDOR
-	string
 	default "prodrive"
 
 config SYS_CONFIG_NAME
-	string
 	default "p3p440"
 
 endif

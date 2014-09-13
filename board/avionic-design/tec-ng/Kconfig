@@ -1,15 +1,12 @@
 if TARGET_TEC_NG
 
 config SYS_BOARD
-	string
 	default "tec-ng"
 
 config SYS_VENDOR
-	string
 	default "avionic-design"
 
 config SYS_CONFIG_NAME
-	string
 	default "tec-ng"
 
 endif

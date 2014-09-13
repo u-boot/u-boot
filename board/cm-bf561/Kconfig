@@ -1,11 +1,9 @@
 if TARGET_CM_BF561
 
 config SYS_BOARD
-	string
 	default "cm-bf561"
 
 config SYS_CONFIG_NAME
-	string
 	default "cm-bf561"
 
 endif

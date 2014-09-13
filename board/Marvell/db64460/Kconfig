@@ -1,15 +1,12 @@
 if TARGET_DB64460
 
 config SYS_BOARD
-	string
 	default "db64460"
 
 config SYS_VENDOR
-	string
 	default "Marvell"
 
 config SYS_CONFIG_NAME
-	string
 	default "DB64460"
 
 endif

@@ -1,11 +1,9 @@
 if TARGET_CM_BF537U
 
 config SYS_BOARD
-	string
 	default "cm-bf537u"
 
 config SYS_CONFIG_NAME
-	string
 	default "cm-bf537u"
 
 endif

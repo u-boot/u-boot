@@ -1,15 +1,12 @@
 if TARGET_ORIGEN
 
 config SYS_BOARD
-	string
 	default "origen"
 
 config SYS_VENDOR
-	string
 	default "samsung"
 
 config SYS_CONFIG_NAME
-	string
 	default "origen"
 
 endif

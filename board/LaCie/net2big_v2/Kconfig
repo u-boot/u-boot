@@ -1,15 +1,12 @@
 if TARGET_NET2BIG_V2
 
 config SYS_BOARD
-	string
 	default "net2big_v2"
 
 config SYS_VENDOR
-	string
 	default "LaCie"
 
 config SYS_CONFIG_NAME
-	string
 	default "lacie_kw"
 
 endif

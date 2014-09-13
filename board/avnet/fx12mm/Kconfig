@@ -1,15 +1,12 @@
 if TARGET_FX12MM
 
 config SYS_BOARD
-	string
 	default "fx12mm"
 
 config SYS_VENDOR
-	string
 	default "avnet"
 
 config SYS_CONFIG_NAME
-	string
 	default "fx12mm"
 
 endif

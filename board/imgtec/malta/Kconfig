@@ -1,19 +1,15 @@
 if TARGET_MALTA
 
 config SYS_CPU
-	string
 	default "mips32"
 
 config SYS_BOARD
-	string
 	default "malta"
 
 config SYS_VENDOR
-	string
 	default "imgtec"
 
 config SYS_CONFIG_NAME
-	string
 	default "malta"
 
 endif

@@ -2,7 +2,6 @@ menu "ARM architecture"
 	depends on ARM
 
 config SYS_ARCH
-	string
 	default "arm"
 
 choice

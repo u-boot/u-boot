@@ -2,7 +2,6 @@ menu "SPARC architecture"
 	depends on SPARC
 
 config SYS_ARCH
-	string
 	default "sparc"
 
 choice

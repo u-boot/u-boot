@@ -1,11 +1,9 @@
 if TARGET_IPHASE4539
 
 config SYS_BOARD
-	string
 	default "iphase4539"
 
 config SYS_CONFIG_NAME
-	string
 	default "IPHASE4539"
 
 endif

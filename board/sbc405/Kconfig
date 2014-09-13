@@ -1,11 +1,9 @@
 if TARGET_SBC405
 
 config SYS_BOARD
-	string
 	default "sbc405"
 
 config SYS_CONFIG_NAME
-	string
 	default "sbc405"
 
 endif

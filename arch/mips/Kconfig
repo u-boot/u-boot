@@ -2,7 +2,6 @@ menu "MIPS architecture"
 	depends on MIPS
 
 config SYS_ARCH
-	string
 	default "mips"
 
 choice

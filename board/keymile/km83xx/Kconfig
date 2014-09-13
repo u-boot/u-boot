@@ -1,15 +1,12 @@
 if TARGET_KM8360
 
 config SYS_BOARD
-	string
 	default "km83xx"
 
 config SYS_VENDOR
-	string
 	default "keymile"
 
 config SYS_CONFIG_NAME
-	string
 	default "km8360"
 
 endif
@@ -17,15 +14,12 @@ endif
 if TARGET_SUVD3
 
 config SYS_BOARD
-	string
 	default "km83xx"
 
 config SYS_VENDOR
-	string
 	default "keymile"
 
 config SYS_CONFIG_NAME
-	string
 	default "suvd3"
 
 endif
@@ -33,15 +27,12 @@ endif
 if TARGET_TUXX1
 
 config SYS_BOARD
-	string
 	default "km83xx"
 
 config SYS_VENDOR
-	string
 	default "keymile"
 
 config SYS_CONFIG_NAME
-	string
 	default "tuxx1"
 
 endif

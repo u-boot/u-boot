@@ -1,15 +1,12 @@
 if TARGET_FPS850L
 
 config SYS_BOARD
-	string
 	default "tqm8xx"
 
 config SYS_VENDOR
-	string
 	default "tqc"
 
 config SYS_CONFIG_NAME
-	string
 	default "FPS850L"
 
 endif
@@ -17,15 +14,12 @@ endif
 if TARGET_FPS860L
 
 config SYS_BOARD
-	string
 	default "tqm8xx"
 
 config SYS_VENDOR
-	string
 	default "tqc"
 
 config SYS_CONFIG_NAME
-	string
 	default "FPS860L"
 
 endif
@@ -33,15 +27,12 @@ endif
 if TARGET_NSCU
 
 config SYS_BOARD
-	string
 	default "tqm8xx"
 
 config SYS_VENDOR
-	string
 	default "tqc"
 
 config SYS_CONFIG_NAME
-	string
 	default "NSCU"
 
 endif
@@ -49,15 +40,12 @@ endif
 if TARGET_SM850
 
 config SYS_BOARD
-	string
 	default "tqm8xx"
 
 config SYS_VENDOR
-	string
 	default "tqc"
 
 config SYS_CONFIG_NAME
-	string
 	default "SM850"
 
 endif
@@ -65,15 +53,12 @@ endif
 if TARGET_TK885D
 
 config SYS_BOARD
-	string
 	default "tqm8xx"
 
 config SYS_VENDOR
-	string
 	default "tqc"
 
 config SYS_CONFIG_NAME
-	string
 	default "TK885D"
 
 endif
@@ -81,15 +66,12 @@ endif
 if TARGET_TQM823L
 
 config SYS_BOARD
-	string
 	default "tqm8xx"
 
 config SYS_VENDOR
-	string
 	default "tqc"
 
 config SYS_CONFIG_NAME
-	string
 	default "TQM823L"
 
 endif
@@ -97,15 +79,12 @@ endif
 if TARGET_TQM823M
 
 config SYS_BOARD
-	string
 	default "tqm8xx"
 
 config SYS_VENDOR
-	string
 	default "tqc"
 
 config SYS_CONFIG_NAME
-	string
 	default "TQM823M"
 
 endif
@@ -113,15 +92,12 @@ endif
 if TARGET_TQM850L
 
 config SYS_BOARD
-	string
 	default "tqm8xx"
 
 config SYS_VENDOR
-	string
 	default "tqc"
 
 config SYS_CONFIG_NAME
-	string
 	default "TQM850L"
 
 endif
@@ -129,15 +105,12 @@ endif
 if TARGET_TQM850M
 
 config SYS_BOARD
-	string
 	default "tqm8xx"
 
 config SYS_VENDOR
-	string
 	default "tqc"
 
 config SYS_CONFIG_NAME
-	string
 	default "TQM850M"
 
 endif
@@ -145,15 +118,12 @@ endif
 if TARGET_TQM855L
 
 config SYS_BOARD
-	string
 	default "tqm8xx"
 
 config SYS_VENDOR
-	string
 	default "tqc"
 
 config SYS_CONFIG_NAME
-	string
 	default "TQM855L"
 
 endif
@@ -161,15 +131,12 @@ endif
 if TARGET_TQM855M
 
 config SYS_BOARD
-	string
 	default "tqm8xx"
 
 config SYS_VENDOR
-	string
 	default "tqc"
 
 config SYS_CONFIG_NAME
-	string
 	default "TQM855M"
 
 endif
@@ -177,15 +144,12 @@ endif
 if TARGET_TQM860L
 
 config SYS_BOARD
-	string
 	default "tqm8xx"
 
 config SYS_VENDOR
-	string
 	default "tqc"
 
 config SYS_CONFIG_NAME
-	string
 	default "TQM860L"
 
 endif
@@ -193,15 +157,12 @@ endif
 if TARGET_TQM860M
 
 config SYS_BOARD
-	string
 	default "tqm8xx"
 
 config SYS_VENDOR
-	string
 	default "tqc"
 
 config SYS_CONFIG_NAME
-	string
 	default "TQM860M"
 
 endif
@@ -209,15 +170,12 @@ endif
 if TARGET_TQM862L
 
 config SYS_BOARD
-	string
 	default "tqm8xx"
 
 config SYS_VENDOR
-	string
 	default "tqc"
 
 config SYS_CONFIG_NAME
-	string
 	default "TQM862L"
 
 endif
@@ -225,15 +183,12 @@ endif
 if TARGET_TQM862M
 
 config SYS_BOARD
-	string
 	default "tqm8xx"
 
 config SYS_VENDOR
-	string
 	default "tqc"
 
 config SYS_CONFIG_NAME
-	string
 	default "TQM862M"
 
 endif
@@ -241,15 +196,12 @@ endif
 if TARGET_TQM866M
 
 config SYS_BOARD
-	string
 	default "tqm8xx"
 
 config SYS_VENDOR
-	string
 	default "tqc"
 
 config SYS_CONFIG_NAME
-	string
 	default "TQM866M"
 
 endif
@@ -257,15 +209,12 @@ endif
 if TARGET_TQM885D
 
 config SYS_BOARD
-	string
 	default "tqm8xx"
 
 config SYS_VENDOR
-	string
 	default "tqc"
 
 config SYS_CONFIG_NAME
-	string
 	default "TQM885D"
 
 endif
@@ -273,15 +222,12 @@ endif
 if TARGET_VIRTLAB2
 
 config SYS_BOARD
-	string
 	default "tqm8xx"
 
 config SYS_VENDOR
-	string
 	default "tqc"
 
 config SYS_CONFIG_NAME
-	string
 	default "virtlab2"
 
 endif

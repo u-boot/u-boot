@@ -1,15 +1,12 @@
 if TARGET_AM3517_CRANE
 
 config SYS_BOARD
-	string
 	default "am3517crane"
 
 config SYS_VENDOR
-	string
 	default "ti"
 
 config SYS_CONFIG_NAME
-	string
 	default "am3517_crane"
 
 endif

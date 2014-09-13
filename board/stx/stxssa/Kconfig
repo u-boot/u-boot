@@ -1,15 +1,12 @@
 if TARGET_STXSSA
 
 config SYS_BOARD
-	string
 	default "stxssa"
 
 config SYS_VENDOR
-	string
 	default "stx"
 
 config SYS_CONFIG_NAME
-	string
 	default "stxssa"
 
 endif

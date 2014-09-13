@@ -1,15 +1,12 @@
 if NOMADIK_NHK8815
 
 config SYS_BOARD
-	string
 	default "nhk8815"
 
 config SYS_VENDOR
-	string
 	default "st"
 
 config SYS_CONFIG_NAME
-	string
 	default "nhk8815"
 
 endif

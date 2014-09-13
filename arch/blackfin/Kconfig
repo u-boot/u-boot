@@ -2,7 +2,6 @@ menu "Blackfin architecture"
 	depends on BLACKFIN
 
 config SYS_ARCH
-	string
 	default "blackfin"
 
 choice

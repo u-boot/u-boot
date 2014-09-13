@@ -1,15 +1,12 @@
 if TARGET_DLVISION
 
 config SYS_BOARD
-	string
 	default "dlvision"
 
 config SYS_VENDOR
-	string
 	default "gdsys"
 
 config SYS_CONFIG_NAME
-	string
 	default "dlvision"
 
 endif

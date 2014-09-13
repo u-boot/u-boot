@@ -1,15 +1,12 @@
 if TARGET_MEDCOM_WIDE
 
 config SYS_BOARD
-	string
 	default "medcom-wide"
 
 config SYS_VENDOR
-	string
 	default "avionic-design"
 
 config SYS_CONFIG_NAME
-	string
 	default "medcom-wide"
 
 endif

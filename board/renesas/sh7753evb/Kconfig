@@ -1,19 +1,15 @@
 if TARGET_SH7753EVB
 
 config SYS_CPU
-	string
 	default "sh4"
 
 config SYS_BOARD
-	string
 	default "sh7753evb"
 
 config SYS_VENDOR
-	string
 	default "renesas"
 
 config SYS_CONFIG_NAME
-	string
 	default "sh7753evb"
 
 endif

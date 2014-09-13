@@ -1,15 +1,12 @@
 if TARGET_TK71
 
 config SYS_BOARD
-	string
 	default "tk71"
 
 config SYS_VENDOR
-	string
 	default "karo"
 
 config SYS_CONFIG_NAME
-	string
 	default "tk71"
 
 endif

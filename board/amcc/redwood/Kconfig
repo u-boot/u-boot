@@ -1,15 +1,12 @@
 if TARGET_REDWOOD
 
 config SYS_BOARD
-	string
 	default "redwood"
 
 config SYS_VENDOR
-	string
 	default "amcc"
 
 config SYS_CONFIG_NAME
-	string
 	default "redwood"
 
 endif

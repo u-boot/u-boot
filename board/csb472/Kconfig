@@ -1,11 +1,9 @@
 if TARGET_CSB472
 
 config SYS_BOARD
-	string
 	default "csb472"
 
 config SYS_CONFIG_NAME
-	string
 	default "csb472"
 
 endif

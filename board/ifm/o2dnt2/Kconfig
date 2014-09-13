@@ -1,15 +1,12 @@
 if TARGET_O2D
 
 config SYS_BOARD
-	string
 	default "o2dnt2"
 
 config SYS_VENDOR
-	string
 	default "ifm"
 
 config SYS_CONFIG_NAME
-	string
 	default "o2d"
 
 endif
@@ -17,15 +14,12 @@ endif
 if TARGET_O2D300
 
 config SYS_BOARD
-	string
 	default "o2dnt2"
 
 config SYS_VENDOR
-	string
 	default "ifm"
 
 config SYS_CONFIG_NAME
-	string
 	default "o2d300"
 
 endif
@@ -33,15 +27,12 @@ endif
 if TARGET_O2DNT2
 
 config SYS_BOARD
-	string
 	default "o2dnt2"
 
 config SYS_VENDOR
-	string
 	default "ifm"
 
 config SYS_CONFIG_NAME
-	string
 	default "o2dnt2"
 
 endif
@@ -49,15 +40,12 @@ endif
 if TARGET_O2I
 
 config SYS_BOARD
-	string
 	default "o2dnt2"
 
 config SYS_VENDOR
-	string
 	default "ifm"
 
 config SYS_CONFIG_NAME
-	string
 	default "o2i"
 
 endif
@@ -65,15 +53,12 @@ endif
 if TARGET_O2MNT
 
 config SYS_BOARD
-	string
 	default "o2dnt2"
 
 config SYS_VENDOR
-	string
 	default "ifm"
 
 config SYS_CONFIG_NAME
-	string
 	default "o2mnt"
 
 endif
@@ -81,15 +66,12 @@ endif
 if TARGET_O3DNT
 
 config SYS_BOARD
-	string
 	default "o2dnt2"
 
 config SYS_VENDOR
-	string
 	default "ifm"
 
 config SYS_CONFIG_NAME
-	string
 	default "o3dnt"
 
 endif

@@ -1,11 +1,9 @@
 if TARGET_MVBLUE
 
 config SYS_BOARD
-	string
 	default "mvblue"
 
 config SYS_CONFIG_NAME
-	string
 	default "MVBLUE"
 
 endif

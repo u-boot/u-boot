@@ -1,15 +1,12 @@
 if TARGET_PATI
 
 config SYS_BOARD
-	string
 	default "pati"
 
 config SYS_VENDOR
-	string
 	default "mpl"
 
 config SYS_CONFIG_NAME
-	string
 	default "PATI"
 
 endif

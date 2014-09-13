@@ -1,15 +1,12 @@
 if TARGET_PCM030
 
 config SYS_BOARD
-	string
 	default "pcm030"
 
 config SYS_VENDOR
-	string
 	default "phytec"
 
 config SYS_CONFIG_NAME
-	string
 	default "pcm030"
 
 endif

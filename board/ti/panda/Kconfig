@@ -1,15 +1,12 @@
 if TARGET_OMAP4_PANDA
 
 config SYS_BOARD
-	string
 	default "panda"
 
 config SYS_VENDOR
-	string
 	default "ti"
 
 config SYS_CONFIG_NAME
-	string
 	default "omap4_panda"
 
 endif

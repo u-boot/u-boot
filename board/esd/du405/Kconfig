@@ -1,15 +1,12 @@
 if TARGET_DU405
 
 config SYS_BOARD
-	string
 	default "du405"
 
 config SYS_VENDOR
-	string
 	default "esd"
 
 config SYS_CONFIG_NAME
-	string
 	default "DU405"
 
 endif

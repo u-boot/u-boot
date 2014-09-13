@@ -1,11 +1,9 @@
 if TARGET_BF533_STAMP
 
 config SYS_BOARD
-	string
 	default "bf533-stamp"
 
 config SYS_CONFIG_NAME
-	string
 	default "bf533-stamp"
 
 endif

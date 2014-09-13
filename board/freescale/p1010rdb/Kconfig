@@ -1,15 +1,12 @@
 if TARGET_P1010RDB
 
 config SYS_BOARD
-	string
 	default "p1010rdb"
 
 config SYS_VENDOR
-	string
 	default "freescale"
 
 config SYS_CONFIG_NAME
-	string
 	default "P1010RDB"
 
 endif

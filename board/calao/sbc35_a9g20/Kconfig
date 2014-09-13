@@ -1,23 +1,18 @@
 if TARGET_SBC35_A9G20
 
 config SYS_CPU
-	string
 	default "arm926ejs"
 
 config SYS_BOARD
-	string
 	default "sbc35_a9g20"
 
 config SYS_VENDOR
-	string
 	default "calao"
 
 config SYS_SOC
-	string
 	default "at91"
 
 config SYS_CONFIG_NAME
-	string
 	default "sbc35_a9g20"
 
 endif

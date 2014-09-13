@@ -1,15 +1,12 @@
 if TARGET_DAVINCI_DM355EVM
 
 config SYS_BOARD
-	string
 	default "dm355evm"
 
 config SYS_VENDOR
-	string
 	default "davinci"
 
 config SYS_CONFIG_NAME
-	string
 	default "davinci_dm355evm"
 
 endif

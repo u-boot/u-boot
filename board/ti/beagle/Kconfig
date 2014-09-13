@@ -1,15 +1,12 @@
 if TARGET_OMAP3_BEAGLE
 
 config SYS_BOARD
-	string
 	default "beagle"
 
 config SYS_VENDOR
-	string
 	default "ti"
 
 config SYS_CONFIG_NAME
-	string
 	default "omap3_beagle"
 
 endif

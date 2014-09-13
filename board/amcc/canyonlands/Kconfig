@@ -1,15 +1,12 @@
 if TARGET_CANYONLANDS
 
 config SYS_BOARD
-	string
 	default "canyonlands"
 
 config SYS_VENDOR
-	string
 	default "amcc"
 
 config SYS_CONFIG_NAME
-	string
 	default "canyonlands"
 
 endif

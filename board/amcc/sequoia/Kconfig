@@ -1,15 +1,12 @@
 if TARGET_SEQUOIA
 
 config SYS_BOARD
-	string
 	default "sequoia"
 
 config SYS_VENDOR
-	string
 	default "amcc"
 
 config SYS_CONFIG_NAME
-	string
 	default "sequoia"
 
 endif

@@ -1,11 +1,9 @@
 if TARGET_MOTIONPRO
 
 config SYS_BOARD
-	string
 	default "motionpro"
 
 config SYS_CONFIG_NAME
-	string
 	default "motionpro"
 
 endif

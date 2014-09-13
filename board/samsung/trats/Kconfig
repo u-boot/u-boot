@@ -1,15 +1,12 @@
 if TARGET_TRATS
 
 config SYS_BOARD
-	string
 	default "trats"
 
 config SYS_VENDOR
-	string
 	default "samsung"
 
 config SYS_CONFIG_NAME
-	string
 	default "trats"
 
 endif

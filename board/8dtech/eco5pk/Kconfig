@@ -1,15 +1,12 @@
 if TARGET_ECO5PK
 
 config SYS_BOARD
-	string
 	default "eco5pk"
 
 config SYS_VENDOR
-	string
 	default "8dtech"
 
 config SYS_CONFIG_NAME
-	string
 	default "eco5pk"
 
 endif

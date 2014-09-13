@@ -1,23 +1,18 @@
 if TARGET_APF27
 
 config SYS_CPU
-	string
 	default "arm926ejs"
 
 config SYS_BOARD
-	string
 	default "apf27"
 
 config SYS_VENDOR
-	string
 	default "armadeus"
 
 config SYS_SOC
-	string
 	default "mx27"
 
 config SYS_CONFIG_NAME
-	string
 	default "apf27"
 
 endif

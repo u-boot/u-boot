@@ -1,15 +1,12 @@
 if TARGET_DUOVERO
 
 config SYS_BOARD
-	string
 	default "duovero"
 
 config SYS_VENDOR
-	string
 	default "gumstix"
 
 config SYS_CONFIG_NAME
-	string
 	default "duovero"
 
 endif

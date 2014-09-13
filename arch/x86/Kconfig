@@ -2,7 +2,6 @@ menu "x86 architecture"
 	depends on X86
 
 config SYS_ARCH
-	string
 	default "x86"
 
 choice

@@ -1,15 +1,12 @@
 if TARGET_QEMU_PPCE500
 
 config SYS_BOARD
-	string
 	default "qemu-ppce500"
 
 config SYS_VENDOR
-	string
 	default "freescale"
 
 config SYS_CONFIG_NAME
-	string
 	default "qemu-ppce500"
 
 endif

@@ -1,15 +1,12 @@
 if TARGET_MV88F6281GTW_GE
 
 config SYS_BOARD
-	string
 	default "mv88f6281gtw_ge"
 
 config SYS_VENDOR
-	string
 	default "Marvell"
 
 config SYS_CONFIG_NAME
-	string
 	default "mv88f6281gtw_ge"
 
 endif

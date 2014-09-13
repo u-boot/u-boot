@@ -1,11 +1,9 @@
 if TARGET_SANDPOINT8240
 
 config SYS_BOARD
-	string
 	default "sandpoint"
 
 config SYS_CONFIG_NAME
-	string
 	default "Sandpoint8240"
 
 endif
@@ -13,11 +11,9 @@ endif
 if TARGET_SANDPOINT8245
 
 config SYS_BOARD
-	string
 	default "sandpoint"
 
 config SYS_CONFIG_NAME
-	string
 	default "Sandpoint8245"
 
 endif

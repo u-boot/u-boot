@@ -75,11 +75,9 @@ config TARGET_TWISTER
 endchoice
 
 config SYS_CPU
-	string
 	default "armv7"
 
 config SYS_SOC
-	string
 	default "omap3"
 
 source "board/logicpd/am3517evm/Kconfig"

@@ -1,11 +1,9 @@
 if TARGET_PPMC8260
 
 config SYS_BOARD
-	string
 	default "ppmc8260"
 
 config SYS_CONFIG_NAME
-	string
 	default "ppmc8260"
 
 endif

@@ -1,15 +1,12 @@
 if TARGET_DNS325
 
 config SYS_BOARD
-	string
 	default "dns325"
 
 config SYS_VENDOR
-	string
 	default "d-link"
 
 config SYS_CONFIG_NAME
-	string
 	default "dns325"
 
 endif

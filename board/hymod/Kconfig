@@ -1,11 +1,9 @@
 if TARGET_HYMOD
 
 config SYS_BOARD
-	string
 	default "hymod"
 
 config SYS_CONFIG_NAME
-	string
 	default "hymod"
 
 endif

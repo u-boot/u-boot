@@ -1,19 +1,15 @@
 if TARGET_FAVR_32_EZKIT
 
 config SYS_BOARD
-	string
 	default "favr-32-ezkit"
 
 config SYS_VENDOR
-	string
 	default "earthlcd"
 
 config SYS_SOC
-	string
 	default "at32ap700x"
 
 config SYS_CONFIG_NAME
-	string
 	default "favr-32-ezkit"
 
 endif

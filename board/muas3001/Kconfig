@@ -1,11 +1,9 @@
 if TARGET_MUAS3001
 
 config SYS_BOARD
-	string
 	default "muas3001"
 
 config SYS_CONFIG_NAME
-	string
 	default "muas3001"
 
 endif

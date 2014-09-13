@@ -2,7 +2,6 @@ menu "mpc83xx CPU"
 	depends on MPC83xx
 
 config SYS_CPU
-	string
 	default "mpc83xx"
 
 choice

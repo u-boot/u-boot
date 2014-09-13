@@ -1,23 +1,18 @@
 if TARGET_ADP_AG102
 
 config SYS_CPU
-	string
 	default "n1213"
 
 config SYS_BOARD
-	string
 	default "adp-ag102"
 
 config SYS_VENDOR
-	string
 	default "AndesTech"
 
 config SYS_SOC
-	string
 	default "ag102"
 
 config SYS_CONFIG_NAME
-	string
 	default "adp-ag102"
 
 endif

@@ -1,15 +1,12 @@
 if TARGET_VENICE2
 
 config SYS_BOARD
-	string
 	default "venice2"
 
 config SYS_VENDOR
-	string
 	default "nvidia"
 
 config SYS_CONFIG_NAME
-	string
 	default "venice2"
 
 endif

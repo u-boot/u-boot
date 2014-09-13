@@ -1,23 +1,18 @@
 if TARGET_SNOWBALL
 
 config SYS_CPU
-	string
 	default "armv7"
 
 config SYS_BOARD
-	string
 	default "snowball"
 
 config SYS_VENDOR
-	string
 	default "st-ericsson"
 
 config SYS_SOC
-	string
 	default "u8500"
 
 config SYS_CONFIG_NAME
-	string
 	default "snowball"
 
 endif

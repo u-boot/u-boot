@@ -2,7 +2,6 @@ menu "AVR32 architecture"
 	depends on AVR32
 
 config SYS_ARCH
-	string
 	default "avr32"
 
 choice

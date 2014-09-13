@@ -1,15 +1,12 @@
 if TARGET_UC101
 
 config SYS_BOARD
-	string
 	default "uc101"
 
 config SYS_VENDOR
-	string
 	default "manroland"
 
 config SYS_CONFIG_NAME
-	string
 	default "uc101"
 
 endif

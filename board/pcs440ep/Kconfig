@@ -1,11 +1,9 @@
 if TARGET_PCS440EP
 
 config SYS_BOARD
-	string
 	default "pcs440ep"
 
 config SYS_CONFIG_NAME
-	string
 	default "pcs440ep"
 
 endif

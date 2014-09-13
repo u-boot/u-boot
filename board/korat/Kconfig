@@ -1,11 +1,9 @@
 if TARGET_KORAT
 
 config SYS_BOARD
-	string
 	default "korat"
 
 config SYS_CONFIG_NAME
-	string
 	default "korat"
 
 endif

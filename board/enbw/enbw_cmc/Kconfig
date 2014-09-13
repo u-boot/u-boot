@@ -1,15 +1,12 @@
 if TARGET_ENBW_CMC
 
 config SYS_BOARD
-	string
 	default "enbw_cmc"
 
 config SYS_VENDOR
-	string
 	default "enbw"
 
 config SYS_CONFIG_NAME
-	string
 	default "enbw_cmc"
 
 endif

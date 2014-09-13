@@ -1,11 +1,9 @@
 if TARGET_CM5200
 
 config SYS_BOARD
-	string
 	default "cm5200"
 
 config SYS_CONFIG_NAME
-	string
 	default "cm5200"
 
 endif

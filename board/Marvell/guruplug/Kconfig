@@ -1,15 +1,12 @@
 if TARGET_GURUPLUG
 
 config SYS_BOARD
-	string
 	default "guruplug"
 
 config SYS_VENDOR
-	string
 	default "Marvell"
 
 config SYS_CONFIG_NAME
-	string
 	default "guruplug"
 
 endif

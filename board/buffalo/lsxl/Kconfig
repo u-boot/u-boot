@@ -1,15 +1,12 @@
 if TARGET_LSXL
 
 config SYS_BOARD
-	string
 	default "lsxl"
 
 config SYS_VENDOR
-	string
 	default "buffalo"
 
 config SYS_CONFIG_NAME
-	string
 	default "lsxl"
 
 endif

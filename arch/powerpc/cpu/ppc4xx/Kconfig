@@ -2,7 +2,6 @@ menu "ppc4xx CPU"
 	depends on 4xx
 
 config SYS_CPU
-	string
 	default "ppc4xx"
 
 choice

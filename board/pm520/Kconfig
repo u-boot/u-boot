@@ -1,11 +1,9 @@
 if TARGET_PM520
 
 config SYS_BOARD
-	string
 	default "pm520"
 
 config SYS_CONFIG_NAME
-	string
 	default "PM520"
 
 endif

@@ -1,15 +1,12 @@
 if TARGET_KUP4X
 
 config SYS_BOARD
-	string
 	default "kup4x"
 
 config SYS_VENDOR
-	string
 	default "kup"
 
 config SYS_CONFIG_NAME
-	string
 	default "KUP4X"
 
 endif

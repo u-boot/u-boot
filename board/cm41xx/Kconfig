@@ -1,19 +1,15 @@
 if TARGET_CM41XX
 
 config SYS_CPU
-	string
 	default "arm920t"
 
 config SYS_BOARD
-	string
 	default "cm41xx"
 
 config SYS_SOC
-	string
 	default "ks8695"
 
 config SYS_CONFIG_NAME
-	string
 	default "cm41xx"
 
 endif

@@ -1,15 +1,12 @@
 if TARGET_JORNADA
 
 config SYS_CPU
-	string
 	default "sa1100"
 
 config SYS_BOARD
-	string
 	default "jornada"
 
 config SYS_CONFIG_NAME
-	string
 	default "jornada"
 
 endif

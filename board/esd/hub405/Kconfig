@@ -1,15 +1,12 @@
 if TARGET_HUB405
 
 config SYS_BOARD
-	string
 	default "hub405"
 
 config SYS_VENDOR
-	string
 	default "esd"
 
 config SYS_CONFIG_NAME
-	string
 	default "HUB405"
 
 endif

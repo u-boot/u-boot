@@ -1,15 +1,12 @@
 if TARGET_KOELSCH
 
 config SYS_BOARD
-	string
 	default "koelsch"
 
 config SYS_VENDOR
-	string
 	default "renesas"
 
 config SYS_CONFIG_NAME
-	string
 	default "koelsch"
 
 endif

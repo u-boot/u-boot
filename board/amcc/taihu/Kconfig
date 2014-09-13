@@ -1,15 +1,12 @@
 if TARGET_TAIHU
 
 config SYS_BOARD
-	string
 	default "taihu"
 
 config SYS_VENDOR
-	string
 	default "amcc"
 
 config SYS_CONFIG_NAME
-	string
 	default "taihu"
 
 endif

@@ -1,15 +1,12 @@
 if TARGET_ODROID
 
 config SYS_BOARD
-	string
 	default "odroid"
 
 config SYS_VENDOR
-	string
 	default "samsung"
 
 config SYS_CONFIG_NAME
-	string
 	default "odroid"
 
 endif

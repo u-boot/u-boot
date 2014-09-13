@@ -1,15 +1,12 @@
 if TARGET_MPC8541CDS
 
 config SYS_BOARD
-	string
 	default "mpc8541cds"
 
 config SYS_VENDOR
-	string
 	default "freescale"
 
 config SYS_CONFIG_NAME
-	string
 	default "MPC8541CDS"
 
 endif

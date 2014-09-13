@@ -1,15 +1,12 @@
 if TARGET_TQM834X
 
 config SYS_BOARD
-	string
 	default "tqm834x"
 
 config SYS_VENDOR
-	string
 	default "tqc"
 
 config SYS_CONFIG_NAME
-	string
 	default "TQM834x"
 
 endif

@@ -1,19 +1,15 @@
 if ARCH_HIGHBANK
 
 config SYS_CPU
-	string
 	default "armv7"
 
 config SYS_BOARD
-	string
 	default "highbank"
 
 config SYS_SOC
-	string
 	default "highbank"
 
 config SYS_CONFIG_NAME
-	string
 	default "highbank"
 
 endif

@@ -1,15 +1,12 @@
 if TARGET_DLVISION_10G
 
 config SYS_BOARD
-	string
 	default "405ep"
 
 config SYS_VENDOR
-	string
 	default "gdsys"
 
 config SYS_CONFIG_NAME
-	string
 	default "dlvision-10g"
 
 endif
@@ -17,15 +14,12 @@ endif
 if TARGET_IO
 
 config SYS_BOARD
-	string
 	default "405ep"
 
 config SYS_VENDOR
-	string
 	default "gdsys"
 
 config SYS_CONFIG_NAME
-	string
 	default "io"
 
 endif
@@ -33,15 +27,12 @@ endif
 if TARGET_IOCON
 
 config SYS_BOARD
-	string
 	default "405ep"
 
 config SYS_VENDOR
-	string
 	default "gdsys"
 
 config SYS_CONFIG_NAME
-	string
 	default "iocon"
 
 endif
@@ -49,15 +40,12 @@ endif
 if TARGET_NEO
 
 config SYS_BOARD
-	string
 	default "405ep"
 
 config SYS_VENDOR
-	string
 	default "gdsys"
 
 config SYS_CONFIG_NAME
-	string
 	default "neo"
 
 endif

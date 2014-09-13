@@ -12,7 +12,6 @@ config TARGET_VENICE2
 endchoice
 
 config SYS_SOC
-	string
 	default "tegra124"
 
 source "board/nvidia/jetson-tk1/Kconfig"

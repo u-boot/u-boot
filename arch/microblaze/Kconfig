@@ -2,7 +2,6 @@ menu "MicroBlaze architecture"
 	depends on MICROBLAZE
 
 config SYS_ARCH
-	string
 	default "microblaze"
 
 choice

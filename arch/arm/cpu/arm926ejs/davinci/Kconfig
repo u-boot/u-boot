@@ -54,11 +54,9 @@ config TARGET_CALIMAIN
 endchoice
 
 config SYS_CPU
-	string
 	default "arm926ejs"
 
 config SYS_SOC
-	string
 	default "davinci"
 
 source "board/enbw/enbw_cmc/Kconfig"

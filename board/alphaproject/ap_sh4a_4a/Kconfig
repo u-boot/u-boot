@@ -1,19 +1,15 @@
 if TARGET_AP_SH4A_4A
 
 config SYS_CPU
-	string
 	default "sh4"
 
 config SYS_BOARD
-	string
 	default "ap_sh4a_4a"
 
 config SYS_VENDOR
-	string
 	default "alphaproject"
 
 config SYS_CONFIG_NAME
-	string
 	default "ap_sh4a_4a"
 
 endif
