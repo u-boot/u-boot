@@ -1,8 +1,5 @@
 if TARGET_VEXPRESS_AEMV8A
 
-config SYS_CPU
-	default "armv8"
-
 config SYS_BOARD
 	default "vexpress64"
 

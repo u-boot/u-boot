@@ -4,6 +4,9 @@ menu "ARM architecture"
 config SYS_ARCH
 	default "arm"
 
+config ARM64
+	bool
+
 choice
 	prompt "Target select"
 
@@ -459,12 +462,15 @@ config TEGRA
 
 config TARGET_VEXPRESS_AEMV8A
 	bool "Support vexpress_aemv8a"
+	select ARM64
 
 config TARGET_LS2085A_EMU
 	bool "Support ls2085a_emu"
+	select ARM64
 
 config TARGET_LS2085A_SIMU
 	bool "Support ls2085a_simu"
+	select ARM64
 
 config TARGET_LS1021AQDS
 	bool "Support ls1021aqds_nor"
@@ -512,6 +518,8 @@ config TARGET_JORNADA
 	bool "Support jornada"
 
 endchoice
+
+source "arch/arm/cpu/armv8/Kconfig"
 
 source "arch/arm/cpu/arm926ejs/davinci/Kconfig"
 
