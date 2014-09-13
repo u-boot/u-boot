@@ -6,6 +6,10 @@
 	model = "NVIDIA Jetson TK1";
 	compatible = "nvidia,jetson-tk1", "nvidia,tegra124";
 
+	chosen {
+		stdout-path = &uartd;
+	};
+
 	aliases {
 		i2c0 = "/i2c@7000d000";
 		i2c1 = "/i2c@7000c000";

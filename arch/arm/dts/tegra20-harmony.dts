@@ -6,6 +6,10 @@
 	model = "NVIDIA Tegra20 Harmony evaluation board";
 	compatible = "nvidia,harmony", "nvidia,tegra20";
 
+	chosen {
+		stdout-path = &uartd;
+	};
+
 	aliases {
 		usb0 = "/usb@c5008000";
 		usb1 = "/usb@c5004000";

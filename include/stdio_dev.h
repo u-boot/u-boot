@@ -78,7 +78,29 @@ extern char *stdio_names[MAX_FILES];
  */
 int	stdio_register (struct stdio_dev * dev);
 int stdio_register_dev(struct stdio_dev *dev, struct stdio_dev **devp);
-int	stdio_init (void);
+
+/**
+ * stdio_init_tables() - set up stdio tables ready for devices
+ *
+ * This does not add any devices, but just prepares stdio for use.
+ */
+int stdio_init_tables(void);
+
+/**
+ * stdio_add_devices() - Add stdio devices to the table
+ *
+ * This makes calls to all the various subsystems that use stdio, to make
+ * them register with stdio.
+ */
+int stdio_add_devices(void);
+
+/**
+ * stdio_init() - Sets up stdio ready for use
+ *
+ * This calls stdio_init_tables() and stdio_add_devices()
+ */
+int stdio_init(void);
+
 void	stdio_print_current_devices(void);
 #ifdef CONFIG_SYS_STDIO_DEREGISTER
 int	stdio_deregister(const char *devname);

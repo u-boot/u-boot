@@ -5,7 +5,12 @@
 # SPDX-License-Identifier:	GPL-2.0+
 #
 
+ifdef CONFIG_DM_SERIAL
+obj-y += serial-uclass.o
+else
 obj-y += serial.o
+obj-$(CONFIG_SYS_NS16550_SERIAL) += serial_ns16550.o
+endif
 
 obj-$(CONFIG_ALTERA_UART) += altera_uart.o
 obj-$(CONFIG_ALTERA_JTAG_UART) += altera_jtag_uart.o
@@ -16,7 +21,6 @@ obj-$(CONFIG_MCFUART) += mcfuart.o
 obj-$(CONFIG_OPENCORES_YANU) += opencores_yanu.o
 obj-$(CONFIG_SYS_NS16550) += ns16550.o
 obj-$(CONFIG_S5P) += serial_s5p.o
-obj-$(CONFIG_SYS_NS16550_SERIAL) += serial_ns16550.o
 obj-$(CONFIG_IMX_SERIAL) += serial_imx.o
 obj-$(CONFIG_KS8695_SERIAL) += serial_ks8695.o
 obj-$(CONFIG_MAX3100_SERIAL) += serial_max3100.o
@@ -34,6 +38,7 @@ obj-$(CONFIG_BFIN_SERIAL) += serial_bfin.o
 obj-$(CONFIG_FSL_LPUART) += serial_lpuart.o
 obj-$(CONFIG_MXS_AUART) += mxs_auart.o
 obj-$(CONFIG_ARC_SERIAL) += serial_arc.o
+obj-$(CONFIG_TEGRA_SERIAL) += serial_tegra.o
 
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_USB_TTY) += usbtty.o

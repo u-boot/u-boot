@@ -8,6 +8,10 @@
 		reg = <0x80000000 0x40000000>;
 	};
 
+	chosen {
+		stdout-path = &uartd;
+	};
+
 	aliases {
 		i2c0 = "/i2c@7000c000";
 		i2c1 = "/i2c@7000c700";

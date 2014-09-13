@@ -320,6 +320,7 @@ void serial_stdio_init(void)
 		dev.puts = serial_stub_puts;
 		dev.getc = serial_stub_getc;
 		dev.tstc = serial_stub_tstc;
+		dev.priv = s;
 
 		stdio_register(&dev);
 

@@ -6,6 +6,10 @@
 	model = "Toshiba AC100 / Dynabook AZ";
 	compatible = "compal,paz00", "nvidia,tegra20";
 
+	chosen {
+		stdout-path = &uarta;
+	};
+
 	aliases {
 		usb0 = "/usb@c5008000";
 		sdhci0 = "/sdhci@c8000600";

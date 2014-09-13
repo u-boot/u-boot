@@ -31,6 +31,9 @@
 #define CONFIG_DM_DEMO_SHAPE
 #define CONFIG_DM_GPIO
 #define CONFIG_DM_TEST
+#define CONFIG_DM_SERIAL
+
+#define CONFIG_SYS_STDIO_DEREGISTER
 
 /* Number of bits in a C 'long' on this architecture */
 #define CONFIG_SANDBOX_BITS_PER_LONG	64

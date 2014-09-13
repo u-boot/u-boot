@@ -382,6 +382,21 @@ int fdtdec_get_alias_node(const void *blob, const char *name)
 	return fdt_path_offset(blob, prop);
 }
 
+int fdtdec_get_chosen_node(const void *blob, const char *name)
+{
+	const char *prop;
+	int chosen_node;
+	int len;
+
+	if (!blob)
+		return -FDT_ERR_NOTFOUND;
+	chosen_node = fdt_path_offset(blob, "/chosen");
+	prop = fdt_getprop(blob, chosen_node, name, &len);
+	if (!prop)
+		return -FDT_ERR_NOTFOUND;
+	return fdt_path_offset(blob, prop);
+}
+
 int fdtdec_check_fdt(void)
 {
 	/*

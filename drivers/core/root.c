@@ -91,7 +91,7 @@ int dm_scan_fdt_node(struct udevice *parent, const void *blob, int offset,
 		if (pre_reloc_only &&
 		    !fdt_getprop(blob, offset, "u-boot,dm-pre-reloc", NULL))
 			continue;
-		err = lists_bind_fdt(parent, blob, offset);
+		err = lists_bind_fdt(parent, blob, offset, NULL);
 		if (err && !ret)
 			ret = err;
 	}

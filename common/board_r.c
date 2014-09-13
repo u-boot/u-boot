@@ -715,6 +715,15 @@ init_fnc_t init_sequence_r[] = {
 	/* TODO: could x86/PPC have this also perhaps? */
 #ifdef CONFIG_ARM
 	initr_caches,
+#endif
+	initr_reloc_global_data,
+	initr_barrier,
+	initr_malloc,
+	bootstage_relocate,
+#ifdef CONFIG_DM
+	initr_dm,
+#endif
+#ifdef CONFIG_ARM
 	board_init,	/* Setup chipselects */
 #endif
 	/*
@@ -726,7 +735,7 @@ init_fnc_t init_sequence_r[] = {
 #ifdef CONFIG_CLOCKS
 	set_cpu_clk_info, /* Setup clock information */
 #endif
-	initr_reloc_global_data,
+	stdio_init_tables,
 	initr_serial,
 	initr_announce,
 	INIT_FUNC_WATCHDOG_RESET
@@ -762,12 +771,6 @@ init_fnc_t init_sequence_r[] = {
 #endif
 #ifdef CONFIG_WINBOND_83C553
 	initr_w83c553f,
-#endif
-	initr_barrier,
-	initr_malloc,
-	bootstage_relocate,
-#ifdef CONFIG_DM
-	initr_dm,
 #endif
 #ifdef CONFIG_ARCH_EARLY_INIT_R
 	arch_early_init_r,
@@ -818,7 +821,7 @@ init_fnc_t init_sequence_r[] = {
 	 */
 	initr_pci,
 #endif
-	stdio_init,
+	stdio_add_devices,
 	initr_jumptable,
 #ifdef CONFIG_API
 	initr_api,

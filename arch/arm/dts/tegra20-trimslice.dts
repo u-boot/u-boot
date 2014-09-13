@@ -6,6 +6,10 @@
 	model = "Compulab TrimSlice board";
 	compatible = "compulab,trimslice", "nvidia,tegra20";
 
+	chosen {
+		stdout-path = &uarta;
+	};
+
 	aliases {
 		usb0 = "/usb@c5008000";
 		usb1 = "/usb@c5000000";
