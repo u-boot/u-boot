@@ -244,6 +244,7 @@
 		compatible = "samsung,exynos4210-uart";
 		reg = <0x12C30000 0x100>;
 		interrupts = <0 54 0>;
+		u-boot,dm-pre-reloc;
 		id = <3>;
 	};
 
