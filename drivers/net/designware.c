@@ -303,7 +303,8 @@ static int dw_eth_send(struct eth_device *dev, void *packet, int length)
 
 	/* Flush data to be sent */
 	flush_dcache_range((unsigned long)desc_p->dmamac_addr,
-			   (unsigned long)desc_p->dmamac_addr + length);
+			   (unsigned long)desc_p->dmamac_addr +
+			   roundup(length, ARCH_DMA_MINALIGN));
 
 #if defined(CONFIG_DW_ALTDESCRIPTOR)
 	desc_p->txrx_status |= DESC_TXSTS_TXFIRST | DESC_TXSTS_TXLAST;
@@ -372,7 +373,8 @@ static int dw_eth_recv(struct eth_device *dev)
 		/* Flush only status field - others weren't changed */
 		flush_dcache_range((unsigned long)&desc_p->txrx_status,
 				   (unsigned long)&desc_p->txrx_status +
-				   sizeof(desc_p->txrx_status));
+					roundup(sizeof(desc_p->txrx_status),
+						ARCH_DMA_MINALIGN));
 
 		/* Test the wrap-around condition. */
 		if (++desc_num >= CONFIG_RX_DESCR_NUM)
