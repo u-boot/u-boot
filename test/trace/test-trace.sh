@@ -27,17 +27,17 @@ build_uboot() {
 run_trace() {
 	echo "Run trace"
 	./${OUTPUT_DIR}/u-boot <<END
-	trace stats
-	hash sha256 0 10000
-	trace pause
-	trace stats
-	hash sha256 0 10000
-	trace stats
-	trace resume
-	hash sha256 0 10000
-	trace pause
-	trace stats
-	reset
+trace stats
+hash sha256 0 10000
+trace pause
+trace stats
+hash sha256 0 10000
+trace stats
+trace resume
+hash sha256 0 10000
+trace pause
+trace stats
+reset
 END
 }
 
