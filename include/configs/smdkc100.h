@@ -227,5 +227,6 @@
 #define CONFIG_DM
 #define CONFIG_CMD_DM
 #define CONFIG_DM_GPIO
+#define CONFIG_DM_SERIAL
 
 #endif	/* __CONFIG_H */
