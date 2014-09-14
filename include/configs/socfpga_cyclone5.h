@@ -18,7 +18,6 @@
 #undef CONFIG_SOCFPGA_VIRTUAL_TARGET
 
 #define CONFIG_ARMV7
-#define CONFIG_SYS_DCACHE_OFF
 #undef CONFIG_USE_IRQ
 
 #define CONFIG_MISC_INIT_R
@@ -26,6 +25,7 @@
 #define CONFIG_SOCFPGA
 #define CONFIG_CLOCKS
 
+#define CONFIG_SYS_ARM_CACHE_WRITEALLOC
 #define CONFIG_SYS_CACHELINE_SIZE	32
 
 /* base address for .text section */
