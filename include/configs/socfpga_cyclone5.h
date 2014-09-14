@@ -26,6 +26,8 @@
 #define CONFIG_SOCFPGA
 #define CONFIG_CLOCKS
 
+#define CONFIG_SYS_CACHELINE_SIZE	32
+
 /* base address for .text section */
 #ifdef CONFIG_SOCFPGA_VIRTUAL_TARGET
 #define CONFIG_SYS_TEXT_BASE		0x08000040
