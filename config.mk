@@ -53,6 +53,10 @@ ifdef	BOARD
 sinclude $(srctree)/board/$(BOARDDIR)/config.mk	# include board specific rules
 endif
 
+ifdef FTRACE
+PLATFORM_CPPFLAGS += -finstrument-functions -DFTRACE
+endif
+
 #########################################################################
 
 RELFLAGS := $(PLATFORM_RELFLAGS)
