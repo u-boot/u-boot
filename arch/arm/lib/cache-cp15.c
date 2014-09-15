@@ -73,6 +73,8 @@ __weak void dram_bank_mmu_setup(int bank)
 	     i++) {
 #if defined(CONFIG_SYS_ARM_CACHE_WRITETHROUGH)
 		set_section_dcache(i, DCACHE_WRITETHROUGH);
+#elif defined(CONFIG_SYS_ARM_CACHE_WRITEALLOC)
+		set_section_dcache(i, DCACHE_WRITEALLOC);
 #else
 		set_section_dcache(i, DCACHE_WRITEBACK);
 #endif
