@@ -201,7 +201,8 @@ class Series(dict):
             str = 'Change log exists, but no version is set'
             print col.Color(col.RED, str)
 
-    def MakeCcFile(self, process_tags, cover_fname, raise_on_error):
+    def MakeCcFile(self, process_tags, cover_fname, raise_on_error,
+                   add_maintainers):
         """Make a cc file for us to use for per-commit Cc automation
 
         Also stores in self._generated_cc to make ShowActions() faster.
@@ -211,6 +212,7 @@ class Series(dict):
             cover_fname: If non-None the name of the cover letter.
             raise_on_error: True to raise an error when an alias fails to match,
                 False to just print a message.
+            add_maintainers: Call the get_maintainers to CC maintainers
         Return:
             Filename of temp file created
         """
@@ -225,7 +227,8 @@ class Series(dict):
                                                raise_on_error=raise_on_error)
             list += gitutil.BuildEmailList(commit.cc_list,
                                            raise_on_error=raise_on_error)
-            list += get_maintainer.GetMaintainer(commit.patch)
+	    if add_maintainers:
+                list += get_maintainer.GetMaintainer(commit.patch)
             all_ccs += list
             print >>fd, commit.patch, ', '.join(list)
             self._generated_cc[commit.patch] = list
