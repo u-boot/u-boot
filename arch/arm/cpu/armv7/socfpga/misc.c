@@ -12,11 +12,17 @@
 #include <asm/arch/reset_manager.h>
 #include <asm/arch/system_manager.h>
 #include <asm/arch/dwmmc.h>
+#include <asm/arch/nic301.h>
+#include <asm/pl310.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static struct pl310_regs *const pl310 =
+	(struct pl310_regs *)CONFIG_SYS_PL310_BASE;
 static struct socfpga_system_manager *sysmgr_regs =
 	(struct socfpga_system_manager *)SOCFPGA_SYSMGR_ADDRESS;
+static struct nic301_registers *nic301_regs =
+	(struct nic301_registers *)SOCFPGA_L3REGS_ADDRESS;
 
 int dram_init(void)
 {
@@ -142,6 +148,14 @@ int arch_cpu_init(void)
 
 int misc_init_r(void)
 {
+	/* Configure the L2 controller to make SDRAM start at 0 */
+#ifdef CONFIG_SOCFPGA_VIRTUAL_TARGET
+	writel(0x2, &nic301_regs->remap);
+#else
+	writel(0x1, &nic301_regs->remap);	/* remap.mpuzero */
+	writel(0x1, &pl310->pl310_addr_filter_start);
+#endif
+
 	/* Add device descriptor to FPGA device table */
 	socfpga_fpga_add();
 	return 0;
