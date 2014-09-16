@@ -1,0 +1,4 @@
+menu "Command line interface"
+	depends on !SPL_BUILD
+
+endmenu

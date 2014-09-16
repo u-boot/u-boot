@@ -1,0 +1,10 @@
+#
+# Network configuration
+#
+
+menuconfig NET
+	bool "Networking support"
+
+if NET
+
+endif   # if NET
