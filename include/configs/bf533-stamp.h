@@ -186,7 +186,6 @@
  */
 #define CONFIG_RTC_BFIN
 #define CONFIG_UART_CONSOLE	0
-#define CONFIG_CC_OPTIMIZE_LIBS_FOR_SPEED
 
 /* FLASH/ETHERNET uses the same async bank */
 #define SHARED_RESOURCES 	1
