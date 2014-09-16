@@ -131,8 +131,9 @@
 		"bootz ${loadaddr} - ${fdtaddr}\0" \
 	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
-		"nand read ${loadaddr} linux; " \
-		"bootm ${loadaddr}\0" \
+		"if nand read ${loadaddr} linux; then " \
+			"bootm ${loadaddr};" \
+		"fi;\0" \
 
 #define CONFIG_BOOTCOMMAND \
 	"mmc dev ${mmcdev}; if mmc rescan; then " \
