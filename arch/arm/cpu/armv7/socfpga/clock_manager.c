@@ -16,9 +16,16 @@ static const struct socfpga_clock_manager *clock_manager_base =
 static void cm_wait_for_lock(uint32_t mask)
 {
 	register uint32_t inter_val;
+	uint32_t retry = 0;
 	do {
 		inter_val = readl(&clock_manager_base->inter) & mask;
-	} while (inter_val != mask);
+		if (inter_val == mask)
+			retry++;
+		else
+			retry = 0;
+		if (retry >= 10)
+			break;
+	} while (1);
 }
 
 /* function to poll in the fsm busy bit */
@@ -114,15 +121,15 @@ void cm_basic_init(const cm_config_t *cfg)
 	cm_write_bypass(CLKMGR_BYPASS_PERPLL | CLKMGR_BYPASS_SDRPLL |
 			CLKMGR_BYPASS_MAINPLL);
 
-	/*
-	 * Put all plls VCO registers back to reset value.
-	 * Some code might have messed with them.
-	 */
-	writel(CLKMGR_MAINPLLGRP_VCO_RESET_VALUE,
+	/* Put all plls VCO registers back to reset value. */
+	writel(CLKMGR_MAINPLLGRP_VCO_RESET_VALUE &
+	       ~CLKMGR_MAINPLLGRP_VCO_REGEXTSEL_MASK,
 	       &clock_manager_base->main_pll.vco);
-	writel(CLKMGR_PERPLLGRP_VCO_RESET_VALUE,
+	writel(CLKMGR_PERPLLGRP_VCO_RESET_VALUE &
+	       ~CLKMGR_PERPLLGRP_VCO_REGEXTSEL_MASK,
 	       &clock_manager_base->per_pll.vco);
-	writel(CLKMGR_SDRPLLGRP_VCO_RESET_VALUE,
+	writel(CLKMGR_SDRPLLGRP_VCO_RESET_VALUE &
+	       ~CLKMGR_SDRPLLGRP_VCO_REGEXTSEL_MASK,
 	       &clock_manager_base->sdr_pll.vco);
 
 	/*
@@ -147,14 +154,9 @@ void cm_basic_init(const cm_config_t *cfg)
 	 * We made sure bgpwr down was assert for 5 us. Now deassert BG PWR DN
 	 * with numerator and denominator.
 	 */
-	writel(cfg->main_vco_base | CLKMGR_MAINPLLGRP_VCO_REGEXTSEL_MASK,
-	       &clock_manager_base->main_pll.vco);
-
-	writel(cfg->peri_vco_base | CLKMGR_PERPLLGRP_VCO_REGEXTSEL_MASK,
-	       &clock_manager_base->per_pll.vco);
-
-	writel(cfg->sdram_vco_base | CLKMGR_SDRPLLGRP_VCO_REGEXTSEL_MASK,
-	       &clock_manager_base->sdr_pll.vco);
+	writel(cfg->main_vco_base, &clock_manager_base->main_pll.vco);
+	writel(cfg->peri_vco_base, &clock_manager_base->per_pll.vco);
+	writel(cfg->sdram_vco_base, &clock_manager_base->sdr_pll.vco);
 
 	/*
 	 * Time starts here
@@ -189,6 +191,9 @@ void cm_basic_init(const cm_config_t *cfg)
 	writel(cfg->perqspiclk, &clock_manager_base->per_pll.perqspiclk);
 
 	/* Peri pernandsdmmcclk */
+	writel(cfg->mainnandsdmmcclk,
+	       &clock_manager_base->main_pll.mainnandsdmmcclk);
+
 	writel(cfg->pernandsdmmcclk,
 	       &clock_manager_base->per_pll.pernandsdmmcclk);
 
@@ -318,6 +323,11 @@ void cm_basic_init(const cm_config_t *cfg)
 	writel(~0, &clock_manager_base->main_pll.en);
 	writel(~0, &clock_manager_base->per_pll.en);
 	writel(~0, &clock_manager_base->sdr_pll.en);
+
+	/* Clear the loss of lock bits (write 1 to clear) */
+	writel(CLKMGR_INTER_SDRPLLLOST_MASK | CLKMGR_INTER_PERPLLLOST_MASK |
+	       CLKMGR_INTER_MAINPLLLOST_MASK,
+	       &clock_manager_base->inter);
 }
 
 static unsigned int cm_get_main_vco_clk_hz(void)
