@@ -12,38 +12,38 @@
  *  Altera FPGA support
  */
 #include <common.h>
+#include <errno.h>
 #include <ACEX1K.h>
 #include <stratixII.h>
 
 /* Define FPGA_DEBUG to 1 to get debug printf's */
 #define FPGA_DEBUG	0
 
-/* Local Static Functions */
 static int altera_validate(Altera_desc *desc, const char *fn)
 {
 	if (!desc) {
 		printf("%s: NULL descriptor!\n", fn);
-		return false;
+		return -EINVAL;
 	}
 
 	if ((desc->family < min_altera_type) ||
 	    (desc->family > max_altera_type)) {
 		printf("%s: Invalid family type, %d\n", fn, desc->family);
-		return false;
+		return -EINVAL;
 	}
 
 	if ((desc->iface < min_altera_iface_type) ||
 	    (desc->iface > max_altera_iface_type)) {
 		printf("%s: Invalid Interface type, %d\n", fn, desc->iface);
-		return false;
+		return -EINVAL;
 	}
 
 	if (!desc->size) {
 		printf("%s: NULL part size\n", fn);
-		return false;
+		return -EINVAL;
 	}
 
-	return true;
+	return 0;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -51,7 +51,7 @@ int altera_load(Altera_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;	/* assume a failure */
 
-	if (!altera_validate(desc, (char *)__func__)) {
+	if (altera_validate(desc, (char *)__func__)) {
 		printf("%s: Invalid device descriptor\n", __func__);
 		return FPGA_FAIL;
 	}
@@ -95,7 +95,7 @@ int altera_dump(Altera_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;	/* assume a failure */
 
-	if (!altera_validate (desc, (char *)__func__)) {
+	if (altera_validate(desc, (char *)__func__)) {
 		printf("%s: Invalid device descriptor\n", __func__);
 		return FPGA_FAIL;
 	}
@@ -133,7 +133,7 @@ int altera_info(Altera_desc *desc)
 {
 	int ret_val = FPGA_FAIL;
 
-	if (!altera_validate (desc, (char *)__func__)) {
+	if (altera_validate (desc, (char *)__func__)) {
 		printf("%s: Invalid device descriptor\n", __func__);
 		return FPGA_FAIL;
 	}
