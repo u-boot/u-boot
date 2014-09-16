@@ -13,4 +13,10 @@ config CMD_CRC32
 	help
 	  Compute CRC32.
 
+config CMD_EXPORTENV
+	bool "Enable env export command"
+	default y
+	help
+	  Export environments.
+
 endmenu
