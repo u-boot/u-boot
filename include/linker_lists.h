@@ -28,11 +28,11 @@
  * together. Assuming _list and _entry are the list and entry names,
  * then the corresponding input section name is
  *
- *   _u_boot_list + _2_ + @_list + _2_ + @_entry
+ *   .u_boot_list_ + 2_ + @_list + _2_ + @_entry
  *
  * and the C variable name is
  *
- *   .u_boot_list_ + 2_ + @_list + _2_ + @_entry
+ *   _u_boot_list + _2_ + @_list + _2_ + @_entry
  *
  * This ensures uniqueness for both input section and C variable name.
  *
