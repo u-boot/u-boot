@@ -328,6 +328,9 @@ class MaintainersDatabase:
         maintainers = []
         status = '-'
         for line in open(file):
+            # Check also commented maintainers
+            if line[:3] == '#M:':
+                line = line[1:]
             tag, rest = line[:2], line[2:].strip()
             if tag == 'M:':
                 maintainers.append(rest)
