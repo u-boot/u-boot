@@ -19,6 +19,26 @@
 /* Define FPGA_DEBUG to 1 to get debug printf's */
 #define FPGA_DEBUG	0
 
+static const struct altera_fpga {
+	enum altera_family	family;
+	const char		*name;
+	int			(*load)(Altera_desc *, const void *, size_t);
+	int			(*dump)(Altera_desc *, const void *, size_t);
+	int			(*info)(Altera_desc *);
+} altera_fpga[] = {
+#if defined(CONFIG_FPGA_ACEX1K)
+	{ Altera_ACEX1K, "ACEX1K", ACEX1K_load, ACEX1K_dump, ACEX1K_info },
+	{ Altera_CYC2,   "ACEX1K", ACEX1K_load, ACEX1K_dump, ACEX1K_info },
+#elif defined(CONFIG_FPGA_CYCLON2)
+	{ Altera_ACEX1K, "CycloneII", CYC2_load, CYC2_dump, CYC2_info },
+	{ Altera_CYC2,   "CycloneII", CYC2_load, CYC2_dump, CYC2_info },
+#endif
+#if defined(CONFIG_FPGA_STRATIX_II)
+	{ Altera_StratixII, "StratixII", StratixII_load,
+	  StratixII_dump, StratixII_info },
+#endif
+};
+
 static int altera_validate(Altera_desc *desc, const char *fn)
 {
 	if (!desc) {
@@ -46,113 +66,65 @@ static int altera_validate(Altera_desc *desc, const char *fn)
 	return 0;
 }
 
-/* ------------------------------------------------------------------------- */
+static const struct altera_fpga *
+altera_desc_to_fpga(Altera_desc *desc, const char *fn)
+{
+	int i;
+
+	if (altera_validate(desc, fn)) {
+		printf("%s: Invalid device descriptor\n", fn);
+		return NULL;
+	}
+
+	for (i = 0; i < ARRAY_SIZE(altera_fpga); i++) {
+		if (desc->family == altera_fpga[i].family)
+			break;
+	}
+
+	if (i == ARRAY_SIZE(altera_fpga)) {
+		printf("%s: Unsupported family type, %d\n", fn, desc->family);
+		return NULL;
+	}
+
+	return &altera_fpga[i];
+}
+
 int altera_load(Altera_desc *desc, const void *buf, size_t bsize)
 {
-	int ret_val = FPGA_FAIL;	/* assume a failure */
+	const struct altera_fpga *fpga = altera_desc_to_fpga(desc, __func__);
 
-	if (altera_validate(desc, (char *)__func__)) {
-		printf("%s: Invalid device descriptor\n", __func__);
+	if (!fpga)
 		return FPGA_FAIL;
-	}
 
-	switch (desc->family) {
-	case Altera_ACEX1K:
-	case Altera_CYC2:
-#if defined(CONFIG_FPGA_ACEX1K)
-		debug_cond(FPGA_DEBUG,
-			   "%s: Launching the ACEX1K Loader...\n",
-			   __func__);
-		ret_val = ACEX1K_load (desc, buf, bsize);
-#elif defined(CONFIG_FPGA_CYCLON2)
-		debug_cond(FPGA_DEBUG,
-			   "%s: Launching the CYCLONE II Loader...\n",
-			   __func__);
-		ret_val = CYC2_load (desc, buf, bsize);
-#else
-		printf("%s: No support for ACEX1K devices.\n",
-		       __func__);
-#endif
-		break;
-
-#if defined(CONFIG_FPGA_STRATIX_II)
-	case Altera_StratixII:
-		debug_cond(FPGA_DEBUG,
-			   "%s: Launching the Stratix II Loader...\n",
-			   __func__);
-		ret_val = StratixII_load (desc, buf, bsize);
-		break;
-#endif
-	default:
-		printf("%s: Unsupported family type, %d\n",
-		       __func__, desc->family);
-	}
-
-	return ret_val;
+	debug_cond(FPGA_DEBUG, "%s: Launching the %s Loader...\n",
+		   __func__, fpga->name);
+	if (fpga->load)
+		return fpga->load(desc, buf, bsize);
+	return 0;
 }
 
 int altera_dump(Altera_desc *desc, const void *buf, size_t bsize)
 {
-	int ret_val = FPGA_FAIL;	/* assume a failure */
+	const struct altera_fpga *fpga = altera_desc_to_fpga(desc, __func__);
 
-	if (altera_validate(desc, (char *)__func__)) {
-		printf("%s: Invalid device descriptor\n", __func__);
+	if (!fpga)
 		return FPGA_FAIL;
-	}
 
-	switch (desc->family) {
-	case Altera_ACEX1K:
-#if defined(CONFIG_FPGA_ACEX)
-		debug_cond(FPGA_DEBUG,
-			   "%s: Launching the ACEX1K Reader...\n",
-			   __func__);
-		ret_val = ACEX1K_dump (desc, buf, bsize);
-#else
-		printf("%s: No support for ACEX1K devices.\n",
-		       __func__);
-#endif
-		break;
-
-#if defined(CONFIG_FPGA_STRATIX_II)
-	case Altera_StratixII:
-		debug_cond(FPGA_DEBUG,
-			   "%s: Launching the Stratix II Reader...\n",
-			   __func__);
-		ret_val = StratixII_dump (desc, buf, bsize);
-		break;
-#endif
-	default:
-		printf("%s: Unsupported family type, %d\n",
-		       __func__, desc->family);
-	}
-
-	return ret_val;
+	debug_cond(FPGA_DEBUG, "%s: Launching the %s Reader...\n",
+		   __func__, fpga->name);
+	if (fpga->dump)
+		return fpga->dump(desc, buf, bsize);
+	return 0;
 }
 
 int altera_info(Altera_desc *desc)
 {
-	int ret_val = FPGA_FAIL;
+	const struct altera_fpga *fpga = altera_desc_to_fpga(desc, __func__);
 
-	if (altera_validate (desc, (char *)__func__)) {
-		printf("%s: Invalid device descriptor\n", __func__);
+	if (!fpga)
 		return FPGA_FAIL;
-	}
 
-	printf("Family:        \t");
-	switch (desc->family) {
-	case Altera_ACEX1K:
-		printf("ACEX1K\n");
-		break;
-	case Altera_CYC2:
-		printf("CYCLON II\n");
-		break;
-	case Altera_StratixII:
-		printf("Stratix II\n");
-		break;
-		/* Add new family types here */
-	default:
-		printf("Unknown family type, %d\n", desc->family);
-	}
+	printf("Family:        \t%s\n", fpga->name);
 
 	printf("Interface type:\t");
 	switch (desc->iface) {
@@ -188,34 +160,11 @@ int altera_info(Altera_desc *desc)
 
 	if (desc->iface_fns) {
 		printf("Device Function Table @ 0x%p\n", desc->iface_fns);
-		switch (desc->family) {
-		case Altera_ACEX1K:
-		case Altera_CYC2:
-#if defined(CONFIG_FPGA_ACEX1K)
-			ACEX1K_info(desc);
-#elif defined(CONFIG_FPGA_CYCLON2)
-			CYC2_info(desc);
-#else
-			/* just in case */
-			printf("%s: No support for ACEX1K devices.\n",
-					__func__);
-#endif
-			break;
-#if defined(CONFIG_FPGA_STRATIX_II)
-		case Altera_StratixII:
-			StratixII_info(desc);
-			break;
-#endif
-			/* Add new family types here */
-		default:
-			/* we don't need a message here - we give one up above */
-			break;
-		}
+		if (fpga->info)
+			fpga->info(desc);
 	} else {
 		printf("No Device Function Table.\n");
 	}
 
-	ret_val = FPGA_SUCCESS;
-
-	return ret_val;
+	return FPGA_SUCCESS;
 }
