@@ -31,6 +31,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define EXPANSION_EEPROM_I2C_BUS	2
 #define EXPANSION_EEPROM_I2C_ADDRESS	0x51
 
+#define GUMSTIX_EMPTY_EEPROM		0x0
+
 #define GUMSTIX_SUMMIT			0x01000200
 #define GUMSTIX_TOBI			0x02000200
 #define GUMSTIX_TOBI_DUO		0x03000200
@@ -56,7 +58,7 @@ static struct {
 	char fab_revision[8];
 	char env_var[16];
 	char env_setting[64];
-} expansion_config;
+} expansion_config = {0x0};
 
 /*
  * Routine: board_init
@@ -198,6 +200,9 @@ int get_sdio2_config(void)
  */
 unsigned int get_expansion_id(void)
 {
+	if (expansion_config.device_vendor != 0x0)
+		return expansion_config.device_vendor;
+
 	i2c_set_bus_num(EXPANSION_EEPROM_I2C_BUS);
 
 	/* return GUMSTIX_NO_EEPROM if eeprom doesn't respond */
@@ -247,6 +252,7 @@ int misc_init_r(void)
 		printf("Recognized Summit expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		setenv("defaultdisplay", "dvi");
 		setenv("expansionname", "summit");
 		break;
@@ -254,6 +260,7 @@ int misc_init_r(void)
 		printf("Recognized Tobi expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		setenv("defaultdisplay", "dvi");
 		setenv("expansionname", "tobi");
 		break;
@@ -261,17 +268,20 @@ int misc_init_r(void)
 		printf("Recognized Tobi Duo expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		break;
 	case GUMSTIX_PALO35:
 		printf("Recognized Palo35 expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		setenv("defaultdisplay", "lcd35");
 		break;
 	case GUMSTIX_PALO43:
 		printf("Recognized Palo43 expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		setenv("defaultdisplay", "lcd43");
 		setenv("expansionname", "palo43");
 		break;
@@ -279,6 +289,7 @@ int misc_init_r(void)
 		printf("Recognized Chestnut43 expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		setenv("defaultdisplay", "lcd43");
 		setenv("expansionname", "chestnut43");
 		break;
@@ -286,11 +297,13 @@ int misc_init_r(void)
 		printf("Recognized Pinto expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		break;
 	case GUMSTIX_GALLOP43:
 		printf("Recognized Gallop43 expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		setenv("defaultdisplay", "lcd43");
 		setenv("expansionname", "gallop43");
 		break;
@@ -298,6 +311,7 @@ int misc_init_r(void)
 		printf("Recognized Alto35 expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		MUX_ALTO35();
 		setenv("defaultdisplay", "lcd35");
 		setenv("expansionname", "alto35");
@@ -306,21 +320,25 @@ int misc_init_r(void)
 		printf("Recognized Stagecoach expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		break;
 	case GUMSTIX_THUMBO:
 		printf("Recognized Thumbo expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		break;
 	case GUMSTIX_TURTLECORE:
 		printf("Recognized Turtlecore expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		break;
 	case GUMSTIX_ARBOR43C:
 		printf("Recognized Arbor43C expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		MUX_ARBOR43C();
 		setenv("defaultdisplay", "lcd43");
 		break;
@@ -328,16 +346,17 @@ int misc_init_r(void)
 		printf("Recognized Ettus Research USRP-E (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		MUX_GUMSTIX();
 		MUX_USRP_E();
 		setenv("defaultdisplay", "dvi");
 		break;
 	case GUMSTIX_NO_EEPROM:
-		puts("No EEPROM on expansion board\n");
+	case GUMSTIX_EMPTY_EEPROM:
+		puts("No or empty EEPROM on expansion board\n");
+		MUX_GUMSTIX();
 		setenv("expansionname", "tobi");
 		break;
 	default:
-		if (expansion_id == 0x0)
-			setenv("expansionname", "tobi");
 		printf("Unrecognized expansion board 0x%08x\n", expansion_id);
 		break;
 	}
