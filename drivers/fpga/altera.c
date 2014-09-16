@@ -19,7 +19,32 @@
 #define FPGA_DEBUG	0
 
 /* Local Static Functions */
-static int altera_validate (Altera_desc * desc, const char *fn);
+static int altera_validate(Altera_desc *desc, const char *fn)
+{
+	if (!desc) {
+		printf("%s: NULL descriptor!\n", fn);
+		return false;
+	}
+
+	if ((desc->family < min_altera_type) ||
+	    (desc->family > max_altera_type)) {
+		printf("%s: Invalid family type, %d\n", fn, desc->family);
+		return false;
+	}
+
+	if ((desc->iface < min_altera_iface_type) ||
+	    (desc->iface > max_altera_iface_type)) {
+		printf("%s: Invalid Interface type, %d\n", fn, desc->iface);
+		return false;
+	}
+
+	if (!desc->size) {
+		printf("%s: NULL part size\n", fn);
+		return false;
+	}
+
+	return true;
+}
 
 /* ------------------------------------------------------------------------- */
 int altera_load(Altera_desc *desc, const void *buf, size_t bsize)
@@ -194,34 +219,3 @@ int altera_info(Altera_desc *desc)
 
 	return ret_val;
 }
-
-/* ------------------------------------------------------------------------- */
-
-static int altera_validate(Altera_desc *desc, const char *fn)
-{
-	if (!desc) {
-		printf("%s: NULL descriptor!\n", fn);
-		return false;
-	}
-
-	if ((desc->family < min_altera_type) ||
-	    (desc->family > max_altera_type)) {
-		printf("%s: Invalid family type, %d\n", fn, desc->family);
-		return false;
-	}
-
-	if ((desc->iface < min_altera_iface_type) ||
-	    (desc->iface > max_altera_iface_type)) {
-		printf("%s: Invalid Interface type, %d\n", fn, desc->iface);
-		return false;
-	}
-
-	if (!desc->size) {
-		printf("%s: NULL part size\n", fn);
-		return false;
-	}
-
-	return true;
-}
-
-/* ------------------------------------------------------------------------- */
