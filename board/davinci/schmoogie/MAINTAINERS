@@ -1,5 +1,5 @@
 SCHMOOGIE BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	board/davinci/schmoogie/
 F:	include/configs/davinci_schmoogie.h

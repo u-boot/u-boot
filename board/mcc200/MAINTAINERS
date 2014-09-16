@@ -1,5 +1,5 @@
 MCC200 BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	board/mcc200/
 F:	include/configs/mcc200.h

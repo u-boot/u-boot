@@ -39,7 +39,7 @@ F:	configs/virtlab2_defconfig
 F:	configs/wtk_defconfig
 
 NSCU BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	include/configs/NSCU.h
 F:	configs/NSCU_defconfig

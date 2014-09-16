@@ -1,5 +1,5 @@
 PPCHAMELEONEVB BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	board/dave/PPChameleonEVB/
 F:	include/configs/CATcenter.h

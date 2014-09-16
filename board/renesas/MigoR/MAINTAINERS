@@ -1,5 +1,5 @@
 MIGOR BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	board/renesas/MigoR/
 F:	include/configs/MigoR.h

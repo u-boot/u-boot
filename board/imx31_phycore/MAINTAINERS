@@ -1,5 +1,5 @@
 IMX31_PHYCORE BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	board/imx31_phycore/
 F:	include/configs/imx31_phycore.h

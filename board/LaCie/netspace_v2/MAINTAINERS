@@ -8,7 +8,7 @@ F:	configs/netspace_max_v2_defconfig
 F:	configs/netspace_v2_defconfig
 
 NETSPACE_LITE_V2 BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	configs/netspace_lite_v2_defconfig
 F:	configs/netspace_mini_v2_defconfig

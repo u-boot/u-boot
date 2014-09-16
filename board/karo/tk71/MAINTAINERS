@@ -1,5 +1,5 @@
 TK71 BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	board/karo/tk71/
 F:	include/configs/tk71.h

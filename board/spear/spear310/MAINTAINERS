@@ -6,7 +6,7 @@ F:	include/configs/spear3xx_evb.h
 F:	configs/spear310_defconfig
 
 SPEAR310_NAND BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	configs/spear310_nand_defconfig
 F:	configs/spear310_pnor_defconfig

@@ -6,7 +6,7 @@ F:	include/configs/IceCube.h
 F:	configs/icecube_5200_defconfig
 
 ICECUBE_5200_DDR BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	configs/icecube_5200_DDR_defconfig
 F:	configs/icecube_5200_DDR_LOWBOOT_defconfig

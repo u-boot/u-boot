@@ -1,5 +1,5 @@
 CMI BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	board/cmi/
 F:	include/configs/cmi_mpc5xx.h

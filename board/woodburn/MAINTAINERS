@@ -6,7 +6,7 @@ F:	include/configs/woodburn.h
 F:	configs/woodburn_defconfig
 
 WOODBURN_SD BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	include/configs/woodburn_sd.h
 F:	configs/woodburn_sd_defconfig

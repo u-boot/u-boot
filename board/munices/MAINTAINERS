@@ -1,5 +1,5 @@
 MUNICES BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	board/munices/
 F:	include/configs/munices.h

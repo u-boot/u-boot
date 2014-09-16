@@ -1,5 +1,5 @@
 PM828 BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	board/pm828/
 F:	include/configs/PM828.h

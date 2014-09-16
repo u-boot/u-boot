@@ -1,5 +1,5 @@
 VEXPRESS BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	board/armltd/vexpress/
 F:	include/configs/vexpress_ca15_tc2.h

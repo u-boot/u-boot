@@ -1,5 +1,5 @@
 ELPPC BOARD
-M:	-
+#M:	-
 S:	Maintained
 F:	board/eltec/elppc/
 F:	include/configs/ELPPC.h
