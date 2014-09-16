@@ -1,5 +1,5 @@
 TNY_A9260 BOARD
-M:	Albin Tonnerre <albin.tonnerre@free-electrons.com>
+#M:	Albin Tonnerre <albin.tonnerre@free-electrons.com>
 S:	Orphan (since 2014-06)
 F:	board/calao/tny_a9260/
 F:	include/configs/tny_a9260.h
