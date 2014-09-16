@@ -19,4 +19,10 @@ config CMD_EXPORTENV
 	help
 	  Export environments.
 
+config CMD_GO
+	bool "Enable go command"
+	default y
+	help
+	  Start an application at a given address.
+
 endmenu
