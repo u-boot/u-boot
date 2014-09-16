@@ -58,21 +58,6 @@ static struct {
 	char env_setting[64];
 } expansion_config;
 
-#if defined(CONFIG_CMD_NET)
-static void setup_net_chip(void);
-#endif
-
-/* GPMC definitions for LAN9221 chips on Tobi expansion boards */
-static const u32 gpmc_lan_config[] = {
-    NET_LAN9221_GPMC_CONFIG1,
-    NET_LAN9221_GPMC_CONFIG2,
-    NET_LAN9221_GPMC_CONFIG3,
-    NET_LAN9221_GPMC_CONFIG4,
-    NET_LAN9221_GPMC_CONFIG5,
-    NET_LAN9221_GPMC_CONFIG6,
-    /*CONFIG7- computed as params */
-};
-
 /*
  * Routine: board_init
  * Description: Early hardware init.
@@ -241,10 +226,6 @@ int misc_init_r(void)
 	twl4030_power_init();
 	twl4030_led_init(TWL4030_LED_LEDEN_LEDAON | TWL4030_LED_LEDEN_LEDBON);
 
-#if defined(CONFIG_CMD_NET)
-	setup_net_chip();
-#endif
-
 	printf("Board revision: %d\n", get_board_revision());
 
 	switch (get_sdio2_config()) {
@@ -280,9 +261,6 @@ int misc_init_r(void)
 		printf("Recognized Tobi Duo expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
-		/* second lan chip */
-		enable_gpmc_cs_config(gpmc_lan_config, &gpmc_cfg->cs[4],
-		    0x2B000000, GPMC_SIZE_16M);
 		break;
 	case GUMSTIX_PALO35:
 		printf("Recognized Palo35 expansion board (rev %d %s)\n",
@@ -388,7 +366,18 @@ void set_muxconf_regs(void)
 	MUX_OVERO();
 }
 
-#if defined(CONFIG_CMD_NET)
+#if defined(CONFIG_CMD_NET) && !defined(CONFIG_SPL_BUILD)
+/* GPMC definitions for LAN9221 chips on Tobi expansion boards */
+static const u32 gpmc_lan_config[] = {
+	NET_LAN9221_GPMC_CONFIG1,
+	NET_LAN9221_GPMC_CONFIG2,
+	NET_LAN9221_GPMC_CONFIG3,
+	NET_LAN9221_GPMC_CONFIG4,
+	NET_LAN9221_GPMC_CONFIG5,
+	NET_LAN9221_GPMC_CONFIG6,
+	/*CONFIG7- computed as params */
+};
+
 /*
  * Routine: setup_net_chip
  * Description: Setting up the configuration GPMC registers specific to the
@@ -398,10 +387,6 @@ static void setup_net_chip(void)
 {
 	struct ctrl *ctrl_base = (struct ctrl *)OMAP34XX_CTRL_BASE;
 
-	/* first lan chip */
-	enable_gpmc_cs_config(gpmc_lan_config, &gpmc_cfg->cs[5], 0x2C000000,
-			GPMC_SIZE_16M);
-
 	/* Enable off mode for NWE in PADCONF_GPMC_NWE register */
 	writew(readw(&ctrl_base ->gpmc_nwe) | 0x0E00, &ctrl_base->gpmc_nwe);
 	/* Enable off mode for NOE in PADCONF_GPMC_NADV_ALE register */
@@ -409,7 +394,14 @@ static void setup_net_chip(void)
 	/* Enable off mode for ALE in PADCONF_GPMC_NADV_ALE register */
 	writew(readw(&ctrl_base->gpmc_nadv_ale) | 0x0E00,
 		&ctrl_base->gpmc_nadv_ale);
+}
 
+/*
+ * Routine: reset_net_chip
+ * Description: Reset the Ethernet hardware.
+ */
+static void reset_net_chip(void)
+{
 	/* Make GPIO 64 as output pin and send a magic pulse through it */
 	if (!gpio_request(64, "")) {
 		gpio_direction_output(64, 0);
@@ -420,16 +412,42 @@ static void setup_net_chip(void)
 		gpio_set_value(64, 1);
 	}
 }
-#endif
 
 int board_eth_init(bd_t *bis)
 {
+	unsigned int expansion_id;
 	int rc = 0;
+
 #ifdef CONFIG_SMC911X
-	rc = smc911x_initialize(0, CONFIG_SMC911X_BASE);
+	expansion_id = get_expansion_id();
+	switch (expansion_id) {
+	case GUMSTIX_TOBI_DUO:
+		/* second lan chip */
+		enable_gpmc_cs_config(gpmc_lan_config, &gpmc_cfg->cs[4],
+				      0x2B000000, GPMC_SIZE_16M);
+		/* no break */
+	case GUMSTIX_TOBI:
+	case GUMSTIX_CHESTNUT43:
+	case GUMSTIX_STAGECOACH:
+	case GUMSTIX_NO_EEPROM:
+	case GUMSTIX_EMPTY_EEPROM:
+		/* first lan chip */
+		enable_gpmc_cs_config(gpmc_lan_config, &gpmc_cfg->cs[5],
+				      0x2C000000, GPMC_SIZE_16M);
+
+		setup_net_chip();
+		reset_net_chip();
+
+		rc = smc911x_initialize(0, CONFIG_SMC911X_BASE);
+		break;
+	default:
+		break;
+	}
 #endif
+
 	return rc;
 }
+#endif
 
 #if defined(CONFIG_GENERIC_MMC) && !defined(CONFIG_SPL_BUILD)
 int board_mmc_init(bd_t *bis)
