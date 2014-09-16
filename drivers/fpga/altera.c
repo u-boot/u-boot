@@ -195,32 +195,31 @@ int altera_info( Altera_desc *desc )
 
 /* ------------------------------------------------------------------------- */
 
-static int altera_validate (Altera_desc * desc, const char *fn)
+static int altera_validate(Altera_desc *desc, const char *fn)
 {
-	int ret_val = false;
-
-	if (desc) {
-		if ((desc->family > min_altera_type) &&
-			(desc->family < max_altera_type)) {
-			if ((desc->iface > min_altera_iface_type) &&
-				(desc->iface < max_altera_iface_type)) {
-				if (desc->size) {
-					ret_val = true;
-				} else {
-					printf("%s: NULL part size\n", fn);
-				}
-			} else {
-				printf("%s: Invalid Interface type, %d\n",
-				       fn, desc->iface);
-			}
-		} else {
-			printf("%s: Invalid family type, %d\n", fn, desc->family);
-		}
-	} else {
+	if (!desc) {
 		printf("%s: NULL descriptor!\n", fn);
+		return false;
 	}
 
-	return ret_val;
+	if ((desc->family < min_altera_type) ||
+	    (desc->family > max_altera_type)) {
+		printf("%s: Invalid family type, %d\n", fn, desc->family);
+		return false;
+	}
+
+	if ((desc->iface < min_altera_iface_type) ||
+	    (desc->iface > max_altera_iface_type)) {
+		printf("%s: Invalid Interface type, %d\n", fn, desc->iface);
+		return false;
+	}
+
+	if (!desc->size) {
+		printf("%s: NULL part size\n", fn);
+		return false;
+	}
+
+	return true;
 }
 
 /* ------------------------------------------------------------------------- */
