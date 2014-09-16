@@ -19,6 +19,12 @@ config CMD_EXPORTENV
 	help
 	  Export environments.
 
+config CMD_IMPORTENV
+	bool "Enable env import command"
+	default y
+	help
+	  Import environments.
+
 config CMD_GO
 	bool "Enable go command"
 	default y

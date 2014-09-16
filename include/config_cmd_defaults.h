@@ -9,6 +9,5 @@
 #ifndef _CONFIG_CMD_DEFAULTS_H_
 #define _CONFIG_CMD_DEFAULTS_H_
 
-#define CONFIG_CMD_IMPORTENV 1
 
 #endif
