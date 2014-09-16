@@ -7,4 +7,10 @@ config CMD_BOOTM
 	help
 	  Boot an application image from the memory.
 
+config CMD_CRC32
+	bool "Enable crc32 command"
+	default y
+	help
+	  Compute CRC32.
+
 endmenu
