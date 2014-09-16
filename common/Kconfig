@@ -1,4 +1,10 @@
 menu "Command line interface"
 	depends on !SPL_BUILD
 
+config CMD_BOOTM
+	bool "Enable bootm command"
+	default y
+	help
+	  Boot an application image from the memory.
+
 endmenu
