@@ -45,7 +45,4 @@
 #define CONFIG_SYS_I2C_MXC
 #define CONFIG_SYS_I2C_SPEED		100000
 
-#define CONFIG_OF_SEPARATE
-#define CONFIG_DEFAULT_DEVICE_TREE   imx6q-sabreauto
-
 #endif                         /* __MX6QSABREAUTO_CONFIG_H */

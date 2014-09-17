@@ -9,6 +9,7 @@ ulong sata_write(int dev, ulong blknr, lbaint_t blkcnt, const void *buffer);
 
 int sata_initialize(void);
 int __sata_initialize(void);
+int sata_port_status(int dev, int port);
 
 extern block_dev_desc_t sata_dev_desc[];
 

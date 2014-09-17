@@ -1,0 +1,23 @@
+if TARGET_CM_FX6
+
+config SYS_CPU
+	string
+	default "armv7"
+
+config SYS_BOARD
+	string
+	default "cm_fx6"
+
+config SYS_VENDOR
+	string
+	default "compulab"
+
+config SYS_SOC
+	string
+	default "mx6"
+
+config SYS_CONFIG_NAME
+	string
+	default "cm_fx6"
+
+endif

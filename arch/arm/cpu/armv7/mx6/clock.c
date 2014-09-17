@@ -36,6 +36,35 @@ void enable_ocotp_clk(unsigned char enable)
 }
 #endif
 
+#ifdef CONFIG_NAND_MXS
+void setup_gpmi_io_clk(u32 cfg)
+{
+	/* Disable clocks per ERR007177 from MX6 errata */
+	clrbits_le32(&imx_ccm->CCGR4,
+		     MXC_CCM_CCGR4_RAWNAND_U_BCH_INPUT_APB_MASK |
+		     MXC_CCM_CCGR4_RAWNAND_U_GPMI_BCH_INPUT_BCH_MASK |
+		     MXC_CCM_CCGR4_RAWNAND_U_GPMI_BCH_INPUT_GPMI_IO_MASK |
+		     MXC_CCM_CCGR4_RAWNAND_U_GPMI_INPUT_APB_MASK |
+		     MXC_CCM_CCGR4_PL301_MX6QPER1_BCH_MASK);
+
+	clrbits_le32(&imx_ccm->CCGR2, MXC_CCM_CCGR2_IOMUX_IPT_CLK_IO_MASK);
+
+	clrsetbits_le32(&imx_ccm->cs2cdr,
+			MXC_CCM_CS2CDR_ENFC_CLK_PODF_MASK |
+			MXC_CCM_CS2CDR_ENFC_CLK_PRED_MASK |
+			MXC_CCM_CS2CDR_ENFC_CLK_SEL_MASK,
+			cfg);
+
+	setbits_le32(&imx_ccm->CCGR2, MXC_CCM_CCGR2_IOMUX_IPT_CLK_IO_MASK);
+	setbits_le32(&imx_ccm->CCGR4,
+		     MXC_CCM_CCGR4_RAWNAND_U_BCH_INPUT_APB_MASK |
+		     MXC_CCM_CCGR4_RAWNAND_U_GPMI_BCH_INPUT_BCH_MASK |
+		     MXC_CCM_CCGR4_RAWNAND_U_GPMI_BCH_INPUT_GPMI_IO_MASK |
+		     MXC_CCM_CCGR4_RAWNAND_U_GPMI_INPUT_APB_MASK |
+		     MXC_CCM_CCGR4_PL301_MX6QPER1_BCH_MASK);
+}
+#endif
+
 void enable_usboh3_clk(unsigned char enable)
 {
 	u32 reg;
@@ -48,6 +77,67 @@ void enable_usboh3_clk(unsigned char enable)
 	__raw_writel(reg, &imx_ccm->CCGR6);
 
 }
+
+#if defined(CONFIG_FEC_MXC) && !defined(CONFIG_MX6SX)
+void enable_enet_clk(unsigned char enable)
+{
+	u32 mask = MXC_CCM_CCGR1_ENET_CLK_ENABLE_MASK;
+
+	if (enable)
+		setbits_le32(&imx_ccm->CCGR1, mask);
+	else
+		clrbits_le32(&imx_ccm->CCGR1, mask);
+}
+#endif
+
+#ifdef CONFIG_MXC_UART
+void enable_uart_clk(unsigned char enable)
+{
+	u32 mask = MXC_CCM_CCGR5_UART_MASK | MXC_CCM_CCGR5_UART_SERIAL_MASK;
+
+	if (enable)
+		setbits_le32(&imx_ccm->CCGR5, mask);
+	else
+		clrbits_le32(&imx_ccm->CCGR5, mask);
+}
+#endif
+
+#ifdef CONFIG_SPI
+/* spi_num can be from 0 - 4 */
+int enable_cspi_clock(unsigned char enable, unsigned spi_num)
+{
+	u32 mask;
+
+	if (spi_num > 4)
+		return -EINVAL;
+
+	mask = MXC_CCM_CCGR_CG_MASK << (spi_num * 2);
+	if (enable)
+		setbits_le32(&imx_ccm->CCGR1, mask);
+	else
+		clrbits_le32(&imx_ccm->CCGR1, mask);
+
+	return 0;
+}
+#endif
+
+#ifdef CONFIG_MMC
+int enable_usdhc_clk(unsigned char enable, unsigned bus_num)
+{
+	u32 mask;
+
+	if (bus_num > 3)
+		return -EINVAL;
+
+	mask = MXC_CCM_CCGR_CG_MASK << (bus_num * 2 + 2);
+	if (enable)
+		setbits_le32(&imx_ccm->CCGR6, mask);
+	else
+		clrbits_le32(&imx_ccm->CCGR6, mask);
+
+	return 0;
+}
+#endif
 
 #ifdef CONFIG_SYS_I2C_MXC
 /* i2c_num can be from 0 - 2 */
@@ -509,6 +599,7 @@ int enable_pcie_clock(void)
 	struct anatop_regs *anatop_regs =
 		(struct anatop_regs *)ANATOP_BASE_ADDR;
 	struct mxc_ccm_reg *ccm_regs = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	u32 lvds1_clk_sel;
 
 	/*
 	 * Here be dragons!
@@ -518,17 +609,25 @@ int enable_pcie_clock(void)
 	 * marked as ANATOP_MISC1 is actually documented in the PMU section
 	 * of the datasheet as PMU_MISC1.
 	 *
-	 * Switch LVDS clock source to SATA (0xb), disable clock INPUT and
-	 * enable clock OUTPUT. This is important for PCI express link that
-	 * is clocked from the i.MX6.
+	 * Switch LVDS clock source to SATA (0xb) on mx6q/dl or PCI (0xa) on
+	 * mx6sx, disable clock INPUT and enable clock OUTPUT. This is important
+	 * for PCI express link that is clocked from the i.MX6.
 	 */
 #define ANADIG_ANA_MISC1_LVDSCLK1_IBEN		(1 << 12)
 #define ANADIG_ANA_MISC1_LVDSCLK1_OBEN		(1 << 10)
 #define ANADIG_ANA_MISC1_LVDS1_CLK_SEL_MASK	0x0000001F
+#define ANADIG_ANA_MISC1_LVDS1_CLK_SEL_PCIE_REF	0xa
+#define ANADIG_ANA_MISC1_LVDS1_CLK_SEL_SATA_REF	0xb
+
+	if (is_cpu_type(MXC_CPU_MX6SX))
+		lvds1_clk_sel = ANADIG_ANA_MISC1_LVDS1_CLK_SEL_PCIE_REF;
+	else
+		lvds1_clk_sel = ANADIG_ANA_MISC1_LVDS1_CLK_SEL_SATA_REF;
+
 	clrsetbits_le32(&anatop_regs->ana_misc1,
 			ANADIG_ANA_MISC1_LVDSCLK1_IBEN |
 			ANADIG_ANA_MISC1_LVDS1_CLK_SEL_MASK,
-			ANADIG_ANA_MISC1_LVDSCLK1_OBEN | 0xb);
+			ANADIG_ANA_MISC1_LVDSCLK1_OBEN | lvds1_clk_sel);
 
 	/* PCIe reference clock sourced from AXI. */
 	clrbits_le32(&ccm_regs->cbcmr, MXC_CCM_CBCMR_PCIE_AXI_CLK_SEL);

@@ -19,6 +19,12 @@
 #define IOMUXC_GPR1_TEST_POWERDOWN		(1 << 18)
 
 /*
+ * IOMUXC_GPR5 bit fields
+ */
+#define IOMUXC_GPR5_PCIE_BTNRST			(1 << 19)
+#define IOMUXC_GPR5_PCIE_PERST			(1 << 18)
+
+/*
  * IOMUXC_GPR8 bit fields
  */
 #define IOMUXC_GPR8_PCS_TX_DEEMPH_GEN1_MASK		(0x3f << 0)
@@ -35,12 +41,15 @@
 /*
  * IOMUXC_GPR12 bit fields
  */
+#define IOMUXC_GPR12_RX_EQ_2			(0x2 << 0)
+#define IOMUXC_GPR12_RX_EQ_MASK			(0x7 << 0)
 #define IOMUXC_GPR12_LOS_LEVEL_9		(0x9 << 4)
 #define IOMUXC_GPR12_LOS_LEVEL_MASK		(0x1f << 4)
 #define IOMUXC_GPR12_APPS_LTSSM_ENABLE		(1 << 10)
 #define IOMUXC_GPR12_DEVICE_TYPE_EP		(0x0 << 12)
 #define IOMUXC_GPR12_DEVICE_TYPE_RC		(0x4 << 12)
 #define IOMUXC_GPR12_DEVICE_TYPE_MASK		(0xf << 12)
+#define IOMUXC_GPR12_TEST_POWERDOWN		(1 << 30)
 
 /*
  * IOMUXC_GPR13 bit fields

@@ -648,6 +648,10 @@ int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 		pci_hose_read_config_word(hose, dev, PCI_DEVICE_ID, &device);
 		pci_hose_read_config_word(hose, dev, PCI_CLASS_DEVICE, &class);
 
+#ifdef CONFIG_PCI_FIXUP_DEV
+		board_pci_fixup_dev(hose, dev, vendor, device, class);
+#endif
+
 #ifdef CONFIG_PCI_SCAN_SHOW
 		indent++;
 
