@@ -659,6 +659,13 @@ extern int pci_hose_find_cap_start(struct pci_controller *hose, pci_dev_t dev,
 extern int pci_find_cap(struct pci_controller *hose, pci_dev_t dev, int pos,
 			int cap);
 
+#ifdef CONFIG_PCI_FIXUP_DEV
+extern void board_pci_fixup_dev(struct pci_controller *hose, pci_dev_t dev,
+				unsigned short vendor,
+				unsigned short device,
+				unsigned short class);
+#endif
+
 const char * pci_class_str(u8 class);
 int pci_last_busno(void);
 

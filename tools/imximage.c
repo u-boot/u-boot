@@ -568,6 +568,13 @@ static void imximage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	/* Parse dcd configuration file */
 	dcd_len = parse_cfg_file(imxhdr, params->imagename);
 
+	if (imximage_version == IMXIMAGE_V2) {
+		if (imximage_init_loadsize < imximage_ivt_offset +
+			sizeof(imx_header_v2_t))
+				imximage_init_loadsize = imximage_ivt_offset +
+					sizeof(imx_header_v2_t);
+	}
+
 	/* Set the imx header */
 	(*set_imx_hdr)(imxhdr, dcd_len, params->ep, imximage_ivt_offset);
 

@@ -426,6 +426,9 @@ config OMAP54XX
 config RMOBILE
 	bool "Renesas ARM SoCs"
 
+config TARGET_CM_FX6
+	bool "Support cm_fx6"
+
 config TARGET_S5P_GONI
 	bool "Support s5p_goni"
 
@@ -589,6 +592,7 @@ source "board/cirrus/edb93xx/Kconfig"
 source "board/cm4008/Kconfig"
 source "board/cm41xx/Kconfig"
 source "board/compulab/cm_t335/Kconfig"
+source "board/compulab/cm_fx6/Kconfig"
 source "board/congatec/cgtqmx6eval/Kconfig"
 source "board/creative/xfi3/Kconfig"
 source "board/davedenx/qong/Kconfig"

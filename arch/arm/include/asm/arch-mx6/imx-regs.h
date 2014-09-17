@@ -419,6 +419,19 @@ struct iomuxc {
 	u32 gpr[14];
 };
 
+struct gpc {
+	u32	cntr;
+	u32	pgr;
+	u32	imr1;
+	u32	imr2;
+	u32	imr3;
+	u32	imr4;
+	u32	isr1;
+	u32	isr2;
+	u32	isr3;
+	u32	isr4;
+};
+
 #define IOMUXC_GPR2_COUNTER_RESET_VAL_OFFSET		20
 #define IOMUXC_GPR2_COUNTER_RESET_VAL_MASK		(3<<IOMUXC_GPR2_COUNTER_RESET_VAL_OFFSET)
 #define IOMUXC_GPR2_LVDS_CLK_SHIFT_OFFSET		16

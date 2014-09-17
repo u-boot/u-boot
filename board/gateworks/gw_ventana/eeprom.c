@@ -80,6 +80,9 @@ read_eeprom(int bus, struct ventana_board_info *info)
 	case '4':
 		type = GW54xx;
 		break;
+	case '5':
+		type = GW552x;
+		break;
 	default:
 		printf("EEPROM: Unknown model in EEPROM: %s\n", info->model);
 		type = GW_UNKNOWN;
