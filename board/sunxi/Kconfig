@@ -222,4 +222,11 @@ config VIDEO
 	Say Y here to add support for using a cfb console on the HDMI output
 	found on most sunxi devices.
 
+config USB_KEYBOARD
+	boolean "Enable USB keyboard support"
+	default y
+	---help---
+	Say Y here to add support for using a USB keyboard (typically used
+	in combination with a graphical console on HDMI).
+
 endif

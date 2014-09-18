@@ -247,6 +247,13 @@
 #define CONFIG_USB_STORAGE
 #endif
 
+#ifdef CONFIG_USB_KEYBOARD
+#define CONFIG_CONSOLE_MUX
+#define CONFIG_PREBOOT
+#define CONFIG_SYS_STDIO_DEREGISTER
+#define CONFIG_SYS_USB_EVENT_POLL_VIA_INT_QUEUE
+#endif
+
 #if !defined CONFIG_ENV_IS_IN_MMC && \
     !defined CONFIG_ENV_IS_IN_NAND && \
     !defined CONFIG_ENV_IS_IN_FAT && \
@@ -297,8 +304,14 @@
 
 #include <config_distro_bootcmd.h>
 
+#ifdef CONFIG_USB_KEYBOARD
+#define CONSOLE_STDIN_SETTINGS \
+	"preboot=usb start\0" \
+	"stdin=serial,usbkbd\0"
+#else
 #define CONSOLE_STDIN_SETTINGS \
 	"stdin=serial\0"
+#endif
 
 #ifdef CONFIG_VIDEO
 #define CONSOLE_STDOUT_SETTINGS \
