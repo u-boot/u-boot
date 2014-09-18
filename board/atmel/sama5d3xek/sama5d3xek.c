@@ -17,6 +17,7 @@
 #include <lcd.h>
 #include <atmel_lcdc.h>
 #include <atmel_mci.h>
+#include <phy.h>
 #include <micrel.h>
 #include <net.h>
 #include <netdev.h>
@@ -273,15 +274,25 @@ int dram_init(void)
 
 int board_phy_config(struct phy_device *phydev)
 {
-	/* rx data delay */
-	ksz9021_phy_extended_write(phydev,
-				   MII_KSZ9021_EXT_RGMII_RX_DATA_SKEW, 0x2222);
-	/* tx data delay */
-	ksz9021_phy_extended_write(phydev,
-				   MII_KSZ9021_EXT_RGMII_TX_DATA_SKEW, 0x2222);
-	/* rx/tx clock delay */
-	ksz9021_phy_extended_write(phydev,
-				   MII_KSZ9021_EXT_RGMII_CLOCK_SKEW, 0xf2f4);
+	/* board specific timings for GMAC */
+	if (has_gmac()) {
+		/* rx data delay */
+		ksz9021_phy_extended_write(phydev,
+					   MII_KSZ9021_EXT_RGMII_RX_DATA_SKEW,
+					   0x2222);
+		/* tx data delay */
+		ksz9021_phy_extended_write(phydev,
+					   MII_KSZ9021_EXT_RGMII_TX_DATA_SKEW,
+					   0x2222);
+		/* rx/tx clock delay */
+		ksz9021_phy_extended_write(phydev,
+					   MII_KSZ9021_EXT_RGMII_CLOCK_SKEW,
+					   0xf2f4);
+	}
+
+	/* always run the PHY's config routine */
+	if (phydev->drv->config)
+		return phydev->drv->config(phydev);
 
 	return 0;
 }
