@@ -479,31 +479,22 @@ static int macb_phy_init(struct macb_device *macb)
 	/* First check for GMAC */
 	if (macb_is_gem(macb)) {
 		lpa = macb_mdio_read(macb, MII_STAT1000);
-		if (lpa & (1 << 11)) {
-			speed = 1000;
-			duplex = 1;
-		} else {
-		       if (lpa & (1 << 10)) {
-				speed = 1000;
-				duplex = 1;
-			} else {
-				speed = 0;
-			}
-		}
 
-		if (speed == 1000) {
-			printf("%s: link up, %dMbps %s-duplex (lpa: 0x%04x)\n",
+		if (lpa & (LPA_1000FULL | LPA_1000HALF)) {
+			duplex = ((lpa & LPA_1000FULL) ? 1 : 0);
+
+			printf("%s: link up, 1000Mbps %s-duplex (lpa: 0x%04x)\n",
 			       netdev->name,
-			       speed,
 			       duplex ? "full" : "half",
 			       lpa);
 
 			ncfgr = macb_readl(macb, NCFGR);
-			ncfgr &= ~(GEM_BIT(GBE) | MACB_BIT(SPD) | MACB_BIT(FD));
-			if (speed)
-				ncfgr |= GEM_BIT(GBE);
+			ncfgr &= ~(MACB_BIT(SPD) | MACB_BIT(FD));
+			ncfgr |= GEM_BIT(GBE);
+
 			if (duplex)
 				ncfgr |= MACB_BIT(FD);
+
 			macb_writel(macb, NCFGR, ncfgr);
 
 			return 1;
