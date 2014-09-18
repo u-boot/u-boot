@@ -243,13 +243,8 @@ obj-y += cmd_nvedit.o
 #environment
 obj-y += env_common.o
 #others
-ifdef CONFIG_DDR_SPD
-SPD := y
-endif
-ifdef CONFIG_SPD_EEPROM
-SPD := y
-endif
-obj-$(SPD) += ddr_spd.o
+obj-$(CONFIG_DDR_SPD) += ddr_spd.o
+obj-$(CONFIG_SPD_EEPROM) += ddr_spd.o
 obj-$(CONFIG_HWCONFIG) += hwconfig.o
 obj-$(CONFIG_BOUNCE_BUFFER) += bouncebuf.o
 obj-y += console.o
