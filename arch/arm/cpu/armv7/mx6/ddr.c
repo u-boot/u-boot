@@ -247,47 +247,47 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 
 	switch (ddr3_cfg->mem_speed) {
 	case 800:
-		txp = DIV_ROUND_UP(MAX(3 * clkper, 7500), clkper) - 1;
-		tcke = DIV_ROUND_UP(MAX(3 * clkper, 7500), clkper) - 1;
+		txp = DIV_ROUND_UP(max(3 * clkper, 7500), clkper) - 1;
+		tcke = DIV_ROUND_UP(max(3 * clkper, 7500), clkper) - 1;
 		if (ddr3_cfg->pagesz == 1) {
 			tfaw = DIV_ROUND_UP(40000, clkper) - 1;
-			trrd = DIV_ROUND_UP(MAX(4 * clkper, 10000), clkper) - 1;
+			trrd = DIV_ROUND_UP(max(4 * clkper, 10000), clkper) - 1;
 		} else {
 			tfaw = DIV_ROUND_UP(50000, clkper) - 1;
-			trrd = DIV_ROUND_UP(MAX(4 * clkper, 10000), clkper) - 1;
+			trrd = DIV_ROUND_UP(max(4 * clkper, 10000), clkper) - 1;
 		}
 		break;
 	case 1066:
-		txp = DIV_ROUND_UP(MAX(3 * clkper, 7500), clkper) - 1;
-		tcke = DIV_ROUND_UP(MAX(3 * clkper, 5625), clkper) - 1;
+		txp = DIV_ROUND_UP(max(3 * clkper, 7500), clkper) - 1;
+		tcke = DIV_ROUND_UP(max(3 * clkper, 5625), clkper) - 1;
 		if (ddr3_cfg->pagesz == 1) {
 			tfaw = DIV_ROUND_UP(37500, clkper) - 1;
-			trrd = DIV_ROUND_UP(MAX(4 * clkper, 7500), clkper) - 1;
+			trrd = DIV_ROUND_UP(max(4 * clkper, 7500), clkper) - 1;
 		} else {
 			tfaw = DIV_ROUND_UP(50000, clkper) - 1;
-			trrd = DIV_ROUND_UP(MAX(4 * clkper, 10000), clkper) - 1;
+			trrd = DIV_ROUND_UP(max(4 * clkper, 10000), clkper) - 1;
 		}
 		break;
 	case 1333:
-		txp = DIV_ROUND_UP(MAX(3 * clkper, 6000), clkper) - 1;
-		tcke = DIV_ROUND_UP(MAX(3 * clkper, 5625), clkper) - 1;
+		txp = DIV_ROUND_UP(max(3 * clkper, 6000), clkper) - 1;
+		tcke = DIV_ROUND_UP(max(3 * clkper, 5625), clkper) - 1;
 		if (ddr3_cfg->pagesz == 1) {
 			tfaw = DIV_ROUND_UP(30000, clkper) - 1;
-			trrd = DIV_ROUND_UP(MAX(4 * clkper, 6000), clkper) - 1;
+			trrd = DIV_ROUND_UP(max(4 * clkper, 6000), clkper) - 1;
 		} else {
 			tfaw = DIV_ROUND_UP(45000, clkper) - 1;
-			trrd = DIV_ROUND_UP(MAX(4 * clkper, 7500), clkper) - 1;
+			trrd = DIV_ROUND_UP(max(4 * clkper, 7500), clkper) - 1;
 		}
 		break;
 	case 1600:
-		txp = DIV_ROUND_UP(MAX(3 * clkper, 6000), clkper) - 1;
-		tcke = DIV_ROUND_UP(MAX(3 * clkper, 5000), clkper) - 1;
+		txp = DIV_ROUND_UP(max(3 * clkper, 6000), clkper) - 1;
+		tcke = DIV_ROUND_UP(max(3 * clkper, 5000), clkper) - 1;
 		if (ddr3_cfg->pagesz == 1) {
 			tfaw = DIV_ROUND_UP(30000, clkper) - 1;
-			trrd = DIV_ROUND_UP(MAX(4 * clkper, 6000), clkper) - 1;
+			trrd = DIV_ROUND_UP(max(4 * clkper, 6000), clkper) - 1;
 		} else {
 			tfaw = DIV_ROUND_UP(40000, clkper) - 1;
-			trrd = DIV_ROUND_UP(MAX(4 * clkper, 7500), clkper) - 1;
+			trrd = DIV_ROUND_UP(max(4 * clkper, 7500), clkper) - 1;
 		}
 		break;
 	default:
@@ -295,18 +295,18 @@ void mx6_dram_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 		hang();
 		break;
 	}
-	txpdll = DIV_ROUND_UP(MAX(10 * clkper, 24000), clkper) - 1;
-	tcksre = DIV_ROUND_UP(MAX(5 * clkper, 10000), clkper);
+	txpdll = DIV_ROUND_UP(max(10 * clkper, 24000), clkper) - 1;
+	tcksre = DIV_ROUND_UP(max(5 * clkper, 10000), clkper);
 	taonpd = DIV_ROUND_UP(2000, clkper) - 1;
 	tcksrx = tcksre;
 	taofpd = taonpd;
 	twr  = DIV_ROUND_UP(15000, clkper) - 1;
-	tmrd = DIV_ROUND_UP(MAX(12 * clkper, 15000), clkper) - 1;
+	tmrd = DIV_ROUND_UP(max(12 * clkper, 15000), clkper) - 1;
 	trc  = DIV_ROUND_UP(ddr3_cfg->trcmin, clkper / 10) - 1;
 	tras = DIV_ROUND_UP(ddr3_cfg->trasmin, clkper / 10) - 1;
 	tcl  = DIV_ROUND_UP(ddr3_cfg->trcd, clkper / 10) - 3;
 	trp  = DIV_ROUND_UP(ddr3_cfg->trcd, clkper / 10) - 1;
-	twtr = ROUND(MAX(4 * clkper, 7500) / clkper, 1) - 1;
+	twtr = ROUND(max(4 * clkper, 7500) / clkper, 1) - 1;
 	trcd = trp;
 	trtp = twtr;
 	cs0_end = 4 * sysinfo->cs_density - 1;

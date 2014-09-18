@@ -897,7 +897,7 @@ static int mpc8xx_udc_ep_tx (struct usb_endpoint_instance *epi)
 		pkt_len = urb->actual_length - epi->sent;
 
 		if (pkt_len > epi->tx_packetSize || pkt_len > EP_MAX_PKT) {
-			pkt_len = MIN (epi->tx_packetSize, EP_MAX_PKT);
+			pkt_len = min(epi->tx_packetSize, EP_MAX_PKT);
 		}
 
 		for (x = 0; x < pkt_len; x++) {
@@ -942,7 +942,7 @@ static int mpc8xx_udc_ep_tx (struct usb_endpoint_instance *epi)
 
 		/* TX ACK : USB 2.0 8.7.2, Toggle PID, Advance TX */
 		epi->sent += pkt_len;
-		epi->last = MIN (urb->actual_length - epi->sent, epi->tx_packetSize);
+		epi->last = min(urb->actual_length - epi->sent, epi->tx_packetSize);
 		TOGGLE_TX_PID (ep_ref[ep].pid);
 
 		if (epi->sent >= epi->tx_urb->actual_length) {

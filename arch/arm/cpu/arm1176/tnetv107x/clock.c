@@ -362,7 +362,7 @@ static void init_pll(const struct pll_init_data *data)
 	pllctl_reg_write(data->pll, ctl, tmp);
 
 	mult = data->pll_freq / fpll;
-	for (mult = MAX(mult, 1); mult <= MAX_MULT; mult++) {
+	for (mult = max(mult, 1); mult <= MAX_MULT; mult++) {
 		div = (fpll * mult) / data->pll_freq;
 		if (div < 1 || div > MAX_DIV)
 			continue;

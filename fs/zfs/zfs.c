@@ -772,7 +772,7 @@ zap_leaf_array_equal(zap_leaf_phys_t *l, zfs_endian_t endian,
 
 	while (bseen < array_len) {
 		struct zap_leaf_array *la = &ZAP_LEAF_CHUNK(l, blksft, chunk).l_array;
-		int toread = MIN(array_len - bseen, ZAP_LEAF_ARRAY_BYTES);
+		int toread = min(array_len - bseen, ZAP_LEAF_ARRAY_BYTES);
 
 		if (chunk >= ZAP_LEAF_NUMCHUNKS(blksft))
 			return 0;
@@ -794,7 +794,7 @@ zap_leaf_array_get(zap_leaf_phys_t *l, zfs_endian_t endian, int blksft,
 
 	while (bseen < array_len) {
 		struct zap_leaf_array *la = &ZAP_LEAF_CHUNK(l, blksft, chunk).l_array;
-		int toread = MIN(array_len - bseen, ZAP_LEAF_ARRAY_BYTES);
+		int toread = min(array_len - bseen, ZAP_LEAF_ARRAY_BYTES);
 
 		if (chunk >= ZAP_LEAF_NUMCHUNKS(blksft))
 			/* Don't use errno because this error is to be ignored.  */
@@ -2118,7 +2118,7 @@ zfs_read(zfs_file_t file, char *buf, uint64_t len)
 		data->file_start = blkid * blksz;
 		data->file_end = data->file_start + blksz;
 
-		movesize = MIN(length, data->file_end - (int) file->offset - red);
+		movesize = min(length, data->file_end - (int)file->offset - red);
 
 		memmove(buf, data->file_buf + file->offset + red
 				- data->file_start, movesize);
