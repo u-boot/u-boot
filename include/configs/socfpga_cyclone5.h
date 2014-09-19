@@ -26,6 +26,7 @@
 #define CONFIG_CMD_EXT4_WRITE
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_FPGA
+#define CONFIG_CMD_FS_GENERIC
 #define CONFIG_CMD_GREPENV
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_MMC
@@ -85,8 +86,8 @@
 		" root=${mmcroot} rw rootwait;" \
 		"bootz ${loadaddr} - ${fdt_addr}\0" \
 	"mmcload=mmc rescan;" \
-		"fatload mmc 0:1 ${loadaddr} ${bootimage};" \
-		"fatload mmc 0:1 ${fdt_addr} ${fdtimage}\0" \
+		"load mmc 0:1 ${loadaddr} ${bootimage};" \
+		"load mmc 0:1 ${fdt_addr} ${fdtimage}\0" \
 	"qspiroot=/dev/mtdblock0\0" \
 	"qspirootfstype=jffs2\0" \
 	"qspiboot=setenv bootargs " CONFIG_BOOTARGS \
