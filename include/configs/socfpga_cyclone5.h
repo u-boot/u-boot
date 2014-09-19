@@ -251,6 +251,22 @@
 /* Clocks source frequency to watchdog timer */
 #define CONFIG_DW_WDT_CLOCK_KHZ		25000
 
+/*
+ * MMC support
+ */
+#define CONFIG_MMC
+#ifdef CONFIG_MMC
+#define CONFIG_BOUNCE_BUFFER
+#define CONFIG_CMD_MMC
+#define CONFIG_GENERIC_MMC
+#define CONFIG_DWMMC
+#define CONFIG_SOCFPGA_DWMMC
+#define CONFIG_SOCFPGA_DWMMC_FIFO_DEPTH	1024
+#define CONFIG_SOCFPGA_DWMMC_DRVSEL	3
+#define CONFIG_SOCFPGA_DWMMC_SMPSEL	0
+/* using smaller max blk cnt to avoid flooding the limited stack we have */
+#define CONFIG_SYS_MMC_MAX_BLK_COUNT     256
+#endif	/* CONFIG_MMC */
 
 /*
  * SPL "Second Program Loader" aka Initial Software
