@@ -386,6 +386,7 @@ static void rx_handler_dl_image(struct usb_ep *ep, struct usb_request *req)
 	unsigned int transfer_size = download_size - download_bytes;
 	const unsigned char *buffer = req->buf;
 	unsigned int buffer_size = req->actual;
+	unsigned int pre_dot_num, now_dot_num;
 
 	if (req->status != 0) {
 		printf("Bad status: %d\n", req->status);
@@ -398,7 +399,15 @@ static void rx_handler_dl_image(struct usb_ep *ep, struct usb_request *req)
 	memcpy((void *)CONFIG_USB_FASTBOOT_BUF_ADDR + download_bytes,
 	       buffer, transfer_size);
 
+	pre_dot_num = download_bytes / BYTES_PER_DOT;
 	download_bytes += transfer_size;
+	now_dot_num = download_bytes / BYTES_PER_DOT;
+
+	if (pre_dot_num != now_dot_num) {
+		putc('.');
+		if (!(now_dot_num % 74))
+			putc('\n');
+	}
 
 	/* Check if transfer is done */
 	if (download_bytes >= download_size) {
@@ -420,11 +429,6 @@ static void rx_handler_dl_image(struct usb_ep *ep, struct usb_request *req)
 			req->length = ep->maxpacket;
 	}
 
-	if (download_bytes && !(download_bytes % BYTES_PER_DOT)) {
-		putc('.');
-		if (!(download_bytes % (74 * BYTES_PER_DOT)))
-			putc('\n');
-	}
 	req->actual = 0;
 	usb_ep_queue(ep, req, 0);
 }
