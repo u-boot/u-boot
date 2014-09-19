@@ -93,6 +93,8 @@
 #include <config_cmd_default.h>
 /* FAT file system support */
 #define CONFIG_CMD_FAT
+/* bootz command support */
+#define CONFIG_CMD_BOOTZ
 
 
 /*
@@ -117,24 +119,36 @@
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_CMD_RUN
 
+#ifdef CONFIG_SOCFPGA_VIRTUAL_TARGET
 #define CONFIG_BOOTCOMMAND "run ramboot"
+#else
+#define CONFIG_BOOTCOMMAND "run mmcload; run mmcboot"
+#endif
 
 /*
  * arguments passed to the bootm command. The value of
  * CONFIG_BOOTARGS goes into the environment value "bootargs".
  * Do note the value will overide also the chosen node in FDT blob.
  */
-#define CONFIG_BOOTARGS "console=ttyS0,57600,mem=256M@0x0"
+#define CONFIG_BOOTARGS "console=ttyS0," __stringify(CONFIG_BAUDRATE)
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"verify=n\0" \
 	"loadaddr= " __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"ramboot=setenv bootargs " CONFIG_BOOTARGS ";" \
 		"bootm ${loadaddr} - ${fdt_addr}\0" \
-	"bootimage=uImage\0" \
+	"bootimage=zImage\0" \
 	"fdt_addr=100\0" \
-	"fsloadcmd=ext2load\0" \
-		"bootm ${loadaddr} - ${fdt_addr}\0" \
+	"fdtimage=socfpga.dtb\0" \
+		"fsloadcmd=ext2load\0" \
+	"bootm ${loadaddr} - ${fdt_addr}\0" \
+	"mmcroot=/dev/mmcblk0p2\0" \
+	"mmcboot=setenv bootargs " CONFIG_BOOTARGS \
+		" root=${mmcroot} rw rootwait;" \
+		"bootz ${loadaddr} - ${fdt_addr}\0" \
+	"mmcload=mmc rescan;" \
+		"fatload mmc 0:1 ${loadaddr} ${bootimage};" \
+		"fatload mmc 0:1 ${fdt_addr} ${fdtimage}\0" \
 	"qspiroot=/dev/mtdblock0\0" \
 	"qspirootfstype=jffs2\0" \
 	"qspiboot=setenv bootargs " CONFIG_BOOTARGS \
