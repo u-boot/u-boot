@@ -170,11 +170,12 @@ static void usb_kbd_setled(struct usb_device *dev)
 {
 	struct usb_interface *iface = &dev->config.if_desc[0];
 	struct usb_kbd_pdata *data = dev->privptr;
-	uint32_t leds = data->flags & USB_KBD_LEDMASK;
+	ALLOC_ALIGN_BUFFER(uint32_t, leds, 1, USB_DMA_MINALIGN);
 
+	*leds = data->flags & USB_KBD_LEDMASK;
 	usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
 		USB_REQ_SET_REPORT, USB_TYPE_CLASS | USB_RECIP_INTERFACE,
-		0x200, iface->desc.bInterfaceNumber, (void *)&leds, 1, 0);
+		0x200, iface->desc.bInterfaceNumber, leds, 1, 0);
 }
 
 #define CAPITAL_MASK	0x20
