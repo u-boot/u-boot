@@ -1297,6 +1297,7 @@ fail1:
 void *poll_int_queue(struct usb_device *dev, struct int_queue *queue)
 {
 	struct QH *cur = queue->current;
+	struct qTD *cur_td;
 
 	/* depleted queue */
 	if (cur == NULL) {
@@ -1304,20 +1305,21 @@ void *poll_int_queue(struct usb_device *dev, struct int_queue *queue)
 		return NULL;
 	}
 	/* still active */
-	invalidate_dcache_range((uint32_t)cur,
-				ALIGN_END_ADDR(struct QH, cur, 1));
-	if (cur->qh_overlay.qt_token & cpu_to_hc32(0x80)) {
-		debug("Exit poll_int_queue with no completed intr transfer. "
-		      "token is %x\n", cur->qh_overlay.qt_token);
+	cur_td = &queue->tds[queue->current - queue->first];
+	invalidate_dcache_range((uint32_t)cur_td,
+				ALIGN_END_ADDR(struct qTD, cur_td, 1));
+	if (QT_TOKEN_GET_STATUS(hc32_to_cpu(cur_td->qt_token)) &
+			QT_TOKEN_STATUS_ACTIVE) {
+		debug("Exit poll_int_queue with no completed intr transfer. token is %x\n",
+		      hc32_to_cpu(cur_td->qt_token));
 		return NULL;
 	}
 	if (!(cur->qh_link & QH_LINK_TERMINATE))
 		queue->current++;
 	else
 		queue->current = NULL;
-	debug("Exit poll_int_queue with completed intr transfer. "
-	      "token is %x at %p (first at %p)\n", cur->qh_overlay.qt_token,
-	      &cur->qh_overlay.qt_token, queue->first);
+	debug("Exit poll_int_queue with completed intr transfer. token is %x at %p (first at %p)\n",
+	      hc32_to_cpu(cur_td->qt_token), cur, queue->first);
 	return cur->buffer;
 }
 
