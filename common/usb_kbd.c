@@ -8,6 +8,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #include <common.h>
+#include <errno.h>
 #include <malloc.h>
 #include <stdio_dev.h>
 #include <asm/byteorder.h>
@@ -559,7 +560,11 @@ int drv_usb_kbd_init(void)
 int usb_kbd_deregister(void)
 {
 #ifdef CONFIG_SYS_STDIO_DEREGISTER
-	return stdio_deregister(DEVNAME);
+	int ret = stdio_deregister(DEVNAME);
+	if (ret && ret != -ENODEV)
+		return ret;
+
+	return 0;
 #else
 	return 1;
 #endif
