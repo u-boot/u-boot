@@ -1342,6 +1342,8 @@ destroy_int_queue(struct usb_device *dev, struct int_queue *queue)
 		if (NEXT_QH(cur) == queue->first) {
 			debug("found candidate. removing from chain\n");
 			cur->qh_link = queue->last->qh_link;
+			flush_dcache_range((uint32_t)cur,
+					   ALIGN_END_ADDR(struct QH, cur, 1));
 			result = 0;
 			break;
 		}
