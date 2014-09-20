@@ -550,7 +550,7 @@ int drv_usb_kbd_init(void)
 int usb_kbd_deregister(void)
 {
 #ifdef CONFIG_SYS_STDIO_DEREGISTER
-	int ret = stdio_deregister(DEVNAME);
+	int ret = stdio_deregister(DEVNAME, 0);
 	if (ret && ret != -ENODEV)
 		return ret;
 
