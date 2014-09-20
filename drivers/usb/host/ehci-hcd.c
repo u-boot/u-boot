@@ -996,6 +996,7 @@ int usb_lowlevel_init(int index, enum usb_init_type init, void **controller)
 	 * Set up periodic list
 	 * Step 1: Parent QH for all periodic transfers.
 	 */
+	ehcic[index].periodic_schedules = 0;
 	periodic = &ehcic[index].periodic_queue;
 	memset(periodic, 0, sizeof(*periodic));
 	periodic->qh_link = cpu_to_hc32(QH_LINK_TERMINATE);
@@ -1154,8 +1155,6 @@ disable_periodic(struct ehci_ctrl *ctrl)
 	return 0;
 }
 
-static int periodic_schedules;
-
 struct int_queue *
 create_int_queue(struct usb_device *dev, unsigned long pipe, int queuesize,
 		 int elementsize, void *buffer)
@@ -1278,7 +1277,7 @@ create_int_queue(struct usb_device *dev, unsigned long pipe, int queuesize,
 		debug("FATAL: periodic should never fail, but did");
 		goto fail3;
 	}
-	periodic_schedules++;
+	ctrl->periodic_schedules++;
 
 	debug("Exit create_int_queue\n");
 	return result;
@@ -1335,7 +1334,7 @@ destroy_int_queue(struct usb_device *dev, struct int_queue *queue)
 		debug("FATAL: periodic should never fail, but did");
 		goto out;
 	}
-	periodic_schedules--;
+	ctrl->periodic_schedules--;
 
 	struct QH *cur = &ctrl->periodic_queue;
 	timeout = get_timer(0) + 500; /* abort after 500ms */
@@ -1357,7 +1356,7 @@ destroy_int_queue(struct usb_device *dev, struct int_queue *queue)
 		}
 	}
 
-	if (periodic_schedules > 0) {
+	if (ctrl->periodic_schedules > 0) {
 		result = enable_periodic(ctrl);
 		if (result < 0)
 			debug("FATAL: periodic should never fail, but did");
