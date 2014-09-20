@@ -547,10 +547,10 @@ int drv_usb_kbd_init(void)
 }
 
 /* Deregister the keyboard. */
-int usb_kbd_deregister(void)
+int usb_kbd_deregister(int force)
 {
 #ifdef CONFIG_SYS_STDIO_DEREGISTER
-	int ret = stdio_deregister(DEVNAME, 0);
+	int ret = stdio_deregister(DEVNAME, force);
 	if (ret && ret != -ENODEV)
 		return ret;
 

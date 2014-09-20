@@ -430,10 +430,10 @@ static int do_usbboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 #endif /* CONFIG_USB_STORAGE */
 
-static int do_usb_stop_keyboard(void)
+static int do_usb_stop_keyboard(int force)
 {
 #ifdef CONFIG_USB_KEYBOARD
-	if (usb_kbd_deregister() != 0) {
+	if (usb_kbd_deregister(force) != 0) {
 		printf("USB not stopped: usbkbd still using USB\n");
 		return 1;
 	}
@@ -460,7 +460,7 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if ((strncmp(argv[1], "reset", 5) == 0) ||
 		 (strncmp(argv[1], "start", 5) == 0)) {
 		bootstage_mark_name(BOOTSTAGE_ID_USB_START, "usb_start");
-		if (do_usb_stop_keyboard() != 0)
+		if (do_usb_stop_keyboard(1) != 0)
 			return 1;
 		usb_stop();
 		printf("(Re)start USB...\n");
@@ -482,7 +482,7 @@ static int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (strncmp(argv[1], "stop", 4) == 0) {
 		if (argc != 2)
 			console_assign(stdin, "serial");
-		if (do_usb_stop_keyboard() != 0)
+		if (do_usb_stop_keyboard(0) != 0)
 			return 1;
 		printf("stopping USB..\n");
 		usb_stop();
