@@ -273,6 +273,29 @@ static inline u8 ehci_encode_speed(enum usb_device_speed speed)
 	return QH_FULL_SPEED;
 }
 
+static void ehci_update_endpt2_dev_n_port(struct usb_device *dev,
+					  struct QH *qh)
+{
+	struct usb_device *ttdev;
+
+	if (dev->speed != USB_SPEED_LOW && dev->speed != USB_SPEED_FULL)
+		return;
+
+	/*
+	 * For full / low speed devices we need to get the devnum and portnr of
+	 * the tt, so of the first upstream usb-2 hub, there may be usb-1 hubs
+	 * in the tree before that one!
+	 */
+	ttdev = dev;
+	while (ttdev->parent && ttdev->parent->speed != USB_SPEED_HIGH)
+		ttdev = ttdev->parent;
+	if (!ttdev->parent)
+		return;
+
+	qh->qh_endpt2 |= cpu_to_hc32(QH_ENDPT2_PORTNUM(ttdev->portnr) |
+				     QH_ENDPT2_HUBADDR(ttdev->parent->devnum));
+}
+
 static int
 ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 		   int length, struct devrequest *req)
@@ -390,10 +413,9 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 		QH_ENDPT1_ENDPT(usb_pipeendpoint(pipe)) | QH_ENDPT1_I(0) |
 		QH_ENDPT1_DEVADDR(usb_pipedevice(pipe));
 	qh->qh_endpt1 = cpu_to_hc32(endpt);
-	endpt = QH_ENDPT2_MULT(1) | QH_ENDPT2_PORTNUM(dev->portnr) |
-		QH_ENDPT2_HUBADDR(dev->parent->devnum) |
-		QH_ENDPT2_UFCMASK(0) | QH_ENDPT2_UFSMASK(0);
+	endpt = QH_ENDPT2_MULT(1) | QH_ENDPT2_UFCMASK(0) | QH_ENDPT2_UFSMASK(0);
 	qh->qh_endpt2 = cpu_to_hc32(endpt);
+	ehci_update_endpt2_dev_n_port(dev, qh);
 	qh->qh_overlay.qt_next = cpu_to_hc32(QT_NEXT_TERMINATE);
 	qh->qh_overlay.qt_altnext = cpu_to_hc32(QT_NEXT_TERMINATE);
 
@@ -1201,12 +1223,10 @@ create_int_queue(struct usb_device *dev, unsigned long pipe, int queuesize,
 			(1 << 0)); /* S-mask: microframe 0 */
 		if (dev->speed == USB_SPEED_LOW ||
 				dev->speed == USB_SPEED_FULL) {
-			debug("TT: port: %d, hub address: %d\n",
-				dev->portnr, dev->parent->devnum);
-			qh->qh_endpt2 |= cpu_to_hc32((dev->portnr << 23) |
-				(dev->parent->devnum << 16) |
-				(0x1c << 8)); /* C-mask: microframes 2-4 */
+			/* C-mask: microframes 2-4 */
+			qh->qh_endpt2 |= cpu_to_hc32((0x1c << 8));
 		}
+		ehci_update_endpt2_dev_n_port(dev, qh);
 
 		td->qt_next = cpu_to_hc32(QT_NEXT_TERMINATE);
 		td->qt_altnext = cpu_to_hc32(QT_NEXT_TERMINATE);
