@@ -124,13 +124,7 @@
 
 /* Some things don't make sense on this HW or yet */
 #undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
 #undef CONFIG_CMD_SAVEENV
-#undef CONFIG_CMD_DHCP
-#undef CONFIG_CMD_MII
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_PING
 
 /* Environment */
 #define ENV_DEVICE_SETTINGS \
@@ -180,5 +174,14 @@
 	BOOTENV
 
 #define CONFIG_BOOTDELAY 2
+
+#define CONFIG_CMD_USB
+#ifdef CONFIG_CMD_USB
+#define CONFIG_USB_DWC2
+#define CONFIG_USB_DWC2_REG_ADDR 0x20980000
+#define CONFIG_USB_STORAGE
+#define CONFIG_USB_HOST_ETHER
+#define CONFIG_USB_ETHER_SMSC95XX
+#endif
 
 #endif
