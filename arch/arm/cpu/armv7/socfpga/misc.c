@@ -33,6 +33,16 @@ int dram_init(void)
 	return 0;
 }
 
+void enable_caches(void)
+{
+#ifndef CONFIG_SYS_ICACHE_OFF
+	icache_enable();
+#endif
+#ifndef CONFIG_SYS_DCACHE_OFF
+	dcache_enable();
+#endif
+}
+
 /*
  * DesignWare Ethernet initialization
  */
