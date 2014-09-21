@@ -121,9 +121,11 @@ typedef volatile unsigned int   *dv_reg_p;
 #define KS2_CLOCK_BASE			KS2_PLL_CNTRL_BASE
 #define KS2_RSTCTRL_RSTYPE		(KS2_PLL_CNTRL_BASE + 0xe4)
 #define KS2_RSTCTRL			(KS2_PLL_CNTRL_BASE + 0xe8)
+#define KS2_RSTCTRL_RSCFG		(KS2_PLL_CNTRL_BASE + 0xec)
 #define KS2_RSTCTRL_KEY			0x5a69
 #define KS2_RSTCTRL_MASK		0xffff0000
 #define KS2_RSTCTRL_SWRST		0xfffe0000
+#define KS2_RSTYPE_PLL_SOFT		BIT(13)
 
 /* SPI */
 #define KS2_SPI0_BASE			0x21000400
