@@ -34,21 +34,21 @@ make HOSTCC=clang CC="clang -target $TRIPLET -mllvm -arm-use-movt=0 -no-integrat
 FreeBSD 11 (Current):
 --------------------
 Since llvm 3.4 is currently in the base system, the integrated as is
-incapable of building U-Boot. Therefore gas from devel/arm-eabi-binutils
+incapable of building U-Boot. Therefore gas from devel/arm-gnueabi-binutils
 is used instead. It needs a symlinks to be picked up correctly though:
 
-ln -s /usr/local/bin/arm-eabi-as /usr/bin/arm-freebsd-eabi-as
+ln -s /usr/local/bin/arm-gnueabi-freebsd-as /usr/bin/arm-freebsd-eabi-as
 
 # The following commands compile U-Boot using the clang xdev toolchain.
 # NOTE: CROSS_COMPILE and target differ on purpose!
-export CROSS_COMPILE=arm-eabi-
+export CROSS_COMPILE=arm-gnueabi-freebsd-
 gmake CC="clang -target arm-freebsd-eabi --sysroot /usr/arm-freebsd -no-integrated-as -mllvm -arm-use-movt=0" rpi_b_defconfig
 gmake CC="clang -target arm-freebsd-eabi --sysroot /usr/arm-freebsd -no-integrated-as -mllvm -arm-use-movt=0" -j8
 
 Given that u-boot will default to gcc, above commands can be
 simplified with a simple wrapper script, listed below.
 
-/usr/local/bin/arm-eabi-gcc
+/usr/local/bin/arm-gnueabi-freebsd-gcc
 ---
 #!/bin/sh
 
