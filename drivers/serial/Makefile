@@ -7,8 +7,11 @@
 
 ifdef CONFIG_DM_SERIAL
 obj-y += serial-uclass.o
+obj-$(CONFIG_PL01X_SERIAL) += serial_pl01x.o
 else
 obj-y += serial.o
+obj-$(CONFIG_PL010_SERIAL) += serial_pl01x.o
+obj-$(CONFIG_PL011_SERIAL) += serial_pl01x.o
 obj-$(CONFIG_SYS_NS16550_SERIAL) += serial_ns16550.o
 endif
 
@@ -25,8 +28,6 @@ obj-$(CONFIG_IMX_SERIAL) += serial_imx.o
 obj-$(CONFIG_KS8695_SERIAL) += serial_ks8695.o
 obj-$(CONFIG_MAX3100_SERIAL) += serial_max3100.o
 obj-$(CONFIG_MXC_UART) += serial_mxc.o
-obj-$(CONFIG_PL010_SERIAL) += serial_pl01x.o
-obj-$(CONFIG_PL011_SERIAL) += serial_pl01x.o
 obj-$(CONFIG_PXA_SERIAL) += serial_pxa.o
 obj-$(CONFIG_SA1100_SERIAL) += serial_sa1100.o
 obj-$(CONFIG_S3C24X0_SERIAL) += serial_s3c24x0.o
