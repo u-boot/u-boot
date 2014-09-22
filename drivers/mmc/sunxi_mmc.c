@@ -361,6 +361,9 @@ int sunxi_mmc_init(int sdc_no)
 	cfg->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 	cfg->host_caps = MMC_MODE_4BIT;
 	cfg->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
+#if defined(CONFIG_SUN6I) || defined(CONFIG_SUN7I) || defined(CONFIG_SUN8I)
+	cfg->host_caps |= MMC_MODE_HC;
+#endif
 	cfg->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
 	cfg->f_min = 400000;
