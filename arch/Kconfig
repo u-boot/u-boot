@@ -7,6 +7,7 @@ config ARC
 
 config ARM
 	bool "ARM architecture"
+	select SUPPORT_OF_CONTROL
 
 config AVR32
 	bool "AVR32 architecture"
@@ -19,6 +20,7 @@ config M68K
 
 config MICROBLAZE
 	bool "MicroBlaze architecture"
+	select SUPPORT_OF_CONTROL
 
 config MIPS
 	bool "MIPS architecture"
@@ -37,6 +39,7 @@ config PPC
 
 config SANDBOX
 	bool "Sandbox"
+	select SUPPORT_OF_CONTROL
 
 config SH
 	bool "SuperH architecture"
@@ -46,6 +49,7 @@ config SPARC
 
 config X86
 	bool "x86 architecture"
+	select SUPPORT_OF_CONTROL
 
 endchoice
 

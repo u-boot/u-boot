@@ -22,8 +22,6 @@
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
-#define CONFIG_OF_CONTROL
-#define CONFIG_OF_SEPARATE
 
 /* Allow tracing to be enabled */
 #define CONFIG_TRACE

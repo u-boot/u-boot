@@ -13,8 +13,6 @@
 
 /* Enable fdt support for Whistler. Flash the image in u-boot-dtb.bin */
 #define CONFIG_DEFAULT_DEVICE_TREE	tegra20-whistler
-#define CONFIG_OF_CONTROL
-#define CONFIG_OF_SEPARATE
 
 /* High-level configuration options */
 #define V_PROMPT		"Tegra20 (Whistler) # "

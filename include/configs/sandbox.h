@@ -38,8 +38,6 @@
 /* Number of bits in a C 'long' on this architecture */
 #define CONFIG_SANDBOX_BITS_PER_LONG	64
 
-#define CONFIG_OF_CONTROL
-#define CONFIG_OF_HOSTFILE
 #define CONFIG_OF_LIBFDT
 #define CONFIG_LMB
 #define CONFIG_FIT

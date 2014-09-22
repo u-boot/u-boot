@@ -11,8 +11,6 @@
 
 /* Enable FDT support */
 #define CONFIG_DEFAULT_DEVICE_TREE	tegra20-colibri_t20_iris
-#define CONFIG_OF_CONTROL
-#define CONFIG_OF_SEPARATE
 
 /* High-level configuration options */
 #define V_PROMPT                   "Tegra20 (Colibri) # "

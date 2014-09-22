@@ -12,8 +12,6 @@
 
 /* Enable fdt support for tec-ng. Flash the image in u-boot-dtb.bin */
 #define CONFIG_DEFAULT_DEVICE_TREE	tegra30-tec-ng
-#define CONFIG_OF_CONTROL
-#define CONFIG_OF_SEPARATE
 
 /* High-level configuration options */
 #define V_PROMPT			"Tegra30 (TEC-NG) # "

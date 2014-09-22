@@ -462,6 +462,7 @@ config ZYNQ
 config TEGRA
 	bool "NVIDIA Tegra"
 	select SPL
+	select OF_CONTROL if !SPL_BUILD
 
 config TARGET_VEXPRESS_AEMV8A
 	bool "Support vexpress_aemv8a"

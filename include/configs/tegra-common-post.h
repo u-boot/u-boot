@@ -69,7 +69,6 @@
 
 /* remove devicetree support */
 #ifdef CONFIG_OF_CONTROL
-#undef CONFIG_OF_CONTROL
 #endif
 
 /* remove I2C support */

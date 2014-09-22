@@ -24,10 +24,6 @@
 #define CONFIG_ARCH_EARLY_INIT_R
 #define CONFIG_EXYNOS_SPL
 
-/* Enable fdt support for Exynos5250 */
-#define CONFIG_OF_CONTROL
-#define CONFIG_OF_SEPARATE
-
 /* Allow tracing to be enabled */
 #define CONFIG_TRACE
 #define CONFIG_CMD_TRACE
