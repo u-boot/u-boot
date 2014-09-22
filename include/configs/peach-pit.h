@@ -13,8 +13,6 @@
 
 #include <configs/exynos5420.h>
 
-#undef CONFIG_DEFAULT_DEVICE_TREE
-#define CONFIG_DEFAULT_DEVICE_TREE	exynos5420-peach-pit
 
 /* select serial console configuration */
 #define CONFIG_SERIAL3		/* use SERIAL 3 */

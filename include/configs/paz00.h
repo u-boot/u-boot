@@ -20,9 +20,6 @@
 #include <linux/sizes.h>
 #include "tegra20-common.h"
 
-/* Enable fdt support for Paz00. Flash the image in u-boot-dtb.bin */
-#define CONFIG_DEFAULT_DEVICE_TREE	tegra20-paz00
-
 /* High-level configuration options */
 #define V_PROMPT		"Tegra20 (Paz00) MOD # "
 #define CONFIG_TEGRA_BOARD_STRING	"Compal Paz00"

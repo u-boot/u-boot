@@ -11,9 +11,6 @@
 #include <linux/sizes.h>
 #include "tegra20-common.h"
 
-/* Enable fdt support for Harmony. Flash the image in u-boot-dtb.bin */
-#define CONFIG_DEFAULT_DEVICE_TREE	tegra20-harmony
-
 /* High-level configuration options */
 #define V_PROMPT		"Tegra20 (Harmony) # "
 #define CONFIG_TEGRA_BOARD_STRING	"NVIDIA Harmony"

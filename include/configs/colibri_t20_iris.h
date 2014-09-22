@@ -9,9 +9,6 @@
 
 #include "tegra20-common.h"
 
-/* Enable FDT support */
-#define CONFIG_DEFAULT_DEVICE_TREE	tegra20-colibri_t20_iris
-
 /* High-level configuration options */
 #define V_PROMPT                   "Tegra20 (Colibri) # "
 #define CONFIG_TEGRA_BOARD_STRING  "Toradex Colibri T20 on Iris"

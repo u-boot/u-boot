@@ -12,9 +12,6 @@
 
 #include "tegra20-common.h"
 
-/* Enable fdt support for Medcom-Wide. Flash the image in u-boot-dtb.bin */
-#define CONFIG_DEFAULT_DEVICE_TREE	tegra20-medcom-wide
-
 /* High-level configuration options */
 #define V_PROMPT			"Tegra20 (Medcom-Wide) # "
 #define CONFIG_TEGRA_BOARD_STRING	"Avionic Design Medcom-Wide"

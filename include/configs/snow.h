@@ -11,8 +11,6 @@
 
 #include <configs/exynos5250-dt.h>
 
-#undef CONFIG_DEFAULT_DEVICE_TREE
-#define CONFIG_DEFAULT_DEVICE_TREE	exynos5250-snow
 
 /* Enable FIT support and comparison */
 #define CONFIG_FIT

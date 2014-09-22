@@ -14,9 +14,6 @@
 /* MicroBlaze CPU */
 #define	MICROBLAZE_V5		1
 
-/* Open Firmware DTS */
-#define CONFIG_DEFAULT_DEVICE_TREE microblaze-generic
-
 /* linear and spi flash memory */
 #ifdef XILINX_FLASH_START
 #define	FLASH

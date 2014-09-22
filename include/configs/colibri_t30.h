@@ -11,7 +11,6 @@
 
 #include "tegra30-common.h"
 
-#define CONFIG_DEFAULT_DEVICE_TREE	tegra30-colibri
 
 #define V_PROMPT			"Colibri T30 # "
 #define CONFIG_TEGRA_BOARD_STRING	"Toradex Colibri T30"

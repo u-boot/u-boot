@@ -15,8 +15,6 @@
 
 #define CONFIG_SMDK5420			/* which is in a SMDK5420 */
 
-#undef CONFIG_DEFAULT_DEVICE_TREE
-#define CONFIG_DEFAULT_DEVICE_TREE	exynos5420-smdk5420
 
 /* select serial console configuration */
 #define CONFIG_SERIAL3		/* use SERIAL 3 */

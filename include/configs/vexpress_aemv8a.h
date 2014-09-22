@@ -51,7 +51,6 @@
 /* Flat Device Tree Definitions */
 #define CONFIG_OF_LIBFDT
 
-#define CONFIG_DEFAULT_DEVICE_TREE	vexpress64
 
 /* SMP Spin Table Definitions */
 #ifdef CONFIG_BASE_FVP

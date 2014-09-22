@@ -21,9 +21,6 @@
 
 #include "tegra114-common.h"
 
-/* Enable fdt support for Dalmore. Flash the image in u-boot-dtb.bin */
-#define CONFIG_DEFAULT_DEVICE_TREE	tegra114-dalmore
-
 /* High-level configuration options */
 #define V_PROMPT		"Tegra114 (Dalmore) # "
 #define CONFIG_TEGRA_BOARD_STRING	"NVIDIA Dalmore"
