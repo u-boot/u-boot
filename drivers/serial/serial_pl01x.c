@@ -12,6 +12,7 @@
 /* Simple U-Boot driver for the PrimeCell PL010/PL011 UARTs */
 
 #include <common.h>
+#include <dm.h>
 #include <errno.h>
 #include <watchdog.h>
 #include <asm/io.h>
@@ -20,12 +21,15 @@
 #include <linux/compiler.h>
 #include "serial_pl01x_internal.h"
 
+#ifndef CONFIG_DM_SERIAL
+
 static volatile unsigned char *const port[] = CONFIG_PL01x_PORTS;
 static enum pl01x_type pl01x_type __attribute__ ((section(".data")));
 static struct pl01x_regs *base_regs __attribute__ ((section(".data")));
 #define NUM_PORTS (sizeof(port)/sizeof(port[0]))
 
 DECLARE_GLOBAL_DATA_PTR;
+#endif
 
 static int pl01x_putc(struct pl01x_regs *regs, char c)
 {
@@ -274,3 +278,72 @@ __weak struct serial_device *default_serial_console(void)
 }
 
 #endif /* nCONFIG_DM_SERIAL */
+
+#ifdef CONFIG_DM_SERIAL
+
+struct pl01x_priv {
+	struct pl01x_regs *regs;
+	enum pl01x_type type;
+};
+
+static int pl01x_serial_setbrg(struct udevice *dev, int baudrate)
+{
+	struct pl01x_serial_platdata *plat = dev_get_platdata(dev);
+	struct pl01x_priv *priv = dev_get_priv(dev);
+
+	pl01x_generic_setbrg(priv->regs, priv->type, plat->clock, baudrate);
+
+	return 0;
+}
+
+static int pl01x_serial_probe(struct udevice *dev)
+{
+	struct pl01x_serial_platdata *plat = dev_get_platdata(dev);
+	struct pl01x_priv *priv = dev_get_priv(dev);
+
+	priv->regs = (struct pl01x_regs *)plat->base;
+	priv->type = plat->type;
+	return pl01x_generic_serial_init(priv->regs, priv->type);
+}
+
+static int pl01x_serial_getc(struct udevice *dev)
+{
+	struct pl01x_priv *priv = dev_get_priv(dev);
+
+	return pl01x_getc(priv->regs);
+}
+
+static int pl01x_serial_putc(struct udevice *dev, const char ch)
+{
+	struct pl01x_priv *priv = dev_get_priv(dev);
+
+	return pl01x_putc(priv->regs, ch);
+}
+
+static int pl01x_serial_pending(struct udevice *dev, bool input)
+{
+	struct pl01x_priv *priv = dev_get_priv(dev);
+	unsigned int fr = readl(&priv->regs->fr);
+
+	if (input)
+		return pl01x_tstc(priv->regs);
+	else
+		return fr & UART_PL01x_FR_TXFF ? 0 : 1;
+}
+
+static const struct dm_serial_ops pl01x_serial_ops = {
+	.putc = pl01x_serial_putc,
+	.pending = pl01x_serial_pending,
+	.getc = pl01x_serial_getc,
+	.setbrg = pl01x_serial_setbrg,
+};
+
+U_BOOT_DRIVER(serial_pl01x) = {
+	.name	= "serial_pl01x",
+	.id	= UCLASS_SERIAL,
+	.probe = pl01x_serial_probe,
+	.ops	= &pl01x_serial_ops,
+	.flags = DM_FLAG_PRE_RELOC,
+};
+
+#endif
